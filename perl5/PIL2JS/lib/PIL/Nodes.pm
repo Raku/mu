@@ -16,6 +16,7 @@ use constant {
 our $IN_SUBLIKE = undef;
 our $CUR_SUBNAME;
 our $CUR_POS  = bless [ "<unknown>", (0) x 4 ] => "PIL::MkPos";
+our $IN_GLOBPIL;
 our %UNDECLARED_VARS;
 our $PROCESSING_HAS_STARTED;
 
@@ -49,12 +50,10 @@ sub as_js {
   local $PROCESSING_HAS_STARTED = 1;
 
   local $_;
+  $IN_GLOBPIL++;
   my @glob_js = map { $_->as_js } @{ $self->{"pilGlob"} };
-  my $main_js = sprintf <<EOF, add_indent(1, $self->{pilMain}->as_js);
-PIL2JS.catch_all_exceptions(function () {
-%s
-});
-EOF
+  $IN_GLOBPIL = 0;
+  my $main_js = $self->{pilMain}->as_js;
 
   my $decl_js =
     "// Declaration of undeclared vars:\n" .
@@ -62,7 +61,9 @@ EOF
       sprintf "var %s = new PIL2JS.Box(undefined);",
         PIL::Nodes::name_mangle($_);
     } keys %UNDECLARED_VARS) .
-    "\n// End declaration of undeclared vars.\n";
+    "\n// End declaration of undeclared vars.\n" .
+    "// Declaration of global vars:\n" .
+    "var " . join(", ", map { PIL::Nodes::name_mangle($_->[0]) } @{ $self->{"pilGlob"} }) . ";\n";
   %UNDECLARED_VARS = ();
 
   my $init_js =
@@ -75,7 +76,12 @@ EOF
     } @{ $self->{"pilGlob" } })  .
     "\n// End of initialization of global vars and exportation of subs.\n";
 
-  return join "\n", $decl_js, @glob_js, $init_js, $main_js;
+  return sprintf <<EOF, $decl_js, add_indent(1, join "\n", @glob_js, $init_js, $main_js);
+%s
+PIL2JS.catch_all_exceptions(function () {
+%s
+});
+EOF
 }
 
 # Possible contexts:
@@ -521,7 +527,8 @@ sub add_indent {
 
     # Sub declaration
     my $js = sprintf
-      "var %s = new PIL2JS.Box.Constant(function (args) {\n%s\n});\n",
+      "%s%s = new PIL2JS.Box.Constant(function (args) {\n%s\n});\n",
+      $IN_GLOBPIL ? "" : "var ",
       PIL::Nodes::name_mangle($self->[0]),
       PIL::Nodes::add_indent 1, PIL::Nodes::generic_catch($IN_SUBLIKE, $body);
     $js .= sprintf
@@ -681,7 +688,7 @@ EOF
     }
 
     my $jsname = PIL::Nodes::name_mangle $name;
-    # We're a take-everything slurpy param (*@foo, as opposed to *$foo)?
+    # Are we a take-everything slurpy param (*@foo, as opposed to *$foo)?
     if(
       not $self->{tpParam}{paramContext}->isa("PIL::CxtSlurpy") or
       $name !~ /^@/
@@ -721,7 +728,9 @@ EOF
     if($self->{tpParam}{isOptional}->isa("PIL::False")) {
       push @js,
         "if($jsname == undefined) " .
-        "PIL2JS.die(\"Required parameter \\\"$name\\\" not passed!\");";
+        "PIL2JS.die(\"Required parameter \\\"$name\\\" not passed to sub \" + " .
+        PIL::Nodes::doublequote($CUR_SUBNAME) .
+        " + \"!\");";
     }
 
     # Should we (and can we) supply a default for an optional param?

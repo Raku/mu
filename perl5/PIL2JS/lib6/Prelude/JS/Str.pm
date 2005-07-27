@@ -12,3 +12,6 @@ sub JS::Root::split(Str $splitter, Str $str) is primitive {
     }
   ')($splitter, $str);
 }
+
+method uc(Str $self:) { JS::inline('function (str) { return str.toUpperCase() }')($self) }
+method lc(Str $self:) { JS::inline('function (str) { return str.toLowerCase() }')($self) }

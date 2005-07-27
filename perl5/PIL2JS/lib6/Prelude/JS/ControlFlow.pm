@@ -1,9 +1,9 @@
 sub JS::Root::return(*@args) is primitive {
-  PIL2JS::Internals::generic_return(5)(@args);  # XXX hardcoded
+  PIL2JS::Internals::generic_return(5)(@args);  # XXX hardcoded sublevel
 }
 
 sub JS::Root::leave(*@args) is primitive {
-  PIL2JS::Internals::generic_return(3)(@args);  # XXX hardcoded
+  PIL2JS::Internals::generic_return(3)(@args);  # XXX hardcoded sublevel
 }
 
 sub statement_control:<loop>($pre, Code $cond, Code $body, Code $post) is primitive {
@@ -64,7 +64,7 @@ sub statement_control:<if>(Bool $cond, Code $true, Code $false) is primitive {
     function (cond, t, f) {
       return cond ? t() : f();
     }
-  ').($cond, $true, $false);
+  ').(?$cond, $true, $false);
 }
 
 sub statement_control:<unless>(Bool $cond, Code $true, Code $false) is primitive {

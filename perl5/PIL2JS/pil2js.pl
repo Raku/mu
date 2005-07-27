@@ -6,8 +6,15 @@ use warnings;
 use strict;
 use lib "lib";
 
-# use BSD::Resource;
-# setrlimit RLIMIT_CPU, 35, 45 or die "Couldn't setrlimit: $!\n";
+# Minor hack
+INIT {
+  if($ENV{PIL2JS_RESOURCE_GUARD}) {
+    require BSD::Resource;
+    import BSD::Resource;
+    setrlimit(RLIMIT_CPU(), 35, 45) or die "Couldn't setrlimit: $!\n";
+    warn "*** Limited CPU resources.\n";
+  }
+}
 
 use FindBin;
 use File::Spec;
@@ -125,12 +132,12 @@ EOF
       if($mode eq "link") {
         $html .= "    " . $link->($contents) . "\n";
       } else {
-        die "JavaScript contains HTML escape sequenze ']]', aborting.\n"
-          if $contents =~ /\]\]/;
+        die "JavaScript contains HTML escape sequenze ']]>', aborting.\n"
+          if $contents =~ /\]\]>/;
         $html .= <<EOF;
     <script type="text/javascript">//<![CDATA[
 @{[$indent->($contents)]}
-      //]]
+      //]]>
     </script>
 EOF
       }

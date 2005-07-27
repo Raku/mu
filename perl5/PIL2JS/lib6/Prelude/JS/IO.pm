@@ -1,4 +1,4 @@
-sub JS::Root::say(Str *@text)   is primitive { print @text, "\n" }
+sub JS::Root::say(Str *@text)   is primitive { print *@text, "\n" }
 sub JS::Root::print(Str *@text) is primitive {
   JS::inline('
     function (msg) {
@@ -41,5 +41,3 @@ sub JS::Root::print(Str *@text) is primitive {
   ').(@text.join(""));
   ?1;
 }
-
-

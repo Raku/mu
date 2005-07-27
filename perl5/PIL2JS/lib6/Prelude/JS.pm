@@ -61,6 +61,8 @@ sub prefix:<~>($thing) is primitive {
     $thing.map:{ ~$_ }.join(" ");
   } elsif($thing.isa("Hash")) {
     $thing.kv.map:{ "$^key\t$^value" }.join("\n");
+  } elsif($thing.isa("Pair")) {
+    $thing.key ~ "\t" ~ $thing.value;
   } elsif($thing.isa("Bool")) {
     $thing ?? "bool::true" :: "bool::false";
   } elsif($thing.isa("Num")) {
@@ -68,12 +70,14 @@ sub prefix:<~>($thing) is primitive {
   } elsif($thing.isa("Ref")) {
     ~PIL2JS::Internals::generic_deref($thing);
   } else {
-    die "Stringification for objects of class {$other.ref} not yet implemented!\n";
+    die "Stringification for objects of class {$thing.ref} not yet implemented!\n";
   }
 }
 
 sub prefix:<+>($thing) is primitive {
-  if($thing.isa("Str")) {
+  if(not defined $thing) {
+    0;
+  } elsif($thing.isa("Str")) {
     JS::inline('function (thing) { return Number(thing) }')($thing);
   } elsif($thing.isa("Array")) {
     $thing.elems;
@@ -86,18 +90,37 @@ sub prefix:<+>($thing) is primitive {
   } elsif($thing.isa("Ref")) {
     +PIL2JS::Internals::generic_deref($thing);
   } else {
-    die "Numification for objects of class {$other.ref} not yet implemented!\n";
+    die "Numification for objects of class {$thing.ref} not yet implemented!\n";
   }
 }
 
-sub prefix:<*>(*@args) is primitive {
-  JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var array = args[1];
-    array.GET().flatten_me = true;
-    return array;
-  })')(@args);
+sub prefix:<*>(Array $array) {
+  if $array.isa("Ref") {
+    *PIL2JS::Internals::generic_deref($array);
+  } elsif not $array.isa("Array") {
+    # Slightly hacky
+    $array;
+  } else {
+    JS::inline('new PIL2JS.Box.Constant(function (args) {
+      // We\'ve to [].concat here so we don\'t set .flatten_me of caller\'s
+      // original array.
+      var array = [].concat(args[1].GET());
+      array.flatten_me = true;
+      var ret = new PIL2JS.Box.Constant(array);
+      // Hack! Returning flattened things the official way doesn\'t work (the
+      // flattenessness isn\'t preserved...).
+      throw(new PIL2JS.ControlException.ret(5, ret));
+    })')($array);
+  }
 }
 
 # We load the operator definitions lastly because they'll override *our*
 # operators.
 use Prelude::JS::Operators;
+
+sub infix:<~>(Str $a, Str $b) is primitive {
+  JS::inline('new PIL2JS.Box.Constant(function (args) {
+    var a = args[1].GET(), b = args[2].GET();
+    return new PIL2JS.Box.Constant(String(a) + String(b));
+  })')(~$a, ~$b);
+}

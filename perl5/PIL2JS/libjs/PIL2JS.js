@@ -88,6 +88,7 @@ PIL2JS.Box = function (value) {
     // my %a = (a => 1, b => 2) --> my %a = hash(a => 1, b => 2)
     } else if(value instanceof PIL2JS.Hash && new_val instanceof Array) {
       new_val = _26main_3a_3ahash.GET()([PIL2JS.Context.SlurpyAny, n]).GET();
+    // my %a = %b (copy %b, don't bind)
     } else if(value instanceof PIL2JS.Hash && new_val instanceof PIL2JS.Hash) {
       var pairs = new_val.pairs();
       for(var i = 0; i < pairs.length; i++) {
@@ -98,6 +99,12 @@ PIL2JS.Box = function (value) {
     // my %a = (a => 1)
     } else if(value instanceof PIL2JS.Hash && new_val instanceof PIL2JS.Pair) {
       new_val = _26main_3a_3ahash.GET()([PIL2JS.Context.SlurpyAny, n]).GET();
+    } else if(
+      !(value instanceof Array || value instanceof PIL2JS.Hash) &&
+      (new_val instanceof Array || new_val instanceof PIL2JS.Hash)
+    ) {
+      new_val =
+        _26main_3a_3aprefix_3a_5c.GET()([PIL2JS.Context.ItemAny, n]).GET();
     }
     value = new_val;
     return this;
@@ -384,8 +391,8 @@ var _26PIL2JS_3a_3aInternals_3a_3ageneric_return =
     var level = args[0].toNative();
     return new PIL2JS.Box.Constant(function (args) {
       var cxt_ = args.shift();
-      args = PIL2JS.make_slurpy_array(args);
-      var ret =
+      args     = PIL2JS.make_slurpy_array(args);
+      var ret  =
         args.length >  1 ? new PIL2JS.Box.Constant(args) :
         args.length == 1 ? args[0] :
         new PIL2JS.Box.Constant(undefined);
@@ -493,3 +500,19 @@ for(var methname in PIL2JS.mmd_hacks) {
       return PIL2JS.mmd_hacks[methname]().GET()(args);
     });
 }*/
+
+/*PIL2JS.extract_args_and_call = function (descr, f) {
+  return function (args) {
+    var cxt   = args.shift();
+    args      = PIL2JS.possibly_flatten(args);
+    var pairs = PIL2JS.grep_for_pairs(args);
+
+    if(args.length != 0) {
+      PIL2JS.die(
+        "" + args.length + " more parameters passed to sub " + XXX +
+        " than expected (" + f.arity + ")!"
+      );
+    }
+
+  };
+};*/

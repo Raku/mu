@@ -25,6 +25,8 @@ sub hash(Pair *@pairs) is primitive {
 }
 
 method postcircumfix:<{}>(Hash $self: $key) {
+  return PIL2JS::Internals::generic_deref($self){$key}
+    if $self.isa("Ref");
   die "Can't use object of type {$self.ref} as a hash!"
     unless $self.isa("Hash");
 

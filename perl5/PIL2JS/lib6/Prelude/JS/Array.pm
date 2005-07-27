@@ -50,15 +50,20 @@ sub JS::Root::join(Str $sep, *@things) is primitive {
 }
 
 method JS::Root::elems(Array $self:) {
+  return PIL2JS::Internals::generic_deref($self).elems if $self.isa("Ref");
+
   JS::inline('function (arr) { return arr.length }')($self);
 }
 
 method JS::Root::end(Array $self:) {
+  return PIL2JS::Internals::generic_deref($self).end if $self.isa("Ref");
+
   JS::inline('function (arr) { return arr.length - 1 }')($self);
 }
 
 method map(Array $self: Code $code) { map $code, *$self }
 sub JS::Root::map(Code $code, *@array) is primitive {
+  die "&map needs a Code as first argument!" unless $code.isa("Code");
   my $arity = $code.arity;
   # die "Can't use 0-ary subroutine as \"map\" body!" if $arity == 0;
   $arity ||= 1;
@@ -121,6 +126,8 @@ sub infix:<,>(*@xs) is primitive {
 
 sub circumfix:<[]>(*@xs) is primitive { \@xs }
 method postcircumfix:<[]>(Array $self: Int $idx is copy) is rw {
+  return PIL2JS::Internals::generic_deref($self)[$idx]
+    if $self.isa("Ref");
   die "Can't use object of type {$self.ref} as an array!"
     unless $self.isa("Array");
 

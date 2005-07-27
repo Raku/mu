@@ -17,6 +17,8 @@ method JS::Root::ref($self is rw:) { JS::inline('new PIL2JS.Box.Constant(
       return new PIL2JS.Box.Constant("Hash");
     } else if(thing instanceof PIL2JS.Pair) {
       return new PIL2JS.Box.Constant("Pair");
+    } else if(thing instanceof Function) {
+      return new PIL2JS.Box.Constant("Code");
     } else {
       PIL2JS.die(
         "Internal error: .ref() not yet implemented for " +

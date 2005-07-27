@@ -22,8 +22,10 @@ Run C<pil2js.pl --help> to get usage information.
   |   |                   for the objects returned by PIL::Parser
   |-- lib6
   |   |-- Prelude
-  |   |   `-- JS.pm       Part of the JavaScript Prelude,
-  |   |                   written in Perl 6
+  |   |   |-- JS.pm       Part of the JavaScript Prelude,
+  |   |   |               written in Perl 6
+  |   |   `-- JS/         Submodules of the Prelude (i.e. Prelude::JS::Array,
+  |   |                   Prelude::JS::ControlFlow, etc.)
   |-- libjs
   |   `-- PIL2JS.js       Part of the JavaScript Prelude,
   |                       written in JavaScript
@@ -156,6 +158,11 @@ Primitives!
 =item *
 
 Integration of C<Perl6.MetaModel>
+
+=item *
+
+Don't call all subs in list context -- but to fix this reliably, C<-CPIL> has
+to give better context information.
 
 =back
 

@@ -84,8 +84,8 @@ my @list = (1 .. 5);
 }
 
 {
-    my @list;
-    ok eval('@list = 1 .. 5; my @a = map {;$_ => 1 } @list'),
+    my @list = 1 .. 5;
+    is +(map {;$_ => 1 } @list), 5,
             'heuristic for block - looks like a closure';
 
     my %result = map {; $_ => ($_*2) } @list;
