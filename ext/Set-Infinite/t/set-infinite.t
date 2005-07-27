@@ -107,9 +107,20 @@ is( $set1.difference( $set2 ).stringify, '[1,2)', 'difference' );
     # XXX - fix me
     # {
     #    my @a = $span.lazy;
-    #    is( @a, "xxx", "lazy array" );
+    #    is( @a, "1 2 7 9", "lazy array" );
     # }
 
+    # XXX - or fix me
+    # {
+    #    my @a = *$span.lazy;
+    #    is( @a, "1 2 7 9", "lazy array" );
+    # }
+
+    # XXX - or me
+    # {
+    #    my @a <== $span.lazy;
+    #    is( @a, "1 2 7 9", "lazy array" );
+    # }
 }
 
 {
