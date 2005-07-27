@@ -15,26 +15,30 @@ class HTTP::Request::CGI-0.0.1 {
         $.uri = $HTTP::URI_CLASS.new(%*ENV<REQUEST_URI>);
         
         $:headers.header(Content-Length => %*ENV<CONTENT_LENGTH>) if %*ENV<CONTENT_LENGTH>.defined;
-        $:headers.header(Content-Length => %*ENV<CONTENT_TYPE>) if %*ENV<CONTENT_TYPE>.defined;
+        $:headers.header(Content-Type => %*ENV<CONTENT_TYPE>) if %*ENV<CONTENT_TYPE>.defined;
         $:headers.header(Referer => %*ENV<HTTP_REFERER>) if %*ENV<HTTP_REFERER>.defined;
         
         $r.:load_params();
     }
     
     method params () {
-        ...
+        return %:params.keys();
     }
     
     multi method param (Str $name) {
-        ...
+        my @val = %:params{$name};
+        
+        return unless @val > 0;
+        
+        return (want.List) ?? @val :: @val[0];
     }
     
-    multi method param (Str $name, Str *@vals) is rw {
-        ...
+    multi method param (Str $name, Str *@vals is copy) is rw {
+        %:params{$name} = \@vals;
     }
     
-    multi method param () {
-        ...
+    multi method param ($r: ) {
+        return $r.params();
     }
     
     method delete_param (Str $param) {
