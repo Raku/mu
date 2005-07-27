@@ -7,10 +7,11 @@ class HTTP::Query-0.0.1 {
     does Hash;
     
     has @:keywords;
+    has @:params;
     has %:params;
     
     method params () {
-        return %:params.keys();
+        return @:params;
     }
     
     multi method param (Str $name) {
@@ -44,6 +45,10 @@ class HTTP::Query-0.0.1 {
                 @{%:params{$key}}.push($value);
             } else {
                 %:params{$key} = [ $value ];
+            }
+            
+            if ($key != any(@:params)) {
+                @:params.push($key);
             }
         }
     
