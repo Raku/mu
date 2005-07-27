@@ -370,7 +370,7 @@ pirtest :
 	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B PIR+; system qq+$Config{make}+, q+test+"
 
 ghci ::
-	\$(PERL) util/build_pugs.pl _+GHC $ghc --interactive $ghc_flags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	$ghc --interactive $ghc_flags $ghc_output
 
 tags : @srcfiles
 	$hasktags -c @srcfiles
