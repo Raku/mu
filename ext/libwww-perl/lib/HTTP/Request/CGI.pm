@@ -1,6 +1,7 @@
 #!/usr/bin/pugs
 use v6;
 
+use URI::Escape <uri_unescape>;
 require HTTP::Headers;
 
 class HTTP::Request::CGI-0.0.1 {
@@ -9,14 +10,17 @@ class HTTP::Request::CGI-0.0.1 {
     has $.query_string;
     has %:params;
     
-    submethod BUILD () {
+    submethod BUILD ($r: ) {
         $.method = %*ENV<REQUEST_METHOD>;
         $.uri = $HTTP::URI_CLASS.new(%*ENV<REQUEST_URI>);
         
         $:headers.header(Content-Length => %*ENV<CONTENT_LENGTH>) if %*ENV<CONTENT_LENGTH>.defined;
         $:headers.header(Referer => %*ENV<HTTP_REFERER>) if %*ENV<HTTP_REFERER>.defined;
         
-        $.query_string = %*ENV<QUERY_STRING> // %*ENV<REDIRECT_QUERY_STRING>;
+        if ($.method.lc() eq 'get'|'head') {
+            $.query_string = %*ENV<QUERY_STRING> // %*ENV<REDIRECT_QUERY_STRING>;
+            $r.:unpack_params($.query_string);
+        }
     }
     
     method params () {
@@ -45,6 +49,25 @@ class HTTP::Request::CGI-0.0.1 {
     
     method keywords () {
         ...
+    }
+    
+    method :unpack_params (Str $data) {
+        my @pairs = $data.split(/;|&/);
+        
+        for @pairs -> $pairs {
+            my ($key, $value) = $pair.split('=');
+            
+            $key = uri_unescape($key);
+            $value = uri_unescape($value);
+            
+            if (%:params.exists($key)) {
+                @{%:params{$key}}.push($value);
+            } else {
+                %:params{$key} = [ $value ];
+            }
+        }
+    
+        return bool::true;
     }
 }
 
