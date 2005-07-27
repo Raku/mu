@@ -14,7 +14,7 @@ foldParam :: String -> Params -> Params
 foldParam "Named" = \ps -> (
     (buildParam "Hash" "*" "@?0" (Val VUndef)):
     (buildParam "Hash" "*" "%?0" (Val VUndef)):ps)
-foldParam "List"    = doFoldParam "List" "*@?1"
+foldParam "List"    = doFoldParam "Any" "*@?1"
 foldParam ('r':'w':'!':"List") = \ps -> ((buildParam "List" "" "@?0" (Val VUndef)) { isLValue = True }:ps)
 foldParam ('r':'w':'!':str) = \ps -> ((buildParam str "" "$?1" (Val VUndef)) { isLValue = True }:ps)
 foldParam ""        = id

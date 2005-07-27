@@ -920,8 +920,8 @@ doApply :: Env         -- ^ Environment to evaluate in
 doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = do
     -- check invs and args for Pair types; if they are, reduce them fully
     -- to stringified normal form.
-    let isPairs = (map isPairParam (subParams sub)) ++ repeat False
-        isPairParam = isaType cls "Pair" . typeOfCxt . paramContext
+    let isPairs = (map (isPairParam . typeOfCxt . paramContext) (subParams sub)) ++ repeat False
+        isPairParam typ = isaType' cls typ (MkType "Pair")
         cls = envClasses env
         argsPairs = if isJust invs then tail isPairs else isPairs
     invs' <- fmapM (reducePair (head isPairs)) invs

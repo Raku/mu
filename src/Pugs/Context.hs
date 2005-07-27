@@ -14,6 +14,7 @@
 module Pugs.Context (
     deltaType,
     isaType,
+    isaType',
     addNode,
     initTree
 ) where
