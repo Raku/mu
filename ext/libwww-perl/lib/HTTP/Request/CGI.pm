@@ -3,13 +3,13 @@ use v6;
 
 use URI::Escape <uri_unescape>;
 
-require HTTP::Headers;
+require HTTP::Request;
 require HTTP::Query;
 
 require URI;
 
-class HTTP::Request::CGI-0.0.1[::URI_CLASS = URI] {
-    is HTTP::Headers;
+class HTTP::Request::CGI-0.0.1[?::URI_CLASS = URI] {
+    is HTTP::Request[::URI_CLASS];
     
     has $.query_string;
     has $.query handles «param params keywords :delete_param<delete> :delete_params<clear>»;
