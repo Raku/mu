@@ -18,7 +18,7 @@ has @:children;
 ## ----------------------------------------------------------------------------
 ## constructors
 
-submethod BUILD (Any ?$node) {
+submethod BUILD (?$node) {
     $.depth  = -1;
     $.height = 1;
     $.width  = 1;
@@ -373,9 +373,9 @@ Tree - A basic I<n>-ary tree
 
 =over 4
 
-=item B<new (Any ?$node) returns Tree>
+=item B<new (?$node) returns Tree>
 
-=item B<node ($self: Any ?$node) returns Any>
+=item B<node ($self: ?$node)>
 
 =item B<depth returns Int>
 
