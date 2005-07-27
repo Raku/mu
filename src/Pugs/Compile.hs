@@ -356,6 +356,8 @@ instance Compile Exp (PIL LValue) where
         compile (App (Var "&infix:,") Nothing exps)
     compile (Syn "\\[]" exps) = do
         compile (App (Var "&circumfix:[]") Nothing exps)
+    compile (Syn name@(sigil:"{}") exps) | (sigil ==) `any` "$@%&" = do
+        compile (App (Var $ "&circumfix:" ++ name) Nothing exps)
     compile (Syn "\\{}" exps) = do
         compile (App (Var "&circumfix:{}") Nothing exps)
     compile (Syn "*" exps) = do

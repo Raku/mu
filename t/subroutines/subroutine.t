@@ -30,7 +30,7 @@ sub check {
 sub twice { $_ * 2 }
 ok(twice(5) == 10);
 #if (&twice(5 - 3) == 4) { say "ok 4" } else { say "not ok 4" }
-ok(eval 'twice(5 - 3) == 4');
+ok(twice(5 - 3) == 4);
 
 my $_;
 
