@@ -5,7 +5,7 @@ use HTTP::Status ();
 require HTTP::Message;
 
 class HTTP::Response[?::URI_CLASS = URI] {
-    is HTTP::Message[::URI_CLASS];
+    is HTTP::Message;
     
     has $.code      is rw;
     has $.message   is rw;

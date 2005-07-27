@@ -2,7 +2,7 @@ use v6;
 
 require URI;
 
-class HTTP::Headers-1.62[?::URI_CLASS = URI];
+class HTTP::Headers-1.62;
 
 use HTTP::Date;
 # XXX port MIME::Base64 and use it!
