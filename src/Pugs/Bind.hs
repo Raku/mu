@@ -133,12 +133,12 @@ doIndex v n = Syn "[]" [Syn "val" [v], Val $ VInt n]
 
 doBindArray :: Exp -> (Bindings, VInt) -> (Param, Char) -> MaybeError (Bindings, VInt)
 doBindArray _ (xs, -1) (p, '@') = return (((p, emptyArrayExp):xs), -1)
-doBindArray _ (_, -1)  (p, '$') = fail $ "Slurpy array followed by slurpy scalar: " ++ show p
+doBindArray _ (_, -1)  (p, _) = fail $ "Slurpy array followed by slurpy scalar: " ++ show p
 doBindArray v (xs, n)  (p, '@') = return (((p, doSlice v n):xs), -1)
-doBindArray v (xs, n)  (p, '$') = case v of
+doBindArray v (xs, n)  (p, _) = case v of
     (Syn "," [])    -> fail $ "Insufficient arguments for slurpy scalar"
     _               -> return (((p, doIndex v n):xs), n+1)
-doBindArray _ (_, _)  (_, x) = internalError $ "doBindArray: unexpected char: " ++ (show x)
+-- doBindArray _ (_, _)  (_, x) = internalError $ "doBindArray: unexpected char: " ++ (show x)
 
 {-|
 Return @True@ if the given expression represents a pair (i.e. it uses the
