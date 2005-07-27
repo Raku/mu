@@ -15,12 +15,10 @@ class HTTP::Request::CGI-0.0.1 {
         $.uri = $HTTP::URI_CLASS.new(%*ENV<REQUEST_URI>);
         
         $:headers.header(Content-Length => %*ENV<CONTENT_LENGTH>) if %*ENV<CONTENT_LENGTH>.defined;
+        $:headers.header(Content-Length => %*ENV<CONTENT_TYPE>) if %*ENV<CONTENT_TYPE>.defined;
         $:headers.header(Referer => %*ENV<HTTP_REFERER>) if %*ENV<HTTP_REFERER>.defined;
         
-        if ($.method.lc() eq 'get'|'head') {
-            $.query_string = %*ENV<QUERY_STRING> // %*ENV<REDIRECT_QUERY_STRING>;
-            $r.:unpack_params($.query_string);
-        }
+        $r.:load_params();
     }
     
     method params () {
@@ -49,6 +47,24 @@ class HTTP::Request::CGI-0.0.1 {
     
     method keywords () {
         ...
+    }
+    
+    method :load_params ($r: ) {
+        if ($.method.lc() eq 'get'|'head') {
+            $.query_string = %*ENV<QUERY_STRING> // %*ENV<REDIRECT_QUERY_STRING>;
+            $r.:unpack_params($.query_string);
+        } elsif ($.method.lc() eq 'post') {
+            my $type = $r.header('Content-Type');
+            
+            if (!$type || $type eq 'application/x-www-form-urlencoded') {
+                my $content;
+                $r.:unpack_params($content);
+            }
+        } elsif (@*ARGS.elems > 0) {
+            $r.:unpack_params([~] @*ARGS);
+        } else {
+            # XXX
+        }
     }
     
     method :unpack_params (Str $data) {
