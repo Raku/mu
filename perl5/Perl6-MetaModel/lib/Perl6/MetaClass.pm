@@ -43,6 +43,15 @@ our $META;
 sub meta {
     unless (defined $META) {
         $META = Perl6::MetaClass->new(name => 'Perl6::MetaClass', version => '0.0.1');
+
+        ## BOOTSTRAPPING ...
+        # We have to add the method 'add_method' first, and 
+        # we need to use the &_add_method function to do it
+        # with. After this, we can add any method we want :)
+        $META->_add_method(
+            'add_method' => Perl6::Instance::Method->new('Perl6::MetaClass' => \&_add_method)
+        );    
+
         # methods ...
         $META->add_method(
             'version' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {
@@ -89,7 +98,22 @@ sub meta {
                 }
                 _('@:superclasses');
             })
+        ); 
+        
+        $META->add_method(
+            'MRO' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub { 
+                my ($self) = @_;
+                $self->{instance_data}->{'@:MRO'} = [ 
+                    _merge(
+                        [ $self ],                                      # the class we are linearizing
+                        (map { [ $_->MRO() ] } @{$self->superclasses}), # the MRO of all the superclasses
+                        [ @{$self->superclasses} ]                      # a list of all the superclasses
+                    )
+                ] unless defined _('@:MRO');
+                @{_('@:MRO')};
+            })
         );        
+               
         $META->add_method(
             'class_precedence_list' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {        
                 my ($self, $order) = @_;
@@ -110,7 +134,85 @@ sub meta {
                 my ($self, $order) = @_;
                 Perl6::MetaClass::Dispatcher->new($self, $order);
             })
-        );             
+        );            
+        $META->add_method(
+            'has_method' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {
+                my ($self, $label, %params) = @_;
+                $self->get_method($label, %params) ? 1 : 0;                    
+            })
+        );  
+        $META->add_method(
+            'get_method' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {
+                my ($self, $label, %params) = @_;
+                (defined $label)
+                    || confess "InsufficientArguments : you must provide a label";
+                $self->{instance_data}->{$self->_which_table(\%params)}->{methods}->{$label};                
+            })
+        );        
+        # This is from A12, but I think the API needs work ...
+        $META->add_method(
+            'getmethods' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {        
+                my ($self, %params) = @_;
+                my $methods = $self->{instance_data}->{$self->_which_table(\%params)}->{methods};
+                return values %$methods;
+            })
+        );        
+        
+        # attribute methods
+        $META->add_method(
+            'add_attribute' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {                         
+                my ($self, $label, $attribute) = @_;
+                (defined $label && defined $attribute)
+                    || confess "InsufficientArguments : you must provide an attribute and a label";
+                (blessed($attribute) && $attribute->isa('Perl6::Attribute'))
+                    || confess "IncorrectObjectType : Attributes must be a Perl6::Attribute instance got($attribute)";
+                $self->_create_accessor($attribute);         
+
+                my $method_table;
+                if ($attribute->isa('Perl6::Instance::Attribute')) {
+                    $method_table = '%:class_definition';
+                }
+                elsif ($attribute->isa('Perl6::Class::Attribute')) {
+                    $method_table = '%:class_data';
+                }
+
+                $self->{instance_data}->{$method_table}->{attributes}->{$label} = $attribute;
+            })
+        );                                  
+        $META->add_method(
+            'get_attribute' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {                                     
+                my ($self, $label, %params) = @_;
+                (defined $label)
+                    || confess "InsufficientArguments : you must provide a label";
+                $self->{instance_data}->{$self->_which_table(\%params)}->{attributes}->{$label};
+            })
+        );
+        $META->add_method(
+            'has_attribute' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {          
+                my ($self, $label, %params) = @_;
+                $self->get_attribute($label, %params) ? 1 : 0;
+            })
+        );
+        $META->add_method(
+            'get_attribute_list' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {          
+                my ($self, %params) = @_;
+                keys %{$self->{instance_data}->{$self->_which_table(\%params)}->{attributes}};
+            })
+        );
+        # "spec" here means "whatever annotation went with this attribute when it's declared"
+        $META->add_method(
+            'find_attribute_spec' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {                  
+                my ($self, $label, %params) = @_;
+                # go in BUILD order
+                my $dispatcher = $self->dispatcher(':descendant');
+                while (my $next = $dispatcher->next) {   
+                    return $next->get_attribute($label, %params) 
+                        if $next->has_attribute($label, %params)
+                } 
+                return undef;
+            })
+        );                          
+                               
         # attributes ...
         $META->add_attribute(
             '$.name' => Perl6::Instance::Attribute->new('Perl6::MetaClass' => '$.name', { access => 'rw' })
@@ -143,8 +245,7 @@ sub meta {
 
 sub can {
     my ($self, $label) = @_;
-    return 1 if $self->meta->has_method($label);
-    return $self->UNIVERSAL::can($label);
+    return $self->meta->has_method($label);
 }
 
 # XXX - in order to allow for metaclass subclassing
@@ -156,14 +257,56 @@ sub AUTOLOAD {
     my $self = shift;    
     return if ($label =~ /DESTROY/);
 
-    my $meta = $self->meta();    
-    ($meta->has_method($label))
+    my $meta = $self->meta();   
+    
+    # we need to just access stuff directly here
+    # so as to avoid the method call ... but this
+    # is only needed in this package to avoid the
+    # circularity
+    my $method_table = $meta->{instance_data}->{'%:class_definition'}->{methods};
+      
+    (exists $method_table->{$label})
         || confess "Method ($label) not found for instance ($self)";        
-    my $method = $meta->get_method($label);
+    my $method = $method_table->{$label};
 
     return $method->call($self, @_);     
 }
 
+###############################################################################
+## Private Methods and Bootstrap methods ...
+
+## BOOTSTRAP METHODS
+
+# we use a sub-reference of this sub to define the 'add_method' method. 
+# but in order to actually "add" this method, we need to call it 
+# something else in the bootstrap
+sub _add_method {
+    my ($self, $label, $method) = @_;
+    (defined $label && defined $method)
+        || confess "InsufficientArguments : you must provide a method and a label";
+    (blessed($method) && $method->isa('Perl6::Method'))
+        || confess "IncorrectObjectType : Method must be a Perl6::Method object got($method)";
+    my $method_table;
+    if ($method->isa('Perl6::Instance::Method')) {
+        $method_table = '%:class_definition';
+    }
+    elsif ($method->isa('Perl6::Class::Method')) {
+        $method_table = '%:class_data';
+    }
+    elsif ($method->isa('Perl6::SubMethod')) {
+        # XXX - this is probably wrong ... 
+        # can submethods be called by a class too?
+        $method_table = '%:class_definition'; 
+    }    
+    else {
+        confess "Incorrect Object Type : I dont know what to do with ($method)";
+    }    
+    $self->{instance_data}->{$method_table}->{methods}->{$label} = $method;
+}
+
+## PRIVATE METHODS
+
+# this is actually a private function, since it is only used by MRO()
 sub _merge {
     my (@seqs) = @_;
     my @res; 
@@ -197,118 +340,6 @@ sub _merge {
         }
     }
 }
-
-sub MRO {
-    my ($self) = @_;
-    $self->{instance_data}->{'@:MRO'} = [ 
-        _merge(
-            [ $self ],                                      # the class we are linearizing
-            (map { [ $_->MRO() ] } @{$self->superclasses}), # the MRO of all the superclasses
-            [ @{$self->superclasses} ]                      # a list of all the superclasses
-        )
-    ] unless defined $self->{instance_data}->{'@:MRO'};
-    @{$self->{instance_data}->{'@:MRO'}};
-}
-
-## METHODS
-
-# Instance Methods
-
-sub add_method {
-    my ($self, $label, $method) = @_;
-    (defined $label && defined $method)
-        || confess "InsufficientArguments : you must provide a method and a label";
-    (blessed($method) && $method->isa('Perl6::Method'))
-        || confess "IncorrectObjectType : Method must be a Perl6::Method object got($method)";
-    my $method_table;
-    if ($method->isa('Perl6::Instance::Method')) {
-        $method_table = '%:class_definition';
-    }
-    elsif ($method->isa('Perl6::Class::Method')) {
-        $method_table = '%:class_data';
-    }
-    elsif ($method->isa('Perl6::SubMethod')) {
-        # XXX - this is probably wrong ... 
-        # can submethods be called by a class too?
-        $method_table = '%:class_definition'; 
-    }    
-    else {
-        confess "Incorrect Object Type : I dont know what to do with ($method)";
-    }    
-    $self->{instance_data}->{$method_table}->{methods}->{$label} = $method;
-}
-
-sub getmethods {
-    my ($self, %params) = @_;
-    my $methods         = $self->{instance_data}->{$self->_which_table(\%params)}->{methods};
-    return values %$methods;
-}
-
-sub get_method {
-    my ($self, $label, %params) = @_;
-    (defined $label)
-        || confess "InsufficientArguments : you must provide a label";
-    $self->{instance_data}->{$self->_which_table(\%params)}->{methods}->{$label};
-}
-
-sub has_method {
-    my ($self, $label, %params) = @_;
-    $self->get_method($label, %params) ? 1 : 0;    
-}
-
-## ATTRIBUTES
-
-# Instance Attributes
-
-sub add_attribute {
-    my ($self, $label, $attribute) = @_;
-    (defined $label && defined $attribute)
-        || confess "InsufficientArguments : you must provide an attribute and a label";
-    (blessed($attribute) && $attribute->isa('Perl6::Attribute'))
-        || confess "IncorrectObjectType : Attributes must be a Perl6::Attribute instance got($attribute)";
-    $self->_create_accessor($attribute);         
-    
-    my $method_table;
-    if ($attribute->isa('Perl6::Instance::Attribute')) {
-        $method_table = '%:class_definition';
-    }
-    elsif ($attribute->isa('Perl6::Class::Attribute')) {
-        $method_table = '%:class_data';
-    }
-
-    $self->{instance_data}->{$method_table}->{attributes}->{$label} = $attribute;
-}
-
-sub get_attribute {
-    my ($self, $label, %params) = @_;
-    (defined $label)
-        || confess "InsufficientArguments : you must provide a label";
-    $self->{instance_data}->{$self->_which_table(\%params)}->{attributes}->{$label};
-}
-
-sub has_attribute {
-    my ($self, $label, %params) = @_;
-    $self->get_attribute($label, %params) ? 1 : 0;
-}
-
-sub get_attribute_list {
-    my ($self, %params) = @_;
-    keys %{$self->{instance_data}->{$self->_which_table(\%params)}->{attributes}};
-}
-
-# "spec" here means "whatever annotation went with this attribute when it's declared"
-sub find_attribute_spec {
-    my ($self, $label, %params) = @_;
-    # go in BUILD order
-    my $dispatcher = $self->dispatcher(':descendant');
-    while (my $next = $dispatcher->next) {   
-        return $next->get_attribute($label, %params) 
-            if $next->has_attribute($label, %params)
-    } 
-    return undef;
-}
-
-## PRIVATE METHODS
 
 sub _create_accessor {
     my ($self, $attribute) = @_;
