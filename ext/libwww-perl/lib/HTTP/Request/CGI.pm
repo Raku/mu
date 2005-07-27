@@ -1,7 +1,11 @@
 #!/usr/bin/pugs
 use v6;
 
+require HTTP::Headers;
+
 class HTTP::Request::CGI-0.0.1 {
+    is HTTP::Headers;
+    
     has $.query_string;
     has %:params;
     
