@@ -24,8 +24,8 @@ class HTTP::Query-0.0.1 {
     
     multi method param (Str $name, Str *@vals) is rw {
         return new Proxy:
-            FETCH => { %:params{$name} };
-            STORE => { return (%:params{$name} = @vals) };
+            FETCH => -> $name { $?SELF.param($name) };
+            STORE => -> $name, *@vals { return (%:params{$name} = @vals) };
     }
     
     multi method param ($self: ) {
