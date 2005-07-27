@@ -57,22 +57,27 @@ class HTTP::Request::CGI-0.0.1 {
     method :load_params ($r: ) {
         if ($.method.lc() eq 'get'|'head') {
             $.query_string = %*ENV<QUERY_STRING> // %*ENV<REDIRECT_QUERY_STRING>;
-            $r.:unpack_params($.query_string);
+            
+            if ($.query_string ~~ /<[;&=]>/) {
+                $r.parse_params($.query_string);
+            } else {
+                $r.parse_keywords($.query_string);
+            }
         } elsif ($.method.lc() eq 'post') {
             my $type = $r.header('Content-Type');
             
             if (!$type || $type eq 'application/x-www-form-urlencoded') {
                 my $content;
-                $r.:unpack_params($content);
+                $r.:parse_params($content);
             }
         } elsif (@*ARGS.elems > 0) {
-            $r.:unpack_params([~] @*ARGS);
+            $r.:parse_params([~] @*ARGS);
         } else {
             # XXX
         }
     }
     
-    method :unpack_params (Str $data) {
+    method :parse_params (Str $data) {
         my @pairs = $data.split(/;|&/);
         
         for @pairs -> $pairs {
@@ -89,6 +94,13 @@ class HTTP::Request::CGI-0.0.1 {
         }
     
         return bool::true;
+    }
+    
+    method :parse_keywords (Str $data is copy) {
+        $data = uri_unescape($data);
+        $data .= trans('+' => ' ');
+        
+        return $data.split(/\s+/);
     }
 }
 
