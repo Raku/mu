@@ -80,6 +80,25 @@ sub JS::Root::map(Code $code, *@array) is primitive {
   @res;
 }
 
+method sort(Array $self: Code ?$cmp) { sort $cmp, *$self }
+sub JS::Root::sort(Code ?$cmp = &infix:<cmp>, *@array) is primitive {
+  die "&sort needs a Code as first argument!" unless $cmp.isa("Code");
+  my $arity = $cmp.arity;
+  $arity ||= 2; # hack
+  die "Can't use $arity-ary subroutine as comparator block for &sort!"
+    unless $arity == 2;
+
+  JS::inline('new PIL2JS.Box.Constant(function (args) {
+    // [].concat(...): Defeat modifying of the original array.
+    var array = [].concat(args[1].GET()), cmp = args[2].GET();
+    var jscmp = function (a, b) {
+      return cmp([PIL2JS.Context.ItemAny, a, b]).toNative();
+    };
+    array.sort(jscmp);
+    return new PIL2JS.Box.Constant(array);
+  })')(@array, $cmp);
+}
+
 method grep(Array $self: Code $code) { grep $code, *$self }
 sub JS::Root::grep(Code $code, *@array) is primitive {
   die "Code block for \"grep\" must be unary!" unless $code.arity == 1;

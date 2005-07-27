@@ -19,6 +19,7 @@ my @subs = (
   "infix:«%»",    "Number(a)  % Number(b)",
   "infix:«**»",   "Math.pow(Number(a), Number(b))",
   "infix:«<=>»",  "Number(a) < Number(b) ? -1 : Number(a) == Number(b) ? 0 : 1",
+  "infix:«cmp»",  "String(a) < String(b) ? -1 : String(a) == String(b) ? 0 : 1",
   "prefix:«-»",   "-a",
 );
 
