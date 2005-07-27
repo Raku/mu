@@ -976,7 +976,7 @@ Return the type of variable implied by a name beginning with the specified
 sigil.
 -}
 typeOfSigil :: Char -> Type
-typeOfSigil '$'  = mkType "Scalar"
+typeOfSigil '$'  = mkType "Item"
 typeOfSigil '@'  = mkType "Array"
 typeOfSigil '%'  = mkType "Hash"
 typeOfSigil '&'  = mkType "Code"
@@ -1342,6 +1342,8 @@ clearRef (MkRef (IThunk tv)) = clearRef =<< fromVal =<< thunk_force tv
 clearRef r = retError "cannot clearRef" r
 
 newObject :: (MonadSTM m) => Type -> m VRef
+newObject (MkType "Item") = liftSTM $
+    fmap scalarRef $ newTVar undef
 newObject (MkType "Scalar") = liftSTM $
     fmap scalarRef $ newTVar undef
 newObject (MkType "Array")  = liftSTM $
