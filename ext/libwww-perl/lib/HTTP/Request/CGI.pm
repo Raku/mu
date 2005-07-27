@@ -8,6 +8,8 @@ class HTTP::Request::CGI-0.0.1 {
     is HTTP::Headers;
     
     has $.query_string;
+    
+    has @:keywords;
     has %:params;
     
     submethod BUILD ($r: ) {
@@ -51,7 +53,7 @@ class HTTP::Request::CGI-0.0.1 {
     }
     
     method keywords () {
-        ...
+        return @:keywords;
     }
     
     method :load_params ($r: ) {
@@ -100,7 +102,7 @@ class HTTP::Request::CGI-0.0.1 {
         $data = uri_unescape($data);
         $data .= trans('+' => ' ');
         
-        return $data.split(/\s+/);
+        @:keywords = $data.split(/\s+/);
     }
 }
 
