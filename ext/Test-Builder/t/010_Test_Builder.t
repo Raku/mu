@@ -50,19 +50,21 @@ unless $out
 $out.say( $destroy_test );
 $out.close;
 
-my $pugs = '../../pugs';
+my ($pugs,$redir) = ("../../pugs", ">");
 
-if $*OS ~~ any<MSWin32 mingw msys cygwin>
-{
-	$pugs ~= '.exe';
-	$pugs ~~ s:P5<g>{/}{\\};
+if($?OS eq any<MSWin32 mingw cygwin>) {
+  $pugs = '..\\..\\pugs.exe';
+  if (-e 'pugs.exe') { $pugs = 'pugs.exe' }
 }
+else {
+  if (-e './pugs') { $pugs = './pugs' }
+};
 
 sub run_pugs (Str $filename)
 {
 	my $libs     = join(' ', map { "-I$_" } @*INC );
 	my $tempfile = "temp-ex-output" ~ ".$*PID." ~ int rand 1000;
-	my $command  = "$pugs $libs $filename > $tempfile";
+	my $command  = "$pugs $libs $filename $redir $tempfile";
 	diag $command;
 	system $command;
 	my $res      = slurp $tempfile;
