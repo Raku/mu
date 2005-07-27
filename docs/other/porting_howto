@@ -204,3 +204,29 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
         %h.<k>          # ok
         %h  <k>         # WRONG
         %h  .<k>        # ok
+
+  - open()
+       open my $fh, "<", $filename or die $!;    ->   my $fh = open($filename, :r) err die $!;
+
+       "<"   -> :r
+       ">"   -> :w
+       ">>"  -> :a
+       '+<"  -> :rw
+
+       mixing them does not work yet
+
+       open(FH, $filename)     ->  ??? 
+
+   - print to file
+       print $fh "Hello\n";    -> print $fh, "Hello\n";   # adding the comma
+                                  or
+                               -> $fh.print("Hello\n");
+
+   - close the file
+     close($fh);               -> the same or $fh.close;
+
+   - <FH>   reading from a file
+     $fh.readline
+
+
+
