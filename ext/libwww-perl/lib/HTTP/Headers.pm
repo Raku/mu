@@ -1,6 +1,8 @@
 use v6;
 
-class HTTP::Headers-1.62;
+require URI;
+
+class HTTP::Headers-1.62[?::URI_CLASS = URI];
 
 use HTTP::Date;
 # XXX port MIME::Base64 and use it!

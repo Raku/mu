@@ -4,8 +4,8 @@ use v6;
 use HTTP::Status ();
 require HTTP::Message;
 
-class HTTP::Response {
-    is HTTP::Message;
+class HTTP::Response[?::URI_CLASS = URI] {
+    is HTTP::Message[::URI_CLASS];
     
     has $.code      is rw;
     has $.message   is rw;

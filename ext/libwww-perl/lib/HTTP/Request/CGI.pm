@@ -6,7 +6,9 @@ use URI::Escape <uri_unescape>;
 require HTTP::Headers;
 require HTTP::Query;
 
-class HTTP::Request::CGI-0.0.1 {
+require URI;
+
+class HTTP::Request::CGI-0.0.1[::URI_CLASS = URI] {
     is HTTP::Headers;
     
     has $.query_string;
@@ -17,7 +19,7 @@ class HTTP::Request::CGI-0.0.1 {
     
     submethod BUILD ($r: ) {
         $.method = %*ENV<REQUEST_METHOD>;
-        $.uri = $HTTP::URI_CLASS.new(%*ENV<REQUEST_URI>);
+        $.uri = ::URI_CLASS.new(%*ENV<REQUEST_URI>);
         
         $:headers.header(Content-Length => %*ENV<CONTENT_LENGTH>) if %*ENV<CONTENT_LENGTH>.defined;
         $:headers.header(Content-Type => %*ENV<CONTENT_TYPE>) if %*ENV<CONTENT_TYPE>.defined;
