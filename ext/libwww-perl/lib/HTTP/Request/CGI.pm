@@ -2,12 +2,15 @@
 use v6;
 
 use URI::Escape <uri_unescape>;
+
 require HTTP::Headers;
+require HTTP::Query;
 
 class HTTP::Request::CGI-0.0.1 {
     is HTTP::Headers;
     
     has $.query_string;
+    has $.query handles «param params keywords :delete_param<delete> :delete_params<clear>»;
     
     has @:keywords;
     has %:params;
@@ -20,89 +23,32 @@ class HTTP::Request::CGI-0.0.1 {
         $:headers.header(Content-Type => %*ENV<CONTENT_TYPE>) if %*ENV<CONTENT_TYPE>.defined;
         $:headers.header(Referer => %*ENV<HTTP_REFERER>) if %*ENV<HTTP_REFERER>.defined;
         
+        $.query = HTTP::Query.new();
+        
         $r.:load_params();
     }
     
-    method params () {
-        return %:params.keys();
-    }
-    
-    multi method param (Str $name) {
-        my @val = %:params{$name};
-        
-        return unless @val > 0;
-        
-        return (want.List) ?? @val :: @val[0];
-    }
-    
-    multi method param (Str $name, Str *@vals is copy) is rw {
-        %:params{$name} = \@vals;
-    }
-    
-    multi method param ($r: ) {
-        return $r.params();
-    }
-    
-    method delete_param (Str $name) {
-        return if !defined %:params{$name};
-        %:params.delete($name);
-    }
-    
-    method delete_params () {
-        %:params.delete($_) for %:params.keys;
-    }
-    
-    method keywords () {
-        return @:keywords;
-    }
-    
-    method :load_params ($r: ) {
+    method :load_params ($self: ) {
         if ($.method.lc() eq 'get'|'head') {
             $.query_string = %*ENV<QUERY_STRING> // %*ENV<REDIRECT_QUERY_STRING>;
             
             if ($.query_string ~~ /<[;&=]>/) {
-                $r.parse_params($.query_string);
+                $.query.parse_params($.query_string);
             } else {
-                $r.parse_keywords($.query_string);
+                $.query.parse_keywords($.query_string);
             }
         } elsif ($.method.lc() eq 'post') {
-            my $type = $r.header('Content-Type');
+            my $type = $self.header('Content-Type');
             
             if (!$type || $type eq 'application/x-www-form-urlencoded') {
                 my $content;
-                $r.:parse_params($content);
+                $.query.:parse_params($content);
             }
         } elsif (@*ARGS.elems > 0) {
-            $r.:parse_params([~] @*ARGS);
+            $.query.:parse_params([~] @*ARGS);
         } else {
             # XXX
         }
-    }
-    
-    method :parse_params (Str $data) {
-        my @pairs = $data.split(/;|&/);
-        
-        for @pairs -> $pairs {
-            my ($key, $value) = $pair.split('=');
-            
-            $key = uri_unescape($key);
-            $value = uri_unescape($value);
-            
-            if (%:params.exists($key)) {
-                @{%:params{$key}}.push($value);
-            } else {
-                %:params{$key} = [ $value ];
-            }
-        }
-    
-        return bool::true;
-    }
-    
-    method :parse_keywords (Str $data is copy) {
-        $data = uri_unescape($data);
-        $data .= trans('+' => ' ');
-        
-        @:keywords = $data.split(/\s+/);
     }
 }
 
@@ -118,21 +64,11 @@ require HTTP::Request::CGI;
 
 my $r = HTTP::Request::CGI.new();
 
-my $params = $r.params(); # or `$r.param()` (for backward compatibility)
-
-my $foo = $r.param('foo');
-
-$r.param('foo') = <an array of values>; # or `$r.param('foo', 'an', 'array', 'of', 'values');`
-
-$r.delete_param('foo');
-
-$r.delete_params();
-
 =head1 DESCRIPTION
 
-This module is meant to ease the creation of CGI scripts by providing convenient
+This class is meant to ease the creation of CGI scripts by providing convenient
  access to various environment variables, as well as the parameters of the
- request.
+ request (through the HTTP::Query object that is part of each instance).
 
 =head1 AUTHORS
 
