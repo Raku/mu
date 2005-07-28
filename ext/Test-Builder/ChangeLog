@@ -5,6 +5,8 @@
 * added diag() to Test::Builder until "handles" works
 * fixed diag() documentation in Test::Builder
 * minor cosmetic fixes to t/010_Test_Builder.t
+* bumped up version numbers
+* added Test::Builder::Tester and t/050_Test_Builder_Tester.t
 
 == Changes for version 0.2.0
 * all tests pass
