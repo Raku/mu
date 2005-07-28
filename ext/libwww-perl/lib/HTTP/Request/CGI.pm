@@ -11,9 +11,9 @@ require URI;
 class HTTP::Request::CGI-0.0.1[?::URI_CLASS = URI] {
     is HTTP::Request[::URI_CLASS];
     
-    has $.query_string;
     has $.query handles «param params keywords :delete_param<delete> :delete_params<clear>»;
     
+    has $:query_string is rw;
     has @:keywords;
     has %:params;
     
@@ -30,9 +30,11 @@ class HTTP::Request::CGI-0.0.1[?::URI_CLASS = URI] {
         $r.:load_params();
     }
     
+    method query_string () { $:query_string }
+    
     method :load_params ($self: ) {
         if ($.method.lc() eq 'get'|'head') {
-            $.query_string = %*ENV<QUERY_STRING> // %*ENV<REDIRECT_QUERY_STRING>;
+            $:query_string = %*ENV<QUERY_STRING> // %*ENV<REDIRECT_QUERY_STRING>;
             
             if ($.query_string ~~ /<[;&=]>/) {
                 $.query.parse_params($.query_string);
