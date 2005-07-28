@@ -9,6 +9,7 @@ use Hash::Util 'lock_keys';
 use Carp 'confess';
 
 use Perl6::MetaModel;
+use Perl6::PrivateMethod;
 use Perl6::MetaClass::Dispatcher;
 
 sub new {
@@ -23,6 +24,10 @@ sub new {
             # the guts of the metaclass
             '@:MRO'          => undef,
             '@:superclasses' => $params{superclasses} || [],
+            '%:private' => {
+                # only methods for now
+                methods => {}                
+            },
             '%:class_definition' => {
                 methods      => {},
                 attributes   => {},
@@ -99,12 +104,48 @@ sub meta {
                 _('@:superclasses');
             })
         ); 
+
+        $META->add_method(
+            '_merge' => Perl6::PrivateMethod->new('Perl6::MetaClass' => sub {                
+                my ($self, @seqs) = @_;
+                my @res; 
+                while (1) {
+                    # remove all empty seqences
+                    my @nonemptyseqs = (map { (@{$_} ? $_ : ()) } @seqs);
+                    # return the list if we have no more no-empty sequences
+                    return @res if not @nonemptyseqs; 
+                    my $cand; # a canidate ..
+                    foreach my $seq (@nonemptyseqs) {
+                        $cand = $seq->[0]; # get the head of the list
+                        my $nothead;            
+                        foreach my $sub_seq (@nonemptyseqs) {
+                            # XXX - this is instead of the python "in"
+                            my %in_tail = (map { $_ => 1 } @{$sub_seq}[ 1 .. $#{$sub_seq} ]);
+                            # NOTE:
+                            # jump out as soon as we find one matching
+                            # there is no reason not too. However, if 
+                            # we find one, then just remove the '&& last'
+                            $nothead++ && last if exists $in_tail{$cand};      
+                        }
+                        last unless $nothead; # leave the loop with our canidate ...
+                        $cand = undef;        # otherwise, reject it ...
+                    }
+                    confess "Inconsistent hierarchy" if not $cand;
+                    push @res => $cand;
+                    # now loop through our non-empties and pop 
+                    # off the head if it matches our canidate
+                    foreach my $seq (@nonemptyseqs) {
+                        shift @{$seq} if $seq->[0] eq $cand;
+                    }
+                }
+            })
+        );        
         
         $META->add_method(
             'MRO' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub { 
                 my ($self) = @_;
                 $self->{instance_data}->{'@:MRO'} = [ 
-                    _merge(
+                    $self->_merge(
                         [ $self ],                                      # the class we are linearizing
                         (map { [ $_->MRO() ] } @{$self->superclasses}), # the MRO of all the superclasses
                         [ @{$self->superclasses} ]                      # a list of all the superclasses
@@ -211,7 +252,78 @@ sub meta {
                 } 
                 return undef;
             })
-        );                          
+        );       
+        
+        # private methods
+        $META->add_method(
+            '_which_table' => Perl6::PrivateMethod->new('Perl6::MetaClass' => sub {         
+                my ($self, $params) = @_;
+                my $method_table;
+                if (not exists $params->{for} || lc($params->{for}) eq 'instance') {
+                    return '%:class_definition';
+                }
+                elsif (lc($params->{for}) eq 'class') {
+                    return '%:class_data';
+                }
+                elsif (lc($params->{for}) eq 'submethod') {
+                    return '%:class_definition'; 
+                }  
+                elsif (lc($params->{for}) eq 'private') {
+                    return '%:private'; 
+                }        
+                else {
+                    confess "Incorrect Parameter : methods cannot be found for " . $params->{for};
+                }
+            })
+        );
+        
+        $META->add_method(
+            '_create_accessor' => Perl6::PrivateMethod->new('Perl6::MetaClass' => sub {                         
+                my ($self, $attribute) = @_;
+                # no accessors if it's not public ...
+                return unless $attribute->is_public();
+                # do not overwrite already defined methods ...
+                return if $self->has_method($attribute->accessor_name());
+
+                # otherwise ...
+                my $label = $attribute->label();
+                my ($method_type, $method_code);
+                if ($attribute->isa('Perl6::Instance::Attribute')) {
+                    $method_type = 'Perl6::Instance::Method';
+                    $method_code = sub {
+                        my ($i, $value) = @_;
+                        _($label => $value) if defined $value;
+                        _($label);
+                    } if $attribute->is_rw;
+                    $method_code = sub {
+                        my $i = shift;
+                        (@_) && confess "the attribute '$label' is read-only";
+                        _($label);
+                    } if $attribute->is_ro;        
+                }
+                elsif ($attribute->isa('Perl6::Class::Attribute')) {
+                    $method_type = 'Perl6::Class::Method';
+                    $method_code = sub {
+                        my (undef, $value) = @_;
+                        $attribute->set_value($label => $value) if defined $value;
+                        $attribute->get_value($label);
+                    } if $attribute->is_rw;
+                    $method_code = sub {
+                        (@_) && confess "the attribute '$label' is read-only";            
+                        $attribute->get_value($label);
+                    } if $attribute->is_ro;                
+                }
+                else {
+                    confess "Incorrect Object Type : I do not understand the attribute class ($attribute)";
+                }
+
+                $self->add_method(
+                    $attribute->accessor_name(),
+                    $method_type->new($self->{instance_data}->{'$.name'}, $method_code)
+                ); 
+            })            
+        );
+                           
                                
         # attributes ...
         $META->add_attribute(
@@ -229,6 +341,11 @@ sub meta {
         $META->add_attribute(
             '@:MRO' => Perl6::Instance::Attribute->new('Perl6::MetaClass' => '@:MRO')
         ); 
+        $META->add_attribute(
+            '%:private' => Perl6::Instance::Attribute->new('Perl6::MetaClass' => '%:private', {
+                build => { methods => {} }
+            })
+        );         
         $META->add_attribute(
             '%:class_definition' => Perl6::Instance::Attribute->new('Perl6::MetaClass' => '%:class_definition', {
                 build => { methods => {}, attributes => {} }
@@ -258,12 +375,21 @@ sub AUTOLOAD {
     return if ($label =~ /DESTROY/);
 
     my $meta = $self->meta();   
+
+    my $method_table_name;
     
+    # check the private methods
+    if ($label =~ /^_/) {
+        $method_table_name = '%:private';
+    }
+    else {
+        $method_table_name = '%:class_definition';
+    }
     # we need to just access stuff directly here
     # so as to avoid the method call ... but this
     # is only needed in this package to avoid the
     # circularity
-    my $method_table = $meta->{instance_data}->{'%:class_definition'}->{methods};
+    my $method_table = $meta->{instance_data}->{$method_table_name}->{methods};
       
     (exists $method_table->{$label})
         || confess "Method ($label) not found for instance ($self)";        
@@ -273,8 +399,6 @@ sub AUTOLOAD {
 }
 
 ###############################################################################
-## Private Methods and Bootstrap methods ...
-
 ## BOOTSTRAP METHODS
 
 # we use a sub-reference of this sub to define the 'add_method' method. 
@@ -293,6 +417,9 @@ sub _add_method {
     elsif ($method->isa('Perl6::Class::Method')) {
         $method_table = '%:class_data';
     }
+    elsif ($method->isa('Perl6::PrivateMethod')) {
+        $method_table = '%:private';
+    }    
     elsif ($method->isa('Perl6::SubMethod')) {
         # XXX - this is probably wrong ... 
         # can submethods be called by a class too?
@@ -302,105 +429,6 @@ sub _add_method {
         confess "Incorrect Object Type : I dont know what to do with ($method)";
     }    
     $self->{instance_data}->{$method_table}->{methods}->{$label} = $method;
-}
-
-## PRIVATE METHODS
-
-# this is actually a private function, since it is only used by MRO()
-sub _merge {
-    my (@seqs) = @_;
-    my @res; 
-    while (1) {
-        # remove all empty seqences
-        my @nonemptyseqs = (map { (@{$_} ? $_ : ()) } @seqs);
-        # return the list if we have no more no-empty sequences
-        return @res if not @nonemptyseqs; 
-        my $cand; # a canidate ..
-        foreach my $seq (@nonemptyseqs) {
-            $cand = $seq->[0]; # get the head of the list
-            my $nothead;            
-            foreach my $sub_seq (@nonemptyseqs) {
-                # XXX - this is instead of the python "in"
-                my %in_tail = (map { $_ => 1 } @{$sub_seq}[ 1 .. $#{$sub_seq} ]);
-                # NOTE:
-                # jump out as soon as we find one matching
-                # there is no reason not too. However, if 
-                # we find one, then just remove the '&& last'
-                $nothead++ && last if exists $in_tail{$cand};      
-            }
-            last unless $nothead; # leave the loop with our canidate ...
-            $cand = undef;        # otherwise, reject it ...
-        }
-        confess "Inconsistent hierarchy" if not $cand;
-        push @res => $cand;
-        # now loop through our non-empties and pop 
-        # off the head if it matches our canidate
-        foreach my $seq (@nonemptyseqs) {
-            shift @{$seq} if $seq->[0] eq $cand;
-        }
-    }
-}
-
-sub _create_accessor {
-    my ($self, $attribute) = @_;
-    # no accessors if it's not public ...
-    return unless $attribute->is_public();
-    # do not overwrite already defined methods ...
-    return if $self->has_method($attribute->accessor_name());
-    
-    # otherwise ...
-    my $label = $attribute->label();
-    my ($method_type, $method_code);
-    if ($attribute->isa('Perl6::Instance::Attribute')) {
-        $method_type = 'Perl6::Instance::Method';
-        $method_code = sub {
-            my ($i, $value) = @_;
-            _($label => $value) if defined $value;
-            _($label);
-        } if $attribute->is_rw;
-        $method_code = sub {
-            my $i = shift;
-            (@_) && confess "the attribute '$label' is read-only";
-            _($label);
-        } if $attribute->is_ro;        
-    }
-    elsif ($attribute->isa('Perl6::Class::Attribute')) {
-        $method_type = 'Perl6::Class::Method';
-        $method_code = sub {
-            my (undef, $value) = @_;
-            $attribute->set_value($label => $value) if defined $value;
-            $attribute->get_value($label);
-        } if $attribute->is_rw;
-        $method_code = sub {
-            (@_) && confess "the attribute '$label' is read-only";            
-            $attribute->get_value($label);
-        } if $attribute->is_ro;                
-    }
-    else {
-        confess "Incorrect Object Type : I do not understand the attribute class ($attribute)";
-    }
-    
-    $self->add_method(
-        $attribute->accessor_name(),
-        $method_type->new($self->{instance_data}->{'$.name'}, $method_code)
-    ); 
-}
-
-sub _which_table {
-    my ($self, $params) = @_;
-    my $method_table;
-    if (not exists $params->{for} || lc($params->{for}) eq 'instance') {
-        return '%:class_definition';
-    }
-    elsif (lc($params->{for}) eq 'class') {
-        return '%:class_data';
-    }
-    elsif (lc($params->{for}) eq 'submethod') {
-        return '%:class_definition'; 
-    }    
-    else {
-        confess "Incorrect Parameter : methods cannot be found for " . $params->{for};
-    }
 }
 
 1;

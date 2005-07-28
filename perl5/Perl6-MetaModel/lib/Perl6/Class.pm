@@ -38,25 +38,36 @@ sub AUTOLOAD {
         $label = 'DESTROYALL';        
     }
     my @return_value;
-    # get the dispatcher instance ....
-    my $dispatcher = $self->meta->dispatcher(':canonical');
 
-    # just discard it if we are calling SUPER
-    $dispatcher->next() if ($AUTOLOAD[0] eq 'SUPER');
+    # check if this is a private method
+    if ($label =~ /^_/) {
+        ($self->meta->has_method($label, (for => 'private')))
+            || confess "Private Method ($label) not found for instance ($self)";        
+        my $method = $self->meta->get_method($label, (for => 'private'));
+        @return_value = $method->call($self, @_);             
+    }
+    else {
+        # get the dispatcher instance ....
+        my $dispatcher = $self->meta->dispatcher(':canonical');
 
-    # this needs to be fully qualified for now
-    my $method = ::WALKMETH($dispatcher, $label, (blessed($self) ? () : (for => 'Class')));
-    (blessed($method) && $method->isa('Perl6::Method'))
-        || confess "Method ($label) not found for instance ($self)";        
+        # just discard it if we are calling SUPER
+        $dispatcher->next() if ($AUTOLOAD[0] eq 'SUPER');
 
-    push @Perl6::MetaModel::CURRENT_DISPATCHER => [ $dispatcher, $label, $self, @_ ];
+        # this needs to be fully qualified for now
+        my $method = ::WALKMETH($dispatcher, $label, (blessed($self) ? () : (for => 'Class')));
+        (blessed($method) && $method->isa('Perl6::Method'))
+            || confess "Method ($label) not found for instance ($self)";        
 
-    @return_value = $method->call($self, @_);     
+        push @Perl6::MetaModel::CURRENT_DISPATCHER => [ $dispatcher, $label, $self, @_ ];
 
-    # we can dispose of this value, as it 
-    # should never be called outside of 
-    # a method invocation
-    pop @Perl6::MetaModel::CURRENT_DISPATCHER;
+        @return_value = $method->call($self, @_);     
+
+        # we can dispose of this value, as it 
+        # should never be called outside of 
+        # a method invocation
+        pop @Perl6::MetaModel::CURRENT_DISPATCHER;
+    }
+    # return our values
     return wantarray ?
                 @return_value
                 :
@@ -168,8 +179,14 @@ sub _build_class {
             if exists $instance->{DESTROY};
             
         if (exists $instance->{methods}) {
-            $meta->add_method($_ => Perl6::Instance::Method->new($name, $instance->{methods}->{$_})) 
-                foreach keys %{$instance->{methods}};
+            foreach (keys %{$instance->{methods}}) {
+                if (/^_/) {
+                    $meta->add_method($_ => Perl6::PrivateMethod->new($name, $instance->{methods}->{$_}));
+                }
+                else {
+                    $meta->add_method($_ => Perl6::Instance::Method->new($name, $instance->{methods}->{$_}));                
+                }
+            }
         }
         if (exists $instance->{submethods}) {
             $meta->add_method($_ => Perl6::SubMethod->new($name, $instance->{submethods}->{$_})) 
@@ -203,9 +220,12 @@ sub _build_class {
         }
         if (exists $class->{methods}) {
             foreach my $label (keys %{$class->{methods}}) {
-                $meta->add_method(
-                    $label => Perl6::Class::Method->new($name, $class->{methods}->{$label})
-                );
+                if ($label =~ /^_/) {
+                    $meta->add_method($label => Perl6::PrivateMethod->new($name, $class->{methods}->{$label}));
+                }
+                else {
+                    $meta->add_method($label => Perl6::Class::Method->new($name, $class->{methods}->{$label}));                
+                }
             }
         }
     }
