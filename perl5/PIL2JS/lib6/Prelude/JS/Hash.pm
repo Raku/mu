@@ -10,6 +10,7 @@ sub hash(Pair *@pairs) is primitive {
 
       // my %hash = ("a", 1, "b", 2);
       if(!(pair instanceof PIL2JS.Pair)) {
+        // pair is in fact the key; extract the value.
         i++;
         var value = pairs[i]
           ? pairs[i]

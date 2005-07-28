@@ -537,18 +537,15 @@ sub add_indent {
 
     # Sub declaration
     my $js = sprintf
-      "%s%s = new PIL2JS.Box.Constant(function (args) {\n%s\n});\n",
+      "%s%s = PIL2JS.Box.constant_func(%d, function (args) {\n%s\n});\n",
       $IN_GLOBPIL ? "" : "var ",
       PIL::Nodes::name_mangle($self->[0]),
+      $self->[2]->arity,
       PIL::Nodes::add_indent 1, PIL::Nodes::generic_catch($IN_SUBLIKE, $body);
     $js .= sprintf
       "%s.perl_name = %s;\n",
       PIL::Nodes::name_mangle($self->[0]),
       PIL::Nodes::doublequote($self->[0]);
-    $js .= sprintf
-      "%s.arity = %d;\n",
-      PIL::Nodes::name_mangle($self->[0]),
-      $self->[2]->arity;
 
     # Special magic for methods.
     if($self->[1]->isa("PIL::SubMethod")) {

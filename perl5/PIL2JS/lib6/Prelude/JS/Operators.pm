@@ -1,26 +1,26 @@
 # Standard operators
 my @subs = (
-  "infix:«<»",    "Number(a)  < Number(b)",
-  "infix:«>»",    "Number(a)  > Number(b)",
-  "infix:«<=»",   "Number(a) <= Number(b)",
-  "infix:«>=»",   "Number(a) >= Number(b)",
-  "infix:«==»",   "Number(a) == Number(b)",
-  "infix:«!=»",   "Number(a) != Number(b)",
-  "infix:«lt»",   "String(a)  < String(b)",
-  "infix:«gt»",   "String(a)  > String(b)",
-  "infix:«le»",   "String(a) <= String(b)",
-  "infix:«ge»",   "String(a) >= String(b)",
-  "infix:«eq»",   "String(a) == String(b)",
-  "infix:«ne»",   "String(a) != String(b)",
-  "infix:«+»",    "Number(a)  + Number(b)",
-  "infix:«-»",    "Number(a)  - Number(b)",
-  "infix:«*»",    "Number(a)  * Number(b)",
-  "infix:«/»",    "Number(a)  / Number(b)",
-  "infix:«%»",    "Number(a)  % Number(b)",
-  "infix:«**»",   "Math.pow(Number(a), Number(b))",
-  "infix:«<=>»",  "Number(a) < Number(b) ? -1 : Number(a) == Number(b) ? 0 : 1",
-  "infix:«cmp»",  "String(a) < String(b) ? -1 : String(a) == String(b) ? 0 : 1",
-  "prefix:«-»",   "-a",
+  "infix:«<»",    "N", "Number(a)  < Number(b)",
+  "infix:«>»",    "N", "Number(a)  > Number(b)",
+  "infix:«<=»",   "N", "Number(a) <= Number(b)",
+  "infix:«>=»",   "N", "Number(a) >= Number(b)",
+  "infix:«==»",   "N", "Number(a) == Number(b)",
+  "infix:«!=»",   "N", "Number(a) != Number(b)",
+  "infix:«lt»",   "S", "String(a)  < String(b)",
+  "infix:«gt»",   "S", "String(a)  > String(b)",
+  "infix:«le»",   "S", "String(a) <= String(b)",
+  "infix:«ge»",   "S", "String(a) >= String(b)",
+  "infix:«eq»",   "S", "String(a) == String(b)",
+  "infix:«ne»",   "S", "String(a) != String(b)",
+  "infix:«+»",    "N", "Number(a)  + Number(b)",
+  "infix:«-»",    "N", "Number(a)  - Number(b)",
+  "infix:«*»",    "N", "Number(a)  * Number(b)",
+  "infix:«/»",    "N", "Number(a)  / Number(b)",
+  "infix:«%»",    "N", "Number(a)  % Number(b)",
+  "infix:«**»",   "N", "Math.pow(Number(a), Number(b))",
+  "infix:«<=>»",  "N", "Number(a) < Number(b) ? -1 : Number(a) == Number(b) ? 0 : 1",
+  "infix:«cmp»",  "S", "String(a) < String(b) ? -1 : String(a) == String(b) ? 0 : 1",
+  "prefix:«-»",   "N", "-a",
 );
 
 # First, we generate the code to eval later.
@@ -32,9 +32,12 @@ my @subs = (
 #   Because the following doesn't parse currently:
 #     sub JS::Root::infix:<~> ($a, $b) {...}
 my $eval;
-for @subs -> $name, $body {
-  my $arity  = $name ~~ rx:P5/^infix:/ ?? 2 :: 1;
-  my $jsbody = "function ({$arity == 1 ?? "a" :: "a, b"}) \{
+for @subs -> $name, $type, $body {
+  my $arity         = $name ~~ rx:P5/^infix:/ ?? 2 :: 1;
+  my $undef         = $type eq "S" ?? '""' :: 0;
+  my $jsbody        = "function ({$arity == 1 ?? "a" :: "a, b"}) \{
+    if(a == undefined) a = $undef;
+    {$arity == 2 ?? "if(b == undefined) b = $undef;" :: ""}
     return($body);
   \}";
 

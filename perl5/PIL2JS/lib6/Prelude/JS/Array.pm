@@ -69,7 +69,7 @@ sub JS::Root::map(Code $code, *@array) is primitive {
   $arity ||= 1;
 
   my @res;
-  while(+@array > 0) {
+  while +@array > 0 {
     my @args = ();
     my $i; loop $i = 0; $i < $arity; $i++ {
       push @args: @array.shift;
@@ -109,6 +109,24 @@ sub JS::Root::sort(Code ?$cmp is copy = &infix:<cmp>, *@array) is primitive {
     array.sort(jscmp);
     return new PIL2JS.Box.Constant(array);
   })')(@array, $cmp);
+}
+
+method reduce(Array $self: Code $code) { reduce $code, *$self }
+sub JS::Root::reduce(Code $code, *@array) is primitive {
+  die "&reduce needs a Code as first argument!" unless $code.isa("Code");
+  my $arity = $code.arity;
+  die "Can't use an unary or nullary block for &reduce!" if $arity < 2;
+
+  my $ret = @array.shift;
+  while +@array > 0 {
+    my @args;
+    my $i; loop $i = 0; $i < $arity - 1; $i++ {
+      push @args, @array.shift;
+    }
+    $ret = $code($ret, *@args);
+  }
+
+  $ret;
 }
 
 method grep(Array $self: Code $code) { grep $code, *$self }
