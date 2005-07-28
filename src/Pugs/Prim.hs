@@ -57,7 +57,7 @@ op0 :: String -> [Val] -> Eval Val
 op0 "&"  = fmap opJuncAll  . mapM fromVal
 op0 "^"  = fmap opJuncOne  . mapM fromVal
 op0 "|"  = fmap opJuncAny  . mapM fromVal
-op0 "want"  = const $ fmap VStr (asks envWant)
+op0 "want"  = const $ fmap VStr (asks (maybe "Void" envWant . envCaller))
 op0 "bool::true" = const $ return (VBool True)
 op0 "bool::false" = const $ return (VBool False)
 op0 "time"  = const $ do
