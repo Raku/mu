@@ -92,7 +92,6 @@ Expanding this one level deeper:
     |   |-- Benchmark          Benchmark runtime of Perl 6 code
     |   |-- CGI                CGI author's helper module
     |   |-- Config-Tiny        Pre-Pugs-OO .ini file reader
-    |   |-- Date               Date and time modules
     |   |-- DateTime           Port of Perl 5 DateTime, with API changes
     |   |-- DateTime-Set       Port of Perl 5 DateTime::Set/Span/SpanSet
     |   |-- File-Find          Traverse a directory tree
@@ -102,14 +101,15 @@ Expanding this one level deeper:
     |   |-- HTTP-Server-Simple Base class for simple CGI-capable HTTP servers
     |   |-- Kwid-Event-Parser  Event-based API (like XML SAX) for Kwid
     |   |-- Locale-KeyedText   Refer to UI strings by key
+    |   |-- MIME-Base64        Base64 encode/decode (not a Perl 5 port)
     |   |-- Module-Pluggable-Fast  Find and load plugin modules
     |   |-- Net-IRC            IRC protocol implementation
     |   |-- Perl-Compiler      A Perl 6 port of Pugs
-    |   |-- Perl-MetaModel     Sketch of Perl 6 Object Meta Model
     |   |-- Perldoc            Event-based API for Perldoc DOM
     |   |-- Pod-Event-Parser   Event-based API (like XML SAX) for POD
+    |   |-- Recurrence         Recurrence operations
     |   |-- Set                Set calculus operations
-    |   |-- Set-Infinite       Infinite set and recurrence operations
+    |   |-- Set-Infinite       Infinite set operations
     |   |-- Span               Span operations
     |   |-- Test               Testing support library
     |   |-- Test-Builder       Backend for building test libraries
@@ -117,34 +117,36 @@ Expanding this one level deeper:
     |   |-- Tree               Basic n-ary tree data structure
     |   |-- URI                Escape/unescape URI strings
     |   |-- WTemplate          Widget-based templating engine
-    |   |-- Perl-Compiler      A Perl 6 compiler written in Perl 6
     |   |-- fp                 Functional programming operators
     |   |-- lib                Pragma to add paths to @*INC
     |   `-- libwww-perl        Port of Perl 5 libwww-perl modules
     |
     |-- inc                Perl 5 modules needed for build/test/install
     |   |-- Module             Module::Install
+    |   |-- PugsBuild          Support modules for config.yml make controls
     |   `-- Test               Test::Harness
     |
     |-- lib                Pugs- and Perl 6-related Perl 5 modules
-    |   |-- Code-Perl          An AST to Perl 5 code generator
     |   |-- Inline             Inline::Pugs
-    |   |-- P5-PIL-Run         PIL evaluator in Perl 5
     |   |-- Perl6              Perl6::MakeMaker, Perl6::Pugs
-    |   |-- Perl6-MetaModel    Perl6's OO metamodel, in Perl 5
     |   `-- pugs               POD docs for Pugs itself
     |
     |-- modules            Perl 6 modules not working today; -> FreePAN
-    |   |-- Class-Events       XXXX: It should not be here
-    |   |-- Grammars           XXXX: It should not be here
+    |   |-- Class-Events       Redesign of Perl 5's Class::Publisher
+    |   |-- Date               Date/calendar calculations
+    |   |-- Grammars           Perl 6 grammer written as Perl 6 rules
     |   |-- POE                Beginning of an experimental port of Perl 5 POE
+    |   |-- Perl-MetaModel     Sketch of Perl 6 Object Meta Model
     |   `-- Sample-Module      Sample module for Perl 6 authors
     |
     |-- perl5              Perl 5 modules not installed with Pugs
     |   |-- Code-Perl          Helper module for Perl 5 code generation
     |   |-- PIL-Run            PIL virtual machine in Perl 5
     |   |-- PIL2JS             PIL to JavaScript compiler
-    |   `-- Perl6-MetaModel    Perl 5 Prototype of the Perl 6 Metaclass model
+    |   |-- Perl6-MetaModel    Prototype Perl 6 metaclass model: Perl 5
+    |   |-- Perl6.MetaModel    Prototype Perl 6 metaclass model: JS
+    |   |-- T2-Perl6           T2 (Tangram::Schema redesign) -> Perl6::Class 
+    |   `-- org.perl6.metamodel  Prototype Perl 6 metaclass model: Java
     |
     |-- script             pugscc, the Pugs Compiler Collection
     |
@@ -185,6 +187,7 @@ Expanding this one level deeper:
     |
     |-- t_disabled         Disabled tests
     |   |-- Dialects           Perl 6 non-standard dialects
+    |   |-- builtins           Problems with system() and strings with spaces
     |   `-- rules              Port of tests from CPAN module Perl6::Rules
     |
     `-- util               Utilities for hacking and testing Pugs
