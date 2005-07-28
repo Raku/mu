@@ -50,32 +50,34 @@ unless $out
 $out.say( $destroy_test );
 $out.close;
 
-my ($pugs,$redir) = ("../../pugs", ">");
+my ($pugs,$redir) = ( '../../pugs', '>' );
 
-if($?OS eq any<MSWin32 mingw cygwin>) {
-  $pugs = '..\\..\\pugs.exe';
-  if (-e 'pugs.exe') { $pugs = 'pugs.exe' }
+if($?OS eq any<MSWin32 mingw cygwin>)
+{
+    $pugs = '..\\..\\pugs.exe';
+    $pugs = 'pugs.exe' if -e 'pugs.exe';
 }
-else {
-  if (-e './pugs') { $pugs = './pugs' }
+else
+{
+  $pugs = './pugs' if -e './pugs';
 };
 
 sub run_pugs (Str $filename)
 {
-	my $libs     = join(' ', map { "-I$_" } @*INC );
-	my $tempfile = "temp-ex-output" ~ ".$*PID." ~ int rand 1000;
-	my $command  = "$pugs $libs $filename $redir $tempfile";
-	diag $command;
-	system $command;
-	my $res      = slurp $tempfile;
-	unlink $tempfile;
-	return $res;
+    my $libs     = join(' ', map { "-I$_" } @*INC );
+    my $tempfile = "temp-ex-output" ~ ".$*PID." ~ int rand 1000;
+    my $command  = "$pugs $libs $filename $redir $tempfile";
+    diag $command;
+    system $command;
+    my $res      = slurp $tempfile;
+    unlink $tempfile;
+    return $res;
 }
   
 my $output       = run_pugs( 'destroy_test.p6' );
 
 is( $output, "custom plan output\n",
-	'DESTROY() should write plan footer, if it exists' );
+    'DESTROY() should write plan footer, if it exists' );
 
 END
 {

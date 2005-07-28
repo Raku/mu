@@ -1,3 +1,11 @@
+== Changes for version 0.2.1
+* added spaces to all escaped output in Test::Builder::Output
+* pass test numbers to new tests in Test::Builder::Test (oops)
+* created tests properly in Test::Builder
+* added diag() to Test::Builder until "handles" works
+* fixed diag() documentation in Test::Builder
+* minor cosmetic fixes to t/010_Test_Builder.t
+
 == Changes for version 0.2.0
 * all tests pass
 * ready to start using this as a backend

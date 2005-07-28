@@ -25,7 +25,7 @@ $tbo.write("ok 3\ntesting");
 $output.close();
 
 my $output_output = slurp('output');
-is( $output_output, "ok 1\nok 2\nok 3\n#testing\n",
+is( $output_output, "ok 1\nok 2\nok 3\n# testing\n",
 	'write() should write to normal output, escaping newlines' );
 
 $tbo.diag('this is error output');
@@ -35,9 +35,9 @@ $error_output.close();
 
 my $error_output_output = slurp('error_output');
 is($error_output_output, 
-"#this is error output
-#this is error output
-#over two lines\n",
+"# this is error output
+# this is error output
+# over two lines\n",
 	'diag() should write to error output, escaping all output' );
 
 END

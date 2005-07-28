@@ -7,14 +7,14 @@ submethod BUILD ( ?$.output = $*OUT, ?$.error_output = $*ERR ) {}
 
 method write ( Str $message is copy )
 {
-    $message ~~ s:perl5:g{\n(?!#)}{\n#};
+    $message ~~ s:perl5:g{\n(?!#)}{\n# };
     $.output.say( $message );
 }
 
 method diag ( Str $message is copy )
 {
-    $message ~~ s:perl5{^(?!#)}{#};
-    $message ~~ s:perl5:g{\n(?!#)}{\n#};
+    $message ~~ s:perl5{^(?!#)}{# };
+    $message ~~ s:perl5:g{\n(?!#)}{\n# };
     $.error_output.say( $message );
 }
 

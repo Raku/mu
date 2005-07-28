@@ -57,7 +57,7 @@ method plan ( Str ?$explanation, Int ?$tests )
 method ok returns Bit ( $self: Bit $passed, Str ?$description = '' )
 {
     $self.report_test(
-        Test::Builder::Test.create(
+        Test::Builder::Test.new(
             number      => +$.results + 1,
             passed      =>  $passed,
             description =>  $description,
@@ -67,10 +67,15 @@ method ok returns Bit ( $self: Bit $passed, Str ?$description = '' )
     return $passed;
 }
 
+method diag ( Str ?$diagnostic = '' )
+{
+	$.output.diag( $diagnostic );
+}
+
 method todo returns Bit ( $self: Bit $passed, Str ?$description, Str ?$reason )
 {
     $self.report_test(
-        Test::Builder::Test.create(
+        Test::Builder::Test.new(
             todo        => 1,
             number      => +$.results + 1,
             reason      =>  $reason,
@@ -86,7 +91,7 @@ method skip ( $self: Int ?$num = 1, Str ?$reason = 'skipped' )
     for 1 .. $num
     {
         $self.report_test(
-            Test::Builder::Test.create(
+            Test::Builder::Test.new(
                 skip   => 1,
                 number => +$.results + 1,
                 reason =>  $reason,
@@ -143,22 +148,22 @@ Test::Builder - Backend for building test libraries
   sub ok ($passed, ?$description, ?$todo) is export {
 	 if $todo {
 		$Test.todo($passed, $description, $todo) 
-		    || $Test->diag("FAILED : $description");
+		    || $Test.diag("FAILED : $description");
 	 }
 	 else {
 		$Test.ok($passed, $description)
-		    || $Test->diag("FAILED : $description");
+		    || $Test.diag("FAILED : $description");
 	 }
   }
 
   sub is ($got, $expected, ?$description, ?$todo) is export {
 	 if $todo {
 		$Test.todo($got eq $expected, $description, $todo)
-		    || $Test->diag("FAILED : $description");
+		    || $Test.diag("FAILED : $description");
 	 }
 	 else {
 		$Test.ok($got eq $expected, $description)
-		    || $Test->diag("FAILED : $description");		
+		    || $Test.diag("FAILED : $description");		
 	 }
   }
 

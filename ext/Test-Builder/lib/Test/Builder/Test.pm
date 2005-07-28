@@ -10,19 +10,29 @@ class Test::Builder::Test-0.2.0
     )
     {
         return ::Test::Builder::Test::TODO.new(
-            description => $description, passed => $passed, reason => $reason
+            description => $description,
+			passed      =>      $passed,
+			reason      =>      $reason,
+			number      =>      $number,
         ) if $todo;
 
         return ::Test::Builder::Test::Skip.new(
-            description => $description, passed =>       1, reason => $reason
+            description => $description,
+			passed      =>            1,
+			reason      =>      $reason,
+			number      =>      $number,
         ) if $skip;
 
         return ::Test::Builder::Test::Pass.new(
-            description => $description, passed =>       1,
+            description => $description,
+			passed      =>            1,
+			number      =>      $number,
         ) if $passed;
 
         return ::Test::Builder::Test::Fail.new(
-            description => $description, passed =>       0,
+            description => $description,
+			passed      =>            0,
+			number      =>      $number,
         );
     }
 }
