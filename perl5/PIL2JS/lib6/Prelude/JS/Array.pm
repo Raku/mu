@@ -80,8 +80,20 @@ sub JS::Root::map(Code $code, *@array) is primitive {
   @res;
 }
 
-method sort(Array $self: Code ?$cmp) { sort $cmp, *$self }
-sub JS::Root::sort(Code ?$cmp = &infix:<cmp>, *@array) is primitive {
+method sort(Array $self: Code ?$cmp = &infix:<cmp>) { sort $cmp, *$self }
+sub JS::Root::sort(Code ?$cmp is copy = &infix:<cmp>, *@array) is primitive {
+  # Hack
+  unless $cmp.isa("Code") {
+    unshift @array, $cmp;
+    $cmp := &infix:<cmp>;
+    # Hack: $cmp = &infix:<cmp> should work, too, but doesn't, as $cmp is an
+    # array, *not* an arrayref! (Therefore, that's rewritten as $cmp =
+    # (&infix:<cmp>), causing $cmp to stay an Array and only $cmp[0] to be the
+    # Code object we want. Fixing this would require a more intelligent
+    # parameter binding routine or separate PIL2JS.Box.Scalar,
+    # PIL2JS.Box.Array, etc. (later!)
+  }
+
   die "&sort needs a Code as first argument!" unless $cmp.isa("Code");
   my $arity = $cmp.arity;
   $arity ||= 2; # hack

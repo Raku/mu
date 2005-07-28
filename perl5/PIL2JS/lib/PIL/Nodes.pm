@@ -517,6 +517,16 @@ sub add_indent {
     $magical_vars .= "_26main_3a_3a_3fSUB.STORE(%s);\n"   if $IN_SUBLIKE >= PIL::Nodes::SUBROUTINE;
     $magical_vars =~ s/%s/PIL::Nodes::name_mangle $self->[0]/eg;
 
+    my $pos_update =
+      $self->[3]->isa("PIL::PPos")
+    ? $self->[3]->[0]
+    : $self->[3]->isa("PIL::PStmts") && $self->[3]->[0]->isa("PIL::PPos")
+    ? $self->[3]->[0]->[0] : "";
+    $magical_vars .=
+      "_24main_3a_3a_3fPOSITION.STORE(new PIL2JS.Box.Constant(" .
+      PIL::Nodes::doublequote($pos_update) .
+      "));\n" if $pos_update;
+
     # Subbody
     local $_;
     my $body = sprintf "%sPIL2JS.call_chain.push(%s);\n%s;\n%s;",

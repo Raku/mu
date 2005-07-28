@@ -99,6 +99,7 @@ PIL2JS.Box = function (value) {
     // my %a = (a => 1)
     } else if(value instanceof PIL2JS.Hash && new_val instanceof PIL2JS.Pair) {
       new_val = _26main_3a_3ahash.GET()([PIL2JS.Context.SlurpyAny, n]).GET();
+    // my $scalar = @array or my $scalar = %hash (should auto-ref)
     } else if(
       !(value instanceof Array || value instanceof PIL2JS.Hash) &&
       (new_val instanceof Array || new_val instanceof PIL2JS.Hash)
