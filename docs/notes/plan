@@ -43,8 +43,8 @@ various PIL-to-* backends.
 
 PIL is a kernel language, a core calculus for Perl 6.  In practice,
 PIL is basically Scheme with more calling conventions.  It also serves
-as a single link between all frontends and backends, avoiding the M x N compiler 
-variant problem.
+as a single link between all frontends and backends, avoiding the M x N
+compiler variant problem.
 
 
 * What changes will be required in Pugs?
@@ -58,17 +58,18 @@ there's no time like the present to get started.
 
 * What other options were considered?
 
-Perl 5 and Ruby chose to simply augment the parse tree, rather than implement a 
-new intermediate language.  However, this makes back end code generation much 
-more difficult, and non-local optimization extremely so.
+Perl 5 and Ruby chose to simply augment the parse tree, rather than
+implement a new intermediate language.  However, this makes back end
+code generation much  more difficult, and non-local optimization extremely
+so.
 
 
 * When will these changes occur?
 
 After 6.2.8 is released, refactoring of Eval.hs will begin.  The various 
 backends will follow soon afterwards, depending on their interest to Pugs 
-developers.  Currently, the interest level is roughly in the order shown in the 
-design overview above.
+developers.  Currently, the interest level is roughly in the order shown
+in the design overview above.
 
 
 * What will each backend do for us?
@@ -91,9 +92,9 @@ in Parrot, so it may one day become the leading runtime for Perl 6.
 
 Perl 5 is extremely reliable and visible, and brings CPAN to Pugs.  It is
 hoped that the ability to compile Perl 6 to Perl 5, and to reliably use
-the Perl 5 DBI (and other XS modules), will move Perl 6 from the "slowly gaining 
-more respect" phase to the "hack hack hack" phase on Autrijus' imaginary 
-timeline.
+the Perl 5 DBI (and other XS modules), will move Perl 6 from the "slowly
+gaining more respect" phase to the "hack hack hack" phase on Autrijus'
+imaginary timeline.
 
 ** Haskell
 
@@ -105,10 +106,8 @@ cleaner implementation in Haskell than in Perl 5.
 
 ** JavaScript
 
-It's just plain cool, that's why.  Oh, and Perl 6 would then magically
-run inside every vaguely recent web browser.  This backend is farther
-down the list both because no one has started to work on it and because
-it is less critical for short-term success.
+It's just plain cool, that's why.  Oh, and Perl 6 then magically
+runs inside every vaguely recent web browser.
 
 ** Perl 6
 
@@ -166,9 +165,11 @@ http://rt.openfoundry.org/Foundry/Project/Source/index.html/pugs/checkout/docs/n
 While it has the flavor of an interview, it isn't one really; more a 
 discussion, with several peoples' thoughts mixed in, and then edited.
 
+
 * Will $/ contain a AST for the code in macros?
 
 The short answer is no. :)
+
 
 * What about the long answer?
 
@@ -177,6 +178,7 @@ universe you get PAST -- but you never get match objects.  However,
 it is conceivable that you can get match objects attached to PIL, and
 it may even come with $/ if lwall desires so, but it's unspecced. And
 you can't return $/ and expect it to work.
+
 
 * But A06 seems to indicate that $/ will contain some sort of AST.
 
@@ -207,6 +209,7 @@ at that post-compilation level, not the naive pre-compilation parse
 level.) "Are better" is an understatement; "only sane way" is more
 like it :) 
 
+
 * So if I'm going to get PIL how would I get to it?
 
 You likely get an object in the style of ext/Perl6-Compiler/
@@ -217,8 +220,9 @@ expect it to work, but the structure of $/ is likely to be not a
 regular Match object. pmichaud mentioned something about rebinding $/
 inside rules and make it return something else entirely 
 
-*Does that mean that some macro's are impossable to be portable
-accross perl6 implimentations? 
+
+* Does that mean that some macros are impossable to be portable
+across perl6 implimentations? 
 
 If the macro synopsis is written with a certain interface of syntax nodes
 then that becomes normative and all implementations are supposed to
