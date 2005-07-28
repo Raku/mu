@@ -85,7 +85,7 @@ PIL2JS.Box = function (value) {
     // my @a = "hi" --> my @a = ("hi",)
     if(value instanceof Array && !(new_val instanceof Array)) { 
       new_val = _26main_3a_3ainfix_3a_2c.GET()([PIL2JS.Context.SlurpyAny, n]).GET();
-    // my %a = (a => 1, b => 2) --> my %a = hash(a => 1, b => 2)
+    // my %a = (a => 1, b => 2) (or generally my %a = @a) --> my %a = hash(a => 1, b => 2)
     } else if(value instanceof PIL2JS.Hash && new_val instanceof Array) {
       new_val = _26main_3a_3ahash.GET()([PIL2JS.Context.SlurpyAny, n]).GET();
     // my %a = %b (copy %b, don't bind)

@@ -7,6 +7,16 @@ sub hash(Pair *@pairs) is primitive {
 
     for(var i = 0; i < pairs.length; i++) {
       var pair = pairs[i].GET();
+
+      // my %hash = ("a", 1, "b", 2);
+      if(!(pair instanceof PIL2JS.Pair)) {
+        i++;
+        var value = pairs[i]
+          ? pairs[i]
+          : new PIL2JS.Box.Constant(undefined);
+        pair = new PIL2JS.Pair(new PIL2JS.Box.Constant(pair), value);
+      }
+
       // See thread "Hash creation with duplicate keys" started by Ingo
       // Blechschmidt on p6l:
       // http://www.nntp.perl.org/group/perl.perl6.language/22379
