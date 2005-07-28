@@ -249,6 +249,15 @@ is the name of the Perl 5 interpreter.
 
 =back
 
+=head2 Testing
+
+See L<pugs::run> and F<t/README>.  If you wish to use the C<prove> utility
+to run individual tests or test directories, you will need to set at least
+the following environment variables first:
+
+    $ export HARNESS_PERL=./pugs
+    $ export PERL6LIB=blib6/lib
+
 =head2 Resources
 
 =over
