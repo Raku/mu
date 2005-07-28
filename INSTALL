@@ -86,6 +86,44 @@ To turn on profiling in the GHC compiler:
  
     make profiled
 
+BUILD CONFIGURATION CONSOLIDATION VIA config.yml
+------------------------------------------------
+
+To keep the multitude of configuration options and mechanisms under
+control for the build, we're moving over some of the above to a
+centralized file, "config.yml" under the build root. This file is in
+YAML format[1]; if it does not exist, one with defaults will be created
+for you.
+
+The options you can control there include:
+
+- optimization level: whether `make` means `make optimized` or
+  `make unoptimized` by default.
+
+- precompilation options: by default, pugs is built with the Standard Prelude
+  compiled into it. This makes many Perl 6 builtins available to pugs, and
+  loads fast. You can specify additional modules to inline a precompiled
+  version of into the executable: Test.pm is a good choice if running the
+  test suite. The cost of this is a longer build process which requires much
+  more RAM.
+
+- GHC heap size: if precompiling modules other than Prelude.pm into pugs, you
+  will probably need to increase the amount of RAM GHC permits itself to use,
+  otherwise it will abort the build. And if your machine is low on RAM, and
+  itself runs out of memory while building pugs, you can set this to a low
+  value (but turn off optimization and precompilation too).
+
+You can override values set in this file temporarily via the single
+PUGS_BUILD_OPTS environment variable. For example, if you normally do
+precompile Prelude.pm but want a faster build just this once:
+
+    env PUGS_BUILD_OPTS=precompile_prelude=false make
+
+See `util/config-template.yml` for more information.
+
+[1] See <http://yaml.org/>. Only a subset of the YAML syntax is permitted
+at the moment, to avoid a dependency on the full parser.
+
 CAVEATS FOR Win32 USERS
 -------------------------
 
