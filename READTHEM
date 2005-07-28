@@ -26,6 +26,7 @@ Haskell Tutorial for C Programmers                          - Eric Etheridge
     http://www.haskell.org/~pairwise/intro/intro.html
 Yet Another Haskell Tutorial                                 - Hal Daume III
     http://www.isi.edu/~hdaume/htut/
+    (partial PDF -> KWID transcription in docs/yaht.kwid)
 Haskell Mini-Primer                    (this covers infix $ and . operators)
     http://conal.net/pan/haskell-primer.htm
 Harrorth implementation journal                               - Yuval Kogman
