@@ -233,10 +233,10 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
   is $v, "ab", 'f "b":x("a")';
 
   $v = f "b" :x;
-  is $v, "ab", 'f "b" :x', :todo<bug>;
+  is $v, "1b", 'f "b" :x';
 
   $v = f "b":x;
-  is $v, "ab", 'f "b":x', :todo<bug>;
+  is $v, "1b", 'f "b":x';
 
   # add more tests...
 
