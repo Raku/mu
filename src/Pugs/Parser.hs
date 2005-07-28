@@ -1369,39 +1369,48 @@ parseParamList = parseParenParamList <|> parseNoParenParamList
 
 parseParenParamList :: RuleParser (Maybe Exp, [Exp])
 parseParenParamList = do
+    leading     <- option [] $ try $ many pairAdverb
     params      <- option Nothing . fmap Just $
         verbatimParens $ parseHasParenParamList
-    blocks      <- option [] ruleAdverbBlock
-    when (isNothing params && null blocks) $ fail ""
+    trailing    <- option [] $ try $ many pairOrBlockAdverb
+    when (isNothing params && null trailing && null leading) $ fail ""
     let (inv, args) = maybe (Nothing, []) id params
-    return (inv, args ++ blocks)
+    return (inv, leading ++ args ++ trailing)
 
 parseParenParamListMaybe :: RuleParser (Maybe Exp, [Exp])
 parseParenParamListMaybe = do
+    leading     <- option [] $ try $ many pairAdverb
     params      <- option Nothing . fmap Just $
         verbatimParens $ parseHasParenParamList
-    blocks      <- option [] ruleAdverbBlock
+    trailing    <- option [] $ try $ many pairOrBlockAdverb
     let (inv, args) = maybe (Nothing, []) id params
-    return (inv, args ++ blocks)
+    return (inv, leading ++ args ++ trailing)
 
-ruleAdverbBlock :: RuleParser [Exp]
-ruleAdverbBlock = tryRule "adverbial block" $ do
+pairOrBlockAdverb :: RuleParser Exp
+pairOrBlockAdverb = tryChoice [ pairAdverb, blockAdverb ]
+
+blockAdverb :: RuleParser Exp
+blockAdverb = do
     char ':'
-    rblock <- ruleBlockLiteral
-    next <- option [] ruleAdverbBlock
-    return (rblock:next)
+    ruleBlockLiteral
 
 parseHasParenParamList :: RuleParser (Maybe Exp, [Exp])
 parseHasParenParamList = do
     formal <- (`sepEndBy` symbol ":") $ fix $ \rec -> do
-        rv <- option Nothing $ fmap Just $ do
-            x <- parseLitOp
-            return (x, symbol ",")
+        rv <- option Nothing $ do
+            fmap Just $ tryChoice
+                [ do x <- pairOrBlockAdverb
+                     lookAhead (satisfy (/= ','))   
+                     return ([x], return "")
+                , do x <- parseLitOp
+                     a <- option [] $ try $ many pairOrBlockAdverb
+                     return (x:a, symbol ",")
+                ]
         case rv of
             Nothing           -> return []
             Just (exp, trail) -> do
                 rest <- option [] $ do { trail; rec }
-                return (exp:rest)
+                return (exp ++ rest)
     processFormals formal
 
 parseNoParenParamList :: RuleParser (Maybe Exp, [Exp])
@@ -1411,15 +1420,19 @@ parseNoParenParamList = do
             fmap Just $ tryChoice
                 [ do x <- ruleBlockLiteral
                      lookAhead (satisfy (/= ','))
-                     return (x, return "")
+                     return ([x], return "")
+                , do x <- pairOrBlockAdverb
+                     lookAhead (satisfy (/= ','))   
+                     return ([x], return "")
                 , do x <- parseTightOp
-                     return (x, symbol ",")
+                     a <- option [] $ try $ many pairOrBlockAdverb
+                     return (x:a, symbol ",")
                 ]
         case rv of
             Nothing           -> return []
             Just (exp, trail) -> do
                 rest <- option [] $ do { trail; rec }
-                return (exp:rest)
+                return (exp ++ rest)
     processFormals formal
 
 processFormals :: Monad m => [[Exp]] -> m (Maybe Exp, [Exp])
@@ -1612,13 +1625,16 @@ pairAdverb :: RuleParser Exp
 pairAdverb = do
     string ":"
     key <- many1 wordAny
-    val <- option (Val $ VInt 1) (valueDot <|> valueExp)
+    val <- option (Val $ VInt 1) $ tryChoice [ valueDot, noValue, valueExp ]
     return $ App (Var "&infix:=>") Nothing [Val (VStr key), val]
     where
     valueDot = do
         skipMany1 (satisfy isSpace)
         symbol "."
         option (Val $ VInt 1) $ valueExp
+    noValue = do
+        skipMany1 (satisfy isSpace)
+        return (Val $ VInt 1)
     valueExp = choice
         [ parens ruleExpression
         , arrayLiteral
