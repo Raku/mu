@@ -1,14 +1,8 @@
 - Ordered sets classes:
 
-  Set::Infinite - An object representing recurrences, multiple spans, etc. TODO
+  Set::Infinite
 
-  Set::Recurrence - An object representing a recurrence  TODO
-
-- Functional versions of some of the above classes:
-
-  Set::Recurrence::Functional  TODO
-
-- Internal classes
+- Functional versions:
 
   Set::Infinite::Functional
 
