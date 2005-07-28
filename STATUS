@@ -1,0 +1,54 @@
+This document contains terse status information on major portions of Pugs.
+Because development is rapid and anarchistic, details are omitted.  If you
+would like current details, please ask on irc.freenode.net #perl6.
+
+
+= Backends
+
+- Haskell-Old  Working (delta general pugs bugs)
+- Haskell-PIL  Waiting for PIL2 redesign
+- Java         Nonexistant; metamodel implementation in progress nonetheless
+- JavaScript   Partially working (with rapid progress)
+- Perl 5       Stalled; waiting for PIL transition to settle down
+- PIR          Stalled; waiting for Parrot leo-ctx5 branch to merge
+
+
+= PIL Transition
+
+* autrijus redesigning PIL format; reported 2005-07-28 that he has completed
+  research, and is ready to design PIL2 in earnest
+* iblech using current PIL format for JavaScript backend
+* Other backends stalled waiting for PIL2
+
+
+= Perl 6 Object Metamodel
+
+* Completion level varies by backend -- each requires its own variant of
+  the metamodel implemented in the backend language:
+-- Java        In early stages
+-- JavaScript  In progress; not yet used by JavaScript backend
+-- Perl 5      Most complete; lacking some role functionality still
+-- Perl 6      Requires complete rewrite
+
+
+= Embedding
+
+- Perl 5   Works, except that exports don't happen; workaround is to use
+           our &method1 := Perl5::Module::Name.can('method1')
+	   or
+           our &method2 := eval('\&Perl5::Module::Name::method', :lang<perl5>)
+- Parrot   Works with Parrot 0.2.2, but head and leo-ctx5 branch need to be
+           merged to keep recent Parrot embedding alive
+
+
+= Laziness
+
+* Laziness not implemented in general
+* Some lazy functions exist (e.g. gather/take), but are actually non-lazy
+
+
+= Test Suite
+
+* Currently around 8000 tests, including module tests
+* This is known to be only a small percentage of the total needed to cover
+  Perl 6
