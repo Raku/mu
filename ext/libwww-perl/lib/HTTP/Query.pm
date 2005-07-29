@@ -112,6 +112,38 @@ It provides the following methods:
 
 =over 8
 
+=item C<$q.parse_params($data)>
+
+Parses the given string, seperating it into 'name' and 'value' pairs.  This
+method should be called before any other methods, as it initialises the list of
+parameters.
+
+=item C<$q.params()>
+
+Returns the names of all the parameters as a list.  The order in which they were
+present in the query string is preserved.
+
+=item C<$q.param()>
+
+This exists as an alias for C<params>.
+
+=item C<$q.param($name)>
+
+Returns the value of the parameter named C<$name>.  If called in List context,
+it will return a list of values.  Otherwise, it will return the first value.
+
+=item C<$q.param($name, $val1, $val2...)> or C<$q.param($name) = @vals>
+
+Assigns C<@vals> to the parameter named C<$name>.
+
+=item C<$q.delete($name)>
+
+Deletes the parameter named C<$name>.
+
+=item C<$q.clear()>
+
+Deletes all the parameters.
+
 =back
 
 =head1 AUTHORS
