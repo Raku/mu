@@ -12,7 +12,9 @@
 >   More fair than thoughts of Mortal Men.
 -}
 
-module Pugs.Pretty where
+module Pugs.Pretty (
+    Pretty, pretty,
+) where
 import Pugs.Internals
 import Pugs.Types
 import Pugs.AST
@@ -142,17 +144,11 @@ quoted '\'' = "\\'"
 quoted '\\' = "\\\\"
 quoted x = [x]
 
-ratToNum :: VRat -> VNum
-ratToNum x = (fromIntegral $ numerator x) / (fromIntegral $ denominator x)
-
 doubleBraces :: Doc -> Doc
 doubleBraces x = vcat [ (lbrace <> lbrace), nest defaultIndent x, rbrace <> rbrace]
 
 joinList :: Doc -> [Doc] -> Doc
 joinList x y = cat $ punctuate x y
-
-commasep :: [Doc] -> Doc
-commasep x = cat $ (punctuate (char ',')) x
 
 pretty :: Pretty a => a -> String
 pretty a = render $ format a 

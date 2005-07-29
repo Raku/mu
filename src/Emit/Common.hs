@@ -1,6 +1,9 @@
 {-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -fno-warn-orphans -cpp #-}
 
-module Emit.Common where
+module Emit.Common (
+    Emit(..),
+    nested, eqSep, commaSep,
+) where
 import Text.PrettyPrint
 
 class (Show x) => Emit x where

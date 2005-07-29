@@ -12,11 +12,19 @@
     "Pugs.AST.SIO" and "Pugs.AST.Internals".
 -}
 
-module Pugs.Monads where
+module Pugs.Monads (
+    enterLex, enterContext, enterEvalContext, enterPackage, enterCaller,
+    enterGiven, enterWhen, enterWhile, genSymPrim, genSymCC,
+    enterBlock, enterSub,
+    evalVal, tempVar,
+
+    module Control.Monad.RWS
+) where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Context
 import Pugs.Types
+import Control.Monad.RWS
 
 {-|
 Create a new lexical scope by applying the list of 'Pad'-transformers

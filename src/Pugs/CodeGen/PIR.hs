@@ -17,8 +17,8 @@ module Pugs.CodeGen.PIR (genPIR) where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.AST.Internals
+import Pugs.Types
 import Pugs.Eval.Var
-import Emit.Common
 import Emit.PIR
 import Pugs.Pretty
 import Text.PrettyPrint
@@ -28,6 +28,9 @@ import Pugs.Compile
 
 type CodeGen a = WriterT [Stmt] (ReaderT TEnv IO) a
 type CodeGenMonad = WriterT [Stmt] (ReaderT TEnv IO)
+
+ratToNum :: VRat -> VNum
+ratToNum x = (fromIntegral $ numerator x) / (fromIntegral $ denominator x)
 
 {-| Currently only 'PIL' → 'PIR' -}
 class (Show a, Typeable b) => Translate a b | a -> b where

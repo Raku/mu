@@ -1,5 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
-module Pugs.Prim.Code where
+module Pugs.Prim.Code (
+    op1CodeAssoc, op1CodeName, op1CodeArity, op1CodeBody, op1CodePos,
+) where
 import Pugs.AST
 import Pugs.Internals
 import Pugs.Pretty

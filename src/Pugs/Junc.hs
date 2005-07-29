@@ -9,7 +9,11 @@
 >   Tomorrow we may come this way...
 -}
 
-module Pugs.Junc where
+module Pugs.Junc (
+    ApplyArg(..),
+    opJunc, opJuncNone, opJuncAll, opJuncAny, opJuncOne,
+    juncApply,
+) where
 import Pugs.Internals
 import Pugs.AST
 import qualified Data.Set as Set

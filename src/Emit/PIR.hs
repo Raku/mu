@@ -1,6 +1,9 @@
 {-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -fno-warn-orphans -funbox-strict-fields -cpp #-}
 
-module Emit.PIR where
+module Emit.PIR (
+    module Emit.PIR,
+    module Emit.Common,
+) where
 import Data.Char
 import Data.List
 import Data.Typeable

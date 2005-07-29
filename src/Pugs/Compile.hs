@@ -10,7 +10,15 @@
 >   Forbid to those that dwell therein...
 -}
 
-module Pugs.Compile where
+module Pugs.Compile (
+    PIL(..),
+    Compile(..),
+    TEnv(..), initTEnv,
+    TCxt(..), tcVoid, tcLValue,
+    TParam(..),
+    EnterClass(..),
+    die, varText,
+) where
 import Pugs.AST
 import Pugs.Internals
 import Pugs.Types

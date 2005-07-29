@@ -10,7 +10,12 @@
 >   one night to drink his fill...
 -}
 
-module Pugs.Shell where
+module Pugs.Shell (
+    Command(..),
+    RunOptions(..),
+    initializeShell,
+    getCommand,
+) where
 import Pugs.Internals
 
 #ifdef PUGS_HAVE_READLINE

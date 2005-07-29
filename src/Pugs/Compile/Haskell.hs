@@ -1,6 +1,8 @@
 {-# OPTIONS_GHC -fglasgow-exts -fth -cpp #-}
 
-module Pugs.Compile.Haskell where
+module Pugs.Compile.Haskell (
+    genGHC,
+) where
 
 #undef PUGS_HAVE_TH
 #include "../pugs_config.h"
