@@ -188,12 +188,15 @@ development snapshots.
 
 Hints on using a development snapshot of GHC:
 
-Note that this will take a long time, and it may not work.
+By far the simplest alternative is to use a "Stable" binary snapshot as
+described above.  Once you untar it, see INSTALL.  It's basically just
 
-First, check to see if a sufficiently recent "Stable" source snapshot is 
-available (as of 15-May, there isn't one yet).  If not, you might try a "HEAD" 
-snapshot (it is not clear that anyone has actually tried this).  Otherwise, you 
-might use cvs to grab your own snapshot:
+    ./configure
+    make in-place   or   make install
+
+You could instead build from source.  Note that this will take a long time,
+and that it may not work.  Your best bet is to use a recent "Stable" source
+snapshot.  Alternately, you might use cvs to grab your own snapshot:
 
     CVSROOT=:pserver:anoncvs@glass.cse.ogi.edu:/cvs; export CVSROOT
     cvs login     # password cvs
