@@ -61,8 +61,8 @@ method JS::Root::end(Array $self:) {
   JS::inline('function (arr) { return arr.length - 1 }')($self);
 }
 
-method map(Array $self: Code $code) { map $code, *$self }
-sub JS::Root::map(Code $code, *@array) is primitive {
+method map(Array $self is rw: Code $code) { map $code, *$self }
+sub JS::Root::map(Code $code, *@array is rw) is primitive {
   die "&map needs a Code as first argument!" unless $code.isa("Code");
   my $arity = $code.arity;
   # die "Can't use 0-ary subroutine as \"map\" body!" if $arity == 0;
@@ -72,7 +72,9 @@ sub JS::Root::map(Code $code, *@array) is primitive {
   while +@array > 0 {
     my @args = ();
     my $i; loop $i = 0; $i < $arity; $i++ {
-      push @args: @array.shift;
+      # Slighly hacky
+      push @args: undef;
+      @args[-1] := @array.shift;
     }
     push @res, $code(*@args);
   }
@@ -121,7 +123,9 @@ sub JS::Root::reduce(Code $code, *@array) is primitive {
   while +@array > 0 {
     my @args;
     my $i; loop $i = 0; $i < $arity - 1; $i++ {
-      push @args, @array.shift;
+      # Slighly hacky
+      push @args: undef;
+      @args[-1] := @array.shift;
     }
     $ret = $code($ret, *@args);
   }
@@ -156,7 +160,7 @@ sub JS::Root::grep(Code $code, *@array) is primitive {
   die "Code block for \"grep\" must be unary!" unless $code.arity == 1;
 
   my @res;
-  for @array -> $item {
+  for @array -> $item is rw {
     push @res, $item if $code($item);
   }
   @res;

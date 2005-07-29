@@ -72,15 +72,18 @@ sub statement_control:<unless>(Bool $cond, Code $true, Code $false) is primitive
 }
 
 # XXX: Handle redo() correctly!
-sub statement_control:<for>(@array is copy, Code $code) is primitive {
+sub statement_control:<for>(@array is rw, Code $code) is primitive {
   my $arity = $code.arity;
   # die "Can't use 0-ary subroutine as \"for\" body!" if $arity == 0;
   $arity ||= 1;
 
-  while(+@array > 0) {
+  my $idx = 0;
+  while($idx < +@array) {
     my @args = ();
     my $i; loop $i = 0; $i < $arity; $i++ {
-      push @args: @array.shift;
+      # Slighly hacky
+      push @args: undef;
+      @args[-1] := @array[$idx++];
     }
     $code(*@args);
   }
