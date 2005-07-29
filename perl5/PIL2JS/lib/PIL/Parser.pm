@@ -193,6 +193,7 @@ sub expr {
       SubPrim => 0, SubRoutine => 0, SubBlock => 0, SubPointy => 0, SubMethod => 0,
       True    => 0, False => 0,
       Nothing => 0, Just  => 1,
+      Infinity => 0, NaN  => 0,
 
       Noop    => 0,
       App     => 3,

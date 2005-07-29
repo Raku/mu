@@ -424,6 +424,19 @@ sub add_indent {
 }
 
 {
+  package PIL::VNum;
+  our @ISA = qw<PIL::PVal>;
+
+  sub as_js {
+    my $self = shift;
+
+    die unless @$self == 1;
+    die unless ref $self->[0];
+    return $self->[0]->as_js;   # XXX?
+  }
+}
+
+{
   package PIL::VRat;
   our @ISA = qw<PIL::PVal>;
 
@@ -486,6 +499,32 @@ sub add_indent {
 
     die unless @$self == 0;
     return "new PIL2JS.Box.Constant(undefined)";
+  }
+}
+
+{
+  package PIL::Infinity;
+  our @ISA = qw<PIL::PVal>;
+
+  sub as_js {
+    my $self = shift;
+
+    die unless @$self == 0;
+    die if     ref $self->[0];
+    return "new PIL2JS.Box.Constant(Infinity)";
+  }
+}
+
+{
+  package PIL::NaN;
+  our @ISA = qw<PIL::PVal>;
+
+  sub as_js {
+    my $self = shift;
+
+    die unless @$self == 0;
+    die if     ref $self->[0];
+    return "new PIL2JS.Box.Constant(NaN)";
   }
 }
 

@@ -22,6 +22,12 @@ my @subs = (
   "infix:«cmp»",  "S", "String(a) < String(b) ? -1 : String(a) == String(b) ? 0 : 1",
   "prefix:«-»",   "N", "-a",
   "abs",          "N", "Math.abs(a)",
+  "sqrt",         "N", "Math.sqrt(a)",
+  "sign",         "N", "a > 0 ? +1 : a == 0 ? 0 : -1",
+  "exp",          "N", "Math.exp(a)",
+  "log",          "N", "Math.log(a)",
+  "log10",        "N", "Math.log(a) / Math.log(10)",
+  "int",          "N", "parseInt(String(a))",
 );
 
 # First, we generate the code to eval later.
@@ -65,3 +71,4 @@ sub prefix:<++>  ($a is rw)    is primitive { $a = $a + 1 }
 sub postfix:<++> ($a is rw)    is primitive { my $cur = $a; $a = $a + 1; $cur }
 sub prefix:<-->  ($a is rw)    is primitive { $a = $a - 1 }
 sub postfix:<--> ($a is rw)    is primitive { my $cur = $a; $a = $a - 1; $cur }
+sub JS::Root::rand (?$a = 1)   is primitive { $JS::Math.random() * $a }
