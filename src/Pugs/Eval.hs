@@ -631,8 +631,9 @@ reduceSyn "rx" [exp, adverbs] = do
     flag_g  <- fromAdverb hv ["g", "global"]
     flag_i  <- fromAdverb hv ["i", "ignorecase"]
     flag_s  <- fromAdverb hv ["stringify"] -- XXX hack
-    let rx | p5 = MkRulePCRE p5re g flag_s 
-           | otherwise = MkRulePGE str g flag_s
+    adverbHash <- reduce adverbs
+    let rx | p5 = MkRulePCRE p5re g flag_s adverbHash
+           | otherwise = MkRulePGE str g flag_s adverbHash
         g = ('g' `elem` p5flags || flag_g)
         p5re = mkRegexWithPCRE (encodeUTF8 str) $
                     [ pcreUtf8

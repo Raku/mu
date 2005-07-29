@@ -22,7 +22,7 @@ module Pugs.Types (
     Var, 
 
     VStr, VBool, VInt, VRat, VNum, VComplex, VHandle, VSocket,
-    VThread(..), VRule(..),
+    VThread(..),
 
     MatchPGE(..)
 ) where
@@ -154,29 +154,6 @@ data MatchPGE
     | PGE_Array ![MatchPGE]
     | PGE_Fail
     deriving (Show, Eq, Ord, Read, Typeable)
-
-
-{-|
-Representation for rules (i.e. regexes).
-
-Currently there are two types of rules: Perl 5 rules, implemented with PCRE,
-and Perl 6 rules, implemented with PGE.
--}
-data VRule
-    -- | Perl5-compatible regular expression
-    = MkRulePCRE
-        { rxRegex     :: !Regex -- ^ The \'regular\' expression (as a PCRE
-                                --     'Regex' object)
-        , rxGlobal    :: !Bool  -- ^ Flag indicating \'global\' (match-all)
-	    , rxStringify :: !Bool
-        }
-    -- | Parrot Grammar Engine rule
-    | MkRulePGE
-        { rxRule      :: !String -- ^ The rule string
-        , rxGlobal    :: !Bool   -- ^ Flag indicating \'global\' (match-all)
-	    , rxStringify :: !Bool
-        }
-    deriving (Show, Eq, Ord, Typeable)
 
 instance Ord VHandle where
     compare _ _ = EQ

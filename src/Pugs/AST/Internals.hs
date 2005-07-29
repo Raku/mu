@@ -32,6 +32,7 @@ module Pugs.AST.Internals (
     VJunc(..), JuncType(..), -- uss Val
     VObject(..), -- uses VType, IHash, Unique
     VType, -- uses Type
+    VRule(..), -- uses Val
 
     IVar(..), -- uses *Class and V*
     IArray, IArraySlice, IHash, IScalar, ICode, IScalarProxy,
@@ -1631,3 +1632,27 @@ instance Typeable1 IVar where
     typeOf1 (IThunk  x) = typeOf x
     typeOf1 (IPair   x) = typeOf x
 #endif
+
+{-|
+Representation for rules (i.e. regexes).
+
+Currently there are two types of rules: Perl 5 rules, implemented with PCRE,
+and Perl 6 rules, implemented with PGE.
+-}
+data VRule
+    -- | Perl5-compatible regular expression
+    = MkRulePCRE
+        { rxRegex     :: !Regex -- ^ The \'regular\' expression (as a PCRE
+                                --     'Regex' object)
+        , rxGlobal    :: !Bool  -- ^ Flag indicating \'global\' (match-all)
+	    , rxStringify :: !Bool
+        , rxAdverbs   :: !Val
+        }
+    -- | Parrot Grammar Engine rule
+    | MkRulePGE
+        { rxRule      :: !String -- ^ The rule string
+        , rxGlobal    :: !Bool   -- ^ Flag indicating \'global\' (match-all)
+	    , rxStringify :: !Bool
+        , rxAdverbs   :: !Val
+        }
+    deriving (Show, Eq, Ord, Typeable)

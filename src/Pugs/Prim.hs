@@ -589,6 +589,10 @@ op1 "Pugs::Internals::rule_pattern" = \v -> do
     case v of
         VRule MkRulePGE{rxRule=re} -> return $ VStr re
         _ -> fail $ "Not a rule: " ++ show v
+op1 "Pugs::Internals::rule_adverbs" = \v -> do
+    case v of
+        VRule MkRulePGE{rxAdverbs=hash} -> return hash
+        _ -> fail $ "Not a rule: " ++ show v
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 op1IO :: Value a => (Handle -> IO a) -> Val -> Eval Val
@@ -1675,4 +1679,5 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     IO::Dir::rewinddir  unsafe (IO::Dir)\
 \\n   Any       pre     Pugs::Internals::reduceVar  unsafe (Str)\
 \\n   Str       pre     Pugs::Internals::rule_pattern safe (Rule)\
+\\n   Hash      pre     Pugs::Internals::rule_adverbs safe (Rule)\
 \\n"
