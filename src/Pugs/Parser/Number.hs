@@ -1,10 +1,14 @@
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 module Pugs.Parser.Number (
+    parseNatOrRat,
     naturalOrRat,
 ) where
 import Pugs.Internals
 import Pugs.Rule
+
+parseNatOrRat :: String -> Either ParseError (Either Integer (Ratio Integer))
+parseNatOrRat s = runParser naturalOrRat () "" s
 
 naturalOrRat :: GenParser Char st (Either Integer (Ratio Integer))
 naturalOrRat  = (<?> "number") $ do

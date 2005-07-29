@@ -70,7 +70,6 @@ module Pugs.AST.Internals (
 ) where
 import Pugs.Internals
 import Pugs.Context
-import Pugs.Rule
 import Pugs.Types
 import Pugs.Cont hiding (shiftT, resetT)
 import qualified Data.Set       as Set
@@ -407,7 +406,7 @@ instance Value VRat where
         str <- fromVal (VStr $ tail s)
         return str
     doCast (VStr s)     = return $
-        case ( runParser naturalOrRat () "" s ) of
+        case ( parseNatOrRat s ) of
             Left _   -> 0 % 1
             Right rv -> case rv of
                 Left  i -> i % 1
@@ -431,7 +430,7 @@ instance Value VNum where
     doCast (VStr "Inf") = return $ 1/0
     doCast (VStr "NaN") = return $ 0/0
     doCast (VStr s)     = return $
-        case ( runParser naturalOrRat () "" s ) of
+        case ( parseNatOrRat s ) of
             Left _   -> 0
             Right rv -> case rv of
                 Left  i -> fromIntegral i

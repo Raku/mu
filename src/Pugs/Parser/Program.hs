@@ -4,13 +4,10 @@ module Pugs.Parser.Program (
 ) where
 import Pugs.Internals
 import Pugs.AST
-import Pugs.Lexer
-import Pugs.Rule
-import Pugs.Rule.Error
 
 import Pugs.Parser
-import Pugs.Parser.Types
-import Pugs.Parser.Unsafe
+import Pugs.Rule
+import Pugs.Rule.Error
 
 parseProgram :: Env -> FilePath -> String -> Env
 parseProgram = flip runRule ruleProgram

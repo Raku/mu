@@ -14,6 +14,10 @@ module Pugs.Parser (
     ruleBlockBody,
     possiblyExit,
     mkPos,
+
+    module Pugs.Lexer,
+    module Pugs.Parser.Types,
+    module Pugs.Parser.Unsafe,
 ) where
 import Pugs.Internals
 import Pugs.AST

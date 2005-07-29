@@ -12,8 +12,8 @@
 -}
 
 module Pugs.Class where
-import AST
-import Internals
+import Pugs.AST
+import Pugs.Internals
 
 {-
     instances of these objects represent the Perl 6 Class Model, ie
