@@ -143,7 +143,7 @@ method :header (Str $field is copy, Str $val is copy, Str ?$op = "") {
 method :sorted_field_names () {
   return %:headers.key.sort:{
     (%header_order{$^a} || 999) <=> (%header_order{$^b} || 999) ||
-    $a cmp $b
+    $^a cmp $^b
   };
   
 }
