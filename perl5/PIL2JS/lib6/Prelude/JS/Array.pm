@@ -131,22 +131,22 @@ sub JS::Root::reduce(Code $code, *@array) is primitive {
 
 method min(Array $self: Code ?$cmp = &infix:«<=>») { min $cmp, *$self }
 method max(Array $self: Code ?$cmp = &infix:«<=>») { max $cmp, *$self }
-sub min(Code ?$cmp = &infix:«<=>», *@array) is primitive {
+sub JS::Root::min(Code ?$cmp = &infix:«<=>», *@array) is primitive {
   # Hack, see comment at &sort.
   unless $cmp.isa("Code") {
     unshift @array, $cmp;
-    $cmp := &infix:<cmp>;
+    $cmp := &infix:«<=>»;
   }
-  max { $cmp($^b, $^a) } @array;
+  @array.max:{ $cmp($^b, $^a) };
 }
-sub max(Code ?$cmp = &infix:«<=>», *@array) is primitive {
+sub JS::Root::max(Code ?$cmp = &infix:«<=>», *@array) is primitive {
   # Hack, see comment at &sort.
   unless $cmp.isa("Code") {
     unshift @array, $cmp;
-    $cmp := &infix:<cmp>;
+    $cmp := &infix:«<=>»;
   }
 
-  my $max = undef;
+  my $max = @array.shift;
   $max = ($cmp($max, $_)) < 0 ?? $_ :: $max for @array;
   $max;
 }

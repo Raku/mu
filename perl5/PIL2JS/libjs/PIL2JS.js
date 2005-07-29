@@ -153,8 +153,12 @@ PIL2JS.Box = function (value) {
 
 PIL2JS.Box.prototype = {
   BINDTO: function (other) {
-    if(this.uid == other.uid)
+    if(
+      (this.uid != undefined && other.uid != undefined && this.uid == other.uid) ||
+      (this.uid == undefined && other.uid == undefined && this.GET() == other.GET())
+    ) {
       PIL2JS.die("Binding would create a bind cycle!");
+    }
 
     this.GET   = other.GET;
     this.STORE = other.STORE;
