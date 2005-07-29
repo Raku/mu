@@ -74,7 +74,7 @@ sub JS::Root::map(Code $code, *@array) is primitive {
     my $i; loop $i = 0; $i < $arity; $i++ {
       push @args: @array.shift;
     }
-    push @res, *$code(*@args);
+    push @res, $code(*@args);
   }
 
   @res;
