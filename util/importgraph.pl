@@ -56,11 +56,50 @@ find sub {
   $modules{$module_name} = [\%imports, $exports];
 }, 'src';
 
-delete $modules{$_} for @ignore;
+#delete $modules{$_} for @ignore;
+for my $mod (values %modules) {
+  for my $ignore (@ignore) {
+    delete $mod->[0]->{$ignore};
+  }
+}
+
+# setup some predefined clusters
+sub setup_mod {
+  my $type = shift;
+  my $name = shift;
+  my $regexp = join '|', map {
+    UNIVERSAL::isa($_, 'Regexp') ? $_ : "^\Q$_\E\$" } @_;
+  $regexp = qr/$regexp/;
+  for my $mod (keys %modules) {
+    next unless $mod =~ /$regexp/;
+    $modules{$mod}->[$type] = $name;
+    print "Adding $mod to $name\n";
+  }
+}
+sub setup_cluster { setup_mod(2, @_) }
+sub setup_rank { setup_mod(3, @_) }
+
+setup_cluster('Pugs.Rule', qr/^Pugs\.Rule\b/);
+setup_cluster('Pugs.AST', qr/^Pugs\.AST\b/);
+setup_cluster('IMC', qr/^IMC\b/);
+setup_cluster('RRegex', qr/^RRegex\b/);
+setup_cluster('Emit', qr/^Emit\b/);
+setup_rank('parser', qr/^Pugs\.Parser\.\w+$/);
+setup_rank('parser_program', 'Pugs.Parser.Program');
+setup_rank('prim', qr/^Pugs\.Prim\.\w+$/);
+setup_rank('prim_lifts', 'Pugs.Prim.Lifts');
+setup_rank('embed', qr/^Pugs\.Embed\.\w+$/);
+setup_rank('codegens', 'Pugs.Compile.Haskell', 'Pugs.Compile.Pugs',
+  qr/^Pugs\.CodeGen\.\w+$/);
 
 my ($nodes, $edges) = (0, 0);
 while (my ($name, $module) = each %modules) {
-  $g->add_node($name, color => ($module->[1] ? 'green' : 'black'));
+  my $cluster = $module->[2];
+  my $rank = $module->[3];
+  $g->add_node($name, color => ($module->[1] ? 'green' : 'black'),
+    (defined $cluster ? (cluster => $cluster) : ()),
+    (defined $rank ? (rank => $rank) : ()),
+    );
   $nodes++;
 
   while(my ($k, $edge) = each %{$module->[0]}) {
