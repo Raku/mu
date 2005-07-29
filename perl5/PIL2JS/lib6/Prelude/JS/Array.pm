@@ -129,6 +129,28 @@ sub JS::Root::reduce(Code $code, *@array) is primitive {
   $ret;
 }
 
+method min(Array $self: Code ?$cmp = &infix:«<=>») { min $cmp, *$self }
+method max(Array $self: Code ?$cmp = &infix:«<=>») { max $cmp, *$self }
+sub min(Code ?$cmp = &infix:«<=>», *@array) is primitive {
+  # Hack, see comment at &sort.
+  unless $cmp.isa("Code") {
+    unshift @array, $cmp;
+    $cmp := &infix:<cmp>;
+  }
+  max { $cmp($^b, $^a) } @array;
+}
+sub max(Code ?$cmp = &infix:«<=>», *@array) is primitive {
+  # Hack, see comment at &sort.
+  unless $cmp.isa("Code") {
+    unshift @array, $cmp;
+    $cmp := &infix:<cmp>;
+  }
+
+  my $max = undef;
+  $max = ($cmp($max, $_)) < 0 ?? $_ :: $max for @array;
+  $max;
+}
+
 method grep(Array $self: Code $code) { grep $code, *$self }
 sub JS::Root::grep(Code $code, *@array) is primitive {
   die "Code block for \"grep\" must be unary!" unless $code.arity == 1;

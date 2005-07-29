@@ -21,6 +21,7 @@ my @subs = (
   "infix:«<=>»",  "N", "Number(a) < Number(b) ? -1 : Number(a) == Number(b) ? 0 : 1",
   "infix:«cmp»",  "S", "String(a) < String(b) ? -1 : String(a) == String(b) ? 0 : 1",
   "prefix:«-»",   "N", "-a",
+  "abs",          "N", "Math.abs(a)",
 );
 
 # First, we generate the code to eval later.

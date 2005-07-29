@@ -81,36 +81,74 @@ PIL2JS.Ref.prototype.toString = function () { return "<PIL2JS.Ref>" };
 PIL2JS.Box = function (value) {
   this.GET   = function ()  { return value };
   this.STORE = function (n) {
-    var new_val = n.GET();
+    var new_val   = n.GET();
+    var my_ctype  = this.container_type;
+    var new_ctype = n.container_type;
+
+    // Rewrite rules (kind of context simulation)
     // my @a = "hi" --> my @a = ("hi",)
-    if(value instanceof Array && !(new_val instanceof Array)) { 
+    if(
+      my_ctype  == PIL2JS.ContainerType.Array &&
+      new_ctype == PIL2JS.ContainerType.Scalar
+    ) {
       new_val = _26main_3a_3ainfix_3a_2c.GET()([PIL2JS.Context.SlurpyAny, n]).GET();
-    // my %a = (a => 1, b => 2) (or generally my %a = @a) --> my %a = hash(a => 1, b => 2)
-    } else if(value instanceof PIL2JS.Hash && new_val instanceof Array) {
-      new_val = _26main_3a_3ahash.GET()([PIL2JS.Context.SlurpyAny, n]).GET();
-    // my %a = %b (copy %b, don't bind)
-    } else if(value instanceof PIL2JS.Hash && new_val instanceof PIL2JS.Hash) {
+    // my @a = %h
+    } else if(
+      my_ctype  == PIL2JS.ContainerType.Array &&
+      new_ctype == PIL2JS.ContainerType.Hash
+    ) {
       var pairs = new_val.pairs();
       for(var i = 0; i < pairs.length; i++) {
         pairs[i] = new PIL2JS.Box.Constant(pairs[i]);
       }
       new_val =
-        _26main_3a_3ahash.GET()([PIL2JS.Context.SlurpyAny].concat(pairs)).GET();
-    // my %a = (a => 1)
-    } else if(value instanceof PIL2JS.Hash && new_val instanceof PIL2JS.Pair) {
+       _26main_3a_3ainfix_3a_2c.GET()([PIL2JS.Context.SlurpyAny].concat(pairs)).GET();
+    // my @a = @b (copy @b, don't bind)
+    } else if(
+      my_ctype  == PIL2JS.ContainerType.Array &&
+      new_ctype == PIL2JS.ContainerType.Array
+    ) {
+      new_val =
+       _26main_3a_3ainfix_3a_2c.GET()([PIL2JS.Context.SlurpyAny].concat(new_val)).GET();
+
+    // my %a = (a => 1, b => 2) (or generally my %a = @a) --> my %a = hash(a => 1, b => 2)
+    } else if(
+      my_ctype  == PIL2JS.ContainerType.Hash &&
+      new_ctype == PIL2JS.ContainerType.Array) {
       new_val = _26main_3a_3ahash.GET()([PIL2JS.Context.SlurpyAny, n]).GET();
+    // my %a = %b (copy %b, don't bind)
+    } else if(
+      my_ctype  == PIL2JS.ContainerType.Hash &&
+      new_ctype == PIL2JS.ContainerType.Hash
+    ) {
+      var pairs = new_val.pairs();
+      for(var i = 0; i < pairs.length; i++) {
+        pairs[i] = new PIL2JS.Box.Constant(pairs[i]);
+      }
+      // &hash takes care of the copying.
+      new_val =
+        _26main_3a_3ahash.GET()([PIL2JS.Context.SlurpyAny].concat(pairs)).GET();
+    // my %a = (a => 1) or my %a = 10
+    } else if(
+      my_ctype  == PIL2JS.ContainerType.Hash &&
+      new_ctype == PIL2JS.ContainerType.Scalar
+    ) {
+      new_val = _26main_3a_3ahash.GET()([PIL2JS.Context.SlurpyAny, n]).GET();
+
     // my $scalar = @array or my $scalar = %hash (should auto-ref)
     } else if(
-      !(value instanceof Array || value instanceof PIL2JS.Hash) &&
-      (new_val instanceof Array || new_val instanceof PIL2JS.Hash)
+      my_ctype  == PIL2JS.ContainerType.Scalar &&
+      new_ctype != PIL2JS.ContainerType.Scalar
     ) {
       new_val =
         _26main_3a_3aprefix_3a_5c.GET()([PIL2JS.Context.ItemAny, n]).GET();
     }
+
     value = new_val;
     return this;
   };
   this.uid   = PIL2JS.new_uid();
+  this.container_type = PIL2JS.container_type(value);
 };
 
 PIL2JS.Box.prototype = {
@@ -187,6 +225,7 @@ PIL2JS.Box.Proxy = function (get, store) {
   this.GET   = get;
   this.STORE = store;
   this.uid   = PIL2JS.new_uid();
+  this.container_type = PIL2JS.container_type(get());
 };
 
 // new PIL2JS.Box.Readonly(some_existing_box) returns a new box which cannot be
@@ -195,6 +234,7 @@ PIL2JS.Box.ReadOnly = function (box) {
   this.GET   = function ()  { return box.GET() };
   this.STORE = function (n) { PIL2JS.die("Can't modify constant item!"); return n };
   this.uid   = box.uid;
+  this.container_type = box.container_type;
 };
 
 // Returns a new box wrapping a constant value.
@@ -204,6 +244,7 @@ PIL2JS.Box.Constant = function (value) {
   this.STORE  = function (n) { PIL2JS.die("Can't modify constant item!") };
   this.BINDTO = function (o) { PIL2JS.die("Can't rebind constant item!") };
   this.uid    = undefined;
+  this.container_type = PIL2JS.container_type(value);
 };
 
 // Returns a stub box -- all calls will die.
@@ -212,6 +253,7 @@ PIL2JS.Box.Stub = function (value) {
   this.STORE  = function (n) { PIL2JS.die(".STORE() of a PIL2JS.Box.Stub called!") };
   this.BINDTO = function (o) { PIL2JS.die(".BINDTO() of a PIL2JS.Box.Stub called!") };
   this.uid    = function ()  { PIL2JS.die(".uid() of a PIL2JS.Box.Stub called!") };
+  this.container_type = PIL2JS.ContainerType.Scalar;
 };
 
 // Inheritance.
@@ -224,6 +266,24 @@ PIL2JS.Box.constant_func = function (arity, f) {
   f.pil2js_arity = arity;
   return new PIL2JS.Box.Constant(f);
 };
+
+PIL2JS.ContainerType = {
+  Scalar: {},
+  Array:  {},
+  Hash:   {}
+};
+
+PIL2JS.container_type = function (thing) {
+  if(thing == undefined) {
+    return PIL2JS.ContainerType.Scalar;
+  } else if(thing instanceof Array) {
+    return PIL2JS.ContainerType.Array;
+  } else if(thing instanceof PIL2JS.Hash) {
+    return PIL2JS.ContainerType.Hash;
+  } else {
+    return PIL2JS.ContainerType.Scalar;
+  }
+}
 
 Object.prototype.toPIL2JSBox = function () { return new PIL2JS.Box.Constant(this) };
 Array.prototype.toPIL2JSBox  = function () {
