@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 69;
+plan 75;
 
 eval_is 'infix:<..>(1, 10, by => 2)', <1 3 5 7 9>, 'range operator, :by parameter, long name', :todo<feature>;
 eval_is '1..10 :by(2)', <1 3 5 7 9>, 'range operator, :by adverb, space', :todo<feature>;
@@ -170,6 +170,34 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
   $v = f:x ():y;
   is $v, "11", 'f:x ():y';
 
+  # f_X(Y) f_X_Y() f_X_Y_() f_XY_() f_XY() fXY ()
+
+  $v = f :x("a")(:y("b"));
+  is $v, "ab", 'f :x("a")(:y("b"))';
+
+  $v = 'eval failed';
+  eval '$v = f :x("a") :y("b")()';
+  is $v, "ab", 'f :x("a") :y("b")()', :todo<bug>;
+
+  $v = 'eval failed';
+  eval '$v = f :x("a") :y("b") ()';
+  is $v, "ab", 'f :x("a") :y("b") ()', :todo<bug>;
+
+  $v = 'eval failed';
+  eval '$v = f :x("a"):y("b") ()';
+  is $v, "ab", 'f :x("a"):y("b") ()', :todo<bug>;
+
+  $v = 'eval failed';
+  eval '$v = f :x("a"):y("b")()';
+  is $v, "ab", 'f :x("a"):y("b")()', :todo<bug>;
+
+  $v = f:x("a"):y("b") ();
+  is $v, "ab", 'f:x("a"):y("b") ()';
+
+  # 
+
+  # more tests....
+
 }
 
 {
@@ -212,15 +240,15 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
 
   # fX s  fXs  fx s
 
-  $v = "eval failed";
+  $v = 'eval failed';
   eval '$v = f:x("a") "b"';
   is $v, "ab", 'f:x("a") "b"', :todo<bug>;
 
-  $v = "eval failed";
+  $v = 'eval failed';
   eval '$v = f:x("a")"b"';
   is $v, "ab", 'f:x("a")"b"', :todo<bug>;
 
-  $v = "eval failed";
+  $v = 'eval failed';
   eval '$v = f:x "b"';
   is $v, "ab", 'f:x "b"', :todo<bug>;
 
