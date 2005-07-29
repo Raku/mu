@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 66;
+plan 69;
 
 eval_is 'infix:<..>(1, 10, by => 2)', <1 3 5 7 9>, 'range operator, :by parameter, long name', :todo<feature>;
 eval_is '1..10 :by(2)', <1 3 5 7 9>, 'range operator, :by adverb, space', :todo<feature>;
@@ -258,5 +258,22 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
   }
 
   # add more tests...
+
+}
+
+{
+  # Exercise adverbs on operators.
+
+  sub prefix:<zpre>($a,+$x){join(",",$a,$x)}
+
+  is eval('(zpre 4 :x(5))'), '4,5', '(zpre 4 :x(5))', :todo<feature>;
+
+  sub postfix:<zpost>($a,+$x){join(",",$a,$x)}
+
+  is eval('(4 zpost :x(5))'), '4,5', '(4 zpost :x(5))', :todo<feature>;
+
+  sub infix:<zin>($a,$b,+$x){join(",",$a,$b,$x)}
+
+  is eval('(3 zin 4 :x(5))'), '3,4,5', '(3 zin 4 :x(5))', :todo<feature>;
 
 }
