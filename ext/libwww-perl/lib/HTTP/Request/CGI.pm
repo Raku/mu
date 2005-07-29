@@ -32,7 +32,9 @@ class HTTP::Request::CGI-0.0.1[?::URI_CLASS = URI] {
         my %pairs = (
             'Content-Length' => 'CONTENT_LENGTH',
             'Content-Type'   => 'CONTENT_TYPE',
-            'Referer'        => 'HTTP_REFERER'
+            'Referer'        => 'HTTP_REFERER',
+            'Accept'         => 'HTTP_ACCEPT',
+            'User-Agent'     => 'HTTP_USER_AGENT',
         )
         
         for %pairs.kv -> $name, $key {
