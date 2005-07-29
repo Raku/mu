@@ -16,6 +16,9 @@ class HTTP::Request::CGI-0.0.1[?::URI_CLASS = URI] {
     has $.uri;
     has $.query_string;
     
+    has $.remote_host;
+    has $.remote_addr;
+    
     has HTTP::Query $.query handles «
         param params
         :delete_param<delete> :delete_params<clear>
@@ -43,7 +46,8 @@ class HTTP::Request::CGI-0.0.1[?::URI_CLASS = URI] {
             $:headers.header($name => $val) if $val.defined;
         }
         
-        $.query = HTTP::Query.new();
+        $.remote_host = %*ENV<REMOTE_HOST> if %*ENV<REMOTE_HOST>;
+        $.remote_addr = %*ENV<REMOTE_ADDR> if %*ENV<REMOTE_ADDR>;
         
         $self.:load_params();
     }
@@ -111,6 +115,14 @@ The request URI.
 
 The query string portion of the request URI.
 
+=item C<$r.remote_host>
+
+The hostname of the client, if available.
+
+=item C<$r.remote_addr>
+
+The IP address of the client, if available.
+
 =back
 
 In addition, the following request headers are set on the HTTP::Headers object,
@@ -123,6 +135,10 @@ if they are present:
 =item 2. Content-Type
 
 =item 3. Referer
+
+=item 4. Accept
+
+=item 5. User-Agent
 
 =back
 
