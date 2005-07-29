@@ -11,15 +11,24 @@ require URI;
 class HTTP::Request::CGI-0.0.1[?::URI_CLASS = URI] {
     is HTTP::Request[::URI_CLASS];
     
-    has $.query handles «param params keywords :delete_param<delete> :delete_params<clear>»;
+    our Bool $.PARSE_ARGV = bool::false;
     
-    has $:query_string is rw;
+    has $.method;
+    has $.uri;
+    has $.query_string;
+    
+    has HTTP::Query $.query handles «
+        param params
+        :delete_param<delete> :delete_params<clear>
+        keywords
+    » = { HTTP::Query.new() };
+    
     has @:keywords;
     has %:params;
     
     submethod BUILD ($r: ) {
         $.method = %*ENV<REQUEST_METHOD>;
-        $.uri = ::URI_CLASS.new(%*ENV<REQUEST_URI>);
+        $.uri    = ::URI_CLASS.new(%*ENV<REQUEST_URI>);
         
         $:headers.header(Content-Length => %*ENV<CONTENT_LENGTH>) if %*ENV<CONTENT_LENGTH>.defined;
         $:headers.header(Content-Type => %*ENV<CONTENT_TYPE>) if %*ENV<CONTENT_TYPE>.defined;
@@ -30,11 +39,9 @@ class HTTP::Request::CGI-0.0.1[?::URI_CLASS = URI] {
         $r.:load_params();
     }
     
-    method query_string () { $:query_string }
-    
     method :load_params ($self: ) {
         if ($.method.lc() eq 'get'|'head') {
-            $:query_string = %*ENV<QUERY_STRING> // %*ENV<REDIRECT_QUERY_STRING>;
+            $.query_string = %*ENV<QUERY_STRING> // %*ENV<REDIRECT_QUERY_STRING>;
             
             if ($.query_string ~~ /<[;&=]>/) {
                 $.query.parse_params($.query_string);
@@ -48,7 +55,7 @@ class HTTP::Request::CGI-0.0.1[?::URI_CLASS = URI] {
                 my $content;
                 $.query.:parse_params($content);
             }
-        } elsif (@*ARGS.elems > 0) {
+        } elsif ($.PARSE_ARGV && (@*ARGS.elems > 0)) {
             $.query.:parse_params([~] @*ARGS);
         } else {
             # XXX
@@ -70,9 +77,64 @@ my $r = HTTP::Request::CGI.new();
 
 =head1 DESCRIPTION
 
-This class is meant to ease the creation of CGI scripts by providing convenient
- access to various environment variables, as well as the parameters of the
- request (through the HTTP::Query object that is part of each instance).
+An object of this class represents a client's request.  It also contains extra
+information passed on by the HTTP server, useful to the authors of CGI scripts.
+
+=head2 Request Details
+
+An HTTP::Request::CGI object has the following public attributes:
+
+=over 8
+
+=item C<$r.method>
+
+The request method used (for example, 'GET').
+
+=item C<$r.uri>
+
+The request URI.
+
+=item C<$r.query_string>
+
+The query string portion of the request URI.
+
+=back
+
+In addition, the following request headers are set on the HTTP::Headers object,
+if they are present:
+
+=over 8
+
+=item 1. Content-Length
+
+=item 2. Content-Type
+
+=item 3. Referer
+
+=back
+
+=head2 Parameters
+
+The parameters of the request are accessible through the HTTP::Query object that
+is part of every HTTP::Request::CGI object (accessible as C<$r.query>, where
+C<$r> is the HTTP::Request::CGI object).  The following methods are delegated
+to the query object:
+
+=over 8
+
+=item C<param>
+
+=item C<params>
+
+=item C<keywords>
+
+=item C<delete_param> -> C<delete>
+
+=item C<delete_params> -> C<clear>
+
+=back
+
+Please read the HTTP::Query documentation for more information on these methods.
 
 =head1 AUTHORS
 
