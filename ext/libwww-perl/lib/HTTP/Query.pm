@@ -22,10 +22,15 @@ class HTTP::Query-0.0.1 {
         return (want.List) ?? @val :: @val[0];
     }
     
-    multi method param (Str $name, Str *@vals) is rw {
+    multi method param ($query: Str $name, Str *@vals) is rw {
         return new Proxy:
-            FETCH => -> $name { $?SELF.param($name) };
-            STORE => -> $name, *@vals { return (%:params{$name} = @vals) };
+            FETCH => -> $name {
+                return $query.param($name);
+            },
+            STORE => -> $name, *@vals {
+                %:params{$name} = @vals;
+                return $query.param($name);
+            };
     }
     
     multi method param ($self: ) {
