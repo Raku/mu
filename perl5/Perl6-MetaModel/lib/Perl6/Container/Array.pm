@@ -8,144 +8,116 @@ use Perl6::Container::Scalar;
 sub mk_containers {
 	map {
 		my $c = Perl6::Container::Scalar->new;
-		$c->scalar_store($_);
+		$c->STORE($_);
 		$c;
 	} @_;
 }
 
 sub new {
-	my $pkg = shift;
-
-	my $self = bless {
-		data => [],
-	}, $pkg;
-
-	$self;
+	my $class = shift;
+	return bless { data => [] }, $class;
 }
 
-sub array_fetch { # evaluated in rvalue contexxt
-	my $self = shift;
-	$self->{data}; # TODO Perl6::List->new(...containers...)
+sub FETCH { # evaluated in rvalue contexxt
+	(shift)->{data}; # TODO Perl6::List->new(...containers...)
 }
 
-sub array_store { # evaluated in lvalue context as a list
-	my $self = shift;
-	my $repl = shift;
-	@{$self->{data}} = @$repl;
+sub STORE { # evaluated in lvalue context as a list
+	my ($self, $repl) = @_;
+	@{$self->{data}} = @{$repl};
 }
 
-sub array_fetchKeys { # returns list of indices
-	my $self = shift;
-	0 .. $#{$self->array_fetch};
+sub FETCH_KEYS { # returns list of indices
+	0 .. $#{(shift)->FETCH};
 }
 
-sub array_fetchElem { # $idx -> $container # autovivification! - returns **CONTAINER**
-	my $self = shift;
-	my $idx = shift;
-	$self->array_fetch->[$idx]; # type == Container::Scalar
+sub FETCH_ELEM { # $idx -> $container # autovivification! - returns **CONTAINER**
+	my ($self, $index) = @_;
+	$self->FETCH->[$index]; # type == Container::Scalar
 }
 
-sub array_storeElem { # $idx -> $container -> ()
-	my $self = shift;
-	my $idx = shift;
-	my $container = shift;
-	$self->_extend_to_slot($idx);
-	$self->array_fetch->[$idx] = $container;
+sub STORE_ELEM { # $idx -> $container -> ()
+	my ($self, $index, $container) = @_;
+	$self->_extend_to_slot($index);
+	$self->FETCH->[$index] = $container;
 }
 
-sub array_fetchVal { # $idx -> $value
-	my $self = shift;
-	my $idx = shift;
-	$self->array_fetchElem($idx)->scalar_fetch;
+sub FETCH_VAL { # $idx -> $value
+	my ($self, $index) = @_;
+	$self->FETCH_ELEM($index)->FETCH; # <-- scalar FETCH
 }
 
-sub array_storeVal { # $idx -> $value -> ()
-	my $self = shift;
-	my $idx = shift;
-	my $value = shift;
-	$self->_extend_to_slot($idx);
-	$self->array_fetchElem($idx)->scalar_store($value);
+sub STORE_VAL { # $idx -> $value -> ()
+	my ($self, $index, $value) = @_;
+	$self->_extend_to_slot($index);
+	$self->FETCH_ELEM($index)->STORE($value); # <--- scalar STORE
 }
 
-sub array_fetchSize { # $int
-	my $self = shift;
-	my $idx = shift;
-	my $value = shift;
-	scalar @{$self->array_fetch};
+sub FETCH_SIZE { # $int
+	scalar @{(shift)->FETCH};
 }
 
-sub array_storeSize { # $int -> ()
-	my $self = shift;
-	my $size = shift;
-	if ($size > (my $orig = $self->array_fetchSize)){
-		push @{$self->array_fetch}, mk_containers((undef) x ($size - $orig));
+sub STORE_SIZE { # $int -> ()
+	my ($self, $size) = @_;
+	if ($size > (my $orig = $self->FETCH_SIZE)){
+		push @{$self->FETCH}, mk_containers((undef) x ($size - $orig));
 	} else {
-		$#{$self->array_fetch} = ($size - 1);
+		$#{$self->FETCH} = ($size - 1);
 	}
 }
 
-sub array_extendSize { # $int -> () # EXTEND: like storeSize, but never truncate
-	my $self = shift;
-	my $size = shift;
-	if ($size > (my $orig = $self->array_fetchSize)){
-		push @{$self->array_fetch}, mk_containers((undef) x ($size - $orig));
+sub EXTEND_SIZE { # $int -> () # EXTEND: like storeSize, but never truncate
+	my ($self, $size) = @_;
+	if ($size > (my $orig = $self->FETCH_SIZE)){
+		push @{$self->FETCH}, mk_containers((undef) x ($size - $orig));
 	}
 }
 
 sub _extend_to_slot {
-	my $self = shift;
-	my $idx = shift;
-	my $size = $idx + 1;
-	if ($self->array_fetchSize < $size){
-		$self->array_storeSize($size);
+	my ($self, $index) = @_;
+	my $size = $index + 1;
+	if ($self->FETCH_SIZE < $size){
+		$self->STORE_SIZE($size);
 	}
 }
 
-sub array_deleteElem { # $int -> (); # undef $array[$idx];
-	my $self = shift;
-	my $idx = shift;
-	undef $self->array_fetch->[$idx];
+sub DELETE_ELEM { # $int -> (); # undef $array[$idx];
+	my ($self, $index) = @_;
+	undef $self->FETCH->[$index];
 }
 
-sub array_existsElem { # $int -> $bool;
-	my $self = shift;
-	my $idx = shift;
-	exists $self->array_fetch->[$idx];
+sub EXISTS_ELEM { # $int -> $bool;
+	my ($self, $index) = @_;
+	exists $self->FETCH->[$index];
 }
 
-sub array_clear {
-	my $self = shift;
-	@{$self->array_fetch} = (); # just ref = []?
+sub CLEAR {
+	@{(shift)->array_fetch} = (); # just ref = []?
 }
 
-sub array_push { # @values -> ()
-	my $self = shift;
-	my $values = shift;
-	push @{$self->array_fetch}, mk_containers(@$values);
+sub PUSH { # @values -> ()
+	my ($self, $values) = @_;
+	push @{$self->FETCH}, mk_containers(@{$values});
 }
 
-sub array_unshift { # @values -> ()
-	my $self = shift;
-	my $values = shift;
-	unshift @{$self->array_fetch}, mk_containers(@$values);
+sub UNSHIFT { # @values -> ()
+	my ($self, $values) = @_;
+	unshift @{$self->FETCH}, mk_containers(@$values);
 }
 
-sub array_pop { # $val
-	my $self = shift;
-	(pop @{$self->array_fetch})->scalar_fetch;
+sub POP { # $val
+	(pop @{(shift)->FETCH})->FETCH; # <-- scalar FETCH
 }
 
-sub array_shift { # $val
-	my $self = shift;
-	(shift @{$self->array_fetch})->scalar_fetch;
+sub SHIFT { # $val
+	(shift @{(shift)->FETCH})->FETCH; # <-- scalar FETCH
 }
 
-sub array_splice { # $idx_from -> $idx_to -> @replace_list -> @list
-	my $self = shift;
-	my $idx_from = shift;
-	my $idx_to = shift;
-	my $replacement = 	shift;
-	map { $_->scalar_fetch } splice(@{$self->array_fetch}, $idx_from, $idx_to, mk_containers(@$replacement));
+sub SPLICE { # $idx_from -> $idx_to -> @replace_list -> @list
+	my ($self, $index_from, $index_to, $replacement) = @_;
+	map { 
+	    $_->FETCH # this is scalar FETCH
+	} splice(@{$self->FETCH}, $index_from, $index_to, mk_containers(@{$replacement}));
 }
 
 1;

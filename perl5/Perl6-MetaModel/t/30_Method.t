@@ -17,7 +17,7 @@ my $m = Perl6::Method->new('Foo' => sub { 'Foo::method' });
 isa_ok($m, 'Perl6::Method');
 
 can_ok($m, 'associated_with');
-can_ok($m, 'call');
+can_ok($m, 'do');
 
 is($m->associated_with(), 'Foo', '... this method is associated with "Foo"');
-is($m->call(), 'Foo::method', '... calling this method returns the expected string');
+is($m->do(), 'Foo::method', '... calling this method returns the expected string');

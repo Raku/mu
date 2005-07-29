@@ -4,12 +4,15 @@ package Perl6::PrivateMethod;
 use strict;
 use warnings;
 
+use Carp 'confess';
+
 use base 'Perl6::Method';
 
-sub call { 
+sub do { 
     my ($self, @args) = @_;  
-    ::CLASS();
-    $self->SUPER::call(@args); 
+    (::CLASS() eq $self->associated_with)
+        || confess "Cannot call private method from different class";
+    $self->SUPER::do(@args); 
 }
 
 1;

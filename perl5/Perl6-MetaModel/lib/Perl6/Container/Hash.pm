@@ -7,8 +7,8 @@ use Perl6::Container::Scalar;
 
 sub mk_containers { # consolidate with Array
 	map {
-		my $c = Perl6::Container::Scalar->new_instance();
-		$c->scalar_store($_);
+		my $c = Perl6::Container::Scalar->new();
+		$c->STORE($_);
 		$c;
 	} @_;
 }
@@ -58,13 +58,13 @@ sub hash_fetchVal {
 	my $idx = shift;
 	my $c = $self->hash_fetchElem($idx);
 	return undef unless $c;
-	$c->scalar_fetch;
+	$c->FETCH;
 }
 sub hash_storeVal {
 	my $self = shift;
 	my $idx = shift;
 	my $value = shift;
-	$self->_hash_vivifyElem($idx)->scalar_store($value);
+	$self->_hash_vivifyElem($idx)->STORE($value);
 }
 sub hash_fetchKeys {
 	my $self = shift;

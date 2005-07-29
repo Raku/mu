@@ -112,7 +112,7 @@ sub class {
 sub ::next_METHOD {
     my ($dispatcher, $label, $self, @args) = @{$CURRENT_DISPATCHER[-1]};             
     my $method = ::WALKMETH($dispatcher, $label); 
-    return $method->call($self, @args);    
+    return $method->do($self, @args);    
 }
 
 sub ::WALKMETH {
@@ -149,7 +149,7 @@ sub ::CALLONE {
     my $startclass = $obj->meta->dispatcher();
     push @CURRENT_DISPATCHER => [ $startclass, $methname, $obj, @{$args} ];
     while (my $method = ::WALKMETH($startclass, $methname, %{$opt})) {
-        return $method->call($obj, @{$args});
+        return $method->do($obj, @{$args});
     }
     confess "Can't locate method '$methname' via class '$startclass'" unless $maybe;
     return undef;
@@ -172,12 +172,12 @@ sub ::CALLALL {
         # if the method is not there ... 
         while (my $class = ::WALKCLASS($startclass, $methname, %{$opt})) {
             # redispatch (we don't have symbol tables, so we need to do meta-stuff)
-            return $class->meta->get_method($methname)->call($obj, @{$args});
+            return $class->meta->get_method($methname)->do($obj, @{$args});
         }            
     }
     else {
         while (my $method = ::WALKMETH($startclass, $methname, %{$opt})) {
-            push @results => [ $method->call($obj, @{$args}) ];
+            push @results => [ $method->do($obj, @{$args}) ];
         }        
     }
     return @results if @results;

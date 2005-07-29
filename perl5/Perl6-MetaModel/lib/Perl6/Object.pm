@@ -67,6 +67,7 @@ class 'Perl6::Object' => {
                 }, $class;
                 # lock the instance structure here ...
                 lock_keys(%{$self});
+                lock_keys(%{$self->{instance_data}});                
                 # and now return it ...
                 return $self;
             },

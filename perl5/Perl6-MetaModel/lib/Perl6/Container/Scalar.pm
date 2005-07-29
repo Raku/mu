@@ -5,31 +5,18 @@ use strict;
 use warnings;
 
 sub new {
-	my $pkg = shift;
-	
-	my $value;
-	my $self = bless {
-		value => \$value,
-	}, $pkg;
-
-	$self;
+	my $class = shift;
+	return bless { value => \(my $value) }, $class;
 }
 
-sub scalar_fetch {
-	my $self = shift;
+sub CONST { 0 }
 
-	$self->{value};
-}
+sub FETCH { (shift)->{value} }
 
-sub scalar_store {
-	my $self = shift;
-	my $value = shift;
-
+sub STORE {
+	my ($self, $value) = @_;
 	$self->{value} = $value;
-}
-
-sub scalar_const {
-	0;
+	$self;
 }
 
 1;

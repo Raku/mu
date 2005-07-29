@@ -13,6 +13,19 @@ use Perl6::Method;
 
 This test file checks method introspection.
 
+NOTE: (Stevan)
+I actually think that getmethod() API as described in A12 has 2 problems:
+
+1) It should really be get_methods instead, which 
+   conforms more to accepted perl-style.
+
+2) I think this should actually return a proxy object, meant for informational
+   reflection. This would allow more information to be returned that is needed
+   to be held in the actual Method object. And it would be lazy, so the info
+   is only gathered when it is needed, and no sooner.
+   
+However, all this said, I have stubbed the methods in Perl6::Method anyway.
+
 =cut
 
 class 'Cat-0.0.1-cpan:CHROMATIC' =>

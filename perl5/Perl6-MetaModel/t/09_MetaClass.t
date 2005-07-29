@@ -80,7 +80,7 @@ lives_ok {
 
 ok($mc->has_method('foo', for => 'Class'), '... the metaclass now has the class method "foo"');
 
-is($mc->get_method('foo', for => 'Class')->call(), 'class->Base::foo', '... got the class method and it returned the right value');
+is($mc->get_method('foo', for => 'Class')->do(), 'class->Base::foo', '... got the class method and it returned the right value');
 
 ## instance methods
 
@@ -90,7 +90,7 @@ lives_ok {
 
 ok($mc->has_method('foo'), '... the metaclass now has the method "foo"');
 
-is($mc->get_method('foo')->call(), 'Base::foo', '... got the method and it returned the right value');
+is($mc->get_method('foo')->do(), 'Base::foo', '... got the method and it returned the right value');
 
 ## class attributes
 
@@ -110,7 +110,7 @@ is_deeply(
 isa_ok($mc->find_attribute_spec('@.bar', for => 'Class'), 'Perl6::Class::Attribute');
 isa_ok($mc->find_attribute_spec('$:foo', for => 'Class'), 'Perl6::Class::Attribute');
 
-is_deeply($mc->get_method('bar', for => 'Class')->call(), [], '... our class attribute @.bar was initialized correctly');
+is_deeply($mc->get_method('bar', for => 'Class')->do(), [], '... our class attribute @.bar was initialized correctly');
 ok(!defined($mc->find_attribute_spec('$:foo', for => 'Class')->get_value()), '... our class attribute $:foo was initialized correctly');
 
 $mc->find_attribute_spec('$:foo', for => 'Class')->set_value('class->$:foo');
@@ -169,7 +169,7 @@ lives_ok {
 
 ok($mc2->has_method('bar'), '... the metaclass now has the method "bar"');
 
-is($mc2->get_method('bar')->call(), 'Foo::bar', '... got the method and it returned the right value');
+is($mc2->get_method('bar')->do(), 'Foo::bar', '... got the method and it returned the right value');
 
 lives_ok {
     $mc2->add_attribute('$.bar' => Perl6::Instance::Attribute->new($mc2, '$.bar'));
@@ -217,7 +217,7 @@ lives_ok {
 
 ok($mc3->has_method('baz'), '... the metaclass now has the method "baz"');
 
-is($mc3->get_method('baz')->call(), 'Bar::baz', '... got the method and it returned the right value');
+is($mc3->get_method('baz')->do(), 'Bar::baz', '... got the method and it returned the right value');
 
 lives_ok {
     $mc3->add_attribute('$.baz' => Perl6::Instance::Attribute->new($mc3, '$.baz'));
@@ -259,7 +259,7 @@ lives_ok {
 
 ok($mc4->has_method('blah'), '... the metaclass now has the method "blah"');
 
-is($mc4->get_method('blah')->call(), 'Foo::Bar::blah', '... got the method and it returned the right value');
+is($mc4->get_method('blah')->do(), 'Foo::Bar::blah', '... got the method and it returned the right value');
 
 isa_ok($mc4->find_attribute_spec('$.foo'), 'Perl6::Attribute');
 isa_ok($mc4->find_attribute_spec('@.foo'), 'Perl6::Attribute');

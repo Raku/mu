@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 use Test::Exception;
 
 use Perl6::MetaModel;
@@ -56,4 +56,20 @@ dies_ok {
         $value = Foo->new()->call_foo_instance();
     } '... this should live';
     is($value, 'iFoo::_foo', '... we got the right value');    
-}    
+}   
+
+
+class Bar => {
+    is => [ 'Perl6::Object' ],
+    class => {
+        methods => {
+            'call_foo_class' => sub { Foo->_foo_class() }
+        }
+    }
+};
+ 
+throws_ok {
+    Bar->call_foo_class();
+} qr/^Cannot call private method from different class/, '... this should die';
+
+

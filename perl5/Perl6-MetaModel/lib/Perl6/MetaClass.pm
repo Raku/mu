@@ -395,7 +395,7 @@ sub AUTOLOAD {
         || confess "Method ($label) not found for instance ($self)";        
     my $method = $method_table->{$label};
 
-    return $method->call($self, @_);     
+    return $method->do($self, @_);     
 }
 
 ###############################################################################

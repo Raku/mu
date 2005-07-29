@@ -22,8 +22,18 @@ sub new {
     }, $class;
 }
 
+# XXX -
+# this is the API from A12, but I think
+# that this really should be some kind
+# of proxy object which wraps the method.
+# (see t/35_Method_introspection.t for more)
+sub name      { (shift)->{name} }
+sub signature { '*@_'           }
+sub returns   { 'Any'           }
+sub multi     { 0               }
+
 sub associated_with { (shift)->{associated_with} }
-sub call { 
+sub do { 
     my ($self, @args) = @_;  
     push @CURRENT_CLASS_STACK => $self->{associated_with};
     push @CURRENT_INVOCANT_STACK => $args[0] if blessed($args[0]);    
@@ -51,7 +61,7 @@ Perl6::Method - Base class for Methods in the Perl 6 Meta Model
 
 =item B<new ($associated_with, $code)>
 
-=item B<call (@args)>
+=item B<do (@args)>
 
 =item B<associated_with>
 

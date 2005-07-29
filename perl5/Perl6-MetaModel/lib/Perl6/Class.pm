@@ -44,7 +44,7 @@ sub AUTOLOAD {
         ($self->meta->has_method($label, (for => 'private')))
             || confess "Private Method ($label) not found for instance ($self)";        
         my $method = $self->meta->get_method($label, (for => 'private'));
-        @return_value = $method->call($self, @_);             
+        @return_value = $method->do($self, @_);             
     }
     else {
         # get the dispatcher instance ....
@@ -60,7 +60,7 @@ sub AUTOLOAD {
 
         push @Perl6::MetaModel::CURRENT_DISPATCHER => [ $dispatcher, $label, $self, @_ ];
 
-        @return_value = $method->call($self, @_);     
+        @return_value = $method->do($self, @_);     
 
         # we can dispose of this value, as it 
         # should never be called outside of 
