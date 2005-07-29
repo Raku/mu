@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 63;
+plan 66;
 
 eval_is 'infix:<..>(1, 10, by => 2)', <1 3 5 7 9>, 'range operator, :by parameter, long name', :todo<feature>;
 eval_is '1..10 :by(2)', <1 3 5 7 9>, 'range operator, :by adverb, space', :todo<feature>;
@@ -237,6 +237,25 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
 
   $v = f "b":x;
   is $v, "1b", 'f "b":x';
+
+  { # adverbs as pairs
+
+    sub f1($s,+$x){$s.perl~$x}
+
+    $v = f1(\:bar :x("b"));
+    is $v, "('bar' => 1)b", 'f1(\:bar :x("b"))';
+
+    sub f2(Pair $p){$p.perl}
+
+    $v = f2(:bar);
+    is $v, "('bar' => 1)", 'f2(:bar)';
+
+    sub f3(Pair $p1, Pair $p2){$p1.perl~" - "~$p2.perl}
+
+    $v = f3(:bar,:hee(3));
+    is $v, "('bar' => 1) - ('hee' => 3)", 'f3(:bar,:hee(3))';
+  
+  }
 
   # add more tests...
 
