@@ -250,7 +250,7 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
 
   $v = 'eval failed';
   eval '$v = f:x "b"';
-  is $v, "ab", 'f:x "b"', :todo<bug>;
+  is $v, "1b", 'f:x "b"', :todo<bug>;
 
   # fs X  fsX  fs x  fsx
 
