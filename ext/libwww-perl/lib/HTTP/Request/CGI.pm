@@ -1,12 +1,11 @@
 #!/usr/bin/pugs
 use v6;
 
+require URI;
 use URI::Escape <uri_unescape>;
 
 require HTTP::Request;
 require HTTP::Query;
-
-require URI;
 
 class HTTP::Request::CGI-0.0.1[?::URI_CLASS = URI] {
     is HTTP::Request[::URI_CLASS];
@@ -26,17 +25,25 @@ class HTTP::Request::CGI-0.0.1[?::URI_CLASS = URI] {
     has @:keywords;
     has %:params;
     
-    submethod BUILD ($r: ) {
+    submethod BUILD ($self: ) {
         $.method = %*ENV<REQUEST_METHOD>;
         $.uri    = ::URI_CLASS.new(%*ENV<REQUEST_URI>);
         
-        $:headers.header(Content-Length => %*ENV<CONTENT_LENGTH>) if %*ENV<CONTENT_LENGTH>.defined;
-        $:headers.header(Content-Type => %*ENV<CONTENT_TYPE>) if %*ENV<CONTENT_TYPE>.defined;
-        $:headers.header(Referer => %*ENV<HTTP_REFERER>) if %*ENV<HTTP_REFERER>.defined;
+        my %pairs = (
+            'Content-Length' => 'CONTENT_LENGTH',
+            'Content-Type'   => 'CONTENT_TYPE',
+            'Referer'        => 'HTTP_REFERER'
+        )
+        
+        for %pairs.kv -> $name, $key {
+            my $val = %*ENV{$key};
+            
+            $:headers.header($name => $val) if $val.defined;
+        }
         
         $.query = HTTP::Query.new();
         
-        $r.:load_params();
+        $self.:load_params();
     }
     
     method :load_params ($self: ) {
