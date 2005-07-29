@@ -66,7 +66,7 @@ f <~~ exps = foldr mergeStmts Noop (map f exps)
 
 {-
 import Pugs.Run
-import Pugs.AST.Internals
+import Pugs.AST
 import Data.Map
 
 test :: P5AST -> IO Val

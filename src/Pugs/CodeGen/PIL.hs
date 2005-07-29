@@ -3,7 +3,7 @@
 
 module Pugs.CodeGen.PIL (genPIL) where
 import Pugs.Internals
-import Pugs.AST.Internals
+import Pugs.AST
 import Emit.PIR
 import Pugs.Compile
 

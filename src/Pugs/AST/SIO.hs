@@ -6,11 +6,13 @@ module Pugs.AST.SIO (
     SIO,
     runSTM, runIO,
     liftSTM, liftIO,
+
+    module Control.Concurrent.STM
 ) where
-import Pugs.Internals
+import Control.Concurrent.STM
+import Control.Monad.RWS
 
 data SIO a = MkSTM !(STM a) | MkIO !(IO a) | MkSIO !a
-    deriving (Typeable)
 
 runSTM :: SIO a -> STM a
 runSTM (MkSTM stm)  = stm

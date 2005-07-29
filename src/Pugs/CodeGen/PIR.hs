@@ -16,7 +16,6 @@
 module Pugs.CodeGen.PIR (genPIR) where
 import Pugs.Internals
 import Pugs.AST
-import Pugs.AST.Internals
 import Pugs.Types
 import Pugs.Eval.Var
 import Emit.PIR
@@ -25,6 +24,7 @@ import Text.PrettyPrint
 import Pugs.CodeGen.PIR.Prelude (preludeStr)
 import Pugs.Prim.Eval
 import Pugs.Compile
+import Pugs.Run (getLibs)
 
 type CodeGen a = WriterT [Stmt] (ReaderT TEnv IO) a
 type CodeGenMonad = WriterT [Stmt] (ReaderT TEnv IO)

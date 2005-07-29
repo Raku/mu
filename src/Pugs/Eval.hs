@@ -29,7 +29,6 @@ import Prelude hiding ( exp )
 import qualified Data.Map as Map
 
 import Pugs.AST
-import Pugs.AST.Internals
 import Pugs.Junc
 import Pugs.Bind
 import Pugs.Prim
