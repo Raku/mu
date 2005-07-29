@@ -87,26 +87,32 @@ HTTP::Query - Class designed to allow easy manipulation of query strings
 
 =head1 SYNOPSIS
 
-require HTTP::Query;
-
-my $q = HTTP::Query.new();
-
-$q.parse_params('foo=bar&baz=quux');
-
-my $params = $q.params(); # or `$q.param()` (for backward compatibility)
-
-my $foo = $q.param('foo');
-
-$q.param('foo') = <an array of values>; # or `$q.param('foo', 'an', 'array', 'of', 'values');`
-
-$q.delete('foo');
-
-$q.clear();
+    require HTTP::Query;
+    
+    my $q = HTTP::Query.new();
+    
+    $q.parse_params('foo=bar&baz=quux');
+    
+    my $params = $q.params();
+        # or `$q.param()` (for backward compatibility)
+    
+    my $foo = $q.param('foo');
+    
+    $q.param('foo') = <an array of values>;
+        # or `$q.param('foo', 'an', 'array', 'of', 'values');`
+    
+    $q.delete('foo');
+    
+    $q.clear();
 
 =head1 DESCRIPTION
 
-This class is meant to provide convenient access to the various parts of a query
- string, as passed to it by the user.
+An object of this class represents the query string portion of a requested URI.
+It provides the following methods:
+
+=over 8
+
+=back
 
 =head1 AUTHORS
 

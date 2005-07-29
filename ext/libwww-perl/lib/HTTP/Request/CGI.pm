@@ -71,9 +71,13 @@ HTTP::Request::CGI - Subclass of HTTP::Request for dealing with CGI-generated re
 
 =head1 SYNOPSIS
 
-require HTTP::Request::CGI;
-
-my $r = HTTP::Request::CGI.new();
+    require HTTP::Request::CGI;
+    
+    my $r = HTTP::Request::CGI.new();
+    
+    say "Request method: " ~ $r.method;
+    say "Request URI: "    ~ $r.uri;
+    say "Query string: "   ~ $r.query_string;
 
 =head1 DESCRIPTION
 
