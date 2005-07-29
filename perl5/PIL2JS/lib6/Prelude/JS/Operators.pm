@@ -30,6 +30,7 @@ my @subs = (
   "int",          "N", "parseInt(String(a))",
   "chr",          "N", "String.fromCharCode(a)",
   "ord",          "S", "a.length > 0 ? a.charCodeAt(0) : undefined",
+  "hex",          "S", "parseInt(a, 16)",
 );
 
 # First, we generate the code to eval later.
