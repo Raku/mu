@@ -17,8 +17,7 @@ my $isa = sub {
 my $can = sub {
     my ($self, $label) = @_;
     return undef unless $label;
-    return ::WALKMETH($self->meta->dispatcher(':canonical'), $label) if blessed($self);
-    return ::WALKMETH($self->meta->dispatcher(':canonical'), $label, for => 'Class');
+    return ::WALKMETH($self->meta->dispatcher(':canonical'), $label, (blessed($self) ? () : (for => 'Class')));
 };  
 
 class 'Perl6::Object' => {

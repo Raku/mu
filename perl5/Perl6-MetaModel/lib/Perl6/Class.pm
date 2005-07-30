@@ -28,50 +28,12 @@ sub AUTOLOAD {
     my @AUTOLOAD = split '::', our $AUTOLOAD;
     my $label = $AUTOLOAD[-1];
     my $self = shift;    
-    # NOTE:
-    # DESTROYALL is what should really be called
-    # so we just deal with it like this :)
     if ($label =~ /DESTROY/) {
         # XXX - hack to avoid destorying Perl6::Class object
         # as that presents some issues for some reason
         return unless blessed($self) ne 'Perl6::Class';
-        $label = 'DESTROYALL';        
-    }
-    my @return_value;
-
-    # check if this is a private method
-    if ($label =~ /^_/) {
-        ($self->meta->has_method($label, (for => 'private')))
-            || confess "Private Method ($label) not found for instance ($self)";        
-        my $method = $self->meta->get_method($label, (for => 'private'));
-        @return_value = $method->do($self, @_);             
-    }
-    else {
-        # get the dispatcher instance ....
-        my $dispatcher = $self->meta->dispatcher(':canonical');
-
-        # just discard it if we are calling SUPER
-        $dispatcher->next() if ($AUTOLOAD[0] eq 'SUPER');
-
-        # this needs to be fully qualified for now
-        my $method = ::WALKMETH($dispatcher, $label, (blessed($self) ? () : (for => 'Class')));
-        (blessed($method) && $method->isa('Perl6::Method'))
-            || confess "Method ($label) not found for instance ($self)";        
-
-        push @Perl6::MetaModel::CURRENT_DISPATCHER => [ $dispatcher, $label, $self, @_ ];
-
-        @return_value = $method->do($self, @_);     
-
-        # we can dispose of this value, as it 
-        # should never be called outside of 
-        # a method invocation
-        pop @Perl6::MetaModel::CURRENT_DISPATCHER;
-    }
-    # return our values
-    return wantarray ?
-                @return_value
-                :
-                $return_value[0];
+    }    
+    return ::dispatch($self, $label, ($AUTOLOAD[0] eq 'SUPER') ? 1 : 0, @_);   
 }
 
 

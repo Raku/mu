@@ -365,37 +365,11 @@ sub can {
     return $self->meta->has_method($label);
 }
 
-# XXX - in order to allow for metaclass subclassing
-# we need to make this use the MRO, and not
-# just check the local method table. 
 sub AUTOLOAD {
     my @AUTOLOAD = split '::', our $AUTOLOAD;
     my $label = $AUTOLOAD[-1];
     my $self = shift;    
-    return if ($label =~ /DESTROY/);
-
-    my $meta = $self->meta();   
-
-    my $method_table_name;
-    
-    # check the private methods
-    if ($label =~ /^_/) {
-        $method_table_name = '%:private';
-    }
-    else {
-        $method_table_name = '%:class_definition';
-    }
-    # we need to just access stuff directly here
-    # so as to avoid the method call ... but this
-    # is only needed in this package to avoid the
-    # circularity
-    my $method_table = $meta->{instance_data}->{$method_table_name}->{methods};
-      
-    (exists $method_table->{$label})
-        || confess "Method ($label) not found for instance ($self)";        
-    my $method = $method_table->{$label};
-
-    return $method->do($self, @_);     
+    return ::dispatch($self, $label, 0, @_);
 }
 
 ###############################################################################
