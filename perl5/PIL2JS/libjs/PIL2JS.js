@@ -632,10 +632,14 @@ var _26main_3a_3aref = PIL2JS.Box.constant_func(1, function (args) {
 _26main_3a_3aref.perl_name = "&main::ref";
 PIL2JS.Box.prototype.perl_methods["ref"] = _26main_3a_3aref;
 
+// &*isa. hack.
 var _26main_3a_3aisa = PIL2JS.Box.constant_func(1, function (args) {
   var self = args[1], cmptype = args[2].GET(), ref = _26main_3a_3aref;
   var type = ref.GET()([PIL2JS.Context.ItemAny, self]).GET();
-  return new PIL2JS.Box.Constant(type == cmptype);
+  return new PIL2JS.Box.Constant(
+    type == cmptype                      ||
+    type == "Array" && cmptype == "List"
+  );
 });
 _26main_3a_3aisa.perl_name = "&main::isa";
 PIL2JS.Box.prototype.perl_methods["isa"] = _26main_3a_3aisa;

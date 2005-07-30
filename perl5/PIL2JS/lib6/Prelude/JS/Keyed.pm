@@ -1,3 +1,7 @@
+# XXX: The [...] hacks are there to make operations on one-elem lists work (as
+# sub foo { my @a = <a>; return @a } does not return an array with one elem but
+# the Str "a".
+
 # No MMD yet.
 method exists (Hash|Pair|Array $self: $idx) {
   if $self.isa("Ref") and PIL2JS::Internals::generic_deref($self).isa("Hash") {
@@ -72,7 +76,7 @@ method keys (Hash|Pair|Array $self:) {
 
 method values (Hash|Pair|Array $self:) {
   if $self.isa("Ref") and PIL2JS::Internals::generic_deref($self).isa("Hash") {
-    %$self.keys.map:{ $self{$_} };
+    [%$self.keys].map:{ $self{$_} };
   } elsif $self.isa("Pair") {
     ($self.value,);
   } elsif $self.isa("Ref") and PIL2JS::Internals::generic_deref($self).isa("Array") {
@@ -84,11 +88,11 @@ method values (Hash|Pair|Array $self:) {
 
 method kv (Hash|Pair|Array $self:) {
   if $self.isa("Ref") and PIL2JS::Internals::generic_deref($self).isa("Hash") {
-    $self.keys.map:{ $_, $self{$_} };
+    [$self.keys].map:{ $_, $self{$_} };
   } elsif $self.isa("Pair") {
     ($self.key, $self.value);
   } elsif $self.isa("Ref") and PIL2JS::Internals::generic_deref($self).isa("Array") {
-    $self.keys.map:{ $_, $self[$_] };
+    [$self.keys].map:{ $_, $self[$_] };
   } else {
     die ".kv does not work on objects of type {$self.ref}!";
   }
@@ -96,11 +100,11 @@ method kv (Hash|Pair|Array $self:) {
 
 method pairs (Hash|Pair|Array $self:) {
   if $self.isa("Ref") and PIL2JS::Internals::generic_deref($self).isa("Hash") {
-    $self.keys.map:{ $_ => $self{$_}; };    # Don't remove the ";" inside the map!
+    [$self.keys].map:{ $_ => $self{$_}; };    # Don't remove the ";" inside the map!
   } elsif $self.isa("Pair") {
     ($self,);
   } elsif $self.isa("Ref") and PIL2JS::Internals::generic_deref($self).isa("Array") {
-    $self.keys.map:{ $_ => $self[$_]; };    # ditto
+    [$self.keys].map:{ $_ => $self[$_]; };    # ditto
   } else {
     die ".pairs does not work on objects of type {$self.ref}!";
   }
