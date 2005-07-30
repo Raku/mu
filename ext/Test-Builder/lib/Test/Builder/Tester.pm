@@ -51,6 +51,9 @@ my $tb_output = Test::Builder::Tester::Output.new();
 my $tb_test   = Test::Builder.new( output => $tb_output );
 $tb_test.plan( 'no_plan' );
 
+# remove header from output object; it gets in the way of the first test
+$tb_output.output();
+
 sub plan ( Int $tests ) is export
 {
     $Test.plan( tests => $tests );
