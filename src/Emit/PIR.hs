@@ -1,5 +1,14 @@
 {-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -fno-warn-orphans -funbox-strict-fields -cpp #-}
 
+{-|
+    Parrot PIR syntax tree.
+
+>   All that is gold does not glitter,
+>   Not all those who wander are lost;
+>   The old that is strong does not wither,
+>   Deep roots are not reached by the frost.
+-}
+
 module Emit.PIR (
     module Emit.PIR,
     module Emit.Common,
