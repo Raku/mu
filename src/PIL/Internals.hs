@@ -3,7 +3,7 @@
 module PIL.Internals (
     Arbitrary(..),
     gen1, gen2, assert,
-    newSTRef, readSTRef, writeSTRef, modifySTRef, runST, ST(..), STRef,
+    newSTRef, readSTRef, writeSTRef, modifySTRef, runST, ST, STRef,
 ) where
 import Control.Monad.ST
 import Data.STRef

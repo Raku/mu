@@ -43,7 +43,7 @@ bind (UCon x) (TCon y) = do
     (id, val, tied) <- readSTRef y
     case tied of
         Untied -> writeSTRef x (id, val)
-        _      -> fail "Cannot bind a tied into a non-tieable one"
+        _      -> fail "Cannot bind a tied container into a non-tieable one"
 bind (TCon x) (UCon y) = do
     (id, val) <- readSTRef y
     writeSTRef x (id, val, Untied)
@@ -68,7 +68,9 @@ testFail = do
     y <- hashEnv
     bind x y
 
-main = do
-    print ("testOk:", runST testOk)
-    print ("testFail:", runST testFail)
+tests = do
+    putStrLn "==> untie(%ENV); my %foo := %ENV;"
+    print $ runST testOk
+    putStrLn "==> my %foo := %ENV;"
+    print $ runST testFail
 
