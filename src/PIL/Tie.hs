@@ -2,29 +2,25 @@
 
 module PIL.Tie (
     Scalar, Array, Hash,
-    Tie, TiedScalar, TiedArray, TiedHash,
+    TiedScalar, TiedArray, TiedHash,
 ) where
 import PIL.Internals
 
-data Tie a b
-    = Tied (a b)
-    | Untied (TVar b)
-
-data TiedScalar a = MkTiedScalar
-    { fetchS :: Eval a
-    , storeS :: a -> Eval ()
+data TiedScalar = MkTiedScalar
+    { fetchS :: Eval Scalar
+    , storeS :: Scalar -> Eval ()
     }
 
 -- Stub interface; more to come
-data TiedArray a = MkTiedArray
-    { fetchA :: Eval a
-    , storeA :: a -> Eval ()
+data TiedArray = MkTiedArray
+    { fetchA :: Eval Array
+    , storeA :: Array -> Eval ()
     }
 
 -- Stub interface; more to come
-data TiedHash a = MkTiedHash
-    { fetchH :: Eval a
-    , storeH :: a -> Eval ()
+data TiedHash = MkTiedHash
+    { fetchH :: Eval Hash
+    , storeH :: Hash -> Eval ()
     }
 
 data Scalar = MkScalar Value

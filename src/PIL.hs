@@ -8,8 +8,13 @@ type Id = Int
 
 -- A Container in Perl 6 is a mutable reference to a pair of
 -- (id, content); the content may be tied.
-data Box a where
-    ScalarBox :: TVar (Id, Tie TiedScalar Scalar) -> Box Scalar
-    ArrayBox  :: TVar (Id, Tie TiedArray Array) -> Box Array
-    HashBox   :: TVar (Id, Tie TiedHash Hash) -> Box Hash
+data Container a where
+    ScalarBox :: TVar (Box Scalar TiedScalar) -> Container Scalar
+    ArrayBox  :: TVar (Box Array TiedArray) -> Container Array
+    HashBox   :: TVar (Box Hash TiedHash) -> Container Hash
 
+data Box a b = MkBox
+    { ident :: Id
+    , boxed :: a
+    , tied  :: b
+    }
