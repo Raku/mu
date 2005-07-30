@@ -799,9 +799,16 @@ EOF
     # Should we (and can we) supply a default for an optional param?
     if($self->{tpDefault}->isa("PIL::Just")) {
       my $undef = PIL::Nodes::undef_of $name;
-      push @js,
-        "if($jsname == undefined) " .
-        "$jsname = $undef.BINDTO(" . $self->{tpDefault}->[0]->as_js . ");";
+      # XXX Hack
+      my $other = $self->{tpDefault}->[0]->as_js;
+      if(
+        $self->{tpDefault}->[0]->isa("PIL::PExp") and
+        $self->{tpDefault}->[0]->[0]->isa("PIL::PVar") and
+        $self->{tpDefault}->[0]->[0]->[0] eq '$_'
+      ) {
+        $other = "$other == undefined ? new PIL2JS.Box.Constant(undefined) : $other";
+      }
+      push @js, "if($jsname == undefined) $jsname = $undef.BINDTO($other);";
     }
 
     # is copy?
