@@ -1,10 +1,3 @@
-sub prefix:<\>($thing is rw) is primitive {
-  JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var thing = args[1];
-    return new PIL2JS.Box.Constant(new PIL2JS.Ref(thing));
-  })')($thing);
-}
-
 sub PIL2JS::Internals::generic_deref($thing) is primitive is rw {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var thing = args[1].GET();

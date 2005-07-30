@@ -1,5 +1,5 @@
-sub circumfix:<{}>(Array $pairs) is primitive { \hash(*$pairs) }
-sub hash(Pair *@pairs) is primitive {
+sub circumfix:<{}>(@pairs) is primitive { \hash(*@pairs) }
+sub hash(*@pairs) is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt   = args.shift();
     var pairs = args[0].GET();
@@ -35,16 +35,13 @@ sub hash(Pair *@pairs) is primitive {
   })')(@pairs);
 }
 
-method postcircumfix:<{}>(Hash $self: $key) {
-  return PIL2JS::Internals::generic_deref($self){$key}
-    if $self.isa("Ref");
-  die "Can't use object of type {$self.ref} as a hash!"
-    unless $self.isa("Hash");
+method postcircumfix:<{}>(%self: $key) {
+  die "Can't use object of type {%self.ref} as a hash!"
+    unless %self.isa("Hash");
 
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt  = args.shift();
     var hash = args[0].GET();
-    if(hash instanceof PIL2JS.Ref) hash = hash.referencee.GET();
     var key  = args[1];
 
     // Relay .GET and .STORE to hash.entries[key].
@@ -76,7 +73,7 @@ method postcircumfix:<{}>(Hash $self: $key) {
     };
 
     return ret;
-  })')($self, $key);
+  })')(%self, $key);
 }
 
 sub infix:«=>»($key, $value)  is primitive {

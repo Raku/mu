@@ -121,6 +121,21 @@ EOF
 { package PIL::SubPointy;  our @ISA = qw<PIL::SubType>; sub as_constant { PIL::Nodes::SUBPOINTY } }
 { package PIL::SubMethod;  our @ISA = qw<PIL::SubType>; sub as_constant { PIL::Nodes::SUBMETHOD } }
 
+# Returns the undef/zero/default container for a given variable type.
+#   my $x;   # Really my $x = undef
+#   my @x;   # Really my @x = ()
+#   etc.
+sub undef_of($) {
+  my $sigil = substr $_[0], 0, 1;
+  die "Sigil doesn't match /[\$&@%]/!\n" unless $sigil =~ /[\$&@%]/;
+  return {
+    '$' => 'new PIL2JS.Box(undefined)',
+    '&' => 'new PIL2JS.Box(undefined)',
+    '@' => 'new PIL2JS.Box([])',
+    '%' => 'new PIL2JS.Box(new PIL2JS.Hash)',
+  }->{$sigil};
+}
+
 # Doublequotes an input string, e.g. foo""bar -> foo\"\"bar
 sub doublequote($) {
   my $str = shift;
@@ -706,10 +721,11 @@ EOF
 
     my $jsname   = PIL::Nodes::name_mangle $name;
     my $pairname = PIL::Nodes::doublequote(substr $name, 1);
+    my $undef    = PIL::Nodes::undef_of $name;
     return <<EOF;
 var $jsname = undefined;
 if(pairs[$pairname] != undefined) {
-  $jsname = pairs[$pairname];
+  $jsname = $undef.BINDTO(pairs[$pairname]);
   args = PIL2JS.delete_pair_from_args(args, $pairname);
 }
 EOF
@@ -734,12 +750,13 @@ EOF
     }
 
     my $jsname = PIL::Nodes::name_mangle $name;
+    my $undef  = PIL::Nodes::undef_of $name;
     # Are we a take-everything slurpy param (*@foo, as opposed to *$foo)?
     if(
       not $self->{tpParam}{paramContext}->isa("PIL::CxtSlurpy") or
       $name !~ /^@/
     ) {
-      push @js, "if($jsname == undefined) $jsname = args.shift();";
+      push @js, "if($jsname == undefined && args.length > 0) $jsname = $undef.BINDTO(args.shift());";
     } else {
       push @js, "if($jsname == undefined) { $jsname = new PIL2JS.Box.Constant(args); args = [] }";
     }
@@ -781,14 +798,15 @@ EOF
 
     # Should we (and can we) supply a default for an optional param?
     if($self->{tpDefault}->isa("PIL::Just")) {
+      my $undef = PIL::Nodes::undef_of $name;
       push @js,
         "if($jsname == undefined) " .
-        "$jsname = " . $self->{tpDefault}->[0]->as_js . ";";
+        "$jsname = $undef.BINDTO(" . $self->{tpDefault}->[0]->as_js . ");";
     }
 
     # is copy?
     if($self->{tpParam}{isLValue}->isa("PIL::False")) {
-      push @js, "$jsname = $jsname.clone();";
+      push @js, "$jsname = $jsname.copy();";
     }
 
     # is rw?

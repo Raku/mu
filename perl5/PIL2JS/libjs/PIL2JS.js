@@ -160,14 +160,62 @@ PIL2JS.Box.prototype = {
       PIL2JS.die("Binding would create a bind cycle!");
     }
 
-    this.GET   = other.GET;
-    this.STORE = other.STORE;
-    this.uid   = other.uid;
+    var get   = other.GET,   my_ctype    = this.container_type,
+        store = other.STORE, other_ctype = other.container_type;
+
+    // No problem: $foo := $bar, @foo := @bar, %foo := %bar
+    if(my_ctype == other_ctype) {
+      this.GET   = get;
+      this.STORE = function (n) { store(n); return this };
+      this.uid   = other.uid;
+    // Problematic: $foo := @array, $foo := %hash
+    // See http://www.nntp.perl.org/group/perl.perl6.language/22541:
+    // Right, so I guess what really happens is ref autogeneration in that
+    // case, and there's no difference between
+    //
+    //    $x = [at]array;
+    //    $x := [at]array;
+    //
+    // Hey, who said anything about consistency?  :-)
+    } else if(my_ctype == PIL2JS.ContainerType.Scalar) {
+      var val    = get();
+      this.GET   = function ()  { return new PIL2JS.Ref(new PIL2JS.Box.Constant(val)) };
+      this.STORE = function (n) { val = n.GET(); return this };
+      this.uid   = other.uid;
+    } else if(my_ctype == PIL2JS.ContainerType.Array && other_ctype == PIL2JS.ContainerType.Scalar) {
+      var other_val = get();
+      if(other_val instanceof PIL2JS.Ref && other_val.referencee.GET() instanceof Array) {
+        // Ok.
+        var other_box = other_val.referencee;
+        this.GET   = other_box.GET;
+        this.STORE = other_box.STORE;
+        this.uid   = other.uid;
+      } else {
+        PIL2JS.die("Can't use \"" + this.GET() + "\" as an array of array reference!");
+      }
+    } else if(my_ctype == PIL2JS.ContainerType.Hash && other_ctype == PIL2JS.ContainerType.Scalar) {
+      var other_val = get();
+      if(other_val instanceof PIL2JS.Ref && other_val.referencee.GET() instanceof PIL2JS.Hash) {
+        // Ok.
+        var other_box = other_val.referencee;
+        this.GET   = other_box.GET;
+        this.STORE = other_box.STORE;
+        this.uid   = other.uid;
+      } else {
+        PIL2JS.die("Can't use \"" + this.GET() + "\" as a hash or hash reference!");
+      }
+    // Impossible (confirmed by Larry:
+    // http://www.nntp.perl.org/group/perl.perl6.language/22535)
+    // @foo := %bar, %bar := @foo
+    } else {
+      PIL2JS.die("Can't bind arrays to hashes or hashes to arrays!");
+    }
+
     return this;
   },
 
   // Needed for "is copy".
-  clone: function () {
+  copy: function () {
     return new PIL2JS.Box(this.GET());
   },
 
@@ -272,9 +320,9 @@ PIL2JS.Box.constant_func = function (arity, f) {
 };
 
 PIL2JS.ContainerType = {
-  Scalar: {},
-  Array:  {},
-  Hash:   {}
+  Scalar: { toString: function () { return "<PIL2JS.ContainerType.Scalar>" } },
+  Array:  { toString: function () { return "<PIL2JS.ContainerType.Array>"  } },
+  Hash:   { toString: function () { return "<PIL2JS.ContainerType.Hash>"   } }
 };
 
 PIL2JS.container_type = function (thing) {
@@ -554,30 +602,46 @@ PIL2JS.catch_all_exceptions = function (code) {
   }
 };
 
-// Hacks, we don't do MMD yet
-/*
-PIL2JS.mmd_hacks = {
-  defined: function () { return _26main_3a_3adefined },
-};
-for(var methname in PIL2JS.mmd_hacks) {
-  PIL2JS.Box.prototype.perl_methods[methname] =
-    new PIL2JS.Box.Constant(function (args) {
-      return PIL2JS.mmd_hacks[methname]().GET()(args);
-    });
-}*/
+// &*ref.
+var _26main_3a_3aref = PIL2JS.Box.constant_func(1, function (args) {
+  var thing = args[1].GET();
+  if(typeof(thing) == "string" || thing instanceof String) {
+    return new PIL2JS.Box.Constant("Str");
+  } else if(typeof(thing) == "boolean" || thing instanceof Boolean) {
+    return new PIL2JS.Box.Constant("Bool");
+  } else if(typeof(thing) == "number" || thing instanceof Number) {
+    return new PIL2JS.Box.Constant("Num");
+  } else if(thing instanceof Array) {
+    return new PIL2JS.Box.Constant("Array");
+  } else if(thing instanceof PIL2JS.Ref) {
+    return new PIL2JS.Box.Constant("Ref");
+  } else if(thing instanceof PIL2JS.Hash) {
+    return new PIL2JS.Box.Constant("Hash");
+  } else if(thing instanceof PIL2JS.Pair) {
+    return new PIL2JS.Box.Constant("Pair");
+  } else if(thing instanceof Function) {
+    return new PIL2JS.Box.Constant("Code");
+  } else {
+    PIL2JS.die(
+      "Internal error: .ref() not yet implemented for " +
+      typeof(thing) +
+      "\n"
+    );
+  }
+});
+_26main_3a_3aref.perl_name = "&main::ref";
+PIL2JS.Box.prototype.perl_methods["ref"] = _26main_3a_3aref;
 
-/*PIL2JS.extract_args_and_call = function (descr, f) {
-  return function (args) {
-    var cxt   = args.shift();
-    args      = PIL2JS.possibly_flatten(args);
-    var pairs = PIL2JS.grep_for_pairs(args);
+var _26main_3a_3aisa = PIL2JS.Box.constant_func(1, function (args) {
+  var self = args[1], cmptype = args[2].GET(), ref = _26main_3a_3aref;
+  var type = ref.GET()([PIL2JS.Context.ItemAny, self]).GET();
+  return new PIL2JS.Box.Constant(type == cmptype);
+});
+_26main_3a_3aisa.perl_name = "&main::isa";
+PIL2JS.Box.prototype.perl_methods["isa"] = _26main_3a_3aisa;
 
-    if(args.length != 0) {
-      PIL2JS.die(
-        "" + args.length + " more parameters passed to sub " + XXX +
-        " than expected (" + f.arity + ")!"
-      );
-    }
-
-  };
-};*/
+var _26main_3a_3aprefix_3a_5c = PIL2JS.Box.constant_func(1, function (args) {
+  var thing = args[1];
+  return new PIL2JS.Box.Constant(new PIL2JS.Ref(thing));
+});
+_26main_3a_3aprefix_3a_5c.perl_name = "&main::prefix:\\";

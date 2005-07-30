@@ -18,7 +18,6 @@ use Prelude::JS::ControlFlow;
 use Prelude::JS::IO;
 use Prelude::JS::Str;
 use Prelude::JS::Bool;
-use Prelude::JS::OO;
 use Prelude::JS::Keyed;
 use Prelude::JS::Pair;
 use Prelude::JS::Ref;
@@ -57,9 +56,9 @@ sub prefix:<~>($thing) is primitive {
         return new PIL2JS.Box.Constant(String(thing).toString());
       }
     )')($thing);
-  } elsif($thing.isa("Array")) {
+  } elsif($thing.isa("Ref") and @$thing.isa("Array")) {
     $thing.map:{ ~$_ }.join(" ");
-  } elsif($thing.isa("Hash")) {
+  } elsif($thing.isa("Ref") and %$thing.isa("Hash")) {
     $thing.kv.map:{ "$^key\t$^value" }.join("\n");
   } elsif($thing.isa("Pair")) {
     $thing.key ~ "\t" ~ $thing.value;
@@ -68,7 +67,7 @@ sub prefix:<~>($thing) is primitive {
   } elsif($thing.isa("Num")) {
     JS::inline('function (thing) { return Number(thing).toString() }')($thing);
   } elsif($thing.isa("Ref")) {
-    ~PIL2JS::Internals::generic_deref($thing);
+    "<Ref>";
   } else {
     die "Stringification for objects of class {$thing.ref} not yet implemented!\n";
   }
@@ -79,27 +78,25 @@ sub prefix:<+>($thing) is primitive {
     0;
   } elsif($thing.isa("Str")) {
     JS::inline('function (thing) { return Number(thing) }')($thing);
-  } elsif($thing.isa("Array")) {
+  } elsif($thing.isa("Ref") and @$thing.isa("Array")) {
     $thing.elems;
-  } elsif($thing.isa("Hash")) {
+  } elsif($thing.isa("Ref") and %$thing.isa("Hash")) {
     +$thing.keys;
   } elsif($thing.isa("Bool")) {
     $thing ?? 1 :: 0;
   } elsif($thing.isa("Num")) {
     JS::inline('function (thing) { return Number(thing) }')($thing);
   } elsif($thing.isa("Ref")) {
-    +PIL2JS::Internals::generic_deref($thing);
+    die "Can't numfiy non-array or hash references!";
   } else {
     die "Numification for objects of class {$thing.ref} not yet implemented!\n";
   }
 }
 
-sub prefix:<*>(Array $array) {
-  if $array.isa("Ref") {
-    *PIL2JS::Internals::generic_deref($array);
-  } elsif not $array.isa("Array") {
-    # Slightly hacky
-    $array;
+sub prefix:<*>(@array) {
+  if not @array.isa("Array") {
+    # Slightly hacky, needed for, *(3), for example.
+    @array;
   } else {
     JS::inline('new PIL2JS.Box.Constant(function (args) {
       // We\'ve to [].concat here so we don\'t set .flatten_me of caller\'s
@@ -110,7 +107,7 @@ sub prefix:<*>(Array $array) {
       // Hack! Returning flattened things the official way doesn\'t work (the
       // flattenessness isn\'t preserved...).
       throw(new PIL2JS.ControlException.ret(5, ret));
-    })')($array);
+    })')(@array);
   }
 }
 

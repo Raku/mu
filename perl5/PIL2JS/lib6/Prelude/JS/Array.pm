@@ -1,35 +1,32 @@
 # EVIL hacks here! E.g. method map and sub JS::Root::map!
 
-method JS::Root::shift(Array $self:) {
+method JS::Root::shift(@self:) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var array = args[1].GET();
-    if(array instanceof PIL2JS.Ref) array = array.referencee.GET();
     var ret   = array.shift();
     return ret == undefined ? new PIL2JS.Box.Constant(undefined) : ret;
-  })')($self);
+  })')(@self);
 }
 
-method JS::Root::pop(Array $self:) {
+method JS::Root::pop(@self:) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var array = args[1].GET();
-    if(array instanceof PIL2JS.Ref) array = array.referencee.GET();
     var ret   = array.pop();
     return ret == undefined ? new PIL2JS.Box.Constant(undefined) : ret;
-  })')($self);
+  })')(@self);
 }
 
-method JS::Root::unshift(Array $self: *@things) {
+method JS::Root::unshift(@self: *@things) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var array = args[1].GET(), add = args[2].GET();
-    if(array instanceof PIL2JS.Ref) array = array.referencee.GET();
     for(var i = add.length - 1; i >= 0; i--) {
       array.unshift(new PIL2JS.Box(add[i].GET()));
     }
     return new PIL2JS.Box.Constant(array.length);
-  })')($self, @things);
+  })')(@self, @things);
 }
 
-method JS::Root::push(Array $self: *@things) {
+method JS::Root::push(@self: *@things) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var array = args[1].GET(), add = args[2].GET();
     if(array instanceof PIL2JS.Ref) array = array.referencee.GET();
@@ -37,10 +34,10 @@ method JS::Root::push(Array $self: *@things) {
       array.push(new PIL2JS.Box(add[i].GET()));
     }
     return new PIL2JS.Box.Constant(array.length);
-  })')($self, @things);
+  })')(@self, @things);
 }
 
-method join(Array $self: Str $sep) { join $sep, *$self }
+method join(@self: Str $sep) { join $sep, *@self }
 sub JS::Root::join(Str $sep, *@things) is primitive {
   JS::inline('
     function (arr, sep) {
@@ -49,19 +46,15 @@ sub JS::Root::join(Str $sep, *@things) is primitive {
   ')(@things, $sep);
 }
 
-method JS::Root::elems(Array $self:) {
-  return PIL2JS::Internals::generic_deref($self).elems if $self.isa("Ref");
-
-  JS::inline('function (arr) { return arr.length }')($self);
+method JS::Root::elems(@self:) {
+  JS::inline('function (arr) { return arr.length }')(@self);
 }
 
-method JS::Root::end(Array $self:) {
-  return PIL2JS::Internals::generic_deref($self).end if $self.isa("Ref");
-
-  JS::inline('function (arr) { return arr.length - 1 }')($self);
+method JS::Root::end(@self:) {
+  JS::inline('function (arr) { return arr.length - 1 }')(@self);
 }
 
-method map(Array $self is rw: Code $code) { map $code, *$self }
+method map(@self is rw: Code $code) { map $code, *@self }
 sub JS::Root::map(Code $code, *@array is rw) is primitive {
   die "&map needs a Code as first argument!" unless $code.isa("Code");
   my $arity = $code.arity;
@@ -82,11 +75,11 @@ sub JS::Root::map(Code $code, *@array is rw) is primitive {
   @res;
 }
 
-method sort(Array $self: Code ?$cmp = &infix:<cmp>) { sort $cmp, *$self }
+method sort(@self: Code ?$cmp = &infix:<cmp>) { sort $cmp, *@self }
 sub JS::Root::sort(Code ?$cmp is copy = &infix:<cmp>, *@array) is primitive {
   # Hack
   unless $cmp.isa("Code") {
-    unshift @array, $cmp;
+    unshift @array, @$cmp;
     $cmp := &infix:<cmp>;
     # Hack: $cmp = &infix:<cmp> should work, too, but doesn't, as $cmp is an
     # array, *not* an arrayref! (Therefore, that's rewritten as $cmp =
@@ -113,7 +106,7 @@ sub JS::Root::sort(Code ?$cmp is copy = &infix:<cmp>, *@array) is primitive {
   })')(@array, $cmp);
 }
 
-method reduce(Array $self: Code $code) { reduce $code, *$self }
+method reduce(@self: Code $code) { reduce $code, *@self }
 sub JS::Root::reduce(Code $code, *@array) is primitive {
   die "&reduce needs a Code as first argument!" unless $code.isa("Code");
   my $arity = $code.arity;
@@ -133,12 +126,12 @@ sub JS::Root::reduce(Code $code, *@array) is primitive {
   $ret;
 }
 
-method min(Array $self: Code ?$cmp = &infix:«<=>») { min $cmp, *$self }
-method max(Array $self: Code ?$cmp = &infix:«<=>») { max $cmp, *$self }
+method min(@self: Code ?$cmp = &infix:«<=>») { min $cmp, *@self }
+method max(@self: Code ?$cmp = &infix:«<=>») { max $cmp, *@self }
 sub JS::Root::min(Code ?$cmp = &infix:«<=>», *@array) is primitive {
   # Hack, see comment at &sort.
   unless $cmp.isa("Code") {
-    unshift @array, $cmp;
+    unshift @array, @$cmp;
     $cmp := &infix:«<=>»;
   }
   @array.max:{ $cmp($^b, $^a) };
@@ -146,7 +139,7 @@ sub JS::Root::min(Code ?$cmp = &infix:«<=>», *@array) is primitive {
 sub JS::Root::max(Code ?$cmp = &infix:«<=>», *@array) is primitive {
   # Hack, see comment at &sort.
   unless $cmp.isa("Code") {
-    unshift @array, $cmp;
+    unshift @array, @$cmp;
     $cmp := &infix:«<=>»;
   }
 
@@ -155,7 +148,7 @@ sub JS::Root::max(Code ?$cmp = &infix:«<=>», *@array) is primitive {
   $max;
 }
 
-method grep(Array $self: Code $code) { grep $code, *$self }
+method grep(@self: Code $code) { grep $code, *@self }
 sub JS::Root::grep(Code $code, *@array) is primitive {
   die "Code block for \"grep\" must be unary!" unless $code.arity == 1;
 
@@ -166,7 +159,7 @@ sub JS::Root::grep(Code $code, *@array) is primitive {
   @res;
 }
 
-method sum(Array $self:) { sum *$self }
+method sum(@self:) { sum *@self }
 sub JS::Root::sum(*@vals) is primitive {
   my $sum = 0;
   $sum += +$_ for @vals;
@@ -200,11 +193,9 @@ sub infix:<,>(*@xs) is primitive {
 }
 
 sub circumfix:<[]>(*@xs) is primitive { \@xs }
-method postcircumfix:<[]>(Array $self: Int $idx is copy) is rw {
-  return PIL2JS::Internals::generic_deref($self)[$idx]
-    if $self.isa("Ref");
-  die "Can't use object of type {$self.ref} as an array!"
-    unless $self.isa("Array");
+method postcircumfix:<[]>(@self: Int $idx is copy) is rw {
+  die "Can't use object of type {@self.ref} as an array!"
+    unless @self.isa("Array");
 
   # *Important*: We have to calculate the idx only *once*:
   #   my @a  = (1,2,3,4);
@@ -212,7 +203,7 @@ method postcircumfix:<[]>(Array $self: Int $idx is copy) is rw {
   #   say $z;               # 4
   #   push @a, 5;
   #   say $z;               # 4 (!!)
-  $idx = +$self + $idx if $idx < 0;
+  $idx = +@self + $idx if $idx < 0;
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt   = args.shift();
     var array = args[0].GET();
@@ -235,7 +226,8 @@ method postcircumfix:<[]>(Array $self: Int $idx is copy) is rw {
 
     ret.uid = array[idx] == undefined ? undefined : array[idx].uid;
 
-    // .BINDTO is special: @a[$idx] := $foo should work.
+    // .BINDTO is special: @a[$idx] := $foo should work, but @a[1000], with +@a
+    // < 1000, should not.
     ret.BINDTO = function (other) {
       if(array[idx] == undefined)
         PIL2JS.die("Can\'t rebind undefined!");
@@ -244,5 +236,5 @@ method postcircumfix:<[]>(Array $self: Int $idx is copy) is rw {
     };
 
     return ret;
-  })')($self, $idx);
+  })')(@self, $idx);
 }
