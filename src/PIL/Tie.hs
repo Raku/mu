@@ -3,24 +3,25 @@
 module PIL.Tie (
     Scalar, Array, Hash,
     TiedScalar, TiedArray, TiedHash,
+    emptyHash, tieHash,
 ) where
 import PIL.Internals
 
 data TiedScalar = MkTiedScalar
-    { fetchS :: Eval Scalar
-    , storeS :: Scalar -> Eval ()
+    { fetchS :: forall s. ST s Scalar
+    , storeS :: forall s. Scalar -> ST s ()
     }
 
 -- Stub interface; more to come
 data TiedArray = MkTiedArray
-    { fetchA :: Eval Array
-    , storeA :: Array -> Eval ()
+    { fetchA :: forall s. ST s Array
+    , storeA :: forall s. Array -> ST s ()
     }
 
 -- Stub interface; more to come
 data TiedHash = MkTiedHash
-    { fetchH :: Eval Hash
-    , storeH :: Hash -> Eval ()
+    { fetchH :: forall s. ST s Hash
+    , storeH :: forall s. Hash -> ST s ()
     }
 
 data Scalar = MkScalar Value
@@ -34,6 +35,9 @@ data Hash = MkHash [(Key, Value)]
 
 type Key = Value
 type Value = Int
+
+emptyHash = MkHash []
+tieHash h = MkTiedHash (return h) (const $ return ())
 
 ----------------------------------------------------------------
 -- QuickCheck instances
