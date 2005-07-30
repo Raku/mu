@@ -1,0 +1,15 @@
+d5aaff,light-magenta-blue
+ffd5aa,light-yellow-red
+aaffd5,light-cyan-green
+ff00ff,magenta
+ffff00,yellow
+00ffff,cyan
+ff007f,magenta-red
+7fff00,yellow-green
+007fff,cyan-blue
+ff0000,red
+00ff00,green
+0000ff,blue
+552a00,dark-red-yellow
+00552a,dark-green-cyan
+2a0055,dark-blue-magenta
