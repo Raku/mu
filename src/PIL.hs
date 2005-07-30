@@ -5,16 +5,10 @@ import PIL.Tie
 import PIL.Internals
 
 type Id = Int
+type Container a = TVar (Box a)
 
--- A Container in Perl 6 is a mutable reference to a pair of
--- (id, content); the content may be tied.
-data Container a where
-    ScalarBox :: TVar (Box Scalar TiedScalar) -> Container Scalar
-    ArrayBox  :: TVar (Box Array TiedArray) -> Container Array
-    HashBox   :: TVar (Box Hash TiedHash) -> Container Hash
-
-data Box a b = MkBox
-    { ident :: Id
-    , boxed :: a
-    , tied  :: Maybe b
-    }
+data Box a where
+    Untied     :: Id -> a -> Box a
+    TieScalar  :: Id -> a -> TiedScalar -> Box Scalar
+    TieArray   :: Id -> a -> TiedArray  -> Box Array
+    TieHash    :: Id -> a -> TiedHash   -> Box Hash
