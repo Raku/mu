@@ -16,5 +16,5 @@ data Container a where
 data Box a b = MkBox
     { ident :: Id
     , boxed :: a
-    , tied  :: b
+    , tied  :: Maybe b
     }
