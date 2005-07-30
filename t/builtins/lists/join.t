@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 27;
+plan 31;
 
 # test all variants of join() 
 
@@ -100,6 +100,12 @@ is($joined1, "a|b|c", '().join("|") should dwim');
 my $joined1a = ("a", "b", "c").join($sep);
 is($joined1a, "a, b, c", '().join($sep) should dwim');
 
+is(join("!", "hi"),   "hi", "&join works with one-element lists (1)");
+is(join("!", <hi>),   "hi", "&join works with one-element lists (2)");
+is(("hi",).join("!"), "hi", "&join works with one-element lists (3)");
+
 # some error cases
 
 dies_ok({ join() }, 'join() must have arguments');
+# Similar as with .kv: (42).kv should die, but (42,).kv should work.
+dies_ok({ "hi".join("!") }, "join() should not work on strings");

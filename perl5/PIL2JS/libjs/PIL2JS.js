@@ -191,7 +191,7 @@ PIL2JS.Box.prototype = {
         this.STORE = other_box.STORE;
         this.uid   = other.uid;
       } else {
-        PIL2JS.die("Can't use \"" + this.GET() + "\" as an array of array reference!");
+        PIL2JS.die("Can't use object of type \"" + _26main_3a_3aref.GET()([PIL2JS.Context.ItemAny, other]).toNative() + "\" as an array or array reference!");
       }
     } else if(my_ctype == PIL2JS.ContainerType.Hash && other_ctype == PIL2JS.ContainerType.Scalar) {
       var other_val = get();
@@ -202,7 +202,7 @@ PIL2JS.Box.prototype = {
         this.STORE = other_box.STORE;
         this.uid   = other.uid;
       } else {
-        PIL2JS.die("Can't use \"" + this.GET() + "\" as a hash or hash reference!");
+        PIL2JS.die("Can't use object of type \"" + _26main_3a_3aref.GET()([PIL2JS.Context.ItemAny, other]).toNative() + "\" as a hash or hash reference!");
       }
     // Impossible (confirmed by Larry:
     // http://www.nntp.perl.org/group/perl.perl6.language/22535)

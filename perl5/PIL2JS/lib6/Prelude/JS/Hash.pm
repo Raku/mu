@@ -1,4 +1,4 @@
-sub circumfix:<{}>(@pairs) is primitive { \hash(*@pairs) }
+sub circumfix:<{}>(*@pairs) is primitive { \hash(*@pairs) }
 sub hash(*@pairs) is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt   = args.shift();

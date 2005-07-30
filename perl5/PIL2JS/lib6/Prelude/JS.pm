@@ -57,9 +57,11 @@ sub prefix:<~>($thing) is primitive {
       }
     )')($thing);
   } elsif($thing.isa("Ref") and @$thing.isa("Array")) {
-    $thing.map:{ ~$_ }.join(" ");
+    # XXX [...] hack, for explanation see Prelude::JS::Array, sub &join.
+    [$thing.map:{ ~$_ }].join(" ");
   } elsif($thing.isa("Ref") and %$thing.isa("Hash")) {
-    $thing.kv.map:{ "$^key\t$^value" }.join("\n");
+    # XXX [...] hack, for explanation see Prelude::JS::Array, sub &join.
+    [$thing.kv.map:{ "$^key\t$^value" }].join("\n");
   } elsif($thing.isa("Pair")) {
     $thing.key ~ "\t" ~ $thing.value;
   } elsif($thing.isa("Bool")) {
@@ -115,9 +117,13 @@ sub prefix:<*>(@array) {
 # operators.
 use Prelude::JS::Operators;
 
-sub infix:<~>(Str $a, Str $b) is primitive {
+# XXX! EVIL HACK! !!! When stringifying the pair (a => 1), and we'd name the
+# parameters $a and $b, $a would get the 1, not the pair (a => 1). As this is
+# partly a bug/oddity in Perl 6's design and it's too early to implement
+# typechecking etc. I renamed the parameters to $__a and $__b. HAAACK!
+sub infix:<~>(Str $__a, Str $__b) is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var a = args[1].GET(), b = args[2].GET();
     return new PIL2JS.Box.Constant(String(a) + String(b));
-  })')(~$a, ~$b);
+  })')(~$__a, ~$__b);
 }

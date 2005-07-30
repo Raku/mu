@@ -41,7 +41,7 @@ method delete (Hash|Array $self: *@idx) {
         if(idx == array.length - 1) array.length--;
       }
       return new PIL2JS.Box.Constant(ret);
-    })')($self, @idx);
+    })')(@$self, @idx);
   } else {
     die ".delete does not work on objects of type {$self.ref}!";
   }

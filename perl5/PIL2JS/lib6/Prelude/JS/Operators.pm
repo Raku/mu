@@ -51,7 +51,8 @@ for @subs -> $name, $type, $body {
     return($body);
   \}";
 
-  my $args = $arity == 1 ?? '$a' :: '$a, $b';
+  # XXX! HACK! See the end of Prelude::JS for explanation.
+  my $args = $arity == 1 ?? '$__a' :: '$__a, $__b';
   $eval ~= "
     sub $name ($args) is primitive \{
       JS::inline('$jsbody').($args);

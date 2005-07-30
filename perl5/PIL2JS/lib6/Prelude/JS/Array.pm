@@ -43,7 +43,9 @@ sub JS::Root::join(Str $sep, *@things) is primitive {
     function (arr, sep) {
       return arr.join(String(sep));
     }
-  ')(@things, $sep);
+  ')([@things.map:{ ~$_ }], $sep);
+  # XXX [...] hack, because @one-elem-array.map:{...} does not return an array
+  # currently, but the only item array[0]...
 }
 
 method JS::Root::elems(@self:) {

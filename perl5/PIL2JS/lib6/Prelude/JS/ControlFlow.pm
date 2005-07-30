@@ -78,7 +78,7 @@ sub statement_control:<for>(@array is rw, Code $code) is primitive {
   $arity ||= 1;
 
   my $idx = 0;
-  while($idx < +@array) {
+  while $idx < +@array {
     my @args = ();
     my $i; loop $i = 0; $i < $arity; $i++ {
       # Slighly hacky
