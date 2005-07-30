@@ -3,9 +3,15 @@
 module PIL.Tie (
     Scalar, Array, Hash,
     TiedScalar, TiedArray, TiedHash,
-    emptyHash, tieHash,
+    emptyHash, tieHash, invokeTie, TieMethod(..),
 ) where
 import PIL.Internals
+
+-- Invoke a tied function
+invokeTie :: a -> b -> ST s ()
+invokeTie _ _ = return ()
+
+data TieMethod = FETCH | STORE | UNTIE
 
 data TiedScalar = MkTiedScalar
     { fetchS :: forall s. ST s Scalar
