@@ -4,11 +4,25 @@ module PIL where
 import PIL.Tie
 import PIL.Internals
 
-type Id = Int
-type Container a = TVar (Box a)
+-- "Container" comes in two flavours: Untieable and Tieable.
+-- Once chosen, there is no way in runtime to revert this decision.
+data Container a
+    = Con (Box a)
+    | TCon (TBox a)
 
-data Box a where
-    Untied     :: Id -> a -> Box a
-    TieScalar  :: Id -> a -> TiedScalar -> Box Scalar
-    TieArray   :: Id -> a -> TiedArray  -> Box Array
-    TieHash    :: Id -> a -> TiedHash   -> Box Hash
+-- "Box" is a typed, mutable reference, comprised of an Id and a
+-- storage of that type, which can only be Scalar, Array or Hash.
+-- Again, there is no way to cast a Box into another type at runtime.
+
+type BoxId = Int
+type Box a = TVar (BoxId, a)
+
+-- "TBox" is like Box, but with an additional field that may
+-- contain a dispatch table that intercepts various operations.
+type TBox a = TVar (BoxId, a, Tieable a)
+
+data Tieable a where
+    Untied     :: Tieable a
+    TieScalar  :: TiedScalar -> Tieable Scalar
+    TieArray   :: TiedArray  -> Tieable Array
+    TieHash    :: TiedHash   -> Tieable Hash
