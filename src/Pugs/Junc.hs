@@ -67,20 +67,6 @@ opJunc t vals = VJunc $ MkJunc t Set.empty (joined `Set.union` Set.fromList vs)
     sameType _                      = False
 
 {-|
-Check if the specified value is a 'Pugs.Internals.VJunc' of one of the specified
-junctive types. If it is, return it as a 'Pugs.Internals.VJunc'.
--}
-juncTypeIs :: Val -- ^ Value to test
-           -> [JuncType] -- ^ Types to check against
-           -> Maybe VJunc -- ^ Returns 'Nothing' if the test fails
-juncTypeIs v ts
-    | (VJunc j) <- v
-    , juncType j `elem` ts
-    = Just j
-    | otherwise
-    = Nothing
-
-{-|
 Merge the contents of two @any@ or @one@ junctions into a single, combined 
 junction value.
 
