@@ -341,7 +341,7 @@ haddock : $version_h $config_h @hppfiles docs/haddock
 docs/haddock :
 	\@\$(PERL) -e "mkdir q-docs/haddock-"
 
-profiled :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml
+profiled :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml src/perl6/Prelude.pm
 	\$(PERL) util/build_pugs.pl _+GHC $ghc $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 pugs.prof :: profiled
@@ -349,15 +349,15 @@ pugs.prof :: profiled
 
 optimised :: optimized
 
-optimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml
+optimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml src/perl6/Prelude.pm
 	\$(PERL) util/build_pugs.pl _+GHC $ghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 unoptimised :: unoptimized
 
-unoptimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml
+unoptimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml src/perl6/Prelude.pm
 	\$(PERL) util/build_pugs.pl _+GHC $ghc $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
-$pugs : src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml
+$pugs : src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml src/perl6/Prelude.pm
 	\$(PERL) util/build_pugs.pl _+GHC $ghc $threaded __optimization__ --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 smoke : $pugs util/run-smoke.pl all
@@ -378,6 +378,8 @@ tags : @srcfiles
 	mv tags.tmp tags
 
 config.yml:
+
+src/perl6/Prelude.pm:
 
 INST6_ARCHLIB = blib6/arch
 INST6_SCRIPT = blib6/script
