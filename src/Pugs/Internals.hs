@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse #-}
 
 {-|
     Internal utilities and library imports.
@@ -227,6 +227,7 @@ combine :: [a -> a] -- ^ List of transformer functions
         -> (a -> a) -- ^ The final combined transformer
 combine = foldr (.) id
 
+{-# NOINLINE unsafePerformSTM #-}
 unsafePerformSTM :: STM a -> a
 unsafePerformSTM = unsafePerformIO . atomically
 

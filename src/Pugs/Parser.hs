@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -cpp -fglasgow-exts -funbox-strict-fields #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts -funbox-strict-fields -fno-full-laziness -fno-cse #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 {-|
@@ -675,6 +675,7 @@ checkForIOLeak exp =
 -- | If we've executed code like @BEGIN { exit }@, we've to run all @\@*END@
 --   blocks and then exit. Returns the input expression if there's no need to
 --   exit.
+{-# NOINLINE possiblyExit #-}
 possiblyExit :: Exp -> RuleParser Exp
 possiblyExit (Val (VControl (ControlExit exit))) = do
     -- Run all @*END blocks...
@@ -1031,6 +1032,7 @@ litOperators = do
     return $ tight ++ loose
 
 -- read just the current state (ie, not a parser)
+{-# NOINLINE currentFunctions #-}
 currentFunctions :: RuleParser [(Var, VStr, Params)]
 currentFunctions = do
     env     <- getRuleEnv

@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fglasgow-exts -fno-full-laziness -fno-cse #-}
+
 -- possibly this needs to be beside the AST or Eval, not the Parser
 module Pugs.Parser.Unsafe (
     unsafeEvalLexDiff,

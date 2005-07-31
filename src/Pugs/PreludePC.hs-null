@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fglasgow-exts -fno-full-laziness -fno-cse #-}
+
 {-
 
 Null Prelude bootstap. A placeholder used in first phase of the

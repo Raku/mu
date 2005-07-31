@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp -fvia-C #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp -fvia-C -fno-full-laziness -fno-cse #-}
 #if !defined(PUGS_HAVE_PARROT)
 ##undef PUGS_HAVE_POSIX
 ##include "../pugs_config.h"

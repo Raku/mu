@@ -1,4 +1,4 @@
-{-# OPTIONS -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-full-laziness -fno-cse #-}
 
 -- A module for generating new prompt names using a name supply.
 -- P is the type of computations that might generate new prompts
