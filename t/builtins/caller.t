@@ -42,7 +42,7 @@ chain({ caller().file },    $?FILE, "caller filename");
 chain({ caller().line },    "30", "caller line");
 chain({ caller().subname }, "&main::try_it_caller", "caller subname");
 chain({ caller().subtype }, "SubRoutine", "caller subtype"); # specme
-chain({ caller().sub },     \&try_it_caller, "caller sub (code)");
+chain({ caller().sub },     &try_it_caller, "caller sub (code)");
 
 # select by code type
 chain({ caller(Any).subname },    "&main::try_it_caller", "code type - Any");

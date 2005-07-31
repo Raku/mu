@@ -35,37 +35,37 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
   my($v,$e);
   $e = (foo => $bar);
   $v = :foo($bar);
-  is \$v, \$e, ':foo($bar)';
+  is ~$v, ~$e, ':foo($bar)';
 
   $e = (foo => [1,2,3,@many]);
   $v = :foo[1,2,3,@many];
-  is \$v, \$e, ':foo[1,2,3,@many]';
+  is ~$v, ~$e, ':foo[1,2,3,@many]';
 
   $e = (foo => «alice bob charles»);
   $v = :foo«alice bob charles»;
-  is \$v, \$e, ':foo«alice bob charles»';
+  is ~$v, ~$e, ':foo«alice bob charles»';
 
   $e = (foo => 'alice');
   $v = :foo«alice»;
-  is \$v, \$e, ':foo«alice»';
+  is ~$v, ~$e, ':foo«alice»';
 
   fail("FIXME parsefail", :todo<bug>);
   #$e = (foo => { a => 1, b => 2 });
   $v = eval ':foo{ a => 1, b => 2 }';
-  #is \$v, \$e, ':foo{ a => 1, b => 2 }', :todo;
+  #is ~$v, ~$e, ':foo{ a => 1, b => 2 }', :todo;
 
   fail("FIXME parsefail", :todo<bug>);
   #$e = (foo => { dostuff() });
   $v = eval ':foo{ dostuff() }';
-  #is \$v, \$e, ':foo{ dostuff() }', :todo;
+  #is ~$v, ~$e, ':foo{ dostuff() }', :todo;
 
   $e = (foo => 0);
   $v = :foo(0);
-  is \$v, \$e, ':foo(0)';
+  is ~$v, ~$e, ':foo(0)';
 
   $e = (foo => 1);
   $v = :foo;
-  is \$v, \$e, ':foo';
+  is ~$v, ~$e, ':foo';
 }
 
 {

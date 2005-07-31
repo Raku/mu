@@ -75,10 +75,10 @@ plan 10;
     };
 
     my $svar_ref = $gen();
-    $svar_ref++; $svar_ref++;
+    $$svar_ref++; $$svar_ref++;
 
     my $svar_ref = $gen();
-    is $svar_ref, 44, "reference to a state() var", :todo<bug>;
+    is $$svar_ref, 44, "reference to a state() var", :todo<bug>;
 }
 
 # Anonymous state vars
@@ -86,11 +86,11 @@ plan 10;
 {
     my $gen = { try { \state } };
 
-    my $svar_ref = $gen();    # $svar == 0
-    $svar_ref++; $svar_ref++; # $svar == 2
+    my $svar_ref = $gen();      # $svar == 0
+    $$svar_ref++; $$svar_ref++; # $svar == 2
 
-    my $svar_ref = $gen();    # $svar == 2
-    is $svar_ref, 2, "anonymous state() vars", :todo<feature>;
+    my $svar_ref = $gen();      # $svar == 2
+    is $$svar_ref, 2, "anonymous state() vars", :todo<feature>;
 }
 
 # http://www.nntp.perl.org/group/perl.perl6.language/20888

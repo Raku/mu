@@ -19,8 +19,8 @@ emulation.
 	sub uhuh { 1 }
 	sub nuhuh { undef }
 
-	ok((undef ~~ \&uhuh), "scalar sub truth", :todo);
-	ok(!(undef ~~ \&nuhuh), "negated scalar sub false");
+	ok((undef ~~ &uhuh), "scalar sub truth", :todo);
+	ok(!(undef ~~ &nuhuh), "negated scalar sub false");
 };
 
 
