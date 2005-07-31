@@ -42,6 +42,8 @@ unless(-e $PIL2JS::cfg{testpc}) {
 }
 
 my $js = jsbin_hack(compile_perl6_to_standalone_js(
+  # "-I" . PIL2JS::pwd("lib6"),
+  # "-MMarkTestPMAsLoaded",
   # "-e", 'BEGIN { %*INC{"Test.pm"}++ }',
   @pugs_args
 ));

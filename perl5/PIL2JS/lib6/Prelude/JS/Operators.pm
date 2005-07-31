@@ -52,9 +52,12 @@ for @subs -> $name, $type, $body {
   \}";
 
   # XXX! HACK! See the end of Prelude::JS for explanation.
-  my $args = $arity == 1 ?? '$__a' :: '$__a, $__b';
+  my $args  = $arity == 1 ?? '$__a'   :: '$__a, $__b';
+  my $type  = $arity == 1 ?? "method" :: "sub";
+  my $colon = $arity == 1 ?? ":"      :: "";
+  my $trait = $arity == 1 ?? ""       :: "is primitive";
   $eval ~= "
-    sub $name ($args) is primitive \{
+    $type $name ($args$colon) $trait \{
       JS::inline('$jsbody').($args);
     \}
   ";

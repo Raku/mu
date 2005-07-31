@@ -609,7 +609,9 @@ PIL2JS.catch_all_exceptions = function (code) {
 // &*ref.
 var _26main_3a_3aref = PIL2JS.Box.constant_func(1, function (args) {
   var thing = args[1].GET();
-  if(typeof(thing) == "string" || thing instanceof String) {
+  if(thing == undefined) {
+    return new PIL2JS.Box.Constant("Scalar"); // XXX?
+  } else if(typeof(thing) == "string" || thing instanceof String) {
     return new PIL2JS.Box.Constant("Str");
   } else if(typeof(thing) == "boolean" || thing instanceof Boolean) {
     return new PIL2JS.Box.Constant("Bool");
@@ -644,7 +646,8 @@ var _26main_3a_3aisa = PIL2JS.Box.constant_func(1, function (args) {
   var type = ref.GET()([PIL2JS.Context.ItemAny, self]).GET();
   return new PIL2JS.Box.Constant(
     type == cmptype                      ||
-    type == "Array" && cmptype == "List"
+    type == "Array" && cmptype == "List" ||
+    type == "Any"
   );
 });
 _26main_3a_3aisa.perl_name = "&main::isa";
