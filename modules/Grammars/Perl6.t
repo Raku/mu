@@ -50,5 +50,4 @@ is(?('$foo' ~~ /^<variable>$/),bool::true,"scalars are parsed as variables");
 is(?('@foo' ~~ /^<variable>$/),bool::true,"arrays are parsed as variables");
 is(?('%foo' ~~ /^<variable>$/),bool::true,"hashes are parsed as variables");
 is(?('&foo' ~~ /^<variable>$/),bool::true,"subs are parsed as variables");
-#ok('sub () {}' ~~ /^<anonsub>$/,"Anon subs parsing");
-
+is(?('sub () {}' ~~ /^<anonsub>$/),bool::true,"Anon subs parsing");

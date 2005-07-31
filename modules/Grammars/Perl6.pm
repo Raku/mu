@@ -10,43 +10,43 @@ grammar Perl6;
 
 # Top level structures
 
-#rule code { ... } # a section of code
+rule code { ... } # a section of code
 
 #rule block { \{ <code> \} } # a block of code
 
 # subs and sub-like structures
 
-#rule lexicalsub :w { # from A06
-#        <lexscope> <type>?
-#        <submodifer>? <subintro> <subname> <psignature>?
-#        <trait>*
-#        <block>
-#}
+rule lexicalsub :w { # from A06
+        <lexscope> <type>?
+        <submodifer>? <subintro> <subname> <psignature>?
+        <trait>*
+        <block>
+}
 
-#rule lexicalsub  { # from A06
-#        <lexscope> \s* <type>?
-#        <submodifer>? \s* <subintro> \s* <subname> \s <psignature>?
-#        <trait>*
-#        <block>
-#}
-#rule packagesub :w { # from A06
-#        <submodifer> <subintro> <subname> <psignature>?
-#        <trait>*
-#        <block>
-#}
+rule lexicalsub :w { # from A06
+        <lexscope> <type>?
+        <submodifer>? <subintro> <subname> <psignature>?
+        <trait>*
+        <block>
+}
+rule packagesub :w { # from A06
+        <submodifer> <subintro> <subname> <psignature>?
+        <trait>*
+        <block>
+}
 
-#rule anonsub { # modified because pugs doesn't do :w
-#        <subintro> \s* <psignature>? \s*
-#        <trait>* \s*
-#        <block>
-#}
+rule anonsub :w {
+        <subintro> <psignature>?
+        <trait>*
+        <block>
+}
 
-## Pointy subs
-#
-#rule pointysub :w { # from A06
-#        -\> <signature> <block>
-#}
-#
+# Pointy subs
+
+rule pointysub :w { # from A06
+        -\> <signature> <block>
+}
+
 # Variables 
 # From A06
 
@@ -106,10 +106,10 @@ rule Num { Int | Rat | binary | hex | oct  };
 
 # Siglets
 
-#rule siglet :w {
-#        [<paramlet> [<[,:]> <paramlet> ]* ]?
-#}
-#
+rule siglet :w {
+        [<paramlet> [<[,:]> <paramlet> ]* ]?
+}
+
 #rule paramlet :w {
 #        [ <type> <zone>? <varlet>? <trait>*     # require type
 #        | <zone> <varlet>? <trait>*             # or zone
@@ -117,19 +117,19 @@ rule Num { Int | Rat | binary | hex | oct  };
 #        | \[ <siglet> \]        # treat single array ref as an arg list
 #        ]
 #}
-#
-#rule varlet :w {
-#        <sigil> [ \( <siglet \) ]?
-#}
-#
-## Defaults
-#
-#rule defval :w { \= <item> }
-#
-## Placeholders
-#
-#rule placeholder { <sigil> \^ <ident> }
-#
+
+rule varlet :w {
+        <sigil> [ \( <siglet> \) ]?
+}
+
+# Defaults
+
+rule defval :w { \= <item> }
+
+# Placeholders
+
+rule placeholder { <sigil> \^ <ident> }
+
 ## Formal parameter syntax
 #
 #rule parameter :w {
@@ -138,35 +138,40 @@ rule Num { Int | Rat | binary | hex | oct  };
 #        ]
 #}
 #
-#rule signature :w {
-#        [<parameter> [<[,:]> <parameter> ]* ]?
-#}
-#
-## The sub form
-#
-#rule subintro { sub | method | submethod | rule | macro }
-#
-#rule lexscope { my | our }
-#
-#rule submodifer { multi }
-#
-#rule psignature :w { \( <signature> \) }
-#
-#rule psiglet :w { \( <siglet> \) }
-#
-#rule scopedsubvar :w {
-#        <lexscope> <type>? &<subname> <psiglet>? <trait>*
-#}
-#
-#rule unscopedsubvar :w {
-#        &<subname> <psiglet>? <trait>*
-#}
-#
-#rule trait :w {
-#          is <ident>[\( <traitparam> \)]?
-#        | will <ident> <closure>
-#        | of <type>
-#        | returns <type>
-#}
-#
+rule type { yada type }
+rule zone { yada zone }
+
+rule signature :w {
+        [<parameter> [<[,:]> <parameter> ]* ]?
+}
+
+# The sub form
+
+rule subintro { sub | method | submethod | rule | macro }
+
+rule lexscope { my | our }
+
+rule submodifer { multi }
+
+rule psignature :w { \( <signature> \) }
+
+rule psiglet :w { \( <siglet> \) }
+
+rule scopedsubvar :w {
+        <lexscope> <type>? &<subname> <psiglet>? <trait>*
+}
+
+rule unscopedsubvar :w {
+        &<subname> <psiglet>? <trait>*
+}
+
+rule trait :w {
+          is <ident>[\( <traitparam> \)]?
+        | will <ident> <closure>
+        | of <type>
+        | returns <type>
+}
+
+rule traitparam { yada traitparam }
+rule closure { yada closure }
 
