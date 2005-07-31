@@ -1,0 +1,151 @@
+\documentclass{beamer}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{ucs}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+% This is a not yet finished (German) talk I'll hold at the next meeting of the
+% Linux User Group Augsburg (LUGA) (on 2005-08-04).
+% 
+% Compile to PDF using...
+%   $ pdflatex Anatomie_eines_Compilers_am_Beispiel_von_Pugs.latex
+% 
+% Feel free to add/change contents (don't forget to add you to the author
+% list)!
+% 
+% As this talk is German, the following comments are German, too.
+
+% Manual syntax highlighting
+\newcommand{\synfunc}   [1]{\color{blue!50!black}#1\color{black}}
+\newcommand{\synstr}    [1]{\color{red!50!black}#1\color{black}}
+\newcommand{\synvar}    [1]{\color{purple!50!black}#1\color{black}}
+\newcommand{\synclass}  [1]{\color{green!50!black}#1\color{black}}
+\newcommand{\syncomment}[1]{\color{blue!20!black}#1\color{black}}
+\newcommand{\syncool}   [1]{\color{beamer@blendedblue}#1\color{black}}
+\newcommand{\synoder}      {\ \ \color{black}$\vee$\ \ }
+\newcommand{\hr}        {\rule[4pt]{\textwidth}{0.1pt}\\}
+
+\title{Anatomie eines Compilers am Beispiel von Pugs}
+\author{Ingo Blechschmidt \\\texttt{<iblech@web.de>}}
+\institute{LUGA}
+\date{4. August 2005}
+% Outline:
+%   - Parrot
+%     - Entstehung
+%     - Design
+%   - Perl 6
+%     - Geschichte
+%     - Designideen
+%     - Code-Beispiele (mit Vergleichen zu vielen anderen Sprachen)
+%     - Mitgestaltungsmöglichkeiten, etc.
+%   - Pugs
+%     - Entstehung
+%     - Überblick
+%     - "Wie helfe ich?"
+%   - Ausblick
+%     - Perl 6 rockz
+%     - Dank Pugs schon jetzt benutzbar
+%     - "Man darf gespannt sein"
+
+\usetheme{Warsaw}
+\usecolortheme{seahorse}
+\setbeamercovered{transparent}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\section{}
+\frame{
+  \frametitle{Inhalt}
+  \tableofcontents
+}
+
+\section{Pugs}
+\frame[t]{
+  \frametitle{Pugs}
+
+  \begin{itemize}
+    \item Pugs: Prototyp des Perl 6-Compilers
+    \item "`Perl 6 ist ja schön und gut, aber das dauert doch noch Jahre,
+          bis es fertig ist!"'
+    \item "`Die Entwickeln doch schon seit Jahren dran!"'
+    \item Nur tote Produkte sind "`fertig"'.
+    \item Seit dem 1. Februar gibt es Pugs. Heute kann man vernünfig mit Perl 6
+          arbeiten.
+  \end{itemize}
+}
+
+\subsection{"Ubersicht}
+\frame[t]{
+  \frametitle{Pugs}
+  
+  \begin{itemize}
+    \item Ursprünglich Haskell-Projekt von Autrijus Tang "`als Übung"'
+    \item Projektbeginn: 1. Februar 2005
+    \item Nun 130 Entwickler
+    \item Version 6.2.8: Beinahe Alles (!), mehrere Backends (direkte
+          Ausführung, Kompilierung zu Haskell, zu Perl 5, zu JavaScript, etc.)
+  \end{itemize}
+}
+
+\subsection{Entwicklung}
+\frame[t]{
+  \frametitle{Entwicklung}
+
+  \begin{itemize}
+    \item "`Test-driven development"' --
+    \item Camelfolks Schreiben von Tests in Perl 6 für noch nicht
+	  implementierte Features \\
+	  \texttt{%
+	    \ \ \synfunc{is}\ 23 + 42, 64, "\synstr{Einfache Rechnungen funzen.}";\\
+	    \ \ \synfunc{is}\ \~{}\symbol{91}1, 2, 3], "\synstr{1 2 3}",\\
+	    \ \ \ \ "\synstr{Arrays wandeln sich richtig in Strings um.}";\\
+	    \ \ \synfunc{is}\ +\symbol{91}1, 2, 3], 3,\\
+	    \ \ \ \ "\synstr{Arrays wandeln sich richtig in Ints um.}";\\
+	  }
+    \pause
+    \item Lambdafolk: Implementierung dieser Features
+    \item Ergebnis der Zusammenarbeit: \\
+	  Über 7.700 funktionierende Tests
+  \end{itemize}
+}
+
+\subsection{Weitere Pl"ane}
+\frame[t]{
+  \frametitle{Weitere Pläne}
+
+  \begin{tabbing}
+    Pugs 6.283185aaa \= ... \kill
+    \color{beamer@blendedblue}Pugs 6.0 \> Erstes Release \\
+    \color{beamer@blendedblue}Pugs 6.2 \> Grundlegende IO- und Kontrollflusselemente, \\\> veränderbare Variablen \\
+    \color{beamer@blendedblue}Pugs 6.28 \> Klassen \\
+    \color{beamer@blendedblue}Pugs 6.283 \> Rules und Grammars \\
+    \color{beamer@blendedblue}Pugs 6.2831 \> Rollen \\
+    \color{beamer@blendedblue}Pugs 6.28318 \> Makros \\
+    \color{beamer@blendedblue}Pugs 6.283185 \> Portierung von Pugs von Haskell nach Perl 6 \\
+    \color{beamer@blendedblue}Pugs $2\pi$ \> Vollendung
+  \end{tabbing}
+}
+
+\subsection{Beteiligungsm"oglichkeiten}
+\frame[t]{
+  \frametitle{Beteiligungsmöglichkeiten}
+
+  \begin{itemize}
+    \item Mailingliste: \\
+          \texttt{perl6-language@perl.org}, \\
+          \texttt{perl6-compiler@perl.org}, \\
+          \texttt{gmane.comp.lang.perl.perl6.language}, \\
+          \texttt{gmane.comp.lang.perl.perl6.compiler}
+    \item IRC: \texttt{\#perl6} auf Freenode
+    \item Auch Newbies sehr gern gesehen!
+    \item Schreiben von Tests (Perl 6), Implementierung (Haskell), Schreiben
+	  von Dokumentation, Portierung von
+	  Perl~5\texttt{|}Python\texttt{|}Ruby\texttt{|}\ldots-Modulen nach
+	  Perl 6, \ldots
+    \item Weitere Informationen: \url{http://www.pugscode.org/}
+  \end{itemize}
+}
+
+\end{document}
