@@ -436,8 +436,9 @@ PIL2JS.StubIO.prototype = {
   })
 };
 
-// Magical variables: $?POSITION and $!.
+// Magical variables: $?POSITION, $!, etc.
 var _24main_3a_3a_3fPOSITION = new PIL2JS.Box("<unknown>");
+var _24main_3a_3a_3fSUBNAME  = new PIL2JS.Box(undefined);
 var _24main_3a_3a_21         = new PIL2JS.Box(undefined);
 var _25main_3a_3aENV         = new PIL2JS.Box(new PIL2JS.Hash);
 var _40main_3a_3a_2aEND      = new PIL2JS.Box([]);
@@ -455,6 +456,18 @@ var _24_3fCALLER_3a_3aCALLER_3a_3aCALLER_3a_3aPOSITION =
   new PIL2JS.Box("<$?CALLER::CALLER::POSITION not yet implemented>");
 var _24_3fCALLER_3a_3aCALLER_3a_3aSUBNAME =
   new PIL2JS.Box("<$?CALLER::CALLER::SUBNAME not yet implemented>");
+// HACKS. Needs prober integration of Perl6.MetaModel.
+var _3amain_3a_3aNum         = new PIL2JS.Box.Constant("Num");
+var _3amain_3a_3aInt         = new PIL2JS.Box.Constant("Int");
+var _3amain_3a_3aRat         = new PIL2JS.Box.Constant("Rat");
+var _3amain_3a_3aCode        = new PIL2JS.Box.Constant("Code");
+var _3amain_3a_3aBlock       = new PIL2JS.Box.Constant("Block");
+var _3amain_3a_3aRoutine     = new PIL2JS.Box.Constant("Routine");
+var _3amain_3a_3aBare        = new PIL2JS.Box.Constant("Bare");
+var _3amain_3a_3aPair        = new PIL2JS.Box.Constant("Pair");
+var _3amain_3a_3aHash        = new PIL2JS.Box.Constant("Hash");
+var _3amain_3a_3aArray       = new PIL2JS.Box.Constant("Array");
+var _3amain_3a_3aRef         = new PIL2JS.Box.Constant("Ref");
 
 // Prettyprint an error msg.
 PIL2JS.new_error = function (msg) {

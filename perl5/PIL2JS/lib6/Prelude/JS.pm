@@ -88,6 +88,8 @@ sub JS::Root::eval(Str ?$code, Str +$lang = 'Perl6') {
   $! = "&eval does not work under PIL2JS.";
   undef;
 }
+# Stub.
+method perl(Any $self:) {}
 
 # We load the operator definitions lastly because they'll override *our*
 # operators.

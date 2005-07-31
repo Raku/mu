@@ -92,7 +92,7 @@ is($quux.key, 'quux', "lhs quotes" );
 
 my $val;
 ("foo" => $val) = "baz";
-is($val, "baz", "lvalue lists");
+is($val, "baz", "lvalue pairs");
 
 # illustrate a bug
 

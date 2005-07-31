@@ -12,6 +12,7 @@ use constant {
   SUBPOINTY  => 4,
   SUBROUTINE => 5,
   SUBMETHOD  => 6,
+  SUBMACRO   => 7,
 };
 our $IN_SUBLIKE = undef;
 our $CUR_SUBNAME;
@@ -120,6 +121,7 @@ EOF
 { package PIL::SubBlock;   our @ISA = qw<PIL::SubType>; sub as_constant { PIL::Nodes::SUBBLOCK } }
 { package PIL::SubPointy;  our @ISA = qw<PIL::SubType>; sub as_constant { PIL::Nodes::SUBPOINTY } }
 { package PIL::SubMethod;  our @ISA = qw<PIL::SubType>; sub as_constant { PIL::Nodes::SUBMETHOD } }
+{ package PIL::SubMacro;   our @ISA = qw<PIL::SubType>; sub as_constant { PIL::Nodes::SUBMACRO } }
 
 # Returns the undef/zero/default container for a given variable type.
 #   my $x;   # Really my $x = undef
@@ -567,9 +569,14 @@ sub add_indent {
     warn "Skipping &*END.\n" and return "" if $CUR_SUBNAME eq "&*END";
 
     my $magical_vars = "";
-    $magical_vars .= "_26main_3a_3a_3fBLOCK.STORE(%s);\n" if $IN_SUBLIKE >= PIL::Nodes::SUBBLOCK;
-    $magical_vars .= "_26main_3a_3a_3fSUB.STORE(%s);\n"   if $IN_SUBLIKE >= PIL::Nodes::SUBROUTINE;
-    $magical_vars =~ s/%s/PIL::Nodes::name_mangle $self->[0]/eg;
+    $magical_vars .= "_26main_3a_3a_3fBLOCK.STORE(%VAR);\n"
+      if $IN_SUBLIKE >= PIL::Nodes::SUBBLOCK;
+    $magical_vars .= "_26main_3a_3a_3fSUB.STORE(%VAR);\n"
+      if $IN_SUBLIKE >= PIL::Nodes::SUBROUTINE;
+    $magical_vars .= "_24main_3a_3a_3fSUBNAME.STORE(new PIL2JS.Box.Constant(%NAME));\n"
+      if $IN_SUBLIKE >= PIL::Nodes::SUBROUTINE;
+    $magical_vars =~ s/%VAR/ PIL::Nodes::name_mangle $self->[0]/eg;
+    $magical_vars =~ s/%NAME/PIL::Nodes::doublequote $CUR_SUBNAME/eg;
 
     my $pos_update =
       $self->[3]->isa("PIL::PPos")

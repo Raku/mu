@@ -14,5 +14,5 @@ is(foo(), '&main::foo', 'got the right subname');
 my $bar = sub { return $?SUBNAME };
 is($bar(), '<anon>', 'got the right subname (anon-block)');
 
-my $baz = eval '$?SUBNAME';
+my $baz = try { $?SUBNAME };
 ok(not(defined $baz), '$?SUBNAME not defined outside of a sub');

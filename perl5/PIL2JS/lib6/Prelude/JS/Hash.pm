@@ -75,12 +75,3 @@ method postcircumfix:<{}>(%self: $key) {
     return ret;
   })')(%self, $key);
 }
-
-sub infix:«=>»($key, $value)  is primitive {
-  JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var cxt = args.shift();
-    return new PIL2JS.Box.Constant(
-      new PIL2JS.Pair(args[0], args[1])
-    );
-  })')($key, $value);
-}

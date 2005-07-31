@@ -52,35 +52,34 @@ is $pointy_block_nested(5)(6), 11, '-> $a { -> $b { $a+$b }} nested <"pointy" bl
 # bare blocks L<S06/"Blocks">
 
 my $foo;
-eval '{$foo = "blah"};';
+{$foo = "blah"};
 is($foo, "blah", "lone block actually executes it's content");
 
 my $foo2;
-eval '{$foo2 = "blah"}';
+{$foo2 = "blah"};
 is($foo2, "blah", "lone block w/out a semicolon actually executes it's content");
 
 my ($one, $two);
-eval '{$one = 1} {$two = 2}';
+{$one = 1} {$two = 2};
 is($one, undef, 'two blocks ({} {}) no semicolon after either,.. first block does not execute');
 is($two, 2, '... but second block does (parsed as hash subscript)');
 
 my ($one_a, $two_a);
-eval '{$one_a = 1}; {$two_a = 2}';
+{$one_a = 1}; {$two_a = 2}
 is($one_a, 1, '... two blocks ({}; {}) semicolon after the first only,.. first block does execute');
 is($two_a, 2, '... and second block does too');
 
 my ($one_b, $two_b);
-eval '
 {
     $one_b = 1
 }
 {
     $two_b = 2
-}';
+};
 is($one_b, 1, '... two stand-alone blocks ({\n...\n}\n{\n...\n}),.. first block does execute');
 is($two_b, 2, '... and second block does too');
 
 my ($one_c, $two_c);
-eval '{$one_c = 1}; {$two_c = 2};';
+{$one_c = 1}; {$two_c = 2};
 is($one_c, 1, '... two blocks ({}; {};) semicolon after both,.. first block does execute');
 is($two_c, 2, '... and second block does too');
