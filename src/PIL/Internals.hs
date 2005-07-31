@@ -4,6 +4,7 @@ module PIL.Internals (
     Arbitrary(..),
     gen1, gen2, assert,
     newSTRef, readSTRef, writeSTRef, modifySTRef, runST, ST, STRef,
+    test, oneof, quickCheck, verboseCheck,
 ) where
 import Control.Monad.ST
 import Data.STRef

@@ -141,9 +141,54 @@ testBind x y = do
     y' <- y
     bind x' y'
 
+-- Extremely small language
+
+data Exp
+    = Bind LV Exp
+    | Untie LV
+    deriving (Show, Eq, Ord)
+
+data LV
+    = HashENV
+    | HashNew
+    deriving (Show, Eq, Ord)
+
+type GenContainer a = forall s. ST s (Container s a)
+
+class Evalable a b | a -> b where
+    eval :: (%i :: Id) => a -> (forall s. ST s (Container s b))
+
+instance Evalable Exp Hash where
+    eval (Untie x) = do
+        x' <- eval x
+        untie x'
+        return x'
+
+instance Evalable LV Hash where
+    eval HashNew = hashNew
+    eval HashENV = hashEnv
+
+instance Arbitrary LV where
+    arbitrary = oneof (map return [HashENV, HashNew])
+    coarbitrary = assert False undefined
+
+prop_untie :: LV -> Bool
+prop_untie x = try_ok (Untie x)
+
+try_ok :: Evalable a b => a -> Bool
+try_ok x = runST f
+    where
+    f :: forall s. ST s Bool
+    f = do
+        let %i = 0
+        eval x
+        return True
+
 tests :: IO ()
 tests = do
     let %i = 0
+    putStrLn "==> Anything can be untied"
+    test prop_untie
     putStrLn "==> %ENV =:= %ENV;"
     print $ runST (testEquiv hashEnv hashEnv)
     putStrLn "==> %ENV =:= %foo;"
