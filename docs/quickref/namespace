@@ -32,6 +32,30 @@ Scope of declaration
     Same for modules, classes, roles?, enums?, subtypes?
     Grammars are classes?, and rules are methods.
 
+Names and symbol tables
+
+               Symbol tables
+                  affected       Comments
+   Declarator    %::    %MY::
+    my  $x       no     YES
+    my  $.x
+    my  $:x
+    our $x       YES
+    our $.x
+    our $:x
+    temp $x
+    temp $.x
+    temp $:x
+    let  $x
+    let  $.x
+    let  $:x
+    state $x
+    state $.x
+    state $:x
+
+    Blank entries means I don't know.
+
+
 Names
 
     Names are hierarchical, like filesystem path names.
