@@ -67,6 +67,10 @@ PIL2JS.Pair.prototype.toString = function () { return "<PIL2JS.Pair>" };
 // Ref class.
 PIL2JS.Ref = function (referencee) {
   this.referencee = referencee;
+  this.autoderef  = referencee.GET() instanceof Array
+                 || referencee.GET() instanceof PIL2JS.Hash;
+  // || referencee instanceof PIL2JS.OwnObject, see
+  // http://www.nntp.perl.org/group/perl.perl6.language/22532.
   return this;
 };
 PIL2JS.Ref.prototype.toString = function () { return "<PIL2JS.Ref>" };
@@ -613,14 +617,16 @@ var _26main_3a_3aref = PIL2JS.Box.constant_func(1, function (args) {
     return new PIL2JS.Box.Constant("Num");
   } else if(thing instanceof Array) {
     return new PIL2JS.Box.Constant("Array");
-  } else if(thing instanceof PIL2JS.Ref) {
-    return new PIL2JS.Box.Constant("Ref");
   } else if(thing instanceof PIL2JS.Hash) {
     return new PIL2JS.Box.Constant("Hash");
   } else if(thing instanceof PIL2JS.Pair) {
     return new PIL2JS.Box.Constant("Pair");
   } else if(thing instanceof Function) {
     return new PIL2JS.Box.Constant("Code");
+  } else if(thing instanceof PIL2JS.Ref && thing.autoderef) {
+    return _26main_3a_3aref.GET()([PIL2JS.Context.ItemAny, thing.referencee]);
+  } else if(thing instanceof PIL2JS.Ref) {
+    return new PIL2JS.Box.Constant("Ref");
   } else {
     PIL2JS.die(
       "Internal error: .ref() not yet implemented for " +
@@ -644,8 +650,72 @@ var _26main_3a_3aisa = PIL2JS.Box.constant_func(1, function (args) {
 _26main_3a_3aisa.perl_name = "&main::isa";
 PIL2JS.Box.prototype.perl_methods["isa"] = _26main_3a_3aisa;
 
+// &prefix:<\>
 var _26main_3a_3aprefix_3a_5c = PIL2JS.Box.constant_func(1, function (args) {
   var thing = args[1];
   return new PIL2JS.Box.Constant(new PIL2JS.Ref(thing));
 });
 _26main_3a_3aprefix_3a_5c.perl_name = "&main::prefix:\\";
+
+// &prefix:<~>. Written in JS instead of P6 for speed, as &prefix:<~> gets
+// called often.
+var _26main_3a_3aprefix_3a_7e = PIL2JS.Box.constant_func(1, function (args) {
+  var thing = args[1].GET();
+
+  if(thing == undefined) {
+    return new PIL2JS.Box.Constant("");
+  } else {
+    var ref = _26main_3a_3aref.GET()([PIL2JS.Context.ItemAny, args[1]]).GET();
+
+    if(ref == "Str") {
+      return new PIL2JS.Box.Constant(String(thing).toString());
+    } else if(ref == "Array") {
+      if(thing.referencee) thing = thing.referencee.GET();
+      var res = "";
+      for(var i = 0; i < thing.length; i++) {
+        res += thing[i] == undefined
+          ? ""
+          : _26main_3a_3aprefix_3a_7e.GET()([PIL2JS.Context.ItemAny, thing[i]]).GET();
+        res += " ";
+      }
+      if(thing.length > 0) res = res.slice(0, -1);
+      return new PIL2JS.Box.Constant(res);
+    } else if(ref == "Hash") {
+      if(thing.referencee) thing = thing.referencee.GET();
+      var res   = "";
+      var pairs = thing.pairs();
+      for(var i = 0; i < pairs.length; i++) {
+        res += "" +
+          _26main_3a_3aprefix_3a_7e.GET()([PIL2JS.Context.ItemAny, pairs[i].key]).GET() +
+          "\t" +
+          _26main_3a_3aprefix_3a_7e.GET()([PIL2JS.Context.ItemAny, pairs[i].value]).GET() +
+          "\n";
+      }
+      if(pairs.length > 0) res = res.slice(0, -1);
+      return new PIL2JS.Box.Constant(res);
+    } else if(ref == "Pair") {
+      return new PIL2JS.Box.Constant(
+        "" +
+        _26main_3a_3aprefix_3a_7e.GET()([PIL2JS.Context.ItemAny, thing.key]).GET() +
+        "\t" +
+        _26main_3a_3aprefix_3a_7e.GET()([PIL2JS.Context.ItemAny, thing.value]).GET()
+      );
+    } else if(ref == "Bool") {
+      return new PIL2JS.Box.Constant(
+        _26main_3a_3aprefix_3a_3f.GET()([PIL2JS.Context.ItemAny, args[1]]).GET()
+          ? "1"
+          : ""
+      );
+    } else if(ref == "Num") {
+      return new PIL2JS.Box.Constant(Number(thing).toString());
+    } else if(ref == "Ref") {
+      PIL2JS.die("Can't stringify non-array or hash references!");
+    } else {
+      PIL2JS.die(
+        "Stringification for objects of class "+
+        ref +
+        " not yet implemented!"
+      );
+    }
+  }
+});

@@ -29,7 +29,6 @@ method JS::Root::unshift(@self: *@things) {
 method JS::Root::push(@self: *@things) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var array = args[1].GET(), add = args[2].GET();
-    if(array instanceof PIL2JS.Ref) array = array.referencee.GET();
     for(var i = 0; i < add.length; i++) {
       array.push(new PIL2JS.Box(add[i].GET()));
     }
@@ -209,7 +208,6 @@ method postcircumfix:<[]>(@self: Int $idx is copy) is rw {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt   = args.shift();
     var array = args[0].GET();
-    if(array instanceof PIL2JS.Ref) array = array.referencee.GET();
     var idx   = Number(args[1].toNative());
 
     // Relay .GET and .STORE to array[idx].

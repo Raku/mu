@@ -46,49 +46,20 @@ sub infix:<=:=>($a, $b) is primitive { JS::inline('new PIL2JS.Box.Constant(
 )')($a, $b) }
 
 # Pending support for multi subs.
-sub prefix:<~>($thing) is primitive {
-  if(not defined $thing) {
-    "";
-  } elsif($thing.isa("Str")) {
-    JS::inline('new PIL2JS.Box.Constant(
-      function (args) {
-        var thing = args[1].GET();
-        return new PIL2JS.Box.Constant(String(thing).toString());
-      }
-    )')($thing);
-  } elsif($thing.isa("Ref") and @$thing.isa("Array")) {
-    # XXX [...] hack, for explanation see Prelude::JS::Array, sub &join.
-    [$thing.map:{ ~$_ }].join(" ");
-  } elsif($thing.isa("Ref") and %$thing.isa("Hash")) {
-    # XXX [...] hack, for explanation see Prelude::JS::Array, sub &join.
-    [$thing.kv.map:{ "$^key\t$^value" }].join("\n");
-  } elsif($thing.isa("Pair")) {
-    $thing.key ~ "\t" ~ $thing.value;
-  } elsif($thing.isa("Bool")) {
-    $thing ?? "bool::true" :: "bool::false";
-  } elsif($thing.isa("Num")) {
-    JS::inline('function (thing) { return Number(thing).toString() }')($thing);
-  } elsif($thing.isa("Ref")) {
-    "<Ref>";
-  } else {
-    die "Stringification for objects of class {$thing.ref} not yet implemented!\n";
-  }
-}
-
 sub prefix:<+>($thing) is primitive {
-  if(not defined $thing) {
+  if not defined $thing {
     0;
-  } elsif($thing.isa("Str")) {
+  } elsif $thing.isa("Str") {
     JS::inline('function (thing) { return Number(thing) }')($thing);
-  } elsif($thing.isa("Ref") and @$thing.isa("Array")) {
+  } elsif $thing.isa("Array") {
     $thing.elems;
-  } elsif($thing.isa("Ref") and %$thing.isa("Hash")) {
+  } elsif $thing.isa("Hash") {
     +$thing.keys;
-  } elsif($thing.isa("Bool")) {
+  } elsif $thing.isa("Bool") {
     $thing ?? 1 :: 0;
-  } elsif($thing.isa("Num")) {
+  } elsif $thing.isa("Num") {
     JS::inline('function (thing) { return Number(thing) }')($thing);
-  } elsif($thing.isa("Ref")) {
+  } elsif $thing.isa("Ref") {
     die "Can't numfiy non-array or hash references!";
   } else {
     die "Numification for objects of class {$thing.ref} not yet implemented!\n";
@@ -97,7 +68,7 @@ sub prefix:<+>($thing) is primitive {
 
 sub prefix:<*>(@array) {
   if not @array.isa("Array") {
-    # Slightly hacky, needed for, *(3), for example.
+    # Slightly hacky, needed for *(3), for example.
     @array;
   } else {
     JS::inline('new PIL2JS.Box.Constant(function (args) {
@@ -111,6 +82,11 @@ sub prefix:<*>(@array) {
       throw(new PIL2JS.ControlException.ret(5, ret));
     })')(@array);
   }
+}
+
+sub JS::Root::eval(Str ?$code, Str +$lang = 'Perl6') {
+  $! = "&eval does not work under PIL2JS.";
+  undef;
 }
 
 # We load the operator definitions lastly because they'll override *our*

@@ -4,14 +4,14 @@
 
 # No MMD yet.
 method exists (Hash|Pair|Array $self: $idx) {
-  if $self.isa("Ref") and PIL2JS::Internals::generic_deref($self).isa("Hash") {
+  if $self.isa("Hash") {
     JS::inline('new PIL2JS.Box.Constant(function (args) {
       var hash = args[1].GET(), key = args[2];
       return new PIL2JS.Box.Constant(hash.exists(key));
     })')(%$self, $idx);
   } elsif $self.isa("Pair") {
     $self.key eq $idx;
-  } elsif $self.isa("Ref") and PIL2JS::Internals::generic_deref($self).isa("Array") {
+  } elsif $self.isa("Array") {
     JS::inline('new PIL2JS.Box.Constant(function (args) {
       var array = args[1].GET(), idx = Number(args[2].toNative());
       return new PIL2JS.Box.Constant(
@@ -24,7 +24,7 @@ method exists (Hash|Pair|Array $self: $idx) {
 }
 
 method delete (Hash|Array $self: *@idx) {
-  if $self.isa("Ref") and PIL2JS::Internals::generic_deref($self).isa("Hash") {
+  if $self.isa("Hash") {
     JS::inline('new PIL2JS.Box.Constant(function (args) {
       var hash = args[1].GET(), keys = args[2].GET();
       var ret  = [];
@@ -34,7 +34,7 @@ method delete (Hash|Array $self: *@idx) {
       }
       return new PIL2JS.Box.Constant(ret);
     })')(%$self, @idx);
-  } elsif $self.isa("Ref") and PIL2JS::Internals::generic_deref($self).isa("Array") {
+  } elsif $self.isa("Array") {
     JS::inline('new PIL2JS.Box.Constant(function (args) {
       var array = args[1].GET(), idxs = args[2].toNative();
       var ret   = [];
@@ -52,7 +52,7 @@ method delete (Hash|Array $self: *@idx) {
 }
 
 method keys (Hash|Pair|Array $self:) {
-  if $self.isa("Ref") and PIL2JS::Internals::generic_deref($self).isa("Hash") {
+  if $self.isa("Hash") {
     JS::inline('new PIL2JS.Box.Constant(function (args) {
       var hash = args[1].GET();
       var keys = hash.keys();
@@ -60,7 +60,7 @@ method keys (Hash|Pair|Array $self:) {
     })')(%$self);
   } elsif $self.isa("Pair") {
     ($self.key,);
-  } elsif $self.isa("Ref") and PIL2JS::Internals::generic_deref($self).isa("Array") {
+  } elsif $self.isa("Array") {
     JS::inline('new PIL2JS.Box.Constant(function (args) {
       var array = args[1].GET();
       var ret   = [];
@@ -75,11 +75,12 @@ method keys (Hash|Pair|Array $self:) {
 }
 
 method values (Hash|Pair|Array $self:) {
-  if $self.isa("Ref") and PIL2JS::Internals::generic_deref($self).isa("Hash") {
-    [%$self.keys].map:{ $self{$_} };
+  if $self.isa("Hash") {
+    # XXX [...] hack, again
+    [$self.keys].map:{ $self{$_} };
   } elsif $self.isa("Pair") {
     ($self.value,);
-  } elsif $self.isa("Ref") and PIL2JS::Internals::generic_deref($self).isa("Array") {
+  } elsif $self.isa("Array") {
     @$self;
   } else {
     die ".values does not work on objects of type {$self.ref}!";
@@ -87,11 +88,13 @@ method values (Hash|Pair|Array $self:) {
 }
 
 method kv (Hash|Pair|Array $self:) {
-  if $self.isa("Ref") and PIL2JS::Internals::generic_deref($self).isa("Hash") {
+  if $self.isa("Hash") {
+    # XXX [...] hack
     [$self.keys].map:{ $_, $self{$_} };
   } elsif $self.isa("Pair") {
     ($self.key, $self.value);
-  } elsif $self.isa("Ref") and PIL2JS::Internals::generic_deref($self).isa("Array") {
+  } elsif $self.isa("Array") {
+    # XXX [...] hack
     [$self.keys].map:{ $_, $self[$_] };
   } else {
     die ".kv does not work on objects of type {$self.ref}!";
@@ -99,11 +102,13 @@ method kv (Hash|Pair|Array $self:) {
 }
 
 method pairs (Hash|Pair|Array $self:) {
-  if $self.isa("Ref") and PIL2JS::Internals::generic_deref($self).isa("Hash") {
+  if $self.isa("Hash") {
+    # XXX [...] hack
     [$self.keys].map:{ $_ => $self{$_}; };    # Don't remove the ";" inside the map!
   } elsif $self.isa("Pair") {
     ($self,);
-  } elsif $self.isa("Ref") and PIL2JS::Internals::generic_deref($self).isa("Array") {
+  } elsif $self.isa("Array") {
+    # XXX [...] hack
     [$self.keys].map:{ $_ => $self[$_]; };    # ditto
   } else {
     die ".pairs does not work on objects of type {$self.ref}!";
