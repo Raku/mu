@@ -52,9 +52,12 @@ Names and symbol tables
     state $x
     state $.x
     state $:x
+    package
+    sub
+    method
+    ::($var)
 
     Blank entries means I don't know.
-
 
 Names
 
