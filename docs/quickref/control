@@ -24,3 +24,22 @@ Switch/Case style control elements
     given $x { ... }   # $x is now topic for block
     when EXPR { ... }  # perform $_ ~~ EXPR execute block and break
     default { ... }    # same as when true { ... }    
+
+Closure traits
+
+    BEGIN { ... }      # Body executed at compile-time, as soon as possible
+    CHECK { ... }      # Body executed at compile-time, as last as possible
+    INIT  { ... }      # Body executed at runtime, as soon as possible
+    END   { ... }      # Body executed at runtime, as last as possible
+    FIRST { ... }      # Body only executed once
+
+    sub foo {
+      FIRST {
+        # Initialize environment, e.g. create some files, etc.
+      }
+
+      ...;
+    }
+    foo();  # Runs initialization block
+    foo();  # Does not run initialization block again
+    foo();  # ditto
