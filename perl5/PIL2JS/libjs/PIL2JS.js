@@ -513,8 +513,10 @@ PIL2JS.generic_return = function (level) {
     throw(new PIL2JS.ControlException.ret(level, ret));
   });
 };
-var _26main_3a_3areturn = PIL2JS.generic_return(5); // XXX hardcoded sublevel
-var _26main_3a_3aleave  = PIL2JS.generic_return(3); // XXX hardcoded sublevel
+PIL2JS.ControlException.exit_level = 1000;
+var _26main_3a_3areturn = PIL2JS.generic_return(5);    // XXX hardcoded sublevel
+var _26main_3a_3aleave  = PIL2JS.generic_return(3);    // XXX hardcoded sublevel
+var _26main_3a_3aexit   = PIL2JS.generic_return(PIL2JS.ControlException.exit_level);
 
 PIL2JS.call_chain = [];
 
@@ -601,7 +603,14 @@ PIL2JS.use_jsan = function (mod) {
 
 PIL2JS.catch_all_exceptions = function (code) {
   try { code() } catch(err) {
-    alert(err);
+    if(
+      err instanceof PIL2JS.ControlException.ret &&
+      err.level == PIL2JS.ControlException.exit_level
+    ) {
+      // Ok.
+    } else {
+      alert(err);
+    }
   }
 };
 

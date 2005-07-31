@@ -29,3 +29,20 @@ sub prefix:<?>($a) is primitive {
 }
 
 sub prefix:<!>($a) is primitive { $a ?? ?0 :: ?1 }
+
+sub infix:<^^>   ($a, $b) is primitive {
+     if  $a and  $b { ?0 }
+  elsif  $a and !$b { $a }
+  elsif !$a and  $b { $b }
+  else              { ?0 }
+}
+our &infix:<xor> = &infix:<^^>;
+
+sub infix:<?|>   ($a, $b)      is primitive { ?($a || $b) }
+
+sub infix:<//>   ($a, Code $b) is primitive { defined($a) ?? $a :: $b() }
+sub infix:<||>   ($a, Code $b) is primitive { $a ?? $a :: $b() }
+sub infix:<&&>   ($a, Code $b) is primitive { $a ?? $b() :: $a }
+sub infix:<err>  ($a, Code $b) is primitive { infix:<//>($a, $b()) } # XXX! hack
+sub infix:<or>   ($a, Code $b) is primitive { infix:<||>($a, $b()) } # XXX! hack
+sub infix:<and>  ($a, Code $b) is primitive { infix:<&&>($a, $b()) } # XXX! hack

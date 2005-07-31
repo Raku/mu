@@ -93,7 +93,7 @@ Tests quoting constructs as defined in L<S02/Literals>
 	is(+@q1, 1, "q[...\\qq[...]...] is singular");
 	is(@q1[0], '$foo BAR', "and interpolates correctly");
 
-	\@q2 = '$foo \qq[$bar]';
+	@q2 = '$foo \qq[$bar]';
 	is(+@q2, 1, "'...\\qq[...]...' is singular");
 	is(@q2[0], '$foo BAR', "and interpolates correctly");
 

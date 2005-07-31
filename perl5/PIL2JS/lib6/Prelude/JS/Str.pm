@@ -43,3 +43,16 @@ method chomp(Str $self:) {
     ~$self;
   }
 }
+
+sub infix:<x>    (Str $a, Int $count) is primitive {
+  my $ret = "";
+  $ret ~= $a for 1..$count;
+  $ret;
+}
+
+sub infix:<xx>   (*@a) is primitive {
+  my Int $count := pop @a;
+  my @ret;
+  push @ret, @a for 1..$count;
+  @ret;
+}

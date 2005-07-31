@@ -68,35 +68,10 @@ for @subs -> $name, $type, $body {
 Pugs::Internals::eval $eval;
 die $! if $!;
 
-sub infix:<//>   ($a, Code $b) is primitive { defined($a) ?? $a :: $b() }
-sub infix:<||>   ($a, Code $b) is primitive { $a ?? $a :: $b() }
-sub infix:<&&>   ($a, Code $b) is primitive { $a ?? $b() :: $a }
-sub infix:<err>  ($a, Code $b) is primitive { infix:<//>($a, $b()) } # XXX! hack
-sub infix:<or>   ($a, Code $b) is primitive { infix:<||>($a, $b()) } # XXX! hack
-sub infix:<and>  ($a, Code $b) is primitive { infix:<&&>($a, $b()) } # XXX! hack
 sub prefix:<++>  ($a is rw)    is primitive { $a = $a + 1 }
 sub postfix:<++> ($a is rw)    is primitive { my $cur = $a; $a = $a + 1; $cur }
 sub prefix:<-->  ($a is rw)    is primitive { $a = $a - 1 }
 sub postfix:<--> ($a is rw)    is primitive { my $cur = $a; $a = $a - 1; $cur }
 sub JS::Root::rand (?$a = 1)   is primitive { $JS::Math.random() * $a }
 
-sub infix:<x>    (Str $a, Int $count) is primitive {
-  my $ret = "";
-  $ret ~= $a for 1..$count;
-  $ret;
-}
-
-sub infix:<xx>   (*@a) is primitive {
-  my Int $count := pop @a;
-  my @ret;
-  push @ret, @a for 1..$count;
-  @ret;
-}
-
-sub infix:<^^>   ($a, $b) is primitive {
-     if  $a and  $b { ?0 }
-  elsif  $a and !$b { $a }
-  elsif !$a and  $b { $b }
-  else              { ?0 }
-}
-our &infix:<xor> = &infix:<^^>;
+sub infix:<=>    ($a is rw, $b) is primitive is rw { $a = $b }
