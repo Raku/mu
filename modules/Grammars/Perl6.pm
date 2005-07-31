@@ -10,9 +10,11 @@ grammar Perl6;
 
 # Top level structures
 
-rule code { ... } # a section of code
+rule code { <-[{}]>* } # a section of code
 
 #rule block { \{ <code> \} } # a block of code
+# pugs parsing problem? - 2005 Jul 31
+rule block { <[{]> <code> <[}]> } # a block of code
 
 # subs and sub-like structures
 
@@ -117,6 +119,14 @@ rule siglet :w {
 #        | \[ <siglet> \]        # treat single array ref as an arg list
 #        ]
 #}
+# comments appear to be poisonous - 2005 Jul 31
+rule paramlet :w {
+        [ <type> <zone>? <varlet>? <trait>*
+        | <zone> <varlet>? <trait>*
+        | <varlet> <trait>*
+        | \[ <siglet> \]
+        ]
+}
 
 rule varlet :w {
         <sigil> [ \( <siglet> \) ]?
@@ -130,14 +140,21 @@ rule defval :w { \= <item> }
 
 rule placeholder { <sigil> \^ <ident> }
 
-## Formal parameter syntax
-#
+# Formal parameter syntax
+
 #rule parameter :w {
 #        [ <type>? <zone>? <variable> <trait>* <defval>?
 #        | \[ <signature> \]     # treat single array ref as an arg list
 #        ]
 #}
-#
+# comments appear to be poisonous - 2005 Jul 31
+rule parameter :w {
+         [ <type>? <zone>? <variable> <trait>* <defval>?
+         | \[ <signature> \]
+         ]
+}
+
+
 rule type { yada type }
 rule zone { yada zone }
 
