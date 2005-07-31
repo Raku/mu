@@ -105,3 +105,14 @@ my $moo = 0;
 @b[$moo]++;
 is(@b[$moo], 2, "array elem via var"); 
 is($moo, 0, "var was not touched");
+
+# Test that the expression to increment will only be evaluated once.
+{
+  my $was_in_foo;
+  my sub foo () { $was_in_foo++; 0 };
+
+  my @array = (42);
+
+  is(@array[+foo()]++, 43, "++ evaluates the expression to increment only once (1)");
+  is($was_in_foo,       1, "++ evaluates the expression to increment only once (2)");
+}

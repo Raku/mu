@@ -3,5 +3,7 @@
 use v6;
 use Test;
 
+plan 1;
+
 # can parse 'test\\'
-eval_ok("'test\\\\'", "slashes in a single quoted string work correctly");
+is('test\\', "test\\", "slashes in a single quoted string work correctly");

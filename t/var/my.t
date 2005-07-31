@@ -7,16 +7,14 @@ use Test;
 # my() declarations scopes lexically to the rest of the block; using $MY::x or
 # $::("x") in the block before the actual declaration is erroneous.
 
-plan 8;
+plan 6;
 
 {
-  dies_ok { $::("x") }, 'my() variable not yet visible (1)';
-  dies_ok { $x       }, 'my() variable not yet visible (2)';
+  dies_ok { $x }, 'my() variable not yet visible (2)';
 
   my $x = 42;
 
-  is $::("x"), 42, 'my() variable is visible now (1)';
-  is $x,       42, 'my() variable is visible now (2)';
+  is $x, 42, 'my() variable is visible now (2)';
 }
 
 {
