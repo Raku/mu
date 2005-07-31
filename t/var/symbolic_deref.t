@@ -54,7 +54,7 @@ plan 22;
 
   dies_ok { $::("a_var") },
     "symbolic dereferentiation does not work for lexicals", :todo<bug>;
-  is      $::("MY::a_var"),
+  is      $::("MY::a_var"), 42,
     "symbolic dereferentiation does work for lexicals when using MY::", :todo<bug>;
 }
 

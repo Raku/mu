@@ -42,9 +42,7 @@ sub JS::Root::join(Str $sep, *@things) is primitive {
     function (arr, sep) {
       return arr.join(String(sep));
     }
-  ')([@things.map:{ ~$_ }], $sep);
-  # XXX [...] hack, because @one-elem-array.map:{...} does not return an array
-  # currently, but the only item array[0]...
+  ')(@things.map:{ ~$_ }, $sep);
 }
 
 method JS::Root::elems(@self:) {
@@ -180,16 +178,46 @@ sub infix:<^..>  (Num $from, Num $to) is primitive { ($from + 1)..$to }
 sub infix:<..^>  (Num $from, Num $to) is primitive { $from..($to - 1) }
 sub infix:<^..^> (Num $from, Num $to) is primitive { ($from + 1)..($to - 1) }
 
-sub infix:<,>(*@xs) is primitive {
+sub infix:<,>(*@xs is rw) is primitive is rw {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt   = args.shift();
+    var iarr  = args[0].GET();
+
     var array = [];
-    for(var i = 0; i < args[0].GET().length; i++) {
+    for(var i = 0; i < iarr.length; i++) {
       // The extra new PIL2JS.Box is necessary to make the contents of arrays
       // readwrite, i.e. my @a = (0,1,2); @a[1] = ... should work.
-      array[i] = new PIL2JS.Box(args[0].GET()[i].GET());
+      array[i] = new PIL2JS.Box(iarr[i].GET());
     }
-    return new PIL2JS.Box.Constant(array);
+
+    // Proxy needed for ($a, $b) = (3, 4) which really is
+    // &infix:<,>($a, $b) = (3, 4);
+    var proxy = new PIL2JS.Box.Proxy(
+      function ()  { return array },
+      function (n) {
+        var marray = [];
+        for(var i = 0; i < iarr.length; i++) {
+          marray[i] = new PIL2JS.Box(undefined).BINDTO(
+            // Slighly hacky way to determine if iarr[i] is undef, i.e.
+            // it\'s needed to make
+            //   my ($a, undef, $b) = (3,4,5);
+            // work.
+            iarr[i].constant && iarr[i].GET() == undefined
+              ? new PIL2JS.Box(undefined)
+              : iarr[i]
+          );
+        }
+
+        var arr = new PIL2JS.Box([]).STORE(n).GET();
+        for(var i = 0; i < arr.length; i++) {
+          if(marray[i]) marray[i].STORE(arr[i]);
+        }
+
+        return this;
+      }
+    );
+
+    return proxy;
   })')(@xs);
 }
 

@@ -362,6 +362,10 @@ instance Compile Exp (PIL LValue) where
         compile (App (Var "&postcircumfix:[]") (Just x) xs)
     compile (Syn "," exps) = do
         compile (App (Var "&infix:,") Nothing exps)
+    -- Minor hack, my $a = [] is parsed as my $a = [Noop], resulting in my $a =
+    -- [undef], which is wrong.
+    compile (Syn "\\[]" [Noop]) = do
+        compile (App (Var "&circumfix:[]") Nothing [])
     compile (Syn "\\[]" exps) = do
         compile (App (Var "&circumfix:[]") Nothing exps)
     compile (Syn name@(sigil:"{}") exps) | (sigil ==) `any` "$@%&" = do

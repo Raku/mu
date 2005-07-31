@@ -301,6 +301,7 @@ PIL2JS.Box.Constant = function (value) {
   this.BINDTO = function (o) { PIL2JS.die("Can't rebind constant item!") };
   this.uid    = undefined;
   this.container_type = PIL2JS.container_type(value);
+  this.constant       = true;
 };
 
 // Returns a stub box -- all calls will die.
@@ -499,23 +500,21 @@ PIL2JS.ControlException.ret   = function (level, retval) {
   }
 };
 
-// &PIL2JS::Internals::generic_return -- generates a function, which, when
-// invoked, will cause a return of the given level by throwing an appropriate
-// exception.
-var _26PIL2JS_3a_3aInternals_3a_3ageneric_return =
-  new PIL2JS.Box.Constant(function (args) {
-    var cxt   = args.shift();
-    var level = args[0].toNative();
-    return new PIL2JS.Box.Constant(function (args) {
-      var cxt_ = args.shift();
-      args     = PIL2JS.make_slurpy_array(args);
-      var ret  =
-        args.length >  1 ? new PIL2JS.Box.Constant(args) :
-        args.length == 1 ? args[0] :
-        new PIL2JS.Box.Constant(undefined);
-      throw(new PIL2JS.ControlException.ret(level, ret));
-    });
+// PIL2JS.generic_return -- generates a function, which, when invoked, will
+// cause a return of the given level by throwing an appropriate exception.
+PIL2JS.generic_return = function (level) {
+  return new PIL2JS.Box.Constant(function (args) {
+    var cxt  = args.shift();
+    // args     = PIL2JS.make_slurpy_array(args);
+    var ret  =
+      args.length >  1 ? new PIL2JS.Box.Constant(args) :
+      args.length == 1 ? args[0] :
+      new PIL2JS.Box.Constant(undefined);
+    throw(new PIL2JS.ControlException.ret(level, ret));
   });
+};
+var _26main_3a_3areturn = PIL2JS.generic_return(5); // XXX hardcoded sublevel
+var _26main_3a_3aleave  = PIL2JS.generic_return(3); // XXX hardcoded sublevel
 
 PIL2JS.call_chain = [];
 
