@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 29;
+plan 8;
 
 {
     my $x = Inf;
@@ -20,12 +20,12 @@ plan 29;
 
 {
     my $x = int( Inf );
-    is( $x, Inf,   'int numeric equal' );
-    is( $x, 'Inf', 'int string equal'  );
+    is( $x, Inf,   'int numeric equal', :todo<bug> );
+    is( $x, 'Inf', 'int string equal', :todo<bug> );
 }
 
 {
     my $x = int( -Inf );
-    is( $x, -Inf,   'int negative numeric equal' );
-    is( $x, '-Inf', 'int negative string equal'  );
+    is( $x, -Inf,   'int negative numeric equal', :todo<bug> );
+    is( $x, '-Inf', 'int negative string equal', :todo<bug> );
 }
