@@ -11,7 +11,7 @@ These tests derived from comments in http://use.perl.org/~autrijus/journal/23398
 
 =cut
 
-plan 19;
+plan 20;
 
 my $world = "World";
 my @list  = (1,2);
@@ -26,6 +26,7 @@ is("%hash{}", "1\t2\n", 'hash interpolation works');
 is("%hash", '%hash', 'hash interpolation does not work if not followed by {}');
 is("Wont you take me to &func()", 'Wont you take me to func-y town', 'closure interpolation');
 is("2 + 2 = { 2+2 }", '2 + 2 = 4', 'double quoted closure interpolation works');
+is("&func() is where I live", 'func-y town is where I live', "make sure function interpolation doesn't eat all trailing whitespace", :todo<bug>);
 
 # Single quotes
 # XXX the next tests will always succeed even if '' interpolation is buggy
