@@ -91,17 +91,22 @@ Autoloading
 
     [Can a package or role AUTOMETH?]
 
-Declarators [what is the official word for these?]
+Declarators [what is a real name for these things?]
+
+ [Fill me in...]
 
    keyword    Comment - meaning and common usage
     my
     our
     temp
     let
-    state
+    state                  Initialization (but FIRST{} is better).
 
-   [Fill me in...]
-
+ [ my $x = 20; { let $x = 3; 0 }; # $x restored to 20
+   my $x = 20; { let $x = 3; 1 }; # $x stays 3
+   sub foo { state $x; say ++$x }; foo(); foo(); foo(); # 1,2,3
+   sub foo { my $x; FIRST { $x = 0 } say ++$x }; # same, and better.
+  ?]
 
 Names and symbol tables
 
@@ -130,6 +135,8 @@ Names and symbol tables
 
     Blank entries means I don't know.
 
+   [ state will create a new lexical var, exactly like my? ]
+   [ temp and let only work with already declared vars? ]
    [ binding? ]
 
 Binding
