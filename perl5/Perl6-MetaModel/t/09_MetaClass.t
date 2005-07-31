@@ -17,122 +17,96 @@ use Perl6::Class::Method;
 my $mc= Perl6::MetaClass->new(name => 'Base');
 isa_ok($mc, 'Perl6::MetaClass');
 
-can_ok($mc, 'name');
-can_ok($mc, 'version');
-can_ok($mc, 'authority');
-can_ok($mc, 'identifier');
-
-can_ok($mc, 'is_a');
-
-# get direct superclasses
-can_ok($mc, 'superclasses');
-
-# get all superclasses
-can_ok($mc, 'class_precedence_list');
-
-# get the method resolution order
-can_ok($mc, 'MRO');
-
-## Instance methods
-
-can_ok($mc, 'add_method');
-
-# locally defined methods
-can_ok($mc, 'get_method');
-can_ok($mc, 'has_method');
-
-## attributes
-
-# locally defined attributes
-can_ok($mc, 'add_attribute');
-can_ok($mc, 'get_attribute');
-
-can_ok($mc, 'get_attribute_list');
-
-can_ok($mc, 'find_attribute_spec');
+foreach my $label ('name', 'version', 'authority', 
+ 'identifier', 'is_a', 'superclasses', 
+ 'class_precedence_list', 'MRO', 'add_method', 
+ 'get_method', 'has_method', 'add_attribute', 
+ 'get_attribute', 'get_attribute_list', 'find_attribute_spec') {
+     ok(::dispatch($mc, 'can', 0, $label), '... $mc->can(' . $label . ')');
+}
 
 ###################################################################
 # now some real tests
 
-is($mc->name, 'Base', '... got the right name for Base');
-is($mc->version, '0.0.0', '... got the right version for Base');
-ok(!defined($mc->authority), '... no authority for Base');
+is(::dispatch($mc, 'name'), 'Base', '... got the right name for Base');
+is(::dispatch($mc, 'version'), '0.0.0', '... got the right version for Base');
+ok(!defined(::dispatch($mc, 'authority')), '... no authority for Base');
 
-is($mc->identifier, 'Base-0.0.0', '... got the right identifier for Base');
+is(::dispatch($mc, 'identifier'), 'Base-0.0.0', '... got the right identifier for Base');
 
-ok($mc->is_a('Base'), '... the metaclass is-a Base');
+ok(::dispatch($mc, 'is_a', 0, ('Base')), '... the metaclass is-a Base');
 
 is_deeply(
-    $mc->superclasses(),
+    ::dispatch($mc, 'superclasses'),
     [ ], 
     '... got an empty superclasses list');
 
 is_deeply(
-    [ $mc->class_precedence_list(':preorder') ],
+    [ ::dispatch($mc, 'class_precedence_list', 0, (':preorder')) ],
     [ $mc ], 
     '... got an empty class precendence list');
 
 ## class methods
 
 lives_ok {
-    $mc->add_method('foo' => Perl6::Class::Method->new($mc->name, sub { 'class->Base::foo' }));
+    ::dispatch($mc, 'add_method', 0, ('foo' => Perl6::Class::Method->new(::dispatch($mc, 'name'), sub { 'class->Base::foo' })));
 } '... we can add a class method successfully';
 
-ok($mc->has_method('foo', for => 'Class'), '... the metaclass now has the class method "foo"');
+ok(::dispatch($mc, 'has_method', 0, ('foo', for => 'Class')), '... the metaclass now has the class method "foo"');
 
-is($mc->get_method('foo', for => 'Class')->do(), 'class->Base::foo', '... got the class method and it returned the right value');
+is(::dispatch($mc, 'get_method', 0, ('foo', for => 'Class'))->do(), 'class->Base::foo', '... got the class method and it returned the right value');
 
 ## instance methods
 
 lives_ok {
-    $mc->add_method('foo' => Perl6::Instance::Method->new($mc->name, sub { 'Base::foo' }));
+    ::dispatch($mc, 'add_method', 0, ('foo' => Perl6::Instance::Method->new(::dispatch($mc, 'name'), sub { 'Base::foo' })));
 } '... we can add a method successfully';
 
-ok($mc->has_method('foo'), '... the metaclass now has the method "foo"');
+ok(::dispatch($mc, 'has_method', 0, ('foo')), '... the metaclass now has the method "foo"');
 
-is($mc->get_method('foo')->do(), 'Base::foo', '... got the method and it returned the right value');
+is(::dispatch($mc, 'get_method', 0, ('foo'))->do(), 'Base::foo', '... got the method and it returned the right value');
 
 ## class attributes
 
 lives_ok {
-    $mc->add_attribute('@.bar' => Perl6::Class::Attribute->new($mc, '@.bar'));
-    $mc->add_attribute('$:foo' => Perl6::Class::Attribute->new($mc, '$:foo'));    
+    ::dispatch($mc, 'add_attribute', 0, ('@.bar' => Perl6::Class::Attribute->new($mc, '@.bar')));
+    ::dispatch($mc, 'add_attribute', 0, ('$:foo' => Perl6::Class::Attribute->new($mc, '$:foo')));    
 } '... we can add attributes successfully';
 
-ok($mc->has_attribute('@.bar', for => 'Class'), '... we have the class attribute "@.bar"');
-ok($mc->has_attribute('$:foo', for => 'Class'), '... we have the class attribute "$:foo"');
+ok(::dispatch($mc, 'has_attribute', 0, ('@.bar', for => 'Class')), '... we have the class attribute "@.bar"');
+ok(::dispatch($mc, 'has_attribute', 0, ('$:foo', for => 'Class')), '... we have the class attribute "$:foo"');
 
 is_deeply(
-    [ $mc->get_attribute_list(for => 'Class') ],
+    [ ::dispatch($mc, 'get_attribute_list', 0, (for => 'Class')) ],
     [ '$:foo', '@.bar' ],
     '... got the right class attribute list for Base');
 
-isa_ok($mc->find_attribute_spec('@.bar', for => 'Class'), 'Perl6::Class::Attribute');
-isa_ok($mc->find_attribute_spec('$:foo', for => 'Class'), 'Perl6::Class::Attribute');
+isa_ok(::dispatch($mc, 'find_attribute_spec', 0, ('@.bar', for => 'Class')), 'Perl6::Class::Attribute');
+isa_ok(::dispatch($mc, 'find_attribute_spec', 0, ('$:foo', for => 'Class')), 'Perl6::Class::Attribute');
 
-is_deeply($mc->get_method('bar', for => 'Class')->do(), [], '... our class attribute @.bar was initialized correctly');
-ok(!defined($mc->find_attribute_spec('$:foo', for => 'Class')->get_value()), '... our class attribute $:foo was initialized correctly');
+is_deeply(::dispatch($mc, 'get_method', 0, ('bar', for => 'Class'))->do(), [], '... our class attribute @.bar was initialized correctly');
+ok(!defined(::dispatch($mc, 'find_attribute_spec', 0, ('$:foo', for => 'Class'))->get_value()), '... our class attribute $:foo was initialized correctly');
 
-$mc->find_attribute_spec('$:foo', for => 'Class')->set_value('class->$:foo');
-is($mc->find_attribute_spec('$:foo', for => 'Class')->get_value(), 'class->$:foo', '... our class attribute $:foo was set correctly');
+::dispatch($mc, 'find_attribute_spec', 0, ('$:foo', for => 'Class'))->set_value('class->$:foo');
+is(::dispatch($mc, 'find_attribute_spec', 0, ('$:foo', for => 'Class'))->get_value(), 'class->$:foo', '... our class attribute $:foo was set correctly');
 
 ## instance attributes
 
 lives_ok {
-    $mc->add_attribute('$.foo' => Perl6::Instance::Attribute->new($mc, '$.foo'));
-    $mc->add_attribute('@.foo' => Perl6::Instance::Attribute->new($mc, '@.foo'))    
+    ::dispatch($mc, 'add_attribute', 0, ('$.foo' => Perl6::Instance::Attribute->new($mc, '$.foo')));
+    ::dispatch($mc, 'add_attribute', 0, ('@.foo' => Perl6::Instance::Attribute->new($mc, '@.foo')));   
 } '... we can add attributes successfully';
 
-ok($mc->has_attribute('$.foo'), '... we have the attribute "$.foo"');
-ok($mc->has_attribute('@.foo'), '... we also have the attribute "@.foo"');
+ok(::dispatch($mc, 'has_attribute', 0, ('$.foo')), '... we have the attribute "$.foo"');
+ok(::dispatch($mc, 'has_attribute', 0, ('@.foo')), '... we also have the attribute "@.foo"');
 
 is_deeply(
-    [ $mc->get_attribute_list ],
+    [ ::dispatch($mc, 'get_attribute_list') ],
     [ '$.foo', '@.foo' ],
     '... got the right attribute list for Base');
 
-isa_ok($mc->find_attribute_spec('$.foo'), 'Perl6::Attribute');
-isa_ok($mc->find_attribute_spec('@.foo'), 'Perl6::Attribute');
+isa_ok(::dispatch($mc, 'find_attribute_spec', 0, ('$.foo')), 'Perl6::Attribute');
+isa_ok(::dispatch($mc, 'find_attribute_spec', 0, ('@.foo')), 'Perl6::Attribute');
 
 # now add subclasses
 
@@ -144,49 +118,49 @@ my $mc2 = Perl6::MetaClass->new(
             );
 isa_ok($mc2, 'Perl6::MetaClass');
 
-is($mc2->name, 'Foo', '... got the right name for Foo');
-is($mc2->version, '0.0.1', '... got the right version for Foo');
-is($mc2->authority, 'http://www.foobar.com/~baz', '... the correct authority for Foo');
+is(::dispatch($mc2, 'name'), 'Foo', '... got the right name for Foo');
+is(::dispatch($mc2, 'version'), '0.0.1', '... got the right version for Foo');
+is(::dispatch($mc2, 'authority'), 'http://www.foobar.com/~baz', '... the correct authority for Foo');
 
-is($mc2->identifier, 'Foo-0.0.1-http://www.foobar.com/~baz', '... got the right identifier for Foo');
+is(::dispatch($mc2, 'identifier'), 'Foo-0.0.1-http://www.foobar.com/~baz', '... got the right identifier for Foo');
 
-ok($mc2->is_a('Base'), '... the metaclass is-a Base');
-ok($mc2->is_a('Foo'), '... the metaclass is-a Foo');
+ok(::dispatch($mc2, 'is_a', 0, ('Base')), '... the metaclass is-a Base');
+ok(::dispatch($mc2, 'is_a', 0, ('Foo')), '... the metaclass is-a Foo');
 
 is_deeply(
-    $mc2->superclasses(),
+    ::dispatch($mc2, 'superclasses'),
     [ $mc ], 
     '... got a superclasses list');
 
 is_deeply(
-    [ $mc2->class_precedence_list(':preorder') ],
+    [ ::dispatch($mc2, 'class_precedence_list', 0, (':preorder')) ],
     [ $mc2, $mc ], 
     '... got a class precendence list');
 
 lives_ok {    
-    $mc2->add_method('bar' => Perl6::Instance::Method->new($mc2->name, sub { 'Foo::bar' }));
+    ::dispatch($mc2, 'add_method', 0, ('bar' => Perl6::Instance::Method->new(::dispatch($mc2, 'name'), sub { 'Foo::bar' })));
 } '... add another method now';
 
-ok($mc2->has_method('bar'), '... the metaclass now has the method "bar"');
+ok(::dispatch($mc2, 'has_method', 0, ('bar')), '... the metaclass now has the method "bar"');
 
-is($mc2->get_method('bar')->do(), 'Foo::bar', '... got the method and it returned the right value');
+is(::dispatch($mc2, 'get_method', 0, ('bar'))->do(), 'Foo::bar', '... got the method and it returned the right value');
 
 lives_ok {
-    $mc2->add_attribute('$.bar' => Perl6::Instance::Attribute->new($mc2, '$.bar'));
+    ::dispatch($mc2, 'add_attribute', 0, ('$.bar' => Perl6::Instance::Attribute->new($mc2, '$.bar')));
 } '... we can add attributes successfully';
 
-ok($mc2->has_attribute('$.bar'), '... we have the attribute "$.bar"');
+ok(::dispatch($mc2, 'has_attribute', 0, ('$.bar')), '... we have the attribute "$.bar"');
 
-isa_ok($mc2->find_attribute_spec('$.foo'), 'Perl6::Attribute');
-isa_ok($mc2->find_attribute_spec('@.foo'), 'Perl6::Attribute');
-isa_ok($mc2->find_attribute_spec('$.bar'), 'Perl6::Attribute');
+isa_ok(::dispatch($mc2, 'find_attribute_spec', 0, ('$.foo')), 'Perl6::Attribute');
+isa_ok(::dispatch($mc2, 'find_attribute_spec', 0, ('@.foo')), 'Perl6::Attribute');
+isa_ok(::dispatch($mc2, 'find_attribute_spec', 0, ('$.bar')), 'Perl6::Attribute');
 
-is($mc2->find_attribute_spec('$:foo', for => 'Class')->get_value(), 'class->$:foo', '... our class attribute $:foo was set correctly');
+is(::dispatch($mc2, 'find_attribute_spec', 0, ('$:foo', for => 'Class'))->get_value(), 'class->$:foo', '... our class attribute $:foo was set correctly');
 
-$mc2->find_attribute_spec('$:foo', for => 'Class')->set_value('class->$:foo again');
+::dispatch($mc2, 'find_attribute_spec', 0, ('$:foo', for => 'Class'))->set_value('class->$:foo again');
 
-is($mc2->find_attribute_spec('$:foo', for => 'Class')->get_value(), 'class->$:foo again', '... our class attribute $:foo was set correctly');
-is($mc->find_attribute_spec('$:foo', for => 'Class')->get_value(), 'class->$:foo again', '... our class attribute $:foo was set correctly');
+is(::dispatch($mc2, 'find_attribute_spec', 0, ('$:foo', for => 'Class'))->get_value(), 'class->$:foo again', '... our class attribute $:foo was set correctly');
+is(::dispatch($mc, 'find_attribute_spec', 0, ('$:foo', for => 'Class'))->get_value(), 'class->$:foo again', '... our class attribute $:foo was set correctly');
 
 
 # now add another subclasses
@@ -194,108 +168,108 @@ is($mc->find_attribute_spec('$:foo', for => 'Class')->get_value(), 'class->$:foo
 my $mc3 = Perl6::MetaClass->new(name => 'Bar');
 isa_ok($mc3, 'Perl6::MetaClass');
 
-is($mc3->name, 'Bar', '... got the right name for Bar');
+is(::dispatch($mc3, 'name'), 'Bar', '... got the right name for Bar');
 
-$mc3->superclasses([ $mc ]);
+::dispatch($mc3, 'superclasses', 0, ([ $mc ]));
 
-ok($mc3->is_a('Base'), '... the metaclass is-a Base');
-ok($mc3->is_a('Bar'), '... the metaclass is-a Bar');
+ok(::dispatch($mc3, 'is_a', 0, ('Base')), '... the metaclass is-a Base');
+ok(::dispatch($mc3, 'is_a', 0, ('Bar')), '... the metaclass is-a Bar');
 
 is_deeply(
-    $mc3->superclasses(),
+    ::dispatch($mc3, 'superclasses'),
     [ $mc ], 
     '... got a superclasses list');
 
 is_deeply(
-    [ $mc3->class_precedence_list(':preorder') ],
+    [ ::dispatch($mc3, 'class_precedence_list', 0, (':preorder')) ],
     [ $mc3, $mc ], 
     '... got a class precendence list');
 
 lives_ok {    
-    $mc3->add_method('baz' => Perl6::Instance::Method->new($mc3->name, sub { 'Bar::baz' }));
+    ::dispatch($mc3, 'add_method', 0, ('baz' => Perl6::Instance::Method->new(::dispatch($mc3, 'name'), sub { 'Bar::baz' })));
 } '... add another method now';
 
-ok($mc3->has_method('baz'), '... the metaclass now has the method "baz"');
+ok(::dispatch($mc3, 'has_method', 0, ('baz')), '... the metaclass now has the method "baz"');
 
-is($mc3->get_method('baz')->do(), 'Bar::baz', '... got the method and it returned the right value');
+is(::dispatch($mc3, 'get_method', 0, ('baz'))->do(), 'Bar::baz', '... got the method and it returned the right value');
 
 lives_ok {
-    $mc3->add_attribute('$.baz' => Perl6::Instance::Attribute->new($mc3, '$.baz'));
+    ::dispatch($mc3, 'add_attribute', 0, ('$.baz' => Perl6::Instance::Attribute->new($mc3, '$.baz')));
 } '... we can add attributes successfully';
 
-ok($mc3->has_attribute('$.baz'), '... we have the attribute "$.bar"');
+ok(::dispatch($mc3, 'has_attribute', 0, ('$.baz')), '... we have the attribute "$.bar"');
 
-isa_ok($mc3->find_attribute_spec('$.foo'), 'Perl6::Attribute');
-isa_ok($mc3->find_attribute_spec('@.foo'), 'Perl6::Attribute');    
-isa_ok($mc3->find_attribute_spec('$.baz'), 'Perl6::Attribute');    
+isa_ok(::dispatch($mc3, 'find_attribute_spec', 0, ('$.foo')), 'Perl6::Attribute');
+isa_ok(::dispatch($mc3, 'find_attribute_spec', 0, ('@.foo')), 'Perl6::Attribute');    
+isa_ok(::dispatch($mc3, 'find_attribute_spec', 0, ('$.baz')), 'Perl6::Attribute');    
 
 # and now even more subclassing
 
 my $mc4 = Perl6::MetaClass->new(name => 'Foo::Bar');
 isa_ok($mc4, 'Perl6::MetaClass');
 
-is($mc4->name, 'Foo::Bar', '... got the right name for Foo::Bar');
+is(::dispatch($mc4, 'name'), 'Foo::Bar', '... got the right name for Foo::Bar');
 
-$mc4->superclasses([ $mc2, $mc3 ]);
+::dispatch($mc4, 'superclasses', 0, ([ $mc2, $mc3 ]));
 
-ok($mc4->is_a('Base'), '... the metaclass is-a Base');
-ok($mc4->is_a('Foo'), '... the metaclass is-a Foo');
-ok($mc4->is_a('Bar'), '... the metaclass is-a Bar');
-ok($mc4->is_a('Foo::Bar'), '... the metaclass is-a Foo::Bar');
+ok(::dispatch($mc4, 'is_a', 0, ('Base')), '... the metaclass is-a Base');
+ok(::dispatch($mc4, 'is_a', 0, ('Foo')), '... the metaclass is-a Foo');
+ok(::dispatch($mc4, 'is_a', 0, ('Bar')), '... the metaclass is-a Bar');
+ok(::dispatch($mc4, 'is_a', 0, ('Foo::Bar')), '... the metaclass is-a Foo::Bar');
 
 is_deeply(
-    $mc4->superclasses(),
+    ::dispatch($mc4, 'superclasses'),
     [ $mc2, $mc3 ], 
     '... got a superclasses list');
 
 is_deeply(
-    [ $mc4->class_precedence_list(':preorder') ],
+    [ ::dispatch($mc4, 'class_precedence_list', 0, (':preorder')) ],
     [ $mc4, $mc2, $mc, $mc3 ], 
     '... got a class precendence list');
 
 lives_ok {    
-    $mc4->add_method('blah' => Perl6::Instance::Method->new($mc4->name, sub { 'Foo::Bar::blah' }));
+    ::dispatch($mc4, 'add_method', 0, ('blah' => Perl6::Instance::Method->new(::dispatch($mc4, 'name'), sub { 'Foo::Bar::blah' })));
 } '... add another method now';
 
-ok($mc4->has_method('blah'), '... the metaclass now has the method "blah"');
+ok(::dispatch($mc4, 'has_method', 0, ('blah')), '... the metaclass now has the method "blah"');
 
-is($mc4->get_method('blah')->do(), 'Foo::Bar::blah', '... got the method and it returned the right value');
+is(::dispatch($mc4, 'get_method', 0, ('blah'))->do(), 'Foo::Bar::blah', '... got the method and it returned the right value');
 
-isa_ok($mc4->find_attribute_spec('$.foo'), 'Perl6::Attribute');
-isa_ok($mc4->find_attribute_spec('@.foo'), 'Perl6::Attribute');
-isa_ok($mc4->find_attribute_spec('$.bar'), 'Perl6::Attribute');
-isa_ok($mc4->find_attribute_spec('$.baz'), 'Perl6::Attribute');
+isa_ok(::dispatch($mc4, 'find_attribute_spec', 0, ('$.foo')), 'Perl6::Attribute');
+isa_ok(::dispatch($mc4, 'find_attribute_spec', 0, ('@.foo')), 'Perl6::Attribute');
+isa_ok(::dispatch($mc4, 'find_attribute_spec', 0, ('$.bar')), 'Perl6::Attribute');
+isa_ok(::dispatch($mc4, 'find_attribute_spec', 0, ('$.baz')), 'Perl6::Attribute');
 
 # and now even more-more subclassing
 
 my $mc5 = Perl6::MetaClass->new(name => 'Foo::Bar::Baz');
 isa_ok($mc5, 'Perl6::MetaClass');
 
-is($mc5->name, 'Foo::Bar::Baz', '... got the right name for Foo::Bar::Baz');
+is(::dispatch($mc5, 'name'), 'Foo::Bar::Baz', '... got the right name for Foo::Bar::Baz');
 
-$mc5->superclasses([ $mc4 ]);
+::dispatch($mc5, 'superclasses', 0, ([ $mc4 ]));
 
-ok($mc5->is_a('Base'), '... the metaclass is-a Base');
-ok($mc5->is_a('Foo'), '... the metaclass is-a Foo');
-ok($mc5->is_a('Bar'), '... the metaclass is-a Bar');
-ok($mc5->is_a('Foo::Bar'), '... the metaclass is-a Foo::Bar');
-ok($mc5->is_a('Foo::Bar::Baz'), '... the metaclass is-a Foo::Bar::Baz');
+ok(::dispatch($mc5, 'is_a', 0, ('Base')), '... the metaclass is-a Base');
+ok(::dispatch($mc5, 'is_a', 0, ('Foo')), '... the metaclass is-a Foo');
+ok(::dispatch($mc5, 'is_a', 0, ('Bar')), '... the metaclass is-a Bar');
+ok(::dispatch($mc5, 'is_a', 0, ('Foo::Bar')), '... the metaclass is-a Foo::Bar');
+ok(::dispatch($mc5, 'is_a', 0, ('Foo::Bar::Baz')), '... the metaclass is-a Foo::Bar::Baz');
 
 is_deeply(
-    $mc5->superclasses(),
+    ::dispatch($mc5, 'superclasses'),
     [ $mc4 ], 
     '... got a superclasses list');
 
 is_deeply(
-    [ $mc5->class_precedence_list(':preorder') ],
+    [ ::dispatch($mc5, 'class_precedence_list', 0, (':preorder')) ],
     [ $mc5, $mc4, $mc2, $mc, $mc3 ], 
     '... got a class precendence list'); 
 
 lives_ok {    
-    $mc5->add_method('foo' => Perl6::Instance::Method->new($mc5->name, sub { 'Foo::Bar::Baz::foo' }));
+    ::dispatch($mc5, 'add_method', 0, ('foo' => Perl6::Instance::Method->new(::dispatch($mc5, 'name'), sub { 'Foo::Bar::Baz::foo' })));
 } '... add another method now';
 
-isa_ok($mc5->find_attribute_spec('$.foo'), 'Perl6::Attribute');
-isa_ok($mc5->find_attribute_spec('@.foo'), 'Perl6::Attribute');
-isa_ok($mc5->find_attribute_spec('$.bar'), 'Perl6::Attribute');
-isa_ok($mc5->find_attribute_spec('$.baz'), 'Perl6::Attribute');
+isa_ok(::dispatch($mc5, 'find_attribute_spec', 0, ('$.foo')), 'Perl6::Attribute');
+isa_ok(::dispatch($mc5, 'find_attribute_spec', 0, ('@.foo')), 'Perl6::Attribute');
+isa_ok(::dispatch($mc5, 'find_attribute_spec', 0, ('$.bar')), 'Perl6::Attribute');
+isa_ok(::dispatch($mc5, 'find_attribute_spec', 0, ('$.baz')), 'Perl6::Attribute');

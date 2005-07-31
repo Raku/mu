@@ -51,9 +51,9 @@ class 'Cat-0.0.1-cpan:CHROMATIC' =>
 
 my $cat       = Cat->new( '$.name' => 'Fluffy', '$.color' => 'white' );
 my $cat_class = $cat->meta();
-can_ok( $cat_class, 'getmethods' );
+ok(::dispatch($cat_class, 'getmethods'), '... $cat_class->can(getmethods)');
 
-my @methods   = $cat_class->getmethods();
+my @methods   = ::dispatch($cat_class, 'getmethods');
 is( @methods, 3, 'getmethods() should return descriptor for each method' );
 
 for my $introspector (qw( name signature returns multi do ))

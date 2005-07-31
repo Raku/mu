@@ -22,22 +22,24 @@ sub add_role {
 
 sub flatten_roles_into {
     my ($meta_role, $meta, @roles) = @_;
-    debug "combining the roles (" . (join ", ", @roles) . ") into (" . $meta->name . ")";
+    debug "combining the roles (" . (join ", ", @roles) . ") into (" . ::dispatch($meta, 'name') . ")";
     my $r = $meta_role->combine_roles($meta, @roles);
     debug "flattened role is (" . $r->{name} . ")";
     foreach my $method (keys %{$r->{methods}}) {
-        debug "adding the method ($method) into (" . $meta->name . ")";
-        $meta->add_method($method => Perl6::Role::Method->new(
-            $meta->name,
+        debug "adding the method ($method) into (" . ::dispatch($meta, 'name') . ")";
+        ::dispatch($meta, 'add_method', 0, ($method => Perl6::Role::Method->new(
+            ::dispatch($meta, 'name'),
             $r->{methods}->{$method}
-            )) unless $meta->has_method($method);
+            ))) unless ::dispatch($meta, 'has_method', 0, ($method));
     }
-    $meta->add_method('does' => Perl6::Role::Method->new(
-        $meta->name, sub {
-        my (undef, $role) = @_;
-        return $role =~ /\b$r->{name}\b/ if $role;
-        return split /\|/ => $r->{name};
-    }));    
+    ::dispatch($meta, 'add_method', 0, ('does' => Perl6::Role::Method->new(
+        ::dispatch($meta, 'name'), 
+        sub {
+            my (undef, $role) = @_;
+            return $role =~ /\b$r->{name}\b/ if $role;
+            return split /\|/ => $r->{name};
+        }
+    )));    
 }
 
 sub combine_roles {
@@ -56,7 +58,7 @@ sub combine_roles {
         foreach my $method_name (keys %{$role->{methods}}) {
             debug "adding the method ($method_name) into the role (" . $role->{name} . ")";
             if (exists $composite_role->{methods}->{$method_name}) {
-                unless ($meta->has_method($method_name)) {
+                unless (::dispatch($meta, 'has_method', 0, ($method_name))) {
                     confess "We have a method conflict on ($method_name) in (" . $role->{name} . ")";                
                 }
             }

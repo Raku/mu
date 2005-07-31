@@ -52,32 +52,32 @@ class B => { is => [ 'D', 'E' ] };
 class A => { is => [ 'B', 'C' ] };
 
 is_deeply(
-    [ map { $_->name } F->meta->MRO() ],
+    [ map { ::dispatch($_, 'name') } ::dispatch(F->meta, 'MRO') ],
     [ qw(F Perl6::Object) ],
     '... got the right MRO for F');
     
 is_deeply(
-    [ map { $_->name } E->meta->MRO() ],
+    [ map { ::dispatch($_, 'name') } ::dispatch(E->meta, 'MRO') ],
     [ qw(E Perl6::Object) ],
     '... got the right MRO for E');    
     
 is_deeply(
-    [ map { $_->name } D->meta->MRO() ],
+    [ map { ::dispatch($_, 'name') } ::dispatch(D->meta, 'MRO') ],
     [ qw(D Perl6::Object) ],
     '... got the right MRO for D');       
 
 is_deeply(
-    [ map { $_->name } C->meta->MRO() ],
+    [ map { ::dispatch($_, 'name') } ::dispatch(C->meta, 'MRO') ],
     [ qw(C D F Perl6::Object) ],
     '... got the right MRO for C'); 
     
 is_deeply(
-    [ map { $_->name } B->meta->MRO() ],
+    [ map { ::dispatch($_, 'name') } ::dispatch(B->meta, 'MRO') ],
     [ qw(B D E Perl6::Object) ],
     '... got the right MRO for B');     
     
 is_deeply(
-    [ map { $_->name } A->meta->MRO() ],
+    [ map { ::dispatch($_, 'name') } ::dispatch(A->meta, 'MRO') ],
     [ qw(A B C D E F Perl6::Object) ],
     '... got the right MRO for A');      
     
@@ -154,7 +154,7 @@ class A2 => { is => [ 'B2', 'C2' ] };
 
 
 is_deeply(
-    [ map { $_->name } A2->meta->MRO() ],
+    [ map { ::dispatch($_, 'name') } ::dispatch(A2->meta, 'MRO') ],
     [ qw(A2 B2 E2 C2 D2 F2 Perl6::Object) ],
     '... got the right MRO for A2');      
     
@@ -176,7 +176,7 @@ class Diamond_B => { is => [ 'Diamond_C' ] };
 class Diamond_D => { is => [ 'Diamond_A', 'Diamond_B' ] };
 
 is_deeply(
-    [ map { $_->name } Diamond_D->meta->MRO() ],
+    [ map { ::dispatch($_, 'name') } ::dispatch(Diamond_D->meta, 'MRO') ],
     [ qw(Diamond_D Diamond_A Diamond_B Diamond_C Perl6::Object) ],
     '... got the right MRO for diamond inheritance');      
 
@@ -216,7 +216,7 @@ class Vulcan => {
 };
 
 is_deeply(
-    [ map { $_->name } Vulcan->meta->MRO() ],
+    [ map { ::dispatch($_, 'name') } ::dispatch(Vulcan->meta, 'MRO') ],
     [ qw(Vulcan Intelligent Sentient Humanoid BiPedal LifeForm Perl6::Object) ],
     '... got the right list for the Vulcan Dylan Example');  
     
@@ -243,17 +243,17 @@ class SmallCatamaran => { is => [ 'SmallMultiHull' ] };
 class Pedalo => { is => [ 'PedalWheelBoat', 'SmallCatamaran' ] };
 
 is_deeply(
-    [ map { $_->name } PedalWheelBoat->meta->MRO() ],
+    [ map { ::dispatch($_, 'name') } ::dispatch(PedalWheelBoat->meta, 'MRO') ],
     [ qw(PedalWheelBoat EngineLess DayBoat WheelBoat Boat Perl6::Object) ],
     '... got the right list for PedalWheelBoat in the Pedalo Dylan Example');  
 
 is_deeply(
-    [ map { $_->name } SmallCatamaran->meta->MRO() ],
+    [ map { ::dispatch($_, 'name') } ::dispatch(SmallCatamaran->meta, 'MRO') ],
     [ qw(SmallCatamaran SmallMultiHull DayBoat Boat Perl6::Object) ],
     '... got the right list for SmallCatamaran in the Pedalo Dylan Example');  
 
 is_deeply(
-    [ map { $_->name } Pedalo->meta->MRO() ],
+    [ map { ::dispatch($_, 'name') } ::dispatch(Pedalo->meta, 'MRO') ],
     [ qw(Pedalo PedalWheelBoat EngineLess SmallCatamaran SmallMultiHull DayBoat WheelBoat Boat Perl6::Object) ],
     '... got the right list for the Pedalo Dylan Example');  
 

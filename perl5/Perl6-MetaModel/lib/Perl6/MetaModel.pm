@@ -49,12 +49,100 @@ $SIG{'__DIE__'} = sub {
     }
 }
 
+## GLOBAL META FUNCTIONS
+
+sub ::dispatch {
+    my ($self, $label, $supercall) = (shift, shift, shift);    
+    # deal with the MetaClass special case ...
+    if ((blessed($self) && blessed($self) eq 'Perl6::MetaClass')) {
+        # XXX - in order to allow for metaclass subclassing
+        # we need to make this use the MRO, and not
+        # just check the local method table. 
+        return if ($label =~ /DESTROY/);
+
+        my $meta = $self->meta();   
+
+        my $method_table_name;
+
+        # check the private methods
+        if ($label =~ /^_/) {
+            $method_table_name = '%:private';
+        }
+        else {
+            $method_table_name = '%:class_definition';
+        }
+        # we need to just access stuff directly here
+        # so as to avoid the method call ... but this
+        # is only needed in this package to avoid the
+        # circularity
+        my $method_table = $meta->{instance_data}->{$method_table_name}->{methods};
+
+        (exists $method_table->{$label})
+            || confess "Method ($label) not found for instance ($self)";        
+        my $method = $method_table->{$label};
+
+        return $method->do($self, @_);          
+    }
+    else {
+        # NOTE:
+        # DESTROYALL is what should really be called
+        # so we just deal with it like this :)
+        $label = 'DESTROYALL' if ($label =~ /DESTROY/);
+
+        my @return_value;
+
+        # check if this is a private method
+        if ($label =~ /^_/) {
+            (::dispatch($self->meta, 'has_method', 0, ($label, (for => 'private'))))
+                || confess "Private Method ($label) not found for instance ($self)";        
+            my $method = ::dispatch($self->meta, 'get_method', 0, ($label, (for => 'private')));
+            @return_value = $method->do($self, @_);             
+        }
+        else {      
+
+            # get the dispatcher instance ....
+            my $dispatcher = ::dispatch($self->meta, 'dispatcher', 0, (':canonical'));
+
+            # just discard it if we are calling SUPER
+            $dispatcher->next() if $supercall;
+
+            # this needs to be fully qualified for now
+            my $method = ::WALKMETH($dispatcher, $label, (
+                    blessed($self) ? 
+                        (blessed($self) eq 'Perl6::Class' ?
+                            (for => 'Class')
+                            :
+                            ()) 
+                        : 
+                        (for => 'Class')
+                )
+            );
+            (blessed($method) && $method->isa('Perl6::Method'))
+                || confess "Method ($label) not found for instance ($self)";        
+
+            push @CURRENT_DISPATCHER => [ $dispatcher, $label, $self, @_ ];
+
+            @return_value = $method->do($self, @_);     
+
+            # we can dispose of this value, as it 
+            # should never be called outside of 
+            # a method invocation
+            pop @CURRENT_DISPATCHER;
+        }
+        # return our values
+        return wantarray ?
+                    @return_value
+                    :
+                    $return_value[0];     
+    }
+}
+
 ## these get exported to the caller's namespace ...
 
 sub __ {
     my ($label, $value) = @_;
     my $class = ::CLASS();
-    my $prop = $class->meta->find_attribute_spec($label, for => 'Class')
+    my $prop = ::dispatch($class->meta, 'find_attribute_spec', 0, ($label, for => 'Class'))
         || confess "Cannot locate class property ($label) in class ($class)";    
     $prop->set_value($value) if defined $value;    
     $prop->get_value();    
@@ -64,7 +152,7 @@ sub _ {
     my ($label, $value) = @_;
     my $self = ::SELF();
     if (defined $value) {
-        my $prop = $self->meta->find_attribute_spec($label)
+        my $prop = ::dispatch($self->meta, 'find_attribute_spec', 0, ($label))
             || confess "Perl6::Attribute ($label) not found";
         # since we are not private, then check the type
         # assuming there is one to check ....
@@ -105,6 +193,7 @@ sub class {
     my ($name, $params) = @_;
     my $class = Perl6::Class::Util::_create_new_class('Perl6::Class', $name, $params);
     Perl6::Class::Util::_apply_class_to_environment($class);
+    return $class;
 }
 
 ## GLOBAL FUNCTIONS
@@ -119,10 +208,10 @@ sub ::WALKMETH {
     my ($dispatcher, $label, %opts) = @_;
     my $current;
     while ($current = $dispatcher->next()) {
-        last if $current->has_method($label, %opts);
+        last if ::dispatch($current, 'has_method', 0, ($label, %opts));
     }
     return unless blessed($current) && $current->isa('Perl6::MetaClass');
-    return $current->get_method($label, %opts);
+    return ::dispatch($current, 'get_method', 0, ($label, %opts));
 }
 
 sub ::WALKCLASS {
@@ -146,7 +235,7 @@ sub ::CALLONE {
     my ($obj, $methname, $maybe, $opt, $args) = @_;
     $opt  ||= {};
     $args ||= [];
-    my $startclass = $obj->meta->dispatcher();
+    my $startclass = ::dispatch($obj->meta, 'dispatcher');
     push @CURRENT_DISPATCHER => [ $startclass, $methname, $obj, @{$args} ];
     while (my $method = ::WALKMETH($startclass, $methname, %{$opt})) {
         return $method->do($obj, @{$args});
@@ -160,7 +249,7 @@ sub ::CALLALL {
     my ($obj, $methname, $maybe, $force, $opt, $args) = @_;
     $opt  ||= {};
     $args ||= [];
-    my $startclass = $obj->meta->dispatcher();
+    my $startclass = ::dispatch($obj->meta, 'dispatcher');
     push @CURRENT_DISPATCHER => [ $startclass, $methname, $obj, @{$args} ];    
     my @results;
     if ($force) {
@@ -172,7 +261,7 @@ sub ::CALLALL {
         # if the method is not there ... 
         while (my $class = ::WALKCLASS($startclass, $methname, %{$opt})) {
             # redispatch (we don't have symbol tables, so we need to do meta-stuff)
-            return $class->meta->get_method($methname)->do($obj, @{$args});
+            return ::dispatch($class->meta, 'get_method', 0, ($methname)->do($obj, @{$args}));
         }            
     }
     else {
@@ -183,85 +272,6 @@ sub ::CALLALL {
     return @results if @results;
     return undef    if $maybe;
     confess "Can't locate method '$methname' via class '$startclass'";
-}
-
-## GLOBAL META FUNCTIONS
-
-sub ::dispatch {
-    my ($self, $label, $supercall) = (shift, shift, shift);    
-    # deal with the MetaClass special case ...
-    if ((blessed($self) && blessed($self) eq 'Perl6::MetaClass') || $self eq 'Perl6::MetaClass') {
-        # XXX - in order to allow for metaclass subclassing
-        # we need to make this use the MRO, and not
-        # just check the local method table. 
-        return if ($label =~ /DESTROY/);
-
-        my $meta = $self->meta();   
-
-        my $method_table_name;
-
-        # check the private methods
-        if ($label =~ /^_/) {
-            $method_table_name = '%:private';
-        }
-        else {
-            $method_table_name = '%:class_definition';
-        }
-        # we need to just access stuff directly here
-        # so as to avoid the method call ... but this
-        # is only needed in this package to avoid the
-        # circularity
-        my $method_table = $meta->{instance_data}->{$method_table_name}->{methods};
-
-        (exists $method_table->{$label})
-            || confess "Method ($label) not found for instance ($self)";        
-        my $method = $method_table->{$label};
-
-        return $method->do($self, @_);          
-    }
-    else {
-
-        # NOTE:
-        # DESTROYALL is what should really be called
-        # so we just deal with it like this :)
-        $label = 'DESTROYALL' if ($label =~ /DESTROY/);
-
-        my @return_value;
-
-        # check if this is a private method
-        if ($label =~ /^_/) {
-            ($self->meta->has_method($label, (for => 'private')))
-                || confess "Private Method ($label) not found for instance ($self)";        
-            my $method = $self->meta->get_method($label, (for => 'private'));
-            @return_value = $method->do($self, @_);             
-        }
-        else {      
-            # get the dispatcher instance ....
-            my $dispatcher = $self->meta->dispatcher(':canonical');
-
-            # just discard it if we are calling SUPER
-            $dispatcher->next() if $supercall;
-
-            # this needs to be fully qualified for now
-            my $method = ::WALKMETH($dispatcher, $label, (blessed($self) ? () : (for => 'Class')));
-            (blessed($method) && $method->isa('Perl6::Method'))
-                || confess "Method ($label) not found for instance ($self)";        
-
-            push @CURRENT_DISPATCHER => [ $dispatcher, $label, $self, @_ ];
-
-            @return_value = $method->do($self, @_);     
-
-            # we can dispose of this value, as it 
-            # should never be called outside of 
-            # a method invocation
-            pop @CURRENT_DISPATCHER;
-        }
-        # return our values
-        return wantarray ?
-                    @return_value
-                    :
-                    $return_value[0];     
-    }
 }
 
 1;

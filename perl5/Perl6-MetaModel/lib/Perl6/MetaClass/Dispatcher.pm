@@ -40,13 +40,13 @@ sub _make_iterator {
 
 sub _make_ascendant_dispatcher {
     my ($metaclass) = @_;
-    my @MRO = $metaclass->MRO;
+    my @MRO = ::dispatch($metaclass, 'MRO');
     return _make_iterator(@MRO);
 }
 
 sub _make_descendant_dispatcher {
     my ($metaclass) = @_;
-    my @MRO = $metaclass->MRO;
+    my @MRO = ::dispatch($metaclass, 'MRO');
     return _make_iterator(reverse @MRO);
 }
 
@@ -68,8 +68,8 @@ sub _make_preorder_dispatcher {
                     goto TOP;
                 }
                 else {
-                    push @stack => _make_iterator(@{$current_metaclass->superclasses})
-                        if $current_metaclass->superclasses;
+                    push @stack => _make_iterator(@{::dispatch($current_metaclass, 'superclasses')})
+                        if ::dispatch($current_metaclass, 'superclasses');
                 }             
                 return $current_metaclass;
             }
@@ -95,8 +95,8 @@ sub _make_breadth_dispatcher {
                     goto TOP;
                 }
                 else {
-                    push @stack => _make_iterator(@{$current_metaclass->superclasses})
-                        if $current_metaclass->superclasses;
+                    push @stack => _make_iterator(@{::dispatch($current_metaclass, 'superclasses')})
+                        if ::dispatch($current_metaclass, 'superclasses');
                 }             
                 return $current_metaclass;
             }

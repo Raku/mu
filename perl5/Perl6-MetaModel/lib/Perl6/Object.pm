@@ -11,13 +11,22 @@ use Perl6::MetaModel;
 my $isa = sub {    
     my ($self, $class) = @_;
     return undef unless $class;
-    return $self->meta->is_a($class);
+    return ::dispatch($self->meta, 'is_a', 0, ($class));
 };
 
 my $can = sub {
     my ($self, $label) = @_;
     return undef unless $label;
-    return ::WALKMETH($self->meta->dispatcher(':canonical'), $label, (blessed($self) ? () : (for => 'Class')));
+    return ::WALKMETH(::dispatch($self->meta, 'dispatcher', 0, (':canonical')), $label, (
+            blessed($self) ? 
+                (blessed($self) eq 'Perl6::Class' ?
+                    (for => 'Class')
+                    :
+                    ()) 
+                : 
+                (for => 'Class')
+        )
+    );
 };  
 
 class 'Perl6::Object' => {
@@ -26,15 +35,15 @@ class 'Perl6::Object' => {
             # the default .new()
             'new' => sub {
                 my ($class, %params) = @_;
-                return $class->bless(undef, %params);
+                return ::dispatch($class, 'bless', 0, (undef, %params));
             },
             # but this is what really constructs the class
             # XXX - this might move up the MetaClass at some point - per $Larry 
             'bless' => sub {
                 my ($class, $canidate, %params) = @_;
                 $canidate ||= 'P6opaque'; # opaque is our default
-                my $self = $class->CREATE(repr => $canidate, %params);
-                $self->BUILDALL(%params);
+                my $self = ::dispatch($class, 'CREATE', 0, (repr => $canidate, %params));
+                ::dispatch($self, 'BUILDALL', 0, (%params));
                 return $self;
             },
             # XXX - According to $Larry, the initial CREATE, 
@@ -49,10 +58,10 @@ class 'Perl6::Object' => {
                 # attributes that were defined
                 # for the instances.
                 my %attrs;
-                my $dispatcher = $class->meta->dispatcher(':descendant');
+                my $dispatcher = ::dispatch($class->meta, 'dispatcher', 0, (':descendant'));
                 while (my $c = ::WALKCLASS($dispatcher)) {
-                    foreach my $attr ($c->get_attribute_list) {
-                        my $attr_obj = $c->get_attribute($attr);
+                    foreach my $attr (::dispatch($c, 'get_attribute_list')) {
+                        my $attr_obj = ::dispatch($c, 'get_attribute', 0, ($attr));
                         $attrs{$attr} = $attr_obj->instantiate_container;
                     }
                 }
@@ -63,7 +72,7 @@ class 'Perl6::Object' => {
                 my $self = bless {
                     class         => $class,
                     instance_data => \%attrs
-                }, $class;
+                }, blessed($class) ? $class->{name} : $class;
                 # lock the instance structure here ...
                 lock_keys(%{$self});
                 lock_keys(%{$self->{instance_data}});                
@@ -84,14 +93,14 @@ class 'Perl6::Object' => {
         methods => {
             'BUILDALL' => sub {
                 my ($self, %params) = @_;
-                my $dispatcher = $self->meta->dispatcher(':descendant');
+                my $dispatcher = ::dispatch($self->meta, 'dispatcher', 0, (':descendant'));
                 while (my $method = ::WALKMETH($dispatcher, 'BUILD')) {                      
                     $method->force_call($self, %params);                  
                 }              
             },
             'DESTROYALL' => sub {
                 my ($self) = @_;
-                my $dispatcher = $self->meta->dispatcher(':ascendant');
+                my $dispatcher = ::dispatch($self->meta, 'dispatcher', 0, (':ascendant'));
                 while (my $method = ::WALKMETH($dispatcher, 'DESTROY')) {  
                     $method->force_call($self);   
                 }               

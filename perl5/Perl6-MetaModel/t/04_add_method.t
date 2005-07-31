@@ -33,12 +33,12 @@ is($foo->foo(), 'FOO', '... $foo->foo() works');
 
 ok(!$foo->can('bar'), '... $foo cannot bar() yet');
 
-Foo->meta->add_method('bar' => Perl6::Instance::Method->new('Foo' => sub { 'BAR' }));
+::dispatch(Foo->meta, 'add_method', 0, ('bar' => Perl6::Instance::Method->new('Foo' => sub { 'BAR' })));
 
 can_ok($foo, 'bar');
 is($foo->bar(), 'BAR', '... $foo->bar() works');
 
-Perl6::Object->meta->add_method('a_method' => Perl6::Instance::Method->new('Perl6::Object' => sub { 'Perl6::Object::a_method' }));
+::dispatch(Perl6::Object->meta, 'add_method', 0, ('a_method' => Perl6::Instance::Method->new('Perl6::Object' => sub { 'Perl6::Object::a_method' })));
 
 can_ok($foo, 'a_method');
 is($foo->a_method(), 'Perl6::Object::a_method', '... $foo->a_method() works ("a_method" was added to Perl6::Object)');

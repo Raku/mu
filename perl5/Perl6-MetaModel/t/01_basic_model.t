@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 42;
+use Test::More tests => 34;
 use Data::Dumper;
 
 use Perl6::MetaModel;
@@ -41,12 +41,6 @@ class 'Person-0.0.1-cpan:STEVAN' => {
     }
 };
 
-is(Person->meta->name, 'Person', '... got the right name for Person');
-is(Person->meta->version, '0.0.1', '... got the right version for Person');
-is(Person->meta->authority, 'cpan:STEVAN', '... got the right authority for Person');
-
-is(Person->meta->identifier, 'Person-0.0.1-cpan:STEVAN', '... got the right identifier for Person');
-
 can_ok('Person', 'population');
 
 ok(Person->isa('Perl6::Object'), '... Person isa Perl6::Object');
@@ -81,12 +75,6 @@ class 'Employee-0.0.1' => {
         attrs => [ [ '$.job' => { access => 'rw' } ] ]
     }
 };
-
-is(Employee->meta->name, 'Employee', '... got the right name for Employee');
-is(Employee->meta->version, '0.0.1', '... got the right version for Employee');
-ok(!defined(Employee->meta->authority), '... got the right authority for Employee (none)');
-
-is(Employee->meta->identifier, 'Employee-0.0.1', '... got the right identifier for Employee');
 
 ok(Employee->isa('Perl6::Object'), '... Employee isa Perl6::Object');
 ok(Employee->isa('Person'), '... Employee isa Person');

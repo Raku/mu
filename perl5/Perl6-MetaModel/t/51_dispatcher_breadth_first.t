@@ -55,7 +55,7 @@ class Square => {
 };
 
 {    
-    my $d = Square->meta->dispatcher(':breadth');
+    my $d = ::dispatch(Square->meta, 'dispatcher', 0, (':breadth'));
     isa_ok($d, 'Perl6::MetaClass::Dispatcher');    
 
     my @control = qw(
@@ -69,7 +69,7 @@ class Square => {
     my $metaclass = $d->next();
     while (defined $metaclass) {
         isa_ok($metaclass, 'Perl6::MetaClass');        
-        is($metaclass->name, shift(@control), '... got the metaclass we expected');
+        is(::dispatch($metaclass, 'name'), shift(@control), '... got the metaclass we expected');
         $metaclass = $d->next();  
     }
 }
@@ -100,7 +100,7 @@ class Diamond_D => {
 };
 
 {    
-    my $d = Diamond_D->meta->dispatcher(':breadth');
+    my $d = ::dispatch(Diamond_D->meta, 'dispatcher', 0, (':breadth'));
     isa_ok($d, 'Perl6::MetaClass::Dispatcher');    
 
     my @control = qw(
@@ -116,7 +116,7 @@ class Diamond_D => {
     my $metaclass = $d->next();
     while (defined $metaclass) {
         isa_ok($metaclass, 'Perl6::MetaClass');
-        is($metaclass->name, shift(@control), '... got the metaclass we expected');
+        is(::dispatch($metaclass, 'name'), shift(@control), '... got the metaclass we expected');
         $metaclass = $d->next();  
     }
 }
@@ -146,7 +146,7 @@ class Diamond2_F => {
 };
 
 {    
-    my $d = Diamond2_F->meta->dispatcher(':breadth');
+    my $d = ::dispatch(Diamond2_F->meta, 'dispatcher', 0, (':breadth'));
     isa_ok($d, 'Perl6::MetaClass::Dispatcher');    
 
     my @control = qw(
@@ -164,7 +164,7 @@ class Diamond2_F => {
     my $metaclass = $d->next();
     while (defined $metaclass) {
         isa_ok($metaclass, 'Perl6::MetaClass');
-        is($metaclass->name, shift(@control), '... got the metaclass we expected');
+        is(::dispatch($metaclass, 'name'), shift(@control), '... got the metaclass we expected');
         $metaclass = $d->next();  
     }
 }

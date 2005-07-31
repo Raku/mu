@@ -47,18 +47,16 @@ sub new {
 our $META;
 sub meta {
     unless (defined $META) {
-        $META = Perl6::MetaClass->new(name => 'Perl6::MetaClass', version => '0.0.1');
+        $META = new('Perl6::MetaClass', name => 'Perl6::MetaClass', version => '0.0.1');
 
         ## BOOTSTRAPPING ...
         # We have to add the method 'add_method' first, and 
         # we need to use the &_add_method function to do it
         # with. After this, we can add any method we want :)
-        $META->_add_method(
-            'add_method' => Perl6::Instance::Method->new('Perl6::MetaClass' => \&_add_method)
-        );    
+        _add_method($META, 'add_method' => Perl6::Instance::Method->new('Perl6::MetaClass' => \&_add_method));    
 
         # methods ...
-        $META->add_method(
+        ::dispatch($META, 'add_method', 0, 
             'version' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {
                 my ($self, $version) = @_;
                 if (defined $version) {
@@ -69,24 +67,36 @@ sub meta {
                 _('$.version');
             })
         );
-        $META->add_method(
+        ::dispatch($META, 'add_method', 0,
             'identifier' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {        
                 return join '-' => (_('$.name'), _('$.version'), (_('$.authority') || ()));
             })
         );
-        $META->add_method(
+        ::dispatch($META, 'add_method', 0,
+            'can' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {        
+                my ($self, $label) = @_;
+                return ::dispatch($self->meta, 'has_method', 0, ($label));
+            })
+        );        
+        ::dispatch($META, 'add_method', 0,
+            'can' => Perl6::Class::Method->new('Perl6::MetaClass' => sub {        
+                my ($self, $label) = @_;
+                return ::dispatch($self->meta, 'has_method', 0, ($label));
+            })
+        );                
+        ::dispatch($META, 'add_method', 0,
             'is_a' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {        
                 my ($self, $class) = @_;
-                $class = $class->name if blessed($class) && $class->isa('Perl6::MetaClass');
-                return 1 if $self->name eq $class;
-                my $dispatcher = $self->dispatcher(':canonical');
+                $class = ::dispatch($class, 'name') if blessed($class) && dispatch($class, 'isa', 0, ('Perl6::MetaClass'));
+                return 1 if ::dispatch($self, 'name') eq $class;
+                my $dispatcher = ::dispatch($self, 'dispatcher', 0, (':canonical'));
                 while (my $next = $dispatcher->next) {    
-                    return 1 if $next->name eq $class;
+                    return 1 if ::dispatch($next, 'name') eq $class;
                 }
                 return 0; 
             })
         );
-        $META->add_method(
+        ::dispatch($META, 'add_method', 0,
             'superclasses' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {        
                 my ($self, $superclasses) = @_;
                 if (defined $superclasses) {
@@ -99,13 +109,13 @@ sub meta {
                     # since the superclasses changed, 
                     # we need to calc the MRO again
                     _('@:MRO' => undef);
-                    $self->MRO();
+                    ::dispatch($self, 'MRO');
                 }
                 _('@:superclasses');
             })
         ); 
 
-        $META->add_method(
+        ::dispatch($META, 'add_method', 0,
             '_merge' => Perl6::PrivateMethod->new('Perl6::MetaClass' => sub {                
                 my ($self, @seqs) = @_;
                 my @res; 
@@ -141,73 +151,76 @@ sub meta {
             })
         );        
         
-        $META->add_method(
+        ::dispatch($META, 'add_method', 0,
             'MRO' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub { 
                 my ($self) = @_;
                 $self->{instance_data}->{'@:MRO'} = [ 
-                    $self->_merge(
-                        [ $self ],                                      # the class we are linearizing
-                        (map { [ $_->MRO() ] } @{$self->superclasses}), # the MRO of all the superclasses
-                        [ @{$self->superclasses} ]                      # a list of all the superclasses
-                    )
+                    ::dispatch($self, '_merge', 0, (
+                        [ $self ],                                                  # the class we are linearizing
+                        (map { [ ::dispatch($_, 'MRO') ] } @{_('@:superclasses')}), # the MRO of all the superclasses
+                        [ @{_('@:superclasses')} ]                                  # a list of all the superclasses
+                    ))
                 ] unless defined _('@:MRO');
                 @{_('@:MRO')};
             })
         );        
                
-        $META->add_method(
+        ::dispatch($META, 'add_method', 0,
             'class_precedence_list' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {        
                 my ($self, $order) = @_;
                 my $seen = {};
                 my @class_precedence_list;    
-                my $dispatcher = $self->dispatcher($order);
+                my $dispatcher = ::dispatch($self, 'dispatcher', 0, ($order));
                 while (my $next = $dispatcher->next) {
-                    unless ($seen->{$next->name}) {
-                        $seen->{$next->name}++;
+                    my $name = ::dispatch($next, 'name');
+                    unless ($seen->{$name}) {
+                        $seen->{$name}++;
                         push @class_precedence_list => $next;              
                     }
                 }
                 return @class_precedence_list;
             })
         );   
-        $META->add_method(
+        ::dispatch($META, 'add_method', 0,
             'dispatcher' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {   
                 my ($self, $order) = @_;
                 Perl6::MetaClass::Dispatcher->new($self, $order);
             })
         );            
-        $META->add_method(
+        ::dispatch($META, 'add_method', 0,
             'has_method' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {
                 my ($self, $label, %params) = @_;
-                $self->get_method($label, %params) ? 1 : 0;                    
+                ::dispatch($self, 'get_method', 0, ($label, %params)) ? 1 : 0;                    
             })
         );  
-        $META->add_method(
+        ::dispatch($META, 'add_method', 0,
             'get_method' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {
                 my ($self, $label, %params) = @_;
                 (defined $label)
                     || confess "InsufficientArguments : you must provide a label";
-                $self->{instance_data}->{$self->_which_table(\%params)}->{methods}->{$label};                
+                my $table = ::dispatch($self, '_which_table', 0, (\%params));
+                $self->{instance_data}->{$table}->{methods}->{$label};                
             })
         );        
         # This is from A12, but I think the API needs work ...
-        $META->add_method(
+        ::dispatch($META, 'add_method', 0,
             'getmethods' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {        
                 my ($self, %params) = @_;
-                my $methods = $self->{instance_data}->{$self->_which_table(\%params)}->{methods};
+                my $table = ::dispatch($self, '_which_table', 0, (\%params));                
+                my $methods = $self->{instance_data}->{$table}->{methods};
                 return values %$methods;
             })
         );        
         
         # attribute methods
-        $META->add_method(
+        ::dispatch($META, 'add_method', 0,
             'add_attribute' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {                         
                 my ($self, $label, $attribute) = @_;
                 (defined $label && defined $attribute)
                     || confess "InsufficientArguments : you must provide an attribute and a label";
                 (blessed($attribute) && $attribute->isa('Perl6::Attribute'))
                     || confess "IncorrectObjectType : Attributes must be a Perl6::Attribute instance got($attribute)";
-                $self->_create_accessor($attribute);         
+                ::dispatch($self, '_create_accessor', 0, ($attribute));         
 
                 my $method_table;
                 if ($attribute->isa('Perl6::Instance::Attribute')) {
@@ -220,42 +233,44 @@ sub meta {
                 $self->{instance_data}->{$method_table}->{attributes}->{$label} = $attribute;
             })
         );                                  
-        $META->add_method(
+        ::dispatch($META, 'add_method', 0,
             'get_attribute' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {                                     
                 my ($self, $label, %params) = @_;
                 (defined $label)
                     || confess "InsufficientArguments : you must provide a label";
-                $self->{instance_data}->{$self->_which_table(\%params)}->{attributes}->{$label};
+                my $table = ::dispatch($self, '_which_table', 0, (\%params));                    
+                $self->{instance_data}->{$table}->{attributes}->{$label};
             })
         );
-        $META->add_method(
+        ::dispatch($META, 'add_method', 0,
             'has_attribute' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {          
                 my ($self, $label, %params) = @_;
-                $self->get_attribute($label, %params) ? 1 : 0;
+                ::dispatch($self, 'get_attribute', 0, ($label, %params)) ? 1 : 0;
             })
         );
-        $META->add_method(
+        ::dispatch($META, 'add_method', 0,
             'get_attribute_list' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {          
                 my ($self, %params) = @_;
-                keys %{$self->{instance_data}->{$self->_which_table(\%params)}->{attributes}};
+                my $table = ::dispatch($self, '_which_table', 0, (\%params));                
+                keys %{$self->{instance_data}->{$table}->{attributes}};
             })
         );
         # "spec" here means "whatever annotation went with this attribute when it's declared"
-        $META->add_method(
+        ::dispatch($META, 'add_method', 0,
             'find_attribute_spec' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {                  
                 my ($self, $label, %params) = @_;
                 # go in BUILD order
-                my $dispatcher = $self->dispatcher(':descendant');
+                my $dispatcher = ::dispatch($self, 'dispatcher', 0, (':descendant'));
                 while (my $next = $dispatcher->next) {   
-                    return $next->get_attribute($label, %params) 
-                        if $next->has_attribute($label, %params)
+                    return ::dispatch($next, 'get_attribute', 0, ($label, %params))
+                        if ::dispatch($next, 'has_attribute', 0, ($label, %params))
                 } 
                 return undef;
             })
         );       
         
         # private methods
-        $META->add_method(
+        ::dispatch($META, 'add_method', 0,
             '_which_table' => Perl6::PrivateMethod->new('Perl6::MetaClass' => sub {         
                 my ($self, $params) = @_;
                 my $method_table;
@@ -277,13 +292,13 @@ sub meta {
             })
         );
         
-        $META->add_method(
+        ::dispatch($META, 'add_method', 0,
             '_create_accessor' => Perl6::PrivateMethod->new('Perl6::MetaClass' => sub {                         
                 my ($self, $attribute) = @_;
                 # no accessors if it's not public ...
                 return unless $attribute->is_public();
                 # do not overwrite already defined methods ...
-                return if $self->has_method($attribute->accessor_name());
+                return if ::dispatch($self, 'has_method', 0, ($attribute->accessor_name()));
 
                 # otherwise ...
                 my $label = $attribute->label();
@@ -317,59 +332,47 @@ sub meta {
                     confess "Incorrect Object Type : I do not understand the attribute class ($attribute)";
                 }
 
-                $self->add_method(
+                ::dispatch($self, 'add_method', 0, (
                     $attribute->accessor_name(),
                     $method_type->new($self->{instance_data}->{'$.name'}, $method_code)
-                ); 
+                )); 
             })            
         );
                            
                                
         # attributes ...
-        $META->add_attribute(
+        ::dispatch($META, 'add_attribute', 0,
             '$.name' => Perl6::Instance::Attribute->new('Perl6::MetaClass' => '$.name', { access => 'rw' })
         );
-        $META->add_attribute(
+        ::dispatch($META, 'add_attribute', 0,
             '$.version' => Perl6::Instance::Attribute->new('Perl6::MetaClass' => '$.version', { access => 'rw', build => '0.0.0' })
         ); 
-        $META->add_attribute(
+        ::dispatch($META, 'add_attribute', 0,
             '$.authority' => Perl6::Instance::Attribute->new('Perl6::MetaClass' => '$.authority', { access => 'rw' })
         );  
-        $META->add_attribute(
+        ::dispatch($META, 'add_attribute', 0,
             '@:superclasses' => Perl6::Instance::Attribute->new('Perl6::MetaClass' => '@:superclasses')
         );    
-        $META->add_attribute(
+        ::dispatch($META, 'add_attribute', 0,
             '@:MRO' => Perl6::Instance::Attribute->new('Perl6::MetaClass' => '@:MRO')
         ); 
-        $META->add_attribute(
+        ::dispatch($META, 'add_attribute', 0,
             '%:private' => Perl6::Instance::Attribute->new('Perl6::MetaClass' => '%:private', {
                 build => { methods => {} }
             })
         );         
-        $META->add_attribute(
+        ::dispatch($META, 'add_attribute', 0,
             '%:class_definition' => Perl6::Instance::Attribute->new('Perl6::MetaClass' => '%:class_definition', {
                 build => { methods => {}, attributes => {} }
             })
         );                                
-        $META->add_attribute(
+        ::dispatch($META, 'add_attribute', 0,
             '%:class_data' => Perl6::Instance::Attribute->new('Perl6::MetaClass' => '%:class_data', {
                 build => { methods => {}, attributes => {} }
             })
-        );                                        
+        );
     }
     return $META;
-}
-
-sub can {
-    my ($self, $label) = @_;
-    return $self->meta->has_method($label);
-}
-
-sub AUTOLOAD {
-    my @AUTOLOAD = split '::', our $AUTOLOAD;
-    my $label = $AUTOLOAD[-1];
-    my $self = shift;    
-    return ::dispatch($self, $label, 0, @_);
 }
 
 ###############################################################################
