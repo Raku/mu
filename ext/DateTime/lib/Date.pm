@@ -75,11 +75,11 @@ method today () returns Date {
 our &Date::now ::= &Date::today;
 
 method tomorrow () returns Date {
-    return $_.new( epoch => time ).add( :days => 1 );
+    return $_.new( epoch => time ).add( days => 1 );
 }
 
 method yesterday () returns Date {
-    return $_.new( epoch => time ).subtract( :days => 1 );
+    return $_.new( epoch => time ).subtract( days => 1 );
 }
 
 sub _is_leap_year (Int $year) returns bool {
