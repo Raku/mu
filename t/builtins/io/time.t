@@ -93,7 +93,7 @@ my $now;
 while (($now = time) == $beg) { sleep 1 }
 
 ok($now > $beg && $now - $beg < 10, 'very basic time test');
-eval_ok 'time + 10', "'time()' may drop its parentheses";
+ok time + 10, "'time()' may drop its parentheses";
 
 #-- 4 --
 {
@@ -116,8 +116,8 @@ eval_ok 'time + 10', "'time()' may drop its parentheses";
 my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst);
 my ($xsec,$foo);
 
-eval '($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($beg)';
-eval '($xsec,$foo) = localtime($now)';
+($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($beg);
+($xsec,$foo) = localtime($now);
 
 my $localyday = $yday;
 
@@ -126,7 +126,7 @@ fail("FIXME Time::Local should by numifiable", :todo<bug>);
 
 #-- 6 --
 
-ok(is_dt(eval 'localtime()'), 'localtime(), scalar context', :todo<bug>);
+ok(is_dt({ my $str = localtime() }()), 'localtime(), scalar context', :todo<bug>);
 
 # Ultimate implementation as of above test as Rule
 #todo_ok(localtime() ~~ /^Sun|Mon|Tue|Wed|Thu|Fri|Sat\s
@@ -140,8 +140,8 @@ ok(is_dt(eval 'localtime()'), 'localtime(), scalar context', :todo<bug>);
 my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst);
 my ($xsec,$foo);
 
-eval '($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = gmtime($beg)';
-eval '($xsec,$foo) = localtime($now)';
+($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = try { gmtime($beg) };
+($xsec,$foo) = localtime($now);
 
 fail("FIXME Time::Local should by numifiable", :todo<bug>);
 #ok($sec != $xsec && $mday && $year, 'gmtime() list context', :todo);
@@ -164,7 +164,7 @@ if ($localyday && $yday) {
 
 #-- 9 --
 
-ok(is_dt(eval 'gmtime()'), 'gmtime(), scalar context', :todo);
+ok(is_dt({ my $str = try { gmtime() } }()), 'gmtime(), scalar context', :todo);
 
 # Ultimate implementation as of above test as Rule
 #todo_ok(gmtime() ~~ /^Sun|Mon|Tue|Wed|Thu|Fri|Sat\s
