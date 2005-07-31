@@ -158,7 +158,7 @@ sub svn_commits() {
             # ignore
         }
 
-        when rx:P5/^   [MAUDCG] / {
+        when rx:P5/^   [MAUDCGR] / {
             $branch = $_ ~~ rx:P5:i{branches/([^/]+)}
                 ?? $0
                 :: "trunk";
