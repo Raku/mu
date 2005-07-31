@@ -1,6 +1,6 @@
 use v6;
 
-require URI;
+#require URI;
 
 class HTTP::Headers-1.62;
 
@@ -141,7 +141,7 @@ method :header (Str $field is copy, Str $val is copy, Str ?$op = "") {
 }
 
 method :sorted_field_names () {
-  return %:headers.key.sort:{
+  return %:headers.keys.sort:{
     (%header_order{$^a} || 999) <=> (%header_order{$^b} || 999) ||
     $^a cmp $^b
   };
