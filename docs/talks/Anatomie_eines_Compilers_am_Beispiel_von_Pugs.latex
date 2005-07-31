@@ -71,8 +71,8 @@
           bis es fertig ist!"'
     \item "`Die Entwickeln doch schon seit Jahren dran!"'
     \item Nur tote Produkte sind "`fertig"'.
-    \item Seit dem 1. Februar gibt es Pugs. Heute kann man vernünfig mit Perl 6
-          arbeiten.
+    \item Seit dem 1. Februar gibt es Pugs. Heute kann man vernünfig in Perl 6
+          programmieren.
   \end{itemize}
 }
 
@@ -146,6 +146,65 @@
 	  Perl 6, \ldots
     \item Weitere Informationen: \url{http://www.pugscode.org/}
   \end{itemize}
+}
+
+\section{Compiler}
+\subsection{Arbeitsschritte}
+\frame[t]{
+  \frametitle{Arbeitsschritte}
+
+  \begin{itemize}
+    \item Parsen: Umwandlung des Sourcecode in einen Abstract Syntax Tree (AST)
+    \item Kleinere Optimierungen
+    \item Umwandlung des AST in einen einfacheren Tree
+    \item Größere Optimierungen, Argumentieren über den Code (z.B. Verbot von
+          \texttt{3 = 4} zur Compile-Zeit)
+    \item Umwandlung ins Zielformat
+    \item Kleinere Optimierung
+    \item Ausgabe
+  \end{itemize}
+}
+
+\subsection{Beispiel: Perl 6 $\to$ JavaScript-Compiler}
+\frame[t]{
+  \frametitle{Beispiel: Perl 6 $\to$ JavaScript-Compiler}
+
+  \begin{itemize}
+    \item PIl2JS: Spiel-Projekt von mir, gestartet am 16.7.2005
+    \item Einlesen und parsen von Perl 6 durch Pugs
+    \item Ausgabe von Pugs Intermediate Language (PIL) durch Pugs
+    \item Einlesen des PIL-Trees durch PIL2JS
+    \item Kleinere Umwandlungen
+    \item Ausgabe als JavaScript
+  \end{itemize}
+}
+
+\section{Perl 6 $\to$ JavaScript}
+\subsection{Perl 6 $\to$ AST}
+\frame[t]{
+  \frametitle{Parsen von Perl 6-Sourcecode (Perl 6 $\to$ AST)}
+
+  \texttt{%
+    \synvar{\$foo}\ = 19; \\
+    \synfunc{say}\ 4 + \synvar{\$foo};
+  }
+
+  \pause\texttt{\small%
+    . \\
+    | \\
+    |--. \\
+    |\ \ | \\
+    |\ \ `----\ \synfunc{=} \\
+    |\ \ \ \ \ \ \ /\ \textbackslash \\
+    |\ \ \ \ \synvar{\$foo}\ \ 19 \\
+    |--. \\
+    |\ \ | \\
+    |\ \ `----\ \synfunc{say} \\
+    |\ \ \ \ \ \ \ \ \ | \\
+    |\ \ \ \ \ \ \ \ \ \synfunc{+} \\
+    |\ \ \ \ \ \ \ \ /\ \textbackslash \\
+    |\ \ \ \ \ \ \ 4\ \ \ \synvar{\$foo} \\
+  }
 }
 
 \end{document}
