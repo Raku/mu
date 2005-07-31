@@ -154,9 +154,9 @@
   \frametitle{Arbeitsschritte}
 
   \begin{itemize}
-    \item Parsen: Umwandlung des Sourcecode in einen Abstract Syntax Tree (AST)
+    \item Parsen: Umwandlung des Sourcecode in einen Parse Tree
     \item Kleinere Optimierungen
-    \item Umwandlung des AST in einen einfacheren Tree
+    \item Umwandlung des Parse Tree in einen einfacheren Tree
     \item Größere Optimierungen, Argumentieren über den Code (z.B. Verbot von
           \texttt{3 = 4} zur Compile-Zeit)
     \item Umwandlung ins Zielformat
@@ -180,9 +180,9 @@
 }
 
 \section{Perl 6 $\to$ JavaScript}
-\subsection{Perl 6 $\to$ AST}
+\subsection{Perl 6 $\to$ Parse Tree}
 \frame[t]{
-  \frametitle{Parsen von Perl 6-Sourcecode (Perl 6 $\to$ AST)}
+  \frametitle{Parsen von Perl 6-Sourcecode (Perl 6 $\to$ Parse Tree)}
 
   \texttt{%
     \synvar{\$foo}\ = 19; \\

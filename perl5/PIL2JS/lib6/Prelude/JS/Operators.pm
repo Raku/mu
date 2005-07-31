@@ -79,3 +79,16 @@ sub postfix:<++> ($a is rw)    is primitive { my $cur = $a; $a = $a + 1; $cur }
 sub prefix:<-->  ($a is rw)    is primitive { $a = $a - 1 }
 sub postfix:<--> ($a is rw)    is primitive { my $cur = $a; $a = $a - 1; $cur }
 sub JS::Root::rand (?$a = 1)   is primitive { $JS::Math.random() * $a }
+
+sub infix:<x>    (Str $a, Int $count) is primitive {
+  my $ret = "";
+  $ret ~= $a for 1..$count;
+  $ret;
+}
+
+sub infix:<xx>   (*@a) is primitive {
+  my Int $count := pop @a;
+  my @ret;
+  push @ret, @a for 1..$count;
+  @ret;
+}

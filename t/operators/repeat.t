@@ -36,11 +36,11 @@ is(@2d[1], [1, 2], 'can create 2d arrays', :todo<bug>); # creates a flat 1d arra
 
 # test x=
 my $twin = 'Lintilla';
-ok(eval('$twin x= 2;'), 'operator x= for string works');
+ok($twin x= 2, 'operator x= for string works');
 is($twin, 'LintillaLintilla', 'operator x= for string repeats correct');
 
 my @array = (4, 2);
-ok(eval('@array xx= 2;'), 'operator xx= for list works');
+ok(@array xx= 2, 'operator xx= for list works');
 is(@array[0], 4, 'operator xx= for list repeats correct');
 is(@array[3], 2, 'operator xx= for list repeats correct');
 is(+@array, 4, 'operator xx= for list created the right size');
