@@ -3,6 +3,7 @@
 module PIL where
 import PIL.Tie
 import PIL.Internals
+import GHC.Exts (Splittable(..))
 
 {-|
 'Container' comes in two flavours: Nontieable ('NCon') and Tieable
@@ -12,20 +13,18 @@ data Container s a
     = NCon (STRef s (NBox a))
     | TCon (STRef s (TBox a))
 
-type BoxId = Int
-
 {-|
 A Non-tieable container is comprised of an Id and a storage of that type, which
 can only be @Scalar@, @Array@ or @Hash@.  Again, there is no way to cast a
 Scalar container into a Hash container at runtime.
 -}
-type NBox a = (BoxId, a)
+type NBox a = (Id, a)
 
 {-|
 A Tieable container also contains an Id and a storage, but also adds a
 tie-table that intercepts various operations for its type.
 -}
-type TBox a = (BoxId, a, Tieable a)
+type TBox a = (Id, a, Tieable a)
 
 {-|
 The type of tie-table must agree with the storage type.  Such a table
@@ -44,11 +43,11 @@ data Tieable a where
 
 -- | Sample TCon: @%\*ENV@
 hashEnv :: ST s (Container s Hash)
-hashEnv = fmap TCon $ newSTRef (0, emptyHash, TieHash (tieHash emptyHash))
+hashEnv = fmap TCon $ newSTRef (-1, emptyHash, TieHash (tieHash emptyHash))
 
 -- | Sample NCon: @%foo@
-hashFoo :: ST s (Container s Hash)
-hashFoo = fmap NCon $ newSTRef (1, emptyHash)
+hashNew :: (%i :: Id) => ST s (Container s Hash)
+hashNew = fmap NCon $ newSTRef (%i, emptyHash)
 
 -- | Bind container @x@ to @y@
 bind :: Container s a     -- ^ The @$x@ in @$x := $y@
@@ -91,7 +90,7 @@ x =:= y = do
     return (x_id == y_id)
 
 -- | Read the Id field from a container
-readId :: Container s a -> ST s BoxId
+readId :: Container s a -> ST s Id
 readId (NCon x) = fmap fst $ readSTRef x
 readId (TCon x) = fmap (\(id, _, _) -> id) $ readSTRef x
 
@@ -109,34 +108,54 @@ untie (TCon x) = do
             tied `invokeTie` UNTIE
             writeSTRef x (id, val, Untied)
 
+newtype Id = MkId Int
+    deriving (Num, Eq, Ord, Show, Splittable)
+
+instance Splittable Int where
+    split x = (x, x+1)
+
 -- | This should be fine: @untie(%ENV); %foo := %ENV@
-testOk :: ST s ()
+testOk :: (%i::Id) => ST s ()
 testOk = do
-    x <- hashFoo
+    x <- hashNew
     y <- hashEnv
     untie y
     bind x y
 
 -- | This should fail: @%foo := %ENV@
-testFail :: ST s ()
+testFail :: (%i::Id) => ST s ()
 testFail = do
-    x <- hashFoo
+    x <- hashNew
     y <- hashEnv
     bind x y
 
-testEquiv :: ST s (Container s a) -> ST s (Container s b) -> ST s Bool
+testEquiv :: (%i::Id) => ST s (Container s a) -> ST s (Container s b) -> ST s Bool
 testEquiv x y = do
     x' <- x
     y' <- y
     (x' =:= y')
 
+testBind :: (%i::Id) => ST s (Container s a) -> ST s (Container s a) -> ST s ()
+testBind x y = do
+    x' <- x
+    y' <- y
+    bind x' y'
+
+tests :: IO ()
 tests = do
+    let %i = 0
     putStrLn "==> %ENV =:= %ENV;"
     print $ runST (testEquiv hashEnv hashEnv)
     putStrLn "==> %ENV =:= %foo;"
-    print $ runST (testEquiv hashEnv hashFoo)
-    putStrLn "==> untie(%ENV); my %foo := %ENV;"
-    print $ runST testOk
-    putStrLn "==> my %foo := %ENV;"
-    print $ runST testFail
+    print $ runST (testEquiv hashEnv hashNew)
+    putStrLn "==> %foo =:= %bar;"
+    print $ runST (testEquiv hashNew hashNew)
+    putStrLn "==> %foo := %bar;"
+    print $ runST (testBind hashNew hashNew)
+    putStrLn "==> %ENV := %ENV;"
+    print $ runST (testBind hashEnv hashEnv)
+    putStrLn "==> untie(%ENV); %foo := %ENV;"
+    print $ runST (testBind hashNew $ do { env <- hashEnv; untie env; return env })
+    putStrLn "==> %foo := %ENV;"
+    print $ runST (testBind hashNew hashEnv)
 
