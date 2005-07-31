@@ -92,3 +92,11 @@ sub infix:<xx>   (*@a) is primitive {
   push @ret, @a for 1..$count;
   @ret;
 }
+
+sub infix:<^^>   ($a, $b) is primitive {
+     if  $a and  $b { ?0 }
+  elsif  $a and !$b { $a }
+  elsif !$a and  $b { $b }
+  else              { ?0 }
+}
+our &infix:<xor> = &infix:<^^>;

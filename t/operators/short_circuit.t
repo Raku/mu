@@ -98,26 +98,25 @@ plan 30;
 }
 
 {
-    is(1 && 42,      42, "&&   operator seems to be working");
+    is(1 && 42,        42, "&&   operator seems to be working");
     is((1 and 42),     42, "and  operator seems to be working");
 
-    is(0 || 42,      42, "||   operator seems to be working");
+    is(0 || 42,        42, "||   operator seems to be working");
     is((0 or 42),      42, "or   operator seems to be working");
 
     is((undef // 42),  42, "//   operator seems to be working"); #"
     is((undef err 42), 42, "err  operator seems to be working");
 
-    is(0 ^^ 42,  42, "^^  operator seems to be working (one true)");
-    is(42 ^^ 0,  42, "^^  operator seems to be working (one true)");
-    # XXX - bad tests I think, they're not noticing a parsefail
-    ok(!(1 ^^ 42),   "^^  operator seems to be working (both true)");
-    ok(!(0 ^^ 0),    "^^  operator seems to be working (both false)");
-    is((0 xor 42), 42, "xor operator seems to be working (one true)");
-    is((42 xor 0), 42, "xor operator seems to be working (one true)");
-    is((0 xor 42), 42, "xor operator seems to be working (one true)");
-    is((42 xor 0), 42, "xor operator seems to be working (one true)");
-    ok(!(1 xor 42),  "xor operator seems to be working (both true)");
-    ok(!(0 xor 0),   "xor operator seems to be working (both false)");
+    is(0 ^^ 42,        42, "^^  operator seems to be working (one true)");
+    is(42 ^^ 0,        42, "^^  operator seems to be working (one true)");
+    ok(!(1 ^^ 42),         "^^  operator seems to be working (both true)");
+    ok(!(0 ^^ 0),          "^^  operator seems to be working (both false)");
+    is((0 xor 42),     42, "xor operator seems to be working (one true)");
+    is((42 xor 0),     42, "xor operator seems to be working (one true)");
+    is((0 xor 42),     42, "xor operator seems to be working (one true)");
+    is((42 xor 0),     42, "xor operator seems to be working (one true)");
+    ok(!(1 xor 42),        "xor operator seems to be working (both true)");
+    ok(!(0 xor 0),         "xor operator seems to be working (both false)");
 }
 
 {
