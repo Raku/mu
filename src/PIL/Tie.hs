@@ -2,10 +2,10 @@
 
 module PIL.Tie (
     Scalar, Array, Hash,
-    TiedScalar, TiedArray, TiedHash,
-    emptyHash, tieHash, invokeTie, TieMethod(..),
+    emptyHash, invokeTie, TieMethod(..),
 ) where
 import PIL.Internals
+import Data.Map as Map
 
 -- Invoke a tied function
 invokeTie :: a -> b -> ST s ()
@@ -13,37 +13,19 @@ invokeTie _ _ = return ()
 
 data TieMethod = FETCH | STORE | UNTIE
 
-data TiedScalar = MkTiedScalar
-    { fetchS :: forall s. ST s Scalar
-    , storeS :: forall s. Scalar -> ST s ()
-    }
-
--- Stub interface; more to come
-data TiedArray = MkTiedArray
-    { fetchA :: forall s. ST s Array
-    , storeA :: forall s. Array -> ST s ()
-    }
-
--- Stub interface; more to come
-data TiedHash = MkTiedHash
-    { fetchH :: forall s. ST s Hash
-    , storeH :: forall s. Hash -> ST s ()
-    }
-
 data Scalar = MkScalar Value
     deriving (Show, Eq)
 
 data Array = MkArray [Value]
     deriving (Show, Eq)
 
-data Hash = MkHash [(Key, Value)]
+data Hash = MkHash (Map Key Value)
     deriving (Show, Eq)
 
 type Key = Value
 type Value = Int
 
-emptyHash = MkHash []
-tieHash h = MkTiedHash (return h) (const $ return ())
+emptyHash = MkHash Map.empty
 
 ----------------------------------------------------------------
 -- QuickCheck instances
@@ -60,5 +42,8 @@ instance Arbitrary Array where
     coarbitrary = assert False undefined
 instance Arbitrary Hash where
     arbitrary = gen1 MkHash
+    coarbitrary = assert False undefined
+instance (Ord a, Arbitrary a, Arbitrary b) => Arbitrary (Map a b) where
+    arbitrary = fmap Map.fromList arbitrary
     coarbitrary = assert False undefined
 

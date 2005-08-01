@@ -1,12 +1,11 @@
 {-# OPTIONS_GHC -fglasgow-exts -cpp #-}
 
 module PIL where
-import qualified Data.Map as Map
 import PIL.Tie
 import PIL.Internals
 
 -- Pad maps symbols to containers
-newtype Pad = MkPad (Map.Map Sym Container)
+newtype Pad = MkPad (Map Sym Container)
 
 data Sym = MkSym
     { sigil  :: Char
