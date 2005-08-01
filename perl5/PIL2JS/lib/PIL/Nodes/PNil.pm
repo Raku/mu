@@ -1,0 +1,19 @@
+package PIL::PNil;
+
+use warnings;
+use strict;
+
+sub as_js {
+  my $self = shift;
+  die unless @$self == 0;
+
+  return "" unless $IN_SUBLIKE;
+  return "_26main_3a_3areturn.FETCH()([PIL2JS.Context.ItemAny, new PIL2JS.Box.Constant(undefined)]);"
+    if $IN_SUBLIKE >= PIL::Nodes::SUBROUTINE;
+  return "_26main_3a_3aleave.FETCH()([PIL2JS.Context.ItemAny, new PIL2JS.Box.Constant(undefined)]);"
+    if $IN_SUBLIKE >= PIL::Nodes::SUBBLOCK;
+  return "return(new PIL2JS.Box.Constant(undefined));"
+    if $IN_SUBLIKE >= PIL::Nodes::SUBTHUNK;
+}
+
+1;
