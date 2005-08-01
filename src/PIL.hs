@@ -1,13 +1,13 @@
 {-# OPTIONS_GHC -fglasgow-exts -cpp #-}
 
 module PIL where
-import Data.Map
+import qualified Data.Map as Map
 import PIL.Tie
 import PIL.Internals
 import Control.Concurrent.STM
-import GHC.Exts (Splittable(..))
+import System.IO.Unsafe (unsafePerformIO)
 
-type Pad = Map Sym Container    -- Pad maps symbols to containers
+type Pad = Map.Map Sym Container    -- Pad maps symbols to containers
 
 data Sym = MkSym
     { sigil  :: Char
@@ -25,7 +25,7 @@ data Container
     | Hash (Cell Hash)      -- Hash container
 
 {-|
-'Cell' is either mutable or immutable, decided at compile time.
+'Cell' is either mutable (rebindable) or immutable, decided at compile time.
 -}
 data Cell a
     = Mut (TVar (Box a)) -- Mutable cell
@@ -34,31 +34,24 @@ data Cell a
 {-|
 'Box' comes in two flavours: Nontieable ('NBox') and Tieable ('TBox').
 Once chosen, there is no way in runtime to revert this decision.
--}
-data Box a
-    = NBox (NBox a)      -- Non-tieable constant container
-    | TBox (TBox a)      -- Tieable constant container
 
-{-|
 A Non-tieable container is comprised of an @Id@ and a storage of that type, which
 can only be @Scalar@, @Array@ or @Hash@.  Again, there is no way to cast a
 Scalar container into a Hash container at runtime.
--}
-type NBox a = (Id, a)
 
-{-|
 A Tieable container also contains an @Id@ and a storage, but also adds a
 tie-table that intercepts various operations for its type.
 -}
-type TBox a = (Id, a, Tieable a)
+data Box a
+    = NBox { boxId :: Id, boxVal :: a }
+    | TBox { boxId :: Id, boxVal :: a, boxTied :: Tieable a }
+
 
 {-|
-'Id' is an unique integer, with infinite supply
+'Id' is an unique integer, with infinite supply.
 -} 
 newtype Id = MkId Int
     deriving (Eq, Ord, Show, Num, Arbitrary)
-instance Splittable Id where
-    split x = (x, x+1)
 
 {-|
 The type of tie-table must agree with the storage type.  Such a table
@@ -75,20 +68,33 @@ data Tieable a where
     TieHash    :: TiedHash   -> Tieable Hash
 #endif
 
+{-# NOINLINE idSource #-}
+idSource :: TMVar Int
+idSource = unsafePerformIO $ atomically (newTMVar 0)
+
+newId :: STM Id
+newId = do
+   val <- takeTMVar idSource
+   let next = val+1
+   putTMVar idSource next
+   return (MkId next)
+
+-- | Sample Container: @%\*ENV@ is constant is HashEnv
+hashEnv :: STM Container
+hashEnv = fmap (Hash . Mut) $ do
+    newTVar (TBox (-1) emptyHash $ TieHash (tieHash emptyHash))
+
+hashNew :: STM Container
+hashNew = fmap (Hash . Mut) $ do
+    i <- newId
+    newTVar (NBox i emptyHash)
+
 #ifdef ASD
 
--- | Sample TCon: @%\*ENV@
-hashEnv :: ST s (Container s Hash)
-hashEnv = fmap TCon $ newSTRef (-1, emptyHash, TieHash (tieHash emptyHash))
-
--- | Sample NCon: @%foo@
-hashNew :: (%i :: Id) => ST s (Container s Hash)
-hashNew = fmap NCon $ newSTRef (%i, emptyHash)
-
 -- | Bind container @x@ to @y@
-bind :: Container s a     -- ^ The @$x@ in @$x := $y@
-     -> Container s a     -- ^ The @$y@ in @$x := $y@
-     -> ST s ()
+bind :: Container   -- ^ The @$x@ in @$x := $y@
+     -> Container   -- ^ The @$y@ in @$x := $y@
+     -> STM ()
 {-|
 To bind a container to another, we first check to see if they are of the
 same tieableness.  If so, we simply overwrite the target one's Id,
@@ -119,19 +125,19 @@ bind (NCon x) (TCon y) = do
 Compare two containers for Id equivalence.  If the container types differ, this
 will never return True.
 -}
-(=:=) :: Container s a -> Container s b -> ST s Bool
+(=:=) :: Cell a -> Cell b -> STM Bool
 x =:= y = do
     x_id <- readId x
     y_id <- readId y
     return (x_id == y_id)
 
 -- | Read the Id field from a container
-readId :: Container s a -> ST s Id
+readId :: Cell a -> STM Id
 readId (NCon x) = fmap fst $ readSTRef x
 readId (TCon x) = fmap (\(id, _, _) -> id) $ readSTRef x
 
 -- | Untie a container
-untie :: Container s a -> ST s ()
+untie :: Cell a -> STM ()
 -- | Untie an non-tieable container is a no-op:
 untie (NCon x) = return ()
 -- | For a tieable container, we first invokes the "UNTIE" handler, then set
@@ -145,7 +151,7 @@ untie (TCon x) = do
             writeSTRef x (id, val, Untied)
 
 -- | This should be fine: @untie(%ENV); %foo := %ENV@
-testOk :: (%i::Id) => ST s ()
+testOk :: (%i::Id) => STM ()
 testOk = do
     x <- hashNew
     y <- hashEnv
@@ -153,19 +159,19 @@ testOk = do
     bind x y
 
 -- | This should fail: @%foo := %ENV@
-testFail :: (%i::Id) => ST s ()
+testFail :: (%i::Id) => STM ()
 testFail = do
     x <- hashNew
     y <- hashEnv
     bind x y
 
-testEquiv :: (%i::Id) => ST s (Container s a) -> ST s (Container s b) -> ST s Bool
+testEquiv :: (%i::Id) => STM (Cell a) -> STM (Cell b) -> STM Bool
 testEquiv x y = do
     x' <- x
     y' <- y
     (x' =:= y')
 
-testBind :: (%i::Id) => ST s (Container s a) -> ST s (Container s a) -> ST s ()
+testBind :: (%i::Id) => STM (Cell a) -> STM (Cell a) -> STM ()
 testBind x y = do
     x' <- x
     y' <- y
@@ -183,10 +189,10 @@ data LV
     | HashNew
     deriving (Show, Eq, Ord)
 
-type GenContainer a = forall s. ST s (Container s a)
+type GenContainer a = STM (Cell a)
 
 class Evalable a b | a -> b where
-    eval :: (%i :: Id) => a -> (forall s. ST s (Container s b))
+    eval :: (%i :: Id) => a -> STM (Cell b)
 
 instance Evalable Exp Hash where
     eval (Untie x) = do
@@ -208,7 +214,7 @@ prop_untie x = try_ok (Untie x)
 try_ok :: Evalable a b => a -> Bool
 try_ok x = runST f
     where
-    f :: forall s. ST s Bool
+    f :: STM Bool
     f = do
         let %i = 0
         eval x
