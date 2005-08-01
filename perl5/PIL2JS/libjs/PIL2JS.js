@@ -67,8 +67,8 @@ PIL2JS.Pair.prototype.toString = function () { return "<PIL2JS.Pair>" };
 // Ref class.
 PIL2JS.Ref = function (referencee) {
   this.referencee = referencee;
-  this.autoderef  = referencee.GET() instanceof Array
-                 || referencee.GET() instanceof PIL2JS.Hash;
+  this.autoderef  = referencee.FETCH() instanceof Array
+                 || referencee.FETCH() instanceof PIL2JS.Hash;
   // || referencee instanceof PIL2JS.OwnObject, see
   // http://www.nntp.perl.org/group/perl.perl6.language/22532.
   return this;
@@ -77,15 +77,15 @@ PIL2JS.Ref.prototype.toString = function () { return "<PIL2JS.Ref>" };
 
 // This is necessary to emulate pass by ref, needed for is rw and is ref.
 // See section "DESIGN" in README.
-// GET    :: SomeNativeType
+// FETCH  :: SomeNativeType
 // STORE  :: SomeBox -> TheSameBox
 // BINDTO :: SomeBox -> TheSameBox
 // PIL2JS.Box is a plain normal variable container, which can be assigned to
 // and rebound.
 PIL2JS.Box = function (value) {
-  this.GET   = function ()  { return value };
+  this.FETCH = function ()  { return value };
   this.STORE = function (n) {
-    var new_val   = n.GET();
+    var new_val   = n.FETCH();
     var my_ctype  = this.container_type;
     var new_ctype = n.container_type;
 
@@ -95,7 +95,7 @@ PIL2JS.Box = function (value) {
       my_ctype  == PIL2JS.ContainerType.Array &&
       new_ctype == PIL2JS.ContainerType.Scalar
     ) {
-      new_val = _26main_3a_3ainfix_3a_2c.GET()([PIL2JS.Context.SlurpyAny, n]).GET();
+      new_val = _26main_3a_3ainfix_3a_2c.FETCH()([PIL2JS.Context.SlurpyAny, n]).FETCH();
     // my @a = %h
     } else if(
       my_ctype  == PIL2JS.ContainerType.Array &&
@@ -106,20 +106,20 @@ PIL2JS.Box = function (value) {
         pairs[i] = new PIL2JS.Box.Constant(pairs[i]);
       }
       new_val =
-       _26main_3a_3ainfix_3a_2c.GET()([PIL2JS.Context.SlurpyAny].concat(pairs)).GET();
+       _26main_3a_3ainfix_3a_2c.FETCH()([PIL2JS.Context.SlurpyAny].concat(pairs)).FETCH();
     // my @a = @b (copy @b, don't bind)
     } else if(
       my_ctype  == PIL2JS.ContainerType.Array &&
       new_ctype == PIL2JS.ContainerType.Array
     ) {
       new_val =
-       _26main_3a_3ainfix_3a_2c.GET()([PIL2JS.Context.SlurpyAny].concat(new_val)).GET();
+       _26main_3a_3ainfix_3a_2c.FETCH()([PIL2JS.Context.SlurpyAny].concat(new_val)).FETCH();
 
     // my %a = (a => 1, b => 2) (or generally my %a = @a) --> my %a = hash(a => 1, b => 2)
     } else if(
       my_ctype  == PIL2JS.ContainerType.Hash &&
       new_ctype == PIL2JS.ContainerType.Array) {
-      new_val = _26main_3a_3ahash.GET()([PIL2JS.Context.SlurpyAny, n]).GET();
+      new_val = _26main_3a_3ahash.FETCH()([PIL2JS.Context.SlurpyAny, n]).FETCH();
     // my %a = %b (copy %b, don't bind)
     } else if(
       my_ctype  == PIL2JS.ContainerType.Hash &&
@@ -131,13 +131,13 @@ PIL2JS.Box = function (value) {
       }
       // &hash takes care of the copying.
       new_val =
-        _26main_3a_3ahash.GET()([PIL2JS.Context.SlurpyAny].concat(pairs)).GET();
+        _26main_3a_3ahash.FETCH()([PIL2JS.Context.SlurpyAny].concat(pairs)).FETCH();
     // my %a = (a => 1) or my %a = 10
     } else if(
       my_ctype  == PIL2JS.ContainerType.Hash &&
       new_ctype == PIL2JS.ContainerType.Scalar
     ) {
-      new_val = _26main_3a_3ahash.GET()([PIL2JS.Context.SlurpyAny, n]).GET();
+      new_val = _26main_3a_3ahash.FETCH()([PIL2JS.Context.SlurpyAny, n]).FETCH();
 
     // my $scalar = @array or my $scalar = %hash (should auto-ref)
     } else if(
@@ -145,7 +145,7 @@ PIL2JS.Box = function (value) {
       new_ctype != PIL2JS.ContainerType.Scalar
     ) {
       new_val =
-        _26main_3a_3aprefix_3a_5c.GET()([PIL2JS.Context.ItemAny, n]).GET();
+        _26main_3a_3aprefix_3a_5c.FETCH()([PIL2JS.Context.ItemAny, n]).FETCH();
     }
 
     value = new_val;
@@ -159,19 +159,20 @@ PIL2JS.Box.prototype = {
   BINDTO: function (other) {
     if(
       (this.uid != undefined && other.uid != undefined && this.uid == other.uid) ||
-      (this.uid == undefined && other.uid == undefined && this.GET() == other.GET())
+      (this.uid == undefined && other.uid == undefined && this.FETCH() == other.FETCH())
     ) {
       PIL2JS.die("Binding would create a bind cycle!");
     }
 
-    var get   = other.GET,   my_ctype    = this.container_type,
+    var fetch = other.FETCH, my_ctype    = this.container_type,
         store = other.STORE, other_ctype = other.container_type;
 
     // No problem: $foo := $bar, @foo := @bar, %foo := %bar
     if(my_ctype == other_ctype) {
-      this.GET   = get;
-      this.STORE = function (n) { store(n); return this };
-      this.uid   = other.uid;
+      this.FETCH      = fetch;
+      this.STORE      = function (n) { store(n); return this };
+      this.uid        = other.uid;
+      this.isConstant = other.isConstant;
     // Problematic: $foo := @array, $foo := %hash
     // See http://www.nntp.perl.org/group/perl.perl6.language/22541:
     // Right, so I guess what really happens is ref autogeneration in that
@@ -182,31 +183,34 @@ PIL2JS.Box.prototype = {
     //
     // Hey, who said anything about consistency?  :-)
     } else if(my_ctype == PIL2JS.ContainerType.Scalar) {
-      var val    = get();
-      this.GET   = function ()  { return new PIL2JS.Ref(new PIL2JS.Box.Constant(val)) };
-      this.STORE = function (n) { val = n.GET(); return this };
-      this.uid   = other.uid;
+      var val         = fetch();
+      this.FETCH      = function ()  { return new PIL2JS.Ref(new PIL2JS.Box.Constant(val)) };
+      this.STORE      = function (n) { val = n.FETCH(); return this };
+      this.uid        = other.uid;
+      this.isConstant = other.isConstant;
     } else if(my_ctype == PIL2JS.ContainerType.Array && other_ctype == PIL2JS.ContainerType.Scalar) {
-      var other_val = get();
-      if(other_val instanceof PIL2JS.Ref && other_val.referencee.GET() instanceof Array) {
+      var other_val = fetch();
+      if(other_val instanceof PIL2JS.Ref && other_val.referencee.FETCH() instanceof Array) {
         // Ok.
-        var other_box = other_val.referencee;
-        this.GET   = other_box.GET;
-        this.STORE = other_box.STORE;
-        this.uid   = other.uid;
+        var other_box   = other_val.referencee;
+        this.FETCH      = other_box.FETCH;
+        this.STORE      = other_box.STORE;
+        this.uid        = other.uid;
+        this.isConstant = other.isConstant;
       } else {
-        PIL2JS.die("Can't use object of type \"" + _26main_3a_3aref.GET()([PIL2JS.Context.ItemAny, other]).toNative() + "\" as an array or array reference!");
+        PIL2JS.die("Can't use object of type \"" + _26main_3a_3aref.FETCH()([PIL2JS.Context.ItemAny, other]).toNative() + "\" as an array or array reference!");
       }
     } else if(my_ctype == PIL2JS.ContainerType.Hash && other_ctype == PIL2JS.ContainerType.Scalar) {
-      var other_val = get();
-      if(other_val instanceof PIL2JS.Ref && other_val.referencee.GET() instanceof PIL2JS.Hash) {
+      var other_val = fetch();
+      if(other_val instanceof PIL2JS.Ref && other_val.referencee.FETCH() instanceof PIL2JS.Hash) {
         // Ok.
-        var other_box = other_val.referencee;
-        this.GET   = other_box.GET;
-        this.STORE = other_box.STORE;
-        this.uid   = other.uid;
+        var other_box   = other_val.referencee;
+        this.FETCH      = other_box.FETCH;
+        this.STORE      = other_box.STORE;
+        this.uid        = other.uid;
+        this.isConstant = other.isConstant;
       } else {
-        PIL2JS.die("Can't use object of type \"" + _26main_3a_3aref.GET()([PIL2JS.Context.ItemAny, other]).toNative() + "\" as a hash or hash reference!");
+        PIL2JS.die("Can't use object of type \"" + _26main_3a_3aref.FETCH()([PIL2JS.Context.ItemAny, other]).toNative() + "\" as a hash or hash reference!");
       }
     // Impossible (confirmed by Larry:
     // http://www.nntp.perl.org/group/perl.perl6.language/22535)
@@ -220,12 +224,12 @@ PIL2JS.Box.prototype = {
 
   // Needed for "is copy".
   copy: function () {
-    return new PIL2JS.Box(this.GET());
+    return new PIL2JS.Box(this.FETCH());
   },
 
   // Return us as a native JavaScript object.
   toNative: function () {
-    var unboxed = this.GET();
+    var unboxed = this.FETCH();
 
     // Special magic for Array: Call .toNative() for each element.
     if(unboxed instanceof Array) {
@@ -241,7 +245,7 @@ PIL2JS.Box.prototype = {
     // wrapper_func :: NativeArgs -> NativeResult
     } else if(unboxed instanceof Function) {
       return function () {
-        var args = []; //PIL2JS.Context.ItemAny.GET()].concat(arguments);
+        var args = []; //PIL2JS.Context.ItemAny.FETCH()].concat(arguments);
         for(var i = 0; i < arguments.length; i++)
           args[i] = new PIL2JS.Box.Constant(arguments[i]);
         return unboxed([PIL2JS.Context.ItemAny].concat(args)).toNative();
@@ -271,23 +275,23 @@ PIL2JS.Box.prototype = {
 
   /*
     toString: function () {
-      _26main_3a_3aprefix_3a_7e.GET()([this]);
+      _26main_3a_3aprefix_3a_7e.FETCH()([this]);
     },
   */
 };
 
 // PIL2JS.Box.Proxy is the equivalent of Perl's Proxy class.
-PIL2JS.Box.Proxy = function (get, store) {
-  this.GET   = get;
+PIL2JS.Box.Proxy = function (fetch, store) {
+  this.FETCH = fetch;
   this.STORE = store;
   this.uid   = PIL2JS.new_uid();
-  this.container_type = PIL2JS.container_type(get());
+  this.container_type = PIL2JS.container_type(fetch());
 };
 
 // new PIL2JS.Box.Readonly(some_existing_box) returns a new box which cannot be
 // assigned to. Necessary for sub params without "is rw".
 PIL2JS.Box.ReadOnly = function (box) {
-  this.GET   = function ()  { return box.GET() };
+  this.FETCH = function ()  { return box.FETCH() };
   this.STORE = function (n) { PIL2JS.die("Can't modify constant item!"); return n };
   this.uid   = box.uid;
   this.container_type = box.container_type;
@@ -296,17 +300,17 @@ PIL2JS.Box.ReadOnly = function (box) {
 // Returns a new box wrapping a constant value.
 // Assignment and rebinding will, of course, not work.
 PIL2JS.Box.Constant = function (value) {
-  this.GET    = function ()  { return value };
+  this.FETCH  = function ()  { return value };
   this.STORE  = function (n) { PIL2JS.die("Can't modify constant item!") };
   this.BINDTO = function (o) { PIL2JS.die("Can't rebind constant item!") };
   this.uid    = undefined;
   this.container_type = PIL2JS.container_type(value);
-  this.constant       = true;
+  this.isConstant     = true;
 };
 
 // Returns a stub box -- all calls will die.
 PIL2JS.Box.Stub = function (value) {
-  this.GET    = function ()  { PIL2JS.die(".GET() of a PIL2JS.Box.Stub called!") }
+  this.FETCH  = function ()  { PIL2JS.die(".FETCH() of a PIL2JS.Box.Stub called!") }
   this.STORE  = function (n) { PIL2JS.die(".STORE() of a PIL2JS.Box.Stub called!") };
   this.BINDTO = function (o) { PIL2JS.die(".BINDTO() of a PIL2JS.Box.Stub called!") };
   this.uid    = function ()  { PIL2JS.die(".uid() of a PIL2JS.Box.Stub called!") };
@@ -367,8 +371,8 @@ PIL2JS.call = function (inv, sub, args) {
   // It's a plain sub (i.e. not method) call.
   if(inv == undefined) {
     // It's a boxed (and therefore Perl 6) sub.
-    if(sub.GET) {
-      var ret = sub.GET()(args);
+    if(sub.FETCH) {
+      var ret = sub.FETCH()(args);
       if(ret == undefined)
         PIL2JS.die("Internal error: Boxed sub returned unboxed undefined!");
       return ret;
@@ -383,7 +387,7 @@ PIL2JS.call = function (inv, sub, args) {
       return eval(code);
     }
   } else {
-    if(inv.GET) {
+    if(inv.FETCH) {
       if(inv.perl_methods[sub]) {
         return PIL2JS.call(undefined, inv.perl_methods[sub], [args[0], inv].concat(args.slice(1)));
       } else {
@@ -401,18 +405,18 @@ PIL2JS.make_slurpy_array = function (inp_arr) {
   var out_arr = [];
 
   for(var i = 0; i < inp_arr.length; i++) {
-    if(inp_arr[i].GET() instanceof Array) {
+    if(inp_arr[i].FETCH() instanceof Array) {
       add_arr = [];
-      for(var j = 0; j < inp_arr[i].GET().length; j++) {
+      for(var j = 0; j < inp_arr[i].FETCH().length; j++) {
         add_arr.push(
-          inp_arr[i].GET()[j] == undefined
+          inp_arr[i].FETCH()[j] == undefined
           ? new PIL2JS.Box.Constant(undefined)
-          : inp_arr[i].GET()[j]
+          : inp_arr[i].FETCH()[j]
         );
       }
       out_arr = out_arr.concat(add_arr);
-    } else if(inp_arr[i].GET() instanceof PIL2JS.Hash) {
-      var pairs = inp_arr[i].GET().pairs();
+    } else if(inp_arr[i].FETCH() instanceof PIL2JS.Hash) {
+      var pairs = inp_arr[i].FETCH().pairs();
       for(var i = 0; i < pairs.length; i++) {
         pairs[i] = new PIL2JS.Box.Constant(pairs[i]);
       }
@@ -429,10 +433,10 @@ PIL2JS.make_slurpy_array = function (inp_arr) {
 PIL2JS.StubIO = function () {};
 PIL2JS.StubIO.prototype = {
   print: new PIL2JS.Box.Constant(function (args) {
-    return _26main_3a_3aprint.GET()(args);
+    return _26main_3a_3aprint.FETCH()(args);
   }),
   say: new PIL2JS.Box.Constant(function (args) {
-    return _26main_3a_3asay.GET()(args);
+    return _26main_3a_3asay.FETCH()(args);
   })
 };
 
@@ -538,8 +542,8 @@ PIL2JS.grep_for_pairs = function (args) {
   var pairs = {};
 
   for(var i = 0; i < args.length; i++) {
-    if(args[i].GET() instanceof PIL2JS.Pair) {
-      pairs[args[i].GET().key.toNative()] = args[i].GET().value;
+    if(args[i].FETCH() instanceof PIL2JS.Pair) {
+      pairs[args[i].FETCH().key.toNative()] = args[i].FETCH().value;
     }
   }
 
@@ -552,18 +556,18 @@ PIL2JS.possibly_flatten = function (args) {
   var ret = [];
 
   for(var i = 0; i < args.length; i++) {
-    if(args[i].GET() instanceof Array && args[i].GET().flatten_me) {
+    if(args[i].FETCH() instanceof Array && args[i].FETCH().flatten_me) {
       var add_arr = [];
-      for(var j = 0; j < args[i].GET().length; j++) {
+      for(var j = 0; j < args[i].FETCH().length; j++) {
         add_arr.push(
-          args[i].GET()[j] == undefined
+          args[i].FETCH()[j] == undefined
           ? new PIL2JS.Box.Constant(undefined)
-          : args[i].GET()[j]
+          : args[i].FETCH()[j]
         );
       }
       ret = ret.concat(add_arr);
-    } else if(args[i].GET() instanceof PIL2JS.Hash && args[i].GET().flatten_me) {
-      var pairs = args[i].GET().pairs();
+    } else if(args[i].FETCH() instanceof PIL2JS.Hash && args[i].FETCH().flatten_me) {
+      var pairs = args[i].FETCH().pairs();
       for(var j = 0; j < pairs.length; j++) {
         pairs[j] = new PjL2JS.Box.Constant(pairs[j]);
       }
@@ -581,7 +585,7 @@ PIL2JS.delete_pair_from_args = function (args, name) {
   var n = [];
 
   for(var i = 0; i < args.length; i++) {
-    if(!(args[i].GET() instanceof PIL2JS.Pair && args[i].GET().key.toNative() == name)) {
+    if(!(args[i].FETCH() instanceof PIL2JS.Pair && args[i].FETCH().key.toNative() == name)) {
       n.push(args[i]);
     }
   }
@@ -629,7 +633,7 @@ PIL2JS.catch_all_exceptions = function (code) {
 
 // &*ref.
 var _26main_3a_3aref = PIL2JS.Box.constant_func(1, function (args) {
-  var thing = args[1].GET();
+  var thing = args[1].FETCH();
   if(thing == undefined) {
     return new PIL2JS.Box.Constant("Scalar"); // XXX?
   } else if(typeof(thing) == "string" || thing instanceof String) {
@@ -647,7 +651,7 @@ var _26main_3a_3aref = PIL2JS.Box.constant_func(1, function (args) {
   } else if(thing instanceof Function) {
     return new PIL2JS.Box.Constant("Code");
   } else if(thing instanceof PIL2JS.Ref && thing.autoderef) {
-    return _26main_3a_3aref.GET()([PIL2JS.Context.ItemAny, thing.referencee]);
+    return _26main_3a_3aref.FETCH()([PIL2JS.Context.ItemAny, thing.referencee]);
   } else if(thing instanceof PIL2JS.Ref) {
     return new PIL2JS.Box.Constant("Ref");
   } else {
@@ -663,8 +667,8 @@ PIL2JS.Box.prototype.perl_methods["ref"] = _26main_3a_3aref;
 
 // &*isa. hack.
 var _26main_3a_3aisa = PIL2JS.Box.constant_func(1, function (args) {
-  var self = args[1], cmptype = args[2].GET(), ref = _26main_3a_3aref;
-  var type = ref.GET()([PIL2JS.Context.ItemAny, self]).GET();
+  var self = args[1], cmptype = args[2].FETCH(), ref = _26main_3a_3aref;
+  var type = ref.FETCH()([PIL2JS.Context.ItemAny, self]).FETCH();
   return new PIL2JS.Box.Constant(
     type == cmptype                      ||
     type == "Array" && cmptype == "List" ||
@@ -684,35 +688,35 @@ _26main_3a_3aprefix_3a_5c.perl_name = "&main::prefix:\\";
 // &prefix:<~>. Written in JS instead of P6 for speed, as &prefix:<~> gets
 // called often.
 var _26main_3a_3aprefix_3a_7e = PIL2JS.Box.constant_func(1, function (args) {
-  var thing = args[1].GET();
+  var thing = args[1].FETCH();
 
   if(thing == undefined) {
     return new PIL2JS.Box.Constant("");
   } else {
-    var ref = _26main_3a_3aref.GET()([PIL2JS.Context.ItemAny, args[1]]).GET();
+    var ref = _26main_3a_3aref.FETCH()([PIL2JS.Context.ItemAny, args[1]]).FETCH();
 
     if(ref == "Str") {
       return new PIL2JS.Box.Constant(String(thing).toString());
     } else if(ref == "Array") {
-      if(thing.referencee) thing = thing.referencee.GET();
+      if(thing.referencee) thing = thing.referencee.FETCH();
       var res = "";
       for(var i = 0; i < thing.length; i++) {
         res += thing[i] == undefined
           ? ""
-          : _26main_3a_3aprefix_3a_7e.GET()([PIL2JS.Context.ItemAny, thing[i]]).GET();
+          : _26main_3a_3aprefix_3a_7e.FETCH()([PIL2JS.Context.ItemAny, thing[i]]).FETCH();
         res += " ";
       }
       if(thing.length > 0) res = res.slice(0, -1);
       return new PIL2JS.Box.Constant(res);
     } else if(ref == "Hash") {
-      if(thing.referencee) thing = thing.referencee.GET();
+      if(thing.referencee) thing = thing.referencee.FETCH();
       var res   = "";
       var pairs = thing.pairs();
       for(var i = 0; i < pairs.length; i++) {
         res += "" +
-          _26main_3a_3aprefix_3a_7e.GET()([PIL2JS.Context.ItemAny, pairs[i].key]).GET() +
+          _26main_3a_3aprefix_3a_7e.FETCH()([PIL2JS.Context.ItemAny, pairs[i].key]).FETCH() +
           "\t" +
-          _26main_3a_3aprefix_3a_7e.GET()([PIL2JS.Context.ItemAny, pairs[i].value]).GET() +
+          _26main_3a_3aprefix_3a_7e.FETCH()([PIL2JS.Context.ItemAny, pairs[i].value]).FETCH() +
           "\n";
       }
       if(pairs.length > 0) res = res.slice(0, -1);
@@ -720,13 +724,13 @@ var _26main_3a_3aprefix_3a_7e = PIL2JS.Box.constant_func(1, function (args) {
     } else if(ref == "Pair") {
       return new PIL2JS.Box.Constant(
         "" +
-        _26main_3a_3aprefix_3a_7e.GET()([PIL2JS.Context.ItemAny, thing.key]).GET() +
+        _26main_3a_3aprefix_3a_7e.FETCH()([PIL2JS.Context.ItemAny, thing.key]).FETCH() +
         "\t" +
-        _26main_3a_3aprefix_3a_7e.GET()([PIL2JS.Context.ItemAny, thing.value]).GET()
+        _26main_3a_3aprefix_3a_7e.FETCH()([PIL2JS.Context.ItemAny, thing.value]).FETCH()
       );
     } else if(ref == "Bool") {
       return new PIL2JS.Box.Constant(
-        _26main_3a_3aprefix_3a_3f.GET()([PIL2JS.Context.ItemAny, args[1]]).GET()
+        _26main_3a_3aprefix_3a_3f.FETCH()([PIL2JS.Context.ItemAny, args[1]]).FETCH()
           ? "1"
           : ""
       );

@@ -72,7 +72,7 @@ sub as_js {
     join("\n", map {
       my $name = $_->[0];
       $name =~ /^(?:__init_|__export_)/
-        ? sprintf("%s.GET()([PIL2JS.Context.Void]);", PIL::Nodes::name_mangle $name)
+        ? sprintf("%s.FETCH()([PIL2JS.Context.Void]);", PIL::Nodes::name_mangle $name)
         : ();
     } @{ $self->{"pilGlob" } })  .
     "\n// End of initialization of global vars and exportation of subs.\n";
@@ -201,9 +201,9 @@ sub add_indent {
       # eevil).
       $js =~ s/\n$//;
       if($IN_SUBLIKE >= PIL::Nodes::SUBROUTINE) {
-        return "$pos;\n_26main_3a_3areturn.GET()([PIL2JS.Context.ItemAny, $js]);";
+        return "$pos;\n_26main_3a_3areturn.FETCH()([PIL2JS.Context.ItemAny, $js]);";
       } elsif($IN_SUBLIKE >= PIL::Nodes::SUBBLOCK) {
-        return "$pos;\n_26main_3a_3aleave.GET()([PIL2JS.Context.ItemAny, $js]);";
+        return "$pos;\n_26main_3a_3aleave.FETCH()([PIL2JS.Context.ItemAny, $js]);";
       } else {
         return "$pos;\nreturn($js);";
       }
@@ -271,9 +271,9 @@ sub add_indent {
     die unless @$self == 0;
 
     return "" unless $IN_SUBLIKE;
-    return "_26main_3a_3areturn.GET()([PIL2JS.Context.ItemAny, new PIL2JS.Box.Constant(undefined)]);"
+    return "_26main_3a_3areturn.FETCH()([PIL2JS.Context.ItemAny, new PIL2JS.Box.Constant(undefined)]);"
       if $IN_SUBLIKE >= PIL::Nodes::SUBROUTINE;
-    return "_26main_3a_3aleave.GET()([PIL2JS.Context.ItemAny, new PIL2JS.Box.Constant(undefined)]);"
+    return "_26main_3a_3aleave.FETCH()([PIL2JS.Context.ItemAny, new PIL2JS.Box.Constant(undefined)]);"
       if $IN_SUBLIKE >= PIL::Nodes::SUBBLOCK;
     return "return(new PIL2JS.Box.Constant(undefined));"
       if $IN_SUBLIKE >= PIL::Nodes::SUBTHUNK;
@@ -381,7 +381,7 @@ sub add_indent {
         $inv, PIL::Nodes::doublequote($sub), $cxt, $arg;
     } else {
       return "new PIL2JS.Box.Constant($sub(\n$arg\n))" if $native;
-      return "$sub.GET()([\n$cxt,\n$arg\n])"           if defined $native;
+      return "$sub.FETCH()([\n$cxt,\n$arg\n])"           if defined $native;
       return sprintf "PIL2JS.call(undefined, %s, [\n%s,\n%s\n])", $sub, $cxt, $arg;
     }
   }
@@ -622,7 +622,7 @@ sub add_indent {
     # Special magic for &*END_xyz subs.
     if($self->[0] =~ /^&\*END_\d+/) {
       $js .= sprintf
-        "_40main_3a_3a_2aEND.GET().push(%s);\n",
+        "_40main_3a_3a_2aEND.FETCH().push(%s);\n",
         PIL::Nodes::name_mangle $self->[0];
     }
 

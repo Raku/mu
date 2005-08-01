@@ -10,8 +10,8 @@ module Prelude::JS {}
 # inlined (with no escaping) into the resulting JavaScript code.
 
 # new PIL2JS.Box(...) boxes a value. That is, it is packed in an Object with
-# the property .GET() holding the original value. This is necessary to emulate
-# pass by ref (needed for is rw and is ref).
+# the property .FETCH() holding the original value. This is necessary to
+# emulate pass by ref (needed for is rw and is ref).
 
 use Prelude::JS::Code;
 use Prelude::JS::ControlFlow;
@@ -38,7 +38,7 @@ sub infix:<=:=>($a, $b) is primitive { JS::inline('new PIL2JS.Box.Constant(
     if(args[0].uid && args[1].uid) {
       return new PIL2JS.Box.Constant(args[0].uid == args[1].uid);
     } else if(!args[0].uid && !args[1].uid) {
-      return new PIL2JS.Box.Constant(args[0].GET() == args[1].GET());
+      return new PIL2JS.Box.Constant(args[0].FETCH() == args[1].FETCH());
     } else {
       return new PIL2JS.Box.Constant(false);
     }
@@ -74,7 +74,7 @@ sub prefix:<*>(@array) {
     JS::inline('new PIL2JS.Box.Constant(function (args) {
       // We\'ve to [].concat here so we don\'t set .flatten_me of caller\'s
       // original array.
-      var array = [].concat(args[1].GET());
+      var array = [].concat(args[1].FETCH());
       array.flatten_me = true;
       var ret = new PIL2JS.Box.Constant(array);
       // Hack! Returning flattened things the official way doesn\'t work (the
@@ -101,7 +101,7 @@ use Prelude::JS::Operators;
 # typechecking etc. I renamed the parameters to $__a and $__b. HAAACK!
 sub infix:<~>(Str $__a, Str $__b) is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var a = args[1].GET(), b = args[2].GET();
+    var a = args[1].FETCH(), b = args[2].FETCH();
     return new PIL2JS.Box.Constant(String(a) + String(b));
   })')(~$__a, ~$__b);
 }

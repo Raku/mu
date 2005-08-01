@@ -93,9 +93,9 @@ EOF
 
   push @components, [inline => <<EOF];
 PIL2JS.catch_all_exceptions(function () {
-  var blocks = _40main_3a_3a_2aEND.GET();
+  var blocks = _40main_3a_3a_2aEND.FETCH();
   for(var i = 0; i < blocks.length; i++) {
-    blocks[i].GET()([PIL2JS.Context.Void]);
+    blocks[i].FETCH()([PIL2JS.Context.Void]);
   }
 });
 EOF

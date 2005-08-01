@@ -18,5 +18,5 @@ ok $bucket<conform>(3),  'only 3 does';
 $bucket<count>(1);
 $bucket<count>(1);
 $bucket<count>(1);
-#skip "skipping test depending on accurate time()";
-ok !$bucket<conform>(1), 'even 1 conforms no more';
+skip "skipping test depending on accurate time() and low system load";
+#ok !$bucket<conform>(1), 'even 1 conforms no more';

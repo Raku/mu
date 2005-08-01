@@ -2,7 +2,7 @@
 
 method JS::Root::shift(@self:) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var array = args[1].GET();
+    var array = args[1].FETCH();
     var ret   = array.shift();
     return ret == undefined ? new PIL2JS.Box.Constant(undefined) : ret;
   })')(@self);
@@ -10,7 +10,7 @@ method JS::Root::shift(@self:) {
 
 method JS::Root::pop(@self:) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var array = args[1].GET();
+    var array = args[1].FETCH();
     var ret   = array.pop();
     return ret == undefined ? new PIL2JS.Box.Constant(undefined) : ret;
   })')(@self);
@@ -18,9 +18,9 @@ method JS::Root::pop(@self:) {
 
 method JS::Root::unshift(@self: *@things) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var array = args[1].GET(), add = args[2].GET();
+    var array = args[1].FETCH(), add = args[2].FETCH();
     for(var i = add.length - 1; i >= 0; i--) {
-      array.unshift(new PIL2JS.Box(add[i].GET()));
+      array.unshift(new PIL2JS.Box(add[i].FETCH()));
     }
     return new PIL2JS.Box.Constant(array.length);
   })')(@self, @things);
@@ -28,9 +28,9 @@ method JS::Root::unshift(@self: *@things) {
 
 method JS::Root::push(@self: *@things) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var array = args[1].GET(), add = args[2].GET();
+    var array = args[1].FETCH(), add = args[2].FETCH();
     for(var i = 0; i < add.length; i++) {
-      array.push(new PIL2JS.Box(add[i].GET()));
+      array.push(new PIL2JS.Box(add[i].FETCH()));
     }
     return new PIL2JS.Box.Constant(array.length);
   })')(@self, @things);
@@ -96,7 +96,7 @@ sub JS::Root::sort(Code ?$cmp is copy = &infix:<cmp>, *@array) is primitive {
 
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     // [].concat(...): Defeat modifying of the original array.
-    var array = [].concat(args[1].GET()), cmp = args[2].GET();
+    var array = [].concat(args[1].FETCH()), cmp = args[2].FETCH();
     var jscmp = function (a, b) {
       return cmp([PIL2JS.Context.ItemAny, a, b]).toNative();
     };
@@ -181,13 +181,13 @@ sub infix:<^..^> (Num $from, Num $to) is primitive { ($from + 1)..($to - 1) }
 sub infix:<,>(*@xs is rw) is primitive is rw {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt   = args.shift();
-    var iarr  = args[0].GET();
+    var iarr  = args[0].FETCH();
 
     var array = [];
     for(var i = 0; i < iarr.length; i++) {
       // The extra new PIL2JS.Box is necessary to make the contents of arrays
       // readwrite, i.e. my @a = (0,1,2); @a[1] = ... should work.
-      array[i] = new PIL2JS.Box(iarr[i].GET());
+      array[i] = new PIL2JS.Box(iarr[i].FETCH());
     }
 
     // Proxy needed for ($a, $b) = (3, 4) which really is
@@ -202,13 +202,13 @@ sub infix:<,>(*@xs is rw) is primitive is rw {
             // it\'s needed to make
             //   my ($a, undef, $b) = (3,4,5);
             // work.
-            iarr[i].constant && iarr[i].GET() == undefined
+            iarr[i].isConstant && iarr[i].FETCH() == undefined
               ? new PIL2JS.Box(undefined)
               : iarr[i]
           );
         }
 
-        var arr = new PIL2JS.Box([]).STORE(n).GET();
+        var arr = new PIL2JS.Box([]).STORE(n).FETCH();
         for(var i = 0; i < arr.length; i++) {
           if(marray[i]) marray[i].STORE(arr[i]);
         }
@@ -235,14 +235,14 @@ method postcircumfix:<[]>(@self: Int $idx is copy) is rw {
   $idx = +@self + $idx if $idx < 0;
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt   = args.shift();
-    var array = args[0].GET();
+    var array = args[0].FETCH();
     var idx   = Number(args[1].toNative());
 
-    // Relay .GET and .STORE to array[idx].
+    // Relay .FETCH and .STORE to array[idx].
     var ret = new PIL2JS.Box.Proxy(
       function () {
         var ret = array[idx];
-        return ret == undefined ? undefined : ret.GET();
+        return ret == undefined ? undefined : ret.FETCH();
       },
       function (n) {
         if(array[idx] == undefined)

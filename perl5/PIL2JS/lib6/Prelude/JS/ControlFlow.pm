@@ -87,7 +87,7 @@ sub JS::Root::try(Code $code) is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt = args[0], code = args[1];
     var ret = new PIL2JS.Box.Constant(undefined);
-    try { ret = code.GET()([PIL2JS.Context.ItemAny]) } catch(err) {
+    try { ret = code.FETCH()([PIL2JS.Context.ItemAny]) } catch(err) {
       if(err instanceof PIL2JS.ControlException.ret) {
         throw err;
       } else {

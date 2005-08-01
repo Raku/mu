@@ -2,14 +2,14 @@
 method exists (Hash|Pair|Array $self: $idx) {
   if $self.isa("Hash") {
     JS::inline('new PIL2JS.Box.Constant(function (args) {
-      var hash = args[1].GET(), key = args[2];
+      var hash = args[1].FETCH(), key = args[2];
       return new PIL2JS.Box.Constant(hash.exists(key));
     })')(%$self, $idx);
   } elsif $self.isa("Pair") {
     $self.key eq $idx;
   } elsif $self.isa("Array") {
     JS::inline('new PIL2JS.Box.Constant(function (args) {
-      var array = args[1].GET(), idx = Number(args[2].toNative());
+      var array = args[1].FETCH(), idx = Number(args[2].toNative());
       return new PIL2JS.Box.Constant(
         array[idx >= 0 ? idx : array.length + idx] != undefined
       );
@@ -22,7 +22,7 @@ method exists (Hash|Pair|Array $self: $idx) {
 method delete (Hash|Array $self: *@idx) {
   if $self.isa("Hash") {
     JS::inline('new PIL2JS.Box.Constant(function (args) {
-      var hash = args[1].GET(), keys = args[2].GET();
+      var hash = args[1].FETCH(), keys = args[2].FETCH();
       var ret  = [];
       for(var i = 0; i < keys.length; i++) {
         var deleted = hash.delete_key(keys[i]);
@@ -32,7 +32,7 @@ method delete (Hash|Array $self: *@idx) {
     })')(%$self, @idx);
   } elsif $self.isa("Array") {
     JS::inline('new PIL2JS.Box.Constant(function (args) {
-      var array = args[1].GET(), idxs = args[2].toNative();
+      var array = args[1].FETCH(), idxs = args[2].toNative();
       var ret   = [];
       for(var i = 0; i < idxs.length; i++) {
         var idx = Number(idxs[i]) >= 0 ? Number(idxs[i]) : array.length + Number(idxs[i]);
@@ -50,7 +50,7 @@ method delete (Hash|Array $self: *@idx) {
 method keys (Hash|Pair|Array $self:) {
   if $self.isa("Hash") {
     JS::inline('new PIL2JS.Box.Constant(function (args) {
-      var hash = args[1].GET();
+      var hash = args[1].FETCH();
       var keys = hash.keys();
       return new PIL2JS.Box.Constant(keys);
     })')(%$self);
@@ -58,7 +58,7 @@ method keys (Hash|Pair|Array $self:) {
     ($self.key,);
   } elsif $self.isa("Array") {
     JS::inline('new PIL2JS.Box.Constant(function (args) {
-      var array = args[1].GET();
+      var array = args[1].FETCH();
       var ret   = [];
       for(var i = 0; i < array.length; i++) {
         ret.push(new PIL2JS.Box.Constant(i));

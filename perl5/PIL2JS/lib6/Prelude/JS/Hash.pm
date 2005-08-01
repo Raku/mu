@@ -2,11 +2,11 @@ sub circumfix:<{}>(*@pairs) is primitive { \hash(*@pairs) }
 sub hash(*@pairs) is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt   = args.shift();
-    var pairs = args[0].GET();
+    var pairs = args[0].FETCH();
     var hash  = new PIL2JS.Hash();
 
     for(var i = 0; i < pairs.length; i++) {
-      var pair = pairs[i].GET();
+      var pair = pairs[i].FETCH();
 
       // my %hash = ("a", 1, "b", 2);
       if(!(pair instanceof PIL2JS.Pair)) {
@@ -26,7 +26,7 @@ sub hash(*@pairs) is primitive {
         // readwrite, i.e. my %a = (a => 1); %a<a> = ... should work.
         hash.add_pair(new PIL2JS.Pair(
           new PIL2JS.Box.ReadOnly(pair.key),
-          new PIL2JS.Box(pair.value.GET())
+          new PIL2JS.Box(pair.value.FETCH())
         ));
       }
     }
@@ -41,14 +41,14 @@ method postcircumfix:<{}>(%self: $key) {
 
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt  = args.shift();
-    var hash = args[0].GET();
+    var hash = args[0].FETCH();
     var key  = args[1];
 
-    // Relay .GET and .STORE to hash.entries[key].
+    // Relay .FETCH and .STORE to hash.entries[key].
     var ret = new PIL2JS.Box.Proxy(
       function () {
         var ret = hash.get_value(key);
-        return ret == undefined ? undefined : ret.GET();
+        return ret == undefined ? undefined : ret.FETCH();
       },
       function (n) {
         if(!hash.exists(key)) {

@@ -145,7 +145,9 @@ Until GHC 6.4.1 is released, you need to need to issue this command first:
 Then recompile Pugs using a clean tree.  Other users of GCC 4.0 systems
 may also need to switch to GCC 3.3 to compile Pugs for now.
 
-Note that objects compiled with gcc 4.0 can't be linked with gcc 3.3 objects. This means that if you're embedding a parrot you've built with gcc 4.0, pugs will fail during linking with errors like:
+Note that objects compiled with GCC 4.0 can't be linked with GCC 3.3 objects.
+This means that if you're embedding a Parrot you've built with GCC 4.0, Pugs
+will fail during linking with errors like:
 
     ld: Undefined symbols:
     _fprintf$LDBLStub
@@ -154,7 +156,7 @@ Note that objects compiled with gcc 4.0 can't be linked with gcc 3.3 objects. Th
     _snprintf$LDBLStub
     _printf$LDBLStub
 
-Try building a new parrot with gcc 3.3, then compile Pugs again.
+Try building a new Parrot with gcc 3.3, then compile Pugs again.
 
 CAVEATS FOR x86_64 MACHINES
 ---------------------------
