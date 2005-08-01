@@ -5,20 +5,24 @@ use Test;
 
 plan 5;
 
+# Dubious: According to S29's definition, neither map nor grep allows for
+# mutation.  On the other hand, it seems useful to preserve the bugward
+# behaviour.  Marking :todo<unspecced>, pending p6l discussion and S29 patch.
+
 {
   my @array = <a b c d>;
   is ~(try { @array.map:{ $_ ~= "c"; $_ ~ "d" } }), "acd bcd ccd dcd",
-    'mutating $_ in map works (1)';
+    'mutating $_ in map works (1)', :todo<unspecced>;
   is ~@array, "ac bc cc dc",
-    'mutating $_ in map works (2)';
+    'mutating $_ in map works (2)', :todo<unspecced>;
 }
 
 {
   my @array = <a b c d>;
   is ~(try { @array.grep:{ $_ ~= "c"; 1 } }), "ac bc cc dc",
-    'mutating $_ in grep works (1)';
+    'mutating $_ in grep works (1)', :todo<unspecced>;
   is ~@array, "ac bc cc dc",
-    'mutating $_ in grep works (2)';
+    'mutating $_ in grep works (2)', :todo<unspecced>;
 }
 
 {
@@ -29,4 +33,4 @@ plan 5;
 }
 
 # Hm... what about @array.sort:{ $_ = ... }? Disallow? (As that would prevent
-# many optimizations...)
+# many optimizations...)  (and Perl 5 never allowed that anyway)

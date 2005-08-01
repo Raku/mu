@@ -108,4 +108,4 @@ is(("hi",).join("!"), "hi", "&join works with one-element lists (3)");
 
 dies_ok({ join() }, 'join() must have arguments');
 # Similar as with .kv: (42).kv should die, but (42,).kv should work.
-dies_ok({ "hi".join("!") }, "join() should not work on strings");
+dies_ok({ "hi".join("!") }, "join() should not work on strings", :todo<bug>);
