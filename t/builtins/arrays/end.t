@@ -41,10 +41,10 @@ plan 13;
     is(end(@array), 42, 'index of last element is 42 after assignment');
 
     pop @array;
-    is(end @array, 41, 'index of last element is 41 after pop');
+    is((end @array), 41, 'index of last element is 41 after pop');
 
     shift @array;
-    is(end @array, 40, 'index of last element is 40 after shift');
+    is((end @array), 40, 'index of last element is 40 after shift');
 
     unshift @array, 'foo';
     is(end(@array), 41, 'index of last element is 41 after unshift');

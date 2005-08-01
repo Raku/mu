@@ -366,8 +366,8 @@ op1 "-z"    = FileTest.sizeIsZero
 op1 "-s"    = FileTest.fileSize
 op1 "-f"    = FileTest.isFile
 op1 "-d"    = FileTest.isDirectory
-op1 "Array::end"   = op1Cast (VInt . (-1 +) . (genericLength :: VList -> VInt))
-op1 "Array::elems" = op1Cast (VInt . (genericLength :: VList -> VInt))
+op1 "List::end"   = op1Cast (VInt . (-1 +) . (genericLength :: VList -> VInt))
+op1 "List::elems" = op1Cast (VInt . (genericLength :: VList -> VInt))
 op1 "graphs"= op1Cast (VInt . (genericLength :: String -> VInt)) -- XXX Wrong
 op1 "codes" = op1Cast (VInt . (genericLength :: String -> VInt))
 op1 "chars" = op1Cast (VInt . (genericLength :: String -> VInt))
@@ -1541,8 +1541,8 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     rmdir   unsafe (?Str=$_)\
 \\n   Bool      pre     mkdir   unsafe (Str)\
 \\n   Bool      pre     chdir   unsafe (Str)\
-\\n   Int       pre     Array::elems   safe   (Array)\
-\\n   Int       pre     Array::end     safe   (Array)\
+\\n   Int       pre     List::elems   safe   (Array)\
+\\n   Int       pre     List::end     safe   (Array)\
 \\n   Int       pre     graphs  safe   (?Str=$_)\
 \\n   Int       pre     codes   safe   (?Str=$_)\
 \\n   Int       pre     chars   safe   (?Str=$_)\
