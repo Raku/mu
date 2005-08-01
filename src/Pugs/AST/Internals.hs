@@ -428,6 +428,7 @@ instance Value VNum where
         str <- fromVal (VStr $ tail s)
         return str
     doCast (VStr "Inf") = return $ 1/0
+    doCast (VStr "-Inf") = return $ -1/0
     doCast (VStr "NaN") = return $ 0/0
     doCast (VStr s)     = return $
         case ( parseNatOrRat s ) of

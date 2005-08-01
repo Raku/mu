@@ -61,7 +61,7 @@ for(0, 0.0, 1, 50, 60.0, 99.99, 0.4, 0.6,
 # Special values
 
 is(int(1.9e3), 1900, "int 1.9e3 is 1900");
-is(int(Inf),    Inf, "int Inf is Inf");
-is(int(-Inf),  -Inf, "int -Inf is -Inf");
-is(int(NaN),    NaN, "int NaN is NaN");
+is(int(Inf),    Inf, "int Inf is Inf", :todo<bug>);
+is(int(-Inf),  -Inf, "int -Inf is -Inf", :todo<bug>);
+is(int(NaN),    NaN, "int NaN is NaN", :todo<bug>);
 
