@@ -967,6 +967,7 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
     enterScope
         | typ >= SubBlock = id
         | otherwise       = resetT
+    fixSub MkCode{ subType = SubPrim } env = env
     fixSub sub env = env
         { envLexical = subPad sub
         , envPackage = maybe (envPackage env) envPackage (subEnv sub)
