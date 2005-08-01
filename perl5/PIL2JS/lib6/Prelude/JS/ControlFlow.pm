@@ -32,7 +32,7 @@ sub statement_control:<loop>($pre, Code $cond, Code $body, Code $post) is primit
       }
       return undefined;
     }
-  ').($pre, $cond, $body, $post);
+  ').($pre, {?$cond()}, $body, $post);
 }
 
 sub JS::Root::last() is primitive { JS::inline "throw(new PIL2JS.ControlException.last())"; 1 }

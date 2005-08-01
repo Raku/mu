@@ -19,11 +19,14 @@ use strict;
       die unless @$self == 1;
     }
 
-    if(ref $self eq "PIL::PVal" or ref $self eq "PIL::VNum" or ref $self eq "PIL::VBool") {
+    if(ref $self eq "PIL::PVal" or ref $self eq "PIL::VNum") {
       die unless $self->[0]->isa("PIL::PVal");
       return bless [ $self->[0]->fixup ] => ref $self;
     } elsif(ref $self eq "PIL::VList") {
       return bless [ map { $_->fixup } @{ $self->[0] } ] => "PIL::VList";
+    } elsif(ref $self eq "PIL::VBool") {
+      die unless $self->[0]->isa("PIL::True") or $self->[0]->isa("PIL::False");
+      return bless [ $self->[0] ] => "PIL::VBool";
     } else {
       die if ref $self->[0];
       return bless [ $self->[0] ] => ref $self;
