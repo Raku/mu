@@ -586,7 +586,7 @@ ruleUsePackage = rule "use package" $ do
         let sub = Var $ ('&':pkg) ++ "::import"
         unsafeEvalExp $ Syn "if"
             [ App (Var "&name") (Just sub) [] -- XXX Hack
-            , App sub (Just val) [imp]
+            , App sub (Just $ Val $ VStr $ envPackage env) [imp]
             , emptyExp
             ]
         return ()
