@@ -6,7 +6,7 @@ module PIL.Internals (
     newSTRef, readSTRef, writeSTRef, modifySTRef, runST, ST, STRef,
     test, oneof, quickCheck, verboseCheck, Id, newId,
     TVar, STM, newTVar, readTVar, writeTVar,
-    fmapM, Map, atomically, Dynamic,
+    fmapM, Map, atomically, Dynamic, Typeable,
 ) where
 import Control.Monad.ST
 import Data.STRef
@@ -17,6 +17,7 @@ import System.IO.Unsafe (unsafePerformIO)
 import Data.FunctorM
 import Data.Map (Map)
 import Data.Dynamic
+import Data.Typeable
 
 gen1 :: (Arbitrary a) => (a -> b) -> Gen b
 gen1 = (`fmap` arbitrary)
@@ -44,3 +45,12 @@ newId = do
    putTMVar idSource next
    return (MkId next)
 
+instance (Typeable a, Typeable b) => Show (a -> b) where
+    show _ = "(" ++ typA ++ " -> " ++ typB ++ ")"
+        where
+        typA = show $ typeOf (undefined :: a)
+        typB = show $ typeOf (undefined :: b)
+instance (Typeable a, Typeable b) => Eq (a -> b) where
+    x == y = show x == show y
+instance (Typeable a, Typeable b) => Ord (a -> b) where
+    compare x y = compare (show x) (show y)

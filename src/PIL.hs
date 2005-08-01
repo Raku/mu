@@ -13,10 +13,10 @@ data Sym = MkSym
     , twigil :: Maybe Char
     , name   :: Name
     }
-    deriving (Eq, Ord, Show)
+    deriving (Eq, Ord, Show, Typeable)
 
 newtype Name = MkName { unName :: String }
-    deriving (Eq, Ord, Show)
+    deriving (Eq, Ord, Show, Typeable)
 
 data Container
     = Scalar (Cell Scalar)  -- Scalar container
@@ -36,7 +36,7 @@ data Cell a
 type MaybeTied = Maybe (TVar Tieable)
 
 data Box a = MkBox { boxId :: Id, boxVal :: a }
-    deriving (Eq, Ord, Show)
+    deriving (Eq, Ord, Show, Typeable)
 
 {-|
 The type of tie-table must agree with the storage type.  Such a table
@@ -44,7 +44,7 @@ may be empty, as denoted by the nullary constructor "Untied".  Each of
 the three storage types comes with its own tie-table layout.
 -}
 data Tieable = Untied | Tied Name
-    deriving (Eq, Ord, Show)
+    deriving (Eq, Ord, Show, Typeable)
 
 -- | Sample Container: @%\*ENV@ is rw is HashEnv
 hashEnv :: STM Container
@@ -106,37 +106,53 @@ bind = undefined
 -- | Any PIL expression can only evaluate to one of three value results.
 data Val
     = Void
-    | Item Item
-    | List [Item]
-    deriving (Show, Ord, Eq)
+    | Single Single
+    | Plural [Single]
+    | Control Control
+    deriving (Eq, Ord, Show, Typeable)
 
 -- | 'Item' is either one of the five intrisic types, or an object.
-data Item
-    = Bit Bit
+data Single
+    = Object Object
+    -- Intrinsic types, according to S02.
     | Int Int
     | Num Num
     | Str Str
     | Ref Ref
-    | Obj Obj
-    deriving (Show, Ord, Eq)
+    | Bit Bit
+    -- These four below are apocryphal (not part of spec).
+    | Pair Pair
+    | Junc Junc
+    | Type Type
+    | Code Code 
+    deriving (Eq, Ord, Show, Typeable)
 
 -- | 'Ref' always points to a container; values are promoted to constant containers.
 newtype Ref = MkRef Container
+    deriving (Eq, Ord, Show, Typeable)
+newtype Pair = MkPair (Container, Container)
+    deriving (Eq, Ord, Show, Typeable)
 
 type Bit = Bool
 type Str = String
 type Num = Double
-type Obj = Dynamic
+type Object = Dynamic
+type Type = Name -- XXX
+type Code = (Val -> Val) -- XXX
+data Control = MkControl -- XXX
+    deriving (Eq, Ord, Show, Typeable)
+data Junc = MkJunc -- XXX
+    deriving (Eq, Ord, Show, Typeable)
 
-instance Show Ref where
-    show _ = "<ref>"
-instance Ord Ref where
+instance Show Container where
+    show _ = "<container>"
+instance Ord Container where
     compare _ _ = EQ
-instance Eq Ref where
+instance Eq Container where
     _ == _ = True
-instance Ord Obj where
+instance Ord Object where
     compare _ _ = EQ
-instance Eq Obj where
+instance Eq Object where
     _ == _ = True
 
 
