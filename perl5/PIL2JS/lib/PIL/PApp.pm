@@ -41,7 +41,7 @@ sub as_js {
   ) {
     return $self->[3]->[0]->[2]->[0]->[0]->[0];
   } elsif(defined $subname and $subname eq "&JS::inline") {
-    PIL::FAIL->("Invalid use of &JS::inline!");
+    PIL::fail("Invalid use of &JS::inline!");
   }
 
   my $native;
@@ -67,7 +67,7 @@ sub as_js {
     if not defined $subname or $subname =~ /^\$/;
 
   # Sanitize $subname.
-  $FAIL->("When calling a method, the method name must be a simple string!")
+  PIL::fail("When calling a method, the method name must be a simple string!")
     if $self->[2]->isa("PIL::Just") and (not defined $subname or $subname !~ /^&/);
   $subname = "&$1" if $self->[2]->isa("PIL::Just") and $subname =~ /^&(.+)$/;
   $subname =~ s/^(.)\*?JS::/$1/ if defined $subname;

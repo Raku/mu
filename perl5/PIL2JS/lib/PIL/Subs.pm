@@ -7,7 +7,7 @@ use strict;
 #   (function () { 42 })()                 # undefined
 #   (function () { return eval "42" })()   # 42
 # Now PIL::PStmts wraps a return() around the last statement, but only if we're
-# $IN_SUBLIKE. :)
+# $PIL::IN_SUBLIKE. Easy, eh? :)
 {
   package PIL::PSub;
 
@@ -19,20 +19,20 @@ use strict;
     die unless ref($self->[2]) eq "ARRAY" or $self->[2]->isa("PIL::Params");
     bless $self->[2] => "PIL::Params";
 
-    local $IN_SUBLIKE  = $self->[1]->as_constant;
-    local $CUR_SUBNAME = $self->[0];
+    local $PIL::IN_SUBLIKE  = $self->[1]->as_constant;
+    local $PIL::CUR_SUBNAME = $self->[0];
 
-    warn "Skipping &*END.\n" and return "" if $CUR_SUBNAME eq "&*END";
+    warn "Skipping &*END.\n" and return "" if $PIL::CUR_SUBNAME eq "&*END";
 
     my $magical_vars = "";
     $magical_vars .= "_26main_3a_3a_3fBLOCK.STORE(%VAR);\n"
-      if $IN_SUBLIKE >= PIL::SUBBLOCK;
+      if $PIL::IN_SUBLIKE >= PIL::SUBBLOCK;
     $magical_vars .= "_26main_3a_3a_3fSUB.STORE(%VAR);\n"
-      if $IN_SUBLIKE >= PIL::SUBROUTINE;
+      if $PIL::IN_SUBLIKE >= PIL::SUBROUTINE;
     $magical_vars .= "_24main_3a_3a_3fSUBNAME.STORE(new PIL2JS.Box.Constant(%NAME));\n"
-      if $IN_SUBLIKE >= PIL::SUBROUTINE;
+      if $PIL::IN_SUBLIKE >= PIL::SUBROUTINE;
     $magical_vars =~ s/%VAR/ PIL::name_mangle $self->[0]/eg;
-    $magical_vars =~ s/%NAME/PIL::doublequote $CUR_SUBNAME/eg;
+    $magical_vars =~ s/%NAME/PIL::doublequote $PIL::CUR_SUBNAME/eg;
 
     my $pos_update =
       $self->[3]->isa("PIL::PPos")
@@ -55,10 +55,10 @@ use strict;
     # Sub declaration
     my $js = sprintf
       "%s%s = PIL2JS.Box.constant_func(%d, function (args) {\n%s\n});\n",
-      $IN_GLOBPIL ? "" : "var ",
+      $PIL::IN_GLOBPIL ? "" : "var ",
       PIL::name_mangle($self->[0]),
       $self->[2]->arity,
-      PIL::add_indent 1, PIL::generic_catch($IN_SUBLIKE, $body);
+      PIL::add_indent 1, PIL::generic_catch($PIL::IN_SUBLIKE, $body);
     $js .= sprintf
       "%s.perl_name = %s;\n",
       PIL::name_mangle($self->[0]),
@@ -68,7 +68,7 @@ use strict;
     if($self->[1]->isa("PIL::SubMethod")) {
       my $methname = $self->[0];
       $methname = ($methname =~ /^&.*::(.+)$/)[0] or
-        $FAIL->("Method names must be simple strings!");
+        PIL::fail("Method names must be simple strings!");
       $js .= sprintf
         "PIL2JS.Box.prototype.perl_methods[%s] = %s;\n",
         PIL::doublequote($methname),
@@ -97,8 +97,8 @@ use strict;
     die unless ref($self->[1]) eq "ARRAY" or $self->[1]->isa("PIL::Params");
     bless $self->[1] => "PIL::Params";
 
-    local $IN_SUBLIKE  = $self->[0]->as_constant;
-    local $CUR_SUBNAME = "<anonymous@{[$CUR_SUBNAME ? ' in ' . $CUR_SUBNAME : '']}>";
+    local $PIL::IN_SUBLIKE  = $self->[0]->as_constant;
+    local $PIL::CUR_SUBNAME = "<anonymous@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>";
 
     # Subbody
     local $_;
@@ -109,7 +109,7 @@ use strict;
     # Sub declaration
     return sprintf "PIL2JS.Box.constant_func(%d, function (args) {\n%s\n})",
       $self->[1]->arity,
-      PIL::add_indent 1, PIL::generic_catch($IN_SUBLIKE, $body);
+      PIL::add_indent 1, PIL::generic_catch($PIL::IN_SUBLIKE, $body);
   }
 }
 
@@ -118,8 +118,8 @@ use strict;
 
   sub as_js {
     my $self = shift;
-    local $IN_SUBLIKE  = PIL::SUBTHUNK;
-    local $CUR_SUBNAME = "<thunk@{[$CUR_SUBNAME ? ' in ' . $CUR_SUBNAME : '']}>";
+    local $PIL::IN_SUBLIKE  = PIL::SUBTHUNK;
+    local $PIL::CUR_SUBNAME = "<thunk@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>";
 
     die unless @$self == 1;
 

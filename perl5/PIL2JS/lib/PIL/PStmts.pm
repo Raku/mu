@@ -13,17 +13,17 @@ sub as_js {
   # Update $?POSITION.
   my $pos =
     sprintf "_24main_3a_3a_3fPOSITION.STORE(new PIL2JS.Box.Constant(%s))",
-    PIL::doublequote $CUR_POS;
+    PIL::doublequote $PIL::CUR_POS;
 
   # Add a &return() to the last statement of a sub.
-  if($IN_SUBLIKE and $self->[1]->isa("PIL::PNil")) {
+  if($PIL::IN_SUBLIKE and $self->[1]->isa("PIL::PNil")) {
     my $js = $self->[0]->as_js;
     # Note: Purely cosmetical hacking on the generated JS! (else it would be
     # eevil).
     $js =~ s/\n$//;
-    if($IN_SUBLIKE >= PIL::SUBROUTINE) {
+    if($PIL::IN_SUBLIKE >= PIL::SUBROUTINE) {
       return "$pos;\n_26main_3a_3areturn.FETCH()([PIL2JS.Context.ItemAny, $js]);";
-    } elsif($IN_SUBLIKE >= PIL::SUBBLOCK) {
+    } elsif($PIL::IN_SUBLIKE >= PIL::SUBBLOCK) {
       return "$pos;\n_26main_3a_3aleave.FETCH()([PIL2JS.Context.ItemAny, $js]);";
     } else {
       return "$pos;\nreturn($js);";

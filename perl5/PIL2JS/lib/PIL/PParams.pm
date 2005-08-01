@@ -27,7 +27,7 @@ if(args.length != 0)
     "" +
     args.length +
     " more parameters passed to sub " +
-    @{[PIL::doublequote $CUR_SUBNAME]} +
+    @{[PIL::doublequote $PIL::CUR_SUBNAME]} +
     " than expected (@{[scalar @$self]})!"
   );
 EOF
@@ -130,7 +130,7 @@ EOF
       push @js,
         "if($jsname == undefined) " .
         "PIL2JS.die(\"Required parameter \\\"$name\\\" not passed to sub \" + " .
-        PIL::doublequote($CUR_SUBNAME) .
+        PIL::doublequote($PIL::CUR_SUBNAME) .
         " + \"!\");";
     }
 

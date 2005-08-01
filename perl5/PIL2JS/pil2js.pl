@@ -22,7 +22,7 @@ use lib File::Spec->catfile($FindBin::Bin, "lib");
 use PIL2JS qw< run_pugs >;
 use Getopt::Long;
 use PIL::Parser;
-use PIL::Nodes;
+use PIL;
 
 sub slurp;
 sub unslurp;
@@ -73,7 +73,7 @@ EOF
 
   my $js = join "\n",
     $load_check,
-    (bless $tree => "PIL::Nodes")->as_js;
+    (bless $tree => "PIL")->as_js;
   unslurp $output, $js;
 } else {
   my @components;

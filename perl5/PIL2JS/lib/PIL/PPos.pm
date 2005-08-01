@@ -12,7 +12,7 @@
     die unless @$self == 3;
     die unless $self->[0]->isa("PIL::MkPos");
 
-    local $CUR_POS = $self->[0];
+    local $PIL::CUR_POS = $self->[0];
     return $self->[2]->as_js;
   }
 }

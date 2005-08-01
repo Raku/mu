@@ -21,7 +21,7 @@ our $IN_GLOBPIL;
 our %UNDECLARED_VARS;
 our $PROCESSING_HAS_STARTED;
 
-our $FAIL     = sub { die "*** $_[0]\n    at $CUR_POS\n" };
+sub fail { die "*** $_[0]\n    at $CUR_POS\n" }
 
 sub generic_catch {
   my ($level, $body) = @_;

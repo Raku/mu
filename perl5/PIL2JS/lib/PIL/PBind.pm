@@ -16,7 +16,7 @@ sub as_js {
   if($self->[0]->[0]->isa("PIL::PVar")) {
     my $varname = $self->[0]->[0]->[0];
     if($varname =~ /::/) {
-      $UNDECLARED_VARS{$varname}++;
+      $PIL::UNDECLARED_VARS{$varname}++;
     }
   }
 
