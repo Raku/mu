@@ -5,7 +5,8 @@ module PIL.Internals (
     gen1, gen2, assert,
     newSTRef, readSTRef, writeSTRef, modifySTRef, runST, ST, STRef,
     test, oneof, quickCheck, verboseCheck, Id, newId,
-    TVar, STM, newTVar, readTVar
+    TVar, STM, newTVar, readTVar, writeTVar,
+    fmapM,
 ) where
 import Control.Monad.ST
 import Data.STRef
@@ -13,6 +14,7 @@ import Test.QuickCheck
 import Control.Exception
 import Control.Concurrent.STM
 import System.IO.Unsafe (unsafePerformIO)
+import Data.FunctorM
 
 gen1 :: (Arbitrary a) => (a -> b) -> Gen b
 gen1 = (`fmap` arbitrary)

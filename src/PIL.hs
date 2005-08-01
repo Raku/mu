@@ -5,7 +5,8 @@ import qualified Data.Map as Map
 import PIL.Tie
 import PIL.Internals
 
-type Pad = Map.Map Sym Container    -- Pad maps symbols to containers
+-- Pad maps symbols to containers
+newtype Pad = MkPad (Map.Map Sym Container)
 
 data Sym = MkSym
     { sigil  :: Char
@@ -14,7 +15,7 @@ data Sym = MkSym
     }
     deriving (Eq, Ord, Show)
 
-newtype Name = MkName String
+newtype Name = MkName { unName :: String }
     deriving (Eq, Ord, Show)
 
 data Container
@@ -24,25 +25,18 @@ data Container
 
 {-|
 'Cell' is either mutable (rebindable) or immutable, decided at compile time.
+
+Tieable is orthogonal to mutableness; a constant tied container can still be
+subject to untie() and tie().
 -}
 data Cell a
-    = Mut (Box (TVar a)) -- Mutable cell
-    | Con (Box a)        -- Constant cell
+    = Con { conBox  :: Box a,        tieable :: MaybeTied }
+    | Mut { mutBox  :: TVar (Box a), tieable :: MaybeTied }
 
-{-|
-'Box' comes in two flavours: Nontieable ('NBox') and Tieable ('TBox').
-Once chosen, there is no way in runtime to revert this decision.
+type MaybeTied = Maybe (TVar Tieable)
 
-A Non-tieable container is comprised of an @Id@ and a storage of that type, which
-can only be @Scalar@, @Array@ or @Hash@.  Again, there is no way to cast a
-Scalar container into a Hash container at runtime.
-
-A Tieable container also contains an @Id@ and a storage, but also adds a
-tie-table that intercepts various operations for its type.
--}
-data Box a
-    = NBox { boxId :: TVar Id, boxVal :: a }
-    | TBox { boxId :: TVar Id, boxVal :: a, boxTied :: TVar Tieable }
+data Box a = MkBox { boxId :: Id, boxVal :: a }
+    deriving (Eq, Ord, Show)
 
 {-|
 The type of tie-table must agree with the storage type.  Such a table
@@ -55,28 +49,15 @@ data Tieable = Untied | Tied Name
 -- | Sample Container: @%\*ENV@ is rw is HashEnv
 hashEnv :: STM Container
 hashEnv = do
-    hv  <- newTVar emptyHash
+    box <- newTVar $ MkBox (-1) emptyHash
     tie <- newTVar $ Tied (MkName "Hash::Env")
-    id  <- newTVar (-1)
-    return . Hash . Mut $ TBox id hv tie
+    return . Hash $ Mut box (Just tie)
 
 hashNew :: STM Container
 hashNew = do
-    hv  <- newTVar emptyHash
-    id  <- newTVar =<< newId
-    return . Hash . Mut $ NBox id hv
-
-{-|
-Compare two containers for Id equivalence.  If the container types differ, this
-will never return True.
--}
-
-{-
-instance Eq Container where
-    x == y = (readId x) == (readId y)
-
-instance Ord Container where
-    compare x y = compare (readId x) (readId y)
+    id  <- newId
+    box <- newTVar $ MkBox id emptyHash
+    return . Hash $ Mut box Nothing
 
 cmap :: (forall a. Cell a -> b) -> Container -> b
 cmap f c = case c of
@@ -84,37 +65,46 @@ cmap f c = case c of
     Array x  -> f x
     Hash x   -> f x
 
-bmap :: (forall a. Box a -> b) -> Cell a -> b
+bmap :: (forall a. Box a -> STM b) -> Cell a -> STM b
 bmap f c = case c of
-    Mut box -> f box
-    Con box -> f box
+    Con con _ -> f con
+    Mut mut _ -> f =<< readTVar mut
 
-readId :: Container -> Id
-readId = cmap (bmap boxId)
+tmap :: (MaybeTied -> STM b) -> Cell a -> STM b
+tmap f c = case c of
+    Con _ t -> f t
+    Mut _ t -> f t
 
--- | Untie a container
-untie :: Cell a -> STM ()
-untie (NCon x) = return ()
--- | Untie an non-tieable container is a no-op:
-untie (NCon x) = return ()
--- | For a tieable container, we first invokes the "UNTIE" handler, then set
---   its "tied" slot to Untied:
-untie (TCon x) = do
-    (id, val, tied) <- readSTRef x
-    case tied of
-        Untied  -> return ()
-        _       -> do
-            tied `invokeTie` UNTIE
-            writeSTRef x (id, val, Untied)
+readId :: Container -> STM Id
+readId = cmap (bmap (return . boxId))
 
+{-|
+Compare two containers for Id equivalence.  If the container types differ, this
+will never return True.
 -}
+(=:=) :: Container -> Container -> STM Bool
+x =:= y = do
+    ix <- readId x
+    iy <- readId y
+    return (ix == iy)
 
-#ifdef ASD
+untie :: Container -> STM ()
+untie = cmap (tmap $ maybe (return ()) (`writeTVar` Untied))
+
+-- | Assign container @x@ to @y@
+assign :: Container   -- ^ The @$x@ in @$x = $y@
+       -> Container   -- ^ The @$y@ in @$x = $y@
+       -> STM ()
+assign = undefined
 
 -- | Bind container @x@ to @y@
 bind :: Container   -- ^ The @$x@ in @$x := $y@
      -> Container   -- ^ The @$y@ in @$x := $y@
      -> STM ()
+bind = undefined
+
+#ifdef ASD
+
 {-|
 To bind a container to another, we first check to see if they are of the
 same tieableness.  If so, we simply overwrite the target one's Id,
