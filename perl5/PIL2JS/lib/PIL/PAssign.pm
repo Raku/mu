@@ -4,12 +4,22 @@ package PIL::PAssign;
 use warnings;
 use strict;
 
-sub as_js {
+sub fixup {
   my $self = shift;
+  local $_;
 
   die unless @$self == 2;
   die unless ref $self->[0] eq "ARRAY";
   die unless @{ $self->[0] } == 1;
+
+  return bless [
+    [map { $_->fixup } @{ $self->[0] }],
+    $self->[1]->fixup,
+  ] => "PIL::PAssign";
+}
+
+sub as_js {
+  my $self = shift;
 
   # Hack? Fully qualified variables don't need a declaration, but JavaScript
   # needs one.

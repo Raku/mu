@@ -5,6 +5,26 @@
   use warnings;
   use strict;
 
+  sub fixup {
+    my ($self, $subbody) = @_;
+
+    my @params = @$self;
+    local @PIL::CUR_LEXSCOPES = @PIL::CUR_LEXSCOPES;
+
+    foreach my $param (@params) {
+      my $scopeid = $PIL::CUR_LEXSCOPE_ID++;
+      my $pad     = { $param->name => $param->name . "_$scopeid" };
+      push @PIL::CUR_LEXSCOPES, $pad;
+
+      $param = $param->fixup;
+    }
+
+    return (
+      (bless [ @params ] => "PIL::Params"),
+      $subbody->fixup,
+    );
+  }
+
   sub as_js {
     my $self = shift;
     local $_;
@@ -50,14 +70,29 @@ EOF
   use strict;
 
   sub is_required { $_[0]->{tpParam}{isOptional}->isa("PIL::False") }
+  sub name        { $_[0]->{tpParam}{paramName} }
+  sub fixed_name  { $_[0]->{fixedName} }
+  sub jsname      { PIL::name_mangle $_[0]->fixed_name }
+
+  sub fixup {
+    my $self = shift;
+
+    return bless {
+      tpParam   => $self->{tpParam},
+      tpDefault => $self->{tpDefault}->isa("PIL::Just")
+        ? bless [ $self->{tpDefault}->[0]->fixup ] => "PIL::Just"
+        : $self->{tpDefault},
+      fixedName => PIL::lookup_var $self->name,
+    } => "PIL::MkTParam";
+  }
 
   sub as_js1 {
     my $self = shift;
-    my $name = $self->{tpParam}{paramName};
+    my $name = $self->name;
     die unless defined $name and not ref $name;
     warn "Skipping \%_ parameter.\n" and return "" if $name eq "%_";
 
-    my $jsname   = PIL::name_mangle $name;
+    my $jsname   = $self->jsname;
     my $pairname = PIL::doublequote(substr $name, 1);
     my $undef    = PIL::undef_of $name;
     return <<EOF;
@@ -87,7 +122,7 @@ EOF
       push @js, "args = PIL2JS.make_slurpy_array(args);\n";
     }
 
-    my $jsname = PIL::name_mangle $name;
+    my $jsname = $self->jsname;
     my $undef  = PIL::undef_of $name;
     # Are we a take-everything slurpy param (*@foo, as opposed to *$foo)?
     if(
@@ -123,7 +158,7 @@ EOF
     warn "Skipping \%_ parameter.\n" and return "" if $name eq "%_";
 
     my @js;
-    my $jsname = PIL::name_mangle $name;
+    my $jsname = $self->jsname;
 
     # We're required, but a value hasn't been supplied?
     if($self->{tpParam}{isOptional}->isa("PIL::False")) {
@@ -137,15 +172,8 @@ EOF
     # Should we (and can we) supply a default for an optional param?
     if($self->{tpDefault}->isa("PIL::Just")) {
       my $undef = PIL::undef_of $name;
-      # XXX Hack
       my $other = $self->{tpDefault}->[0]->as_js;
-      if(
-        $self->{tpDefault}->[0]->isa("PIL::PExp") and
-        $self->{tpDefault}->[0]->[0]->isa("PIL::PVar") and
-        $self->{tpDefault}->[0]->[0]->[0] eq '$_'
-      ) {
-        $other = "$other == undefined ? new PIL2JS.Box.Constant(undefined) : $other";
-      }
+      $other = "$other == undefined ? new PIL2JS.Box.Constant(undefined) : $other";
       push @js, "if($jsname == undefined) $jsname = $undef.BINDTO($other);";
     }
 

@@ -11,13 +11,26 @@ use strict;
 {
   package PIL::PSub;
 
-  sub as_js {
+  sub fixup {
     my $self = shift;
+
     die unless @$self == 4;
     die if     ref $self->[0];
     die unless $self->[1]->isa("PIL::SubType");
     die unless ref($self->[2]) eq "ARRAY" or $self->[2]->isa("PIL::Params");
     bless $self->[2] => "PIL::Params";
+
+    return bless [
+      $self->[0],
+      $self->[1],
+      $self->[2]->fixup($self->[3]),
+      # &PIL::Params::fixup returns the fixed PIL::Params and the fixed
+      # $self->[3].
+    ] => "PIL::PSub";
+  }
+
+  sub as_js {
+    my $self = shift;
 
     local $PIL::IN_SUBLIKE  = $self->[1]->as_constant;
     local $PIL::CUR_SUBNAME = $self->[0];
@@ -89,13 +102,24 @@ use strict;
 {
   package PIL::PCode;
 
-  sub as_js {
+  sub fixup {
     my $self = shift;
 
     die unless @$self == 3;
     die unless $self->[0]->isa("PIL::SubType");
     die unless ref($self->[1]) eq "ARRAY" or $self->[1]->isa("PIL::Params");
     bless $self->[1] => "PIL::Params";
+
+    return bless [
+      $self->[0],
+      $self->[1]->fixup($self->[2]),
+      # &PIL::Params::fixup returns the fixed PIL::Params and the fixed
+      # $self->[2].
+    ] => "PIL::PCode";
+  }
+
+  sub as_js {
+    my $self = shift;
 
     local $PIL::IN_SUBLIKE  = $self->[0]->as_constant;
     local $PIL::CUR_SUBNAME = "<anonymous@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>";
@@ -116,12 +140,18 @@ use strict;
 {
   package PIL::PThunk;
 
+  sub fixup {
+    my $self = shift;
+
+    die unless @$self == 1;
+
+    return bless [ $self->[0]->fixup ] => "PIL::PThunk";
+  }
+
   sub as_js {
     my $self = shift;
     local $PIL::IN_SUBLIKE  = PIL::SUBTHUNK;
     local $PIL::CUR_SUBNAME = "<thunk@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>";
-
-    die unless @$self == 1;
 
     local $_;
     return sprintf "PIL2JS.Box.constant_func(0, function (args) { var cxt = args.shift(); return(%s); })",

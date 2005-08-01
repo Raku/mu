@@ -3,14 +3,13 @@ package PIL::PVar;
 use warnings;
 use strict;
 
-sub as_js {
-  my $self = shift;
+sub fixup {
+  die unless @{ $_[0] } == 1;
+  die if     ref $_[0]->[0];
 
-  die unless @$self == 1;
-  die if     ref $self->[0];
-
-  return PIL::name_mangle($self->[0]);
-  # return "__pil2js_lookup(" . PIL::doublequote($self->[0]) . ")";
+  return bless [ PIL::lookup_var $_[0]->[0] ] => "PIL::PVar";
 }
+
+sub as_js { return PIL::name_mangle $_[0]->[0] }
 
 1;

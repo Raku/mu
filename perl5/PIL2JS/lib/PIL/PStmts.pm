@@ -6,9 +6,17 @@ package PIL::PStmts;
 use warnings;
 use strict;
 
+sub fixup {
+  die unless @{ $_[0] } == 2;
+
+  return bless [
+    $_[0]->[0]->fixup,
+    $_[0]->[1]->fixup,
+  ] => "PIL::PStmts";
+}
+
 sub as_js {
   my $self = shift;
-  die unless @$self == 2;
 
   # Update $?POSITION.
   my $pos =

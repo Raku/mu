@@ -17,6 +17,7 @@ sub parse {
   $pil    = $str;
   my $ret = record();
   undef $pil;
+  undef $@;
 
   return $ret;
 }

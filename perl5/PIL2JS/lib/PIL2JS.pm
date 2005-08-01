@@ -26,7 +26,7 @@ our %cfg = (
   js        => "js",
   pugs      => pwd(qw< .. .. >, "pugs$Config{_exe}"),
   pil2js    => pwd('pil2js.pl'),
-  preludepc => pwd('preludepc.js'),
+  preludepc => pwd('Prelude.js'),
   testpc    => pwd('Test.js'),
   prelude   => pwd(qw< lib6 Prelude JS.pm >),
 );

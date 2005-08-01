@@ -3,13 +3,26 @@ package PIL::PApp;
 use warnings;
 use strict;
 
-sub as_js {
+sub fixup {
   my $self = shift;
+  local $_;
 
   die unless @$self == 4;
   die unless $self->[0]->isa("PIL::TCxt");
-  # die unless $self->[1]->isa("PIL::PExp") or $self->[1]->isa("PIL::PCode");
   die unless ref($self->[3]) eq "ARRAY";
+
+  return bless [
+    $self->[0]->fixup,
+    $self->[1]->fixup,
+    $self->[2]->isa("PIL::Just")
+      ? bless [$self->[2]->[0]->fixup] => "PIL::Just"
+      : $self->[2],
+    [map { $_->fixup } @{ $self->[3] }],
+  ] => "PIL::PApp";
+}
+
+sub as_js {
+  my $self = shift;
 
   local $_;
 

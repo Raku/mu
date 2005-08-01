@@ -4,7 +4,7 @@ package PIL::PPad;
 use warnings;
 use strict;
 
-sub as_js {
+sub fixup {
   my $self = shift;
 
   die unless @$self == 3;
@@ -12,20 +12,33 @@ sub as_js {
   die unless ref $self->[1] eq "ARRAY";
   die unless $self->[2]->isa("PIL::PStmts");
 
-  # Emit appropriate var foo = new PIL2JS.Box(undefined) statements.
+  my $scopeid = $PIL::CUR_LEXSCOPE_ID++;
+  my $pad     = {
+    map {
+      push @PIL::ALL_LEXICALS, "$_->[0]_$scopeid";
+      ($_->[0] => "$_->[0]_$scopeid");
+    } @{ $self->[1] }
+  };
+
+  local @PIL::CUR_LEXSCOPES = (@PIL::CUR_LEXSCOPES, $pad);
+
+  return bless [
+    $self->[0],
+    [ map {[ "$_->[0]_$scopeid", undef ]} @{ $self->[1] } ],
+    $self->[2]->fixup,
+  ] => "PIL::PPad";
+}
+
+sub as_js {
+  my $self = shift;
+
+  # Emit appropriate foo = new PIL2JS.Box(undefined) statements.
   local $_;
   return
-    "var " .
     join(", ", map {
-      my $sigil = substr $_->[0], 0, 1;
-      my %undef = (
-        '$' => "undefined",
-        '@' => "[]",
-        '%' => "new PIL2JS.Hash()",
-        '&' => "undefined",
-      );
-      PIL::name_mangle($_->[0]) .
-      " = new PIL2JS.Box(@{[ $undef{$sigil} || die ]})"
+      sprintf "%s = %s",
+        PIL::name_mangle($_->[0]),
+        PIL::undef_of($_->[0]);
     } @{ $self->[1] }) .
     ";\n" .
     $self->[2]->as_js;

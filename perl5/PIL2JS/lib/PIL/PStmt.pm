@@ -3,11 +3,12 @@ package PIL::PStmt;
 use warnings;
 use strict;
 
-sub as_js {
-  my $self = shift;
-  die unless @$self == 1;
+sub fixup {
+  die unless @{ $_[0] } == 1;
 
-  return $self->[0]->as_js . "\n";
+  return bless [ $_[0]->[0]->fixup ] => "PIL::PStmt";
 }
+
+sub as_js { return $_[0]->[0]->as_js . "\n" }
 
 1;

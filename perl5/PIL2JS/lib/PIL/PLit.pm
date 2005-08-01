@@ -3,12 +3,13 @@ package PIL::PLit;
 use warnings;
 use strict;
 
-sub as_js {
-  my $self = shift;
+sub fixup {
+  die unless @{ $_[0] } == 1;
+  die unless $_[0]->[0]->isa("PIL::PVal");
 
-  die unless @$self == 1;
-  die unless $self->[0]->isa("PIL::PVal");
-  return $self->[0]->as_js;
+  return bless [ $_[0]->[0]->fixup ] => "PIL::PLit";
 }
+
+sub as_js { $_[0]->[0]->as_js }
 
 1;

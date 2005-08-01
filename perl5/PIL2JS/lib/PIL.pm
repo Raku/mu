@@ -14,12 +14,49 @@ use constant {
   SUBMETHOD  => 6,
   SUBMACRO   => 7,
 };
+
+# Are we in a sublike thing? If yes, what sublevel does that thing have?
 our $IN_SUBLIKE = undef;
+
+# What's the name of the sub we're currently in?
 our $CUR_SUBNAME;
+
+# Our current pos?
 our $CUR_POS  = bless [ "<unknown>", (0) x 4 ] => "PIL::MkPos";
+
+# Are we in pilGlob?
 our $IN_GLOBPIL;
+
+# $A::B++, without a decl., is legal, but JS does't like this, so we have to
+# declare all undeclared vars.
 our %UNDECLARED_VARS;
+
+# We predeclare all lexicals, to proper support
+#   { my $a; sub foo { $a++ } }
+# and $OUTER:: and $CALLER::.
+our @ALL_LEXICALS;
+# IDs of all scopes we're currently in (Array of Hash of [NormalVarname =>
+# FixedVarname]), i.e. NormalVarname is $a and FixedVarname is $a_padid.
+our @CUR_LEXSCOPES;
+# ID supply
+our $CUR_LEXSCOPE_ID;
+
+# Guard against reentrancy.
 our $PROCESSING_HAS_STARTED;
+
+sub lookup_var {
+  my $name = shift;
+
+  my $outer_level = $name =~ s/OUTER:://g;
+
+  my @scopes = @CUR_LEXSCOPES[0 .. $#CUR_LEXSCOPES - $outer_level];
+  for(reverse @scopes) {
+    return $_->{$name} if $_->{$name};
+  }
+
+  # It's a global.
+  return $name;
+}
 
 sub fail { die "*** $_[0]\n    at $CUR_POS\n" }
 
@@ -41,31 +78,43 @@ try {
 }
 EOF
 
+sub fixup {
+  local $_;
+  return bless {
+    pilMain => $_[0]->{pilMain}->fixup,
+    pilGlob => [ map { $_->fixup } @{ $_[0]->{pilGlob} } ],
+  } => "PIL";
+}
+
 sub as_js {
   my $self = shift;
   die unless $self->{pilMain}->isa("PIL::PStmts");
   die unless ref($self->{pilGlob}) eq "ARRAY";
+  local $_;
 
   die "PIL::as_js is not reentrant, sorry...\n"
     if $PROCESSING_HAS_STARTED;
   local $PROCESSING_HAS_STARTED = 1;
+  local $CUR_LEXSCOPE_ID        = 1;
 
-  local $_;
+  my $fixed_tree = $self->fixup;
+  warn "# Number of lexical scopes: $CUR_LEXSCOPE_ID\n";
+
   $IN_GLOBPIL++;
-  my @glob_js = map { $_->as_js } @{ $self->{"pilGlob"} };
+  my @glob_js = map { $_->as_js } @{ $fixed_tree->{"pilGlob"} };
   $IN_GLOBPIL = 0;
-  my $main_js = $self->{pilMain}->as_js;
+  my $main_js = $fixed_tree->{pilMain}->as_js;
 
   my $decl_js =
-    "// Declaration of undeclared vars:\n" .
+    "// Declaration of vars:\n" .
     join("\n", map {
-      sprintf "var %s = new PIL2JS.Box(undefined);",
-        PIL::name_mangle($_);
-    } keys %UNDECLARED_VARS) .
-    "\n// End declaration of undeclared vars.\n" .
-    "// Declaration of global vars:\n" .
-    "var " . join(", ", map { PIL::name_mangle($_->[0]) } @{ $self->{"pilGlob"} }) . ";\n";
+      sprintf "var %s = %s;",
+        name_mangle($_),
+        undef_of($_);
+    } keys %UNDECLARED_VARS, @ALL_LEXICALS, map { $_->[0] } @{ $fixed_tree->{"pilGlob"} }) .
+    "\n// End declaration of vars.\n";
   %UNDECLARED_VARS = ();
+  @ALL_LEXICALS    = ();
 
   my $init_js =
     "// Initialization of global vars and exportation of subs:\n" .
@@ -74,7 +123,7 @@ sub as_js {
       $name =~ /^(?:__init_|__export_)/
         ? sprintf("%s.FETCH()([PIL2JS.Context.Void]);", PIL::name_mangle $name)
         : ();
-    } @{ $self->{"pilGlob" } })  .
+    } @{ $fixed_tree->{"pilGlob" } })  .
     "\n// End of initialization of global vars and exportation of subs.\n";
 
   return sprintf <<EOF, $decl_js, add_indent(1, join "\n", @glob_js, $init_js, $main_js);
@@ -91,6 +140,8 @@ EOF
   
   sub cxt  { $_[0] }
   sub type { $_[0]->cxt->[0]->[0] }
+
+  sub fixup { $_[0] }
 
   sub as_js {
     return sprintf "new PIL2JS.Box.Constant(new PIL2JS.Context({ main: %s, type: %s }))",
@@ -128,6 +179,9 @@ EOF
 #   my @x;   # Really my @x = ()
 #   etc.
 sub undef_of($) {
+  return "new PIL2JS.Box(undefined)"
+    if $_[0] =~ /(?:__init_|__export_)/; # minor hack
+
   my $sigil = substr $_[0], 0, 1;
   die "Sigil doesn't match /[\$&@%]/!\n" unless $sigil =~ /[\$&@%]/;
   return {
@@ -187,7 +241,7 @@ use PIL::PLit;
 use PIL::PNil;
 use PIL::PNoop;
 use PIL::PPad;
-use PIL::PParams;
+use PIL::Params;
 use PIL::PPos;
 use PIL::PStmt;
 use PIL::PStmts;
