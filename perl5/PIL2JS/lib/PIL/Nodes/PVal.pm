@@ -63,7 +63,7 @@ use strict;
 
     die unless @$self == 1;
     die if     ref $self->[0];
-    return sprintf "new PIL2JS.Box.Constant(%s)", PIL::Nodes::doublequote $self->[0];
+    return sprintf "new PIL2JS.Box.Constant(%s)", PIL::doublequote $self->[0];
   }
 }
 

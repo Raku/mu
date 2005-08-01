@@ -26,13 +26,13 @@ use strict;
 
     my $magical_vars = "";
     $magical_vars .= "_26main_3a_3a_3fBLOCK.STORE(%VAR);\n"
-      if $IN_SUBLIKE >= PIL::Nodes::SUBBLOCK;
+      if $IN_SUBLIKE >= PIL::SUBBLOCK;
     $magical_vars .= "_26main_3a_3a_3fSUB.STORE(%VAR);\n"
-      if $IN_SUBLIKE >= PIL::Nodes::SUBROUTINE;
+      if $IN_SUBLIKE >= PIL::SUBROUTINE;
     $magical_vars .= "_24main_3a_3a_3fSUBNAME.STORE(new PIL2JS.Box.Constant(%NAME));\n"
-      if $IN_SUBLIKE >= PIL::Nodes::SUBROUTINE;
-    $magical_vars =~ s/%VAR/ PIL::Nodes::name_mangle $self->[0]/eg;
-    $magical_vars =~ s/%NAME/PIL::Nodes::doublequote $CUR_SUBNAME/eg;
+      if $IN_SUBLIKE >= PIL::SUBROUTINE;
+    $magical_vars =~ s/%VAR/ PIL::name_mangle $self->[0]/eg;
+    $magical_vars =~ s/%NAME/PIL::doublequote $CUR_SUBNAME/eg;
 
     my $pos_update =
       $self->[3]->isa("PIL::PPos")
@@ -41,14 +41,14 @@ use strict;
     ? $self->[3]->[0]->[0] : "";
     $magical_vars .=
       "_24main_3a_3a_3fPOSITION.STORE(new PIL2JS.Box.Constant(" .
-      PIL::Nodes::doublequote($pos_update) .
+      PIL::doublequote($pos_update) .
       "));\n" if $pos_update;
 
     # Subbody
     local $_;
     my $body = sprintf "%sPIL2JS.call_chain.push(%s);\n%s;\n%s;",
       $magical_vars,
-      PIL::Nodes::name_mangle($self->[0]),
+      PIL::name_mangle($self->[0]),
       $self->[2]->as_js,
       $self->[3]->as_js;
 
@@ -56,13 +56,13 @@ use strict;
     my $js = sprintf
       "%s%s = PIL2JS.Box.constant_func(%d, function (args) {\n%s\n});\n",
       $IN_GLOBPIL ? "" : "var ",
-      PIL::Nodes::name_mangle($self->[0]),
+      PIL::name_mangle($self->[0]),
       $self->[2]->arity,
-      PIL::Nodes::add_indent 1, PIL::Nodes::generic_catch($IN_SUBLIKE, $body);
+      PIL::add_indent 1, PIL::generic_catch($IN_SUBLIKE, $body);
     $js .= sprintf
       "%s.perl_name = %s;\n",
-      PIL::Nodes::name_mangle($self->[0]),
-      PIL::Nodes::doublequote($self->[0]);
+      PIL::name_mangle($self->[0]),
+      PIL::doublequote($self->[0]);
 
     # Special magic for methods.
     if($self->[1]->isa("PIL::SubMethod")) {
@@ -71,15 +71,15 @@ use strict;
         $FAIL->("Method names must be simple strings!");
       $js .= sprintf
         "PIL2JS.Box.prototype.perl_methods[%s] = %s;\n",
-        PIL::Nodes::doublequote($methname),
-        PIL::Nodes::name_mangle($self->[0]);
+        PIL::doublequote($methname),
+        PIL::name_mangle($self->[0]);
     }
 
     # Special magic for &*END_xyz subs.
     if($self->[0] =~ /^&\*END_\d+/) {
       $js .= sprintf
         "_40main_3a_3a_2aEND.FETCH().push(%s);\n",
-        PIL::Nodes::name_mangle $self->[0];
+        PIL::name_mangle $self->[0];
     }
 
     return $js;
@@ -109,7 +109,7 @@ use strict;
     # Sub declaration
     return sprintf "PIL2JS.Box.constant_func(%d, function (args) {\n%s\n})",
       $self->[1]->arity,
-      PIL::Nodes::add_indent 1, PIL::Nodes::generic_catch($IN_SUBLIKE, $body);
+      PIL::add_indent 1, PIL::generic_catch($IN_SUBLIKE, $body);
   }
 }
 
@@ -118,7 +118,7 @@ use strict;
 
   sub as_js {
     my $self = shift;
-    local $IN_SUBLIKE  = PIL::Nodes::SUBTHUNK;
+    local $IN_SUBLIKE  = PIL::SUBTHUNK;
     local $CUR_SUBNAME = "<thunk@{[$CUR_SUBNAME ? ' in ' . $CUR_SUBNAME : '']}>";
 
     die unless @$self == 1;

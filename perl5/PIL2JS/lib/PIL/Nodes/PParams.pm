@@ -27,7 +27,7 @@ if(args.length != 0)
     "" +
     args.length +
     " more parameters passed to sub " +
-    @{[PIL::Nodes::doublequote $CUR_SUBNAME]} +
+    @{[PIL::doublequote $CUR_SUBNAME]} +
     " than expected (@{[scalar @$self]})!"
   );
 EOF
@@ -57,9 +57,9 @@ EOF
     die unless defined $name and not ref $name;
     warn "Skipping \%_ parameter.\n" and return "" if $name eq "%_";
 
-    my $jsname   = PIL::Nodes::name_mangle $name;
-    my $pairname = PIL::Nodes::doublequote(substr $name, 1);
-    my $undef    = PIL::Nodes::undef_of $name;
+    my $jsname   = PIL::name_mangle $name;
+    my $pairname = PIL::doublequote(substr $name, 1);
+    my $undef    = PIL::undef_of $name;
     return <<EOF;
 var $jsname = undefined;
 if(pairs[$pairname] != undefined) {
@@ -87,8 +87,8 @@ EOF
       push @js, "args = PIL2JS.make_slurpy_array(args);\n";
     }
 
-    my $jsname = PIL::Nodes::name_mangle $name;
-    my $undef  = PIL::Nodes::undef_of $name;
+    my $jsname = PIL::name_mangle $name;
+    my $undef  = PIL::undef_of $name;
     # Are we a take-everything slurpy param (*@foo, as opposed to *$foo)?
     if(
       not $self->{tpParam}{paramContext}->isa("PIL::CxtSlurpy") or
@@ -123,20 +123,20 @@ EOF
     warn "Skipping \%_ parameter.\n" and return "" if $name eq "%_";
 
     my @js;
-    my $jsname = PIL::Nodes::name_mangle $name;
+    my $jsname = PIL::name_mangle $name;
 
     # We're required, but a value hasn't been supplied?
     if($self->{tpParam}{isOptional}->isa("PIL::False")) {
       push @js,
         "if($jsname == undefined) " .
         "PIL2JS.die(\"Required parameter \\\"$name\\\" not passed to sub \" + " .
-        PIL::Nodes::doublequote($CUR_SUBNAME) .
+        PIL::doublequote($CUR_SUBNAME) .
         " + \"!\");";
     }
 
     # Should we (and can we) supply a default for an optional param?
     if($self->{tpDefault}->isa("PIL::Just")) {
-      my $undef = PIL::Nodes::undef_of $name;
+      my $undef = PIL::undef_of $name;
       # XXX Hack
       my $other = $self->{tpDefault}->[0]->as_js;
       if(

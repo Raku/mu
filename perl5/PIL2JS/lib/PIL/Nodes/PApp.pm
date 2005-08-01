@@ -41,7 +41,7 @@ sub as_js {
   ) {
     return $self->[3]->[0]->[2]->[0]->[0]->[0];
   } elsif(defined $subname and $subname eq "&JS::inline") {
-    PIL::Nodes::FAIL->("Invalid use of &JS::inline!");
+    PIL::FAIL->("Invalid use of &JS::inline!");
   }
 
   my $native;
@@ -77,17 +77,17 @@ sub as_js {
   my $sub = $inv || $native ? substr($subname, 1) : $self->[1]->as_js;
   my @arg = map { $_->as_js } @{ $self->[3] };
   @arg    = map { "($_).toNative()" } @arg if $native;
-  my $arg = PIL::Nodes::add_indent(1, join ",\n", @arg);
-  my $cxt = PIL::Nodes::add_indent(1, $self->[0]->as_js);
+  my $arg = PIL::add_indent(1, join ",\n", @arg);
+  my $cxt = PIL::add_indent(1, $self->[0]->as_js);
 
   # XXX Context handling!
   if($inv) {
     return "new PIL2JS.Box.Constant($inv.$sub(\n$arg\n))" if $native;
     return sprintf "%s.perl_methods[%s]([\n%s,\n%s\n])",
-      $inv, PIL::Nodes::doublequote($sub), $cxt, $arg
+      $inv, PIL::doublequote($sub), $cxt, $arg
       if defined $native;
     return sprintf "PIL2JS.call(%s, %s, [\n%s,\n%s\n])",
-      $inv, PIL::Nodes::doublequote($sub), $cxt, $arg;
+      $inv, PIL::doublequote($sub), $cxt, $arg;
   } else {
     return "new PIL2JS.Box.Constant($sub(\n$arg\n))" if $native;
     return "$sub.FETCH()([\n$cxt,\n$arg\n])"           if defined $native;

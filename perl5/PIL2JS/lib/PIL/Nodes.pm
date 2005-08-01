@@ -1,4 +1,4 @@
-package PIL::Nodes;
+package PIL;
 # This module provides ->as_js methods for the objects returned by PIL::Parser.
 
 use warnings;
@@ -46,7 +46,7 @@ sub as_js {
   die unless $self->{pilMain}->isa("PIL::PStmts");
   die unless ref($self->{pilGlob}) eq "ARRAY";
 
-  die "PIL::Nodes::as_js is not reentrant, sorry...\n"
+  die "PIL::as_js is not reentrant, sorry...\n"
     if $PROCESSING_HAS_STARTED;
   local $PROCESSING_HAS_STARTED = 1;
 
@@ -60,11 +60,11 @@ sub as_js {
     "// Declaration of undeclared vars:\n" .
     join("\n", map {
       sprintf "var %s = new PIL2JS.Box(undefined);",
-        PIL::Nodes::name_mangle($_);
+        PIL::name_mangle($_);
     } keys %UNDECLARED_VARS) .
     "\n// End declaration of undeclared vars.\n" .
     "// Declaration of global vars:\n" .
-    "var " . join(", ", map { PIL::Nodes::name_mangle($_->[0]) } @{ $self->{"pilGlob"} }) . ";\n";
+    "var " . join(", ", map { PIL::name_mangle($_->[0]) } @{ $self->{"pilGlob"} }) . ";\n";
   %UNDECLARED_VARS = ();
 
   my $init_js =
@@ -72,7 +72,7 @@ sub as_js {
     join("\n", map {
       my $name = $_->[0];
       $name =~ /^(?:__init_|__export_)/
-        ? sprintf("%s.FETCH()([PIL2JS.Context.Void]);", PIL::Nodes::name_mangle $name)
+        ? sprintf("%s.FETCH()([PIL2JS.Context.Void]);", PIL::name_mangle $name)
         : ();
     } @{ $self->{"pilGlob" } })  .
     "\n// End of initialization of global vars and exportation of subs.\n";
@@ -94,9 +94,9 @@ EOF
 
   sub as_js {
     return sprintf "new PIL2JS.Box.Constant(new PIL2JS.Context({ main: %s, type: %s }))",
-      PIL::Nodes::doublequote($_[0]->main),
+      PIL::doublequote($_[0]->main),
       defined $_[0]->type
-        ? PIL::Nodes::doublequote($_[0]->type)
+        ? PIL::doublequote($_[0]->type)
         : "undefined";
   }
 }
@@ -116,12 +116,12 @@ EOF
 
 # Possible subroutine types:
 { package PIL::SubType }
-{ package PIL::SubRoutine; our @ISA = qw<PIL::SubType>; sub as_constant { PIL::Nodes::SUBROUTINE } }
-{ package PIL::SubPrim;    our @ISA = qw<PIL::SubType>; sub as_constant { PIL::Nodes::SUBPRIM } }
-{ package PIL::SubBlock;   our @ISA = qw<PIL::SubType>; sub as_constant { PIL::Nodes::SUBBLOCK } }
-{ package PIL::SubPointy;  our @ISA = qw<PIL::SubType>; sub as_constant { PIL::Nodes::SUBPOINTY } }
-{ package PIL::SubMethod;  our @ISA = qw<PIL::SubType>; sub as_constant { PIL::Nodes::SUBMETHOD } }
-{ package PIL::SubMacro;   our @ISA = qw<PIL::SubType>; sub as_constant { PIL::Nodes::SUBMACRO } }
+{ package PIL::SubRoutine; our @ISA = qw<PIL::SubType>; sub as_constant { PIL::SUBROUTINE } }
+{ package PIL::SubPrim;    our @ISA = qw<PIL::SubType>; sub as_constant { PIL::SUBPRIM } }
+{ package PIL::SubBlock;   our @ISA = qw<PIL::SubType>; sub as_constant { PIL::SUBBLOCK } }
+{ package PIL::SubPointy;  our @ISA = qw<PIL::SubType>; sub as_constant { PIL::SUBPOINTY } }
+{ package PIL::SubMethod;  our @ISA = qw<PIL::SubType>; sub as_constant { PIL::SUBMETHOD } }
+{ package PIL::SubMacro;   our @ISA = qw<PIL::SubType>; sub as_constant { PIL::SUBMACRO } }
 
 # Returns the undef/zero/default container for a given variable type.
 #   my $x;   # Really my $x = undef
@@ -179,20 +179,20 @@ sub add_indent {
   return join "\n", map { " " x ($i * $INDENT) . $_ } split "\n", $text;
 }
 
-use PIL::Nodes::PApp;
-use PIL::Nodes::PAssign;
-use PIL::Nodes::PBind;
-use PIL::Nodes::PExp;
-use PIL::Nodes::PLit;
-use PIL::Nodes::PNil;
-use PIL::Nodes::PNoop;
-use PIL::Nodes::PPad;
-use PIL::Nodes::PParams;
-use PIL::Nodes::PPos;
-use PIL::Nodes::PStmt;
-use PIL::Nodes::PStmts;
-use PIL::Nodes::PVal;
-use PIL::Nodes::PVar;
-use PIL::Nodes::Subs;
+use PIL::PApp;
+use PIL::PAssign;
+use PIL::PBind;
+use PIL::PExp;
+use PIL::PLit;
+use PIL::PNil;
+use PIL::PNoop;
+use PIL::PPad;
+use PIL::PParams;
+use PIL::PPos;
+use PIL::PStmt;
+use PIL::PStmts;
+use PIL::PVal;
+use PIL::PVar;
+use PIL::Subs;
 
 1;

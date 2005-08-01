@@ -24,7 +24,7 @@ sub as_js {
         '%' => "new PIL2JS.Hash()",
         '&' => "undefined",
       );
-      PIL::Nodes::name_mangle($_->[0]) .
+      PIL::name_mangle($_->[0]) .
       " = new PIL2JS.Box(@{[ $undef{$sigil} || die ]})"
     } @{ $self->[1] }) .
     ";\n" .
