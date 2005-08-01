@@ -4,8 +4,6 @@ module PIL where
 import qualified Data.Map as Map
 import PIL.Tie
 import PIL.Internals
-import Control.Concurrent.STM
-import System.IO.Unsafe (unsafePerformIO)
 
 type Pad = Map.Map Sym Container    -- Pad maps symbols to containers
 
@@ -28,7 +26,7 @@ data Container
 'Cell' is either mutable (rebindable) or immutable, decided at compile time.
 -}
 data Cell a
-    = Mut (TVar (Box a)) -- Mutable cell
+    = Mut (Box (TVar a)) -- Mutable cell
     | Con (Box a)        -- Constant cell
 
 {-|
@@ -43,51 +41,73 @@ A Tieable container also contains an @Id@ and a storage, but also adds a
 tie-table that intercepts various operations for its type.
 -}
 data Box a
-    = NBox { boxId :: Id, boxVal :: a }
-    | TBox { boxId :: Id, boxVal :: a, boxTied :: Tieable a }
-
-
-{-|
-'Id' is an unique integer, with infinite supply.
--} 
-newtype Id = MkId Int
-    deriving (Eq, Ord, Show, Num, Arbitrary)
+    = NBox { boxId :: TVar Id, boxVal :: a }
+    | TBox { boxId :: TVar Id, boxVal :: a, boxTied :: TVar Tieable }
 
 {-|
 The type of tie-table must agree with the storage type.  Such a table
 may be empty, as denoted by the nullary constructor "Untied".  Each of
 the three storage types comes with its own tie-table layout.
 -}
-#ifdef HADDOCK
-data Tieable a = Untied | TieScalar TiedScalar | TieArray TiedArray | TieHash TiedHash
-#else
-data Tieable a where
-    Untied     :: Tieable a
-    TieScalar  :: TiedScalar -> Tieable Scalar
-    TieArray   :: TiedArray  -> Tieable Array
-    TieHash    :: TiedHash   -> Tieable Hash
-#endif
+data Tieable = Untied | Tied Name
+    deriving (Eq, Ord, Show)
 
-{-# NOINLINE idSource #-}
-idSource :: TMVar Int
-idSource = unsafePerformIO $ atomically (newTMVar 0)
-
-newId :: STM Id
-newId = do
-   val <- takeTMVar idSource
-   let next = val+1
-   putTMVar idSource next
-   return (MkId next)
-
--- | Sample Container: @%\*ENV@ is constant is HashEnv
+-- | Sample Container: @%\*ENV@ is rw is HashEnv
 hashEnv :: STM Container
-hashEnv = fmap (Hash . Mut) $ do
-    newTVar (TBox (-1) emptyHash $ TieHash (tieHash emptyHash))
+hashEnv = do
+    hv  <- newTVar emptyHash
+    tie <- newTVar $ Tied (MkName "Hash::Env")
+    id  <- newTVar (-1)
+    return . Hash . Mut $ TBox id hv tie
 
 hashNew :: STM Container
-hashNew = fmap (Hash . Mut) $ do
-    i <- newId
-    newTVar (NBox i emptyHash)
+hashNew = do
+    hv  <- newTVar emptyHash
+    id  <- newTVar =<< newId
+    return . Hash . Mut $ NBox id hv
+
+{-|
+Compare two containers for Id equivalence.  If the container types differ, this
+will never return True.
+-}
+
+{-
+instance Eq Container where
+    x == y = (readId x) == (readId y)
+
+instance Ord Container where
+    compare x y = compare (readId x) (readId y)
+
+cmap :: (forall a. Cell a -> b) -> Container -> b
+cmap f c = case c of
+    Scalar x -> f x
+    Array x  -> f x
+    Hash x   -> f x
+
+bmap :: (forall a. Box a -> b) -> Cell a -> b
+bmap f c = case c of
+    Mut box -> f box
+    Con box -> f box
+
+readId :: Container -> Id
+readId = cmap (bmap boxId)
+
+-- | Untie a container
+untie :: Cell a -> STM ()
+untie (NCon x) = return ()
+-- | Untie an non-tieable container is a no-op:
+untie (NCon x) = return ()
+-- | For a tieable container, we first invokes the "UNTIE" handler, then set
+--   its "tied" slot to Untied:
+untie (TCon x) = do
+    (id, val, tied) <- readSTRef x
+    case tied of
+        Untied  -> return ()
+        _       -> do
+            tied `invokeTie` UNTIE
+            writeSTRef x (id, val, Untied)
+
+-}
 
 #ifdef ASD
 
@@ -110,6 +130,7 @@ any current ties on the target, although it can be retied later:
 bind (TCon x) (NCon y) = do
     (id, val) <- readSTRef y
     writeSTRef x (id, val, Untied)
+
 {-|
 To bind a tieable container to a tied one, we first check if it is
 actually tied.  If yes, we throw a runtime exception.  If not, we
@@ -120,35 +141,6 @@ bind (NCon x) (TCon y) = do
     case tied of
         Untied -> writeSTRef x (id, val)
         _      -> fail "Cannot bind a tied container to a non-tieable one"
-
-{-|
-Compare two containers for Id equivalence.  If the container types differ, this
-will never return True.
--}
-(=:=) :: Cell a -> Cell b -> STM Bool
-x =:= y = do
-    x_id <- readId x
-    y_id <- readId y
-    return (x_id == y_id)
-
--- | Read the Id field from a container
-readId :: Cell a -> STM Id
-readId (NCon x) = fmap fst $ readSTRef x
-readId (TCon x) = fmap (\(id, _, _) -> id) $ readSTRef x
-
--- | Untie a container
-untie :: Cell a -> STM ()
--- | Untie an non-tieable container is a no-op:
-untie (NCon x) = return ()
--- | For a tieable container, we first invokes the "UNTIE" handler, then set
---   its "tied" slot to Untied:
-untie (TCon x) = do
-    (id, val, tied) <- readSTRef x
-    case tied of
-        Untied  -> return ()
-        _       -> do
-            tied `invokeTie` UNTIE
-            writeSTRef x (id, val, Untied)
 
 -- | This should be fine: @untie(%ENV); %foo := %ENV@
 testOk :: (%i::Id) => STM ()
@@ -169,7 +161,7 @@ testEquiv :: (%i::Id) => STM (Cell a) -> STM (Cell b) -> STM Bool
 testEquiv x y = do
     x' <- x
     y' <- y
-    (x' =:= y')
+    (x' == y')
 
 testBind :: (%i::Id) => STM (Cell a) -> STM (Cell a) -> STM ()
 testBind x y = do
@@ -226,18 +218,18 @@ tests = do
     putStrLn "==> Anything can be untied"
     test prop_untie
     putStrLn "==> %ENV =:= %ENV;"
-    print $ runST (testEquiv hashEnv hashEnv)
+    print =<< atomically (testEquiv hashEnv hashEnv)
     putStrLn "==> %ENV =:= %foo;"
-    print $ runST (testEquiv hashEnv hashNew)
+    print =<< atomically (testEquiv hashEnv hashNew)
     putStrLn "==> %foo =:= %bar;"
-    print $ runST (testEquiv hashNew hashNew)
+    print =<< atomically (testEquiv hashNew hashNew)
     putStrLn "==> %foo := %bar;"
-    print $ runST (testBind hashNew hashNew)
+    print =<< atomically (testBind hashNew hashNew)
     putStrLn "==> %ENV := %ENV;"
-    print $ runST (testBind hashEnv hashEnv)
+    print =<< atomically (testBind hashEnv hashEnv)
     putStrLn "==> untie(%ENV); %foo := %ENV;"
-    print $ runST (testBind hashNew $ do { env <- hashEnv; untie env; return env })
+    print =<< atomically (testBind hashNew $ do { env <- hashEnv; untie env; return env })
     putStrLn "==> %foo := %ENV;"
-    print $ runST (testBind hashNew hashEnv)
+    print =<< atomically (testBind hashNew hashEnv)
 
 #endif
