@@ -3,6 +3,7 @@
 module PIL where
 import PIL.Tie
 import PIL.Internals
+import Prelude hiding (Num)
 
 -- Pad maps symbols to containers
 newtype Pad = MkPad (Map Sym Container)
@@ -87,20 +88,57 @@ x =:= y = do
     iy <- readId y
     return (ix == iy)
 
-untie :: Container -> STM ()
-untie = cmap (tmap $ maybe (return ()) (`writeTVar` Untied))
+untie :: Container -> STM Val
+untie = (>> return Void) . cmap (tmap $ maybe undefined (`writeTVar` Untied))
 
 -- | Assign container @x@ to @y@
 assign :: Container   -- ^ The @$x@ in @$x = $y@
        -> Container   -- ^ The @$y@ in @$x = $y@
-       -> STM ()
+       -> STM Val
 assign = undefined
 
 -- | Bind container @x@ to @y@
 bind :: Container   -- ^ The @$x@ in @$x := $y@
      -> Container   -- ^ The @$y@ in @$x := $y@
-     -> STM ()
+     -> STM Val
 bind = undefined
+
+-- | Any PIL expression can only evaluate to one of three value results.
+data Val
+    = Void
+    | Item Item
+    | List [Item]
+    deriving (Show, Ord, Eq)
+
+-- | 'Item' is either one of the five intrisic types, or an object.
+data Item
+    = Bit Bit
+    | Int Int
+    | Num Num
+    | Str Str
+    | Ref Ref
+    | Obj Obj
+    deriving (Show, Ord, Eq)
+
+-- | 'Ref' always points to a container; values are promoted to constant containers.
+newtype Ref = MkRef Container
+
+type Bit = Bool
+type Str = String
+type Num = Double
+type Obj = Dynamic
+
+instance Show Ref where
+    show _ = "<ref>"
+instance Ord Ref where
+    compare _ _ = EQ
+instance Eq Ref where
+    _ == _ = True
+instance Ord Obj where
+    compare _ _ = EQ
+instance Eq Obj where
+    _ == _ = True
+
 
 #ifdef ASD
 
