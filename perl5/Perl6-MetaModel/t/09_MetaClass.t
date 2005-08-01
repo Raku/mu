@@ -6,6 +6,7 @@ use warnings;
 use Test::More tests => 107;
 use Test::Exception;
 
+use Perl6::MetaModel;
 use Perl6::MetaClass;
 
 use Perl6::Instance::Attribute;
@@ -14,7 +15,7 @@ use Perl6::Instance::Method;
 use Perl6::Class::Attribute;
 use Perl6::Class::Method;
 
-my $mc= Perl6::MetaClass->new(name => 'Base');
+my $mc = ::dispatch('Perl6::MetaClass', 'new', 0, ('$.name' => 'Base'));
 isa_ok($mc, 'Perl6::MetaClass');
 
 foreach my $label ('name', 'version', 'authority', 
@@ -110,12 +111,12 @@ isa_ok(::dispatch($mc, 'find_attribute_spec', 0, ('@.foo')), 'Perl6::Attribute')
 
 # now add subclasses
 
-my $mc2 = Perl6::MetaClass->new(
-                name         => 'Foo',
-                version      => '0.0.1',
-                authority    => 'http://www.foobar.com/~baz',
-                superclasses => [ $mc ]
-            );
+my $mc2 = ::dispatch('Perl6::MetaClass', 'new', 0, (
+                '$.name'         => 'Foo',
+                '$.version'      => '0.0.1',
+                '$.authority'    => 'http://www.foobar.com/~baz',
+                '@:superclasses' => [ $mc ]
+            ));
 isa_ok($mc2, 'Perl6::MetaClass');
 
 is(::dispatch($mc2, 'name'), 'Foo', '... got the right name for Foo');
@@ -165,7 +166,7 @@ is(::dispatch($mc, 'find_attribute_spec', 0, ('$:foo', for => 'Class'))->get_val
 
 # now add another subclasses
 
-my $mc3 = Perl6::MetaClass->new(name => 'Bar');
+my $mc3 = ::dispatch('Perl6::MetaClass', 'new', 0, ('$.name' => 'Bar'));
 isa_ok($mc3, 'Perl6::MetaClass');
 
 is(::dispatch($mc3, 'name'), 'Bar', '... got the right name for Bar');
@@ -205,7 +206,7 @@ isa_ok(::dispatch($mc3, 'find_attribute_spec', 0, ('$.baz')), 'Perl6::Attribute'
 
 # and now even more subclassing
 
-my $mc4 = Perl6::MetaClass->new(name => 'Foo::Bar');
+my $mc4 = ::dispatch('Perl6::MetaClass', 'new', 0, ('$.name' => 'Foo::Bar'));
 isa_ok($mc4, 'Perl6::MetaClass');
 
 is(::dispatch($mc4, 'name'), 'Foo::Bar', '... got the right name for Foo::Bar');
@@ -242,7 +243,7 @@ isa_ok(::dispatch($mc4, 'find_attribute_spec', 0, ('$.baz')), 'Perl6::Attribute'
 
 # and now even more-more subclassing
 
-my $mc5 = Perl6::MetaClass->new(name => 'Foo::Bar::Baz');
+my $mc5 = ::dispatch('Perl6::MetaClass', 'new', 0, ('$.name' => 'Foo::Bar::Baz'));
 isa_ok($mc5, 'Perl6::MetaClass');
 
 is(::dispatch($mc5, 'name'), 'Foo::Bar::Baz', '... got the right name for Foo::Bar::Baz');

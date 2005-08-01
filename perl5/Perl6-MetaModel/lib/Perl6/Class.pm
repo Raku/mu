@@ -79,11 +79,24 @@ sub _apply_class_to_environment {
     eval $code || confess "Could not initialize class '$name'";   
     my $meta; 
     eval {
-        $meta = Perl6::MetaClass->new(
-            name => $name,
-            (defined $version   ? (version   => $version)   : ()),
-            (defined $authority ? (authority => $authority) : ())                              
-        );
+        if ($name eq 'Perl6::Object') {
+            # XXX - Perl6::Object cannot call the 
+            # regular new() becuase Perl6::MetaClass
+            # actually inherits new() from Perl6::Object
+            # meta-circulatiry rules :P
+            $meta = Perl6::MetaClass::new(
+                '$.name' => $name,
+                (defined $version   ? ('$.version'   => $version)   : ()),
+                (defined $authority ? ('$.authority' => $authority) : ())                              
+            );  
+        }
+        else {
+            $meta = ::dispatch('Perl6::MetaClass', 'new', 0, (
+                '$.name' => $name,
+                (defined $version   ? ('$.version'   => $version)   : ()),
+                (defined $authority ? ('$.authority' => $authority) : ())                              
+            ));
+        }
     };
     confess "Could not initialize the metaclass for $name : $@" if $@;
     eval {
