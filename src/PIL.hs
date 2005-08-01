@@ -1,30 +1,64 @@
 {-# OPTIONS_GHC -fglasgow-exts -cpp #-}
 
 module PIL where
+import Data.Map
 import PIL.Tie
 import PIL.Internals
+import Control.Concurrent.STM
 import GHC.Exts (Splittable(..))
 
-{-|
-'Container' comes in two flavours: Nontieable ('NCon') and Tieable
-('TCon').  Once chosen, there is no way in runtime to revert this decision.
--}
-data Container s a
-    = NCon (STRef s (NBox a))
-    | TCon (STRef s (TBox a))
+type Pad = Map Sym Container    -- Pad maps symbols to containers
+
+data Sym = MkSym
+    { sigil  :: Char
+    , twigil :: Maybe Char
+    , name   :: Name
+    }
+    deriving (Eq, Ord, Show)
+
+newtype Name = MkName String
+    deriving (Eq, Ord, Show)
+
+data Container
+    = Scalar (Cell Scalar)  -- Scalar container
+    | Array (Cell Array)    -- Array container
+    | Hash (Cell Hash)      -- Hash container
 
 {-|
-A Non-tieable container is comprised of an Id and a storage of that type, which
+'Cell' is either mutable or immutable, decided at compile time.
+-}
+data Cell a
+    = Mut (TVar (Box a)) -- Mutable cell
+    | Con (Box a)        -- Constant cell
+
+{-|
+'Box' comes in two flavours: Nontieable ('NBox') and Tieable ('TBox').
+Once chosen, there is no way in runtime to revert this decision.
+-}
+data Box a
+    = NBox (NBox a)      -- Non-tieable constant container
+    | TBox (TBox a)      -- Tieable constant container
+
+{-|
+A Non-tieable container is comprised of an @Id@ and a storage of that type, which
 can only be @Scalar@, @Array@ or @Hash@.  Again, there is no way to cast a
 Scalar container into a Hash container at runtime.
 -}
 type NBox a = (Id, a)
 
 {-|
-A Tieable container also contains an Id and a storage, but also adds a
+A Tieable container also contains an @Id@ and a storage, but also adds a
 tie-table that intercepts various operations for its type.
 -}
 type TBox a = (Id, a, Tieable a)
+
+{-|
+'Id' is an unique integer, with infinite supply
+-} 
+newtype Id = MkId Int
+    deriving (Eq, Ord, Show, Num, Arbitrary)
+instance Splittable Id where
+    split x = (x, x+1)
 
 {-|
 The type of tie-table must agree with the storage type.  Such a table
@@ -40,6 +74,8 @@ data Tieable a where
     TieArray   :: TiedArray  -> Tieable Array
     TieHash    :: TiedHash   -> Tieable Hash
 #endif
+
+#ifdef ASD
 
 -- | Sample TCon: @%\*ENV@
 hashEnv :: ST s (Container s Hash)
@@ -107,12 +143,6 @@ untie (TCon x) = do
         _       -> do
             tied `invokeTie` UNTIE
             writeSTRef x (id, val, Untied)
-
-newtype Id = MkId Int
-    deriving (Num, Eq, Ord, Show, Splittable)
-
-instance Splittable Int where
-    split x = (x, x+1)
 
 -- | This should be fine: @untie(%ENV); %foo := %ENV@
 testOk :: (%i::Id) => ST s ()
@@ -204,3 +234,4 @@ tests = do
     putStrLn "==> %foo := %ENV;"
     print $ runST (testBind hashNew hashEnv)
 
+#endif
