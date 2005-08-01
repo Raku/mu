@@ -987,7 +987,7 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
             cxt = cxtOfSigil $ head name
         (val, coll) <- enterContext cxt $ case exp of
             Syn "param-default" [exp, Val (VCode sub)] -> do
-                local (fixEnv . fixSub sub) $ enterLex syms $ expToVal prm exp
+                local (fixSub sub . fixEnv) $ enterLex syms $ expToVal prm exp
             _  -> expToVal prm exp
         -- trace ("==> " ++ (show val)) $ return ()
         boundRef <- fromVal val
