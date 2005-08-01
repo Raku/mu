@@ -583,7 +583,12 @@ ruleUsePackage = rule "use package" $ do
             else App (Var "&use") Nothing [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
     option () $ try $ do
         imp <- ruleExpression
-        unsafeEvalExp $ App (Var $ ('&':pkg) ++ "::import") (Just val) [imp]
+        let sub = Var $ ('&':pkg) ++ "::import"
+        unsafeEvalExp $ Syn "if"
+            [ App (Var "&name") (Just sub) [] -- XXX Hack
+            , App sub (Just val) [imp]
+            , emptyExp
+            ]
         return ()
     case val of
         Val (VControl (ControlEnv env')) -> putRuleEnv env

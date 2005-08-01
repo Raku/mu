@@ -802,7 +802,7 @@ See "Pugs.Prim" for more info.
 mkPrim :: VCode
 mkPrim = MkCode
     { isMulti = True
-    , subName = "&?"
+    , subName = ""
     , subType = SubPrim
     , subEnv = Nothing
     , subAssoc = "pre"
@@ -818,7 +818,7 @@ mkPrim = MkCode
 mkSub :: VCode
 mkSub = MkCode
     { isMulti = False
-    , subName = "&?"
+    , subName = ""
     , subType = SubBlock
     , subEnv = Nothing
     , subAssoc = "pre"
