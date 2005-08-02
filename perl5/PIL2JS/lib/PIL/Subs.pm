@@ -31,11 +31,14 @@ use strict;
 
   sub as_js {
     my $self = shift;
+    local $_;
 
     local $PIL::IN_SUBLIKE  = $self->[1]->as_constant;
     local $PIL::CUR_SUBNAME = $self->[0];
 
-    warn "Skipping &*END.\n" and return "" if $PIL::CUR_SUBNAME eq "&*END";
+    warn "Skipping &*END.\n"      and return "" if $PIL::CUR_SUBNAME eq "&*END";
+    warn "Skipping $self->[0].\n" and return ""
+      if $PIL::CUR_SUBNAME =~ /^__export_c.*import$/;
 
     my $magical_vars = "";
     $magical_vars .= "_26main_3a_3a_3fBLOCK.STORE(%VAR);\n"
@@ -59,7 +62,6 @@ use strict;
 
     # Subbody
     local @PIL::VARS_TO_BACKUP = ();
-    local $_;
     my $body = sprintf "%sPIL2JS.call_chain.push(%s);\n%s;\n%s;",
       $magical_vars,
       PIL::name_mangle($self->[0]),
@@ -125,20 +127,26 @@ use strict;
 
   sub as_js {
     my $self = shift;
+    local $_;
 
     local $PIL::IN_SUBLIKE  = $self->[0]->as_constant;
     local $PIL::CUR_SUBNAME = "<anonymous@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>";
 
     # Subbody
-    local $_;
+    local @PIL::VARS_TO_BACKUP = ();
     my $body = sprintf "%s;\n%s;",
       $self->[1]->as_js,
       $self->[2]->as_js;
+    my $backup = "// Lex backups:\nvar " . join ", ", map {
+      sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);
+    } @PIL::VARS_TO_BACKUP;
+    $body = "$backup;\n$body" if @PIL::VARS_TO_BACKUP;
+    # Subbody
 
     # Sub declaration
     return sprintf "PIL2JS.Box.constant_func(%d, function (args) {\n%s\n})",
       $self->[1]->arity,
-      PIL::add_indent 1, PIL::generic_catch($PIL::IN_SUBLIKE, $body);
+      PIL::add_indent 1, PIL::generic_catch($PIL::IN_SUBLIKE, $body, @PIL::VARS_TO_BACKUP);
   }
 }
 

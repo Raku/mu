@@ -222,7 +222,7 @@ sub infix:<,>(*@xs is rw) is primitive is rw {
 }
 
 sub circumfix:<[]>(*@xs) is primitive { \@xs }
-method postcircumfix:<[]>(@self: Int $idx is copy) is rw {
+method postcircumfix:<[]>(@self: Int *@idxs) is rw {
   die "Can't use object of type {@self.ref} as an array!"
     unless @self.isa("Array");
 
@@ -232,37 +232,67 @@ method postcircumfix:<[]>(@self: Int $idx is copy) is rw {
   #   say $z;               # 4
   #   push @a, 5;
   #   say $z;               # 4 (!!)
-  $idx = +@self + $idx if $idx < 0;
+
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt   = args.shift();
     var array = args[0].FETCH();
-    var idx   = Number(args[1].toNative());
+    var idxs  = args[1].toNative();
+    for(var i = 0; i < idxs.length; i++) {
+      idxs[i] = Number(idxs[i]);
+      idxs[i] = idxs[i] < 0 ? array.length + idxs[i] : idxs[i];
+    }
+
+    if(idxs.length == 0) PIL2JS.die("No indices given to &postcircumfix:<[ ]>!");
 
     // Relay .FETCH and .STORE to array[idx].
-    var ret = new PIL2JS.Box.Proxy(
-      function () {
-        var ret = array[idx];
-        return ret == undefined ? undefined : ret.FETCH();
-      },
-      function (n) {
+    var proxy_for = function (idx) {
+      var ret = new PIL2JS.Box.Proxy(
+        function () {
+          var ret = array[idx];
+          return ret == undefined ? undefined : ret.FETCH();
+        },
+        function (n) {
+          if(array[idx] == undefined)
+            array[idx] = new PIL2JS.Box(undefined);
+          array[idx].STORE(n);
+          return n;
+        }
+      );
+
+      ret.uid = array[idx] == undefined ? undefined : array[idx].uid;
+
+      // .BINDTO is special: @a[$idx] := $foo should work, but @a[1000], with +@a
+      // < 1000, should not.
+      ret.BINDTO = function (other) {
         if(array[idx] == undefined)
-          array[idx] = new PIL2JS.Box(undefined);
-        array[idx].STORE(n);
-        return n;
-      }
-    );
+          PIL2JS.die("Can\'t rebind undefined!");
 
-    ret.uid = array[idx] == undefined ? undefined : array[idx].uid;
+        return array[idx].BINDTO(other);
+      };
 
-    // .BINDTO is special: @a[$idx] := $foo should work, but @a[1000], with +@a
-    // < 1000, should not.
-    ret.BINDTO = function (other) {
-      if(array[idx] == undefined)
-        PIL2JS.die("Can\'t rebind undefined!");
-
-      return array[idx].BINDTO(other);
+      return ret;
     };
 
-    return ret;
-  })')(@self, $idx);
+    if(idxs.length == 1) {
+      return proxy_for(idxs[0]);
+    } else {
+      var ret = [];
+      for(var i = 0; i < idxs.length; i++) {
+        ret.push(proxy_for(idxs[i]));
+      }
+
+      // Needed for @a[1,2] = (3,4).
+      return new PIL2JS.Box.Proxy(
+        function ()  { return ret },
+        function (n) {
+          var arr = new PIL2JS.Box([]).STORE(n).FETCH();
+          for(var i = 0; i < arr.length; i++) {
+            if(ret[i]) ret[i].STORE(arr[i]);
+          }
+
+          return this;
+        }
+      );
+    }
+  })')(@self, @idxs);
 }

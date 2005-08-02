@@ -45,27 +45,6 @@ sub infix:<=:=>($a, $b) is primitive { JS::inline('new PIL2JS.Box.Constant(
   }
 )')($a, $b) }
 
-# Pending support for multi subs.
-sub prefix:<+>($thing) is primitive {
-  if not defined $thing {
-    0;
-  } elsif $thing.isa("Str") {
-    JS::inline('function (thing) { return Number(thing) }')($thing);
-  } elsif $thing.isa("Array") {
-    $thing.elems;
-  } elsif $thing.isa("Hash") {
-    +$thing.keys;
-  } elsif $thing.isa("Bool") {
-    $thing ?? 1 :: 0;
-  } elsif $thing.isa("Num") {
-    JS::inline('function (thing) { return Number(thing) }')($thing);
-  } elsif $thing.isa("Ref") {
-    die "Can't numfiy non-array or hash references!";
-  } else {
-    die "Numification for objects of class {$thing.ref} not yet implemented!\n";
-  }
-}
-
 sub prefix:<*>(@array) {
   if not @array.isa("Array") {
     # Slightly hacky, needed for *(3), for example.

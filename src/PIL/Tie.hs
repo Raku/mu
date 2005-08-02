@@ -23,7 +23,7 @@ data Container
 'Cell' is either mutable (rebindable) or immutable, decided at compile time.
 
 Tieable is orthogonal to mutableness; a constant tied container can still be
-subject to untie() and tie().
+subject to @untie()@ and @tie()@.
 -}
 data Cell a
     = Con { conBox  :: Box a,        tieable :: MaybeTied }
@@ -74,7 +74,7 @@ data Box a = MkBox { boxId :: Id, boxVal :: a }
 
 {-|
 The type of tie-table must agree with the storage type.  Such a table
-may be empty, as denoted by the nullary constructor "Untied".  Each of
+may be empty, as denoted by the nullary constructor 'Untied'.  Each of
 the three storage types comes with its own tie-table layout.
 -}
 data Tieable = Untied | Tied Object

@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 33;
+plan 35;
 
 # L<S02/Out-of-scope names>
 ok !eval('module MY;     1'), "MY is an out of scope name";
@@ -12,8 +12,9 @@ ok !eval('module CALLER; 1'), "CALLER is an out of scope name";
 
 
 # L<S04/The Relationship of Blocks and Declarations>
-dies_ok({ my $x; my $x }, 'it is illegal to declare $x twice in the same scope.', :todo<bug> );
-dies_ok({ state $x; state $x }, 'it is illegal to declare $x twice in the same scope.', :todo<bug> );
+ok !eval('my $x; my $x; 1'),       'it is illegal to declare $x twice in the same scope.', :todo<bug>;
+ok !eval('state $x; state $x; 1'), 'it is illegal to declare $x twice in the same scope.', :todo<bug>;
+
 # XXX -- dunno why test test fails, but the next outer test works. --iblech
 { my $a = 1; {
    my $a=2; {
@@ -41,6 +42,49 @@ dies_ok({ state $x; state $x }, 'it is illegal to declare $x twice in the same s
       is $OUTER::OUTER::a, 1, 'get $OUTER::OUTER::a';
     }
   }
+}
+
+{
+  my $a = 3;
+  my $sub = { $a++ };
+
+  {
+    my $a = -10;
+    is $a, -10,   'get regular $a';
+    is $sub(), 3, 'get hidden $a (1)';
+    is $sub(), 4, 'get hidden $a (2)';
+    is $sub(), 5, 'get hidden $a (3)';
+  }
+}
+
+{
+  my $sub = -> $stop {
+    my $x = 3;
+    if $stop {
+      $x++;
+    } else {
+      $sub(1);
+      $x;
+    }
+  };
+
+  is $sub(0), 3,
+    "recursively called subref shouldn't stomp on the lexical vars of other instances";
+}
+
+{
+  sub stomptest ($stop) {
+    my $x = 3;
+    if $stop {
+      $x++;
+    } else {
+      stomptest 1;
+      $x;
+    }
+  };
+
+  is stomptest(0), 3,
+    "recursively called sub shouldn't stomp on the lexical vars of other instances";
 }
 
 {
@@ -88,17 +132,4 @@ dies_ok({ state $x; state $x }, 'it is illegal to declare $x twice in the same s
   is rmbl(), 0, "var captured by sub is the right var (1)";
   $a++;
   is rmbl(), 2, "var captured by sub is the right var (2)";
-}
-
-{
-  my $a = 3;
-  my $sub = { $a++ };
-
-  {
-    my $a = -10;
-    is $a, -10,   'get regular $a';
-    is $sub(), 3, 'get hidden $a (1)';
-    is $sub(), 4, 'get hidden $a (2)';
-    is $sub(), 5, 'get hidden $a (3)';
-  }
 }

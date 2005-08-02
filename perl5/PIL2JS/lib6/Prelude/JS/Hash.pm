@@ -35,43 +35,69 @@ sub hash(*@pairs) is primitive {
   })')(@pairs);
 }
 
-method postcircumfix:<{}>(%self: $key) {
+method postcircumfix:<{}>(%self: *@keys) {
   die "Can't use object of type {%self.ref} as a hash!"
     unless %self.isa("Hash");
 
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt  = args.shift();
     var hash = args[0].FETCH();
-    var key  = args[1];
+    var keys = args[1].FETCH();
 
-    // Relay .FETCH and .STORE to hash.entries[key].
-    var ret = new PIL2JS.Box.Proxy(
-      function () {
-        var ret = hash.get_value(key);
-        return ret == undefined ? undefined : ret.FETCH();
-      },
-      function (n) {
-        if(!hash.exists(key)) {
-          hash.add_pair(new PIL2JS.Pair(
-            new PIL2JS.Box.ReadOnly(key),
-            new PIL2JS.Box(undefined)
-          ));
+    if(keys.length == 0) PIL2JS.die("No keys given to &postcircumfix:<{ }>!");
+
+    var proxy_for = function (key) {
+      // Relay .FETCH and .STORE to hash.entries[key].
+      var ret = new PIL2JS.Box.Proxy(
+        function () {
+          var ret = hash.get_value(key);
+          return ret == undefined ? undefined : ret.FETCH();
+        },
+        function (n) {
+          if(!hash.exists(key)) {
+            hash.add_pair(new PIL2JS.Pair(
+              new PIL2JS.Box.ReadOnly(key),
+              new PIL2JS.Box(undefined)
+            ));
+          }
+          hash.get_value(key).STORE(n);
+          return n;
         }
-        hash.get_value(key).STORE(n);
-        return n;
-      }
-    );
+      );
 
-    ret.uid = hash.exists(key) ? hash.get_value(key).uid : undefined;
+      ret.uid = hash.exists(key) ? hash.get_value(key).uid : undefined;
 
-    // .BINDTO is special: %hash{$key} := $foo should work.
-    ret.BINDTO = function (other) {
-      if(!hash.exists(key))
-        PIL2JS.die("Can\'t rebind undefined!");
+      // .BINDTO is special: %hash{$key} := $foo should work.
+      ret.BINDTO = function (other) {
+        if(!hash.exists(key))
+          PIL2JS.die("Can\'t rebind undefined!");
 
-      return hash.get_value(key).BINDTO(other);
+        return hash.get_value(key).BINDTO(other);
+      };
+
+      return ret;
     };
 
-    return ret;
-  })')(%self, $key);
+    if(keys.length == 1) {
+      return proxy_for(keys[0]);
+    } else {
+      var ret = [];
+      for(var i = 0; i < keys.length; i++) {
+        ret.push(proxy_for(keys[i]));
+      }
+
+      // Needed for %a<a b> = <c d>.
+      return new PIL2JS.Box.Proxy(
+        function ()  { return ret },
+        function (n) {
+          var arr = new PIL2JS.Box([]).STORE(n).FETCH();
+          for(var i = 0; i < arr.length; i++) {
+            if(ret[i]) ret[i].STORE(arr[i]);
+          }
+
+          return this;
+        }
+      );
+    }
+  })')(%self, @keys);
 }

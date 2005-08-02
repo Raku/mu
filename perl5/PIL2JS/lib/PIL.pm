@@ -128,7 +128,7 @@ sub as_js {
     "// Initialization of global vars and exportation of subs:\n" .
     join("\n", map {
       my $name = $_->[0];
-      $name =~ /^(?:__init_|__export_)/
+      $name =~ /^(?:__init_|__export_)/ && $name !~ /import$/
         ? sprintf("%s.FETCH()([PIL2JS.Context.Void]);", PIL::name_mangle $name)
         : ();
     } @{ $fixed_tree->{"pilGlob" } })  .

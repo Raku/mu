@@ -20,18 +20,22 @@ PIL2JS.new_uid = function () {
 // Hash class. As with the various exception classes above, we don't need to
 // declare any methods. This class only exists so code can do if(foo instanceof
 // PIL2JS.Hash) {...}.
-PIL2JS.Hash = function () { this.entries = {} };
+PIL2JS.Hash = function () { this.entries = {}; this.num_of_entries = 0 };
 PIL2JS.Hash.prototype = {
   add_pair: function (pair) {
-    this.entries[pair.key.toNative()] = pair;
+    var key = pair.key.toNative();
+    if(!this.entries[key]) this.num_of_entries++;
+    this.entries[key] = pair;
   },
   exists:   function (key) {
     var ikey = key.toNative();
     return ikey != "toPIL2JSBox" && this.entries[ikey] != undefined;
   },
   delete_key: function (key) {
-    var old = this.get_value(key);
-    delete this.entries[key.toNative()];
+    var old = this.get_value(key),
+        key = key.toNative();
+    if(this.entries[key]) this.num_of_entries--;
+    delete this.entries[key];
     return old;
   },
   pairs:    function () {
@@ -745,5 +749,39 @@ var _26main_3a_3aprefix_3a_7e = PIL2JS.Box.constant_func(1, function (args) {
         " not yet implemented!"
       );
     }
+  }
+});
+
+// &prefix:<+>. Written in JS instead of P6 for speed, as it gets called often.
+var _26main_3a_3aprefix_3a_2b = PIL2JS.Box.constant_func(1, function (args) {
+  var thing = args[1].FETCH();
+
+  if(thing == undefined) return new PIL2JS.Box.Constant(undefined);
+
+  var ref = _26main_3a_3aref.FETCH()([PIL2JS.Context.ItemAny, args[1]]).FETCH();
+  if(ref == "Str") {
+    return new PIL2JS.Box.Constant(Number(thing));
+  } else if(ref == "Array") {
+    if(thing.referencee) thing = thing.referencee.FETCH();
+    return new PIL2JS.Box.Constant(thing.length);
+  } else if(ref == "Hash") {
+    if(thing.referencee) thing = thing.referencee.FETCH();
+    return new PIL2JS.Box.Constant(thing.num_of_entries);
+  } else if(ref == "Bool") {
+    return new PIL2JS.Box.Constant(
+      _26main_3a_3aprefix_3a_3f.FETCH()([PIL2JS.Context.ItemAny, args[1]]).FETCH()
+        ? 1
+        : 0
+    );
+  } else if(ref == "Num") {
+    return new PIL2JS.Box.Constant(Number(thing));
+  } else if(ref == "Ref") {
+    PIL2JS.die("Can't numfiy non-array or hash references!");
+  } else {
+    PIL2JS.die(
+      "Stringification for objects of class "+
+      ref +
+      " not yet implemented!"
+    );
   }
 });
