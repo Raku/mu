@@ -56,7 +56,7 @@ class Square => {
 };
 
 {    
-    my $d = ::dispatch(Square->meta, 'dispatcher', 0, (':preorder'));
+    my $d = ::dispatch(Square->meta, 'dispatcher', (':preorder'));
     isa_ok($d, 'Perl6::MetaClass::Dispatcher');    
     
     my @control = qw(
@@ -101,7 +101,7 @@ class Diamond_D => {
 };
 
 {    
-    my $d = ::dispatch(Diamond_D->meta, 'dispatcher', 0, (':preorder'));
+    my $d = ::dispatch(Diamond_D->meta, 'dispatcher', (':preorder'));
     isa_ok($d, 'Perl6::MetaClass::Dispatcher');    
     
     my @control = qw(
@@ -147,7 +147,7 @@ class Diamond2_F => {
 };
 
 {    
-    my $d = ::dispatch(Diamond2_F->meta, 'dispatcher', 0, (':preorder'));
+    my $d = ::dispatch(Diamond2_F->meta, 'dispatcher', (':preorder'));
     isa_ok($d, 'Perl6::MetaClass::Dispatcher');    
 
     my @control = qw(

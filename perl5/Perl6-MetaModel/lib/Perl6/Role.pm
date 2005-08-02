@@ -27,12 +27,12 @@ sub flatten_roles_into {
     debug "flattened role is (" . $r->{name} . ")";
     foreach my $method (keys %{$r->{methods}}) {
         debug "adding the method ($method) into (" . ::dispatch($meta, 'name') . ")";
-        ::dispatch($meta, 'add_method', 0, ($method => Perl6::Role::Method->new(
+        ::dispatch($meta, 'add_method', ($method => Perl6::Role::Method->new(
             ::dispatch($meta, 'name'),
             $r->{methods}->{$method}
-            ))) unless ::dispatch($meta, 'has_method', 0, ($method));
+            ))) unless ::dispatch($meta, 'has_method', ($method));
     }
-    ::dispatch($meta, 'add_method', 0, ('does' => Perl6::Role::Method->new(
+    ::dispatch($meta, 'add_method', ('does' => Perl6::Role::Method->new(
         ::dispatch($meta, 'name'), 
         sub {
             my (undef, $role) = @_;
@@ -58,7 +58,7 @@ sub combine_roles {
         foreach my $method_name (keys %{$role->{methods}}) {
             debug "adding the method ($method_name) into the role (" . $role->{name} . ")";
             if (exists $composite_role->{methods}->{$method_name}) {
-                unless (::dispatch($meta, 'has_method', 0, ($method_name))) {
+                unless (::dispatch($meta, 'has_method', ($method_name))) {
                     confess "We have a method conflict on ($method_name) in (" . $role->{name} . ")";                
                 }
             }

@@ -24,7 +24,7 @@ my $Person = class 'Person' => {
                 __('$:population' => ::dispatch(CLASS(), 'population') + 1);
                 # we want this $class to possibly
                 # be a subclass
-                return ::dispatch($class, 'bless', 0, (undef, %params));
+                return ::dispatch($class, 'bless', (undef, %params));
             }
         }
     },
@@ -41,22 +41,22 @@ my $Person = class 'Person' => {
     }
 };
 
-ok(::dispatch($Person, 'can', 0, 'population'), '... Person->can(population)');
+ok(::dispatch($Person, 'can', 'population'), '... Person->can(population)');
 
-ok(::dispatch($Person, 'isa', 0, ('Perl6::Object')), '... Person isa Perl6::Object');
+ok(::dispatch($Person, 'isa', ('Perl6::Object')), '... Person isa Perl6::Object');
 
 is(::dispatch($Person, 'population'), 0, '... Person population is 0');
 
 {
-    my $p = ::dispatch($Person, 'create', 0, ('$.first_name' => 'Steve', '$.last_name' => 'Little', '$.age' => 31));
-    ok(::dispatch($p, 'isa', 0, 'Person'), '... $p->isa(Person)');
+    my $p = ::dispatch($Person, 'create', ('$.first_name' => 'Steve', '$.last_name' => 'Little', '$.age' => 31));
+    ok(::dispatch($p, 'isa', 'Person'), '... $p->isa(Person)');
 
     is(::dispatch($Person, 'population'), 1, '... population is 1');
 
-    ok(::dispatch($p, 'can', 0, 'first_name'), '... $p->can(first_name)');
-    ok(::dispatch($p, 'can', 0, 'last_name'), '... $p->can(last_name)');
-    ok(::dispatch($p, 'can', 0, 'full_name'), '... $p->can(full_name)');
-    ok(::dispatch($p, 'can', 0, 'age'), '... $p->can(age)');
+    ok(::dispatch($p, 'can', 'first_name'), '... $p->can(first_name)');
+    ok(::dispatch($p, 'can', 'last_name'), '... $p->can(last_name)');
+    ok(::dispatch($p, 'can', 'full_name'), '... $p->can(full_name)');
+    ok(::dispatch($p, 'can', 'age'), '... $p->can(age)');
 
     is(::dispatch($p, 'first_name'), 'Steve', '... got the right first name');
     is(::dispatch($p, 'last_name'), 'Little', '... got the right last name');
@@ -76,32 +76,32 @@ my $Employee = class 'Employee-0.0.1' => {
     }
 };
 
-ok(::dispatch($Employee, 'isa', 0, 'Perl6::Object'), '... Employee isa Perl6::Object');
-ok(::dispatch($Employee, 'isa', 0, 'Person'), '... Employee isa Person');
+ok(::dispatch($Employee, 'isa', 'Perl6::Object'), '... Employee isa Perl6::Object');
+ok(::dispatch($Employee, 'isa', 'Person'), '... Employee isa Person');
 
 is(::dispatch($Employee, 'population'), 0, '... Employee population is 0');
 is(::dispatch($Person, 'population'), 0, '... Person population is 0');
 
 {
-    my $e = ::dispatch('Employee', 'create', 0, (
+    my $e = ::dispatch('Employee', 'create', (
         '$.first_name' => 'Steve', 
         '$.last_name'  => 'Little', 
         )
     );
-    ok(::dispatch($e, 'isa', 0, 'Employee'), '... $e->isa(Employee)');
-    ok(::dispatch($e, 'isa', 0, 'Person'), '... $e->isa(Person)');
+    ok(::dispatch($e, 'isa', 'Employee'), '... $e->isa(Employee)');
+    ok(::dispatch($e, 'isa', 'Person'), '... $e->isa(Person)');
 
     is(::dispatch($Employee, 'population'), 1, '... Employee population is 1');
     is(::dispatch($Person, 'population'), 1, '... Person population is 1 too (it is the Person class attribute)');
 
-    ok(::dispatch($e, 'can', 0, 'first_name'), '... $e->can(first_name)');
-    ok(::dispatch($e, 'can', 0, 'last_name'), '... $e->can(last_name)');
-    ok(::dispatch($e, 'can', 0, 'full_name'), '... $e->can(full_name)');
-    ok(::dispatch($e, 'can', 0, 'age'), '... $e->can(age)');
-    ok(::dispatch($e, 'can', 0, 'job'), '... $e->can(job)');    
+    ok(::dispatch($e, 'can', 'first_name'), '... $e->can(first_name)');
+    ok(::dispatch($e, 'can', 'last_name'), '... $e->can(last_name)');
+    ok(::dispatch($e, 'can', 'full_name'), '... $e->can(full_name)');
+    ok(::dispatch($e, 'can', 'age'), '... $e->can(age)');
+    ok(::dispatch($e, 'can', 'job'), '... $e->can(job)');    
 
-    ::dispatch($e, 'age', 0, (31));
-    ::dispatch($e, 'job', 0, ('Programmer'));
+    ::dispatch($e, 'age', (31));
+    ::dispatch($e, 'job', ('Programmer'));
 
     is(::dispatch($e, 'first_name'), 'Steve', '... got the right first name');
     is(::dispatch($e, 'last_name'), 'Little', '... got the right last name');

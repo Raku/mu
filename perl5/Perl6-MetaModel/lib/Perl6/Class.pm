@@ -34,7 +34,7 @@ sub AUTOLOAD {
         # as that presents some issues for some reason
         return unless blessed($self) ne 'Perl6::Class';
     }    
-    return ::dispatch($self, $label, ($AUTOLOAD[0] eq 'SUPER') ? 1 : 0, @_);   
+    return ::dispatch($self, $label, @_);   
 }
 
 
@@ -91,7 +91,7 @@ sub _apply_class_to_environment {
             );  
         }
         else {
-            $meta = ::dispatch('Perl6::MetaClass', 'new', 0, (
+            $meta = ::dispatch('Perl6::MetaClass', 'new', (
                 '$.name' => $name,
                 (defined $version   ? ('$.version'   => $version)   : ()),
                 (defined $authority ? ('$.authority' => $authority) : ())                              
@@ -145,27 +145,27 @@ sub _build_class {
     my $name = ::dispatch($meta, 'name');
 
     my $superclasses = $self->{params}->{is};
-    ::dispatch($meta, 'superclasses', 0, ([ map { $_->meta } @{$superclasses} ]));        
+    ::dispatch($meta, 'superclasses', ([ map { $_->meta } @{$superclasses} ]));        
 
     if (my $instance = $self->{params}->{instance}) {
 
-        ::dispatch($meta, 'add_method', 0, ('BUILD' => Perl6::SubMethod->new($name => $instance->{BUILD})))
+        ::dispatch($meta, 'add_method', ('BUILD' => Perl6::SubMethod->new($name => $instance->{BUILD})))
             if exists $instance->{BUILD};            
-        ::dispatch($meta, 'add_method', 0, ('DESTROY' => Perl6::SubMethod->new($name => $instance->{DESTROY})))
+        ::dispatch($meta, 'add_method', ('DESTROY' => Perl6::SubMethod->new($name => $instance->{DESTROY})))
             if exists $instance->{DESTROY};
             
         if (exists $instance->{methods}) {
             foreach (keys %{$instance->{methods}}) {
                 if (/^_/) {
-                    ::dispatch($meta, 'add_method', 0, ($_ => Perl6::PrivateMethod->new($name, $instance->{methods}->{$_})));
+                    ::dispatch($meta, 'add_method', ($_ => Perl6::PrivateMethod->new($name, $instance->{methods}->{$_})));
                 }
                 else {
-                    ::dispatch($meta, 'add_method', 0, ($_ => Perl6::Instance::Method->new($name, $instance->{methods}->{$_})));
+                    ::dispatch($meta, 'add_method', ($_ => Perl6::Instance::Method->new($name, $instance->{methods}->{$_})));
                 }
             }
         }
         if (exists $instance->{submethods}) {
-            ::dispatch($meta, 'add_method', 0, ($_ => Perl6::SubMethod->new($name, $instance->{submethods}->{$_})))
+            ::dispatch($meta, 'add_method', ($_ => Perl6::SubMethod->new($name, $instance->{submethods}->{$_})))
                 foreach keys %{$instance->{submethods}};
         }        
         if (exists $instance->{attrs}) {
@@ -174,7 +174,7 @@ sub _build_class {
                 if (ref($attr) eq 'ARRAY') {
                     ($attr, $props) = @{$attr}; 
                 }
-                ::dispatch($meta, 'add_attribute', 0, (
+                ::dispatch($meta, 'add_attribute', (
                     $attr => Perl6::Instance::Attribute->new($name => $attr, $props)
                 ));              
             }
@@ -188,7 +188,7 @@ sub _build_class {
                 if (ref($attr) eq 'ARRAY') {
                     ($attr, $props) = @{$attr}; 
                 }
-                ::dispatch($meta, 'add_attribute', 0, (
+                ::dispatch($meta, 'add_attribute', (
                     $attr => Perl6::Class::Attribute->new($name => $attr, $props)
                 ));
             }            
@@ -197,10 +197,10 @@ sub _build_class {
         if (exists $class->{methods}) {
             foreach my $label (keys %{$class->{methods}}) {
                 if ($label =~ /^_/) {
-                    ::dispatch($meta, 'add_method', 0, ($label => Perl6::PrivateMethod->new($name, $class->{methods}->{$label})));
+                    ::dispatch($meta, 'add_method', ($label => Perl6::PrivateMethod->new($name, $class->{methods}->{$label})));
                 }
                 else {
-                    ::dispatch($meta, 'add_method', 0, ($label => Perl6::Class::Method->new($name, $class->{methods}->{$label})));
+                    ::dispatch($meta, 'add_method', ($label => Perl6::Class::Method->new($name, $class->{methods}->{$label})));
                 }
             }
         }

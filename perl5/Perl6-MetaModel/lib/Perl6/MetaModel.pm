@@ -38,17 +38,6 @@ $SIG{'__DIE__'} = sub {
     CORE::die @_; 
 };
 
-{
-    # XXX - this is a hack to make SUPER:: work
-    # otherwise the default SUPER:: needs to be 
-    # used, and that is not what I want to happen
-    package SUPER;
-    sub AUTOLOAD {
-        $Perl6::Class::AUTOLOAD = our $AUTOLOAD;
-        goto &Perl6::Class::AUTOLOAD;            
-    }
-}
-
 ## GLOBAL META FUNCTIONS
 
 sub ::dispatch {
@@ -66,7 +55,7 @@ sub ::dispatch {
 # all method calls since that 
 # could cause issues.
 sub ::metaclass_dispatch {
-    my ($self, $label, $supercall) = (shift, shift, shift);    
+    my ($self, $label) = (shift, shift);    
 
     return if ($label =~ /DESTROY/);
 
@@ -96,7 +85,7 @@ sub ::metaclass_dispatch {
 }
 
 sub ::normal_dispatch {
-    my ($self, $label, $supercall) = (shift, shift, shift);     
+    my ($self, $label) = (shift, shift);     
     # NOTE:
     # DESTROYALL is what should really be called
     # so we just deal with it like this :)
@@ -108,18 +97,16 @@ sub ::normal_dispatch {
 
     # check if this is a private method
     if ($label =~ /^_/) {
-        (::dispatch($self->meta, 'has_method', 0, ($label, (for => 'private'))))
+        (::dispatch($self->meta, 'has_method', ($label, (for => 'private'))))
             || confess "Private Method ($label) not found for instance ($self)";        
-        my $method = ::dispatch($self->meta, 'get_method', 0, ($label, (for => 'private')));
+        my $method = ::dispatch($self->meta, 'get_method', ($label, (for => 'private')));
         @return_value = $method->do($self, @_);             
     }
     else {      
 
         # get the dispatcher instance ....
-        my $dispatcher = ::dispatch($self->meta, 'dispatcher', 0, (':canonical'));
+        my $dispatcher = ::dispatch($self->meta, 'dispatcher', (':canonical'));
         
-        # just discard it if we are calling SUPER
-        $dispatcher->next() if $supercall;
 
         # this needs to be fully qualified for now
         my $method = ::WALKMETH($dispatcher, $label, (
@@ -156,7 +143,7 @@ sub ::normal_dispatch {
 sub __ {
     my ($label, $value) = @_;
     my $class = ::CLASS();
-    my $prop = ::dispatch($class->meta, 'find_attribute_spec', 0, ($label, for => 'Class'))
+    my $prop = ::dispatch($class->meta, 'find_attribute_spec', ($label, for => 'Class'))
         || confess "Cannot locate class property ($label) in class ($class)";    
     $prop->set_value($value) if defined $value;    
     $prop->get_value();    
@@ -166,7 +153,7 @@ sub _ {
     my ($label, $value) = @_;
     my $self = ::SELF();
     if (defined $value) {
-        my $prop = ::dispatch($self->meta, 'find_attribute_spec', 0, ($label))
+        my $prop = ::dispatch($self->meta, 'find_attribute_spec', ($label))
             || confess "Perl6::Attribute ($label) not found";
         # since we are not private, then check the type
         # assuming there is one to check ....
@@ -221,8 +208,8 @@ sub ::next_METHOD {
 sub ::WALKMETH {
     my ($dispatcher, $label, %opts) = @_;
     while (my $current = $dispatcher->next()) {
-        if (::dispatch($current, 'has_method', 0, ($label, %opts))) {
-            return ::dispatch($current, 'get_method', 0, ($label, %opts)) 
+        if (::dispatch($current, 'has_method', ($label, %opts))) {
+            return ::dispatch($current, 'get_method', ($label, %opts)) 
         }
     }
     return undef;
@@ -275,7 +262,7 @@ sub ::CALLALL {
         # if the method is not there ... 
         while (my $class = ::WALKCLASS($startclass, $methname, %{$opt})) {
             # redispatch (we don't have symbol tables, so we need to do meta-stuff)
-            return ::dispatch($class->meta, 'get_method', 0, ($methname)->do($obj, @{$args}));
+            return ::dispatch($class->meta, 'get_method', ($methname)->do($obj, @{$args}));
         }            
     }
     else {
@@ -298,7 +285,7 @@ sub ::CALLALL {
     require Perl6::Object;
     # now we can say that a MetaClass
     # is a Object ...
-    ::dispatch(Perl6::MetaClass->meta, 'superclasses', 0, [ Perl6::Object->meta ]);
+    ::dispatch(Perl6::MetaClass->meta, 'superclasses', [ Perl6::Object->meta ]);
 }
 
 1;
