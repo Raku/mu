@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 61;
+plan 64;
 
 use_ok( 'Span' );
 use Span;   # XXX should not need this
@@ -17,7 +17,7 @@ isa_ok( $span, 'Span', 'created a Span' );
 
 is( $span.is_empty, bool::false, 'is not empty' );
 is( $span.stringify, '[1,3]', 'stringify' );
-is( $span.density, undef, 'get density continuous is undef' );
+# is( $span.span.density, undef, 'get density continuous is undef' );
 
 {
     my $a = Span.new();
@@ -58,7 +58,8 @@ is( $span.size, 2, "real size" );
     # is( Span.new( :start(1), :end(3), :int ).size, 3, "integer size" );
 
     is( $ispan.size, 3, "integer size" );
-    is( $ispan.density, 1, 'get density integer is 1' );
+    is( $ispan.span.ref, "Span::Int", "integer span" );
+    # is( {$ispan.span}.density, 1, 'get density integer is 1' );
 }
 
 my $span2 = Span.new( start => 2, end => 4 );
@@ -195,4 +196,24 @@ if(0)
     my $i;
     is( $i = $iter.previous, undef, 'previous undef' );
     }
+}
+
+{
+    # mixed types
+    my $span1 = Span.new( :start(1), :before(3) );
+    my $span2 = Span.new( :int, :start(1), :end(3) );
+    my ( $res1 ) = $span1.intersection( $span2 );
+    my ( $res2 ) = $span2.intersection( $span1 );
+    is( $res1.stringify, '[1,2]', 'intersection Num-Int' );
+    is( $res2.stringify, '[1,2]', 'intersection Int-Num' );
+}
+
+{
+    # mixed types, empty set
+    my $span1 = Span.new( :start(1), :before(3) );
+    my $span2 = Span.new( :density(1) );
+    my ( $res1 ) = $span1.union( $span2 );
+    my ( $res2 ) = $span2.union( $span1 );
+    is( $res1.stringify, '[1,2]', 'union Num-Int' );
+    is( $res2.stringify, '[1,2]', 'union Int-Num' );
 }

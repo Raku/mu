@@ -1,5 +1,9 @@
 ChangeLog for Span.pm
 
+2005-08-02
+
+* removed "density()" method 
+
 2005-07-26
 
 * added "iterator()" and "lazy()" iterators
