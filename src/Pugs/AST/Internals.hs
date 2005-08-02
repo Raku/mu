@@ -650,7 +650,7 @@ valType (VSocket  _)    = mkType "Socket"
 valType (VThread  _)    = mkType "Thread"
 valType (VProcess _)    = mkType "Process"
 valType (VControl _)    = mkType "Control"
-valType (VRule    _)    = mkType "Rule"
+valType (VRule    _)    = mkType "Pugs::Internals::VRule"
 valType (VSubst   _)    = mkType "Subst"
 valType (VMatch   _)    = mkType "Match"
 valType (VType    _)    = mkType "Type"
@@ -970,7 +970,7 @@ cxtOfSigil '$'  = cxtItemAny
 cxtOfSigil '@'  = cxtSlurpyAny
 cxtOfSigil '%'  = cxtSlurpyAny
 cxtOfSigil '&'  = CxtItem $ mkType "Code"
-cxtOfSigil '<'  = CxtItem $ mkType "Rule"
+cxtOfSigil '<'  = CxtItem $ mkType "Pugs::Internals::VRule"
 cxtOfSigil ':'  = CxtItem $ mkType "Type"
 cxtOfSigil x    = internalError $ "cxtOfSigil: unexpected character: " ++ show x
 
@@ -983,7 +983,7 @@ typeOfSigil '$'  = mkType "Item"
 typeOfSigil '@'  = mkType "Array"
 typeOfSigil '%'  = mkType "Hash"
 typeOfSigil '&'  = mkType "Code"
-typeOfSigil '<'  = mkType "Rule"
+typeOfSigil '<'  = mkType "Pugs::Internals::VRule"
 typeOfSigil ':'  = mkType "Type"
 typeOfSigil x    = internalError $ "typeOfSigil: unexpected character: " ++ show x
 
@@ -1355,7 +1355,7 @@ newObject (MkType "Hash")   = liftSTM $
     fmap hashRef $ (newTVar Map.empty :: STM IHash)
 newObject (MkType "Code")   = liftSTM $
     fmap codeRef $ newTVar mkSub
-newObject (MkType "Rule")   = liftSTM $
+newObject (MkType "Pugs::Internals::VRule")   = liftSTM $
     fmap scalarRef $ newTVar undef
 newObject (MkType "Type")   = liftSTM $
     fmap scalarRef $ newTVar undef

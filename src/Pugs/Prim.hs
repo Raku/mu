@@ -1562,13 +1562,13 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Str       pre     readlink unsafe (Str)\
 \\n   List      pre     Str::split   safe   (Str)\
 \\n   List      pre     Str::split   safe   (Str: Str)\
-\\n   List      pre     Str::split   safe   (Str: Rule)\
+\\n   List      pre     Str::split   safe   (Str: Pugs::Internals::VRule)\
 \\n   List      pre     Str::split   safe   (Str: Str, Int)\
-\\n   List      pre     Str::split   safe   (Str: Rule, Int)\
+\\n   List      pre     Str::split   safe   (Str: Pugs::Internals::VRule, Int)\
 \\n   List      pre     split   safe   (Str, Str)\
 \\n   List      pre     split   safe   (Str, Str, Int)\
-\\n   List      pre     split   safe   (Rule, Str)\
-\\n   List      pre     split   safe   (Rule, Str, Int)\
+\\n   List      pre     split   safe   (Pugs::Internals::VRule, Str)\
+\\n   List      pre     split   safe   (Pugs::Internals::VRule, Str, Int)\
 \\n   Str       spre    =       safe   (Any)\
 \\n   List      spre    =       safe   (Any)\
 \\n   Junction  list    |       safe   (Any|Junction|Pair)\
@@ -1678,6 +1678,6 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      pre     IO::Dir::closedir   unsafe (IO::Dir)\
 \\n   Bool      pre     IO::Dir::rewinddir  unsafe (IO::Dir)\
 \\n   Any       pre     Pugs::Internals::reduceVar  unsafe (Str)\
-\\n   Str       pre     Pugs::Internals::rule_pattern safe (Rule)\
-\\n   Hash      pre     Pugs::Internals::rule_adverbs safe (Rule)\
+\\n   Str       pre     Pugs::Internals::rule_pattern safe (Pugs::Internals::VRule)\
+\\n   Hash      pre     Pugs::Internals::rule_adverbs safe (Pugs::Internals::VRule)\
 \\n"
