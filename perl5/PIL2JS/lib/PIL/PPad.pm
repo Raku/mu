@@ -32,6 +32,8 @@ sub fixup {
 sub as_js {
   my $self = shift;
 
+  push @PIL::VARS_TO_BACKUP, map { $_->[0] } @{ $self->[1] };
+
   # Emit appropriate foo = new PIL2JS.Box(undefined) statements.
   local $_;
   return

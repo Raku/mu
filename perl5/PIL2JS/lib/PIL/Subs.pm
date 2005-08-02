@@ -58,12 +58,17 @@ use strict;
       "));\n" if $pos_update;
 
     # Subbody
+    local @PIL::VARS_TO_BACKUP = ();
     local $_;
     my $body = sprintf "%sPIL2JS.call_chain.push(%s);\n%s;\n%s;",
       $magical_vars,
       PIL::name_mangle($self->[0]),
       $self->[2]->as_js,
       $self->[3]->as_js;
+    my $backup = "// Lex backups:\nvar " . join ", ", map {
+      sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);
+    } @PIL::VARS_TO_BACKUP;
+    $body = "$backup;\n$body" if @PIL::VARS_TO_BACKUP;
 
     # Sub declaration
     my $js = sprintf
@@ -71,7 +76,7 @@ use strict;
       $PIL::IN_GLOBPIL ? "" : "var ",
       PIL::name_mangle($self->[0]),
       $self->[2]->arity,
-      PIL::add_indent 1, PIL::generic_catch($PIL::IN_SUBLIKE, $body);
+      PIL::add_indent 1, PIL::generic_catch($PIL::IN_SUBLIKE, $body, @PIL::VARS_TO_BACKUP);
     $js .= sprintf
       "%s.perl_name = %s;\n",
       PIL::name_mangle($self->[0]),

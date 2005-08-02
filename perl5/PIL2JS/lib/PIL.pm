@@ -40,6 +40,9 @@ our @ALL_LEXICALS;
 our @CUR_LEXSCOPES;
 # ID supply
 our $CUR_LEXSCOPE_ID;
+# We've to backup some wars to make nested subcalls work (as we don't use JS'
+# "lexical" vars anymore).
+our @VARS_TO_BACKUP;
 
 # Guard against reentrancy.
 our $PROCESSING_HAS_STARTED;
@@ -61,15 +64,20 @@ sub lookup_var {
 sub fail { die "*** $_[0]\n    at $CUR_POS\n" }
 
 sub generic_catch {
-  my ($level, $body) = @_;
+  my ($level, $body, @vars_to_restore) = @_;
 
   $body = add_indent(1, $body);
 
-  return sprintf <<EOF, $body; }
+  my $restores = "var " . join ", ", map {
+    sprintf "%s = backup_%s", name_mangle($_), name_mangle($_);
+  } @vars_to_restore;
+
+  return sprintf <<EOF, $body, @vars_to_restore ? $restores : ""; }
 try {
 %s
 } catch(err) {
   PIL2JS.call_chain.pop();
+  %s;
   if(err instanceof PIL2JS.ControlException.ret && $level >= err.level) {
     return err.return_value;
   } else {
