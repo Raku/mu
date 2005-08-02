@@ -29,23 +29,6 @@
 \author{Ingo Blechschmidt \\\texttt{<iblech@web.de>}}
 \institute{LUGA}
 \date{4. August 2005}
-% Outline:
-%   - Parrot
-%     - Entstehung
-%     - Design
-%   - Perl 6
-%     - Geschichte
-%     - Designideen
-%     - Code-Beispiele (mit Vergleichen zu vielen anderen Sprachen)
-%     - Mitgestaltungsmöglichkeiten, etc.
-%   - Pugs
-%     - Entstehung
-%     - Überblick
-%     - "Wie helfe ich?"
-%   - Ausblick
-%     - Perl 6 rockz
-%     - Dank Pugs schon jetzt benutzbar
-%     - "Man darf gespannt sein"
 
 \usetheme{Warsaw}
 \usecolortheme{seahorse}
@@ -94,15 +77,15 @@
   \frametitle{Entwicklung}
 
   \begin{itemize}
-    \item "`Test-driven development"' --
-    \item Camelfolks Schreiben von Tests in Perl 6 für noch nicht
+    \item Test-driven development --
+    \item Camelfolk: Schreiben von Tests in Perl 6 für noch nicht
 	  implementierte Features \\
 	  \texttt{%
 	    \ \ \synfunc{is}\ 23 + 42, 64, "\synstr{Einfache Rechnungen funzen.}";\\
-	    \ \ \synfunc{is}\ \~{}\symbol{91}1, 2, 3], "\synstr{1 2 3}",\\
-	    \ \ \ \ "\synstr{Arrays wandeln sich richtig in Strings um.}";\\
-	    \ \ \synfunc{is}\ +\symbol{91}1, 2, 3], 3,\\
-	    \ \ \ \ "\synstr{Arrays wandeln sich richtig in Ints um.}";\\
+            \ \\
+            \ \ \synfunc{my}\ \synvar{@array}\ = <\synstr{a b c}>;\\
+            \ \ \synfunc{is}\ +\synvar{@array}, 3,\\
+            \ \ \ \ "\synstr{Unser Array enthält drei Elemente.}";
 	  }
     \pause
     \item Lambdafolk: Implementierung dieser Features
@@ -111,9 +94,9 @@
   \end{itemize}
 }
 
-\subsection{Weitere Pl"ane}
+\subsection{Pl"ane}
 \frame[t]{
-  \frametitle{Weitere Pläne}
+  \frametitle{Pläne}
 
   \begin{tabbing}
     Pugs 6.283185aaa \= ... \kill
@@ -153,16 +136,16 @@
 \frame[t]{
   \frametitle{Arbeitsschritte}
 
-  \begin{itemize}
+  \begin{enumerate}
     \item Parsen: Umwandlung des Sourcecode in einen Parse Tree
     \item Kleinere Optimierungen
     \item Umwandlung des Parse Tree in einen einfacheren Tree
     \item Größere Optimierungen, Argumentieren über den Code (z.B. Verbot von
           \texttt{3 = 4} zur Compile-Zeit)
     \item Umwandlung ins Zielformat
-    \item Kleinere Optimierung
+    \item Kleinere Optimierungen
     \item Ausgabe
-  \end{itemize}
+  \end{enumerate}
 }
 
 \subsection{Beispiel: Perl 6 $\to$ JavaScript-Compiler}
@@ -170,41 +153,67 @@
   \frametitle{Beispiel: Perl 6 $\to$ JavaScript-Compiler}
 
   \begin{itemize}
-    \item PIl2JS: Spiel-Projekt von mir, gestartet am 16.7.2005
-    \item Einlesen und parsen von Perl 6 durch Pugs
+    \item PIL2JS: Spiel-Projekt von mir, Projektbeginn: 16.7.2005
+    \item $\approx$ 4.000 Zeilen Perl 5 und JavaScript
+    \item "`Perl 6 im Browser"'
+  \end{itemize}
+
+  \begin{enumerate}
+    \item Einlesen und Parsen von Perl 6 durch Pugs
     \item Ausgabe von Pugs Intermediate Language (PIL) durch Pugs
     \item Einlesen des PIL-Trees durch PIL2JS
     \item Kleinere Umwandlungen
     \item Ausgabe als JavaScript
-  \end{itemize}
+  \end{enumerate}
 }
 
 \section{Perl 6 $\to$ JavaScript}
-\subsection{Perl 6 $\to$ Parse Tree}
+\subsection{Perl 6 $\to$ PIL}
 \frame[t]{
-  \frametitle{Parsen von Perl 6-Sourcecode (Perl 6 $\to$ Parse Tree)}
+  \frametitle{Parsen von Perl 6-Sourcecode (Perl 6 $\to$ PIL)}
+
+  \begin{itemize}
+    \item Perl 6 ist eine umfangreiche Sprache.
+    \item Wenn jedes Backend Perl 6 selbst parsen müsste, wäre das viel
+          doppelte Arbeit.
+    \item Stattdessen: Parsen von Perl 6 durch Pugs, Ausgabe des Codes in einer
+          Zwischen-Sprache, Pugs Intermediate Language (PIL)
+    \item Einlesen des PIL durch die einzelnen Backends -- Kümmern ums
+          Parsen unnötig
+  \end{itemize}
+}
+
+\frame[t]{
+  \frametitle{Beispiel}
 
   \texttt{%
+    \syncomment{\# Perl 6:}\\
     \synvar{\$foo}\ = 19; \\
-    \synfunc{say}\ 4 + \synvar{\$foo};
+    \synfunc{say}\ 4 + \synvar{\$foo};\\
   }
 
-  \pause\texttt{\small%
-    . \\
-    | \\
-    |--. \\
-    |\ \ | \\
-    |\ \ `----\ \synfunc{=} \\
-    |\ \ \ \ \ \ \ /\ \textbackslash \\
-    |\ \ \ \ \synvar{\$foo}\ \ 19 \\
-    |--. \\
-    |\ \ | \\
-    |\ \ `----\ \synfunc{say} \\
-    |\ \ \ \ \ \ \ \ \ | \\
-    |\ \ \ \ \ \ \ \ \ \synfunc{+} \\
-    |\ \ \ \ \ \ \ \ /\ \textbackslash \\
-    |\ \ \ \ \ \ \ 4\ \ \ \synvar{\$foo} \\
+  \vfill
+  \texttt{%
+    \syncomment{-- PIL (vereinfacht):}\\
+    \synfunc{PAssign}\ (\synfunc{PVar}\ "\synvar{\$foo}") (\synfunc{PLit}\ 19)\\
+    \synfunc{PApp}\ (\synfunc{PVar}\ "\synvar{\&say}") [\\
+    \ \ \synfunc{PApp}\ (\synfunc{PVar}\ "\synvar{\&infix:<+>}") [\\
+    \ \ \ \ \synfunc{PLit}\ 4, \synfunc{PVar}\ "\synvar{\$foo}"\\
+    \ \ ]\\
+    ]
   }
+}
+
+\subsection{PIL $\to$ JavaScript}
+\frame[t]{
+  \frametitle{Kompilieren des PIL zu JavaScript}
+
+  \begin{itemize}
+    \item "`Sowohl Perl 6 als auch JavaScript sind Turing-vollständig, wo also
+          liegt das Problem? (:D)"'
+    \item JavaScript: weniger mächtig als Perl 6
+    \item Also: Herunterkompilation vieler Features erforderlich
+  \end{itemize}
 }
 
 \end{document}
