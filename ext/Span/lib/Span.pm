@@ -263,7 +263,7 @@ sub _normalize_parameter ( $self, $param ) {
     {
         # say $span1, $span0;
         #...
-        ($span0, $span1) = _normalize_parameter( $span1, $span0 );
+        ($span1, $span0) = _normalize_parameter( $span1, $span0 );
         # say "returned ", $span0, ",", $span1;
         return $span0, $span1;
         # XXX - this doesn't work
