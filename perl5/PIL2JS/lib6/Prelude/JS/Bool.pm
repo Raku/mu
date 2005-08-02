@@ -6,7 +6,7 @@ method JS::Root::defined($a:) {
   ')($a);
 }
 
-method JS::Root::not($a:)  { !$a }
+method JS::Root::not(*@a:) { @a.elems == 0 ?? undef :: !@a[0] } # XXX correct?
 method JS::Root::true($a:) { ?$a }
 
 sub prefix:<?>($a) is primitive {
