@@ -60,8 +60,8 @@ my $p5array = $p5ar.new(\@array);
 
 my $retarray = $p5array.array;
 
-is($p5array.my_elems, @array.elems, 'elems');
-is($retarray.elems, @array.elems, 'retro elems', :todo<feature>);
+is(eval('$p5array.my_elems'), @array.elems, 'elems');
+is(eval('$retarray.elems'), @array.elems, 'retro elems', :todo<feature>);
 
 is($p5array.my_exists(1), @array.exists(1), 'exists');
 is($retarray.exists(1), @array.exists(1), 'retro exists', :todo<feature>);
