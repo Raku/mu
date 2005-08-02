@@ -70,6 +70,11 @@ matchFromMR mr = VMatch $ mkMatchOk 0 0 (decodeUTF8 all) subsMatch Map.empty
     (all:subs) = elems $ mrSubs mr
     subsMatch = [ VMatch $ mkMatchOk 0 0 (decodeUTF8 sub) [] Map.empty | sub <- subs ]
 
+-- Used in op2Match
+not_VRule :: Val -> Bool
+not_VRule _y@(VRule _) = False
+not_VRule _            = True
+
 -- XXX - need to generalise this
 op2Match :: Val -> Val -> Eval Val
 
@@ -154,6 +159,9 @@ op2Match x (VRule rx) = do
     ifListContext
         (return $ VList (matchSubPos match))
         (return $ VMatch match)
+
+op2Match x@(VRule _) y | not_VRule y = do
+    op2Match y x
 
 op2Match (VType typ) (VType t) = do
     typs <- pkgParents (showType typ)
