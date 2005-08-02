@@ -539,6 +539,7 @@ var _26main_3a_3areturn = PIL2JS.generic_return(5);    // XXX hardcoded sublevel
 var _26main_3a_3aleave  = PIL2JS.generic_return(3);    // XXX hardcoded sublevel
 var _26main_3a_3aexit   = PIL2JS.generic_return(PIL2JS.ControlException.exit_level);
 
+// Array of boxed subs we're currently in.
 PIL2JS.call_chain = [];
 
 // Greps args for PIL2JS.Pairs and returns them as a hash.

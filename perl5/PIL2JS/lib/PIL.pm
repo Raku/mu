@@ -68,7 +68,7 @@ sub generic_catch {
 
   $body = add_indent(1, $body);
 
-  my $restores = "var " . join ", ", map {
+  my $restores = join "; ", map {
     sprintf "%s = backup_%s", name_mangle($_), name_mangle($_);
   } @vars_to_restore;
 

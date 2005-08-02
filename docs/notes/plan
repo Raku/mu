@@ -173,7 +173,7 @@ The short answer is no. :)
 
 * What about the long answer?
 
-macro gets PIL -- in the Pugs world, that is; in the alternate
+Macros get PIL -- in the Pugs world, that is; in the alternate
 universe you get PAST -- but you never get match objects.  However,
 it is conceivable that you can get match objects attached to PIL, and
 it may even come with $/ if lwall desires so, but it's unspecced. And
@@ -218,11 +218,11 @@ object tree; it will be PIL annotated with match objects, or match
 objects anotated with PIL so maybe you can indeed return $/ and
 expect it to work, but the structure of $/ is likely to be not a
 regular Match object. pmichaud mentioned something about rebinding $/
-inside rules and make it return something else entirely 
+inside rules and make it return something else entirely.
 
 
-* Does that mean that some macros are impossable to be portable
-across perl6 implimentations? 
+* Does that mean that some macros are impossible to be portable
+across Perl 6 implimentations? 
 
 If the macro synopsis is written with a certain interface of syntax nodes
 then that becomes normative and all implementations are supposed to

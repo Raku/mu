@@ -41,36 +41,26 @@ use strict;
       if $PIL::CUR_SUBNAME =~ /^__export_c.*import$/;
 
     my $magical_vars = "";
-    $magical_vars .= "_26main_3a_3a_3fBLOCK.STORE(%VAR);\n"
+    $magical_vars .= "_26main_3a_3a_3fBLOCK = %VAR;\n"
       if $PIL::IN_SUBLIKE >= PIL::SUBBLOCK;
-    $magical_vars .= "_26main_3a_3a_3fSUB.STORE(%VAR);\n"
+    $magical_vars .= "_26main_3a_3a_3fSUB = %VAR;\n"
       if $PIL::IN_SUBLIKE >= PIL::SUBROUTINE;
-    $magical_vars .= "_24main_3a_3a_3fSUBNAME.STORE(new PIL2JS.Box.Constant(%NAME));\n"
+    $magical_vars .= "_24main_3a_3a_3fSUBNAME = new PIL2JS.Box.Constant(%NAME);\n"
       if $PIL::IN_SUBLIKE >= PIL::SUBROUTINE;
     $magical_vars =~ s/%VAR/ PIL::name_mangle $self->[0]/eg;
     $magical_vars =~ s/%NAME/PIL::doublequote $PIL::CUR_SUBNAME/eg;
 
-    my $pos_update =
-      $self->[3]->isa("PIL::PPos")
-    ? $self->[3]->[0]
-    : $self->[3]->isa("PIL::PStmts") && $self->[3]->[0]->isa("PIL::PPos")
-    ? $self->[3]->[0]->[0] : "";
-    $magical_vars .=
-      "_24main_3a_3a_3fPOSITION.STORE(new PIL2JS.Box.Constant(" .
-      PIL::doublequote($pos_update) .
-      "));\n" if $pos_update;
-
     # Subbody
     local @PIL::VARS_TO_BACKUP = ();
-    my $body = sprintf "%sPIL2JS.call_chain.push(%s);\n%s;\n%s;",
-      $magical_vars,
+    my $body = sprintf "PIL2JS.call_chain.push(%s);\n%s;\n\n%s;\n\n%s;",
       PIL::name_mangle($self->[0]),
       $self->[2]->as_js,
+      $magical_vars,
       $self->[3]->as_js;
-    my $backup = "// Lex backups:\nvar " . join ", ", map {
+    my $backup = "// Var backups:\nvar " . join ", ", map {
       sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);
-    } @PIL::VARS_TO_BACKUP;
-    $body = "$backup;\n$body" if @PIL::VARS_TO_BACKUP;
+    } @PIL::VARS_TO_BACKUP, qw< &?BLOCK &?SUB $?SUBNAME >;
+    $body = "$backup;\n\n$body";
 
     # Sub declaration
     my $js = sprintf
@@ -78,7 +68,11 @@ use strict;
       $PIL::IN_GLOBPIL ? "" : "var ",
       PIL::name_mangle($self->[0]),
       $self->[2]->arity,
-      PIL::add_indent 1, PIL::generic_catch($PIL::IN_SUBLIKE, $body, @PIL::VARS_TO_BACKUP);
+      PIL::add_indent 1, PIL::generic_catch(
+        $PIL::IN_SUBLIKE,
+        $body,
+        @PIL::VARS_TO_BACKUP, qw< &?BLOCK &?SUB $?SUBNAME >
+      );
     $js .= sprintf
       "%s.perl_name = %s;\n",
       PIL::name_mangle($self->[0]),
@@ -134,19 +128,25 @@ use strict;
 
     # Subbody
     local @PIL::VARS_TO_BACKUP = ();
-    my $body = sprintf "%s;\n%s;",
+    my $body = sprintf "%s;\n\n%s%s;",
       $self->[1]->as_js,
+      $PIL::IN_SUBLIKE >= PIL::SUBROUTINE
+        ? "_24main_3a_3a_3fSUBNAME = new PIL2JS.Box.Constant('<anon>');\n\n"
+        : "",
       $self->[2]->as_js;
-    my $backup = "// Lex backups:\nvar " . join ", ", map {
+    my $backup = "// Var backups:\nvar " . join ", ", map {
       sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);
-    } @PIL::VARS_TO_BACKUP;
-    $body = "$backup;\n$body" if @PIL::VARS_TO_BACKUP;
+    } @PIL::VARS_TO_BACKUP, qw< $?SUBNAME >;
+    $body = "$backup;\n$body";
     # Subbody
 
     # Sub declaration
     return sprintf "PIL2JS.Box.constant_func(%d, function (args) {\n%s\n})",
       $self->[1]->arity,
-      PIL::add_indent 1, PIL::generic_catch($PIL::IN_SUBLIKE, $body, @PIL::VARS_TO_BACKUP);
+      PIL::add_indent 1, PIL::generic_catch(
+        $PIL::IN_SUBLIKE, $body,
+        @PIL::VARS_TO_BACKUP, qw< $?SUBNAME >
+      );
   }
 }
 

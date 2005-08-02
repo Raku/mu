@@ -95,7 +95,7 @@ EOF
     my $jsname   = $self->jsname;
     my $pairname = PIL::doublequote(substr $name, 1);
     my $undef    = PIL::undef_of $name;
-    return <<EOF;
+    return substr <<EOF, 0, -1;  # cosmetical issue: strip the /\n$/.
 var $jsname = undefined;
 if(pairs[$pairname] != undefined) {
   $jsname = $undef.BINDTO(pairs[$pairname]);
@@ -119,7 +119,7 @@ EOF
     # time.
     my @js;
     if($self->{tpParam}{paramContext}->isa("PIL::CxtSlurpy")) {
-      push @js, "args = PIL2JS.make_slurpy_array(args);\n";
+      push @js, "args = PIL2JS.make_slurpy_array(args);";
     }
 
     my $jsname = $self->jsname;
