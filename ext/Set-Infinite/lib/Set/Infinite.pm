@@ -42,11 +42,17 @@ From "Set" API:
 
 submethod BUILD ($class: *%param ) {    
     my @spans;
-    for ( *%param<objects>, *%param<spans> ) -> $span
+    for ( *%param<objects>, *%param<spans>, *%param<recurrence> ) -> $span
     {
         # TODO - write t/test for Array (such as 1 .. 10 and 1..10,20..30)
         next unless defined( $span );
-        my $sp = Span.new( object => $span );
+        my $sp;
+        if $span.isa( 'Recurrence' ) {
+            $sp = Span.new().union( $span );
+        }
+        else {
+            $sp = Span.new( object => $span );
+        }
         next if $sp.is_empty;
         push @spans, $sp;
     }
@@ -312,7 +318,11 @@ Creates a `Set::Infinite` object with a few elements.
 
 - `new( spans => $span )`
 
-Creates a `Set::Infinite` object using an existing span.
+Creates a `Set::Infinite` object using an existing Span object.
+
+- `new( recurrence => $recurr )`
+
+Creates a `Set::Infinite` object using an existing Recurrence object.
 
 = OBJECT METHODS
 

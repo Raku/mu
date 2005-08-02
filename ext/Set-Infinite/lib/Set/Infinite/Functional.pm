@@ -68,10 +68,20 @@ method union ($self: Set::Infinite::Functional $set )
     my @res;
     my @a = *@.spans, *$set.spans;
     @a = @a.sort:{ $^a.compare( $^b ) };
+    # say "union ", @a.map:{ $_.stringify }.join(":");
     @res[0] = shift @a
         if @a;
-    for( @a ) {
-        @tmp = @res[-1].union( $_ );
+    while( @a ) {
+        my $elem = shift @a;
+        @tmp = @res[-1].union( $elem );
+        # say "span union ", @tmp.map:{ $_.stringify }.join(":");
+        if @tmp == 3 {
+            # intersecting Recurrence Spans
+            # say "push ", @tmp[0], " left ", @tmp[1,2];
+            @res[-1] = @tmp[0];
+            unshift @a, @tmp[1,2];
+            redo;
+        }
         if @tmp == 2 {
             push @res, @tmp[1];
         }

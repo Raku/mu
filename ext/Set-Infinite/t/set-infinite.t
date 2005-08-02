@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 46;
+plan 48;
 
 use_ok( 'Set::Infinite' );
 use Set::Infinite;   # XXX should not need this
@@ -105,6 +105,9 @@ is( $set1.difference( $set2 ).stringify, '[1,2)', 'difference' );
     }
 
     # XXX - fix me
+    # for =$set.lazy -> $x { say $x }
+
+    # XXX - fix me
     # {
     #    my @a = $span.lazy;
     #    is( @a, "1 2 7 9", "lazy array" );
@@ -127,10 +130,11 @@ is( $set1.difference( $set2 ).stringify, '[1,2)', 'difference' );
     # mutators
     my $span = Span.new( :int, :start(1), :end(2) );
     my $set = Set::Infinite.new( objects => ( 2, 7, 9, $span ) );
-    # '[1,2],7,9'
+    is( $set.stringify, '[1,2],7,9', 'new() from scalars and span' );
     $set.add( 12 );
+    is( $set.stringify, '[1,2],7,9,12', 'add scalar' );
     $set.add( Span.new( :int, :start(20), :end(22) ) );
-    is( $set.stringify, '[1,2],7,9,12,[20,22]', 'add scalar and span' );
+    is( $set.stringify, '[1,2],7,9,12,[20,22]', 'add span' );
     $set.remove( Span.new( :int, :start(9), :end(21) ) );
     is( $set.stringify, '[1,2],7,22', 'remove span' );
 }
