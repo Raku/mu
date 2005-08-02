@@ -54,7 +54,7 @@ procArg (Switch name)   = ['-':name:[]]
 unpackOptions :: [String] -> [String]
 unpackOptions [] = []
 unpackOptions (('-':[]):rest)  = ["-"] ++ unpackOptions rest
-unpackOptions ("--":opts) = opts
+unpackOptions ("--":opts) = ["--"] ++ opts
 unpackOptions (('-':opt):rest) = unpackOption opt ++ unpackOptions rest
 unpackOptions (filename:rest) = filename : unpackOptions rest
 
@@ -135,7 +135,8 @@ gatherArgs("-C":backend:rest)     = [Opt "-C" backend] ++ gatherArgs(rest)
 gatherArgs("-B":backend:rest)     = [Opt "-B" backend] ++ gatherArgs(rest)
 gatherArgs("-V:":item:rest)       = [Opt "-V:" item] ++ gatherArgs(rest)
 gatherArgs(('-':[]):xs)           = [File "-"] ++ gatherArgs(xs)
-gatherArgs(('-':x):xs)            = [Switch (head x)] ++ gatherArgs(xs)
+gatherArgs(("--"):rest)           = [File x | x <- rest]
+gatherArgs(('-':x:[]):xs)         = [Switch x] ++ gatherArgs(xs)
 gatherArgs(x:xs)                  = [File x] ++ gatherArgs(xs)
 
 {- collect "-e" switches together,
