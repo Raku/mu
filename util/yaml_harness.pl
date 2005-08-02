@@ -35,7 +35,7 @@ $Test::Harness::Verbose  = 1;
 $Config{"output-file"} ||= "tests.yml";
 $Config{"recurse"} = 1 if not defined $Config{"recurse"};
 push @{$Config{"exclude"}}, 'Disabled' if not $Config{"exclude"} or not @{$Config{"exclude"}};
-@ARGV = glob "t/ ext/*/t/" if !@ARGV;
+@ARGV = glob "t/" if !@ARGV;
 
 _build_ext_re();
 _build_exclude_re();

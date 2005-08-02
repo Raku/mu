@@ -26,7 +26,7 @@ my $optional_args   = $ARGV[2] || "";
 
 chdir($pugs_sandbox) or die "Could change directory: $!";
 
-$ENV{HARNESS_PERL}  = "./pugs $optional_args";
+$ENV{HARNESS_PERL}  = "/home/iblech/programmieren/pugs/perl5/PIL2JS/pugs-smokejs.pl ./pugs $optional_args";
 $ENV{PERL6LIB}      = join $Config{path_sep},
         qw<ext/Test/lib blib6/lib>, $ENV{PERL6LIB};
 

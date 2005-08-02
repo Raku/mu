@@ -785,3 +785,20 @@ var _26main_3a_3aprefix_3a_2b = PIL2JS.Box.constant_func(1, function (args) {
     );
   }
 });
+
+// &prefix:<?>. Written in JS instead of P6 for speed, as it gets called very
+// often.
+var _26main_3a_3aprefix_3a_3f = PIL2JS.Box.constant_func(1, function (args) {
+  var a = args[1].FETCH();
+  if(a instanceof PIL2JS.Ref && a.autoderef) a = a.referencee.FETCH();
+
+  if(a instanceof Array) {
+    return new PIL2JS.Box.Constant(a.length > 0);
+  } else if(a instanceof PIL2JS.Hash) {
+    return new PIL2JS.Box.Constant(a.num_of_entries > 0);
+  } else if(a instanceof PIL2JS.Ref) {
+    return new PIL2JS.Box.Constant(1 == 1);
+  } else {
+    return new PIL2JS.Box.Constant(a != undefined && a != "" && a != "0" && a != 0);
+  }
+});
