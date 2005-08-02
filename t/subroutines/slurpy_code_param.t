@@ -4,7 +4,7 @@ use v6;
 
 use Test;
 
-plan 5;
+plan 6;
 
 sub foo (Code *$block) {
     return $block.();
@@ -14,7 +14,7 @@ is(foo():{ "foo" }, 'foo', 'Code *$block - 1');
 is(foo():{ 0 }, 0, 'Code *$block - 2');
 
 sub bar (*&block) {
-    return $block.();
+    return &block.();
 }
 
 is(bar():{ "bar" }, 'bar', '*&block - 1');
