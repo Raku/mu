@@ -15,65 +15,17 @@ data Sym = MkSym
     }
     deriving (Eq, Ord, Show, Typeable)
 
-newtype Name = MkName { unName :: String }
-    deriving (Eq, Ord, Show, Typeable)
-
-data Container
-    = Scalar (Cell Scalar)  -- Scalar container
-    | Array (Cell Array)    -- Array container
-    | Hash (Cell Hash)      -- Hash container
-
-{-|
-'Cell' is either mutable (rebindable) or immutable, decided at compile time.
-
-Tieable is orthogonal to mutableness; a constant tied container can still be
-subject to untie() and tie().
--}
-data Cell a
-    = Con { conBox  :: Box a,        tieable :: MaybeTied }
-    | Mut { mutBox  :: TVar (Box a), tieable :: MaybeTied }
-
-type MaybeTied = Maybe (TVar Tieable)
-
-data Box a = MkBox { boxId :: Id, boxVal :: a }
-    deriving (Eq, Ord, Show, Typeable)
-
-{-|
-The type of tie-table must agree with the storage type.  Such a table
-may be empty, as denoted by the nullary constructor "Untied".  Each of
-the three storage types comes with its own tie-table layout.
--}
-data Tieable = Untied | Tied Name
-    deriving (Eq, Ord, Show, Typeable)
-
 -- | Sample Container: @%\*ENV@ is rw is HashEnv
 hashEnv :: STM Container
-hashEnv = do
-    box <- newTVar $ MkBox (-1) emptyHash
-    tie <- newTVar $ Tied (MkName "Hash::Env")
-    return . Hash $ Mut box (Just tie)
+hashEnv = newMutBox emptyHash (Just (Tied (newObject "Hash::Env")))
 
+{-
 hashNew :: STM Container
 hashNew = do
     id  <- newId
     box <- newTVar $ MkBox id emptyHash
     return . Hash $ Mut box Nothing
-
-cmap :: (forall a. Cell a -> b) -> Container -> b
-cmap f c = case c of
-    Scalar x -> f x
-    Array x  -> f x
-    Hash x   -> f x
-
-bmap :: (forall a. Box a -> STM b) -> Cell a -> STM b
-bmap f c = case c of
-    Con con _ -> f con
-    Mut mut _ -> f =<< readTVar mut
-
-tmap :: (MaybeTied -> STM b) -> Cell a -> STM b
-tmap f c = case c of
-    Con _ t -> f t
-    Mut _ t -> f t
+-}
 
 readId :: Container -> STM Id
 readId = cmap (bmap (return . boxId))
@@ -108,36 +60,27 @@ data Val
     = Void
     | Single Single
     | Plural [Single]
-    | Control Control
+--  | Control Control
     deriving (Eq, Ord, Show, Typeable)
 
 -- | 'Item' is either one of the five intrisic types, or an object.
 data Single
     = Object Object
     -- Intrinsic types, according to S02.
-    | Int Int
-    | Num Num
-    | Str Str
-    | Ref Ref
-    | Bit Bit
+    | Int Int | Num Num | Str Str | Ref Ref | Bit Bit
     -- These four below are apocryphal (not part of spec).
-    | Pair Pair
-    | Junc Junc
-    | Type Type
-    | Code Code 
+    | Pair Pair | Junc Junc | Type Type | Code Code 
     deriving (Eq, Ord, Show, Typeable)
 
 -- | 'Ref' always points to a container; values are promoted to constant containers.
-newtype Ref = MkRef Container
+newtype Ref = MkRef { unRef :: Container }
     deriving (Eq, Ord, Show, Typeable)
-newtype Pair = MkPair (Container, Container)
+data Pair = MkPair { pairKey :: Single, pairVal :: Container }
     deriving (Eq, Ord, Show, Typeable)
 
 type Bit = Bool
 type Str = String
 type Num = Double
-type Object = Dynamic
-type Type = Name -- XXX
 type Code = (Val -> Val) -- XXX
 data Control = MkControl -- XXX
     deriving (Eq, Ord, Show, Typeable)
@@ -149,10 +92,6 @@ instance Show Container where
 instance Ord Container where
     compare _ _ = EQ
 instance Eq Container where
-    _ == _ = True
-instance Ord Object where
-    compare _ _ = EQ
-instance Eq Object where
     _ == _ = True
 
 

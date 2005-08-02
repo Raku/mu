@@ -6,7 +6,7 @@ module PIL.Internals (
     newSTRef, readSTRef, writeSTRef, modifySTRef, runST, ST, STRef,
     test, oneof, quickCheck, verboseCheck, Id, newId,
     TVar, STM, newTVar, readTVar, writeTVar,
-    fmapM, Map, atomically, Dynamic, Typeable,
+    fmapM, Map, atomically, Dynamic, Typeable, toDyn,
 ) where
 import Control.Monad.ST
 import Data.STRef
