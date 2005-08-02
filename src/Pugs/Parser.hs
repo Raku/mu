@@ -187,6 +187,7 @@ ruleDeclaration = rule "declaration" $ choice
     , ruleMemberDeclaration
     , ruleTraitDeclaration
     , ruleUseDeclaration
+    , ruleNoDeclaration
     , ruleInlineDeclaration
     , ruleRequireDeclaration
     , ruleTrustsDeclaration
@@ -550,10 +551,16 @@ ruleVarDeclaration = rule "variable declaration" $ do
             return $ Pad scope lexDiff implicit_first_block
         _      -> return $ Pad scope lexDiff rhs
 
+ruleNoDeclaration :: RuleParser Exp
+ruleNoDeclaration = rule "no declaration" $ do
+    symbol "no"
+    ruleUsePackage False
+    return emptyExp
+
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
     symbol "use"
-    tryChoice [ ruleUseVersion, ruleUsePackage ]
+    tryChoice [ ruleUseVersion, ruleUsePackage True ]
     return emptyExp
 
 ruleUseVersion :: RuleParser ()
@@ -565,8 +572,8 @@ ruleUseVersion = rule "use version" $ do
         error $ "Perl v" ++ version ++ " required--this is only v" ++ versnum ++ ", stopped at " ++ (show pos)
     return ()
 
-ruleUsePackage :: RuleParser ()
-ruleUsePackage = rule "use package" $ do
+ruleUsePackage :: Bool -> RuleParser ()
+ruleUsePackage use = rule "use package" $ do
     lang    <- option "pugs" $ try $ do
         lang <- identifier
         char ':'
@@ -577,25 +584,26 @@ ruleUsePackage = rule "use package" $ do
     _       <- option "" $ ruleAuthorPart
     let pkg = concat (intersperse "::" names)
     env <- getRuleEnv
-    val <- unsafeEvalExp $
-        if lang == "perl5"
-            then Stmts (Sym SGlobal (':':'*':pkg) (Syn ":=" [ Var (':':'*':pkg), App (Var "&require_perl5") Nothing [Val $ VStr pkg] ])) (Syn "env" [])
-            else App (Var "&use") Nothing [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
-    option () $ try $ do
-        imp <- ruleExpression
-        let sub = Var $ ('&':pkg) ++ "::import"
+    when use $ do   -- for &no, don't load code
+        val <- unsafeEvalExp $
+            if lang == "perl5"
+                then Stmts (Sym SGlobal (':':'*':pkg) (Syn ":=" [ Var (':':'*':pkg), App (Var "&require_perl5") Nothing [Val $ VStr pkg] ])) (Syn "env" [])
+                else App (Var "&use") Nothing [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
+        case val of
+            Val (VControl (ControlEnv env')) -> putRuleEnv env
+                { envClasses = envClasses env' `addNode` mkType pkg
+                , envGlobal  = envGlobal env'
+                }
+            _  -> error $ pretty val
+    try (verbatimParens whiteSpace) <|> do
+        imp <- option emptyExp ruleExpression
+        let sub = Var $ ('&':pkg) ++ if use then "::import" else "::unimport"
         unsafeEvalExp $ Syn "if"
             [ App (Var "&name") (Just sub) [] -- XXX Hack
             , App sub (Just $ Val $ VStr $ envPackage env) [imp]
             , emptyExp
             ]
         return ()
-    case val of
-        Val (VControl (ControlEnv env')) -> putRuleEnv env
-            { envClasses = envClasses env' `addNode` mkType pkg
-            , envGlobal  = envGlobal env'
-            }
-        _  -> error $ pretty val
     return ()
 
 -- | The version part of a full class specification.
