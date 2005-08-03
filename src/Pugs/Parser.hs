@@ -643,7 +643,10 @@ ruleDoBlock :: RuleParser Exp
 ruleDoBlock = rule "do block" $ try $ do
     symbol "do"
     choice
-        [ ruleBlockDeclaration
+        -- do { STMTS }
+        [ try $ between (symbol "{") (char '}') ruleBlockBody
+        -- do STMTS
+        , ruleBlockDeclaration
         , ruleDeclaration
         , ruleConstruct
         , ruleStatement
