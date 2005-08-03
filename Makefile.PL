@@ -369,6 +369,9 @@ pirsmoke : $pugs util/run-smoke.pl all
 pirtest :
 	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B PIR+; system qq+$Config{make}+, q+test+"
 
+jssmoke : $pugs util/run-smoke.pl all
+	\$(PERL) -e "ENV->{PUGS_RUNTIME}=q+JS+; exec qw+$^X util/run-smoke.pl . smoke.html+"
+
 ghci ::
 	$ghc --interactive $ghc_flags $ghc_output
 

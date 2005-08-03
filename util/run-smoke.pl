@@ -27,7 +27,9 @@ my $optional_args   = $ARGV[2] || "";
 
 chdir($pugs_sandbox) or die "Could change directory: $!";
 
-$ENV{HARNESS_PERL}  = "$^X $FindBin::Bin/../perl5/PIL2JS/pugs-smokejs.pl ./pugs $optional_args" if $ENV{PUGS_RUNTIME} eq 'JS';
+$ENV{HARNESS_PERL}  = "./pugs";
+$ENV{HARNESS_PERL}  = "$^X $FindBin::Bin/../perl5/PIL2JS/pugs-smokejs.pl ./pugs $optional_args"
+    if $ENV{PUGS_RUNTIME} and $ENV{PUGS_RUNTIME} eq 'JS';
 
 $ENV{PERL6LIB}      = join $Config{path_sep},
         qw<ext/Test/lib blib6/lib>, $ENV{PERL6LIB};

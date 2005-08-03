@@ -297,9 +297,9 @@ method postcircumfix:<[]>(@self: Int *@idxs) is rw {
   })')(@self, @idxs);
 }
 
-# splice entirely untested.
-sub JS::Root::splice (@a is rw, ?$offset=0, ?$length, *@list) is primitive {
-    my $off = $offset;
+# Code from Prelude::PIR
+sub splice (@a is rw, ?$offset=0, ?$length, *@list) is primitive {
+    my $off = +$offset;
     my $len = $length;
     my $size = +@a;
 
@@ -310,6 +310,7 @@ sub JS::Root::splice (@a is rw, ?$offset=0, ?$length, *@list) is primitive {
     }
     # $off is now ready
 
+    $len = +$len if defined($len);
     $len = $size - $off if !defined($len);
     $len = $size + $len - $off if $len < 0;
     $len = 0 if $len < 0;
@@ -318,6 +319,15 @@ sub JS::Root::splice (@a is rw, ?$offset=0, ?$length, *@list) is primitive {
     my $listlen = +@list;
     my $size_change = $listlen - $len;
     my @result;
+
+    if 1 {
+	my $i = $off;
+	my $stop = $off + $len;
+	while $i < $stop {
+	    push(@result,@a[$i]);
+	    $i++;
+	}
+    }
 
     if $size_change > 0 {
 	my $i = $size + $size_change -1;
@@ -330,7 +340,6 @@ sub JS::Root::splice (@a is rw, ?$offset=0, ?$length, *@list) is primitive {
 	my $i = $off;
 	my $final = $size + $size_change -1;
 	while $i <= $final {
-	    push(@result,@a[$i]);
 	    @a[$i] = @a[$i-$size_change];
 	    $i++;
 	}
@@ -346,11 +355,12 @@ sub JS::Root::splice (@a is rw, ?$offset=0, ?$length, *@list) is primitive {
 	my $i = 0;
 	while $i < $listlen {
 	    @a[$off+$i] = @list[$i];
+	    $i++;
 	}
     }
 
-    # return want.List ?? *@result :: pop(@result)
-    # return want.List ?? *@result :: +@result ?? @result[-1] :: undef;
-    # return *@result;
+    #  want.List ?? *@result :: pop(@result)
+    #  want.List ?? *@result :: +@result ?? @result[-1] :: undef;
+    #  *@result;
     @result;
 }
