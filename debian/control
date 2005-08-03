@@ -1,7 +1,7 @@
 Source: pugs
 Section: interpreters
 Priority: optional
-Maintainer: Florian Ragwitz <florian@mookooh.org>
+Maintainer: Florian Ragwitz <rafl@debianforum.de>
 Build-Depends: debhelper (>= 4.0.0), ghc6, perl
 Standards-Version: 3.6.2
 

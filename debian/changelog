@@ -1,6 +1,6 @@
-pugs (6.2.8-1) unstable; urgency=low
+pugs (6.2.9-1) unstable; urgency=low
 
   * Initial release (Closes: #297871).
 
- -- Florian Ragwitz <florian@mookooh.org>  Wed,  6 Jul 2005 05:14:39 +0200
+ -- Florian Ragwitz <rafl@debianforum.de>  Wed,  3 Aug 2005 14:34:17 +0200
 
