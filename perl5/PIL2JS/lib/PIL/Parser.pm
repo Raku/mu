@@ -229,7 +229,12 @@ sub dqstring {
   my $str = $1;
   symbol '"';
 
-  $str =~ s/\\(.)/"\"\\$1\""/eeg; # hack
+  $str =~ s/\\([a-z\\]|\d+)/
+    my $escape = $1;
+    $escape =~ m[\d]
+      ? chr $escape
+      : eval "\"\\$escape\"";
+  /eg; # hack
   return $str;
 }
 

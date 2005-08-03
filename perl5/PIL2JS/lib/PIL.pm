@@ -97,6 +97,7 @@ sub fixup {
 
 sub as_js {
   my $self = shift;
+
   die unless $self->{pilMain}->isa("PIL::PStmts");
   die unless ref($self->{pilGlob}) eq "ARRAY";
   local $_;
@@ -209,7 +210,11 @@ sub undef_of($) {
 sub doublequote($) {
   my $str = shift;
 
-  $str =~ s/((?:[^\w0-9_,.=:; ()\[\]{}+\*\/~\-]|\n))/sprintf "\\x%02x", ord $1/eg;
+  $str =~ s/((?:[^\w0-9_,.=:; ()\[\]{}+\*\/~\-]|\n))/
+    ord $1 > 255
+      ? sprintf "\\u%04x", ord $1
+      : sprintf "\\x%02x", ord $1;
+  /eg;
   return "\"$str\"";
 }
 

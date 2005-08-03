@@ -30,18 +30,17 @@ is($x.bytes, 0, "undef"); #  test for warning
 my @stringy = <@stringy>;
 my @data = (
     # string       octets codepoints grapheme chars
-    ",               0,        0,         0,  0",
-    "moose,          5,        5,         5,  5",
-    "C:\\Program Files,           16,        16,         16,  16",
-    ~@stringy ~ ",           8,          8,         8,   8",
-    "\x020ac \\x020ac,           11,        9,         9,  9",
-    "בדיקה,         10,        5,         5,  5",
-    "בדיקה 123,     14,        9,         9,  9",
+    "",               0,        0,         0,  0,
+    "moose",          5,        5,         5,  5,
+    "C:\\Program Files",           16,        16,         16,  16,
+    ~@stringy,           8,          8,         8,   8,
+    "\x020ac \\x020ac",           11,        9,         9,  9,
+    "בדיקה",         10,        5,         5,  5,
+    "בדיקה 123",     14,        9,         9,  9,
 );
 #:map { my %hash; %hash<string bytes codes graphs> = $_; \%hash };
 
-for @data -> $row {
-    my ($string, $bytes, $codes, $graphs, $chars) = split(rx:perl5/,\s*/, $row);
+for @data -> $string, $bytes, $codes, $graphs, $chars {
     is($string.bytes, $bytes, "'{$string}'.bytes");
     is($string.chars, $chars, "'{$string}'.chars");
     is($string.codes, $codes, "'{$string}'.codes");

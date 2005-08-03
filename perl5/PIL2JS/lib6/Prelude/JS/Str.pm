@@ -19,7 +19,12 @@ method lc(Str $self:) { JS::inline('function (str) { return str.toLowerCase() }'
 method lcfirst(Str $self:) { lc(substr $self, 0, 1) ~ substr($self, 1) }
 method ucfirst(Str $self:) { uc(substr $self, 0, 1) ~ substr($self, 1) }
 
-method chars(Str $self:) { JS::inline('function (str) { return str.length }')(~$self) }
+# Of course, &bytes, &codes, &graphs will have to change. Dunno how to do
+# different Unicode levels in browsers.
+method bytes  (Str $self:) { JS::inline('function (str) { return str.length }')(~$self) }
+method chars  (Str $self:) { JS::inline('function (str) { return str.length }')(~$self) }
+method codes  (Str $self:) { JS::inline('function (str) { return str.length }')(~$self) }
+method graphs (Str $self:) { JS::inline('function (str) { return str.length }')(~$self) }
 
 method index(Str $self: Str $substr, Int ?$pos = 0) {
   JS::inline('function (str, substr, pos) {
