@@ -756,8 +756,9 @@ reduceApp (Var "&goto") (Just subExp) args = do
 -- XXX absolutely evil bloody hack for "assuming"
 reduceApp (Var "&assuming") (Just subExp) args = do
     vsub <- enterEvalContext (cxtItem "Code") subExp
-    sub <- fromVal vsub
-    case bindSomeParams sub Nothing args of
+    sub  <- fromVal vsub
+    (invs', args') <- expandPairs sub Nothing args
+    case bindSomeParams sub invs' args' of
         Left errMsg      -> fail errMsg
         Right curriedSub -> retVal $ castV $ curriedSub
 
@@ -911,6 +912,28 @@ apply sub invs args = do
     env <- ask
     doApply env sub invs args
 
+expandPairs :: VCode -> Maybe Exp -> [Exp] -> Eval (Maybe Exp, [Exp])
+expandPairs sub invs args = do
+    env   <- ask
+    let isPairs = (map (isPairParam . typeOfCxt . paramContext) (subParams sub)) ++ repeat False
+        isPairParam typ = isaType' cls typ (MkType "Pair")
+        cls = envClasses env
+        argsPairs = if isJust invs then tail isPairs else isPairs
+    invs' <- fmapM (reducePair cls (head isPairs)) invs
+    args' <- fmapM (uncurry (reducePair cls)) (argsPairs `zip` args)
+    return (invs', args')
+
+reducePair :: ClassTree -> Bool -> Exp -> Eval Exp
+reducePair _ True exp = return exp
+reducePair cls _ exp = do
+    typ     <- evalExpType exp
+    if not (isaType cls "Pair" typ) then return exp else do
+    ref     <- enterLValue $ enterContext (CxtItem (mkType "Pair")) $ evalExp exp
+    (k, v)  <- join $ doPair ref pair_fetch
+    key     <- fromVal k
+    return $ Syn "=>" [Val (VStr key), Val v]
+    
+
 -- XXX - faking application of lexical contexts
 -- XXX - what about defaulting that depends on a junction?
 {-|
@@ -925,12 +948,7 @@ doApply :: Env         -- ^ Environment to evaluate in
 doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = do
     -- check invs and args for Pair types; if they are, reduce them fully
     -- to stringified normal form.
-    let isPairs = (map (isPairParam . typeOfCxt . paramContext) (subParams sub)) ++ repeat False
-        isPairParam typ = isaType' cls typ (MkType "Pair")
-        cls = envClasses env
-        argsPairs = if isJust invs then tail isPairs else isPairs
-    invs' <- fmapM (reducePair (head isPairs)) invs
-    args' <- fmapM (uncurry reducePair) (argsPairs `zip` args)
+    (invs', args') <- expandPairs sub invs args
     case bindParams sub invs' args' of
         Left errMsg -> fail errMsg
         Right sub   -> do
@@ -953,16 +971,6 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
                             Nothing     -> applyExp (subType sub) realBound fun
                 retVal val
     where
-    reducePair :: Bool -> Exp -> Eval Exp
-    reducePair True exp = return exp
-    reducePair _ exp = do
-        typ     <- evalExpType exp
-        let cls = envClasses env
-        if not (isaType cls "Pair" typ) then return exp else do
-        ref     <- enterLValue $ enterContext (CxtItem (mkType "Pair")) $ evalExp exp
-        (k, v)  <- join $ doPair ref pair_fetch
-        key     <- fromVal k
-        return $ Syn "=>" [Val (VStr key), Val v]
     enterScope :: Eval Val -> Eval Val
     enterScope
         | typ >= SubBlock = id
