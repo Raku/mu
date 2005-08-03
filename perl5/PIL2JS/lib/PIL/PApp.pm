@@ -74,6 +74,8 @@ sub as_js {
   # a native call.
   $native++ if
     defined $obj and $obj =~ /^[\&\$\@\+\%\:]\*?JS::/;
+  $native++ if
+    defined $obj and $subname =~ /^&\*?JS::/;
 
   # The sub is a reference? ==> We can't know at compile-time.
   $native = undef

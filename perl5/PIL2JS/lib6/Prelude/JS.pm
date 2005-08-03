@@ -23,6 +23,8 @@ use Prelude::JS::Pair;
 use Prelude::JS::Ref;
 use Prelude::JS::Hash;
 use Prelude::JS::Array;
+use Prelude::JS::Context;
+use Prelude::JS::Math;
 
 method JS::Root::undefine($a is rw:) {
   $a = undef;

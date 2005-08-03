@@ -165,6 +165,19 @@ sub JS::Root::sum(*@vals) is primitive {
   $sum;
 }
 
+method reverse(*@things is copy:) {
+  # Hack, should of course use context info, but that's not here yet.
+  if @things == 1 {
+    JS::inline('(function (str) { return str.split("").reverse().join("") })')(@things[0]);
+  } else {
+    JS::inline('new PIL2JS.Box.Constant(function (args) {
+      var arr = args[1].FETCH();
+      arr.reverse();
+      return new PIL2JS.Box.Constant(arr);
+    })')(@things);
+  }
+}
+
 sub infix:<..>(Num $from is copy, Num $to) is primitive {
   my @array = ($from,);
 

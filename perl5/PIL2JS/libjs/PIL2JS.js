@@ -634,7 +634,12 @@ PIL2JS.use_jsan = function (mod) {
 PIL2JS.print_exception = function (err) {
   _26main_3a_3asay.FETCH()([
     PIL2JS.Context.Void,
-    _26main_3a_3aprefix_3a_7e.FETCH()([PIL2JS.Context.ItemAny, err.pil2js_orig_msg])
+    _26main_3a_3aprefix_3a_7e.FETCH()([
+      PIL2JS.Context.ItemAny,
+      err.pil2js_orig_msg
+        ? err.pil2js_orig_msg
+        : new PIL2JS.Box.Constant(err.toString())
+    ])
   ]);
 };
 PIL2JS.catch_all_exceptions = function (code) {
