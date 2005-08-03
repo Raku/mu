@@ -4,7 +4,7 @@
 
 * New build system in `inc/PugsBuild`
 ** Configuration preferences are stored in `config.yml`
-** Presists across builds, overridable via `%*ENV<PUGS_BUILD_OPTS>`
+** Persists across builds, overridable via `%*ENV<PUGS_BUILD_OPTS>`
 * `$CALLER::_` is now again usable in defaults.
 * JavaScript Backend
 ** Actively progressing in `perl5/PIL2JS`
