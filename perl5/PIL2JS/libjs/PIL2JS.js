@@ -479,14 +479,21 @@ var _3amain_3a_3aRef         = new PIL2JS.Box.Constant("Ref");
 
 // Prettyprint an error msg.
 PIL2JS.new_error = function (msg) {
-  return new Error(msg.slice(-1, 1) == "\n"
-    ? msg
-    : msg + " at " + _24main_3a_3a_3fPOSITION.toNative()
+  if(!(msg instanceof PIL2JS.Box)) msg = new PIL2JS.Box.Constant(msg);
+  var errmsg = typeof(msg.FETCH()) == "string" || msg.FETCH() instanceof String
+    ? msg.FETCH()
+    : "<obj>";
+  var err = Error(errmsg.slice(-1, 1) == "\n"
+    ? errmsg
+    : errmsg + " at " + _24main_3a_3a_3fPOSITION.toNative()
   );
+  err.pil2js_orig_msg = msg;
+  err.pil2js_pos      = _24main_3a_3a_3fPOSITION.toNative();
+  return err;
 };
 
 // &warn and &die.
-PIL2JS.warn = function (msg) { alert(PIL2JS.new_error(msg)) };
+PIL2JS.warn = function (msg) { PIL2JS.print_exception(PIL2JS.new_error(msg)) };
 PIL2JS.die = function (msg) {
   var error = PIL2JS.new_error(msg);
   throw(error);
@@ -624,6 +631,12 @@ PIL2JS.use_jsan = function (mod) {
   JSAN.prototype.use.apply(JSAN.prototype, [mod]);
 };
 
+PIL2JS.print_exception = function (err) {
+  _26main_3a_3asay.FETCH()([
+    PIL2JS.Context.Void,
+    _26main_3a_3aprefix_3a_7e.FETCH()([PIL2JS.Context.ItemAny, err.pil2js_orig_msg])
+  ]);
+};
 PIL2JS.catch_all_exceptions = function (code) {
   try { code() } catch(err) {
     if(
@@ -632,7 +645,7 @@ PIL2JS.catch_all_exceptions = function (code) {
     ) {
       // Ok.
     } else {
-      alert(err);
+      PIL2JS.print_exception(err);
     }
   }
 };

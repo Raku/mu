@@ -91,7 +91,12 @@ sub JS::Root::try(Code $code) is primitive {
       if(err instanceof PIL2JS.ControlException.ret) {
         throw err;
       } else {
-        _24main_3a_3a_21.STORE(new PIL2JS.Box.Constant(err.toString()));
+        // Set $!
+        _24main_3a_3a_21.STORE(
+          err.pil2js_orig_msg
+            ? err.pil2js_orig_msg
+            : new PIL2JS.Box.Constant(err.toString())
+        );
         return new PIL2JS.Box.Constant(undefined);
       }
     }
@@ -99,7 +104,21 @@ sub JS::Root::try(Code $code) is primitive {
   })')($code);
 }
 
-sub JS::Root::warn(Str *@msg) is primitive { $JS::PIL2JS.warn(@msg.join("")) }
-sub JS::Root::die(Str *@msg)  is primitive { $JS::PIL2JS.die(@msg.join(""))  }
+sub JS::Root::warn(*@msg) is primitive {
+  my $arg = @msg > 1  ?? join "", @msg
+         :: @msg == 1 ?? @msg[0]
+         :: "Warning: something's wrong";
+  JS::inline('new PIL2JS.Box.Constant(function (args) {
+    PIL2JS.warn(args[1]);
+    return new PIL2JS.Box.Constant(undefined);
+  })')($arg);
+  ?1;
+}
+sub JS::Root::die(*@msg)  is primitive {
+  my $arg = @msg > 1  ?? join "", @msg
+         :: @msg == 1 ?? @msg[0]
+         :: "Died";
+  JS::inline('new PIL2JS.Box.Constant(function (args) { PIL2JS.die(args[1]) })')($arg);
+}
 
 sub JS::Root::nothing() is primitive {}
