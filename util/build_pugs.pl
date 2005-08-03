@@ -62,5 +62,6 @@ sub classify_options {
 }
 
 sub run {
+    print ((join " ", @_) . "\n");
     system @_ and die (sprintf "system: [%s]: $!", join " ", @_);
 }
