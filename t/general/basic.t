@@ -32,16 +32,16 @@ is($var1, "foo", 'list assignment 1');
 is($var2, "bar", 'list assignment 2');
 ok(eval('(my $quux = 1) == 1)'), "my() returns LHS", :todo);
 
-ok(eval('if 1 { 1 }; 1'), "if without parens");
-ok(eval('for 1 { 1 }; 1'), "for without parens");
-ok(eval('while (0) { 0 }; 1'), "while");
+lives_ok({ if 1 { 1 } }, "if without parens");
+lives_ok({ for 1 { 1 } }, "for without parens");
+lives_ok({ while (0) { 0 } }, "while");
 
 my $lasttest = 0;
-eval 'for (1..10) { $lasttest++; last; $lasttest++; }; 1';
+for (1..10) { $lasttest++; last; $lasttest++; }
 ok($lasttest == 1, "last");
 
 my $nexttest = 0;
-eval 'for (1..10) { $nexttest++; next; $nexttest++; }; 1';
+for (1..10) { $nexttest++; next; $nexttest++; }
 ok($nexttest == 10, "next");
 
 is(12.eval, 12, "12.eval");

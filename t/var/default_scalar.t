@@ -31,6 +31,6 @@ plan 4;
 	unlink "tmpfile";
 
 	isnt $s,"3\n", 'and global $_ should not be the default topic of "for"'; 
-    eval_ok 'for 1 .. 3 { $_++ } ', 'default topic is rw by default',:todo<bug>; 
+    lives_ok { for 1 .. 3 { $_++ } }, 'default topic is rw by default',:todo<bug>; 
 # #*** Error: cannot modify constant item at 1
 

@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 47;
+plan 46;
 
 =kwid
 
@@ -28,7 +28,7 @@ Tests the given block, as defined in L<S04/"Switch statements">
 
         given 5 {
             when 2 { $two = 1 }
-            when 5 { $five = 1; eval 'next' }
+            when 5 { $five = 1; try { next } }
             when (Int) { $int = 1 }
             when 5 { $unreached = 1 }
 	}
@@ -41,7 +41,7 @@ Tests the given block, as defined in L<S04/"Switch statements">
 
 {
 	my $foo;
-	eval 'given "foo" { when "bar", /foo/ { $foo = 1 } }';
+	try { given "foo" { when "bar", /foo/ { $foo = 1 } } };
 
 	ok($foo, "foo was found in OR when");
 };
@@ -73,7 +73,6 @@ Tests the given block, as defined in L<S04/"Switch statements">
 {
 	# interleaved code L<S04/"Switch statements" /which may or may not be a when statement/>
 	my ($b_one, $b_two, $b_three, $panic);
-	eval '
 	given 2 {
 		$b_one = 1;
 		when 1 { }
@@ -82,7 +81,7 @@ Tests the given block, as defined in L<S04/"Switch statements">
 		$b_three = 1;
 		default { }
 		$panic = 1;
-	}';
+	}
 
 	ok($b_one, "inteleraved 1");
 	ok($b_two, "inteleraved 2 is the last one");
@@ -93,14 +92,12 @@ Tests the given block, as defined in L<S04/"Switch statements">
 {
 	# topic not given by 'given' L<S04/"Switch statements" /including a for loop/>
 	my ($b_one, $b_two, $b_three,$panic) = (0,0,0,0);
-	eval '
 	for (qw(1 2 3)) {
 		when 1 {$b_one = 1}
 		when 2 {$b_two = 1}
 		when 3 {$b_three = 1}
 		default{$panic =1}
-	}';
-        ok(!$!,"parse ok");
+	}
         ok($b_one, "first iteration");
         ok($b_two, "second iteration");
         ok($b_three, "third iteration");
@@ -109,13 +106,12 @@ Tests the given block, as defined in L<S04/"Switch statements">
 
 {
     my $foo = 1;
-    eval '
     given (1) {
         my $_ = 2;
         when (2) { $foo = 2; }
         when (1) { $foo = 3; }
         default  { $foo = 4; }
-    }';
+    }
     is($foo, 2, 'Rebind $_ to new lexical');
 }
 

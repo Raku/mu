@@ -20,8 +20,8 @@ plan 12;
 	my @e = (0 .. 5);
 
 	my @z; eval '@z = zip(@a; @b)';
-	my @y; eval '@y = (@a ¥ @b)';
-	my @x; eval '@x = (@a Y @b)';
+	my @y; @y = (@a ¥ @b);
+	my @x; @x = (@a Y @b);
 
 	is(~@z, ~@e, "simple zip", :todo);
 	is(~@y, ~@e, "also with yen char");
@@ -36,8 +36,8 @@ plan 12;
 	my @e = (0 .. 5);
 
 	my @z; eval '@z = zip(@a; @b; @c)';
-	my @y; eval '@y = (@a ¥ @b ¥ @c)';
-	my @x; eval '@x = (@a Y @b Y @c)';
+	my @y; @y = (@a ¥ @b ¥ @c);
+	my @x; @x = (@a Y @b Y @c);
 
 	is(~@z, ~@e, "zip of 3 arrays", :todo);
 	is(~@y, ~@e, "also with yen char");
@@ -52,8 +52,8 @@ plan 12;
 	my @e = (0 .. 7);
 
 	my @z; eval '@z = zip(zip(@a; @b); @c)';
-	my @y; eval '@y = ((@a ¥ @b) ¥ @c)';
-	my @x; eval '@x = ((@a Y @b) Y @c)';
+	my @y; @y = ((@a ¥ @b) ¥ @c);
+	my @x; @x = ((@a Y @b) Y @c);
 
 	is(~@z, ~@e, "zip of zipped arrays with other array", :todo);
 	is(~@y, ~@e, "also as ¥");

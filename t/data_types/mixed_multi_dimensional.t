@@ -103,7 +103,7 @@ this test should be added too more.
         is($array[2], 3, 'got the right value (when I pull the array out)');    
     }
     
-    eval '%hash<key>.push(4)';
+    %hash<key>.push(4);
     is(+%hash<key>, 4, 'it should now have 4 values in it');
     is(%hash<key>[3], 4, 'got the right value (which we just pushed onto the list)');    
 }
@@ -132,7 +132,7 @@ this test should be added too more.
         is(@array[2], 3, 'got the right value (when I pull the array out)');    
     }
     
-    eval '%hash<key>.push(4)';
+    %hash<key>.push(4);
     is(+%hash<key>, 4, 'it should now have 4 values in it');
     is(%hash<key>[3], 4, 'got the right value (which we just pushed onto the array)');    
 

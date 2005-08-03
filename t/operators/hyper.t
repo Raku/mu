@@ -13,19 +13,19 @@ plan 39;
 
 { # binary infix
         my @r;
-        eval '@r = (1, 2, 3) »+« (2, 4, 6)';
+        @r = (1, 2, 3) »+« (2, 4, 6);
         my @e = (3, 6, 9);
         is(~@r, ~@e, "hyper-sum two arrays");
 
-        eval '@r = (1, 2, 3) »-« (2, 4, 6)';
+        @r = (1, 2, 3) »-« (2, 4, 6);
         @e = (-1, -2, -3);
         is(~@r, ~@e, "hyper-subtract two arrays");
 
-        eval '@r = (1, 2, 3) >>+<< (2, 4, 6)';
+        @r = (1, 2, 3) >>+<< (2, 4, 6);
         @e = (3, 6, 9);
         is(~@r, ~@e, "hyper-sum two arrays ASCII notation");
 
-        eval '@r = (1, 2, 3) >>-<< (2, 4, 6)';
+        @r = (1, 2, 3) >>-<< (2, 4, 6);
         @e = (-1, -2, -3);
         is(~@r, ~@e, "hyper-subtract two arrays");
 
@@ -72,34 +72,34 @@ plan 39;
 
 { # unary postfix
         my @r = (1, 2, 3);
-        eval '@r »++';
+        try { @r »++ };
         my @e = (2, 3, 4);
         is(~@r, ~@e, "hyper auto increment an array", :todo);
 
         @r = (1, 2, 3);
-        eval '@r >>++';
+        try { @r >>++ };
         @e = (2, 3, 4);
         is(~@r, ~@e, "hyper auto increment an array ASCII notation", :todo);
 };
 
 { # unary prefix
         my @r;
-        eval '@r = -« (3, 2, 1)';
+        @r = -« (3, 2, 1);
         my @e = (-3, -2, -1);
         is(~@r, ~@e, "hyper op on assignment/pipeline");
 
-        eval '@r = -<< (3, 2, 1)';
+        @r = -<< (3, 2, 1);
         @e = (-3, -2, -1);
         is(~@r, ~@e, "hyper op on assignment/pipeline ASCII notation");
 };
 
 { # dimension upgrade
         my @r;
-        eval '@r = (1, 2, 3) »+« 1';
+        @r = (1, 2, 3) »+« 1;
         my @e = (2, 3, 4);
         is(~@r, ~@e, "auto dimension upgrade on rhs");
 
-        eval '@r = (1, 2, 3) >>+<< 1';
+        @r = (1, 2, 3) >>+<< 1;
         @e = (2, 3, 4);
         is(~@r, ~@e, "auto dimension upgrade on rhs ASCII notation");
 
@@ -175,7 +175,7 @@ plan 39;
     is ~([+]<<<< ([[1,2],[3,4]],[[5,6],[7,8]])), "3 7 11 15",
       "mixed double hyper and reduce metaop ([+]<<<<) works";
 
-    is eval('~[+]« [1,2,3], [4,5,6]'), "6 15",
+    is ~([+]« [1,2,3], [4,5,6]), "6 15",
       "mixed Unicode hyper and reduce metaop ([+]«) works";
 }
 

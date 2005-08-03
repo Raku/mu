@@ -167,20 +167,20 @@ Perl6-specific tests
 	# types
 	# TODO: waiting on my Dog $spot;
 
-	eval 'my Array $an_ary';
-	ok(eval('!defined($an_ary)'), "my Array", :todo);
-	ok(eval('!defined($an_ary.0)'), "my Array subscript - undef", :todo);
-	eval '$an_ary.push("blergh")';
-	ok(eval('defined($an_ary.pop)'), "push", :todo);
-	ok(eval('!defined($an_ary.pop)'), "comes to shove", :todo);
+	my Array $an_ary;
+	ok(!defined($an_ary), "my Array");
+	ok(try { !defined($an_ary[0]) }, "my Array subscript - undef");
+	try { $an_ary.push("blergh") };
+	ok(try { defined($an_ary.pop) }, "push");
+	ok(try { !defined($an_ary.pop) }, "comes to shove");
 
-	eval 'my Hash $a_hash';
-	ok(eval('!defined($a_hash)'), "my Hash", :todo);
-	ok(eval('!defined($a_hash<blergh>)'), "my Hash subscript - undef", :todo);
-	ok(eval('!defined($a_hash<blergh>)'), "my Hash subscript - undef, even after autovivification", :todo);
-	eval '$a_hash<blergh> = 1';
-	ok(eval('defined($a_hash<blergh>.delete)'), "delete", :todo);
-	ok(eval('!defined($a_hash<blergh>.delete)'), " - once only", :todo);
+	my Hash $a_hash;
+	ok(!defined($a_hash), "my Hash");
+	ok(try { !defined($a_hash<blergh>) }, "my Hash subscript - undef");
+	ok(try { !defined($a_hash<blergh>) }, "my Hash subscript - undef, no autovivification happened");
+	$a_hash<blergh> = 1;
+	ok(try { defined($a_hash.delete("blergh")) }, "delete");
+	ok(try { !defined($a_hash.delete("blergh")) }, " - once only", :todo);
 
 	eval '
 		class Dog {};
@@ -304,9 +304,9 @@ fail("FIXME (autoload tests)", :todo<parsefail>);
 #}
 
 # Extra tests added due to apparent bugs
-eval_is('(undef) + 1', 1, 'undef + 1');
-eval_is('1 + (undef)', 1, '1 + undef');
-eval_is('(undef) * 2', 0, 'undef * 2');
-eval_is('2 * (undef)', 0, '2 * undef');
-eval_is('(undef) xx 2', [undef, undef], 'undef xx 2');
-eval_is('(undef) * (undef)', 0, 'undef * undef');
+is((undef) + 1, 1, 'undef + 1');
+is(1 + (undef), 1, '1 + undef');
+is((undef) * 2, 0, 'undef * 2');
+is(2 * (undef), 0, '2 * undef');
+is((undef) xx 2, [undef, undef], 'undef xx 2');
+is((undef) * (undef), 0, 'undef * undef');

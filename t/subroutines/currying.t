@@ -28,9 +28,9 @@ is((&foo.assuming("y" => 2))(1), foo(1, 2), "curried sub, mixed notation");
 
 is((&foo.assuming("x" => 1))(2), foo(1, 2), "same thing, but the other way around");
 
-ok(!(eval '&foo.assuming(1)'), "can't curry without named params",:todo); # L<S06/Currying /takes a series of named arguments/> 
+ok(!(try { &foo.assuming(1) }), "can't curry without named params",:todo); # L<S06/Currying /takes a series of named arguments/> 
 
-ok(!(eval '&foo.assuming("f" => 3)'), "can't curry nonexistent named param",:todo); # L<S06/Currying /whose names must match parameters of the subroutine itself/> 
+ok(!(try { &foo.assuming("f" => 3) }), "can't curry nonexistent named param",:todo); # L<S06/Currying /whose names must match parameters of the subroutine itself/> 
 
 # L<S06/"Currying" /The result of a use statement/>
 (eval('use t::packages::Test') // {}).assuming(arg1 => "foo");

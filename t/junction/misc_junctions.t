@@ -117,7 +117,7 @@ L<S03/"Junctive operators">
 
 {
 	my $j = 1 | 2;
-	eval '$j = 5';
+	$j = 5;
 	is($j, 5, 'reassignment of junction variable');
 }
 

@@ -225,32 +225,32 @@ plan 60;
 
 {
     my $x = 0;
-    # $x ?^= 42;   # XXX: compiler blows up
+    eval '$x ?^= 42';   # XXX: compiler blows up
     is($x, 1, '?^= operator', :todo);
 }
 
 {
     my $x = 1;
-    # $x +<<= 8;   # XXX: compiler blows up
+    eval '$x +<<= 8';   # XXX: compiler blows up
     is($x, 256, '+<<= operator', :todo);
 }
 
 {
     my $x = 1;
-    # $x +>>= 8;   # XXX: compiler blows up
+    eval '$x +>>= 8';   # XXX: compiler blows up
     is($x, 0, '+>>= operator', :todo);
 }
 
 {
     my $x = 1;
-    # $x ~<<= 8;   # XXX: compiler blows up
+    eval '$x ~<<= 8';   # XXX: compiler blows up
     # XXX: expected could be wrong (I don't understand this operator)
     is($x, 256, '~<<= operator', :todo);
 }
 
 {
     my $x = 1;
-    # $x ~>>= 8;   # XXX: compiler blows up
+    eval '$x ~>>= 8';   # XXX: compiler blows up
     # XXX: expected could be wrong (I don't understand this operator)
     is($x, 0, '~>>= operator', :todo);
 }

@@ -115,8 +115,9 @@ eval_ok('my @array11 is shape(2,4)', "another way to declare a multidimension ar
 eval_ok('@array11[2,0] = 12', "push the value to a multidimension array", :todo);
 
 # declare the array with data type
-eval_ok('my Int @array', "declare a array for integer only", :todo);
-eval_ok('@array[0] = 23', "declare the array value", :todo);
+my Int @array;
+lives_ok { @array[0] = 23 },                   "stuffing Ints in an Int array works";
+dies_ok  { @array[1] = "this is not an int" }, "stuffing Strs in an Int array does not work";
 
 # negative index
 my @array12 = ('a', 'b', 'c', 'e'); 

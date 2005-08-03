@@ -106,7 +106,7 @@ plan 22;
 # Note: I'm not 100% sure this is legal syntax. If it turns out it isn't, we'll
 # have to s/ok/dies_ok/.
 {
-  eval 'this_will_die_and_therefore_set_$!';
+  try { this_will_die_and_therefore_set_dollar_exclamation_mark };
   ok $::("!"),    "symbolic dereferentiation works with special chars (1)";
   ok $::!,        "symbolic dereferentiation works with special chars (2)";
   ok %::("*ENV"), "symbolic dereferentiation works with special chars (3)";
