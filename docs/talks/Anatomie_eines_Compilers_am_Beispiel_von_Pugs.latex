@@ -28,7 +28,7 @@
 \title{Anatomie eines Compilers am Beispiel von Pugs}
 \author{Ingo Blechschmidt \\\texttt{<iblech@web.de>}}
 \institute{LUGA}
-\date{4. August 2005}
+\date{3. August 2005}
 
 \usetheme{Warsaw}
 \usecolortheme{seahorse}
@@ -154,10 +154,11 @@
 
   \begin{itemize}
     \item PIL2JS: Spiel-Projekt von mir, Projektbeginn: 16.7.2005
-    \item $\approx$ 4.000 Zeilen Perl 5 und JavaScript
+    \item $\approx$ 4.000 Zeilen Perl 5, Perl 6 und JavaScript
     \item "`Perl 6 überall"' (Browser, PDFs, Flash, \ldots)
   \end{itemize}
 
+  \vfill\pause
   \begin{enumerate}
     \item Einlesen und Parsen von Perl 6 durch Pugs
     \item Ausgabe von Pugs Intermediate Language (PIL) durch Pugs
@@ -256,7 +257,7 @@
             \synvar{foo}(\synvar{irgendein\_grtz\_objekt});\\
             \synvar{foo}(\synvar{irgendein\_grtz\_objekt}, \synvar{true});\\
             \ \\
-            \syncomment{// Ebenfalls ok:}\\
+            \syncomment{// Ebenfalls ok (!):}\\
             \synvar{foo}();\\
             \synvar{foo}("\synstr{Zu}", \synvar{viele}, \synclass{Para}.\synvar{meter});
           }
