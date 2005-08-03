@@ -1,20 +1,55 @@
-== Changes for 6.2.9 (rXX) - July XX, 2005
+== Changes for 6.2.9 (up to r6013) - Aug 2, 2005
 
 === Pugs Internals
 
-
+* Seperate Compilation of `Prelude.pm`
+* New and Improved Build system in `/inc/PugsBuild`
+* `$CALLER::_` is now again usable in defaults.
+* PIL
+** PIL2 design begun
+*** QuickCheck (specification) tests added
+* PIL2* Backends
+** Perl 5 backend begun in `/perl5/PIL-Run/`
+** Javascript backend actively progressing in `/perl5/PIL2JS`
+*** passes large percentage of the Pugs test suite
+* Object MetaModel
+** Perl 5 prototype is almost completely self-hosting 
+*** This will soon will be ported to Haskell
+** Javascript version partially completed
+** Java version begun (in very early stages)
 
 === Bundled Modules
 
-
+* `Test::Builder` port completed.
+* New Modules added:
+** `Span`
+** `Recurrence`
+** `MIME::Base64`
+* Work on existing modules:
+** libwww-perl - `URI::Escape`, `HTTP::Cookies`, `HTTP::Status`, `HTTP::Request::CGI`
+  `HTTP::Query`
+** Date Time modules - `DateTime::Set`
 
 === Test, Examples and Documentations
 
-
+* Many new tests and test refactoring, we now have 8000+ tests
+* `/docs/notes/plan` added with information on future directions
+* `STATUS` document added to the top level to keep track of the current progress
+* `/examples/algorithms/Newton.pm`
+* `examples/ppt/cat.p6` added to Perl Power Tools
+* A number of additions to `/examples/cookbook/`
+* SVG generation examples in ` /examples/graphics`
 
 === Bug Fixes
 
-
+* the default expression for parameters is now to evaluate
+  inside the subroutine's package and lexical pads.
+* Fix pair binding for functions expecting pairs as arguments.
+* Global destruction -- `DESTROYALL()` on all active objects --
+  is now guaranteed upon program exit. 
+* Primitive listops now handles Pairs as regular arguments
+  instead of named bindings.  
+* `elems()` should only work on Arrays, so it's an array method now.
 
 == Changes for 6.2.8 (r5577) - July 13, 2005
 
