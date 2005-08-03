@@ -388,6 +388,10 @@ Returns the last element in the recurrence.
 Returns positive infinite if the recurrence is infinite.
 Returns negative infinite if the recurrence is an empty set.
 
+- `stringify()`
+
+Return a string representation of the span.
+
 = ARITHMETIC FUNCTIONS
 
 - `negate()`

@@ -587,7 +587,7 @@ Otherwise, it contains a single span.
 
 The argument can be a Span object, a Recurrence object, or a scalar value.
 
-- `stringify ()`
+- `stringify()`
 
 Return a string representation of the span.
 
