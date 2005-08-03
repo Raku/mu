@@ -40,6 +40,14 @@ $SIG{'__DIE__'} = sub {
 
 ## GLOBAL META FUNCTIONS
 
+sub ::meta {
+    my ($class) = @_;
+    confess "::meta called without a class" unless defined $class;
+    $class = blessed($class) || $class;
+    no strict 'refs';
+    return ${"${class}::META"};
+}
+
 sub ::dispatch {
     my ($self) = @_;    
     # deal with the MetaClass special case ...
@@ -72,7 +80,7 @@ sub _metaclass_dispatch {
     # is only needed in this package to avoid the
     # circularity
 
-    my $meta_meta = $self->meta();       
+    my $meta_meta = ::meta($self);
     # XXX - we are checking the non local table for 
     # private methods, which is not okay, that part
     # needs to be fixed. (but at least we are checking
@@ -97,15 +105,15 @@ sub _normal_dispatch {
 
     # check if this is a private method
     if ($label =~ /^_/) {
-        (::dispatch($self->meta, 'has_method', ($label, (for => 'private'))))
+        (::dispatch(::meta($self), 'has_method', ($label, (for => 'private'))))
             || confess "Private Method ($label) not found for instance ($self)";        
-        my $method = ::dispatch($self->meta, 'get_method', ($label, (for => 'private')));
+        my $method = ::dispatch(::meta($self), 'get_method', ($label, (for => 'private')));
         @return_value = $method->do($self, @_);             
     }
     else {      
 
         # get the dispatcher instance ....
-        my $dispatcher = ::dispatch($self->meta, 'dispatcher', (':canonical'));
+        my $dispatcher = ::dispatch(::meta($self), 'dispatcher', (':canonical'));
         
 
         # this needs to be fully qualified for now
@@ -143,7 +151,7 @@ sub _normal_dispatch {
 sub __ {
     my ($label, $value) = @_;
     my $class = ::CLASS();
-    my $prop = ::dispatch($class->meta, 'find_attribute_spec', ($label, for => 'Class'))
+    my $prop = ::dispatch(::meta($class), 'find_attribute_spec', ($label, for => 'Class'))
         || confess "Cannot locate class property ($label) in class ($class)";    
     $prop->set_value($value) if defined $value;    
     $prop->get_value();    
@@ -153,7 +161,7 @@ sub _ {
     my ($label, $value) = @_;
     my $self = ::SELF();
     if (defined $value) {
-        my $prop = ::dispatch($self->meta, 'find_attribute_spec', ($label))
+        my $prop = ::dispatch(::meta($self), 'find_attribute_spec', ($label))
             || confess "Perl6::Attribute ($label) not found";
         # do some basic container type checking here
         (ref($value) eq 'ARRAY') 
@@ -219,7 +227,7 @@ sub ::CALLONE {
     my ($obj, $methname, $maybe, $opt, $args) = @_;
     $opt  ||= {};
     $args ||= [];
-    my $startclass = ::dispatch($obj->meta, 'dispatcher');
+    my $startclass = ::dispatch(::meta($obj), 'dispatcher');
     push @CURRENT_DISPATCHER => [ $startclass, $methname, $obj, @{$args} ];
     while (my $method = ::WALKMETH($startclass, $methname, %{$opt})) {
         return $method->do($obj, @{$args});
@@ -233,7 +241,7 @@ sub ::CALLALL {
     my ($obj, $methname, $maybe, $force, $opt, $args) = @_;
     $opt  ||= {};
     $args ||= [];
-    my $startclass = ::dispatch($obj->meta, 'dispatcher');
+    my $startclass = ::dispatch(::meta($obj), 'dispatcher');
     push @CURRENT_DISPATCHER => [ $startclass, $methname, $obj, @{$args} ];    
     my @results;
     if ($force) {
@@ -245,7 +253,7 @@ sub ::CALLALL {
         # if the method is not there ... 
         while (my $class = ::WALKCLASS($startclass, $methname, %{$opt})) {
             # redispatch (we don't have symbol tables, so we need to do meta-stuff)
-            return ::dispatch($class->meta, 'get_method', ($methname)->do($obj, @{$args}));
+            return ::dispatch(::meta($class), 'get_method', ($methname)->do($obj, @{$args}));
         }            
     }
     else {
@@ -268,7 +276,7 @@ sub ::CALLALL {
     require Perl6::Object;
     # now we can say that a MetaClass
     # is a Object ...
-    ::dispatch(Perl6::MetaClass->meta, 'superclasses', [ Perl6::Object->meta ]);
+    ::dispatch(::meta('Perl6::MetaClass'), 'superclasses', [ ::meta('Perl6::Object') ]);
 }
 
 1;

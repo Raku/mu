@@ -50,7 +50,7 @@ class 'Cat-0.0.1-cpan:CHROMATIC' =>
 };
 
 my $cat       = Cat->new( '$.name' => 'Fluffy', '$.color' => 'white' );
-my $cat_class = $cat->meta();
+my $cat_class = ::meta($cat);
 ok(::dispatch($cat_class, 'getmethods'), '... $cat_class->can(getmethods)');
 
 my @methods   = ::dispatch($cat_class, 'getmethods');

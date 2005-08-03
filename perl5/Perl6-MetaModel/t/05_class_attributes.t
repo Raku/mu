@@ -99,10 +99,6 @@ class Derived1 => {
     }
 };
 
-
-#use Data::Dumper;
-#diag Dumper Derived1->class->metaclass;
-
 my $d = Derived1->new();
 isa_ok($d, 'Derived1');
 
@@ -122,20 +118,6 @@ lives_ok {
 } '... calling a method which sets a private attribute worked correctly';
 
 is($d->get_base_foo(), 'Base::Foo -> new', '... the Base::foo attribute can still be accessed');
-
-#$@ = undef;
-#eval { $d->get_value('$:foo') };
-#ok($@, '... getting a private value failed correctly');
-
-#$@ = undef;
-#eval { $d->set_value('$:foo' => 'nothing') };
-#ok($@, '... setting a private value failed correctly');
-
-# check for incorrect parameters
-
-#$@ = undef;
-#eval { $d->get_value('$.foo2') };
-#ok($@, '... getting a incorrect parameter failed correctly');
 
 dies_ok {
     _('$.foo2' => 'nothing')

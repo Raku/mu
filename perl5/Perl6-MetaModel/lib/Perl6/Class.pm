@@ -25,17 +25,11 @@ use Perl6::Instance::Method;
 sub new {
     my ($class, $name, $params) = @_;
     my $self = bless { 
-        name   => $name,
-        meta   => undef
+        name   => $name
     }, $class;
     _validate_params($self, $params);
     return $self;
 }
-
-# return the metaclass instance associated with
-# this class object. This is not really right, 
-# but it will do for now
-sub meta { (shift)->{meta} }
 
 sub _apply_class_to_environment {
     my ($self) = @_;
@@ -43,10 +37,7 @@ sub _apply_class_to_environment {
     my $code = qq|
         package $name;
         \@$name\:\:ISA = 'Perl6::Instance';
-        
         \$$name\:\:META = undef;
-        sub meta { \$$name\:\:META }
-        
         1;
     |;
     eval $code || confess "Could not initialize class '$name'";   
@@ -75,7 +66,6 @@ sub _apply_class_to_environment {
     eval {
         no strict 'refs';    
         ${"${name}::META"} = $meta;          
-        $self->{meta} = $meta;
         *{$self->{name} . '::'} = *{$name . '::'};
     };
     confess "Could not create full name " . $self->name . " : $@" if $@;    
@@ -118,7 +108,7 @@ sub _build_class {
     my $name = ::dispatch($meta, 'name');
 
     my $superclasses = $self->{params}->{is};
-    ::dispatch($meta, 'superclasses', ([ map { $_->meta } @{$superclasses} ]));        
+    ::dispatch($meta, 'superclasses', ([ map { ::meta($_) } @{$superclasses} ]));        
 
     if (my $instance = $self->{params}->{instance}) {
 

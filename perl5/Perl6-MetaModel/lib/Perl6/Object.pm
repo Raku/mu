@@ -11,13 +11,13 @@ use Perl6::MetaModel;
 my $isa = sub {    
     my ($self, $class) = @_;
     return undef unless $class;
-    return ::dispatch($self->meta, 'is_a', ($class));
+    return ::dispatch(::meta($self), 'is_a', ($class));
 };
 
 my $can = sub {
     my ($self, $label) = @_;
     return undef unless $label;
-    return ::WALKMETH(::dispatch($self->meta, 'dispatcher', (':canonical')), $label, (
+    return ::WALKMETH(::dispatch(::meta($self), 'dispatcher', (':canonical')), $label, (
             blessed($self) ? 
                 (blessed($self) eq 'Perl6::Class' ?
                     (for => 'Class')
@@ -58,7 +58,7 @@ class 'Perl6::Object' => {
                 # attributes that were defined
                 # for the instances.
                 my %attrs;
-                my $dispatcher = ::dispatch($class->meta, 'dispatcher', (':descendant'));
+                my $dispatcher = ::dispatch(::meta($class), 'dispatcher', (':descendant'));
                 while (my $c = ::WALKCLASS($dispatcher)) {
                     foreach my $attr (::dispatch($c, 'get_attribute_list')) {
                         my $attr_obj = ::dispatch($c, 'get_attribute', ($attr));
@@ -93,14 +93,14 @@ class 'Perl6::Object' => {
         methods => {
             'BUILDALL' => sub {
                 my ($self, %params) = @_;
-                my $dispatcher = ::dispatch($self->meta, 'dispatcher', (':descendant'));
+                my $dispatcher = ::dispatch(::meta($self), 'dispatcher', (':descendant'));
                 while (my $method = ::WALKMETH($dispatcher, 'BUILD')) {                      
                     $method->force_call($self, %params);                  
                 }              
             },
             'DESTROYALL' => sub {
                 my ($self) = @_;
-                my $dispatcher = ::dispatch($self->meta, 'dispatcher', (':ascendant'));
+                my $dispatcher = ::dispatch(::meta($self), 'dispatcher', (':ascendant'));
                 while (my $method = ::WALKMETH($dispatcher, 'DESTROY')) {  
                     $method->force_call($self);   
                 }               

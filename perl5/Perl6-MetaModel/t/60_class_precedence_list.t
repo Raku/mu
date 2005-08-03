@@ -57,25 +57,25 @@ class Vulcan => {
 
 # pre-order class precedence list
 is_deeply(
-    [ map { ::dispatch($_, 'name') } ::dispatch(Vulcan->meta, 'class_precedence_list', (':preorder')) ],
+    [ map { ::dispatch($_, 'name') } ::dispatch(::meta('Vulcan'), 'class_precedence_list', (':preorder')) ],
     [ qw(Vulcan Intelligent Sentient LifeForm Perl6::Object Humanoid BiPedal) ],
     '... got the right :preorder class precedence list');
     
 # pre-order class precedence list
 is_deeply(
-    [ map { ::dispatch($_, 'name') } ::dispatch(Vulcan->meta, 'class_precedence_list', (':breadth')) ],
+    [ map { ::dispatch($_, 'name') } ::dispatch(::meta('Vulcan'), 'class_precedence_list', (':breadth')) ],
     [ qw(Vulcan Intelligent Humanoid Sentient BiPedal LifeForm Perl6::Object ) ],
     '... got the right :breadth class precedence list');    
 
 # least-derived first, like construction order    
 is_deeply(
-    [ map { ::dispatch($_, 'name') } ::dispatch(Vulcan->meta, 'class_precedence_list', (':ascendant')) ],
+    [ map { ::dispatch($_, 'name') } ::dispatch(::meta('Vulcan'), 'class_precedence_list', (':ascendant')) ],
     [ qw(Vulcan Intelligent Sentient Humanoid BiPedal LifeForm Perl6::Object) ],
     '... got the right descendant class precedence list');    
 
 # most-derived first, like destruction order    
 is_deeply(
-    [ map { ::dispatch($_, 'name') } ::dispatch(Vulcan->meta, 'class_precedence_list', (':descendant')) ],
+    [ map { ::dispatch($_, 'name') } ::dispatch(::meta('Vulcan'), 'class_precedence_list', (':descendant')) ],
     [ qw(Perl6::Object LifeForm BiPedal Humanoid Sentient Intelligent Vulcan) ],
     '... got the right ascendant class precedence list');      
 
@@ -100,7 +100,7 @@ class D => { is => [ 'A', 'E' ] };
 class F => { is => [ 'C', 'D' ] };
 
 is_deeply(
-    [ map { ::dispatch($_, 'name') } ::dispatch(F->meta, 'class_precedence_list', (':ascendant')) ],
+    [ map { ::dispatch($_, 'name') } ::dispatch(::meta('F'), 'class_precedence_list', (':ascendant')) ],
     [ qw(F C D A B E Perl6::Object) ],
     '... got the right ascendant class precedence list');  
     
