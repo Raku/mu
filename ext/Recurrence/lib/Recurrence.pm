@@ -145,6 +145,21 @@ method difference ($self: $set ) {
     return $self.intersection( $set.complement );
 }
 
+method grep ($set: Code $select ) {
+    return $set.new( 
+        closure_next =>        sub ($x is copy) { 
+            loop{ $x = &{ $set.closure_next }($x); 
+                  return $x if $x==Inf || $select($x) } },
+        closure_previous =>    sub ($x is copy) { 
+            loop{ $x = &{ $set.closure_previous }($x); 
+                  return $x if $x==-Inf || $select($x) } },
+        # -- use the default generated closures
+        # complement_next =>     sub ($x) {...},
+        # complement_previous => sub ($x) {...},
+        universe =>            $set.get_universe,
+    );
+}
+
 # --------- arithmetic ----------------
 
 method negate ($set: ) {
@@ -362,6 +377,25 @@ Returns true if this recurrence intersects (has any element in common) with the 
 Returns true if the closures that define the recurrences are exactly the same.
 
 This method tests the closures identities using the '=:=' operation.
+
+- `grep:{...}`
+
+This method returns a recurrence set containing only the elements that 
+satisfy the given boolean function.
+
+    # remove 0 and 5 from the recurrence
+    my $span1 = $span.grep:{ $^a != 0 & 5 };
+
+grep() is evaluated lazily. 
+
+It may enter an infinite loop if the formula cannot be satisfied within a 
+reasonable range of values.
+
+You should consider using a Set::Infinite object if you are excluding 
+large ranges.
+
+    # it's better to use Set::Infinite instead of this
+    my $span1 = $span.grep:{ $^a != all(0..100000) };
 
 = SCALAR FUNCTIONS
 
