@@ -113,6 +113,6 @@ is($moo, 0, "var was not touched");
 
   my @array = (42);
 
-  is(@array[+foo()]++, 43, "++ evaluates the expression to increment only once (1)");
-  is($was_in_foo,       1, "++ evaluates the expression to increment only once (2)");
+  is(@array[+foo()]++, 43, "++ evaluates the expression to increment only once (1)", :todo<bug>);
+  is($was_in_foo,       1, "++ evaluates the expression to increment only once (2)", :todo<bug>);
 }

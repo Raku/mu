@@ -257,16 +257,16 @@ FOO
 	diag "XXX: pair.perl is broken atm so these tests may be unreliable";
 
 	my @q = <<:p(1)>>;
-	is(@q[0].perl, (:p(1)).perl, "pair inside <<>>-quotes - simple");
+	is(@q[0].perl, (:p(1)).perl, "pair inside <<>>-quotes - simple", :todo<bug>);
 
 	@q = <<:p(1) junk>>;
-	is(@q[0].perl, (:p(1)).perl, "pair inside <<>>-quotes - with some junk");
+	is(@q[0].perl, (:p(1)).perl, "pair inside <<>>-quotes - with some junk", :todo<bug>);
 	is(@q[1], 'junk', "pair inside <<>>-quotes - junk preserved");
 
 	@q = <<:def>>;
-	is(@q[0].perl, (def => 1).perl, ":pair in <<>>-quotes with no explicit value");
+	is(@q[0].perl, (def => 1).perl, ":pair in <<>>-quotes with no explicit value", :todo<bug>);
 
 	@q = "(eval failed)";
 	try { eval '@q = <<:p<moose>>>;' };
-	is(@q[0].perl, (p => "moose").perl, ":pair<anglequoted>");
+	is(@q[0].perl, (p => "moose").perl, ":pair<anglequoted>", :todo<bug>);
 };
