@@ -20,7 +20,7 @@ use Span;          # stringify()
     
     * remove "arbitrary_limit" if possible
 
-    * iterator / map / grep 
+    * iterator / map 
 
 ----------- not implemented or tested ------------------
 
@@ -308,7 +308,10 @@ Recurrence - An object representing an infinite recurrence set
 
 This class handles an infinite recurrence set, defined with closures. 
 
-A recurrence set is defined by a "successor" function and a "predecessor" function.
+A recurrence set is defined by a "successor" function and a "predecessor" 
+function.
+
+Recurrence sets can extend from "negative Infinite" until "Infinite".
 
 Recurrence sets can be combined with union, intersection, difference, and a few
 other operations.
@@ -317,7 +320,7 @@ This class also provides methods for iterating through the set, and for querying
 set properties.
 
 Note that all set functions may end up being calculated using iterations, 
-which can be slow.
+which can be slow sometimes.
 Set functions might also fail and emit warnings in some cases.
 
 = CONSTRUCTORS
@@ -391,7 +394,7 @@ grep() is evaluated lazily.
 It may enter an infinite loop if the formula cannot be satisfied within a 
 reasonable range of values.
 
-You should consider using a Set::Infinite object if you are excluding 
+You should consider using a Set::Infinite object if you want to exclude
 large ranges.
 
     # it's better to use Set::Infinite instead of this
