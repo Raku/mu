@@ -242,7 +242,7 @@ Recurrence - An object representing an infinite recurrence set
     # all even integers
     $even_numbers = Recurrence.new( 
         closure_next =>     sub { 2 * int( $_ / 2 ) + 2     },
-        closure_previous => sub { 2 * int( ( $_ - 2 ) / 2 ) },
+        closure_previous => sub { 2 * int( ( $_ - 1 ) / 2 ) },
         universe => $universe );
 
     # all odd integers
@@ -368,6 +368,12 @@ Returns the last element in the recurrence.
 
 Returns positive infinite if the recurrence is infinite.
 Returns negative infinite if the recurrence is an empty set.
+
+= SEE ALSO
+
+    Span
+    
+    Set::Infinite
 
 = AUTHOR
 

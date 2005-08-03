@@ -11,7 +11,9 @@ class Set::Infinite-0.01
 
 =for TODO
 
-    * tests - iterator(), recurrences, unicode
+    * finish POD
+    
+    * tests - unicode
 
     * compare
 
@@ -21,6 +23,7 @@ class Set::Infinite-0.01
     * is_singleton
 
     * "backtracking" - see Perl5 version - recurrence of spans
+    * map / grep / intersected_spans - see Perl5 version
 
     * first_span/last_span; span_iterator
 
@@ -78,7 +81,7 @@ method end_is_closed () returns Bool   { return $.set.end_is_closed }
 method stringify ()     returns String { return $.set.stringify }
 method size ()          returns Object { return $.set.size }
 
-submethod normalize_parameter ($self: $span) {
+submethod _normalize_parameter ($self: $span) {
     # is it a Set::Infinite ?
     return $span.set if $span.isa( $self.ref );
     # is it a Set::Infinite::Functional ?
@@ -91,27 +94,27 @@ submethod normalize_parameter ($self: $span) {
 
 method compare ($self: $span is copy) {
     my $span0 = $self.set;
-    my $span1 = $self.normalize_parameter( $span );
+    my $span1 = $self._normalize_parameter( $span );
     return $span0.compare( $span1 );
 }
 
 method contains ($self: $span is copy) returns bool {
     return bool::false if $.span.is_empty;
     my $span0 = $self.set;
-    my $span1 = $self.normalize_parameter( $span );
+    my $span1 = $self._normalize_parameter( $span );
     my $union = $span0.union( $span1 );
     return $span0.compare( $union ) == 0;
 }
 
 method intersects ($self: $span is copy) returns bool {
     my $span0 = $self.set;
-    my $span1 = $self.normalize_parameter( $span );
+    my $span1 = $self._normalize_parameter( $span );
     return $span0.intersects( $span1 );
 }
 
 method union ($self: $span ) returns Set::Infinite {
     my $span0 = $self.set;
-    my $span1 = $self.normalize_parameter( $span );
+    my $span1 = $self._normalize_parameter( $span );
     my $tmp = $span0.union( $span1 );
     my $res = Set::Infinite.new();
     $res.set = $tmp;
@@ -119,7 +122,7 @@ method union ($self: $span ) returns Set::Infinite {
 }
 method intersection ($self: $span ) returns Set::Infinite {
     my $span0 = $self.set;
-    my $span1 = $self.normalize_parameter( $span );
+    my $span1 = $self._normalize_parameter( $span );
     my $tmp = $span0.intersection( $span1 );
     my $res = Set::Infinite.new();
     $res.set = $tmp;
@@ -134,7 +137,7 @@ method complement ($self: ) returns Set::Infinite {
 }
 method difference ($self: $span ) returns Set::Infinite {
     my $span0 = $self.set;
-    my $span1 = $self.normalize_parameter( $span );
+    my $span1 = $self._normalize_parameter( $span );
     my $tmp = $span1.complement;
     $tmp = $span0.intersection( $tmp );
     my $res = Set::Infinite.new();
@@ -409,9 +412,15 @@ Includes new elements in the set
 
 Removes elements from the set
 
+= SEE ALSO
+
+    Span
+    
+    Recurrence
+
 = AUTHOR
 
-Flavio S. Glock, <fglock@pucrs.br>
+Flavio S. Glock, <fglock@gmail.com>
 
 = COPYRIGHT
 

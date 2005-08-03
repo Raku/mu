@@ -15,16 +15,12 @@ class Span-0.01
 
 =for TODO
     
-    * test the integration with Span::Code objects
-
+    * Span::Code.compare
+    
 Known bugs:
   
     * 'undefine span' is wrong - use empty_span instead (in set_end() / set_start() )
-
-    * _normalize_parameter - must check the internal span type
-    
-    * all objects should be cloned before inserting in the span
-    
+   
 Ideas:
 
     * besides :int / :density(), there could be :next(&coderef) / :previous(&coderef)
@@ -220,7 +216,7 @@ method end_is_closed () returns Bool {
     return $.span.end_is_closed;
 }
 
-# Removed - this is too specific - it only apply to Span::Int objects
+# Removed - this is too specific - it only applies to Span::Int objects
 # method density () returns Object {
 #    return $.span.density;
 # }
@@ -261,13 +257,8 @@ sub _normalize_parameter ( $self, $param ) {
     }
     if $span1.isa( 'Span::Int' ) 
     {
-        # say $span1, $span0;
-        #...
         ($span1, $span0) = _normalize_parameter( $span1, $span0 );
-        # say "returned ", $span0, ",", $span1;
         return $span0, $span1;
-        # XXX - this doesn't work
-        # return @a.reverse;
     }
     # $span is some kind of scalar
     return $span0, $span0.new( start => $span1, end => $span1 );
@@ -635,9 +626,15 @@ Makes a lazy iterator:
 
     say $a while $a = $span.lazy;
 
+= SEE ALSO
+
+    Recurrence
+    
+    Set::Infinite
+
 = AUTHOR
 
-Flavio S. Glock, <fglock@pucrs.br>
+Flavio S. Glock, <fglock@gmail.com>
 
 = COPYRIGHT
 

@@ -75,7 +75,10 @@ is( $even_numbers.previous( 10 ), 8, 'previous even' );
     # complement
     my @compl = $each_3_spancode.complement();
     $result = @compl.map:{ $_.stringify }.join(',');
-    is( $result, '(-Infinity,10),10,11,13..26,28,29,(30,Inf)', 'Span::Code complement' );
+    is( $result, 
+        '-Infinity..7,8,9,10,11,13..26,28,29,31,32,33..Inf',
+        # '(-Infinity,10),10,11,13..26,28,29,(30,Inf)', 
+        'Span::Code complement' );
 }
 
 =for later

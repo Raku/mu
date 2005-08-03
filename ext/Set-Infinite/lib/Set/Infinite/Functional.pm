@@ -233,7 +233,7 @@ Returns a list of `Span` objects.
 
 = AUTHOR
 
-Flavio S. Glock, <fglock@pucrs.br>
+Flavio S. Glock, <fglock@gmail.com>
 
 = COPYRIGHT
 

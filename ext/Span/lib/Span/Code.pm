@@ -111,11 +111,14 @@ method union ($set1: $set2 is copy) {
     {
         my @diff = $.span.difference( $set2 );
         @diff = @diff.map:{ $set1.new( recurrence => $.recurrence, span => $_ ) };
-        return ( @diff, $set2 ).sort{ $^a.compare( $^b ) };
+        my $intersect = $set1.new( recurrence => $.recurrence.get_universe, span => $set2 );
+        return ( @diff, $intersect ).sort:{ $^a.compare( $^b ) };
     }
 
     # XXX - why this doesn't work?
     # my @set1_span = $set1.span.difference( $set2.span );
+
+    # TODO - simplify the result if both sets have the same recurrence
 
     my $span1 = $set1.span;
     my $span2 = $set2.span;
@@ -154,6 +157,7 @@ method intersection ($set1: $set2 is copy) {
 method complement ($set1: ) {
     my $span1 = $set1.span;
     my @spans = $span1.complement;
+    @spans = @spans.map:{ $set1.new( recurrence => $.recurrence.get_universe, span => $_ ) };
     my $compl_recurr = $set1.new( recurrence => $.recurrence.complement, span => $span1 );
 
     return ( @spans, $compl_recurr ).sort:{ $^a.compare( $^b.span ) };
@@ -232,7 +236,7 @@ Span::Code - An object representing a recurrence set span
 
 = AUTHOR
 
-Flavio S. Glock, <fglock@pucrs.br>
+Flavio S. Glock, <fglock@gmail.com>
 
 = COPYRIGHT
 

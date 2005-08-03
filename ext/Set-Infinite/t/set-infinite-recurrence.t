@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 21;
+plan 27;
 
 use_ok( 'Set::Infinite' );
 use Set::Infinite;   # XXX should not need this
@@ -70,50 +70,80 @@ is( $even_numbers.previous( 10 ), 8, 'previous even' );
     my $each_3_rec = Recurrence.new( 
         closure_next =>     
             sub { 
-                return -Inf if $_ == -Inf; return  Inf if $_ ==  Inf; return 3 * int( $_ / 3 ) + 3 },
+                return -Inf if $_ == -Inf; 
+                return  Inf if $_ ==  Inf; 
+                return 3 * int( $_ / 3 ) + 3;
+            },
         closure_previous => 
             sub { 
-                return  Inf if $_ ==  Inf; return -Inf if $_ == -Inf; return 3 * int( ( $_ - 1 ) / 3 ) },
+                return  Inf if $_ ==  Inf; 
+                return -Inf if $_ == -Inf; 
+                return 3 * int( ( $_ - 1 ) / 3 );
+            },
         universe => $universe_recurr, 
     );
 
     my $each_3_span = Set::Infinite.new( spans => Span.new( start => 10, end => 30 ) );
     my $each_3_spancode = $each_3_span.intersection( $each_3_rec );
-    is( $each_3_span.ref, 'Set::Infinite', 'intersection isa Set::Infinite' );
-    is( $each_3_span.stringify, '[10,30]', '10 to 30' );
-    is( $each_3_spancode.stringify, '12,15,18..24,27,30', 'each 3 from 10 to 30' );
+    is( $each_3_span.ref, 
+        'Set::Infinite', 
+        'intersection isa Set::Infinite' );
+    is( $each_3_span.stringify, 
+        '[10,30]', 
+        '10 to 30' );
+    is( $each_3_spancode.stringify, 
+        '12,15,18..24,27,30', 
+        'each 3 from 10 to 30' );
 
     my $even_span = Set::Infinite.new( spans => Span.new( start => 20, end => 40 ) );
     my $even_spancode = $even_numbers.intersection( $even_span );
-    is( $even_spancode.stringify, '20,22,24..36,38,40', 'each 2 from 20 to 40' );
+    is( $even_spancode.stringify, 
+        '20,22,24..36,38,40', 
+        'each 2 from 20 to 40' );
 
     my $result = $each_3_spancode.union( $even_spancode );
-    is( $result.ref, 'Set::Infinite', 'union isa Set::Infinite' );
+    is( $result.ref, 
+        'Set::Infinite', 
+        'union isa Set::Infinite' );
     is( $result.stringify, 
         '12,15,18,20,21,22..27,28,30,32,34,36,38,40', 
         'Recurrence Span union Recurrence Span' );
 
     # intersection
-    my @inter = $each_3_spancode.intersection( $even_spancode );
-    $result = @inter.map:{ $_.stringify }.join(',');
-    is( $result, '24,30', 'Recurrence Span intersection Recurrence Span' );
+    $result = $each_3_spancode.intersection( $even_spancode );
+    is( $result.stringify, 
+        '24,30', 
+        'Recurrence Span intersection Recurrence Span' );
 
     # difference
-    my @diff = $each_3_spancode.difference( $even_spancode );
-    $result = @diff.map:{ $_.stringify }.join(',');
-    is( $result, '12,15,18,21,27', 'Recurrence Span difference Recurrence Span' );
+    $result = $each_3_spancode.difference( $even_spancode );
+    is( $result.stringify, 
+        '12,15,18,21,27', 
+        'Recurrence Span difference Recurrence Span' );
 
     # complement
-    my @compl = $each_3_spancode.complement();
-    $result = @compl.map:{ $_.stringify }.join(',');
-    is( $result, '(-Infinity,10),10,11,13..26,28,29,(30,Inf)', 'Recurrence Span complement' );
+    $result = $each_3_spancode.complement();
+    is( $result.stringify, 
+        '-Infinity..7,8,9,10,11,13..26,28,29,31,32,33..Inf',
+        'Recurrence Span complement' );
+
+    # union to a continuous span
+    $result.add( Span.new( start => 100, end => 130 ) );
+    is( $result.stringify,
+        '-Infinity..7,8,9,10,11,13..26,28,29,31,32,33..97,98,99,100,101,102..128,129,130,131,132,133..Inf',
+        'Recurrence Span union Continuous Span' );
+
+    # All segments are iteratable
+    is( $result.next(5),   6, 'Recurrence Span complement is iteratable' );
+    is( $result.next(11), 13, 'Recurrence Span complement is iteratable' );
+    is( $result.next(50), 51, 'Recurrence Span complement is iteratable' );
 }
 
-=for later
-
 my $odd_numbers = $even_numbers.complement;
-is( $odd_numbers.next( 10 ), 11, 'odd even' );
-is( $odd_numbers.previous( 10 ), 9, 'odd even' );
+is( $odd_numbers.next( 10 ),    11, 'odd recurrence' );
+is( $odd_numbers.previous( 10 ), 9, 'odd recurrence' );
+
+=for later
 
 {
     # -- intersection with a continuous span

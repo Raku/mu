@@ -260,7 +260,7 @@ The `start` value must be less than or equal to `end`. There is no checking.
 
 = AUTHOR
 
-Flavio S. Glock, <fglock@pucrs.br>
+Flavio S. Glock, <fglock@gmail.com>
 
 = COPYRIGHT
 

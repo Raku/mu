@@ -1,7 +1,5 @@
 use v6;
 
-# TODO - method difference() for compatibility with Span::Code
-
 class Span::Int-0.01;
 
 has $.start;
@@ -55,10 +53,8 @@ method union ($self: Span::Int $span )
 }
 
 method intersection ($self: $span ) {
-
     return $span.intersection( $self )
         if $span.isa( 'Span::Code' ) || $span.isa( 'Span::Num' );
-
     my $i_start = $.start < $span.start ?? $span.start :: $.start;
     my $i_end =   $.end > $span.end     ?? $span.end   :: $.end;
     return () if $i_start > $i_end;
@@ -121,7 +117,7 @@ It is intended mostly for "internal" use by the Span class. For a more complete 
 
 = AUTHOR
 
-Flavio S. Glock, <fglock@pucrs.br>
+Flavio S. Glock, <fglock@gmail.com>
 
 = COPYRIGHT
 

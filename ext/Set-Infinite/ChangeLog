@@ -1,5 +1,10 @@
 ChangeLog for Set-Infinite
 
+2005-08-02
+
+* added "recurrence" parameter to new()
+* sets that contain recurrences are always iteratable
+
 2005-07-26
 
 * added "iterator()" and "lazy()" iterators
