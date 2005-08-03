@@ -7,7 +7,35 @@ PIL2JS - Compiler from PIL to JavaScript
 C<pil2js.pl> is a Perl 5 program taking PIL (as given by C<pugs -CPIL>) and
 outputting JavaScript.
 
-Run C<pil2js.pl --help> to get usage information.
+=head1 USAGE
+
+There's an interactive shell, C<jspugs.pl>. Simply start C<jspugs.pl>, then
+precompile the Prelude by entering C<:precomp>. Now enter some Perl 6 code and
+point your browser to C<./output.html>.
+
+Additionally, there's C<./runjs.pl>, which accepts the same options as Pugs.
+This will first compile your code to JavaScript and then run it using
+Spidermonkey's C<bin/js>:
+
+  $ ./runjs.pl -e 'say "Hello, World!"'
+
+Alternatively, you can use the compiler directly:
+
+  $ cd perl5/PIL2JS
+  $ ./pil2js.pl -o Prelude.js lib6/Prelude/JS.pm  # Precompile the Prelude
+  $ ./pil2js.pl -o output.js input.p6             # Compile the actual prog
+  $ ./pil2js.pl \                                 # Generate a .html
+      --link=html \
+      -o output.html \
+      ~libjs/PIL2JS.js ~Prelude.js output.js
+  # This links the basic JS Prelude (PIL2JS.js), the Perl 6 Prelude
+  # (Prelude.js), and your code together, producing output.html.
+
+=head1 SMOKING
+
+You can use C<make jssmoke> to compile the whole testsuite to JavaScript and
+run it using Spidermonkey's C<bin/js>. The test results will be outputted as
+C<smoke.html>.
 
 =head1 FILE HIERARCHY
 
@@ -16,10 +44,11 @@ Run C<pil2js.pl --help> to get usage information.
   |-- runjs.pl            Compiles Perl 6 to JavaScript and runs it
   |-- jspugs.pl           Interactive shell for PIL2JS development
   |-- lib
+  |   |-- PIL.pm          Main compiler modules, uses all other PIL:: modules
   |   |-- PIL
   |   |   |-- Parser.pm   PIL::Parser (parses PIL)
-  |   |   `-- Nodes.pm    Module which provides appropriate ->as_js methods
-  |   |                   for the objects returned by PIL::Parser
+  |   |   `-- <PIL nodetype>.pm
+  |   |                   Backend compiler modules
   |-- lib6
   |   |-- Prelude
   |   |   |-- JS.pm       Part of the JavaScript Prelude,
