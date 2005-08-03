@@ -21,11 +21,10 @@ sub new {
         || confess "Bad label : could not extract accessor name from label ($label)";
     if (defined $props) {
         $props->{access} = 'ro'  unless exists $props->{access};
-        $props->{type}   = undef unless exists $props->{type};  
         $props->{build}  = undef unless exists $props->{build};                
     }
     else {
-        $props = { access => 'ro', type => undef, build => undef };
+        $props = { access => 'ro', build => undef };
     }
     my $attr = bless {
         associated_with => $associated_with,
@@ -39,7 +38,6 @@ sub new {
 
 sub is_ro { (shift)->{properties}->{access} eq 'ro' }
 sub is_rw { (shift)->{properties}->{access} eq 'rw' }
-sub type  { (shift)->{properties}->{type}           }
 
 sub label { (shift)->{label} }
 

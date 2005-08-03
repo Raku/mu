@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 39;
+use Test::More tests => 25;
 use Test::Exception;
 
 use Perl6::MetaModel;
@@ -160,62 +160,3 @@ my $cc = ConflictChecker->new();
 isa_ok($cc, 'ConflictChecker');
 
 is($cc->foo(), 'ConflictChecker->foo returns "just $.foo"', '... got the right value from the accessor');
-
-# check for typed accessor
-
-role Checker => {};
-
-class TypeChecking => {
-    is => [ 'Perl6::Object' ],    
-    does => [ 'Checker' ],
-    instance => {
-        attrs => [ 
-            [ '$.foo' => { type => 'TypeChecking', access => 'rw' } ],
-            [ '$.bar' => { type => 'Checker'     , access => 'rw' } ],
-            [ '@.baz' => { type => 'Checker'     , access => 'rw' } ],      
-            [ '@.bah' => { type => 'TypeChecking', access => 'rw' } ],                        
-        ]
-    }    
-};
-
-my $tc = TypeChecking->new();
-isa_ok($tc, 'TypeChecking');
-
-my $tc2 = TypeChecking->new();
-isa_ok($tc2, 'TypeChecking');
-
-lives_ok { 
-    $tc->foo($tc2) 
-} '... we do not have an exception (Class is correct type)';
-
-is($tc->foo(), $tc2, '... value foo() was assigned correctly');
-
-lives_ok { 
-    $tc->bar($tc2) 
-} '... we do not have an exception (Role is correct type)';
-
-is($tc->bar(), $tc2, '... value bar() was assigned correctly');
-
-is_deeply($tc->baz(), [], '... value baz() was initialized correctly');
-
-lives_ok { 
-    $tc->baz([ $tc2, $tc2, $tc2, $tc2 ]) 
-} '... we do not have an exception (Roles are correct type)';
-
-is_deeply($tc->baz(), [ $tc2, $tc2, $tc2, $tc2 ], '... value baz() was assigned correctly');
-
-is_deeply($tc->bah(), [], '... value bah() was initialized correctly');
-
-lives_ok { 
-    $tc->bah([ $tc2, $tc2, $tc2, $tc2 ]) 
-} '... we do not have an exception (Classes are correct type)';
-
-is_deeply($tc->bah(), [ $tc2, $tc2, $tc2, $tc2 ], '... value bah() was assigned correctly');
-
-dies_ok { 
-    $tc->foo('Fail') 
-} '... we do have an exception when we try to assign a non-blessed type';
-
-dies_ok { 
-    $tc->foo($cc) 
-} '... we do have an exception when we assign a blessed type of the wrong type';

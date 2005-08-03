@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 25;
+use Test::More tests => 24;
 
 use Perl6::Attribute;
 
@@ -39,13 +39,12 @@ ok($bar_prop->is_hash(), '... our bar attribute is a hash');
 ok(!$bar_prop->is_ro(), '... this attribute is not read-only');
 ok($bar_prop->is_rw(), '... it is read-write');
 
-my $baz_prop = Perl6::Attribute->new('Baz' => '@.baz', { type => 'Foo::Bar' });
+my $baz_prop = Perl6::Attribute->new('Baz' => '@.baz');
 isa_ok($baz_prop, 'Perl6::Attribute');
 
 is($baz_prop->accessor_name(), 'baz', '... our attributes accessor name is "baz"');
 ok($baz_prop->is_public(), '... our baz attribute is public');
 ok(!$baz_prop->is_private(), '... our baz attribute is not private');
-is($baz_prop->type(), 'Foo::Bar', '... got the right type');
 
 ok($baz_prop->is_array(), '... our baz attribute is an array');
 ok(!$baz_prop->is_hash(), '... our baz attribute is not a hash');

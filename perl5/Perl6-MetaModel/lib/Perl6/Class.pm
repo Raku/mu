@@ -4,44 +4,10 @@ package Perl6::Class;
 use strict;
 use warnings;
 
-use Scalar::Util 'blessed';
-use Carp 'confess';
-
-our %CLASSES;
-
-sub meta {
-    my ($class) = @_;
-    return $class->{meta} if blessed($class) && blessed($class) eq 'Perl6::Class';
-    return $CLASSES{ref($class) || $class}->{meta};  
-}
-
-sub isa {
-    our $AUTOLOAD = 'isa';
-    goto &AUTOLOAD;
-}
-
-sub can {
-    our $AUTOLOAD = 'can';
-    goto &AUTOLOAD;
-}
-
-sub AUTOLOAD {
-    my @AUTOLOAD = split '::', our $AUTOLOAD;
-    my $label = $AUTOLOAD[-1];
-    my $self = shift;    
-    if ($label =~ /DESTROY/) {
-        # XXX - hack to avoid destorying Perl6::Class object
-        # as that presents some issues for some reason
-        return unless blessed($self) ne 'Perl6::Class';
-    }    
-    return ::dispatch($self, $label, @_);   
-}
-
-
-package Perl6::Class::Util;
-
 use Carp 'confess';
 use Scalar::Util 'blessed';
+
+use Perl6::Instance; # << this is where the Perl 5 sugar is now ...
 
 use Perl6::MetaClass;
 use Perl6::Role;
@@ -56,25 +22,32 @@ use Perl6::Instance::Method;
 
 ## Private methods
 
-sub _create_new_class {
+sub new {
     my ($class, $name, $params) = @_;
     my $self = bless { 
         name   => $name,
-        meta   => undef,
-        params => {}
+        meta   => undef
     }, $class;
-    Perl6::Class::Util::_validate_params($self, $params);
-    die "Duplicate class name ($name)" if exists $CLASSES{$name};
-    $CLASSES{$name} = $self;
+    _validate_params($self, $params);
     return $self;
 }
 
+# return the metaclass instance associated with
+# this class object. This is not really right, 
+# but it will do for now
+sub meta { (shift)->{meta} }
+
 sub _apply_class_to_environment {
     my ($self) = @_;
-    my ($name, $version, $authority) = Perl6::Class::Util::_get_class_meta_information($self);
+    my ($name, $version, $authority) = _get_class_meta_information($self);
     my $code = qq|
         package $name;
-        \@$name\:\:ISA = 'Perl6::Class';
+        \@$name\:\:ISA = 'Perl6::Instance';
+        
+        \$$name\:\:META = undef;
+        sub meta { \$$name\:\:META }
+        
+        1;
     |;
     eval $code || confess "Could not initialize class '$name'";   
     my $meta; 
@@ -100,13 +73,13 @@ sub _apply_class_to_environment {
     };
     confess "Could not initialize the metaclass for $name : $@" if $@;
     eval {
-        no strict 'refs';              
+        no strict 'refs';    
+        ${"${name}::META"} = $meta;          
         $self->{meta} = $meta;
-        $CLASSES{$name} = $self; # store short name too               
         *{$self->{name} . '::'} = *{$name . '::'};
     };
     confess "Could not create full name " . $self->name . " : $@" if $@;    
-    Perl6::Class::Util::_build_class($self, $meta);    
+    _build_class($self, $meta);    
 }
 
 sub _validate_params {

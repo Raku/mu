@@ -44,17 +44,17 @@ sub ::dispatch {
     my ($self) = @_;    
     # deal with the MetaClass special case ...
     if ((blessed($self) && blessed($self) eq 'Perl6::MetaClass')) {
-         goto &::metaclass_dispatch;
+         goto &_metaclass_dispatch;
     }
     else {
-        goto &::normal_dispatch;
+        goto &_normal_dispatch;
     }
 }
 
 # this dispatch routine avoids
 # all method calls since that 
 # could cause issues.
-sub ::metaclass_dispatch {
+sub _metaclass_dispatch {
     my ($self, $label) = (shift, shift);    
 
     return if ($label =~ /DESTROY/);
@@ -84,7 +84,7 @@ sub ::metaclass_dispatch {
     confess "Method ($label) not found for instance ($self)";  
 }
 
-sub ::normal_dispatch {
+sub _normal_dispatch {
     my ($self, $label) = (shift, shift);     
     # NOTE:
     # DESTROYALL is what should really be called
@@ -155,30 +155,13 @@ sub _ {
     if (defined $value) {
         my $prop = ::dispatch($self->meta, 'find_attribute_spec', ($label))
             || confess "Perl6::Attribute ($label) not found";
-        # since we are not private, then check the type
-        # assuming there is one to check ....
-        if (my $type = $prop->type()) {
-            if ($prop->is_array()) {
-                (blessed($_) && ($_->isa($type) || $_->does($type))) 
-                    || confess "IncorrectObjectType: expected($type) and got($_)"
-                        foreach @$value;                        
-            }
-            else {
-                (blessed($value) && ($value->isa($type) || $value->does($type))) 
-                    || confess "IncorrectObjectType: expected($type) and got($value)";            
-            }
-        }  
-        else {
-            (ref($value) eq 'ARRAY') 
-                || confess "You can only asssign an ARRAY ref to the label ($label)"
-                    if $prop->is_array();
-            (ref($value) eq 'HASH') 
-                || confess "You can only asssign a HASH ref to the label ($label)"
-                    if $prop->is_hash();
-        }                      
-        # We are doing a 'binding' here by linking the $value into the $label
-        # instead of storing into the container object available at $label
-        # with ->store().  By that time the typechecking above will go away
+        # do some basic container type checking here
+        (ref($value) eq 'ARRAY') 
+            || confess "You can only asssign an ARRAY ref to the label ($label)"
+                if $prop->is_array();
+        (ref($value) eq 'HASH') 
+            || confess "You can only asssign a HASH ref to the label ($label)"
+                if $prop->is_hash();
         $self->{instance_data}->{$label} = $value;         
     }
     # now return it ...
@@ -192,8 +175,8 @@ sub role {
 
 sub class {
     my ($name, $params) = @_;
-    my $class = Perl6::Class::Util::_create_new_class('Perl6::Class', $name, $params);
-    Perl6::Class::Util::_apply_class_to_environment($class);
+    my $class = Perl6::Class->new($name, $params);
+    $class->_apply_class_to_environment();
     return $class;
 }
 
