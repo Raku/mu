@@ -72,7 +72,7 @@ class 'Perl6::Object' => {
                 my $self = bless {
                     class         => $class,
                     instance_data => \%attrs
-                }, blessed($class) ? $class->{name} : $class;
+                }, $class;
                 # lock the instance structure here ...
                 lock_keys(%{$self});
                 lock_keys(%{$self->{instance_data}});                

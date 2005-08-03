@@ -20,7 +20,7 @@ sub new {
             '$.version'      => $params{'$.version'}   || '0.0.0',
             '$.authority'    => $params{'$.authority'} || undef,
             # the guts of the metaclass
-            '@:MRO'          => undef,
+            '@:MRO'          => [],
             '@:superclasses' => $params{'@:superclasses'} || [],
             '%:private' => {
                 # only methods for now
@@ -75,7 +75,12 @@ sub _add_method {
     }    
     else {
         confess "Incorrect Object Type : I dont know what to do with ($method)";
-    }    
+    }   
+    # NOTE: we need to break the opaque instance structure
+    # here so that we can bootstrap this method, otherwise
+    # using the _($method_table) version here would result 
+    # in calls to other methods and those methods don't 
+    # actually exists yet 
     $self->{instance_data}->{$method_table}->{methods}->{$label} = $method;
 }
 
@@ -147,7 +152,7 @@ sub _build_meta {
                 _('@:superclasses' => $superclasses);    
                 # since the superclasses changed, 
                 # we need to calc the MRO again
-                _('@:MRO' => undef);
+                _('@:MRO' => []);
                 ::dispatch($self, 'MRO');
             }
             _('@:superclasses');
@@ -193,16 +198,29 @@ sub _build_meta {
     ::dispatch($META, 'add_method',
         'MRO' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub { 
             my ($self) = @_;
-            # XXX - this should not have to recalc every time
-            # but for some reason it is, so this needs to be 
-            # addresses eventually ...
-            $self->{instance_data}->{'@:MRO'} = [ 
-                ::dispatch($self, '_merge', (
-                    [ $self ],                                                  # the class we are linearizing
-                    (map { [ ::dispatch($_, 'MRO') ] } @{_('@:superclasses')}), # the MRO of all the superclasses
-                    [ @{_('@:superclasses')} ]                                  # a list of all the superclasses
-                ))
-            ];
+            # XXX - if you need to force a recalc of the 
+            # MRO, you just remove all the values from 
+            # @:MRO (set it to an empty array), and it 
+            # will recalc, this is what the superclasses 
+            # method does when you change the value of
+            # @:superclasses
+            if (scalar(@{_('@:MRO')}) == 0) {
+                # NOTE: we need to access this through the
+                # opaque instance structure here because
+                # setting it with the _('@:MRO' => \@MRO)
+                # results in a call to find_attribute_spec
+                # which will then in turn call dispatcher
+                # which then calls MRO which then throws
+                # this into an infinite loop. So the compromise
+                # here is to break the opaque structure. 
+                $self->{instance_data}->{'@:MRO'} = [ 
+                    ::dispatch($self, '_merge', (
+                        [ $self ],                                                  # the class we are linearizing
+                        (map { [ ::dispatch($_, 'MRO') ] } @{_('@:superclasses')}), # the MRO of all the superclasses
+                        [ @{_('@:superclasses')} ]                                  # a list of all the superclasses
+                    ))
+                ];
+            }
             @{_('@:MRO')};
         })
     );        
@@ -241,7 +259,7 @@ sub _build_meta {
             (defined $label)
                 || confess "InsufficientArguments : you must provide a label";
             my $table = ::dispatch($self, '_which_table', (\%params));
-            $self->{instance_data}->{$table}->{methods}->{$label};                
+            _($table)->{methods}->{$label};                
         })
     );        
     # This is from A12, but I think the API needs work ...
@@ -249,7 +267,7 @@ sub _build_meta {
         'getmethods' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {        
             my ($self, %params) = @_;
             my $table = ::dispatch($self, '_which_table', (\%params));                
-            my $methods = $self->{instance_data}->{$table}->{methods};
+            my $methods = _($table)->{methods};
             return values %$methods;
         })
     );        
@@ -272,7 +290,7 @@ sub _build_meta {
                 $method_table = '%:class_data';
             }
 
-            $self->{instance_data}->{$method_table}->{attributes}->{$label} = $attribute;
+            _($method_table)->{attributes}->{$label} = $attribute;
         })
     );                                  
     ::dispatch($META, 'add_method', 
@@ -281,7 +299,7 @@ sub _build_meta {
             (defined $label)
                 || confess "InsufficientArguments : you must provide a label";
             my $table = ::dispatch($self, '_which_table', (\%params));                    
-            $self->{instance_data}->{$table}->{attributes}->{$label};
+            _($table)->{attributes}->{$label};
         })
     );
     ::dispatch($META, 'add_method',
@@ -294,7 +312,7 @@ sub _build_meta {
         'get_attribute_list' => Perl6::Instance::Method->new('Perl6::MetaClass' => sub {          
             my ($self, %params) = @_;
             my $table = ::dispatch($self, '_which_table', (\%params));                
-            keys %{$self->{instance_data}->{$table}->{attributes}};
+            keys %{_($table)->{attributes}};
         })
     );
     # "spec" here means "whatever annotation went with this attribute when it's declared"
@@ -376,7 +394,7 @@ sub _build_meta {
 
             ::dispatch($self, 'add_method', (
                 $attribute->accessor_name(),
-                $method_type->new($self->{instance_data}->{'$.name'}, $method_code)
+                $method_type->new(_('$.name'), $method_code)
             )); 
         })            
     );
@@ -400,17 +418,17 @@ sub _build_meta {
     ); 
     ::dispatch($META, 'add_attribute',
         '%:private' => Perl6::Instance::Attribute->new('Perl6::MetaClass' => '%:private', {
-            build => sub { { methods => {} } }
+            build => sub { { methods => {} } } # use a sub to ensure unique refs each time
         })
     );         
     ::dispatch($META, 'add_attribute',
         '%:class_definition' => Perl6::Instance::Attribute->new('Perl6::MetaClass' => '%:class_definition', {
-            build => sub { { methods => {}, attributes => {} } }
+            build => sub { { methods => {}, attributes => {} } } # use a sub to ensure unique refs each time
         })
     );                                
     ::dispatch($META, 'add_attribute',
         '%:class_data' => Perl6::Instance::Attribute->new('Perl6::MetaClass' => '%:class_data', {
-            build => sub { { methods => {}, attributes => {} } }
+            build => sub { { methods => {}, attributes => {} } } # use a sub to ensure unique refs each time
         })
     );
 }

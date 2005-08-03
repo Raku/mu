@@ -81,11 +81,20 @@ sub _metaclass_dispatch {
     # circularity
 
     my $meta_meta = ::meta($self);
-    # XXX - we are checking the non local table for 
-    # private methods, which is not okay, that part
-    # needs to be fixed. (but at least we are checking
-    # everything here ... )
-    foreach my $meta ($meta_meta, @{$meta_meta->{instance_data}->{'@:superclasses'}}) {
+
+    # gather all the metaclasses to look through
+    my @metaclasses = ($meta_meta);
+    
+    # we need to just dig one level deep here since
+    # we know it is a metaclass, that is okay, but
+    # still it is a hack. 
+    push @metaclasses => @{$meta_meta->{instance_data}->{'@:superclasses'}}
+        # however, we dont actually need to go there
+        # if what we are asking for is a private method
+        if $method_table_name ne '%:private';
+    
+    # now try and find out method ...
+    foreach my $meta (@metaclasses) {
         my $method_table = $meta->{instance_data}->{$method_table_name}->{methods};
         return $method_table->{$label}->do($self, @_) if (exists $method_table->{$label});             
     }
