@@ -5,6 +5,7 @@ use warnings;
 use Shell qw(svn);
 use Config;
 use File::Spec;
+use FindBin;
 
 my $failed = 0;
 for (qw/YAML Test::TAP::Model Test::TAP::HTMLMatrix/) {
@@ -26,7 +27,8 @@ my $optional_args   = $ARGV[2] || "";
 
 chdir($pugs_sandbox) or die "Could change directory: $!";
 
-$ENV{HARNESS_PERL}  = "/home/iblech/programmieren/pugs/perl5/PIL2JS/pugs-smokejs.pl ./pugs $optional_args";
+$ENV{HARNESS_PERL}  = "$^X $FindBin::Bin/../perl5/PIL2JS/pugs-smokejs.pl ./pugs $optional_args" if $ENV{PUGS_RUNTIME} eq 'JS';
+
 $ENV{PERL6LIB}      = join $Config{path_sep},
         qw<ext/Test/lib blib6/lib>, $ENV{PERL6LIB};
 
