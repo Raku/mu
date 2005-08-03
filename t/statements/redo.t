@@ -101,5 +101,5 @@ plan 10;
 	last if !$stopping--;
 	if $i > 0 { redo }
     }
-    is($sum, 220, "test redo with while", :todo<bug>);
+    is($sum, 220, "test redo with while");
 }
