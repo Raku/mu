@@ -1810,15 +1810,15 @@ angleBracketLiteral :: RuleParser Exp
 angleBracketLiteral = try $
         do
         symbol "<<"
-        qLiteral1 (symbol "<<") (symbol ">>") $ qqFlags
+        qLiteral1 (symbol "<<") (string ">>") $ qqFlags
             { qfSplitWords = QS_Protect, qfProtectedChar = '>' }
     <|> do
         symbol "<"
-        qLiteral1 (symbol "<") (symbol ">") $ qFlags
+        qLiteral1 (symbol "<") (string ">") $ qFlags
             { qfSplitWords = QS_Yes, qfProtectedChar = '>' }
     <|> do
         symbol "\xab"
-        qLiteral1 (symbol "\xab") (symbol "\xbb") $ qFlags
+        qLiteral1 (symbol "\xab") (string "\xbb") $ qFlags
             { qfSplitWords = QS_Yes, qfProtectedChar = '\xbb' }
 
 -- Quoting delimitor and flags
