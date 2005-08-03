@@ -87,6 +87,10 @@ method get_universe ($self: ) {
     return $.universe;
 }
 
+method equal ($self: $set ) returns Bool {
+    $self.closure_next =:= $set.closure_next
+}
+
 method stringify ($self: ) returns Str {
     my $tmp = Span.new().union( $self );
     return $tmp.stringify;
@@ -98,22 +102,32 @@ method intersects ($self: $set ) returns bool {
 }
 
 method union ($self: $set ) { 
+    my $universe = $self.get_universe;
+    return $universe if $set.equal( $universe );
+    return $universe if $self.equal( $universe );
+    return $set      if $self.equal( $set );
+
     return $self.new( 
         closure_next =>        $self._get_union( $self.closure_next, $set.closure_next, -1 ),
         closure_previous =>    $self._get_union( $self.closure_previous, $set.closure_previous, 1 ),
         complement_next =>     $self._get_intersection( $self.complement_next, $self.complement_previous, $set.complement_next, $set.complement_previous ),
         complement_previous => $self._get_intersection( $self.complement_previous, $self.complement_next, $set.complement_previous, $set.complement_next ),
-        universe =>            $self.get_universe,
+        universe =>            $universe,
     )
 }
 
 method intersection ($self: $set ) {
+    my $universe = $self.get_universe;
+    return $self if $set.equal( $universe );
+    return $set  if $self.equal( $universe );
+    return $set  if $self.equal( $set );
+
     return $self.new( 
         closure_next =>        $self._get_intersection( $self.closure_next, $self.closure_previous, $set.closure_next, $set.closure_previous ),
         closure_previous =>    $self._get_intersection( $self.closure_previous, $self.closure_next, $set.closure_previous, $set.closure_next ),
         complement_next =>     $self._get_union( $self.complement_next, $set.complement_next, -1 ),
         complement_previous => $self._get_union( $self.complement_previous, $set.complement_previous, 1 ),
-        universe =>            $self.get_universe,
+        universe =>            $universe,
     )
 }
 
@@ -273,7 +287,7 @@ Recurrence - An object representing an infinite recurrence set
         closure_previous =>    sub ($x) { $x ==  1 ?? -1 :: $x - 1 },
         complement_next =>     sub ($x) { $x < 0   ??  0 ::    Inf },
         complement_previous => sub ($x) { $x > 0   ??  0 ::   -Inf },
-    );
+        universe => $universe );
 
 = DESCRIPTION
 
@@ -287,7 +301,8 @@ other operations.
 This class also provides methods for iterating through the set, and for querying 
 set properties.
 
-Note that all set functions may end up being calculated using iterations, which can be slow.
+Note that all set functions may end up being calculated using iterations, 
+which can be slow.
 Set functions might also fail and emit warnings in some cases.
 
 = CONSTRUCTORS
@@ -341,6 +356,12 @@ Returns only the elements in this recurrence that are not in the given recurrenc
 - `intersects( $recurrence )`
 
 Returns true if this recurrence intersects (has any element in common) with the given recurrence.
+
+- `equal( $recurrence )`
+
+Returns true if the closures that define the recurrences are exactly the same.
+
+This method tests the closures identities using the '=:=' operation.
 
 = SCALAR FUNCTIONS
 

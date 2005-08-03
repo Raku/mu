@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 36;
+plan 41;
 
 use_ok( 'Recurrence' );
 use Recurrence;   # XXX should not need this
@@ -39,6 +39,18 @@ is( $even_numbers.closest( 11.8 ), 12, 'closest even' );
 
 is( $even_numbers.current( 10.0 ), 10, 'current even' );
 is( $even_numbers.current( 11.8 ), 10, 'current even' );
+
+{
+    # equal()
+    is( $even_numbers.equal( $even_numbers ), bool::true, 'equal self' );
+    my $set1 = $even_numbers.union( $universe );
+    is( $universe.equal( $set1 ), bool::true, 'equal from union' );
+    $set1 = $even_numbers.intersection( $universe );
+    is( $even_numbers.equal( $set1 ), bool::true, 'equal from intersection' );
+    is( $even_numbers.equal( $universe ), bool::false, 'not equal' );
+    $set1 = $even_numbers.complement;
+    is( $even_numbers.equal( $set1.complement ), bool::true, 'equal from complement' );
+}
 
 # Test - generate complement using closures + universe
 my $odd_numbers = $even_numbers.complement;
