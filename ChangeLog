@@ -3,7 +3,9 @@
 === Pugs Internals
 
 * Seperate Compilation of `Prelude.pm`
-* New and Improved Build system in `/inc/PugsBuild`
+* New and Improved Build system in `/inc/PugsBuild` (incomplete)
+** Configuration preferences are stored in `/config.yml`
+** Stick across builds, centrally overridable via %*ENV<PUGS_BUILD_OPTS>
 * `$CALLER::_` is now again usable in defaults.
 * PIL
 ** PIL2 design begun
