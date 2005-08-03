@@ -1,60 +1,70 @@
-== Changes for 6.2.9 (up to r6044) - Aug 4, 2005
+== Changes for 6.2.9 (r6050) - Aug 4, 2005
 
 === Pugs Internals
 
-* New build system in `/inc/PugsBuild/`
-** Configuration preferences are stored in `/config.yml`
+* New build system in `inc/PugsBuild`
+** Configuration preferences are stored in `config.yml`
 ** Presists across builds, overridable via `%*ENV<PUGS_BUILD_OPTS>`
 * `$CALLER::_` is now again usable in defaults.
-* Separate compilation for `Prelude.pm`
-* PIL
-** PIL2 design begun
-*** QuickCheck (specification) tests added
-* PIL2* Backends
-** Perl 5 backend begun in `/perl5/PIL-Run/`
-** JavaScript backend actively progressing in `/perl5/PIL2JS`
-*** Passes 64.00% of the Pugs test suite
+* JavaScript Backend
+** Actively progressing in `perl5/PIL2JS`
+** Passes 64.00% of the Pugs test suite
+* Perl5 Backend
+** Begun in `perl5/PIL-Run`
+** Primitive interactive shell as `crude_repl.pl`
 * Object MetaModel
-** Perl 5 prototype is almost completely self-hosting 
-*** This will soon will be ported to Haskell
+** Perl 5 prototype is mostly self-hosting 
+** New C3-based method dispatch algorithm
 ** JavaScript version partially completed
 ** Java version begun (in very early stages)
+* Pugs Intermediate Language
+** New runcore design begun in `src/PIL`
+** QuickCheck-based specification tests added
+* Precompilation for arbitrary modules (not enabled by default)
 
 === Bundled Modules
 
 * New Perl 6 modules:
-** `Span`
-** `Recurrence`
 ** `MIME::Base64`
+** `Recurrence`
+** `Span`
 * Additions to `libwww-perl`:
-** `URI::Escape`
 ** `HTTP::Cookies`
-** `HTTP::Status`
-** `HTTP::Request::CGI`
 ** `HTTP::Query`
+** `HTTP::Request::CGI`
+** `HTTP::Status`
+** `URI::Escape`
 * Additions to `DateTime`:
 ** `DateTime::Set`
 
 === Test, Examples and Documentations
 
-* Many new tests and test refactoring, we now have 8000+ tests
-* `/docs/notes/plan` added with information on future directions
-* `STATUS` document added to the top level to keep track of the current progress
-* `/examples/algorithms/Newton.pm`
+* Many new tests and test refactoring, we now have 8100+ tests
+* A number of additions to `examples/cookbook`
+* Beginning of Rule-based grammars for Perl6 in `modules/Grammars`
+* SVG generation examples in `examples/graphics`
+* `STATUS` document added to the top level to keep track of current progress
+* `docs/notes/plan` expanded and added macro-related issues
+* `examples/algorithms/Newton.pm` implements the newton method with currying
+* `examples/network/evalbot.p6` gets safe &print primitive
+* `examples/network/seenbot.p6` gets pretty duration printing
+* `examples/network/svnbot.p6` supports branch information
 * `examples/ppt/cat.p6` added to Perl Power Tools
-* A number of additions to `/examples/cookbook/`
-* SVG generation examples in ` /examples/graphics`
+* iblech's LUGA talk as `Anatomie_eines_Compilers_am_Beispiel_von_Pugs.latex`
+* ingy's OSCON talk as `oscon-apocalypse.spork`
 
 === Bug Fixes
 
-* the default expression for parameters is now to evaluate
-  inside the subroutine's package and lexical pads.
-* Fix pair binding for functions expecting pairs as arguments.
-* Global destruction -- `DESTROYALL()` on all active objects --
-  is now guaranteed upon program exit. 
+* Fix pair binding for functions expecting pairs as arguments
+* Global destruction is now guaranteed upon program exit
+* Parameter's defaults are now evaluated in its original lexical scope
+* Parser for hash subscripting was globbing whitespaces after it
 * Primitive listops now handles Pairs as regular arguments
-  instead of named bindings.  
-* `elems()` should only work on Arrays, so it's an array method now.
+* Various `+$foos` in sub signatures changed to `?$foo` in `Test.pm`
+* `%h<x>>` was misparsed as `%h{'x>'}`
+* `-Inf` now stringifies as `-Inf`, not `-Infinity`
+* `.end` and `.elems` no longer work as scalar methods
+* `/a/ ~~ "a"` now works the same way as `"a" ~~ /a/`
 
 == Changes for 6.2.8 (r5577) - July 13, 2005
 
