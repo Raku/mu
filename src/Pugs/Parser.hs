@@ -1700,8 +1700,7 @@ qInterpolator :: QFlags -> RuleParser Exp
 qInterpolator flags = choice [
         closure,
         backslash,
-        variable,
-        pair
+        variable
     ]
     where
         closure = if qfInterpolateClosure flags
@@ -1733,12 +1732,6 @@ qInterpolator flags = choice [
                     else fail ""
                 _   -> fail ""
             return $ combine (reverse fs) (makeVar var)
-        pair = try $ do
-            p <- pairAdverb
-            fs <- if qfInterpolateScalar flags -- XXX using scalar flag
-                  then many qInterpolatorPostTerm
-                  else fail ""
-            return $ combine (reverse fs) p
         notProtected var flags =
             if second == qfProtectedChar flags
                 then False --  $ followed by delimiter is protected
