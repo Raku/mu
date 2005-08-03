@@ -8,9 +8,9 @@ presentation_date: August 3rd, 2005
 
 Apocalypse Now
 
-Autrijus Tang
+Brian Ingerson
 
-/pugscode.org/
+http://www.kwiki.org/apocalypse/start.html
 
 ----
 == Why The Sheer Horror Ingy?
@@ -57,7 +57,7 @@ banner_bgcolor: lightblue
 == So How did Ingy get the Honors of Talking About Pugs?
 
 +* Thank George!
-+* Autrijus Tang is arguably the greatest hacker of our time...
++* Autrijus Tang is arguably one of the greater hackers of our time...
 +* But they don't seem to take that into account at the airports...
 +* Autrijus won't be here for at least 3 more years.
 +* So Ingy is the opportunist this year.
@@ -176,7 +176,7 @@ tell($limit);
 * The `print` function came about a week later!
 
 ----
-{image: http://linide.sourceforge.net/pugs-svngraph-6.2.7.png}
+{image: http://linide.sourceforge.net/pugs-svngraph-6.2.9.png}
 == The Pugs Timeline
 
 * Project begins: Feb 1
@@ -223,9 +223,9 @@ tell($limit);
 ** 100+ committers
 ** 5000+ revisions
 ** We have 7000 unit tests; at least 15000 more expected
-+* My primary function is Pugs's journaling filesystem
++* Autrijus's primary function is Pugs's journaling filesystem
 ** http://use.perl.org/~autrijus/journal/
-** I'm responsible for less than 40% of commits now
+** He is responsible for less than 40% of commits now
 
 ----
 == Obligatory timeline
@@ -290,6 +290,19 @@ tell($limit);
     神祇乘梭下九天...
 
                     -- Pugs 6.2.8, Main.hs
+----
+{image: http://perlcabal.org/~autrijus/images/ship.jpg}
+
+    Une nef neuve alors lui firent
+    De mithril et de verre elfique,
+    À la proue brillante, sans rame
+    Ni voiles à son mât d’argent:
+    Le Silmaril comme lanterne
+    Et bannière, vivante flamme,
+    Pour resplendir y fut placé
+    Par Elbereth même, qui vint...
+
+                    -- Pugs 6.2.9, Main.hs
 ----
 
     use v6;
@@ -399,14 +412,11 @@ tell($limit);
 
 +* iblech -- I like the way it combines imperative, OO, and functional programming. I like its conciseness. I like its great flexibility: user-defined operators, possibility of overriding/subclassing "built in" classes, macros, possibility of grammar redefinition.
 
-+* nothingmuch -- The coolest thing about perl 6 is that it's everything including the kitchen ink, but it remains pretty. There is functional programming, object oriented gramming, aspect oriented programming, imperative, and more all in one  giving you the ability to use the best one for each job, and more importantly to use them all together. The language itself promises more performance, more xibility and more safety than perl 5.
++* nothingmuch -- The coolest thing about perl 6 is that it's everything including the kitchen sink, but it remains pretty. There is functional programming, object oriented gramming, aspect oriented programming, imperative, and more all in one  giving you the ability to use the best one for each job, and more importantly to use them all together. The language itself promises more performance, more xibility and more safety than perl 5.
 
 +* Darren Duncan -- I like the proper clean support for Objects, where you can declare object attributes that are checked by Perl at compile time as my/our variables are now, rather than being hashes where keys are just strings.
 
 +* autrijus
-
-    「曲則全，枉則直，窪則盈，敝則新，少則得，多則惑。」
-    是以聖人抱一為天下式。
 
     Defect makes perfect
         Inflection straightens
@@ -417,6 +427,9 @@ tell($limit);
 
     Thus the ideal leader
         Embraces the integrated Dao as paradigm
+
+    「曲則全，枉則直，窪則盈，敝則新，少則得，多則惑。」
+    是以聖人抱一為天下式。
 
 ----
 === What is the coolest thing about Pugs?
@@ -433,10 +446,6 @@ tell($limit);
 
 +* autrijus
 
-    人之生也柔弱，其死也堅強。草木之生也柔脆，其死也枯槁。故堅強者死之徒，柔弱者
-生之徒。
-    是以兵強則滅，木強則折，強大居下，柔弱居上。
-
     Humans begin life gentle and tender
         Turn hard and rigid in death
     Plants begin life gentle and fragile
@@ -452,6 +461,10 @@ tell($limit);
         Low
     Gentle and tender
         The highest ranked
+
+    人之生也柔弱，其死也堅強。草木之生也柔脆，其死也枯槁。
+    故堅強者死之徒，柔弱者生之徒。
+    是以兵強則滅，木強則折，強大居下，柔弱居上。
 
 ----
 === What have you been hacking on lately?
@@ -470,8 +483,6 @@ tell($limit);
 
 +* autrijus
 
-    為無為，事無事，味無味。大小多少，報怨以德。圖難于其易﹔為大于其細。
-
     Act in nothingness
         Work in peace
         Taste in flavorlessness
@@ -482,6 +493,9 @@ tell($limit);
 
     Masterminding complex from easy
         Managing big projects from small
+
+    為無為，事無事，味無味。大小多少，報怨以德。
+    圖難于其易﹔為大于其細。
 
 ---- 
 === Write a piece of Perl 6 code.
