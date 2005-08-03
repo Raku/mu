@@ -1657,8 +1657,8 @@ pairAdverb = do
     noValue = do
         skipMany1 (satisfy isSpace)
         return (Val $ VInt 1)
-    valueExp = choice
-        [ parens ruleExpression
+    valueExp = lexeme $ choice
+        [ verbatimParens ruleExpression
         , arrayLiteral
         , angleBracketLiteral
         ]
