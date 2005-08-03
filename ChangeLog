@@ -2,11 +2,11 @@
 
 === Pugs Internals
 
-* Seperate Compilation of `Prelude.pm`
-* New and Improved Build system in `/inc/PugsBuild` (incomplete)
+* New build system in `/inc/PugsBuild/`
 ** Configuration preferences are stored in `/config.yml`
-** Stick across builds, centrally overridable via %*ENV<PUGS_BUILD_OPTS>
+** Presists across builds, overridable via `%*ENV<PUGS_BUILD_OPTS>`
 * `$CALLER::_` is now again usable in defaults.
+* Separate compilation for `Prelude.pm`
 * PIL
 ** PIL2 design begun
 *** QuickCheck (specification) tests added
@@ -22,15 +22,18 @@
 
 === Bundled Modules
 
-* `Test::Builder` port completed.
-* New Modules added:
+* New Perl 6 modules:
 ** `Span`
 ** `Recurrence`
 ** `MIME::Base64`
-* Work on existing modules:
-** libwww-perl - `URI::Escape`, `HTTP::Cookies`, `HTTP::Status`, `HTTP::Request::CGI`
-  `HTTP::Query`
-** Date Time modules - `DateTime::Set`
+* Additions to `libwww-perl`:
+** `URI::Escape`
+** `HTTP::Cookies`
+** `HTTP::Status`
+** `HTTP::Request::CGI`
+** `HTTP::Query`
+* Additions to `DateTime`:
+** `DateTime::Set`
 
 === Test, Examples and Documentations
 
