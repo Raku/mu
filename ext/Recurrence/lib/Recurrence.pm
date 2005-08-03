@@ -124,6 +124,18 @@ method difference ($self: $set ) {
     return $self.intersection( $set.complement );
 }
 
+# --------- arithmetic ----------------
+
+method negate ($set: ) {
+    return $set.new( 
+        closure_next =>        sub ($x) { - &{ $set.closure_previous }( -$x ) }, 
+        closure_previous =>    sub ($x) { - &{ $set.closure_next }( -$x ) }, 
+        complement_next =>     sub ($x) { - &{ $set._get_complement_previous }( -$x ) },
+        complement_previous => sub ($x) { - &{ $set._get_complement_next }( -$x ) },
+        universe =>            $set.get_universe,
+    );
+}
+
 # --------- scalar functions -----------
 
 method next ( $x ) { 
@@ -368,6 +380,12 @@ Returns the last element in the recurrence.
 
 Returns positive infinite if the recurrence is infinite.
 Returns negative infinite if the recurrence is an empty set.
+
+= ARITHMETIC FUNCTIONS
+
+- `negate`
+
+Negates all elements in the recurrence ( $x = -$x )
 
 = SEE ALSO
 
