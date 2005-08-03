@@ -15,8 +15,8 @@ sub fixup {
   my $scopeid = $PIL::CUR_LEXSCOPE_ID++;
   my $pad     = {
     map {
-      push @PIL::ALL_LEXICALS, "$_->[0]_$scopeid";
-      ($_->[0] => "$_->[0]_$scopeid");
+      push @PIL::ALL_LEXICALS, "$_->[0]_${scopeid}_$PIL::LEXSCOPE_PREFIX";
+      ($_->[0] => "$_->[0]_${scopeid}_$PIL::LEXSCOPE_PREFIX");
     } @{ $self->[1] }
   };
 
@@ -24,7 +24,7 @@ sub fixup {
 
   return bless [
     $self->[0],
-    [ map {[ "$_->[0]_$scopeid", undef ]} @{ $self->[1] } ],
+    [ map {[ "$_->[0]_${scopeid}_$PIL::LEXSCOPE_PREFIX", undef ]} @{ $self->[1] } ],
     $self->[2]->fixup,
   ] => "PIL::PPad";
 }

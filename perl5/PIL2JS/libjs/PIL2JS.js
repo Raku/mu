@@ -538,6 +538,7 @@ PIL2JS.ControlException.exit_level = 1000;
 var _26main_3a_3areturn = PIL2JS.generic_return(5);    // XXX hardcoded sublevel
 var _26main_3a_3aleave  = PIL2JS.generic_return(3);    // XXX hardcoded sublevel
 var _26main_3a_3aexit   = PIL2JS.generic_return(PIL2JS.ControlException.exit_level);
+var _26PIL2JS_3a_3aInternals_3a_3asmallreturn = PIL2JS.generic_return(0);
 
 // Array of boxed subs we're currently in.
 PIL2JS.call_chain = [];

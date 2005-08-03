@@ -40,6 +40,7 @@ our @ALL_LEXICALS;
 our @CUR_LEXSCOPES;
 # ID supply
 our $CUR_LEXSCOPE_ID;
+our $LEXSCOPE_PREFIX;
 # We've to backup some wars to make nested subcalls work (as we don't use JS'
 # "lexical" vars anymore).
 our @VARS_TO_BACKUP;
@@ -104,6 +105,10 @@ sub as_js {
     if $PROCESSING_HAS_STARTED;
   local $PROCESSING_HAS_STARTED = 1;
   local $CUR_LEXSCOPE_ID        = 1;
+  local $LEXSCOPE_PREFIX        = "";
+  # I'll fill a unique id of the file we're processing in, to fix var stomping:
+  # A.pm: my $a = 3          # ==> my $a_1 = 3;
+  # B.pm: use A; my $a = 4;  # ==> my $a_1 = 4; XXX!
 
   my $fixed_tree = $self->fixup;
   warn "# Number of lexical scopes: $CUR_LEXSCOPE_ID\n";

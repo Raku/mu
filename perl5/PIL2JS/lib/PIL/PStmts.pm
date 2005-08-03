@@ -34,7 +34,8 @@ sub as_js {
     } elsif($PIL::IN_SUBLIKE >= PIL::SUBBLOCK) {
       return "$pos;\n_26main_3a_3aleave.FETCH()([PIL2JS.Context.ItemAny, $js]);";
     } else {
-      return "$pos;\nreturn($js);";
+      # !!! *Never* do a native JS return(), as it defeats var restore.
+      return "$pos;\n_26PIL2JS_3a_3aInternals_3a_3asmallreturn.FETCH()([PIL2JS.Context.ItemAny, $js]);";
     }
   } else {
     my @js = ($self->[0]->as_js, $self->[1]->as_js);
