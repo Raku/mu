@@ -8,17 +8,23 @@ use Scalar::Util 'blessed';
 
 use base 'Perl6::Method';
 
+sub new {
+    my ($class, $associated_with, $code) = @_;
+    my $self = $class->SUPER::new($associated_with, $code);
+    my $old = $self->{code};
+    $self->{old_code} = $old;
+    $self->{code} = sub {
+        my ($self, @args) = @_;  
+        return ::next_METHOD() if $args[0]->{class} ne $self->associated_with; 
+        $old->($self, @args); 
+    };
+    return $self;     
+}
+
 # XXX - this just bypasses the local do()
 sub force_call { 
     my ($self, @args) = @_;  
-    $self->SUPER::do(@args);     
-}
-
-sub do { 
-    my ($self, @args) = @_;  
-    # next METHOD if $?SELF != $?CLASS;
-    return ::next_METHOD() if $args[0]->{class} ne $self->associated_with; 
-    $self->SUPER::do(@args); 
+    $self->{old_code}->($self, @args);     
 }
 
 1;

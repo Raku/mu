@@ -18,7 +18,15 @@ sub new {
         || confess "Incorrect Object Type : The code arguments must be a CODE reference";
     bless {
         associated_with => $associated_with,
-        code            => $code,
+        code => sub {
+            my ($self, @args) = @_;  
+            push @CURRENT_CLASS_STACK => $self->{associated_with};
+            push @CURRENT_INVOCANT_STACK => $args[0] if blessed($args[0]);    
+            my @rval = $code->(@args); 
+            pop @CURRENT_INVOCANT_STACK if blessed($args[0]);
+            pop @CURRENT_CLASS_STACK;
+            return wantarray ? @rval : $rval[0];            
+        },
     }, $class;
 }
 
@@ -34,13 +42,8 @@ sub multi     { 0               }
 
 sub associated_with { (shift)->{associated_with} }
 sub do { 
-    my ($self, @args) = @_;  
-    push @CURRENT_CLASS_STACK => $self->{associated_with};
-    push @CURRENT_INVOCANT_STACK => $args[0] if blessed($args[0]);    
-    my @rval = $self->{code}->(@args); 
-    pop @CURRENT_INVOCANT_STACK if blessed($args[0]);
-    pop @CURRENT_CLASS_STACK;
-    return wantarray ? @rval : $rval[0];
+    my ($self, @args) = @_;   
+    return $self->{code}->($self, @args); 
 }
 
 1;

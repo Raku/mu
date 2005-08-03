@@ -8,11 +8,17 @@ use Carp 'confess';
 
 use base 'Perl6::Method';
 
-sub do { 
-    my ($self, @args) = @_;  
-    (::CLASS() eq $self->associated_with)
-        || confess "Cannot call private method from different class";
-    $self->SUPER::do(@args); 
+sub new {
+    my ($class, $associated_with, $code) = @_;
+    my $self = $class->SUPER::new($associated_with, $code);
+    my $old = $self->{code};
+    $self->{code} = sub {
+        my ($self, @args) = @_;  
+        (::CLASS() eq $self->associated_with)
+            || confess "Cannot call private method from different class";
+        $old->($self, @args); 
+    };
+    return $self;     
 }
 
 1;
