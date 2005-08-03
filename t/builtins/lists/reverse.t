@@ -71,7 +71,7 @@ is(@a[1], "foo", 'the list was reversed properly');
     my $b = $a.reverse;
     isa_ok($b, 'Str');    
     
-    is(@b[0], "oof", 'string in the array has been reversed');
+    is(@b[0], "oof", 'string in the array has been reversed', :todo<bug>);
     is($b, "oof", 'string has been reversed');
     is($a, "foo", "original scalar left untouched");
     $a.=reverse;
@@ -84,5 +84,5 @@ is(@a[1], "foo", 'the list was reversed properly');
     isa_ok($a, 'Str');
     isa_ok(@b, 'Array');
     is($a, "oof", 'string literal reversal works in scalar context');
-    is(@b[0], "oof", 'string literal reversal works in list context');
+    is(@b[0], "oof", 'string literal reversal works in list context', :todo<bug>);
 }

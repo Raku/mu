@@ -117,7 +117,7 @@ eval_ok('@array11[2,0] = 12', "push the value to a multidimension array", :todo)
 # declare the array with data type
 my Int @array;
 lives_ok { @array[0] = 23 },                   "stuffing Ints in an Int array works";
-dies_ok  { @array[1] = "this is not an int" }, "stuffing Strs in an Int array does not work";
+dies_ok  { @array[1] = $*ERR }, "stuffing IO in an Int array does not work", :todo<feature>;
 
 # negative index
 my @array12 = ('a', 'b', 'c', 'e'); 
