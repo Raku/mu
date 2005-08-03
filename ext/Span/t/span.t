@@ -78,7 +78,7 @@ is( $span.contains( 9 ), bool::false, 'doesn\'t contain object' );
 {
     my @a = $span.complement;
     is( @a.elems, 2, 'complement' );
-    is( @a[0].stringify, '(-Infinity,1)', 'complement' );
+    is( @a[0].stringify, '(-Inf,1)', 'complement' );
     is( @a[1].stringify, '(3,Inf)', 'complement' );
 }
 

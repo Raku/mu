@@ -43,7 +43,7 @@ is( $span.intersects( $span3 ), bool::false, 'doesn\'t intersect' );
 {
     my @a = $span.complement;
     # XXX inconsistent stringification of -Inf
-    is( @a[0].stringify ~ ' ' ~ @a[1].stringify, '(-Infinity,1) (3,Inf)', 'complement' );
+    is( @a[0].stringify ~ ' ' ~ @a[1].stringify, '(-Inf,1) (3,Inf)', 'complement' );
 }
 
 # XXX - These two tests attempt to stringify a List of Span,

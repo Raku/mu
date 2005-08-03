@@ -26,7 +26,7 @@ my $span3 = Span::Num.new(
 my $set3 = Set::Infinite.new( spans => $span3 );
 
 is( Set::Infinite.empty_set.stringify, '', 'empty set' );
-is( Set::Infinite.universal_set.stringify, '(-Infinity,Inf)', 'universal set' );
+is( Set::Infinite.universal_set.stringify, '(-Inf,Inf)', 'universal set' );
 
 is( Set::Infinite.empty_set.is_empty, bool::true, 'is empty' );
 is( $set1.is_empty, bool::false, 'is not empty' );
@@ -53,9 +53,9 @@ is( $set1.union( $set2 ).stringify, '[1,4]', 'union' );
 is( $set2.union( $set1 ).stringify, '[1,4]', 'union' );
 is( $set1.union( $set3 ).stringify, '[1,3],[4,6]', 'union' );
 
-is( $set1.complement.stringify, '(-Infinity,1),(3,Inf)', 'complement' );
-is( $set1.union( $set3 ).complement.stringify, '(-Infinity,1),(3,4),(6,Inf)', 'complement of union' );
-is( Set::Infinite.empty_set.complement.stringify, '(-Infinity,Inf)', 'complement of empty set' );
+is( $set1.complement.stringify, '(-Inf,1),(3,Inf)', 'complement' );
+is( $set1.union( $set3 ).complement.stringify, '(-Inf,1),(3,4),(6,Inf)', 'complement of union' );
+is( Set::Infinite.empty_set.complement.stringify, '(-Inf,Inf)', 'complement of empty set' );
 is( Set::Infinite.universal_set.complement.stringify, '', 'complement of universal set' );
 is( Set::Infinite.empty_set.complement.complement.stringify, '', 'complement of complement' );
 

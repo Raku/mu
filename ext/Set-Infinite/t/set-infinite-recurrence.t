@@ -31,7 +31,7 @@ my $u = Set::Infinite.new(
 
 is( $u.start, -Inf, "start" );
 is( $u.end  ,  Inf, "end" );
-is( $u.stringify, '-Infinity..Inf', "stringify" );
+is( $u.stringify, '-Inf..Inf', "stringify" );
 
 is( $u.start_is_open,   bool::false, "start_is_open" );
 is( $u.end_is_open,     bool::false, "end_is_open" );
@@ -124,13 +124,13 @@ is( $even_numbers.previous( 10 ), 8, 'previous even' );
     # complement
     $result = $each_3_spancode.complement();
     is( $result.stringify, 
-        '-Infinity..7,8,9,10,11,13..26,28,29,31,32,33..Inf',
+        '-Inf..7,8,9,10,11,13..26,28,29,31,32,33..Inf',
         'Recurrence Span complement' );
 
     # union to a continuous span
     $result.add( Span.new( start => 100, end => 130 ) );
     is( $result.stringify,
-        '-Infinity..7,8,9,10,11,13..26,28,29,31,32,33..97,98,99,100,101,102..128,129,130,131,132,133..Inf',
+        '-Inf..7,8,9,10,11,13..26,28,29,31,32,33..97,98,99,100,101,102..128,129,130,131,132,133..Inf',
         'Recurrence Span union Continuous Span' );
 
     # All segments are iteratable
@@ -155,17 +155,17 @@ is( $odd_numbers.previous( 10 ), 9, 'odd recurrence' );
     is( $range.stringify, '10,11,12..Inf', 'range from continuous' );
     
     my $complement = $range.complement;
-    is( $complement.stringify, '-Infinity..7,8,9', 'range complement' );
+    is( $complement.stringify, '-Inf..7,8,9', 'range complement' );
 }
 
 {
     # -- intersection with a continuous span
     use Span::Num;
     my $continuous = Span::Num.new( start => -Inf, end => 10, :start_is_open(bool::true) );
-    is( $continuous.stringify, '(-Infinity,10]', 'continuous (-Inf,10]' );
+    is( $continuous.stringify, '(-Inf,10]', 'continuous (-Inf,10]' );
     my $range = $universe.intersection( $continuous );
     isa_ok( $range, 'Span::Code', 'range from continuous' );
-    is( $range.stringify, '-Infinity..8,9,10', 'range from continuous' );
+    is( $range.stringify, '-Inf..8,9,10', 'range from continuous' );
     
     my $complement = $range.complement;
     is( $complement.stringify, '11,12,13..Inf', 'range complement' );
@@ -178,10 +178,10 @@ is( $odd_numbers.previous( 10 ), 9, 'odd recurrence' );
     # continuous (-Inf,10]
     my $range = $odd_numbers.intersection( $continuous );
     isa_ok( $range, 'Span::Code', 'odd range from continuous' );
-    is( $range.stringify, '-Infinity..5,7,9', 'odd range from continuous' );
+    is( $range.stringify, '-Inf..5,7,9', 'odd range from continuous' );
     
     my $complement = $range.complement;
-    is( $complement.stringify, '-Infinity..Inf', 'odd range complement' );
+    is( $complement.stringify, '-Inf..Inf', 'odd range complement' );
 
     {
     my $continuous = Span::Num.new( start => 6, end => 12 );
@@ -222,11 +222,11 @@ is( $odd_numbers.previous( 10 ), 9, 'odd recurrence' );
     is( $range.stringify, '10,11,12..17,18,19', 'range from continuous semi' );
     
     my $complement = $range.complement;
-    # XXX - universe slice should be written '(-Infinity,Inf)'
-    is( $complement.stringify, '-Infinity..Inf', 'range complement' );
+    # XXX - universe slice should be written '(-Inf,Inf)'
+    is( $complement.stringify, '-Inf..Inf', 'range complement' );
 
     my $complement1 = $complement.intersection( Span::Num.new( start => -Inf, end => 15 ) );
-    is( $complement1.stringify, '-Infinity..7,8,9', 'complement 1' );
+    is( $complement1.stringify, '-Inf..7,8,9', 'complement 1' );
     $complement1 = $complement.intersection( Span::Num.new( start => 15, end => Inf ) );
     is( $complement1.stringify, '20,21,22..Inf', 'complement 2' );
 }
@@ -323,7 +323,7 @@ is( $span.intersects( $span3 ), bool::false, 'doesn\'t intersect' );
 {
     my @a = $span.complement;
     # XXX inconsistent stringification of -Inf
-    is( @a[0].stringify ~ ' ' ~ @a[1].stringify, '(-Infinity,1) (3,Inf)', 'complement' );
+    is( @a[0].stringify ~ ' ' ~ @a[1].stringify, '(-Inf,1) (3,Inf)', 'complement' );
 }
 
 is( $span.intersection( $span2 ).stringify, '[2,3]', 'intersection' );
