@@ -144,7 +144,10 @@ isa_ok($fh10, 'IO');
 #ok($fh10.close, 'file closed okay');
 
 # This test fails on win32; skip it for now.
-unlink($filename); skip_rest; exit;
-# (not reached)
-ok(unlink($filename), 'file has been removed');
-
+if($*OS eq any<MSWin32 mingw msys cygwin>) {
+    unlink($filename);
+    todo_fail('skip unlink() test - erratic behaviour on win32');
+}
+else {
+    ok(unlink($filename), 'file has been removed');
+}
