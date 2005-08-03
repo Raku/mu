@@ -12,12 +12,12 @@
 *** QuickCheck (specification) tests added
 * PIL2* Backends
 ** Perl 5 backend begun in `/perl5/PIL-Run/`
-** Javascript backend actively progressing in `/perl5/PIL2JS`
-*** passes large percentage of the Pugs test suite
+** JavaScript backend actively progressing in `/perl5/PIL2JS`
+*** Passes 64.00% of the Pugs test suite
 * Object MetaModel
 ** Perl 5 prototype is almost completely self-hosting 
 *** This will soon will be ported to Haskell
-** Javascript version partially completed
+** JavaScript version partially completed
 ** Java version begun (in very early stages)
 
 === Bundled Modules
