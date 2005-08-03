@@ -103,7 +103,7 @@ class YX => { is => [ 'Y', 'X' ] };
 
 throws_ok {
     class Z  => { is => [ 'XY', 'YX' ] };
-} qr/^Inconsistent hierarchy/, '... got the right error with an inconsistent hierarchy';
+} qr/Inconsistent hierarchy/, '... got the right error with an inconsistent hierarchy';
 
 =pod
 
