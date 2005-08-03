@@ -1,10 +1,11 @@
 use v6;
 
-use Set::Symbols;
+use Set::Symbols;  # unicode operators
+use Span;          # stringify()
 
 =for TODO
 
-    * make a Recurrence::Set class - elements can be sets
+    * make a Recurrence::Span class - elements can be spans
 
     * compare
     * size - accept a function; use as_list
@@ -25,7 +26,8 @@ use Set::Symbols;
 
 - `new( closure_next => sub {...} )`
 
-Creates a recurrence set where only methods `start()` and `next($x)` are enabled.
+Creates a recurrence set where only methods `start()` and `next($x)` 
+are enabled.
 
 XXX - add tests
 
@@ -83,6 +85,11 @@ method get_universe ($self: ) {
     # XXX - universe = self.union( self.complement )
     return $.universe = $self unless defined $.universe;
     return $.universe;
+}
+
+method stringify ($self: ) returns Str {
+    my $tmp = Span.new().union( $self );
+    return $tmp.stringify;
 }
 
 method intersects ($self: $set ) returns bool {
@@ -383,9 +390,9 @@ Returns negative infinite if the recurrence is an empty set.
 
 = ARITHMETIC FUNCTIONS
 
-- `negate`
+- `negate()`
 
-Negates all elements in the recurrence ( $x = -$x )
+Returns a recurrence set with all elements negated (-$x).
 
 = SEE ALSO
 

@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 35;
+plan 36;
 
 use_ok( 'Recurrence' );
 use Recurrence;   # XXX should not need this
@@ -18,6 +18,8 @@ isa_ok( $universe, 'Recurrence',
 
 is( $universe.start, -Inf, "start" );
 is( $universe.end  ,  Inf, "end" );
+
+is( $universe.stringify, '-Inf..Inf', 'stringify' );
 
 is( $universe.next( 10 ), 11, 'next' );
 is( $universe.previous( 10 ), 9, 'previous' );
