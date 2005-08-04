@@ -9,7 +9,7 @@ use Test;
 
 =cut
 
-plan 55;
+plan 58;
 
 # basic Pair
 
@@ -129,19 +129,19 @@ sub test2 (Hash %h){
 }
 test2 %hash;
 
-=begin p6l
-
-Awaiting p6l confirmation; see thread "$pair[0]" on p6l started by Ingo
-Blechschmidt: http://www.nntp.perl.org/group/perl.perl6.language/22593  --iblech
+# See thread "$pair[0]" on p6l started by Ingo Blechschmidt:
+# http://www.nntp.perl.org/group/perl.perl6.language/22593
 
 sub test3 (Hash %h){
 	for %h.pairs -> $pair {
 		isa_ok($pair,'Pair',:todo<bug>) ; 
-		is($pair[0], 'foo', 'sub test3: access by $pair[0] got the right $pair.key');
-		is($pair[1], 'bar', 'sub test3: access by $pair[1] got the right $pair.value');
+		dies_ok({$pair[0]}, 'sub test3: access by $pair[0] should not work');
+		dies_ok({$pair[1]}, 'sub test3: access by $pair[1] should not work');
 	}
 }
 test3 %hash;
+
+=begin p6l
 
 Hm, Hash::pair? Never heard of that.  --iblech
 

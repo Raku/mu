@@ -21,8 +21,7 @@ plan 31;
 is("".bytes,         0, "empty string");
 is("moose".bytes,    5, "moose");
 my $x = undef; 
-is(try { $x.bytes }, 0, "undef"); #  test for warning
-# try added because I think it should die --
+ok(!(try { $x.bytes }), "undef.bytes fail()s");
 # See thread "undef.chars" on p6l started by Ingo Blechschmidt:
 # http://www.nntp.perl.org/group/perl.perl6.language/22595
 
