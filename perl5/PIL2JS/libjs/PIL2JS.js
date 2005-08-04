@@ -446,26 +446,33 @@ PIL2JS.call = function (inv, sub, args) {
 };
 
 PIL2JS.__PIL2JSClass   = new Perl6.Class("__PIL2JS", { "class": { "methods": {} } });
-PIL2JS.new_empty_class = function (name) {
+PIL2JS.new_empty_class = function (name, superclass) {
   return new PIL2JS.Box.Constant(
     new Perl6.Class(name, {
-      "is":    name == "Item"
-                 ? [PIL2JS.__PIL2JSClass]
-                 : [_3amain_3a_3aItem.FETCH()],
+      "is": [superclass.FETCH()],
       "class": { "methods": {} }
     })
   );
 }
-var _3amain_3a_3aItem   = PIL2JS.new_empty_class("Item");
-var _3amain_3a_3aArray  = PIL2JS.new_empty_class("Array");
-var _3amain_3a_3aHash   = PIL2JS.new_empty_class("Hash");
-var _3amain_3a_3aPair   = PIL2JS.new_empty_class("Pair");
-var _3amain_3a_3aStr    = PIL2JS.new_empty_class("Str");
-var _3amain_3a_3aNum    = PIL2JS.new_empty_class("Num");
-var _3amain_3a_3aBool   = PIL2JS.new_empty_class("Bool");
-var _3amain_3a_3aCode   = PIL2JS.new_empty_class("Code");
-var _3amain_3a_3aRef    = PIL2JS.new_empty_class("Ref");
-var _3amain_3a_3aAny    = PIL2JS.new_empty_class("Any");
+
+var _3amain_3a_3aAny       = PIL2JS.new_empty_class("Any",       new PIL2JS.Box.Constant(PIL2JS.__PIL2JSClass));
+var _3amain_3a_3aItem      = PIL2JS.new_empty_class("Item",      _3amain_3a_3aAny);
+var _3amain_3a_3aArray     = PIL2JS.new_empty_class("Array",     _3amain_3a_3aItem);
+var _3amain_3a_3aHash      = PIL2JS.new_empty_class("Hash",      _3amain_3a_3aItem);
+var _3amain_3a_3aPair      = PIL2JS.new_empty_class("Pair",      _3amain_3a_3aItem);
+var _3amain_3a_3aStr       = PIL2JS.new_empty_class("Str",       _3amain_3a_3aItem);
+var _3amain_3a_3aNum       = PIL2JS.new_empty_class("Num",       _3amain_3a_3aItem);
+var _3amain_3a_3aBool      = PIL2JS.new_empty_class("Bool",      _3amain_3a_3aItem);
+var _3amain_3a_3aCode      = PIL2JS.new_empty_class("Code",      _3amain_3a_3aItem);
+var _3amain_3a_3aBlock     = PIL2JS.new_empty_class("Block",     _3amain_3a_3aCode);
+var _3amain_3a_3aRoutine   = PIL2JS.new_empty_class("Routine",   _3amain_3a_3aCode);
+var _3amain_3a_3aSub       = PIL2JS.new_empty_class("Sub",       _3amain_3a_3aRoutine);
+var _3amain_3a_3aMethod    = PIL2JS.new_empty_class("Method",    _3amain_3a_3aRoutine);
+var _3amain_3a_3aSubmethod = PIL2JS.new_empty_class("Submethod", _3amain_3a_3aRoutine);
+var _3amain_3a_3aMulti     = PIL2JS.new_empty_class("Multi",     _3amain_3a_3aRoutine);
+var _3amain_3a_3aRule      = PIL2JS.new_empty_class("Rule",      _3amain_3a_3aRoutine);
+var _3amain_3a_3aMacro     = PIL2JS.new_empty_class("Macro",     _3amain_3a_3aRoutine);
+var _3amain_3a_3aRef       = PIL2JS.new_empty_class("Ref",       _3amain_3a_3aItem);
 
 // Returns, given a native JS object, the corresponding boxed class object.
 PIL2JS.nativeclass2realclass = function (constr) {
@@ -759,6 +766,8 @@ var _26main_3a_3aref = PIL2JS.Box.constant_func(1, function (args) {
     return _26main_3a_3aref.FETCH()([PIL2JS.Context.ItemAny, thing.referencee]);
   } else if(thing instanceof PIL2JS.Ref) {
     return new PIL2JS.Box.Constant("Ref");
+  } else if(thing instanceof Perl6.Class) {
+    return new PIL2JS.Box.Constant("Class"); // XXX
   } else {
     PIL2JS.die(
       "Internal error: .ref() not yet implemented for " +
@@ -843,6 +852,8 @@ var _26main_3a_3aprefix_3a_7e = PIL2JS.Box.constant_func(1, function (args) {
       return new PIL2JS.Box.Constant(Number(thing).toString());
     } else if(ref == "Ref") {
       PIL2JS.die("Can't stringify non-array or hash references!");
+    } else if(ref == "Class") { // XXX
+      return new PIL2JS.Box.Constant("<class>");
     } else {
       PIL2JS.die(
         "Stringification for objects of class "+

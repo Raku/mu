@@ -9,7 +9,7 @@ use Test;
 
 =cut
 
-plan 61;
+plan 55;
 
 # basic Pair
 
@@ -129,6 +129,11 @@ sub test2 (Hash %h){
 }
 test2 %hash;
 
+=begin p6l
+
+Awaiting p6l confirmation; see thread "$pair[0]" on p6l started by Ingo
+Blechschmidt: http://www.nntp.perl.org/group/perl.perl6.language/22593  --iblech
+
 sub test3 (Hash %h){
 	for %h.pairs -> $pair {
 		isa_ok($pair,'Pair',:todo<bug>) ; 
@@ -137,6 +142,8 @@ sub test3 (Hash %h){
 	}
 }
 test3 %hash;
+
+Hm, Hash::pair? Never heard of that.  --iblech
 
 sub test4 (Hash %h){
 	for %h.pair -> $pair {
@@ -147,6 +154,10 @@ sub test4 (Hash %h){
 	}
 }
 test4 %hash;
+
+=end p6l
+
+=cut
 
 my $should_be_a_pair = (a => 25/1);
 isa_ok $should_be_a_pair, "Pair", "=> has correct precedence";

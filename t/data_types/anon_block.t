@@ -60,7 +60,10 @@ my $foo2;
 is($foo2, "blah", "lone block w/out a semicolon actually executes it's content");
 
 my ($one, $two);
-{$one = 1} {$two = 2};
+# The try's here because it should die: $foo{...} should only work if $foo isa
+# Hash (or sth. which provides appropriate tieing/&postcircumfix:<{
+# }>/whatever, but a Code should surely not support hash access).  --ingo
+try { {$one = 1} {$two = 2} };
 is($one, undef, 'two blocks ({} {}) no semicolon after either,.. first block does not execute');
 is($two, 2, '... but second block does (parsed as hash subscript)');
 
