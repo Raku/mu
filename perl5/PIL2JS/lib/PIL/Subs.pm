@@ -83,10 +83,13 @@ use strict;
       my $methname = $self->[0];
       $methname = ($methname =~ /^&.*::(.+)$/)[0] or
         PIL::fail("Method names must be simple strings!");
+      # method foo (A|B|C $self:) {...}
+      my @classes = map { ":$_" } split /\|/, $self->[2]->[0]->type;
       $js .= sprintf
-        "PIL2JS.Box.prototype.perl_methods[%s] = %s;\n",
+        "PIL2JS.addmethod(%s, %s, %s);\n",
+        PIL::name_mangle($_),
         PIL::doublequote($methname),
-        PIL::name_mangle($self->[0]);
+        PIL::name_mangle($self->[0]) for @classes;
     }
 
     # Special magic for &*END_xyz subs.

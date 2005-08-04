@@ -172,6 +172,22 @@ C<&return> can then be simply implemented as:
 
 C<&last> and C<&next> are similar.
 
+=head2 Metamodel
+
+I use Stevan's C<Perl6.MetaModel> as the library providing classes like
+C<Perl6.Class>, C<Perl6.MetaClass>, etc.
+
+Note that I do not store the actual method bodies in the classes; Instead, all
+methods merely return the boxed sub object (a C<PIL2JS.Box.Constant>) upon
+invocation. I.e. the way to call a method is
+C<classobj.FETCH().can(methname).call("__i_am_pil2js").FETCH().([...])>. The
+C<__i_am_pil2js> guard is there so other code (which doesn't know about boxed
+subs) doesn't accidentally call our methods.
+
+Note that our methods do I<not> get a C<Perl6.Instance> as C<$?SELF> (this is
+due to perfomance reasons) -- however, when calling a method, the metamodel
+does get used.
+
 =head1 TODO
 
 =over
@@ -183,10 +199,6 @@ Make C<use js:Foo> load C<Foo> from L<JSAN|http://www.openjsan.org/>
 =item *
 
 Primitives!
-
-=item *
-
-Integration of C<Perl6.MetaModel>
 
 =item *
 

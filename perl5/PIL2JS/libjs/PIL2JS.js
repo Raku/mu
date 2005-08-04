@@ -276,17 +276,6 @@ PIL2JS.Box.prototype = {
       return unboxed;
     }
   },
-
-  // This is an all-PIL2JS.Box-objects global hash mapping method name to
-  // (boxed) method Code object. Of course, we'll have to check the class of
-  // the invocant later, but for now that's ok.
-  perl_methods: {}
-
-  /*
-    toString: function () {
-      _26main_3a_3aprefix_3a_7e.FETCH()([this]);
-    },
-  */
 };
 
 // PIL2JS.Box.Proxy is the equivalent of Perl's Proxy class.
@@ -405,18 +394,27 @@ PIL2JS.call = function (inv, sub, args) {
   } else {
     if(inv.FETCH) {
       var val    = inv.FETCH();
+      if(val instanceof PIL2JS.Ref && val.autoderef) val = val.referencee.FETCH();
       var isreal = val instanceof Perl6.Object
                 || val instanceof Perl6.Instance
                 || val instanceof Perl6.MetaClass
                 || val instanceof Perl6.Method;
+      if(!isreal) {
+        var realclass = PIL2JS.nativeclass2realclass(
+          val == undefined
+            ? val
+            : val.constructor
+        );
+        if(!realclass) realclass = _3amain_3a_3aItem;
+        val    = new Perl6.Instance(realclass.FETCH());
+        isreal = true;
+      }
       var isour  = isreal && val.isa("__PIL2JS");
       if(isreal && !isour) {
         return new PIL2JS.Box.Constant(call_method.apply([val, sub].concat(args.slice(2))));
-      } else if(isreal && isour) {
-        var boxedsub = val.can(sub)("__i_am_pil2js");
+      } else if(isreal && isour && val.can(sub)) {
+        var boxedsub = val.can(sub).call("__i_am_pil2js");
         return boxedsub.FETCH()([args[0], inv].concat(args.slice(1)));
-      } else if(inv.perl_methods[sub]) {
-        return PIL2JS.call(undefined, inv.perl_methods[sub], [args[0], inv].concat(args.slice(1)));
       } else {
         PIL2JS.die("No such method: \"" + sub + "\"");
       }
@@ -424,6 +422,57 @@ PIL2JS.call = function (inv, sub, args) {
       return PIL2JS.call(undefined, inv[sub], args);
     }
   }
+};
+
+PIL2JS.__PIL2JSClass   = new Perl6.Class("__PIL2JS", { "class": { "methods": {} } });
+PIL2JS.new_empty_class = function (name) {
+  return new PIL2JS.Box.Constant(
+    new Perl6.Class(name, {
+      "is":    name == "Item"
+                 ? [PIL2JS.__PIL2JSClass]
+                 : [_3amain_3a_3aItem.FETCH()],
+      "class": { "methods": {} }
+    })
+  );
+}
+var _3amain_3a_3aItem   = PIL2JS.new_empty_class("Item");
+var _3amain_3a_3aArray  = PIL2JS.new_empty_class("Array");
+var _3amain_3a_3aHash   = PIL2JS.new_empty_class("Hash");
+var _3amain_3a_3aPair   = PIL2JS.new_empty_class("Pair");
+var _3amain_3a_3aStr    = PIL2JS.new_empty_class("Str");
+var _3amain_3a_3aNum    = PIL2JS.new_empty_class("Num");
+var _3amain_3a_3aBool   = PIL2JS.new_empty_class("Bool");
+var _3amain_3a_3aCode   = PIL2JS.new_empty_class("Code");
+var _3amain_3a_3aRef    = PIL2JS.new_empty_class("Ref");
+var _3amain_3a_3aAny    = PIL2JS.new_empty_class("Any");
+PIL2JS.nativeclass2realclass = function (constr) {
+  if(constr == Array) {
+    return _3amain_3a_3aArray;
+  } else if(constr == PIL2JS.Hash) {
+    return _3amain_3a_3aHash;
+  } else if(constr == PIL2JS.Pair) {
+    return _3amain_3a_3aPair;
+  } else if(constr == String) {
+    return _3amain_3a_3aStr;
+  } else if(constr == Number) {
+    return _3amain_3a_3aNum;
+  } else if(constr == Function) {
+    return _3amain_3a_3aCode;
+  } else if(constr == PIL2JS.Ref) {
+    return _3amain_3a_3aRef;
+  }
+};
+
+PIL2JS.addmethod = function (cls, name, sub) {
+  if(cls == undefined) PIL2JS.die("PIL2JS.addmethod called with undefined class!");
+  cls = cls.FETCH();
+  if(!(cls instanceof Perl6.Class))
+    PIL2JS.die("PIL2JS.addmethod called with a weird class: \"" + typeof(cls) + "\"!");
+  cls.meta().add_method(name, new Perl6.Method(cls.meta(), function (check) {
+    if(check != "__i_am_pil2js")
+      PIL2JS.die("PIL2JS method called from outside of PIL2JS!");
+    return sub;
+  }));
 };
 
 // Flatten inp_arr (one level):
@@ -488,17 +537,6 @@ var _24_3fCALLER_3a_3aCALLER_3a_3aCALLER_3a_3aPOSITION =
 var _24_3fCALLER_3a_3aCALLER_3a_3aSUBNAME =
   new PIL2JS.Box("<$?CALLER::CALLER::SUBNAME not yet implemented>");
 // HACKS. Needs prober integration of Perl6.MetaModel.
-var _3amain_3a_3aNum         = new PIL2JS.Box.Constant("Num");
-var _3amain_3a_3aInt         = new PIL2JS.Box.Constant("Int");
-var _3amain_3a_3aRat         = new PIL2JS.Box.Constant("Rat");
-var _3amain_3a_3aCode        = new PIL2JS.Box.Constant("Code");
-var _3amain_3a_3aBlock       = new PIL2JS.Box.Constant("Block");
-var _3amain_3a_3aRoutine     = new PIL2JS.Box.Constant("Routine");
-var _3amain_3a_3aBare        = new PIL2JS.Box.Constant("Bare");
-var _3amain_3a_3aPair        = new PIL2JS.Box.Constant("Pair");
-var _3amain_3a_3aHash        = new PIL2JS.Box.Constant("Hash");
-var _3amain_3a_3aArray       = new PIL2JS.Box.Constant("Array");
-var _3amain_3a_3aRef         = new PIL2JS.Box.Constant("Ref");
 
 // Prettyprint an error msg.
 PIL2JS.new_error = function (msg) {
@@ -710,7 +748,7 @@ var _26main_3a_3aref = PIL2JS.Box.constant_func(1, function (args) {
   }
 });
 _26main_3a_3aref.perl_name = "&main::ref";
-PIL2JS.Box.prototype.perl_methods["ref"] = _26main_3a_3aref;
+PIL2JS.addmethod(_3amain_3a_3aItem, "ref", _26main_3a_3aref);
 
 // &*isa. hack.
 var _26main_3a_3aisa = PIL2JS.Box.constant_func(1, function (args) {
@@ -723,7 +761,7 @@ var _26main_3a_3aisa = PIL2JS.Box.constant_func(1, function (args) {
   );
 });
 _26main_3a_3aisa.perl_name = "&main::isa";
-PIL2JS.Box.prototype.perl_methods["isa"] = _26main_3a_3aisa;
+PIL2JS.addmethod(_3amain_3a_3aItem, "isa", _26main_3a_3aisa);
 
 // &prefix:<\>
 var _26main_3a_3aprefix_3a_5c = PIL2JS.Box.constant_func(1, function (args) {

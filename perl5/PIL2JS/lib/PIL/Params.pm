@@ -71,6 +71,7 @@ EOF
 
   sub is_required { $_[0]->{tpParam}{isOptional}->isa("PIL::False") }
   sub name        { $_[0]->{tpParam}{paramName} }
+  sub type        { $_[0]->{tpParam}{paramContext}->[0]->[0] }
   sub fixed_name  { $_[0]->{fixedName} }
   sub jsname      { PIL::name_mangle $_[0]->fixed_name }
 

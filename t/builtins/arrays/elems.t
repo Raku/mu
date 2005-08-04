@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 8;
+plan 12;
 
 {
   my @a;
@@ -43,4 +43,20 @@ plan 8;
 {
   my $a = <a b c>;
   is $a.elems, 3, ".elems works on initialized arrayrefs (2)";
+}
+
+{
+  dies_ok { elems(1,2,3,4) }, "elems(1,2,3,4) should not work";
+}
+
+{
+  is (elems (1,2,3,4)), 4, "elems (1,2,3,4) should work";
+}
+
+{
+  is (elems [1,2,3,4]), 4, "elems [1,2,3,4] should work";
+}
+
+{
+  is (elems ([1,2,3,4],)), 1, "elems ([1,2,3,4],) should return 1";
 }
