@@ -98,14 +98,14 @@ sub as_js {
   # XXX Context handling!
   if($inv) {
     return "new PIL2JS.Box.Constant($inv.$sub(\n$arg\n))" if $native;
-    return sprintf "%s.perl_methods[%s]([\n%s,\n%s\n])",
-      $inv, PIL::doublequote($sub), $cxt, $arg
-      if defined $native;
+    #return sprintf "%s.perl_methods[%s]([\n%s,\n%s\n])",
+    #  $inv, PIL::doublequote($sub), $cxt, $arg
+    #  if defined $native;
     return sprintf "PIL2JS.call(%s, %s, [\n%s,\n%s\n])",
       $inv, PIL::doublequote($sub), $cxt, $arg;
   } else {
     return "new PIL2JS.Box.Constant($sub(\n$arg\n))" if $native;
-    return "$sub.FETCH()([\n$cxt,\n$arg\n])"           if defined $native;
+    return "$sub.FETCH()([\n$cxt,\n$arg\n])"         if defined $native;
     return sprintf "PIL2JS.call(undefined, %s, [\n%s,\n%s\n])", $sub, $cxt, $arg;
   }
 }

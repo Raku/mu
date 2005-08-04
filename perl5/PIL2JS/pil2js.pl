@@ -84,8 +84,9 @@ EOF
     /^(~?)METAMODEL$/
       ? map { $1 . $PIL2JS::cfg{metamodel_base} . join("/", split /\./, $_) . ".js" } qw<
           Perl6.MetaModel
+          Perl6.Attribute
+          Perl6.Method
           Perl6.MetaClass.Dispatcher Perl6.MetaClass
-          Perl6.Method Perl6.Attribute
           Perl6.Class Perl6.Instance
           Perl6.Object
         >
@@ -104,8 +105,8 @@ EOF
     }
   }
 
-  # END blocks handler
   push @components, [inline => <<EOF];
+// Run all END blocks.
 PIL2JS.catch_all_exceptions(function () {
   var blocks = _40main_3a_3a_2aEND.FETCH();
   for(var i = 0; i < blocks.length; i++) {

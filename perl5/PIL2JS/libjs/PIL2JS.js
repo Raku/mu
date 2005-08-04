@@ -1,7 +1,8 @@
 // This is the part of the Prelude for JavaScript which is written in
 // JavaScript. See lib6/Prelude/JS.pm for the part written in Perl 6.
 
-try { Perl6.MetaModel } catch(err) {
+// Ensure the MetaModel is loaded.
+try { Perl6.Object } catch(err) {
   var error = new Error("Perl6.MetaModel not loaded; aborting.");
   alert(error);
   throw(error);
@@ -35,7 +36,7 @@ PIL2JS.Hash.prototype = {
   },
   exists:   function (key) {
     var ikey = key.toNative();
-    return ikey != "toPIL2JSBox" && this.entries[ikey] != undefined;
+    return this.entries[ikey] != undefined;
   },
   delete_key: function (key) {
     var old = this.get_value(key),
@@ -47,9 +48,7 @@ PIL2JS.Hash.prototype = {
   pairs:    function () {
     var pairs = [];
     for(var internal_key in this.entries) {
-      if(internal_key != "toPIL2JSBox") {
-        pairs.push(this.entries[internal_key]);
-      }
+      pairs.push(this.entries[internal_key]);
     }
     return pairs;
   },
@@ -356,20 +355,25 @@ PIL2JS.container_type = function (thing) {
   }
 }
 
-Object.prototype.toPIL2JSBox = function () { return new PIL2JS.Box.Constant(this) };
-Array.prototype.toPIL2JSBox  = function () {
-  var ret = [];
-  for(var i = 0; i < this.length; i++) {
-    ret.push(PIL2JS.box_native_result(this[i]));
+PIL2JS.toPIL2JSBox = function (thing) {
+  // I'd do this as Object.prototype.toPIL2JSBox, but this causes severe
+  // problems, is a hack, and causes the MetaModel to not work.
+  if(thing instanceof Array) {
+    var ret = [];
+    for(var i = 0; i < thing.length; i++) {
+      ret.push(PIL2JS.box_native_result(thing[i]));
+    }
+    return new PIL2JS.Box.Constant(ret);
+  } else {
+    return new PIL2JS.Box.Constant(thing);
   }
-  return new PIL2JS.Box.Constant(ret);
-};
+}
 
 PIL2JS.box_native_result = function (res) {
   if(res == undefined) {
     return new PIL2JS.Box.Constant(res);
   } else {
-    return res.toPIL2JSBox();
+    return PIL2JS.toPIL2JSBox(res);
   }
 };
 
@@ -396,9 +400,22 @@ PIL2JS.call = function (inv, sub, args) {
       code += "))";
       return eval(code);
     }
+
+  // It's a method call.
   } else {
     if(inv.FETCH) {
-      if(inv.perl_methods[sub]) {
+      var val    = inv.FETCH();
+      var isreal = val instanceof Perl6.Object
+                || val instanceof Perl6.Instance
+                || val instanceof Perl6.MetaClass
+                || val instanceof Perl6.Method;
+      var isour  = isreal && val.isa("__PIL2JS");
+      if(isreal && !isour) {
+        return new PIL2JS.Box.Constant(call_method.apply([val, sub].concat(args.slice(2))));
+      } else if(isreal && isour) {
+        var boxedsub = val.can(sub)("__i_am_pil2js");
+        return boxedsub.FETCH()([args[0], inv].concat(args.slice(1)));
+      } else if(inv.perl_methods[sub]) {
         return PIL2JS.call(undefined, inv.perl_methods[sub], [args[0], inv].concat(args.slice(1)));
       } else {
         PIL2JS.die("No such method: \"" + sub + "\"");
