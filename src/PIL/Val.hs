@@ -16,7 +16,8 @@ data Val
 
 -- | 'Item' is either one of the five intrisic types, or an object.
 data Single
-    = Object Object
+    = Undef
+    | Object Object
     -- Intrinsic types, according to S02.
     | Int Int | Num Num | Str Str | Ref Ref | Bit Bit
     -- These four below are apocryphal (not part of spec).
