@@ -10,10 +10,7 @@ use Perl6::MetaModel;
 use Perl6::MetaClass;
 
 use Perl6::Instance::Attribute;
-use Perl6::Instance::Method;
-
 use Perl6::Class::Attribute;
-use Perl6::Class::Method;
 
 my $mc = ::dispatch('Perl6::MetaClass', 'new', ('$.name' => 'Base'));
 isa_ok($mc, 'Perl6::MetaClass');
@@ -50,7 +47,7 @@ is_deeply(
 ## class methods
 
 lives_ok {
-    ::dispatch($mc, 'add_method', ('foo' => Perl6::Class::Method->new(::dispatch($mc, 'name'), sub { 'class->Base::foo' })));
+    ::dispatch($mc, 'add_method', ('foo' => Perl6::Method->create_class_method(::dispatch($mc, 'name'), sub { 'class->Base::foo' })));
 } '... we can add a class method successfully';
 
 ok(::dispatch($mc, 'has_method', ('foo', for => 'Class')), '... the metaclass now has the class method "foo"');
@@ -60,7 +57,7 @@ is(::dispatch($mc, 'get_method', ('foo', for => 'Class'))->do(), 'class->Base::f
 ## instance methods
 
 lives_ok {
-    ::dispatch($mc, 'add_method', ('foo' => Perl6::Instance::Method->new(::dispatch($mc, 'name'), sub { 'Base::foo' })));
+    ::dispatch($mc, 'add_method', ('foo' => Perl6::Method->create_instance_method(::dispatch($mc, 'name'), sub { 'Base::foo' })));
 } '... we can add a method successfully';
 
 ok(::dispatch($mc, 'has_method', ('foo')), '... the metaclass now has the method "foo"');
@@ -139,7 +136,7 @@ is_deeply(
     '... got a class precendence list');
 
 lives_ok {    
-    ::dispatch($mc2, 'add_method', ('bar' => Perl6::Instance::Method->new(::dispatch($mc2, 'name'), sub { 'Foo::bar' })));
+    ::dispatch($mc2, 'add_method', ('bar' => Perl6::Method->create_instance_method(::dispatch($mc2, 'name'), sub { 'Foo::bar' })));
 } '... add another method now';
 
 ok(::dispatch($mc2, 'has_method', ('bar')), '... the metaclass now has the method "bar"');
@@ -187,7 +184,7 @@ is_deeply(
     '... got a class precendence list');
 
 lives_ok {    
-    ::dispatch($mc3, 'add_method', ('baz' => Perl6::Instance::Method->new(::dispatch($mc3, 'name'), sub { 'Bar::baz' })));
+    ::dispatch($mc3, 'add_method', ('baz' => Perl6::Method->create_instance_method(::dispatch($mc3, 'name'), sub { 'Bar::baz' })));
 } '... add another method now';
 
 ok(::dispatch($mc3, 'has_method', ('baz')), '... the metaclass now has the method "baz"');
@@ -229,7 +226,7 @@ is_deeply(
     '... got a class precendence list');
 
 lives_ok {    
-    ::dispatch($mc4, 'add_method', ('blah' => Perl6::Instance::Method->new(::dispatch($mc4, 'name'), sub { 'Foo::Bar::blah' })));
+    ::dispatch($mc4, 'add_method', ('blah' => Perl6::Method->create_instance_method(::dispatch($mc4, 'name'), sub { 'Foo::Bar::blah' })));
 } '... add another method now';
 
 ok(::dispatch($mc4, 'has_method', ('blah')), '... the metaclass now has the method "blah"');
@@ -267,7 +264,7 @@ is_deeply(
     '... got a class precendence list'); 
 
 lives_ok {    
-    ::dispatch($mc5, 'add_method', ('foo' => Perl6::Instance::Method->new(::dispatch($mc5, 'name'), sub { 'Foo::Bar::Baz::foo' })));
+    ::dispatch($mc5, 'add_method', ('foo' => Perl6::Method->create_instance_method(::dispatch($mc5, 'name'), sub { 'Foo::Bar::Baz::foo' })));
 } '... add another method now';
 
 isa_ok(::dispatch($mc5, 'find_attribute_spec', ('$.foo')), 'Perl6::Attribute');

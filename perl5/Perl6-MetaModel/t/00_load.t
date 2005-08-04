@@ -20,12 +20,9 @@ use_ok('Perl6::SubMethod');
 
     # Perl6/Role
     use_ok('Perl6::Role::Attribute');
-    use_ok('Perl6::Role::Method');
 
     # Perl6/Instance
     use_ok('Perl6::Instance::Attribute');
-    use_ok('Perl6::Instance::Method');
 
     # Perl6/Class
     use_ok('Perl6::Class::Attribute');
-    use_ok('Perl6::Class::Method');

@@ -4,8 +4,6 @@ package Perl6::Role;
 use strict;
 use warnings;
 
-use Perl6::Role::Method;
-
 use Carp 'confess';
 
 our %ROLES;
@@ -27,12 +25,12 @@ sub flatten_roles_into {
     debug "flattened role is (" . $r->{name} . ")";
     foreach my $method (keys %{$r->{methods}}) {
         debug "adding the method ($method) into (" . ::dispatch($meta, 'name') . ")";
-        ::dispatch($meta, 'add_method', ($method => Perl6::Role::Method->new(
+        ::dispatch($meta, 'add_method', ($method => Perl6::Method->create_role_method(
             ::dispatch($meta, 'name'),
             $r->{methods}->{$method}
             ))) unless ::dispatch($meta, 'has_method', ($method));
     }
-    ::dispatch($meta, 'add_method', ('does' => Perl6::Role::Method->new(
+    ::dispatch($meta, 'add_method', ('does' => Perl6::Method->create_role_method(
         ::dispatch($meta, 'name'), 
         sub {
             my (undef, $role) = @_;

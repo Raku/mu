@@ -13,13 +13,9 @@ use Perl6::MetaClass;
 use Perl6::Role;
 
 use Perl6::SubMethod;
-use Perl6::PrivateMethod;
 
 use Perl6::Class::Attribute;
-use Perl6::Class::Method;
-
 use Perl6::Instance::Attribute;
-use Perl6::Instance::Method;
 
 ## Private methods
 
@@ -131,10 +127,10 @@ sub _build_class {
         if (exists $instance->{methods}) {
             foreach (keys %{$instance->{methods}}) {
                 if (/^_/) {
-                    ::dispatch($meta, 'add_method', ($_ => Perl6::PrivateMethod->new($name, $instance->{methods}->{$_})));
+                    ::dispatch($meta, 'add_method', ($_ => Perl6::Method->create_private_method($name, $instance->{methods}->{$_})));
                 }
                 else {
-                    ::dispatch($meta, 'add_method', ($_ => Perl6::Instance::Method->new($name, $instance->{methods}->{$_})));
+                    ::dispatch($meta, 'add_method', ($_ => Perl6::Method->create_instance_method($name, $instance->{methods}->{$_})));
                 }
             }
         }
@@ -171,10 +167,10 @@ sub _build_class {
         if (exists $class->{methods}) {
             foreach my $label (keys %{$class->{methods}}) {
                 if ($label =~ /^_/) {
-                    ::dispatch($meta, 'add_method', ($label => Perl6::PrivateMethod->new($name, $class->{methods}->{$label})));
+                    ::dispatch($meta, 'add_method', ($label => Perl6::Method->create_private_method($name, $class->{methods}->{$label})));
                 }
                 else {
-                    ::dispatch($meta, 'add_method', ($label => Perl6::Class::Method->new($name, $class->{methods}->{$label})));
+                    ::dispatch($meta, 'add_method', ($label => Perl6::Method->create_class_method($name, $class->{methods}->{$label})));
                 }
             }
         }
