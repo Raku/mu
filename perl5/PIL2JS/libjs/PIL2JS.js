@@ -28,43 +28,41 @@ PIL2JS.new_uid = function () {
 // declare any methods. This class only exists so code can do if(foo instanceof
 // PIL2JS.Hash) {...}.
 PIL2JS.Hash = function () { this.entries = {}; this.num_of_entries = 0 };
-PIL2JS.Hash.prototype = {
-  add_pair: function (pair) {
-    var key = pair.key.toNative();
-    if(!this.entries[key]) this.num_of_entries++;
-    this.entries[key] = pair;
-  },
-  exists:   function (key) {
-    var ikey = key.toNative();
-    return this.entries[ikey] != undefined;
-  },
-  delete_key: function (key) {
-    var old = this.get_value(key),
-        key = key.toNative();
-    if(this.entries[key]) this.num_of_entries--;
-    delete this.entries[key];
-    return old;
-  },
-  pairs:    function () {
-    var pairs = [];
-    for(var internal_key in this.entries) {
-      pairs.push(this.entries[internal_key]);
-    }
-    return pairs;
-  },
-  keys:     function () {
-    var keys  = [];
-    var pairs = this.pairs();
-    for(var i = 0; i < pairs.length; i++) {
-      keys.push(pairs[i].key);
-    }
-    return keys;
-  },
-  get_value: function (key) {
-    return this.exists(key) ? this.entries[key.toNative()].value : undefined;
-  },
-  toString: function () { return "<PIL2JS.Hash>" }
+PIL2JS.Hash.prototype.add_pair = function (pair) {
+  var key = pair.key.toNative();
+  if(!this.entries[key]) this.num_of_entries++;
+  this.entries[key] = pair;
 };
+PIL2JS.Hash.prototype.exists = function (key) {
+  var ikey = key.toNative();
+  return this.entries[ikey] != undefined;
+};
+PIL2JS.Hash.prototype.delete_key = function (key) {
+  var old = this.get_value(key),
+      key = key.toNative();
+  if(this.entries[key]) this.num_of_entries--;
+  delete this.entries[key];
+  return old;
+};
+PIL2JS.Hash.prototype.pairs = function () {
+  var pairs = [];
+  for(var internal_key in this.entries) {
+    pairs.push(this.entries[internal_key]);
+  }
+  return pairs;
+};
+PIL2JS.Hash.prototype.keys = function () {
+  var keys  = [];
+  var pairs = this.pairs();
+  for(var i = 0; i < pairs.length; i++) {
+    keys.push(pairs[i].key);
+  }
+  return keys;
+};
+PIL2JS.Hash.prototype.get_value = function (key) {
+  return this.exists(key) ? this.entries[key.toNative()].value : undefined;
+};
+PIL2JS.Hash.prototype.toString = function () { return "<PIL2JS.Hash>" };
 
 // class Pair { has $.key; has $.value }
 PIL2JS.Pair = function (key, value) {
@@ -533,14 +531,12 @@ PIL2JS.make_slurpy_array = function (inp_arr) {
 
 // StubIO class.
 PIL2JS.StubIO = function () {};
-PIL2JS.StubIO.prototype = {
-  print: new PIL2JS.Box.Constant(function (args) {
-    return _26main_3a_3aprint.FETCH()(args);
-  }),
-  say: new PIL2JS.Box.Constant(function (args) {
-    return _26main_3a_3asay.FETCH()(args);
-  })
-};
+PIL2JS.StubIO.prototype.print = new PIL2JS.Box.Constant(function (args) {
+  return _26main_3a_3aprint.FETCH()(args);
+});
+PIL2JS.StubIO.prototype.say = new PIL2JS.Box.Constant(function (args) {
+  return _26main_3a_3asay.FETCH()(args);
+});
 
 // Magical variables: $?POSITION, $!, etc.
 var _24main_3a_3a_3fPOSITION = new PIL2JS.Box("<unknown>");
@@ -699,10 +695,8 @@ PIL2JS.Context = function (cxt) {
   this["type"] = cxt["type"];
   return this;
 };
-PIL2JS.Context.prototype = {
-  toString: function () {
-    return "Context.new(:main[" + this["main"] + "], :type[" + this["type"] + "])";
-  }
+PIL2JS.Context.prototype.toString = function () {
+  return "Context.new(:main[" + this["main"] + "], :type[" + this["type"] + "])";
 };
 
 PIL2JS.Context.Void      = new PIL2JS.Box.Constant(new PIL2JS.Context({ main: "void" }));

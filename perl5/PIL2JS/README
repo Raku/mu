@@ -1,6 +1,6 @@
 =head1 NAME
 
-PIL2JS - Compiler from PIL to JavaScript
+PIL2JS - PIL to JavaScript compiler
 
 =head1 DESCRIPTION
 
@@ -14,7 +14,7 @@ precompile the Prelude by entering C<:precomp>. Now enter some Perl 6 code and
 point your browser to C<./output.html>.
 
 Additionally, there's C<./runjs.pl>, which accepts the same options as Pugs.
-This will first compile your code to JavaScript and then run it using
+It will first compile your code to JavaScript and then run it using
 Spidermonkey's C<bin/js>:
 
   $ ./runjs.pl -e 'say "Hello, World!"'
