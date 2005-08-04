@@ -1272,6 +1272,9 @@ readVar name@(sigil:rest) = do
         _  -> readVar (sigil:'*':rest)
 readVar _ = return undef
 
+{-|
+The \'empty expression\' is just a no-op ('Noop').
+-}
 emptyExp :: Exp
 emptyExp = Noop
 

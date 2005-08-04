@@ -93,11 +93,19 @@ ruleVerbatimIdentifier = (<?> "identifier") $ do
     cs <- many (identLetter perl6Def)
     return (c:cs)
 
+{-|
+Match any amount of whitespace (not including newlines), followed by a newline
+(as matched by 'ruleEndOfLine').
+-}
 ruleWhiteSpaceLine :: GenParser Char st ()
 ruleWhiteSpaceLine = do
     many $ satisfy (\x -> isSpace x && x /= '\n')
     ruleEndOfLine
 
+{-|
+Match either a single newline, or EOF (which constitutes the termination of a
+line anyway).
+-}
 ruleEndOfLine :: GenParser Char st ()
 ruleEndOfLine = choice [ do { char '\n'; return () }, eof ]
 

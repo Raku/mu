@@ -56,7 +56,14 @@ expRule rule = do
     pos2 <- getPosition
     return $ Pos (mkPos pos1 pos2) (unwrap exp)
 
-mkPos :: SourcePos -> SourcePos -> Pos
+{-|
+Create a Pugs 'Pugs.AST.Pos' (for storing in the AST) from two Parsec
+@SourcePos@ positions, being the start and end respectively of the current
+region.
+-}
+mkPos :: SourcePos -- ^ Starting position of the region
+      -> SourcePos -- ^ Ending position of the region
+      -> Pos
 mkPos pos1 pos2 = MkPos
     { posName         = sourceName pos1 
     , posBeginLine    = sourceLine pos1
@@ -122,17 +129,32 @@ ruleStatementList = rule "statements" $ choice
                 return $ \exp -> return $ mergeStmts exp stmts
         rest exp
 
+{-|
+Assert that we're at the beginning of a line, but consume no input (and produce
+no result).
+
+Used by 'ruleDocIntroducer', because POD-style regions must have their \'@=@\'
+at the beginning of a line.
+-}
 ruleBeginOfLine :: RuleParser ()
 ruleBeginOfLine = do
     pos <- getPosition
     unless (sourceColumn pos == 1) $ fail ""
     return ()
 
+{-|
+Match a single \'@=@\', but only if it occurs as the first character of a line.
+-}
 ruleDocIntroducer :: RuleParser Char
 ruleDocIntroducer = (<?> "intro") $ do
     ruleBeginOfLine
     char '='
 
+{-|
+Match \'@=cut@\', followed by a newline (see 'ruleWhiteSpaceLine').
+
+The \'@=@\' must be the first character of the line ('ruleDocIntroducer').
+-}
 ruleDocCut :: RuleParser ()
 ruleDocCut = (<?> "cut") $ do
     ruleDocIntroducer

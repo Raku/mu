@@ -3,10 +3,10 @@
 {-|
     Code generation interface.
 
-    I sit beside the fire and think
-    of all that I have seen,
-    of meadow-flowers and butterflies
-    in summers that have been...
+>   I sit beside the fire and think
+>   of all that I have seen,
+>   of meadow-flowers and butterflies
+>   in summers that have been...
 -}
 
 module Pugs.CodeGen (codeGen, backends) where
