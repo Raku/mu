@@ -34,6 +34,9 @@ XXX NOTE!!!!!!!!
 PREFIX doesn't actually work right now. So ignore what I just said. But if
 it did work, that's how you would do it.
 
+Do not set PREFIX to your Perl 5 installation dir, as that would overwrite
+some of the files there with their Pugs counterparts.
+
 ENVIRONMENT VARIABLES
 ---------------------
 
@@ -112,6 +115,11 @@ The options you can control there include:
   otherwise it will abort the build. And if your machine is low on RAM, and
   itself runs out of memory while building pugs, you can set this to a low
   value (but turn off optimization and precompilation too).
+
+- install_dir: if set, `make install` will put everything under this
+  directory. Do not set this to your Perl 5 installation, since that
+  will overwrite some of the files there with the Pugs counterparts
+  (as will make install PREFIX= as noted above.)
 
 You can override values set in this file temporarily via the single
 PUGS_BUILD_OPTS environment variable. For example, if you normally do

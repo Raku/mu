@@ -30,4 +30,5 @@ precompile_prelude: true
 
 # Set this to a string value if you want Pugs to be installed in a different 
 # directory from the usual.
+# Don't put your Perl 5 dir here! See INSTALL.
 # install_dir: C:\Perl6
