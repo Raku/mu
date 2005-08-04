@@ -27,9 +27,9 @@ Alternatively, you can use the compiler directly:
   $ ./pil2js.pl \                                 # Generate a .html
       --link=html \
       -o output.html \
-      ~libjs/PIL2JS.js ~Prelude.js output.js
-  # This links the basic JS Prelude (PIL2JS.js), the Perl 6 Prelude
-  # (Prelude.js), and your code together, producing output.html.
+      ~METAMODEL ~libjs/PIL2JS.js ~Prelude.js output.js
+  # This links the Perl 6 MetaModel, the basic JS Prelude (PIL2JS.js), the
+  # Perl 6 Prelude (Prelude.js), and your code together, producing output.html.
 
 =head1 SMOKING
 

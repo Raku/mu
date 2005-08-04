@@ -29,6 +29,7 @@ our %cfg = (
   preludepc => pwd('Prelude.js'),
   testpc    => pwd('Test.js'),
   prelude   => pwd(qw< lib6 Prelude JS.pm >),
+  metamodel_base => pwd(qw< .. Perl6.MetaModel lib >) . "/", # hack?
 );
 
 sub diag($) { warn "# $_[0]\n" if $cfg{verbose} }
@@ -56,7 +57,7 @@ sub compile_perl6_to_standalone_js {
   my $pil  = run_pugs("-CPIL", @_);
   die "Error: Couldn't compile to PIL!\n" if not defined $pil;
   my $mini = run_pil2js(\$pil);
-  my $js   = run_pil2js("--link=js", jsprelude_path(), $cfg{preludepc}, $cfg{testpc}, \$mini);
+  my $js   = run_pil2js("--link=js", "METAMODEL", jsprelude_path(), $cfg{preludepc}, $cfg{testpc}, \$mini);
 
   return $js;
 }
@@ -74,7 +75,7 @@ sub compile_perl6_to_htmljs_with_links {
 
   my $mini = compile_perl6_to_mini_js(@_);
   die "Error: Couldn't compile to PIL!\n" if not defined $mini;
-  my $js   = run_pil2js("--link=html", "~".jsprelude_path(), "~$cfg{preludepc}", "~$cfg{testpc}", \$mini);
+  my $js   = run_pil2js("--link=html", "~METAMODEL", "~".jsprelude_path(), "~$cfg{preludepc}", "~$cfg{testpc}", \$mini);
 
   return $js;
 }
@@ -114,6 +115,8 @@ sub run_pugs {
 # "-" and the contents of the reference will be written to pil2js.pl's STDIN.
 sub run_pil2js {
   my @args = @_;
+  unshift @args, "--pugs=" . $cfg{pugs}, "--metamodel-base=" . $cfg{metamodel_base};
+
   my $push;
   for(@args) {
     if(ref $_ and defined $push) {

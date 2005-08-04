@@ -1,6 +1,12 @@
 // This is the part of the Prelude for JavaScript which is written in
 // JavaScript. See lib6/Prelude/JS.pm for the part written in Perl 6.
 
+try { Perl6.MetaModel } catch(err) {
+  var error = new Error("Perl6.MetaModel not loaded; aborting.");
+  alert(error);
+  throw(error);
+}
+
 // Create our namespace.
 if(PIL2JS == undefined) var PIL2JS = {};
 

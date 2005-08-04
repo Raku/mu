@@ -24,11 +24,12 @@ our %cfg;
 *cfg = \%PIL2JS::cfg;
 $cfg{output} = "output.html";
 $cfg{verbose}++;
-command_conf(pugs      => $cfg{pugs});
-command_conf(pil2js    => $cfg{pil2js});
-command_conf(preludepc => $cfg{preludepc});
-command_conf(prelude   => $cfg{prelude});
-command_conf(output    => $cfg{output});
+command_conf(pugs           => $cfg{pugs});
+command_conf(metamodel_base => $cfg{metamodel_base});
+command_conf(pil2js         => $cfg{pil2js});
+command_conf(preludepc      => $cfg{preludepc});
+command_conf(prelude        => $cfg{prelude});
+command_conf(output         => $cfg{output});
 
 while(defined($_ = $term->readline($prompt))) {
   next unless /\S/;
@@ -51,7 +52,7 @@ Commands available from the prompt:
 :h                      = show this help message
 :q                      = quit
 :conf thing [new_value] = set the path to thing
-                          (pugs|pil2js|preludepc|lib6|output)
+                          (pugs|pil2js|preludepc|metamodel_base|output)
 :precomp                = precompile the Prelude
 :pil <exp>              = show PIL of expression
 :pil.yaml <exp>         = show PIL of expression dumped as YAML
@@ -68,20 +69,21 @@ sub command_conf {
     pil2js    => "pil2js",
     preludepc => "the precompiled Prelude",
     prelude   => "the Prelude sourcecode",
+    metamodel_base => "Perl6.MetaModel",
     output    => "the JavaScript output",
   );
 
-  unless($what and $what =~ /^(?:pugs|pil2js|prelude(?:pc)?|output)$/) {
-    print $OUT "Usage: :conf pugs|pil2js|prelude|preludepc|lib6|output [new_value]\n";
+  unless($what and $what =~ /^(?:pugs|pil2js|prelude(?:pc)?|metamodel_base|output)$/) {
+    print $OUT "Usage: :conf pugs|pil2js|prelude|preludepc|metamodel_base|output [new_value]\n";
     return;
   }
 
   $cfg{$what} = $new if $new;
 
-  my $descr =  "$human{$what}:" . " " x (30 - length $human{$what});
+  my $descr =  "$human{$what}:" . " " x (25 - length $human{$what});
   my $path  =  $cfg{$what};
   $path     =~ s/^@{[ PIL2JS::pwd() ]}.//;
-  $path    .=  " " x (20 - length $path);
+  $path    .=  " " x (25 - length $path);
   print $OUT
     "* Path to $descr $path [" .
     (-d $cfg{$what} || (-f $cfg{$what} && -s $cfg{$what}) ? "OK" : "NOT FOUND") .

@@ -115,7 +115,7 @@ sub as_js {
   warn "# Number of lexical scopes: $CUR_LEXSCOPE_ID\n";
 
   $IN_GLOBPIL++;
-  my @glob_js = map { $_->as_js } @{ $fixed_tree->{"pilGlob"} };
+  my @glob_js = map { $_->as_js || () } @{ $fixed_tree->{"pilGlob"} };
   $IN_GLOBPIL = 0;
   my $main_js = $fixed_tree->{pilMain}->as_js;
 
