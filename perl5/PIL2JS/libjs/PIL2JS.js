@@ -394,12 +394,21 @@ PIL2JS.call = function (inv, sub, args) {
   } else {
     if(inv.FETCH) {
       var val    = inv.FETCH();
+      // Possibly autoderef Refs.
       if(val instanceof PIL2JS.Ref && val.autoderef) val = val.referencee.FETCH();
+
+      // Check if we're calling a real object part of the MetaModel or
+      // something other.
       var isreal = val instanceof Perl6.Object
                 || val instanceof Perl6.Instance
                 || val instanceof Perl6.MetaClass
                 || val instanceof Perl6.Method;
+
+      // We're calling a method on a native JS object (Array, PIL2JS.Hash,
+      // etc.)?
       if(!isreal) {
+        // So create an instance of the corresponding Perl 6 class (which is
+        // part of the metamodel).
         var realclass = PIL2JS.nativeclass2realclass(
           val == undefined
             ? val
@@ -409,15 +418,29 @@ PIL2JS.call = function (inv, sub, args) {
         val    = new Perl6.Instance(realclass.FETCH());
         isreal = true;
       }
+
+      // All classes we create inherit from __PIL2JS. This is so we can detect
+      // that our classes are really our's.
       var isour  = isreal && val.isa("__PIL2JS");
+
+      // It is a real object, but it doesn't belong to us: Cut off the context
+      // and inv info and call the method the official way.
       if(isreal && !isour) {
         return new PIL2JS.Box.Constant(call_method.apply([val, sub].concat(args.slice(2))));
+
+      // It is a real object and it belongs to us: Retrieve the original boxed
+      // sub object and call it.
       } else if(isreal && isour && val.can(sub)) {
         var boxedsub = val.can(sub).call("__i_am_pil2js");
         return boxedsub.FETCH()([args[0], inv].concat(args.slice(1)));
+
+      // Sorry.
       } else {
         PIL2JS.die("No such method: \"" + sub + "\"");
       }
+
+    // It is a native JS object. Retrieve a Function reference and re-call
+    // PIL2JS.call, as a native JS method may return a boxed object.
     } else {
       return PIL2JS.call(undefined, inv[sub], args);
     }
@@ -445,6 +468,8 @@ var _3amain_3a_3aBool   = PIL2JS.new_empty_class("Bool");
 var _3amain_3a_3aCode   = PIL2JS.new_empty_class("Code");
 var _3amain_3a_3aRef    = PIL2JS.new_empty_class("Ref");
 var _3amain_3a_3aAny    = PIL2JS.new_empty_class("Any");
+
+// Returns, given a native JS object, the corresponding boxed class object.
 PIL2JS.nativeclass2realclass = function (constr) {
   if(constr == Array) {
     return _3amain_3a_3aArray;
@@ -463,11 +488,12 @@ PIL2JS.nativeclass2realclass = function (constr) {
   }
 };
 
+// Adds a method to a boxed class object.
 PIL2JS.addmethod = function (cls, name, sub) {
   if(cls == undefined) PIL2JS.die("PIL2JS.addmethod called with undefined class!");
   cls = cls.FETCH();
   if(!(cls instanceof Perl6.Class))
-    PIL2JS.die("PIL2JS.addmethod called with a weird class: \"" + typeof(cls) + "\"!");
+    PIL2JS.die("PIL2JS.addmethod called with a weird class: \"" + cls + "\"!");
   cls.meta().add_method(name, new Perl6.Method(cls.meta(), function (check) {
     if(check != "__i_am_pil2js")
       PIL2JS.die("PIL2JS method called from outside of PIL2JS!");
