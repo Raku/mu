@@ -7,7 +7,7 @@ module PIL.Container (
     cmap, bmap, tmap, newMutBox,
 ) where
 import PIL.Internals
-import PIL.MetaModel
+-- import PIL.MetaModel
 import Data.Map as Map
 
 newtype Name = MkName { unName :: String }
@@ -67,7 +67,7 @@ The type of tie-table must agree with the storage type.  Such a table
 may be empty, as denoted by the nullary constructor 'Untied'.  Each of
 the three storage types comes with its own tie-table layout.
 -}
-data Tieable = Untied | Tied Object
+data Tieable = Untied | Tied Dynamic
     deriving (Eq, Ord, Show, Typeable)
 
 
@@ -163,6 +163,12 @@ instance Show Container where
 instance Ord Container where
     compare _ _ = EQ
 instance Eq Container where
+    _ == _ = True
+
+
+instance Ord Dynamic where
+    compare _ _ = EQ
+instance Eq Dynamic where
     _ == _ = True
 
 

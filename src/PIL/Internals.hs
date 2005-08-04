@@ -6,7 +6,7 @@ module PIL.Internals (
     newSTRef, readSTRef, writeSTRef, modifySTRef, runST, ST, STRef,
     test, oneof, quickCheck, verboseCheck, Id, newId,
     TVar, STM, newTVar, readTVar, writeTVar,
-    fmapM, Map, atomically, Dynamic, Typeable, toDyn,
+    fmapM, IntMap, Map, atomically, Dynamic, Typeable, toDyn,
 ) where
 import Control.Monad.ST
 import Data.STRef
@@ -15,6 +15,7 @@ import Control.Exception
 import Control.Concurrent.STM
 import System.IO.Unsafe (unsafePerformIO)
 import Data.FunctorM
+import Data.IntMap (IntMap)
 import Data.Map (Map)
 import Data.Dynamic
 import Data.Typeable
