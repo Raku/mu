@@ -1,9 +1,9 @@
 
-require('Perl6.MetaClass');     
-require('Perl6.Method');     
-require('Perl6.Attribute');   
-
 if (Perl6 == undefined) var Perl6 = function () {};
+
+if (Perl6.MetaClass == undefined || Perl6.MetaClass.prototype.version == undefined) require('Perl6.MetaClass');     
+if (Perl6.Method    == undefined) require('Perl6.Method');     
+if (Perl6.Attribute == undefined) require('Perl6.Attribute');   
 
 Perl6.Class = function (name, options) {
     this.META = new Perl6.MetaClass();

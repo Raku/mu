@@ -83,8 +83,11 @@ EOF
   @input = map {
     /^(~?)METAMODEL$/
       ? map { $1 . $PIL2JS::cfg{metamodel_base} . join("/", split /\./, $_) . ".js" } qw<
-          Perl6.MetaModel Perl6.Attribute Perl6.Method Perl6.MetaClass
-          Perl6.Class Perl6.Instance Perl6.Object
+          Perl6.MetaModel
+          Perl6.MetaClass.Dispatcher Perl6.MetaClass
+          Perl6.Method Perl6.Attribute
+          Perl6.Class Perl6.Instance
+          Perl6.Object
         >
       : ($_)
   } @input;

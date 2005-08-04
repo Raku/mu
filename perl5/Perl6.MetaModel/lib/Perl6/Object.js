@@ -1,8 +1,8 @@
 
-require('Perl6.Class');
-require('Perl6.Instance');
-
 if (Perl6 == undefined) var Perl6 = function () {};
+
+if (Perl6.Class    == undefined) require('Perl6.Class');
+if (Perl6.Instance == undefined) require('Perl6.Instance');
 
 Perl6.Object = new Perl6.Class('Perl6::Object', {
     'class' : {

@@ -1,8 +1,20 @@
 
-require('Perl6.MetaClass.Dispatcher');
-
 if (Perl6 == undefined) var Perl6 = {};
 
+// Minor hack. If somebody knows a better solution, please fix away.
+// The problem is: require may not be called when running under Spidermonkey's
+// bin/js, as it doesn't iterpret the <script> tag require emits.
+// Therefore pil2js.pl preloads all Perl6.* by simply inlining their source.
+// The problem:
+//   1. If Perl6.MetaClass.Dispatcher is loaded before Perl6.MetaClass,
+//      Perl6.MetaClass.Dispatcher will stub Perl6.MetaClass = function () {}.
+//      But then Perl6.MetaClass is loaded, causing a new assignment to
+//      Perl6.MetaClass, causing the Perl6.MetaClass.Dispatcher definition to
+//      go away.
+//   2. If Perl6.MetaClass.Dispatcher is loaded after Perl6.MetaClass,
+//      Perl6.MetaClass will require() Perl6.MetaClass.Dispatcher -- bad.
+if (Perl6.MetaClass && Perl6.MetaClass.Dispatcher)
+    var Perl6_MetaClass_Dispatcher_backup = Perl6.MetaClass.Dispatcher;
 Perl6.MetaClass = function (name, version, authority) {
     // meta information
     this._name      = name      || false;
@@ -14,6 +26,9 @@ Perl6.MetaClass = function (name, version, authority) {
     this._class_definition = { methods : {}, attributes : {} };
     this._class_data       = { methods : {}, attributes : {} };
 }
+Perl6.MetaClass.Dispatcher = Perl6_MetaClass_Dispatcher_backup;
+
+if(Perl6.MetaClass.Dispatcher == undefined) require('Perl6.MetaClass.Dispatcher');
 
 Perl6.MetaClass.prototype.name = function (name) {
     if (name) this._name = name;
