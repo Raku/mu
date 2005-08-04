@@ -7,35 +7,33 @@ use Span;          # stringify()
 
     * make a Recurrence::Span class - elements can be spans
 
-    * compare
+  Bugs:
+    * operations with non-Recurrences should return a Set::Infinite / Span
+    * cleanup extra "is copy"
+    * remove "arbitrary_limit" if possible
+    * cleanup circular references using 'submethod DESTROY {}'
+    
+  Tests:
+    * overloading - ~ <=> 
+
+  Methods:
+    * iterator / map 
     * size - accept a function; use as_list
+    * compare
     * as_list
     * contains( $set )
-    * stringify 
     * set_start / set_end
-   
     * remove "difference()" method ?
-    
-    * cleanup extra "is copy"
-    
-    * remove "arbitrary_limit" if possible
 
-    * iterator / map 
-
------------ not implemented or tested ------------------
+  Constructor:  ------------
 
 - `new( closure_next => sub {...} )`
 
-Creates a recurrence set where only methods `start()` and `next($x)` 
-are enabled.
-
-XXX - add tests
+Creates a recurrence set where only methods `start()` and `next($x)` are enabled.
 
 - `new( closure_previous => sub {...} )`
 
 Creates a recurrence set where only methods `end()`, `previous($x)` are enabled.
-
-XXX - add tests
 
 - `new( closure_next =>     sub {...}, universe => $universal_set )`
 - `new( closure_previous => sub {...}, universe => $universal_set )`
@@ -44,19 +42,14 @@ Create a recurrence set with full bidirectional functionality.
 
 The complementary functions are emulated using iterations.
 
-See also the section "UNIVERSAL SET CONSTRUCTOR".
-
-XXX - add tests
-
 - `new( closure_next => sub {...}, closure_previous => sub {...} )`
 
 Creates a bidirectional recurrence set.
 
 These methods are disabled: complement(), difference($set)
 
-XXX - add tests
-
----------------- end TODO -------------------
+  ---------------- end Constructor 
+  
 =cut
 
 class Recurrence-0.01
@@ -67,9 +60,17 @@ class Recurrence-0.01
     has Code $.complement_next;
     has Code $.complement_previous;
     has Recurrence $.universe;   
-    has $:arbitrary_limit;
+    has Int  $:arbitrary_limit;
 
-submethod BUILD ( $.closure_next, $.closure_previous, ?$is_universe, ?$complement_next, ?$complement_previous, ?$.universe ) {
+submethod BUILD (
+    $.closure_next, 
+    $.closure_previous, 
+    ?$is_universe, 
+    ?$complement_next, 
+    ?$complement_previous, 
+    ?$.universe, 
+) 
+{
     # TODO - get rid of "$:arbitrary_limit"
     $:arbitrary_limit = 100;
     
@@ -145,22 +146,26 @@ method difference ($self: $set ) {
     return $self.intersection( $set.complement );
 }
 
+# --------- arithmetic and list operations ----------------
+
 method grep ($set: Code $select ) {
     return $set.new( 
-        closure_next =>        sub ($x is copy) { 
-            loop{ $x = &{ $set.closure_next }($x); 
-                  return $x if $x==Inf || $select($x) } },
-        closure_previous =>    sub ($x is copy) { 
-            loop{ $x = &{ $set.closure_previous }($x); 
-                  return $x if $x==-Inf || $select($x) } },
+        closure_next =>
+            sub ($x is copy) { 
+                loop{ $x = &{ $set.closure_next }($x); 
+                      return $x if $x==Inf || $select($x) } 
+            },
+        closure_previous =>
+            sub ($x is copy) { 
+                loop{ $x = &{ $set.closure_previous }($x); 
+                      return $x if $x==-Inf || $select($x) } 
+            },
         # -- use the default generated closures
         # complement_next =>     sub ($x) {...},
         # complement_previous => sub ($x) {...},
         universe =>            $set.get_universe,
     );
 }
-
-# --------- arithmetic ----------------
 
 method negate ($set: ) {
     return $set.new( 
@@ -304,6 +309,11 @@ Recurrence - An object representing an infinite recurrence set
         complement_previous => sub ($x) { $x > 0   ??  0 ::   -Inf },
         universe => $universe );
 
+    # TODO - test this
+    # all non-zero integers - alternative form
+    # Note: $non_zero is a Set::Infinite object
+    $non_zero = $universe.difference( 0 );
+
 = DESCRIPTION
 
 This class handles an infinite recurrence set, defined with closures. 
@@ -381,25 +391,6 @@ Returns true if the closures that define the recurrences are exactly the same.
 
 This method tests the closures identities using the '=:=' operation.
 
-- `grep:{...}`
-
-This method returns a recurrence set containing only the elements that 
-satisfy the given boolean function.
-
-    # remove 0 and 5 from the recurrence
-    my $span1 = $span.grep:{ $^a != 0 & 5 };
-
-grep() is evaluated lazily. 
-
-It may enter an infinite loop if the formula cannot be satisfied within a 
-reasonable range of values.
-
-You should consider using a Set::Infinite object if you want to exclude
-large ranges.
-
-    # it's better to use Set::Infinite instead of this
-    my $span1 = $span.grep:{ $^a != all(0..100000) };
-
 = SCALAR FUNCTIONS
 
 - `next( $x )`
@@ -448,13 +439,35 @@ Returns negative infinite if the recurrence is an empty set.
 
 - `stringify()`
 
-Return a string representation of the span.
+Return a string representation of the set.
 
-= ARITHMETIC FUNCTIONS
+For most recurrence sets, this is '-Inf..Inf'.
+
+= ARITHMETIC AND LIST FUNCTIONS
 
 - `negate()`
 
 Returns a recurrence set with all elements negated (-$x).
+
+- `grep:{...}`
+
+This method returns a recurrence set containing only the elements that 
+satisfy the given boolean function.
+
+    # remove 0 and 5 from the recurrence
+    my $span1 = $span.grep:{ $^a != 0 & 5 };
+
+grep() is evaluated lazily. This means that side effects, such as "say" and
+database queries, may occur much later than expected.
+
+It may enter an infinite loop if the formula cannot be satisfied within a 
+reasonable range of values.
+
+You should consider using a Set::Infinite object if you want to exclude
+large ranges.
+
+    # it's better to use Set::Infinite instead of this
+    my $span1 = $span.grep:{ $^a != all(0..100000) };
 
 = SEE ALSO
 

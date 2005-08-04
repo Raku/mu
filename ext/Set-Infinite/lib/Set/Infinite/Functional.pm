@@ -6,12 +6,6 @@ class Set::Infinite::Functional-0.01;
 
 has @.spans;
 
-=for TODO
-
-    * compare
-
-=cut
-
 submethod BUILD ( @.spans ) {}
 
 method empty_set ($class: ) returns Set::Infinite::Functional {
@@ -147,7 +141,8 @@ Set::Infinite::Functional - An object representing an ordered set of spans.
 
 This class represents an ordered set of spans.
 
-It is intended mostly for "internal" use by the Set::Infinite class. For a more complete API, see `Set::Infinite`.
+It is intended mostly for "internal" use by the Set::Infinite class. 
+For a more complete API, see `Set::Infinite`.
 
 = CONSTRUCTORS
 
@@ -161,15 +156,13 @@ Creates a set containing zero or more `Span` objects.
 
 The array of spans must be ordered, and the spans must not intersect with each other.
 
-- empty_set( density => $d )
+- empty_set()
 
-- universal_set( density => $d )
+- universal_set()
 
 = OBJECT METHODS
 
     # XXX
-
-The following methods are available for Span objects:
 
 - `start()` / `end()`
 
@@ -191,7 +184,7 @@ For example: if `start` and `end` are times, then `size` will be a duration.
 
 This method return a logical value.
 
-- union( $set )
+- union( $set ) / intersection( $set )
 
   # XXX
 
@@ -200,10 +193,6 @@ This method return a logical value.
   # XXX
 
 - intersects( $set )
-
-  # XXX
-
-- intersection( $set ) 
 
   # XXX
   
@@ -226,10 +215,6 @@ This method return a logical value.
 - `spans()`
 
 Returns a list of `Span` objects.
-
-- `density()`
-
-  # XXX
 
 = AUTHOR
 

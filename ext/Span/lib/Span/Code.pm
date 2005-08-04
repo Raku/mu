@@ -2,22 +2,12 @@ use v6;
 
 =for TODO
 
-    * elements can be spans
-
     * compare
-
     * size - accept a function; use as_list
-
     * as_list
-
     * contains
-
-    * remove "arbitrary_limit" if possible
-
     * include Span::Code in Span.pm API
-
     * document that stringify doesn't show all elements  '
-
     * set_start / set_end
 
 =cut
@@ -65,11 +55,6 @@ method is_empty ($self: ) {
     return ! defined( $self.start );
 }
 
-method density () returns Object {
-    # TODO - maybe undef is ok
-    return undef;
-}
-
 method start ($self: ) {
     my $tmp = $self.next( -Inf );
     return $tmp == Inf ?? undef :: $tmp;
@@ -80,7 +65,6 @@ method end ($self: ) {
     return $tmp == -Inf ?? undef :: $tmp;
 }
 
-# the "empty set" test is done by Span.pm
 method start_is_closed () { return bool::true }
 method start_is_open   () { return bool::false }
 method end_is_closed   () { return bool::true }

@@ -12,15 +12,11 @@ method empty_span ($class: ?$density = 1 ) {
     return $class.new( start => undef, end => undef, density => $density );
 }
 
-method is_empty () { return ! defined( $.start ) }
-
-multi method size () returns Object {
-    return $.end - $.start + $.density;
-}
-
-method start_is_closed () { return bool::true }
+method is_empty        () { ! defined( $.start ) }
+method size            () { $.end - $.start + $.density }
+method start_is_closed () { return bool::true  }
 method start_is_open   () { return bool::false }
-method end_is_closed   () { return bool::true }
+method end_is_closed   () { return bool::true  }
 method end_is_open     () { return bool::false }
 
 method intersects ( Span::Int $span ) returns bool {
@@ -107,7 +103,7 @@ Span::Int - An object representing a single span, with a simple functional API.
 
   use Span::Int;
 
-  $span = new( start => $start, end => $end );
+  $span = Span::Int.new( start => $start, end => $end );
 
 = DESCRIPTION
 

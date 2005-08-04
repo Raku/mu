@@ -6,7 +6,6 @@ use Set::Symbols;
 class Span-0.01
     does Set::Symbols
 {
-
     use Span::Num;
     use Span::Int;
     use Span::Code;
@@ -15,36 +14,33 @@ class Span-0.01
 
 =for TODO
     
-    * Span::Code.compare
-    
-Known bugs:
-  
+  Bugs:
     * 'undefine span' is wrong - use empty_span instead (in set_end() / set_start() )
-   
-Ideas:
-
-    * besides :int / :density(), there could be :next(&coderef) / :previous(&coderef)
-    
-    * from_start_and_duration
-    
-    * set_start_open / set_start_closed
-    * set_end_open / set_end_closed
-        - better names ?
-
-    * set_density
-    
-    * as_list
-        - how to create a lazy list ?
-    
-    * empty_span
-        - test with "density"
+    * Span::Code.compare is incomplete
+    * Constructors should emit error messages if there are unknown parameters
+    * Lazy lists are not implemented
+    * operations with Set::Infinite should return a Set::Infinite 
+  
+  Tests:
+    * overloading - ~ <=> 
+    * empty_span - test with "density"
     * universal_span
 
-    * create a store for single elements (Span::Singleton)
+  Constructor:
+    * constructor :next(&coderef) / :previous(&coderef)
+    * from_start_and_duration
+  
+  Methods:  
+    * set_start_open / set_start_closed
+    * set_end_open / set_end_closed - better names ?
+    * set_density ?
     * is_singleton
-    
-From "Set" API:
+    * as_list - how to create a lazy list ?
 
+  Optimizations:
+    * create a store for single elements (Span::Singleton)
+    
+  From "Set.pm" API:
     * equal/not_equal
     * symmetric_difference
     * proper_subset
@@ -91,7 +87,7 @@ submethod BUILD ($class: *%param is copy ) {
         }
     }
 
-    if ( defined $density )
+    if defined $density 
     {
         if defined( %param<start> )  { $start = %param<start> };
         if defined( %param<after> )  { $start = %param<after> + $density };

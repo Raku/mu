@@ -1,6 +1,7 @@
 use v6;
 
 use Span;
+# Set::Symbols is defined in the Recurrence.pm package
 use Set::Symbols;
 use Set::Infinite::Functional;
 
@@ -11,28 +12,37 @@ class Set::Infinite-0.01
 
 =for TODO
 
-    * finish POD
-    
-    * tests - unicode
+  Bugs:
+    * Lazy lists are not implemented
+    * Constructors should emit error messages if there are unknown parameters
 
-    * compare
-
+  Tests:
+    * unicode, overloading - ~ <=> 
+    * compare - depends on finishing Set::Infinite::Functional.compare() 
+      and Span::Code.compare()
+    * contains
+    * size
+   
+  Constructor:
+    * new() from Array
+   
+  Methods:
     * set_start_open / set_start_closed
     * set_end_open / set_end_closed - better names ?
-
     * is_singleton
-
-    * "backtracking" - see Perl5 version - recurrence of spans
-    * map / grep / intersected_spans - see Perl5 version
-
     * first_span/last_span; span_iterator
-
-    * add_spans / remove_spans mutators
-    
     * see also: Span.pm TODO
 
-From "Set" API:
+  Optimizations:
+    * create a store for single elements (Span::Singleton)
+    * use binary search instead of linear search
 
+  From Perl5 version of Set::Infinite:
+    * "backtracking"  
+    * map / grep / intersected_spans / span 
+    * recurrence of spans
+
+  From "Set" API:
     * equal/not_equal
     * symmetric_difference
     * proper_subset
@@ -67,6 +77,7 @@ submethod BUILD ($class: *%param ) {
 method universal_set ($class: ) returns Set::Infinite { 
     $class.new( spans => Span.new( start => -Inf, end => Inf ) );
 }
+
 method empty_set ($class: ) returns Set::Infinite { $class.new() }
 
 method spans ()         returns List of Span { return $.set.spans }
@@ -161,10 +172,7 @@ method remove ($self: $span ) {
 method next ( $x ) { 
     # TODO - simplify this 
     for @.set.spans {
-        # my $span = $_.span;
         my $result = $_.next( $x );
-        # say $x, ' -> ', $result; 
-        # return $result if defined $result;
         return $result if $result != Inf;
     }
     return Inf;
@@ -175,10 +183,7 @@ method previous ( $x ) {
     my @a = @.set.spans;
     @a = reverse @a;
     for @a {
-        # my $span = $_.span;
         my $result = $_.previous( $x );
-        # say 'rev ', $x, ' -> ', $result; 
-        # return $result if defined $result;
         return $result if $result != -Inf;
     }
     return -Inf;
@@ -217,10 +222,7 @@ class Set::Infinite::Iterator
     submethod BUILD ( $.set ) {}
     method next ($self: ) {
         # TODO - simplify this
-        # say $.set.ref;
         my @spans = @.set.spans;
-        # say $_.stringify, ' ', $_.ref for @spans;
-        # $.current = Inf unless defined $.current;
         loop {
             if defined $.current {
                 my $span = @spans[$.current_span];
@@ -246,10 +248,7 @@ class Set::Infinite::Iterator
     }
     method previous ($self: ) {
         # TODO - simplify this
-        # say $.set.ref;
         my @spans = @.set.spans;
-        # say $_.stringify, ' ', $_.ref for @spans;
-        # $.current = Inf unless defined $.current;
         loop {
             if defined $.current {
                 my $span = @spans[$.current_span];
@@ -319,65 +318,79 @@ Without any parameters, returns an empty span.
 
 Creates a `Set::Infinite` object with a few elements.
 
-- `new( spans => $span )`
+- `new( spans => ( $span1, $span2 ) )`
 
-Creates a `Set::Infinite` object using an existing Span object.
+Creates a `Set::Infinite` object using existing Span objects.
 
 - `new( recurrence => $recurr )`
 
 Creates a `Set::Infinite` object using an existing Recurrence object.
 
+- `universal_set()`
+
+Creates an object with a continuous span (-Inf..Inf).
+
+- `empty_set()`
+
+Creates an empty set.
+
 = OBJECT METHODS
 
-    # XXX
-
-The following methods are available for Span objects:
+The following methods are available for Set::Infinite objects:
 
 - `start()` / `end()`
 
-Return the start or end value of the span.
+Return the start or end value of the set.
 
-These methods may return nothing if the span is empty.
+These methods may return nothing if the set is empty.
 
 - `start_is_open()` / `end_is_open()` / `start_is_closed()` / `end_is_closed()`
 
-Return a logical value, whether the `start` or `end` values belong to the span ("closed") or not ("open").
+Return a logical value, whether the `start` or `end` values belong to the 
+set ("closed") or not ("open").
 
-- size
+- `size()`
 
-Return the "size" of the span.
+Return the "size" of the set.
 
 For example: if `start` and `end` are times, then `size` will be a duration.
 
-- `contains( Object )` / `intersects( Object )`
+If the set contains lazy recurrences, it may not be possible to calculate the 
+set size.
 
-These methods return a logical value.
+- `contains( $object )` / `intersects( $object )`
 
-- union
+These methods return a logical value. 
 
-  # XXX
+The argument can be a Set::Infinite, a Span object, a Recurrence object, or a scalar value.
 
-- complement
+- `union( $object )` / `intersection( $span )` / `difference( $object )`
 
-  # XXX
+Returns a Set::Infinite. 
 
-- intersects
+The argument can be a Set::Infinite, a Span object, a Recurrence object, or a scalar value.
 
-  # XXX
+- `complement()`
 
-- intersection 
+Returns a Set::Infinite.
 
-  # XXX
+- `stringify()`
 
-- stringify 
+Return a string representation of the set.
 
-  # XXX
+- `compare( $object )`
 
-- compare
+Compares the sets numerically. Returns -1, 0, or 1.
 
-  # XXX
+The argument can be a Set::Infinite, a Span object, a Recurrence object, or a scalar value.
 
-- is_empty()
+- `is_empty()`
+
+Returns `true` if the set is empty.
+
+- `is_infinite()`
+
+Returns true if the start or the end of the set are Infinite.
 
 = ITERATORS AND LIST OPERATIONS
 
@@ -394,13 +407,13 @@ Returns an iterator:
 
 The iterator has `next()`, `previous()`, `current()`, and `reset()` methods.
 
-  # XXX - what happens if a span if "continuous"
+If the set is "continuous", this method emits a warning and returns undef.
 
 - `lazy()`
 
 Makes a lazy iterator:
 
-    say $a while $a = $span.lazy;
+    say $a while $a = $set.lazy;
 
 = MUTATOR METHODS
 
