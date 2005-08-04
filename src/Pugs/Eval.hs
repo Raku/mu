@@ -632,7 +632,7 @@ reduceSyn "rx" [exp, adverbs] = do
     flag_w  <- fromAdverb hv ["w", "words"]
     flag_s  <- fromAdverb hv ["stringify"] -- XXX hack
     adverbHash <- reduce adverbs
-    let rx | p5 = MkRulePCRE p5re g flag_s adverbHash
+    let rx | p5 = MkRulePCRE p5re g flag_s str adverbHash
            | otherwise = MkRulePGE p6re g flag_s adverbHash
         g = ('g' `elem` p5flags || flag_g)
         p6re = if not flag_w then str

@@ -588,10 +588,12 @@ op1 "Pugs::Internals::reduceVar" = \v -> do
 op1 "Pugs::Internals::rule_pattern" = \v -> do
     case v of
         VRule MkRulePGE{rxRule=re} -> return $ VStr re
+        VRule MkRulePCRE{rxRuleStr=re} -> return $ VStr re
         _ -> fail $ "Not a rule: " ++ show v
 op1 "Pugs::Internals::rule_adverbs" = \v -> do
     case v of
         VRule MkRulePGE{rxAdverbs=hash} -> return hash
+        VRule MkRulePCRE{rxAdverbs=hash} -> return hash
         _ -> fail $ "Not a rule: " ++ show v
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 

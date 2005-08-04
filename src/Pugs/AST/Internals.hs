@@ -1648,6 +1648,7 @@ data VRule
                                 --     'Regex' object)
         , rxGlobal    :: !Bool  -- ^ Flag indicating \'global\' (match-all)
 	    , rxStringify :: !Bool
+        , rxRuleStr   :: !String -- ^ The rule string, for user reference.
         , rxAdverbs   :: !Val
         }
     -- | Parrot Grammar Engine rule
