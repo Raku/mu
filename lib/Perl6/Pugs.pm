@@ -46,8 +46,8 @@ F<docs/quickref/README>.
 
 =head2 Talks
 
-There're various talks about Perl 6 and/or Pugs at F<docs/talks/>. Please refer
-see F<docs/talks/README>.
+There're various talks about Perl 6 and/or Pugs in F<docs/talks/>. Look into
+F<docs/talks/README> for links to rendered versions (HTML, PDF).
 
 =head2 Examples
 

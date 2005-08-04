@@ -229,7 +229,7 @@ sub dqstring {
   my $str = $1;
   symbol '"';
 
-  $str =~ s/\\([a-z\\]|\d+)/
+  $str =~ s/\\(\d+|.)/
     my $escape = $1;
     $escape =~ m[\d]
       ? chr $escape
