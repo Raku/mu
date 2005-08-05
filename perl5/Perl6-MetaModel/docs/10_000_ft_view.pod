@@ -50,8 +50,35 @@ Here is the basic layout of the metamodel (in ASCII art):
                 +---------------+      
                                 
 
+=head1 FAQ
+
+=head2 How do I get to C<Foo> if I've got a C<i(Foo)>?
+
+Calling C<.ref> on an instance of C<Foo> (C<i(Foo)>) will get you C<Foo>.
+
+=head2 How do I get to C<class(Foo)> if I've got C<Foo>?
+
+C<Foo> is just a proxy to the metalevel C<class(Foo)> -- the interpreter
+handles it, but it has no actual concrete form. Larry wants the class to be
+really a thin layer which connects the meta and user worlds.
+
+=head2 How do I get to C<meta(Foo)> if I've got a C<i(Foo)>?
+
+Calling C<.meta> on an instance of C<Foo> will get you C<meta(Foo)>.
+
+=head2 What is C<meta(Foo)> an instance of?
+
+C<meta(Foo)> is an instance of C<MetaClass>. C<meta(MetaClass)> is again an
+instance an instance of C<MetaClass>.
+
+I.e. C<class(meta(MetaClass)) = class(meta(class(meta(Foo)))) = MetaClass>.
+
+=head2 What about anonymous classes?
+
+They're basically the same as named classes.
+
 =head1 AUTHORS
 
 Stevan Little E<lt>stevan@iinteractive.comE<gt>
 
-=cut                
+=cut
