@@ -273,7 +273,7 @@ PIL2JS.Box.prototype = {
     } else {
       return unboxed;
     }
-  },
+  }
 };
 
 // PIL2JS.Box.Proxy is the equivalent of Perl's Proxy class.
@@ -397,10 +397,10 @@ PIL2JS.call = function (inv, sub, args) {
 
       // Check if we're calling a real object part of the MetaModel or
       // something other.
-      var isreal = val instanceof Perl6.Object
-                || val instanceof Perl6.Instance
+      var isreal = val instanceof Perl6.Instance
                 || val instanceof Perl6.MetaClass
-                || val instanceof Perl6.Method;
+                || val instanceof Perl6.Method
+                || val instanceof Perl6.Class;
 
       // We're calling a method on a native JS object (Array, PIL2JS.Hash,
       // etc.)?
