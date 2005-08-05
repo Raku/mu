@@ -1,0 +1,57 @@
+=pod
+
+=head1 NAME
+
+10,000 ft view of the Perl6 MetaModel
+
+=head1 NOTATIONAL CONVENTIONS
+
+    i(Foo)     - instance of Foo
+    Foo        - the user-level Foo class
+    class(Foo) - the instance of Perl6::Class named "Foo"
+    meta(Foo)  - the instance of Perl6::MetaClass which describes Foo
+
+=head1 DESCRIPTION
+
+Here is the basic layout of the metamodel (in ASCII art):
+
+
+                +---------------+        
+                | i(Foo)        |
+                +---------------+
+                | class         |------+
+                | instance_data |      |
+                +---------------+      |
+                                       | <lookup by name>
+                      ___              |
+                     (   )             |
+      +-------------( Foo ) *----------+
+      |              (___)   
+      |   
+      |           <user level>
+  ....|.........................................................
+      |           <meta level>      
+      |   
+      |         +---------------+        
+      +-------->| class(Foo)    |
+                +---------------+
+      +---------| meta          |
+      |         | name          |
+      |         +---------------+
+      |     
+      |         +---------------+        
+      +-------->| meta(Foo)     |
+                +---------------+
+                | name          |
+                | version       |
+                | authority     |
+                | %methods      |
+                | %attributes   |
+                +---------------+      
+                                
+
+=head1 AUTHORS
+
+Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+=cut                
