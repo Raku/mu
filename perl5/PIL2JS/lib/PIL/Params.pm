@@ -84,7 +84,7 @@ EOF
     warn "Skipping \%_ parameter.\n" and return "" if $name eq "%_";
 
     my $jsname   = $self->jsname;
-    my $pairname = PIL::doublequote(substr $name, 1);
+    my $pairname = PIL::doublequote substr $name, 1;
     my $undef    = PIL::undef_of $name;
     return substr <<EOF, 0, -1;  # cosmetical issue: strip the /\n$/.
 var $jsname = undefined;
@@ -173,10 +173,13 @@ EOF
       push @js, "$jsname = $jsname.copy();";
     }
 
-    # is rw?
+    # not is rw?
     if($self->{tpParam}{isWritable}->isa("PIL::False")) {
       push @js, "$jsname = new PIL2JS.Box.ReadOnly($jsname);";
     }
+
+    my $padname = PIL::doublequote $name;
+    push @js, "pad[$padname] = $jsname;";
 
     # Always bind $?SELF to us, if we're the invocant param.
     if($self->{tpParam}{isInvocant}->isa("PIL::True")) {

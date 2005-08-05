@@ -77,7 +77,7 @@ sub generic_catch {
 try {
 %s
 } catch(err) {
-  PIL2JS.call_chain.pop();
+  PIL2JS.call_chain.pop(); PIL2JS.subpads.pop();
   %s;
   if(err instanceof PIL2JS.ControlException.ret && $level >= err.level) {
     return err.return_value;
@@ -143,8 +143,10 @@ sub as_js {
   return sprintf <<EOF, $decl_js, add_indent(1, join "\n", @glob_js, $init_js, $main_js);
 %s
 PIL2JS.catch_all_exceptions(function () {
+  var pad = {}; PIL2JS.subpads.push(pad);
 %s
 });
+PIL2JS.subpads.pop();
 EOF
 }
 
@@ -229,6 +231,11 @@ sub name_mangle($) {
   # ::JS::native_js_function
   } elsif($str =~ /^[\&\$\@\+\%\:]\*?JS::(.+)$/) {
     return $1;
+  } elsif($str =~ /^([\&\$\@\+\%\:])(CALLER::)+(.+)$/) {
+    my $name  = "$1$3";
+    my $delta = () = $2 =~ /CALLER::/g;
+    return sprintf "PIL2JS.resolve_callervar($delta, %s)",
+      doublequote($name);
   # No qualification? Use "main" as package name. XXX! Lexical variables?
   } elsif($str !~ /::/) {
     $str = 

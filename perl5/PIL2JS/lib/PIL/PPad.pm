@@ -15,7 +15,7 @@ sub fixup {
   if($PIL::IN_SUBLIKE) {
     return bless [
       $self->[0],
-      [@{ $self->[1] }],
+      [map {{ fixed => $_->[0], user => $_->[0] }} @{ $self->[1] }],
       $self->[2]->fixup,
     ] => "PIL::PPad";
   }
@@ -32,7 +32,10 @@ sub fixup {
 
   return bless [
     $self->[0],
-    [ map {[ "$_->[0]_${scopeid}_$PIL::LEXSCOPE_PREFIX", undef ]} @{ $self->[1] } ],
+    [ map {{
+      fixed => "$_->[0]_${scopeid}_$PIL::LEXSCOPE_PREFIX",
+      user  => $_->[0],
+    }} @{ $self->[1] } ],
     $self->[2]->fixup,
   ] => "PIL::PPad";
 }
@@ -40,17 +43,20 @@ sub fixup {
 sub as_js {
   my $self = shift;
 
-  push @PIL::VARS_TO_BACKUP, map { $_->[0] } @{ $self->[1] }
+  push @PIL::VARS_TO_BACKUP, map { $_->{fixed} } @{ $self->[1] }
     unless $PIL::IN_SUBLIKE;
 
   # Emit appropriate foo = new PIL2JS.Box(undefined) statements.
   local $_;
+  my $decl = $PIL::IN_SUBLIKE ? "var " : "";
   return
-    +($PIL::IN_SUBLIKE ? "var " : "") .
-    join(", ", map {
-      sprintf "%s = %s",
-        PIL::name_mangle($_->[0]),
-        PIL::undef_of($_->[0]);
+    join("; ", map {
+      sprintf "%s%s = %s; pad[%s] = %s",
+        $PIL::IN_SUBLIKE ? "var " : "",
+        PIL::name_mangle($_->{fixed}),
+        PIL::undef_of($_->{fixed}),
+        PIL::doublequote($_->{user}),
+        PIL::name_mangle($_->{fixed});
     } @{ $self->[1] }) .
     ";\n" .
     $self->[2]->as_js;

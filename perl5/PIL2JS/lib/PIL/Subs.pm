@@ -52,6 +52,8 @@ use strict;
     $magical_vars =~ s/%VAR/ PIL::name_mangle $self->[0]/eg;
     $magical_vars =~ s/%NAME/PIL::doublequote $PIL::CUR_SUBNAME/eg;
 
+    my $new_pad = "var pad = {}; PIL2JS.subpads.push(pad)";
+
     # Subbody
     local @PIL::VARS_TO_BACKUP = ();
     my $body = sprintf "PIL2JS.call_chain.push(%s);\n%s;\n\n%s;\n\n%s;",
@@ -62,7 +64,7 @@ use strict;
     my $backup = "// Var backups:\nvar " . join ", ", map {
       sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);
     } @PIL::VARS_TO_BACKUP, qw< &?BLOCK &?SUB $?SUBNAME >;
-    $body = "$backup;\n\n$body";
+    $body = "$new_pad;\n$backup;\n\n$body";
 
     # Sub declaration
     my $js = sprintf
@@ -131,6 +133,8 @@ use strict;
     local $PIL::IN_SUBLIKE  = $self->[0]->as_constant;
     local $PIL::CUR_SUBNAME = "<anonymous@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>";
 
+    my $new_pad = "var pad = {}; PIL2JS.subpads.push(pad)";
+
     # Subbody
     local @PIL::VARS_TO_BACKUP = ();
     my $body = sprintf "%s;\n\n%s%s;",
@@ -142,7 +146,7 @@ use strict;
     my $backup = "// Var backups:\nvar " . join ", ", map {
       sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);
     } @PIL::VARS_TO_BACKUP, qw< $?SUBNAME >;
-    $body = "$backup;\n$body";
+    $body = "$new_pad;\n$backup;\n$body";
     # Subbody
 
     # Sub declaration

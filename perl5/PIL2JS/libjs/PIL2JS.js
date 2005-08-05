@@ -639,6 +639,30 @@ var _26PIL2JS_3a_3aInternals_3a_3asmallreturn = PIL2JS.generic_return(0);
 
 // Array of boxed subs we're currently in.
 PIL2JS.call_chain = [];
+// Array of pads we're currently in, used for $CALLER::.
+// Note that the pads change at runtime, i.e.:
+//   # No my $a yet
+//   # PIL2JS.subpads[-1]["$a"] undefined
+//   my $a;
+//   # PIL2JS.subpads[-1]["$a"] is defined now.
+PIL2JS.subpads    = [];
+PIL2JS.resolve_callervar = function (delta, name) {
+  // delta == 0: current pad
+  // delta == 1: pad of calling sub ($CALLER::foo)
+  // delta == 2: pad of the sub calling the calling sub ($CALLER::CALLER::foo)
+  // etc.
+
+  if(PIL2JS.subpads.length >= delta + 1) {
+    var pad = PIL2JS.subpads[PIL2JS.subpads.length - delta - 1];
+    if(pad[name]) {
+      return pad[name];
+    } else {
+      PIL2JS.die("No variable named \"" + name + "\" in caller[" + delta + "]!");
+    }
+  } else {
+    PIL2JS.die("No caller[" + delta + "] found!");
+  }
+};
 
 // Greps args for PIL2JS.Pairs and returns them as a hash.
 PIL2JS.grep_for_pairs = function (args) {
