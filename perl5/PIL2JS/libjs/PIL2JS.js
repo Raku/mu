@@ -462,6 +462,8 @@ var _3amain_3a_3aHash      = PIL2JS.new_empty_class("Hash",      _3amain_3a_3aIt
 var _3amain_3a_3aPair      = PIL2JS.new_empty_class("Pair",      _3amain_3a_3aItem);
 var _3amain_3a_3aStr       = PIL2JS.new_empty_class("Str",       _3amain_3a_3aItem);
 var _3amain_3a_3aNum       = PIL2JS.new_empty_class("Num",       _3amain_3a_3aItem);
+var _3amain_3a_3aInt       = PIL2JS.new_empty_class("Int",       _3amain_3a_3aNum);
+var _3amain_3a_3aRat       = PIL2JS.new_empty_class("Rat",       _3amain_3a_3aNum);
 var _3amain_3a_3aBool      = PIL2JS.new_empty_class("Bool",      _3amain_3a_3aItem);
 var _3amain_3a_3aCode      = PIL2JS.new_empty_class("Code",      _3amain_3a_3aItem);
 var _3amain_3a_3aBlock     = PIL2JS.new_empty_class("Block",     _3amain_3a_3aCode);
@@ -801,7 +803,7 @@ var _26main_3a_3aref = PIL2JS.Box.constant_func(1, function (args) {
   }
 });
 _26main_3a_3aref.perl_name = "&main::ref";
-PIL2JS.addmethod(_3amain_3a_3aItem, "ref", _26main_3a_3aref);
+PIL2JS.addmethod(_3amain_3a_3aAny, "ref", _26main_3a_3aref);
 
 // &*isa. hack.
 var _26main_3a_3aisa = PIL2JS.Box.constant_func(1, function (args) {
@@ -814,7 +816,7 @@ var _26main_3a_3aisa = PIL2JS.Box.constant_func(1, function (args) {
   );
 });
 _26main_3a_3aisa.perl_name = "&main::isa";
-PIL2JS.addmethod(_3amain_3a_3aItem, "isa", _26main_3a_3aisa);
+PIL2JS.addmethod(_3amain_3a_3aAny, "isa", _26main_3a_3aisa);
 
 // &prefix:<\>
 var _26main_3a_3aprefix_3a_5c = PIL2JS.Box.constant_func(1, function (args) {
