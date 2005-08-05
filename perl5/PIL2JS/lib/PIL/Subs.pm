@@ -20,6 +20,8 @@ use strict;
     die unless ref($self->[2]) eq "ARRAY" or $self->[2]->isa("PIL::Params");
     bless $self->[2] => "PIL::Params";
 
+    local $PIL::IN_SUBLIKE  = $self->[1]->as_constant;
+
     return bless [
       $self->[0],
       $self->[1],

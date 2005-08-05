@@ -7,20 +7,10 @@
 
   sub fixup {
     my ($self, $subbody) = @_;
-
-    my @params = @$self;
-    local @PIL::CUR_LEXSCOPES = @PIL::CUR_LEXSCOPES;
-
-    foreach my $param (@params) {
-      my $scopeid = $PIL::CUR_LEXSCOPE_ID++;
-      my $pad     = { $param->name => $param->name . "_${scopeid}_$PIL::LEXSCOPE_PREFIX" };
-      push @PIL::CUR_LEXSCOPES, $pad;
-
-      $param = $param->fixup;
-    }
+    local $_;
 
     return (
-      (bless [ @params ] => "PIL::Params"),
+      (bless [ map { $_->fixup } @$self ] => "PIL::Params"),
       $subbody->fixup,
     );
   }
