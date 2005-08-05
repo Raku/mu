@@ -8,7 +8,8 @@ import qualified Data.IntMap as IntMap
 
 type ObjectData  = IntMap Container
 data Object = MkObject
-    { objClass  :: Class
+    { objId     :: Id
+    , objClass  :: Class
     , objData   :: ObjectData
     }
     deriving (Eq, Ord, Show, Typeable)
@@ -39,14 +40,14 @@ gnosis name = Map.mapKeys MkName . Map.fromList $
 
 -- Perl6::MetaClass - &_build_meta line 1 - First metaclass by parthenogenesis
 demiurge :: Object
-demiurge = MkObject{ objClass = cls, objData = dat }
+demiurge = MkObject{ objId = undefined, objClass = cls, objData = dat }
     where
     (fld, dat) = splitMap (gnosis $ MkName undef) -- no $.name
     cls = MkClass{ clsMeta = demiurge, clsFields = fld }
 
 -- Perl6::Object - First call to &Perl6::MetaModel::class
 pneuma :: Object
-pneuma = MkObject{ objClass = cls, objData = logos }
+pneuma = MkObject{ objId = undefined, objClass = cls, objData = logos }
     where
     (fld, dat) = splitMap (gnosis $ MkName "Perl6::Object")
     cls = MkClass{ clsMeta = demiurge{ objData = dat }, clsFields = fld }
