@@ -45,6 +45,8 @@ bind (NCon x) (TCon y) = do
         Untied -> writeSTRef x (id, val)
         _      -> fail "Cannot bind a tied container to a non-tieable one"
 
+-- Haddock can't cope with linear implicit parameters :-(
+#ifndef HADDOCK
 -- | This should be fine: @untie(%ENV); %foo := %ENV@
 testOk :: (%i::Id) => STM ()
 testOk = do
@@ -71,6 +73,7 @@ testBind x y = do
     x' <- x
     y' <- y
     bind x' y'
+#endif
 
 -- Extremely small language
 
@@ -86,8 +89,10 @@ data LV
 
 type GenContainer a = STM (Cell a)
 
+#ifndef HADDOCK
 class Evalable a b | a -> b where
     eval :: (%i :: Id) => a -> STM (Cell b)
+#endif
 
 instance Evalable Exp Hash where
     eval (Untie x) = do
@@ -111,13 +116,17 @@ try_ok x = runST f
     where
     f :: STM Bool
     f = do
+#ifndef HADDOCK
         let %i = 0
+#endif
         eval x
         return True
 
 tests :: IO ()
 tests = do
+#ifndef HADDOCK
     let %i = 0
+#endif
     putStrLn "==> Anything can be untied"
     test prop_untie
     putStrLn "==> %ENV =:= %ENV;"

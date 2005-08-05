@@ -1621,6 +1621,10 @@ nullaryLiteral = try $ do
     notFollowedBy (char '(')
     possiblyApplyMacro $ App (Var ('&':name)) Nothing []
 
+{-|
+Match the literal @undef@, returning an expression representing the undefined
+value.
+-}
 undefLiteral :: RuleParser Exp
 undefLiteral = try $ do
     symbol "undef"
@@ -1977,17 +1981,17 @@ rxLiteralAny adverbs
     | otherwise
     = rxLiteral6
 
-rxLiteral5 :: Char -- ^ Openingd delimiter
-             -> Char -- ^ Closing delimiter
-             -> RuleParser Exp
+rxLiteral5 :: Char -- ^ Opening delimiter
+           -> Char -- ^ Closing delimiter
+           -> RuleParser Exp
 rxLiteral5 delimStart delimEnd = qLiteral1 (string [delimStart]) (string [delimEnd]) $
-        rxP5Flags { qfProtectedChar = delimEnd }
+    rxP5Flags { qfProtectedChar = delimEnd }
 
 rxLiteral6 :: Char -- ^ Opening delimiter
-             -> Char -- ^ Closing delimiter
-             -> RuleParser Exp
+           -> Char -- ^ Closing delimiter
+           -> RuleParser Exp
 rxLiteral6 delimStart delimEnd = qLiteral1 (string [delimStart]) (string [delimEnd]) $
-        rxP6Flags { qfProtectedChar = delimEnd }
+    rxP6Flags { qfProtectedChar = delimEnd }
 
 ruleAdverbHash :: RuleParser Exp
 ruleAdverbHash = do
@@ -2027,6 +2031,10 @@ rxLiteralBare = try $ do
 namedLiteral :: String -> Val -> RuleParser Exp
 namedLiteral n v = do { symbol n; return $ Val v }
 
+{-|
+Match one of the \'yada-yada-yada\' placeholder expressions (@...@, @???@ or
+@!!!@), returning a call to @&fail@, @&warn@ or @&die@ respectively.
+-}
 yadaLiteral :: RuleParser Exp
 yadaLiteral = expRule $ do
     sym  <- choice . map symbol $ words " ... ??? !!! "
