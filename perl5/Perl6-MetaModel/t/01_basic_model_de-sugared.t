@@ -9,8 +9,7 @@ use Data::Dumper;
 use Perl6::MetaModel;
 use Perl6::Object;
 
-my $Person = 'Person';
-class 'Person' => {
+my $Person = class 'Person' => {
     is => [ 'Perl6::Object' ],
     class => {
         attrs => [ '$:population' ],
@@ -70,8 +69,7 @@ is(::dispatch($Person, 'population'), 0, '... Person population is back to 0 aga
 
 # subclassing too...
 
-my $Employee = 'Employee';
-class 'Employee-0.0.1' => {
+my $Employee = class 'Employee-0.0.1' => {
     is => [ 'Person' ],
     instance => {
         attrs => [ [ '$.job' => { access => 'rw' } ] ]

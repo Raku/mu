@@ -7,7 +7,7 @@ use warnings;
 use Carp 'confess';
 use Scalar::Util 'blessed';
 
-use Perl6::Instance; # << this is where the Perl 5 sugar is now ...
+use base 'Perl6::Instance'; # << this is where the Perl 5 sugar is now ...
 
 use Perl6::MetaClass;
 use Perl6::Role;
@@ -19,7 +19,7 @@ use Perl6::Instance::Attribute;
 
 ## Private methods
 
-sub new {
+sub new_class {
     my ($class, $name, $params) = @_;
     my $self = bless { 
         name   => $name
@@ -30,7 +30,7 @@ sub new {
 
 sub _apply_class_to_environment {
     my ($self) = @_;
-    my ($name, $version, $authority) = _get_class_meta_information($self);
+    my ($name) = _get_class_meta_information($self);
     # create the package ...
     my $code = qq|
         package $name;
@@ -45,38 +45,7 @@ sub _apply_class_to_environment {
         *{$self->{name} . '::'} = *{$name . '::'};
     };
     confess "Could not create full name " . $self->{name} . " : $@" if $@;   
-    # create the metaclass ...     
-    my $meta; 
-    eval {
-        if ($name eq 'Perl6::Object') {
-            ## BOOTSTRAPPING
-            # XXX - Perl6::Object cannot call the 
-            # regular new() becuase Perl6::MetaClass
-            # actually inherits new() from Perl6::Object
-            # meta-circulatiry rules :P
-            $meta = Perl6::MetaClass::new(
-                '$.name' => $name,
-                (defined $version   ? ('$.version'   => $version)   : ()),
-                (defined $authority ? ('$.authority' => $authority) : ())                              
-            );  
-            # this action is done in the Perl6::MetaClass->BUILD
-            # submethod, but we need to do it manually here
-            {
-                no strict 'refs';    
-                ${"${name}::META"} = $meta;                    
-            }
-        }
-        else {
-            $meta = ::dispatch('Perl6::MetaClass', 'new', (
-                '$.name' => $name,
-                (defined $version   ? ('$.version'   => $version)   : ()),
-                (defined $authority ? ('$.authority' => $authority) : ())                              
-            ));
-        }
-        # build the metaclass
-        _build_class($self, $meta);  
-    };
-    confess "Could not initialize the metaclass for $name : $@" if $@;  
+    _build_class($self); 
 }
 
 sub _validate_params {
@@ -110,9 +79,40 @@ sub _get_class_meta_information {
 }
 
 sub _build_class {
-    my ($self, $meta) = @_;
+    my ($self) = @_;
+    
+    my ($name, $version, $authority) = _get_class_meta_information($self);    
 
-    my $name = ::dispatch($meta, 'name');
+    # create the metaclass ...     
+    my $meta; 
+    eval {
+        if ($name eq 'Perl6::Object') {
+            ## BOOTSTRAPPING
+            # XXX - Perl6::Object cannot call the 
+            # regular new() becuase Perl6::MetaClass
+            # actually inherits new() from Perl6::Object
+            # meta-circulatiry rules :P
+            $meta = Perl6::MetaClass::new(
+                '$.name' => $name,
+                (defined $version   ? ('$.version'   => $version)   : ()),
+                (defined $authority ? ('$.authority' => $authority) : ())                              
+            );  
+            # this action is done in the Perl6::MetaClass->BUILD
+            # submethod, but we need to do it manually here
+            {
+                no strict 'refs';    
+                ${"${name}::META"} = $meta;                    
+            }
+        }
+        else {
+            $meta = ::dispatch('Perl6::MetaClass', 'new', (
+                '$.name' => $name,
+                (defined $version   ? ('$.version'   => $version)   : ()),
+                (defined $authority ? ('$.authority' => $authority) : ())                              
+            ));
+        }  
+    };
+    confess "Could not initialize the metaclass for $name : $@" if $@; 
 
     my $superclasses = $self->{params}->{is};
     ::dispatch($meta, 'superclasses', ([ map { ::meta($_) } @{$superclasses} ]));        

@@ -5,43 +5,38 @@ use strict;
 use warnings;
 
 use Scalar::Util 'blessed';
-use Hash::Util 'lock_keys';
 use Carp 'confess';
 
 use Perl6::MetaClass::Dispatcher;
 
 sub new {
     my (%params) = @_;
-    my $meta = bless {
-        class => 'Perl6::MetaClass',
-        instance_data => { 
-            # meta-information
-            '$.name'         => $params{'$.name'}      || undef,
-            '$.version'      => $params{'$.version'}   || '0.0.0',
-            '$.authority'    => $params{'$.authority'} || undef,
-            # the guts of the metaclass
-            '@:MRO'          => [],
-            '@:superclasses' => $params{'@:superclasses'} || [],
-            '%:private' => {
-                # only methods for now
-                methods => {}                
-            },
-            '%:class_definition' => {
-                methods      => {},
-                attributes   => {},
-            },
-            '%:class_data' => {
-                methods      => {},
-                attributes   => {},
-            },        
-        }
-    }, 'Perl6::MetaClass';
-    # lock the keys for safe keeping 
-    lock_keys(%{$meta});
-    lock_keys(%{$meta->{instance_data}});
-    
+    my $meta = ::create_P6opaque('Perl6::MetaClass' => (
+        # meta-information
+        '$.name'         => $params{'$.name'}      || undef,
+        '$.version'      => $params{'$.version'}   || '0.0.0',
+        '$.authority'    => $params{'$.authority'} || undef,
+        # the guts of the metaclass
+        '@:MRO'          => [],
+        '@:superclasses' => $params{'@:superclasses'} || [],
+        '%:private' => {
+            # only methods for now
+            methods => {}                
+        },
+        '%:class_definition' => {
+            methods      => {},
+            attributes   => {},
+        },
+        '%:class_data' => {
+            methods      => {},
+            attributes   => {},
+        }      
+    ));
+    ## BOOTSTRAPPING
+    # this call will bootstrap the Perl6::MetaClass's metaclass
+    # instance. It will actually be called when the Perl6::Object
+    # metaclass is attempted to be created. 
     _build_meta() unless $params{'$.name'} eq 'Perl6::MetaClass';
-     
     return $meta;
 }
 

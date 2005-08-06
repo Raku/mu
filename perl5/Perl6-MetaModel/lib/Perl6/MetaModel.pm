@@ -5,6 +5,7 @@ use strict;
 use warnings;
 
 use Scalar::Util 'blessed';
+use Hash::Util 'lock_keys';
 use Carp 'confess';
 
 use Perl6::Role;
@@ -28,6 +29,7 @@ sub import {
 }
 
 our @CURRENT_DISPATCHER = ();
+our $OBJ_ID = 0;
 
 ## this just makes sure to clear the invocant when
 ## something dies, it is not pretty, but it works
@@ -38,14 +40,49 @@ $SIG{'__DIE__'} = sub {
     CORE::die @_; 
 };
 
+# a little helper function 
+sub _class_name {
+    my $class = shift;
+    blessed($class) ?  
+        # accomidate the Perl6::Class instance
+        blessed($class) eq 'Perl6::Class' ?
+            $class->{name}
+            :
+            blessed($class)
+        :
+        $class;    
+}
+
 ## GLOBAL META FUNCTIONS
+
+sub ::create_P6opaque {
+    my ($class, %attrs) = @_;
+    my $instance = bless {
+        id            => $OBJ_ID++,
+        class         => $class,
+        instance_data => \%attrs
+    }, _class_name($class);  
+    # lock the keys for now, this is for p5 debugging
+    # to foil the autovivification, it just makes my 
+    # life easier by introducing a level of sanity into
+    # the opaque structure   
+    lock_keys(%{$instance});
+    lock_keys(%{$instance->{instance_data}});      
+    return $instance;
+}
+
+# NOTE:
+# in theory the P6_opaque structure is opaque (duh), so
+# this means that our code should not try to peak into it
+# and so we should then use some kind of outside mechanism 
+# to get at the object id
+sub ::get_obj_id { (shift)->{id} }
 
 sub ::meta {
     my ($class) = @_;
     confess "::meta called without a class" unless defined $class;
-    $class = blessed($class) || $class;
     no strict 'refs';
-    return ${"${class}::META"};
+    return ${_class_name($class) . '::META'};
 }
 
 sub ::dispatch {
@@ -192,7 +229,7 @@ sub role {
 
 sub class {
     my ($name, $params) = @_;
-    my $class = Perl6::Class->new($name, $params);
+    my $class = Perl6::Class->new_class($name, $params);
     $class->_apply_class_to_environment();
     return $class;
 }
