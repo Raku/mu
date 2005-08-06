@@ -96,7 +96,7 @@ sub _build_meta {
 
     # BUILD submethod
     ::dispatch($META, 'add_method', 
-        'BUILD' => Perl6::SubMethod->new('Perl6::MetaClass' => sub {
+        'BUILD' => Perl6::Method->create_submethod('Perl6::MetaClass' => sub {
             my ($self, %params) = @_;
             # XXX - this is just how we choose to deal with this now
             # there is no reason if cannot be done in some other
@@ -364,7 +364,7 @@ sub _build_meta {
             my $label = $attribute->label();
             my ($method_type, $method_code);
             if ($attribute->isa('Perl6::Instance::Attribute')) {
-                $method_type = 'Perl6::Instance::Method';
+                $method_type = 'create_instance_method';
                 $method_code = sub {
                     my ($i, $value) = @_;
                     _($label => $value) if defined $value;
@@ -377,7 +377,7 @@ sub _build_meta {
                 } if $attribute->is_ro;        
             }
             elsif ($attribute->isa('Perl6::Class::Attribute')) {
-                $method_type = 'Perl6::Class::Method';
+                $method_type = 'create_class_method';
                 $method_code = sub {
                     my (undef, $value) = @_;
                     $attribute->set_value($label => $value) if defined $value;
@@ -394,7 +394,7 @@ sub _build_meta {
 
             ::dispatch($self, 'add_method', (
                 $attribute->accessor_name(),
-                $method_type->new(_('$.name'), $method_code)
+                Perl6::Method->$method_type(_('$.name'), $method_code)
             )); 
         })            
     );

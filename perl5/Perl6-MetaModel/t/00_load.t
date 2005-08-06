@@ -14,7 +14,6 @@ use_ok('Perl6::Role');
  
 use_ok('Perl6::Attribute');
 use_ok('Perl6::Method');
-use_ok('Perl6::SubMethod');
 
     # Perl6/Util
 

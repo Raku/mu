@@ -12,7 +12,7 @@ use Perl6::Instance; # << this is where the Perl 5 sugar is now ...
 use Perl6::MetaClass;
 use Perl6::Role;
 
-use Perl6::SubMethod;
+use Perl6::Method;
 
 use Perl6::Class::Attribute;
 use Perl6::Instance::Attribute;
@@ -119,9 +119,9 @@ sub _build_class {
 
     if (my $instance = $self->{params}->{instance}) {
 
-        ::dispatch($meta, 'add_method', ('BUILD' => Perl6::SubMethod->new($name => $instance->{BUILD})))
+        ::dispatch($meta, 'add_method', ('BUILD' => Perl6::Method->create_submethod($name => $instance->{BUILD})))
             if exists $instance->{BUILD};            
-        ::dispatch($meta, 'add_method', ('DESTROY' => Perl6::SubMethod->new($name => $instance->{DESTROY})))
+        ::dispatch($meta, 'add_method', ('DESTROY' => Perl6::Method->create_submethod($name => $instance->{DESTROY})))
             if exists $instance->{DESTROY};
             
         if (exists $instance->{methods}) {
@@ -135,7 +135,7 @@ sub _build_class {
             }
         }
         if (exists $instance->{submethods}) {
-            ::dispatch($meta, 'add_method', ($_ => Perl6::SubMethod->new($name, $instance->{submethods}->{$_})))
+            ::dispatch($meta, 'add_method', ($_ => Perl6::Method->create_submethod($name, $instance->{submethods}->{$_})))
                 foreach keys %{$instance->{submethods}};
         }        
         if (exists $instance->{attrs}) {

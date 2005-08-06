@@ -77,6 +77,17 @@ I.e. C<class(meta(MetaClass)) = class(meta(class(meta(Foo)))) = MetaClass>.
 
 They're basically the same as named classes.
 
+=head1 BOOTSTRAPPING ORDER
+
+- Perl6::Object is loaded (in Perl6::MetaModel)
+    - Perl6::MetaClass::new() is called for Perl6::Object *
+        - Perl6::MetaClass::_build_meta() is called to create the meta(Perl6::MetaClass) *
+            - Perl6::MetaClass::new() is called for Perl6::MetaClass *
+            
+
+
+* special case handling
+
 =head1 AUTHORS
 
 Stevan Little E<lt>stevan@iinteractive.comE<gt>
