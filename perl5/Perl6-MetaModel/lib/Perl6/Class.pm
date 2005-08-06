@@ -44,7 +44,7 @@ sub new_class {
 }
 
 sub _apply_class_to_environment {
-    my ($self) = @_;
+    my ($self) = @_;    
     my ($name) = $self->{instance_data}->{name};
     # create the package ...
     my $code = qq|
@@ -52,15 +52,16 @@ sub _apply_class_to_environment {
         \@$name\:\:ISA = 'Perl6::Instance';
         \$$name\:\:META = undef;
         1;
-    |;
+    |;    
     eval $code || confess "Could not initialize class '$name'";   
+    _create_metaclass($self);    
+    _build_class($self);     
     # alias the full name ...
     eval {  
         no strict 'refs';         
         *{$self->{instance_data}->{identifier} . '::'} = *{$name . '::'};
     };
     confess "Could not create full name " . $self->{instance_data}->{identifier} . " : $@" if $@;   
-    _build_class($self); 
 }
 
 sub _validate_params {
@@ -92,9 +93,8 @@ sub _extract_name_from_identifier {
     return split '-' => $identifier;
 }
 
-sub _build_class {
+sub _create_metaclass {
     my ($self) = @_;
-    
     my ($name, $version, $authority) = ($self->{instance_data}->{name}, $self->{instance_data}->{version}, $self->{instance_data}->{authority});    
 
     # create the metaclass ...     
@@ -128,30 +128,36 @@ sub _build_class {
         # connect the class and the meta;
         $self->{instance_data}->{meta} = $meta; 
     };
-    confess "Could not initialize the metaclass for $name : $@" if $@; 
+    confess "Could not initialize the metaclass for $name : $@" if $@;     
+}
+
+sub _build_class {
+    my ($self) = @_;
+
+    my $meta = $self->{instance_data}->{meta};
 
     my $superclasses = $self->{instance_data}->{params}->{is};
     ::dispatch($meta, 'superclasses', ([ map { ::meta($_) } @{$superclasses} ]));        
 
     if (my $instance = $self->{instance_data}->{params}->{instance}) {
 
-        ::dispatch($meta, 'add_method', ('BUILD' => Perl6::Method->create_submethod($name => $instance->{BUILD})))
+        ::dispatch($meta, 'add_method', ('BUILD' => Perl6::Method->create_submethod($self => $instance->{BUILD})))
             if exists $instance->{BUILD};            
-        ::dispatch($meta, 'add_method', ('DESTROY' => Perl6::Method->create_submethod($name => $instance->{DESTROY})))
+        ::dispatch($meta, 'add_method', ('DESTROY' => Perl6::Method->create_submethod($self => $instance->{DESTROY})))
             if exists $instance->{DESTROY};
             
         if (exists $instance->{methods}) {
             foreach (keys %{$instance->{methods}}) {
                 if (/^_/) {
-                    ::dispatch($meta, 'add_method', ($_ => Perl6::Method->create_private_method($name, $instance->{methods}->{$_})));
+                    ::dispatch($meta, 'add_method', ($_ => Perl6::Method->create_private_method($self, $instance->{methods}->{$_})));
                 }
                 else {
-                    ::dispatch($meta, 'add_method', ($_ => Perl6::Method->create_instance_method($name, $instance->{methods}->{$_})));
+                    ::dispatch($meta, 'add_method', ($_ => Perl6::Method->create_instance_method($self, $instance->{methods}->{$_})));
                 }
             }
         }
         if (exists $instance->{submethods}) {
-            ::dispatch($meta, 'add_method', ($_ => Perl6::Method->create_submethod($name, $instance->{submethods}->{$_})))
+            ::dispatch($meta, 'add_method', ($_ => Perl6::Method->create_submethod($self, $instance->{submethods}->{$_})))
                 foreach keys %{$instance->{submethods}};
         }        
         if (exists $instance->{attrs}) {
@@ -161,7 +167,7 @@ sub _build_class {
                     ($attr, $props) = @{$attr}; 
                 }
                 ::dispatch($meta, 'add_attribute', (
-                    $attr => Perl6::Instance::Attribute->new($name => $attr, $props)
+                    $attr => Perl6::Instance::Attribute->new($self => $attr, $props)
                 ));              
             }
         }        
@@ -175,7 +181,7 @@ sub _build_class {
                     ($attr, $props) = @{$attr}; 
                 }
                 ::dispatch($meta, 'add_attribute', (
-                    $attr => Perl6::Class::Attribute->new($name => $attr, $props)
+                    $attr => Perl6::Class::Attribute->new($self => $attr, $props)
                 ));
             }            
 
@@ -183,10 +189,10 @@ sub _build_class {
         if (exists $class->{methods}) {
             foreach my $label (keys %{$class->{methods}}) {
                 if ($label =~ /^_/) {
-                    ::dispatch($meta, 'add_method', ($label => Perl6::Method->create_private_method($name, $class->{methods}->{$label})));
+                    ::dispatch($meta, 'add_method', ($label => Perl6::Method->create_private_method($self, $class->{methods}->{$label})));
                 }
                 else {
-                    ::dispatch($meta, 'add_method', ($label => Perl6::Method->create_class_method($name, $class->{methods}->{$label})));
+                    ::dispatch($meta, 'add_method', ($label => Perl6::Method->create_class_method($self, $class->{methods}->{$label})));
                 }
             }
         }

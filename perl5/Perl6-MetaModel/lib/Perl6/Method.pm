@@ -36,7 +36,12 @@ sub _create {
         my $old = $method;
         $method = bless sub { 
             unless (ref($_[0]) eq 'FORCE') {
-                return ::next_METHOD() if $_[0]->[0]->{class} ne $associated_with; 
+                return ::next_METHOD() 
+                    ## XXX
+                    # this should not be accessing either the 
+                    # instance_data->name slot, but we cannot
+                    # do anything about it for now ...
+                    if ::get_P6opaque_instance_class($_[0]->[0]) ne $associated_with->{instance_data}->{name}; 
             }
             $old->($_[1]); 
         }, 'Perl6::SubMethod';

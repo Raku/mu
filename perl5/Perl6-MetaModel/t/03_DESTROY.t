@@ -27,7 +27,7 @@ use Perl6::Object;
         is => [ 'Perl6::Object' ],
         instance => {
             DESTROY => sub {
-                push @classes_destroyed, (CLASS . '::DESTROY');
+                push @classes_destroyed, ('Foo::DESTROY');
             }
         }
     };
@@ -38,7 +38,7 @@ use Perl6::Object;
         instance => {
             submethods => {
                 DESTROY => sub {
-                    push @classes_destroyed, (CLASS . '::DESTROY');
+                    push @classes_destroyed, ('Bar::DESTROY');
                 }
             }
         }
@@ -48,7 +48,7 @@ use Perl6::Object;
         is => [ 'Bar' ],
         instance => {
             DESTROY => sub {
-                push @classes_destroyed, (CLASS . '::DESTROY');
+                push @classes_destroyed, ('Foo::Bar::DESTROY');
             }
         }
     };
@@ -76,7 +76,7 @@ use Perl6::Object;
         is => [ 'Perl6::Object' ],
         instance => {
             DESTROY => sub {
-                push @classes_destroyed, (CLASS . '::DESTROY');
+                push @classes_destroyed, ('A::DESTROY');
             }
         }
     };
@@ -85,7 +85,7 @@ use Perl6::Object;
         is => [ 'A' ],
         instance => {
             DESTROY => sub {
-                push @classes_destroyed, (CLASS . '::DESTROY');
+                push @classes_destroyed, ('B::DESTROY');
             }
         }
     };
@@ -94,7 +94,7 @@ use Perl6::Object;
         is => [ 'A' ],
         instance => {
             DESTROY => sub {
-                push @classes_destroyed, (CLASS . '::DESTROY');
+                push @classes_destroyed, ('C::DESTROY');
             }
         }
     };    
@@ -103,7 +103,7 @@ use Perl6::Object;
         is => [ 'B', 'C' ],
         instance => {
             DESTROY => sub {
-                push @classes_destroyed, (CLASS . '::DESTROY');
+                push @classes_destroyed, ('D::DESTROY');
             }
         }
     };

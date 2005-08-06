@@ -7,8 +7,6 @@ use warnings;
 use Scalar::Util 'blessed';
 use Carp 'confess';
 
-use Perl6::MetaClass::Dispatcher;
-
 sub new {
     my (%params) = @_;
     my $meta = ::create_P6opaque(Perl6::Class->new_class('Perl6::MetaClass') => (
@@ -239,6 +237,7 @@ sub _build_meta {
     ::dispatch($META, 'add_method',
         'dispatcher' => Perl6::Method->create_instance_method('Perl6::MetaClass' => sub {   
             my ($self, $order) = @_;
+            require Perl6::MetaClass::Dispatcher;
             Perl6::MetaClass::Dispatcher->new($self, $order);
         })
     );            

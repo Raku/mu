@@ -98,7 +98,7 @@ class 'Perl6::Object' => {
             },
             'isa' => $isa,
             'can' => $can, 
-            'id' => sub { ::get_obj_id(shift) }
+            'id' => sub { ::get_P6opaque_instance_id(shift) }
         }
     }
 };           

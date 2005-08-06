@@ -75,8 +75,9 @@ sub ::create_P6opaque {
 # in theory the P6_opaque structure is opaque (duh), so
 # this means that our code should not try to peak into it
 # and so we should then use some kind of outside mechanism 
-# to get at the object id
-sub ::get_obj_id { (shift)->{id} }
+# to get at the object id and class 
+sub ::get_P6opaque_instance_id    { (shift)->{id}    }
+sub ::get_P6opaque_instance_class { (shift)->{class} }
 
 sub ::meta {
     my ($class) = @_;

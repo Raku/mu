@@ -39,7 +39,7 @@ can_ok('Foo', 'this_will_not_die');
     lives_ok {
         $val = Foo->this_will_not_die();
     } '... CLASS can be called from a Class method';
-    is($val, 'Foo', '... got the right value from CLASS too');
+    isa_ok($val, 'Foo');
 }
 
 my $foo = Foo->new();
@@ -50,7 +50,7 @@ isa_ok($foo, 'Foo');
     lives_ok {
         $val = $foo->bar();
     } '... CLASS can be used to call Class methods';
-    is($val, 'Foo', '... got the right value from CLASS too');
+    isa_ok($val, 'Foo');
 }
 
 {
@@ -58,5 +58,5 @@ isa_ok($foo, 'Foo');
     lives_ok {
         $val = $foo->foo();
     } '... CLASS can be called from an instance method';
-    is($val, 'Foo', '... got the right value from CLASS too');
+    isa_ok($val, 'Foo');
 }
