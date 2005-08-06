@@ -39,7 +39,7 @@ our @GA;
 fail "Test hangs", :todo<bug>;
 # ok("abcxyd" ~~ m/a  @GA:=(.(.))+  d/, 'Global array capture');
 is("@GA[]", "c y", 'Global array captured');
-ok(%$/.keys == 0, 'No vestigal captures');
+ok(%$/.keys == 0, 'No vestigal captures', :todo<bug> );
 
 my @foo;
 fail "Test hangs", :todo<bug>;
@@ -55,7 +55,7 @@ fail "Test hangs", :todo<bug>;
   lives_ok { $ret = $/[0]<two> }, 'Implicit hypothetical variable captured -- lives_ok';
   is $ret, "bc", 'Implicit hypothetical variable captured -- retval is correct';
 }
-ok(! @{$/<foo>}, 'Explicit hypothetical variable not captured');
+ok(! @{$/<foo>}, 'Explicit hypothetical variable not captured', :todo<bug>);
 
 fail "Test hangs", :todo<bug>;
 # ok("  a b\tc" ~~ m/@<chars>:=( @<spaces>:=[\s+] (\S+))+/, 'Nested array capture');

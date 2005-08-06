@@ -21,8 +21,7 @@ if(eval('!("a" ~~ /a/)')) {
 
 rule dotdot { (.)(.) };
 
-fail "Test hangs", :todo<bug>;
-# ok("zzzabcdefzzz" ~~ m/(a.)<?dotdot>(..)/, 'Match');
+ok("zzzabcdefzzz" ~~ m/(a.)<?dotdot>(..)/, 'Match');
 ok($/, 'Matched');
 is($/, "abcdef", 'Captured');
 is($/[0], 'ab', '$/[0]');

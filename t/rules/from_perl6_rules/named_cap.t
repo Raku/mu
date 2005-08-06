@@ -41,18 +41,18 @@ ok("abcd" ~~ m/a  $foo:=[<two>]  d/, 'Mixed capture', :todo<feature> );
 is($/<two>, "bc", 'Implicit hypothetical variable captured', :todo<feature> );
 is($foo, "bc", 'Explicit package variable captured', :todo<feature> );
 
-ok("a cat_O_9_tails" ~~ m:w/<alpha> <ident>/, 'Standard captures', :todo<feature> );
-is($/<alpha>, "a", 'Captured <?alpha>', :todo<feature> );
-is($/<ident>, "cat_O_9_tails", 'Captured <?ident>', :todo<feature> );
+ok("a cat_O_9_tails" ~~ m:w/<alpha> <ident>/, 'Standard captures' );
+is($/<alpha>, "a", 'Captured <?alpha>' );
+is($/<ident>, "cat_O_9_tails", 'Captured <?ident>' );
 
-ok("Jon Lee" ~~ m:w/$<first>:=(<ident>) $<family>:=[<ident>]/, 'Repeated standard captures', :todo<feature> );
-is($/<first>,  "Jon", 'Captured $first', :todo<feature> );
-is($/<family>, "Lee", 'Captured $family', :todo<feature> );
-is($/<ident>,  "Lee", 'Captured <?ident>', :todo<feature> );
+ok("Jon Lee" ~~ m:w/$<first>:=(<ident>) $<family>:=[<ident>]/, 'Repeated standard captures' );
+is($/<first>,  "Jon", 'Captured $first' );
+is($/<family>, "Lee", 'Captured $family' );
+is($/<ident>,  "Lee", 'Captured <?ident>' );
 
-ok("foo => 22" ~~ m:w/$0:=(foo) =\> (\d+) | $1:=(\d+) \<= $0:=(foo) /, 'Pair match', :todo<feature> );
-is($0, 'foo', 'Key match', :todo<feature> );
-is($1, '22', 'Value match', :todo<feature> );
+ok("foo => 22" ~~ m:w/$0:=(foo) =\> (\d+) | $1:=(\d+) \<= $0:=(foo) /, 'Pair match' );
+is($0, 'foo', 'Key match' );
+is($1, '22', 'Value match' );
 
 ok("22 <= foo" ~~ m:w/$0:=(foo) =\> (\d+) | $1:=(\d+) \<= $0:=(foo) /, 'Pair match', :todo<feature> );
 is($0, 'foo', 'Reverse key match', :todo<feature> );
