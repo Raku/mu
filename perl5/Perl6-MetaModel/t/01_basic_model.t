@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 34;
+use Test::More tests => 35;
 use Data::Dumper;
 
 use Perl6::MetaModel;
@@ -114,6 +114,12 @@ is(Employee->population(), 0, '... Employee population is 0 again');
 is(Person->population(), 0, '... and Person population is 0 again too');
 
 
+# avoid "used only once error"
+my %this_is_annoying = %Perl6::Class::ALL_CLASSES;
 
+is_deeply(
+    [ 'Employee', 'Employee-0.0.1', 'Perl6::MetaClass', 'Perl6::Object', 'Person', 'Person-0.0.1-cpan:STEVAN' ],
+    [ sort keys %Perl6::Class::ALL_CLASSES ], 
+    '... got the expected list of class loaded');
 
 

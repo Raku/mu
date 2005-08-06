@@ -19,18 +19,30 @@ use Perl6::Instance::Attribute;
 
 ## Private methods
 
+our %ALL_CLASSES;
+
 sub new_class {
-    my ($class, $name, $params) = @_;
+    my ($class, $identifier, $params) = @_;
+    my ($name, $version, $authority) = _extract_name_from_identifier($identifier);      
     my $self = bless { 
-        name   => $name
+        name       => $name,
+        version    => $version,
+        authority  => $authority,
+        identifier => $identifier,
+        meta       => undef,
     }, $class;
-    _validate_params($self, $params);
+    _validate_params($self, $params) if $params;
+    # stash these into the class ...
+    $ALL_CLASSES{$identifier} = $self;
+    # also stash the short name if 
+    # it is different from the identifier
+    $ALL_CLASSES{$name} = $self if $name ne $identifier; 
     return $self;
 }
 
 sub _apply_class_to_environment {
     my ($self) = @_;
-    my ($name) = _get_class_meta_information($self);
+    my ($name) = $self->{name};
     # create the package ...
     my $code = qq|
         package $name;
@@ -42,9 +54,9 @@ sub _apply_class_to_environment {
     # alias the full name ...
     eval {  
         no strict 'refs';         
-        *{$self->{name} . '::'} = *{$name . '::'};
+        *{$self->{identifier} . '::'} = *{$name . '::'};
     };
-    confess "Could not create full name " . $self->{name} . " : $@" if $@;   
+    confess "Could not create full name " . $self->{identifier} . " : $@" if $@;   
     _build_class($self); 
 }
 
@@ -68,9 +80,8 @@ sub _validate_params {
     $self->{params} = $params;
 }
 
-sub _get_class_meta_information {
-    my ($self) = @_;
-    my $identifier = $self->{name};
+sub _extract_name_from_identifier {
+    my ($identifier) = @_;
     # shortcut for classes with no extra meta-info
     return ($identifier, undef, undef) if $identifier !~ /\-/;
     # XXX - this will actually need work, 
@@ -81,7 +92,7 @@ sub _get_class_meta_information {
 sub _build_class {
     my ($self) = @_;
     
-    my ($name, $version, $authority) = _get_class_meta_information($self);    
+    my ($name, $version, $authority) = ($self->{name}, $self->{version}, $self->{authority});    
 
     # create the metaclass ...     
     my $meta; 
@@ -110,7 +121,9 @@ sub _build_class {
                 (defined $version   ? ('$.version'   => $version)   : ()),
                 (defined $authority ? ('$.authority' => $authority) : ())                              
             ));
-        }  
+        } 
+        # connect the class and the meta;
+        $self->{meta} = $meta; 
     };
     confess "Could not initialize the metaclass for $name : $@" if $@; 
 

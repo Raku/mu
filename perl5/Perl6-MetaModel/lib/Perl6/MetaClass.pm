@@ -11,7 +11,7 @@ use Perl6::MetaClass::Dispatcher;
 
 sub new {
     my (%params) = @_;
-    my $meta = ::create_P6opaque('Perl6::MetaClass' => (
+    my $meta = ::create_P6opaque(Perl6::Class->new_class('Perl6::MetaClass') => (
         # meta-information
         '$.name'         => $params{'$.name'}      || undef,
         '$.version'      => $params{'$.version'}   || '0.0.0',
