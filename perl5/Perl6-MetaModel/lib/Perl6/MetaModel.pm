@@ -46,7 +46,7 @@ sub _class_name {
     blessed($class) ?  
         # accomidate the Perl6::Class instance
         blessed($class) eq 'Perl6::Class' ?
-            $class->{name}
+            $class->{instance_data}->{name}
             :
             blessed($class)
         :

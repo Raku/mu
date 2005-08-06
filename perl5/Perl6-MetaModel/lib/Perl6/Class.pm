@@ -24,14 +24,17 @@ our %ALL_CLASSES;
 sub new_class {
     my ($class, $identifier, $params) = @_;
     my ($name, $version, $authority) = _extract_name_from_identifier($identifier);      
-    my $self = bless { 
+    my $self = ::create_P6opaque($class => ( 
         name       => $name,
         version    => $version,
         authority  => $authority,
         identifier => $identifier,
         meta       => undef,
-    }, $class;
-    _validate_params($self, $params) if $params;
+        params     => {}
+    ));
+    if ($params) {
+        _validate_params($self, $params);
+    }
     # stash these into the class ...
     $ALL_CLASSES{$identifier} = $self;
     # also stash the short name if 
@@ -42,7 +45,7 @@ sub new_class {
 
 sub _apply_class_to_environment {
     my ($self) = @_;
-    my ($name) = $self->{name};
+    my ($name) = $self->{instance_data}->{name};
     # create the package ...
     my $code = qq|
         package $name;
@@ -54,9 +57,9 @@ sub _apply_class_to_environment {
     # alias the full name ...
     eval {  
         no strict 'refs';         
-        *{$self->{identifier} . '::'} = *{$name . '::'};
+        *{$self->{instance_data}->{identifier} . '::'} = *{$name . '::'};
     };
-    confess "Could not create full name " . $self->{identifier} . " : $@" if $@;   
+    confess "Could not create full name " . $self->{instance_data}->{identifier} . " : $@" if $@;   
     _build_class($self); 
 }
 
@@ -77,7 +80,7 @@ sub _validate_params {
         }
     }
 
-    $self->{params} = $params;
+    $self->{instance_data}->{params} = $params;
 }
 
 sub _extract_name_from_identifier {
@@ -92,7 +95,7 @@ sub _extract_name_from_identifier {
 sub _build_class {
     my ($self) = @_;
     
-    my ($name, $version, $authority) = ($self->{name}, $self->{version}, $self->{authority});    
+    my ($name, $version, $authority) = ($self->{instance_data}->{name}, $self->{instance_data}->{version}, $self->{instance_data}->{authority});    
 
     # create the metaclass ...     
     my $meta; 
@@ -123,14 +126,14 @@ sub _build_class {
             ));
         } 
         # connect the class and the meta;
-        $self->{meta} = $meta; 
+        $self->{instance_data}->{meta} = $meta; 
     };
     confess "Could not initialize the metaclass for $name : $@" if $@; 
 
-    my $superclasses = $self->{params}->{is};
+    my $superclasses = $self->{instance_data}->{params}->{is};
     ::dispatch($meta, 'superclasses', ([ map { ::meta($_) } @{$superclasses} ]));        
 
-    if (my $instance = $self->{params}->{instance}) {
+    if (my $instance = $self->{instance_data}->{params}->{instance}) {
 
         ::dispatch($meta, 'add_method', ('BUILD' => Perl6::Method->create_submethod($name => $instance->{BUILD})))
             if exists $instance->{BUILD};            
@@ -163,7 +166,7 @@ sub _build_class {
             }
         }        
     }
-    if (my $class = $self->{params}->{class}) {  
+    if (my $class = $self->{instance_data}->{params}->{class}) {  
         
         if (exists $class->{attrs}) {
             foreach my $attr (@{$class->{attrs}}) {
@@ -190,8 +193,8 @@ sub _build_class {
     }
 
 
-    Perl6::Role->flatten_roles_into($meta, @{$self->{params}->{does}})
-        if $self->{params}->{does};
+    Perl6::Role->flatten_roles_into($meta, @{$self->{instance_data}->{params}->{does}})
+        if $self->{instance_data}->{params}->{does};
 }
 
 
