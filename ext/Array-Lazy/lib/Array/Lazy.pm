@@ -1,171 +1,142 @@
 use v6;
 
-use Iter::Range;  # import my 'Iter' class
+=for ChangeLog
 
-# this namespace is from 'S29'
-  our &Perl6::Array::pop     := &pop;
-  our &Perl6::Array::push    := &push;
-  our &Perl6::Array::shift   := &shift;
-  our &Perl6::Array::unshift := &unshift;
+2005-08-06
+    * new lazy methods reverse(), grep(), map()
+    * Array::Lazy supports multi-dimensional Lazy Array
+    * new class 'Lazy::List'
+    * lazy List / Array of junctions is tested
+    * removed 'Iter' class; renamed 'Iter::Range' to 'Lazy::Range'
+
+=cut
+
+use Iter::Range;  # 'Lazy::List', 'Lazy::Range', 'Perl6::Array'
+
+# This class should not inherit from Lazy::List, because this would
+# cause multi-dimensional arrays to be flattened.
 
 class Array::Lazy-0.01
-    is Iter;
+{
 
 has Array @.items;
-# has $.has_spans;  # optimization
-    
+   
     # TODO - preprocessing, indexing, etc - lazily
     # TODO - error messages on whatever parameters are illegal
-    # TODO - optional parameters to splice
-    # TODO - reverse
-
-submethod BUILD ( *@.items ) {}
+    # TODO - parameters to splice should be optional
+    # TODO - uniq(), splat(), zip(), slice()
+    # TODO - change to normal Array if all elements are known
+    # TODO - fix namespaces, move to Prelude.pm
 
 method new ( Array::Lazy $Class: *@items ) { 
     # say "new: ", @items;
     return $Class.new( items => @items ); 
 }
 
-method splice ( Array::Lazy $array: 
-    $offset is copy, 
-    $length, 
-    *@list )
-        returns Array::Lazy 
-        is export
-{ 
-    my ( @head, @body, @tail );
-
-    #say "items: ", $array.items;
-    #say "splice: $offset, $length, ", @list;
-
-    if -Inf == $offset { $offset = 0 }
-    # if $offset==-Inf { $offset = 0 } -- syntax error ???
-
-    if $offset >= 0
-    {
-        # get $offset items
-        if $offset == Inf
-        {
-            @head = $array.items;
+method _shift_n ($array: Int $length ) returns List {
+    my @ret;
+    my @tmp = $array.items;
+    if $length == Inf {
+        $array.items = ();
+        return @tmp;
+    }    
+    while @tmp {
+        last if @ret.elems >= $length;
+        if ! @tmp[0].isa('Lazy::List') {
+            Perl6::Array::push @ret, Perl6::Array::shift @tmp;
+            next;
         }
-        else
-        {
-            while $array.items
-            {
-                last if @head.elems >= $offset;
-                if $array.items[0].isa('Iter') {
-                    loop {
-                        my $i = $array.items[0].shift;
-                        unless defined $i {
-                            Perl6::Array::shift @head;
-                            last;
-                        }
-                        Perl6::Array::push @head, $i;
-                        last if @head.elems >= $offset;
-                    };
-                }
-                else
-                {
-                    my @tmp = $array.items;
-                    Perl6::Array::push @head, Perl6::Array::shift @tmp;
-                    $array.items = @tmp;    
-                    # XXX "Can't modify constant item: VUndef"
-                    #   push @head, shift @.items;
-                };
-            };
-            if $length == Inf
-            {
-                @body = $array.items;
-            }
-            else
-            {
-                while $array.items
-                {
-                    last if @body.elems >= $length;
-                    # say 'test Iter: ', @.items[0], ' -- ', @.items[0].isa('Iter');
-                    if $array.items[0].isa('Iter') {
-                        loop {
-                            my $i = $array.items[0].shift;
-                            unless defined $i {
-                                Perl6::Array::shift @body;
-                                last;
-                            }
-                            Perl6::Array::push @body, $i;
-                            last if @body.elems >= $length;
-                        };
-                    }
-                    else
-                    {
-                        my @tmp = $array.items;
-                        Perl6::Array::push @body, Perl6::Array::shift @tmp;
-                        $array.items = @tmp;    
-                        # XXX error - push @body, shift @.items;
-                        # say 'shifted to ', @.items;
-                    };
-                };
-                @tail = $array.items;
-            }
-        };
-    }
-    else
-    {
-        # get offset items, backwards
-        @head = $array.items;
-        $offset = - $offset;
-        while @head 
-        {
-            last if @tail.elems >= $offset;
-            my $item = @head[-1];
-            if @head[-1].isa('Iter') {
-                loop {
-                    my $i = @head[-1].pop;
-                    unless defined $i {
-                        Perl6::Array::pop @head;
-                        last;
-                    }
-                    Perl6::Array::unshift @tail, $i;
-                    last if @tail.elems >= $offset;
-                };
-            }
-            else
-            {
-                Perl6::Array::unshift @tail, Perl6::Array::pop @head;
-            };
-        };
-        while @tail {
-            last if @body.elems >= $length;
-            Perl6::Array::push @body, Perl6::Array::shift @tail;
+        my $i = @tmp[0].shift;
+        if defined $i {
+            Perl6::Array::push @ret, $i;
+            last if @ret.elems >= $length;
+        }
+        else {
+            Perl6::Array::shift @tmp;
         }
     };
+    $array.items = @tmp;    
+    return @ret;
+}
 
-    #say 'head: ',@head;
-    #say 'body: ',@body;
-    #say 'tail: ',@tail;
+method _pop_n ($array: Int $length ) returns List {
+    my @ret;
+    my @tmp = $array.items;
+    if $length == Inf {
+        $array.items = ();
+        return @tmp;
+    }    
+    while @tmp {
+        last if @ret.elems >= $length;
+        if ! @tmp[-1].isa('Lazy::List') {
+            Perl6::Array::unshift @ret, Perl6::Array::pop @tmp;
+            next;
+        }
+        my $i = @tmp[-1].pop;
+        if defined $i {
+            Perl6::Array::unshift @ret, $i;
+            last if @ret.elems >= $length;
+        }
+        else {
+            Perl6::Array::pop @tmp;
+        }
+    };
+    $array.items = @tmp;    
+    return @ret;
+}
 
+method splice ( 
+    Array::Lazy $array: 
+    ?$offset = 0, 
+    ?$length = Inf, 
+    *@list 
+)
+    returns Array::Lazy 
+{ 
+    my ( @head, @body, @tail );
+    # say "items: ", $array.items, " splice: $offset, $length, ", @list;
+    if $offset >= 0 {
+        @head = $array._shift_n( $offset );
+        if $length >= 0 {
+            @body = $array._shift_n( $length ); 
+            @tail = $array._shift_n( Inf ); 
+        }
+        else {
+            @tail = $array._pop_n( -$length ); 
+            @body = $array._shift_n( Inf ); 
+        }
+    }
+    else {
+        @tail = $array._pop_n( -$offset );
+        @head = $array._shift_n( Inf );
+        if $length >= 0 {
+            while @tail {
+                last if @body.elems >= $length;
+                Perl6::Array::push @body, Perl6::Array::shift @tail;
+            }
+        }
+        else {
+            while @tail {
+                last if @tail.elems <= -$length;
+                Perl6::Array::push @body, Perl6::Array::shift @tail;
+            }
+        }
+    };
+    # say 'head: ',@head, ' body: ',@body, ' tail: ',@tail, ' list: ',@list;
     $array.items = ( @head, @list, @tail );
-    # say "items: ", $array.items;
-    # say 'body: ',@body;
-    my $result = Array::Lazy.new( @body );
-
-    # say @.spans, " spliced ", @spliced;
-
-    return $result;
+    return Array::Lazy.new( @body );
 }
 
 method shift ( Array::Lazy $array: ) {
-    return Perl6::Array::shift $array 
-        unless $array.isa('Array::Lazy');
-    my $tmp = $array.splice( 0, 1, () );
-    return $tmp.items[0];
+    $array._shift_n( 1 )[0]
 }
 
 method pop ( Array::Lazy $array: ) {
-    my $tmp = $array.splice( -1, 1, () );
-    return $tmp.items[0];
+    $array._pop_n( 1 )[0] 
 }
 
 method unshift ( Array::Lazy $array: @item ) {
-    my $tmp = $array.splice( 0, 0, @item );
+    Perl6::Array::unshift $array.items, @item;
     return $array; # XXX ?
 }
 
@@ -174,18 +145,60 @@ method push ( Array::Lazy $array: @item ) {
     return $array; # XXX ?
 }
 
+method reverse ( Array::Lazy $array: ) { 
+    my $rev = Perl6::Array::reverse $array.items;
+    $rev = $rev.Perl6::Array::map:{
+            $_.isa('Lazy::List') ?? $_.reverse :: $_
+        };
+    return Array::Lazy.new( @{$rev} );
+}
+
+method grep ( Array::Lazy $array: Code $code ) { 
+    return Array::Lazy.new( 
+        Lazy::Generator.new(
+            shifter => sub { 
+                loop { my $x = $array.shift // return;
+                       return $x if &$code($x) } 
+            },
+            popper =>  sub { 
+                loop { my $x = $array.pop // return;
+                       return $x if &$code($x) } 
+            },
+        )
+    )
+}
+
+method map ( Array::Lazy $array: Code $code ) { 
+    return Array::Lazy.new( 
+        Lazy::Generator.new(
+            shifter => sub { 
+                loop { 
+                    my $x = $array.shift // return;
+                    my @ret = &$code($x); 
+                    return @ret if @ret;
+                } 
+            },
+            popper =>  sub { 
+                loop { 
+                    my $x = $array.pop // return;
+                    my @ret = &$code($x); 
+                    return @ret if @ret;
+                }                                
+            },
+        )
+    )
+}
+
 # XXX
 # sub prefix:<~> () is export {
 
-method stringify {
-    @.items.join(',')
-}
+} # end class Lazy::Array
 
 =kwid
 
 = NAME
 
-Array::Lazy - An "Array" implemented with iterators
+Array::Lazy - A Lazy Array
 
 = SYNOPSIS
 
@@ -206,7 +219,7 @@ The "elems()" method is not supported.
 
 - `new( @list )`
 
-@list may contain iterator "Iter" objects.
+@list may contain "Lazy" lists.
 
 = METHODS
 
@@ -216,15 +229,17 @@ The "elems()" method is not supported.
 
 - `push( @list )`
 
-@list may contain iterator "Iter" objects.
+@list may contain "Lazy" lists.
 
 - `pop`
 
 - `unshift( @list )`
 
-@list may contain iterator "Iter" objects.
+@list may contain "Lazy" lists.
 
 - `shift`
+
+- `reverse`
 
 = AUTHOR
 
