@@ -22,6 +22,8 @@ module RRegex.PCRE (
     pcreNotempty,   --  refuse to match empty string
     pcreUtf8,       --  UTF-8 semantics
     
+    numSubs,
+
     getVersion
     ) where
 
@@ -58,6 +60,11 @@ compile pattern flags = withCString pattern $ \cstr ->
             eo <- peek errOffset
             return $ Left (fi eo,es)
           else fmap (Right . Regex) (newForeignPtr_ v)
+
+numSubs :: Regex -> IO Int
+numSubs (Regex pcre_fptr) = withForeignPtr pcre_fptr $ \pcre_ptr -> do
+    nsub <- getNumSubs pcre_ptr 
+    return $ fromIntegral nsub
 
 getNumSubs :: Ptr PCRE -> IO CInt
 getNumSubs (pcre_ptr) = 

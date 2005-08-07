@@ -1650,6 +1650,7 @@ data VRule
         { rxRegex     :: !Regex -- ^ The \'regular\' expression (as a PCRE
                                 --     'Regex' object)
         , rxGlobal    :: !Bool  -- ^ Flag indicating \'global\' (match-all)
+        , rxNumSubs   :: !Int   -- ^ The number of subpatterns present.
 	    , rxStringify :: !Bool
         , rxRuleStr   :: !String -- ^ The rule string, for user reference.
         , rxAdverbs   :: !Val

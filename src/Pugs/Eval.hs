@@ -40,6 +40,8 @@ import Pugs.Types
 import Pugs.External
 import Pugs.Eval.Var
 
+import RRegex.PCRE as PCRE
+
 {-|
 Construct a new, \'empty\' 'Env' (evaluation environment).
 
@@ -632,20 +634,21 @@ reduceSyn "rx" [exp, adverbs] = do
     flag_w  <- fromAdverb hv ["w", "words"]
     flag_s  <- fromAdverb hv ["stringify"] -- XXX hack
     adverbHash <- reduce adverbs
-    let rx | p5 = MkRulePCRE p5re g flag_s str adverbHash
-           | otherwise = MkRulePGE p6re g flag_s adverbHash
-        g = ('g' `elem` p5flags || flag_g)
-        p6re = if not flag_w then str
-               else case str of
-                      ':':_ -> ":w"   ++ str
-                      _     -> ":w::" ++ str
-        p5re = mkRegexWithPCRE (encodeUTF8 str) $
+    let p5re = mkRegexWithPCRE (encodeUTF8 str) $
                     [ pcreUtf8
                     , ('i' `elem` p5flags || flag_i) `implies` pcreCaseless
                     , ('m' `elem` p5flags) `implies` pcreMultiline
                     , ('s' `elem` p5flags) `implies` pcreDotall
                     , ('x' `elem` p5flags) `implies` pcreExtended
                     ]
+    ns <- liftIO $ PCRE.numSubs p5re
+    let rx | p5 = MkRulePCRE p5re g ns flag_s str adverbHash
+           | otherwise = MkRulePGE p6re g flag_s adverbHash
+        g = ('g' `elem` p5flags || flag_g)
+        p6re = if not flag_w then str
+               else case str of
+                      ':':_ -> ":w"   ++ str
+                      _     -> ":w::" ++ str
     retVal $ VRule rx
     where
     implies True  = id

@@ -143,12 +143,17 @@ op2Match x (VRule rx) | rxGlobal rx = do
                 return (VList $ map VStr strs)
 	    else return (VList rv)
     where
+    hasSubpatterns = case rx of
+        MkRulePGE{}             -> True -- bogus
+        MkRulePCRE{rxNumSubs=n} -> not (n == 0)
     matchOnce :: String -> Eval [Val]
     matchOnce str = do
         match <- str `doMatch` rx
         if not (matchOk match) then return [] else do
         rest <- matchOnce (genericDrop (matchTo match) str)
-        return $ matchSubPos match ++ rest
+        return $ if hasSubpatterns
+                 then (matchSubPos match) ++ rest
+                 else (VMatch match):rest
 
 op2Match x (VRule rx) = do
     str     <- fromVal x
