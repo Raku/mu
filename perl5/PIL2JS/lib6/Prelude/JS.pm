@@ -16,6 +16,7 @@ module Prelude::JS {}
 use Prelude::JS::Code;
 use Prelude::JS::ControlFlow;
 use Prelude::JS::IO;
+use Prelude::JS::Junc;
 use Prelude::JS::Str;
 use Prelude::JS::Bool;
 use Prelude::JS::Keyed;

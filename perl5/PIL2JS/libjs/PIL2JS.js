@@ -792,6 +792,8 @@ var _26main_3a_3aref = PIL2JS.Box.constant_func(1, function (args) {
     return _26main_3a_3aref.FETCH()([PIL2JS.Context.ItemAny, thing.referencee]);
   } else if(thing instanceof PIL2JS.Ref) {
     return new PIL2JS.Box.Constant("Ref");
+  } else if(thing instanceof PIL2JS.Junction.Any || thing instanceof PIL2JS.Junction.All || thing instanceof PIL2JS.Junction.One || thing instanceof PIL2JS.Junction.None) {
+    return new PIL2JS.Box.Constant("Junction");
   } else if(thing instanceof Perl6.Class) {
     return new PIL2JS.Box.Constant("Class"); // XXX
   } else {
@@ -876,13 +878,21 @@ var _26main_3a_3aprefix_3a_7e = PIL2JS.Box.constant_func(1, function (args) {
       );
     } else if(ref == "Num") {
       return new PIL2JS.Box.Constant(Number(thing).toString());
+    } else if(ref == "Junction") {
+      var res = "", values = thing.values;
+      for(var i = 0; i < values.length; i++) {
+        res += _26main_3a_3aprefix_3a_7e.FETCH()([PIL2JS.Context.ItemAny, values[i]]).FETCH();
+        res += thing.op;
+      }
+      if(values.length > 0) res = res.slice(0, -thing.op.length);
+      return new PIL2JS.Box.Constant(res);
     } else if(ref == "Ref") {
       PIL2JS.die("Can't stringify non-array or hash references!");
     } else if(ref == "Class") { // XXX
       return new PIL2JS.Box.Constant("<class>");
     } else {
       PIL2JS.die(
-        "Stringification for objects of class "+
+        "Stringification for objects of class " +
         ref +
         " not yet implemented!"
       );
@@ -892,36 +902,38 @@ var _26main_3a_3aprefix_3a_7e = PIL2JS.Box.constant_func(1, function (args) {
 
 // &prefix:<+>. Written in JS instead of P6 for speed, as it gets called often.
 var _26main_3a_3aprefix_3a_2b = PIL2JS.Box.constant_func(1, function (args) {
-  var thing = args[1].FETCH();
+  return PIL2JS.possibly_autothread([args[1]], function (thing) {
+    thing = thing.FETCH();
 
-  if(thing == undefined) return new PIL2JS.Box.Constant(undefined);
+    if(thing == undefined) return new PIL2JS.Box.Constant(undefined);
 
-  var ref = _26main_3a_3aref.FETCH()([PIL2JS.Context.ItemAny, args[1]]).FETCH();
-  if(ref == "Str") {
-    return new PIL2JS.Box.Constant(Number(thing));
-  } else if(ref == "Array") {
-    if(thing.referencee) thing = thing.referencee.FETCH();
-    return new PIL2JS.Box.Constant(thing.length);
-  } else if(ref == "Hash") {
-    if(thing.referencee) thing = thing.referencee.FETCH();
-    return new PIL2JS.Box.Constant(thing.num_of_entries);
-  } else if(ref == "Bool") {
-    return new PIL2JS.Box.Constant(
-      _26main_3a_3aprefix_3a_3f.FETCH()([PIL2JS.Context.ItemAny, args[1]]).FETCH()
-        ? 1
-        : 0
-    );
-  } else if(ref == "Num") {
-    return new PIL2JS.Box.Constant(Number(thing));
-  } else if(ref == "Ref") {
-    PIL2JS.die("Can't numfiy non-array or hash references!");
-  } else {
-    PIL2JS.die(
-      "Stringification for objects of class "+
-      ref +
-      " not yet implemented!"
-    );
-  }
+    var ref = _26main_3a_3aref.FETCH()([PIL2JS.Context.ItemAny, args[1]]).FETCH();
+    if(ref == "Str") {
+      return new PIL2JS.Box.Constant(Number(thing));
+    } else if(ref == "Array") {
+      if(thing.referencee) thing = thing.referencee.FETCH();
+      return new PIL2JS.Box.Constant(thing.length);
+    } else if(ref == "Hash") {
+      if(thing.referencee) thing = thing.referencee.FETCH();
+      return new PIL2JS.Box.Constant(thing.num_of_entries);
+    } else if(ref == "Bool") {
+      return new PIL2JS.Box.Constant(
+        _26main_3a_3aprefix_3a_3f.FETCH()([PIL2JS.Context.ItemAny, args[1]]).FETCH()
+          ? 1
+          : 0
+      );
+    } else if(ref == "Num") {
+      return new PIL2JS.Box.Constant(Number(thing));
+    } else if(ref == "Ref") {
+      PIL2JS.die("Can't numfiy non-array or hash references!");
+    } else {
+      PIL2JS.die(
+        "Numification for objects of class "+
+        ref +
+        " not yet implemented!"
+      );
+    }
+  });
 });
 
 // &prefix:<?>. Written in JS instead of P6 for speed, as it gets called very
@@ -935,6 +947,39 @@ var _26main_3a_3aprefix_3a_3f = PIL2JS.Box.constant_func(1, function (args) {
   } else if(a instanceof PIL2JS.Hash) {
     return new PIL2JS.Box.Constant(a.num_of_entries > 0);
   } else if(a instanceof PIL2JS.Ref) {
+    return new PIL2JS.Box.Constant(1 == 1);
+  } else if(a instanceof PIL2JS.Junction.All) {
+    for(var i = 0; i < a.values.length; i++) {
+      if(!_26main_3a_3aprefix_3a_3f.FETCH()([PIL2JS.Context.ItemAny, a.values[i]]).FETCH()) {
+        return new PIL2JS.Box.Constant(0 == 1);
+      }
+    }
+    return new PIL2JS.Box.Constant(1 == 1);
+  } else if(a instanceof PIL2JS.Junction.Any) {
+    for(var i = 0; i < a.values.length; i++) {
+      if(_26main_3a_3aprefix_3a_3f.FETCH()([PIL2JS.Context.ItemAny, a.values[i]]).FETCH()) {
+        return new PIL2JS.Box.Constant(1 == 1);
+      }
+    }
+    return new PIL2JS.Box.Constant(0 == 1);
+  } else if(a instanceof PIL2JS.Junction.One) {
+    var ret = false;
+    for(var i = 0; i < a.values.length; i++) {
+      if(_26main_3a_3aprefix_3a_3f.FETCH()([PIL2JS.Context.ItemAny, a.values[i]]).FETCH()) {
+        if(ret) {
+          return new PIL2JS.Box.Constant(0 == 1);
+        } else {
+          ret = true;
+        }
+      }
+    }
+    return new PIL2JS.Box.Constant(ret);
+  } else if(a instanceof PIL2JS.Junction.None) {
+    for(var i = 0; i < a.values.length; i++) {
+      if(_26main_3a_3aprefix_3a_3f.FETCH()([PIL2JS.Context.ItemAny, a.values[i]]).FETCH()) {
+        return new PIL2JS.Box.Constant(0 == 1);
+      }
+    }
     return new PIL2JS.Box.Constant(1 == 1);
   } else {
     return new PIL2JS.Box.Constant(a != undefined && a != "" && a != "0" && a != 0);
@@ -955,7 +1000,36 @@ var _26main_3a_3aprefix_3a_3f = PIL2JS.Box.constant_func(1, function (args) {
   }
 }*/
 
+PIL2JS.Junction = {};
+PIL2JS.Junction.All  = function (values) { this.values = values; this.op = "&" };
+PIL2JS.Junction.Any  = function (values) { this.values = values; this.op = "|" };
+PIL2JS.Junction.None = function (values) { this.values = values; this.op = "none" };
+PIL2JS.Junction.One  = function (values) { this.values = values; this.op = "^" };
+
 PIL2JS.possibly_autothread = function (args, sub) {
-  // Autothreading to be implemented.
+  args = [].concat(args);
+
+  // First pass:  Autothread all and none.
+  // Second pass: Autothread any and one.
+  for(var pass = 0; pass <= 1; pass++) {
+    for(var i = 0; i < args.length; i++) {
+      if(args[i] != undefined) {
+        var junc = args[i].FETCH();
+        var autothread = pass == 0
+          ? junc instanceof PIL2JS.Junction.All || junc instanceof PIL2JS.Junction.None
+          : junc instanceof PIL2JS.Junction.Any || junc instanceof PIL2JS.Junction.One;
+        if(autothread) {
+          var values  = junc.values;
+          var results = [];
+          for(var j = 0; j < values.length; j++) {
+            args[i] = values[j];
+            results.push(PIL2JS.possibly_autothread(args, sub));
+          }
+          return new PIL2JS.Box.Constant(new junc.constructor(results));
+        }
+      }
+    }
+  }
+
   return sub.apply(null, args);
 };
