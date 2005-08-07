@@ -258,21 +258,19 @@ the following environment variables first:
     $ export HARNESS_PERL=./pugs
     $ export PERL6LIB=blib6/lib
 
-
-You can also just say  ./pugs -Iblib6/lib t/...mumble.t .
+You can also just say F<./pugs -Iblib6/lib t/.../mumble.t>.
 
 =head3 Regex testing
 
-Using the parrot distribution, PGE can be tested interactively with
+Using the Parrot distribution, PGE can be tested interactively with
 
-    ./parrot compilers/pge/demo.pir
+    $ ./parrot compilers/pge/demo.pir
 
-and with tests like those in t/p6rules/ .
+and with tests like those in F<t/p6rules/>.
 
 Using the PCRE distribution, PCRE can be tested interactively with
 
-    ./pcretest
-
+    $ ./pcretest
 
 =head2 Resources
 
