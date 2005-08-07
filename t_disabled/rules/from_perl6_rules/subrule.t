@@ -31,8 +31,7 @@ ok(@$/ == 0, 'Once no array capture');
 ok(%$/.keys == 0, 'Once no hash capture');
 
 
-fail("FIXME parsefail", :todo);
-#rule rep {<?abc>**{4}}
+rule rep {<?abc>**{4}}
 
 ok("abcabcabcabcd" ~~ m/<?rep>/, 'Rep match');
 ok($/, 'Rep matched');
@@ -52,28 +51,26 @@ ok(@$/ == 0, 'Cap no array capture');
 ok(%$/.keys == 1, 'Cap hash capture');
 
 
-fail("FIXME parsefail", :todo);
-#rule repcap {<abc>**{4}}
+rule repcap {<abc>**{4}}
 
 ok("abcabcabcabcd" ~~ m/<repcap>/, 'Repcap match');
 ok($/, 'Repcap matched');
 is($/, "abcabcabcabc", 'Repcap matched');
 is($/<repcap>, "abcabcabcabc", 'Repcap captured');
-is($/<repcap><abc>[0], "abc", 'Repcap abc zero captured');
-is($/<repcap><abc>[1], "abc", 'Repcap abc one captured');
-is($/<repcap><abc>[2], "abc", 'Repcap abc two captured');
-is($/<repcap><abc>[3], "abc", 'Repcap abc three captured');
+is(eval('$/<repcap><abc>[0]'), "abc", 'Repcap abc zero captured', :todo<bug>);
+is(eval('$/<repcap><abc>[1]'), "abc", 'Repcap abc one captured', :todo<bug>);
+is(eval('$/<repcap><abc>[2]'), "abc", 'Repcap abc two captured', :todo<bug>);
+is(eval('$/<repcap><abc>[3]'), "abc", 'Repcap abc three captured', :todo<bug>);
 ok(@$/ == 0, 'Repcap no array capture');
 
 
-fail("FIXME parsefail", :todo);
-#rule caprep {(<?abc>**{4})}
+rule caprep {(<?abc>**{4})}
 
 ok("abcabcabcabcd" ~~ m/<caprep>/, 'Caprep match');
 ok($/, 'Caprep matched');
 is($/, "abcabcabcabc", 'Caprep matched');
 is($/<caprep>, "abcabcabcabc", 'Caprep captured');
-is($/<caprep>[0], "abcabcabcabc", 'Caprep abc one captured');
+is(eval('$/<caprep>[0]'), "abcabcabcabc", 'Caprep abc one captured');
 
 }
 
