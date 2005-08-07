@@ -456,6 +456,12 @@ ruleFormalParam = rule "formal parameter" $ do
                | otherwise      = sigil -- required anyway
     let required = (sigil' /=) `all` ["?", "+"]
     exp     <- ruleParamDefault required
+    optional $ do
+        symbol "-->"
+        ruleParamList ParensOptional $ tryChoice
+            [ do { ruleFormalParam; return "" }
+            , ruleType
+            ]
     return $ foldr appTrait (buildParam typ sigil' name exp) traits
     where
     appTrait "rw"   x = x { isWritable = True }
