@@ -70,8 +70,13 @@ method keys (Hash|Pair|Array $self:) {
   }
 }
 
-method values (Hash|Pair|Array $self:) {
-  if $self.isa("Hash") {
+method values (Hash|Pair|Array|Junction $self:) {
+  if $self.isa("Junction") {
+    JS::inline('new PIL2JS.Box.Constant(function (args) {
+      var junc = args[1].FETCH();
+      return new PIL2JS.Box.Constant(junc.values);
+    })')($self);
+  } elsif $self.isa("Hash") {
     $self.keys.map:{ $self{$_} };
   } elsif $self.isa("Pair") {
     ($self.value,);
@@ -103,5 +108,18 @@ method pairs (Hash|Pair|Array $self:) {
     $self.keys.map:{ $_ => $self[$_]; };    # ditto
   } else {
     die ".pairs does not work on objects of type {$self.ref}!";
+  }
+}
+
+method pick (Hash|Pair|Array|Junction $self:) {
+  if $self.isa("Junction") {
+    my @vals = $self.values;
+    @vals[int rand @vals];
+  } elsif $self.isa("Hash") {
+    any($self.pairs).pick;
+  } elsif $self.isa("Pair") {
+    $self;
+  } elsif $self.isa("Array") {
+    any(@$self).pick;
   }
 }

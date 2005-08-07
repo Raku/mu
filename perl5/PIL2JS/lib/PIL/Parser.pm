@@ -154,9 +154,9 @@ sub expr {
   } elsif($pil =~ /^"/) {
     # Is it a double quoted string?
     dqstring();
-  } elsif($pil =~ /^[0-9]/) {
-    # Is it a rational number (e.g. 3%2)?
+  } elsif($pil =~ /^-?[0-9]/) {
     choice
+      # Is it a rational number (e.g. 3%2)?
       sub { try { rat() } },
       # Is it a normal number?
       sub { try { num() } };
@@ -195,7 +195,7 @@ sub expr {
       Nothing  => 0, Just   => 1,
       Infinity => 0, NaN    => 0,
       SubPrim   => 0, SubRoutine => 0, SubBlock => 0,
-      SubPointy => 0, SubMethod => 0,  SubMacro => 0,
+      SubPointy => 0, SubMethod  => 0, SubMacro => 0,
 
       Noop    => 0,
       App     => 3,

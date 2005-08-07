@@ -48,14 +48,21 @@ EOF
 
   sub autothread_wrapper {
     my ($self, $body) = @_;
+    local $_;
 
-    my $need_for_at = @$self != grep { $_->type eq "Any" or $_->type eq "Junction" } @$self;
+    my $need_for_at;
+    my @bools = map {
+      my @types = split /\|/, $_->type;
+      (grep { $_ eq "Any" } @types or grep { $_ eq "Junction" } @types)
+        ? "false"
+        : do { $need_for_at++; "true" };
+    } grep { $_->name ne '%_' } @$self;
 
     my $vars = join ", ", map { $_->name ne '%_' ? ($_->jsname) : () } @$self;
 
     if($need_for_at) {
-      return sprintf "return PIL2JS.possibly_autothread([%s], function (%s) {\n%s\n});",
-        $vars, $vars, PIL::add_indent(1, $body);
+      return sprintf "return PIL2JS.possibly_autothread([%s], [%s], function (%s) {\n%s\n});",
+        $vars, join(", ", @bools), $vars, PIL::add_indent(1, $body);
     } else {
       return $body;
     }

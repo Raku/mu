@@ -475,6 +475,7 @@ var _3amain_3a_3aMulti     = PIL2JS.new_empty_class("Multi",     _3amain_3a_3aRo
 var _3amain_3a_3aRule      = PIL2JS.new_empty_class("Rule",      _3amain_3a_3aRoutine);
 var _3amain_3a_3aMacro     = PIL2JS.new_empty_class("Macro",     _3amain_3a_3aRoutine);
 var _3amain_3a_3aRef       = PIL2JS.new_empty_class("Ref",       _3amain_3a_3aItem);
+var _3amain_3a_3aJunction  = PIL2JS.new_empty_class("Junction",  _3amain_3a_3aAny);
 
 // Returns, given a native JS object, the corresponding boxed class object.
 PIL2JS.nativeclass2realclass = function (constr) {
@@ -490,6 +491,8 @@ PIL2JS.nativeclass2realclass = function (constr) {
     return _3amain_3a_3aNum;
   } else if(constr == Function) {
     return _3amain_3a_3aCode;
+  } else if(constr == PIL2JS.Junction.Any || constr == PIL2JS.Junction.All || constr == PIL2JS.Junction.One || constr == PIL2JS.Junction.None) {
+    return _3amain_3a_3aJunction;
   } else if(constr == PIL2JS.Ref) {
     return _3amain_3a_3aRef;
   }
@@ -902,7 +905,7 @@ var _26main_3a_3aprefix_3a_7e = PIL2JS.Box.constant_func(1, function (args) {
 
 // &prefix:<+>. Written in JS instead of P6 for speed, as it gets called often.
 var _26main_3a_3aprefix_3a_2b = PIL2JS.Box.constant_func(1, function (args) {
-  return PIL2JS.possibly_autothread([args[1]], function (thing) {
+  return PIL2JS.possibly_autothread([args[1]], [true], function (thing) {
     thing = thing.FETCH();
 
     if(thing == undefined) return new PIL2JS.Box.Constant(undefined);
@@ -1006,14 +1009,14 @@ PIL2JS.Junction.Any  = function (values) { this.values = values; this.op = "|" }
 PIL2JS.Junction.None = function (values) { this.values = values; this.op = "none" };
 PIL2JS.Junction.One  = function (values) { this.values = values; this.op = "^" };
 
-PIL2JS.possibly_autothread = function (args, sub) {
+PIL2JS.possibly_autothread = function (args, bools, sub) {
   args = [].concat(args);
 
   // First pass:  Autothread all and none.
   // Second pass: Autothread any and one.
   for(var pass = 0; pass <= 1; pass++) {
     for(var i = 0; i < args.length; i++) {
-      if(args[i] != undefined) {
+      if(args[i] != undefined && bools[i]) {
         var junc = args[i].FETCH();
         var autothread = pass == 0
           ? junc instanceof PIL2JS.Junction.All || junc instanceof PIL2JS.Junction.None
@@ -1023,7 +1026,7 @@ PIL2JS.possibly_autothread = function (args, sub) {
           var results = [];
           for(var j = 0; j < values.length; j++) {
             args[i] = values[j];
-            results.push(PIL2JS.possibly_autothread(args, sub));
+            results.push(PIL2JS.possibly_autothread(args, bools, sub));
           }
           return new PIL2JS.Box.Constant(new junc.constructor(results));
         }
