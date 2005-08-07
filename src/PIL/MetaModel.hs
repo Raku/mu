@@ -54,7 +54,7 @@ pneuma = MkObject{ objId = undefined, objClass = cls, objData = logos }
 
 -- Class definition for pneuma above
 logos :: ObjectData
-logos = undefined
+logos = error "logos"
 
 -- Bootstrapped MetaClass - suitable for applying to environment
 theos :: Object
@@ -62,7 +62,7 @@ theos = metamorph demiurge
 
 -- &Perl6::MetaClass::_build_meta - Turn demiurge to a fully powered theos
 metamorph :: Object -> Object
-metamorph = undefined
+metamorph = error "metamorph"
 
 -- The "BOOTSTRAPPING" section in Perl6::MetaModel
 genesis :: STM ()
@@ -75,13 +75,13 @@ genesis = dispatch
 
 -- &Perl6::MetaModel::dispatch - divided into metaclass vs normal dispatch
 dispatch :: Object -> Name -> t -> STM ()
-dispatch = undefined
+dispatch = error "dispatch"
 
 -------------------------------------
 
-splitMap = undefined
-undef = undefined
-constScalar = undefined
-constArray = undefined
-constHash = undefined
-mutableHash = undefined
+splitMap = error "splitmap"
+undef = error "undef"
+constScalar = error "constScalar"
+constArray = error "constArray"
+constHash = error "constHash"
+mutableHash = error "mutableHash"

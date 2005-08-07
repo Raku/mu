@@ -8,9 +8,9 @@ import PIL.Internals
 -- Pad maps symbols to containers
 newtype Pad = MkPad (Map Sym Container)
 
---  $?CALLER::CALLER::SUB
+-- $?CALLER::CALLER::SUB
 data Sym = MkSym
-    { symSigil      :: Sigil       --  $
+    { symSigil      :: Sigil       -- $
     , symTwigil     :: Twigil      -- ?
     , symPackage    :: [Name]      -- [CALLER, CALLER]
     , symName       :: Name        -- SUB
@@ -18,7 +18,7 @@ data Sym = MkSym
     deriving (Eq, Ord, Show, Typeable)
 
 data Sigil
-    = SigilScalar   --  $
+    = SigilScalar   -- $
     | SigilArray    -- @
     | SigilHash     -- %
     | SigilCode     -- &

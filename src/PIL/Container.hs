@@ -2,11 +2,12 @@
 
 module PIL.Container (
     Scalar, Array, Hash,
-    emptyHash, invokeTie, TieMethod(..), Tieable(..),
-    Container, Name(..), Box(..),
-    cmap, bmap, tmap, newMutBox,
+--  emptyHash, invokeTie, TieMethod(..),
+    Tieable(..), Container, Name(..),
+--  cmap, bmap, tmap, newMutBox,
 ) where
 import PIL.Internals
+import Data.Typeable
 -- import PIL.MetaModel
 import Data.Map as Map
 
@@ -14,9 +15,23 @@ newtype Name = MkName { unName :: String }
     deriving (Eq, Ord, Show, Typeable)
 
 data Container
-    = Scalar (Cell Scalar)  -- Scalar container
-    | Array (Cell Array)    -- Array container
-    | Hash (Cell Hash)      -- Hash container
+    = Scalar (TVar (Cell Scalar))  -- Scalar container
+    | Array (TVar (Cell Array))    -- Array container
+    | Hash (TVar (Cell Hash))      -- Hash container
+    deriving (Typeable)
+
+data Scalar = MkScalar Value
+    deriving (Show, Eq, Typeable)
+
+data Array = MkArray [Value]
+    deriving (Show, Eq, Typeable)
+
+data Hash = MkHash (Map Key Value)
+    deriving (Show, Eq, Typeable)
+
+type Key = Value
+type Value = Int
+
 
 {-|
 'Cell' is either mutable (rebindable) or immutable, decided at compile time.
@@ -24,43 +39,13 @@ data Container
 Tieable is orthogonal to mutableness; a constant tied container can still be
 subject to @untie()@ and @tie()@.
 -}
-data Cell a
-    = Con { conBox  :: Box a,        tieable :: MaybeTied }
-    | Mut { mutBox  :: TVar (Box a), tieable :: MaybeTied }
+data (Typeable a) => Cell a
+    = Con { cellId :: Id, cellCon :: a,      cellTie :: MaybeTied }
+    | Mut { cellId :: Id, cellMut :: TVar a, cellTie :: MaybeTied }
+    deriving (Typeable)
 
 type MaybeTied = Maybe (TVar Tieable)
 
-newMutBox :: (BoxClass a) => a -> Maybe Tieable -> STM Container
-newMutBox val pkg = do
-    id  <- newId
-    box <- newTVar $ MkBox id val
-    tie <- case pkg of
-        Nothing -> return Nothing
-        Just x  -> fmap Just (newTVar x)
-    return . mkContainer $ Mut box tie
-
-newConBox :: (BoxClass a) => a -> Maybe Tieable -> STM Container
-newConBox val pkg = do
-    id  <- newId
-    tie <- case pkg of
-        Nothing -> return Nothing
-        Just x  -> fmap Just (newTVar x)
-    return . mkContainer $ Con (MkBox id val) tie
-
-class BoxClass a where
-    mkContainer :: Cell a -> Container
-
-instance BoxClass Hash where
-    mkContainer = Hash
-
-instance BoxClass Array where
-    mkContainer = Array
-
-instance BoxClass Scalar where
-    mkContainer = Scalar
-
-data Box a = MkBox { boxId :: Id, boxVal :: a }
-    deriving (Eq, Ord, Show, Typeable)
 
 {-|
 The type of tie-table must agree with the storage type.  Such a table
@@ -71,38 +56,52 @@ data Tieable = Untied | Tied Dynamic
     deriving (Eq, Ord, Show, Typeable)
 
 
+{-
+
+newMutBox :: (CellClass a) => a -> Maybe Tieable -> STM Container
+newMutBox val pkg = do
+    id  <- newId
+    var <- newTVar val
+    tie <- case pkg of
+        Nothing -> return Nothing
+        Just x  -> fmap Just (newTVar x)
+    return . mkContainer $ Mut id var tie
+
+newConBox :: (CellClass a) => a -> Maybe Tieable -> STM Container
+newConBox val pkg = do
+    id  <- newId
+    tie <- case pkg of
+        Nothing -> return Nothing
+        Just x  -> fmap Just (newTVar x)
+    return . mkContainer $ Con id val tie
+
+class (Typeable a) => CellClass a where
+    mkContainer :: Cell a -> Container
+
+instance CellClass Hash where
+    mkContainer = Hash
+
+instance CellClass Array where
+    mkContainer = Array
+
+instance CellClass Scalar where
+    mkContainer = Scalar
+
 -- Invoke a tied function
 invokeTie :: a -> b -> ST s ()
 invokeTie _ _ = return ()
 
 data TieMethod = FETCH | STORE | UNTIE
 
-data Scalar = MkScalar Value
-    deriving (Show, Eq)
-
-data Array = MkArray [Value]
-    deriving (Show, Eq)
-
-data Hash = MkHash (Map Key Value)
-    deriving (Show, Eq)
-
-type Key = Value
-type Value = Int
-
 emptyHash = MkHash Map.empty
 
-cmap :: (forall a. Cell a -> b) -> Container -> b
+cmap :: (forall a. Typeable a => Cell a -> b) -> Container -> b
 cmap f c = case c of
     Scalar x -> f x
     Array x  -> f x
     Hash x   -> f x
 
-bmap :: (forall a. Box a -> STM b) -> Cell a -> STM b
-bmap f c = case c of
-    Con con _ -> f con
-    Mut mut _ -> f =<< readTVar mut
-
-tmap :: (MaybeTied -> STM b) -> Cell a -> STM b
+tmap :: Typeable a => (MaybeTied -> STM b) -> Cell a -> STM b
 tmap f c = case c of
     Con _ t -> f t
     Mut _ t -> f t
@@ -146,7 +145,7 @@ hashNew = do
 -}
 
 readId :: Container -> STM Id
-readId = cmap (bmap (return . boxId))
+readId = cmap (return cellId)
 
 {-|
 Compare two containers for Id equivalence.  If the container types differ, this
@@ -158,17 +157,17 @@ x =:= y = do
     iy <- readId y
     return (ix == iy)
 
-instance Show Container where
-    show _ = "<container>"
-instance Ord Container where
-    compare _ _ = EQ
-instance Eq Container where
-    _ == _ = True
-
+-}
 
 instance Ord Dynamic where
     compare _ _ = EQ
 instance Eq Dynamic where
     _ == _ = True
 
+instance Show Container where
+    show = error "cmap" -- cmap (show . typeOf)
+instance Ord Container where
+    compare _ _ = EQ
+instance Eq Container where
+    _ == _ = True
 
