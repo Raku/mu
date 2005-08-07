@@ -52,19 +52,24 @@ use strict;
     $magical_vars =~ s/%VAR/ PIL::name_mangle $self->[0]/eg;
     $magical_vars =~ s/%NAME/PIL::doublequote $PIL::CUR_SUBNAME/eg;
 
-    my $new_pad = "var pad = {}; PIL2JS.subpads.push(pad)";
+    my $callchain   = "PIL2JS.call_chain.push(" . PIL::name_mangle($self->[0]) . ")";
+    my $new_pad     = "var pad = {}; PIL2JS.subpads.push(pad)";
+    my $params      = $self->[2]->as_js;
 
-    # Subbody
     local @PIL::VARS_TO_BACKUP = ();
-    my $body = sprintf "PIL2JS.call_chain.push(%s);\n%s;\n\n%s;\n\n%s;",
-      PIL::name_mangle($self->[0]),
-      $self->[2]->as_js,
-      $magical_vars,
-      $self->[3]->as_js;
-    my $backup = "// Var backups:\nvar " . join ", ", map {
+    my $body        = $self->[3]->as_js;
+    my $backup      = "var " . join ", ", map {
       sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);
     } @PIL::VARS_TO_BACKUP, qw< &?BLOCK &?SUB $?SUBNAME >;
-    $body = "$new_pad;\n$backup;\n\n$body";
+    my $bind        = $self->[2]->as_js_bind;
+    my $wrappedbody = "$new_pad;\n$callchain;\n$backup;\n\n$magical_vars;\n\n$bind;\n\n$body";
+    $wrappedbody    = PIL::generic_catch(
+      $PIL::IN_SUBLIKE,
+      $wrappedbody,
+      @PIL::VARS_TO_BACKUP, qw< &?BLOCK &?SUB $?SUBNAME >
+    );
+
+    my $jsbody = $params . "\n" . $self->[2]->autothread_wrapper($wrappedbody);
 
     # Sub declaration
     my $js = sprintf
@@ -72,11 +77,7 @@ use strict;
       $PIL::IN_GLOBPIL ? "" : "var ",
       PIL::name_mangle($self->[0]),
       $self->[2]->arity,
-      PIL::add_indent 1, PIL::generic_catch(
-        $PIL::IN_SUBLIKE,
-        $body,
-        @PIL::VARS_TO_BACKUP, qw< &?BLOCK &?SUB $?SUBNAME >
-      );
+      PIL::add_indent 1, $jsbody;
     $js .= sprintf
       "%s.perl_name = %s;\n",
       PIL::name_mangle($self->[0]),
@@ -133,29 +134,30 @@ use strict;
     local $PIL::IN_SUBLIKE  = $self->[0]->as_constant;
     local $PIL::CUR_SUBNAME = "<anonymous@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>";
 
-    my $new_pad = "var pad = {}; PIL2JS.subpads.push(pad)";
+    my $new_pad     = "var pad = {}; PIL2JS.subpads.push(pad)";
+    my $params      = $self->[1]->as_js;
+    my $magical_var = $PIL::IN_SUBLIKE >= PIL::SUBROUTINE
+      ? "_24main_3a_3a_3fSUBNAME = new PIL2JS.Box.Constant('<anon>');\n\n"
+      : "";
 
-    # Subbody
     local @PIL::VARS_TO_BACKUP = ();
-    my $body = sprintf "%s;\n\n%s%s;",
-      $self->[1]->as_js,
-      $PIL::IN_SUBLIKE >= PIL::SUBROUTINE
-        ? "_24main_3a_3a_3fSUBNAME = new PIL2JS.Box.Constant('<anon>');\n\n"
-        : "",
-      $self->[2]->as_js;
-    my $backup = "// Var backups:\nvar " . join ", ", map {
+    my $body        = $self->[2]->as_js;
+    my $backup      = "var " . join ", ", map {
       sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);
     } @PIL::VARS_TO_BACKUP, qw< $?SUBNAME >;
-    $body = "$new_pad;\n$backup;\n$body";
-    # Subbody
+    my $bind        = $self->[1]->as_js_bind;
+    my $wrappedbody = "$new_pad;\n$backup;\n\n$magical_var$bind;\n\n$body";
+    $wrappedbody    = PIL::generic_catch(
+      $PIL::IN_SUBLIKE,
+      $wrappedbody,
+      @PIL::VARS_TO_BACKUP, qw< $?SUBNAME >
+    );
 
-    # Sub declaration
+    my $jsbody = $params . "\n" . $self->[1]->autothread_wrapper($wrappedbody);
+
     return sprintf "PIL2JS.Box.constant_func(%d, function (args) {\n%s\n})",
       $self->[1]->arity,
-      PIL::add_indent 1, PIL::generic_catch(
-        $PIL::IN_SUBLIKE, $body,
-        @PIL::VARS_TO_BACKUP, qw< $?SUBNAME >
-      );
+      PIL::add_indent 1, $jsbody;
   }
 }
 

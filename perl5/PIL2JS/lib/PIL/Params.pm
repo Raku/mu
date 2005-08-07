@@ -33,16 +33,32 @@
     $js .= $_->as_js3() . "\n" for @$self;
     $js .= <<EOF;
 if(args.length != 0)
-  PIL2JS.die(
-    "" +
-    args.length +
-    " more parameters passed to sub " +
-    @{[PIL::doublequote $PIL::CUR_SUBNAME]} +
-    " than expected (@{[scalar @$self]})!"
-  );
+  PIL2JS.die("" + args.length + " more parameters passed to sub " + @{[PIL::doublequote $PIL::CUR_SUBNAME]} + " than expected (@{[scalar @$self]})!");
 EOF
 
     return $js;
+  }
+
+  sub as_js_bind {
+    my $self = shift;
+    local $_;
+
+    return join "\n", map { $_->as_js_bind } @$self;
+  }
+
+  sub autothread_wrapper {
+    my ($self, $body) = @_;
+
+    my $need_for_at = @$self != grep { $_->type eq "Any" or $_->type eq "Junction" } @$self;
+
+    my $vars = join ", ", map { $_->name ne '%_' ? ($_->jsname) : () } @$self;
+
+    if($need_for_at) {
+      return sprintf "return PIL2JS.possibly_autothread([%s], function (%s) {\n%s\n});",
+        $vars, $vars, PIL::add_indent(1, $body);
+    } else {
+      return $body;
+    }
   }
 
   sub arity {
@@ -68,6 +84,8 @@ EOF
   sub fixup {
     my $self = shift;
 
+    die unless defined $self->name and not ref $self->name;
+
     return bless {
       tpParam   => $self->{tpParam},
       tpDefault => $self->{tpDefault}->isa("PIL::Just")
@@ -80,7 +98,6 @@ EOF
   sub as_js1 {
     my $self = shift;
     my $name = $self->name;
-    die unless defined $name and not ref $name;
     warn "Skipping \%_ parameter.\n" and return "" if $name eq "%_";
 
     my $jsname   = $self->jsname;
@@ -97,8 +114,7 @@ EOF
 
   sub as_js2 {
     my $self = shift;
-    my $name = $self->{tpParam}{paramName};
-    die unless defined $name and not ref $name;
+    my $name = $self->name;
     warn "Skipping \%_ parameter.\n" and return "" if $name eq "%_";
 
     # If we're a name-only arg, skip as_js2.
@@ -129,6 +145,25 @@ EOF
   }
 
   sub as_js3 {
+    my $self = shift;
+    warn "Skipping \%_ parameter.\n" and return "" if $self->name eq "%_";
+
+    # We're required, but a value hasn't been supplied?
+    if($self->{tpParam}{isOptional}->isa("PIL::False")) {
+      return sprintf <<EOF, $self->jsname, map { PIL::doublequote($_) } $self->name, $PIL::CUR_SUBNAME;
+if(%s == undefined)
+  PIL2JS.die("Required parameter \\"" + %s + "\\" not passed to sub \\"" + %s + "\\"!");
+EOF
+    } else {
+      return "";
+    }
+  }
+
+  sub as_js_bind {
+    my $self   = shift;
+    my $name   = $self->name;
+    my $jsname = $self->jsname;
+    warn "Skipping \%_ parameter.\n" and return "" if $self->name eq "%_";
     # - !perl/PIL::MkTParam
     # tpDefault: !perl/@PIL::Nothing []
     # tpParam: !perl/PIL::MkParam
@@ -143,24 +178,9 @@ EOF
     #       - Array
     #   paramDefault: !perl/@PIL::Noop []
     #   paramName: '@c'
-    my $self = shift;
-    my $name = $self->{tpParam}{paramName};
-    die unless defined $name and not ref $name;
-    warn "Skipping \%_ parameter.\n" and return "" if $name eq "%_";
-
-    my @js;
-    my $jsname = $self->jsname;
-
-    # We're required, but a value hasn't been supplied?
-    if($self->{tpParam}{isOptional}->isa("PIL::False")) {
-      push @js,
-        "if($jsname == undefined) " .
-        "PIL2JS.die(\"Required parameter \\\"$name\\\" not passed to sub \" + " .
-        PIL::doublequote($PIL::CUR_SUBNAME) .
-        " + \"!\");";
-    }
-
     # Should we (and can we) supply a default for an optional param?
+    my @js;
+
     if($self->{tpDefault}->isa("PIL::Just")) {
       my $undef = PIL::undef_of $name;
       my $other = $self->{tpDefault}->[0]->as_js;

@@ -940,3 +940,22 @@ var _26main_3a_3aprefix_3a_3f = PIL2JS.Box.constant_func(1, function (args) {
     return new PIL2JS.Box.Constant(a != undefined && a != "" && a != "0" && a != 0);
   }
 });
+
+/*PIL2JS.bind_params = function (pdefs, args, sub) {
+  var cxt   = args.shift();
+  args      = PIL2JS.possibly_flatten(args);
+  var pairs = PIL2JS.grep_for_pairs(args);
+
+  // Phase 1: Possibly remove and extract named args.
+  for(var i = 0; i < pdefs.length; i++) {
+    if(pairs[pdefs[i].name] != undefined) {
+      pdefs[i].result = pdefs[i].undef.BINDTO(pairs[pdefs[i].name]);
+      args = PIL2JS.delete_pair_from_args(args, pdefs[i].name);
+    }
+  }
+}*/
+
+PIL2JS.possibly_autothread = function (args, sub) {
+  // Autothreading to be implemented.
+  return sub.apply(null, args);
+};
