@@ -32,6 +32,8 @@ class Lazy::List {
     method pop     ( Lazy::List $self: ) { &{$self.end}()   }  
     method reverse ( Lazy::List $self: ) { Lazy::Reverse.new( :iter($self) ) }
 
+    method elems { Inf }
+
     method grep ( $array: Code $code ) { 
         my $ret = $array; 
         Lazy::List.new(
@@ -161,6 +163,10 @@ class Lazy::Range is Lazy::List
         defined $self.step ?? $self.end -= $self.step :: $self.start--;
         return if $tmp < $self.start;
         $tmp;
+    }
+    method elems {
+        return $.end - $.start + 1 unless defined $.step;
+        return int( $.end - $.start + 1 ) / $.step;
     }
 }
 

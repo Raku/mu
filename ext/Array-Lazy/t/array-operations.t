@@ -55,15 +55,6 @@ use Iter::Range;
 }
 
 {
-  # elems
-  my $iter = Lazy::Range.new( start => 0, end => 9, step => 1 );
-  my $a1 = Array::Lazy.new( $iter );
-  is( $a1.elems, Inf, 'unknown size returns Inf' );
-  $a1 = Array::Lazy.new( 0..9 );
-  is( $a1.elems, 10, 'known size returns size' );
-}
-
-{
   # uniq
   my $iter = Lazy::Range.new( start => 0, end => 9, step => 1 );
   my $a1 = Array::Lazy.new( 1, $iter );
@@ -139,4 +130,10 @@ use Iter::Range;
   is( $a1.shift, undef, 'zip' );
 }
 
-
+{
+  # elems
+  my $iter = Lazy::Range.new( start => 1, end => 1000000, step => 2 );
+  is( $iter.elems, 500000, 'Lazy List elems' );
+  my $a1 =    Array::Lazy.new( 'z', $iter );
+  is( $a1.elems, 500001, 'Lazy Array elems' );
+}

@@ -118,19 +118,17 @@ method _pop_n ($array: Int $length ) returns List {
 
 method elems ( Array::Lazy $array: ) {
     
-    # XXX - does elems() force non-lazy context?
-    
-    #my @tmp = $array.items;
-    #say @tmp[0].ref;
-    
-    # XXX - this returns the wrong result (it doesn't recognize inheritance)
-    # return Inf if any( @tmp ).isa( 'Lazy::List' );
-    
-    for $array.items { 
-        return Inf if $_.isa('Lazy::List');
+    # XXX - doesn't compile
+    # [+] .elems<< $.items;
+
+    my $count = 0;
+    for $.items {
+        # XXX - inheritance bug workaround
+        $count += $_.isa( 'Lazy::Range' ) ?? $_.Lazy::Range::elems :: 
+                  $_.isa( 'Lazy::List' )  ?? $_.Lazy::List::elems  :: 
+                  1;
     }
-    
-    return $.items.elems;
+    $count;
 }  
 
 method splice ( 
