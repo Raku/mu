@@ -5,6 +5,7 @@ use v6;
 2005-08-08
 * New lazy array methods: FETCH(), STORE(), slice().
   slice accepts a lazy list or lazy array as argument!
+* elems() actually works
 * more or less fixed Lazy::List::reverse() inheritance
 * Lazy::CoroList is gone
 * Lazy list methods (grep, map, ...) moved from Array::Lazy to 
@@ -42,16 +43,9 @@ class Array::Lazy-0.01
 has Array @.items;
    
     # TODO - preprocessing, indexing, etc - lazily
-    # TODO - change Lazy Array to normal Array if all elements are known
+    # TODO - change Lazy Array to normal Array if all elements are known;
     # TODO - pushing a lazy list into a normal array should turn the array into a lazy array
     # TODO - fix namespaces, move to Prelude.pm
-
-    # operators from 'List.hs':
-    # op0Zip, op1Pick, op1Sum,
-    # op1Min, op1Max, op1Uniq,
-    # op2FoldL, op2Fold, op2Grep, op2Map, op2Join,
-    # sortByM,
-    # op1HyperPrefix, op1HyperPostfix, op2Hyper,
     
     # implement this error message (from PIR.pm)
     #   if $off > $size {

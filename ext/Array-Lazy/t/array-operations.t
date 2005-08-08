@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 38;
+plan 39;
 
 # use_ok( 'Array::Lazy' );
 use Array::Lazy; 
@@ -134,6 +134,9 @@ use Iter::Range;
   # elems
   my $iter = Lazy::Range.new( start => 1, end => 1000000, step => 2 );
   is( $iter.elems, 500000, 'Lazy List elems' );
+
+  is( $iter.kv.Lazy::List::elems, 1000000, 'Lazy List elems doubles after kv()' );
+
   my $a1 =    Array::Lazy.new( 'z', $iter );
   is( $a1.elems, 500001, 'Lazy Array elems' );
 }

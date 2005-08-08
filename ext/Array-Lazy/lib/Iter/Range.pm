@@ -10,29 +10,33 @@ use v6;
     our &Perl6::Array::map     := &map;
     our &Perl6::Array::grep    := &grep;
 
-    # TODO - Lazy::List should have a 'is_infinite' flag - this would allow 
-    #        emitting error messages when necessary
+    # TODO - emit error message if attempting to instantiate an infinite list
 
     # TODO - finish zip()
 
 class Lazy::List {
-    has Code $.start;
-    has Code $.end;
+    has Code $.cstart;
+    has Code $.cend;
+    has Code $.ccount;
     class Lazy::Reverse is Lazy::List {
         has $.iter;
         method shift   ( Lazy::Reverse $self: ) { $.iter.pop   }
         method pop     ( Lazy::Reverse $self: ) { $.iter.shift }
         method reverse ( Lazy::Reverse $self: ) { $.iter       }
     }
-    submethod BUILD ($class: Coro ?$start is copy, Coro ?$end is copy ) {
-        $start //= coro { yield -Inf };
-        $end   //= coro { yield  Inf };
+    submethod BUILD ($class: 
+            Coro ?$start, 
+            Coro ?$end, 
+            Coro ?$count ) 
+    {
+        $.cstart = $start // coro { yield -Inf };
+        $.cend   = $end   // coro { yield  Inf };
+        $.ccount = $count // sub  { Inf };
     }
-    method shift   ( Lazy::List $self: ) { &{$self.start}() }
-    method pop     ( Lazy::List $self: ) { &{$self.end}()   }  
+    method shift   ( Lazy::List $self: ) { &{$self.cstart}() }
+    method pop     ( Lazy::List $self: ) { &{$self.cend}()   }  
     method reverse ( Lazy::List $self: ) { Lazy::Reverse.new( :iter($self) ) }
-
-    method elems { Inf }
+    method elems   ( Lazy::List $self: ) { &{$self.ccount}() }
 
     method grep ( $array: Code $code ) { 
         my $ret = $array; 
@@ -95,7 +99,8 @@ class Lazy::List {
                         my $x = $ret.shift // yield;
                         yield $count++;
                         yield $x;
-                }
+                },
+                count => sub { $ret.elems + $ret.elems },
         )
     }
 
@@ -108,7 +113,8 @@ class Lazy::List {
                         my $pair = $count => $x;
                         yield $pair;
                         $count++;
-                }
+                },
+                count => sub { $ret.elems },
         )
     }
 
@@ -119,7 +125,8 @@ class Lazy::List {
                 start => coro {
                         my $x = $ret.shift // yield;
                         yield $count++; 
-                }
+                },
+                count => sub { $ret.elems },
         )
     }
 
@@ -129,6 +136,7 @@ class Lazy::List {
 
     method zip ( $array: *@list ) { 
         # TODO: implement zip parameters
+        # TODO: implement count = max( @lists.elems )
         my @lists = ( $array, @list );
         Lazy::List.new(
                 start => coro {
