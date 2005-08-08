@@ -3,10 +3,10 @@ use v6;
 =for ChangeLog
 
 2005-08-08
-* more or less fixed Lazy::List::reverse() inheritance
-* Lazy::CoroList is gone
 * New lazy array methods: FETCH(), STORE(), slice().
   slice accepts a lazy list or lazy array as argument!
+* more or less fixed Lazy::List::reverse() inheritance
+* Lazy::CoroList is gone
 * Lazy list methods (grep, map, ...) moved from Array::Lazy to 
   Lazy::List. These methods can be accessed from an array
   by doing a 'splat()' first. 
@@ -33,10 +33,6 @@ use v6;
 
 use Iter::Range;  # 'Lazy::List', 'Lazy::Range', 'Perl6::Array'
 
-    # this is for helping with inheritance debug
-    #multi sub reverse ( Array $self )      { say 'core reverse'; Perl6::Array::reverse( $self ) }
-    #multi sub reverse ( Lazy::List $self ) { say 'lazy reverse'; Lazy::Reverse.new( :iter($self) ) }
-
 # This class should not inherit from Lazy::List, because this would
 # cause multi-dimensional arrays to be flattened.
 
@@ -46,10 +42,8 @@ class Array::Lazy-0.01
 has Array @.items;
    
     # TODO - preprocessing, indexing, etc - lazily
-    # TODO - error messages on whatever parameters are illegal
-    # TODO - zip(), slice()
-    # TODO - change to normal Array if all elements are known
-    # TODO - pushing a lazy list into a normal array should turn it into a lazy array
+    # TODO - change Lazy Array to normal Array if all elements are known
+    # TODO - pushing a lazy list into a normal array should turn the array into a lazy array
     # TODO - fix namespaces, move to Prelude.pm
 
     # operators from 'List.hs':
@@ -59,7 +53,7 @@ has Array @.items;
     # sortByM,
     # op1HyperPrefix, op1HyperPostfix, op2Hyper,
     
-    # error message from PIR.pm
+    # implement this error message (from PIR.pm)
     #   if $off > $size {
     #      warn "splice() offset past end of array\n";
     #      $off = $size;
@@ -210,15 +204,14 @@ method end  ( Array::Lazy $array: ) {
 
 method FETCH ( Array::Lazy $array: Int $pos ) {
     # XXX - this is very inefficient
-    # XXX - this may actually cause a dimension splat!
-    # TODO - if $pos is a lazy list, returns a lazy list - would be cool!
+    # see also: slice()
     my $ret = $array.splice( $pos, 1 );
     $array.splice( $pos, 0, [$ret.items] ); 
     return $ret.items;
 }
 
 method STORE ( Array::Lazy $array: Int $pos, $item ) {
-    # TODO - $pos can be a lazy list of pairs!
+    # TODO - $pos could be a lazy list of pairs!
     $array.splice( $pos, 1, [$item] );
     return $array;  # ?
 }
@@ -312,17 +305,9 @@ Returns a lazy list containing the lazy array elements.
   # insert each of the array2 elements into array1
   $lazy_array.push( $lazy_array_2.list );  
 
-- `uniq`
-
-- `elems`
-
-- `grep`
-
-- `map`
-
-- `kv`, `keys`, `values`
-
-- `zip`
+- `FETCH` / `STORE`
+ 
+- `slice`
 
 = AUTHOR
 
