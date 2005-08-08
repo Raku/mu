@@ -210,16 +210,12 @@ method grep ( Array::Lazy $array: Code $code ) {
     return Array::Lazy.new(
         Lazy::CoroList.new(
             start => coro {
-                loop { 
                     my $x = $ret.shift // yield;
                     yield $x if &$code($x) 
-                } 
             },
-            end => coro {
-                loop { 
+            end => coro { 
                     my $x = $ret.pop // yield;
                     yield $x if &$code($x) 
-                } 
             },
         )
     );
@@ -230,20 +226,16 @@ method map ( Array::Lazy $array: Code $code ) {
     return Array::Lazy.new( 
         Lazy::CoroList.new(
             start => coro {
-                my @ret;
-                loop { 
+                    my @ret;
                     my $x = $ret.shift // yield;
                     Perl6::Array::unshift @ret,&$code($x); 
                     yield Perl6::Array::shift @ret while @ret 
-                } 
             },
             end => coro {
-                my @ret;
-                loop { 
+                    my @ret; 
                     my $x = $ret.pop // yield;
                     Perl6::Array::push @ret, &$code($x); 
-                    yield Perl6::Array::pop @ret while @ret 
-                } 
+                    yield Perl6::Array::pop @ret while @ret  
             },
         )
     )
@@ -253,10 +245,10 @@ method splat ( Array::Lazy $array: ) {
     my $ret = $array; 
     return Lazy::CoroList.new(
             start => coro {
-                loop { yield $ret.shift } 
+                yield $ret.shift 
             },
             end => coro {
-                loop { yield $ret.pop } 
+                yield $ret.pop 
             },
         )
 }
@@ -267,22 +259,18 @@ method uniq ( Array::Lazy $array: ) {
     return Array::Lazy.new( 
         Lazy::CoroList.new(
             start => coro {
-                loop { 
                     my $x = $ret.shift // yield;
                     unless %seen{$x} { 
                         %seen{$x} = bool::true; 
                         yield $x 
                     }                       
-                }
             },
             end => coro {
-                loop { 
                     my $x = $ret.pop // yield;
                     unless %seen{$x} { 
                         %seen{$x} = bool::true; 
                         yield $x 
                     }  
-                }
             },
         )
     )
@@ -293,11 +281,9 @@ method kv ( Array::Lazy $array: ) {
     my $count = 0;
     return Lazy::CoroList.new(
             start => coro {
-                loop { 
                     my $x = $ret.shift // yield;
                     yield $count++;
                     yield $x;
-                } 
             }
     )
 }
@@ -307,12 +293,10 @@ method pairs ( Array::Lazy $array: ) {
     my $count = 0;
     return Lazy::CoroList.new(
             start => coro {
-                loop { 
                     my $x = $ret.shift // yield;
                     my $pair = $count => $x;
                     yield $pair;
                     $count++;
-                } 
             }
     )
 }
@@ -322,10 +306,8 @@ method keys ( Array::Lazy $array: ) {
     my $count = 0;
     return Lazy::CoroList.new(
             start => coro {
-                loop { 
                     my $x = $ret.shift // yield;
-                    yield $count++;
-                } 
+                    yield $count++; 
             }
     )
 }
@@ -335,10 +317,8 @@ method values ( Array::Lazy $array: ) {
     my $count = 0;
     return Lazy::CoroList.new(
             start => coro {
-                loop { 
                     my $x = $ret.shift // yield;
                     yield $x;
-                } 
             }
     )
 }
@@ -348,15 +328,13 @@ method zip ( Array::Lazy $array: *@list ) {
     my @lists = ( $array, @list );
     return Lazy::CoroList.new(
             start => coro {
-                my @x;
-                loop { 
+                    my @x;
                     my $count = 0;
                     # TODO - this never ends
                     for @lists -> $xx {
                         @x = $xx.shift;
                         yield @x[0];
                     }
-                } 
             }
     )
 }

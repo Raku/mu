@@ -29,12 +29,15 @@ class Lazy::CoroList is Lazy::List {
     sub shift   ( Lazy::CoroList $self ) { &{$self.start}() }
     sub pop     ( Lazy::CoroList $self ) { &{$self.end}()   }  
     sub reverse ( Lazy::CoroList $self ) { Lazy::Reverse.new( :iter($self) ) }
+    submethod BUILD ($class: Coro ?$start is copy, Coro ?$end is copy ) {
+        $start //= coro { yield -Inf };
+        $end   //= coro { yield  Inf };
+    }
 } 
 
 class Lazy::Range is Lazy::List 
 {
     # XXX - what does (9..1) do?
-    # XXX - is 'z'..'a' valid?
     has $.start;
     has $.end;
     has $.step;
@@ -52,9 +55,6 @@ class Lazy::Range is Lazy::List
     }
     # XXX - this should have been inherited, but it wasn't
     sub reverse ( Lazy::Range $self ) { Lazy::Reverse.new( :iter($self) ) }
-    
-    # XXX
-    # sub prefix:<~> () { $.start ~ '..' ~ $.end }
 }
 
 =kwid
