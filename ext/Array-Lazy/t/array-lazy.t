@@ -109,3 +109,4 @@ use Iter::Range;
 # TODO - test splice list == (), (1), (1,2), Iterators, ...
 # TODO - splice an empty array
 # TODO - test multi-dimensional array
+# TODO - test optional splice parameters

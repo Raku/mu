@@ -23,43 +23,30 @@ class Lazy::Reverse is Lazy::List {
     sub reverse ( Lazy::Reverse $self ) { $self.iter }
 }
 
-class Lazy::Generator is Lazy::List {
-    has $.shifter;
-    has $.popper;
-    sub shift   ( Lazy::Generator $self ) { 
-        state @cache;
-        loop {
-            return Perl6::Array::pop @cache if @cache.elems;
-            my @data = &{$self.shifter}() // return; 
-            Perl6::Array::push @cache, *@data; 
-        }
-    }
-    sub pop     ( Lazy::Generator $self ) { 
-        state @cache;
-        loop {
-            return Perl6::Array::pop @cache if @cache.elems;
-            my @data = &{$self.popper}() // return; 
-            Perl6::Array::push @cache, *@data; 
-        }
-    }
-    sub reverse ( Lazy::Generator $self ) { Lazy::Reverse.new( :iter($self) ) }
-}
+class Lazy::CoroList is Lazy::List {
+    has Code $.start;
+    has Code $.end;
+    sub shift   ( Lazy::CoroList $self ) { &{$self.start}() }
+    sub pop     ( Lazy::CoroList $self ) { &{$self.end}()   }  
+    sub reverse ( Lazy::CoroList $self ) { Lazy::Reverse.new( :iter($self) ) }
+} 
 
-class Lazy::Range
-    is Lazy::List 
+class Lazy::Range is Lazy::List 
 {
+    # XXX - what does (9..1) do?
+    # XXX - is 'z'..'a' valid?
     has $.start;
     has $.end;
     has $.step;
     sub shift ( Lazy::Range $self ) {
         my $tmp = $self.start; 
-        $self.start += $self.step;
+        defined $self.step ?? $self.start += $self.step :: $self.start++;
         return if $tmp > $self.end;
         $tmp;
     }    
     sub pop   ( Lazy::Range $self ) {
         my $tmp = $self.end;
-        $self.end -= $self.step;
+        defined $self.step ?? $self.end -= $self.step :: $self.start--;
         return if $tmp < $self.start;
         $tmp;
     }
@@ -70,12 +57,13 @@ class Lazy::Range
     # sub prefix:<~> () { $.start ~ '..' ~ $.end }
 }
 
-
 =kwid
 
 = NAME
 
-Lazy::Range - A lazy range iterator
+Lazy::Range - A lazy list representing a range 
+
+Lazy::CoroList - A lazy list created from coroutines
 
 Lazy::List - A generic lazy iterator
 
