@@ -5,6 +5,11 @@ use v6;
 2005-08-08
 * more or less fixed Lazy::List::reverse() inheritance
 * Lazy::CoroList is gone
+* New lazy array methods: FETCH(), STORE()
+* Lazy list methods (grep, map, ...) moved from Array::Lazy to 
+  Lazy::List. These methods can be accessed from an array
+  by doing a 'splat()' first. 
+  Array::Lazy::reverse() is still supported.
 
 2005-08-07
 * Lazy Range supports 'a'..Inf
@@ -201,6 +206,19 @@ method end  ( Array::Lazy $array: ) {
     return @x[0];
 }
 
+method FETCH ( Array::Lazy $array: Int $pos ) {
+    # XXX - this is very inefficient
+    # XXX - this may actually cause a dimension splat!
+    my $ret = $array.splice( $pos, 1 );
+    $array.splice( $pos, 1, $ret.items );  # undo
+    return $ret.items;
+}
+
+method STORE ( Array::Lazy $array: Int $pos, $item ) {
+    $array.splice( $pos, 1, $item );
+    return $array;  # ?
+}
+
 # XXX - if you use this, you get: "*** cannot next() outside a loop"
 method next     ( Array::Lazy $array: ) { $array.shift } 
 method previous ( Array::Lazy $array: ) { $array.pop }    # just in case 
@@ -211,42 +229,6 @@ method reverse ( Array::Lazy $array: ) {
             $_.isa('Lazy::List') ?? $_.Lazy::List::reverse :: $_
         };
     return Array::Lazy.new( @{$rev} );
-}
-
-method grep ( Array::Lazy $array: Code $code ) { 
-    my $ret = $array; 
-    return Array::Lazy.new(
-        Lazy::List.new(
-            start => coro {
-                    my $x = $ret.shift // yield;
-                    yield $x if &$code($x) 
-            },
-            end => coro { 
-                    my $x = $ret.pop // yield;
-                    yield $x if &$code($x) 
-            },
-        )
-    );
-}
-
-method map ( Array::Lazy $array: Code $code ) { 
-    my $ret = $array; 
-    return Array::Lazy.new( 
-        Lazy::List.new(
-            start => coro {
-                    my @ret;
-                    my $x = $ret.shift // yield;
-                    Perl6::Array::unshift @ret,&$code($x); 
-                    yield Perl6::Array::shift @ret while @ret 
-            },
-            end => coro {
-                    my @ret; 
-                    my $x = $ret.pop // yield;
-                    Perl6::Array::push @ret, &$code($x); 
-                    yield Perl6::Array::pop @ret while @ret  
-            },
-        )
-    )
 }
 
 method splat ( Array::Lazy $array: ) { 
@@ -260,95 +242,6 @@ method splat ( Array::Lazy $array: ) {
             },
         )
 }
-
-method uniq ( Array::Lazy $array: ) { 
-    my %seen = ();
-    my $ret = $array; 
-    return Array::Lazy.new( 
-        Lazy::List.new(
-            start => coro {
-                    my $x = $ret.shift // yield;
-                    unless %seen{$x} { 
-                        %seen{$x} = bool::true; 
-                        yield $x 
-                    }                       
-            },
-            end => coro {
-                    my $x = $ret.pop // yield;
-                    unless %seen{$x} { 
-                        %seen{$x} = bool::true; 
-                        yield $x 
-                    }  
-            },
-        )
-    )
-}
-
-method kv ( Array::Lazy $array: ) { 
-    my $ret = $array; 
-    my $count = 0;
-    return Lazy::List.new(
-            start => coro {
-                    my $x = $ret.shift // yield;
-                    yield $count++;
-                    yield $x;
-            }
-    )
-}
-
-method pairs ( Array::Lazy $array: ) { 
-    my $ret = $array; 
-    my $count = 0;
-    return Lazy::List.new(
-            start => coro {
-                    my $x = $ret.shift // yield;
-                    my $pair = $count => $x;
-                    yield $pair;
-                    $count++;
-            }
-    )
-}
-
-method keys ( Array::Lazy $array: ) { 
-    my $ret = $array; 
-    my $count = 0;
-    return Lazy::List.new(
-            start => coro {
-                    my $x = $ret.shift // yield;
-                    yield $count++; 
-            }
-    )
-}
-
-method values ( Array::Lazy $array: ) { 
-    my $ret = $array; 
-    my $count = 0;
-    return Lazy::List.new(
-            start => coro {
-                    my $x = $ret.shift // yield;
-                    yield $x;
-            }
-    )
-}
-
-method zip ( Array::Lazy $array: *@list ) { 
-    # TODO: implement zip parameters
-    my @lists = ( $array, @list );
-    return Lazy::List.new(
-            start => coro {
-                    my @x;
-                    my $count = 0;
-                    # TODO - this never ends
-                    for @lists -> $xx {
-                        @x = $xx.shift;
-                        yield @x[0];
-                    }
-            }
-    )
-}
-
-# XXX
-# sub prefix:<~> () is export {
 
 } # end class Lazy::Array
 

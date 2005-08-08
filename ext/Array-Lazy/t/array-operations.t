@@ -21,7 +21,7 @@ use Iter::Range;
   my $iter = Lazy::Range.new( start => 0, end => 13, step => 1 );
   my $span = Array::Lazy.new( -1, 9, $iter );
 
-  my $grepped = $span.grep:{ $_ % 3 == 0 };
+  my $grepped = $span.splat.Lazy::List::grep:{ $_ % 3 == 0 };
   is( $grepped.shift, 9, 'grep  ' );  
   is( $grepped.shift, 0, 'grep 0' );
   is( $grepped.shift, 3, 'grep 1' );
@@ -67,12 +67,13 @@ use Iter::Range;
   # uniq
   my $iter = Lazy::Range.new( start => 0, end => 9, step => 1 );
   my $a1 = Array::Lazy.new( 1, $iter );
-  $a1 = $a1.uniq;
+  $a1 = $a1.splat.Lazy::List::uniq;
   is( $a1.shift, 1, 'not seen element' );
   is( $a1.shift, 0, 'not seen element' );
   is( $a1.shift, 2, 'seen element was skipped' );
 
   # end
+  $a1 = Array::Lazy.new( $a1 );
   is( $a1.end, 9, 'end' );
   is( $a1.pop, 9, 'end is still there' );
 }
@@ -97,7 +98,7 @@ use Iter::Range;
   
   my $iter = Lazy::List.new( start => &mylist ); 
   my $a1 = Array::Lazy.new( $iter );
-  $a1 = $a1.kv;
+  $a1 = $a1.splat.Lazy::List::kv;
   is( $a1.shift, 0, 'kv' );
   is( $a1.shift, 4, 'kv' );
   is( $a1.shift, 1, 'kv' );
@@ -111,7 +112,7 @@ use Iter::Range;
   
   my $iter = Lazy::List.new( start => &mylist ); 
   my $a1 = Array::Lazy.new( $iter );
-  $a1 = $a1.pairs;
+  $a1 = $a1.splat.Lazy::List::pairs;
   my $p = $a1.shift;
   is( $p.ref,  'Pair',     'pair', :todo<wrong type> );
   is( $p.perl, '(0 => 4)', 'pair', :todo<wrong type> );
@@ -128,7 +129,7 @@ use Iter::Range;
   my $iter2 = Lazy::List.new( start => &mylist2 ); 
   my $a2 =    Array::Lazy.new( $iter2 );
   
-  $a1 = $a1.Array::Lazy::zip( $a2 );
+  $a1 = $a1.splat.Lazy::List::zip( $a2 );
   is( $a1.shift, 4, 'zip' );
   is( $a1.shift, 1, 'zip' );
   is( $a1.shift, 5, 'zip' );

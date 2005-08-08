@@ -26,7 +26,117 @@ class Lazy::List {
     method shift   ( Lazy::List $self: ) { &{$self.start}() }
     method pop     ( Lazy::List $self: ) { &{$self.end}()   }  
     method reverse ( Lazy::List $self: ) { Lazy::Reverse.new( :iter($self) ) }
-}
+
+    method grep ( $array: Code $code ) { 
+        my $ret = $array; 
+        Lazy::List.new(
+                start => coro {
+                        my $x = $ret.shift // yield;
+                        yield $x if &$code($x) 
+                },
+                end => coro { 
+                        my $x = $ret.pop // yield;
+                        yield $x if &$code($x) 
+                },
+        );
+    }
+
+    method map ( $array: Code $code ) { 
+        my $ret = $array; 
+        Lazy::List.new(
+                start => coro {
+                        my @ret;
+                        my $x = $ret.shift // yield;
+                        Perl6::Array::unshift @ret,&$code($x); 
+                        yield Perl6::Array::shift @ret while @ret 
+                },
+                end => coro {
+                        my @ret; 
+                        my $x = $ret.pop // yield;
+                        Perl6::Array::push @ret, &$code($x); 
+                        yield Perl6::Array::pop @ret while @ret  
+                },
+        )
+    }
+
+    method uniq ( $array: ) { 
+        my %seen = ();
+        my $ret = $array; 
+        Lazy::List.new(
+                start => coro {
+                        my $x = $ret.shift // yield;
+                        unless %seen{$x} { 
+                            %seen{$x} = bool::true; 
+                            yield $x 
+                        }                       
+                },
+                end => coro {
+                        my $x = $ret.pop // yield;
+                        unless %seen{$x} { 
+                            %seen{$x} = bool::true; 
+                            yield $x 
+                        }  
+                },
+        )
+    }
+
+    method kv ( $array: ) { 
+        my $ret = $array; 
+        my $count = 0;
+        Lazy::List.new(
+                start => coro {
+                        my $x = $ret.shift // yield;
+                        yield $count++;
+                        yield $x;
+                }
+        )
+    }
+
+    method pairs ( $array: ) { 
+        my $ret = $array; 
+        my $count = 0;
+        Lazy::List.new(
+                start => coro {
+                        my $x = $ret.shift // yield;
+                        my $pair = $count => $x;
+                        yield $pair;
+                        $count++;
+                }
+        )
+    }
+
+    method keys ( $array: ) { 
+        my $ret = $array; 
+        my $count = 0;
+        Lazy::List.new(
+                start => coro {
+                        my $x = $ret.shift // yield;
+                        yield $count++; 
+                }
+        )
+    }
+
+    method values ( $array: ) { 
+        $array
+    }
+
+    method zip ( $array: *@list ) { 
+        # TODO: implement zip parameters
+        my @lists = ( $array, @list );
+        Lazy::List.new(
+                start => coro {
+                        my @x;
+                        my $count = 0;
+                        # TODO - this never ends
+                        for @lists -> $xx {
+                            @x = $xx.shift;
+                            yield @x[0];
+                        }
+                }
+        )
+    }
+
+}  # end class Lazy::List
 
     # XXX - what does (9..1) do?
 
