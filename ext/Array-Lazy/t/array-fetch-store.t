@@ -54,7 +54,7 @@ use Iter::Range;
 
   my $indexes = Lazy::Range.new( start => 2, end => Inf, step => 2 );
 
-  my $sliced = $a1.slice( $indexes );
+  my $sliced = $a1.fetch_slice( $indexes );
 
   is( $sliced.shift,  'c', 'shift from slice' );
   is( $sliced.shift,  'e', 'shift from slice' );

@@ -3,7 +3,7 @@ use v6;
 =for ChangeLog
 
 2005-08-08
-* New lazy array methods: FETCH(), STORE(), slice().
+* New lazy array methods: FETCH(), STORE(), fetch_slice().
   slice accepts a lazy list or lazy array as argument!
 * elems() actually works
 * more or less fixed Lazy::List::reverse() inheritance
@@ -47,6 +47,13 @@ has Array @.items;
     # TODO - pushing a lazy list into a normal array should turn the array into a lazy array
     # TODO - fix namespaces, move to Prelude.pm
     
+    # TODO - store_slice() - @a[5,7]=('x','y')
+
+    # TODO - what happens when $a.FETCH(100000000)
+    #      - this is not a 'sparse' array!
+
+    # TODO - add support for sparse arrays
+
     # implement this error message (from PIR.pm)
     #   if $off > $size {
     #      warn "splice() offset past end of array\n";
@@ -208,11 +215,94 @@ method STORE ( Array::Lazy $array: Int $pos, $item ) {
     return $array;  # ?
 }
 
-method slice ( Array::Lazy $array: Array::Lazy|Lazy::List $pos ) {
+method fetch_slice ( Array::Lazy $array: Array::Lazy|Lazy::List $pos ) {
     my $arr = $array;
     my $where = $pos;
     $where = $where.splat if $where.isa( 'Array::Lazy' ); 
     Array::Lazy.new( $where.Lazy::List::map:{ $arr.FETCH($_) } );
+}
+
+method store_slice ( Array::Lazy $array: $pos, $values ) {
+    # $pos must be one of:
+    # - a Lazy::List with known size
+    # - a Lazy::Range
+    # - a Array::Lazy containing things with known size, or Lazy::Range
+    # - a standard Int, Array or List
+
+    # ---- start the index preprocessing ----
+
+    my @ranges;
+    my ( @start, @end, @step, @from );
+    my $delta = 0;   # , $neg_delta );
+    if $pos.isa( 'Array::Lazy' ) { 
+        @ranges = $pos.items 
+    }
+    else  { 
+        @ranges = $pos 
+    };
+    for @ranges {
+        fail 'unable to store elements using index "' ~ $_ ~ '"'
+            if   $_.isa( 'Lazy::List' ) &&
+               ! $_.isa( 'Lazy::Range' );
+
+        # --- this is less restrictive, but it is much harder to implement
+        #   if   $_.isa( 'Lazy::List' ) &&
+        #        $_.Lazy::Array::elems == Inf &&
+        #      ! $_.isa( 'Lazy::Range' )
+        # ---
+
+        if ( $_.isa( 'Lazy::Range' ) ) {
+            push @start, $_.start;
+            push @end,   $_.end;
+            push @step,  $_.step // 1;
+            push @from, $delta;
+            $delta += $_.elems;
+            last if $_.elems == Inf;
+        }
+        else {
+            push @start, $_;
+            push @end,   $_;
+            push @step,  1;
+            push @from, $delta;
+            $delta++;
+        }
+    }
+
+    # ---- end of index preprocessing ----
+
+    my sub index_exists {
+        for 0..@end {
+            # TODO - add support for 'step'
+        }
+        return bool::false;
+    }
+
+    # TODO - a sparse array would be much more efficient 
+
+    ...
+
+    my $me = $self.clone;
+    my $tmp = Array::Lazy.new( $me.Lazy::List::map:{ $arr.FETCH($_) } );
+
+    # $pos = 10..Inf         # easy 
+    # $pos = 1..10, 20..Inf  # easy
+    # $pos = $lazy_list      # very difficult
+
+    # this would be much easier if $pos was a Hash::Lazy
+
+    # I think it is reasonable to assume that $pos is numerically ordered.
+
+    # does the index exist in $pos?
+    # if it does, do the mapping
+    # otherwise, keep the original value
+
+    # my $arr =   $array.clone;
+    # my $where = $pos.clone;
+    # my $what =  $values.clone
+
+    # $where = $where.splat if $where.isa( 'Array::Lazy' ); 
+    # Array::Lazy.new( $where.Lazy::List::map:{ $arr.FETCH($_) } );
+
 }
 
 # XXX - if you use this, you get: "*** cannot next() outside a loop"
@@ -299,7 +389,7 @@ Returns a lazy list containing the lazy array elements.
 
 - `FETCH` / `STORE`
  
-- `slice`
+- `fetch_slice`
 
 = AUTHOR
 
