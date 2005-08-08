@@ -11,50 +11,42 @@ use v6;
     our &Perl6::Array::grep    := &grep;
 
 class Lazy::List {
-    sub shift   ( Lazy::List $self ) { ... }
-    sub pop     ( Lazy::List $self ) { ... }  
-    sub reverse ( Lazy::List $self ) { Lazy::Reverse.new( :iter($self) ) }
-}
- 
-class Lazy::Reverse is Lazy::List {
-    has $.iter;
-    sub shift   ( Lazy::Reverse $self ) { my $x = $self.iter; $x.pop   }
-    sub pop     ( Lazy::Reverse $self ) { my $x = $self.iter; $x.shift }
-    sub reverse ( Lazy::Reverse $self ) { $self.iter }
-}
-
-class Lazy::CoroList is Lazy::List {
     has Code $.start;
     has Code $.end;
-    sub shift   ( Lazy::CoroList $self ) { &{$self.start}() }
-    sub pop     ( Lazy::CoroList $self ) { &{$self.end}()   }  
-    sub reverse ( Lazy::CoroList $self ) { Lazy::Reverse.new( :iter($self) ) }
+    class Lazy::Reverse is Lazy::List {
+        has $.iter;
+        method shift   ( Lazy::Reverse $self: ) { $.iter.pop   }
+        method pop     ( Lazy::Reverse $self: ) { $.iter.shift }
+        method reverse ( Lazy::Reverse $self: ) { $.iter       }
+    }
     submethod BUILD ($class: Coro ?$start is copy, Coro ?$end is copy ) {
         $start //= coro { yield -Inf };
         $end   //= coro { yield  Inf };
     }
-} 
+    method shift   ( Lazy::List $self: ) { &{$self.start}() }
+    method pop     ( Lazy::List $self: ) { &{$self.end}()   }  
+    method reverse ( Lazy::List $self: ) { Lazy::Reverse.new( :iter($self) ) }
+}
+
+    # XXX - what does (9..1) do?
 
 class Lazy::Range is Lazy::List 
 {
-    # XXX - what does (9..1) do?
     has $.start;
     has $.end;
     has $.step;
-    sub shift ( Lazy::Range $self ) {
+    method shift ( Lazy::Range $self: ) {
         my $tmp = $self.start; 
         defined $self.step ?? $self.start += $self.step :: $self.start++;
         return if $tmp > $self.end;
         $tmp;
     }    
-    sub pop   ( Lazy::Range $self ) {
+    method pop   ( Lazy::Range $self: ) {
         my $tmp = $self.end;
         defined $self.step ?? $self.end -= $self.step :: $self.start--;
         return if $tmp < $self.start;
         $tmp;
     }
-    # XXX - this should have been inherited, but it wasn't
-    sub reverse ( Lazy::Range $self ) { Lazy::Reverse.new( :iter($self) ) }
 }
 
 =kwid
@@ -63,13 +55,13 @@ class Lazy::Range is Lazy::List
 
 Lazy::Range - A lazy list representing a range 
 
-Lazy::CoroList - A lazy list created from coroutines
-
-Lazy::List - A generic lazy iterator
+Lazy::List - A lazy list created from coroutines
 
 = SYNOPSIS
 
-...
+  my $iter1 = Lazy::Range.new( start => 10, end => 20 );
+
+  my $iter2 = Lazy::List.new( start => coro mylist2 { yield $_ for 1..3; yield; } );
 
 = DESCRIPTION
 

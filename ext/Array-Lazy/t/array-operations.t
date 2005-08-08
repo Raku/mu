@@ -82,7 +82,7 @@ use Iter::Range;
   
   my coro mylist { yield $_ for 1..2; yield; }
   
-  my $iter = Lazy::CoroList.new( start => &mylist ); 
+  my $iter = Lazy::List.new( start => &mylist ); 
   my $a1 = Array::Lazy.new( $iter );
   is( $a1.shift, 1, 'lazy array from coroutine' );
   is( $a1.shift, 2, 'coroutine' );
@@ -95,7 +95,7 @@ use Iter::Range;
   
   my coro mylist { yield $_ for 4..5; yield; }
   
-  my $iter = Lazy::CoroList.new( start => &mylist ); 
+  my $iter = Lazy::List.new( start => &mylist ); 
   my $a1 = Array::Lazy.new( $iter );
   $a1 = $a1.kv;
   is( $a1.shift, 0, 'kv' );
@@ -109,7 +109,7 @@ use Iter::Range;
   
   my coro mylist { yield $_ for 4..5; yield; }
   
-  my $iter = Lazy::CoroList.new( start => &mylist ); 
+  my $iter = Lazy::List.new( start => &mylist ); 
   my $a1 = Array::Lazy.new( $iter );
   $a1 = $a1.pairs;
   my $p = $a1.shift;
@@ -121,11 +121,11 @@ use Iter::Range;
   # zip
   
   my coro mylist1 { yield $_ for 4..5; yield; }
-  my $iter1 = Lazy::CoroList.new( start => &mylist1 ); 
+  my $iter1 = Lazy::List.new( start => &mylist1 ); 
   my $a1 =    Array::Lazy.new( $iter1 );
   
   my coro mylist2 { yield $_ for 1..3; yield; }
-  my $iter2 = Lazy::CoroList.new( start => &mylist2 ); 
+  my $iter2 = Lazy::List.new( start => &mylist2 ); 
   my $a2 =    Array::Lazy.new( $iter2 );
   
   $a1 = $a1.Array::Lazy::zip( $a2 );

@@ -56,7 +56,7 @@ use Iter::Range;
   is( $iter.shift, 1|2, 'iter 1|2' );
   
   # reversed
-  my $rev_iter = $iter.reverse;
+  my $rev_iter = $iter.Lazy::List::reverse;
   is( $rev_iter.pop, 2|3, 'iter reverse 1' );
   is( $rev_iter.pop, 3|4, 'iter reverse 2' );
 }

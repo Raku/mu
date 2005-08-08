@@ -2,6 +2,10 @@ use v6;
 
 =for ChangeLog
 
+2005-08-08
+* more or less fixed Lazy::List::reverse() inheritance
+* Lazy::CoroList is gone
+
 2005-08-07
 * Lazy Range supports 'a'..Inf
 * New lazy array methods: splat(), elems(), uniq(), end(), 
@@ -22,6 +26,10 @@ use v6;
 =cut
 
 use Iter::Range;  # 'Lazy::List', 'Lazy::Range', 'Perl6::Array'
+
+    # this is for helping with inheritance debug
+    #multi sub reverse ( Array $self )      { say 'core reverse'; Perl6::Array::reverse( $self ) }
+    #multi sub reverse ( Lazy::List $self ) { say 'lazy reverse'; Lazy::Reverse.new( :iter($self) ) }
 
 # This class should not inherit from Lazy::List, because this would
 # cause multi-dimensional arrays to be flattened.
@@ -200,7 +208,7 @@ method previous ( Array::Lazy $array: ) { $array.pop }    # just in case
 method reverse ( Array::Lazy $array: ) { 
     my $rev = Perl6::Array::reverse $array.items;
     $rev = $rev.Perl6::Array::map:{
-            $_.isa('Lazy::List') ?? $_.reverse :: $_
+            $_.isa('Lazy::List') ?? $_.Lazy::List::reverse :: $_
         };
     return Array::Lazy.new( @{$rev} );
 }
@@ -208,7 +216,7 @@ method reverse ( Array::Lazy $array: ) {
 method grep ( Array::Lazy $array: Code $code ) { 
     my $ret = $array; 
     return Array::Lazy.new(
-        Lazy::CoroList.new(
+        Lazy::List.new(
             start => coro {
                     my $x = $ret.shift // yield;
                     yield $x if &$code($x) 
@@ -224,7 +232,7 @@ method grep ( Array::Lazy $array: Code $code ) {
 method map ( Array::Lazy $array: Code $code ) { 
     my $ret = $array; 
     return Array::Lazy.new( 
-        Lazy::CoroList.new(
+        Lazy::List.new(
             start => coro {
                     my @ret;
                     my $x = $ret.shift // yield;
@@ -243,7 +251,7 @@ method map ( Array::Lazy $array: Code $code ) {
 
 method splat ( Array::Lazy $array: ) { 
     my $ret = $array; 
-    return Lazy::CoroList.new(
+    return Lazy::List.new(
             start => coro {
                 yield $ret.shift 
             },
@@ -257,7 +265,7 @@ method uniq ( Array::Lazy $array: ) {
     my %seen = ();
     my $ret = $array; 
     return Array::Lazy.new( 
-        Lazy::CoroList.new(
+        Lazy::List.new(
             start => coro {
                     my $x = $ret.shift // yield;
                     unless %seen{$x} { 
@@ -279,7 +287,7 @@ method uniq ( Array::Lazy $array: ) {
 method kv ( Array::Lazy $array: ) { 
     my $ret = $array; 
     my $count = 0;
-    return Lazy::CoroList.new(
+    return Lazy::List.new(
             start => coro {
                     my $x = $ret.shift // yield;
                     yield $count++;
@@ -291,7 +299,7 @@ method kv ( Array::Lazy $array: ) {
 method pairs ( Array::Lazy $array: ) { 
     my $ret = $array; 
     my $count = 0;
-    return Lazy::CoroList.new(
+    return Lazy::List.new(
             start => coro {
                     my $x = $ret.shift // yield;
                     my $pair = $count => $x;
@@ -304,7 +312,7 @@ method pairs ( Array::Lazy $array: ) {
 method keys ( Array::Lazy $array: ) { 
     my $ret = $array; 
     my $count = 0;
-    return Lazy::CoroList.new(
+    return Lazy::List.new(
             start => coro {
                     my $x = $ret.shift // yield;
                     yield $count++; 
@@ -315,7 +323,7 @@ method keys ( Array::Lazy $array: ) {
 method values ( Array::Lazy $array: ) { 
     my $ret = $array; 
     my $count = 0;
-    return Lazy::CoroList.new(
+    return Lazy::List.new(
             start => coro {
                     my $x = $ret.shift // yield;
                     yield $x;
@@ -326,7 +334,7 @@ method values ( Array::Lazy $array: ) {
 method zip ( Array::Lazy $array: *@list ) { 
     # TODO: implement zip parameters
     my @lists = ( $array, @list );
-    return Lazy::CoroList.new(
+    return Lazy::List.new(
             start => coro {
                     my @x;
                     my $count = 0;
