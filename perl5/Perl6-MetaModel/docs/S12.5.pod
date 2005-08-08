@@ -6,12 +6,12 @@ Synopsis 12.5 - The Perl 6 Meta Object Protocol
 
 =head1 SYNOPSIS
 
-This is an unofficial amendment to the Synopsis 12, which describes the design
+This is an unofficial amendment to Synopsis 12, which describes the design
 and implementation of the Perl 6 Meta Object Protocol. 
 
 It expands upon the section entitled "Introspection" in Synopsis 12, which only 
 describes the meta-"data" available from the metaclasses. In this document I will
-describe the how that meta-data can be manipulated as well.
+describe how that meta-data can be manipulated as well.
 
 NOTE: 
 For a quick overview of the MetaModel itself please see the F<10_000_ft_view.pod>
@@ -19,16 +19,16 @@ in this same directory.
 
 =head1 What is a Meta Object Protocol
 
-A meta object protocol is basically and API for the elements of the meta-level classes
+A meta object protocol is basically an API for the elements of the meta-level classes
 and objects which are exposed to user level code. Basically this describes all the things
 you can do with the object returned by C<$obj.meta>.
 
 =head2 The Perl 6 Meta Object Protocol.
 
-Calling C<.meta> on either a class or an instance should return an instance of the 
-same C<Perl6::MetaClass> object. Each class is associated with one metaclass class
-instance which describes that class. The follow are the methods which can be called
-on this metaclass instance.
+Calling C<.meta> on either a class or an instance of the same class should return an 
+instance of the same C<Perl6::MetaClass> object. Each class is associated with one 
+metaclass instance which describes that class. The following are the methods which can 
+be called on this metaclass instance.
 
 =head3 Basic Introspection
 
@@ -39,17 +39,17 @@ Synopsis 12.
 
 =item C<name>
 
-This is a read-write accessor method, which determines the name of the class the metaclass 
-is associated with. It's default value is C<undef>, which is essentially an anonymous class.
+This is a read-write accessor method which determines the name of the class the metaclass 
+is associated with. Its default value is C<undef>, which is essentially an anonymous class.
 
 =item C<version>
 
-This is also a read-write accessor method, this is the version number of the class the 
-metaclass is associated with. It's default value is C<0.0.0>.
+Also a read-write accessor method, this is the version number of the class the metaclass 
+is associated with. Its default value is C<0.0.0>.
 
 =item C<authority>
 
-This is also a read-write accessor method, it is the certifying authority for the class 
+This is also a read-write accessor method; it is the certifying authority for the class 
 this metaclass is associated with. This will likely be a string in one of the following 
 formats:
 
@@ -59,9 +59,9 @@ formats:
   
 =item C<identifier>
  
-This is read-only method which takes the C<name>, C<version> and C<identifier> and concatenates
-them together into a single string seperated by '-' characters. This is the format found in the
-class defintions:
+This is a read-only method which takes the C<name>, C<version> and C<identifier> and concatenates
+them into a single string seperated by '-' characters. This is the format found in the class 
+defintions:
 
   class Foo-0.0.5-cpan:BARBAZ { ... }
 
@@ -75,7 +75,7 @@ class defintions:
 
 =item The Art of the Meta Object Protocol
 
-An excellent book, I cannot recomend it highly enough.
+An excellent book, I cannot recommend it highly enough.
 
 =back
 
