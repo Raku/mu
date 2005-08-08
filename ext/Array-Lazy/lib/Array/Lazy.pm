@@ -5,7 +5,8 @@ use v6;
 2005-08-08
 * more or less fixed Lazy::List::reverse() inheritance
 * Lazy::CoroList is gone
-* New lazy array methods: FETCH(), STORE()
+* New lazy array methods: FETCH(), STORE(), slice().
+  slice accepts a lazy list or lazy array as argument!
 * Lazy list methods (grep, map, ...) moved from Array::Lazy to 
   Lazy::List. These methods can be accessed from an array
   by doing a 'splat()' first. 
@@ -222,8 +223,11 @@ method STORE ( Array::Lazy $array: Int $pos, $item ) {
     return $array;  # ?
 }
 
-method slice ( Array::Lazy $array: Lazy::List $pos ) {
-    ...
+method slice ( Array::Lazy $array: Array::Lazy|Lazy::List $pos ) {
+    my $arr = $array;
+    my $where = $pos;
+    $where = $where.splat if $where.isa( 'Array::Lazy' ); 
+    Array::Lazy.new( $where.Lazy::List::map:{ $arr.FETCH($_) } );
 }
 
 # XXX - if you use this, you get: "*** cannot next() outside a loop"

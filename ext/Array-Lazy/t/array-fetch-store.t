@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 16;
+plan 20;
 
 # use_ok( 'Array::Lazy' );
 use Array::Lazy; 
@@ -40,9 +40,28 @@ use Iter::Range;
 {
   # FETCH/STORE x shift/pop
   my $a1 = Array::Lazy.new(
-        Lazy::Range.new( start => 'a', end => Inf, step => undef ) );
+        Lazy::Range.new( start => 'a', end => Inf ) );
   # store a lazy list
   $a1.STORE( 0, Lazy::Range.new( start => 0, end => Inf ));
   is( $a1.FETCH(0), '<obj:Lazy::Range>', 'fetch lazy list' );
   is( $a1.shift,    '<obj:Lazy::Range>', 'shift lazy list' );
+}
+
+{
+  # lazy slice
+  my $a1 = Array::Lazy.new(
+        Lazy::Range.new( start => 'a', end => Inf, step => undef ) );
+
+  my $indexes = Lazy::Range.new( start => 2, end => Inf, step => 2 );
+
+  my $sliced = $a1.slice( $indexes );
+
+  is( $sliced.shift,  'c', 'shift from slice' );
+  is( $sliced.shift,  'e', 'shift from slice' );
+  is( $sliced.shift,  'g', 'shift from slice' );
+
+  # '$sliced' is Modifiable
+  $sliced.STORE( 1, 'x' );
+  is( $sliced.FETCH( 1 ),  'x', 'STORE and FETCH from slice' );
+
 }
