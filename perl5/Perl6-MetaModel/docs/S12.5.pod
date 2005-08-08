@@ -2,80 +2,82 @@
 
 =head1 NAME
 
-Synopsis 12.5 - The Perl 6 Object MetaModel
+Synopsis 12.5 - The Perl 6 Meta Object Protocol
 
 =head1 SYNOPSIS
 
 This is an unofficial amendment to the Synopsis 12, which describes the design
-and implementation of the Perl 6 objects metamodel. It is very rough at the
-moment, but will be filled in more as the work on this metamodel progresses.
+and implementation of the Perl 6 Meta Object Protocol. 
 
-=head1 DESCRIPTION
+It expands upon the section entitled "Introspection" in Synopsis 12, which only 
+describes the meta-"data" available from the metaclasses. In this document I will
+describe the how that meta-data can be manipulated as well.
 
-=head2 Core Elements
+NOTE: 
+For a quick overview of the MetaModel itself please see the F<10_000_ft_view.pod>
+in this same directory.
 
-=over 4
+=head1 What is a Meta Object Protocol
 
-=item Class
+A meta object protocol is basically and API for the elements of the meta-level classes
+and objects which are exposed to user level code. Basically this describes all the things
+you can do with the object returned by C<$obj.meta>.
 
-A Class in Perl 6 is much the same as classes in other OO languagues. It is a
-collection of methods and attributes which can be used to construct an Instance
-from.
+=head2 The Perl 6 Meta Object Protocol.
 
-=item Instance
+Calling C<.meta> on either a class or an instance should return an instance of the 
+same C<Perl6::MetaClass> object. Each class is associated with one metaclass class
+instance which describes that class. The follow are the methods which can be called
+on this metaclass instance.
 
-An Instance is an instance of a Class. It is very much the same as in other OO
-languages. 
+=head3 Basic Introspection
 
-=item Role
-
-A Role at its most basic can be thought of as a collection of methods and
-attributes which get included into a class. A very simplistic view of this is
-that it is not unlike a language level #INCLUDE directive. Roles share
-similarities to other familiar OO concepts as mixins and interfaces, but they
-differ in how they are composed into the class as well as the rules which
-govern that composition. Roles will be discussed in further detail later in
-this document.  
-
-=back
-
-=head2 Secondary Elements
+These methods are very basic introspection methods, some of which are described already in 
+Synopsis 12.
 
 =over 4
 
-=item Methods
+=item C<name>
 
-=over 4
+This is a read-write accessor method, which determines the name of the class the metaclass 
+is associated with. It's default value is C<undef>, which is essentially an anonymous class.
 
-=item Class Methods
+=item C<version>
 
-=item Instance Methods
+This is also a read-write accessor method, this is the version number of the class the 
+metaclass is associated with. It's default value is C<0.0.0>.
 
-=item Role Methods
+=item C<authority>
 
-=item SubMethods
+This is also a read-write accessor method, it is the certifying authority for the class 
+this metaclass is associated with. This will likely be a string in one of the following 
+formats:
 
-Submethods are methods which can only be called by an invocant whose class is 
-the same as which the submethod has been defined in. Meaning they are not 
-inherited. 
+  cpan:JRANDOM
+  email:jrandom@cpan.org
+  url:http://www.random-inc.com/~jrandom/
+  
+=item C<identifier>
+ 
+This is read-only method which takes the C<name>, C<version> and C<identifier> and concatenates
+them together into a single string seperated by '-' characters. This is the format found in the
+class defintions:
 
-=back
-
-=item Attributes
-
-=over 4
-
-=item Class Attribute
-
-=item Instance Attribute
-
-=item Role Attribute
-
-=back
+  class Foo-0.0.5-cpan:BARBAZ { ... }
 
 =back
 
 =head1 SEE ALSO
+
+=head2 Books
+
+=over 4
+
+=item The Art of the Meta Object Protocol
+
+An excellent book, I cannot recomend it highly enough.
+
+=back
 
 =head2 Research Papers
 
