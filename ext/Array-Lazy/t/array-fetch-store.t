@@ -3,28 +3,46 @@
 use v6;
 use Test;
 
-plan 8;
+plan 16;
 
 # use_ok( 'Array::Lazy' );
 use Array::Lazy; 
 use Iter::Range;
 
 {
-
+  # FETCH/STORE
   my $a1 = Array::Lazy.new(
         Lazy::Range.new( start => 'a', end => Inf, step => undef ) );
   is( $a1.FETCH(2), 'c', 'fetch' );
   is( $a1.FETCH(2), 'c', 'fetch again' );
-  is( $a1.FETCH(3), 'd', 'fetch', :todo<bug> );
+  is( $a1.FETCH(3), 'd', 'fetch' );
   is( $a1.FETCH(1), 'b', 'fetch' );
 
   $a1.STORE( 2, 'x' );
   is( $a1.FETCH(0), 'a', 'fetch after a store' );
-  is( $a1.FETCH(1), 'b', 'fetch', :todo<bug> );
-  is( $a1.FETCH(2), 'x', 'fetch', :todo<bug> );
-  is( $a1.FETCH(3), 'd', 'fetch', :todo<bug> );
+  is( $a1.FETCH(1), 'b', 'fetch' );
+  is( $a1.FETCH(2), 'x', 'fetch' );
+  is( $a1.FETCH(3), 'd', 'fetch' );
+
+  # store a list
+  $a1.STORE( 2, ( 5,7,9 ) );
+  is( $a1.FETCH(1), 'b', 'fetch after storing a list' );
+  is( $a1.FETCH(2), '5 7 9', 'fetch' );
+  is( $a1.FETCH(3), 'd', 'fetch' );
+
+  # store a lazy list
+  $a1.STORE( 2, Lazy::Range.new( start => 0, end => Inf ));
+  is( $a1.FETCH(1), 'b', 'fetch after storing a lazy list' );
+  is( $a1.FETCH(2), '<obj:Lazy::Range>', 'fetch' );
+  is( $a1.FETCH(3), 'd', 'fetch' );
 }
 
-    # TODO - test against dimension splat in fetch, store
-    # get list
-    # store list
+{
+  # FETCH/STORE x shift/pop
+  my $a1 = Array::Lazy.new(
+        Lazy::Range.new( start => 'a', end => Inf, step => undef ) );
+  # store a lazy list
+  $a1.STORE( 0, Lazy::Range.new( start => 0, end => Inf ));
+  is( $a1.FETCH(0), '<obj:Lazy::Range>', 'fetch lazy list' );
+  is( $a1.shift,    '<obj:Lazy::Range>', 'shift lazy list' );
+}

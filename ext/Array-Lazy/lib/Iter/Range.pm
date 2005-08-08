@@ -10,6 +10,9 @@ use v6;
     our &Perl6::Array::map     := &map;
     our &Perl6::Array::grep    := &grep;
 
+# TODO - Lazy::List should have a 'is_infinite' flag - this would allow 
+#        emitting error messages when necessary
+
 class Lazy::List {
     has Code $.start;
     has Code $.end;

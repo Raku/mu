@@ -148,6 +148,7 @@ method splice (
 { 
     my ( @head, @body, @tail );
     # say "items: ", $array.items, " splice: $offset, $length, ", @list;
+    # say 'insert: ', $_, ' ', $_.ref for @list;
     if $offset >= 0 {
         @head = $array._shift_n( $offset );
         if $length >= 0 {
@@ -177,7 +178,7 @@ method splice (
             }
         }
     };
-    # say 'head: ',@head, ' body: ',@body, ' tail: ',@tail, ' list: ',@list;
+    #say 'head: ',@head, ' body: ',@body, ' tail: ',@tail, ' list: ',@list;
     $array.items = ( @head, @list, @tail );
     return Array::Lazy.new( @body );
 }
@@ -209,14 +210,20 @@ method end  ( Array::Lazy $array: ) {
 method FETCH ( Array::Lazy $array: Int $pos ) {
     # XXX - this is very inefficient
     # XXX - this may actually cause a dimension splat!
+    # TODO - if $pos is a lazy list, returns a lazy list - would be cool!
     my $ret = $array.splice( $pos, 1 );
-    $array.splice( $pos, 1, $ret.items );  # undo
+    $array.splice( $pos, 0, [$ret.items] ); 
     return $ret.items;
 }
 
 method STORE ( Array::Lazy $array: Int $pos, $item ) {
-    $array.splice( $pos, 1, $item );
+    # TODO - $pos can be a lazy list of pairs!
+    $array.splice( $pos, 1, [$item] );
     return $array;  # ?
+}
+
+method slice ( Array::Lazy $array: Lazy::List $pos ) {
+    ...
 }
 
 # XXX - if you use this, you get: "*** cannot next() outside a loop"
