@@ -5,6 +5,11 @@ use Test;
 
 plan 882;
 
+if(!eval('("a" ~~ rx:P5/a/)')) {
+  skip_rest "skipped tests - P5 regex support appears to be missing";
+  exit;
+}
+
 is(("abc" ~~ rx:P5/abc/ && $<>), "abc", 're_tests 1/0 (1)');
 is(("abc" ~~ rx:P5/abc/ && $/.from), 0, 're_tests 1/0 (2)');
 ok((not ("xbc" ~~ rx:P5/abc/)), 're_tests 3  (5)');

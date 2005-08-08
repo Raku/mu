@@ -246,6 +246,17 @@ PIL2JS.Box.prototype = {
       }
       return arr;
 
+    } else if(unboxed instanceof PIL2JS.Hash) {
+      var hash = {};
+      for(var key in unboxed.entries) {
+        hash[key] = unboxed.entries[key].value.toNative();
+      }
+      return hash;
+
+    } else if(unboxed instanceof PIL2JS.Pair) {
+      var hash = {};
+      hash[unboxed.key.toNative()] = unboxed.value.toNative();
+
     // Special magic for Function: Create a wrapper function which wraps all
     // arguments in PIL2JS.Boxes and unwraps the results.
     // real_func    :: BoxedArgs  -> BoxedResults
@@ -264,7 +275,7 @@ PIL2JS.Box.prototype = {
     } else if(unboxed instanceof PIL2JS.Ref) {
       return unboxed.referencee.toNative();
 
-    // Special magic for string: Work aroung IE bug.
+    // Special magic for string: Work around IE bug.
     } else if(typeof unboxed == "string") {
       // Convert "\n"s (IE...)
       return unboxed.replace(/\n/, PIL2JS.LF);

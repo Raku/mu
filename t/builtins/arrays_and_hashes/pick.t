@@ -12,7 +12,7 @@ This test tests the C<pick> builtin.
 =cut
 
 my @array = <a b c d>;
-ok ?(@array.pick == any <a b c d>), "pick works on arrays";
+ok ?(@array.pick eq any <a b c d>), "pick works on arrays";
 
 my %hash = (a => 1);
 is %hash.pick.key,   "a", "pick works on hashes (1)";

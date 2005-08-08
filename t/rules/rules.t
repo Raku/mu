@@ -8,6 +8,11 @@ use Test;
 
 plan 683;
 
+if(!eval('("a" ~~ /a/)')) {
+  skip_rest "skipped tests - rules support appears to be missing";
+  exit;
+}
+
 # I don't know how to get the equivalent of $-[$n] in perl6,
 # so this code uses following (yet-undefined) function for those tests:
 #    getpos($/, $n) == $-[$n] from perl5

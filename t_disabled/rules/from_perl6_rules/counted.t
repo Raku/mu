@@ -15,7 +15,7 @@ be valid perl6.
 
 plan 152;
 
-if(eval('!("a" ~~ /a/)')) {
+if(!eval('("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
