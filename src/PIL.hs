@@ -3,6 +3,7 @@
 module PIL where
 import PIL.Val
 import PIL.Pad
+import PIL.Monads
 import PIL.Internals
 
 -- Beginning of design of PIL2.
@@ -34,23 +35,23 @@ main = do
         src <- getLine
         if (src == ":q") then return () else do
         print "==> Parse Tree <=="
-        syn <- parse src
+        syn <- runM $ parse src
         print syn
         print "==> PIL Tree <=="
-        pil <- compile syn
+        pil <- runM $ compile syn
         print pil
         print "==> Decompiled Source <=="
         print $ pretty pil
         print "==> Run! <=="
-        val <- run pil
+        val <- runM $ eval pil
         print val
         redo
 
+print1 :: String
+print1 = "print 1"
+
 data Syn = MkSyn deriving Show
 data PIL = MkPIL deriving Show
-type Parse = IO
-type Compile = IO
-type Eval = IO
 
 -- Parsing needs to handle BEGIN and such.
 parse :: String -> Parse Syn
@@ -64,7 +65,7 @@ compile = undefined
 pretty :: PIL -> String
 pretty = undefined
 
--- Run is pretty much all about side effects.
-run :: PIL -> Eval Val
-run = undefined
+-- Eval is pretty much all about side effects.
+eval :: PIL -> Eval Val
+eval = undefined
 
