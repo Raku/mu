@@ -878,21 +878,14 @@ var _26main_3a_3aprefix_3a_7e = PIL2JS.Box.constant_func(1, function (args) {
         cc(new PIL2JS.Box.Constant(String(thing).toString()));
       } else if(ref == "Array") {
         if(thing.referencee) thing = thing.referencee.FETCH();
-        var res = "", things = [].concat(thing);
-        var minicc = function (ret) {
-          res += ret.FETCH() + " ";
-          if(things.length) {
-            var thing = things.shift();
-            if(thing == undefined) {
-              minicc(new PIL2JS.Box.Constant(""));
-            } else {
-              _26main_3a_3aprefix_3a_7e.FETCH()([PIL2JS.Context.ItemAny, thing, minicc]);
-            }
-          } else {
-            cc(new PIL2JS.Box.Constant(res.slice(2)));
-          }
-        };
-        minicc(new PIL2JS.Box.Constant(""));
+        var res = "";
+        for(var i = 0; i < thing.length; i++) {
+          res += PIL2JS.cps2normal(
+            _26main_3a_3aprefix_3a_7e.FETCH(), [PIL2JS.Context.ItemAny, thing[i]]
+          ).FETCH() + " ";
+        }
+        if(thing.length > 0) res = res.slice(0, -1);
+        cc(new PIL2JS.Box.Constant(res));
       } else if(ref == "Hash") {
         if(thing.referencee) thing = thing.referencee.FETCH();
         var res   = "";
