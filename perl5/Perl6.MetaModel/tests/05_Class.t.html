@@ -14,7 +14,7 @@
 <body>
 <pre id='test'><script type="text/javascript">
 
-plan({ tests : 20 });
+plan({ tests : 25 });
 
 var Foo = new Perl6.Class ('Foo', {
     'class' : {
@@ -46,6 +46,13 @@ var Bar = new Perl6.Class ('Bar', {
     'class' : {
         'methods' : {
             'foo' : function () { return 'Bar.foo' }
+        },
+        'multi_methods' : {
+            'baz' : [
+                [ function (one) { return 'Bar.baz with one arg' },                1 ],
+                [ function (one, two) { return 'Bar.baz with two args' },          2 ],               
+                [ function (one, two, three) { return 'Bar.baz with three args' }, 3 ],                               
+            ]
         }
     }    
 });
@@ -57,13 +64,20 @@ ok(!Bar.isa('Baz'), '... our class is not a Baz');
 
 ok(Bar.can('foo'), '... Bar can bar()');
 ok(Bar.can('bar'), '... Bar can bar()');
-ok(!Bar.can('baz'), '... Bar cant baz()');
+ok(Bar.can('baz'), '... Bar can baz()');
+ok(!Bar.can('bling'), '... Bar cant bling()');
 
 isaOK(Bar.can('bar'), 'Perl6.Method');
 is(call_method(Bar, 'bar'), 'Foo.bar', '... Bar.bar() returns "Foo.bar"');
 
 isaOK(Bar.can('foo'), 'Perl6.Method');
 is(call_method(Bar, 'foo'), 'Bar.foo', '... Bar.foo() returns "Bar.foo"');
+
+isaOK(Bar.can('baz'), 'Perl6.MultiMethod');
+
+is(call_method(Bar, 'baz'), 'Bar.baz with one arg', '... Bar.baz() with one arg return correct value');
+is(call_method(Bar, 'baz', [ 1 ]), 'Bar.baz with two args', '... Bar.baz() with two args return correct value');
+is(call_method(Bar, 'baz', [ 1, 2 ]), 'Bar.baz with three args', '... Bar.baz() with three args return correct value');
 
 
 </script></pre>

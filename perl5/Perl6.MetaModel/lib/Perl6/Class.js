@@ -1,9 +1,10 @@
 
 if (Perl6 == undefined) var Perl6 = function () {};
 
-if (Perl6.MetaClass == undefined || Perl6.MetaClass.prototype.version == undefined) require('Perl6.MetaClass');     
-if (Perl6.Method    == undefined) require('Perl6.Method');     
-if (Perl6.Attribute == undefined) require('Perl6.Attribute');   
+if (Perl6.MetaClass   == undefined || Perl6.MetaClass.prototype.version == undefined) require('Perl6.MetaClass');     
+if (Perl6.Method      == undefined) require('Perl6.Method');   
+if (Perl6.MultiMethod == undefined) require('Perl6.MultiMethod');     
+if (Perl6.Attribute   == undefined) require('Perl6.Attribute');   
 
 Perl6.Class = function (name, options) {
     this.META = new Perl6.MetaClass();
@@ -57,11 +58,23 @@ function _process_options (my_class, options) {
     if (options['instance']) {
         var instance = options['instance'];
         if (instance['methods']) {
-            for (label in instance['methods']) {
+            for (var label in instance['methods']) {
                 var method = new Perl6.Method(my_class.meta().name(), instance['methods'][label]);
                 my_class.meta().add_method(label, method, 'instance');
             }
         }
+        if (instance['multi_methods']) {
+            for (var label in instance['multi_methods']) {
+                var methods = [];
+                for (var i = 0; i < instance['multi_methods'][label].length; i++) {
+                    var body = instance['multi_methods'][label][i][0];
+                    var arity = instance['multi_methods'][label][i][1];                    
+                    methods[methods.length] = new Perl6.Method(my_class.meta().name(), body, arity);
+                }
+                var multi_method = new Perl6.MultiMethod(my_class.meta().name(), methods);
+                my_class.meta().add_method(label, multi_method, 'instance');
+            }
+        }        
         if (instance['attrs']) {
             var attrs = instance['attrs'];
             for (var i = 0; i < attrs.length; i++) {
@@ -82,11 +95,26 @@ function _process_options (my_class, options) {
     if (options['class']) {
         var _class = options['class']
         if (_class['methods']) {
-            for (label in _class['methods']) {
+            for (var label in _class['methods']) {
                 var method = new Perl6.Method(my_class.meta().name(), _class['methods'][label]);
                 my_class.meta().add_method(label, method, 'class');
             }
         }
+        if (_class['multi_methods']) {
+            for (var label in _class['multi_methods']) {
+                var methods = [];
+                for (var i = 0; i < _class['multi_methods'][label].length; i++) {
+                    var body = _class['multi_methods'][label][i][0];
+                    var arity = _class['multi_methods'][label][i][1];    
+                    //document.write("Adding multi-method " + label + " to " + my_class.meta().name() + " with arity of " + arity + "<BR>");                
+                    methods[methods.length] = new Perl6.Method(my_class.meta().name(), body, arity);
+                }
+                //document.write("adding ")
+                var multi_method = new Perl6.MultiMethod(my_class.meta().name(), methods);
+                my_class.meta().add_method(label, multi_method, 'class');
+            }
+        }                
+        
         if (_class['attrs']) {
             var attrs = _class['attrs'];
             for (var i = 0; i < attrs.length; i++) {
