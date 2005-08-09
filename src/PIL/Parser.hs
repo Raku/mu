@@ -20,7 +20,7 @@ parse src = case ( runParser ruleProgram () "-" src ) of
     Right exp   -> return exp
 
 ruleProgram :: RuleParser Exp
-ruleProgram = ruleExp
+ruleProgram = ruleExp `fin` eof
 
 ruleExp :: RuleParser Exp
 ruleExp = choice

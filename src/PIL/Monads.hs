@@ -2,9 +2,7 @@
 
 module PIL.Monads where
 import PIL.Internals
-import Control.Monad.Identity
 
-type Compile = IO
 type Eval = IO
 
 class (Monad m1, Monad m2) => MonadRunM m1 m2 where

@@ -7,7 +7,7 @@ module PIL.Internals (
     test, oneof, quickCheck, verboseCheck, Id,
     TVar, STM, newTVar, readTVar, writeTVar,
     fmapM, IntMap, Map, atomically, Dynamic, Typeable, toDyn,
-    MonadFix(..), fix,
+    MonadFix(..), fix, fin, finally, bracket,
 ) where
 import Control.Monad.ST
 import Data.STRef
@@ -22,6 +22,7 @@ import Data.Dynamic
 import Data.Typeable
 import GHC.Exts (Splittable(..))
 import Control.Monad.Fix
+import Control.Exception
 
 gen1 :: (Arbitrary a) => (a -> b) -> Gen b
 gen1 = (`fmap` arbitrary)
@@ -31,6 +32,13 @@ gen2 f = do
     x <- arbitrary
     y <- arbitrary
     return $ f x y
+
+fin :: (Monad m) => m a -> m b -> m a
+fin x y = do
+    rv <- x
+    y
+    return rv
+    
 
 {-|
 'Id' is an unique integer, with infinite supply.

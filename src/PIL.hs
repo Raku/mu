@@ -6,8 +6,9 @@ import PIL.Val
 import PIL.Pad
 import PIL.Syn
 import PIL.PIL
-import PIL.Parser
+import PIL.Compile
 import PIL.Monads
+import PIL.Parser
 import PIL.Internals
 
 -- Beginning of design of PIL2.
@@ -59,12 +60,6 @@ eval src = do
 
 p1 :: String
 p1 = "print 1"
-
--- prelude -- initial (lexical!) environment.
-
--- Compilation could be pure... we'll see.
-compile :: Exp -> Compile PIL
-compile = undefined
 
 -- Pretty is pure and needs no monad.
 pretty :: PIL -> String
