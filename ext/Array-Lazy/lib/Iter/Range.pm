@@ -14,7 +14,7 @@ use v6;
 
     # TODO - emit error message if attempting to instantiate an infinite list
     # TODO - does zip() has additional parameters?
-    # TODO - document unsupported operations: join, reduce, sort
+    # TODO - document unsupported operations: join, reduce, sort - call fail()
     # TODO - check grep() syntax
     # TODO - keys/kv/pairs/values with indexes - S29
 

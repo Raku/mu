@@ -47,6 +47,10 @@ class Perl6::Container::Array-0.01
 
 has Array @.items;
    
+    # TODO - separate modules "List" and "Array"
+    # TODO - sync Perl5/Perl6 versions, create Perl5 version of Array
+    # TODO - move files to the right directories, perl module name
+
     # TODO - exists(), delete() - S29
     # TODO - keys/kv/pairs/values with indexes - S29
 
