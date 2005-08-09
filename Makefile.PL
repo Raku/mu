@@ -376,7 +376,10 @@ ghci ::
 	$ghc --interactive $ghc_flags $ghc_output
 
 pil ::
-	$ghc --interactive -isrc src/PIL.hs UnicodeC.o
+	$ghc --make -Lsrc -Isrc -isrc src/PIL.hs src/UnicodeC.o
+
+pili ::
+	$ghc --interactive -Lsrc -Isrc -isrc src/PIL.hs src/UnicodeC.o
 
 tags : @srcfiles
 	$hasktags -c @srcfiles

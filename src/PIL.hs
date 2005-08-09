@@ -50,8 +50,14 @@ main = do
         print val
         redo
 
-print1 :: String
-print1 = "print 1"
+eval :: String -> IO Val
+eval src = do
+    syn <- runM (parse src)
+    pil <- runM (compile syn)
+    runM (interpret pil)
+
+p1 :: String
+p1 = "print 1"
 
 -- prelude -- initial (lexical!) environment.
 
