@@ -2,53 +2,66 @@
 
 module PIL where
 import PIL.Val
-import PIL.Container
+import PIL.Pad
 import PIL.Internals
 
--- Pad maps symbols to containers
-newtype Pad = MkPad (Map Sym Container)
+-- Beginning of design of PIL2.
 
--- $?CALLER::CALLER::SUB
-data Sym = MkSym
-    { symSigil      :: Sigil       -- $
-    , symTwigil     :: Twigil      -- ?
-    , symPackage    :: [Name]      -- [CALLER, CALLER]
-    , symName       :: Name        -- SUB
-    }
-    deriving (Eq, Ord, Show, Typeable)
+-- Goal: To make explicit the flow of types, after parsing and
+-- before type erasure.
 
-data Sigil
-    = SigilScalar   -- $
-    | SigilArray    -- @
-    | SigilHash     -- %
-    | SigilCode     -- &
-    | SigilPackage  -- ::
-    deriving (Eq, Ord, Show, Enum, Typeable)
+-- Goal: To unify Binding (Let) and Apply as the two verbs.
 
-{-|
-A twigil (secondary sigil) represents a particular special type of variable.
+-- Goal: To introduce all symbols at beginning of Scope.
 
-Examples of each include:
+-- Goal: To facilitate separate compilation by exposing a link set
+-- to the consuming module.  This starts from the file scope "main",
+-- which we shall specify as a Code node that does not perform bindings.
+-- A PPos annotator still works on any node whatsoever.
 
-* Lexically-scoped magical: @$?SELF@
+-- Goal: To allow runtime rebinding into different types, but check
+-- the types at compile time and raise warnings nevertheless!
 
-* Globally-available: @%*ENV@
+-- File is simply a toplevel code literal plus a set of external
+-- visible linkset information.
 
-* File-scoped magical: @%=POD@
+main :: IO ()
+main = do
+    putStrLn "*** Welcome to PIL2 REPL, the Pugs Again Shell!"
+    putStrLn "*** Please enter expressions, or :q to exit."
+    fix $ \redo -> do
+        putStr "pugs> "
+        src <- getLine
+        if (src == ":q") then return () else do
+        print "==> Parse Tree <=="
+        syn <- parse src
+        print syn
+        print "==> PIL Tree <=="
+        pil <- compile syn
+        print pil
+        print "==> Decompiled Source <=="
+        print $ pretty pil
+        print "==> Run! <=="
+        val <- run pil
+        print val
+        redo
 
-* Implicit parameter in bare-block: @{ $^a + $^b }@
+data Syn = MkSyn deriving Show
+data PIL = MkPIL deriving Show
 
-* Public member: @has $.skin@
+-- Parsing needs to handle BEGIN and such.
+parse :: String -> Parse Syn
+parse = undefined
 
-* Private member: @has $:guts@
--}
-data Twigil
-    = TwigilNone     -- ^ No twigil (most variables)
-    | TwigilCompiled -- ^ @?@
-    | TwigilGlobal   -- ^ @*@
-    | TwigilFile     -- ^ @=@
-    | TwigilImplicit -- ^ @^@
-    | TwigilPublic   -- ^ @.@
-    | TwigilPrivate  -- ^ @:@
-    deriving (Eq, Ord, Show, Enum, Typeable)
+-- Compilation could be pure... we'll see.
+compile :: Syn -> Compile PIL
+compile = undefined
+
+-- Pretty is pure and needs no monad.
+pretty :: PIL -> String
+pretty = undefined
+
+-- Run is pretty much all about side effects.
+run :: PIL -> Eval Val
+run = undefined
 

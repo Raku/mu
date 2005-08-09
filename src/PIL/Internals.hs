@@ -1,12 +1,13 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-full-laziness -fno-cse #-}
 
 module PIL.Internals (
     Arbitrary(..),
     gen1, gen2, assert,
     newSTRef, readSTRef, writeSTRef, modifySTRef, runST, ST, STRef,
-    test, oneof, quickCheck, verboseCheck, Id, newId,
+    test, oneof, quickCheck, verboseCheck, Id,
     TVar, STM, newTVar, readTVar, writeTVar,
     fmapM, IntMap, Map, atomically, Dynamic, Typeable, toDyn,
+    MonadFix(..), fix,
 ) where
 import Control.Monad.ST
 import Data.STRef
@@ -19,6 +20,8 @@ import Data.IntMap (IntMap)
 import Data.Map (Map)
 import Data.Dynamic
 import Data.Typeable
+import GHC.Exts (Splittable(..))
+import Control.Monad.Fix
 
 gen1 :: (Arbitrary a) => (a -> b) -> Gen b
 gen1 = (`fmap` arbitrary)
@@ -35,16 +38,8 @@ gen2 f = do
 newtype Id = MkId Int
     deriving (Eq, Ord, Show, Num, Arbitrary)
 
-{-# NOINLINE idSource #-}
-idSource :: TMVar Int
-idSource = unsafePerformIO $ atomically (newTMVar 0)
-
-newId :: STM Id
-newId = do
-   val <- takeTMVar idSource
-   let next = val+1
-   putTMVar idSource next
-   return (MkId next)
+instance Splittable Id where
+    split x = (x, x+1)
 
 instance (Typeable a, Typeable b) => Show (a -> b) where
     show _ = "(" ++ typA ++ " -> " ++ typB ++ ")"
