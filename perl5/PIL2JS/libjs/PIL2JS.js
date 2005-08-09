@@ -102,7 +102,7 @@ PIL2JS.Box = function (value) {
       my_ctype  == PIL2JS.ContainerType.Array &&
       new_ctype == PIL2JS.ContainerType.Scalar
     ) {
-      new_val = _26main_3a_3ainfix_3a_2c.FETCH()([PIL2JS.Context.SlurpyAny, n]).FETCH();
+      new_val = PIL2JS.cps2normal(_26main_3a_3ainfix_3a_2c.FETCH(), [PIL2JS.Context.SlurpyAny, n]).FETCH();
     // my @a = %h
     } else if(
       my_ctype  == PIL2JS.ContainerType.Array &&
@@ -113,20 +113,24 @@ PIL2JS.Box = function (value) {
         pairs[i] = new PIL2JS.Box.Constant(pairs[i]);
       }
       new_val =
-       _26main_3a_3ainfix_3a_2c.FETCH()([PIL2JS.Context.SlurpyAny].concat(pairs)).FETCH();
+        PIL2JS.cps2normal(
+          _26main_3a_3ainfix_3a_2c.FETCH(), [PIL2JS.Context.SlurpyAny].concat(pairs)
+        ).FETCH();
     // my @a = @b (copy @b, don't bind)
     } else if(
       my_ctype  == PIL2JS.ContainerType.Array &&
       new_ctype == PIL2JS.ContainerType.Array
     ) {
       new_val =
-       _26main_3a_3ainfix_3a_2c.FETCH()([PIL2JS.Context.SlurpyAny].concat(new_val)).FETCH();
+        PIL2JS.cps2normal(
+          _26main_3a_3ainfix_3a_2c.FETCH(), [PIL2JS.Context.SlurpyAny].concat(new_val)
+        ).FETCH();
 
     // my %a = (a => 1, b => 2) (or generally my %a = @a) --> my %a = hash(a => 1, b => 2)
     } else if(
       my_ctype  == PIL2JS.ContainerType.Hash &&
       new_ctype == PIL2JS.ContainerType.Array) {
-      new_val = _26main_3a_3ahash.FETCH()([PIL2JS.Context.SlurpyAny, n]).FETCH();
+      new_val = PIL2JS.cps2normal(_26main_3a_3ahash.FETCH(), [PIL2JS.Context.SlurpyAny, n]).FETCH();
     // my %a = %b (copy %b, don't bind)
     } else if(
       my_ctype  == PIL2JS.ContainerType.Hash &&
@@ -138,13 +142,15 @@ PIL2JS.Box = function (value) {
       }
       // &hash takes care of the copying.
       new_val =
-        _26main_3a_3ahash.FETCH()([PIL2JS.Context.SlurpyAny].concat(pairs)).FETCH();
+        PIL2JS.cps2normal(
+          _26main_3a_3ahash.FETCH(), [PIL2JS.Context.SlurpyAny].concat(pairs)
+        ).FETCH();
     // my %a = (a => 1) or my %a = 10
     } else if(
       my_ctype  == PIL2JS.ContainerType.Hash &&
       new_ctype == PIL2JS.ContainerType.Scalar
     ) {
-      new_val = _26main_3a_3ahash.FETCH()([PIL2JS.Context.SlurpyAny, n]).FETCH();
+      new_val = PIL2JS.cps2normal(_26main_3a_3ahash.FETCH(), [PIL2JS.Context.SlurpyAny, n]).FETCH();
 
     // my $scalar = @array or my $scalar = %hash (should auto-ref)
     } else if(
@@ -152,7 +158,9 @@ PIL2JS.Box = function (value) {
       new_ctype != PIL2JS.ContainerType.Scalar
     ) {
       new_val =
-        _26main_3a_3aprefix_3a_5c.FETCH()([PIL2JS.Context.ItemAny, n]).FETCH();
+        PIL2JS.cps2normal(
+         _26main_3a_3aprefix_3a_5c.FETCH(), [PIL2JS.Context.ItemAny, n]
+        ).FETCH();
     }
 
     value = new_val;
@@ -205,7 +213,7 @@ PIL2JS.Box.prototype = {
         this.uid        = other.uid;
         this.isConstant = other.isConstant;
       } else {
-        PIL2JS.die("Can't use object of type \"" + _26main_3a_3aref.FETCH()([PIL2JS.Context.ItemAny, other]).toNative() + "\" as an array or array reference!");
+        PIL2JS.die("Can't use object of type \"" + PIL2JS.cps2normal(_26main_3a_3aref.FETCH(), [PIL2JS.Context.ItemAny, other]).toNative() + "\" as an array or array reference!");
       }
     } else if(my_ctype == PIL2JS.ContainerType.Hash && other_ctype == PIL2JS.ContainerType.Scalar) {
       var other_val = fetch();
@@ -217,7 +225,7 @@ PIL2JS.Box.prototype = {
         this.uid        = other.uid;
         this.isConstant = other.isConstant;
       } else {
-        PIL2JS.die("Can't use object of type \"" + _26main_3a_3aref.FETCH()([PIL2JS.Context.ItemAny, other]).toNative() + "\" as a hash or hash reference!");
+        PIL2JS.die("Can't use object of type \"" + PIL2JS.cps2normal(_26main_3a_3aref.FETCH(), [PIL2JS.Context.ItemAny, other]).toNative() + "\" as a hash or hash reference!");
       }
     // Impossible (confirmed by Larry:
     // http://www.nntp.perl.org/group/perl.perl6.language/22535)
@@ -623,22 +631,6 @@ PIL2JS.ControlException.next.prototype.toString =
 PIL2JS.ControlException.redo  = function () {};
 PIL2JS.ControlException.redo.prototype.toString =
   function () { return "Can't \"redo\" outside a loop block!" };
-PIL2JS.ControlException.ret   = function (level, retval) {
-  // The sublevel (SUBROUTINE, SUBBLOCK, etc.) the &return/&leave/whatever is
-  // destined to.
-  this.level        = level;
-  // The (boxed) return value.
-  this.return_value = retval;
-
-  // Slightly hacky: Display an error if the user return()s outside a sub.
-  this.toString     = function () {
-    var msg = 
-      "Can't return outside a " + level + "-routine. at " +
-      _24main_3a_3a_3fPOSITION.toNative();
-    alert(msg);
-    return msg;
-  }
-};
 
 // PIL2JS.generic_return -- generates a function, which, when invoked, will
 // cause a return of the given level by throwing an appropriate exception.
@@ -785,31 +777,26 @@ PIL2JS.print_exception = function (err) {
   throw(err);
   _26main_3a_3asay.FETCH()([
     PIL2JS.Context.Void,
-    _26main_3a_3aprefix_3a_7e.FETCH()([
+    PIL2JS.cps2normal(_26main_3a_3aprefix_3a_7e.FETCH(), [
       PIL2JS.Context.ItemAny,
       err.pil2js_orig_msg
         ? err.pil2js_orig_msg
         : new PIL2JS.Box.Constant(err.toString())
-    ])
+    ]),
+    function () { "dummy" }
   ]);
 };
 PIL2JS.catch_all_exceptions = function (code) {
   try { code() } catch(err) {
-    if(
-      err instanceof PIL2JS.ControlException.ret &&
-      err.level == PIL2JS.ControlException.exit_level
-    ) {
-      // Ok.
-    } else {
-      PIL2JS.print_exception(err);
-    }
+    PIL2JS.print_exception(err);
   }
 };
 
 // Will, of course, break if call/cc magic is done.
 PIL2JS.cps2normal = function (f, args) {
-  var ret;
+  var ret = undefined;
   f(args.concat(function (r) { ret = r }));
+  if(ret == undefined) PIL2JS.die("Continuation wasn't called!");
   return ret;
 };
 

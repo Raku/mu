@@ -2,6 +2,7 @@ sub circumfix:<{}>(*@pairs) is primitive { \hash(*@pairs) }
 sub hash(*@pairs) is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt   = args.shift();
+    var cc    = args.pop();
     var pairs = args[0].FETCH();
     var hash  = new PIL2JS.Hash();
 
@@ -31,7 +32,7 @@ sub hash(*@pairs) is primitive {
       }
     }
 
-    return new PIL2JS.Box.Constant(hash);
+    cc(new PIL2JS.Box.Constant(hash));
   })')(@pairs);
 }
 
@@ -41,6 +42,7 @@ method postcircumfix:<{}>(%self: *@keys) {
 
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt  = args.shift();
+    var cc   = args.pop();
     var hash = args[0].FETCH();
     var keys = args[1].FETCH();
 
@@ -79,7 +81,7 @@ method postcircumfix:<{}>(%self: *@keys) {
     };
 
     if(keys.length == 1) {
-      return proxy_for(keys[0]);
+      cc(proxy_for(keys[0]));
     } else {
       var ret = [];
       for(var i = 0; i < keys.length; i++) {
@@ -87,7 +89,7 @@ method postcircumfix:<{}>(%self: *@keys) {
       }
 
       // Needed for %a<a b> = <c d>.
-      return new PIL2JS.Box.Proxy(
+      cc(new PIL2JS.Box.Proxy(
         function ()  { return ret },
         function (n) {
           var arr = new PIL2JS.Box([]).STORE(n).FETCH();
@@ -97,7 +99,7 @@ method postcircumfix:<{}>(%self: *@keys) {
 
           return this;
         }
-      );
+      ));
     }
   })')(%self, @keys);
 }

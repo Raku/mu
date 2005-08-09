@@ -2,37 +2,37 @@
 
 method JS::Root::shift(@self:) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var array = args[1].FETCH();
+    var array = args[1].FETCH(), cc = args.pop();
     var ret   = array.shift();
-    return ret == undefined ? new PIL2JS.Box.Constant(undefined) : ret;
+    cc(ret == undefined ? new PIL2JS.Box.Constant(undefined) : ret);
   })')(@self);
 }
 
 method JS::Root::pop(@self:) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var array = args[1].FETCH();
+    var array = args[1].FETCH(), cc = args.pop();
     var ret   = array.pop();
-    return ret == undefined ? new PIL2JS.Box.Constant(undefined) : ret;
+    cc(ret == undefined ? new PIL2JS.Box.Constant(undefined) : ret);
   })')(@self);
 }
 
 method JS::Root::unshift(@self: *@things) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var array = args[1].FETCH(), add = args[2].FETCH();
+    var array = args[1].FETCH(), add = args[2].FETCH(), cc = args.pop();
     for(var i = add.length - 1; i >= 0; i--) {
       array.unshift(new PIL2JS.Box(add[i].FETCH()));
     }
-    return new PIL2JS.Box.Constant(array.length);
+    cc(new PIL2JS.Box.Constant(array.length));
   })')(@self, @things);
 }
 
 method JS::Root::push(@self: *@things) {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var array = args[1].FETCH(), add = args[2].FETCH();
+    var array = args[1].FETCH(), add = args[2].FETCH(), cc = args.pop();
     for(var i = 0; i < add.length; i++) {
       array.push(new PIL2JS.Box(add[i].FETCH()));
     }
-    return new PIL2JS.Box.Constant(array.length);
+    cc(new PIL2JS.Box.Constant(array.length));
   })')(@self, @things);
 }
 
@@ -96,12 +96,12 @@ sub JS::Root::sort(Code ?$cmp is copy = &infix:<cmp>, *@array) is primitive {
 
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     // [].concat(...): Defeat modifying of the original array.
-    var array = [].concat(args[1].FETCH()), cmp = args[2].FETCH();
+    var array = [].concat(args[1].FETCH()), cmp = args[2].FETCH(), cc = args.pop();
     var jscmp = function (a, b) {
-      return cmp([PIL2JS.Context.ItemAny, a, b]).toNative();
+      return PIL2JS.cps2normal(cmp, [PIL2JS.Context.ItemAny, a, b]).toNative();
     };
     array.sort(jscmp);
-    return new PIL2JS.Box.Constant(array);
+    cc(new PIL2JS.Box.Constant(array));
   })')(@array, $cmp);
 }
 
@@ -171,9 +171,9 @@ method reverse(*@things is copy:) {
     JS::inline('(function (str) { return str.split("").reverse().join("") })')(@things[0]);
   } else {
     JS::inline('new PIL2JS.Box.Constant(function (args) {
-      var arr = args[1].FETCH();
+      var arr = [].concat(args[1].FETCH()), cc = args.pop();
       arr.reverse();
-      return new PIL2JS.Box.Constant(arr);
+      cc(new PIL2JS.Box.Constant(arr));
     })')(@things);
   }
 }
@@ -194,6 +194,7 @@ sub infix:<^..^> (Num $from, Num $to) is primitive { ($from + 1)..($to - 1) }
 sub infix:<,>(*@xs is rw) is primitive is rw {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt   = args.shift();
+    var cc    = args.pop();
     var iarr  = args[0].FETCH();
 
     var array = [];
@@ -230,7 +231,7 @@ sub infix:<,>(*@xs is rw) is primitive is rw {
       }
     );
 
-    return proxy;
+    cc(proxy);
   })')(@xs);
 }
 
@@ -248,6 +249,7 @@ method postcircumfix:<[]>(@self: Int *@idxs) is rw {
 
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt   = args.shift();
+    var cc    = args.pop();
     var array = args[0].FETCH();
     var idxs  = args[1].toNative();
     for(var i = 0; i < idxs.length; i++) {
@@ -287,7 +289,7 @@ method postcircumfix:<[]>(@self: Int *@idxs) is rw {
     };
 
     if(idxs.length == 1) {
-      return proxy_for(idxs[0]);
+      cc(proxy_for(idxs[0]));
     } else {
       var ret = [];
       for(var i = 0; i < idxs.length; i++) {
@@ -295,7 +297,7 @@ method postcircumfix:<[]>(@self: Int *@idxs) is rw {
       }
 
       // Needed for @a[1,2] = (3,4).
-      return new PIL2JS.Box.Proxy(
+      cc(new PIL2JS.Box.Proxy(
         function ()  { return ret },
         function (n) {
           var arr = new PIL2JS.Box([]).STORE(n).FETCH();
@@ -305,7 +307,7 @@ method postcircumfix:<[]>(@self: Int *@idxs) is rw {
 
           return this;
         }
-      );
+      ));
     }
   })')(@self, @idxs);
 }

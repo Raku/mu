@@ -1,6 +1,6 @@
 sub PIL2JS::Internals::generic_deref($thing) is primitive is rw {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var thing = args[1].FETCH();
+    var thing = args[1].FETCH(), cc = args.pop();
     if(!(thing instanceof PIL2JS.Ref)) {
       PIL2JS.die("Can\'t use \"" + thing + "\" as a generic reference!");
     }
@@ -15,25 +15,25 @@ sub PIL2JS::Internals::generic_deref($thing) is primitive is rw {
     );
 
     ret.uid = thing.referencee.uid;
-    return ret;
+    cc(ret);
   })')($thing);
 }
 
 sub PIL2JS::Internals::autoderef(Ref $ref) returns Bool is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var thing = args[1].FETCH();
+    var thing = args[1].FETCH(), cc = args.pop();
 
     if(!(thing instanceof PIL2JS.Ref)) {
       PIL2JS.die("\"" + thing + "\" is not a reference!");
     }
 
-    return new PIL2JS.Box.Constant(thing.autoderef);
+    cc(new PIL2JS.Box.Constant(thing.autoderef));
   })')($ref);
 }
 
 method tied(Ref $self:) returns Ref {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var ref = args[1].FETCH();
+    var ref = args[1].FETCH(), cc = args.pop();
 
     if(!(ref instanceof PIL2JS.Ref)) {
       PIL2JS.die("\"" + ref + "\" is not a reference!");
@@ -42,7 +42,7 @@ method tied(Ref $self:) returns Ref {
     var new_ref       = new PIL2JS.Ref(ref.referencee);
     new_ref.autoderef = false;
 
-    return new PIL2JS.Box.Constant(new_ref);
+    cc(new PIL2JS.Box.Constant(new_ref));
   })')($self);
 }
 

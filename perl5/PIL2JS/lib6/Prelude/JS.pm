@@ -38,12 +38,14 @@ sub JS::Root::time() is primitive {
 sub infix:<=:=>($a, $b) is primitive { JS::inline('new PIL2JS.Box.Constant(
   function (args) {
     var cxt = args.shift();
+    var cc  = args.pop();
+
     if(args[0].uid && args[1].uid) {
-      return new PIL2JS.Box.Constant(args[0].uid == args[1].uid);
+      cc(new PIL2JS.Box.Constant(args[0].uid == args[1].uid));
     } else if(!args[0].uid && !args[1].uid) {
-      return new PIL2JS.Box.Constant(args[0].FETCH() == args[1].FETCH());
+      cc(new PIL2JS.Box.Constant(args[0].FETCH() == args[1].FETCH()));
     } else {
-      return new PIL2JS.Box.Constant(false);
+      cc(new PIL2JS.Box.Constant(false));
     }
   }
 )')($a, $b) }
@@ -56,12 +58,12 @@ sub prefix:<*>(@array) {
     JS::inline('new PIL2JS.Box.Constant(function (args) {
       // We\'ve to [].concat here so we don\'t set .flatten_me of caller\'s
       // original array.
+      var cc    = args.pop();
       var array = [].concat(args[1].FETCH());
+
       array.flatten_me = true;
       var ret = new PIL2JS.Box.Constant(array);
-      // Hack! Returning flattened things the official way doesn\'t work (the
-      // flattenessness isn\'t preserved...).
-      throw(new PIL2JS.ControlException.ret(5, ret));
+      cc(ret);
     })')(@array);
   }
 }
@@ -83,7 +85,7 @@ use Prelude::JS::Operators;
 # typechecking etc. I renamed the parameters to $__a and $__b. HAAACK!
 sub infix:<~>(Str $__a, Str $__b) is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var a = args[1].FETCH(), b = args[2].FETCH();
-    return new PIL2JS.Box.Constant(String(a) + String(b));
+    var a = args[1].FETCH(), b = args[2].FETCH(), cc = args.pop();
+    cc(new PIL2JS.Box.Constant(String(a) + String(b)));
   })')(~$__a, ~$__b);
 }

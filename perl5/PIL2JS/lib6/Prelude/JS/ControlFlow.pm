@@ -93,22 +93,18 @@ sub statement_control:<for>(@array is rw, Code $code) is primitive {
 
 sub JS::Root::try(Code $code) is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
-    var cxt = args[0], code = args[1];
+    var cxt = args[0], code = args[1], cc = args.pop();
     var ret = new PIL2JS.Box.Constant(undefined);
-    try { ret = code.FETCH()([PIL2JS.Context.ItemAny]) } catch(err) {
-      if(err instanceof PIL2JS.ControlException.ret) {
-        throw err;
-      } else {
-        // Set $!
-        _24main_3a_3a_21.STORE(
-          err.pil2js_orig_msg
-            ? err.pil2js_orig_msg
-            : new PIL2JS.Box.Constant(err.toString())
-        );
-        return new PIL2JS.Box.Constant(undefined);
-      }
+    try { ret = PIL2JS.cps2normal(code.FETCH(), [PIL2JS.Context.ItemAny]) } catch(err) {
+      // Set $!
+      _24main_3a_3a_21.STORE(
+        err.pil2js_orig_msg
+          ? err.pil2js_orig_msg
+          : new PIL2JS.Box.Constant(err.toString())
+      );
+      return cc(new PIL2JS.Box.Constant(undefined));
     }
-    return ret;
+    cc(ret);
   })')($code);
 }
 
@@ -117,8 +113,9 @@ sub JS::Root::warn(*@msg) is primitive {
          :: @msg == 1 ?? @msg[0]
          :: "Warning: something's wrong";
   JS::inline('new PIL2JS.Box.Constant(function (args) {
+    var cc = args.pop();
     PIL2JS.warn(args[1]);
-    return new PIL2JS.Box.Constant(undefined);
+    cc(new PIL2JS.Box.Constant(undefined));
   })')($arg);
   ?1;
 }
