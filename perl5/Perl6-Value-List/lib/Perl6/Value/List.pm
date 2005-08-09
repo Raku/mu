@@ -18,6 +18,14 @@ sub new () {
 
 sub elems () { $_[0]->{elems}() }
 
+sub reverse () {
+    my $self = shift;
+    my $class = ref($self);
+    return $class->new( start => $self->{end},
+                        end =>   $self->{start},
+                        elems => $self->{elems} );
+}
+
 sub shift () {
     my $self = shift;
     return if $self->elems <= 0;
