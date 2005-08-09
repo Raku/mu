@@ -1,11 +1,31 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
-module PIL.Pad (Pad, Sym, Sigil, Twigil) where
+module PIL.Pad (Pad, Sym, Sigil, Twigil, mkSym) where
 import PIL.Container
 import PIL.Internals
 
 -- Pad maps symbols to containers
 newtype Pad = MkPad (Map Sym Container)
+
+mkSym :: (Monad m) => String -> m Sym
+mkSym (':':n@(':':_)) = mkSym n
+mkSym (s:name)    = do
+    sig <- mkSigil s
+    return $ MkSym
+        { symSigil      = sig
+        , symTwigil     = TwigilNone    -- XXX Stub
+        , symPackage    = []            -- XXX Stub
+        , symName       = MkName name
+        }
+mkSym [] = fail "Empty symbol"
+
+mkSigil :: (Monad m) => Char -> m Sigil
+mkSigil '$' = return SigilScalar
+mkSigil '@' = return SigilArray
+mkSigil '%' = return SigilHash
+mkSigil '&' = return SigilCode
+mkSigil ':' = return SigilPackage
+mkSigil s   = fail $ "Unknown sigil: " ++ [s]
 
 -- $?CALLER::CALLER::SUB
 data Sym = MkSym

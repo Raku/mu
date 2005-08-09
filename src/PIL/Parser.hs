@@ -3,6 +3,7 @@
 module PIL.Parser (parse) where
 import PIL.Val
 import PIL.Syn
+import PIL.Pad
 import PIL.Monads
 import PIL.Internals
 import Pugs.Rule hiding (parse)
@@ -19,13 +20,26 @@ parse src = case ( runParser ruleProgram () "-" src ) of
     Right exp   -> return exp
 
 ruleProgram :: RuleParser Exp
-ruleProgram = choice
+ruleProgram = ruleExp
+
+ruleExp :: RuleParser Exp
+ruleExp = choice
     [ ruleApp
     , ruleLit
     ]
 
 ruleApp :: RuleParser Exp
-ruleApp = undefined
+ruleApp = do
+    s <- ruleSymBare
+    spaces
+    e <- ruleExp
+    return $ App (Var s) e
+
+ruleSymBare :: RuleParser Sym
+ruleSymBare = do
+    x   <- letter
+    xs  <- many alphaNum
+    mkSym ('&':x:xs)
 
 ruleLit :: RuleParser Exp
 ruleLit = do
