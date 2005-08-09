@@ -74,7 +74,7 @@ sub _add_method {
     # using the _($method_table) version here would result 
     # in calls to other methods and those methods don't 
     # actually exists yet 
-    $self->{instance_data}->{$method_table}->{methods}->{$label} = $method;
+    ::get_P6opaque_instance_data($self)->{$method_table}->{methods}->{$label} = $method;
 }
 
 our $META;
@@ -206,7 +206,7 @@ sub _build_meta {
                 # which then calls MRO which then throws
                 # this into an infinite loop. So the compromise
                 # here is to break the opaque structure. 
-                $self->{instance_data}->{'@:MRO'} = [ 
+                ::get_P6opaque_instance_data($self)->{'@:MRO'} = [ 
                     ::dispatch($self, '_merge', (
                         [ $self ],                                                  # the class we are linearizing
                         (map { [ ::dispatch($_, 'MRO') ] } @{_('@:superclasses')}), # the MRO of all the superclasses

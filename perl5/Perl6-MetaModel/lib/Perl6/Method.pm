@@ -41,7 +41,7 @@ sub _create {
                     # this should not be accessing either the 
                     # instance_data->name slot, but we cannot
                     # do anything about it for now ...
-                    if ::get_P6opaque_instance_class($_[0]->[0]) ne $associated_with->{instance_data}->{name}; 
+                    if ::get_P6opaque_instance_class($_[0]->[0]) ne ::get_P6opaque_instance_data($associated_with)->{name}; 
             }
             $old->($_[1]); 
         }, 'Perl6::SubMethod';

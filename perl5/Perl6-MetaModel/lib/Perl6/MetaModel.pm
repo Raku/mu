@@ -46,7 +46,7 @@ sub _class_name {
     blessed($class) ?  
         # accomidate the Perl6::Class instance
         blessed($class) eq 'Perl6::Class' ?
-            $class->{instance_data}->{name}
+            ::get_P6opaque_instance_data($class)->{name}
             :
             blessed($class)
         :
@@ -76,8 +76,9 @@ sub ::create_P6opaque {
 # this means that our code should not try to peak into it
 # and so we should then use some kind of outside mechanism 
 # to get at the object id and class 
-sub ::get_P6opaque_instance_id    { (shift)->{id}    }
-sub ::get_P6opaque_instance_class { (shift)->{class} }
+sub ::get_P6opaque_instance_id    { (shift)->{id}            }
+sub ::get_P6opaque_instance_class { (shift)->{class}         }
+sub ::get_P6opaque_instance_data  { (shift)->{instance_data} }
 
 sub ::meta {
     my ($class) = @_;
@@ -126,14 +127,14 @@ sub _metaclass_dispatch {
     # we need to just dig one level deep here since
     # we know it is a metaclass, that is okay, but
     # still it is a hack. 
-    push @metaclasses => @{$meta_meta->{instance_data}->{'@:superclasses'}}
+    push @metaclasses => @{::get_P6opaque_instance_data($meta_meta)->{'@:superclasses'}}
         # however, we dont actually need to go there
         # if what we are asking for is a private method
         if $method_table_name ne '%:private';
     
     # now try and find out method ...
     foreach my $meta (@metaclasses) {
-        my $method_table = $meta->{instance_data}->{$method_table_name}->{methods};
+        my $method_table = ::get_P6opaque_instance_data($meta)->{$method_table_name}->{methods};
         return $method_table->{$label}->do($self, @_) if (exists $method_table->{$label});             
     }
     confess "Method ($label) not found for instance ($self)";  
@@ -217,10 +218,10 @@ sub _ {
         (ref($value) eq 'HASH') 
             || confess "You can only asssign a HASH ref to the label ($label)"
                 if $prop->is_hash();
-        $self->{instance_data}->{$label} = $value;         
+        ::get_P6opaque_instance_data($self)->{$label} = $value;         
     }
     # now return it ...
-    $self->{instance_data}->{$label};
+    ::get_P6opaque_instance_data($self)->{$label};
 }
 
 sub role {
@@ -320,7 +321,8 @@ sub ::CALLALL {
     # create the Perl6::MetaClass 
     # metaobject, thus bootstapping
     # itself.
-    require Perl6::Object;
+    use Perl6::Object;
+    
     # now we can say that a MetaClass
     # is a Object ...
     ::dispatch(::meta('Perl6::MetaClass'), 'superclasses', [ ::meta('Perl6::Object') ]);

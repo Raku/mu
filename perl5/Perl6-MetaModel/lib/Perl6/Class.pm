@@ -26,14 +26,19 @@ sub new_class {
     my ($name, $version, $authority) = _extract_name_from_identifier($identifier);      
     my $self = ::create_P6opaque($class => ( 
         name       => $name,
-        version    => $version,
-        authority  => $authority,
         identifier => $identifier,
-        meta       => undef,
-        params     => {}
+        meta => undef
     ));
-    if ($params) {
-        _validate_params($self, $params);
+    _validate_params($params) if $params;
+    ## BOOTSTRAPPING
+    # since Perl6::MetaClass calls this
+    # method to create it's own Perl6::Class
+    # then we need to avoid trying to build
+    # the metaclass for it 
+    if ($name ne 'Perl6::MetaClass') {
+        my $meta = _create_metaclass($name, $version, $authority);     
+        _build_class($self, $meta, $params);         
+        ::get_P6opaque_instance_data($self)->{meta} = $meta;
     }
     # stash these into the class ...
     $ALL_CLASSES{$identifier} = $self;
@@ -45,27 +50,24 @@ sub new_class {
 
 sub _apply_class_to_environment {
     my ($self) = @_;    
-    my ($name) = $self->{instance_data}->{name};
+    my ($name) = ::get_P6opaque_instance_data($self)->{name};          
     # create the package ...
     my $code = qq|
         package $name;
         \@$name\:\:ISA = 'Perl6::Instance';
-        \$$name\:\:META = undef;
         1;
     |;    
-    eval $code || confess "Could not initialize class '$name'";   
-    _create_metaclass($self);    
-    _build_class($self);     
+    eval $code || confess "Could not initialize class '$name'";                
     # alias the full name ...
     eval {  
         no strict 'refs';         
-        *{$self->{instance_data}->{identifier} . '::'} = *{$name . '::'};
+        *{::get_P6opaque_instance_data($self)->{identifier} . '::'} = *{$name . '::'};
     };
-    confess "Could not create full name " . $self->{instance_data}->{identifier} . " : $@" if $@;   
+    confess "Could not create full name : $@" if $@;   
 }
 
 sub _validate_params {
-    my ($self, $params) = @_;
+    my ($params) = @_;
 
     my %allowed = map { $_ => undef } qw(is does instance class);
     my %allowed_in = map { $_ => undef } qw(attrs BUILD DESTROY methods submethods);
@@ -80,8 +82,6 @@ sub _validate_params {
             }
         }
     }
-
-    $self->{instance_data}->{params} = $params;
 }
 
 sub _extract_name_from_identifier {
@@ -94,8 +94,7 @@ sub _extract_name_from_identifier {
 }
 
 sub _create_metaclass {
-    my ($self) = @_;
-    my ($name, $version, $authority) = ($self->{instance_data}->{name}, $self->{instance_data}->{version}, $self->{instance_data}->{authority});    
+    my ($name, $version, $authority) = @_;
 
     # create the metaclass ...     
     my $meta; 
@@ -111,11 +110,12 @@ sub _create_metaclass {
                 (defined $version   ? ('$.version'   => $version)   : ()),
                 (defined $authority ? ('$.authority' => $authority) : ())                              
             );  
+            
             # this action is done in the Perl6::MetaClass->BUILD
             # submethod, but we need to do it manually here
             {
-                no strict 'refs';    
-                ${"${name}::META"} = $meta;                    
+                no strict 'refs'; 
+                ${"${name}::META"} = $meta;      
             }
         }
         else {
@@ -124,22 +124,20 @@ sub _create_metaclass {
                 (defined $version   ? ('$.version'   => $version)   : ()),
                 (defined $authority ? ('$.authority' => $authority) : ())                              
             ));
-        } 
-        # connect the class and the meta;
-        $self->{instance_data}->{meta} = $meta; 
+        }  
     };
     confess "Could not initialize the metaclass for $name : $@" if $@;     
+    
+    return $meta;
 }
 
 sub _build_class {
-    my ($self) = @_;
+    my ($self, $meta, $params) = @_;
 
-    my $meta = $self->{instance_data}->{meta};
-
-    my $superclasses = $self->{instance_data}->{params}->{is};
+    my $superclasses = $params->{is};
     ::dispatch($meta, 'superclasses', ([ map { ::meta($_) } @{$superclasses} ]));        
 
-    if (my $instance = $self->{instance_data}->{params}->{instance}) {
+    if (my $instance = $params->{instance}) {
 
         ::dispatch($meta, 'add_method', ('BUILD' => Perl6::Method->create_submethod($self => $instance->{BUILD})))
             if exists $instance->{BUILD};            
@@ -172,7 +170,7 @@ sub _build_class {
             }
         }        
     }
-    if (my $class = $self->{instance_data}->{params}->{class}) {  
+    if (my $class = $params->{class}) {  
         
         if (exists $class->{attrs}) {
             foreach my $attr (@{$class->{attrs}}) {
@@ -199,8 +197,8 @@ sub _build_class {
     }
 
 
-    Perl6::Role->flatten_roles_into($meta, @{$self->{instance_data}->{params}->{does}})
-        if $self->{instance_data}->{params}->{does};
+    Perl6::Role->flatten_roles_into($meta, @{$params->{does}})
+        if $params->{does};
 }
 
 
