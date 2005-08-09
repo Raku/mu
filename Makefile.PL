@@ -375,6 +375,9 @@ jssmoke : $pugs util/run-smoke.pl all
 ghci ::
 	$ghc --interactive $ghc_flags $ghc_output
 
+pil ::
+	$ghc --interactive -isrc src/PIL.hs UnicodeC.o
+
 tags : @srcfiles
 	$hasktags -c @srcfiles
 	sort tags > tags.tmp

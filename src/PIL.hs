@@ -3,6 +3,9 @@
 module PIL where
 import PIL.Val
 import PIL.Pad
+import PIL.Syn
+import PIL.PIL
+import PIL.Parser
 import PIL.Monads
 import PIL.Internals
 
@@ -43,19 +46,14 @@ main = do
         print "==> Decompiled Source <=="
         print $ pretty pil
         print "==> Run! <=="
-        val <- runM $ eval pil
+        val <- runM $ interpret pil
         print val
         redo
 
 print1 :: String
 print1 = "print 1"
 
-data Syn = MkSyn deriving Show
-data PIL = MkPIL deriving Show
-
--- Parsing needs to handle BEGIN and such.
-parse :: String -> Parse Syn
-parse = undefined
+-- prelude -- initial (lexical!) environment.
 
 -- Compilation could be pure... we'll see.
 compile :: Syn -> Compile PIL
@@ -66,6 +64,6 @@ pretty :: PIL -> String
 pretty = undefined
 
 -- Eval is pretty much all about side effects.
-eval :: PIL -> Eval Val
-eval = undefined
+interpret :: PIL -> Eval Val
+interpret = undefined
 
