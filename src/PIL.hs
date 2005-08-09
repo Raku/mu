@@ -4,7 +4,7 @@
 module PIL where
 import PIL.Val
 import PIL.Pad
-import PIL.Syn
+import PIL.Exp
 import PIL.PIL
 import PIL.Compile
 import PIL.Monads

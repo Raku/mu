@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
 module PIL.Compile where
-import PIL.Syn
+import PIL.Exp
 import PIL.PIL
 import PIL.Monads
 import Control.Monad.Error

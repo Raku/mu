@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
-module PIL.Syn where
+module PIL.Exp where
 import PIL.Val
 import PIL.Pad
 import PIL.Internals

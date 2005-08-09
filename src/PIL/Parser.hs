@@ -2,7 +2,7 @@
 
 module PIL.Parser (parse) where
 import PIL.Val
-import PIL.Syn
+import PIL.Exp
 import PIL.Pad
 import PIL.Monads
 import PIL.Internals
