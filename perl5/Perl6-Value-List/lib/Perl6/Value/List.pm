@@ -18,6 +18,21 @@ sub new () {
 
 sub elems () { $_[0]->{elems}() }
 
+sub to_num () { $_[0]->elems }
+
+sub to_str () {
+    my $self = shift;
+    die "infinite list stringification" 
+        unless $self.elems < Inf;
+    return '' if $self.elems <= 0;
+    my $s = $self->shift;
+    return ''.$s if $self.elems <= 0;
+    while(1) {
+        $s .= ' ' . $self->shift;
+        return $s if $self.elems <= 0;
+    }
+}
+
 sub reverse () {
     my $self = shift;
     my $class = ref($self);
