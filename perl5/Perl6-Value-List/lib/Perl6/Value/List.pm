@@ -85,16 +85,16 @@ sub from_single () {
 
 # ---- these methods should be declared last, because they interfere with CORE::* things
 
+sub pop () {
+    my $self = shift;
+    return if $self->elems <= 0;
+    return $self->{end}();
+}
+
 sub shift () {
     my $self = shift;
     return if $self->elems <= 0;
     return $self->{start}();
-}
-
-sub pop () {
-    my $self = CORE::shift;
-    return if $self->elems <= 0;
-    return $self->{end}();
 }
 
 1;
