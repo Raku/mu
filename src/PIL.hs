@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 module PIL where
 import PIL.Val
@@ -62,7 +63,7 @@ p1 = "print 1"
 -- prelude -- initial (lexical!) environment.
 
 -- Compilation could be pure... we'll see.
-compile :: Syn -> Compile PIL
+compile :: Exp -> Compile PIL
 compile = undefined
 
 -- Pretty is pure and needs no monad.
