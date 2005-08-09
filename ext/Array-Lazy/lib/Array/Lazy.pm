@@ -3,6 +3,8 @@ use v6;
 =for ChangeLog
 
 2005-08-09
+* Renamed Lazy::List to Perl6::Value::List
+* Renamed Array::Lazy to Perl6::Container::Array
 * Removed fetch_slice() because it is non-standard.
 
 2005-08-08
@@ -35,12 +37,12 @@ use v6;
 
 =cut
 
-use Iter::Range;  # 'Lazy::List', 'Lazy::Range', 'Perl6::Array'
+use Iter::Range;  # 'Perl6::Value::List', 'Lazy::Range', 'Perl6::Array'
 
-# This class should not inherit from Lazy::List, because this would
+# This class should not inherit from Perl6::Value::List, because this would
 # cause multi-dimensional arrays to be flattened.
 
-class Array::Lazy-0.01
+class Perl6::Container::Array-0.01
 {
 
 has Array @.items;
@@ -66,7 +68,7 @@ has Array @.items;
     #      $off = $size;
     #   }
 
-method new ( Array::Lazy $Class: *@items ) { 
+method new ( Perl6::Container::Array $Class: *@items ) { 
     # say "new: ", @items;
     return $Class.new( items => @items ); 
 }
@@ -80,7 +82,7 @@ method _shift_n ($array: Int $length ) returns List {
     }    
     while @tmp {
         last if @ret.elems >= $length;
-        if ! @tmp[0].isa('Lazy::List') {
+        if ! @tmp[0].isa('Perl6::Value::List') {
             Perl6::Array::push @ret, Perl6::Array::shift @tmp;
             next;
         }
@@ -106,7 +108,7 @@ method _pop_n ($array: Int $length ) returns List {
     }    
     while @tmp {
         last if @ret.elems >= $length;
-        if ! @tmp[-1].isa('Lazy::List') {
+        if ! @tmp[-1].isa('Perl6::Value::List') {
             Perl6::Array::unshift @ret, Perl6::Array::pop @tmp;
             next;
         }
@@ -123,7 +125,7 @@ method _pop_n ($array: Int $length ) returns List {
     return @ret;
 }
 
-method elems ( Array::Lazy $array: ) {
+method elems ( Perl6::Container::Array $array: ) {
     
     # XXX - doesn't compile
     # [+] .elems<< $.items;
@@ -132,19 +134,19 @@ method elems ( Array::Lazy $array: ) {
     for $.items {
         # XXX - inheritance bug workaround
         $count += $_.isa( 'Lazy::Range' ) ?? $_.Lazy::Range::elems :: 
-                  $_.isa( 'Lazy::List' )  ?? $_.Lazy::List::elems  :: 
+                  $_.isa( 'Perl6::Value::List' )  ?? $_.Perl6::Value::List::elems  :: 
                   1;
     }
     $count;
 }  
 
 method splice ( 
-    Array::Lazy $array: 
+    Perl6::Container::Array $array: 
     ?$offset = 0, 
     ?$length = Inf, 
     *@list 
 )
-    returns Array::Lazy 
+    returns Perl6::Container::Array 
 { 
     my ( @head, @body, @tail );
     # say "items: ", $array.items, " splice: $offset, $length, ", @list;
@@ -180,34 +182,34 @@ method splice (
     };
     #say 'head: ',@head, ' body: ',@body, ' tail: ',@tail, ' list: ',@list;
     $array.items = ( @head, @list, @tail );
-    return Array::Lazy.new( @body );
+    return Perl6::Container::Array.new( @body );
 }
 
-method shift ( Array::Lazy $array: ) {
+method shift ( Perl6::Container::Array $array: ) {
     $array._shift_n( 1 )[0]
 }
 
-method pop ( Array::Lazy $array: ) {
+method pop ( Perl6::Container::Array $array: ) {
     $array._pop_n( 1 )[0] 
 }
 
-method unshift ( Array::Lazy $array: *@item ) {
+method unshift ( Perl6::Container::Array $array: *@item ) {
     Perl6::Array::unshift $array.items, @item;
     return $array; # XXX ?
 }
 
-method push ( Array::Lazy $array: *@item ) {
+method push ( Perl6::Container::Array $array: *@item ) {
     Perl6::Array::push $array.items, @item;
     return $array; # XXX ?
 }
 
-method end  ( Array::Lazy $array: ) {
+method end  ( Perl6::Container::Array $array: ) {
     my @x = $array.pop;
     $array.push( @x[0] ) if @x;
     return @x[0];
 }
 
-method FETCH ( Array::Lazy $array: Int $pos ) {
+method FETCH ( Perl6::Container::Array $array: Int $pos ) {
     # XXX - this is very inefficient
     # see also: slice()
     my $ret = $array.splice( $pos, 1 );
@@ -215,27 +217,27 @@ method FETCH ( Array::Lazy $array: Int $pos ) {
     return $ret.items;
 }
 
-method STORE ( Array::Lazy $array: Int $pos, $item ) {
+method STORE ( Perl6::Container::Array $array: Int $pos, $item ) {
     # TODO - $pos could be a lazy list of pairs!
     $array.splice( $pos, 1, [$item] );
     return $array;  # ?
 }
 
 # XXX - if you use this, you get: "cannot next() outside a loop"
-method next     ( Array::Lazy $array: ) { $array.shift } 
-method previous ( Array::Lazy $array: ) { $array.pop }    # just in case 
+method next     ( Perl6::Container::Array $array: ) { $array.shift } 
+method previous ( Perl6::Container::Array $array: ) { $array.pop }    # just in case 
 
-method reverse ( Array::Lazy $array: ) { 
+method reverse ( Perl6::Container::Array $array: ) { 
     my $rev = Perl6::Array::reverse $array.items;
     $rev = $rev.Perl6::Array::map:{
-            $_.isa('Lazy::List') ?? $_.Lazy::List::reverse :: $_
+            $_.isa('Perl6::Value::List') ?? $_.Perl6::Value::List::reverse :: $_
         };
-    return Array::Lazy.new( @{$rev} );
+    return Perl6::Container::Array.new( @{$rev} );
 }
 
-method splat ( Array::Lazy $array: ) { 
+method splat ( Perl6::Container::Array $array: ) { 
     my $ret = $array; 
-    return Lazy::List.new(
+    return Perl6::Value::List.new(
             start => coro {
                 yield $ret.shift 
             },
@@ -251,7 +253,7 @@ method splat ( Array::Lazy $array: ) {
 
 = NAME
 
-Array::Lazy - A Lazy Array
+Perl6::Container::Array - A Lazy Array
 
 = SYNOPSIS
 

@@ -1,6 +1,7 @@
 
 use v6;
 
+# XXX - this is temporary
 # this namespace is from 'S29'
     our &Perl6::Array::pop     := &pop;
     our &Perl6::Array::push    := &push;
@@ -9,6 +10,7 @@ use v6;
     our &Perl6::Array::reverse := &reverse;
     our &Perl6::Array::map     := &map;
     our &Perl6::Array::grep    := &grep;
+# ---------
 
     # TODO - emit error message if attempting to instantiate an infinite list
     # TODO - does zip() has additional parameters?
@@ -16,11 +18,11 @@ use v6;
     # TODO - check grep() syntax
     # TODO - keys/kv/pairs/values with indexes - S29
 
-class Lazy::List {
+class Perl6::Value::List {
     has Code $.cstart;
     has Code $.cend;
     has Code $.ccount;
-    class Lazy::Reverse is Lazy::List {
+    class Lazy::Reverse is Perl6::Value::List {
         has $.iter;
         method shift   ( Lazy::Reverse $self: ) { $.iter.pop   }
         method pop     ( Lazy::Reverse $self: ) { $.iter.shift }
@@ -35,14 +37,14 @@ class Lazy::List {
         $.cend   = $end   // coro { yield  Inf };
         $.ccount = $count // sub  { Inf };
     }
-    method shift   ( Lazy::List $self: ) { &{$self.cstart}() }
-    method pop     ( Lazy::List $self: ) { &{$self.cend}()   }  
-    method reverse ( Lazy::List $self: ) { Lazy::Reverse.new( :iter($self) ) }
-    method elems   ( Lazy::List $self: ) { &{$self.ccount}() }
+    method shift   ( Perl6::Value::List $self: ) { &{$self.cstart}() }
+    method pop     ( Perl6::Value::List $self: ) { &{$self.cend}()   }  
+    method reverse ( Perl6::Value::List $self: ) { Lazy::Reverse.new( :iter($self) ) }
+    method elems   ( Perl6::Value::List $self: ) { &{$self.ccount}() }
 
     method grep ( $array: Code $code ) { 
         my $ret = $array; 
-        Lazy::List.new(
+        Perl6::Value::List.new(
                 start => coro {
                         my $x = $ret.shift // yield;
                         yield $x if &$code($x) 
@@ -56,7 +58,7 @@ class Lazy::List {
 
     method map ( $array: Code $code ) { 
         my $ret = $array; 
-        Lazy::List.new(
+        Perl6::Value::List.new(
                 start => coro {
                         my @ret;
                         my $x = $ret.shift // yield;
@@ -75,7 +77,7 @@ class Lazy::List {
     method uniq ( $array: ) { 
         my %seen = ();
         my $ret = $array; 
-        Lazy::List.new(
+        Perl6::Value::List.new(
                 start => coro {
                         my $x = $ret.shift // yield;
                         unless %seen{$x} { 
@@ -96,7 +98,7 @@ class Lazy::List {
     method kv ( $array: ) { 
         my $ret = $array; 
         my $count = 0;
-        Lazy::List.new(
+        Perl6::Value::List.new(
                 start => coro {
                         my $x = $ret.shift // yield;
                         yield $count++;
@@ -109,7 +111,7 @@ class Lazy::List {
     method pairs ( $array: ) { 
         my $ret = $array; 
         my $count = 0;
-        Lazy::List.new(
+        Perl6::Value::List.new(
                 start => coro {
                         my $x = $ret.shift // yield;
                         my $pair = $count => $x;
@@ -123,7 +125,7 @@ class Lazy::List {
     method keys ( $array: ) { 
         my $ret = $array; 
         my $count = 0;
-        Lazy::List.new(
+        Perl6::Value::List.new(
                 start => coro {
                         my $x = $ret.shift // yield;
                         yield $count++; 
@@ -140,7 +142,7 @@ class Lazy::List {
         # TODO: implement zip parameters
         # TODO: implement count = max( @lists.elems )
         my @lists = ( $array, @list );
-        Lazy::List.new(
+        Perl6::Value::List.new(
                 start => coro {
                         my @x;
                         my $count = 0;
@@ -160,11 +162,11 @@ class Lazy::List {
         )
     }
 
-}  # end class Lazy::List
+}  # end class Perl6::Value::List
 
     # XXX - what does (9..1) do?
 
-class Lazy::Range is Lazy::List 
+class Lazy::Range is Perl6::Value::List 
 {
     has $.start;
     has $.end;
@@ -193,13 +195,13 @@ class Lazy::Range is Lazy::List
 
 Lazy::Range - A lazy list representing a range 
 
-Lazy::List - A lazy list created from coroutines
+Perl6::Value::List - A lazy list created from coroutines
 
 = SYNOPSIS
 
   my $iter1 = Lazy::Range.new( start => 10, end => 20 );
 
-  my $iter2 = Lazy::List.new( start => coro mylist2 { yield $_ for 1..3; yield; } );
+  my $iter2 = Perl6::Value::List.new( start => coro mylist2 { yield $_ for 1..3; yield; } );
 
 = DESCRIPTION
 

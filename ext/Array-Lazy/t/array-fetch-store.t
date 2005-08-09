@@ -11,7 +11,7 @@ use Iter::Range;
 
 {
   # FETCH/STORE
-  my $a1 = Array::Lazy.new(
+  my $a1 = Perl6::Container::Array.new(
         Lazy::Range.new( start => 'a', end => Inf, step => undef ) );
   is( $a1.FETCH(2), 'c', 'fetch' );
   is( $a1.FETCH(2), 'c', 'fetch again' );
@@ -39,7 +39,7 @@ use Iter::Range;
 
 {
   # FETCH/STORE x shift/pop
-  my $a1 = Array::Lazy.new(
+  my $a1 = Perl6::Container::Array.new(
         Lazy::Range.new( start => 'a', end => Inf ) );
   # store a lazy list
   $a1.STORE( 0, Lazy::Range.new( start => 0, end => Inf ));
@@ -49,7 +49,7 @@ use Iter::Range;
 
 {
   # removed -- lazy slice
-  # my $a1 = Array::Lazy.new(
+  # my $a1 = Perl6::Container::Array.new(
   #      Lazy::Range.new( start => 'a', end => Inf, step => undef ) );
   #
   # my $indexes = Lazy::Range.new( start => 2, end => Inf, step => 2 );
