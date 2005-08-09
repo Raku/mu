@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 20;
+plan 16;
 
 # use_ok( 'Array::Lazy' );
 use Array::Lazy; 
@@ -48,20 +48,20 @@ use Iter::Range;
 }
 
 {
-  # lazy slice
-  my $a1 = Array::Lazy.new(
-        Lazy::Range.new( start => 'a', end => Inf, step => undef ) );
-
-  my $indexes = Lazy::Range.new( start => 2, end => Inf, step => 2 );
-
-  my $sliced = $a1.fetch_slice( $indexes );
-
-  is( $sliced.shift,  'c', 'shift from slice' );
-  is( $sliced.shift,  'e', 'shift from slice' );
-  is( $sliced.shift,  'g', 'shift from slice' );
-
+  # removed -- lazy slice
+  # my $a1 = Array::Lazy.new(
+  #      Lazy::Range.new( start => 'a', end => Inf, step => undef ) );
+  #
+  # my $indexes = Lazy::Range.new( start => 2, end => Inf, step => 2 );
+  #
+  # my $sliced = $a1.fetch_slice( $indexes );
+  #
+  # is( $sliced.shift,  'c', 'shift from slice' );
+  # is( $sliced.shift,  'e', 'shift from slice' );
+  # is( $sliced.shift,  'g', 'shift from slice' );
+  #
   # '$sliced' is Modifiable
-  $sliced.STORE( 1, 'x' );
-  is( $sliced.FETCH( 1 ),  'x', 'STORE and FETCH from slice' );
+  # $sliced.STORE( 1, 'x' );
+  # is( $sliced.FETCH( 1 ),  'x', 'STORE and FETCH from slice' );
 
 }

@@ -11,8 +11,10 @@ use v6;
     our &Perl6::Array::grep    := &grep;
 
     # TODO - emit error message if attempting to instantiate an infinite list
-
-    # TODO - finish zip()
+    # TODO - does zip() has additional parameters?
+    # TODO - document unsupported operations: join, reduce, sort
+    # TODO - check grep() syntax
+    # TODO - keys/kv/pairs/values with indexes - S29
 
 class Lazy::List {
     has Code $.cstart;
@@ -142,10 +144,17 @@ class Lazy::List {
                 start => coro {
                         my @x;
                         my $count = 0;
-                        # TODO - this never ends
+                        # XXX - the list would normally stop after the first 'undef'
                         for @lists -> $xx {
-                            @x = $xx.shift;
-                            yield @x[0];
+                            Perl6::Array::push @x, [$xx.shift];
+                        }
+                        if defined any(@x) {
+                            for @lists -> $xx {
+                                yield Perl6::Array::shift @x;
+                            }
+                        }
+                        else {
+                            yield;
                         }
                 }
         )
