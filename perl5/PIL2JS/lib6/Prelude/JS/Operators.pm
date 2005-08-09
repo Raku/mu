@@ -60,7 +60,7 @@ for @subs -> $name, $type, $body {
   my $trait = $arity == 1  ?? ""        :: "is primitive";
   $eval ~= "
     $type $name ($args$colon) $trait \{
-      JS::inline('$jsbody').($args_);
+      JS::inline('($jsbody)').($args_);
     \}
   ";
 }

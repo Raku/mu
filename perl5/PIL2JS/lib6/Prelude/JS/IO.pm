@@ -1,6 +1,6 @@
 sub JS::Root::say(Str *@text)   is primitive { print *@text, "\n" }
 sub JS::Root::print(Str *@text) is primitive {
-  JS::inline('
+  JS::inline('(
     function (msg) {
       // Rest copied from
       // http://openjsan.org/doc/t/th/theory/Test/Simple/0.11/lib/Test/Builder.html.
@@ -38,6 +38,6 @@ sub JS::Root::print(Str *@text) is primitive {
       window.scrollTo(0, document.body.offsetHeight
                       || document.body.scrollHeight);
     }
-  ').(@text.join(""));
+  )')(@text.join(""));
   ?1;
 }

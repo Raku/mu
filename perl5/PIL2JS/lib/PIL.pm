@@ -99,29 +99,6 @@ sub lookup_var {
 
 sub fail { die "*** $_[0]\n    at $CUR_POS\n" }
 
-sub generic_catch {
-  my ($level, $body, @vars_to_restore) = @_;
-
-  $body = add_indent(1, $body);
-
-  my $restores = join "; ", map {
-    sprintf "%s = backup_%s", name_mangle($_), name_mangle($_);
-  } @vars_to_restore;
-
-  return sprintf <<EOF, $body, @vars_to_restore ? $restores : ""; }
-try {
-%s
-} catch(err) {
-  PIL2JS.call_chain.pop(); PIL2JS.subpads.pop();
-  %s;
-  if(err instanceof PIL2JS.ControlException.ret && $level >= err.level) {
-    return err.return_value;
-  } else {
-    throw err;
-  }
-}
-EOF
-
 sub generic_cc {
   my ($name, @vars_to_restore) = @_;
 

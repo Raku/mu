@@ -1,9 +1,9 @@
 method JS::Root::defined($a:) {
-  JS::inline('
+  JS::inline('(
     function (val) {
       return typeof(val) != "undefined";
     }
-  ')($a);
+  )')($a);
 }
 
 method JS::Root::not(*@a:) { @a.elems == 0 ?? undef :: !@a[0] } # XXX correct?

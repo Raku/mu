@@ -1,5 +1,5 @@
 sub statement_control:<loop>($pre, Code $cond, Code $body, Code $post) is primitive {
-  JS::inline('
+  JS::inline('(
     function (pre, cond, body, post) {
       try {
         for(pre; cond(); post()) {
@@ -32,7 +32,7 @@ sub statement_control:<loop>($pre, Code $cond, Code $body, Code $post) is primit
       }
       return undefined;
     }
-  ').($pre, {?$cond()}, $body, $post);
+  )')($pre, {?$cond()}, $body, $post);
 }
 
 sub JS::Root::last() is primitive { JS::inline "throw(new PIL2JS.ControlException.last())"; 1 }
@@ -52,11 +52,11 @@ sub statement_control:<until>(Code $cond, Code $body) is primitive {
 }
 
 sub statement_control:<if>(Bool $cond, Code $true, Code $false) is primitive {
-  JS::inline('
+  JS::inline('(
     function (cond, t, f) {
       return cond ? t() : f();
     }
-  ').(?$cond, $true, $false);
+  )')(?$cond, $true, $false);
 }
 
 sub statement_control:<unless>(Bool $cond, Code $true, Code $false) is primitive {

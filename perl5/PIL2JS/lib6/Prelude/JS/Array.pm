@@ -38,19 +38,19 @@ method JS::Root::push(@self: *@things) {
 
 method join(@self: Str $sep) { join $sep, *@self }
 sub JS::Root::join(Str $sep, *@things) is primitive {
-  JS::inline('
+  JS::inline('(
     function (arr, sep) {
       return arr.join(String(sep));
     }
-  ')(@things.map:{ ~$_ }, $sep);
+  )')(@things.map:{ ~$_ }, $sep);
 }
 
 method JS::Root::elems(@self:) {
-  JS::inline('function (arr) { return arr.length }')(@self);
+  JS::inline('(function (arr) { return arr.length })')(@self);
 }
 
 method JS::Root::end(@self:) {
-  JS::inline('function (arr) { return arr.length - 1 }')(@self);
+  JS::inline('(function (arr) { return arr.length - 1 })')(@self);
 }
 
 method map(@self is rw: Code $code) { map $code, *@self }
