@@ -1,6 +1,6 @@
 use v6;
 
-require HTTP::Headers;
+use HTTP::Headers;
 
 class HTTP::Message-0.1;
 

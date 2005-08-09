@@ -1,7 +1,7 @@
 #!/usr/bin/pugs
 use v6;
 
-require HTTP::Message;
+use HTTP::Message;
 
 class HTTP::Request-0.1[?::URI_CLASS = URI] {
     is HTTP::Message;

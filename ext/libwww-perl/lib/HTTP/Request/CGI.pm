@@ -1,11 +1,11 @@
 #!/usr/bin/pugs
 use v6;
 
-require URI;
+use URI;
 use URI::Escape <uri_unescape>;
 
-require HTTP::Request;
-require HTTP::Query;
+use HTTP::Request;
+use HTTP::Query;
 
 class HTTP::Request::CGI-0.0.1[?::URI_CLASS = URI] {
     is HTTP::Request[::URI_CLASS];
