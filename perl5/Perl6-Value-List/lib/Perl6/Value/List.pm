@@ -83,6 +83,37 @@ sub from_single () {
                         elems => sub{ scalar @list } );
 }
 
+sub from_range () {
+    my $class = shift;
+    my %param = @_;
+    my $start = delete $param{start};
+    my $end =   delete $param{end};
+    my $step =  delete $param{step};
+    die 'invalid parameters' if keys( %param );
+    return bless {  start => sub{ 
+                                my $r = $start; 
+                                if ( defined $step ) { $start += $step } else { $start++ };
+                                return $r;
+                            },
+                    end =>    sub{ 
+                                my $r = $end; 
+                                if ( defined $step ) { 
+                                    # XXX - this should use modulus, etc.
+                                    $end -= $step 
+                                } 
+                                else { 
+                                    $end-- 
+                                };
+                                return $r;
+                            },
+                    elems =>  sub{ 
+                                return $end - $start + 1 unless defined $step;
+                                return int(( $end - $start + 1 ) / $step);
+                            },
+                    is_infinite => { return $start == -Inf || $end == Inf },
+            }, $class;
+}
+
 # ---- these methods should be declared last, because they interfere with CORE::* things
 
 sub pop () {
