@@ -54,7 +54,7 @@ sub as_js {
       $self->[3]->[0]->[2]->[0]->[0]->isa("PIL::VStr") and
       1
     ) {
-      return $self->[3]->[0]->[2]->[0]->[0]->[0];
+      return sprintf "%s(\n%s\n)", $self->[PIL::CC]->as_js, PIL::add_indent 1, $self->[3]->[0]->[2]->[0]->[0]->[0];
     } elsif(defined $subname and $subname eq "&JS::inline") {
       PIL::fail("Invalid use of &JS::inline!");
     }

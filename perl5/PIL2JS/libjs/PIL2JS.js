@@ -271,6 +271,8 @@ PIL2JS.Box.prototype = {
         var retval;
         var cc = function (r) { retval = r };
         unboxed([PIL2JS.Context.ItemAny].concat(args).concat([cc]));
+        if(retval == undefined)
+          PIL2JS.die("Continuation wasn't called!");
         return retval.toNative();
       };
 
@@ -780,6 +782,7 @@ PIL2JS.use_jsan = function (mod) {
 };
 
 PIL2JS.print_exception = function (err) {
+  throw(err);
   _26main_3a_3asay.FETCH()([
     PIL2JS.Context.Void,
     _26main_3a_3aprefix_3a_7e.FETCH()([

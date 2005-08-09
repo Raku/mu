@@ -35,9 +35,17 @@ sub statement_control:<loop>($pre, Code $cond, Code $body, Code $post) is primit
   )')($pre, {?$cond()}, $body, $post);
 }
 
-sub JS::Root::last() is primitive { JS::inline "throw(new PIL2JS.ControlException.last())"; 1 }
-sub JS::Root::next() is primitive { JS::inline "throw(new PIL2JS.ControlException.next())"; 1 }
-sub JS::Root::redo() is primitive { JS::inline "throw(new PIL2JS.ControlException.redo())"; 1 }
+for <last next redo> -> $name {
+  Pugs::Internals::eval "
+    sub JS::Root::$name () is primitive \{
+      JS::inline '
+        function () \{
+          throw(new PIL2JS.ControlException.{$name}());
+        \}
+      ';
+    \}
+  ";
+}
 
 sub statement_control:<while>(Code $cond, Code $body) is primitive {
   my $ret;

@@ -63,16 +63,17 @@ use strict;
       sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);
     } @PIL::VARS_TO_BACKUP, qw< &?BLOCK &?SUB $?SUBNAME >;
     my $bind        = $self->[2]->as_js_bind;
-    my $wrappedbody = "$new_pad;\n$callchain;\n$backup;\n\n$magical_vars;\n\n$bind;\n\n$body";
+    my $wrappedbody = "$new_pad;\n$callchain;\n$magical_vars;\n\n$bind;\n\n$body";
 
     my $jsbody = $params . "\n" . $self->[2]->autothread_wrapper($wrappedbody);
 
     # Sub declaration
     my $js = sprintf
-      "%s%s = PIL2JS.Box.constant_func(%d, function (args) {\n%s\n%s\n});\n",
+      "%s%s = PIL2JS.Box.constant_func(%d, function (args) {\n%s;\n%s\n%s\n});\n",
       $PIL::IN_GLOBPIL ? "" : "var ",
       PIL::name_mangle($self->[0]),
       $self->[2]->arity,
+      PIL::add_indent(1, $backup),
       PIL::add_indent(1, $ccsetup),
       PIL::add_indent(1, $jsbody);
     $js .= sprintf
@@ -146,12 +147,13 @@ use strict;
       sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);
     } @PIL::VARS_TO_BACKUP, qw< $?SUBNAME >;
     my $bind        = $self->[1]->as_js_bind;
-    my $wrappedbody = "$new_pad;\n$backup;\n\n$magical_var$bind;\n\n$body";
+    my $wrappedbody = "$new_pad;\n$magical_var$bind;\n\n$body";
 
     my $jsbody = $params . "\n" . $self->[1]->autothread_wrapper($wrappedbody);
 
-    return sprintf "PIL2JS.Box.constant_func(%d, function (args) {\n%s\n%s\n})",
+    return sprintf "PIL2JS.Box.constant_func(%d, function (args) {\n%s;\n%s\n%s\n})",
       $self->[1]->arity,
+      PIL::add_indent(1, $backup),
       PIL::add_indent(1, $ccsetup),
       PIL::add_indent(1, $jsbody);
   }
@@ -189,23 +191,6 @@ EOF
   }
 
   sub unwrap { $_[0] }
-}
-
-{
-  package PIL::Cont;
-
-  sub new { bless { @_[1..$#_] } => $_[0] }
-
-  sub as_js {
-    return sprintf "(function (%s) {\n%s\n})",
-      $_[0]->{argname},
-      PIL::add_indent(
-        1,
-        ref $_[0]->{body} eq "CODE"
-          ? $_[0]->{body}->()
-          : $_[0]->{body}->as_js
-      );
-  }
 }
 
 1;
