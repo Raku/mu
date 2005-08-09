@@ -48,6 +48,9 @@ main = do
 
 data Syn = MkSyn deriving Show
 data PIL = MkPIL deriving Show
+type Parse = IO
+type Compile = IO
+type Eval = IO
 
 -- Parsing needs to handle BEGIN and such.
 parse :: String -> Parse Syn
