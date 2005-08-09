@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
-module PIL.Pad (Pad, Sym, Sigil, Twigil, mkSym) where
+module PIL.Pad (Pad, Sym(..), Sigil(..), Twigil, mkSym, unSigil) where
 import PIL.Container
 import PIL.Internals
 
@@ -26,6 +26,13 @@ mkSigil '%' = return SigilHash
 mkSigil '&' = return SigilCode
 mkSigil ':' = return SigilPackage
 mkSigil s   = fail $ "Unknown sigil: " ++ [s]
+
+unSigil :: Sigil -> Char
+unSigil SigilScalar = '$'
+unSigil SigilArray  = '@'
+unSigil SigilHash   = '%'
+unSigil SigilCode   = '&'
+unSigil SigilPackage= ':'
 
 -- $?CALLER::CALLER::SUB
 data Sym = MkSym

@@ -375,11 +375,11 @@ jssmoke : $pugs util/run-smoke.pl all
 ghci ::
 	$ghc --interactive $ghc_flags $ghc_output
 
-pil :: src/UnicodeC.o
-	$ghc --make -H0 -L. -Lsrc -I. -Isrc -i. -isrc -static -fno-warn-name-shadowing -o pil src/PIL.hs src/UnicodeC.o
+pil :: src/UnicodeC.o @srcfiles
+	$ghc --make -H0 -L. -Lsrc -I. -Isrc -i. -isrc -static -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs src/UnicodeC.o
 
-pili :: src/UnicodeC.o
-	$ghc --interactive -H0 -L. -Lsrc -I. -Isrc -i. -isrc -static -fno-warn-name-shadowing -o pil src/PIL.hs src/UnicodeC.o
+pili :: src/UnicodeC.o @srcfiles
+	$ghc --interactive -H0 -L. -Lsrc -I. -Isrc -i. -isrc -static -fno-warn-name-shadowing src/PIL.hs src/UnicodeC.o
 
 tags : @srcfiles
 	$hasktags -c @srcfiles

@@ -33,7 +33,8 @@ data Pair = MkPair { pairKey :: Single, pairVal :: Container }
 type Bit = Bool
 type Str = String
 type Num = Double
-type Code = (Val -> Val) -- XXX
+data Code = MkCode String -- XXX
+    deriving (Eq, Ord, Show, Typeable)
 data Control = MkControl -- XXX
     deriving (Eq, Ord, Show, Typeable)
 data Junc = MkJunc -- XXX

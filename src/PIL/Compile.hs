@@ -1,7 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
 module PIL.Compile where
-import PIL.Exp
+import qualified PIL.Exp as Exp
 import PIL.PIL
 import PIL.Monads
 import Control.Monad.Error
@@ -15,6 +15,12 @@ instance MonadRunM (Either String) IO where
         Right x' -> return x'
 
 -- Compilation could be pure... we'll see.
-compile :: Exp -> Compile PIL
-compile = undefined
+-- XXX kluge! doesn't do anything!
+compile :: Exp.Exp -> Compile PIL
+compile (Exp.App x y) = do
+    x' <- compile x
+    y' <- compile y
+    return $ App x' y'
+compile (Exp.Var x)   = return $ Var x
+compile (Exp.Lit x)   = return $ Lit x
 
