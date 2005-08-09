@@ -106,13 +106,12 @@ EOF
   }
 
   push @components, [inline => <<EOF];
-// Run all END blocks.
-PIL2JS.catch_all_exceptions(function () {
-  var blocks = _40main_3a_3a_2aEND.FETCH();
-  for(var i = 0; i < blocks.length; i++) {
-    blocks[i].FETCH()([PIL2JS.Context.Void]);
-  }
-});
+// Trigger running of all END blocks.
+_26main_3a_3aexit.FETCH()([
+  PIL2JS.Context.ItemAny,
+  new PIL2JS.Box.Constant(undefined),
+  'dummycc'
+]);
 EOF
 
   if($link eq "js") {

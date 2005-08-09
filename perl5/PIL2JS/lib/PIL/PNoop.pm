@@ -9,6 +9,12 @@ sub fixup {
   return bless [] => "PIL::PNoop";
 }
 
-sub as_js { return "new PIL2JS.Box.Constant(undefined)" }
+sub as_js {
+  sprintf "(%s)(%s)",
+    $_[0]->[PIL::CC]->as_js,
+    "new PIL2JS.Box.Constant(undefined)";
+}
+
+sub unwrap { $_[0] }
 
 1;

@@ -23,6 +23,8 @@
     local $PIL::CUR_POS = $_[0]->[0];
     return $_[0]->[2]->as_js;
   }
+
+  sub unwrap { $_[0]->[2]->unwrap }
 }
 
 {

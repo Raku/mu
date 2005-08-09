@@ -61,8 +61,8 @@ EOF
     my $vars = join ", ", map { $_->name ne '%_' ? ($_->jsname) : () } @$self;
 
     if($need_for_at) {
-      return sprintf "return PIL2JS.possibly_autothread([%s], [%s], function (%s) {\n%s\n});",
-        $vars, join(", ", @bools), $vars, PIL::add_indent(1, $body);
+      return sprintf "PIL2JS.possibly_autothread([%s], [%s], %s, function (%s) {\n%s\n});",
+        $vars, join(", ", @bools), PIL::cur_retcc, PIL::cur_retcc . ", $vars", PIL::add_indent(1, $body);
     } else {
       return $body;
     }
@@ -190,9 +190,14 @@ EOF
 
     if($self->{tpDefault}->isa("PIL::Just")) {
       my $undef = PIL::undef_of $name;
-      my $other = $self->{tpDefault}->[0]->as_js;
-      $other = "$other == undefined ? new PIL2JS.Box.Constant(undefined) : $other";
-      push @js, "if($jsname == undefined) $jsname = $undef.BINDTO($other);";
+      my $other = $self->{tpDefault}->[0];
+      # XXX this will break, of course, if $other does call/cc magic.
+      push @js,
+        "if($jsname == undefined) " .
+        PIL::possibly_ccify $other, PIL::Cont->new(
+          argname => "val",
+          body    => sub { "$jsname = val == undefined ? $undef : val;" },
+       );
     }
 
     # is copy?

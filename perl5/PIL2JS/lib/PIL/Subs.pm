@@ -58,26 +58,23 @@ use strict;
 
     local @PIL::VARS_TO_BACKUP = ();
     my $body        = $self->[3]->as_js;
+    my $ccsetup     = PIL::generic_cc PIL::cur_retcc, @PIL::VARS_TO_BACKUP, qw< &?BLOCK &?SUB $?SUBNAME >;
     my $backup      = "var " . join ", ", map {
       sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);
     } @PIL::VARS_TO_BACKUP, qw< &?BLOCK &?SUB $?SUBNAME >;
     my $bind        = $self->[2]->as_js_bind;
     my $wrappedbody = "$new_pad;\n$callchain;\n$backup;\n\n$magical_vars;\n\n$bind;\n\n$body";
-    $wrappedbody    = PIL::generic_catch(
-      $PIL::IN_SUBLIKE,
-      $wrappedbody,
-      @PIL::VARS_TO_BACKUP, qw< &?BLOCK &?SUB $?SUBNAME >
-    );
 
     my $jsbody = $params . "\n" . $self->[2]->autothread_wrapper($wrappedbody);
 
     # Sub declaration
     my $js = sprintf
-      "%s%s = PIL2JS.Box.constant_func(%d, function (args) {\n%s\n});\n",
+      "%s%s = PIL2JS.Box.constant_func(%d, function (args) {\n%s\n%s\n});\n",
       $PIL::IN_GLOBPIL ? "" : "var ",
       PIL::name_mangle($self->[0]),
       $self->[2]->arity,
-      PIL::add_indent 1, $jsbody;
+      PIL::add_indent(1, $ccsetup),
+      PIL::add_indent(1, $jsbody);
     $js .= sprintf
       "%s.perl_name = %s;\n",
       PIL::name_mangle($self->[0]),
@@ -106,6 +103,8 @@ use strict;
 
     return $js;
   }
+
+  sub unwrap { $_[0] }
 }
 
 {
@@ -142,23 +141,22 @@ use strict;
 
     local @PIL::VARS_TO_BACKUP = ();
     my $body        = $self->[2]->as_js;
+    my $ccsetup     = PIL::generic_cc PIL::cur_retcc, @PIL::VARS_TO_BACKUP, qw< $?SUBNAME >;
     my $backup      = "var " . join ", ", map {
       sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);
     } @PIL::VARS_TO_BACKUP, qw< $?SUBNAME >;
     my $bind        = $self->[1]->as_js_bind;
     my $wrappedbody = "$new_pad;\n$backup;\n\n$magical_var$bind;\n\n$body";
-    $wrappedbody    = PIL::generic_catch(
-      $PIL::IN_SUBLIKE,
-      $wrappedbody,
-      @PIL::VARS_TO_BACKUP, qw< $?SUBNAME >
-    );
 
     my $jsbody = $params . "\n" . $self->[1]->autothread_wrapper($wrappedbody);
 
-    return sprintf "PIL2JS.Box.constant_func(%d, function (args) {\n%s\n})",
+    return sprintf "PIL2JS.Box.constant_func(%d, function (args) {\n%s\n%s\n})",
       $self->[1]->arity,
-      PIL::add_indent 1, $jsbody;
+      PIL::add_indent(1, $ccsetup),
+      PIL::add_indent(1, $jsbody);
   }
+
+  sub unwrap { $_[0] }
 }
 
 {
@@ -177,9 +175,36 @@ use strict;
     local $PIL::IN_SUBLIKE  = PIL::SUBTHUNK;
     local $PIL::CUR_SUBNAME = "<thunk@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>";
 
-    local $_;
-    return sprintf "PIL2JS.Box.constant_func(0, function (args) { var cxt = args.shift(); return(%s); })",
-      $self->[0]->as_js;
+    my $body = PIL::possibly_ccify $self->[0], PIL::RawJS->new("thunkreturncc");
+    my $ret  = sprintf <<EOF, PIL::add_indent 1, $body;
+PIL2JS.Box.constant_func(0, function (args) {
+  var cxt           = args.shift();
+  var thunkreturncc = args.pop();
+%s;
+})
+EOF
+
+    chomp $ret;  # Cosmetical fix
+    return $ret;
+  }
+
+  sub unwrap { $_[0] }
+}
+
+{
+  package PIL::Cont;
+
+  sub new { bless { @_[1..$#_] } => $_[0] }
+
+  sub as_js {
+    return sprintf "(function (%s) {\n%s\n})",
+      $_[0]->{argname},
+      PIL::add_indent(
+        1,
+        ref $_[0]->{body} eq "CODE"
+          ? $_[0]->{body}->()
+          : $_[0]->{body}->as_js
+      );
   }
 }
 

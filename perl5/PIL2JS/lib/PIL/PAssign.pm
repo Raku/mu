@@ -30,9 +30,18 @@ sub as_js {
     }
   }
 
-  return sprintf "%s.STORE(%s)",
-    $self->[0]->[0]->as_js,
-    $self->[1]->as_js;
+  return PIL::possibly_ccify $self->[1], sub {
+    my $src = shift;
+    return PIL::possibly_ccify $self->[0]->[0], sub {
+      my $dest = shift;
+      sprintf "%s(%s.STORE(%s))",
+      $self->[PIL::CC]->as_js,
+      $dest,
+      $src;
+    };
+  };
 }
+
+sub unwrap { $_[0] }
 
 1;

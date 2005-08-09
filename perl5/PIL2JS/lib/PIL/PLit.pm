@@ -12,4 +12,6 @@ sub fixup {
 
 sub as_js { $_[0]->[0]->as_js }
 
+sub unwrap { $_[0] }
+
 1;

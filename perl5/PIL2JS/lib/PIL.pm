@@ -41,12 +41,47 @@ our @CUR_LEXSCOPES;
 # ID supply
 our $CUR_LEXSCOPE_ID;
 our $LEXSCOPE_PREFIX;
-# We've to backup some wars to make nested subcalls work (as we don't use JS'
+# We've to backup some vars to make nested subcalls work (as we don't use JS'
 # "lexical" vars anymore).
 our @VARS_TO_BACKUP;
 
+# Minor hack
+use constant CC => 100;
+
 # Guard against reentrancy.
 our $PROCESSING_HAS_STARTED;
+
+my $possibly_ccify_argid = 0;
+sub possibly_ccify {
+  my ($thing, $sub) = @_;
+  my $unwrapped = $thing->unwrap;
+
+  if(
+    $unwrapped->isa("PIL::PLit")   or
+    $unwrapped->isa("PIL::PVar")   or
+    $unwrapped->isa("PIL::PCode")  or
+    $unwrapped->isa("PIL::PThunk") or
+    0
+  ) {
+    if(ref $sub eq "CODE") {
+      return $sub->($thing->as_js);
+    } else {
+      return sprintf "%s(%s)", $sub->as_js, $thing->as_js;
+    }
+  } else {
+    die "Internal error: \$unwrapped->[PIL::CC] already defined!"
+      if $unwrapped->[PIL::CC];
+    if(ref $sub eq "CODE") {
+      my $argname = "ret" . $possibly_ccify_argid++;
+      $unwrapped->[PIL::CC] = PIL::Cont->new(argname => $argname, body => sub {
+        $sub->($argname);
+      });
+    } else {
+      $unwrapped->[PIL::CC] = $sub;
+    }
+    return $thing->as_js;
+  }
+}
 
 sub lookup_var {
   my $name = shift;
@@ -86,6 +121,32 @@ try {
   }
 }
 EOF
+
+sub generic_cc {
+  my ($name, @vars_to_restore) = @_;
+
+  my $restores = join "; ", map {
+    sprintf "%s = backup_%s", name_mangle($_), name_mangle($_);
+  } @vars_to_restore;
+
+  return sprintf <<EOF, $name, $restores }
+var __returncc = args.pop();
+var %s = function (retval) {
+  PIL2JS.call_chain.pop(); PIL2JS.subpads.pop();
+  %s;
+  __returncc(retval);
+};
+EOF
+
+sub cur_retcc {
+  die "Internal error: There doesn't exist a return continuation outside a sub!"
+    unless $PIL::IN_SUBLIKE;
+
+  return "subreturncc"   if $PIL::IN_SUBLIKE >= PIL::SUBROUTINE;
+  return "blockreturncc" if $PIL::IN_SUBLIKE >= PIL::SUBBLOCK;
+  return "smallreturncc" if $PIL::IN_SUBLIKE >= PIL::SUBTHUNK;
+  die;
+}
 
 sub fixup {
   local $_;
@@ -273,5 +334,6 @@ use PIL::PStmts;
 use PIL::PVal;
 use PIL::PVar;
 use PIL::Subs;
+use PIL::RawJS;
 
 1;

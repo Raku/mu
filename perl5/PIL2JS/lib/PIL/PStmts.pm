@@ -23,25 +23,21 @@ sub as_js {
     sprintf "_24main_3a_3a_3fPOSITION.STORE(new PIL2JS.Box.Constant(%s))",
     PIL::doublequote $PIL::CUR_POS;
 
-  # Add a &return() to the last statement of a sub.
-  if($PIL::IN_SUBLIKE and $self->[1]->isa("PIL::PNil")) {
-    my $js = $self->[0]->as_js;
-    # Note: Purely cosmetical hacking on the generated JS! (else it would be
-    # eevil).
-    $js =~ s/\n$//;
-    if($PIL::IN_SUBLIKE >= PIL::SUBROUTINE) {
-      return "$pos;\n_26main_3a_3areturn.FETCH()([PIL2JS.Context.ItemAny, $js]);";
-    } elsif($PIL::IN_SUBLIKE >= PIL::SUBBLOCK) {
-      return "$pos;\n_26main_3a_3aleave.FETCH()([PIL2JS.Context.ItemAny, $js]);";
-    } else {
-      # !!! *Never* do a native JS return(), as it defeats var restore.
-      return "$pos;\n_26PIL2JS_3a_3aInternals_3a_3asmallreturn.FETCH()([PIL2JS.Context.ItemAny, $js]);";
-    }
+  my ($head, $tail) = @$self;
+  my $cc;
+  if($PIL::IN_SUBLIKE and $tail->isa("PIL::PNil")) {
+    # Add a &return() to the last statement of a sub.
+    $head   = $head->unwrap;  # (That's only a cosmetical fix.)
+    my $cxt   = "PIL2JS.Context.ItemAny";
+    my $retcc = PIL::cur_retcc;
+    $cc = PIL::Cont->new(argname => "retval", body => sub {
+      "PIL2JS.generic_return($retcc).FETCH()([$cxt, retval, 'dummycc']);"
+    });
   } else {
-    my @js = ($self->[0]->as_js, $self->[1]->as_js);
-    $js[0] =~ s/\n$//;
-    return "$pos;\n$js[0];\n$js[1]";
+    $cc = PIL::Cont->new(argname => "", body => $tail);
   }
+
+  return $pos . ";\n" . PIL::possibly_ccify $head, $cc;
 }
 
 1;
