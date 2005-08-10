@@ -173,7 +173,7 @@ sub as_js {
     join("\n", map {
       my $name = $_->[0];
       $name =~ /^(?:__init_|__export_)/ && $name !~ /import$/
-        ? sprintf("%s.FETCH()([PIL2JS.Context.Void, function () { 'dummy' }]);", PIL::name_mangle $name)
+        ? sprintf("PIL2JS.cps2normal(%s.FETCH(), [PIL2JS.Context.Void]);", PIL::name_mangle $name)
         : ();
     } @{ $fixed_tree->{"pilGlob" } })  .
     "\n// End of initialization of global vars and exportation of subs.\n";

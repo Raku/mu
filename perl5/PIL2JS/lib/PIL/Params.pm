@@ -193,11 +193,11 @@ EOF
       my $other = $self->{tpDefault}->[0];
       # XXX this will break, of course, if $other does call/cc magic.
       push @js,
-        "if($jsname == undefined) " .
-        PIL::possibly_ccify $other, PIL::Cont->new(
+        "if($jsname == undefined) PIL2JS.runloop(function () {" .
+        PIL::possibly_ccify($other, PIL::Cont->new(
           argname => "val",
           body    => sub { "$jsname = val == undefined ? $undef : val;" },
-       );
+        )) . "});";
     }
 
     # is copy?

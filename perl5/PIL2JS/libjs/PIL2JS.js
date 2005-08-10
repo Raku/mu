@@ -278,7 +278,8 @@ PIL2JS.Box.prototype = {
         // Of course, this will break if unboxed does call/cc magic.
         var retval = PIL2JS.cps2normal(unboxed, [PIL2JS.Context.ItemAny].concat(args));
         if(retval == undefined)
-          PIL2JS.die("Continuation wasn't called!");
+          retval = new PIL2JS.Box.Constant(undefined);
+        //  PIL2JS.die("Continuation wasn't called!");
         return retval.toNative();
       };
 
@@ -368,7 +369,8 @@ PIL2JS.container_type = function (thing) {
 
 PIL2JS.toPIL2JSBox = function (thing) {
   // I'd do this as Object.prototype.toPIL2JSBox, but this causes severe
-  // problems, is a hack, and causes the MetaModel to not work.
+  // problems, is a hack, and causes the MetaModel to not work, as it depends
+  // on for(var k in some_object) to not return "toPIL2JSBox".
   if(thing instanceof Array) {
     var ret = [];
     for(var i = 0; i < thing.length; i++) {
@@ -662,23 +664,19 @@ PIL2JS.generic_return = function (returncc) {
     returncc(ret);
   });
 };
+
 PIL2JS.already_exited = false;
 var _26main_3a_3aexit = PIL2JS.Box.constant_func(1, function (args) {
   if(PIL2JS.already_exited) return;
   PIL2JS.already_exited = true;
 
   // Run all END blocks.
-  PIL2JS.catch_all_exceptions(function () {
-    var blocks = _40main_3a_3a_2aEND.FETCH();
-    var cc     = function (ignored_retval) {
-      if(blocks.length) {
-        blocks.shift().FETCH()([PIL2JS.Context.Void, cc]);
-      } else {
-        // We've finished.
-      }
-    };
-    cc();
-  });
+  var blocks = _40main_3a_3a_2aEND.FETCH();
+  for(var i = 0; i < blocks.length; i++) {
+    PIL2JS.cps2normal(blocks[i].FETCH(), [PIL2JS.Context.Void]);
+  }
+
+  /* We've finished, we don't call the cc. */
 });
 
 // Array of boxed subs we're currently in.
@@ -810,7 +808,7 @@ PIL2JS.catch_all_exceptions = function (code) {
 PIL2JS.cps2normal = function (f, args) {
   var ret = undefined;
   PIL2JS.runloop(function () { f(args.concat(function (r) { ret = r })) });
-  if(ret == undefined) PIL2JS.die("Continuation wasn't called!");
+  //if(ret == undefined) PIL2JS.die("Continuation wasn't called[" + f + "]!");
   return ret;
 };
 
@@ -961,7 +959,7 @@ var _26main_3a_3aprefix_3a_2b = PIL2JS.Box.constant_func(1, function (args) {
 
     var ref = PIL2JS.cps2normal(_26main_3a_3aref.FETCH(), [PIL2JS.Context.ItemAny, args[1]]).FETCH();
     if(ref == "Str") {
-      cc(PIL2JS.Box.Constant(Number(thing)));
+      cc(new PIL2JS.Box.Constant(Number(thing)));
     } else if(ref == "Array") {
       if(thing.referencee) thing = thing.referencee.FETCH();
       cc(new PIL2JS.Box.Constant(thing.length));
