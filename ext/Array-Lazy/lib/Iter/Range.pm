@@ -1,5 +1,6 @@
-
 use v6;
+
+# Perl6::Value::List - implementation of Perl6 'List' class in Perl6
 
 # XXX - this is temporary
 # this namespace is from 'S29'
@@ -12,6 +13,7 @@ use v6;
     our &Perl6::Array::grep    := &grep;
 # ---------
 
+    # TODO - finish sync with Perl5 version
     # TODO - emit error message if attempting to instantiate an infinite list
     # TODO - does zip() has additional parameters?
     # TODO - document unsupported operations: join, reduce, sort - call fail()
@@ -21,26 +23,67 @@ use v6;
 class Perl6::Value::List {
     has Code $.cstart;
     has Code $.cend;
-    has Code $.ccount;
-    class Lazy::Reverse is Perl6::Value::List {
-        has $.iter;
-        method shift   ( Lazy::Reverse $self: ) { $.iter.pop   }
-        method pop     ( Lazy::Reverse $self: ) { $.iter.shift }
-        method reverse ( Lazy::Reverse $self: ) { $.iter       }
-    }
+    has Code $.celems;
+    has Code $.cis_infinite;
+
     submethod BUILD ($class: 
-            Coro ?$start, 
-            Coro ?$end, 
-            Coro ?$count ) 
+            Code ?$start, 
+            Code ?$end, 
+            Code ?$elems,
+            Code ?$is_infinite ) 
     {
-        $.cstart = $start // coro { yield -Inf };
-        $.cend   = $end   // coro { yield  Inf };
-        $.ccount = $count // sub  { Inf };
+        if defined $elems {
+            $.celems = $elems
+        }
+        else {
+            $.celems =
+                ( defined $start || defined $end ) ?? sub { Inf } :: sub { 0 }
+        }
+        $.cstart =       $start       // sub { };
+        $.cend =         $end         // sub { };
+        $.cis_infinite = $is_infinite // sub { &{$.celems}() == Inf };    
     }
-    method shift   ( Perl6::Value::List $self: ) { &{$self.cstart}() }
-    method pop     ( Perl6::Value::List $self: ) { &{$self.cend}()   }  
-    method reverse ( Perl6::Value::List $self: ) { Lazy::Reverse.new( :iter($self) ) }
-    method elems   ( Perl6::Value::List $self: ) { &{$self.ccount}() }
+
+    method shift       ( $self: ) { &{$.cstart}() if &{$.celems}() }
+    method pop         ( $self: ) { &{$.cend}()   if &{$.celems}() }  
+    method elems       ( $self: ) { &{$self.celems}() }
+    method is_infinite ( $self: ) { &{$self.cis_infinite}() }
+
+    method reverse     ( $array: ) { 
+        my $ret = $array;
+        Perl6::Value::List.new( 
+                start =>       $ret.cend,
+                end =>         $ret.cstart,
+                elems =>       $ret.celems,
+                is_infinite => $ret.cis_infinite,
+        );
+    }
+
+    method from_range ( $class: $start is copy, $end is copy, ?$step ) {
+        Perl6::Value::List.new(
+                    start =>  sub {
+                                my $r = $start;
+                                if ( defined $step ) { $start += $step } else { $start++ };
+                                return $r;
+                            },
+                    end =>    sub {
+                                my $r = $end;
+                                if ( defined $step ) {
+                                    # XXX - this should use modulus, etc.
+                                    $end -= $step
+                                }
+                                else {
+                                    $end--
+                                };
+                                return $r;
+                            },
+                    elems =>  sub {
+                                return $end - $start + 1 unless defined $step;
+                                return int(( $end - $start + 1 ) / $step);
+                            },
+                    is_infinite => sub { return $start == -Inf || $end == Inf },
+        );
+    }
 
     method grep ( $array: Code $code ) { 
         my $ret = $array; 
@@ -53,6 +96,7 @@ class Perl6::Value::List {
                         my $x = $ret.pop // yield;
                         yield $x if &$code($x) 
                 },
+                # TODO - signal end of data using 'elems()'
         );
     }
 
@@ -71,6 +115,7 @@ class Perl6::Value::List {
                         Perl6::Array::push @ret, &$code($x); 
                         yield Perl6::Array::pop @ret while @ret  
                 },
+                # TODO - signal end of data using 'elems()'
         )
     }
 
@@ -92,6 +137,7 @@ class Perl6::Value::List {
                             yield $x 
                         }  
                 },
+                # TODO - signal end of data using 'elems()'
         )
     }
 
@@ -104,7 +150,7 @@ class Perl6::Value::List {
                         yield $count++;
                         yield $x;
                 },
-                count => sub { $ret.elems + $ret.elems },
+                elems => sub { $ret.elems + $ret.elems },
         )
     }
 
@@ -118,7 +164,7 @@ class Perl6::Value::List {
                         yield $pair;
                         $count++;
                 },
-                count => sub { $ret.elems },
+                elems => sub { $ret.elems },
         )
     }
 
@@ -130,7 +176,7 @@ class Perl6::Value::List {
                         my $x = $ret.shift // yield;
                         yield $count++; 
                 },
-                count => sub { $ret.elems },
+                elems => sub { $ret.elems },
         )
     }
 
@@ -146,6 +192,7 @@ class Perl6::Value::List {
                 start => coro {
                         my @x;
                         my $count = 0;
+                        # TODO - rewrite this checking 'elems()'
                         # XXX - the list would normally stop after the first 'undef'
                         for @lists -> $xx {
                             Perl6::Array::push @x, [$xx.shift];
@@ -164,52 +211,25 @@ class Perl6::Value::List {
 
 }  # end class Perl6::Value::List
 
-    # XXX - what does (9..1) do?
-
-class Lazy::Range is Perl6::Value::List 
-{
-    has $.start;
-    has $.end;
-    has $.step;
-    method shift ( Lazy::Range $self: ) {
-        my $tmp = $self.start; 
-        defined $self.step ?? $self.start += $self.step :: $self.start++;
-        return if $tmp > $self.end;
-        $tmp;
-    }    
-    method pop   ( Lazy::Range $self: ) {
-        my $tmp = $self.end;
-        defined $self.step ?? $self.end -= $self.step :: $self.start--;
-        return if $tmp < $self.start;
-        $tmp;
-    }
-    method elems {
-        return $.end - $.start + 1 unless defined $.step;
-        return int( $.end - $.start + 1 ) / $.step;
-    }
-}
-
 =kwid
 
 = NAME
 
-Lazy::Range - A lazy list representing a range 
-
-Perl6::Value::List - A lazy list created from coroutines
+Perl6::Value::List - implementation of Perl6 'List' class in Perl6
 
 = SYNOPSIS
 
-  my $iter1 = Lazy::Range.new( start => 10, end => 20 );
+  my $list = Perl6::Value::List.from_range( start => 10, end => 20 );
 
-  my $iter2 = Perl6::Value::List.new( start => coro mylist2 { yield $_ for 1..3; yield; } );
+  my $list = Perl6::Value::List.new( start => coro mylist2 { yield $_ for 1..3; yield; } );
 
 = DESCRIPTION
 
-...
+A lazy list created from coroutines or subs.
 
 = CONSTRUCTORS
 
-- `new( :start($a), :end($b), :step(1) )`
+- `new( ... )`
 
 = METHODS
 

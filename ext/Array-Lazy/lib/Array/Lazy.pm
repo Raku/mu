@@ -2,6 +2,12 @@ use v6;
 
 =for ChangeLog
 
+2005-08-10
+* Started syncing with Perl5 version
+* Removed class Lazy::Range
+* Lowercase methods fetch(), store()
+* Removed redundant methods next(), previous()
+
 2005-08-09
 * Renamed Lazy::List to Perl6::Value::List
 * Renamed Array::Lazy to Perl6::Container::Array
@@ -37,7 +43,7 @@ use v6;
 
 =cut
 
-use Iter::Range;  # 'Perl6::Value::List', 'Lazy::Range', 'Perl6::Array'
+use Iter::Range;  # 'Perl6::Value::List', 'Perl6::Array'
 
 # This class should not inherit from Perl6::Value::List, because this would
 # cause multi-dimensional arrays to be flattened.
@@ -199,12 +205,12 @@ method pop ( Perl6::Container::Array $array: ) {
 
 method unshift ( Perl6::Container::Array $array: *@item ) {
     Perl6::Array::unshift $array.items, @item;
-    return $array; # XXX ?
+    return $array; 
 }
 
 method push ( Perl6::Container::Array $array: *@item ) {
     Perl6::Array::push $array.items, @item;
-    return $array; # XXX ?
+    return $array; 
 }
 
 method end  ( Perl6::Container::Array $array: ) {
@@ -213,7 +219,7 @@ method end  ( Perl6::Container::Array $array: ) {
     return @x[0];
 }
 
-method FETCH ( Perl6::Container::Array $array: Int $pos ) {
+method fetch ( Perl6::Container::Array $array: Int $pos ) {
     # XXX - this is very inefficient
     # see also: slice()
     my $ret = $array.splice( $pos, 1 );
@@ -221,15 +227,15 @@ method FETCH ( Perl6::Container::Array $array: Int $pos ) {
     return $ret.items;
 }
 
-method STORE ( Perl6::Container::Array $array: Int $pos, $item ) {
+method store ( Perl6::Container::Array $array: Int $pos, $item ) {
     # TODO - $pos could be a lazy list of pairs!
     $array.splice( $pos, 1, [$item] );
-    return $array;  # ?
+    return $array; 
 }
 
 # XXX - if you use this, you get: "cannot next() outside a loop"
-method next     ( Perl6::Container::Array $array: ) { $array.shift } 
-method previous ( Perl6::Container::Array $array: ) { $array.pop }    # just in case 
+# method next     ( Perl6::Container::Array $array: ) { $array.shift } 
+# method previous ( Perl6::Container::Array $array: ) { $array.pop }    # just in case 
 
 method reverse ( Perl6::Container::Array $array: ) { 
     my $rev = Perl6::Array::reverse $array.items;
@@ -241,6 +247,7 @@ method reverse ( Perl6::Container::Array $array: ) {
 
 method splat ( Perl6::Container::Array $array: ) { 
     my $ret = $array; 
+    # TODO - optimization - return the internal list object, if there is one
     return Perl6::Value::List.new(
             start => coro {
                 yield $ret.shift 

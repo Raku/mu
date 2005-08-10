@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 41;
+plan 33;
 
 # use_ok( 'Array::Lazy' );
 use Array::Lazy; 
@@ -32,7 +32,7 @@ use Iter::Range;
 
 {
   # end of lazy stream
-  my $iter = Lazy::Range.new( start => 1, end => 2, step => 1 );
+  my $iter = Perl6::Value::List.from_range( start => 1, end => 2, step => 1 );
   my $a = Perl6::Container::Array.new( $iter );
   is( $a.shift, 1, 'iter 0' );
   is( $a.shift, 2, 'iter 1' );
@@ -50,32 +50,37 @@ use Iter::Range;
 }
 
 {
+  # -- no longer supported
+  # according to pugs, this should yield 0..Inf|1..Inf
+  # instead of 0|1,1|2,..Inf
+  #
   # a lazy list of junctions
-  my $iter = Lazy::Range.new( start => 0|1, end => Inf, step => 1 );
-  is( $iter.shift, 0|1, 'iter 0|1' );
-  is( $iter.shift, 1|2, 'iter 1|2' );
-  
+  # my $j = 0|1;
+  # my $iter = Perl6::Value::List.from_range( start => $j, end => Inf, step => 1 );
+  # is( $iter.shift, 0|1, 'iter 0|1' );
+  # is( $iter.shift, 1|2, 'iter 1|2' );
+  #
   # reversed
-  my $rev_iter = $iter.Perl6::Value::List::reverse;
-  is( $rev_iter.pop, 2|3, 'iter reverse 1' );
-  is( $rev_iter.pop, 3|4, 'iter reverse 2' );
+  # my $rev_iter = $iter.Perl6::Value::List::reverse;
+  # is( $rev_iter.pop, 2|3, 'iter reverse 1' );
+  # is( $rev_iter.pop, 3|4, 'iter reverse 2' );
 }
 
 {
   # 'Iter' object
-  my $iter = Lazy::Range.new( start => 0, end => Inf, step => 1 );
+  my $iter = Perl6::Value::List.from_range( start => 0, end => Inf, step => 1 );
   is( $iter.shift, 0, 'iter 0' );
   is( $iter.shift, 1, 'iter 1' );
   
   my $span = Perl6::Container::Array.new( 'x', 'y', 'z', $iter );
   my $spliced = $span.splice( 1, 4, () );
 
-  is( $span.items.join(','), 'x,<obj:Lazy::Range>', 'span' );
+  is( $span.items.join(','), 'x,<obj:Perl6::Value::List>', 'span' );
   is( $spliced.items.join(','), 'y,z,2,3', 'splice' );
 
   $spliced = $span.splice( 0, 3, ( 'a' ) );
 
-  is( $span.items.join(','), 'a,<obj:Lazy::Range>', 'span' );
+  is( $span.items.join(','), 'a,<obj:Perl6::Value::List>', 'span' );
   is( $spliced.items.join(','), 'x,4,5', 'splice again' );
   
   is( $span.shift, 'a', 'shift' );

@@ -1,5 +1,9 @@
 package Perl6::Value::List;
 
+# Perl6::Value::List - implementation of Perl6 'List' class in Perl5
+
+# TODO - add methods grep(), map(), ...
+
 use strict;
 our $VERSION = '0.01';
 use constant Inf => 100**100**100;
@@ -8,14 +12,16 @@ sub new () {
     my $class = shift;
     my %param = @_;
 
+    my $elems = delete $param{elems}; 
+    unless ( defined $elems ) {
+        $elems = ( defined $param{start} || defined $param{end} ) ? sub { Inf } : sub{ 0 };
+    }
+
     my $start = delete $param{start}; 
     $start = sub{} unless defined $start;
 
     my $end = delete $param{end};   
     $end = sub{} unless defined $end;
-
-    my $elems = delete $param{elems}; 
-    $elems = sub{ 0 } unless defined $elems;
 
     my $is_infinite = delete $param{is_infinite}; 
     $is_infinite = sub{ $_[0]->elems == Inf } unless defined $is_infinite;
@@ -133,11 +139,13 @@ __END__
 
 =head1 NAME
 
-Perl6::Value::List - Perl extension for Perl6-like "List"
+Perl6::Value::List - Perl extension for Perl6 "List" class
 
 =head1 SYNOPSIS
 
   use Perl6::Value::List;
+  
+  my $list = Perl6::Value::List.from_range( start => 10, end => 20 );
   
   my $list = Perl6::Value::List.new( ... );
 

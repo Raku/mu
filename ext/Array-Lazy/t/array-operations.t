@@ -11,14 +11,14 @@ use Iter::Range;
 
 {
   # string range
-  my $iter = Lazy::Range.new( start => 'a', end => Inf, step => undef );
+  my $iter = Perl6::Value::List.from_range( start => 'a', end => Inf, step => undef );
   is( $iter.shift, 'a', 'string range' );  
   is( $iter.shift, 'b', 'string range 1' );
 }
 
 {
   # 'Iter' object
-  my $iter = Lazy::Range.new( start => 0, end => 13, step => 1 );
+  my $iter = Perl6::Value::List.from_range( start => 0, end => 13, step => 1 );
   my $span = Perl6::Container::Array.new( -1, 9, $iter );
 
   my $grepped = $span.splat.Perl6::Value::List::grep:{ $_ % 3 == 0 };
@@ -37,7 +37,7 @@ use Iter::Range;
 
 {
   # multidimensional lazy array
-  my $iter = Lazy::Range.new( start => 0, end => 9, step => 1 );
+  my $iter = Perl6::Value::List.from_range( start => 0, end => 9, step => 1 );
   my $a1 = Perl6::Container::Array.new( $iter );
   my @a2 = 1..10;
   my $b1 = Perl6::Container::Array.new( $a1, [[@a2]] );  # XXX why does it need double []?
@@ -47,7 +47,7 @@ use Iter::Range;
 
 {
   # splat
-  my $iter = Lazy::Range.new( start => 0, end => 9, step => 1 );
+  my $iter = Perl6::Value::List.from_range( start => 0, end => 9, step => 1 );
   my $a1 = Perl6::Container::Array.new( $iter );
   my $b1 = Perl6::Container::Array.new( $a1.splat, 1..10 );
   isa_ok( $b1.shift, 'Int', 'with "splat", inserts the elements' );
@@ -56,7 +56,7 @@ use Iter::Range;
 
 {
   # uniq
-  my $iter = Lazy::Range.new( start => 0, end => 9, step => 1 );
+  my $iter = Perl6::Value::List.from_range( start => 0, end => 9, step => 1 );
   my $a1 = Perl6::Container::Array.new( 1, $iter );
   $a1 = $a1.splat.Perl6::Value::List::uniq;
   is( $a1.shift, 1, 'not seen element' );
@@ -132,8 +132,8 @@ use Iter::Range;
 
 {
   # elems
-  my $iter = Lazy::Range.new( start => 1, end => 1000000, step => 2 );
-  is( $iter.elems, 500000, 'Lazy List elems' );
+  my $iter = Perl6::Value::List.from_range( start => 1, end => 1000000, step => 2 );
+  is( $iter.Perl6::Value::List::elems, 500000, 'Lazy List elems' );
 
   is( $iter.kv.Perl6::Value::List::elems, 1000000, 'Lazy List elems doubles after kv()' );
 
