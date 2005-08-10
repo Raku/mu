@@ -111,7 +111,7 @@ var __returncc = args.pop();
 var %s = function (retval) {
   PIL2JS.call_chain.pop(); PIL2JS.subpads.pop();
   %s;
-  __returncc(retval);
+  throw function () { __returncc(retval) };
 };
 EOF
 
@@ -178,11 +178,13 @@ sub as_js {
     } @{ $fixed_tree->{"pilGlob" } })  .
     "\n// End of initialization of global vars and exportation of subs.\n";
 
-  return sprintf <<EOF, $decl_js, add_indent(1, join "\n", @glob_js, $init_js, $main_js);
+  return sprintf <<EOF, $decl_js, add_indent(2, join "\n", @glob_js, $init_js, $main_js);
 %s
 PIL2JS.catch_all_exceptions(function () {
-  var pad = {}; PIL2JS.subpads.push(pad);
+  PIL2JS.runloop(function () {
+    var pad = {}; PIL2JS.subpads.push(pad);
 %s
+  });
 });
 PIL2JS.subpads.pop();
 EOF

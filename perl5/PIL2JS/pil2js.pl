@@ -108,11 +108,13 @@ EOF
 
   push @components, [inline => <<EOF];
 // Trigger running of all END blocks.
-_26main_3a_3aexit.FETCH()([
-  PIL2JS.Context.ItemAny,
-  new PIL2JS.Box.Constant(undefined),
-  'dummycc'
-]);
+PIL2JS.runloop(function () {
+  _26main_3a_3aexit.FETCH()([
+    PIL2JS.Context.ItemAny,
+    new PIL2JS.Box.Constant(undefined),
+    'dummycc'
+  ]);
+});
 EOF
 
   if($link eq "js") {

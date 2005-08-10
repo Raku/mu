@@ -276,9 +276,7 @@ PIL2JS.Box.prototype = {
           args[i] = new PIL2JS.Box.Constant(arguments[i]);
 
         // Of course, this will break if unboxed does call/cc magic.
-        var retval;
-        var cc = function (r) { retval = r };
-        unboxed([PIL2JS.Context.ItemAny].concat(args).concat([cc]));
+        var retval = PIL2JS.cps2normal(unboxed, [PIL2JS.Context.ItemAny].concat(args));
         if(retval == undefined)
           PIL2JS.die("Continuation wasn't called!");
         return retval.toNative();
@@ -387,6 +385,22 @@ PIL2JS.box_native_result = function (res) {
     return new PIL2JS.Box.Constant(res);
   } else {
     return PIL2JS.toPIL2JSBox(res);
+  }
+};
+
+// Hack to work around JS not providing .tailcall... :(
+PIL2JS.runloop = function (f) {
+  var was_in_errhandler = true;
+  while(was_in_errhandler) {
+    was_in_errhandler = false;
+    try { f() } catch(err) {
+      if(err instanceof Function) {
+        f = err;
+        was_in_errhandler = true;
+      } else {
+        throw err;
+      }
+    }
   }
 };
 
@@ -795,7 +809,7 @@ PIL2JS.catch_all_exceptions = function (code) {
 // Will, of course, break if call/cc magic is done.
 PIL2JS.cps2normal = function (f, args) {
   var ret = undefined;
-  f(args.concat(function (r) { ret = r }));
+  PIL2JS.runloop(function () { f(args.concat(function (r) { ret = r })) });
   if(ret == undefined) PIL2JS.die("Continuation wasn't called!");
   return ret;
 };
