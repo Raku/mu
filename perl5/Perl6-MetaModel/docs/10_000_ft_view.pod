@@ -75,6 +75,26 @@ At this point, the following things are true:
     meta(MetaClass) is an instance of MetaClass
     meta(Object) is an instance of MetaClass
     MetaClass is a subclass of Object
+    
+And represented visually here:
+    
+    ---> is subclass of
+    ...> is instance of
+
+       meta(MetaClass)
+           :     ^
+           :     :
+           V     :
+          MetaClass -----+
+              ^          |
+              :          |
+              :          |
+         meta(Object)    |
+              ^          |
+              :          |
+              :          |
+           Object <------+    
+    
 
 =head1 FAQ
 

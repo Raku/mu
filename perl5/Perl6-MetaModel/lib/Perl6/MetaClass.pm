@@ -87,22 +87,6 @@ sub _build_meta {
     # with. After this, we can add any method we want :)
     _add_method($META, 'add_method' => Perl6::Method->create_instance_method('Perl6::MetaClass' => \&_add_method));    
 
-    # BUILD submethod
-    ::dispatch($META, 'add_method', 
-        'BUILD' => Perl6::Method->create_submethod('Perl6::MetaClass' => sub {
-            my ($self, %params) = @_;
-            # XXX - this is just how we choose to deal with this now
-            # there is no reason if cannot be done in some other
-            # manner, and not stored in the package symbol table. 
-            # However, if you change this, also change the Perl6::Object
-            # bootstrapping stuff in Perl6::Class::_apply_class_to_environment
-            # as well as how $META is stored in this module, and how
-            # ::meta() accesses all this in Perl6::MetaModel
-            no strict 'refs';
-            ${$params{'$.name'} . '::META'} = $self;
-        })
-    );
-
     # methods ...
     ::dispatch($META, 'add_method', 
         'version' => Perl6::Method->create_instance_method('Perl6::MetaClass' => sub {

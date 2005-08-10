@@ -78,13 +78,52 @@ sub ::create_P6opaque {
 # to get at the object id and class 
 sub ::get_P6opaque_instance_id    { (shift)->{id}            }
 sub ::get_P6opaque_instance_class { (shift)->{class}         }
-sub ::get_P6opaque_instance_data  { (shift)->{instance_data} }
+sub ::get_P6opaque_instance_data  { 
+    confess "Instance is undefined" if not defined $_[0] ;
+    (shift)->{instance_data} 
+}
+
+# XXX
+# this is a temporary hack to 
+# move us away from the named
+# class thing
+sub ::find_class {
+    my ($class) = @_;
+    (defined $class)
+        || confess "You did not specify the class you want";
+    (exists $Perl6::Class::ALL_CLASSES{$class})
+        || confess "You asked for a class which does not exist ($class)";
+    return $Perl6::Class::ALL_CLASSES{$class};
+}
 
 sub ::meta {
     my ($class) = @_;
     confess "::meta called without a class" unless defined $class;
-    no strict 'refs';
-    return ${_class_name($class) . '::META'};
+    
+    ## NOTE:
+    # this should skip all the ::find_class stuff
+    # if $class is itself a Perl6::Class instance
+    # but I dont have time to hcak that in right now
+    
+    my $class_name = _class_name($class);
+    confess "could not find class name" 
+        unless defined $class_name;
+        
+    ## BOOTSTRAPPING
+    # we have to check this here because we 
+    # need to create the meta(MetaClass) which
+    # itself is not hooked up through the 
+    # class yet.
+    if ($class_name eq 'Perl6::MetaClass') {
+        no strict 'refs';
+        return ${_class_name($class) . '::META'};        
+    }
+        
+    my $class_obj = ::find_class($class_name);
+    confess "could not find ::Class instance for ($class_name)" 
+        unless defined $class_obj;     
+        
+    return ::get_P6opaque_instance_data($class_obj)->{meta};
 }
 
 sub ::dispatch {
@@ -120,6 +159,8 @@ sub _metaclass_dispatch {
     # circularity
 
     my $meta_meta = ::meta($self);
+
+    use Data::Dumper; warn Dumper $self if not defined $meta_meta ; 
 
     # gather all the metaclasses to look through
     my @metaclasses = ($meta_meta);

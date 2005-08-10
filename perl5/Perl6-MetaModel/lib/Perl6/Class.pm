@@ -23,11 +23,14 @@ our %ALL_CLASSES;
 
 sub new_class {
     my ($class, $identifier, $params) = @_;
+    # XXX -
+    # this should actually probably goto $AUTOLOAD ...
+    confess "Cannot call new_class with a blessed instance ($class)" if blessed($class);
     my ($name, $version, $authority) = _extract_name_from_identifier($identifier);      
     my $self = ::create_P6opaque($class => ( 
         name       => $name,
         identifier => $identifier,
-        meta => undef
+        meta       => undef
     ));
     _validate_params($params) if $params;
     ## BOOTSTRAPPING
@@ -37,7 +40,7 @@ sub new_class {
     # the metaclass for it 
     if ($name ne 'Perl6::MetaClass') {
         my $meta = _create_metaclass($name, $version, $authority);     
-        _build_class($self, $meta, $params);         
+        _build_metaclass($self, $meta, $params);         
         ::get_P6opaque_instance_data($self)->{meta} = $meta;
     }
     # stash these into the class ...
@@ -110,13 +113,6 @@ sub _create_metaclass {
                 (defined $version   ? ('$.version'   => $version)   : ()),
                 (defined $authority ? ('$.authority' => $authority) : ())                              
             );  
-            
-            # this action is done in the Perl6::MetaClass->BUILD
-            # submethod, but we need to do it manually here
-            {
-                no strict 'refs'; 
-                ${"${name}::META"} = $meta;      
-            }
         }
         else {
             $meta = ::dispatch('Perl6::MetaClass', 'new', (
@@ -131,7 +127,7 @@ sub _create_metaclass {
     return $meta;
 }
 
-sub _build_class {
+sub _build_metaclass {
     my ($self, $meta, $params) = @_;
 
     my $superclasses = $params->{is};
