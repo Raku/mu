@@ -2,11 +2,19 @@ package Perl6::Value::List;
 
 # Perl6::Value::List - implementation of Perl6 'List' class in Perl5
 
+# ChangeLog
+#
+# 2005-08-10
+# * Removed method concat_list(), added "TODO" methods
+
 # TODO - add methods grep(), map(), ...
+# TODO - add tests
 
 use strict;
 our $VERSION = '0.01';
 use constant Inf => 100**100**100;
+
+sub TODO () { die "not implemented" };
 
 sub new () {
     my $class = shift;
@@ -39,6 +47,12 @@ sub elems () { $_[0]->{elems}() }
 
 sub is_infinite () { $_[0]->{is_infinite}() }
 
+sub is_contiguous () { TODO }
+
+sub is_lazy () { TODO }
+
+sub flatten () { TODO }
+
 sub to_ref () { $_[0] }
 
 sub to_bit () { $_[0]->elems > 0 }
@@ -58,6 +72,10 @@ sub to_str () {
     }
 }
 
+sub to_list () { TODO }
+
+# --- list operations ---
+
 sub reverse () {
     my $self = shift;
     my $class = ref($self);
@@ -67,19 +85,25 @@ sub reverse () {
                         is_infinite => $self->{is_infinite} );
 }
 
+sub map () { TODO }
+
+sub grep () { TODO }
+
+sub uniq () { TODO }
+
+sub kv () { TODO }
+
+sub pairs () { TODO }
+
+sub keys () { TODO }
+
+sub values () { TODO }
+
+sub zip () { TODO }
+
 # --- extra methods ---
 
-sub concat_list () {
-    my $self = shift;
-    my $list = shift;
-    my $class = ref($self);
-    return $class->new( start => sub{ return $self->shift if $self->elems;
-                                      return $list->shift; },
-                        end =>   sub{ return $list->pop if $list->elems;
-                                      return $self->pop; },
-                        elems => sub{ $self->elems + $list->elems },
-                        is_infinite => sub{ $self->is_infinite || $list->is_infinite } );
-}
+sub from_coro () { TODO }
 
 sub from_single () {
     my $class = shift;
