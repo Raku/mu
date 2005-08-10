@@ -2,8 +2,14 @@ use v6;
 
 # Perl6::Value::List - implementation of Perl6 'List' class in Perl6
 
+# ChangeLog
+#
+# 2005-08-10
+# * New method Perl6::Value::List.from_coro( $sub )
+
 # XXX - this is temporary
 # this namespace is from 'S29'
+# TODO - change these to *pop, *push, ...
     our &Perl6::Array::pop     := &pop;
     our &Perl6::Array::push    := &push;
     our &Perl6::Array::shift   := &shift;
@@ -71,7 +77,7 @@ class Perl6::Value::List {
     }
 
     method from_range ( $class: $start is copy, $end is copy, ?$step ) {
-        Perl6::Value::List.new(
+        $class.new(
                     cstart =>  sub {
                                 my $r = $start;
                                 if ( defined $step ) { $start += $step } else { $start++ };
@@ -94,6 +100,27 @@ class Perl6::Value::List {
                             },
                     cis_infinite => sub { return $start == -Inf || $end == Inf },
                     cis_contiguous => sub { $step == -1 | 1 | undef },
+        );
+    }
+
+    method from_single ( $class: @list is copy ) {
+        $class.new( cstart => sub{ Perl6::Array::shift  @list },
+                    cend =>   sub{ Perl6::Array::pop    @list },
+                    celems => sub{ @list.elems  }, );
+    }
+
+    method from_coro ( $class: $start ) {
+        my $size = Inf;
+        $class.new(
+                    cstart =>  sub {
+                                my $r = &{$start}();
+                                $size = 0 unless defined $r;
+                                return $r;
+                            },
+                    cend =>    sub {},
+                    celems =>  sub { $size },
+                    cis_infinite => sub { $size == Inf },
+                    cis_contiguous => sub { bool::false },
         );
     }
 
@@ -196,7 +223,7 @@ class Perl6::Value::List {
         $array
     }
 
-    method zip ( $array: *@list ) { 
+    method zip ( $array: Array @list ) { 
         # TODO: implement zip parameters
         # TODO: implement count = max( @lists.elems )
         my @lists = ( $array, @list );
