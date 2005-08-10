@@ -5,7 +5,17 @@ use v6;
 # ChangeLog
 #
 # 2005-08-10
+# * New methods Perl6::Value::List.flatten(), is_lazy()
 # * New method Perl6::Value::List.from_coro( $sub )
+
+    # TODO - is_lazy(), flatten()
+    # TODO - finish sync with Perl5 version
+    # TODO - emit error message if attempting to instantiate an infinite list
+    # TODO - does zip() has additional parameters?
+    # TODO - document unsupported operations: join, reduce, sort - call fail()
+    # TODO - check grep() syntax
+    # TODO - keys/kv/pairs/values with indexes - S29
+    # TODO - provide a better default stringify - see Span.pm
 
 # XXX - this is temporary
 # this namespace is from 'S29'
@@ -19,14 +29,6 @@ use v6;
     our &Perl6::Array::grep    := &grep;
 # ---------
 
-    # TODO - finish sync with Perl5 version
-    # TODO - emit error message if attempting to instantiate an infinite list
-    # TODO - does zip() has additional parameters?
-    # TODO - document unsupported operations: join, reduce, sort - call fail()
-    # TODO - check grep() syntax
-    # TODO - keys/kv/pairs/values with indexes - S29
-    # TODO - provide a better default stringify - see Span.pm
-
 class Perl6::Value::List {
     has Code $.cstart;
     has Code $.cend;
@@ -34,6 +36,7 @@ class Perl6::Value::List {
     has Code $.cis_infinite;
     has Code $.cis_contiguous;
     has Code $.cstringify;
+    has Bool $.is_lazy;
 
     submethod BUILD ($class: 
             Code ?$.cstart, 
@@ -42,6 +45,7 @@ class Perl6::Value::List {
             Code ?$.cis_infinite   = sub { &{$.celems}() == Inf },
             Code ?$.cis_contiguous = sub { bool::false }, 
             Code ?$.cstringify     = sub { &{$.cstart}() ~ '....' ~ &{$.cend}() }, 
+            Bool ?$.is_lazy        = bool::true,
     )
     {
         unless defined $.celems {
@@ -58,11 +62,24 @@ class Perl6::Value::List {
     method is_infinite   ( $self: ) { &{$.cis_infinite}() }
     method is_contiguous ( $self: ) { &{$.cis_contiguous}() }
     method to_str        ( $self: ) { &{$.cstringify}() }
-    # method clone         ( $self: ) { $self }
+    # method clone         ( $self: ) { $self }  --- auto generated
     method to_ref        ( $self: ) { $self }
     method to_bit        ( $self: ) { $self.elems > 0 }
     method to_num        ( $self: ) { $self.elems }
     method to_list       ( $self: ) { $self }
+
+    # method is_lazy       ( $self: ) { ... }  --- auto generated
+    method flatten       ( $self: ) { 
+        my $ret = $array;
+
+        # TODO - add tests for this error message
+        # fail "can't instantiate an infinite list"
+        #     if $ret.is_infinite;
+
+        my @list;
+        while $ret.elems { *push @list, $ret.shift; }
+        $self.from_single( @list ); 
+    }
 
     method reverse ( $array: ) { 
         my $ret = $array;
@@ -106,7 +123,8 @@ class Perl6::Value::List {
     method from_single ( $class: @list is copy ) {
         $class.new( cstart => sub{ Perl6::Array::shift  @list },
                     cend =>   sub{ Perl6::Array::pop    @list },
-                    celems => sub{ @list.elems  }, );
+                    celems => sub{ @list.elems  },
+                    is_lazy => bool::false );
     }
 
     method from_coro ( $class: $start ) {
