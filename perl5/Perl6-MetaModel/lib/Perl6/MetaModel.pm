@@ -100,11 +100,23 @@ sub ::meta {
     my ($class) = @_;
     confess "::meta called without a class" unless defined $class;
     
-    ## NOTE:
-    # this should skip all the ::find_class stuff
-    # if $class is itself a Perl6::Class instance
-    # but I dont have time to hcak that in right now
+    # if we have a Perl6::Class, we can just extract 
+    # the data we need from it.
+    return ::get_P6opaque_instance_data($class)->{meta}
+        if blessed($class) && blessed($class) eq 'Perl6::Class';
+        
+    if (blessed($class) && blessed($class) ne 'Perl6::MetaClass') {
+        my $class_obj = ::get_P6opaque_instance_class($class);
+        if (blessed($class_obj) && blessed($class_obj) eq 'Perl6::Class') {
+            #warn "we got the meta from instance -> class -> meta ($class)";
+            return ::get_P6opaque_instance_data($class_obj)->{meta};
+        }
+    }
     
+    #warn "How did we end up here?? $class";
+
+    # otherwise we need to determine the class
+    # name, and croak if we cannot ...
     my $class_name = _class_name($class);
     confess "could not find class name" 
         unless defined $class_name;
@@ -116,13 +128,19 @@ sub ::meta {
     # class yet.
     if ($class_name eq 'Perl6::MetaClass') {
         no strict 'refs';
-        return ${_class_name($class) . '::META'};        
+        return ${$class_name . '::META'};        
     }
-        
+       
+    # now that we have determined the class name
+    # and it was not a Perl6::MetaClass, then we
+    # need to find the right Perl6::Class instance 
+    # and croak if we cannot
     my $class_obj = ::find_class($class_name);
     confess "could not find ::Class instance for ($class_name)" 
         unless defined $class_obj;     
         
+    # now we are assured to have the right 
+    # class object, so we can extract the data
     return ::get_P6opaque_instance_data($class_obj)->{meta};
 }
 
@@ -159,8 +177,6 @@ sub _metaclass_dispatch {
     # circularity
 
     my $meta_meta = ::meta($self);
-
-    use Data::Dumper; warn Dumper $self if not defined $meta_meta ; 
 
     # gather all the metaclasses to look through
     my @metaclasses = ($meta_meta);

@@ -9,7 +9,7 @@ use Data::Dumper;
 use Perl6::MetaModel;
 use Perl6::Object;
 
-my $Person = class 'Person' => {
+my $Person = Perl6::Class->new_class('Person' => {
     is => [ 'Perl6::Object' ],
     class => {
         attrs => [ '$:population' ],
@@ -39,7 +39,7 @@ my $Person = class 'Person' => {
             }
         }
     }
-};
+});
 
 ok(::dispatch($Person, 'can', 'population'), '... Person->can(population)');
 
@@ -63,18 +63,21 @@ is(::dispatch($Person, 'population'), 0, '... Person population is 0');
     is(::dispatch($p, 'full_name'), 'Steve Little', '... got the right full name');
 
     is(::dispatch($p, 'age'), 31, '... got the right age');
+    
+    # DESTROY needs to be called manually
+    ::dispatch($p, 'DESTROY');
 }
 
 is(::dispatch($Person, 'population'), 0, '... Person population is back to 0 again');
 
 # subclassing too...
 
-my $Employee = class 'Employee-0.0.1' => {
+my $Employee = Perl6::Class->new_class('Employee-0.0.1' => {
     is => [ 'Person' ],
     instance => {
         attrs => [ [ '$.job' => { access => 'rw' } ] ]
     }
-};
+});
 
 ok(::dispatch($Employee, 'isa', 'Perl6::Object'), '... Employee isa Perl6::Object');
 ok(::dispatch($Employee, 'isa', 'Person'), '... Employee isa Person');
@@ -108,7 +111,10 @@ is(::dispatch($Person, 'population'), 0, '... Person population is 0');
     is(::dispatch($e, 'full_name'), 'Steve Little', '... got the right full name');
 
     is(::dispatch($e, 'age'), 31, '... got the right age');
-    is(::dispatch($e, 'job'), 'Programmer', '... got the right job');    
+    is(::dispatch($e, 'job'), 'Programmer', '... got the right job');   
+    
+    # DESTROY needs to be called manually    
+    ::dispatch($e, 'DESTROY');     
 }
 
 is(::dispatch($Employee, 'population'), 0, '... Employee population is 0 again');
