@@ -11,10 +11,14 @@ public class AllTests extends TestCase {
 
     public static Test suite () {
         TestSuite suite = new TestSuite("org.perl6.metamodel.tests.AllTests");        
-        suite.addTest(MetaClassTest.suite());
-        suite.addTest(MROTest.suite()); 
+		suite.addTest(MetaClassTest.suite());
+        suite.addTest(MROTest.suite());
+        suite.addTest(DispatcherTest.suite());
+        suite.addTest(AttributeTest.suite());
+        suite.addTest(ClassTest.suite());
         suite.addTest(MethodTest.suite());                           
-        return suite;
+        suite.addTest(InstanceTest.suite());
+		return suite;
     }
-
+	
 }

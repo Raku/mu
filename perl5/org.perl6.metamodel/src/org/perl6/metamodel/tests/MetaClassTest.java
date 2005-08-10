@@ -143,7 +143,7 @@ public class MetaClassTest extends TestCase {
 
         boolean exception_thrown = false;
         try {
-            m.add_method("bar", method, MetaClass.INSTANCE);
+            m.add_method("bar", method, "INSTANCE");
         } catch (Exception e) {
             exception_thrown = true;
         }
@@ -151,7 +151,7 @@ public class MetaClassTest extends TestCase {
         
         exception_thrown = false;
         try {
-            assertTrue(m.has_method("bar", MetaClass.INSTANCE));
+            assertTrue(m.has_method("bar", "INSTANCE"));
         } catch (Exception e) {
             exception_thrown = true;
         }
@@ -159,7 +159,7 @@ public class MetaClassTest extends TestCase {
 
         Method method2 = null;
         try {
-            method2 = m.get_method("bar", MetaClass.INSTANCE);
+            method2 = m.get_method("bar", "INSTANCE");
         } catch (Exception e) {}
             
         assertEquals(method, method2);
@@ -177,7 +177,7 @@ public class MetaClassTest extends TestCase {
 
         boolean exception_thrown = false;
         try {
-            m.add_method("bar", method, MetaClass.CLASS);
+            m.add_method("bar", method, "CLASS");
         } catch (Exception e) {
             exception_thrown = true;
         }
@@ -185,7 +185,7 @@ public class MetaClassTest extends TestCase {
 
         exception_thrown = false;
         try {
-            assertTrue(m.has_method("bar", MetaClass.CLASS));
+            assertTrue(m.has_method("bar", "CLASS"));
         } catch (Exception e) {
             exception_thrown = true;
         }
@@ -193,7 +193,7 @@ public class MetaClassTest extends TestCase {
 
         Method method2 = null;
         try {
-            method2 = m.get_method("bar", MetaClass.CLASS);
+            method2 = m.get_method("bar", "CLASS");
         } catch (Exception e) {}
 
         assertEquals(method, method2);

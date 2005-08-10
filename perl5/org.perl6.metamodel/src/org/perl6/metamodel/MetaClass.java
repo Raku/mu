@@ -2,12 +2,10 @@
 package org.perl6.metamodel;
 
 import java.util.*;
+import org.perl6.metamodel.metaclass.Dispatcher;
 
 public class MetaClass {
-
-    public static int CLASS = 1;
-    public static int INSTANCE = 2;    
-
+    
 /* ATTRIBUTES */
     
     // meta-info
@@ -104,6 +102,14 @@ public class MetaClass {
 
     // MRO
     
+    public Dispatcher dispatcher (String mro) {
+        return new Dispatcher(this, mro);
+    }
+
+    public Dispatcher dispatcher () {
+        return new Dispatcher(this, ":canonical");
+    }
+
     public ArrayList _remove_empty_seqs (ArrayList seqs) {
         ArrayList nonemptyseqs = new ArrayList();
         for (int i = 0; i < seqs.size(); i++) {
@@ -150,7 +156,7 @@ public class MetaClass {
                     }
                 }
                 if (nothead == false) {
-                    // leave the loop with our canidate ...               
+                    // leave the loop with our candidate ...               
                     break;
                 }
                 else {
@@ -163,7 +169,7 @@ public class MetaClass {
             }
             res.add(cand);
             // now loop through our non-empties and pop 
-            // off the head if it matches our canidate
+            // off the head if it matches our candidate
             _remove_heads_if(cand, seqs);
         }    
     }
@@ -183,13 +189,64 @@ public class MetaClass {
         return MRO;
     }   
     
+    // Attributes
+    
+    public void add_attribute (String label, Attribute attribute, String which_table) throws Exception {
+            if (which_table.equals("INSTANCE")) {
+                instance_attributes.put(label, attribute);
+            }
+            else if (which_table.equals("CLASS")) {
+                class_attributes.put(label, attribute);
+            }
+            else {
+                throw new Exception ("add_attribute: Unsupported attribute table");
+            }
+    }
+    
+    public void add_attribute (String label, Attribute attribute ) {
+            instance_attributes.put(label, attribute);
+    }
+    
+    public boolean has_attribute (String label, String which_table) throws Exception {
+            if (which_table.equals("INSTANCE")) {
+                return instance_attributes.containsKey(label);
+            }
+            else if (which_table.equals("CLASS")) {
+                return class_attributes.containsKey(label);
+            }
+            else {
+                throw new Exception ("has_attribute: Unsupported attribute table");
+            }
+    }
+    
+    public boolean has_attribute (String label) {
+            return instance_attributes.containsKey(label);
+    }
+    
+    public Attribute get_attribute (String label, String which_table) throws Exception {
+            if (which_table.equals("INSTANCE")) {
+                return (Attribute) instance_attributes.get(label);
+            }
+            else if (which_table.equals("CLASS")) {
+                return (Attribute) class_attributes.get(label);
+            }
+            else
+            {
+                throw new Exception("get_attribute: Unsupported attribute table");
+            }
+    }
+    
+    public Attribute get_attribute (String label) {
+            return (Attribute) instance_attributes.get(label);
+    }
+
     // Methods
     
-    public void add_method (String label, Method method, int which_table) throws Exception {
-        if (which_table == INSTANCE) {
+    public void add_method (String label, Method method, String which_table) throws Exception {
+        if (which_table.equals("INSTANCE")) {
             instance_methods.put(label, method);
         }
-        else if (which_table == CLASS) {
+        else if (which_table.equals("CLASS")) {
             class_methods.put(label, method);
         }
         else {
@@ -201,11 +258,11 @@ public class MetaClass {
         instance_methods.put(label, method);
     }    
     
-    public boolean has_method (String label, int which_table) throws Exception {
-        if (which_table == INSTANCE) {
+    public boolean has_method (String label, String which_table) throws Exception {
+        if (which_table.equals("INSTANCE")) {
             return instance_methods.containsKey(label);
         }
-        else if (which_table == CLASS) {
+        else if (which_table.equals("CLASS")) {
             return class_methods.containsKey(label);
         }
         else {
@@ -217,11 +274,11 @@ public class MetaClass {
         return instance_methods.containsKey(label);
     }
     
-    public Method get_method (String label, int which_table) throws Exception {
-        if (which_table == INSTANCE) {
+    public Method get_method (String label, String which_table) throws Exception {
+        if (which_table.equals("INSTANCE")) {
             return (Method) instance_methods.get(label);
         }
-        else if (which_table == CLASS) {
+        else if (which_table.equals("CLASS")) {
             return (Method) class_methods.get(label);
         }
         else {
