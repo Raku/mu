@@ -11,6 +11,7 @@ use v6;
 =cut
 
 # TODO - finish sync with Perl5 version
+# TODO - test flatten(), is_lazy(), error messages
 # TODO - emit error message if attempting to flatten() an infinite list 
 # TODO - does zip() has additional parameters?
 # TODO - document unsupported operations: join, reduce, sort - call fail()
@@ -85,18 +86,6 @@ class Perl6::Value::List {
         $self.from_single( @list ); 
     }
 
-    method reverse ( $array: ) { 
-        my $ret = $array;
-        Perl6::Value::List.new( 
-                cstart =>         $ret.cend,
-                cend =>           $ret.cstart,
-                celems =>         $ret.celems,
-                cis_infinite =>   $ret.cis_infinite,
-                cis_contiguous => $ret.cis_contiguous,
-                cstringify =>     $ret.cstringify,
-        );
-    }
-
     method from_range ( $class: $start is copy, $end is copy, ?$step ) {
         $class.new(
                     cstart =>  sub {
@@ -143,6 +132,20 @@ class Perl6::Value::List {
                     celems =>  sub { $size },
                     cis_infinite => sub { $size == Inf },
                     cis_contiguous => sub { bool::false },
+        );
+    }
+
+    # --- list operations ---
+
+    method reverse ( $array: ) { 
+        my $ret = $array;
+        Perl6::Value::List.new( 
+                cstart =>         $ret.cend,
+                cend =>           $ret.cstart,
+                celems =>         $ret.celems,
+                cis_infinite =>   $ret.cis_infinite,
+                cis_contiguous => $ret.cis_contiguous,
+                cstringify =>     $ret.cstringify,
         );
     }
 

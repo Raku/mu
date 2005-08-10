@@ -48,8 +48,9 @@ use v6;
 
 =cut
 
+# TODO - test splice() with parameter 'Array @list'
+
 # TODO - 'dim'
-# TODO - separate modules "List" and "Array"
 # TODO - sync Perl5/Perl6 versions, create Perl5 version of Array
 # TODO - move files to the right directories, perl module name
 
@@ -59,14 +60,11 @@ use v6;
 # TODO - preprocessing, indexing, etc - lazily
 # TODO - change Lazy Array to normal Array if all elements are known;
 # TODO - pushing a lazy list into a normal array should turn the array into a lazy array
-# TODO - fix namespaces, move to Prelude.pm
     
 # TODO - fetch_slice() / store_slice() - @a[5,7]=('x','y')
 
-# TODO - what happens when $a.FETCH(100000000)
-#      - this is not a 'sparse' array!
-
 # TODO - add support for sparse arrays
+#      - what happens when $a.FETCH(100000000)
 
 # implement this error message (from PIR.pm)
 #   if $off > $size {
@@ -81,12 +79,10 @@ use Perl6::Value::List;
 
 class Perl6::Container::Array-0.01
 {
-
-has Array @.items;
+    has Array @.items;
 
 method from_list ( $class: *@items ) { 
-    # say "new: ", @items;
-    return $class.new( items => @items ); 
+    $class.new( items => @items ); 
 }
 
 method _shift_n ($array: Int $length ) returns List {
