@@ -720,8 +720,8 @@ reduceApp (Var "&scalar") invs args
     | otherwise = enterEvalContext cxtItemAny $ Syn "," (maybeToList invs ++ args)
 
 -- XXX absolutely evil bloody hack for "zip"
-reduceApp (Var "&zip") invs args = do
-    vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) (maybeToList invs ++ args)
+reduceApp (Var "&zip") Nothing args = do
+    vals <- mapM (enterRValue . enterEvalContext (cxtItem "Array")) args
     val  <- op0Zip vals
     retVal val
 
