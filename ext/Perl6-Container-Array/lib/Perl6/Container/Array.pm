@@ -47,7 +47,7 @@ use v6;
 
 =cut
 
-use Iter::Range;  # 'Perl6::Value::List', 'Perl6::Array'
+use Perl6::Value::List; 
 
 # This class should not inherit from Perl6::Value::List, because this would
 # cause multi-dimensional arrays to be flattened.

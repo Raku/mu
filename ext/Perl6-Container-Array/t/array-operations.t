@@ -5,9 +5,9 @@ use Test;
 
 plan 39;
 
-# use_ok( 'Array::Lazy' );
-use Array::Lazy; 
-use Iter::Range;
+# use_ok( 'Perl6::Container::Array' );
+use Perl6::Container::Array; 
+use Perl6::Value::List;
 
 {
   # string range
