@@ -1,8 +1,18 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
+{-|
+    PIL2 - The New Runcore.
+
+>   And the Tree that was withered shall be renewed,
+>   And he shall plant it in the high places,
+>   And the City shall be blessed.
+>   Sing all ye people!
+-}
+
 module PIL where
-import PIL.Str
+import PIL.Str (Str)
+import qualified PIL.Str as Str
 import PIL.Val
 import PIL.Pad
 import PIL.PIL
@@ -94,18 +104,18 @@ interpret (Var x) = fail $ "Unknown variable: " ++ show x
 
 apply :: Val -> Val -> Eval Val
 apply (Item (Code (MkCode "print"))) (Item v) = do
-    hPutPS stdout =<< stringify v
+    Str.put stdout =<< stringify v
     return . Item . Bit $ True
 apply (Item (Code (MkCode "say"))) (Item v) = do
-    hPutPS stdout =<< stringify v
+    Str.put stdout =<< stringify v
     putStrLn ""
     return . Item . Bit $ True
 apply x y = fail $ "Cannot apply: (" ++ show x ++ ").(" ++ show y ++ ")"
 
 -- XXX Hack
 stringify :: (Monad m) => Item -> m Str
-stringify (Int x) = return $ showStr x
-stringify (Bit x) = return $ showStr (fromEnum x)
+stringify (Int x) = return $ Str.from x
+stringify (Bit x) = return $ Str.from (fromEnum x)
 stringify (Str x) = return x
 stringify x = fail $ "Cannot stringify: " ++ show x
 
