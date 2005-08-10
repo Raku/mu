@@ -2,23 +2,27 @@ use v6;
 
 # Perl6::Value::List - implementation of Perl6 'List' class in Perl6
 
-# ChangeLog
-#
-# 2005-08-10
-# * New methods Perl6::Value::List.flatten(), is_lazy()
-# * New method Perl6::Value::List.from_coro( $sub )
+=for ChangeLog
 
-    # TODO - is_lazy(), flatten()
-    # TODO - finish sync with Perl5 version
-    # TODO - emit error message if attempting to instantiate an infinite list
-    # TODO - does zip() has additional parameters?
-    # TODO - document unsupported operations: join, reduce, sort - call fail()
-    # TODO - check grep() syntax
-    # TODO - keys/kv/pairs/values with indexes - S29
-    # TODO - provide a better default stringify - see Span.pm
+2005-08-10
+* New methods List.flatten(), is_lazy(), from_coro( $sub )
+* Factored Perl6::Value::List out of the Array package
 
-# XXX - this is temporary
-# this namespace is from 'S29'
+=cut
+
+# TODO - finish sync with Perl5 version
+# TODO - emit error message if attempting to flatten() an infinite list 
+# TODO - does zip() has additional parameters?
+# TODO - document unsupported operations: join, reduce, sort - call fail()
+# TODO - check grep() syntax
+# TODO - provide a better default stringify - see Span.pm
+
+# Things that will be solved by the compiler:
+# - keys/kv/pairs/values with indexes (S29) --> array slice
+# - lists of junctions --> junctions of lists
+# - list concatenation --> array concatenation
+
+# XXX - this is temporary - this namespace is from 'S29'
 # TODO - change these to *pop, *push, ...
     our &Perl6::Array::pop     := &pop;
     our &Perl6::Array::push    := &push;

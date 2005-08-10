@@ -3,6 +3,7 @@ use v6;
 =for ChangeLog
 
 2005-08-10
+* New methods Array.flatten(), is_lazy()
 * New method: Array.is_infinite()
 * Renamed methods: Array.new() -> Array.from_list(); Array.splat() -> Array.to_list
 * New List methods: is_contiguous(), to_str(), clone(), to_ref(), to_bit(), to_num()
@@ -47,6 +48,32 @@ use v6;
 
 =cut
 
+# TODO - 'dim'
+# TODO - separate modules "List" and "Array"
+# TODO - sync Perl5/Perl6 versions, create Perl5 version of Array
+# TODO - move files to the right directories, perl module name
+
+# TODO - exists(), delete() - S29
+# TODO - keys/kv/pairs/values with indexes - S29
+
+# TODO - preprocessing, indexing, etc - lazily
+# TODO - change Lazy Array to normal Array if all elements are known;
+# TODO - pushing a lazy list into a normal array should turn the array into a lazy array
+# TODO - fix namespaces, move to Prelude.pm
+    
+# TODO - fetch_slice() / store_slice() - @a[5,7]=('x','y')
+
+# TODO - what happens when $a.FETCH(100000000)
+#      - this is not a 'sparse' array!
+
+# TODO - add support for sparse arrays
+
+# implement this error message (from PIR.pm)
+#   if $off > $size {
+#      warn "splice() offset past end of array\n";
+#      $off = $size;
+#   }
+
 use Perl6::Value::List; 
 
 # This class should not inherit from Perl6::Value::List, because this would
@@ -56,32 +83,6 @@ class Perl6::Container::Array-0.01
 {
 
 has Array @.items;
-   
-    # TODO - 'dim'
-    # TODO - separate modules "List" and "Array"
-    # TODO - sync Perl5/Perl6 versions, create Perl5 version of Array
-    # TODO - move files to the right directories, perl module name
-
-    # TODO - exists(), delete() - S29
-    # TODO - keys/kv/pairs/values with indexes - S29
-
-    # TODO - preprocessing, indexing, etc - lazily
-    # TODO - change Lazy Array to normal Array if all elements are known;
-    # TODO - pushing a lazy list into a normal array should turn the array into a lazy array
-    # TODO - fix namespaces, move to Prelude.pm
-    
-    # TODO - fetch_slice() / store_slice() - @a[5,7]=('x','y')
-
-    # TODO - what happens when $a.FETCH(100000000)
-    #      - this is not a 'sparse' array!
-
-    # TODO - add support for sparse arrays
-
-    # implement this error message (from PIR.pm)
-    #   if $off > $size {
-    #      warn "splice() offset past end of array\n";
-    #      $off = $size;
-    #   }
 
 method from_list ( $class: *@items ) { 
     # say "new: ", @items;
@@ -156,6 +157,22 @@ method is_infinite ( $array: ) {
     }
     bool::false;
 }  
+
+method is_lazy ( $array: ) {
+    for $.items {
+        return bool::true if $_.isa( 'Perl6::Value::List' ) && $_.is_lazy;
+    }
+    bool::false;
+}  
+
+method flatten ( $self: ) { 
+    # this needs optimization
+    my $ret = $array;
+    for $ret.items {
+        $_ = $_.flatten() if $_.isa( 'Perl6::Value::List' ) && $_.is_lazy;
+    }
+    $ret;
+}
 
 method splice ( 
     Perl6::Container::Array $array: 
