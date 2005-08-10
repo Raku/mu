@@ -44,5 +44,5 @@ ruleSymBare = do
 ruleLit :: RuleParser Exp
 ruleLit = do
     i <- many1 digit
-    return . Lit . Single . Int . read $ i
+    return . Lit . Item . Int . read $ i
 

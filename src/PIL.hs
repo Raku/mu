@@ -2,6 +2,7 @@
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 module PIL where
+import PIL.Str
 import PIL.Val
 import PIL.Pad
 import PIL.PIL
@@ -11,6 +12,7 @@ import PIL.Monads
 import PIL.Parser
 import PIL.Internals
 import System.IO
+import Data.PackedString
 
 -- Beginning of design of PIL2.
 
@@ -74,7 +76,7 @@ p1 = "print 1"
 -- Pretty is pure and needs no monad.
 pretty :: PIL -> String
 pretty (App f a) = concat [ pretty f, "(", pretty a, ")" ]
-pretty (Lit (Single (Int x))) = show x
+pretty (Lit (Item (Int x))) = show x
 pretty (Var x) = (unSigil $ symSigil x) : (unName $ symName x)
 pretty x = error $ "Can't prettyprint " ++ show x
 
@@ -87,23 +89,24 @@ interpret (App f a) = do
 interpret (Lit x) = return x
 interpret (Var x) | symSigil x == SigilCode = do
     -- XXX - hardcoded lookup for &code
-    return . Single . Code $ MkCode (unName (symName x))
+    return . Item . Code $ MkCode (unName (symName x))
 interpret (Var x) = fail $ "Unknown variable: " ++ show x
 
 apply :: Val -> Val -> Eval Val
-apply (Single (Code (MkCode "print"))) (Single v) = do
-    putStr =<< stringify v
-    return . Single . Bit $ True
-apply (Single (Code (MkCode "say"))) (Single v) = do
-    putStrLn =<< stringify v
-    return . Single . Bit $ True
+apply (Item (Code (MkCode "print"))) (Item v) = do
+    hPutPS stdout =<< stringify v
+    return . Item . Bit $ True
+apply (Item (Code (MkCode "say"))) (Item v) = do
+    hPutPS stdout =<< stringify v
+    putStrLn ""
+    return . Item . Bit $ True
 apply x y = fail $ "Cannot apply: (" ++ show x ++ ").(" ++ show y ++ ")"
 
 -- XXX Hack
-stringify :: (Monad m) => Single -> m String
-stringify (Int x) = return $ show x
-stringify (Bit x) = return $ show (fromEnum x)
-stringify (Str x) = return $ x
+stringify :: (Monad m) => Item -> m Str
+stringify (Int x) = return $ showStr x
+stringify (Bit x) = return $ showStr (fromEnum x)
+stringify (Str x) = return x
 stringify x = fail $ "Cannot stringify: " ++ show x
 
 

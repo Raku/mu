@@ -1,6 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
 module PIL.Val where
+import PIL.Str
 import PIL.Internals
 import PIL.MetaModel
 import PIL.Container
@@ -9,13 +10,15 @@ import Prelude hiding (Num)
 -- | Any PIL expression can only evaluate to one of three value results.
 data Val
     = Void
-    | Single Single
-    | Plural [Single]
+    | Item Item
+    | List List
 --  | Control Control
     deriving (Eq, Ord, Show, Typeable)
 
+type List = [Item]
+
 -- | 'Item' is either one of the five intrisic types, or an object.
-data Single
+data Item
     = Undef
     | Object Object
     -- Intrinsic types, according to S02.
@@ -27,11 +30,10 @@ data Single
 -- | 'Ref' always points to a container; values are promoted to constant containers.
 newtype Ref = MkRef { unRef :: Container }
     deriving (Eq, Ord, Show, Typeable)
-data Pair = MkPair { pairKey :: Single, pairVal :: Container }
+data Pair = MkPair { pairKey :: Item, pairVal :: Container }
     deriving (Eq, Ord, Show, Typeable)
 
 type Bit = Bool
-type Str = String
 type Num = Double
 data Code = MkCode String -- XXX
     deriving (Eq, Ord, Show, Typeable)
