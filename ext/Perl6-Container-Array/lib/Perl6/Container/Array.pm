@@ -4,6 +4,8 @@ use v6;
 
 2005-08-10
 * New methods Array.flatten(), is_lazy()
+  - Lazy Array changes to normal Array if all elements are known;
+  - pushing a lazy list into a normal array turns the array into a lazy array
 * New method: Array.is_infinite()
 * Renamed methods: Array.new() -> Array.from_list(); Array.splat() -> Array.to_list
 * New List methods: is_contiguous(), to_str(), clone(), to_ref(), to_bit(), to_num()
@@ -49,20 +51,15 @@ use v6;
 =cut
 
 # TODO - test splice() with parameter 'Array @list'
+# TODO - add lazy/strict tests
 
 # TODO - 'dim'
-# TODO - sync Perl5/Perl6 versions, create Perl5 version of Array
-# TODO - move files to the right directories, perl module name
+# TODO - sync with Perl5 version of Array
 
 # TODO - exists(), delete() - S29
-# TODO - keys/kv/pairs/values with indexes - S29
 
 # TODO - preprocessing, indexing, etc - lazily
-# TODO - change Lazy Array to normal Array if all elements are known;
-# TODO - pushing a lazy list into a normal array should turn the array into a lazy array
     
-# TODO - fetch_slice() / store_slice() - @a[5,7]=('x','y')
-
 # TODO - add support for sparse arrays
 #      - what happens when $a.FETCH(100000000)
 
@@ -71,6 +68,10 @@ use v6;
 #      warn "splice() offset past end of array\n";
 #      $off = $size;
 #   }
+
+# Things that will be solved by the compiler:
+# - fetch slice / store slice - @a[5,7]=('x','y')
+# - keys/kv/pairs/values with indexes (S29)
 
 use Perl6::Value::List; 
 
