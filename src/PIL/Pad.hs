@@ -34,21 +34,21 @@ unSigil SigilHash   = '%'
 unSigil SigilCode   = '&'
 unSigil SigilPackage= ':'
 
--- $?CALLER::CALLER::SUB
+--  $?CALLER::CALLER::SUB
 data Sym = MkSym
-    { symSigil      :: Sigil       -- $
-    , symTwigil     :: Twigil      -- ?
-    , symPackage    :: [Name]      -- [CALLER, CALLER]
-    , symName       :: Name        -- SUB
+    { symSigil      :: Sigil       --  $
+    , symTwigil     :: Twigil      --  ?
+    , symPackage    :: [Name]      --  [CALLER, CALLER]
+    , symName       :: Name        --  SUB
     }
     deriving (Eq, Ord, Show, Typeable)
 
 data Sigil
-    = SigilScalar   -- $
-    | SigilArray    -- @
-    | SigilHash     -- %
-    | SigilCode     -- &
-    | SigilPackage  -- ::
+    = SigilScalar   --  $
+    | SigilArray    --  @
+    | SigilHash     --  %
+    | SigilCode     --  &
+    | SigilPackage  --  ::
     deriving (Eq, Ord, Show, Enum, Typeable)
 
 {-|

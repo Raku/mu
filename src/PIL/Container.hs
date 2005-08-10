@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp #-}
 
 module PIL.Container (
     Scalar, Array, Hash,
@@ -66,6 +66,9 @@ instance CellClass Array where
 instance CellClass Scalar where
     mkContainer = fmap ScalarCell . newTVar
 
+#ifdef HADDOCK
+newMut :: a -> Maybe Tieable -> STM Container
+#else
 newMut :: (%i::Id, CellClass a) => a -> Maybe Tieable -> STM Container
 newMut val pkg = do
     var <- newTVar val
@@ -73,13 +76,18 @@ newMut val pkg = do
         Nothing -> return Nothing
         Just x  -> fmap Just (newTVar x)
     mkContainer $ Mut %i var tie
+#endif
 
+#ifdef HADDOCK
+newCon :: a -> Maybe Tieable -> STM Container
+#else
 newCon :: (%i::Id, CellClass a) => a -> Maybe Tieable -> STM Container
 newCon val pkg = do
     tie <- case pkg of
         Nothing -> return Nothing
         Just x  -> fmap Just (newTVar x)
     mkContainer $ Con %i val tie
+#endif
 
 -- Invoke a tied function
 invokeTie :: a -> b -> ST s ()
@@ -101,13 +109,21 @@ cmap f t = case t of
 
 -- | Sample Container: @%\*ENV@ is rw is HashEnv
 
+#ifdef HADDOCK
+hashEnv :: STM Container
+#else
 hashEnv :: (%i::Id) => STM Container
 hashEnv = newCon emptyHash tiedEnv
     where
     tiedEnv = Just (Tied (error "Hash::Env"))
+#endif
 
+#ifdef HADDOCK
+hashNew :: STM Container
+#else
 hashNew :: (%i::Id) => STM Container
 hashNew = newMut emptyHash Nothing
+#endif
 
 readId :: Container -> STM Id
 readId = cmap (return . cellId)
