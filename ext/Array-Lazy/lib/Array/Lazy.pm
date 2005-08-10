@@ -3,6 +3,8 @@ use v6;
 =for ChangeLog
 
 2005-08-10
+* New List methods: is_contiguous(), to_str(), clone(), to_ref(), to_bit(), to_num()
+* New List hooks: is_contiguous( $code ), stringify( $code )
 * Started syncing with Perl5 version
 * Removed class Lazy::Range
 * Lowercase methods fetch(), store()

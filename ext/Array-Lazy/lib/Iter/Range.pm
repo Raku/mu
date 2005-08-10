@@ -13,6 +13,7 @@ use v6;
     our &Perl6::Array::grep    := &grep;
 # ---------
 
+    # TODO - is_contiguous( $code ), stringify( $code )
     # TODO - finish sync with Perl5 version
     # TODO - emit error message if attempting to instantiate an infinite list
     # TODO - does zip() has additional parameters?
@@ -25,12 +26,18 @@ class Perl6::Value::List {
     has Code $.cend;
     has Code $.celems;
     has Code $.cis_infinite;
+    has Code $.cis_contiguous;
+    has Code $.cstringify;
 
     submethod BUILD ($class: 
             Code ?$start, 
             Code ?$end, 
             Code ?$elems,
-            Code ?$is_infinite ) 
+            Code ?$is_infinite   = sub { &{$.celems}() == Inf },
+            Code ?$is_contiguous = sub { bool::false }, 
+            # TODO - provide a better default stringify - see Span.pm
+            Code ?$stringify     = sub { &{$.cstart}() ~ '....' ~ &{$.cend}() }, 
+    )
     {
         if defined $elems {
             $.celems = $elems
@@ -39,23 +46,34 @@ class Perl6::Value::List {
             $.celems =
                 ( defined $start || defined $end ) ?? sub { Inf } :: sub { 0 }
         }
-        $.cstart =       $start       // sub { };
-        $.cend =         $end         // sub { };
-        $.cis_infinite = $is_infinite // sub { &{$.celems}() == Inf };    
+        $.cstart =         $start       // sub { };
+        $.cend =           $end         // sub { };    
+
+        $.cis_infinite =   $is_infinite;
+        $.cis_contiguous = $is_contiguous;
+        $.cstringify =     $stringify;
     }
 
-    method shift       ( $self: ) { &{$.cstart}() if &{$.celems}() }
-    method pop         ( $self: ) { &{$.cend}()   if &{$.celems}() }  
-    method elems       ( $self: ) { &{$self.celems}() }
-    method is_infinite ( $self: ) { &{$self.cis_infinite}() }
+    method shift         ( $self: ) { &{$.cstart}() if &{$.celems}() }
+    method pop           ( $self: ) { &{$.cend}()   if &{$.celems}() }  
+    method elems         ( $self: ) { &{$.celems}() }
+    method is_infinite   ( $self: ) { &{$.cis_infinite}() }
+    method is_contiguous ( $self: ) { &{$.cis_contiguous}() }
+    method to_str        ( $self: ) { &{$.cstringify}() }
+    method clone         ( $self: ) { $self }
+    method to_ref        ( $self: ) { $self }
+    method to_bit        ( $self: ) { $self.elems > 0 }
+    method to_num        ( $self: ) { $self.elems }
 
-    method reverse     ( $array: ) { 
+    method reverse ( $array: ) { 
         my $ret = $array;
         Perl6::Value::List.new( 
-                start =>       $ret.cend,
-                end =>         $ret.cstart,
-                elems =>       $ret.celems,
-                is_infinite => $ret.cis_infinite,
+                start =>         $ret.cend,
+                end =>           $ret.cstart,
+                elems =>         $ret.celems,
+                is_infinite =>   $ret.cis_infinite,
+                is_contiguous => $ret.cis_contiguous,
+                is_stringify =>  $ret.cstringify,
         );
     }
 
