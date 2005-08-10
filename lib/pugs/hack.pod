@@ -105,6 +105,8 @@ Expanding this one level deeper:
     |   |-- Module-Pluggable-Fast  Find and load plugin modules
     |   |-- Net-IRC            IRC protocol implementation
     |   |-- Perl-Compiler      A Perl 6 port of Pugs
+    |   |-- Perl6-Container-Array  Perl 6 implementation of Perl 6 lazy arrays
+    |   |-- Perl6-Value-List   Perl 6 implementation of Perl 6 lazy lists
     |   |-- Perldoc            Event-based API for Perldoc DOM
     |   |-- Pod-Event-Parser   Event-based API (like XML SAX) for POD
     |   |-- Recurrence         Recurrence operations
@@ -144,6 +146,7 @@ Expanding this one level deeper:
     |   |-- PIL-Run            PIL virtual machine in Perl 5
     |   |-- PIL2JS             PIL to JavaScript compiler
     |   |-- Perl6-MetaModel    Prototype Perl 6 metaclass model: Perl 5
+    |   |-- Perl6-Value-List   Perl 6 lazy lists
     |   |-- Perl6.MetaModel    Prototype Perl 6 metaclass model: JS
     |   |-- T2-Perl6           T2 (Tangram::Schema redesign) -> Perl6::Class 
     |   `-- org.perl6.metamodel  Prototype Perl 6 metaclass model: Java
@@ -153,7 +156,7 @@ Expanding this one level deeper:
     |-- src                Haskell source for pugs itself
     |   |-- Data               Syck-based YAML parser
     |   |-- Emit               Parrot PIR backend
-    |   |-- IMC                Parrot IMC backend
+    |   |-- PIL                PIL2 implementation
     |   |-- Pugs               Core Pugs engine
     |   |-- RRegex             PCRE-based regular expressions support
     |   |-- pcre               Import of PCRE source
@@ -164,6 +167,8 @@ Expanding this one level deeper:
     |
     |-- t                  Pugs/Perl 6 test library
     |   |-- 01-sanity          Sanity checks that testing can proceed
+    |   |-- Synopsis           Pointers to online AES docs and tests
+    |   |-- Test-Less          Test index for test-less utility
     |   |-- builtins           Builtin function tests
     |   |-- data_types         Basic data type tests
     |   |-- examples           Make examples/ tree act as tests
@@ -181,9 +186,7 @@ Expanding this one level deeper:
     |   |-- subroutines        Block/Code/Sub/etc. tests
     |   |-- syntax             Basic syntax tests
     |   |-- unspecced          Tests for Pugs extensions to Perl 6
-    |   |-- var                Variable declaration tests
-    |   |-- Synopsis           Pointers to online AES docs and tests
-    |   `-- Test-Less          Test index for test-less utility
+    |   `-- var                Variable declaration tests
     |
     |-- t_disabled         Disabled tests
     |   |-- Dialects           Perl 6 non-standard dialects
