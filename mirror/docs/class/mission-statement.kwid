@@ -1,0 +1,62 @@
+
+= Laying the foundations for the Perl 6 object system
+
+The object system for Perl 6 is in its early stages.  It might seem
+like nothing is happening, as we are still searching for the great
+"aha!" moment where it all cohedes together.
+
+This document tries to explain the design strategy, and give some
+insight as to why this might be quite a hard problem, perhaps about
+the same degree of complexity as getting perl 6 to self-bootstrap.
+
+No guarantees about suitability to particular audiences are given at
+this point, as this is mostly a braindump to share information about
+the plan.  Mostly from a 'building a compiler' angle.
+
+== Making sense of S10 - S12
+
+The Perl 6 object system has a great number of alternate ways to
+express subtly different things, which will no doubt be confusing to
+the uninitiated.
+
+There are: *packages*, *modules*, *classes*, *roles* and *traits*.
+Firstly, it should be noted the *traits* is a kind of degenerate
+object in the scope of this discussion; all a trait is, is a compile
+time (for some definition of 'time') property that applies to
+something on the meta-model.
+
+Wait - meta-what?
+
+The meta model is simply the structure of the class system, expressed
+as a set of objects.  One of the key goals of Perl 6 is for everything
+to be fully self-expressable in its own terms, like most compiled
+languages are.  The term "meta model" can be very confusing, so try to
+be clear which model you are talking about - the "object model" would
+be something akin to a class, whereas a "class model" would be a set
+of classes for a particular project.  The "class meta-model" (M2) is
+the description of what *classes* are.  The "class meta-meta-model"
+(M3) is the terms that are used to express those.  Also note that a
+Class meta model is not the same as the object you get back from the
+`.meta` method on package objects (C<MyPackage.meta>, as described at
+the end of S12... although that is an /instance/ of an object in the
+Meta-Model).
+
+In general, we'll only be using the terms "class meta-model" or "class
+meta-meta-model" here.
+
+== Inheritance based vs Roles-based inheritance
+
+Roles based inheritance is also called "Duck Typing", a term I like
+because I like ducks (*quack*).
+
+We will be using Duck typing exclusively in the early stages of
+design, although expressing them in terms of a classical inheritance
+model (to some degree).
+
+Class Inheritance then becomes a simple use case of duck typing.  An
+early sketch of the meta model, in terms of UML which can easily be
+represented by the Meta-meta-model sketched in src/Class.hs is in
+`docs/class/ducktyping.xmi` (there is a PNG export in the same dir
+too).
+
+t.b.c.

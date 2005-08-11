@@ -1,0 +1,16 @@
+README for Set Perl 6 extension
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Sets are a basic language construct.  They are in the core Perl
+language as junctions, but to many the syntax is confusing.
+
+This module presents Sets as objects, using an interface similar to
+the Set::Object and Set::Scalar CPAN modules.
+
+Some people might detest the use of a top level namespace for this
+module, but I think a Set is a top level thing.  No doubt this is why
+they are in core as junctions.
+
+This module will try to provide both a Role and an implementation for
+Sets, once I figure out the syntax :-)
+
+ - mugwump

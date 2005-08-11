@@ -1,0 +1,72 @@
+<html>
+<head>
+    <script type="text/javascript" src="../lib/Perl6/MetaModel.js"></script>
+    <script type="text/javascript">
+        require.INC = "../inc";    
+        require('Test.Builder');
+        require('Test.More');        
+
+        require.INC = "../lib";    
+        require('Perl6.Attribute');             
+        require('Perl6.Method');     
+        require('Perl6.MetaClass');     
+        require('Perl6.Class');
+        require('Perl6.Instance');        
+        require('Perl6.Object');
+    </script>     
+</head>
+<body>
+<pre id='test'><script type="text/javascript">
+
+plan({ 'tests' : 12 });
+
+var Foo = new Perl6.Class('Foo', {
+    'is' : [ Perl6.Object ],
+    'instance' : {
+        'methods' : {
+            'foo' : function () { return 'Foo::foo'; }
+        }
+    }
+});
+isaOK(Foo, 'Perl6.Class');
+
+var Bar = new Perl6.Class('Bar', {
+    'is' : [ Foo ],
+    'instance' : {
+        'methods' : {
+            'foo' : function () { return 'Bar::foo -> ' + next_METHOD(); }
+        }
+    }
+});
+isaOK(Bar, 'Perl6.Class');
+
+var bar = call_method(Bar, 'new');
+isaOK(bar, 'Perl6.Instance');
+
+ok(bar.isa('Bar'), '... our instance is a Bar');
+ok(bar.isa('Foo'), '... our instance is a Foo');
+
+is(call_method(bar, 'foo'), 'Bar::foo -> Foo::foo', '... next_METHOD worked');
+
+var Baz = new Perl6.Class('Baz', {
+    'is' : [ Bar ],
+    'instance' : {
+        'methods' : {
+            'foo' : function () { return 'Baz::foo -> ' + next_METHOD(); }
+        }
+    }
+});
+isaOK(Baz, 'Perl6.Class');
+
+var baz = call_method(Baz, 'new');
+isaOK(baz, 'Perl6.Instance');
+
+ok(baz.isa('Baz'), '... our instance is a Baz');
+ok(baz.isa('Bar'), '... our instance is a Bar');
+ok(baz.isa('Foo'), '... our instance is a Foo');
+
+is(call_method(baz, 'foo'), 'Baz::foo -> Bar::foo -> Foo::foo', '... next_METHOD worked');
+
+</script></pre>
+</body>
+</html>

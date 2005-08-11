@@ -1,0 +1,56 @@
+ChangeLog for Set-Infinite
+
+2005-08-02
+
+* added "recurrence" parameter to new()
+* sets that contain recurrences are always iteratable
+
+2005-07-26
+
+* added "iterator()" and "lazy()" iterators
+
+2005-07-24
+
+* added iterator()
+
+2005-07-21
+
+* added unicode operators
+
+* removed "density" options
+
+* Set::Infinite contains "Span" objects, instead of Span::Num, etc.
+
+2005-07-11
+
+* Span.pm removed, gets its own package
+
+* added Span.pm method "iterator()"
+
+2005-07-10
+
+* added module Set::Infinite 
+
+* Span has 2 internal implementations (Span::Int, Span::Num), which use
+different algorithms.
+
+2005-07-09
+
+* added module Set::Infinite::Functional
+
+* renamed Set::Span to Span
+
+* renamed Set::Functional::Span to Span::Functional
+
+== Changes for 0.02
+
+* added Set::Integer to TODO
+
+* Set::Functional::Span API is complete (needs more docs & tests)
+
+== Changes for 0.01
+
+* Set::Functional::Span constructor, size, accessors, complement
+
+* changelog created 2005-07-06
+

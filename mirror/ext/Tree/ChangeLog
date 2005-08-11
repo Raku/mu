@@ -1,0 +1,19 @@
+
+== Changes for Version 0.0.2
+
+* now uses `submethod BUILD` to set default values
+* changed attributes to be public, and `$.node` to be rw
+* `parent()` no longer takes `$parent` arg, use `:_set_parent` instead
+* added `t/extended_tests.t` from the Perl 5 Tree::Simple distro
+** various small bug/syntax fixes the new test uncovered
+
+STILL TODO:
+
+* add more tests from Tree::Simple
+* fix bugs uncovered by new test
+* fix documentation
+
+== Changes for Version 0.0.1
+
+* First OO version 
+* Changed name from Tree::Simple to plain Tree

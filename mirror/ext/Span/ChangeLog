@@ -1,0 +1,65 @@
+ChangeLog for Span.pm
+
+2005-08-02
+
+* complement of Span+Recurrence is Span+universe
+* removed "density()" method 
+
+2005-07-26
+
+* added "iterator()" and "lazy()" iterators
+
+2005-07-21
+
+* added unicode operators
+
+2005-07-19
+
+* fixed all warnings
+
+2005-07-18
+
+* t/span-code.t passes all tests, but emits some warnings
+* extracted class Recurrence.pm
+* added method Span::Num.difference()
+* fixed Span::Code stringification, union, intersection, ...
+
+2005-07-13
+
+* Span::* interact with each other (just started)
+
+* adding Span::Code and tests
+
+2005-07-11
+
+* Span.pm gets it's own package
+
+* added Span.pm method "iterator()"
+
+2005-07-10
+
+* added module Set::Infinite 
+
+* Span has 2 internal implementations (Span::Int, Span::Num), which use
+different algorithms.
+
+2005-07-09
+
+* added module Set::Infinite::Functional
+
+* renamed Set::Span to Span
+
+* renamed Set::Functional::Span to Span::Functional
+
+== Changes for 0.02
+
+* added Set::Integer to TODO
+
+* Set::Functional::Span API is complete (needs more docs & tests)
+
+== Changes for 0.01
+
+* Set::Functional::Span constructor, size, accessors, complement
+
+* changelog created 2005-07-06
+

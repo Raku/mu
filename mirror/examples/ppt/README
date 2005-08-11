@@ -1,0 +1,19 @@
+Perl6 Power Tools
+
+This directory, inspired by the original Unix Reconstruction Project[1],
+contains implementations of Unix tools in Perl6, intended to be runnable
+on non-Unix machines.
+
+We'll include a Makefile that uses pugscc to build the whole tree,
+resulting in fast tools.
+
+Notes:
+
++ Make it portable. That's the whole point.
++ BSD or GNU style options[2]? Both!
++ You can use external modules, but it's considered courteous to also
+  write those if they don't exist yet. :-)
+
+
+[1] http://ppt.perl.org/
+[2] http://ppt.perl.org/whence.html

@@ -1,0 +1,15 @@
+2005-07-21
+
+* created DateTime::Recurrence
+
+2005-07-11
+
+* implemented DateTime::Span, Date::Span
+
+2005-07-07
+
+* most of the development is occurring in the Set-Infinite and Span modules - stay tuned.
+
+== Changes for 0.01
+
+* changelog created 2005-07-06

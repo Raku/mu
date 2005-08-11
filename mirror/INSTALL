@@ -1,0 +1,233 @@
+BUILDING PUGS
+-------------
+
+Pugs needs the Glasgow Haskell Compiler (GHC) 6.4 or above.  To install GHC,
+download a binary build from http://haskell.org/ghc/.  Although source code
+for GHC is available, it will take a very long time to build by yourself. 
+
+Pugs needs Parrot 0.2.2 or above to support Perl 6 Rules and PIR evaluation.
+To install Parrot, follow the instructions at http://www.parrotcode.org/.
+
+http://www.jwcs.net/~jonathan/perl6/ has binary builds for Win32.  If you'd
+like to build by hand, http://wiki.kn.vutbr.cz/mj/?Perl%206%20and%20Parrot has
+instructions (and binaries, too).
+
+For dynamic loading/inlining of Haskell modules, you should install the
+hs-plugin library, available here:
+
+    http://www.cse.unsw.edu.au/~dons/code/hs-plugins
+
+To install Pugs on your system, simply type this in the command line:
+
+    cpansign -v         # optional; see SIGNATURE for details
+    perl Makefile.PL
+    make                # or 'nmake' on Win32
+    make test
+    make install
+
+To change the installation location, pass PREFIX=/opt/wherever to 
+Makefile.PL like so:
+
+    perl Makefile.PL PREFIX=/your/prefix/here
+
+XXX NOTE!!!!!!!!
+PREFIX doesn't actually work right now. So ignore what I just said. But if
+it did work, that's how you would do it.
+
+Do not set PREFIX to your Perl 5 installation dir, as that would overwrite
+some of the files there with their Pugs counterparts.
+
+ENVIRONMENT VARIABLES
+---------------------
+
+There are several environment variables that control pugs's build process.
+
+You may use the GHC environment variable to set the ghc executable before 
+you run "perl Makefile.PL", for example:
+
+    export GHC=${HOME}/bin/ghc (bash)
+    setenv GHC ${HOME}/bin/ghc (csh)
+    
+To control which optional subsystems are embedded in Pugs, set the 
+PUGS_EMBED variable. For example: 
+ 
+    export PUGS_EMBED="perl5 parrot" (bash)
+    setenv PUGS_EMBED "perl5 parrot" (csh)
+
+To build with an embedded parrot interpreter, make sure the PUGS_EMBED 
+variable contains "parrot", and set the PARROT_PATH variable to point to 
+the directory in which you checked out the parrot source tree. For example:
+ 
+    export PARROT_PATH=${HOME}/src/parrot (bash)
+    setenv PARROT_PATH ${HOME}/src/parrot (csh)
+
+MAKE TARGETS
+------------
+
+The default make target builds an optimized Pugs. This means that Pugs will
+be slower to compile, but will run much faster. To disable this, run:
+    
+    make unoptimized  # unoptimised will work, too. We're not picky.
+
+To run the test suite:
+
+    make test
+
+To make a pretty HTML matrix showing test results:
+
+    make smoke
+    
+To run the test suite using the PIR backend:
+    
+    make pirtest
+    
+To make a pretty HTML matrix showing test results using the PIR backend:
+
+    make pirsmoke
+
+To turn on profiling in the GHC compiler:
+ 
+    make profiled
+
+BUILD CONFIGURATION CONSOLIDATION VIA config.yml
+------------------------------------------------
+
+To keep the multitude of configuration options and mechanisms under
+control for the build, we're moving over some of the above to a
+centralized file, "config.yml" under the build root. This file is in
+YAML format[1]; if it does not exist, one with defaults will be created
+for you.
+
+The options you can control there include:
+
+- optimization level: whether `make` means `make optimized` or
+  `make unoptimized` by default.
+
+- precompilation options: by default, pugs is built with the Standard Prelude
+  compiled into it. This makes many Perl 6 builtins available to pugs, and
+  loads fast. You can specify additional modules to inline a precompiled
+  version of into the executable: Test.pm is a good choice if running the
+  test suite. The cost of this is a longer build process which requires much
+  more RAM.
+
+- GHC heap size: if precompiling modules other than Prelude.pm into pugs, you
+  will probably need to increase the amount of RAM GHC permits itself to use,
+  otherwise it will abort the build. And if your machine is low on RAM, and
+  itself runs out of memory while building pugs, you can set this to a low
+  value (but turn off optimization and precompilation too).
+
+- install_dir: if set, `make install` will put everything under this
+  directory. Do not set this to your Perl 5 installation, since that
+  will overwrite some of the files there with the Pugs counterparts
+  (as will make install PREFIX= as noted above.)
+
+You can override values set in this file temporarily via the single
+PUGS_BUILD_OPTS environment variable. For example, if you normally do
+precompile Prelude.pm but want a faster build just this once:
+
+    env PUGS_BUILD_OPTS=precompile_prelude=false make
+
+See `util/config-template.yml` for more information.
+
+[1] See <http://yaml.org/>. Only a subset of the YAML syntax is permitted
+at the moment, to avoid a dependency on the full parser.
+
+CAVEATS FOR Win32 USERS
+-------------------------
+
+Embedding Perl5 is disabled GHC is built with MinGW/GCC and Perl 
+is usually built with VC++, they cannot embed one another.
+  
+CAVEATS FOR GCC 4.0 USERS
+-------------------------
+
+Mac OS X 10.4 "Tiger" users may see this error message when compiling Pugs:
+
+    ___DISCARD__
+    collect2: ld returned 1 exit status
+
+Until GHC 6.4.1 is released, you need to need to issue this command first:
+
+    sudo gcc_select 3.3
+
+Then recompile Pugs using a clean tree.  Other users of GCC 4.0 systems
+may also need to switch to GCC 3.3 to compile Pugs for now.
+
+Note that objects compiled with GCC 4.0 can't be linked with GCC 3.3 objects.
+This means that if you're embedding a Parrot you've built with GCC 4.0, Pugs
+will fail during linking with errors like:
+
+    ld: Undefined symbols:
+    _fprintf$LDBLStub
+    _sprintf$LDBLStub
+    _vfprintf$LDBLStub
+    _snprintf$LDBLStub
+    _printf$LDBLStub
+
+Try building a new Parrot with gcc 3.3, then compile Pugs again.
+
+CAVEATS FOR x86_64 MACHINES
+---------------------------
+
+Until GHC 6.4.1 is released, Linux users with x86_64 (64 bit Athlon) CPUs
+should consider using a development snapshot of GHC:
+
+    http://www.haskell.org/ghc/dist/stable/dist/
+    
+Look for files ending with "x86_64-unknown-linux", for example:
+
+    ghc-6.4.1.20050711-x86_64-unknown-linux.tar.bz2
+
+GHC 6.4 had bugs on x86_64 which broke garbage collection and rules (regexps).
+These bugs were fixed in GHC CVS by around 11-May.  There are hints on using
+snapshots at the end of this section.
+
+Here are the known problems:
+
+(1) GHC 6.4 has a garbage collector bug on x86_64 (64 bit Athlon) machines;
+users may see crashes complaining about "strange objects".
+
+A partial workaround is to avoid GC by requesting a large heap, using either
+command line arguments:
+
+    ./pugs +RTS -A200M -RTS
+
+or an environment variable:
+
+    GHCRTS='-A200M'
+
+These request a 200 MB heap, which is sufficient to run most programs.
+
+Running all tests unfortunately requires a lot more memory (perhaps 1000M).
+A possible alternative, which someone could explore and report on, would be
+to try using a 32-bit GHC instead.
+
+(2) Rules (regexps) may not work with GHC 6.4 on x86_64.  Users may see
+"internal error: adjustor creation not supported on this platform".
+There is no known workaround.  This bug has been fixed in current
+development snapshots.
+
+Hints on using a development snapshot of GHC:
+
+By far the simplest alternative is to use a "Stable" binary snapshot as
+described above.  Once you untar it, see INSTALL.  It's basically just
+
+    ./configure
+    make in-place   or   make install
+
+You could instead build from source.  Note that this will take a long time,
+and that it may not work.  Your best bet is to use a recent "Stable" source
+snapshot.  Alternately, you might use cvs to grab your own snapshot:
+
+    CVSROOT=:pserver:anoncvs@glass.cse.ogi.edu:/cvs; export CVSROOT
+    cvs login     # password cvs
+    cvs checkout fpconfig
+    cd fptools
+    cvs checkout ghc hslibs libraries happy alex
+
+    autoreconf
+    ./configure
+    make
+    make install
+
+There are no guarantees with a CVS snapshot.  It may not even compile.

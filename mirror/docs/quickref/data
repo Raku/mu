@@ -1,0 +1,146 @@
+Scalar, sigil: $
+
+      list $foo        # $foo
+          +$foo        # $foo as Num
+          ~$foo        # $foo as Str
+          ?$foo        # $foo as Bool
+          "$foo"       # $foo as Str
+    scalar $foo        # $foo     
+
+Scalar -> Str
+
+    Methods:
+
+    .chomp    # Returns chomped string with a .newline property giving the
+                newline removed
+    .chop
+    .ord
+    .lc
+    .lcfirst
+    .uc
+    .ucfirst
+    .chars    # Length in characters
+    .graphs   # Length in graphemes
+    .codes    # Length in codepoints
+    .bytes    # Length in bytes
+    .tr
+    .reverse
+    .split(/sep/)
+    .hex
+    .oct
+
+Scalar -> Num
+
+    .abs
+    .cos
+    .exp
+    .int
+    .log
+    .rand
+    .sin
+    .sqrt
+    .chr
+    .floor
+    .ceil
+    
+Array, sigil: @
+    
+      list @foo        # List of elements
+          +@foo        # @foo.elems
+          ~@foo        # join ' ', @foo
+          ?@foo        # ? @foo.elems
+          "@foo[]"     # join ' ', @foo
+           @foo[i]     # subscript
+           @foo[i, i]  # slice
+           @foo[i; i]  # multi-dimensional access
+    scalar @foo        # \@foo
+
+    Methods:
+
+    .elems          # Number of elements
+    .join($sep)
+    .map:{ ... }
+    .grep:{ ... }
+    .pop
+    .push($elem)
+    .shift
+    .unshift($elem)
+    .reverse
+    .sort( { cond }, { cond }, ... )
+    .kv            # return index,value pairs
+    
+    Shapes:
+
+    XXX - someone summarize shapes and multi-dimension syntax
+
+    Constructors:
+
+    ARRAY = LIST
+    [ LIST ]       # anonymous ref
+
+Hash, sigil: %
+
+      list %foo        # List of pairs
+          +%foo        # +%foo.keys
+          ~%foo        # ???
+          ?%foo        # ? %foo.keys
+          "%foo{}"     # ???
+           %foo{k}     # subscript
+           %foo{k, k}  # slice
+           %foo<>      # %foo{<>}
+           %foo<<>>    # %foo{<<>>}
+           %foo{k; k}  # multi-dimensional access
+    scalar %foo        # \%foo
+
+    Methods:
+
+    .delete($key)
+    .exists($key)
+    .keys
+    .values
+    .kv                # List of key, value, key, value, ...
+
+    Shapes: 
+
+    XXX - help me
+
+    Constructors:
+
+    HASH = LIST
+    { PAIR, PAIR, ... }   # anonymous ref
+    hash { LIST }         # anonymous ref
+
+Pair (used via reference)
+
+      list $foo        # $foo   # ref, so doesn't flatten to $k, $v
+          +$foo        # ???
+          ~$foo        # ???
+          ?$foo        # ???
+          "$foo"       # ???
+    scalar $foo        # $foo
+
+    Methods:
+
+    .kv      # $key, $value
+    .key
+    .value
+    
+    Constructors: (all anonymous)
+
+    :key            # 'key' => 1
+    :key{'value'}   # 'key' => 'value'
+    \__ thus: :key<>, :key<<>>
+    key => 'value'  # 'key' => 'value' (LHS auto-quoted)
+
+Things with blocks
+
+    Named               Anonymous             See also
+    class   Foo { }     class   { }           oo
+    role    Foo { }     role    { }           oo
+    sub     foo { }     sub     { }, or { }   sub
+    method  foo { }     method  { }           oo, sub
+    macro   foo { }                           sub
+    rule    foo { }     rule    { }           rules
+    grammar Foo { }     grammar { }           rules
+    package Foo { }     package { }           mod
+    module  Foo { }     module  { }           mod

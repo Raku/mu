@@ -1,0 +1,6 @@
+Changes
+Makefile.PL
+MANIFEST
+README
+t/Perl6-Container-Array.t
+lib/Perl6/Container/Array.pm

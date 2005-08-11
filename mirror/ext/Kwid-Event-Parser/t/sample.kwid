@@ -1,0 +1,27 @@
+
+this is not parsed
+
+=kwid
+
+= This is *header* 1
+
+* This is an /item/
+
+This is the *items* body
+
+== This is header 2
+
+This is regular text which 
+wraps /up *to*/ two lines
+
+ This is verbatim text
+ which contains some code in it
+ for () {
+     this is the stuff
+ }
+
+This is regular text again
+
+=cut
+
+this is ingored

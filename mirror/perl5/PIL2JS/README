@@ -1,0 +1,219 @@
+=head1 NAME
+
+PIL2JS - PIL to JavaScript compiler
+
+=head1 DESCRIPTION
+
+C<pil2js.pl> is a Perl 5 program taking PIL (as given by C<pugs -CPIL>) and
+outputting JavaScript.
+
+=head1 USAGE
+
+There's an interactive shell, C<jspugs.pl>. Simply start C<jspugs.pl>, then
+precompile the Prelude by entering C<:precomp>. Now enter some Perl 6 code and
+point your browser to C<./output.html>.
+
+Additionally, there's C<./runjs.pl>, which accepts the same options as Pugs.
+It will first compile your code to JavaScript and then run it using
+Spidermonkey's C<bin/js>:
+
+  $ ./runjs.pl -e 'say "Hello, World!"'
+
+Alternatively, you can use the compiler directly:
+
+  $ cd perl5/PIL2JS
+  $ ./pil2js.pl -o Prelude.js lib6/Prelude/JS.pm  # Precompile the Prelude
+  $ ./pil2js.pl -o output.js input.p6             # Compile the actual prog
+  $ ./pil2js.pl \                                 # Generate a .html
+      --link=html \
+      -o output.html \
+      ~METAMODEL ~libjs/PIL2JS.js ~Prelude.js output.js
+  # This links the Perl 6 MetaModel, the basic JS Prelude (PIL2JS.js), the
+  # Perl 6 Prelude (Prelude.js), and your code together, producing output.html.
+
+=head1 SMOKING
+
+You can use C<make jssmoke> to compile the whole testsuite to JavaScript and
+run it using Spidermonkey's C<bin/js>. The test results will be outputted as
+C<smoke.html>.
+
+=head1 FILE HIERARCHY
+
+  .
+  |-- pil2js.pl           Frontend for the PIL:: modules
+  |-- runjs.pl            Compiles Perl 6 to JavaScript and runs it
+  |-- jspugs.pl           Interactive shell for PIL2JS development
+  |-- lib
+  |   |-- PIL.pm          Main compiler modules, uses all other PIL:: modules
+  |   |-- PIL
+  |   |   |-- Parser.pm   PIL::Parser (parses PIL)
+  |   |   `-- <PIL nodetype>.pm
+  |   |                   Backend compiler modules
+  |-- lib6
+  |   |-- Prelude
+  |   |   |-- JS.pm       Part of the JavaScript Prelude,
+  |   |   |               written in Perl 6
+  |   |   `-- JS/         Submodules of the Prelude (i.e. Prelude::JS::Array,
+  |   |                   Prelude::JS::ControlFlow, etc.)
+  |-- libjs
+  |   `-- PIL2JS.js       Part of the JavaScript Prelude,
+  |                       written in JavaScript
+
+=head1 WHAT'S WORKING ALREADY?
+
+=over
+
+=item *
+
+Variables (scalars, arrays, and hashes), assignment, binding
+
+=item *
+
+Subroutine and (slightly simplified) method declaration (with support for C<is
+rw>, C<is copy>, and default values for optional arguments)
+
+=item *
+
+Subroutine and method invocation, including optional, named, and slurpy
+parameters and C<< &prefix:<*> >>
+
+=item *
+
+Basic operators (C<< &infix:<==> >>, C<< &infix:<eq> >>, C<< &prefix:<+> >>,
+C<< &infix:<=:=> >>, ...)
+
+=item *
+
+Basic builtins (C<say>, C<defined>, C<if>, C<loop>, C<while>, C<until>)
+
+=item *
+
+Control exceptions (C<return>, C<leave>, C<last>, C<next>, C<redo>)
+
+=item *
+
+Stub OO builtins (C<ref>, C<isa> -- awaiting JavaScript port of Stevan's
+excellent C<Perl6::MetaModel> (see F<perl5/Perl6.MetaModel/>))
+
+=item *
+
+Global C<JS> namespace to use JavaScript's classes (e.g.
+C<$*JS::document.write>, C<JS::alert "Pugs rocks">)
+
+=back
+
+=head1 DESIGN
+
+Because JavaScript passes primitive values (strings, numbers, etc.) by value, I
+had to create a proxying object, as Perl requires support for C<is rw> and C<is
+copy>. C<new PIL2JS.Box(value)> returns an object supporting the methods
+C<.FETCH()> (returns C<value>), C<.STORE(new_value)> (set to new value),
+C<.clone()>, and C<.toNative()> (return value as native object).
+
+Additionally, there's C<PIL2JS.Box.ReadOnly>, which proxies a C<PIL2JS.Box>,
+but C<die()>s upon C<.STORE()>.
+
+C<new PIL2JS.Box.Constant(value)> is sugar for C<new PIL2JS.Box.ReadOnly(new
+PIL2JS.Box(value))>.
+
+=head2 Assignment
+
+Assignment is, thanks to the container type C<PIL2JS.Box>, simple:
+C<dest.STORE(source)> (C<.STORE> calls C<source.FETCH()> then and return
+C<source>.)
+
+=head2 Binding
+
+Binding is similar: C<dest.BINDTO(source)>
+
+We can't just use C<dest = source>, because C<dest> might be the result of some
+function, e.g. C<@array[$idx] := $foo>.
+
+=head2 Identity comparision
+
+The C<.uid> property which every C<PIL2JS.Box> object has got contains the
+unique ID of the box (or C<undefined> if it's a C<PIL2JS.Box.Constant>, as we
+can't map all real numbers and more to a finite C<.uid>). C<< &infix:<=:=> >>
+can then compare C<this.uid> with C<other.uid>.
+
+=head2 Calling conventions
+
+Because Perl's subroutine signatures are much richer than JavaScript's ones, I
+had to invent own calling conventions.
+
+All functions take exactly one JavaScript-argument, a native JavaScript
+C<Array> (much like Perl 5's C<@_>). Then the individual arguments are
+extracted (see C<PIL::Nodes>, package C<PIL::Params>).
+
+Additionally to the arguments passed by the user, the first argument is always
+a boxed C<PIL2JS.Context> object. Methods expect C<$?SELF> as their second
+argument.
+
+=head2 Escape continuations
+
+All subs are wrapped in a C<try> block:
+
+  try {
+    // normal body here...
+  } catch(err) {
+    if(err instanceof PIL2JS.ControlException.ret && this_sublevel >= err.level) {
+      // The return/leave/whatever concerns us, return!
+      return err.return_value;
+    } else {
+      // The return/leave/whatever is destined to Somebody Else, rethrow the
+      // exception.
+      throw err;
+    }
+  }
+
+C<&return> can then be simply implemented as:
+
+  throw new PIL2JS.ControlException.ret(sublevel_to_break_out_of, retval);
+
+C<&last> and C<&next> are similar.
+
+=head2 Metamodel
+
+I use Stevan's C<Perl6.MetaModel> as the library providing classes like
+C<Perl6.Class>, C<Perl6.MetaClass>, etc.
+
+Note that I do not store the actual method bodies in the classes; Instead, all
+methods merely return the boxed sub object (a C<PIL2JS.Box.Constant>) upon
+invocation. I.e. the way to call a method is
+C<classobj.FETCH().can(methname).call("__i_am_pil2js").FETCH().([...])>. The
+C<__i_am_pil2js> guard is there so other code (which doesn't know about boxed
+subs) doesn't accidentally call our methods.
+
+Note that our methods do I<not> get a C<Perl6.Instance> as C<$?SELF> (this is
+due to perfomance reasons) -- however, when calling a method, the metamodel
+does get used.
+
+=head1 TODO
+
+=over
+
+=item *
+
+Make C<use js:Foo> load C<Foo> from L<JSAN|http://www.openjsan.org/>
+
+=item *
+
+Primitives!
+
+=item *
+
+Don't call all subs in list context -- but to fix this reliably, C<-CPIL> has
+to give better context information.
+
+=back
+
+=head1 AUTHOR
+
+Ingo Blechschmidt C<< <iblech@web.de> >>
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself. See L<perlgpl> and L<perlartistic> for details.
+
+=cut

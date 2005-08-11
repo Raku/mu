@@ -1,0 +1,78 @@
+#!/usr/bin/pugs
+
+use v6;
+use File::Spec;
+
+my $dat = splitpath($*PROGRAM_NAME)[1] ~ "/p6explain.dat";
+my %things;
+
+# Parsing the dat
+my $fh = open $dat err die "Couldn't open \"$dat\" for reading: $!\n";
+for =$fh {
+  state $cur_entry;
+
+  # Skip comments
+  # next if m:Perl5/^\s*a/;
+
+  # Extract title
+  when m:Perl5/^(\S.*)$/ {
+    $cur_entry  = $0;
+  }
+
+  # Extract explanation
+  when m:Perl5/^(\s+)(.+)$/ {
+    %things{$cur_entry} ~= "$1\n";
+  }
+}
+
+# Expansion
+# This part is a bit complicated, it'd be much easier if
+#   s:Perl5/.../{ any ... }/
+# would work in Pugs. But as it doesn't currently (read: it will do tomorrow
+# :)), we have to fake it by using lots of loops.
+for %things.kv -> $key_, $value {
+  my &deref = -> $key_ {
+    my @ret = ($key_);
+
+    # Check if we have to substitute some references.
+    while any(@ret) ~~ rx:Perl5/\@\w+/ {
+      my @new_ret;
+      for @ret -> $key {
+	if $key ~~ rx:Perl5/\@(\w+)/ {
+	  # This is the thing we want to replace, for example 'infix_ops'.
+	  my $ref   = $0;
+
+	  # These are all substitutions.
+	  my @subst = split rx:Perl5/\s+/, %things{$ref};
+
+	  # These are the original keys.
+	  my @k     = ($key) xx @subst;
+
+	  # Now we substitute all @infix_ops by the values in @subst.
+	  $_ ~~ s:Perl5/\@\Q$ref/{ shift @subst }/ for @k;
+
+	  # Finally, we add that to our array of return values.
+	  push @new_ret, @k;
+	} else {
+	  push @new_ret, $key;
+	}
+      }
+      @ret = @new_ret;
+    }
+    @ret;
+  };
+
+  my @new = deref $key_;
+  %things{$_} //= $value for @new;
+}
+
+die "Usage: $*PROGRAM_NAME thing1_to_explain thing2_to_explain...\n"
+  unless @*ARGS;
+
+# Finally, output!
+for @*ARGS -> $lookup {
+  say $lookup;
+  say "    $_" for
+    split "\n",
+    %things{$lookup} // "Sorry, didn't found an entry for \"$lookup\".\n";
+}

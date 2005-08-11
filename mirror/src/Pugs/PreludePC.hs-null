@@ -1,0 +1,17 @@
+{-# OPTIONS_GHC -fglasgow-exts -fno-full-laziness -fno-cse #-}
+
+{-
+
+Null Prelude bootstap. A placeholder used in first phase of the
+compiler build; later replaced with the real inlined Prelude and code
+to initialize it.
+
+-}
+
+{-# NOINLINE _BypassPreludePC #-}
+_BypassPreludePC :: IORef Bool
+_BypassPreludePC = unsafePerformIO $ newIORef False
+
+initPreludePC :: Env -> IO Env
+initPreludePC = return
+

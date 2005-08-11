@@ -1,0 +1,58 @@
+
+---------------------
+PUGS MEMORY GAME v0.2
+---------------------
+
+This is the first Pugs/Perl 6 web application, a memory game.
+Added to the repository just for fun, without any warranty (it
+means that the code may contain non secure parts, it's not
+commented, and it has no style - ugly). It was hacked by
+Andras Barthazi <andras@barthazi.hu>.
+
+The images are from the net from different sites, no copyright
+check was on them. If you think, that the image is copyrighted,
+please contact with me or with the owner of the site this
+program is downloaded from. The whole program is just for fun.
+
+If you don't know, who's who, here is the list of the images:
+
+ Card #1   - A funny Perl 6 book cover page
+ Card #2   - A pug
+ Card #3   - Larry Wall
+ Card #4   - Leo Toetsch
+ Card #5   - Andras Barthazi
+ Card #6   - Dan Sugalski
+ Card #7   - Autrijus Tang
+ Card #8   - Damian Conway
+ Card #9   - Randal Schwartz
+ Card #10  - A camel
+ Card #11  - A parrot
+ Card #12  - A Haskell symbol
+
+Installation
+~~~~~~~~~~~~
+
+It's a CGI application. Setup your favourite web server to
+run it. The cgi-bin directory is for running the index.cgi,
+for some includes and for storing the session variables.
+The www directory is for the static things.
+
+Add this virtual host setting to your httpd.conf, with
+example.org and /path/to/pugs changed to your local settings:
+
+<VirtualHost *:80>
+    ServerName memory_game.example.org
+    DocumentRoot /path/to/pugs/examples/cgi/memory_game/www
+    ScriptAlias /cgi-bin /path/to/pugs/examples/cgi/memory_game/cgi-bin
+    <Location />
+        Allow from all
+    </Location>
+</VirtualHost>
+
+After that, just connect to http://memory_game.examples.org/ to
+start the game.
+
+Conclusion
+~~~~~~~~~~
+
+Programming Perl 6 is fun. Playing games, too.

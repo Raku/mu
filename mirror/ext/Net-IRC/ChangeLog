@@ -1,0 +1,26 @@
+== Changes for 0.0.5 - May 14, 2005
+
+* Net::IRC now uses the Set module instead of a self-made solution.
+
+== Changes for 0.0.4 - May 11, 2005
+
+* Net::IRC now tracks the topics of channels.
+* It's now possible to list the people who are on a channel and the channels a
+  person has joined.
+
+== Changes for 0.0.3 - May 7, 2005
+
+* Dropped `add_command_handler` and `add_numeric_handler` in favour of a single
+  `add_handler`.
+* Automated nick permuting if chosen nick is already used.
+* `loggedin` and `runloop` pseudo events.
+* Own `username`, `hostname`, and `ircname` detection.
+* Implemented most of the basic IRC commands.
+
+== Changes for 0.0.2 - May 6, 2005
+
+* Added ratelimiting support using `Algorithm::TokenBucket`.
+
+== Changes for 0.0.1 - May 5, 2005
+
+* Module created by Ingo Blechschmidt, with ideas from Perl 5's Net::IRC

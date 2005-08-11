@@ -1,0 +1,178 @@
+=head1 TITLE
+
+ [DRAFT] Synopsis 27 - Perl Culture
+
+
+=head1 AUTHOR
+
+Brian Ingerson <ingy@cpan.org>
+
+
+=head1 VERSION
+
+ Maintainer:    Brian Ingerson <ingy@cpan.org>
+ Date:          12 Apr 2005
+ Last Modified: 12 Apr 2005
+
+This document describes the phenomenon known as "Perl Culture". Perl
+Culture being what it is, this may become the largest of the synopses.
+(It grows in a B<very> big petri dish!)
+
+=head1 THE CPAN DRINKING GAME
+
+Many people love beer. Many Perl hackers are people. Thus what better
+way to begin this draft (no pun intended) than to describe the CPAN
+Drinking Game.
+
+=head2 EQUIPMENT
+
+The following equipment is best for an enjoyable round of CPAN Drinking:
+
+=over
+
+=item *
+
+4 or more Perl Hackers.
+
+=item *
+
+One official. This person:
+
+  - Validates the module names against the master list 
+  - Keeps track of the score 
+  - Keeps track of whose turn it is
+  - Keeps track of the direction of play
+  - Keeps track of time intervals
+  - Keeps track of what valid modules have been named
+  - Keeps track of how many cans of beer each hacker drinks
+
+They may or may not be a Perl Hacker and they may or may not drink beer.
+
+=item *
+
+Many cans of beer. (Number of cans is some coefficient of Number of
+Hackers times Knowledge of CPAN times Body Mass). Beer drinking hackers
+will instinctively know this number.
+
+=item *
+
+Copy of
+L<http://www.cpan.org/modules/02packages.details.txt.gz>.
+
+=item *
+
+A stopwatch or some kind of timer. Preferably written in Perl.
+
+=back
+
+=head2 Rules Of Play
+
+=over
+
+=item 1.
+
+Start by having all hackers form some type of polygonal shape. A circle
+will do fine.
+
+=item 2.
+
+Each hacker opens a new can of beer.
+
+=item 3.
+
+The hacker with the most modules on CPAN starts the play by naming a CPAN
+module.
+
+=item 4.
+
+The official will validate that the module exists. Names given must be
+those of B<modules>, I<not> B<module distributions>. If you don't know
+the difference you really shouldn't be playing this game.
+
+=item 5.
+
+If the module name is valid then play proceeds clockwise to the person
+(N - 1) number of positions away, where N is the number of nodes in the
+module name. The hacker receives (N - 2) points.
+
+For instance if the hacker says:
+
+    Bundle::Business::Shipping::DataTools
+
+then play would go 3 hackers to the left and they would receive 2 points.
+If they said:
+
+    Acme
+
+then that hacker would have to go again and would receive -2 points. The
+reason it is -2 instead of -1 is described in Rule #10.
+
+=item 6.
+
+If the hacker's guess is invalid, they must drink and then give another
+answer. 3 wrong answers in one turn retires that hacker from the game
+and play proceeds to the adjacent hacker. Every wrong answer receives (1
+- N) points.
+
+=item 7.
+
+A valid module name may be used only once. A reused name is considered
+invalid as in Rule #6, except the hacker receives (0 - N) points.
+
+=item 8.
+
+A hacker has up to 2 minutes to give a valid answer. In addition they
+must take a drink every 30 seconds. The official should call out the
+drinking intervals. Failure by the hacker to meet these requirements,
+retires them from the game.
+
+=item 9.
+
+The next hacker in turn must name a module whose first node begins with
+the same letter as the first letter in the last node of the previous
+valid module name. To be pragmatic (no pun intended) letters are
+considered case insensitive.
+
+=item 10.
+
+If a hacker names a module whose first and last nodes begin with the
+same letter, then the order of play is reversed and the hacker receives
+double the number of points.
+
+=item 11.
+
+A hacker is allowed to skip their turn and receive 0 points if they
+choose to drink an entire 12 ounce can of beer (within the 2 minute time
+limit). This is formally known as "taking a Randal". Each hacker may
+only take a Randal only once per game.
+
+=item 12.
+
+If the previous turn, for whatever reason, did not end with a valid
+answer, the next hacker in turn may name a module beginning with any
+letter they choose. All other rules apply.
+
+=item 13.
+
+After all but one hackers have retired, the remaining hacker must name
+one more module correctly (given the same rules as above). If they give
+a valid answer they receive 5 bonus points in addition to the points for
+that round.
+
+After this round, the game is over and the official announces the
+scores.
+
+=back
+
+=head2 Objective
+
+The hacker with the most points at the end of the game wins. In the case
+of a tie, the winner is the hacker to have consumed the most beer.
+
+=head2 History
+
+This game was played by acme, autrijus, clkao, gugod, ingy, mugwump
+and obra on the east coast of Taiwan in April 2005. The game was
+brought from London by acme. ingy later added the points system and a
+few other rules.
+

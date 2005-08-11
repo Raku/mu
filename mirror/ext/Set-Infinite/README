@@ -1,0 +1,11 @@
+- Ordered sets classes:
+
+  Set::Infinite
+
+- Functional versions:
+
+  Set::Infinite::Functional
+
+TESTING
+
+  pugs -I../Test/lib -Ilib/Span/lib -Ilib t/test-name-here

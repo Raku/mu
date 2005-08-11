@@ -1,0 +1,101 @@
+#!/usr/bin/perl -w
+use strict;
+use Test::More tests => 18;
+use File::Temp qw( :mktemp );
+
+#use CORE::system;
+
+BEGIN {
+    if (-d 't') {
+      chdir 't'
+        or die "Couldn't chdir into 't/' : $!";
+    };
+    unshift @INC, '../lib';
+    # XXX this could be further munged to enable some parts on other
+    # platforms
+    #unless ($^O =~ /^MSWin/) {
+	#print "1..0 # skipped: windows specific test\n";
+	#exit 0;
+    #}
+};
+
+my @commands = (
+);
+
+use vars qw($testdir $exename $plxname );
+$testdir = "t e s t";
+$exename = "showav";
+$plxname = "showargv";
+
+do "create_files.pl"
+  or die $!;
+
+sub params_ok {
+  my ($args, $name) = @_;
+  local $" = "*";
+
+  my $count = scalar @$args;
+  my $tempfile = mktemp("systemXXXXXXX");
+
+  my %sep = map { $_ => 1 } ( "\0", "\t", qw( _ : . ), '(', ')', '*', ',' );
+
+  for my $arg (@$args) {
+    for (sort keys (%sep)) {
+      delete $sep{$_} if $arg =~ /\Q$_\E/;
+    };
+  };
+
+  unless (keys %sep) {
+    diag ">>$_<<" for @$args;
+    die "$name: Couldn't find a separator that does not occur in any of the arguments"
+  };
+
+  my ($sep) = sort keys %sep;
+
+  my (@commandline) = ($^X, '-w', @$args);
+  if (system(@commandline) != 0) {
+    diag "Starting >>@commandline<<";
+    return fail($name);
+  };
+
+  my @received_args = do {
+    local (*FH,$/);
+    open FH, $tempfile
+      or do {
+         diag "Couldn't open tempfile '$tempfile' : $!";
+         return fail($name);
+      };
+    split /\Q$sep\E/, <FH>;
+  };
+
+  is_deeply( \@received_args, $args, $name )
+    or do {
+      $" = "\t|";
+      diag "Want |@$args<";
+      diag "Got  |@received_args<";
+    };
+
+  unlink $tempfile
+    or diag "Couldn't remove '$tempfile' : $!";
+};
+
+params_ok([], "Empty list");
+params_ok([1], "Single number");
+params_ok([" "], "Single space");
+params_ok(["Hello World"], "Single space with other stuff");
+params_ok(['Hello "World"'], "2 Double quotes and spaces");
+params_ok(['Hello 12"'], "1 Double quote at end and space");
+params_ok(["Hello 1'"], "1 single quote");
+params_ok(["Hello c:\\"], "1 Backslash at end");
+params_ok(["Hello c:\\\\"], "2 Backslashes at end");
+params_ok(["Hello c:\\\\\\\\"], "4 Backslashes at end");
+params_ok(["Hello c:\\\\\\\\\\"], "5 Backslashes at end");
+params_ok(["Hello c:\\foo"], "1 Backslash embedded");
+params_ok(["Hello c:\\\\bar"], "2 Backslashes embedded");
+params_ok(['12"', '13"', '14"'], "3x1 double quote (at end)");
+params_ok(['"12', '"13', '"14'], "3x1 double quote (at end)");
+params_ok(['Hello', '"World"'], "1 double quoted string");
+params_ok(['  '], "two spaces");
+params_ok(['  ','  '], "2xtwo spaces");
+params_ok(["\t"], "a tab");
+params_ok(["\t\t","\t\t"], "2xtwo tabs");
