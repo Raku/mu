@@ -149,6 +149,11 @@ sub as_js {
   # A.pm: my $a = 3          # ==> my $a_1 = 3;
   # B.pm: use A; my $a = 4;  # ==> my $a_1 = 4; XXX!
 
+  {
+    my %seen;
+    $self->{pilGlob} = [grep { not $seen{$_->[0]}++ } @{ $self->{pilGlob} }];
+  }
+
   my $fixed_tree = $self->fixup;
   warn "# Number of lexical scopes: $CUR_LEXSCOPE_ID\n";
 
@@ -290,12 +295,17 @@ sub name_mangle($) {
 }
 
 # Add indentation to input text $text.
-sub add_indent {
+sub add_indent { 
   my ($i, $text) = @_;
   local $_;
 
+  return $text unless $ENV{PIL2JS_INDENT};
+
   my $INDENT = 2;
-  return join "\n", map { " " x ($i * $INDENT) . $_ } split "\n", $text;
+  my $spaces = " " x ($i * $INDENT);
+
+  $text =~ s/^/$spaces/gm;
+  return $text;
 }
 
 use PIL::PApp;

@@ -65,6 +65,8 @@ sub compile_perl6_to_standalone_js {
 sub compile_perl6_to_mini_js {
   my $pil = run_pugs("-CPIL", @_);
   die "Error: Couldn't compile to PIL!\n" if not defined $pil;
+
+  local $ENV{PIL2JS_INDENT} = "true";
   my $js  = run_pil2js(\$pil);
 
   return $js;
