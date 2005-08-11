@@ -89,4 +89,4 @@ MetaClass:
 
 Role:
 
-Hmm.  Nothing to see hear.
+Hmm. Nothing to see here.
