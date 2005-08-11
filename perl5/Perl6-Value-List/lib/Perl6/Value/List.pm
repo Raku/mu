@@ -5,17 +5,19 @@ package Perl6::Value::List;
 # ChangeLog
 #
 # 2005-08-11
+# * Separate from_num_range() and from_range() constructors. 
+#   - from_num_range() is a numeric range. It accepts a 'step' value.
+#   - from_range() is a generic range for strings, etc. It accepts a 'celems' closure.
+#   Both constructors are just new() wrappers.
 # * grep(), map() don't depend on coroutines
+# * Removed pair() - this module does not has access to the Pair constructor
 #
 # 2005-08-10
 # * Removed method concat_list(), added "TODO" methods
 
-# TODO - add methods grep(), map(), ...
-# TODO - add tests
 # TODO - update MANIFEST
 # TODO - is_contiguous() should test if $step == 1
 # TODO - fix elems() in from_range(), when start/end are Str - 'a'..'z'
-# TODO - rewrite ops using map()
 
 use strict;
 our $VERSION = '0.01';
@@ -70,7 +72,7 @@ sub flatten       {
     $class->from_single( @list ); 
 }
 
-sub from_range {
+sub from_num_range {
     my $class = shift;
     my %param = @_;
     my $start = $param{start};
@@ -99,6 +101,21 @@ sub from_range {
                         },
                 cis_infinite => sub { return $start == -&Inf || $end == Inf },
                 cis_contiguous => sub { $step == -1 || $step ==  1 || $step == undef },
+    );
+}
+
+sub from_range {
+    my $class = shift;
+    my %param = @_;
+    my $start = $param{start};
+    my $end =   $param{end};
+    my $count = $param{celems};
+    $count = sub { $_[0] le $_[1] ? Inf : 0 } unless defined $count;
+    $class->new(
+                cstart =>  sub { $start++ },
+                cend =>    sub { $end-- },
+                celems =>  sub { $count->( $start, $end ) },
+                cis_contiguous => sub { 1 },
     );
 }
 
@@ -147,13 +164,9 @@ sub grep {
     my $array = shift;
     my $code = shift;
     return $array->map( 
-        sub {
+        sub { 
             return $_[0] if $code->($_[0]);
-            while( $array->elems ) {
-                my $x = $array->shift; 
-                # print "x ", $_," elems ", $ret->elems ,"\n";
-                return $x if $code->($x);
-            }
+            return
         } ); 
 }
 
@@ -165,30 +178,46 @@ sub map {
     my @pops;
     Perl6::Value::List->new(
             cstart => sub {
-                    #print "entering map, elems = ", $ret->elems, "\n";
+                    # print "entering map, elems = ", $ret->elems, "\n";
                     while( $ret->elems ) {
                         # TODO - invert the order a bit
                         my $x = $ret->shift; 
-                        #print "map $x\n";
-                        # print " got x ", $_," elems ", $ret->elems ,"\n";
+                        # print "map $x\n";
+                        # print " got x ", $x," elems ", $ret->elems ,"\n";
                         push @shifts, $code->($x);
-                        #print " mapped to [", @shifts, "] ", scalar @shifts, "\n";
+
+                        unless ( @shifts > 1 ) {
+                            # keep some data in the buffer - helps to find EOF in time
+                            my $x = $ret->shift; 
+                            push @shifts, $code->($x);
+                        }
+
+                        # print " mapped to [", @shifts, "] ", scalar @shifts, "\n";
                         return shift @shifts if @shifts;
                         # print " skipped ";
                     }
-                    #print " left [", @shifts, @pops, "] ", scalar @shifts, "+", scalar @pops, "\n";
+                    # print " left [", @shifts, @pops, "] ", scalar @shifts, "+", scalar @pops, "\n";
                     return shift @shifts if @shifts;
                     return shift @pops if @pops;
+                    return
             },
             cend => sub { 
                     while( $ret->elems ) {
-                        local $_ = $ret->pop; 
+                        my $x = $ret->pop; 
                         # print "x ", $_," elems ", $ret->elems ,"\n";
-                        unshift @pops, $code->($_);
+                        unshift @pops, $code->($x);
+
+                        unless ( @pops > 1 ) {
+                            # keep some data in the buffer - helps to find EOF in time
+                            my $x = $ret->pop; 
+                            push @pops, $code->($x);
+                        }
+
                         return pop @pops if @pops;
                     }
                     return pop @pops if @pops;
                     return pop @shifts if @shifts;
+                    return
             },
             celems => sub { 
                     $ret->elems ? Inf : $#shifts + $#pops + 2 
@@ -202,8 +231,10 @@ sub uniq {
     my %seen = ();
     return $array->map( 
         sub {
-            return if $seen{$_[0]};
-            $seen{$_[0]}++;
+            my $str = $_[0];
+            $str = '**UnDeF**' unless defined $str;
+            return if $seen{$str};
+            $seen{$str}++;
             $_[0];
         } ); 
 }
@@ -218,24 +249,12 @@ sub kv {
         } ); 
 }
 
-sub pairs { 
-    my $array = shift;
-    my $ret = $array; 
-    my $count = 0;
-    return $array->map( 
-        sub {
-            warn "TODO: pairs";
-            return ( $count++, $_[0] )
-        } ); 
-}
-
 sub keys { 
     my $array = shift;
-    my $ret = $array; 
     my $count = 0;
     return $array->map( 
         sub {
-            return $count++
+            $count++
         } ); 
 }
 
@@ -278,8 +297,8 @@ sub zip {
     );
 }
 
-sub shift         { $_[0]->{celems}() ? $_[0]->{cstart}() : undef }
-sub pop           { $_[0]->{celems}() ? $_[0]->{cend}()   : undef }  
+sub shift { $_[0]->{celems}() ? $_[0]->{cstart}() : undef }
+sub pop   { $_[0]->{celems}() ? $_[0]->{cend}()   : undef }  
 
 1;
 __END__

@@ -3,20 +3,22 @@
 use strict;
 
 use Test::More;
-plan tests => 28;
+plan tests => 27;
  
 use Perl6::Value::List qw(Inf);
 
 {
   # string range
-  my $iter = Perl6::Value::List->from_range( start => 'a', end => Inf, step => undef );
+  my $iter = Perl6::Value::List->from_range( start => 'a', end => Inf );
   is( $iter->shift, 'a', 'string range' );  
   is( $iter->shift, 'b', 'string range 1' );
 }
 
 {
   # 'Iter' object
-  my $span = Perl6::Value::List->from_range( start => 0, end => 13, step => 1 );
+  my $span = Perl6::Value::List->from_num_range( start => 0, end => 13, step => 1 );
+
+  is( $span->elems, 14, 'elems' );
 
   my $grepped = $span->grep( sub { $_[0] % 3 == 0 } );
   is( $grepped->shift, 0, 'grep  ' );  
@@ -27,6 +29,11 @@ use Perl6::Value::List qw(Inf);
   is( $mapped->shift,  6, 'map 1' );
   is( $mapped->shift, 12, 'map 0' );
   is( $mapped->shift, 12, 'map 1' );
+
+  # this is hard to fix -- after '12', there is one element left in the list;
+  # when grep finds out that there are no more useful elements, it is too late.
+
+  # possible fix - map() always fetch one extra element to the buffer, before returning.
 
   is( $mapped->shift, undef, 'end' );
 }
@@ -45,7 +52,7 @@ use Perl6::Value::List qw(Inf);
 
 {
   # elems
-  my $iter = Perl6::Value::List->from_range( start => 1, end => 1000000, step => 2 );
+  my $iter = Perl6::Value::List->from_num_range( start => 1, end => 1000000, step => 2 );
   is( $iter->elems, 500000, 'Lazy List elems' );
 
   # is( $iter->kv->elems, 1000000, 'Lazy List elems doubles after kv()' );
@@ -92,8 +99,8 @@ use Perl6::Value::List qw(Inf);
 {
   # zip
   
-  my $a1 = Perl6::Value::List->from_range( start => 4, end => 5 ); 
-  my $a2 = Perl6::Value::List->from_range( start => 1, end => 3 ); 
+  my $a1 = Perl6::Value::List->from_num_range( start => 4, end => 5 ); 
+  my $a2 = Perl6::Value::List->from_num_range( start => 1, end => 3 ); 
   $a1 = $a1->zip( $a2 );
   is( $a1->shift, 4, 'zip' );
   is( $a1->shift, 1, 'zip' );

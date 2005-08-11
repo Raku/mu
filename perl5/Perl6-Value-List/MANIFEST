@@ -2,5 +2,7 @@ Changes
 Makefile.PL
 MANIFEST
 README
-t/Perl6-Value-List.t
 lib/Perl6/Value/List.pm
+t/array-lazy.t
+t/array-operations.t
+
