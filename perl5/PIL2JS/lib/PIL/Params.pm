@@ -52,8 +52,7 @@ EOF
 
     my $need_for_at;
     my @bools = map {
-      my @types = split /\|/, $_->type;
-      (grep { $_ eq "Any" } @types or grep { $_ eq "Junction" } @types)
+      $_->type =~ /\b(?:Any|Junction|Bool)\b/
         ? "false"
         : do { $need_for_at++; "true" };
     } grep { $_->name ne '%_' } @$self;
@@ -106,6 +105,9 @@ EOF
     my $self = shift;
     my $name = $self->name;
     warn "Skipping \%_ parameter.\n" and return "" if $name eq "%_";
+
+    # If a param expects a real Pair, don't use it for named argument purposes.
+    return "" if $_->type =~ /\b(?:Any|Pair)\b/;
 
     my $jsname   = $self->jsname;
     my $pairname = PIL::doublequote substr $name, 1;
