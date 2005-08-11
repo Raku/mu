@@ -1,6 +1,13 @@
 
 # This is a Perl5 file
 
+# ChangeLog
+#
+# 2005-08-10
+# * Ported from Perl6 version
+
+# TODO - update MANIFEST
+
 package Perl6::Container::Array;
 
 use strict;

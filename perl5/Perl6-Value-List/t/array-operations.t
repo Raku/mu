@@ -5,7 +5,7 @@ use strict;
 use Test::More;
 plan tests => 28;
  
-use Perl6::Value::List;
+use Perl6::Value::List qw(Inf);
 
 {
   # string range
@@ -18,11 +18,11 @@ use Perl6::Value::List;
   # 'Iter' object
   my $span = Perl6::Value::List->from_range( start => 0, end => 13, step => 1 );
 
-  my $grepped = $span->to_list.Perl6::Value::List::grep:{ $_ % 3 == 0 };
+  my $grepped = $span->grep( sub { $_ % 3 == 0 } );
   is( $grepped->shift, 0, 'grep  ' );  
   is( $grepped->shift, 3, 'grep 0' );
 
-  my $mapped = $grepped->map:{ $_ % 6 == 0 ?? ($_, $_) :: () };
+  my $mapped = $grepped->map( sub { $_ % 6 == 0 ? ($_, $_) : () } );
   is( $mapped->shift,  6, 'map 0' );
   is( $mapped->shift,  6, 'map 1' );
   is( $mapped->shift, 12, 'map 0' );
@@ -32,16 +32,27 @@ use Perl6::Value::List;
 }
 
 {
-  # subutine
+  # subroutine
   
-  my sub mylist { yield $_ for 1..2; yield; }
+  sub mylist { 1 }
   
   my $a1 = Perl6::Value::List->from_sub( &mylist ); 
-  is( $a1->shift, 1, 'lazy array from subutine' );
-  is( $a1->shift, 2, 'subutine' );
-  is( $a1->shift, undef, 'subutine end' );
-  is( $a1->shift, undef, 'subutine really ended' );
+  is( $a1->shift, 1, 'lazy array from subroutine' );
+  is( $a1->shift, undef, 'subroutine end' );
+  is( $a1->shift, undef, 'subroutine really ended' );
 }
+
+{
+  # elems
+  my $iter = Perl6::Value::List->from_range( start => 1, end => 1000000, step => 2 );
+  is( $iter->Perl6::Value::List::elems, 500000, 'Lazy List elems' );
+
+  is( $iter->kv.Perl6::Value::List::elems, 1000000, 'Lazy List elems doubles after kv()' );
+}
+
+__END__
+
+** TODO
 
 {
   # kv
@@ -86,10 +97,3 @@ use Perl6::Value::List;
   is( $a1->shift, undef, 'zip' );
 }
 
-{
-  # elems
-  my $iter = Perl6::Value::List->from_range( start => 1, end => 1000000, step => 2 );
-  is( $iter->Perl6::Value::List::elems, 500000, 'Lazy List elems' );
-
-  is( $iter->kv.Perl6::Value::List::elems, 1000000, 'Lazy List elems doubles after kv()' );
-}

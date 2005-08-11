@@ -5,7 +5,7 @@ use strict;
 use Test::More;
 plan tests => 13;
  
-use Perl6::Value::List;
+use Perl6::Value::List qw(Inf);
 
 {
   # end of stream
@@ -38,4 +38,3 @@ use Perl6::Value::List;
   is( $rev->shift, Inf, 'shift reverse' );
   is( $rev->pop,   2,   'pop reverse' );
 }
-
