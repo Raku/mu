@@ -27,10 +27,12 @@
     my $js;
     $js .= "var cxt   = args.shift();\n";
     $js .= "args      = PIL2JS.possibly_flatten(args);\n";
-    $js .= "var pairs = PIL2JS.grep_for_pairs(args);\n";
+    $js .= "var pairs = PIL2JS.grep_for_pairs(args);\n\n";
+    $js .= $_->as_js0() . "\n" for @$self;
     $js .= $_->as_js1() . "\n" for @$self;
     $js .= $_->as_js2() . "\n" for @$self;
     $js .= $_->as_js3() . "\n" for @$self;
+    chomp $js;
     $js .= <<EOF;
 if(args.length != 0)
   PIL2JS.die("" + args.length + " more parameters passed to sub " + @{[PIL::doublequote $PIL::CUR_SUBNAME]} + " than expected (@{[scalar @$self]})!");
@@ -101,6 +103,13 @@ EOF
     } => "PIL::MkTParam";
   }
 
+  sub as_js0 {
+    my $self = shift;
+    warn "Skipping \%_ parameter.\n" and return "" if $self->name eq '%_';
+
+    return sprintf "var %s = undefined;", $self->jsname;
+  }
+
   sub as_js1 {
     my $self = shift;
     my $name = $self->name;
@@ -113,7 +122,6 @@ EOF
     my $pairname = PIL::doublequote substr $name, 1;
     my $undef    = PIL::undef_of $name;
     return substr <<EOF, 0, -1;  # cosmetical issue: strip the /\n$/.
-var $jsname = undefined;
 if(pairs[$pairname] != undefined) {
   $jsname = $undef.BINDTO(pairs[$pairname]);
   args = PIL2JS.delete_pair_from_args(args, $pairname);

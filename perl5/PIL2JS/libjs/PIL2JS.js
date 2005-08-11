@@ -166,7 +166,7 @@ PIL2JS.Box = function (value) {
     value = new_val;
     return this;
   };
-  this.uid   = PIL2JS.new_uid();
+  this.uid            = PIL2JS.new_uid();
   this.container_type = PIL2JS.container_type(value);
 };
 

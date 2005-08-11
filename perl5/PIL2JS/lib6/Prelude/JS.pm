@@ -51,21 +51,16 @@ sub infix:<=:=>($a, $b) is primitive { JS::inline('new PIL2JS.Box.Constant(
 )')($a, $b) }
 
 sub prefix:<*>(@array) {
-  if not @array.isa("Array") {
-    # Slightly hacky, needed for *(3), for example.
-    @array;
-  } else {
-    JS::inline('new PIL2JS.Box.Constant(function (args) {
-      // We\'ve to [].concat here so we don\'t set .flatten_me of caller\'s
-      // original array.
-      var cc    = args.pop();
-      var array = [].concat(args[1].FETCH());
+  JS::inline('new PIL2JS.Box.Constant(function (args) {
+    // We\'ve to [].concat here so we don\'t set .flatten_me of caller\'s
+    // original array.
+    var cc    = args.pop();
+    var array = [].concat(args[1].FETCH());
 
-      array.flatten_me = true;
-      var ret = new PIL2JS.Box.Constant(array);
-      throw function () { cc(ret) };
-    })')(@array);
-  }
+    array.flatten_me = true;
+    var ret = new PIL2JS.Box.Constant(array);
+    throw function () { cc(ret) };
+  })')(@array);
 }
 
 sub JS::Root::eval(Str ?$code, Str +$lang = 'Perl6') {
