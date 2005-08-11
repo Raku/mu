@@ -301,7 +301,7 @@ ruleBareTrait trait = rule "bare trait" $ do
 ruleType :: GenParser Char st String
 ruleType = literalRule "context" $ do
     -- Valid type names: Foo, Bar::Baz, ::Grtz, ::?CLASS
-    lead    <- upper <|> char ':'
+    lead    <- wordAlpha <|> char ':'
     rest    <- many (wordAny <|> oneOf ":&|?")
     return (lead:rest)
 
