@@ -11,6 +11,7 @@ package Perl6::Value::List;
 # TODO - add tests
 # TODO - update MANIFEST
 # TODO - is_contiguous() should test if $step == 1
+# TODO - fix elems() in from_range(), when start/end are Str - 'a'..'z'
 
 use strict;
 our $VERSION = '0.01';
@@ -139,42 +140,55 @@ sub reverse {
 
 sub grep { 
     my $array = shift;
+    my $code = shift;
     my $ret = $array; 
     Perl6::Value::List->new(
             cstart => sub {
-                    warn 'TODO';
-                    #my $x = $ret->shift // yield;
-                    #yield $x if &$code($x) 
+                    while( $ret->elems ) {
+                        local $_ = $ret->shift; 
+                        # print "x ", $_," elems ", $ret->elems ,"\n";
+                        return $_ if $code->($_);
+                    }
             },
             cend => sub { 
-                    warn 'TODO';
-                    #my $x = $ret->pop // yield;
-                    #yield $x if &$code($x) 
+                    while( $ret->elems ) {
+                        local $_ = $ret->pop; 
+                        # print "x ", $_," elems ", $ret->elems ,"\n";
+                        return $_ if $code->($_);
+                    }
             },
-            # TODO - signal end of data using 'elems()'
+            celems => sub { $ret->elems ? Inf : 0 }
     );
 }
 
 sub map { 
     my $array = shift;
+    my $code = shift;
     my $ret = $array; 
+    my @shifts;
+    my @pops;
     Perl6::Value::List->new(
             cstart => sub {
-                    warn 'TODO';
-                    #my @ret;
-                    #my $x = $ret->shift // yield;
-                    #Perl6::Array::unshift @ret,&$code($x); 
-                    #yield Perl6::Array::shift @ret while @ret 
+                    while( $ret->elems ) {
+                        # TODO - invert the order a bit
+                        local $_ = $ret->shift; 
+                        # print "x ", $_," elems ", $ret->elems ,"\n";
+                        push @shifts, $code->($_);
+                        return shift @shifts if @shifts;
+                    }
+                    return shift @pops if @pops;
             },
-            cend => sub {
-                    warn 'TODO';
-                    #my @ret; 
-                    #my $x = $ret->pop // yield;
-                    #Perl6::Array::push @ret, &$code($x); 
-                    #yield Perl6::Array::pop @ret while @ret  
+            cend => sub { 
+                    while( $ret->elems ) {
+                        local $_ = $ret->pop; 
+                        # print "x ", $_," elems ", $ret->elems ,"\n";
+                        unshift @pops, $code->($_);
+                        return pop @pops if @pops;
+                    }
+                    return pop @shifts if @shifts;
             },
-            # TODO - signal end of data using 'elems()'
-    )
+            celems => sub { $ret->elems ? Inf : 0 }
+    );
 }
 
 sub uniq { 
