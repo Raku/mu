@@ -26,6 +26,7 @@ Named variables (see S02):
     $?GRAMMAR      # current grammar
     @?GRAMMAR      # current grammars
     $*IN           # standard input handle
+    $*OUT          # standard output handle
     $?LABEL        # label of current block
     @?LABEL        # labels of current blocks
     $?LINE         # current line
@@ -39,10 +40,12 @@ Named variables (see S02):
     $*OS           # operating system running under
     $?OSVER        # operating system version compiled for
     $*OSVER        # operating system version running under
-    $*OUT          # standard output handle
+    $?PUGS_VERSION # pugs version
+    $*PUGS_HAS_HSPLUGINS #
+    $*EXECUTABLE_NAME    # executable name
+    $*PROGRAM_NAME       # name of the program being executed
     $?PERLVER      # perl version compiled for
     $*PERLVER      # perl version running under
-    $*PID          # system process id
     ::?ROLE        # current role (as package name)
     $?ROLE         # current role (as variable)
     @?ROLE         # current roles
@@ -51,3 +54,7 @@ Named variables (see S02):
     $?SUBNAME      # name of current sub (see S06)
     @?SUBNAME      # names of current subs
     $*UID          # system user id
+    $*EUID         # effective user id
+    $*GID          # group id
+    $*EGID         # effective group id
+    $*PID          # system process id
