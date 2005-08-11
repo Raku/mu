@@ -59,7 +59,7 @@ sub statement_control:<until>(Code $cond, Code $body) is primitive {
   $ret;
 }
 
-sub statement_control:<if>(Bool $cond, Code $true, Code $false) is primitive {
+sub statement_control:<if>(Bool|Junction $cond, Code $true, Code $false) is primitive {
   JS::inline('(
     function (cond, t, f) {
       return cond ? t() : f();
@@ -67,7 +67,7 @@ sub statement_control:<if>(Bool $cond, Code $true, Code $false) is primitive {
   )')(?$cond, $true, $false);
 }
 
-sub statement_control:<unless>(Bool $cond, Code $true, Code $false) is primitive {
+sub statement_control:<unless>(Bool|Junction $cond, Code $true, Code $false) is primitive {
   statement_control:<if>(!$cond, $true, $false);
 }
 
