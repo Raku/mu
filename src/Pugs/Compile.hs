@@ -149,6 +149,8 @@ instance Compile Pad [PIL Decl] where
         return $ concat entries'
         where
         entries = sortBy padSort $ padToList pad
+        canCompile (name@('&':_), xs) | length xs > 1 = do
+            liftM concat $ mapM (\x -> canCompile (name, [x])) xs
         canCompile (name@('&':_), [(_, sym)]) = do
             ref <- liftSTM $ readTVar sym
             case ref of
