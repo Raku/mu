@@ -19,33 +19,38 @@ Named variables (see S02):
     ::?CLASS       # current class (as package name)
     $?CLASS        # current class (as variable)
     @?CLASS        # current classes
+    %?CONFIG	   # configuration hash
     $=DATA         # data block handle (=begin DATA ... =end)
+    $*EGID         # effective group id
     %*ENV          # system environment
     $*ERR          # standard error handle
+    $*EUID         # effective user id
+    $*EXECUTABLE_NAME    # executable name
     $?FILE         # current file
     $?GRAMMAR      # current grammar
     @?GRAMMAR      # current grammars
+    $*GID          # group id
     $*IN           # standard input handle
-    $*OUT          # standard output handle
     $?LABEL        # label of current block
     @?LABEL        # labels of current blocks
     $?LINE         # current line
     $?MODULE       # current module
     @?MODULE       # current modules
-    $?PACKAGE      # current package
-    @?PACKAGE      # current packages
-    $?PACKAGENAME  # name of current package (see S10) 
-                   #   XXX redundant with $?PACKAGE?
     $?OS           # operating system compiled for
     $*OS           # operating system running under
     $?OSVER        # operating system version compiled for
     $*OSVER        # operating system version running under
-    $?PUGS_VERSION # pugs version
-    $*PUGS_HAS_HSPLUGINS #
-    $*EXECUTABLE_NAME    # executable name
-    $*PROGRAM_NAME       # name of the program being executed
+    $*OUT          # standard output handle
+    $?PACKAGE      # current package
+    @?PACKAGE      # current packages
+    $?PACKAGENAME  # name of current package (see S10) 
+                   #   XXX redundant with $?PACKAGE?
     $?PERLVER      # perl version compiled for
     $*PERLVER      # perl version running under
+    $*PROGRAM_NAME       # name of the program being executed
+    $*PID          # system process id
+    $?PUGS_VERSION # pugs version
+    $*PUGS_HAS_HSPLUGINS #
     ::?ROLE        # current role (as package name)
     $?ROLE         # current role (as variable)
     @?ROLE         # current roles
@@ -54,7 +59,3 @@ Named variables (see S02):
     $?SUBNAME      # name of current sub (see S06)
     @?SUBNAME      # names of current subs
     $*UID          # system user id
-    $*EUID         # effective user id
-    $*GID          # group id
-    $*EGID         # effective group id
-    $*PID          # system process id
