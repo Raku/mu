@@ -6,6 +6,11 @@ use Test;
 plan 49;
 force_todo(26 .. 36, 38 .. 48);
 
+if $*OS eq "browser" {
+  skip_rest "Programs running in browsers don't have access to regular IO.";
+  exit;
+}
+
 my $filename = 'tempfile';
 
 { # write the file first

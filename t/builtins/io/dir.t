@@ -5,7 +5,7 @@ use Test;
 
 plan 3;
 
-if ($*OS eq any<MSWin32 mingw msys cygwin>) {
+if ($*OS eq any<MSWin32 mingw msys cygwin browser>) {
     skip_rest;
     exit;
 }

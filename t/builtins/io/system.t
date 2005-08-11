@@ -4,6 +4,11 @@ use Test;
 
 plan 3;
 
+if $*OS eq "browser" {
+  skip_rest "Programs running in browsers don't have access to regular IO.";
+  exit;
+}
+
 my $pugs = "./pugs";
 if($*OS eq any<MSWin32 mingw msys cygwin>) {
   $pugs = 'pugs.exe';

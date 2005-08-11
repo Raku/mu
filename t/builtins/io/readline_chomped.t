@@ -5,6 +5,11 @@ use Test;
 
 plan 3;
 
+if $*OS eq "browser" {
+  skip_rest "Programs running in browsers don't have access to regular IO.";
+  exit;
+}
+
 
 my $fh = open $*PROGRAM_NAME;
 ok($fh, "could open self");

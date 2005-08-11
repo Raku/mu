@@ -7,6 +7,11 @@ plan 6;
 
 sub nonce() { ".$*PID." ~ int rand 1000 }
 
+if $*OS eq "browser" {
+  skip_rest "Programs running in browsers don't have access to regular IO.";
+  exit;
+}
+
 my $fn = "unlink-test-file" ~ nonce;
 
 my $iswin32 = ?($*OS eq any<MSWin32 mingw msys cygwin>) ?? "Timely closing of file handles does not yet work" :: undef;

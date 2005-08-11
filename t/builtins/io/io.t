@@ -14,6 +14,12 @@ force_todo 5..6, 10..11, 15..16, 21, 23..25, 28,
 
 plan 55;
 
+if $*OS eq "browser" {
+  skip_rest "Programs running in browsers don't have access to regular IO.";
+  exit;
+}
+
+
 sub nonce () { return (".$*PID." ~ int rand 1000) }
 my $filename = 'tempfile' ~ nonce();
 

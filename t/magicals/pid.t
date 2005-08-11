@@ -14,6 +14,11 @@ C< $*PID > in the child process.
 
 plan 1;
 
+if $*OS eq "browser" {
+  skip_rest "Programs running in browsers don't have access to \$*PID.";
+  exit;
+}
+
 my ($pugs,$redir,$squo) = ("./pugs", ">", "'");
 
 if($*OS eq any<MSWin32 mingw msys cygwin>) {

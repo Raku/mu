@@ -13,6 +13,11 @@ Some edge and error cases for I/O
 
 # deal with non-existant files
 
+if $*OS eq "browser" {
+  skip_rest "Programs running in browsers don't have access to regular IO.";
+  exit;
+}
+
 ok(!defined(open("file_which_does_not_exist")), 'open() on non-existant file returns undef');
 
 open("create_this_file", :w);
