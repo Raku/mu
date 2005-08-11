@@ -12,6 +12,7 @@ package Perl6::Value::List;
 # TODO - update MANIFEST
 # TODO - is_contiguous() should test if $step == 1
 # TODO - fix elems() in from_range(), when start/end are Str - 'a'..'z'
+# TODO - rewrite ops using map()
 
 use strict;
 our $VERSION = '0.01';

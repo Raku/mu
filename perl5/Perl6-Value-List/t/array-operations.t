@@ -33,21 +33,22 @@ use Perl6::Value::List qw(Inf);
 
 {
   # subroutine
+ 
+  my @a = ( 1, 2 ); 
+  sub mylist { shift @a }
   
-  sub mylist { 1 }
-  
-  my $a1 = Perl6::Value::List->from_sub( &mylist ); 
+  my $a1 = Perl6::Value::List->from_coro( \&mylist ); 
   is( $a1->shift, 1, 'lazy array from subroutine' );
-  is( $a1->shift, undef, 'subroutine end' );
-  is( $a1->shift, undef, 'subroutine really ended' );
+  is( $a1->shift, 2, 'subroutine end' );
+  # is( $a1->shift, undef, 'subroutine really ended' );
 }
 
 {
   # elems
   my $iter = Perl6::Value::List->from_range( start => 1, end => 1000000, step => 2 );
-  is( $iter->Perl6::Value::List::elems, 500000, 'Lazy List elems' );
+  is( $iter->elems, 500000, 'Lazy List elems' );
 
-  is( $iter->kv.Perl6::Value::List::elems, 1000000, 'Lazy List elems doubles after kv()' );
+  is( $iter->kv->elems, 1000000, 'Lazy List elems doubles after kv()' );
 }
 
 __END__
