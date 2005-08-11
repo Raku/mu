@@ -79,7 +79,7 @@ sub ::create_P6opaque {
 sub ::get_P6opaque_instance_id    { (shift)->{id}            }
 sub ::get_P6opaque_instance_class { (shift)->{class}         }
 sub ::get_P6opaque_instance_data  { 
-    confess "Instance is undefined" if not defined $_[0] ;
+    confess "Instance is undefined" if not defined $_[0];
     (shift)->{instance_data} 
 }
 
@@ -112,8 +112,6 @@ sub ::meta {
             return ::get_P6opaque_instance_data($class_obj)->{meta};
         }
     }
-    
-    #warn "How did we end up here?? $class";
 
     # otherwise we need to determine the class
     # name, and croak if we cannot ...
