@@ -9,6 +9,16 @@ use lib File::Spec->catfile($FindBin::Bin, "lib");
 use PIL2JS;
 use Getopt::Long;
 
+# Minor hack
+INIT {
+  if($ENV{PIL2JS_RESOURCE_GUARD}) {
+    require BSD::Resource;
+    import BSD::Resource;
+    setrlimit(RLIMIT_CPU(), 35, 45) or die "Couldn't setrlimit: $!\n";
+    warn "*** Limited CPU resources.\n";
+  }
+}
+
 sub pwd { File::Spec->catfile($FindBin::Bin, @_) }
 
 my (@runjs_args, @pugs_args);
