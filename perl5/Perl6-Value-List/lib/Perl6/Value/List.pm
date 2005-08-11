@@ -10,6 +10,7 @@ package Perl6::Value::List;
 # TODO - add methods grep(), map(), ...
 # TODO - add tests
 # TODO - update MANIFEST
+# TODO - is_contiguous() should test if $step == 1
 
 use strict;
 our $VERSION = '0.01';
@@ -274,8 +275,8 @@ sub zip {
     )
 }
 
-sub shift         { $_[0]->{cstart}() if $_[0]->{celems}() }
-sub pop           { $_[0]->{cend}()   if $_[0]->{celems}() }  
+sub shift         { $_[0]->{celems}() ? $_[0]->{cstart}() : undef }
+sub pop           { $_[0]->{celems}() ? $_[0]->{cend}()   : undef }  
 
 1;
 __END__
