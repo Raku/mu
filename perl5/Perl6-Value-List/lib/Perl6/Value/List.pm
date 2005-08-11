@@ -4,6 +4,9 @@ package Perl6::Value::List;
 
 # ChangeLog
 #
+# 2005-08-11
+# * grep(), map() don't depend on coroutines
+#
 # 2005-08-10
 # * Removed method concat_list(), added "TODO" methods
 
@@ -43,7 +46,7 @@ sub new {
     return bless \%param, $class;
 }
 
-sub clone         { $_[0] }
+sub clone         { bless { %{ $_[0] } }, ref $_[0] }
 sub elems         { $_[0]->{celems}() }
 sub is_infinite   { $_[0]->{cis_infinite}() }
 sub is_contiguous { $_[0]->{cis_contiguous}() }
@@ -115,6 +118,7 @@ sub from_coro {
     $class->new(
                 cstart =>  sub {
                             my $r = $start->();
+                            # print "coro\n";
                             $size = 0 unless defined $r;
                             return $r;
                         },
@@ -142,7 +146,7 @@ sub reverse {
 sub grep { 
     my $array = shift;
     my $code = shift;
-    my $ret = $array; 
+    my $ret = $array->clone; 
     Perl6::Value::List->new(
             cstart => sub {
                     while( $ret->elems ) {
@@ -165,18 +169,23 @@ sub grep {
 sub map { 
     my $array = shift;
     my $code = shift;
-    my $ret = $array; 
+    my $ret = $array->clone; 
     my @shifts;
     my @pops;
     Perl6::Value::List->new(
             cstart => sub {
+                    # print "entering map\n";
                     while( $ret->elems ) {
                         # TODO - invert the order a bit
-                        local $_ = $ret->shift; 
-                        # print "x ", $_," elems ", $ret->elems ,"\n";
-                        push @shifts, $code->($_);
+                        my $x = $ret->shift; 
+                        # print "map $x\n";
+                        # print " got x ", $_," elems ", $ret->elems ,"\n";
+                        push @shifts, $code->($x);
+                        print " mapped to [", @shifts, "] ", scalar @shifts, "\n";
                         return shift @shifts if @shifts;
+                        # print " skipped ";
                     }
+                    return shift @shifts if @shifts;
                     return shift @pops if @pops;
             },
             cend => sub { 
@@ -186,79 +195,58 @@ sub map {
                         unshift @pops, $code->($_);
                         return pop @pops if @pops;
                     }
+                    return pop @pops if @pops;
                     return pop @shifts if @shifts;
             },
-            celems => sub { $ret->elems ? Inf : 0 }
+            celems => sub { 
+                    # print "elems ", $ret->elems , " @shifts @pops ", scalar ( @shifts, @pops ), "\n";
+                    $ret->elems ? Inf : $#shifts + $#pops + 2 
+            },
     );
 }
 
 sub uniq { 
     my $array = shift;
+    my $ret = $array->clone;
     my %seen = ();
-    my $ret = $array; 
-    Perl6::Value::List->new(
-            cstart => sub {
-                    warn 'TODO';
-                    # my $x = $ret->shift // yield;
-                    #unless %seen{$x} { 
-                    #    %seen{$x} = bool::true; 
-                    #    yield $x 
-                    #}                       
-            },
-            cend => sub {
-                    warn 'TODO';
-                    # my $x = $ret->pop // yield;
-                    #unless %seen{$x} { 
-                    #    %seen{$x} = bool::true; 
-                    #    yield $x 
-                    #}  
-            },
-            # TODO - signal end of data using 'elems()'
-    )
+    return $array->map( 
+        sub {
+            # print "uniq ", @x," *** $seen{$x[0]} \n";
+            return if $seen{$_[0]};
+            $seen{$_[0]}++;
+            $_[0];
+        } ); 
 }
 
 sub kv { 
     my $array = shift;
     my $ret = $array; 
     my $count = 0;
-    Perl6::Value::List->new(
-            cstart => sub {
-                    warn 'TODO';
-                    #my $x = $ret->shift // yield;
-                    #yield $count++;
-                    #yield $x;
-            },
-            celems => sub { $ret->elems + $ret->elems },
-    )
+    return $array->map( 
+        sub {
+            return ( $count++, $_[0] )
+        } ); 
 }
 
 sub pairs { 
     my $array = shift;
     my $ret = $array; 
     my $count = 0;
-    Perl6::Value::List->new(
-            cstart => sub {
-                    warn 'TODO';
-                    #my $x = $ret->shift // yield;
-                    #my $pair = $count => $x;
-                    #yield $pair;
-                    #$count++;
-            },
-            celems => sub { $ret->elems },
-    )
+    return $array->map( 
+        sub {
+            warn "TODO: pairs";
+            return ( $count++, $_[0] )
+        } ); 
 }
 
 sub keys { 
     my $array = shift;
     my $ret = $array; 
     my $count = 0;
-    Perl6::Value::List->new(
-            cstart => sub {
-                    my $x = $ret->shift;  # XXX no-op
-                    $count++; 
-            },
-            celems => sub { $ret->elems },
-    )
+    return $array->map( 
+        sub {
+            return $count++
+        } ); 
 }
 
 sub values { 
@@ -268,26 +256,14 @@ sub values {
 sub zip { 
     # TODO: implement zip parameters
     # TODO: implement count = max( @lists->elems )
+    my $array = shift;
     my @lists = @_;
-    Perl6::Value::List->new(
-            cstart => sub {
-                    my @x;
-                    my $count = 0;
-                    # TODO - rewrite this checking 'elems()'
-                    # XXX - the list would normally stop after the first 'undef'
-                    for ( @lists ) {
-                        push @x, $_->shift;
+    $array->map( 
+                sub { $_[0], 
+                      map { my $x = $_->shift; defined $x ? $x : 'x' } 
+                          @lists 
                     }
-                    #if ( defined any(@x) ) {
-                    #    for ( @lists -> $xx ) {
-                    #        yield Perl6::Array::shift @x;
-                    #    }
-                    #}
-                    #else {
-                    #    yield;
-                    #}
-            }
-    )
+               );
 }
 
 sub shift         { $_[0]->{celems}() ? $_[0]->{cstart}() : undef }
