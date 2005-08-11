@@ -10,6 +10,7 @@ use v6;
 
 =cut
 
+# TODO - is_contiguous() should test if $step == 1
 # TODO - finish sync with Perl5 version
 # TODO - test flatten(), is_lazy(), error messages
 # TODO - emit error message if attempting to flatten() an infinite list 
@@ -17,6 +18,10 @@ use v6;
 # TODO - document unsupported operations: join, reduce, sort - call fail()
 # TODO - check grep() syntax
 # TODO - provide a better default stringify - see Span.pm
+# TODO - fix elems() in from_range(), when start/end are Str - 'a'..'z'
+#      - add tests
+# TODO - rewrite ops using closures (instead of coro)
+# TODO - reuse map() to write ops
 
 # Things that will be solved by the compiler:
 # - keys/kv/pairs/values with indexes (S29) --> array slice
