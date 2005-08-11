@@ -214,25 +214,10 @@ EOF
     push @js, "pad[$padname] = $jsname;";
 
     # Always bind $?SELF to us, if we're the invocant param.
-    if($self->{tpParam}{isInvocant}->isa("PIL::True")) {
-#      my $tree = bless [
-#        bless [] => "PIL::SMy",
-#        [bless ['$?SELF', bless ['$?SELF'] => "PIL::PRawName"]],
-#        bless [
-#          bless [
-#            bless [
-#              bless [
-#                [bless ['$?SELF'] => "PIL::PVar"],
-#                bless [
-#                  bless [] => "PIL::MkPos",
-#                  bless [bless 
-#                ] => "PIL::PPos",
-#              ] => "PIL::PBind",
-#            ] => "PIL::PExp",
-#          ] => "PIL::PStmt",
-#          bless [] => "PIL::PNil",
-#        ] => "PIL::PStmts",
-#      ] => "PIL::PPad";
+    if($self->{tpParam}{isInvocant}->isa("PIL::True") and $name ne '$?SELF') {
+      push @js, sprintf "var %s = %s; pad[%s] = %s;",
+        PIL::name_mangle('$?SELF'), $jsname,
+        $padname,                   $jsname;
     }
 
     return join "\n", @js;
