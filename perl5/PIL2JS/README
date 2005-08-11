@@ -149,28 +149,64 @@ Additionally to the arguments passed by the user, the first argument is always
 a boxed C<PIL2JS.Context> object. Methods expect C<$?SELF> as their second
 argument.
 
-=head2 Escape continuations
+The last argument is always the return continuation.
 
-All subs are wrapped in a C<try> block:
+=head2 Full continuations
 
-  try {
-    // normal body here...
-  } catch(err) {
-    if(err instanceof PIL2JS.ControlException.ret && this_sublevel >= err.level) {
-      // The return/leave/whatever concerns us, return!
-      return err.return_value;
-    } else {
-      // The return/leave/whatever is destined to Somebody Else, rethrow the
-      // exception.
-      throw err;
-    }
+Because JavaScript doesn't natively support full continuations, I had to fake
+them:
+
+  foo(); bar(3, baz());   # is compiled as
+  foo(-> () {
+    baz(-> $arg {
+      bar(3, $arg);
+    });
+  });
+
+If a sub wants to return, it simply executes the return continuation given as
+the last argument.
+
+Unfortunately, simply calling the return continuation causes stack
+overflow errors, as the original functions are, from a JavaScript point of
+view, never left. Therefore, instead of calling the return continuation
+directly, an exception is thrown:
+
+  // Instead of
+  continuation(retval);
+  // an exception is thrown:
+  throw function () { continuation(retval) };
+
+This makes sure all functions are really left. C<PIL2JS.runloop> catches those
+exceptions and runs them:
+
+  PIL2JS.runloop(function () {
+    ...code...
+  });
+
+To convert a function from CPS to normal style, you can use
+C<PIL2JS.cps2normal>:
+
+  var retval = PIL2JS.cps2normal(unboxed_function, [...args...]);
+
+Note that this breaks, of course, call/cc magic -- only the first return value
+is respected. I.e.
+
+  my ($cont, $x);
+  sub foo {
+    $cont = callcc;
+    return ++$x;
   }
 
-C<&return> can then be simply implemented as:
+  sub bar {
+    foo();
+    $cont();
+  }
 
-  throw new PIL2JS.ControlException.ret(sublevel_to_break_out_of, retval);
+  var retval = PIL2JS.cps2normal(&bar, [...]);
+  // retval is 1. The second return value, 2, is ignored.
 
-C<&last> and C<&next> are similar.
+C<&next>, C<&last>, and C<&redo> will be converted to use continuations, too,
+but currently, they still use exceptions to escape.
 
 =head2 Metamodel
 
