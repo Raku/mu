@@ -252,6 +252,7 @@ PIL2JS.Box.prototype = {
       for(var i = 0; i < unboxed.length; i++) {
         arr.push(unboxed[i] == undefined ? undefined : unboxed[i].toNative());
       }
+      if(unboxed.flatten_me) arr.flatten_me = unboxed.flatten_me;
       return arr;
 
     } else if(unboxed instanceof PIL2JS.Hash) {
@@ -376,6 +377,7 @@ PIL2JS.toPIL2JSBox = function (thing) {
     for(var i = 0; i < thing.length; i++) {
       ret.push(PIL2JS.box_native_result(thing[i]));
     }
+    if(thing.flatten_me) ret.flatten_me = thing.flatten_me;
     return new PIL2JS.Box.Constant(ret);
   } else {
     return new PIL2JS.Box.Constant(thing);
@@ -786,17 +788,17 @@ PIL2JS.use_jsan = function (mod) {
 };
 
 PIL2JS.print_exception = function (err) {
-  throw(err);
-  _26main_3a_3asay.FETCH()([
-    PIL2JS.Context.Void,
-    PIL2JS.cps2normal(_26main_3a_3aprefix_3a_7e.FETCH(), [
-      PIL2JS.Context.ItemAny,
-      err.pil2js_orig_msg
-        ? err.pil2js_orig_msg
-        : new PIL2JS.Box.Constant(err.toString())
-    ]),
-    function () { "dummy" }
-  ]);
+  PIL2JS.cps2normal(
+    _26main_3a_3asay.FETCH(), [
+      PIL2JS.Context.Void,
+      PIL2JS.cps2normal(_26main_3a_3aprefix_3a_7e.FETCH(), [
+        PIL2JS.Context.ItemAny,
+        err.pil2js_orig_msg
+          ? err.pil2js_orig_msg
+          : new PIL2JS.Box.Constant(err.toString())
+      ])
+    ]
+  );
 };
 PIL2JS.catch_all_exceptions = function (code) {
   try { code() } catch(err) {
@@ -892,9 +894,12 @@ var _26main_3a_3aprefix_3a_7e = PIL2JS.Box.constant_func(1, function (args) {
         if(thing.referencee) thing = thing.referencee.FETCH();
         var res = "";
         for(var i = 0; i < thing.length; i++) {
-          res += PIL2JS.cps2normal(
-            _26main_3a_3aprefix_3a_7e.FETCH(), [PIL2JS.Context.ItemAny, thing[i]]
-          ).FETCH() + " ";
+          if(thing[i] != undefined) {
+            res += PIL2JS.cps2normal(
+              _26main_3a_3aprefix_3a_7e.FETCH(), [PIL2JS.Context.ItemAny, thing[i]]
+            ).FETCH();
+          }
+          res += " ";
         }
         if(thing.length > 0) res = res.slice(0, -1);
         cc(new PIL2JS.Box.Constant(res));

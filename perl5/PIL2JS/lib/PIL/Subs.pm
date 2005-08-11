@@ -119,6 +119,8 @@ use strict;
     die unless ref($self->[1]) eq "ARRAY" or $self->[1]->isa("PIL::Params");
     bless $self->[1] => "PIL::Params";
 
+    local $PIL::IN_SUBLIKE = $self->[0]->as_constant;
+
     return bless [
       $self->[0],
       $self->[1]->fixup($self->[2]),

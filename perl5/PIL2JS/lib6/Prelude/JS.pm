@@ -63,7 +63,7 @@ sub prefix:<*>(@array) {
 
       array.flatten_me = true;
       var ret = new PIL2JS.Box.Constant(array);
-      cc(ret);
+      throw function () { cc(ret) };
     })')(@array);
   }
 }
