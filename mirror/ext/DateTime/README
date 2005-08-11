@@ -1,4 +1,0 @@
-An attempt to re-implement DateTime for Perl 6, and fix all my API
-mistakes along the way.  Given that no one will use this in production
-any time soon, it seems like a nice playground.
-
