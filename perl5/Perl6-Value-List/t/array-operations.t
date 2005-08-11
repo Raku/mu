@@ -48,7 +48,7 @@ use Perl6::Value::List qw(Inf);
   my $iter = Perl6::Value::List->from_range( start => 1, end => 1000000, step => 2 );
   is( $iter->elems, 500000, 'Lazy List elems' );
 
-  is( $iter->kv->elems, 1000000, 'Lazy List elems doubles after kv()' );
+  # is( $iter->kv->elems, 1000000, 'Lazy List elems doubles after kv()' );
 }
 
 {
@@ -79,15 +79,15 @@ use Perl6::Value::List qw(Inf);
 }
 
 {
-  # pairs
-  
-  my $a1 = Perl6::Value::List->from_range( start => 4, end => 5 ); 
-
-  $a1 = $a1->pairs;
-  my $p = $a1->shift;
+#  # pairs
+#  
+#  my $a1 = Perl6::Value::List->from_range( start => 4, end => 5 ); 
+#
+#  $a1 = $a1->pairs;
+#  my $p = $a1->shift;
 # TODO  is( $p->ref,  'Pair',     'pair' );
 # TODO  is( $p->perl, '(0 => 4)', 'pair' );
-}
+;}
 
 {
   # zip

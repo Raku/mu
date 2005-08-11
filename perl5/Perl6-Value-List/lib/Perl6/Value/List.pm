@@ -146,24 +146,15 @@ sub reverse {
 sub grep { 
     my $array = shift;
     my $code = shift;
-    my $ret = $array->clone; 
-    Perl6::Value::List->new(
-            cstart => sub {
-                    while( $ret->elems ) {
-                        local $_ = $ret->shift; 
-                        # print "x ", $_," elems ", $ret->elems ,"\n";
-                        return $_ if $code->($_);
-                    }
-            },
-            cend => sub { 
-                    while( $ret->elems ) {
-                        local $_ = $ret->pop; 
-                        # print "x ", $_," elems ", $ret->elems ,"\n";
-                        return $_ if $code->($_);
-                    }
-            },
-            celems => sub { $ret->elems ? Inf : 0 }
-    );
+    return $array->map( 
+        sub {
+            return $_[0] if $code->($_[0]);
+            while( $array->elems ) {
+                my $x = $array->shift; 
+                # print "x ", $_," elems ", $ret->elems ,"\n";
+                return $x if $code->($x);
+            }
+        } ); 
 }
 
 sub map { 
@@ -174,17 +165,18 @@ sub map {
     my @pops;
     Perl6::Value::List->new(
             cstart => sub {
-                    # print "entering map\n";
+                    #print "entering map, elems = ", $ret->elems, "\n";
                     while( $ret->elems ) {
                         # TODO - invert the order a bit
                         my $x = $ret->shift; 
-                        # print "map $x\n";
+                        #print "map $x\n";
                         # print " got x ", $_," elems ", $ret->elems ,"\n";
                         push @shifts, $code->($x);
-                        print " mapped to [", @shifts, "] ", scalar @shifts, "\n";
+                        #print " mapped to [", @shifts, "] ", scalar @shifts, "\n";
                         return shift @shifts if @shifts;
                         # print " skipped ";
                     }
+                    #print " left [", @shifts, @pops, "] ", scalar @shifts, "+", scalar @pops, "\n";
                     return shift @shifts if @shifts;
                     return shift @pops if @pops;
             },
@@ -199,7 +191,6 @@ sub map {
                     return pop @shifts if @shifts;
             },
             celems => sub { 
-                    # print "elems ", $ret->elems , " @shifts @pops ", scalar ( @shifts, @pops ), "\n";
                     $ret->elems ? Inf : $#shifts + $#pops + 2 
             },
     );
@@ -211,7 +202,6 @@ sub uniq {
     my %seen = ();
     return $array->map( 
         sub {
-            # print "uniq ", @x," *** $seen{$x[0]} \n";
             return if $seen{$_[0]};
             $seen{$_[0]}++;
             $_[0];
@@ -254,16 +244,38 @@ sub values {
 }
 
 sub zip { 
-    # TODO: implement zip parameters
-    # TODO: implement count = max( @lists->elems )
     my $array = shift;
     my @lists = @_;
-    $array->map( 
-                sub { $_[0], 
-                      map { my $x = $_->shift; defined $x ? $x : 'x' } 
-                          @lists 
-                    }
-               );
+    my $ret = $array->clone; 
+    my @shifts;
+    my @pops;
+    Perl6::Value::List->new(
+            cstart => sub {
+                return shift @shifts if @shifts;
+                my $any = 0;
+                for ( $ret, @lists ) { $any++ if $_->elems }
+                push @shifts, ( $ret->shift, 
+                            map { my $x = $_->shift; defined $x ? $x : 'x' } 
+                                @lists ) if $any;
+                return shift @shifts if @shifts;
+                return shift @pops if @pops;
+            },
+            cend => sub { 
+                return pop @pops if @pops;
+                my $any = 0;
+                for ( $ret, @lists ) { $any++ if $_->elems }
+                unshift @pops, ( $ret->pop, 
+                            map { my $x = $_->pop; defined $x ? $x : 'x' } 
+                                @lists ) if $any;
+                return pop @pops if @pops;
+                return pop @shifts if @shifts;
+            },
+            celems => sub { 
+                my $any = 0;
+                for ( $ret, @lists ) { $any++ if $_->elems }
+                $any ? Inf : $#shifts + $#pops + 2 
+            },
+    );
 }
 
 sub shift         { $_[0]->{celems}() ? $_[0]->{cstart}() : undef }
