@@ -1,0 +1,92 @@
+My notes to myself as I read the 2005-08-04 IRC discussion of 
+the MetaModel:
+
+  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-08-04,Thu&sel=356#l564
+
+Clarification, corrections, and questions welcome.
+
+    +--------------+
+    |              |
+    |   Instance   |
+    |              |
+    +--------------+
+           |                       +--------------+
+    +--------------+               |              |
+    |              |               |     Role     |
+    |    Class     |               |              |
+    |              |               +--------------+
+    +--------------+
+           |
+    +--------------+
+    |              |
+    |  MetaClass   |
+    |              |
+    +--------------+
+
+Instance:
+
+* holds an instance of the class it is created from
+  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-08-04,Thu&sel=402#l646
+
+* has attributes
+  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-08-04,Thu&sel=362#l572
+
+* holds instance data, which maps member names (in the MetaClass?) 
+  to values (in the MetaClass instance?)
+  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-08-04,Thu&sel=435#l695
+
+* $?CLASS and $?SELF are lexicals which are rebound at each method 
+  execution
+  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-08-04,Thu&sel=377#l607
+
+* calling 'next METHOD' jumps to a label (called 'METHOD'?) by searching
+  outside the method, back to the dispatcher, then to the resume loop
+  (this is really fuzzy to me, the description more than the concept, I
+  think)
+  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-08-04,Thu&sel=379#l609
+
+Class:
+
+* is a singleton
+  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-08-04,Thu&sel=835#l1333
+
+* holds an instance of the MetaClass it is created from
+  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-08-04,Thu&sel=480#l769
+
+* has a 'bless' method which takes a candidate and returns an instance
+  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-08-04,Thu&sel=405#l650
+
+* is a thin layer between the meta and user worlds
+  (see also 10000 ft view)
+  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-08-05,Fri&sel=619#l1125
+
+* is a mapping between Name and ID (in member fields)
+  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-08-04,Thu&sel=475#l763
+
+* all questions asked of a class are passed to its metaclass
+  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-08-04,Thu&sel=628#l1023
+
+MetaClass:
+
+* is a singleton
+  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-08-04,Thu&sel=835#l1333
+
+* has attribute definitions
+  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-08-04,Thu&sel=364#l575
+
+* has _add_method to add methods (all instances magically have the new
+  method available to them)
+  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-08-04,Thu&sel=507#l818
+
+* private attributes can only be accessed from methods defined in the same
+  class as the private attribute
+  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-08-04,Thu&sel=585#l938
+
+* examples: Perl6::Instance (which defines the UNIVERSAL:: methods 'isa',
+  'can', and 'AUTOLOAD')
+  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-08-04,Thu&sel=653#l1067
+  http://colabti.de/irclogger/irclogger_log/perl6?date=2005-08-04,Thu&sel=655#l1072
+
+Role:
+
+Hmm.  Nothing to see hear.
