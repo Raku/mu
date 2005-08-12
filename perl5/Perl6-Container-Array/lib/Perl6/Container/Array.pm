@@ -14,11 +14,9 @@
 # 2005-08-10
 # * Ported from Perl6 version
 
-# TODO - List.is_lazy() could be defined with a closure
 # TODO - store(List) actually means store([List]), Perl6 version
 # TODO - fix "defined $i" to "elems == 0" in push/pop, Perl6 version
-# TODO - splice() should accept a List object
-# TODO - update MANIFEST
+# TODO - splice() should accept a 'List' object, Perl6 version too
 #
 # TODO - Tests:
 # TODO - test splice offset == 0, 1, 2, -1, -2, -Inf, Inf

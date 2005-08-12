@@ -4,6 +4,9 @@ package Perl6::Value::List;
 
 # ChangeLog
 #
+# 2005-08-12
+# * fixed map()->pop()
+#
 # 2005-08-11
 # * Fixed string comparison to Inf portability (Windows x Linux)
 # * Separate from_num_range() and from_range() constructors. 
@@ -16,10 +19,9 @@ package Perl6::Value::List;
 # 2005-08-10
 # * Removed method concat_list(), added "TODO" methods
 
-# TODO - update MANIFEST
+# TODO - List.is_lazy() could be defined with a closure; Perl6 version too
 # TODO - map(), grep() could accept the optional 'celems' parameter - for kv() implementation
 # TODO - is_contiguous() should test if $step == 1
-# TODO - fix elems() in from_range(), when start/end are Str - 'a'..'z'
 
 use strict;
 our $VERSION = '0.01';
@@ -27,8 +29,6 @@ use constant Inf => 100**100**100;
 use base qw(Exporter);
 use vars qw(@EXPORT_OK);
 @EXPORT_OK = qw(Inf);
-
-sub TODO { die "not implemented" };
 
 sub new {
     my $class = shift;
