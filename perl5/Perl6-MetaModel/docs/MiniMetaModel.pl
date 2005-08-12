@@ -54,22 +54,8 @@ use Test::More tests => 28;
     }
 }
 
-# The 'Class' class
-my $Class = ::create_class(
-    '$:name'    => 'Class',
-    '%:methods' => {
-        'name' => sub ($) {
-            ::opaque_instance_attrs(shift)->{'$:name'}
-        },
-        'superclass' => sub ($) {
-            ::opaque_instance_attrs(shift)->{'$:superclass'}
-        },
-        'get_method' => sub ($$) {
-            my ($self, $label) = @_;
-            ::opaque_instance_attrs($self)->{'%:methods'}->{$label};
-        }
-    },
-);
+# The 'Class' class -- placed here so ::create_class can refer to it
+my $Class;
 
 sub ::create_class (%) {
     my (%attrs) = @_;
@@ -87,6 +73,22 @@ sub ::create_class (%) {
     );
 }
 
+# The 'Class' class
+$Class = ::create_class(
+    '$:name'    => 'Class',
+    '%:methods' => {
+        'name' => sub ($) {
+            ::opaque_instance_attrs(shift)->{'$:name'}
+        },
+        'superclass' => sub ($) {
+            ::opaque_instance_attrs(shift)->{'$:superclass'}
+        },
+        'get_method' => sub ($$) {
+            my ($self, $label) = @_;
+            ::opaque_instance_attrs($self)->{'%:methods'}->{$label};
+        }
+    },
+);
 # The 'Object' class
 my $Object = ::create_class(
     '$:name'    => 'Object',
