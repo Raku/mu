@@ -54,25 +54,8 @@ use Test::More tests => 28;
     }
 }
 
-my $Class;
-
-sub ::create_class (%) {
-    my (%attrs) = @_;
-    return ::create_opaque_instance(
-        # < Class is instance of Class >
-        \$Class,
-        (
-            '$:name'        => '',
-            '$:superclass'  => undef,
-            '%:attributes'  => {},
-            '%:methods'     => {},
-            # and override anything here ...
-            %attrs,
-        )
-    );
-}
-
-$Class = ::create_class(
+# The 'Class' class
+my $Class = ::create_class(
     '$:name'    => 'Class',
     '%:methods' => {
         'name' => sub ($) {
@@ -88,6 +71,23 @@ $Class = ::create_class(
     },
 );
 
+sub ::create_class (%) {
+    my (%attrs) = @_;
+    return ::create_opaque_instance(
+        # < a Class object is an instance of the Class class >
+        \$Class,
+        (
+            '$:name'        => '',
+            '$:superclass'  => undef,
+            '%:attributes'  => {},
+            '%:methods'     => {},
+            # and override anything here ...
+            %attrs,
+        )
+    );
+}
+
+# The 'Object' class
 my $Object = ::create_class(
     '$:name'    => 'Object',
     '%:methods' => {
@@ -104,7 +104,7 @@ my $Object = ::create_class(
     },
 );
 
-# < Class is subclass of Object >
+# < Class is a subclass of Object >
 ::opaque_instance_attrs($Class)->{'$:superclass'} = $Object;
 
 ## ----------------------------------------------------------------------------
