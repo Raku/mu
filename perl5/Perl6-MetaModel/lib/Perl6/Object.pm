@@ -78,7 +78,21 @@ class 'Perl6::Object' => {
         submethods => {
             'BUILD' => sub {
                 my ($self, %params) = @_;
-                _($_ => $params{$_}) foreach keys %params;
+                foreach my $key (keys %params) {
+                    # XXX -
+                    # The default BUILD method should accept
+                    # params which are not included in the 
+                    # attributes. It will do nothing with them
+                    # but it will allow them to exist.
+                    # - (see t_oo/submethods.t)
+                    _($key => $params{$key})
+                        # NOTE:
+                        # this is an ugly way to do this, ideally
+                        # we would peek into the instance structure
+                        # itself and see if we had the spot, and
+                        # otherwise ignore it ... but this will do
+                        if ::dispatch(::meta($self), 'find_attribute_spec', ($key));
+                }
             }
         },
         methods => {
