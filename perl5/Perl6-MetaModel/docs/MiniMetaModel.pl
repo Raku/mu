@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 28;
+use Test::More tests => 32;
 
 {
     use Hash::Util 'lock_keys';
@@ -65,7 +65,7 @@ sub ::create_class (%) {
         (
             '$:name'        => '',
             '$:superclass'  => undef,
-            '%:attributes'  => {},
+            '%:attributes'  => [],
             '%:methods'     => {},
             # and override anything here ...
             %attrs,
@@ -79,6 +79,16 @@ $Class = ::create_class(
     '%:methods' => {
         'name' => sub ($) {
             ::opaque_instance_attrs(shift)->{'$:name'}
+        },
+        'class_precendence_list' => sub ($) {
+            my ($self) = @_;
+            my @cpl = ($self);
+            my $current = $self;
+            while (my $super = $current->superclass) {
+                push @cpl => $super;
+                $current = $super;
+            }
+            return @cpl;
         },
         'superclass' => sub ($) {
             ::opaque_instance_attrs(shift)->{'$:superclass'}
@@ -96,7 +106,7 @@ my $Object = ::create_class(
         'new' => sub ($%) {
             my ($class, %attrs) = @_;
             return ::create_opaque_instance(\$class, %attrs);
-        },
+        },      
         'id' => sub ($) {
             ::opaque_instance_id(shift)
         },
@@ -127,11 +137,19 @@ is($Class->id, 1, '... $Class is the first id');
 is($Class->class, $Class, '... $Class refs to itself');
 is($Class->name, 'Class', '... $Class got the right method return value');
 is($Class->superclass, $Object, '... $Class is now a subclass of $Object');
+is_deeply(
+    [ $Class->class_precendence_list ], 
+    [ $Class, $Object ], 
+    '... $Class class_precendence_list');
 
 is($Object->id, 2, '... $Object is the second id');
 is($Object->class, $Class, '... $Object class slot is $Class');
 is($Object->name, 'Object', '... $Object got the right method return value');
 is($Object->superclass, undef, '... $Object got the right method return value');
+is_deeply(
+    [ $Object->class_precendence_list ], 
+    [ $Object ], 
+    '... $Object class_precendence_list');
 
 ## make class
 
@@ -148,6 +166,10 @@ is($Foo->id, 3, '... $Foo is the fourth id');
 is($Foo->class, $Class, '... $Foo refs to metaclass');
 is($Foo->name, 'Foo', '... $Foo got the right method return value');
 is($Foo->superclass, $Object, '... $Foo got the right method return value');
+is_deeply(
+    [ $Foo->class_precendence_list ], 
+    [ $Foo, $Object ], 
+    '... $Foo class_precendence_list');
 
 fails_ok { $Foo->bar } '... metaclass calling instance method fails';
 
@@ -178,6 +200,10 @@ is($Bar->id, 5, '... $Bar is the fifth id');
 is($Bar->class, $Class, '... $Bar refs to metaclass');
 is($Bar->name, 'Bar', '... $Bar got the right method return value');
 is($Bar->superclass, $Foo, '... $Bar got the right method return value');
+is_deeply(
+    [ $Bar->class_precendence_list ], 
+    [ $Bar, $Foo, $Object ], 
+    '... $Bar class_precendence_list');
 
 ## make instances of subclasses
 
