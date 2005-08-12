@@ -95,7 +95,13 @@ sub as_js {
     unless($self->[PIL::CC]) {
       use YAML; warn Dump($self);
     }
-    my $cc  = $self->[PIL::CC]->as_js;
+
+    # Minor hack -- we undefine all params to not suck up all memory.
+    my $cc =
+      $self->[PIL::CC]->as_js(
+        join " ", map { "$_ = undefined;" } grep { /^ret\d+$/ } @jsparams
+      );
+
     my @arg = (@jsparams, $native ? () : ($cc));
     @arg    = map { "($_).toNative()" } @arg if $native;
     my $arg = PIL::add_indent(1, join ",\n", @arg);
