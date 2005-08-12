@@ -17,6 +17,7 @@ package Perl6::Value::List;
 # * Removed method concat_list(), added "TODO" methods
 
 # TODO - update MANIFEST
+# TODO - map(), grep() could accept the optional 'celems' parameter - for kv() implementation
 # TODO - is_contiguous() should test if $step == 1
 # TODO - fix elems() in from_range(), when start/end are Str - 'a'..'z'
 
@@ -215,7 +216,7 @@ sub map {
                         unless ( @pops > 1 ) {
                             # keep some data in the buffer - helps to find EOF in time
                             my $x = $ret->pop; 
-                            push @pops, $code->($x);
+                            unshift @pops, $code->($x);
                         }
 
                         return pop @pops if @pops;
@@ -232,7 +233,6 @@ sub map {
 
 sub uniq { 
     my $array = shift;
-    my $ret = $array->clone;
     my %seen = ();
     return $array->map( 
         sub {
@@ -246,7 +246,6 @@ sub uniq {
 
 sub kv { 
     my $array = shift;
-    my $ret = $array; 
     my $count = 0;
     return $array->map( 
         sub {
