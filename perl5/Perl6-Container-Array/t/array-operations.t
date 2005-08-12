@@ -7,7 +7,7 @@ plan tests => 39;
 
 # use_ok( 'Perl6::Container::Array' );
 use Perl6::Container::Array; 
-use Perl6::Value::List;
+use Perl6::Value::List qw(Inf);
 
 {
   # string range

@@ -3,7 +3,7 @@
 use strict;
 
 use Test::More;
-plan tests => 27;
+plan tests => 29;
  
 use Perl6::Value::List qw(Inf);
 
@@ -110,7 +110,9 @@ use Perl6::Value::List qw(Inf);
   is( $a1->shift, 5, 'zip' );
   is( $a1->shift, 2, 'zip' );
   is( $a1->shift, undef, 'zip' );
+  is( $a1->elems, 1 );
   is( $a1->shift, 3, 'zip' );
+  is( $a1->elems, 0 );
   is( $a1->shift, undef, 'zip' );
 }
 

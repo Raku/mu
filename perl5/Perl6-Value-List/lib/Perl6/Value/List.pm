@@ -5,12 +5,13 @@ package Perl6::Value::List;
 # ChangeLog
 #
 # 2005-08-11
+# * Fixed string comparison to Inf portability (Windows x Linux)
 # * Separate from_num_range() and from_range() constructors. 
 #   - from_num_range() is a numeric range. It accepts a 'step' value.
 #   - from_range() is a generic range for strings, etc. It accepts a 'celems' closure.
 #   Both constructors are just new() wrappers.
 # * grep(), map() don't depend on coroutines
-# * Removed pair() - this module does not has access to the Pair constructor
+# * Removed pair() - this module does not have access to the Pair constructor
 #
 # 2005-08-10
 # * Removed method concat_list(), added "TODO" methods
@@ -110,7 +111,11 @@ sub from_range {
     my $start = $param{start};
     my $end =   $param{end};
     my $count = $param{celems};
-    $count = sub { $_[0] le $_[1] ? Inf : 0 } unless defined $count;
+    $count = sub { 
+            return Inf if $_[1] == Inf;
+            $_[0] le $_[1] ? Inf : 0 
+        } 
+        unless defined $count;
     $class->new(
                 cstart =>  sub { $start++ },
                 cend =>    sub { $end-- },
@@ -274,20 +279,22 @@ sub zip {
                 my $any = 0;
                 for ( $ret, @lists ) { $any++ if $_->elems }
                 push @shifts, ( $ret->shift, 
-                            map { my $x = $_->shift; defined $x ? $x : 'x' } 
+                            map { my $x = $_->shift } #; defined $x ? $x : 'x' } 
                                 @lists ) if $any;
                 return shift @shifts if @shifts;
                 return shift @pops if @pops;
+                return
             },
             cend => sub { 
                 return pop @pops if @pops;
                 my $any = 0;
                 for ( $ret, @lists ) { $any++ if $_->elems }
                 unshift @pops, ( $ret->pop, 
-                            map { my $x = $_->pop; defined $x ? $x : 'x' } 
+                            map { my $x = $_->pop } #; defined $x ? $x : 'x' } 
                                 @lists ) if $any;
                 return pop @pops if @pops;
                 return pop @shifts if @shifts;
+                return
             },
             celems => sub { 
                 my $any = 0;

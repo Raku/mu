@@ -10,8 +10,15 @@ use v6;
 
 =cut
 
+# TODO - sync with Perl5 version:
+# * Separate from_num_range() and from_range() constructors. 
+#   - from_num_range() is a numeric range. It accepts a 'step' value.
+#   - from_range() is a generic range for strings, etc. It accepts a 'celems' closure.
+#   Both constructors are just new() wrappers.
+# * grep(), map() don't depend on coroutines
+# * Removed pair() - this module does not have access to the Pair constructor
+#
 # TODO - is_contiguous() should test if $step == 1
-# TODO - finish sync with Perl5 version
 # TODO - test flatten(), is_lazy(), error messages
 # TODO - emit error message if attempting to flatten() an infinite list 
 # TODO - does zip() has additional parameters?

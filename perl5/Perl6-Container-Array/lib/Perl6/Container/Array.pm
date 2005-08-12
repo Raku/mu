@@ -3,10 +3,21 @@
 
 # ChangeLog
 #
+# 2005-08-11
+# * fixed some syntax errors
+#
 # 2005-08-10
 # * Ported from Perl6 version
 
 # TODO - update MANIFEST
+#
+# TODO - Tests:
+# TODO - test splice offset == 0, 1, 2, -1, -2, -Inf, Inf
+# TODO - test splice length == 0, 1, 2, Inf, negative
+# TODO - test splice list == (), (1), (1,2), Iterators, ...
+# TODO - splice an empty array
+# TODO - test multi-dimensional array
+# TODO - test optional splice parameters
 
 package Perl6::Container::Array;
 
@@ -17,12 +28,17 @@ use constant Inf => 100**100**100;
 sub new {
     my $class = shift;
     my @items = @_;
-    return bless { items => @items }, $class;
+    return bless { items => \@items }, $class;
+}
+
+sub items {
+    my $self = shift;
+    return @{$self->{items}};
 }
 
 sub from_list {
     my $class = shift;
-    $class->new( items => @_ );
+    $class->new( items => [@_] );
 }
 
 sub _shift_n { 
@@ -36,7 +52,7 @@ sub _shift_n {
     }
     while ( @tmp ) {
         last if @ret >= $length;
-        if ( ! $tmp[0].isa('Perl6::Value::List') ) {
+        if ( ! UNIVERSAL::isa( $tmp[0], 'Perl6::Value::List') ) {
             push @ret, shift @tmp;
             next;
         }
@@ -64,7 +80,7 @@ sub _pop_n () {
     }
     while ( @tmp ) {
         last if @ret >= $length;
-        if ( ! $tmp[0].isa('Perl6::Value::List') ) {
+        if ( ! UNIVERSAL::isa( $tmp[0], 'Perl6::Value::List') ) {
             unshift @ret, pop @tmp;
             next;
         }
@@ -97,7 +113,7 @@ sub is_infinite {
     for ( @{$array->{items}} ) {
         return 1 if $_->isa( 'Perl6::Value::List' ) && $_->is_infinite;
     }
-    bool::false;
+    0;
 }
 
 sub is_lazy {
@@ -105,7 +121,7 @@ sub is_lazy {
     for ( @{$array->{items}} ) {
         return 1 if $_->isa( 'Perl6::Value::List' ) && $_->is_lazy;
     }
-    bool::false;
+    0;
 }
 
 sub flatten {
@@ -160,16 +176,6 @@ sub splice {
     return Perl6::Container::Array->from_list( @body );
 }
 
-sub shift {
-    my $array = shift;
-    $array->_shift_n( 1 )[0]
-}
-
-sub pop {
-    my $array = shift;
-    $array->_pop_n( 1 )[0]
-}
-
 sub unshift {
     my $array = shift;
     my @item = @_;
@@ -196,6 +202,7 @@ sub fetch {
     # XXX - this is very inefficient
     # see also: slice()
     my $array = shift;
+    my $pos = shift;
     my $ret = $array->splice( $pos, 1 );
     $array->splice( $pos, 0, @{$ret->{items}} );
     return @{$ret->{items}};
@@ -204,6 +211,7 @@ sub fetch {
 sub store {
     # TODO - $pos could be a lazy list of pairs!
     my $array = shift;
+    my $pos = shift;
     my $item  = shift;
     $array->splice( $pos, 1, $item );
     return $array;
@@ -219,6 +227,7 @@ sub reverse {
 }
 
 sub to_list {
+    my $array = shift;
     my $ret = $array->clone;
     # TODO - optimization - return the internal list object, if there is one
     return Perl6::Value::List->new(
@@ -226,6 +235,16 @@ sub to_list {
             cend =>   sub { $ret->pop },
             celems => sub { $ret->elems },
         )
+}
+
+sub pop {
+    my $array = shift;
+    $array->_pop_n( 1 )
+}
+
+sub shift {
+    my $array = shift;
+    $array->_shift_n( 1 )
 }
 
 1;

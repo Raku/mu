@@ -7,7 +7,7 @@ plan tests => 33;
 
 # use_ok( 'Perl6::Container::Array' );
 use Perl6::Container::Array; 
-use Perl6::Value::List;
+use Perl6::Value::List qw(Inf);
 
 {
   # normal splice
@@ -18,8 +18,8 @@ use Perl6::Value::List;
   my $spliced = $span->splice( 2, 3, 23..25 );
   isa_ok( $spliced, 'Perl6::Container::Array', 'result is an Perl6::Container::Array' );
 
-  is( $span->items.join(','), '1,2,23,24,25,6,7,8,9,10', 'span' );
-  is( $spliced->items.join(','), '3,4,5', 'splice' );
+  is( join(',', $span->items), '1,2,23,24,25,6,7,8,9,10', 'span' );
+  is( join(',', $spliced->items), '3,4,5', 'splice' );
 }
 
 {
@@ -45,8 +45,8 @@ use Perl6::Value::List;
   my $span = Perl6::Container::Array->from_list( 1 .. 10 );
   my $spliced = $span->splice( -4, 3, 23..25 );
 
-  is( $span->items.join(','), '1,2,3,4,5,6,23,24,25,10', 'span' );
-  is( $spliced->items.join(','), '7,8,9', 'splice' );
+  is( join(',',$span->items), '1,2,3,4,5,6,23,24,25,10', 'span' );
+  is( join(',',$spliced->items), '7,8,9', 'splice' );
 }
 
 {
@@ -64,7 +64,7 @@ use Perl6::Value::List;
   # my $rev_iter = $iter->Perl6::Value::List::reverse;
   # is( $rev_iter->pop, 2|3, 'iter reverse 1' );
   # is( $rev_iter->pop, 3|4, 'iter reverse 2' );
-}
+;}
 
 {
   # 'Iter' object
@@ -75,13 +75,13 @@ use Perl6::Value::List;
   my $span = Perl6::Container::Array->from_list( 'x', 'y', 'z', $iter );
   my $spliced = $span->splice( 1, 4, () );
 
-  is( $span->items.join(','), 'x,<obj:Perl6::Value::List>', 'span' );
-  is( $spliced->items.join(','), 'y,z,2,3', 'splice' );
+  is( join(',',$span->items), 'x,<obj:Perl6::Value::List>', 'span' );
+  is( join(',',$spliced->items), 'y,z,2,3', 'splice' );
 
   $spliced = $span->splice( 0, 3, ( 'a' ) );
 
-  is( $span->items.join(','), 'a,<obj:Perl6::Value::List>', 'span' );
-  is( $spliced->items.join(','), 'x,4,5', 'splice again' );
+  is( join(',',$span->items), 'a,<obj:Perl6::Value::List>', 'span' );
+  is( join(',',$spliced->items), 'x,4,5', 'splice again' );
   
   is( $span->shift, 'a', 'shift' );
   is( $span->shift, '6', 'shift' );
@@ -109,9 +109,3 @@ use Perl6::Value::List;
   is( $rev->pop,  11,   'splice reverse' );
 }
 
-# TODO - test splice offset == 0, 1, 2, -1, -2, -Inf, Inf
-# TODO - test splice length == 0, 1, 2, Inf, negative
-# TODO - test splice list == (), (1), (1,2), Iterators, ...
-# TODO - splice an empty array
-# TODO - test multi-dimensional array
-# TODO - test optional splice parameters
