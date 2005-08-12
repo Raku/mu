@@ -3,7 +3,7 @@
 use strict;
 
 use Test::More;
-plan tests => 39;
+plan tests => 36;
 
 # use_ok( 'Perl6::Container::Array' );
 use Perl6::Container::Array; 
@@ -18,15 +18,26 @@ use Perl6::Value::List qw(Inf);
 
 {
   # 'Iter' object
-  my $iter = Perl6::Value::List->from_range( start => 0, end => 13, step => 1 );
+  my $iter = Perl6::Value::List->from_num_range( start => 0, end => 13, step => 1 );
+
+  # warn "iter ". join(',', map{ $iter->shift } (0..10) );
+
   my $span = Perl6::Container::Array->from_list( -1, 9, $iter );
 
-  my $grepped = $span->to_list.Perl6::Value::List::grep:{ $_ % 3 == 0 };
+  # warn "span ". join(',', map{ $span->shift } (0..10) );
+
+  #warn $span;
+  #warn "@{[$span->items]} items";
+
+  my $grepped = $span->to_list->grep( sub { $_[0] % 3 == 0 } );
+  #warn "@{[$grepped->items]} items";
   is( $grepped->shift, 9, 'grep  ' );  
+  #warn "@{[$grepped->items]} items";
   is( $grepped->shift, 0, 'grep 0' );
+  #warn "@{[$grepped->items]} items";
   is( $grepped->shift, 3, 'grep 1' );
 
-  my $mapped = $grepped->map:{ $_ % 6 == 0 ?? ($_, $_) :: () };
+  my $mapped = $grepped->map( sub { $_[0] % 6 == 0 ? ($_[0], $_[0]) : () } );
   is( $mapped->shift,  6, 'map 0' );
   is( $mapped->shift,  6, 'map 1' );
   is( $mapped->shift, 12, 'map 0' );
@@ -37,28 +48,28 @@ use Perl6::Value::List qw(Inf);
 
 {
   # multidimensional lazy array
-  my $iter = Perl6::Value::List->from_range( start => 0, end => 9, step => 1 );
+  my $iter = Perl6::Value::List->from_num_range( start => 0, end => 9, step => 1 );
   my $a1 = Perl6::Container::Array->from_list( $iter );
   my @a2 = 1..10;
-  my $b1 = Perl6::Container::Array->from_list( $a1, [[@a2]] );  # XXX why does it need double []?
+  my $b1 = Perl6::Container::Array->from_list( $a1, [@a2] ); 
   isa_ok( $b1->shift, 'Perl6::Container::Array', 'without "splat", inserts an array' );
-  isa_ok( $b1->shift, 'Array' );
+  isa_ok( $b1->shift, 'ARRAY' );
 }
 
 {
   # splat
-  my $iter = Perl6::Value::List->from_range( start => 0, end => 9, step => 1 );
+  my $iter = Perl6::Value::List->from_num_range( start => 0, end => 9, step => 1 );
   my $a1 = Perl6::Container::Array->from_list( $iter );
   my $b1 = Perl6::Container::Array->from_list( $a1->to_list, 1..10 );
-  isa_ok( $b1->shift, 'Int', 'with "splat", inserts the elements' );
-  isa_ok( $b1->shift, 'Int' );
+  is( ref($b1->shift), '', 'with "splat", inserts the elements' );
+  is( ref($b1->shift), '' );
 }
 
 {
   # uniq
-  my $iter = Perl6::Value::List->from_range( start => 0, end => 9, step => 1 );
+  my $iter = Perl6::Value::List->from_num_range( start => 0, end => 9, step => 1 );
   my $a1 = Perl6::Container::Array->from_list( 1, $iter );
-  $a1 = $a1->to_list.Perl6::Value::List::uniq;
+  $a1 = $a1->to_list->uniq;
   is( $a1->shift, 1, 'not seen element' );
   is( $a1->shift, 0, 'not seen element' );
   is( $a1->shift, 2, 'seen element was skipped' );
@@ -70,26 +81,22 @@ use Perl6::Value::List qw(Inf);
 }
 
 {
-  # subutine
-  
-  my sub mylist { yield $_ for 1..2; yield; }
-  
-  my $iter = Perl6::Value::List->new( cstart => &mylist ); 
+  # (test originally written to test coroutines)
+
+  my $iter = Perl6::Value::List->from_num_range( start => 1, end => 2, step => 1 );
   my $a1 = Perl6::Container::Array->from_list( $iter );
-  is( $a1->shift, 1, 'lazy array from subutine' );
-  is( $a1->shift, 2, 'subutine' );
-  is( $a1->shift, undef, 'subutine end' );
-  is( $a1->shift, undef, 'subutine really ended' );
+  is( $a1->shift, 1, 'lazy array from subroutine' );
+  is( $a1->shift, 2, 'subroutine' );
+  is( $a1->shift, undef, 'subroutine end' );
+  is( $a1->shift, undef, 'subroutine really ended' );
 }
 
 {
   # kv
   
-  my sub mylist { yield $_ for 4..5; yield; }
-  
-  my $iter = Perl6::Value::List->new( cstart => &mylist ); 
+  my $iter = Perl6::Value::List->from_num_range( start => 4, end => 5, step => 1 );
   my $a1 = Perl6::Container::Array->from_list( $iter );
-  $a1 = $a1->to_list.Perl6::Value::List::kv;
+  $a1 = $a1->to_list->kv;
   is( $a1->shift, 0, 'kv' );
   is( $a1->shift, 4, 'kv' );
   is( $a1->shift, 1, 'kv' );
@@ -99,28 +106,23 @@ use Perl6::Value::List qw(Inf);
 {
   # pairs
   
-  my sub mylist { yield $_ for 4..5; yield; }
-  
-  my $iter = Perl6::Value::List->new( cstart => &mylist ); 
-  my $a1 = Perl6::Container::Array->from_list( $iter );
-  $a1 = $a1->to_list.Perl6::Value::List::pairs;
-  my $p = $a1->shift;
-  is( $p->ref,  'Pair',     'pair', :todo<wrong type> );
-  is( $p->perl, '(0 => 4)', 'pair', :todo<wrong type> );
-}
+#  my $iter = Perl6::Value::List->from_num_range( start => 4, end => 5, step => 1 );
+#  my $a1 = Perl6::Container::Array->from_list( $iter );
+#  $a1 = $a1->to_list.Perl6::Value::List::pairs;
+#  my $p = $a1->shift;
+#  is( $p->ref,  'Pair',     'pair', :todo<wrong type> );
+#  is( $p->perl, '(0 => 4)', 'pair', :todo<wrong type> );
+;}
 
 {
   # zip
   
-  my sub mylist1 { yield $_ for 4..5; yield; }
-  my $iter1 = Perl6::Value::List->new( cstart => &mylist1 ); 
+  my $iter1 = Perl6::Value::List->from_num_range( start => 4, end => 5, step => 1 );
   my $a1 =    Perl6::Container::Array->from_list( $iter1 );
-  
-  my sub mylist2 { yield $_ for 1..3; yield; }
-  my $iter2 = Perl6::Value::List->new( cstart => &mylist2 ); 
+  my $iter2 = Perl6::Value::List->from_num_range( start => 1, end => 3, step => 1 );
   my $a2 =    Perl6::Container::Array->from_list( $iter2 );
   
-  $a1 = $a1->to_list.Perl6::Value::List::zip( $a2 );
+  $a1 = $a1->to_list->zip( $a2 );
   is( $a1->shift, 4, 'zip' );
   is( $a1->shift, 1, 'zip' );
   is( $a1->shift, 5, 'zip' );
@@ -132,10 +134,11 @@ use Perl6::Value::List qw(Inf);
 
 {
   # elems
-  my $iter = Perl6::Value::List->from_range( start => 1, end => 1000000, step => 2 );
-  is( $iter->Perl6::Value::List::elems, 500000, 'Lazy List elems' );
+  my $iter = Perl6::Value::List->from_num_range( start => 1, end => 1000000, step => 2 );
+  is( $iter->elems, 500000, 'Lazy List elems' );
 
-  is( $iter->kv.Perl6::Value::List::elems, 1000000, 'Lazy List elems doubles after kv()' );
+  # not implemented
+  # is( $iter->kv->elems, 1000000, 'Lazy List elems doubles after kv()' );
 
   my $a1 =    Perl6::Container::Array->from_list( 'z', $iter );
   is( $a1->elems, 500001, 'Lazy Array elems' );

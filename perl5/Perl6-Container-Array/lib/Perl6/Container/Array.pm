@@ -14,6 +14,7 @@
 # 2005-08-10
 # * Ported from Perl6 version
 
+# TODO - List.is_lazy() could be defined with a closure
 # TODO - store(List) actually means store([List]), Perl6 version
 # TODO - fix "defined $i" to "elems == 0" in push/pop, Perl6 version
 # TODO - splice() should accept a List object
@@ -41,6 +42,8 @@ sub new {
     my @items = @{$param{items}};
     return bless { items => \@items }, $class;
 }
+
+sub clone         { bless { %{ $_[0] } }, ref $_[0] }
 
 sub items {
     my $self = shift;
@@ -126,7 +129,7 @@ sub elems {
 sub is_infinite {
     my $array = shift;
     for ( @{$array->{items}} ) {
-        return 1 if $_->isa( 'Perl6::Value::List' ) && $_->is_infinite;
+        return 1 if UNIVERSAL::isa( $_, 'Perl6::Value::List') && $_->is_infinite;
     }
     0;
 }
@@ -134,7 +137,7 @@ sub is_infinite {
 sub is_lazy {
     my $array = shift;
     for ( @{$array->{items}} ) {
-        return 1 if $_->isa( 'Perl6::Value::List' ) && $_->is_lazy;
+        return 1 if UNIVERSAL::isa( $_, 'Perl6::Value::List') && $_->is_lazy;
     }
     0;
 }
@@ -144,7 +147,7 @@ sub flatten {
     my $array = shift;
     my $ret = $array->clone;
     for ( @{$ret->{items}} ) {
-        $_ = $_->flatten() if $_->isa( 'Perl6::Value::List' ) && $_->is_lazy;
+        $_ = $_->flatten() if UNIVERSAL::isa( $_, 'Perl6::Value::List') && $_->is_lazy;
     }
     $ret;
 }
@@ -239,6 +242,7 @@ sub to_list {
             cstart => sub { $ret->shift },
             cend =>   sub { $ret->pop },
             celems => sub { $ret->elems },
+            is_lazy => $ret->is_lazy,
         )
 }
 
