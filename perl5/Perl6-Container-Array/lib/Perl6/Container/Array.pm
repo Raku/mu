@@ -3,12 +3,17 @@
 
 # ChangeLog
 #
+# 2005-08-12
+# * fixed new(), elems(), pop(), shift()
+# * fixed "defined $i" to "elems == 0" in push/pop
+#
 # 2005-08-11
 # * fixed some syntax errors
 #
 # 2005-08-10
 # * Ported from Perl6 version
 
+# TODO - fix "defined $i" to "elems == 0" in push/pop, Perl6 version
 # TODO - update MANIFEST
 #
 # TODO - Tests:
@@ -23,11 +28,14 @@ package Perl6::Container::Array;
 
 use strict;
 our $VERSION = '0.01';
-use constant Inf => 100**100**100;
+
+use Perl6::Value::List qw(Inf);
+# use constant Inf => 100**100**100;
 
 sub new {
     my $class = shift;
-    my @items = @_;
+    my %param = @_;
+    my @items = @{$param{items}};
     return bless { items => \@items }, $class;
 }
 
@@ -51,13 +59,14 @@ sub _shift_n {
         return @tmp;
     }
     while ( @tmp ) {
+        # warn "ret ".scalar(@ret)." length $length";
         last if @ret >= $length;
         if ( ! UNIVERSAL::isa( $tmp[0], 'Perl6::Value::List') ) {
             push @ret, shift @tmp;
             next;
         }
-        my $i = $tmp[0]->shift;
-        if ( defined $i ) {
+        if ( $tmp[0]->elems > 0 ) {
+            my $i = $tmp[0]->shift;
             push @ret, $i;
             last if @ret >= $length;
         }
@@ -66,10 +75,11 @@ sub _shift_n {
         }
     };
     @{$array->{items}} = @tmp;
+    # warn "ret @ret ; array @tmp ";
     return @ret;
 }
 
-sub _pop_n () {
+sub _pop_n {
     my $array = shift;
     my $length = shift;
     my @ret;
@@ -79,13 +89,14 @@ sub _pop_n () {
         return @tmp;
     }
     while ( @tmp ) {
+        # warn "ret ".scalar(@ret)." length $length";
         last if @ret >= $length;
-        if ( ! UNIVERSAL::isa( $tmp[0], 'Perl6::Value::List') ) {
+        if ( ! UNIVERSAL::isa( $tmp[-1], 'Perl6::Value::List') ) {
             unshift @ret, pop @tmp;
             next;
         }
-        my $i = $tmp[0]->pop;
-        if ( defined $i ) {
+        if ( $tmp[-1]->elems > 0 ) {
+            my $i = $tmp[-1]->pop;
             unshift @ret, $i;
             last if @ret >= $length;
         }
@@ -94,6 +105,7 @@ sub _pop_n () {
         }
     };
     @{$array->{items}} = @tmp;
+    # warn "ret @ret ; array @tmp ";
     return @ret;
 }
 
@@ -101,7 +113,7 @@ sub elems {
     my $array = shift;
     my $count = 0;
     for ( @{$array->{items}} ) {
-        $count += $_->isa( 'Perl6::Value::List' )  ?
+        $count += UNIVERSAL::isa( $_, 'Perl6::Value::List') ?
                   $_->elems  :
                   1;
     }
@@ -176,20 +188,6 @@ sub splice {
     return Perl6::Container::Array->from_list( @body );
 }
 
-sub unshift {
-    my $array = shift;
-    my @item = @_;
-    unshift @{$array->{items}}, @item;
-    return $array;
-}
-
-sub push {
-    my $array = shift;
-    my @item = @_;
-    push @{$array->{items}}, @item;
-    return $array;
-}
-
 sub end  {
     my $array = shift;
     return unless $array->elems;
@@ -237,14 +235,26 @@ sub to_list {
         )
 }
 
+sub unshift {
+    my $array = shift;
+    unshift @{$array->{items}}, @_;
+    return $array;
+}
+
+sub push {
+    my $array = shift;
+    push @{$array->{items}}, @_;
+    return $array;
+}
+
 sub pop {
     my $array = shift;
-    $array->_pop_n( 1 )
+    ( $array->_pop_n( 1 ) )[0]
 }
 
 sub shift {
     my $array = shift;
-    $array->_shift_n( 1 )
+    ( $array->_shift_n( 1 ) )[0]
 }
 
 1;
