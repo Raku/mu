@@ -4,7 +4,8 @@
 # ChangeLog
 #
 # 2005-08-12
-# * fixed new(), elems(), pop(), shift()
+# * store(List) actually means store([List])
+# * fixed new(), elems(), pop(), shift(), fetch()
 # * fixed "defined $i" to "elems == 0" in push/pop
 #
 # 2005-08-11
@@ -13,7 +14,9 @@
 # 2005-08-10
 # * Ported from Perl6 version
 
+# TODO - store(List) actually means store([List]), Perl6 version
 # TODO - fix "defined $i" to "elems == 0" in push/pop, Perl6 version
+# TODO - splice() should accept a List object
 # TODO - update MANIFEST
 #
 # TODO - Tests:
@@ -203,7 +206,7 @@ sub fetch {
     my $pos = shift;
     my $ret = $array->splice( $pos, 1 );
     $array->splice( $pos, 0, @{$ret->{items}} );
-    return @{$ret->{items}};
+    return shift @{$ret->{items}};
 }
 
 sub store {
@@ -211,6 +214,10 @@ sub store {
     my $array = shift;
     my $pos = shift;
     my $item  = shift;
+    if ( UNIVERSAL::isa( $item, 'Perl6::Value::List') ) {
+        my $class = ref($array);
+        $item = $class->new( items => [$item] );
+    }
     $array->splice( $pos, 1, $item );
     return $array;
 }

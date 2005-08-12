@@ -3,7 +3,7 @@
 use strict;
 
 use Test::More;
-plan tests => 16;
+plan tests => 13;
 
 # use_ok( 'Perl6::Container::Array' );
 use Perl6::Container::Array; 
@@ -25,15 +25,18 @@ use Perl6::Value::List qw(Inf);
   is( $a1->fetch(3), 'd', 'fetch' );
 
   # store a list
-  $a1->store( 2, ( 5,7,9 ) );
+  $a1->store( 2, [ 5,7,9 ] );
   is( $a1->fetch(1), 'b', 'fetch after storing a list' );
-  is( $a1->fetch(2), '5 7 9', 'fetch' );
+  is_deeply( $a1->fetch(2), [5, 7, 9], 'fetch' );
   is( $a1->fetch(3), 'd', 'fetch' );
 
   # store a lazy list
   $a1->store( 2, Perl6::Value::List->from_range( start => 0, end => Inf ));
   is( $a1->fetch(1), 'b', 'fetch after storing a lazy list' );
-  is( $a1->fetch(2), '<obj:Perl6::Value::List>', 'fetch' );
+
+  # not portable
+  # is( $a1->fetch(2), '<obj:Perl6::Value::List>', 'fetch' );
+
   is( $a1->fetch(3), 'd', 'fetch' );
 }
 
@@ -43,8 +46,10 @@ use Perl6::Value::List qw(Inf);
         Perl6::Value::List->from_range( start => 'a', end => Inf ) );
   # store a lazy list
   $a1->store( 0, Perl6::Value::List->from_range( start => 0, end => Inf ));
-  is( $a1->fetch(0), '<obj:Perl6::Value::List>', 'fetch lazy list' );
-  is( $a1->shift,    '<obj:Perl6::Value::List>', 'shift lazy list' );
+
+  # not portable
+  # is( $a1->fetch(0), '<obj:Perl6::Value::List>', 'fetch lazy list' );
+  # is( $a1->shift,    '<obj:Perl6::Value::List>', 'shift lazy list' );
 }
 
 {
@@ -64,4 +69,4 @@ use Perl6::Value::List qw(Inf);
   # $sliced->store( 1, 'x' );
   # is( $sliced->fetch( 1 ),  'x', 'store and fetch from slice' );
 
-}
+;}
