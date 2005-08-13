@@ -545,13 +545,13 @@ is(("abcabc" ~~ /(<[a..c]>*)$0/ && $0), "abc", 're_tests 346/1 (#448)');
 # 252: (a)|\2	-	c	-	Reference to nonexistent group
 # -- SKIPPED - TESTS ERROR MESSAGE
 # 253: (([a-c])b*?\2)*	ababbbcbc	y	$&-$0-$1	ababb-bb-b
-is(("ababbbcbc" ~~ /((<[a..c]>)b*?$1)*/ && $<>), "ababb", 're_tests 352/0 (#456)');
-is(("ababbbcbc" ~~ /((<[a..c]>)b*?$1)*/ && $0), "bb", 're_tests 352/1 (#457)');
-is(("ababbbcbc" ~~ /((<[a..c]>)b*?$1)*/ && $1), "b", 're_tests 352/2 (#458)');
+is(("ababbbcbc" ~~ /((<[a..c]>)b*?$1)*/ && $<>), "ababb", 're_tests 352/0 (#456)', :todo<feature>);
+is(("ababbbcbc" ~~ /((<[a..c]>)b*?$1)*/ && $0), "bb", 're_tests 352/1 (#457)', :todo<feature>);
+is(("ababbbcbc" ~~ /((<[a..c]>)b*?$1)*/ && $1), "b", 're_tests 352/2 (#458)', :todo<feature>);
 # 254: (([a-c])b*?\2){3}	ababbbcbc	y	$&-$0-$1	ababbbcbc-cbc-c
-is(("ababbbcbc" ~~ /((<[a..c]>)b*?$1)**{3}/ && $<>), "ababbbcbc", 're_tests 354/0 (#462)');
-is(("ababbbcbc" ~~ /((<[a..c]>)b*?$1)**{3}/ && $0), "cbc", 're_tests 354/1 (#463)');
-is(("ababbbcbc" ~~ /((<[a..c]>)b*?$1)**{3}/ && $1), "c", 're_tests 354/2 (#464)');
+is(("ababbbcbc" ~~ /((<[a..c]>)b*?$1)**{3}/ && $<>), "ababbbcbc", 're_tests 354/0 (#462)', :todo<feature>);
+is(("ababbbcbc" ~~ /((<[a..c]>)b*?$1)**{3}/ && $0), "cbc", 're_tests 354/1 (#463)', :todo<feature>);
+is(("ababbbcbc" ~~ /((<[a..c]>)b*?$1)**{3}/ && $1), "c", 're_tests 354/2 (#464)', :todo<feature>);
 # 255: ((\3|b)\2(a)x)+	aaxabxbaxbbx	n	-	-
 #ok((not ("aaxabxbaxbbx" ~~ /(($2|b)$1(a)x)+/)), 're_tests 356  (#466)');
 # 256: ((\3|b)\2(a)x)+	aaaxabaxbaaxbbax	y	$&-$0-$1-$2	bbax-bbax-b-a
@@ -571,7 +571,7 @@ is(("b" ~~ /(a)|(b)/ && $/.from), 0, 're_tests 358/0 (#468)');
 # 263: (a)|(b)	b	y	$+[2]	1 # SKIP
 is(("b" ~~ /(a)|(b)/ && $/[1].from), 0, 're_tests 360/2 (#470)');
 # 264: 'abc'i	ABC	y	$&	ABC
-is(("ABC" ~~ rx:i/abc/ && $<>), "ABC", 're_tests 362/0 (#472)');
+is(("ABC" ~~ rx:i/abc/ && $<>), "ABC", 're_tests 362/0 (#472)', :todo<feature>);
 # 265: 'abc'i	XBC	n	-	-
 ok((not ("XBC" ~~ rx:i/abc/)), 're_tests 364  (#474)');
 # 266: 'abc'i	AXC	n	-	-
@@ -579,21 +579,21 @@ ok((not ("AXC" ~~ rx:i/abc/)), 're_tests 366  (#476)');
 # 267: 'abc'i	ABX	n	-	-
 ok((not ("ABX" ~~ rx:i/abc/)), 're_tests 368  (#478)');
 # 268: 'abc'i	XABCY	y	$&	ABC
-is(("XABCY" ~~ rx:i/abc/ && $<>), "ABC", 're_tests 370/0 (#480)');
+is(("XABCY" ~~ rx:i/abc/ && $<>), "ABC", 're_tests 370/0 (#480)', :todo<feature>);
 # 269: 'abc'i	ABABC	y	$&	ABC
-is(("ABABC" ~~ rx:i/abc/ && $<>), "ABC", 're_tests 372/0 (#482)');
+is(("ABABC" ~~ rx:i/abc/ && $<>), "ABC", 're_tests 372/0 (#482)', :todo<feature>);
 # 270: 'ab*c'i	ABC	y	$&	ABC
-is(("ABC" ~~ rx:i/ab*c/ && $<>), "ABC", 're_tests 374/0 (#484)');
+is(("ABC" ~~ rx:i/ab*c/ && $<>), "ABC", 're_tests 374/0 (#484)', :todo<feature>);
 # 271: 'ab*bc'i	ABC	y	$&	ABC
-is(("ABC" ~~ rx:i/ab*bc/ && $<>), "ABC", 're_tests 376/0 (#486)');
+is(("ABC" ~~ rx:i/ab*bc/ && $<>), "ABC", 're_tests 376/0 (#486)', :todo<feature>);
 # 272: 'ab*bc'i	ABBC	y	$&	ABBC
-is(("ABBC" ~~ rx:i/ab*bc/ && $<>), "ABBC", 're_tests 378/0 (#488)');
+is(("ABBC" ~~ rx:i/ab*bc/ && $<>), "ABBC", 're_tests 378/0 (#488)', :todo<feature>);
 # 273: 'ab*?bc'i	ABBBBC	y	$&	ABBBBC
-is(("ABBBBC" ~~ rx:i/ab*?bc/ && $<>), "ABBBBC", 're_tests 380/0 (#490)');
+is(("ABBBBC" ~~ rx:i/ab*?bc/ && $<>), "ABBBBC", 're_tests 380/0 (#490)', :todo<feature>);
 # 274: 'ab{0,}?bc'i	ABBBBC	y	$&	ABBBBC
-is(("ABBBBC" ~~ rx:i/ab**{0...}?bc/ && $<>), "ABBBBC", 're_tests 382/0 (#492)');
+is(("ABBBBC" ~~ rx:i/ab**{0...}?bc/ && $<>), "ABBBBC", 're_tests 382/0 (#492)', :todo<feature>);
 # 275: 'ab+?bc'i	ABBC	y	$&	ABBC
-is(("ABBC" ~~ rx:i/ab+?bc/ && $<>), "ABBC", 're_tests 384/0 (#494)');
+is(("ABBC" ~~ rx:i/ab+?bc/ && $<>), "ABBC", 're_tests 384/0 (#494)', :todo<feature>);
 # 276: 'ab+bc'i	ABC	n	-	-
 ok((not ("ABC" ~~ rx:i/ab+bc/)), 're_tests 386  (#496)');
 # 277: 'ab+bc'i	ABQ	n	-	-
@@ -601,64 +601,64 @@ ok((not ("ABQ" ~~ rx:i/ab+bc/)), 're_tests 388  (#498)');
 # 278: 'ab{1,}bc'i	ABQ	n	-	-
 ok((not ("ABQ" ~~ rx:i/ab**{1...}bc/)), 're_tests 390  (#500)');
 # 279: 'ab+bc'i	ABBBBC	y	$&	ABBBBC
-is(("ABBBBC" ~~ rx:i/ab+bc/ && $<>), "ABBBBC", 're_tests 392/0 (#502)');
+is(("ABBBBC" ~~ rx:i/ab+bc/ && $<>), "ABBBBC", 're_tests 392/0 (#502)', :todo<feature>);
 # 280: 'ab{1,}?bc'i	ABBBBC	y	$&	ABBBBC
-is(("ABBBBC" ~~ rx:i/ab**{1...}?bc/ && $<>), "ABBBBC", 're_tests 394/0 (#504)');
+is(("ABBBBC" ~~ rx:i/ab**{1...}?bc/ && $<>), "ABBBBC", 're_tests 394/0 (#504)', :todo<feature>);
 # 281: 'ab{1,3}?bc'i	ABBBBC	y	$&	ABBBBC
-is(("ABBBBC" ~~ rx:i/ab**{1..3}?bc/ && $<>), "ABBBBC", 're_tests 396/0 (#506)');
+is(("ABBBBC" ~~ rx:i/ab**{1..3}?bc/ && $<>), "ABBBBC", 're_tests 396/0 (#506)', :todo<feature>);
 # 282: 'ab{3,4}?bc'i	ABBBBC	y	$&	ABBBBC
-is(("ABBBBC" ~~ rx:i/ab**{3..4}?bc/ && $<>), "ABBBBC", 're_tests 398/0 (#508)');
+is(("ABBBBC" ~~ rx:i/ab**{3..4}?bc/ && $<>), "ABBBBC", 're_tests 398/0 (#508)', :todo<feature>);
 # 283: 'ab{4,5}?bc'i	ABBBBC	n	-	-
 ok((not ("ABBBBC" ~~ rx:i/ab**{4..5}?bc/)), 're_tests 400  (#510)');
 # 284: 'ab??bc'i	ABBC	y	$&	ABBC
-is(("ABBC" ~~ rx:i/ab??bc/ && $<>), "ABBC", 're_tests 402/0 (#512)');
+is(("ABBC" ~~ rx:i/ab??bc/ && $<>), "ABBC", 're_tests 402/0 (#512)', :todo<feature>);
 # 285: 'ab??bc'i	ABC	y	$&	ABC
-is(("ABC" ~~ rx:i/ab??bc/ && $<>), "ABC", 're_tests 404/0 (#514)');
+is(("ABC" ~~ rx:i/ab??bc/ && $<>), "ABC", 're_tests 404/0 (#514)', :todo<feature>);
 # 286: 'ab{0,1}?bc'i	ABC	y	$&	ABC
-is(("ABC" ~~ rx:i/ab**{0..1}?bc/ && $<>), "ABC", 're_tests 406/0 (#516)');
+is(("ABC" ~~ rx:i/ab**{0..1}?bc/ && $<>), "ABC", 're_tests 406/0 (#516)', :todo<feature>);
 # 287: 'ab??bc'i	ABBBBC	n	-	-
 ok((not ("ABBBBC" ~~ rx:i/ab??bc/)), 're_tests 408  (#518)');
 # 288: 'ab??c'i	ABC	y	$&	ABC
-is(("ABC" ~~ rx:i/ab??c/ && $<>), "ABC", 're_tests 410/0 (#520)');
+is(("ABC" ~~ rx:i/ab??c/ && $<>), "ABC", 're_tests 410/0 (#520)', :todo<feature>);
 # 289: 'ab{0,1}?c'i	ABC	y	$&	ABC
-is(("ABC" ~~ rx:i/ab**{0..1}?c/ && $<>), "ABC", 're_tests 412/0 (#522)');
+is(("ABC" ~~ rx:i/ab**{0..1}?c/ && $<>), "ABC", 're_tests 412/0 (#522)', :todo<feature>);
 # 290: '^abc$'i	ABC	y	$&	ABC
-is(("ABC" ~~ rx:i/^abc$/ && $<>), "ABC", 're_tests 414/0 (#524)');
+is(("ABC" ~~ rx:i/^abc$/ && $<>), "ABC", 're_tests 414/0 (#524)', :todo<feature>);
 # 291: '^abc$'i	ABCC	n	-	-
 ok((not ("ABCC" ~~ rx:i/^abc$/)), 're_tests 416  (#526)');
 # 292: '^abc'i	ABCC	y	$&	ABC
-is(("ABCC" ~~ rx:i/^abc/ && $<>), "ABC", 're_tests 418/0 (#528)');
+is(("ABCC" ~~ rx:i/^abc/ && $<>), "ABC", 're_tests 418/0 (#528)', :todo<feature>);
 # 293: '^abc$'i	AABC	n	-	-
 ok((not ("AABC" ~~ rx:i/^abc$/)), 're_tests 420  (#530)');
 # 294: 'abc$'i	AABC	y	$&	ABC
-is(("AABC" ~~ rx:i/abc$/ && $<>), "ABC", 're_tests 422/0 (#532)');
+is(("AABC" ~~ rx:i/abc$/ && $<>), "ABC", 're_tests 422/0 (#532)', :todo<feature>);
 # 295: '^'i	ABC	y	$&	
 is(("ABC" ~~ rx:i/^/ && $<>), "", 're_tests 424/0 (#534)');
 # 296: '$'i	ABC	y	$&	
 is(("ABC" ~~ rx:i/$/ && $<>), "", 're_tests 426/0 (#536)');
 # 297: 'a.c'i	ABC	y	$&	ABC
-is(("ABC" ~~ rx:i/a\Nc/ && $<>), "ABC", 're_tests 428/0 (#538)');
+is(("ABC" ~~ rx:i/a\Nc/ && $<>), "ABC", 're_tests 428/0 (#538)', :todo<feature>);
 # 298: 'a.c'i	AXC	y	$&	AXC
-is(("AXC" ~~ rx:i/a\Nc/ && $<>), "AXC", 're_tests 430/0 (#540)');
+is(("AXC" ~~ rx:i/a\Nc/ && $<>), "AXC", 're_tests 430/0 (#540)', :todo<feature>);
 # 299: 'a.*?c'i	AXYZC	y	$&	AXYZC
-is(("AXYZC" ~~ rx:i/a\N*?c/ && $<>), "AXYZC", 're_tests 432/0 (#542)');
+is(("AXYZC" ~~ rx:i/a\N*?c/ && $<>), "AXYZC", 're_tests 432/0 (#542)', :todo<feature>);
 # 300: 'a.*c'i	AXYZD	n	-	-
 ok((not ("AXYZD" ~~ rx:i/a\N*c/)), 're_tests 434  (#544)');
 # 301: 'a[bc]d'i	ABC	n	-	-
 ok((not ("ABC" ~~ rx:i/a<[bc]>d/)), 're_tests 436  (#546)');
 # 302: 'a[bc]d'i	ABD	y	$&	ABD
-is(("ABD" ~~ rx:i/a<[bc]>d/ && $<>), "ABD", 're_tests 438/0 (#548)');
+is(("ABD" ~~ rx:i/a<[bc]>d/ && $<>), "ABD", 're_tests 438/0 (#548)', :todo<feature>);
 # 303: 'a[b-d]e'i	ABD	n	-	-
 ok((not ("ABD" ~~ rx:i/a<[b..d]>e/)), 're_tests 440  (#550)');
 # 304: 'a[b-d]e'i	ACE	y	$&	ACE
-is(("ACE" ~~ rx:i/a<[b..d]>e/ && $<>), "ACE", 're_tests 442/0 (#552)');
+is(("ACE" ~~ rx:i/a<[b..d]>e/ && $<>), "ACE", 're_tests 442/0 (#552)', :todo<feature>);
 # 305: 'a[b-d]'i	AAC	y	$&	AC
-is(("AAC" ~~ rx:i/a<[b..d]>/ && $<>), "AC", 're_tests 444/0 (#554)');
+is(("AAC" ~~ rx:i/a<[b..d]>/ && $<>), "AC", 're_tests 444/0 (#554)', :todo<feature>);
 # 306: 'a[-b]'i	A-	y	$&	A-
 fail("PGE parsefail", :todo<bug>);
 #is(("A-" ~~ rx:i/a<[...b]>/ && $<>), "A-", 're_tests 446/0 (#556)');
 # 307: 'a[b-]'i	A-	y	$&	A-
-is(("A-" ~~ rx:i/a<[b...]>/ && $<>), "A-", 're_tests 448/0 (#558)');
+is(("A-" ~~ rx:i/a<[b...]>/ && $<>), "A-", 're_tests 448/0 (#558)', :todo<feature>);
 # 308: 'a[b-a]'i	-	c	-	Invalid [] range "b-a"
 # -- SKIPPED - TESTS ERROR MESSAGE
 # 309: 'a[]b'i	-	c	-	Unmatched [
@@ -666,12 +666,12 @@ is(("A-" ~~ rx:i/a<[b...]>/ && $<>), "A-", 're_tests 448/0 (#558)');
 # 310: 'a['i	-	c	-	Unmatched [
 # -- SKIPPED - TESTS ERROR MESSAGE
 # 311: 'a]'i	A]	y	$&	A]
-is(("A]" ~~ rx:i/a]/ && $<>), "A]", 're_tests 450/0 (#560)');
+is(("A]" ~~ rx:i/a]/ && $<>), "A]", 're_tests 450/0 (#560)', :todo<feature>);
 # 312: 'a[]]b'i	A]B	y	$&	A]B
 fail("PGE segfault", :todo<bug>);
 #is(("A]B" ~~ rx:i/a<[]>]b/ && $<>), "A]B", 're_tests 452/0 (#562)');
 # 313: 'a[^bc]d'i	AED	y	$&	AED
-is(("AED" ~~ rx:i/a<-[bc]>d/ && $<>), "AED", 're_tests 454/0 (#564)');
+is(("AED" ~~ rx:i/a<-[bc]>d/ && $<>), "AED", 're_tests 454/0 (#564)', :todo<feature>);
 # 314: 'a[^bc]d'i	ABD	n	-	-
 ok((not ("ABD" ~~ rx:i/a<-[bc]>d/)), 're_tests 456  (#566)');
 # 315: 'a[^-b]c'i	ADC	y	$&	ADC
@@ -687,11 +687,11 @@ fail("PGE segfault", :todo<bug>);
 fail("PGE segfault", :todo<bug>);
 #is(("ADC" ~~ rx:i/a<-[]>b]c/ && $<>), "ADC", 're_tests 464/0 (#574)');
 # 319: 'ab|cd'i	ABC	y	$&	AB
-is(("ABC" ~~ rx:i/ab|cd/ && $<>), "AB", 're_tests 466/0 (#576)');
+is(("ABC" ~~ rx:i/ab|cd/ && $<>), "AB", 're_tests 466/0 (#576)', :todo<feature>);
 # 320: 'ab|cd'i	ABCD	y	$&	AB
-is(("ABCD" ~~ rx:i/ab|cd/ && $<>), "AB", 're_tests 468/0 (#578)');
+is(("ABCD" ~~ rx:i/ab|cd/ && $<>), "AB", 're_tests 468/0 (#578)', :todo<feature>);
 # 321: '()ef'i	DEF	y	$&-$0	EF-
-is(("DEF" ~~ rx:i/(<?null>)ef/ && $<>), "EF", 're_tests 470/0 (#581)');
+is(("DEF" ~~ rx:i/(<?null>)ef/ && $<>), "EF", 're_tests 470/0 (#581)', :todo<feature>);
 is(("DEF" ~~ rx:i/(<?null>)ef/ && $0), "", 're_tests 470/1 (#582)');
 # 322: '*a'i	-	c	-	Quantifier follows nothing
 # -- SKIPPED - TESTS ERROR MESSAGE
@@ -702,56 +702,56 @@ ok((not ("B" ~~ rx:i/$b/)), 're_tests 472  (#584)');
 # 325: 'a\'i	-	c	-	Search pattern not terminated
 # -- SKIPPED - TESTS ERROR MESSAGE
 # 326: 'a\(b'i	A(B	y	$&-$0	A(B-
-is(("A(B" ~~ rx:i/a\(b/ && $<>), "A(B", 're_tests 474/0 (#587)');
+is(("A(B" ~~ rx:i/a\(b/ && $<>), "A(B", 're_tests 474/0 (#587)', :todo<feature>);
 is(("A(B" ~~ rx:i/a\(b/ && $0), "", 're_tests 474/1 (#588)');
 # 327: 'a\(*b'i	AB	y	$&	AB
-is(("AB" ~~ rx:i/a\(*b/ && $<>), "AB", 're_tests 476/0 (#590)');
+is(("AB" ~~ rx:i/a\(*b/ && $<>), "AB", 're_tests 476/0 (#590)', :todo<feature>);
 # 328: 'a\(*b'i	A((B	y	$&	A((B
-is(("A((B" ~~ rx:i/a\(*b/ && $<>), "A((B", 're_tests 478/0 (#592)');
+is(("A((B" ~~ rx:i/a\(*b/ && $<>), "A((B", 're_tests 478/0 (#592)', :todo<feature>);
 # 329: 'a\\b'i	A\B	y	$&	A\B
-is(("A\B" ~~ rx:i/a\\b/ && $<>), "A\B", 're_tests 480/0 (#594)');
+is(("A\B" ~~ rx:i/a\\b/ && $<>), "A\B", 're_tests 480/0 (#594)', :todo<feature>);
 # 330: 'abc)'i	-	c	-	Unmatched )
 # -- SKIPPED - TESTS ERROR MESSAGE
 # 331: '(abc'i	-	c	-	Unmatched (
 # -- SKIPPED - TESTS ERROR MESSAGE
 # 332: '((a))'i	ABC	y	$&-$0-$1	A-A-A
-is(("ABC" ~~ rx:i/((a))/ && $<>), "A", 're_tests 482/0 (#598)');
-is(("ABC" ~~ rx:i/((a))/ && $0), "A", 're_tests 482/1 (#599)');
-is(("ABC" ~~ rx:i/((a))/ && $1), "A", 're_tests 482/2 (#600)');
+is(("ABC" ~~ rx:i/((a))/ && $<>), "A", 're_tests 482/0 (#598)', :todo<feature>);
+is(("ABC" ~~ rx:i/((a))/ && $0), "A", 're_tests 482/1 (#599)', :todo<feature>);
+is(("ABC" ~~ rx:i/((a))/ && $1), "A", 're_tests 482/2 (#600)', :todo<feature>);
 # 333: '(a)b(c)'i	ABC	y	$&-$0-$1	ABC-A-C
-is(("ABC" ~~ rx:i/(a)b(c)/ && $<>), "ABC", 're_tests 484/0 (#604)');
-is(("ABC" ~~ rx:i/(a)b(c)/ && $0), "A", 're_tests 484/1 (#605)');
-is(("ABC" ~~ rx:i/(a)b(c)/ && $1), "C", 're_tests 484/2 (#606)');
+is(("ABC" ~~ rx:i/(a)b(c)/ && $<>), "ABC", 're_tests 484/0 (#604)', :todo<feature>);
+is(("ABC" ~~ rx:i/(a)b(c)/ && $0), "A", 're_tests 484/1 (#605)', :todo<feature>);
+is(("ABC" ~~ rx:i/(a)b(c)/ && $1), "C", 're_tests 484/2 (#606)', :todo<feature>);
 # 334: 'a+b+c'i	AABBABC	y	$&	ABC
-is(("AABBABC" ~~ rx:i/a+b+c/ && $<>), "ABC", 're_tests 486/0 (#608)');
+is(("AABBABC" ~~ rx:i/a+b+c/ && $<>), "ABC", 're_tests 486/0 (#608)', :todo<feature>);
 # 335: 'a{1,}b{1,}c'i	AABBABC	y	$&	ABC
-is(("AABBABC" ~~ rx:i/a**{1...}b**{1...}c/ && $<>), "ABC", 're_tests 488/0 (#610)');
+is(("AABBABC" ~~ rx:i/a**{1...}b**{1...}c/ && $<>), "ABC", 're_tests 488/0 (#610)', :todo<feature>);
 # 336: 'a**'i	-	c	-	Nested quantifiers
 # -- SKIPPED - TESTS ERROR MESSAGE
 # 337: 'a.+?c'i	ABCABC	y	$&	ABC
-is(("ABCABC" ~~ rx:i/a\N+?c/ && $<>), "ABC", 're_tests 490/0 (#612)');
+is(("ABCABC" ~~ rx:i/a\N+?c/ && $<>), "ABC", 're_tests 490/0 (#612)', :todo<feature>);
 # 338: 'a.*?c'i	ABCABC	y	$&	ABC
-is(("ABCABC" ~~ rx:i/a\N*?c/ && $<>), "ABC", 're_tests 492/0 (#614)');
+is(("ABCABC" ~~ rx:i/a\N*?c/ && $<>), "ABC", 're_tests 492/0 (#614)', :todo<feature>);
 # 339: 'a.{0,5}?c'i	ABCABC	y	$&	ABC
-is(("ABCABC" ~~ rx:i/a\N**{0..5}?c/ && $<>), "ABC", 're_tests 494/0 (#616)');
+is(("ABCABC" ~~ rx:i/a\N**{0..5}?c/ && $<>), "ABC", 're_tests 494/0 (#616)', :todo<feature>);
 # 340: '(a+|b)*'i	AB	y	$&-$0	AB-B
-is(("AB" ~~ rx:i/(a+|b)*/ && $<>), "AB", 're_tests 496/0 (#619)');
-is(("AB" ~~ rx:i/(a+|b)*/ && $0), "B", 're_tests 496/1 (#620)');
+is(("AB" ~~ rx:i/(a+|b)*/ && $<>), "AB", 're_tests 496/0 (#619)', :todo<feature>);
+is(("AB" ~~ rx:i/(a+|b)*/ && $0), "B", 're_tests 496/1 (#620)', :todo<feature>);
 # 341: '(a+|b){0,}'i	AB	y	$&-$0	AB-B
-is(("AB" ~~ rx:i/(a+|b)**{0...}/ && $<>), "AB", 're_tests 498/0 (#623)');
-is(("AB" ~~ rx:i/(a+|b)**{0...}/ && $0), "B", 're_tests 498/1 (#624)');
+is(("AB" ~~ rx:i/(a+|b)**{0...}/ && $<>), "AB", 're_tests 498/0 (#623)', :todo<feature>);
+is(("AB" ~~ rx:i/(a+|b)**{0...}/ && $0), "B", 're_tests 498/1 (#624)', :todo<feature>);
 # 342: '(a+|b)+'i	AB	y	$&-$0	AB-B
-is(("AB" ~~ rx:i/(a+|b)+/ && $<>), "AB", 're_tests 500/0 (#627)');
-is(("AB" ~~ rx:i/(a+|b)+/ && $0), "B", 're_tests 500/1 (#628)');
+is(("AB" ~~ rx:i/(a+|b)+/ && $<>), "AB", 're_tests 500/0 (#627)', :todo<feature>);
+is(("AB" ~~ rx:i/(a+|b)+/ && $0), "B", 're_tests 500/1 (#628)', :todo<feature>);
 # 343: '(a+|b){1,}'i	AB	y	$&-$0	AB-B
-is(("AB" ~~ rx:i/(a+|b)**{1...}/ && $<>), "AB", 're_tests 502/0 (#631)');
-is(("AB" ~~ rx:i/(a+|b)**{1...}/ && $0), "B", 're_tests 502/1 (#632)');
+is(("AB" ~~ rx:i/(a+|b)**{1...}/ && $<>), "AB", 're_tests 502/0 (#631)', :todo<feature>);
+is(("AB" ~~ rx:i/(a+|b)**{1...}/ && $0), "B", 're_tests 502/1 (#632)', :todo<feature>);
 # 344: '(a+|b)?'i	AB	y	$&-$0	A-A
-is(("AB" ~~ rx:i/(a+|b)?/ && $<>), "A", 're_tests 504/0 (#635)');
-is(("AB" ~~ rx:i/(a+|b)?/ && $0), "A", 're_tests 504/1 (#636)');
+is(("AB" ~~ rx:i/(a+|b)?/ && $<>), "A", 're_tests 504/0 (#635)', :todo<feature>);
+is(("AB" ~~ rx:i/(a+|b)?/ && $0), "A", 're_tests 504/1 (#636)', :todo<feature>);
 # 345: '(a+|b){0,1}'i	AB	y	$&-$0	A-A
-is(("AB" ~~ rx:i/(a+|b)**{0..1}/ && $<>), "A", 're_tests 506/0 (#639)');
-is(("AB" ~~ rx:i/(a+|b)**{0..1}/ && $0), "A", 're_tests 506/1 (#640)');
+is(("AB" ~~ rx:i/(a+|b)**{0..1}/ && $<>), "A", 're_tests 506/0 (#639)', :todo<feature>);
+is(("AB" ~~ rx:i/(a+|b)**{0..1}/ && $0), "A", 're_tests 506/1 (#640)', :todo<feature>);
 # 346: '(a+|b){0,1}?'i	AB	y	$&-$0	-
 is(("AB" ~~ rx:i/(a+|b)**{0..1}?/ && $<>), "", 're_tests 508/0 (#643)');
 is(("AB" ~~ rx:i/(a+|b)**{0..1}?/ && $0), "", 're_tests 508/1 (#644)');
@@ -764,84 +764,84 @@ ok((not ("" ~~ rx:i/abc/)), 're_tests 512  (#648)');
 # 350: 'a*'i		y	$&	
 is(("" ~~ rx:i/a*/ && $<>), "", 're_tests 514/0 (#650)');
 # 351: '([abc])*d'i	ABBBCD	y	$&-$0	ABBBCD-C
-is(("ABBBCD" ~~ rx:i/(<[abc]>)*d/ && $<>), "ABBBCD", 're_tests 516/0 (#653)');
-is(("ABBBCD" ~~ rx:i/(<[abc]>)*d/ && $0), "C", 're_tests 516/1 (#654)');
+is(("ABBBCD" ~~ rx:i/(<[abc]>)*d/ && $<>), "ABBBCD", 're_tests 516/0 (#653)', :todo<feature>);
+is(("ABBBCD" ~~ rx:i/(<[abc]>)*d/ && $0), "C", 're_tests 516/1 (#654)', :todo<feature>);
 # 352: '([abc])*bcd'i	ABCD	y	$&-$0	ABCD-A
-is(("ABCD" ~~ rx:i/(<[abc]>)*bcd/ && $<>), "ABCD", 're_tests 518/0 (#657)');
-is(("ABCD" ~~ rx:i/(<[abc]>)*bcd/ && $0), "A", 're_tests 518/1 (#658)');
+is(("ABCD" ~~ rx:i/(<[abc]>)*bcd/ && $<>), "ABCD", 're_tests 518/0 (#657)', :todo<feature>);
+is(("ABCD" ~~ rx:i/(<[abc]>)*bcd/ && $0), "A", 're_tests 518/1 (#658)', :todo<feature>);
 # 353: 'a|b|c|d|e'i	E	y	$&	E
-is(("E" ~~ rx:i/a|b|c|d|e/ && $<>), "E", 're_tests 520/0 (#660)');
+is(("E" ~~ rx:i/a|b|c|d|e/ && $<>), "E", 're_tests 520/0 (#660)', :todo<feature>);
 # 354: '(a|b|c|d|e)f'i	EF	y	$&-$0	EF-E
-is(("EF" ~~ rx:i/(a|b|c|d|e)f/ && $<>), "EF", 're_tests 522/0 (#663)');
-is(("EF" ~~ rx:i/(a|b|c|d|e)f/ && $0), "E", 're_tests 522/1 (#664)');
+is(("EF" ~~ rx:i/(a|b|c|d|e)f/ && $<>), "EF", 're_tests 522/0 (#663)', :todo<feature>);
+is(("EF" ~~ rx:i/(a|b|c|d|e)f/ && $0), "E", 're_tests 522/1 (#664)', :todo<feature>);
 # 355: 'abcd*efg'i	ABCDEFG	y	$&	ABCDEFG
-is(("ABCDEFG" ~~ rx:i/abcd*efg/ && $<>), "ABCDEFG", 're_tests 524/0 (#666)');
+is(("ABCDEFG" ~~ rx:i/abcd*efg/ && $<>), "ABCDEFG", 're_tests 524/0 (#666)', :todo<feature>);
 # 356: 'ab*'i	XABYABBBZ	y	$&	AB
-is(("XABYABBBZ" ~~ rx:i/ab*/ && $<>), "AB", 're_tests 526/0 (#668)');
+is(("XABYABBBZ" ~~ rx:i/ab*/ && $<>), "AB", 're_tests 526/0 (#668)', :todo<feature>);
 # 357: 'ab*'i	XAYABBBZ	y	$&	A
-is(("XAYABBBZ" ~~ rx:i/ab*/ && $<>), "A", 're_tests 528/0 (#670)');
+is(("XAYABBBZ" ~~ rx:i/ab*/ && $<>), "A", 're_tests 528/0 (#670)', :todo<feature>);
 # 358: '(ab|cd)e'i	ABCDE	y	$&-$0	CDE-CD
-is(("ABCDE" ~~ rx:i/(ab|cd)e/ && $<>), "CDE", 're_tests 530/0 (#673)');
-is(("ABCDE" ~~ rx:i/(ab|cd)e/ && $0), "CD", 're_tests 530/1 (#674)');
+is(("ABCDE" ~~ rx:i/(ab|cd)e/ && $<>), "CDE", 're_tests 530/0 (#673)', :todo<feature>);
+is(("ABCDE" ~~ rx:i/(ab|cd)e/ && $0), "CD", 're_tests 530/1 (#674)', :todo<feature>);
 # 359: '[abhgefdc]ij'i	HIJ	y	$&	HIJ
-is(("HIJ" ~~ rx:i/<[abhgefdc]>ij/ && $<>), "HIJ", 're_tests 532/0 (#676)');
+is(("HIJ" ~~ rx:i/<[abhgefdc]>ij/ && $<>), "HIJ", 're_tests 532/0 (#676)', :todo<feature>);
 # 360: '^(ab|cd)e'i	ABCDE	n	x$0y	XY
 # SKIPPED: script doesn't understand `x$0y' yet
 # SKIPPED: script doesn't understand `x$0y' yet
 # 361: '(abc|)ef'i	ABCDEF	y	$&-$0	EF-
-is(("ABCDEF" ~~ rx:i/(abc|<?null>)ef/ && $<>), "EF", 're_tests 534/0 (#679)');
+is(("ABCDEF" ~~ rx:i/(abc|<?null>)ef/ && $<>), "EF", 're_tests 534/0 (#679)', :todo<feature>);
 is(("ABCDEF" ~~ rx:i/(abc|<?null>)ef/ && $0), "", 're_tests 534/1 (#680)');
 # 362: '(a|b)c*d'i	ABCD	y	$&-$0	BCD-B
-is(("ABCD" ~~ rx:i/(a|b)c*d/ && $<>), "BCD", 're_tests 536/0 (#683)');
-is(("ABCD" ~~ rx:i/(a|b)c*d/ && $0), "B", 're_tests 536/1 (#684)');
+is(("ABCD" ~~ rx:i/(a|b)c*d/ && $<>), "BCD", 're_tests 536/0 (#683)', :todo<feature>);
+is(("ABCD" ~~ rx:i/(a|b)c*d/ && $0), "B", 're_tests 536/1 (#684)', :todo<feature>);
 # 363: '(ab|ab*)bc'i	ABC	y	$&-$0	ABC-A
-is(("ABC" ~~ rx:i/(ab|ab*)bc/ && $<>), "ABC", 're_tests 538/0 (#687)');
-is(("ABC" ~~ rx:i/(ab|ab*)bc/ && $0), "A", 're_tests 538/1 (#688)');
+is(("ABC" ~~ rx:i/(ab|ab*)bc/ && $<>), "ABC", 're_tests 538/0 (#687)', :todo<feature>);
+is(("ABC" ~~ rx:i/(ab|ab*)bc/ && $0), "A", 're_tests 538/1 (#688)', :todo<feature>);
 # 364: 'a([bc]*)c*'i	ABC	y	$&-$0	ABC-BC
-is(("ABC" ~~ rx:i/a(<[bc]>*)c*/ && $<>), "ABC", 're_tests 540/0 (#691)');
-is(("ABC" ~~ rx:i/a(<[bc]>*)c*/ && $0), "BC", 're_tests 540/1 (#692)');
+is(("ABC" ~~ rx:i/a(<[bc]>*)c*/ && $<>), "ABC", 're_tests 540/0 (#691)', :todo<feature>);
+is(("ABC" ~~ rx:i/a(<[bc]>*)c*/ && $0), "BC", 're_tests 540/1 (#692)', :todo<feature>);
 # 365: 'a([bc]*)(c*d)'i	ABCD	y	$&-$0-$1	ABCD-BC-D
-is(("ABCD" ~~ rx:i/a(<[bc]>*)(c*d)/ && $<>), "ABCD", 're_tests 542/0 (#696)');
-is(("ABCD" ~~ rx:i/a(<[bc]>*)(c*d)/ && $0), "BC", 're_tests 542/1 (#697)');
-is(("ABCD" ~~ rx:i/a(<[bc]>*)(c*d)/ && $1), "D", 're_tests 542/2 (#698)');
+is(("ABCD" ~~ rx:i/a(<[bc]>*)(c*d)/ && $<>), "ABCD", 're_tests 542/0 (#696)', :todo<feature>);
+is(("ABCD" ~~ rx:i/a(<[bc]>*)(c*d)/ && $0), "BC", 're_tests 542/1 (#697)', :todo<feature>);
+is(("ABCD" ~~ rx:i/a(<[bc]>*)(c*d)/ && $1), "D", 're_tests 542/2 (#698)', :todo<feature>);
 # 366: 'a([bc]+)(c*d)'i	ABCD	y	$&-$0-$1	ABCD-BC-D
-is(("ABCD" ~~ rx:i/a(<[bc]>+)(c*d)/ && $<>), "ABCD", 're_tests 544/0 (#702)');
-is(("ABCD" ~~ rx:i/a(<[bc]>+)(c*d)/ && $0), "BC", 're_tests 544/1 (#703)');
-is(("ABCD" ~~ rx:i/a(<[bc]>+)(c*d)/ && $1), "D", 're_tests 544/2 (#704)');
+is(("ABCD" ~~ rx:i/a(<[bc]>+)(c*d)/ && $<>), "ABCD", 're_tests 544/0 (#702)', :todo<feature>);
+is(("ABCD" ~~ rx:i/a(<[bc]>+)(c*d)/ && $0), "BC", 're_tests 544/1 (#703)', :todo<feature>);
+is(("ABCD" ~~ rx:i/a(<[bc]>+)(c*d)/ && $1), "D", 're_tests 544/2 (#704)', :todo<feature>);
 # 367: 'a([bc]*)(c+d)'i	ABCD	y	$&-$0-$1	ABCD-B-CD
-is(("ABCD" ~~ rx:i/a(<[bc]>*)(c+d)/ && $<>), "ABCD", 're_tests 546/0 (#708)');
-is(("ABCD" ~~ rx:i/a(<[bc]>*)(c+d)/ && $0), "B", 're_tests 546/1 (#709)');
-is(("ABCD" ~~ rx:i/a(<[bc]>*)(c+d)/ && $1), "CD", 're_tests 546/2 (#710)');
+is(("ABCD" ~~ rx:i/a(<[bc]>*)(c+d)/ && $<>), "ABCD", 're_tests 546/0 (#708)', :todo<feature>);
+is(("ABCD" ~~ rx:i/a(<[bc]>*)(c+d)/ && $0), "B", 're_tests 546/1 (#709)', :todo<feature>);
+is(("ABCD" ~~ rx:i/a(<[bc]>*)(c+d)/ && $1), "CD", 're_tests 546/2 (#710)', :todo<feature>);
 # 368: 'a[bcd]*dcdcde'i	ADCDCDE	y	$&	ADCDCDE
-is(("ADCDCDE" ~~ rx:i/a<[bcd]>*dcdcde/ && $<>), "ADCDCDE", 're_tests 548/0 (#712)');
+is(("ADCDCDE" ~~ rx:i/a<[bcd]>*dcdcde/ && $<>), "ADCDCDE", 're_tests 548/0 (#712)', :todo<feature>);
 # 369: 'a[bcd]+dcdcde'i	ADCDCDE	n	-	-
 ok((not ("ADCDCDE" ~~ rx:i/a<[bcd]>+dcdcde/)), 're_tests 550  (#714)');
 # 370: '(ab|a)b*c'i	ABC	y	$&-$0	ABC-AB
-is(("ABC" ~~ rx:i/(ab|a)b*c/ && $<>), "ABC", 're_tests 552/0 (#717)');
-is(("ABC" ~~ rx:i/(ab|a)b*c/ && $0), "AB", 're_tests 552/1 (#718)');
+is(("ABC" ~~ rx:i/(ab|a)b*c/ && $<>), "ABC", 're_tests 552/0 (#717)', :todo<feature>);
+is(("ABC" ~~ rx:i/(ab|a)b*c/ && $0), "AB", 're_tests 552/1 (#718)', :todo<feature>);
 # 371: '((a)(b)c)(d)'i	ABCD	y	$0-$1-$2-$3	ABC-A-B-D
 # SKIPPED: script doesn't understand `$0-$1-$2-$3' yet
 # SKIPPED: script doesn't understand `$0-$1-$2-$3' yet
 # 372: '[a..zA..Z_][a..zA..Z0..9_]*'i	ALPHA	y	$&	ALPHA
 is(("ALPHA" ~~ rx:i/<[a..zA..Z_]><[a..zA..Z0..9_]>*/ && $<>), "ALPHA", 're_tests 554/0 (#720)');
 # 373: '^a(bc+|b[eh])g|.h$'i	ABH	y	$&-$0	BH-
-is(("ABH" ~~ rx:i/^a(bc+|b<[eh]>)g|\Nh$/ && $<>), "BH", 're_tests 556/0 (#723)');
+is(("ABH" ~~ rx:i/^a(bc+|b<[eh]>)g|\Nh$/ && $<>), "BH", 're_tests 556/0 (#723)', :todo<feature>);
 is(("ABH" ~~ rx:i/^a(bc+|b<[eh]>)g|\Nh$/ && $0), "", 're_tests 556/1 (#724)');
 # 374: '(bc+d$|ef*g.|h?i(j|k))'i	EFFGZ	y	$&-$0-$1	EFFGZ-EFFGZ-
-is(("EFFGZ" ~~ rx:i/(bc+d$|ef*g\N|h?i(j|k))/ && $<>), "EFFGZ", 're_tests 558/0 (#728)');
-is(("EFFGZ" ~~ rx:i/(bc+d$|ef*g\N|h?i(j|k))/ && $0), "EFFGZ", 're_tests 558/1 (#729)');
+is(("EFFGZ" ~~ rx:i/(bc+d$|ef*g\N|h?i(j|k))/ && $<>), "EFFGZ", 're_tests 558/0 (#728)', :todo<feature>);
+is(("EFFGZ" ~~ rx:i/(bc+d$|ef*g\N|h?i(j|k))/ && $0), "EFFGZ", 're_tests 558/1 (#729)', :todo<feature>);
 is(("EFFGZ" ~~ rx:i/(bc+d$|ef*g\N|h?i(j|k))/ && $1), "", 're_tests 558/2 (#730)');
 # 375: '(bc+d$|ef*g.|h?i(j|k))'i	IJ	y	$&-$0-$1	IJ-IJ-J
-is(("IJ" ~~ rx:i/(bc+d$|ef*g\N|h?i(j|k))/ && $<>), "IJ", 're_tests 560/0 (#734)');
-is(("IJ" ~~ rx:i/(bc+d$|ef*g\N|h?i(j|k))/ && $0), "IJ", 're_tests 560/1 (#735)');
-is(("IJ" ~~ rx:i/(bc+d$|ef*g\N|h?i(j|k))/ && $1), "J", 're_tests 560/2 (#736)');
+is(("IJ" ~~ rx:i/(bc+d$|ef*g\N|h?i(j|k))/ && $<>), "IJ", 're_tests 560/0 (#734)', :todo<feature>);
+is(("IJ" ~~ rx:i/(bc+d$|ef*g\N|h?i(j|k))/ && $0), "IJ", 're_tests 560/1 (#735)', :todo<feature>);
+is(("IJ" ~~ rx:i/(bc+d$|ef*g\N|h?i(j|k))/ && $1), "J", 're_tests 560/2 (#736)', :todo<feature>);
 # 376: '(bc+d$|ef*g.|h?i(j|k))'i	EFFG	n	-	-
 ok((not ("EFFG" ~~ rx:i/(bc+d$|ef*g\N|h?i(j|k))/)), 're_tests 562  (#738)');
 # 377: '(bc+d$|ef*g.|h?i(j|k))'i	BCDD	n	-	-
 ok((not ("BCDD" ~~ rx:i/(bc+d$|ef*g\N|h?i(j|k))/)), 're_tests 564  (#740)');
 # 378: '(bc+d$|ef*g.|h?i(j|k))'i	REFFGZ	y	$&-$0-$1	EFFGZ-EFFGZ-
-is(("REFFGZ" ~~ rx:i/(bc+d$|ef*g\N|h?i(j|k))/ && $<>), "EFFGZ", 're_tests 566/0 (#744)');
-is(("REFFGZ" ~~ rx:i/(bc+d$|ef*g\N|h?i(j|k))/ && $0), "EFFGZ", 're_tests 566/1 (#745)');
+is(("REFFGZ" ~~ rx:i/(bc+d$|ef*g\N|h?i(j|k))/ && $<>), "EFFGZ", 're_tests 566/0 (#744)', :todo<feature>);
+is(("REFFGZ" ~~ rx:i/(bc+d$|ef*g\N|h?i(j|k))/ && $0), "EFFGZ", 're_tests 566/1 (#745)', :todo<feature>);
 is(("REFFGZ" ~~ rx:i/(bc+d$|ef*g\N|h?i(j|k))/ && $1), "", 're_tests 566/2 (#746)');
 # 379: '((((((((((a))))))))))'i	A	y	$00	A
 #is(("A" ~~ rx:i/((((((((((a))))))))))/ && $00), "A", 're_tests 568/10 (#748)');
@@ -852,19 +852,19 @@ is(("REFFGZ" ~~ rx:i/(bc+d$|ef*g\N|h?i(j|k))/ && $1), "", 're_tests 566/2 (#746)
 # 382: '((((((((((a))))))))))${bang}'i	A!	y	$&	A!
 # -- SKIPPED - p5re_to_p6rule doesn't support this yet
 # 383: '(((((((((a)))))))))'i	A	y	$&	A
-is(("A" ~~ rx:i/(((((((((a)))))))))/ && $<>), "A", 're_tests 574/0 (#754)');
+is(("A" ~~ rx:i/(((((((((a)))))))))/ && $<>), "A", 're_tests 574/0 (#754)', :todo<bug>);
 # 384: '(?:(?:(?:(?:(?:(?:(?:(?:(?:(a))))))))))'i	A	y	$0	A
-is(("A" ~~ rx:i/[[[[[[[[[(a)]]]]]]]]]/ && $0), "A", 're_tests 576/1 (#756)');
+is(("A" ~~ rx:i/[[[[[[[[[(a)]]]]]]]]]/ && $0), "A", 're_tests 576/1 (#756)', :todo<bug>);
 # 385: '(?:(?:(?:(?:(?:(?:(?:(?:(?:(a|b|c))))))))))'i	C	y	$0	C
-is(("C" ~~ rx:i/[[[[[[[[[(a|b|c)]]]]]]]]]/ && $0), "C", 're_tests 578/1 (#758)');
+is(("C" ~~ rx:i/[[[[[[[[[(a|b|c)]]]]]]]]]/ && $0), "C", 're_tests 578/1 (#758)', :todo<bug>);
 # 386: 'multiple words of text'i	UH-UH	n	-	-
 ok((not ("UH-UH" ~~ rx:i/multiple<sp>words<sp>of<sp>text/)), 're_tests 580  (#760)');
 # 387: 'multiple words'i	MULTIPLE WORDS, YEAH	y	$&	MULTIPLE WORDS
-is(("MULTIPLE WORDS, YEAH" ~~ rx:i/multiple<sp>words/ && $<>), "MULTIPLE WORDS", 're_tests 582/0 (#762)');
+is(("MULTIPLE WORDS, YEAH" ~~ rx:i/multiple<sp>words/ && $<>), "MULTIPLE WORDS", 're_tests 582/0 (#762)', :todo<bug>);
 # 388: '(.*)c(.*)'i	ABCDE	y	$&-$0-$1	ABCDE-AB-DE
-is(("ABCDE" ~~ rx:i/(\N*)c(\N*)/ && $<>), "ABCDE", 're_tests 584/0 (#766)');
-is(("ABCDE" ~~ rx:i/(\N*)c(\N*)/ && $0), "AB", 're_tests 584/1 (#767)');
-is(("ABCDE" ~~ rx:i/(\N*)c(\N*)/ && $1), "DE", 're_tests 584/2 (#768)');
+is(("ABCDE" ~~ rx:i/(\N*)c(\N*)/ && $<>), "ABCDE", 're_tests 584/0 (#766)', :todo<bug>);
+is(("ABCDE" ~~ rx:i/(\N*)c(\N*)/ && $0), "AB", 're_tests 584/1 (#767)', :todo<bug>);
+is(("ABCDE" ~~ rx:i/(\N*)c(\N*)/ && $1), "DE", 're_tests 584/2 (#768)', :todo<bug>);
 # 389: '\((.*), (.*)\)'i	(A, B)	y	($1, $0)	(B, A)
 # SKIPPED: script doesn't understand `($1, $0)' yet
 # SKIPPED: script doesn't understand `($1, $0)' yet
@@ -880,15 +880,15 @@ ok((not ("AB" ~~ rx:i/<[k]>/)), 're_tests 586  (#770)');
 skip 1, "I'm not sure what this test should be.";
 #is(("AC" ~~ rx:i/a<[..]>?c/ && $<>), "AC", 're_tests 588/0 (#772)');
 # 394: '(abc)\1'i	ABCABC	y	$0	ABC
-is(("ABCABC" ~~ rx:i/(abc)$0/ && $0), "ABC", 're_tests 590/1 (#774)');
+is(("ABCABC" ~~ rx:i/(abc)$0/ && $0), "ABC", 're_tests 590/1 (#774)', :todo<feature>);
 # 395: '([a-c]*)\1'i	ABCABC	y	$0	ABC
-is(("ABCABC" ~~ rx:i/(<[a..c]>*)$0/ && $0), "ABC", 're_tests 592/1 (#776)');
+is(("ABCABC" ~~ rx:i/(<[a..c]>*)$0/ && $0), "ABC", 're_tests 592/1 (#776)', :todo<feature>);
 # 396: a(?!b).	abad	y	$&	ad
-is(("abad" ~~ /a<!before b>\N/ && $<>), "ad", 're_tests 594/0 (#778)');
+is(("abad" ~~ /a<!before b>\N/ && $<>), "ad", 're_tests 594/0 (#778)', :todo<feature>);
 # 397: a(?=d).	abad	y	$&	ad
-is(("abad" ~~ /a<before d>\N/ && $<>), "ad", 're_tests 596/0 (#780)');
+is(("abad" ~~ /a<before d>\N/ && $<>), "ad", 're_tests 596/0 (#780)', :todo<feature>);
 # 398: a(?=c|d).	abad	y	$&	ad
-is(("abad" ~~ /a<before c|d>\N/ && $<>), "ad", 're_tests 598/0 (#782)');
+is(("abad" ~~ /a<before c|d>\N/ && $<>), "ad", 're_tests 598/0 (#782)', :todo<feature>);
 # 399: a(?:b|c|d)(.)	ace	y	$0	e
 is(("ace" ~~ /a[b|c|d](\N)/ && $0), "e", 're_tests 600/1 (#784)');
 # 400: a(?:b|c|d)*(.)	ace	y	$0	e
@@ -932,13 +932,13 @@ is(("." ~~ /^(<-[a..z]>)|(\^)$/ && $0), ".", 're_tests 630/1 (#814)');
 # 418: ^[<>]&	<&OUT	y	$&	<&
 is(("<&OUT" ~~ /^<[<>]>\&/ && $<>), "<&", 're_tests 632/0 (#816)');
 # 419: ^(a\1?){4}$	aaaaaaaaaa	y	$0	aaaa
-is(("aaaaaaaaaa" ~~ /^(a$0?)**{4}$/ && $0), "aaaa", 're_tests 634/1 (#818)');
+is(("aaaaaaaaaa" ~~ /^(a$0?)**{4}$/ && $0), "aaaa", 're_tests 634/1 (#818)', :todo<feature>);
 # 420: ^(a\1?){4}$	aaaaaaaaa	n	-	-
 ok((not ("aaaaaaaaa" ~~ /^(a$0?)**{4}$/)), 're_tests 636  (#820)');
 # 421: ^(a\1?){4}$	aaaaaaaaaaa	n	-	-
 ok((not ("aaaaaaaaaaa" ~~ /^(a$0?)**{4}$/)), 're_tests 638  (#822)');
 # 422: ^(a(?(1)\1)){4}$	aaaaaaaaaa	y	$0	aaaa
-is(("aaaaaaaaaa" ~~ /^(a[ <(defined $0)> :: $0 ])**{4}$/ && $0), "aaaa", 're_tests 640/1 (#824)');
+is(("aaaaaaaaaa" ~~ /^(a[ <(defined $0)> :: $0 ])**{4}$/ && $0), "aaaa", 're_tests 640/1 (#824)', :todo<feature>);
 # 423: ^(a(?(1)\1)){4}$	aaaaaaaaa	n	-	-
 ok((not ("aaaaaaaaa" ~~ /^(a[ <(defined $0)> :: $0 ])**{4}$/)), 're_tests 642  (#826)');
 # 424: ^(a(?(1)\1)){4}$	aaaaaaaaaaa	n	-	-
@@ -953,19 +953,19 @@ is(("aaaaaaaaaa" ~~ /(((a**{2})**{2})+)/ && $0), "aaaaaaaa", 're_tests 650/1 (#8
 # SKIPPED: script doesn't understand `$0:$1:$2:$3:$4:$5' yet
 # SKIPPED: script doesn't understand `$0:$1:$2:$3:$4:$5' yet
 # 429: (?<=a)b	ab	y	$&	b
-is(("ab" ~~ /<after a>b/ && $<>), "b", 're_tests 652/0 (#836)');
+is(("ab" ~~ /<after a>b/ && $<>), "b", 're_tests 652/0 (#836)', :todo<feature>);
 # 430: (?<=a)b	cb	n	-	-
 ok((not ("cb" ~~ /<after a>b/)), 're_tests 654  (#838)');
 # 431: (?<=a)b	b	n	-	-
 ok((not ("b" ~~ /<after a>b/)), 're_tests 656  (#840)');
 # 432: (?<!c)b	ab	y	$&	b
-is(("ab" ~~ /<!after c>b/ && $<>), "b", 're_tests 658/0 (#842)');
+is(("ab" ~~ /<!after c>b/ && $<>), "b", 're_tests 658/0 (#842)', :todo<feature>);
 # 433: (?<!c)b	cb	n	-	-
 ok((not ("cb" ~~ /<!after c>b/)), 're_tests 660  (#844)');
 # 434: (?<!c)b	b	y	-	-
-ok(("b" ~~ /<!after c>b/), 're_tests 662  (#846)');
+ok(("b" ~~ /<!after c>b/), 're_tests 662  (#846)', :todo<feature>);
 # 435: (?<!c)b	b	y	$&	b
-is(("b" ~~ /<!after c>b/ && $<>), "b", 're_tests 664/0 (#848)');
+is(("b" ~~ /<!after c>b/ && $<>), "b", 're_tests 664/0 (#848)', :todo<feature>);
 # 436: (?<%)b	-	c	-	Sequence (?<%...) not recognized
 # -- SKIPPED - TESTS ERROR MESSAGE
 # 437: (?:..)*a	aba	y	$&	aba
@@ -973,7 +973,7 @@ is(("aba" ~~ /[\N\N]*a/ && $<>), "aba", 're_tests 666/0 (#850)');
 # 438: (?:..)*?a	aba	y	$&	a
 is(("aba" ~~ /[\N\N]*?a/ && $<>), "a", 're_tests 668/0 (#852)');
 # 439: ^(?:b|a(?=(.)))*\1	abc	y	$&	ab
-is(("abc" ~~ /^[b|a<before (\N)>]*$0/ && $<>), "ab", 're_tests 670/0 (#854)');
+is(("abc" ~~ /^[b|a<before (\N)>]*$0/ && $<>), "ab", 're_tests 670/0 (#854)', :todo<feature>);
 # 440: ^(){3,5}	abc	y	a$0	a
 # SKIPPED: script doesn't understand `a$0' yet
 # SKIPPED: script doesn't understand `a$0' yet
@@ -995,10 +995,10 @@ is(("ab" ~~ /[:i a]b/ && $<>), "ab", 're_tests 678/0 (#862)');
 is(("ab" ~~ /(:i a)b/ && $<>), "ab", 're_tests 680/0 (#865)');
 is(("ab" ~~ /(:i a)b/ && $0), "a", 're_tests 680/1 (#866)');
 # 448: (?:(?i)a)b	Ab	y	$&	Ab
-is(("Ab" ~~ /[:i a]b/ && $<>), "Ab", 're_tests 682/0 (#868)');
+is(("Ab" ~~ /[:i a]b/ && $<>), "Ab", 're_tests 682/0 (#868)', :todo<feature>);
 # 449: ((?i)a)b	Ab	y	$&:$0	Ab:A
-is(("Ab" ~~ /(:i a)b/ && $<>), "Ab", 're_tests 684/0 (#871)');
-is(("Ab" ~~ /(:i a)b/ && $0), "A", 're_tests 684/1 (#872)');
+is(("Ab" ~~ /(:i a)b/ && $<>), "Ab", 're_tests 684/0 (#871)', :todo<feature>);
+is(("Ab" ~~ /(:i a)b/ && $0), "A", 're_tests 684/1 (#872)', :todo<feature>);
 # 450: (?:(?i)a)b	aB	n	-	-
 ok((not ("aB" ~~ /[:i a]b/)), 're_tests 686  (#874)');
 # 451: ((?i)a)b	aB	n	-	-
@@ -1009,10 +1009,10 @@ is(("ab" ~~ /[:i a]b/ && $<>), "ab", 're_tests 690/0 (#878)');
 is(("ab" ~~ /([:i a])b/ && $<>), "ab", 're_tests 692/0 (#881)');
 is(("ab" ~~ /([:i a])b/ && $0), "a", 're_tests 692/1 (#882)');
 # 454: (?i:a)b	Ab	y	$&	Ab
-is(("Ab" ~~ /[:i a]b/ && $<>), "Ab", 're_tests 694/0 (#884)');
+is(("Ab" ~~ /[:i a]b/ && $<>), "Ab", 're_tests 694/0 (#884)', :todo<feature>);
 # 455: ((?i:a))b	Ab	y	$&:$0	Ab:A
-is(("Ab" ~~ /([:i a])b/ && $<>), "Ab", 're_tests 696/0 (#887)');
-is(("Ab" ~~ /([:i a])b/ && $0), "A", 're_tests 696/1 (#888)');
+is(("Ab" ~~ /([:i a])b/ && $<>), "Ab", 're_tests 696/0 (#887)', :todo<feature>);
+is(("Ab" ~~ /([:i a])b/ && $0), "A", 're_tests 696/1 (#888)', :todo<feature>);
 # 456: (?i:a)b	aB	n	-	-
 ok((not ("aB" ~~ /[:i a]b/)), 're_tests 698  (#890)');
 # 457: ((?i:a))b	aB	n	-	-
@@ -1064,13 +1064,13 @@ ok((not ("aB" ~~ /([:i a])b/)), 're_tests 700  (#892)');
 # 480: '((?s-i:a.))b'i	B\nB	n	-	-
 # -- SKIPPED - p5re_to_p6rule doesn't support `(?s...' yet
 # 481: (?:c|d)(?:)(?:a(?:)(?:b)(?:b(?:))(?:b(?:)(?:b)))	cabbbb	y	$&	cabbbb
-is(("cabbbb" ~~ /[c|d][][a[][b][b[]][b[][b]]]/ && $<>), "cabbbb", 're_tests 725/0 (#921)');
+is(("cabbbb" ~~ /[c|d][][a[][b][b[]][b[][b]]]/ && $<>), "cabbbb", 're_tests 725/0 (#921)', :todo<bug>);
 # 482: (?:c|d)(?:)(?:aaaaaaaa(?:)(?:bbbbbbbb)(?:bbbbbbbb(?:))(?:bbbbbbbb(?:)(?:bbbbbbbb)))	caaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb	y	$&	caaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-is(("caaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" ~~ /[c|d][][aaaaaaaa[][bbbbbbbb][bbbbbbbb[]][bbbbbbbb[][bbbbbbbb]]]/ && $<>), "caaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", 're_tests 727/0 (#923)');
+is(("caaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" ~~ /[c|d][][aaaaaaaa[][bbbbbbbb][bbbbbbbb[]][bbbbbbbb[][bbbbbbbb]]]/ && $<>), "caaaaaaaabbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", 're_tests 727/0 (#923)', :todo<bug>);
 # 483: '(ab)\d\1'i	Ab4ab	y	$0	Ab
-is(("Ab4ab" ~~ rx:i/(ab)\d$0/ && $0), "Ab", 're_tests 729/1 (#925)');
+is(("Ab4ab" ~~ rx:i/(ab)\d$0/ && $0), "Ab", 're_tests 729/1 (#925)', :todo<bug>);
 # 484: '(ab)\d\1'i	ab4Ab	y	$0	ab
-is(("ab4Ab" ~~ rx:i/(ab)\d$0/ && $0), "ab", 're_tests 731/1 (#927)');
+is(("ab4Ab" ~~ rx:i/(ab)\d$0/ && $0), "ab", 're_tests 731/1 (#927)', :todo<bug>);
 # 485: foo\w*\d{4}baz	foobar1234baz	y	$&	foobar1234baz
 is(("foobar1234baz" ~~ /foo\w*\d**{4}baz/ && $<>), "foobar1234baz", 're_tests 733/0 (#929)');
 # 486: a(?{})b	cabd	y	$&	ab
@@ -1099,13 +1099,13 @@ ok(("x~~" ~~ /x(~~)*[[F]?]?/), 're_tests 737  (#933)');
 # 497: (?<![cd])b	dbcb	n	-	-
 ok((not ("dbcb" ~~ /<!after <[cd]>>b/)), 're_tests 741  (#937)');
 # 498: (?<![cd])[ab]	dbaacb	y	$&	a
-is(("dbaacb" ~~ /<!after <[cd]>><[ab]>/ && $<>), "a", 're_tests 743/0 (#939)');
+is(("dbaacb" ~~ /<!after <[cd]>><[ab]>/ && $<>), "a", 're_tests 743/0 (#939)', :todo<feature>);
 # 499: (?<!(c|d))b	dbcb	n	-	-
 ok((not ("dbcb" ~~ /<!after (c|d)>b/)), 're_tests 745  (#941)');
 # 500: (?<!(c|d))[ab]	dbaacb	y	$&	a
-is(("dbaacb" ~~ /<!after (c|d)><[ab]>/ && $<>), "a", 're_tests 747/0 (#943)');
+is(("dbaacb" ~~ /<!after (c|d)><[ab]>/ && $<>), "a", 're_tests 747/0 (#943)', :todo<feature>);
 # 501: (?<!cd)[ab]	cdaccb	y	$&	b
-is(("cdaccb" ~~ /<!after cd><[ab]>/ && $<>), "b", 're_tests 749/0 (#945)');
+is(("cdaccb" ~~ /<!after cd><[ab]>/ && $<>), "b", 're_tests 749/0 (#945)', :todo<feature>);
 # 502: ^(?:a?b?)*$	a--	n	-	-
 #ok((not ("a--" ~~ /^[a?b?]*$/)), 're_tests 751  (#947)'); # XXX PGE BUG
 # 503: ((?s)^a(.))((?m)^b$)	a\nb\nc\n	y	$0;$1;$2	a\n;\n;b
@@ -1140,19 +1140,19 @@ ok((not ("a\nb\nc\n" ~~ /(<?null>)^b/)), 're_tests 762  (#958)');
 # 516: (?(1)a|b)	a	n	-	-
 ok((not ("a" ~~ /[ <(defined $0)> :: a|b ]/)), 're_tests 765  (#961)');
 # 517: (?(1)b|a)	a	y	$&	a
-is(("a" ~~ /[ <(defined $0)> :: b|a ]/ && $<>), "a", 're_tests 767/0 (#963)');
+is(("a" ~~ /[ <(defined $0)> :: b|a ]/ && $<>), "a", 're_tests 767/0 (#963)', :todo<feature>);
 # 518: (x)?(?(1)a|b)	a	n	-	-
 ok((not ("a" ~~ /(x)?[ <(defined $0)> :: a|b ]/)), 're_tests 769  (#965)');
 # 519: (x)?(?(1)b|a)	a	y	$&	a
-is(("a" ~~ /(x)?[ <(defined $0)> :: b|a ]/ && $<>), "a", 're_tests 771/0 (#967)');
+is(("a" ~~ /(x)?[ <(defined $0)> :: b|a ]/ && $<>), "a", 're_tests 771/0 (#967)', :todo<feature>);
 # 520: ()?(?(1)b|a)	a	y	$&	a
-is(("a" ~~ /(<?null>)?[ <(defined $0)> :: b|a ]/ && $<>), "a", 're_tests 773/0 (#969)');
+is(("a" ~~ /(<?null>)?[ <(defined $0)> :: b|a ]/ && $<>), "a", 're_tests 773/0 (#969)', :todo<feature>);
 # 521: ()(?(1)b|a)	a	n	-	-
 ok((not ("a" ~~ /(<?null>)[ <(defined $0)> :: b|a ]/)), 're_tests 775  (#971)');
 # 522: ()?(?(1)a|b)	a	y	$&	a
-is(("a" ~~ /(<?null>)?[ <(defined $0)> :: a|b ]/ && $<>), "a", 're_tests 777/0 (#973)');
+is(("a" ~~ /(<?null>)?[ <(defined $0)> :: a|b ]/ && $<>), "a", 're_tests 777/0 (#973)', :todo<feature>);
 # 523: ^(\()?blah(?(1)(\)))$	(blah)	y	$1	)
-is(("(blah)" ~~ /^(\()?blah[ <(defined $0)> :: (\)) ]$/ && $1), ")", 're_tests 779/2 (#975)');
+is(("(blah)" ~~ /^(\()?blah[ <(defined $0)> :: (\)) ]$/ && $1), ")", 're_tests 779/2 (#975)', :todo<feature>);
 # 524: ^(\()?blah(?(1)(\)))$	blah	y	($1)	()
 # SKIPPED: script doesn't understand `($1)' yet
 # SKIPPED: script doesn't understand `($1)' yet
@@ -1161,7 +1161,7 @@ ok((not ("blah)" ~~ /^(\()?blah[ <(defined $0)> :: (\)) ]$/)), 're_tests 781  (#
 # 526: ^(\()?blah(?(1)(\)))$	(blah	n	-	-
 ok((not ("(blah" ~~ /^(\()?blah[ <(defined $0)> :: (\)) ]$/)), 're_tests 783  (#979)');
 # 527: ^(\(+)?blah(?(1)(\)))$	(blah)	y	$1	)
-is(("(blah)" ~~ /^(\(+)?blah[ <(defined $0)> :: (\)) ]$/ && $1), ")", 're_tests 785/2 (#981)');
+is(("(blah)" ~~ /^(\(+)?blah[ <(defined $0)> :: (\)) ]$/ && $1), ")", 're_tests 785/2 (#981)', :todo<feature>);
 # 528: ^(\(+)?blah(?(1)(\)))$	blah	y	($1)	()
 # SKIPPED: script doesn't understand `($1)' yet
 # SKIPPED: script doesn't understand `($1)' yet
@@ -1190,15 +1190,15 @@ ok((not ("(blah" ~~ /^(\(+)?blah[ <(defined $0)> :: (\)) ]$/)), 're_tests 789  (
 # 540: (?(?=a)a|b)	a	y	$&	a
 # -- SKIPPED - p5re_to_p6rule doesn't support `(?(...' yet
 # 541: (?=(a+?))(\1ab)	aaab	y	$1	aab
-is(("aaab" ~~ /<before (a+?)>($0ab)/ && $1), "aab", 're_tests 799/2 (#995)');
+is(("aaab" ~~ /<before (a+?)>($0ab)/ && $1), "aab", 're_tests 799/2 (#995)', :todo<feature>);
 # 542: ^(?=(a+?))\1ab	aaab	n	-	-
 ok((not ("aaab" ~~ /^<before (a+?)>$0ab/)), 're_tests 801  (#997)');
 # 543: (\w+:)+	one:	y	$0	one:
 is(("one:" ~~ /(\w+\:)+/ && $0), "one:", 're_tests 803/1 (#999)');
 # 544: $(?<=^(a))	a	y	$0	a
-is(("a" ~~ /$<after ^(a)>/ && $0), "a", 're_tests 805/1 (#1001)');
+is(("a" ~~ /$<after ^(a)>/ && $0), "a", 're_tests 805/1 (#1001)', :todo<feature>);
 # 545: (?=(a+?))(\1ab)	aaab	y	$1	aab
-is(("aaab" ~~ /<before (a+?)>($0ab)/ && $1), "aab", 're_tests 807/2 (#1003)');
+is(("aaab" ~~ /<before (a+?)>($0ab)/ && $1), "aab", 're_tests 807/2 (#1003)', :todo<feature>);
 # 546: ^(?=(a+?))\1ab	aaab	n	-	-
 ok((not ("aaab" ~~ /^<before (a+?)>$0ab/)), 're_tests 809  (#1005)');
 # 547: ([\w:]+::)?(\w+)$	abcd:	n	-	-
@@ -1207,7 +1207,7 @@ ok((not ("abcd:" ~~ /(<[\w:]>+\:\:)?(\w+)$/)), 're_tests 811  (#1007)');
 is(("abcd" ~~ /(<[\w:]>+\:\:)?(\w+)$/ && $0), "", 're_tests 813/1 (#1010)');
 is(("abcd" ~~ /(<[\w:]>+\:\:)?(\w+)$/ && $1), "abcd", 're_tests 813/2 (#1011)');
 # 549: ([\w:]+::)?(\w+)$	xy:z:::abcd	y	$0-$1	xy:z:::-abcd
-is(("xy:z:::abcd" ~~ /(<[\w:]>+\:\:)?(\w+)$/ && $0), "xy:z:::", 're_tests 815/1 (#1014)');
+is(("xy:z:::abcd" ~~ /(<[\w:]>+\:\:)?(\w+)$/ && $0), "xy:z:::", 're_tests 815/1 (#1014)', :todo<bug>);
 is(("xy:z:::abcd" ~~ /(<[\w:]>+\:\:)?(\w+)$/ && $1), "abcd", 're_tests 815/2 (#1015)');
 # 550: ^[^bcd]*(c+)	aexycd	y	$0	c
 is(("aexycd" ~~ /^<-[bcd]>*(c+)/ && $0), "c", 're_tests 817/1 (#1017)');
@@ -1219,7 +1219,7 @@ ok((not ("abcd:" ~~ /(<[\w:]>+\:\:)?(\w+)$/)), 're_tests 821  (#1021)');
 is(("abcd" ~~ /(<[\w:]>+\:\:)?(\w+)$/ && $0), "", 're_tests 823/1 (#1024)');
 is(("abcd" ~~ /(<[\w:]>+\:\:)?(\w+)$/ && $1), "abcd", 're_tests 823/2 (#1025)');
 # 554: ([\w:]+::)?(\w+)$	xy:z:::abcd	y	$0-$1	xy:z:::-abcd
-is(("xy:z:::abcd" ~~ /(<[\w:]>+\:\:)?(\w+)$/ && $0), "xy:z:::", 're_tests 825/1 (#1028)');
+is(("xy:z:::abcd" ~~ /(<[\w:]>+\:\:)?(\w+)$/ && $0), "xy:z:::", 're_tests 825/1 (#1028)', :todo<bug>);
 is(("xy:z:::abcd" ~~ /(<[\w:]>+\:\:)?(\w+)$/ && $1), "abcd", 're_tests 825/2 (#1029)');
 # 555: ^[^bcd]*(c+)	aexycd	y	$0	c
 is(("aexycd" ~~ /^<-[bcd]>*(c+)/ && $0), "c", 're_tests 827/1 (#1031)');
@@ -1779,11 +1779,11 @@ fail("PGE probably nonterminates", :todo<bug>);
 # 824: tt+$	xxxtt	y	-	-
 ok(("xxxtt" ~~ /tt+$/), 're_tests 1152  (#1356)');
 # 825: ([a..\d]+)	za-9z	y	$0	a-9
-is(("za-9z" ~~ /(<[a..\d]>+)/ && $0), "a-9", 're_tests 1154/1 (#1358)');
+is(("za-9z" ~~ /(<[a..\d]>+)/ && $0), "a-9", 're_tests 1154/1 (#1358)', :todo<bug>);
 # 826: ([\d..z]+)	a0-za	y	$0	0-z
-is(("a0-za" ~~ /(<[\d..z]>+)/ && $0), "0-z", 're_tests 1156/1 (#1360)');
+is(("a0-za" ~~ /(<[\d..z]>+)/ && $0), "0-z", 're_tests 1156/1 (#1360)', :todo<bug>);
 # 827: ([\d..\s]+)	a0- z	y	$0	0- 
-is(("a0- z" ~~ /(<[\d..\s]>+)/ && $0), "0- ", 're_tests 1158/1 (#1362)');
+is(("a0- z" ~~ /(<[\d..\s]>+)/ && $0), "0- ", 're_tests 1158/1 (#1362)', :todo<bug>);
 # 828: ([a-[:digit:]]+)	za-9z	y	$0	a-9
 # -- SKIPPED - p5re_to_p6rule doesn't support this yet
 # 829: ([[:digit:]-z]+)	=0-z=	y	$0	0-z
@@ -1867,7 +1867,7 @@ ok((not ("a" ~~ /^(a)?[ <(defined $0)> :: a|b ]+$/)), 're_tests 1217  (#1421)');
 # SKIPPED: script doesn't understand `$0,$1,$2,$3' yet
 # SKIPPED: script doesn't understand `$0,$1,$2,$3' yet
 # 866: ^(a\1?){4}$	aaaaaa	y	$0	aa
-is(("aaaaaa" ~~ /^(a$0?)**{4}$/ && $0), "aa", 're_tests 1219/1 (#1423)');
+is(("aaaaaa" ~~ /^(a$0?)**{4}$/ && $0), "aa", 're_tests 1219/1 (#1423)', :todo<feature>);
 # 867: ^(0+)?(?:x(1))?	x1	y	-	-
 ok(("x1" ~~ /^(0+)?[x(1)]?/), 're_tests 1221  (#1425)');
 # 868: ^([0..9a..fA..F]+)(?:x([0..9a..fA..F]+)?)(?:x([0..9a..fA..F]+))?	012cxx0190	y	-	-
@@ -1901,18 +1901,18 @@ ok(("a" ~~ /\ba/), 're_tests 1240  (#1450)');
 # 880: ab(?i)cd	AbCd	n	-	-	# [ID 20010809.023]
 ok((not ("AbCd" ~~ /ab:i cd/)), 're_tests 1243  (#1453)');
 # 881: ab(?i)cd	abCd	y	-	-
-ok(("abCd" ~~ /ab:i cd/), 're_tests 1245  (#1455)');
+ok(("abCd" ~~ /ab:i cd/), 're_tests 1245  (#1455)', :todo<feature>);
 # 882: (A|B)*(?(1)(CD)|(CD))	CD	y	$1-$2	-CD
 is(("CD" ~~ /(A|B)*[ <(defined $0)> :: (CD)|(CD) ]/ && $1), "", 're_tests 1247/2 (#1458)');
-is(("CD" ~~ /(A|B)*[ <(defined $0)> :: (CD)|(CD) ]/ && $2), "CD", 're_tests 1247/3 (#1459)');
+is(("CD" ~~ /(A|B)*[ <(defined $0)> :: (CD)|(CD) ]/ && $2), "CD", 're_tests 1247/3 (#1459)', :todo<feature>);
 # 883: (A|B)*(?(1)(CD)|(CD))	ABCD	y	$1-$2	CD-
-is(("ABCD" ~~ /(A|B)*[ <(defined $0)> :: (CD)|(CD) ]/ && $1), "CD", 're_tests 1249/2 (#1462)');
+is(("ABCD" ~~ /(A|B)*[ <(defined $0)> :: (CD)|(CD) ]/ && $1), "CD", 're_tests 1249/2 (#1462)', :todo<feature>);
 is(("ABCD" ~~ /(A|B)*[ <(defined $0)> :: (CD)|(CD) ]/ && $2), "", 're_tests 1249/3 (#1463)');
 # 884: (A|B)*?(?(1)(CD)|(CD))	CD	y	$1-$2	-CD	# [ID 20010803.016]
 is(("CD" ~~ /(A|B)*?[ <(defined $0)> :: (CD)|(CD) ]/ && $1), "", 're_tests 1251/2 (#1466)');
-is(("CD" ~~ /(A|B)*?[ <(defined $0)> :: (CD)|(CD) ]/ && $2), "CD", 're_tests 1251/3 (#1467)');
+is(("CD" ~~ /(A|B)*?[ <(defined $0)> :: (CD)|(CD) ]/ && $2), "CD", 're_tests 1251/3 (#1467)', :todo<feature>);
 # 885: (A|B)*?(?(1)(CD)|(CD))	ABCD	y	$1-$2	CD-
-is(("ABCD" ~~ /(A|B)*?[ <(defined $0)> :: (CD)|(CD) ]/ && $1), "CD", 're_tests 1253/2 (#1470)');
+is(("ABCD" ~~ /(A|B)*?[ <(defined $0)> :: (CD)|(CD) ]/ && $1), "CD", 're_tests 1253/2 (#1470)', :todo<feature>);
 is(("ABCD" ~~ /(A|B)*?[ <(defined $0)> :: (CD)|(CD) ]/ && $2), "", 're_tests 1253/3 (#1471)');
 # 886: '^(o)(?!.*\1)'i	Oo	n	-	-
 ok((not ("Oo" ~~ rx:i/^(o)<!before \N*$0>/)), 're_tests 1255  (#1473)');
@@ -1923,73 +1923,73 @@ is(("abc12bc" ~~ /(\N*)\d+$0/ && $0), "bc", 're_tests 1257/1 (#1475)');
 # 889: (.*)c	abcd	y	$0	ab
 is(("abcd" ~~ /(\N*)c/ && $0), "ab", 're_tests 1260/1 (#1478)');
 # 890: (.*)(?=c)	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*)<before c>/ && $0), "ab", 're_tests 1262/1 (#1480)');
+is(("abcd" ~~ /(\N*)<before c>/ && $0), "ab", 're_tests 1262/1 (#1480)', :todo<feature>);
 # 891: (.*)(?=c)c	abcd	yB	$0	ab
-is(("abcd" ~~ /(\N*)<before c>c/ && $0), "ab", 're_tests 1264/1 (#1482)');
+is(("abcd" ~~ /(\N*)<before c>c/ && $0), "ab", 're_tests 1264/1 (#1482)', :todo<feature>);
 # 892: (.*)(?=b|c)	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*)<before b|c>/ && $0), "ab", 're_tests 1266/1 (#1484)');
+is(("abcd" ~~ /(\N*)<before b|c>/ && $0), "ab", 're_tests 1266/1 (#1484)', :todo<feature>);
 # 893: (.*)(?=b|c)c	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*)<before b|c>c/ && $0), "ab", 're_tests 1268/1 (#1486)');
+is(("abcd" ~~ /(\N*)<before b|c>c/ && $0), "ab", 're_tests 1268/1 (#1486)', :todo<feature>);
 # 894: (.*)(?=c|b)	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*)<before c|b>/ && $0), "ab", 're_tests 1270/1 (#1488)');
+is(("abcd" ~~ /(\N*)<before c|b>/ && $0), "ab", 're_tests 1270/1 (#1488)', :todo<feature>);
 # 895: (.*)(?=c|b)c	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*)<before c|b>c/ && $0), "ab", 're_tests 1272/1 (#1490)');
+is(("abcd" ~~ /(\N*)<before c|b>c/ && $0), "ab", 're_tests 1272/1 (#1490)', :todo<feature>);
 # 896: (.*)(?=[bc])	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*)<before <[bc]>>/ && $0), "ab", 're_tests 1274/1 (#1492)');
+is(("abcd" ~~ /(\N*)<before <[bc]>>/ && $0), "ab", 're_tests 1274/1 (#1492)', :todo<feature>);
 # 897: (.*)(?=[bc])c	abcd	yB	$0	ab
-is(("abcd" ~~ /(\N*)<before <[bc]>>c/ && $0), "ab", 're_tests 1276/1 (#1494)');
+is(("abcd" ~~ /(\N*)<before <[bc]>>c/ && $0), "ab", 're_tests 1276/1 (#1494)', :todo<feature>);
 # 898: (.*)(?<=b)	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*)<after b>/ && $0), "ab", 're_tests 1278/1 (#1496)');
+is(("abcd" ~~ /(\N*)<after b>/ && $0), "ab", 're_tests 1278/1 (#1496)', :todo<feature>);
 # 899: (.*)(?<=b)c	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*)<after b>c/ && $0), "ab", 're_tests 1280/1 (#1498)');
+is(("abcd" ~~ /(\N*)<after b>c/ && $0), "ab", 're_tests 1280/1 (#1498)', :todo<feature>);
 # 900: (.*)(?<=b|c)	abcd	y	$0	abc
-is(("abcd" ~~ /(\N*)<after b|c>/ && $0), "abc", 're_tests 1282/1 (#1500)');
+is(("abcd" ~~ /(\N*)<after b|c>/ && $0), "abc", 're_tests 1282/1 (#1500)', :todo<feature>);
 # 901: (.*)(?<=b|c)c	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*)<after b|c>c/ && $0), "ab", 're_tests 1284/1 (#1502)');
+is(("abcd" ~~ /(\N*)<after b|c>c/ && $0), "ab", 're_tests 1284/1 (#1502)', :todo<feature>);
 # 902: (.*)(?<=c|b)	abcd	y	$0	abc
-is(("abcd" ~~ /(\N*)<after c|b>/ && $0), "abc", 're_tests 1286/1 (#1504)');
+is(("abcd" ~~ /(\N*)<after c|b>/ && $0), "abc", 're_tests 1286/1 (#1504)', :todo<feature>);
 # 903: (.*)(?<=c|b)c	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*)<after c|b>c/ && $0), "ab", 're_tests 1288/1 (#1506)');
+is(("abcd" ~~ /(\N*)<after c|b>c/ && $0), "ab", 're_tests 1288/1 (#1506)', :todo<feature>);
 # 904: (.*)(?<=[bc])	abcd	y	$0	abc
-is(("abcd" ~~ /(\N*)<after <[bc]>>/ && $0), "abc", 're_tests 1290/1 (#1508)');
+is(("abcd" ~~ /(\N*)<after <[bc]>>/ && $0), "abc", 're_tests 1290/1 (#1508)', :todo<feature>);
 # 905: (.*)(?<=[bc])c	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*)<after <[bc]>>c/ && $0), "ab", 're_tests 1292/1 (#1510)');
+is(("abcd" ~~ /(\N*)<after <[bc]>>c/ && $0), "ab", 're_tests 1292/1 (#1510)', :todo<feature>);
 # 906: (.*?)c	abcd	y	$0	ab
 is(("abcd" ~~ /(\N*?)c/ && $0), "ab", 're_tests 1294/1 (#1512)');
 # 907: (.*?)(?=c)	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*?)<before c>/ && $0), "ab", 're_tests 1296/1 (#1514)');
+is(("abcd" ~~ /(\N*?)<before c>/ && $0), "ab", 're_tests 1296/1 (#1514)', :todo<feature>);
 # 908: (.*?)(?=c)c	abcd	yB	$0	ab
-is(("abcd" ~~ /(\N*?)<before c>c/ && $0), "ab", 're_tests 1298/1 (#1516)');
+is(("abcd" ~~ /(\N*?)<before c>c/ && $0), "ab", 're_tests 1298/1 (#1516)', :todo<feature>);
 # 909: (.*?)(?=b|c)	abcd	y	$0	a
-is(("abcd" ~~ /(\N*?)<before b|c>/ && $0), "a", 're_tests 1300/1 (#1518)');
+is(("abcd" ~~ /(\N*?)<before b|c>/ && $0), "a", 're_tests 1300/1 (#1518)', :todo<feature>);
 # 910: (.*?)(?=b|c)c	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*?)<before b|c>c/ && $0), "ab", 're_tests 1302/1 (#1520)');
+is(("abcd" ~~ /(\N*?)<before b|c>c/ && $0), "ab", 're_tests 1302/1 (#1520)', :todo<feature>);
 # 911: (.*?)(?=c|b)	abcd	y	$0	a
-is(("abcd" ~~ /(\N*?)<before c|b>/ && $0), "a", 're_tests 1304/1 (#1522)');
+is(("abcd" ~~ /(\N*?)<before c|b>/ && $0), "a", 're_tests 1304/1 (#1522)', :todo<feature>);
 # 912: (.*?)(?=c|b)c	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*?)<before c|b>c/ && $0), "ab", 're_tests 1306/1 (#1524)');
+is(("abcd" ~~ /(\N*?)<before c|b>c/ && $0), "ab", 're_tests 1306/1 (#1524)', :todo<feature>);
 # 913: (.*?)(?=[bc])	abcd	y	$0	a
-is(("abcd" ~~ /(\N*?)<before <[bc]>>/ && $0), "a", 're_tests 1308/1 (#1526)');
+is(("abcd" ~~ /(\N*?)<before <[bc]>>/ && $0), "a", 're_tests 1308/1 (#1526)', :todo<feature>);
 # 914: (.*?)(?=[bc])c	abcd	yB	$0	ab
-is(("abcd" ~~ /(\N*?)<before <[bc]>>c/ && $0), "ab", 're_tests 1310/1 (#1528)');
+is(("abcd" ~~ /(\N*?)<before <[bc]>>c/ && $0), "ab", 're_tests 1310/1 (#1528)', :todo<feature>);
 # 915: (.*?)(?<=b)	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*?)<after b>/ && $0), "ab", 're_tests 1312/1 (#1530)');
+is(("abcd" ~~ /(\N*?)<after b>/ && $0), "ab", 're_tests 1312/1 (#1530)', :todo<feature>);
 # 916: (.*?)(?<=b)c	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*?)<after b>c/ && $0), "ab", 're_tests 1314/1 (#1532)');
+is(("abcd" ~~ /(\N*?)<after b>c/ && $0), "ab", 're_tests 1314/1 (#1532)', :todo<feature>);
 # 917: (.*?)(?<=b|c)	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*?)<after b|c>/ && $0), "ab", 're_tests 1316/1 (#1534)');
+is(("abcd" ~~ /(\N*?)<after b|c>/ && $0), "ab", 're_tests 1316/1 (#1534)', :todo<feature>);
 # 918: (.*?)(?<=b|c)c	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*?)<after b|c>c/ && $0), "ab", 're_tests 1318/1 (#1536)');
+is(("abcd" ~~ /(\N*?)<after b|c>c/ && $0), "ab", 're_tests 1318/1 (#1536)', :todo<feature>);
 # 919: (.*?)(?<=c|b)	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*?)<after c|b>/ && $0), "ab", 're_tests 1320/1 (#1538)');
+is(("abcd" ~~ /(\N*?)<after c|b>/ && $0), "ab", 're_tests 1320/1 (#1538)', :todo<feature>);
 # 920: (.*?)(?<=c|b)c	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*?)<after c|b>c/ && $0), "ab", 're_tests 1322/1 (#1540)');
+is(("abcd" ~~ /(\N*?)<after c|b>c/ && $0), "ab", 're_tests 1322/1 (#1540)', :todo<feature>);
 # 921: (.*?)(?<=[bc])	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*?)<after <[bc]>>/ && $0), "ab", 're_tests 1324/1 (#1542)');
+is(("abcd" ~~ /(\N*?)<after <[bc]>>/ && $0), "ab", 're_tests 1324/1 (#1542)', :todo<feature>);
 # 922: (.*?)(?<=[bc])c	abcd	y	$0	ab
-is(("abcd" ~~ /(\N*?)<after <[bc]>>c/ && $0), "ab", 're_tests 1326/1 (#1544)');
+is(("abcd" ~~ /(\N*?)<after <[bc]>>c/ && $0), "ab", 're_tests 1326/1 (#1544)', :todo<feature>);
 # 923: 2(]*)?$\1	2	y	$&	2
-is(("2" ~~ /2(]*)?$$0/ && $<>), "2", 're_tests 1328/0 (#1546)');
+is(("2" ~~ /2(]*)?$0/ && $<>), "2", 're_tests 1328/0 (#1546)', :todo<bug>);
 # 924: (??{})	x	y	-	-
 # -- SKIPPED - p5re_to_p6rule doesn't support `(??{...' yet
 # 925: a(b)??	abc	y	<$0>	<>	# undef [perl #16773]
