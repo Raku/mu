@@ -56,10 +56,8 @@ would like current details, please ask on irc.freenode.net #perl6.
 - Modifiers: Most modifiers are unimplemented.  The working ones are
 :g (mostly), :i :m :s :x (yes? p5-only), :w (p6-only).
 
-- Perl6 rules: Rule names are currently globals - grammars and naming
-do not yet work.  Things which require close coordination with p6 code
-don't work, so no aliases or embedded code.  Other than that, it may
-work.  Please report problems and update this file.
+- Perl6 rules are still being implemented.  Much works, but rule names
+are currently globals, and there are no aliases or embedded code.
 
 = Test Suite
 
