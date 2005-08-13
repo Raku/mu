@@ -1,3 +1,8 @@
+PIL-Run development has been on hold for a while.  To dust it off,
+look first at PIL2JS, the metamodel stuff, and pugs's -CPerl5.
+
+----------------------------------------------------------------------
+
 Usage tip:
  $ pugs -v
 [...] # pugs is in your path
@@ -42,10 +47,7 @@ get a "Use of uninitialized value in concatenation (.) or string at /usr/lib/per
 
 * MainX should load PIL/Run/Root/P5Runtime/PrimP6.pm at startup.
 
-* Create PIL/ReadToStr2.pm.  PIL/ReadToStr1.pm is intended to be
-reliable, but it is slow.  It takes ~20sec to read the PIR of the
-Prelude.  So a PIL/ReadToStr2.pm is planned, which uses inline
-/\Gmumble/c regexps instead of match().
+* Replace PIL/ReadToStr1.pm with pugs's new -CPerl5 output.
 
 Slightly more distant tasks:
 * Get the prelude to compile.
