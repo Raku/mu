@@ -179,8 +179,7 @@ method parts ($self: *@new) is rw {
         });
 }
 
-# XXX ::?CLASS $part
-method add_part ($self: $part) returns Void {
+method add_part ($self: ::?CLASS $part) returns Void {
     if ((.content_type // "") !~ m,^multipart/,) {
         my $message = ::?CLASS.new(.remove_content_headers, .content(""));
         $self.content_type("multipart/mixed");
