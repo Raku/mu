@@ -4,15 +4,14 @@
 module Pugs.CodeGen.PIL (genPIL) where
 import Pugs.Internals
 import Pugs.AST
-import Emit.PIR
 import Pugs.Compile
 
 genPIL :: Eval Val
 genPIL = do
     glob        <- askGlobal
     main        <- asks envBody
-    globPIL     <- compile glob :: Eval [PIL Decl]
-    mainPIL     <- compile main :: Eval (PIL [Stmt])
+    globPIL     <- compile glob :: Eval [PIL_Decl]
+    mainPIL     <- compile main :: Eval PIL_Stmts
     return . VStr . unlines $
         [ "PIL_Environment"
         , "    { pilMain = (" ++ show mainPIL ++ ")"

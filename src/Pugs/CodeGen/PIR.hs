@@ -8,7 +8,7 @@
     The general plan is to first compile the environment (subroutines,
     statements, etc.) to an abstract syntax tree ('PIL' -- Pugs Intermediate
     Language) using the 'compile' function and 'Compile' class, and then
-    translate the PIL to a data structure of type 'PIR' using the 'trans'
+    translate the PIL_to a data structure of type 'PIR' using the 'trans'
     function and 'Translate' class. This data structure is then reduced to
     final PIR code by "Emit.PIR".
 -}
@@ -44,15 +44,37 @@ transError :: forall a b. Translate a b => a -> CodeGen b
 transError = die $ "Translate error -- invalid "
     ++ (show $ typeOf (undefined :: b))
 
-instance (Typeable a) => Translate (PIL a) a where
+instance Translate PIL_Stmts [Stmt] where
     trans PNil = return []
+    trans (PStmts this rest) = do
+        thisC   <- trans this
+        tell [thisC]
+        trans rest
+    trans (PPad SMy pad exps) = do
+        valsC   <- mapM trans (map snd pad)
+        pass $ do
+            expsC   <- trans exps
+            return ([], (StmtPad (map fst pad `zip` valsC) expsC:))
+    trans (PPad _ pad exps) = do
+        -- XXX - maybe warn about bad pads?
+        trans (PPad SMy pad exps)
+
+instance Translate PIL_Stmt Stmt where
     trans PNoop = return (StmtComment "")
+    trans (PStmt (PLit (PVal VUndef))) = return $ StmtComment ""
+    trans (PStmt exp) = do
+        expC    <- trans exp
+        return $ StmtIns $ InsExp expC
     trans (PPos pos exp rest) = do
         dep     <- asks tTokDepth
         tell [StmtComment $ (replicate dep ' ') ++ "{{{ " ++ pretty exp]
         expC    <- local (\e -> e{ tTokDepth = dep + 1 }) $ trans rest
         tell [StmtComment $ (replicate dep ' ') ++ "}}} " ++ pretty pos]
         return expC
+
+instance Translate PIL_Expr Expression where
+    trans (PRawName name) = fmap ExpLV $ genName name
+    trans (PExp exp) = fmap ExpLV $ trans exp
     trans (PLit (PVal VUndef)) = do
         pmc     <- genLV "undef"
         return $ ExpLV pmc
@@ -62,6 +84,64 @@ instance (Typeable a) => Translate (PIL a) a where
         pmc     <- genLV "lit"
         tellIns $ pmc <== ExpLit litC
         return $ ExpLV pmc
+    trans (PThunk exp) = do
+        [begL, sndL, retL, endL] <- genLabel ["thunkBegin", "thunkAgain", "thunkReturn", "thunkEnd"]
+        this    <- genPMC "block"
+        tellIns $ "newsub" .- [reg this, bare ".Continuation", bare begL]
+        tellIns $ "goto" .- [bare endL]
+        tellLabel begL
+        cc      <- genPMC "cc"
+        fetchCC cc (reg this)
+        expC    <- trans exp
+        tellIns $ "set_addr" .- [reg this, bare sndL]
+        tellIns $ "goto" .- [bare retL]
+        tellLabel sndL
+        fetchCC cc (reg this)
+        tellLabel retL
+        tellIns $ if parrotBrokenXXX
+            then "store_global" .- [tempSTR, expC]
+            else "set_args" .- [lit "(0b10)", expC]
+        tellIns $ "invoke" .- [reg cc]
+        tellLabel endL
+        return (ExpLV this)
+    trans (PCode styp params body) = do
+        [begL, endL] <- genLabel ["blockBegin", "blockEnd"]
+        this    <- genPMC "block"
+        tellIns $ "newsub" .- [reg this, bare ".Closure", bare begL]
+        tellIns $ "goto" .- [bare endL]
+        tellLabel begL
+        let prms = map tpParam params
+        mapM_ (tellIns . InsLocal RegPMC . prmToIdent) prms
+        tellIns $ "get_params" .- sigList (map prmToSig prms)
+        tellIns $ "new_pad" .- [lit curPad]
+        wrapSub styp $ do
+            mapM storeLex params
+            trans body  -- XXX - consistency check
+            bodyC   <- lastPMC
+            tellIns $ "set_returns" .- retSigList [bodyC]
+            tellIns $ "returncc" .- []
+        tellLabel endL
+        return (ExpLV this)
+
+instance Translate PIL_Decl Decl where
+    trans (PSub name styp params body) | Just (pkg, name') <- isQualified name = do
+        declC <- trans $ PSub name' styp params body
+        return $ DeclNS pkg [declC]
+    trans (PSub name styp params body) = do
+        (_, stmts)  <- listen $ do
+            let prms = map tpParam params
+            mapM_ (tellIns . InsLocal RegPMC . prmToIdent) prms
+            tellIns $ "get_params" .- sigList (map prmToSig prms)
+            tellIns $ "new_pad" .- [lit curPad]
+            wrapSub styp $ do
+                mapM storeLex params
+                trans body
+                bodyC <- lastPMC
+                tellIns $ "set_returns" .- retSigList [bodyC]
+                tellIns $ "returncc" .- []
+        return (DeclSub name [] stmts)
+
+instance Translate PIL_Literal Literal where
     trans (PVal (VBool bool)) = return $ LitInt (toInteger $ fromEnum bool)
     trans (PVal (VStr str)) = return $ LitStr str
     trans (PVal (VInt int)) = return $ LitInt int
@@ -69,6 +149,8 @@ instance (Typeable a) => Translate (PIL a) a where
     trans (PVal (VRat rat)) = return $ LitNum (ratToNum rat)
     trans (PVal (VList [])) = return $ LitInt 0 -- XXX Wrong
     trans val@(PVal _) = transError val
+
+instance Translate PIL_LValue LValue where
     trans (PVar name) | Just (pkg, name') <- isQualified name = do
         -- XXX - this is terribly ugly.  Fix at parrot side perhaps?
         pmc     <- genLV "glob"
@@ -87,10 +169,6 @@ instance (Typeable a) => Translate (PIL a) a where
         pmc     <- genLV "lex"
         tellIns $ pmc <-- "find_name" $ [lit $ possiblyFixOperatorName name]
         return pmc
-    trans (PStmt (PLit (PVal VUndef))) = return $ StmtComment ""
-    trans (PStmt exp) = do
-        expC    <- trans exp
-        return $ StmtIns $ InsExp expC
     trans (PAssign [lhs] rhs) = do
         lhsC    <- enter tcLValue $ trans lhs
         rhsC    <- trans rhs
@@ -106,10 +184,6 @@ instance (Typeable a) => Translate (PIL a) a where
         rhsC    <- trans rhs
         tellIns $ lhsC <:= rhsC
         return lhsC
-    trans (PStmts this rest) = do
-        thisC   <- trans this
-        tell [thisC]
-        trans rest
     trans (PApp _ exp@(PCode _ _ _) Nothing []) = do
         blockC  <- trans exp
         tellIns $ [reg tempPMC] <-& blockC $ []
@@ -142,67 +216,6 @@ instance (Typeable a) => Translate (PIL a) a where
                 tellIns $ [reg pmc] <-& funC $ argsC
                 return pmc
         -}
-    trans (PPad SMy pad exps) = do
-        valsC   <- mapM trans (map snd pad)
-        pass $ do
-            expsC   <- trans exps
-            return ([], (StmtPad (map fst pad `zip` valsC) expsC:))
-    trans (PExp exp) = fmap ExpLV $ trans exp
-    trans (PCode styp params body) = do
-        [begL, endL] <- genLabel ["blockBegin", "blockEnd"]
-        this    <- genPMC "block"
-        tellIns $ "newsub" .- [reg this, bare ".Closure", bare begL]
-        tellIns $ "goto" .- [bare endL]
-        tellLabel begL
-        let prms = map tpParam params
-        mapM_ (tellIns . InsLocal RegPMC . prmToIdent) prms
-        tellIns $ "get_params" .- sigList (map prmToSig prms)
-        tellIns $ "new_pad" .- [lit curPad]
-        wrapSub styp $ do
-            mapM storeLex params
-            trans body  -- XXX - consistency check
-            bodyC   <- lastPMC
-            tellIns $ "set_returns" .- retSigList [bodyC]
-            tellIns $ "returncc" .- []
-        tellLabel endL
-        return (ExpLV this)
-    trans (PThunk exp) = do
-        [begL, sndL, retL, endL] <- genLabel ["thunkBegin", "thunkAgain", "thunkReturn", "thunkEnd"]
-        this    <- genPMC "block"
-        tellIns $ "newsub" .- [reg this, bare ".Continuation", bare begL]
-        tellIns $ "goto" .- [bare endL]
-        tellLabel begL
-        cc      <- genPMC "cc"
-        fetchCC cc (reg this)
-        expC    <- trans exp
-        tellIns $ "set_addr" .- [reg this, bare sndL]
-        tellIns $ "goto" .- [bare retL]
-        tellLabel sndL
-        fetchCC cc (reg this)
-        tellLabel retL
-        tellIns $ if parrotBrokenXXX
-            then "store_global" .- [tempSTR, expC]
-            else "set_args" .- [lit "(0b10)", expC]
-        tellIns $ "invoke" .- [reg cc]
-        tellLabel endL
-        return (ExpLV this)
-    trans (PRawName name) = fmap ExpLV $ genName name
-    trans (PSub name styp params body) | Just (pkg, name') <- isQualified name = do
-        declC <- trans $ PSub name' styp params body
-        return $ DeclNS pkg [declC]
-    trans (PSub name styp params body) = do
-        (_, stmts)  <- listen $ do
-            let prms = map tpParam params
-            mapM_ (tellIns . InsLocal RegPMC . prmToIdent) prms
-            tellIns $ "get_params" .- sigList (map prmToSig prms)
-            tellIns $ "new_pad" .- [lit curPad]
-            wrapSub styp $ do
-                mapM storeLex params
-                trans body
-                bodyC <- lastPMC
-                tellIns $ "set_returns" .- retSigList [bodyC]
-                tellIns $ "returncc" .- []
-        return (DeclSub name [] stmts)
     trans x = transError x
 
 fetchCC :: LValue -> Expression -> CodeGen ()
@@ -371,7 +384,7 @@ genPIR = do
             -- XXX wrong, should be lexical
             , InsNew tempPMC PerlScalar
             , "store_global"    .- [lit "$_", tempPMC]
-            ]) ++ [ StmtRaw (text (name ++ "()")) | PSub name@('_':'_':_) _ _ _ <- globPIL ] ++
+            ]) ++ [ StmtRaw (text (name ++ "()")) | PSub name@('_':'_':_) _ _ _ <- globPIL] ++
             [ StmtRaw (text "main()")
             , StmtIns $ tempPMC  <-- "find_global" $ [lit "Perl6::Internals", lit "&exit"]
             , StmtIns $ "set_args" .- sigList [MkSig [] lit0]
@@ -385,10 +398,10 @@ genPIR = do
         , evalError  = EvalErrorFatal
         }
 
-runCodeGenGlob :: TEnv -> [PIL Decl] -> Eval [Decl]
+runCodeGenGlob :: TEnv -> [PIL_Decl] -> Eval [Decl]
 runCodeGenGlob tenv = mapM $ fmap fst . runCodeGen tenv
 
-runCodeGenMain :: TEnv -> PIL [Stmt] -> Eval [Stmt]
+runCodeGenMain :: TEnv -> PIL_Stmts -> Eval [Stmt]
 runCodeGenMain tenv = fmap snd . runCodeGen tenv
 
 runCodeGen :: (Translate a b) => TEnv -> a -> Eval (b, [Stmt])

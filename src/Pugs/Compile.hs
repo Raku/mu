@@ -11,7 +11,7 @@
 -}
 
 module Pugs.Compile (
-    PIL(..),
+    PIL_Stmts(..), PIL_Stmt(..), PIL_Expr(..), PIL_Decl(..), PIL_Literal(..), PIL_LValue(..),
     Compile(..),
     TEnv(..), initTEnv,
     TCxt(..), tcVoid, tcLValue,
@@ -34,50 +34,75 @@ import Text.PrettyPrint
     Language) using the 'compile' function and 'Compile' class.
 -}
 
-#ifndef HADDOCK
--- Type-indexed with GADT; it is a bit too baroque -- refactor toward ANF?
-data (Typeable a) => PIL a where
-    PNil        :: PIL [a]
-    PNoop       :: PIL Stmt
+data PIL_Stmts = PNil
+    | PStmts
+        { pStmt  :: !PIL_Stmt
+        , pStmts :: !PIL_Stmts
+        }
+    | PPad
+        { pScope :: !Scope
+        , pSyms  :: ![(VarName, PIL_Expr)]
+        , pStmts :: !PIL_Stmts
+        }
+    deriving (Show, Eq, Ord, Typeable)
 
-    PPos        :: !Pos -> !Exp -> !(PIL a) -> PIL a
-    PRawName    :: !VarName -> PIL Expression -- XXX HACK!
+data PIL_Stmt = PNoop | PStmt { pExpr :: !PIL_Expr } | PPos
+        { pPos  :: !Pos
+        , pExp  :: !Exp
+        , pNode :: !PIL_Stmt
+        }
+    deriving (Show, Eq, Ord, Typeable)
 
-    PVal        :: !Val -> PIL Literal
-    PVar        :: !VarName -> PIL LValue
+data PIL_Expr
+    = PRawName { pRawName :: !VarName }
+    | PExp { pLV  :: !PIL_LValue }
+    | PLit { pLit :: !PIL_Literal }
+    | PThunk { pThunk :: !PIL_Expr }
+    | PCode
+        { pType    :: !SubType
+        , pParams  :: ![TParam]
+        , pBody    :: !PIL_Stmts
+        }
+    deriving (Show, Eq, Ord, Typeable)
 
-    PExp        :: !(PIL LValue) -> PIL Expression 
-    PLit        :: !(PIL Literal) -> PIL Expression
-    PThunk      :: !(PIL Expression) -> PIL Expression 
-    PCode       :: !SubType -> ![TParam] -> !(PIL [Stmt]) -> PIL Expression 
+data PIL_Decl = PSub
+    { pSubName      :: !SubName
+    , pSubType      :: !SubType
+    , pSubParams    :: ![TParam]
+    , pSubBody      :: !PIL_Stmts
+    }
+    deriving (Show, Eq, Ord, Typeable)
 
-    PStmt       :: !(PIL Expression) -> PIL Stmt 
-    PStmts      :: !(PIL Stmt) -> !(PIL [Stmt]) -> PIL [Stmt]
+data PIL_Literal = PVal { pVal :: Val }
+    deriving (Show, Eq, Ord, Typeable)
 
-    PApp        :: !TCxt -> !(PIL Expression) -> !(Maybe (PIL Expression)) -> ![PIL Expression] -> PIL LValue
-    PAssign     :: ![PIL LValue] -> !(PIL Expression) -> PIL LValue
-    PBind       :: ![PIL LValue] -> !(PIL Expression) -> PIL LValue
-
-    -- The New Pad: Occurs at whenever a variable may occur
-    --    PPad  :: !Scope -> !VarName -> PIL LValue
-
-    PPad        :: !Scope -> ![(VarName, PIL Expression)] -> !(PIL [Stmt]) -> PIL [Stmt]
-    PSub        :: !SubName -> !SubType -> ![TParam] -> !(PIL [Stmt]) -> PIL Decl
-#endif
-
-instance Typeable1 PIL where
-    typeOf1 _ = typeOf ()
+data PIL_LValue = PVar { pVarName :: !VarName }
+    | PApp 
+        { pCxt  :: !TCxt
+        , pFun  :: !PIL_Expr
+        , pInv  :: !(Maybe PIL_Expr)
+        , pArgs :: ![PIL_Expr]
+        }
+    | PAssign
+        { pLHS  :: ![PIL_LValue]
+        , pRHS  :: !PIL_Expr
+        }
+    | PBind
+        { pLHS  :: ![PIL_LValue]
+        , pRHS  :: !PIL_Expr
+        }
+    deriving (Show, Eq, Ord, Typeable)
 
 data TParam = MkTParam
     { tpParam   :: !Param
-    , tpDefault :: !(Maybe (PIL Expression))
+    , tpDefault :: !(Maybe (PIL_Expr))
     }
-    deriving (Show, Typeable)
+    deriving (Show, Eq, Ord, Typeable)
 
 data TCxt
     = TCxtVoid | TCxtLValue !Type | TCxtItem !Type | TCxtSlurpy !Type
     | TTailCall !TCxt
-    deriving (Show, Eq, Typeable)
+    deriving (Show, Eq, Ord, Typeable)
 
 tcVoid, tcLValue :: TCxt
 tcVoid      = TCxtVoid
@@ -89,27 +114,6 @@ tcItem      = TCxtItem anyType
 tcSlurpy    = TCxtSlurpy anyType
 -}
 
-instance Show (PIL a) where
-    show (PVal x) = "(PVal " ++ show x ++ ")"
-    show (PVar x) = "(PVar " ++ show x ++ ")"
-    show (PLit x) = "(PLit " ++ show x ++ ")"
-    show (PStmts x y) = "(PStmts " ++ show x ++ " " ++ show y ++ ")"
-    show PNil = "PNil"
-    show PNoop = "PNoop"
-    -- We don't show the raw Exp here to ease writing parsers for PIL (Exp
-    -- contains things like MkEnv, etc.).
-    show (PPos x _ z) = "(PPos " ++ show x ++ " Noop " ++ show z ++ ")"
-    show (PApp x y i z) = "(PApp " ++ show x ++ " " ++ show y ++ " " ++ show i ++ " " ++ show z ++ ")"
-    show (PExp x) = "(PExp " ++ show x ++ ")"
-    show (PStmt x) = "(PStmt " ++ show x ++ ")"
-    show (PAssign x y) = "(PAssign " ++ show x ++ " " ++ show y ++ ")"
-    show (PBind x y) = "(PBind " ++ show x ++ " " ++ show y ++ ")"
-    show (PThunk x) = "(PThunk " ++ show x ++ ")"
-    show (PRawName x) = "(PRawName " ++ show x ++ ")"
-    show (PPad x y z) = unwords ["(PPad", show x, show y, show z, ")"]
-    show (PCode x y z) = unwords ["(PCode", show x, show y, show z, ")"]
-    show (PSub x y z w) = unwords ["(PSub", show x, show y, show z, show w, ")"]
-
 data TEnv = MkTEnv
     { tLexDepth :: !Int                 -- ^ Lexical scope depth
     , tTokDepth :: !Int                 -- ^ Exp nesting depth
@@ -117,7 +121,7 @@ data TEnv = MkTEnv
     , tReg      :: !(TVar (Int, String))-- ^ Register name supply
     , tLabel    :: !(TVar Int)          -- ^ Label name supply
     }
-    deriving (Show, Eq)
+    deriving (Show, Eq, Ord, Typeable)
 
 type Comp a = Eval a
 type CompMonad = EvalT (ContT Val (ReaderT Env SIO))
@@ -128,7 +132,7 @@ class (Show a, Typeable b) => Compile a b where
     compile x = fail ("Unrecognized construct: " ++ show x)
 
 -- Compile instances
-instance Compile (Var, [(TVar Bool, TVar VRef)]) (PIL Decl) where
+instance Compile (Var, [(TVar Bool, TVar VRef)]) (PIL_Decl) where
     compile = compError
 
 instance Compile Param TParam where
@@ -141,9 +145,9 @@ instance Compile Param TParam where
             , tpDefault = defC
             }
 
-{-| Compiles a 'Pad' to a list of 'PIL Decl's. Currently, only subroutines and
+{-| Compiles a 'Pad' to a list of 'PIL_Decl's. Currently, only subroutines and
     @\@*END@ are compiled. -}
-instance Compile Pad [PIL Decl] where
+instance Compile Pad [PIL_Decl] where
     compile pad = do
         entries' <- mapM canCompile entries
         return $ concat entries'
@@ -163,7 +167,7 @@ instance Compile Pad [PIL Decl] where
             ref     <- liftSTM $ readTVar sym
             cvList  <- fromVals =<< readRef ref :: Comp [VCode]
             decls   <- eachM cvList $ \(i, cv) -> do
-                compile (("&*END_" ++ show i), cv) :: Comp [PIL Decl]
+                compile (("&*END_" ++ show i), cv) :: Comp [PIL_Decl]
             compile ("&*END", concat decls)
         canCompile ((_:twigil:_), _) | not (isAlphaNum twigil) = return []
         canCompile (name, [(_, sym)]) = do
@@ -185,14 +189,14 @@ instance Compile Pad [PIL Decl] where
 eachM :: (Monad m) => [a] -> ((Int, a) -> m b) -> m [b]
 eachM = forM . ([0..] `zip`)
 
-instance Compile (SubName, [PIL Decl]) [PIL Decl] where
+instance Compile (SubName, [PIL_Decl]) [PIL_Decl] where
     compile (name, decls) = do
         let bodyC = [ PStmts . PStmt . PExp $ PApp tcVoid (PExp (PVar sub)) Nothing []
                     | PSub sub _ _ _ <- decls
                     ]
         return (PSub name SubPrim [] (combine bodyC PNil):decls)
 
-instance Compile (SubName, VCode) [PIL Decl] where
+instance Compile (SubName, VCode) [PIL_Decl] where
     compile (name, vsub) | packageOf name /= packageOf (subName vsub) = do
         let storeC  = PBind [PVar $ qualify name] (PExp . PVar . qualify $ subName vsub)
             bodyC   = PStmts (PStmt . PExp $ storeC) PNil
@@ -205,11 +209,11 @@ instance Compile (SubName, VCode) [PIL Decl] where
         paramsC <- compile $ subParams vsub
         return [PSub name (subType vsub) paramsC bodyC]
 
-instance Compile (String, [(TVar Bool, TVar VRef)]) (PIL Expression) where
+instance Compile (String, [(TVar Bool, TVar VRef)]) (PIL_Expr) where
     compile (name, _) = return $ PRawName name
 
-instance Compile Exp (PIL [Stmt]) where
-    compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
+instance Compile Exp (PIL_Stmts) where
+    compile (Pos _ rest) = compile rest -- fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Stmts (Pad SOur _ exp) rest) = do
         compile $ mergeStmts exp rest
@@ -228,7 +232,7 @@ instance EnterClass CompMonad VCode where
 instance EnterClass CompMonad Cxt where
     enter cxt = local (\e -> e{ envContext = cxt })
 
-compileStmts :: Exp -> Comp (PIL [Stmt])
+compileStmts :: Exp -> Comp (PIL_Stmts)
 compileStmts exp = case exp of
     Stmts this Noop -> do
         thisC   <- compile this
@@ -249,13 +253,13 @@ compileStmts exp = case exp of
     Noop        -> return PNil
     _           -> compile (Stmts exp Noop)
 
-instance Compile Val (PIL Stmt) where
+instance Compile Val (PIL_Stmt) where
     compile = fmap PStmt . compile . Val
 
-instance Compile Val (PIL Expression) where
+instance Compile Val (PIL_Expr) where
     compile = compile . Val
 
-instance Compile Exp (PIL Stmt) where
+instance Compile Exp (PIL_Stmt) where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile Noop = return PNoop
@@ -298,7 +302,7 @@ instance Compile Exp (PIL Stmt) where
     compile (Syn "when" _) = compile (Var "$_") -- XXX
     compile exp = fmap PStmt $ compile exp
 
-pBlock :: PIL [Stmt] -> PIL Expression
+pBlock :: PIL_Stmts -> PIL_Expr
 pBlock = PCode SubBlock []
 
 {-
@@ -329,8 +333,8 @@ instance (Compile a b, Compile a c, Compile a d) => Compile [a] (b, c, d) where
     compile [x, y, z] = do { x' <- compile x ; y' <- compile y; z' <- compile z; return (x', y', z') }
     compile x = compError x
 
-instance Compile Exp (PIL LValue) where
-    compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
+instance Compile Exp (PIL_LValue) where
+    compile (Pos _ rest) = compile rest -- fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Var name) = return $ PVar name
     compile (Syn (sigil:"::()") exps) = do
@@ -390,7 +394,7 @@ instance Compile Exp (PIL LValue) where
         compile $ App (Var "&Pugs::Internals::but_block") Nothing [obj, block]
     compile exp = compError exp
 
-compLoop :: Exp -> Comp (PIL Stmt)
+compLoop :: Exp -> Comp (PIL_Stmt)
 compLoop (Syn name [cond, body]) = do
     cxt     <- askTCxt
     condC   <- enter (CxtItem $ mkType "Bool") $ compile cond
@@ -402,7 +406,7 @@ compLoop exp = compError exp
 {-| Compiles a conditional 'Syn' (@if@ and @unless@) to a call to an
     appropriate function call (@&statement_control:if@ or
     @&statement_control:unless@). -}
-compConditional :: Exp -> Comp (PIL LValue)
+compConditional :: Exp -> Comp (PIL_LValue)
 compConditional (Syn name exps) = do
     [condC, trueC, falseC] <- compile exps
     funC    <- compile $ Var ("&statement_control:" ++ name)
@@ -410,9 +414,9 @@ compConditional (Syn name exps) = do
     return $ PApp cxt funC Nothing [condC, PThunk trueC, PThunk falseC]
 compConditional exp = compError exp
 
-{-| Compiles various 'Exp's to 'PIL Expression's. -}
-instance Compile Exp (PIL Expression) where
-    compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
+{-| Compiles various 'Exp's to 'PIL_Expr's. -}
+instance Compile Exp (PIL_Expr) where
+    compile (Pos _ rest) = compile rest -- fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Var name) = return . PExp $ PVar name
     compile exp@(Val (VCode _)) = compile $ Syn "sub" [exp]
@@ -441,8 +445,8 @@ compError :: forall a b. Compile a b => a -> Comp b
 compError = die $ "Compile error -- invalid "
     ++ (show $ typeOf (undefined :: b))
 
-{-| Compiles a 'Val' to a 'PIL Literal'. -}
-instance Compile Val (PIL Literal) where
+{-| Compiles a 'Val' to a 'PIL_Literal'. -}
+instance Compile Val (PIL_Literal) where
     compile val = return $ PVal val
 
 die :: (MonadIO m, Show a) => String -> a -> m b
