@@ -12,7 +12,7 @@ has HTTP::Headers $:headers handles «
     content_type content_encoding content_length content_language
     title user_agent server from referer
     www_authenticate authorization proxy_authorization authorization_basic proxy_authorization_basic
-» = { HTTP::Headers.new() };
+»;
 
 has $:content;
 has $:content_ref;
