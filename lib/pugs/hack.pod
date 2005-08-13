@@ -285,4 +285,15 @@ L<http://www-users.cs.york.ac.uk/~ndm/hoogle/> A cross index of
 standard Haskell libraries. It is searchable by type signature, name,
 etc.
 
+=item *
+
+L<http://rt.openfoundry.org/Foundry/Project/Source/index.html/pugs/browse/>
+Browsable pugs vcs.  You sometimes get a blank page the first time you
+access a url (a timeout) - just click again.
+
+=item *
+
+L<http://svn.perl.org/perl6/pugs/trunk/> Mirror of pugs vcs head.
+Usually faster and more reliable than the openfoundry browser.
+
 =back
