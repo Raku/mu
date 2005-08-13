@@ -48,6 +48,19 @@ would like current details, please ask on irc.freenode.net #perl6.
 * Some lazy functions do exist (e.g. gather/take), but are actually non-lazy
 
 
+= Rules
+
++ Perl5 rules, handled by PCRE, work well.  Eg, rx:perl5/\Afoo/;
++ Perl6 rules, handled by parrot's PGE, are under development.
+
+- Modifiers: Most modifiers are unimplemented.  The working ones are
+:g (mostly), :i :m :s :x (yes? p5-only), :w (p6-only).
+
+- Perl6 rules: Rule names are currently globals - grammars and naming
+do not yet work.  Things which require close coordination with p6 code
+don't work, so no aliases or embedded code.  Other than that, it may
+work.  Please report problems and update this file.
+
 = Test Suite
 
 * Currently over 8100 tests, including module tests
