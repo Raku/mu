@@ -20,7 +20,10 @@ sub fails_ok (&$) {
 is($::Class->id, 1, '... $::Class is the first id');
 is($::Class->class, $::Class, '... $::Class refs to itself');
 is($::Class->name, 'Class', '... $::Class got the right method return value');
-is($::Class->superclass, $::Object, '... $::Class is now a subclass of $::Object');
+is_deeply(
+    $::Class->superclass, 
+    [ $::Object ], 
+    '... $::Class is now a subclass of $::Object');
 is_deeply(
     [ $::Class->class_precendence_list ], 
     [ $::Class, $::Object ], 
@@ -29,7 +32,10 @@ is_deeply(
 is($::Object->id, 2, '... $::Object is the second id');
 is($::Object->class, $::Class, '... $::Object class slot is $::Class');
 is($::Object->name, 'Object', '... $::Object got the right method return value');
-is($::Object->superclass, undef, '... $::Object got the right method return value');
+is_deeply(
+    $::Object->superclass, 
+    [], 
+    '... $::Object got the right method return value');
 is_deeply(
     [ $::Object->class_precendence_list ], 
     [ $::Object ], 
@@ -39,7 +45,7 @@ is_deeply(
 
 my $Foo = $::Class->new(
     '$:name'         => 'Foo',
-    '@:superclasses' => $::Object,
+    '@:superclasses' => [ $::Object ],
     '%:methods'      => {
         'foo' => sub ($) { 'Foo->foo' },
         'bar' => sub ($) { 'Foo->bar' },
@@ -49,7 +55,10 @@ my $Foo = $::Class->new(
 is($Foo->id, 3, '... $Foo is the fourth id');
 is($Foo->class, $::Class, '... $Foo refs to metaclass');
 is($Foo->name, 'Foo', '... $Foo got the right method return value');
-is($Foo->superclass, $::Object, '... $Foo got the right method return value');
+is_deeply(
+    $Foo->superclass, 
+    [ $::Object ], 
+    '... $Foo got the right method return value');
 is_deeply(
     [ $Foo->class_precendence_list ], 
     [ $Foo, $::Object ], 
@@ -73,7 +82,7 @@ is($iFoo->bar, 'Foo->bar', '... $iFoo got the right method return value');
 
 my $Bar = $::Class->new(
     '$:name'         => 'Bar',
-    '@:superclasses' => $Foo,
+    '@:superclasses' => [ $Foo ],
     '%:methods'      => {
         'bar' => sub ($) { 'Bar->bar' },
         'baz' => sub ($) { 'Bar->baz' },
@@ -83,7 +92,10 @@ my $Bar = $::Class->new(
 is($Bar->id, 5, '... $Bar is the fifth id');
 is($Bar->class, $::Class, '... $Bar refs to metaclass');
 is($Bar->name, 'Bar', '... $Bar got the right method return value');
-is($Bar->superclass, $Foo, '... $Bar got the right method return value');
+is_deeply(
+    $Bar->superclass, 
+    [ $Foo ], 
+    '... $Bar got the right method return value');
 is_deeply(
     [ $Bar->class_precendence_list ], 
     [ $Bar, $Foo, $::Object ], 

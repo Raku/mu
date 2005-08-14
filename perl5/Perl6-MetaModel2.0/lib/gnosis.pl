@@ -20,7 +20,7 @@ sub ::create_class (%) {
             '$:authority'        => undef,
             # the guts
             '@:MRO'              => [],
-            '@:superclasses'     => undef, #[], << temporary
+            '@:superclasses'     => [],
             '%:private_methods'  => {},
             '%:attributes'       => {},
             '%:methods'          => $attrs{'%:methods'} || {},
@@ -41,7 +41,7 @@ $::Class = ::create_class(
             my ($self) = @_;
             my @cpl = ($self);
             my $current = $self;
-            while (my $super = $current->superclass) {
+            while (my $super = $current->superclass->[0]) {
                 push @cpl => $super;
                 $current = $super;
             }

@@ -9,4 +9,4 @@ BEGIN { do "lib/pneuma.pl" };
 # the result of this is (Theos)
 
 # < Class is a subclass of Object >
-::opaque_instance_attrs($::Class)->{'@:superclasses'} = $::Object;
+::opaque_instance_attrs($::Class)->{'@:superclasses'} = [ $::Object ];
