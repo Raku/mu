@@ -3,10 +3,11 @@
 use strict;
 use warnings;
 
-use Test::More tests => 32;
+use Test::More tests => 34;
 
 {
     use Hash::Util 'lock_keys';
+	use Carp 'confess';
 
     # Every instance should have a unique ID
     my $instance_counter = 0;
@@ -27,31 +28,60 @@ use Test::More tests => 32;
     sub ::opaque_instance_id    ($) : lvalue { shift->{id}       }
     sub ::opaque_instance_class ($) : lvalue { ${shift->{class}} }
     sub ::opaque_instance_attrs ($) : lvalue { shift->{attrs}    }
+
+	sub ::mk_dispatcher {
+		my $superclass_finder = shift;
+
+	   	sub {
+			my $class = shift;
+			my $label = shift;
+			# @_ = ($instance, @args)
+
+			while (defined $class){
+				my $method = ::opaque_instance_attrs($class)->{'%:methods'}{$label};
+				goto &$method if $method;
+			} continue {
+				$class = $superclass_finder->($class);
+			}
+
+			confess "No method found for $label";
+		}
+	}
 }
 
+my $root_dispatcher = mk_dispatcher(sub { ::opaque_instance_attrs($_[0])->{'$:superclass'} });
+
 {
+	# perl 5 call notation compatibility
     package Dispatchable;
-    use Carp 'confess';
 
     sub isa { our $AUTOLOAD = 'isa'; goto &AUTOLOAD; }
     sub can { our $AUTOLOAD = 'can'; goto &AUTOLOAD; }
 
     sub AUTOLOAD {
         my $label = (split '::', our $AUTOLOAD)[-1];
-        return if $label eq 'DESTROY';
+		my $instance = shift;
 
-        my $class = ::opaque_instance_class($_[0]);
+		return if $label eq 'DESTROY';
+		
+		my $class = ::opaque_instance_class($instance);
 
-        while (defined $class) {
-            my $method = ::opaque_instance_attrs($class)->{'%:methods'}{$label};
-            goto &$method if $method;
+		@_ = (
+			::opaque_instance_class($class), # the class in which to find the method
+			'dispatch_method', # the method to find
+			$class, # the object to apply the found method to
 
-            # try again in the superclass
-            $class = $class->superclass;
-        }
+			# the arguments
+			$label, $instance, @_,
+		);
 
-        confess "No method found for $label";
-    }
+		goto &$root_dispatcher;
+
+		# the above boils down to:
+		# $class->root_dispatch_method('dispatch_method', $class,    $label, $instance, @_);
+		# $class->dispatch_method($label, $instance, @_);
+		# $instance->$label(@_);
+	}
 }
 
 # The 'Class' class -- placed here so ::create_class can refer to it
@@ -96,7 +126,7 @@ $Class = ::create_class(
         'get_method' => sub ($$) {
             my ($self, $label) = @_;
             ::opaque_instance_attrs($self)->{'%:methods'}->{$label};
-        }
+        },
     },
 );
 # The 'Object' class
@@ -112,7 +142,12 @@ my $Object = ::create_class(
         },
         'class' => sub ($) {
             ::opaque_instance_class(shift)
-        }
+        },
+		'dispatch_method' => mk_dispatcher(sub {
+			my $class = shift;
+			my $class_of_class = ::opaque_instance_class($class);
+			$root_dispatcher->($class_of_class, 'superclass', $class);
+		}),
     },
 );
 
@@ -217,3 +252,53 @@ fails_ok { $iBar->name } '... instance calling metaclass method fails';
 is($iBar->foo, 'Foo->foo', '... $iBar calls superclass foo');
 is($iBar->bar, 'Bar->bar', '... $iBar calls overridden bar');
 is($iBar->baz, 'Bar->baz', '... $iBar calls new method baz');
+
+my $Autoloading = $Class->new(
+	'$:name'		=> 'Class::Autoloading',
+	'$:superclass'	=> $Class,
+	'%:methods'		=> {
+		'dispatch_method' => sub {
+			my $class = shift;
+			my $label = shift;
+
+			if (my $method = $class->find_method($label)){
+				goto &$method;
+			}
+
+			if (my $autoloader = $class->find_method("AUTOLOADER")){
+				unshift @_, $label;
+				goto &$autoloader;
+			}
+
+			Carp::confess "Neither $label nor AUTOLOADER were found";
+		},
+		'find_method'	=> sub {
+			my $class = shift;
+			my $label = shift;
+
+			while (defined $class){
+				if (my $method = $class->get_method($label)
+				) {
+					return $method;
+				}
+			} continue {
+				$class = $class->superclass;
+			}
+
+			return undef;
+		},
+	},
+);
+
+my $MyAuto = $Autoloading->new(
+	'$:name'		=> 'My::Autoloading::Class',
+	'$:superclass'	=> $Object,
+	'%:methods'		=> {
+		some_method => sub { "some_method" },
+		AUTOLOADER  => sub { "autoload_$_[0]" }
+	},
+);
+
+my $iAuto = $MyAuto->new;
+is($iAuto->some_method, "some_method", "successsful dispatch for autoloading class");
+is($iAuto->other, "autoload_other", "autoloader kicked in for missing method in autoloading class");
