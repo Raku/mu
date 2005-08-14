@@ -289,7 +289,11 @@ ruleRuleDeclaration = rule "rule declaration" $ try $ do
     adverbs <- ruleAdverbHash
     ch      <- char '{'
     expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
-    let exp = Syn ":=" [Var ('<':'*':name), Syn "rx" [expr, adverbs]]
+    actual  <- possiblyApplyMacro $
+                   App (Var ("&rx_")) Nothing
+                       [adverbs, expr,
+                        (Val $ VStr [ch]), (Val $ VStr [(balancedDelim ch)])]
+    let exp = Syn ":=" [Var ('<':'*':name), actual]
     unsafeEvalExp (Sym SGlobal ('<':'*':name) exp)
     return emptyExp
 
@@ -1708,10 +1712,10 @@ qInterpolateDelimiter protectedChar = do
     c <- oneOf (protectedChar:"\\")
     return (Val $ VStr [c])
 
-qInterpolateDelimiterMinimal :: Char -> RuleParser Exp
-qInterpolateDelimiterMinimal protectedChar = do
+qInterpolateMinimal :: Char -> RuleParser Exp
+qInterpolateMinimal _protectedChar = do
     char '\\'
-    c <- oneOf (protectedChar:"\\")
+    c <- anyChar
     return (Val $ VStr ['\\',c])
 
 qInterpolateQuoteConstruct :: RuleParser Exp
@@ -1747,7 +1751,7 @@ qInterpolator flags = choice [
                <|> (try $ qInterpolateDelimiter $ qfProtectedChar flags)
             QB_Single -> try qInterpolateQuoteConstruct
                <|> (try $ qInterpolateDelimiter $ qfProtectedChar flags)
-            QB_Minimal -> try $ qInterpolateDelimiterMinimal $ qfProtectedChar flags
+            QB_Minimal -> try $ qInterpolateMinimal $ qfProtectedChar flags
             QB_No -> mzero
         variable = try $ do
             var <- ruleVarNameString
@@ -1798,23 +1802,28 @@ qLiteral1 qStart qEnd flags = do
     -- qEnd
     case qfSplitWords flags of
         -- expr ~~ rx:perl5:g/(\S+)/
-        QS_Yes      -> return $ doSplit expr
-        QS_Protect  -> return $ doSplit expr
+        QS_Yes      -> doSplit expr
+        QS_Protect  -> doSplit expr
         QS_No       -> return expr
     where
     -- words() regards \xa0 as (breaking) whitespace. But \xa0 is
     -- a nonbreaking ws char.
-    doSplit (Cxt (CxtItem _) (Val (VStr str))) = doSplitStr str
-    
-    doSplit expr = App (Var "&infix:~~") Nothing [expr, rxSplit]
-    rxSplit = Syn "rx" $
-        [ Val $ VStr "(\\S+)"
-        , Val $ VList
-            [ castV (VStr "P5", VInt 1)
-            , castV (VStr "g", VInt 1)
-            , castV (VStr "stringify", VInt 1)
+    doSplit (Cxt (CxtItem _) (Val (VStr str))) = return $ doSplitStr str
+    doSplit expr = doSplitRx expr
+
+    doSplitRx expr = do
+      rxSplit <- possiblyApplyMacro $ App (Var ("&rx_")) Nothing
+            [ Val $ VList
+                [ castV (VStr "P5", VInt 1)
+                , castV (VStr "g", VInt 1)
+                , castV (VStr "stringify", VInt 1)
+                ]
+            , Val $ VStr "(\\S+)"
+            , Val $ VStr "/"
+            , Val $ VStr "/"
             ]
-        ]
+      return $ App (Var "&infix:~~") Nothing [expr, rxSplit]
+
 
 -- | splits the string into expressions on whitespace.
 -- Implements the <> operator at parse-time.
@@ -2018,21 +2027,40 @@ substLiteral = try $ do
     return $ Syn "subst" [expr, subst, adverbs]
 
 rxLiteral :: RuleParser Exp
-rxLiteral = try $ do
-    sym     <- symbol "rx" <|> do { symbol "m"; return "match" } <|> do
-        symbol "rule"
-        lookAhead $ do { ruleAdverbHash; char '{' }
-        return "rx"
-    adverbs <- ruleAdverbHash
-    ch      <- anyChar
-    expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
-    return $ Syn sym [expr, adverbs]
+rxLiteral = try $ tryChoice 
+    [ do sym     <- symbol "rx" <|> symbol "m" <|> do
+             symbol "rule"
+             lookAhead $ do { ruleAdverbHash; char '{' }
+             return "rx"
+         adverbs <- ruleAdverbHash
+         ch      <- anyChar
+         expr    <- rxLiteral6 ch (balancedDelim ch)
+         possiblyApplyMacro $
+             App (Var ("&" ++ sym ++ "_")) Nothing  -- "&rx_" or "&m_"
+             [adverbs, expr,
+              (Val $ VStr [ch]), (Val $ VStr [(balancedDelim ch)])]
+    , do symbol "pugs_internals_rx"
+         adverbs <- ruleAdverbHash
+         ch      <- anyChar
+         expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
+         return $ Syn "rx" [expr, adverbs]
+    , do symbol "pugs_internals_m"
+         adverbs <- ruleAdverbHash
+         ch      <- anyChar
+         expr    <- rxLiteralAny adverbs ch (balancedDelim ch)
+         return $ Syn "match" [expr, adverbs]
+    ]
 
 rxLiteralBare :: RuleParser Exp
-rxLiteralBare = try $ do
-    ch      <- char '/'
-    expr    <- rxLiteral6 ch (balancedDelim ch)
-    return $ Syn "//" [expr, Val undef]
+rxLiteralBare = try $ tryChoice 
+    [ do ch      <- char '/'
+         expr    <- rxLiteral6 ch (balancedDelim ch)
+         possiblyApplyMacro $ App (Var "&rxbare_") Nothing [expr]
+    , do symbol "pugs_internals_rxbare"
+         ch      <- char '/'
+         expr    <- rxLiteral6 ch (balancedDelim ch)
+         return $ Syn "//" [expr, Val undef]
+    ]
 
 namedLiteral :: String -> Val -> RuleParser Exp
 namedLiteral n v = do { symbol n; return $ Val v }
