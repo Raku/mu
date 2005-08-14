@@ -95,7 +95,7 @@ is(eval('$/<def><eh>'), "e", '?def $/<def><eh>', :todo<feature>);
 
 fail("FIXME parsefail", :todo);
 #ok(!eval(q{ 'abc' ~~ m/ (<Another.sea>) /  }), '<Another.sea>');
-ok($!, 'Error', :todo<feature>);
+is($!, 'Error', :todo<feature>);
 
 }
 
