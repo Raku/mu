@@ -54,7 +54,7 @@ sub _make_preorder_dispatcher {
     my ($metaclass) = @_;
     my @stack = _make_iterator($metaclass);
     return sub {
-        TOP:
+        TOP: {
             if (defined $stack[-1]) {
                 # get the iterator on the top of the stack
                 # get the current value out of the iterator
@@ -65,7 +65,7 @@ sub _make_preorder_dispatcher {
                     # need to pop it off the stack ...
                     pop @stack;
                     # now go back to the top and start over
-                    goto TOP;
+                    redo TOP;
                 }
                 else {
                     push @stack => _make_iterator(@{::dispatch($current_metaclass, 'superclasses')})
@@ -74,6 +74,7 @@ sub _make_preorder_dispatcher {
                 return $current_metaclass;
             }
             return undef;
+		}
     };
 }
 
