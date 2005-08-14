@@ -128,7 +128,7 @@ sub _retr {
 		);
 
 		my $idA = $dA->new;
-		is($idA->hello, 'A::hello', "hello for instance of A is 'A::hello");
+		is($idA->hello, 'A::hello', "hello for instance of A is 'A::hello'");
 
 		my $dB = $C3->new(
 			'$:name'		=> 'c3 diamond b',
@@ -150,6 +150,6 @@ sub _retr {
 
 		my $idD = $dD->new();
 
-		is($idD->hello, "C::hello", "correct ->hello");
+		is($idD->hello, "C::hello", "hello for instance of D is 'C::hello'");
 	},
 }
