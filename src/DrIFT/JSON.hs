@@ -1,9 +1,8 @@
-{-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fallow-overlapping-instances -fallow-undecidable-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fallow-overlapping-instances #-}
 
 module DrIFT.JSON where
 import Data.Ratio
 import Data.List (intersperse)
-import Control.Concurrent.STM
 
 type JSONClass = String
 type JSONKey = String
@@ -70,5 +69,3 @@ instance (JSON a, JSON b) => JSON (a, b) where
 instance (JSON a, JSON b, JSON c) => JSON (a, b, c) where
     showJSON (x, y, z) = showJSArray [showJSON x, showJSON y, showJSON z]
 
-instance (Show (TVar a)) => JSON (TVar a) where
-    showJSON _ = "null"

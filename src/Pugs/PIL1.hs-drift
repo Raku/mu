@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fallow-overlapping-instances -fno-warn-orphans -fno-warn-incomplete-patterns #-}
+{-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fallow-overlapping-instances -fno-warn-orphans -fno-warn-incomplete-patterns -fallow-undecidable-instances #-}
 
 module Pugs.PIL1 (
     PIL_Environment(..),
@@ -118,6 +118,12 @@ instance Binary Exp where
 instance Perl5 Exp where
     showPerl5 _ = "(undef)"
 instance JSON Exp where
+    showJSON _ = "null"
+
+-- Non-canonical serialization... needs work
+instance (Show (TVar a)) => Perl5 (TVar a) where
+    showPerl5 _ = "(warn '<ref>')"
+instance (Show (TVar a)) => JSON (TVar a) where
     showJSON _ = "null"
 
 =begin DRIFT
