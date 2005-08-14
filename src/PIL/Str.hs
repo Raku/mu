@@ -2,8 +2,7 @@
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 module PIL.Str where
-import qualified UTF8
-import qualified Data.PackedString as PS
+import qualified UTF8.PackedString as PS
 import Foreign.C.String
 import PIL.Internals
 import System.IO
