@@ -50,14 +50,14 @@ would like current details, please ask on irc.freenode.net #perl6.
 
 = Rules
 
-+ Perl5 rules, handled by PCRE, work well.  Eg, rx:perl5/\Afoo/;
-+ Perl6 rules, handled by parrot's PGE, are under development.
++ Perl 5 rules, handled by PCRE, work well.  Eg, rx:perl5/\Afoo/;
++ Perl 6 rules, handled by parrot's PGE, are under development.
 
 - Modifiers: Most modifiers are unimplemented.  The working ones are
-:g (mostly), :i :m :s :x (yes? p5-only), :w (p6-only).
+  :g (mostly), :i :m :s :x (yes? p5-only), :w (p6-only).
 
-- Perl6 rules are still being implemented.  Much works, but rule names
-are currently globals, and there are no aliases or embedded code.
+- Perl 6 rules are still being implemented.  Much works, but rule names
+  are currently globals, and there are no aliases or embedded code.
 
 = Test Suite
 
