@@ -35,6 +35,16 @@ sub build {
     
     print "Build configuration:\n" . PugsBuild::Config->pretty_print;
 
+    # if Prelude.pm wasn't changed, don't bother to recompile Run.hs.
+    if (PugsBuild::Config->lookup('precompile_prelude')) {
+        my $pm = "src/perl6/Prelude.pm";
+        my $ppc_hs = "src/Pugs/PreludePC.hs";
+        my $ppc_null = "src/Pugs/PreludePC.hs-null";
+        if (-e $ppc_hs and -s $ppc_hs > -s $ppc_null and -M $ppc_hs < -M $pm) {
+            return run(@{ $opts->{GHC} });
+        }
+    }
+
     run($^X, qw<util/gen_prelude.pl -v --touch --null --output src/Pugs/PreludePC.hs>);
     run(@{ $opts->{GHC} });
 
