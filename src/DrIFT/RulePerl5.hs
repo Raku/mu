@@ -13,32 +13,28 @@ userRulePerl5 = instanceSkeleton "Perl5" [(makePerl5, empty)]
 makePerl5 :: IFunction
 makePerl5 (Body{constructor=constructor,labels=labels,types=types})
     | null types = fnName <+> fsep [headfn, clsName constructor]
-    | null labels && (length types == 1) = fnName <+> fsep
-        [headfn, bodyStartScalar, bodyArray, bodyEndArray]
+--  | null labels && (length types == 1) = fnName <+> sep
+--      [headfn, bodyStartScalar, bodyArray, bodyEndScalar]
     | null labels = fnName <+> fsep
-        [headfn, bodyStartArray, bodyArray, bodyEndArray]
+        [headfn, bodyStartArray, bodyArray]
     | otherwise = fnName <+> fsep
-        [headfn, bodyStartHash, bodyHash, bodyEndHash]
+        [headfn, bodyStartHash, bodyHash]
     where
     fnName = text "showPerl5"
     headfn = fsep [(pattern constructor types), equals]
-    bodyStartScalar = dq (text "bless(\\\\(") <+> text "++"
-    bodyEndScalar = text "++" <+> dq (text ") =>" <+> c)
-    bodyStartArray = dq (text "bless([") <+> text "++"
-    bodyEndArray = text "++" <+> dq (text "] =>" <+> c)
-    bodyStartHash = dq (text "bless({") <+> text "++"
-    bodyEndHash = text "++" <+> dq (text "} =>" <+> c)
-    bodyScalar = fsep b
-    bodyArray = fsep [fsep (sepWith s' b)]
-    bodyHash = fsep [fsep (sepWith s' b')]
-    c = text "'" <> text (clsPkg constructor) <> text "')"
-    b = map (\x -> fsep[text "showPerl5", x]) (varNames types)
-    b' = zipWith (\x l -> fsep [dq (text (l ++ " => ")), comp,x])
+--  bodyStartScalar = dq (text "bless(\\\\(") <+> text "++"
+--  bodyEndScalar = text "++" <+> dq (text ") =>" <+> c)
+--  bodyScalar = sep b
+    bodyStartArray = text "showP5ArrayObj" <+> c
+    bodyArray = brackets $ fsep (sepWith comma b)
+    bodyStartHash = text "showP5HashObj" <+> c
+    bodyHash = brackets $ fsep (sepWith comma b')
+    c = clsPkg constructor
+    b = map (\x -> sep [text "showPerl5", x]) (varNames types)
+    b' = zipWith (\x l -> parens (dq (text l) <> comma <+> x))
                                 b labels
-    s' = fsep [comp,dq (char ','),comp]
-    comp = text "++"
-    clsName s = text "\"'" <> text (clsPkg s) <> text "'\""
-    clsPkg = concat . intersperse "::" . splitBy (== '_')
+    clsName s = text "showP5Class" <+> clsPkg s
+    clsPkg = dq . text . concat . intersperse "::" . splitBy (== '_')
     dq = doubleQuotes
 
 splitBy :: (a -> Bool) -> [a] -> [[a]]
