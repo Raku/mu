@@ -12,11 +12,12 @@ import Pugs.Types
 import Emit.PIR
 import DrIFT.Perl5
 import DrIFT.Binary
+import DrIFT.JSON
 
 -- import DrIFT.XML
 -- {-! global : Haskell2Xml !-}
 
-{-! global : GhcBinary, Perl5 !-}
+{-! global : GhcBinary, Perl5, JSON !-}
 
 {-|
     The plan here is to first compile the environment (subroutines,
@@ -116,6 +117,8 @@ instance Binary Exp where
     get  _   = return Noop
 instance Perl5 Exp where
     showPerl5 _ = "(undef)"
+instance JSON Exp where
+    showJSON _ = "null"
 
 =begin DRIFT
 

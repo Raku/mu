@@ -34,6 +34,8 @@ showP5Obj :: (a -> String) -> Perl5Class -> a -> String
 showP5Obj f cls dat = "bless(" ++ f dat ++ " => " ++ showP5Class cls ++ ")"
 
 -- XXX - overlapping instances?
+instance Perl5 () where
+    showPerl5 _ = "undef"
 
 instance Perl5 Int where
     showPerl5 = show
