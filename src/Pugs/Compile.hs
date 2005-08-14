@@ -48,7 +48,15 @@ class (Show a, Typeable b) => Compile a b where
     compile x = fail ("Unrecognized construct: " ++ show x)
 
 -- Compile instances
-instance Compile (Var, [(TVar Bool, TVar VRef)]) (PIL_Decl) where
+instance Compile () PIL_Environment where
+    compile _ = do
+        glob    <- askGlobal
+        main    <- asks envBody
+        globPIL <- compile glob
+        mainPIL <- compile main
+        return $ PIL_Environment globPIL mainPIL
+
+instance Compile (Var, [(TVar Bool, TVar VRef)]) PIL_Decl where
     compile = compError
 
 instance Compile Param TParam where
@@ -125,10 +133,10 @@ instance Compile (SubName, VCode) [PIL_Decl] where
         paramsC <- compile $ subParams vsub
         return [PSub name (subType vsub) paramsC bodyC]
 
-instance Compile (String, [(TVar Bool, TVar VRef)]) (PIL_Expr) where
+instance Compile (String, [(TVar Bool, TVar VRef)]) PIL_Expr where
     compile (name, _) = return $ PRawName name
 
-instance Compile Exp (PIL_Stmts) where
+instance Compile Exp PIL_Stmts where
     compile (Pos _ rest) = compile rest -- fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Stmts (Pad SOur _ exp) rest) = do
@@ -148,7 +156,7 @@ instance EnterClass CompMonad VCode where
 instance EnterClass CompMonad Cxt where
     enter cxt = local (\e -> e{ envContext = cxt })
 
-compileStmts :: Exp -> Comp (PIL_Stmts)
+compileStmts :: Exp -> Comp PIL_Stmts
 compileStmts exp = case exp of
     Stmts this Noop -> do
         thisC   <- compile this
@@ -169,13 +177,13 @@ compileStmts exp = case exp of
     Noop        -> return PNil
     _           -> compile (Stmts exp Noop)
 
-instance Compile Val (PIL_Stmt) where
+instance Compile Val PIL_Stmt where
     compile = fmap PStmt . compile . Val
 
-instance Compile Val (PIL_Expr) where
+instance Compile Val PIL_Expr where
     compile = compile . Val
 
-instance Compile Exp (PIL_Stmt) where
+instance Compile Exp PIL_Stmt where
     compile (Pos pos rest) = fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile Noop = return PNoop
@@ -249,7 +257,7 @@ instance (Compile a b, Compile a c, Compile a d) => Compile [a] (b, c, d) where
     compile [x, y, z] = do { x' <- compile x ; y' <- compile y; z' <- compile z; return (x', y', z') }
     compile x = compError x
 
-instance Compile Exp (PIL_LValue) where
+instance Compile Exp PIL_LValue where
     compile (Pos _ rest) = compile rest -- fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Var name) = return $ PVar name
@@ -310,7 +318,7 @@ instance Compile Exp (PIL_LValue) where
         compile $ App (Var "&Pugs::Internals::but_block") Nothing [obj, block]
     compile exp = compError exp
 
-compLoop :: Exp -> Comp (PIL_Stmt)
+compLoop :: Exp -> Comp PIL_Stmt
 compLoop (Syn name [cond, body]) = do
     cxt     <- askTCxt
     condC   <- enter (CxtItem $ mkType "Bool") $ compile cond
@@ -322,7 +330,7 @@ compLoop exp = compError exp
 {-| Compiles a conditional 'Syn' (@if@ and @unless@) to a call to an
     appropriate function call (@&statement_control:if@ or
     @&statement_control:unless@). -}
-compConditional :: Exp -> Comp (PIL_LValue)
+compConditional :: Exp -> Comp PIL_LValue
 compConditional (Syn name exps) = do
     [condC, trueC, falseC] <- compile exps
     funC    <- compile $ Var ("&statement_control:" ++ name)
@@ -331,7 +339,7 @@ compConditional (Syn name exps) = do
 compConditional exp = compError exp
 
 {-| Compiles various 'Exp's to 'PIL_Expr's. -}
-instance Compile Exp (PIL_Expr) where
+instance Compile Exp PIL_Expr where
     compile (Pos _ rest) = compile rest -- fmap (PPos pos rest) $ compile rest
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Var name) = return . PExp $ PVar name
@@ -362,7 +370,7 @@ compError = die $ "Compile error -- invalid "
     ++ (show $ typeOf (undefined :: b))
 
 {-| Compiles a 'Val' to a 'PIL_Literal'. -}
-instance Compile Val (PIL_Literal) where
+instance Compile Val PIL_Literal where
     compile val = return $ PVal val
 
 die :: (MonadIO m, Show a) => String -> a -> m b

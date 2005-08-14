@@ -1,4 +1,4 @@
-{-# OPTIONS -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -w #-}
 --
 -- (c) The University of Glasgow 2002
 --
@@ -41,16 +41,13 @@ module DrIFT.Binary
    -- GHC only:
    ByteArray(..),
    getByteArray,
-   putByteArray
+   putByteArray,
 
    --getBinFileWithDict,	-- :: Binary a => FilePath -> IO a
    --putBinFileWithDict,	-- :: Binary a => FilePath -> ModuleName -> a -> IO ()
 
   ) where
 
-
---import FastString
-import FastMutInt
 
 import Data.Array.IO
 import Data.Array
@@ -59,7 +56,6 @@ import Data.Int
 import Data.Word
 import Data.IORef
 import Data.Char		( ord, chr )
-import Data.Array.Base  	( unsafeRead, unsafeWrite )
 import Control.Monad		( when )
 import Control.Exception	( throwDyn )
 import System.IO as IO
@@ -70,12 +66,14 @@ import GHC.Exts
 import GHC.IOBase	 	( IO(..) )
 import GHC.Word			( Word8(..) )
 import System.IO		( openBinaryFile )
-import PackedString
+import UTF8.PackedString
 --import Atom
 import Time
 import Monad
 import Data.Array.IArray
 import Data.Array.Base
+import Foreign.Storable
+import Control.Concurrent.STM
 
 
 {-
@@ -710,3 +708,41 @@ instance Binary Atom where
         return a
     put_ bh a = put_ bh (toPackedString a)
 -}        
+
+sSIZEOF_HSINT = sizeOf (undefined :: Int)
+
+data FastMutInt = FastMutInt (MutableByteArray# RealWorld)
+
+newFastMutInt :: IO FastMutInt
+newFastMutInt = IO $ \s ->
+  case newByteArray# size s of { (# s, arr #) ->
+  (# s, FastMutInt arr #) }
+  where I# size = sSIZEOF_HSINT
+
+{-# INLINE readFastMutInt  #-}
+readFastMutInt :: FastMutInt -> IO Int
+readFastMutInt (FastMutInt arr) = IO $ \s ->
+  case readIntArray# arr 0# s of { (# s, i #) ->
+  (# s, I# i #) }
+
+{-# INLINE writeFastMutInt  #-}
+writeFastMutInt :: FastMutInt -> Int -> IO ()
+writeFastMutInt (FastMutInt arr) (I# i) = IO $ \s ->
+  case writeIntArray# arr 0# i s of { s ->
+  (# s, () #) }
+
+----------------------------------------------------------------------------
+-- Pugs Additions
+
+instance Binary Double where
+    put_ bh n = put_ bh (decodeFloat n)
+    get  bh   = fmap (uncurry encodeFloat) (get bh)
+
+instance Binary a => Binary (TVar a) where
+    put_ bh v = put_ bh =<< (atomically $ readTVar v)
+    get  bh   = atomically . newTVar =<< get bh
+
+instance Binary a => Binary (IORef a) where
+    put_ bh v = put_ bh =<< readIORef v
+    get  bh   = newIORef =<< get bh
+

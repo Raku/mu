@@ -17,8 +17,9 @@ my @program = do { <$rh> };
 waitpid($pid, 0);
 exit 1 unless @program;
 
-# Remove the DrIFT header
-shift(@program); shift(@program);
+# Rearrange the DrIFT header
+@program[0..2] = @program[2,0,1];
+
 for (@program) {
     next if /=begin DRIFT/ .. /=cut/;
     print;

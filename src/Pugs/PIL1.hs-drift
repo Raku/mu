@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fallow-overlapping-instances -fno-warn-orphans #-}
+{-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fallow-overlapping-instances -fno-warn-orphans -fno-warn-incomplete-patterns #-}
 
 module Pugs.PIL1 (
     PIL_Environment(..),
@@ -7,20 +7,16 @@ module Pugs.PIL1 (
     TParam(..), TCxt(..), TEnv(..),
 ) where
 import Pugs.AST hiding (Prim)
-import Pugs.Internals
+import Pugs.Internals hiding (get, put)
 import Pugs.Types
 import Emit.PIR
 import DrIFT.Perl5
+import DrIFT.Binary
 
 -- import DrIFT.XML
 -- {-! global : Haskell2Xml !-}
 
-{-! global : Perl5 !-}
-
-instance (Typeable a) => Perl5 (TVar a) where
-    showPerl5 _ = "(warn '<ref>')"
-instance Perl5 Exp where
-    showPerl5 _ = "(undef)"
+{-! global : GhcBinary, Perl5 !-}
 
 {-|
     The plan here is to first compile the environment (subroutines,
@@ -29,8 +25,8 @@ instance Perl5 Exp where
 -}
 
 data PIL_Environment = PIL_Environment
-    { pilMain :: [PIL_Decl]
-    , pilGlob :: PIL_Stmts
+    { pilGlob :: [PIL_Decl]
+    , pilMain :: PIL_Stmts
     }
     deriving (Show, Eq, Ord, Typeable)
 
@@ -114,6 +110,12 @@ data TEnv = MkTEnv
     deriving (Show, Eq, Ord, Typeable)
 
 ------------------------------------------------------------------------
+
+instance Binary Exp where
+    put_ _ _ = return ()
+    get  _   = return Noop
+instance Perl5 Exp where
+    showPerl5 _ = "(undef)"
 
 =begin DRIFT
 

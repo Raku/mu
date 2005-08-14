@@ -18,6 +18,7 @@ import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
 import Pugs.Eval.Var
+import Pugs.PIL1
 import Emit.PIR
 import Pugs.Pretty
 import Text.PrettyPrint
@@ -337,12 +338,9 @@ genPIR = do
     -- Load the PIR Prelude.
     local (\env -> env{ envDebug = Nothing }) $ do
         opEval style "<prelude-pir>" preludeStr
-    glob        <- askGlobal
-    main        <- asks envBody
-    globPIL     <- compile glob
-    mainPIL     <- compile main
-    globPIR     <- runCodeGenGlob tenv globPIL
-    mainPIR     <- runCodeGenMain tenv mainPIL
+    penv        <- compile ()
+    globPIR     <- runCodeGenGlob tenv (pilGlob penv)
+    mainPIR     <- runCodeGenMain tenv (pilMain penv)
     libs        <- liftIO $ getLibs
     return . VStr . unlines $
         [ "#!/usr/bin/env parrot"
@@ -384,7 +382,7 @@ genPIR = do
             -- XXX wrong, should be lexical
             , InsNew tempPMC PerlScalar
             , "store_global"    .- [lit "$_", tempPMC]
-            ]) ++ [ StmtRaw (text (name ++ "()")) | PSub name@('_':'_':_) _ _ _ <- globPIL] ++
+            ]) ++ [ StmtRaw (text (name ++ "()")) | PSub name@('_':'_':_) _ _ _ <- pilGlob penv ] ++
             [ StmtRaw (text "main()")
             , StmtIns $ tempPMC  <-- "find_global" $ [lit "Perl6::Internals", lit "&exit"]
             , StmtIns $ "set_args" .- sigList [MkSig [] lit0]

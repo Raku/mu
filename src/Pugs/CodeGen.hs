@@ -15,6 +15,7 @@ import Pugs.Internals
 import Pugs.CodeGen.PIL (genPIL)
 import Pugs.CodeGen.PIR (genPIR)
 import Pugs.CodeGen.Perl5 (genPerl5)
+import Pugs.CodeGen.Binary (genBinary)
 import Pugs.Compile.Pugs (genPugs)
 import Pugs.Compile.Haskell (genGHC)
 -- import Pugs.CodeGen.PIL2 (genPIL2)
@@ -32,6 +33,7 @@ generators = Map.fromList $
 --  , ("Pil2",        genPIL2)
     , ("Perl5",       genPerl5)
     , ("Pugs",        genPugs)
+    , ("Binary",      genBinary)
 --  , ("Xml",         genXML)
     ]
 

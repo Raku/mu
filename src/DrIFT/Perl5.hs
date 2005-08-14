@@ -1,8 +1,9 @@
-{-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fallow-overlapping-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fallow-overlapping-instances -fallow-undecidable-instances #-}
 
 module DrIFT.Perl5 where
 import Data.Ratio
 import Data.List (intersperse)
+import Control.Concurrent.STM
 
 type Perl5Class = String
 type Perl5Key = String
@@ -67,3 +68,5 @@ instance (Perl5 a, Perl5 b) => Perl5 (a, b) where
 instance (Perl5 a, Perl5 b, Perl5 c) => Perl5 (a, b, c) where
     showPerl5 (x, y, z) = showP5Array [showPerl5 x, showPerl5 y, showPerl5 z]
 
+instance (Show (TVar a)) => Perl5 (TVar a) where
+    showPerl5 _ = "(warn '<ref>')"
