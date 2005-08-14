@@ -333,6 +333,11 @@ ${() = '%.hpp : %.hs @prereqs $version_h
 .hsc.hs :
 	$hsc2hs $hsc2hs_flags \$<
 
+.SUFFIXES: .hs-drift .hs
+
+.hs-drift.hs :
+	\$(PERL) util/drift.pl \$< > \$@
+
 haddock : $version_h $config_h @hppfiles docs/haddock
 	haddock -t Pugs-$version -h -o docs/haddock/ @hppfiles
 	\@\$(RM_F) @{[map "$_.pre", @hppfiles]} @hppfiles

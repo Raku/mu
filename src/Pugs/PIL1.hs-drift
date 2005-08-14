@@ -1,47 +1,26 @@
 {-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fallow-overlapping-instances -fno-warn-orphans #-}
 
-module Pugs.PIL1 where
+module Pugs.PIL1 (
+    PIL_Environment(..),
+    PIL_Stmts(..), PIL_Stmt(..), PIL_Decl(..),
+    PIL_Expr(..), PIL_Literal(..), PIL_LValue(..),
+    TParam(..), TCxt(..), TEnv(..),
+) where
 import Pugs.AST hiding (Prim)
 import Pugs.Internals
 import Pugs.Types
 import Emit.PIR
 import DrIFT.Perl5
-import Text.XML.HaXml.Haskell2Xml
 
-{-! global : Perl5, Haskell2Xml !-}
+-- import DrIFT.XML
+-- {-! global : Haskell2Xml !-}
 
-instance Perl5 VInt where 
-    showPerl5 = show
-instance Perl5 VRat where 
-    showPerl5 r = "(" ++ show x ++ "/" ++ show y ++ ")"
-        where
-        x = numerator r
-        y = denominator r
-instance Perl5 VNum where 
-    showPerl5 = show
+{-! global : Perl5 !-}
+
 instance (Typeable a) => Perl5 (TVar a) where
     showPerl5 _ = "(warn '<ref>')"
 instance Perl5 Exp where
     showPerl5 _ = "(undef)"
-
-instance (Typeable a) => Haskell2Xml (TVar a) where
-    toHType   _    = Prim "TVar" "tvar"
-    toContents _   = [CElem (Elem "tvar" [] [])]
-
-instance Haskell2Xml Exp where
-    toHType   _    = Prim "Exp" "exp"
-    toContents _   = [CElem (Elem "exp" [] [])]
-    fromContents _ = (Noop, [])
-
-instance Haskell2Xml VRat where
-    toHType   _    = Prim "Rational" "rational"
-    toContents i   = [CElem (Elem "rational" [mkAttr "value" (show i)] [])]
-        where
-        mkAttr :: String -> String -> Attribute
-        mkAttr n v = (n, AttValue [Left v])
-    fromContents (CElem (Elem "rational" [("value",(AttValue [Left s]))] []):cs)
-                   = (read s, cs)
-    fromContents (_:cs) = fromContents cs
 
 {-|
     The plan here is to first compile the environment (subroutines,
@@ -136,6 +115,8 @@ data TEnv = MkTEnv
 
 ------------------------------------------------------------------------
 
+=begin DRIFT
+
 data Scope = SState  -- ^ Persistent across calls
            | SMy     -- ^ Lexical
            | SOur    -- ^ Package
@@ -191,3 +172,5 @@ data Pos = MkPos
     , posEndColumn      :: !Int
     }
 
+
+=cut

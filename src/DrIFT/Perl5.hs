@@ -1,6 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fallow-overlapping-instances #-}
 
 module DrIFT.Perl5 where
+import Data.Ratio
 import Data.List (intersperse)
 
 type Perl5Class = String
@@ -42,6 +43,16 @@ instance Perl5 String where
 instance Perl5 Bool where
     showPerl5 True = "1"
     showPerl5 False = "0"
+
+instance Perl5 Integer where 
+    showPerl5 = show
+instance Perl5 Rational where 
+    showPerl5 r = "(" ++ show x ++ "/" ++ show y ++ ")"
+        where
+        x = numerator r
+        y = denominator r
+instance Perl5 Double where 
+    showPerl5 = show
 
 instance (Perl5 a) => Perl5 (Maybe a) where
     showPerl5 (Just x) = showPerl5 x

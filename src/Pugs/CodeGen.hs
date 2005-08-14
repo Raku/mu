@@ -13,12 +13,12 @@ module Pugs.CodeGen (codeGen, backends) where
 import Pugs.AST
 import Pugs.Internals
 import Pugs.CodeGen.PIL (genPIL)
--- import Pugs.CodeGen.PIL2 (genPIL2)
 import Pugs.CodeGen.PIR (genPIR)
 import Pugs.CodeGen.Perl5 (genPerl5)
-import Pugs.CodeGen.XML (genXML)
 import Pugs.Compile.Pugs (genPugs)
 import Pugs.Compile.Haskell (genGHC)
+-- import Pugs.CodeGen.PIL2 (genPIL2)
+-- import Pugs.CodeGen.XML (genXML)
 import qualified Data.Map as Map
 
 type Generator = Eval Val
@@ -32,7 +32,7 @@ generators = Map.fromList $
 --  , ("Pil2",        genPIL2)
     , ("Perl5",       genPerl5)
     , ("Pugs",        genPugs)
-    , ("Xml",         genXML)
+--  , ("Xml",         genXML)
     ]
 
 backends :: [String]
