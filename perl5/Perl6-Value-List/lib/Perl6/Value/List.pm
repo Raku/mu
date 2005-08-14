@@ -24,11 +24,10 @@ package Perl6::Value::List;
 # TODO - is_contiguous() should test if $step == 1
 
 use strict;
+use Perl6::Value;
+
+use constant Inf => Perl6::Value::Num::Inf;
 our $VERSION = '0.01';
-use constant Inf => 100**100**100;
-use base qw(Exporter);
-use vars qw(@EXPORT_OK);
-@EXPORT_OK = qw(Inf);
 
 sub new {
     my $class = shift;
@@ -113,14 +112,14 @@ sub from_range {
     my $end =   $param{end};
     my $count = $param{celems};
     $count = sub { 
-            return Inf if $_[1] == Inf;
-            $_[0] le $_[1] ? Inf : 0 
+            return Inf if $end == Inf;
+            $start le $end ? Inf : 0 
         } 
         unless defined $count;
     $class->new(
                 cstart =>  sub { $start++ },
                 cend =>    sub { $end-- },
-                celems =>  sub { $count->( $start, $end ) },
+                celems =>  $count,
                 cis_contiguous => sub { 1 },
     );
 }

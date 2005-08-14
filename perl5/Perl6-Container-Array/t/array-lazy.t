@@ -7,7 +7,10 @@ plan tests => 32;
 
 # use_ok( 'Perl6::Container::Array' );
 use Perl6::Container::Array; 
-use Perl6::Value::List qw(Inf);
+use Perl6::Value;
+use Perl6::Value::List;
+
+use constant Inf => Perl6::Value::Num::Inf;
 
    # NOTE - these tests no loger have to use "is_deeply" 
 

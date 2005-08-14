@@ -5,7 +5,10 @@ use strict;
 use Test::More;
 plan tests => 29;
  
-use Perl6::Value::List qw(Inf);
+use Perl6::Value;
+use Perl6::Value::List;
+
+use constant Inf => Perl6::Value::Num::Inf;
 
 {
   # string range

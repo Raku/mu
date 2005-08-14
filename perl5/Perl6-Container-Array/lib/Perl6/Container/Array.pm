@@ -29,10 +29,11 @@
 package Perl6::Container::Array;
 
 use strict;
-our $VERSION = '0.01';
+use Perl6::Value;
+use Perl6::Value::List;
 
-use Perl6::Value::List qw(Inf);
-# use constant Inf => 100**100**100;
+our $VERSION = '0.01';
+use constant Inf => Perl6::Value::Num::Inf;
 
 sub new {
     my $class = shift;
