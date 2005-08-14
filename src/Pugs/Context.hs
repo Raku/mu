@@ -266,6 +266,7 @@ initTree = fmap MkType $ Node "Object"
                         , Node "Macro" [] ]
                     , Node "Block" []
                     ]
+                , Node "Rul" []
                 , Node "Pugs::Internals::VRule" []
                 , Node "Match" []
                 , Node "Scalar::Const" []
