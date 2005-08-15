@@ -1,4 +1,6 @@
 #
+# Value classes - Num, Int, Str, Bit, Pair
+#
 # Perl6::Value::Num
 # Perl6::Value::Int
 # Perl6::Value::Str
@@ -8,13 +10,12 @@
 # ChangeLog
 #
 # 2005-08-15
-# * added boxed types: Num, Int, Str, Bit
+# * added boxed types: Num, Int, Str, Bit, Pair
 #
 # 2005-08-13
 # * refactored from Perl6::Value::List
 
 # TODO - Ref
-# TODO - Pair; .value is assignable
 
 use strict;
 
@@ -187,11 +188,17 @@ Perl6::Value - functions for implementation of Perl6 Values in Perl5
 
   use Perl6::Value;
   
+  # unboxed Perl5 value
   my $num = Perl6::Value::Str::to_num( 'NaN' );
-  
+ 
+  # Perl6 "Num" object
+  my $num = Num->NaN;
+
 =head1 DESCRIPTION
 
-XXX
+This module implements the "Value" classes - Num, Int, Str, Bit, Pair.
+
+It also implements platform-specific, low-level functions for "unboxed" Values.
 
 =head1 SEE ALSO
 
