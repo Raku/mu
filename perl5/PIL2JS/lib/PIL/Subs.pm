@@ -14,29 +14,35 @@ use strict;
   sub fixup {
     my $self = shift;
 
-    die unless @$self == 4;
-    die if     ref $self->[0];
-    die unless $self->[1]->isa("PIL::SubType");
-    die unless ref($self->[2]) eq "ARRAY" or $self->[2]->isa("PIL::Params");
-    bless $self->[2] => "PIL::Params";
+    die unless keys %$self == 4;
+    die if     ref $self->{pSubName};
+    die unless $self->{pSubType};
+    die unless ref($self->{pSubParams}) eq "ARRAY";
 
-    local $PIL::IN_SUBLIKE  = $self->[1]->as_constant;
+    bless $self->{pSubParams} => "PIL::Params";
+    bless $self->{pSubType}   => $self->{pSubType};  # minor hack
 
-    return bless [
-      $self->[0],
-      $self->[1],
-      $self->[2]->fixup($self->[3]),
+    local $PIL::IN_SUBLIKE = $self->{pSubType}->as_constant;
+
+    return bless {
+      pSubName => $self->{pSubName},
+      pSubType => $self->{pSubType},
+      $self->{pSubParams}->fixup(
+        $self->{pSubBody} eq "PNil"
+          ? bless {} => "PIL::PNil"
+          : $self->{pSubBody}
+      ),
       # &PIL::Params::fixup returns the fixed PIL::Params and the fixed
-      # $self->[3].
-    ] => "PIL::PSub";
+      # $self->{pSubBody}.
+    } => "PIL::PSub";
   }
 
   sub as_js {
     my $self = shift;
     local $_;
 
-    local $PIL::IN_SUBLIKE  = $self->[1]->as_constant;
-    local $PIL::CUR_SUBNAME = $self->[0];
+    local $PIL::IN_SUBLIKE  = $self->{pSubType}->as_constant;
+    local $PIL::CUR_SUBNAME = $self->{pSubName};
 
     warn "Skipping &*END.\n"      and return "" if $PIL::CUR_SUBNAME eq "&*END";
     warn "Skipping $self->[0].\n" and return ""
@@ -54,52 +60,52 @@ use strict;
 
     my $callchain   = "PIL2JS.call_chain.push(" . PIL::name_mangle($self->[0]) . ")";
     my $new_pad     = "var pad = {}; PIL2JS.subpads.push(pad)";
-    my $params      = $self->[2]->as_js;
+    my $params      = $self->{pSubParams}->as_js;
 
     local @PIL::VARS_TO_BACKUP = ();
-    my $body        = $self->[3]->as_js;
+    my $body        = $self->{pSubBody}->as_js;
     my $ccsetup     = PIL::generic_cc PIL::cur_retcc, @PIL::VARS_TO_BACKUP, qw< &?BLOCK &?SUB $?SUBNAME >;
     my $backup      = "var " . join ", ", map {
       sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);
     } @PIL::VARS_TO_BACKUP, qw< &?BLOCK &?SUB $?SUBNAME >;
-    my $bind        = $self->[2]->as_js_bind;
+    my $bind        = $self->{pSubParams}->as_js_bind;
     my $wrappedbody = "$new_pad;\n$callchain;\n$magical_vars;\n\n$bind;\n\n$body";
 
-    my $jsbody = $params . "\n" . $self->[2]->autothread_wrapper($wrappedbody);
+    my $jsbody = $params . "\n" . $self->{pSubParams}->autothread_wrapper($wrappedbody);
 
     # Sub declaration
     my $js = sprintf
       "%s%s = PIL2JS.Box.constant_func(%d, function (args) {\n%s;\n%s\n%s\n});\n",
       $PIL::IN_GLOBPIL ? "" : "var ",
-      PIL::name_mangle($self->[0]),
-      $self->[2]->arity,
+      PIL::name_mangle($self->{pSubName}),
+      $self->{pSubParams}->arity,
       PIL::add_indent(1, $backup),
       PIL::add_indent(1, $ccsetup),
       PIL::add_indent(1, $jsbody);
     $js .= sprintf
       "%s.perl_name = %s;\n",
-      PIL::name_mangle($self->[0]),
-      PIL::doublequote($self->[0]);
+      PIL::name_mangle($self->{pSubName}),
+      PIL::doublequote($self->{pSubName});
 
     # Special magic for methods.
-    if($self->[1]->isa("PIL::SubMethod")) {
-      my $methname = $self->[0];
+    if($self->{pSubType}->isa("PIL::SubMethod")) {
+      my $methname = $self->{pSubName};
       $methname = ($methname =~ /^&.*::(.+)$/)[0] or
         PIL::fail("Method names must be simple strings!");
       # method foo (A|B|C $self:) {...}
-      my @classes = map { ":$_" } split /\|/, $self->[2]->[0]->type;
+      my @classes = map { ":$_" } split /\|/, $self->{pSubParams}[0]->type;
       $js .= sprintf
         "PIL2JS.addmethod(%s, %s, %s);\n",
         PIL::name_mangle($_),
         PIL::doublequote($methname),
-        PIL::name_mangle($self->[0]) for @classes;
+        PIL::name_mangle($self->{pSubName}) for @classes;
     }
 
     # Special magic for &*END_xyz subs.
-    if($self->[0] =~ /^&\*END_\d+/) {
+    if($self->{pSubName} =~ /^&\*END_\d+/) {
       $js .= sprintf
         "_40main_3a_3a_2aEND.FETCH().push(%s);\n",
-        PIL::name_mangle $self->[0];
+        PIL::name_mangle $self->{pSubName};
     }
 
     return $js;
@@ -114,47 +120,49 @@ use strict;
   sub fixup {
     my $self = shift;
 
-    die unless @$self == 3;
-    die unless $self->[0]->isa("PIL::SubType");
-    die unless ref($self->[1]) eq "ARRAY" or $self->[1]->isa("PIL::Params");
-    bless $self->[1] => "PIL::Params";
+    die unless keys %$self == 3;
+    die if     ref $self->{pSubType};
+    die unless ref($self->{pSubParams}) eq "ARRAY";
 
-    local $PIL::IN_SUBLIKE = $self->[0]->as_constant;
+    bless $self->{pSubParams} => "PIL::Params";
+    bless $self->{pSubType}   => $self->{pSubType};  # minor hack
 
-    return bless [
-      $self->[0],
-      $self->[1]->fixup($self->[2]),
+    local $PIL::IN_SUBLIKE = $self->{pSubType}->as_constant;
+
+    return bless {
+      pSubName => $self->{pSubName},
+      $self->{pSubParams}->fixup($self->{pSubBody}),
       # &PIL::Params::fixup returns the fixed PIL::Params and the fixed
-      # $self->[2].
-    ] => "PIL::PCode";
+      # $self->{pSubBody}.
+    } => "PIL::PCode";
   }
 
   sub as_js {
     my $self = shift;
     local $_;
 
-    local $PIL::IN_SUBLIKE  = $self->[0]->as_constant;
+    local $PIL::IN_SUBLIKE  = $self->{pSubType}->as_constant;
     local $PIL::CUR_SUBNAME = "<anonymous@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>";
 
     my $new_pad     = "var pad = {}; PIL2JS.subpads.push(pad)";
-    my $params      = $self->[1]->as_js;
+    my $params      = $self->{pSubParams}->as_js;
     my $magical_var = $PIL::IN_SUBLIKE >= PIL::SUBROUTINE
       ? "_24main_3a_3a_3fSUBNAME = new PIL2JS.Box.Constant('<anon>');\n\n"
       : "";
 
     local @PIL::VARS_TO_BACKUP = ();
-    my $body        = $self->[2]->as_js;
+    my $body        = $self->{pSubBody}->as_js;
     my $ccsetup     = PIL::generic_cc PIL::cur_retcc, @PIL::VARS_TO_BACKUP, qw< $?SUBNAME >;
     my $backup      = "var " . join ", ", map {
       sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);
     } @PIL::VARS_TO_BACKUP, qw< $?SUBNAME >;
-    my $bind        = $self->[1]->as_js_bind;
+    my $bind        = $self->{pSubParams}->as_js_bind;
     my $wrappedbody = "$new_pad;\n$magical_var$bind;\n\n$body";
 
-    my $jsbody = $params . "\n" . $self->[1]->autothread_wrapper($wrappedbody);
+    my $jsbody = $params . "\n" . $self->{pSubParams}->autothread_wrapper($wrappedbody);
 
     return sprintf "PIL2JS.Box.constant_func(%d, function (args) {\n%s;\n%s\n%s\n})",
-      $self->[1]->arity,
+      $self->{pSubParams}->arity,
       PIL::add_indent(1, $backup),
       PIL::add_indent(1, $ccsetup),
       PIL::add_indent(1, $jsbody);
@@ -169,9 +177,9 @@ use strict;
   sub fixup {
     my $self = shift;
 
-    die unless @$self == 1;
+    die unless keys %$self == 1;
 
-    return bless [ $self->[0]->fixup ] => "PIL::PThunk";
+    return bless { (%$self)[0] => (%$self)[1]->fixup } => "PIL::PThunk";
   }
 
   sub as_js {
@@ -179,7 +187,7 @@ use strict;
     local $PIL::IN_SUBLIKE  = PIL::SUBTHUNK;
     local $PIL::CUR_SUBNAME = "<thunk@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>";
 
-    my $body = PIL::possibly_ccify $self->[0], PIL::RawJS->new("thunkreturncc");
+    my $body = PIL::possibly_ccify +(%$self)[1], PIL::RawJS->new("thunkreturncc");
     my $ret  = sprintf <<EOF, PIL::add_indent 1, $body;
 PIL2JS.Box.constant_func(0, function (args) {
   var cxt           = args.shift();
