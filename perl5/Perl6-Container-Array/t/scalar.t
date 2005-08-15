@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 13;
+plan tests => 16;
 
 use Perl6::Container::Scalar;
 use Perl6::Value;
@@ -47,9 +47,16 @@ ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
 {
     my $n = Scalar->new();
   
-    isa_ok($n, 'empty Scalar');
+    isa_ok($n, 'Scalar', 'empty Scalar');
     can_ok($n, 'value');
     is($n->value, undef, '... type is undef');
+    is($n->perl->value, '\\undef', '... .perl is undef');
     is($n->defined->str->value, 'bool::false', '... defined() is false');
-    # TODO - ref
+    $n->increment;
+    is($n->value->value, 1, '... increment defines');
+
+    $n->increment;
+    is($n->value->value, 2, '... increment Int');
+
+    # TODO - ref of undef
 }

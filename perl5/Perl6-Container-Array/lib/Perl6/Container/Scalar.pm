@@ -7,8 +7,9 @@
 # - created the 'Scalar' container
 
 # TODO - verify .ref() and .undefine() implementations
-# TODO - ++, --, .perl()
+# TODO - ++, --
 # TODO - is_constant trait?
+# TODO - can a Scalar hold an unboxed value?
 
 use strict;
 
@@ -27,7 +28,10 @@ class 'Scalar'.$class_description => {
     },
     instance => {
         attrs => [ [ '$.value' => { access => 'rw' } ] ],
-        DESTROY => sub {},
+        DESTROY => sub {
+                my $self = shift;
+                $self->undefine;
+             },
         methods => {
             'num' =>      sub { 
                 my $tmp = SELF->value; 
@@ -41,6 +45,15 @@ class 'Scalar'.$class_description => {
             'bit' =>      sub { 
                 my $tmp = SELF->value; 
                 defined $tmp ? $tmp->bit : Bit->new( '$.value' => 0 ) },
+            'perl' =>     sub { 
+                my $tmp = SELF->value; 
+                defined $tmp ? $tmp->perl : Str->new( '$.value' => '\\undef' ) },
+            'increment' => sub { 
+                my $tmp = SELF->value; 
+                _('$.value' => defined $tmp ? $tmp->increment : Int->new( '$.value' => 1 ) ) },
+            'decrement' => sub { 
+                my $tmp = SELF->value; 
+                _('$.value' => defined $tmp ? $tmp->decrement : Int->new( '$.value' => -1 ) ) },
             'ref' =>      sub { 
                 my $tmp = SELF->value; 
                 if ( defined $tmp ) {

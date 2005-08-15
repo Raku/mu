@@ -15,7 +15,8 @@
 # 2005-08-13
 # * refactored from Perl6::Value::List
 
-# TODO - Ref
+# TODO - verify .ref() implementation
+# TODO - finish .perl(), .increment, .decrement
 
 use strict;
 
@@ -45,11 +46,18 @@ class 'Num'.$class_description => {
         attrs => [ '$.value' ],
         DESTROY => sub {},
         methods => {
-            'num' => sub { SELF },
-            'int' => sub { Int->new( '$.value' => Perl6::Value::Num::to_int( _('$.value') ) ) },
-            'str' => sub { Str->new( '$.value' => Perl6::Value::Num::to_str( _('$.value') ) ) },
-            'bit' => sub { Bit->new( '$.value' => Perl6::Value::Num::to_bit( _('$.value') ) ) },
-            'ref' => sub { $Perl6::Value::Num::class },
+            'num' =>  sub { SELF },
+            'int' =>  sub { Int->new( '$.value' => Perl6::Value::Num::to_int( _('$.value') ) ) },
+            'str' =>  sub { Str->new( '$.value' => Perl6::Value::Num::to_str( _('$.value') ) ) },
+            'bit' =>  sub { Bit->new( '$.value' => Perl6::Value::Num::to_bit( _('$.value') ) ) },
+            'perl' => sub { Str->new( '$.value' => '\\' . _('$.value') ) },
+            'increment' => sub { 
+                my $value = _('$.value');
+                SELF->ref->new( '$.value' => ++$value ) },
+            'decrement' => sub { 
+                my $value = _('$.value');
+                SELF->ref->new( '$.value' => --$value ) },
+            'ref' =>  sub { $Perl6::Value::Num::class },
         },
     }
 };
@@ -65,11 +73,18 @@ class 'Int'.$class_description => {
         attrs => [ '$.value' ],
         DESTROY => sub {},
         methods => {
-            'num' => sub { Num->new( '$.value' => Perl6::Value::Int::to_num( _('$.value') ) ) },
-            'int' => sub { SELF },
-            'str' => sub { Str->new( '$.value' => Perl6::Value::Int::to_str( _('$.value') ) ) },
-            'bit' => sub { Bit->new( '$.value' => Perl6::Value::Int::to_bit( _('$.value') ) ) },
-            'ref' => sub { $Perl6::Value::Int::class },
+            'num' =>  sub { Num->new( '$.value' => Perl6::Value::Int::to_num( _('$.value') ) ) },
+            'int' =>  sub { SELF },
+            'str' =>  sub { Str->new( '$.value' => Perl6::Value::Int::to_str( _('$.value') ) ) },
+            'bit' =>  sub { Bit->new( '$.value' => Perl6::Value::Int::to_bit( _('$.value') ) ) },
+            'perl' => sub { Str->new( '$.value' => '\\' . _('$.value') ) },
+            'increment' => sub { 
+                my $value = _('$.value');
+                SELF->ref->new( '$.value' => ++$value ) },
+            'decrement' => sub { 
+                my $value = _('$.value');
+                SELF->ref->new( '$.value' => --$value ) },
+            'ref' =>  sub { $Perl6::Value::Int::class },
         },
     }
 };
@@ -85,11 +100,18 @@ class 'Str'.$class_description => {
         attrs => [ '$.value' ],
         DESTROY => sub {},
         methods => {
-            'num' => sub { Num->new( '$.value' => Perl6::Value::Str::to_num( _('$.value') ) ) },
-            'int' => sub { Int->new( '$.value' => Perl6::Value::Str::to_int( _('$.value') ) ) },
-            'str' => sub { SELF },
-            'bit' => sub { Bit->new( '$.value' => Perl6::Value::Str::to_bit( _('$.value') ) ) },
-            'ref' => sub { $Perl6::Value::Str::class },
+            'num' =>  sub { Num->new( '$.value' => Perl6::Value::Str::to_num( _('$.value') ) ) },
+            'int' =>  sub { Int->new( '$.value' => Perl6::Value::Str::to_int( _('$.value') ) ) },
+            'str' =>  sub { SELF },
+            'bit' =>  sub { Bit->new( '$.value' => Perl6::Value::Str::to_bit( _('$.value') ) ) },
+            'perl' => sub { warn ; Str->new( '$.value' => '\\' . _('$.value') ) },
+            'increment' => sub { 
+                my $value = _('$.value');
+                SELF->ref->new( '$.value' => ++$value ) },
+            'decrement' => sub { 
+                my $value = _('$.value');
+                SELF->ref->new( '$.value' => --$value ) },
+            'ref' =>  sub { $Perl6::Value::Str::class },
         },
     }
 };
@@ -109,6 +131,7 @@ class 'Bit'.$class_description => {
             'int' => sub { Int->new( '$.value' => Perl6::Value::Bit::to_int( _('$.value') ) ) },
             'str' => sub { Str->new( '$.value' => Perl6::Value::Bit::to_str( _('$.value') ) ) },
             'bit' => sub { SELF },
+            'perl' => sub { Str->new( '$.value' => '\\' . SELF->str ) },
             'ref' => sub { $Perl6::Value::Bit::class },
         },
     }
@@ -129,6 +152,7 @@ class 'Pair'.$class_description => {
             'int' => sub { Int->new( '$.value' => 0 ) },
             'str' => sub { Str->new( '$.value' => '' ) },
             'bit' => sub { Bit->new( '$.value' => 0 ) },
+            'perl' => sub { warn ; Str->new( '$.value' => '\\' . _('$.value') ) },
             'ref' => sub { $Perl6::Value::Pair::class },
         },
     }
