@@ -7,6 +7,9 @@
 
 # ChangeLog
 #
+# 2005-08-15
+# * added boxed types: Num, Int, Str, Bit
+#
 # 2005-08-13
 # * refactored from Perl6::Value::List
 
@@ -25,7 +28,10 @@ class 'Num-0.0.1-cpan:FGLOCK' => {
         attrs => [ '$.value' ],
         DESTROY => sub {},
         methods => {
-            'int' => sub { Int->new( '$.value' => Perl6::Value::Num::to_int( _('$.value') ) ) }
+            'num' => sub { SELF },
+            'int' => sub { Int->new( '$.value' => Perl6::Value::Num::to_int( _('$.value') ) ) },
+            'str' => sub { Str->new( '$.value' => Perl6::Value::Num::to_str( _('$.value') ) ) },
+            'bit' => sub { Bit->new( '$.value' => Perl6::Value::Num::to_bit( _('$.value') ) ) },
         },
     }
 };
@@ -39,7 +45,12 @@ class 'Int-0.0.1-cpan:FGLOCK' => {
     instance => {
         attrs => [ '$.value' ],
         DESTROY => sub {},
-        methods => {},
+        methods => {
+            'num' => sub { Num->new( '$.value' => Perl6::Value::Int::to_num( _('$.value') ) ) },
+            'int' => sub { SELF },
+            'str' => sub { Str->new( '$.value' => Perl6::Value::Int::to_str( _('$.value') ) ) },
+            'bit' => sub { Bit->new( '$.value' => Perl6::Value::Int::to_bit( _('$.value') ) ) },
+        },
     }
 };
 
@@ -52,7 +63,12 @@ class 'Str-0.0.1-cpan:FGLOCK' => {
     instance => {
         attrs => [ '$.value' ],
         DESTROY => sub {},
-        methods => {},
+        methods => {
+            'num' => sub { Num->new( '$.value' => Perl6::Value::Str::to_num( _('$.value') ) ) },
+            'int' => sub { Int->new( '$.value' => Perl6::Value::Str::to_int( _('$.value') ) ) },
+            'str' => sub { SELF },
+            'bit' => sub { Bit->new( '$.value' => Perl6::Value::Str::to_bit( _('$.value') ) ) },
+        },
     }
 };
 
@@ -65,7 +81,12 @@ class 'Bit-0.0.1-cpan:FGLOCK' => {
     instance => {
         attrs => [ '$.value' ],
         DESTROY => sub {},
-        methods => {},
+        methods => {
+            'num' => sub { Num->new( '$.value' => Perl6::Value::Bit::to_num( _('$.value') ) ) },
+            'int' => sub { Int->new( '$.value' => Perl6::Value::Bit::to_int( _('$.value') ) ) },
+            'str' => sub { Str->new( '$.value' => Perl6::Value::Bit::to_str( _('$.value') ) ) },
+            'bit' => sub { SELF },
+        },
     }
 };
 
@@ -81,7 +102,7 @@ sub to_str        {
     return 'NaN'  if $v =~ m/n/i;
     return "" . $v 
 }
-sub to_bit        { $_[0] != 0 }
+sub to_bit        { $_[0] == 0 ? 0 : 1 }
 sub to_num        { 0 + $_[0] }
 sub to_int        { int( $_[0] ) }
 
