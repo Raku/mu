@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 17;
+plan tests => 22;
  
 use Perl6::Value;
 
@@ -39,4 +39,16 @@ ok(Int->isa('Perl6::Object'), '... Int isa Perl6::Object');
     my $n = Num->Inf;
     isa_ok($n, 'Num');
     is($n->value(), &Perl6::Value::Num::Inf, '... Inf');
+}
+
+{
+    # Pair
+    my $p = Pair->new(
+                '$.key' =>   Str->new( '$.value' => 'a' ),
+                '$.value' => Str->new( '$.value' => 'x' ) );
+    isa_ok($p, 'Pair', 'Pair');
+    can_ok($p, 'value');
+    can_ok($p, 'key');
+    is($p->key()->value(),   'a', '... got the key');
+    is($p->value()->value(), 'x', '... got the value');
 }

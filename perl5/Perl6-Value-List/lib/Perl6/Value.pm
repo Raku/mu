@@ -13,12 +13,17 @@
 # 2005-08-13
 # * refactored from Perl6::Value::List
 
+# TODO - Ref
+# TODO - Pair; .value is assignable
+
 use strict;
 
 use Perl6::MetaModel;
 use Perl6::Object;
 
-class 'Num-0.0.1-cpan:FGLOCK' => {
+my $class_description = '-0.0.1-cpan:FGLOCK';
+
+class 'Num'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
         attrs => [],
@@ -46,7 +51,7 @@ class 'Num-0.0.1-cpan:FGLOCK' => {
     }
 };
 
-class 'Int-0.0.1-cpan:FGLOCK' => {
+class 'Int'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
         attrs => [],
@@ -64,7 +69,7 @@ class 'Int-0.0.1-cpan:FGLOCK' => {
     }
 };
 
-class 'Str-0.0.1-cpan:FGLOCK' => {
+class 'Str'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
         attrs => [],
@@ -82,7 +87,7 @@ class 'Str-0.0.1-cpan:FGLOCK' => {
     }
 };
 
-class 'Bit-0.0.1-cpan:FGLOCK' => {
+class 'Bit'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
         attrs => [],
@@ -96,6 +101,24 @@ class 'Bit-0.0.1-cpan:FGLOCK' => {
             'int' => sub { Int->new( '$.value' => Perl6::Value::Bit::to_int( _('$.value') ) ) },
             'str' => sub { Str->new( '$.value' => Perl6::Value::Bit::to_str( _('$.value') ) ) },
             'bit' => sub { SELF },
+        },
+    }
+};
+
+class 'Pair'.$class_description => {
+    is => [ 'Perl6::Object' ],
+    class => {
+        attrs => [],
+        methods => {}
+    },
+    instance => {
+        attrs => [ '$.key', [ '$.value' => { access => 'rw' } ] ],
+        DESTROY => sub {},
+        methods => {
+            'num' => sub { Num->new( '$.value' => 0 ) },
+            'int' => sub { Int->new( '$.value' => 0 ) },
+            'str' => sub { Str->new( '$.value' => '' ) },
+            'bit' => sub { Bit->new( '$.value' => 0 ) },
         },
     }
 };
