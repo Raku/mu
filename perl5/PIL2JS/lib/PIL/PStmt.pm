@@ -4,13 +4,14 @@ use warnings;
 use strict;
 
 sub fixup {
-  die unless @{ $_[0] } == 1;
+  my $self = shift;
+  die unless keys %$self == 1;
 
-  return bless [ $_[0]->[0]->fixup ] => "PIL::PStmt";
+  return bless { (%$self)[0] => (%$self)[1]->fixup } => "PIL::PStmt";
 }
 
-sub as_js { return $_[0]->[0]->as_js . "\n" }
+sub as_js { return +(%{ $_[0] })[1]->as_js . "\n" }
 
-sub unwrap { $_[0]->[0]->unwrap }
+sub unwrap { (%{ $_[0] })[1] }
 
 1;

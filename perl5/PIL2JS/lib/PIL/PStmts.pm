@@ -7,23 +7,20 @@ use warnings;
 use strict;
 
 sub fixup {
-  die unless @{ $_[0] } == 2;
+  die unless keys %{ $_[0] } == 2;
 
-  return bless [
-    $_[0]->[0]->fixup,
-    $_[0]->[1]->fixup,
-  ] => "PIL::PStmts";
+  return bless {
+    pStmt  =>
+      ($_[0]->{pStmt}  eq "PNoop" ? bless {} => "PIL::PNoop" : $_[0]->{pStmt})->fixup,
+    pStmts =>
+      ($_[0]->{pStmts} eq "PNil"  ? bless {} => "PIL::PNil"  : $_[0]->{pStmts})->fixup,
+  } => "PIL::PStmts";
 }
 
 sub as_js {
   my $self = shift;
 
-  # Update $?POSITION.
-  my $pos =
-    sprintf "_24main_3a_3a_3fPOSITION.STORE(new PIL2JS.Box.Constant(%s))",
-    PIL::doublequote $PIL::CUR_POS;
-
-  my ($head, $tail) = @$self;
+  my ($head, $tail) = @$self{qw< pStmt pStmts >};
   my $cc;
   if($PIL::IN_SUBLIKE and $tail->isa("PIL::PNil")) {
     # Add a &return() to the last statement of a sub.
@@ -37,7 +34,7 @@ sub as_js {
     $cc = PIL::Cont->new(argname => "", body => $tail);
   }
 
-  return $pos . ";\n" . PIL::possibly_ccify $head, $cc;
+  return PIL::possibly_ccify $head, $cc;
 }
 
 1;
