@@ -12,6 +12,22 @@
 
 use strict;
 
+use Perl6::MetaModel;
+use Perl6::Object;
+
+class 'Int-0.0.1-cpan:FGLOCK' => {
+    is => [ 'Perl6::Object' ],
+    class => {
+        attrs => [],
+        methods => {}
+    },
+    instance => {
+        attrs => [ '$.value' ],
+        DESTROY => sub {},
+        methods => {},
+    }
+};
+
 package Perl6::Value::Num;
 
 use constant Inf => 100**100**100;
