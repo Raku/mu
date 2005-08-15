@@ -40,7 +40,14 @@ instance Perl5 Int where
     showPerl5 = show
 
 instance Perl5 String where
-    showPerl5 = show
+    showPerl5 str = "\"" ++ concatMap escape str ++ "\""
+        where
+        escape '\\' = "\\\\"
+        escape '"'  = "\\\""
+        escape '$'  = "\\$"
+        escape '@'  = "\\@"
+        escape '%'  = "\\%"
+        escape x    = x:""
 
 instance Perl5 Bool where
     showPerl5 True = "1"
