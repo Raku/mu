@@ -20,7 +20,7 @@ use strict;
     die unless ref($self->{pSubParams}) eq "ARRAY";
 
     bless $self->{pSubParams} => "PIL::Params";
-    bless $self->{pSubType}   => $self->{pSubType};  # minor hack
+    $self->{pSubType} = bless [] => "PIL::$self->{pSubType}";  # minor hack
 
     local $PIL::IN_SUBLIKE = $self->{pSubType}->as_constant;
 
@@ -125,7 +125,7 @@ use strict;
     die unless ref($self->{pSubParams}) eq "ARRAY";
 
     bless $self->{pSubParams} => "PIL::Params";
-    bless $self->{pSubType}   => $self->{pSubType};  # minor hack
+    $self->{pSubType} = bless [] => "PIL::$self->{pSubType}";  # minor hack
 
     local $PIL::IN_SUBLIKE = $self->{pSubType}->as_constant;
 

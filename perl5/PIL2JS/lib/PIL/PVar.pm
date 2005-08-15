@@ -15,7 +15,7 @@ sub fixup {
       pVarName => PIL::RawJS->new("PIL2JS.generic_return(subreturncc)")
     } => "PIL::PVar";
   } else {
-    return bless { pVarName => PIL::lookup_var $_[0]->[0] } => "PIL::PVar";
+    return bless { pVarName => PIL::lookup_var $_[0]->{pVarName} } => "PIL::PVar";
   }
 }
 

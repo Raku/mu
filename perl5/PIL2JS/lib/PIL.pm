@@ -148,11 +148,12 @@ sub as_js {
 
   {
     my %seen;
-    $self->{pilGlob} = [grep { not $seen{$_->[0]}++ } @{ $self->{pilGlob} }];
+    $self->{pilGlob} = [grep { not $seen{$_->{pSubName}}++ } @{ $self->{pilGlob} }];
   }
 
   my $fixed_tree = $self->fixup;
   warn "# Number of lexical scopes: $CUR_LEXSCOPE_ID\n";
+  use YAML; warn Dump($fixed_tree);
 
   $IN_GLOBPIL++;
   my @glob_js = map { $_->as_js || () } @{ $fixed_tree->{"pilGlob"} };
@@ -165,7 +166,7 @@ sub as_js {
       sprintf "var %s = %s;",
         name_mangle($_),
         undef_of($_);
-    } keys %UNDECLARED_VARS, @ALL_LEXICALS, map { $_->[0] } @{ $fixed_tree->{"pilGlob"} }) .
+    } keys %UNDECLARED_VARS, @ALL_LEXICALS, map { $_->{pSubName} } @{ $fixed_tree->{"pilGlob"} }) .
     "\n// End declaration of vars.\n";
   %UNDECLARED_VARS = ();
   @ALL_LEXICALS    = ();
