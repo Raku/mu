@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 15;
+plan tests => 17;
  
 use Perl6::Value;
 
@@ -32,4 +32,11 @@ ok(Int->isa('Perl6::Object'), '... Int isa Perl6::Object');
     isa_ok($s, 'Str');
     can_ok($s, 'value');
     is($s->value(), 'bool::true', '... Bit to Str');
+}
+
+{
+    # Inf
+    my $n = Num->Inf;
+    isa_ok($n, 'Num');
+    is($n->value(), &Perl6::Value::Num::Inf, '... Inf');
 }

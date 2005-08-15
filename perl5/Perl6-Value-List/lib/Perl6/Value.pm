@@ -22,7 +22,17 @@ class 'Num-0.0.1-cpan:FGLOCK' => {
     is => [ 'Perl6::Object' ],
     class => {
         attrs => [],
-        methods => {}
+        methods => {
+            # TODO - pi ?
+            'Inf' => sub {
+                my ($class) = @_;           
+                return $class->new( '$.value' => &Perl6::Value::Num::Inf );
+            },
+            'NaN' => sub {
+                my ($class) = @_;           
+                return $class->new( '$.value' => &Perl6::Value::Num::NaN );
+            },
+        }
     },
     instance => {
         attrs => [ '$.value' ],
