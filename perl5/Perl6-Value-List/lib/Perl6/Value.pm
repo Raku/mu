@@ -24,6 +24,7 @@ use Perl6::Object;
 
 my $class_description = '-0.0.1-cpan:FGLOCK';
 
+$Perl6::Value::Num::class =
 class 'Num'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -48,10 +49,12 @@ class 'Num'.$class_description => {
             'int' => sub { Int->new( '$.value' => Perl6::Value::Num::to_int( _('$.value') ) ) },
             'str' => sub { Str->new( '$.value' => Perl6::Value::Num::to_str( _('$.value') ) ) },
             'bit' => sub { Bit->new( '$.value' => Perl6::Value::Num::to_bit( _('$.value') ) ) },
+            'ref' => sub { $Perl6::Value::Num::class },
         },
     }
 };
 
+$Perl6::Value::Int::class =
 class 'Int'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -66,10 +69,12 @@ class 'Int'.$class_description => {
             'int' => sub { SELF },
             'str' => sub { Str->new( '$.value' => Perl6::Value::Int::to_str( _('$.value') ) ) },
             'bit' => sub { Bit->new( '$.value' => Perl6::Value::Int::to_bit( _('$.value') ) ) },
+            'ref' => sub { $Perl6::Value::Int::class },
         },
     }
 };
 
+$Perl6::Value::Str::class =
 class 'Str'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -84,10 +89,12 @@ class 'Str'.$class_description => {
             'int' => sub { Int->new( '$.value' => Perl6::Value::Str::to_int( _('$.value') ) ) },
             'str' => sub { SELF },
             'bit' => sub { Bit->new( '$.value' => Perl6::Value::Str::to_bit( _('$.value') ) ) },
+            'ref' => sub { $Perl6::Value::Str::class },
         },
     }
 };
 
+$Perl6::Value::Bit::class =
 class 'Bit'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -102,10 +109,12 @@ class 'Bit'.$class_description => {
             'int' => sub { Int->new( '$.value' => Perl6::Value::Bit::to_int( _('$.value') ) ) },
             'str' => sub { Str->new( '$.value' => Perl6::Value::Bit::to_str( _('$.value') ) ) },
             'bit' => sub { SELF },
+            'ref' => sub { $Perl6::Value::Bit::class },
         },
     }
 };
 
+$Perl6::Value::Pair::class =
 class 'Pair'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -120,6 +129,7 @@ class 'Pair'.$class_description => {
             'int' => sub { Int->new( '$.value' => 0 ) },
             'str' => sub { Str->new( '$.value' => '' ) },
             'bit' => sub { Bit->new( '$.value' => 0 ) },
+            'ref' => sub { $Perl6::Value::Pair::class },
         },
     }
 };

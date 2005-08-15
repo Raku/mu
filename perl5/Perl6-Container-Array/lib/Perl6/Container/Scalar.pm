@@ -4,9 +4,11 @@
 # ChangeLog
 #
 # 2005-08-15
-# - 
+# - created the 'Scalar' container
 
-# TODO - 
+# TODO - verify .ref() and .undefine() implementations
+# TODO - ++, --, .perl()
+# TODO - is_constant trait?
 
 use strict;
 
@@ -15,6 +17,7 @@ use Perl6::Object;
 
 my $class_description = '-0.0.1-cpan:FGLOCK';
 
+$Perl6::Container::Scalar::class = 
 class 'Scalar'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -39,15 +42,13 @@ class 'Scalar'.$class_description => {
                 my $tmp = SELF->value; 
                 defined $tmp ? $tmp->bit : Bit->new( '$.value' => 0 ) },
             'ref' =>      sub { 
-                # XXX - ref should return a Class object
-                warn "not implemented";
-                my ($self) = @_;
-                my $class_name = ref($self);
-                $class_name = ref( $self->value ) if $self->defined;
-                # warn "class name: $class_name";
-                my ($long_name) = grep { /^$class_name-/ } keys %Perl6::Class::ALL_CLASSES; # XXX
-                # warn "full class name: $long_name";
-                return $Perl6::Class::ALL_CLASSES{$long_name};
+                my $tmp = SELF->value; 
+                if ( defined $tmp ) {
+                    return $tmp->ref;
+                }
+                else {
+                    return $Perl6::Container::Scalar::class 
+                }
               },
             'defined' =>  sub { 
                 my $tmp = SELF->value; 
