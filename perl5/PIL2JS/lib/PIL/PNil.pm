@@ -4,9 +4,9 @@ use warnings;
 use strict;
 
 sub fixup {
-  die unless @{ $_[0] } == 0;
+  die unless keys %{ $_[0] } == 0;
 
-  return bless [] => "PIL::PNil";
+  return bless {} => "PIL::PNil";
 }
 
 sub as_js {

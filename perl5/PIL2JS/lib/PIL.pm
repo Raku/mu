@@ -45,9 +45,6 @@ our $LEXSCOPE_PREFIX;
 # "lexical" vars anymore).
 our @VARS_TO_BACKUP;
 
-# Minor hack
-use constant CC => 100;
-
 # Guard against reentrancy.
 our $PROCESSING_HAS_STARTED;
 
@@ -69,15 +66,15 @@ sub possibly_ccify {
       return sprintf "%s(%s)", $sub->as_js, $thing->as_js;
     }
   } else {
-    die "Internal error: \$unwrapped->[PIL::CC] already defined!"
-      if $unwrapped->[PIL::CC];
+    die "Internal error: \$unwrapped->{CC} already defined!"
+      if $unwrapped->{CC};
     if(ref $sub eq "CODE") {
       my $argname = "ret" . $possibly_ccify_argid++;
-      $unwrapped->[PIL::CC] = PIL::Cont->new(argname => $argname, body => sub {
+      $unwrapped->{CC} = PIL::Cont->new(argname => $argname, body => sub {
         $sub->($argname);
       });
     } else {
-      $unwrapped->[PIL::CC] = $sub;
+      $unwrapped->{CC} = $sub;
     }
     return $thing->as_js;
   }
@@ -176,7 +173,7 @@ sub as_js {
   my $init_js =
     "// Initialization of global vars and exportation of subs:\n" .
     join("\n", map {
-      my $name = $_->[0];
+      my $name = $_->{pSubName};
       $name =~ /^(?:__init_|__export_)/ && $name !~ /import$/
         ? sprintf("PIL2JS.cps2normal(%s.FETCH(), [PIL2JS.Context.Void]);", PIL::name_mangle $name)
         : ();
@@ -222,7 +219,7 @@ EOF
   
   our @ISA = qw<PIL::TCxt>;
 
-  sub cxt  { $_[0]->[0]->cxt  }
+  sub cxt  { ($_[0]->[0] eq "TCxtVoid" ? bless [] => "PIL::TCxtVoid" : $_[0]->[0])->cxt }
   sub main { $_[0]->cxt->main }
 }
 

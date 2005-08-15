@@ -96,9 +96,7 @@ EOF
 
     return bless {
       tpParam   => $self->{tpParam},
-      tpDefault => $self->{tpDefault}->isa("PIL::Just")
-        ? bless [ $self->{tpDefault}->[0]->fixup ] => "PIL::Just"
-        : $self->{tpDefault},
+      tpDefault => $self->{tpDefault} && $self->{tpDefault}->fixup,
       fixedName => PIL::lookup_var $self->name,
     } => "PIL::MkTParam";
   }
@@ -198,9 +196,9 @@ EOF
     # Should we (and can we) supply a default for an optional param?
     my @js;
 
-    if($self->{tpDefault}->isa("PIL::Just")) {
+    if($self->{tpDefault}) {
       my $undef = PIL::undef_of $name;
-      my $other = $self->{tpDefault}->[0];
+      my $other = $self->{tpDefault};
       # XXX this will break, of course, if $other does call/cc magic.
       push @js,
         "if($jsname == undefined) PIL2JS.runloop(function () {" .
@@ -211,12 +209,12 @@ EOF
     }
 
     # is copy?
-    if($self->{tpParam}{isLValue}->isa("PIL::False")) {
+    unless($self->{tpParam}{isLValue}) {
       push @js, "$jsname = $jsname.copy();";
     }
 
     # not is rw?
-    if($self->{tpParam}{isWritable}->isa("PIL::False")) {
+    unless($self->{tpParam}{isWritable}) {
       push @js, "$jsname = new PIL2JS.Box.ReadOnly($jsname);";
     }
 
@@ -224,7 +222,7 @@ EOF
     push @js, "pad[$padname] = $jsname;";
 
     # Always bind $?SELF to us, if we're the invocant param.
-    if($self->{tpParam}{isInvocant}->isa("PIL::True") and $name ne '$?SELF') {
+    if($self->{tpParam}{isInvocant} and $name ne '$?SELF') {
       push @js, sprintf "var %s = %s; pad[%s] = %s;",
         PIL::name_mangle('$?SELF'), $jsname,
         $padname,                   $jsname;

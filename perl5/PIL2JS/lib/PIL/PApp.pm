@@ -7,18 +7,16 @@ sub fixup {
   my $self = shift;
   local $_;
 
-  die unless @$self == 4;
-  die unless $self->[0]->isa("PIL::TCxt");
-  die unless ref($self->[3]) eq "ARRAY";
+  die unless keys %$self == 4;
+  die unless $self->{pCxt}->isa("PIL::TCxt");
+  die unless ref($self->{pArgs}) eq "ARRAY";
 
-  return bless [
-    $self->[0]->fixup,
-    $self->[1]->fixup,
-    $self->[2]->isa("PIL::Just")
-      ? bless [$self->[2]->[0]->fixup] => "PIL::Just"
-      : $self->[2],
-    [map { $_->fixup } @{ $self->[3] }],
-  ] => "PIL::PApp";
+  return bless {
+    pCxt  => $self->{pCxt}->fixup,
+    pFun  => $self->{pFun}->fixup,
+    pInv  => $self->{pInv} && $self->{pInv}->fixup,
+    pArgs => [ map { $_->fixup } @{ $self->{pArgs} } ],
+  } => "PIL::PApp";
 }
 
 sub as_js {
@@ -29,32 +27,33 @@ sub as_js {
     my @jsparams = @_; my $jsobj = pop @jsparams;
 
     my $subname;
-    if($self->[1]->[0]->isa("PIL::PVar") and not ref $self->[1]->[0]->[0]) {
-      $subname = $self->[1]->[0]->[0];
+    if($self->{pFun}->{pLV}->isa("PIL::PVar") and not ref $self->{pFun}->{pLV}->{pVarName}) {
+      $subname = $self->{pFun}->{pLV}->{pVarName};
     }
 
     my $obj;
     if(
-      $self->[2]->isa("PIL::Just")           and
-      $self->[2]->[0]->isa("PIL::PExp")      and
-      $self->[2]->[0]->[0]->isa("PIL::PVar") and
-      not ref $self->[2]->[0]->[0]->[0]      and
+      $self->{pInv}                            and
+      $self->{pInv}->isa("PIL::PExp")          and
+      $self->{pInv}->{pLV}->isa("PIL::PVar")   and
+      not ref $self->{pInv}->{pLV}->{pVarName} and
       1
     ) {
-      $obj = $self->[2]->[0]->[0]->[0];
+      $obj = $self->{pInv}->{pLV}->{pVarName};
     }
 
     # XXX HACK! Support for &JS::inline.
     if(
       defined $subname                                 and
       $subname eq "&JS::inline"                        and
-      $self->[3]->[0]->isa("PIL::PPos")                and
-      $self->[3]->[0]->[2]->isa("PIL::PLit")           and
-      $self->[3]->[0]->[2]->[0]->isa("PIL::PVal")      and
-      $self->[3]->[0]->[2]->[0]->[0]->isa("PIL::VStr") and
+      $self->{pArgs}->[0]->unwrap->isa("PIL::PLit")         and
+      $self->{pArgs}->[0]->unwrap->{pLit}->isa("PIL::PVal")         and
+      $self->{pArgs}->[0]->unwrap->{pLit}->{pVal}->isa("PIL::VStr")         and
       1
     ) {
-      return sprintf "%s(\n%s\n)", $self->[PIL::CC]->as_js, PIL::add_indent 1, $self->[3]->[0]->[2]->[0]->[0]->[0];
+      return sprintf "%s(\n%s\n)",
+        $self->{CC}->as_js,
+        PIL::add_indent 1, $self->{pArgs}->[0]->unwrap->{pLit}->{pVal}->[0];
     } elsif(defined $subname and $subname eq "&JS::inline") {
       PIL::fail("Invalid use of &JS::inline!");
     }
@@ -70,7 +69,7 @@ sub as_js {
 
     # We have an invocant? ==> We can't say for sure at compile-time.
     $native = undef
-      if $self->[2]->isa("PIL::Just");
+      if $self->{pInv};
 
     # We have an invocant *and* the invocant is in the JS:: namespace? ==> It's
     # a native call.
@@ -85,27 +84,29 @@ sub as_js {
 
     # Sanitize $subname.
     PIL::fail("When calling a method, the method name must be a simple string!")
-      if $self->[2]->isa("PIL::Just") and (not defined $subname or $subname !~ /^&/);
-    $subname = "&$1" if $self->[2]->isa("PIL::Just") and $subname =~ /^&(.+)$/;
+      if $self->{pInv} and (not defined $subname or $subname !~ /^&/);
+    $subname = "&$1" if $self->{pInv} and $subname =~ /^&(.+)$/;
     $subname =~ s/^(.)\*?JS::/$1/ if defined $subname;
 
     # Go!
-    my $inv = $self->[2]->isa("PIL::Just") ? $jsobj : "";
+    my $inv = $self->{pInv} ? $jsobj : "";
     my $sub = $inv || $native ? substr($subname, 1) : $jsobj;
-    unless($self->[PIL::CC]) {
+
+    # For debugging
+    unless($self->{CC}) {
       use YAML; warn Dump($self);
     }
 
     # Minor hack -- we undefine all params to not suck up all memory.
     my $cc =
-      $self->[PIL::CC]->as_js(
+      $self->{CC}->as_js(
         join " ", map { "$_ = undefined;" } grep { /^ret\d+$/ } @jsparams
       );
 
     my @arg = (@jsparams, $native ? () : ($cc));
     @arg    = map { "($_).toNative()" } @arg if $native;
     my $arg = PIL::add_indent(1, join ",\n", @arg);
-    my $cxt = PIL::add_indent(1, $self->[0]->as_js);
+    my $cxt = PIL::add_indent(1, $self->{pCxt}->as_js);
 
     # XXX Context handling!
     if($inv) {
@@ -146,10 +147,10 @@ sub as_js {
 
   return $possibly_ccify_many->(
     [
-      @{ $self->[3] },
-      $self->[2]->isa("PIL::Just")
-        ? $self->[2]->[0]
-        : $self->[1],
+      @{ $self->{pArgs} },
+      $self->{pInv}
+        ? $self->{pInv}
+        : $self->{pFun},
     ],
     $as_js,
   );
