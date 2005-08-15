@@ -15,7 +15,48 @@ use strict;
 use Perl6::MetaModel;
 use Perl6::Object;
 
+class 'Num-0.0.1-cpan:FGLOCK' => {
+    is => [ 'Perl6::Object' ],
+    class => {
+        attrs => [],
+        methods => {}
+    },
+    instance => {
+        attrs => [ '$.value' ],
+        DESTROY => sub {},
+        methods => {
+            'int' => sub { Int->new( '$.value' => Perl6::Value::Num::to_int( _('$.value') ) ) }
+        },
+    }
+};
+
 class 'Int-0.0.1-cpan:FGLOCK' => {
+    is => [ 'Perl6::Object' ],
+    class => {
+        attrs => [],
+        methods => {}
+    },
+    instance => {
+        attrs => [ '$.value' ],
+        DESTROY => sub {},
+        methods => {},
+    }
+};
+
+class 'Str-0.0.1-cpan:FGLOCK' => {
+    is => [ 'Perl6::Object' ],
+    class => {
+        attrs => [],
+        methods => {}
+    },
+    instance => {
+        attrs => [ '$.value' ],
+        DESTROY => sub {},
+        methods => {},
+    }
+};
+
+class 'Bit-0.0.1-cpan:FGLOCK' => {
     is => [ 'Perl6::Object' ],
     class => {
         attrs => [],
