@@ -54,15 +54,18 @@ naturalOrRat  = (<?> "number") $ do
 
     fraction count = do
             char '.'
-            notFollowedBy . satisfy $ \x ->
-                (isAlpha x && ((x /=) `all` "eE"))
-                || ((x ==) `any` ".=")
-            digits <- count (digit <|> char '_') <?> "fraction"
+            notFollowedBy . satisfy $ \x -> case x of
+                '_' -> True
+                '.' -> True
+                '=' -> True
+                _   -> isAlpha x
+            digits <- count (satisfy isWordDigit) <?> "fraction"
             return (digitsToRat $ filter (/= '_') digits)
         <?> "fraction"
         where
         digitsToRat d = digitsNum d % (10 ^ length d)
         digitsNum d = foldl (\x y -> x * 10 + (toInteger $ digitToInt y)) 0 d
+        isWordDigit x = (isDigit x || x == '_')
 
     expo :: GenParser Char st Rational
     expo = do
