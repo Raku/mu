@@ -28,7 +28,7 @@ sub as_js {
     my @jsparams = @_; my $jsobj = pop @jsparams;
 
     my $subname;
-    if($self->{pFun}->{pLV}->isa("PIL::PVar") and not ref $self->{pFun}->{pLV}->{pVarName}) {
+    if($self->{pFun}->{pLV} and $self->{pFun}->{pLV}->isa("PIL::PVar") and not ref $self->{pFun}->{pLV}->{pVarName}) {
       $subname = $self->{pFun}->{pLV}->{pVarName};
     }
 

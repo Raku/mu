@@ -1,36 +1,36 @@
 # Standard operators
 my @subs = (
-  "infix:«<»",    "N", "Number(a)  < Number(b)",
-  "infix:«>»",    "N", "Number(a)  > Number(b)",
-  "infix:«<=»",   "N", "Number(a) <= Number(b)",
-  "infix:«>=»",   "N", "Number(a) >= Number(b)",
-  "infix:«==»",   "N", "Number(a) == Number(b)",
-  "infix:«!=»",   "N", "Number(a) != Number(b)",
-  "infix:«lt»",   "S", "String(a)  < String(b)",
-  "infix:«gt»",   "S", "String(a)  > String(b)",
-  "infix:«le»",   "S", "String(a) <= String(b)",
-  "infix:«ge»",   "S", "String(a) >= String(b)",
-  "infix:«eq»",   "S", "String(a) == String(b)",
-  "infix:«ne»",   "S", "String(a) != String(b)",
-  "infix:«+»",    "N", "Number(a)  + Number(b)",
-  "infix:«-»",    "N", "Number(a)  - Number(b)",
-  "infix:«*»",    "N", "Number(a)  * Number(b)",
-  "infix:«/»",    "N", "Number(a)  / Number(b)",
-  "infix:«%»",    "N", "Number(a)  % Number(b)",
-  "infix:«**»",   "N", "Math.pow(Number(a), Number(b))",
-  "infix:«<=>»",  "N", "Number(a) < Number(b) ? -1 : Number(a) == Number(b) ? 0 : 1",
-  "infix:«cmp»",  "S", "String(a) < String(b) ? -1 : String(a) == String(b) ? 0 : 1",
-  "prefix:«-»",   "N", "-a",
-  "abs",          "N", "Math.abs(a)",
-  "sqrt",         "N", "Math.sqrt(a)",
-  "sign",         "N", "a > 0 ? +1 : a == 0 ? 0 : -1",
-  "exp",          "N", "Math.exp(a)",
-  "log",          "N", "Math.log(a)",
-  "log10",        "N", "Math.log(a) / Math.log(10)",
-  "int",          "N", "parseInt(String(a))",
-  "chr",          "N", "String.fromCharCode(a)",
-  "ord",          "S", "a.length > 0 ? a.charCodeAt(0) : undefined",
-  "hex",          "S", "parseInt(a, 16)",
+  "infix:«<»",    2, "N", "Number(a)  < Number(b)",
+  "infix:«>»",    2, "N", "Number(a)  > Number(b)",
+  "infix:«<=»",   2, "N", "Number(a) <= Number(b)",
+  "infix:«>=»",   2, "N", "Number(a) >= Number(b)",
+  "infix:«==»",   2, "N", "Number(a) == Number(b)",
+  "infix:«!=»",   2, "N", "Number(a) != Number(b)",
+  "infix:«lt»",   2, "S", "String(a)  < String(b)",
+  "infix:«gt»",   2, "S", "String(a)  > String(b)",
+  "infix:«le»",   2, "S", "String(a) <= String(b)",
+  "infix:«ge»",   2, "S", "String(a) >= String(b)",
+  "infix:«eq»",   2, "S", "String(a) == String(b)",
+  "infix:«ne»",   2, "S", "String(a) != String(b)",
+  "infix:«+»",    2, "N", "Number(a)  + Number(b)",
+  "infix:«-»",    2, "N", "Number(a)  - Number(b)",
+  "infix:«*»",    2, "N", "Number(a)  * Number(b)",
+  "infix:«/»",    2, "N", "Number(a)  / Number(b)",
+  "infix:«%»",    2, "N", "Number(a)  % Number(b)",
+  "infix:«**»",   2, "N", "Math.pow(Number(a), Number(b))",
+  "infix:«<=>»",  2, "N", "Number(a) < Number(b) ? -1 : Number(a) == Number(b) ? 0 : 1",
+  "infix:«cmp»",  2, "S", "String(a) < String(b) ? -1 : String(a) == String(b) ? 0 : 1",
+  "prefix:«-»",   1, "N", "-a",
+  "abs",          1, "N", "Math.abs(a)",
+  "sqrt",         1, "N", "Math.sqrt(a)",
+  "sign",         1, "N", "a > 0 ? +1 : a == 0 ? 0 : -1",
+  "exp",          1, "N", "Math.exp(a)",
+  "log",          1, "N", "Math.log(a)",
+  "log10",        1, "N", "Math.log(a) / Math.log(10)",
+  "int",          1, "N", "parseInt(String(a))",
+  "chr",          1, "N", "String.fromCharCode(a)",
+  "ord",          1, "S", "a.length > 0 ? a.charCodeAt(0) : undefined",
+  "hex",          1, "S", "parseInt(a, 16)",
 );
 
 # First, we generate the code to eval later.
@@ -42,8 +42,7 @@ my @subs = (
 #   Because the following doesn't parse currently:
 #     sub JS::Root::infix:<~> ($a, $b) {...}
 my $eval;
-for @subs -> $name, $type, $body {
-  my $arity         = $name ~~ rx:P5/^infix:/ ?? 2 :: 1;
+for @subs -> $name, $arity, $type, $body {
   my $undef         = $type eq "S" ?? '""' :: 0;
   my $jsbody        = "function ({$arity == 1 ?? "a" :: "a, b"}) \{
     if(a == undefined) a = $undef;

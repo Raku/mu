@@ -45,7 +45,7 @@ use strict;
     local $PIL::CUR_SUBNAME = $self->{pSubName};
 
     warn "Skipping &*END.\n"      and return "" if $PIL::CUR_SUBNAME eq "&*END";
-    warn "Skipping $self->[0].\n" and return ""
+    warn "Skipping $self->{pSubName}.\n" and return ""
       if $PIL::CUR_SUBNAME =~ /^__export_c.*import$/;
 
     my $magical_vars = "";
@@ -121,19 +121,23 @@ use strict;
     my $self = shift;
 
     die unless keys %$self == 3;
-    die if     ref $self->{pSubType};
-    die unless ref($self->{pSubParams}) eq "ARRAY";
+    die if     ref $self->{pType};
+    die unless ref($self->{pParams}) eq "ARRAY";
 
-    bless $self->{pSubParams} => "PIL::Params";
-    $self->{pSubType} = bless [] => "PIL::$self->{pSubType}";  # minor hack
+    bless $self->{pParams} => "PIL::Params";
+    $self->{pType} = bless [] => "PIL::$self->{pType}";  # minor hack
 
-    local $PIL::IN_SUBLIKE = $self->{pSubType}->as_constant;
+    local $PIL::IN_SUBLIKE = $self->{pType}->as_constant;
+
+    # &PIL::Params::fixup returns the fixed PIL::Params and the fixed
+    # $self->{pSubBody}.
+    my %params_and_body = $self->{pParams}->fixup($self->{pBody});
 
     return bless {
-      pSubName => $self->{pSubName},
-      $self->{pSubParams}->fixup($self->{pSubBody}),
-      # &PIL::Params::fixup returns the fixed PIL::Params and the fixed
-      # $self->{pSubBody}.
+      pType => $self->{pType},
+      # Hack!
+      map { "p" . (/^pSub(.+)$/)[0] => $params_and_body{$_} }
+        keys %params_and_body,
     } => "PIL::PCode";
   }
 
@@ -141,28 +145,28 @@ use strict;
     my $self = shift;
     local $_;
 
-    local $PIL::IN_SUBLIKE  = $self->{pSubType}->as_constant;
+    local $PIL::IN_SUBLIKE  = $self->{pType}->as_constant;
     local $PIL::CUR_SUBNAME = "<anonymous@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>";
 
     my $new_pad     = "var pad = {}; PIL2JS.subpads.push(pad)";
-    my $params      = $self->{pSubParams}->as_js;
+    my $params      = $self->{pParams}->as_js;
     my $magical_var = $PIL::IN_SUBLIKE >= PIL::SUBROUTINE
       ? "_24main_3a_3a_3fSUBNAME = new PIL2JS.Box.Constant('<anon>');\n\n"
       : "";
 
     local @PIL::VARS_TO_BACKUP = ();
-    my $body        = $self->{pSubBody}->as_js;
+    my $body        = $self->{pBody}->as_js;
     my $ccsetup     = PIL::generic_cc PIL::cur_retcc, @PIL::VARS_TO_BACKUP, qw< $?SUBNAME >;
     my $backup      = "var " . join ", ", map {
       sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);
     } @PIL::VARS_TO_BACKUP, qw< $?SUBNAME >;
-    my $bind        = $self->{pSubParams}->as_js_bind;
+    my $bind        = $self->{pParams}->as_js_bind;
     my $wrappedbody = "$new_pad;\n$magical_var$bind;\n\n$body";
 
-    my $jsbody = $params . "\n" . $self->{pSubParams}->autothread_wrapper($wrappedbody);
+    my $jsbody = $params . "\n" . $self->{pParams}->autothread_wrapper($wrappedbody);
 
     return sprintf "PIL2JS.Box.constant_func(%d, function (args) {\n%s;\n%s\n%s\n})",
-      $self->{pSubParams}->arity,
+      $self->{pParams}->arity,
       PIL::add_indent(1, $backup),
       PIL::add_indent(1, $ccsetup),
       PIL::add_indent(1, $jsbody);
