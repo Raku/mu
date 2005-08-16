@@ -86,8 +86,9 @@ naturalOrRat  = (<?> "number") $ do
     octalBad        = do{ many1 octDigit ; fail "0100 is not octal in perl6 any more, use 0o100 instead." }
     binary          = do{ char 'b'; number 2 (oneOf "01")  }
 
-    number base baseDigit
-        = do{ digits <- many1 baseDigit
-            ; let n = foldl (\x d -> base*x + toInteger (digitToInt d)) 0 digits
-            ; seq n (return n)
-            }
+    number base baseDigit = do
+        d   <- baseDigit
+        ds  <- many (baseDigit <|> char '_')
+        let n = foldl (\x d -> base*x + toInteger (digitToInt d)) 0 digits
+            digits = (d : filter (/= '_') ds)
+        seq n (return n)
