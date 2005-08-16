@@ -7,9 +7,12 @@
 # - created the 'Scalar' container
 
 # TODO - verify .ref() and .undefine() implementations
-# TODO - ++, --
+# TODO - .ref() should be inherited from Object
 # TODO - is_constant trait?
 # TODO - can a Scalar hold an unboxed value?
+# TODO - .key, .value => dispatch to Value->key, Value->value
+# TODO - dispatch .grep, .map, ... to the Value - see AUTOMETH
+# TODO - store(Scalar) => store(Scalar->value)
 
 use strict;
 
@@ -39,7 +42,7 @@ class 'Scalar'.$class_description => {
             'int' =>      sub { 
                 my $tmp = SELF->value; 
                 defined $tmp ? $tmp->int : Int->new( '$.value' => 0 ) },
-            'str' =>      sub { 
+            'str' =>      sub {
                 my $tmp = SELF->value; 
                 defined $tmp ? $tmp->str : Str->new( '$.value' => '' ) },
             'bit' =>      sub { 
@@ -47,7 +50,16 @@ class 'Scalar'.$class_description => {
                 defined $tmp ? $tmp->bit : Bit->new( '$.value' => 0 ) },
             'perl' =>     sub { 
                 my $tmp = SELF->value; 
-                defined $tmp ? $tmp->perl : Str->new( '$.value' => '\\undef' ) },
+                if ( defined $tmp ) {
+                    $tmp = $tmp->perl;
+                }
+                else {
+                    $tmp = Str->new( '$.value' => 'undef' ) 
+                }
+                $tmp = $tmp->value;
+                $tmp = '\\' . $tmp unless $tmp =~ m/^\(/;  # 'ref' symbol
+                return Str->new( '$.value' => $tmp );
+              },
             'increment' => sub { 
                 my $tmp = SELF->value; 
                 _('$.value' => defined $tmp ? $tmp->increment : Int->new( '$.value' => 1 ) ) },

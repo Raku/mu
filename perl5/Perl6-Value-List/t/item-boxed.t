@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 22;
+plan tests => 23;
  
 use Perl6::Value;
 
@@ -49,6 +49,7 @@ ok(Int->isa('Perl6::Object'), '... Int isa Perl6::Object');
     isa_ok($p, 'Pair', 'Pair');
     can_ok($p, 'value');
     can_ok($p, 'key');
+    is($p->perl->value, "('a', 'x')", '... got .perl');
     is($p->key()->value(),   'a', '... got the key');
     is($p->value()->value(), 'x', '... got the value');
 }

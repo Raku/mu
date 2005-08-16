@@ -9,6 +9,8 @@ plan tests => 16;
 use Perl6::Container::Scalar;
 use Perl6::Value;
 
+# TODO - how to get a class name?
+
 can_ok('Scalar', 'new');
 ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
 
@@ -59,4 +61,16 @@ ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
     is($n->value->value, 2, '... increment Int');
 
     # TODO - ref of undef
+}
+
+{  
+    # dispatching methods to the Value ?
+    
+    my $p = Scalar->new( 
+               '$.value' => Pair->new( 
+                   '$.value' => Str->new( '$.value' => 'a' ),
+                   '$.key' =>   Num->new( '$.value' => 3.3 ) 
+                ) );
+    is( $p->key->value, 'a' );
+    is( $p->value->value, 3.3 );
 }
