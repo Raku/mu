@@ -8,6 +8,7 @@ sub fixup {
   local $_;
 
   die unless keys %$self == 4;
+  $self->{pCxt} = bless [] => "PIL::TCxtVoid" if $self->{pCxt} eq "TCxtVoid";
   die unless $self->{pCxt}->isa("PIL::TCxt");
   die unless ref($self->{pArgs}) eq "ARRAY";
 
@@ -100,7 +101,9 @@ sub as_js {
     # Minor hack -- we undefine all params to not suck up all memory.
     my $cc =
       $self->{CC}->as_js(
-        join " ", map { "$_ = undefined;" } grep { /^ret\d+$/ } @jsparams
+        (grep { /^ret\d+$/ } @jsparams)
+          ? join " ", map { "$_ = undefined;" } grep { /^ret\d+$/ } @jsparams
+          : undef
       );
 
     my @arg = (@jsparams, $native ? () : ($cc));
@@ -136,6 +139,7 @@ sub as_js {
           $step->(@jsthings, shift);
         };
       } else {
+        no warnings "void";
         $self;  # XXX!!!! If this line is removed, *THINGS START TO BREAK*!!!
                 # (!!!! WTF?)
         $sub->(@jsthings);

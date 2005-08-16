@@ -12,6 +12,8 @@
     die unless $_[0]->{pPos}->isa("PIL::MkPos");
     die if     $_[0]->{pExp};
 
+    $_[0]->{pNode} = bless {} => "PIL::PNoop" if $_[0]->{pNode} eq "PNoop";
+
     return bless {
       pPos  => $_[0]->{pPos}->fixup,
       pExp  => undef,
@@ -20,8 +22,12 @@
   }
 
   sub as_js {
-    local $PIL::CUR_POS = $_[0]->{pPos};
-    return $_[0]->{pNode}->as_js;
+    my $self = shift;
+
+    local $PIL::CUR_POS = $self->{pPos};
+    ($self->{pNode}{CC} and die) or $self->{pNode}{CC} = $self->{CC} if $self->{CC};
+
+    return $self->{pNode}->as_js;
   }
 
   sub unwrap { $_[0]->{pNode}->unwrap }

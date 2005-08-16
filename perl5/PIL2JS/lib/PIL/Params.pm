@@ -10,8 +10,8 @@
     local $_;
 
     return (
-      (bless [ map { $_->fixup } @$self ] => "PIL::Params"),
-      $subbody->fixup,
+      pSubParams => (bless [ map { $_->fixup } @$self ] => "PIL::Params"),
+      pSubBody   => $subbody->fixup,
     );
   }
 
@@ -83,7 +83,7 @@ EOF
   use warnings;
   use strict;
 
-  sub is_required { $_[0]->{tpParam}{isOptional}->isa("PIL::False") }
+  sub is_required { not $_[0]->{tpParam}{isOptional} }
   sub name        { $_[0]->{tpParam}{paramName} }
   sub type        { $_[0]->{tpParam}{paramContext}->[0]->[0] }
   sub fixed_name  { $_[0]->{fixedName} }
@@ -164,7 +164,7 @@ EOF
     warn "Skipping \%_ parameter.\n" and return "" if $self->name eq "%_";
 
     # We're required, but a value hasn't been supplied?
-    if($self->{tpParam}{isOptional}->isa("PIL::False")) {
+    unless($self->{tpParam}{isOptional}) {
       return sprintf <<EOF, $self->jsname, map { PIL::doublequote($_) } $self->name, $PIL::CUR_SUBNAME;
 if(%s == undefined)
   PIL2JS.die("Required parameter \\"" + %s + "\\" not passed to sub \\"" + %s + "\\"!");

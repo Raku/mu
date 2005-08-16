@@ -11,8 +11,14 @@ sub fixup {
   return bless { pLV => $self->{pLV}->fixup } => "PIL::PExp";
 }
 
-sub as_js { $_[0]->{pLV}->as_js }
+sub as_js {
+  my $self = shift;
 
-sub unwrap { (%{ $_[0] })[1] }
+  ($self->{pLV}{CC} and die) or $self->{pLV}{CC} = $self->{CC} if $self->{CC};
+
+  return $self->{pLV}->as_js;
+}
+
+sub unwrap { $_[0]->{pLV} }
 
 1;

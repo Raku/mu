@@ -55,10 +55,10 @@ use strict;
       if $PIL::IN_SUBLIKE >= PIL::SUBROUTINE;
     $magical_vars .= "_24main_3a_3a_3fSUBNAME = new PIL2JS.Box.Constant(%NAME);\n"
       if $PIL::IN_SUBLIKE >= PIL::SUBROUTINE;
-    $magical_vars =~ s/%VAR/ PIL::name_mangle $self->[0]/eg;
+    $magical_vars =~ s/%VAR/ PIL::name_mangle $self->{pSubName}/eg;
     $magical_vars =~ s/%NAME/PIL::doublequote $PIL::CUR_SUBNAME/eg;
 
-    my $callchain   = "PIL2JS.call_chain.push(" . PIL::name_mangle($self->[0]) . ")";
+    my $callchain   = "PIL2JS.call_chain.push(" . PIL::name_mangle($self->{pSubName}) . ")";
     my $new_pad     = "var pad = {}; PIL2JS.subpads.push(pad)";
     my $params      = $self->{pSubParams}->as_js;
 

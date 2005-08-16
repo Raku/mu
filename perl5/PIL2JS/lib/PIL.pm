@@ -153,7 +153,6 @@ sub as_js {
 
   my $fixed_tree = $self->fixup;
   warn "# Number of lexical scopes: $CUR_LEXSCOPE_ID\n";
-  use YAML; warn Dump($fixed_tree);
 
   $IN_GLOBPIL++;
   my @glob_js = map { $_->as_js || () } @{ $fixed_tree->{"pilGlob"} };

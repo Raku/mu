@@ -8,9 +8,11 @@ use strict;
 
   sub as_js {
     my $self = shift;
-    die unless %$self == 1;
-    die unless my $v = exists $self->{pVal};
+    die unless keys %$self == 1;
+    die unless exists $self->{pVal};
     local $_;
+    # my $v := $.pVal would be nicer... :)
+    my $v = $self->{pVal};
 
     return "new PIL2JS.Box.Constant(undefined)" if $v eq "VUndef";
     return sprintf "new PIL2JS.Box.Constant([%s])",
