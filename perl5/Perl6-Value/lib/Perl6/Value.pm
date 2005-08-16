@@ -181,12 +181,12 @@ class 'Ref'.$class_description => {
         attrs => [ '$.value' ],
         DESTROY => sub {},
         methods => {
-            'num' => sub { Num->new( '$.value' => Perl6::Value::Bit::to_num( _('$.value') ) ) },
-            'int' => sub { Int->new( '$.value' => Perl6::Value::Bit::to_int( _('$.value') ) ) },
-            'str' => sub { Str->new( '$.value' => Perl6::Value::Bit::to_str( _('$.value') ) ) },
-            'bit' => sub { SELF },
-            'perl' => sub { SELF->str },
-            'ref' => sub { $Perl6::Value::Ref::class },
+            'num' => sub { warn; Num->new( '$.value' => Perl6::Value::Ref::to_num( _('$.value') ) ) },
+            'int' => sub { warn; Int->new( '$.value' => Perl6::Value::Ref::to_int( _('$.value') ) ) },
+            'str' => sub { warn; Str->new( '$.value' => Perl6::Value::Ref::to_str( _('$.value') ) ) },
+            'bit' => sub { warn; SELF },
+            'perl' => sub { warn; SELF->str },
+            'ref' => sub { warn; $Perl6::Value::Ref::class },
         },
     }
 };

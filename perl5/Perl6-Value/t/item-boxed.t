@@ -53,4 +53,28 @@ ok(Int->isa('Perl6::Object'), '... Int isa Perl6::Object');
     is($p->key()->value(),   'a', '... got the key');
     is($p->value()->value(), 'x', '... got the value');
     like($p->id(), qr/\d+/, '... got the object id');
+
+=for later
+
+    my $class = ::meta( $p );
+    my $q = $class->new(
+                '$.key' =>   Str->new( '$.value' => 'a' ),
+                '$.value' => Str->new( '$.value' => 'x' ) );
+    isa_ok($q, 'Pair', 'create a new object from the reference');
+
+    warn ::meta('Pair');  # get metaclass from class name
+    warn $p->ref;  # get class
+    # warn $p->meta;  # get meta class
+    warn ::meta( $p->ref );  # get metaclass from class ref
+    warn ::dispatch( ::meta( $p->ref ), 'name' );  # get the class name from object
+    warn ::meta( $p );
+    warn ::dispatch( ::meta( $p ), 'name' );  # ** get the class name from object
+    warn ::dispatch( ::meta( $p ), 'class' );  # 
+    warn $p->ref->superclasses;
+    warn $p->ref->meta;  # get class
+    warn ::dispatch( ::meta('Pair'), 'name' );
+    like($p->name(), 'xxx', '... got the object class name');
+
+=cut
+
 }
