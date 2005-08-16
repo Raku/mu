@@ -9,6 +9,9 @@
 
 # ChangeLog
 #
+# 2005-08-16
+# * added method .perl()
+#
 # 2005-08-15
 # * added boxed types: Num, Int, Str, Bit, Pair
 #
@@ -167,6 +170,29 @@ class 'Pair'.$class_description => {
     }
 };
 
+$Perl6::Value::Ref::class =
+class 'Ref'.$class_description => {
+    is => [ 'Perl6::Object' ],
+    class => {
+        attrs => [],
+        methods => {}
+    },
+    instance => {
+        attrs => [ '$.value' ],
+        DESTROY => sub {},
+        methods => {
+            'num' => sub { Num->new( '$.value' => Perl6::Value::Bit::to_num( _('$.value') ) ) },
+            'int' => sub { Int->new( '$.value' => Perl6::Value::Bit::to_int( _('$.value') ) ) },
+            'str' => sub { Str->new( '$.value' => Perl6::Value::Bit::to_str( _('$.value') ) ) },
+            'bit' => sub { SELF },
+            'perl' => sub { SELF->str },
+            'ref' => sub { $Perl6::Value::Ref::class },
+        },
+    }
+};
+
+# ---------- Implementation of unboxed values --------------
+
 package Perl6::Value::Num;
 
 use constant Inf => 100**100**100;
@@ -225,7 +251,7 @@ __END__
 
 =head1 NAME
 
-Perl6::Value - functions for implementation of Perl6 Values in Perl5
+Perl6::Value - Perl6 boxed and unboxed Values
 
 =head1 SYNOPSIS
 

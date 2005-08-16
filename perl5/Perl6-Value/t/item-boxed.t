@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 23;
+plan tests => 24;
  
 use Perl6::Value;
 
@@ -52,4 +52,5 @@ ok(Int->isa('Perl6::Object'), '... Int isa Perl6::Object');
     is($p->perl->value, "('a', 'x')", '... got .perl');
     is($p->key()->value(),   'a', '... got the key');
     is($p->value()->value(), 'x', '... got the value');
+    like($p->id(), qr/\d+/, '... got the object id');
 }
