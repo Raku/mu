@@ -57,8 +57,8 @@ naturalOrRat  = (<?> "number") $ do
             notFollowedBy . satisfy $ \x ->
                 (isAlpha x && ((x /=) `all` "eE"))
                 || ((x ==) `any` ".=")
-            digits <- count digit <?> "fraction"
-            return (digitsToRat digits)
+            digits <- count (digit <|> char '_') <?> "fraction"
+            return (digitsToRat $ filter (/= '_') digits)
         <?> "fraction"
         where
         digitsToRat d = digitsNum d % (10 ^ length d)
