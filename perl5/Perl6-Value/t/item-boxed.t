@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 25;
+plan tests => 28;
  
 use Perl6::Value;
 
@@ -65,6 +65,19 @@ ok(Int->isa('Perl6::Object'), '... Int isa Perl6::Object');
                 '$.key' =>   Str->new( '$.value' => 'a' ),
                 '$.value' => Str->new( '$.value' => 'x' ) );
     isa_ok($q, 'Pair', 'create a new object from the reference');
+}
+
+{
+    my $n = Num->new( '$.value' => 3.3 );
+    isa_ok($n, 'Num');
+    my $r = Ref->new( '$.value' => $n );
+    isa_ok($r, 'Ref', 'reference to a value' );
+    is($r->perl->value, '\3.3', '... reference to a value does .perl' );
+
+    # TODO - reference to Array, reference to undef
+
+    # is($n->value(), 3.3, '... got the unboxed num value');
+}
 
 =for later
 
@@ -83,4 +96,3 @@ ok(Int->isa('Perl6::Object'), '... Int isa Perl6::Object');
 
 =cut
 
-}

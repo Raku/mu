@@ -19,8 +19,9 @@
 # * refactored from Perl6::Value::List
 
 # TODO - verify .ref() implementation
-# TODO - finish .perl(), .increment, .decrement
-# TODO - Pair value can be undef
+# TODO - implement tests from t/var/autoderef.t
+# TODO - finish .increment, .decrement
+# TODO - Pair key and value can be undef, Ref
 
 use strict;
 
@@ -170,7 +171,25 @@ class 'Pair'.$class_description => {
     }
 };
 
-# $Perl6::Value::Ref::class =
+# quick hack until we get AUTOMETH working
+# - not proxied: .id .value
+my %ref_AUTOMETH = map {
+        my $method = $_;
+        ( $method => sub { 
+            my $tmp = _('$.value');
+            if ( $tmp->isa( 'Array' ) || $tmp->isa( 'Hash' ) ) {
+                return _('$.value')->$method;
+            }
+            else {
+                # "real ref"
+                return Bit->new( '$.value' => 1 ) if $method eq 'bit';
+                return Str->new( '$.value' => '\\' . _('$.value')->perl->value ) if $method eq 'perl';
+                return CLASS if $method eq 'ref';
+                die "unsupported method Ref.$method";
+            }
+        } )
+    } 
+    qw( num int str bit perl ref map grep increment decrement FETCH STORE shift pop unshift push );
 class 'Ref'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -180,13 +199,8 @@ class 'Ref'.$class_description => {
     instance => {
         attrs => [ '$.value' ],
         DESTROY => sub {},
-        methods => {
-            'num' => sub { warn; Num->new( '$.value' => Perl6::Value::Ref::to_num( _('$.value') ) ) },
-            'int' => sub { warn; Int->new( '$.value' => Perl6::Value::Ref::to_int( _('$.value') ) ) },
-            'str' => sub { warn; Str->new( '$.value' => Perl6::Value::Ref::to_str( _('$.value') ) ) },
-            'bit' => sub { warn; SELF },
-            'perl' => sub { warn; SELF->str },
-            'ref' => sub { CLASS }, 
+        methods => { 
+            %ref_AUTOMETH,
         },
     }
 };
