@@ -54,7 +54,9 @@ is $tot, 42, "Underscores work with binary";
 
 is 2e0_1, 20, "Underscores work in the argument for e";
 
-# Ambiguity tests (not confirmed by p6l)
+# Ambiguity tests, see thread "Ambiguity of parsing numbers with
+# underscores/methods" on p6l started by Ingo Blechschmidt:
+# http://www.nntp.perl.org/group/perl.perl6.language/22769
 dies_ok { 2.e123 }, "2.e123 parses as method call";
 dies_ok { 2._foo }, "2._foo parses as method call";
 dies_ok { 2._e23 }, "2._23  parses as method call";
