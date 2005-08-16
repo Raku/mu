@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 24;
+plan tests => 25;
  
 use Perl6::Value;
 
@@ -54,13 +54,19 @@ ok(Int->isa('Perl6::Object'), '... Int isa Perl6::Object');
     is($p->value()->value(), 'x', '... got the value');
     like($p->id(), qr/\d+/, '... got the object id');
 
-=for later
+    #my $class_name = ::dispatch( ::meta( $p ), 'name' );  # ** get the class name, from object
+    #my $class = $Perl6::Class::ALL_CLASSES{$class_name};  # ** get the class, from class name
+    #warn $class;
 
-    my $class = ::meta( $p );
+    # my $class = ::meta( $p );
+
+    my $class = $p->ref;
     my $q = $class->new(
                 '$.key' =>   Str->new( '$.value' => 'a' ),
                 '$.value' => Str->new( '$.value' => 'x' ) );
     isa_ok($q, 'Pair', 'create a new object from the reference');
+
+=for later
 
     warn ::meta('Pair');  # get metaclass from class name
     warn $p->ref;  # get class

@@ -29,7 +29,7 @@ use Perl6::Object;
 
 my $class_description = '-0.0.1-cpan:FGLOCK';
 
-$Perl6::Value::Num::class =
+# $Perl6::Value::Num::class =
 class 'Num'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -61,12 +61,12 @@ class 'Num'.$class_description => {
             'decrement' => sub { 
                 my $value = _('$.value');
                 SELF->ref->new( '$.value' => --$value ) },
-            'ref' =>  sub { $Perl6::Value::Num::class },
+            'ref' => sub { CLASS }, 
         },
     }
 };
 
-$Perl6::Value::Int::class =
+# $Perl6::Value::Int::class =
 class 'Int'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -88,12 +88,12 @@ class 'Int'.$class_description => {
             'decrement' => sub { 
                 my $value = _('$.value');
                 SELF->ref->new( '$.value' => --$value ) },
-            'ref' =>  sub { $Perl6::Value::Int::class },
+            'ref' => sub { CLASS }, 
         },
     }
 };
 
-$Perl6::Value::Str::class =
+# $Perl6::Value::Str::class =
 class 'Str'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -119,12 +119,12 @@ class 'Str'.$class_description => {
             'decrement' => sub { 
                 my $value = _('$.value');
                 SELF->ref->new( '$.value' => --$value ) },
-            'ref' =>  sub { $Perl6::Value::Str::class },
+            'ref' => sub { CLASS }, 
         },
     }
 };
 
-$Perl6::Value::Bit::class =
+# $Perl6::Value::Bit::class =
 class 'Bit'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -140,12 +140,12 @@ class 'Bit'.$class_description => {
             'str' => sub { Str->new( '$.value' => Perl6::Value::Bit::to_str( _('$.value') ) ) },
             'bit' => sub { SELF },
             'perl' => sub { SELF->str },
-            'ref' => sub { $Perl6::Value::Bit::class },
+            'ref' => sub { CLASS }, 
         },
     }
 };
 
-$Perl6::Value::Pair::class =
+# $Perl6::Value::Pair::class =
 class 'Pair'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -165,12 +165,12 @@ class 'Pair'.$class_description => {
                     '(' . _('$.key')->perl->value . ', ' . _('$.value')->perl->value . ')'
                 ) 
               },
-            'ref' => sub { $Perl6::Value::Pair::class },
+            'ref' => sub { CLASS }, 
         },
     }
 };
 
-$Perl6::Value::Ref::class =
+# $Perl6::Value::Ref::class =
 class 'Ref'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -186,12 +186,21 @@ class 'Ref'.$class_description => {
             'str' => sub { warn; Str->new( '$.value' => Perl6::Value::Ref::to_str( _('$.value') ) ) },
             'bit' => sub { warn; SELF },
             'perl' => sub { warn; SELF->str },
-            'ref' => sub { warn; $Perl6::Value::Ref::class },
+            'ref' => sub { CLASS }, 
         },
     }
 };
 
 # ---------- Implementation of unboxed values --------------
+
+#package Perl6::Value;
+#
+#sub to_ref {
+#    my $object = shift;
+#    my $class_name = ::dispatch( ::meta( $object ), 'name' );  # ** get the class name, from object
+#    my $class = $Perl6::Class::ALL_CLASSES{$class_name};  # ** get the class, from class name
+#    return $class;
+#}
 
 package Perl6::Value::Num;
 
