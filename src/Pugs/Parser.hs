@@ -595,8 +595,10 @@ ruleNoDeclaration = rule "no declaration" $ do
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
     symbol "use"
-    tryChoice [ ruleUseVersion, ruleUsePackage True ]
-    return emptyExp
+    tryChoice [ ruleUseVersion >> return emptyExp
+              , ruleUseJSANModule
+              , ruleUsePackage True >> return emptyExp
+              ]
 
 ruleUseVersion :: RuleParser ()
 ruleUseVersion = rule "use version" $ do
@@ -640,6 +642,24 @@ ruleUsePackage use = rule "use package" $ do
             ]
         return ()
     return ()
+
+ruleUseJSANModule :: RuleParser Exp
+ruleUseJSANModule = do
+    string "jsan:"
+    name <- liftM (Val . VStr . concat) $ many1 $ do
+        part <- identifier
+        dot  <- choice [ try $ string ".", string "" ]
+        return $ part ++ dot
+    choice
+        [ try $ do
+            verbatimParens whiteSpace
+            return $ App (Var "&PIL2JS::Internals::use_jsan_module_noimp") Nothing [name]
+        , do
+            exp <- option emptyExp ruleExpression
+            let exp' | exp == emptyExp = []
+                     | otherwise       = [exp]
+            return $ App (Var "&PIL2JS::Internals::use_jsan_module_imp") Nothing $ name:exp'
+        ] 
 
 -- | The version part of a full class specification.
 ruleVersionPart :: RuleParser String
