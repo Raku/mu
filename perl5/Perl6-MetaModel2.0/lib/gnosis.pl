@@ -34,25 +34,6 @@ sub ::create_class (%) {
 $::Class = ::create_class(
     '$:name'    => 'Class',
     '%:methods' => {
-        'name' => sub ($) {
-            ::opaque_instance_attrs(shift)->{'$:name'}
-        },
-        'class_precendence_list' => sub ($) {
-            my ($self) = @_;
-            my @cpl = ($self);
-            my $current = $self;
-            while (my $super = $current->superclass->[0]) {
-                push @cpl => $super;
-                $current = $super;
-            }
-            return @cpl;
-        },        
-        'superclass' => sub ($) {
-            ::opaque_instance_attrs(shift)->{'@:superclasses'}
-        },
-        'get_method' => sub ($$) {
-            my ($self, $label) = @_;
-            ::opaque_instance_attrs($self)->{'%:methods'}->{$label};
-        }
+        'add_method' => ::method {},
     },
 );

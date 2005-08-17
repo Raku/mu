@@ -13,15 +13,17 @@ $::Object = undef;
 $::Object = ::create_class(
     '$:name'    => 'Object',
     '%:methods' => {
-        'new' => sub ($%) {
-            my ($class, %attrs) = @_;
-            return ::create_opaque_instance(\$class, %attrs);
-        },      
-        'id' => sub ($) {
-            ::opaque_instance_id(shift)
-        },
-        'class' => sub ($) {
-            ::opaque_instance_class(shift)
-        }
+        'new'        => ::classmethod {},   
+        'bless'      => ::classmethod {},       
+        'CREATE'     => ::classmethod {},
+        'isa'        => ::classmethod {},   
+        'can'        => ::classmethod {},        
+        
+        'BUILD'      => ::submethod {},
+        'BUILDALL'   => ::method {},
+        'DESTROYALL' => ::method {},      
+        'isa'        => ::method {},   
+        'can'        => ::method {},
+        'id'         => ::method { ::opaque_instance_id(shift) },
     },
 );
