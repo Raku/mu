@@ -33,7 +33,7 @@ use Perl6::Value;
 my $class_description = '-0.0.1-cpan:FGLOCK';
 
 sub Perl6::Cell::store {
-    die 'read only cell' if $_[0]{ro};
+    die 'read only cell' if $_[0]{ro} && defined $_[0]{v};
     $_[0]{v} = $_[1]
 }
 sub Perl6::Cell::fetch {
