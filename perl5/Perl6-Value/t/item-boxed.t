@@ -4,7 +4,8 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 28;
+# use Test::Exception;
+plan tests => 30;
  
 use Perl6::Value;
 
@@ -12,46 +13,46 @@ can_ok('Int', 'new');
 ok(Int->isa('Perl6::Object'), '... Int isa Perl6::Object');
 
 {
-    my $n = Num->new( '$.value' => 3.3 );
+    my $n = Num->new( '$.unboxed' => 3.3 );
     isa_ok($n, 'Num');
-    can_ok($n, 'value');
-    is($n->value(), 3.3, '... got the unboxed num value');
+    can_ok($n, 'num');
+    is($n->unboxed(), 3.3, '... got the unboxed num value');
 
     my $i = $n->int();
     isa_ok($i, 'Int');
-    can_ok($i, 'value');
-    is($i->value(), 3, '... got the unboxed int value');
+    can_ok($i, 'int');
+    is($i->unboxed(), 3, '... got the unboxed int value');
 
     my $b = $n->bit();
     isa_ok($n, 'Num');
     isa_ok($b, 'Bit');
-    can_ok($b, 'value');
-    is($b->value(), 1, '... got the unboxed bit value');
+    can_ok($b, 'bit');
+    is($b->unboxed(), 1, '... got the unboxed bit value');
 
     my $s = $b->str();
     isa_ok($s, 'Str');
-    can_ok($s, 'value');
-    is($s->value(), 'bool::true', '... Bit to Str');
+    can_ok($s, 'str');
+    is($s->unboxed(), 'bool::true', '... Bit to Str');
 }
 
 {
     # Inf
     my $n = Num->Inf;
     isa_ok($n, 'Num');
-    is($n->value(), &Perl6::Value::Num::Inf, '... Inf');
+    is($n->unboxed(), &Perl6::Value::Num::Inf, '... Inf');
 }
 
 {
     # Pair
     my $p = Pair->new(
-                '$.key' =>   Str->new( '$.value' => 'a' ),
-                '$.value' => Str->new( '$.value' => 'x' ) );
+                '$.key' =>   Str->new( '$.unboxed' => 'a' ),
+                '$.value' => Str->new( '$.unboxed' => 'x' ) );
     isa_ok($p, 'Pair', 'Pair');
     can_ok($p, 'value');
     can_ok($p, 'key');
-    is($p->perl->value, "('a', 'x')", '... got .perl');
-    is($p->key()->value(),   'a', '... got the key');
-    is($p->value()->value(), 'x', '... got the value');
+    is($p->perl->unboxed, "('a', 'x')", '... got .perl');
+    is($p->key()->unboxed(),   'a', '... got the key');
+    is($p->value()->unboxed(), 'x', '... got the value');
     like($p->id(), qr/\d+/, '... got the object id');
 
     #my $class_name = ::dispatch( ::meta( $p ), 'name' );  # ** get the class name, from object
@@ -62,19 +63,43 @@ ok(Int->isa('Perl6::Object'), '... Int isa Perl6::Object');
 
     my $class = $p->ref;
     my $q = $class->new(
-                '$.key' =>   Str->new( '$.value' => 'a' ),
-                '$.value' => Str->new( '$.value' => 'x' ) );
+                '$.key' =>   Str->new( '$.unboxed' => 'a' ),
+                '$.value' => Str->new( '$.unboxed' => 'x' ) );
     isa_ok($q, 'Pair', 'create a new object from the reference');
 }
 
 {
-    my $n = Num->new( '$.value' => 3.3 );
-    isa_ok($n, 'Num');
-    my $r = Ref->new( '$.value' => $n );
-    isa_ok($r, 'Ref', 'reference to a value' );
-    is($r->perl->value, '\3.3', '... reference to a value does .perl' );
+    # Ref to undef
+    my $r = Ref->new( '$.referred' => undef );
+    isa_ok($r, 'Ref', 'reference to undef' );
+    is($r->perl->unboxed, '\undef', '... reference to undef does .perl' );
 
-    # TODO - reference to Array, reference to undef
+    # reference value is not assignable
+    #my $n = Num->new( '$.unboxed' => 3.3 );
+    #eval { $r->store( $n ) };
+    #like( $@, qr/read-only/, '... Ref is read-only' );
+}
+
+if(0){  # -- belongs to 'Container'
+    # Scalar undef
+    my $r = Scalar->new( '$.unboxed' => undef );
+    isa_ok($r, 'Scalar', 'reference to undef' );
+    is($r->perl->value, '\undef', '... reference to undef does .perl' );
+
+    # scalar value is assignable
+    my $n = Num->new( '$.unboxed' => 3.3 );
+    $r->value( $n );
+    is($r->perl->value, '\3.3', '... Scalar is read-write' );
+}
+
+{
+    my $n = Num->new( '$.unboxed' => 3.3 );
+    isa_ok($n, 'Num');
+    my $r = Ref->new( '$.referred' => $n );
+    isa_ok($r, 'Ref', 'reference to a value' );
+    is($r->perl->unboxed, '\3.3', '... reference to a value does .perl' );
+
+    # TODO - reference to Array
 
     # is($n->value(), 3.3, '... got the unboxed num value');
 }

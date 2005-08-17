@@ -9,7 +9,16 @@
 
 # ChangeLog
 #
+# 2005-08-17
+# * More descriptive method names:
+#   - .unboxed() - returns the unboxed value
+#     Pair->unboxed returns two objects.
+#   - Ref->referred - returns the referred object
+#   - removed method .value() - except for Pair
+#
 # 2005-08-16
+# * 'Scalar' temporarily implemented here 
+# * added class Ref
 # * added method .perl()
 #
 # 2005-08-15
@@ -21,7 +30,9 @@
 # TODO - verify .ref() implementation
 # TODO - implement tests from t/var/autoderef.t
 # TODO - finish .increment, .decrement
-# TODO - Pair key and value can be undef, Ref
+# TODO - remove 'Scalar' from Container ? reuse Ref code
+# TODO - tie
+# TODO - constant
 
 use strict;
 
@@ -39,29 +50,29 @@ class 'Num'.$class_description => {
             # TODO - pi ?
             'Inf' => sub {
                 my ($class) = @_;           
-                return $class->new( '$.value' => &Perl6::Value::Num::Inf );
+                return $class->new( '$.unboxed' => &Perl6::Value::Num::Inf );
             },
             'NaN' => sub {
                 my ($class) = @_;           
-                return $class->new( '$.value' => &Perl6::Value::Num::NaN );
+                return $class->new( '$.unboxed' => &Perl6::Value::Num::NaN );
             },
         }
     },
     instance => {
-        attrs => [ '$.value' ],
+        attrs => [ '$.unboxed' ],
         DESTROY => sub {},
         methods => {
             'num' =>  sub { SELF },
-            'int' =>  sub { Int->new( '$.value' => Perl6::Value::Num::to_int( _('$.value') ) ) },
-            'str' =>  sub { Str->new( '$.value' => Perl6::Value::Num::to_str( _('$.value') ) ) },
-            'bit' =>  sub { Bit->new( '$.value' => Perl6::Value::Num::to_bit( _('$.value') ) ) },
+            'int' =>  sub { Int->new( '$.unboxed' => Perl6::Value::Num::to_int( _('$.unboxed') ) ) },
+            'str' =>  sub { Str->new( '$.unboxed' => Perl6::Value::Num::to_str( _('$.unboxed') ) ) },
+            'bit' =>  sub { Bit->new( '$.unboxed' => Perl6::Value::Num::to_bit( _('$.unboxed') ) ) },
             'perl' => sub { SELF->str },
             'increment' => sub { 
-                my $value = _('$.value');
-                SELF->ref->new( '$.value' => ++$value ) },
+                my $value = _('$.unboxed');
+                SELF->ref->new( '$.unboxed' => ++$value ) },
             'decrement' => sub { 
-                my $value = _('$.value');
-                SELF->ref->new( '$.value' => --$value ) },
+                my $value = _('$.unboxed');
+                SELF->ref->new( '$.unboxed' => --$value ) },
             'ref' => sub { CLASS }, 
         },
     }
@@ -75,20 +86,20 @@ class 'Int'.$class_description => {
         methods => {}
     },
     instance => {
-        attrs => [ '$.value' ],
+        attrs => [ '$.unboxed' ],
         DESTROY => sub {},
         methods => {
-            'num' =>  sub { Num->new( '$.value' => Perl6::Value::Int::to_num( _('$.value') ) ) },
+            'num' =>  sub { Num->new( '$.unboxed' => Perl6::Value::Int::to_num( _('$.unboxed') ) ) },
             'int' =>  sub { SELF },
-            'str' =>  sub { Str->new( '$.value' => Perl6::Value::Int::to_str( _('$.value') ) ) },
-            'bit' =>  sub { Bit->new( '$.value' => Perl6::Value::Int::to_bit( _('$.value') ) ) },
+            'str' =>  sub { Str->new( '$.unboxed' => Perl6::Value::Int::to_str( _('$.unboxed') ) ) },
+            'bit' =>  sub { Bit->new( '$.unboxed' => Perl6::Value::Int::to_bit( _('$.unboxed') ) ) },
             'perl' => sub { SELF->str },
             'increment' => sub { 
-                my $value = _('$.value');
-                SELF->ref->new( '$.value' => ++$value ) },
+                my $value = _('$.unboxed');
+                SELF->ref->new( '$.unboxed' => ++$value ) },
             'decrement' => sub { 
-                my $value = _('$.value');
-                SELF->ref->new( '$.value' => --$value ) },
+                my $value = _('$.unboxed');
+                SELF->ref->new( '$.unboxed' => --$value ) },
             'ref' => sub { CLASS }, 
         },
     }
@@ -102,24 +113,24 @@ class 'Str'.$class_description => {
         methods => {}
     },
     instance => {
-        attrs => [ '$.value' ],
+        attrs => [ '$.unboxed' ],
         DESTROY => sub {},
         methods => {
-            'num' =>  sub { Num->new( '$.value' => Perl6::Value::Str::to_num( _('$.value') ) ) },
-            'int' =>  sub { Int->new( '$.value' => Perl6::Value::Str::to_int( _('$.value') ) ) },
+            'num' =>  sub { Num->new( '$.unboxed' => Perl6::Value::Str::to_num( _('$.unboxed') ) ) },
+            'int' =>  sub { Int->new( '$.unboxed' => Perl6::Value::Str::to_int( _('$.unboxed') ) ) },
             'str' =>  sub { SELF },
-            'bit' =>  sub { Bit->new( '$.value' => Perl6::Value::Str::to_bit( _('$.value') ) ) },
+            'bit' =>  sub { Bit->new( '$.unboxed' => Perl6::Value::Str::to_bit( _('$.unboxed') ) ) },
             'perl' => sub { 
-                my $tmp = _('$.value');
+                my $tmp = _('$.unboxed');
                 $tmp =~ s/(\\|\')/\\$1/g;  # quote ' \
-                return Str->new( '$.value' => "'" . $tmp . "'" );
+                return Str->new( '$.unboxed' => "'" . $tmp . "'" );
               },
             'increment' => sub { 
-                my $value = _('$.value');
-                SELF->ref->new( '$.value' => ++$value ) },
+                my $value = _('$.unboxed');
+                SELF->ref->new( '$.unboxed' => ++$value ) },
             'decrement' => sub { 
-                my $value = _('$.value');
-                SELF->ref->new( '$.value' => --$value ) },
+                my $value = _('$.unboxed');
+                SELF->ref->new( '$.unboxed' => --$value ) },
             'ref' => sub { CLASS }, 
         },
     }
@@ -133,12 +144,12 @@ class 'Bit'.$class_description => {
         methods => {}
     },
     instance => {
-        attrs => [ '$.value' ],
+        attrs => [ '$.unboxed' ],
         DESTROY => sub {},
         methods => {
-            'num' => sub { Num->new( '$.value' => Perl6::Value::Bit::to_num( _('$.value') ) ) },
-            'int' => sub { Int->new( '$.value' => Perl6::Value::Bit::to_int( _('$.value') ) ) },
-            'str' => sub { Str->new( '$.value' => Perl6::Value::Bit::to_str( _('$.value') ) ) },
+            'num' => sub { Num->new( '$.unboxed' => Perl6::Value::Bit::to_num( _('$.unboxed') ) ) },
+            'int' => sub { Int->new( '$.unboxed' => Perl6::Value::Bit::to_int( _('$.unboxed') ) ) },
+            'str' => sub { Str->new( '$.unboxed' => Perl6::Value::Bit::to_str( _('$.unboxed') ) ) },
             'bit' => sub { SELF },
             'perl' => sub { SELF->str },
             'ref' => sub { CLASS }, 
@@ -157,39 +168,48 @@ class 'Pair'.$class_description => {
         attrs => [ '$.key', [ '$.value' => { access => 'rw' } ] ],
         DESTROY => sub {},
         methods => {
-            'num' => sub { Num->new( '$.value' => 0 ) },
-            'int' => sub { Int->new( '$.value' => 0 ) },
-            'str' => sub { Str->new( '$.value' => '' ) },
-            'bit' => sub { Bit->new( '$.value' => 0 ) },
+            'num' => sub { Num->new( '$.unboxed' => 0 ) },
+            'int' => sub { Int->new( '$.unboxed' => 0 ) },
+            'str' => sub { Str->new( '$.unboxed' => '' ) },
+            'bit' => sub { Bit->new( '$.unboxed' => 0 ) },
             'perl' => sub { 
-                Str->new( '$.value' => 
-                    '(' . _('$.key')->perl->value . ', ' . _('$.value')->perl->value . ')'
-                ) 
+                my $key = defined _('$.key') ? _('$.key')->perl->unboxed : 'undef';
+                my $value = defined _('$.value') ? _('$.value')->perl->unboxed : 'undef';
+                Str->new( '$.unboxed' => "($key, $value)" ) 
               },
+            'unboxed' => sub { ( _('$.key'), _('$.value') ) },
             'ref' => sub { CLASS }, 
         },
     }
 };
 
 # quick hack until we get AUTOMETH working
-# - not proxied: .id .value
+# - not proxied methods: .id, .value
 my %ref_AUTOMETH = map {
         my $method = $_;
         ( $method => sub { 
-            my $tmp = _('$.value');
-            if ( $tmp->isa( 'Array' ) || $tmp->isa( 'Hash' ) ) {
-                return _('$.value')->$method;
+            my $tmp = _('$.referred');
+            if ( defined $tmp && ( 
+                    $tmp->isa( 'Scalar' ) || $tmp->isa( 'Array' ) || $tmp->isa( 'Hash' )
+                ) ) {
+                return $tmp->$method;
             }
             else {
                 # "real ref"
-                return Bit->new( '$.value' => 1 ) if $method eq 'bit';
-                return Str->new( '$.value' => '\\' . _('$.value')->perl->value ) if $method eq 'perl';
+                return Bit->new( '$.unboxed' => 1 ) if $method eq 'bit';
                 return CLASS if $method eq 'ref';
-                die "unsupported method Ref.$method";
+                if ( $method eq 'perl' ) {
+                    return Str->new( '$.unboxed' => '\\undef' ) unless defined $tmp;
+                    return Str->new( '$.unboxed' => '\\' . $tmp->perl->unboxed ) 
+                }
+                return Bit->new( '$.unboxed' => defined $tmp ? 1 : 0 ) if $method eq 'defined';                
+                die "unsupported ref method .$method";
             }
         } )
     } 
-    qw( num int str bit perl ref map grep increment decrement FETCH STORE shift pop unshift push );
+    qw( num int str bit perl ref map grep increment decrement 
+        FETCH STORE shift pop unshift push defined undefine );
+
 class 'Ref'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -197,8 +217,13 @@ class 'Ref'.$class_description => {
         methods => {}
     },
     instance => {
-        attrs => [ '$.value' ],
-        DESTROY => sub {},
+        attrs => [ '$.referred' ],
+        DESTROY => sub {
+            # XXX - didn't undefine the value 
+            # _('$.cell' => undef) },
+            my $self = shift;
+            $self->{'instance_data'}{'$.referred'} = undef;  # XXX
+        },
         methods => { 
             %ref_AUTOMETH,
         },
