@@ -4,7 +4,7 @@ PIL2JS - PIL to JavaScript compiler
 
 =head1 DESCRIPTION
 
-C<pil2js.pl> is a Perl 5 program taking PIL (as given by C<pugs -CPIL>) and
+C<pil2js.pl> is a Perl 5 program taking PIL (as given by C<pugs -CPerl5>) and
 outputting JavaScript.
 
 =head1 USAGE
@@ -46,7 +46,7 @@ C<smoke.html>.
   |-- lib
   |   |-- PIL.pm          Main compiler modules, uses all other PIL:: modules
   |   |-- PIL
-  |   |   |-- Parser.pm   PIL::Parser (parses PIL)
+  |   |   |-- Parser.pm   PIL::Parser (parses the output of -CPerl5)
   |   |   `-- <PIL nodetype>.pm
   |   |                   Backend compiler modules
   |-- lib6
@@ -222,7 +222,7 @@ subs) doesn't accidentally call our methods.
 
 Note that our methods do I<not> get a C<Perl6.Instance> as C<$?SELF> (this is
 due to perfomance reasons) -- however, when calling a method, the metamodel
-does get used.
+does get used, so this decision is hidden from the end user.
 
 =head1 TODO
 
@@ -238,7 +238,7 @@ Primitives!
 
 =item *
 
-Don't call all subs in list context -- but to fix this reliably, C<-CPIL> has
+Don't call all subs in list context -- but to fix this reliably, C<-CPerl5> has
 to give better context information.
 
 =back

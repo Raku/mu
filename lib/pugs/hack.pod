@@ -145,8 +145,13 @@ Expanding this one level deeper:
     |   |-- Code-Perl          Helper module for Perl 5 code generation
     |   |-- PIL-Run            PIL virtual machine in Perl 5
     |   |-- PIL2JS             PIL to JavaScript compiler
+    |   |-- Perl6-Container    Perl 6 containers implemented using the Perl 5
+    |   |                      metamodel
     |   |-- Perl6-MetaModel    Prototype Perl 6 metaclass model: Perl 5
-    |   |-- Perl6-Value-List   Perl 6 lazy lists
+    |   |-- Perl6-MetaModel2.0 Prototype Perl 6 metaclass model: Perl 5,
+    |   |                      version 2.0
+    |   |-- Perl6-Value        Perl 6 values implemented using the Perl 5
+    |   |                      metamodel
     |   |-- Perl6.MetaModel    Prototype Perl 6 metaclass model: JS
     |   |-- T2-Perl6           T2 (Tangram::Schema redesign) -> Perl6::Class 
     |   `-- org.perl6.metamodel  Prototype Perl 6 metaclass model: Java
