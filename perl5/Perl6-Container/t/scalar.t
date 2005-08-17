@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 20;
+plan tests => 25;
 
 use Perl6::Container::Scalar;
 use Perl6::Value;
@@ -16,12 +16,31 @@ ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
     my $n = Scalar->new;
     $n->store( Num->new( '$.unboxed' => 3.3 ) );
   
+    # $n->access('ro');
+    # dies_ok( $n->undefine, '... read only value cannot be undefined' );
+    # $n->access('rw');
+    # is( $n->undefine, undef, '... read only value cannot be undefined' );
+
     isa_ok($n, 'Scalar');
     can_ok($n, 'fetch');
     isa_ok($n->fetch, 'Num', '... fetch Num');
     is($n->unboxed, 3.3, '... got the unboxed value');
     is($n->defined->str->unboxed, 'bool::true', '... defined() is true');
 
+    # .bind($other_scalar)
+    my $m = Scalar->new;
+    $m->bind( $n );
+    is($n->unboxed, 3.3, '... got the unboxed value from the other Scalar');
+    $m->increment;
+    is($m->unboxed, 4.3, '... increment both Scalars');
+    is($n->unboxed, 4.3, '... increment both Scalars');
+    $n->bind( Scalar->new );
+    $m->increment;
+    is($m->unboxed, 5.3, '... unbind, increment only one Scalar');
+    is($n->unboxed, undef, '... Scalar didn\'t change');
+}
+
+{
     # TODO - ref
     # my $class = $n->ref;
     # warn 'class '. $class. " ". ref($class);
@@ -36,6 +55,9 @@ ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
     # warn $n->ref->version;
     # warn $n->ref->class;
     # warn $n->ref->meta;
+
+    my $n = Scalar->new;
+    $n->store( Num->new( '$.unboxed' => 3.3 ) );
 
     my $n2 = $n->ref->new( '$.unboxed' => 'xxx' );
     isa_ok($n2, 'Num', '.ref() is a reference to the "value" class');

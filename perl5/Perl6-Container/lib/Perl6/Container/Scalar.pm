@@ -4,6 +4,7 @@
 # ChangeLog
 #
 # 2005-08-17
+# - New methods: .access('ro'); .access('rw'); .bind( $scalar )
 # - reimplemented Scalar - auto-deref; new methods .fetch, .store, .unboxed
 #
 # 2005-08-15
@@ -11,6 +12,7 @@
 
 # TODO - verify .ref() and .undefine() implementations
 # TODO - .ref() should be inherited from Object
+# TODO - .meta should give access to .name, etc
 # TODO - 'is readonly'
 # TODO - can a Scalar hold an unboxed value?
 # TODO - .key, .value => dispatch to Value->key, Value->value
@@ -30,20 +32,28 @@ use Perl6::Value;
 
 my $class_description = '-0.0.1-cpan:FGLOCK';
 
+sub Perl6::Cell::store {
+    die 'read only cell' if $_[0]{ro};
+    $_[0]{v} = $_[1]
+}
+sub Perl6::Cell::fetch {
+    $_[0]{v}
+}
+
 # quick hack until we get AUTOMETH working
 # - not proxied methods: id value defined undefine fetch store
 my %ref_AUTOMETH = map {
         my $method = $_;
         ( $method => sub { 
-            my $tmp = _('$:cell');
+            my $tmp = _('$:cell')->fetch;
             my @param = @_;
             shift @param;
             if ( defined $tmp ) {
                 if ( $method eq 'increment' || $method eq 'decrement' ) {
-                    _('$:cell', $tmp->$method( @param ) );
+                    _('$:cell')->store( $tmp->$method( @param ) );
                     return SELF; 
                 }
-                return _('$:cell')->$method( @param );
+                return $tmp->$method( @param );
             }
             else {
                 # empty cell
@@ -51,11 +61,11 @@ my %ref_AUTOMETH = map {
                 return CLASS if $method eq 'ref';
                 return Str->new( '$.unboxed' => '\\undef' ) if $method eq 'perl';
                 if ( $method eq 'increment' ) {
-                    _('$:cell', Int->new( '$.unboxed' => 1 ) );
+                    _('$:cell')->store( Int->new( '$.unboxed' => 1 ) );
                     return SELF 
                 }
                 if ( $method eq 'decrement' ) {
-                    _('$:cell', Int->new( '$.unboxed' => -1 ) );
+                    _('$:cell')->store( Int->new( '$.unboxed' => -1 ) );
                     return SELF 
                 }
                 return if $method eq 'unboxed';
@@ -73,28 +83,43 @@ class 'Scalar'.$class_description => {
         methods => {}
     },
     instance => {
-        attrs => [ [ '$:cell' => { access => 'rw' } ] ],
+        attrs => [ [ '$:cell' => { 
+                        access => 'rw', 
+                        build => sub { bless {}, 'Perl6::Cell' } } ] ],
         DESTROY => sub {
             # XXX - didn't undefine the value 
             # _('$.value' => undef) },
-            my $self = shift;
-            $self->{'instance_data'}{'$:cell'} = undef;  # XXX
+            $_[0]->{'instance_data'}{'$:cell'} = undef;  
         },
         methods => { 
             %ref_AUTOMETH,
-            'fetch' => sub { _('$:cell') },
-            'store' => sub { my ( $self, $value ) = @_; _('$:cell', $value ) },
+            'fetch' => sub { _('$:cell')->fetch },
+            'store' => sub { my ( $self, $value ) = @_; _('$:cell')->store($value ) },
             'defined' => sub {
-                my $def = defined _('$:cell') ? 1 : 0;
+                my $def = defined _('$:cell')->fetch ? 1 : 0;
                 Bit->new( '$.unboxed' => $def )
             },
             'undefine' => sub {
                 # XXX - didn't undefine the value 
                 # _('$.value' => undef) },
                 my $self = shift;
-                $self->{'instance_data'}{'$:cell'} = undef;  # XXX
+                _('$:cell')->store( undef );
                 return $self;
             },
+            'access' => sub {
+                die "access must be 'ro' or 'rw'"
+                    if $_[1] ne 'ro' && $_[1] ne 'rw';
+                _('$:cell')->{ro} = $_[1] eq 'ro';
+                return SELF;
+            },
+            'bind' => sub {
+                my ( $self, $scalar ) = @_;
+                die "argument to bind() must be a Scalar"
+                    unless $scalar->isa( 'Scalar' );
+                _('$:cell', $scalar->_cell);
+                return $self;
+            },
+            '_cell' => sub { _('$:cell') },  # _cell() is used by bind()
         },
     }
 };
