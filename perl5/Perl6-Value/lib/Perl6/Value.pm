@@ -189,10 +189,12 @@ my %ref_AUTOMETH = map {
         my $method = $_;
         ( $method => sub { 
             my $tmp = _('$.referred');
+            my @param = @_;
+            shift @param;
             if ( defined $tmp && ( 
                     $tmp->isa( 'Scalar' ) || $tmp->isa( 'Array' ) || $tmp->isa( 'Hash' )
                 ) ) {
-                return $tmp->$method;
+                return $tmp->$method( @param );
             }
             else {
                 # "real ref"

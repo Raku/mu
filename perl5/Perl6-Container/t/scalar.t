@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 16;
+plan tests => 19;
 
 use Perl6::Container::Scalar;
 use Perl6::Value;
@@ -15,13 +15,14 @@ can_ok('Scalar', 'new');
 ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
 
 {
-    my $n = Scalar->new( '$.value' => Num->new( '$.value' => 3.3 ) );
+    my $n = Scalar->new;
+    $n->store( Num->new( '$.unboxed' => 3.3 ) );
   
     isa_ok($n, 'Scalar');
-    can_ok($n, 'value');
-    isa_ok($n->value, 'Num', '... fetch Num');
-    is($n->value->value, 3.3, '... got the unboxed value');
-    is($n->defined->str->value, 'bool::true', '... defined() is true');
+    can_ok($n, 'fetch');
+    isa_ok($n->fetch, 'Num', '... fetch Num');
+    is($n->unboxed, 3.3, '... got the unboxed value');
+    is($n->defined->str->unboxed, 'bool::true', '... defined() is true');
 
     # TODO - ref
     # my $class = $n->ref;
@@ -38,39 +39,41 @@ ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
     # warn $n->ref->class;
     # warn $n->ref->meta;
 
-    my $n2 = $n->ref->new( '$.value' => 'xxx' );
+    my $n2 = $n->ref->new( '$.unboxed' => 'xxx' );
     isa_ok($n2, 'Num', '.ref() is a reference to the "value" class');
 
     # undefine
     $n->undefine;
-    is($n->defined->str->value, 'bool::false', '... defined() is false');
+    is($n->defined->str->unboxed, 'bool::false', '... defined() is false');
 }
 
 {
     my $n = Scalar->new();
   
     isa_ok($n, 'Scalar', 'empty Scalar');
-    can_ok($n, 'value');
-    is($n->value, undef, '... type is undef');
-    is($n->perl->value, '\\undef', '... .perl is undef');
-    is($n->defined->str->value, 'bool::false', '... defined() is false');
+    can_ok($n, 'fetch');
+    is($n->unboxed, undef, '... type is undef');
+    is($n->perl->unboxed, '\\undef', '... .perl is undef');
+    is($n->defined->str->unboxed, 'bool::false', '... defined() is false');
     $n->increment;
-    is($n->value->value, 1, '... increment defines');
+    is($n->unboxed, 1, '... increment defines');
 
     $n->increment;
-    is($n->value->value, 2, '... increment Int');
+    is($n->unboxed, 2, '... increment Int');
 
     # TODO - ref of undef
 }
 
 {  
-    # dispatching methods to the Value ?
+    # dispatching methods to the cell Value ?
     
-    my $p = Scalar->new( 
-               '$.value' => Pair->new( 
-                   '$.value' => Str->new( '$.value' => 'a' ),
-                   '$.key' =>   Num->new( '$.value' => 3.3 ) 
+    my $p = Scalar->new();
+    $p->store( Pair->new( 
+                   '$.key' => Str->new( '$.unboxed' => 'a' ),
+                   '$.value' =>   Num->new( '$.unboxed' => 3.3 ) 
                 ) );
-    is( $p->key->value, 'a' );
-    is( $p->value->value, 3.3 );
+    is( $p->key->unboxed, 'a', '... auto dereference and retrieve Pair key' );
+    is( $p->value->unboxed, 3.3, '... auto dereference and retrieve Pair value' );
+    $p->value( Num->new( '$.unboxed' => 7 ) );
+    is( $p->value->unboxed, 7, '... auto dereference and store Pair value' );
 }

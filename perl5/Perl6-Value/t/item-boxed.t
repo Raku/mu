@@ -5,7 +5,7 @@ use warnings;
 
 use Test::More;
 # use Test::Exception;
-plan tests => 30;
+plan tests => 31;
  
 use Perl6::Value;
 
@@ -54,6 +54,9 @@ ok(Int->isa('Perl6::Object'), '... Int isa Perl6::Object');
     is($p->key()->unboxed(),   'a', '... got the key');
     is($p->value()->unboxed(), 'x', '... got the value');
     like($p->id(), qr/\d+/, '... got the object id');
+
+    $p->value( Num->new( '$.unboxed' => 7 ) );
+    is( $p->value->unboxed, 7, '... Pair value is rw' );
 
     #my $class_name = ::dispatch( ::meta( $p ), 'name' );  # ** get the class name, from object
     #my $class = $Perl6::Class::ALL_CLASSES{$class_name};  # ** get the class, from class name
