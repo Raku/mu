@@ -285,7 +285,7 @@ PIL2JS.Box.prototype = {
         var retval = PIL2JS.cps2normal(unboxed, [PIL2JS.Context.ItemAny].concat(args));
         if(retval == undefined)
           retval = new PIL2JS.Box.Constant(undefined);
-        //  PIL2JS.die("Continuation wasn't called!");
+        // PIL2JS.die("Continuation wasn't called!");
         return retval.toNative();
       };
 
@@ -384,6 +384,10 @@ PIL2JS.toPIL2JSBox = function (thing) {
     }
     if(thing.flatten_me) ret.flatten_me = thing.flatten_me;
     return new PIL2JS.Box.Constant(ret);
+  } else if(thing instanceof Function) {
+    return new PIL2JS.Box.Constant(function (args) {
+      PIL2JS.call(undefined, thing, args);
+    });
   } else {
     return new PIL2JS.Box.Constant(thing);
   }
@@ -391,7 +395,7 @@ PIL2JS.toPIL2JSBox = function (thing) {
 
 PIL2JS.box_native_result = function (res) {
   if(res == undefined) {
-    return new PIL2JS.Box.Constant(res);
+    return new PIL2JS.Box.Constant(undefined);
   } else {
     return PIL2JS.toPIL2JSBox(res);
   }
@@ -782,15 +786,6 @@ PIL2JS.Context.prototype.toString = function () {
 PIL2JS.Context.Void      = new PIL2JS.Box.Constant(new PIL2JS.Context({ main: "void" }));
 PIL2JS.Context.ItemAny   = new PIL2JS.Box.Constant(new PIL2JS.Context({ main: "item", type: "Any" }));
 PIL2JS.Context.SlurpyAny = new PIL2JS.Box.Constant(new PIL2JS.Context({ main: "slurpy", type: "Any" }));
-
-/* Doesn't work yet -- load a JSAN mod. */
-PIL2JS.use_jsan = function (mod) {
-  if(JSAN == undefined)
-    PIL2JS.die("JSAN library not loaded!");
-
-  mod = mod.replace(/::/, ".");
-  JSAN.prototype.use.apply(JSAN.prototype, [mod]);
-};
 
 PIL2JS.print_exception = function (err) {
   PIL2JS.cps2normal(
