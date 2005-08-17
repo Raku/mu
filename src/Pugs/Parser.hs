@@ -298,8 +298,11 @@ ruleRuleDeclaration = rule "rule declaration" $ try $ do
     return emptyExp
 
 rulePackageBlockDeclaration :: RuleParser Exp
-rulePackageBlockDeclaration = rule "package block declaration" $ try $ do
-    (_, pkgVal, env) <- rulePackageHead
+rulePackageBlockDeclaration = rule "package block declaration" $ do
+    (_, pkgVal, env) <- try $ do
+        rv <- rulePackageHead
+        lookAhead (char '{')
+        return rv
     body <- between (symbol "{") (char '}') ruleBlockBody
     env' <- getRuleEnv
     putRuleEnv env'{ envPackage = envPackage env }
