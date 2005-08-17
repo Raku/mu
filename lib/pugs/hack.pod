@@ -293,12 +293,12 @@ etc.
 =item *
 
 L<http://rt.openfoundry.org/Foundry/Project/Source/index.html/pugs/browse/>
-Browsable pugs vcs.  You sometimes get a blank page the first time you
-access a url (a timeout) - just click again.
+Browsable Pugs vcs.  You sometimes get a blank page the first time you
+access a URL (a timeout) - just click again.
 
 =item *
 
-L<http://svn.perl.org/perl6/pugs/trunk/> Mirror of pugs vcs head.
+L<http://svn.perl.org/perl6/pugs/trunk/> Mirror of Pugs vcs head.
 Usually faster and more reliable than the openfoundry browser.
 
 =back

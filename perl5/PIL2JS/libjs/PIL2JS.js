@@ -682,22 +682,22 @@ var _26main_3a_3aexit = PIL2JS.Box.constant_func(1, function (args) {
 });
 
 // Array of boxed subs we're currently in.
-PIL2JS.call_chain = [];
+var PIL2JS_callchain = [];
 // Array of pads we're currently in, used for $CALLER::.
 // Note that the pads change at runtime, i.e.:
 //   # No my $a yet
-//   # PIL2JS.subpads[-1]["$a"] undefined
+//   # PIL2JS_subpads[-1]["$a"] undefined
 //   my $a;
-//   # PIL2JS.subpads[-1]["$a"] is defined now.
-PIL2JS.subpads    = [];
+//   # PIL2JS_subpads[-1]["$a"] is defined now.
+var PIL2JS_subpads   = [];
 PIL2JS.resolve_callervar = function (delta, name) {
   // delta == 0: current pad
   // delta == 1: pad of calling sub ($CALLER::foo)
   // delta == 2: pad of the sub calling the calling sub ($CALLER::CALLER::foo)
   // etc.
 
-  if(PIL2JS.subpads.length >= delta + 1) {
-    var pad = PIL2JS.subpads[PIL2JS.subpads.length - delta - 1];
+  if(PIL2JS_subpads.length >= delta + 1) {
+    var pad = PIL2JS_subpads[PIL2JS_subpads.length - delta - 1];
     if(pad[name]) {
       return pad[name];
     } else {

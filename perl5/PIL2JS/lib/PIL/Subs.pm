@@ -60,8 +60,8 @@ use strict;
     $magical_vars =~ s/%VAR/ PIL::name_mangle $self->{pSubName}/eg;
     $magical_vars =~ s/%NAME/PIL::doublequote $PIL::CUR_SUBNAME/eg;
 
-    my $callchain   = "PIL2JS.call_chain.push(" . PIL::name_mangle($self->{pSubName}) . ")";
-    my $new_pad     = "var pad = {}; PIL2JS.subpads.push(pad)";
+    my $callchain   = "PIL2JS_callchain.push(" . PIL::name_mangle($self->{pSubName}) . ")";
+    my $new_pad     = "var pad = {}; PIL2JS_subpads.push(pad)";
     my $params      = $self->{pSubParams}->as_js;
 
     local @PIL::VARS_TO_BACKUP = qw< &?BLOCK &?SUB $?SUBNAME $?POSITION >;
@@ -154,7 +154,7 @@ use strict;
     local $PIL::IN_SUBLIKE  = $self->{pType}->as_constant;
     local $PIL::CUR_SUBNAME = "<anonymous@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>";
 
-    my $new_pad      = "var pad = {}; PIL2JS.subpads.push(pad)";
+    my $new_pad      = "var pad = {}; PIL2JS_subpads.push(pad)";
     my $params       = $self->{pParams}->as_js;
     my $magical_vars = $PIL::IN_SUBLIKE >= PIL::SUBROUTINE
       ? "_24main_3a_3a_3fSUBNAME = new PIL2JS.Box.Constant('<anon>');\n"

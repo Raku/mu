@@ -106,7 +106,7 @@ sub generic_cc {
   return sprintf <<EOF, $name, $restores }
 var __returncc = args.pop();
 var %s = function (retval) {
-  PIL2JS.call_chain.pop(); PIL2JS.subpads.pop();
+  PIL2JS_callchain.pop(); PIL2JS_subpads.pop();
   %s;
   throw function () { __returncc(retval) };
 };
@@ -184,13 +184,13 @@ sub as_js {
 %s
 PIL2JS.catch_all_exceptions(function () {
   PIL2JS.runloop(function () {
-    var pad = {}; PIL2JS.subpads.push(pad);
+    var pad = {}; PIL2JS_subpads.push(pad);
     pad['\$?POSITION'] = _24main_3a_3a_3fPOSITION;
     pad['\$_']         = _24main_3a_3a_;
 %s
   });
 });
-PIL2JS.subpads.pop();
+PIL2JS_subpads.pop();
 EOF
 }
 
