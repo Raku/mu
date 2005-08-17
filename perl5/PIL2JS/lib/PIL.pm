@@ -184,7 +184,7 @@ sub as_js {
 %s
 PIL2JS.catch_all_exceptions(function () {
   PIL2JS.runloop(function () {
-    var pad = {}; PIL2JS.subpads.push(pad);
+    var pad = {}; PIL2JS.subpads.push(pad); pad['\$?POSITION'] = _24main_3a_3a_3fPOSITION;
 %s
   });
 });
@@ -273,9 +273,9 @@ sub name_mangle($) {
   # ::JS::native_js_function
   } elsif($str =~ /^[\&\$\@\+\%\:]\*?JS::(.+)$/) {
     return $1;
-  } elsif($str =~ /^([\&\$\@\+\%\:])(CALLER::)+(.+)$/) {
-    my $name  = "$1$3";
-    my $delta = () = $2 =~ /CALLER::/g;
+  } elsif($str =~ /^([\&\$\@\+\%\:])([?*=]?)(CALLER::)+(.+)$/) {
+    my $name  = "$1$2$4";
+    my $delta = () = $3 =~ /CALLER::/g;
     return sprintf "PIL2JS.resolve_callervar($delta, %s)",
       doublequote($name);
   # No qualification? Use "main" as package name. XXX! Lexical variables?

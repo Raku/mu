@@ -49,12 +49,13 @@ use strict;
       if $PIL::CUR_SUBNAME =~ /^__export_c.*import$/;
 
     my $magical_vars = "";
-    $magical_vars .= "_26main_3a_3a_3fBLOCK = %VAR;\n"
+    $magical_vars .= "_26main_3a_3a_3fBLOCK = %VAR; pad['&?BLOCK'] = _26main_3a_3a_3fBLOCK;\n"
       if $PIL::IN_SUBLIKE >= PIL::SUBBLOCK;
-    $magical_vars .= "_26main_3a_3a_3fSUB = %VAR;\n"
+    $magical_vars .= "_26main_3a_3a_3fSUB = %VAR; pad['&?SUB'] = _26main_3a_3a_3fSUB;\n"
       if $PIL::IN_SUBLIKE >= PIL::SUBROUTINE;
-    $magical_vars .= "_24main_3a_3a_3fSUBNAME = new PIL2JS.Box.Constant(%NAME);\n"
+    $magical_vars .= "_24main_3a_3a_3fSUBNAME = new PIL2JS.Box.Constant(%NAME); pad['\$?SUBNAME'] = _24main_3a_3a_3fSUBNAME;\n"
       if $PIL::IN_SUBLIKE >= PIL::SUBROUTINE;
+    $magical_vars .= "_24main_3a_3a_3fPOSITION = new PIL2JS.Box('<unknown>'); pad['\$?POSITION'] = _24main_3a_3a_3fPOSITION;\n";
     $magical_vars =~ s/%VAR/ PIL::name_mangle $self->{pSubName}/eg;
     $magical_vars =~ s/%NAME/PIL::doublequote $PIL::CUR_SUBNAME/eg;
 
@@ -62,12 +63,12 @@ use strict;
     my $new_pad     = "var pad = {}; PIL2JS.subpads.push(pad)";
     my $params      = $self->{pSubParams}->as_js;
 
-    local @PIL::VARS_TO_BACKUP = ();
+    local @PIL::VARS_TO_BACKUP = qw< &?BLOCK &?SUB $?SUBNAME $?POSITION >;
     my $body        = $self->{pSubBody}->as_js;
-    my $ccsetup     = PIL::generic_cc PIL::cur_retcc, @PIL::VARS_TO_BACKUP, qw< &?BLOCK &?SUB $?SUBNAME >;
+    my $ccsetup     = PIL::generic_cc PIL::cur_retcc, @PIL::VARS_TO_BACKUP;
     my $backup      = "var " . join ", ", map {
       sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);
-    } @PIL::VARS_TO_BACKUP, qw< &?BLOCK &?SUB $?SUBNAME >;
+    } @PIL::VARS_TO_BACKUP;
     my $bind        = $self->{pSubParams}->as_js_bind;
     my $wrappedbody = "$new_pad;\n$callchain;\n$magical_vars;\n\n$bind;\n\n$body";
 
@@ -148,20 +149,21 @@ use strict;
     local $PIL::IN_SUBLIKE  = $self->{pType}->as_constant;
     local $PIL::CUR_SUBNAME = "<anonymous@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>";
 
-    my $new_pad     = "var pad = {}; PIL2JS.subpads.push(pad)";
-    my $params      = $self->{pParams}->as_js;
-    my $magical_var = $PIL::IN_SUBLIKE >= PIL::SUBROUTINE
-      ? "_24main_3a_3a_3fSUBNAME = new PIL2JS.Box.Constant('<anon>');\n\n"
+    my $new_pad      = "var pad = {}; PIL2JS.subpads.push(pad)";
+    my $params       = $self->{pParams}->as_js;
+    my $magical_vars = $PIL::IN_SUBLIKE >= PIL::SUBROUTINE
+      ? "_24main_3a_3a_3fSUBNAME = new PIL2JS.Box.Constant('<anon>');\n"
       : "";
+    $magical_vars  .= "_24main_3a_3a_3fPOSITION = new PIL2JS.Box('<unknown>'); pad['\$?POSITION'] = _24main_3a_3a_3fPOSITION;\n";
 
-    local @PIL::VARS_TO_BACKUP = ();
+    local @PIL::VARS_TO_BACKUP = qw< $?SUBNAME $?POSITION >;
     my $body        = $self->{pBody}->as_js;
-    my $ccsetup     = PIL::generic_cc PIL::cur_retcc, @PIL::VARS_TO_BACKUP, qw< $?SUBNAME >;
+    my $ccsetup     = PIL::generic_cc PIL::cur_retcc, @PIL::VARS_TO_BACKUP;
     my $backup      = "var " . join ", ", map {
       sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);
-    } @PIL::VARS_TO_BACKUP, qw< $?SUBNAME >;
+    } @PIL::VARS_TO_BACKUP;
     my $bind        = $self->{pParams}->as_js_bind;
-    my $wrappedbody = "$new_pad;\n$magical_var$bind;\n\n$body";
+    my $wrappedbody = "$new_pad;\n$magical_vars\n$bind;\n\n$body";
 
     my $jsbody = $params . "\n" . $self->{pParams}->autothread_wrapper($wrappedbody);
 

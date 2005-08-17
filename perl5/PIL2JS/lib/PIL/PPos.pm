@@ -28,7 +28,7 @@
     ($self->{pNode}{CC} and die) or $self->{pNode}{CC} = $self->{CC} if $self->{CC};
 
     return sprintf
-      "_24main_3a_3a_3fPOSITION.STORE(new PIL2JS.Box.Constant(%s));\n%s",
+      "_24main_3a_3a_3fPOSITION.BINDTO(new PIL2JS.Box.Constant(%s));\n%s",
       PIL::doublequote($self->{pPos}), $self->{pNode}->as_js;
   }
 
