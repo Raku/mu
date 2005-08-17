@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 25;
+plan tests => 26;
 
 use Perl6::Container::Scalar;
 use Perl6::Value;
@@ -16,11 +16,6 @@ ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
     my $n = Scalar->new;
     $n->store( Num->new( '$.unboxed' => 3.3 ) );
   
-    # $n->access('ro');
-    # dies_ok( $n->undefine, '... read only value cannot be undefined' );
-    # $n->access('rw');
-    # is( $n->undefine, undef, '... read only value cannot be undefined' );
-
     isa_ok($n, 'Scalar');
     can_ok($n, 'fetch');
     isa_ok($n->fetch, 'Num', '... fetch Num');
@@ -38,6 +33,14 @@ ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
     $m->increment;
     is($m->unboxed, 5.3, '... unbind, increment only one Scalar');
     is($n->unboxed, undef, '... Scalar didn\'t change');
+}
+
+{
+    # access control
+    my $n = Scalar->new;
+    $n->access('ro');
+    $n->store( Num->new( '$.unboxed' => 3.3 ) );
+    is( $n->unboxed, 3.3, '... stored a value in a read only container');
 }
 
 {
