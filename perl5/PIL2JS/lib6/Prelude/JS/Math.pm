@@ -5,8 +5,8 @@ sub JS::Root::atan (Num $y, Num ?$x) is primitive {
   defined($x) ?? $JS::Math.atan2(+$y, +$x) :: $JS::Math.atan(+$y);
 }
 
-method sin  (Num $self:) { $JS::Math.sin(+$self)  }
-method cos  (Num $self:) { $JS::Math.cos(+$self)  }
-method tan  (Num $self:) { $JS::Math.tan(+$self)  }
-method asin (Num $self:) { $JS::Math.asin(+$self) }
-method acos (Num $self:) { $JS::Math.acos(+$self) }
+method sin  (Num ?$self = $CALLER::_:) { $JS::Math.sin(+$self)  }
+method cos  (Num ?$self = $CALLER::_:) { $JS::Math.cos(+$self)  }
+method tan  (Num ?$self = $CALLER::_:) { $JS::Math.tan(+$self)  }
+method asin (Num ?$self = $CALLER::_:) { $JS::Math.asin(+$self) }
+method acos (Num ?$self = $CALLER::_:) { $JS::Math.acos(+$self) }

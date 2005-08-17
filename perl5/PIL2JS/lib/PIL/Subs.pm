@@ -56,6 +56,7 @@ use strict;
     $magical_vars .= "_24main_3a_3a_3fSUBNAME = new PIL2JS.Box.Constant(%NAME); pad['\$?SUBNAME'] = _24main_3a_3a_3fSUBNAME;\n"
       if $PIL::IN_SUBLIKE >= PIL::SUBROUTINE;
     $magical_vars .= "_24main_3a_3a_3fPOSITION = new PIL2JS.Box('<unknown>'); pad['\$?POSITION'] = _24main_3a_3a_3fPOSITION;\n";
+    $magical_vars .= "var _24main_3a_3a_ = new PIL2JS.Box(undefined); pad['\$_'] = _24main_3a_3a_;\n";
     $magical_vars =~ s/%VAR/ PIL::name_mangle $self->{pSubName}/eg;
     $magical_vars =~ s/%NAME/PIL::doublequote $PIL::CUR_SUBNAME/eg;
 
@@ -158,7 +159,9 @@ use strict;
     my $magical_vars = $PIL::IN_SUBLIKE >= PIL::SUBROUTINE
       ? "_24main_3a_3a_3fSUBNAME = new PIL2JS.Box.Constant('<anon>');\n"
       : "";
-    $magical_vars  .= "_24main_3a_3a_3fPOSITION = new PIL2JS.Box('<unknown>'); pad['\$?POSITION'] = _24main_3a_3a_3fPOSITION;\n";
+    $magical_vars   .= "_24main_3a_3a_3fPOSITION = new PIL2JS.Box('<unknown>'); pad['\$?POSITION'] = _24main_3a_3a_3fPOSITION;\n";
+    $magical_vars   .= "var _24main_3a_3a_ = new PIL2JS.Box(undefined); pad['\$_'] = _24main_3a_3a_;\n"
+      unless grep { $_->name eq '$_' } @{ $self->{pParams} };
 
     local @PIL::VARS_TO_BACKUP = qw< $?SUBNAME $?POSITION >;
     my $body        = $self->{pBody}->as_js;
