@@ -132,7 +132,11 @@ use strict;
 
     # &PIL::Params::fixup returns the fixed PIL::Params and the fixed
     # $self->{pSubBody}.
-    my %params_and_body = $self->{pParams}->fixup($self->{pBody});
+    my %params_and_body = $self->{pParams}->fixup(
+      $self->{pBody} eq "PNil"
+        ? bless {} => "PIL::PNil"
+        : $self->{pBody}
+    );
 
     return bless {
       pType => $self->{pType},
