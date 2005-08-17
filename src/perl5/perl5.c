@@ -440,7 +440,7 @@ perl5_can(SV *inv, char *subname)
 
     SPAGAIN;
 
-    rv = POPi;
+    rv = (POPi != 0);
     /* printf("Checking: %s->can(%s), ret %d\n", SvPV_nolen(inv), subname, rv); */
 
     PUTBACK;
