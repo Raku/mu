@@ -10,6 +10,11 @@ try { Perl6.Object } catch(err) {
 
 // Create our namespace.
 if(PIL2JS == undefined) var PIL2JS = {};
+// Trick to speed up PIL2JS, by putter:
+// We'll lexicalize PIL2JS in all functions by "var PIL2JS = AlsoPIL2JS".
+// This gives a ~~10% speedup, as PIL2JS is then a nice local variable instead
+// of a global one.
+var AlsoPIL2JS_SpeedupHack = PIL2JS;
 
 // IE doesn't care about standards and only interprets "\r" as linefeed.
 PIL2JS.LF =

@@ -77,10 +77,12 @@ use strict;
 
     # Sub declaration
     my $js = sprintf
-      "%s%s = PIL2JS.Box.constant_func(%d, function (args) {\n%s;\n%s\n%s\n});\n",
+      "%s%s = PIL2JS.Box.constant_func(%d, function (args) {\n%s;\n%s;\n%s\n%s\n});\n",
       $PIL::IN_GLOBPIL ? "" : "var ",
       PIL::name_mangle($self->{pSubName}),
       $self->{pSubParams}->arity,
+      # Lexicalize PIL2JS and thus speed up PIL2JS
+      PIL::add_indent(1, "var PIL2JS = AlsoPIL2JS_SpeedupHack"),
       PIL::add_indent(1, $backup),
       PIL::add_indent(1, $ccsetup),
       PIL::add_indent(1, $jsbody);

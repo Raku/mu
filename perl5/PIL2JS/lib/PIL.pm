@@ -184,9 +184,11 @@ sub as_js {
 %s
 PIL2JS.catch_all_exceptions(function () {
   PIL2JS.runloop(function () {
+    var PIL2JS = AlsoPIL2JS_SpeedupHack;
     var pad = {}; PIL2JS_subpads.push(pad);
     pad['\$?POSITION'] = _24main_3a_3a_3fPOSITION;
     pad['\$_']         = _24main_3a_3a_;
+
 %s
   });
 });
