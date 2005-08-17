@@ -22,7 +22,7 @@ sub init {
     $RealDir := $RealBin;
     if ( $*PROGRAM_NAME eq '-e' || $*PROGRAM_NAME eq '-' ) {
         $Script = $RealScript = $*PROGRAM_NAME;
-        $Bin    = $RealBin    = File::Spec::cwd();
+        $Bin    = $RealBin    = File::Spec.cwd;
     }
     else {
         my Str $script = $*PROGRAM_NAME;
@@ -33,7 +33,7 @@ sub init {
         unless ( ( $script ~~ m:P5#/# || ( $dosish && $script ~~ m:P5#\\# ) )
                  && -f $script )
         {
-            for File::Spec::path() -> $dir {
+            for File::Spec.path() -> $dir {
                 my Str $scr = catfile( $dir, $script );
                 if -r $scr && ( !$dosish || -x _ ) {
                     $script = $scr;
@@ -45,7 +45,7 @@ sub init {
             }
         }
         warn "Cannot find current script '$*PROGRAM_NAME'" unless -f $script;
-        $script = catfile( File::Spec::cwd(), $script )
+        $script = catfile( File::Spec.cwd(), $script )
           unless file_name_is_absolute($script);
         my @path = splitpath($script);
         $Script = pop @path;
