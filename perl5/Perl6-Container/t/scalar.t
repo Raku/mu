@@ -4,12 +4,10 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 19;
+plan tests => 20;
 
 use Perl6::Container::Scalar;
 use Perl6::Value;
-
-# TODO - how to get a class name?
 
 can_ok('Scalar', 'new');
 ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
@@ -76,4 +74,12 @@ ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
     is( $p->value->unboxed, 3.3, '... auto dereference and retrieve Pair value' );
     $p->value( Num->new( '$.unboxed' => 7 ) );
     is( $p->value->unboxed, 7, '... auto dereference and store Pair value' );
+}
+
+{  
+    # store unboxed value
+    
+    my $p = Scalar->new();
+    $p->store( 5 );
+    is( $p->fetch, 5, '... store/fetch unboxed value' );
 }

@@ -16,7 +16,7 @@
 # TODO - .key, .value => dispatch to Value->key, Value->value
 # TODO - dispatch .grep, .map, ... to the Value - see AUTOMETH
 # TODO - store(Scalar) => store(Scalar->value)
-# TODO - are unboxed contents allowed?
+# TODO - allow fetch/store unboxed contents
 # TODO - 'value' is a Pair method - name 'fetch'/'store' instead
 # TODO - create a 'undef' object?
 # TODO - bind ':='
