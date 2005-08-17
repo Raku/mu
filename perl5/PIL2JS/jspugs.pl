@@ -7,6 +7,7 @@ use FindBin;
 use File::Spec;
 use lib File::Spec->catfile($FindBin::Bin, "lib");
 use PIL2JS;
+use PIL::Parser;
 use Term::ReadLine;
 
 my $term = Term::ReadLine->new("jspugs");
