@@ -5,7 +5,7 @@ use warnings;
 
 use Test::More;
 # use Test::Exception;
-plan tests => 31;
+plan tests => 33;
  
 use Perl6::Value;
 
@@ -76,6 +76,18 @@ ok(Int->isa('Perl6::Object'), '... Int isa Perl6::Object');
     my $r = Ref->new( '$.referred' => undef );
     isa_ok($r, 'Ref', 'reference to undef' );
     is($r->perl->unboxed, '\undef', '... reference to undef does .perl' );
+
+    # reference value is not assignable
+    #my $n = Num->new( '$.unboxed' => 3.3 );
+    #eval { $r->store( $n ) };
+    #like( $@, qr/read-only/, '... Ref is read-only' );
+}
+
+{
+    # Ref to unboxed value
+    my $r = Ref->new( '$.referred' => 5 );
+    isa_ok($r, 'Ref', 'reference to unboxed value' );
+    is($r->referred, '5', '... got referred value' );
 
     # reference value is not assignable
     #my $n = Num->new( '$.unboxed' => 3.3 );
