@@ -54,7 +54,7 @@ EOF
 
     my $need_for_at;
     my @bools = map {
-      $_->type =~ /\b(?:Any|Junction|Bool)\b/
+      $_->type->matches("Any") || $_->type->matches("Junction") || $_->type->matches("Bool")
         ? "false"
         : do { $need_for_at++; "true" };
     } grep { $_->name ne '%_' } @$self;
@@ -85,7 +85,7 @@ EOF
 
   sub is_required { not $_[0]->{tpParam}{isOptional} }
   sub name        { $_[0]->{tpParam}{paramName} }
-  sub type        { $_[0]->{tpParam}{paramContext}->[0]->[0] }
+  sub type        { $_[0]->{tpParam}{paramContext}->[0] }
   sub fixed_name  { $_[0]->{fixedName} }
   sub jsname      { PIL::name_mangle $_[0]->fixed_name }
 
@@ -114,7 +114,7 @@ EOF
     warn "Skipping \%_ parameter.\n" and return "" if $name eq "%_";
 
     # If a param expects a real Pair, don't use it for named argument purposes.
-    return "" if $_->type =~ /\b(?:Any|Pair)\b/;
+    return "" if $_->type->matches("Any") or $_->type->matches("Pair");
 
     my $jsname   = $self->jsname;
     my $pairname = PIL::doublequote substr $name, 1;

@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 7;
+plan 5;
 
 {
   my $a = 9;
@@ -61,6 +61,21 @@ plan 7;
   ok !(try{ $result_of_sub1() }), '$CALLER::CALLER:: is recalculated on each access (1)';
   ok !(try{ $result_of_sub2() }), '$CALLER::CALLER:: is recalculated on each access (2)';
 }
+
+=pod
+
+Larry ruled that as erroneous.
+
+15:13 < iblech> autrijus: :) BTW, WRT lex hoisting: sub foo { $CALLER::a }; { foo(); my $a
+= 3; foo() }
+15:13 < autrijus> iblech: larry ruled it as erroneous.
+15:13 < autrijus> i.e. foo()'s behaviour is undefined.
+15:14 < iblech> ok then :)
+15:14 < autrijus> it's essential we do that because
+15:14 < autrijus> foo($a, my $a)
+15:14 < autrijus> is legal
+15:14 < autrijus> and will be simply hazadrous to implement either way.
+15:14 < autrijus> s/implement/mandate/
 
 {
   if $*OS eq "browser" {  # test works under PIL2JS :)

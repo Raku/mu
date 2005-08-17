@@ -5,7 +5,10 @@ package PIL::Parser;
 use warnings;
 use strict;
 
+# To s/VNum/PIL::VNum/g
 use Class::Rebless;
+# To support Inf, -Inf, and NaN
+use Math::BigInt;
 
 # Main class method: Parses the given PIL.
 sub parse {
@@ -13,8 +16,16 @@ sub parse {
 
   die "No string to parse given!\n" unless defined $str;
 
+  local $@;
   my $struct = eval $str;
-  Class::Rebless->rebase($struct, "PIL");
+  die "Couldn't parse -CPerl5 output: $@\n" if $@;
+  Class::Rebless->custom($struct, "PIL", { editor => sub {
+    my ($obj, $namespace) = @_;
+    # We don't want PIL::Math::BigInt.
+    return if ref($obj) =~ /^Math::Big/;
+
+    bless $obj => $namespace . "::" . ref $obj;
+  }});
 
   return $struct;
 }

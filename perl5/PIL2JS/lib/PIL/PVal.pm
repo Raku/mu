@@ -15,9 +15,19 @@ use strict;
     my $v = $self->{pVal};
 
     return "new PIL2JS.Box.Constant(undefined)" if $v eq "VUndef";
-    return sprintf "new PIL2JS.Box.Constant([%s])",
-      join ", ", map { $_->as_js } @$v          if ref $v eq "ARRAY";
+    $v = bless [[@$v]] => "PIL::VList"          if ref $v eq "ARRAY";
     return $v->as_js;
+  }
+}
+
+{
+  package PIL::VList;
+  our @ISA = qw<PIL::PVal>;
+
+  sub as_js {
+    local $_;
+    return sprintf "new PIL2JS.Box.Constant([%s])",
+      join ", ", map { $_->as_js } @{ $_[0]->[0] };
   }
 }
 
@@ -34,7 +44,15 @@ use strict;
   package PIL::VNum;
   our @ISA = qw<PIL::PVal>;
 
-  sub as_js { "new PIL2JS.Box.Constant($_[0]->[0])" }
+  sub as_js {
+    my $self = shift;
+
+    return sprintf "new PIL2JS.Box.Constant(%s)", {
+      "inf"  => "Infinity",
+      "-inf" => "-Infinity",
+      "NaN"  => "NaN",
+    }->{$self->[0]} || $self->[0];
+  }
 }
 
 {

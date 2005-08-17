@@ -61,7 +61,10 @@ instance Perl5 Rational where
         x = numerator r
         y = denominator r
 instance Perl5 Double where 
-    showPerl5 = show
+    showPerl5 num | show num == "Infinity"  = "Math::BigInt->binf"
+                  | show num == "-Infinity" = "Math::BigInt->binf('-')"
+                  | show num == "NaN"       = "Math::BigInt->bnan"
+                  | otherwise               = show num
 
 instance (Perl5 a) => Perl5 (Maybe a) where
     showPerl5 (Just x) = showPerl5 x

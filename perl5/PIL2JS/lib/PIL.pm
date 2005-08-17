@@ -197,7 +197,7 @@ EOF
   package PIL::TCxt;
   
   sub cxt  { $_[0] }
-  sub type { $_[0]->cxt->[0]->[0] }
+  sub type { $_[0]->cxt->[0] }
 
   sub fixup { $_[0] }
 
@@ -205,7 +205,7 @@ EOF
     return sprintf "new PIL2JS.Box.Constant(new PIL2JS.Context({ main: %s, type: %s }))",
       PIL::doublequote($_[0]->main),
       defined $_[0]->type
-        ? PIL::doublequote($_[0]->type)
+        ? PIL::doublequote($_[0]->type->as_string)
         : "undefined";
   }
 }
@@ -322,5 +322,6 @@ use PIL::PVar;
 use PIL::Subs;
 use PIL::RawJS;
 use PIL::Cont;
+use PIL::Types;
 
 1;
