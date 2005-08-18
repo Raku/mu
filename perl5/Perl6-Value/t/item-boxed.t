@@ -5,9 +5,12 @@ use warnings;
 
 use Test::More;
 # use Test::Exception;
-plan tests => 33;
+plan tests => 41;
  
 use Perl6::Value;
+use Perl6::Value::List;
+
+use constant Inf => Perl6::Value::Num::Inf;
 
 can_ok('Int', 'new');
 ok(Int->isa('Perl6::Object'), '... Int isa Perl6::Object');
@@ -136,3 +139,25 @@ if(0){  # -- belongs to 'Container'
 
 =cut
 
+{
+    # boxed List
+    # TODO - test with boxed contents
+    my $seq = List->new(
+        '$.unboxed' => 
+            Perl6::Value::List->from_num_range( 
+                start => 0, 
+                end => Inf,
+        ) );
+    isa_ok( $seq, 'List', 'boxed lazy List -' );
+    is( $seq->shift, 0, '... iter 0' );
+    is( $seq->shift, 1, '... iter 1' );
+  
+    is( $seq->pop, Inf, '... pop' );
+    is( $seq->pop, Inf, '... pop' );
+  
+    # reverse
+    my $rev = $seq->reverse();
+    isa_ok( $rev, 'List', 'reversed List is autoboxed -' );
+    is( $rev->shift, Inf, '... shift reverse' );
+    is( $rev->pop,   2,   '... pop reverse' );
+}

@@ -3,7 +3,7 @@
 use strict;
 
 use Test::More;
-plan tests => 16;
+plan tests => 17;
  
 use Perl6::Value;
 

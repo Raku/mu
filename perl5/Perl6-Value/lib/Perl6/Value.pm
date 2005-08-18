@@ -1,15 +1,17 @@
 #
-# Value classes - Num, Int, Str, Bit, Pair
+# Value classes - Num, Int, Str, Bit, Pair, Ref, List
 #
 # Perl6::Value::Num
 # Perl6::Value::Int
 # Perl6::Value::Str
 # Perl6::Value::Bit
+# Perl6::Value::List (separate file)
 # - functions for implementation of Perl6 Values in Perl5
 
 # ChangeLog
 #
 # 2005-08-17
+# * added boxed type: List (lazy, non-lazy, infinite)
 # * More descriptive method names:
 #   - .unboxed() - returns the unboxed value
 #     Pair->unboxed returns two objects.
@@ -27,12 +29,13 @@
 # 2005-08-13
 # * refactored from Perl6::Value::List
 
-# TODO - verify .ref() implementation
+# TODO - library functions - add, subtract, sqrt, ...
+# TODO - verify .ref() implementation - AUTOMETH
 # TODO - implement tests from t/var/autoderef.t
-# TODO - finish .increment, .decrement
-# TODO - remove 'Scalar' from Container ? reuse Ref code
 # TODO - tie
 # TODO - constant
+# TODO - List methods: .str, .perl
+# TODO - test 'Ref' auto-deref with a lazy List
 
 use strict;
 
@@ -209,8 +212,11 @@ my %ref_AUTOMETH = map {
             }
         } )
     } 
-    qw( num int str bit perl ref map grep increment decrement 
-        FETCH STORE shift pop unshift push defined undefine );
+    qw( num int str bit perl ref 
+        increment decrement 
+        fetch store
+        map grep shift pop unshift push reverse
+        defined undefine );
 
 class 'Ref'.$class_description => {
     is => [ 'Perl6::Object' ],
@@ -228,6 +234,58 @@ class 'Ref'.$class_description => {
         },
         methods => { 
             %ref_AUTOMETH,
+        },
+    }
+};
+
+# quick hack until we get AUTOMETH working
+# - not proxied methods: .id .ref
+my %list_AUTOMETH = map {
+        my $method = $_;
+        ( $method => sub { 
+            my $tmp = _('$.unboxed');
+            my @param = @_;
+            shift @param;
+            die "The list object is not defined" unless defined $tmp;
+            $tmp = $tmp->$method( @param );
+            # "box" the result
+            return $tmp
+                if $method eq 'shift' ||
+                   $method eq 'pop';
+            return Str->new( '$.unboxed' => $tmp ) 
+                if $method eq 'perl' ||
+                   $method eq 'str';
+            return Int->new( '$.unboxed' => $tmp ) 
+                if $method eq 'elems' ||
+                   $method eq 'int';
+            return Num->new( '$.unboxed' => $tmp ) 
+                if $method eq 'num';
+            return Bit->new( '$.unboxed' => $tmp )  
+                if $method =~ m/^is_/ ||
+                   $method eq 'bit';
+            return List->new( '$.unboxed' => $tmp )
+                unless UNIVERSAL::isa( $tmp, 'List' );
+            return $tmp;
+        } )
+    } 
+    qw( num int str bit perl ref 
+        map grep shift pop reverse uniq zip
+        kv keys values pairs
+        elems is_infinite is_contiguous is_lazy flatten 
+       );
+
+class 'List'.$class_description => {
+    is => [ 'Perl6::Object' ],
+    class => {
+        attrs => [],
+        methods => {}
+    },
+    instance => {
+        attrs => [ '$.unboxed' ],
+        DESTROY => sub {},
+        methods => {
+            %list_AUTOMETH,
+            'ref' => sub { CLASS }, 
         },
     }
 };

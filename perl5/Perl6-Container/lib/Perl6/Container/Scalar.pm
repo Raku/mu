@@ -10,18 +10,14 @@
 # 2005-08-15
 # - created the 'Scalar' container
 
+# TODO - test Scalar auto-deref with a lazy List
 # TODO - verify .ref() and .undefine() implementations
 # TODO - .ref() should be inherited from Object
 # TODO - .meta should give access to .name, etc
 # TODO - 'is readonly'
-# TODO - can a Scalar hold an unboxed value?
-# TODO - .key, .value => dispatch to Value->key, Value->value
 # TODO - dispatch .grep, .map, ... to the Value - see AUTOMETH
 # TODO - store(Scalar) => store(Scalar->value)
 # TODO - allow fetch/store unboxed contents
-# TODO - 'value' is a Pair method - name 'fetch'/'store' instead
-# TODO - create a 'undef' object?
-# TODO - bind ':='
 # TODO - Constant class
 
 use strict;

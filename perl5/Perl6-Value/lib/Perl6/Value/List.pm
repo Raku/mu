@@ -53,12 +53,19 @@ sub clone         { bless { %{ $_[0] } }, ref $_[0] }
 sub elems         { $_[0]->{celems}() }
 sub is_infinite   { $_[0]->{cis_infinite}() }
 sub is_contiguous { $_[0]->{cis_contiguous}() }
+sub is_lazy       { $_[0]->{is_lazy} }
+sub str           { $_[0]->{cstringify}() }
+sub int           { $_[0]->elems }
+sub bit           { $_[0]->elems > 0 }
+sub num           { $_[0]->elems }
+sub perl          { $_[0]->{cstringify}() }
+
+# obsolete methods
 sub to_str        { $_[0]->{cstringify}() }
 sub to_ref        { $_[0] }
 sub to_bit        { $_[0]->elems > 0 }
 sub to_num        { $_[0]->elems }
 sub to_list       { $_[0] }
-sub is_lazy       { $_[0]->{is_lazy} }
 
 sub flatten       { 
     my $ret = shift;
