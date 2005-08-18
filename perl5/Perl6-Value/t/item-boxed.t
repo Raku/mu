@@ -35,7 +35,7 @@ ok(Int->isa('Perl6::Object'), '... Int isa Perl6::Object');
     my $s = $b->str();
     isa_ok($s, 'Str');
     can_ok($s, 'str');
-    is($s->unboxed(), 'bool::true', '... Bit to Str');
+    is($s->unboxed(), bool::true, '... Bit to Str');
 }
 
 {

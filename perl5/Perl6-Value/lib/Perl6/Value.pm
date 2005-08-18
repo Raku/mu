@@ -29,6 +29,7 @@
 # 2005-08-13
 # * refactored from Perl6::Value::List
 
+# TODO - "bit" stringifies to '1' and ''
 # TODO - library functions - add, subtract, sqrt, ...
 # TODO - verify .ref() implementation - AUTOMETH
 # TODO - implement tests from t/var/autoderef.t
@@ -313,7 +314,7 @@ sub to_str        {
     return 'NaN'  if $v =~ m/n/i;
     return "" . $v 
 }
-sub to_bit        { $_[0] == 0 ? 0 : 1 }
+sub to_bit        { $_[0] == 0 ? '' : 1 }
 sub to_num        { 0 + $_[0] }
 sub to_int        { int( $_[0] ) }
 
@@ -326,7 +327,7 @@ sub to_str        {
     return 'NaN'  if $v =~ m/n/i;
     return "" . $v 
 }
-sub to_bit        { $_[0] != 0 }
+sub to_bit        { $_[0] == 0 ? '' : 1 }
 sub to_num        { 0 + $_[0] }
 sub to_int        { $_[0] }
 
@@ -334,7 +335,7 @@ package Perl6::Value::Str;
 
 sub to_str        { $_[0] }
 sub to_bit        { 
-    return 0 if $_[0] eq '0' || $_[0] eq '';
+    return '' if $_[0] eq '0' || $_[0] eq '';
     return 1;
 }
 sub to_num        {
@@ -349,7 +350,13 @@ sub to_int        { Perl6::Value::Num::to_int( to_num( $_[0] ) ) }
 
 package Perl6::Value::Bit;
 
-sub to_str        { $_[0] == 0 ? 'bool::false' : 'bool::true' }
+# built-in, unboxed 'bit' enums
+sub bool::false      { '' }
+sub bool::true       { 1 }
+sub taint::untainted { '' }
+sub taint::tainted   { 1 }
+
+sub to_str        { $_[0] ? 1 : '' }
 sub to_bit        { $_[0] }
 sub to_num        { $_[0] == 0 ? 0 : 1 }
 sub to_int        { to_num( $_[0] ) }
