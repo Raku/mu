@@ -57,7 +57,8 @@ would like current details, please ask on irc.freenode.net #perl6.
   :g (mostly), :i :m :s :x (yes? p5-only), :w (p6-only).
 
 - Perl 6 rules are still being implemented.  Much works, but rule names
-  must be globals; no support for aliases and embedded closures yet.
+  are global, and there is no support for aliases or embedded closures.
+  And rules do not always behave correctly.
 
 = Test Suite
 
