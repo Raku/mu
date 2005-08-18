@@ -1,8 +1,7 @@
 
 package PIL::Run::Main;
 use PIL::Run::Type::Object;
-use PIL::Run::Type::Str;
-use PIL::Run::Type::Num;
+use Perl6::Value;
 use PIL::Run::Type::Sub;
 use PIL::Run::PrimP5;
 

@@ -22,13 +22,13 @@ $VERSION = '0.01';
        );
 
 sub p6_to_n {my(@n_objs)=@_; map{
-    $_->internal_numify()
+    $_->num()->{'$.unboxed'}
     } @n_objs}
 sub p6_to_s {my(@s_objs)=@_; map{
-    $_->internal_stringify()
+    $_->str()->{'$.unboxed'}
     } @s_objs}
 sub p6_to_a {my($a_obj)=@_; [@$a_obj]}
-sub p6_from_n {my($n)=@_; p6_new(int($n) == $n ? 'Int' : 'Rat', 0+$n)}
+sub p6_from_n {my($n)=@_; p6_new(int($n) == $n ? 'Int' : 'Num', 0+$n)}
 sub p6_from_s {my($s)=@_; p6_new('Str',"$s")}
 sub p6_from_a {my($a)=@_; [@$a]}
 sub p6_die {my(@args)=@_; die @args;}
@@ -111,6 +111,9 @@ sub globify_mangled {
 
 sub p6_new {
     my($type,@args)=@_;
+    return Int->new(@args) if $type eq 'Int';
+    return Num->new(@args) if $type eq 'Num';
+    return Str->new(@args) if $type eq 'Str';
     "PIL::Run::Type::$type"->new(@args);
 }
 sub p6_apply {
