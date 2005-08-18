@@ -7,6 +7,10 @@ use FindBin '$Bin';
 use lib ("$Bin/lib", "$Bin/../Perl6-Value/lib", "$Bin/../Perl6-MetaModel/lib");
 use PIL::Run::MainX;
 use PIL::Run::EvalX;
+use PIL::Run::ApiX; # for p6_to_s()
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
+$Data::Dumper::Terse = 1;
 
 use Scriptalicious 1.05;
 
@@ -41,12 +45,12 @@ sub p6_repl {
 	my $pil = pil_from_p6($p6);
 	print $pil,"\n" if $verbose;
 	my $pilc = pilc_from_pil($pil);
-	print $pilc,"\n\n" if $verbose;
+	print Dumper($pilc),"\n\n" if $verbose;
 	my $p5r = p5r_from_pilc($pilc);
 	print $p5r,"\n" if $verbose;
 	print "----\n";
 	my @res = run_p5r($p5r);
-	print "\n",@res,"\n";
+	print "\n",p6_to_s(@res),"\n";
     }
 }
 

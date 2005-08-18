@@ -8,7 +8,7 @@ Usage tip:
 [...] # pugs is in your path
  $ pwd
  .../perl5/PIL-Run
- $ perl -Ilib -I../Perl6-Value/lib -I../Perl6-MetaModel/lib -w crude_repl.pl
+ $ perl -w crude_repl.pl
 
 
 Here are some things which would help move development along on the p5

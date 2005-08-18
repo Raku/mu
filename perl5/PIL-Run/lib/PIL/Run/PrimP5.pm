@@ -12,8 +12,8 @@ package PrimFilter;
 use Filter::Simple sub {
     s/#.+//g;
     s/{\.\.\.}/{p6_die("\$_fn: unimplemented");}/g;
-    s/(MULTI SUB)\s+(\S+)\s+(\(\s*\))\s+{/def 'multi sub','$2', sub {my \$_fn ='$2'; /g;
-    s/(MULTI SUB)\s+(\S+)\s+(\(.*?\))\s+{/def 'multi sub','$2', sub {my \$_fn ='$2'; my$3=\@_; /g;
+    s/(MULTI SUB)\s+(\S+)\s+(\(\s*\))\s+{/def '$1','$2', sub {my \$_fn ='$2'; /g;
+    s/(MULTI SUB)\s+(\S+)\s+(\(.*?\))\s+{/def '$1','$2', sub {my \$_fn ='$2'; my$3=\@_; /g;
     $_;
     #print; #print STDERR;
 };
@@ -25,6 +25,7 @@ use Math::Trig;
 use PIL::Run::ApiX;
 sub def {
     my($what,$name,$f)=@_;
+    $what =~ tr/A-Z/a-z/;
     PIL::Run::ApiX::def_prim($what,'&'.$name,$f);
 };
 
