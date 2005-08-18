@@ -65,18 +65,18 @@ class 'Num'.$class_description => {
         attrs => [ '$.unboxed' ],
         DESTROY => sub {},
         methods => {
-            'num' =>  sub { SELF },
+            'num' =>  sub { ::SELF },
             'int' =>  sub { Int->new( '$.unboxed' => Perl6::Value::Num::to_int( _('$.unboxed') ) ) },
             'str' =>  sub { Str->new( '$.unboxed' => Perl6::Value::Num::to_str( _('$.unboxed') ) ) },
             'bit' =>  sub { Bit->new( '$.unboxed' => Perl6::Value::Num::to_bit( _('$.unboxed') ) ) },
-            'perl' => sub { SELF->str },
+            'perl' => sub { ::SELF->str },
             'increment' => sub { 
                 my $value = _('$.unboxed');
-                SELF->ref->new( '$.unboxed' => ++$value ) },
+                ::SELF->ref->new( '$.unboxed' => ++$value ) },
             'decrement' => sub { 
                 my $value = _('$.unboxed');
-                SELF->ref->new( '$.unboxed' => --$value ) },
-            'ref' => sub { CLASS }, 
+                ::SELF->ref->new( '$.unboxed' => --$value ) },
+            'ref' => sub { ::CLASS }, 
         },
     }
 };
@@ -93,17 +93,17 @@ class 'Int'.$class_description => {
         DESTROY => sub {},
         methods => {
             'num' =>  sub { Num->new( '$.unboxed' => Perl6::Value::Int::to_num( _('$.unboxed') ) ) },
-            'int' =>  sub { SELF },
+            'int' =>  sub { ::SELF },
             'str' =>  sub { Str->new( '$.unboxed' => Perl6::Value::Int::to_str( _('$.unboxed') ) ) },
             'bit' =>  sub { Bit->new( '$.unboxed' => Perl6::Value::Int::to_bit( _('$.unboxed') ) ) },
-            'perl' => sub { SELF->str },
+            'perl' => sub { ::SELF->str },
             'increment' => sub { 
                 my $value = _('$.unboxed');
-                SELF->ref->new( '$.unboxed' => ++$value ) },
+                ::SELF->ref->new( '$.unboxed' => ++$value ) },
             'decrement' => sub { 
                 my $value = _('$.unboxed');
-                SELF->ref->new( '$.unboxed' => --$value ) },
-            'ref' => sub { CLASS }, 
+                ::SELF->ref->new( '$.unboxed' => --$value ) },
+            'ref' => sub { ::CLASS }, 
         },
     }
 };
@@ -121,7 +121,7 @@ class 'Str'.$class_description => {
         methods => {
             'num' =>  sub { Num->new( '$.unboxed' => Perl6::Value::Str::to_num( _('$.unboxed') ) ) },
             'int' =>  sub { Int->new( '$.unboxed' => Perl6::Value::Str::to_int( _('$.unboxed') ) ) },
-            'str' =>  sub { SELF },
+            'str' =>  sub { ::SELF },
             'bit' =>  sub { Bit->new( '$.unboxed' => Perl6::Value::Str::to_bit( _('$.unboxed') ) ) },
             'perl' => sub { 
                 my $tmp = _('$.unboxed');
@@ -130,11 +130,11 @@ class 'Str'.$class_description => {
               },
             'increment' => sub { 
                 my $value = _('$.unboxed');
-                SELF->ref->new( '$.unboxed' => ++$value ) },
+                ::SELF->ref->new( '$.unboxed' => ++$value ) },
             'decrement' => sub { 
                 my $value = _('$.unboxed');
-                SELF->ref->new( '$.unboxed' => --$value ) },
-            'ref' => sub { CLASS }, 
+                ::SELF->ref->new( '$.unboxed' => --$value ) },
+            'ref' => sub { ::CLASS }, 
         },
     }
 };
@@ -153,9 +153,9 @@ class 'Bit'.$class_description => {
             'num' => sub { Num->new( '$.unboxed' => Perl6::Value::Bit::to_num( _('$.unboxed') ) ) },
             'int' => sub { Int->new( '$.unboxed' => Perl6::Value::Bit::to_int( _('$.unboxed') ) ) },
             'str' => sub { Str->new( '$.unboxed' => Perl6::Value::Bit::to_str( _('$.unboxed') ) ) },
-            'bit' => sub { SELF },
-            'perl' => sub { SELF->str },
-            'ref' => sub { CLASS }, 
+            'bit' => sub { ::SELF },
+            'perl' => sub { ::SELF->str },
+            'ref' => sub { ::CLASS }, 
         },
     }
 };
@@ -181,7 +181,7 @@ class 'Pair'.$class_description => {
                 Str->new( '$.unboxed' => "($key, $value)" ) 
               },
             'unboxed' => sub { ( _('$.key'), _('$.value') ) },
-            'ref' => sub { CLASS }, 
+            'ref' => sub { ::CLASS }, 
         },
     }
 };
@@ -202,7 +202,7 @@ my %ref_AUTOMETH = map {
             else {
                 # "real ref"
                 return Bit->new( '$.unboxed' => 1 ) if $method eq 'bit';
-                return CLASS if $method eq 'ref';
+                return ::CLASS if $method eq 'ref';
                 if ( $method eq 'perl' ) {
                     return Str->new( '$.unboxed' => '\\undef' ) unless defined $tmp;
                     return Str->new( '$.unboxed' => '\\' . $tmp->perl->unboxed ) 
@@ -285,7 +285,7 @@ class 'List'.$class_description => {
         DESTROY => sub {},
         methods => {
             %list_AUTOMETH,
-            'ref' => sub { CLASS }, 
+            'ref' => sub { ::CLASS }, 
         },
     }
 };
