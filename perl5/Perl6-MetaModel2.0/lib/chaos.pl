@@ -192,6 +192,11 @@ use Scalar::Util 'blessed';
         }
     }
 
+    # NOTE:
+    # since $::Class is an instance of itself, we
+    # can safely ignore the issue of class methods
+    # in this dispatcher, since there will be none
+    # because the class it an instance of itself :)
     sub _class_dispatch {
         my ($self, $label) = (shift, shift);    
         my $method_table_name;
@@ -209,7 +214,6 @@ use Scalar::Util 'blessed';
 
         # gather all the classes to look through
         my @classes = ($self);
-
         # we need to just dig one level deep here since
         # we know it is a class, that is okay, but
         # still it is a hack. 
@@ -235,16 +239,24 @@ use Scalar::Util 'blessed';
         if ($label =~ /DESTROY/) {
             $label = 'DESTROYALL';
         }
-
+        
+        # XXX - 
+        # how should we handle this??
+        # this currently ignores the idea of class 
+        # methods entirely, which is not okay.
+        my $class = ::opaque_instance_class($self);
+        
         my @return_value;
-
         # check if this is a private method
         if ($label =~ /^_/) {
-             ; # XXX - punt for now
+            confess "Private Method ($label) not found for instance ($self)"
+                unless $class->has_method($label, for => 'private');
+            my $method = $class->get_method($label, for => 'private');
+            @return_value = $method->($self, @_);  
         }
         else {      
             # get the dispatcher instance ....
-            my $dispatcher = $self->dispatcher(':canonical');
+            my $dispatcher = $class->dispatcher(':canonical');
             # walk the methods
             my $method = ::WALKMETH($dispatcher, $label);
             # store the dispatcher state
@@ -281,7 +293,10 @@ use Scalar::Util 'blessed';
 { ## META re-dispatcher
     package META;
     
-    sub AUTOLOAD { }
+    sub AUTOLOAD {
+        $Dispatchable::AUTOLOAD = our $AUTOLOAD; 
+        goto &Dispatchable::AUTOLOAD;
+    }
 }
 
 { ## Perl 5 dispatcher magic

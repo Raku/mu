@@ -20,6 +20,7 @@ $::Object = ::create_class(
         'can'        => ::classmethod {},        
         
         'BUILD'      => ::submethod {},
+        
         'BUILDALL'   => ::method {},
         'DESTROYALL' => ::method {},      
         'isa'        => ::method {},   
