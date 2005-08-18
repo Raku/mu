@@ -15,15 +15,15 @@ sub ::create_class (%) {
         \$::Class,
         (
             # meta-information
-            '$:name'             => $attrs{'$:name'} || undef,
-            '$:version'          => '0.0.0',
-            '$:authority'        => undef,
+            '$:name'             => $attrs{'$:name'}      || undef,
+            '$:version'          => $attrs{'$:version'}   || '0.0.0',
+            '$:authority'        => $attrs{'$:authority'} || undef,
             # the guts
             '@:MRO'              => [],
             '@:superclasses'     => [],
             '%:private_methods'  => {},
             '%:attributes'       => {},
-            '%:methods'          => $attrs{'%:methods'} || {},
+            '%:methods'          => {},
             '%:class_attributes' => {},
             '%:class_methods'    => {},            
         )
@@ -31,9 +31,29 @@ sub ::create_class (%) {
 }
 
 # The 'Class' class
-$::Class = ::create_class(
-    '$:name'    => 'Class',
-    '%:methods' => {
-        'add_method' => ::method {},
-    },
-);
+$::Class = ::create_class('$:name' => 'Class');
+
+## create the body of 'add_method' here,.. 
+my $_add_method = sub {
+    my ($self, $label, $method) = @_;
+    confess "A method must be a blessed Perl6::Method object" 
+        unless blessed($method);
+    if (blessed($method) eq 'Perl6::Method'   ||
+        blessed($method) eq 'Perl6::Submethod') {
+        ::opaque_instance_attrs($self)->{'%:methods'}->{$label} = $method;
+    }
+    elsif (blessed($method) eq 'Perl6::ClassMethod') {
+        ::opaque_instance_attrs($self)->{'%:class_methods'}->{$label} = $method;                
+    }
+    elsif (blessed($method) eq 'Perl6::PrivateMethod') {
+        ::opaque_instance_attrs($self)->{'%:private_methods'}->{$label} = $method;                
+    }            
+    else {
+        confess "I do not recognize the method type ($method)";
+    }
+};
+
+# and use it to add itself to the $::Class
+$_add_method->($::Class, 'add_method', ::make_method($_add_method, $::Class));
+
+# ... now we have all we need to construct our $::Class 

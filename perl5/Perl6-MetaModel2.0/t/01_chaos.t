@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More no_plan => 1;
+use Test::More tests => 40;
 use Test::Exception;
 
 do 'lib/chaos.pl';
@@ -30,6 +30,11 @@ is_deeply(
     ::opaque_instance_attrs($j), 
     { bar => 1 }, 
     '... got the right attrs');
+    
+## test out some of the global functions ...
+
+dies_ok { ::SELF() } '... cannot call $?SELF outside of a valid context';
+dies_ok { ::CLASS() } '... cannot call $?CLASS outside of a valid context';
     
 ## test the method constructors
 
@@ -102,4 +107,23 @@ is_deeply(
         is($m->($Perl6::Submethod::FORCE, $i), 'Baz', '... got the right return value (with force call)');          
     }
 }
+
+{
+    
+    my $pm = ::make_privatemethod(sub { return 'Foo' }, $i);
+    ok(ref($pm), 'Perl6::PrivateMethod');    
+
+    my $m = ::make_method(sub { $pm->() }, $i);
+    ok(ref($m), 'Perl6::Method');
+    
+    is($m->(), 'Foo', '... called private method successfully');
+    
+    my $m2 = ::make_method(sub { $pm->() }, $j);
+    ok(ref($m2), 'Perl6::Method');    
+
+    dies_ok {
+        $m2->();
+    } '... cannot call a private method from a different class';
+}
+
 
