@@ -4,7 +4,10 @@
 # with pugs in your PATH.
 
 use FindBin '$Bin';
-use lib ("$Bin/lib", "$Bin/../Perl6-Value/lib", "$Bin/../Perl6-MetaModel/lib");
+use lib ("$Bin/lib",
+	 "$Bin/../Perl6-Value/lib",
+	 "$Bin/../Perl6-Container/lib",
+	 "$Bin/../Perl6-MetaModel/lib");
 use PIL::Run::MainX;
 use PIL::Run::EvalX;
 use PIL::Run::ApiX; # for p6_to_s()

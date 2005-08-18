@@ -49,17 +49,22 @@ package VInt; @ISA = qw(EvalX::BaseClass); sub expand {
 }
 package VStr; @ISA = qw(EvalX::BaseClass); sub expand {
     my $s = $_[0][0];
-    $s =~ s/\\/\\\\/; $s =~ s/\'/\\\'/;
+    $s =~ s/\\/\\\\/g; $s =~ s/\'/\\\'/g;
     "p6_new('Str','$s')";
 }
 package PVar; @ISA = qw(EvalX::BaseClass); sub expand {
-    PIL::Run::ApiX::p6_mangle($_[0]{'pVarName'});
+    my $s = $_[0]{'pVarName'};
+    $s =~ s/\\/\\\\/g; $s =~ s/\'/\\\'/g;
+    "p6_var('$s')";
 }
 package PApp; @ISA = qw(EvalX::BaseClass); sub expand {
     my($self)=@_;
     my $f = $self->{'pFun'}->expand();
     my @args = map{$_->expand()} @{$self->{'pArgs'}};
     "p6_apply(".join(",",$f,@args).")";
+}
+package PAssign; @ISA = qw(EvalX::BaseClass); sub expand {
+    'p6_set('.$_[0]{'pLHS'}[0]->expand().','.$_[0]{'pRHS'}->expand().')';
 }
 package PStmt; @ISA = qw(EvalX::BaseClass); sub expand {
     $_[0]->SUPER::expand().";\n";
