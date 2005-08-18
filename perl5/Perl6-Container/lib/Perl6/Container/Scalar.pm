@@ -50,9 +50,11 @@ $Perl6::Cell::_id = rand;
 sub Perl6::Cell::new { bless { 'id' => ++$Perl6::Cell::_id }, 'Perl6::Cell' } 
 sub Perl6::Cell::store {
     die 'read only cell' if $_[0]{ro} && defined $_[0]{v};
+    return $_[0]{tied}->store($_[1]) if $_[0]{tied};
     $_[0]{v} = $_[1]
 }
 sub Perl6::Cell::fetch {
+    return $_[0]{tied}->fetch if $_[0]{tied};
     $_[0]{v}
 }
 sub Perl6::Cell::tie {
@@ -75,7 +77,7 @@ class 'Scalar'.$class_description => {
     instance => {
         attrs => [ [ '$:cell' => { 
                         access => 'rw', 
-                        build => sub { bless {}, 'Perl6::Cell' } } ] ],
+                        build => sub { Perl6::Cell->new } } ] ],
         DESTROY => sub {
             # XXX - didn't undefine the value 
             # _('$.value' => undef) },
@@ -110,6 +112,8 @@ class 'Scalar'.$class_description => {
             },
             '_cell' =>   sub { _('$:cell') },  # _cell() is used by bind()
             'id' =>      sub { _('$:cell')->{id} },  
+
+            'set_tieable' => sub { _('$:cell')->{tieable} = 1 },
             'tieable' => sub { _('$:cell')->{tieable} != 0 },
             'tie' =>     sub { shift; _('$:cell')->tie(@_) },
             'untie' =>   sub { shift; _('$:cell')->untie },

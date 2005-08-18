@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 26;
+plan tests => 30;
 
 use Perl6::Container::Scalar;
 use Perl6::Value;
@@ -110,4 +110,39 @@ ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
     my $p = Scalar->new();
     $p->store( 5 );
     is( $p->fetch, 5, '... store/fetch unboxed value' );
+}
+
+{  
+    # tie
+    
+    sub Thing::new { bless {}, 'Thing' } 
+    sub Thing::store { $_[0]{v} = $_[1] }
+    sub Thing::fetch { $_[0]{v} }
+
+    my $t = Thing->new();
+
+    my $s = Scalar->new();
+
+    # $s->tie( $t );   # dies ok
+
+    $s->set_tieable;
+    $s->tie( $t );
+
+    $s->store( 5 );
+    is( $s->fetch, 5, '... store/fetch tied value' );
+
+    $s->untie;
+    is( $s->fetch, undef, '... untie' );
+}
+
+{  
+    # id
+
+    my $s = Scalar->new();
+    my $t = Scalar->new();
+
+    isnt( $s->id, $t->id, 'id is different for each Scalar');
+
+    $t->bind( $s );
+    is( $s->id, $t->id, '... same id for binded Scalars');
 }
