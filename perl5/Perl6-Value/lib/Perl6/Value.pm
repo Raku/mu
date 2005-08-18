@@ -12,6 +12,7 @@
 # ChangeLog
 #
 # 2005-08-18
+# * clean-up Ref implementation - uses AUTOLOAD to auto-deref
 # * added unboxed enums: bool::* taint::*
 # * 'List' clean up - removed 'multisub' methods
 #
@@ -37,9 +38,8 @@
 # Notes:
 # - All library functions - add, subtract, sqrt, ...
 #   are implemented using multisubs
-# - 'Ref' do not auto-deref List or any other Value
+# - 'Ref' do not auto-deref List or any other Value - only Containers
 
-# TODO - verify .ref() implementation - AUTOMETH
 # TODO - implement tests from t/var/autoderef.t
 # TODO - tie
 # TODO - constant
@@ -212,9 +212,9 @@ class 'Ref'.$class_description => {
                 my ($self, @param) = @_;
                 my $method = AUTOLOAD($self);
                 my $tmp = _('$.referred');
-                # Containers are auto-dereferenced
+                # Array and Hash are auto-dereferenced
                 if ( defined $tmp && ( 
-                        $tmp->isa( 'Scalar' ) || $tmp->isa( 'Array' ) || $tmp->isa( 'Hash' )
+                        $tmp->isa( 'Array' ) || $tmp->isa( 'Hash' )
                     ) ) {
                     return $tmp->$method( @param );
                 }
