@@ -1,7 +1,3 @@
-PIL-Run development has been on hold for a while.  To dust it off,
-look first at PIL2JS, the metamodel stuff, and pugs's -CPerl5.
-
-----------------------------------------------------------------------
 
 Usage tip:
  $ pugs -v
@@ -23,40 +19,10 @@ write them in p6, and add them either to the perl6/Prelude.pm
 (preferred), or to PIL/Run/Root/P5Runtime/PrimP6.pm (less so), and
 comment them out in PrimP5 (with a note saying why).
 
-* Errors like
-   Guessing TTailCall has arity 1.
-mean the PIR node TTailCall doesn't appear in lib/PIL/ReadToStr1.pm's
-%arity table.  Look or grep in src/Pugs/AST*, or at the :v verbose code,
-figure out how many arguments it takes, and add it to %arity.
-
-* Errors like
-   Punting on SMy.
- mean the lib/PIL/Run/EvalX.pm "compiler" doesn't know what to do with
-node SMy. It doesn't have an entry in %handlers.  Sometimes that's ok.
-But not if your test code isn't compiling as a result.  So use :v
-verbose, look at the PIR, and add handlers for any unknown nodes
-between pilMain and the stuff you care about.  Or go through
-src/Pugs/CodeGen* (I think that's right?) and add nodes
-systematically.
-
-* lib/PIL/Run/Type/*.pm are quick temporary throwaway placeholders.
-If you understand the Perl6-MetaModel stuff, please make them real.
-
-* Figure out why, when you run -w crude_repl.pl, you (or at least me)
-get a "Use of uninitialized value in concatenation (.) or string at /usr/lib/perl5/vendor_perl/5.8.5/Filter/Simple.pm line 156." warning.
-
 * MainX should load PIL/Run/Root/P5Runtime/PrimP6.pm at startup.
-
-* Replace PIL/ReadToStr1.pm with pugs's new -CPerl5 output.
 
 Slightly more distant tasks:
 * Get the prelude to compile.
 * Get Test.pm to run.
 * Get the examples/eval.pm p6 read-eval-print loop to run.
-* Perhaps we need a PIL node arity table.
-
-DONE:
-
-* Modify crude_repl.pl to use a real readline.  So we can backspace,
-and edit lines, and have history.
 
