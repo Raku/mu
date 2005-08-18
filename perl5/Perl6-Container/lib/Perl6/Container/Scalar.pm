@@ -19,6 +19,7 @@
 # TODO - store(Scalar) => store(Scalar->value)
 # TODO - allow fetch/store unboxed contents
 # TODO - Constant class
+# TODO - Scalar id is stored in the Cell
 
 use strict;
 
@@ -28,6 +29,20 @@ use Perl6::Value;
 
 my $class_description = '-0.0.1-cpan:FGLOCK';
 
+# Cell
+#
+# Cell is implemented as a native class
+#
+# cell keys:  
+#    v  (value)   (default: undef)
+#    ro           (default: r/w; 1=read-only cell)
+#    tieable      (default: non-tieable; 1=tieable)
+#    id
+#
+# 'tieable' can be reused as a pointer to the tied object
+
+$Perl6::Cell::_id = rand;
+sub Perl6::Cell::new { bless { 'id' => ++$Perl6::Cell::_id }, 'Perl6::Cell' } 
 sub Perl6::Cell::store {
     die 'read only cell' if $_[0]{ro} && defined $_[0]{v};
     $_[0]{v} = $_[1]
@@ -35,6 +50,15 @@ sub Perl6::Cell::store {
 sub Perl6::Cell::fetch {
     $_[0]{v}
 }
+sub Perl6::Cell::tie {
+    die 'untieable cell' if ! $_[0]{tieable};
+    $_[0]{tieable} = $_[1]
+}
+sub Perl6::Cell::untie {
+    $_[0]{tieable} = 1;
+}
+
+# --- end Cell
 
 # quick hack until we get AUTOMETH working
 # - not proxied methods: id value defined undefine fetch store
@@ -116,6 +140,9 @@ class 'Scalar'.$class_description => {
                 return $self;
             },
             '_cell' => sub { _('$:cell') },  # _cell() is used by bind()
+            'id' => sub { _('$:cell')->{id} },  
+            'tieable' => sub { _('$:cell')->{tieable} != 0 },
+            # TODO - tie, untie; return the proper results
         },
     }
 };
