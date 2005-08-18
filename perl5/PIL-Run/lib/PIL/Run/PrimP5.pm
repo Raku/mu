@@ -234,12 +234,10 @@ MULTI SUB infix:<~&> ($xx0,$xx1) {...};
 MULTI SUB infix:[~<] ($xx0,$xx1) {...};
 MULTI SUB infix:[~>] ($xx0,$xx1) {...};
 MULTI SUB infix:<**> ($xx0,$xx1) {...};
-MULTI SUB infix:<+> ($xx0,$xx1) {
-    p6_new(Num => p6_to_n($xx0) + p6_to_n($xx1));
-};
+MULTI SUB infix:<+> ($xx0,$xx1) {p6_new(Num => p6_to_n($xx0) + p6_to_n($xx1));};
 MULTI SUB infix:<-> ($xx0,$xx1) {...};
 # atan - see op1
-MULTI SUB infix:<~> ($xx0,$xx1) {...};
+MULTI SUB infix:<~> ($xx0,$xx1) {p6_new(Str => p6_to_s($xx0) . p6_to_s($xx1));};
 MULTI SUB infix:<+|> ($xx0,$xx1) {...};
 MULTI SUB infix:<+^> ($xx0,$xx1) {...};
 MULTI SUB infix:<~|> ($xx0,$xx1) {...};

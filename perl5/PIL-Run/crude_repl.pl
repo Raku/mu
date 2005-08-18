@@ -23,25 +23,19 @@ sub p6_repl_simple {
     }
 }
 
+sub p6_repl_print_help {
+    print ":h             show this help\n";
+    print ":q             quit\n";
+    print ":v             toggles verbose output\n";
+    print ":5 <p5code>    run perl5 code\n";
+    print " <p6code>      run perl6 code\n";
+    print ":l <filename>  run perl6 file\n";
+}
+
 sub p6_repl {
     my $verbose = 0;
-    print "See perl5/PIL-Run/TODO\n";
-    print ":v  toggles verbose output\n";
-    print ":e  P5-EXPRESSION-GETS-EVALUATED\n";
-    print "say 'hi' and say 3 are about all that works.\n";
-    while (1) {
-	my $line = prompt_string("p5ugs> ");
-	last if !defined $line;
-	if ($line =~ /\A\s*:v\s*\Z/) {
-	    $verbose = !$verbose;
-	    next;
-	}
-	if ($line =~ /\A\s*:e\s+(.+)/) {
-	    print eval($1),"\n";
-	    warn $@ if $@;
-	    next;
-	}
-	my $p6 = $line;
+    my $eval_p6 = sub {
+	my($p6)=@_;
 	my $pil = pil_from_p6($p6);
 	print $pil,"\n" if $verbose;
 	my $pilc = pilc_from_pil($pil);
@@ -51,6 +45,28 @@ sub p6_repl {
 	print "----\n";
 	my @res = run_p5r($p5r);
 	print "\n",(map {p6_to_s($_)} @res),"\n";
+    };
+    print "See perl5/PIL-Run/TODO.\n";
+    print "say 'hi' and say 3 are about all that works.\n";
+    p6_repl_print_help();
+    while (1) {
+	my $line = prompt_string("p5ugs> ");
+	last if !defined $line;
+	if ($line =~ /\A:h\s*\Z/) { p6_repl_print_help(); next;}
+	if ($line =~ /\A:q\s*\Z/) { exit(0);}
+	if ($line =~ /\A:v\s*\Z/) { $verbose = !$verbose; next;}
+	if ($line =~ /\A:5\s+(.+)/) {
+	    print eval($1),"\n";
+	    warn $@ if $@;
+	    next;
+	}
+	if ($line =~ /\A:l\s+(\S+)/) {
+	    my $filename = $1;
+	    my $code = `cat $filename`;
+	    $eval_p6->($code);
+	    next;
+	}
+	$eval_p6->($line);
     }
 }
 
