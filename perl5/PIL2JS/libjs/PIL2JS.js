@@ -385,7 +385,7 @@ PIL2JS.toPIL2JSBox = function (thing) {
     if(thing.flatten_me) ret.flatten_me = thing.flatten_me;
     return new PIL2JS.Box.Constant(ret);
   } else if(thing instanceof Function) {
-    return new PIL2JS.Box.Constant(function (args) {
+    return PIL2JS.Box.constant_func(thing.arity, function (args) {
       PIL2JS.call(undefined, thing, args);
     });
   } else {

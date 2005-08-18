@@ -224,13 +224,52 @@ Note that our methods do I<not> get a C<Perl6.Instance> as C<$?SELF> (this is
 due to perfomance reasons) -- however, when calling a method, the metamodel
 does get used, so this decision is hidden from the end user.
 
+=head2 JSAN integration
+
+C<Pugs.Parser> parses C<use jsan:Foo> statements and emits a call to an
+internal PIL2JS sub:
+
+  use jsan:Foo <bar baz>;   # is really
+  PIL2JS::Internals::use_jsan_module_imp("Foo", <bar baz>);
+
+C<&PIL2JS::Internals::use_jsan_module_imp> then asks the C<JSAN> object to load
+C<Foo>. Furthermore, it autoboxes and autorenames all functions the module
+exports. This means, that the following works:
+
+  use jsan:Number.Roman <to_roman>;
+  say to_roman 42;
+
+  # Without the autoboxing and autorenaming, you'd have to write:
+  say JS::to_roman 42;
+
+Note that the JSAN integration is not available when running under
+Spidermonkey's C<bin/js>; This is not a bug in PIL2JS or JSAN, it's because
+C<bin/js> can't download arbitrary URLs.
+
+=head3 Usage
+
+  # Compile the Perl 6 to PIL
+  $ pugs -CPerl5 -we '
+      $*JS::JSAN.addRepository("/tmp/jsanlibs");
+      use jsan:Number.Roman <to_roman>;
+      say "42: {to_roman 42}";
+    ' > /tmp/test.pil
+  
+  # Compile the PIL to JavaScript
+  $ ./pil2js.pl -o /tmp/test.js /tmp/test.pil
+  
+  # Link the JavaScript, JSAN, the Metamodel and the Prelude together
+  $ ./pil2js --link=html -o /tmp/test.html \
+      ~http://openjsan.org/src/c/cw/cwest/JSAN-0.10/lib/JSAN.js \
+      ~METAMODEL \
+      ~$PWD/libjs/PIL2JS.js ~$PWD/Prelude.js /tmp/test.js
+  
+  # Fetch Number.Roman from JSAN and copy its lib/* to /tmp/jsanlibs
+  # Point your $BROWSER to test.html
+
 =head1 TODO
 
 =over
-
-=item *
-
-Make C<use js:Foo> load C<Foo> from L<JSAN|http://www.openjsan.org/>
 
 =item *
 
