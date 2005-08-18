@@ -50,7 +50,7 @@ sub p6_repl {
 	print $p5r,"\n" if $verbose;
 	print "----\n";
 	my @res = run_p5r($p5r);
-	print "\n",p6_to_s(@res),"\n";
+	print "\n",(map {p6_to_s($_)} @res),"\n";
     }
 }
 

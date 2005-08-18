@@ -21,12 +21,8 @@ $VERSION = '0.01';
        p6_apply
        );
 
-sub p6_to_n {my(@n_objs)=@_; map{
-    $_->num()->unboxed;
-    } @n_objs}
-sub p6_to_s {my(@s_objs)=@_; map{
-    $_->str()->unboxed;
-    } @s_objs}
+sub p6_to_n {my($n)=@_; $n->num()->unboxed;}
+sub p6_to_s {my($n)=@_; $n->str()->unboxed;}
 sub p6_to_a {my($a_obj)=@_; [@$a_obj]}
 sub p6_from_n {my($n)=@_; p6_new(int($n) == $n ? 'Int' : 'Num', 0+$n)}
 sub p6_from_s {my($s)=@_; p6_new('Str',"$s")}
