@@ -300,6 +300,7 @@ sub to_int        { int( $_[0] ) }
 package Perl6::Value::Int;
 
 sub to_str        { 
+    no warnings 'uninitialized';
     my $v = 0 + $_[0];
     return 'Inf'  if $v == Perl6::Value::Num::Inf;
     return '-Inf' if $v == -&Perl6::Value::Num::Inf;
