@@ -5,7 +5,7 @@ use warnings;
 
 use Test::More;
 # use Test::Exception;
-plan tests => 41;
+plan tests => 38;
  
 use Perl6::Value;
 use Perl6::Value::List;
@@ -156,8 +156,8 @@ if(0){  # -- belongs to 'Container'
     is( $seq->pop, Inf, '... pop' );
   
     # reverse
-    my $rev = $seq->reverse();
-    isa_ok( $rev, 'List', 'reversed List is autoboxed -' );
-    is( $rev->shift, Inf, '... shift reverse' );
-    is( $rev->pop,   2,   '... pop reverse' );
+    # my $rev = $seq->reverse();
+    # isa_ok( $rev, 'List', 'reversed List is autoboxed -' );
+    # is( $rev->shift, Inf, '... shift reverse' );
+    # is( $rev->pop,   2,   '... pop reverse' );
 }

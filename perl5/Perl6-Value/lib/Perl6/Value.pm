@@ -1,14 +1,19 @@
 #
-# Value classes - Num, Int, Str, Bit, Pair, Ref, List
+# - Value classes 
+# Num, Int, Str, Bit, Pair, Ref, List
 #
-# Perl6::Value::Num
+# - functions for implementation of Perl6 Values in Perl5
+# Perl6::Value::Num - Inf, NaN
 # Perl6::Value::Int
 # Perl6::Value::Str
-# Perl6::Value::Bit
+# Perl6::Value::Bit - bool::* taint::*
 # Perl6::Value::List (separate file)
-# - functions for implementation of Perl6 Values in Perl5
 
 # ChangeLog
+#
+# 2005-08-18
+# * added unboxed values: bool::* taint::*
+# * 'List' clean up - removed 'multisub' methods
 #
 # 2005-08-17
 # * added boxed type: List (lazy, non-lazy, infinite)
@@ -239,42 +244,6 @@ class 'Ref'.$class_description => {
     }
 };
 
-# quick hack until we get AUTOMETH working
-# - not proxied methods: .id .ref
-my %list_AUTOMETH = map {
-        my $method = $_;
-        ( $method => sub { 
-            my $tmp = _('$.unboxed');
-            my @param = @_;
-            shift @param;
-            die "The list object is not defined" unless defined $tmp;
-            $tmp = $tmp->$method( @param );
-            # "box" the result
-            return $tmp
-                if $method eq 'shift' ||
-                   $method eq 'pop';
-            return Str->new( '$.unboxed' => $tmp ) 
-                if $method eq 'perl' ||
-                   $method eq 'str';
-            return Int->new( '$.unboxed' => $tmp ) 
-                if $method eq 'elems' ||
-                   $method eq 'int';
-            return Num->new( '$.unboxed' => $tmp ) 
-                if $method eq 'num';
-            return Bit->new( '$.unboxed' => $tmp )  
-                if $method =~ m/^is_/ ||
-                   $method eq 'bit';
-            return List->new( '$.unboxed' => $tmp )
-                unless UNIVERSAL::isa( $tmp, 'List' );
-            return $tmp;
-        } )
-    } 
-    qw( num int str bit perl ref 
-        map grep shift pop reverse uniq zip
-        kv keys values pairs
-        elems is_infinite is_contiguous is_lazy flatten 
-       );
-
 class 'List'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -285,8 +254,18 @@ class 'List'.$class_description => {
         attrs => [ '$.unboxed' ],
         DESTROY => sub {},
         methods => {
-            %list_AUTOMETH,
-            'ref' => sub { ::CLASS }, 
+            'num' =>  sub { Num->new( '$.unboxed' => _('$.unboxed')->num  ) },
+            'int' =>  sub { Int->new( '$.unboxed' => _('$.unboxed')->int  ) },
+            'str' =>  sub { Str->new( '$.unboxed' => _('$.unboxed')->str  ) },
+            'bit' =>  sub { Bit->new( '$.unboxed' => _('$.unboxed')->bit  ) },
+            'perl' => sub { Str->new( '$.unboxed' => _('$.unboxed')->perl ) },
+            'ref' =>  sub { ::CLASS }, 
+
+            'shift' => sub { _('$.unboxed')->shift },
+            'pop' =>   sub { _('$.unboxed')->pop   },
+
+            # methods implemented in List.pm but not exposed here:
+            #     elems, is_infinite, is_lazy, is_contiguous, flatten, grep, ...
         },
     }
 };
