@@ -29,6 +29,7 @@ sub import {
 }
 
 our @CURRENT_DISPATCHER = ();
+our %AUTOLOAD = ();
 our $OBJ_ID = 0;
 
 ## this just makes sure to clear the invocant when
@@ -36,7 +37,8 @@ our $OBJ_ID = 0;
 $SIG{'__DIE__'} = sub { 
     @Perl6::Method::CURRENT_INVOCANT_STACK = (); 
     @Perl6::Method::CURRENT_CLASS_STACK    = ();     
-    @Perl6::MetaModel::CURRENT_DISPATCHER     = ();
+    @Perl6::MetaModel::CURRENT_DISPATCHER  = ();
+    %Perl6::MetaModel::AUTOLOAD            = ();    
     CORE::die @_; 
 };
 
@@ -218,23 +220,36 @@ sub _normal_dispatch {
         # get the dispatcher instance ....
         my $dispatcher = ::dispatch(::meta($self), 'dispatcher', (':canonical'));
         
+        my %opts = (
+            blessed($self) ? 
+                (blessed($self) eq 'Perl6::Class' ?
+                    (for => 'Class')
+                    :
+                    ()) 
+                : 
+                (for => 'Class')
+        );
 
         # this needs to be fully qualified for now
-        my $method = ::WALKMETH($dispatcher, $label, (
-                blessed($self) ? 
-                    (blessed($self) eq 'Perl6::Class' ?
-                        (for => 'Class')
-                        :
-                        ()) 
-                    : 
-                    (for => 'Class')
-            )
-        );
+        my $method = ::WALKMETH($dispatcher, $label, %opts);
+        
+        unless (defined $method) {
+            # we need to get a new dispatcher, becuase the other
+            # one has run out,.. 
+            my $autoload_dispatcher = ::dispatch(::meta($self), 'dispatcher', (':canonical'));
+            # if we find an AUTOLOAD anywhere in the chain, then
+            # we can use it ...
+            if ($method = ::WALKMETH($autoload_dispatcher, 'AUTOLOAD', %opts)) {
+                # but dont forget to stash the label 
+                $AUTOLOAD{::meta($self)} = $label;
+            }
+        }
+        
         (blessed($method) && $method->isa('Perl6::Method'))
             || confess "Method ($label) not found for instance ($self)";        
 
-        push @CURRENT_DISPATCHER => [ $dispatcher, $label, $self, @_ ];
-
+        push @CURRENT_DISPATCHER => [ $dispatcher, $label, $self, \@_, \%opts ];
+        
         @return_value = $method->do($self, @_);     
 
         # we can dispose of this value, as it 
@@ -294,16 +309,24 @@ sub class {
 ## GLOBAL FUNCTIONS
 
 sub ::next_METHOD {
-    my ($dispatcher, $label, $self, @args) = @{$CURRENT_DISPATCHER[-1]};             
-    my $method = ::WALKMETH($dispatcher, $label); 
-    return $method->do($self, @args);    
+    my ($dispatcher, $label, $self, $args, $opts) = @{$CURRENT_DISPATCHER[-1]};             
+    my $method = ::WALKMETH($dispatcher, $label, %{$opts}); 
+    confess "No next-method for '$label' found" unless defined $method;
+    return $method->do($self, @{$args});    
+}
+
+sub ::AUTOLOAD {
+    my $self = shift;
+    (exists $AUTOLOAD{::meta($self)})
+        || confess "You cannot call \$AUTOLOAD from outside of a MetaModel defined method";
+    $AUTOLOAD{::meta($self)};   
 }
 
 sub ::WALKMETH {
     my ($dispatcher, $label, %opts) = @_;
     while (my $current = $dispatcher->next()) {
         if (::dispatch($current, 'has_method', ($label, %opts))) {
-            return ::dispatch($current, 'get_method', ($label, %opts)) 
+            return ::dispatch($current, 'get_method', ($label, %opts));
         }
     }
     return undef;
