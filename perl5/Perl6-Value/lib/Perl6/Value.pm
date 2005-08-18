@@ -191,38 +191,6 @@ class 'Pair'.$class_description => {
     }
 };
 
-# quick hack until we get AUTOMETH working
-# - not proxied methods: .id, .value
-my %ref_AUTOMETH = map {
-        my $method = $_;
-        ( $method => sub { 
-            my $tmp = _('$.referred');
-            my @param = @_;
-            shift @param;
-            if ( defined $tmp && ( 
-                    $tmp->isa( 'Scalar' ) || $tmp->isa( 'Array' ) || $tmp->isa( 'Hash' )
-                ) ) {
-                return $tmp->$method( @param );
-            }
-            else {
-                # "real ref"
-                return Bit->new( '$.unboxed' => 1 ) if $method eq 'bit';
-                return ::CLASS if $method eq 'ref';
-                if ( $method eq 'perl' ) {
-                    return Str->new( '$.unboxed' => '\\undef' ) unless defined $tmp;
-                    return Str->new( '$.unboxed' => '\\' . $tmp->perl->unboxed ) 
-                }
-                return Bit->new( '$.unboxed' => defined $tmp ? 1 : 0 ) if $method eq 'defined';                
-                die "unsupported ref method .$method";
-            }
-        } )
-    } 
-    qw( num int str bit perl ref 
-        increment decrement 
-        fetch store
-        map grep shift pop unshift push reverse
-        defined undefine );
-
 class 'Ref'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -238,7 +206,31 @@ class 'Ref'.$class_description => {
             $self->{'instance_data'}{'$.referred'} = undef;  # XXX
         },
         methods => { 
-            %ref_AUTOMETH,
+             # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
+            'isa' => sub { next_METHOD() },
+            'AUTOLOAD' => sub {
+                my ($self, @param) = @_;
+                my $method = AUTOLOAD($self);
+                my $tmp = _('$.referred');
+                # Containers are auto-dereferenced
+                if ( defined $tmp && ( 
+                        $tmp->isa( 'Scalar' ) || $tmp->isa( 'Array' ) || $tmp->isa( 'Hash' )
+                    ) ) {
+                    return $tmp->$method( @param );
+                }
+                # everything else is not auto-dereferenced
+                return Bit->new( '$.unboxed' => 1 ) 
+                    if $method eq 'bit';
+                return ::CLASS 
+                    if $method eq 'ref';
+                if ( $method eq 'perl' ) {
+                    return Str->new( '$.unboxed' => '\\undef' ) unless defined $tmp;
+                    return Str->new( '$.unboxed' => '\\' . $tmp->perl->unboxed ) 
+                }
+                return Bit->new( '$.unboxed' => defined $tmp ? 1 : 0 ) 
+                    if $method eq 'defined';                
+                die "unsupported ref method .$method";
+            },
         },
     }
 };
