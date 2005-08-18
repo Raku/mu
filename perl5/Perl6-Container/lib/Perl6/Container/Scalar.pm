@@ -19,11 +19,8 @@
 # TODO - .ref() should be inherited from Object
 # TODO - .meta should give access to .name, etc
 # TODO - 'is readonly'
-# TODO - dispatch .grep, .map, ... to the Value - see AUTOLOAD
 # TODO - store(Scalar) => store(Scalar->value)
-# TODO - allow fetch/store unboxed contents
 # TODO - Constant class
-# TODO - Scalar id is stored in the Cell
 
 use strict;
 
@@ -101,7 +98,7 @@ class 'Scalar'.$class_description => {
                 die "access must be 'ro' or 'rw'"
                     if $_[1] ne 'ro' && $_[1] ne 'rw';
                 _('$:cell')->{ro} = $_[1] eq 'ro';
-                return SELF;
+                return ::SELF;
             },
             'bind' => sub {
                 my ( $self, $scalar ) = @_;
@@ -116,34 +113,34 @@ class 'Scalar'.$class_description => {
             'set_tieable' => sub { _('$:cell')->{tieable} = 1 },
             'tieable' => sub { _('$:cell')->{tieable} != 0 },
             'tie' =>     sub { shift; _('$:cell')->tie(@_) },
-            'untie' =>   sub { shift; _('$:cell')->untie },
+            'untie' =>   sub { _('$:cell')->untie },
 
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
-            'isa' => sub { next_METHOD() },
+            'isa' => sub { ::next_METHOD() },
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
-                my $method = AUTOLOAD($self);
+                my $method = ::AUTOLOAD($self);
                 my $tmp = _('$:cell')->fetch;
 
                 if ( defined $tmp ) {
                     if ( $method eq 'increment' || $method eq 'decrement' ) {
                         _('$:cell')->store( $tmp->$method( @param ) );
-                        return SELF; 
+                        return ::SELF; 
                     }
                     return $tmp->$method( @param );
                 }
                 else {
                     # empty cell
                     return Bit->new( '$.unboxed' => 0 ) if $method eq 'bit';  # XXX ?
-                    return CLASS if $method eq 'ref';
+                    return ::CLASS if $method eq 'ref';
                     return Str->new( '$.unboxed' => '\\undef' ) if $method eq 'perl';
                     if ( $method eq 'increment' ) {
                         _('$:cell')->store( Int->new( '$.unboxed' => 1 ) );
-                        return SELF 
+                        return ::SELF 
                     }
                     if ( $method eq 'decrement' ) {
                         _('$:cell')->store( Int->new( '$.unboxed' => -1 ) );
-                        return SELF 
+                        return ::SELF 
                     }
                     return if $method eq 'unboxed';
                     die "Method not found: .$method";
