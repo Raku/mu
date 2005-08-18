@@ -61,6 +61,10 @@ package PApp; @ISA = qw(EvalX::BaseClass); sub expand {
     my @args = map{$_->expand()} @{$self->{'pArgs'}};
     "p6_apply(".join(",",$f,@args).")";
 }
+package PStmt; @ISA = qw(EvalX::BaseClass); sub expand {
+    $_[0]->SUPER::expand().";\n";
+}
+
 
 package PIL::Run::EvalX; # continued.
 use strict;
