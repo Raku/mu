@@ -20,7 +20,7 @@ ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
     can_ok($n, 'fetch');
     isa_ok($n->fetch, 'Num', '... fetch Num');
     is($n->unboxed, 3.3, '... got the unboxed value');
-    is($n->defined->str->unboxed, 'bool::true', '... defined() is true');
+    is($n->defined->str->unboxed, bool::true, '... defined() is true');
 
     # .bind($other_scalar)
     my $m = Scalar->new;
@@ -41,6 +41,9 @@ ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
     $n->access('ro');
     $n->store( Num->new( '$.unboxed' => 3.3 ) );
     is( $n->unboxed, 3.3, '... stored a value in a read only container');
+
+    # clone
+    # my $m = $n->clone;
 }
 
 {
@@ -67,7 +70,7 @@ ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
 
     # undefine
     $n->undefine;
-    is($n->defined->str->unboxed, 'bool::false', '... defined() is false');
+    is($n->defined->str->unboxed, bool::false, '... defined() is false');
 }
 
 {
@@ -77,7 +80,7 @@ ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
     can_ok($n, 'fetch');
     is($n->unboxed, undef, '... type is undef');
     is($n->perl->unboxed, '\\undef', '... .perl is undef');
-    is($n->defined->str->unboxed, 'bool::false', '... defined() is false');
+    is($n->defined->str->unboxed, bool::false, '... defined() is false');
     $n->increment;
     is($n->unboxed, 1, '... increment defines');
 

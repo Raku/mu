@@ -2,7 +2,7 @@
 # - Value classes 
 # Num, Int, Str, Bit, Pair, Ref, List
 #
-# - functions for implementation of Perl6 Values in Perl5
+# - functions for implementation of unboxed Perl6 Values in Perl5
 # Perl6::Value::Num - Inf, NaN
 # Perl6::Value::Int
 # Perl6::Value::Str
@@ -12,7 +12,7 @@
 # ChangeLog
 #
 # 2005-08-18
-# * added unboxed values: bool::* taint::*
+# * added unboxed enums: bool::* taint::*
 # * 'List' clean up - removed 'multisub' methods
 #
 # 2005-08-17
@@ -34,14 +34,18 @@
 # 2005-08-13
 # * refactored from Perl6::Value::List
 
-# TODO - "bit" stringifies to '1' and ''
-# TODO - library functions - add, subtract, sqrt, ...
+# Notes:
+# - All library functions - add, subtract, sqrt, ...
+#   are implemented using multisubs
+# - 'Ref' do not auto-deref List or any other Value
+
 # TODO - verify .ref() implementation - AUTOMETH
 # TODO - implement tests from t/var/autoderef.t
 # TODO - tie
 # TODO - constant
 # TODO - List methods: .str, .perl
-# TODO - test 'Ref' auto-deref with a lazy List
+# TODO - move .increment, .decrement to Primitives (this will break some tests)
+# TODO - move Num::Inf, Num::NaN to Primitives
 
 use strict;
 
@@ -50,7 +54,6 @@ use Perl6::Object;
 
 my $class_description = '-0.0.1-cpan:FGLOCK';
 
-# $Perl6::Value::Num::class =
 class 'Num'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -87,7 +90,6 @@ class 'Num'.$class_description => {
     }
 };
 
-# $Perl6::Value::Int::class =
 class 'Int'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -114,7 +116,6 @@ class 'Int'.$class_description => {
     }
 };
 
-# $Perl6::Value::Str::class =
 class 'Str'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -145,7 +146,6 @@ class 'Str'.$class_description => {
     }
 };
 
-# $Perl6::Value::Bit::class =
 class 'Bit'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -166,7 +166,6 @@ class 'Bit'.$class_description => {
     }
 };
 
-# $Perl6::Value::Pair::class =
 class 'Pair'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
@@ -264,7 +263,8 @@ class 'List'.$class_description => {
             'shift' => sub { _('$.unboxed')->shift },
             'pop' =>   sub { _('$.unboxed')->pop   },
 
-            # methods implemented in List.pm but not exposed here:
+            # These methods are implemented in List.pm but are not exposed here,
+            # they are going to be moved to Primitives:
             #     elems, is_infinite, is_lazy, is_contiguous, flatten, grep, ...
         },
     }
