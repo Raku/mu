@@ -22,10 +22,10 @@ $VERSION = '0.01';
        );
 
 sub p6_to_n {my(@n_objs)=@_; map{
-    $_->num()->{'$.unboxed'}
+    $_->num()->unboxed;
     } @n_objs}
 sub p6_to_s {my(@s_objs)=@_; map{
-    $_->str()->{'$.unboxed'}
+    $_->str()->unboxed;
     } @s_objs}
 sub p6_to_a {my($a_obj)=@_; [@$a_obj]}
 sub p6_from_n {my($n)=@_; p6_new(int($n) == $n ? 'Int' : 'Num', 0+$n)}
@@ -111,9 +111,9 @@ sub globify_mangled {
 
 sub p6_new {
     my($type,@args)=@_;
-    return Int->new(@args) if $type eq 'Int';
-    return Num->new(@args) if $type eq 'Num';
-    return Str->new(@args) if $type eq 'Str';
+    return Int->new('$.unboxed' => @args) if $type eq 'Int';
+    return Num->new('$.unboxed' => @args) if $type eq 'Num';
+    return Str->new('$.unboxed' => @args) if $type eq 'Str';
     "PIL::Run::Type::$type"->new(@args);
 }
 sub p6_apply {

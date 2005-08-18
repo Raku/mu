@@ -3,6 +3,8 @@
 # perl -Ilib -w crude_repl.pl
 # with pugs in your PATH.
 
+use FindBin '$Bin';
+use lib ("$Bin/lib", "$Bin/../Perl6-Value/lib", "$Bin/../Perl6-MetaModel/lib");
 use PIL::Run::MainX;
 use PIL::Run::EvalX;
 
