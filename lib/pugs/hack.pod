@@ -257,6 +257,13 @@ is the name of the Perl 5 interpreter.
 
 =back
 
+
+=head2 Editing
+
+There is a F<util/perl6.vim> Vim syntax file.  There is no emacs mode yet,
+but perl-mode works better than cperl-mode.
+
+
 =head2 Testing
 
 See L<pugs::run> and F<t/README>.  If you wish to use the C<prove> utility
