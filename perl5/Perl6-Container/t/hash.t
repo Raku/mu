@@ -3,7 +3,7 @@
 use strict;
 
 use Test::More;
-plan tests => 5;
+plan tests => 7;
 
 # use_ok( 'Perl6::Container::Array' );
 use Perl6::Container::Hash; 
@@ -27,4 +27,15 @@ use Perl6::Container::Hash;
   is( Perl6::Container::Hash::elems( $h2 ), 2, 'cloned hash' );
   
   like( Perl6::Container::Hash::buckets( $h2 ), qr/\d+\/\d+/, 'buckets' );
+}
+
+{
+    my $h = bless {}, 'Perl6::Container::Hash::Object';
+    my $k = bless [1], 'obj1';
+    my $v = bless [2], 'obj2';
+    $h->STORE( $k, $v );
+    my $x = $h->FIRSTKEY;
+    my $y = $h->FETCH( $x );
+    is( ref($x), 'obj1', 'key is an object' );
+    is( ref($y), 'obj2', 'value is an object' );
 }

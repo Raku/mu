@@ -14,6 +14,7 @@
 # 2005-08-15
 # - created the 'Scalar' container
 
+# TODO - rewrite 'readonly' and 'tieable' using traits
 # TODO - test Scalar auto-deref with a lazy List
 # TODO - verify .ref() and .undefine() implementations
 # TODO - .ref() should be inherited from Object
@@ -40,8 +41,6 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
 #    tieable      (default: non-tieable; 1=tieable)
 #    tied         (default: undef; can be set to an object)
 #    id
-#
-# 'tieable' can be reused as a pointer to the tied object
 
 $Perl6::Cell::_id = rand;
 sub Perl6::Cell::new { bless { 'id' => ++$Perl6::Cell::_id }, 'Perl6::Cell' } 
