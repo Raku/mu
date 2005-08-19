@@ -13,6 +13,7 @@ import Pugs.AST
 import Pugs.Types
 import qualified Data.Map as Map
 import qualified Data.Set as Set
+import Debug.Trace
 
 pairsFromVal :: Val -> Eval [Val]
 pairsFromVal VUndef = return []
@@ -58,13 +59,11 @@ pairsFromRef r@(MkRef (IPair _)) = do
 pairsFromRef (MkRef (IHash hv)) = do
     keys    <- hash_fetchKeys hv
     elems   <- mapM (hash_fetchElem hv) keys
+    --return $ map (VRef . MkRef . IPair) (keys `zip` elems)
     return $ map (VRef . MkRef . IPair) (keys `zip` elems)
 pairsFromRef (MkRef (IArray av)) = do
     vals    <- array_fetch av
     return $ map castV ((map VInt [0..]) `zip` vals)
-pairsFromRef (MkRef (IScalar sv)) = do
-    refVal  <- scalar_fetch' sv
-    pairsFromVal refVal
 pairsFromRef ref = retError "Not a keyed reference" ref
 
 keysFromRef :: VRef -> Eval [Val]
