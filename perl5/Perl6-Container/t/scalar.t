@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 30;
+plan tests => 27;
 
 use Perl6::Container::Scalar;
 use Perl6::Value;
@@ -37,14 +37,17 @@ ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
 
 {
     # access control
-    my $n = Scalar->new;
-    $n->access('ro');
-    $n->store( Num->new( '$.unboxed' => 3.3 ) );
-    is( $n->unboxed, 3.3, '... stored a value in a read only container');
+
+    # NOTE - test removed - this is now controlled by a trait
+    # See: t/trait.t
+    # my $n = Scalar->new;
+    # $n->access('ro');
+    # $n->store( Num->new( '$.unboxed' => 3.3 ) );
+    # is( $n->unboxed, 3.3, '... stored a value in a read only container');
 
     # clone
     # my $m = $n->clone;
-}
+;}
 
 {
     # TODO - ref
@@ -115,25 +118,27 @@ ok(Scalar->isa('Perl6::Object'), '... Scalar isa Perl6::Object');
 {  
     # tie
     
-    sub Thing::new { bless {}, 'Thing' } 
-    sub Thing::store { $_[0]{v} = $_[1] }
-    sub Thing::fetch { $_[0]{v} }
+    # NOTE - test removed - this is now controlled by a trait
+    # See: t/trait.t
+    # sub Thing::new { bless {}, 'Thing' } 
+    # sub Thing::store { $_[0]{v} = $_[1] }
+    # sub Thing::fetch { $_[0]{v} }
 
-    my $t = Thing->new();
+    # my $t = Thing->new();
 
-    my $s = Scalar->new();
+    # my $s = Scalar->new();
 
     # $s->tie( $t );   # dies ok
 
-    $s->set_tieable;
-    $s->tie( $t );
+    # $s->set_tieable;
+    # $s->tie( $t );
 
-    $s->store( 5 );
-    is( $s->fetch, 5, '... store/fetch tied value' );
+    # $s->store( 5 );
+    # is( $s->fetch, 5, '... store/fetch tied value' );
 
-    $s->untie;
-    is( $s->fetch, undef, '... untie' );
-}
+    # $s->untie;
+    # is( $s->fetch, undef, '... untie' );
+;}
 
 {  
     # id

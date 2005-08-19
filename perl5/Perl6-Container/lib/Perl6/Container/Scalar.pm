@@ -3,6 +3,14 @@
 
 # ChangeLog
 #
+# 2005-08-19
+# - Removed methods: .set_tieable(), .access()
+#   These functions will be provided by traits. See t/trait.t.
+#   Methods .tieable, .tie, .untie were kept, in order to keep 
+#   bound scalars tieable.
+#   ._cell was promoted to public method, in order to keep .bind
+#   working after a trait is applied.
+#
 # 2005-08-18
 # - New methods: .tie($object), .untie, .tieable
 # - Method .id() returns the Cell id.
@@ -93,12 +101,16 @@ class 'Scalar'.$class_description => {
                 _('$:cell')->store( undef );
                 return $self;
             },
-            'access' => sub {
-                die "access must be 'ro' or 'rw'"
-                    if $_[1] ne 'ro' && $_[1] ne 'rw';
-                _('$:cell')->{ro} = $_[1] eq 'ro';
-                return ::SELF;
-            },
+
+            # There is no 'set_access' - use 'is Readonly' instead
+            # See: t/trait.t
+            # 'access' => sub {
+            #    die "access must be 'ro' or 'rw'"
+            #        if $_[1] ne 'ro' && $_[1] ne 'rw';
+            #    _('$:cell')->{ro} = $_[1] eq 'ro';
+            #    return ::SELF;
+            # },
+
             'bind' => sub {
                 my ( $self, $scalar ) = @_;
                 die "argument to bind() must be a Scalar"
@@ -109,7 +121,10 @@ class 'Scalar'.$class_description => {
             'cell' =>   sub { _('$:cell') },  # _cell() is used by bind()
             'id' =>      sub { _('$:cell')->{id} },  
 
-            'set_tieable' => sub { _('$:cell')->{tieable} = 1 },
+            # There is no 'set_tieable' - use 'is Tieable' instead
+            # See: t/trait.t
+            # 'set_tieable' => sub { _('$:cell')->{tieable} = 1 },
+
             'tieable' => sub { _('$:cell')->{tieable} != 0 },
             'tie' =>     sub { shift; _('$:cell')->tie(@_) },
             'untie' =>   sub { _('$:cell')->untie },
