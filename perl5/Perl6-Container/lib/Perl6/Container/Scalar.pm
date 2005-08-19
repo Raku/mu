@@ -99,10 +99,11 @@ role tieable => {
 
 role readonly => {
     methods => {
-        'init' => sub { 
-            # XXX - who will call this method in order to initialize things?
+        'store' => sub { 
+            my ( $self, $value ) = @_; 
             _('$:cell')->{ro} = 1;
-        }, 
+            _('$:cell')->store($value ) 
+        },
     }
 };
 
