@@ -1,0 +1,95 @@
+
+About the Software
+
+All Software (code listings) presented in the book can be found on the
+companion website for the book (http://perl.plover.com/hop/) and is
+subject to the License agreements below.
+
+
+ELSEVIER SOFTWARE LICENSE AGREEMENT
+
+Please read the following agreement carefully before using this
+Software. This Software is licensed under the terms contained in this
+Software license agreement ("agreement"). By using this Software
+product, you, an individual, or entity including employees, agents and
+representatives ("you" or "your"), acknowledge that you have read this
+agreement, that you understand it, and that you agree to be bound by
+the terms and conditions of this agreement. Elsevier inc. ("Elsevier")
+expressly does not agree to license this Software product to you
+unless you assent to this agreement. If you do not agree with any of
+the following terms, do not use the Software.
+
+LIMITED WARRANTY AND LIMITATION OF LIABILITY
+
+YOUR USE OF THIS SOFTWARE IS AT YOUR OWN RISK. NEITHER ELSEVIER NOR
+ITS LICENSORS REPRESENT OR WARRANT THAT THE SOFTWARE PRODUCT WILL MEET
+YOUR REQUIREMENTS OR THAT ITS OPERATION WILL BE UNINTERRUPTED OR
+ERROR-FREE. WE EXCLUDE AND EXPRESSLY DISCLAIM ALL EXPRESS AND IMPLIED
+WARRANTIES NOT STATED HEREIN, INCLUDING THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. IN ADDITION,
+NEITHER ELSEVIER NOR ITS LICENSORS MAKE ANY REPRESENTATIONS OR
+WARRANTIES, EITHER EXPRESS OR IMPLIED, REGARDING THE PERFORMANCE OF
+YOUR NETWORK OR COMPUTER SYSTEM WHEN USED IN CONJUNCTION WITH THE
+SOFTWARE PRODUCT. WE SHALL NOT BE LIABLE FOR ANY DAMAGE OR LOSS OF ANY
+KIND ARISING OUT OF OR RESULTING FROM YOUR POSSESSION OR USE OF THE
+SOFTWARE PRODUCT CAUSED BY ERRORS OR OMISSIONS, DATA LOSS OR
+CORRUPTION, ERRORS OR OMISSIONS IN THE PROPRIETARY MATERIAL,
+REGARDLESS OF WHETHER SUCH LIABILITY IS BASED IN TORT, CONTRACT OR
+OTHERWISE AND INCLUDING, BUT NOT LIMITED TO, ACTUAL, SPECIAL,
+INDIRECT, INCIDENTAL OR CONSEQUENTIAL DAMAGES. IF THE FOREGOING
+LIMITATION IS HELD TO BE UNENFORCEABLE, OUR MAXIMUM LIABILITY TO YOU
+SHALL NOT EXCEED THE AMOUNT OF THE PURCHASE PRICE PAID BY YOU FOR THE
+SOFTWARE PRODUCT. THE REMEDIES AVAILABLE TO YOU AGAINST US AND THE
+LICENSORS OF MATERIALS INCLUDED IN THE SOFTWARE PRODUCT ARE EXCLUSIVE.
+
+YOU UNDERSTAND THAT ELSEVIER, ITS AFFILIATES, LICENSORS, SUPPLIERS AND
+AGENTS, MAKE NO WARRANTIES, EXPRESSED OR IMPLIED, WITH RESPECT TO THE
+SOFTWARE PRODUCT, INCLUDING, WITHOUT LIMITATION THE PROPRIETARY
+MATERIAL, AND SPECIFICALLY DISCLAIM ANY WARRANTY OF MERCHANTABILITY OR
+FITNESS FOR A PARTICULAR PURPOSE.
+
+IN NO EVENT WILL ELSEVIER, ITS AFFILIATES, LICENSORS, SUPPLIERS OR
+AGENTS, BE LIABLE TO YOU FOR ANY DAMAGES, INCLUDING, WITHOUT
+LIMITATION, ANY LOST PROFITS, LOST SAVINGS OR OTHER INCIDENTAL OR
+CONSEQUENTIAL DAMAGES, ARISING OUT OF YOUR USE OR INABILITY TO USE THE
+SOFTWARE PRODUCT REGARDLESS OF WHETHER SUCH DAMAGES ARE FORESEEABLE OR
+WHETHER SUCH DAMAGES ARE DEEMED TO RESULT FROM THE FAILURE OR
+INADEQUACY OF ANY EXCLUSIVE OR OTHER REMEDY.
+
+Software License Agreement
+
+This Software License Agreement is a legal agreement between the
+Author and any person or legal entity using or accepting any Software
+governed by this Agreement. The Software is available on the companion
+website (http://perl.plover.com/hop/) for the Book, Higher-Order Perl,
+which is published by Morgan Kaufmann Publishers. "The Software" is
+comprised of all code (fragments and pseudocode) presented in the
+book.
+
+By installing, copying, or otherwise using the Software, you agree to
+be bound by the terms of this Agreement.
+
+The parties agree as follows:
+
+1. Grant of License. We grant you a nonexclusive license to use the
+   Software for any purpose, commercial or non-commercial, as long as
+   the following credit is included identifying the original source of
+   the Software: "from Higher-Order Perl by Mark Dominus, published by
+   Morgan Kaufmann Publishers, Copyright 2005 by Elsevier Inc".
+
+2. Disclaimer of Warranty. We make no warranties at all. The Software
+   is transferred to you on an "as is" basis. You use the Software at
+   your own peril. You assume all risk of loss for all claims or
+   controversies, now existing or hereafter, arising out of use of the
+   Software. We shall have no liability based on a claim that your use
+   or combination of the Software with products or data not supplied
+   by us infringes any patent, copyright, or proprietary right. All
+   other warranties, expressed or implied, including, without
+   limitation, any warranty of merchantability or fitness for a
+   particular purpose are hereby excluded.
+
+3. Limitation of Liability. We will have no liability for special,
+   incidental, or consequential damages even if advised of the
+   possibility of such damages. We will not be liable for any other
+   damages or loss in any way connected with the Software.
+
