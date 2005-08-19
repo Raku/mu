@@ -13,9 +13,12 @@
 # 2005-08-14
 # * added functions clone(), elems(), buckets()
 
+# TODO - how does a scalar that contains a hash is accessed?
 # TODO - test $x := %hash - 'undefine $x'
 # TODO - test %hash := $x - error if $x is not bound to a hash
 # TODO - tieable hash - cleanup AUTOLOAD
+# TODO - test 'readonly'
+# TODO - hash iterator
 
 # Notes:
 # * Cell is implemented in the Perl6::Container::Scalar package
@@ -51,29 +54,38 @@ class 'Hash'.$class_description => {
         methods => { 
 
             # %a := %b 
-            'bind' =>    sub {
+            'bind' =>     sub {
                 my ( $self, $thing ) = @_;
                 die "argument to Hash bind() must be a Hash"
-                    unless _('$:cell')->{type} eq 'Hash';
+                    unless $thing->cell->{type} eq 'Hash';
                 _('$:cell', $thing->cell);
                 return $self;
             },
-            'cell' =>    sub { _('$:cell') },  # cell() is used by bind()
-            'id' =>      sub { _('$:cell')->{id} },  
+            'cell' =>     sub { _('$:cell') },  # cell() is used by bind()
+            'id' =>       sub { _('$:cell')->{id} },  
 
-            'set_tieable' => sub { _('$:cell')->{tieable} = 1 },
-            'tieable' => sub { _('$:cell')->{tieable} != 0 },
-            'tie' =>     sub { shift; _('$:cell')->tie(@_) },
-            'untie' =>   sub { _('$:cell')->untie },
+            'tieable' =>  sub { _('$:cell')->{tieable} != 0 },
+            'tie' =>      sub { shift; _('$:cell')->tie(@_) },
+            'untie' =>    sub { _('$:cell')->untie },
 
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
             'isa' => sub { ::next_METHOD() },
+
+            'elems' =>    sub { _('$:cell')->{tied} ? 
+                                _('$:cell')->{tied}->elems :
+                                Perl6::Container::Hash::elems( _('$:cell')->{v} )
+            },
+            'buckets' =>  sub { _('$:cell')->{tied} ? 
+                                _('$:cell')->{tied}->buckets :
+                                Perl6::Container::Hash::buckets( _('$:cell')->{v} )
+            },
+
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
                 my $method = ::AUTOLOAD($self);
                 # TODO - add support for tied hash
                 # TODO - check if scalar := hash works properly
-                my $tmp = _('$:cell')->{v};
+                my $tmp = _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v};
                 # warn ref($tmp), ' ', $method, " @param == " . $tmp->$method( @param );
                 return $tmp->$method( @param );
             },

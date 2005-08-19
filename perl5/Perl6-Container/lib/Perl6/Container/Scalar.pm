@@ -23,13 +23,14 @@
 # 2005-08-15
 # - created the 'Scalar' container
 
-# TODO - rewrite 'readonly' and 'tieable' using traits
+# TODO - test 'readonly' and 'tieable' using traits - Scalar, Hash and Array
 # TODO - test Scalar auto-deref with a lazy List
 # TODO - verify .ref() and .undefine() implementations
 # TODO - .ref() should be inherited from Object
 # TODO - .meta should give access to .name, etc
 # TODO - 'is readonly'
 # TODO - store(Scalar) => store(Scalar->value)
+# TODO - store(Hash) / fetch
 # TODO - Constant class
 
 use strict;
