@@ -47,7 +47,7 @@ sub NL2 (++@loop) {
 my ($cnt, $item);
 
 my &iter = NestedLoop(loop      => @loops,
-                      only_when => sub { ++$cnt % 2 },
-                      code      => sub {say "reversed: {reverse @^group}"});
+                      only_when => { ++$cnt % 2 },
+                      code      => { say "reversed: {reverse @^group}" });
 
 say "ITER {$cnt}: {$item.perl}" while $item = iter;

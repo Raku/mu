@@ -25,7 +25,7 @@ sub outer(*@vals) {
 
     # @prev: Empty array
     # @rest: @vals
-    gather { helper [], @vals };
+    gather { helper([], @vals) };
 }
 my @a = outer @loops;
 say join "\n", @a;
