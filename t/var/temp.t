@@ -28,6 +28,15 @@ plan 20;
   is $a, 42, "temp() restored the variable (2)", :todo<feature>;
 }
 
+{
+  our $pkgvar = 42;
+  {
+    temp $pkgvar = 'not 42';
+    is $pkgvar, 'not 42', "temp() changed the package variable (3-1)";
+  }
+  is $pkgvar, 42, "temp() restored the package variable (3-2)", :todo<bug>;
+}
+
 # Block TEMP{}
 # L<S06/"Temporization" /You can also modify the behaviour of temporized code structures/>
 # (Test is more or less directly from S06.)
