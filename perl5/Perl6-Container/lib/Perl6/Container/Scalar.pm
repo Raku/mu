@@ -4,6 +4,7 @@
 # ChangeLog
 #
 # 2005-08-19
+# - Added roles (traits) - tieable, readonly
 # - Removed methods: .set_tieable(), .access()
 #   These functions will be provided by traits. See t/trait.t.
 #   Methods .tieable, .tie, .untie were kept, in order to keep 
@@ -71,6 +72,44 @@ sub Perl6::Cell::untie {
 }
 
 # --- end Cell
+
+# tieable, readonly
+#
+# These are Perl6 roles
+# See: S06 - Implementation types
+# See: t/trait.t
+#
+
+role tieable => {
+    methods => {
+        'tieable' => sub { 
+            _('$:cell')->{tieable} = 1; 
+            1;
+        }, 
+        'tie' =>     sub { 
+            shift; 
+            _('$:cell')->{tieable} = 1; 
+            _('$:cell')->tie(@_); 
+        },
+        'untie' =>   sub { 
+            _('$:cell')->untie;
+        },
+    }
+};
+
+role readonly => {
+    methods => {
+        'init' => sub { 
+            # XXX - who will call this method in order to initialize things?
+            _('$:cell')->{ro} = 1;
+        }, 
+    }
+};
+
+# Scalar 
+#
+# Scalar is implemented as a Perl6 class
+#
 
 class 'Scalar'.$class_description => {
     is => [ 'Perl6::Object' ],
