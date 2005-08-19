@@ -10,6 +10,11 @@ use Test;
 plan 6;
 
 {
+  dies_ok { my $x; my $x }, "test declare my() variable twice in same scope";
+
+}
+
+{
   dies_ok { $x }, 'my() variable not yet visible (2)';
 
   my $x = 42;
