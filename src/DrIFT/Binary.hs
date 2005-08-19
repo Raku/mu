@@ -107,7 +107,7 @@ type BinArray = IOUArray Int Word8
 #endif
 -}
 
--- #define SIZEOF_HSINT 4
+--  #define SIZEOF_HSINT 4
 
 type BinArray = IOUArray Int Word8
 ---------------------------------------------------------------
@@ -400,19 +400,19 @@ instance Binary Char where
 --    getF bh p = case getBitsF bh 8 p of (x,b) -> (toEnum x,b)
 
 instance Binary Int where
--- #if SIZEOF_HSINT == 4
+--  #if SIZEOF_HSINT == 4
     put_ bh i = put_ bh (fromIntegral i :: Int32)
     get  bh = do
 	x <- get bh
 	return $! (fromIntegral (x :: Int32))
--- #elif SIZEOF_HSINT == 8
+--  #elif SIZEOF_HSINT == 8
 --    put_ bh i = put_ bh (fromIntegral i :: Int64)
 --    get  bh = do
 --	x <- get bh
 --	return $! (fromIntegral (x :: Int64))
--- #else
--- #error "unsupported sizeof(HsInt)"
--- #endif
+--  #else
+--  #error "unsupported sizeof(HsInt)"
+--  #endif
 
 instance Binary ClockTime where
     put_ bh ct = do
@@ -558,7 +558,7 @@ instance (Ix a, Binary a) => Binary (UArray a Word8) where
         return $ UArray s e ba
 
 -} 
--- #ifdef __GLASGOW_HASKELL__
+--  #ifdef __GLASGOW_HASKELL__
 
 instance Binary Integer where
     put_ bh (S# i#) = do putByte bh 0; put_ bh (I# i#)
@@ -624,7 +624,7 @@ indexByteArray a# n# = W8# (indexWord8Array# a# n#)
 instance (Integral a, Binary a) => Binary (Ratio a) where
     put_ bh (a :% b) = do put_ bh a; put_ bh b
     get bh = do a <- get bh; b <- get bh; return (a :% b)
--- #endif
+--  #endif
 
 instance Binary (Bin a) where
   put_ bh (BinPtr i) = put_ bh i

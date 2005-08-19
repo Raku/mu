@@ -135,11 +135,11 @@ symbol s
     aheadSym '^' y   = not (y `elem` "^.")
     aheadSym x   y   = y `elem` ";!" || x /= y
 
-interpolatingStringLiteral :: RuleParser String    -- ^ Opening delimiter
-			      -> RuleParser String   -- ^ Closing delimiter 
-                              -> RuleParser Exp -- ^ Interpolator
-                              -> RuleParser Exp -- ^ Entire string
-                                                -- ^ (without delims)
+interpolatingStringLiteral :: RuleParser String -- ^ Opening delimiter
+                           -> RuleParser String -- ^ Closing delimiter 
+                           -> RuleParser Exp    -- ^ Interpolator
+                           -> RuleParser Exp    -- ^ Entire string
+                                                --     (without delims)
 interpolatingStringLiteral startrule endrule interpolator = do
     list <- stringList 0
     return . Cxt (CxtItem $ mkType "Str") $ homogenConcat list
@@ -153,25 +153,29 @@ interpolatingStringLiteral startrule endrule interpolator = do
         = App (Var "&infix:~") Nothing [x, homogenConcat xs]
     
     stringList :: Int -> RuleParser [Exp]
-    stringList i = try (do
-	       parse <- interpolator
-	       rest  <- stringList i
-	       return (parse:rest))
-	   <|> try (do
-	       ch <- endrule
-	       if i == 0 then return []
-			 else do rest <- stringList (i-1)
-				 return (Val (VStr ch):rest))
-	   <|> try (do
-	       ch <- startrule
-	       rest <- stringList (i+1)
-	       return (Val (VStr ch):rest))
-	   <|> do
-	       char <- anyChar
-	       rest <- stringList i
-	       return (Val (VStr [char]):rest)
+    stringList i = tryChoice
+        [ do
+            parse <- interpolator
+            rest  <- stringList i
+            return (parse:rest)
+        , do
+            ch <- endrule
+            if i == 0
+                then return []
+                else do
+                    rest <- stringList (i-1)
+                    return (Val (VStr ch):rest)
+        , do
+            ch <- startrule
+            rest <- stringList (i+1)
+            return (Val (VStr ch):rest)
+        , do
+            char <- anyChar
+            rest <- stringList i
+            return (Val (VStr [char]):rest)
+        ]
 
--- | backslahed nonalphanumerics (except for \^) translate into themselves
+-- | Backslashed non-alphanumerics (except for @\^@) translate into themselves.
 escapeCode      :: GenParser Char st Char
 escapeCode      = charEsc <|> charNum <|> charAscii <|> charControl <|> anyChar
                 <?> "escape code"
@@ -305,14 +309,29 @@ ruleType = literalRule "context" $ do
     rest    <- many (wordAny <|> oneOf ":&|?")
     return (lead:rest)
 
-tryChoice :: [GenParser tok st a] -> GenParser tok st a
+{-|
+Attempt each of the given parsers in turn until one succeeds, but if one of
+them fails we backtrack (i.e. retroactively consume no input) before trying
+the next one.
+-}
+tryChoice :: [GenParser tok st a] -- ^ List of candidate parsers
+          -> GenParser tok st a
 tryChoice = choice . map try
 
+{-|
+Match '@(@', followed by the given parser, followed by '@)@'.
+-}
 verbatimParens :: GenParser Char st a -> GenParser Char st a
 verbatimParens = between (lexeme $ char '(') (char ')')
 
+{-|
+Match '@\[@', followed by the given parser, followed by '@\]@'.
+-}
 verbatimBrackets :: GenParser Char st a -> GenParser Char st a
 verbatimBrackets = between (lexeme $ char '[') (char ']')
 
+{-|
+Match '@{@', followed by the given parser, followed by '@}@'.
+-}
 verbatimBraces :: GenParser Char st a -> GenParser Char st a
 verbatimBraces = between (lexeme $ char '{') (char '}')
