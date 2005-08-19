@@ -13,7 +13,6 @@ import Pugs.AST
 import Pugs.Types
 import qualified Data.Map as Map
 import qualified Data.Set as Set
-import Debug.Trace
 
 pairsFromVal :: Val -> Eval [Val]
 pairsFromVal VUndef = return []
