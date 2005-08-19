@@ -3,6 +3,9 @@
 
 # ChangeLog
 #
+# 2005-08-19
+# * New Perl6 class 'Hash'
+#
 # 2005-08-18
 # * New Perl5 class "Perl6::Container::Hash::Object"
 #   implements a hash in which the keys can be objects
@@ -10,8 +13,9 @@
 # 2005-08-14
 # * added functions clone(), elems(), buckets()
 
-# TODO - Finish 'Hash'
-# TODO - change accessors to lower case
+# TODO - test $x := %hash - 'undefine $x'
+# TODO - test %hash := $x - error if $x is not bound to a hash
+# TODO - tieable hash - cleanup AUTOLOAD
 
 # Notes:
 # * Cell is implemented in the Perl6::Container::Scalar package
@@ -34,26 +38,27 @@ class 'Hash'.$class_description => {
     instance => {
         attrs => [ [ '$:cell' => { 
                         access => 'rw', 
-                        build => sub { die "Not implemented"; Perl6::Cell->new } } ] ],
+                        build => sub { 
+                            my $cell = Perl6::Cell->new;
+                            my $h = bless {}, 'Perl6::Container::Hash::Object';
+                            $cell->{v} = $h;
+                            $cell->{type} = 'Hash';
+                            return $cell;
+                        } } ] ],
         DESTROY => sub {
             $_[0]->{'instance_data'}{'$:cell'} = undef;  
         },
         methods => { 
-            'access' => sub {
-                die "access must be 'ro' or 'rw'"
-                    if $_[1] ne 'ro' && $_[1] ne 'rw';
-                _('$:cell')->{ro} = $_[1] eq 'ro';
-                return ::SELF;
-            },
-            # @a := @b 
-            'bind' => sub {
+
+            # %a := %b 
+            'bind' =>    sub {
                 my ( $self, $thing ) = @_;
-                die "argument to bind() must be a Hash"
-                    unless $thing->isa( 'Hash' );
-                _('$:cell', $thing->_cell);
+                die "argument to Hash bind() must be a Hash"
+                    unless _('$:cell')->{type} eq 'Hash';
+                _('$:cell', $thing->cell);
                 return $self;
             },
-            '_cell' =>   sub { _('$:cell') },  # _cell() is used by bind()
+            'cell' =>    sub { _('$:cell') },  # cell() is used by bind()
             'id' =>      sub { _('$:cell')->{id} },  
 
             'set_tieable' => sub { _('$:cell')->{tieable} = 1 },
@@ -66,7 +71,10 @@ class 'Hash'.$class_description => {
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
                 my $method = ::AUTOLOAD($self);
-                my $tmp = _('$:cell')->fetch;
+                # TODO - add support for tied hash
+                # TODO - check if scalar := hash works properly
+                my $tmp = _('$:cell')->{v};
+                # warn ref($tmp), ' ', $method, " @param == " . $tmp->$method( @param );
                 return $tmp->$method( @param );
             },
         },
@@ -79,7 +87,7 @@ package Perl6::Container::Hash::Object;
 
 our $obj_id = '**ObJecT**' . rand;
 
-sub STORE {
+sub store {
     my ( $this, $key, $value ) = @_;
     my $s = $key;
     if ( UNIVERSAL::can( $key, 'id' ) ) {
@@ -87,8 +95,9 @@ sub STORE {
     }
     $s = $obj_id unless defined $key;
     $this->{$s} = [ $key, $value ];
+    return $value;
 }
-sub FETCH {
+sub fetch {
     my ( $this, $key ) = @_;
     my $s = $key;
     if ( UNIVERSAL::can( $key, 'id' ) ) {
@@ -96,19 +105,20 @@ sub FETCH {
     }
     $s = $obj_id unless defined $key;
     $this->{$s}[1];
+    # warn "fetching " . $this->{$s}[1];
 }
-sub FIRSTKEY {
+sub firstkey {
     my ( $this ) = @_;
     keys %$this;  # force reset the iterator
     my $s = each %$this;
     $this->{$s}[0];
 }
-sub NEXTKEY {
+sub nextkey {
     my ( $this, $key ) = @_;
     my $s = each %$this;
     $this->{$s}[0];
 }
-sub EXISTS {
+sub exists {
     my ( $this, $key ) = @_;
     my $s = $key;
     if ( UNIVERSAL::can( $key, 'id' ) ) {
@@ -117,7 +127,7 @@ sub EXISTS {
     $s = $obj_id unless defined $key;
     exists $this->{$s};
 }
-sub DELETE {
+sub delete {
     my ( $this, $key ) = @_;
     my $s = $key;
     if ( UNIVERSAL::can( $key, 'id' ) ) {
@@ -126,11 +136,11 @@ sub DELETE {
     $s = $obj_id unless defined $key;
     delete $this->{$s};
 }
-sub CLEAR {
+sub clear {
     my ( $this ) = @_;
     %$this = ();
 }
-sub SCALAR {
+sub scalar {
     my ( $this ) = @_;
     0 + %$this;
 }

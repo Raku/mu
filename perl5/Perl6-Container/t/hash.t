@@ -33,9 +33,9 @@ use Perl6::Container::Hash;
     my $h = bless {}, 'Perl6::Container::Hash::Object';
     my $k = bless [1], 'obj1';
     my $v = bless [2], 'obj2';
-    $h->STORE( $k, $v );
-    my $x = $h->FIRSTKEY;
-    my $y = $h->FETCH( $x );
+    $h->store( $k, $v );
+    my $x = $h->firstkey;
+    my $y = $h->fetch( $x );
     is( ref($x), 'obj1', 'key is an object' );
     is( ref($y), 'obj2', 'value is an object' );
 }

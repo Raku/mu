@@ -49,17 +49,34 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
 #    ro           (default: r/w; 1=read-only cell)
 #    tieable      (default: non-tieable; 1=tieable)
 #    tied         (default: undef; can be set to an object)
+#    type         (default: undef; can be set to 'Hash' or 'Array')
 #    id
 
 $Perl6::Cell::_id = rand;
 sub Perl6::Cell::new { bless { 'id' => ++$Perl6::Cell::_id }, 'Perl6::Cell' } 
 sub Perl6::Cell::store {
     die 'read only cell' if $_[0]{ro} && defined $_[0]{v};
-    return $_[0]{tied}->store($_[1]) if $_[0]{tied};
+    # return $_[0]{tied}->store($_[1]) if $_[0]{tied};
+    if ( $_[0]{tied} ) {
+        my $cell = shift;
+        return $cell->{tied}->store( @_ );
+    }
+    if ( $_[0]{type} ) {
+        my $cell = shift;
+        return $cell->{v}->store( @_ );
+    }
     $_[0]{v} = $_[1]
 }
 sub Perl6::Cell::fetch {
-    return $_[0]{tied}->fetch if $_[0]{tied};
+    # return $_[0]{tied}->fetch if $_[0]{tied};
+    if ( $_[0]{tied} ) {
+        my $cell = shift;
+        return $cell->{tied}->store( @_ );
+    }
+    if ( $_[0]{type} ) {
+        my $cell = shift;
+        return $cell->{v}->store( @_ );
+    }
     $_[0]{v}
 }
 sub Perl6::Cell::tie {
@@ -129,7 +146,11 @@ class 'Scalar'.$class_description => {
         },
         methods => { 
             'fetch' => sub { _('$:cell')->fetch },
-            'store' => sub { my ( $self, $value ) = @_; _('$:cell')->store($value ) },
+            'store' => sub { 
+                # TODO - copy cell 'type'
+                my ( $self, $value ) = @_; 
+                _('$:cell')->store($value );
+            },
             'defined' => sub {
                 my $def = defined _('$:cell')->fetch ? 1 : 0;
                 Bit->new( '$.unboxed' => $def )
@@ -139,6 +160,8 @@ class 'Scalar'.$class_description => {
                 # _('$.value' => undef) },
                 my $self = shift;
                 _('$:cell')->store( undef );
+                # what happens if $x was bound to %h ???
+                _('$:cell')->{type} = undef;
                 return $self;
             },
 
@@ -151,14 +174,14 @@ class 'Scalar'.$class_description => {
             #    return ::SELF;
             # },
 
-            'bind' => sub {
+            'bind' =>    sub {
                 my ( $self, $scalar ) = @_;
                 die "argument to bind() must be a Scalar"
                     unless $scalar->isa( 'Scalar' );
                 _('$:cell', $scalar->cell);
                 return $self;
             },
-            'cell' =>   sub { _('$:cell') },  # _cell() is used by bind()
+            'cell' =>    sub { _('$:cell') },  # _cell() is used by bind()
             'id' =>      sub { _('$:cell')->{id} },  
 
             # There is no 'set_tieable' - use 'is Tieable' instead
