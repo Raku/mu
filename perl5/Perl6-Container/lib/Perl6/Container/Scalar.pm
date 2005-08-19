@@ -103,10 +103,10 @@ class 'Scalar'.$class_description => {
                 my ( $self, $scalar ) = @_;
                 die "argument to bind() must be a Scalar"
                     unless $scalar->isa( 'Scalar' );
-                _('$:cell', $scalar->_cell);
+                _('$:cell', $scalar->cell);
                 return $self;
             },
-            '_cell' =>   sub { _('$:cell') },  # _cell() is used by bind()
+            'cell' =>   sub { _('$:cell') },  # _cell() is used by bind()
             'id' =>      sub { _('$:cell')->{id} },  
 
             'set_tieable' => sub { _('$:cell')->{tieable} = 1 },

@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Test::More;
-plan tests => 3;
+plan tests => 4;
 
 use Perl6::Container::Scalar;
 use Perl6::Value;
@@ -43,5 +43,21 @@ role Moretrait => {
     ok( $n->does('Mytrait'), 'my Scalar does Mytrait' );
     is_deeply( [ $n->does ], [ 'Mytrait', 'Moretrait' ], '... get list of traits' );
     ok( $n->tieable, '... is tieable' );
+
+    # warn $n->id;
+    # warn ref( $n->cell );
+
+    my $m = Scalar->new;
+
+    # my $p = Scalar->new;
+    # $m->bind($p);
+    # warn "m bound to p";
+
+    $m->bind($n);
+
+    # warn "m bound to n";
+
+    # this only works because Scalar.pm has a 'tieable' method:
+    ok( $m->tieable, '... bound scalar is tieable too' );
 }
 
