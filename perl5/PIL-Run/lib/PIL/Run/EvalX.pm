@@ -61,7 +61,13 @@ package PApp; @ISA = qw(EvalX::BaseClass); sub expand {
     my($self)=@_;
     my $f = $self->{'pFun'}->expand();
     my @args = map{$_->expand()} @{$self->{'pArgs'}};
-    "p6_apply(".join(",",$f,@args).")";
+    my($fv) = PIL::Run::EvalX::run_p5r($f); # XXX - kludge
+    if(defined $fv && ref($fv) =~ /Macro/) { # XXX - kludge
+	my $macro_expansion = $fv->apply(@args);
+	$macro_expansion;
+    } else {
+	"p6_apply(".join(",",$f,@args).")";
+    }
 }
 package PAssign; @ISA = qw(EvalX::BaseClass); sub expand {
     'p6_set('.$_[0]{'pLHS'}[0]->expand().','.$_[0]{'pRHS'}->expand().')';

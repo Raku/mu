@@ -52,7 +52,9 @@ sub def_prim { # used by Prim
     }
     my $mn = p6_mangle($n);
     #my $gn = globify_mangled($mn);
-    my $subobj = p6_new('Sub',$f);
+    my $cls = 'Sub';
+    $cls = 'Macro' if $flavor =~ /macro/i;
+    my $subobj = p6_new($cls,$f);
     no strict;
     $$mn = $subobj;
 }

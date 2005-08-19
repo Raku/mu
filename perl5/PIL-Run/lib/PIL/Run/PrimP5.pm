@@ -36,7 +36,10 @@ MULTI SUB say (@args) {
 };
 MULTI SUB prefix:<,> (@a) {@a};
 
+# Things which dont appear in Prim.hs
+MACRO     statement_control:<if> ($xx0,$xx1,$xx2) {...};
 
+# From Prim.hs
 # op0
 #MULTI SUB XXX:<&> () {...}; - ???
 #MULTI SUB XXX:<^> () {...}; - ???
@@ -266,8 +269,8 @@ MULTI SUB infix:<ge> ($xx0,$xx1) { p6_from_b(p6_to_s($xx0) ge p6_to_s($xx1)) };
 MULTI SUB infix:<~~> ($xx0,$xx1) {...};
 MULTI SUB infix:<!~> ($xx0,$xx1) {...};
 MULTI SUB infix:<=:=> ($xx0,$xx1) {...};
-MACRO     infix:<&&> ($xx0,$xx1) {...};
-MACRO     infix:<||> ($xx0,$xx1) {...};
+MACRO     infix:<&&> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; p6_to_b($_v1) ? ('.$xx1.') : $_v1 }' };
+MACRO     infix:<||> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; p6_to_b($_v1) ? $_v1 : ('.$xx1.') }' };
 MACRO     infix:<^^> ($xx0,$xx1) {...};
 MACRO     infix:<//> ($xx0,$xx1) {...};
 MACRO     infix:<!!> ($xx0,$xx1) {...};

@@ -15,5 +15,9 @@ sub apply {
     $o->{'raw_sub'}(@args);
 }
 
+package PIL::Run::Type::Macro;
+@ISA=qw(PIL::Run::Type::Sub);
+
+
 1;
 __END__
