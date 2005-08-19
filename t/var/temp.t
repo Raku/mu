@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 20;
+plan 22;
 
 # L<S04/"The Relationship of Blocks and Declarations" /function has been renamed/>
 {
