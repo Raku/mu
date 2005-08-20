@@ -141,6 +141,23 @@ use strict;
 
   sub callchain { "" }
 
+  sub corofix {
+    my ($self, $body) = @_;
+
+    # Cosmetical fix
+    chomp(my $ret = sprintf <<EOF, PIL::add_indent(1, $body), ($PIL::CORO_ID++) x 3); $ret;
+var initial_entrypoint = function () {
+%s
+};
+
+if(!PIL2JS.coro_entrypoints[%d]) {
+  PIL2JS.coro_entrypoints[%d] = initial_entrypoint;
+}
+
+PIL2JS.coro_entrypoints[%d](__returncc);
+EOF
+  }
+
   sub as_js {
     my $self = shift;
     local $_;
@@ -149,12 +166,15 @@ use strict;
     local @PIL::IN_SUBLIKES = (@PIL::IN_SUBLIKES, $self->type->as_constant);
     local $PIL::CUR_SUBNAME = "<anonymous@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>";
 
-    my $callchain    = $self->callchain;
-    my $new_pad      = "var pad = {}; PIL2JS_subpads.push(pad)";
-    my $params       = $self->params->as_js;
+    my $callchain = $self->callchain;
+    my $new_pad   = "var pad = {}; PIL2JS_subpads.push(pad)";
+    my $params    = $self->params->as_js;
     (my $magical_vars, local @PIL::VARS_TO_BACKUP) = $self->magical_vars;
 
-    my $body        = $self->body->as_js;
+    my $body        =
+      $PIL::IN_SUBLIKE == PIL::SUBCOROUTINE
+        ? $self->corofix($self->body->as_js)
+        : $self->body->as_js;
     my $ccsetup     = PIL::generic_cc PIL::cur_retcc, @PIL::VARS_TO_BACKUP;
     my $backup      = "var " . join ", ", map {
       sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);

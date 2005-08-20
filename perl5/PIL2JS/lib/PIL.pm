@@ -52,6 +52,7 @@ our $LEXSCOPE_PREFIX;
 # We've to backup some vars to make nested subcalls work (as we don't use JS'
 # "lexical" vars anymore).
 our @VARS_TO_BACKUP;
+our $CORO_ID;
 
 # Guard against reentrancy.
 our $PROCESSING_HAS_STARTED;
@@ -111,8 +112,9 @@ sub generic_cc {
     sprintf "%s = backup_%s", name_mangle($_), name_mangle($_);
   } @vars_to_restore;
 
-  return sprintf <<EOF, $name, $restores }
+  return sprintf <<EOF, $name, $name, $restores }
 var __returncc = args.pop();
+var %s_returncc_updater = function (new_returncc) { __returncc = new_returncc };
 var %s = function (retval) {
   PIL2JS_callchain.pop(); PIL2JS_subpads.pop();
   %s;
@@ -149,6 +151,7 @@ sub as_js {
     if $PROCESSING_HAS_STARTED;
   local $PROCESSING_HAS_STARTED = 1;
   local $CUR_LEXSCOPE_ID        = 1;
+  local $CORO_ID                = 1;
   local $LEXSCOPE_PREFIX        = "";
   # I'll fill a unique id of the file we're processing in, to fix var stomping:
   # A.pm: my $a = 3          # ==> my $a_1 = 3;
