@@ -387,7 +387,10 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
              | (prm:_) <- params, isInvocant prm = []
              | otherwise = [selfParam $ envPackage env]
         mkExp n = Syn ":=" [Var n, Syn "sub" [subExp]]
-        mkSym n = Sym scope n (mkExp n)
+        mkSym n = Sym scope (mkMulti n) (mkExp n)
+        -- Horrible hack! Sym "&&" is the multi form.
+        mkMulti | isMulti   = ('&':)
+                | otherwise = id
         isGlobal = case name of
             (_:'*':_)   -> True
             _           -> False

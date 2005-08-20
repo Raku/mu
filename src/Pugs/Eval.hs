@@ -317,17 +317,19 @@ reduceSym _ "" exp = evalExp exp
 
 reduceSym scope name exp | scope <= SMy = do
     ref <- newObject (typeOfSigil $ head name)
-    sym <- case name of
-        ('&':_) -> genMultiSym name ref
-        _       -> genSym name ref
+    let (gen, name') = case name of
+            ('&':n@('&':_)) -> (genMultiSym, n)
+            _               -> (genSym, name)
+    sym <- gen name' ref
     enterLex [ sym ] $ evalExp exp
 
 reduceSym _ name exp = do
     ref     <- newObject (typeOfSigil $ head name)
-    name'   <- toQualified name
-    sym <- case name' of
-        ('&':_) -> genMultiSym name' ref
-        _       -> genSym name' ref
+    let (gen, name') = case name of
+            ('&':n@('&':_)) -> (genMultiSym, n)
+            _               -> (genSym, name)
+    qn      <- toQualified name'
+    sym     <- gen qn ref
     addGlobalSym sym
     evalExp exp
 
