@@ -52,7 +52,7 @@ sub choose (*@all_choices) {
 
 sub newchoose (*@all_choices) {
   my &old_give_up = &give_up;
-  do {
+  {
     my $try = -> @choices {
       if ! @choices { &give_up = &old_give_up; give_up }
       else {
