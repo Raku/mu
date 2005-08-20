@@ -65,7 +65,8 @@ sub p6_repl {
 	}
 	if ($line =~ /\A:l\s+(\S+)/) {
 	    my $filename = $1;
-	    my $code = `cat $filename`;
+            open IN, $filename or die $!;
+	    my $code = do { local $/; <IN> };
 	    $eval_p6->($code);
 	    next;
 	}
