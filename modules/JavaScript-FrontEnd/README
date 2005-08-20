@@ -1,0 +1,7 @@
+
+JavaScript Frontend
+
+This directory is intended for the development of a JavaScript
+_frontend_ for p6.  It has nothing to do with the existing JavaScript
+_backend_.  These are p6 modules which parse and compile JS code into
+p6, and provide a p6-based JS runtime.
