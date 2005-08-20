@@ -593,12 +593,25 @@ ruleVarDeclaration = rule "variable declaration" $ do
             return $ Pad scope lexDiff implicit_first_block
         _      -> return $ Pad scope lexDiff rhs
 
+{-|
+Match a @no@ declaration, i.e. the opposite of @use@ (see
+'ruleUseDeclaration').
+
+Works by matching \'@no@\', then delegating to 'ruleUsePackage' with the flag
+set to @False@.
+-}
 ruleNoDeclaration :: RuleParser Exp
 ruleNoDeclaration = rule "no declaration" $ do
     symbol "no"
     ruleUsePackage False
     return emptyExp
 
+{-|
+Match a @use@ declaration.
+
+Works by matching \'@use@\', then trying each of 'ruleUseVersion',
+'ruleUseJSANModule' and 'ruleUsePackage'.
+-}
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
     symbol "use"
@@ -620,7 +633,19 @@ ruleUseVersion = rule "use version" $ do
         error $ "Perl v" ++ version ++ " required--this is only v" ++ versnum ++ ", stopped at " ++ (show pos)
     return ()
 
-ruleUsePackage :: Bool -> RuleParser ()
+{-|
+Match the package-name and import-list part of a @use@ or @no@ declaration.
+
+The parser itself does not yield a useful value; instead it modifies the
+'Pugs.AST.Internals.Env' part of the parser's state to reflect the results
+of the declaration.  (If the package is a Perl 5 package, the modification
+will be different.)
+
+It is assumed that the @use@ or @no@ has already been consumed by
+'ruleUseDeclaration' or 'ruleNoDeclaration'.
+-}
+ruleUsePackage :: Bool -- ^ @True@ for @use@; @False@ for @no@
+               -> RuleParser ()
 ruleUsePackage use = rule "use package" $ do
     lang    <- option "pugs" $ try $ do
         lang <- identifier
@@ -654,6 +679,18 @@ ruleUsePackage use = rule "use package" $ do
         return ()
     return ()
 
+{-|
+Match a JSAN module name, preceded by \'@jsan:@\'.  Returns an appropriate
+sub call 'Pugs.AST.Exp' that will load the module using subs defined in
+@PIL2JS::Internals@.
+
+Used by 'ruleUseDeclaration' after matching \'@use@\'.
+
+More info about JSAN can be found at <http://www.openjsan.org/>.
+
+(This parser is screaming out to be refactored and merged with
+'ruleUseVersion', but that might be a little hairy to actually do.)
+-}
 ruleUseJSANModule :: RuleParser Exp
 ruleUseJSANModule = do
     string "jsan:"
@@ -672,14 +709,14 @@ ruleUseJSANModule = do
             return $ App (Var "&PIL2JS::Internals::use_jsan_module_imp") Nothing $ name:exp'
         ] 
 
--- | The version part of a full class specification.
+-- | The version part of a fully-qualified package name.
 ruleVersionPart :: RuleParser String
 ruleVersionPart = do -- version - XXX
     char '-'
     str <- many (choice [ digit, char '.' ])
     return ('-':str)
 
--- | The author part of a full class specification.
+-- | The author part of a fully-qualified package name.
 ruleAuthorPart :: RuleParser String
 ruleAuthorPart = do -- author - XXX
     char '-'
@@ -696,6 +733,13 @@ ruleInlineDeclaration = tryRule "inline declaration" $ do
             return $ Syn "inline" exp
         _ -> fail "not yet parsed"
 
+{-|
+Match a @require@ declaration, returning a sub call 'Pugs.AST.Exp' that will
+load the package at runtime.
+
+(This should probably be merged with 'ruleUseDeclaration' & friends, if
+anybody has some tuits.)
+-}
 ruleRequireDeclaration :: RuleParser Exp
 ruleRequireDeclaration = tryRule "require declaration" $ do
     symbol "require"
