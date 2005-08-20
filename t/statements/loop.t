@@ -1,7 +1,6 @@
 #!/usr/bin/pugs
 
 use v6;
-use Test;
 
 =kwid
 
@@ -86,5 +85,5 @@ L<S04/"Loop statements">
 
 {
   my $x = 0; try { loop { $x++; redo if $x < 10 } while 0 };
-  is($x, '$x', 'redo works in loop', :todo<feature>);
+  is($x, 10, 'redo works in loop', :todo<feature>);
 }

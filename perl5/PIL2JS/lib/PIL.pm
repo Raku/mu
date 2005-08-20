@@ -6,13 +6,14 @@ use strict;
 
 # State:
 use constant {
-  SUBTHUNK   => 1,
-  SUBPRIM    => 2,
-  SUBBLOCK   => 3,
-  SUBPOINTY  => 4,
-  SUBROUTINE => 5,
-  SUBMETHOD  => 6,
-  SUBMACRO   => 7,
+  SUBTHUNK     => 1,
+  SUBPRIM      => 2,
+  SUBBLOCK     => 3,
+  SUBPOINTY    => 4,
+  SUBROUTINE   => 5,
+  SUBMETHOD    => 6,
+  SUBMACRO     => 7,
+  SUBCOROUTINE => 8,
 };
 
 # Are we in a sublike thing? If yes, what sublevel does that thing have?
@@ -238,12 +239,15 @@ EOF
 
 # Possible subroutine types:
 { package PIL::SubType }
-{ package PIL::SubRoutine; our @ISA = qw<PIL::SubType>; sub as_constant { PIL::SUBROUTINE } }
-{ package PIL::SubPrim;    our @ISA = qw<PIL::SubType>; sub as_constant { PIL::SUBPRIM } }
-{ package PIL::SubBlock;   our @ISA = qw<PIL::SubType>; sub as_constant { PIL::SUBBLOCK } }
-{ package PIL::SubPointy;  our @ISA = qw<PIL::SubType>; sub as_constant { PIL::SUBPOINTY } }
-{ package PIL::SubMethod;  our @ISA = qw<PIL::SubType>; sub as_constant { PIL::SUBMETHOD } }
-{ package PIL::SubMacro;   our @ISA = qw<PIL::SubType>; sub as_constant { PIL::SUBMACRO } }
+{
+  foreach my $type (qw<
+    SubRoutine SubPrim SubBlock SubPointy SubMethod SubMacro SubCoroutine
+  >) {
+    no strict "refs";
+    *{"PIL::$type\::ISA"}         = [qw<PIL::SubType>];
+    *{"PIL::$type\::as_constant"} = *{"PIL::" . uc $type};
+  }
+}
 
 # Returns the undef/zero/default container for a given variable type.
 #   my $x;   # Really my $x = undef

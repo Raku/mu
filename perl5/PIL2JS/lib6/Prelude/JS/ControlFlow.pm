@@ -39,9 +39,9 @@ for <last next redo> -> $name {
   Pugs::Internals::eval "
     sub JS::Root::$name () is primitive \{
       JS::inline '
-        function () \{
+        (function () \{
           throw(new PIL2JS.ControlException.{$name}());
-        \}
+        \})()
       ';
     \}
   ";
@@ -57,6 +57,18 @@ sub statement_control:<until>(Code $cond, Code $body) is primitive {
   my $ret;
   loop 1; !($ret = $cond()); 1 { $body() }
   $ret;
+}
+
+sub statement_control:<postwhile>(Code $cond, Code $body) is primitive {
+  my $first_run_done = 0;
+
+  while($first_run_done ?? $cond() :: ++$first_run_done) { $body() }
+}
+
+sub statement_control:<postuntil>(Code $cond, Code $body) is primitive {
+  my $first_run_done = 0;
+
+  until($first_run_done ?? $cond() :: $first_run_done++) { $body() }
 }
 
 sub statement_control:<if>(Bool|Junction $cond, Code $true, Code $false) is primitive {

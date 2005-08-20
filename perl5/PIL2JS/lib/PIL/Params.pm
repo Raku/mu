@@ -6,12 +6,12 @@
   use strict;
 
   sub fixup {
-    my ($self, $subbody) = @_;
+    my ($self, $prefix, $subbody) = @_;
     local $_;
 
     return (
-      pSubParams => (bless [ map { $_->fixup } @$self ] => "PIL::Params"),
-      pSubBody   => $subbody->fixup,
+      "p${prefix}Params" => (bless [ map { $_->fixup } @$self ] => "PIL::Params"),
+      "p${prefix}Body"   => $subbody->fixup,
     );
   }
 

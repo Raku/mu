@@ -127,6 +127,7 @@ sub as_js {
   };
 
   my $possibly_ccify_many = sub {
+    no warnings "recursion";
     my @things = @{ +shift };
     my $sub    = shift;
 
