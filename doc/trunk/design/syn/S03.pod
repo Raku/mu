@@ -68,6 +68,11 @@ operands.  You have to use a C<[-1]> subscript to get the last one.
 side for definedness instead of truth. There is a low-precedence form,
 too: C<err>.
 
+=item * Binary C<eqv> tests value equivalence: for two value types,
+tests whether they are the same value (eg. C<1 eqv 1>); for two
+reference types, checks whether they are the same reference (eg. it is
+not true that C<[1,2] eqv [1,2]>, but it is true that C<\@a eqv \@a>).
+
 =item * Binary C<< => >> is no longer just a "fancy comma."  It now
 constructs a C<Pair> object that can, among other things, be used to
 pass named arguments to functions.  It provides scalar context to both sides.
@@ -127,6 +132,46 @@ When using a unary operator, only put it on the operand's side:
 
 Note that method calls are really postfix operators, not infix, so you
 shouldn't put a C<«> after the dot.
+
+Hyper operators are defined recursively on array references, so:
+
+    -« [[1, 2], 3]               #    [-«[1, 2], -«3]
+                                 # == [[-1, -2], -3]
+    [[1, 2], 3] »+« [4, [5, 6]]  #    [[1,2] »+« 4, 3 »+« [5, 6]]
+                                 # == [[5, 6], [8, 9]]
+
+=head1 Reduction operators
+
+The other metaoperator in Perl 6 is the reduction operator.  Any binary
+operator can be surrounded by square brackets in term position to create
+a list operator that reduces using that operation:
+
+    [+] 1, 2, 3;      # 1 + 2 + 3 = 6
+    my @a = (5,6);
+    [*] @a;           # 5 * 6 = 30
+
+The reduction associates the same way as the operator used:
+
+    [-] 4, 3, 2;      # 4-3-2 = (4-3)-2 = -1
+    [**] 4, 3, 2;     # 4**3**2 = 4**(3**2) = 262144
+
+For list-associating operators (like C<< < >>), all arguments are taken
+together, just as if you had written it out explicitly:
+
+    [<] 1, 3, 5;      # 1 < 3 < 5
+
+If no arguments are given, the operator calls C<fail> (returning
+C<undef>, or throwing an exception if C<use fatal> is in effect).  If
+exactly one argument is given, it is returned by default.  However, this
+default doesn't make sense for an operator like C<< < >> that doesn't
+return the same type as it takes, so these kinds of operators overload
+the single-argument case to return something more meaningful.  All the
+comparison operators return truth in this case.
+
+This metaoperator can also be used on the semicolon second-dimension
+separator:
+
+    [[;] 1,2,3]   # equivalent to [1;2;3]
 
 =head1 Junctive operators
 
