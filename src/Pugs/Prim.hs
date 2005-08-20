@@ -1011,7 +1011,7 @@ op3 "Object::new" = \t n p -> do
     writeIVar (IHash attrs) named
     uniq    <- liftIO $ newUnique
     env     <- ask
-    unless (positionals == VList []) (fail "Can't use positionals in default new constructor")
+    unless (positionals == VList []) (fail "Must only use named arguments to new() constructor")
     let obj = VObject $ MkObject
             { objType   = typ
             , objAttrs  = attrs
