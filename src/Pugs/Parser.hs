@@ -616,8 +616,7 @@ ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
     symbol "use"
     tryChoice [ ruleUseVersion >> return emptyExp
-              , ruleUseJSANModule
-              , ruleUsePackage True >> return emptyExp
+              , ruleUsePackage True
               ]
 
 {-|
@@ -634,6 +633,8 @@ ruleUseVersion = rule "use version" $ do
     return ()
 
 {-|
+/This may now be obsolete.../
+
 Match the package-name and import-list part of a @use@ or @no@ declaration.
 
 The parser itself does not yield a useful value; instead it modifies the
@@ -645,13 +646,23 @@ It is assumed that the @use@ or @no@ has already been consumed by
 'ruleUseDeclaration' or 'ruleNoDeclaration'.
 -}
 ruleUsePackage :: Bool -- ^ @True@ for @use@; @False@ for @no@
-               -> RuleParser ()
+               -> RuleParser Exp
 ruleUsePackage use = rule "use package" $ do
-    lang    <- option "pugs" $ try $ do
+    lang <- ruleUsePackageLang
+    case lang of
+        "jsan" -> if use
+                      then ruleUseJSANModule
+                      else fail "can't 'no' a JSAN module"
+        _      -> ruleUsePerlPackage use lang
+    where
+    ruleUsePackageLang = option "pugs" $ try $ do
         lang <- identifier
         char ':'
         notFollowedBy (char ':')
         return lang
+
+ruleUsePerlPackage :: Bool -> String -> RuleParser Exp
+ruleUsePerlPackage use lang = rule "use perl package" $ do
     names   <- identifier `sepBy1` (try $ string "::")
     _       <- option "" $ ruleVersionPart
     _       <- option "" $ ruleAuthorPart
@@ -677,9 +688,11 @@ ruleUsePackage use = rule "use package" $ do
             , emptyExp
             ]
         return ()
-    return ()
+    return emptyExp
 
 {-|
+/This may now be obsolete.../
+
 Match a JSAN module name, preceded by \'@jsan:@\'.  Returns an appropriate
 sub call 'Pugs.AST.Exp' that will load the module using subs defined in
 @PIL2JS::Internals@.
@@ -693,11 +706,8 @@ More info about JSAN can be found at <http://www.openjsan.org/>.
 -}
 ruleUseJSANModule :: RuleParser Exp
 ruleUseJSANModule = do
-    string "jsan:"
-    name <- liftM (Val . VStr . concat) $ many1 $ do
-        part <- identifier
-        dot  <- choice [ try $ string ".", string "" ]
-        return $ part ++ dot
+    names <- identifier `sepBy1` (try $ string ".")
+    let name = Val . VStr . concat $ intersperse "." names
     choice
         [ try $ do
             verbatimParens whiteSpace
