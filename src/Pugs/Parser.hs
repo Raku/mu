@@ -87,6 +87,13 @@ ruleBlockBody = do
         (Syn "sub" _)   -> mergeStmts emptyExp body'
         _               -> body'
 
+{-|
+Match an opening brace (@{@), followed by a 'ruleBlockBody', followed by a
+closing brace (@}@) and nothing else (see 'ruleWhiteSpaceLine').
+
+In other words, the closing brace must be the last meaningful character on
+its line.
+-}
 ruleStandaloneBlock :: RuleParser Exp
 ruleStandaloneBlock = tryRule "standalone block" $ do
     body <- bracesAlone ruleBlockBody
@@ -600,6 +607,10 @@ ruleUseDeclaration = rule "use declaration" $ do
               , ruleUsePackage True >> return emptyExp
               ]
 
+{-|
+Match a Perl version number (as part of a @use@ declaration), and abort if
+the version needed is higher than our version.
+-}
 ruleUseVersion :: RuleParser ()
 ruleUseVersion = rule "use version" $ do
     option ' ' $ char 'v'
