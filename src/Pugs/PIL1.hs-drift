@@ -1,5 +1,16 @@
 {-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fallow-overlapping-instances -fno-warn-orphans -fno-warn-incomplete-patterns -fallow-undecidable-instances #-}
 
+{-|
+    Pugs Intermediate Language, version 1.
+
+>   Again she fled, but swift he came.
+>   Tinúviel! Tinúviel!
+>   He called her by her elvish name;
+>   And there she halted listening.
+
+-}
+
+
 module Pugs.PIL1 (
     PIL_Environment(..),
     PIL_Stmts(..), PIL_Stmt(..), PIL_Decl(..),
