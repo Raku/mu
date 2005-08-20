@@ -146,7 +146,7 @@ C<Array> (much like Perl 5's C<@_>). Then the individual arguments are
 extracted (see C<PIL::Nodes>, package C<PIL::Params>).
 
 Additionally to the arguments passed by the user, the first argument is always
-a boxed C<PIL2JS.Context> object. Methods expect C<$?SELF> as their second
+an unboxed C<PIL2JS.Context> object. Methods expect C<$?SELF> as their second
 argument.
 
 The last argument is always the return continuation.

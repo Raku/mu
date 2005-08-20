@@ -14,6 +14,7 @@ module Prelude::JS {}
 # emulate pass by ref (needed for is rw and is ref).
 
 use Prelude::JS::Code;
+use Prelude::JS::Continuations;
 use Prelude::JS::ControlFlow;
 use Prelude::JS::IO;
 use Prelude::JS::Junc;

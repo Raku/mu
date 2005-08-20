@@ -181,7 +181,8 @@ PIL2JS.Box.prototype = {
       (this.uid != undefined && other.uid != undefined && this.uid == other.uid) ||
       (this.uid == undefined && other.uid == undefined && this.FETCH() == other.FETCH())
     ) {
-      PIL2JS.die("Binding would create a bind cycle!");
+      // PIL2JS.die("Binding would create a bind cycle!");
+      // Bind cycles are actually legal.
     }
 
     var fetch = other.FETCH, my_ctype    = this.container_type,
@@ -658,6 +659,7 @@ PIL2JS.ControlException.next.prototype.toString =
 PIL2JS.ControlException.redo  = function () {};
 PIL2JS.ControlException.redo.prototype.toString =
   function () { return "Can't \"redo\" outside a loop block!" };
+PIL2JS.ControlException.end   = function () {};
 
 // PIL2JS.generic_return -- generates a function, which, when invoked, will
 // cause a return of the given level by throwing an appropriate exception.
@@ -783,9 +785,9 @@ PIL2JS.Context.prototype.toString = function () {
   return "Context.new(:main[" + this["main"] + "], :type[" + this["type"] + "])";
 };
 
-PIL2JS.Context.Void      = new PIL2JS.Box.Constant(new PIL2JS.Context({ main: "void" }));
-PIL2JS.Context.ItemAny   = new PIL2JS.Box.Constant(new PIL2JS.Context({ main: "item", type: "Any" }));
-PIL2JS.Context.SlurpyAny = new PIL2JS.Box.Constant(new PIL2JS.Context({ main: "slurpy", type: "Any" }));
+PIL2JS.Context.Void      = new PIL2JS.Context({ main: "void" });
+PIL2JS.Context.ItemAny   = new PIL2JS.Context({ main: "item", type: "Any" });
+PIL2JS.Context.SlurpyAny = new PIL2JS.Context({ main: "slurpy", type: "Any" });
 
 PIL2JS.print_exception = function (err) {
   PIL2JS.cps2normal(
@@ -803,6 +805,15 @@ PIL2JS.print_exception = function (err) {
 PIL2JS.catch_all_exceptions = function (code) {
   try { code() } catch(err) {
     PIL2JS.print_exception(err);
+  }
+};
+PIL2JS.catch_end_exception = function (code) {
+  try { code() } catch(err) {
+    if(err instanceof PIL2JS.ControlException.end) {
+      return;
+    } else {
+      throw err;
+    }
   }
 };
 

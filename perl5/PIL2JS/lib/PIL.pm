@@ -17,12 +17,19 @@ use constant {
 
 # Are we in a sublike thing? If yes, what sublevel does that thing have?
 our $IN_SUBLIKE = undef;
+our @IN_SUBLIKES;
 
 # What's the name of the sub we're currently in?
 our $CUR_SUBNAME;
 
 # Our current pos?
-our $CUR_POS  = bless [ "<unknown>", (0) x 4 ] => "PIL::MkPos";
+our $CUR_POS  = bless {
+  posName => "<unknown>",
+  posBeginLine   => 0,
+  posBeginColumn => 0,
+  posEndLine     => 0,
+  posEndColumn   => 0,
+} => "PIL::MkPos";
 
 # Are we in pilGlob?
 our $IN_GLOBPIL;
@@ -180,16 +187,18 @@ sub as_js {
     } @{ $fixed_tree->{"pilGlob" } })  .
     "\n// End of initialization of global vars and exportation of subs.\n";
 
-  return sprintf <<EOF, $decl_js, add_indent(2, join "\n", @glob_js, $init_js, $main_js);
+  return sprintf <<EOF, $decl_js, add_indent(3, join "\n", @glob_js, $init_js, $main_js);
 %s
 PIL2JS.catch_all_exceptions(function () {
-  PIL2JS.runloop(function () {
-    var PIL2JS = AlsoPIL2JS_SpeedupHack;
-    var pad = {}; PIL2JS_subpads.push(pad);
-    pad['\$?POSITION'] = _24main_3a_3a_3fPOSITION;
-    pad['\$_']         = _24main_3a_3a_;
+  PIL2JS.catch_end_exception(function() {
+    PIL2JS.runloop(function () {
+      var PIL2JS = AlsoPIL2JS_SpeedupHack;
+      var pad = {}; PIL2JS_subpads.push(pad);
+      pad['\$?POSITION'] = _24main_3a_3a_3fPOSITION;
+      pad['\$_']         = _24main_3a_3a_;
 
 %s
+    });
   });
 });
 PIL2JS_subpads.pop();
@@ -206,7 +215,7 @@ EOF
   sub fixup { $_[0] }
 
   sub as_js {
-    return sprintf "new PIL2JS.Box.Constant(new PIL2JS.Context({ main: %s, type: %s }))",
+    return sprintf "new PIL2JS.Context({ main: %s, type: %s })",
       PIL::doublequote($_[0]->main),
       defined $_[0]->type
         ? PIL::doublequote($_[0]->type->as_string)

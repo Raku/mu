@@ -10,7 +10,9 @@ sub fixup {
 }
 
 sub as_js {
-  return "" unless $PIL::IN_SUBLIKE;
+  # This is so even programs using function converted by PIL2JS.cps2normal can
+  # correctly terminate.
+  return "throw new PIL2JS.ControlException.end" unless $PIL::IN_SUBLIKE;
 
   my $cxt   = "PIL2JS.Context.ItemAny";
   my $undef = "new PIL2JS.Box.Constant(undefined)";

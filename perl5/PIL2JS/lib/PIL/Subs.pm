@@ -22,7 +22,8 @@ use strict;
     bless $self->{pSubParams} => "PIL::Params";
     $self->{pSubType} = bless [] => "PIL::$self->{pSubType}";  # minor hack
 
-    local $PIL::IN_SUBLIKE = $self->{pSubType}->as_constant;
+    local $PIL::IN_SUBLIKE  = $self->{pSubType}->as_constant;
+    local @PIL::IN_SUBLIKES = (@PIL::IN_SUBLIKES, $self->{pSubType}->as_constant);
 
     return bless {
       pSubName => $self->{pSubName},
@@ -42,6 +43,7 @@ use strict;
     local $_;
 
     local $PIL::IN_SUBLIKE  = $self->{pSubType}->as_constant;
+    local @PIL::IN_SUBLIKES = (@PIL::IN_SUBLIKES, $self->{pSubType}->as_constant);
     local $PIL::CUR_SUBNAME = $self->{pSubName};
 
     warn "Skipping &*END.\n"      and return "" if $PIL::CUR_SUBNAME eq "&*END";
@@ -131,7 +133,8 @@ use strict;
     bless $self->{pParams} => "PIL::Params";
     $self->{pType} = bless [] => "PIL::$self->{pType}";  # minor hack
 
-    local $PIL::IN_SUBLIKE = $self->{pType}->as_constant;
+    local $PIL::IN_SUBLIKE  = $self->{pType}->as_constant;
+    local @PIL::IN_SUBLIKES = (@PIL::IN_SUBLIKES, $self->{pType}->as_constant);
 
     # &PIL::Params::fixup returns the fixed PIL::Params and the fixed
     # $self->{pSubBody}.
@@ -154,6 +157,7 @@ use strict;
     local $_;
 
     local $PIL::IN_SUBLIKE  = $self->{pType}->as_constant;
+    local @PIL::IN_SUBLIKES = (@PIL::IN_SUBLIKES, $self->{pType}->as_constant);
     local $PIL::CUR_SUBNAME = "<anonymous@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>";
 
     my $new_pad      = "var pad = {}; PIL2JS_subpads.push(pad)";
@@ -200,6 +204,7 @@ use strict;
   sub as_js {
     my $self = shift;
     local $PIL::IN_SUBLIKE  = PIL::SUBTHUNK;
+    local @PIL::IN_SUBLIKES = (@PIL::IN_SUBLIKES, PIL::SUBTHUNK);
     local $PIL::CUR_SUBNAME = "<thunk@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>";
 
     my $body = PIL::possibly_ccify +(%$self)[1], PIL::RawJS->new("thunkreturncc");

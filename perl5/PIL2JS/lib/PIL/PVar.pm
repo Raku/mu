@@ -6,10 +6,18 @@ use strict;
 sub fixup {
   die unless keys %{ $_[0] } == 1;
   die if     ref(my $name = $_[0]->{pVarName});
+  local $_;
 
   if($name eq "&return") {
     PIL::fail("Can't return outside a subroutine!")
-      unless $PIL::IN_SUBLIKE >= PIL::SUBROUTINE;
+      unless grep { $_ >= PIL::SUBROUTINE } @PIL::IN_SUBLIKES;
+    # XXX hack?
+    return bless {
+      pVarName => PIL::RawJS->new("PIL2JS.generic_return(subreturncc)")
+    } => "PIL::PVar";
+  } elsif($name eq "&?CALLER_CONTINUATION") {
+    PIL::fail("There's no &?CALLER_CONTINUATION outside a subroutine!")
+      unless grep { $_ >= PIL::SUBROUTINE } @PIL::IN_SUBLIKES;
     # XXX hack?
     return bless {
       pVarName => PIL::RawJS->new("PIL2JS.generic_return(subreturncc)")
