@@ -63,13 +63,27 @@ sub line_num is export
 {
 }
 
+sub test_pass ( Str ?$diagnostic ) is export
+{
+    report_test( 'ok', $diagnostic );
+}
+
+sub test_fail ( Str ?$diagnostic ) is export
+{
+    report_test( 'not ok', $diagnostic );
+}
+
+sub report_test ( Str $type, Str ?$diagnostic )
+{
+    my $number = $tb_test.get_test_number();
+    my $line   = "$type $number";
+    $line     ~= " - $diagnostic" if defined $diagnostic;
+    test_out( $line );
+}
+
 sub test_out ( Str $line ) is export
 {
     push @expect_out, $line;
-}
-
-sub test_fail is export
-{
 }
 
 sub test_err ( Str $line ) is export 
@@ -148,6 +162,16 @@ output to the expected output.
 
 Plans the number of tests to run.  Someday there will be a C<no_plan> version
 of this too.  For now, this is what you have.
+
+=item B<test_pass( Str $description )>
+
+Marks that the next test should pass.  C<$description> is the optional
+description of the test.  This is the easiest way to match a passing test.
+
+=item B<test_fail( Str $description )>
+
+Marks that the next test should fail.  C<$description> is the optional
+description of the test.  This is the easiest way to match a failing test.
 
 =item B<test_out( Str $line )>
 

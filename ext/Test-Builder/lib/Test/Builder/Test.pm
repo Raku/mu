@@ -11,28 +11,28 @@ class Test::Builder::Test-0.2.1
     {
         return ::Test::Builder::Test::TODO.new(
             description => $description,
-			passed      =>      $passed,
-			reason      =>      $reason,
-			number      =>      $number,
+            passed      =>      $passed,
+            reason      =>      $reason,
+            number      =>      $number,
         ) if $todo;
 
         return ::Test::Builder::Test::Skip.new(
             description => $description,
-			passed      =>            1,
-			reason      =>      $reason,
-			number      =>      $number,
+            passed      =>            1,
+            reason      =>      $reason,
+            number      =>      $number,
         ) if $skip;
 
         return ::Test::Builder::Test::Pass.new(
             description => $description,
-			passed      =>            1,
-			number      =>      $number,
+            passed      =>            1,
+            number      =>      $number,
         ) if $passed;
 
         return ::Test::Builder::Test::Fail.new(
             description => $description,
-			passed      =>            0,
-			number      =>      $number,
+            passed      =>            0,
+            number      =>      $number,
         );
     }
 }
@@ -62,11 +62,12 @@ role Test::Builder::Test::Base
 
     method report returns Str
     {
-        my $ok          = $.passed ?? 'ok' :: 'not ok';
-        my $description = "- $.description";
-        return join( ' ', $ok, $.number, $description );
-    }
+        my $ok  = $.passed ?? 'ok ' :: 'not ok ';
+        $ok    ~= $.number;
+        $ok    ~= " - $.description" if $.description;
 
+        return $ok;
+    }
 }
 
 class Test::Builder::Test::Pass does Test::Builder::Test::Base {}
@@ -108,7 +109,7 @@ class Test::Builder::Test::TODO does Test::Builder::Test::WithReason
 {
     method report returns Str
     {
-        my $ok          = $.really_passed ?? 'ok' :: 'not ok';
+        my $ok          = $.passed ?? 'ok' :: 'not ok';
         my $description = "# TODO $.description";
         return join( ' ', $ok, $.number, $description );
     }

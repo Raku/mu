@@ -12,8 +12,8 @@ has                         @:results;
 method new ( Test::Builder $Class: ?$plan, ?$output )
 {
     return $:singleton //= $Class.SUPER::new(
-		testplan => $plan, output => $output
-	);
+        testplan => $plan, output => $output
+    );
 }
 
 method create ( Test::Builder $Class: ?$plan, ?$output )
@@ -30,8 +30,13 @@ submethod BUILD
 
 submethod DESTROY
 {
-	my $footer = $.testplan.footer( +@:results );
-	$.output.write( $footer ) if $footer;
+    my $footer = $.testplan.footer( +@:results );
+    $.output.write( $footer ) if $footer;
+}
+
+method get_test_number
+{
+    return +@:results + 1;
 }
 
 method plan ( Str ?$explanation, Int ?$tests )
@@ -58,7 +63,7 @@ method ok returns Bit ( $self: Bit $passed, Str ?$description = '' )
 {
     $self.report_test(
         Test::Builder::Test.new(
-            number      => +$.results + 1,
+            number      => $self.get_test_number(),
             passed      =>  $passed,
             description =>  $description,
         )
@@ -69,7 +74,7 @@ method ok returns Bit ( $self: Bit $passed, Str ?$description = '' )
 
 method diag ( Str ?$diagnostic = '' )
 {
-	$.output.diag( $diagnostic );
+    $.output.diag( $diagnostic );
 }
 
 method todo returns Bit ( $self: Bit $passed, Str ?$description, Str ?$reason )
@@ -77,7 +82,7 @@ method todo returns Bit ( $self: Bit $passed, Str ?$description, Str ?$reason )
     $self.report_test(
         Test::Builder::Test.new(
             todo        => 1,
-            number      => +$.results + 1,
+            number      => $self.get_test_number(),
             reason      =>  $reason,
             description =>  $description,
         )
@@ -93,7 +98,7 @@ method skip ( $self: Int ?$num = 1, Str ?$reason = 'skipped' )
         $self.report_test(
             Test::Builder::Test.new(
                 skip   => 1,
-                number => +$.results + 1,
+                number => $self.get_test_number(),
                 reason =>  $reason,
             )
         );
@@ -137,34 +142,34 @@ Test::Builder - Backend for building test libraries
 
   my Test::Builder $Test .= new(
         output => Test::Builder::Output.new(
-	       error_output => open('my_error_log_file')
+           error_output => open('my_error_log_file')
         )
     );
 
   sub plan (Str ?$explanation, Int ?$tests) is export {
-	 $Test.testplan($explanation, $tests);
+     $Test.testplan($explanation, $tests);
   }
 
   sub ok ($passed, ?$description, ?$todo) is export {
-	 if $todo {
-		$Test.todo($passed, $description, $todo) 
-		    || $Test.diag("FAILED : $description");
-	 }
-	 else {
-		$Test.ok($passed, $description)
-		    || $Test.diag("FAILED : $description");
-	 }
+     if $todo {
+        $Test.todo($passed, $description, $todo) 
+            || $Test.diag("FAILED : $description");
+     }
+     else {
+        $Test.ok($passed, $description)
+            || $Test.diag("FAILED : $description");
+     }
   }
 
   sub is ($got, $expected, ?$description, ?$todo) is export {
-	 if $todo {
-		$Test.todo($got eq $expected, $description, $todo)
-		    || $Test.diag("FAILED : $description");
-	 }
-	 else {
-		$Test.ok($got eq $expected, $description)
-		    || $Test.diag("FAILED : $description");		
-	 }
+     if $todo {
+        $Test.todo($got eq $expected, $description, $todo)
+            || $Test.diag("FAILED : $description");
+     }
+     else {
+        $Test.ok($got eq $expected, $description)
+            || $Test.diag("FAILED : $description");        
+     }
   }
 
   # then using our test module the test file themselves ...
@@ -254,6 +259,10 @@ Fails if there is a test plan set.
 =item B<BAILOUT( Str $reason = '' )>
 
 Aborts the entire test run.
+
+=item B<get_test_number()>
+
+Returns the number of the I<next> test to record.
 
 =item B<report_test( Test::Builder::Test $test )>
 

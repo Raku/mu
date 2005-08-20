@@ -7,6 +7,11 @@
 * minor cosmetic fixes to t/010_Test_Builder.t
 * bumped up version numbers
 * added Test::Builder::Tester and t/050_Test_Builder_Tester.t
+* untabified source code
+* don't add empty descriptions in Test::Builder::Test report() methods
+* don't use non-existent $.really_passed in Test::Builder::Test::TODO
+* added test_pass() and test_fail() to Test::Builder::Tester
+* added get_test_number() to Test::Builder (but may change name later)
 
 == Changes for version 0.2.0
 * all tests pass
