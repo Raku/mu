@@ -23,6 +23,7 @@ module Pugs.Eval (
     evaluate,
     emptyEnv, evaluateMain,
     enterLValue, enterRValue,
+    runWarn
 ) where
 import Pugs.Internals
 import Prelude hiding ( exp )
@@ -78,6 +79,18 @@ emptyEnv name genPad = liftSTM $ do
         }
 
 -- Evaluation ---------------------------------------------------------------
+
+{-|
+Emits a runtime warning.
+-}
+-- XXX: This should cache so that you don't warn in the same place twice
+--   (even though Perl 5 doesn't do this).
+--   It should also respond to lexical warnings pragmata.
+runWarn :: String -> Eval ()
+runWarn msg = do 
+    enterEvalContext CxtVoid $
+        App (Var "&warn") Nothing [Val (VStr msg)]
+    return ()
 
 debug :: Pretty a => String -> (String -> String) -> String -> a -> Eval ()
 debug key fun str a = do
@@ -709,7 +722,9 @@ reduceSyn name exps =
 
 reduceApp :: Exp -> (Maybe Exp) -> [Exp] -> Eval Val
 -- XXX absolutely evil bloody hack for context hinters
-reduceApp (Var "&hash") invs args =
+reduceApp (Var "&hash") invs args = do
+    when (length (maybeToList invs ++ args) `mod` 2 == 1) $ 
+        runWarn "Odd number of elements in hash constructor"
     enterEvalContext cxtItemAny $ Syn "\\{}" [Syn "," $ maybeToList invs ++ args]
 
 reduceApp (Var "&list") invs args =
