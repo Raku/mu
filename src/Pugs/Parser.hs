@@ -663,10 +663,23 @@ ruleUsePackage use = rule "use package" $ do
         char ':'
         notFollowedBy (char ':')
         return lang
+        
+{-|
+Match one or more identifiers, separated internally by the given delimiter.
+
+Returns a list of the identifiers matched, discarding the delimiters.  You
+can always recreate them using \"@concat $ intersperse delim@\" if you want.
+
+If you want to match leading or trailing delimiters, you'll have to do that
+yourself.
+-}
+ruleDelimitedIdentifier :: String -> RuleParser [String]
+ruleDelimitedIdentifier delim = 
+    (<?> "delimited identifier") $ identifier `sepBy1` (try $ string delim)
 
 ruleUsePerlPackage :: Bool -> String -> RuleParser Exp
 ruleUsePerlPackage use lang = rule "use perl package" $ do
-    names   <- identifier `sepBy1` (try $ string "::")
+    names   <- ruleDelimitedIdentifier "::"
     _       <- option "" $ ruleVersionPart
     _       <- option "" $ ruleAuthorPart
     let pkg = concat (intersperse "::" names)
@@ -709,7 +722,7 @@ More info about JSAN can be found at <http://www.openjsan.org/>.
 -}
 ruleUseJSANModule :: RuleParser Exp
 ruleUseJSANModule = do
-    names <- identifier `sepBy1` (try $ string ".")
+    names <- ruleDelimitedIdentifier "."
     let name = Val . VStr . concat $ intersperse "." names
     choice
         [ try $ do
@@ -1114,7 +1127,7 @@ tightOperators = do
     [ methOps  " . .+ .? .* .+ .() .[] .{} .<<>> .= "   -- Method postfix
     , postOps  " ++ -- " ++ preOps " ++ -- "            -- Auto-Increment
     , rightOps " ** "                                   -- Exponentiation
-    , preSyn "* **"                                     -- Symbolic Unary
+    , preSyn "*"                                        -- Symbolic Unary
       ++ preOps (concatMap (\x -> " -" ++ [x]) "rwxoRWXOezsfdlpSbctugkTBMAC")
       ++ preOps " = ! + - ~ ? +^ ~^ ?^ \\ "
       ++ preSymOps preUnary
@@ -1634,7 +1647,8 @@ ruleVarNameString =   try (string "$!")  -- error variable
     if sigil == '&' then ruleSubName else do
     --  ^ placeholder, * global, ? magical, . member, : private member
     twigil  <- ruleTwigil
-    names   <- many wordAny `sepBy1` (try $ string "::")
+    -- doesn't handle names /beginning/ with "::"
+    names   <- ruleDelimitedIdentifier "::"
     case names of
         [""] -> fail "Empty variable name"
         _    -> return $ (sigil:twigil) ++ concat (intersperse "::" names)
