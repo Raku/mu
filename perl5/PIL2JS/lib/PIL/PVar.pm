@@ -25,11 +25,7 @@ sub fixup {
     PIL::fail("Can't yield outside a coroutine!")
       unless grep { $_ == PIL::SUBCOROUTINE } @PIL::IN_SUBLIKES;
     return bless {
-      pVarName => PIL::RawJS->new("PIL2JS.coro_yield(
-        cororeturncc,
-        cororeturncc_returncc_updater,
-        $PIL::CORO_ID
-      )")
+      pVarName => PIL::RawJS->new("PIL2JS.generic_return(coroyieldcc)")
     } => "PIL::PVar";
   } else {
     return bless { pVarName => PIL::lookup_var $_[0]->{pVarName} } => "PIL::PVar";

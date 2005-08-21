@@ -112,15 +112,41 @@ sub generic_cc {
     sprintf "%s = backup_%s", name_mangle($_), name_mangle($_);
   } @vars_to_restore;
 
-  return sprintf <<EOF, $name, $name, $restores }
+  return sprintf <<EOF, $name, $restores }
 var __returncc = args.pop();
-var %s_returncc_updater = function (new_returncc) { __returncc = new_returncc };
 var %s = function (retval) {
   PIL2JS_callchain.pop(); PIL2JS_subpads.pop();
   %s;
   throw function () { __returncc(retval) };
 };
 EOF
+
+sub coro_cc {
+  my ($coro_id, @vars_to_restore) = @_;
+
+  my $restores = join "; ", map {
+    sprintf "%s = backup_%s", name_mangle($_), name_mangle($_);
+  } @vars_to_restore;
+
+  return <<EOF;
+var __returncc = args.pop();
+var subreturncc = function (retval) {
+  PIL2JS_callchain.pop(); PIL2JS_subpads.pop();
+  PIL2JS.coro_entrypoints[$coro_id] = undefined;
+  $restores;
+  throw function () { __returncc(retval) };
+};
+var coroyieldcc = function (retval, cc) {
+  PIL2JS.coro_entrypoints[$coro_id] = function (new_returncc) {
+    __returncc = new_returncc;
+    cc(new PIL2JS.Box.Constant(undefined));
+  };
+  PIL2JS_callchain.pop(); PIL2JS_subpads.pop();
+  $restores;
+  throw function () { __returncc(retval) };
+};
+EOF
+}
 
 sub cur_retcc {
   die "Internal error: There doesn't exist a return continuation outside a sub!"

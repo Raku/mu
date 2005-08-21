@@ -145,7 +145,7 @@ use strict;
     my ($self, $body) = @_;
 
     # Cosmetical fix
-    chomp(my $ret = sprintf <<EOF, PIL::add_indent(1, $body), ($PIL::CORO_ID++) x 3); $ret;
+    chomp(my $ret = sprintf <<EOF, PIL::add_indent(1, $body), ($PIL::CORO_ID) x 3); ($ret, $PIL::CORO_ID++);
 var initial_entrypoint = function () {
 %s
 };
@@ -171,11 +171,14 @@ EOF
     my $params    = $self->params->as_js;
     (my $magical_vars, local @PIL::VARS_TO_BACKUP) = $self->magical_vars;
 
-    my $body        =
+    my ($body, $coro_id) =
       $PIL::IN_SUBLIKE == PIL::SUBCOROUTINE
         ? $self->corofix($self->body->as_js)
         : $self->body->as_js;
-    my $ccsetup     = PIL::generic_cc PIL::cur_retcc, @PIL::VARS_TO_BACKUP;
+    my $ccsetup     =
+      $PIL::IN_SUBLIKE == PIL::SUBCOROUTINE
+        ? PIL::coro_cc    $coro_id,       @PIL::VARS_TO_BACKUP
+        : PIL::generic_cc PIL::cur_retcc, @PIL::VARS_TO_BACKUP;
     my $backup      = "var " . join ", ", map {
       sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);
     } @PIL::VARS_TO_BACKUP;

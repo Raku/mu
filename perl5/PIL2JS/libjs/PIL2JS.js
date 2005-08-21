@@ -665,8 +665,7 @@ PIL2JS.ControlException.end   = function () {};
 // cause a return of the given level by throwing an appropriate exception.
 PIL2JS.generic_return = function (returncc) {
   return new PIL2JS.Box.Constant(function (args) {
-    var cxt  = args.shift();
-    args.pop();  // Ignore the dummy cc
+    var cxt = args.shift(), cc = args.pop();
 
     // args     = PIL2JS.make_slurpy_array(args);
     var ret  =
@@ -674,28 +673,12 @@ PIL2JS.generic_return = function (returncc) {
       args.length == 1 ? args[0] :
       new PIL2JS.Box.Constant(undefined);
 
-    returncc(ret);
+    returncc(ret, cc);
   });
 };
 
 // Entrypoints for currently active coroutines
 PIL2JS.coro_entrypoints = [];
-PIL2JS.coro_yield = function (returncc, returncc_updater, coro_id) {
-  return new PIL2JS.Box.Constant(function (args) {
-    var cxt = args.shift(), cc = args.pop();
-
-    var ret  =
-      args.length >  1 ? new PIL2JS.Box.Constant(args) :
-      args.length == 1 ? args[0] :
-      new PIL2JS.Box.Constant(undefined);
-
-    PIL2JS.coro_entrypoints[coro_id] = function (new_returncc) {
-      returncc_updater(new_returncc);
-      cc();
-    };
-    returncc(ret);
-  });
-};
 
 PIL2JS.already_exited = false;
 var _26main_3a_3aexit = PIL2JS.Box.constant_func(1, function (args) {
