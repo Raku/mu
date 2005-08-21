@@ -9,8 +9,23 @@
     my ($self, $prefix, $subbody) = @_;
     local $_;
 
+    # Move all slurpy arrays to the end.
+    # This is because *%slurpy_hashes have to be processed before.
+    my (@args, @slurpy_arrays);
+    my $seen_a_slurpy_param;
+    for(@$self) {
+      # (Perl 5)--  # doesn't allow ?: as push argument
+      $_->is_first_slurpy++ if $_->is_slurpy and !$seen_a_slurpy_param++;
+      if($_->is_slurpy and $_->name =~ /^@/) {
+        push @slurpy_arrays, $_;
+      } else {
+        push @args, $_;
+      }
+    }
+    push @args, @slurpy_arrays;
+
     return (
-      "p${prefix}Params" => (bless [ map { $_->fixup } @$self ] => "PIL::Params"),
+      "p${prefix}Params" => (bless [ map { $_->fixup } @args ] => "PIL::Params"),
       "p${prefix}Body"   => $subbody->fixup,
     );
   }
@@ -20,10 +35,12 @@
     local $_;
 
     # The parameter extracting thing is 3-pass.
-    # Firstly, in as_js1, possible named args are immediately extracted and
+    # In as_js0, appropriate "var %s;" declarations are emitted.
+    # Then, in as_js1, possible named args are immediately extracted and
     # removed from args.
-    # Then, in as_js2, remaing positional args are picked up.
-    # Finally,in as_js3, the actual checking is done.
+    # Iin as_js2, remaining positional args are picked up.
+    # Finally, in as_js3, the actual checking is done.
+    # In as_js_bind, the vars are then bound, and defaults are filled in, etc.
     my $js;
     $js .= "var cxt   = args.shift();\n";
     $js .= "args      = PIL2JS.possibly_flatten(args);\n";
@@ -54,16 +71,23 @@ EOF
 
     my $need_for_at;
     my @bools = map {
-      $_->type->matches("Any") || $_->type->matches("Junction") || $_->type->matches("Bool")
+      !$_->is_slurpy and
+      $_->type->matches("Any")      ||
+      $_->type->matches("Junction") ||
+      $_->type->matches("Bool")
         ? "false"
         : do { $need_for_at++; "true" };
-    } grep { $_->name ne '%_' } @$self;
+    } @$self;
 
-    my $vars = join ", ", map { $_->name ne '%_' ? ($_->jsname) : () } @$self;
+    my $vars = join ", ", map { $_->jsname } @$self;
 
     if($need_for_at) {
       return sprintf "PIL2JS.possibly_autothread([%s], [%s], %s, function (%s) {\n%s\n});",
-        $vars, join(", ", @bools), PIL::cur_retcc, PIL::cur_retcc . ", $vars", PIL::add_indent(1, $body);
+        $vars,
+        join(", ", @bools),
+        PIL::cur_retcc,
+        PIL::cur_retcc . ", $vars",
+        PIL::add_indent(1, $body);
     } else {
       return $body;
     }
@@ -86,8 +110,10 @@ EOF
   sub is_required { not $_[0]->{tpParam}{isOptional} }
   sub name        { $_[0]->{tpParam}{paramName} }
   sub type        { $_[0]->{tpParam}{paramContext}->[0] }
+  sub is_slurpy   { $_[0]->{tpParam}{paramContext}->isa("PIL::CxtSlurpy") }
   sub fixed_name  { $_[0]->{fixedName} }
   sub jsname      { PIL::name_mangle $_[0]->fixed_name }
+  sub is_first_slurpy :lvalue { $_[0]->{isFirstSlurpy} }
 
   sub fixup {
     my $self = shift;
@@ -95,15 +121,15 @@ EOF
     die unless defined $self->name and not ref $self->name;
 
     return bless {
-      tpParam   => $self->{tpParam},
-      tpDefault => $self->{tpDefault} && $self->{tpDefault}->fixup,
-      fixedName => PIL::lookup_var $self->name,
+      tpParam       => $self->{tpParam},
+      tpDefault     => $self->{tpDefault} && $self->{tpDefault}->fixup,
+      isFirstSlurpy => $self->is_first_slurpy,
+      fixedName     => PIL::lookup_var $self->name,
     } => "PIL::MkTParam";
   }
 
   sub as_js0 {
     my $self = shift;
-    warn "Skipping \%_ parameter.\n" and return "" if $self->name eq '%_';
 
     return sprintf "var %s = undefined;", $self->jsname;
   }
@@ -111,7 +137,6 @@ EOF
   sub as_js1 {
     my $self = shift;
     my $name = $self->name;
-    warn "Skipping \%_ parameter.\n" and return "" if $name eq "%_";
 
     # If a param expects a real Pair, don't use it for named argument purposes.
     return "" if $_->type->matches("Any") or $_->type->matches("Pair");
@@ -130,7 +155,6 @@ EOF
   sub as_js2 {
     my $self = shift;
     my $name = $self->name;
-    warn "Skipping \%_ parameter.\n" and return "" if $name eq "%_";
 
     # If we're a name-only arg, skip as_js2.
     #return "" if
@@ -140,7 +164,7 @@ EOF
     # It's a slurpy parameter? Flatten args so we can .shift() one item at a
     # time.
     my @js;
-    if($self->{tpParam}{paramContext}->isa("PIL::CxtSlurpy")) {
+    if($self->is_slurpy and $self->is_first_slurpy) {
       push @js, "args = PIL2JS.make_slurpy_array(args);";
     }
 
@@ -148,12 +172,24 @@ EOF
     my $undef  = PIL::undef_of $name;
     # Are we a take-everything slurpy param (*@foo, as opposed to *$foo)?
     if(
-      not $self->{tpParam}{paramContext}->isa("PIL::CxtSlurpy") or
-      $name !~ /^@/
+      not $self->is_slurpy or
+      $name =~ /^[\$\&]/
     ) {
-      push @js, "if($jsname == undefined && args.length > 0) $jsname = $undef.BINDTO(args.shift());";
+      push @js,
+        "if($jsname == undefined && args.length > 0) $jsname = $undef.BINDTO(args.shift());";
+    } elsif($self->is_slurpy and $name =~ /^@/) {
+      push @js,
+        "if($jsname == undefined) { $jsname = new PIL2JS.Box.Constant(args); args = [] }";
+    } elsif($self->is_slurpy and $name =~ /^%/) {
+      push @js, (<<EOF =~ /^(.*)\n$/s)[0];
+if($jsname == undefined) {
+  var obj = PIL2JS.get_and_remove_all_pairs(args);
+  args    = obj["args"];
+  $jsname = new PIL2JS.Box.Constant(obj["hash"]);
+}
+EOF
     } else {
-      push @js, "if($jsname == undefined) { $jsname = new PIL2JS.Box.Constant(args); args = [] }";
+      die;
     }
 
     return join "\n", @js;
@@ -161,7 +197,6 @@ EOF
 
   sub as_js3 {
     my $self = shift;
-    warn "Skipping \%_ parameter.\n" and return "" if $self->name eq "%_";
 
     # We're required, but a value hasn't been supplied?
     unless($self->{tpParam}{isOptional}) {
@@ -178,7 +213,6 @@ EOF
     my $self   = shift;
     my $name   = $self->name;
     my $jsname = $self->jsname;
-    warn "Skipping \%_ parameter.\n" and return "" if $self->name eq "%_";
     # - !perl/PIL::MkTParam
     # tpDefault: !perl/@PIL::Nothing []
     # tpParam: !perl/PIL::MkParam

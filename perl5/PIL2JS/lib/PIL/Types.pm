@@ -47,7 +47,7 @@ use strict;
   sub matches {
     my ($self, $want) = ($_[0]->[0], $_[1]);
 
-    $want eq "Any" or $self eq $want;
+    $self eq $want;
   }
 
   sub as_string { $_[0]->[0] }

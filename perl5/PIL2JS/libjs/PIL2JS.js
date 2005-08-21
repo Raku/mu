@@ -734,6 +734,21 @@ PIL2JS.grep_for_pairs = function (args) {
   return pairs;
 };
 
+PIL2JS.get_and_remove_all_pairs = function (args) {
+  var hash     = new PIL2JS.Hash;
+  var new_args = [];
+
+  for(var i = 0; i < args.length; i++) {
+    if(args[i].FETCH() instanceof PIL2JS.Pair) {
+      hash.add_pair(args[i].FETCH());
+    } else {
+      new_args.push(args[i]);
+    }
+  }
+
+  return { args: new_args, hash: hash };
+}
+
 // *@foo sets @foo's .flatten_me property to true.
 // Here, we expand these flattened arrays.
 PIL2JS.possibly_flatten = function (args) {

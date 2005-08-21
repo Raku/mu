@@ -92,6 +92,7 @@ use strict;
   package PIL::PCode;
 
   sub prefix { "" }
+  sub name   { "<anonymous@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>" }
   sub type   :lvalue { $_[0]->{pType}   }
   sub params :lvalue { $_[0]->{pParams} }
   sub body   :lvalue { $_[0]->{pBody}   }
@@ -164,7 +165,7 @@ EOF
 
     local $PIL::IN_SUBLIKE  = $self->type->as_constant;
     local @PIL::IN_SUBLIKES = (@PIL::IN_SUBLIKES, $self->type->as_constant);
-    local $PIL::CUR_SUBNAME = "<anonymous@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>";
+    local $PIL::CUR_SUBNAME = $self->name;
 
     my $callchain = $self->callchain;
     my $new_pad   = "var pad = {}; PIL2JS_subpads.push(pad)";
