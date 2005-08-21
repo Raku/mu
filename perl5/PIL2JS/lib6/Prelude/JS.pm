@@ -44,8 +44,21 @@ sub infix:<=:=>($a, $b) is primitive { JS::inline('new PIL2JS.Box.Constant(
 
     if(args[0].uid && args[1].uid) {
       cc(new PIL2JS.Box.Constant(args[0].uid == args[1].uid));
-    } else if(!args[0].uid && !args[1].uid) {
-      cc(new PIL2JS.Box.Constant(args[0].FETCH() == args[1].FETCH()));
+    } else {
+      cc(new PIL2JS.Box.Constant(false));
+    }
+  }
+)')($a, $b) }
+
+sub infix:<eqv>($a, $b) is primitive { JS::inline('new PIL2JS.Box.Constant(
+  function (args) {
+    var cxt = args.shift(),  cc  = args.pop();
+    var a = args[0].FETCH(), b = args[1].FETCH();
+
+    if(a instanceof PIL2JS.Ref && b instanceof PIL2JS.Ref) {
+      cc(new PIL2JS.Box.Constant(a.referencee == b.referencee));
+    } else if(!(a instanceof PIL2JS.Ref) && !(b instanceof PIL2JS.Ref)) {
+      cc(new PIL2JS.Box.Constant(a == b));
     } else {
       cc(new PIL2JS.Box.Constant(false));
     }
