@@ -83,8 +83,7 @@ decimal    :: CharParser st Integer
 decimal    = P.decimal    perl6Lexer
 
 {-|
-Match one or more identifiers, separated internally by the given delimiter
-(with an optional leading delimiter).
+Match one or more identifiers, separated internally by the given delimiter.
 
 Returns a list of the identifiers matched, discarding the delimiters.  You
 can always recreate them using \"@concat $ intersperse delim@\" if you want,
@@ -93,7 +92,9 @@ or else use 'ruleQualifiedIdentifier'.
 ruleDelimitedIdentifier :: String -- ^ Delimiter (e.g. \'@::@\')
                         -> GenParser Char st [String]
 ruleDelimitedIdentifier delim = verbatimRule "delimited identifier" $ do
-    option "" (try $ string delim) -- leading delimiter
+    -- Allowing the leading delim actually leads to subtle oddness with things
+    -- like `use jsan:.Foo` and `use pugs:::Foo`, so I took it out.
+    --option "" (try $ string delim) -- leading delimiter
     ruleVerbatimIdentifier `sepBy1` (try $ string delim)
 
 ruleQualifiedIdentifier :: GenParser Char st String
