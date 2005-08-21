@@ -544,7 +544,7 @@ ruleVarDeclaration :: RuleParser Exp
 ruleVarDeclaration = rule "variable declaration" $ do
     scope       <- ruleScope
     typename    <- choice
-        [ do { name <- ruleQualifiedIdentifier ; whiteSpace ; return name }
+        [ lexeme ruleQualifiedIdentifier
         , return ""
         ]  -- Type
     (decl, lhs) <- choice
@@ -660,20 +660,6 @@ ruleUsePackage use = rule "use package" $ do
         return lang
         
 {-|
-Match one or more identifiers, separated internally by the given delimiter.
-
-Returns a list of the identifiers matched, discarding the delimiters.  You
-can always recreate them using \"@concat $ intersperse delim@\" if you want.
-
-If you want to match leading or trailing delimiters, you'll have to do that
-yourself.
--}
-ruleDelimitedIdentifier :: String -- ^ Delimiter (e.g. \'@::@\')
-                        -> RuleParser [String]
-ruleDelimitedIdentifier delim = 
-    (<?> "delimited identifier") $ identifier `sepBy1` (try $ string delim)
-
-{-|
 Match the package-name and import-list part of a (non-JSAN) @use@ or @no@
 declaration, then perform the actual import.
 
@@ -752,6 +738,7 @@ ruleVersionPart = do -- version - XXX
 ruleAuthorPart :: RuleParser String
 ruleAuthorPart = do -- author - XXX
     char '-'
+    -- this will break if you specify an author AND an imports list
     str <- many1 (satisfy (/= ';'))
     return ('-':str)
 {- end of ruleUseDeclaration -}
@@ -775,10 +762,9 @@ anybody has some tuits.)
 ruleRequireDeclaration :: RuleParser Exp
 ruleRequireDeclaration = tryRule "require declaration" $ do
     symbol "require"
-    names <- identifier `sepBy1` (try $ string "::")
-    _ <- option "" $ do -- version - XXX
-        char '-'
-        many1 (choice [ digit, char '.' ])
+    names <- ruleDelimitedIdentifier "::"
+    _     <- option "" $ ruleVersionPart
+    _     <- option "" $ ruleAuthorPart
     return $ App (Var "&require") Nothing [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
 
 ruleDoBlock :: RuleParser Exp
@@ -1654,8 +1640,8 @@ ruleVarNameString =   try (string "$!")  -- error variable
     --  ^ placeholder, * global, ? magical, . member, : private member
     twigil  <- ruleTwigil
     -- doesn't handle names /beginning/ with "::"
-    names   <- ruleDelimitedIdentifier "::"
-    return $ (sigil:twigil) ++ concat (intersperse "::" names)
+    name    <- ruleQualifiedIdentifier
+    return $ (sigil:twigil) ++ name
 
 ruleTwigil :: RuleParser String
 ruleTwigil = option "" . choice . map string $ words " ^ * ? . : "
