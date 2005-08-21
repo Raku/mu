@@ -235,6 +235,14 @@ class 'Ref'.$class_description => {
     }
 };
 
+role Lazy => {
+    methods => {}
+};
+
+role Eager => {
+    methods => {}
+};
+
 class 'List'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
