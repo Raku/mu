@@ -13,22 +13,28 @@ sub fixup {
     PIL::fail("Can't return outside a subroutine!")
       unless grep { $_ >= PIL::SUBROUTINE } @PIL::IN_SUBLIKES;
     return bless {
-      pVarName => PIL::RawJS->new("PIL2JS.generic_return(subreturncc)")
+      pVarName => PIL::RawJS->new("PIL2JS.generic_return(subreturncc)"),
+      origName => "&return",
     } => "PIL::PVar";
   } elsif($name eq "&?CALLER_CONTINUATION") {
     PIL::fail("There's no &?CALLER_CONTINUATION outside a subroutine!")
       unless grep { $_ >= PIL::SUBROUTINE } @PIL::IN_SUBLIKES;
     return bless {
-      pVarName => PIL::RawJS->new("PIL2JS.generic_return(subreturncc)")
+      pVarName => PIL::RawJS->new("PIL2JS.generic_return(subreturncc)"),
+      origName => "&?CALLER_CONTINUATION",
     } => "PIL::PVar";
   } elsif($name eq "&yield") {
     PIL::fail("Can't yield outside a coroutine!")
       unless grep { $_ == PIL::SUBCOROUTINE } @PIL::IN_SUBLIKES;
     return bless {
-      pVarName => PIL::RawJS->new("PIL2JS.generic_return(coroyieldcc)")
+      pVarName => PIL::RawJS->new("PIL2JS.generic_return(coroyieldcc)"),
+      origName => "&yield",
     } => "PIL::PVar";
   } else {
-    return bless { pVarName => PIL::lookup_var $_[0]->{pVarName} } => "PIL::PVar";
+    return bless {
+      pVarName => PIL::lookup_var $_[0]->{pVarName},
+      origName => $_[0]->{pVarName},
+    } => "PIL::PVar";
   }
 }
 

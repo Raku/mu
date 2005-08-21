@@ -19,6 +19,6 @@ sub as_js {
   return $self->{pExpr}->as_js . "\n";
 }
 
-sub unwrap { $_[0]->{pExpr} }
+sub unwrap { $_[0]->{pExpr}->unwrap }
 
 1;

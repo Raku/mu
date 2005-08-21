@@ -22,14 +22,30 @@ sub as_js {
 
   my ($head, $tail) = @$self{qw< pStmt pStmts >};
   my $cc;
+
+  # Add a &return() to the last statement of a sub.
   if($PIL::IN_SUBLIKE and $tail->isa("PIL::PNil")) {
-    # Add a &return() to the last statement of a sub.
-    $head   = $head->unwrap;  # (That's only a cosmetical fix.)
-    my $cxt   = "PIL2JS.Context.ItemAny";
-    my $retcc = PIL::cur_retcc;
-    $cc = PIL::Cont->new(argname => "retval", body => sub {
-      "PIL2JS.generic_return($retcc).FETCH()([$cxt, retval, 'dummycc']);"
-    });
+    $head = $head->unwrap;  # (That's also a cosmetical fix.)
+    my $default = sub {
+      my $cxt   = "PIL2JS.Context.ItemAny";
+      my $retcc = PIL::cur_retcc;
+      $cc = PIL::Cont->new(argname => "retval", body => sub {
+        "PIL2JS.generic_return($retcc).FETCH()([$cxt, retval, 'dummycc']);"
+      });
+    };
+
+    if($head->isa("PIL::PApp") and $head->{pFun}->unwrap->isa("PIL::PVar")) {
+      my $name = $head->{pFun}->unwrap->{origName} || "";
+      if($name eq "&return") {
+        $cc = PIL::Cont->new(argname => "", body => sub { "" });
+      } elsif($name eq "&yield") {
+        $cc = PIL::RawJS->new("initial_entrypoint");
+      } else {
+        $default->();
+      }
+    } else {
+      $default->();
+    }
   } else {
     $cc = PIL::Cont->new(argname => "", body => $tail);
   }
