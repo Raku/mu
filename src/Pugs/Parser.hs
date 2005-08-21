@@ -612,8 +612,7 @@ ruleNoDeclaration = rule "no declaration" $ do
 {-|
 Match a @use@ declaration.
 
-Works by matching \'@use@\', then trying each of 'ruleUseVersion',
-'ruleUseJSANModule' and 'ruleUsePackage'.
+Works by matching \'@use@\', then trying 'ruleUseVersion' and 'ruleUsePackage'.
 -}
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
@@ -636,14 +635,10 @@ ruleUseVersion = rule "use version" $ do
     return ()
 
 {-|
-/This may now be obsolete.../
+Match the contents of a @use@ or @no@ declaration.
 
-Match the package-name and import-list part of a @use@ or @no@ declaration.
-
-The parser itself does not yield a useful value; instead it modifies the
-'Pugs.AST.Internals.Env' part of the parser's state to reflect the results
-of the declaration.  (If the package is a Perl 5 package, the modification
-will be different.)
+Works by reading the (optional) \'lang\' prefix, then dispatching to either
+'ruleUseJSANModule' or 'ruleUsePerlPackage' as appropriate.
 
 It is assumed that the @use@ or @no@ has already been consumed by
 'ruleUseDeclaration' or 'ruleNoDeclaration'.
@@ -673,11 +668,27 @@ can always recreate them using \"@concat $ intersperse delim@\" if you want.
 If you want to match leading or trailing delimiters, you'll have to do that
 yourself.
 -}
-ruleDelimitedIdentifier :: String -> RuleParser [String]
+ruleDelimitedIdentifier :: String -- ^ Delimiter (e.g. \'@::@\')
+                        -> RuleParser [String]
 ruleDelimitedIdentifier delim = 
     (<?> "delimited identifier") $ identifier `sepBy1` (try $ string delim)
 
-ruleUsePerlPackage :: Bool -> String -> RuleParser Exp
+{-|
+Match the package-name and import-list part of a (non-JSAN) @use@ or @no@
+declaration, then perform the actual import.
+
+The parser itself does not yield a useful value; instead it modifies the
+'Pugs.AST.Internals.Env' part of the parser's state to reflect the results
+of the declaration.  (If the package is a Perl 5 package, the modification
+will be different.)
+
+It is assumed that 'ruleUsePackage' has already consumed the \'lang\' prefix,
+which is passed in as the second argument.
+-}
+ruleUsePerlPackage :: Bool   -- ^ @True@ for @use@; @False@ for @no@
+                   -> String -- ^ \'lang\' prefix (e.g. \"@perl5@\" or
+                             --     \"@pugs@\")
+                   -> RuleParser Exp
 ruleUsePerlPackage use lang = rule "use perl package" $ do
     names   <- ruleDelimitedIdentifier "::"
     _       <- option "" $ ruleVersionPart
@@ -707,18 +718,13 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
     return emptyExp
 
 {-|
-/This may now be obsolete.../
-
-Match a JSAN module name, preceded by \'@jsan:@\'.  Returns an appropriate
+Match a JSAN module name, returning an appropriate
 sub call 'Pugs.AST.Exp' that will load the module using subs defined in
 @PIL2JS::Internals@.
 
-Used by 'ruleUseDeclaration' after matching \'@use@\'.
+Used by 'ruleUsePackage' after matching \'@use jsan:@\'.
 
 More info about JSAN can be found at <http://www.openjsan.org/>.
-
-(This parser is screaming out to be refactored and merged with
-'ruleUseVersion', but that might be a little hairy to actually do.)
 -}
 ruleUseJSANModule :: RuleParser Exp
 ruleUseJSANModule = do
@@ -1649,9 +1655,7 @@ ruleVarNameString =   try (string "$!")  -- error variable
     twigil  <- ruleTwigil
     -- doesn't handle names /beginning/ with "::"
     names   <- ruleDelimitedIdentifier "::"
-    case names of
-        [""] -> fail "Empty variable name"
-        _    -> return $ (sigil:twigil) ++ concat (intersperse "::" names)
+    return $ (sigil:twigil) ++ concat (intersperse "::" names)
 
 ruleTwigil :: RuleParser String
 ruleTwigil = option "" . choice . map string $ words " ^ * ? . : "
