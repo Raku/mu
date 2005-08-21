@@ -50,52 +50,52 @@ practical way of suggesting improvements to the standard version.
 ######################################################################
 
 class Locale::KeyedText::Message {
-	trusts Locale::KeyedText::Translator;
-	# Pugs bug: These should actually be private attrs, but those don't work right now.
-	has Str $.msg_key; # str - the machine-readable key that uniquely identifies this message
-	has Hash $.msg_vars; # hash (str,str) - named variables for messages, if any, go here
+    trusts Locale::KeyedText::Translator;
+    # Pugs bug: These should actually be private attrs, but those don't work right now.
+    has Str $.msg_key; # str - the machine-readable key that uniquely identifies this message
+    has Hash $.msg_vars; # hash (str,str) - named variables for messages, if any, go here
 
 ######################################################################
 
 method new( $class: Str $msg_key is rw, Hash ?$msg_vars is rw ) returns Locale::KeyedText::Message {
-	# Note: the 'is rw' is a workaround, until Pugs' "transparent refs" are fixed.
+    # Note: the 'is rw' is a workaround, until Pugs' "transparent refs" are fixed.
 
-	$msg_key.defined or return;
+    $msg_key.defined or return;
 
-	my $msg_vars_copy = hash();
-	if( $msg_vars.defined ) {
-		$msg_vars.does(Hash) or return;
-		$msg_vars_copy = hash(%{$msg_vars});
-	}
-	# we are assuming that hash keys never undef, so aren't testing them
+    my $msg_vars_copy = hash();
+    if( $msg_vars.defined ) {
+        $msg_vars.does(Hash) or return;
+        $msg_vars_copy = hash(%{$msg_vars});
+    }
+    # we are assuming that hash keys never undef, so aren't testing them
 
-	return $class.SUPER::new( msg_key => $msg_key, msg_vars => $msg_vars_copy );
+    return $class.SUPER::new( msg_key => $msg_key, msg_vars => $msg_vars_copy );
 }
 
 ######################################################################
 
 method get_message_key( $message: ) returns Str {
-	return $message.msg_key;
+    return $message.msg_key;
 }
 
 method get_message_variable( $message: Str $var_name is rw ) returns Str {
-	$var_name.defined or return;
-	return $message.msg_vars{$var_name};
+    $var_name.defined or return;
+    return $message.msg_vars{$var_name};
 }
 
 method get_message_variables( $message: ) returns Hash of Str {
-	return hash(%{$message.msg_vars});
+    return hash(%{$message.msg_vars});
 }
 
 ######################################################################
 
 method as_string( $message: ) returns Str {
-	# This method is intended for debugging use only.
-	my %temp = $message.msg_vars; # the use of %temp should not be necessary
-	return $message.msg_key~': '~%temp.pairs.sort
-		.map:{ .key~'='~(.value // '') }.join( ', ' ); # /S02 says sorting Pairs sorts keys by default.
-	# we expect that .map will be invoked off of the list that .sort returns
-	# I might use Hash.as() later, but don't know if it is customizable to sort or make undefs the empty str.
+    # This method is intended for debugging use only.
+    my %temp = $message.msg_vars; # the use of %temp should not be necessary
+    return $message.msg_key~': '~%temp.pairs.sort
+        .map:{ .key~'='~(.value // '') }.join( ', ' ); # /S02 says sorting Pairs sorts keys by default.
+    # we expect that .map will be invoked off of the list that .sort returns
+    # I might use Hash.as() later, but don't know if it is customizable to sort or make undefs the empty str.
 }
 
 ######################################################################
@@ -106,83 +106,83 @@ method as_string( $message: ) returns Str {
 ######################################################################
 
 class Locale::KeyedText::Translator {
-	# Pugs bug: These should actually be private attrs, but those don't work right now.
-	has Array $.tmpl_set_nms; # array of str - list of Template module Set Names to search
-	has Array $.tmpl_mem_nms; # array of str - list of Template module Member Names to search
+    # Pugs bug: These should actually be private attrs, but those don't work right now.
+    has Array $.tmpl_set_nms; # array of str - list of Template module Set Names to search
+    has Array $.tmpl_mem_nms; # array of str - list of Template module Member Names to search
 
 ######################################################################
 
 method new( $class: Any $set_names is rw, Any $member_names is rw ) returns Locale::KeyedText::Translator {
 
-	my $set_names_copy = $set_names.does(Array) ?? [@{$set_names}] :: [$set_names];
-	+$set_names_copy > 0 or return;
-	for $set_names_copy -> $set_name {
-		$set_name.defined or return;
-	}
+    my $set_names_copy = $set_names.does(Array) ?? [@{$set_names}] :: [$set_names];
+    +$set_names_copy > 0 or return;
+    for $set_names_copy -> $set_name {
+        $set_name.defined or return;
+    }
 
-	my $member_names_copy = $member_names.does(Array) ?? [@{$member_names}] :: [$member_names];
-	+$member_names_copy > 0 or return;
-	for $member_names_copy -> $member_name {
-		$member_name.defined or return;
-	}
+    my $member_names_copy = $member_names.does(Array) ?? [@{$member_names}] :: [$member_names];
+    +$member_names_copy > 0 or return;
+    for $member_names_copy -> $member_name {
+        $member_name.defined or return;
+    }
 
-	return $class.SUPER::new( tmpl_set_nms => $set_names_copy, tmpl_mem_nms => $member_names_copy );
+    return $class.SUPER::new( tmpl_set_nms => $set_names_copy, tmpl_mem_nms => $member_names_copy );
 }
 
 ######################################################################
 
 method get_template_set_names( $translator: ) returns Array of Str {
-	return [@{$translator.tmpl_set_nms}];
+    return [@{$translator.tmpl_set_nms}];
 }
 
 method get_template_member_names( $translator: ) returns Array of Str {
-	return [@{$translator.tmpl_mem_nms}];
+    return [@{$translator.tmpl_mem_nms}];
 }
 
 ######################################################################
 
 method translate_message( $translator: Locale::KeyedText::Message $message is rw ) returns Str {
-	$message.defined and $message.does(Locale::KeyedText::Message) or return;
-	my Str $text = undef;
-	for $translator.tmpl_mem_nms.map:{ $translator.tmpl_set_nms »~« $_ } -> $template_module_name {
-		try {
-			unless( 0 ) { # TODO: the class is already loaded
-				my $mod_to_req = $template_module_name;
-				$mod_to_req ~~ s:perl5:g/::/\//; # this version only needs Pugs
-#				$mod_to_req ~~ s:g/::/\//; # this version requires PGE/Parrot
-				$mod_to_req ~= '.pm';
-				require $mod_to_req; # non-bareword form requires above transformation
-				# Eg, when a plain "require Bar;" works, a "my $foo = 'Bar'; require $foo;"
-				# fails with a "Can't locate Bar.pm in @*INC" error.
-			}
-			CATCH {
-				next;
-			}
-		};
-		try {
-			$text = &::($template_module_name)::get_text_by_key( $message.msg_key );
-			CATCH {
-				next;
-			}
-		};
-		$text or next;
-		my %temp = $message.msg_vars; # the use of %temp should not be necessary
-		for %temp.kv -> $var_name, $var_value is copy {
-			$var_value //= '';
-			$text ~~ s:perl5:g/\{$var_name\}/$var_value/; # this version only needs Pugs
-#			$text ~~ s:g/\{$var_name\}/$var_value/; # this version requires PGE/Parrot
-		}
-		last;
-	}
-	return $text;
+    $message.defined and $message.does(Locale::KeyedText::Message) or return;
+    my Str $text = undef;
+    for $translator.tmpl_mem_nms.map:{ $translator.tmpl_set_nms »~« $_ } -> $template_module_name {
+        try {
+            unless( 0 ) { # TODO: the class is already loaded
+                my $mod_to_req = $template_module_name;
+                $mod_to_req ~~ s:perl5:g/::/\//; # this version only needs Pugs
+#               $mod_to_req ~~ s:g/::/\//; # this version requires PGE/Parrot
+                $mod_to_req ~= '.pm';
+                require $mod_to_req; # non-bareword form requires above transformation
+                # Eg, when a plain "require Bar;" works, a "my $foo = 'Bar'; require $foo;"
+                # fails with a "Can't locate Bar.pm in @*INC" error.
+            }
+            CATCH {
+                next;
+            }
+        };
+        try {
+            $text = &::($template_module_name)::get_text_by_key( $message.msg_key );
+            CATCH {
+                next;
+            }
+        };
+        $text or next;
+        my %temp = $message.msg_vars; # the use of %temp should not be necessary
+        for %temp.kv -> $var_name, $var_value is copy {
+            $var_value //= '';
+            $text ~~ s:perl5:g/\{$var_name\}/$var_value/; # this version only needs Pugs
+#           $text ~~ s:g/\{$var_name\}/$var_value/; # this version requires PGE/Parrot
+        }
+        last;
+    }
+    return $text;
 }
 
 ######################################################################
 
 method as_string( $translator: ) returns Str {
-	# This method is intended for debugging use only.
-	return 'SETS: '~$translator.tmpl_set_nms.join( ', ' )~'; MEMBERS: '~$translator.tmpl_mem_nms.join( ', ' );
-	# Might use Array.as() later on.
+    # This method is intended for debugging use only.
+    return 'SETS: '~$translator.tmpl_set_nms.join( ', ' )~'; MEMBERS: '~$translator.tmpl_mem_nms.join( ', ' );
+    # Might use Array.as() later on.
 }
 
 ######################################################################
@@ -192,20 +192,20 @@ method as_string( $translator: ) returns Str {
 ######################################################################
 ######################################################################
 
-class Locale::KeyedText-1.5.0 { # based on 5v1.05
-	# could be a 'module' having 'sub' instead, since has no attributes
+class Locale::KeyedText-1.6.0 { # based on 5v1.6.0
+    # could be a 'module' having 'sub' instead, since has no attributes
 
-	# I *should* be able to declare this class above other classes, but can't for 
-	# now because my new() aren't invoked then under current Pugs; it is a Pugs bug.
+    # I *should* be able to declare this class above other classes, but can't for 
+    # now because my new() aren't invoked then under current Pugs; it is a Pugs bug.
 
 ######################################################################
 
 method new_message( Str $msg_key is rw, Hash ?$msg_vars is rw ) returns Locale::KeyedText::Message {
-	return Locale::KeyedText::Message.new( $msg_key, $msg_vars );
+    return Locale::KeyedText::Message.new( $msg_key, $msg_vars );
 }
 
 method new_translator( Any $set_names is rw, Any $member_names is rw ) returns Locale::KeyedText::Translator {
-	return Locale::KeyedText::Translator.new( $set_names, $member_names );
+    return Locale::KeyedText::Translator.new( $set_names, $member_names );
 }
 
 ######################################################################
@@ -217,37 +217,37 @@ method new_translator( Any $set_names is rw, Any $member_names is rw ) returns L
 
 =head1 SYNOPSIS
 
-	use Locale::KeyedText;
+    use Locale::KeyedText;
 
-	main();
+    main();
 
-	sub main() {
-		# Create a translator.
-		my $translator = Locale::KeyedText.new_translator( 
-			['MyLib::Lang::', 'MyApp::Lang::'],  # set package prefixes for localized app components
-			['Eng', 'Fr', 'De', 'Esp']           # set list of available languages in order of preference
-		);
+    sub main() {
+        # Create a translator.
+        my $translator = Locale::KeyedText.new_translator( 
+            ['MyLib::Lang::', 'MyApp::Lang::'],  # set package prefixes for localized app components
+            ['Eng', 'Fr', 'De', 'Esp']           # set list of available languages in order of preference
+        );
 
-		# This will print 'Enter 2 Numbers' in the first of the four languages that has a matching template available.
-		print $translator.translate_message( Locale::KeyedText.new_message( 'MYAPP_PROMPT' ) );
+        # This will print 'Enter 2 Numbers' in the first of the four languages that has a matching template available.
+        print $translator.translate_message( Locale::KeyedText.new_message( 'MYAPP_PROMPT' ) );
 
-		# Read two numbers from the user.
-		my Num ($first, $second) = $*IN;
+        # Read two numbers from the user.
+        my Num ($first, $second) = $*IN;
 
-		# Print a statement giving the operands and their sum.
-		MyLib.add_two( $first, $second, $translator );
-	}
+        # Print a statement giving the operands and their sum.
+        MyLib.add_two( $first, $second, $translator );
+    }
 
-	module MyLib;
+    module MyLib;
 
-	sub add_two( Num $first, Num $second, Locale::KeyedText::Translator $translator ) {
-		my Num $sum = $first + $second;
+    sub add_two( Num $first, Num $second, Locale::KeyedText::Translator $translator ) {
+        my Num $sum = $first + $second;
 
-		# This will print '<FIRST> plus <SECOND> equals <RESULT>' in the first possible language.
-		# For example, if the user inputs '3' and '4', it the output will be '3 plus 4 equals 7'.
-		print $translator.translate_message( Locale::KeyedText.new_message( 'MYLIB_RESULT', 
-			{ 'FIRST' => $first, 'SECOND' => $second, 'RESULT' => $sum } ) );
-	}
+        # This will print '<FIRST> plus <SECOND> equals <RESULT>' in the first possible language.
+        # For example, if the user inputs '3' and '4', it the output will be '3 plus 4 equals 7'.
+        print $translator.translate_message( Locale::KeyedText.new_message( 'MYLIB_RESULT', 
+            { 'FIRST' => $first, 'SECOND' => $second, 'RESULT' => $sum } ) );
+    }
 
 I<Note that the above example only shows off a few of Locale::KeyedText's
 features; for a larger and more complete example, see the EXAMPLE PROGRAM
@@ -550,15 +550,15 @@ they are thin wrappers over other methods and exist strictly for convenience.
 
 =head2 new_message( MSG_KEY[, MSG_VARS] )
 
-	my $message = Locale::KeyedText.new_message( 'INVALID_FOO_ARG', 
-		{ 'ARG_NAME' => 'BAR', 'GIVEN_VAL' => $bar_value } );
+    my $message = Locale::KeyedText.new_message( 'INVALID_FOO_ARG', 
+        { 'ARG_NAME' => 'BAR', 'GIVEN_VAL' => $bar_value } );
 
 This function wraps Locale::KeyedText::Message.new( MSG_KEY[, MSG_VARS] ).
 
 =head2 new_translator( SET_NAMES, MEMBER_NAMES )
 
-	my $translator = Locale::KeyedText.new_translator( 
-		['Foo::L::','Bar::L::'], ['Eng', 'Fre', 'Ger'] );
+    my $translator = Locale::KeyedText.new_translator( 
+        ['Foo::L::','Bar::L::'], ['Eng', 'Fre', 'Ger'] );
 
 This function wraps Locale::KeyedText::Translator.new( SET_NAMES, MEMBER_NAMES ).
 
@@ -569,12 +569,12 @@ class name or an existing Message object, with the same result.
 
 =head2 new( MSG_KEY[, MSG_VARS] )
 
-	my $message = Locale::KeyedText::Message.new( 'FOO_GOT_NO_ARGS' );
-	my $message2 = Locale::KeyedText::Message.new( 'INVALID_FOO_ARG', 
-		{ 'ARG_NAME' => 'BAR', 'GIVEN_VAL' => $bar_value } );
-	my $message3 = $message.new( 'TABLE_NO_EXIST', { 'GIVEN_TABLE_NAME' => $table_name } );
-	my $message4 = Locale::KeyedText::Message.new( 'TABLE_COL_NO_EXIST', 
-		{ 'GIVEN_TABLE_NAME' => $table_name, 'GIVEN_COL_NAME' => $col_name } );
+    my $message = Locale::KeyedText::Message.new( 'FOO_GOT_NO_ARGS' );
+    my $message2 = Locale::KeyedText::Message.new( 'INVALID_FOO_ARG', 
+        { 'ARG_NAME' => 'BAR', 'GIVEN_VAL' => $bar_value } );
+    my $message3 = $message.new( 'TABLE_NO_EXIST', { 'GIVEN_TABLE_NAME' => $table_name } );
+    my $message4 = Locale::KeyedText::Message.new( 'TABLE_COL_NO_EXIST', 
+        { 'GIVEN_TABLE_NAME' => $table_name, 'GIVEN_COL_NAME' => $col_name } );
 
 This function creates a new Locale::KeyedText::Message object and returns it,
 assuming the method arguments are valid; if they are not, it returns undef. The
@@ -588,20 +588,20 @@ These methods are stateful and may only be invoked off of Message objects.
 
 =head2 get_message_key()
 
-	my $msg_key = $message.get_message_key();
+    my $msg_key = $message.get_message_key();
 
 This method returns the Message Key property of this object.
 
 =head2 get_message_variable( VAR_NAME )
 
-	my $value = $message.get_message_variable( 'GIVEN_COL_NAME' );
+    my $value = $message.get_message_variable( 'GIVEN_COL_NAME' );
 
 This method returns the Message Variable value associated with the variable
 name specified in VAR_NAME.
 
 =head2 get_message_variables()
 
-	my %msg_vars = $message.get_message_variables();
+    my %msg_vars = $message.get_message_variables();
 
 This method returns all Message Variable names and values in this object as a
 hash ref.
@@ -613,9 +613,9 @@ Translator class name or an existing Translator object, with the same result.
 
 =head2 new_translator( SET_NAMES, MEMBER_NAMES )
 
-	my $translator = Locale::KeyedText::Translator.new( 
-		['Foo::L::','Bar::L::'], ['Eng', 'Fre', 'Ger'] );
-	my $translator2 = $translator.new( 'Foo::L::', 'Eng' );
+    my $translator = Locale::KeyedText::Translator.new( 
+        ['Foo::L::','Bar::L::'], ['Eng', 'Fre', 'Ger'] );
+    my $translator2 = $translator.new( 'Foo::L::', 'Eng' );
 
 This function creates a new Locale::KeyedText::Translator object and returns
 it, assuming the method arguments are valid; if they are not, it returns undef.
@@ -628,19 +628,19 @@ These methods are stateful and may only be invoked off of Message objects.
 
 =head2 get_template_set_names()
 
-	my @set_names = $translator.get_template_set_names();
+    my @set_names = $translator.get_template_set_names();
 
 This method returns all Template Sets elements in this object as an array ref.
 
 =head2 get_template_member_names()
 
-	my @member_names = $translator.get_template_member_names();
+    my @member_names = $translator.get_template_member_names();
 
 This method returns all Template Members elements in this object as an array ref.
 
 =head2 translate_message( MESSAGE )
 
-	my $user_text_string = $translator.translate_message( $message );
+    my $user_text_string = $translator.translate_message( $message );
 
 This method takes a (machine-readable) Message object as its MESSAGE argument
 and returns an equivalent human readable text message string; this assumes that
@@ -656,8 +656,8 @@ Translator objects.
 
 =head2 as_string()
 
-	my $dump_string = $message.as_string();
-	my $dump_string = $translator.as_string();
+    my $dump_string = $message.as_string();
+    my $dump_string = $translator.as_string();
 
 This method returns a stringified version of this object which is suitable for
 debugging purposes (such as to test that the object's contents look good at a
@@ -672,112 +672,112 @@ the one with the program also adds support to the library.
 
 Content of shared library file 'MyLib.pm':
 
-	module MyLib;
+    module MyLib;
 
-	use Locale::KeyedText;
+    use Locale::KeyedText;
 
-	sub my_invert( Str $number ) returns Num {
-		$number.defined or throw Locale::KeyedText.new_message( 'MYLIB_MYINV_NO_ARG' );
-		$number ~~ m/\d/ or throw Locale::KeyedText.new_message( 
-			'MYLIB_MYINV_BAD_ARG', { 'GIVEN_VALUE' => $number } );
-		$number == 0 and throw Locale::KeyedText.new_message( 'MYLIB_MYINV_RES_INF' );
-		return 1 / $number;
-	}
+    sub my_invert( Str $number ) returns Num {
+        $number.defined or throw Locale::KeyedText.new_message( 'MYLIB_MYINV_NO_ARG' );
+        $number ~~ m/\d/ or throw Locale::KeyedText.new_message( 
+            'MYLIB_MYINV_BAD_ARG', { 'GIVEN_VALUE' => $number } );
+        $number == 0 and throw Locale::KeyedText.new_message( 'MYLIB_MYINV_RES_INF' );
+        return 1 / $number;
+    }
 
 Content of English language Template file 'MyLib/L/Eng.pm':
 
-	module MyLib::L::Eng;
-	my Str %text_strings is constant = (
-		'MYLIB_MYINV_NO_ARG' => 'my_invert(): argument NUMBER is missing',
-		'MYLIB_MYINV_BAD_ARG' => 'my_invert(): argument NUMBER is not a number, it is "{GIVEN_VALUE}"',
-		'MYLIB_MYINV_RES_INF' => 'my_invert(): result is infinite because argument NUMBER is zero',
-	);
-	sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
+    module MyLib::L::Eng;
+    my Str %text_strings is constant = (
+        'MYLIB_MYINV_NO_ARG' => 'my_invert(): argument NUMBER is missing',
+        'MYLIB_MYINV_BAD_ARG' => 'my_invert(): argument NUMBER is not a number, it is "{GIVEN_VALUE}"',
+        'MYLIB_MYINV_RES_INF' => 'my_invert(): result is infinite because argument NUMBER is zero',
+    );
+    sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 
 Content of French language (rough manual translation) Template file 'MyLib/L/Fre.pm':
 
-	module MyLib::L::Fre;
-	my Str %text_strings is constant = (
-		'MYLIB_MYINV_NO_ARG' => 'my_invert(): paramètre NUMBER est manquant',
-		'MYLIB_MYINV_BAD_ARG' => 'my_invert(): paramètre NUMBER est ne nombre, il est "{GIVEN_VALUE}"',
-		'MYLIB_MYINV_RES_INF' => 'my_invert(): aboutir a est infini parce que paramètre NUMBER est zero',
-	);
-	sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
+    module MyLib::L::Fre;
+    my Str %text_strings is constant = (
+        'MYLIB_MYINV_NO_ARG' => 'my_invert(): paramètre NUMBER est manquant',
+        'MYLIB_MYINV_BAD_ARG' => 'my_invert(): paramètre NUMBER est ne nombre, il est "{GIVEN_VALUE}"',
+        'MYLIB_MYINV_RES_INF' => 'my_invert(): aboutir a est infini parce que paramètre NUMBER est zero',
+    );
+    sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 
 Content of main program 'MyApp.pl':
 
-	use MyLib;
-	use Locale::KeyedText;
+    use MyLib;
+    use Locale::KeyedText;
 
-	main( grep { $_ ~~ m/^<[a-zA-Z]>+$/ } @*ARGS ); # user indicates language as command line argument
+    main( grep { $_ ~~ m/^<[a-zA-Z]>+$/ } @*ARGS ); # user indicates language as command line argument
 
-	sub main( Str ?@user_lang_prefs = 'Eng' ) {
-		my Locale::KeyedText::Translator $translator = Locale::KeyedText.new_translator( 
-			['MyApp::L::', 'MyLib::L::'], @user_lang_prefs );
-		show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_HELLO' ) );
-		LOOP: {
-			show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_PROMPT' ) );
-			my Str $user_input = $*IN; $user_input .= chomp;
-			$user_input or last LOOP; # user chose to exit program
-			try {
-				my Num $result = MyLib.my_invert( $user_input );
-				show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_RESULT', 
-					{ 'ORIGINAL' => $user_input, 'INVERTED' => $result } ) );
-				CATCH {
-					show_message( $translator, $! ); # input error, detected by library
-				}
-			};
-			redo LOOP;
-		}
-		show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_GOODBYE' ) );
-	}
+    sub main( Str ?@user_lang_prefs = 'Eng' ) {
+        my Locale::KeyedText::Translator $translator = Locale::KeyedText.new_translator( 
+            ['MyApp::L::', 'MyLib::L::'], @user_lang_prefs );
+        show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_HELLO' ) );
+        LOOP: {
+            show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_PROMPT' ) );
+            my Str $user_input = $*IN; $user_input .= chomp;
+            $user_input or last LOOP; # user chose to exit program
+            try {
+                my Num $result = MyLib.my_invert( $user_input );
+                show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_RESULT', 
+                    { 'ORIGINAL' => $user_input, 'INVERTED' => $result } ) );
+                CATCH {
+                    show_message( $translator, $! ); # input error, detected by library
+                }
+            };
+            redo LOOP;
+        }
+        show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_GOODBYE' ) );
+    }
 
-	sub show_message( Locale::KeyedText::Translator $translator, Locale::KeyedText::Message $message ) returns Str {
-		my Str $user_text = $translator.translate_message( $message );
-		unless( $user_text ) {
-			print $*ERR "internal error: can't find user text for a message: \n"~
-				"   "~$message.as_string()~"\n"~
-				"   "~$translator.as_string()~"\n";
-			exit;
-		}
-		print $*OUT $user_text~"\n";
-	}
+    sub show_message( Locale::KeyedText::Translator $translator, Locale::KeyedText::Message $message ) returns Str {
+        my Str $user_text = $translator.translate_message( $message );
+        unless( $user_text ) {
+            print $*ERR "internal error: can't find user text for a message: \n"~
+                "   "~$message.as_string()~"\n"~
+                "   "~$translator.as_string()~"\n";
+            exit;
+        }
+        print $*OUT $user_text~"\n";
+    }
 
 Content of English language Template file 'MyApp/L/Eng.pm':
 
-	module MyApp::L::Eng;
-	my Str %text_strings is constant = (
-		'MYAPP_HELLO' => 'Welcome to MyApp.',
-		'MYAPP_GOODBYE' => 'Goodbye!',
-		'MYAPP_PROMPT' => 'Enter a number to be inverted, or press ENTER to quit.',
-		'MYAPP_RESULT' => 'The inverse of "{ORIGINAL}" is "{INVERTED}".',
-	);
-	sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
+    module MyApp::L::Eng;
+    my Str %text_strings is constant = (
+        'MYAPP_HELLO' => 'Welcome to MyApp.',
+        'MYAPP_GOODBYE' => 'Goodbye!',
+        'MYAPP_PROMPT' => 'Enter a number to be inverted, or press ENTER to quit.',
+        'MYAPP_RESULT' => 'The inverse of "{ORIGINAL}" is "{INVERTED}".',
+    );
+    sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 
 Content of French language (rough manual translation) Template file 'MyApp/L/Fre.pm':
 
-	module MyApp::L::Fre;
-	my Str %text_strings is constant = (
-		'MYAPP_HELLO' => 'Bienvenue allé MyApp.',
-		'MYAPP_GOODBYE' => 'Salut!',
-		'MYAPP_PROMPT' => 'Fournir nombre être inverser, ou appuyer sur ENTER être arrêter.',
-		'MYAPP_RESULT' => 'Renversement "{ORIGINAL}" est "{INVERTED}".',
-	);
-	sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
+    module MyApp::L::Fre;
+    my Str %text_strings is constant = (
+        'MYAPP_HELLO' => 'Bienvenue allé MyApp.',
+        'MYAPP_GOODBYE' => 'Salut!',
+        'MYAPP_PROMPT' => 'Fournir nombre être inverser, ou appuyer sur ENTER être arrêter.',
+        'MYAPP_RESULT' => 'Renversement "{ORIGINAL}" est "{INVERTED}".',
+    );
+    sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 
 Content of alternate text Template file 'MyApp/L/Homer.pm':
 
-	module MyApp::L::Homer;
-	my Str %text_strings is constant = (
-		'MYAPP_HELLO' => 'Light goes on!',
-		'MYAPP_GOODBYE' => 'Light goes off!',
-		'MYAPP_PROMPT' => 'Give me a county thingy, or push that big button instead.',
-		'MYAPP_RESULT' => 'Turn "{ORIGINAL}" upside down and get "{INVERTED}", not "{ORIGINAL}".',
-		'MYLIB_MYINV_NO_ARG' => 'Why you little ...!',
-		'MYLIB_MYINV_BAD_ARG' => '"{GIVEN_VALUE}" isn\'t a county thingy!',
-		'MYLIB_MYINV_RES_INF' => 'Don\'t you give me a big donut!',
-	);
-	sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
+    module MyApp::L::Homer;
+    my Str %text_strings is constant = (
+        'MYAPP_HELLO' => 'Light goes on!',
+        'MYAPP_GOODBYE' => 'Light goes off!',
+        'MYAPP_PROMPT' => 'Give me a county thingy, or push that big button instead.',
+        'MYAPP_RESULT' => 'Turn "{ORIGINAL}" upside down and get "{INVERTED}", not "{ORIGINAL}".',
+        'MYLIB_MYINV_NO_ARG' => 'Why you little ...!',
+        'MYLIB_MYINV_BAD_ARG' => '"{GIVEN_VALUE}" isn\'t a county thingy!',
+        'MYLIB_MYINV_RES_INF' => 'Don\'t you give me a big donut!',
+    );
+    sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 
 =head1 ALTERNATE EXAMPLE PROGRAM WITH MOSTLY INTEGRATED TEMPLATE MODULES
 
@@ -801,107 +801,107 @@ Actually, it shows both methods together, with 4 embedded, 1 separate.
 
 Content of shared library file 'MyLib.pm':
 
-	module MyLib {
-		use Locale::KeyedText;
-		sub my_invert( Str $number ) returns Num {
-			$number.defined or throw Locale::KeyedText.new_message( 'MYLIB_MYINV_NO_ARG' );
-			$number ~~ m/\d/ or throw Locale::KeyedText.new_message( 
-				'MYLIB_MYINV_BAD_ARG', { 'GIVEN_VALUE' => $number } );
-			$number == 0 and throw Locale::KeyedText.new_message( 'MYLIB_MYINV_RES_INF' );
-			return 1 / $number;
-		}
-	}
+    module MyLib {
+        use Locale::KeyedText;
+        sub my_invert( Str $number ) returns Num {
+            $number.defined or throw Locale::KeyedText.new_message( 'MYLIB_MYINV_NO_ARG' );
+            $number ~~ m/\d/ or throw Locale::KeyedText.new_message( 
+                'MYLIB_MYINV_BAD_ARG', { 'GIVEN_VALUE' => $number } );
+            $number == 0 and throw Locale::KeyedText.new_message( 'MYLIB_MYINV_RES_INF' );
+            return 1 / $number;
+        }
+    }
 
-	module MyLib::L::Eng {
-		my Str %text_strings is constant = (
-			'MYLIB_MYINV_NO_ARG' => 'my_invert(): argument NUMBER is missing',
-			'MYLIB_MYINV_BAD_ARG' => 'my_invert(): argument NUMBER is not a number, it is "{GIVEN_VALUE}"',
-			'MYLIB_MYINV_RES_INF' => 'my_invert(): result is infinite because argument NUMBER is zero',
-		);
-		sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
-	}
+    module MyLib::L::Eng {
+        my Str %text_strings is constant = (
+            'MYLIB_MYINV_NO_ARG' => 'my_invert(): argument NUMBER is missing',
+            'MYLIB_MYINV_BAD_ARG' => 'my_invert(): argument NUMBER is not a number, it is "{GIVEN_VALUE}"',
+            'MYLIB_MYINV_RES_INF' => 'my_invert(): result is infinite because argument NUMBER is zero',
+        );
+        sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
+    }
 
-	module MyLib::L::Fre {
-		my Str %text_strings is constant = (
-			'MYLIB_MYINV_NO_ARG' => 'my_invert(): paramètre NUMBER est manquant',
-			'MYLIB_MYINV_BAD_ARG' => 'my_invert(): paramètre NUMBER est ne nombre, il est "{GIVEN_VALUE}"',
-			'MYLIB_MYINV_RES_INF' => 'my_invert(): aboutir a est infini parce que paramètre NUMBER est zero',
-		);
-		sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
-	}
+    module MyLib::L::Fre {
+        my Str %text_strings is constant = (
+            'MYLIB_MYINV_NO_ARG' => 'my_invert(): paramètre NUMBER est manquant',
+            'MYLIB_MYINV_BAD_ARG' => 'my_invert(): paramètre NUMBER est ne nombre, il est "{GIVEN_VALUE}"',
+            'MYLIB_MYINV_RES_INF' => 'my_invert(): aboutir a est infini parce que paramètre NUMBER est zero',
+        );
+        sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
+    }
 
 Content of main program 'MyApp.pl':
 
-	use MyLib;
-	use Locale::KeyedText;
+    use MyLib;
+    use Locale::KeyedText;
 
-	main( grep { $_ ~~ m/^<[a-zA-Z]>+$/ } @*ARGS ); # user indicates language as command line argument
+    main( grep { $_ ~~ m/^<[a-zA-Z]>+$/ } @*ARGS ); # user indicates language as command line argument
 
-	sub main( Str ?@user_lang_prefs = 'Eng' ) {
-		my Locale::KeyedText::Translator $translator = Locale::KeyedText.new_translator( 
-			['MyApp::L::', 'MyLib::L::'], @user_lang_prefs );
-		show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_HELLO' ) );
-		LOOP: {
-			show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_PROMPT' ) );
-			my Str $user_input = $*IN; $user_input.chomp;
-			$user_input or last LOOP; # user chose to exit program
-			try {
-				my Num $result = MyLib.my_invert( $user_input );
-				show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_RESULT', 
-					{ 'ORIGINAL' => $user_input, 'INVERTED' => $result } ) );
-				CATCH {
-					show_message( $translator, $! ); # input error, detected by library
-				}
-			};
-			redo LOOP;
-		}
-		show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_GOODBYE' ) );
-	}
+    sub main( Str ?@user_lang_prefs = 'Eng' ) {
+        my Locale::KeyedText::Translator $translator = Locale::KeyedText.new_translator( 
+            ['MyApp::L::', 'MyLib::L::'], @user_lang_prefs );
+        show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_HELLO' ) );
+        LOOP: {
+            show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_PROMPT' ) );
+            my Str $user_input = $*IN; $user_input.chomp;
+            $user_input or last LOOP; # user chose to exit program
+            try {
+                my Num $result = MyLib.my_invert( $user_input );
+                show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_RESULT', 
+                    { 'ORIGINAL' => $user_input, 'INVERTED' => $result } ) );
+                CATCH {
+                    show_message( $translator, $! ); # input error, detected by library
+                }
+            };
+            redo LOOP;
+        }
+        show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_GOODBYE' ) );
+    }
 
-	sub show_message( Locale::KeyedText::Translator $translator, Locale::KeyedText::Message $message ) returns Str {
-		my Str $user_text = $translator.translate_message( $message );
-		unless( $user_text ) {
-			print $*ERR "internal error: can't find user text for a message: \n"~
-				"   "~$message.as_string()~"\n"~
-				"   "~$translator.as_string()~"\n";
-			exit;
-		}
-		print $*OUT $user_text~"\n";
-	}
+    sub show_message( Locale::KeyedText::Translator $translator, Locale::KeyedText::Message $message ) returns Str {
+        my Str $user_text = $translator.translate_message( $message );
+        unless( $user_text ) {
+            print $*ERR "internal error: can't find user text for a message: \n"~
+                "   "~$message.as_string()~"\n"~
+                "   "~$translator.as_string()~"\n";
+            exit;
+        }
+        print $*OUT $user_text~"\n";
+    }
 
-	module MyApp::L::Eng {
-		my Str %text_strings is constant = (
-			'MYAPP_HELLO' => 'Welcome to MyApp.',
-			'MYAPP_GOODBYE' => 'Goodbye!',
-			'MYAPP_PROMPT' => 'Enter a number to be inverted, or press ENTER to quit.',
-			'MYAPP_RESULT' => 'The inverse of "{ORIGINAL}" is "{INVERTED}".',
-		);
-		sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
-	}
+    module MyApp::L::Eng {
+        my Str %text_strings is constant = (
+            'MYAPP_HELLO' => 'Welcome to MyApp.',
+            'MYAPP_GOODBYE' => 'Goodbye!',
+            'MYAPP_PROMPT' => 'Enter a number to be inverted, or press ENTER to quit.',
+            'MYAPP_RESULT' => 'The inverse of "{ORIGINAL}" is "{INVERTED}".',
+        );
+        sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
+    }
 
-	module MyApp::L::Fre {
-		my Str %text_strings is constant = (
-			'MYAPP_HELLO' => 'Bienvenue allé MyApp.',
-			'MYAPP_GOODBYE' => 'Salut!',
-			'MYAPP_PROMPT' => 'Fournir nombre être inverser, ou appuyer sur ENTER être arrêter.',
-			'MYAPP_RESULT' => 'Renversement "{ORIGINAL}" est "{INVERTED}".',
-		);
-		sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
-	}
+    module MyApp::L::Fre {
+        my Str %text_strings is constant = (
+            'MYAPP_HELLO' => 'Bienvenue allé MyApp.',
+            'MYAPP_GOODBYE' => 'Salut!',
+            'MYAPP_PROMPT' => 'Fournir nombre être inverser, ou appuyer sur ENTER être arrêter.',
+            'MYAPP_RESULT' => 'Renversement "{ORIGINAL}" est "{INVERTED}".',
+        );
+        sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
+    }
 
 Content of alternate text Template file 'MyApp/L/Homer.pm':
 
-	module MyApp::L::Homer;
-	my Str %text_strings is constant = (
-		'MYAPP_HELLO' => 'Light goes on!',
-		'MYAPP_GOODBYE' => 'Light goes off!',
-		'MYAPP_PROMPT' => 'Give me a county thingy, or push that big button instead.',
-		'MYAPP_RESULT' => 'Turn "{ORIGINAL}" upside down and get "{INVERTED}", not "{ORIGINAL}".',
-		'MYLIB_MYINV_NO_ARG' => 'Why you little ...!',
-		'MYLIB_MYINV_BAD_ARG' => '"{GIVEN_VALUE}" isn\'t a county thingy!',
-		'MYLIB_MYINV_RES_INF' => 'Don\'t you give me a big donut!',
-	);
-	sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
+    module MyApp::L::Homer;
+    my Str %text_strings is constant = (
+        'MYAPP_HELLO' => 'Light goes on!',
+        'MYAPP_GOODBYE' => 'Light goes off!',
+        'MYAPP_PROMPT' => 'Give me a county thingy, or push that big button instead.',
+        'MYAPP_RESULT' => 'Turn "{ORIGINAL}" upside down and get "{INVERTED}", not "{ORIGINAL}".',
+        'MYLIB_MYINV_NO_ARG' => 'Why you little ...!',
+        'MYLIB_MYINV_BAD_ARG' => '"{GIVEN_VALUE}" isn\'t a county thingy!',
+        'MYLIB_MYINV_RES_INF' => 'Don\'t you give me a big donut!',
+    );
+    sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 
 =head1 CAVEATS
 

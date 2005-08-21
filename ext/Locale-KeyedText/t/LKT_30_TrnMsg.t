@@ -14,13 +14,13 @@ t_LKT_Util::message( 'testing Translator.translate_message() method' );
 module t_LKT_C_L_Eng {
 
 my Str %text_strings is constant = (
-	'one' => '{fork} shore {spoon}',
-	'two' => 'sky fly high',
-	'three' => '{knife} zot',
+    'one' => '{fork} shore {spoon}',
+    'two' => 'sky fly high',
+    'three' => '{knife} zot',
 );
 
 sub get_text_by_key( Str $msg_key ) returns Str {
-	return %text_strings{$msg_key};
+    return %text_strings{$msg_key};
 }
 
 } # end module t_LKT_C_L_Eng
