@@ -12,7 +12,7 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 2 Nov 2004
-  Last Modified: 2 Dec 2004
+  Last Modified: 21 Aug 2005
   Number: 13
   Version: 3
 
@@ -98,7 +98,7 @@ The C<use overload> syntax had one benefit over Perl 6's syntax in that
 it was easy to alias several different operators to the same service
 routine.  This can easily be handled with Perl 6's aliasing:
 
-    multi sub unimpl (MyFoo $x) { upchuck(); }
+    multi sub unimpl (MyFoo $x, MyFoo $y) { upchuck(); }
     &infix:<+> ::= &unimpl;
     &infix:<-> ::= &unimpl;
     &infix:<*> ::= &unimpl;
