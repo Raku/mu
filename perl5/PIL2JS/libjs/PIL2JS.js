@@ -691,7 +691,9 @@ var _26main_3a_3aexit = PIL2JS.Box.constant_func(1, function (args) {
     PIL2JS.cps2normal(blocks[i].FETCH(), [PIL2JS.Context.Void]);
   }
 
-  /* We've finished, we don't call the cc. */
+  /* We've finished, so we don't call the cc. */
+
+  throw new PIL2JS.ControlException.end;
 });
 
 // Array of boxed subs we're currently in.

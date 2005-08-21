@@ -109,12 +109,14 @@ EOF
   push @components, [inline => <<EOF];
 // Trigger running of all END blocks.
 PIL2JS.catch_all_exceptions(function () {
-  PIL2JS.runloop(function () {
-    _26main_3a_3aexit.FETCH()([
-      PIL2JS.Context.ItemAny,
-      new PIL2JS.Box.Constant(undefined),
-      'dummycc'
-    ]);
+  PIL2JS.catch_end_exception(function() {
+    PIL2JS.runloop(function () {
+      _26main_3a_3aexit.FETCH()([
+        PIL2JS.Context.ItemAny,
+        new PIL2JS.Box.Constant(undefined),
+        'dummycc'
+      ]);
+    });
   });
 });
 EOF
