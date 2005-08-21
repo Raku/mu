@@ -550,7 +550,7 @@ Net::IRC - IRC library for Pugs
   use Net::IRC;
   
   # Create new bot "object"
-  my $bot = new_bot(
+  my Net::IRC $bot .= new(
     nick     => "blechbot",
     username => "blech",      # (optional, defaults to $nick)
     ircname  => "Ingo's Bot", # (optional, defaults to $nick)
@@ -563,16 +563,16 @@ Net::IRC - IRC library for Pugs
   );
   
   # Register callbacks
-  $bot<add_command_handler>("INVITE",   \&on_invite);
-  $bot<add_command_handler>("PRIVMSG",  \&on_privmsg);
-  $bot<add_command_handler>("loggedin", \&on_ready);
+  $bot.add_handler("INVITE",   \&on_invite);
+  $bot.add_handler("PRIVMSG",  \&on_privmsg);
+  $bot.add_handler("loggedin", \&on_ready);
 
   # Connect and login
-  $bot<connect>();
-  $bot<login>();
+  $bot.connect();
+  $bot.login();
 
   # Enter main event loop
-  $bot<run>();
+  $bot.run();
 
 =head1 DESCRIPTION
 
@@ -581,28 +581,28 @@ C<Net::IRC> is an IRC library for Pugs. Note that it is I<not> a port of Perl
 
 =head1 METHODS
 
-=head2 C<$botE<lt>new_botE<gt>(...)>
+=head2 C<Net::IRC.new(...)>
 
-Creates a new bot "object". See L<SYNOPSIS> for accepted parameters.
+Creates a new bot object. See L<SYNOPSIS> for accepted parameters.
 
 The bot will autoping the server if it hasn't seen traffic for C<$autoping>
 seconds, and it'll drop the connection if it hasn't seen traffic for
 C<$live_timeout> seconds. Furthermore, it'll track its status (its nick, the
 channels it has joined, etc.).
 
-=head2 C<$botE<lt>loginE<gt>()>
+=head2 C<$bot.login()>
 
 Tries to login, using the C<nickname>, C<username>, and C<ircname> you've
 specified in the constructor. If the nickname is already used, C<Net::IRC> will
 try to use a permuted nick (for example C<bot_>, C<_bot>, etc.).
 
-=head2 C<$botE<lt>runE<gt>()>
+=head2 C<$bot.run()>
 
 Starts the main runloop, which is only exited if the connection to the server
 dies. To read data from the server, a blocking C<readline> call is used.
 
-=head2 C<$botE<lt>curnickE<gt>()>, C<$botE<lt>curusernameE<gt>()>,
-C<$botE<lt>curircnameE<gt>()>, C<$botE<lt>curhostnameE<gt>()>
+=head2 C<$bot.curnick>, C<$bot.curusername>, C<$bot.curircname>,
+C<$bot.curhostname>
 
 Returns the current nickname, username, or ircname. Note that thesse are I<not>
 necessarily the names you specified in the constructor. For example,
@@ -615,44 +615,44 @@ C<username> and C<ircname> information.
 
 This is a readonly accessor. To set the nickname, use the C<nick> method.
 
-=head2 C<$botE<lt>last_trafficE<gt>()>, C<$botE<lt>last_autopingE<gt>()>
+=head2 C<$bot.last_traffic>, C<$bot.last_autoping>
 
 These are readonly accessors. C<last_traffic> is the timestamp of when the last
 traffic from the server was seen, and C<last_autoping> is the timestamp of the
 last autoping.
 
-=head2 C<$botE<lt>connectedE<gt>()>
+=head2 C<$bot.connected>
 
 Returns a true value if the bot's socket to the server is currently connected.
 
 Note that you might want to use the C<logged_in> method instead.
 
-=head2 C<$botE<lt>logged_inE<gt>()>
+=head2 C<$bot.logged_in>
 
 Returns a true value if the bot is logged in.
 
-=head2 C<$botE<lt>channelsE<gt>()>
+=head2 C<$bot.channels>
 
 Returns a list of channels the bot has joined. This is a readonly accessor, you
 have to use the C<join> and C<part> methods to join or leave channels.
 
-=head2 C<$botE<lt>channelE<gt>("#chan")>
+=head2 C<$bot.channel("#chan")>
 
 Returns a hashref describing C<#chan>. Its keys are C<topic> (the current
 topic) and C<users>, a hashref, which has the nicks who are on the channel as
 keys.  Note that the nicknames are normalized.
 
-=head2 C<$botE<lt>userE<gt>("nick")>
+=head2 C<$bot.user("nick")>
 
 Returns a hashref describing C<nick>. Currently, there's only one key,
 C<channels>, which is a hashref, which has the channels C<nick> has joined as
 keys. Note that the channel names are normalized.
 
-=head2 C<$botE<lt>add_handlerE<gt>("001", -E<gt> $event {...})>
+=head2 C<$bot.add_handler("001", -E<gt> $event {...})>
 
-=head2 C<$botE<lt>add_handlerE<gt>("JOIN", -E<gt> $event {...})>
+=head2 C<$bot.add_handler("JOIN", -E<gt> $event {...})>
 
-=head2 C<$botE<lt>add_handlerE<gt>("loggedin", -E<gt> $event {...})>
+=head2 C<$bot.add_handler("loggedin", -E<gt> $event {...})>
 
 Adds a callback to be executed when the bot receives a corresponding message.
 Event names which are all lowercase are "pseudo" events. See below for a list
@@ -698,48 +698,48 @@ The pseudo event (if appropriate).
 
 =back
 
-=head2 C<$botE<lt>joinE<gt>(channel =E<gt> "#chan", key =E<gt> "password")>
+=head2 C<$bot.join(channel =E<gt> "#chan", key =E<gt> "password")>
 
 Joins a channel (optionally using the specified key).
 
-=head2 C<$botE<lt>partE<gt>("#chan")>
+=head2 C<$bot.part("#chan")>
 
 Parts a channel.
 
-=head2 C<$botE<lt>quitE<gt>("reason")>
+=head2 C<$bot.quit("reason")>
 
 Quits the connection to the server by sending a C</QUIT> command. Note that the
 socket usually stays connected for a few seconds.
 
-=head2 C<$botE<lt>nickE<gt>("newnick")>
+=head2 C<$bot.nick("newnick")>
 
 Tries to change the bot's nick. Also see C<nick> below.
 
-=head2 C<$botE<lt>topicE<gt>("#chan")>, C<$botE<lt>topicE<gt>(channel =E<gt> "#chan",
+=head2 C<$bot.topic("#chan")>, C<$bot.topic(channel =E<gt> "#chan",
 topic =E<gt> "new topic")>
 
 Retrieves a channel's topic or tries to set it.
 
-=head2 C<$botE<lt>kickE<gt>(channel =E<gt> "#chan", nick
-=E<gt> "...", reason =E<gt> "...")>
+=head2 C<$bot.kick(channel =E<gt> "#chan", nick =E<gt> "...", reason =E<gt>
+"...")>
 
 Kicks somebody from a channel, stating a reason optionally.
 
-=head2 C<$botE<lt>modeE<gt>(target =E<gt> $nick|$channel, mode =E<gt> "+o iblech")>
+=head2 C<$bot.mode(target =E<gt> $nick|$channel, mode =E<gt> "+o iblech")>
 
 Performs the C</MODE> command. Note that you can supply both a nickname and a
 channel name to the C<target> parameter.
 
-=head2 C<$botE<lt>inviteE<gt>(channel =E<gt> "#chan", target =E<gt> "nick")>
+=head2 C<$bot.invite(channel =E<gt> "#chan", target =E<gt> "nick")>
 
 Invites C<nick> to C<#chan>.
 
-=head2 C<$botE<lt>operE<gt>(username =E<gt> "...", password =E<gt> "...")>
+=head2 C<$bot.oper(username =E<gt> "...", password =E<gt> "...")>
 
 Tries to gain IRC operator rights.
 
-=head2 C<$botE<lt>privmsgE<gt>(to =E<gt> "...", text =E<gt> "...")>,
-C<E<lt>noticeE<gt>(to =E<gt> "...", text =E<gt> "...")>
+=head2 C<$bot.privmsg(to =E<gt> "...", text =E<gt> "...")>,
+C<$bot.notice(to =E<gt> "...", text =E<gt> "...")>
 
 Sends a C<PRIVMSG> or a C<NOTICE> to a destination.
 
@@ -756,7 +756,7 @@ B<Note>: A bot should I<always> use C<NOTICE> to send replies. Quoting L<RFC
   actions) which are always seen to be replying lest they end up in a loop with
   another automaton.
 
-=head2 C<$botE<lt>rawE<gt>("...")>
+=head2 C<$bot.raw("...")>
 
 Sends a command to the server. The command is not modified by C<Net::IRC>,
 aside from appending the correct newline characters.

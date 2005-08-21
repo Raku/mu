@@ -573,9 +573,9 @@ Net::IRC - IRC library for Pugs
   );
   
   # Register callbacks
-  $bot<add_command_handler>("INVITE",   \&on_invite);
-  $bot<add_command_handler>("PRIVMSG",  \&on_privmsg);
-  $bot<add_command_handler>("loggedin", \&on_ready);
+  $bot<add_handler>("INVITE",   \&on_invite);
+  $bot<add_handler>("PRIVMSG",  \&on_privmsg);
+  $bot<add_handler>("loggedin", \&on_ready);
 
   # Connect and login
   $bot<connect>();
@@ -591,7 +591,7 @@ C<Net::IRC> is an IRC library for Pugs. Note that it is I<not> a port of Perl
 
 =head1 METHODS
 
-=head2 C<$botE<lt>new_botE<gt>(...)>
+=head2 C<new_bot(...)>
 
 Creates a new bot "object". See L<SYNOPSIS> for accepted parameters.
 
@@ -749,7 +749,7 @@ Invites C<nick> to C<#chan>.
 Tries to gain IRC operator rights.
 
 =head2 C<$botE<lt>privmsgE<gt>(to =E<gt> "...", text =E<gt> "...")>,
-C<E<lt>noticeE<gt>(to =E<gt> "...", text =E<gt> "...")>
+C<$botE<lt>noticeE<gt>(to =E<gt> "...", text =E<gt> "...")>
 
 Sends a C<PRIVMSG> or a C<NOTICE> to a destination.
 
