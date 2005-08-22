@@ -9,15 +9,18 @@
 # TODO - finish instance initialization code
 # TODO - more tests
 # TODO - test integration with Value and Container
+# TODO - *@slurpyarray params, boxed data
+# TODO - implement say { @_ }
 
 use strict;
 use warnings;
 
 use Carp 'confess';
-use PadWalker;
+# use PadWalker;
 
 use Perl6::MetaModel;
 use Perl6::Object;
+use Perl6::Value;
 
 my $class_description = '-0.0.1-cpan:FGLOCK';
 
@@ -159,14 +162,12 @@ class 'NamedSub'.$class_description => {
     is => [ 'Code', 'Perl6::Object' ],
     class => {},
     instance => {
-        attrs => [ '$.name', '@.args' ],
-        # TODO - how to initialize this?
-        #sub new {
-        #    my ($class, $name, @args) = @_;
-        #    my $self = $class->SUPER::new(@args);
-        #    $Perl6::NamedSub::SUBS{$name} = $self;
-        #    return $self;
-        #}
+        attrs => [ '$.name', '$.return_value' ],
+        methods => {
+            do => sub {
+                _('$.return_value', ::next_METHOD() );
+            },
+        },
     },
 };
 
@@ -176,32 +177,22 @@ class 'MultiSub'.$class_description => {
     is => [ 'Code', 'Perl6::Object' ],
     class => {},
     instance => {
-        attrs => [ '$.name', '@.subs', '$:rval' ],
-        # TODO - how to initialize this?
-        # sub new {
-        #    my ($class, $name, @subs) = @_;
-        #    my $self = bless {
-        #        subs => \@subs,
-        #        rval => undef
-        #    }, $class;
-        #    $Perl6::MultiSub::SUBS{$name} = $self;
-        #    return $self;
-        # }    
+        attrs => [ '$.name', '@.subs', '$.return_value' ],
+        # TODO - how to initialize %Perl6::MultiSub::SUBS ?   
         methods => {
             do => sub {
                 my ($self, @args) = @_;
                 my $num_params = scalar(@args);
                 my $sub;
-                foreach my $_sub (@{$self->{subs}}) {
+                foreach my $_sub ( @{ _('@.subs') } ) {
                     if ($_sub->signature->params->num_params == $num_params) {
                         $sub = $_sub;
                         last;
                     }
                 }
                 $sub->do(@args);
-                $self->{return_value} = $sub->return_value;
+                _('$.return_value', $sub->return_value );
             },
-            return_value => sub { (shift)->{return_value} },
         },
     },
 };

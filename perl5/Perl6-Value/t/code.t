@@ -4,9 +4,10 @@ use strict;
 use warnings;
 
 use Perl6::Code;
-use Data::Dumper;
+# use Data::Dumper;
+use PadWalker;
 
-use Test::More tests => 9;
+use Test::More tests => 10;
 
 sub body (&) { @_ }
 sub params {
@@ -14,11 +15,12 @@ sub params {
 }
 sub mksub {
     my ($params, $body) = @_;
-    return Sub->new($body, $params);
+    return Sub->new( '$.body' => $body, '$.signature' => $params);
 }
 sub mk_named_sub {
     my ($name, $params, $body) = @_;
-    return NamedSub->new($name, $body, $params);
+    my $sub = NamedSub->new( '$.name' => $name, '$.body' => $body, '$.signature' => $params);
+    $Perl6::NamedSub::SUBS{$name} = $sub;
 }
 sub call_named_sub {
     my ($name, @args) = @_;
@@ -30,7 +32,8 @@ sub call_named_sub {
 }
 sub mk_multi_sub {
     my ($name, @subs) = @_;
-    return Perl6::MultiSub->new($name, @subs);
+    my $sub = MultiSub->new( '$.name' => $name, '@.subs' => \@subs);
+    $Perl6::MultiSub::SUBS{$name} = $sub;
 }
 sub call_multi_sub {
     my ($name, @args) = @_;
@@ -40,6 +43,7 @@ sub call_multi_sub {
     $sub->do(@args);
     $sub->return_value;
 }
+
 sub bind_params {
     my $local_pad = PadWalker::peek_my(1);
     #print "local" . Data::Dumper::Dumper $local_pad;   
@@ -58,6 +62,7 @@ sub bind_params {
     }   
 }
 
+
 {
     my $sub = mksub params('$name'), body {
         my $name; bind_params();
@@ -65,6 +70,7 @@ sub bind_params {
     };
     isa_ok($sub, 'Sub');
     isa_ok($sub, 'Code');
+    is( $sub->perl->unboxed, 'sub {...}', '... $sub.perl' );
 
     $sub->do('Stevan');
     is($sub->return_value, 'Hello from Stevan', '... got the right return value');
@@ -86,7 +92,7 @@ sub bind_params {
         my %more; bind_params;
         join ", " => sort keys %more;
     };
-    isa_ok($sub, 'Perl6::Sub');
+    isa_ok($sub, 'Sub');
 
     $sub->do({ foo => 1, bar => 2 });
     is($sub->return_value, 'bar, foo', '... got the right return value');
