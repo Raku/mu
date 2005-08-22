@@ -10,7 +10,8 @@ use PadWalker;
 use Test::More tests => 23;
 
 %Perl6::MultiSub::SUBS = ();
-%Perl6::NamedSub::SUBS = ();
+%Perl6::NamedSub::SUBS = ();
+
 sub body (&) { @_ }
 sub params {
     [ map { Perl6::Param->new( 'type' => undef, 'name' => $_ ) } @_ ]  

@@ -139,7 +139,19 @@ EOF
     my $name = $self->name;
 
     # If a param expects a real Pair, don't use it for named argument purposes.
-    return "" if $_->type->matches("Any") or $_->type->matches("Pair");
+    return "" if
+      $_->type->matches("Any") or $_->type->matches("Pair") or
+      $_->is_slurpy;
+    # New change as of 2005-08-22:
+    #   On 8/22/05, Larry Wall <larry@wall.org> wrote:
+    #   > I think the simplest thing is to say that you can't bind to the name
+    #   > of the slurpy
+    #   hash.  You give a name to it so that you can refer to it
+    #   > inside, but that name is not visible to binding.
+    #
+    #   Fixed in https://svn.perl.org/perl6/doc.  Thanks.
+    #
+    #   Luke
 
     my $jsname   = $self->jsname;
     my $pairname = PIL::doublequote substr $name, 1;
