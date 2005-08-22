@@ -109,29 +109,29 @@ class 'Code'.$class_description => {
             # TODO
             #'num' =>  sub { Num->new( '$.unboxed' => _('$.unboxed')->num  ) },
             #'int' =>  sub { Int->new( '$.unboxed' => _('$.unboxed')->int  ) },
-            #'str' =>  sub { Str->new( '$.unboxed' => _('$.unboxed')->str  ) },
+            'str' =>  sub { Str->new( '$.unboxed' => 'sub {...}' ) },
             #'bit' =>  sub { Bit->new( '$.unboxed' => _('$.unboxed')->bit  ) },
-            #'perl' => sub { Str->new( '$.unboxed' => _('$.unboxed')->perl ) },
+            'perl' => sub { Str->new( '$.unboxed' => 'sub {...}' ) },
             #'ref' =>  sub { ::CLASS }, 
     
-            _check_signature => sub {
+            check_signature => sub {
                 my ($self, @arguments) = @_;
-                return $self->{signature}->params->check_params(@arguments);        
+                return ::SELF->signature->params->check_params(@arguments);        
             },
-            _bind_params => sub {
+            bind_params => sub {
                 my ($self, @arguments) = @_; 
-                return $self->{signature}->params->bind_params(@arguments);
+                return ::SELF->signature->params->bind_params(@arguments);
             },
-            _call_body => sub {
+            call_body => sub {
                 my ($self, %bound_params) = @_;     
-                $self->{body}->();
+                ::SELF->body->();
             },
             do => sub {
                 my ($self, @arguments) = @_;
-                $self->_check_signature(@arguments) 
+                ::SELF->check_signature(@arguments) 
                     || confess "Signature does not match";
-                my %bound_params = $self->_bind_params(@arguments);        
-                $self->_call_body(%bound_params);
+                my %bound_params = ::SELF->bind_params(@arguments);        
+                ::SELF->call_body(%bound_params);
             },
         },
     }
@@ -144,10 +144,11 @@ class 'Sub'.$class_description => {
         attrs => [ '$.return_value' ],
         methods => {
             do => sub {
-                my ($self, @arguments) = @_;
-                $self->{return_value} = $self->SUPER::do(@arguments);
+                _('$.return_value', ::next_METHOD() );
+            #    # my ($self, @arguments) = @_;
+            #    # $self->{return_value} = ::next_METHOD;  # ::do(@arguments);
             },
-            return_value => sub { (shift)->{return_value} },
+            # return_value => sub { ::SELF->return_value },
         },
     },
 };
