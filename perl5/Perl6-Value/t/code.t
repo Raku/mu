@@ -7,13 +7,15 @@ use Perl6::Code;
 # use Data::Dumper;
 use PadWalker;
 
-use Test::More tests => 10;
+use Test::More tests => 13;
 
 %Perl6::MultiSub::SUBS = ();
 %Perl6::NamedSub::SUBS = ();
 sub body (&) { @_ }
 sub params {
-    Perl6::Signature->new(Perl6::Params->new(map { Perl6::Param->new( undef, $_ ) } @_))    
+    Perl6::Signature->new(Perl6::Params->new(
+        map { Perl6::Param->new( 'type' => undef, 'name' => $_ ) } 
+            @_))    
 }
 sub mksub {
     my ($params, $body) = @_;
@@ -21,7 +23,7 @@ sub mksub {
 }
 sub mk_named_sub {
     my ($name, $params, $body) = @_;
-    my $sub = Sub->new( '$.body' => $body, '$.signature' => $params);
+    my $sub = Sub->new( '$.name' => $name, '$.body' => $body, '$.signature' => $params);
     $Perl6::NamedSub::SUBS{$name} = $sub;
 }
 sub call_named_sub {
@@ -73,6 +75,8 @@ sub bind_params {
     isa_ok($sub, 'Sub');
     isa_ok($sub, 'Code');
     is( $sub->perl->unboxed, 'sub {...}', '... $sub.perl' );
+    is( $sub->arity, 1, '... $sub.arity' );
+    is( $sub->name, undef, '... $sub.name' );
 
     $sub->do('Stevan');
     is($sub->return_value, 'Hello from Stevan', '... got the right return value');
@@ -119,12 +123,14 @@ Can't yet handle &sub params
 # named subs ...
 
 {
-    mk_named_sub 'length' => params('@a'), body {
+    my $sub = mk_named_sub 'length' => params('@a'), body {
         my @a; bind_params;
         return 0 unless @a;
         shift @a;
         return 1 + call_named_sub('length', \@a);
     };
+
+    is( $sub->name, 'length', '... $sub.name' );
 
     is(call_named_sub('length', [ 1 .. 20 ]), 20, '... called recursive named sub');
 }

@@ -3,25 +3,25 @@
 # ChangeLog
 #
 # 2005-08-22
-# * 'type' is a closure
-# * finished migration to Object model
+# * Param 'type' is a closure, allowing the use of 'subtype'
+# * New methods: .arity, .name
+# * Finished migration to Object model
 #
 # 2005-08-21
-# * refactored Code.pm from MetaModel t/80_Code.t
+# * Refactored Code.pm from MetaModel t/80_Code.t
 # * 'Code', 'Sub', 'MultiSub', 'Block' are now Perl6 classes
 
 # Notes:
-# Subroutine names are not stored with the Code object.
+# Subroutine global names are not created by the Code object.
 # - code.t stores names in %Perl6::[Multi]Sub::SUBS
 
-# TODO - more tests
 # TODO - test integration with Value and Container types
+# TODO - add hooks for signature checks, autoboxing, return value checking
 # TODO - *@slurpyarray params, boxed data
 # TODO - implement say { @_ }
 # TODO - move subs from code.t into the module
 # TODO - Coro
 # TODO - implement infinite list parameter - (1..Inf).shift
-# TODO - move 'bound params' to Sub 'call' instance (?) - currently using native pads
 
 use strict;
 use warnings;
@@ -87,8 +87,10 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
     package Perl6::Param;
 
     sub new {
-        my ($class, $type, $name ) = @_;
-        my $type = 
+        # TODO - autobox/auto-unbox hook
+        my ($class, %param ) = @_;
+        my ( $type, $name ) = ( $param{type}, $param{name} );
+        $type = 
             defined $type ? $type :
             $name =~ /^\$/ ? sub {
                 my $r = ref($_[0]);
@@ -121,7 +123,7 @@ class 'Code'.$class_description => {
         methods => {}
     },
     instance => {
-        attrs => [ '$.body', '$.signature' ],
+        attrs => [ '$.body', '$.signature', '$.name' ],
         DESTROY => sub {},
         methods => {
             # TODO
@@ -139,6 +141,9 @@ class 'Code'.$class_description => {
                 my %bound_params = ::SELF->signature->params->bind_params(@arguments);    
                 ::SELF->body->();
             },
+            arity => sub {
+                ::SELF->signature->params->num_params
+            },    
         },
     }
 };
