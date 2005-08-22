@@ -7,7 +7,7 @@ use Perl6::Code;
 # use Data::Dumper;
 use PadWalker;
 
-use Test::More tests => 19;
+use Test::More tests => 21;
 
 %Perl6::MultiSub::SUBS = ();
 %Perl6::NamedSub::SUBS = ();
@@ -30,7 +30,7 @@ sub call_named_sub {
         || die "No sub found called '$name'";
     my $sub = $Perl6::NamedSub::SUBS{$name};
     $sub->do(@args);
-    $sub->return_value;
+    # $sub->return_value;
 }
 sub mk_multi_sub {
     my ($name, @subs) = @_;
@@ -43,7 +43,7 @@ sub call_multi_sub {
         || die "No sub found called '$name'";
     my $sub = $Perl6::MultiSub::SUBS{$name};
     $sub->do(@args);
-    $sub->return_value;
+    # $sub->return_value;
 }
 
 sub bind_params {
@@ -78,8 +78,8 @@ sub bind_params {
     is( $sub->arity, 1, '... $sub.arity' );
     is( $sub->name, undef, '... $sub.name' );
 
-    $sub->do('Stevan');
-    is($sub->return_value, 'Hello from Stevan', '... got the right return value');
+    # $sub->do('Stevan');
+    is( $sub->do('Stevan'), 'Hello from Stevan', '... got the right return value');
 }
 
 {
@@ -99,8 +99,8 @@ sub bind_params {
     is( $sub->arity, 1, '... $sub.arity' );
     is( $sub->name, undef, '... $sub.name' );
 
-    $sub->do();
-    is($sub->return_value, 'Hello from Flavio', '... got the right return value');
+    # $sub->do();
+    is($sub->do(), 'Hello from Flavio', '... got the right return value');
 }
 
 {
@@ -112,8 +112,8 @@ sub bind_params {
     };
     isa_ok($sub, 'Sub');
 
-    $sub->do('Stevan', [ 'autrijus', 'iblech', 'putter' ]);
-    is($sub->return_value, 'Hello from Stevan and autrijus, iblech, putter', '... got the right return value');
+    is ($sub->do('Stevan', [ 'autrijus', 'iblech', 'putter' ]),
+        'Hello from Stevan and autrijus, iblech, putter', '... got the right return value');
 }
 
 {
@@ -123,8 +123,8 @@ sub bind_params {
     };
     isa_ok($sub, 'Sub');
 
-    $sub->do({ foo => 1, bar => 2 });
-    is($sub->return_value, 'bar, foo', '... got the right return value');
+    is( $sub->do({ foo => 1, bar => 2 }),
+        'bar, foo', '... got the right return value');
 }
 
 =pod
@@ -173,5 +173,24 @@ Can't yet handle &sub params
     );    
     
     is(call_multi_sub('length', [ 1 .. 20 ]), 20, '... called recursive multi sub');    
+}
+
+{
+    # un-named Sub with slurpy parameter 
+
+    my $sub = mksub 
+        [ 
+            Perl6::Param->new( 'type' => undef, 'name' => '@names' ),
+            Perl6::Param->new( 'type' => undef, 'name' => '*@numbers' ),
+        ], 
+        sub {
+            my @names; my @numbers; bind_params();
+            return ( \@numbers, \@names );        
+        };
+
+    my ( $x, $y ) = $sub->do( [ qw(a b c) ], 1 .. 5 );
+    # $sub->return_value;
+    is("@$x", '1 2 3 4 5', '... got the right return value');
+    is("@$y", 'a b c', '... got the right return value');
 }
 

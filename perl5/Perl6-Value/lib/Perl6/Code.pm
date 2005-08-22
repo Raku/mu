@@ -3,10 +3,11 @@
 # ChangeLog
 #
 # 2005-08-22
+# * Added 'slurpy' parameter
+# * Compatible with Perl 5 scalar/list context
 # * Removed classes Params, Signature
 # * Added 'default' parameter hook
 # * Added required/optional parameters
-
 # * Param 'type' is a closure, allowing the use of 'subtype'
 # * New methods: .arity, .name
 # * Finished migration to Object model
@@ -19,6 +20,7 @@
 # Subroutine global names are not created by the Code object.
 # - code.t stores names in %Perl6::[Multi]Sub::SUBS
 
+# TODO - caller context
 # TODO - test the integration with Value and Container types
 # TODO - add hooks for signature checks, autoboxing/un-boxing, return value checking and autoboxing/un-boxing
 # TODO - add support for optional parameters ?$x, pairs
@@ -48,12 +50,15 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
         # TODO - autobox/un-box hook
         # NOTE - default and type are closures
         my ($class, %param ) = @_;
-        my ( $type, $name, $default, $required ) = 
-           ( $param{type}, $param{name}, $param{default}, $param{required} );
+        my ( $type, $name, $default, $required, $slurpy ) = 
+           ( $param{type}, $param{name}, $param{default}, $param{required}, $param{slurpy} );
         $default = sub {} unless defined $default;
 
-        my $optional = $name =~ s/^\?//;
+        my $optional = $name =~ s/^.?\?//;
         $required = defined $required ? $required : ! $optional;
+
+        my $slurp = $name =~ s/^.?\*//;
+        $slurpy = defined $slurpy ? $slurpy : $slurp;
 
         $type = 
             defined $type ? $type :
@@ -71,7 +76,8 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
             name =>     $name,
             type =>     $type,   
             default =>  $default,    
-            required => $required,                      
+            required => $required,  
+            slurpy =>   $slurpy,                    
         } => $class;
     }
     
@@ -79,6 +85,7 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
     sub default  { $_[0]{default}() }
     sub required { $_[0]{required} }
     sub optional { ! $_[0]{required} }
+    sub slurpy   { $_[0]{slurpy} }
     sub match_type { 
         ref($_[1]) ? 
         $_[0]{type}( $_[1] ) : 
@@ -120,7 +127,13 @@ class 'Code'.$class_description => {
                     my $spec = ${ $self->params }[$i];
                     my $candidate = $params[$i];
                     next if $spec->optional && ! defined $candidate;
-                    return 0 unless $spec->match_type($candidate);
+                    if ( $spec->slurpy ) {
+                        return 0 unless $spec->match_type( [ @params[$i..$#params] ] );
+                        @params = ();
+                    }
+                    else {
+                        return 0 unless $spec->match_type($candidate);
+                    }
                 }
                 return 1;
             },
@@ -131,7 +144,13 @@ class 'Code'.$class_description => {
                     my $spec = ${ $self->params }[$i];
                     my $candidate = $params[$i];
                     $candidate = $spec->default if $spec->optional && ! defined $candidate;
-                    $bound_params{ ${$self->params}[$i]->name } = $candidate;
+                    if ( $spec->slurpy ) {
+                        $bound_params{ ${$self->params}[$i]->name } = [ @params[$i..$#params] ];
+                        @params = ();
+                    }
+                    else {
+                        $bound_params{ ${$self->params}[$i]->name } = $candidate;
+                    }
                 }
                 return %bound_params;        
             },
@@ -143,11 +162,11 @@ class 'Sub'.$class_description => {
     is => [ 'Code', 'Perl6::Object' ],
     class => {},
     instance => {
-        attrs => [ '$.return_value' ],
+        attrs => [],  # '$.return_value' ],
         methods => {
-            do => sub {
-                _('$.return_value', ::next_METHOD() );
-            },
+            #do => sub {
+            #    ::next_METHOD();
+            #},
         },
     },
 };
@@ -156,7 +175,7 @@ class 'MultiSub'.$class_description => {
     is => [ 'Code', 'Perl6::Object' ],
     class => {},
     instance => {
-        attrs => [ '@.subs', '$.return_value' ],
+        attrs => [ '@.subs' ],     # , '$.return_value' ],
         methods => {
             do => sub {
                 my ($self, @args) = @_;
@@ -169,7 +188,7 @@ class 'MultiSub'.$class_description => {
                     }
                 }
                 $sub->do(@args);
-                _('$.return_value', $sub->return_value );
+                # _('$.return_value', $sub->return_value );
             },
         },
     },
