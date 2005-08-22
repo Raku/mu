@@ -2,21 +2,31 @@
 
 # ChangeLog
 #
+# 2005-08-22
+# * 'type' is a closure
+# * finished migration to Object model
+#
 # 2005-08-21
 # * refactored Code.pm from MetaModel t/80_Code.t
 # * 'Code', 'Sub', 'MultiSub', 'Block' are now Perl6 classes
 
-# TODO - finish instance initialization code
+# Notes:
+# Subroutine names are not stored with the Code object.
+# - code.t stores names in %Perl6::[Multi]Sub::SUBS
+
 # TODO - more tests
-# TODO - test integration with Value and Container
+# TODO - test integration with Value and Container types
 # TODO - *@slurpyarray params, boxed data
 # TODO - implement say { @_ }
+# TODO - move subs from code.t into the module
+# TODO - Coro
+# TODO - implement infinite list parameter - (1..Inf).shift
+# TODO - move 'bound params' to Sub 'call' instance (?) - currently using native pads
 
 use strict;
 use warnings;
 
 use Carp 'confess';
-# use PadWalker;
 
 use Perl6::MetaModel;
 use Perl6::Object;
@@ -58,12 +68,7 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
         for (my $i = 0; $i < scalar @params; $i++) {
             my $spec = $self->{params}->[$i];
             my $candidate = $params[$i];
-            if (my $container_type = ref($candidate)) {
-                return 0 unless $container_type eq $spec->container_type;
-            }
-            else {
-                return 0 unless $spec->container_type eq 'SCALAR';
-            }
+            return 0 unless $spec->match_type($candidate);
         }
         return 1;
     }
@@ -82,21 +87,31 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
     package Perl6::Param;
 
     sub new {
-        my ($class, $name, $options) = @_;
-        my $container_type = $name =~ /^\$/ ? 'SCALAR' : 
-                             $name =~ /^\@/ ? 'ARRAY'  : 
-                             $name =~ /^\%/ ? 'HASH'   : 
-                             undef;
+        my ($class, $type, $name ) = @_;
+        my $type = 
+            defined $type ? $type :
+            $name =~ /^\$/ ? sub {
+                my $r = ref($_[0]);
+                $r eq 'SCALAR' || 
+                $r eq 'int'    ||
+                $r eq 'num'    ||
+                $r eq 'str'    
+            } : 
+            $name =~ /^\@/ ? sub { ref($_[0]) eq 'ARRAY' || ref($_[0]) eq 'Array' }  : 
+            $name =~ /^\%/ ? sub { ref($_[0]) eq 'HASH'  || ref($_[0]) eq 'Hash' }   : 
+            sub { 1 };
         bless {
-            name           => $name,
-            options        => $options,
-            container_type => $container_type,                             
+            name => $name,
+            type => $type,                             
         } => $class;
     }
     
-    sub name           { (shift)->{name}           }
-    sub options        { (shift)->{options}        }
-    sub container_type { (shift)->{container_type} }        
+    sub name  { $_[0]{name} }
+    sub match_type { 
+        ref($_[1]) ? 
+        $_[0]{type}( $_[1] ) : 
+        $_[0]{type}( \$_[1] )
+    }        
 }
 
 class 'Code'.$class_description => {
@@ -112,29 +127,17 @@ class 'Code'.$class_description => {
             # TODO
             #'num' =>  sub { Num->new( '$.unboxed' => _('$.unboxed')->num  ) },
             #'int' =>  sub { Int->new( '$.unboxed' => _('$.unboxed')->int  ) },
-            'str' =>  sub { Str->new( '$.unboxed' => 'sub {...}' ) },
+            #'str' =>  sub { Str->new( '$.unboxed' => 'sub {...}' ) },
             #'bit' =>  sub { Bit->new( '$.unboxed' => _('$.unboxed')->bit  ) },
             'perl' => sub { Str->new( '$.unboxed' => 'sub {...}' ) },
             #'ref' =>  sub { ::CLASS }, 
     
-            check_signature => sub {
-                my ($self, @arguments) = @_;
-                return ::SELF->signature->params->check_params(@arguments);        
-            },
-            bind_params => sub {
-                my ($self, @arguments) = @_; 
-                return ::SELF->signature->params->bind_params(@arguments);
-            },
-            call_body => sub {
-                my ($self, %bound_params) = @_;     
-                ::SELF->body->();
-            },
             do => sub {
                 my ($self, @arguments) = @_;
-                ::SELF->check_signature(@arguments) 
+                ::SELF->signature->params->check_params(@arguments)
                     || confess "Signature does not match";
-                my %bound_params = ::SELF->bind_params(@arguments);        
-                ::SELF->call_body(%bound_params);
+                my %bound_params = ::SELF->signature->params->bind_params(@arguments);    
+                ::SELF->body->();
             },
         },
     }
@@ -148,37 +151,16 @@ class 'Sub'.$class_description => {
         methods => {
             do => sub {
                 _('$.return_value', ::next_METHOD() );
-            #    # my ($self, @arguments) = @_;
-            #    # $self->{return_value} = ::next_METHOD;  # ::do(@arguments);
             },
-            # return_value => sub { ::SELF->return_value },
         },
     },
 };
-
-%Perl6::NamedSub::SUBS = ();
     
-class 'NamedSub'.$class_description => {
-    is => [ 'Code', 'Perl6::Object' ],
-    class => {},
-    instance => {
-        attrs => [ '$.name', '$.return_value' ],
-        methods => {
-            do => sub {
-                _('$.return_value', ::next_METHOD() );
-            },
-        },
-    },
-};
-
-%Perl6::MultiSub::SUBS = ();
-
 class 'MultiSub'.$class_description => {
     is => [ 'Code', 'Perl6::Object' ],
     class => {},
     instance => {
-        attrs => [ '$.name', '@.subs', '$.return_value' ],
-        # TODO - how to initialize %Perl6::MultiSub::SUBS ?   
+        attrs => [ '@.subs', '$.return_value' ],
         methods => {
             do => sub {
                 my ($self, @args) = @_;

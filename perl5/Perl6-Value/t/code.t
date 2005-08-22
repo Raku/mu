@@ -9,9 +9,11 @@ use PadWalker;
 
 use Test::More tests => 10;
 
+%Perl6::MultiSub::SUBS = ();
+%Perl6::NamedSub::SUBS = ();
 sub body (&) { @_ }
 sub params {
-    Perl6::Signature->new(Perl6::Params->new(map { Perl6::Param->new($_) } @_))    
+    Perl6::Signature->new(Perl6::Params->new(map { Perl6::Param->new( undef, $_ ) } @_))    
 }
 sub mksub {
     my ($params, $body) = @_;
@@ -19,7 +21,7 @@ sub mksub {
 }
 sub mk_named_sub {
     my ($name, $params, $body) = @_;
-    my $sub = NamedSub->new( '$.name' => $name, '$.body' => $body, '$.signature' => $params);
+    my $sub = Sub->new( '$.body' => $body, '$.signature' => $params);
     $Perl6::NamedSub::SUBS{$name} = $sub;
 }
 sub call_named_sub {
