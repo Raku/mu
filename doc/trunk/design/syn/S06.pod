@@ -13,7 +13,7 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 29 Jan 2005
+  Last Modified: 22 Aug 2005
   Number: 6
   Version: 7
 
@@ -439,7 +439,16 @@ Slurpy scalars still impose list context on their arguments.
 Slurpy parameters are treated lazily -- the list is only flattened
 into an array when individual elements are actually accessed:
 
-        @fromtwo = tail(1..Inf);        # @fromtwo contains a lazy [2..Inf]
+    @fromtwo = tail(1..Inf);        # @fromtwo contains a lazy [2..Inf]
+
+You can't bind to the name of a slurpy parameter: the name is just there
+so you can refer to it within the body. 
+
+    sub foo(*%flag, *@data) {...}
+    
+    foo(:flag{ a => 1 }, :data[ 1, 2, 3 ]);
+        # %flag has elements (flag => (a => 1)) and (data => [1,2,3])
+        # @data has nothing
 
 =head2 Slurpy block
 
