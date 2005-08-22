@@ -3,6 +3,8 @@
 # ChangeLog
 #
 # 2005-08-22
+# * bugfix - MultiSub wasn't checking parameter signature
+# * @_ is bound - '.say' works!
 # * Added 'slurpy' parameter
 # * Compatible with Perl 5 scalar/list context
 # * Removed classes Params, Signature
@@ -20,14 +22,12 @@
 # Subroutine global names are not created by the Code object.
 # - code.t stores names in %Perl6::[Multi]Sub::SUBS
 
+# TODO - parameter types - is rw, is copy
 # TODO - caller context
 # TODO - test the integration with Value and Container types
 # TODO - add hooks for signature checks, autoboxing/un-boxing, return value checking and autoboxing/un-boxing
 # TODO - add support for optional parameters ?$x, pairs
-# TODO - add *@slurpyarray params, boxed data
-# TODO - add default values
-# TODO - implement say { @_ } - test it with Int->new(3)->say
-# TODO - move subs from code.t into the module
+# TODO - say { @_ } - test it with Int->new(3)->say
 # TODO - Coro
 # TODO - implement infinite list parameter - (1..Inf).shift
 # TODO - box-up .arity and .name return values
@@ -113,28 +113,36 @@ class 'Code'.$class_description => {
     
             do => sub {
                 my ($self, @arguments) = @_;
-                ::SELF->check_params(@arguments)
+                $self->check_params(@arguments)
                     || confess "Signature does not match";
-                my %bound_params = ::SELF->bind_params(@arguments);    
-                ::SELF->body->();
+                # my %bound_params = ::SELF->bind_params(@arguments); 
+                # warn "entering sub ".$self->name;   
+                $self->body->( $self, @arguments );  # @_ = self + raw arguments
             },
             arity => sub {
                 scalar @{ ::SELF->params }
             }, 
             check_params => sub {
                 my ($self, @params) = @_;
-                for (my $i = 0; $i < @{ $self->params }; $i++) {
+                # my $max = ( scalar @params > scalar @{ $self->params } ) ? scalar @params : @{ $self->params };
+                my $i = 0;
+                # warn "params ". @{ $self->params } . " -- @params";
+                while(1) {
+                    return 1 if $i > scalar $#{ $self->params } && $i > scalar $#params;
+                    return 0 if $i > scalar $#{ $self->params } && $i <= scalar $#params;
+                    # warn $i;
                     my $spec = ${ $self->params }[$i];
                     my $candidate = $params[$i];
                     next if $spec->optional && ! defined $candidate;
                     if ( $spec->slurpy ) {
                         return 0 unless $spec->match_type( [ @params[$i..$#params] ] );
-                        @params = ();
+                        return 1;   # @params = ();
                     }
                     else {
                         return 0 unless $spec->match_type($candidate);
                     }
                 }
+                continue { $i++ }
                 return 1;
             },
             bind_params => sub {
@@ -162,12 +170,8 @@ class 'Sub'.$class_description => {
     is => [ 'Code', 'Perl6::Object' ],
     class => {},
     instance => {
-        attrs => [],  # '$.return_value' ],
-        methods => {
-            #do => sub {
-            #    ::next_METHOD();
-            #},
-        },
+        attrs => [], 
+        methods => {},
     },
 };
     
@@ -179,16 +183,13 @@ class 'MultiSub'.$class_description => {
         methods => {
             do => sub {
                 my ($self, @args) = @_;
-                my $num_params = scalar(@args);
-                my $sub;
+                # warn "testing multisub, ".( scalar @{ _('@.subs') } );
                 foreach my $_sub ( @{ _('@.subs') } ) {
-                    if ($_sub->arity == $num_params) {
-                        $sub = $_sub;
-                        last;
+                    if ( $_sub->check_params( @args ) ) {
+                        return $_sub->do(@args);
                     }
                 }
-                $sub->do(@args);
-                # _('$.return_value', $sub->return_value );
+                die 'No compatible MultiSub';
             },
         },
     },

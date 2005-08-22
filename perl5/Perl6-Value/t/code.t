@@ -7,7 +7,7 @@ use Perl6::Code;
 # use Data::Dumper;
 use PadWalker;
 
-use Test::More tests => 21;
+use Test::More tests => 23;
 
 %Perl6::MultiSub::SUBS = ();
 %Perl6::NamedSub::SUBS = ();
@@ -46,34 +46,19 @@ sub call_multi_sub {
     # $sub->return_value;
 }
 
-sub bind_params {
-    my $local_pad = PadWalker::peek_my(1);
-    #print "local" . Data::Dumper::Dumper $local_pad;   
-    my $pad = PadWalker::peek_my(2);   
-    #print "pad" . Data::Dumper::Dumper $pad;  
-    foreach my $local (keys %{$local_pad}) {
-        if (ref($local_pad->{$local}) eq 'SCALAR') {
-            ${$local_pad->{$local}} = $pad->{'%bound_params'}{$local};                    
-        }
-        elsif (ref($local_pad->{$local}) eq 'ARRAY') {
-            @{$local_pad->{$local}} = @{$pad->{'%bound_params'}{$local}};                     
-        }
-        elsif (ref($local_pad->{$local}) eq 'HASH') {
-            %{$local_pad->{$local}} = %{$pad->{'%bound_params'}{$local}};                     
-        }        
-    }   
-}
-
+# see t/80_Code.t
+#    sub bind_params { ...
 
 {
     # un-named Sub
 
     my $sub = mksub params('$name'), body {
-        my $name; bind_params();
-        "Hello from $name";        
+            my $sub = shift;
+            my %param = $sub->bind_params( @_ );  
+            "Hello from $param{'$name'}";        
     };
-    isa_ok($sub, 'Sub');
-    isa_ok($sub, 'Code');
+    isa_ok($sub, 'Sub', 'un-named Sub');
+    isa_ok($sub, 'Code', '... Code');
     is( $sub->perl->unboxed, 'sub {...}', '... $sub.perl' );
     is( $sub->arity, 1, '... $sub.arity' );
     is( $sub->name, undef, '... $sub.name' );
@@ -90,11 +75,13 @@ sub bind_params {
             Perl6::Param->new( 'type' => undef, 'name' => '?$name', 'default' => sub{'Flavio'} ),
         ], 
         sub {
-            my $name; bind_params();
-            "Hello from $name";        
+            my $sub = shift;
+            my %param = $sub->bind_params( @_ );  
+            # my $name; bind_params();
+            "Hello from $param{'$name'}";        
         };
-    isa_ok($sub, 'Sub');
-    isa_ok($sub, 'Code');
+    isa_ok($sub, 'Sub', 'Sub with default parameter value');
+    isa_ok($sub, 'Code', '... Code');
     is( $sub->perl->unboxed, 'sub {...}', '... $sub.perl' );
     is( $sub->arity, 1, '... $sub.arity' );
     is( $sub->name, undef, '... $sub.name' );
@@ -107,10 +94,12 @@ sub bind_params {
     # un-named Sub with a calculated return value
 
     my $sub = mksub params('$name', '@others'), body {
-        my ($name, @others); bind_params;
-        "Hello from $name and " . (join ", " => @others);
+            my $sub = shift;
+            my %param = $sub->bind_params( @_ );  
+            # my ($name, @others); bind_params;
+            "Hello from $param{'$name'} and " . (join ", " => @{$param{'@others'}} );
     };
-    isa_ok($sub, 'Sub');
+    isa_ok($sub, 'Sub', 'Sub with calculated return value');
 
     is ($sub->do('Stevan', [ 'autrijus', 'iblech', 'putter' ]),
         'Hello from Stevan and autrijus, iblech, putter', '... got the right return value');
@@ -118,8 +107,10 @@ sub bind_params {
 
 {
     my $sub = mksub params('%more'), body {
-        my %more; bind_params;
-        join ", " => sort keys %more;
+            my $sub = shift;
+            my %param = $sub->bind_params( @_ );  
+            # my %more; bind_params;
+            join ", " => sort keys %{$param{'%more'}};
     };
     isa_ok($sub, 'Sub');
 
@@ -147,10 +138,13 @@ Can't yet handle &sub params
 
 {
     my $sub = mk_named_sub 'length' => params('@a'), body {
-        my @a; bind_params;
-        return 0 unless @a;
-        shift @a;
-        return 1 + call_named_sub('length', \@a);
+            my $sub = shift;
+            my %param = $sub->bind_params( @_ );  
+            my @a = @{$param{'@a'}};
+            # my @a; bind_params;
+            return 0 unless @a;
+            shift @a;
+            return 1 + call_named_sub('length', \@a);
     };
 
     is( $sub->name, 'length', '... $sub.name' );
@@ -159,18 +153,24 @@ Can't yet handle &sub params
 }
 
 {
-    mk_multi_sub 'length' => (
-        mksub(params('@a'), body {
-            my @a; bind_params;
+    my $sub1 = mksub(params('@a'), body {
+            my $sub = shift;
+            my %param = $sub->bind_params( @_ );  
+            my @a = @{$param{'@a'}};
+            # warn "a only, @a";
             return call_multi_sub('length', \@a, 0);
-        }),
-        mksub(params('@a', '$acc'), body {
-            my (@a, $acc); bind_params;
+        });
+    my $sub2 = mksub(params('@a', '$acc'), body {
+            my $sub = shift;
+            my %param = $sub->bind_params( @_ );  
+            my @a = @{$param{'@a'}};
+            my $acc= $param{'$acc'};
+            # warn "a @a, acc $acc";
             return $acc unless @a;
             shift @a;
             return call_multi_sub('length', \@a, $acc + 1);
-        })        
-    );    
+        });        
+    mk_multi_sub 'length' => ( $sub1, $sub2 );    
     
     is(call_multi_sub('length', [ 1 .. 20 ]), 20, '... called recursive multi sub');    
 }
@@ -184,7 +184,10 @@ Can't yet handle &sub params
             Perl6::Param->new( 'type' => undef, 'name' => '*@numbers' ),
         ], 
         sub {
-            my @names; my @numbers; bind_params();
+            my $sub = shift;
+            my %param = $sub->bind_params( @_ );  
+            my @names = @{$param{'@names'}}; 
+            my @numbers = @{$param{'@numbers'}};
             return ( \@numbers, \@names );        
         };
 
@@ -192,5 +195,49 @@ Can't yet handle &sub params
     # $sub->return_value;
     is("@$x", '1 2 3 4 5', '... got the right return value');
     is("@$y", 'a b c', '... got the right return value');
+}
+
+{
+    # "primitive" example with slurpy @_
+
+    my $output;
+    my $sub = Sub->new( 
+        '$.name' => 'say',
+        '$.params' => 
+            [ 
+                Perl6::Param->new( 'name' => '*@_' ),
+            ], 
+        '$.body' => 
+            sub {
+                my $sub = shift;
+                $output = "@_\n";
+                # print $output;        
+            } 
+    );
+
+    $sub->do('"say()" works', '!' );
+    is( $output, "\"say()\" works !\n", '... .say() works' );
+}
+
+{
+    # "primitive" example with hash of parameters
+
+    my $output;
+    my $sub = Sub->new( 
+        '$.name' => 'say',
+        '$.params' => 
+            [ 
+                Perl6::Param->new( 'name' => '*@param' ),
+            ], 
+        '$.body' => 
+            sub {
+                my $sub = shift;
+                my %param = $sub->bind_params( @_ );  
+                $output = "@{$param{'@param'}}\n";
+            } 
+    );
+
+    $sub->do('"say()" works', '!' );
+    is( $output, "\"say()\" works !\n", '... parameterized .say() works' );
 }
 
