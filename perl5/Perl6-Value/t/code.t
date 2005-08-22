@@ -7,23 +7,21 @@ use Perl6::Code;
 # use Data::Dumper;
 use PadWalker;
 
-use Test::More tests => 13;
+use Test::More tests => 19;
 
 %Perl6::MultiSub::SUBS = ();
 %Perl6::NamedSub::SUBS = ();
 sub body (&) { @_ }
 sub params {
-    Perl6::Signature->new(Perl6::Params->new(
-        map { Perl6::Param->new( 'type' => undef, 'name' => $_ ) } 
-            @_))    
+    [ map { Perl6::Param->new( 'type' => undef, 'name' => $_ ) } @_ ]  
 }
 sub mksub {
     my ($params, $body) = @_;
-    return Sub->new( '$.body' => $body, '$.signature' => $params);
+    return Sub->new( '$.body' => $body, '$.params' => $params);
 }
 sub mk_named_sub {
     my ($name, $params, $body) = @_;
-    my $sub = Sub->new( '$.name' => $name, '$.body' => $body, '$.signature' => $params);
+    my $sub = Sub->new( '$.name' => $name, '$.body' => $body, '$.params' => $params);
     $Perl6::NamedSub::SUBS{$name} = $sub;
 }
 sub call_named_sub {
@@ -68,6 +66,8 @@ sub bind_params {
 
 
 {
+    # un-named Sub
+
     my $sub = mksub params('$name'), body {
         my $name; bind_params();
         "Hello from $name";        
@@ -83,6 +83,29 @@ sub bind_params {
 }
 
 {
+    # un-named Sub with default parameter value
+
+    my $sub = mksub 
+        [ 
+            Perl6::Param->new( 'type' => undef, 'name' => '?$name', 'default' => sub{'Flavio'} ),
+        ], 
+        sub {
+            my $name; bind_params();
+            "Hello from $name";        
+        };
+    isa_ok($sub, 'Sub');
+    isa_ok($sub, 'Code');
+    is( $sub->perl->unboxed, 'sub {...}', '... $sub.perl' );
+    is( $sub->arity, 1, '... $sub.arity' );
+    is( $sub->name, undef, '... $sub.name' );
+
+    $sub->do();
+    is($sub->return_value, 'Hello from Flavio', '... got the right return value');
+}
+
+{
+    # un-named Sub with a calculated return value
+
     my $sub = mksub params('$name', '@others'), body {
         my ($name, @others); bind_params;
         "Hello from $name and " . (join ", " => @others);
