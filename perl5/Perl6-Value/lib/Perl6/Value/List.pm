@@ -105,7 +105,7 @@ sub from_num_range {
                         },
                 celems =>  sub {
                             return $end - $start + 1 unless defined $step;
-                            return int(( $end - $start + 1 ) / $step);
+                            return ::int(( $end - $start + 1 ) / $step);
                         },
                 cis_infinite => sub { return $start == -&Inf || $end == Inf },
                 cis_contiguous => sub { $step == -1 || $step ==  1 || $step == undef },

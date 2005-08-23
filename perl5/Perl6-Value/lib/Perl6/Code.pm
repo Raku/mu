@@ -28,6 +28,9 @@
 # extract remaining Pairs
 # $^a, $^b count like '+'
 
+# TODO - unify parameter types and binding with MetaModel's methods/multimethods
+# TODO - multisub add_sub($sub)
+# TODO - multisub .arity, .name
 # TODO - escape continuations ?
 # TODO - modify constant parameter is an error
 # TODO - splat can't be rw
