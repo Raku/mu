@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 50;
+use Test::More tests => 85;
 use Test::Exception;
 
 do 'lib/metamorph.pl';
@@ -84,7 +84,13 @@ foreach my $method_name (qw(name
                             dispatcher
                             is_a
                             has_method
-                            get_method)) {
+                            get_method
+                            add_method
+                            add_attribute
+                            get_attribute
+                            has_attribute
+                            get_attribute_list
+                            find_attribute_spec)) {
     lives_ok_and_ok {
         $::Class->has_method($method_name);
     } '... $::Class->has_method(' . $method_name . ')';
@@ -97,12 +103,32 @@ foreach my $method_name (qw(_merge
                             _make_breadth_dispatcher
                             _make_descendant_dispatcher
                             _make_ascendant_dispatcher
-                            _get_method_table)) {
+                            _get_method_table
+                            _get_attribute_table)) {
     lives_ok_and_ok {
         $::Class->has_method($method_name, for => 'private');
     } '... $::Class->has_method(' . $method_name . ')';
 }
 
+my @attribute_name_list = ('$:name',
+                           '$:version',      
+                           '$:authority',        
+                           '@:MRO',              
+                           '@:superclasses',    
+                           '%:private_methods',  
+                           '%:attributes',       
+                           '%:methods',          
+                           '%:class_attributes', 
+                           '%:class_methods');
 
+foreach my $attr_name (@attribute_name_list) {
+    lives_ok_and_ok {
+        $::Class->has_attribute($attr_name);
+    } '... $::Class->has_attribute(' . $attr_name . ')';                    
+}  
 
-
+is_deeply(
+    [ sort @attribute_name_list ], 
+    [ sort $::Class->get_attribute_list() ], 
+    '... got the same attribute list');
+  

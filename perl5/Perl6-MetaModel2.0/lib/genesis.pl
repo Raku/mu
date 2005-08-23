@@ -10,3 +10,5 @@ BEGIN { do "lib/pneuma.pl" };
 
 # < Class is a subclass of Object >
 ::opaque_instance_attrs($::Class)->{'@:superclasses'} = [ $::Object ];
+
+1;

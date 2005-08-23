@@ -78,6 +78,37 @@ use Scalar::Util 'blessed';
         return $dispatcher->();        
     }
  
+    ## Attribute Primatives
+    # this is hack currently ..
+    
+    sub ::make_attribute {
+        my ($name) = @_;
+        return bless \$name => 'Perl6::Attribute';
+    }
+    
+    sub ::make_class_attribute {
+        my ($name) = @_;
+        return bless \$name => 'Perl6::ClassAttribute';
+    }     
+    
+    sub ::instantiate_attribute_container {
+        my ($attr) = @_;
+        return [] if ${$attr} =~ /^@/;
+        return {} if ${$attr} =~ /^%/;        
+        return undef;
+    }
+    
+    {   ## Attribute "Types"
+        # these are just packages
+        # so that I can 'tag' the
+        # types of the attributes
+
+        package Perl6::Attribute;
+
+        package Perl6::ClassAttribute;        
+        @Perl6::ClassAttribute::ISA = ('Perl6::Attribute');     
+    }     
+ 
     ## Method primitives
     # since Perl 5 does not have method
     # primatives, we have to make them.
@@ -107,12 +138,12 @@ use Scalar::Util 'blessed';
     
     # a class method is the same as a regular 
     # method, it just has a class as an invocant
-    sub ::make_classmethod ($$) {    
+    sub ::make_class_method ($$) {    
         return bless ::make_method($_[0], $_[1]) => 'Perl6::ClassMethod';
     } 
     
     # this is a private method
-    sub ::make_privatemethod ($$) {
+    sub ::make_private_method ($$) {
         # we create the basic method wrapper first
         my $method = ::make_method($_[0], $_[1]);
         my $associated_with = $_[1];        
@@ -240,10 +271,6 @@ use Scalar::Util 'blessed';
             $label = 'DESTROYALL';
         }
         
-        # XXX - 
-        # how should we handle this??
-        # this currently ignores the idea of class 
-        # methods entirely, which is not okay.
         my $class = ::opaque_instance_class($self);
         
         my @return_value;
@@ -259,8 +286,10 @@ use Scalar::Util 'blessed';
             my $dispatcher = $class->dispatcher(':canonical');
             # walk the methods
             my $method = ::WALKMETH($dispatcher, $label);
+            (defined $method)
+                || confess "Method ($label) not found for instance ($class)";   
             # store the dispatcher state
-            push @DISPATCHER => [ $dispatcher, $label, $self, @_ ];
+            push @DISPATCHER => [ $dispatcher, $label, $self, \@_ ];
             # call the method
             @return_value = $method->($self, @_);     
             # we can dispose of the dispatcher state
@@ -280,9 +309,9 @@ use Scalar::Util 'blessed';
     # construct to go to the next
     # applicable method 
     sub ::next_METHOD {
-        my ($dispatcher, $label, $self, @args) = @{$DISPATCHER[-1]};             
+        my ($dispatcher, $label, $self, $args) = @{$DISPATCHER[-1]};             
         my $method = ::WALKMETH($dispatcher, $label); 
-        return $method->($self, @args);            
+        return $method->($self, @{$args});            
     }
 
 }

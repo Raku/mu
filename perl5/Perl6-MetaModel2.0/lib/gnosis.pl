@@ -57,3 +57,5 @@ my $_add_method = sub {
 $_add_method->($::Class, 'add_method', ::make_method($_add_method, $::Class));
 
 # ... now we have all we need to construct our $::Class 
+
+1;
