@@ -42,22 +42,6 @@ sub p6_var : lvalue {
     my $v = defined $$m ? $$m : do {$$m = Scalar->new()};
     $v;
 }
-sub def_prim { # used by Prim
-    my($flavor, $name, $f)=@_;
-    my $n = $name;
-    if ($n =~ /\>$/) {
-	$n =~ s/:\<(.+?)\>$/:$1/;
-    } elsif ($n =~ /\]$/) {
-	$n =~ s/:\[(.+?)\]$/:$1/;
-    }
-    my $mn = p6_mangle($n);
-    #my $gn = globify_mangled($mn);
-    my $cls = 'Sub';
-    $cls = 'Macro' if $flavor =~ /macro/i;
-    my $subobj = p6_new($cls,$f);
-    no strict;
-    $$mn = $subobj;
-}
 sub p6_root {"PIL::Run::Root"}
 sub sigil_and_rest {
     my($n)=@_;
@@ -122,16 +106,55 @@ sub globify_mangled {
     '*'.$bare;
 }
 
+sub def_prim { # used by Prim
+    my($flavor, $name, $argl, $f)=@_;
+    my $n = $name;
+    if ($n =~ /\>$/) {
+	$n =~ s/:\<(.+?)\>$/:$1/;
+    } elsif ($n =~ /\]$/) {
+	$n =~ s/:\[(.+?)\]$/:$1/;
+    }
+    $n = '&'.$n;
+    my $mn = p6_mangle($n);
+    #my $gn = globify_mangled($mn);
+    my $cls = 'Sub';
+    $cls = 'Macro' if $flavor =~ /macro/i;
+    my $subobj = p6_new($cls,$name,$argl,$f);
+    no strict;
+    $$mn = $subobj;
+}
 sub p6_new {
-    my($type,@args)=@_;
-    return Int->new('$.unboxed' => @args) if $type eq 'Int';
-    return Num->new('$.unboxed' => @args) if $type eq 'Num';
-    return Str->new('$.unboxed' => @args) if $type eq 'Str';
-    "PIL::Run::Type::$type"->new(@args);
+    my($type,@arg)=@_;
+    return Int->new('$.unboxed' => @arg) if $type eq 'Int';
+    return Num->new('$.unboxed' => @arg) if $type eq 'Num';
+    return Str->new('$.unboxed' => @arg) if $type eq 'Str';
+    if ($type eq 'Sub') {
+	my($name,$argl,$f)=@arg;
+	my @args = map{s/\s+/ /; s/\A\s+//; s/\s+\Z//; $_} @$argl;
+	my @args_nonslurpy = grep /^[^\*]/, @args;
+	my @args_slurpy    = grep /^\*/, @args;
+	@args_slurpy = map{s/^\*//;$_} @args_slurpy;
+	my @params = map{Perl6::Param->new('name' => $_)} @args;
+	my $wrapper = sub {
+	    my $sub = shift;
+	    my %param = $sub->bind_params( @_ );
+	    my(@a) = (@param{@args_nonslurpy},
+		      map{@$_} @param{@args_slurpy});
+	    $f->(@a);
+	};
+	return Sub->new('$.name' => $name,
+			'$.params' => \@params,
+			'$.body' => $wrapper);
+    }
+    if ($type eq 'Macro') {
+	my($name,$argl,$f)=@arg;
+	return "PIL::Run::Type::$type"->new($f);
+    }
+    return "PIL::Run::Type::$type"->new(@arg);
 }
 sub p6_apply {
     my($f,@args)=@_;
-    $f->apply(@args);
+    $f->do(@args);
 }
 
 

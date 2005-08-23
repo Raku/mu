@@ -9,13 +9,25 @@ in p6 and add them to Prelude.
 
 
 package PrimFilter;
+sub gen {
+    my($what,$name,$args)=@_;
+    $what =~ tr/A-Z/a-z/;
+    my $args5 = $args;
+    my $args6 = $args;
+    $args5 =~ s/(?<!\*)\@/\$/g; $args5 =~ s/(?<!\*)\%/\$/g;
+    $args5 =~ s/\*\@/\@/g; $args5 =~ s/\*\%/\%/g;
+    $args6 =~ s/\A\s+//; # for split.
+    $args6 = join(",",map{"'$_'"} split(/\s*,\s*/,$args6));
+    my $my_args = $args =~ /\A\s*\Z/ ? "" : "my($args5)=\@_; ";
+    "def '$what','$name', [$args6], sub {my \$_fn ='$name'; $my_args";
+}
+
 use Filter::Simple sub {
-    s/#.+//g;
+    s/\#.+//g;
     s/{\.\.\.}/{p6_die("\$_fn: unimplemented");}/g;
-    s/(MULTI SUB|MACRO)\s+(\S+)\s+(\(\s*\))\s+{/def '$1','$2', sub {my \$_fn ='$2'; /g;
-    s/(MULTI SUB|MACRO)\s+(\S+)\s+(\(.*?\))\s+{/def '$1','$2', sub {my \$_fn ='$2'; my$3=\@_; /g;
-    $_;
+    s/(MULTI SUB|MACRO)\s+(\S+)\s+\((.*?)\)\s+{/gen($1,$2,$3)/ge;
     #print; #print STDERR;
+    $_;
 };
 # BEGIN { FILTER_ONLY code => sub {} }; also works?
 
@@ -24,20 +36,19 @@ BEGIN {PrimFilter::import};
 use Math::Trig;
 use PIL::Run::ApiX;
 sub def {
-    my($what,$name,$f)=@_;
-    $what =~ tr/A-Z/a-z/;
-    PIL::Run::ApiX::def_prim($what,'&'.$name,$f);
+    my($what,$name,$argl,$f)=@_;
+    PIL::Run::ApiX::def_prim($what,$name,$argl,$f);
 };
 
 # a first few - dont add more here?
 MULTI SUB pi () {p6_from_n(Math::Trig::pi)};
-MULTI SUB say (@args) {
+MULTI SUB say (*@args) {
     p6_new(Int => print(p6_to_s(@args),"\n"));
 };
-MULTI SUB prefix:<,> (@a) {@a};
+MULTI SUB prefix:<,> (*@a) {@a};
 
 # Things which dont appear in Prim.hs
-MACRO     statement_control:<if> ($xx0,$xx1,$xx2) {...};
+MACRO     statement_control:<if> ($xx0,$xx1,$xx2) {...}
 
 # From Prim.hs
 # op0
@@ -67,7 +78,7 @@ MULTI SUB id ($xx) {...};
 MULTI SUB clone ($xx) {...};
 MULTI SUB chop ($xx) {...};
 MULTI SUB chomp ($xx) {...};
-MULTI SUB Str::split (@xxa) {...};
+MULTI SUB Str::split (*@xxa) {...};
 MULTI SUB lc ($xx) {...};
 MULTI SUB lcfirst ($xx) {...};
 MULTI SUB uc ($xx) {...};
@@ -85,14 +96,14 @@ MULTI SUB cos ($xx) {...};
 MULTI SUB sin ($xx) {...};
 MULTI SUB tan ($xx) {...};
 MULTI SUB sqrt ($xx) {...};
-MULTI SUB atan (@xxa) {...};
+MULTI SUB atan (*@xxa) {...};
 MULTI SUB postfix:<++> ($xx) { p6_set($xx,p6_from_n(p6_to_n($xx)+1)) };
 MULTI SUB prefix:<++> ($xx) { p6_set($xx,p6_from_n(p6_to_n($xx)+1)) };
 MULTI SUB postfix:<--> ($xx) {...};
 MULTI SUB prefix:<--> ($xx) {...};
 MULTI SUB prefix:<-> ($xx) {...};
 MULTI SUB scalar ($xx) {...};
-MULTI SUB sort (@xxa) {...};
+MULTI SUB sort (*@xxa) {...};
 MULTI SUB reverse ($xx) {...};
 MULTI SUB list ($xx) {...};
 MULTI SUB pair ($xx) {...};
@@ -134,8 +145,8 @@ MULTI SUB sign ($xx) {...};
 MULTI SUB rand ($xx) {...};
 # say - see op0
 # print - see op0
-MULTI SUB IO::say (@xxa) {...};
-MULTI SUB IO::print (@xxa) {...};
+MULTI SUB IO::say (*@xxa) {...};
+MULTI SUB IO::print (*@xxa) {...};
 MULTI SUB IO::next ($xx) {...};
 MULTI SUB Pugs::Safe::safe_print ($xx) {...};
 MULTI SUB die ($xx) {...};
@@ -170,11 +181,11 @@ MULTI SUB IO::Dir::rewinddir ($xx) {...};
 MULTI SUB IO::Dir::readdir ($xx) {...};
 MULTI SUB Pugs::Internals::runInteractiveCommand ($xx) {...};
 MULTI SUB Pugs::Internals::check_for_io_leak ($xx) {...};
-MULTI SUB system (@xxa) {...};
+MULTI SUB system (*@xxa) {...};
 MULTI SUB accept ($xx) {...};
 MULTI SUB detach ($xx) {...};
-MULTI SUB kill (@xxa) {...};
-MULTI SUB join (@xxa) {...};
+MULTI SUB kill (*@xxa) {...};
+MULTI SUB join (*@xxa) {...};
 MULTI SUB async ($xx) {...};
 MULTI SUB listen ($xx) {...};
 MULTI SUB flush ($xx) {...};
@@ -292,7 +303,7 @@ MULTI SUB delete ($xx0,$xx1) {...};
 MULTI SUB exists ($xx0,$xx1) {...};
 MULTI SUB unshift ($xx0,$xx1) {...};
 MULTI SUB push ($xx0,$xx1) {...};
-MULTI SUB split (@xxa) {...};
+MULTI SUB split (*@xxa) {...};
 # Str::split - see op1
 MULTI SUB connect ($xx0,$xx1) {...};
 MULTI SUB Pugs::Internals::hSetBinaryMode ($xx0,$xx1) {...};
@@ -302,7 +313,7 @@ MULTI SUB Pugs::Internals::sprintf ($xx0,$xx1) {...};
 MULTI SUB exec ($xx0,$xx1) {...};
 # system - see op1
 MULTI SUB chmod ($xx0,$xx1) {...};
-MULTI SUB splice (@xxa) {...};
+MULTI SUB splice (*@xxa) {...};
 # sort - see op1
 # IO::say - see op1
 # IO::print - see op1

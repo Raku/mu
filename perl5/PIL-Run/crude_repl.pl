@@ -14,7 +14,7 @@ use PIL::Run::ApiX; # for p6_to_s()
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Terse = 1;
-
+require YAML;
 use Scriptalicious 1.05;
 
 sub p6_repl_simple {
@@ -43,6 +43,7 @@ sub p6_repl {
 	print $pil,"\n" if $verbose;
 	my $pilc = pilc_from_pil($pil);
 	print Dumper($pilc),"\n\n" if $verbose;
+	print YAML::Dump($pilc),"\n\n" if $verbose;
 	my $p5r = p5r_from_pilc($pilc);
 	print $p5r,"\n" if $verbose;
 	print "----\n";
@@ -65,7 +66,7 @@ sub p6_repl {
 	}
 	if ($line =~ /\A:l\s+(\S+)/) {
 	    my $filename = $1;
-            open IN, $filename or die $!;
+            open IN, $filename or do{ warn $!; next; };
 	    my $code = do { local $/; <IN> };
 	    $eval_p6->($code);
 	    next;
