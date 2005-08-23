@@ -97,6 +97,8 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
         split(m/;/, @foo);
     would use the return value of the match (on the implicit $_) as the
     delimiter.
+  - Or, if you don't want to split on a regular expression :
+    split(m/;/, @foo) -> split(";", @foo)
   
   - Heredocs:
       <<END    -> qq:to/END/
@@ -227,6 +229,6 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
 
    - <FH>   reading from a file
      $fh.readline
-
+     =$fh
 
 
