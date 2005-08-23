@@ -37,8 +37,9 @@ sub new {
         unless defined $param{cis_infinite};
     $param{cis_contiguous} = sub { 0 } 
         unless defined $param{cis_contiguous};
-    $param{cstringify}     = sub { $_[0]->{cstart}() . '....' . $_[0]->{cend}() } 
-        unless defined $param{is_lazy}; 
+    $param{cstringify}     = sub { $_[0]->shift . '....' . $_[0]->pop } 
+        unless $param{is_lazy}; 
+
     $param{is_lazy}        = 1 unless defined $param{is_lazy};
     unless ( defined $param{celems} ) {
         $param{celems} =
@@ -54,7 +55,7 @@ sub elems         { $_[0]->{celems}() }
 sub is_infinite   { $_[0]->{cis_infinite}() }
 sub is_contiguous { $_[0]->{cis_contiguous}() }
 sub is_lazy       { $_[0]->{is_lazy} }
-sub str           { $_[0]->{cstringify}() }
+sub str           { $_[0]->{cstringify}( $_[0] ) }
 sub int           { $_[0]->elems }
 sub bit           { $_[0]->elems > 0 }
 sub num           { $_[0]->elems }
