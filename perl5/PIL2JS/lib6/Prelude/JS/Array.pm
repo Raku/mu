@@ -149,7 +149,7 @@ sub JS::Root::max(Code ?$cmp = &infix:«<=>», *@array) is primitive {
 
 method grep(@self: Code $code) { grep $code, *@self }
 sub JS::Root::grep(Code $code, *@array) is primitive {
-  die "Code block for \"grep\" must be unary!" unless $code.arity == 1;
+  #die "Code block for \"grep\" must be unary!" unless $code.arity == 1;
 
   my @res;
   for @array -> $item is rw {

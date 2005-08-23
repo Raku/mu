@@ -9,7 +9,7 @@ use Test;
 
 =cut
 
-plan 53;
+plan 56;
 
 my @list = (1 .. 5);
 
@@ -105,6 +105,13 @@ my @list = (1 .. 5);
   is ~(1,2,3,4).map:{ $^a+$^b+$^c+$^d+$^e   }, "10",  "map() works with 5-ary functions";
 }
 
+# .map shouldn't work on non-arrays
+{
+  dies_ok { 42.map:{ $_ } },    "method form of map should not work on numbers";
+  dies_ok { "str".map:{ $_ } }, "method form of map should not work on strings";
+  is ~(42,).map:{ $_ }, "42",   "method form of map should work on arrays";
+}
+
 =pod
 
 Test that a constant list can have C<map> applied to it.
@@ -117,6 +124,7 @@ should be equivalent to
   @val = map { substr($_,1,1) }, @val;
 
 =cut
+
 {
 my @expected = ("foo","bar");
 @expected = map { substr($_,1,1) }, @expected;

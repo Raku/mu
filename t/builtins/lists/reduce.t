@@ -14,7 +14,7 @@ L<http://groups.google.de/group/perl.perl6.language/msg/bd9eb275d5da2eda>
 
 =cut
 
-plan 35;
+plan 38;
 
 {
   my @array = <5 -3 7 0 1 -9>;
@@ -30,6 +30,13 @@ plan 35;
   my $result = (((1 + 2 * 3) + 4 * 5) + 6 * 7) + 8 * undef;
 
   is @array.reduce:{ $^a + $^b * $^c }, $result, "n-ary reduce() works";
+}
+
+# .reduce shouldn't work on non-arrays
+{
+  dies_ok { 42.reduce:{ $^a + $^b } },    "method form of reduce should not work on numbers";
+  dies_ok { "str".reduce:{ $^a + $^b } }, "method form of reduce should not work on strings";
+  is (42,).reduce:{ $^a + $^b }, 42,      "method form of reduce should work on arrays";
 }
 
 {

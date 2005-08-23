@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 16;
+plan 19;
 
 {
 	my @a = (4, 5, 3, 2, 5, 1);
@@ -131,4 +131,11 @@ plan 16;
 
 	my @s = %a.keys.sort:{ %a{$^a} <=> %a{$^b} };
 	is(@s, @e, '... sort keys by numeric value (using invocant form)');
+}
+
+# .sort shouldn't work on non-arrays
+{
+        dies_ok { 42.sort:{ 0 } },    "method form of sort should not work on numbers";
+        dies_ok { "str".sort:{ 0 } }, "method form of sort should not work on strings";
+        is ~(42,).sort:{ 0 }, "42",   "method form of sort should work on arrays";
 }
