@@ -97,7 +97,7 @@ its line.
 ruleStandaloneBlock :: RuleParser Exp
 ruleStandaloneBlock = tryRule "standalone block" $ do
     body <- bracesAlone ruleBlockBody
-    retBlock SubBlock Nothing body
+    retBlock SubBlock Nothing False body
     where
     bracesAlone p  = between (symbol "{") closingBrace p
     closingBrace = do
@@ -1016,17 +1016,17 @@ rulePostIterate = rule "postfix iteration" $ do
     cond <- tryChoice $ map symbol ["for"]
     exp <- ruleExpression
     return $ \body -> do
-        block <- retBlock SubBlock Nothing body
+        block <- retBlock SubBlock Nothing False body
         retSyn cond [exp, block]
 
 ruleBlockLiteral :: RuleParser Exp
 ruleBlockLiteral = rule "block construct" $ do
-    (typ, formal) <- option (SubBlock, Nothing) $ choice
+    (typ, formal, lvalue) <- option (SubBlock, Nothing, False) $ choice
         [ ruleBlockFormalPointy
         , ruleBlockFormalStandard
         ]
     body <- ruleBlock
-    retBlock typ formal body
+    retBlock typ formal lvalue body
 
 extractHash :: Exp -> Maybe Exp
 extractHash (Syn "block" [exp]) = extractHash (unwrap exp)
@@ -1036,12 +1036,12 @@ extractHash exp@(Syn "," (App (Var "&pair") _ _:_)) = Just exp
 extractHash exp@(Syn "," (App (Var "&infix:=>") _ _:_)) = Just exp
 extractHash _ = Nothing
 
-retBlock :: SubType -> Maybe [Param] -> Exp -> RuleParser Exp
-retBlock SubBlock Nothing exp | Just hashExp <- extractHash (unwrap exp) = return $ Syn "\\{}" [hashExp]
-retBlock typ formal body = retVerbatimBlock typ formal body
+retBlock :: SubType -> Maybe [Param] -> Bool -> Exp -> RuleParser Exp
+retBlock SubBlock Nothing _ exp | Just hashExp <- extractHash (unwrap exp) = return $ Syn "\\{}" [hashExp]
+retBlock typ formal lvalue body = retVerbatimBlock typ formal lvalue body
 
-retVerbatimBlock :: SubType -> Maybe [Param] -> Exp -> RuleParser Exp
-retVerbatimBlock styp formal body = expRule $ do
+retVerbatimBlock :: SubType -> Maybe [Param] -> Bool -> Exp -> RuleParser Exp
+retVerbatimBlock styp formal lvalue body = expRule $ do
     let (fun, names, params) = doExtract styp formal body
     -- Check for placeholder vs formal parameters
     unless (isNothing formal || null names) $ 
@@ -1054,7 +1054,7 @@ retVerbatimBlock styp formal body = expRule $ do
             , subType       = styp
             , subAssoc      = "pre"
             , subReturns    = anyType
-            , subLValue     = False -- XXX "is rw"
+            , subLValue     = lvalue
             , subParams     = paramsFor styp formal params
             , subBindings   = []
             , subSlurpLimit = []
@@ -1075,7 +1075,7 @@ defaultParamFor SubBlock    = [defaultScalarParam]
 defaultParamFor SubPointy   = []
 defaultParamFor _           = [defaultArrayParam]
 
-ruleBlockFormalStandard :: RuleParser (SubType, Maybe [Param])
+ruleBlockFormalStandard :: RuleParser (SubType, Maybe [Param], Bool)
 ruleBlockFormalStandard = rule "standard block parameters" $ do
     styp <- choice
         [ do { try $ symbol "sub";   return SubRoutine }
@@ -1083,13 +1083,15 @@ ruleBlockFormalStandard = rule "standard block parameters" $ do
         , do {       symbol "macro"; return SubMacro }
         ]
     params <- option Nothing $ ruleSubParameters ParensMandatory
-    return $ (styp, params)
+    traits <- many $ ruleTrait
+    return $ (styp, params, "rw" `elem` traits)
 
-ruleBlockFormalPointy :: RuleParser (SubType, Maybe [Param])
+ruleBlockFormalPointy :: RuleParser (SubType, Maybe [Param], Bool)
 ruleBlockFormalPointy = rule "pointy block parameters" $ do
     symbol "->"
     params <- ruleSubParameters ParensOptional
-    return $ (SubPointy, params)
+    traits <- many $ ruleTrait
+    return $ (SubPointy, params, "rw" `elem` traits)
 
 
 

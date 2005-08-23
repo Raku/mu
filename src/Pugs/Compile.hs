@@ -104,7 +104,7 @@ instance Compile Pad [PIL_Decl] where
                 initL   = "__init_" ++ (render $ varText name)
                 name' | ':' `elem` name = name
                       | otherwise = "main::" ++ name -- XXX wrong
-            return [PSub initL SubPrim [] bodyC]
+            return [PSub initL SubPrim [] False bodyC]
         canCompile _ = return []
         doCode name vsub = case subBody vsub of
             Prim _  -> return []
@@ -116,22 +116,22 @@ eachM = forM . ([0..] `zip`)
 instance Compile (SubName, [PIL_Decl]) [PIL_Decl] where
     compile (name, decls) = do
         let bodyC = [ PStmts . PStmt . PExp $ PApp tcVoid (PExp (PVar sub)) Nothing []
-                    | PSub sub _ _ _ <- decls
+                    | PSub sub _ _ _ _ <- decls
                     ]
-        return (PSub name SubPrim [] (combine bodyC PNil):decls)
+        return (PSub name SubPrim [] False (combine bodyC PNil):decls)
 
 instance Compile (SubName, VCode) [PIL_Decl] where
     compile (name, vsub) | packageOf name /= packageOf (subName vsub) = do
         let storeC  = PBind [PVar $ qualify name] (PExp . PVar . qualify $ subName vsub)
             bodyC   = PStmts (PStmt . PExp $ storeC) PNil
             exportL = "__export_" ++ (render $ varText name)
-        return [PSub exportL SubPrim [] bodyC]
+        return [PSub exportL SubPrim [] False bodyC]
     compile (name, vsub) = do
         bodyC   <- enter cxtItemAny . compile $ case subBody vsub of
             Syn "block" [body]  -> body
             body                -> body
         paramsC <- compile $ subParams vsub
-        return [PSub name (subType vsub) paramsC bodyC]
+        return [PSub name (subType vsub) paramsC (subLValue vsub) bodyC]
 
 instance Compile (String, [(TVar Bool, TVar VRef)]) PIL_Expr where
     compile (name, _) = return $ PRawName name
@@ -227,7 +227,7 @@ instance Compile Exp PIL_Stmt where
     compile exp = fmap PStmt $ compile exp
 
 pBlock :: PIL_Stmts -> PIL_Expr
-pBlock = PCode SubBlock []
+pBlock = PCode SubBlock [] False
 
 {-
 subTCxt :: VCode -> Eval TCxt
@@ -355,7 +355,7 @@ instance Compile Exp PIL_Expr where
             Syn "block" [exp]   -> exp
             exp                 -> exp
         paramsC <- compile $ subParams sub
-        return $ PCode (subType sub) paramsC bodyC
+        return $ PCode (subType sub) paramsC (subLValue sub) bodyC
     compile (Syn "module" _) = compile Noop
     compile (Syn "match" exp) = compile $ Syn "rx" exp -- wrong
     compile (Syn "//" exp) = compile $ Syn "rx" exp

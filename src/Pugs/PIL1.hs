@@ -71,6 +71,7 @@ data PIL_Expr
     | PCode
         { pType    :: !SubType
         , pParams  :: ![TParam]
+        , pLValue  :: !Bool
         , pBody    :: !PIL_Stmts
         }
     deriving (Show, Eq, Ord, Typeable)
@@ -79,6 +80,7 @@ data PIL_Decl = PSub
     { pSubName      :: !SubName
     , pSubType      :: !SubType
     , pSubParams    :: ![TParam]
+    , pSubLValue    :: !Bool
     , pSubBody      :: !PIL_Stmts
     }
     deriving (Show, Eq, Ord, Typeable)
@@ -255,11 +257,12 @@ instance Binary PIL_Expr where
     put_ bh (PThunk ad) = do
 	    putByte bh 3
 	    put_ bh ad
-    put_ bh (PCode ae af ag) = do
+    put_ bh (PCode ae af ag ah) = do
 	    putByte bh 4
 	    put_ bh ae
 	    put_ bh af
 	    put_ bh ag
+	    put_ bh ah
     get bh = do
 	    h <- getByte bh
 	    case h of
@@ -279,7 +282,8 @@ instance Binary PIL_Expr where
 		    ae <- get bh
 		    af <- get bh
 		    ag <- get bh
-		    return (PCode ae af ag)
+		    ah <- get bh
+		    return (PCode ae af ag ah)
 
 instance Perl5 PIL_Expr where
     showPerl5 (PRawName aa) = showP5HashObj "PRawName"
@@ -288,9 +292,9 @@ instance Perl5 PIL_Expr where
     showPerl5 (PLit aa) = showP5HashObj "PLit" [("pLit", showPerl5 aa)]
     showPerl5 (PThunk aa) = showP5HashObj "PThunk"
 	      [("pThunk", showPerl5 aa)]
-    showPerl5 (PCode aa ab ac) = showP5HashObj "PCode"
+    showPerl5 (PCode aa ab ac ad) = showP5HashObj "PCode"
 	      [("pType", showPerl5 aa) , ("pParams", showPerl5 ab) ,
-	       ("pBody", showPerl5 ac)]
+	       ("pLValue", showPerl5 ac) , ("pBody", showPerl5 ad)]
 
 instance JSON PIL_Expr where
     showJSON (PRawName aa) = showJSHashObj "PRawName"
@@ -299,32 +303,36 @@ instance JSON PIL_Expr where
     showJSON (PLit aa) = showJSHashObj "PLit" [("pLit", showJSON aa)]
     showJSON (PThunk aa) = showJSHashObj "PThunk"
 	     [("pThunk", showJSON aa)]
-    showJSON (PCode aa ab ac) = showJSHashObj "PCode"
+    showJSON (PCode aa ab ac ad) = showJSHashObj "PCode"
 	     [("pType", showJSON aa) , ("pParams", showJSON ab) ,
-	      ("pBody", showJSON ac)]
+	      ("pLValue", showJSON ac) , ("pBody", showJSON ad)]
 
 instance Binary PIL_Decl where
-    put_ bh (PSub aa ab ac ad) = do
+    put_ bh (PSub aa ab ac ad ae) = do
 	    put_ bh aa
 	    put_ bh ab
 	    put_ bh ac
 	    put_ bh ad
+	    put_ bh ae
     get bh = do
     aa <- get bh
     ab <- get bh
     ac <- get bh
     ad <- get bh
-    return (PSub aa ab ac ad)
+    ae <- get bh
+    return (PSub aa ab ac ad ae)
 
 instance Perl5 PIL_Decl where
-    showPerl5 (PSub aa ab ac ad) = showP5HashObj "PSub"
+    showPerl5 (PSub aa ab ac ad ae) = showP5HashObj "PSub"
 	      [("pSubName", showPerl5 aa) , ("pSubType", showPerl5 ab) ,
-	       ("pSubParams", showPerl5 ac) , ("pSubBody", showPerl5 ad)]
+	       ("pSubParams", showPerl5 ac) , ("pSubLValue", showPerl5 ad) ,
+	       ("pSubBody", showPerl5 ae)]
 
 instance JSON PIL_Decl where
-    showJSON (PSub aa ab ac ad) = showJSHashObj "PSub"
+    showJSON (PSub aa ab ac ad ae) = showJSHashObj "PSub"
 	     [("pSubName", showJSON aa) , ("pSubType", showJSON ab) ,
-	      ("pSubParams", showJSON ac) , ("pSubBody", showJSON ad)]
+	      ("pSubParams", showJSON ac) , ("pSubLValue", showJSON ad) ,
+	      ("pSubBody", showJSON ae)]
 
 instance Binary PIL_Literal where
     put_ bh (PVal aa) = do

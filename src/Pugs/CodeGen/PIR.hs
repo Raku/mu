@@ -105,7 +105,7 @@ instance Translate PIL_Expr Expression where
         tellIns $ "invoke" .- [reg cc]
         tellLabel endL
         return (ExpLV this)
-    trans (PCode styp params body) = do
+    trans (PCode styp params _ body) = do
         [begL, endL] <- genLabel ["blockBegin", "blockEnd"]
         this    <- genPMC "block"
         tellIns $ "newsub" .- [reg this, bare ".Closure", bare begL]
@@ -125,10 +125,10 @@ instance Translate PIL_Expr Expression where
         return (ExpLV this)
 
 instance Translate PIL_Decl Decl where
-    trans (PSub name styp params body) | Just (pkg, name') <- isQualified name = do
-        declC <- trans $ PSub name' styp params body
+    trans (PSub name styp params lvalue body) | Just (pkg, name') <- isQualified name = do
+        declC <- trans $ PSub name' styp params lvalue body
         return $ DeclNS pkg [declC]
-    trans (PSub name styp params body) = do
+    trans (PSub name styp params _ body) = do
         (_, stmts)  <- listen $ do
             let prms = map tpParam params
             mapM_ (tellIns . InsLocal RegPMC . prmToIdent) prms
@@ -185,7 +185,7 @@ instance Translate PIL_LValue LValue where
         rhsC    <- trans rhs
         tellIns $ lhsC <:= rhsC
         return lhsC
-    trans (PApp _ exp@(PCode _ _ _) Nothing []) = do
+    trans (PApp _ exp@(PCode _ _ _ _) Nothing []) = do
         blockC  <- trans exp
         tellIns $ [reg tempPMC] <-& blockC $ []
         return tempPMC
@@ -382,7 +382,7 @@ genPIR = do
             -- XXX wrong, should be lexical
             , InsNew tempPMC PerlScalar
             , "store_global"    .- [lit "$_", tempPMC]
-            ]) ++ [ StmtRaw (text (name ++ "()")) | PSub name@('_':'_':_) _ _ _ <- pilGlob penv ] ++
+            ]) ++ [ StmtRaw (text (name ++ "()")) | PSub name@('_':'_':_) _ _ _ _ <- pilGlob penv ] ++
             [ StmtRaw (text "main()")
             , StmtIns $ tempPMC  <-- "find_global" $ [lit "Perl6::Internals", lit "&exit"]
             , StmtIns $ "set_args" .- sigList [MkSig [] lit0]
