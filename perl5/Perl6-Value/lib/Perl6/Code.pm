@@ -22,8 +22,21 @@
 # Subroutine global names are not created by the Code object.
 # - code.t stores names in %Perl6::[Multi]Sub::SUBS
 
-# TODO - parameter types - is rw, is copy
-# TODO - caller context
+# Algorithm for matching/binding:
+# extract all +$x, ?+$x - must be Pairs
+# extract all positionals, counting (but skipping) Pairs. extract slurp
+# extract remaining Pairs
+# $^a, $^b count like '+'
+
+# TODO - escape continuations ?
+# TODO - modify constant parameter is an error
+# TODO - splat can't be rw
+# TODO - examples - subname, tail recursion, caller
+# TODO - return lvalue; Proxy
+# TODO - multisubs are checking parameters twice
+# TODO - parameter types - is rw, is copy, is ref, is context(Scalar)
+# TODO - slurpy Code *$block
+# TODO - caller context - want()
 # TODO - test the integration with Value and Container types
 # TODO - add hooks for signature checks, autoboxing/un-boxing, return value checking and autoboxing/un-boxing
 # TODO - add support for optional parameters ?$x, pairs
