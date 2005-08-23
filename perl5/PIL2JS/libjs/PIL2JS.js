@@ -320,7 +320,7 @@ PIL2JS.Box.Proxy = function (fetch, store) {
 // assigned to. Necessary for sub params without "is rw".
 PIL2JS.Box.ReadOnly = function (box) {
   this.FETCH = function ()  { return box.FETCH() };
-  this.STORE = function (n) { PIL2JS.die("Can't modify constant item!"); return n };
+  this.STORE = function (n) { PIL2JS.die("Can't modify readonly item!"); return n };
   this.uid   = box.uid;
   this.container_type = box.container_type;
 };

@@ -16,6 +16,7 @@ use strict;
   sub name   :lvalue { $_[0]->{pSubName}   }
   sub type   :lvalue { $_[0]->{pSubType}   }
   sub params :lvalue { $_[0]->{pSubParams} }
+  sub lvalue :lvalue { $_[0]->{pSubLValue} }
   sub body   :lvalue { $_[0]->{pSubBody}   }
 
   sub fixup {
@@ -95,6 +96,7 @@ use strict;
   sub name   { "<anonymous@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>" }
   sub type   :lvalue { $_[0]->{pType}   }
   sub params :lvalue { $_[0]->{pParams} }
+  sub lvalue :lvalue { $_[0]->{pLValue} }
   sub body   :lvalue { $_[0]->{pBody}   }
 
   sub fixup {
@@ -116,7 +118,8 @@ use strict;
       $self->isa("PIL::PSub")
         ? (pSubName => $self->name)
         : (),
-      "p" . $self->prefix . "Type" => $self->type,
+      "p" . $self->prefix . "Type"   => $self->type,
+      "p" . $self->prefix . "LValue" => $self->lvalue,
       $self->params->fixup(
         $self->prefix,
         $self->body eq "PNil"
@@ -178,8 +181,8 @@ EOF
         : $self->body->as_js;
     my $ccsetup     =
       $PIL::IN_SUBLIKE == PIL::SUBCOROUTINE
-        ? PIL::coro_cc    $coro_id,       @PIL::VARS_TO_BACKUP
-        : PIL::generic_cc PIL::cur_retcc, @PIL::VARS_TO_BACKUP;
+        ? PIL::coro_cc    $coro_id,       $self->lvalue, @PIL::VARS_TO_BACKUP
+        : PIL::generic_cc PIL::cur_retcc, $self->lvalue, @PIL::VARS_TO_BACKUP;
     my $backup      = "var " . join ", ", map {
       sprintf "backup_%s = %s", PIL::name_mangle($_), PIL::name_mangle($_);
     } @PIL::VARS_TO_BACKUP;

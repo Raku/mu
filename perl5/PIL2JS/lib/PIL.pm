@@ -106,27 +106,31 @@ sub lookup_var {
 sub fail { die "*** $_[0]\n    at $CUR_POS\n" }
 
 sub generic_cc {
-  my ($name, @vars_to_restore) = @_;
+  my ($name, $lvalue, @vars_to_restore) = @_;
 
   my $restores = join "; ", map {
     sprintf "%s = backup_%s", name_mangle($_), name_mangle($_);
   } @vars_to_restore;
 
-  return sprintf <<EOF, $name, $restores }
+  return sprintf <<EOF, $name, $restores, $lvalue ? "" : "new PIL2JS.Box.ReadOnly(", $lvalue ? "" : ")" }
 var __returncc = args.pop();
 var %s = function (retval) {
   PIL2JS_callchain.pop(); PIL2JS_subpads.pop();
   %s;
-  throw function () { __returncc(retval) };
+  throw function () { __returncc(%sretval%s) };
 };
 EOF
 
 sub coro_cc {
-  my ($coro_id, @vars_to_restore) = @_;
+  my ($coro_id, $lvalue, @vars_to_restore) = @_;
 
   my $restores = join "; ", map {
     sprintf "%s = backup_%s", name_mangle($_), name_mangle($_);
   } @vars_to_restore;
+
+  my @lvalue_fix = $lvalue
+    ? ("", "")
+    : ("new PIL2JS.Box.ReadOnly(", ")");
 
   return <<EOF;
 var __returncc = args.pop();
@@ -134,7 +138,7 @@ var subreturncc = function (retval) {
   PIL2JS_callchain.pop(); PIL2JS_subpads.pop();
   PIL2JS.coro_entrypoints[$coro_id] = undefined;
   $restores;
-  throw function () { __returncc(retval) };
+  throw function () { __returncc($lvalue_fix[0]retval$lvalue_fix[1]) };
 };
 var coroyieldcc = function (retval, cc) {
   PIL2JS.coro_entrypoints[$coro_id] = function (new_returncc) {
@@ -143,7 +147,7 @@ var coroyieldcc = function (retval, cc) {
   };
   PIL2JS_callchain.pop(); PIL2JS_subpads.pop();
   $restores;
-  throw function () { __returncc(retval) };
+  throw function () { __returncc($lvalue_fix[0]retval$lvalue_fix[1]) };
 };
 EOF
 }
