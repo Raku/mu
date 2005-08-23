@@ -45,6 +45,8 @@ MULTI SUB pi () {p6_from_n(Math::Trig::pi)};
 MULTI SUB say (*@args) {
     p6_new(Int => print( (map{p6_to_s($_)}@args),"\n"));
 };
+MULTI SUB prefix:<,> (*@a) {@a};
+MULTI SUB infix:<,>  (*@a) { p6_from_l(@a) };
 
 # Things which dont appear in Prim.hs
 MACRO     statement_control:<if> ($xx0,$xx1,$xx2) {...};
@@ -192,7 +194,7 @@ MULTI SUB close ($xx) {...};
 MULTI SUB key ($xx) {...};
 MULTI SUB value ($xx) {...};
 MULTI SUB pairs ($xx) {...};
-MULTI SUB List::kv ($xx) {...};
+MULTI SUB List::kv ($xx) {...}; 
 MULTI SUB Pair::kv ($xx) {...};
 MULTI SUB keys ($xx) {...};
 MULTI SUB values ($xx) {...};
@@ -201,7 +203,7 @@ MULTI SUB readline ($xx) {...};
 MULTI SUB getc ($xx) {...};
 MULTI SUB ref ($xx) {...};
 MULTI SUB pop ($xx) {...};
-MULTI SUB shift ($xx) {...};
+MULTI SUB shift ($xx) { $xx->shift };
 MULTI SUB pick ($xx) {...};
 MULTI SUB sum ($xx) {...};
 MULTI SUB min ($xx) {...};
