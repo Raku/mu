@@ -36,7 +36,7 @@ sub p6_from_b {my($b)=@_; p6_new('Int',$b ? 1 : 0)}
 sub p6_from_n {my($n)=@_; p6_new(int($n) == $n ? 'Int' : 'Num', 0+$n)}
 sub p6_from_s {my($s)=@_; p6_new('Str',"$s")}
 sub p6_from_a {my($a)=@_; [@$a]}
-sub p6_from_l {my($a)=@_; p6_new('List', $a )}
+sub p6_from_l {my(@a)=@_; p6_new('List', @a)}
 sub p6_die {my(@args)=@_; die @args;}
 sub p6_set {my($o,$v)=@_; $o->store($v)}
 sub p6_var : lvalue {
@@ -155,7 +155,7 @@ sub p6_new {
 	return "PIL::Run::Type::$type"->new($f);
     }
     if ($type eq 'List') {
-	return Perl6::Value::List->from_single(@{$arg[0]});
+	return List->new( unboxed => Perl6::Value::List->from_single(@arg) );
     }
     return "PIL::Run::Type::$type"->new(@arg);
 }
