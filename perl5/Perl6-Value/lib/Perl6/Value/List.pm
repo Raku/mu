@@ -131,6 +131,22 @@ sub from_range {
     );
 }
 
+sub from_x {
+    # implements ('a' x 100) style lists
+    # this can be used to create sparse arrays like:  [ 1, undef x 10000, 2 ]
+    my $class = shift;
+    my %param = @_;
+    my $item = $param{item};
+    my $count = $param{celems};
+    $count = sub { Inf } 
+        unless defined $count;
+    $class->new(
+                cstart =>  sub { $item },
+                cend =>    sub { $item },
+                celems =>  $count,
+    );
+}
+
 sub from_single {
     my $class = shift;
     my @list = @_;
