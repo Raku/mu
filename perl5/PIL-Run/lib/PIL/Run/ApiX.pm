@@ -155,7 +155,7 @@ sub p6_new {
 	return "PIL::Run::Type::$type"->new($f);
     }
     if ($type eq 'List') {
-	Perl6::Value::List->from_single(@{$arg[0]});
+	return Perl6::Value::List->from_single(@{$arg[0]});
     }
     return "PIL::Run::Type::$type"->new(@arg);
 }
