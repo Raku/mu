@@ -16,10 +16,7 @@ Blechschmidt|http://www.nntp.perl.org/group/perl.perl6.language/22883>.
 
 =cut
 
-plan 28;
-
-skip_rest "Semantics not confirmed by p6l";
-exit;
+plan 27;
 
 # Positional with slurpy *%hash and slurpy *@array
 sub position_with_slurpy_hash1($n, *%hash, *@data) {
@@ -140,7 +137,7 @@ L<<S06/"List parameters" /Slurpy scalar parameters capture what would otherwise 
 sub first(*$f, *$s, *@r) { return $f };
 sub second(*$f, *$s, *@r) { return $s };
 sub rest(*$f, *$s, *@r) { return @r.sum };
-ok 'Testing with slurpy scalar';
+diag 'Testing with slurpy scalar';
 is first(1, 2, 3, 4, 5), 1,
   'Testing the first slurpy scalar...';
 is second(1, 2, 3, 4, 5), 2,
