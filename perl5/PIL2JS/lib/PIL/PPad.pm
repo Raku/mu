@@ -8,14 +8,19 @@ sub fixup {
   my $self = shift;
 
   die unless keys %$self == 3;
-  die unless $self->{pScope} eq "SMy";
+  # A SOur should never reach use (SOurs are compiled into __init_ subs).
+  die if     $self->{pScope} eq "SOur";
   die unless ref $self->{pSyms} eq "ARRAY";
   die unless $self->{pStmts}->isa("PIL::PStmts");
 
-  if($PIL::IN_SUBLIKE) {
+  # Skip creating a new sub-pad if
+  #   a) we're in a subroutine (in this case, we use JS' lexicals) or
+  #   b) we're compiling a SLet, STemp, or SState (which all use an existing
+  #      variable).
+  if($PIL::IN_SUBLIKE or $self->{pScope} =~ /^(SLet|STemp|SState)$/) {
     return bless {
       pScope => $self->{pScope},
-      pSyms  => [map {{ fixed => $_->[0], user => $_->[0] }} @{ $self->{pSyms} }],
+      pSyms  => [map {{ fixed => PIL::lookup_var($_->[0]), user => $_->[0] }} @{ $self->{pSyms} }],
       pStmts => $self->{pStmts}->fixup,
     } => "PIL::PPad";
   }
@@ -51,12 +56,43 @@ sub as_js {
   my $decl = $PIL::IN_SUBLIKE ? "var " : "";
   return
     join("; ", map {
-      sprintf "%s%s = %s; pad[%s] = %s",
-        $PIL::IN_SUBLIKE ? "var " : "",
+      my ($jsname, $qname, $undef) = (
         PIL::name_mangle($_->{fixed}),
-        PIL::undef_of($_->{fixed}),
         PIL::doublequote($_->{user}),
-        PIL::name_mangle($_->{fixed});
+        PIL::undef_of($_->{fixed}),
+      );
+
+      if($self->{pScope} eq "SMy") {
+        "$decl$jsname = $undef; pad[$qname] = $jsname";
+      } elsif($self->{pScope} eq "STemp") {
+        PIL::fail("Can't use temp variable declarator outside a sub-scope!")
+          unless $PIL::IN_SUBLIKE;
+        <<EOF;
+(function () {
+  var backup = $jsname.FETCH();
+  block_leave_hooks.push(function () {
+    $jsname.STORE(new PIL2JS.Box.Constant(backup));
+  });
+})()
+EOF
+      } elsif($self->{pScope} eq "SLet") {
+        PIL::fail("Can't use temp variable declarator outside a sub-scope!")
+          unless $PIL::IN_SUBLIKE;
+        <<EOF;
+(function () {
+  var backup = $jsname.FETCH();
+  block_leave_hooks.push(function (retval) {
+    if(!PIL2JS.cps2normal(
+      _26main_3a_3aprefix_3a_3f.FETCH(),
+      [PIL2JS.Context.ItemAny, retval]
+    ).FETCH())
+      $jsname.STORE(new PIL2JS.Box.Constant(backup));
+  });
+})()
+EOF
+      } else {
+        die;
+      }
     } @{ $self->{pSyms} }) .
     ";\n" .
     $self->{pStmts}->as_js;

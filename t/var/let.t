@@ -32,7 +32,7 @@ plan 7;
 }
 
 # Test that let() restores the variable at scope exit, not at subroutine
-# entry.
+# entry.  (This might be a possibly bug.)
 {
   my $a     = 42;
   my $get_a = { $a };
@@ -44,3 +44,19 @@ plan 7;
   }
   is $a, 23, "let() should not restore the variable, as our block exited succesfully (2)";
 }
+
+=pod
+
+Should these work? (They don't even parse currently.)
+
+{
+  my @array = (0, 1, 2);
+  {
+    let @array[1] = 42;
+    is @array[1], 42, "let() changed our array element";
+    0;
+  }
+  is @array[1], 1, "let() restored our array element";
+}
+
+=cut

@@ -141,10 +141,10 @@ instance Compile Exp PIL_Stmts where
     compile (Cxt cxt rest) = enter cxt $ compile rest
     compile (Stmts (Pad SOur _ exp) rest) = do
         compile $ mergeStmts exp rest
-    compile (Stmts (Pad _ pad exp) rest) = do
+    compile (Stmts (Pad scope pad exp) rest) = do
         expC    <- compile $ mergeStmts exp rest
         padC    <- compile $ padToList pad
-        return $ PPad SMy ((map fst $ padToList pad) `zip` padC) expC
+        return $ PPad scope ((map fst $ padToList pad) `zip` padC) expC
     compile exp = compileStmts exp
 
 class EnterClass m a where

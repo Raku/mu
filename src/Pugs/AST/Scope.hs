@@ -6,9 +6,9 @@ module Pugs.AST.Scope (
 
 -- | The scope of a variable declaration.
 data Scope = SState  -- ^ Persistent across calls
-           | SMy     -- ^ Lexical
-           | SOur    -- ^ Package
            | SLet    -- ^ Hypotheticalised (reverted upon failure)
            | STemp   -- ^ Temporary (reverted at scope exit)
+           | SMy     -- ^ Lexical
+           | SOur    -- ^ Package
            | SGlobal -- ^ Global
     deriving (Show, Eq, Ord, Enum)

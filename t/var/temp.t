@@ -37,6 +37,21 @@ plan 22;
   is $pkgvar, 42, "temp() restored the package variable (3-2)", :todo<bug>;
 }
 
+=pod
+
+Should these work? (They don't even parse currently.)
+
+{
+  my @array = (0, 1, 2);
+  {
+    temp @array[1] = 42;
+    is @array[1], 42, "temp() changed our array element";
+  }
+  is @array[1], 1, "temp() restored our array element";
+}
+
+=cut
+
 # Block TEMP{}
 # L<S06/"Temporization" /You can also modify the behaviour of temporized code structures/>
 # (Test is more or less directly from S06.)

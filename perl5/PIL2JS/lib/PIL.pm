@@ -114,7 +114,12 @@ sub generic_cc {
 
   return sprintf <<EOF, $name, $restores, $lvalue ? "" : "new PIL2JS.Box.ReadOnly(", $lvalue ? "" : ")" }
 var __returncc = args.pop();
+var block_leave_hooks = [];
 var %s = function (retval) {
+  for(var i = 0; i < block_leave_hooks.length; i++) {
+    block_leave_hooks[i](retval);
+  }
+
   PIL2JS_callchain.pop(); PIL2JS_subpads.pop();
   %s;
   throw function () { __returncc(%sretval%s) };

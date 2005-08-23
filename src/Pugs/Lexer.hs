@@ -278,7 +278,7 @@ ruleScope = tryRule "scope" $ do
 
 ruleScopeName :: RuleParser String
 ruleScopeName = choice . map symbol . map (map toLower) . map (tail . show)
-    $ [SState .. STemp]
+    $ [SState .. SOur]
 
 postSpace :: GenParser Char st a -> GenParser Char st a
 postSpace rule = try $ do
