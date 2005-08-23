@@ -155,7 +155,7 @@ sub p6_new {
 	return "PIL::Run::Type::$type"->new($f);
     }
     if ($type eq 'List') {
-	return List->new( unboxed => Perl6::Value::List->from_single(@arg) );
+	return List->new( '$.unboxed' => Perl6::Value::List->from_single(@arg) );
     }
     return "PIL::Run::Type::$type"->new(@arg);
 }
