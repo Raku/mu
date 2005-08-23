@@ -26,7 +26,7 @@ use Filter::Simple sub {
     s/\#.+//g;
     s/{\.\.\.}/{p6_die("\$_fn: unimplemented");}/g;
     s/(MULTI SUB|MACRO)\s+(\S+)\s+\((.*?)\)\s+{/gen($1,$2,$3)/ge;
-    print; #print STDERR;
+    #print; #print STDERR;
     $_;
 };
 # BEGIN { FILTER_ONLY code => sub {} }; also works?
