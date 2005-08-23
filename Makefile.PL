@@ -365,17 +365,41 @@ unoptimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $ver
 $pugs : src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml src/perl6/Prelude.pm
 	\$(PERL) util/build_pugs.pl _+GHC $ghc $threaded __optimization__ --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
+
+pirtest : test-pir
+
+pirsmoke : smoke-pir
+
+jssmoke : smoke-js
+
+
+test-all : test test-js test-pir test-perl5
+
+test-pir : 
+	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B PIR+; system qq+$Config{make}+, q+test+"
+
+test-js :
+	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B JS+; system qq+$Config{make}+, q+test+"
+
+test-perl5 :
+	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B PERL5+; system qq+$Config{make}+, q+test+"
+
+
+
+smoke-all : smoke smoke-js smoke-pir smoke-perl5
+
 smoke : $pugs util/run-smoke.pl all
 	\$(PERL) util/run-smoke.pl . smoke.html
 
-pirsmoke : $pugs util/run-smoke.pl all
-	\$(PERL) util/run-smoke.pl . smoke.html -BPIR
+smoke-pir : $pugs util/run-smoke.pl all
+	\$(PERL) util/run-smoke.pl . smoke-pir.html -BPIR
 
-pirtest :
-	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B PIR+; system qq+$Config{make}+, q+test+"
+smoke-js : $pugs util/run-smoke.pl all
+	\$(PERL) -e "ENV->{PUGS_RUNTIME}=q+JS+; exec qw+$^X util/run-smoke.pl . smoke-js.html -BJS+"
 
-jssmoke : $pugs util/run-smoke.pl all
-	\$(PERL) -e "ENV->{PUGS_RUNTIME}=q+JS+; exec qw+$^X util/run-smoke.pl . smoke.html+"
+smoke-perl5 : $pugs util/run-smoke.pl all
+	\$(PERL) -e "ENV->{PUGS_RUNTIME}=q+PERL5+; exec qw+$^X util/run-smoke.pl . smoke-perl5.html -BPERL5+"
+
 
 ghci ::
 	$ghc --interactive $ghc_flags $ghc_output
