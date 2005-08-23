@@ -221,7 +221,7 @@ class 'Scalar'.$class_description => {
                         return ::SELF 
                     }
                     return if $method eq 'unboxed';
-                    die "Method not found: .$method";
+                    die "Trying to call method \"$method\" in an undefined Scalar";
                 }
             },
         },
