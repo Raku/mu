@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 7;
+plan 9;
 
 # L<S04/"The Relationship of Blocks and Declarations" /There is also a let function/>
 # L<S04/"Definition of Success">
@@ -43,6 +43,18 @@ plan 7;
     1;
   }
   is $a, 23, "let() should not restore the variable, as our block exited succesfully (2)";
+}
+
+# Test that let() restores variable even when not exited regularly (using a
+# (possibly implicit) call to return()), but when left because of an exception.
+{
+  my $a = 42;
+  try {
+    let $a = 23;
+    is $a, 23, "let() changed the variable in a try block";
+    die 57;
+  };
+  is $a, 42, "let() restored the variable, the block was exited using an exception";
 }
 
 =pod

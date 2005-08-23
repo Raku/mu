@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 22;
+plan 24;
 
 # L<S04/"The Relationship of Blocks and Declarations" /function has been renamed/>
 {
@@ -35,6 +35,18 @@ plan 22;
     is $pkgvar, 'not 42', "temp() changed the package variable (3-1)";
   }
   is $pkgvar, 42, "temp() restored the package variable (3-2)", :todo<bug>;
+}
+
+# Test that temp() restores variable even when not exited regularly (using a
+# (possibly implicit) call to return()), but when left because of an exception.
+{
+  my $a = 42;
+  try {
+    temp $a = 23;
+    is $a, 23, "temp() changed the variable in a try block";
+    die 57;
+  };
+  is $a, 42, "temp() restored the variable, the block was exited using an exception";
 }
 
 =pod
