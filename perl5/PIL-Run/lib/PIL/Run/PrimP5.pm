@@ -43,7 +43,7 @@ sub def {
 # a first few - dont add more here?
 MULTI SUB pi () {p6_from_n(Math::Trig::pi)};
 MULTI SUB say (*@args) {
-    p6_new(Int => print(p6_to_s(@args),"\n"));
+    p6_new(Int => print( (map{p6_to_s($_)}@args),"\n"));
 };
 MULTI SUB prefix:<,> (*@a) {@a};
 
