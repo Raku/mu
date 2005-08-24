@@ -27,12 +27,12 @@ $VERSION = '0.01';
        p6_apply
        );
 
-sub p6_to_b {my($b)=@_; $b->num()->unboxed ? 1 : 0}
+sub p6_to_b {my($b)=@_; $b->bit()->unboxed ? 1 : 0}
 sub p6_to_n {my($n)=@_; $n->num()->unboxed;}
 sub p6_to_s {my($n)=@_; $n->str()->unboxed;}
 sub p6_to_a {my($a_obj)=@_; my @list; while ( $a_obj->elems ) { push @list, $a_obj->shift }; @list }
 sub p6_to_l {my($a_obj)=@_; my @list; while ( $a_obj->elems ) { push @list, $a_obj->shift }; @list }
-sub p6_from_b {my($b)=@_; p6_new('Int',$b ? 1 : 0)}
+sub p6_from_b {my($b)=@_; p6_new('Bit',$b ? 1 : 0)}
 sub p6_from_n {my($n)=@_; p6_new(int($n) == $n ? 'Int' : 'Num', 0+$n)}
 sub p6_from_s {my($s)=@_; p6_new('Str',"$s")}
 sub p6_from_a {my(@a)=@_; p6_new('Array', @a)}
@@ -129,6 +129,7 @@ sub def_prim { # used by Prim
 }
 sub p6_new {
     my($type,@arg)=@_;
+    return Bit->new('$.unboxed' => @arg) if $type eq 'Bit';
     return Int->new('$.unboxed' => @arg) if $type eq 'Int';
     return Num->new('$.unboxed' => @arg) if $type eq 'Num';
     return Str->new('$.unboxed' => @arg) if $type eq 'Str';

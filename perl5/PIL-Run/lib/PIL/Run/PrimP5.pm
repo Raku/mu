@@ -62,8 +62,8 @@ MACRO     statement_control:<if> ($xx0,$xx1,$xx2) {
 #MULTI SUB XXX:<^> () {...}; - ???
 #MULTI SUB XXX:<|> () {...}; - ???
 MULTI SUB want () {...};
-MULTI SUB bool::true () {...};
-MULTI SUB bool::false () {...};
+MULTI SUB bool::true () { p6_from_b(1) };
+MULTI SUB bool::false () { p6_from_b(0) };
 MULTI SUB time () {...};
 MULTI SUB times () {...};
 MULTI SUB so () {...};
