@@ -19,11 +19,11 @@ use UNIVERSAL;
 sub subnodes_of {
     my($n)=@_;
     if (UNIVERSAL::isa($n,'ARRAY')) {
-	@$n;
+        @$n;
     } elsif (UNIVERSAL::isa($n,'HASH')) {
-	values(%$n);
+        values(%$n);
     } else {
-	();
+        ();
     }
 }
 
@@ -35,12 +35,12 @@ sub expand {
     my @subnodes = PIL::Run::EvalX::subnodes_of($self);
     my $code = "";
     while (@subnodes) {
-	my $n = shift(@subnodes);
-	if(blessed($n)) {
-	    $code .= $n->expand();
-	} elsif(ref($n)) {
-	    unshift(@subnodes,PIL::Run::EvalX::subnodes_of($n));
-	}
+        my $n = shift(@subnodes);
+        if(blessed($n)) {
+            $code .= $n->expand();
+        } elsif(ref($n)) {
+            unshift(@subnodes,PIL::Run::EvalX::subnodes_of($n));
+        }
     }
     $code;
 }
@@ -63,10 +63,10 @@ package PApp; @ISA = qw(EvalX::BaseClass); sub expand {
     my @args = map{$_->expand()} @{$self->{'pArgs'}};
     my($fv) = PIL::Run::EvalX::run_p5r($f); # XXX - kludge
     if(defined $fv && ref($fv) =~ /Macro/) { # XXX - kludge
-	my $macro_expansion = $fv->do(@args);
-	$macro_expansion;
+        my $macro_expansion = $fv->do(@args);
+        $macro_expansion;
     } else {
-	"p6_apply(".join(",",$f,@args).")";
+        "p6_apply(".join(",",$f,@args).")";
     }
 }
 package PAssign; @ISA = qw(EvalX::BaseClass); sub expand {
@@ -89,10 +89,10 @@ sub get_classes {
     my @nodes; my %classes;
     push(@nodes,$node);
     while (@nodes) {
-	my $n = shift(@nodes);
-	my $cls = ref($n) or next;
-	$classes{$cls} = 1;
-	push(@nodes,subnodes_of($n));
+        my $n = shift(@nodes);
+        my $cls = ref($n) or next;
+        $classes{$cls} = 1;
+        push(@nodes,subnodes_of($n));
     }
     keys(%classes);
 }
@@ -105,8 +105,8 @@ sub define_classes_for {
     return if !@classes_needed;
     my $code;
     foreach (@classes_needed) {
-	$have_classes{$_} = 1;
-	$code .= "package $_; \@ISA = qw(EvalX::BaseClass);\n";
+        $have_classes{$_} = 1;
+        $code .= "package $_; \@ISA = qw(EvalX::BaseClass);\n";
     }
     $code = "no strict;\n".$code;
     #print $code;
