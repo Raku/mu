@@ -46,7 +46,7 @@ MULTI SUB say (*@args) {
     p6_new(Int => print( (map{p6_to_s($_)}@args),"\n"));
 };
 MULTI SUB prefix:<,> (*@a) {@a};
-MULTI SUB infix:<,>  (*@a) { p6_from_l(@a) };
+MULTI SUB infix:<,>  (*@a) { p6_from_a(@a) };
 
 # Things which dont appear in Prim.hs
 MACRO     statement_control:<if> ($xx0,$xx1,$xx2) {

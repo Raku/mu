@@ -36,6 +36,8 @@ use Perl6::Object;
 use Perl6::Value;
 use Perl6::Container::Scalar;
 
+use constant Inf => Perl6::Value::Num::Inf;
+
 my $class_description = '-0.0.1-cpan:FGLOCK';
 
 class 'Array'.$class_description => {
@@ -140,20 +142,24 @@ class 'Array'.$class_description => {
                     unshift @end, $tmp;
                     last if $tmp == &Inf;
                 }
-                return '' unless @start;
+                return Str->new( '$.unboxed' => '' ) unless @start;
                 # if @start and @end intersect, don't print ".."
                 if ( $self->elems == ( scalar @start + scalar @end ) ) {
-                    return join( ', ', @start, @end );
+                    return Str->new( '$.unboxed' => 
+                        join( ', ', 
+                        map { ref($_) ? $_->str->unboxed : $_ } @start, @end )
+                    );
                 }
-                return 
+                return Str->new( '$.unboxed' => 
                     join( ', ', 
-                    map { UNIVERSAL::can($_,'str') ? $_->str : $_ } @start ) .
+                    map { ref($_) ? $_->str->unboxed : $_ } @start ) .
                     ' ... ' . 
                     join( ', ', 
-                    map { UNIVERSAL::can($_,'str') ? $_->str : $_ } @end );
+                    map { ref($_) ? $_->str->unboxed : $_ } @end )
+                );
                 
             },
-            perl => sub { '[' . ::SELF->str . ']' },
+            perl => sub { Str->new( '$.unboxed' => '[' . ::SELF->str->unboxed . ']' ) },
         },
     }
 };
