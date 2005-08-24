@@ -26,19 +26,153 @@
 # TODO - test multi-dimensional array
 # TODO - test optional splice parameters
 
+# Notes:
+# * Cell is implemented in the Perl6::Container::Scalar package
+
+use strict;
+
+use Perl6::MetaModel;
+use Perl6::Object;
+use Perl6::Value;
+use Perl6::Container::Scalar;
+
+my $class_description = '-0.0.1-cpan:FGLOCK';
+
+class 'Array'.$class_description => {
+    is => [ 'Perl6::Object' ],
+    class => {
+        attrs => [],
+        methods => {}
+    },
+    instance => {
+        attrs => [ [ '$:cell' => { 
+                        access => 'rw', 
+                        build => sub { 
+                            # warn " ---- new @_ ---- ";
+                            my $cell = Perl6::Cell->new;
+                            my $h = Perl6::Container::Array->new( items => [ @_ ] );
+                            $cell->{v} = $h;
+                            $cell->{type} = 'Array';
+                            return $cell;
+                        } } ] ],
+        DESTROY => sub {
+            $_[0]->{'instance_data'}{'$:cell'} = undef;  
+        },
+        methods => { 
+
+            # %a := %b 
+            'bind' =>     sub {
+                my ( $self, $thing ) = @_;
+                die "argument to Array bind() must be a Array"
+                    unless $thing->cell->{type} eq 'Array';
+                _('$:cell', $thing->cell);
+                return $self;
+            },
+            'cell' =>     sub { _('$:cell') },  # cell() is used by bind()
+            'id' =>       sub { _('$:cell')->{id} },  
+
+            'tieable' =>  sub { _('$:cell')->{tieable} != 0 },
+            'tie' =>      sub { shift; _('$:cell')->tie(@_) },
+            'untie' =>    sub { _('$:cell')->untie },
+
+             # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
+            'isa' => sub { ::next_METHOD() },
+
+            # 'elems' =>    sub { _('$:cell')->{tied} ? 
+            #                    _('$:cell')->{tied}->elems :
+            #                    Perl6::Container::Array::elems( _('$:cell')->{v} )
+            # },
+
+            'unboxed' => sub { 
+                _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v}
+            },
+            'AUTOLOAD' => sub {
+                my ($self, @param) = @_;
+                my $method = ::AUTOLOAD($self);
+
+                # TODO - add support for tied array
+                # TODO - check if scalar := array works properly
+                my $tmp = $self->unboxed;
+                # warn ref($tmp), ' ', $method, " @param == " . $tmp->$method( @param );
+                
+                @param = 
+                    map {
+                        UNIVERSAL::isa( $_, 'List' ) ? $_->unboxed : $_ 
+                    } @param;
+
+                if ( $method eq 'splice' || $method eq 'reverse' ) {
+                    my $ret = Array->new();
+                    $ret->push( $tmp->$method( @param )->items );
+                    return $ret;
+                }
+                
+                if ( $method eq 'push'   || $method eq 'unshift' ) {
+                    $tmp->$method( @param );
+                    return $self;
+                }
+                
+                return $tmp->$method( @param );
+            },
+            
+            str => sub {
+                # warn "-- str --";
+                my $self = _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v};
+                # warn "-- cell $tmp --";
+                
+                my @start;
+                my @end;
+                my $samples = 2;
+                $samples = 100 unless $self->is_infinite; 
+                my $tmp = -&Inf;
+                for ( 0 .. $samples ) {
+                    last if $_ >= $self->elems;
+                    $tmp = $self->fetch( $_ );
+                    last if $tmp == &Inf;
+                    push @start, $tmp;
+                    last if $tmp == -&Inf;
+                }
+                $tmp = &Inf;
+                for ( map { $_ - $samples - 1 } reverse 0 .. $samples ) {
+                    last unless $self->elems + $_ > scalar @start;
+                    $tmp = $self->fetch( $_ );
+                    # warn "$_ - $tmp";
+                    last if $tmp == -&Inf;
+                    unshift @end, $tmp;
+                    last if $tmp == &Inf;
+                }
+                return '' unless @start;
+                # if @start and @end intersect, don't print ".."
+                if ( $self->elems == ( scalar @start + scalar @end ) ) {
+                    return join( ', ', @start, @end );
+                }
+                return 
+                    join( ', ', 
+                    map { UNIVERSAL::can($_,'str') ? $_->str : $_ } @start ) .
+                    ' ... ' . 
+                    join( ', ', 
+                    map { UNIVERSAL::can($_,'str') ? $_->str : $_ } @end );
+                
+            },
+            perl => sub { '[' . ::SELF->str . ']' },
+        },
+    }
+};
+
+# ----- unboxed functions
+
 package Perl6::Container::Array;
 
 use strict;
 use Perl6::Value;
 use Perl6::Value::List;
 
-our $VERSION = '0.01';
 use constant Inf => Perl6::Value::Num::Inf;
 
 sub new {
     my $class = shift;
     my %param = @_;
     my @items = @{$param{items}};
+    # warn "-- new -- @items --";
     return bless { items => \@items }, $class;
 }
 
@@ -46,6 +180,7 @@ sub clone         { bless { %{ $_[0] } }, ref $_[0] }
 
 sub items {
     my $self = shift;
+    # my @x = %$self;  warn "-- items -- @x --";
     return @{$self->{items}};
 }
 
@@ -206,8 +341,20 @@ sub fetch {
     # see also: slice()
     my $array = shift;
     my $pos = shift;
+    
+    #use Data::Dumper;
+    #warn "-- array -- ". Dumper( $array );
     my $ret = $array->splice( $pos, 1 );
-    $array->splice( $pos, 0, @{$ret->{items}} );
+    #warn "-- $pos -- ".@{$ret->{items}}." -- ".@{$array->{items}}." ";
+    if ( $pos == -1 ) {
+        $array->push( @{$ret->{items}} );
+    }
+    elsif ( $pos < 0 ) {
+        $array->splice( $pos+1, 0, @{$ret->{items}} );
+    }
+    else {
+        $array->splice( $pos, 0, @{$ret->{items}} );
+    }
     return shift @{$ret->{items}};
 }
 

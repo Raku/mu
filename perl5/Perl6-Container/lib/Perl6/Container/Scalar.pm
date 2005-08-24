@@ -3,6 +3,9 @@
 
 # ChangeLog
 #
+# 2005-08-23
+# - fixed Perl6::Cell::fetch
+#
 # 2005-08-19
 # - Added roles (traits) - tieable, readonly
 # - Removed methods: .set_tieable(), .access()
@@ -72,11 +75,11 @@ sub Perl6::Cell::fetch {
     # return $_[0]{tied}->fetch if $_[0]{tied};
     if ( $_[0]{tied} ) {
         my $cell = shift;
-        return $cell->{tied}->store( @_ );
+        return $cell->{tied}->fetch( @_ );
     }
     if ( $_[0]{type} ) {
         my $cell = shift;
-        return $cell->{v}->store( @_ );
+        return $cell->{v}->fetch( @_ );
     }
     $_[0]{v}
 }

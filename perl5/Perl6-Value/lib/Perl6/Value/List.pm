@@ -4,6 +4,9 @@ package Perl6::Value::List;
 
 # ChangeLog
 #
+# 2005-08-23
+# * fixed stringification
+#
 # 2005-08-12
 # * fixed map()->pop()
 #
@@ -19,6 +22,8 @@ package Perl6::Value::List;
 # 2005-08-10
 # * Removed method concat_list(), added "TODO" methods
 
+# TODO - stringification of unboxed types doesn't call native-stringification
+#        meaning Inf and NaN stringify wrongly
 # TODO - List.is_lazy() could be defined with a closure; Perl6 version too
 # TODO - map(), grep() could accept the optional 'celems' parameter - for kv() implementation
 # TODO - is_contiguous() should test if $step == 1
@@ -29,6 +34,42 @@ use Perl6::Value;
 use constant Inf => Perl6::Value::Num::Inf;
 our $VERSION = '0.01';
 
+sub _default_stringify {
+    my $self = shift;
+    my @start;
+    my @end;
+    my $samples = 3;
+    $samples = 1000 unless $self->is_infinite;
+    my $tmp = -&Inf;
+    for ( 1 .. $samples ) {
+        last unless $self->elems;
+        $tmp = $self->shift;
+        last if $tmp == Inf;
+        push @start, $tmp;
+        last if $tmp == -&Inf;
+    }
+    $tmp = Inf;
+    for ( 1 .. $samples ) {
+        last unless $self->elems;
+        $tmp = $self->pop( $tmp );
+        last if $tmp == -&Inf;
+        unshift @end, $tmp;
+        last if $tmp == Inf;
+    }
+    return '' unless @start;
+    # if @start and @end intersect, don't print ".."
+    if ( $self->elems == 0 ) {
+        push @start, @end;
+        return join( ', ', @start, @end );
+    }
+    return 
+        join( ', ', 
+        map { UNIVERSAL::can($_,'str') ? $_->str : $_ } @start ) .
+        ' ... ' . 
+        join( ', ', 
+        map { UNIVERSAL::can($_,'str') ? $_->str : $_ } @end );
+}
+
 sub new {
     my $class = shift;
     my %param = @_;
@@ -37,8 +78,8 @@ sub new {
         unless defined $param{cis_infinite};
     $param{cis_contiguous} = sub { 0 } 
         unless defined $param{cis_contiguous};
-    $param{cstringify}     = sub { $_[0]->shift . '....' . $_[0]->pop } 
-        unless $param{is_lazy}; 
+    $param{cstringify}     = \&_default_stringify 
+        unless defined $param{cstringify}; 
 
     $param{is_lazy}        = 1 unless defined $param{is_lazy};
     unless ( defined $param{celems} ) {
@@ -52,21 +93,14 @@ sub new {
 
 sub clone         { bless { %{ $_[0] } }, ref $_[0] }
 sub elems         { $_[0]->{celems}() }
-sub is_infinite   { $_[0]->{cis_infinite}() }
+sub is_infinite   { $_[0]->{cis_infinite}( $_[0] ) }
 sub is_contiguous { $_[0]->{cis_contiguous}() }
 sub is_lazy       { $_[0]->{is_lazy} }
 sub str           { $_[0]->{cstringify}( $_[0] ) }
 sub int           { $_[0]->elems }
 sub bit           { $_[0]->elems > 0 }
 sub num           { $_[0]->elems }
-sub perl          { $_[0]->{cstringify}() }
-
-# obsolete methods
-sub to_str        { $_[0]->{cstringify}() }
-sub to_ref        { $_[0] }
-sub to_bit        { $_[0]->elems > 0 }
-sub to_num        { $_[0]->elems }
-sub to_list       { $_[0] }
+sub perl          { '(' . $_[0]->{cstringify}( $_[0] ) . ')' }
 
 sub flatten       { 
     my $ret = shift;
@@ -106,7 +140,7 @@ sub from_num_range {
                         },
                 celems =>  sub {
                             return $end - $start + 1 unless defined $step;
-                            return ::int(( $end - $start + 1 ) / $step);
+                            return CORE::int(( $end - $start + 1 ) / $step);
                         },
                 cis_infinite => sub { return $start == -&Inf || $end == Inf },
                 cis_contiguous => sub { $step == -1 || $step ==  1 || $step == undef },
