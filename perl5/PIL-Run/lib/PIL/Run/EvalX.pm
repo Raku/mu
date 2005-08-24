@@ -75,6 +75,9 @@ package PAssign; @ISA = qw(EvalX::BaseClass); sub expand {
 package PStmt; @ISA = qw(EvalX::BaseClass); sub expand {
     $_[0]->SUPER::expand().";\n";
 }
+package PThunk; @ISA = qw(EvalX::BaseClass); sub expand {
+    ' { '.$_[0]->{'pThunk'}{'pLV'}{'pFun'}{'pBody'}->expand().' } ';
+}
 
 
 package PIL::Run::EvalX; # continued.

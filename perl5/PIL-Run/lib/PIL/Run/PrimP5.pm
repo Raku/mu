@@ -49,7 +49,9 @@ MULTI SUB prefix:<,> (*@a) {@a};
 MULTI SUB infix:<,>  (*@a) { p6_from_l(@a) };
 
 # Things which dont appear in Prim.hs
-MACRO     statement_control:<if> ($xx0,$xx1,$xx2) {...};
+MACRO     statement_control:<if> ($xx0,$xx1,$xx2) {
+    "if (p6_to_b($xx0)) $xx1 else $xx2";
+};
 
 # From Prim.hs
 # op0
