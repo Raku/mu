@@ -16,4 +16,4 @@ See the note at the top of Prelude.pm.
 multi sub nothing () is builtin is primitive is safe {
     bool::true}
 
-multi sub postcircumfix:<[ ]> ($a,$i) {die "[] not implemented"}
+multi sub postcircumfix:<[ ]> ($a,$i) { Array::fetch($a,$i) }
