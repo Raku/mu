@@ -37,7 +37,6 @@ use Math::Trig;
 use PIL::Run::ApiX;
 sub def {
     my($what,$name,$argl,$f)=@_;
-    $name =~ s/ //;
     PIL::Run::ApiX::def_prim($what,$name,$argl,$f);
 };
 
@@ -56,7 +55,6 @@ MULTI SUB infix:<,>  (*@a) {
 MACRO     statement_control:<if> ($xx0,$xx1,$xx2) {
     "if (p6_to_b($xx0)) $xx1 else $xx2";
 };
-MULTI SUB postcircumfix:<[ ]> ($a,$i) {...};
 
 # From Prim.hs
 # op0
@@ -135,7 +133,13 @@ MULTI SUB require_parrot ($xx) {...};
 MULTI SUB require_perl5 ($xx) {...};
 MULTI SUB Pugs::Internals::eval_parrot ($xx) {...};
 MULTI SUB use ($xx) {...};
-MULTI SUB require ($xx) {...};
+MULTI SUB require ($xx) {
+    my $fn = p6_to_s($xx);
+    $fn = "lib6/$fn";
+    my $code = do{open(F,"<$fn") or die $!;
+		  my $txt = join("",<F>); close F; $txt};
+    PIL::Run::EvalX::p6_eval($code);
+};
 MULTI SUB Pugs::Internals::eval ($xx) {...};
 MULTI SUB evalfile ($xx) {...};
 MULTI SUB Pugs::Internals::eval_perl5 ($xx) {...};
@@ -158,7 +162,7 @@ MULTI SUB IO::say (*@xxa) {...};
 MULTI SUB IO::print (*@xxa) {...};
 MULTI SUB IO::next ($xx) {...};
 MULTI SUB Pugs::Safe::safe_print ($xx) {...};
-MULTI SUB die ($xx) {...};
+MULTI SUB die ($xx) { die "die: ".p6_to_s($xx); };
 MULTI SUB warn ($xx) {...};
 MULTI SUB fail_ ($xx) {...};
 MULTI SUB exit ($xx) {...};

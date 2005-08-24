@@ -44,6 +44,7 @@ sub p6_die {my(@args)=@_; die @args;}
 sub p6_set {my($o,$v)=@_; $o->store($v)}
 sub p6_var_macro {
     my($name,$defined1_autovivify2)=@_;
+    $name =~ s/\[ \]/\[\]/; # XXX - pugsbug workaround.
     my $m = p6_mangle($name);
     my $mn = $m; $mn =~ s/\\/\\\\/g; $mn =~ s/\'/\\\'/g;
     my $dontdie = $defined1_autovivify2 ? ',1' : '';

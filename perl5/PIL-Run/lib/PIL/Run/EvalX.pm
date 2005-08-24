@@ -139,13 +139,14 @@ sub expand {
 }
 
 #======================================================================
+my $src_root = "../../perl5/PIL-Run";
 
 sub pil_from_p6 {
     my($p6)=@_;
     my $fn = "deleteme.p6";
     open(F,">$fn") or die "Couldn't open \"$fn\" for writing: $!\n"; # XXX - kluge
     print F $p6; close F or die "Couldn't close \"$fn\": $!\n";
-    my $pil = `pugs -CPerl5 $fn`; #die if $!;
+    my $pil = `pugs -I$src_root/lib6 -CPerl5 $fn`; #die if $!;
     unlink $fn or die "Couldn't remove \"$fn\": $!\n";
     $pil;
 }
@@ -190,6 +191,9 @@ sub p6_eval {
     my $p5r = p5r_from_p6($p6);
     run_p5r($p5r);
 }
+
+p6_eval('require P5Runtime::PrimP6;say "PrimP6 loaded.";');
+
 
 1;
 __END__

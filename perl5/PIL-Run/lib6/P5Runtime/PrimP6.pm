@@ -1,7 +1,6 @@
 
-# this file is currently(?) not actually loaded.
-
-module PIL::Run::Root::P5Runtime::PrimP6-0.0.1;
+# XXX - doesnt work quite yet...
+#module PIL::Run::Root::P5Runtime::PrimP6-0.0.1;
 use v6;
 
 =kwid
@@ -17,3 +16,4 @@ See the note at the top of Prelude.pm.
 multi sub nothing () is builtin is primitive is safe {
     bool::true}
 
+multi sub postcircumfix:<[ ]> ($a,$i) {die "[] not implemented"}
