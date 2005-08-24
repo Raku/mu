@@ -19,12 +19,15 @@ $VERSION = '0.01';
        p6_from_l
        p6_die
        p6_set
-       p6_var
+       p6_var_macro
        p6_root
+       p6_main
        p6_mangle
        p6_unmangle
        p6_new
+       p6_new_sub_from_pil_macro
        p6_apply
+       p6_package_init
        );
 
 sub p6_to_b {my($b)=@_; $b->bit()->unboxed ? 1 : 0}
@@ -39,14 +42,17 @@ sub p6_from_a {my(@a)=@_; p6_new('Array', @a)}
 sub p6_from_l {my(@a)=@_; p6_new('List', @a)}; 
 sub p6_die {my(@args)=@_; die @args;}
 sub p6_set {my($o,$v)=@_; $o->store($v)}
-sub p6_var : lvalue {
-    my($name)=@_;
+sub p6_var_macro {
+    my($name,$defined1_autovivify2)=@_;
     my $m = p6_mangle($name);
-    no strict;
-    my $v = defined $$m ? $$m : do {$$m = Scalar->new()};
-    $v;
+    my $mn = $m; $mn =~ s/\\/\\\\/g; $mn =~ s/\'/\\\'/g;
+    my $dontdie = $defined1_autovivify2 ? ',1' : '';
+    my $vivify = ($defined1_autovivify2 && $defined1_autovivify2 == 2
+		  ? "||do{\$$m = Scalar->new()}" : '');
+    "do{no strict;(defined(\$$m)?\$$m:lookup('$mn'$dontdie)$vivify)}";
 }
 sub p6_root {"PIL::Run::Root"}
+sub p6_main {"PIL::Run::Root::main"}
 sub sigil_and_rest {
     my($n)=@_;
     my $sigil = "";
@@ -76,6 +82,7 @@ sub p6_mangle {
     my($n)=@_;
     my($sigil,$mn) = sigil_and_rest($n);
     my $space = $space_from_sigil{$sigil};
+    my $is_absolute_name = $mn =~ /::/;
     $mn =~ s/^(::)?(\*)?(::)?//;
     $mn =~ s/_/__/g;
     $mn =~ s/::/\cA/g;
@@ -84,7 +91,7 @@ sub p6_mangle {
     my @parts = split('::',$mn);
     $parts[-1] = $space."_".$parts[-1];
     $mn = join('::',@parts);
-    $mn = '$PIL::Run::Root::'.$mn;
+    $mn = 'PIL::Run::Root::'.$mn if $is_absolute_name;
     $mn;
 }
 sub p6_unmangle {
@@ -125,6 +132,7 @@ sub def_prim { # used by Prim
     $cls = 'Macro' if $flavor =~ /macro/i;
     my $subobj = p6_new($cls,$name,$argl,$f);
     no strict;
+    package PIL::Run::Root;
     $$mn = $subobj;
 }
 sub p6_new {
@@ -165,15 +173,83 @@ sub p6_new {
     }
     return "PIL::Run::Type::$type"->new(@arg);
 }
+sub p6_new_sub_from_pil_macro {
+    my($name,$pil_params,$body,$want_macro)=@_;
+    my $listify = sub {
+	join(",",map{
+	    s/\\/\\\\/g; s/\'/\\\'/g;
+	    "'$_'";
+	} @_);
+    };
+    my(@names6arg,@names6param,@names5);
+    for my $p (@{$pil_params}) {
+	my $n6p = $p->{'tpParam'}{'paramName'};
+	my $n5  = '$'.p6_mangle($n6p);
+	my $n6a = $n6p;
+	my $is_slurpy = ref($p->{'tpParam'}{'paramContext'}) =~ /Slurpy/;
+	$n6a = '*'.$n6a if $is_slurpy;
+	push(@names6param,$n6p);
+	push(@names6arg,$n6a);
+	push(@names5,$n5);
+    }
+    my $my_args = "";
+    if (@names5) {
+	$my_args = ('my('
+		    .join(",",@names5)
+		    .')=@_param{'
+		    .$listify->(@names6param)
+		    .'};');
+    }
+    my $subdef = ('sub{'
+		  .'my $_sub = shift; my %_param = $_sub->bind_params(@_); '
+		  .$my_args
+		  .$body
+		  .'}');
+    if($want_macro) {
+	my $params = ('[map{Perl6::Param->new(\'name\' => $_)} '
+		      .'('.$listify->(@names6arg).')]');
+	"Sub->new(".("'\$.name' => '$name',".
+		     "'\$.params' => $params,".
+		     "'\$.body' => $subdef)");
+    } else {
+	my $params = [map{Perl6::Param->new('name' => $_)} @names6arg];
+	my $subdef = eval($subdef);  die "bug $@" if $@;
+	Sub->new('$.name' => $name,
+		 '$.params' => $params,
+		 '$.body' => $subdef);
+    }
+}
 sub p6_apply {
     my($f,@args)=@_;
     $f->do(@args);
 }
 
+sub p6_package_init {
+    my($pkg)=@_;
+
+    my @path = split(/::/,$pkg);
+    my $tmp = "";
+    my @classes = map{my $c = $tmp.$_;$tmp=$c.'::';$c} @path;
+    @classes = reverse map{$_='PIL::Run::Root::'.$_} @classes;
+    shift(@classes); # dont want current class;
+    push(@classes,'PIL::Run::Root');
+    my $code = "";
+    $code .= "package PIL::Run::Root".($pkg eq "" ? "" : "::$pkg").";\n";
+    $code .= "use PIL::Run::ApiX;\n";
+    $code .= "sub lookup { ";
+    for my $cls (@classes) {
+	my $symtab = '$'.$cls.'::{$_[0]}';
+	$code .= "defined $symtab ? \${$symtab} : ";
+    }
+    $code .= '$_[1] ? 0 : Carp::croak("Undefined variable $_[0]") ';
+    $code .= "}\n";
+    #print $code;
+    eval($code); die if $@;
+}
+
+p6_package_init('');
+p6_package_init('main');
 
 1;
 __END__
 
-print &p6_mangle("&say"),"\n";
-def_prim("","&say",sub {print "hi\n"});
-eval(&p6_mangle("&say"));

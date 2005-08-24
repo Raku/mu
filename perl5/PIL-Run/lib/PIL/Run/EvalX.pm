@@ -53,15 +53,16 @@ package VStr; @ISA = qw(EvalX::BaseClass); sub expand {
     "p6_new('Str','$s')";
 }
 package PVar; @ISA = qw(EvalX::BaseClass); sub expand {
+    use PIL::Run::ApiX;
     my $s = $_[0]{'pVarName'};
-    $s =~ s/\\/\\\\/g; $s =~ s/\'/\\\'/g;
-    "p6_var('$s')";
+    p6_var_macro($s,2);
 }
 package PApp; @ISA = qw(EvalX::BaseClass); sub expand {
+    use PIL::Run::ApiX;
     my($self)=@_;
     my $f = $self->{'pFun'}->expand();
     my @args = map{$_->expand()} @{$self->{'pArgs'}};
-    my($fv) = PIL::Run::EvalX::run_p5r($f); # XXX - kludge
+    my($fv) = PIL::Run::EvalX::run_p5r("package ".p6_root.";".$f); # XXX - kludge
     if(defined $fv && ref($fv) =~ /Macro/) { # XXX - kludge
         my $macro_expansion = $fv->do(@args);
         $macro_expansion;
@@ -78,6 +79,22 @@ package PStmt; @ISA = qw(EvalX::BaseClass); sub expand {
 package PThunk; @ISA = qw(EvalX::BaseClass); sub expand {
     my $body = $_[0]->{'pThunk'}{'pLV'}{'pFun'}{'pBody'};
     defined $body ? ' { '.$body->expand().' } ' : $_[0]->SUPER::expand();
+}
+package PSub; @ISA = qw(EvalX::BaseClass); sub expand {
+    use PIL::Run::ApiX;
+    return "" if $_[0]{'pSubBody'} =~ /PNil/;
+    ("BEGIN{"
+     ."p6_set(".p6_var_macro($_[0]{'pSubName'},2).','
+     .p6_new_sub_from_pil_macro($_[0]{'pSubName'},
+				$_[0]{'pSubParams'},
+				$_[0]{'pSubBody'}->expand(),
+				'macro')
+     .");"
+     ."}\n");
+}
+package PIL::Environment; @ISA = qw(EvalX::BaseClass); sub expand {
+    use PIL::Run::ApiX;
+    "package ".&p6_main().";\n".$_[0]->SUPER::expand().";\n";    
 }
 
 
@@ -153,10 +170,17 @@ sub p5r_from_pilc {
     $p5r;
 }
 
+
+sub with_numbered_lines {
+    my($s)=@_;
+    my $cnt = 1;
+    $s =~ s/^/$cnt++."\t"/mge;
+    $s;
+}
 sub run_p5r {
     my($p5r)=@_;
     my @res = eval($p5r);
-    warn "".(caller(0))[3].": $@" if $@;
+    warn "".(caller(0))[3].": $@\n".with_numbered_lines($p5r) if $@;
     @res;
 }
 
