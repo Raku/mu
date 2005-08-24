@@ -172,13 +172,13 @@ sub from_x {
     my $class = shift;
     my %param = @_;
     my $item = $param{item};
-    my $count = $param{celems};
-    $count = sub { Inf } 
+    my $count = $param{count};
+    $count = 0 
         unless defined $count;
     $class->new(
-                cstart =>  sub { $item },
-                cend =>    sub { $item },
-                celems =>  $count,
+                cstart =>  sub { $count--; return if $count < 0; $item },
+                cend =>    sub { $count--; return if $count < 0; $item },
+                celems =>  sub { $count },
     );
 }
 

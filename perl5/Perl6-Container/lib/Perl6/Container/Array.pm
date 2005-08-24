@@ -127,6 +127,7 @@ class 'Array'.$class_description => {
                 $samples = 100 unless $self->is_infinite; 
                 my $tmp = -&Inf;
                 for ( 0 .. $samples ) {
+                    no warnings 'numeric';
                     last if $_ >= $self->elems;
                     $tmp = $self->fetch( $_ );
                     last if $tmp == &Inf;
@@ -135,6 +136,7 @@ class 'Array'.$class_description => {
                 }
                 $tmp = &Inf;
                 for ( map { $_ - $samples - 1 } reverse 0 .. $samples ) {
+                    no warnings 'numeric';
                     last unless $self->elems + $_ > scalar @start;
                     $tmp = $self->fetch( $_ );
                     # warn "$_ - $tmp";
