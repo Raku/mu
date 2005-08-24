@@ -212,7 +212,9 @@ sub _shift_n {
             next;
         }
         if ( $tmp[0]->elems > 0 ) {
-            my $i = $tmp[0]->shift;
+            # my $i = $tmp[0]->shift;
+            my $li = $tmp[0];
+            my $i = $li->shift;
             push @ret, $i;
             last if @ret >= $length;
         }
@@ -300,6 +302,7 @@ sub splice {
     my ( @head, @body, @tail );
     # print "items: ", $array->items, " splice: $offset, $length, ", @list, "\n";
     # print 'insert: ', $_, ' ', $_->ref for @list, "\n";
+    # print " offset $offset length $length \n";
     if ( $offset >= 0 ) {
         @head = $array->_shift_n( $offset );
         if ( $length >= 0 ) {
@@ -350,6 +353,12 @@ sub fetch {
     
     #use Data::Dumper;
     #warn "-- array -- ". Dumper( $array );
+    if ( $pos == 0 ) {
+        my $ret = $array->shift;
+        $array->unshift( $ret );
+        return $ret;
+    }
+
     my $ret = $array->splice( $pos, 1 );
     #warn "-- $pos -- ".@{$ret->{items}}." -- ".@{$array->{items}}." ";
     if ( $pos == -1 ) {

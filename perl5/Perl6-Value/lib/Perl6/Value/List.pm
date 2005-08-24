@@ -184,7 +184,18 @@ sub from_x {
 
 sub from_single {
     my $class = shift;
-    my @list = @_;
+
+    my @list;
+    for(@_) {
+        if ( UNIVERSAL::isa($_, 'Perl6::Value::List') ) {
+            my @li; push @li, $_->shift while $_->elems; 
+            push @list, @li;
+        }
+        else {
+            push @list, $_
+        }
+    }
+
     $class->new( cstart => sub{ shift  @list },
                  cend =>   sub{ pop    @list },
                  celems => sub{ scalar @list },
