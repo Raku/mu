@@ -12,6 +12,7 @@ $VERSION = '0.01';
        p5r_from_pilc
        run_p5r
        p6_eval
+       p6_eval_file
        );
 use PIL::Run::ApiX;
 use UNIVERSAL;
@@ -139,10 +140,12 @@ sub expand {
 }
 
 #======================================================================
-my $src_root = "../../perl5/PIL-Run";
+
+my $src_root = "../../perl5/PIL-Run"; # XXX - will obviously need to be fixed.
 
 sub pil_from_p6 {
     my($p6)=@_;
+    $p6 =~ s/^use /require /mg && warn "faking use() with require()"; # XXX
     my $fn = "deleteme.p6";
     open(F,">$fn") or die "Couldn't open \"$fn\" for writing: $!\n"; # XXX - kluge
     print F $p6; close F or die "Couldn't close \"$fn\": $!\n";
@@ -188,6 +191,13 @@ sub run_p5r {
 
 sub p6_eval {
     my($p6)=@_;
+    my $p5r = p5r_from_p6($p6);
+    run_p5r($p5r);
+}
+sub p6_eval_file {
+    my($fn)=@_;
+    open IN, $fn or do{ warn $!; return; };
+    my $p6 = do { local $/; <IN> }; close IN;
     my $p5r = p5r_from_p6($p6);
     run_p5r($p5r);
 }

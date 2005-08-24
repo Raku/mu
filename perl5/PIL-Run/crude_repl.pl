@@ -67,7 +67,7 @@ sub p6_repl {
 	if ($line =~ /\A:l\s+(\S+)/) {
 	    my $filename = $1;
             open IN, $filename or do{ warn $!; next; };
-	    my $code = do { local $/; <IN> };
+	    my $code = do { local $/; <IN> }; close IN;
 	    $eval_p6->($code);
 	    next;
 	}
@@ -75,6 +75,7 @@ sub p6_repl {
     }
 }
 
+for my $fn (@ARGV) { p6_eval_file($fn) }
 p6_repl();
 
 __END__

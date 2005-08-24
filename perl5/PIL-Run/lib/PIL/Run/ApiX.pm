@@ -188,6 +188,8 @@ sub p6_new_sub_from_pil_macro {
 	my $n5  = '$'.p6_mangle($n6p);
 	my $n6a = $n6p;
 	my $is_slurpy = ref($p->{'tpParam'}{'paramContext'}) =~ /Slurpy/;
+	my $is_optional = ref($p->{'tpParam'}{'isOptional'});
+	$n6a = '?'.$n6a if $is_optional;
 	$n6a = '*'.$n6a if $is_slurpy;
 	push(@names6param,$n6p);
 	push(@names6arg,$n6a);

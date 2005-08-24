@@ -136,9 +136,7 @@ MULTI SUB use ($xx) {...};
 MULTI SUB require ($xx) {
     my $fn = p6_to_s($xx);
     $fn = "lib6/$fn";
-    my $code = do{open(F,"<$fn") or die $!;
-		  my $txt = join("",<F>); close F; $txt};
-    PIL::Run::EvalX::p6_eval($code);
+    PIL::Run::EvalX::p6_eval_file($fn);
 };
 MULTI SUB Pugs::Internals::eval ($xx) {...};
 MULTI SUB evalfile ($xx) {...};
