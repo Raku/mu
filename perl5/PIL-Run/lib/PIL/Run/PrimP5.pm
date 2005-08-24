@@ -47,11 +47,7 @@ MULTI SUB say (*@args) {
 };
 # MULTI SUB prefix:<,> (*@a) {@a};
 MULTI SUB infix:<,>  (*@a) {
-    p6_from_a(
-        #p6_from_l( 
-            Perl6::Value::List->from_single( @a ) 
-        #) 
-    ) 
+    p6_from_a( Perl6::Value::List->from_single( @a ) ) 
 };
 # p6_from_a(@a) };
 
@@ -114,6 +110,7 @@ MULTI SUB prefix:<--> ($xx) {...};
 MULTI SUB prefix:<-> ($xx) {...};
 MULTI SUB scalar ($xx) {...};
 MULTI SUB sort (*@xxa) {...};
+MULTI SUB reverse (@xx) { @xx->reverse };
 MULTI SUB reverse ($xx) {...};
 MULTI SUB list ($xx) {...};
 MULTI SUB pair ($xx) {...};
@@ -206,7 +203,7 @@ MULTI SUB pairs ($xx) {...};
 MULTI SUB List::kv ($xx) {...}; 
 MULTI SUB Pair::kv ($xx) {...};
 MULTI SUB keys ($xx) {...};
-MULTI SUB values ($xx) {...};
+MULTI SUB values (@a) {@a};
 MULTI SUB prefix:<=> ($xx) {...};
 MULTI SUB readline ($xx) {...};
 MULTI SUB getc ($xx) {...};
@@ -273,9 +270,7 @@ MULTI SUB infix:<cmp> ($xx0,$xx1) { p6_from_n(p6_to_s($xx0) cmp p6_to_s($xx1)) }
 MULTI SUB infix:[<=>] ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) <=> p6_to_n($xx1)) };
 MULTI SUB infix:<..> ($xx0,$xx1) { 
     p6_from_a(
-        # p6_from_l( 
-            Perl6::Value::List->from_num_range( start => $xx0->unboxed, end => $xx1->unboxed, step => 1 ) 
-        # ) 
+        Perl6::Value::List->from_num_range( start => $xx0->unboxed, end => $xx1->unboxed, step => 1 ) 
     ) 
 };
 MULTI SUB infix:<..^> ($xx0,$xx1) {...};

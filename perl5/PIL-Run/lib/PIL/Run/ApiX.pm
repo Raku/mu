@@ -52,17 +52,17 @@ sub sigil_and_rest {
     my $sigil = "";
     my $bare = $n;
     if ($n =~ /^([\$\@\%\&]?)(.+)/) {
-	$sigil = $1;
-	$bare = $2;
+        $sigil = $1;
+        $bare = $2;
     }
     return ($sigil,$bare);
 }
 my %space_from_sigil = (
-	     '$' => 'scalar',
-	     '@' => 'array',
-	     '%' => 'hash',
-	     '&' => 'code'
-	     );
+             '$' => 'scalar',
+             '@' => 'array',
+             '%' => 'hash',
+             '&' => 'code'
+             );
 my %sigil_from_space = map {$space_from_sigil{$_},$_} keys(%space_from_sigil);
 
 # XXX - change mangling scheme - ${'foo'}::{'bar'}
@@ -114,9 +114,9 @@ sub def_prim { # used by Prim
     my($flavor, $name, $argl, $f)=@_;
     my $n = $name;
     if ($n =~ /\>$/) {
-	$n =~ s/:\<(.+?)\>$/:$1/;
+        $n =~ s/:\<(.+?)\>$/:$1/;
     } elsif ($n =~ /\]$/) {
-	$n =~ s/:\[(.+?)\]$/:$1/;
+        $n =~ s/:\[(.+?)\]$/:$1/;
     }
     $n = '&'.$n;
     my $mn = p6_mangle($n);
@@ -133,29 +133,29 @@ sub p6_new {
     return Num->new('$.unboxed' => @arg) if $type eq 'Num';
     return Str->new('$.unboxed' => @arg) if $type eq 'Str';
     if ($type eq 'Sub') {
-	my($name,$argl,$f)=@arg;
-	my @args = map{s/\s+/ /; s/\A\s+//; s/\s+\Z//; $_} @$argl;
-	my @args_nonslurpy = grep /^[^\*]/, @args;
-	my @args_slurpy    = grep /^\*/, @args;
-	@args_slurpy = map{s/^\*//;$_} @args_slurpy;
-	my @params = map{Perl6::Param->new('name' => $_)} @args;
-	my $wrapper = sub {
-	    my $sub = shift;
-	    my %param = $sub->bind_params( @_ );
-	    my(@a) = (@param{@args_nonslurpy},
-		      map{@$_} @param{@args_slurpy});
-	    $f->(@a);
-	};
-	return Sub->new('$.name' => $name,
-			'$.params' => \@params,
-			'$.body' => $wrapper);
+        my($name,$argl,$f)=@arg;
+        my @args = map{s/\s+/ /; s/\A\s+//; s/\s+\Z//; $_} @$argl;
+        my @args_nonslurpy = grep /^[^\*]/, @args;
+        my @args_slurpy    = grep /^\*/, @args;
+        @args_slurpy = map{s/^\*//;$_} @args_slurpy;
+        my @params = map{Perl6::Param->new('name' => $_)} @args;
+        my $wrapper = sub {
+            my $sub = shift;
+            my %param = $sub->bind_params( @_ );
+            my(@a) = (@param{@args_nonslurpy},
+                      map{@$_} @param{@args_slurpy});
+            $f->(@a);
+        };
+        return Sub->new('$.name' => $name,
+                        '$.params' => \@params,
+                        '$.body' => $wrapper);
     }
     if ($type eq 'Macro') {
-	my($name,$argl,$f)=@arg;
-	return "PIL::Run::Type::$type"->new($f);
+        my($name,$argl,$f)=@arg;
+        return "PIL::Run::Type::$type"->new($f);
     }
     if ($type eq 'List') {
-	return List->new( '$.unboxed' => Perl6::Value::List->from_single(@arg) );
+        return List->new( '$.unboxed' => Perl6::Value::List->from_single(@arg) );
     }
     if ($type eq 'Array') {
         my $ary = Array->new;
