@@ -112,6 +112,9 @@ class 'Array'.$class_description => {
                     $tmp->$method( @param );
                     return $self;
                 }
+                if ( $method eq 'elems' ) {
+                    return Int->new( '$.unboxed' => $tmp->$method( @param ) )
+                }
                 
                 return $tmp->$method( @param );
             },
