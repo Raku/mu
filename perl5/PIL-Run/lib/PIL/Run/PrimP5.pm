@@ -25,7 +25,7 @@ sub gen {
 use Filter::Simple sub {
     s/\#.+//g;
     s/{\.\.\.}/{p6_die("\$_fn: unimplemented");}/g;
-    s/(MULTI SUB|MACRO)\s+(\S+)\s+\((.*?)\)\s+{/gen($1,$2,$3)/ge;
+    s/(MULTI SUB|MACRO)\s+(.*?(?:[\]\>]|\w))\s+\((.*?)\)\s+{/gen($1,$2,$3)/ge;
     #print; #print STDERR;
     $_;
 };
@@ -37,6 +37,7 @@ use Math::Trig;
 use PIL::Run::ApiX;
 sub def {
     my($what,$name,$argl,$f)=@_;
+    $name =~ s/ //;
     PIL::Run::ApiX::def_prim($what,$name,$argl,$f);
 };
 
@@ -55,6 +56,7 @@ MULTI SUB infix:<,>  (*@a) {
 MACRO     statement_control:<if> ($xx0,$xx1,$xx2) {
     "if (p6_to_b($xx0)) $xx1 else $xx2";
 };
+MULTI SUB postcircumfix:<[ ]> ($a,$i) {...};
 
 # From Prim.hs
 # op0
@@ -296,7 +298,7 @@ MULTI SUB infix:<=:=> ($xx0,$xx1) {...};
 MACRO     infix:<&&> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; p6_to_b($_v1) ? ('.$xx1.') : $_v1 }' };
 MACRO     infix:<||> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; p6_to_b($_v1) ? $_v1 : ('.$xx1.') }' };
 MACRO     infix:<^^> ($xx0,$xx1) {...};
-MACRO     infix:<//> ($xx0,$xx1) {...};
+MACRO     infix:<//> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; defined($_v1) ? $_v1 : ('.$xx1.') }' };
 MACRO     infix:<!!> ($xx0,$xx1) {...};
 MULTI SUB infix:<.[]> ($xx0,$xx1) {...};
 MULTI SUB infix:<.{}> ($xx0,$xx1) {...};
