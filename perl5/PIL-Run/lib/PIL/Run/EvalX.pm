@@ -76,7 +76,8 @@ package PStmt; @ISA = qw(EvalX::BaseClass); sub expand {
     $_[0]->SUPER::expand().";\n";
 }
 package PThunk; @ISA = qw(EvalX::BaseClass); sub expand {
-    ' { '.$_[0]->{'pThunk'}{'pLV'}{'pFun'}{'pBody'}->expand().' } ';
+    my $body = $_[0]->{'pThunk'}{'pLV'}{'pFun'}{'pBody'};
+    defined $body ? ' { '.$body->expand().' } ' : $_[0]->SUPER::expand();
 }
 
 
