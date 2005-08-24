@@ -62,6 +62,7 @@ package PApp; @ISA = qw(EvalX::BaseClass); sub expand {
     my($self)=@_;
     my $f = $self->{'pFun'}->expand();
     my @args = map{$_->expand()} @{$self->{'pArgs'}};
+    unshift(@args,$self->{'pInv'}->expand()) if ($self->{'pInv'});
     my($fv) = PIL::Run::EvalX::run_p5r("package ".p6_root.";".$f); # XXX - kludge
     if(defined $fv && ref($fv) =~ /Macro/) { # XXX - kludge
         my $macro_expansion = $fv->do(@args);
