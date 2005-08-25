@@ -7,7 +7,6 @@ in p6 and add them to Prelude.
 
 =cut
 
-
 package PrimFilter;
 sub gen {
     my($what,$name,$args)=@_;
@@ -45,6 +44,21 @@ MULTI SUB pi () {p6_from_n(Math::Trig::pi)};
 MULTI SUB say (*@args) {
     p6_new(Int => print( (map{p6_to_s($_)}@args),"\n"));
 };
+
+MULTI SUB coerce:as ($x, $to) { 
+    my $tmp;
+    my $class = $to->unboxed;
+    eval { $tmp = $x->$class };
+    if ( $@ ) {
+        eval { $tmp = $class->new( '$.unboxed' => $x->unboxed ) };
+    } 
+    if ( $@ ) {
+        warn "can't coerce $x to $class ($@)";
+        $tmp = Str->new( '$.unboxed' => "" );
+    }
+    return $tmp;
+};
+
 # MULTI SUB prefix:<,> (*@a) {@a};
 MULTI SUB infix:<,>  (*@a) {
     p6_from_a( Perl6::Value::List->from_single( @a ) ) 
