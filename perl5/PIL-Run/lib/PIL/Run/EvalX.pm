@@ -158,7 +158,12 @@ sub expand {
 
 #======================================================================
 
-my $src_root = "../../perl5/PIL-Run"; # XXX - will obviously need to be fixed.
+use FindBin;
+use File::Spec;
+sub path_from_me { File::Spec->catfile($FindBin::Bin, @_) }
+
+my $src_root = path_from_me();
+my $pugs = 'pugs'; # path_from_me('..','..','pugs');
 
 sub pil_from_p6 {
     my($p6)=@_;
@@ -166,7 +171,7 @@ sub pil_from_p6 {
     my $fn = "deleteme.p6";
     open(F,">$fn") or die "Couldn't open \"$fn\" for writing: $!\n"; # XXX - kluge
     print F $p6; close F or die "Couldn't close \"$fn\": $!\n";
-    my $pil = `pugs -I$src_root/lib6 -CPerl5 $fn`; #die if $!;
+    my $pil = `$pugs -I$src_root/lib6 -CPerl5 $fn`; #die if $!;
     unlink $fn or die "Couldn't remove \"$fn\": $!\n";
     $pil;
 }
