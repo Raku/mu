@@ -995,17 +995,17 @@ var _26main_3a_3aprefix_3a_2b = PIL2JS.Box.constant_func(1, function (args) {
   PIL2JS.possibly_autothread([args[1]], [true], cc, function (cc, thing) {
     var ref = PIL2JS.cps2normal(_26main_3a_3aref.FETCH(), [PIL2JS.Context.ItemAny, thing]).FETCH();
 
-    thing = thing.FETCH();
-    if(thing == undefined) return cc(new PIL2JS.Box.Constant(0));
+    var unboxed = thing.FETCH();
+    if(unboxed == undefined) return cc(new PIL2JS.Box.Constant(0));
 
     if(ref == "Str") {
-      cc(new PIL2JS.Box.Constant(Number(thing)));
+      cc(new PIL2JS.Box.Constant(Number(unboxed)));
     } else if(ref == "Array") {
       if(thing.referencee) thing = thing.referencee.FETCH();
-      cc(new PIL2JS.Box.Constant(thing.length));
+      cc(new PIL2JS.Box.Constant(unboxed.length));
     } else if(ref == "Hash") {
       if(thing.referencee) thing = thing.referencee.FETCH();
-      cc(new PIL2JS.Box.Constant(thing.num_of_entries));
+      cc(new PIL2JS.Box.Constant(unboxed.num_of_entries));
     } else if(ref == "Bool") {
       cc(new PIL2JS.Box.Constant(
         PIL2JS.cps2normal(_26main_3a_3aprefix_3a_3f.FETCH(), [PIL2JS.Context.ItemAny, thing]).FETCH()
@@ -1013,7 +1013,7 @@ var _26main_3a_3aprefix_3a_2b = PIL2JS.Box.constant_func(1, function (args) {
           : 0
       ));
     } else if(ref == "Num") {
-      cc(new PIL2JS.Box.Constant(Number(thing)));
+      cc(new PIL2JS.Box.Constant(Number(unboxed)));
     } else if(ref == "Ref") {
       PIL2JS.die("Can't numfiy non-array or hash references!");
     } else {
