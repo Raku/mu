@@ -91,8 +91,7 @@ package PAssign; @ISA = qw(EvalX::BaseClass); sub expand {
 package PStmt; @ISA = qw(EvalX::BaseClass); sub expand {
     #$_[0]->SUPER::expand().";\n";
     my $n = int(rand(10000000));
-    #warn \$\@ if \$\@;
-    "do{my \@_res=eval(<<'E$n');warn \$\@ if \$\@; \@_res};\n".$_[0]->SUPER::expand().";\nE$n\n";
+    "do{my \@_res$n=eval(<<'E$n');warn 'Fyi:',\$\@ if \$\@; \@_res$n};\n".$_[0]->SUPER::expand().";\nE$n\n";
     #"eval(<<'E$n');\n".$_[0]->SUPER::expand().";\nE$n\n";
 }
 package PThunk; @ISA = qw(EvalX::BaseClass); sub expand {
