@@ -25,3 +25,4 @@ multi sub infix:<^..^> ($x0,$x1) { ($x0+1)..($x1-1) };
 
 multi sub prefix:<~> ($xx) { coerce:as($xx,'Str') };
 multi sub prefix:<?> ($xx) { coerce:as($xx,'Bit') };
+multi sub prefix:<+> ($xx) { coerce:as($xx,'Num') };
