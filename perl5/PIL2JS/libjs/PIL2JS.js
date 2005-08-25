@@ -996,7 +996,7 @@ var _26main_3a_3aprefix_3a_2b = PIL2JS.Box.constant_func(1, function (args) {
     var ref = PIL2JS.cps2normal(_26main_3a_3aref.FETCH(), [PIL2JS.Context.ItemAny, thing]).FETCH();
 
     thing = thing.FETCH();
-    if(thing == undefined) return cc(new PIL2JS.Box.Constant(undefined));
+    if(thing == undefined) return cc(new PIL2JS.Box.Constant(0));
 
     if(ref == "Str") {
       cc(new PIL2JS.Box.Constant(Number(thing)));

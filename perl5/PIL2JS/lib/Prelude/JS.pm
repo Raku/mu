@@ -84,6 +84,10 @@ EOF
 
       my $jsbody = $body;
       $jsbody =~ s/\b([ab])\b/$1.toNative()/g;
+      # Previously, "|| $undef" was required, This is no longer the case, as
+      # &prefix:<[+~]> always return 0 or "" on undefined.
+      # "Why not simply make +undef return undef?" -- Because then all
+      # operations yield NaN, which doesn't match Perl's semantics.
 
       return "PIL2JS.possibly_autothread([PIL2JS.cps2normal($conv.FETCH(), [PIL2JS.Context.ItemAny, $a]), PIL2JS.cps2normal($conv.FETCH(), [PIL2JS.Context.ItemAny, $b])], [true, true], $cc, function (__cc, a, b) { __cc(new PIL2JS.Box.Constant($jsbody)) })";
     };
