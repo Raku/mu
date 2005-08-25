@@ -111,8 +111,10 @@ sub as_js {
     my $arg = PIL::add_indent(1, join ",\n", @arg);
     my $cxt = PIL::add_indent(1, $self->{pCxt}->as_js);
 
-    # XXX Context handling!
-    if($inv) {
+    if($subname and my $macro = $Prelude::JS::macro{$subname}) {
+      local $macro->{CC} = $cc;
+      return $macro->as_js(@arg);
+    } elsif($inv) {
       return "$cc(new PIL2JS.Box.Constant($inv.$sub(\n$arg\n)))" if $native;
       #return sprintf "%s.perl_methods[%s]([\n%s,\n%s\n])",
       #  $inv, PIL::doublequote($sub), $cxt, $arg

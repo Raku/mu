@@ -378,5 +378,7 @@ use PIL::Subs;
 use PIL::RawJS;
 use PIL::Cont;
 use PIL::Types;
+use PIL::P5Macro;
+use Prelude::JS;
 
 1;

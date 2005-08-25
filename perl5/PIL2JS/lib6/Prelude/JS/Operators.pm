@@ -1,23 +1,5 @@
 # Standard operators
 my @subs = (
-  "infix:«<»",    2, "N", "Number(a)  < Number(b)",
-  "infix:«>»",    2, "N", "Number(a)  > Number(b)",
-  "infix:«<=»",   2, "N", "Number(a) <= Number(b)",
-  "infix:«>=»",   2, "N", "Number(a) >= Number(b)",
-  "infix:«==»",   2, "N", "Number(a) == Number(b)",
-  "infix:«!=»",   2, "N", "Number(a) != Number(b)",
-  "infix:«lt»",   2, "S", "String(a)  < String(b)",
-  "infix:«gt»",   2, "S", "String(a)  > String(b)",
-  "infix:«le»",   2, "S", "String(a) <= String(b)",
-  "infix:«ge»",   2, "S", "String(a) >= String(b)",
-  "infix:«eq»",   2, "S", "String(a) == String(b)",
-  "infix:«ne»",   2, "S", "String(a) != String(b)",
-  "infix:«+»",    2, "N", "Number(a)  + Number(b)",
-  "infix:«-»",    2, "N", "Number(a)  - Number(b)",
-  "infix:«*»",    2, "N", "Number(a)  * Number(b)",
-  "infix:«/»",    2, "N", "Number(a)  / Number(b)",
-  "infix:«%»",    2, "N", "Number(a)  % Number(b)",
-  "infix:«**»",   2, "N", "Math.pow(Number(a), Number(b))",
   "infix:«<=>»",  2, "N", "Number(a) < Number(b) ? -1 : Number(a) == Number(b) ? 0 : 1",
   "infix:«cmp»",  2, "S", "String(a) < String(b) ? -1 : String(a) == String(b) ? 0 : 1",
   "prefix:«-»",   1, "N", "-a",
@@ -43,8 +25,8 @@ my @subs = (
 #     sub JS::Root::infix:<~> ($a, $b) {...}
 my $eval;
 for @subs -> $name, $arity, $type, $body {
-  my $undef         = $type eq "S" ?? '""' :: 0;
-  my $jsbody        = "function ({$arity == 1 ?? "a" :: "a, b"}) \{
+  my $undef  = $type eq "S" ?? '""' :: 0;
+  my $jsbody = "function ({$arity == 1 ?? "a" :: "a, b"}) \{
     if(a == undefined) a = $undef;
     {$arity == 2 ?? "if(b == undefined) b = $undef;" :: ""}
     return($body);

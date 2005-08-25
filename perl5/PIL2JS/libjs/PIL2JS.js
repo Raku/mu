@@ -16,6 +16,11 @@ if(PIL2JS == undefined) var PIL2JS = {};
 // of a global one.
 var AlsoPIL2JS_SpeedupHack = PIL2JS;
 
+// Optimization, needed by P5 Prelude::JS
+PIL2JS.if_undefined = function (thing, otherwise) {
+  return thing == undefined ? otherwise : thing;
+}
+
 // IE doesn't care about standards and only interprets "\r" as linefeed.
 PIL2JS.LF =
   typeof document     != "undefined" &&
