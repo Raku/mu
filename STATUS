@@ -8,8 +8,8 @@ would like current details, please ask on irc.freenode.net #perl6.
 - Haskell-Old  Working (delta general pugs bugs)
 - Haskell-PIL  Started 2005-08-09
 - Java         Nonexistant; metamodel implementation in progress nonetheless
-- JavaScript   Passes about 2/3 of test suite; missing regexen, some builtins,
-               state (needs PIL1 fixes), full OO (needs PIL2)
+- JavaScript   Passes more than 2/3 of test suite; missing regexen, some
+               builtins, state (needs PIL1 fixes), full OO (needs PIL2)
 - Perl 5       Restarted; currently implementing OO, standard types, run core
 - PIR          Stalled; waiting for Parrot leo-ctx5 branch to merge
 
@@ -21,6 +21,7 @@ would like current details, please ask on irc.freenode.net #perl6.
 * PIL2 required for full OO, including packages, class declarations, and full
   use of metamodel
 * iblech using old PIL format for JavaScript backend until PIL2 is ready
+* The PIL-Run team (putter and fglock) do the same
 
 
 = Perl 6 Object Metamodel
@@ -81,5 +82,5 @@ would like current details, please ask on irc.freenode.net #perl6.
 * Currently over 8100 tests, including module tests
 * This is known to be only a small percentage of the total needed to cover
   the currently available Perl 6 design
-* As of 2005-08-23, putter is merging make targets for various testing methods
-  on different backends
+* putter merged make targets for various testing methods on different backends
+  (test-perl5, test-js, smoke-perl5, etc.)
