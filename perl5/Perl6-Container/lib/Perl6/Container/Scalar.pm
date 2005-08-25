@@ -69,27 +69,30 @@ sub Perl6::Cell::store {
         my $cell = shift;
         return $cell->{tied}->store( @_ );
     }
-    if ( @_ > 2 && (
-            UNIVERSAL::isa( $_[0]{v}, 'Array' ) || 
-            UNIVERSAL::isa( $_[0]{v}, 'Hash'  )
-           ))  {
+    if ( @_ > 2 ) {
+           # && (
+           # UNIVERSAL::isa( $_[0]{v}, 'Array' ) || 
+           # UNIVERSAL::isa( $_[0]{v}, 'Hash'  )
+           # ))  {
         my $cell = shift;
         # warn "storing @_ to ".ref($cell->{v});
+        # warn "Cell is not yet defined, and you are trying to access position $_[0] with @_" unless defined $cell->{v};
         return $cell->{v}->store( @_ );
     }
     $_[0]{v} = $_[1]
 }
 sub Perl6::Cell::fetch {
-    #warn "Perl6::Cell::fetch tied=$_[0]{tied} type=$_[0]{type} ref=".ref($_[0]{v})." param=@_";
+    # warn "Perl6::Cell::fetch tied=$_[0]{tied} type=$_[0]{type} ref=".ref($_[0]{v})." param=@_";
     # return $_[0]{tied}->fetch if $_[0]{tied};
     if ( $_[0]{tied} ) {
         my $cell = shift;
         return $cell->{tied}->fetch( @_ );
     }
-    if ( @_ > 1 && (
-            UNIVERSAL::isa( $_[0]{v}, 'Array' ) || 
-            UNIVERSAL::isa( $_[0]{v}, 'Hash'  )
-           ))  {
+    if ( @_ > 1 ) {
+           # && (
+           # UNIVERSAL::isa( $_[0]{v}, 'Array' ) || 
+           # UNIVERSAL::isa( $_[0]{v}, 'Hash'  )
+           # ))  {
         my $cell = shift;
         #warn "fetching @_ from ".ref($cell->{v});
         return $cell->{v}->fetch( @_ );
