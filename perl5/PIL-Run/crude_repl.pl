@@ -10,7 +10,7 @@ use lib ("$Bin/lib",
 	 "$Bin/../Perl6-MetaModel/lib");
 use PIL::Run::MainX;
 use PIL::Run::EvalX;
-use PIL::Run::ApiX; # for p6_to_s()
+use PIL::Run::ApiX; # for p6_to_s() p6_main()
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Terse = 1;
@@ -60,7 +60,7 @@ sub p6_repl {
 	if ($line =~ /\A:q\s*\Z/) { exit(0);}
 	if ($line =~ /\A:v\s*\Z/) { $verbose = !$verbose; next;}
 	if ($line =~ /\A:5\s+(.+)/) {
-	    print eval($1),"\n";
+	    print eval("package ".p6_main."; ".$1),"\n";
 	    warn $@ if $@;
 	    next;
 	}

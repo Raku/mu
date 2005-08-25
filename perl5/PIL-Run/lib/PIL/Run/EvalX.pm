@@ -166,7 +166,7 @@ my $pugs = 'pugs'; # path_from_me('..','..','pugs');
 
 sub pil_from_p6 {
     my($p6)=@_;
-    $p6 =~ s/^use /require /mg && warn "faking use() with require()"; # XXX
+    $p6 =~ s/^use /require /mg && warn "faking use() with require()\n"; # XXX
     my $fn = "deleteme.p6";
     open(F,">$fn") or die "Couldn't open \"$fn\" for writing: $!\n"; # XXX - kluge
     print F $p6; close F or die "Couldn't close \"$fn\": $!\n";
@@ -213,16 +213,14 @@ sub run_p5r {
 sub p6_eval {
     my($p6)=@_;
     my $p5r = p5r_from_p6($p6);
+    $p5r = "package ".p6_main."; ".$p5r;
     run_p5r($p5r);
 }
 sub p6_eval_file {
     my($fn)=@_;
     open IN, $fn or do{ warn $!; return; };
     my $p6 = do { local $/; <IN> }; close IN;
-    eval {
-	my $p5r = p5r_from_p6($p6);
-	run_p5r($p5r);
-    };
+    eval { p6_eval($p6); };
 }
 
 p6_eval('require P5Runtime::PrimP6;say "PrimP6 loaded.";');
