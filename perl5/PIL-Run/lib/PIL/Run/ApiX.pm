@@ -32,7 +32,7 @@ $VERSION = '0.01';
 
 sub p6_to_b {my($b)=@_; $b->bit()->unboxed ? 1 : 0}
 sub p6_to_n {my($n)=@_; $n->num()->unboxed;}
-sub p6_to_s {my($n)=@_; $n->str()->unboxed;}
+sub p6_to_s {my($n)=@_; Carp::confess if !defined $n; $n->str()->unboxed;}
 sub p6_to_a {my($a_obj)=@_; my @list; while ( $a_obj->elems ) { push @list, $a_obj->shift }; @list }
 sub p6_to_l {my($a_obj)=@_; my @list; while ( $a_obj->elems ) { push @list, $a_obj->shift }; @list }
 sub p6_from_b {my($b)=@_; p6_new('Bit',$b ? 1 : 0)}
@@ -50,7 +50,7 @@ sub p6_var_macro {
     my $dontdie = $defined1_autovivify2 ? ',1' : '';
     my $vivify = ($defined1_autovivify2 && $defined1_autovivify2 == 2
 		  ? "||do{\$$m = Scalar->new()}" : '');
-    "do{no strict;(defined(\$$m)?\$$m:lookup('$mn'$dontdie)$vivify)}";
+    "do{no strict;(defined(\$$m)?\$$m:p6_lookup('$mn'$dontdie)$vivify)}";
 }
 sub p6_root {"PIL::Run::Root"}
 sub p6_main {"PIL::Run::Root::main"}
@@ -224,6 +224,10 @@ sub p6_new_sub_from_pil_macro {
 }
 sub p6_apply {
     my($f,@args)=@_;
+    #print STDERR "\n<$f,",@args,">\n";
+    if(!ref($f)) { # XXX - see PApp in EvalX.
+	return $args[0]->$f(splice(@args,1));
+    }
     $f->do(@args);
 }
 
@@ -239,10 +243,10 @@ sub p6_package_init {
     my $code = "";
     $code .= "package PIL::Run::Root".($pkg eq "" ? "" : "::$pkg").";\n";
     $code .= "use PIL::Run::ApiX;\n";
-    $code .= "sub lookup { ";
+    $code .= "sub p6_lookup { ";
     for my $cls (@classes) {
 	my $symtab = '$'.$cls.'::{$_[0]}';
-	$code .= "defined $symtab ? \${$symtab} : ";
+	$code .= "exists $symtab ? \${$symtab} : ";
     }
     $code .= '$_[1] ? 0 : Carp::croak("Undefined variable $_[0]") ';
     $code .= "}\n";

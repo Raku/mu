@@ -62,12 +62,22 @@ package PApp; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
     my($self)=@_;
     my $f = $self->{'pFun'}->expand();
+    my $invocant = defined $self->{'pInv'} ? $self->{'pInv'}->expand() : undef;
     my @args = map{$_->expand()} @{$self->{'pArgs'}};
-    unshift(@args,$self->{'pInv'}->expand()) if ($self->{'pInv'});
+
+    my $f_name = do{my $n=$self;for my $k qw(pFun pLV pVarName){if(exists $n->{$k}){$n=$n->{$k}}else{$n=undef;last}} $n};
+
+    unshift(@args,$invocant) if defined $invocant;
+
     my($fv) = PIL::Run::EvalX::run_p5r("package ".p6_root.";".$f); # XXX - kludge
     if(defined $fv && ref($fv) =~ /Macro/) { # XXX - kludge
         my $macro_expansion = $fv->do(@args);
         $macro_expansion;
+    } elsif(defined $f_name && defined $invocant) {
+	# XXX - horrid compensation for mm methods being mere p5 methods.
+	my $fn = $f_name; $fn =~ s/^\&//; $fn =~ s/([\\\'])/\\$1/g;
+	my $f2 = "do{my \$_f=$f;p6_to_b(\$_f->defined()) ? \$_f : '$fn'}";
+        "p6_apply(".join(",",$f2,@args).")";
     } else {
         "p6_apply(".join(",",$f,@args).")";
     }
