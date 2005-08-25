@@ -96,7 +96,7 @@ MULTI SUB take () {...};
 # nothing - in PrimP6
 
 # op1
-MULTI SUB prefix:<!> ($xx) {...};
+#MULTI SUB prefix:<!> ($xx) {...};
 MULTI SUB id ($xx) {...};
 MULTI SUB clone ($xx) {...};
 MULTI SUB chop ($xx) {...};
@@ -120,10 +120,11 @@ MULTI SUB sin ($xx) {...};
 MULTI SUB tan ($xx) {...};
 MULTI SUB sqrt ($xx) {...};
 MULTI SUB atan (*@xxa) {...};
+# TODO add temp variable
 MULTI SUB postfix:<++> ($xx) { p6_set($xx,p6_from_n(p6_to_n($xx)+1)) };
 MULTI SUB prefix:<++> ($xx) { p6_set($xx,p6_from_n(p6_to_n($xx)+1)) };
-MULTI SUB postfix:<--> ($xx) {...};
-MULTI SUB prefix:<--> ($xx) {...};
+MULTI SUB postfix:<--> ($xx) { p6_set($xx,p6_from_n(p6_to_n($xx)-1)) };
+MULTI SUB prefix:<--> ($xx) { p6_set($xx,p6_from_n(p6_to_n($xx)+1)) };
 MULTI SUB scalar ($xx) {...};
 MULTI SUB sort (*@xxa) {...};
 MULTI SUB reverse (@xx) { $xx->reverse };

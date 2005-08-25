@@ -27,3 +27,5 @@ multi sub prefix:<~> ($xx) { coerce:as($xx,'Str') };
 multi sub prefix:<?> ($xx) { coerce:as($xx,'Bit') };
 multi sub prefix:<+> ($xx) { coerce:as($xx,'Num') };
 multi sub true ($xx) { coerce:as($xx,'Bit') };
+
+multi sub prefix:<!> ($xx) { 1 - coerce:as($xx,'Bit') };
