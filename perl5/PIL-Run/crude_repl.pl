@@ -75,7 +75,10 @@ sub p6_repl {
     }
 }
 
-for my $fn (@ARGV) { p6_eval_file($fn) }
-p6_repl();
+for my $fn (@ARGV) {
+    next if $fn =~ /^--/;
+    p6_eval_file($fn);
+}
+p6_repl() if !@ARGV || $ARGV[0] eq '--repl';
 
 __END__

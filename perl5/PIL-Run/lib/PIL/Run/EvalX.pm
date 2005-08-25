@@ -86,7 +86,9 @@ package PAssign; @ISA = qw(EvalX::BaseClass); sub expand {
     'p6_set('.$_[0]{'pLHS'}[0]->expand().','.$_[0]{'pRHS'}->expand().')';
 }
 package PStmt; @ISA = qw(EvalX::BaseClass); sub expand {
-    $_[0]->SUPER::expand().";\n";
+    #$_[0]->SUPER::expand().";\n";
+    my $n = int(rand(10000000));
+    "eval(<<'E$n');\n".$_[0]->SUPER::expand().";\nE$n\n";
 }
 package PThunk; @ISA = qw(EvalX::BaseClass); sub expand {
     my $body = $_[0]->{'pThunk'}{'pLV'}{'pFun'}{'pBody'};
@@ -208,8 +210,10 @@ sub p6_eval_file {
     my($fn)=@_;
     open IN, $fn or do{ warn $!; return; };
     my $p6 = do { local $/; <IN> }; close IN;
-    my $p5r = p5r_from_p6($p6);
-    run_p5r($p5r);
+    eval {
+	my $p5r = p5r_from_p6($p6);
+	run_p5r($p5r);
+    };
 }
 
 p6_eval('require P5Runtime::PrimP6;say "PrimP6 loaded.";');
