@@ -41,15 +41,29 @@ sub p6_from_s {my($s)=@_; p6_new('Str',"$s")}
 sub p6_from_a {my(@a)=@_; p6_new('Array', @a)}
 sub p6_from_l {my(@a)=@_; p6_new('List', @a)}; 
 sub p6_die {my(@args)=@_; die @args;}
-sub p6_set {my($o,$v)=@_; $o->store($v)}
+sub p6_set {
+    my($o,$v)=@_;
+    my $v2 = $v;
+    if (ref($o) eq 'Scalar' && ref($v) =~ 'Array') {
+	$v2 = p6_new(Ref => $v);
+    }
+    $o->store($v2);
+}
 sub p6_var_macro {
     my($name,$defined1_autovivify2)=@_;
     $name =~ s/\[ \]/\[\]/; # XXX - pugsbug workaround.
+    $name =~ /([\$\@\%\&])/ or die "bug";
+    my $sigil = $1;
     my $m = p6_mangle($name);
     my $mn = $m; $mn =~ s/\\/\\\\/g; $mn =~ s/\'/\\\'/g;
     my $dontdie = $defined1_autovivify2 ? ',1' : '';
+    my %vivifiers = ('$' => 'Scalar->new()',
+		     '&' => 'Scalar->new()',
+		     '@' => 'Array->new()',
+		     '%' => 'Hash->new()');
+    my $vivifier = $vivifiers{$sigil} || die "bug";
     my $vivify = ($defined1_autovivify2 && $defined1_autovivify2 == 2
-		  ? "||do{\$$m = Scalar->new()}" : '');
+		  ? "||do{\$$m = $vivifier}" : '');
     "do{no strict;(defined(\$$m)?\$$m:p6_lookup('$mn'$dontdie)$vivify)}";
 }
 sub p6_root {"PIL::Run::Root"}
@@ -142,6 +156,7 @@ sub p6_new {
     return Int->new('$.unboxed' => @arg) if $type eq 'Int';
     return Num->new('$.unboxed' => @arg) if $type eq 'Num';
     return Str->new('$.unboxed' => @arg) if $type eq 'Str';
+    return Ref->new('$.unboxed' => @arg) if $type eq 'Ref';
     if ($type eq 'Sub') {
         my($name,$argl,$f)=@arg;
         my @args = map{s/\s+/ /; s/\A\s+//; s/\s+\Z//; $_} @$argl;
