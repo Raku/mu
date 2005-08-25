@@ -126,6 +126,7 @@ class 'Code'.$class_description => {
             #'bit' =>  sub { Bit->new( '$.unboxed' => _('$.unboxed')->bit  ) },
             'perl' => sub { Str->new( '$.unboxed' => 'sub {...}' ) },
             'ref' =>  sub { ::CLASS }, 
+            'defined' => sub { Bit->new( '$.unboxed' => 1 ) },
     
             do => sub {
                 my ($self, @arguments) = @_;
