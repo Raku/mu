@@ -16,6 +16,11 @@ plan 34;
 #    exit;
 #};
 
+if $*OS eq "browser" {
+  skip_rest "Programs running in browsers don't have access to regular IO.";
+  exit;
+}
+
 # Basic tests
 ok -d 't',    "-d returns true on directories";
 ok -f $*PROGRAM_NAME, "-f returns true on files";

@@ -1,6 +1,6 @@
 # EVIL hacks here! E.g. method map and sub JS::Root::map!
 
-method JS::Root::shift(@self:) {
+method JS::Root::shift(@self:) is rw {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var array = args[1].FETCH(), cc = args.pop();
     var ret   = array.shift();
@@ -8,7 +8,7 @@ method JS::Root::shift(@self:) {
   })')(@self);
 }
 
-method JS::Root::pop(@self:) {
+method JS::Root::pop(@self:) is rw {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var array = args[1].FETCH(), cc = args.pop();
     var ret   = array.pop();
@@ -16,7 +16,7 @@ method JS::Root::pop(@self:) {
   })')(@self);
 }
 
-method JS::Root::unshift(@self: *@things) {
+method JS::Root::unshift(@self: *@things) is rw {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var array = args[1].FETCH(), add = args[2].FETCH(), cc = args.pop();
     for(var i = add.length - 1; i >= 0; i--) {
@@ -26,7 +26,7 @@ method JS::Root::unshift(@self: *@things) {
   })')(@self, @things);
 }
 
-method JS::Root::push(@self: *@things) {
+method JS::Root::push(@self: *@things) is rw {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var array = args[1].FETCH(), add = args[2].FETCH(), cc = args.pop();
     for(var i = 0; i < add.length; i++) {
@@ -234,8 +234,9 @@ sub infix:<,>(*@xs is rw) is primitive is rw {
     cc(proxy);
   })')(@xs);
 }
+our &list := &infix:<,>;
 
-sub circumfix:<[]>(*@xs) is primitive { \@xs }
+sub circumfix:<[]>(*@xs is rw) is primitive { \list @xs }
 method postcircumfix:<[]>(@self: Int *@idxs) is rw {
   die "Can't use object of type {@self.ref} as an array!"
     unless @self.isa("Array");

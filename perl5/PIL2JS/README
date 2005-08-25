@@ -267,6 +267,21 @@ C<bin/js> can't download arbitrary URLs.
   # Fetch Number.Roman from JSAN and copy its lib/* to /tmp/jsanlibs
   # Point your $BROWSER to test.html
 
+=head2 Macros written in Perl 5
+
+Similar as what is possible in PIL-Run, PIL2JS allows you to write macros in
+Perl 5. These kind of macros are passed (already compiled to JS) parameters and
+return modified JS code. This allows to inline sub definitions in some cases:
+
+    # Input Perl 6 code
+    if $cond { $then() }
+
+    # Perl 6 code which would be emitted without P5Macros
+    &statement_control:<if>($cond, $then, {});
+
+    # Perl 6 code which is emitted with P5Macros
+    if $cond { $then() } else { {}() }
+
 =head1 TODO
 
 =over
@@ -279,6 +294,15 @@ Primitives!
 
 Don't call all subs in list context -- but to fix this reliably, C<-CPerl5> has
 to give better context information.
+
+=item *
+
+Hash and array autovification (C<my $hash; $hash<foo> = "bar">).
+
+=item *
+
+C<method foo (Bar $self:)> should create a C<&Bar::foo>, not a C<&main::foo>.
+Required to implement hash and array autovification elegantly.
 
 =back
 

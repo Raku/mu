@@ -47,6 +47,11 @@ my %hash;
 %hash<Mon Tue Wed Thu Fri Sat Sun> = 1..7;;
 ok(%hash{'Mon'} eq '1' and %hash{'Sun'} eq '7', '%hash<>');
 
+if ($*OS eq "browser") {
+    skip_rest "Programs running in browsers don't have access to regular IO.";
+    exit;
+}
+
 sub nonce () { return (".$*PID." ~ int rand 1000) }
 my $filename = "tmpfile" ~ nonce;
 

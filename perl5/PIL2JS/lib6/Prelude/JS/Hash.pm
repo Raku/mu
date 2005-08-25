@@ -36,7 +36,7 @@ sub hash(*@pairs) is primitive {
   })')(@pairs);
 }
 
-method postcircumfix:<{}>(%self: *@keys) {
+method postcircumfix:<{}>(%self: *@keys) is rw {
   die "Can't use object of type {%self.ref} as a hash!"
     unless %self.isa("Hash");
 

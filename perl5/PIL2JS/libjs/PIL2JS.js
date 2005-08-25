@@ -1001,10 +1001,10 @@ var _26main_3a_3aprefix_3a_2b = PIL2JS.Box.constant_func(1, function (args) {
     if(ref == "Str") {
       cc(new PIL2JS.Box.Constant(Number(unboxed)));
     } else if(ref == "Array") {
-      if(thing.referencee) thing = thing.referencee.FETCH();
+      if(unboxed.referencee) unboxed = unboxed.referencee.FETCH();
       cc(new PIL2JS.Box.Constant(unboxed.length));
     } else if(ref == "Hash") {
-      if(thing.referencee) thing = thing.referencee.FETCH();
+      if(unboxed.referencee) unboxed = unboxed.referencee.FETCH();
       cc(new PIL2JS.Box.Constant(unboxed.num_of_entries));
     } else if(ref == "Bool") {
       cc(new PIL2JS.Box.Constant(
