@@ -138,12 +138,12 @@ MULTI SUB prefix:<~^> ($xx) {...};
 MULTI SUB prefix:<?^> ($xx) {...};
 MULTI SUB prefix:<\\> ($xx) {...};
 MULTI SUB postfix:<...> ($xx) {...};
-MULTI SUB true ($xx) {...};
+# MULTI SUB true ($xx) {...};
 MULTI SUB any ($xx) {...};
 MULTI SUB all ($xx) {...};
 MULTI SUB one ($xx) {...};
 MULTI SUB none ($xx) {...};
-MULTI SUB perl ($xx) {...};
+MULTI SUB perl ($xx) { $xx->perl };
 MULTI SUB require_haskell ($xx) {...};
 MULTI SUB require_parrot ($xx) {...};
 MULTI SUB require_perl5 ($xx) {...};
@@ -227,7 +227,7 @@ MULTI SUB values (@a) { $a };
 MULTI SUB prefix:<=> ($xx) {...};
 MULTI SUB readline ($xx) {...};
 MULTI SUB getc ($xx) {...};
-MULTI SUB ref ($xx) {...};
+MULTI SUB ref ($xx) { $xx->ref };  # dies because Classes can't do str()
 MULTI SUB pop ($xx) { $xx->pop };
 MULTI SUB shift ($xx) { $xx->shift };
 MULTI SUB pick ($xx) {...};
@@ -263,9 +263,9 @@ MULTI SUB Pugs::Internals::hIsSeekable ($xx) {...};
 MULTI SUB rename ($xx0,$xx1) {...};
 MULTI SUB symlink ($xx0,$xx1) {...};
 MULTI SUB link ($xx0,$xx1) {...};
-MULTI SUB infix:<*> ($xx0,$xx1) {...};
-MULTI SUB infix:</> ($xx0,$xx1) {...};
-MULTI SUB infix:<%> ($xx0,$xx1) {...};
+MULTI SUB infix:<*> ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) * p6_to_n($xx1)) };
+MULTI SUB infix:</> ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) / p6_to_n($xx1)) };
+MULTI SUB infix:<%> ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) % p6_to_n($xx1)) };
 MULTI SUB infix:<x> ($xx0,$xx1) {
     p6_from_a( Perl6::Value::List->from_x( item => $xx0->unboxed, count => $xx1->unboxed ) ) 
 };
@@ -276,7 +276,7 @@ MULTI SUB infix:[+>] ($xx0,$xx1) {...};
 MULTI SUB infix:<~&> ($xx0,$xx1) {...};
 MULTI SUB infix:[~<] ($xx0,$xx1) {...};
 MULTI SUB infix:[~>] ($xx0,$xx1) {...};
-MULTI SUB infix:<**> ($xx0,$xx1) {...};
+MULTI SUB infix:<**> ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) ** p6_to_n($xx1)) };
 MULTI SUB infix:<+> ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) + p6_to_n($xx1)) };
 MULTI SUB infix:<-> ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) - p6_to_n($xx1)) };
 # atan - see op1
@@ -297,9 +297,9 @@ MULTI SUB infix:<..> ($xx0,$xx1) {
             # map( sub{ Int->new( '$.unboxed' => $_[0] ) } ) 
     ) 
 };
-MULTI SUB infix:<..^> ($xx0,$xx1) {...};
-MULTI SUB infix:<^..> ($xx0,$xx1) {...};
-MULTI SUB infix:<^..^> ($xx0,$xx1) {...};
+#MULTI SUB infix:<..^> ($xx0,$xx1) {...};
+#MULTI SUB infix:<^..> ($xx0,$xx1) {...};
+#MULTI SUB infix:<^..^> ($xx0,$xx1) {...};
 MULTI SUB infix:<!=> ($xx0,$xx1) { p6_from_b(p6_to_n($xx0) != p6_to_n($xx1)) };
 MULTI SUB infix:<==> ($xx0,$xx1) { p6_from_b(p6_to_n($xx0) == p6_to_n($xx1)) };
 MULTI SUB infix:[<=] ($xx0,$xx1) { p6_from_b(p6_to_n($xx0) <= p6_to_n($xx1)) };
