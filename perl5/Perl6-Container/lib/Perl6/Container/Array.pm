@@ -119,15 +119,15 @@ class 'Array'.$class_description => {
                 }
 
                 if ( $method eq 'pop'   || $method eq 'shift' || $method eq 'fetch' ) {
-                    warn "FETCHING THINGS @param";
+                    #warn "FETCHING THINGS @param";
                     my $elem = $tmp->$method( @param );
                     unless ( UNIVERSAL::isa( $elem, 'Scalar' ) ) {
-                        warn "FETCHED CELL IS NOT A SCALAR: $elem";
+                        #warn "FETCHED CELL IS NOT A SCALAR: $elem";
                         my $scalar = Scalar->new();
                         $scalar->store( $elem );
                         if ( $method eq 'fetch' ) {
                             # replace Value with Scalar
-                            warn "STORE = $_[1], $scalar";
+                            #warn "STORE = $_[1], $scalar";
                             $self->store( $_[1], $scalar );
                         }
                         return $scalar;
