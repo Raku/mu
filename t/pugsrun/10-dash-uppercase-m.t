@@ -11,7 +11,6 @@ Test handling of C<-Mmodule>.
 
 =cut
 
-
 BEGIN { push @INC, < blib6/lib > } # ext/File-Spec/lib
 require File::Spec;
 
@@ -25,6 +24,10 @@ my @tests = (
 );
 
 plan 4;
+if $*OS eq "browser" {
+  skip_rest "Programs running in browsers don't have access to regular IO.";
+  exit;
+}
 
 diag "Running under $*OS";
 

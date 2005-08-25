@@ -75,7 +75,7 @@ EOF
     my ($name, $type, $body) = @$_;
 
     my $undef  = $type eq "S" ? '""' : 0;
-    my $conv   = "_26main_3a_3aprefix_3a_" . ($type eq "S" ? "3f" : "2b");
+    my $conv   = "_26main_3a_3aprefix_3a_" . ($type eq "S" ? "7e" : "2b");
 
     register "&$name" => sub {
       my ($cc, $a, $b) = @_;

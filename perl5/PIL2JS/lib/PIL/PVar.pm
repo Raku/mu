@@ -38,7 +38,21 @@ sub fixup {
   }
 }
 
-sub as_js { ref $_[0]->{pVarName} ? $_[0]->{pVarName}->as_js : PIL::name_mangle $_[0]->{pVarName} }
+sub as_js {
+  my $self = shift;
+
+  if(ref $self->{pVarName}) {
+    ($self->{pVarName}{CC} and die) or $self->{pVarName}{CC} = $self->{CC} if $self->{CC};
+    return $self->{pVarName}->as_js;
+  } else {
+    my $jsvar = PIL::name_mangle $self->{pVarName};
+    if($self->{CC}) {
+      return $self->{CC}->as_js . "($jsvar)";
+    } else {
+      return $jsvar;
+    }
+  }
+}
 
 sub unwrap { $_[0] }
 

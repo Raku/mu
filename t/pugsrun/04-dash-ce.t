@@ -21,6 +21,10 @@ my @examples = (
 );
 
 plan +@examples;
+if $*OS eq "browser" {
+  skip_rest "Programs running in browsers don't have access to regular IO.";
+  exit;
+}
 
 diag "Running under $*OS";
 

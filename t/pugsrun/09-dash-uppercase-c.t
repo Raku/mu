@@ -8,6 +8,7 @@ use Test;
 Test handling of C<-Cbackend>.
 
 =cut
+
 sub flatten (Any|Junction $x) {
     ($x.isa(Junction)) ?? map &flatten, $x.values :: $x
 }
@@ -48,7 +49,11 @@ for @t_good -> $test {
 };
 
 
-plan ((+@tests_ok)*2);
+plan((+@tests_ok)*2);
+if $*OS eq "browser" {
+  skip_rest "Programs running in browsers don't have access to regular IO.";
+  exit;
+}
 
 diag "Running under $*OS";
 

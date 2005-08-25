@@ -7,7 +7,6 @@ use Test;
 
 Test handling of C<-V> and C<-V:option>.
 
-
 =cut
 
 # cf. unspecced/config.t for the same list
@@ -42,6 +41,10 @@ my @config = <
 >;
 
 plan 1+@config*2+2;
+if $*OS eq "browser" {
+  skip_rest "Programs running in browsers don't have access to regular IO.";
+  exit;
+}
 
 diag "Running under $*OS";
 

@@ -63,11 +63,13 @@ sub possibly_ccify {
   my $unwrapped = $thing->unwrap;
 
   if(
-    $unwrapped->isa("PIL::PLit")   or
-    $unwrapped->isa("PIL::PVar")   or
-    $unwrapped->isa("PIL::PCode")  or
-    $unwrapped->isa("PIL::PThunk") or
-    0
+    not $thing->isa("PIL::PPos") and (
+      $unwrapped->isa("PIL::PLit")   or
+      $unwrapped->isa("PIL::PVar")   or
+      $unwrapped->isa("PIL::PCode")  or
+      $unwrapped->isa("PIL::PThunk") or
+      0
+    )
   ) {
     if(ref $sub eq "CODE") {
       return $sub->($thing->as_js);
