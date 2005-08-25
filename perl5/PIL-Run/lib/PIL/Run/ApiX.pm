@@ -197,9 +197,10 @@ sub p6_new_sub_from_pil_macro {
     }
     my $my_args = "";
     if (@names5) {
+	my $sig = @names6param > 1 ? '@' : '$';
 	$my_args = ('my('
 		    .join(",",@names5)
-		    .')=@_param{'
+		    .")=${sig}_param{"
 		    .$listify->(@names6param)
 		    .'};');
     }
