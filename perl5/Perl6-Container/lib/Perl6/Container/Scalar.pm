@@ -69,8 +69,10 @@ sub Perl6::Cell::store {
         my $cell = shift;
         return $cell->{tied}->store( @_ );
     }
-    if ( UNIVERSAL::isa( $_[0]{v}, 'Array' ) || 
-         UNIVERSAL::isa( $_[0]{v}, 'Hash'  ))  {
+    if ( @_ > 2 && (
+            UNIVERSAL::isa( $_[0]{v}, 'Array' ) || 
+            UNIVERSAL::isa( $_[0]{v}, 'Hash'  )
+           ))  {
         my $cell = shift;
         # warn "storing @_ to ".ref($cell->{v});
         return $cell->{v}->store( @_ );
@@ -84,8 +86,10 @@ sub Perl6::Cell::fetch {
         my $cell = shift;
         return $cell->{tied}->fetch( @_ );
     }
-    if ( UNIVERSAL::isa( $_[0]{v}, 'Array' ) || 
-         UNIVERSAL::isa( $_[0]{v}, 'Hash'  ))  {
+    if ( @_ > 1 && (
+            UNIVERSAL::isa( $_[0]{v}, 'Array' ) || 
+            UNIVERSAL::isa( $_[0]{v}, 'Hash'  )
+           ))  {
         my $cell = shift;
         #warn "fetching @_ from ".ref($cell->{v});
         return $cell->{v}->fetch( @_ );
