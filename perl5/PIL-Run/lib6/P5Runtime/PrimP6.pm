@@ -17,3 +17,8 @@ multi sub nothing () is builtin is primitive is safe {
     bool::true}
 
 multi sub postcircumfix:<[ ]> ($a,$i) { Array::fetch($a,$i) }
+
+# TODO - string versions
+multi sub infix:<..^> ($x0,$x1) { $x0..($x1-1) };
+multi sub infix:<^..> ($x0,$x1) { ($x0+1)..$x1 };
+multi sub infix:<^..^> ($x0,$x1) { ($x0+1)..($x1-1) };
