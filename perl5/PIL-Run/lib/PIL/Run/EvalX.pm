@@ -48,6 +48,9 @@ sub expand {
 package VInt; @ISA = qw(EvalX::BaseClass); sub expand {
     "p6_new('Int','$_[0][0]')";
 }
+package VNum; @ISA = qw(EvalX::BaseClass); sub expand {
+    "p6_new('Num','$_[0][0]')";
+}
 package VStr; @ISA = qw(EvalX::BaseClass); sub expand {
     my $s = $_[0][0];
     $s =~ s/\\/\\\\/g; $s =~ s/\'/\\\'/g;
@@ -88,7 +91,9 @@ package PAssign; @ISA = qw(EvalX::BaseClass); sub expand {
 package PStmt; @ISA = qw(EvalX::BaseClass); sub expand {
     #$_[0]->SUPER::expand().";\n";
     my $n = int(rand(10000000));
-    "eval(<<'E$n');\n".$_[0]->SUPER::expand().";\nE$n\n";
+    #warn \$\@ if \$\@;
+    "do{my \@_res=eval(<<'E$n');warn \$\@ if \$\@; \@_res};\n".$_[0]->SUPER::expand().";\nE$n\n";
+    #"eval(<<'E$n');\n".$_[0]->SUPER::expand().";\nE$n\n";
 }
 package PThunk; @ISA = qw(EvalX::BaseClass); sub expand {
     my $body = $_[0]->{'pThunk'}{'pLV'}{'pFun'}{'pBody'};

@@ -1,6 +1,7 @@
 
 package PIL::Run::Main;
 
+require Math::BigInt;
 require Perl6::Value;
 require Perl6::Container::Scalar;
 require Perl6::Container::Array;
