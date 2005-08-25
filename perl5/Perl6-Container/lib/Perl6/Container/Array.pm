@@ -14,6 +14,10 @@
 # 2005-08-10
 # * Ported from Perl6 version
 
+# TODO - @a[1] == Scalar
+# TODO - test - @a[1] := $x
+# TODO - exists
+
 # TODO - store(List) actually means store([List]), Perl6 version
 # TODO - fix "defined $i" to "elems == 0" in push/pop, Perl6 version
 # TODO - splice() should accept a 'List' object, Perl6 version too
@@ -108,10 +112,29 @@ class 'Array'.$class_description => {
                     return $ret;
                 }
                 
-                if ( $method eq 'push'   || $method eq 'unshift' ) {
+                if ( $method eq 'push'   || $method eq 'unshift' || $method eq 'store' ) {
+                    # warn "STORING THINGS @param";
                     $tmp->$method( @param );
                     return $self;
                 }
+
+                if ( $method eq 'pop'   || $method eq 'shift' || $method eq 'fetch' ) {
+                    warn "FETCHING THINGS @param";
+                    my $elem = $tmp->$method( @param );
+                    unless ( UNIVERSAL::isa( $elem, 'Scalar' ) ) {
+                        warn "FETCHED CELL IS NOT A SCALAR: $elem";
+                        my $scalar = Scalar->new();
+                        $scalar->store( $elem );
+                        if ( $method eq 'fetch' ) {
+                            # replace Value with Scalar
+                            warn "STORE = $_[1], $scalar";
+                            $self->store( $_[1], $scalar );
+                        }
+                        return $scalar;
+                    }
+                    return $elem;
+                }
+
                 if ( $method eq 'elems' ) {
                     return Int->new( '$.unboxed' => $tmp->$method( @param ) )
                 }
