@@ -18,6 +18,10 @@
 # TODO - test - @a[1] := $x
 # TODO - exists
 
+# TODO - fglock does p6 have @a[1..2]=(1,2) ?
+#   iblech fglock: It has.
+#   iblech fglock: &postcircumfix:<[ ]> has to be "is rw"
+
 # TODO - store(List) actually means store([List]), Perl6 version
 # TODO - fix "defined $i" to "elems == 0" in push/pop, Perl6 version
 # TODO - splice() should accept a 'List' object, Perl6 version too
