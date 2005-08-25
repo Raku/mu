@@ -3,7 +3,7 @@
 use strict;
 
 use Test::More;
-plan tests => 13;
+plan tests => 14;
 
 use Perl6::Container::Array; 
 use Perl6::Value;
@@ -57,4 +57,10 @@ use constant Inf => Perl6::Value::Num::Inf;
     my $x = $scalar->fetch( 1 );
     #print Dumper( \$x );
     is( $x, 2, 'fetch from auto-dereferenced scalar works' );
+
+    # store
+    $scalar->store( 1, 3 );
+    $x = $scalar->fetch( 1 );
+    #print Dumper( \$x );
+    is( $x, 3, 'store to auto-dereferenced scalar works' );
 }

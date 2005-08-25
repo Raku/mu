@@ -3,6 +3,9 @@
 
 # ChangeLog
 #
+# 2005-08-25
+# - Arrays stored in a Scalar can be accessed using indexed store/fetch
+#
 # 2005-08-23
 # - fixed Perl6::Cell::fetch
 #
@@ -59,14 +62,17 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
 $Perl6::Cell::_id = rand;
 sub Perl6::Cell::new { bless { 'id' => ++$Perl6::Cell::_id }, 'Perl6::Cell' } 
 sub Perl6::Cell::store {
+    # warn "Perl6::Cell::store tied=$_[0]{tied} type=$_[0]{type} ref=".ref($_[0]{v})." param=@_";
     die 'read only cell' if $_[0]{ro} && defined $_[0]{v};
     # return $_[0]{tied}->store($_[1]) if $_[0]{tied};
     if ( $_[0]{tied} ) {
         my $cell = shift;
         return $cell->{tied}->store( @_ );
     }
-    if ( $_[0]{type} ) {
+    if ( UNIVERSAL::isa( $_[0]{v}, 'Array' ) || 
+         UNIVERSAL::isa( $_[0]{v}, 'Hash'  ))  {
         my $cell = shift;
+        # warn "storing @_ to ".ref($cell->{v});
         return $cell->{v}->store( @_ );
     }
     $_[0]{v} = $_[1]
@@ -155,8 +161,8 @@ class 'Scalar'.$class_description => {
             'fetch' => sub { shift; _('$:cell')->fetch( @_ ) },
             'store' => sub { 
                 # TODO - copy cell 'type'
-                my ( $self, $value ) = @_; 
-                _('$:cell')->store($value );
+                shift; 
+                _('$:cell')->store( @_);
             },
             'defined' => sub {
                 my $def = defined _('$:cell')->fetch ? 1 : 0;
