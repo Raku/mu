@@ -72,13 +72,16 @@ sub Perl6::Cell::store {
     $_[0]{v} = $_[1]
 }
 sub Perl6::Cell::fetch {
+    #warn "Perl6::Cell::fetch tied=$_[0]{tied} type=$_[0]{type} ref=".ref($_[0]{v})." param=@_";
     # return $_[0]{tied}->fetch if $_[0]{tied};
     if ( $_[0]{tied} ) {
         my $cell = shift;
         return $cell->{tied}->fetch( @_ );
     }
-    if ( $_[0]{type} ) {
+    if ( UNIVERSAL::isa( $_[0]{v}, 'Array' ) || 
+         UNIVERSAL::isa( $_[0]{v}, 'Hash'  ))  {
         my $cell = shift;
+        #warn "fetching @_ from ".ref($cell->{v});
         return $cell->{v}->fetch( @_ );
     }
     $_[0]{v}
@@ -149,7 +152,7 @@ class 'Scalar'.$class_description => {
             $_[0]->{'instance_data'}{'$:cell'} = undef;  
         },
         methods => { 
-            'fetch' => sub { _('$:cell')->fetch },
+            'fetch' => sub { shift; _('$:cell')->fetch( @_ ) },
             'store' => sub { 
                 # TODO - copy cell 'type'
                 my ( $self, $value ) = @_; 
