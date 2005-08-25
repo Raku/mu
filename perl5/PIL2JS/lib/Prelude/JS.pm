@@ -5,7 +5,7 @@ use strict;
 
 {
   our %macro;
-  sub register { $macro{$_[0]} = PIL::P5Macro::JS->new($_[1]) }
+  sub register { $macro{$_[0]} = PIL::P5Macro::JS->new($_[0] => $_[1]) }
 }
 
 {
@@ -83,9 +83,9 @@ EOF
       my %param = (a => $a, b => $b);
 
       my $jsbody = $body;
-      $jsbody =~ s/\b([ab])\b/PIL2JS.if_undefined(PIL2JS.cps2normal($conv.FETCH(), [PIL2JS.Context.ItemAny, $param{$1}]).toNative(), $undef)/g;
+      $jsbody =~ s/\b([ab])\b/$1.toNative()/g;
 
-      return "$cc(new PIL2JS.Box.Constant($jsbody))";
+      return "PIL2JS.possibly_autothread([PIL2JS.cps2normal($conv.FETCH(), [PIL2JS.Context.ItemAny, $a]), PIL2JS.cps2normal($conv.FETCH(), [PIL2JS.Context.ItemAny, $b])], [true, true], $cc, function (__cc, a, b) { __cc(new PIL2JS.Box.Constant($jsbody)) })";
     };
   }
 }

@@ -993,11 +993,11 @@ var _26main_3a_3aprefix_3a_7e = PIL2JS.Box.constant_func(1, function (args) {
 var _26main_3a_3aprefix_3a_2b = PIL2JS.Box.constant_func(1, function (args) {
   var cc = args.pop();
   PIL2JS.possibly_autothread([args[1]], [true], cc, function (cc, thing) {
-    thing = thing.FETCH();
+    var ref = PIL2JS.cps2normal(_26main_3a_3aref.FETCH(), [PIL2JS.Context.ItemAny, thing]).FETCH();
 
+    thing = thing.FETCH();
     if(thing == undefined) return cc(new PIL2JS.Box.Constant(undefined));
 
-    var ref = PIL2JS.cps2normal(_26main_3a_3aref.FETCH(), [PIL2JS.Context.ItemAny, args[1]]).FETCH();
     if(ref == "Str") {
       cc(new PIL2JS.Box.Constant(Number(thing)));
     } else if(ref == "Array") {
@@ -1008,7 +1008,7 @@ var _26main_3a_3aprefix_3a_2b = PIL2JS.Box.constant_func(1, function (args) {
       cc(new PIL2JS.Box.Constant(thing.num_of_entries));
     } else if(ref == "Bool") {
       cc(new PIL2JS.Box.Constant(
-        PIL2JS.cps2normal(_26main_3a_3aprefix_3a_3f.FETCH(), [PIL2JS.Context.ItemAny, args[1]]).FETCH()
+        PIL2JS.cps2normal(_26main_3a_3aprefix_3a_3f.FETCH(), [PIL2JS.Context.ItemAny, thing]).FETCH()
           ? 1
           : 0
       ));
