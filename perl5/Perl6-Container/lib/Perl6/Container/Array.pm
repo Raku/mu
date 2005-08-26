@@ -123,7 +123,7 @@ class 'Array'.$class_description => {
         },
         methods => { 
 
-            # %a := %b 
+            # @a := @b 
             'bind' =>     sub {
                 my ( $self, $thing ) = @_;
                 die "argument to Array bind() must be a Array"
@@ -140,12 +140,6 @@ class 'Array'.$class_description => {
 
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
             'isa' => sub { ::next_METHOD() },
-
-            # 'elems' =>    sub { _('$:cell')->{tied} ? 
-            #                    _('$:cell')->{tied}->elems :
-            #                    Perl6::Container::Array::elems( _('$:cell')->{v} )
-            # },
-
             'unboxed' => sub { 
                 _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v}
             },
@@ -166,9 +160,6 @@ class 'Array'.$class_description => {
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
                 my $method = ::AUTOLOAD($self);
-
-                # TODO - add support for tied array
-                # TODO - check if scalar := array works properly
                 my $tmp = $self->unboxed;
                 # warn ref($tmp), ' ', $method, " @param == " . $tmp->$method( @param );
                 
