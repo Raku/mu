@@ -54,7 +54,7 @@ MULTI SUB coerce:as ($x, $to) {
     } 
     if ( $@ ) {
         warn "can't coerce $x to $class ($@)";
-        $tmp = Str->new( '$.unboxed' => "" );
+        $tmp = p6_from_s("");
     }
     return $tmp;
 };
@@ -132,14 +132,14 @@ MULTI SUB sqrt ($xx) {...};
 MULTI SUB atan (*@xxa) {...};
 
 MULTI SUB postfix:<++> ($xx) { 
-    my $tmp = $xx->unboxed; # XXX - use clone() - needs MM2
+    my $old = p6_new(Num => p6_to_n($xx)); # XXX - use clone() - needs MM2
     p6_set($xx,p6_from_n(p6_to_n($xx)+1)); 
-    Num->new('$.unboxed' => $tmp ) };
+    $old };
 MULTI SUB prefix:<++> ($xx)  { p6_set($xx,p6_from_n(p6_to_n($xx)+1)) };
 MULTI SUB postfix:<--> ($xx) { 
-    my $tmp = $xx->unboxed; # XXX - use clone() - needs MM2
+    my $old = p6_new(Num => p6_to_n($xx)); # XXX - use clone() - needs MM2
     p6_set($xx,p6_from_n(p6_to_n($xx)-1)); 
-    Num->new('$.unboxed' => $tmp ) };
+    $old };
 MULTI SUB prefix:<--> ($xx)  { p6_set($xx,p6_from_n(p6_to_n($xx)+1)) };
 
 MULTI SUB scalar ($xx) {...};
@@ -154,7 +154,7 @@ MULTI SUB int ($xx) {...};
 MULTI SUB prefix:<+^> ($xx) {...};
 MULTI SUB prefix:<~^> ($xx) {...};
 MULTI SUB prefix:<?^> ($xx) {...};
-MULTI SUB prefix:<\\> ($xx) { Ref->new( '$.referred' => $xx ) };
+MULTI SUB prefix:<\\> ($xx) { p6_new(Ref => $xx) };
 MULTI SUB postfix:<...> ($xx) {...};
 # MULTI SUB true ($xx) {...};
 MULTI SUB any ($xx) {...};
@@ -198,14 +198,14 @@ MULTI SUB redo ($xx) {...};
 # yield - see op0
 # take - see op0
 MULTI SUB sign ($xx) {...};
-MULTI SUB rand ($xx) { Num->new( '$.unboxed' => rand( defined $xx ? $xx->unboxed : 1 ) ) };
+MULTI SUB rand ($xx) { p6_from_n(rand(defined $xx ? p6_to_n($xx) : 1)) };
 # say - see op0
 # print - see op0
 MULTI SUB IO::say (*@xxa) {...};
 MULTI SUB IO::print (*@xxa) {...};
 MULTI SUB IO::next ($xx) {...};
 MULTI SUB Pugs::Safe::safe_print ($xx) {...};
-MULTI SUB die ($xx) { die "die: ".p6_to_s($xx); };
+MULTI SUB die (*@xxa) { die "die: ",map{p6_to_s($_)}@xxa; };
 MULTI SUB warn ($xx) {...};
 MULTI SUB fail_ ($xx) {...};
 MULTI SUB exit ($xx) {...};
