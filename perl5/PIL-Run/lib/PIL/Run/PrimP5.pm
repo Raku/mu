@@ -137,7 +137,7 @@ MULTI SUB int ($xx) {...};
 MULTI SUB prefix:<+^> ($xx) {...};
 MULTI SUB prefix:<~^> ($xx) {...};
 MULTI SUB prefix:<?^> ($xx) {...};
-MULTI SUB prefix:<\\> ($xx) {...};
+MULTI SUB prefix:<\\> ($xx) { Ref->new( '$.referred' => $xx ) };
 MULTI SUB postfix:<...> ($xx) {...};
 # MULTI SUB true ($xx) {...};
 MULTI SUB any ($xx) {...};
