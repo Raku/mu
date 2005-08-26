@@ -207,10 +207,10 @@ class 'Ref'.$class_description => {
         },
         methods => { 
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
-            'isa' => sub { next_METHOD() },
+            'isa' => sub { ::next_METHOD() },
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
-                my $method = AUTOLOAD($self);
+                my $method = ::AUTOLOAD($self);
                 my $tmp = _('$.referred');
                 # Array and Hash are auto-dereferenced
                 if ( defined $tmp && ( 
@@ -223,7 +223,7 @@ class 'Ref'.$class_description => {
                     if $method eq 'bit';
                 return ::CLASS 
                     if $method eq 'ref';
-                if ( $method eq 'perl' ) {
+                if ( $method eq 'perl' || $method eq 'str' ) {
                     return Str->new( '$.unboxed' => '\\undef' ) unless defined $tmp;
                     return Str->new( '$.unboxed' => '\\' . $tmp->perl->unboxed ) 
                 }
