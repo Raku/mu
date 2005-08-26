@@ -64,7 +64,7 @@ sub Perl6::Slice::fetch {
     my $self = shift;
     my $i = shift;
     my $pos = $self->{slice}->fetch( $i )->fetch;
-    # warn " fetching @_ at ". $self->{array} ."/". $self->{slice}->perl ."[ $i -> $pos ]";
+    #warn " fetching @_ at ". $self->{array} ."/". $self->{slice}->perl ."[ $i -> $pos ]";
 
     # warn " slice has ". $self->{slice}->elems()->unboxed . " elements";
 
@@ -80,7 +80,7 @@ sub Perl6::Slice::store {
     my $self = shift;
     my $i = shift;
     my $pos = $self->{slice}->fetch( $i )->fetch;
-    # warn " storing @_ at ". $self->{array} ."[ $i -> $pos ]";
+    #warn " storing @_ at ". $self->{array} ."[ $i -> $pos ]";
 
     return unless defined $pos;
     return if $pos >= $self->{array}->elems()->unboxed ||
@@ -180,8 +180,33 @@ class 'Array'.$class_description => {
                         # whole Array store
                         # warn "WHOLE ARRAY STORE";
                         # XXX - what if the array is tied?
-                        my @items = $param[0]->unboxed->items;  
+                        #  @a = (2,3,4,5); @a[1,2] = @a[0,3]
+                        my $other = $param[0];
+                        if ( $self->cell->{tied} ||
+                             $other->cell->{tied} ) {
+                            if ( $other->is_infinite->unboxed ) {
+                                die "Infinite slices and tied arrays are not yet fully supported";
+                            }
+                            #if ( $self->cell->{tied} ) {
+                            #    warn "self is tied ". $self->cell->{tied}->{slice}->str->unboxed;
+                            #}
+                            #if ( $other->cell->{tied} ) {
+                            #    warn "other is tied ". $other->cell->{tied}->{slice}->str->unboxed;
+                            #}
+                            for ( 0 .. $other->elems->unboxed -1 ) {
+                                print "store $_ ",$other->fetch( $_ )->fetch;
+                                $self->store( $_, $other->fetch( $_ ) );
+                            }
+                            return $self;
+                        }
+                        my @items = $other->unboxed->items;  
                         # warn "got @items - current = ". _('$:cell')->{v};
+
+                        # unbind cells
+                        @items = map {
+                                ( ref($_) eq 'Scalar' ) ? $_->fetch : $_
+                            } @items;
+
                         my $ret = Perl6::Container::Array->from_list( @items );
                         _('$:cell')->{v} = $ret;
                         return $self;
@@ -194,7 +219,7 @@ class 'Array'.$class_description => {
                 if ( $method eq 'pop'   || $method eq 'shift' || $method eq 'fetch' ) {
                     # warn "FETCHING THINGS @param";
                     if ( $method eq 'store' && @param == 1 ) {
-                        # whole Array store
+                        # whole Array fetch
                         # warn "WHOLE ARRAY FETCH";
                         return $self;
                     }
@@ -214,8 +239,8 @@ class 'Array'.$class_description => {
                     return $elem;
                 }
 
-                if ( $method eq 'elems' ) {
-                    return Int->new( '$.unboxed' => $tmp->$method( @param ) )
+                if ( $method eq 'elems' || $method eq 'int' || $method eq 'num' ) {
+                    return Int->new( '$.unboxed' => $tmp->elems( @param ) )
                 }
                 if ( $method eq 'is_infinite' ) {
                     return Bit->new( '$.unboxed' => $tmp->$method( @param ) )
