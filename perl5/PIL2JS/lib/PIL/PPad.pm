@@ -69,9 +69,11 @@ sub as_js {
           unless $PIL::IN_SUBLIKE;
         <<EOF;
 (function () {
-  var backup = $jsname.FETCH();
+  var backup_container = $jsname;
+  var backup_value     = $jsname.FETCH();
   block_leave_hooks.push(function () {
-    $jsname.STORE(new PIL2JS.Box.Constant(backup));
+    $jsname = backup_container;
+    $jsname.STORE(new PIL2JS.Box.Constant(backup_value));
   });
 })()
 EOF
@@ -80,13 +82,15 @@ EOF
           unless $PIL::IN_SUBLIKE;
         <<EOF;
 (function () {
-  var backup = $jsname.FETCH();
+  var backup_container = $jsname;
+  var backup_value     = $jsname.FETCH();
   block_leave_hooks.push(function (retval) {
     if(!PIL2JS.cps2normal(
       _26main_3a_3aprefix_3a_3f.FETCH(),
       [PIL2JS.Context.ItemAny, retval]
     ).FETCH())
-      $jsname.STORE(new PIL2JS.Box.Constant(backup));
+      $jsname = backup_container;
+      $jsname.STORE(new PIL2JS.Box.Constant(backup_value));
   });
 })()
 EOF

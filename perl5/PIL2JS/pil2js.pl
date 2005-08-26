@@ -114,7 +114,7 @@ PIL2JS.catch_all_exceptions(function () {
       _26main_3a_3aexit.FETCH()([
         PIL2JS.Context.ItemAny,
         new PIL2JS.Box.Constant(undefined),
-        'dummycc'
+        function () { 'dummycc' }
       ]);
     });
   });

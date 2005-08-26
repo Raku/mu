@@ -55,7 +55,7 @@ use strict;
       if $self->name =~ /^__export_c.*import$/;
 
     my $js = sprintf
-      "%s%s = %s;\n%s.perl_name = %s;\n",
+      "%s%s = new PIL2JS.Box(%s.FETCH());\n%s.perl_name = %s;\n",
       $PIL::IN_GLOBPIL ? "" : "var ",
       PIL::name_mangle($self->name),
       $self->SUPER::as_js,

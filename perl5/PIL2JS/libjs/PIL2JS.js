@@ -686,7 +686,7 @@ PIL2JS.generic_return = function (returncc) {
 PIL2JS.coro_entrypoints = [];
 
 PIL2JS.already_exited = false;
-var _26main_3a_3aexit = PIL2JS.Box.constant_func(1, function (args) {
+var _26main_3a_3aexit = new PIL2JS.Box(PIL2JS.Box.constant_func(1, function (args) {
   if(PIL2JS.already_exited) return;
   PIL2JS.already_exited = true;
 
@@ -699,7 +699,7 @@ var _26main_3a_3aexit = PIL2JS.Box.constant_func(1, function (args) {
   /* We've finished, so we don't call the cc. */
 
   throw new PIL2JS.ControlException.end;
-});
+}).FETCH());
 
 // Array of boxed subs we're currently in.
 var PIL2JS_callchain = [];
