@@ -120,11 +120,18 @@ MULTI SUB sin ($xx) {...};
 MULTI SUB tan ($xx) {...};
 MULTI SUB sqrt ($xx) {...};
 MULTI SUB atan (*@xxa) {...};
-# TODO return previous value in postfix++ and --
-MULTI SUB postfix:<++> ($xx) { p6_set($xx,p6_from_n(p6_to_n($xx)+1)) };
+
+MULTI SUB postfix:<++> ($xx) { 
+    my $tmp = $xx->unboxed; # XXX - use clone() - needs MM2
+    p6_set($xx,p6_from_n(p6_to_n($xx)+1)); 
+    Num->new('$.unboxed' => $tmp ) };
 MULTI SUB prefix:<++> ($xx)  { p6_set($xx,p6_from_n(p6_to_n($xx)+1)) };
-MULTI SUB postfix:<--> ($xx) { p6_set($xx,p6_from_n(p6_to_n($xx)-1)) };
+MULTI SUB postfix:<--> ($xx) { 
+    my $tmp = $xx->unboxed; # XXX - use clone() - needs MM2
+    p6_set($xx,p6_from_n(p6_to_n($xx)-1)); 
+    Num->new('$.unboxed' => $tmp ) };
 MULTI SUB prefix:<--> ($xx)  { p6_set($xx,p6_from_n(p6_to_n($xx)+1)) };
+
 MULTI SUB scalar ($xx) {...};
 MULTI SUB sort (*@xxa) {...};
 MULTI SUB reverse (@xx) { $xx->reverse };
