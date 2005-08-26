@@ -43,11 +43,7 @@ sub p6_from_l {my(@a)=@_; p6_new('List', @a)};
 sub p6_die {my(@args)=@_; die @args;}
 sub p6_set {
     my($o,$v)=@_;
-    my $v2 = $v;
-    if (ref($o) eq 'Scalar' && ref($v) =~ 'Array') {
-	$v2 = p6_new(Ref => $v);
-    }
-    $o->store($v2);
+    $o->store($v);
 }
 sub p6_var_macro {
     my($name,$defined1_autovivify2)=@_;
