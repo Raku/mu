@@ -170,14 +170,18 @@ MULTI SUB use ($xx) {...};
 MULTI SUB require ($xx) {
     use FindBin;
     use File::Spec;
-    my $fn = p6_to_s($xx);
-    $fn = File::Spec->catfile('lib6',$fn);
-    if (-e $fn) {
-	PIL::Run::EvalX::p6_eval_file($fn);
-    } else {
-	my $fn2 = File::Spec->catfile($FindBin::Bin,$fn);
-	PIL::Run::EvalX::p6_eval_file($fn2);
+    my $name = p6_to_s($xx);
+    my $fn = File::Spec->catfile(split(/::/,$name));
+    my @candidates;
+    push(@candidates,
+	 $fn,
+	 File::Spec->catfile('lib6',$fn),
+	 File::Spec->catfile($FindBin::Bin,'lib6',$fn));
+    for my $f (@candidates) {
+	next if !-e $f;
+	return PIL::Run::EvalX::p6_eval_file($f);
     }
+    die "require($name) - file not found";
 };
 MULTI SUB Pugs::Internals::eval ($xx) {...};
 MULTI SUB evalfile ($xx) {...};
@@ -361,8 +365,8 @@ MULTI SUB does ($xx0,$xx1) {...};
 MULTI SUB isa ($xx0,$xx1) {...};
 MULTI SUB delete ($xx0,$xx1) {...};
 MULTI SUB exists ($xx0,$xx1) {...};
-MULTI SUB unshift ($xx0,$xx1) { $xx0->unshift( $xx1 ) };
-MULTI SUB push ($xx0,$xx1) { $xx0->push( $xx1 ) };
+MULTI SUB unshift (@xx0,*@xxa) { $xx0->unshift( @xxa ) };
+MULTI SUB push (@xx0,*@xxa) { $xx0->push( @xxa ) };
 MULTI SUB split (*@xxa) {...};
 # Str::split - see op1
 MULTI SUB connect ($xx0,$xx1) {...};

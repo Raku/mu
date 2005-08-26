@@ -77,6 +77,7 @@ sub p6_repl {
 
 for my $fn (@ARGV) {
     next if $fn =~ /^--/;
+    warn "Ignoring command line argument $fn .\n" if $fn =~ /^-/;
     p6_eval_file($fn);
 }
 p6_repl() if !@ARGV || $ARGV[0] eq '--repl';
