@@ -244,6 +244,9 @@ sub p6_apply {
     if(!ref($f)) { # XXX - see PApp in EvalX.
 	return $args[0]->$f(splice(@args,1));
     }
+    if(!p6_to_b($f->defined())) {
+	Carp::confess "Error: Application of undef.\n";
+    }
     $f->do(@args);
 }
 

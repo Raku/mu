@@ -24,7 +24,7 @@ sub gen {
 use Filter::Simple sub {
     s/\#.+//g;
     s/{\.\.\.}/{p6_die("\$_fn: unimplemented");}/g;
-    s/(MULTI SUB|MACRO)\s+(.*?(?:[\]\>]|\w))\s+\((.*?)\)\s+{/gen($1,$2,$3)/ge;
+    s/(MULTI SUB|MACROP5)\s+(.*?(?:[\]\>]|\w))\s+\((.*?)\)\s+{/gen($1,$2,$3)/ge;
     #print; #print STDERR;
     $_;
 };
@@ -69,7 +69,7 @@ MULTI SUB Array::fetch ($a,$i) {
 };
 
 # Things which dont appear in Prim.hs
-MACRO     statement_control:<if> ($xx0,$xx1,$xx2) {
+MACROP5   statement_control:<if> ($xx0,$xx1,$xx2) {
     "if (p6_to_b($xx0)) $xx1 else $xx2";
 };
 
@@ -158,9 +158,16 @@ MULTI SUB require_perl5 ($xx) {...};
 MULTI SUB Pugs::Internals::eval_parrot ($xx) {...};
 MULTI SUB use ($xx) {...};
 MULTI SUB require ($xx) {
+    use FindBin;
+    use File::Spec;
     my $fn = p6_to_s($xx);
-    $fn = "lib6/$fn";
-    PIL::Run::EvalX::p6_eval_file($fn);
+    $fn = File::Spec->catfile('lib6',$fn);
+    if (-e $fn) {
+	PIL::Run::EvalX::p6_eval_file($fn);
+    } else {
+	my $fn2 = File::Spec->catfile($FindBin::Bin,$fn);
+	PIL::Run::EvalX::p6_eval_file($fn2);
+    }
 };
 MULTI SUB Pugs::Internals::eval ($xx) {...};
 MULTI SUB evalfile ($xx) {...};
@@ -323,11 +330,11 @@ MULTI SUB infix:<ge> ($xx0,$xx1) { p6_from_b(p6_to_s($xx0) ge p6_to_s($xx1)) };
 MULTI SUB infix:<~~> ($xx0,$xx1) {...};
 MULTI SUB infix:<!~> ($xx0,$xx1) {...};
 MULTI SUB infix:<=:=> ($xx0,$xx1) {...};
-MACRO     infix:<&&> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; p6_to_b($_v1) ? ('.$xx1.') : $_v1 }' };
-MACRO     infix:<||> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; p6_to_b($_v1) ? $_v1 : ('.$xx1.') }' };
-MACRO     infix:<^^> ($xx0,$xx1) {...};
-MACRO     infix:<//> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; defined($_v1) ? $_v1 : ('.$xx1.') }' };
-MACRO     infix:<!!> ($xx0,$xx1) {...};
+MACROP5   infix:<&&> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; p6_to_b($_v1) ? ('.$xx1.') : $_v1 }' };
+MACROP5   infix:<||> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; p6_to_b($_v1) ? $_v1 : ('.$xx1.') }' };
+MACROP5   infix:<^^> ($xx0,$xx1) {...};
+MACROP5   infix:<//> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; defined($_v1) ? $_v1 : ('.$xx1.') }' };
+MACROP5   infix:<!!> ($xx0,$xx1) {...};
 MULTI SUB infix:<.[]> ($xx0,$xx1) {...};
 MULTI SUB infix:<.{}> ($xx0,$xx1) {...};
 MULTI SUB infix:<and> ($xx0,$xx1) {...};

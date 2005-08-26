@@ -24,7 +24,7 @@ sub subnodes_of {
     } elsif (UNIVERSAL::isa($n,'HASH')) {
         values(%$n);
     } else {
-        ();
+	();
     }
 }
 
@@ -32,13 +32,20 @@ no strict;
 package EvalX::BaseClass;
 use Scalar::Util qw(blessed);
 sub expand {
-    my($self)=@_;
+    my($self,$avoid_recursion)=@_;
+    return $avoid_recursion if defined $avoid_recursion;
     my @subnodes = PIL::Run::EvalX::subnodes_of($self);
     my $code = "";
     while (@subnodes) {
         my $n = shift(@subnodes);
         if(blessed($n)) {
-            $code .= $n->expand();
+	    my $flag = rand;
+	    my $ret = $n->expand($flag);
+	    if($ret ne $flag) {
+		$code .= $ret;
+	    } else {
+		unshift(@subnodes,PIL::Run::EvalX::subnodes_of($n));
+	    }
         } elsif(ref($n)) {
             unshift(@subnodes,PIL::Run::EvalX::subnodes_of($n));
         }
@@ -59,7 +66,9 @@ package VStr; @ISA = qw(EvalX::BaseClass); sub expand {
 package PVar; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
     my $s = $_[0]{'pVarName'};
-    p6_var_macro($s,2);
+    "\n# $s\n".
+    p6_var_macro($s,2)
+    ."\n";
 }
 package PApp; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
@@ -90,9 +99,9 @@ package PAssign; @ISA = qw(EvalX::BaseClass); sub expand {
 }
 package PStmt; @ISA = qw(EvalX::BaseClass); sub expand {
     #$_[0]->SUPER::expand().";\n";
-    my $n = int(rand(10000000));
-    "do{my \@_res$n=eval(<<'E$n');warn 'Fyi:',\$\@ if \$\@; \@_res$n};\n".$_[0]->SUPER::expand().";\nE$n\n";
     #"eval(<<'E$n');\n".$_[0]->SUPER::expand().";\nE$n\n";
+    my $n = int(rand(10000000));
+    "do{my \@_res$n=eval(<<'E$n');warn '#' x 40,\"\\n\",'Fyi: ',\$\@ if \$\@; \@_res$n = \@_res$n;};\n".$_[0]->SUPER::expand().";\nE$n\n";
 }
 package PThunk; @ISA = qw(EvalX::BaseClass); sub expand {
     my $body = $_[0]->{'pThunk'}{'pLV'}{'pFun'}{'pBody'};
@@ -218,12 +227,12 @@ sub p6_eval {
 }
 sub p6_eval_file {
     my($fn)=@_;
-    open IN, $fn or do{ warn $!; return; };
+    open IN, $fn or do{ warn "p6_eval_file: $fn: $!\n"; return; };
     my $p6 = do { local $/; <IN> }; close IN;
     eval { p6_eval($p6); };
 }
 
-p6_eval('require P5Runtime::PrimP6;say "PrimP6 loaded.";');
+p6_eval('require P5Runtime::PrimP6;');
 
 
 1;
