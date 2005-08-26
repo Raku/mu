@@ -14,6 +14,7 @@ my $server = @*ARGS[1] // "localhost";
 my ($host, $port) = split ":", $server;
 $port //= 6667;
 my $reconn_delay = @*ARGS[2] // 60 * 15;
+my @chans = @*ARGS[3...];
 
 debug "Summary of configuration:";
 debug "  Will connect as...                  $nick";
@@ -29,7 +30,6 @@ $bot<add_handler>("INVITE",   &on_invite);
 $bot<add_handler>("PRIVMSG",  &on_privmsg);
 
 # Rejoin chans after a reconnect
-my @chans;
 $bot<add_handler>("loggedin", -> $event {
   $bot<join>($_) for @chans;
 });
@@ -99,13 +99,9 @@ sub on_privmsg($event) {
     }
 
     when rx:P5/^\?eval\s+(.+)$/ {
-      # Only allow ?eval in channels, not per private message, so other people
-      # on a channel may see abuse of the evalbot.
-      if substr($reply_to, 0, 1) eq "#" {
-        $reply(evalhelper $0);
-      } else {
-        $reply("?eval command is only available in public channels");
-      }
+      # Allow ?eval anywhere, as you can make #whateverfoo, invite evalbot
+      # to that channel, and abuse the heck out of him.
+      $reply(evalhelper $0);
     }
 
     # This is *not* correct CTCP parsing (the CTCP specification is much more
