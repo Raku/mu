@@ -175,13 +175,29 @@ class 'Array'.$class_description => {
                 }
                 
                 if ( $method eq 'push'   || $method eq 'unshift' || $method eq 'store' ) {
-                    # warn "STORING THINGS @param";
+                    # warn "STORING THINGS $method @param";
+                    if ( $method eq 'store' && @param == 1 ) {
+                        # whole Array store
+                        # warn "WHOLE ARRAY STORE";
+                        # XXX - what if the array is tied?
+                        my @items = $param[0]->unboxed->items;  
+                        # warn "got @items - current = ". _('$:cell')->{v};
+                        my $ret = Perl6::Container::Array->from_list( @items );
+                        _('$:cell')->{v} = $ret;
+                        return $self;
+                    }
+
                     $tmp->$method( @param );
                     return $self;
                 }
 
                 if ( $method eq 'pop'   || $method eq 'shift' || $method eq 'fetch' ) {
                     # warn "FETCHING THINGS @param";
+                    if ( $method eq 'store' && @param == 1 ) {
+                        # whole Array store
+                        # warn "WHOLE ARRAY FETCH";
+                        return $self;
+                    }
                     my $elem = $tmp->$method( @param );
                     unless ( UNIVERSAL::isa( $elem, 'Scalar' ) ) {
                         # XXX - I think only fetch() need to return Scalar 
