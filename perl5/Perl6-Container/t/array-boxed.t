@@ -3,7 +3,7 @@
 use strict;
 
 use Test::More;
-plan tests => 14;
+plan tests => 17;
 
 use Perl6::Container::Array; 
 use Perl6::Value;
@@ -25,7 +25,7 @@ use constant Inf => Perl6::Value::Num::Inf;
   is( $span->str->unboxed, '1, 2, 3, 4', '...' );
   $span->push( List->new( '$.unboxed' => Perl6::Value::List->from_num_range( start => 0, end => Inf, step => 1  ) ) );
   is( $span->str->unboxed, '1, 2, 3 ... '.&Inf, '...' );
-  is( $span->fetch(6), 2, '...' );
+  is( $span->fetch(6)->fetch, 2, '...' );
 }
 
 {
@@ -56,11 +56,31 @@ use constant Inf => Perl6::Value::Num::Inf;
     # print Dumper( $scalar );
     my $x = $scalar->fetch( 1 );
     #print Dumper( \$x );
-    is( $x, 2, 'fetch from auto-dereferenced scalar works' );
+    is( $x->fetch, 2, 'fetch from auto-dereferenced scalar works' );
 
     # store
     $scalar->store( 1, 3 );
     $x = $scalar->fetch( 1 );
     #print Dumper( \$x );
-    is( $x, 3, 'store to auto-dereferenced scalar works' );
+    is( $x->fetch, 3, 'store to auto-dereferenced scalar works' );
 }
+
+{
+  # slicing
+
+  my $array = Array->new();
+  $array->push( Perl6::Value::List->from_single( 1 .. 10 ) );
+
+  my $slice = Array->new();
+  $slice->push( Perl6::Value::List->from_single( 4, 5, 6 ) );
+
+  my $sliced = $array->slice( $slice );
+
+  isa_ok( $sliced, 'Array', 'slice is an Array' );
+  is( $sliced->perl->unboxed, '[5, 6, 7]', '... slice perl()' );
+
+  $sliced->store( 1, 99 );
+
+  is( $array->perl->unboxed, '[1, 2, 3, 4, 5, 99, 7, 8, 9, 10]', '... original array' );
+}
+

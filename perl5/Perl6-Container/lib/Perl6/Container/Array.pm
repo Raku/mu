@@ -3,6 +3,9 @@
 
 # ChangeLog
 #
+# 2005-08-26
+# * New internal class 'Perl6::Slice'
+#
 # 2005-08-12
 # * store(List) actually means store([List])
 # * fixed new(), elems(), pop(), shift(), fetch()
@@ -18,9 +21,9 @@
 # TODO - test - @a[1] := $x
 # TODO - exists
 
-# TODO - fglock does p6 have @a[1..2]=(1,2) ?
-#   iblech fglock: It has.
-#   iblech fglock: &postcircumfix:<[ ]> has to be "is rw"
+# TODO - @a[1..2]=(1,2) 
+#        &postcircumfix:<[ ]> has to be "is rw"
+#        &infix:<,> has to be is rw, too (think ($a, undef, $b) = (1,2,3))
 
 # TODO - store(List) actually means store([List]), Perl6 version
 # TODO - fix "defined $i" to "elems == 0" in push/pop, Perl6 version
@@ -47,6 +50,56 @@ use Perl6::Container::Scalar;
 use constant Inf => Perl6::Value::Num::Inf;
 
 my $class_description = '-0.0.1-cpan:FGLOCK';
+
+# ------ Perl6::Slice -----
+
+sub Perl6::Slice::new { 
+    my $class = shift;
+    # array => $self, slice => $list 
+    my %param = @_;  
+    # warn "Param ". $param{array}->perl->unboxed . " / ". $param{slice}->perl->unboxed;
+    bless { %param }, $class;
+} 
+sub Perl6::Slice::fetch {
+    my $self = shift;
+    my $i = shift;
+    my $pos = $self->{slice}->fetch( $i )->fetch;
+    # warn " fetching @_ at ". $self->{array} ."/". $self->{slice}->perl ."[ $i -> $pos ]";
+
+    # warn " slice has ". $self->{slice}->elems()->unboxed . " elements";
+
+    return unless defined $pos;
+    return if $pos >= $self->{array}->elems()->unboxed ||
+              $pos < 0;
+
+    my $tmp = $self->{array}->fetch( $pos, @_ );
+    # warn "fetched $tmp from $pos @_\n";
+    return $tmp;
+}
+sub Perl6::Slice::store {
+    my $self = shift;
+    my $i = shift;
+    my $pos = $self->{slice}->fetch( $i )->fetch;
+    # warn " storing @_ at ". $self->{array} ."[ $i -> $pos ]";
+
+    return unless defined $pos;
+    return if $pos >= $self->{array}->elems()->unboxed ||
+              $pos < 0;
+
+    $self->{array}->store( $pos, @_ );
+}
+sub Perl6::Slice::is_infinite {
+    my $self = shift; 
+    # warn " is_infinite ". $self->{slice} ." = ". $self->{slice}->is_infinite( $self->{slice} );
+    $self->{slice}->is_infinite()->unboxed;
+}
+sub Perl6::Slice::elems {
+    my $self = shift; 
+    # warn " elems ". $self->{slice} ." = ". $self->{slice}->elems( $self->{slice} )->unboxed;
+    $self->{slice}->elems()->unboxed;
+}
+
+# ------ end Perl6::Slice -----
 
 class 'Array'.$class_description => {
     is => [ 'Perl6::Object' ],
@@ -96,6 +149,20 @@ class 'Array'.$class_description => {
             'unboxed' => sub { 
                 _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v}
             },
+            'slice' => sub {
+                # Returns an array whose fetch/store are bound to this array
+                my ( $self, $list ) = @_;
+                # given $list = (4,5,6)
+                # given an index $i = 1
+                #   get $list[$i] == 5
+                #   ignore request if index == undef
+                #   store/fetch from array[$list[$i]] == array[5]
+                my $ret = Array->new();
+                $ret->cell->{tieable} = 1;
+                my $proxy = Perl6::Slice->new( array => $self, slice => $list );
+                $ret->tie( $proxy );
+                return $ret;
+            },
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
                 my $method = ::AUTOLOAD($self);
@@ -123,9 +190,10 @@ class 'Array'.$class_description => {
                 }
 
                 if ( $method eq 'pop'   || $method eq 'shift' || $method eq 'fetch' ) {
-                    #warn "FETCHING THINGS @param";
+                    # warn "FETCHING THINGS @param";
                     my $elem = $tmp->$method( @param );
                     unless ( UNIVERSAL::isa( $elem, 'Scalar' ) ) {
+                        # XXX - I think only fetch() need to return Scalar 
                         #warn "FETCHED CELL IS NOT A SCALAR: $elem";
                         my $scalar = Scalar->new();
                         $scalar->store( $elem );
@@ -141,6 +209,9 @@ class 'Array'.$class_description => {
 
                 if ( $method eq 'elems' ) {
                     return Int->new( '$.unboxed' => $tmp->$method( @param ) )
+                }
+                if ( $method eq 'is_infinite' ) {
+                    return Bit->new( '$.unboxed' => $tmp->$method( @param ) )
                 }
                 
                 return $tmp->$method( @param );

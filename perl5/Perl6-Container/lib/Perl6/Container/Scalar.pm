@@ -224,6 +224,8 @@ class 'Scalar'.$class_description => {
                         _('$:cell')->store( $tmp->$method( @param ) );
                         return ::SELF; 
                     }
+                    # warn "calling Scalar -> $method on $tmp ";
+                    return Str->new( '$.unboxed' => $tmp ) unless ref( $tmp );   # unboxed
                     return $tmp->$method( @param );
                 }
                 else {
@@ -239,6 +241,7 @@ class 'Scalar'.$class_description => {
                         _('$:cell')->store( Int->new( '$.unboxed' => -1 ) );
                         return ::SELF 
                     }
+                    return Str->new( '$.unboxed' => 'undef' ) if $method eq 'str';
                     return if $method eq 'unboxed';
                     die "Trying to call method \"$method\" in an undefined Scalar";
                 }
