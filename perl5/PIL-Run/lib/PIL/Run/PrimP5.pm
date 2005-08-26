@@ -50,6 +50,10 @@ MULTI SUB coerce:as ($x, $to) {
     my $class = $to->unboxed;
     eval { $tmp = $x->$class };
     if ( $@ ) {
+        my $c = lc($class);
+        eval { $tmp = $x->$c };
+    } 
+    if ( $@ ) {
         eval { $tmp = $class->new( '$.unboxed' => $x->unboxed ) };
     } 
     if ( $@ ) {
