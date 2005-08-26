@@ -5,6 +5,7 @@
 #
 # 2005-08-26
 # * New internal class 'Perl6::Slice'
+#   supports syntax: @a = (2,3,4,5); @a[1,2] = @a[0,3]
 #
 # 2005-08-12
 # * store(List) actually means store([List])
@@ -16,6 +17,8 @@
 #
 # 2005-08-10
 # * Ported from Perl6 version
+
+# TODO - lazy array slices
 
 # TODO - @a[1] == Scalar
 # TODO - test - @a[1] := $x
@@ -64,7 +67,8 @@ sub Perl6::Slice::fetch {
     my $self = shift;
     my $i = shift;
     my $pos = $self->{slice}->fetch( $i )->fetch;
-    #warn " fetching @_ at ". $self->{array} ."/". $self->{slice}->perl ."[ $i -> $pos ]";
+    $pos = $pos->unboxed if ref( $pos );
+    # warn " fetching @_ at ". $self->{array} ."/". $self->{slice}->perl ."[ $i -> $pos ]";
 
     # warn " slice has ". $self->{slice}->elems()->unboxed . " elements";
 
@@ -80,6 +84,7 @@ sub Perl6::Slice::store {
     my $self = shift;
     my $i = shift;
     my $pos = $self->{slice}->fetch( $i )->fetch;
+    $pos = $pos->unboxed if ref( $pos );
     #warn " storing @_ at ". $self->{array} ."[ $i -> $pos ]";
 
     return unless defined $pos;
@@ -194,7 +199,7 @@ class 'Array'.$class_description => {
                             #    warn "other is tied ". $other->cell->{tied}->{slice}->str->unboxed;
                             #}
                             for ( 0 .. $other->elems->unboxed -1 ) {
-                                print "store $_ ",$other->fetch( $_ )->fetch;
+                                # print "store $_ ",$other->fetch( $_ )->fetch;
                                 $self->store( $_, $other->fetch( $_ ) );
                             }
                             return $self;
