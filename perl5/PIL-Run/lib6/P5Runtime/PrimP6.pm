@@ -16,7 +16,7 @@ See the note at the top of Prelude.pm.
 multi sub nothing () is builtin is primitive is safe {
     bool::true}
 
-multi sub postcircumfix:<[ ]> ($a,$i) { Array::fetch($a,$i) }
+multi sub postcircumfix:<[ ]> ($a,$i) { Array::slice($a,$i) }
 
 # TODO - string versions
 multi sub infix:<..^> ($x0,$x1) { $x0..($x1-1) };

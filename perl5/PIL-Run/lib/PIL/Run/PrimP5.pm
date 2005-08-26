@@ -63,9 +63,19 @@ MULTI SUB coerce:as ($x, $to) {
 MULTI SUB infix:<,>  (*@a) {
     p6_from_a( Perl6::Value::List->from_single( @a ) ) 
 };
-MULTI SUB Array::fetch ($a,$i) {
+# MULTI SUB Array::fetch ($a,$i) {
+#    # implements (1,2,3)[1] - see PrimP6.pm - postcircumfix:<[ ]>
+#    $a->fetch( $i->unboxed )
+#};
+MULTI SUB Array::slice ($a,$i) {
     # implements (1,2,3)[1] - see PrimP6.pm - postcircumfix:<[ ]>
-    $a->fetch( $i->unboxed )
+    if ( ref($i) eq 'Array' ) {
+        # warn "SLICE: ".$i->perl->unboxed;
+        $a->slice( $i )
+    }
+    else {
+        $a->fetch( $i->unboxed )
+    }
 };
 
 # Things which dont appear in Prim.hs
