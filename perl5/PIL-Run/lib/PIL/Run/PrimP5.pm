@@ -177,7 +177,7 @@ MULTI SUB redo ($xx) {...};
 # yield - see op0
 # take - see op0
 MULTI SUB sign ($xx) {...};
-MULTI SUB rand ($xx) { Num->new( '$.unboxed' => rand ) };
+MULTI SUB rand ($xx) { Num->new( '$.unboxed' => rand( defined $xx ? $xx->unboxed : 1 ) ) };
 # say - see op0
 # print - see op0
 MULTI SUB IO::say (*@xxa) {...};
