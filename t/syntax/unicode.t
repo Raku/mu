@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 18;
+plan 20;
 
 # english ;-)
 ok(try {my $foo; sub foo {}; 1}, "ascii declaration");
@@ -26,8 +26,8 @@ ok(try {my $一; 1}, "chinese declaration");
 is(try {my $二 = 2; sub 恆等($x) {$x}; 恆等($二)}, 2, "evaluation");
 
 # Tibetan Characters
-ok(try {my $༡; 1}, "tibetan declaration");
-is(try {my $༢ = 2; $༢}, 2, "evaluation");
+ok(try {my $ཀ; 1}, "tibetan declaration");
+is(try {my $ཁ = 2; $ཁ}, 2, "evaluation");
 
 # Japanese
 ok(try {my $い; 1}, "japanese declaration");
@@ -40,3 +40,7 @@ is(try {my $الصفحة = 2; $الصفحة}, 2, "evaluation");
 # hebrew
 ok(try {my $פוו; sub לה {}; 1}, "hebrew declaration");
 is(try {my $באר = 2; sub זהות ($x) { $x }; זהות($באר)}, 2, "evaluation");
+
+# russian
+ok(try {my $один; sub раз {}; 1}, "russian declaration");
+is(try {my $два = 2; sub идентичный ($x) { $x }; идентичный($два)}, 2, "evaluation");
