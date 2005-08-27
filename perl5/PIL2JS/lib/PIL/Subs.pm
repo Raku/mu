@@ -140,7 +140,15 @@ use strict;
     $vars .= "var _24main_3a_3a_ = new PIL2JS.Box(undefined); pad['\$_'] = _24main_3a_3a_;\n"
       unless grep { $_->name eq '$_' } @{ $self->params };
 
-    return ($vars, '$?POSITION', !$self->isa("PIL::PSub") ? '$?SUBNAME' : ());
+    # $?SUBNAME handled in PIL::PSub
+    # We've to exclude $! from the list of vars-to-backup for primitives,
+    # because else we can't implement &try in Perl.
+    return (
+      $vars,
+      '$?POSITION',
+      $PIL::IN_SUBLIKE == PIL::SUBPRIM ? () : '$!',
+      !$self->isa("PIL::PSub") ? '$?SUBNAME' : ()
+    );
   }
 
   sub callchain { "" }

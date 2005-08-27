@@ -636,7 +636,7 @@ PIL2JS.new_error = function (msg) {
   var errmsg = typeof(msg.FETCH()) == "string" || msg.FETCH() instanceof String
     ? msg.FETCH()
     : "<obj>";
-  var err = Error(errmsg.slice(-1, 1) == "\n"
+  var err = new Error(errmsg.slice(-1, 1) == "\n"
     ? errmsg
     : errmsg + " at " + _24main_3a_3a_3fPOSITION.toNative()
   );

@@ -79,16 +79,20 @@ sub statement_control:<for>(@array is rw, Code $code) is primitive {
   undef;
 }
 
+# XXX! We directly JS-assign $! here. This is needed to fake the lexicalness of
+# $!.
 sub JS::Root::try(Code $code) is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt = args[0], code = args[1], cc = args.pop();
     var ret = new PIL2JS.Box.Constant(undefined);
+    _24main_3a_3a_21 = new PIL2JS.Box.Constant(undefined);
+
     try { ret = PIL2JS.cps2normal(code.FETCH(), [PIL2JS.Context.ItemAny]) } catch(err) {
       // Set $!
-      _24main_3a_3a_21.STORE(
+      _24main_3a_3a_21 = new PIL2JS.Box.Constant(
         err.pil2js_orig_msg
-          ? err.pil2js_orig_msg
-          : new PIL2JS.Box.Constant(err.toString())
+          ? err.pil2js_orig_msg.FETCH()
+          : err.toString()
       );
       return cc(new PIL2JS.Box.Constant(undefined));
     }

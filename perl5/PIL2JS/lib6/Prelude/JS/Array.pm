@@ -204,25 +204,32 @@ sub infix:<,>(*@xs is rw) is primitive is rw {
       array[i] = new PIL2JS.Box(iarr[i].FETCH());
     }
 
+    var mk_magicalarray = function () {
+      var marray = [];
+
+      for(var i = 0; i < iarr.length; i++) {
+        marray[i] = new PIL2JS.Box(undefined).BINDTO(
+          // Slighly hacky way to determine if iarr[i] is undef, i.e.
+          // it\'s needed to make
+          //   my ($a, undef, $b) = (3,4,5);
+          // work.
+          iarr[i].isConstant && iarr[i].FETCH() == undefined
+            ? new PIL2JS.Box(undefined)
+            : iarr[i]
+        );
+      }
+
+      return marray;
+    };
+
     // Proxy needed for ($a, $b) = (3, 4) which really is
     // &infix:<,>($a, $b) = (3, 4);
     var proxy = new PIL2JS.Box.Proxy(
       function ()  { return array },
       function (n) {
-        var marray = [];
-        for(var i = 0; i < iarr.length; i++) {
-          marray[i] = new PIL2JS.Box(undefined).BINDTO(
-            // Slighly hacky way to determine if iarr[i] is undef, i.e.
-            // it\'s needed to make
-            //   my ($a, undef, $b) = (3,4,5);
-            // work.
-            iarr[i].isConstant && iarr[i].FETCH() == undefined
-              ? new PIL2JS.Box(undefined)
-              : iarr[i]
-          );
-        }
+        var marray = mk_magicalarray();
+        var arr    = new PIL2JS.Box([]).STORE(n).FETCH();
 
-        var arr = new PIL2JS.Box([]).STORE(n).FETCH();
         for(var i = 0; i < arr.length; i++) {
           if(marray[i]) marray[i].STORE(arr[i]);
         }
@@ -230,6 +237,28 @@ sub infix:<,>(*@xs is rw) is primitive is rw {
         return this;
       }
     );
+
+    proxy.BINDTO = function (other) {
+      var arr = other.FETCH();
+
+      if(!(arr instanceof Array)) {
+        PIL2JS.die("Can\'t bind list literal to non-array object!");
+      }
+
+      for(var i = 0; i < arr.length; i++) {
+        if(iarr[i].isConstant && iarr[i].FETCH() == undefined) {
+          // ($a, **undef**, $b) := (1,2,3);
+          // (i.e., do nothing)
+        } else {
+          iarr[i].BINDTO(arr[i]);
+          // Rebinding of array[i], too, so ($a,$b):=(...,...) evaluates
+          // correctly to a correct LHS.
+          array[i].BINDTO(arr[i]);
+        }
+      }
+
+      return this;
+    };
 
     cc(proxy);
   })')(@xs);
