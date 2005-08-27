@@ -3,49 +3,69 @@
 use v6;
 use Test;
 
-plan 22;
+plan 21;
+
+# See http://www.nntp.perl.org/group/perl.perl6.language/22858 --
+# previously, "my $a; say $::("a")" died (you had to s/my/our/). Now, it was
+# re-specced to work.
 
 # L<S02/"Names and Variables" /All symbolic references are done with this notation:/>
 {
-  our $a_var = 42;
-  my  $b_var = "a_var";
+  my $a_var = 42;
+  my $b_var = "a_var";
 
   is $::($b_var), 42, 'basic symbolic scalar dereferentiation works';
 }
 
 {
-  our @a_var = <a b c>;
-  my  $b_var = "a_var";
+  my @a_var = <a b c>;
+  my $b_var = "a_var";
 
   is @::($b_var)[1], "b", 'basic symbolic array dereferentiation works';
 }
 
 {
-  our %a_var = (a => 42);
-  my  $b_var = "a_var";
+  my %a_var = (a => 42);
+  my $b_var = "a_var";
 
   is %::($b_var)<a>, 42, 'basic symbolic hash dereferentiation works';
 }
 
 {
-  our &a_var = { 42 };
-  my  $b_var = "a_var";
+  my &a_var = { 42 };
+  my $b_var = "a_var";
 
   is &::($b_var)(), 42, 'basic symbolic code dereferentiation works';
 }
 
 {
-  our $pugs::is::cool = 42;
-  my  $cool = "cool";
+  my $pugs::is::cool = 42;
+  my $cool = "cool";
 
   is $::("pugs")::is::($cool), 42, 'not so basic symbolic dereferentiation works';
 }
 
 {
-  my $a_var = 42;
-  my $sub   = sub { $::("CALLER")::("a_var") };
-  is $sub(), 42, "symbolic dereferentation works with ::CALLER, too";
+  my $result;
+
+  try {
+    my $a_var = 42;
+    my $sub   = sub { $::("CALLER")::("a_var") };
+    $result = $sub();
+  };
+
+  is $result, 42, "symbolic dereferentation works with ::CALLER, too";
 }
+
+# Symbolic dereferentiation of Unicode vars (test primarily aimed at PIL2JS)
+{
+  my $äöü = 42;
+  is $::("äöü"), 42, "symbolic dereferentiation of Unicode vars works";
+}
+
+=pod
+
+Following re-specced to be invalid:
 
 # Symbolic dereferentiation of lexical vars should *not* work without using
 # $MY::foo:
@@ -57,6 +77,8 @@ plan 22;
   is      $::("MY::a_var"), 42,
     "symbolic dereferentiation does work for lexicals when using MY::", :todo<bug>;
 }
+
+=cut
 
 # Symbolic dereferentiation of globals
 {
@@ -97,9 +119,12 @@ plan 22;
 }
 
 {
-  class A::B::C {}
-  cmp_ok ::A::B::C, &infix:<=:=>, ::A::("B")::C,
-    "symbolic dereferentiation of type vars works (2)";
+  my $ok;
+  eval '
+    class A::B::C {}
+    $ok = ::A::B::C =:= ::A::("B")::C;
+  ';
+  ok $ok, "symbolic dereferentiation of (own) type vars works (2)";
 }
 
 # Symbolic dereferentiation syntax should work with $?SPECIAL etc. too.

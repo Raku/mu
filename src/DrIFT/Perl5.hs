@@ -3,6 +3,8 @@
 module DrIFT.Perl5 where
 import Data.Ratio
 import Data.List (intersperse)
+import Data.Char (chr)
+import UTF8
 
 type Perl5Class = String
 type Perl5Key = String
@@ -40,7 +42,7 @@ instance Perl5 Int where
     showPerl5 = show
 
 instance Perl5 String where
-    showPerl5 str = "\"" ++ concatMap escape str ++ "\""
+    showPerl5 str = "\"" ++ concatMap escape (encodeUTF8 str) ++ "\""
         where
         escape '\\' = "\\\\"
         escape '"'  = "\\\""
@@ -48,6 +50,7 @@ instance Perl5 String where
         escape '@'  = "\\@"
         escape '%'  = "\\%"
         escape x    = x:""
+        encodeUTF8 = map (chr . fromEnum) . encode
 
 instance Perl5 Bool where
     showPerl5 True = "1"
