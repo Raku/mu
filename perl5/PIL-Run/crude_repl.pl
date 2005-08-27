@@ -75,11 +75,20 @@ sub p6_repl {
     }
 }
 
-for my $fn (@ARGV) {
-    next if $fn =~ /^--/;
-    warn "Ignoring command line argument $fn .\n" if $fn =~ /^-/;
-    p6_eval_file($fn);
+my ($eval, $repl);
+getopt(
+    'e|eval=s'  => \$eval,
+    'repl'      => \$repl,
+);
+
+if (defined $eval) {
+    p6_eval($eval);
 }
-p6_repl() if !@ARGV || $ARGV[0] eq '--repl';
+elsif (@ARGV and !$repl) {
+    p6_eval_file(shift(@ARGV));
+}
+else {
+    p6_repl();
+}
 
 __END__
