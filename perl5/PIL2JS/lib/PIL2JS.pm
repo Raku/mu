@@ -170,7 +170,18 @@ var document = {
   getElementById: function (id) {}
 };
 
-var window    = { scrollTo: function (x, y) {} };
+var window    = {
+  scrollTo:   function (x, y) {},
+
+  // Hack -- this is a CPU-burning implementation of setTimeout
+  // (needed for &sleep). Is there a better way?
+  setTimeout: function (f, millis) {
+    var loop_till = (new Date).getTime() + millis;
+    while((new Date).getTime() < loop_till)
+      1;
+    f();
+  }
+};
 var navigator = { userAgent: undefined };
 var alert     = function (msg) { document.write("Alert: " + msg) };
 EOF

@@ -49,10 +49,13 @@ C<smoke.html>.
   |   |   |-- Parser.pm   PIL::Parser (parses the output of -CPerl5)
   |   |   `-- <PIL nodetype>.pm
   |   |                   Backend compiler modules
+  |   |-- Prelude
+  |   |-- `-- JS.pm       Part of the JavaScript Prelude,
+  |   |                   written in Perl 5
   |-- lib6
   |   |-- Prelude
   |   |   |-- JS.pm       Part of the JavaScript Prelude,
-  |   |   |               written in Perl 6
+  |   |   |               written in Perl 6 with mixed JS
   |   |   `-- JS/         Submodules of the Prelude (i.e. Prelude::JS::Array,
   |   |                   Prelude::JS::ControlFlow, etc.)
   |-- libjs
@@ -88,12 +91,13 @@ Basic builtins (C<say>, C<defined>, C<if>, C<loop>, C<while>, C<until>)
 
 =item *
 
-Control exceptions (C<return>, C<leave>, C<last>, C<next>, C<redo>)
+Primitives which change the control flow (C<return>, C<leave>, C<last>,
+C<next>, C<redo>, C<die>, C<try>)
 
 =item *
 
-Stub OO builtins (C<ref>, C<isa> -- awaiting JavaScript port of Stevan's
-excellent C<Perl6::MetaModel> (see F<perl5/Perl6.MetaModel/>))
+Stub OO builtins (C<ref>, C<isa>), awaiting C<-PIL2> to fully support Stevan's
+excellent MetaModel (see F<perl5/Perl6.MetaModel/>)
 
 =item *
 

@@ -55,12 +55,12 @@ use strict;
       if $self->name =~ /^__export_c.*import$/;
 
     my $js = sprintf
-      "%s%s = new PIL2JS.Box(%s.FETCH());\n%s.perl_name = %s;\n",
+      "%s%s = new PIL2JS.Box(%s.FETCH());\n%s.FETCH().pil2js_name = %s;\n",
       $PIL::IN_GLOBPIL ? "" : "var ",
       PIL::name_mangle($self->name),
       $self->SUPER::as_js,
       PIL::name_mangle($self->name),
-      PIL::doublequote($self->name);
+      PIL::doublequote(($self->name =~ /^&.*::(?:prefix:|postfix:|infix:|circumfix:|coerce:|self:|term:|postcircumfix:|rule_modifier:|trait_verb:|trait_auxiliary:|scope_declarator:|statement_control:|infix_postfix_meta_operator:|postfix_prefix_meta_operator:|prefix_postfix_meta_operator:|infix_circumfix_meta_operator:)?(.+)$/)[0]);
 
     # Special magic for methods.
     if($self->type->isa("PIL::SubMethod")) {
