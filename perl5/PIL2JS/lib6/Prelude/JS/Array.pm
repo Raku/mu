@@ -197,12 +197,9 @@ sub infix:<,>(*@xs is rw) is primitive is rw {
     var cc    = args.pop();
     var iarr  = args[0].FETCH();
 
-    var array = [];
-    for(var i = 0; i < iarr.length; i++) {
-      // The extra new PIL2JS.Box is necessary to make the contents of arrays
-      // readwrite, i.e. my @a = (0,1,2); @a[1] = ... should work.
-      array[i] = new PIL2JS.Box(iarr[i].FETCH());
-    }
+    // We don\'t create new containers (new PIL2JS.Boxes) *here* -- lists
+    // don\'t create new containers. Assigning to an array will take care of
+    // this.
 
     var mk_magicalarray = function () {
       var marray = [];
@@ -225,7 +222,7 @@ sub infix:<,>(*@xs is rw) is primitive is rw {
     // Proxy needed for ($a, $b) = (3, 4) which really is
     // &infix:<,>($a, $b) = (3, 4);
     var proxy = new PIL2JS.Box.Proxy(
-      function ()  { return array },
+      function ()  { return iarr },
       function (n) {
         var marray = mk_magicalarray();
         var arr    = new PIL2JS.Box([]).STORE(n).FETCH();
@@ -245,15 +242,20 @@ sub infix:<,>(*@xs is rw) is primitive is rw {
         PIL2JS.die("Can\'t bind list literal to non-array object!");
       }
 
+      var backup_arr = [];
       for(var i = 0; i < arr.length; i++) {
+        backup_arr[i]        = new PIL2JS.Box;
+        backup_arr[i].FETCH  = arr[i].FETCH;
+        backup_arr[i].STORE  = arr[i].STORE;
+        backup_arr[i].BINDTO = arr[i].BINDTO;
+      }
+
+      for(var i = 0; i < backup_arr.length; i++) {
         if(iarr[i].isConstant && iarr[i].FETCH() == undefined) {
           // ($a, **undef**, $b) := (1,2,3);
           // (i.e., do nothing)
         } else {
-          iarr[i].BINDTO(arr[i]);
-          // Rebinding of array[i], too, so ($a,$b):=(...,...) evaluates
-          // correctly to a correct LHS.
-          array[i].BINDTO(arr[i]);
+          iarr[i].BINDTO(backup_arr[i]);
         }
       }
 
@@ -297,8 +299,15 @@ method postcircumfix:<[]>(@self: Int *@idxs) is rw {
           return ret == undefined ? undefined : ret.FETCH();
         },
         function (n) {
-          if(array[idx] == undefined)
+          // Support (in a slightly hacky manner) ($a, undef, $b) = (3,4,5).
+          if(
+            array[idx] == undefined || (
+              array[idx].isConstant &&
+              array[idx].FETCH() == undefined
+            )
+          ) {
             array[idx] = new PIL2JS.Box(undefined);
+          }
           array[idx].STORE(n);
           return n;
         }

@@ -106,13 +106,22 @@ PIL2JS.Box = function (value) {
     var my_ctype  = this.container_type;
     var new_ctype = n.container_type;
 
+    var rebox_array_rw = function (iarray) {
+      var oarray = [];
+      for(var i = 0; i < iarray.length; i++) {
+        oarray[i] = new PIL2JS.Box(iarray[i].FETCH());
+      }
+      return oarray;
+    };
+
     // Rewrite rules (kind of context simulation)
     // my @a = "hi" --> my @a = ("hi",)
     if(
       my_ctype  == PIL2JS.ContainerType.Array &&
       new_ctype == PIL2JS.ContainerType.Scalar
     ) {
-      new_val = PIL2JS.cps2normal(_26main_3a_3ainfix_3a_2c.FETCH(), [PIL2JS.Context.SlurpyAny, n]).FETCH();
+      new_val = rebox_array_rw([n]);
+
     // my @a = %h
     } else if(
       my_ctype  == PIL2JS.ContainerType.Array &&
@@ -120,27 +129,27 @@ PIL2JS.Box = function (value) {
     ) {
       var pairs = new_val.pairs();
       for(var i = 0; i < pairs.length; i++) {
-        pairs[i] = new PIL2JS.Box.Constant(pairs[i]);
+        pairs[i] = new PIL2JS.Box(pairs[i].FETCH());
       }
-      new_val =
-        PIL2JS.cps2normal(
-          _26main_3a_3ainfix_3a_2c.FETCH(), [PIL2JS.Context.SlurpyAny].concat(pairs)
-        ).FETCH();
+      new_val = pairs;
+
     // my @a = @b (copy @b, don't bind)
     } else if(
       my_ctype  == PIL2JS.ContainerType.Array &&
       new_ctype == PIL2JS.ContainerType.Array
     ) {
-      new_val =
-        PIL2JS.cps2normal(
-          _26main_3a_3ainfix_3a_2c.FETCH(), [PIL2JS.Context.SlurpyAny].concat(new_val)
-        ).FETCH();
+      new_val = rebox_array_rw(new_val);
 
     // my %a = (a => 1, b => 2) (or generally my %a = @a) --> my %a = hash(a => 1, b => 2)
     } else if(
       my_ctype  == PIL2JS.ContainerType.Hash &&
-      new_ctype == PIL2JS.ContainerType.Array) {
-      new_val = PIL2JS.cps2normal(_26main_3a_3ahash.FETCH(), [PIL2JS.Context.SlurpyAny, n]).FETCH();
+      new_ctype == PIL2JS.ContainerType.Array
+    ) {
+      new_val = PIL2JS.cps2normal(
+        _26main_3a_3ahash.FETCH(),
+        [PIL2JS.Context.SlurpyAny, n]
+      ).FETCH();
+
     // my %a = %b (copy %b, don't bind)
     } else if(
       my_ctype  == PIL2JS.ContainerType.Hash &&
@@ -155,22 +164,25 @@ PIL2JS.Box = function (value) {
         PIL2JS.cps2normal(
           _26main_3a_3ahash.FETCH(), [PIL2JS.Context.SlurpyAny].concat(pairs)
         ).FETCH();
+
     // my %a = (a => 1) or my %a = 10
     } else if(
       my_ctype  == PIL2JS.ContainerType.Hash &&
       new_ctype == PIL2JS.ContainerType.Scalar
     ) {
-      new_val = PIL2JS.cps2normal(_26main_3a_3ahash.FETCH(), [PIL2JS.Context.SlurpyAny, n]).FETCH();
+      new_val = PIL2JS.cps2normal(
+        _26main_3a_3ahash.FETCH(),
+        [PIL2JS.Context.SlurpyAny, n]
+      ).FETCH();
 
     // my $scalar = @array or my $scalar = %hash (should auto-ref)
     } else if(
       my_ctype  == PIL2JS.ContainerType.Scalar &&
       new_ctype != PIL2JS.ContainerType.Scalar
     ) {
-      new_val =
-        PIL2JS.cps2normal(
-         _26main_3a_3aprefix_3a_5c.FETCH(), [PIL2JS.Context.ItemAny, n]
-        ).FETCH();
+      new_val = PIL2JS.cps2normal(
+       _26main_3a_3aprefix_3a_5c.FETCH(), [PIL2JS.Context.ItemAny, n]
+      ).FETCH();
     }
 
     value = new_val;

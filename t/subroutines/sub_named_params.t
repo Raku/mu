@@ -127,13 +127,17 @@ is(%fellowship<dwarf>, undef, "dwarf arg was not given");
 }
 
 {
-sub named_and_slurp(+$grass, *%rest) { return($grass, %rest) }
-my ($grass, %rest) = named_and_slurp(sky => 'blue', grass => 'green', fire => 'red');
-is($grass, 'green', "explicit named arg received despite slurpy hash");
-is(+%rest, 2, "exactly 2 arguments were slurped");
-is(%rest<sky>, 'blue', "sky argument was slurped");
-is(%rest<fire>, 'red', "fire argument was slurped");
-is(%rest<grass>, undef, "grass argument was NOT slurped");
+  if $*OS eq "browser" {
+    skip 5, "skipping tests which infloop under PIL2JS";
+  } else {
+    sub named_and_slurp(+$grass, *%rest) { return($grass, %rest) }
+    my ($grass, %rest) = named_and_slurp(sky => 'blue', grass => 'green', fire => 'red');
+    is($grass, 'green', "explicit named arg received despite slurpy hash");
+    is(+%rest, 2, "exactly 2 arguments were slurped");
+    is(%rest<sky>, 'blue', "sky argument was slurped");
+    is(%rest<fire>, 'red', "fire argument was slurped");
+    is(%rest<grass>, undef, "grass argument was NOT slurped");
+  }
 }
 
 {
