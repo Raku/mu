@@ -311,8 +311,8 @@ sub undef_of($) {
 sub doublequote($) {
   my $str = shift;
 
-  $str =~ s/((?:[^\w0-9_,.=:; ()\[\]{}+\*\/~\-]|\n))/
-    ord $1 > 255
+  $str =~ s/((?:[^a-zA-Z0-9_,.=:; ()\[\]{}+\*\/~\-]|\n))/
+    ord $1 > 127
       ? sprintf "\\u%04x", ord $1
       : sprintf "\\x%02x", ord $1;
   /eg;

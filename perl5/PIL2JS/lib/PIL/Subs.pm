@@ -60,7 +60,8 @@ use strict;
       PIL::name_mangle($self->name),
       $self->SUPER::as_js,
       PIL::name_mangle($self->name),
-      PIL::doublequote(($self->name =~ /^&.*::(?:prefix:|postfix:|infix:|circumfix:|coerce:|self:|term:|postcircumfix:|rule_modifier:|trait_verb:|trait_auxiliary:|scope_declarator:|statement_control:|infix_postfix_meta_operator:|postfix_prefix_meta_operator:|prefix_postfix_meta_operator:|infix_circumfix_meta_operator:)?(.+)$/)[0]);
+      # "or $self->name" needed for the /^__export/ and /^__init/ subs.
+      PIL::doublequote(($self->name =~ /^&.*::(?:prefix:|postfix:|infix:|circumfix:|coerce:|self:|term:|postcircumfix:|rule_modifier:|trait_verb:|trait_auxiliary:|scope_declarator:|statement_control:|infix_postfix_meta_operator:|postfix_prefix_meta_operator:|prefix_postfix_meta_operator:|infix_circumfix_meta_operator:)?(.+)$/)[0] or $self->name);
 
     # Special magic for methods.
     if($self->type->isa("PIL::SubMethod")) {

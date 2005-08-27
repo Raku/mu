@@ -85,11 +85,11 @@ sub JS::Root::try(Code $code) is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt = args[0], code = args[1], cc = args.pop();
     var ret = new PIL2JS.Box.Constant(undefined);
-    _24main_3a_3a_21 = new PIL2JS.Box.Constant(undefined);
+    _24main_3a_3a_21 = new PIL2JS.Box(undefined);
 
     try { ret = PIL2JS.cps2normal(code.FETCH(), [PIL2JS.Context.ItemAny]) } catch(err) {
       // Set $!
-      _24main_3a_3a_21 = new PIL2JS.Box.Constant(
+      _24main_3a_3a_21 = new PIL2JS.Box(
         err.pil2js_orig_msg
           ? err.pil2js_orig_msg.FETCH()
           : err.toString()

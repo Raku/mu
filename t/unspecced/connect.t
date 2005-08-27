@@ -5,13 +5,13 @@ use Test;
 
 plan 3;
 
-unless %*ENV<PUGS_TESTS_ALLOW_NETWORK> {
-  skip_rest "Won't test &connect as environment variable \"PUGS_TESTS_ALLOW_NETWORK\" is not true.";
+if $*OS eq "browser" {
+  skip_rest "Programs running in browsers don't have access to regular IO.";
   exit;
 }
 
-if $*OS eq "browser" {
-  skip_rest "Programs running in browsers don't have access to regular IO.";
+unless %*ENV<PUGS_TESTS_ALLOW_NETWORK> {
+  skip_rest "Won't test &connect as environment variable \"PUGS_TESTS_ALLOW_NETWORK\" is not true.";
   exit;
 }
 

@@ -13,11 +13,12 @@ sub JS::Root::split(Str $splitter, Str $str) is primitive {
   )')(~$splitter, ~$str);
 }
 
-method uc(Str $self:) { JS::inline('(function (str) { return str.toUpperCase() })')(~$self) }
-method lc(Str $self:) { JS::inline('(function (str) { return str.toLowerCase() })')(~$self) }
+# XXX! ?$self = $CALLER::_ is a hack!!
+method uc(Str ?$self = $CALLER::_:) { JS::inline('(function (str) { return str.toUpperCase() })')(~$self) }
+method lc(Str ?$self = $CALLER::_:) { JS::inline('(function (str) { return str.toLowerCase() })')(~$self) }
 
-method lcfirst(Str $self:) { lc(substr $self, 0, 1) ~ substr($self, 1) }
-method ucfirst(Str $self:) { uc(substr $self, 0, 1) ~ substr($self, 1) }
+method lcfirst(Str ?$self = $CALLER::_:) { lc(substr $self, 0, 1) ~ substr($self, 1) }
+method ucfirst(Str ?$self = $CALLER::_:) { uc(substr $self, 0, 1) ~ substr($self, 1) }
 
 # Of course, &bytes, &codes, &graphs will have to change. Dunno how to do
 # different Unicode levels in browsers.

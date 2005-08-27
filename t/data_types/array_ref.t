@@ -9,7 +9,7 @@ Array refs
 
 =cut
 
-plan 43;
+plan 45;
 
 # array_ref of strings
 
@@ -110,3 +110,15 @@ is try { $array11[0][0] = 6; $array11[0][0] }, 6, "changing nested array (2)",:t
 #is +$array11,      2, "AoA created using ';' contains correct number of elems", :todo;
 #is +$array11[0],   3, "AoA's subarray created using ';' contains correct number of elems", :todo;
 #is $array11[1][1], "e", "AoA created using ';' contains correct elem", :todo;
+
+# [] creates new containers (() does not)
+{
+  my $foo;
+  ok !([$foo][0] =:= $foo), "creating arrays using [] creates new containers (1)";
+}
+
+{
+  my $foo;
+  my $arrayref = [$foo];
+  ok !($arrayref[0] =:= $foo), "creating arrays using [] creates new containers (2)";
+}

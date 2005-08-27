@@ -903,7 +903,15 @@ PIL2JS.addmethod(_3amain_3a_3aAny, "ref", _26main_3a_3aref);
 
 // &*isa. hack.
 var _26main_3a_3aisa = PIL2JS.Box.constant_func(1, function (args) {
-  var self = args[1], cmptype = args[2].FETCH(), cc = args.pop(), ref = _26main_3a_3aref;
+  args.shift();  // cxt
+  var self    = args.shift(),
+      cmptype = args.shift().FETCH(),
+      cc      = args.pop(),
+      ref     = _26main_3a_3aref;
+
+  if(args.length > 0) {
+    PIL2JS.die("Too many arguments passed to &isa!");
+  }
 
   ref.FETCH()([PIL2JS.Context.ItemAny, self, function (type) {
     type = type.FETCH();

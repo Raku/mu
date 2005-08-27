@@ -7,6 +7,7 @@ use FindBin;
 use IPC::Open2;
 use Config;
 use File::Spec;
+use Encode;
 
 use base "Exporter";
 our @EXPORT    = qw<
@@ -155,7 +156,7 @@ sub run_js {
   $|++;
   while(defined(my $line = <$read_fh>)) {
     $line =~ s/\Q$MAGIC_NOLF\E\n//g;
-    print $line;
+    print Encode::encode("utf-8", $line);
   }
 }
 
