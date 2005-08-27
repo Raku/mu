@@ -63,7 +63,6 @@ MULTI SUB coerce:as ($x, $to) {
     return $tmp;
 };
 
-# MULTI SUB prefix:<,> (*@a) {@a};
 MULTI SUB infix:<,>  (*@a) {
     p6_from_a( Perl6::Value::List->from_single( @a ) ) 
 };
@@ -110,7 +109,7 @@ MULTI SUB take () {...};
 # nothing - in PrimP6
 
 # op1
-#MULTI SUB prefix:<!> ($xx) {...};
+#MULTI SUB prefix:<!> ($xx) {...}; # in PrimP6
 MULTI SUB id ($xx) {...};
 MULTI SUB clone ($xx) {...};
 MULTI SUB chop ($xx) {...};
@@ -123,7 +122,7 @@ MULTI SUB ucfirst ($xx) {...};
 MULTI SUB capitalize ($xx) {...};
 MULTI SUB undef ($xx) {...};
 MULTI SUB undefine ($xx) {...};
-#MULTI SUB prefix:<+> ($xx) {...};
+#MULTI SUB prefix:<+> ($xx) {...}; # in PrimP6
 MULTI SUB abs ($xx) {...};
 MULTI SUB Pugs::Internals::truncate ($xx) {...};
 MULTI SUB Pugs::Internals::round ($xx) {...};
@@ -152,15 +151,15 @@ MULTI SUB reverse (@xx) { $xx->reverse };
 MULTI SUB reverse ($xx) { $xx->reverse };
 MULTI SUB list ($xx) {...};
 MULTI SUB pair ($xx) {...};
-#MULTI SUB prefix:<~> ($xx) {...};
-#MULTI SUB prefix:<?> ($xx) {...};
+#MULTI SUB prefix:<~> ($xx) {...}; # in PrimP6
+#MULTI SUB prefix:<?> ($xx) {...}; # in PrimP6
 MULTI SUB int ($xx) {...};
 MULTI SUB prefix:<+^> ($xx) {...};
 MULTI SUB prefix:<~^> ($xx) {...};
 MULTI SUB prefix:<?^> ($xx) {...};
 MULTI SUB prefix:<\\> ($xx) { p6_new(Ref => $xx) };
 MULTI SUB postfix:<...> ($xx) {...};
-# MULTI SUB true ($xx) {...};
+# MULTI SUB true ($xx) {...}; # in PrimP6
 MULTI SUB any ($xx) {...};
 MULTI SUB all ($xx) {...};
 MULTI SUB one ($xx) {...};
@@ -279,7 +278,7 @@ MULTI SUB matches ($xx) {...};
 MULTI SUB gather ($xx) {...};
 MULTI SUB Thread::yield ($xx) {...};
 MULTI SUB DESTROYALL ($xx) {...};
-# prefix:<,> - see above.
+# MULTI SUB prefix:<,> (*@a) {@a}; # ??? - unneeded?
 MULTI SUB Code::assoc ($xx) {...};
 MULTI SUB Code::name ($xx) {...};
 MULTI SUB Code::arity ($xx) {...};
@@ -330,9 +329,9 @@ MULTI SUB infix:<..> ($xx0,$xx1) {
             # map( sub{ Int->new( '$.unboxed' => $_[0] ) } ) 
     ) 
 };
-#MULTI SUB infix:<..^> ($xx0,$xx1) {...};
-#MULTI SUB infix:<^..> ($xx0,$xx1) {...};
-#MULTI SUB infix:<^..^> ($xx0,$xx1) {...};
+#MULTI SUB infix:<..^> ($xx0,$xx1) {...}; # in PrimP6
+#MULTI SUB infix:<^..> ($xx0,$xx1) {...}; # in PrimP6
+#MULTI SUB infix:<^..^> ($xx0,$xx1) {...}; # in PrimP6
 MULTI SUB infix:<!=> ($xx0,$xx1) { p6_from_b(p6_to_n($xx0) != p6_to_n($xx1)) };
 MULTI SUB infix:<==> ($xx0,$xx1) { p6_from_b(p6_to_n($xx0) == p6_to_n($xx1)) };
 MULTI SUB infix:[<=] ($xx0,$xx1) { p6_from_b(p6_to_n($xx0) <= p6_to_n($xx1)) };

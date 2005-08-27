@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # run me...
-# perl -Ilib -w crude_repl.pl
+# perl -w crude_repl.pl
 # with pugs in your PATH.
 
 use FindBin '$Bin';
@@ -75,19 +75,19 @@ sub p6_repl {
     }
 }
 
-my ($eval, $repl);
+my (@eval, $repl);
 getopt(
-    'e|eval=s'  => \$eval,
+    'e|eval=s'  => \@eval,
     'repl'      => \$repl,
 );
 
-if (defined $eval) {
-    p6_eval($eval);
+for my $e (@eval) {
+    p6_eval($e);
 }
-elsif (@ARGV and !$repl) {
-    p6_eval_file(shift(@ARGV));
+for my $fn (@ARGV) {
+    p6_eval_file($fn);
 }
-else {
+if ($repl || (!@eval && !@ARGV)) {
     p6_repl();
 }
 
