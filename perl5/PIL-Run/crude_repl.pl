@@ -77,6 +77,7 @@ sub p6_repl {
 
 my (@eval, $repl);
 getopt(
+    'version'   => sub{print "--version unimplemented\n"; exit;},
     'e|eval=s'  => \@eval,
     'repl'      => \$repl,
 );
