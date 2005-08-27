@@ -17,6 +17,7 @@ sub parse {
   die "No string to parse given!\n" unless defined $str;
 
   local $@;
+
   my $struct = eval $str;
   die "Couldn't parse -CPerl5 output: $@\n" if $@;
   Class::Rebless->custom($struct, "PIL", { editor => sub {

@@ -9,6 +9,8 @@ use lib File::Spec->catfile($FindBin::Bin, "lib");
 use PIL2JS;
 use PIL::Parser;
 use Term::ReadLine;
+use Encode;  # needed by pil2js.pl, better die now than later
+             # (user-friendlyness etc.)
 
 my $term = Term::ReadLine->new("jspugs");
 

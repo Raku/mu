@@ -23,6 +23,7 @@ use PIL2JS qw< run_pugs >;
 use Getopt::Long;
 use PIL::Parser;
 use PIL;
+use Encode;
 
 sub slurp;
 sub unslurp;
@@ -53,13 +54,13 @@ unless($link) {
   warn "*** Reading input from \"$input[0]\"...\n" if $verbose;
 
   my $pil  = $input[0] =~ /\.(?:pl|p6|pm|p6m|t)$/i
-    ? run_pugs("-CPerl5", $input[0])
+    ? decode "utf-8", run_pugs("-CPerl5", $input[0])
     : slurp $input[0];
   my $tree = PIL::Parser->parse($pil);
 
   if($yaml_dump) {
     require YAML;
-    print YAML::Dump($tree);
+    print encode "utf-8", YAML::Dump($tree);
     exit;
   }
 
@@ -212,11 +213,11 @@ USAGE
 sub slurp {
   open my $fh, "< $_[0]" or die "Couldn't open \"$_[0]\" for reading: $!\n";
   local $/;
-  return <$fh>;
+  return decode "utf-8", <$fh>;
 }
 
 sub unslurp {
-  open my $fh, "> $_[0]" or die "Couldn't open \"$_[0]\" for writing: $!\n";
-  print $fh $_[1]        or die "Couldn't write to \"$_[0]\": $!\n";
-  close $fh              or die "Couldn't close \"$_[0]\": $!\n";
+  open my $fh, "> $_[0]"          or die "Couldn't open \"$_[0]\" for writing: $!\n";
+  print $fh encode "utf-8", $_[1] or die "Couldn't write to \"$_[0]\": $!\n";
+  close $fh                       or die "Couldn't close \"$_[0]\": $!\n";
 }

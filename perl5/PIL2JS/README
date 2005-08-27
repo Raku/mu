@@ -208,6 +208,15 @@ is respected. I.e.
 C<&next>, C<&last>, and C<&redo> will be converted to use continuations, too,
 but currently, they still use exceptions to escape.
 
+=head3 Coroutines
+
+With full continuations, coroutines are relatively easy to implement. All
+coroutines maintain a pointer to their entrypoint (a continuation) in the
+global array C<PIL2JS.coro_entrypoints>, index by a (allocated at compile-time)
+ID. Upon invocation, they simply call their entrypoint.
+
+A call to C<&yield> updates the entrypoint accordingly, C<&return> resets it.
+
 =head2 Metamodel
 
 I use Stevan's C<Perl6.MetaModel> as the library providing classes like

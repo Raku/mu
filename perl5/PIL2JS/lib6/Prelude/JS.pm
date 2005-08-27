@@ -99,3 +99,10 @@ sub infix:<~>(Str $__a, Str $__b) is primitive {
     cc(new PIL2JS.Box.Constant(String(a) + String(b)));
   })')(~$__a, ~$__b);
 }
+
+sub Pugs::Internals::symbolic_deref (Str $sigil, Str *@parts) is rw {
+  JS::inline('new PIL2JS.Box.Constant(function (args) {
+    var varname = args[1].toNative(), cc = args.pop();
+    cc(PIL2JS.resolve_callervar(1, varname));
+  })')($sigil ~ join "::", @parts);
+}

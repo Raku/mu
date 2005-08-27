@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 21;
+plan 22;
 
 # See http://www.nntp.perl.org/group/perl.perl6.language/22858 --
 # previously, "my $a; say $::("a")" died (you had to s/my/our/). Now, it was
@@ -136,4 +136,11 @@ Following re-specced to be invalid:
   ok $::!,        "symbolic dereferentiation works with special chars (2)";
   ok %::("*ENV"), "symbolic dereferentiation works with special chars (3)";
   ok %::*ENV,     "symbolic dereferentiation works with special chars (4)";
+}
+
+# Symdereffing should find package vars as well:
+{
+  our $symderef_test_var = 42;
+
+  is $::("symderef_test_var"), 42, "symbolic dereferentiation works with package vars";
 }

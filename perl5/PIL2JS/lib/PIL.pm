@@ -344,7 +344,7 @@ sub name_mangle($) {
   }
 
   # Finally, escape special chars.
-  $str =~ s/([^\w0-9])/sprintf "_%02x", ord $1/eg;
+  $str =~ s/([^a-zA-Z_0-9])/sprintf "_%02x", ord $1/eg;
   return $str;
 }
 
