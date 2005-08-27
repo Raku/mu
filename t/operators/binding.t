@@ -13,7 +13,7 @@ L<S03/"Binding">
 
 =cut
 
-plan 23;
+plan 28;
 
 # L<S03/"Binding" /replaces the container itself.  For instance:/>
 
@@ -52,9 +52,28 @@ ok(foo(), "CALLER resolves bindings in caller's dynamic scope");
 {
   my $a = "a";
   my $b = "b";
-  ($a, $b) := ($b,$a);
+
+  ($a, $b) := ($b, $a);
   is($a, 'b', '$a has been changed to "b"');
   is($b, 'a', '$b has been changed to "a"');
+
+  $a = "c";
+  is($a, 'c', 'binding to swap didn\'t make the vars readonly');
+}
+
+# More tests for binding a list
+{
+  my $a = "a";
+  my $b = "b";
+  my $c = "c";
+
+  ($a, $b) := ($c, $c);
+  is($a, 'c', 'binding a list literal worked (1)');
+  is($b, 'c', 'binding a list literal worked (2)');
+
+  $c = "d";
+  is($a, 'd', 'binding a list literal really worked (1)');
+  is($b, 'd', 'binding a list literal really worked (2)');
 }
 
 # Binding subroutine parameters
