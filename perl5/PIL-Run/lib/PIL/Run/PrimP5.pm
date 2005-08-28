@@ -64,7 +64,7 @@ MULTI SUB coerce:as ($x, $to) {
 };
 
 MULTI SUB infix:<,>  (*@a) {
-    p6_from_a( Perl6::Value::List->from_single( @a ) ) 
+    p6_from_a( @a ) 
 };
 # MULTI SUB Array::fetch ($a,$i) {
 #    # implements (1,2,3)[1] - see PrimP6.pm - postcircumfix:<[ ]>
