@@ -178,7 +178,7 @@ class 'Pair'.$class_description => {
         methods => {
             'num' => sub { Num->new( '$.unboxed' => 0 ) },
             'int' => sub { Int->new( '$.unboxed' => 0 ) },
-            'str' => sub { Str->new( '$.unboxed' => '' ) },
+            'str' => sub { $_[0]->perl }, 
             'bit' => sub { Bit->new( '$.unboxed' => 0 ) },
             'perl' => sub { 
                 my $key = defined _('$.key') ? _('$.key')->perl->unboxed : 'undef';
