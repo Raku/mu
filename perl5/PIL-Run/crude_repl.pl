@@ -75,11 +75,12 @@ sub p6_repl {
     }
 }
 
-my (@eval, $repl);
+my (@eval, $repl,$warn);
 getopt(
     'version'   => sub{print "--version unimplemented\n"; exit;},
     'e|eval=s'  => \@eval,
     'repl'      => \$repl,
+    'w'         => \$warn,
 );
 
 for my $e (@eval) {
