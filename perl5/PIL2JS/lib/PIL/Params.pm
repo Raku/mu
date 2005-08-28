@@ -11,18 +11,23 @@
 
     # Move all slurpy arrays to the end.
     # This is because *%slurpy_hashes have to be processed before.
-    my (@args, @slurpy_arrays);
+    my (@args, @slurpy_arrays, @invocant);
     my $seen_a_slurpy_param;
+
     for(@$self) {
-      # (Perl 5)--  # doesn't allow ?: as push argument
       $_->is_first_slurpy++ if $_->is_slurpy and !$seen_a_slurpy_param++;
-      if($_->is_slurpy and $_->name =~ /^@/) {
-        push @slurpy_arrays, $_;
+      if($_->is_invocant) {
+        push @invocant, $_;
+
+      # (Perl 5)--  # doesn't allow ?: as push argument
+      } elsif($_->is_slurpy and $_->name =~ /^@/) {
+          push @slurpy_arrays, $_;
       } else {
-        push @args, $_;
+          push @args, $_;
       }
     }
-    push @args, @slurpy_arrays;
+    push    @args, @slurpy_arrays;
+    unshift @args, @invocant;
 
     return (
       "p${prefix}Params" => (bless [ map { $_->fixup } @args ] => "PIL::Params"),
@@ -108,6 +113,7 @@ EOF
   use strict;
 
   sub is_required { not $_[0]->{tpParam}{isOptional} }
+  sub is_invocant { $_[0]->{tpParam}{isInvocant} }
   sub name        { $_[0]->{tpParam}{paramName} }
   sub type        { $_[0]->{tpParam}{paramContext}->[0] }
   sub is_slurpy   { $_[0]->{tpParam}{paramContext}->isa("PIL::CxtSlurpy") }
