@@ -243,6 +243,14 @@ ruleSubHead = rule "subroutine head" $ do
     name    <- ruleSubName
     return (isMulti, styp, name)
 
+{-|
+Try to match a colon character.  If one is found, return a function that will
+take a variable name (including sigil) and insert a colon after the sigil.
+If no colon is found, return @id@.
+
+Used to match the private-method colon in 'ruleInvocation' and
+'ruleInvocationParens'.
+-}
 maybeColon :: RuleParser ([Char] -> [Char])
 maybeColon = option id $ do
     char ':'
@@ -676,9 +684,8 @@ ruleUsePerlPackage :: Bool   -- ^ @True@ for @use@; @False@ for @no@
                              --     \"@pugs@\")
                    -> RuleParser Exp
 ruleUsePerlPackage use lang = rule "use perl package" $ do
-    names   <- ruleDelimitedIdentifier "::"
-    _       <- option "" $ ruleVersionPart
-    _       <- option "" $ ruleAuthorPart
+    -- author and version get thrown away for now
+    (names, _, _) <- rulePackageFullName
     let pkg = concat (intersperse "::" names)
     env <- getRuleEnv
     when use $ do   -- for &no, don't load code
@@ -714,7 +721,15 @@ More info about JSAN can be found at <http://www.openjsan.org/>.
 -}
 ruleUseJSANModule :: RuleParser Exp
 ruleUseJSANModule = do
-    names <- ruleDelimitedIdentifier "."
+    (names, _, _) <- tryChoice
+        [ rulePackageFullName
+        -- leave this in as a hack, until we decide
+        -- whether to allow it or not
+        , do
+            name <- ruleDelimitedIdentifier "."
+            return (name, Nothing, Nothing)
+        ]
+    
     let name = Val . VStr . concat $ intersperse "." names
     choice
         [ try $ do
@@ -726,6 +741,24 @@ ruleUseJSANModule = do
                      | otherwise       = [exp]
             return $ App (Var "&PIL2JS::Internals::use_jsan_module_imp") Nothing $ name:exp'
         ] 
+        
+{-|
+Match a full package name, consisting of:
+
+* A short name, optionally delimited by double colons (@::@)
+* An optional version specification
+* An optional author specification (e.g. @cpan:JRANDOM@)
+-}
+rulePackageFullName :: RuleParser ( [String]
+                                  , (Maybe String)
+                                  , (Maybe String)
+                                  )
+rulePackageFullName = do
+    name    <- ruleDelimitedIdentifier "::"
+    version <- option Nothing $ fmap Just ruleVersionPart
+    author  <- option Nothing $ fmap Just ruleAuthorPart
+    whiteSpace
+    return (name, version, author)
 
 -- | The version part of a fully-qualified package name.
 ruleVersionPart :: RuleParser String
@@ -762,9 +795,7 @@ anybody has some tuits.)
 ruleRequireDeclaration :: RuleParser Exp
 ruleRequireDeclaration = tryRule "require declaration" $ do
     symbol "require"
-    names <- ruleDelimitedIdentifier "::"
-    _     <- option "" $ ruleVersionPart
-    _     <- option "" $ ruleAuthorPart
+    (names, _, _) <- rulePackageFullName
     return $ App (Var "&require") Nothing [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
 
 ruleDoBlock :: RuleParser Exp
