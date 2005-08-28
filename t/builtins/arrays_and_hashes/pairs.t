@@ -66,8 +66,8 @@ Basic C<pairs> tests, see S29.
 {
   my $hash_of_2_pairs = {'a'=>'b','c'=>'d'};
   my $hash_of_1_pair = {'a'=>'b'};
-  is( $hash_of_2_pairs.pairs.sort.join( ',' ), 'a b,c d', "pairs() on 2-elem hash, 1-depth joined" );
-  is( $hash_of_1_pair.pairs.sort.join( ',' ), 'a b', "pairs() on 1-elem hash, 1-depth joined" );
+  is( $hash_of_2_pairs.pairs.sort.join( ',' ), "a\tb,c\td", "pairs() on 2-elem hash, 1-depth joined" );
+  is( $hash_of_1_pair.pairs.sort.join( ',' ), "a\tb", "pairs() on 1-elem hash, 1-depth joined" );
   is( $hash_of_2_pairs.pairs.sort.map:{ .key~'='~.value }.join( ',' ), 'a=b,c=d', 
   	"pairs() on 2-elem hash, 2-depth joined" );
   is( $hash_of_1_pair.pairs.sort.map:{ .key~'='~.value }.join( ',' ), 'a=b', 

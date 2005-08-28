@@ -9,7 +9,7 @@ use Test;
 
 =cut
 
-plan 58;
+plan 59;
 
 # basic Pair
 
@@ -189,4 +189,11 @@ http://www.nntp.perl.org/group/perl.perl6.language/20122
   my %z = ( "Zaphod" => 0 ?? 1 :: 2, "Ford" => 42 );
   is %z{"Zaphod"}, 2, "Zaphod is still 2";
   is %z{"Ford"},  42, "Ford is still 42";
+}
+
+# This is per the pairs-behave-like-one-element-hashes-rule.
+# (I asked p6l once, but the "thread" got warnocked.  --iblech)
+{
+  my $pair = (a => 1);
+  is ~$pair, "a\t1", "pairs stringify correctly";
 }
