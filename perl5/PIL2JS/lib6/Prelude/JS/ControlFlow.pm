@@ -1,4 +1,4 @@
-sub statement_control:<loop>($pre, Code $cond, Code $body, Code $post) is primitive {
+sub statement_control:<loop>(Any $pre, Code $cond, Code $body, Code $post) is primitive {
   JS::inline('(
     function (pre, cond, body, post) {
       try {

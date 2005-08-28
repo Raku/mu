@@ -11,6 +11,11 @@ Test for rules as references
 
 =cut
 
+if(!eval('("a" ~~ rx:P5/a/)')) {
+  skip_rest "skipped tests - P5 regex support appears to be missing";
+  exit;
+}
+
 my $rule = rx:perl5{\s+};
 isa_ok($rule, 'Pugs::Internals::VRule');
 

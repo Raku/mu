@@ -5,6 +5,11 @@ use Test;
 
 plan 4;
 
+if(!eval('("a" ~~ rx:P5/a/)')) {
+  skip_rest "skipped tests - P5 regex support appears to be missing";
+  exit;
+}
+
 # returns the count of matches in scalar
 my $vals = "hello world" ~~ rx:perl5:g{(\w+)};
 is($vals, 2, 'returned two values in the match');

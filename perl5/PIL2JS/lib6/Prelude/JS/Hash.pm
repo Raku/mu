@@ -72,7 +72,7 @@ method postcircumfix:<{}>(%self: *@keys) is rw {
       // .BINDTO is special: %hash{$key} := $foo should work.
       ret.BINDTO = function (other) {
         if(!hash.exists(key))
-          PIL2JS.die("Can\'t rebind undefined!");
+          PIL2JS.die("Can\'t rebind non-existant hash container!");
 
         return hash.get_value(key).BINDTO(other);
       };

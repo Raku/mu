@@ -147,7 +147,7 @@ EOF
     # If a param expects a real Pair, don't use it for named argument purposes.
     return "" if
       $_->type->matches("Any") or $_->type->matches("Pair") or
-      $_->is_slurpy;
+      $_->is_invocant or $_->is_slurpy;
     # New change as of 2005-08-22:
     #   On 8/22/05, Larry Wall <larry@wall.org> wrote:
     #   > I think the simplest thing is to say that you can't bind to the name

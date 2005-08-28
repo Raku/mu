@@ -5,6 +5,11 @@ use Test;
 
 plan 5;
 
+if(!eval('("a" ~~ rx:P5/a/)')) {
+  skip_rest "skipped tests - P5 regex support appears to be missing";
+  exit;
+}
+
 my $rule = '\d+';
 ok('2342' ~~ rx:perl5{$rule}, 'interpolated rule applied successfully');
 

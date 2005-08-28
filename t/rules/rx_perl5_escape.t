@@ -3,9 +3,13 @@
 use v6;
 use Test;
 
-BEGIN { plan 1 }
+plan 1;
+
+if(!eval('("a" ~~ rx:P5/a/)')) {
+  skip_rest "skipped tests - P5 regex support appears to be missing";
+  exit;
+}
 
 my $str = "http://foo.bar/";
-fail "XXX parsefail", :todo<bug>;
-# ok(($str ~~ rx:perl5/http:\/\//), "test the regular expression escape");
+ok(($str ~~ rx:perl5/http:\/\//), "test the regular expression escape");
 
