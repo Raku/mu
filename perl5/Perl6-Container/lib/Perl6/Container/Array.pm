@@ -3,6 +3,18 @@
 
 # ChangeLog
 #
+# 2005-08-27
+# * Fixed fetch/store single elements from a lazy slice
+# * Fixed fetch/store of whole lazy slice
+#   supports syntax: @a = (0..Inf); @a[1,10,100..10000] = @a[500..30000]
+#   (needs optimization)
+# * New method tied()
+# * Fixed binding of fetched result
+# * Fixed stringification of unboxed values
+# * New parameter 'max' in perl() and str() methods - controls how many elements
+#   of the lazy array are stringified.
+# * Array is stringified using parenthesis.
+#
 # 2005-08-26
 # * New internal class 'Perl6::Slice'
 #   supports syntax: @a = (2,3,4,5); @a[1,2] = @a[0,3]
@@ -19,6 +31,12 @@
 # * Ported from Perl6 version
 
 # TODO - lazy array slices
+#      - optimize splice by using random access lists
+# TODO - slices with negative numbers
+# TODO - ($a,undef,$b) = @a
+#      - (@a[1..10],$a,undef,$b) = @a
+
+# TODO - autovivification - $a=Array->new(); $a->store(5000,'x');
 
 # TODO - @a[1] == Scalar
 # TODO - test - @a[1] := $x
@@ -36,7 +54,7 @@
 # TODO - test splice offset == 0, 1, 2, -1, -2, -Inf, Inf
 # TODO - test splice length == 0, 1, 2, Inf, negative
 # TODO - test splice list == (), (1), (1,2), Iterators, ...
-# TODO - splice an empty array
+# TODO - test splice an empty array
 # TODO - test multi-dimensional array
 # TODO - test optional splice parameters
 
@@ -53,6 +71,19 @@ use Perl6::Container::Scalar;
 use constant Inf => Perl6::Value::Num::Inf;
 
 my $class_description = '-0.0.1-cpan:FGLOCK';
+
+sub Perl6::Value::stringify {
+    my $s = shift;
+    $s = $s->fetch if ref($s) && $s->isa('Scalar');
+    $s = $s->str(max=>3) if ref($s) && $s->can('str');
+    $s = $s->unboxed if ref($s) && $s->can('unboxed');
+    return 'undef' unless defined $s;
+
+    no warnings 'numeric';
+    $s = Perl6::Value::Num::to_str( $s ) if $s+0 eq $s;
+    
+    return $s;
+}
 
 # ------ Perl6::Slice -----
 
@@ -103,6 +134,106 @@ sub Perl6::Slice::elems {
     # warn " elems ". $self->{slice} ." = ". $self->{slice}->elems( $self->{slice} )->unboxed;
     $self->{slice}->elems()->unboxed;
 }
+sub Perl6::Slice::unbind {
+    # creates a new Array - not bound to the original array/slice
+    my $self = shift; 
+    my $ary = $self->{array};
+    my @idx = $self->{slice}->items;
+    my $result = Array->new;
+    my $pos = 0;
+    for ( @idx ) {
+        # warn "loop...";
+        if ( UNIVERSAL::isa( $_, 'Perl6::Value::List' ) ) {
+            # warn "List -- ". $_->is_contiguous;
+            die "Not implemented: instantiate lazy slice using a non-contiguous list"
+                unless $_->is_contiguous;
+            my $start = $_->start;
+            my $end =   $_->end;
+            die "Slice start/end is not defined"
+                unless defined $end && defined $start;
+            die "Not implemented: instantiate lazy slice using a reversed list"
+                unless $end >= $start;
+            # warn "Slicing from $start to $end";
+            my $slice = $ary->splice( $start, ( $end - $start + 1 ) );
+            my $elems = $slice->elems->unboxed;
+            # warn "splice 2 - elems = $elems - slice isa $slice";
+            $ary->splice( $start, 0, $slice );
+            # warn "splice done";
+            # XXX - items should be cloned before storing
+            $result->push( $slice->unboxed->items );
+            if ( $elems < ( $end - $start + 1 ) ) {
+                my $diff = $end - $start + 1 - $elems;
+                # warn "Missing $diff elements";
+                $result->push( Perl6::Value::List->from_x( item => undef, count => $diff ) );
+            }
+            $pos = $pos + $end - $start + 1;
+            # warn "pos = $pos";
+        }
+        else {
+            # non-lazy slicing
+            my $p = $self->{slice}->fetch( $pos )->fetch;
+            $p = $p->unboxed if ref( $p );
+            #warn "P $pos = $p";
+            next unless defined $p;
+            next if $p >= $ary->elems()->unboxed || $p < 0;
+            my $tmp = $ary->fetch( $p )->fetch;
+            $result->store( $pos, $tmp );
+            #warn "store $tmp to $pos";
+            $pos++;            
+        }
+    }
+    return $result;
+}
+sub Perl6::Slice::write_thru {
+    # writes back to the bound Array using the slice index
+    my $self = shift; 
+    my $other = shift;
+    my $ary = $self->{array};
+    my @idx = $self->{slice}->items;
+    my $pos = 0;
+    for ( @idx ) {
+        #warn "write loop...";
+        if ( UNIVERSAL::isa( $_, 'Perl6::Value::List' ) ) {
+            # warn "List -- ". $_->is_contiguous;
+            die "Not implemented: instantiate lazy slice using a non-contiguous list"
+                unless $_->is_contiguous;
+            my $start = $_->start;
+            my $end =   $_->end;
+            die "Slice start/end is not defined"
+                unless defined $end && defined $start;
+            die "Not implemented: instantiate lazy slice using a reversed list"
+                unless $end >= $start;
+            #warn "Slicing from $pos to ( $start .. $end )";
+            # XXX - items should be cloned before storing
+            my $slice = $other->splice( $pos, ( $end - $start + 1 ) );
+            my $elems = $slice->elems->unboxed;
+            my @result = ($slice);
+            if ( $elems < ( $end - $start + 1 ) ) {
+                my $diff = $end - $start + 1 - $elems;
+                #warn "Missing $diff elements";
+                push @result, Perl6::Value::List->from_x( item => undef, count => $diff )
+                    if $diff > 0;
+            }
+            #warn "Storing to $start";
+            $ary->splice( $start, ( $end - $start + 1 ), @result );
+            $pos = $pos + $end - $start + 1;
+            #warn "pos = $pos";
+        }
+        else {
+            # non-lazy slicing
+            my $p = $self->{slice}->fetch( $pos )->fetch;
+            $p = $p->unboxed if ref( $p );
+            #warn "P $pos = $p";
+            next unless defined $p;
+            next if $p >= $self->{array}->elems()->unboxed || $p < 0;
+            my $tmp = $other->fetch( $pos )->fetch;
+            $ary->store( $p, $tmp );
+            #warn "pos $pos - store $tmp to $p";
+            $pos++;            
+        }
+    }
+    return;
+}
 
 # ------ end Perl6::Slice -----
 
@@ -142,6 +273,7 @@ class 'Array'.$class_description => {
             'tieable' =>  sub { _('$:cell')->{tieable} != 0 },
             'tie' =>      sub { shift; _('$:cell')->tie(@_) },
             'untie' =>    sub { _('$:cell')->untie },
+            'tied' =>     sub { _('$:cell')->{tied} },
 
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
             'isa' => sub { ::next_METHOD() },
@@ -174,36 +306,48 @@ class 'Array'.$class_description => {
                     } @param;
 
                 if ( $method eq 'splice' || $method eq 'reverse' ) {
+                    my @p;
+                    #warn "-- $method";
+                    for ( @param ) {
+                        # my @items = ($_);
+                        $_ = $_->unboxed if UNIVERSAL::isa( $_, 'Array' );
+                        if ( UNIVERSAL::isa( $_, 'Perl6::Container::Array' ) ) {
+                            push @p, $_->items;
+                            #warn "    SPLICE $_ - @p"; 
+                            next;
+                        }
+                        #warn "    SPLICE $_ "; 
+                        push @p, $_;
+                    }
                     my $ret = Array->new();
-                    $ret->push( $tmp->$method( @param )->items );
+                    $ret->push( $tmp->$method( @p )->items );
                     return $ret;
                 }
                 
                 if ( $method eq 'push'   || $method eq 'unshift' || $method eq 'store' ) {
-                    # warn "STORING THINGS $method @param";
+                    #warn "STORING THINGS $method @param";
                     if ( $method eq 'store' && @param == 1 ) {
                         # whole Array store
                         # warn "WHOLE ARRAY STORE";
                         # XXX - what if the array is tied?
                         #  @a = (2,3,4,5); @a[1,2] = @a[0,3]
                         my $other = $param[0];
-                        if ( $self->cell->{tied} ||
-                             $other->cell->{tied} ) {
-                            if ( $other->is_infinite->unboxed ) {
-                                die "Infinite slices and tied arrays are not yet fully supported";
-                            }
-                            #if ( $self->cell->{tied} ) {
-                            #    warn "self is tied ". $self->cell->{tied}->{slice}->str->unboxed;
-                            #}
-                            #if ( $other->cell->{tied} ) {
-                            #    warn "other is tied ". $other->cell->{tied}->{slice}->str->unboxed;
-                            #}
-                            for ( 0 .. $other->elems->unboxed -1 ) {
-                                # print "store $_ ",$other->fetch( $_ )->fetch;
-                                $self->store( $_, $other->fetch( $_ ) );
-                            }
+                        # if ( $self->cell->{tied} ||
+                        #      $other->cell->{tied} ) 
+                        
+                        # if ( $other->is_infinite->unboxed ) {
+                        #    die "Infinite slices and tied arrays are not yet fully supported";
+                        # }
+                        
+                        if ( UNIVERSAL::isa( $other->tied, 'Perl6::Slice' ) ) {
+                            # unbind the slice from the original arrays
+                            $other = $other->tied->unbind;
+                        }
+                        if ( UNIVERSAL::isa( $self->tied, 'Perl6::Slice' ) ) {
+                            $self->tied->write_thru( $other );
                             return $self;
                         }
+                        
                         my @items = $other->unboxed->items;  
                         # warn "got @items - current = ". _('$:cell')->{v};
 
@@ -221,24 +365,38 @@ class 'Array'.$class_description => {
                     return $self;
                 }
 
-                if ( $method eq 'pop'   || $method eq 'shift' || $method eq 'fetch' ) {
-                    # warn "FETCHING THINGS @param";
-                    if ( $method eq 'store' && @param == 1 ) {
+                if ( $method eq 'fetch' ) {
+                    #warn "FETCHING THINGS @param";
+                    if ( @param == 0 ) {
                         # whole Array fetch
-                        # warn "WHOLE ARRAY FETCH";
                         return $self;
                     }
                     my $elem = $tmp->$method( @param );
+                    my $scalar;
+                    if ( UNIVERSAL::isa( $elem, 'Scalar' ) ) {
+                        $scalar = $elem;
+                    }
+                    else
+                    {
+                        #warn "FETCHED CELL IS NOT YET A SCALAR: $elem";
+                        $scalar = Scalar->new();
+                        $scalar->store( $elem );
+                        # replace Value with Scalar
+                        #warn "STORE = $_[1], $scalar";
+                        # XXX - this will break if it were a multi-dim fetch
+                        $self->store( $_[1], $scalar );
+                    }
+                    my $ret = Scalar->new();
+                    $ret->bind( $scalar );
+                    return $ret;
+                }
+
+                if ( $method eq 'pop'   || $method eq 'shift' ) {
+                    my $elem = $tmp->$method( @param );
                     unless ( UNIVERSAL::isa( $elem, 'Scalar' ) ) {
                         # XXX - I think only fetch() need to return Scalar 
-                        #warn "FETCHED CELL IS NOT A SCALAR: $elem";
                         my $scalar = Scalar->new();
                         $scalar->store( $elem );
-                        if ( $method eq 'fetch' ) {
-                            # replace Value with Scalar
-                            #warn "STORE = $_[1], $scalar";
-                            $self->store( $_[1], $scalar );
-                        }
                         return $scalar;
                     }
                     return $elem;
@@ -246,6 +404,10 @@ class 'Array'.$class_description => {
 
                 if ( $method eq 'elems' || $method eq 'int' || $method eq 'num' ) {
                     return Int->new( '$.unboxed' => $tmp->elems( @param ) )
+                }
+                if ( $method eq 'exists' ) {
+                    # TODO - recursive to other dimensions
+                    return Bit->new( '$.unboxed' => ($tmp->elems > $param[0] ) )
                 }
                 if ( $method eq 'is_infinite' ) {
                     return Bit->new( '$.unboxed' => $tmp->$method( @param ) )
@@ -255,14 +417,18 @@ class 'Array'.$class_description => {
             },
             
             str => sub {
+                my $array = shift;
+                my %param = @_;
+                my $samples = $param{'max'};
+                $samples-- if defined $samples;
                 # warn "-- str --";
                 my $self = _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v};
                 # warn "-- cell $tmp --";
                 
                 my @start;
                 my @end;
-                my $samples = 2;
-                $samples = 100 unless $self->is_infinite; 
+                $samples = 100 unless defined $samples || $self->is_infinite; 
+                $samples = 2   unless defined $samples;
                 my $tmp = -&Inf;
                 for ( 0 .. $samples ) {
                     no warnings 'numeric';
@@ -282,24 +448,28 @@ class 'Array'.$class_description => {
                     unshift @end, $tmp;
                     last if $tmp == &Inf;
                 }
-                return Str->new( '$.unboxed' => '' ) unless @start;
+                return Str->new( '$.unboxed' => '()' ) unless @start;
                 # if @start and @end intersect, don't print ".."
                 if ( $self->elems == ( scalar @start + scalar @end ) ) {
-                    return Str->new( '$.unboxed' => 
+                    return Str->new( '$.unboxed' =>
+                        '(' . 
                         join( ', ', 
-                        map { ref($_) ? $_->str->unboxed : $_ } @start, @end )
+                            map { Perl6::Value::stringify($_) } @start, @end ).
+                        ')'
                     );
                 }
                 return Str->new( '$.unboxed' => 
+                    '(' . 
                     join( ', ', 
-                    map { ref($_) ? $_->str->unboxed : $_ } @start ) .
+                        map { Perl6::Value::stringify($_) } @start ) .
                     ' ... ' . 
                     join( ', ', 
-                    map { ref($_) ? $_->str->unboxed : $_ } @end )
+                        map { Perl6::Value::stringify($_) } @end ).
+                    ')'
                 );
                 
             },
-            perl => sub { Str->new( '$.unboxed' => '[' . ::SELF->str->unboxed . ']' ) },
+            perl => sub { my $self = shift; $self->str( @_ ) },
         },
     }
 };
@@ -487,12 +657,14 @@ sub end  {
 
 sub fetch {
     # XXX - this is very inefficient
-    # see also: slice()
+    # see also: splice()
     my $array = shift;
     my $pos = shift;
     
     #use Data::Dumper;
     #warn "-- array -- ". Dumper( $array );
+    return unless defined $pos;   # XXX
+    
     if ( $pos == 0 ) {
         my $ret = $array->shift;
         $array->unshift( $ret );

@@ -4,6 +4,9 @@ package Perl6::Value::List;
 
 # ChangeLog
 #
+# 2005-08-27
+# * new methods start() end()
+#
 # 2005-08-23
 # * fixed stringification
 #
@@ -88,6 +91,10 @@ sub new {
     }
     $param{cstart} = sub {} unless defined $param{cstart};
     $param{cend}   = sub {} unless defined $param{cend}; 
+    
+    $param{start} = sub {} unless defined $param{start};
+    $param{end}   = sub {} unless defined $param{end}; 
+
     return bless \%param, $class;
 }
 
@@ -120,8 +127,10 @@ sub from_num_range {
     my %param = @_;
     my $start = $param{start};
     my $end =   $param{end};
-    my $step =  $param{step};
+    my $step =  $param{step} || 1;
     $class->new(
+                start =>   sub { $start },
+                end =>     sub { $end },
                 cstart =>  sub {
                             my $r = $start;
                             if ( defined $step ) { $start += $step } else { $start++ };
@@ -143,7 +152,7 @@ sub from_num_range {
                             return CORE::int(( $end - $start + 1 ) / $step);
                         },
                 cis_infinite => sub { return $start == -&Inf || $end == Inf },
-                cis_contiguous => sub { $step == -1 || $step ==  1 || $step == undef },
+                cis_contiguous => sub { $step == -1 || $step ==  1 },
     );
 }
 
@@ -159,6 +168,8 @@ sub from_range {
         } 
         unless defined $count;
     $class->new(
+                start =>   sub { $start },
+                end =>     sub { $end },
                 cstart =>  sub { $start++ },
                 cend =>    sub { $end-- },
                 celems =>  $count,
@@ -176,6 +187,8 @@ sub from_x {
     $count = 0 
         unless defined $count;
     $class->new(
+                start =>   sub { $item },
+                end =>     sub { $item },
                 cstart =>  sub { $count--; return if $count < 0; $item },
                 cend =>    sub { $count--; return if $count < 0; $item },
                 celems =>  sub { $count },
@@ -196,10 +209,14 @@ sub from_single {
         }
     }
 
-    $class->new( cstart => sub{ shift  @list },
-                 cend =>   sub{ pop    @list },
-                 celems => sub{ scalar @list },
-                 is_lazy => 0 );
+    $class->new(
+                 start =>   sub { $list[0] },
+                 end =>     sub { $list[-1] },
+                 cstart =>  sub{ shift  @list },
+                 cend =>    sub{ pop    @list },
+                 celems =>  sub{ scalar @list },
+                 is_lazy => 0,
+             );
 }
 
 sub from_coro {
@@ -225,6 +242,8 @@ sub from_coro {
 sub reverse { 
     my $ret = shift;
     Perl6::Value::List->new( 
+            start =>          $ret->{end},
+            end =>            $ret->{start},
             cstart =>         $ret->{cend},
             cend =>           $ret->{cstart},
             celems =>         $ret->{celems},
@@ -373,6 +392,9 @@ sub zip {
 
 sub shift { $_[0]->{celems}() ? $_[0]->{cstart}() : undef }
 sub pop   { $_[0]->{celems}() ? $_[0]->{cend}()   : undef }  
+
+sub start { $_[0]->{celems}() ? $_[0]->{start}() : undef }
+sub end   { $_[0]->{celems}() ? $_[0]->{end}()   : undef }  
 
 1;
 __END__
