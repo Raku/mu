@@ -21,6 +21,7 @@ use constant {
   BUCKET      => "bucket.dat",
   MAX_RATE    => 1 / 30,       # Allow a new smoke all 30s
   BURST       => 5,            # Set max burst to 5
+  MAX_SMOKES_OF_SAME_CATEGORY => 4,
 };
 $CGI::POST_MAX = MAX_SIZE;
 chdir BASEDIR or die "Couldn't chdir into \"@{[ BASEDIR ]}\": $!\n";
@@ -40,6 +41,7 @@ sub process_upload {
   limit_rate();
   validate_params();
   add_smoke();
+  clean_obsolete_smokes();
 
   print "ok";
 }
@@ -103,6 +105,33 @@ sub add_smoke {
     die "Couldn't close \"$filename\": $!\n";
 }
 
+sub clean_obsolete_smokes {
+  my $category = sub {
+    return join "-", map { $_[0]->{$_} } qw<pugs_version osname runcore>;
+  };
+
+  my %cats;
+  my @smokes = map { unpack_smoke($_) } glob "pugs-smoke-*.html";
+  push @{ $cats{$category->($_)} }, $_ for @smokes;
+
+  $cats{$_} = [
+    (sort {
+      $b->{pugs_revision} <=> $a->{pugs_revision} ||
+      $b->{timestamp}[0]  <=> $a->{timestamp}[1]
+    } @{ $cats{$_} })
+    [0..MAX_SMOKES_OF_SAME_CATEGORY-1]
+  ] for keys %cats;
+
+  my %delete = map { $_->{filename} => 1 } @smokes;
+  for(map { @$_ } values %cats) {
+    next unless $_;
+
+    delete $delete{$_->{filename}};
+  }
+
+  unlink keys %delete;
+}
+
 sub process_list {
   my $tmpl = HTML::Template->new(filehandle => *DATA, die_on_bad_params => 0);
 
@@ -114,7 +143,11 @@ sub process_list {
   push @{ $runcores{$_->{runcore}} }, $_ for @smokes;
   $runcores{$_} = [
     map  {{ %$_, timestamp => $_->{timestamp}[1] }}
-    sort { $b->{timestamp}[0] <=> $a->{timestamp}[0] } @{ $runcores{$_} }
+    sort {
+      $b->{pugs_revision} <=> $a->{pugs_revision} ||
+      $a->{osname}        cmp $b->{osname}        ||
+      $b->{timestamp}[0]  <=> $a->{timestamp}[0]
+    } @{ $runcores{$_} }
   ] for keys %runcores;
 
   $tmpl->param(runcores => [
@@ -156,6 +189,7 @@ sub unpack_smoke {
       filename      => $name,
       link          => BASEHTTPDIR . $name, 
     };
+  return ();
 }
 
 sub pugspath2runcore {
@@ -245,7 +279,7 @@ __DATA__
   <p>
     Here's a list of recently submitted <a
     href="http://www.pugscode.org/">Pugs</a> smoke reports. These smokes are
-    automatically generated and show how much a given backend (normal <a
+    automatically generated and show how much a given backend (normal
     Haskell runcore, <a
     href="http://svn.openfoundry.org/pugs/perl5/PIL-Run/">Perl 6 on Perl 5</a>,
     <a href="http://svn.openfoundry.org/pugs/perl5/PIL2JS/">Perl 6 on
@@ -254,7 +288,7 @@ __DATA__
   </p>
 
   <p>
-    Submitting your own smoke is easy, a
+    Submitting your own smoke is easy,
   </p>
 
   <pre class="indent1">$ ./util/smokeserv/smokeserv-client.pl ./smoke.html</pre>
@@ -294,7 +328,7 @@ __DATA__
           <td><tmpl_var name=osname escape=html></td>
           <td><tmpl_var name=timestamp></td>
           <td><tmpl_var name=duration></td>
-          <td><tmpl_var name=percentage></td>
+          <td><tmpl_var name=percentage> %</td>
         </tr>
         <tr>
           <td colspan="6" class="indent2">
