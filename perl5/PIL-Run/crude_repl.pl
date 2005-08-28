@@ -86,6 +86,7 @@ getopt(
     'w'         => \$warn,
     'timeout=i' => \$timeout,
 );
+$timeout = defined $timeout ? $timeout : $ENV{PUGS_HACK_TIMEOUT};
 local $SIG{ALRM} = sub { die "timeout\n" } if $timeout;
 alarm $timeout if $timeout;
 
