@@ -13,6 +13,8 @@ See the note at the top of Prelude.pm.
 
 =cut
 
+my $?PUGS_BACKEND = "BACKEND_PERL5";
+
 multi sub nothing () is builtin is primitive is safe {
     bool::true}
 
