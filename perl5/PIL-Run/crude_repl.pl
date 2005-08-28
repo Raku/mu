@@ -75,7 +75,7 @@ sub p6_repl {
     }
 }
 
-my (@eval, $repl,$warn);
+my (@eval, $repl,$warn,$timeout);
 getopt(
     'version'   => sub{ print "--version is not implemented.\n"; exit; },
     'V'         => sub{ print "$0 has no version itself.\n";
@@ -84,7 +84,10 @@ getopt(
     'e|eval=s'  => \@eval,
     'repl'      => \$repl,
     'w'         => \$warn,
+    'timeout=i' => \$timeout,
 );
+local $SIG{ALRM} = sub { die "timeout\n" } if $timeout;
+alarm $timeout if $timeout;
 
 for my $e (@eval) {
     p6_eval($e);
