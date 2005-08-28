@@ -58,6 +58,7 @@ my $js = jsbin_hack(compile_perl6_to_standalone_js(
   @pugs_args
 ));
 run_js($js);
+#run_js_on_jssm($js);
 
 sub write_file {
   my ($contents, $file) = @_;

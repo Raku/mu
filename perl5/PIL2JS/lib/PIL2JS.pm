@@ -17,7 +17,7 @@ our @EXPORT    = qw<
   compile_perl6_to_pil
   precomp_module_to_mini_js
   jsbin_hack
-  run_pugs run_pil2js run_js
+  run_pugs run_pil2js run_js run_js_on_jssm
 >;
 our @EXPORT_OK = qw< pwd >;
 
@@ -159,6 +159,20 @@ sub run_js {
     print Encode::encode("utf-8", $line);
   }
 }
+sub run_js_on_jssm {
+  my $js = shift;
+  diag $cfg{js};
+
+  use JavaScript::SpiderMonkey;
+  my $jssm = JavaScript::SpiderMonkey->new();
+  $jssm->init();
+  $jssm->function_set("print", sub { print "@_\n"; });
+  open F,">deleteme_eval.js"; print F $js; close F; # XXX - debugging output
+  my $rc = $jssm->eval($js);
+  warn "JavaScript::SpiderMonkey: $@" if $@;
+  $jssm->destroy();
+}
+
 
 sub jsbin_hack {
   my $js = <<EOF . "\n" . $_[0];
