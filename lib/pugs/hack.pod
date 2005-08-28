@@ -17,6 +17,8 @@ pugs::hack - How to hack on Pugs
     # Test
     $ make test       # or
     $ make smoke      # generates a smoke.html
+    # Optionally, submit your smoke report to a public server:
+    $ ./util/smokeserv/smokeserv-client.pl smoke.html
 
 =head1 DESCRIPTION
 

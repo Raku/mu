@@ -34,6 +34,8 @@ fixup_concurrency();
 $Test::Harness::Verbose  = 1;
 $Config{"output-file"} ||= "tests.yml";
 $Config{"recurse"} = 1 if not defined $Config{"recurse"};
+# Needed for smokeserv
+$Config{"pugs-path"} = $ENV{HARNESS_PERL};
 push @{$Config{"exclude"}}, 'Disabled' if not $Config{"exclude"} or not @{$Config{"exclude"}};
 if(!@ARGV) {
   if($ENV{PUGS_RUNTIME} and $ENV{PUGS_RUNTIME} eq 'JS') {
