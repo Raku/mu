@@ -338,17 +338,27 @@ class 'Array'.$class_description => {
                         # if ( $other->is_infinite->unboxed ) {
                         #    die "Infinite slices and tied arrays are not yet fully supported";
                         # }
+
+                        if ( UNIVERSAL::isa( $other, 'Array' ) ) {
                         
-                        if ( UNIVERSAL::isa( $other->tied, 'Perl6::Slice' ) ) {
-                            # unbind the slice from the original arrays
-                            $other = $other->tied->unbind;
+                            if ( UNIVERSAL::isa( $other->tied, 'Perl6::Slice' ) ) {
+                                # unbind the slice from the original arrays
+                                $other = $other->tied->unbind;
+                            }
+                        
+
                         }
+                        else {
+                            my $tmp = Array->new();
+                            $tmp->push( $other );
+                            $other = $tmp;
+                        }
+
+                        my @items = $other->unboxed->items;  
                         if ( UNIVERSAL::isa( $self->tied, 'Perl6::Slice' ) ) {
                             $self->tied->write_thru( $other );
                             return $self;
                         }
-                        
-                        my @items = $other->unboxed->items;  
                         # warn "got @items - current = ". _('$:cell')->{v};
 
                         # unbind cells
