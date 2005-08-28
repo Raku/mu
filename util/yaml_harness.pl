@@ -38,11 +38,7 @@ $Config{"recurse"} = 1 if not defined $Config{"recurse"};
 $Config{"pugs-path"} = $ENV{HARNESS_PERL};
 push @{$Config{"exclude"}}, 'Disabled' if not $Config{"exclude"} or not @{$Config{"exclude"}};
 if(!@ARGV) {
-  if($ENV{PUGS_RUNTIME} and $ENV{PUGS_RUNTIME} eq 'JS') {
-    @ARGV = < t/ >;
-  } else {
     @ARGV = glob "t/ ext/*/t/";
-  }
 }
 
 _build_ext_re();
@@ -75,9 +71,9 @@ sub all_in {
             next if $file eq File::Spec->updir || $file eq File::Spec->curdir;
             next if $file eq ".svn";
             next if $file eq "CVS";
-            next if $Config{exclude_re} && $file =~ $Config{exclude_re};
-
             my $currfile = File::Spec->catfile( $start, $file );
+            next if $Config{exclude_re} && $currfile =~ $Config{exclude_re};
+
             if ( -d $currfile ) {
                 push( @hits, all_in( $currfile ) ) if $Config{recurse};
             } else {
@@ -126,7 +122,7 @@ sub set_build_info {
 }
 
 sub _build_exclude_re {
-    my $excl = join "|", map { quotemeta }
+    my $excl = join "|", # map { quotemeta }
         map { split /,/ } @{ $Config{exclude} };
     $Config{exclude_re} = qr/($excl)/ if $excl;
 }
