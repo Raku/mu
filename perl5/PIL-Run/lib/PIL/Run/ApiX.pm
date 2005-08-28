@@ -180,6 +180,8 @@ sub p6_new {
     }
     if ($type eq 'Array') {
         my $ary = Array->new;
+        @arg = map { 
+            UNIVERSAL::isa( $_, 'Array' ) ? $_->items : $_ } @arg;
         $ary->push( @arg );
         return $ary;
     }
