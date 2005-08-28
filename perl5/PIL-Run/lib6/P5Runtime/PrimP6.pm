@@ -22,6 +22,7 @@ multi sub postcircumfix:<[ ]> ($a,$i) { Array::slice($a,$i) }
 multi sub infix:<..^> ($x0,$x1) { $x0..($x1-1) };
 multi sub infix:<^..> ($x0,$x1) { ($x0+1)..$x1 };
 multi sub infix:<^..^> ($x0,$x1) { ($x0+1)..($x1-1) };
+multi sub postfix:<...> ($x0) { $x0 .. Inf };
 
 multi sub prefix:<~> ($xx) { coerce:as($xx,'Str') };
 multi sub prefix:<?> ($xx) { coerce:as($xx,'Bit') };

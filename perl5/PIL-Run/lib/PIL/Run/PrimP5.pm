@@ -158,7 +158,7 @@ MULTI SUB prefix:<+^> ($xx) {...};
 MULTI SUB prefix:<~^> ($xx) {...};
 MULTI SUB prefix:<?^> ($xx) {...};
 MULTI SUB prefix:<\\> ($xx) { p6_new(Ref => $xx) };
-MULTI SUB postfix:<...> ($xx) {...};
+# MULTI SUB postfix:<...> ($xx) {...};
 # MULTI SUB true ($xx) {...}; # in PrimP6
 MULTI SUB any ($xx) {...};
 MULTI SUB all ($xx) {...};
