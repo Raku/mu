@@ -77,7 +77,10 @@ sub p6_repl {
 
 my (@eval, $repl,$warn);
 getopt(
-    'version'   => sub{print "--version unimplemented\n"; exit;},
+    'version'   => sub{ print "--version is not implemented.\n"; exit; },
+    'V'         => sub{ print "$0 has no version itself.\n";
+			system("pugs","-V");
+			exit;},
     'e|eval=s'  => \@eval,
     'repl'      => \$repl,
     'w'         => \$warn,
