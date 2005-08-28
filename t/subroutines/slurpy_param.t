@@ -16,109 +16,113 @@ Blechschmidt|http://www.nntp.perl.org/group/perl.perl6.language/22883>.
 
 =cut
 
-plan 25;
+plan 26;
 
-# Positional with slurpy *%hash and slurpy *@array
-sub position_with_slurpy_hash1($n, *%hash, *@data) {
-        $n;
-}
-sub position_with_slurpy_hash2($n, *%hash, *@data) {
-        %hash<test> + %hash<n>;
-}
-sub position_with_slurpy_hash3($n, *%hash, *@data) {
-        @data.sum;
-}
+{
+# Positional with slurpy *%h and slurpy *@a
+my sub foo($n, *%h, *@a) { };
+my sub foo1($n, *%h, *@a) { $n }
+my sub foo2($n, *%h, *@a) { %h<x> + %h<y> + %h<n> }
+my sub foo3($n, *%h, *@a) { @a.sum }
 
 ## all pairs will be slurped into hash, except the key which has the same name
 ## as positional parameter
-diag( 'Testing with positional arguments' );
-lives_ok { position_with_slurpy_hash1 100, a => 30, test => 40, 1, 3, 5, 7 },
-  'Passing positional arguments without "name" conflict';
-is ( position_with_slurpy_hash1 100, a => 30, test => 40, 1, 3, 5, 7 ), 100,
+diag('Testing with positional arguments');
+lives_ok { foo 1, x => 20, y => 300, 4000 },
+  'Testing: `sub foo($n, *%h, *@a){ }; foo 1, x => 20, y => 300, 4000`';
+is (foo1 1, x => 20, y => 300, 4000), 1,
   'Testing the value for positional';
-is ( position_with_slurpy_hash2 100, a => 30, test => 40, 1, 3, 5, 7 ), 40,
-  'Testing the value for slurpy *%hash';
-is ( position_with_slurpy_hash3 100, a => 30, test => 40, 1, 3, 5, 7 ), 16,
-  'Testing the value for slurpy *@array';
+is (foo2 1, x => 20, y => 300, 4000), 320,
+  'Testing the value for slurpy *%h';
+is (foo3 1, x => 20, y => 300, 4000), 4000,
+  'Testing the value for slurpy *@a';
 
-dies_ok { position_with_slurpy_hash1 100, n => 30, test => 40, 1, 3, 5, 7 },
-  'Testing: Passing positional arguments with "name" conflict';
+dies_ok { foo 1, n => 20, y => 300, 4000 },
+  'Testing: `sub foo($n, *%h, *@a){ }; foo 1, n => 20, y => 300, 4000`';
 
-## We *can* pass positional arguments as a 'named' pair with slurpy *%hash.
-## Only *remaining* pairs are slurped into the *%hash
-diag( 'Testing without positional arguments' );
-lives_ok { position_with_slurpy_hash2 n => 100, test => 40, 1, 3, 5, 7 },
-  'Passing positional arguments using named pair form.';
-is ( position_with_slurpy_hash1 n => 100, test => 40, 1, 3, 5, 7 ), 100,
-  'Testing the value for slurpy *%hash';
-is ( position_with_slurpy_hash2 n => 100, test => 40, 1, 3, 5, 7 ), 40,
-  'Testing the value for slurpy *%hash';
-is ( position_with_slurpy_hash3 n => 30, test => 40, 1, 3, 5, 7 ), 16,
-  'Testing the value for slurpy *@array';
-
-## `sub func ( $a, *%h ) { }; func 100, a => 200` should be an error
-dies_ok { position_with_slurpy_hash1 n => 100, test => 40, 1, 3, 5, 7 },
-  'Testing: passing positional parameter with pair which has the same key name.';
+## We *can* pass positional arguments as a 'named' pair with slurpy *%h.
+## Only *remaining* pairs are slurped into the *%h
+# Note: with slurpy *@a, you can pass positional params, But will be slurped into *@a
+diag('Testing without positional arguments');
+lives_ok { foo n => 20, y => 300, 4000 },
+  'Testing: `sub foo($n, *%h, *@a){ }; foo n => 20, y => 300, 4000`';
+is (foo1 n => 20, y => 300, 4000), 20,
+  'Testing the value for positional';
+is (foo2 n => 20, y => 300, 4000), 300,
+  'Testing the value for slurpy *%h';
+is (foo3 n => 20, y => 300, 4000), 4000,
+  'Testing the value for slurpy *@a';
+}
 
 
-# Named with slurpy *%hash and slurpy *@array
+{
+my sub foo ($n, *%h) { };
+## NOTE: *NOT* sub foo ($n, *%h, *@a)
+dies_ok { foo 1, n => 20, y => 300 },
+  'Testing: `sub foo($n, *%h) { }; foo 1, n => 20, y => 300`';
+}
+
+{
+my sub foo ($n, *%h) { };
+## NOTE: *NOT* sub foo ($n, *%h, *@a)
+dies_ok { foo 1, x => 20, y => 300, 4000 },
+  'Testing: `sub foo($n, *%h) { }; foo 1, x => 20, y => 300, 4000`';
+}
+
+
+# Named with slurpy *%h and slurpy *@a
 # named arguments aren't required in tests below
-sub named_with_slurpy_hash1( +$n, *%hash, *@data ) {
-        $n;
-}
-sub named_with_slurpy_hash2( +$n, *%hash, *@data ) {
-        %hash<test> + %hash<n>;
-}
-sub named_with_slurpy_hash3( +$n, *%hash, *@data ) {
-        return @data.sum;
-}
+{
+my sub foo(+$n, *%h, *@a) { };
+my sub foo1(+$n, *%h, *@a) { $n };
+my sub foo2(+$n, *%h, *@a) { %h<x> + %h<y> + %h<n> };
+my sub foo3(+$n, *%h, *@a) { return @a.sum };
 
-diag( "Testing with named arguments (named param isn't required)" );
-lives_ok { named_with_slurpy_hash1 100, a => 30, test => 40, 1, 3, 5, 7 },
-  'Passing named arguments ( Not required ) without "name" conflict';
-is ( named_with_slurpy_hash1 100, a => 30, test => 40, 1, 3, 5, 7 ), undef,
+diag("Testing with named arguments (named param isn't required)");
+lives_ok { foo 1, x => 20, y => 300, 4000 },
+  'Testing: `sub foo(+$n, *%h, *@a){ }; foo 1, x => 20, y => 300, 4000`';
+is (foo1 1, x => 20, y => 300, 4000), undef,
   'Testing value for named argument';
-is ( named_with_slurpy_hash2 100, a => 30, test => 40, 1, 3, 5, 7 ), 40,
-  'Testing value for slurpy *%hash';
-is ( named_with_slurpy_hash3 100, a => 30, test => 40, 1, 3, 5, 7 ), 116,
-  'Testing the value for slurpy *@array';
+is (foo2 1, x => 20, y => 300, 4000), 320,
+  'Testing value for slurpy *%h';
+is (foo3 1, x => 20, y => 300, 4000), 4001,
+  'Testing the value for slurpy *@a';
 
 ### named parameter pair will always have a higher "priority" while passing
-### so %hash<n> will always be undef
-lives_ok { named_with_slurpy_hash1 100, n => 30, test => 40, 1, 3, 5, 7 },
-  'Passing named arguments ( Not required ) with "name" conflict';
-is ( named_with_slurpy_hash1 100, n => 30, test => 40, 1, 3, 5, 7 ), 30,
+### so %h<n> will always be undef
+lives_ok { foo1 1, n => 20, y => 300, 4000 },
+  'Testing: `sub foo(+$n, *%h, *@a){ }; foo 1, n => 20, y => 300, 4000`';
+is (foo1 1, n => 20, y => 300, 4000), 20,
   'Testing the named argument';
-is ( named_with_slurpy_hash2 100, n => 30, test => 40, 1, 3, 5, 7 ), 40,
-  'Testing value for slurpy *%hash';
-is ( named_with_slurpy_hash3 100, n => 30, test => 40, 1, 3, 5, 7 ), 116,
-  'Testing the value for slurpy *@array';
+is (foo2 1, n => 20, y => 300, 4000), 300,
+  'Testing value for slurpy *%h';
+is (foo3 1, n => 20, y => 300, 4000), 4001,
+  'Testing the value for slurpy *@a';
+}
 
 
-# named with slurpy *%hash and slurpy *@array
+# named with slurpy *%h and slurpy *@a
 ## Named arguments **ARE** required in tests below
 
 #### ++ version
-sub named_required_with_slurpy_hash_plus( ++$n, *%hash, *@data ) {
-        return $n;
+{
+my sub foo(++$n, *%h, *@a){ };
+diag('Testing with named arguments (named param is required) (++ version)');
+lives_ok { foo 1, n => 20, y => 300, 4000 },
+  'Testing: `my sub foo(++$n, *%h, *@a){ }; foo 1, n => 20, y => 300, 4000 }`';
+dies_ok { foo 1, x => 20, y => 300, 4000 },
+  'Testing: `my sub foo(++$n, *%h, *@a){ }; foo 1, x => 20, y => 300, 4000 }`';
 }
-
-diag( 'Testing with named arguments (named param is required)' );
-dies_ok { named_required_with_slurpy_hash_plus 100, a => 30, test => 40, 1, 3, 5, 7 },
-  'Try named arguments ( required ) without "name" conflict (++ version)';
-lives_ok { named_required_with_slurpy_hash_plus 100, n => 30, test => 40, 1, 3, 5, 7 },
-  'Try named arguments ( required ) with "name" conflict (++ version)';
 
 #### "trait" version
-sub named_required_with_slurpy_hash_trait( +$n is required, *%hash, *@data ) {
-        return $n;
+{
+my sub foo(+$n is required, *%h, *@a) { };
+diag('Testing with named arguments (named param is required) (trait version)');
+lives_ok { foo 1, n => 20, y => 300, 4000 },
+  'Testing: `my sub foo(+$n is required, *%h, *@a){ }; foo 1, n => 20, y => 300, 4000 }`';
+dies_ok { foo 1, x => 20, y => 300, 4000 },
+  'Testing: `my sub foo(+$n is required, *%h, *@a){ }; foo 1, x => 20, y => 300, 4000 }`';
 }
-diag( 'Testing with named arguments (named param is required)' );
-dies_ok { named_required_with_slurpy_hash_trait 100, a => 30, test => 40, 1, 3, 5, 7 },
-  'Try named arguments ( required ) without "name" conflict (trait version)';
-lives_ok { named_required_with_slurpy_hash_trait 100, n => 30, test => 40, 1, 3, 5, 7 },
-  'Try named arguments ( required ) with "name" conflict (trait version)';
-
 
 ##### Now slurpy scalar tests here.
 =kwid
@@ -131,14 +135,14 @@ L<<S06/"List parameters" /Slurpy scalar parameters capture what would otherwise 
 
 =cut
 
-sub first(*$f, *$s, *@r) { return $f };
-sub second(*$f, *$s, *@r) { return $s };
-sub rest(*$f, *$s, *@r) { return @r.sum };
+sub first(*$f, *$s, *@r){ return $f };
+sub second(*$f, *$s, *@r){ return $s };
+sub rest(*$f, *$s, *@r){ return @r.sum };
 diag 'Testing with slurpy scalar';
 is first(1, 2, 3, 4, 5), 1,
   'Testing the first slurpy scalar...';
 is second(1, 2, 3, 4, 5), 2,
   'Testing the second slurpy scalar...';
 is rest(1, 2, 3, 4, 5), 12,
-  'Testing the rest slurpy *@ary';
+  'Testing the rest slurpy *@r';
 
