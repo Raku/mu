@@ -267,7 +267,7 @@ sub infix:<,>(*@xs is rw) is primitive is rw {
 }
 our &list := &infix:<,>;
 
-sub circumfix:<[]>(*@xs is rw) is primitive { my @copy; \(@copy = @xs) }
+sub circumfix:<[]>(*@xs is rw) is primitive { my @copy; @copy = @xs; \@copy }
 method postcircumfix:<[]>(@self: Int *@idxs) is rw {
   die "Can't use object of type {@self.ref} as an array!"
     unless @self.isa("Array");

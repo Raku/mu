@@ -16,21 +16,21 @@
 
     for(@$self) {
       $_->is_first_slurpy++ if $_->is_slurpy and !$seen_a_slurpy_param++;
-      if($_->is_invocant) {
-        push @invocant, $_;
-
-      # (Perl 5)--  # doesn't allow ?: as push argument
-      } elsif($_->is_slurpy and $_->name =~ /^@/) {
-          push @slurpy_arrays, $_;
-      } else {
-          push @args, $_;
-      }
+#      if($_->is_invocant) {
+#        push @invocant, $_;
+#
+#      # (Perl 5)--  # doesn't allow ?: as push argument
+#      } elsif($_->is_slurpy and $_->name =~ /^@/) {
+#          push @slurpy_arrays, $_;
+#      } else {
+#          push @args, $_;
+#      }
     }
-    push    @args, @slurpy_arrays;
-    unshift @args, @invocant;
+#    push    @args, @slurpy_arrays;
+#    unshift @args, @invocant;
 
     return (
-      "p${prefix}Params" => (bless [ map { $_->fixup } @args ] => "PIL::Params"),
+      "p${prefix}Params" => (bless [ map { $_->fixup } @$self ] => "PIL::Params"),
       "p${prefix}Body"   => $subbody->fixup,
     );
   }

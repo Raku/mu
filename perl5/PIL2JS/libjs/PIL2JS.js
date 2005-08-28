@@ -147,7 +147,7 @@ PIL2JS.Box = function (value) {
     ) {
       new_val = PIL2JS.cps2normal(
         _26main_3a_3ahash.FETCH(),
-        [PIL2JS.Context.SlurpyAny, n]
+        [PIL2JS.Context.SlurpyAny].concat(new_val)
       ).FETCH();
 
     // my %a = %b (copy %b, don't bind)
@@ -183,6 +183,12 @@ PIL2JS.Box = function (value) {
       new_val = PIL2JS.cps2normal(
        _26main_3a_3aprefix_3a_5c.FETCH(), [PIL2JS.Context.ItemAny, n]
       ).FETCH();
+    } else if(
+      my_ctype  == PIL2JS.ContainerType.Scalar &&
+      new_ctype == PIL2JS.ContainerType.Scalar
+    ) {
+    } else {
+      PIL2JS.die("XXX should never happen");
     }
 
     value = new_val;
@@ -205,10 +211,10 @@ PIL2JS.Box.prototype = {
     var fetch = other.FETCH, my_ctype    = this.container_type,
         store = other.STORE, other_ctype = other.container_type;
 
-    // No problem: $foo := $bar, @foo := @bar, %foo := %bar
+    // No problem: $foo := $bar
     if(my_ctype == other_ctype) {
       this.FETCH      = fetch;
-      this.STORE      = function (n) { store(n); return this };
+      this.STORE      = function (n) { store.call(other, n); return this };
       this.uid        = other.uid;
       this.isConstant = other.isConstant;
     // Problematic: $foo := @array, $foo := %hash
@@ -374,9 +380,9 @@ PIL2JS.Box.constant_func = function (arity, f) {
 };
 
 PIL2JS.ContainerType = {
-  Scalar: { toString: function () { return "<PIL2JS.ContainerType.Scalar>" } },
-  Array:  { toString: function () { return "<PIL2JS.ContainerType.Array>"  } },
-  Hash:   { toString: function () { return "<PIL2JS.ContainerType.Hash>"   } }
+  Scalar: { toString: function () { return "PIL2JS.ContainerType.Scalar" } },
+  Array:  { toString: function () { return "PIL2JS.ContainerType.Array"  } },
+  Hash:   { toString: function () { return "PIL2JS.ContainerType.Hash"   } }
 };
 
 PIL2JS.container_type = function (thing) {
