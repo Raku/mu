@@ -28,7 +28,7 @@ my $optional_args   = $ARGV[2] || "";
 
 chdir($pugs_sandbox) or die "Could change directory: $!";
 
-$ENV{HARNESS_PERL}  = "./pugs";
+$ENV{HARNESS_PERL}  = "./pugs $optional_args";
 $ENV{HARNESS_PERL}  = "$^X $FindBin::Bin/../perl5/PIL2JS/pugs-smokejs.pl ./pugs $optional_args"
     if $ENV{PUGS_RUNTIME} and $ENV{PUGS_RUNTIME} eq 'JS';
 $ENV{HARNESS_PERL}  = "$^X $FindBin::Bin/../perl5/PIL-Run/crude_repl.pl"
