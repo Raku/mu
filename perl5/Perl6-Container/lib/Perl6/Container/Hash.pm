@@ -85,7 +85,8 @@ class 'Hash'.$class_description => {
                 my @pairs;
                 while ( defined $key ) {
                     $value = $_[0]->fetch( $key );
-                    push @pairs, $key . ' => ', $value;
+                    my $p = Pair->new( '$.key'=>$key, '$.value'=>$value );
+                    push @pairs, $p->str->unboxed;
                     $key = $_[0]->nextkey;
                 }
                 Str->new( '$.unboxed' => 
@@ -145,6 +146,7 @@ sub firstkey {
 sub nextkey {
     my ( $this, $key ) = @_;
     my $s = each %$this;
+    return unless defined $s;
     $this->{$s}[0];
 }
 sub exists {
