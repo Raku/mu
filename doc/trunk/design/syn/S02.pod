@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 29 Jan 2005
+  Last Modified: 25 Aug 2005
   Number: 2
-  Version: 6
+  Version: 7
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -215,34 +215,38 @@ The C<$pkg'var> syntax is dead.  Use C<$pkg::var> instead.
 
 =item *
 
+Perl 6 includes a system of "sigils" to mark the fundamental
+structural type of a variable:
+
+    $	scalar
+    @	ordered array
+    %	unordered hash (associative array)
+    &	code
+    ::	package/module/class/role/type
+
+=item *
+
 You may no longer put whitespace between a sigil and its following
 name or construct.
 
 =item *
 
-You may interpolate a string into a package or variable name using
-C<::($expr)> where you'd ordinarily put a package or variable name.
-The string is allowed to contain additional instances of C<::>, which
-will be interpreted as package nesting.  You may only interpolate
-entire names, since the construct starts with C<::>, and either ends
-immediately or is continued with another C<::> outside the curlies.
-All symbolic references are done with this notation:
+Ordinary sigils indicate normally scoped variables, either lexical
+or package scoped.  Oddly scoped variables include a secondary sigil
+(a "twigil") that indicates what kind of strange scoping the variable
+is subject to:
 
-    $foo = "Foo";
-    $foobar = "Foo::Bar";
-    $::($foo)		# package-scoped $Foo
-    $::("MY::$foo")	# lexically-scoped $Foo
-    $::("*::$foo")	# global $Foo
-    $::($foobar)	# $Foo::Bar
-    $::($foobar)::baz	# $Foo::Bar::baz
-    $::($foo)::Bar::baz	# $Foo::Bar::baz
-    $::($foobar)baz	# ILLEGAL at compile time (no operator baz)
+    $foo	ordinary scoping
+    $.foo	object attribute accessor
+    $^foo	self-declared formal parameter
+    $*foo	global variable
+    $?foo	compiler hint variable (already compiled)
+    $+foo	compiler hint variable (currently compiling)
+    $=foo	pod variable
+    $<foo>	match variable, short for $/{'foo'}
 
-Note that unlike in Perl 5, initial C<::> doesn't imply global.
-Package names are searched for from inner lexical scopes to outer,
-then from inner packages to outer.  The global namespace is the last
-place it looks.  You must use the C<*> package to force the search
-to start in the global namespace.
+Most variables with twigils are implicitly declared, and don't need a
+"my" or "our".  Attribute variables are declared with "has", though.
 
 =item *
 
@@ -253,7 +257,7 @@ references.
 
 =item *
 
-In string contexts these container references automatically dereference
+In string contexts container references automatically dereference
 to appropriate (white-space separated) string values.  In numeric
 contexts, the number of elements in the container is returned.
 In boolean contexts, a true value is returned if and only if there
@@ -292,9 +296,10 @@ the sigil.
 =item *
 
 The context in which a subscript is evaluated is no longer controlled
-by the sigil either.  The inner context turns out to be whatever
-the outer context was, since we now have convenient single-character
-context specifiers to force either scalar or list context.
+by the sigil either.  Subscripts are always evaluated in list context
+on the assumption that slicing behavior is desired.  If you need to
+force inner context to scalar, we now have convenient single-character
+context specifiers such as + for numbers and ~ for strings.
 
 =item *
 
@@ -348,17 +353,16 @@ more on C<sort> see S29.  (If there is no S29 yet, write one.)
 Many of the special variables of Perl 5 are going away.  Those that
 apply to some object such as a filehandle will instead be attributes
 of the appropriate object.  Those that are truly global will have
-global alphabetic names, such as C<$*PID> or C<@*ARGS>.
+global alphabetic names, such as C<$*PID> or C<@*ARGS>.  Certain of
+these global values may retain punctuational shortcuts, such as C<$!>
+for C<$*ERROR>.
 
 =item *
 
 Any remaining special variables will be lexically scoped.
-This includes C<$_> and C<@_>.  As well as the new C<$/>, which
+This includes C<$_> and C<@_>, as well as the new C<$/>, which
 is the return value of the last regex match.  C<$0>, C<$1>, C<$2>, etc.,
 are aliases into the C<$/> object.
-
-[Update: The C<$0> object has been renamed to C<$/>, but it's
-still lexical.]
 
 =item *
 
@@ -379,19 +383,127 @@ expressions, but these have been replaced with interpolation of curlies
 
 =item *
 
-The current lexical symbol table may now be referenced through the
-pseudo-package C<MY>, or the corresponding variable C<%MY::>:
+Ordinary package-qualified names look like in Perl 5:
 
-    my $foo = 42;
-    say %MY::<$foo>;	# prints "42"
+    $Foo::Bar::baz	# the $baz variable in package Foo::bar
+
+=item *
+
+The following pseudo-package names are reserved in the first position:
+
+    MY
+    OUR
+    GLOBAL
+    OUTER
+    CALLER
+    ENV
+    SUPER
+
+=item *
+
+You may interpolate a string into a package or variable name using
+C<::($expr)> where you'd ordinarily put a package or variable name.
+The string is allowed to contain additional instances of C<::>, which
+will be interpreted as package nesting.  You may only interpolate
+entire names, since the construct starts with C<::>, and either ends
+immediately or is continued with another C<::> outside the curlies.
+Most symbolic references are done with this notation:
+
+    $foo = "Foo";
+    $foobar = "Foo::Bar";
+    $::($foo)		# package-scoped $Foo
+    $::("MY::$foo")	# lexically-scoped $Foo
+    $::("*::$foo")	# global $Foo
+    $::($foobar)	# $Foo::Bar
+    $::($foobar)::baz	# $Foo::Bar::baz
+    $::($foo)::Bar::baz	# $Foo::Bar::baz
+    $::($foobar)baz	# ILLEGAL at compile time (no operator baz)
+
+Note that unlike in Perl 5, initial C<::> doesn't imply global.
+Package names are searched for from inner lexical scopes to outer,
+then from inner packages to outer.  Variable names are searched
+for from inner lexical scopes to outer, but unlike package names
+are looked for in only the current package and the global package.
+The global namespace is the last place it looks in either case.
+You must use the C<*> (or C<GLOBAL>) package on the front of the
+string argument to force the search to start in the global namespace.
+Use the C<MY> pseudopackage to limit the scopes to lexical, and C<OUR>
+to limit the scopes to package.
+
+=item *
+
+To do direct lookup in a package's symbol table without scanning, treat
+the package name as a hash:
+
+    Foo::Bar{'&baz'}	# same as &Foo::Bar::baz
+    GLOBAL<$IN>		# Same as $*IN
+    Foo<::Bar><::Baz>	# same as Foo::Bar::Baz
+
+Unlike C<::()> symbolic references, this does not parse the argument
+for C<::>, nor does it initiate a namespace scan from that initial point.
+
+=item *
+
+The current lexical symbol table may now be referenced through the
+pseudo-package C<MY>.  The current package symbol table is visible as
+pseudo-package C<OUR>.  The C<OUTER> name refers to the MY symbol table
+immediately surrounding the current MY, and C<OUTER::OUTER> is the one
+surrounding that one.
+
+    our $foo = 41;
+    say $::foo;		# prints 41, :: is no-op
+    {
+	my $foo = 42;
+	say MY<$foo>;		# prints "42"
+	say $MY::foo;		# same thing
+	say $::foo;		# same thing, :: is no-op here
+
+	say OUR<$foo>;		# prints "41"
+	say $OUR::foo;		# same thing
+
+	say OUTER<$foo>;	# prints "41" (our $foo is also lexical)
+	say $OUTER::foo;	# same thing
+    }
+
+You may not use any lexically scoped symbol table, either by name or
+by reference, to add symbols to a lexical scope that is done compiling.
+(We reserve the right to relax this if it turns out to be useful though.)
+
+=item *
+
+The CALLER package refers to the lexical scope of the (dynamically
+scoped) caller.  The caller's lexical scope is allowed to hide any
+variable except C<$_> from you.  In fact, that's the default, and a
+lexical variable must be declared "C<is env>" to be visible via C<CALLER>.
+(C<$_> is always visible. [Conjectural: so are C<$!> and C<$/>.])
+If the variable is not visible in the caller, it returns failure.
+
+=item *
+
+[Conjectural] The C<ENV> pseudo-package is just like C<CALLER> except
+that it scans outward through all dynamic scopes until it finds a
+variable of that name.  If there is no variable of that name, it
+looks in the C<*> package.  If there is no variable in the C<*> package,
+it looks in C<%*ENV> for the variable name without the sigil, that is,
+in the environment variables passed to program.  If the value is
+not found there, it returns failure.  (Subprocesses are passed only
+the global C<%*ENV> values.  They do not see any lexical variables or
+their values.  The C<ENV> package is only for internal overriding of
+environmental parameters.)
+
+=item *
+
+There is no longer any special package hash such as C<%Foo::>.  Just
+subscript the package object itself as a hash object, the key of which
+is the variable name, including any sigil.
 
 =item *
 
 Typeglobs are gone.  Use binding (C<:=> or C<::=>) to do aliasing.
 Individual variable objects are still accessible through the
 hash representing each symbol table, but you have to include the
-sigil in the variable name now: C<%MyPackage::{'$foo'}> (or also
-C<< %MyPackage::<$foo> >> these days).
+sigil in the variable name now: C<MyPackage{'$foo'}> (or also
+C<< MyPackage<$foo> >> these days).
 
 =item *
 
@@ -414,12 +526,21 @@ As with C<*>, the C<=> may also be used as a package name: C<$=::DATA>.
 
 =item *
 
-Magical lexically scoped values live in variables with a C<?>
-secondary sigil.  These are all values that are known to the compiler.
-(Run-time values go into the C<*> namespace.)  C<$?FILE> and C<$?LINE>
-are your current file and line number, for instance.  As with C<*>,
-the C<?> may also be used as a package name: C<$?::SUB>.  Here are some
-possibilities:
+Magical lexically scoped values live in variables with a C<?> secondary
+sigil.  These are all values that are known to the compiler, and may
+in fact be dynamically scoped within the compiler itself, and only
+appear to be lexically scoped because dynamic scopes of the compiler
+resolve to lexical scopes of the program.  All C<$?> variables are considered
+constants, and may not be modified after being compiled in, except insofar
+as the compiler arranges in advance for such variables to be rebound (as
+is the case with C<$?SELF>).
+
+C<$?FILE> and C<$?LINE> are your current file and line number, for
+instance.  C<?> is not a shortcut for a package name like C<*> is.
+Instead of C<$?OUTER::SUB> you probably want to write C<< OUTER<$?SUB>
+>>.
+
+Here are some possibilities:
 
     $?OS        Which os am I compiled for?
     $?OSVER     Which os version am I compiled for?
@@ -438,6 +559,7 @@ possibilities:
     @?ROLE      Which roles am I in?
     $?GRAMMAR   Which grammar am I in?
     @?GRAMMAR   Which grammars am I in?
+    $?PARSER    Which Perl grammar was used to parse this statement?
     &?SUB       Which sub am I in?
     @?SUB       Which subs am I in?
     $?SUBNAME   Which sub name am I in?
@@ -447,11 +569,67 @@ possibilities:
     $?LABEL	Which block label am I in?
     @?LABEL	Which block labels am I in?
 
-Note that some of these things have parallels in the * space:
+Note that some of these things have parallels in the C<*> space at run time:
 
     $*OS	Which OS I'm running under
     $*OSVER	Which OS version I'm running under
     $*PERLVER	Which Perl version I'm running under
+
+You should not assume that these will have the same value as their
+compile-time cousins.
+
+=item *
+
+While C<$?> variables are constant to the run time, the compiler
+has to have a way of changing these values at compile time without
+getting confused about its own C<$?> variables (which were frozen in
+when the compile-time code was itself compiled).  The compiler can
+talk about these compiler-dynamic values using the C<$+> sigil/twigil.
+
+References to C<$+> variables are automatically hoisted into the
+context currently being compiled.  Setting or temporizing a C<$+>
+variable sets or temporizes the incipient C<$?> variable in the
+surrounding lexical context that is being compiled.  If nothing in
+the context is being compiled, an exception is thrown.
+
+    $?FOO // say "undefined";	# probably says undefined
+    BEGIN { $+FOO = 42 }
+    say $?FOO;			# prints 42
+    {
+	say $?FOO;		# prints 42
+	BEGIN { temp $+FOO = 43 } # temporizes to *compiling* block
+	say $?FOO;		# prints 43
+	BEGIN { $+FOO = 44 }
+	say $?FOO;		# prints 44
+	BEGIN { say $+FOO }	# prints 44, but $?FOO probably undefined
+    }
+    say $?FOO;			# prints 42 (left scope of temp above)
+    $?FOO = 45;			# always an error
+    $+FOO = 45;			# an error unless we are compiling something
+
+Note that C<< CALLER<$?FOO> >> might discover the same variable as
+C<$+FOO>, but only if the compiling context is the immediate caller.
+Likewise C<< OUTER<$?FOO> >> might or might not get you to the
+right place.  C<$+FOO> goes outwards dynamically until it finds a
+compiling scope, and so is guaranteed to find the "right" C<$?FOO>.
+
+Perceptive readers will note that this subsumes various "compiler hints"
+proposals.
+
+=item *
+
+The currently compiling Perl parser is switched by modifying $+PARSER.
+Lexically scoped parser changes should temporize the modification.
+Changes from here to end-of-compilation unit can just assign or bind
+it.  In general, most parser changes involve deriving a new grammar
+and then pointing $+PARSER at that new grammar.  Alternately, the
+tables driving the current parser can be modified without derivation,
+but at least one level of anonymous derivation must intervene from
+the standard Perl grammar, or you might be messing up someone else's
+grammar.  Basically, the current grammar has to belong only to the
+current compiling scope.  It may not be shared, at least not without
+explicit consent of all parties.  No magical syntax at a distance.
+Consent of the governed, and all that.
 
 =back
 
@@ -461,7 +639,67 @@ Note that some of these things have parallels in the * space:
 
 =item *
 
-Underscores are allowed between any two digits in a literal number.
+Underscores are allowed between any two digits in a literal number, where
+the definition of digit depends on the radix.  Underscores are not allowed
+anywhere else in any numeric literal, including next to the radix point
+or exponentiator.
+
+=item *
+
+Initial C<0> no longer indicates octal numbers.  You must use an explicit
+radix marker for that.  Pre-defined radix prefixes include:
+
+    0b		base 2, digits 0..1
+    0o		base 8, digits 0..7
+    0d		base 10, digits 0..9
+    0x		base 16, digits 0..9,a..f (case insensitive)
+
+=item *
+
+The general radix form of a number involves prefixing with the radix
+followed by a colon:
+
+    10:42		same as 0d42 or 42
+    16:dead_beef	same as 0xdeadbeef
+    8:177777		same as 0o177777 (65535)
+    2:1.1		same as 0b1.1 (0d1.5)
+
+Extra digits are assumed to be represented by 'a'..'z', so you can go up
+to base 36.  (Use 'a' and 'b' for base twelve, not 't' and 'e'.)
+
+Any radix may include a fractional part.  A dot will always be
+interpreted as a radix point if possible by the longest-token rule,
+so to call a method on a literal with a base greater than 10, the
+safe thing is to put a space before the dot:
+
+    16:dead_beef.face	# fraction
+    16:dead_beef .face	# method call
+
+=item
+
+Only base 10 (in any form) allows an additional exponentiator starting
+with 'e' or 'E'.  All other radixes must rely on the constant folding
+properties of ordinary multiplication and exponentiation.
+
+    16:dead_beef * 16**8
+
+It's true that only radixes that define 'e' as a digit are ambiguous that
+way, but with any radix it's not clear whether the exponentiator should
+be 10 or the radix, and this makes it explicit:
+
+    0b1.1e10		illegal, could mean any of:
+
+    2:1.1 * 2**10	1536
+    2:1.1 * 10**10	15,000,000,000
+    2:1.1 * 2:10**2:10	6
+
+The generic string-to-number converter will recognize all of these
+forms (including the * form, since constant folding is not available
+to the run time).  Also allowed in strings are leading plus or minus,
+and maybe a trailing Units type for an implied scaling.  Note also that
+leading 0 by itself never implies octal in Perl 6.  Also, the hextonum
+converter function will interpret leading 0b or 0d as hex digits,
+not radix switchers.
 
 =item *
 
@@ -675,9 +913,9 @@ it exactly what you I<do> want to interpolate:
 
 =item *
 
-Secondary sigils have no influence over whether the primary sigil
+Secondary sigils (twigils) have no influence over whether the primary sigil
 interpolates.  That is, if C<$a> interpolates, so do C<$^a>, C<$*a>,
-C<$=a>, C<$?a>, C<$.a>, and C<$:a>.  It only depends on the C<$>.
+C<$=a>, C<$?a>, C<$.a>, etc.  It only depends on the C<$>.
 
 =item *
 
@@ -728,7 +966,11 @@ Use curlies with the appropriate function instead: C<"{ucfirst $word}">.
 There are no barewords in Perl 6.  An undeclared bare identifier will
 always be taken to mean a subroutine or method name.  (Class names
 are predeclared, or prefixed with the C<::> sigil.)  A consequence of
-this is that there's no longer any "C<use strict subs>".  There's also no
+this is that there's no longer any "C<use strict subs>".
+
+=item *
+
+There's also no
 "C<use strict refs>" because symbolic dereferences are now syntactically
 distinguished from hard dereferences.  C<@{$arrayref}> must now be a
 hard reference, while C<@::($string)> is explicitly a symbolic reference.
@@ -755,12 +997,20 @@ subject to keyword or even macro interpretation.  If you say
 then C<$x> ends up containing the pair C<< ("if" => 1) >>.  Always.
 
 You can also use the :key($value) form to quote the keys of option
-pairs.  To align values of option pairs, you may use the dot postfix
-forms:
+pairs.  To align values of option pairs, you may no longer use the
+dot postfix forms:
 
     :longkey  .($value)
     :shortkey .<string>
     :fookey   .{ $^a <=> $^b }
+
+These will be interpreted as
+
+    :longkey(1)  .($value)
+    :shortkey(1) .<string>
+    :fookey(1)   .{ $^a <=> $^b }
+
+You just have to put spaces inside the parenthesis form to align things.
 
 =item *
 
@@ -898,10 +1148,11 @@ Don't use it on an infinite generator unless you have a machine with
 infinite memory, and are willing to wait a long time.  It may also
 be applied to a scalar iterator to force immediate iteration to completion.
 
-Argumentless C<**> in a multi-dimensional subscript indicates 0
-or more dimensions of C<*> where the number of dimension isn't
-necessarily known: C<@foo[1;**;5]>.  It has a value of C<List of Any>,
-or something like that.
+Argumentless C<**> in a multi-dimensional subscript indicates 0 or
+more dimensions of C<*> where the number of dimension isn't necessarily
+known: C<@foo[1;**;5]>.  It has a value of C<List of Any>, or something
+like that.  The argumentless C<*> and C<**> forms are probably only
+useful in "dimensional" list contexts.
 
 =item *
 
@@ -976,20 +1227,20 @@ of
 
 you now write
 
-    for *$handle {...}
+    for =$handle {...}
 
-As a unary prefix operator, you may also apply adverbs:
+As a unary prefix operator, you may also apply adverbs to C<=>:
 
-    for *$handle :prompt('$ ') { say $_ + 1 }
+    for =$handle :prompt('$ ') { say $_ + 1 }
 
 or
 
-    for *($handle):prompt('$ ') { say $_ + 1 }
+    for =($handle):prompt('$ ') { say $_ + 1 }
 
 or you may even write it in its functional form, passing the adverbs
 as ordinary named arguments.
 
-    for prefix:<*>($handle, :prompt('$ ')) { say $_ + 1 }
+    for prefix:<=>($handle, :prompt('$ ')) { say $_ + 1 }
 
 =back
 
