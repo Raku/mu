@@ -162,10 +162,9 @@ is(("ace" ~~ /a<[b..d]>e/ && $<>), "ace", 're_tests 88/0 (#118)');
 # 75: a[b-d]	aac	y	$&	ac
 is(("aac" ~~ /a<[b..d]>/ && $<>), "ac", 're_tests 90/0 (#120)');
 # 76: a[-b]	a-	y	$&	a-
-fail("PGE parsefail", :todo<bug>);
-#is(("a-" ~~ /a<[...b]>/ && $<>), "a-", 're_tests 92/0 (#122)');
+is(("a-" ~~ /a<[\-b]>/ && $<>), "a-", 're_tests 92/0 (#122)');
 # 77: a[b-]	a-	y	$&	a-
-is(("a-" ~~ /a<[b...]>/ && $<>), "a-", 're_tests 94/0 (#124)', :todo<bug>);
+is(("a-" ~~ /a<[b\-]>/ && $<>), "a-", 're_tests 94/0 (#124)');
 # 78: a[b-a]	-	c	-	Invalid [] range "b-a"
 # -- SKIPPED - TESTS ERROR MESSAGE
 # 79: a[]b	-	c	-	Unmatched [
@@ -173,26 +172,21 @@ is(("a-" ~~ /a<[b...]>/ && $<>), "a-", 're_tests 94/0 (#124)', :todo<bug>);
 # 80: a[	-	c	-	Unmatched [
 # -- SKIPPED - TESTS ERROR MESSAGE
 # 81: a]	a]	y	$&	a]
-is(("a]" ~~ /a]/ && $<>), "a]", 're_tests 96/0 (#126)', :todo<bug>);
+is(("a]" ~~ /a<[\]]>/ && $<>), "a]", 're_tests 96/0 (#126)');
 # 82: a[]]b	a]b	y	$&	a]b
-fail("PGE segfault", :todo<bug>);
-#is(("a]b" ~~ /a<[]>]b/ && $<>), "a]b", 're_tests 98/0 (#128)');
+is(("a]b" ~~ /a<[\]]>b/ && $<>), "a]b", 're_tests 98/0 (#128)');
 # 83: a[^bc]d	aed	y	$&	aed
 is(("aed" ~~ /a<-[bc]>d/ && $<>), "aed", 're_tests 100/0 (#130)');
 # 84: a[^bc]d	abd	n	-	-
 ok((not ("abd" ~~ /a<-[bc]>d/)), 're_tests 102  (#132)');
 # 85: a[^-b]c	adc	y	$&	adc
-fail("PGE parsefail", :todo<bug>);
-#is(("adc" ~~ /a<-[...b]>c/ && $<>), "adc", 're_tests 104/0 (#134)');
+is(("adc" ~~ /a<-[\-b]>c/ && $<>), "adc", 're_tests 104/0 (#134)');
 # 86: a[^-b]c	a-c	n	-	-
-fail("PGE parsefail", :todo<bug>);
-#ok((not ("a-c" ~~ /a<-[...b]>c/)), 're_tests 106  (#136)');
+ok((not ("a-c" ~~ /a<-[\-b]>c/)), 're_tests 106  (#136)');
 # 87: a[^]b]c	a]c	n	-	-
-fail("PGE segfault", :todo<bug>);
-#ok((not ("a]c" ~~ /a<-[]>b]c/)), 're_tests 108  (#138)');
+ok((not ("a]c" ~~ /a<-[\]b]>c/)), 're_tests 108  (#138)');
 # 88: a[^]b]c	adc	y	$&	adc
-fail("PGE segfault", :todo<bug>);
-#is(("adc" ~~ /a<-[]>b]c/ && $<>), "adc", 're_tests 110/0 (#140)');
+is(("adc" ~~ /a<-[\]b]>c/ && $<>), "adc", 're_tests 110/0 (#140)');
 # 89: \ba\b	a-	y	-	-
 ok(("a-" ~~ /\ba\b/), 're_tests 112  (#142)');
 # 90: \ba\b	-a	y	-	-
@@ -300,7 +294,7 @@ is(("ab" ~~ /a\(*b/ && $<>), "ab", 're_tests 202/0 (#236)');
 # 141: a\(*b	a((b	y	$&	a((b
 is(("a((b" ~~ /a\(*b/ && $<>), "a((b", 're_tests 204/0 (#238)');
 # 142: a\\b	a\b	y	$&	a\b
-is(("a\b" ~~ /a\\b/ && $<>), "a\b", 're_tests 206/0 (#240)', :todo<bug>);
+is(("a\\b" ~~ /a\\b/ && $<>), "a\\b", 're_tests 206/0 (#240)', :todo<bug>);
 # 143: abc)	-	c	-	Unmatched )
 # -- SKIPPED - TESTS ERROR MESSAGE
 # 144: (abc	-	c	-	Unmatched (
@@ -655,10 +649,9 @@ is(("ACE" ~~ rx:i/a<[b..d]>e/ && $<>), "ACE", 're_tests 442/0 (#552)', :todo<fea
 # 305: 'a[b-d]'i	AAC	y	$&	AC
 is(("AAC" ~~ rx:i/a<[b..d]>/ && $<>), "AC", 're_tests 444/0 (#554)', :todo<feature>);
 # 306: 'a[-b]'i	A-	y	$&	A-
-fail("PGE parsefail", :todo<bug>);
-#is(("A-" ~~ rx:i/a<[...b]>/ && $<>), "A-", 're_tests 446/0 (#556)');
+is(("A-" ~~ rx:i/a<[\-b]>/ && $<>), "A-", 're_tests 446/0 (#556)', :todo<feature>);
 # 307: 'a[b-]'i	A-	y	$&	A-
-is(("A-" ~~ rx:i/a<[b...]>/ && $<>), "A-", 're_tests 448/0 (#558)', :todo<feature>);
+is(("A-" ~~ rx:i/a<[b\-]>/ && $<>), "A-", 're_tests 448/0 (#558)', :todo<feature>);
 # 308: 'a[b-a]'i	-	c	-	Invalid [] range "b-a"
 # -- SKIPPED - TESTS ERROR MESSAGE
 # 309: 'a[]b'i	-	c	-	Unmatched [
@@ -668,24 +661,19 @@ is(("A-" ~~ rx:i/a<[b...]>/ && $<>), "A-", 're_tests 448/0 (#558)', :todo<featur
 # 311: 'a]'i	A]	y	$&	A]
 is(("A]" ~~ rx:i/a]/ && $<>), "A]", 're_tests 450/0 (#560)', :todo<feature>);
 # 312: 'a[]]b'i	A]B	y	$&	A]B
-fail("PGE segfault", :todo<bug>);
-#is(("A]B" ~~ rx:i/a<[]>]b/ && $<>), "A]B", 're_tests 452/0 (#562)');
+is(("A]B" ~~ rx:i/a<[\]]>b/ && $<>), "A]B", 're_tests 452/0 (#562)', :todo<feature>);
 # 313: 'a[^bc]d'i	AED	y	$&	AED
 is(("AED" ~~ rx:i/a<-[bc]>d/ && $<>), "AED", 're_tests 454/0 (#564)', :todo<feature>);
 # 314: 'a[^bc]d'i	ABD	n	-	-
 ok((not ("ABD" ~~ rx:i/a<-[bc]>d/)), 're_tests 456  (#566)');
 # 315: 'a[^-b]c'i	ADC	y	$&	ADC
-fail("PGE parsefail", :todo<bug>);
-#is(("ADC" ~~ rx:i/a<-[...b]>c/ && $<>), "ADC", 're_tests 458/0 (#568)');
+is(("ADC" ~~ rx:i/a<-[\-b]>c/ && $<>), "ADC", 're_tests 458/0 (#568)', :todo<feature>);
 # 316: 'a[^-b]c'i	A-C	n	-	-
-fail("PGE parsefail", :todo<bug>);
-#ok((not ("A-C" ~~ rx:i/a<-[...b]>c/)), 're_tests 460  (#570)');
+ok((not ("A-C" ~~ rx:i/a<-[\-b]>c/)), 're_tests 460  (#570)', :todo<feature>);
 # 317: 'a[^]b]c'i	A]C	n	-	-
-fail("PGE segfault", :todo<bug>);
-#ok((not ("A]C" ~~ rx:i/a<-[]>b]c/)), 're_tests 462  (#572)');
+ok((not ("A]C" ~~ rx:i/a<-[\]b]>c/)), 're_tests 462  (#572)', :todo<feature>);
 # 318: 'a[^]b]c'i	ADC	y	$&	ADC
-fail("PGE segfault", :todo<bug>);
-#is(("ADC" ~~ rx:i/a<-[]>b]c/ && $<>), "ADC", 're_tests 464/0 (#574)');
+is(("ADC" ~~ rx:i/a<-[\]b]>c/ && $<>), "ADC", 're_tests 464/0 (#574)', :todo<feature>);
 # 319: 'ab|cd'i	ABC	y	$&	AB
 is(("ABC" ~~ rx:i/ab|cd/ && $<>), "AB", 're_tests 466/0 (#576)', :todo<feature>);
 # 320: 'ab|cd'i	ABCD	y	$&	AB
