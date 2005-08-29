@@ -45,6 +45,26 @@ MULTI SUB say (*@args) {
     p6_new(Int => print( (map{p6_to_s($_)}@args),"\n"));
 };
 
+MULTI SUB circumfix:<{}> (*@a) {
+    # param is Pair or Array of Pair
+    my $h = Hash->new();
+    my $p = shift @a;
+    if ( $p->isa( 'Pair' ) ) {
+        $h->store( $p->key, $p->value );
+    }
+    elsif ( $p->isa( 'Array' ) ) {
+        for ( 0 .. $p->elems->unboxed -1 ) {
+            my $pp = $p->fetch($_)->fetch;
+            # warn "pp = $pp ". $pp->str->unboxed;
+            $h->store( $pp->key, $pp->value );
+        }
+    }
+    else {
+        warn "Not implemented - Hash from $p";
+    }
+    return $h;
+};
+
 MULTI SUB coerce:as ($x, $to) { 
     my $tmp;
     my $class = $to->unboxed;
