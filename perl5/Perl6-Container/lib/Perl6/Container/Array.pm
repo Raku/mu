@@ -681,24 +681,16 @@ sub splice {
             #  tail=pop length -> head=remaining -> body=shift tail until body == length
             # make $#body = $length
             my $tail = $class->from_list( @tail );
-            $len_body = 0;
-            while ( @tail ) {
-                # TODO - XXX - make this operate lazily
-                last if $len_body >= $length;
-                push @body, shift @tail;
-                $len_body++;
-            }
+            ( $len_body, @body ) = $tail->_shift_n( $length );
+            @tail = $tail->items;
         }
         else {
             # negative offset, negative length
             #  tail=pop length -> head=remaining -> body=shift tail until tail == length
             # make $#tail = -$length
-            $len_body = 0;
-            while ( @tail ) {
-                last if $len_tail <= -$length;
-                push @body, shift @tail;
-                $len_tail--;
-            }
+            my $body = $class->from_list( @tail );
+            ( $len_tail, @tail ) = $body->_pop_n( -$length );
+            @body = $body->items;
         }
     };
     # print "off: $offset len: $length head: @head body: @body tail: @tail list: @list\n";
