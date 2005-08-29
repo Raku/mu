@@ -10,9 +10,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Luke Palmer <luke@luqui.org>
   Date: 10 Aug 2004
-  Last Modified: 18 Aug 2004
+  Last Modified: 29 Aug 2005
   Number: 1
-  Version: 0
+  Version: 1
 
 This document summarizes Apocalypse 1, which covers the initial
 design concept.  (These Synopses also contain updates to reflect
@@ -58,7 +58,7 @@ present the language to a new user.
 
 Perl 6 should be malleable enough that it can evolve into the imaginary
 perfect language, Perl 7.  This darwinian imperative implies support
-for multiple syntaxes above and and multiple platforms below.
+for multiple syntaxes above and multiple platforms below.
 
 =item *
 
