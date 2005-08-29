@@ -4,9 +4,9 @@
 # ChangeLog
 #
 # 2005-08-29
+# * Full support for lazy splicing and sparse array
 # * Added support for store() past the end of the array
 # * Simplified fetch()
-# * Better support for lazy splicing
 #
 # 2005-08-27
 # * Fixed fetch/store single elements from a lazy slice
@@ -35,17 +35,27 @@
 # 2005-08-10
 # * Ported from Perl6 version
 
-# TODO - lazy array slices
-#      - optimize splice by using random access lists
-# TODO - slices with negative numbers
+# TODO - TEST FAIL - PIL-Run> @a[10,100,1000,10000,100000]=(1..9999999) 
+#        returns undef (the list goes into array element zero)
+#        might be a signature problem
+# TODO - TEST FAIL - array-boxed.t - "shared" lazy lists are not shared
+#
+# TODO - should lazy Arrays warn when you are doing something stupid? like 
+#           '@a=lazy_read_from_file; @b=@a; shift @b;' 
+#           - @a no longer points to the first line of file
+#      - option 1 - warn the user
+#      - option 2 - use a shared buffer
+#      - option 3 - implement lazy-list-deep-clone
+#
+# TODO - optimize Eager array to O(1)
+#
 # TODO - ($a,undef,$b) = @a
 #      - (@a[1..10],$a,undef,$b) = @a
-
-# TODO - autovivification - $a=Array->new(); $a->store(5000,'x');
-
+#
 # TODO - @a[1] == Scalar
 # TODO - test - @a[1] := $x
 # TODO - exists
+# TODO - defined
 
 # TODO - @a[1..2]=(1,2) 
 #        &postcircumfix:<[ ]> has to be "is rw"
@@ -56,12 +66,12 @@
 # TODO - splice() should accept a 'List' object, Perl6 version too
 #
 # TODO - Tests:
+# TODO - fetch/store should not destroy binding
 # TODO - test splice offset == 0, 1, 2, -1, -2, -Inf, Inf
 # TODO - test splice length == 0, 1, 2, Inf, negative
 # TODO - test splice list == (), (1), (1,2), Iterators, ...
 # TODO - test splice an empty array
 # TODO - test multi-dimensional array
-# TODO - test optional splice parameters
 
 # Notes:
 # * Cell is implemented in the Perl6::Container::Scalar package
@@ -347,13 +357,10 @@ class 'Array'.$class_description => {
                         # }
 
                         if ( UNIVERSAL::isa( $other, 'Array' ) ) {
-                        
                             if ( UNIVERSAL::isa( $other->tied, 'Perl6::Slice' ) ) {
                                 # unbind the slice from the original arrays
                                 $other = $other->tied->unbind;
                             }
-                        
-
                         }
                         else {
                             my $tmp = Array->new();
@@ -707,7 +714,7 @@ sub end  {
 }
 
 sub fetch {
-    # XXX - this is very inefficient
+    # XXX - this is inefficient because it needs 2 splices
     # see also: splice()
     my $array = shift;
     my $pos = shift;
@@ -744,7 +751,7 @@ sub store {
         $item = $class->new( items => [$item] );
     }
     if ( $pos <= $array->elems ) {
-        # XXX - TODO - if the cell is bound, it must be kept
+        # XXX - TODO - if the cell is bound, the binding must be kept
         $array->splice( $pos, 1, $item );
         return $array;
     }
