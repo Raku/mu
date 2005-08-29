@@ -66,7 +66,7 @@ use Perl6::Value::List;
   my $span = Array->new();
   $span->push( Perl6::Value::List->from_single( 1 .. 10 ) );
   my $spliced = $span->splice( -2, 1, 99 );
-  is( $span->perl->unboxed, '(1, 2, 3, 4, 5, 6, 7, 8, 99, 10)', '... splice: offset < 0, length = 0' );
+  is( $span->perl->unboxed, '(1, 2, 3, 4, 5, 6, 7, 8, 99, 10)', '... splice: offset < 0, length > 0' );
   is( $spliced->perl->unboxed, '(9)', '... splice' );
 }
 
