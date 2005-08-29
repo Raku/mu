@@ -159,7 +159,6 @@ use Perl6::Value::List;
   my $idx = Array->new();
   $idx->push( 2 );
   $idx->push( Perl6::Value::List->from_num_range( start => 4, end => 100 ) ); 
-    # XXX - TODO - end => 1_000_000 - not supported yet
   my $sliced = $array->slice( $idx );
 
   # store to a lazy slice
@@ -173,6 +172,38 @@ use Perl6::Value::List;
       
   is( $idx->perl(max=>3)->unboxed, 
       '(2, 4, 5 ... 98, 99, 100)',
+      '... index Array was not modified' );
+      
+  is( $array->perl(max=>7)->unboxed, 
+      '(1000, 1001, 99, 1003, 100, 101, 102 ... '.
+      '99994, 99995, 99996, 99997, 99998, 99999, 100000)', 
+      '... original array' );
+  
+}
+
+{
+  # lazy slicing - store to whole slices - special case, tests a new feature in splice()
+
+  my $array = Array->new();
+  $array->push( Perl6::Value::List->from_num_range( start => 1000, end => 100_000 ) );
+
+  my $idx = Array->new();
+  $idx->push( 2 );
+  $idx->push( Perl6::Value::List->from_num_range( start => 4, end => 1_000_000 ) ); 
+    # end => 1_000_000 - was not supported before
+  my $sliced = $array->slice( $idx );
+
+  # store to a lazy slice
+  my $array2 = Array->new();
+  $array2->push( 99, Perl6::Value::List->from_num_range( start => 100, end => 200_000_000 ) );
+  $sliced->store( $array2 );
+
+  is( $sliced->perl(max=>3)->unboxed, 
+      '(99, 100, 101 ... 1000094, 1000095, 1000096)',
+      'Array slice was modified' );
+      
+  is( $idx->perl(max=>3)->unboxed, 
+      '(2, 4, 5 ... 999998, 999999, 1000000)',
       '... index Array was not modified' );
       
   is( $array->perl(max=>7)->unboxed, 

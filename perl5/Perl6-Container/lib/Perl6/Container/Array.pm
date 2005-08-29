@@ -5,6 +5,8 @@
 #
 # 2005-08-29
 # * Added support for store() past the end of the array
+# * Simplified fetch()
+# * Better support for lazy splicing
 #
 # 2005-08-27
 # * Fixed fetch/store single elements from a lazy slice
@@ -65,6 +67,7 @@
 # * Cell is implemented in the Perl6::Container::Scalar package
 
 use strict;
+use Carp;
 
 use Perl6::MetaModel;
 use Perl6::Object;
@@ -101,6 +104,7 @@ sub Perl6::Slice::fetch {
     my $self = shift;
     my $i = shift;
     my $pos = $self->{slice}->fetch( $i )->fetch;
+    # warn "POS ISA ". ref($pos);
     $pos = $pos->unboxed if ref( $pos );
     # warn " fetching @_ at ". $self->{array} ."/". $self->{slice}->perl ."[ $i -> $pos ]";
 
@@ -379,7 +383,7 @@ class 'Array'.$class_description => {
                 }
 
                 if ( $method eq 'fetch' ) {
-                    #warn "FETCHING THINGS @param";
+                    # warn "FETCHING THINGS @param";
                     if ( @param == 0 ) {
                         # whole Array fetch
                         return $self;
@@ -387,11 +391,12 @@ class 'Array'.$class_description => {
                     my $elem = $tmp->$method( @param );
                     my $scalar;
                     if ( UNIVERSAL::isa( $elem, 'Scalar' ) ) {
+                        # warn "FETCHED CELL IS A SCALAR: $elem";
                         $scalar = $elem;
                     }
                     else
                     {
-                        #warn "FETCHED CELL IS NOT YET A SCALAR: $elem";
+                        # warn "FETCHED CELL IS NOT YET A SCALAR: $elem";
                         $scalar = Scalar->new();
                         $scalar->store( $elem );
                         # replace Value with Scalar
@@ -494,6 +499,7 @@ package Perl6::Container::Array;
 use strict;
 use Perl6::Value;
 use Perl6::Value::List;
+use Carp;
 
 use constant Inf => Perl6::Value::Num::Inf;
 
@@ -524,22 +530,34 @@ sub _shift_n {
     my @ret;
     my @tmp = @{$array->{items}};
     if ( $length == Inf ) {
+        my $len = $array->elems;
         @{$array->{items}} = ();
-        return @tmp;
+        return ( $len, @tmp );
     }
+    my $ret_length = 0;
     while ( @tmp ) {
-        # warn "ret ".scalar(@ret)." length $length";
-        last if @ret >= $length;
+        # warn "ret $ret_length == ".scalar(@ret)." length $length";
+        last if $ret_length >= $length;
         if ( ! UNIVERSAL::isa( $tmp[0], 'Perl6::Value::List') ) {
             push @ret, shift @tmp;
+            $ret_length++;
+            # warn "push elem @ret[-1]";
             next;
         }
         if ( $tmp[0]->elems > 0 ) {
             # my $i = $tmp[0]->shift;
             my $li = $tmp[0];
-            my $i = $li->shift;
+            my $diff = $length - $ret_length;
+            my $i = $li->shift_n( $diff );
             push @ret, $i;
-            last if @ret >= $length;
+            if ( UNIVERSAL::isa( $i, 'Perl6::Value::List') ) {
+                $ret_length += $i->elems;
+            }
+            else {
+                $ret_length++;
+            }
+            # warn "push list ". $i->start . ".." . $i->end . " now length=$ret_length";
+            last if $ret_length >= $length;
         }
         else {
             shift @tmp;
@@ -547,7 +565,7 @@ sub _shift_n {
     };
     @{$array->{items}} = @tmp;
     # warn "ret @ret ; array @tmp ";
-    return @ret;
+    return ( $ret_length, @ret );
 }
 
 sub _pop_n {
@@ -556,20 +574,34 @@ sub _pop_n {
     my @ret;
     my @tmp = @{$array->{items}};
     if ( $length == Inf ) {
+        my $len = $array->elems;
         @{$array->{items}} = ();
-        return @tmp;
+        return ( $len, @tmp );
     }
+    my $ret_length = 0;
     while ( @tmp ) {
         # warn "ret ".scalar(@ret)." length $length";
-        last if @ret >= $length;
+        last if $ret_length >= $length;
         if ( ! UNIVERSAL::isa( $tmp[-1], 'Perl6::Value::List') ) {
             unshift @ret, pop @tmp;
+            $ret_length++;
             next;
         }
         if ( $tmp[-1]->elems > 0 ) {
-            my $i = $tmp[-1]->pop;
+            # my $i = $tmp[-1]->pop;
+            # unshift @ret, $i;
+            my $li = $tmp[-1];
+            my $diff = $length - $ret_length;
+            my $i = $li->pop_n( $diff );
             unshift @ret, $i;
-            last if @ret >= $length;
+            if ( UNIVERSAL::isa( $i, 'Perl6::Value::List') ) {
+                $ret_length += $i->elems;
+            }
+            else {
+                $ret_length++;
+            }
+            # warn "pop list ". $i->start . ".." . $i->end . " now length=$ret_length";
+            last if $ret_length >= $length;
         }
         else {
             pop @tmp;
@@ -577,7 +609,7 @@ sub _pop_n {
     };
     @{$array->{items}} = @tmp;
     # warn "ret @ret ; array @tmp ";
-    return @ret;
+    return ( $ret_length, @ret );
 }
 
 sub elems {
@@ -623,39 +655,51 @@ sub splice {
     my $length = shift; $length = Inf unless defined $length;
     my @list = @_;
     my ( @head, @body, @tail );
+    my ( $len_head, $len_body, $len_tail );
     # print "items: ", $array->items, " splice: $offset, $length, ", @list, "\n";
     # print 'insert: ', $_, ' ', $_->ref for @list, "\n";
     # print " offset $offset length $length \n";
     if ( $offset >= 0 ) {
-        @head = $array->_shift_n( $offset );
+        ( $len_head, @head ) = $array->_shift_n( $offset );
         if ( $length >= 0 ) {
-            @body = $array->_shift_n( $length );
-            @tail = $array->_shift_n( Inf );
+            #  head=shift offset -> body=shift length -> tail=remaining
+            ( $len_body, @body ) = $array->_shift_n( $length );
+            ( $len_tail, @tail ) = $array->_shift_n( Inf );
         }
         else {
-            @tail = $array->_pop_n( -$length );
-            @body = $array->_shift_n( Inf );
+            #  tail=pop length -> head=shift offset -> body=remaining 
+            ( $len_tail, @tail ) = $array->_pop_n( -$length );
+            ( $len_body, @body ) = $array->_shift_n( Inf );
         }
     }
     else {
-        @tail = $array->_pop_n( -$offset );
-        @head = $array->_shift_n( Inf );
+        ( $len_tail, @tail ) = $array->_pop_n( -$offset );
+        ( $len_head, @head ) = $array->_shift_n( Inf );
         if ( $length >= 0 ) {
+            # negative offset, positive length
+            #  tail=pop length -> head=remaining -> body=shift tail until body == length
             # make $#body = $length
+            $len_body = 0;
             while ( @tail ) {
-                last if @body >= $length;
+                # TODO - XXX - make this operate lazily
+                last if $len_body >= $length;
                 push @body, shift @tail;
+                $len_body++;
             }
         }
         else {
+            # negative offset, negative length
+            #  tail=pop length -> head=remaining -> body=shift tail until tail == length
             # make $#tail = -$length
+            $len_body = 0;
             while ( @tail ) {
-                last if @tail->elems <= -$length;
+                last if $len_tail <= -$length;
                 push @body, shift @tail;
+                $len_tail--;
             }
         }
     };
-    # print 'head: ',@head, ' body: ',@body, ' tail: ',@tail, ' list: ',@list, "\n";
+    # print "off: $offset len: $length head: @head body: @body tail: @tail list: @list\n";
     @{$array->{items}} = ( @head, @list, @tail );
     return Perl6::Container::Array->from_list( @body );
 }
@@ -676,26 +720,25 @@ sub fetch {
     
     #use Data::Dumper;
     #warn "-- array -- ". Dumper( $array );
-    return unless defined $pos;   # XXX
-    
-    if ( $pos == 0 ) {
-        my $ret = $array->shift;
-        $array->unshift( $ret );
-        return $ret;
-    }
+    return unless defined $pos;   # XXX - undefined == zero?
+    return if $pos >= $array->elems;
 
     my $ret = $array->splice( $pos, 1 );
-    #warn "-- $pos -- ".@{$ret->{items}}." -- ".@{$array->{items}}." ";
-    if ( $pos == -1 ) {
-        $array->push( @{$ret->{items}} );
-    }
-    elsif ( $pos < 0 ) {
-        $array->splice( $pos+1, 0, @{$ret->{items}} );
+    ($ret) = @{$ret->{items}};
+    $ret = $ret->shift if UNIVERSAL::isa( $ret, 'Perl6::Value::List' );
+    if ( $pos < 0 ) {
+        if ( $pos == -1 ) {
+            $array->push( $ret );
+        }
+        else {
+            $array->splice( $pos+1, 0, $ret );
+        }
     }
     else {
-        $array->splice( $pos, 0, @{$ret->{items}} );
+        $array->splice( $pos, 0, $ret );
     }
-    return shift @{$ret->{items}};
+    # warn "FETCH $pos returns $ret";
+    return $ret;
 }
 
 sub store {
@@ -707,6 +750,7 @@ sub store {
         $item = $class->new( items => [$item] );
     }
     if ( $pos <= $array->elems ) {
+        # XXX - TODO - if the cell is bound, it must be kept
         $array->splice( $pos, 1, $item );
         return $array;
     }
@@ -751,12 +795,18 @@ sub push {
 
 sub pop {
     my $array = shift;
-    ( $array->_pop_n( 1 ) )[0]
+    my ( $length, $ret ) = $array->_pop_n( 1 );
+    # warn "POP $length -- ". $ret->elems if UNIVERSAL::isa( $ret, 'Perl6::Value::List' );
+    $ret = $ret->shift if UNIVERSAL::isa( $ret, 'Perl6::Value::List' );
+    return $ret;
 }
 
 sub shift {
     my $array = shift;
-    ( $array->_shift_n( 1 ) )[0]
+    my ( $length, $ret ) = $array->_shift_n( 1 );
+    # warn "SHIFT $length -- ". $ret->elems if UNIVERSAL::isa( $ret, 'Perl6::Value::List' );
+    $ret = $ret->shift if UNIVERSAL::isa( $ret, 'Perl6::Value::List' );
+    return $ret;
 }
 
 1;

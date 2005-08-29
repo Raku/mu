@@ -98,8 +98,8 @@ sub new {
     $param{start} = sub {} unless defined $param{start};
     $param{end}   = sub {} unless defined $param{end}; 
 
-    $param{shift_n} = sub {} unless defined $param{shift_n};
-    $param{pop_n}   = sub {} unless defined $param{pop_n}; 
+    $param{shift_n} = sub { $_[0]->shift } unless defined $param{shift_n};
+    $param{pop_n}   = sub { $_[0]->pop }   unless defined $param{pop_n}; 
 
     return bless \%param, $class;
 }
@@ -139,9 +139,11 @@ sub from_num_range {
     $class->new(
                 shift_n => sub {
                             my $list = shift;
-                            my $middle = $start + $_[1] - 1;
+                            my $length = shift;
+                            # warn "shift_n( $length ) from  ". $list->start . "..". $list->end;
+                            my $middle = $start + $length - 1;
                             $middle = $end if $middle > $end;
-                            my $shifted = ref($list)->new(
+                            my $shifted = ref($list)->from_num_range(
                                 start => $start,
                                 end => $middle,
                                 step => $step,
