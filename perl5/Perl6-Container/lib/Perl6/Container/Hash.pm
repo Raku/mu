@@ -79,6 +79,22 @@ class 'Hash'.$class_description => {
                                 _('$:cell')->{tied}->buckets :
                                 Perl6::Container::Hash::buckets( _('$:cell')->{v} )
             },
+            'str' => sub { 
+                my $key = $_[0]->firstkey;
+                my $value;
+                my @pairs;
+                while ( defined $key ) {
+                    $value = $_[0]->fetch( $key );
+                    push @pairs, $key . ' => ', $value;
+                    $key = $_[0]->nextkey;
+                }
+                Str->new( '$.unboxed' => 
+                    '{' . 
+                    join(', ', @pairs) . 
+                    '}' 
+                );
+            },
+            'perl' => sub { $_[0]->str },
 
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
@@ -123,6 +139,7 @@ sub firstkey {
     my ( $this ) = @_;
     keys %$this;  # force reset the iterator
     my $s = each %$this;
+    return unless defined $s;
     $this->{$s}[0];
 }
 sub nextkey {
