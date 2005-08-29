@@ -23,48 +23,43 @@ sub JS::Root::rx_helper_(%mods, Str $re, Str $qo, Str $qc) is primitive {
   $flags ~= "i" if %mods{'i'} || %mods{'ignore'};
   $flags ~= "m" if %mods{'m'};
 
-  my $matcher = sub ($str) {
-    my @ret = JS::inline('(
-      function (pattern,flags,global,str) {
-        var ret    = [];
+  my $matcher;
+  if $global {
+    $matcher = sub ($str) { die ":global regexp are not implemented yet"; }
+  } else {
+    $matcher = sub ($str) {
+      my @ret = JS::inline('(
+	function (pattern,flags,str) {
+	  var ret    = [];
+	  var regexp = new RegExp(pattern,flags);
+	  var match  = regexp.exec(str);
+	  if (match) {
+	    ret.push(match.index);
+	    for(var i = 0; i < match.length; i++) {
+	      ret.push(match[i]);
+	    }
+	  }
+	  return ret;
+	}
+      )')(~$pattern,$flags,$str);
 
-        var regexp = new RegExp(pattern,flags);
-        var match  = regexp.exec(str);
+      my $new_match = JS::inline('PIL2JS.toPIL2JSBox(function (ok, from, to, str, subpos, subnamed) {
+	return new PIL2JS.Match(ok, from, to, str, subpos, subnamed);
+      })');
 
-        if (!match) {
-        }
-        else if (global) {
-          // XXX - unfinished
-        }
-        else {
-          ret.push(match.index);
-          for(var i = 0; i < match.length; i++) {
-            ret.push(match[i]);
-          }
-        }
-
-        return ret;
+      if !@ret {
+	  my $m  = $new_match(?0);
+	  $/    := $m;
+      } else {
+	  my $from       = shift @ret;
+	  my $m_as_str   = shift @ret;
+	  my @m_as_array = @ret;
+	  my $to = $from + $m_as_str.chars;
+	  my $m  = $new_match(?1, $from, $to, $m_as_str, @m_as_array, []);
+	  $/    := $m;
       }
-    )')(~$pattern,$flags,$global,$str);
-
-    my $new_match = JS::inline('PIL2JS.toPIL2JSBox(function (ok, from, to, str, subpos, subnamed) {
-      return new PIL2JS.Match(ok, from, to, str, subpos, subnamed);
-    })');
-
-    if !@ret {
-	my $m  = $new_match(?0);
-	$/    := $m;
-    } elsif $global {
-	# XXX - unfinished
-    } else {
-	my $from       = shift @ret;
-        my $m_as_str   = shift @ret;
-        my @m_as_array = @ret;
-	my $to = $from + $m_as_str.chars;
-	my $m  = $new_match(?1, $from, $to, $m_as_str, @m_as_array, []);
-        $/    := $m;
-    }
-  };
+    };
+  }
 
   JS::inline('(function (matcher) { return new PIL2JS.Rul(matcher) })')($matcher);
 }
