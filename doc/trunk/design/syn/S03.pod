@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 22 Feb 2005
+  Last Modified: 26 Aug 2005
   Number: 3
-  Version: 5
+  Version: 6
 
 =head1 Operator renaming
 
@@ -94,7 +94,8 @@ end to indicate exclusion of that endpoint from the range.
 
 =item * However, C<...> as a term is the "yada, yada, yada" operator,
 which is used as the body in function prototypes.  It complains
-bitterly if it is ever executed.
+bitterly if it is ever executed.  Actually, it calls "fail".  Variant
+C<???> warns, and C<!!!> dies.
 
 =item * In addition, to the ordinary C<.> method invocation, there are
 variants C<.*>, C<.?>, and C<.+> to control how multiple parent methods
@@ -331,7 +332,7 @@ equivalent:
 In order to support parallel iteration over multiple arrays, Perl 6 has
 a C<zip> function that interleaves the elements of two or more arrays.
 
-    for zip(@names, @codes) -> $name, $zip {
+    for zip(@names; @codes) -> $name, $zip {
         print "Name: $name;   Zip code: $zip\n";
     }
 
