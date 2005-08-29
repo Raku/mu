@@ -29,7 +29,7 @@ use Perl6::Value::List;
 }
 
 {
-  # normal splice
+  # splice: offset > 0, length > 0
 
   my $span = Array->new();
   $span->push( Perl6::Value::List->from_single( 1 .. 10 ) );
@@ -39,8 +39,53 @@ use Perl6::Value::List;
   my $spliced = $span->splice( 2, 3, 23..25 );
   isa_ok( $spliced, 'Array', '... splice' );
 
-  is( $span->perl->unboxed, '(1, 2, 23, 24, 25, 6, 7, 8, 9, 10)', '... splice' );
+  is( $span->perl->unboxed, '(1, 2, 23, 24, 25, 6, 7, 8, 9, 10)', '... splice: offset > 0, length > 0' );
   is( $spliced->perl->unboxed, '(3, 4, 5)', '... splice' );
+}
+
+{
+  # splice: offset > 0, length = 0
+  my $span = Array->new();
+  $span->push( Perl6::Value::List->from_single( 1 .. 10 ) );
+  my $spliced = $span->splice( 2, 0, 99 );
+  is( $span->perl->unboxed, '(1, 2, 99, 3, 4, 5, 6, 7, 8, 9, 10)', '... splice: offset > 0, length = 0' );
+  is( $spliced->perl->unboxed, '()', '... splice' );
+}
+
+{
+  # splice: offset > 0, length < 0
+  my $span = Array->new();
+  $span->push( Perl6::Value::List->from_single( 1 .. 10 ) );
+  my $spliced = $span->splice( 2, -1, 99 );
+  is( $span->perl->unboxed, '(1, 2, 99, 10)', '... splice: offset > 0, length < 0' );
+  is( $spliced->perl->unboxed, '(3, 4, 5, 6, 7, 8, 9)', '... splice' );
+}
+
+{
+  # splice: offset < 0, length > 0
+  my $span = Array->new();
+  $span->push( Perl6::Value::List->from_single( 1 .. 10 ) );
+  my $spliced = $span->splice( -2, 1, 99 );
+  is( $span->perl->unboxed, '(1, 2, 3, 4, 5, 6, 7, 8, 99, 10)', '... splice: offset < 0, length = 0' );
+  is( $spliced->perl->unboxed, '(9)', '... splice' );
+}
+
+{
+  # splice: offset < 0, length = 0
+  my $span = Array->new();
+  $span->push( Perl6::Value::List->from_single( 1 .. 10 ) );
+  my $spliced = $span->splice( -2, 0, 99 );
+  is( $span->perl->unboxed, '(1, 2, 3, 4, 5, 6, 7, 8, 99, 9, 10)', '... splice: offset < 0, length = 0' );
+  is( $spliced->perl->unboxed, '()', '... splice' );
+}
+
+{
+  # splice: offset < 0, length < 0
+  my $span = Array->new();
+  $span->push( Perl6::Value::List->from_single( 1 .. 10 ) );
+  my $spliced = $span->splice( -3, -1, 99 );
+  is( $span->perl->unboxed, '(1, 2, 3, 4, 5, 6, 7, 99, 10)', '... splice: offset < 0, length < 0' );
+  is( $spliced->perl->unboxed, '(8, 9)', '... splice' );
 }
 
 {
