@@ -639,6 +639,7 @@ var _26main_3a_3a_3fBLOCK    = new PIL2JS.Box(undefined);
 var _26main_3a_3a_3fSUB      = new PIL2JS.Box(undefined);
 var _24main_3a_3a_2aOS       = new PIL2JS.Box.Constant("browser");
 var _24main_3a_3aOS          = _24main_3a_3a_2aOS;
+var _24main_3a_3a_3fPUGS_BACKEND = new PIL2JS.Box.Constant("BACKEND_JAVASCRIPT");
 var _24main_3a_3a_           = new PIL2JS.Box(undefined);
 // Stub for $?CALLER::CALLER::POSITION, so Test.pm doesn't die on a failed
 // test.

@@ -39,7 +39,7 @@ while(defined($_ = $term->readline($prompt))) {
   $term->addhistory($_);
   s/\s*$//;
 
-  if(my ($cmd, $arg) = /^:([hq]|pil(?:\.yaml)?|conf|precomp|js|l)\s*(.*)$/) {
+  if(my ($cmd, $arg) = /^:([hq]|pil(?:\.yaml)?|conf|precomp|js|[ecl])\s*(.*)$/) {
     no strict "refs";
     $cmd =~ s/\./_/g;
     &{"command_$cmd"}($arg);
@@ -60,6 +60,8 @@ Commands available from the prompt:
 :pil <exp>              = show PIL of expression
 :pil.yaml <exp>         = show PIL of expression dumped as YAML
 <exp>                   = compile expression and save as HTML
+:c <exp>                = ditto
+:e <exp>                = compile expression and run it
 :js <exp>               = compile expression and show it
 :l filename.p6          = compile file and save as HTML
 USAGE
@@ -119,6 +121,7 @@ sub command_pil_yaml {
 }
 
 sub command_compile { compile("-e", $_[0]) }
+sub command_c       { command_compile(@_)  }
 sub command_l       { compile($_[0]) }
 
 sub compile {
@@ -136,4 +139,9 @@ sub command_js {
   my $pil = eval { compile_perl6_to_mini_js "-e", $_[0] };
   print $OUT $@ and return if $@;
   print $OUT "$pil\n";
+}
+
+sub command_e {
+  my $js = jsbin_hack(compile_perl6_to_standalone_js("-e", shift));
+  run_js($js);
 }

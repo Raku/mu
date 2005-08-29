@@ -159,20 +159,22 @@ sub run_js {
     print Encode::encode("utf-8", $line);
   }
 }
+
 sub run_js_on_jssm {
   my $js = shift;
   diag $cfg{js};
 
-  use JavaScript::SpiderMonkey;
+  # "require" instead of "use" here so users which don't want to use JSSM
+  # aren't forced to install it.
+  require JavaScript::SpiderMonkey;
   my $jssm = JavaScript::SpiderMonkey->new();
   $jssm->init();
-  $jssm->function_set("print", sub { print "@_\n"; });
+  $jssm->function_set("print", sub { print encode "utf-8", "@_\n"; });
   open F,">deleteme_eval.js"; print F $js; close F; # XXX - debugging output
   my $rc = $jssm->eval($js);
   warn "JavaScript::SpiderMonkey: $@" if $@;
   $jssm->destroy();
 }
-
 
 sub jsbin_hack {
   my $js = <<EOF . "\n" . $_[0];

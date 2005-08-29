@@ -197,6 +197,7 @@ sub pugspath2runcore {
 
   /PIL2JS/i  and return "pil2js";
   /PIL-RUN/i and return "pilrun";
+  /PIR/i     and return "pir";
   return "normal";
 }
 
@@ -205,6 +206,7 @@ sub runcore2human {
 
   $_ eq "pil2js" and return "PIL2JS (Perl 6 on JavaScript)";
   $_ eq "pilrun" and return "PIL-Run (Perl 6 on Perl 5)";
+  $_ eq "pir"    and return "PIR (Perl 6 on Parrot)";
   $_ eq "normal" and return "Normal runcore (Perl 6 on Haskell)";
   die;
 }
