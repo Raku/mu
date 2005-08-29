@@ -1,7 +1,18 @@
 
 # This file is an unfinished sketch of :perl5 regex support.
 
+sub JS::Root::rxbare_(Str $re) is primitive {
+    my %h;
+    rx_helper_(%h, $re, "/", "/");
+}
 sub JS::Root::rx_(%mods, Str $re, Str $qo, Str $qc) is primitive {
+    rx_helper_(%mods, $re, $qo, $qc);
+}
+sub JS::Root::m_(%mods, Str $re, Str $qo, Str $qc) is primitive {
+    rx_helper_(%mods, $re, $qo, $qc);
+}
+
+sub JS::Root::rx_helper_(%mods, Str $re, Str $qo, Str $qc) is primitive {
   my $pattern = $re;
   my $flags   = "";
   my $perl5   = %mods{'perl5'} || %mods{'Perl5'} || %mods{'P5'};
