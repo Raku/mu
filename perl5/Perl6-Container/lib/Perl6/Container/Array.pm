@@ -653,6 +653,7 @@ sub splice {
     my $array = shift;
     my $offset = shift; $offset = 0   unless defined $offset;
     my $length = shift; $length = Inf unless defined $length;
+    my $class = ref($array);
     my @list = @_;
     my ( @head, @body, @tail );
     my ( $len_head, $len_body, $len_tail );
@@ -679,6 +680,7 @@ sub splice {
             # negative offset, positive length
             #  tail=pop length -> head=remaining -> body=shift tail until body == length
             # make $#body = $length
+            my $tail = $class->from_list( @tail );
             $len_body = 0;
             while ( @tail ) {
                 # TODO - XXX - make this operate lazily
@@ -701,7 +703,7 @@ sub splice {
     };
     # print "off: $offset len: $length head: @head body: @body tail: @tail list: @list\n";
     @{$array->{items}} = ( @head, @list, @tail );
-    return Perl6::Container::Array->from_list( @body );
+    return $class->from_list( @body );
 }
 
 sub end  {

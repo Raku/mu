@@ -209,6 +209,18 @@ sub from_x {
     $count = 0 
         unless defined $count;
     $class->new(
+                shift_n => sub {
+                            my $list = shift;
+                            my $length = shift;
+                            # warn "shift_n( $length ) from  ". $list->start . "..". $list->end;
+                            $length = $count if $length > $count;
+                            my $shifted = ref($list)->from_x(
+                                item => $item,
+                                count => $length,
+                            );
+                            $count = $count - $length;
+                            return $shifted;
+                        },
                 start =>   sub { $item },
                 end =>     sub { $item },
                 cstart =>  sub { $count--; return if $count < 0; $item },
