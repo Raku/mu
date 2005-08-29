@@ -169,7 +169,8 @@ sub run_js_on_jssm {
   require JavaScript::SpiderMonkey;
   my $jssm = JavaScript::SpiderMonkey->new();
   $jssm->init();
-  $jssm->function_set("print", sub { print encode "utf-8", "@_\n"; });
+  $jssm->function_set("print",               sub { print encode "utf-8", "@_\n"; });
+  $jssm->function_set("printWithoutNewline", sub { print encode "utf-8", "@_"; });
   open F,">deleteme_eval.js"; print F $js; close F; # XXX - debugging output
   my $rc = $jssm->eval($js);
   warn "JavaScript::SpiderMonkey: $@" if $@;
@@ -178,11 +179,16 @@ sub run_js_on_jssm {
 
 sub jsbin_hack {
   my $js = <<EOF . "\n" . $_[0];
-// Stubs inserted by runjs.pl.
-var document = {
-  write: function (str) {
+// Stubs inserted by lib/PIL2JS.pm.
+var PIL2JS_printWithoutNewline;
+try { printWithoutNewline } catch(err) {
+  PIL2JS_printWithoutNewline = function (str) {
     print(str + "$MAGIC_NOLF");
-  },
+  };
+}
+if(!PIL2JS_printWithoutNewline) PIL2JS_printWithoutNewline = printWithoutNewline;
+var document = {
+  write: PIL2JS_printWithoutNewline,
   body:  {},
   getElementById: function (id) {}
 };
