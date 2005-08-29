@@ -577,6 +577,8 @@ PIL2JS.nativeclass2realclass = function (constr) {
     return _3amain_3a_3aStr;
   } else if(constr == Number) {
     return _3amain_3a_3aNum;
+  } else if(constr == Boolean) {
+    return _3amain_3a_3aBool;
   } else if(constr == Function) {
     return _3amain_3a_3aCode;
   } else if(constr == PIL2JS.Junction.Any || constr == PIL2JS.Junction.All || constr == PIL2JS.Junction.One || constr == PIL2JS.Junction.None) {
