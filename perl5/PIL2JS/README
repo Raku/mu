@@ -108,6 +108,8 @@ C<$*JS::document.write>, C<JS::alert "Pugs rocks">)
 
 =head1 DESIGN
 
+=head2 Containers
+
 Because JavaScript passes primitive values (strings, numbers, etc.) by value, I
 had to create a proxying object, as Perl requires support for C<is rw> and C<is
 copy>. C<new PIL2JS.Box(value)> returns an object supporting the methods
@@ -120,20 +122,20 @@ but C<die()>s upon C<.STORE()>.
 C<new PIL2JS.Box.Constant(value)> is sugar for C<new PIL2JS.Box.ReadOnly(new
 PIL2JS.Box(value))>.
 
-=head2 Assignment
+=head3 Assignment
 
 Assignment is, thanks to the container type C<PIL2JS.Box>, simple:
 C<dest.STORE(source)> (C<.STORE> calls C<source.FETCH()> then and return
 C<source>.)
 
-=head2 Binding
+=head3 Binding
 
 Binding is similar: C<dest.BINDTO(source)>
 
 We can't just use C<dest = source>, because C<dest> might be the result of some
 function, e.g. C<@array[$idx] := $foo>.
 
-=head2 Identity comparision
+=head3 Identity comparision
 
 The C<.uid> property which every C<PIL2JS.Box> object has got contains the
 unique ID of the box (or C<undefined> if it's a C<PIL2JS.Box.Constant>, as we
@@ -294,6 +296,34 @@ return modified JS code. This allows to inline sub definitions in some cases:
 
     # Perl 6 code which is emitted with P5Macros
     if $cond { $then() } else { {}() }
+
+=head2 Regular expressions
+
+=head3 Perl 5-style regexes
+
+Supporting Perl 5-style regexes (C<rx:Perl5/.../>) is only bookkeeping work, as
+JavaScript provides a C<RegExp> class which is able to match against Perl 5-style
+regexes.
+
+=head3 Perl 6's rules
+
+Supporting Perl 6's rules is much harder, as JavaScript doesn't provide a
+native class which could be used to match against Perl 6 regexes. There're two
+solutions to this problem:
+
+=over
+
+=item *
+
+We write a native JavaScript library which'd be capable of matching against
+Perl 6's rules.
+
+=item *
+
+We write a rule matching engine in Perl 6 (or any other language which we can
+compile to JavaScript) and compile it to JavaScript.
+
+=back
 
 =head1 TODO
 

@@ -401,10 +401,12 @@ PIL2JS.toPIL2JSBox = function (thing) {
   // I'd do this as Object.prototype.toPIL2JSBox, but this causes severe
   // problems, is a hack, and causes the MetaModel to not work, as it depends
   // on for(var k in some_object) to not return "toPIL2JSBox".
-  if(thing instanceof Array) {
+  if(thing == undefined) {
+    return new PIL2JS.Box.Constant(undefined);
+  } else if(thing instanceof Array) {
     var ret = [];
     for(var i = 0; i < thing.length; i++) {
-      ret.push(PIL2JS.box_native_result(thing[i]));
+      ret.push(PIL2JS.toPIL2JSBox(thing[i]));
     }
     if(thing.flatten_me) ret.flatten_me = thing.flatten_me;
     return new PIL2JS.Box.Constant(ret);
@@ -416,14 +418,6 @@ PIL2JS.toPIL2JSBox = function (thing) {
     return new PIL2JS.Box.Constant(thing);
   }
 }
-
-PIL2JS.box_native_result = function (res) {
-  if(res == undefined) {
-    return new PIL2JS.Box.Constant(undefined);
-  } else {
-    return PIL2JS.toPIL2JSBox(res);
-  }
-};
 
 // Hack to work around JS not providing .tailcall... :(
 PIL2JS.runloop = function (f) {
@@ -454,7 +448,7 @@ PIL2JS.call = function (inv, sub, args) {
     } else {
       var cxt  = args.shift();
       var cc   = args.pop();
-      var code = "PIL2JS.box_native_result(sub(";
+      var code = "PIL2JS.toPIL2JSBox(sub(";
       for(var i = 0; i < args.length; i++) {
         code += "args[" + i + "].toNative(),";
       }
@@ -477,19 +471,20 @@ PIL2JS.call = function (inv, sub, args) {
                 || val instanceof Perl6.Method
                 || val instanceof Perl6.Class;
 
-      // We're calling a method on a native JS object (Array, PIL2JS.Hash,
-      // etc.)?
+      // We're calling a method on a native JS object which belongs to us
+      // (Array, PIL2JS.Hash, etc.)?
       if(!isreal) {
         // So create an instance of the corresponding Perl 6 class (which is
         // part of the metamodel).
         var realclass = PIL2JS.nativeclass2realclass(
           val == undefined
-            ? val
+            ? undefined
             : val.constructor
         );
-        if(!realclass) realclass = _3amain_3a_3aItem;
-        val    = new Perl6.Instance(realclass.FETCH());
-        isreal = true;
+        if(realclass) {
+          val    = new Perl6.Instance(realclass.FETCH());
+          isreal = true;
+        }
       }
 
       // All classes we create inherit from __PIL2JS. This is so we can detect
@@ -508,13 +503,28 @@ PIL2JS.call = function (inv, sub, args) {
         var boxedsub = val.can(sub).call("__i_am_pil2js");
         boxedsub.FETCH()([args[0], inv].concat(args.slice(1)));
 
+      } else if(!isreal && !isour) {
+        if(val[sub] == undefined) {
+          PIL2JS.die("No such native method: \"" + sub + "\"");
+        }
+
+        if(val[sub] instanceof Function) {
+          // It's a method
+          return PIL2JS.call(undefined, val[sub], args);
+        } else {
+          // It's an attribute/whatever
+          var cc = args.pop();
+          cc(PIL2JS.toPIL2JSBox(val[sub]));
+        }
+
       // Sorry.
       } else {
         PIL2JS.die("No such method: \"" + sub + "\"");
       }
 
     // It is a native JS object. Retrieve a Function reference and re-call
-    // PIL2JS.call, as a native JS method may return a boxed object.
+    // PIL2JS.call, as a native JS method *is* allowd to be a boxed object (see
+    // e.g. Rul and Match).
     } else {
       return PIL2JS.call(undefined, inv[sub], args);
     }
@@ -552,6 +562,8 @@ var _3amain_3a_3aRule      = PIL2JS.new_empty_class("Rule",      _3amain_3a_3aRo
 var _3amain_3a_3aMacro     = PIL2JS.new_empty_class("Macro",     _3amain_3a_3aRoutine);
 var _3amain_3a_3aRef       = PIL2JS.new_empty_class("Ref",       _3amain_3a_3aItem);
 var _3amain_3a_3aJunction  = PIL2JS.new_empty_class("Junction",  _3amain_3a_3aAny);
+var _3amain_3a_3aRul       = PIL2JS.new_empty_class("Rul",       _3amain_3a_3aItem);
+var _3amain_3a_3aMatch     = PIL2JS.new_empty_class("Match",     _3amain_3a_3aItem);
 
 // Returns, given a native JS object, the corresponding boxed class object.
 PIL2JS.nativeclass2realclass = function (constr) {
@@ -571,6 +583,12 @@ PIL2JS.nativeclass2realclass = function (constr) {
     return _3amain_3a_3aJunction;
   } else if(constr == PIL2JS.Ref) {
     return _3amain_3a_3aRef;
+  } else if(constr == PIL2JS.Match) {
+    return _3amain_3a_3aMatch;
+  } else if(constr == PIL2JS.Rul) {
+    return _3amain_3a_3aRul;
+  } else if(constr == undefined) {
+    return _3amain_3a_3aItem;
   }
 };
 
@@ -625,6 +643,18 @@ PIL2JS.StubIO.prototype.print = new PIL2JS.Box.Constant(function (args) {
 PIL2JS.StubIO.prototype.say = new PIL2JS.Box.Constant(function (args) {
   _26main_3a_3asay.FETCH()(args);
 });
+
+// Rul class.
+PIL2JS.Rul = function (matcher) { this.matcher = matcher };
+// Match class.
+PIL2JS.Match = function (ok, from, to, str, subpos, subnamed) {
+  this.ok       = ok;
+  this.from     = from;
+  this.to       = to;
+  this.str      = str;
+  this.subpos   = subpos;
+  this.subnamed = subnamed;
+};
 
 // Magical variables: $?POSITION, $!, etc.
 var _24main_3a_3a_3fPOSITION = new PIL2JS.Box("<unknown>");
@@ -838,9 +868,9 @@ PIL2JS.print_exception = function (err) {
       PIL2JS.Context.Void,
       PIL2JS.cps2normal(_26main_3a_3aprefix_3a_7e.FETCH(), [
         PIL2JS.Context.ItemAny,
-        err.pil2js_orig_msg
-          ? err.pil2js_orig_msg
-          : new PIL2JS.Box.Constant(err.toString())
+        //err.pil2js_orig_msg
+        //  ? err.pil2js_orig_msg :
+        new PIL2JS.Box.Constant(err.toString())
       ])
     ]
   );
@@ -897,11 +927,15 @@ var _26main_3a_3aref = PIL2JS.Box.constant_func(1, function (args) {
     cc(new PIL2JS.Box.Constant("Junction"));
   } else if(thing instanceof Perl6.Class) {
     cc(new PIL2JS.Box.Constant("Class")); // XXX
+  } else if(thing instanceof PIL2JS.Rul) {
+    cc(new PIL2JS.Box.Constant("Rul"));
+  } else if(thing instanceof PIL2JS.Match) {
+    cc(new PIL2JS.Box.Constant("Match"));
   } else {
     PIL2JS.die(
       "Internal error: .ref() not yet implemented for " +
       typeof(thing) +
-      "\n"
+      " (constructor: " + thing.constructor + ")"
     );
   }
 });
@@ -1005,6 +1039,8 @@ var _26main_3a_3aprefix_3a_7e = PIL2JS.Box.constant_func(1, function (args) {
         PIL2JS.die("Can't stringify non-array or hash references!");
       } else if(ref == "Class") { // XXX
         cc(new PIL2JS.Box.Constant("<class>"));
+      } else if(ref == "Match") {
+        cc(new PIL2JS.Box.Constant(thing.str));
       } else {
         PIL2JS.die(
           "Stringification for objects of class " +
@@ -1043,6 +1079,8 @@ var _26main_3a_3aprefix_3a_2b = PIL2JS.Box.constant_func(1, function (args) {
       cc(new PIL2JS.Box.Constant(Number(unboxed)));
     } else if(ref == "Ref") {
       PIL2JS.die("Can't numfiy non-array or hash references!");
+    } else if(ref == "Match") {
+      cc(new PIL2JS.Box.Constant(Number(thing.str)));
     } else {
       PIL2JS.die(
         "Numification for objects of class "+
@@ -1065,6 +1103,8 @@ var _26main_3a_3aprefix_3a_3f = PIL2JS.Box.constant_func(1, function (args) {
     cc(new PIL2JS.Box.Constant(a.num_of_entries > 0));
   } else if(a instanceof PIL2JS.Ref) {
     cc(new PIL2JS.Box.Constant(1 == 1));
+  } else if(a instanceof PIL2JS.Match) {
+    cc(new PIL2JS.Box.Constant(a.ok));
   } else if(a instanceof PIL2JS.Junction.All) {
     for(var i = 0; i < a.values.length; i++) {
       if(!PIL2JS.cps2normal(_26main_3a_3aprefix_3a_3f.FETCH(), [PIL2JS.Context.ItemAny, a.values[i]]).FETCH()) {
