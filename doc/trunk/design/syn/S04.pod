@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 15 Jun 2005
+  Last Modified: 29 Aug 2005
   Number: 4
-  Version: 5
+  Version: 6
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -68,6 +68,16 @@ instead.  (It's illegal to declare C<$x> twice in the same scope.)
 As in Perl 5, "C<our $foo>" introduces a lexically scoped alias for
 a variable in the current package.
 
+The new C<constant> declarator introduces a lexically scoped name
+for a compile-time constant, either a variable or a 0-ary sub, which
+may be initialized with either a pseudo-assignment or a block:
+
+    constant Num $pi = 3;
+    constant Num PI { 3 }
+    constant Num π  = atan(2,2) * 4;
+
+In any case the initializing value is evaluated at BEGIN time.
+
 There is a new C<state> declarator that introduces a lexically scoped
 variable like C<my> does, but with a lifetime that persists for the
 life of the closure, so that it keeps its value from the end of one
@@ -99,7 +109,7 @@ Perl 5, except that you may omit the parentheses on the conditional:
 
 Conditional statement modifiers also work as in Perl 5.  So do the
 implicit conditionals implied by short-circuit operators.  And there's
-a new C<elsunless> in Perl 6--except that it's spelled C<elsif not>.
+a new C<elsunless> in Perl 6--except that you have to spell it C<elsif not>.
 C<:-)>
 
 =head1 Loop statements
@@ -134,7 +144,7 @@ within the loop.  See below.
 
 The C<loop> statement is the C-style C<for> loop in disguise:
 
-    loop $i = 0; $i < 10; $i++ {
+    loop ($i = 0; $i < 10; $i++) {
 	...
     }
 
@@ -193,7 +203,7 @@ Note also that Perl 5's special rule causing
 
     while (<>) {...}
 
-to automatically assign to C<$_> is not carried over to Perl 6.  That's
+to automatically assign to C<$_> is not carried over to Perl 6.  That
 should now be written:
 
     for =<> {...}
@@ -202,9 +212,9 @@ which is short for
 
     for =$*ARGS {...}
 
-Parameters are by default constant within the block.  You can
+Parameters are by default readonly within the block.  You can
 declare a parameter read/write by including the "C<is rw>" trait.
-If you rely on C<$_> as the implicit parameter to a block, then
+If you rely on C<$_> as the implicit parameter to a block,
 then C<$_> is considered read/write by default.  That is,
 the construct:
 
@@ -217,7 +227,7 @@ is actually short for:
 so you can modify the current list element in that case.  However,
 any time you specify the arguments, they default to read only.
 
-When used as a statement modifers, C<for> and C<given> use a private
+When used as statement modifers, C<for> and C<given> use a private
 instance of C<$_> for the left side of the statement.  The outer C<$_>
 can be referred to as C<$OUTER::_>.  (And yes, this implies that the
 compiler may have to retroactively change the binding of <$_> on the
@@ -229,6 +239,19 @@ In Perl 5, a bare block is deemed to be a do-once loop.  In Perl 6,
 the bare block is not a do-once.  Instead C<do {...}> is the do-once
 loop (which is another reason you can't put a C<while> or C<until>
 modifier on it).
+
+For any statement, prefixing with a C<do> allows you to 
+return the value of that statement and use it in an expression:
+
+    $x = do if $a { $b } else { $c };
+
+This construct only allows you to prefix a statement.  If you want to
+continue the expression after the statement you must use the curly form.
+
+Since C<do> is defined as going in front of a statement, it follows
+that it can always be followed by a statment label.  This is particularly
+useful for the do-once block, since it is offically a loop and can take
+therefore loop control statements.
 
 =head1 Switch statements
 
@@ -246,7 +269,7 @@ The current topic is always aliased to the special variable C<$_>.
 The C<given> block is just one way to set the current topic, but a
 switch statement can be any block that sets C<$_>, including a C<for>
 loop (in which the first loop parameter is the topic) or the body
-of a method (in which the object itself is the topic).  So switching
+of a method (if you have declared the invocant as C<$_>).  So switching
 behavior is actually caused by the C<when> statements in the block,
 not by the nature of the block itself.  A C<when> statement implicitly
 does a "smart match" between the current topic (C<$_>) and the argument
@@ -282,7 +305,7 @@ as the topic.
 You can explicitly break out of a C<when> block (and its surrounding
 switch) early using the C<break> verb.  You can explicitly break out
 of a C<when> block and go to the next statement by using C<continue>.
-(Note that, unlike with C's idea of falling through, subsequent C<when>
+(Note that, unlike C's idea of falling through, subsequent C<when>
 conditions are evaluated.  To jump into the next C<when> block you
 must use a C<goto>.)
 
@@ -290,7 +313,8 @@ If you have a switch that is the main block of a C<for> loop, and
 you break out of the switch either implicitly or explicitly, it merely
 goes to the next iteration of the loop.  You must use C<last> to break
 out of the entire loop early.  Of course, an explicit C<next> would
-be clearer than a C<break> in that case.
+be clearer than a C<break> if you really want to go to the next iteration.
+Possibly we'll outlaw C<break> in a loop topicalizer.
 
 =head1 Exception handlers
 
@@ -344,14 +368,15 @@ or method definition (that is, from a function officially declared
 with the C<sub>, C<method>, or C<submethod> keywords).  Pointy subs
 and bare closures are transparent to C<return>.  If you pass a reference
 to a closure outside of its official "sub" scope, it is illegal to
-return from it.
+return from it.  You may only leave the closure block itself with C<leave>
+or by falling of the end of it.
 
 To return a value from a pointy sub or bare closure, you either
-just mention the value last that you want to return, or you can
+just let the block return the value of its final expression, or you can
 use C<leave>.  A C<leave> by default exits from the innermost block.
 But you may change the behavior of C<leave> with selector adverbs:
 
-    leave :from(Loop) :label<LINE> <== 1,2,3;
+    leave :from(Loop) :label<LINE> <== 1,2,3;	# XXX "with"?
 
 The innermost block matching the selection criteria will be exited.
 The return value, if any, must be passed as a list.  To return pairs
@@ -384,14 +409,15 @@ preference explicit.)
 
 =head1 Exceptions
 
-As in Perl 5, many built-in functions simply return undef when you ask for
-a value out of range.  Unlike in Perl 5, these may be "interesting" values
-of undef that contain information about the error.  If you try to use
-an undefined value, that information can then be conveyed to the user.
-In essence, undef can be an unthrown exception object that just happens
-to return 0 when you ask it whether it's defined or it's true.  Since $!
-contains the current error code, saying C<die $!> will turn an unthrown
-exception into a thrown exception.  (A bare C<die> does the same.)
+As in Perl 5, many built-in functions simply return undef when you ask
+for a value out of range, or the function fails somehow.  Unlike in
+Perl 5, these may be "interesting" values of undef that contain
+information about the error.  If you try to use an undefined value,
+that information can then be conveyed to the user.  In essence, undef
+can be an unthrown exception object that just happens to return 0 when
+you ask it whether it's defined or it's true.  Since $!  contains the
+current error code, saying C<die $!> will turn an unthrown exception
+into a thrown exception.  (A bare C<die> does the same.)
 
 You can cause built-ins to automatically throw exceptions on failure using
 
@@ -401,7 +427,7 @@ The C<fail> function responds to the caller's "use fatal" state.  It
 either returns an unthrown exception, or throws the exception.
 
 If an exception is raised while C<$!> already contains an exception
-that is active and "unclean", no information is discarded.  The old
+that is active and "unhandled", no information is discarded.  The old
 exception is pushed onto the exception stack within the new exception,
 which is then bound to C<$!> and, hopefully, propagated.  The default
 printout for the new exception should include the old exception
@@ -409,10 +435,10 @@ information so that the user can trace back to the original error.
 (Likewise, rethrown exceptions add information about how the exception
 is propagated.)
 
-Exception objects are born "unclean".  The C<$!> object keeps track of
-whether it's currently "clean" or "unclean".  The exception in C<$!> still
-exists after it has been caught, but catching it marks it as clean
-if any of the cases in the switch matched.  Clean exceptions don't
+Exception objects are born "unhandled".  The C<$!> object keeps track of
+whether it's currently "handled" or "unhandled".  The exception in C<$!> still
+exists after it has been caught, but catching it marks it as handled
+if any of the cases in the switch matched.  Handled exceptions don't
 require their information to be preserved if another exception occurs.
 
 =head1 Closure traits
@@ -563,12 +589,13 @@ And to the parentheses delimiting function arguments:
     if $term ($x)	# syntax error (two terms in a row)
     if $term .($x)	# valid function call (term expected after dot)
 
-A trailing curly on a line by itself (not counting whitespace or comments)
-always reverts to the precedence of semicolon whether or not you put
-a semicolon after it.  (In the absence of an explicit semicolon,
-the current statement may continue on a subsequent line, but only
-with valid statement continuators such as C<else>.  A modifier on a
-C<loop> statement must continue on the same line, however.)
+Outside of any kind of expression brackets, a trailing curly on a
+line by itself (not counting whitespace or comments) always reverts
+to the precedence of semicolon whether or not you put a semicolon
+after it.  (In the absence of an explicit semicolon, the current
+statement may continue on a subsequent line, but only with valid
+statement continuators such as C<else>.  A modifier on a C<loop>
+statement must continue on the same line, however.)
 
 Final blocks on statement-level constructs always imply semicolon
 precedence afterwards regardless of the position of the closing curly.
@@ -612,7 +639,7 @@ since C<< prefix:<if>> > would hide C<< statement_modifier:<if> >>.
 Here is the current table of smart matches (which probably belongs in
 S3).  The list is intended to reflect forms that can be recognized at
 compile time.  If none of these forms is recognized at compile time, it
-falls through to a multiple dispatch to C<< infix:<~~>() >>, which presumably
+falls through to do MMD to C<< infix:<~~>() >>, which presumably
 reflects similar semantics, but can finesse things that aren't exact
 type matches.  Note that all types are scalarized here.  Both C<~~>
 and C<given>/C<when> provide scalar contexts to their arguments.
