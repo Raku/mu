@@ -4,6 +4,9 @@ package Perl6::Value::List;
 
 # ChangeLog
 #
+# 2005-08-29
+# * new methods shift_n() pop_n() - provide lazy access to sublists
+#
 # 2005-08-27
 # * new methods start() end()
 #
@@ -95,6 +98,9 @@ sub new {
     $param{start} = sub {} unless defined $param{start};
     $param{end}   = sub {} unless defined $param{end}; 
 
+    $param{shift_n} = sub {} unless defined $param{shift_n};
+    $param{pop_n}   = sub {} unless defined $param{pop_n}; 
+
     return bless \%param, $class;
 }
 
@@ -108,6 +114,8 @@ sub int           { $_[0]->elems }
 sub bit           { $_[0]->elems > 0 }
 sub num           { $_[0]->elems }
 sub perl          { '(' . $_[0]->{cstringify}( $_[0] ) . ')' }
+sub shift_n       { $_[0]->{shift_n}( @_ ) }
+sub pop_n         { $_[0]->{pop_n}( @_ ) }
 
 sub flatten       { 
     my $ret = shift;
@@ -129,6 +137,18 @@ sub from_num_range {
     my $end =   $param{end};
     my $step =  $param{step} || 1;
     $class->new(
+                shift_n => sub {
+                            my $list = shift;
+                            my $middle = $start + $_[1] - 1;
+                            $middle = $end if $middle > $end;
+                            my $shifted = ref($list)->new(
+                                start => $start,
+                                end => $middle,
+                                step => $step,
+                            );
+                            $start = $middle + 1;
+                            return $shifted;
+                        },
                 start =>   sub { $start },
                 end =>     sub { $end },
                 cstart =>  sub {
