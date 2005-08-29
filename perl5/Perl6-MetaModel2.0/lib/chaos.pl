@@ -6,6 +6,7 @@ use warnings;
 use Carp 'confess';
 use Hash::Util 'lock_keys';
 use Scalar::Util 'blessed';
+use Data::Dumper ();
 
 our $DISPATCH_TRACE = 0;
 
@@ -69,7 +70,7 @@ our $DISPATCH_TRACE = 0;
         my ($dispatcher, $label, %opts) = @_;
         warn "::WALKMETH called for ($label) ... for " . $opts{for} if $DISPATCH_TRACE;
         while (my $current = $dispatcher->()) {
-            warn "\t> Currently looking in id(" . ::opaque_instance_id($current) . ") for ($label)" if $DISPATCH_TRACE;
+            warn "\t> Currently looking in id($current) for ($label)" if $DISPATCH_TRACE;
             if ($current->has_method($label, %opts)) {
                 return $current->get_method($label, %opts);
             }
@@ -239,7 +240,7 @@ our $DISPATCH_TRACE = 0;
     # in this dispatcher, since there will be none
     # because the class it an instance of itself :)
     sub _class_dispatch {
-        my ($self, $label) = (shift, shift);  
+        my ($self, $label, $args, $is_class_method) = @_;  
         warn "... entering _class_dispatch with label($label)" if $DISPATCH_TRACE;  
         my $method_table_name;
         # check the private methods
@@ -247,7 +248,12 @@ our $DISPATCH_TRACE = 0;
             $method_table_name = '%:private_methods';
         }
         else {
-            $method_table_name = '%:methods';
+            if ($is_class_method) {
+                $method_table_name = '%:class_methods';                
+            }
+            else {
+                $method_table_name = '%:methods';                
+            }
         }
         # NOTE:
         # we need to just access stuff directly here
@@ -267,14 +273,14 @@ our $DISPATCH_TRACE = 0;
         # now try and find out method ...
         foreach my $class (@classes) {
             my $method_table = ::opaque_instance_attrs($class)->{$method_table_name};
-            return $method_table->{$label}->($self, @_) 
+            return $method_table->{$label}->($self, @{$args}) 
                 if exists $method_table->{$label};             
         }
         confess "Method ($label) not found for meta-instance ($self)";          
     }
 
     sub _normal_dispatch {
-        my ($self, $label, @args) = @_; 
+        my ($self, $label, $args, $is_class_method) = @_; 
         warn "... entering _normal_dispatch with label($label)" if $DISPATCH_TRACE;                    
         # NOTE:
         # DESTROYALL is what should really be called
@@ -291,21 +297,26 @@ our $DISPATCH_TRACE = 0;
             confess "Private Method ($label) not found for instance ($self)"
                 unless $class->has_method($label, for => 'private');
             my $method = $class->get_method($label, for => 'private');
-            @return_value = $method->($self, @args);  
+            @return_value = $method->($self, @{$args});  
         }
         else {   
-            # get the dispatcher instance ....
-            my $dispatcher = _class_dispatch($class, 'dispatcher', (':canonical'));  
             
-#            $DISPATCH_TRACE = 1;          
+            my %opts = (for => 'instance');
+            if ($is_class_method) {
+                %opts = (for => 'class');
+                $class = $self;
+            }
+                        
+            # get the dispatcher instance ....
+            my $dispatcher = $class->dispatcher(':canonical');  
             # walk the methods
-            my $method = ::WALKMETH($dispatcher, $label);
+            my $method = ::WALKMETH($dispatcher, $label, %opts);
             (defined $method)
-                || confess "Method ($label) not found for instance ($class)";   
+                || confess "Method ($label) not found for " . $opts{for} . " ($self)" . Data::Dumper::Dumper($self);   
             # store the dispatcher state
-            push @DISPATCHER => [ $dispatcher, $label, $self, \@args ];
+            push @DISPATCHER => [ $dispatcher, $label, $self, $args, \%opts ];
             # call the method
-            @return_value = $method->($self, @args);     
+            @return_value = $method->($self, @{$args});     
             # we can dispose of the dispatcher state
             # as it  should never be called outside of 
             # a method invocation
@@ -323,8 +334,10 @@ our $DISPATCH_TRACE = 0;
     # construct to go to the next
     # applicable method 
     sub ::next_METHOD {
-        my ($dispatcher, $label, $self, $args) = @{$DISPATCHER[-1]};             
-        my $method = ::WALKMETH($dispatcher, $label); 
+        warn ">>>> next METHOD called" if $DISPATCH_TRACE;
+        my ($dispatcher, $label, $self, $args, $opts) = @{$DISPATCHER[-1]};             
+        my $method = ::WALKMETH($dispatcher, $label, %{$opts}); 
+        confess "No next-method for '$label' found" unless defined $method;
         return $method->($self, @{$args});            
     }
 
@@ -333,6 +346,30 @@ our $DISPATCH_TRACE = 0;
 ###############################################################################
 ## Perl 5 magic sugar down here ...
 
+{
+    package class;
+    
+    # this package represents the "magic"
+    # of the class layer. Using this 
+    # we can get a class invocant which 
+    # is how class methods get called 
+    
+    sub isa {
+        $Dispatchable::AUTOLOAD = 'class::isa';
+        goto &Dispatchable::AUTOLOAD;        
+    }
+
+    sub can {
+        $Dispatchable::AUTOLOAD = 'class::can';
+        goto &Dispatchable::AUTOLOAD;        
+    }
+    
+    sub AUTOLOAD {
+        $Dispatchable::AUTOLOAD = our $AUTOLOAD;
+        goto &Dispatchable::AUTOLOAD;
+    }
+}
+
 { ## Perl 5 dispatcher magic
     package Dispatchable;
     
@@ -340,6 +377,15 @@ our $DISPATCH_TRACE = 0;
     use warnings;
     
     use Carp 'confess';
+    
+    use overload 
+        '0+' => sub {
+            ::opaque_instance_id($_[0])
+        },       
+        '""' => sub {
+            "#<" . (::opaque_instance_attrs($_[0])->{'$:name'} || 'instance') . "=(" . ::opaque_instance_id($_[0]) . ")>"
+        },     
+        fallback => 1;
 
     sub isa { our $AUTOLOAD = 'isa'; goto &AUTOLOAD; }
     sub can { our $AUTOLOAD = 'can'; goto &AUTOLOAD; }
@@ -353,7 +399,7 @@ our $DISPATCH_TRACE = 0;
         # issue though ... have to see as development progresses
         return if $label =~ /DESTROY/ && not defined &::dispatch;
         my $self = shift;          
-        return ::dispatcher($self, $label, @_);
+        return ::dispatcher($self, $label, \@_, ($autoload[0] eq 'class' ? 1 : 0));
     }
 }
 

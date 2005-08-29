@@ -16,13 +16,13 @@ $::Object = ::create_class('$:name' => 'Object');
 
 $::Object->add_method('new' => ::make_class_method(sub {
     my ($class, %params) = @_;
-    return $class->bless(undef, %params);    
+    return $class->class::bless(undef, %params);    
 }, $::Object));
 
 $::Object->add_method('bless' => ::make_class_method(sub {
     my ($class, $canidate, %params) = @_;
     $canidate ||= 'P6opaque'; # opaque is our default
-    my $self = $class->CREATE(repr => $canidate, %params);
+    my $self = $class->class::CREATE(repr => $canidate, %params);
     $self->BUILDALL(%params);
     return $self;  
 }, $::Object));

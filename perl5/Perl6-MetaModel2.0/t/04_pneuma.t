@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6; #18;
+use Test::More tests => 18;
 use Test::Exception;
 
 do 'lib/pneuma.pl'; 
@@ -27,17 +27,15 @@ my $d = $::Object->dispatcher(':canonical');
 is(ref($d), 'CODE', '... got a dispatcher function');  
 is($d->(), $::Object, '... got the right value from the dispatcher');
 
-exit;
-
 # now call some class methods
 
-ok($::Object->isa('Object'), '... Object->isa(Object)');
+ok($::Object->class::isa('Object'), '... Object->class::isa(Object)');
 
 foreach my $method_name (qw(new bless CREATE isa can)) {
-    ok($::Object->can($method_name), '... Object->can(' . $method_name . ')');
+    ok($::Object->class::can($method_name), '... Object->class::can(' . $method_name . ')');
 }
 
-my $iObject = $::Object->new();
+my $iObject = $::Object->class::new();
 ok($iObject->isa('Object'), '... iObject->isa(Object)');
 
 foreach my $method_name (qw(BUILD BUILDALL DESTROYALL isa can)) {
