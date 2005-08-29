@@ -3,6 +3,9 @@
 
 # ChangeLog
 #
+# 2005-08-29
+# * Added support for store() past the end of the array
+#
 # 2005-08-27
 # * Fixed fetch/store single elements from a lazy slice
 # * Fixed fetch/store of whole lazy slice
@@ -696,7 +699,6 @@ sub fetch {
 }
 
 sub store {
-    # TODO - $pos could be a lazy list of pairs!
     my $array = shift;
     my $pos = shift;
     my $item  = shift;
@@ -704,7 +706,13 @@ sub store {
         my $class = ref($array);
         $item = $class->new( items => [$item] );
     }
-    $array->splice( $pos, 1, $item );
+    if ( $pos <= $array->elems ) {
+        $array->splice( $pos, 1, $item );
+        return $array;
+    }
+    # store after the end 
+    my $fill = Perl6::Value::List->from_x( item => undef, count => ( $pos - $array->elems ) );
+    push @{$array->{items}}, $fill, $item;
     return $array;
 }
 
