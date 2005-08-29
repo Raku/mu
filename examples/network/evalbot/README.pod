@@ -11,17 +11,57 @@ This is a small IRC bot using C<Net::IRC> to C<eval()> commands.
 C<evalbot.p6> is the main bot, written in Perl 6. To run a command, it spawns
 C<evalhelper.p5>, a Perl 5 program. This sets up the necessary environment
 (C<PUGS_SAFEMODE>, redirection of C<STDOUT> and C<STDERR> to a temporary file,
-resource limits, etc.). Finnaly, C<evalhelper.p5> runs C<pugs>.
+resource limits, etc.). Finally, C<evalhelper.p5> runs C<pugs>.
 
 =head1 INSTALLATION
 
-There's no installation, simply run C<evalbot.p6> supplying a nick and an IRC
-server to connect to:
+There's no separate installation step needed, simply run C<evalbot.p6> and
+supply a nick and an IRC server to connect to:
 
     $ pugs evalbot.p6 evalbot6 irc.freenode.net:6667
 
-You don't have to restart C<evalbot.p6> when you've installed a new Pugs, as a
-new C<pugs> is spawned on each command to eval.
+You don't have to restart C<evalbot.p6> when you install a new Pugs, as a new
+C<pugs> is spawned on each command to eval.
+
+C<evalhelper.p5> needs the C<BSD::Resource> module to be able to set
+appropriate resource limits, so you can't run Evalbot under Win32.
+
+=head1 REMOTE CONTROL
+
+Once C<evalbot.p6> is connected to IRC, everybody can send it expressions to
+eval:
+
+    <you>     ?eval 42
+    <evalbot> 42
+
+Because of C<BSD::Resource> and Pugs's safemode, Evalbot should be able to
+withstand most attacks (infinite loops, huge memory consumption, unsafe I/O,
+etc. etc.):
+
+    <you>     ?eval while 1 {}
+    <you>     ?eval my $str = "42" x 1_000_000_000_000
+    <you>     ?eval system "rm -rf /"
+    <you>     ?eval say "\nPRIVMSG foo :bar"
+    <you>     ?eval say "flood\n" x 1_000
+    # etc.
+
+Note that the return value of an expression is not printed directly, but
+instead the C<.perl> method is called to prettyprint the result:
+
+    <you>     ?eval "hi"
+    <evalbot> 'hi'              # (note that quotes)
+
+This behaviour may be confusing at first, especially if you intended to use
+C<&say> to output something:
+
+    <you>     ?eval say "hi"
+    <evalbot> hi bool::true     # (the bool::true is say("hi")'s return value)
+
+There're other commands available, too:
+
+    <you>     ?help
+    <evalbot> evalbot6 -- ?help | ?quit [reason] | ?raw ...
+            | ?join #chan | ?uptime | ?eval code
 
 =head1 AUTHOR
 
