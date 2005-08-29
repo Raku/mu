@@ -3,29 +3,31 @@
 use strict;
 use warnings;
 
-use Test::More tests => 18;
+use Test::More tests => 6; #18;
 use Test::Exception;
 
 do 'lib/pneuma.pl'; 
 
-# check some META:: methods
+# check some methods
 
-is($::Object->META::name, 'Object', '... $::Object->META::name() is Object');
-is($::Object->META::version, '0.0.0', '... $::Object->META::version() is 0.0.0');
+is($::Object->name, 'Object', '... $::Object->name() is Object');
+is($::Object->version, '0.0.0', '... $::Object->version() is 0.0.0');
 
 is_deeply(
-    $::Object->META::superclasses(), 
+    $::Object->superclasses(), 
     [], 
-    '... $::Object->META::superclasses() is []');
+    '... $::Object->superclasses() is []');
 
 is_deeply(
-    [ $::Object->META::MRO() ], 
+    [ $::Object->MRO() ], 
     [ $::Object ], 
-    '... $::Object->META::MRO() is $::Object');
+    '... $::Object->MRO() is $::Object');
     
-my $d = $::Object->META::dispatcher(':canonical');    
+my $d = $::Object->dispatcher(':canonical');    
 is(ref($d), 'CODE', '... got a dispatcher function');  
 is($d->(), $::Object, '... got the right value from the dispatcher');
+
+exit;
 
 # now call some class methods
 

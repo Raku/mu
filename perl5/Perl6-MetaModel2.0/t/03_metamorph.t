@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 85;
+use Test::More tests => 88;
 use Test::Exception;
 
 do 'lib/metamorph.pl';
@@ -47,6 +47,15 @@ lives_ok_and_is {
 lives_ok_and_is {
     [ $::Class->MRO ];
 } [ $::Class ], '... got the MRO we expected';
+
+{
+    my $dispatcher;
+    lives_ok {
+        $dispatcher = $::Class->dispatcher();
+    } '... got the dispatcher ok';
+    is(ref($dispatcher), 'CODE', '... the dispatcher is a CODE ref');
+    is($dispatcher->(), $::Class, '... got the right element out of the dispatcher');
+}
 
 ## now test some calculated values
 

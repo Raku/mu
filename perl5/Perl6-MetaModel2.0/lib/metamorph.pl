@@ -31,7 +31,7 @@ $::Class->add_method('authority' => ::make_method(sub {
 }, $::Class));
 
 $::Class->add_method('identifier' => ::make_method(sub {
-    return join '-' => (SELF()->META::name, SELF()->META::version, (SELF()->META::authority || ()));
+    return join '-' => (SELF()->name, SELF()->version, (SELF()->authority || ()));
 }, $::Class));
 
 $::Class->add_method('superclasses' => ::make_method(sub {        
@@ -43,14 +43,18 @@ $::Class->add_method('superclasses' => ::make_method(sub {
         # we should check that none of the classes passed to us
         # are also subclasses of us, this is circular inheritance
         # and not allowed.
-        ::opaque_instance_attrs($self)->{'@:superclasses'} = $superclasses;    
+        ::opaque_instance_attrs($self)->{'@:superclasses'} = $superclasses; 
+        # clear the MRO now
+        ::opaque_instance_attrs($self)->{'@:MRO'} = [];
+        # and recalculate it ..
+        $self->MRO();
     }
     ::opaque_instance_attrs($self)->{'@:superclasses'};
 }, $::Class));
 
 $::Class->add_method('_merge' => ::make_private_method(sub {                
     my ($self, @seqs) = @_;
-    my @res; 
+    my @res;
     while (1) {
         # remove all empty seqences
         my @nonemptyseqs = (map { (@{$_} ? $_ : ()) } @seqs);
@@ -83,11 +87,17 @@ $::Class->add_method('_merge' => ::make_private_method(sub {
 }, $::Class));
 
 $::Class->add_method('MRO' => ::make_method(sub { 
-    return SELF()->META::_merge(
-        [ SELF() ],                                      # the class we are linearizing
-        (map { [ $_->META::MRO() ] } @{SELF()->META::superclasses}), # the MRO of all the superclasses
-        [ @{SELF()->META::superclasses} ]                      # a list of all the superclasses
-    );
+    my $self = shift;
+    unless (@{::opaque_instance_attrs($self)->{'@:MRO'}}) {
+        ::opaque_instance_attrs($self)->{'@:MRO'} = [
+            $self->_merge(
+                [ $self ],                                      # the class we are linearizing
+                (map { [ $_->MRO() ] } @{$self->superclasses}), # the MRO of all the superclasses
+                [ @{$self->superclasses} ]                      # a list of all the superclasses
+            )
+        ];
+    }
+    return @{::opaque_instance_attrs($self)->{'@:MRO'}};
 }, $::Class));
 
 $::Class->add_method('dispatcher' => ::make_method(sub {
@@ -96,16 +106,16 @@ $::Class->add_method('dispatcher' => ::make_method(sub {
         if not(defined($order)) || $order eq ':canonical';
     my $dispatcher;
     if ($order eq ':preorder') {
-        $dispatcher = $self->META::_make_preorder_dispatcher();
+        $dispatcher = $self->_make_preorder_dispatcher();
     }
     elsif ($order eq ':breadth') {
-        $dispatcher = $self->META::_make_breadth_dispatcher();
+        $dispatcher = $self->_make_breadth_dispatcher();
     }
     elsif ($order eq ':descendant') {
-        $dispatcher = $self->META::_make_descendant_dispatcher();
+        $dispatcher = $self->_make_descendant_dispatcher();
     }    
     elsif ($order eq ':ascendant') {
-        $dispatcher = $self->META::_make_ascendant_dispatcher();
+        $dispatcher = $self->_make_ascendant_dispatcher();
     }   
     else {
         confess 'Unsupported dispatch order ($order)'
@@ -120,7 +130,7 @@ $::Class->add_method('_make_dispatcher_iterator' => ::make_private_method(sub {
 }, $::Class));
 
 $::Class->add_method('_make_preorder_dispatcher' => ::make_private_method(sub {
-    my @stack = SELF()->META::_make_dispatcher_iterator(SELF());
+    my @stack = SELF()->_make_dispatcher_iterator(SELF());
     return sub {
         TOP: {
             if (defined $stack[-1]) {
@@ -136,8 +146,8 @@ $::Class->add_method('_make_preorder_dispatcher' => ::make_private_method(sub {
                     redo TOP;
                 }
                 else {
-                    push @stack => SELF()->META::_make_dispatcher_iterator(@{$current_class->META::superclasses})
-                        if $current_class->META::superclasses;
+                    push @stack => SELF()->_make_dispatcher_iterator(@{$current_class->superclasses})
+                        if $current_class->superclasses;
                 }             
                 return $current_class;
             }
@@ -147,7 +157,7 @@ $::Class->add_method('_make_preorder_dispatcher' => ::make_private_method(sub {
 }, $::Class));
 
 $::Class->add_method('_make_breadth_dispatcher' => ::make_private_method(sub {
-    my @stack = SELF()->META::_make_dispatcher_iterator(SELF());
+    my @stack = SELF()->_make_dispatcher_iterator(SELF());
     return sub {
         TOP:
             if (scalar(@stack) != -0) {
@@ -163,8 +173,8 @@ $::Class->add_method('_make_breadth_dispatcher' => ::make_private_method(sub {
                     goto TOP;
                 }
                 else {
-                    push @stack => SELF()->META::_make_dispatcher_iterator(@{$current_class->META::superclasses})
-                        if $current_class->META::superclasses;
+                    push @stack => SELF()->_make_dispatcher_iterator(@{$current_class->superclasses})
+                        if $current_class->superclasses;
                 }             
                 return $current_class;
             }
@@ -173,21 +183,21 @@ $::Class->add_method('_make_breadth_dispatcher' => ::make_private_method(sub {
 }, $::Class));
 
 $::Class->add_method('_make_descendant_dispatcher' => ::make_private_method(sub {
-    my @MRO = SELF()->META::MRO();
-    return SELF()->META::_make_dispatcher_iterator(reverse @MRO);
+    my @MRO = SELF()->MRO();
+    return SELF()->_make_dispatcher_iterator(reverse @MRO);
 }, $::Class));
 
 $::Class->add_method('_make_ascendant_dispatcher' => ::make_private_method(sub {
-    my @MRO = SELF()->META::MRO();
-    return SELF()->META::_make_dispatcher_iterator(@MRO);
+    my @MRO = SELF()->MRO();
+    return SELF()->_make_dispatcher_iterator(@MRO);
 }, $::Class));
 
 $::Class->add_method('is_a' => ::make_method(sub {        
     my ($self, $class) = @_;
-    return 1 if $self->META::name eq $class;
-    my $dispatcher = $self->META::dispatcher(':canonical');
+    return 1 if $self->name eq $class;
+    my $dispatcher = $self->dispatcher(':canonical');
     while (my $next = $dispatcher->()) {    
-        return 1 if $next->META::name() eq $class;
+        return 1 if $next->name() eq $class;
     }
     return 0; 
 }, $::Class));
@@ -214,14 +224,14 @@ $::Class->add_method('_get_method_table' => ::make_private_method(sub {
 
 $::Class->add_method('has_method' => ::make_method(sub {
     my ($self, $label, %params) = @_;
-    $self->META::get_method($label, %params) ? 1 : 0;                    
+    $self->get_method($label, %params) ? 1 : 0;                    
 }, $::Class));
 
 $::Class->add_method('get_method' => ::make_method(sub {
     my ($self, $label, %params) = @_;
     confess "You must provide a method label"
         unless defined $label;
-    my $method_table = $self->META::_get_method_table(\%params);
+    my $method_table = $self->_get_method_table(\%params);
     return $method_table->{$label};                
 }, $::Class));
 
@@ -260,20 +270,20 @@ $::Class->add_method('get_attribute' => ::make_method(sub {
     my ($self, $label, %params) = @_;
     (defined $label)
         || confess "InsufficientArguments : you must provide a label";
-    my $table = $self->META::_get_attribute_table(\%params);                    
+    my $table = $self->_get_attribute_table(\%params);                    
     return $table->{$label};
 }, $::Class));
                            
 
 $::Class->add_method('has_attribute' => ::make_method(sub {
     my ($self, $label, %params) = @_;
-    return $self->META::get_attribute($label, %params) ? 1 : 0;
+    return $self->get_attribute($label, %params) ? 1 : 0;
 }, $::Class));
 
 
 $::Class->add_method('get_attribute_list' => ::make_method(sub {
     my ($self, %params) = @_;
-    my $table = $self->META::_get_attribute_table(\%params);                  
+    my $table = $self->_get_attribute_table(\%params);                  
     return keys %{$table};
 }, $::Class));
 
@@ -281,10 +291,10 @@ $::Class->add_method('get_attribute_list' => ::make_method(sub {
 $::Class->add_method('find_attribute_spec' => ::make_method(sub {
     my ($self, $label, %params) = @_;
     # go in BUILD order
-    my $dispatcher = $self->META::dispatcher(':descendant');
+    my $dispatcher = $self->dispatcher(':descendant');
     while (my $next = $dispatcher->()) {   
-        return $next->META::get_attribute($label, %params)
-            if $next->META::has_attribute($label, %params)
+        return $next->get_attribute($label, %params)
+            if $next->has_attribute($label, %params)
     } 
     return undef;
 }, $::Class));

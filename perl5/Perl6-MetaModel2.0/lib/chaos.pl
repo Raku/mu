@@ -7,6 +7,8 @@ use Carp 'confess';
 use Hash::Util 'lock_keys';
 use Scalar::Util 'blessed';
 
+our $DISPATCH_TRACE = 0;
+
 {   ## Opaque instances     
     # These functions build opaque instance
     # variables and acces their internal data
@@ -65,11 +67,11 @@ use Scalar::Util 'blessed';
     # object. They are very useful :)
     sub ::WALKMETH {
         my ($dispatcher, $label, %opts) = @_;
-        #warn "::WALKMETH called ... for " . $opts{for};
+        warn "::WALKMETH called for ($label) ... for " . $opts{for} if $DISPATCH_TRACE;
         while (my $current = $dispatcher->()) {
-            #warn "Currently looking in " . ::opaque_instance_id($current);
-            if ($current->META::has_method($label, %opts)) {
-                return $current->META::get_method($label, %opts);
+            warn "\t> Currently looking in id(" . ::opaque_instance_id($current) . ") for ($label)" if $DISPATCH_TRACE;
+            if ($current->has_method($label, %opts)) {
+                return $current->get_method($label, %opts);
             }
         }
         return undef;        
@@ -206,7 +208,6 @@ use Scalar::Util 'blessed';
 }
 
 {
-    our $DISPATCH_TRACE = 0;
     
     ## dispatcher
     # the Perl 6 method dispatcher needs to
@@ -238,8 +239,8 @@ use Scalar::Util 'blessed';
     # in this dispatcher, since there will be none
     # because the class it an instance of itself :)
     sub _class_dispatch {
-        my ($self, $label, $is_meta) = (shift, shift, shift);  
-        warn "entering _class_dispatch with label($label), is_meta($is_meta)" if $DISPATCH_TRACE;  
+        my ($self, $label) = (shift, shift);  
+        warn "... entering _class_dispatch with label($label)" if $DISPATCH_TRACE;  
         my $method_table_name;
         # check the private methods
         if ($label =~ /^_/) {
@@ -269,12 +270,12 @@ use Scalar::Util 'blessed';
             return $method_table->{$label}->($self, @_) 
                 if exists $method_table->{$label};             
         }
-        confess "Method ($label) not found for instance ($self)";          
+        confess "Method ($label) not found for meta-instance ($self)";          
     }
 
     sub _normal_dispatch {
-        my ($self, $label, $is_meta, @args) = @_; 
-        warn "entering _normal_dispatch with label($label), is_meta($is_meta)" if $DISPATCH_TRACE;                    
+        my ($self, $label, @args) = @_; 
+        warn "... entering _normal_dispatch with label($label)" if $DISPATCH_TRACE;                    
         # NOTE:
         # DESTROYALL is what should really be called
         # so we just deal with it like this :)
@@ -282,38 +283,23 @@ use Scalar::Util 'blessed';
             $label = 'DESTROYALL';
         }
         
-        my $class;
-        my %opts;
-        # if it is a class ...
-        if (::opaque_instance_class($self) == $::Class) {
-            $class = $self;
-            # get the class methods if it is not a META:: call
-            unless ($is_meta) {
-                %opts = (for => 'class');              
-            }
-            else {
-                # but get the metaclass if it is a META:: call
-                $class = ::opaque_instance_class($self);
-            }
-        }
-        else {      
-            $class = ::opaque_instance_class($self);            
-            %opts = (for => 'instance');            
-        }
+        my $class = ::opaque_instance_class($self);
         
         my @return_value;
         # check if this is a private method
         if ($label =~ /^_/) {           
             confess "Private Method ($label) not found for instance ($self)"
-                unless $class->META::has_method($label, for => 'private');
-            my $method = $class->META::get_method($label, for => 'private');
+                unless $class->has_method($label, for => 'private');
+            my $method = $class->get_method($label, for => 'private');
             @return_value = $method->($self, @args);  
         }
         else {   
             # get the dispatcher instance ....
-            my $dispatcher = $class->META::dispatcher(':canonical');            
+            my $dispatcher = _class_dispatch($class, 'dispatcher', (':canonical'));  
+            
+#            $DISPATCH_TRACE = 1;          
             # walk the methods
-            my $method = ::WALKMETH($dispatcher, $label, %opts);
+            my $method = ::WALKMETH($dispatcher, $label);
             (defined $method)
                 || confess "Method ($label) not found for instance ($class)";   
             # store the dispatcher state
@@ -347,15 +333,6 @@ use Scalar::Util 'blessed';
 ###############################################################################
 ## Perl 5 magic sugar down here ...
 
-{ ## META re-dispatcher
-    package META;
-    
-    sub AUTOLOAD {
-        $Dispatchable::AUTOLOAD = our $AUTOLOAD; 
-        goto &Dispatchable::AUTOLOAD;
-    }
-}
-
 { ## Perl 5 dispatcher magic
     package Dispatchable;
     
@@ -376,7 +353,7 @@ use Scalar::Util 'blessed';
         # issue though ... have to see as development progresses
         return if $label =~ /DESTROY/ && not defined &::dispatch;
         my $self = shift;          
-        return ::dispatcher($self, $label, ($autoload[0] eq 'META' ? 1 : 0), @_);
+        return ::dispatcher($self, $label, @_);
     }
 }
 
