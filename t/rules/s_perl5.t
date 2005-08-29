@@ -13,7 +13,7 @@ Please add more!!
 
 =cut
 
-if(!eval('("a" ~~ rx:P5/a/)')) {
+unless "a" ~~ rx:P5/a/ {
   skip_rest "skipped tests - P5 regex support appears to be missing";
   exit;
 }
@@ -21,6 +21,9 @@ if(!eval('("a" ~~ rx:P5/a/)')) {
 my $foo = "foo"; 
 $foo ~~ s:perl5{f}{b}; 
 is($foo, "boo", 'substitute regexp works');
+unless $foo eq "boo" {
+  skip_rest "Skipping test which depend on a previous failed test";
+}
 
 my $bar = "barrrr"; 
 $bar ~~ s:perl5:g{r+}{z}; 

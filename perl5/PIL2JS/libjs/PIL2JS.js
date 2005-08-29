@@ -671,6 +671,8 @@ var _24main_3a_3a_2aOS       = new PIL2JS.Box.Constant("browser");
 var _24main_3a_3aOS          = _24main_3a_3a_2aOS;
 var _24main_3a_3a_3fPUGS_BACKEND = new PIL2JS.Box.Constant("BACKEND_JAVASCRIPT");
 var _24main_3a_3a_           = new PIL2JS.Box(undefined);
+// $/ -- XXX WRONG needs to be lexical
+var _24main_3a_3a_2f         = new PIL2JS.Box(undefined);
 // Stub for $?CALLER::CALLER::POSITION, so Test.pm doesn't die on a failed
 // test.
 var _24_3fCALLER_3a_3aCALLER_3a_3aCALLER_3a_3aPOSITION =
@@ -959,6 +961,9 @@ var _26main_3a_3aisa = PIL2JS.Box.constant_func(1, function (args) {
     cc(new PIL2JS.Box.Constant(
       type == cmptype                      ||
       type == "Array" && cmptype == "List" ||
+      // Hacks:
+      type == "Num"   && cmptype == "Int"  ||
+      type == "Num"   && cmptype == "Rat"  ||
       type == "Any"
     ));
   }]);

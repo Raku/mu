@@ -259,12 +259,10 @@ is the name of the Perl 5 interpreter.
 
 =back
 
-
 =head2 Editing
 
 There is a F<util/perl6.vim> Vim syntax file.  There is no emacs mode yet,
 but perl-mode works better than cperl-mode.
-
 
 =head2 Testing
 
@@ -293,21 +291,25 @@ Using the PCRE distribution, PCRE can be tested interactively with
 
 =over
 
-=item *
+=item L<http://www-users.cs.york.ac.uk/~ndm/hoogle/>
 
-L<http://www-users.cs.york.ac.uk/~ndm/hoogle/> A cross index of
-standard Haskell libraries. It is searchable by type signature, name,
-etc.
+A cross index of standard Haskell libraries.  It is searchable by type
+signature, name, etc.
 
-=item *
+=item L<http://rt.openfoundry.org/Foundry/Project/Source/index.html/pugs/browse/>
 
-L<http://rt.openfoundry.org/Foundry/Project/Source/index.html/pugs/browse/>
-Browsable Pugs vcs.  You sometimes get a blank page the first time you
-access a URL (a timeout) - just click again.
+Browsable Pugs VCS.  You sometimes get a blank page the first time you access a
+URL (a timeout) - just click again.
 
-=item *
+=item L<http://svn.perl.org/perl6/pugs/trunk/>
 
-L<http://svn.perl.org/perl6/pugs/trunk/> Mirror of Pugs vcs head.
-Usually faster and more reliable than the openfoundry browser.
+Mirror of Pugs VCS head.  Usually faster and more reliable than the OpenFoundry
+browser, but doesn't show diffs between revisions.
+
+=item L<http://m19s28.vlinux.de/cgi-bin/pugs-smokeserv.pl>
+
+Pugs Smoke Reports Server.  List of recently uploaded smoke reports sorted by
+the runcore used (normal Haskell backend, PIL2JS, PIL-Run, PIR, etc.), see
+F<util/smokeserv/README> for more information.
 
 =back

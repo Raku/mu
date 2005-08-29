@@ -50,7 +50,7 @@ for @subs -> $name, $arity, $type, $body {
     return($body);
   \}";
 
-  # XXX! HACK! See the end of Prelude::JS for explanation.
+  # XXX! minor hack. See the end of Prelude::JS for explanation.
   my $args  = $arity == 1  ?? '?$__a = $CALLER::_' :: '$__a, $__b';
   my $c     = $type eq "S" ?? "~"                  :: "+";
   my $args_ = $arity == 1  ?? "$c\$__a"            :: "$c\$__a, $c\$__b";

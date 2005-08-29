@@ -42,8 +42,7 @@ sub JS::Root::rx_(%mods, Str $re, Str $qo, Str $qc) is primitive {
 
     if !@ret {
 	my $m  = $new_match(?0);
-	#my $m = Match.new(0,"",[],undef,undef);
-	# $/ = $m;
+	$/    := $m;
     } elsif $global {
 	# XXX - unfinished
     } else {
@@ -51,7 +50,8 @@ sub JS::Root::rx_(%mods, Str $re, Str $qo, Str $qc) is primitive {
         my $m_as_str   = shift @ret;
         my @m_as_array = @ret;
 	my $to = $from + $m_as_str.chars;
-	my $m  = $new_match(?1, $from, $to, $m_as_str, @m_as_array, []); # $/ = $m;
+	my $m  = $new_match(?1, $from, $to, $m_as_str, @m_as_array, []);
+        $/    := $m;
     }
   };
 
@@ -69,6 +69,23 @@ for <ok from to str subpos subnamed> -> $attr {
 
 multi sub infix:«~~» (Str $str, Rul $rule) is primitive {
   $rule.matcher.($str);
+}
+
+# Needs PIL2 and MMD to be done without hacks
+sub PIL2JS::Internals::Hacks::postcircumfix_for_match_objects (
+  Match $match, Int *@idxs
+) is primitive {
+  $match.subpos[*@idxs];
+}
+
+sub PIL2JS::Internals::Hacks::init_match_postcircumfix_method () is primitive {
+  JS::inline('(function () {
+    PIL2JS.addmethod(
+      _3amain_3a_3aMatch,
+      "postcircumfix:[]",
+      _26PIL2JS_3a_3aInternals_3a_3aHacks_3a_3apostcircumfix_for_match_objects
+    );
+  })')();
 }
 
 # $0 etc. are aliases for $/[0] etc.

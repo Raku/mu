@@ -50,7 +50,7 @@ plan 12;
 # Automatically dereffed arrays
 {
   my $arrayref = [1,2,3];
-  my $test  = sub (@array) {
+  my $test  = sub (@array is rw) {
     is @array[1], 2, "automatically dereffed arrays";
 
     $arrayref[1] = 3;

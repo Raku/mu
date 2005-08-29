@@ -20,7 +20,7 @@ so it looks like a pugs-pcre interface bug.
 
 =cut
 
-if(!eval('("a" ~~ rx:P5/a/)')) {
+unless "a" ~~ rx:P5/a/ {
   skip_rest "skipped tests - P5 regex support appears to be missing";
   exit;
 }
