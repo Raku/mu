@@ -525,6 +525,7 @@ instance Value VList where
         case v of
             (VList vs) -> return vs
             _          -> return [v]
+    fromVal (VList vs) = return vs
     fromVal v = fromVal' v
     doCast (VList l)     = return $ l
     doCast (VUndef)      = return $ [VUndef]
