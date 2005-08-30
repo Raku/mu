@@ -24,7 +24,7 @@ plan 7;
 {
   my $foo = [[0]];
   $foo[0][0]++;
-  is '$foo[0][0]', 1, 'lvalue $var[][] works';
+  is $foo[0][0], 1, 'lvalue $var[][] works';
 }
 
 # broken
@@ -43,12 +43,12 @@ plan 7;
 {
   my $foo = {a => [0]};
   $foo<a>[0]++;
-  is $foo, 1, 'lvalue $var<>[] works';
+  is $foo<a>[0], 1, 'lvalue $var<>[] works';
 }
 
 # broken
 {
   my %foo = (a => [0]);
   %foo<a>[0]++;
-  is $foo, 1, 'lvalue %var<>[] works';
+  is %foo<a>[0], 1, 'lvalue %var<>[] works';
 }
