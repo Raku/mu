@@ -19,7 +19,7 @@ build: build-arch build-indep
 build-arch: build-arch-stamp
 build-arch-stamp: configure-stamp 
 	$(MAKE) optimized
-	-$(MAKE) test
+	-test ($$SKIP_TESTS) || $(MAKE) test
 	pod2man --section=1 --release="Debian Project" --center="Debian GNU/Linux manual" $(CURDIR)/lib/pugs/run.pod $(CURDIR)/debian/pugs.1
 	pod2man --section=1 --release="Debian Project" --center="Debian GNU/Linux manual" $(CURDIR)/script/pugscc $(CURDIR)/debian/pugscc.1
 	touch build-arch-stamp
@@ -43,6 +43,7 @@ install-indep:
 	dh_install -i --sourcedir=$(CURDIR)/debian/tmp
 	cp -r $(CURDIR)/docs/* $(CURDIR)/debian/pugs-doc/usr/share/doc/pugs-doc/
 	rm -f $(CURDIR)/debian/pugs-doc/usr/share/doc/pugs-doc/SEEALSO
+	find $(CURDIR)/debian/pugs-doc/ -type f -size 0 -exec rm -f {} \;
 
 install-arch:
 	dh_testdir
