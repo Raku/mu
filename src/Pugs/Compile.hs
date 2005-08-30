@@ -316,6 +316,14 @@ instance Compile Exp PIL_LValue where
         compile $ Syn "=" [lhs, App (Var op) Nothing [lhs, exp]]
     compile (Syn "but" [obj, block]) =
         compile $ App (Var "&Pugs::Internals::but_block") Nothing [obj, block]
+    compile exp@(Syn "namespace" _) = do
+        -- XXX - Is there a better way to wrap Stmts as LValue?
+        compile $ App (Syn "sub"
+            [ Val . VCode $ mkSub
+                { subBody   = Stmts Noop exp
+                , subParams = []
+                }
+            ]) Nothing []
     compile exp = compError exp
 
 compLoop :: Exp -> Comp PIL_Stmt
