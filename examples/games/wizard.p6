@@ -1,5 +1,7 @@
 use v6;
 
+my $DEBUG = 0;
+
 multi *prompt (?$prompt) {
     print $prompt;
     my $input = =<>; 
@@ -57,10 +59,10 @@ class Room is wObject {
    has Str     @.exits is rw;
    method are_monsters () { @.monsters // 0 }
    method monster ()      {
-      say '@.monsters : ', @.monsters.perl;
+      say '@.monsters : ', @.monsters.perl if $DEBUG;
       my $x = shift @.monsters;
-      say 'shifted    : ', $x.perl;
-      say '@.monsters : ', @.monsters.perl;
+      say 'shifted    : ', $x.perl if $DEBUG;
+      say '@.monsters : ', @.monsters.perl if $DEBUG;
       $x;
     }
 };
@@ -178,7 +180,7 @@ $person.name = capitalize(prompt("What is your name: "));
 say "Greetings, $person.name()!";
 say $person.where;
 until ($person.dead) {
-  %world.{$person.location}.perl.say;
+  %world.{$person.location}.perl.say if $DEBUG;
   if (%world.{$person.location}.are_monsters){ 
      my $monster = %world.{$person.location}.monster;
      unless ( $person.battle($monster) ) {
