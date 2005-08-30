@@ -10,19 +10,39 @@ plan 2;
 # We may have to change the expected results of this test if Larry changes his
 # mind (which I don't hope).
 
+sub bar (Code $return) { $return(42) } 
+
 # { return }
 {
-  sub foo (Code $code) {
+  sub foo1 (Code $code) {
     my $return_to_caller = -> $ret { return $ret }; 
 
     $code($return_to_caller); 
     return 23; 
   } 
 
-  sub bar (Code $return) { $return(42) } 
-
-  is foo(&bar), 42, "return() inside anonymous subs works", :todo<bug>; 
+  is foo1(&bar), 42, "return() inside anonymous subs works", :todo<bug>; 
 }
+
+# same, but the "return" is nested in two (instead of one) blocks:
+{
+  sub foo2 (Code $code) {
+    my $return_to_caller = -> $ret {
+      -> $ret_ { return $ret_ }; 
+    };
+
+    $code($return_to_caller); 
+    return 23; 
+  } 
+
+  is foo2(&bar), 42, "return() inside anonymous subs works", :todo<bug>; 
+}
+
+=pod
+
+=begin more-discussion-needed
+
+Problem is: How does a plain reference to return know what scope to leave?
 
 # &return
 {

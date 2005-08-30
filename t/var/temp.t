@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 24;
+plan 31;
 
 # L<S04/"The Relationship of Blocks and Declarations" /function has been renamed/>
 {
@@ -12,7 +12,7 @@ plan 24;
     temp $a = 23;
     is $a, 23, "temp() changed the variable (1)";
   }
-  is $a, 42, "temp() restored the variable (1)", :todo<feature>;
+  is $a, 42, "temp() restored the variable (1)";
 }
 
 # Test that temp() restores the variable at scope exit, not at subroutine
@@ -25,7 +25,17 @@ plan 24;
     is $a,       23, "temp() changed the variable (2-1)";
     is $get_a(), 23, "temp() changed the variable (2-2)";
   }
-  is $a, 42, "temp() restored the variable (2)", :todo<feature>;
+  is $a, 42, "temp() restored the variable (2)";
+}
+
+# temp() shouldn't change the variable containers
+{
+  my $a     = 42;
+  my $get_a = { $a };
+  {
+    temp $a = 23;
+    ok $a =:= $get_a(), "temp() shouldn't change the variable containers";
+  }
 }
 
 {
@@ -34,7 +44,7 @@ plan 24;
     temp $pkgvar = 'not 42';
     is $pkgvar, 'not 42', "temp() changed the package variable (3-1)";
   }
-  is $pkgvar, 42, "temp() restored the package variable (3-2)", :todo<bug>;
+  is $pkgvar, 42, "temp() restored the package variable (3-2)";
 }
 
 # Test that temp() restores variable even when not exited regularly (using a
@@ -49,20 +59,42 @@ plan 24;
   is $a, 42, "temp() restored the variable, the block was exited using an exception";
 }
 
-=pod
-
-Should these work? (They don't even parse currently.)
-
 {
   my @array = (0, 1, 2);
   {
-    temp @array[1] = 42;
-    is @array[1], 42, "temp() changed our array element";
+    eval 'temp @array[1] = 42';
+    is @array[1], 42, "temp() changed our array element", :todo<feature>;
   }
   is @array[1], 1, "temp() restored our array element";
 }
 
-=cut
+{
+  my %hash = (:a(1), :b(2), :c(3));
+  {
+    eval 'temp %hash<b> = 42';
+    is %hash<b>, 42, "temp() changed our hash element", :todo<feature>;
+  }
+  is %hash<b>, 2, "temp() restored our array element";
+}
+
+{
+  my $struct = [
+    "doesnt_matter",
+    {
+      doesnt_matter => "doesnt_matter",
+      key           => [
+        "doesnt_matter",
+        42,
+      ],
+    },
+  ];
+
+  {
+    eval 'temp $struct[1]<key>[1] = 23';
+    is $struct[1]<key>[1], 23, "temp() changed our nested arrayref/hashref element", :todo<feature>;
+  }
+  is $struct[1]<key>[1], 1, "temp() restored our nested arrayref/hashref element";
+}
 
 # Block TEMP{}
 # L<S06/"Temporization" /You can also modify the behaviour of temporized code structures/>
@@ -72,7 +104,7 @@ Should these work? (They don't even parse currently.)
   # We stub &advance so we don't need to eval() the whole test.
   sub advance() {}
 
-  # Here is the real implementation of $advance.
+  # Here is the real implementation of &advance.
   eval 'sub advance() {
     my $curr = $next++;
     TEMP {{ $next = $curr }}  # TEMP block returns the closure { $next = $curr }
