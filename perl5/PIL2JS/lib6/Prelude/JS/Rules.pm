@@ -19,45 +19,101 @@ sub JS::Root::rx_helper_(%mods, Str $re, Str $qo, Str $qc) is primitive {
   die "Perl 6 Rules are not supported." if !$perl5;
 
   my $global = %mods{'g'} || %mods{'global'};
-  $flags ~= 'g' if $global;
   $flags ~= "i" if %mods{'i'} || %mods{'ignore'};
   $flags ~= "m" if %mods{'m'};
 
+  my $new_Match = JS::inline('
+     PIL2JS.toPIL2JSBox(function (as_b, from, to, as_s, as_a, as_h) {
+        return new PIL2JS.Match(as_b, from, to, as_s, as_a, as_h);
+     })');
+
   my $matcher;
   if $global {
-    $matcher = sub ($str) { die ":global regexp are not implemented yet"; }
-  } else {
-    $matcher = sub ($str) {
-      my @ret = JS::inline('(
-	function (pattern,flags,str) {
-	  var ret    = [];
-	  var regexp = new RegExp(pattern,flags);
-	  var match  = regexp.exec(str);
-	  if (match) {
-	    ret.push(match.index);
-	    for(var i = 0; i < match.length; i++) {
-	      ret.push(match[i]);
-	    }
-	  }
-	  return ret;
-	}
-      )')(~$pattern,$flags,$str);
+    my %mods_no_g = %mods;
+    %mods_no_g.delete('g');
+    %mods_no_g.delete('global');
+    my $rx = rx_helper_(%mods_no_g,$re,$qo,$qc);
+    $matcher = sub ($string) {
+      my $s = ~$string;
+      my $offset = 0;
+      my @a;
+      while 1 {
+        my $m = $s ~~ $rx;
+        last if !$m;
+        push(@a,$m);
 
-      my $new_match = JS::inline('PIL2JS.toPIL2JSBox(function (ok, from, to, str, subpos, subnamed) {
-	return new PIL2JS.Match(ok, from, to, str, subpos, subnamed);
-      })');
+        my $off = $m.to +1;
+#        $m.from += $offset; # XXX - should be writable, but isnt.
+#        $m.to   += $offset; # XXX - should be writable, but isnt.
 
-      if !@ret {
-	  my $m  = $new_match(?0);
-	  $/    := $m;
-      } else {
-	  my $from       = shift @ret;
-	  my $m_as_str   = shift @ret;
-	  my @m_as_array = @ret;
-	  my $to = $from + $m_as_str.chars;
-	  my $m  = $new_match(?1, $from, $to, $m_as_str, @m_as_array, []);
-	  $/    := $m;
+        last if $s eq '';
+
+        $offset += $off;
+        $s = substr($s,$off);
       }
+      my $match;
+      if !@a {
+        $match = $new_Match(?0, undef, undef, "", [], ());
+      } else {
+        my $from = @a[0].from;
+        my $to   = @a[-1].to + $offset; # @a[-1].to; # XXX
+        my $str  = substr($string,$from,$to-$from+1);
+        $match = $new_Match(?1, $from, $to, $str, @a, ());
+      }
+      $/ := $match;
+    };
+    # Here is an old JS version of :global.  Fyi.
+    #      var regexp = new RegExp(pattern,flags + "g");
+    #      var match  = regexp.exec(string);
+    #      if (!match) {
+    #        return mkMatch(false, null,null, null, null,null);
+    #      }
+    #      var g_from = match.index;
+    #      var g_array = [];
+    #      var g_to;
+    #      while (match) {
+    #        var m = unpack_match(match);
+    #        g_array.push(m);
+    #        g_to = regexp.lastIndex - 1;
+    #        match = regexp.exec(string);
+    #      }
+    #      var g_str = string.substring(g_from,g_to+1);
+    #      var m = mkMatch(true, g_from, g_to, g_str, g_array, null);
+    #      return m;
+
+  } else {
+    $matcher = sub ($string) {   # XXX - Are things getting boxed?
+      my $ret = JS::inline('(
+        function (pattern,flags,string) {
+
+          var mkMatch = function (ok, from, to, s, a, h) {
+            return new PIL2JS.Match(ok, from, to, s, a, h);
+          };
+          var unpack_match = function (match) {
+            var from = match.index;
+            var str  = match[0];
+            var to   = from + str.length -1;
+            var arr  = [];
+            for(var i = 1; i < match.length; i++) {
+              var s = match[i];
+              var tf = s != null;
+              if (!tf) { s = "" }
+              arr.push( mkMatch(tf, null,null, s, null,null));
+            }
+            var m = mkMatch(true, from, to, str, arr, null);
+            return m;
+          };
+
+          var regexp = new RegExp(pattern,flags);
+          var match  = regexp.exec(string);
+          if (!match) {
+            return mkMatch(false, null,null, null, null,null);
+          }
+          var m = unpack_match(match);
+          return m;
+        }
+      )')(~$pattern,$flags,$string);
+      $/ := $ret;
     };
   }
 
