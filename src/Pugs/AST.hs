@@ -123,8 +123,8 @@ mergeStmts (Stmts x1 x2) y = mergeStmts x1 (mergeStmts x2 y)
 mergeStmts Noop y@(Stmts _ _) = y
 mergeStmts (Sym scope name x) y = Sym scope name (mergeStmts x y)
 mergeStmts (Pad scope lex x) y = Pad scope lex (mergeStmts x y)
-mergeStmts (Syn "package" [pkg@(Val (VStr _))]) y =
-    Syn "namespace" [pkg, y]
+mergeStmts (Syn "package" [kind, pkg@(Val (VStr _))]) y =
+    Syn "namespace" [kind, pkg, y]
 mergeStmts x@(Pos pos (Syn syn _)) y | (syn ==) `any` words "subst match //"  =
     mergeStmts (Pos pos (App (Var "&infix:~~") Nothing [Var "$_", x])) y
 mergeStmts x y@(Pos pos (Syn syn _)) | (syn ==) `any` words "subst match //"  =

@@ -166,10 +166,18 @@ compileStmts exp = case exp of
             = PStmt $ PExp $ PApp (TTailCall cxt) fun inv args
         tailCall (PPos pos exp x) = PPos pos exp (tailCall x)
         tailCall x = x
-    Stmts this (Syn "namespace" [Val (VStr pkg), rest]) -> do
+    Stmts this (Syn "namespace" [Val (VStr sym), Val (VStr pkg), rest]) -> do
         thisC   <- enter cxtVoid $ compile this
+        declC   <- enter cxtVoid $ compile decl
         restC   <- enterPackage pkg $ compileStmts rest
-        return $ PStmts thisC restC
+        return $ PStmts thisC $ PStmts declC restC
+        where
+          -- XXX - kludge.
+          decl = App (Var func) Nothing [(Val (VStr pkg))]
+          func = "&" ++ (capitalize sym) ++ "::_create"
+          capitalize []     = []
+          capitalize (c:cs) = toUpper c:cs
+
     Stmts this rest -> do
         thisC   <- enter cxtVoid $ compile this
         restC   <- compileStmts rest

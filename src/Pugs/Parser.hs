@@ -314,21 +314,21 @@ ruleRuleDeclaration = rule "rule declaration" $ try $ do
 
 rulePackageBlockDeclaration :: RuleParser Exp
 rulePackageBlockDeclaration = rule "package block declaration" $ do
-    (_, pkgVal, env) <- try $ do
+    (_, kind, pkgVal, env) <- try $ do
         rv <- rulePackageHead
         lookAhead (char '{')
         return rv
     body <- between (symbol "{") (char '}') ruleBlockBody
     env' <- getRuleEnv
     putRuleEnv env'{ envPackage = envPackage env }
-    return $ Syn "namespace" [pkgVal, body]
+    return $ Syn "namespace" [kind, pkgVal, body]
 
 rulePackageDeclaration :: RuleParser Exp
 rulePackageDeclaration = rule "package declaration" $ try $ do
-    (_, pkgVal, _) <- rulePackageHead
-    return $ Syn "package" [pkgVal]
+    (_, kind, pkgVal, _) <- rulePackageHead
+    return $ Syn "package" [kind, pkgVal]
 
-rulePackageHead :: RuleParser (String, Exp, Env)
+rulePackageHead :: RuleParser (String, Exp, Exp, Env)
 rulePackageHead = do
     sym <- choice $ map symbol (words "package module class role grammar")
     name    <- ruleQualifiedIdentifier
@@ -348,7 +348,8 @@ rulePackageHead = do
     putRuleEnv env{ envPackage = name,
                     envClasses = envClasses env `addNode` mkType name }
     let pkgVal = Val . VStr $ name -- ++ v ++ a
-    return (name, pkgVal, env)
+        kind   = Val . VStr $ sym
+    return (name, kind, pkgVal, env)
 
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do

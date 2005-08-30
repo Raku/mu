@@ -687,9 +687,9 @@ reduceSyn "subst" [exp, subst, adverbs] = do
 reduceSyn "is" _ = do
     retEmpty
 
-reduceSyn "package" [exp] = reduceSyn "namespace" [exp, emptyExp]
+reduceSyn "package" [kind, exp] = reduceSyn "namespace" [kind, exp, emptyExp]
 
-reduceSyn "namespace" [exp, body] = do
+reduceSyn "namespace" [_kind, exp, body] = do
     val <- evalExp exp
     str <- fromVal val
     when (str `elem` words "MY OUR OUTER CALLER") $ do
