@@ -35,7 +35,56 @@ sub _process_class_body {
         $body->($new_class);
     }
     elsif (ref($body) eq 'HASH') {
-        ;
+        $new_class->superclasses($body->{is}) if exists $body->{is};
+        if ($body->{attributes}) {
+            foreach my $attribute_name (@{$body->{attributes}}) {
+                $new_class->add_attribute($attribute_name => ::make_attribute($attribute_name));
+            }
+        }
+        if ($body->{class_attributes}) {
+            foreach my $attribute_name (@{$body->{class_attributes}}) {
+                $new_class->add_attribute($attribute_name => ::make_class_attribute($attribute_name));
+            }
+        }        
+        if ($body->{methods}) {
+            foreach my $method_name (keys %{$body->{methods}}) {
+                if ($method_name =~ /^_/) {
+                    $new_class->add_method($method_name => ::make_private_method(
+                        $body->{methods}->{$method_name}, $new_class
+                    ));                    
+                }
+                else {
+                    $new_class->add_method($method_name => ::make_method(
+                        $body->{methods}->{$method_name}, $new_class
+                    ));
+                }
+            }
+        }
+        if ($body->{sub_methods}) {
+            foreach my $method_name (keys %{$body->{sub_methods}}) {
+                $new_class->add_method($method_name => ::make_submethod(
+                    $body->{sub_methods}->{$method_name}, $new_class
+                ));
+            }
+        }                
+        if ($body->{class_methods}) {
+            foreach my $method_name (keys %{$body->{class_methods}}) {
+                if ($method_name =~ /^_/) {
+                    # we just add a private method in here...
+                    # there is no real distinction between the
+                    # private class method or the private instance 
+                    # method, maybe there should be, but I am not sure
+                    $new_class->add_method($method_name => ::make_private_method(
+                        $body->{class_methods}->{$method_name}, $new_class
+                    ));
+                }
+                else {
+                    $new_class->add_method($method_name => ::make_class_method(
+                        $body->{class_methods}->{$method_name}, $new_class
+                    ));                    
+                }
+            }
+        }        
     }
 }
 
