@@ -74,8 +74,8 @@ sub JS::Root::rx_core_(%mods, Str $pat, Str $qo, Str $qc) is primitive {
   my $overlap    = %mods{'ov'} || %mods{'overlap'};
   my $exhaustive = %mods{'ex'} || %mods{'exhaustive'};
   my $ignore     = %mods{'i'}  || %mods{'ignore'};
-  my $multiline  = %mods{'m'};
   my $nth        = %mods.exists('nth');
+  my $multiline;
 
   my $new_Match = JS::inline('
      PIL2JS.toPIL2JSBox(function (as_b, from, to, as_s, as_a, as_h) {
@@ -111,7 +111,7 @@ sub JS::Root::rx_core_(%mods, Str $pat, Str $qo, Str $qc) is primitive {
         $match = $new_Match(?0, undef, undef, "", [], ());
       } else {
         my $from = @a[0].from;
-        my $to   = @a[-1].to + $offset; # @a[-1].to; # XXX
+        my $to   = $offset -1; # @a[-1].to; # XXX - .to is incorrect - see above
         my $str  = substr($string,$from,$to-$from+1);
         $match = $new_Match(?1, $from, $to, $str, @a, ());
       }
@@ -152,6 +152,18 @@ sub JS::Root::rx_core_(%mods, Str $pat, Str $qo, Str $qc) is primitive {
     };
   } else {
     my $pattern = $pat;
+    if (substr($pattern,0,2) eq '(?') {
+       if substr($pattern,0,4) eq '(?i)' { # XXX - kludge - use regex
+         $pattern = substr($pattern,4);
+         $ignore = 1;
+       }
+       if substr($pattern,0,4) eq '(?m)' {
+         $pattern = substr($pattern,4);
+         $multiline = 1;
+       }
+       # TODO - x
+    }
+    # TODO - \A \Z \z
     my $flags   = "";
     $flags ~= "i" if $ignore;
     $flags ~= "m" if $multiline;
