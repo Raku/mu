@@ -203,8 +203,10 @@ sub JS::Root::rx_core_(%mods, Str $pat, Str $qo, Str $qc) is primitive {
           return m;
         }
       )')(~$pattern,$flags,~$string);
-      # XXX - should really be die, not warn.
-      warn "JavaScript RegExp syntax error /$pattern/.\n" if !defined $ret;
+      if !defined $ret {  # XXX - should really be die, not warn.
+        warn "JavaScript RegExp syntax error in /$pattern/.\n";
+        $ret = $new_Match(?0, undef, undef, "", [], ());
+      }
       $/ := $ret;
     };
   }
