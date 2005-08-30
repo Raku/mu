@@ -189,15 +189,21 @@ sub JS::Root::rx_core_(%mods, Str $pat, Str $qo, Str $qc) is primitive {
             return m;
           };
 
-          var regexp = new RegExp(pattern,flags);
-          var match  = regexp.exec(string);
+          var regexp;
+          try { // Guard against malformed patterns.
+            regexp = new RegExp(pattern,flags);
+          } catch (e) {
+            return null;
+          }
+          var  match  = regexp.exec(string);
           if (!match) {
             return mkMatch(false, null,null, null, null,null);
           }
           var m = unpack_match(match);
           return m;
         }
-      )')(~$pattern,$flags,$string);
+      )')(~$pattern,$flags,~$string);
+      die "JavaScript RegExp syntax error /$pattern/.\n" if !defined $ret;
       $/ := $ret;
     };
   }
