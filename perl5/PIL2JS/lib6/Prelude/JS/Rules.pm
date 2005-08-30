@@ -12,15 +12,70 @@ sub JS::Root::m_(%mods, Str $re, Str $qo, Str $qc) is primitive {
     rx_helper_(%mods, $re, $qo, $qc);
 }
 
-sub JS::Root::rx_helper_(%mods, Str $re, Str $qo, Str $qc) is primitive {
-  my $pattern = $re;
-  my $flags   = "";
-  my $perl5   = %mods{'perl5'} || %mods{'Perl5'} || %mods{'P5'};
-  die "Perl 6 Rules are not supported." if !$perl5;
+our(%modifiers_known, %modifiers_supported_p6, %modifiers_supported_p5);
+our(%rx_helper_cache);
+sub JS::Root::rx_helper_(%mods0, Str $pat0, Str $qo, Str $qc) is primitive {
 
-  my $global = %mods{'g'} || %mods{'global'};
-  $flags ~= "i" if %mods{'i'} || %mods{'ignore'};
-  $flags ~= "m" if %mods{'m'};
+  if !%modifiers_known.keys {
+    %modifiers_known = map {;($_ => 1)}
+        <perl5 Perl5 P5 i ignorecase w words g global c continue p pos
+	once bytes codes graphs langs x nth ov overlap ex exhaustive
+	rw keepall e each any parsetree>;
+    %modifiers_supported_p6 = map {;($_ => 1)}
+	<i ignorecase w words g global>;
+    %modifiers_supported_p5 = map {;($_ => 1)}
+	<perl5 Perl5 P5 i ignorecase g global ov overlap>;
+    %rx_helper_cache{'re_x'}   = rx_core_({perl5=>1},'^(\d+)x$','/','/');
+    %rx_helper_cache{'re_nth'} = rx_core_({perl5=>1},'^(\d+)(?:th|st|nd|rd)$','/','/');
+  }
+
+  my $pat = $pat0;
+  my %mods = %mods0;
+  my $p5 = %mods{"perl5"} || %mods{"Perl5"} || %mods{"P5"};
+
+  my sub warning($e){warn("Warning: $e")};
+  for %mods.keys -> $k {
+    if %modifiers_known{$k} {
+      if $p5 && !%modifiers_supported_p5{$k} {
+        warning "Modifier :$k is not (yet?) supported by :perl5 regexps.";
+      } elsif !$p5 && !%modifiers_supported_p6{$k} {
+        warning "Modifier :$k is not yet supported by PGE/pugs.";
+      }
+    }
+    elsif (($k.chars > 1) && (substr($k,-1,1) eq "x") # XXX - excess parens required
+           && ($k ~~ %rx_helper_cache{'re_x'})) {
+      my $n = 0+ ~$0; # +$0 XXX
+      %mods.delete($k);
+      %mods{'x'} = $n;
+    }
+    elsif (($k.chars > 2) && (substr($k,-2,2) eq ("th"|"st"|"nd"|"rd"))
+           && ($k ~~ %rx_helper_cache{'re_nth'})) {
+      my $n = 0+ ~$0; # +$0 XXX
+      %mods.delete($k);
+      %mods{'nth'} = $n;
+    }
+    else {
+      my $msg = "Unknown modifier :$k will probably be ignored.";
+      $msg ~= "  Perhaps you meant :i:w ?" if $k eq ("iw"|"wi");
+      warning $msg;
+    }
+  }
+
+  if !$p5 { 
+    die "Perl 6 Rules are not supported." if !$perl5;
+  }
+
+  rx_core_(%mods,$pat,$qo,$qc);
+}
+
+sub JS::Root::rx_core_(%mods, Str $pat, Str $qo, Str $qc) is primitive {
+
+  my $global     = %mods{'g'}  || %mods{'global'};
+  my $overlap    = %mods{'ov'} || %mods{'overlap'};
+  my $exhaustive = %mods{'ex'} || %mods{'exhaustive'};
+  my $ignore     = %mods{'i'}  || %mods{'ignore'};
+  my $multiline  = %mods{'m'};
+  my $nth        = %mods.exists('nth');
 
   my $new_Match = JS::inline('
      PIL2JS.toPIL2JSBox(function (as_b, from, to, as_s, as_a, as_h) {
@@ -29,10 +84,10 @@ sub JS::Root::rx_helper_(%mods, Str $re, Str $qo, Str $qc) is primitive {
 
   my $matcher;
   if $global {
-    my %mods_no_g = %mods;
-    %mods_no_g.delete('g');
-    %mods_no_g.delete('global');
-    my $rx = rx_helper_(%mods_no_g,$re,$qo,$qc);
+    my %mods_altered = %mods;
+    %mods_altered.delete('g');
+    %mods_altered.delete('global');
+    my $rx = rx_core_(%mods_altered,$pat,$qo,$qc);
     $matcher = sub ($string) {
       my $s = ~$string;
       my $offset = 0;
@@ -62,26 +117,44 @@ sub JS::Root::rx_helper_(%mods, Str $re, Str $qo, Str $qc) is primitive {
       }
       $/ := $match;
     };
-    # Here is an old JS version of :global.  Fyi.
-    #      var regexp = new RegExp(pattern,flags + "g");
-    #      var match  = regexp.exec(string);
-    #      if (!match) {
-    #        return mkMatch(false, null,null, null, null,null);
-    #      }
-    #      var g_from = match.index;
-    #      var g_array = [];
-    #      var g_to;
-    #      while (match) {
-    #        var m = unpack_match(match);
-    #        g_array.push(m);
-    #        g_to = regexp.lastIndex - 1;
-    #        match = regexp.exec(string);
-    #      }
-    #      var g_str = string.substring(g_from,g_to+1);
-    #      var m = mkMatch(true, g_from, g_to, g_str, g_array, null);
-    #      return m;
-
+  } elsif $nth {
+    my %mods_altered = %mods;
+    %mods_altered.delete('nth');
+    %mods_altered{'global'} = 1;
+    my $rx = rx_core_(%mods_altered,$pat,$qo,$qc);
+    my $nth_keys = %mods{'nth'};
+    $matcher = sub ($string) {
+      my $m = $string ~~ $rx;
+      return $m if !$m;
+      my @a = @$m; # XXX Error: Can't use "[object Object]" as a generic reference!
+      @a = map {$_[0]} @$m if @{@a[0]};
+      unshift(@a,undef); # 1-based.
+      @a[$nth_keys];
+    };
+  } elsif $overlap {
+    my %mods_altered = %mods;
+    %mods_altered.delete('ov');
+    %mods_altered.delete('overlap');
+    my $rx = rx_core_(%mods_altered,$pat,$qo,$qc);
+    $matcher = sub ($string) {
+       my $pos = 0;  my $a = []; my $prev = -1; my $m;
+       while 1 {
+        my $s = substr($string,$pos) // last;
+        $m = $s ~~ $rx or last;
+        last if !$m; # XXX - should be caught by  or last;
+        my $m0 = $m[0] // $m;
+        my $at = $pos + $m0.from;
+        $a.push($m0) if $at > $prev; $prev = $at;
+        $pos += $m.from + 1;
+       }
+       # 0 ?? ([|] @$a) :: $a;  # XXX - 0 should be want.Scalar
+       $a;
+    };
   } else {
+    my $pattern = $pat;
+    my $flags   = "";
+    $flags ~= "i" if $ignore;
+    $flags ~= "m" if $multiline;
     $matcher = sub ($string) {   # XXX - Are things getting boxed?
       my $ret = JS::inline('(
         function (pattern,flags,string) {
@@ -120,6 +193,7 @@ sub JS::Root::rx_helper_(%mods, Str $re, Str $qo, Str $qc) is primitive {
   JS::inline('(function (matcher) { return new PIL2JS.Rul(matcher) })')($matcher);
 }
 
+
 method JS::Root::matcher (Rul $rule:) {
   JS::inline('(function (rul) { return rul.matcher })')($rule);
 }
@@ -151,3 +225,22 @@ sub PIL2JS::Internals::Hacks::init_match_postcircumfix_method () is primitive {
 }
 
 # $0 etc. are aliases for $/[0] etc.
+
+    # Here is an old JS version of :global.  Fyi.
+    #      var regexp = new RegExp(pattern,flags + "g");
+    #      var match  = regexp.exec(string);
+    #      if (!match) {
+    #        return mkMatch(false, null,null, null, null,null);
+    #      }
+    #      var g_from = match.index;
+    #      var g_array = [];
+    #      var g_to;
+    #      while (match) {
+    #        var m = unpack_match(match);
+    #        g_array.push(m);
+    #        g_to = regexp.lastIndex - 1;
+    #        match = regexp.exec(string);
+    #      }
+    #      var g_str = string.substring(g_from,g_to+1);
+    #      var m = mkMatch(true, g_from, g_to, g_str, g_array, null);
+    #      return m;
