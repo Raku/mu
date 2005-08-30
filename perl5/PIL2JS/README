@@ -11,7 +11,8 @@ outputting JavaScript.
 
 There's an interactive shell, C<jspugs.pl>. Simply start C<jspugs.pl>, then
 precompile the Prelude by entering C<:precomp>. Now enter some Perl 6 code and
-point your browser to C<./output.html>.
+point your browser to C<./output.html> or prefix your expression with C<:e> if
+you want it to be evaluated outside the browser using Spidermonkey's C<bin/js>.
 
 Additionally, there's C<./runjs.pl>, which accepts the same options as Pugs.
 It will first compile your code to JavaScript and then run it using
@@ -44,6 +45,7 @@ C<smoke.html>.
   |-- runjs.pl            Compiles Perl 6 to JavaScript and runs it
   |-- jspugs.pl           Interactive shell for PIL2JS development
   |-- lib
+  |   |-- PIL2JS.pm       Perl 5 wrapper module for pil2js.pl, runjs.pl, etc.
   |   |-- PIL.pm          Main compiler modules, uses all other PIL:: modules
   |   |-- PIL
   |   |   |-- Parser.pm   PIL::Parser (parses the output of -CPerl5)
@@ -51,12 +53,16 @@ C<smoke.html>.
   |   |                   Backend compiler modules
   |   |-- Prelude
   |   |-- `-- JS.pm       Part of the JavaScript Prelude,
-  |   |                   written in Perl 5
+  |   |                   written in Perl 5 using P5Macros
+  |   |-- Perl6
+  |   |   `-- Run
+  |   |       `-- JS.pm   Perl 5 module allowing easy integration of
+  |   |                   Perl 6 code which will be run by JSSM
   |-- lib6
   |   |-- Prelude
   |   |   |-- JS.pm       Part of the JavaScript Prelude,
   |   |   |               written in Perl 6 with mixed JS
-  |   |   `-- JS/         Submodules of the Prelude (i.e. Prelude::JS::Array,
+  |   |   `-- JS/         Submodules of the Prelude (e.g. Prelude::JS::Array,
   |   |                   Prelude::JS::ControlFlow, etc.)
   |-- libjs
   |   `-- PIL2JS.js       Part of the JavaScript Prelude,
@@ -72,13 +78,14 @@ Variables (scalars, arrays, and hashes), assignment, binding
 
 =item *
 
-Subroutine and (slightly simplified) method declaration (with support for C<is
-rw>, C<is copy>, and default values for optional arguments)
+Subroutine and (slightly simplified) method declaration (both global and
+lexical declarations)
 
 =item *
 
-Subroutine and method invocation, including optional, named, and slurpy
-parameters and C<< &prefix:<*> >>
+Subroutine and method invocation, including optional and named parameters,
+slurpy scalars, arrays, and hashes, C<< &prefix:<*> >> (e.g.
+C<foo(*@parameters)>), C<is rw>, and C<is copy>
 
 =item *
 
@@ -87,22 +94,30 @@ C<< &infix:<=:=> >>, ...)
 
 =item *
 
-Basic builtins (C<say>, C<defined>, C<if>, C<loop>, C<while>, C<until>)
+Basic builtins (C<say>, C<defined>, C<if>, C<loop>, C<while>, C<until>, ...)
 
 =item *
 
-Primitives which change the control flow (C<return>, C<leave>, C<last>,
-C<next>, C<redo>, C<die>, C<try>)
+Primitives which change the control flow (C<return>, C<last>, C<next>, C<redo>,
+C<die>, C<try>, ...)
 
 =item *
 
-Stub OO builtins (C<ref>, C<isa>), awaiting C<-PIL2> to fully support Stevan's
+Stub OO builtins (C<ref>, C<isa>), awaiting C<-CPIL2> to fully support Stevan's
 excellent MetaModel (see F<perl5/Perl6.MetaModel/>)
 
 =item *
 
-Global C<JS> namespace to use JavaScript's classes (e.g.
+Perl 5-style regular expressions
+
+=item *
+
+Global C<JS> namespace to use native JavaScript classes and functions (e.g.
 C<$*JS::document.write>, C<JS::alert "Pugs rocks">)
+
+=item *
+
+JSAN integration
 
 =back
 
@@ -117,23 +132,45 @@ C<.FETCH()> (returns C<value>), C<.STORE(new_value)> (set to new value),
 C<.clone()>, and C<.toNative()> (return value as native object).
 
 Additionally, there's C<PIL2JS.Box.ReadOnly>, which proxies a C<PIL2JS.Box>,
-but C<die()>s upon C<.STORE()>.
+but C<die()>s upon C<.STORE()>. This is among other things needed for readonly
+subroutine parameters (e.g. C<sub foo ($x) {...}> instead of C<sub foo ($x is
+rw) {...}>). C<PIL2JS.Box.ReadOnly>s can still be rebound, though, but
+rebinding does not affect the original variable.
 
-C<new PIL2JS.Box.Constant(value)> is sugar for C<new PIL2JS.Box.ReadOnly(new
-PIL2JS.Box(value))>.
+C<new PIL2JS.Box.Constant(value)> creates a constant box, meaning both
+C<.STORE()> and C<.BINDTO()> will fail. Amongst others, literals (C<42>, C<"a
+string">, C<sub {...}>) are serialized to C<PIL2JS.Box.Constant>s.
 
-=head3 Assignment
+=head3 Container Types
+
+All C<PIL2JS.Box>es have an associated container type
+(C<PIL2JS.ContainerType.Scalar>,
+C<PIL2JS.ContainerType.Array>, or C<PIL2JS.ContainerType.Hash>) which can't be
+changed later on. This also means that a C<Scalar> container may never hold an
+C<Array>, but only I<references> to arrays.
+
+"What about the C<&> sigil?" -- C<&code_variables> are stored in C<Scalar>
+containers exactly like ordinary scalar values. The only requirement (which is,
+BTW, not enforced currently) is that you are not allowed to store things in
+C<&>-sigilled variables which do not inherit from C<Code> (i.e., C<&x = 3> is
+bogus).
+
+=head3 Assignment and binding
+
+=head4 Assignment
 
 Assignment is, thanks to the container type C<PIL2JS.Box>, simple:
-C<dest.STORE(source)> (C<.STORE> calls C<source.FETCH()> then and return
-C<source>.)
+C<dest.STORE(source)> (C<.STORE> will call C<source.FETCH()> and return
+C<source>, allowing constructs like C<($a = $b) = $c>, which has the same
+effect as C<$a = $b; $a = $c>.)
 
-=head3 Binding
+=head4 Binding
 
 Binding is similar: C<dest.BINDTO(source)>
 
 We can't just use C<dest = source>, because C<dest> might be the result of some
-function, e.g. C<@array[$idx] := $foo>.
+subroutine, e.g. C<@array[$idx] := $foo>, while really is
+C<< @array.postcircumfix:<{ }>($idx) := $foo >>.
 
 =head3 Identity comparision
 
@@ -141,6 +178,49 @@ The C<.uid> property which every C<PIL2JS.Box> object has got contains the
 unique ID of the box (or C<undefined> if it's a C<PIL2JS.Box.Constant>, as we
 can't map all real numbers and more to a finite C<.uid>). C<< &infix:<=:=> >>
 can then compare C<this.uid> with C<other.uid>.
+
+=head3 Aggregates
+
+Aggregates require some extra work beyond what's already needed for scalars:
+Arrays and hashes (but not lists!) require reboxing of their
+soon-to-be-elements to be readwrite, e.g. the following should work:
+
+  my @a = (1,2,3);
+  @a[1]++;  # should work even though 2 is a constant
+
+Previously, this reboxing was incorrectly done by C<< &infix:<,> >> (the list
+constructor sub (C<(1,2,3)> really means C<< &infix:<,>(1,2,3) >>)), but this
+functionality really has to stay in the implementation of C<.STORE> of array
+and hash containers.
+
+=head4 List magic
+
+Lists have a number of additional properties (which, BTW, explains C<<
+&infix:<,> >>'s length):
+
+  ($a, $b) = ($foo, $bar);  # same as
+  $a = $foo; $b = $bar;
+
+  ($first, @rest) = foo();  # same as
+  {
+    my @temp_array  = foo();
+    $first         := shift @temp_array;
+    @rest          := @temp_array;
+  }
+
+  ($a, $b) = ($b, $a);      # same as
+  {
+    my $backup_of_a = $a;
+    $a = $b;
+    $b = $backup_of_a;
+  }
+
+  ($a, $b) := ($b, $a);     # same as
+  {
+    my $backup_of_a := $a;
+    $a := $b;
+    $b := $backup_of_a;
+  }
 
 =head2 Calling conventions
 
@@ -182,8 +262,8 @@ directly, an exception is thrown:
   // an exception is thrown:
   throw function () { continuation(retval) };
 
-This makes sure all functions are really left. C<PIL2JS.runloop> catches those
-exceptions and runs them:
+This makes sure all functions are, from a JavaScript standpoint seen, really
+left. C<PIL2JS.runloop> catches those exceptions and runs them:
 
   PIL2JS.runloop(function () {
     ...code...
@@ -223,6 +303,15 @@ ID. Upon invocation, they simply call their entrypoint.
 
 A call to C<&yield> updates the entrypoint accordingly, C<&return> resets it.
 
+=head3 Speed considerations
+
+Because we have to pass many closures around and throw many exceptions (one for
+each C<return()>), speed suffers, of course. But sadly, there isn't much PIL2JS
+can do against this, it should be noted though that, if JavaScript provided
+C<goto>, it is expected that PIL2JS would be at least twice as fast as it is
+now. PIL2JS would then, combined with Opera's fast JavaScript engine,
+outperform Pugs's old Haskell runcore easily.
+
 =head2 Metamodel
 
 I use Stevan's C<Perl6.MetaModel> as the library providing classes like
@@ -238,6 +327,68 @@ subs) doesn't accidentally call our methods.
 Note that our methods do I<not> get a C<Perl6.Instance> as C<$?SELF> (this is
 due to perfomance reasons) -- however, when calling a method, the metamodel
 does get used, so this decision is hidden from the end user.
+
+=head2 JavaScript integration
+
+The support for calling native JavaScript functions is quite extensive.
+
+=head3 Global C<*JS> Perl namespace
+
+The global C<*JS> namespace can be used to call native JavaScript functions.
+E.g.:
+
+  JS::alert "Hi!";
+  # calls alert with a native JS string
+
+  $JS::document.write("Hi!");
+  # calls document.write with a native JS string
+
+You can even use JavaScript's higher order functions or store native functions
+in variables:
+
+  $JS::window.setTimeout(&subref, $delay);
+  my $alarm = &JS::alert;
+
+=head3 C<&JS::inline> compile-time macro
+
+Additionally, there's the C<&JS::inline> compile-time macro. It expects a
+string as its only argument to inline into the resulting JavaScript code.
+
+  say 4 + JS::inline('new PIL2JS.Box(3)');
+  # 7
+
+You can't pass arbitrary expressions to C<&JS::inline>, though, i.e. the
+following is invalid:
+
+  say 4 + JS::inline("new PIL2JS.Box($num)");  # does not work
+
+You have to use a C<BEGIN> block to circumvent this limitation:
+
+  say 4 + JS::inline(BEGIN { "new PIL2JS.Box($num)" });  # works
+
+If you read through the various C<Prelude::JS::*> modules, you'll recognize
+the following idiom:
+
+  # We pass boxed variables to an unboxed native JavaScript function,
+  # PIL2JS takes care of the necessary converting.
+  sub p6sub ($p6arg1, $p6arg2) {
+    JS::inline('(function (jsarg1, jsarg2) {
+      return jsfunc(jsarg1, jsarg2);
+    })')($p6arg1, $p6arg2);
+  }
+
+  # Alternatively, we use a boxed sub. This means we have to manually convert,
+  # but the container bindings etc. don't get lost. Also note that we have to
+  # call the current continuation to return, *not* JavaScript's "return".
+  sub p6sub ($p6arg1, $p6arg2) {
+    # We pass boxed variables to an unboxed native JavaScript function,
+    # PIL2JS takes care of the necessary converting.
+    JS::inline('new PIL2JS.Box.Constant(function (jsarg1, jsarg2) {
+      var cxt    = args.shift(), cc     = args.pop();
+      var jsarg1 = args[0],      jsarg2 = args[1];
+      cc(new PIL2JS.Box.Constant(jsfunc(jsarg1.FETCH(), jsarg2.FETCH())));
+    })')($p6arg1, $p6arg2);
+  }
 
 =head2 JSAN integration
 
@@ -272,7 +423,7 @@ C<bin/js> can't download arbitrary URLs.
   
   # Compile the PIL to JavaScript
   $ ./pil2js.pl -o /tmp/test.js /tmp/test.pil
-  
+   
   # Link the JavaScript, JSAN, the Metamodel and the Prelude together
   $ ./pil2js --link=html -o /tmp/test.html \
       ~http://openjsan.org/src/c/cw/cwest/JSAN-0.10/lib/JSAN.js \
@@ -325,6 +476,45 @@ compile to JavaScript) and compile it to JavaScript.
 
 =back
 
+=head1 JAVASCRIPT RUNTIME ENVIRONMENTS
+
+PIL2JS does not generate code depending on a special JavaScript runtime or
+version, but PIL2JS's accompanying scripts and modules provide special support
+for SpiderMonkey.
+
+=head2 SpiderMonkey
+
+PIL2JS supports Mozilla's
+L<SpiderMonkey|http://www.mozilla.org/js/spidermonkey/> (written in C) in two
+ways:
+
+=over
+
+=item *
+
+The compiled code is given to SpiderMonkey's C<bin/js>. This approach does not
+need any special Perl 5 modules, but it suffers from a buffering problem and it
+seems to need much more RAM than the other engines.
+
+=item *
+
+There's the C<JavaScript::SpiderMonkey> Perl 5 module (also named C<JSSM>)
+which embeds allows embedding of JavaScript code in Perl 5 applications. It
+does not suffer from C<bin/js>'s buffering problems and it seems that,
+curiously, it doesn't need as much RAM as C<bin/js>, but the installation of
+C<JSSM> is a bit tricky.
+
+=back
+
+=head2 Opera's JavaScript engine
+
+Opera's JavaScript engine outperforms SpiderMonkey, but sadly it doesn't
+provide a console application for running JavaScript code. (If it did, PIL2JS
+would probably be approximately twice as fast as it is when using SpiderMonkey.)
+
+Additionally, Opera displays the stack backtrace along with exceptions, so it
+might be more useful for debugging PIL2JS problems.
+
 =head1 TODO
 
 =over
@@ -346,6 +536,10 @@ Hash and array autovification (C<my $hash; $hash<foo> = "bar">).
 
 C<method foo (Bar $self:)> should create a C<&Bar::foo>, not a C<&main::foo>.
 Required to implement hash and array autovification elegantly.
+
+=item *
+
+More OO and meta stuff (but requires fixes to PIL1 or PIL2).
 
 =back
 

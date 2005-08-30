@@ -45,7 +45,14 @@ sub as_js {
     ($self->{pVarName}{CC} and die) or $self->{pVarName}{CC} = $self->{CC} if $self->{CC};
     return $self->{pVarName}->as_js;
   } else {
-    my $jsvar = PIL::name_mangle $self->{pVarName};
+    # Hack? Fully qualified variables don't need a declaration, but JavaScript
+    # needs one.
+    my $name = $self->{pVarName};
+    if($name =~ /::/ and $name !~ /CALLER::/) {
+      $PIL::UNDECLARED_VARS{$name}++;
+    }
+
+    my $jsvar = PIL::name_mangle $name;
     if($self->{CC}) {
       return $self->{CC}->as_js . "($jsvar)";
     } else {

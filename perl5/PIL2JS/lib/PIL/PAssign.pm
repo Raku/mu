@@ -21,15 +21,6 @@ sub fixup {
 sub as_js {
   my $self = shift;
 
-  # Hack? Fully qualified variables don't need a declaration, but JavaScript
-  # needs one.
-  if($self->{pLHS}->isa("PIL::PVar")) {
-    my $varname = $self->{pLHS}->{pVarName};
-    if($varname =~ /::/) {
-      $PIL::UNDECLARED_VARS{$varname}++;
-    }
-  }
-
   return PIL::possibly_ccify $self->{pRHS}, sub {
     my $src = shift;
     return PIL::possibly_ccify $self->{pLHS}, sub {
