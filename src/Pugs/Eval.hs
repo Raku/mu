@@ -553,7 +553,7 @@ reduceSyn "val" [exp] = do
     enterRValue $ evalExp exp
 
 reduceSyn "\\{}" [exp] = do
-    v   <- enterRValue $ enterEvalContext cxtItemAny exp
+    v   <- enterRValue $ enterEvalContext cxtSlurpyAny exp
     hv  <- newObject (MkType "Hash")
     writeRef hv v
     retVal $ VRef hv
