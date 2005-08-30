@@ -98,7 +98,7 @@ __END__
 
 Perl6::MetaModel - The Perl 6 Object Meta Model
 
-=head1 SYNOPOSIS
+=head1 SYNOPSIS
 
   # more Macro-ish form (less typing for you)
   class 'Foo-0.0.1-cpan:STEVAN' => {
