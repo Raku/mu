@@ -166,6 +166,7 @@ sub Perl6::Slice::unbind {
             # items should be cloned before storing
             my @items = $slice->unboxed->items;
             @items = map {
+                        # warn "unbind - elems ". $_->elems . "\n";
                         UNIVERSAL::isa( $_, 'Perl6::Value::List' ) ? $_->clone : $_
                     } @items;
             $result->push( @items );
@@ -214,24 +215,36 @@ sub Perl6::Slice::write_thru {
             #warn "write_thru: Slicing from position $pos to ( $start .. $end )\n";
             #warn "    Index: ". $i->str . "\n";
             # items should be cloned before storing
-            my $slice = $other->splice( $pos, ( $end - $start + 1 ) );
+            #my $ary_elems = $ary->elems->unboxed;
+            #warn "other.elems = ".$other->elems->unboxed."\n";
+            my $max_ary_elems = $ary->elems->unboxed - $start;
+            #warn "array has $ary_elems elements, starts in $start, max = $max_ary_elems\n";
+            my $slice_size = $end - $start + 1;
+            $slice_size = $max_ary_elems if $slice_size > $max_ary_elems;
+            my $slice = $other->splice( $pos, $slice_size );
             my $elems = $slice->elems->unboxed;
+            # warn "splice 3 - elems = $elems - slice isa $slice";
             # $other->splice( $pos, 0, $slice );  # does this make any difference?
+
+            # is the slice too big?
+            #if ( $start + $elems > $ary_elems ) {
+            #    $slice = 
+            #}
             
             my @items = $slice->unboxed->items;
             # @items = map {
             #            UNIVERSAL::isa( $_, 'Perl6::Value::List' ) ? $_->clone : $_
             #        } @items;
             
-            if ( $elems < ( $end - $start + 1 ) ) {
-                my $diff = $end - $start + 1 - $elems;
+            if ( $elems < $slice_size ) {
+                my $diff = $slice_size - $elems;
                 #warn "Missing $diff elements";
                 push @items, Perl6::Value::List->from_x( item => undef, count => $diff )
                     if $diff > 0;
             }
             #warn "Storing to $start";
-            $ary->splice( $start, ( $end - $start + 1 ), @items );
-            $pos = $pos + $end - $start + 1;
+            $ary->splice( $start, $slice_size, @items );
+            $pos = $pos + $slice_size;
             #warn "pos = $pos";
         }
         else {

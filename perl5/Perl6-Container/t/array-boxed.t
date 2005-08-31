@@ -3,7 +3,7 @@
 use strict;
 
 use Test::More;
-plan tests => 58;
+plan tests => 63;
 
 use Perl6::Container::Array; 
 use Perl6::Value;
@@ -254,6 +254,8 @@ use Perl6::Value::List;
   $array->push( Perl6::Value::List->from_num_range( start => 1000, end => 100_000 ) );
   is( $array->perl(max=>3)->unboxed, 
       '(1000, 1001, 1002 ... 99998, 99999, 100000)', 'Array to be sliced' );
+  my $array_elems = $array->elems->unboxed;
+  is( $array_elems, 99001, '... Array has xxx elements' );
 
   my $idx = Array->new();
   $idx->push( 2 );
@@ -261,6 +263,8 @@ use Perl6::Value::List;
     # end => 1_000_000 - was not supported before
   is( $idx->perl(max=>3)->unboxed, 
       '(2, 4, 5 ... 999998, 999999, 1000000)', '... Array with indexes' );
+  my $elems = $idx->elems->unboxed;
+  is( $elems, 999998, '... Array with indexes has xxx elements' );
       
   my $sliced = $array->slice( $idx );
   is( $sliced->perl(max=>3)->unboxed, 
@@ -275,18 +279,20 @@ use Perl6::Value::List;
   # store to a lazy slice
   $sliced->store( $array2 );
 
+  is( $elems, $idx->elems->unboxed, '... Array with indexes still has xxx elements' );
+  is( $elems, $sliced->elems->unboxed, '... Array slice also has xxx elements' );
   is( $sliced->perl(max=>3)->unboxed, 
-      '(99, 100, 101 ... 1000094, 1000095, 1000096)',
-      '... Array slice was modified' );
+      '(99, 100, 101 ... undef, undef, undef)',
+      '... Array slice was modified; elements without source generate undefs' );
       
   is( $idx->perl(max=>3)->unboxed, 
       '(2, 4, 5 ... 999998, 999999, 1000000)',
       '... index Array was not modified' );
       
   is( $array->perl(max=>7)->unboxed, 
-      '(1000, 1001, 99, 1003, 100, 101, 102 ... '.
-      '99994, 99995, 99996, 99997, 99998, 99999, 100000)', 
+      '(1000, 1001, 99, 1003, 100, 101, 102 ... 99090, 99091, 99092, 99093, 99094, 99095, 99096)', 
       '... original array' );
+  is( $array_elems, $array->elems->unboxed, '... Original Array still has xxx elements' );
   
 }
 
