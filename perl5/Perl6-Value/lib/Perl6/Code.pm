@@ -28,6 +28,8 @@
 # extract remaining Pairs
 # $^a, $^b count like '+'
 
+# TODO - 'Pad' structure
+
 # TODO - unify parameter types and binding with MetaModel's methods/multimethods
 # TODO - multisub add_sub($sub)
 # TODO - multisub .arity, .name
