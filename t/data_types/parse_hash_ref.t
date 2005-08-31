@@ -29,10 +29,10 @@ plan 8;
     is(ref %h3<key>, 'Hash', "Creating a new reference to hash works if not creating hash");
 
     my %h4 = ('key' => $h_ref);
-    is(ref %h4<key>, 'Hash', "Using existing reference breaks when creating hash", :todo<bug>);
+    is(ref %h4<key>, 'Hash', "Using existing reference breaks when creating hash");
 
     my %h5 = ('key' => \%h1);
-    is(ref %h5<key>, 'Hash', "Creating a new reference breaks when creating hash", :todo<bug>);
+    is(ref %h5<key>, 'Hash', "Creating a new reference breaks when creating hash");
 }
 
 {
@@ -40,10 +40,10 @@ plan 8;
     my $h_ref = \%h1;
 
     my %h2 = ('key' => $h_ref);
-    is(ref %h2<key>, 'Hash', "Using existing reference (w/ values) breaks when creating hash", :todo<bug>);
+    is(ref %h2<key>, 'Hash', "Using existing reference (w/ values) breaks when creating hash");
 
     my %h3 = ('key' => \%h1);
-    is(ref %h3<key>, 'Hash', "Creating a new reference (w/ values) breaks when creating hash", :todo<bug>);
+    is(ref %h3<key>, 'Hash', "Creating a new reference (w/ values) breaks when creating hash");
 }
 
 {
@@ -52,5 +52,5 @@ plan 8;
     
     my %h3 = ('h1' => \%h1, 'h2' => \%h2);
 
-    is(ref %h3<h1>, 'Hash', "Creating hash with multiple nested hashrefs (w/o values)", :todo<bug>);
+    is(ref %h3<h1>, 'Hash', "Creating hash with multiple nested hashrefs (w/o values)");
 }

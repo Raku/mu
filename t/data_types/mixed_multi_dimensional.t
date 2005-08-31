@@ -151,5 +151,5 @@ this test should be added too more.
 
 { # nested, declared in one statement
     my $h = { a => [ 1,2,3 ] };
-    is($h<a>.ref, 'Array', "array nested in hashref in one declaration", :todo<bug>);
+    is($h<a>.ref, 'Array', "array nested in hashref in one declaration");
 }
