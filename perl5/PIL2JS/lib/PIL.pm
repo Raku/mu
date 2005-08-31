@@ -210,7 +210,8 @@ sub as_js {
   my $decl_js =
     "// Declaration of vars:\n" .
     join("\n", map {
-      sprintf "var %s = %s;",
+      sprintf "if(!%s) var %s = %s;",
+        name_mangle($_),
         name_mangle($_),
         undef_of($_);
     } keys %UNDECLARED_VARS, @ALL_LEXICALS, map { $_->{pSubName} } @{ $fixed_tree->{"pilGlob"} }) .

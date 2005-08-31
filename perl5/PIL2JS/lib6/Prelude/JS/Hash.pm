@@ -106,23 +106,23 @@ method postcircumfix:<{}>(%self: *@keys) is rw {
 
 # Hash autovification
 # Needs PIL2 and MMD to be done without hacks
-sub PIL2JS::Internals::Hacks::postcircumfix_for_undefs (
+sub PIL2JS::Internals::Hacks::hash_postcircumfix_for_undefs (
   $hash is rw, *@keys
 ) is primitive is rw {
   if defined $hash {
-    die "Can't convert objects of type $hash.ref() to a hash!";
+    die "\"$hash\" can't be autovivified to a hash!";
   }
 
   $hash = hash();
   $hash{*@keys};
 }
 
-sub PIL2JS::Internals::Hacks::init_undef_postcircumfix_method () is primitive {
+sub PIL2JS::Internals::Hacks::init_undef_hash_postcircumfix_method () is primitive {
   JS::inline('(function () {
     PIL2JS.addmethod(
       _3amain_3a_3aItem,
       "postcircumfix:{}",
-      _26PIL2JS_3a_3aInternals_3a_3aHacks_3a_3apostcircumfix_for_undefs
+      _26PIL2JS_3a_3aInternals_3a_3aHacks_3a_3ahash_postcircumfix_for_undefs
     );
   })')();
 }

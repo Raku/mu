@@ -352,6 +352,29 @@ method postcircumfix:<[]>(@self: Int *@idxs) is rw {
   })')(@self, @idxs);
 }
 
+# Array autovification
+# Needs PIL2 and MMD to be done without hacks
+sub PIL2JS::Internals::Hacks::array_postcircumfix_for_undefs (
+  $array is rw, Int *@idxs,
+) is primitive is rw {
+  if defined $array {
+    die "\"$array\" can't be autovivified to an array!";
+  }
+
+  $array = [];
+  $array{*@idxs};
+}
+
+sub PIL2JS::Internals::Hacks::init_undef_array_postcircumfix_method () is primitive {
+  JS::inline('(function () {
+    PIL2JS.addmethod(
+      _3amain_3a_3aItem,
+      "postcircumfix:[]",
+      _26PIL2JS_3a_3aInternals_3a_3aHacks_3a_3aarray_postcircumfix_for_undefs
+    );
+  })')();
+}
+
 # Code from Prelude::PIR
 sub splice (@a is rw, ?$offset=0, ?$length, *@list) is primitive {
     my $off = +$offset;
