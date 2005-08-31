@@ -29,7 +29,6 @@ plan 3;
   is $output, "1,2,3,4,", "grep and sort work in for";
 }
 
-# does not work
 {
   my @array = <1 2 3 4>;
   my $output;
@@ -38,5 +37,5 @@ plan 3;
     $output ~= "$elem,";
   }
 
-  is $output, "1,2,3,4,", "grep and sort work in for", :todo<bug>;
+  is $output, "1,2,3,4,", "grep and sort work in for";
 }
