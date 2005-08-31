@@ -29,10 +29,10 @@ my $hash = {
 
 
 is( $hash<1><2>, '3', 'First nested element.');
-is( $hash<1><4>, '5', 'Second nested element.', :todo<bug>);
+is( $hash<1><4>, '5', 'Second nested element.');
 
 my $h2 = {
    x => [2,3]
 };
 is( $h2<x>[0], '2', 'First nested element.');
-is( $h2<x>[1], '3', 'Second nested element.', :todo<bug>);
+is( $h2<x>[1], '3', 'Second nested element.');
