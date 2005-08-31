@@ -3,6 +3,9 @@
 
 # ChangeLog
 #
+# * Fixed elems(), buckets() to return boxed Int, Str
+# * hash iterator (firstkey/nextkey) works
+#
 # 2005-08-19
 # * New Perl6 class 'Hash'
 #
@@ -13,12 +16,35 @@
 # 2005-08-14
 # * added functions clone(), elems(), buckets()
 
-# TODO - how does a scalar that contains a hash is accessed?
+# TODO - each(), keys(), values() methods
+# TODO - hash cells with rw, ro, binding hash elements
+# TODO - tied hashes
+# TODO - tied() method
+# TODO - hash slices
+# TODO - (iblech) probably with a warning "uninitialized warning used in numeric contect"
+#        (Same for hashes: %h{undef} =:= %h{""})
+
+# TODO - is (undef=>undef) a valid Pair?
+#        fglock PIL-Run currently prints {('undef', undef)}
+#        buu fglock: For which?
+#        fglock for { undef=>undef }
+#        iblech fglock: Right, I'd think so (and this is how I've implemented it in PIL2JS). 
+#        But: By default, hash can autoconvert their keys to Strs, so {undef()=>undef} would have 
+#        the same effect as {""=>undef}. But if a hash is declared with shape(Any), {undef()=>undef} 
+#        should create a hash with .pairs[0].key being undef
+
+# TODO - (for PIL-Run)
+#        buu iblech: Er, let me rephrase. Why did it print an error message?
+#        iblech buu: Because {undef,undef} is not a hash, but a Code, and Pugs tried to coerce 
+#        the Code into a Hash, but failed
+#        buu Er, so how do you create a hash ref?
+#        iblech buu: \hash(undef,undef), {undef() => undef}, {pair undef, undef}, etc.
+
+# TODO - test - how does a scalar that contains a hash is accessed?
 # TODO - test $x := %hash - 'undefine $x'
 # TODO - test %hash := $x - error if $x is not bound to a hash
 # TODO - tieable hash - cleanup AUTOLOAD
 # TODO - test 'readonly'
-# TODO - hash iterator
 
 # Notes:
 # * Cell is implemented in the Perl6::Container::Scalar package
@@ -71,13 +97,15 @@ class 'Hash'.$class_description => {
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
             'isa' => sub { ::next_METHOD() },
 
-            'elems' =>    sub { _('$:cell')->{tied} ? 
+            'elems' =>    sub { Int->new( '$.unboxed' =>
+                                _('$:cell')->{tied} ? 
                                 _('$:cell')->{tied}->elems :
-                                Perl6::Container::Hash::elems( _('$:cell')->{v} )
+                                Perl6::Container::Hash::elems( _('$:cell')->{v} ) )
             },
-            'buckets' =>  sub { _('$:cell')->{tied} ? 
+            'buckets' =>  sub { Str->new( '$.unboxed' =>
+                                _('$:cell')->{tied} ? 
                                 _('$:cell')->{tied}->buckets :
-                                Perl6::Container::Hash::buckets( _('$:cell')->{v} )
+                                Perl6::Container::Hash::buckets( _('$:cell')->{v} ) )
             },
             'str' => sub { 
                 my $key = $_[0]->firstkey;

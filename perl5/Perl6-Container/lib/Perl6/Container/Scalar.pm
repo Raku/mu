@@ -29,6 +29,8 @@
 # 2005-08-15
 # - created the 'Scalar' container
 
+# TODO - tied() method
+# TODO - test tied Scalar
 # TODO - test 'readonly' and 'tieable' using traits - Scalar, Hash and Array
 # TODO - test Scalar auto-deref with a lazy List
 # TODO - verify .ref() and .undefine() implementations

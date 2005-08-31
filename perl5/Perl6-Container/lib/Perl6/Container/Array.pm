@@ -38,17 +38,11 @@
 # 2005-08-10
 # * Ported from Perl6 version
 
+# TODO - there are too many methods under AUTOLOAD - upgrade them to real methods
+#
 # TODO - TEST FAIL - PIL-Run> @a[10,100,1000,10000,100000]=(1..9999999) 
 #        returns undef (the list goes into array element zero)
 #        might be a signature problem
-# TODO - TEST FAIL - array-boxed.t - "shared" lazy lists are not shared
-#
-# TODO - should lazy Arrays warn when you are doing something stupid? like 
-#           '@a=lazy_read_from_file; @b=@a; shift @b;' 
-#           - @a no longer points to the first line of file
-#      - option 1 - warn the user
-#      - option 2 - use a shared buffer
-#      - option 3 - implement lazy-list-deep-clone
 #
 # TODO - optimize Eager array to O(1)
 #
@@ -59,6 +53,10 @@
 # TODO - test - @a[1] := $x
 # TODO - exists
 # TODO - defined
+#
+# TODO - tied arrays are copied in "Eager" mode?
+#        (PerlJam) - well, I wouldn't think you'd have to copy them all at once.
+#        Each element of @a would be sort of a lazy proxy for each element in the tied array @b
 
 # TODO - @a[1..2]=(1,2) 
 #        &postcircumfix:<[ ]> has to be "is rw"
@@ -194,7 +192,7 @@ sub Perl6::Slice::unbind {
     return $result;
 }
 sub Perl6::Slice::write_thru {
-    # writes back to the bound Array using the slice index
+    # writes back to the bound Array using the slice as an index
     my $self = shift; 
     my $other = shift;
     my $ary = $self->{array};
@@ -295,7 +293,7 @@ class 'Array'.$class_description => {
                 _('$:cell', $thing->cell);
                 return $self;
             },
-            'cell' =>     sub { _('$:cell') },  # cell() is used by bind()
+            'cell' =>     sub { _('$:cell') },  # cell() is used by bind() / XXX - just rename $:cell to $.cell
             'id' =>       sub { _('$:cell')->{id} },  
 
             'tieable' =>  sub { _('$:cell')->{tieable} != 0 },
@@ -422,7 +420,7 @@ class 'Array'.$class_description => {
                         $scalar->store( $elem );
                         # replace Value with Scalar
                         #warn "STORE = $_[1], $scalar";
-                        # XXX - this will break if it were a multi-dim fetch
+                        # XXX - TODO - test with multi-dim fetch
                         $self->store( $_[1], $scalar );
                     }
                     my $ret = Scalar->new();
@@ -445,7 +443,7 @@ class 'Array'.$class_description => {
                     return Int->new( '$.unboxed' => $tmp->elems( @param ) )
                 }
                 if ( $method eq 'exists' ) {
-                    # TODO - recursive to other dimensions
+                    # XXX - TODO - recursive to other dimensions
                     return Bit->new( '$.unboxed' => ($tmp->elems > $param[0] ) )
                 }
                 if ( $method eq 'is_infinite' ) {
@@ -520,7 +518,7 @@ sub new {
 }
 
 sub clone { 
-    # TODO - clone Scalars
+    # XXX - TODO - clone Scalars
     my $self = bless { %{ $_[0] } }, ref $_[0];
     @{$self->{items}} = map {
             UNIVERSAL::isa( $_, 'Perl6::Value::List' ) ? $_->clone : $_
@@ -729,7 +727,8 @@ sub fetch {
     
     #use Data::Dumper;
     #warn "-- array -- ". Dumper( $array );
-    return unless defined $pos;   # XXX - undefined == zero?
+    warn "uninitialized value used in numeric context"
+        unless defined $pos;  
     return if $pos >= $array->elems;
 
     my $ret = $array->splice( $pos, 1 );
@@ -754,6 +753,8 @@ sub store {
     my $array = shift;
     my $pos = shift;
     my $item  = shift;
+    warn "uninitialized value used in numeric context"
+        unless defined $pos;  
     if ( UNIVERSAL::isa( $item, 'Perl6::Value::List') ) {
         my $class = ref($array);
         $item = $class->new( items => [$item] );
@@ -781,7 +782,7 @@ sub reverse {
 sub to_list {
     my $array = shift;
     my $ret = $array->clone;
-    # TODO - optimization - return the internal list object, if there is one
+    # XXX - TODO - optimization - return the internal list object, if there is one
     return Perl6::Value::List->new(
             cstart => sub { $ret->shift },
             cend =>   sub { $ret->pop },
