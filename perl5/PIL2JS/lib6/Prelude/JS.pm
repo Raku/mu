@@ -108,6 +108,10 @@ sub Pugs::Internals::symbolic_deref (Str $sigil, Str *@parts) is rw {
   })')($sigil ~ join "::", @parts);
 }
 
+sub Pugs::Internals::but_block ($obj is rw, Code $code) is primitive {
+  $code($obj);
+  $obj;
+}
 
 # XXX PIL1 pugs -C kludge.
 sub Package::_create($name) {}
