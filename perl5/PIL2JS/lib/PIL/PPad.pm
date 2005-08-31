@@ -17,7 +17,7 @@ sub fixup {
   #   a) we're in a subroutine (in this case, we use JS' lexicals) or
   #   b) we're compiling a SLet, STemp, or SState (which all use an existing
   #      variable).
-  if($PIL::IN_SUBLIKE or $self->{pScope} =~ /^(SLet|STemp|SState)$/) {
+  if($self->{pScope} =~ /^(SLet|STemp|SState)$/) {
     return bless {
       pScope => $self->{pScope},
       pSyms  => [map {{ fixed => PIL::lookup_var($_->[0]), user => $_->[0] }} @{ $self->{pSyms} }],

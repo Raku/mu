@@ -32,7 +32,7 @@ sub fixup {
     } => "PIL::PVar";
   } else {
     return bless {
-      pVarName => PIL::lookup_var $_[0]->{pVarName},
+      pVarName => PIL::lookup_var($_[0]->{pVarName}),
       origName => $_[0]->{pVarName},
     } => "PIL::PVar";
   }
@@ -48,7 +48,7 @@ sub as_js {
     # Hack? Fully qualified variables don't need a declaration, but JavaScript
     # needs one.
     my $name = $self->{pVarName};
-    if($name =~ /::/ and $name !~ /CALLER::/) {
+    if($name =~ /::/ and $name !~ /CALLER::/ and $name !~ /OUTER::/) {
       $PIL::UNDECLARED_VARS{$name}++;
     }
 

@@ -19,9 +19,9 @@ ok !eval('state $x; state $x; 1'), 'it is illegal to declare $x twice in the sam
 { my $a = 1; {
    my $a=2; {
       my $a=3;
-      Test::is($a, 3,               'get regular a'); 
-      Test::is($OUTER::a, 2,        'get $OUTER::a'); 
-      Test::is($OUTER::OUTER::a, 1, 'get $OUTER::OUTER::a', :todo<bug>);
+      is($a, 3,               'get regular a'); 
+      is($OUTER::a, 2,        'get $OUTER::a'); 
+      is($OUTER::OUTER::a, 1, 'get $OUTER::OUTER::a', :todo<bug>);
 }}}
 
 {
