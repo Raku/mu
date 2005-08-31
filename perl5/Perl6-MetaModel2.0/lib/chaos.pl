@@ -451,4 +451,53 @@ our $DISPATCH_TRACE = 0;
     }
 }
 
+## add on to Class::Multimethods::Pure 
+## to make method composition easier
+
+{
+    use Class::Multimethods::Pure ();
+    
+    sub ::multi_sub {
+        my $name = shift or return;
+
+        if (@_) {
+            my @params;
+            until (!@_ || ref $_[0] eq 'CODE') {
+                if ($_[0] =~ /^-/) {
+                    my ($k, $v) = splice @_, 0, 2;
+                    $k =~ s/^-//;
+                    $Class::Multimethods::Pure::MULTIPARAM{$k} = $v;
+                }
+                else {
+                    my $type = shift;
+                    unless (ref $type) {
+                        if (Class::Multimethods::Pure::Type::Unblessed->is_unblessed($type)) {
+                            $type = Class::Multimethods::Pure::Type::Unblessed->new($type);
+                        }
+                        else {
+                            $type = Class::Multimethods::Pure::Type::Package->new($type);
+                        }
+                    }
+                    push @params, $type;
+                }
+            }
+
+            return () unless @_;
+
+            my $code = shift;
+
+            my $multi = $Class::Multimethods::Pure::MULTI{$name} ||= 
+                    Class::Multimethods::Pure::Method->new(
+                        Variant => $Class::Multimethods::Pure::MULTIPARAM{$name}{Variant},
+                    );
+
+            $multi->add_variant(\@params, $code);
+        }
+
+        return Class::Multimethods::Pure::make_wrapper($name);
+    }    
+}
+
+
+
 1;
