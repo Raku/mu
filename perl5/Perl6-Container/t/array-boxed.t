@@ -3,7 +3,7 @@
 use strict;
 
 use Test::More;
-plan tests => 47;
+plan tests => 58;
 
 use Perl6::Container::Array; 
 use Perl6::Value;
@@ -108,6 +108,27 @@ use Perl6::Value::List;
     $x = $scalar->fetch( 1 );
     #print Dumper( \$x );
     is( $x->fetch, 3, 'store to auto-dereferenced scalar works' );
+}
+
+{
+  # fetch
+
+  my $list = Perl6::Value::List->from_num_range( start => 0, end => 1000000 );
+  my $array1 = Array->new();
+  $array1->push( $list );
+
+  $array1->fetch( 100 );
+  is( $array1->fetch( 100 )->fetch, 100, 'fetch' );
+  is( $array1->fetch(  99 )->fetch,  99, '... fetch' );
+  is( $array1->fetch(  98 )->fetch,  98, '... fetch' );
+  is( $array1->fetch(   0 )->fetch,   0, '... fetch' );
+  is( $array1->fetch( 1000000 )->fetch, 1000000, '... fetch' );
+  is( $array1->store(  50, 99 ), $array1, 'store' );
+  is( $array1->fetch(  49 )->fetch,  49, '... fetch' );
+  is( $array1->fetch(  50 )->fetch,  99, '... fetch' );
+  is( $array1->fetch(  51 )->fetch,  51, '... fetch' );
+  is( $array1->fetch(   0 )->fetch,   0, '... fetch' );
+  is( $array1->fetch( 1000000 )->fetch, 1000000, '... fetch' );
 }
 
 {
