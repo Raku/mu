@@ -1131,7 +1131,7 @@ var _26main_3a_3aprefix_3a_3f = PIL2JS.Box.constant_func(1, function (args) {
   } else if(a instanceof PIL2JS.Junction.One) {
     var ret = false;
     for(var i = 0; i < a.values.length; i++) {
-      if(PIL2JS.cps2normal(_26main_3a_3aprefix_3a_3f, [PIL2JS.Context.ItemAny, a.values[i]]).FETCH()) {
+      if(PIL2JS.cps2normal(_26main_3a_3aprefix_3a_3f.FETCH(), [PIL2JS.Context.ItemAny, a.values[i]]).FETCH()) {
         if(ret) {
           return cc(new PIL2JS.Box.Constant(0 == 1));
         } else {
