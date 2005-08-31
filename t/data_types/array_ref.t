@@ -96,9 +96,9 @@ is     $array9[1][1][1][0], 42, "recursive array access (3)";
 
 # changing nested array
 my $array10 = [[2]];
-is try { $array10[0][0] = 6; $array10[0][0] }, 6, "changing nested array (1)",:todo;
+is try { $array10[0][0] = 6; $array10[0][0] }, 6, "changing nested array (1)";
 my $array11 = [[2,3]];
-is try { $array11[0][0] = 6; $array11[0][0] }, 6, "changing nested array (2)",:todo;
+is try { $array11[0][0] = 6; $array11[0][0] }, 6, "changing nested array (2)";
 
 # creating a AoA using ";" doesn't work any longer
 # As of http://www.nntp.perl.org/group/perl.perl6.language/20795:
