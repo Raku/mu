@@ -28,7 +28,7 @@ plan 9;
     is $a, 23, "let() changed the variable (1)";
     0;
   }
-  is $a, 42, "let() should restore the variable, as our block failed", :todo<feature>;
+  is $a, 42, "let() should restore the variable, as our block failed";
 }
 
 # Test that let() restores the variable at scope exit, not at subroutine

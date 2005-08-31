@@ -25,5 +25,5 @@ use Test;
 plan 1;
 
 # rule foo { \{ }  #}'
-ok(eval(' rule foo { \{ } #}\'
+is(eval(' rule foo { \{ } #}\'
 3 '), 3, 'expression parsed');
