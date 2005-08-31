@@ -15,7 +15,7 @@ use Time::Seconds;
 
 use constant {
   VERSION     => 0.4,
-  MAX_SIZE    => 2**20 * 1.5,  # MiB limit
+  MAX_SIZE    => 2**20 * 3.0,  # MiB limit
   BASEDIR     => "/var/www/iblech/stuff/pugs-smokes/",
   BASEHTTPDIR => "/iblech/stuff/pugs-smokes/",
   BUCKET      => "bucket.dat",
@@ -74,7 +74,7 @@ sub add_smoke {
 
   my %smoke;
   $html =~ /pugs_versnum: ([\d.]+)/ and $smoke{pugs_version}  = $1;
-  $html =~ /^revision: (\d+)/m      and $smoke{pugs_revision} = $1;
+  $html =~ /pugs_revision: (\d+)/   and $smoke{pugs_revision} = $1;
   $html =~ /osname: ([\w\d]+)/      and $smoke{osname}        = $1;
   $html =~ /duration: (\d+)/        and $smoke{duration}      = $1;
   $html =~ /pugs-path: (.+)$/m      and $smoke{runcore}       = pugspath2runcore($1);

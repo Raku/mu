@@ -6,7 +6,7 @@ method key (Pair $self:) {
   })')($self);
 }
 
-method value (Pair $self:) {
+method value (Pair $self:) is rw {
   die ".value only works on objects of type Pair!" unless $self.isa("Pair");
 
   JS::inline('new PIL2JS.Box.Constant(function (args) {
@@ -29,4 +29,25 @@ sub infix:«=>»($key, $value is rw) is primitive is rw {
       }
     ));
   })')($key, $value);
+}
+
+# Needs PIL2 and MMD to be done without hacks
+sub PIL2JS::Internals::Hacks::postcircumfix_for_pair_objects (
+  Pair $pair, Any $key
+) is primitive is rw {
+  if $pair.key eqv $key {
+    $pair.value;
+  } else {
+    undef;
+  }
+}
+
+sub PIL2JS::Internals::Hacks::init_pair_postcircumfix_method () is primitive {
+  JS::inline('(function () {
+    PIL2JS.addmethod(
+      _3amain_3a_3aPair,
+      "postcircumfix:{}",
+      _26PIL2JS_3a_3aInternals_3a_3aHacks_3a_3apostcircumfix_for_pair_objects
+    );
+  })')();
 }

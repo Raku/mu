@@ -961,11 +961,13 @@ var _26main_3a_3aisa = PIL2JS.Box.constant_func(1, function (args) {
   ref.FETCH()([PIL2JS.Context.ItemAny, self, function (type) {
     type = type.FETCH();
     cc(new PIL2JS.Box.Constant(
-      type == cmptype                      ||
-      type == "Array" && cmptype == "List" ||
+      type == cmptype                       ||
+      type == "Array" && cmptype == "List"  ||
       // Hacks:
-      type == "Num"   && cmptype == "Int"  ||
-      type == "Num"   && cmptype == "Rat"  ||
+      type == "Num"   && cmptype == "Int"   ||
+      type == "Num"   && cmptype == "Rat"   ||
+      type == "Code"  && cmptype == "Block" ||
+      type == "Code"  && cmptype == "Sub"   ||
       type == "Any"
     ));
   }]);

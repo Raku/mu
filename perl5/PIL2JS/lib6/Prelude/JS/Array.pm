@@ -266,6 +266,7 @@ sub infix:<,>(*@xs is rw) is primitive is rw {
   })')(@xs);
 }
 our &list := &infix:<,>;
+our &pair := &infix:<,>;  # XXX wrong
 
 sub circumfix:<[]>(*@xs is rw) is primitive { my @copy; @copy = @xs; \@copy }
 method postcircumfix:<[]>(@self: Int *@idxs) is rw {

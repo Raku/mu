@@ -9,7 +9,7 @@ _ should be allowed in numbers
 
 =cut
 
-plan 15;
+plan 17;
 
 my $tot = 0;
 
@@ -61,7 +61,9 @@ is 2e0_1, 20, "Underscores work in the argument for e";
 #   I think we should go with the method call semantics in all of the ambiguous
 #   forms, mostly because "no such method: Int::e5" is clearer than silently
 #   succeeding and the error coming up somewhere else.
-dies_ok { 2.e123 }, "2.e123 parses as method call";
-dies_ok { 2._foo }, "2._foo parses as method call";
-dies_ok { 2._e23 }, "2._23  parses as method call";
-dies_ok { 2.foo  }, "2.foo  parses as method call";
+dies_ok { 2.e123 },    "2.e123 parses as method call";
+dies_ok { 2._foo },    "2._foo parses as method call";
+dies_ok { 2._123 },    "2._123 parses as method call";
+is      2.1_23, 2.123, "2.1_23 parses as number";
+dies_ok { 2._e23 },    "2._23  parses as method call";
+dies_ok { 2.foo  },    "2.foo  parses as method call";

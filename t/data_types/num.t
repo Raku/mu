@@ -9,7 +9,7 @@ basic Number tests
 
 =cut
 
-plan 44;
+plan 45;
 
 my $a = 1; "$a";
 isa_ok($a, 'Int');
@@ -92,9 +92,11 @@ is(+$a, 101, "0d0101 numifies to 101");
 my $a = 2 ** 65; # over the 64 bit limit too
 is($a, 36893488147419103232, "we have bignums, not weeny floats");
 
-eval_is('42_000', 42000, 'underscores allowed (and ignored) in numeric literals');
-eval_is('42_127_000', 42127000, 'multiple underscores ok');
-eval_is('42.0_1', 42.01, 'underscores in fraction ok');
-eval_is('4_2.01', 42.01, 'underscores in whole part ok');
-eval_is('4_2__.__0_1___', 42.01, 'lots of underscores are ok', :todo);
+is(42_000,     42000,    'underscores allowed (and ignored) in numeric literals');
+is(42_127_000, 42127000, 'multiple underscores ok');
+is(42.0_1,     42.01,    'underscores in fraction ok');
+is(4_2.01,     42.01,    'underscores in whole part ok');
+
+dies_ok({ 4_2__.__0_1___ }, 'lots of underscores are not ok directly after the dot');
+is(4_2__.0__1___, 42.01,    'lots of underscores are ok');
 
