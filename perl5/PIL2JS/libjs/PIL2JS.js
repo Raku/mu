@@ -950,12 +950,17 @@ PIL2JS.addmethod(_3amain_3a_3aAny, "ref", _26main_3a_3aref);
 var _26main_3a_3aisa = PIL2JS.Box.constant_func(1, function (args) {
   args.shift();  // cxt
   var self    = args.shift(),
-      cmptype = args.shift().FETCH(),
+      cmptype = args.shift().FETCH();
       cc      = args.pop(),
       ref     = _26main_3a_3aref;
 
   if(args.length > 0) {
     PIL2JS.die("Too many arguments passed to &isa!");
+  }
+
+  // XXX wrong
+  if(cmptype instanceof Perl6.Class) {
+    cmptype = cmptype.meta().name();
   }
 
   ref.FETCH()([PIL2JS.Context.ItemAny, self, function (type) {
@@ -1047,7 +1052,7 @@ var _26main_3a_3aprefix_3a_7e = PIL2JS.Box.constant_func(1, function (args) {
       } else if(ref == "Ref") {
         PIL2JS.die("Can't stringify non-array or hash references!");
       } else if(ref == "Class") { // XXX
-        cc(new PIL2JS.Box.Constant("<class>"));
+        cc(new PIL2JS.Box.Constant(thing.meta().name()));
       } else if(ref == "Match") {
         cc(new PIL2JS.Box.Constant(thing.str));
       } else {

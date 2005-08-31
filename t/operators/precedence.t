@@ -163,4 +163,4 @@ is((1 && 0 ?? 2 :: 3), 3, "&& binds tighter than ??");
 # opposed to Pugs parses it:
 #   $ perl -we 'print uc("a" eq "A")'
 #   $    (no output)
-eval_ok 'uc "a" eq "A"';
+ok (uc "a" eq "A"), "uc has the correct precedence in comparision to eq";
