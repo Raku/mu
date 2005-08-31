@@ -33,8 +33,8 @@ is_deeply(
     
 ## test out some of the global functions ...
 
-dies_ok { ::SELF() } '... cannot call $?SELF outside of a valid context';
-dies_ok { ::CLASS() } '... cannot call $?CLASS outside of a valid context';
+ok(!defined($::SELF), '... cannot get $?SELF outside of a valid context');
+ok(!defined($::CLASS), '... cannot get $?CLASS outside of a valid context');
     
 ## test the method constructors
 
@@ -42,34 +42,34 @@ dies_ok { ::CLASS() } '... cannot call $?CLASS outside of a valid context';
     my $m = ::make_method(sub { return 'Foo' }, $i);
     ok(ref($m), 'Perl6::Method');
 
-    is($m->(), 'Foo', '... got the right return value');
+    is($m->($i), 'Foo', '... got the right return value');
 
-    my $m2 = ::make_method(sub { return ::SELF() }, $i);
+    my $m2 = ::make_method(sub { return $::SELF }, $i);
     ok(ref($m2), 'Perl6::Method');
 
     is($m2->('Bar'), 'Bar', '... got the right return value');
     
-    my $m3 = ::make_method(sub { return ::CLASS() }, $i);
+    my $m3 = ::make_method(sub { return $::CLASS }, $i);
     ok(ref($m3), 'Perl6::Method');
 
-    is($m3->(), $i, '... got the right return value');    
+    is($m3->($i), $i, '... got the right return value');    
 }
 
 {
     my $m = ::make_class_method(sub { return 'Foo::Bar' }, $i);
     ok(ref($m), 'Perl6::ClassMethod');
 
-    is($m->(), 'Foo::Bar', '... got the right return value');
+    is($m->($i), 'Foo::Bar', '... got the right return value');
     
-    my $m2 = ::make_class_method(sub { return ::SELF() }, $i);
+    my $m2 = ::make_class_method(sub { return $::SELF }, $i);
     ok(ref($m2), 'Perl6::ClassMethod');
 
     is($m2->('Bar::Baz'), 'Bar::Baz', '... got the right return value');    
     
-    my $m3 = ::make_class_method(sub { return ::CLASS() }, $i);
+    my $m3 = ::make_class_method(sub { return $::CLASS }, $i);
     ok(ref($m3), 'Perl6::Method');
 
-    is($m3->(), $i, '... got the right return value');       
+    is($m3->($i), $i, '... got the right return value');       
 }
 
 {
@@ -81,11 +81,11 @@ dies_ok { ::CLASS() } '... cannot call $?CLASS outside of a valid context';
     ok(ref($m2), 'Perl6::Submethod');
     is($m2->($j), 'Baz', '... got the right return value');    
 
-    my $m3 = ::make_submethod(sub { return ::SELF() }, $i);
+    my $m3 = ::make_submethod(sub { return $::SELF }, $i);
     ok(ref($m3), 'Perl6::Submethod');
     is($m3->($j), $j, '... got the right return value');    
     
-    my $m4 = ::make_submethod(sub { return ::CLASS() }, $i);
+    my $m4 = ::make_submethod(sub { return $::CLASS }, $i);
     ok(ref($m4), 'Perl6::Submethod');
     is($m4->($j), $i, '... got the right return value');        
     
@@ -113,16 +113,16 @@ dies_ok { ::CLASS() } '... cannot call $?CLASS outside of a valid context';
     my $pm = ::make_private_method(sub { return 'Foo' }, $i);
     ok(ref($pm), 'Perl6::PrivateMethod');    
 
-    my $m = ::make_method(sub { $pm->() }, $i);
+    my $m = ::make_method(sub { $pm->($i) }, $i);
     ok(ref($m), 'Perl6::Method');
     
-    is($m->(), 'Foo', '... called private method successfully');
+    is($m->($i), 'Foo', '... called private method successfully');
     
-    my $m2 = ::make_method(sub { $pm->() }, $j);
+    my $m2 = ::make_method(sub { $pm->($i) }, $j);
     ok(ref($m2), 'Perl6::Method');    
 
     dies_ok {
-        $m2->();
+        $m2->($i);
     } '... cannot call a private method from a different class';
 }
 

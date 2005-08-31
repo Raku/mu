@@ -53,8 +53,8 @@ $Point->add_method('y' => ::make_method(sub {
 }, $Point));
 
 $Point->add_method('clear' => ::make_method(sub {
-    ::opaque_instance_attrs(SELF())->{'$.x'} = 0;
-    ::opaque_instance_attrs(SELF())->{'$.y'} = 0;    
+    ::opaque_instance_attrs($::SELF)->{'$.x'} = 0;
+    ::opaque_instance_attrs($::SELF)->{'$.y'} = 0;    
 }, $Point));
 
 my $point = $Point->class::new('$.x' => 1, '$.y' => 3);
@@ -93,11 +93,11 @@ $Point3D->superclasses([ $Point ]);
 $Point3D->add_attribute('$:z' => ::make_attribute('$:z'));
 
 $Point3D->add_method('get_z' => ::make_method(sub {
-    ::opaque_instance_attrs(SELF())->{'$:z'};
+    ::opaque_instance_attrs($::SELF)->{'$:z'};
 }, $Point));
 
 $Point3D->add_method('clear' => ::make_method(sub {
-    ::opaque_instance_attrs(SELF())->{'$:z'} = 0;
+    ::opaque_instance_attrs($::SELF)->{'$:z'} = 0;
     ::next_METHOD()
 }, $Point));
 

@@ -32,7 +32,9 @@ sub class {
 sub _process_class_body {
     my ($new_class, $body) = @_;
     if (ref($body) eq 'CODE') {
-        $body->($new_class);
+        ::bind_CLASS($new_class);
+        $body->();
+        ::unbind_CLASS();
     }
     elsif (ref($body) eq 'HASH') {
         $new_class->superclasses($body->{is}) if exists $body->{is};
@@ -112,10 +114,9 @@ Perl6::MetaModel - The Perl 6 Object Meta Model
   # class-is-a-closure form (more typing 
   # for you, but more control)
   class 'Foo-0.0.1-cpan:STEVAN' => sub {
-      my $class = shift;
-      $class->superclasses([ $::Object ]);
+      $::CLASS->superclasses([ $::Object ]);
       foreach my $name (qw(foo bar)) {
-          $class->add_method($name => ::make_class_method(sub { "Hello from $name" }, $class));
+          $::CLASS->add_method($name => ::make_class_method(sub { "Hello from $name" }, $::CLASS));
       }
   };
 

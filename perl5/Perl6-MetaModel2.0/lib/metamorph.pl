@@ -31,7 +31,7 @@ $::Class->add_method('authority' => ::make_method(sub {
 }, $::Class));
 
 $::Class->add_method('identifier' => ::make_method(sub {
-    return join '-' => (SELF()->name, SELF()->version, (SELF()->authority || ()));
+    return join '-' => ($::SELF->name, $::SELF->version, ($::SELF->authority || ()));
 }, $::Class));
 
 $::Class->add_method('superclasses' => ::make_method(sub {        
@@ -130,7 +130,7 @@ $::Class->add_method('_make_dispatcher_iterator' => ::make_private_method(sub {
 }, $::Class));
 
 $::Class->add_method('_make_preorder_dispatcher' => ::make_private_method(sub {
-    my @stack = SELF()->_make_dispatcher_iterator(SELF());
+    my @stack = $::SELF->_make_dispatcher_iterator($::SELF);
     return sub {
         TOP: {
             if (defined $stack[-1]) {
@@ -146,7 +146,7 @@ $::Class->add_method('_make_preorder_dispatcher' => ::make_private_method(sub {
                     redo TOP;
                 }
                 else {
-                    push @stack => SELF()->_make_dispatcher_iterator(@{$current_class->superclasses})
+                    push @stack => $::SELF->_make_dispatcher_iterator(@{$current_class->superclasses})
                         if $current_class->superclasses;
                 }             
                 return $current_class;
@@ -157,7 +157,7 @@ $::Class->add_method('_make_preorder_dispatcher' => ::make_private_method(sub {
 }, $::Class));
 
 $::Class->add_method('_make_breadth_dispatcher' => ::make_private_method(sub {
-    my @stack = SELF()->_make_dispatcher_iterator(SELF());
+    my @stack = $::SELF->_make_dispatcher_iterator($::SELF);
     return sub {
         TOP:
             if (scalar(@stack) != -0) {
@@ -173,7 +173,7 @@ $::Class->add_method('_make_breadth_dispatcher' => ::make_private_method(sub {
                     goto TOP;
                 }
                 else {
-                    push @stack => SELF()->_make_dispatcher_iterator(@{$current_class->superclasses})
+                    push @stack => $::SELF->_make_dispatcher_iterator(@{$current_class->superclasses})
                         if $current_class->superclasses;
                 }             
                 return $current_class;
@@ -183,13 +183,13 @@ $::Class->add_method('_make_breadth_dispatcher' => ::make_private_method(sub {
 }, $::Class));
 
 $::Class->add_method('_make_descendant_dispatcher' => ::make_private_method(sub {
-    my @MRO = SELF()->MRO();
-    return SELF()->_make_dispatcher_iterator(reverse @MRO);
+    my @MRO = $::SELF->MRO();
+    return $::SELF->_make_dispatcher_iterator(reverse @MRO);
 }, $::Class));
 
 $::Class->add_method('_make_ascendant_dispatcher' => ::make_private_method(sub {
-    my @MRO = SELF()->MRO();
-    return SELF()->_make_dispatcher_iterator(@MRO);
+    my @MRO = $::SELF->MRO();
+    return $::SELF->_make_dispatcher_iterator(@MRO);
 }, $::Class));
 
 $::Class->add_method('is_a' => ::make_method(sub {        

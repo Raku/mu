@@ -17,13 +17,15 @@ our $DISPATCH_TRACE = 0;
     # the p6opaque canidate as described in A12 
     
     # Every instance should have a unique ID
-    my $instance_counter = 0;
+    my $GLOBAL_INSTANCE_COUNT = 0;
 
     # Input: reference to class and a slurpy attr hash
     sub ::create_opaque_instance ($%) {
         my ($class, %attrs) = @_;
+        (defined $class) 
+            || confess "Cannot create an opaque instance without a class";
         my $instance = bless {
-            'id'    => ++$instance_counter,
+            'id'    => ++$GLOBAL_INSTANCE_COUNT,
             'class' => $class,
             'attrs' => \%attrs,
         }, 'Dispatchable';
@@ -32,9 +34,24 @@ our $DISPATCH_TRACE = 0;
     }
 
     # Accessors for the inside of the opaque structure
-    sub ::opaque_instance_id    ($) { shift->{id}       }
-    sub ::opaque_instance_class ($) { ${shift->{class}} }
-    sub ::opaque_instance_attrs ($) { shift->{attrs}    }
+    sub ::opaque_instance_id ($) { 
+        my $instance = shift;
+        (defined $instance && blessed($instance) eq 'Dispatchable')
+            || confess "Bad instance (" . ($instance || 'undef') . ")";
+        $instance->{id};
+    }
+    sub ::opaque_instance_class ($) { 
+        my $instance = shift;
+        (defined $instance && blessed($instance) eq 'Dispatchable')
+            || confess "Bad instance (" . ($instance || 'undef') . ")";        
+        ${$instance->{class}};
+    }
+    sub ::opaque_instance_attrs ($) { 
+        my $instance = shift;
+        (blessed($instance))
+            || confess "Bad instance (" . ($instance || 'undef') . ")";
+        $instance->{attrs};
+    }
 }
 
 {   ## Perl 6 Global Functions
@@ -42,23 +59,39 @@ our $DISPATCH_TRACE = 0;
     # which implement certain global 
     # characteristics of the Perl 6 object 
     # space. 
-
-    ## $?SELF
-    # this mimics the $?SELF variable
-    my @SELF = ();
-    sub ::SELF {
-        confess 'Cannot access $?SELF outside of valid context'
-            unless @SELF;
-        $SELF[-1];
-    }
-
-    ## $?CLASS
-    # this mimics the $?CLASS variable    
-    my @CLASS = ();
-    sub ::CLASS {
-        confess 'Cannot access $?CLASS outside of valid context'
-            unless @CLASS;
-        $CLASS[-1];        
+    
+    ## $?SELF and $?CLASS
+    # this mimics the $?SELF and $?CLASS variables    
+    $::SELF  = undef;
+    $::CLASS = undef;   
+    {
+        my (@SELF, @CLASS);        
+        sub ::bind_SELF_and_CLASS {
+            my ($self, $class) = @_;
+            (defined $self && defined $class)
+                || confess "Must have defined values to bind $?SELF and $?CLASS";                
+            push @SELF  => ($::SELF  = $self );
+            push @CLASS => ($::CLASS = $class);        
+        }
+    
+        sub ::unbind_SELF_and_CLASS { 
+            pop @SELF;  $::SELF  = (@SELF  ? $SELF[-1]  : undef);
+            pop @CLASS; $::CLASS = (@CLASS ? $CLASS[-1] : undef);
+        }   
+        
+        # NOTE:
+        # these are used during class creation
+        # to bind $?CLASS within the class closure
+        sub ::bind_CLASS {
+            my ($class) = @_;
+            (defined $class)
+                || confess "Must have a defined value to bind to $?CLASS";
+            push @CLASS => ($::CLASS = $class);   
+        } 
+        
+        sub ::unbind_CLASS { 
+            pop @CLASS; $::CLASS = (@CLASS ? $CLASS[-1] : undef);
+        }         
     }
 
     # these are actually two functiosn
@@ -68,6 +101,10 @@ our $DISPATCH_TRACE = 0;
     # object. They are very useful :)
     sub ::WALKMETH {
         my ($dispatcher, $label, %opts) = @_;
+        (defined $dispatcher && ref($dispatcher) eq 'CODE')
+            || confess "Bad dispatcher (" . ($dispatcher || 'undef') . ")";
+        (defined $label)
+            || confess "You must provide a method label for WALKMETH";
         warn "::WALKMETH called for ($label) ... for " . $opts{for} if $DISPATCH_TRACE;
         while (my $current = $dispatcher->()) {
             warn "\t> Currently looking in id($current) for ($label)" if $DISPATCH_TRACE;
@@ -79,25 +116,33 @@ our $DISPATCH_TRACE = 0;
     }
     
     sub ::WALKCLASS {
-        my ($dispatcher, %opts) = @_;
+        my ($dispatcher) = @_;
+        (defined $dispatcher && ref($dispatcher) eq 'CODE')
+            || confess "Bad dispatcher (" . ($dispatcher || 'undef') . ")";        
         return $dispatcher->();        
     }
  
     ## Attribute Primatives
-    # this is hack currently ..
+    # this is kind of a hack currently ..
     
     sub ::make_attribute {
         my ($name) = @_;
+        (defined $name)
+            || confess "You must provide a name for the attribute";
         return bless \$name => 'Perl6::Attribute';
     }
     
     sub ::make_class_attribute {
         my ($name) = @_;
+        (defined $name)
+            || confess "You must provide a name for the attribute";        
         return bless \$name => 'Perl6::ClassAttribute';
     }     
     
     sub ::instantiate_attribute_container {
         my ($attr) = @_;
+        (blessed($attr) && $attr->isa('Perl6::Attribute'))
+            || confess "You must provide an attribute to instantiate";        
         return [] if ${$attr} =~ /^@/;
         return {} if ${$attr} =~ /^%/;        
         return undef;
@@ -124,19 +169,24 @@ our $DISPATCH_TRACE = 0;
     # a sub to 'bind' those two values, 
     # and 'tag' the type of the sub.
     sub ::make_method ($$) {
-        my $method = shift;
-        my $associated_with = shift;
+        my ($method, $associated_with) = @_;
+        # NOTE:
+        # all the other make_*_method subs will, at some
+        # point, go through this one, so we only need to 
+        # do error checking here
+        (defined $method && ref($method) eq 'CODE')
+            || confess "Bad method body (" . ($method || 'undef') . ")";
+        (blessed($associated_with) && blessed($associated_with) eq 'Dispatchable')
+            || confess "You must associate the method with a class";        
         return bless sub {
             my $invocant = shift;
-            # XXX - 
-            # should we die if we 
-            # have no invocant? we always
-            # need an invocant in a method
-            push @CLASS => $associated_with;            
-            push @SELF => $invocant;
+            # NOTE: 
+            # we die if we do not have a
+            # defined invocant and a class
+            # (see bind_SELF_and_CLASS above)
+            ::bind_SELF_and_CLASS($invocant, $associated_with);
             my @rval = $method->($invocant, @_);
-            pop @SELF;
-            pop @CLASS;
+            ::unbind_SELF_and_CLASS();
             return wantarray ? @rval : $rval[0];            
         } => 'Perl6::Method';
     }
@@ -159,7 +209,7 @@ our $DISPATCH_TRACE = 0;
         # our own class or not.
         return bless sub {
             confess "Cannot call private method from different class"
-                unless ::opaque_instance_id(::CLASS()) 
+                unless ::opaque_instance_id($::CLASS) 
                     eq ::opaque_instance_id($associated_with);   
             return $method->(@_);
         } => 'Perl6::PrivateMethod';
@@ -173,14 +223,13 @@ our $DISPATCH_TRACE = 0;
     # $?CLASS aware). Submethod are also special in that
     # this implcit test can be overridden.
     sub ::make_submethod ($$) {
-        my $method = shift;
-        my $associated_with = shift;
+        my ($method, $associated_with) = @_;
         return bless ::make_method(sub {
             if (!$_[0] || $_[0] ne $Perl6::Submethod::FORCE) {
                 return ::next_METHOD()
-                    if ::opaque_instance_id(::opaque_instance_class(::SELF())) 
+                    if ::opaque_instance_id(::opaque_instance_class($::SELF)) 
                        != 
-                       ::opaque_instance_id(::CLASS()); 
+                       ::opaque_instance_id($::CLASS); 
             }
             elsif ($_[0] eq $Perl6::Submethod::FORCE) {
                 shift(@_);
@@ -219,6 +268,10 @@ our $DISPATCH_TRACE = 0;
     # early $::Class object.
     my @DISPATCHER = ();
     sub ::dispatcher {
+        (blessed($_[0]) && blessed($_[0]) eq 'Dispatchable' &&
+         defined $_[1]  && 
+         defined $_[2]  && ref($_[2]) eq 'ARRAY')
+            || confess "dispatch must have an invocant, a label and an arguments array";        
         # deal with the $::Class special case ...
         # NOTE: 
         # we refer to $::Class here even though
@@ -234,13 +287,10 @@ our $DISPATCH_TRACE = 0;
         }
     }
 
-    # NOTE:
-    # since $::Class is an instance of itself, we
-    # can safely ignore the issue of class methods
-    # in this dispatcher, since there will be none
-    # because the class it an instance of itself :)
+    # this will handle all dispatching 
+    # for the root $::Class
     sub _class_dispatch {
-        my ($self, $label, $args, $is_class_method) = @_;  
+        my ($self, $label, $args, $is_class_method) = @_; 
         warn "... entering _class_dispatch with label($label)" if $DISPATCH_TRACE;  
         my $method_table_name;
         # check the private methods
@@ -276,7 +326,7 @@ our $DISPATCH_TRACE = 0;
             return $method_table->{$label}->($self, @{$args}) 
                 if exists $method_table->{$label};             
         }
-        confess "Method ($label) not found for meta-instance ($self)";          
+        confess "Method ($label) not found in \$::Class";          
     }
 
     sub _normal_dispatch {
@@ -312,7 +362,7 @@ our $DISPATCH_TRACE = 0;
             # walk the methods
             my $method = ::WALKMETH($dispatcher, $label, %opts);
             (defined $method)
-                || confess "Method ($label) not found for " . $opts{for} . " ($self)" . Data::Dumper::Dumper($self);   
+                || confess "Method ($label) not found for " . $opts{for} . " ($self)";   
             # store the dispatcher state
             push @DISPATCHER => [ $dispatcher, $label, $self, $args, \%opts ];
             # call the method
@@ -334,6 +384,8 @@ our $DISPATCH_TRACE = 0;
     # construct to go to the next
     # applicable method 
     sub ::next_METHOD {
+        (@DISPATCHER)
+            || confess "Cannot call next METHOD, we have no current dispatcher";
         warn ">>>> next METHOD called" if $DISPATCH_TRACE;
         my ($dispatcher, $label, $self, $args, $opts) = @{$DISPATCHER[-1]};             
         my $method = ::WALKMETH($dispatcher, $label, %{$opts}); 
@@ -376,14 +428,10 @@ our $DISPATCH_TRACE = 0;
     use strict;
     use warnings;
     
-    use Carp 'confess';
-    
     use overload 
-        '0+' => sub {
-            ::opaque_instance_id($_[0])
-        },       
+        '0+' => sub { $_[0]->{id} },       
         '""' => sub {
-            "#<" . (::opaque_instance_attrs($_[0])->{'$:name'} || 'instance') . "=(" . ::opaque_instance_id($_[0]) . ")>"
+            "#<" . (${$_[0]->{class}}->{attrs}->{'$:name'} || 'AnonClass') . "=(" . $_[0]->{id} . ")>"
         },     
         fallback => 1;
 
