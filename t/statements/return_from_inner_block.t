@@ -13,5 +13,5 @@ plan 1;
 
 # test case by Bryan Donlan
 
-is( try { sub foo { while (1) { return 24; } return 42; } foo() }, 24, 'return in while');
+is( try { sub foo { my $x = 1; while $x-- { return 24; } return 42; } foo() }, 24, 'return in while');
 

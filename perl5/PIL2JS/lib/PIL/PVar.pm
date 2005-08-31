@@ -48,7 +48,7 @@ sub as_js {
     # Hack? Fully qualified variables don't need a declaration, but JavaScript
     # needs one.
     my $name = $self->{pVarName};
-    if($name =~ /::/ and $name !~ /CALLER::/ and $name !~ /OUTER::/) {
+    if($name =~ /::/ and $name !~ /\b(CALLER|OUTER|\*?JS)::/) {
       $PIL::UNDECLARED_VARS{$name}++;
     }
 
