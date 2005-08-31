@@ -4,6 +4,9 @@
 # ChangeLog
 #
 # 2005-08-29
+# * Lazy lists are deep cloned when Array is cloned
+#
+# 2005-08-29
 # * Full support for lazy splicing and sparse array
 # * Added support for store() past the end of the array
 # * Simplified fetch()
@@ -105,50 +108,33 @@ sub Perl6::Value::stringify {
 
 sub Perl6::Slice::new { 
     my $class = shift;
-    # array => $self, slice => $list 
     my %param = @_;  
-    # warn "Param ". $param{array}->perl->unboxed . " / ". $param{slice}->perl->unboxed;
     bless { %param }, $class;
 } 
 sub Perl6::Slice::fetch {
     my $self = shift;
     my $i = shift;
     my $pos = $self->{slice}->fetch( $i )->fetch;
-    # warn "POS ISA ". ref($pos);
     $pos = $pos->unboxed if ref( $pos );
-    # warn " fetching @_ at ". $self->{array} ."/". $self->{slice}->perl ."[ $i -> $pos ]";
-
-    # warn " slice has ". $self->{slice}->elems()->unboxed . " elements";
-
     return unless defined $pos;
-    return if $pos >= $self->{array}->elems()->unboxed ||
-              $pos < 0;
-
-    my $tmp = $self->{array}->fetch( $pos, @_ );
-    # warn "fetched $tmp from $pos @_\n";
-    return $tmp;
+    return if $pos >= $self->{array}->elems()->unboxed || $pos < 0;
+    $self->{array}->fetch( $pos, @_ );
 }
 sub Perl6::Slice::store {
     my $self = shift;
     my $i = shift;
     my $pos = $self->{slice}->fetch( $i )->fetch;
     $pos = $pos->unboxed if ref( $pos );
-    #warn " storing @_ at ". $self->{array} ."[ $i -> $pos ]";
-
     return unless defined $pos;
-    return if $pos >= $self->{array}->elems()->unboxed ||
-              $pos < 0;
-
+    return if $pos >= $self->{array}->elems()->unboxed || $pos < 0;
     $self->{array}->store( $pos, @_ );
 }
 sub Perl6::Slice::is_infinite {
     my $self = shift; 
-    # warn " is_infinite ". $self->{slice} ." = ". $self->{slice}->is_infinite( $self->{slice} );
     $self->{slice}->is_infinite()->unboxed;
 }
 sub Perl6::Slice::elems {
     my $self = shift; 
-    # warn " elems ". $self->{slice} ." = ". $self->{slice}->elems( $self->{slice} )->unboxed;
     $self->{slice}->elems()->unboxed;
 }
 sub Perl6::Slice::unbind {
@@ -158,26 +144,31 @@ sub Perl6::Slice::unbind {
     my @idx = $self->{slice}->items;
     my $result = Array->new;
     my $pos = 0;
-    for ( @idx ) {
-        # warn "loop...";
-        if ( UNIVERSAL::isa( $_, 'Perl6::Value::List' ) ) {
-            # warn "List -- ". $_->is_contiguous;
+    for my $i ( @idx ) {
+        # warn "unbind() loop...";
+        if ( UNIVERSAL::isa( $i, 'Perl6::Value::List' ) ) {
             die "Not implemented: instantiate lazy slice using a non-contiguous list"
-                unless $_->is_contiguous;
-            my $start = $_->start;
-            my $end =   $_->end;
+                unless $i->is_contiguous;
+            my $start = $i->start;
+            my $end =   $i->end;
             die "Slice start/end is not defined"
                 unless defined $end && defined $start;
             die "Not implemented: instantiate lazy slice using a reversed list"
                 unless $end >= $start;
+            #warn "unbind: \n";
+            #warn "    Index: ". $i->str . "\n";
             # warn "Slicing from $start to $end";
             my $slice = $ary->splice( $start, ( $end - $start + 1 ) );
             my $elems = $slice->elems->unboxed;
             # warn "splice 2 - elems = $elems - slice isa $slice";
             $ary->splice( $start, 0, $slice );
             # warn "splice done";
-            # XXX - items should be cloned before storing
-            $result->push( $slice->unboxed->items );
+            # items should be cloned before storing
+            my @items = $slice->unboxed->items;
+            @items = map {
+                        UNIVERSAL::isa( $_, 'Perl6::Value::List' ) ? $_->clone : $_
+                    } @items;
+            $result->push( @items );
             if ( $elems < ( $end - $start + 1 ) ) {
                 my $diff = $end - $start + 1 - $elems;
                 # warn "Missing $diff elements";
@@ -208,31 +199,38 @@ sub Perl6::Slice::write_thru {
     my $ary = $self->{array};
     my @idx = $self->{slice}->items;
     my $pos = 0;
-    for ( @idx ) {
+    for my $i ( @idx ) {
         #warn "write loop...";
-        if ( UNIVERSAL::isa( $_, 'Perl6::Value::List' ) ) {
-            # warn "List -- ". $_->is_contiguous;
+        if ( UNIVERSAL::isa( $i, 'Perl6::Value::List' ) ) {
+            # warn "List -- ". $i->is_contiguous;
             die "Not implemented: instantiate lazy slice using a non-contiguous list"
-                unless $_->is_contiguous;
-            my $start = $_->start;
-            my $end =   $_->end;
+                unless $i->is_contiguous;
+            my $start = $i->start;
+            my $end =   $i->end;
             die "Slice start/end is not defined"
                 unless defined $end && defined $start;
             die "Not implemented: instantiate lazy slice using a reversed list"
                 unless $end >= $start;
-            #warn "Slicing from $pos to ( $start .. $end )";
-            # XXX - items should be cloned before storing
+            #warn "write_thru: Slicing from position $pos to ( $start .. $end )\n";
+            #warn "    Index: ". $i->str . "\n";
+            # items should be cloned before storing
             my $slice = $other->splice( $pos, ( $end - $start + 1 ) );
             my $elems = $slice->elems->unboxed;
-            my @result = ($slice);
+            # $other->splice( $pos, 0, $slice );  # does this make any difference?
+            
+            my @items = $slice->unboxed->items;
+            # @items = map {
+            #            UNIVERSAL::isa( $_, 'Perl6::Value::List' ) ? $_->clone : $_
+            #        } @items;
+            
             if ( $elems < ( $end - $start + 1 ) ) {
                 my $diff = $end - $start + 1 - $elems;
                 #warn "Missing $diff elements";
-                push @result, Perl6::Value::List->from_x( item => undef, count => $diff )
+                push @items, Perl6::Value::List->from_x( item => undef, count => $diff )
                     if $diff > 0;
             }
             #warn "Storing to $start";
-            $ary->splice( $start, ( $end - $start + 1 ), @result );
+            $ary->splice( $start, ( $end - $start + 1 ), @items );
             $pos = $pos + $end - $start + 1;
             #warn "pos = $pos";
         }
@@ -307,7 +305,10 @@ class 'Array'.$class_description => {
                 #   store/fetch from array[$list[$i]] == array[5]
                 my $ret = Array->new();
                 $ret->cell->{tieable} = 1;
-                my $proxy = Perl6::Slice->new( array => $self, slice => $list );
+                my $proxy = Perl6::Slice->new( 
+                    array => $self, 
+                    slice => $list,   
+                );
                 $ret->tie( $proxy );
                 return $ret;
             },
@@ -322,7 +323,7 @@ class 'Array'.$class_description => {
                         UNIVERSAL::isa( $_, 'List' ) ? $_->unboxed : $_ 
                     } @param;
 
-                if ( $method eq 'splice' || $method eq 'reverse' ) {
+                if ( $method eq 'clone' || $method eq 'splice' || $method eq 'reverse' ) {
                     my @p;
                     #warn "-- $method";
                     for ( @param ) {
@@ -445,16 +446,13 @@ class 'Array'.$class_description => {
                 my $array = shift;
                 my %param = @_;
                 my $samples = $param{'max'};
-                $samples-- if defined $samples;
-                # warn "-- str --";
                 my $self = _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v};
-                # warn "-- cell $tmp --";
-                
-                my @start;
-                my @end;
+                $samples-- if defined $samples;
                 $samples = 100 unless defined $samples || $self->is_infinite; 
                 $samples = 2   unless defined $samples;
-                my $tmp = -&Inf;
+                my @start;
+                my @end;
+                my $tmp;
                 for ( 0 .. $samples ) {
                     no warnings 'numeric';
                     last if $_ >= $self->elems;
@@ -463,36 +461,26 @@ class 'Array'.$class_description => {
                     push @start, $tmp;
                     last if $tmp == -&Inf;
                 }
-                $tmp = &Inf;
-                for ( map { $_ - $samples - 1 } reverse 0 .. $samples ) {
+                for ( map { - $_ - 1 } 0 .. $samples ) {
                     no warnings 'numeric';
                     last unless $self->elems + $_ > scalar @start;
                     $tmp = $self->fetch( $_ );
-                    # warn "$_ - $tmp";
                     last if $tmp == -&Inf;
                     unshift @end, $tmp;
                     last if $tmp == &Inf;
                 }
-                return Str->new( '$.unboxed' => '()' ) unless @start;
-                # if @start and @end intersect, don't print ".."
-                if ( $self->elems == ( scalar @start + scalar @end ) ) {
-                    return Str->new( '$.unboxed' =>
-                        '(' . 
-                        join( ', ', 
-                            map { Perl6::Value::stringify($_) } @start, @end ).
-                        ')'
-                    );
+                my $str = '';
+                if ( @start > 0 ) {
+                    if ( $self->elems == ( scalar @start + scalar @end ) ) {
+                        $str =  join( ', ', map { Perl6::Value::stringify($_) } @start, @end );
+                    }
+                    else {
+                        $str =  join( ', ', map { Perl6::Value::stringify($_) } @start ) .
+                                ' ... ' . 
+                                join( ', ', map { Perl6::Value::stringify($_) } @end );
+                    }
                 }
-                return Str->new( '$.unboxed' => 
-                    '(' . 
-                    join( ', ', 
-                        map { Perl6::Value::stringify($_) } @start ) .
-                    ' ... ' . 
-                    join( ', ', 
-                        map { Perl6::Value::stringify($_) } @end ).
-                    ')'
-                );
-                
+                return Str->new( '$.unboxed' => '(' . $str . ')' );                
             },
             perl => sub { my $self = shift; $self->str( @_ ) },
         },
@@ -518,7 +506,14 @@ sub new {
     return bless { items => \@items }, $class;
 }
 
-sub clone         { bless { %{ $_[0] } }, ref $_[0] }
+sub clone { 
+    # TODO - clone Scalars
+    my $self = bless { %{ $_[0] } }, ref $_[0];
+    @{$self->{items}} = map {
+            UNIVERSAL::isa( $_, 'Perl6::Value::List' ) ? $_->clone : $_
+        } @{$self->{items}};
+    return $self;
+}
 
 sub items {
     my $self = shift;

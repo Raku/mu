@@ -10,9 +10,9 @@ use Perl6::Container::Array;
 use Perl6::Value;
 use Perl6::Value::List;
 
-use constant Inf => Perl6::Value::Num::Inf;
+#use constant Inf => Perl6::Value::Num::Inf;
 
-   # NOTE - these tests no loger have to use "is_deeply" 
+   # NOTE - these tests no longer have to use "is_deeply" 
 
 {
   # normal splice
@@ -31,9 +31,9 @@ use constant Inf => Perl6::Value::Num::Inf;
 {
   # end of stream
   my $a = Perl6::Container::Array->from_list( 1 .. 2 );
-  is_deeply( [$a->shift], [1], 'iter 0' );
+  is( $a->shift, 1, 'iter 0' );
   is_deeply( [$a->shift], [2], 'iter 1' );
-  is_deeply( [$a->shift], [], 'end' );
+  is( $a->shift, undef, 'end' );
 }
 
 {
@@ -42,7 +42,7 @@ use constant Inf => Perl6::Value::Num::Inf;
   my $a = Perl6::Container::Array->from_list( $iter );
   is_deeply( [$a->shift], [1], 'iter 0' );
   is_deeply( [$a->shift], [2], 'iter 1' );
-  is_deeply( [$a->shift], [], 'end' );
+  is( $a->shift, undef, 'end' );
 }
 
 {

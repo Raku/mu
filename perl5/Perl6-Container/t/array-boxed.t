@@ -3,7 +3,7 @@
 use strict;
 
 use Test::More;
-plan tests => 30;
+plan tests => 47;
 
 use Perl6::Container::Array; 
 use Perl6::Value;
@@ -231,21 +231,32 @@ use Perl6::Value::List;
 
   my $array = Array->new();
   $array->push( Perl6::Value::List->from_num_range( start => 1000, end => 100_000 ) );
+  is( $array->perl(max=>3)->unboxed, 
+      '(1000, 1001, 1002 ... 99998, 99999, 100000)', 'Array to be sliced' );
 
   my $idx = Array->new();
   $idx->push( 2 );
   $idx->push( Perl6::Value::List->from_num_range( start => 4, end => 1_000_000 ) ); 
     # end => 1_000_000 - was not supported before
+  is( $idx->perl(max=>3)->unboxed, 
+      '(2, 4, 5 ... 999998, 999999, 1000000)', '... Array with indexes' );
+      
   my $sliced = $array->slice( $idx );
-
-  # store to a lazy slice
+  is( $sliced->perl(max=>3)->unboxed, 
+      '(1002, 1004, 1005 ... undef, undef, undef)', '... Resulting Array slice' );
+      
+  # array that will be stored into lazy slice
   my $array2 = Array->new();
   $array2->push( 99, Perl6::Value::List->from_num_range( start => 100, end => 200_000_000 ) );
+  is( $array2->perl(max=>3)->unboxed, 
+      '(99, 100, 101 ... 199999998, 199999999, 200000000)', '... Array to be stored into the slice' );
+      
+  # store to a lazy slice
   $sliced->store( $array2 );
 
   is( $sliced->perl(max=>3)->unboxed, 
       '(99, 100, 101 ... 1000094, 1000095, 1000096)',
-      'Array slice was modified' );
+      '... Array slice was modified' );
       
   is( $idx->perl(max=>3)->unboxed, 
       '(2, 4, 5 ... 999998, 999999, 1000000)',
