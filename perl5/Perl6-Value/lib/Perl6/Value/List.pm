@@ -4,8 +4,17 @@ package Perl6::Value::List;
 
 # ChangeLog
 #
+# 2005-08-31
+# * str() is non-destructive
+#
+# 2005-08-30
+# * new hook 'clone'
+# * some constructors implement deep cloning
+# * functions that don't support deep cloning emit warnings on clone
+#
 # 2005-08-29
 # * new methods shift_n() pop_n() - provide lazy access to sublists
+# * new hook DESTROY
 #
 # 2005-08-27
 # * new methods start() end()
@@ -41,7 +50,7 @@ use constant Inf => Perl6::Value::Num::Inf;
 our $VERSION = '0.01';
 
 sub _default_stringify {
-    my $self = shift;
+    my $self = (shift)->clone;
     my @start;
     my @end;
     my $samples = 3;
@@ -92,28 +101,32 @@ sub new {
         $param{celems} =
             ( defined $param{cstart} || defined $param{cend} ) ? sub { Inf } : sub { 0 }
     }
-    $param{cstart} = sub {} unless defined $param{cstart};
-    $param{cend}   = sub {} unless defined $param{cend}; 
+    $param{cstart}  = sub {} unless defined $param{cstart};
+    $param{cend}    = sub {} unless defined $param{cend}; 
     
-    $param{start} = sub {} unless defined $param{start};
-    $param{end}   = sub {} unless defined $param{end}; 
+    $param{start}   = sub {} unless defined $param{start};
+    $param{end}     = sub {} unless defined $param{end}; 
 
     $param{shift_n} = sub { $_[0]->shift } unless defined $param{shift_n};
     $param{pop_n}   = sub { $_[0]->pop }   unless defined $param{pop_n}; 
 
+    $param{DESTROY} = sub {}   unless defined $param{DESTROY}; 
+    $param{clone}   = sub { bless { %{ $_[0] } }, ref $_[0] } unless defined $param{clone}; 
+
     return bless \%param, $class;
 }
 
-sub clone         { bless { %{ $_[0] } }, ref $_[0] }
-sub elems         { $_[0]->{celems}() }
-sub is_infinite   { $_[0]->{cis_infinite}( $_[0] ) }
-sub is_contiguous { $_[0]->{cis_contiguous}() }
+sub DESTROY       { $_[0]->{DESTROY}( @_ ) }
+sub clone         { $_[0]->{clone}( @_ ) }
+sub elems         { $_[0]->{celems}( @_ ) }
+sub is_infinite   { $_[0]->{cis_infinite}( @_ ) }
+sub is_contiguous { $_[0]->{cis_contiguous}( @_ ) }
 sub is_lazy       { $_[0]->{is_lazy} }
-sub str           { $_[0]->{cstringify}( $_[0] ) }
+sub str           { $_[0]->{cstringify}( @_ ) }
 sub int           { $_[0]->elems }
 sub bit           { $_[0]->elems > 0 }
 sub num           { $_[0]->elems }
-sub perl          { '(' . $_[0]->{cstringify}( $_[0] ) . ')' }
+sub perl          { '(' . $_[0]->{cstringify}( @_ ) . ')' }
 sub shift_n       { $_[0]->{shift_n}( @_ ) }
 sub pop_n         { $_[0]->{pop_n}( @_ ) }
 
@@ -137,44 +150,47 @@ sub from_num_range {
     my $end =   $param{end};
     my $step =  $param{step} || 1;
     $class->new(
-                shift_n => sub {
-                            my $list = shift;
-                            my $length = shift;
-                            # warn "shift_n( $length ) from  ". $list->start . "..". $list->end;
-                            my $middle = $start + $length - 1;
-                            $middle = $end if $middle > $end;
-                            my $shifted = ref($list)->from_num_range(
-                                start => $start,
-                                end => $middle,
-                                step => $step,
-                            );
-                            $start = $middle + 1;
-                            return $shifted;
-                        },
-                start =>   sub { $start },
-                end =>     sub { $end },
-                cstart =>  sub {
-                            my $r = $start;
-                            if ( defined $step ) { $start += $step } else { $start++ };
-                            return $r;
-                        },
-                cend =>    sub {
-                            my $r = $end;
-                            if ( defined $step ) {
-                                # XXX - this should use modulus, etc.
-                                $end -= $step
-                            }
-                            else {
-                                $end--
-                            };
-                            return $r;
-                        },
-                celems =>  sub {
-                            return $end - $start + 1 unless defined $step;
-                            return CORE::int(( $end - $start + 1 ) / $step);
-                        },
-                cis_infinite => sub { return $start == -&Inf || $end == Inf },
-                cis_contiguous => sub { $step == -1 || $step ==  1 },
+        clone => sub { 
+            $class->from_num_range( start => $start, end => $end, step => $step ) 
+        },
+        shift_n => sub {
+            my $list = shift;
+            my $length = shift;
+            # warn "shift_n( $length ) from  ". $list->start . "..". $list->end;
+            my $middle = $start + $length - 1;
+            $middle = $end if $middle > $end;
+            my $shifted = ref($list)->from_num_range(
+                start => $start,
+                end => $middle,
+                step => $step,
+            );
+            $start = $middle + 1;
+            return $shifted;
+        },
+        start =>   sub { $start },
+        end =>     sub { $end },
+        cstart =>  sub {
+            my $r = $start;
+            if ( defined $step ) { $start += $step } else { $start++ };
+            return $r;
+        },
+        cend =>    sub {
+            my $r = $end;
+            if ( defined $step ) {
+                # XXX - this should use modulus, etc.
+                $end -= $step
+            }
+            else {
+                $end--
+            };
+            return $r;
+        },
+        celems =>  sub {
+            return $end - $start + 1 unless defined $step;
+            return CORE::int(( $end - $start + 1 ) / $step);
+        },
+        cis_infinite =>   sub { return $start == -&Inf || $end == Inf },
+        cis_contiguous => sub { $step == -1 || $step ==  1 },
     );
 }
 
@@ -190,12 +206,15 @@ sub from_range {
         } 
         unless defined $count;
     $class->new(
-                start =>   sub { $start },
-                end =>     sub { $end },
-                cstart =>  sub { $start++ },
-                cend =>    sub { $end-- },
-                celems =>  $count,
-                cis_contiguous => sub { 1 },
+        clone => sub { 
+            $class->from_range( start => $start, end => $end, celems => $count ) 
+        },
+        start =>   sub { $start },
+        end =>     sub { $end },
+        cstart =>  sub { $start++ },
+        cend =>    sub { $end-- },
+        celems =>  $count,
+        cis_contiguous => sub { 1 },
     );
 }
 
@@ -204,28 +223,31 @@ sub from_x {
     # this can be used to create sparse arrays like:  [ 1, undef x 10000, 2 ]
     my $class = shift;
     my %param = @_;
-    my $item = $param{item};
+    my $item =  $param{item};
     my $count = $param{count};
     $count = 0 
         unless defined $count;
     $class->new(
-                shift_n => sub {
-                            my $list = shift;
-                            my $length = shift;
-                            # warn "shift_n( $length ) from  ". $list->start . "..". $list->end;
-                            $length = $count if $length > $count;
-                            my $shifted = ref($list)->from_x(
-                                item => $item,
-                                count => $length,
-                            );
-                            $count = $count - $length;
-                            return $shifted;
-                        },
-                start =>   sub { $item },
-                end =>     sub { $item },
-                cstart =>  sub { $count--; return if $count < 0; $item },
-                cend =>    sub { $count--; return if $count < 0; $item },
-                celems =>  sub { $count },
+        clone => sub { 
+            $class->from_x( item => $item, count => $count ) 
+        },
+        shift_n => sub {
+            my $list = shift;
+            my $length = shift;
+            # warn "shift_n( $length ) from  ". $list->start . "..". $list->end;
+            $length = $count if $length > $count;
+            my $shifted = ref($list)->from_x(
+                item => $item,
+                count => $length,
+            );
+            $count = $count - $length;
+            return $shifted;
+        },
+        start =>   sub { $item },
+        end =>     sub { $item },
+        cstart =>  sub { $count--; return if $count < 0; $item },
+        cend =>    sub { $count--; return if $count < 0; $item },
+        celems =>  sub { $count },
     );
 }
 
@@ -233,7 +255,7 @@ sub from_single {
     my $class = shift;
 
     my @list;
-    for(@_) {
+    for( @_ ) {
         if ( UNIVERSAL::isa($_, 'Perl6::Value::List') ) {
             my @li; push @li, $_->shift while $_->elems; 
             push @list, @li;
@@ -244,30 +266,35 @@ sub from_single {
     }
 
     $class->new(
-                 start =>   sub { $list[0] },
-                 end =>     sub { $list[-1] },
-                 cstart =>  sub{ shift  @list },
-                 cend =>    sub{ pop    @list },
-                 celems =>  sub{ scalar @list },
-                 is_lazy => 0,
-             );
+        clone =>   sub { $class->from_single( @list ) },
+        start =>   sub { $list[0]  },
+        end =>     sub { $list[-1] },
+        cstart =>  sub { shift  @list },
+        cend =>    sub { pop    @list },
+        celems =>  sub { scalar @list },
+        is_lazy => 0,
+     );
 }
 
 sub from_coro {
     my $class = shift;
     my $start = shift;
-    my $size = Inf;
+    my $size =  &Inf;
     $class->new(
-                cstart =>  sub {
-                            my $r = $start->();
-                            # print "coro\n";
-                            $size = 0 unless defined $r;
-                            return $r;
-                        },
-                cend =>    sub {},
-                celems =>  sub { $size },
-                cis_infinite => sub { $size == Inf },
-                cis_contiguous => sub { 0 },
+        clone => sub { 
+            warn "from_coro->clone() not implemented";
+            $class->from_coro(  ) 
+        },
+        cstart =>  sub {
+            my $r = $start->();
+            # print "coro\n";
+            $size = 0 unless defined $r;
+            return $r;
+        },
+        cend =>    sub {},
+        celems =>  sub { $size },
+        cis_infinite => sub { $size == Inf },
+        cis_contiguous => sub { 0 },
     );
 }
 
@@ -276,14 +303,17 @@ sub from_coro {
 sub reverse { 
     my $ret = shift;
     Perl6::Value::List->new( 
-            start =>          $ret->{end},
-            end =>            $ret->{start},
-            cstart =>         $ret->{cend},
-            cend =>           $ret->{cstart},
-            celems =>         $ret->{celems},
-            cis_infinite =>   $ret->{cis_infinite},
-            cis_contiguous => $ret->{cis_contiguous},
-            cstringify =>     $ret->{cstringify},
+        clone => sub { 
+            $ret->clone->reverse 
+        },
+        start =>          $ret->{end},
+        end =>            $ret->{start},
+        cstart =>         $ret->{cend},
+        cend =>           $ret->{cstart},
+        celems =>         $ret->{celems},
+        cis_infinite =>   $ret->{cis_infinite},
+        cis_contiguous => $ret->{cis_contiguous},
+        cstringify =>     $ret->{cstringify},
     );
 }
 
@@ -304,55 +334,59 @@ sub map {
     my @shifts;
     my @pops;
     Perl6::Value::List->new(
-            cstart => sub {
-                    # print "entering map, elems = ", $ret->elems, "\n";
-                    while( $ret->elems ) {
-                        # TODO - invert the order a bit
-                        my $x = $ret->shift; 
-                        # print "map $x\n";
-                        # print " got x ", $x," elems ", $ret->elems ,"\n";
-                        push @shifts, $code->($x);
-
-                        unless ( @shifts > 1 ) {
-                            # keep some data in the buffer - helps to find EOF in time
-                            my $x = $ret->shift; 
-                            push @shifts, $code->($x);
-                        }
-
-                        # print " mapped to [", @shifts, "] ", scalar @shifts, "\n";
-                        return shift @shifts if @shifts;
-                        # print " skipped ";
-                    }
-                    # print " left [", @shifts, @pops, "] ", scalar @shifts, "+", scalar @pops, "\n";
-                    return shift @shifts if @shifts;
-                    return shift @pops if @pops;
-                    return
-            },
-            cend => sub { 
-                    while( $ret->elems ) {
-                        my $x = $ret->pop; 
-                        # print "x ", $_," elems ", $ret->elems ,"\n";
-                        unshift @pops, $code->($x);
-
-                        unless ( @pops > 1 ) {
-                            # keep some data in the buffer - helps to find EOF in time
-                            my $x = $ret->pop; 
-                            unshift @pops, $code->($x);
-                        }
-
-                        return pop @pops if @pops;
-                    }
-                    return pop @pops if @pops;
-                    return pop @shifts if @shifts;
-                    return
-            },
-            celems => sub { 
-                    $ret->elems ? Inf : $#shifts + $#pops + 2 
-            },
+        clone => sub { 
+            # this doesn't work if $code is a closure
+            # it may break grep(), uniq(), kv()...
+            # It will need $code->clone in order to work...
+            warn "List::map->clone() not implemented";
+            $ret->clone->map( $code ) 
+        },
+        cstart => sub {
+            # print "entering map, elems = ", $ret->elems, "\n";
+            while( $ret->elems ) {
+                # TODO - invert the order a bit
+                my $x = $ret->shift; 
+                # print "map $x\n";
+                # print " got x ", $x," elems ", $ret->elems ,"\n";
+                push @shifts, $code->($x);
+                unless ( @shifts > 1 ) {
+                    # keep some data in the buffer - helps to find EOF in time
+                    my $x = $ret->shift; 
+                    push @shifts, $code->($x);
+                }
+                # print " mapped to [", @shifts, "] ", scalar @shifts, "\n";
+                return shift @shifts if @shifts;
+                # print " skipped ";
+            }
+            # print " left [", @shifts, @pops, "] ", scalar @shifts, "+", scalar @pops, "\n";
+            return shift @shifts if @shifts;
+            return shift @pops if @pops;
+            return
+        },
+        cend => sub { 
+            while( $ret->elems ) {
+                my $x = $ret->pop; 
+                # print "x ", $_," elems ", $ret->elems ,"\n";
+                unshift @pops, $code->($x);
+                unless ( @pops > 1 ) {
+                    # keep some data in the buffer - helps to find EOF in time
+                    my $x = $ret->pop; 
+                    unshift @pops, $code->($x);
+                }
+                return pop @pops if @pops;
+            }
+            return pop @pops   if @pops;
+            return pop @shifts if @shifts;
+            return
+        },
+        celems => sub { 
+            $ret->elems ? Inf : $#shifts + $#pops + 2 
+        },
     );
 }
 
 sub uniq { 
+    # TODO - use p6 hash
     my $array = shift;
     my %seen = ();
     return $array->map( 
@@ -394,41 +428,44 @@ sub zip {
     my @shifts;
     my @pops;
     Perl6::Value::List->new(
-            cstart => sub {
-                return shift @shifts if @shifts;
-                my $any = 0;
-                for ( $ret, @lists ) { $any++ if $_->elems }
-                push @shifts, ( $ret->shift, 
-                            map { my $x = $_->shift } #; defined $x ? $x : 'x' } 
-                                @lists ) if $any;
-                return shift @shifts if @shifts;
-                return shift @pops if @pops;
-                return
-            },
-            cend => sub { 
-                return pop @pops if @pops;
-                my $any = 0;
-                for ( $ret, @lists ) { $any++ if $_->elems }
-                unshift @pops, ( $ret->pop, 
-                            map { my $x = $_->pop } #; defined $x ? $x : 'x' } 
-                                @lists ) if $any;
-                return pop @pops if @pops;
-                return pop @shifts if @shifts;
-                return
-            },
-            celems => sub { 
-                my $any = 0;
-                for ( $ret, @lists ) { $any++ if $_->elems }
-                $any ? Inf : $#shifts + $#pops + 2 
-            },
+        clone => sub {
+            warn "zip->clone not implemented";
+            return $_[0];
+        },
+        cstart => sub {
+            return shift @shifts if @shifts;
+            my $any = 0;
+            for ( $ret, @lists ) { $any++ if $_->elems }
+            push @shifts, ( $ret->shift, 
+                        map { my $x = $_->shift } #; defined $x ? $x : 'x' } 
+                            @lists ) if $any;
+            return shift @shifts if @shifts;
+            return shift @pops if @pops;
+            return
+        },
+        cend => sub { 
+            return pop @pops if @pops;
+            my $any = 0;
+            for ( $ret, @lists ) { $any++ if $_->elems }
+            unshift @pops, ( $ret->pop, 
+                        map { my $x = $_->pop } #; defined $x ? $x : 'x' } 
+                            @lists ) if $any;
+            return pop @pops if @pops;
+            return pop @shifts if @shifts;
+            return
+        },
+        celems => sub { 
+            my $any = 0;
+            for ( $ret, @lists ) { $any++ if $_->elems }
+            $any ? Inf : $#shifts + $#pops + 2 
+        },
     );
 }
 
-sub shift { $_[0]->{celems}() ? $_[0]->{cstart}() : undef }
-sub pop   { $_[0]->{celems}() ? $_[0]->{cend}()   : undef }  
-
-sub start { $_[0]->{celems}() ? $_[0]->{start}() : undef }
-sub end   { $_[0]->{celems}() ? $_[0]->{end}()   : undef }  
+sub shift { $_[0]->{celems}( @_ ) ? $_[0]->{cstart}( @_ ) : undef }
+sub pop   { $_[0]->{celems}( @_ ) ? $_[0]->{cend}( @_ )   : undef }  
+sub start { $_[0]->{celems}( @_ ) ? $_[0]->{start}( @_ )  : undef }
+sub end   { $_[0]->{celems}( @_ ) ? $_[0]->{end}( @_ )    : undef }  
 
 1;
 __END__
