@@ -3,6 +3,7 @@
 # ChangeLog
 #
 # 2005-09-01
+# * New Class Perl6::Type
 # * Signature can be stringified - new methods Code::signature_str and Perl6::Param::str
 #
 # 2005-08-22
@@ -32,6 +33,8 @@
 # $^a, $^b count like '+'
 
 # TODO - 'Pad' structure
+
+# TODO - create base "types" and reuse - see Perl6::Param
 
 # TODO - name_required() parameter to Perl6::Param signature ( +$x )
 # TODO - 'returns'
@@ -68,11 +71,33 @@ use Perl6::Value;
 my $class_description = '-0.0.1-cpan:FGLOCK';
 
 {
+    package Perl6::Type;
+
+    sub new {
+        # TODO - autobox/un-box hook
+        my ($class, %param ) = @_;
+        my ( $name, $match ) = 
+           ( $param{name}, $param{match} );
+        bless {
+            name =>     $name,
+            match =>    $match,   
+        } => $class;
+    }
+    
+    sub name    { $_[0]{name} }
+    sub match   { 
+        ref($_[1]) ? 
+        $_[0]{match}( $_[1] ) : 
+        $_[0]{match}( \$_[1] )
+    }     
+}
+
+{
     package Perl6::Param;
 
     sub new {
         # TODO - autobox/un-box hook
-        # NOTE - default and type are closures
+        # NOTE - default is a closure
         my ($class, %param ) = @_;
         my ( $type, $name, $default, $required, $slurpy ) = 
            ( $param{type}, $param{name}, $param{default}, $param{required}, $param{slurpy} );
@@ -86,15 +111,18 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
 
         $type = 
             defined $type ? $type :
-            $name =~ /^\$/ ? sub { 1 
-            #    my $r = ref($_[0]);
-            #    $r eq 'SCALAR' || 
-            #    $r eq 'int'    ||
-            #    $r eq 'num'    ||
-            #    $r eq 'str'    
-            } : 
-            $name =~ /^\@/ ? sub { ref($_[0]) eq 'ARRAY' || ref($_[0]) eq 'Array' }  : 
-            $name =~ /^\%/ ? sub { ref($_[0]) eq 'HASH'  || ref($_[0]) eq 'Hash' }   : 
+            $name =~ /^\$/ ? 
+                Perl6::Type->new( 
+                    name => 'Any', 
+                    match => sub { 1 } ) : 
+            $name =~ /^\@/ ? 
+                Perl6::Type->new( 
+                    name => 'Array', 
+                    match => sub { ref($_[0]) eq 'ARRAY' || ref($_[0]) eq 'Array' } ) : 
+            $name =~ /^\%/ ? 
+                Perl6::Type->new( 
+                    name => 'Hash', 
+                    match => sub { ref($_[0]) eq 'HASH'  || ref($_[0]) eq 'Hash' } ) : 
             die 'Sigil required in the parameter name ('.$name.')';
         bless {
             name =>     $name,
@@ -112,17 +140,17 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
     sub slurpy   { $_[0]{slurpy} }
     sub match_type { 
         ref($_[1]) ? 
-        $_[0]{type}( $_[1] ) : 
-        $_[0]{type}( \$_[1] )
+        $_[0]{type}->match( $_[1] ) : 
+        $_[0]{type}->match( \$_[1] )
     }  
     sub str { 
         my $s = '';
+        $s .= $_[0]{type}->name . ' ';
         $s .= '*' if $_[0]->slurpy;
         $s .= '?' if $_[0]->optional;
         # $s .= '+' if $_[0]->name_required; -- not implemented yet
         $s .= $_[0]->name;
         $s .= ' = ' . Perl6::Value::stringify( $_[0]->default ) if $_[0]->default;
-        # XXX - match_type needs a way to extract the 'name' of the type/subtype
         return $s;
     }      
 }
