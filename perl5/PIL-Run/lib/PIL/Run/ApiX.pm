@@ -35,8 +35,12 @@ sub p6_to_n {my($n)=@_; $n->num()->unboxed;}
 sub p6_to_s {
     my($n)=@_; 
     Carp::confess if !defined $n; 
-    return $n unless UNIVERSAL::can( $n, 'str' ); 
-    $n->str()->unboxed;
+    my $tmp;
+    eval { $tmp = $n->str()->unboxed };
+    if ( $@ ) {
+        $tmp = "$n";
+    } 
+    return $tmp;
 }
 sub p6_to_a {my($a_obj)=@_; [ $a_obj->unboxed ] }
 sub p6_to_l {my($a_obj)=@_;   $a_obj->unboxed }
