@@ -196,6 +196,7 @@ sub get_id {
         UNIVERSAL::isa( $key, 'Int' ) ||
         UNIVERSAL::isa( $key, 'Num' ) ||
         UNIVERSAL::isa( $key, 'Str' ) ||
+        UNIVERSAL::isa( $key, 'Bit' ) ||
         UNIVERSAL::isa( $key, 'Rat' )
     ) {
         $s = $key->str->unboxed
