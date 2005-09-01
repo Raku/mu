@@ -118,7 +118,7 @@ MULTI SUB time () {...};
 MULTI SUB times () {...};
 MULTI SUB so () {...};
 #MULTI SUB ¥ () {...}; - need protective unicode mangling/encoding first.
-MULTI SUB Y () {...};
+#MULTI SUB Y () {...};
 MULTI SUB File::Spec::cwd () {...};
 MULTI SUB File::Spec::tmpdir () {...};
 # pi say - placed above, as a temporary dev hack.
@@ -279,7 +279,7 @@ MULTI SUB values ($xx) { $xx->values };
 MULTI SUB prefix:<=> ($xx) {...};
 MULTI SUB readline ($xx) {...};
 MULTI SUB getc ($xx) {...};
-MULTI SUB ref ($xx) { $xx->ref };  # dies because Classes can't do str()
+MULTI SUB ref ($xx) { $xx->ref }; 
 MULTI SUB pop ($xx) { $xx->pop };
 MULTI SUB shift ($xx) { $xx->shift };
 #MULTI SUB pick ($xx) {...};
@@ -345,8 +345,6 @@ MULTI SUB infix:[<=>] ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) <=> p6_to_n($xx1)) }
 MULTI SUB infix:<..> ($xx0,$xx1) { 
     p6_from_a(
         Perl6::Value::List->from_num_range( start => $xx0->unboxed, end => $xx1->unboxed, step => 1 )
-            # ->
-            # map( sub{ Int->new( '$.unboxed' => $_[0] ) } ) 
     ) 
 };
 #MULTI SUB infix:<..^> ($xx0,$xx1) {...}; # in PrimP6
