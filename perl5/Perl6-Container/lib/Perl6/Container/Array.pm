@@ -327,6 +327,14 @@ class 'Array'.$class_description => {
                 $ret->tie( $proxy );
                 return $ret;
             },
+            'zip' => sub {
+                my ( $array, @array_list ) = map {
+                        UNIVERSAL::isa( $_, 'Array' ) ? $_->to_list : $_ 
+                    } @_; 
+                my $res = Array->new;
+                $res->push( $array->zip( @array_list ) );
+                return $res;
+            },
             'kv' => sub  { 
                 my $array = shift; 
                 my $keys = $array->keys;
