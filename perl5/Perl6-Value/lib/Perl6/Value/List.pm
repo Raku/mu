@@ -4,6 +4,9 @@ package Perl6::Value::List;
 
 # ChangeLog
 #
+# 2005-09-01
+# * fixed stringification
+#
 # 2005-08-31
 # * str() is non-destructive
 #
@@ -40,8 +43,6 @@ package Perl6::Value::List;
 # TODO - finish sum() - not all operations support sum() yet; 
 #      - object numification is not supported yet
 
-# TODO - stringification of unboxed types doesn't call native-stringification
-#        meaning Inf and NaN stringify wrongly
 # TODO - List.is_lazy() could be defined with a closure; Perl6 version too
 # TODO - map(), grep() could accept the optional 'celems' parameter - for kv() implementation
 # TODO - is_contiguous() should test if $step == 1
@@ -82,10 +83,10 @@ sub _default_stringify {
     }
     return 
         join( ', ', 
-        map { UNIVERSAL::can($_,'str') ? $_->str : $_ } @start ) .
+        map { Perl6::Value::stringify( $_ ) } @start ) .
         ' ... ' . 
         join( ', ', 
-        map { UNIVERSAL::can($_,'str') ? $_->str : $_ } @end );
+        map { Perl6::Value::stringify( $_ ) } @end );
 }
 
 sub new {
@@ -218,6 +219,9 @@ sub from_range {
         clone => sub { 
             $class->from_range( start => $start, end => $end, celems => $count ) 
         },
+        sum => sub {
+            warn "string sum not supported";
+        },
         start =>   sub { $start },
         end =>     sub { $end },
         cstart =>  sub { $start++ },
@@ -241,7 +245,7 @@ sub from_x {
             $class->from_x( item => $item, count => $count ) 
         },
         sum => sub {
-            $_[0]->elems * $item;
+            Perl6::Value::numify( $_[0] ) * $item;
         },
         shift_n => sub {
             my $list = shift;
@@ -318,6 +322,7 @@ sub reverse {
         clone => sub { 
             $ret->clone->reverse 
         },
+        sum =>            $ret->{sum},
         start =>          $ret->{end},
         end =>            $ret->{start},
         cstart =>         $ret->{cend},
@@ -440,6 +445,11 @@ sub zip {
     my @shifts;
     my @pops;
     Perl6::Value::List->new(
+        sum => sub { 
+            my $sum = $ret->sum;
+            $sum += $_->sum for @lists;
+            return $sum;
+        },
         clone => sub {
             my ( $l, @ls ) = map { $_->clone } ( $ret, @lists );
             warn "zip->clone has pending shifts/pops" if @pops || @shifts;

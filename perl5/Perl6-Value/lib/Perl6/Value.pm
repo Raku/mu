@@ -217,7 +217,7 @@ class 'Ref'.$class_description => {
                 my $method = ::AUTOLOAD($self);
                 my $tmp = _('$.referred');
                 # Array and Hash are auto-dereferenced
-                if ( defined $tmp && ( 
+                if ( ref $tmp && ( 
                         $tmp->isa( 'Array' ) || $tmp->isa( 'Hash' )
                     ) ) {
                     return $tmp->$method( @param );
@@ -228,8 +228,6 @@ class 'Ref'.$class_description => {
                 return ::CLASS 
                     if $method eq 'ref';
                 if ( $method eq 'perl' || $method eq 'str' ) {
-                    # return Str->new( '$.unboxed' => '\\undef' ) unless defined $tmp;
-                    # warn "Ref stringify $tmp";
                     return Str->new( '$.unboxed' => '\\' . Perl6::Value::stringify($tmp) ) 
                 }
                 return Bit->new( '$.unboxed' => defined $tmp ? 1 : 0 ) 
@@ -288,25 +286,32 @@ class 'List'.$class_description => {
 
 sub Perl6::Value::stringify {
     my $s = shift;
-
-    # warn "stringify $s";
-
     $s = $s->fetch if ref($s) && $s->isa('Scalar');
-
-    # $s = $s->str(max=>3) if ref($s) && $s->can('str');
     my $tmp;
+    # warn "stringify - $s\n";
     eval { $tmp = $s->str(max=>3) };
     $s = $tmp unless $@;
-
-    # $s = $s->unboxed if ref($s) && $s->can('unboxed');
+    # warn "   str - $s - $@\n";
     eval { $tmp = $s->unboxed };
     $s = $tmp unless $@;
-
+    # warn "   unboxed - $s - $@\n";
     return 'undef' unless defined $s;
-
     no warnings 'numeric';
     $s = Perl6::Value::Num::to_str( $s ) if $s+0 eq $s;
-    
+    return $s;
+}
+
+sub Perl6::Value::numify {
+    my $s = shift;
+    $s = $s->fetch if ref($s) && $s->isa('Scalar');
+    my $tmp;
+    eval { $tmp = $s->num };
+    $s = $tmp unless $@;
+    eval { $tmp = $s->unboxed };
+    $s = $tmp unless $@;
+    warn "attempting to use 'undef' as a number" unless defined $s;
+    no warnings 'numeric';
+    $s = Perl6::Value::Str::to_num( $s ) if $s+0 ne $s;
     return $s;
 }
 

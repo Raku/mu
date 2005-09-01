@@ -316,7 +316,9 @@ class 'Array'.$class_description => {
             },
             'zip' => sub {
                 my ( $array, @array_list ) = map {
-                        UNIVERSAL::isa( $_, 'Array' ) ? $_->to_list : $_ 
+                        UNIVERSAL::isa( $_, 'Array' ) ? 
+                        $_->to_list : 
+                        warn "Argument to zip() must be an Array"; 
                     } @_; 
                 my $res = Array->new;
                 $res->push( $array->zip( @array_list ) );
