@@ -23,6 +23,11 @@ my @examples = <
 
 plan +@examples;
 
+if $*OS eq "browser" {
+  skip_rest "Programs running in browsers don't have access to regular IO.";
+  exit;
+}
+
 # We can't run under win32 because of C<\> as path separator instead of C</>
 # -- awaiting v6 File::Spec
 # Actually, nobody really needs the path separator

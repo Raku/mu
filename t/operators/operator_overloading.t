@@ -25,9 +25,11 @@ is ± "fish", "AROUNDfish", 'prefix operator overloading for new operator (unico
 sub prefix:<(+-)> ($thing) { return "ABOUT$thing"; };
 is (+-) "fish", "ABOUTfish", 'prefix operator overloading for new operator (nasty)';
 
-sub prefix:<->($thing) { return "CROSS$thing"; };
-is(-"fish", "CROSSfish",
-   'prefix operator overloading for existing operator');
+{
+  my sub prefix:<->($thing) { return "CROSS$thing"; };
+  is(-"fish", "CROSSfish",
+     'prefix operator overloading for existing operator (but only lexically so we don\'t mess up runtime internals (needed at least for PIL2JS, probably for PIL-Run, too)');
+}
 
 sub infix:<×> ($a, $b) { $a * $b }
 is(5 × 3, 15, "infix Unicode operator");

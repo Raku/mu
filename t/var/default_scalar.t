@@ -10,6 +10,11 @@ plan 4;
 	for 1 .. 3 { $a++ }; 
 	is $a, 33, 'global $_ increments' ;
 
+if $*OS eq "browser" {
+  skip_rest "Programs running in browsers don't have access to regular IO.";
+  exit;
+}
+
 # work around missing capabilities
 # to get the output of 'say' into a test; 
 	my $out = open("tmpfile", :w);

@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 11;
+plan 15;
 
 =pod
 
@@ -13,24 +13,56 @@ L<S06/"Lvalue subroutines">
 
 =cut
 
-my $val1 = 1;
-my $val2 = 2;
+# Lvalue subrefs
+{
+  my $var1 = 1;
+  my $var2 = 2;
 
-sub lastval is rw { return $val2; }
-sub prevval is rw { return lastval(); }
+  my $lastvar = sub () is rw { return $var2      };
+  my $prevvar = sub () is rw { return $lastvar() };
 
-lastval() = 3;
-is($val2, 3); # simple
+  $lastvar() = 3;
+  is $var2, 3, "lvalue subroutine references work (simple)";
 
-prevval() = 4;
-is($val2, 4); # nested
+  $prevvar() = 4;
+  is $var2, 4, "lvalue subroutine references work (nested)";
+}
 
-# S6 says that lvalue subroutines are marked out by 'is rw'
-sub notlvalue { return $val1; } # without rw
+{
+  my $var = 42;
+  my $notlvalue = sub () { return $var };
 
-notlvalue() = 5;
-is $val1, 1, 'non-rw subroutines should not support assignment', :todo<bug>;
-isnt $val1, 5, 'non-rw subroutines should not assign', :todo<bug>;
+  dies_ok { $notlvalue() = 23 },
+    "assigning to non-rw subrefs should die";
+  is $var, 42,
+    "assigning to non-rw subrefs shouldn't modify the original variable";
+}
+
+{
+  my $var1 = 1;
+  my $var2 = 2;
+
+  sub lastvar is rw { return $var2; }
+  sub prevvar is rw { return lastvar(); }
+
+  lastvar() = 3;
+  is($var2, 3, "lvalue subroutines work (simple)");
+
+  prevvar() = 4;
+  is($var2, 4, "lvalue subroutines work (nested)");
+}
+
+{
+  my $var = 42;
+
+  # S6 says that lvalue subroutines are marked out by 'is rw'
+  sub notlvalue { return $val1; } # without rw
+
+  dies_ok { notlvalue() = 5 },
+    "assigning to non-rw subs should die";
+  is $var, 42,
+    "assigning to non-rw subs shouldn't modify the original variable";
+}
 
 sub check ($passwd) { return $password eq "fish"; };
 
