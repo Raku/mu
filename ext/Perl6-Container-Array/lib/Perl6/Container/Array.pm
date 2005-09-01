@@ -96,7 +96,7 @@ method _shift_n ($array: Int $length ) returns List {
     while @tmp {
         last if @ret.elems >= $length;
         if ! @tmp[0].isa('Perl6::Value::List') {
-            Perl6::Array::push @ret, Perl6::Array::shift @tmp;
+            &*push( @ret, Perl6::Array::shift @tmp );
             next;
         }
         my $i = @tmp[0].shift;

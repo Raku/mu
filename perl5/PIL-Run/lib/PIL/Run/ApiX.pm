@@ -38,7 +38,6 @@ sub p6_to_s {
     my $tmp;
     eval { $tmp = $n->str()->unboxed };
     if ( $@ ) {
-warn $@;
         $tmp = "$n";
     } 
     return $tmp;

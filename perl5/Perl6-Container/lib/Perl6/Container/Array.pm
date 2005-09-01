@@ -576,6 +576,23 @@ sub clone {
     return $self;
 }
 
+sub sum { 
+    my $self = shift;
+    my $sum = 0;
+    for ( @{$self->{items}} ) {
+        if ( UNIVERSAL::isa( $_, 'Perl6::Value::List' ) ) {
+            $sum += $_->sum
+        }
+        elsif ( ref( $_ ) ) {
+            $sum += $_->num->unboxed
+        }
+        else {
+            $sum += $_
+        }
+    }
+    return $sum;
+}
+
 sub items {
     my $self = shift;
     # my @x = %$self;  warn "-- items -- @x --";

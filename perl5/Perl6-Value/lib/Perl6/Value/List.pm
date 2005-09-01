@@ -113,6 +113,8 @@ sub new {
     $param{DESTROY} = sub {}   unless defined $param{DESTROY}; 
     $param{clone}   = sub { bless { %{ $_[0] } }, ref $_[0] } unless defined $param{clone}; 
 
+    $param{sum}     = sub { undef }   unless defined $param{sum}; 
+
     return bless \%param, $class;
 }
 
@@ -129,6 +131,7 @@ sub num           { $_[0]->elems }
 sub perl          { '(' . $_[0]->{cstringify}( @_ ) . ')' }
 sub shift_n       { $_[0]->{shift_n}( @_ ) }
 sub pop_n         { $_[0]->{pop_n}( @_ ) }
+sub sum           { $_[0]->{sum}( @_ ) }
 
 sub flatten       { 
     my $ret = shift;
@@ -152,6 +155,9 @@ sub from_num_range {
     $class->new(
         clone => sub { 
             $class->from_num_range( start => $start, end => $end, step => $step ) 
+        },
+        sum => sub {
+            $_[0]->elems * ( $start + $end ) / 2;
         },
         shift_n => sub {
             my $list = shift;
@@ -230,6 +236,9 @@ sub from_x {
     $class->new(
         clone => sub { 
             $class->from_x( item => $item, count => $count ) 
+        },
+        sum => sub {
+            $_[0]->elems * $item;
         },
         shift_n => sub {
             my $list = shift;
