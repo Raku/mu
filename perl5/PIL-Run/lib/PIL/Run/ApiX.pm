@@ -31,7 +31,7 @@ $VERSION = '0.01';
        );
 
 sub p6_to_b {my($b)=@_; $b->bit()->unboxed ? 1 : 0}
-sub p6_to_n {my($n)=@_; warn( $n ); $n->num()->unboxed;}
+sub p6_to_n {my($n)=@_; $n->num()->unboxed;}
 sub p6_to_s { Perl6::Value::stringify( @_ ) }
 sub p6_to_a {my($a_obj)=@_; [ $a_obj->unboxed ] }
 sub p6_to_l {my($a_obj)=@_;   $a_obj->unboxed }
