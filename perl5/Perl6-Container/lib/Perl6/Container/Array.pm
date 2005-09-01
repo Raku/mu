@@ -333,7 +333,7 @@ class 'Array'.$class_description => {
                 my $array = shift; 
                 $array = $array->clone;
                 my $shifted = 0;
-                my $popped = $array->elems - 1;
+                my $popped = $array->elems->unboxed - 1;
                 my $ret = Array->new();
                 # XXX - rewrite this using map()
                 # XXX - calling pairs() on (1..1000) gives wrong results
