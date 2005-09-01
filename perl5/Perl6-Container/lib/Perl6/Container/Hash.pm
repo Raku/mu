@@ -19,6 +19,7 @@
 # 2005-08-14
 # * added functions clone(), elems(), buckets()
 
+# TODO - warn for odd number of elements, on construction
 # TODO - keys(), values(), pairs(), kv() - lazy (non-infinite)
 # TODO - each() methods
 # TODO - hash cells with rw, ro, binding hash elements

@@ -2,6 +2,9 @@
 
 # ChangeLog
 #
+# 2005-09-01
+# * Signature can be stringified - new methods Code::signature_str and Perl6::Param::str
+#
 # 2005-08-22
 # * bugfix - MultiSub wasn't checking parameter signature
 # * @_ is bound - '.say' works!
@@ -29,6 +32,9 @@
 # $^a, $^b count like '+'
 
 # TODO - 'Pad' structure
+
+# TODO - name_required() parameter to Perl6::Param signature ( +$x )
+# TODO - 'returns'
 
 # TODO - unify parameter types and binding with MetaModel's methods/multimethods
 # TODO - multisub add_sub($sub)
@@ -108,7 +114,17 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
         ref($_[1]) ? 
         $_[0]{type}( $_[1] ) : 
         $_[0]{type}( \$_[1] )
-    }        
+    }  
+    sub str { 
+        my $s = '';
+        $s .= '*' if $_[0]->slurpy;
+        $s .= '?' if $_[0]->optional;
+        # $s .= '+' if $_[0]->name_required; -- not implemented yet
+        $s .= $_[0]->name;
+        $s .= ' = ' . Perl6::Value::stringify( $_[0]->default ) if $_[0]->default;
+        # XXX - match_type needs a way to extract the 'name' of the type/subtype
+        return $s;
+    }      
 }
 
 class 'Code'.$class_description => {
@@ -133,7 +149,7 @@ class 'Code'.$class_description => {
             do => sub {
                 my ($self, @arguments) = @_;
                 $self->check_params(@arguments)
-                    || confess "Signature does not match";
+                    || confess "Signature does not match - (" . $self->signature_str . ")";
                 # my %bound_params = ::SELF->bind_params(@arguments); 
                 # warn "entering sub ".$self->name;   
                 $self->body->( $self, @arguments );  # @_ = self + raw arguments
@@ -141,6 +157,15 @@ class 'Code'.$class_description => {
             arity => sub {
                 scalar @{ ::SELF->params }
             }, 
+            signature_str => sub {
+                my $self = shift;
+                my @s;
+                for (my $i = 0; $i < @{ $self->params }; $i++) {
+                    my $spec = ${ $self->params }[$i];
+                    push @s, $spec->str;
+                }
+                return join( ', ', @s );        
+            },
             check_params => sub {
                 my ($self, @params) = @_;
                 # my $max = ( scalar @params > scalar @{ $self->params } ) ? scalar @params : @{ $self->params };
