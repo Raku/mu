@@ -3,6 +3,9 @@
 
 # ChangeLog
 #
+# 2005-08-31
+# * New methods: tied(), keys(), values(), pairs(), kv()
+
 # * Fixed elems(), buckets() to return boxed Int, Str
 # * hash iterator (firstkey/nextkey) works
 #
@@ -16,14 +19,16 @@
 # 2005-08-14
 # * added functions clone(), elems(), buckets()
 
-# TODO - each(), keys(), values() methods
+# TODO - keys(), values(), pairs(), kv() - lazy (non-infinite)
+# TODO - each() methods
 # TODO - hash cells with rw, ro, binding hash elements
 # TODO - tied hashes
-# TODO - tied() method
 # TODO - hash slices
+# TODO - %a = %b - whole hash fetch/store
+# TODO - pick()
+
 # TODO - (iblech) probably with a warning "uninitialized warning used in numeric contect"
 #        (Same for hashes: %h{undef} =:= %h{""})
-
 # TODO - is (undef=>undef) a valid Pair?
 #        fglock PIL-Run currently prints {('undef', undef)}
 #        buu fglock: For which?
@@ -93,6 +98,7 @@ class 'Hash'.$class_description => {
             'tieable' =>  sub { _('$:cell')->{tieable} != 0 },
             'tie' =>      sub { shift; _('$:cell')->tie(@_) },
             'untie' =>    sub { _('$:cell')->untie },
+            'tied' =>     sub { _('$:cell')->{tied} },
 
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
             'isa' => sub { ::next_METHOD() },
@@ -106,6 +112,44 @@ class 'Hash'.$class_description => {
                                 _('$:cell')->{tied} ? 
                                 _('$:cell')->{tied}->buckets :
                                 Perl6::Container::Hash::buckets( _('$:cell')->{v} ) )
+            },
+            'pairs' => sub { 
+                my $key = $_[0]->firstkey;
+                my $ary = Array->new;
+                while ( defined $key ) {
+                    $ary->push( Pair->new( 
+                        '$.key' =>   $key, 
+                        '$.value' => $_[0]->fetch( $key ) ) );
+                    $key = $_[0]->nextkey;
+                }
+                return $ary;
+            },
+            'kv' => sub { 
+                my $key = $_[0]->firstkey;
+                my $ary = Array->new;
+                while ( defined $key ) {
+                    $ary->push( $key, $_[0]->fetch( $key ) );
+                    $key = $_[0]->nextkey;
+                }
+                return $ary;
+            },
+            'keys' => sub { 
+                my $key = $_[0]->firstkey;
+                my $ary = Array->new;
+                while ( defined $key ) {
+                    $ary->push( $key );
+                    $key = $_[0]->nextkey;
+                }
+                return $ary;
+            },
+            'values' => sub { 
+                my $key = $_[0]->firstkey;
+                my $ary = Array->new;
+                while ( defined $key ) {
+                    $ary->push( $_[0]->fetch( $key ) );
+                    $key = $_[0]->nextkey;
+                }
+                return $ary;
             },
             'str' => sub { 
                 my $key = $_[0]->firstkey;

@@ -3,6 +3,9 @@
 
 # ChangeLog
 #
+# 2005-08-31
+# * New methods: keys(), values(), pairs(), kv()
+
 # 2005-08-29
 # * Lazy lists are deep cloned when Array is cloned
 #
@@ -38,6 +41,7 @@
 # 2005-08-10
 # * Ported from Perl6 version
 
+# TODO - pick()
 # TODO - there are too many methods under AUTOLOAD - upgrade them to real methods
 #
 # TODO - TEST FAIL - PIL-Run> @a[10,100,1000,10000,100000]=(1..9999999) 
@@ -321,6 +325,47 @@ class 'Array'.$class_description => {
                     slice => $list,   
                 );
                 $ret->tie( $proxy );
+                return $ret;
+            },
+            'kv' => sub  { 
+                my $array = shift; 
+                my $count = 0;
+                my $ret = Array->new();
+                $ret->push(
+                    $array->to_list->map( 
+                        sub {
+                            ( $count++, $_[0] )
+                        },
+                        return_arity => 2,
+                    ) ); 
+                return $ret;
+            },
+            'pairs' => sub  { 
+                my $array = shift; 
+                my $count = 0;
+                my $ret = Array->new();
+                $ret->push(
+                    $array->to_list->map( 
+                        sub {
+                            Pair->new( 
+                                '$.key' =>   $count++, 
+                                '$.value' => $_[0] )
+                        },
+                        return_arity => 1,
+                    ) ); 
+                return $ret;
+            },
+            'values' => sub  { 
+                my $array = shift; 
+                return $array->clone;
+            },
+            'keys' => sub  { 
+                my $array = shift; 
+                my $ret = Array->new();
+                $ret->push(
+                    Perl6::Value::List->from_num_range( 
+                        start => 0, 
+                        end =>   $array->elems->unboxed - 1 ) ); 
                 return $ret;
             },
             'AUTOLOAD' => sub {
@@ -783,6 +828,7 @@ sub to_list {
     my $array = shift;
     my $ret = $array->clone;
     # XXX - TODO - optimization - return the internal list object, if there is one
+    # XXX - TODO - optimization - add shift_n, pop_n closures
     return Perl6::Value::List->new(
             cstart => sub { $ret->shift },
             cend =>   sub { $ret->pop },
