@@ -282,7 +282,7 @@ MULTI SUB getc ($xx) {...};
 MULTI SUB ref ($xx) { $xx->ref };  # dies because Classes can't do str()
 MULTI SUB pop ($xx) { $xx->pop };
 MULTI SUB shift ($xx) { $xx->shift };
-MULTI SUB pick ($xx) {...};
+#MULTI SUB pick ($xx) {...};
 MULTI SUB sum ($xx) {...};
 MULTI SUB min ($xx) {...};
 MULTI SUB max ($xx) {...};

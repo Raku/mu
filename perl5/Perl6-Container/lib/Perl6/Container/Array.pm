@@ -4,7 +4,7 @@
 # ChangeLog
 #
 # 2005-08-31
-# * New methods: keys(), values(), pairs(), kv()
+# * New methods: keys(), values(), pairs(), kv(), pick()
 
 # 2005-08-29
 # * Lazy lists are deep cloned when Array is cloned
@@ -41,8 +41,7 @@
 # 2005-08-10
 # * Ported from Perl6 version
 
-# TODO - bug - calling pairs() on (1..1000) gives wrong results
-# TODO - pick()
+# TODO - sum()
 # TODO - there are too many methods under AUTOLOAD - upgrade them to real methods
 #
 # TODO - TEST FAIL - PIL-Run> @a[10,100,1000,10000,100000]=(1..9999999) 
@@ -336,7 +335,6 @@ class 'Array'.$class_description => {
                 my $popped = $array->elems->unboxed - 1;
                 my $ret = Array->new();
                 # XXX - rewrite this using map()
-                # XXX - calling pairs() on (1..1000) gives wrong results
                 $ret->push(
                     # XXX - TODO - optimization - shift_n, pop_n
                     Perl6::Value::List->new(
@@ -368,6 +366,12 @@ class 'Array'.$class_description => {
                         start => 0, 
                         end =>   $array->elems->unboxed - 1 ) ); 
                 return $ret;
+            },
+            'pick' => sub  { 
+                my $array = shift; 
+                my $n = $array->elems->unboxed;
+                $n = 10E9 if $n == &Inf;
+                return $array->fetch( int( rand( $n ) ) );
             },
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
