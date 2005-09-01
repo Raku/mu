@@ -32,7 +32,12 @@ $VERSION = '0.01';
 
 sub p6_to_b {my($b)=@_; $b->bit()->unboxed ? 1 : 0}
 sub p6_to_n {my($n)=@_; $n->num()->unboxed;}
-sub p6_to_s {my($n)=@_; Carp::confess if !defined $n; $n->str()->unboxed;}
+sub p6_to_s {
+    my($n)=@_; 
+    Carp::confess if !defined $n; 
+    return $n unless UNIVERSAL::can( $n, 'str' ); 
+    $n->str()->unboxed;
+}
 sub p6_to_a {my($a_obj)=@_; [ $a_obj->unboxed ] }
 sub p6_to_l {my($a_obj)=@_;   $a_obj->unboxed }
 sub p6_from_b {my($b)=@_; p6_new('Bit',$b ? 1 : 0)}
