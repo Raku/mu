@@ -60,7 +60,7 @@ sub call_multi_sub {
     };
     isa_ok($sub, 'Sub', 'un-named Sub');
     isa_ok($sub, 'Code', '... Code');
-    is( $sub->perl->unboxed, 'sub {...}', '... $sub.perl' );
+    is( $sub->perl->unboxed, 'sub (Any $name) {...}', '... $sub.perl' );
     is( $sub->arity, 1, '... $sub.arity' );
     is( $sub->name, undef, '... $sub.name' );
 
@@ -83,7 +83,7 @@ sub call_multi_sub {
         };
     isa_ok($sub, 'Sub', 'Sub with default parameter value');
     isa_ok($sub, 'Code', '... Code');
-    is( $sub->perl->unboxed, 'sub {...}', '... $sub.perl' );
+    is( $sub->perl->unboxed, 'sub (Any ?$name = Flavio) {...}', '... $sub.perl' );
     is( $sub->arity, 1, '... $sub.arity' );
     is( $sub->name, undef, '... $sub.name' );
 

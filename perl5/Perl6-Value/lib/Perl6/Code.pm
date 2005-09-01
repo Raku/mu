@@ -168,9 +168,14 @@ class 'Code'.$class_description => {
             # TODO
             #'num' =>  sub { Num->new( '$.unboxed' => _('$.unboxed')->num  ) },
             #'int' =>  sub { Int->new( '$.unboxed' => _('$.unboxed')->int  ) },
-            #'str' =>  sub { Str->new( '$.unboxed' => 'sub {...}' ) },
-            #'bit' =>  sub { Bit->new( '$.unboxed' => _('$.unboxed')->bit  ) },
-            'perl' => sub { Str->new( '$.unboxed' => 'sub {...}' ) },
+            'str' =>  sub { $_[0]->perl },
+            'bit' =>  sub { Bit->new( '$.unboxed' => 1 ) },
+            'perl' => sub { 
+                my $s = "sub "; 
+                $s .= Perl6::Value::stringify( _('$.name') ) . " " if defined _('$.name');
+                $s .= "(" . $_[0]->signature_str . ") {...}"; 
+                return Str->new( '$.unboxed' => $s ) 
+            },
             'ref' =>  sub { ::CLASS }, 
             'defined' => sub { Bit->new( '$.unboxed' => 1 ) },
     
