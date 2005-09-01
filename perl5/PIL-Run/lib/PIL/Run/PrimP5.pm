@@ -148,10 +148,10 @@ MULTI SUB Pugs::Internals::truncate ($xx) {...};
 MULTI SUB Pugs::Internals::round ($xx) {...};
 MULTI SUB Pugs::Internals::floor ($xx) {...};
 MULTI SUB Pugs::Internals::ceiling ($xx) {...};
-MULTI SUB cos ($xx) {...};
-MULTI SUB sin ($xx) {...};
-MULTI SUB tan ($xx) {...};
-MULTI SUB sqrt ($xx) {...};
+MULTI SUB cos ($xx)  { p6_from_n( cos( $xx->unboxed ) ) };
+MULTI SUB sin ($xx)  { p6_from_n( sin( $xx->unboxed ) ) };
+MULTI SUB tan ($xx)  { p6_from_n( tan( $xx->unboxed ) ) };
+MULTI SUB sqrt ($xx) { p6_from_n( sqrt( $xx->unboxed ) ) };
 MULTI SUB atan (*@xxa) {...};
 
 MULTI SUB postfix:<++> ($xx) { 
