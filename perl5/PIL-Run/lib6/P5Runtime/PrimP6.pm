@@ -34,6 +34,7 @@ multi sub true ($xx) { coerce:as($xx,'Bit') };
 
 multi sub prefix:<!> ($xx) { 1 - coerce:as($xx,'Bit') };
 
+# multi sub zip ($x0,$x1) { $x0.Array::zip($x1) };
 multi sub infix:<Y> ($x0,$x1) { $x0.zip($x1) };
 multi sub infix:<¥> ($x0,$x1) { $x0.zip($x1) };
 
