@@ -220,7 +220,7 @@ MULTI SUB redo ($xx) {...};
 # return - see op0
 # yield - see op0
 # take - see op0
-MULTI SUB sign ($xx) {...};
+# MULTI SUB sign ($xx) {...};
 MULTI SUB rand ($xx) { p6_from_n(rand(defined $xx ? p6_to_n($xx) : 1)) };
 # say - see op0
 # print - see op0
@@ -233,7 +233,7 @@ MULTI SUB warn ($xx) {...};
 MULTI SUB fail_ ($xx) {...};
 MULTI SUB exit ($xx) {...};
 MULTI SUB readlink ($xx) {...};
-MULTI SUB sleep ($xx) {...};
+MULTI SUB sleep ($xx) { sleep ( p6_to_n($xx) ) };
 MULTI SUB mkdir ($xx) {...};
 MULTI SUB rmdir ($xx) {...};
 MULTI SUB chdir ($xx) {...};
@@ -272,8 +272,8 @@ MULTI SUB close ($xx) {...};
 MULTI SUB key ($xx) { $xx->key };
 MULTI SUB value ($xx) { $xx->value };
 MULTI SUB pairs ($xx) { $xx->pairs };
-MULTI SUB List::kv ($xx) {...}; 
-MULTI SUB Pair::kv ($xx) {...};
+MULTI SUB List::kv ($xx) { $xx->kv }; 
+MULTI SUB Pair::kv ($xx) { p6_from_a($xx->key, $xx->value) };
 MULTI SUB keys ($xx) { $xx->keys };
 MULTI SUB values ($xx) { $xx->values };
 MULTI SUB prefix:<=> ($xx) {...};
@@ -287,8 +287,8 @@ MULTI SUB shift ($xx) { $xx->shift };
 MULTI SUB min ($xx) {...};
 MULTI SUB max ($xx) {...};
 MULTI SUB uniq ($xx) {...};
-MULTI SUB chr ($xx) {...};
-MULTI SUB ord ($xx) {...};
+MULTI SUB chr ($xx) { p6_from_s( chr( p6_to_n( $xx ) ) ) };
+MULTI SUB ord ($xx) { p6_from_n( ord( p6_to_s( $xx ) ) ) };
 MULTI SUB hex ($xx) {...};
 MULTI SUB log ($xx) {...};
 MULTI SUB log10 ($xx) {...};
