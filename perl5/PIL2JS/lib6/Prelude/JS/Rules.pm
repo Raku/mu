@@ -224,10 +224,6 @@ for <ok from to str subpos subnamed> -> $attr {
   \}";
 }
 
-multi sub infix:«~~» (Str $str, Rul $rule) is primitive {
-  $rule.matcher.($str);
-}
-
 # Needs PIL2 and MMD to be done without hacks
 sub PIL2JS::Internals::Hacks::postcircumfix_for_match_objects (
   Match $match, Int *@idxs

@@ -545,7 +545,8 @@ More OO and meta stuff (but requires fixes to PIL1 or PIL2).
 
 Short term goals: Fix the P5Macros C<< &statement_control:<if> >> and C<<
 &statement_control:<unless> >> to preserve lvaluehood, fix a problem with
-C<pad["$_"]> being stomped (C<int.t> doesn't work because of this)
+C<pad["$_"]> being stomped in combination with rules stuff (C<int.t> doesn't
+work because of this)
 
 =back
 

@@ -60,8 +60,11 @@ sub statement_control:<postuntil>(Code $cond, Code $body) is primitive {
 }
 
 # XXX: Handle redo() correctly!
-sub statement_control:<for>(@array is rw, Code $code) is primitive {
-  my $arity = $code.arity;
+#sub statement_control:<for>(@array is rw, Code $code) is primitive {
+sub statement_control:<for>(*@args) is primitive {
+  my $code  := pop @args;
+  my @array := @args;
+  my $arity  = $code.arity;
   # die "Can't use 0-ary subroutine as \"for\" body!" if $arity == 0;
   $arity ||= 1;
 

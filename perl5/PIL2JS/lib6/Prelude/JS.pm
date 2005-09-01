@@ -29,6 +29,7 @@ use Prelude::JS::Context;
 use Prelude::JS::Math;
 use Prelude::JS::JSAN;
 use Prelude::JS::Rules;
+use Prelude::JS::Smartmatch;
 
 method JS::Root::undefine($a is rw:) {
   $a = undef;
