@@ -32,16 +32,7 @@ $VERSION = '0.01';
 
 sub p6_to_b {my($b)=@_; $b->bit()->unboxed ? 1 : 0}
 sub p6_to_n {my($n)=@_; $n->num()->unboxed;}
-sub p6_to_s {
-    my($n)=@_; 
-    Carp::confess if !defined $n; 
-    my $tmp;
-    eval { $tmp = $n->str()->unboxed };
-    if ( $@ ) {
-        $tmp = "$n";
-    } 
-    return $tmp;
-}
+sub p6_to_s { Perl6::Value::stringify( @_ ) }
 sub p6_to_a {my($a_obj)=@_; [ $a_obj->unboxed ] }
 sub p6_to_l {my($a_obj)=@_;   $a_obj->unboxed }
 sub p6_from_b {my($b)=@_; p6_new('Bit',$b ? 1 : 0)}
@@ -161,7 +152,7 @@ sub p6_new {
     return Int->new('$.unboxed' => @arg) if $type eq 'Int';
     return Num->new('$.unboxed' => @arg) if $type eq 'Num';
     return Str->new('$.unboxed' => @arg) if $type eq 'Str';
-    return Ref->new('$.unboxed' => @arg) if $type eq 'Ref';
+    return Ref->new('$.referred' => @arg) if $type eq 'Ref';
     if ($type eq 'Sub') {
         my($name,$argl,$f)=@arg;
         my @args = map{s/\s+/ /; s/\A\s+//; s/\s+\Z//; $_} @$argl;

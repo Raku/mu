@@ -211,6 +211,7 @@ class 'Ref'.$class_description => {
         methods => { 
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
             'isa' => sub { ::next_METHOD() },
+            'unboxed' => sub { \(_('$.referred')) },
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
                 my $method = ::AUTOLOAD($self);
@@ -227,8 +228,9 @@ class 'Ref'.$class_description => {
                 return ::CLASS 
                     if $method eq 'ref';
                 if ( $method eq 'perl' || $method eq 'str' ) {
-                    return Str->new( '$.unboxed' => '\\undef' ) unless defined $tmp;
-                    return Str->new( '$.unboxed' => '\\' . $tmp->perl->unboxed ) 
+                    # return Str->new( '$.unboxed' => '\\undef' ) unless defined $tmp;
+                    # warn "Ref stringify $tmp";
+                    return Str->new( '$.unboxed' => '\\' . Perl6::Value::stringify($tmp) ) 
                 }
                 return Bit->new( '$.unboxed' => defined $tmp ? 1 : 0 ) 
                     if $method eq 'defined';                
@@ -286,9 +288,20 @@ class 'List'.$class_description => {
 
 sub Perl6::Value::stringify {
     my $s = shift;
+
+    # warn "stringify $s";
+
     $s = $s->fetch if ref($s) && $s->isa('Scalar');
-    $s = $s->str(max=>3) if ref($s) && $s->can('str');
-    $s = $s->unboxed if ref($s) && $s->can('unboxed');
+
+    # $s = $s->str(max=>3) if ref($s) && $s->can('str');
+    my $tmp;
+    eval { $tmp = $s->str(max=>3) };
+    $s = $tmp unless $@;
+
+    # $s = $s->unboxed if ref($s) && $s->can('unboxed');
+    eval { $tmp = $s->unboxed };
+    $s = $tmp unless $@;
+
     return 'undef' unless defined $s;
 
     no warnings 'numeric';

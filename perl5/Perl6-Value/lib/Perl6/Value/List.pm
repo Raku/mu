@@ -37,6 +37,9 @@ package Perl6::Value::List;
 # 2005-08-10
 # * Removed method concat_list(), added "TODO" methods
 
+# TODO - finish sum() - not all operations support sum() yet; 
+#      - object numification is not supported yet
+
 # TODO - stringification of unboxed types doesn't call native-stringification
 #        meaning Inf and NaN stringify wrongly
 # TODO - List.is_lazy() could be defined with a closure; Perl6 version too
