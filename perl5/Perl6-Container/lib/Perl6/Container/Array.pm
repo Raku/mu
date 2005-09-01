@@ -329,29 +329,22 @@ class 'Array'.$class_description => {
             },
             'kv' => sub  { 
                 my $array = shift; 
-                my $count = 0;
-                my $ret = Array->new();
-                $ret->push(
-                    $array->to_list->map( 
-                        sub {
-                            ( $count++, $_[0] )
-                        },
-                        return_arity => 2,
-                    ) ); 
-                return $ret;
+                my $keys = $array->keys;
+                my $values = $array->values;
+                return $keys->zip( $values );
             },
             'pairs' => sub  { 
                 my $array = shift; 
-                my $count = 0;
+                $array = $array->kv;
                 my $ret = Array->new();
                 $ret->push(
                     $array->to_list->map( 
                         sub {
                             Pair->new( 
-                                '$.key' =>   $count++, 
-                                '$.value' => $_[0] )
+                                '$.key' =>   shift, 
+                                '$.value' => shift )
                         },
-                        return_arity => 1,
+                        return_arity => 0.5,
                     ) ); 
                 return $ret;
             },
