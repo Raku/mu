@@ -41,6 +41,7 @@
 # 2005-08-10
 # * Ported from Perl6 version
 
+# TODO - bug - calling pairs() on (1..1000) gives wrong results
 # TODO - pick()
 # TODO - there are too many methods under AUTOLOAD - upgrade them to real methods
 #
@@ -92,19 +93,6 @@ use Perl6::Container::Scalar;
 use constant Inf => Perl6::Value::Num::Inf;
 
 my $class_description = '-0.0.1-cpan:FGLOCK';
-
-sub Perl6::Value::stringify {
-    my $s = shift;
-    $s = $s->fetch if ref($s) && $s->isa('Scalar');
-    $s = $s->str(max=>3) if ref($s) && $s->can('str');
-    $s = $s->unboxed if ref($s) && $s->can('unboxed');
-    return 'undef' unless defined $s;
-
-    no warnings 'numeric';
-    $s = Perl6::Value::Num::to_str( $s ) if $s+0 eq $s;
-    
-    return $s;
-}
 
 # ------ Perl6::Slice -----
 
@@ -343,17 +331,29 @@ class 'Array'.$class_description => {
             },
             'pairs' => sub  { 
                 my $array = shift; 
-                $array = $array->kv;
+                $array = $array->clone;
+                my $shifted = 0;
+                my $popped = $array->elems - 1;
                 my $ret = Array->new();
+                # XXX - rewrite this using map()
+                # XXX - calling pairs() on (1..1000) gives wrong results
                 $ret->push(
-                    $array->to_list->map( 
-                        sub {
-                            Pair->new( 
-                                '$.key' =>   shift, 
-                                '$.value' => shift )
+                    # XXX - TODO - optimization - shift_n, pop_n
+                    Perl6::Value::List->new(
+                        cstart => sub { 
+                            return Pair->new( 
+                                '$.key' =>   $shifted++, 
+                                '$.value' => $array->shift )
                         },
-                        return_arity => 0.5,
-                    ) ); 
+                        cend =>   sub { 
+                            return Pair->new( 
+                                '$.key' =>   $popped--, 
+                                '$.value' => $array->pop )
+                        },
+                        celems => sub { $array->elems->unboxed },
+                        is_lazy => $array->is_lazy,
+                    )
+                );
                 return $ret;
             },
             'values' => sub  { 

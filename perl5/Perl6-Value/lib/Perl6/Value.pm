@@ -11,6 +11,9 @@
 
 # ChangeLog
 #
+# 2005-09-01
+# * Added support for unboxed Pair.key, Pair.value
+#
 # 2005-08-18
 # * clean-up Ref implementation - uses AUTOLOAD to auto-deref
 # * added unboxed enums: bool::* taint::*
@@ -181,8 +184,8 @@ class 'Pair'.$class_description => {
             'str' => sub { $_[0]->perl }, 
             'bit' => sub { Bit->new( '$.unboxed' => 0 ) },
             'perl' => sub { 
-                my $key = defined _('$.key') ? _('$.key')->perl->unboxed : 'undef';
-                my $value = defined _('$.value') ? _('$.value')->perl->unboxed : 'undef';
+                my $key =   Perl6::Value::stringify( _('$.key') );
+                my $value = Perl6::Value::stringify( _('$.value') );
                 Str->new( '$.unboxed' => "($key, $value)" ) 
               },
             'unboxed' => sub { ( _('$.key'), _('$.value') ) },
@@ -280,6 +283,19 @@ class 'List'.$class_description => {
 #    my $class = $Perl6::Class::ALL_CLASSES{$class_name};  # ** get the class, from class name
 #    return $class;
 #}
+
+sub Perl6::Value::stringify {
+    my $s = shift;
+    $s = $s->fetch if ref($s) && $s->isa('Scalar');
+    $s = $s->str(max=>3) if ref($s) && $s->can('str');
+    $s = $s->unboxed if ref($s) && $s->can('unboxed');
+    return 'undef' unless defined $s;
+
+    no warnings 'numeric';
+    $s = Perl6::Value::Num::to_str( $s ) if $s+0 eq $s;
+    
+    return $s;
+}
 
 package Perl6::Value::Num;
 

@@ -429,8 +429,9 @@ sub zip {
     my @pops;
     Perl6::Value::List->new(
         clone => sub {
-            warn "zip->clone not implemented";
-            return $_[0];
+            my ( $l, @ls ) = map { $_->clone } ( $ret, @lists );
+            warn "zip->clone has pending shifts/pops" if @pops || @shifts;
+            return $l->zip( @ls );
         },
         cstart => sub {
             return shift @shifts if @shifts;
