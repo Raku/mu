@@ -135,23 +135,25 @@ the concept of a union type, whatever syntax it has.)
 You may extend union types to create new types:
 
     data NegExp extends Exp (
-        ENeg [ Num --> Exp ],
+        ENeg[ Num --> Exp ],
     );
 
 There is something going on here that may be a little strange to people
 who have seen C<extends> before in a language.  For instance, in Java,
 when a class C<B> C<extends> a class C<A>, the C<extends> denotes that
-the I<behavior> is extended, and therefore B is a subset of A.  Here,
-however, the C<extends> denotes that the I<set> is extended, and
-therefore C<Exp> is a subset of C<NegExp>.  That is, when you extend a
-union type, you make it bigger, more general.  Anywhere a C<NegExp> can
-be used, an C<Exp> can be used.
+the I<behavior> is extended, and therefore that C<B> is a subset of
+C<A>.  Here, however, the C<extends> denotes that the I<set> is
+extended, and therefore C<Exp> is a subset of C<NegExp>.  That is, when
+you extend a union type, you make it bigger, more general.  Anywhere a
+C<NegExp> can be used, an C<Exp> can be used.
 
 I'll also adopt a syntax for unifying against union type constructors:
 
     multi run (Exp --> Num) {...}
     multi run (ENum[$num]) { $num }
     multi run (EPlus[$left, $right]) { run($left) + run($right) }
+
+=head2 The model
 
 
 
