@@ -7,7 +7,7 @@ use Perl6::Code;
 # use Data::Dumper;
 use PadWalker;
 
-use Test::More tests => 23;
+use Test::More tests => 21;
 
 %Perl6::MultiSub::SUBS = ();
 %Perl6::NamedSub::SUBS = ();
@@ -192,10 +192,11 @@ Can't yet handle &sub params
             return ( \@numbers, \@names );        
         };
 
-    my ( $x, $y ) = $sub->do( [ qw(a b c) ], 1 .. 5 );
-    # $sub->return_value;
-    is("@$x", '1 2 3 4 5', '... got the right return value');
-    is("@$y", 'a b c', '... got the right return value');
+    # TEST REMOVED - P6 subs can no longer return native ARRAY
+
+    #my ( $x, $y ) = $sub->do( [ qw(a b c) ], 1 .. 5 );
+    #is("@$x", '1 2 3 4 5', '... got the right return value');
+    #is("@$y", 'a b c', '... got the right return value');
 }
 
 {

@@ -32,6 +32,9 @@
 # extract remaining Pairs
 # $^a, $^b count like '+'
 
+# TODO - add want() data
+# TODO - does 'returns' calls coerce:<as> ?
+
 # TODO - 'Pad' structure
 
 # TODO - create base "types" and reuse - see Perl6::Param
@@ -162,7 +165,7 @@ class 'Code'.$class_description => {
         methods => {}
     },
     instance => {
-        attrs => [ '$.body', '$.params', '$.name' ],
+        attrs => [ '$.body', '$.params', '$.name', '$.returns' ],
         DESTROY => sub {},
         methods => {
             # TODO
@@ -185,7 +188,10 @@ class 'Code'.$class_description => {
                     || confess "Signature does not match - (" . $self->signature_str . ")";
                 # my %bound_params = ::SELF->bind_params(@arguments); 
                 # warn "entering sub ".$self->name;   
-                $self->body->( $self, @arguments );  # @_ = self + raw arguments
+                my $ret = $self->body->( $self, @arguments );  # @_ = self + raw arguments
+                warn "Return type does not match - should return " . $self->returns->name
+                    if defined $self->returns && ! $self->returns->match( $ret );
+                return $ret;
             },
             arity => sub {
                 scalar @{ ::SELF->params }
