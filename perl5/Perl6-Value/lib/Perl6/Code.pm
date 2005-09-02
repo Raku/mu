@@ -202,10 +202,10 @@ class 'Code'.$class_description => {
                     || confess "Signature does not match - (" . $self->signature_str . ")";
                 # my %bound_params = ::SELF->bind_params(@arguments); 
                 # warn "entering sub ".$self->name;   
-                my $ret = $self->body->( $self, @arguments );  # @_ = self + raw arguments
+                my @ret = $self->body->( $self, @arguments );  # @_ = self + raw arguments
                 warn "Return type does not match - should return " . $self->returns->name
-                    if defined $self->returns && ! $self->returns->match( $ret );
-                return $ret;
+                    if defined $self->returns && ! $self->returns->match( @ret );
+                return @ret;
             },
             arity => sub {
                 scalar @{ ::SELF->params }
