@@ -615,7 +615,9 @@ set to @False@.
 ruleNoDeclaration :: RuleParser Exp
 ruleNoDeclaration = rule "no declaration" $ do
     symbol "no"
-    ruleUsePackage False
+    tryChoice [ ruleNoVersion >> return emptyExp
+              , ruleUsePackage False
+              ]
     return emptyExp
 
 {-|
@@ -630,18 +632,33 @@ ruleUseDeclaration = rule "use declaration" $ do
               , ruleUsePackage True
               ]
 
+rulePerlVersion :: RuleParser String
+rulePerlVersion = rule "perl version" $ do
+    option ' ' $ char 'v'
+    many1 (choice [ digit, char '.' ])
+
 {-|
 Match a Perl version number (as part of a @use@ declaration), and abort if
 the version needed is higher than our version.
 -}
 ruleUseVersion :: RuleParser ()
 ruleUseVersion = rule "use version" $ do
-    option ' ' $ char 'v'
-    version <- many1 (choice [ digit, char '.' ])
+    version <- rulePerlVersion
     when (version > versnum) $ do
         pos <- getPosition
         error $ "Perl v" ++ version ++ " required--this is only v" ++ versnum ++ ", stopped at " ++ (show pos)
-    return ()
+
+{-|
+Match a Perl version number (as part of a @no@ declaration), and abort if
+the version needed is lower than our version.
+-}
+ruleNoVersion :: RuleParser ()
+ruleNoVersion = rule "no version" $ do
+    version <- rulePerlVersion
+    when (version <= versnum) $ do
+        pos <- getPosition
+        error $ "Perls since v" ++ version ++ " too modern--this is v" 
+                  ++ versnum ++ ", stopped at " ++ show pos
 
 {-|
 Match the contents of a @use@ or @no@ declaration.

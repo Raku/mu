@@ -82,5 +82,5 @@ forcePos pos@(SourcePos _ line column)
 -----------------------------------------------------------                                                 
 instance Show SourcePos where
   show (SourcePos name line column) =
-    unwords ["SourcePos", show name, show line, show column]
+    show name ++ " line " ++ show line ++ " column " ++ show column
 
