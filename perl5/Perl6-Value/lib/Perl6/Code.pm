@@ -79,19 +79,26 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
     sub new {
         # TODO - autobox/un-box hook
         my ($class, %param ) = @_;
-        my ( $name, $match ) = 
-           ( $param{name}, $param{match} );
+        my ( $name, $match, $supertype ) = 
+           ( $param{name}, $param{match}, $param{supertype} );
         bless {
             name =>     $name,
-            match =>    $match,   
+            match =>    $match, 
+            supertype => $supertype,  
         } => $class;
     }
     
     sub name    { $_[0]{name} }
     sub match   { 
+        return 0 
+            if  defined $_[0]{supertype} &&
+                ( ref($_[1]) ? 
+                    ! $_[0]{supertype}{match}( $_[1] ) : 
+                    ! $_[0]{supertype}{match}( \$_[1] )
+                );
         ref($_[1]) ? 
-        $_[0]{match}( $_[1] ) : 
-        $_[0]{match}( \$_[1] )
+            $_[0]{match}( $_[1] ) : 
+            $_[0]{match}( \$_[1] )
     }     
 }
 
