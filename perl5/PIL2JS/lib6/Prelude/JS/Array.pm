@@ -320,7 +320,7 @@ method postcircumfix:<[]>(@self: Int *@idxs) is rw {
       // < 1000, should not.
       ret.BINDTO = function (other) {
         if(array[idx] == undefined)
-          PIL2JS.die("Can\'t rebind non-existant array container!");
+          array[idx] = new PIL2JS.Box(undefined);
 
         return array[idx].BINDTO(other);
       };

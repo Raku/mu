@@ -16,37 +16,42 @@ L<S03/"Binding">
 plan 28;
 
 # L<S03/"Binding" /replaces the container itself.  For instance:/>
+# Basic scalar binding tests
+{
+  my $x = 'Just Another';
+  is($x, 'Just Another', 'normal assignment works');
 
-my $x = 'Just Another';
-is($x, 'Just Another', 'normal assignment works');
+  my $y := $x;
+  is($y, 'Just Another', 'y is now bound to x');
 
-my $y := $x;
-is($y, 'Just Another', 'y is now bound to x');
+  ok($y =:= $x, 'y is bound to x (we checked with the =:= identity op)');
 
-ok($y =:= $x, 'y is bound to x (we checked with the =:= identity op)');
+  my $z = $x;
+  is($z, 'Just Another', 'z is not bound to x');
 
-my $z = $x;
-is($z, 'Just Another', 'z is not bound to x');
+  ok(!($z =:= $x), 'z is not bound to x (we checked with the =:= identity op)', :todo);
 
-ok(!($z =:= $x), 'z is not bound to x (we checked with the =:= identity op)', :todo);
+  $y = 'Perl Hacker';
+  is($y, 'Perl Hacker', 'y has been changed to "Perl Hacker"');
+  is($x, 'Perl Hacker', 'x has also been changed to "Perl Hacker"');
 
-$y = 'Perl Hacker';
-is($y, 'Perl Hacker', 'y has been changed to "Perl Hacker"');
-is($x, 'Perl Hacker', 'x has also been changed to "Perl Hacker"');
-
-is($z, 'Just Another', 'z is still "Just Another" because it was not bound to x');
-
-sub bar {
-  return $CALLER::a eq $CALLER::b;
+  is($z, 'Just Another', 'z is still "Just Another" because it was not bound to x');
 }
 
-sub foo {
-  my $a = "foo";
-  my $b := $a;
-  return bar(); # && bar2();
-}
+# Binding and $CALLER::
+{
+  sub bar {
+    return $CALLER::a eq $CALLER::b;
+  }
 
-ok(foo(), "CALLER resolves bindings in caller's dynamic scope");
+  sub foo {
+    my $a = "foo";
+    my $b := $a;
+    return bar(); # && bar2();
+  }
+
+  ok(foo(), "CALLER resolves bindings in caller's dynamic scope");
+}
 
 # Binding to swap
 {
@@ -111,7 +116,7 @@ ok(foo(), "CALLER resolves bindings in caller's dynamic scope");
   is $val, 23,          "bound rw sub param remains rw (3)";
 }
 
-# := actually takes function parameter list
+# := actually takes subroutine parameter list
 {
   my $a;
   eval '(+$a) := (:a<foo>)';

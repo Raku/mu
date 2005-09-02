@@ -265,7 +265,7 @@ There is a F<util/perl6.vim> Vim syntax file.  There is no emacs mode yet,
 but perl-mode works better than cperl-mode.
 
 Where applicable, conventions documented in Damian Conway's "Perl Best
-Practices" book (Oreilly, 2005) should be followed by default.  At the very
+Practices" book (O'Reilly, 2005) should be followed by default.  At the very
 least, all indenting should be done with spaces (4 per indent level) rather than
 tabs, so the code and documentation looks the same to everyone.
 
@@ -278,7 +278,7 @@ the following environment variables first:
     $ export HARNESS_PERL=./pugs
     $ export PERL6LIB=blib6/lib
 
-You can also just say F<./pugs -Iblib6/lib t/.../mumble.t>.
+You can also just say C<./pugs -Iblib6/lib t/.../mumble.t>.
 
 =head3 Regex testing
 
