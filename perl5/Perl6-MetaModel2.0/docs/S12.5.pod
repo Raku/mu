@@ -1,0 +1,145 @@
+=pod
+
+=head1 NAME
+
+Synopsis 12.5 - The Perl 6 Meta Object Protocol
+
+=head1 SYNOPSIS
+
+This is an unofficial amendment to Synopsis 12, which describes the design
+and implementation of the Perl 6 Meta Object Protocol. 
+
+It expands upon the section entitled "Introspection" in Synopsis 12, which only 
+describes the meta-"data" available from the metaclasses. In this document I will
+describe how that meta-data can be manipulated as well.
+
+NOTE: 
+For a quick overview of the MetaModel itself please see the F<10_000_ft-view.pod>
+in this same directory.
+
+=head1 What is a Meta Object Protocol
+
+A meta object protocol is basically an API for the elements of the meta-level classes
+and objects which are exposed to user level code. Basically this describes all the things
+you can do with the object returned by C<$obj.meta>.
+
+=head2 The Perl 6 Meta Object Protocol.
+
+...
+
+=head3 Basic Introspection
+
+These methods are very basic introspection methods, some of which are described already in 
+Synopsis 12.
+
+=over 4
+
+=item C<name>
+
+This is a read-write accessor method which determines the name of the class it is associated 
+with. Its default value is C<undef>, which is essentially an anonymous class.
+
+=item C<version>
+
+Also a read-write accessor method, this is the version number of the class it is associated 
+with. Its default value is C<0.0.0>.
+
+=item C<authority>
+
+This is also a read-write accessor method; it is the certifying authority for the class 
+it is associated with. This will likely be a string in one of the following formats:
+
+  cpan:JRANDOM
+  email:jrandom@cpan.org
+  url:http://www.random-inc.com/~jrandom/
+  
+=item C<identifier>
+ 
+This is a read-only method which takes the C<name>, C<version> and C<identifier> and concatenates
+them into a single string seperated by '-' characters. This is the format found in the class 
+defintions:
+
+  class Foo-0.0.5-cpan:BARBAZ { ... }
+
+=back
+
+=head1 SEE ALSO
+
+=head2 Books
+
+=over 4
+
+=item The Art of the Meta Object Protocol
+
+An excellent book, I cannot recommend it highly enough.
+
+=back
+
+=head2 Research Papers
+
+=over 4
+
+=item A Core Calculus for MetaClasses
+
+L<http://research.sun.com/projects/plrg/core-calculus.pdf>
+
+=item Any of these papers on Traits
+
+L<http://www.iam.unibe.ch/~scg/Research/Traits/>
+
+(Note: Traits are what inspired the Perl 6 concepts of Roles)
+
+=back 
+
+=head2 Other Perl Modules
+
+=over 4
+
+=item L<Class::Role>, L<Class::Roles> & L<Class::Trait>
+
+The first two are early attempts to prototype role behavior, and the last is an
+implementation of the Trait system based on the paper which originally inspired
+Roles.
+
+=item L<MiniMetaModel.pl>
+
+This is found in this directory, and is a very minimal and readable Meta-Model 
+implementation. The current 2.0 implementation of the metamodel is based on this.
+
+=back
+
+=head2 Other Languages
+
+=over 4
+
+=item Smalltalk
+
+I prefer the Brown book by Adele Goldberg and David Robinson, but any book that
+talks about the Smalltalk metaclasses is a good reference.
+
+=item CLOS
+
+The Common Lisp Object System has a very nice metamodel, and there's plenty of
+reference on it. In particular there is a small implementation of CLOS called
+TinyCLOS which is very readable (if you know enough Scheme, that is :).
+
+=item Objective C
+
+There is a good amount of documentation about the Objective C Runtime which
+explains the class and object structures. Here are some relevant links:
+
+=over 4
+
+=item L<http://developer.apple.com/documentation/Cocoa/Reference/ObjCRuntimeRef/index.html>
+
+=item ... add more links
+
+=back
+
+=back
+
+=head1 AUTHORS
+
+Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+=cut
