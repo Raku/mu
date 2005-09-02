@@ -264,6 +264,11 @@ is the name of the Perl 5 interpreter.
 There is a F<util/perl6.vim> Vim syntax file.  There is no emacs mode yet,
 but perl-mode works better than cperl-mode.
 
+Where applicable, conventions documented in Damian Conway's "Perl Best
+Practices" book (Oreilly, 2005) should be followed by default.  At the very
+least, all indenting should be done with spaces (4 per indent level) rather than
+tabs, so the code and documentation looks the same to everyone.
+
 =head2 Testing
 
 See L<pugs::run> and F<t/README>.  If you wish to use the C<prove> utility
