@@ -49,7 +49,15 @@ ruleEmptyExp = expRule $ do
     symbol ";"
     return emptyExp
 
-expRule :: RuleParser Exp -> RuleParser Exp
+{-|
+Record the current parser position, invoke the given subrule, then record the
+parser's new position and encapsulate the subrule's result in a
+'Pugs.AST.Internals.Pos' indicating the source region matched by the rule.
+
+Also applies 'unwrap' to the result of the given parser.
+-}
+expRule :: RuleParser Exp -- ^ Sub-rule to invoke
+        -> RuleParser Exp
 expRule rule = do
     pos1 <- getPosition
     exp  <- rule
@@ -104,6 +112,13 @@ ruleStandaloneBlock = tryRule "standalone block" $ do
         char '}'
         ruleWhiteSpaceLine
 
+{-|
+Match a single statement (not including any terminating semicolon).  A
+statement consists of a single 'ruleExpression', followed by an optional
+statement-modifier (e.g. @if $foo@ or @for \@baz@).
+
+One of the sub-rules used by 'ruleStatementList'.
+-}
 ruleStatement :: RuleParser Exp
 ruleStatement = do
     exp <- ruleExpression
@@ -609,8 +624,8 @@ ruleVarDeclaration = rule "variable declaration" $ do
 Match a @no@ declaration, i.e. the opposite of @use@ (see
 'ruleUseDeclaration').
 
-Works by matching \'@no@\', then delegating to 'ruleUsePackage' with the flag
-set to @False@.
+Works by matching \'@no@\', then trying 'ruleNoVersion' and
+@'ruleUsePackage' False@.
 -}
 ruleNoDeclaration :: RuleParser Exp
 ruleNoDeclaration = rule "no declaration" $ do
@@ -623,7 +638,8 @@ ruleNoDeclaration = rule "no declaration" $ do
 {-|
 Match a @use@ declaration.
 
-Works by matching \'@use@\', then trying 'ruleUseVersion' and 'ruleUsePackage'.
+Works by matching \'@use@\', then trying 'ruleUseVersion' and
+@'ruleUsePackage' True@.
 -}
 ruleUseDeclaration :: RuleParser Exp
 ruleUseDeclaration = rule "use declaration" $ do
@@ -764,7 +780,9 @@ ruleUseJSANModule = do
 Match a full package name, consisting of:
 
 * A short name, optionally delimited by double colons (@::@)
+
 * An optional version specification
+
 * An optional author specification (e.g. @cpan:JRANDOM@)
 -}
 rulePackageFullName :: RuleParser ( [String]
@@ -1048,18 +1066,39 @@ ruleDefaultConstruct = rule "default construct" $ do
 ruleExpression :: RuleParser Exp
 ruleExpression = (<?> "expression") $ parseOp
 
+{-|
+Match a statement's /conditional/ statement-modifier,
+e.g. '@say \"hello\" if \$cheerful@' or '@die unless +\@arguments@'.
+
+Returns a function that will take the statement proper, and enclose it in an
+appropriate 'Pugs.AST.Internals.Syn' (either @\"if\"@ or @\"unless\"@).
+-}
 rulePostConditional :: RuleParser (Exp -> RuleParser Exp)
 rulePostConditional = rule "postfix conditional" $ do
     cond <- tryChoice $ map symbol ["if", "unless"]
     exp <- ruleExpression
     return $ \body -> retSyn cond [exp, body, emptyExp]
 
+{-|
+Match a statement's /looping/ statement-modifier,
+e.g. '@procrastinate while $bored@' or '@eat until $full@'.
+
+Returns a function that will take the statement proper, and enclose it in an
+appropriate 'Pugs.AST.Internals.Syn' (either @\"while\"@ or @\"until\"@).
+-}
 rulePostLoop :: RuleParser (Exp -> RuleParser Exp)
 rulePostLoop = rule "postfix loop" $ do
     cond <- tryChoice $ map symbol ["while", "until"]
     exp <- ruleExpression
     return $ \body -> retSyn cond [exp, body]
 
+{-|
+Match a statement's /iterating/ statement-modifier,
+e.g. '@say for 1..10@'.
+
+Returns a function that will take the statement proper, and enclose it in
+@'Pugs.AST.Internals.Syn' \"for\"@.
+-}
 rulePostIterate :: RuleParser (Exp -> RuleParser Exp)
 rulePostIterate = rule "postfix iteration" $ do
     cond <- tryChoice $ map symbol ["for"]
@@ -1364,16 +1403,36 @@ noneSyn     = ops $ makeOp2 AssocNone "" Syn
 listSyn     :: String -> [RuleOperator Exp]
 listSyn     = ops $ makeOp0 AssocList "" Syn
 
+{-|
+Take a list of infix-operator names (as a space-separated string), and return
+a similar string also containing both Texas-style and French-style infixed
+hyperized forms.
+
+For example, the string @\"+ -\"@ would be transformed into
+@\"+ >>+\<\< »+« - >>-\<\< »-«\"@.
+-}
 addHyperInfix :: String -> String
 addHyperInfix = unwords . concatMap hyperForm . words
     where
     hyperForm op = [op, ">>" ++ op ++ "<<", "»" ++ op ++ "«"]
 
+{-|
+Similar to 'addHyperInfix', but for prefix ops.
+
+For example, @\"++ --\"@ would become
+@\"++ ++\<\< ++« -- --\<\< --«\"@.
+-}
 addHyperPrefix :: String -> String
 addHyperPrefix = unwords . concatMap hyperForm . words
     where
     hyperForm op = [op, op ++ "<<", op ++ "«"]
 
+{-|
+Similar to 'addHyperInfix', but for postfix ops.
+
+For example, @\"++ --\"@ would become
+@\"++ >>++ »++ -- >>-- »--\"@.
+-}
 addHyperPostfix :: String -> String
 addHyperPostfix = unwords . concatMap hyperForm . words
     where
@@ -2208,7 +2267,15 @@ rxLiteralBare = try $ tryChoice
          return $ Syn "//" [expr, Val undef]
     ]
 
-namedLiteral :: String -> Val -> RuleParser Exp
+{-|
+Match the given literal string (as a lexeme), returning the second argument in
+a 'Pugs.AST.Internals.Val' expression.
+
+Used by 'ruleLit' for @NaN@ and @Inf@.
+-}
+namedLiteral :: String -- Literal string to match
+             -> Val    -- Value to return
+             -> RuleParser Exp
 namedLiteral n v = do { symbol n; return $ Val v }
 
 {-|
@@ -2235,7 +2302,12 @@ ternOp pre post syn = (`Infix` AssocRight) $ do
     symbol post
     return $ \x z -> Syn syn [x, y, z]
 
-retSyn :: String -> [Exp] -> RuleParser Exp
+{-|
+Simply a shorthand for @return \$ Syn sym args@.
+-}
+retSyn :: String -- ^ Type of 'Pugs.AST.Internals.Syn' to produce
+       -> [Exp]  -- ^ List of subexpressions for the 'Pugs.AST.Internals.Syn'
+       -> RuleParser Exp
 retSyn sym args = do
     return $ Syn sym args
     
