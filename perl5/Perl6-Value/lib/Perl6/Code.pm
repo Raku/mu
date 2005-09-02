@@ -32,8 +32,15 @@
 # extract remaining Pairs
 # $^a, $^b count like '+'
 
+# MORE TODO - See "S06"
+
 # TODO - add want() data
+# TODO - add caller() data
+
+# TODO - junctive types
+
 # TODO - does 'returns' calls coerce:<as> ?
+# TODO - the 'match' argument to Perl6::Type->new() should be a P6 'Block' instance
 
 # TODO - 'Pad' structure
 
@@ -82,8 +89,8 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
         my ( $name, $match, $supertype ) = 
            ( $param{name}, $param{match}, $param{supertype} );
         bless {
-            name =>     $name,
-            match =>    $match, 
+            name =>      $name,
+            match =>     $match, 
             supertype => $supertype,  
         } => $class;
     }

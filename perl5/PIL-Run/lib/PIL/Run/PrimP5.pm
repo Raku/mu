@@ -169,7 +169,23 @@ MULTI SUB scalar ($xx) {...};
 MULTI SUB sort (*@xxa) {...};
 MULTI SUB reverse (@xx) { $xx->reverse };
 MULTI SUB reverse ($xx) { $xx->reverse };
-MULTI SUB zip ($x0,*@x1) { $x0->zip( p6_from_a( @x1 ) ) };
+MULTI SUB zip (@x0,*@x1) { 
+    # warn "x0 ".ref($x0)." ".$x0->perl->unboxed;
+    my $a;
+    if ( @x1 == 1 && ref( $x1[0] ) eq 'Array' ) {
+        $a = $x1[0];
+        # warn ref( $a );
+        # warn $a->perl->unboxed;
+    }
+    else {
+        $a = p6_from_a( @x1 );
+    }
+    # warn ref( $a );
+    # warn $a->perl->unboxed;
+    my $res = $x0->zip( $a );
+    # warn "res ".ref($res)." ".$res->perl->unboxed;
+    return $res;
+};
 MULTI SUB list ($xx) {...};
 MULTI SUB pair ($xx) {...};
 #MULTI SUB prefix:<~> ($xx) {...}; # in PrimP6
