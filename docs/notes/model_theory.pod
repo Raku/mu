@@ -109,8 +109,51 @@ extended (it turns into a concretely-typed factory just as in classic,
 non-virtual OO type systems).  
 
 There is a way to solve this: to keep a system extensible and type-safe
-forever, without requiring a "lock-in" stage.  For the rest of this
+forever, without requiring a "lock in" stage.  For the rest of this
 paper, I will focus on code in (my proposed extension to) Perl 6.
+
+=head2 Union Types
+
+The first piece of machinery we need above the status quo is the B<union
+type>.  This is taken from ML-family languages, and is sometimes
+referred to as I<tagged types>.  A union type is a closed type, made
+up of a set of disjoint B<constructors>.  The concept of a union type is
+helpful because if you write a function that handles each constructor,
+you are sure you have covered every case in the type.
+
+Here is a union type that defines a tree with C<Num> and C<Plus> as
+above:
+
+    data Exp (
+        ENum[ Num --> Exp ],
+        EPlus[ Exp, Exp --> Exp ],
+    );
+
+(Keep in mind that I am not proposing syntax; all that is required is
+the concept of a union type, whatever syntax it has.)
+
+You may extend union types to create new types:
+
+    data NegExp extends Exp (
+        ENeg [ Num --> Exp ],
+    );
+
+There is something going on here that may be a little strange to people
+who have seen C<extends> before in a language.  For instance, in Java,
+when a class C<B> C<extends> a class C<A>, the C<extends> denotes that
+the I<behavior> is extended, and therefore B is a subset of A.  Here,
+however, the C<extends> denotes that the I<set> is extended, and
+therefore C<Exp> is a subset of C<NegExp>.  That is, when you extend a
+union type, you make it bigger, more general.  Anywhere a C<NegExp> can
+be used, an C<Exp> can be used.
+
+I'll also adopt a syntax for unifying against union type constructors:
+
+    multi run (Exp --> Num) {...}
+    multi run (ENum[$num]) { $num }
+    multi run (EPlus[$left, $right]) { run($left) + run($right) }
+
+
 
 =head1 REFERENCES
 
