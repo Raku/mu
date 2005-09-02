@@ -1,0 +1,117 @@
+=head1 TITLE
+
+Model Theory - models and theories generalizing classes and roles
+
+=head1 DESCRIPTION
+
+An important problem in programming languages is the expressibility of
+B<union types> and B<visitors>.  Together, it is possible to express an
+abstract tree in language constructs and process it neatly.  Usually,
+such an abstract tree has a data representation (a set of node types)
+and a set of processors that act on those node types.  Few modern
+languages struggle with these.
+
+However, most modern languages begin to break down when you want to
+I<extend> the abstract representation.  Functional languages tend to be
+good at adding new processors, whereas object-oriented languages tend to
+be good at adding new node types.  However, when you wish to add a new
+node type in a functional language, all your processors must be updated.
+When you wish to add a new processor in a procedural language, all your
+node implementations must be updated.  We would like to be able to
+extend either of these in a code-local and type-safe way.
+
+There is a solution in the language Scala[1].  It collects the data
+types and the processors together in a parent trait (role), where it can
+store an abstract type (virtual type) that is consistent with all the
+data types and processors therein.  Then to extend either the data or
+the processors, you extend the I<entire system>, all the while making
+sure it is consistent.  This solves the problem in the sort of way that,
+instead of adding a convenience feature or relaxation, forces you to
+think clearly about the problem.
+
+Taken from [1] (with comments added):
+
+    // The base system
+    trait Base {
+        type exp <: Exp; // An abstract type representing the type of a
+                         // tree node.
+        trait Exp {
+            def eval: int;
+        }
+        class Num(v: int) extends Exp {
+            val value = v;
+            def eval = value;
+        }
+    }
+
+    // Extend the system to incorporate a new node type
+    trait BasePlus extends Base {
+        class Plus(l: exp, r: exp) extends Exp {
+            val left = l;  val right = r;
+            def eval = left.eval + right.eval;
+        }
+    }
+
+    // Extend the original system to incorporate a new processor
+    trait Show extends Base {
+        type exp <: Exp;    // redefine what it means to be a node
+        trait Exp extends super.Exp {
+            def show: String;
+        }
+        // define Num in the new system so so that it can support show
+        class Num(v: int) extends super.Num(v) with Exp {
+            def show = value.toString();
+        }
+    }
+
+The details aren't important.  The general technique is what is
+interesting here.  We extend the whole algebra -- the whole B<model> --
+at once, including the base type of nodes.  Other than that, the
+techniques are standard object-oriented visitor techniques.  ([1] also
+shows a dual technique to the one above, functional decomposition, which
+allows us to define visitors without extending C<exp>, but defining new
+node types requires extending C<exp>).
+
+However, a problem shows its head when we have a processor that returns
+nodes.  Consider an extension to the C<BasePlus> system above, whereby
+we add a transform that doubles every C<Num> node.
+
+    trait DblePlus extends BasePlus {
+        type exp <: Exp;
+        trait Exp extends super.Exp {
+            def dble: exp;
+        }
+        def Num(v: int): exp;         // XXX factory constructors
+        def Plus(l: exp, r: exp): exp;
+        class Num(v: int) extends super.Num(v) with Exp {
+            def dble = Num(v * 2);
+        }
+        class Plus(l: exp, r: exp) extends super.Num(v) with Exp {
+            def dble = Plus(left.dble, right.dble);
+        }
+    }
+
+We cannot explicitly construct new nodes inside the body of the new
+C<dble> function because C<Num> is a subtype of C<Base.Exp>, not of
+C<DblePlus.Exp> (which is what C<exp> is in this system).  You may think
+that this is just a fault of the type checker and that we can relax this
+away, but in fact there is a fundamental problem in the logic (always
+have faith in your type checker):  What is keeping C<Base> from defining
+a private subtype of C<Base.Exp> that does not support C<dble> and
+returning it, say, as a special private optimization?  
+
+In order to solve this problem, we define abstract factories for each
+node type.  This must be done at the final level when the system is
+actually used, otherwise such type difficulties arise.  But we don't
+want to require anything special at the final level, because then it is
+being "locked in" type-wise, and code that follows from that cannot be
+extended (it turns into a concretely-typed factory just as in classic,
+non-virtual OO type systems).  
+
+There is a way to solve this: to keep a system extensible and type-safe
+forever, without requiring a "lock-in" stage.  For the rest of this
+paper, I will focus on code in (my proposed extension to) Perl 6.
+
+=head1 REFERENCES
+
+[1] http://icwww.epfl.ch/publications/documents/IC_TECH_REPORT_200433.pdf
