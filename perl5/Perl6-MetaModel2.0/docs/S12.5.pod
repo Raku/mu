@@ -17,7 +17,7 @@ NOTE:
 For a quick overview of the MetaModel itself please see the F<10_000_ft-view.pod>
 in this same directory.
 
-=head1 What is a Meta Object Protocol
+=head1 What is a Meta Object Protocol?
 
 A meta object protocol is basically an API for the elements of the meta-level classes
 and objects which are exposed to user level code. Basically this describes all the things
@@ -56,7 +56,7 @@ it is associated with. This will likely be a string in one of the following form
 =item C<identifier>
  
 This is a read-only method which takes the C<name>, C<version> and C<identifier> and concatenates
-them into a single string seperated by '-' characters. This is the format found in the class 
+them into a single string separated by '-' characters. This is the format found in the class 
 defintions:
 
   class Foo-0.0.5-cpan:BARBAZ { ... }
@@ -87,7 +87,7 @@ L<http://research.sun.com/projects/plrg/core-calculus.pdf>
 
 L<http://www.iam.unibe.ch/~scg/Research/Traits/>
 
-(Note: Traits are what inspired the Perl 6 concepts of Roles)
+(Note: Traits are what inspired the Perl 6 concept of Roles)
 
 =back 
 

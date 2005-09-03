@@ -56,7 +56,7 @@ files which are loaded, and what those files do.
 
 =item I<chaos.pl>
 
-This file contains all the primative elements needed for the meta-model
+This file contains all the primitive elements needed for the meta-model
 including global functions (C<WALKMETH>, C<WALKCLASS>, etc.), method 
 generators, tagged attribute types, and opaque instance creators.
 
@@ -120,13 +120,13 @@ Or represented visually here:
 This package loads all the other files above, and then provides what I 
 am calling a "macro" layer to make class construction easier. This layer
 will likely be handled by the language parser in a real implementation, 
-but is hear purely for prototyping/testing convience. 
+but is here purely for prototyping/testing convenience. 
 
 =back
 
 =head1 AUTHOR
 
-This basically means that anything incorrect in here, is my fault.
+This basically means that anything incorrect in here is my fault.
 
 Stevan Little E<lt>stevan@iinteractive.comE<gt>
 
