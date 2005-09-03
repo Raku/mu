@@ -18,6 +18,7 @@ import Pugs.Prim.Param (foldParam)
 import Pugs.Context
 import Pugs.Pretty
 import Pugs.Config
+import Pugs.Monads
 
 findVar :: Var -> Eval (Maybe VRef)
 findVar name = do
@@ -351,22 +352,39 @@ posSym f = fmap (Just . castV . f) $ asks envPos
 constSym :: String -> Eval (Maybe Val)
 constSym = return . Just . castV
 
-findSyms :: Var -> Eval [(String, Val)]
+findSyms :: Var -> Eval [(Var, Val)]
 findSyms name = do
-    lex  <- asks envLexical
-    glob <- askGlobal
-    pkg  <- asks envPackage
-    let names = nub [name, toPackage pkg name, toGlobal name]
-    syms <- forM [lex, glob] $ \pad -> do
-        forM names $ \name' -> do
-            case lookupPad name' pad of
-                Just tvar -> do
-                    refs  <- liftSTM $ mapM readTVar tvar
+        runMaybeT (findLexical `mplus` findPackage `mplus` findGlobal) >>= \ret ->
+            case ret of
+                Nothing -> return []
+                Just xs -> return xs
+    where
+        findLexical :: MaybeT EvalMonad [(Var, Val)]
+        findLexical = do
+            lex <- lift $ asks envLexical
+            padSym lex name
+            
+        findPackage :: MaybeT EvalMonad [(Var, Val)]
+        findPackage = do
+            glob <- lift $ askGlobal
+            pkg  <- lift $ asks envPackage
+            padSym glob name `mplus` padSym glob (toPackage pkg name)
+
+        findGlobal :: MaybeT EvalMonad [(Var, Val)]
+        findGlobal = do
+            glob <- lift $ askGlobal
+            padSym glob (toGlobal name)
+
+        padSym :: Pad -> Var -> MaybeT EvalMonad [(Var, Val)]
+        padSym pad var = do
+            case lookupPad var pad of
+                Just tvar -> lift $ do
+                    refs <- liftSTM $ mapM readTVar tvar
                     forM refs $ \ref -> do
                         val <- readRef ref
-                        return (name', val)
-                Nothing -> return []
-    return $ concat (concat syms)
+                        return (var, val)
+                Nothing -> mzero
+        
 
 toGlobal :: String -> String
 toGlobal name

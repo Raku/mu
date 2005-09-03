@@ -17,6 +17,8 @@ module Pugs.Monads (
     enterGiven, enterWhen, enterWhile, genSymPrim, genSymCC,
     enterBlock, enterSub,
     evalVal, tempVar,
+    
+    MaybeT, runMaybeT,
 
     module Control.Monad.RWS
 ) where
@@ -25,6 +27,25 @@ import Pugs.AST
 import Pugs.Context
 import Pugs.Types
 import Control.Monad.RWS
+
+
+newtype MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
+
+instance (Monad m) => Monad (MaybeT m) where
+    (MaybeT mon) >>= f =
+        MaybeT (mon >>= maybe (return Nothing) (runMaybeT . f))
+    return              = MaybeT . return . Just
+
+instance MonadTrans MaybeT where
+    lift mon = MaybeT (mon >>= return . Just)
+
+instance (Monad m) => MonadPlus (MaybeT m) where
+    mzero                       = MaybeT (return Nothing)
+    mplus (MaybeT a) (MaybeT b) = MaybeT $ do
+        ma <- a
+        mb <- b
+        return $ ma `mplus` mb
+
 
 {-|
 Create a new lexical scope by applying the list of 'Pad'-transformers

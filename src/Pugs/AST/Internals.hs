@@ -3,6 +3,7 @@
 
 module Pugs.AST.Internals (
     Eval,      -- uses Val, Env, SIO
+    EvalMonad,
     Exp(..),   -- uses Pad, Eval, Val
     Env(..),   -- uses Pad, TVar, Exp, Eval, Val
     Val(..),   -- uses V.* (which ones?)
