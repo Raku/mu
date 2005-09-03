@@ -452,15 +452,20 @@ selfParam typ = MkParam
 ruleSubName :: RuleParser String
 ruleSubName = verbatimRule "subroutine name" $ do
     twigil  <- ruleTwigil
-    fixity  <- option "" $ choice (map (try . string) $ fixities)
-    name    <- ruleQualifiedIdentifier
-                <|> try (between (string "<<") (string ">>")
-                    (many1 (satisfy (/= '>') <|> lookAhead (satisfy (/= '>')))))
-                <|> between (char '<') (char '>') (many1 $ satisfy (/= '>'))
-                <|> between (char '\171') (char '\187') (many1 $ satisfy (/= '\187'))
-    return $ "&" ++ twigil ++ fixity ++ name
+    name    <- ruleOperatorName <|> ruleQualifiedIdentifier
+    return $ "&" ++ twigil ++ name
+
+ruleOperatorName :: RuleParser String
+ruleOperatorName = do
+    fixity <- choice (map (try . string) fixities)
+    name <- try (between (string "<<") (string ">>")
+              (many1 (satisfy (/= '>') <|> lookAhead (satisfy (/= '>')))))
+            <|> between (char '<') (char '>') (many1 $ satisfy (/= '>'))
+            <|> between (char '\171') (char '\187') (many1 $ satisfy (/= '\187'))
+    return $ fixity ++ name
     where
     fixities = words " prefix: postfix: infix: circumfix: coerce: self: term: postcircumfix: rule_modifier: trait_verb: trait_auxiliary: scope_declarator: statement_control: infix_postfix_meta_operator: postfix_prefix_meta_operator: prefix_postfix_meta_operator: infix_circumfix_meta_operator: "
+    
 
 ruleSubParameters :: ParensOption -> RuleParser (Maybe [Param])
 ruleSubParameters wantParens = rule "subroutine parameters" $ do
@@ -1732,9 +1737,11 @@ ruleParamName :: RuleParser String
 ruleParamName = literalRule "parameter name" $ do
     -- Valid param names: $foo, @bar, &baz, %grtz, ::baka
     sigil   <- choice [ oneOf "$@%&" >>= return . (:""), string "::" ]
-    twigil  <- ruleTwigil
-    name    <- many1 wordAny
-    return $ sigil ++ twigil ++ name
+    if sigil == "&"
+        then ruleSubName
+        else do twigil <- ruleTwigil
+                name   <- many1 wordAny
+                return $ sigil ++ twigil ++ name
 
 ruleVarName :: RuleParser String
 ruleVarName = rule "variable name" ruleVarNameString
