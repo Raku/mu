@@ -28,15 +28,15 @@ Alternatively, you can use the compiler directly:
   $ ./pil2js.pl \                                 # Generate a .html
       --link=html \
       -o output.html \
-      ~METAMODEL ~libjs/PIL2JS.js ~Prelude.js output.js
+      ~METAMODEL ~libjs/PIL2JS.js ~Prelude.js input.js
   # This links the Perl 6 MetaModel, the basic JS Prelude (PIL2JS.js), the
   # Perl 6 Prelude (Prelude.js), and your code together, producing output.html.
 
 =head1 SMOKING
 
-You can use C<make jssmoke> to compile the whole testsuite to JavaScript and
+You can use C<make smoke-js> to compile the whole testsuite to JavaScript and
 run it using Spidermonkey's C<bin/js>. The test results will be outputted as
-C<smoke.html>.
+C<smoke-js.html>.
 
 =head1 FILE HIERARCHY
 
