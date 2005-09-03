@@ -34,6 +34,22 @@
 
 # MORE TODO - See "S06"
 
+# TODO - Perl6::Param - PIL gives these extra attributes:
+#        is_invocant - ???
+#        is_writable 
+#        is_lazy   - ???
+#        is_lvalue - ???
+#
+#        Note: paramContext is an object that contains the 'type'
+#           'Context' can be Slurpy or Item
+
+# TODO - Code - PIL gives these extra attributes:
+#        is_lvalue
+
+# TODO - slurpy parameter spec should generate a boxed Array or Hash
+
+# TODO - XXX - in Code->do() - @ret should be a boxed Array
+
 # TODO - add want() data
 # TODO - add caller() data
 
@@ -165,7 +181,7 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
         $s .= $_[0]{type}->name . ' ';
         $s .= '*' if $_[0]->slurpy;
         $s .= '?' if $_[0]->optional;
-        # $s .= '+' if $_[0]->name_required; -- not implemented yet
+        # $s .= '+' if $_[0]->name_required; -- not used in PIL-v1
         $s .= $_[0]->name;
         $s .= ' = ' . Perl6::Value::stringify( $_[0]->default ) if $_[0]->default;
         return $s;
@@ -203,6 +219,7 @@ class 'Code'.$class_description => {
                 # my %bound_params = ::SELF->bind_params(@arguments); 
                 # warn "entering sub ".$self->name;   
                 my @ret = $self->body->( $self, @arguments );  # @_ = self + raw arguments
+                # XXX - @ret should be a boxed Array
                 warn "Return type does not match - should return " . $self->returns->name
                     if defined $self->returns && ! $self->returns->match( @ret );
                 return @ret;
