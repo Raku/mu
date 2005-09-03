@@ -26,6 +26,8 @@ $VERSION = '0.01';
        p6_unmangle
        p6_new
        p6_new_sub_from_pil_macro
+       p6_declare_class
+       p6_create_instance
        p6_apply
        p6_package_init
        );
@@ -48,15 +50,18 @@ sub p6_set {
 sub p6_var_macro {
     my($name,$defined1_autovivify2)=@_;
     $name =~ s/\[ \]/\[\]/; # XXX - pugsbug workaround.
-    $name =~ /([\$\@\%\&])/ or die "bug";
+    $name =~ /([\$\@\%\&\:])(.+)/ or die "bug";
     my $sigil = $1;
+    my $barename = $2;
     my $m = p6_mangle($name);
     my $mn = $m; $mn =~ s/\\/\\\\/g; $mn =~ s/\'/\\\'/g;
     my $dontdie = $defined1_autovivify2 ? ',1' : '';
     my %vivifiers = ('$' => 'Scalar->new()',
 		     '&' => 'Scalar->new()',
 		     '@' => 'Array->new()',
-		     '%' => 'Hash->new()');
+		     '%' => 'Hash->new()',
+		     ':' => "p6_declare_class('$barename')",
+		     );
     my $vivifier = $vivifiers{$sigil} || die "bug";
     my $vivify = ($defined1_autovivify2 && $defined1_autovivify2 == 2
 		  ? "||do{\$$m = $vivifier}" : '');
@@ -68,7 +73,7 @@ sub sigil_and_rest {
     my($n)=@_;
     my $sigil = "";
     my $bare = $n;
-    if ($n =~ /^([\$\@\%\&]?)(.+)/) {
+    if ($n =~ /^([\$\@\%\&\:]?)(.+)/) {
         $sigil = $1;
         $bare = $2;
     }
@@ -78,7 +83,8 @@ my %space_from_sigil = (
              '$' => 'scalar',
              '@' => 'array',
              '%' => 'hash',
-             '&' => 'code'
+             '&' => 'code',
+             ':' => 'type' # XXX - PIL uses it.  but is it spec?
              );
 my %sigil_from_space = map {$space_from_sigil{$_},$_} keys(%space_from_sigil);
 
@@ -236,6 +242,22 @@ sub p6_new_sub_from_pil_macro {
 		 '$.body' => $subdef);
     }
 }
+sub p6_declare_class {
+    my($name)=@_;
+    use Perl6::MetaModel;
+    use Perl6::Object;
+    my $cls = class $name => {
+	is => [ 'Perl6::Object' ]
+	};
+    $cls;
+}
+sub p6_create_instance {
+    my($name,@args)=@_;
+    use Perl6::MetaModel;
+    use Perl6::Object;
+    $name->create(@args);
+}
+
 sub p6_apply {
     my($f,@args)=@_;
     #print STDERR "\n<$f,",@args,">\n";

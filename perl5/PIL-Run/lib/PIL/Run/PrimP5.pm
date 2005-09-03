@@ -105,6 +105,8 @@ MULTI SUB Array::slice ($a,$i) {
 MACROP5   statement_control:<if> ($xx0,$xx1,$xx2) {
     "if (p6_to_b($xx0)) $xx1 else $xx2";
 };
+MACROP5   Class::_create ($xx0) {""};
+
 
 # From Prim.hs
 # op0

@@ -73,6 +73,10 @@ package PVar; @ISA = qw(EvalX::BaseClass); sub expand {
 package PApp; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
     my($self)=@_;
+
+    return $self->{'pFun'}{'pBody'}->expand() # XXX - bypass PCode - kludge
+	if UNIVERSAL::isa($self->{'pFun'},"PCode");
+
     my $f = $self->{'pFun'}->expand();
     my $invocant = defined $self->{'pInv'} ? $self->{'pInv'}->expand() : undef;
     my @args = map{$_->expand()} @{$self->{'pArgs'}};
@@ -109,16 +113,32 @@ package PThunk; @ISA = qw(EvalX::BaseClass); sub expand {
 }
 package PSub; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
-    return "" if $_[0]{'pSubBody'} =~ /PNil/;
-    ("BEGIN{"
-     ."p6_set(".p6_var_macro($_[0]{'pSubName'},2).','
-     .p6_new_sub_from_pil_macro($_[0]{'pSubName'},
-				$_[0]{'pSubParams'},
-				$_[0]{'pSubBody'}->expand(),
-				'macro')
-     .");"
-     ."}\n");
+    my $body = $_[0]{'pSubBody'} eq 'PNil' ? "" : $_[0]{'pSubBody'}->expand();
+    my $sub = p6_new_sub_from_pil_macro($_[0]{'pSubName'},
+					$_[0]{'pSubParams'},
+					$body,
+					'macro');
+    if($_[0]{'pSubType'} eq 'SubMethod') {
+	my $name = $_[0]{'pSubName'};
+	my $class = $name;
+	$name =~ s/.*:://;
+	$class =~ s/::[^:]+$//; $class =~ s/^&//;
+	("(sub{ (::dispatch(::meta(".p6_var_macro(":$class", 2)."),"
+	 ." 'add_method',"
+	 ." ('$name' => Perl6::Method->create_instance_method('$class' =>"
+	 ." sub \{ "
+	 .$body
+         ."})))) })->()"
+	 .";\n"); # XXX why?
+    } else {
+	("BEGIN{"
+	 ."p6_set(".p6_var_macro($_[0]{'pSubName'},2).','
+	 .$sub
+	 .");"
+	 ."}\n");
+    }
 }
+# package PCode;  see hack above
 package PIL::Environment; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
     "package ".&p6_main().";\n".$_[0]->SUPER::expand().";\n";    
