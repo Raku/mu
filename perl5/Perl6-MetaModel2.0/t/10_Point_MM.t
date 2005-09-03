@@ -38,18 +38,18 @@ my $Point = class 'Point' => {
     attributes => [ '$.x', '$.y' ],
     methods => {
         'x' => sub {
-            my $self = shift;
+            shift;
             die "Cannot assign to a read-only accessor" if @_;
-            ::opaque_instance_attrs($self)->{'$.x'};
+            _('$.x');
         },
         'y' => sub {
-            my $self = shift;
-            ::opaque_instance_attrs($self)->{'$.y'} = shift if @_;
-            ::opaque_instance_attrs($self)->{'$.y'};
+            shift;
+            _('$.y' => shift) if @_;
+            _('$.y');
         },
         'clear' => sub {
-            ::opaque_instance_attrs($::SELF)->{'$.x'} = 0;
-            ::opaque_instance_attrs($::SELF)->{'$.y'} = 0;    
+            _('$.x' => 0);
+            _('$.y' => 0);    
         }
     }
 };
@@ -87,9 +87,9 @@ my $Point3D = class 'Point3D' => {
     is => [ $Point ],
     attributes => [ '$:z' ],
     methods => {
-        'get_z' => sub { ::opaque_instance_attrs($::SELF)->{'$:z'} },
+        'get_z' => sub { _('$:z') },
         'clear' => sub {
-            ::opaque_instance_attrs($::SELF)->{'$:z'} = 0;
+            _('$:z' => 0);
             ::next_METHOD()
         }
     }

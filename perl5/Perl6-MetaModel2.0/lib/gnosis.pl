@@ -36,8 +36,10 @@ $::Class = ::create_class('$:name' => 'Class');
 ## create the body of 'add_method' here,.. 
 my $_add_method = sub {
     my ($self, $label, $method) = @_;
-    confess "A method must be a blessed Perl6::Method object" 
-        unless blessed($method);
+    (defined $label && $label)
+        || confess "You must supply a valid method label";
+    (blessed($method))
+        || confess "A method must be a blessed Perl6::Method object";
     if (blessed($method) eq 'Perl6::Method'   ||
         blessed($method) eq 'Perl6::Submethod') {
         ::opaque_instance_attrs($self)->{'%:methods'}->{$label} = $method;

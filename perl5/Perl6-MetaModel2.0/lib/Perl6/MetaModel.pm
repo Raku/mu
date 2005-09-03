@@ -17,6 +17,12 @@ sub import {
 
 our %CLASSES_BY_NAME;
 
+sub _ {
+    my $attr = shift;
+    ::opaque_instance_attrs($::SELF)->{$attr} = shift if @_;
+    ::opaque_instance_attrs($::SELF)->{$attr};    
+}
+
 sub class {
     my ($full_name, $body) = @_;
     my $new_class = $::Class->class::new();
