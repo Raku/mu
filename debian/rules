@@ -21,7 +21,7 @@ build-arch-stamp: configure-stamp
 	$(MAKE) $(CFLAGS)
 	-test $$SKIP_TESTS || $(MAKE) $(TESTS)
 	-if [ ! $$DONT_SEND_SMOKE ]; then \
-		for html in $(CURDIR)/*smoke.html; do \
+		for html in $(CURDIR)/smoke*.html; do \
 			./util/smokeserv/smokeserv-client.pl $$html; \
 		done; \
 	fi
