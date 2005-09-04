@@ -1,4 +1,6 @@
 usr/share/vim/*
-usr/share/man/*
+usr/share/man/man3/pugs::hack.3pm
+usr/share/man/man3/pugs::run.3pm
+usr/share/man/man3/Perl6::Pugs.3pm
 usr/lib/perl6/*
 usr/bin/*
