@@ -93,7 +93,7 @@ ok(!defined($::CLASS), '... cannot get $?CLASS outside of a valid context');
         no strict 'refs';
         no warnings 'redefine';
         
-        *{'::next_METHOD'} = sub { "fake next_METHOD" };
+        *{'::next_METHOD'} = sub () { "fake next_METHOD" };
     
         my $m = ::make_submethod(sub { return 'Baz' }, $j);
         ok(ref($m), 'Perl6::Submethod');

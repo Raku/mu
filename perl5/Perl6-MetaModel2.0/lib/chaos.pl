@@ -66,7 +66,7 @@ our $DISPATCH_TRACE = 0;
     $::CLASS = undef;   
     {
         my (@SELF, @CLASS);        
-        sub ::bind_SELF_and_CLASS {
+        sub ::bind_SELF_and_CLASS ($$) {
             my ($self, $class) = @_;
             (defined $self && defined $class)
                 || confess "Must have defined values to bind $?SELF and $?CLASS";                
@@ -74,7 +74,7 @@ our $DISPATCH_TRACE = 0;
             push @CLASS => ($::CLASS = $class);        
         }
     
-        sub ::unbind_SELF_and_CLASS { 
+        sub ::unbind_SELF_and_CLASS () { 
             pop @SELF;  $::SELF  = (@SELF  ? $SELF[-1]  : undef);
             pop @CLASS; $::CLASS = (@CLASS ? $CLASS[-1] : undef);
         }   
@@ -82,14 +82,14 @@ our $DISPATCH_TRACE = 0;
         # NOTE:
         # these are used during class creation
         # to bind $?CLASS within the class closure
-        sub ::bind_CLASS {
+        sub ::bind_CLASS ($) {
             my ($class) = @_;
             (defined $class)
                 || confess "Must have a defined value to bind to $?CLASS";
             push @CLASS => ($::CLASS = $class);   
         } 
         
-        sub ::unbind_CLASS { 
+        sub ::unbind_CLASS () { 
             pop @CLASS; $::CLASS = (@CLASS ? $CLASS[-1] : undef);
         }         
     }
@@ -99,7 +99,7 @@ our $DISPATCH_TRACE = 0;
     # called 'iterators', they basically
     # are ways to walk a dispatcher() 
     # object. They are very useful :)
-    sub ::WALKMETH {
+    sub ::WALKMETH ($$;%) {
         my ($dispatcher, $label, %opts) = @_;
         (defined $dispatcher && ref($dispatcher) eq 'CODE')
             || confess "Bad dispatcher (" . ($dispatcher || 'undef') . ")";
@@ -115,7 +115,7 @@ our $DISPATCH_TRACE = 0;
         return undef;        
     }
     
-    sub ::WALKCLASS {
+    sub ::WALKCLASS ($) {
         my ($dispatcher) = @_;
         (defined $dispatcher && ref($dispatcher) eq 'CODE')
             || confess "Bad dispatcher (" . ($dispatcher || 'undef') . ")";        
@@ -125,21 +125,21 @@ our $DISPATCH_TRACE = 0;
     ## Attribute Primatives
     # this is kind of a hack currently ..
     
-    sub ::make_attribute {
+    sub ::make_attribute ($) {
         my ($name) = @_;
         (defined $name)
             || confess "You must provide a name for the attribute";
         return bless \$name => 'Perl6::Attribute';
     }
     
-    sub ::make_class_attribute {
+    sub ::make_class_attribute ($) {
         my ($name) = @_;
         (defined $name)
             || confess "You must provide a name for the attribute";        
         return bless \$name => 'Perl6::ClassAttribute';
     }     
     
-    sub ::instantiate_attribute_container {
+    sub ::instantiate_attribute_container ($) {
         my ($attr) = @_;
         (blessed($attr) && $attr->isa('Perl6::Attribute'))
             || confess "You must provide an attribute to instantiate";        
@@ -267,7 +267,7 @@ our $DISPATCH_TRACE = 0;
     # is to deal with the special case of the
     # early $::Class object.
     my @DISPATCHER = ();
-    sub ::dispatcher {
+    sub ::dispatcher ($$$;$) {
         (blessed($_[0]) && blessed($_[0]) eq 'Dispatchable' &&
          defined $_[1]  && 
          defined $_[2]  && ref($_[2]) eq 'ARRAY')
@@ -289,7 +289,7 @@ our $DISPATCH_TRACE = 0;
 
     # this will handle all dispatching 
     # for the root $::Class
-    sub _class_dispatch {
+    sub _class_dispatch ($$$;$) {
         my ($self, $label, $args, $is_class_method) = @_; 
         warn "... entering _class_dispatch with label($label)" if $DISPATCH_TRACE;  
         my $method_table_name;
@@ -329,7 +329,7 @@ our $DISPATCH_TRACE = 0;
         confess "Method ($label) not found in \$::Class";          
     }
 
-    sub _normal_dispatch {
+    sub _normal_dispatch ($$$;$) {
         my ($self, $label, $args, $is_class_method) = @_; 
         warn "... entering _normal_dispatch with label($label)" if $DISPATCH_TRACE;                    
         # NOTE:
@@ -383,7 +383,7 @@ our $DISPATCH_TRACE = 0;
     # this mimics the 'next METHOD' 
     # construct to go to the next
     # applicable method 
-    sub ::next_METHOD {
+    sub ::next_METHOD () {
         (@DISPATCHER)
             || confess "Cannot call next METHOD, we have no current dispatcher";
         warn ">>>> next METHOD called" if $DISPATCH_TRACE;
@@ -488,6 +488,7 @@ our $DISPATCH_TRACE = 0;
 
             my $multi = $Class::Multimethods::Pure::MULTI{$name} ||= 
                     Class::Multimethods::Pure::Method->new(
+                        Core    => 'Class::Multimethods::Pure::Method::DumbCache',
                         Variant => $Class::Multimethods::Pure::MULTIPARAM{$name}{Variant},
                     );
 
