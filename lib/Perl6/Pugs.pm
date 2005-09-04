@@ -4,8 +4,6 @@ use strict;
 
 our $VERSION = 6.002009;
 
-=pod
-
 =head1 NAME
 
 Perl6::Pugs - A Perl 6 Implementation
