@@ -1,12 +1,12 @@
 #!/usr/bin/make -f
 
-CFLAGS = -Wall -g
-
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	CFLAGS += -O0
+	CFLAGS = optimized
 else
-	CFLAGS += -O2
+	CFLAGS = unoptimized
 endif
+
+TESTS='smoke-all'
 
 configure: configure-stamp
 configure-stamp:
@@ -18,9 +18,13 @@ build: build-arch build-indep
 
 build-arch: build-arch-stamp
 build-arch-stamp: configure-stamp 
-	$(MAKE) optimized
-	-test ($$SKIP_TESTS) || $(MAKE) test
-	pod2man --section=1 --release="Debian Project" --center="Debian GNU/Linux manual" $(CURDIR)/lib/pugs/run.pod $(CURDIR)/debian/pugs.1
+	$(MAKE) $(CFLAGS)
+	-test $$SKIP_TESTS || $(MAKE) $(TESTS)
+	-if [ ! $$DONT_SEND_SMOKE ]; then \
+		for html in $(CURDIR)/*smoke.html; do \
+			./util/smokeserv/smokeserv-client.pl $$html; \
+		done; \
+	fi
 	pod2man --section=1 --release="Debian Project" --center="Debian GNU/Linux manual" $(CURDIR)/script/pugscc $(CURDIR)/debian/pugscc.1
 	touch build-arch-stamp
 
@@ -40,10 +44,10 @@ install-indep:
 	dh_testdir
 	dh_testroot
 	dh_installdirs
-	dh_install -i --sourcedir=$(CURDIR)/debian/tmp
+	dh_install -i --sourcedir=$(CURDIR)/debian/tmp --list-missing
 	cp -r $(CURDIR)/docs/* $(CURDIR)/debian/pugs-doc/usr/share/doc/pugs-doc/
+	cp $(CURDIR)/debian/pugs-modules.lintian-overrides $(CURDIR)/debian/pugs-modules/usr/share/lintian/overrides/pugs-modules
 	rm -f $(CURDIR)/debian/pugs-doc/usr/share/doc/pugs-doc/SEEALSO
-	find $(CURDIR)/debian/pugs-doc/ -type f -size 0 -exec rm -f {} \;
 
 install-arch:
 	dh_testdir
@@ -51,7 +55,7 @@ install-arch:
 	dh_installdirs -s
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 	cp util/perl6.vim $(CURDIR)/debian/pugs/usr/share/vim/vim63/syntax/
-	dh_install -s --sourcedir=$(CURDIR)/debian/tmp
+	dh_install -s --sourcedir=$(CURDIR)/debian/tmp --list-missing
 	rm -f $(CURDIR)/debian/pugs/usr/lib/perl6/5.8/CORE/pugs/gen_prelude \
 	$(CURDIR)/debian/pugs/usr/lib/perl6/5.8/CORE/pugs/Pugs/Rule/LICENSE \
 	$(CURDIR)/debian/pugs/usr/lib/perl6/5.8/CORE/pugs/RRegex/LICENSE \
@@ -65,6 +69,8 @@ binary-indep: build-indep install-indep
 	dh_installchangelogs -i ChangeLog
 	dh_installdocs -i
 	dh_installexamples -i examples/*
+	rm -f $(CURDIR)/debian/pugs-doc/usr/share/doc/pugs-doc/examples/hop6/LICENSE.txt
+	find $(CURDIR)/debian/pugs-doc/ -type f -size 0 -exec rm -f {} \;
 	dh_installman -i
 	dh_link -i
 	dh_compress  -i
@@ -83,7 +89,7 @@ binary-arch: build-arch install-arch
 	dh_testroot -a
 	dh_installchangelogs -a ChangeLog
 	dh_installdocs -a
-	dh_installman -a debian/pugs.1 debian/pugscc.1
+	dh_installman -a debian/pugscc.1
 	dh_link -a
 	dh_compress  -a
 	dh_fixperms -a
