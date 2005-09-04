@@ -34,6 +34,16 @@ import Pugs.Parser.Types
 import Pugs.Parser.Number
 import Pugs.Parser.Unsafe
 
+fixities :: [String]
+fixities = words " prefix: postfix: infix: circumfix: coerce: self: term: postcircumfix: rule_modifier: trait_verb: trait_auxiliary: scope_declarator: statement_control: infix_postfix_meta_operator: postfix_prefix_meta_operator: prefix_postfix_meta_operator: infix_circumfix_meta_operator: "
+
+isOperatorName :: String -> Bool
+isOperatorName ('&':opa@(_:opb)) = isOperatorName' opa || isOperatorName' opb
+    where
+    isOperatorName' :: String -> Bool
+    isOperatorName' oper = or (map (flip isPrefixOf oper) fixities)
+isOperatorName _ = False
+
 -- Lexical units --------------------------------------------------
 
 ruleBlock :: RuleParser Exp
@@ -368,7 +378,7 @@ rulePackageHead = do
 
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
-    -- namePos <- getPosition
+    namePos <- getPosition
     (scope, typ, isMulti, styp, name) <- tryChoice
         [ ruleSubScopedWithContext
         , ruleSubScoped
@@ -420,6 +430,18 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             _           -> False
         isBuiltin = ("builtin" `elem` traits)
         isExported = ("export" `elem` traits)
+        
+    -- XXX this belongs in semantic analysis, not in the parser
+    -- also, maybe we should only warn when you try to export an
+    -- operator that is "standard"
+    -- XXX I can't figure out how to do this without trace
+    when (isExported && isOperatorName name) $
+        trace 
+            ("You probably don't want to export an operator name; instead\n\
+  define a new variant on the new operator (eg. multi sub *infix:<+>):" 
+                ++ show name ++ " at " ++ show namePos)
+            (return ())
+            
     -- Don't add the sub if it's unsafe and we're in safemode.
     if "unsafe" `elem` traits && safeMode then return emptyExp else case scope of
         SGlobal | isExported -> do
@@ -463,8 +485,6 @@ ruleOperatorName = do
             <|> between (char '<') (char '>') (many1 $ satisfy (/= '>'))
             <|> between (char '\171') (char '\187') (many1 $ satisfy (/= '\187'))
     return $ fixity ++ name
-    where
-    fixities = words " prefix: postfix: infix: circumfix: coerce: self: term: postcircumfix: rule_modifier: trait_verb: trait_auxiliary: scope_declarator: statement_control: infix_postfix_meta_operator: postfix_prefix_meta_operator: prefix_postfix_meta_operator: infix_circumfix_meta_operator: "
     
 
 ruleSubParameters :: ParensOption -> RuleParser (Maybe [Param])

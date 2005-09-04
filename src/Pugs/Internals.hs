@@ -71,6 +71,8 @@ module Pugs.Internals (
     possiblyFixOperatorName,
     maybeM,
     safeMode,
+    warn,
+    die,
 ) where
 
 import UTF8
@@ -145,6 +147,15 @@ instance Ord Dynamic where
 internalError :: String -> a
 internalError s = error $
     "Internal error:\n    " ++ s ++ "\nPlease file a bug report."
+
+die :: (MonadIO m, Show a) => String -> a -> m b
+die x y = do
+    warn x y
+    liftIO $ exitFailure
+
+warn :: (MonadIO m, Show a) => String -> a -> m ()
+warn str val = liftIO $ do
+    hPutStrLn stderr $ "*** " ++ str ++ ":\n    " ++ show val
 
 split :: (Eq a) => [a] -> [a] -> [[a]]
 split []  _   = internalError "splitting by an empty list"

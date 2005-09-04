@@ -17,7 +17,7 @@ module Pugs.Compile (
     TCxt(..), tcVoid, tcLValue,
     TParam(..),
     EnterClass(..),
-    die, varText,
+    die, varText
 ) where
 import Pugs.AST
 import Pugs.Internals
@@ -388,15 +388,6 @@ compError = die $ "Compile error -- invalid "
 {-| Compiles a 'Val' to a 'PIL_Literal'. -}
 instance Compile Val PIL_Literal where
     compile val = return $ PVal val
-
-die :: (MonadIO m, Show a) => String -> a -> m b
-die x y = do
-    warn x y
-    liftIO $ exitFailure
-
-warn :: (MonadIO m, Show a) => String -> a -> m ()
-warn str val = liftIO $ do
-    hPutStrLn stderr $ "*** " ++ str ++ ":\n    " ++ show val
 
 -- utility functions
 padSort :: (Var, [(TVar Bool, TVar VRef)]) -> (String, [(a, b)]) -> Ordering
