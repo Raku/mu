@@ -20,6 +20,7 @@ sub fixup {
 
 sub as_js {
   my $self = shift;
+  no warnings "recursion";
 
   return PIL::possibly_ccify $self->{pRHS}, sub {
     my $src = shift;

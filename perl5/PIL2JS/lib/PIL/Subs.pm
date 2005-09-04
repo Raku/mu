@@ -228,6 +228,7 @@ EOF
     local $PIL::IN_SUBLIKE  = PIL::SUBTHUNK;
     local @PIL::IN_SUBLIKES = (@PIL::IN_SUBLIKES, PIL::SUBTHUNK);
     local $PIL::CUR_SUBNAME = "<thunk@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>";
+    no warnings "recursion";
 
     my $body = PIL::possibly_ccify +(%$self)[1], PIL::RawJS->new("thunkreturncc");
     my $ret  = sprintf <<EOF, PIL::add_indent 1, $body;

@@ -81,7 +81,7 @@ PIL2JS.Pair = function (key, value) {
 };
 PIL2JS.Pair.prototype.toString = function () { return "<PIL2JS.Pair>" };
 
-// Ref class.
+// class Ref { has $.referencee }
 PIL2JS.Ref = function (referencee) {
   this.referencee = referencee;
   this.autoderef  = referencee.FETCH() instanceof Array
@@ -92,7 +92,42 @@ PIL2JS.Ref = function (referencee) {
 };
 PIL2JS.Ref.prototype.toString = function () { return "<PIL2JS.Ref>" };
 
-// This is necessary to emulate pass by ref, needed for is rw and is ref.
+// class Multi { has @.variants; method add_variant (Code &f) {...} }
+PIL2JS.Multi = function () { this.variants = [] };
+PIL2JS.Multi.prototype.add_variant = function (code, arity) {
+  this.variants.push({ code: code, arity: arity });
+};
+PIL2JS.Multi.prototype.run = function (args) {
+  var orig_args = [].concat(args);
+  var cxt  = args.shift(), cc = args.pop();
+  args     = PIL2JS.possibly_flatten(args);
+  var argc = args.length;
+
+  var candidates = [];
+  for(var i = 0; i < this.variants; i++) {
+    if(this.variants[arity] == argc) {
+      candidates.push(this.variants[arity]);
+    }
+  }
+
+  if(candidates.length == 0) {
+    PIL2JS.die("No suitable multi variant found!");
+  } else if(candidates.length > 1) {
+    PIL2JS.warn("More than one suitable multi variant found, using first one.");
+  }
+
+  return canidates[0].code(orig_args);
+};
+PIL2JS.new_multi = function () {
+  var multi = new PIL2JS.Multi;
+
+  var f     = function (args) { return multi.run(args) };
+  f.pil2js_multi = multi;
+
+  return f;
+};
+
+// This is necessary to emulate pass by ref, needed by is rw and is ref.
 // See section "DESIGN" in README.
 // FETCH  :: SomeNativeType
 // STORE  :: SomeBox -> TheSameBox

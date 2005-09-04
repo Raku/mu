@@ -61,6 +61,7 @@ my $possibly_ccify_argid = 0;
 sub possibly_ccify {
   my ($thing, $sub) = @_;
   my $unwrapped = $thing->unwrap;
+  no warnings "recursion";
 
   if(
     not $thing->isa("PIL::PPos") and (

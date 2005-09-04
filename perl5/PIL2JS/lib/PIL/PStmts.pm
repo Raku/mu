@@ -19,6 +19,7 @@ sub fixup {
 
 sub as_js {
   my $self = shift;
+  no warnings "recursion";
 
   my ($head, $tail) = @$self{qw< pStmt pStmts >};
   my $cc;

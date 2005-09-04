@@ -128,31 +128,7 @@ sub as_js {
     }
   };
 
-  my $possibly_ccify_many = sub {
-    no warnings "recursion";
-    my @things = @{ +shift };
-    my $sub    = shift;
-
-    my $step; $step = sub {
-      my @jsthings = @_;
-
-      if(@things) {
-        my $thisone = shift @things;
-        PIL::possibly_ccify $thisone, sub {
-          $step->(@jsthings, shift);
-        };
-      } else {
-        no warnings "void";
-        $self;  # XXX!!!! If this line is removed, *THINGS START TO BREAK*!!!
-                # (!!!! WTF?)
-        $sub->(@jsthings);
-      }
-    };
-
-    ($step->(), undef $step)[0];
-  };
-
-  return $possibly_ccify_many->(
+  return possibly_ccify_many(
     [
       @{ $self->{pArgs} },
       $self->{pInv}
@@ -164,5 +140,27 @@ sub as_js {
 }
 
 sub unwrap { $_[0] }
+
+sub possibly_ccify_many {
+  my ($things, $sub) = @_; 
+  no warnings "recursion";
+
+  possibly_ccify_many_step($things, 0, $sub);
+}
+
+sub possibly_ccify_many_step {
+  my ($things, $i, $sub, $jsthings) = @_;
+  no warnings "recursion";
+
+  if($i <= $#{$things}) {
+    my $thisone = $things->[$i++];
+    PIL::possibly_ccify $thisone, sub {
+      push @$jsthings, shift;
+      possibly_ccify_many_step($things, $i, $sub, $jsthings);
+    };
+  } else {
+    $sub->(@$jsthings);
+  }
+}
 
 1;
