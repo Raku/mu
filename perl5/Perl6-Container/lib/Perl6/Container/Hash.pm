@@ -290,7 +290,7 @@ Pugs
 
 =head1 AUTHOR
 
-Flavio S. Glock, E<lt>fglock@Egmail.com<gt>
+Flavio S. Glock, E<lt>fglock@gmail.com<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
