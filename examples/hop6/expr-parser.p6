@@ -70,7 +70,7 @@ ninjas would probably do quite well at this. Introspection will definitely help.
 
 =head1 AUTHOR
 
-Mark Jason Dominus
+Originally from Higher-Order Perl by Mark Dominus, published by Morgan Kaufmann Publishers, Copyright 2005 by Elsevier Inc
 
 Dan Brook (Perl 6 translator)
 

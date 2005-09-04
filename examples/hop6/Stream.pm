@@ -1,6 +1,11 @@
 ###
 ### Stream.pm
 ###
+### Originally from Higher-Order Perl by Mark Dominus, published by Morgan
+### Kaufmann Publishers, Copyright 2005 by Elsevier Inc
+###
+### Ported to Perl6 by Dan Brook
+###
 
 ## Chapter 6 section 2
 
