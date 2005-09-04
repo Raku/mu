@@ -6,7 +6,7 @@ else
 	CFLAGS = unoptimized
 endif
 
-TESTS='smoke-all'
+TESTS='smoke'
 
 configure: configure-stamp
 configure-stamp:
@@ -35,7 +35,7 @@ build-indep-stamp: configure-stamp
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-arch-stamp build-indep-stamp configure-stamp debian/pugs.1 debian/pugscc.1 src/Pugs/CodeGen/PIR/Prelude.hi src/Pugs/CodeGen/PIR/Prelude.o ext/Test-Builder/destroy_test.p6
+	rm -f build-arch-stamp build-indep-stamp configure-stamp debian/pugs.1 debian/pugscc.1 src/Pugs/CodeGen/PIR/Prelude.hi src/Pugs/CodeGen/PIR/Prelude.o ext/Test-Builder/destroy_test.p6 smoke*.html
 	-$(MAKE) realclean
 	dh_clean
 
