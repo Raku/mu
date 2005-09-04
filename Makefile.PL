@@ -386,9 +386,11 @@ test-perl5 :
 
 
 
-smoke-all : smoke smoke-js smoke-pir smoke-perl5
+smoke : smoke-pugs
 
-smoke : $pugs util/run-smoke.pl all
+smoke-all : smoke-pugs smoke-js smoke-pir smoke-perl5
+
+smoke-pugs : $pugs util/run-smoke.pl all
 	\$(PERL) util/run-smoke.pl . smoke.html
 
 smoke-pir : $pugs util/run-smoke.pl all
