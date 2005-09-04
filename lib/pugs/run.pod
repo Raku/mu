@@ -214,4 +214,4 @@ This is equivalent to running C<< util/yaml_harness.pl -j I<number> >>.
 
 =head1 SEE ALSO
 
-L<Perl6::Pugs>
+L<Perl6::Pugs>, L<pugs::hack>

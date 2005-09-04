@@ -328,3 +328,7 @@ the runcore used (normal Haskell backend, PIL2JS, PIL-Run, PIR, etc.), see
 F<util/smokeserv/README> for more information.
 
 =back
+
+=head1 SEE ALSO
+
+L<Perl6::Pugs>, L<pugs::run>
