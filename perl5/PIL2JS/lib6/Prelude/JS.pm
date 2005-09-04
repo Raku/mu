@@ -30,6 +30,7 @@ use Prelude::JS::Math;
 use Prelude::JS::JSAN;
 use Prelude::JS::Rules;
 use Prelude::JS::Smartmatch;
+use Prelude::JS::OO;
 
 method JS::Root::undefine($a is rw:) {
   $a = undef;
@@ -113,10 +114,3 @@ sub Pugs::Internals::but_block ($obj is rw, Code $code) is primitive {
   $code($obj);
   $obj;
 }
-
-# XXX PIL1 pugs -C kludge.
-sub Package::_create($name) {}
-sub Module::_create($name) {}
-sub Class::_create($name) {}
-sub Rule::_create($name) {}
-sub Grammar::_create($name) {}

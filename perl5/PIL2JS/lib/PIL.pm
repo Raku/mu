@@ -53,6 +53,8 @@ our $LEXSCOPE_PREFIX;
 # "lexical" vars anymore).
 our @VARS_TO_BACKUP;
 our $CORO_ID;
+# XXX PIL1 hack
+our @PIL1_HACK_CLASSDECLS;
 
 # Guard against reentrancy.
 our $PROCESSING_HAS_STARTED;
@@ -191,6 +193,9 @@ sub as_js {
   local $CUR_LEXSCOPE_ID        = 1;
   local $CORO_ID                = 1;
   local $LEXSCOPE_PREFIX        = "";
+  local %UNDECLARED_VARS        = ();
+  local @ALL_LEXICALS           = ();
+  local @PIL1_HACK_CLASSDECLS   = ();
   # I'll fill a unique id of the file we're processing in, to fix var stomping:
   # A.pm: my $a = 3          # ==> my $a_1 = 3;
   # B.pm: use A; my $a = 4;  # ==> my $a_1 = 4; XXX!
@@ -217,8 +222,10 @@ sub as_js {
         undef_of($_);
     } keys %UNDECLARED_VARS, @ALL_LEXICALS, map { $_->{pSubName} } @{ $fixed_tree->{"pilGlob"} }) .
     "\n// End declaration of vars.\n";
-  %UNDECLARED_VARS = ();
-  @ALL_LEXICALS    = ();
+  $decl_js .=
+    "// Declaration of classes (PIL1 hack):\n" .
+    join("\n", @PIL1_HACK_CLASSDECLS) .
+    "\n// End declaration of classes.\n";
 
   my $init_js =
     "// Initialization of global vars and exportation of subs:\n" .

@@ -48,6 +48,22 @@ EOF
   }
 }
 
+{
+  register "&Class::_create" => sub {
+    my ($cc, $classname) = @_;
+
+    # Total hack.
+    $classname =~ s/^.*?new PIL2JS.Box.Constant\((".*")\)$/eval $1/eg or die;
+
+    push @PIL::PIL1_HACK_CLASSDECLS,
+      sprintf "if(!%s) var %s = PIL2JS.new_empty_class(%s, _3amain_3a_3aItem);",
+        PIL::name_mangle(":$classname"),
+        PIL::name_mangle(":$classname"),
+        PIL::doublequote($classname);
+    return "$cc(new PIL2JS.Box.Constant(undefined))";
+  };
+}
+
 # Standard operators, taken from (v6) Prelude::JS::Operators
 {
   my @subs = (
