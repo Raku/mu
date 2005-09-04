@@ -351,7 +351,7 @@ class 'Array'.$class_description => {
                                 '$.value' => $array->pop )
                         },
                         celems => sub { $array->elems->unboxed },
-                        is_lazy => $array->is_lazy,
+                        is_lazy => 1,
                     )
                 );
                 return $ret;

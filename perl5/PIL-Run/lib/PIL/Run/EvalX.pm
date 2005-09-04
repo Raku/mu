@@ -56,6 +56,9 @@ package VInt; @ISA = qw(EvalX::BaseClass); sub expand {
     "p6_new('Int','$_[0][0]')";
 }
 package VNum; @ISA = qw(EvalX::BaseClass); sub expand {
+    if ( $_[0][0] eq 'Inf' || $_[0][0] eq 'inf' ) {
+        return "p6_new('Num',9E99999999)";
+    }
     "p6_new('Num','$_[0][0]')";
 }
 package VStr; @ISA = qw(EvalX::BaseClass); sub expand {
@@ -199,7 +202,12 @@ sub pil_from_p6 {
     my $fn = "deleteme.p6";
     open(F,">$fn") or die "Couldn't open \"$fn\" for writing: $!\n"; # XXX - kluge
     print F $p6; close F or die "Couldn't close \"$fn\": $!\n";
-    my $pil = `$pugs -I$src_root/lib6 -CPerl5 $fn`; #die if $!;
+    my $dir = "-I$src_root/lib6";
+    if ( $^O =~ /win/i ) {
+        # fixes dir-name-with-spaces in Windows
+        $dir = '"' . $dir . '"';
+    }
+    my $pil = `$pugs $dir -CPerl5 $fn`; #die if $!;
     unlink $fn or die "Couldn't remove \"$fn\": $!\n";
     $pil;
 }

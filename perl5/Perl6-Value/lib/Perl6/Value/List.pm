@@ -211,6 +211,7 @@ sub from_range {
     my $end =   $param{end};
     my $count = $param{celems};
     $count = sub { 
+            no warnings 'numeric';
             return Inf if $end == Inf;
             $start le $end ? Inf : 0 
         } 

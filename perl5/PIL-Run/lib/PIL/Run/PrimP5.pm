@@ -248,7 +248,10 @@ MULTI SUB IO::print (*@xxa) {...};
 MULTI SUB IO::next ($xx) {...};
 MULTI SUB Pugs::Safe::safe_print ($xx) {...};
 MULTI SUB die (*@xxa) { die "die: ",map{p6_to_s($_)}@xxa; };
-MULTI SUB warn ($xx) {...};
+MULTI SUB warn ($xx) { 
+    # TODO - add line number, if string doesn't terminate in "\n"
+    warn $xx->unboxed . " at ...\n";
+};
 MULTI SUB fail_ ($xx) {...};
 MULTI SUB exit ($xx) {...};
 MULTI SUB readlink ($xx) {...};
@@ -308,7 +311,7 @@ MULTI SUB max ($xx) {...};
 MULTI SUB uniq ($xx) {...};
 MULTI SUB chr ($xx) { p6_from_s( chr( p6_to_n( $xx ) ) ) };
 MULTI SUB ord ($xx) { p6_from_n( ord( p6_to_s( $xx ) ) ) };
-MULTI SUB hex ($xx) {...};
+MULTI SUB hex ($xx) { p6_from_n( eval '0x' . $xx->unboxed ) };
 MULTI SUB log ($xx)   { p6_from_n( log( p6_to_s( $xx ) ) ) };
 MULTI SUB log10 ($xx) { p6_from_n( log( p6_to_s( $xx ) ) / log(10) ) };
 MULTI SUB from ($xx) {...};
@@ -348,23 +351,29 @@ MULTI SUB infix:<~&> ($xx0,$xx1) {...};
 MULTI SUB infix:[~<] ($xx0,$xx1) {...};
 MULTI SUB infix:[~>] ($xx0,$xx1) {...};
 MULTI SUB infix:<**> ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) ** p6_to_n($xx1)) };
-MULTI SUB infix:<+> ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) + p6_to_n($xx1)) };
-MULTI SUB infix:<-> ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) - p6_to_n($xx1)) };
+MULTI SUB infix:<+>  ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) + p6_to_n($xx1)) };
+MULTI SUB infix:<->  ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) - p6_to_n($xx1)) };
 # atan - see op1
-MULTI SUB infix:<~> ($xx0,$xx1) { p6_from_s(p6_to_s($xx0) . p6_to_s($xx1)) };
+MULTI SUB infix:<~>  ($xx0,$xx1) { p6_from_s(p6_to_s($xx0) . p6_to_s($xx1)) };
 MULTI SUB infix:<+|> ($xx0,$xx1) {...};
 MULTI SUB infix:<+^> ($xx0,$xx1) {...};
 MULTI SUB infix:<~|> ($xx0,$xx1) {...};
 MULTI SUB infix:<?|> ($xx0,$xx1) {...};
 MULTI SUB infix:<~^> ($xx0,$xx1) {...};
 MULTI SUB infix:[=>] ($xx0,$xx1) { Pair->new( '$.key' => $xx0, '$.value' => $xx1 ) };
-MULTI SUB infix:<=> ($xx0,$xx1) {...};
+MULTI SUB infix:<=>  ($xx0,$xx1) {...};
 MULTI SUB infix:<cmp> ($xx0,$xx1) { p6_from_n(p6_to_s($xx0) cmp p6_to_s($xx1)) };
 MULTI SUB infix:[<=>] ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) <=> p6_to_n($xx1)) };
 MULTI SUB infix:<..> ($xx0,$xx1) { 
-    p6_from_a(
-        Perl6::Value::List->from_num_range( start => $xx0->unboxed, end => $xx1->unboxed, step => 1 )
-    ) 
+    my $n = Perl6::Value::numify( $xx0 );
+    if ( $n eq $xx0->unboxed ) {
+        return p6_from_a(
+            Perl6::Value::List->from_num_range( start => $xx0->unboxed, end => $xx1->unboxed )
+        )         
+    }
+    return p6_from_a(
+        Perl6::Value::List->from_range( start => $xx0->unboxed, end => $xx1->unboxed )
+    )         
 };
 #MULTI SUB infix:<..^> ($xx0,$xx1) {...}; # in PrimP6
 #MULTI SUB infix:<^..> ($xx0,$xx1) {...}; # in PrimP6
@@ -401,8 +410,8 @@ MULTI SUB map ($xx0,$xx1) {...};
 # join - see op1
 MULTI SUB reduce ($xx0,$xx1) {...};
 # kill - see op1
-MULTI SUB does ($xx0,$xx1) {...};
-MULTI SUB isa ($xx0,$xx1) {...};
+MULTI SUB does ($xx0,$xx1) { $xx0->isa( $xx1->unboxed ) };
+MULTI SUB isa  ($xx0,$xx1) { $xx0->isa( $xx1->unboxed ) };
 MULTI SUB delete ($xx0,$xx1) {...};
 MULTI SUB exists ($xx0,$xx1) {...};
 MULTI SUB unshift (@xx0,*@xxa) { $xx0->unshift( @xxa ) };
@@ -417,7 +426,12 @@ MULTI SUB Pugs::Internals::sprintf ($xx0,$xx1) {...};
 MULTI SUB exec ($xx0,$xx1) {...};
 # system - see op1
 MULTI SUB chmod ($xx0,$xx1) {...};
-MULTI SUB splice (*@xxa) {...};
+MULTI SUB splice ($xx0,*@xxa) { 
+    for (0,1) {
+        $xxa[$_] = Perl6::Value::numify( $xxa[$_] ) if defined $xxa[$_]; 
+    }
+    $xx0->splice( @xxa );
+};
 # sort - see op1
 # IO::say - see op1
 # IO::print - see op1

@@ -2,6 +2,9 @@
 
 # ChangeLog
 #
+# 2005-09-03
+# * Fixed Code-do() return context
+#
 # 2005-09-01
 # * New Class Perl6::Type
 # * Signature can be stringified - new methods Code::signature_str and Perl6::Param::str
@@ -218,11 +221,12 @@ class 'Code'.$class_description => {
                     || confess "Signature does not match - (" . $self->signature_str . ")";
                 # my %bound_params = ::SELF->bind_params(@arguments); 
                 # warn "entering sub ".$self->name;   
-                my @ret = $self->body->( $self, @arguments );  # @_ = self + raw arguments
-                # XXX - @ret should be a boxed Array
+                my ($ret) = $self->body->( $self, @arguments );  # @_ = self + raw arguments
+                # warn "RETURN $ret\n";
+                # @ret is a boxed Array
                 warn "Return type does not match - should return " . $self->returns->name
-                    if defined $self->returns && ! $self->returns->match( @ret );
-                return @ret;
+                    if defined $self->returns && ! $self->returns->match( $ret );
+                return $ret;
             },
             arity => sub {
                 scalar @{ ::SELF->params }

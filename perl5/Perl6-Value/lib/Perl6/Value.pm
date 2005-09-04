@@ -11,6 +11,9 @@
 
 # ChangeLog
 #
+# 2005-09-03
+# * Fixed Pair stringification
+#
 # 2005-09-01
 # * Added support for unboxed Pair.key, Pair.value
 #
@@ -42,6 +45,8 @@
 # - All library functions - add, subtract, sqrt, ...
 #   are implemented using multisubs
 # - 'Ref' do not auto-deref List or any other Value - only Containers
+
+# TODO - XXX - perl5 doesn't support string decrement
 
 # TODO - implement tests from t/var/autoderef.t
 # TODO - tie
@@ -143,6 +148,7 @@ class 'Str'.$class_description => {
                 ::SELF->ref->new( '$.unboxed' => ++$value ) },
             'decrement' => sub { 
                 my $value = _('$.unboxed');
+                # XXX - perl5 doesn't support string decrement
                 ::SELF->ref->new( '$.unboxed' => --$value ) },
             'ref' => sub { ::CLASS }, 
         },
@@ -176,7 +182,7 @@ class 'Pair'.$class_description => {
         methods => {}
     },
     instance => {
-        attrs => [ '$.key', [ '$.value' => { access => 'rw' } ] ],
+        attrs => [ '$.key', '$.value' ],  # [ '$.value' => { access => 'rw' } ] ],
         DESTROY => sub {},
         methods => {
             'num' => sub { Num->new( '$.unboxed' => 0 ) },
@@ -184,12 +190,20 @@ class 'Pair'.$class_description => {
             'str' => sub { $_[0]->perl }, 
             'bit' => sub { Bit->new( '$.unboxed' => 0 ) },
             'perl' => sub { 
-                my $key =   Perl6::Value::stringify( _('$.key') );
-                my $value = Perl6::Value::stringify( _('$.value') );
+                my $self = shift;
+                my $key =   Perl6::Value::stringify( $self->key );
+                my $value = Perl6::Value::stringify( $self->value );
                 Str->new( '$.unboxed' => "($key, $value)" ) 
               },
             'unboxed' => sub { ( _('$.key'), _('$.value') ) },
             'ref' => sub { ::CLASS }, 
+            'isa' => sub { ::next_METHOD() },
+            'AUTOLOAD' => sub {
+                my ($self, @param) = @_;
+                my $method = ::AUTOLOAD($self);
+                die "unsupported pair method .$method";
+            },
+
         },
     }
 };
@@ -358,6 +372,7 @@ sub to_num        {
     return Perl6::Value::Num::Inf  if $v eq 'Inf';
     return -&Perl6::Value::Num::Inf if $v eq '-Inf';
     return Perl6::Value::Num::NaN  if $v eq 'NaN';
+    no warnings 'numeric';
     return 0 + $v;
 }
 sub to_int        { Perl6::Value::Num::to_int( to_num( $_[0] ) ) }
