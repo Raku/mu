@@ -25,7 +25,7 @@ sub _ {
 
 sub class {
     my ($full_name, $body) = @_;
-    my $new_class = $::Class->class::new();
+    my $new_class = $::Class->new();
     my ($name, $version, $authority) = split '-' => $full_name;
     $new_class->name($name)           if defined $name;
     $new_class->version($version)     if defined $version;

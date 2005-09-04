@@ -28,7 +28,7 @@ use Perl6::MetaModel;
         }
     };
 
-    my $pp = $PrettyPrinter->class::new();
+    my $pp = $PrettyPrinter->new();
     isa_ok($pp, 'PrettyPrinter');
 
 
@@ -65,7 +65,7 @@ use Perl6::MetaModel;
         $::CLASS->add_method('pretty' => ::make_method($pretty, $::CLASS));
     };
     
-    my $pp = $PrettyPrinter2->class::new();
+    my $pp = $PrettyPrinter2->new();
     isa_ok($pp, 'PrettyPrinter2');
     
     is($pp->pretty(), '~~PrettyPrinter2~~', '... got the pretty printed PrettyPrinter2');    

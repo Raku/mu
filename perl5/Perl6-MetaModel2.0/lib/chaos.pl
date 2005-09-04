@@ -344,9 +344,9 @@ our $DISPATCH_TRACE = 0;
         my @return_value;
         # check if this is a private method
         if ($label =~ /^_/) {           
-            confess "Private Method ($label) not found for instance ($self)"
-                unless $class->has_method($label, for => 'private');
-            my $method = $class->get_method($label, for => 'private');
+            confess "Private Method ($label) not found for current class ($::CLASS)"
+                unless $::CLASS->has_method($label, for => 'private');
+            my $method = $::CLASS->get_method($label, for => 'private');
             @return_value = $method->($self, @{$args});  
         }
         else {   

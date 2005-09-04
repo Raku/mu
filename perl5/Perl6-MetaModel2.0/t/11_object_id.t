@@ -18,7 +18,7 @@ my $Foo = class 'Foo' => { is => [ $::Object ] };
 
 # test all the same class
 my $total = 50;
-is(scalar keys %{{ map { $_->id => undef } map { $Foo->class::new() } 1 .. $total }}, $total, '... got all unique ids');
+is(scalar keys %{{ map { $_->id => undef } map { $Foo->new() } 1 .. $total }}, $total, '... got all unique ids');
 
 my $Bar   = class Bar   => { is => [ $::Object ] };
 my $Baz   = class Baz   => { is => [ $::Object ] };
@@ -32,6 +32,6 @@ is(scalar keys %{{
         map { 
             $_->id => undef 
         } map { 
-            ($classes[(rand() * 100) % scalar @classes])->class::new() 
+            ($classes[(rand() * 100) % scalar @classes])->new() 
         } 1 .. $total 
     }}, $total, '... got all unique ids across different classes');

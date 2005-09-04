@@ -23,7 +23,7 @@ my $Bar = class 'Bar' => {
     }
 };
 
-my $bar = $Bar->class::new();
+my $bar = $Bar->new();
 isa_ok($bar, 'Bar');
 
 is($bar->foo(), 'Bar::foo -> Foo::foo', '... got the value expected after next METHOD call');
@@ -37,7 +37,7 @@ my $Baz = class 'Baz' => {
     }
 };
 
-my $baz = $Baz->class::new();
+my $baz = $Baz->new();
 isa_ok($baz, 'Baz');
 
 is($baz->foo(), 'Baz::foo -> Bar::foo -> Foo::foo', '... got the value expected after next METHOD call');

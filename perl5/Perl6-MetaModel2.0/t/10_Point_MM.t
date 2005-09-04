@@ -54,7 +54,7 @@ my $Point = class 'Point' => {
     }
 };
 
-my $point = $Point->class::new('$.x' => 1, '$.y' => 3);
+my $point = $Point->new('$.x' => 1, '$.y' => 3);
 isa_ok($point, 'Point');
 
 is($point->y, 3, '... the y attribute is accessible and assigned to correctly in the constructor');
@@ -96,7 +96,7 @@ my $Point3D = class 'Point3D' => {
 };
 
 
-my $point3D = $Point3D->class::new('$.x' => 2, '$.y' => 3, '$:z' => 4);
+my $point3D = $Point3D->new('$.x' => 2, '$.y' => 3, '$:z' => 4);
 isa_ok($point3D, 'Point3D');
 isa_ok($point3D, 'Point');
 

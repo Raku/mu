@@ -33,7 +33,7 @@ above the Perl6::MetaModel equivalents
 
 =cut
 
-my $Point = $::Class->class::new('$:name' => 'Point');
+my $Point = $::Class->new('$:name' => 'Point');
 
 $Point->superclasses([ $::Object ]);
 
@@ -57,7 +57,7 @@ $Point->add_method('clear' => ::make_method(sub {
     ::opaque_instance_attrs($::SELF)->{'$.y'} = 0;    
 }, $Point));
 
-my $point = $Point->class::new('$.x' => 1, '$.y' => 3);
+my $point = $Point->new('$.x' => 1, '$.y' => 3);
 isa_ok($point, 'Point');
 
 is($point->y, 3, '... the y attribute is accessible and assigned to correctly in the constructor');
@@ -86,7 +86,7 @@ is($point->y, 0, '... clear() set the y attribute correctly');
 
 =cut
 
-my $Point3D = $::Class->class::new('$:name' => 'Point3D');
+my $Point3D = $::Class->new('$:name' => 'Point3D');
 
 $Point3D->superclasses([ $Point ]);
 
@@ -101,7 +101,7 @@ $Point3D->add_method('clear' => ::make_method(sub {
     ::next_METHOD()
 }, $Point));
 
-my $point3D = $Point3D->class::new('$.x' => 2, '$.y' => 3, '$:z' => 4);
+my $point3D = $Point3D->new('$.x' => 2, '$.y' => 3, '$:z' => 4);
 isa_ok($point3D, 'Point3D');
 isa_ok($point3D, 'Point');
 
