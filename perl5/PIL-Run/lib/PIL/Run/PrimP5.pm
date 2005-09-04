@@ -341,9 +341,11 @@ MULTI SUB infix:<*> ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) * p6_to_n($xx1)) };
 MULTI SUB infix:</> ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) / p6_to_n($xx1)) };
 MULTI SUB infix:<%> ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) % p6_to_n($xx1)) };
 MULTI SUB infix:<x> ($xx0,$xx1) {
-    p6_from_a( Perl6::Value::List->from_x( item => $xx0->unboxed, count => $xx1->unboxed ) ) 
+    p6_from_s( Perl6::Value::stringify($xx0) x  $xx1->unboxed ) 
 };
-MULTI SUB xx ($xx0,$xx1) {...};
+MULTI SUB infix:<xx> ($xx0,$xx1) {
+    p6_from_a( Perl6::Value::List->from_x( item => $xx0, count => $xx1->unboxed ) ) 
+};
 MULTI SUB infix:<+&> ($xx0,$xx1) {...};
 MULTI SUB infix:[+<] ($xx0,$xx1) {...};
 MULTI SUB infix:[+>] ($xx0,$xx1) {...};
