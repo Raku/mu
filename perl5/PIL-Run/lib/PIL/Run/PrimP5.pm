@@ -145,7 +145,7 @@ MULTI SUB capitalize ($xx) {...};
 MULTI SUB undef ($xx) {...};
 MULTI SUB undefine ($xx) {...};
 #MULTI SUB prefix:<+> ($xx) {...}; # in PrimP6
-MULTI SUB abs ($xx) {...};
+#MULTI SUB abs ($xx) {...};
 MULTI SUB Pugs::Internals::truncate ($xx) {...};
 MULTI SUB Pugs::Internals::round ($xx) {...};
 MULTI SUB Pugs::Internals::floor ($xx) {...};
@@ -188,16 +188,16 @@ MULTI SUB zip (@x0,*@x1) {
     # warn "res ".ref($res)." ".$res->perl->unboxed;
     return $res;
 };
-MULTI SUB list ($xx) {...};
-MULTI SUB pair ($xx) {...};
+MULTI SUB list (*@xx) { p6_from_a( @xx ) };
+MULTI SUB pair ($xx0,$xx1) { Pair->new( '$.key' => $xx0, '$.value' => $xx1 ) };
 #MULTI SUB prefix:<~> ($xx) {...}; # in PrimP6
 #MULTI SUB prefix:<?> ($xx) {...}; # in PrimP6
-MULTI SUB int ($xx) {...};
+#MULTI SUB int ($xx) {...}; # in PrimP6
 MULTI SUB prefix:<+^> ($xx) {...};
 MULTI SUB prefix:<~^> ($xx) {...};
 MULTI SUB prefix:<?^> ($xx) {...};
 MULTI SUB prefix:<\\> ($xx) { p6_new(Ref => $xx) };
-# MULTI SUB postfix:<...> ($xx) {...};
+# MULTI SUB postfix:<...> ($xx) {...}; # in PrimP6
 # MULTI SUB true ($xx) {...}; # in PrimP6
 MULTI SUB any ($xx) {...};
 MULTI SUB all ($xx) {...};
