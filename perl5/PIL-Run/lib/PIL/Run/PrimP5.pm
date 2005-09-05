@@ -394,7 +394,7 @@ MULTI SUB infix:<gt> ($xx0,$xx1) { p6_from_b(p6_to_s($xx0) gt p6_to_s($xx1)) };
 MULTI SUB infix:<ge> ($xx0,$xx1) { p6_from_b(p6_to_s($xx0) ge p6_to_s($xx1)) };
 MULTI SUB infix:<~~> ($xx0,$xx1) {...};
 MULTI SUB infix:<!~> ($xx0,$xx1) {...};
-MULTI SUB infix:<=:=> ($xx0,$xx1) {...};
+MULTI SUB infix:<=:=> ($xx0,$xx1) {$xx0->id eq $xx1->id};
 MACROP5   infix:<&&> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; p6_to_b($_v1) ? ('.$xx1.') : $_v1 }' };
 MACROP5   infix:<||> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; p6_to_b($_v1) ? $_v1 : ('.$xx1.') }' };
 MACROP5   infix:<^^> ($xx0,$xx1) {...};
@@ -425,7 +425,10 @@ MULTI SUB Pugs::Internals::hSetBinaryMode ($xx0,$xx1) {...};
 MULTI SUB Pugs::Internals::openFile ($xx0,$xx1) {...};
 MULTI SUB exp ($xx0,$xx1) {...};
 MULTI SUB Pugs::Internals::sprintf ($xx0,$xx1) {...};
-MULTI SUB exec ($xx0,$xx1) {...};
+MULTI SUB exec (*@xx) {
+    @xx = map{ Perl6::Value::stringify( $_ ) } @xx;
+    exec @xx;
+};
 # system - see op1
 MULTI SUB chmod ($xx0,$xx1) {...};
 MULTI SUB splice ($xx0,*@xxa) { 
