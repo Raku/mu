@@ -38,10 +38,10 @@ method members() returns List {
 method insert($self: *@items) returns Int {
     my $pre_size = 0;
     if ( $:members.defined ) {
-	$pre_size = $self.size;
-	$:members = any($:members, @items);
+        $pre_size = $self.size;
+        $:members = any($:members, @items);
     } else {
-	$:members = any(@items);
+        $:members = any(@items);
     }
     return ($self.size - $pre_size);
 }
@@ -49,11 +49,11 @@ method insert($self: *@items) returns Int {
 method remove($self: *@items) returns Int {
     my $pre_size = 0;
     if ( $:members.defined ) {
-	$pre_size = $self.size;
-	my $to_remove = none(@items);
-	$:members = any($:members.values.grep:{ $_ =:= none($to_remove) });
+        $pre_size = $self.size;
+        my $to_remove = none(@items);
+        $:members = any($:members.values.grep:{ $_ =:= none($to_remove) });
     } else {
-	$:members = any();
+        $:members = any();
     }
     return ($pre_size - $self.size);
 }
@@ -74,12 +74,12 @@ method size() returns Int {
 method invert($self: *@items) returns Int {
     my int $rv;
     for @items -> $item {
-    	if ( $self.includes($item) ) {
-	    $self.remove($item);
-    	    $rv++;
-    	} else {
-	    $self.insert($item);
-    	}
+        if ( $self.includes($item) ) {
+            $self.remove($item);
+            $rv++;
+        } else {
+            $self.insert($item);
+        }
     }
     return $rv;
 }
@@ -101,8 +101,8 @@ method equal($self: Set $other) returns Bool {
 
     say "Comparing: "~$self.stringify~" vs "~$other.stringify if $DEBUG;
     my $rv =
-	(($self.size == $other.size) &&
-	      ($self.includes($other.members)));
+        (($self.size == $other.size) &&
+              ($self.includes($other.members)));
     return $rv;
 }
 

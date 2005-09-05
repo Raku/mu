@@ -38,7 +38,7 @@ method members() returns List {
 method _stringify ($item) returns Str {
     my $str_item = ~$item;
     $str_item ~= $item.id()
-	if $str_item ~~ rx:perl5/^\<obj\:/; #/#cperl-mode--
+        if $str_item ~~ rx:perl5/^\<obj\:/; #/#cperl-mode--
     return $str_item;
 }
 
@@ -53,7 +53,7 @@ method insert($self: *@items) returns Int {
 method remove($self: *@items) returns Int {
     my Int $pre_size = $self.size;
     for @items -> $x {
-	%:members.delete($self._stringify($x));
+        %:members.delete($self._stringify($x));
     }
     return $pre_size - $self.size;
 }
@@ -73,12 +73,12 @@ method size() returns int {
 method invert($self: *@items) returns int {
     my int $rv;
     for @items -> $item {
-    	if ( $self.includes($item) ) {
-	    $self.remove($item);
-    	    $rv++;
-    	} else {
-	    $self.insert($item);
-    	}
+        if ( $self.includes($item) ) {
+            $self.remove($item);
+            $rv++;
+        } else {
+            $self.insert($item);
+        }
     }
     return $rv;
 }
@@ -95,7 +95,7 @@ method clone ($self:) returns Set::Hash {
 
 method equal($self: Set $other) returns Bool {
     return (($self.size == $other.size) &&
-	    ($self.includes($other.members)));
+            ($self.includes($other.members)));
 }
 
 method not_equal($self: Set $other) returns Bool {
