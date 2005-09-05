@@ -293,7 +293,14 @@ MULTI SUB IO::Dir::rewinddir ($xx) {...};
 MULTI SUB IO::Dir::readdir ($xx) {...};
 MULTI SUB Pugs::Internals::runInteractiveCommand ($xx) {...};
 MULTI SUB Pugs::Internals::check_for_io_leak ($xx) {...};
-MULTI SUB system (*@xxa) {...};
+MULTI SUB system (*@xx) {
+    for ( $PIL::Run::Root::main::hash_ENV->keys->items ) {
+        $ENV{ Perl6::Value::stringify( $_ ) } = 
+            Perl6::Value::stringify( $PIL::Run::Root::main::hash_ENV->fetch( $_ ) ) ;
+    }
+    @xx = map{ Perl6::Value::stringify( $_ ) } @xx;
+    p6_from_n( system @xx );
+};
 MULTI SUB accept ($xx) {...};
 MULTI SUB detach ($xx) {...};
 MULTI SUB kill (*@xxa) {...};
