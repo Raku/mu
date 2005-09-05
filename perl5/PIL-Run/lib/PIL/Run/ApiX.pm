@@ -177,6 +177,9 @@ sub p6_new {
                         '$.params' => \@params,
                         '$.body' => $wrapper);
     }
+    if ($type eq 'Code') {
+###....
+    }
     if ($type eq 'Macro') {
         my($name,$argl,$f)=@arg;
         return "PIL::Run::Type::$type"->new($f);
@@ -191,7 +194,7 @@ sub p6_new {
         $ary->push( @arg );
         return $ary;
     }
-    return "PIL::Run::Type::$type"->new(@arg);
+    Carp::confess "unknown class";
 }
 sub p6_new_sub_from_pil_macro {
     my($name,$pil_params,$body,$want_macro)=@_;
