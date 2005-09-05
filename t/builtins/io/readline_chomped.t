@@ -17,8 +17,8 @@ isa_ok($fh, 'IO');
 
 my $line;
 eval '
-	$fh is chomped;
-	$line = =$fh;
+  $fh is chomped;
+  $line = =$fh;
 ';
 
 is($line, "#!/usr/bin/pugs", "first line was chomped", :todo);

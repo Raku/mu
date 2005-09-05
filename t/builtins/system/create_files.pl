@@ -28,18 +28,18 @@ main(int ac, char **av)
     int j=0;
     av[0] = s;
     if (s[0]=='"') {
-	for(;s[++j]!='"';)
-	  ;
-	av[0]++;
+    for(;s[++j]!='"';)
+      ;
+    av[0]++;
     }
     else {
-	for(;s[++j]!=' ';)
-	  ;
+    for(;s[++j]!=' ';)
+      ;
     }
     s[j]=0;
 #endif
     for (i = 0; i < ac; i++)
-	printf("[%s]", av[i]);
+    printf("[%s]", av[i]);
     printf("\n");
     return 0;
 }
@@ -84,9 +84,9 @@ if (open(my $EIN, "$cwd/win32/${exename}_exe.uu")) {
     print "# Unpacking $exename.exe\n";
     my $e;
     {
-	local $/;
-	$e = unpack "u", <$EIN>;
-	close $EIN;
+    local $/;
+    $e = unpack "u", <$EIN>;
+    close $EIN;
     }
     open my $EOUT, ">$exename.exe" or die "Can't write $exename.exe: $!";
     binmode $EOUT;
@@ -101,20 +101,20 @@ else {
      }
     print "# Compiling $exename.c\n# $Config{cc} $Config{ccflags} $exename.c\n";
     if (system("$Config{cc} $Config{ccflags} $minus_o $exename.c >log 2>&1") != 0) {
-	print "# Could not compile $exename.c, status $?\n"
-	     ."# Where is your C compiler?\n"
-	     ."1..0 # skipped: can't build test executable\n";
-	exit(0);
+    print "# Could not compile $exename.c, status $?\n"
+         ."# Where is your C compiler?\n"
+         ."1..0 # skipped: can't build test executable\n";
+    exit(0);
     }
     unless (-f "$exename.exe") {
-	if (open(LOG,'log'))
+    if (open(LOG,'log'))
          {
           while(<LOG>) {
-	     print "# ",$_;
+         print "# ",$_;
           }
          }
         else {
-	  warn "Cannot open log (in $testdir):$!";
+      warn "Cannot open log (in $testdir):$!";
         }
     }
 }
@@ -122,7 +122,7 @@ copy("$plxname.bat","$plxname.cmd");
 chdir($cwd);
 unless (-x "$testdir/$exename.exe") {
     print "# Could not build $exename.exe\n"
-	 ."1..0 # skipped: can't build test executable\n";
+     ."1..0 # skipped: can't build test executable\n";
     exit(0);
 }
 

@@ -14,40 +14,40 @@ plan 10;
 # Used in place of Rules for the moment
 sub is_dt (Str $datetime) returns Bool {
 
-	my ($dow, $mon, $day, $time, $year) = split(' ', $datetime);
-	my $result = 0;
+    my ($dow, $mon, $day, $time, $year) = split(' ', $datetime);
+    my $result = 0;
 
-	for qw(Sun Mon Tue Wed Thu Fri Sat) {
-		if $dow eq $_ {
-			$result++;
-			last();
-		}
-	}
+    for qw(Sun Mon Tue Wed Thu Fri Sat) {
+        if $dow eq $_ {
+            $result++;
+            last();
+        }
+    }
 
-	for qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec) {
-		if  $mon eq $_ {
-			$result++;
-			last();
-		}
-	}
+    for qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec) {
+        if  $mon eq $_ {
+            $result++;
+            last();
+        }
+    }
 
-	if $day >= 1 && $day <= 31 {
-		$result++;
-	}
+    if $day >= 1 && $day <= 31 {
+        $result++;
+    }
 
-	my ($hour, $min, $sec) = split(':',$time);
+    my ($hour, $min, $sec) = split(':',$time);
 
-	if $hour >= 0 && $hour <= 23 &&
-	   $min  >= 0 && $min  <= 59 &&
-	   $sec  >= 0 && $sec  <= 59 {
-		$result++;
-	}
+    if $hour >= 0 && $hour <= 23 &&
+       $min  >= 0 && $min  <= 59 &&
+       $sec  >= 0 && $sec  <= 59 {
+        $result++;
+    }
 
-	if $year >= 0 && $year <= 9999 {
-		$result++;
-	}
+    if $year >= 0 && $year <= 9999 {
+        $result++;
+    }
 
-	return ($result == 5);
+    return ($result == 5);
 }
 
 # Before we get started, sanity check the is_dt sub
@@ -55,7 +55,7 @@ sub is_dt (Str $datetime) returns Bool {
 #-- 1 --
 
 my $gen_dt      = "Tue Mar 15 14:43:10 2005";
-my $hibound_dt 	= "Mon Jan 31 23:59:59 9999";
+my $hibound_dt     = "Mon Jan 31 23:59:59 9999";
 my $lowbound_dt = "Mon Jan 1 00:00:00 0";
 
 ok(is_dt($gen_dt) &&
@@ -97,19 +97,19 @@ ok time + 10, "'time()' may drop its parentheses";
 
 #-- 4 --
 {
-	my ($beguser,$begsys);
-	my ($nowuser,$nowsys);
+    my ($beguser,$begsys);
+    my ($nowuser,$nowsys);
 
-	# eval '($beguser,$begsys) = times';
-	($beguser,$begsys) = times;
-		my $i;
-		loop $i = 0; $i < 100000; $i++ {
-			($nowuser, $nowsys) = times;
-			$i = 200000 if $nowuser > $beguser && ( $nowsys >= $begsys || (!$nowsys && !$begsys));
-			$now = time;
-			last() if ($now - $beg > 20);
-		}
-		ok($i >= 200000, 'very basic times test');
+    # eval '($beguser,$begsys) = times';
+    ($beguser,$begsys) = times;
+        my $i;
+        loop $i = 0; $i < 100000; $i++ {
+            ($nowuser, $nowsys) = times;
+            $i = 200000 if $nowuser > $beguser && ( $nowsys >= $begsys || (!$nowsys && !$begsys));
+            $now = time;
+            last() if ($now - $beg > 20);
+        }
+        ok($i >= 200000, 'very basic times test');
 }
 
 #-- 5 --
@@ -130,10 +130,10 @@ ok(is_dt({ my $str = localtime() }()), 'localtime(), scalar context', :todo<bug>
 
 # Ultimate implementation as of above test as Rule
 #todo_ok(localtime() ~~ /^Sun|Mon|Tue|Wed|Thu|Fri|Sat\s
-#			  			  Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec\s
-#			  			  \d\d\s\d\d:\d\d:\d\d\s\d**{4}$
-#	        			/,
-#	     		'localtime(), scalar context');
+#                            Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec\s
+#                            \d\d\s\d\d:\d\d:\d\d\s\d**{4}$
+#                        /,
+#                 'localtime(), scalar context');
 
 #-- 7 --
 
@@ -149,17 +149,17 @@ fail("FIXME Time::Local should by numifiable", :todo<bug>);
 #-- 8 --
 
 if ($localyday && $yday) {
-	my $day_diff = $localyday - $yday;
-	ok($day_diff == 0    ||
-		$day_diff == 1    ||
-		$day_diff == -1   ||
-		$day_diff == 364  ||
-		$day_diff == 365  ||
-		$day_diff == -364 ||
-		$day_diff == -365,
-    	  'gmtime() and localtime() agree what day of year', :todo);
+    my $day_diff = $localyday - $yday;
+    ok($day_diff == 0    ||
+        $day_diff == 1    ||
+        $day_diff == -1   ||
+        $day_diff == 364  ||
+        $day_diff == 365  ||
+        $day_diff == -364 ||
+        $day_diff == -365,
+          'gmtime() and localtime() agree what day of year', :todo);
 } else {
-	ok(0, 'gmtime() and localtime() agree what day of year', :todo);
+    ok(0, 'gmtime() and localtime() agree what day of year', :todo);
 }
 
 #-- 9 --
@@ -171,4 +171,4 @@ ok(is_dt({ my $str = try { gmtime() } }()), 'gmtime(), scalar context', :todo);
 #                      Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec\s
 #                      \d\d\s\d\d:\d\d:\d\d\s\d**{4}$
 #                    /,
-#			'gmtime(), scalar context');
+#            'gmtime(), scalar context');

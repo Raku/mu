@@ -14,8 +14,8 @@ BEGIN {
     # XXX this could be further munged to enable some parts on other
     # platforms
     #unless ($^O =~ /^MSWin/) {
-	#print "1..0 # skipped: windows specific test\n";
-	#exit 0;
+    #print "1..0 # skipped: windows specific test\n";
+    #exit 0;
     #}
 };
 
