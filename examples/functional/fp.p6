@@ -5,6 +5,9 @@ use v6;
 # mimic the pattern matching style of functional programming
 # languages. 
 
+# Please remember to update t/examples/examples.t and rename
+# examples/output/functional/fp if you rename/move this file.
+
 multi sub length ()          returns Int { 0               }
 multi sub length (*$x, *@xs) returns Int { 1 + length(@xs) }
 

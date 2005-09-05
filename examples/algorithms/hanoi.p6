@@ -3,7 +3,11 @@
 use v6;
 
 # Towers of Hanoi
-# 	move from tower A to tower B using tower S as the spare
+
+# Please remember to update t/examples/examples.t and rename
+# examples/output/algorithms/hanoi if you rename/move this file.
+
+# move from tower A to tower B using tower S as the spare
 sub hanoi ($a,$b,$s,$d) {
    if $d > 0 {
       hanoi($a,$s,$b,$d-1); 

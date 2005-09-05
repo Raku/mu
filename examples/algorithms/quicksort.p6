@@ -1,6 +1,9 @@
 #!/usr/bin/pugs
 use v6;
 
+# Please remember to update t/examples/examples.t and rename
+# examples/output/algorithms/quicksort if you rename/move this file.
+
 multi quicksort ( ) { () }
 
 multi quicksort ( *$x, *@xs ) {

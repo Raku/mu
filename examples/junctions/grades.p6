@@ -1,3 +1,10 @@
+#!/usr/bin/pugs
+
+use v6;
+
+# Please remember to update t/examples/examples.t and rename
+# examples/output/junctions/grades if you rename/move this file.
+
 my $threshold = 70;
 
 sub authorize_movie(@grade) {

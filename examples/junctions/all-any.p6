@@ -1,3 +1,10 @@
+#!/usr/bin/pugs
+
+use v6;
+
+# Please remember to update t/examples/examples.t and rename
+# examples/output/junctions/all-any if you rename/move this file.
+
 my @new_data   = qw(100 90 70);
 my @old_data   = qw(55 35 5);
 

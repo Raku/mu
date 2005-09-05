@@ -1,3 +1,10 @@
+#!/usr/bin/pugs
+
+use v6;
+
+# Please remember to update t/examples/examples.t and rename
+# examples/output/junctions/3 if you rename/move this file.
+
 my @oldval  = (5, 8, 12);
 my @newval1 = (17, 15, 14);
 my @newval2 = (15, 7,  20);
