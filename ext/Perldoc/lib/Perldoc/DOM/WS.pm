@@ -4,13 +4,13 @@ class Perldoc::DOM::WS is Perldoc::DOM::Text;
 
 #sub content {
     #if ( @_ ) {
-	## FIXME - unicode :)
-	#my $content = shift;
-	#$content =~ /\S/
-	    #&& croak "tried to put non-whitespace in a whitespace node";
-	#$self->{content} = $content;
+        ## FIXME - unicode :)
+        #my $content = shift;
+        #$content =~ /\S/
+            #&& croak "tried to put non-whitespace in a whitespace node";
+        #$self->{content} = $content;
     #} else {
-	#$self->{content};
+        #$self->{content};
     #}
 #}
 

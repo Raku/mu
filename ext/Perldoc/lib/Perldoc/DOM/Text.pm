@@ -17,7 +17,7 @@ method dom_attr($self:) returns Hash {
     my %att = $self.SUPER::dom_attr();
 
     %att.delete<source>
-	if %att.exists<source> and %att<source> eq %att<content>;
+        if %att.exists<source> and %att<source> eq %att<content>;
 
     %att;
 }
