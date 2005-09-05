@@ -37,8 +37,8 @@ Algorithm::TokenBucket - Token bucket rate limiting algorithm
     while(time() - $time < 7200) {  # two hours
       # be bursty
       if($bucket<conform>(5)) {
-	process(5);
-	$bucket<count>(5);
+        process(5);
+        $bucket<count>(5);
       }
     }
     # we're likely to have processed 200 items (and hogged CPU, btw)
@@ -140,7 +140,7 @@ Go, go, go!
 
     while(my $mail = get_next_mail()) {
       until($rl1<conform>(1) and $rl2<conform>(1)) {
-	busy_wait();
+        busy_wait();
       }
 
       $mail.take_off();
