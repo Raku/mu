@@ -70,15 +70,15 @@ of the Synopsis you are using to write the test.
 
 The look like pod links:
 
-	L<S06/Blocks> # "S06" is synopsis 6, and "Blocks" is the section
-	L<S03/"Hyper operators"> # quotes are used when spaces are in the title
+    L<S06/Blocks> # "S06" is synopsis 6, and "Blocks" is the section
+    L<S03/"Hyper operators"> # quotes are used when spaces are in the title
 
 The section name should be copied verbatim from the pod.
 
 The links also have a weird extension: you can specify a regex, to skip forward
 from the linked section, so the backlink is put in a more specific place:
 
-	L<<S05/"Return values from matches" /In numeric context.*number of matches:/>>
+    L<<S05/"Return values from matches" /In numeric context.*number of matches:/>>
 
 The above link is appropriate next to a test case checking rule application in
 numeric context, and it will place the backlink appropriately.
@@ -98,8 +98,8 @@ Sometimes code is so futuristic, it can even confuse eval. We call this a
 it so it doesn't get forgotten, like so:
 
     fail("FIXME parsefail", :todo);
-	#eval_ok('my code here');
-	
+    #eval_ok('my code here');
+    
 Or another alternate style is this:
 
     eval_ok('# $code.which(%will, @fail)');

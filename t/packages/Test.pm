@@ -27,11 +27,11 @@ sub cant_see_pkg {
 eval '
 {
     sub my_pkg {
-	return My::Package::pkg();
+        return My::Package::pkg();
     }
 
     my package My::Package {
-	sub pkg { $?PACKAGE }
+        sub pkg { $?PACKAGE }
     }
 
 }

@@ -13,11 +13,11 @@ Difficulty using a rule in a method of Str.
 
 class C is Str {
     method meth1 () {
-	if ("bar" ~~ m:P5/[^a]/) {
-	    "worked";
-	} else {
-	    "didnt";
-	}
+        if ("bar" ~~ m:P5/[^a]/) {
+            "worked";
+        } else {
+            "didnt";
+        }
     }
 }
 
@@ -27,11 +27,11 @@ say "-----";
 
 class Str {
     method meth2 () {
-	if ("bar" ~~ m:P5/[^a]/) {
-	    "worked";
-	} else {
-	    "didnt";
-	}
+        if ("bar" ~~ m:P5/[^a]/) {
+            "worked";
+        } else {
+            "didnt";
+        }
     }
 }
 
@@ -39,11 +39,11 @@ is(Str.new.meth2(),"worked",'m:P5/[^a]/ in method in Str');
 
 class Str {
     method meth3 () {
-	if ("bar" ~~ m:P5/[a]/) {
-	    "worked";
-	} else {
-	    "didnt";
-	}
+        if ("bar" ~~ m:P5/[a]/) {
+            "worked";
+        } else {
+            "didnt";
+        }
     }
 }
 

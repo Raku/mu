@@ -16,17 +16,17 @@ be valid perl6.
 plan 17;
 
 if(!eval('("a" ~~ /a/)')) {
-  skip_rest "skipped tests - rules support appears to be missing";
+    skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
 grammar Other {
-	rule abc { a (<?bee>) c }
+    rule abc { a (<?bee>) c }
 
-	rule bee { b }
+    rule bee { b }
 
-	rule def { d <eh> f }
+    rule def { d <eh> f }
 
-	rule eh  { e }
+    rule eh  { e }
 }
 
 rule bee { B }

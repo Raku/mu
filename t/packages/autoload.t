@@ -9,7 +9,7 @@ plan 38;
 
 package OughtaLoad {
     sub AUTOLOAD(*@args) {
-	"\&{$_}({ @args.map:{"'$_'"}.join(", ") })"
+        "\&{$_}({ @args.map:{"'$_'"}.join(", ") })"
     };
 }
 
@@ -24,28 +24,28 @@ lives_ok { $x = OughtaLoad::test(2,3,4) },
 package OughtaWork {
     our $s = 0;
     sub AUTOSCALAR($_) { my $v = "\${$_} number {++$s}";
-	             eval "our \${$_} := \$v";
+                     eval "our \${$_} := \$v";
                      \$v }
     our $a = 0;
     sub AUTOARRAY($_)  { my @v = ( "auto", $_, ++$a );
-	             eval "our @{$_} := @v";
-		     \@v }
+                     eval "our @{$_} := @v";
+                     \@v }
     our $h = 0;
     sub AUTOHASH($_)   { my %v = ( auto => $_, num => ++$h );
-	             eval "our %{$_} := %v";
-		     \%v }
+                     eval "our %{$_} := %v";
+                     \%v }
     our $u = 0;
     sub AUTOSUB($_)    { my $x = "\&{$_} number {++$u}";
-		     my $sub = sub { $x };
-	             eval "our &{$_} := \$sub";
-		     return $sub;
- 		   }
+                     my $sub = sub { $x };
+                     eval "our &{$_} := \$sub";
+                     return $sub;
+                   }
     our $m = 0;
     method AUTOMETH($_) { my $x = "$?SELF {$_}.number {++$m}";
-		     my $method = sub($self:) { "{$self}.$x" };
-		     eval "our &{$_} := \$method";
-		     return $method;
-		   }
+                     my $method = sub($self:) { "{$self}.$x" };
+                     eval "our &{$_} := \$method";
+                     return $method;
+                   }
 }
 
 # however, the use of $_ in the above is because the first argument is
@@ -106,17 +106,17 @@ is($v, q[&test number 1], "AUTOSUB sanity test");
 
 $v="";
 eval_ok q{ $s = &OughtaWork::foo; $v = $s(); },
-	"AUTOSUB - first", :todo<feature>;
+        "AUTOSUB - first", :todo<feature>;
 is($v, q[&foo number 2], "Returns correct var", :todo<feature>);
 
 $v="";
 eval_ok q{ $s = &OughtaWork::foo; $v = $s();  },
-	"AUTOSUB - repeat", :todo<feature>;
+        "AUTOSUB - repeat", :todo<feature>;
 is($v, q[&foo number 2], "AUTOSUB only called once", :todo<feature>);
 
 $v="";
 eval_ok q{ $s = &OughtaWork::bar; $v = $s();  },
-	"AUTOSUB - second", :todo<feature>;
+        "AUTOSUB - second", :todo<feature>;
 is($v, q[&bar number 3], "Returns correct var", :todo<feature>);
 
 
@@ -125,20 +125,20 @@ is($v, q[&bar number 3], "Returns correct var", :todo<feature>);
 # lookups.
 my $inv = ::OughtaWork;
 eval_ok q{ $s = OughtaWork.AUTOMETH("test"); $v = $s($inv:) },
-	"AUTOMETH - sanity", :todo<bug>;
+        "AUTOMETH - sanity", :todo<bug>;
 is($v, q[OughtaWork.test number 1], "AUTOMETH sanity test", :todo<bug>);
 
 $v = "";
 eval_ok q{ $s = OughtaWork.foo; $v = $s($inv:) },
-	"AUTOMETH - first", :todo<feature>;
+        "AUTOMETH - first", :todo<feature>;
 is($x, q[OughtaWork.foo number 2], "Returns correct var", :todo<feature>);
 
 $s = sub { };
 eval_ok q{ $s = OughtaWork.foo; $v = $s($inv:)  },
-	"AUTOMETH - repeat", :todo<feature>;
+        "AUTOMETH - repeat", :todo<feature>;
 is($x, q[OughtaWork.foo number 2], "AUTOMETH only called once", :todo<feature>);
 eval_ok q{ $s = OughtaWork.bar; $v = $s($inv:)  },
-	"AUTOMETH - second", :todo<feature>;
+        "AUTOMETH - second", :todo<feature>;
 is($x, q[OughtaWork.bar number 3], "Returns correct var", :todo<feature>);
 
 # discovered bugs (TODO: write tests to track down:)

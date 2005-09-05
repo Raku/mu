@@ -11,32 +11,32 @@ Test handling of C<-V> and C<-V:option>.
 
 # cf. unspecced/config.t for the same list
 my @config = <
-  archlib archname
-	bin
-	exe_ext
-	file_sep
-	installarchlib
-	installbin
-	installprivlib
-	installscript
-	installsitearch
-	installsitebin
-	installsitelib
-	osname
-	pager
-	path_sep
-	perl_revision
-	perl_subversion
-	perl_version
-	prefix
-	privlib
-	pugspath
-	scriptdir
-	sitearch
-	sitebin
-	sitelib
-	pugs_versnum
-	pugs_version
+    archlib archname
+    bin
+    exe_ext
+    file_sep
+    installarchlib
+    installbin
+    installprivlib
+    installscript
+    installsitearch
+    installsitebin
+    installsitelib
+    osname
+    pager
+    path_sep
+    perl_revision
+    perl_subversion
+    perl_version
+    prefix
+    privlib
+    pugspath
+    scriptdir
+    sitearch
+    sitebin
+    sitelib
+    pugs_versnum
+    pugs_version
     pugs_revision
 >;
 

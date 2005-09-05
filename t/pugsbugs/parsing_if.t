@@ -20,14 +20,14 @@ plan 2;
 
 # This incorrectly fails to parse...
 {
-	my $foo = 1;
-	eval 'if { 0 } { $foo = 2 } else { $foo = 3 }';
-	is $foo, 2, 'if with no parens, and closure as cond', :todo<bug>;
-	### This test is copied from t/statements/if.t
+    my $foo = 1;
+    eval 'if { 0 } { $foo = 2 } else { $foo = 3 }';
+    is $foo, 2, 'if with no parens, and closure as cond', :todo<bug>;
+    ### This test is copied from t/statements/if.t
 };
 # but curiously it parses and works if semicolons are added...
 {
-	my $foo = 1;
-	eval 'if { 0 } { $foo = 2; } else { $foo = 3; }';
-	is $foo, 2, 'if with no parens, and closure as cond';
+    my $foo = 1;
+    eval 'if { 0 } { $foo = 2; } else { $foo = 3; }';
+    is $foo, 2, 'if with no parens, and closure as cond';
 };

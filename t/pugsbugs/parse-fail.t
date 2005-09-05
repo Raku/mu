@@ -10,9 +10,9 @@ plan 1;
 # slowness when it encounters an unterminated string with lots of interpolating 
 # sequences in it.  (It does so as of 6 August 2005.)
 sub time_eval($codestr) {
-	my $start=time;
-	eval $codestr;
-	return time - $start;
+    my $start=time;
+    eval $codestr;
+    return time - $start;
 }
 my $short = time_eval q("$1$2$3$4       {}{}{}{}      );
 my $long  = time_eval q("$1$2$3$4$5$6$7 {}{}{}{}{}{}{});

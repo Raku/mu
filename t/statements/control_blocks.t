@@ -51,14 +51,14 @@ my $var_at_end;
 
 # FIXME: CHECK {
 {
-	$cvar = 1;
-	$var_at_check = $var;
-	$ivar_at_check = $ivar;
+    $cvar = 1;
+    $var_at_check = $var;
+    $ivar_at_check = $ivar;
 };
 
 BEGIN {
-	$var_at_begin = $var;
-	$cvar_at_begin = $cvar;
+    $var_at_begin = $var;
+    $cvar_at_begin = $cvar;
 };
 
 # L<S04/"Closure traits" /BEGIN/>
@@ -74,19 +74,19 @@ is($var_at_init, undef, 'INIT block ran before { $var = 1 }');
 
 # FIXME: INIT {
 {
-	$var_at_init;
-	$ivar = 1;
+    $var_at_init;
+    $ivar = 1;
 };
 
 END {
-	# L<S04/"Closure traits" /END/>
-	ok($evar,  "END var was defined");
-	ok($var_at_end, 'and also saw $var');
+    # L<S04/"Closure traits" /END/>
+    ok($evar,  "END var was defined");
+    ok($var_at_end, 'and also saw $var');
 };
 
 END {
-	$evar = 1;
-	$var_at_end = $var;
+    $evar = 1;
+    $var_at_end = $var;
 };
 
 # L<S04/"Closure traits" /END/>
@@ -97,13 +97,13 @@ is($var_at_end, undef, '$var was not yet seen by END');
 my (@first, @enter, @leave, @last, @next) = ();
 
 for (1 .. 3) -> $i {
-	# FIXME: these don't parse yet 
-	#LAST  { push @last, $i }
-	#LEAVE { push @leve, [ $i, +@enter ] }
-	#ENTER { push @enter, [ $i, +@leave ] }
-	#FIRST { push @first, $i }
-	#NEXT { push @next, $i }
-	#next if $i % 2 == 1;
+    # FIXME: these don't parse yet 
+    #LAST  { push @last, $i }
+    #LEAVE { push @leve, [ $i, +@enter ] }
+    #ENTER { push @enter, [ $i, +@leave ] }
+    #FIRST { push @first, $i }
+    #NEXT { push @next, $i }
+    #next if $i % 2 == 1;
 }
 
 # L<S04/"Closure traits" /FIRST/>

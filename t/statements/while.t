@@ -43,14 +43,14 @@ is($k, 0, 'while $var {...} works');
 
 # other tests
 {
-        # this seems like a bit of a messy test, but the point is being able to
-        # declare my $x within the while statement more suited for a file read
-        # or iterator, but I didn't feel like creating one just for this test.
-	eval_is(
-		'my $y; while( (my $x = 2) == 2 ) { $y = $x; last; } $y',
-		2,
-		"'my' variable within 'while' conditional",
-	:todo<bug>);
+  # this seems like a bit of a messy test, but the point is being able to
+  # declare my $x within the while statement more suited for a file read
+  # or iterator, but I didn't feel like creating one just for this test.
+  eval_is(
+    'my $y; while( (my $x = 2) == 2 ) { $y = $x; last; } $y',
+    2,
+    "'my' variable within 'while' conditional",
+  :todo<bug>);
 }
 
 # while ... -> $x {...}

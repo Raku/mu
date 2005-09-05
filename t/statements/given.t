@@ -12,92 +12,92 @@ Tests the given block, as defined in L<S04/"Switch statements">
 =cut
 
 {
-	# basic sanity
-	my ($t, $f);
+    # basic sanity
+    my ($t, $f);
 
-	try { given 1 { when 1 { $t = 1 } } };
+    try { given 1 { when 1 { $t = 1 } } };
         ok($t, "given when true ...");
 
         try { given 1 { when 2 { $f = 1 } } };;
-	ok(!$f, "given when false");
+    ok(!$f, "given when false");
 };
 
 {
-	# simple case, with fall through L<S04/"Switch statements" /If the smart match fails, control passes to the next statement normally/>
-	my ($two, $five, $int, $unreached);
+    # simple case, with fall through L<S04/"Switch statements" /If the smart match fails, control passes to the next statement normally/>
+    my ($two, $five, $int, $unreached);
 
         given 5 {
             when 2 { $two = 1 }
             when 5 { $five = 1; try { next } }
             when (Int) { $int = 1 }
             when 5 { $unreached = 1 }
-	}
+    }
 
-	ok(!$two, "5 is not two");
-	ok($five, "5 is five");
-	ok($int, "short fell-through to next true when using 'next'", :todo);
-	ok(!$unreached, "but didn't do so normally");
+    ok(!$two, "5 is not two");
+    ok($five, "5 is five");
+    ok($int, "short fell-through to next true when using 'next'", :todo);
+    ok(!$unreached, "but didn't do so normally");
 };
 
 {
-	my $foo;
-	try { given "foo" { when "bar", /foo/ { $foo = 1 } } };
+    my $foo;
+    try { given "foo" { when "bar", /foo/ { $foo = 1 } } };
 
-	ok($foo, "foo was found in OR when");
+    ok($foo, "foo was found in OR when");
 };
 
 
 # from apocalypse 4
 {
-	# simple example L<S04/"Switch statements" /You don't have to use an explicit default/>
-	my ($result_a, $result_b);
+    # simple example L<S04/"Switch statements" /You don't have to use an explicit default/>
+    my ($result_a, $result_b);
 
-	for (("T", "E", 5) ¥ (10, 11, 5)) -> $digit, $expected {
-		eval '$result_b = given $digit {
-			when "T" { 10 }
-			when "E" { 11 }
-			$digit
-		}';
+    for (("T", "E", 5) ¥ (10, 11, 5)) -> $digit, $expected {
+        eval '$result_b = given $digit {
+            when "T" { 10 }
+            when "E" { 11 }
+            $digit
+        }';
 
-		eval '$result_b = given $digit {
-			when "T" { 10 }
-			when "E" { 11 }
-			default  { $digit }
-		}';
+        eval '$result_b = given $digit {
+            when "T" { 10 }
+            when "E" { 11 }
+            default  { $digit }
+        }';
 
-		is($result_a, $expected, "result of $digit using implicit default {} is $expected", :todo);
-		is($result_b, $expected, "result of $digit using explicit default {} is $expected", :todo);
-	};
+        is($result_a, $expected, "result of $digit using implicit default {} is $expected", :todo);
+        is($result_b, $expected, "result of $digit using explicit default {} is $expected", :todo);
+    };
 };
 
 {
-	# interleaved code L<S04/"Switch statements" /which may or may not be a when statement/>
-	my ($b_one, $b_two, $b_three, $panic);
-	given 2 {
-		$b_one = 1;
-		when 1 { }
-		$b_two = 1;
-		when 2 { }
-		$b_three = 1;
-		default { }
-		$panic = 1;
-	}
+    # interleaved code L<S04/"Switch statements" /which may or may not be a when statement/>
+    my ($b_one, $b_two, $b_three, $panic);
+    given 2 {
+        $b_one = 1;
+        when 1 { }
+        $b_two = 1;
+        when 2 { }
+        $b_three = 1;
+        default { }
+        $panic = 1;
+    }
 
-	ok($b_one, "inteleraved 1");
-	ok($b_two, "inteleraved 2 is the last one");
-	ok(!$b_three, "inteleraved 3 not executed");
-	ok(!$panic, "never ever execute something after a default {}");
+    ok($b_one, "inteleraved 1");
+    ok($b_two, "inteleraved 2 is the last one");
+    ok(!$b_three, "inteleraved 3 not executed");
+    ok(!$panic, "never ever execute something after a default {}");
 };
 
 {
-	# topic not given by 'given' L<S04/"Switch statements" /including a for loop/>
-	my ($b_one, $b_two, $b_three,$panic) = (0,0,0,0);
-	for (qw(1 2 3)) {
-		when 1 {$b_one = 1}
-		when 2 {$b_two = 1}
-		when 3 {$b_three = 1}
-		default{$panic =1}
-	}
+    # topic not given by 'given' L<S04/"Switch statements" /including a for loop/>
+    my ($b_one, $b_two, $b_three,$panic) = (0,0,0,0);
+    for (qw(1 2 3)) {
+        when 1 {$b_one = 1}
+        when 2 {$b_two = 1}
+        when 3 {$b_three = 1}
+        default{$panic =1}
+    }
         ok($b_one, "first iteration");
         ok($b_two, "second iteration");
         ok($b_three, "third iteration");
@@ -161,8 +161,8 @@ Tests the given block, as defined in L<S04/"Switch statements">
 {
     sub ret_test($arg) {
       given $arg {
-    	when "a" { "A" }
-    	when "b" { "B" }
+        when "a" { "A" }
+        when "b" { "B" }
       }
     }
 
@@ -215,11 +215,11 @@ eval '
     my @got;
 
     for @input -> $x {
-	    given $x {
-	          when true { push @got, "true" }
-		  default { push @got, "false" }
+        given $x {
+              when true { push @got, "true" }
+          default { push @got, "false" }
                   #when !true { push @got, "false" }
-	    }
+        }
     }
 
     is(@got.join(","), "false,true", q!given { when true { } }!);

@@ -46,24 +46,24 @@ is($count, 10, 'verify our ending condition');
 
 # Ensure condition is tested on the first iteration
 {
-	my $never_did_body = 1;
-	loop (;0;)
-	{
-		$never_did_body = 0;
-	}
-	ok($never_did_body, "loop with an initially-false condition executes 0 times");
+    my $never_did_body = 1;
+    loop (;0;)
+    {
+        $never_did_body = 0;
+    }
+    ok($never_did_body, "loop with an initially-false condition executes 0 times");
 }
 
 # Loop with next should still execute the continue expression
 {
-	my ($i,	$continued);
-	loop ($i = 0;; $continued = 1)
-	{
-		last if $i;
-		$i++;
-		next;
-	}
-	ok($continued, "next performs a loop's continue expression");
+    my ($i,    $continued);
+    loop ($i = 0;; $continued = 1)
+    {
+        last if $i;
+        $i++;
+        next;
+    }
+    ok($continued, "next performs a loop's continue expression");
 }
 
 =kwid

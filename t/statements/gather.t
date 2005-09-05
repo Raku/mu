@@ -7,21 +7,21 @@ plan 10;
 
 # Standard gather
 {
-	my @a;
-	my $i;
-	
-	@a = gather {
-		$i = 1;
-		for (1 .. 5) -> $j {
-			take $j;
-		}
-	};
+    my @a;
+    my $i;
+    
+    @a = gather {
+        $i = 1;
+        for (1 .. 5) -> $j {
+            take $j;
+        }
+    };
 
-	ok(!$i, "not yet gathered", :todo<unspecced>);
-	is(+@a, 5, "5 elements gathered");
-	ok($i, "gather code executed");
-	is(@a[0], 1, "first elem taken");
-	is(@a[-1], 5, "last elem taken");
+    ok(!$i, "not yet gathered", :todo<unspecced>);
+    is(+@a, 5, "5 elements gathered");
+    ok($i, "gather code executed");
+    is(@a[0], 1, "first elem taken");
+    is(@a[-1], 5, "last elem taken");
 };
 
 # Nested gathers, two levels
@@ -44,12 +44,12 @@ plan 10;
   my @outer = gather {
     for 1..2 -> $i {
       my @inner = gather {
-	for 1..2 -> $j {
-	  my @inner_inner = gather {
-	    take "$i,$j,$_" for 1..2;
-	  };
-	  take ~@inner_inner;
-	}
+        for 1..2 -> $j {
+          my @inner_inner = gather {
+            take "$i,$j,$_" for 1..2;
+          };
+          take ~@inner_inner;
+        }
       };
       take ~@inner;
     }
@@ -61,10 +61,10 @@ plan 10;
 # take on lists, multiple takes per loop
 {
   my @outer = gather {
-	my @l = (1, 2, 3);
-	take 5;
-	take @l;
-	take 5;
+    my @l = (1, 2, 3);
+    take 5;
+    take @l;
+    take 5;
   };
 
   is ~@outer, "5 1 2 3 5", "take on lists and multiple takes work";
@@ -75,7 +75,7 @@ plan 10;
   #sub take { 7; } # enabling this line breaks all tests
   
   my @outer = gather {
-	take 1;
+    take 1;
   };
 
   @outer = (take(), @outer);
