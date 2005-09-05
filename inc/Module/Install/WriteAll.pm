@@ -17,10 +17,10 @@ sub WriteAll {
     $self->admin->WriteAll(%args) if $self->is_admin;
 
     if ($0 =~ /Build.PL$/i) {
-	$self->Build->write;
+        $self->Build->write;
     }
     else {
-	$self->check_nmake if $args{check_nmake};
+        $self->check_nmake if $args{check_nmake};
         $self->makemaker_args( PL_FILES => {} )
             unless $self->makemaker_args->{'PL_FILES'};
 

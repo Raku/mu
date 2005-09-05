@@ -63,14 +63,14 @@ sub write {
     $args->{NAME} =~ s/-/::/g;
 
     if ($] >= 5.005) {
-	$args->{ABSTRACT} = $self->abstract;
-	$args->{AUTHOR} = $self->author;
+        $args->{ABSTRACT} = $self->abstract;
+        $args->{AUTHOR} = $self->author;
     }
     if ( eval($ExtUtils::MakeMaker::VERSION) >= 6.10 ) {
         $args->{NO_META} = 1;
     }
     if ( eval($ExtUtils::MakeMaker::VERSION) > 6.17 ) {
-	$args->{SIGN} = 1 if $self->sign;
+        $args->{SIGN} = 1 if $self->sign;
     }
     delete $args->{SIGN} unless $self->is_admin;
 
