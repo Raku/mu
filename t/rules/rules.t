@@ -1,7 +1,21 @@
 #!/usr/bin/pugs
 
 # This file has been generated from re_tests-file (in perl5-sources).
+# Since then, this file is edited manually.
 # Original lines from re_tests are in comments
+
+# following comments are (temporarily) in effect:
+#   - there are many error messages "Warning: PGE doesn't actually do
+#     :ignorecase yet"
+#   - negated character classes currently are not recognized by PGE.
+#     this must be implemented on parrot side. (see docs/quickref/rules)
+#   - [\w] in this file was replaced with <alnum>, so underscore '_' was
+#     just ignored.
+#   - [\s] was replaced with <space>
+#   - when 'ab' ~~ /(a|b)*/ evaluated, $0 is an array containing all its
+#     matches, and not last value as in Perl5, thus causing many P5-derived
+#     tests to behave differently. Currently such places are written
+#     as $0[-1], but this is yet to decide. 
 
 use v6;
 use Test;
@@ -241,29 +255,29 @@ ok((not ("1" ~~ /\D/)), 're_tests 160  (#190)');
 # 115: \D	-	y	-	-
 ok(("-" ~~ /\D/), 're_tests 162  (#192)');
 # 116: [\w]	a	y	-	-
-ok(("a" ~~ /<[\w]>/), 're_tests 164  (#194)', :todo<bug>);
+ok(("a" ~~ /<alnum>/), 're_tests 164  (#194)');
 # 117: [\w]	-	n	-	-
-ok((not ("-" ~~ /<[\w]>/)), 're_tests 166  (#196)');
+ok((not ("-" ~~ /<alnum>/)), 're_tests 166  (#196)');
 # 118: [\W]	a	n	-	-
-ok((not ("a" ~~ /<[\W]>/)), 're_tests 168  (#198)');
+ok((not ("a" ~~ /<-alnum>/)), 're_tests 168  (#198)', :todo<feature>);
 # 119: [\W]	-	y	-	-
-ok(("-" ~~ /<[\W]>/), 're_tests 170  (#200)', :todo<bug>);
+ok(("-" ~~ /<-alnum>/), 're_tests 170  (#200)', :todo<feature>);
 # 120: a[\s]b	a b	y	-	-
-ok(("a b" ~~ /a<[\s]>b/), 're_tests 172  (#202)', :todo<bug>);
+ok(("a b" ~~ /a<space>b/), 're_tests 172  (#202)');
 # 121: a[\s]b	a-b	n	-	-
-ok((not ("a-b" ~~ /a<[\s]>b/)), 're_tests 174  (#204)');
+ok((not ("a-b" ~~ /a<space>b/)), 're_tests 174  (#204)');
 # 122: a[\S]b	a b	n	-	-
-ok((not ("a b" ~~ /a<[\S]>b/)), 're_tests 176  (#206)');
+ok((not ("a b" ~~ /a<-space>b/)), 're_tests 176  (#206)', :todo<feature>);
 # 123: a[\S]b	a-b	y	-	-
-ok(("a-b" ~~ /a<[\S]>b/), 're_tests 178  (#208)', :todo<bug>);
+ok(("a-b" ~~ /a<-space>b/), 're_tests 178  (#208)', :todo<feature>);
 # 124: [\d]	1	y	-	-
-ok(("1" ~~ /<[\d]>/), 're_tests 180  (#210)', :todo<bug>);
+ok(("1" ~~ /<digit>/), 're_tests 180  (#210)');
 # 125: [\d]	-	n	-	-
-ok((not ("-" ~~ /<[\d]>/)), 're_tests 182  (#212)');
+ok((not ("-" ~~ /<digit>/)), 're_tests 182  (#212)');
 # 126: [\D]	1	n	-	-
-ok((not ("1" ~~ /<[\D]>/)), 're_tests 184  (#214)');
+ok((not ("1" ~~ /<-digit>/)), 're_tests 184  (#214)', :todo<feature>);
 # 127: [\D]	-	y	-	-
-ok(("-" ~~ /<[\D]>/), 're_tests 186  (#216)', :todo<bug>);
+ok(("-" ~~ /<-digit>/), 're_tests 186  (#216)', :todo<feature>);
 # 128: ab|cd	abc	y	$&	ab
 is(("abc" ~~ /ab|cd/ && $<>), "ab", 're_tests 188/0 (#218)');
 # 129: ab|cd	abcd	y	$&	ab
@@ -294,7 +308,7 @@ is(("ab" ~~ /a\(*b/ && $<>), "ab", 're_tests 202/0 (#236)');
 # 141: a\(*b	a((b	y	$&	a((b
 is(("a((b" ~~ /a\(*b/ && $<>), "a((b", 're_tests 204/0 (#238)');
 # 142: a\\b	a\b	y	$&	a\b
-is(("a\\b" ~~ /a\\b/ && $<>), "a\\b", 're_tests 206/0 (#240)', :todo<bug>);
+is(("a\\b" ~~ /a\\b/ && $<>), "a\\b", 're_tests 206/0 (#240)');
 # 143: abc)	-	c	-	Unmatched )
 # -- SKIPPED - TESTS ERROR MESSAGE
 # 144: (abc	-	c	-	Unmatched (
@@ -331,7 +345,7 @@ is(("aabbabc" ~~ /a**{1...}b**{1...}c/ && $<>), "abc", 're_tests 214/0 (#256)');
 is(("abcabc" ~~ /a\N+?c/ && $<>), "abc", 're_tests 216/0 (#258)');
 # 157: (a+|b)*	ab	y	$&-$0	ab-b
 is(("ab" ~~ /(a+|b)*/ && $<>), "ab", 're_tests 218/0 (#261)');
-is(("ab" ~~ /(a+|b)*/ && $0), "b", 're_tests 218/1 (#262)', :todo<bug>);
+is(("ab" ~~ /(a+|b)*/ && $0[-1]), "b", 're_tests 218/1 (#262)');
 # 158: (a+|b)*	ab	y	$-[0]	0
 # 159: (a+|b)*	ab	y	$+[0]	2 # SKIP
 is(("ab" ~~ /(a+|b)*/ && $/.from), 0, 're_tests 220/0 (#264)');
@@ -343,7 +357,7 @@ is(("ab" ~~ /(a+|b)**{0...}/ && $<>), "ab", 're_tests 224/0 (#269)');
 is(("ab" ~~ /(a+|b)**{0...}/ && $0), "b", 're_tests 224/1 (#270)');
 # 163: (a+|b)+	ab	y	$&-$0	ab-b
 is(("ab" ~~ /(a+|b)+/ && $<>), "ab", 're_tests 226/0 (#273)');
-is(("ab" ~~ /(a+|b)+/ && $0), "b", 're_tests 226/1 (#274)', :todo<bug>);
+is(("ab" ~~ /(a+|b)+/ && $0[-1]), "b", 're_tests 226/1 (#274)');
 # 164: (a+|b){1,}	ab	y	$&-$0	ab-b
 is(("ab" ~~ /(a+|b)**{1...}/ && $<>), "ab", 're_tests 228/0 (#277)');
 is(("ab" ~~ /(a+|b)**{1...}/ && $0), "b", 're_tests 228/1 (#278)');
@@ -363,7 +377,7 @@ ok((not ("" ~~ /abc/)), 're_tests 236  (#290)');
 is(("" ~~ /a*/ && $<>), "", 're_tests 238/0 (#292)');
 # 171: ([abc])*d	abbbcd	y	$&-$0	abbbcd-c
 is(("abbbcd" ~~ /(<[abc]>)*d/ && $<>), "abbbcd", 're_tests 240/0 (#295)');
-is(("abbbcd" ~~ /(<[abc]>)*d/ && $0), "c", 're_tests 240/1 (#296)', :todo<bug>);
+is(("abbbcd" ~~ /(<[abc]>)*d/ && $0[-1]), "c", 're_tests 240/1 (#296)');
 # 172: ([abc])*bcd	abcd	y	$&-$0	abcd-a
 is(("abcd" ~~ /(<[abc]>)*bcd/ && $<>), "abcd", 're_tests 242/0 (#299)');
 is(("abcd" ~~ /(<[abc]>)*bcd/ && $0), "a", 're_tests 242/1 (#300)');
