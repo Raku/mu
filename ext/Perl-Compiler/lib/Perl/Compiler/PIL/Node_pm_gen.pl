@@ -49,7 +49,7 @@ sub common_code ($data,$constructor,$stuff,*@fields) {
     my $code = "";
 
     $code ~= "class Perl::Compiler::PIL::Node::$data;\n\n"
-	if !%done{$data}++;
+    if !%done{$data}++;
 
     my $field_code = "";
     for @fields -> $n,$t { $field_code ~= "\n  has \$.$n;"; }
@@ -68,11 +68,11 @@ sub common_code ($data,$constructor,$stuff,*@fields) {
     $code ~= $stuff;
     $code ~= "\n  method vtype() \{'$data'}";
     $code ~= ("\n  submethod BUILD "
-	      ~"("~join(", ",map -> $n,$t { "\$$n" } @fields) ~") \{"
-	      ~"\n    "~join("\n    ",map -> $n,$t { "\$.{$n} = \$$n;" } @fields)
-	      ~"\n    ./type_check("
-	      ~"\n      "~join(",\n      ",map -> $n,$t { "\$.{$n}.vtype, '$t'" } @fields) ~");"
-	      ~"\n    }");
+          ~"("~join(", ",map -> $n,$t { "\$$n" } @fields) ~") \{"
+          ~"\n    "~join("\n    ",map -> $n,$t { "\$.{$n} = \$$n;" } @fields)
+          ~"\n    ./type_check("
+          ~"\n      "~join(",\n      ",map -> $n,$t { "\$.{$n}.vtype, '$t'" } @fields) ~");"
+          ~"\n    }");
     $code ~= "\n}\n";
     $code;
 }
