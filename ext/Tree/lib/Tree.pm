@@ -82,30 +82,30 @@ method get_all_children returns Array of Tree { @:children }
 ## inserting children
 
 method insert_children ($self: Int $index, *@trees) returns Void {
-	# check the bounds of our children 
-	# against the index given
-	($index <= $self.child_count()) 
-		|| die "Index Out of Bounds : got ($index) expected no more than (" ~ $self.child_count() ~ ")";
-	(@trees) 
-		|| die "Insufficient Arguments : no tree(s) to insert";	
-	for @trees -> $tree {	
-		$tree.:_set_parent($self);
+    # check the bounds of our children 
+    # against the index given
+    ($index <= $self.child_count()) 
+        || die "Index Out of Bounds : got ($index) expected no more than (" ~ $self.child_count() ~ ")";
+    (@trees) 
+        || die "Insufficient Arguments : no tree(s) to insert";    
+    for @trees -> $tree {    
+        $tree.:_set_parent($self);
         $self.:_set_height($tree);   
         $self.:_set_width($tree);                         
-		$tree.fix_depth() unless $tree.is_leaf();
-	}
-	# if index is zero, use this optimization
-	if ($index == 0) {
-		@:children.unshift(@trees);
-	}
-	# otherwise do some heavy lifting here
-	else {
-		@:children = (
-			@:children[0 .. ($index - 1)],
-			@trees,
-			@:children[$index .. (@:children - 1)],
-		);
-	}
+        $tree.fix_depth() unless $tree.is_leaf();
+    }
+    # if index is zero, use this optimization
+    if ($index == 0) {
+        @:children.unshift(@trees);
+    }
+    # otherwise do some heavy lifting here
+    else {
+        @:children = (
+            @:children[0 .. ($index - 1)],
+            @trees,
+            @:children[$index .. (@:children - 1)],
+        );
+    }
 }
 
 # insert_child is really the same as
@@ -117,46 +117,46 @@ our &Tree::insert_child ::= &Tree::insert_children;
 ## removing children
 
 method remove_child_at ($self: Int $index) returns Tree {
-	($self.child_count() != 0) 
-		|| die "Illegal Operation : There are no children to remove";		
-	# check the bounds of our children 
-	# against the index given		
-	($index < $self.child_count()) 
-		|| die "Index Out of Bounds : got ($index) expected no more than (" ~ $self.child_count() ~ ")";		
-	my $removed_child;
-	# if index is zero, use this optimization	
-	if ($index == 0) {
-		$removed_child = @:children.shift;
-	}
-	# if index is equal to the number of children
-	# then use this optimization	
-	elsif ($index == +@:children) {
-		$removed_child = @:children.pop();	
-	}
-	# otherwise do some heavy lifting here	
-	else {
-		$removed_child = @:children[$index];
-		@:children = (
-			@:children[0 .. ($index - 1)],
-			@:children[($index + 1) .. (@:children - 1)],
-		);
-	}
+    ($self.child_count() != 0) 
+        || die "Illegal Operation : There are no children to remove";        
+    # check the bounds of our children 
+    # against the index given        
+    ($index < $self.child_count()) 
+        || die "Index Out of Bounds : got ($index) expected no more than (" ~ $self.child_count() ~ ")";        
+    my $removed_child;
+    # if index is zero, use this optimization    
+    if ($index == 0) {
+        $removed_child = @:children.shift;
+    }
+    # if index is equal to the number of children
+    # then use this optimization    
+    elsif ($index == +@:children) {
+        $removed_child = @:children.pop();    
+    }
+    # otherwise do some heavy lifting here    
+    else {
+        $removed_child = @:children[$index];
+        @:children = (
+            @:children[0 .. ($index - 1)],
+            @:children[($index + 1) .. (@:children - 1)],
+        );
+    }
     # make sure we fix the height
     $self.fix_height();
     $self.fix_width();    
-	# make sure that the removed child
-	# is no longer connected to the parent
-	# so we change its parent to ROOT
-	$removed_child.:_remove_parent();
-	# and now we make sure that the depth 
-	# of the removed child is aligned correctly
-	$removed_child.fix_depth() unless $removed_child.is_leaf();	
-	# return ths removed child
-	# it is the responsibility 
-	# of the user of this module
-	# to properly dispose of this
-	# child (and all its sub-children)
-	return $removed_child;
+    # make sure that the removed child
+    # is no longer connected to the parent
+    # so we change its parent to ROOT
+    $removed_child.:_remove_parent();
+    # and now we make sure that the depth 
+    # of the removed child is aligned correctly
+    $removed_child.fix_depth() unless $removed_child.is_leaf();    
+    # return ths removed child
+    # it is the responsibility 
+    # of the user of this module
+    # to properly dispose of this
+    # child (and all its sub-children)
+    return $removed_child;
 }
 
 method remove_child ($self: Tree $child_to_remove) returns Tree {
@@ -173,32 +173,32 @@ method remove_child ($self: Tree $child_to_remove) returns Tree {
 
 method get_sibling ($self: Int $index) returns Tree {
     (!$self.is_root()) 
-	    || die "Insufficient Arguments : cannot get siblings to a ROOT tree";
-	$self.parent().get_child($index);
+        || die "Insufficient Arguments : cannot get siblings to a ROOT tree";
+    $self.parent().get_child($index);
 }
 
 method  get_all_siblings ($self:) returns Array {
     (!$self.is_root()) 
-    	|| die "Insufficient Arguments : cannot get siblings to a ROOT tree";
-	$self.parent().get_all_children();
+        || die "Insufficient Arguments : cannot get siblings to a ROOT tree";
+    $self.parent().get_all_children();
 }
 
 method add_sibling ($self: Tree $sibling) returns Tree {
-	(!$self.is_root()) 
-		|| die "Insufficient Arguments : cannot add a sibling to a ROOT tree";
-	$self.parent().add_child($sibling);
+    (!$self.is_root()) 
+        || die "Insufficient Arguments : cannot add a sibling to a ROOT tree";
+    $self.parent().add_child($sibling);
 }
 
 method add_siblings ($self: *@siblings) returns Tree {
-	(!$self.is_root()) 
-		|| die "Insufficient Arguments : cannot add siblings to a ROOT tree";
-	$self.parent().add_children(@siblings);
+    (!$self.is_root()) 
+        || die "Insufficient Arguments : cannot add siblings to a ROOT tree";
+    $self.parent().add_children(@siblings);
 }
 
 method insert_siblings ($self: Int $index, *@siblings) returns Tree {
-	(!$self.is_root()) 
-		|| die "Insufficient Arguments : cannot insert siblings to a ROOT tree";
-	$self.parent().insert_children($index, @siblings);
+    (!$self.is_root()) 
+        || die "Insufficient Arguments : cannot insert siblings to a ROOT tree";
+    $self.parent().insert_children($index, @siblings);
 }
 
 # insertSibling is really the same as
@@ -237,7 +237,7 @@ method post_order_traverse ($self: Code $func) returns Void {
 
 method traverse_iter($self: Str ?$traversal_order) returns Code {
     return coro {
-	    $self.traverse(sub { yield $^node }, $traversal_order);
+        $self.traverse(sub { yield $^node }, $traversal_order);
     };
 }
 
@@ -264,11 +264,11 @@ method traverse_iter($self: Str ?$traversal_order) returns Code {
 # This method is called automatically when 
 # a subtree is added to a child array
 method fix_depth ($self:) returns Void {
-	# make sure the tree's depth 
-	# is up to date all the way down
-	$self.traverse(-> $t {
-		$t.:_set_depth($t.parent().depth() + 1);
-	});
+    # make sure the tree's depth 
+    # is up to date all the way down
+    $self.traverse(-> $t {
+        $t.:_set_depth($t.parent().depth() + 1);
+    });
 }
 
 # NOTE:

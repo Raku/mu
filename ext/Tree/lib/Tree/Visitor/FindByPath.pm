@@ -19,7 +19,7 @@ sub visit ($self: $tree) {
     $:success = 0;
 
     # get our filter function
-	my $func;
+    my $func;
     if $self.has_node_filter() {
         $func = -> ($tree, $test) { (($self.get_node_filter().($tree) ~ "") eq $test) };    
     }
