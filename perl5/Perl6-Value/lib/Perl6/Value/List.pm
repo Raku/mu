@@ -5,6 +5,7 @@ package Perl6::Value::List;
 # ChangeLog
 #
 # 2005-09-05
+# * removed uniq(), grep() - now implemented in p6 Prelude
 # * map() uses Code->arity
 # * lists have an internal buffer for unshift/push
 #
@@ -368,8 +369,7 @@ sub map {
         cstart => sub {
             my $self = shift;
             # print "entering map, elems = ", $ret->elems, "\n";
-            while( $ret->elems ) {
-                # TODO - invert the order a bit
+            while( $ret->elems && @{$self->{shifts}} < 2 ) {
                 my @x;
                 push @x, $ret->shift for 1 .. $arity;
                 my $res = $code->do( @x );
@@ -381,23 +381,6 @@ sub map {
                     @res = ($res)
                 }
                 push @{$self->{shifts}}, @res;
-                unless ( @{$self->{shifts}} > 1 ) {
-                    # keep some data in the buffer - helps to find EOF in time
-                    my @x;
-                    push @x, $ret->shift for 1 .. $arity;
-                    my $res = $code->do( @x );
-                    my @res;
-                    if ( UNIVERSAL::isa( $res, 'Array' ) ) {
-                        @res = $res->items 
-                    }
-                    else {
-                        @res = ($res)
-                    }
-                    push @{$self->{shifts}}, @res;
-                }
-                # print " mapped to [", @shifts, "] ", scalar @shifts, "\n";
-                return shift @{$self->{shifts}} if @{$self->{shifts}};
-                # print " skipped ";
             }
             # print " left [", @shifts, @pops, "] ", scalar @shifts, "+", scalar @pops, "\n";
             return shift @{$self->{shifts}} if @{$self->{shifts}};
@@ -406,7 +389,7 @@ sub map {
         },
         cend => sub { 
             my $self = shift;
-            while( $ret->elems ) { 
+            while( $ret->elems && @{$self->{pops}} < 2 ) {
                 my @x;
                 unshift @x, $ret->pop for 1 .. $arity;
                 my $res = $code->do( @x );
@@ -418,21 +401,6 @@ sub map {
                     @res = ($res)
                 }
                 unshift @{$self->{pops}}, @res;
-                unless ( @{$self->{pops}} > 1 ) {
-                    # keep some data in the buffer - helps to find EOF in time
-                    my @x;
-                    unshift @x, $ret->pop for 1 .. $arity;
-                    my $res = $code->do( @x );
-                    my @res;
-                    if ( UNIVERSAL::isa( $res, 'Array' ) ) {
-                        @res = $res->items 
-                    }
-                    else {
-                        @res = ($res)
-                    }
-                    unshift @{$self->{pops}}, @res;
-                }
-                return pop @{$self->{pops}} if @{$self->{pops}};
             }
             return pop @{$self->{pops}}   if @{$self->{pops}};
             return pop @{$self->{shifts}} if @{$self->{shifts}};
@@ -494,7 +462,15 @@ sub zip {
     );
 }
 
-# XXX - remove uniq, grep - these are just examples
+sub shift { $_[0]->{celems}( @_ ) ? $_[0]->{cstart}( @_ ) : undef }
+sub pop   { $_[0]->{celems}( @_ ) ? $_[0]->{cend}( @_ )   : undef }  
+sub start { $_[0]->{celems}( @_ ) ? $_[0]->{start}( @_ )  : undef }
+sub end   { $_[0]->{celems}( @_ ) ? $_[0]->{end}( @_ )    : undef }  
+
+1;
+__END__
+
+# removed uniq, grep - these are just examples
 
 sub _MySub::arity { 1 };
 sub _MySub::do    { (shift)->(@_) };
@@ -522,15 +498,6 @@ sub grep {
             return
         }, '_MySub' ); 
 }
-
-sub shift { $_[0]->{celems}( @_ ) ? $_[0]->{cstart}( @_ ) : undef }
-sub pop   { $_[0]->{celems}( @_ ) ? $_[0]->{cend}( @_ )   : undef }  
-sub start { $_[0]->{celems}( @_ ) ? $_[0]->{start}( @_ )  : undef }
-sub end   { $_[0]->{celems}( @_ ) ? $_[0]->{end}( @_ )    : undef }  
-
-1;
-__END__
-
 
 sub kv { 
     my $array = shift;
