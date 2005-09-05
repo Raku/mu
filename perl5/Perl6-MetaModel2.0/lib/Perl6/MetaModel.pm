@@ -25,18 +25,25 @@ sub _ {
 
 sub class {
     my ($full_name, $body) = @_;
-    my $new_class = $::Class->new();
-    my ($name, $version, $authority) = split '-' => $full_name;
-    $new_class->name($name)           if defined $name;
-    $new_class->version($version)     if defined $version;
-    $new_class->authority($authority) if defined $authority;        
-    _process_class_body($new_class, $body);
+    my ($name, $version, $authority) = split '-' => $full_name;       
+    my $new_class = _build_class($name, $version, $authority, $body);
     $CLASSES_BY_NAME{$new_class->name} = $new_class;
     return $new_class;
 }
 
-sub _process_class_body {
-    my ($new_class, $body) = @_;
+sub _build_class {
+    my ($name, $version, $authority, $body) = @_;
+    
+    my $metaclass = $::Class;
+    $metaclass = $body->{metaclass} 
+        if ref($body) eq 'HASH' && exists $body->{metaclass};
+    
+    my $new_class = $metaclass->new();    
+    
+    $new_class->name($name)           if defined $name;
+    $new_class->version($version)     if defined $version;
+    $new_class->authority($authority) if defined $authority;     
+    
     if (ref($body) eq 'CODE') {
         ::bind_CLASS($new_class);
         $body->();
@@ -94,6 +101,8 @@ sub _process_class_body {
             }
         }        
     }
+    
+    return $new_class;
 }
 
 1;

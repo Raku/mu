@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 18;
+use Test::More tests => 39;
 use Test::Exception; 
 
 use Perl6::MetaModel;
@@ -58,3 +58,105 @@ foreach my $count (2 .. 5) {
     is($Foo->count(), $count, '... we have ' . $count . ' Foo instances');    
 }
 
+
+## now test creating the Class subclass with the meta-model
+
+my $TraceingClass = class 'TracingClass' => {
+    is => [ $::Class ],
+    attributes => [ '@:trace_log' ],
+    methods => {
+        'get_trace_log' => sub { _('@:trace_log') },
+        'add_method' => sub {
+            my ($self, $label, $method) = @_;
+            $_[2] = ::make_method(sub {  
+                push @{::opaque_instance_attrs($self)->{'@:trace_log'}} => "$label called ...";
+                $method->(@_);
+            }, $::CLASS);
+            ::next_METHOD();
+        }
+    }
+};
+isa_ok($TraceingClass, 'TracingClass');
+isa_ok($TraceingClass, 'Class');
+isa_ok($TraceingClass, 'Object');
+
+## create a TraceingClass by hand ...
+
+my $Bar = $TraceingClass->new('$:name' => 'Bar');
+$Bar->superclasses([ $::Object ]);
+
+isa_ok($Bar, 'Bar');
+isa_ok($Bar, 'Object');
+
+is_deeply(
+    $Bar->get_trace_log(),
+    [],
+    '... nothing in the Bar trace log yet');
+
+$Bar->add_method('foo' => ::make_method(sub { 'Bar::foo' }, $Bar));
+$Bar->add_method('baz' => ::make_method(sub { 'Bar::baz' }, $Bar));
+
+# and another to show it is truely a per-class thing
+
+## create a TraceingClass with the metamodel
+
+my $Baz = class 'Baz' => {
+    metaclass => $TraceingClass,
+    is => [ $::Object ],
+    methods => {
+        'bar' => sub { 'Baz::bar' },
+        'foo' => sub { 'Baz::foo' },
+    }
+};
+
+isa_ok($Baz, 'Baz');
+isa_ok($Baz, 'Object');
+
+is_deeply(
+    $Baz->get_trace_log(),
+    [],
+    '... nothing in the Baz trace log yet');
+
+## now to make some instances
+
+my $iBar = $Bar->new();
+isa_ok($iBar, 'Bar');
+
+my $iBaz = $Baz->new();
+isa_ok($iBaz, 'Baz');
+
+is_deeply(
+    $Bar->get_trace_log(),
+    [],
+    '... still nothing in the Bar trace log yet (new() is inherited)');
+
+is_deeply(
+    $Baz->get_trace_log(),
+    [],
+    '... still nothing in the Baz trace log yet (new() is inherited)');
+
+is($iBar->foo(), 'Bar::foo', '... iBar->foo returned the correct output');
+is($iBaz->bar(), 'Baz::bar', '... iBaz->bar returned the correct output');
+
+is_deeply(
+    $Bar->get_trace_log(),
+    [ 'foo called ...' ],
+    '... we now have a Bar trace log');
+
+is_deeply(
+    $Baz->get_trace_log(),
+    [ 'bar called ...' ],
+    '... we now have a Bar trace log');
+
+is($iBar->baz(), 'Bar::baz', '... iBar->baz returned the correct output');
+is($iBaz->foo(), 'Baz::foo', '... iBaz->foo returned the correct output');
+
+is_deeply(
+    $Bar->get_trace_log(),
+    [ 'foo called ...', 'baz called ...' ],
+    '... we now have more in our Bar trace log');
+
+is_deeply(
+    $Baz->get_trace_log(),
+    [ 'bar called ...', 'foo called ...' ],
+    '... we now have more in our Bar trace log');
