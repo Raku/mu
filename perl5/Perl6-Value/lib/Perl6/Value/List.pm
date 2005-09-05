@@ -4,6 +4,10 @@ package Perl6::Value::List;
 
 # ChangeLog
 #
+# 2005-09-05
+# * map() uses Code->arity
+# * lists have an internal buffer for unshift/push
+#
 # 2005-09-01
 # * fixed stringification
 #
@@ -43,7 +47,7 @@ package Perl6::Value::List;
 # TODO - finish sum() - not all operations support sum() yet; 
 #      - object numification is not supported yet
 
-# TODO - adding support for unshift, push - would simplify map() implementation
+# TODO - finish support for unshift, push 
 
 # TODO - List.is_lazy() could be defined with a closure; Perl6 version too
 # TODO - map(), grep() could accept the optional 'celems' parameter - for kv() implementation

@@ -322,9 +322,9 @@ MULTI SUB Thread::yield ($xx) {...};
 MULTI SUB DESTROYALL ($xx) {...};
 # MULTI SUB prefix:<,> (*@a) {@a}; # ??? - unneeded?
 MULTI SUB Code::assoc ($xx) {...};
-MULTI SUB Code::name ($xx) {...};
-MULTI SUB Code::arity ($xx) {...};
-MULTI SUB Code::body ($xx) {...};
+#MULTI SUB Code::name ($xx) {...};
+#MULTI SUB Code::arity ($xx) {...};
+#MULTI SUB Code::body ($xx) {...};
 MULTI SUB Code::pos ($xx) {...};
 MULTI SUB IO::tell ($xx) {...};
 MULTI SUB Pugs::Internals::hIsOpen ($xx) {...};
