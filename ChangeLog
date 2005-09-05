@@ -1,3 +1,22 @@
+== Changes for 6.2.10 (rXXXX) - Sep X, 2005
+
+=== Pugs Internals
+
+
+
+=== Bundled Modules
+
+* Expanded any existing literal tab chars to spaces in /ext/* files.
+
+=== Test, Examples and Documentations
+
+* Expanded any existing literal tab chars to spaces in /t/*, except 'rules.t'.
+** Also did the same in /t_disabled/*
+
+=== Bug Fixes
+
+
+
 == Changes for 6.2.9 (r6050) - Aug 4, 2005
 
 === Pugs Internals
