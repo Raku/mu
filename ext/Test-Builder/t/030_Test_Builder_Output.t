@@ -26,7 +26,7 @@ $output.close();
 
 my $output_output = slurp('output');
 is( $output_output, "ok 1\nok 2\nok 3\n# testing\n",
-	'write() should write to normal output, escaping newlines' );
+    'write() should write to normal output, escaping newlines' );
 
 $tbo.diag('this is error output');
 $tbo.diag("this is error output\nover two lines");
@@ -38,7 +38,7 @@ is($error_output_output,
 "# this is error output
 # this is error output
 # over two lines\n",
-	'diag() should write to error output, escaping all output' );
+    'diag() should write to error output, escaping all output' );
 
 END
 {
