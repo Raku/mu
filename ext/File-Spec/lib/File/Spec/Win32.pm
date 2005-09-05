@@ -153,7 +153,7 @@ sub path returns Array is export {
 }
 
 sub file_name_is_absolute (Str $file) returns Bool is export {
-	?($file ~~ rx:perl5{^([a-zA-Z]:)?[\\/]})
+    ?($file ~~ rx:perl5{^([a-zA-Z]:)?[\\/]})
 }
 
 # This HACK is worse than
