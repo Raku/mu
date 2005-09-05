@@ -66,10 +66,10 @@ sub take(Int $n, Code &f) { (1..$n).map:{ f() } }
 try {
   my @array = take 5, {
     coro {
-	(sub {
+        (sub {
           while 1 {
-	    state $num;
-	    yield ++$num;
+            state $num;
+            yield ++$num;
           }
         })();
     };
