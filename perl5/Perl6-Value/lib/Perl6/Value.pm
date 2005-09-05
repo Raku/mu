@@ -177,6 +177,26 @@ class 'Bit'.$class_description => {
     }
 };
 
+class 'Rat'.$class_description => {
+    is => [ 'Perl6::Object' ],
+    class => {
+        attrs => [],
+        methods => {},
+    },
+    instance => {
+        attrs => [ '$.a', '$.b' ],
+        DESTROY => sub {},
+        methods => {
+            'num' =>  sub { Num->new( '$.unboxed' => _('$.a')/_('$.b') ) },
+            'int' =>  sub { Int->new( '$.unboxed' => Perl6::Value::Num::to_int( _('$.a')/_('$.b') ) ) },
+            'str' =>  sub { Str->new( '$.unboxed' => Perl6::Value::Num::to_str( _('$.a')/_('$.b') ) ) },
+            'bit' =>  sub { Bit->new( '$.unboxed' => Perl6::Value::Num::to_bit( _('$.a')/_('$.b') ) ) },
+            'perl' => sub { ::SELF->str },
+            'ref' =>  sub { ::CLASS }, 
+        },
+    }
+};
+
 class 'Pair'.$class_description => {
     is => [ 'Perl6::Object' ],
     class => {
