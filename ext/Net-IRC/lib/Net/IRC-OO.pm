@@ -105,7 +105,7 @@ class Net::IRC {
     # Nick already used, so we permute our nick.
     ./add_handler("433", -> $event {
       if $:in_login_phase {
-	./nick($:nickgen.next);
+        ./nick($:nickgen.next);
       }
     });
 
@@ -114,10 +114,10 @@ class Net::IRC {
     ./add_handler("352", -> $event {
       my %rest;
       %rest<_ username hostname servername nickname umode _ ircname> =
-	split " ", $event<rest>;
+        split " ", $event<rest>;
       if(normalize(%rest<nickname>) eq normalize($curnick)) {
-	($.curusername, $.curhostname, $.curircname) =
-	  %rest<username hostname ircname>;
+        ($.curusername, $.curhostname, $.curircname) =
+          %rest<username hostname ircname>;
       }
     });
 
@@ -139,18 +139,18 @@ class Net::IRC {
       $chan = normalize $chan;
 
       my @nicks = split(" ", $nicks)
-		 .map:{ ($_ ~~ m:P5/^[@+%]?(.+)/)[0] }
-		 .grep:{ defined $_ }
-		 .map:{ normalize $_ };
+                 .map:{ ($_ ~~ m:P5/^[@+%]?(.+)/)[0] }
+                 .grep:{ defined $_ }
+                 .map:{ normalize $_ };
 
       unless defined %:cache353{$chan} {
-	# We initialize %:cache353{$chan} by makeing %:cache353{$chan} a
-	# hashref which has the nicks, which we currently think are on the
-	# channel, as keys. Then, we delete all nicks we see as response from
-	# the /NAMES. Finally, we delete all nicks, which are still in
-	# %:cache353{$chan}.
+        # We initialize %:cache353{$chan} by makeing %:cache353{$chan} a
+        # hashref which has the nicks, which we currently think are on the
+        # channel, as keys. Then, we delete all nicks we see as response from
+        # the /NAMES. Finally, we delete all nicks, which are still in
+        # %:cache353{$chan}.
 
-	%:cache353{$chan}{$_}++ for %:channels{$chan}<users>.keys;
+        %:cache353{$chan}{$_}++ for %:channels{$chan}<users>.keys;
       }
 
       # We have already initialized %:cache353{$chan}.
@@ -168,7 +168,7 @@ class Net::IRC {
       my $chan = normalize (split " ", $event<rest>)[0];
 
       unless defined %:cache353{$chan} {
-	%:cache353{$chan} = %:channels{$chan}<users>;
+        %:cache353{$chan} = %:channels{$chan}<users>;
       }
 
       %:channels{$chan}<users>.delete(%:cache353{$chan}.keys);
@@ -179,8 +179,8 @@ class Net::IRC {
     # Somebody joined. Update %channels and %users accordingly.
     ./add_handler("JOIN", -> $event {
       if(normalize($event<from_nick>) eq normalize($curnick)) {
-	$:chans.insert(normalize $event<object>);
-	debug "Joined channel \"$event<object>\".";
+        $:chans.insert(normalize $event<object>);
+        debug "Joined channel \"$event<object>\".";
       }
 
       %:channels{normalize $event<object>}<users>{$event<from_nick>}++;
@@ -192,16 +192,16 @@ class Net::IRC {
       my $chan = normalize $event<object>;
 
       if(normalize($event<from_nick>) eq normalize($curnick)) {
-	$:chans.remove(normalize $event<object>);
-	for %:channels{$chan}<users>.keys {
-	  %:users{$_}<channels>.delete($chan) if %:users{$_}<channels>;
-	}
-	%:channels.delete($chan);
-	debug "Left channel \"$chan\".";
+        $:chans.remove(normalize $event<object>);
+        for %:channels{$chan}<users>.keys {
+          %:users{$_}<channels>.delete($chan) if %:users{$_}<channels>;
+        }
+        %:channels.delete($chan);
+        debug "Left channel \"$chan\".";
       } else {
-	%:channels{$chan}<users>.delete(normalize $event<from_nick>);
-	%:users{normalize $event<from_nick>}<channels>.delete($chan)
-	  if %:users{normalize $event<from_nick>}<channels>;
+        %:channels{$chan}<users>.delete(normalize $event<from_nick>);
+        %:users{normalize $event<from_nick>}<channels>.delete($chan)
+          if %:users{normalize $event<from_nick>}<channels>;
       }
     });
 
@@ -212,16 +212,16 @@ class Net::IRC {
       my $chan = normalize $event<object>;
 
       if(normalize($kickee) eq normalize($curnick)) {
-	$:chans.remove(normalize $event<object>);
-	for %:channels{$chan}<users>.keys {
-	  %:users{$_}<channels>.delete($chan) if %:users{$_}<channels>;
-	}
-	%:channels.delete($chan);
-	debug "Was kicked from channel \"$chan\" by \"$event<from>\" (\"$reason\").";
+        $:chans.remove(normalize $event<object>);
+        for %:channels{$chan}<users>.keys {
+          %:users{$_}<channels>.delete($chan) if %:users{$_}<channels>;
+        }
+        %:channels.delete($chan);
+        debug "Was kicked from channel \"$chan\" by \"$event<from>\" (\"$reason\").";
       } else {
-	%:channels{$chan}<users>.delete(normalize $kickee);
-	%:users{normalize $kickee}<channels>.delete($chan)
-	  if %:users{normalize $kickee}<channels>;
+        %:channels{$chan}<users>.delete(normalize $kickee);
+        %:users{normalize $kickee}<channels>.delete($chan)
+          if %:users{normalize $kickee}<channels>;
       }
     });
 
@@ -229,8 +229,8 @@ class Net::IRC {
     ./add_handler("KILL", -> $event {
       my ($killee, $reason) = $event<object rest>;
       if(normalize($killee) eq normalize($curnick)) {
-	$:chans.clear;
-	debug "Was killed by \"$event<from>\" (\"$reason\").";
+        $:chans.clear;
+        debug "Was killed by \"$event<from>\" (\"$reason\").";
       }
 
       my @chans = %users{normalize $killee}<channels>.keys;
@@ -249,17 +249,17 @@ class Net::IRC {
     # all %channels he/she has joined.
     ./add_handler("NICK", -> $event {
       if(normalize($event<from_nick>) eq normalize($curnick)) {
-	$.curnick = $event<object>;
-	debug "Changed nick to \"$.curnick\".";
+        $.curnick = $event<object>;
+        debug "Changed nick to \"$.curnick\".";
       }
 
       my $oldnick = normalize $event<from_nick>;
       my $newnick = normalize $event<object>;
       if %:users{$oldnick}<channels> {
-	for %:users{$oldnick}<channels>.keys {
-	  %:channels{$_}<users>.delete($oldnick);
-	  %:channels{$_}<users>{$newnick}++;
-	}
+        for %:users{$oldnick}<channels>.keys {
+          %:channels{$_}<users>.delete($oldnick);
+          %:channels{$_}<users>{$newnick}++;
+        }
       }
 
       # The more elegant %users{$newnick} = %users.delete($oldnick) doesn't work
@@ -436,9 +436,9 @@ class Net::IRC {
   method join(Str $channel, Str ?$key) {
     if $.connected {
       if defined $key {
-	./:enqueue("JOIN $channel $key");
+        ./:enqueue("JOIN $channel $key");
       } else {
-	./:enqueue("JOIN $channel");
+        ./:enqueue("JOIN $channel");
       }
     }
   }
@@ -482,8 +482,8 @@ class Net::IRC {
 
     submethod BUILD(Bool ?$.floodcontrol = 0) {
       $:bucket = $.floodcontrol
-	?? Bucket.new(rate => (1/2),    burst_size => 5)
-	:: Bucket.new(rate => (1000/2), burst_size => 5000); # hack
+        ?? Bucket.new(rate => (1/2),    burst_size => 5)
+        :: Bucket.new(rate => (1000/2), burst_size => 5000); # hack
       $:bucket.fill;
     }
 
@@ -491,12 +491,12 @@ class Net::IRC {
     method run() {
       my @q = splice @:queue;
       while @q {
-	if $:bucket.conform(1) {
-	  $:bucket.count(1);
-	  @q.shift().();
-	} else {
-	  last;
-	}
+        if $:bucket.conform(1) {
+          $:bucket.count(1);
+          @q.shift().();
+        } else {
+          last;
+        }
       }
       @:queue.unshift(@q);
     }
@@ -518,10 +518,10 @@ class Net::IRC {
 
     method reset() {
       @:perms = (
-	"$.orig",
-	"{$.orig}_", "{$.orig}__",
-	"_{$.orig}", "__{$.orig}",
-	"_{$.orig}_", "__{$.orig}__",
+        "$.orig",
+        "{$.orig}_", "{$.orig}__",
+        "_{$.orig}", "__{$.orig}",
+        "_{$.orig}_", "__{$.orig}__",
       );
     }
 

@@ -50,22 +50,22 @@ sub new_bot(
   my $last_autoping;       # Timestamp of last ping sent to server
   my $hdl;                 # Socket
   my $queue = new_queue(floodcontrol => $floodcontrol);
-			   # Queue
+                           # Queue
   my %handler;             # Callbacks for numeric (001) and command (PRIVMSG)
                            # messages
   my ($curnick, $curusername, $curircname, $curhostname);
-			   # Our current nick, username, ircname, etc.
+                           # Our current nick, username, ircname, etc.
   my $nickgen = new_permutation($nick);
-			   # A permutation object, providing the methods
-			   # "reset" and "next".
+                           # A permutation object, providing the methods
+                           # "reset" and "next".
   my %channels;            # Stores the current topic, the users on the
                            # channel, etc. Note: Hash keys are always
-			   # normalized() first!
+                           # normalized() first!
   my %users;               # Stores the channels a user is on. Note: As with
-			   # %channels, hash keys are always normalized().
+                           # %channels, hash keys are always normalized().
   my %cache353;            # We need a temporary storage for the names we
                            # receive after we've done a /NAMES (the numeric
-			   # code for /NAMES is 353).
+                           # code for /NAMES is 353).
   my $in_login_phase;
 
   my $self;
@@ -112,7 +112,7 @@ sub new_bot(
       split " ", $event<rest>;
     if(normalize(%rest<nickname>) eq normalize($curnick)) {
       ($curusername, $curhostname, $curircname) =
-	%rest<username hostname ircname>;
+        %rest<username hostname ircname>;
     }
   }];
 
@@ -135,8 +135,8 @@ sub new_bot(
 
     my @nicks = split(" ", $nicks)
                .map:{ ($_ ~~ m:P5/^[@+%]?(.+)/)[0] }
-	       .grep:{ defined $_ }
-	       .map:{ normalize $_ };
+               .grep:{ defined $_ }
+               .map:{ normalize $_ };
 
     unless defined %cache353{$chan} {
       # We initialize %cache353{$chan} by makeing %cache353{$chan} a hashref
@@ -188,14 +188,14 @@ sub new_bot(
     if(normalize($event<from_nick>) eq normalize($curnick)) {
       $chans.remove(normalize $event<object>);
       for %channels{$chan}<users>.keys {
-	%users{$_}<channels>.delete($chan) if %users{$_}<channels>;
+        %users{$_}<channels>.delete($chan) if %users{$_}<channels>;
       }
       %channels.delete($chan);
       debug "Left channel \"$chan\".";
     } else {
       %channels{$chan}<users>.delete(normalize $event<from_nick>);
       %users{normalize $event<from_nick>}<channels>.delete($chan)
-	if %users{normalize $event<from_nick>}<channels>;
+        if %users{normalize $event<from_nick>}<channels>;
     }
   }];
 
@@ -208,14 +208,14 @@ sub new_bot(
     if(normalize($kickee) eq normalize($curnick)) {
       $chans.remove(normalize $event<object>);
       for %channels{$chan}<users>.keys {
-	%users{$_}<channels>.delete($chan) if %users{$_}<channels>;
+        %users{$_}<channels>.delete($chan) if %users{$_}<channels>;
       }
       %channels.delete($chan);
       debug "Was kicked from channel \"$chan\" by \"$event<from>\" (\"$reason\").";
     } else {
       %channels{$chan}<users>.delete(normalize $kickee);
       %users{normalize $kickee}<channels>.delete($chan)
-	if %users{normalize $kickee}<channels>;
+        if %users{normalize $kickee}<channels>;
     }
   }];
 
@@ -251,8 +251,8 @@ sub new_bot(
     my $newnick = normalize $event<object>;
     if %users{$oldnick}<channels> {
       for %users{$oldnick}<channels>.keys {
-	%channels{$_}<users>.delete($oldnick);
-	%channels{$_}<users>{$newnick}++;
+        %channels{$_}<users>.delete($oldnick);
+        %channels{$_}<users>{$newnick}++;
       }
     }
 
@@ -291,60 +291,60 @@ sub new_bot(
       debug "Connecting to $host:$port... ";
       try { $hdl = connect($host, $port) };
       if($hdl) {
-	try { $hdl.autoflush(1) };
-	$connected++;
-	$last_traffic  = time;
-	$last_autoping = time;
-	debug "done.";
+        try { $hdl.autoflush(1) };
+        $connected++;
+        $last_traffic  = time;
+        $last_autoping = time;
+        debug "done.";
       } else {
-	debug "failed ($!).";
+        debug "failed ($!).";
       }
     },
     disconnect => {
       if($connected) {
-	debug "Disconnecting from $host:$port... ";
-	try { $hdl.close };
-	# We want to have a sane state when we connect next time.
-	$connected      = 0;
-	$inside         = 0;
-	$chans          = set();
-	$servername     = undef;
-	$hdl            = undef;
-	$curnick        = undef;
-	$curusername    = undef;
-	$curircname     = undef;
-	$curhostname    = undef;
-	$last_traffic   = 0;
-	$last_autoping  = 0;
-	$in_login_phase = 0;
-	%channels       = ();
-	$queue<clear>();
-	$nickgen<reset>();
-	debug "done.";
+        debug "Disconnecting from $host:$port... ";
+        try { $hdl.close };
+        # We want to have a sane state when we connect next time.
+        $connected      = 0;
+        $inside         = 0;
+        $chans          = set();
+        $servername     = undef;
+        $hdl            = undef;
+        $curnick        = undef;
+        $curusername    = undef;
+        $curircname     = undef;
+        $curhostname    = undef;
+        $last_traffic   = 0;
+        $last_autoping  = 0;
+        $in_login_phase = 0;
+        %channels       = ();
+        $queue<clear>();
+        $nickgen<reset>();
+        debug "done.";
       }
     },
 
     # Login
     login => {
       if($connected) {
-	$queue<enqueue>({
-	  # Indicate that we're currently logging in, so our nick_already_used
-	  # handler can choose a different nick. $in_login_phase is reset to 0
-	  # when we're successfully logged in.
-	  $in_login_phase++;
-	  $say("NICK {$nickgen<next>()}");
-	  $say("USER $username * * :$ircname");
-	});
+        $queue<enqueue>({
+          # Indicate that we're currently logging in, so our nick_already_used
+          # handler can choose a different nick. $in_login_phase is reset to 0
+          # when we're successfully logged in.
+          $in_login_phase++;
+          $say("NICK {$nickgen<next>()}");
+          $say("USER $username * * :$ircname");
+        });
       }
     },
 
     # Process $queue, wait for input from server and process it
     run => {
       while($connected) {
-	$queue<run>();
-	$self<readline>();
-	$self<livecheck>();
-	$self<handle_pseudo>("runloop");
+        $queue<run>();
+        $self<readline>();
+        $self<livecheck>();
+        $self<handle_pseudo>("runloop");
       }
     },
 
@@ -358,30 +358,30 @@ sub new_bot(
       $last_traffic = time;
 
       if($line ~~ rx:P5/^:([^ ]+) (\d+) ([^ ]+) ?(.*)$/) {
-	$self<handle_numeric>($line, $0, $1, $2, $3);
+        $self<handle_numeric>($line, $0, $1, $2, $3);
       } elsif($line ~~ rx:P5/^:([^ ]+) (\w+) ([^ ]+) ?(.*)$/) {
-	$self<handle_command>($line, $0, $1, $2, $3);
+        $self<handle_command>($line, $0, $1, $2, $3);
       } elsif($line ~~ rx:P5/^ERROR ?:?(.*)$/) {
-	debug "Error in connection to $host:$port (\"$0\").";
-	$self<disconnect>();
+        debug "Error in connection to $host:$port (\"$0\").";
+        $self<disconnect>();
       } elsif($line ~~ rx:P5/^PING ?:?(.*)$/) {
-	$say("PONG $0");
+        $say("PONG $0");
       } else {
-	debug "No handler found for \"$line\".";
+        debug "No handler found for \"$line\".";
       }
     },
 
     # Handle numeric commands (e.g. 001 -> welcome)
     handle_numeric => -> Str $line, Str $server, Str $code, Str $to, Str $rest {
       my $event = {
-	line   => $line,
-	server => $server,
-	to     => $to,
-	rest   => strip_colon($rest),
+        line   => $line,
+        server => $server,
+        to     => $to,
+        rest   => strip_colon($rest),
       };
 
       if(%handler{$code}) {
-	$_($event) for *%handler{$code};
+        $_($event) for *%handler{$code};
       }
     },
 
@@ -389,61 +389,61 @@ sub new_bot(
     handle_command => -> Str $line, Str $from, Str $command, Str $object, Str $rest {
       my $from_nick; $from_nick = $0 if $from ~~ rx:P5/^([^!]+)!/; #/#--vim
       my $event = {
-	line      => $line,
-	from      => $from,
-	from_nick => $from_nick,
-	rest      => strip_colon($rest),
-	object    => strip_colon($object),
+        line      => $line,
+        from      => $from,
+        from_nick => $from_nick,
+        rest      => strip_colon($rest),
+        object    => strip_colon($object),
       };
 
       if %handler{$command} {
-	$_($event) for *%handler{$command};
+        $_($event) for *%handler{$command};
       }
     },
 
     # Handle pseudo events (runloop, loggedin)
     handle_pseudo => -> Str $pseudo, *@args {
       my $event = {
-	pseudo => $pseudo,
-	args   => @args,
+        pseudo => $pseudo,
+        args   => @args,
       };
 
       if(%handler{$pseudo}) {
-	$_($event) for *%handler{$pseudo};
+        $_($event) for *%handler{$pseudo};
       }
     },
 
     # Check that our connection is still alive.
     livecheck => {
       if($connected) {
-	# We haven't seen any traffic for at least $autoping seconds, so we
-	# PING the server. If the connection is still alive, the server will
-	# respond with a PONG, so everything's fine. But if the connection is
-	# somehow b0rked, we won't get a reply.
-	if($servername and time() - $last_traffic >= $autoping and time() - $last_autoping >= 60) {
-	  debug "No traffic seen for {time() - $last_traffic} seconds; pinging server.";
-	  $self<raw>("PING :$servername");
-	  $last_autoping = time;
-	}
+        # We haven't seen any traffic for at least $autoping seconds, so we
+        # PING the server. If the connection is still alive, the server will
+        # respond with a PONG, so everything's fine. But if the connection is
+        # somehow b0rked, we won't get a reply.
+        if($servername and time() - $last_traffic >= $autoping and time() - $last_autoping >= 60) {
+          debug "No traffic seen for {time() - $last_traffic} seconds; pinging server.";
+          $self<raw>("PING :$servername");
+          $last_autoping = time;
+        }
 
-	# So we haven't seen any traffic for at least $live_timeout seconds,
-	# even though we've pinged the server (probably several times). So, we
-	# conclude, the connection is b0rked, and we disconnect.
-	if(time() - $last_traffic >= $live_timeout) {
-	  debug "No traffic seen for {time() - $last_traffic} seconds; disconnecting.";
-	  $self<disconnect>();
-	}
+        # So we haven't seen any traffic for at least $live_timeout seconds,
+        # even though we've pinged the server (probably several times). So, we
+        # conclude, the connection is b0rked, and we disconnect.
+        if(time() - $last_traffic >= $live_timeout) {
+          debug "No traffic seen for {time() - $last_traffic} seconds; disconnecting.";
+          $self<disconnect>();
+        }
       }
     },
 
     # JOIN/PART/KICK/...
     join => -> Str $channel, Str ?$key {
       if $connected {
-	if defined $key {
-	  enqueue "JOIN $channel $key";
-	} else {
-	  enqueue "JOIN $channel";
-	}
+        if defined $key {
+          enqueue "JOIN $channel $key";
+        } else {
+          enqueue "JOIN $channel";
+        }
       }
     },
     part  => -> Str $channel { enqueue "PART $channnel" },
@@ -454,9 +454,9 @@ sub new_bot(
     ison  => -> Str @targets { enqueue "ISON @targets[]" },
     topic => -> Str $channel, Str ?$topic {
       if defined $topic {
-	enqueue "TOPIC $channel :$topic";
+        enqueue "TOPIC $channel :$topic";
       } else {
-	enqueue "TOPIC $channel";
+        enqueue "TOPIC $channel";
       }
     },
     kick  => -> Str $channel, Str $nick, Str ?$reason {
@@ -464,9 +464,9 @@ sub new_bot(
     },
     mode  => -> Str $target, Str ?$mode {
       if defined $mode {
-	enqueue "MODE $target $mode";
+        enqueue "MODE $target $mode";
       } else {
-	enqueue "MODE $target";
+        enqueue "MODE $target";
       }
     },
     invite => -> Str $channel, Str $target { enqueue "INVITE $target $channel" },
@@ -502,12 +502,12 @@ sub new_queue(Bool ?$floodcontrol = 0) {
     run => {
       my @q = splice @queue;
       while(@q) {
-	if($bucket<conform>(1)) {
-	  $bucket<count>(1);
-	  @q.shift().();
-	} else {
-	  last;
-	}
+        if($bucket<conform>(1)) {
+          $bucket<count>(1);
+          @q.shift().();
+        } else {
+          last;
+        }
       }
       @queue.unshift(@q);
     },
@@ -526,10 +526,10 @@ sub new_permutation(Str $nick) {
   my $self = {
     reset => {
       @perms = (
-	"$nick",
-	"{$nick}_", "{$nick}__",
-	"_{$nick}", "__{$nick}",
-	"_{$nick}_", "__{$nick}__",
+        "$nick",
+        "{$nick}_", "{$nick}__",
+        "_{$nick}", "__{$nick}",
+        "_{$nick}_", "__{$nick}__",
       );
     },
     "next" => {
