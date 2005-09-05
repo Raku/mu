@@ -329,7 +329,7 @@ class 'Array'.$class_description => {
                 return $res;
             },
             'map' => sub {
-                my $array = shift;  $array = $array->to_list;
+                my $array = shift;  $array = $array->clone->to_list;
                 my $code = shift;
                 die "Argument to map() must be a Code" unless UNIVERSAL::isa( $code, 'Code' );
                 my $res = Array->new;

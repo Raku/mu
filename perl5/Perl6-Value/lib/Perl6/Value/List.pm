@@ -368,12 +368,12 @@ sub map {
                 # TODO - invert the order a bit
                 my @x;
                 push @x, $ret->shift for 1 .. $arity;
-                push @{$self->{shifts}}, $code->( @x );
+                push @{$self->{shifts}}, $code->do( @x );
                 unless ( @{$self->{shifts}} > 1 ) {
                     # keep some data in the buffer - helps to find EOF in time
                     my @x;
                     push @x, $ret->shift for 1 .. $arity;
-                    push @{$self->{shifts}}, $code->( @x );
+                    push @{$self->{shifts}}, $code->do( @x );
                 }
                 # print " mapped to [", @shifts, "] ", scalar @shifts, "\n";
                 return shift @{$self->{shifts}} if @{$self->{shifts}};
@@ -389,12 +389,12 @@ sub map {
             while( $ret->elems ) { 
                 my @x;
                 unshift @x, $ret->pop for 1 .. $arity;
-                unshift @{$self->{pops}}, $code->( @x );
+                unshift @{$self->{pops}}, $code->do( @x );
                 unless ( @{$self->{pops}} > 1 ) {
                     # keep some data in the buffer - helps to find EOF in time
                     my @x;
                     unshift @x, $ret->pop for 1 .. $arity;
-                    unshift @{$self->{pops}}, $code->( @x );
+                    unshift @{$self->{pops}}, $code->do( @x );
                 }
                 return pop @{$self->{pops}} if @{$self->{pops}};
             }
@@ -459,6 +459,7 @@ sub zip {
 }
 
 sub _MySub::arity { 1 };
+sub _MySub::do    { (shift)->(@_) };
 
 sub uniq { 
     # TODO - use p6 hash
