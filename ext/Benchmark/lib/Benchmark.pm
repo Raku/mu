@@ -5,15 +5,15 @@ sub timeit ($count, $code is copy) is export {
     $code = eval "sub \{ $code \}" unless $code.isa("Code");
     # TODO: handle count too low case.
     return _time_func( _loop_func($count, $code) )
-	   »-« # overhead
-	   _time_func( _loop_func($count, -> {}) );
+           »-« # overhead
+           _time_func( _loop_func($count, -> {}) );
 }
 
 sub _loop_func ($count, $code) {
     return sub {
-	for (1..$count) {
-	    $code.();
-	}
+        for (1..$count) {
+            $code.();
+        }
     }
 }
 
@@ -47,10 +47,10 @@ Benchmark - Benchmark running time of Perl 6 code
 
     timethese($count, { hyper => { my @r = @a >>+<< @b },
                         normal => {
-			  my @r = gather {
+                          my @r = gather {
                             take(@a[$_] + @b[$_]) for 0..@a.end;
                           }
-		         }
+                         }
                        });
 
 =head1 TODO
