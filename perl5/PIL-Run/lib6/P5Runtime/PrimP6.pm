@@ -44,9 +44,5 @@ multi sub sign ($x) { $x <=> 0 }
 multi sub abs  ($x) { if $x < 0 { -$x } else { $x } }
 
 multi sub grep ($array,$code) { 
-    #say $array;
-    #say $code;
-    # @array.map( { $code($_) } );
     $array.map( { if $code($_) { $_ } else { '[deleted]' } } )
-    # map( @array, { if $code($_) { $_ } } );
 }

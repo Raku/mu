@@ -132,9 +132,9 @@ MULTI SUB take () {...};
 
 # op1
 #MULTI SUB prefix:<!> ($xx) {...}; # in PrimP6
-MULTI SUB id ($xx) {...};
-MULTI SUB clone ($xx) {...};
-MULTI SUB chop ($xx) {...};
+MULTI SUB id ($xx)    { $xx->id };
+MULTI SUB clone ($xx) { $xx->clone };
+MULTI SUB chop ($xx)  {...};
 MULTI SUB chomp ($xx) {...};
 MULTI SUB Str::split (*@xxa) {...};
 MULTI SUB lc ($xx)      { p6_from_s( lc( $xx->unboxed ) ) };
