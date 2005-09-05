@@ -3,7 +3,7 @@
 use strict;
 
 use Test::More;
-plan tests => 27;
+plan tests => 13;
  
 use Perl6::Value;
 use Perl6::Value::List;
@@ -26,6 +26,28 @@ sub MySub::arity { 1 };
   $span = Perl6::Value::List->from_num_range( start => 0, end => Inf, step => 1 );
   is( $span->perl, '(0, 1, 2 ... Inf)', 'perl()' );
 }
+
+{
+  # zip
+  
+  my $a1 = Perl6::Value::List->from_num_range( start => 4, end => 5 ); 
+  my $a2 = Perl6::Value::List->from_num_range( start => 1, end => 3 ); 
+  $a1 = $a1->zip( $a2 );
+  is( $a1->shift, 4, 'zip' );
+  is( $a1->shift, 1, 'zip' );
+
+  # is( $a1->elems, Inf, 'zip' );
+
+  is( $a1->shift, 5, 'zip' );
+  is( $a1->shift, 2, 'zip' );
+  is( $a1->shift, undef, 'zip' );
+  is( $a1->elems, 1 );
+  is( $a1->shift, 3, 'zip' );
+  is( $a1->elems, 0 );
+  is( $a1->shift, undef, 'zip' );
+}
+
+__END__
 
 {
   # 'Iter' object
@@ -109,24 +131,4 @@ sub MySub::arity { 1 };
 # TODO  is( $p->ref,  'Pair',     'pair' );
 # TODO  is( $p->perl, '(0 => 4)', 'pair' );
 ;}
-
-{
-  # zip
-  
-  my $a1 = Perl6::Value::List->from_num_range( start => 4, end => 5 ); 
-  my $a2 = Perl6::Value::List->from_num_range( start => 1, end => 3 ); 
-  $a1 = $a1->zip( $a2 );
-  is( $a1->shift, 4, 'zip' );
-  is( $a1->shift, 1, 'zip' );
-
-  # is( $a1->elems, Inf, 'zip' );
-
-  is( $a1->shift, 5, 'zip' );
-  is( $a1->shift, 2, 'zip' );
-  is( $a1->shift, undef, 'zip' );
-  is( $a1->elems, 1 );
-  is( $a1->shift, 3, 'zip' );
-  is( $a1->elems, 0 );
-  is( $a1->shift, undef, 'zip' );
-}
 
