@@ -120,7 +120,8 @@ package PSub; @ISA = qw(EvalX::BaseClass); sub expand {
     my $sub = p6_new_sub_from_pil_macro($_[0]{'pSubName'},
 					$_[0]{'pSubParams'},
 					$body,
-					'macro');
+					'macro',
+					'Sub');
     if($_[0]{'pSubType'} eq 'SubMethod') {
 	my $name = $_[0]{'pSubName'};
 	my $class = $name;
@@ -141,7 +142,17 @@ package PSub; @ISA = qw(EvalX::BaseClass); sub expand {
 	 ."}\n");
     }
 }
-# package PCode;  see hack above
+# package PCode;  also see hack above
+package PCode; @ISA = qw(EvalX::BaseClass); sub expand {
+    use PIL::Run::ApiX;
+    my $body = $_[0]{'pBody'} eq 'PNil' ? "" : $_[0]{'pBody'}->expand();
+    my $sub = p6_new_sub_from_pil_macro("<just a block>",
+					$_[0]{'pParams'},
+					$body,
+					'macro',
+					'Code');
+    $sub;
+}
 package PIL::Environment; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
     "package ".&p6_main().";\n".$_[0]->SUPER::expand().";\n";    

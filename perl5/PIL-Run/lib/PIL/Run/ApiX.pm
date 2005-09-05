@@ -197,7 +197,7 @@ sub p6_new {
     Carp::confess "unknown class";
 }
 sub p6_new_sub_from_pil_macro {
-    my($name,$pil_params,$body,$want_macro)=@_;
+    my($name,$pil_params,$body,$want_macro,$SubOrCode)=@_;
     my $listify = sub {
 	join(",",map{
 	    s/\\/\\\\/g; s/\'/\\\'/g;
@@ -234,15 +234,15 @@ sub p6_new_sub_from_pil_macro {
     if($want_macro) {
 	my $params = ('[map{Perl6::Param->new(\'name\' => $_)} '
 		      .'('.$listify->(@names6arg).')]');
-	"Sub->new(".("'\$.name' => '$name',".
+	$SubOrCode."->new(".("'\$.name' => '$name',".
 		     "'\$.params' => $params,".
 		     "'\$.body' => $subdef)");
     } else {
 	my $params = [map{Perl6::Param->new('name' => $_)} @names6arg];
 	my $subdef = eval($subdef);  die "bug $@" if $@;
-	Sub->new('$.name' => $name,
-		 '$.params' => $params,
-		 '$.body' => $subdef);
+	$SubOrCode->new('$.name' => $name,
+			'$.params' => $params,
+			'$.body' => $subdef);
     }
 }
 sub p6_declare_class {
