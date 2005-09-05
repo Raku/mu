@@ -2023,7 +2023,7 @@ qLiteral = do -- This should include q:anything// as well as '' "" <>
       else do -- XXX an ugly kludge providing crude heredocs
         endMarker <- (liftM (string) $ many1 wordAny)
         qEnd; ruleWhiteSpaceLine
-        qLiteral1 (string "never match rb89fjLS") endMarker flags
+        qLiteral1 (fail "never match") endMarker flags
 
 qLiteral1 :: RuleParser String    -- Opening delimiter
              -> RuleParser String -- Closing delimiter
