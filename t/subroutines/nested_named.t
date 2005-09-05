@@ -14,7 +14,7 @@ plan 3;
 sub factorial (Int $n) {
     my sub facti (Int $acc, Int $i) {
         return $acc if $i > $n;
-	facti($acc * $i, $i + 1);
+        facti($acc * $i, $i + 1);
     }
     facti(1, 1);
 } ;

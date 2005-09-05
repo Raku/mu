@@ -15,18 +15,18 @@ plan 20;
 my @log;
 
 sub foo {
-	push @log, "foo";
+    push @log, "foo";
 }
 
 sub wrapper {
-	push @log, "wrapper before";
-	try { call };
-	push @log, "wrapper after";
+    push @log, "wrapper before";
+    try { call };
+    push @log, "wrapper after";
 }
 
 sub other_wrapper {
-	push @log, "wrapper2";
-	try { call };
+    push @log, "wrapper2";
+    try { call };
 }
 
 foo();
@@ -44,7 +44,7 @@ is(@log[1], "wrapper after", "wrapper after");
 
 my $wrapped;
 try {
-	$wrapped = &foo.wrap(&wrapper);
+    $wrapped = &foo.wrap(&wrapper);
 };
 
 isa_ok($wrapped, "Sub", :todo);
@@ -61,7 +61,7 @@ is(@log[2], "wrapper after", "wrapper after", :todo);
 
 my $doublywrapped;
 try {
-	$doublywrapped = $wrapped.wrap(&other_wrapper);
+    $doublywrapped = $wrapped.wrap(&other_wrapper);
 };
 
 isa_ok($doublywrapped, "Sub", :todo);
@@ -83,7 +83,7 @@ is(@log[0], "wrapper before", "the original wrapper is still in effect", :todo);
 
 my $unwrapped;
 try {
-	$unwrapped = $wrapped.unwrap(&wrapper);
+    $unwrapped = $wrapped.unwrap(&wrapper);
 };
 
 isa_ok($unwrapped, "Sub", :todo);

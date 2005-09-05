@@ -16,7 +16,7 @@ Tests curried subs as defined by L<S06/Currying>
 plan 8;
 
 sub foo (+$x, +$y, +$z = 'd') {
-	"x=$x y=$y z=$z";
+    "x=$x y=$y z=$z";
 }
 
 is(foo(1, 2), "x=1 y=2 z=d", "uncurried sub has good output");

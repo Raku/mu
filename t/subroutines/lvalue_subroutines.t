@@ -67,16 +67,16 @@ L<S06/"Lvalue subroutines">
 sub check ($passwd) { return $password eq "fish"; };
 
 eval 'sub checklastval ($passwd) is rw {
-	my $proxy is Proxy(
-		FETCH => sub ($self) {
-			    return lastval();
-			 },
-		STORE => sub ($self, $val) {
-			    die "wrong password" unless check($passwd);
-			    lastval() = $val;
-			 }
-        );
-	return $proxy;
+    my $proxy is Proxy(
+    FETCH => sub ($self) {
+            return lastval();
+         },
+    STORE => sub ($self, $val) {
+            die "wrong password" unless check($passwd);
+            lastval() = $val;
+         }
+    );
+    return $proxy;
 };';
 
 my $errors;
@@ -92,10 +92,10 @@ is($resultval, 12, 'proxy lvalue subroutine FETCH works', :todo<feature>);
 
 my $realvar = "foo";
 eval_ok 'sub proxyvar ($prefix) is rw {
-	    return new Proxy:
-		FETCH => { $prefix ~ lc($realvar) },
-		STORE => { lc($realvar = $^val) };
-        }; 1', 'defining lvalue sub using `new Proxy: ` works', :todo<feature>;
+    return new Proxy:
+    FETCH => { $prefix ~ lc($realvar) },
+    STORE => { lc($realvar = $^val) };
+}; 1', 'defining lvalue sub using `new Proxy: ` works', :todo<feature>;
 eval_is 'proxyvar("PRE")', 'PREfoo', 'proxy lvalue subroutine FETCH works', :todo<feature>;
 # Return value of assignments of Proxy objects is decided now.
 # See thread "Assigning Proxy objects" on p6l,

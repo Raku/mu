@@ -198,10 +198,10 @@ is(%foo_hash_return<baz>, 3, 'got the right return value');
 
 my $keys;
 lives_ok({ $keys = +(foo_hash().keys) },
-	"can call method on return value (hashref)");
+    "can call method on return value (hashref)");
 is($keys, 3, "got right result");
 lives_ok({ foo_hash()<foo> },
-	"can hash de-ref return value (hashref)");
+    "can hash de-ref return value (hashref)");
 
 # now hash refs
 
@@ -218,7 +218,7 @@ is($foo_hash_ref_return<bar>, 2, 'got the right return value');
 is($foo_hash_ref_return<baz>, 3, 'got the right return value');
 
 lives_ok({ $keys = +(foo_hash_ref().keys) },
-	"can call method on return value (hashref)");
+    "can call method on return value (hashref)");
 is($keys, 3, "got right result");
 lives_ok({ foo_hash_ref()<foo> },
-	"can hash de-ref return value (hashref)");
+    "can hash de-ref return value (hashref)");

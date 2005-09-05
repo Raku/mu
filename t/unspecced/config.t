@@ -14,62 +14,62 @@ following values in C<< %?CONFIG >>:
 
     archlib
     archname
-	bin
-	exe_ext
-	file_sep
-	installarchlib
-	installbin
-	installprivlib
-	installscript
-	installsitearch
-	installsitebin
-	installsitelib
-	osname
-	pager
-	path_sep
-	perl_revision
-	perl_subversion
-	perl_version
-	prefix
-	privlib
-	pugspath
-	scriptdir
-	sitearch
-	sitebin
-	sitelib
-	pugs_versnum
-	pugs_version
+    bin
+    exe_ext
+    file_sep
+    installarchlib
+    installbin
+    installprivlib
+    installscript
+    installsitearch
+    installsitebin
+    installsitelib
+    osname
+    pager
+    path_sep
+    perl_revision
+    perl_subversion
+    perl_version
+    prefix
+    privlib
+    pugspath
+    scriptdir
+    sitearch
+    sitebin
+    sitelib
+    pugs_versnum
+    pugs_version
     pugs_revision
 
 =cut
 
 my @config = <
-  archlib archname
-	bin
-	exe_ext
-	file_sep
-	installarchlib
-	installbin
-	installprivlib
-	installscript
-	installsitearch
-	installsitebin
-	installsitelib
-	osname
-	pager
-	path_sep
-	perl_revision
-	perl_subversion
-	perl_version
-	prefix
-	privlib
-	pugspath
-	scriptdir
-	sitearch
-	sitebin
-	sitelib
-	pugs_versnum
-	pugs_version
+    archlib archname
+    bin
+    exe_ext
+    file_sep
+    installarchlib
+    installbin
+    installprivlib
+    installscript
+    installsitearch
+    installsitebin
+    installsitelib
+    osname
+    pager
+    path_sep
+    perl_revision
+    perl_subversion
+    perl_version
+    prefix
+    privlib
+    pugspath
+    scriptdir
+    sitearch
+    sitebin
+    sitelib
+    pugs_versnum
+    pugs_version
     pugs_revision
 >;
 
@@ -79,12 +79,12 @@ diag "Running under $*OS";
 
 my ($pugs,$redir) = ("./pugs", ">");
 if($*OS eq any<MSWin32 mingw msys cygwin>) {
-  $pugs = 'pugs.exe';
+    $pugs = 'pugs.exe';
 };
 
- ok( defined %?CONFIG, '%?CONFIG is defined' );
- ok( %?CONFIG.keys() > 0, '%?CONFIG contains keys and values' );
+ok( defined %?CONFIG, '%?CONFIG is defined' );
+ok( %?CONFIG.keys() > 0, '%?CONFIG contains keys and values' );
 for @config -> $entry {
-  # diag $entry;
-  ok( defined %?CONFIG<<$entry>>, '%?CONFIG{'~$entry~'} exists' ,:todo<UNSPECCED>);
+    # diag $entry;
+    ok( defined %?CONFIG<<$entry>>, '%?CONFIG{'~$entry~'} exists' ,:todo<UNSPECCED>);
 };

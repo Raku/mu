@@ -5,12 +5,12 @@ use Test;
 plan 3;
 
 sub sanity{
-	my %sane = zip 'a'..'d',1..4;
-	isa_ok(%sane, Hash, '%sane is a Hash');
+    my %sane = zip 'a'..'d',1..4;
+    isa_ok(%sane, Hash, '%sane is a Hash');
 }
 
 sub insanity (Hash %baloney) returns Void{
-	isa_ok(%baloney, Hash, '%baloney is a Hash');
+    isa_ok(%baloney, Hash, '%baloney is a Hash');
 }
 
 # sanity 0

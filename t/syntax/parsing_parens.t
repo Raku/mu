@@ -18,7 +18,7 @@ plan 1;
 
 # This should fail to parse but doesn't
 {
-	my $foo = 1;
-	eval '(1) { $foo = 2 }';
-	is $foo, 1, 'checking that parens do not eat spaces after them';
+    my $foo = 1;
+    eval '(1) { $foo = 2 }';
+    is $foo, 1, 'checking that parens do not eat spaces after them';
 };

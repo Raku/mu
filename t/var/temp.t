@@ -112,7 +112,7 @@ plan 31;
   }';
 
   # and later...
-									  
+
   is advance(), 0, "TEMP{} block (1)", :todo<feature>;
   is advance(), 1, "TEMP{} block (2)", :todo<feature>;
   is advance(), 2, "TEMP{} block (3)", :todo<feature>;
@@ -148,8 +148,8 @@ plan 31;
   eval '
     class WierdTemp is Int {
       method TEMP {
-	$was_in_own_temp_handler++;
-	return { $was_in_own_temp_handler++ };
+        $was_in_own_temp_handler++;
+        return { $was_in_own_temp_handler++ };
       }
   ';
 

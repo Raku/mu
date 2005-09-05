@@ -34,7 +34,7 @@ sub take(Int $n, Code &f) { (1..$n).map:{ f() } }
     coro {
       my $num;
       while 1 {
-	yield ++$num;
+        yield ++$num;
       }
     };
   };
@@ -51,8 +51,8 @@ sub take(Int $n, Code &f) { (1..$n).map:{ f() } }
   my @array = take 5, {
     coro {
       while 1 {
-	state $num;
-	yield ++$num;
+        state $num;
+        yield ++$num;
       }
     };
   };

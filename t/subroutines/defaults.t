@@ -14,7 +14,7 @@ plan 2;
 sub doubler($x) { return 2 * $x }
 
 sub value_v(Code +$func = &doubler) {
-	return $func(5);
+    return $func(5);
 }
 
 is(value_v, 10, "default sub called");
@@ -26,7 +26,7 @@ use v6;
 sub double($x) { return 2 * $x }
 
 sub val_v(Code +$func = &double) is export {
-	return $func(5);
+    return $func(5);
 }
 
 package main;

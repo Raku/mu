@@ -115,12 +115,12 @@ plan 10;
     my $str = "abc";
 
     my $re  = {
-	# Perl 5 RE, as we don't want to force people to install Parrot ATM. (The
-	# test passes when using the Perl 6 RE, too.)
-	$str ~~ s:Perl5/^(.)/{
-	  state $svar;
-	  ++$svar;
-	}/;
+    # Perl 5 RE, as we don't want to force people to install Parrot ATM. (The
+    # test passes when using the Perl 6 RE, too.)
+    $str ~~ s:Perl5/^(.)/{
+      state $svar;
+      ++$svar;
+    }/;
     };
     $re();
     $re();

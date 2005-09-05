@@ -82,8 +82,8 @@ L<S06/"Unpacking array parameters">
 =cut
 
 sub argShifter (@a) {
-	my $first := shift @a;
-	return $first;
+    my $first := shift @a;
+    return $first;
 }
 
 is argShifter([1]), 1,    "use shift on an array argument";

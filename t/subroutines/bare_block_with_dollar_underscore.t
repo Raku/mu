@@ -9,7 +9,7 @@ my $dollar_underscore;
 {
     $_ = 42;
     {
-	$dollar_underscore = $_;
+        $dollar_underscore = $_;
     }
 }
 
