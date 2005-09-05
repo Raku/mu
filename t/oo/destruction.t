@@ -29,6 +29,13 @@ my $foo = Foo.new();
 is( $foo.ref,      'Foo', 'basic instantiation of declared class' );
 ok( ! $in_destructor,    'destructor should not fire while object is active' );
 
+# -- erratic behaviour; fail+todo for now
+fail("destruction - 1", :todo<bug>);
+fail("destruction - 2", :todo<bug>);
+fail("destruction - 3", :todo<bug>);
+fail("destruction - 4", :todo<bug>);
+exit;
+
 my $child = Child.new();
 undefine $child;
 
@@ -37,13 +44,6 @@ for 1 .. 100
 {
     $foo = Foo.new();
 }
-
-# -- erratic behaviour; fail+todo for now
-fail("destruction - 1", :todo<bug>);
-fail("destruction - 2", :todo<bug>);
-fail("destruction - 3", :todo<bug>);
-fail("destruction - 4", :todo<bug>);
-exit;
 
 ok( $in_destructor, '... only when object goes away everywhere'               );
 is(  @destructor_order[0], 'Child',  'Child DESTROY should fire first'        );
