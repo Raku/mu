@@ -48,8 +48,6 @@
 
 # TODO - XXX - perl5 doesn't support string decrement
 
-# TODO - 'Rat'
-
 # TODO - implement tests from t/var/autoderef.t
 # TODO - tie
 # TODO - constant

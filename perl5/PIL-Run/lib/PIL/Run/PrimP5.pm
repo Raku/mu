@@ -408,7 +408,7 @@ MULTI SUB infix:<xor> ($xx0,$xx1) {...};
 MULTI SUB infix:<err> ($xx0,$xx1) {...};
 MULTI SUB infix:<nor> ($xx0,$xx1) {...};
 MULTI SUB grep ($xx0,$xx1) {...};
-MULTI SUB map ($xx0,$xx1) {...};
+#MULTI SUB map ($xx0,$xx1) {...};
 # join - see op1
 MULTI SUB reduce ($xx0,$xx1) {...};
 # kill - see op1

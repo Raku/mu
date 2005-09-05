@@ -328,6 +328,14 @@ class 'Array'.$class_description => {
                 $res->push( $array->zip( @array_list ) );
                 return $res;
             },
+            'map' => sub {
+                my $array = shift;  $array = $array->to_list;
+                my $code = shift;
+                die "Argument to map() must be a Code" unless UNIVERSAL::isa( $code, 'Code' );
+                my $res = Array->new;
+                $res->push( $array->map( $code ) );
+                return $res;
+            },
             'kv' => sub  { 
                 my $array = shift; 
                 my $keys = $array->keys;
