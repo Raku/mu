@@ -2,7 +2,7 @@ Source: pugs
 Section: interpreters
 Priority: optional
 Maintainer: Florian Ragwitz <rafl@debianforum.de>
-Build-Depends: debhelper (>= 4.0.0), ghc6, perl
+Build-Depends: debhelper (>= 4.0.0), ghc6, perl, libyaml-perl
 Standards-Version: 3.6.2
 
 Package: pugs
