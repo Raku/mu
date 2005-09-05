@@ -386,15 +386,15 @@ sub _switches {
     # all that on the command line as -Is.
     # MacPerl's putenv is broken, so it will not see PERL5LIB, tainted or not.
     if ( $taint || $self->{_is_macos} ) {
-	my @inc = $self->_filtered_INC;
-	push @derived_switches, map { "-I$_" } @inc;
+        my @inc = $self->_filtered_INC;
+        push @derived_switches, map { "-I$_" } @inc;
     }
 
     # Quote the argument if there's any whitespace in it, or if
     # we're VMS, since VMS requires all parms quoted.  Also, don't quote
     # it if it's already quoted.
     for ( @derived_switches ) {
-	$_ = qq["$_"] if ((/\s/ || $self->{_is_vms}) && !/^".*"$/ );
+        $_ = qq["$_"] if ((/\s/ || $self->{_is_vms}) && !/^".*"$/ );
     }
     return join( " ", @existing_switches, @derived_switches );
 }
@@ -414,11 +414,11 @@ sub _cleaned_switches {
 
     my @switches;
     for ( @_ ) {
-	my $switch = $_;
-	next unless defined $switch;
-	$switch =~ s/^\s+//;
-	$switch =~ s/\s+$//;
-	push( @switches, $switch ) if $switch ne "";
+        my $switch = $_;
+        next unless defined $switch;
+        $switch =~ s/^\s+//;
+        $switch =~ s/\s+$//;
+        push( @switches, $switch ) if $switch ne "";
     }
 
     return @switches;
@@ -455,13 +455,13 @@ sub _filtered_INC {
     @inc = @INC unless @inc;
 
     if( $self->{_is_vms} ) {
-	# VMS has a 255-byte limit on the length of %ENV entries, so
-	# toss the ones that involve perl_root, the install location
+        # VMS has a 255-byte limit on the length of %ENV entries, so
+        # toss the ones that involve perl_root, the install location
         @inc = grep !/perl_root/i, @inc;
 
     } elsif ( $self->{_is_win32} ) {
-	# Lose any trailing backslashes in the Win32 paths
-	s/[\\\/+]$// foreach @inc;
+        # Lose any trailing backslashes in the Win32 paths
+        s/[\\\/+]$// foreach @inc;
     }
 
     my %seen;

@@ -821,21 +821,21 @@ sub _canonfailed ($$@) {
 
     push @result, "\tFailed $failed/$max tests, ";
     if ($max) {
-	push @result, sprintf("%.2f",100*(1-$failed/$max)), "% okay";
+        push @result, sprintf("%.2f",100*(1-$failed/$max)), "% okay";
     } else {
-	push @result, "?% okay";
+        push @result, "?% okay";
     }
     my $ender = 's' x ($skipped > 1);
     if ($skipped) {
         my $good = $max - $failed - $skipped;
-	my $skipmsg = " (less $skipped skipped test$ender: $good okay, ";
-	if ($max) {
-	    my $goodper = sprintf("%.2f",100*($good/$max));
-	    $skipmsg .= "$goodper%)";
-	} else {
-	    $skipmsg .= "?%)";
-	}
-	push @result, $skipmsg;
+        my $skipmsg = " (less $skipped skipped test$ender: $good okay, ";
+        if ($max) {
+            my $goodper = sprintf("%.2f",100*($good/$max));
+            $skipmsg .= "$goodper%)";
+        } else {
+            $skipmsg .= "?%)";
+        }
+        push @result, $skipmsg;
     }
     push @result, "\n";
     my $txt = join "", @result;
