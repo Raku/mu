@@ -8,12 +8,6 @@ use Test::Exception;
 
 use Perl6::MetaModel;
 
-=pod
-
-this test was converted from t/oo/object_id.t
-
-=cut
-
 my $Foo = class 'Foo' => { is => [ $::Object ] };
 
 # test all the same class

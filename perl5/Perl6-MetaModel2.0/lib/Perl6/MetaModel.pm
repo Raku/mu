@@ -75,10 +75,10 @@ sub _build_class {
                 }
             }
         }
-        if ($body->{sub_methods}) {
-            foreach my $method_name (keys %{$body->{sub_methods}}) {
+        if ($body->{submethods}) {
+            foreach my $method_name (keys %{$body->{submethods}}) {
                 $new_class->add_method($method_name => ::make_submethod(
-                    $body->{sub_methods}->{$method_name}, $new_class
+                    $body->{submethods}->{$method_name}, $new_class
                 ));
             }
         }                

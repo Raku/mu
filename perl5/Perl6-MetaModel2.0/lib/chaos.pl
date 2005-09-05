@@ -223,19 +223,30 @@ our $DISPATCH_TRACE = 0;
     # $?CLASS aware). Submethod are also special in that
     # this implcit test can be overridden.
     sub ::make_submethod ($$) {
-        my ($method, $associated_with) = @_;
-        return bless ::make_method(sub {
+        # we create the basic method wrapper first        
+        my $method = ::make_method($_[0], $_[1]);
+        my $associated_with = $_[1]; 
+        # then the submethod wrapper is wrapped
+        # around the wrapped basic method. This allows
+        # us to be sure that $?SELF is the correct value
+        # otherwise the FORCE value could be taken as 
+        # $?SELF which is not correct. However this means
+        # that I cannot test it as speced really with
+        #    next METHOD if $?SELF.class =:= $?CLASS
+        # and I have to rely on the values which will
+        # eventually be bound to $?SELF and $?CLASS.       
+        return bless sub {
             if (!$_[0] || $_[0] ne $Perl6::Submethod::FORCE) {
                 return ::next_METHOD()
-                    if ::opaque_instance_id(::opaque_instance_class($::SELF)) 
+                    if ::opaque_instance_id(::opaque_instance_class($_[0])) 
                        != 
-                       ::opaque_instance_id($::CLASS); 
+                       ::opaque_instance_id($associated_with); 
             }
             elsif ($_[0] eq $Perl6::Submethod::FORCE) {
                 shift(@_);
             }
             return $method->(@_);
-        }, $associated_with) => 'Perl6::Submethod';
+        } => 'Perl6::Submethod';
     }   
     
     {   ## Method "Types"

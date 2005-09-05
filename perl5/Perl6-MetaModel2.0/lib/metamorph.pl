@@ -46,7 +46,7 @@ $::Class->add_method('CREATE' => ::make_method(sub {
 $::Class->add_method('BUILDALL' => ::make_method(sub { 
     my ($self, %params) = @_;
     my $dispatcher = ::opaque_instance_class($self)->dispatcher(':descendant');
-    while (my $method = ::WALKMETH($dispatcher, 'BUILD')) {                      
+    while (my $method = ::WALKMETH($dispatcher, 'BUILD')) { 
         $method->($Perl6::Submethod::FORCE, $self, %params);                  
     }      
 }, $::Class));

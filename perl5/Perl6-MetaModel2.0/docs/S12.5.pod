@@ -34,17 +34,20 @@ Synopsis 12.
 
 =over 4
 
-=item C<name>
+=item C<name (?$name)>
 
 This is a read-write accessor method which determines the name of the class it is associated 
 with. Its default value is C<undef>, which is essentially an anonymous class.
 
-=item C<version>
+NOTE: Changing the name of a class at runtime is possible, however it is likely that doing so
+could have many unforseen consequences, and so it is generally discouraged.
+
+=item C<version (?$version)>
 
 Also a read-write accessor method, this is the version number of the class it is associated 
 with. Its default value is C<0.0.0>.
 
-=item C<authority>
+=item C<authority (?$authority)>
 
 This is also a read-write accessor method; it is the certifying authority for the class 
 it is associated with. This will likely be a string in one of the following formats:
@@ -60,6 +63,76 @@ them into a single string separated by '-' characters. This is the format found 
 defintions:
 
   class Foo-0.0.5-cpan:BARBAZ { ... }
+
+=back
+
+=head3 Superclasses and MROs
+
+The following are methods which can be used to determine superclass relationships as well as the 
+MRO (Method Resolution Order) of a given class. 
+
+=over 4 
+
+=item C<superclasses (?$superclasses)>
+
+=item C<is_a ($class_name)>
+
+=item C<MRO>
+
+=item C<dispatcher (?$order)>
+
+The following values of C<$order> are supported:
+
+  :preorder
+  :breadth
+  :descendant
+  :ascendant
+
+=back
+
+=head3 Methods, Submethods, etc.
+
+Let me first begin this by saying that there are a number of assumptions made in the MetaModel design 
+regarding methods, they are as follows:
+
+=over 4
+
+=item *
+
+There will be a C<method> primative, and that it will properly bind and unbind the C<$?SELF> and 
+C<$?CLASS> values.
+
+=item *
+
+There will be a C<multi method> primative, and it will do all the same things as C<method> and it will 
+be possible to store all variants of the multi-method into a single slot in the class.
+
+=item *
+
+There will be a C<submethod> primative, and that it will properly perform the following check prior to 
+executing the underlying body of code:
+
+  next METHOD unless $?SELF.class =:= $?CLASS;
+
+The C<submethod> primative will also properly bind and unbind the C<$?SELF> and C<$?CLASS> values.
+
+=item *
+
+There is a C<private method> primative which makes the assumption that the value in C<$?CLASS> will be 
+the same as the class the method is associated with. The result of this is that the private method can
+only be called from within that class. It is also important to note that when dispatching on a private
+method the value in $?CLASS should be used to find the methods in. This allows for subclasses to be
+the invocant, while still retaining the privacy of the method during internal calls.
+
+=back
+
+=over 4
+
+=item C<has_method ($label)>
+
+=item C<get_method ($label)>
+
+=item C<add_method ($label, $method)>
 
 =back
 
