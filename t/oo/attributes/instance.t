@@ -175,7 +175,7 @@ class Foo6b {
 
   submethod BUILD (?$.bar = 10, ?$.baz) {
     $.baz = 9;
-	return;
+    return;
   }
 }
 

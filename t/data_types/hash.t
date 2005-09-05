@@ -142,12 +142,12 @@ is(%hash10<1>, 2, "assignment of pointy qw to hash");
 # after t/pugsbugs/unhashify.t
 
 sub test1{
-	my %sane = hash ('a'=>'b');
-	is(%sane.ref,'Hash','%sane is a Hash');
+    my %sane = hash ('a'=>'b');
+    is(%sane.ref,'Hash','%sane is a Hash');
 }
 
 sub test2 (Hash %hash) returns Void{
-	is(%hash.ref,'Hash','%hash is a Hash',:todo<bug>);
+    is(%hash.ref,'Hash','%hash is a Hash',:todo<bug>);
 }
 
 my %h = hash (a => 'b');

@@ -98,34 +98,34 @@ is($val, "baz", "lvalue pairs");
 
 my $var   = 'foo' => 'bar';
 sub test1 (Any|Pair $pair) {
-	isa_ok($pair,'Pair');
-	my $testpair = $pair;
-	isa_ok($testpair,'Pair'); # new lvalue variable is also a Pair
-	my $boundpair := $pair;
-	isa_ok($boundpair,'Pair'); # bound variable is also a Pair
-	is($pair.key, 'foo', 'in sub test1 got the right $pair.key');
-	is($pair.value, 'bar', 'in sub test1 got the right $pair.value');
+    isa_ok($pair,'Pair');
+    my $testpair = $pair;
+    isa_ok($testpair,'Pair'); # new lvalue variable is also a Pair
+    my $boundpair := $pair;
+    isa_ok($boundpair,'Pair'); # bound variable is also a Pair
+    is($pair.key, 'foo', 'in sub test1 got the right $pair.key');
+    is($pair.value, 'bar', 'in sub test1 got the right $pair.value');
 
 }
 test1 $var;
 
 my %hash  = ('foo' => 'bar');
 for  %hash.pairs -> $pair {
-	isa_ok($pair,'Pair',:todo<bug>) ; 
-	my $testpair = $pair;
-	isa_ok($testpair,'Pair',:todo<bug>); # new lvalue variable is also a Pair
-	my $boundpair := $pair;
-	isa_ok($boundpair,'Pair',:todo<bug>); # bound variable is also a Pair
-	is($pair.key, 'foo', 'in for loop got the right $pair.key');
-	is($pair.value, 'bar', 'in for loop got the right $pair.value');
+    isa_ok($pair,'Pair',:todo<bug>) ; 
+    my $testpair = $pair;
+    isa_ok($testpair,'Pair',:todo<bug>); # new lvalue variable is also a Pair
+    my $boundpair := $pair;
+    isa_ok($boundpair,'Pair',:todo<bug>); # bound variable is also a Pair
+    is($pair.key, 'foo', 'in for loop got the right $pair.key');
+    is($pair.value, 'bar', 'in for loop got the right $pair.value');
 }
 
 sub test2 (Hash %h){
-	for %h.pairs -> $pair {
-		isa_ok($pair,'Pair',:todo<bug>) ; 
-		is($pair.key, 'foo', 'in sub test2 got the right $pair.key');
-		is($pair.value, 'bar', 'in sub test2 got the right $pair.value');
-	}
+    for %h.pairs -> $pair {
+        isa_ok($pair,'Pair',:todo<bug>) ; 
+        is($pair.key, 'foo', 'in sub test2 got the right $pair.key');
+        is($pair.value, 'bar', 'in sub test2 got the right $pair.value');
+    }
 }
 test2 %hash;
 
@@ -133,11 +133,11 @@ test2 %hash;
 # http://www.nntp.perl.org/group/perl.perl6.language/22593
 
 sub test3 (Hash %h){
-	for %h.pairs -> $pair {
-		isa_ok($pair,'Pair',:todo<bug>) ; 
-		dies_ok({$pair[0]}, 'sub test3: access by $pair[0] should not work');
-		dies_ok({$pair[1]}, 'sub test3: access by $pair[1] should not work');
-	}
+    for %h.pairs -> $pair {
+        isa_ok($pair,'Pair',:todo<bug>) ; 
+        dies_ok({$pair[0]}, 'sub test3: access by $pair[0] should not work');
+        dies_ok({$pair[1]}, 'sub test3: access by $pair[1] should not work');
+    }
 }
 test3 %hash;
 
@@ -146,12 +146,12 @@ test3 %hash;
 Hm, Hash::pair? Never heard of that.  --iblech
 
 sub test4 (Hash %h){
-	for %h.pair -> $pair {
-		isa_ok($pair,'Pair',:todo<bug>) ; 
-		is($pair.key, 'foo', 'sub test4: access by unspecced "pair" got the right $pair.key');
-		is($pair.value, 'bar', 'sub test4: access by unspecced "pair" got the right $pair.value');
+    for %h.pair -> $pair {
+        isa_ok($pair,'Pair',:todo<bug>) ; 
+        is($pair.key, 'foo', 'sub test4: access by unspecced "pair" got the right $pair.key');
+        is($pair.value, 'bar', 'sub test4: access by unspecced "pair" got the right $pair.value');
 
-	}
+    }
 }
 test4 %hash;
 

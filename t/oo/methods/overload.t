@@ -17,9 +17,9 @@ my ($foo_class, $bar_class) = (StubClass, StubClass);
 
 eval '
     class Foo {
-	has $.bar is rw;
-	multi method prefix:<~> ($self)  { return $.bar }
-	mutli method infix:<+>  ($a, $b) { return "$a $b" }
+    has $.bar is rw;
+    multi method prefix:<~> ($self)  { return $.bar }
+    mutli method infix:<+>  ($a, $b) { return "$a $b" }
     }
 
     $foo_class = Foo;
@@ -27,7 +27,7 @@ eval '
 
 eval '
     class Bar {
-	has $.bar is rw;
+    has $.bar is rw;
     }
 
     multi sub prefix:<~> (Bar $self)      { return $self.bar }
@@ -41,20 +41,20 @@ run_tests_with($bar_class);
 
 sub run_tests_with($class) {
     {
-	my $val;
-	lives_ok {
-	    my $foo = $class.new();
-	    $foo.bar = 'software';
-	    $val = "$foo"
-	}, '... class methods work for class', :todo<feature>;
-	is($val, 'software', '... basic prefix operator overloading worked', :todo<feature>);
+    my $val;
+    lives_ok {
+        my $foo = $class.new();
+        $foo.bar = 'software';
+        $val = "$foo"
+    }, '... class methods work for class', :todo<feature>;
+    is($val, 'software', '... basic prefix operator overloading worked', :todo<feature>);
 
-	lives_ok {
-	    my $foo = $class.new();
-	    $foo.bar = 'software';
-	    $val = $foo + $foo;
-	}, '... class methods work for class', :todo<feature>;
-	is($val, 'software software', '... basic infix operator overloading worked', :todo<feature>);
+    lives_ok {
+        my $foo = $class.new();
+        $foo.bar = 'software';
+        $val = $foo + $foo;
+    }, '... class methods work for class', :todo<feature>;
+    is($val, 'software software', '... basic infix operator overloading worked', :todo<feature>);
     }
 
     # Test that the object is correctly stringified when it is in an array.
@@ -62,8 +62,8 @@ sub run_tests_with($class) {
     {
       my $obj;
       lives_ok {
-	  $obj     = $class.new;
-	  $obj.bar = "pugs";
+      $obj     = $class.new;
+      $obj.bar = "pugs";
       }, "instantiating a class which defines operators worked", :todo<feature>;
 
       my @foo = ($obj, $obj, $obj);

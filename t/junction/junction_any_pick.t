@@ -27,15 +27,15 @@ And this code:
 prints out:
     Int
 
-	sub foo (@a) { my $t = any(@a).pick(); say ref($t); say $t }; foo(1..3)
+    sub foo (@a) { my $t = any(@a).pick(); say ref($t); say $t }; foo(1..3)
 succeeds:
-	Int
-	2
+    Int
+    2
 
-	my @b = (1..3); sub foo (@a) { my $t = any(@a).pick(); say ref($t); say $t }; foo(*@b);
+    my @b = (1..3); sub foo (@a) { my $t = any(@a).pick(); say ref($t); say $t }; foo(*@b);
 succeeds:
-	Int
-	3
+    Int
+    3
 
 =cut
 

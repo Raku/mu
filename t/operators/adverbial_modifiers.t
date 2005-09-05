@@ -16,7 +16,7 @@ eval_is '1...:by(2)[0..4]', <1 3 5 7 9>, 'infinite range operator, :by adverb, w
 # XXX need to test prefix:<=> on $handle with :prompt adverb
 
 sub prefix:<blub> (Str $foo, Int +$times = 1) {
-	("BLUB" x $times) ~ $foo;
+  ("BLUB" x $times) ~ $foo;
 }
 
 is prefix:<blub>("bar"), 'BLUBbar', 'user-defined prefix operator, long name';

@@ -119,9 +119,9 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
       method prefix:<~> { "hi" }
       method prefix:<+> { 42   }
       method coerce:<as>($self, OtherClass $to) {
-	my $obj = $to.new;
-	$obj.x = 23;
-	return $obj;
+        my $obj = $to.new;
+        $obj.x = 23;
+        return $obj;
       }
     }
 

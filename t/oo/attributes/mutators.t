@@ -13,7 +13,7 @@ class LValueMutator {
     has Int $:bar;
 
     method foo returns Int is rw {
-	return $:bar;
+    return $:bar;
     }
     method get_foo returns Int is rw {
         return $.foo;
@@ -40,12 +40,12 @@ my $parsefail = !eval_ok '
         has Int $.varies is rw;
     
         method varies returns Int is rw {
-	    $count++;
-	    my $var is Proxy( :for($.varies),
-		 	      :FETCH{ $.varies += 2 },
-			      :STORE{ $.varies = $_ + 1 },
-		     	    );
-	    return $var;
+        $count++;
+        my $var is Proxy( :for($.varies),
+                   :FETCH{ $.varies += 2 },
+                  :STORE{ $.varies = $_ + 1 },
+                     );
+        return $var;
         }
     }
 ', "can parse Proxy trait", :todo<feature>;
@@ -59,13 +59,13 @@ if ($parsefail) {
     is($mv.constant, 6, "normal attribute");
     is($mv.constant, 6, "normal attribute");
     dies_ok { $mv.constant = 7 }, "can't change a non-rw attribute",
-	:todo<bug>;
+    :todo<bug>;
     is($mv.constant, 6, "attribute didn't change value",
-	:todo<bug>);
+    :todo<bug>);
 
     is($count, 2, "mutator was called", :todo<feature>);
     is($mv.varies, 9, "mutator called during object construction",
-	:todo<feature>);
+    :todo<feature>);
     is($count, 3, "accessor was called", :todo<feature>);
     is($mv.varies, 11, "attribute with mutating accessor", :todo<feature>);
     is($count, 4, "accessor was called", :todo<feature>);
@@ -73,8 +73,8 @@ if ($parsefail) {
     $count = 0;
     $mv.varies = 13;
     is($count, 2, "mutator was called", :todo<feature>);
-    is($mv.varies, 16, "attribute with overridden mutator",	
-	:todo<feature>);
+    is($mv.varies, 16, "attribute with overridden mutator",    
+    :todo<feature>);
     is($count, 3, "accessor and mutator were called", :todo<feature>);
 }
 
@@ -100,15 +100,15 @@ if ($parsefail) {
     is($mv.constant, 6, "normal attribute");
     is($mv.constant, 6, "normal attribute");
     dies_ok { $mv.constant = 7 }, "can't change a non-rw attribute",
-	:todo<bug>;
+    :todo<bug>;
     is($mv.constant, 6, "attribute didn't change value",
-	:todo<bug>);
+    :todo<bug>);
 
     is($mv.varies, 9, "mutator called during object construction",
-	:todo<feature>);
+    :todo<feature>);
     is($mv.varies, 11, "attribute with mutating accessor", :todo<feature>);
 
     $mv.varies = 13;
-    is($mv.varies, 16, "attribute with overridden mutator",	
-	:todo<feature>);
+    is($mv.varies, 16, "attribute with overridden mutator",    
+    :todo<feature>);
 }

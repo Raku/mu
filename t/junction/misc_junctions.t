@@ -116,23 +116,23 @@ L<S03/"Junctive operators">
 }
 
 {
-	my $j = 1 | 2;
-	$j = 5;
-	is($j, 5, 'reassignment of junction variable');
+    my $j = 1 | 2;
+    $j = 5;
+    is($j, 5, 'reassignment of junction variable');
 }
 
 {
-	my ($j,$k,$l);
+    my ($j,$k,$l);
 
-	$j = 1|2;
-	is(ref($j),'Junction', 'basic junction type reference test');
+    $j = 1|2;
+    is(ref($j),'Junction', 'basic junction type reference test');
 
-	$k=$j;
-	is(ref($k),'Junction', 'assignment preserves reference');
+    $k=$j;
+    is(ref($k),'Junction', 'assignment preserves reference');
 
-	# XXX does this next one make any sense?
-	$l=\$j;
-	is(ref($l),'Junction', 'hard reference to junction');
+    # XXX does this next one make any sense?
+    $l=\$j;
+    is(ref($l),'Junction', 'hard reference to junction');
 }
 
 

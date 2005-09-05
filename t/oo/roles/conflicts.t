@@ -24,8 +24,8 @@ eval_ok '
     method shake(Str $what) {
       $was_in_general_shake++;
       given $what {
-	when "sentry" { return ./Sentry::shake() }
-	when "pet"    { return ./Pet::shake()    }
+        when "sentry" { return ./Sentry::shake() }
+        when "pet"    { return ./Pet::shake()    }
       }
     }
   }

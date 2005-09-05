@@ -18,10 +18,10 @@ plan 7;
 ##### Without arguments
 class T1
 {
-	method a
-	{
-		'test';
-	}
+    method a
+    {
+        'test';
+    }
 }
 
 my T1 $o .= new;
@@ -34,10 +34,10 @@ is( (a $o), 'test', "The indirect object notation call without arguments 3" );
 ##### With arguments
 class T2
 {
-	method a( $x )
-	{
-		$x;
-	}
+    method a( $x )
+    {
+        $x;
+    }
 }
 
 my T2 $o .= new;

@@ -30,7 +30,7 @@ plan 14;
   eval_ok '
     sub role_generator(Str $val) {
       return role {
-	has $.cool = $val;
+        has $.cool = $val;
       }
     }
   ', "role generating functions defined", :todo<feature>;
