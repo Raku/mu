@@ -10,9 +10,9 @@ use base 'Code::Perl::Expr::Constant';
 
 sub perl
 {
-	my $self = shift;
+    my $self = shift;
 
-	return $self->getValue
+    return $self->getValue
 }
 
 1;

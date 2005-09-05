@@ -10,16 +10,16 @@ use Carp 'confess';
 
 sub eval
 {
-	my $self = shift;
+    my $self = shift;
 
-	return $self->getValue
+    return $self->getValue
 }
 
 sub perl
 {
-	my $self = shift;
+    my $self = shift;
 
-	return $self->getValue;
+    return $self->getValue;
 }
 
 1;

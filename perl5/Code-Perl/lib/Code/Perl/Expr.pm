@@ -22,8 +22,8 @@ use Code::Perl::Expr::Holder;
 use Code::Perl::Expr::SubName;
 
 our %EXPORT_TAGS = (
-	easy => [qw( scal number string list derefh derefa calls callm boolnot perl
-		append holder subname )],
+    easy => [qw( scal number string list derefh derefa calls callm boolnot perl
+        append holder subname )],
 );
 
 our @EXPORT_OK = @{$EXPORT_TAGS{"easy"}};
@@ -73,9 +73,9 @@ Number is for handling numbers.
 
 sub number
 {
-	return Code::Perl::Expr::Number->new(
-		Value => shift
-	);
+    return Code::Perl::Expr::Number->new(
+        Value => shift
+    );
 }
 
 =head2 String
@@ -95,9 +95,9 @@ so that it will stay on one line
 
 sub string
 {
-	return Code::Perl::Expr::String->new(
-		Value => shift
-	);
+    return Code::Perl::Expr::String->new(
+        Value => shift
+    );
 }
 
 =head2 Scalar
@@ -116,9 +116,9 @@ This handles a scalar.
 
 sub scal
 {
-	return Code::Perl::Expr::Scalar->new(
-		Name => shift
-	);
+    return Code::Perl::Expr::Scalar->new(
+        Name => shift
+    );
 }
 
 =head2 List
@@ -137,9 +137,9 @@ List is for producing a comma separated list of expressions.
 
 sub list
 {
-	return Code::Perl::Expr::List->new(
-		Value => [@_]
-	);
+    return Code::Perl::Expr::List->new(
+        Value => [@_]
+    );
 }
 
 =head2 Not
@@ -158,9 +158,9 @@ This applies a logical not to $expr
 
 sub boolnot
 {
-	return Code::Perl::Expr::Not->new(
-		Expr => shift,
-	);
+    return Code::Perl::Expr::Not->new(
+        Expr => shift,
+    );
 }
 
 =head2 Append
@@ -180,9 +180,9 @@ expressions together using Perl's C<.> string append operator.
 
 sub append
 {
-	return Code::Perl::Expr::Append->new(
-		Exprs => [@_],
-	);
+    return Code::Perl::Expr::Append->new(
+        Exprs => [@_],
+    );
 }
 
 =cut
@@ -207,17 +207,17 @@ DerefHash is for dereferencing a hash ref.
 
 sub derefh
 {
-	my $hash = shift;
-	my $index = shift;
-	if (! ref($index))
-	{
-		$index = string($index);
-	}
+    my $hash = shift;
+    my $index = shift;
+    if (! ref($index))
+    {
+        $index = string($index);
+    }
 
-	return Code::Perl::Expr::DerefHash->new(
-		Ref => $hash,
-		Key => $index
-	);
+    return Code::Perl::Expr::DerefHash->new(
+        Ref => $hash,
+        Key => $index
+    );
 }
 
 =head2 DerefArray
@@ -240,17 +240,17 @@ DerefArray is for dereferencing an array ref.
 
 sub derefa
 {
-	my $hash = shift;
-	my $index = shift;
-	if (! ref($index))
-	{
-		$index = number($index);
-	}
+    my $hash = shift;
+    my $index = shift;
+    if (! ref($index))
+    {
+        $index = number($index);
+    }
 
-	return Code::Perl::Expr::DerefArray->new(
-		Ref => $hash,
-		Index => $index
-	);
+    return Code::Perl::Expr::DerefArray->new(
+        Ref => $hash,
+        Index => $index
+    );
 }
 
 =head2 SubName
@@ -266,9 +266,9 @@ creating a CallSub or CallMethod object.
 
 sub subname
 {
-	return Code::Perl::Expr::SubName->new(
-		Value => shift,
-	);
+    return Code::Perl::Expr::SubName->new(
+        Value => shift,
+    );
 }
 
 =head2 CallSub
@@ -294,16 +294,16 @@ list in $args.
 
 sub calls
 {
-	my $subname = shift;
-	if (! ref($subname))
-	{
-		$subname = subname($subname);
-	}
+    my $subname = shift;
+    if (! ref($subname))
+    {
+        $subname = subname($subname);
+    }
 
-	return Code::Perl::Expr::CallSub->new(
-		SubName => $subname,
-		Args => list(@_)
-	);
+    return Code::Perl::Expr::CallSub->new(
+        SubName => $subname,
+        Args => list(@_)
+    );
 }
 
 =head2 CallMethod
@@ -332,18 +332,18 @@ ones that make sense are SubName and Scalar objects.
 
 sub callm
 {
-	my $object = shift;
-	my $method = shift;
-	if (! ref($method))
-	{
-		$method = subname($method);
-	}
+    my $object = shift;
+    my $method = shift;
+    if (! ref($method))
+    {
+        $method = subname($method);
+    }
 
-	return Code::Perl::Expr::CallMethod->new(
-		Object => $object,
-		MethodName => $method,
-		Args => list(@_)
-	);
+    return Code::Perl::Expr::CallMethod->new(
+        Object => $object,
+        MethodName => $method,
+        Args => list(@_)
+    );
 }
 
 =head2 Perl
@@ -363,9 +363,9 @@ as is, without have to parse it and turn it into a Code::Perl structure.
 
 sub perl
 {
-	return Code::Perl::Expr::Perl->new(
-		Perl => shift,
-	);
+    return Code::Perl::Expr::Perl->new(
+        Perl => shift,
+    );
 }
 
 =head2 Holder
@@ -398,9 +398,9 @@ time.
 
 sub holder
 {
-	return Code::Perl::Expr::Holder->new(
-		Expr => shift,
-	);
+    return Code::Perl::Expr::Holder->new(
+        Expr => shift,
+    );
 }
 
 1;

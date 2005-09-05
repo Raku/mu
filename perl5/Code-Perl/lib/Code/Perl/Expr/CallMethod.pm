@@ -7,29 +7,29 @@ package Code::Perl::Expr::CallMethod;
 use base 'Code::Perl::Expr::Base';
 
 use Class::MethodMaker (
-	get_set => [qw( -java Object MethodName Args )]
+    get_set => [qw( -java Object MethodName Args )]
 );
 
 sub eval
 {
-	my $self = shift;
+    my $self = shift;
 
-	my $object = $self->getObject;
-	my $methodname = $self->getMethodName->eval;
-	my $args = $self->getArgs;
+    my $object = $self->getObject;
+    my $methodname = $self->getMethodName->eval;
+    my $args = $self->getArgs;
 
-	return $object->eval->$methodname($args->eval);
+    return $object->eval->$methodname($args->eval);
 }
 
 sub perl
 {
-	my $self = shift;
+    my $self = shift;
 
-	my $object = $self->getObject->perl;
-	my $methodname = $self->getMethodName->perl;
-	my $args = $self->getArgs->perl;
+    my $object = $self->getObject->perl;
+    my $methodname = $self->getMethodName->perl;
+    my $args = $self->getArgs->perl;
 
-	return "($object)->$methodname($args)";
+    return "($object)->$methodname($args)";
 }
 
 1;

@@ -7,26 +7,26 @@ package Code::Perl::Expr::DerefArray;
 use base qw( Code::Perl::Expr::Base );
 
 use Class::MethodMaker (
-	get_set => [qw( -java Index Ref )]
+    get_set => [qw( -java Index Ref )]
 );
 
 sub eval
 {
-	my $self = shift;
+    my $self = shift;
 
-	my $array = $self->getRef->eval;
+    my $array = $self->getRef->eval;
 
-	return $array->[$self->getIndex->eval];
+    return $array->[$self->getIndex->eval];
 }
 
 sub perl
 {
-	my $self = shift;
+    my $self = shift;
 
-	my $array_perl = $self->getRef->perl;
+    my $array_perl = $self->getRef->perl;
 
-	my $index = $self->getIndex->perl;
-	return "($array_perl)->[$index]";
+    my $index = $self->getIndex->perl;
+    return "($array_perl)->[$index]";
 }
 
 1;

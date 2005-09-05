@@ -7,25 +7,25 @@ package Code::Perl::Expr::Not;
 use base 'Code::Perl::Expr::Base';
 
 use Class::MethodMaker (
-	get_set => [qw( -java Expr )]
+    get_set => [qw( -java Expr )]
 );
 
 sub eval
 {
-	my $self = shift;
+    my $self = shift;
 
-	my $expr = $self->getExpr;
+    my $expr = $self->getExpr;
 
-	return ! $expr->eval;
+    return ! $expr->eval;
 }
 
 sub perl
 {
-	my $self = shift;
+    my $self = shift;
 
-	my $expr = $self->getExpr->perl;
+    my $expr = $self->getExpr->perl;
 
-	return "! ($expr)";
+    return "! ($expr)";
 }
 
 1;

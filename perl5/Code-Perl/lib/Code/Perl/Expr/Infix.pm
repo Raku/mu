@@ -7,17 +7,17 @@ package Code::Perl::Expr::Infix;
 use base qw( Code::Perl::Expr::Base );
 
 use Class::MethodMaker (
-	get_set => [qw( -java Exprs Op )]
+    get_set => [qw( -java Exprs Op )]
 );
 
 sub perl
 {
-	my $self = shift;
+    my $self = shift;
 
-	my $op = $self->getOp;
-	my @exprs = map {"(".$_->perl.")"} @{$self->getExprs};
+    my $op = $self->getOp;
+    my @exprs = map {"(".$_->perl.")"} @{$self->getExprs};
 
-	return join(" $op ", @exprs);
+    return join(" $op ", @exprs);
 }
 
 1;

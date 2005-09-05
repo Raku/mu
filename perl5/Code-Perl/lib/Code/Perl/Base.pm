@@ -6,14 +6,14 @@ package Code::Perl::Base;
 
 sub new
 {
-	my $pkg = shift;
+    my $pkg = shift;
 
-	my %args = @_;
-	my $self = bless \%args, $pkg;
+    my %args = @_;
+    my $self = bless \%args, $pkg;
 
-	$self->init;
+    $self->init;
 
-	return $self;
+    return $self;
 }
 
 sub init

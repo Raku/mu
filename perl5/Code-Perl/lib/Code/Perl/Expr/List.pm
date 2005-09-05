@@ -8,16 +8,16 @@ use base 'Code::Perl::Expr::Constant';
 
 sub eval
 {
-	my $self = shift;
+    my $self = shift;
 
-	return map { $_->eval } @{$self->getValue};
+    return map { $_->eval } @{$self->getValue};
 }
 
 sub perl
 {
-	my $self = shift;
+    my $self = shift;
 
-	return join(", ", map {$_->perl} @{$self->getValue});
+    return join(", ", map {$_->perl} @{$self->getValue});
 }
 
 1;

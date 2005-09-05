@@ -7,40 +7,40 @@ package Code::Perl::Expr::Constant;
 use base 'Code::Perl::Expr::Base';
 
 use Class::MethodMaker (
-	get_set => [qw( -java Value )]
+    get_set => [qw( -java Value )]
 );
 
 sub eval
 {
-	my $self = shift;
+    my $self = shift;
 
-	return $self->getValue;
+    return $self->getValue;
 }
 
 my %esc = (
-	"\\" => "\\\\",
-	"\n" => "\\n",
-	"\r" => "\\r",
-	'"' => '\\"',
-	'$' => '\\$',
-	'@' => '\\@',
+    "\\" => "\\\\",
+    "\n" => "\\n",
+    "\r" => "\\r",
+    '"' => '\\"',
+    '$' => '\\$',
+    '@' => '\\@',
 );
 
 sub getQuotedValue
 {
-	my $self = shift;
+    my $self = shift;
 
-	my $value = $self->{Value};
+    my $value = $self->{Value};
 
-	if (1)
-	{
-		$value =~ s/([\\\n\r"\$\@])/$esc{$1}/g;
-		return '"'.$value.'"';
-	}
-	else
-	{
-		return '"'.quotemeta($self->{Value}).'"';
-	}
+    if (1)
+    {
+        $value =~ s/([\\\n\r"\$\@])/$esc{$1}/g;
+        return '"'.$value.'"';
+    }
+    else
+    {
+        return '"'.quotemeta($self->{Value}).'"';
+    }
 }
 
 1;

@@ -7,26 +7,26 @@ package Code::Perl::Expr::DerefHash;
 use base qw( Code::Perl::Expr::Base );
 
 use Class::MethodMaker (
-	get_set => [qw( -java Key Ref )]
+    get_set => [qw( -java Key Ref )]
 );
 
 sub eval
 {
-	my $self = shift;
+    my $self = shift;
 
-	my $hash = $self->getRef->eval;
+    my $hash = $self->getRef->eval;
 
-	return $hash->{$self->getKey->eval};
+    return $hash->{$self->getKey->eval};
 }
 
 sub perl
 {
-	my $self = shift;
+    my $self = shift;
 
-	my $hash_perl = $self->getRef->perl;
+    my $hash_perl = $self->getRef->perl;
 
-	my $index = $self->getKey->perl;
-	return "($hash_perl)->{$index}";
+    my $index = $self->getKey->perl;
+    return "($hash_perl)->{$index}";
 }
 
 1;

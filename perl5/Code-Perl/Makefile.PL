@@ -16,15 +16,15 @@ my $doc_file = -e $pod_file ? $pod_file : $pm_file;
 (my $dir = $module) =~ s/::/-/g;
 
 WriteMakefile(
-	AUTHOR => 'Fergal Daly <fergal@esatclear.ie>',
-	NAME => $module,
-	VERSION_FROM => $pm_file,
-	INSTALLDIRS => 'perl',
-	PREREQ_PM => {
-		'Class::MethodMaker' => 0,
-		'Test::Deep' => '0.05'
-	},
-	dist => {
-		PREOP=> "rm -f README; pod2text -80 < $doc_file > README; cp -f README $dir-\$(VERSION); "
-	}
+    AUTHOR => 'Fergal Daly <fergal@esatclear.ie>',
+    NAME => $module,
+    VERSION_FROM => $pm_file,
+    INSTALLDIRS => 'perl',
+    PREREQ_PM => {
+        'Class::MethodMaker' => 0,
+        'Test::Deep' => '0.05'
+    },
+    dist => {
+        PREOP=> "rm -f README; pod2text -80 < $doc_file > README; cp -f README $dir-\$(VERSION); "
+    }
 );

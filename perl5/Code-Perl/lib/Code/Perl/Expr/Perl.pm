@@ -7,38 +7,38 @@ package Code::Perl::Expr::Perl;
 use base 'Code::Perl::Expr::Base';
 
 use Class::MethodMaker (
-	get_set => [qw( -java Perl )]
+    get_set => [qw( -java Perl )]
 );
 
 sub eval
 {
-	my $self = shift;
+    my $self = shift;
 
-	my $perl = $self->getPerl;
+    my $perl = $self->getPerl;
 
-	if (wantarray)
-	{
-		my @value = eval $perl;
+    if (wantarray)
+    {
+        my @value = eval $perl;
 
-		die $@ if $@;
-	
-		return @value;
-	}
-	else
-	{
-		my $value = eval $perl;
+        die $@ if $@;
+    
+        return @value;
+    }
+    else
+    {
+        my $value = eval $perl;
 
-		die $@ if $@;
-	
-		return $value;
-	}
+        die $@ if $@;
+    
+        return $value;
+    }
 }
 
 sub perl
 {
-	my $self = shift;
+    my $self = shift;
 
-	return $self->getPerl;
+    return $self->getPerl;
 }
 
 1;

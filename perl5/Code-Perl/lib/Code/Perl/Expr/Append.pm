@@ -8,17 +8,17 @@ use base qw( Code::Perl::Expr::Infix );
 
 sub init
 {
-	my $self = shift;
+    my $self = shift;
 
-	$self->setOp(".");
+    $self->setOp(".");
 }
 
 sub eval
 {
-	my $self = shift;
+    my $self = shift;
 
-	my $exprs = $self->getExprs;
-	return join("", map {$_->eval} @$exprs);
+    my $exprs = $self->getExprs;
+    return join("", map {$_->eval} @$exprs);
 }
 
 1;

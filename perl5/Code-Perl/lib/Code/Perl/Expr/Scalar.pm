@@ -7,25 +7,25 @@ package Code::Perl::Expr::Scalar;
 use base 'Code::Perl::Expr::Base';
 
 use Class::MethodMaker (
-	get_set => [qw( -java Name )]
+    get_set => [qw( -java Name )]
 );
 
 sub eval
 {
-	my $self = shift;
+    my $self = shift;
 
-	my $name = $self->getName;
+    my $name = $self->getName;
 
-	no strict 'refs';
-	
-	return ${$name};
+    no strict 'refs';
+    
+    return ${$name};
 }
 
 sub perl
 {
-	my $self = shift;
+    my $self = shift;
 
-	return '$'.$self->getName;
+    return '$'.$self->getName;
 }
  
 1;
