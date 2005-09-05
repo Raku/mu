@@ -3,9 +3,12 @@
 
 # ChangeLog
 #
+# 2005-09-05
+# * delete slice
+#
 # 2005-08-31
 # * New methods: keys(), values(), pairs(), kv(), pick()
-
+#
 # 2005-08-29
 # * Lazy lists are deep cloned when Array is cloned
 #
@@ -301,9 +304,25 @@ class 'Array'.$class_description => {
             'unboxed' => sub { 
                 _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v}
             },
+            'delete' => sub {
+                # delete a slice, returns deleted items
+                my ( $self, @list ) = @_;
+                my $ret = $self->slice( @list );
+                my $ret2 = Array->new();
+                $ret2->store( $ret );
+                $ret->store( Perl6::Value::List->from_x( item => undef, count => Inf ) );
+                return $ret2;
+            },
             'slice' => sub {
                 # Returns an array whose fetch/store are bound to this array
-                my ( $self, $list ) = @_;
+                my ( $self, @list ) = @_;
+
+                my $list = $list[0];
+                if ( ref($list) ne 'Array' ) {
+                    $list = Array->new();
+                    $list->push( $_ ) for @list;
+                }
+
                 # given $list = (4,5,6)
                 # given an index $i = 1
                 #   get $list[$i] == 5

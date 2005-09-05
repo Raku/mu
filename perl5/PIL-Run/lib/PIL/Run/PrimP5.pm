@@ -414,7 +414,7 @@ MULTI SUB reduce ($xx0,$xx1) {...};
 # kill - see op1
 MULTI SUB does ($xx0,$xx1) { $xx0->isa( $xx1->unboxed ) };
 MULTI SUB isa  ($xx0,$xx1) { $xx0->isa( $xx1->unboxed ) };
-MULTI SUB delete ($xx0,$xx1) {...};
+#MULTI SUB delete ($xx0,$xx1) {...}; -- implemented in Array, Hash
 MULTI SUB exists ($xx0,$xx1) {...};
 MULTI SUB unshift (@xx0,*@xxa) { $xx0->unshift( @xxa ) };
 MULTI SUB push (@xx0,*@xxa) { $xx0->push( @xxa ) };

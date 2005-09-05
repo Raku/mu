@@ -3,6 +3,9 @@
 
 # ChangeLog
 #
+# 2005-09-05
+# * delete hash element
+#
 # 2005-08-31
 # * New methods: tied(), keys(), values(), pairs(), kv()
 # * Fixed elems(), buckets() to return boxed Int, Str
@@ -24,7 +27,10 @@
 # TODO - each() methods
 # TODO - hash cells with rw, ro, binding hash elements
 # TODO - tied hashes
+
 # TODO - hash slices
+# TODO - delete hash slice
+
 # TODO - %a = %b - whole hash fetch/store
 #        PIL-Run - %a = { a=>'b', c=>'d' } generates: {({(c, d), (a, b)}, undef)}
 # TODO - pick()
@@ -222,7 +228,8 @@ sub exists {
 sub delete {
     my ( $this, $key ) = @_;
     my $s = Perl6::Value::identify( $key );
-    delete $this->{$s};
+    my $r = delete $this->{$s};
+    $r->[1];
 }
 sub clear {
     my ( $this ) = @_;
