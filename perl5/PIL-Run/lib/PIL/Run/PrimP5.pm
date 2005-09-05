@@ -437,7 +437,13 @@ MULTI SUB Pugs::Internals::openFile ($xx0,$xx1) {...};
 MULTI SUB exp ($xx0,$xx1) {...};
 MULTI SUB Pugs::Internals::sprintf ($xx0,$xx1) {...};
 MULTI SUB exec (*@xx) {
+    for ( $PIL::Run::Root::main::hash_ENV->keys->items ) {
+        # warn "SETENV $_ = ".Perl6::Value::stringify( $PIL::Run::Root::main::hash_ENV->fetch( $_ ))."\n";
+        $ENV{ Perl6::Value::stringify( $_ ) } = 
+            Perl6::Value::stringify( $PIL::Run::Root::main::hash_ENV->fetch( $_ ) ) ;
+    }
     @xx = map{ Perl6::Value::stringify( $_ ) } @xx;
+    # warn "EXEC @xx";
     exec @xx;
 };
 # system - see op1
