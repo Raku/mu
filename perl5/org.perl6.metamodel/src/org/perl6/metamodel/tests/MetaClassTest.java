@@ -8,13 +8,13 @@ import org.perl6.metamodel.*;
 
 public class MetaClassTest extends TestCase {
 
-	public static void main (String[] args) {
-		junit.textui.TestRunner.run (suite());
-	}
+    public static void main (String[] args) {
+        junit.textui.TestRunner.run (suite());
+    }
     
-	public static Test suite() {
-		return new TestSuite(MetaClassTest.class);
-	}
+    public static Test suite() {
+        return new TestSuite(MetaClassTest.class);
+    }
     
     public void testNameOnlyConstructor () {
         MetaClass m = new MetaClass("Foo");

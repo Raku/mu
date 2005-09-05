@@ -8,13 +8,13 @@ import org.perl6.metamodel.*;
 
 public class MROTest extends TestCase {
 
-	public static void main (String[] args) {
-		junit.textui.TestRunner.run (suite());
-	}
+    public static void main (String[] args) {
+        junit.textui.TestRunner.run (suite());
+    }
 
-	public static Test suite() {
-		return new TestSuite(MROTest.class);
-	}
+    public static Test suite() {
+        return new TestSuite(MROTest.class);
+    }
 
     public void testRemoveEmptySeqs () {
         MetaClass m = new MetaClass("Foo");
