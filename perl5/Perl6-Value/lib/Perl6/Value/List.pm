@@ -494,6 +494,8 @@ sub zip {
     );
 }
 
+# XXX - remove uniq, grep - these are just examples
+
 sub _MySub::arity { 1 };
 sub _MySub::do    { (shift)->(@_) };
 

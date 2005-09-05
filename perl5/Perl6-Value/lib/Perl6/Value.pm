@@ -318,6 +318,26 @@ class 'List'.$class_description => {
 #    return $class;
 #}
 
+$Perl6::Value::obj_id = '**ObJecT**' . rand;
+sub Perl6::Value::identify {
+    my $key = shift;
+    return $Perl6::Value::obj_id unless defined $key;
+    my $s = $key;
+    if (
+        UNIVERSAL::isa( $key, 'Int' ) ||
+        UNIVERSAL::isa( $key, 'Num' ) ||
+        UNIVERSAL::isa( $key, 'Str' ) ||
+        UNIVERSAL::isa( $key, 'Bit' ) ||
+        UNIVERSAL::isa( $key, 'Rat' )
+    ) {
+        $s = $key->str->unboxed
+    }
+    elsif ( UNIVERSAL::can( $key, 'id' ) ) {
+        $s = $Perl6::Value::obj_id . $key->id
+    }
+    return $s;
+}
+
 sub Perl6::Value::stringify {
     my $s = shift;
     $s = $s->fetch if UNIVERSAL::isa( $s, 'Scalar');

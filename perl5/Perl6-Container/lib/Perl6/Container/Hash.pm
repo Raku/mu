@@ -189,36 +189,15 @@ class 'Hash'.$class_description => {
 
 package Perl6::Container::Hash::Object;
 
-our $obj_id = '**ObJecT**' . rand;
-
-sub get_id {
-    my $key = shift;
-    return $obj_id unless defined $key;
-    my $s = $key;
-    if (
-        UNIVERSAL::isa( $key, 'Int' ) ||
-        UNIVERSAL::isa( $key, 'Num' ) ||
-        UNIVERSAL::isa( $key, 'Str' ) ||
-        UNIVERSAL::isa( $key, 'Bit' ) ||
-        UNIVERSAL::isa( $key, 'Rat' )
-    ) {
-        $s = $key->str->unboxed
-    }
-    elsif ( UNIVERSAL::can( $key, 'id' ) ) {
-        $s = $obj_id . $key->id
-    }
-    return $s;
-}
-
 sub store {
     my ( $this, $key, $value ) = @_;
-    my $s = get_id( $key );
+    my $s = Perl6::Value::identify( $key );
     $this->{$s} = [ $key, $value ];
     return $value;
 }
 sub fetch {
     my ( $this, $key ) = @_;
-    my $s = get_id( $key );
+    my $s = Perl6::Value::identify( $key );
     $this->{$s}[1];
     # warn "fetching " . $this->{$s}[1];
 }
@@ -237,12 +216,12 @@ sub nextkey {
 }
 sub exists {
     my ( $this, $key ) = @_;
-    my $s = get_id( $key );
+    my $s = Perl6::Value::identify( $key );
     exists $this->{$s};
 }
 sub delete {
     my ( $this, $key ) = @_;
-    my $s = get_id( $key );
+    my $s = Perl6::Value::identify( $key );
     delete $this->{$s};
 }
 sub clear {

@@ -132,8 +132,8 @@ MULTI SUB take () {...};
 
 # op1
 #MULTI SUB prefix:<!> ($xx) {...}; # in PrimP6
-MULTI SUB id ($xx)    { $xx->id };
-MULTI SUB clone ($xx) { $xx->clone };
+# MULTI SUB id ($xx)    { Perl6::Value::identify($xx) };
+# MULTI SUB clone ($xx) { $xx->clone };
 MULTI SUB chop ($xx)  {...};
 MULTI SUB chomp ($xx) {...};
 MULTI SUB Str::split (*@xxa) {...};
@@ -394,7 +394,7 @@ MULTI SUB infix:<gt> ($xx0,$xx1) { p6_from_b(p6_to_s($xx0) gt p6_to_s($xx1)) };
 MULTI SUB infix:<ge> ($xx0,$xx1) { p6_from_b(p6_to_s($xx0) ge p6_to_s($xx1)) };
 MULTI SUB infix:<~~> ($xx0,$xx1) {...};
 MULTI SUB infix:<!~> ($xx0,$xx1) {...};
-MULTI SUB infix:<=:=> ($xx0,$xx1) {$xx0->id eq $xx1->id};
+MULTI SUB infix:<=:=> ($xx0,$xx1) { Perl6::Value::identify($xx0) eq Perl6::Value::identify($xx1) };
 MACROP5   infix:<&&> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; p6_to_b($_v1) ? ('.$xx1.') : $_v1 }' };
 MACROP5   infix:<||> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; p6_to_b($_v1) ? $_v1 : ('.$xx1.') }' };
 MACROP5   infix:<^^> ($xx0,$xx1) {...};
