@@ -299,6 +299,9 @@ sub p6_package_init {
 p6_package_init('');
 p6_package_init('main');
 
+$PIL::Run::Root::main::hash_ENV = Hash->new();
+$PIL::Run::Root::main::hash_ENV->store( $_, $ENV{$_} ) for keys %ENV;
+
 1;
 __END__
 

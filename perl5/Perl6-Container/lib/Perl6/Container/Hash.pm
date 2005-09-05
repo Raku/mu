@@ -179,6 +179,9 @@ class 'Hash'.$class_description => {
             },
             'perl' => sub { $_[0]->str },
 
+            # TODO - XXX - remove this after implementing hash slice
+            'postcircumfix:{}' => sub { (shift)->fetch( @_ ) },
+
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
                 my $method = ::AUTOLOAD($self);
