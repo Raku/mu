@@ -55,8 +55,8 @@ ok(!( $data ~~ m:nth(7)/fo+/ ), 'No match nth(7)');
 # :nth($N)...
 
 for (1..6) -> $N {
-	ok($data ~~ m:nth($N)/fo+/, "Match nth(\$N) for \$N == $N" );
-	is($/, 'f'~'o' x $N, "Matched value for $N" );
+    ok($data ~~ m:nth($N)/fo+/, "Match nth(\$N) for \$N == $N" );
+    is($/, 'f'~'o' x $N, "Matched value for $N" );
 }
 
 
@@ -238,8 +238,8 @@ ok(!( $data ~~ m:x(7)/fo+/ ), 'no match x(7)');
 # :x($N)...
 
 for (1..6) -> $N {
-	ok($data ~~ m:x($N)/fo+/, "Match x(\$N) for \$N == $N" );
-	is($/, 'f'~'o' x $N, "Matched value for $N" );
+    ok($data ~~ m:x($N)/fo+/, "Match x(\$N) for \$N == $N" );
+    is($/, 'f'~'o' x $N, "Matched value for $N" );
 }
 
 # :Nx...

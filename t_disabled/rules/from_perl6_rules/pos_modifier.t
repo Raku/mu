@@ -20,10 +20,10 @@ if(!eval('("a" ~~ /a/)')) {
 } else {
 
 for ("abcdef") {
-	ok(m:pos/abc/, "Matched 1: '$/'" );
-	ok(.pos == 3, 'Interim position correct');
-	ok(m:pos/ghi|def/, "Matched 2: '$/'" );
-	ok(.pos == 6, 'Final position correct');
+    ok(m:pos/abc/, "Matched 1: '$/'" );
+    ok(.pos == 3, 'Interim position correct');
+    ok(m:pos/ghi|def/, "Matched 2: '$/'" );
+    ok(.pos == 6, 'Final position correct');
 }
 
 my $_ = "foofoofoo foofoofoo";

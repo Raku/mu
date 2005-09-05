@@ -151,7 +151,7 @@ ok("\x[12AF]"  ~~ m/^<!OtherLetter>.$/, q{Match unrelated negated <?OtherLetter>
 ok("\x[12AF]"  ~~ m/^<-OtherLetter>$/, q{Match unrelated inverted <?OtherLetter>} );
 ok("\x[12AF]\c[ETHIOPIC SYLLABLE GLOTTAL A]" ~~ m/<?OtherLetter>/, q{Match unanchored <?OtherLetter>} );
 
-# Lr		 	# Alias for "Ll", "Lu", and "Lt".
+# Lr             # Alias for "Ll", "Lu", and "Lt".
 
 
 ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<?Lr>$/, q{Match (Alias for "Ll", "Lu", and "Lt".)} );

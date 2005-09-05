@@ -175,7 +175,7 @@ ok("\x[D7A4]"  ~~ m/^<-<?OtherLetter>>$/, q{Match unrelated externally inverted 
 ok("\x[D7A4]"  ~~ m/^<+<-OtherLetter>>$/, q{Match unrelated internally inverted <?OtherLetter>} );
 ok("\x[D7A4]\x[BC7D]" ~~ m/<+<?OtherLetter>>/, q{Match unanchored <?OtherLetter>} );
 
-# Lr		 	# Alias for "Ll", "Lu", and "Lt".
+# Lr             # Alias for "Ll", "Lu", and "Lt".
 
 
 ok("\c[LATIN CAPITAL LETTER A]" ~~ m/^<+<?Lr>>$/, q{Match (Alias for "Ll", "Lu", and "Lt".)} );

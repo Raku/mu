@@ -22,30 +22,30 @@ if(!eval('("a" ~~ /a/)')) {
 my $str = "abrAcadAbbra";
 
 my @expected = (
-	[ 0 => 'abrAcadAbbra' ],
-	[ 0 => 'abrAcadA'     ],
-	[ 0 => 'abrAca'       ],
-	[ 0 => 'abrA'         ],
-	[ 3 =>    'AcadAbbra' ],
-	[ 3 =>    'AcadA'     ],
-	[ 3 =>    'Aca'       ],
-	[ 5 =>      'adAbbra' ],
-	[ 5 =>      'adA'     ],
-	[ 7 =>        'Abbra' ],
+    [ 0 => 'abrAcadAbbra' ],
+    [ 0 => 'abrAcadA'     ],
+    [ 0 => 'abrAca'       ],
+    [ 0 => 'abrA'         ],
+    [ 3 =>    'AcadAbbra' ],
+    [ 3 =>    'AcadA'     ],
+    [ 3 =>    'Aca'       ],
+    [ 5 =>      'adAbbra' ],
+    [ 5 =>      'adA'     ],
+    [ 7 =>        'Abbra' ],
 );
 
 for (1..2) -> $rep {
-	ok($str ~~ m:i:exhaustive/ a .+ a /, "Repeatable every-way match ($rep)" );
+    ok($str ~~ m:i:exhaustive/ a .+ a /, "Repeatable every-way match ($rep)" );
 
-	ok(@$/ == @expected, "Correct number of matches ($rep)" );
-	my %expected; %expected{map {$_[1]}, @expected} = (1) x @expected;
-	my %position; %position{map {$_[1]}, @expected} = map {$_[0]}, @expected;
-	for (@$/) {
-		ok( %expected{$_}, "Matched '$_' ($rep)" );
-		ok( %position{$_} == $_.pos, "At correct position of '$_' ($rep)" );
-		delete %expected{$_};
-	}
-	ok(%expected.keys == 0, "No matches missed ($rep)" );
+    ok(@$/ == @expected, "Correct number of matches ($rep)" );
+    my %expected; %expected{map {$_[1]}, @expected} = (1) x @expected;
+    my %position; %position{map {$_[1]}, @expected} = map {$_[0]}, @expected;
+    for (@$/) {
+        ok( %expected{$_}, "Matched '$_' ($rep)" );
+        ok( %position{$_} == $_.pos, "At correct position of '$_' ($rep)" );
+        delete %expected{$_};
+    }
+    ok(%expected.keys == 0, "No matches missed ($rep)" );
 }
 
 ok(!( "abcdefgh" ~~ m:exhaustive/ a .+ a / ), 'Failed every-way match');
@@ -56,9 +56,9 @@ ok($str ~~ m:ex:i/ a (.+) a /, 'Capturing every-way match');
 ok(@$/ == @expected, 'Correct number of capturing matches');
 my %expected; %expected{map {$_[1]}, @expected} = (1) x @expected;
 for (@$/) {
-	ok( %expected{$_}, "Capture matched '$_'" );
-	ok( $_[1] = substr($_[0],1,-1), "Captured within '$_'" );
-	delete %expected{$_};
+    ok( %expected{$_}, "Capture matched '$_'" );
+    ok( $_[1] = substr($_[0],1,-1), "Captured within '$_'" );
+    delete %expected{$_};
 }
 
 my @adj  = qw(time);
@@ -68,26 +68,26 @@ my @art  = qw(an);
 my @prep = qw(like);
 
 ok( "time flies like an arrow" ~~
-	m:w:ex/^    [
-				$<adj>  := (@adj)
-				$<subj> := (@noun)
-				$<verb> := (@verb)
-				$<art>  := (@art)
-				$<obj>  := (@noun)
-			  |
-				$<subj> := (@noun)
-				$<verb> := (@verb)
-				$<prep> := (@prep)
-				$<art>  := (@art)
-				$<obj>  := (@noun)
-			  |
-				$<verb> := (@verb)
-				$<obj>  := (@noun)
-				$<prep> := (@prep)
-				$<art>  := (@art)
-				$<noun> := (@noun)
-			  ]
-		   /, 'Multiple capturing');
+    m:w:ex/^    [
+                $<adj>  := (@adj)
+                $<subj> := (@noun)
+                $<verb> := (@verb)
+                $<art>  := (@art)
+                $<obj>  := (@noun)
+              |
+                $<subj> := (@noun)
+                $<verb> := (@verb)
+                $<prep> := (@prep)
+                $<art>  := (@art)
+                $<obj>  := (@noun)
+              |
+                $<verb> := (@verb)
+                $<obj>  := (@noun)
+                $<prep> := (@prep)
+                $<art>  := (@art)
+                $<noun> := (@noun)
+              ]
+           /, 'Multiple capturing');
 
 is($/.matches[0]<adj>,  'time',  'Capture 0 adj');
 is($/.matches[0]<subj>, 'flies', 'Capture 0 subj');
@@ -117,12 +117,12 @@ rule art   { an? }
 rule prep  { like }
 
 ok("time   flies   like    an     arrow" ~~
-	m:w:ex/^ [ <adj>  <subj> <verb> <art> <obj>
+    m:w:ex/^ [ <adj>  <subj> <verb> <art> <obj>
                  | <subj> <verb> <prep> <art> <noun> 
                  | <verb> <obj>  <prep> <art> <noun>
                  ]
-		 /,
-	"Any with capturing rules"
+         /,
+    "Any with capturing rules"
 );
 
 is($/.matches[0]<adj>,  'time',  'Rule capture 0 adj');

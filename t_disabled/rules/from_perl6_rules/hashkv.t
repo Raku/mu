@@ -40,7 +40,7 @@ ok("c b c c" ~~ m:w/^ [ %var]+ $/, 'Simple hash repeated matching');
 # HASHES WITH KEYMATCH AND VALUEMATCH
 
 our %var2 is keymatch(rule /b|c|d|e/) is valuematch(rx/3|4/)
-	= (a=>1, b=>2, c=>3, e=>3);
+    = (a=>1, b=>2, c=>3, e=>3);
 
 ok(!( "d2" ~~ m/%var2/ ), 'Simple hash interpolation (d2)');
 ok(!( "d3" ~~ m/%var2/ ), 'Simple hash interpolation (d3)');
