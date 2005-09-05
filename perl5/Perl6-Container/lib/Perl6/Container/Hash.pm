@@ -111,6 +111,7 @@ class 'Hash'.$class_description => {
 
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
             'isa' => sub { ::next_METHOD() },
+            'does' => sub { ::next_METHOD() },
 
             'elems' =>    sub { Int->new( '$.unboxed' =>
                                 _('$:cell')->{tied} ? 

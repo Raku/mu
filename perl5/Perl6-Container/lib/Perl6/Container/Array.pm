@@ -301,6 +301,7 @@ class 'Array'.$class_description => {
 
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
             'isa' => sub { ::next_METHOD() },
+            'does' => sub { ::next_METHOD() },
             'unboxed' => sub { 
                 _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v}
             },
@@ -527,7 +528,7 @@ class 'Array'.$class_description => {
                 }
                 if ( $method eq 'exists' ) {
                     # XXX - TODO - recursive to other dimensions
-                    return Bit->new( '$.unboxed' => ($tmp->elems > $param[0] ) )
+                    return Bit->new( '$.unboxed' => ($tmp->elems > Perl6::Value::numify($param[0]) ) )
                 }
                 if ( $method eq 'is_infinite' ) {
                     return Bit->new( '$.unboxed' => $tmp->$method( @param ) )

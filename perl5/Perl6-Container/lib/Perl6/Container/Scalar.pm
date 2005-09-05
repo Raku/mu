@@ -216,6 +216,7 @@ class 'Scalar'.$class_description => {
 
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
             'isa' => sub { ::next_METHOD() },
+            'does' => sub { ::next_METHOD() },
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
                 my $method = ::AUTOLOAD($self);
