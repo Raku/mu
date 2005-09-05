@@ -141,7 +141,18 @@ MULTI SUB lc ($xx)      { p6_from_s( lc( $xx->unboxed ) ) };
 MULTI SUB lcfirst ($xx) { p6_from_s( lcfirst( $xx->unboxed ) ) };
 MULTI SUB uc ($xx)      { p6_from_s( uc( $xx->unboxed ) )  };
 MULTI SUB ucfirst ($xx) {  p6_from_s( ucfirst( $xx->unboxed ) ) };
-MULTI SUB capitalize ($xx) {...};
+MULTI SUB capitalize ($xx) {
+    my $string = $xx->unboxed;
+    # from the Perl FAQ
+    $string =~ s/ (
+                 (^\w)    #at the beginning of the line
+                   |      # or
+                 (\s\w)   #preceded by whitespace
+                   )
+                /\U$1/xg;
+    $string =~ s/([\w\']+)/\u\L$1/g;
+    p6_from_s($string);
+};
 MULTI SUB undef ($xx) {...};
 MULTI SUB undefine ($xx) {...};
 #MULTI SUB prefix:<+> ($xx) {...}; # in PrimP6

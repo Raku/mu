@@ -205,10 +205,10 @@ class 'Pair'.$class_description => {
         attrs => [ '$.key', '$.value' ],  # [ '$.value' => { access => 'rw' } ] ],
         DESTROY => sub {},
         methods => {
-            'num' =>  sub { Num->new( '$.unboxed' => 0 ) },
-            'int' =>  sub { Int->new( '$.unboxed' => 0 ) },
-            'str' =>  sub { $_[0]->perl }, 
-            'bit' =>  sub { Bit->new( '$.unboxed' => 0 ) },
+            'num' => sub { Num->new( '$.unboxed' => 0 ) },
+            'int' => sub { Int->new( '$.unboxed' => 0 ) },
+            'str' => sub { $_[0]->perl }, 
+            'bit' => sub { Bit->new( '$.unboxed' => 0 ) },
             'perl' => sub { 
                 my $self = shift;
                 my $key =   Perl6::Value::stringify( $self->key );
@@ -216,8 +216,8 @@ class 'Pair'.$class_description => {
                 Str->new( '$.unboxed' => "($key, $value)" ) 
               },
             'unboxed' => sub { ( _('$.key'), _('$.value') ) },
-            'ref' =>  sub { ::CLASS }, 
-            'isa' =>  sub { ::next_METHOD() },
+            'ref' => sub { ::CLASS }, 
+            'isa' => sub { ::next_METHOD() },
             'does' => sub { ::next_METHOD() },
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
@@ -323,7 +323,7 @@ class 'List'.$class_description => {
 $Perl6::Value::obj_id = '**ObJecT**' . rand;
 sub Perl6::Value::identify {
     my $key = shift;
-    return $obj_id unless defined $key;
+    return $Perl6::Value::obj_id unless defined $key;
     my $s = $key;
     if (
         UNIVERSAL::isa( $key, 'Int' ) ||
@@ -335,7 +335,7 @@ sub Perl6::Value::identify {
         $s = $key->str->unboxed
     }
     elsif ( UNIVERSAL::can( $key, 'id' ) ) {
-        $s = $obj_id . $key->id
+        $s = $Perl6::Value::obj_id . $key->id
     }
     return $s;
 }

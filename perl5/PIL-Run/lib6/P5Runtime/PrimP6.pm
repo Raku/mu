@@ -44,12 +44,12 @@ multi sub sign ($x) { $x <=> 0 }
 multi sub abs  ($x) { if $x < 0 { -$x } else { $x } }
 
 multi sub grep ($array,$code) { 
-    # XXX - remove '[deleted]' after debugging
+    # XXX - remove '[deleted]' after debugging 
     $array.map( { if $code($_) { $_ } else { '[deleted]' } } )
 }
 
 multi sub uniq ($array) { 
     my %seen;
-    # XXX - remove '[deleted]' after debugging
+    # XXX - remove '[deleted]' after debugging 
     $array.map( { if %seen.fetch($_) { '[deleted]' } else { %seen.store($_,1); $_ } } )
 }

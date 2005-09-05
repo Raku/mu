@@ -29,6 +29,8 @@
 # 2005-08-15
 # - created the 'Scalar' container
 
+# TODO - lvalue substr
+
 # TODO - tied() method
 # TODO - test tied Scalar
 # TODO - test 'readonly' and 'tieable' using traits - Scalar, Hash and Array
