@@ -372,12 +372,28 @@ sub map {
                 # TODO - invert the order a bit
                 my @x;
                 push @x, $ret->shift for 1 .. $arity;
-                push @{$self->{shifts}}, $code->do( @x );
+                my $res = $code->do( @x );
+                my @res;
+                if ( UNIVERSAL::isa( $res, 'Array' ) ) {
+                    @res = $res->items 
+                }
+                else {
+                    @res = ($res)
+                }
+                push @{$self->{shifts}}, @res;
                 unless ( @{$self->{shifts}} > 1 ) {
                     # keep some data in the buffer - helps to find EOF in time
                     my @x;
                     push @x, $ret->shift for 1 .. $arity;
-                    push @{$self->{shifts}}, $code->do( @x );
+                    my $res = $code->do( @x );
+                    my @res;
+                    if ( UNIVERSAL::isa( $res, 'Array' ) ) {
+                        @res = $res->items 
+                    }
+                    else {
+                        @res = ($res)
+                    }
+                    push @{$self->{shifts}}, @res;
                 }
                 # print " mapped to [", @shifts, "] ", scalar @shifts, "\n";
                 return shift @{$self->{shifts}} if @{$self->{shifts}};
@@ -393,12 +409,28 @@ sub map {
             while( $ret->elems ) { 
                 my @x;
                 unshift @x, $ret->pop for 1 .. $arity;
-                unshift @{$self->{pops}}, $code->do( @x );
+                my $res = $code->do( @x );
+                my @res;
+                if ( UNIVERSAL::isa( $res, 'Array' ) ) {
+                    @res = $res->items 
+                }
+                else {
+                    @res = ($res)
+                }
+                unshift @{$self->{pops}}, @res;
                 unless ( @{$self->{pops}} > 1 ) {
                     # keep some data in the buffer - helps to find EOF in time
                     my @x;
                     unshift @x, $ret->pop for 1 .. $arity;
-                    unshift @{$self->{pops}}, $code->do( @x );
+                    my $res = $code->do( @x );
+                    my @res;
+                    if ( UNIVERSAL::isa( $res, 'Array' ) ) {
+                        @res = $res->items 
+                    }
+                    else {
+                        @res = ($res)
+                    }
+                    unshift @{$self->{pops}}, @res;
                 }
                 return pop @{$self->{pops}} if @{$self->{pops}};
             }
