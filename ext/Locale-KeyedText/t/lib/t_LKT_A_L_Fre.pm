@@ -3,8 +3,8 @@ use v6;
 
 module t_LKT_A_L_Fre;
 
-my Str $xy is constant = 'AF';
-my Str %text_strings is constant = (
+my Str $xy is readonly = 'AF';
+my Str %text_strings is readonly = (
     'one' => $xy~' - word {fork} { fork } {spoon} {{fork}}',
     'two' => $xy~' - sky pie rye',
 );

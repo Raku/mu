@@ -3,8 +3,8 @@ use v6;
 
 module t_LKT_B_L_Fre;
 
-my $xy is constant = 'BF';
-my Str %text_strings is constant = (
+my $xy is readonly = 'BF';
+my Str %text_strings is readonly = (
     'two' => $xy~' - sky pie rye',
     'three' => $xy~' - eat {knife}',
 );

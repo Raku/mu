@@ -13,7 +13,7 @@ t_LKT_Util::message( 'testing Translator.translate_message() method' );
 
 module t_LKT_C_L_Eng {
 
-my Str %text_strings is constant = (
+my Str %text_strings is readonly = (
     'one' => '{fork} shore {spoon}',
     'two' => 'sky fly high',
     'three' => '{knife} zot',
