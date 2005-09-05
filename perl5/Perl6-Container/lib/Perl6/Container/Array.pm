@@ -41,6 +41,10 @@
 # 2005-08-10
 # * Ported from Perl6 version
 
+# TODO - map(), grep() using 'Code'
+# TODO - check 'x' implementation - is the result a string?
+# TODO - check specification of Array, Hash, Pair stringification
+
 # TODO - sum()
 # TODO - there are too many methods under AUTOLOAD - upgrade them to real methods
 #

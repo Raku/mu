@@ -43,6 +43,8 @@ package Perl6::Value::List;
 # TODO - finish sum() - not all operations support sum() yet; 
 #      - object numification is not supported yet
 
+# TODO - adding support for unshift, push - would simplify map() implementation
+
 # TODO - List.is_lazy() could be defined with a closure; Perl6 version too
 # TODO - map(), grep() could accept the optional 'celems' parameter - for kv() implementation
 # TODO - is_contiguous() should test if $step == 1
@@ -417,28 +419,6 @@ sub uniq {
         } ); 
 }
 
-sub kv { 
-    my $array = shift;
-    my $count = 0;
-    return $array->map( 
-        sub {
-            return ( $count++, $_[0] )
-        } ); 
-}
-
-sub keys { 
-    my $array = shift;
-    my $count = 0;
-    return $array->map( 
-        sub {
-            $count++
-        } ); 
-}
-
-sub values { 
-    @_
-}
-
 sub zip { 
     my $array = shift;
     my @lists = @_;
@@ -493,6 +473,30 @@ sub end   { $_[0]->{celems}( @_ ) ? $_[0]->{end}( @_ )    : undef }
 
 1;
 __END__
+
+
+sub kv { 
+    my $array = shift;
+    my $count = 0;
+    return $array->map( 
+        sub {
+            return ( $count++, $_[0] )
+        } ); 
+}
+
+sub keys { 
+    my $array = shift;
+    my $count = 0;
+    return $array->map( 
+        sub {
+            $count++
+        } ); 
+}
+
+sub values { 
+    @_
+}
+
 
 =head1 NAME
 

@@ -21,9 +21,9 @@ multi sub nothing () is builtin is primitive is safe {
 multi sub postcircumfix:<[ ]> ($a,$i) { Array::slice($a,$i) }
 
 # TODO - string versions
-multi sub infix:<..^> ($x0,$x1) { $x0..($x1.decrement) }
-multi sub infix:<^..> ($x0,$x1) { ($x0.increment)..$x1 }
-multi sub infix:<^..^> ($x0,$x1) { ($x0.increment)..($x1.decrement) }
+multi sub infix:<..^>   ($x0,$x1) { $x0..($x1.decrement) }
+multi sub infix:<^..>   ($x0,$x1) { ($x0.increment)..$x1 }
+multi sub infix:<^..^>  ($x0,$x1) { ($x0.increment)..($x1.decrement) }
 multi sub postfix:<...> ($x0) { $x0 .. Inf };
 
 multi sub prefix:<~> ($xx) { coerce:as($xx,'Str') }
@@ -41,4 +41,4 @@ multi sub infix:<¥> ($x0,$x1) { $x0.zip($x1) }
 
 multi sub prefix:<-> ($x) { 0 - $x }
 multi sub sign ($x) { $x <=> 0 }
-multi sub abs ($x) { if $x < 0 { -$x } else { $x } }
+multi sub abs  ($x) { if $x < 0 { -$x } else { $x } }

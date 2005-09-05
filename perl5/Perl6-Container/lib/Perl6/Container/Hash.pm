@@ -5,7 +5,6 @@
 #
 # 2005-08-31
 # * New methods: tied(), keys(), values(), pairs(), kv()
-
 # * Fixed elems(), buckets() to return boxed Int, Str
 # * hash iterator (firstkey/nextkey) works
 #
@@ -19,6 +18,7 @@
 # 2005-08-14
 # * added functions clone(), elems(), buckets()
 
+
 # TODO - warn for odd number of elements, on construction
 # TODO - keys(), values(), pairs(), kv() - lazy (non-infinite)
 # TODO - each() methods
@@ -26,7 +26,9 @@
 # TODO - tied hashes
 # TODO - hash slices
 # TODO - %a = %b - whole hash fetch/store
+#        PIL-Run - %a = { a=>'b', c=>'d' } generates: {({(c, d), (a, b)}, undef)}
 # TODO - pick()
+#        Does pick remove the element? (Hash and Array)
 
 # TODO - (iblech) probably with a warning "uninitialized warning used in numeric contect"
 #        (Same for hashes: %h{undef} =:= %h{""})
