@@ -169,8 +169,8 @@ MULTI SUB prefix:<--> ($xx)  { p6_set($xx,p6_from_n(p6_to_n($xx)+1)) };
 
 MULTI SUB scalar ($xx) {...};
 MULTI SUB sort (*@xxa) {...};
-MULTI SUB reverse (@xx) { $xx->reverse };
-MULTI SUB reverse ($xx) { $xx->reverse };
+#MULTI SUB reverse (@xx) { $xx->reverse };
+MULTI SUB reverse ($xx) { p6_from_s(reverse(p6_to_s($xx))) };
 MULTI SUB zip (@x0,*@x1) { 
     # warn "x0 ".ref($x0)." ".$x0->perl->unboxed;
     my $a;
