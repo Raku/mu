@@ -1,12 +1,12 @@
 #!/usr/bin/make -f
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-	CFLAGS = optimized
-else
 	CFLAGS = unoptimized
+else
+	CFLAGS = optimized
 endif
 
-TESTS='smoke'
+TESTS='smoke-pugs'
 
 configure: configure-stamp
 configure-stamp:
