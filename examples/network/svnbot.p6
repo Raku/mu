@@ -195,3 +195,56 @@ sub svn_headrev() {
     svn_commits();
     debug "done, current HEAD revision: $cur_svnrev";
 }
+
+
+=head1 NAME
+
+svnbot
+
+=head1 DESCRIPTION
+
+This is a small IRC bot using C<Net::IRC> capable of relaying new commits to a
+Subversion repository to IRC.
+
+=head1 SYNOPSIS
+
+  $ ./svnbot.p6 nick host[:port] interval repository show_branch sep_header
+
+where
+
+=over
+
+=item C<repository>
+
+is the path to the SVN repository (e.g. F<.> or L<http://svn.perl.org/parrot/>,
+
+=item C<show_branch>
+
+specifies whether branch information should be shown (C<true>|C<false>), and
+
+=item C<sep_header>
+
+specifies whether a separate header line should be outputted (C<true>|C<false>).
+
+=back
+
+=head1 INSTALLATION
+
+There's no separate installation step needed, simply run C<svnbot.p6> and
+supply appropriate options.
+
+=head1 FAQ
+
+"I configured svnbot to check for new commits every I<n> seconds, but the
+commits usually take much more time to show up. Why is this so?"
+
+If you look at svnbot's source, you'll see that it really I<tries> to check the
+SVN repository after I<n> seconds elapsed. The problem is, that svnbot doesn't
+have a chance to check, because C<Net::IRC> is busy reading from the socket to
+the IRC server. Unfortunately, the call to C<.readline> C<Net::IRC> issues is
+I<blocking>, meaning that the operating system will suspend C<svnbot.p6> until
+it receives some data from the IRC server.
+
+In Perl 5, the problem would be easy to remedy, as perl5 allows you to set
+timeouts. But, as Pugs doesn't have a mechanism to set timeouts yet, there's
+nothing C<Net::IRC> can do about it.

@@ -22,7 +22,8 @@ IRC
     seenbot.p6    is a small bot answering "?seen nick" questions.
     svnbot.p6     relays the latest Subversion commits to IRC.
                   svnbot6 is used on irc.freenode.net's #perl6 and
-                  irc.perl.org's #parrot.
+                  irc.perl.org's #parrot, see svnbot.p6's POD for more
+                  information.
     evalbot/      is a bot which eval()s Perl 6 commands, see evalbot/README
                   for more information.
 
