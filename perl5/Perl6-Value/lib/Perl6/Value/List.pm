@@ -117,9 +117,18 @@ sub new {
     $param{pop_n}   = sub { $_[0]->pop }   unless defined $param{pop_n}; 
 
     $param{DESTROY} = sub {}   unless defined $param{DESTROY}; 
-    $param{clone}   = sub { bless { %{ $_[0] } }, ref $_[0] } unless defined $param{clone}; 
+    $param{clone}   = sub { 
+        my $self = shift;
+        my $clone = bless { %$self }, ref $self;
+        @{$clone->{pops}} =   @{$self->{pops}};
+        @{$clone->{shifts}} = @{$self->{shifts}};
+        return $clone;
+    } unless defined $param{clone}; 
 
     $param{sum}     = sub { undef }   unless defined $param{sum}; 
+
+    $param{shifts}  = [] unless defined $param{shifts};
+    $param{pops}    = [] unless defined $param{pops};
 
     return bless \%param, $class;
 }
@@ -302,7 +311,7 @@ sub from_coro {
     $class->new(
         clone => sub { 
             warn "from_coro->clone() not implemented";
-            $class->from_coro(  ) 
+            $class->from_coro( $start ) 
         },
         cstart =>  sub {
             my $r = $start->();
@@ -310,9 +319,9 @@ sub from_coro {
             $size = 0 unless defined $r;
             return $r;
         },
-        cend =>    sub {},
-        celems =>  sub { $size },
-        cis_infinite => sub { $size == Inf },
+        cend =>           sub {},
+        celems =>         sub { $size },
+        cis_infinite =>   sub { $size == Inf },
         cis_contiguous => sub { 0 },
     );
 }
@@ -337,94 +346,73 @@ sub reverse {
     );
 }
 
-sub grep { 
-    my $array = shift;
-    my $code = shift;
-    return $array->map( 
-        sub { 
-            return $_[0] if $code->($_[0]);
-            return
-        } ); 
-}
-
 sub map { 
     my $array = shift;
     my $code = shift;
     my $ret = $array->clone; 
-    my @shifts;
-    my @pops;
+    my $arity = Perl6::Value::numify( $code->arity );
     Perl6::Value::List->new(
         clone => sub { 
+            my $self = shift;
             # this doesn't work if $code is a closure
             # it may break grep(), uniq(), kv()...
             # It will need $code->clone in order to work...
             warn "List::map->clone() not implemented";
+            warn "map->clone has pending shifts/pops" if @{$self->{pops}} || @{$self->{shifts}};
             $ret->clone->map( $code ) 
         },
         cstart => sub {
+            my $self = shift;
             # print "entering map, elems = ", $ret->elems, "\n";
             while( $ret->elems ) {
                 # TODO - invert the order a bit
-                my $x = $ret->shift; 
-                # print "map $x\n";
-                # print " got x ", $x," elems ", $ret->elems ,"\n";
-                push @shifts, $code->($x);
-                unless ( @shifts > 1 ) {
+                my @x;
+                push @x, $ret->shift for 1 .. $arity;
+                push @{$self->{shifts}}, $code->( @x );
+                unless ( @{$self->{shifts}} > 1 ) {
                     # keep some data in the buffer - helps to find EOF in time
-                    my $x = $ret->shift; 
-                    push @shifts, $code->($x);
+                    my @x;
+                    push @x, $ret->shift for 1 .. $arity;
+                    push @{$self->{shifts}}, $code->( @x );
                 }
                 # print " mapped to [", @shifts, "] ", scalar @shifts, "\n";
-                return shift @shifts if @shifts;
+                return shift @{$self->{shifts}} if @{$self->{shifts}};
                 # print " skipped ";
             }
             # print " left [", @shifts, @pops, "] ", scalar @shifts, "+", scalar @pops, "\n";
-            return shift @shifts if @shifts;
-            return shift @pops if @pops;
+            return shift @{$self->{shifts}} if @{$self->{shifts}};
+            return shift @{$self->{pops}}   if @{$self->{pops}};
             return
         },
         cend => sub { 
-            while( $ret->elems ) {
-                my $x = $ret->pop; 
-                # print "x ", $_," elems ", $ret->elems ,"\n";
-                unshift @pops, $code->($x);
-                unless ( @pops > 1 ) {
+            my $self = shift;
+            while( $ret->elems ) { 
+                my @x;
+                unshift @x, $ret->pop for 1 .. $arity;
+                unshift @{$self->{pops}}, $code->( @x );
+                unless ( @{$self->{pops}} > 1 ) {
                     # keep some data in the buffer - helps to find EOF in time
-                    my $x = $ret->pop; 
-                    unshift @pops, $code->($x);
+                    my @x;
+                    unshift @x, $ret->pop for 1 .. $arity;
+                    unshift @{$self->{pops}}, $code->( @x );
                 }
-                return pop @pops if @pops;
+                return pop @{$self->{pops}} if @{$self->{pops}};
             }
-            return pop @pops   if @pops;
-            return pop @shifts if @shifts;
+            return pop @{$self->{pops}}   if @{$self->{pops}};
+            return pop @{$self->{shifts}} if @{$self->{shifts}};
             return
         },
         celems => sub { 
-            $ret->elems ? Inf : $#shifts + $#pops + 2 
+            my $self = shift;
+            $ret->elems ? Inf : scalar @{$self->{shifts}} + scalar @{$self->{pops}}
         },
     );
-}
-
-sub uniq { 
-    # TODO - use p6 hash
-    my $array = shift;
-    my %seen = ();
-    return $array->map( 
-        sub {
-            my $str = $_[0];
-            $str = '**UnDeF**' unless defined $str;
-            return if $seen{$str};
-            $seen{$str}++;
-            $_[0];
-        } ); 
 }
 
 sub zip { 
     my $array = shift;
     my @lists = @_;
     my $ret = $array->clone; 
-    my @shifts;
-    my @pops;
     Perl6::Value::List->new(
         sum => sub { 
             my $sum = $ret->sum;
@@ -432,38 +420,68 @@ sub zip {
             return $sum;
         },
         clone => sub {
+            my $self = shift;
             my ( $l, @ls ) = map { $_->clone } ( $ret, @lists );
-            warn "zip->clone has pending shifts/pops" if @pops || @shifts;
+            warn "zip->clone has pending shifts/pops" if @{$self->{pops}} || @{$self->{shifts}};
             return $l->zip( @ls );
         },
         cstart => sub {
-            return shift @shifts if @shifts;
+            my $self = shift;
+            return shift @{$self->{shifts}} if @{$self->{shifts}};
             my $any = 0;
             for ( $ret, @lists ) { $any++ if $_->elems }
-            push @shifts, ( $ret->shift, 
+            push @{$self->{shifts}}, ( $ret->shift, 
                         map { my $x = $_->shift } #; defined $x ? $x : 'x' } 
                             @lists ) if $any;
-            return shift @shifts if @shifts;
-            return shift @pops if @pops;
+            return shift @{$self->{shifts}} if @{$self->{shifts}};
+            return shift @{$self->{pops}}   if @{$self->{pops}};
             return
         },
         cend => sub { 
-            return pop @pops if @pops;
+            my $self = shift;
+            return pop @{$self->{pops}} if @{$self->{pops}};
             my $any = 0;
             for ( $ret, @lists ) { $any++ if $_->elems }
-            unshift @pops, ( $ret->pop, 
+            unshift @{$self->{pops}}, ( $ret->pop, 
                         map { my $x = $_->pop } #; defined $x ? $x : 'x' } 
                             @lists ) if $any;
-            return pop @pops if @pops;
-            return pop @shifts if @shifts;
+            return pop @{$self->{pops}}   if @{$self->{pops}};
+            return pop @{$self->{shifts}} if @{$self->{shifts}};
             return
         },
         celems => sub { 
+            my $self = shift;
             my $any = 0;
             for ( $ret, @lists ) { $any++ if $_->elems }
-            $any ? Inf : $#shifts + $#pops + 2 
+            $any ? Inf : scalar @{$self->{shifts}} + scalar @{$self->{pops}} 
         },
     );
+}
+
+sub _MySub::arity { 1 };
+
+sub uniq { 
+    # TODO - use p6 hash
+    my $array = shift;
+    my %seen = ();
+    return $array->map( 
+        bless sub {
+            my $str = $_[0];
+            $str = '**UnDeF**' unless defined $str;
+            return if $seen{$str};
+            $seen{$str}++;
+            $_[0];
+        }, '_MySub' ); 
+}
+
+sub grep { 
+    my $array = shift;
+    my $code = shift;
+    return $array->map( 
+        bless sub { 
+            return $_[0] if $code->($_[0]);
+            return
+        }, '_MySub' ); 
 }
 
 sub shift { $_[0]->{celems}( @_ ) ? $_[0]->{cstart}( @_ ) : undef }

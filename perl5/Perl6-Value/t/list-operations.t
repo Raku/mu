@@ -3,12 +3,14 @@
 use strict;
 
 use Test::More;
-plan tests => 31;
+plan tests => 27;
  
 use Perl6::Value;
 use Perl6::Value::List;
 
 use constant Inf => Perl6::Value::Num::Inf;
+
+sub MySub::arity { 1 };
 
 {
   # string range
@@ -22,7 +24,7 @@ use constant Inf => Perl6::Value::Num::Inf;
   my $span = Perl6::Value::List->from_num_range( start => 0, end => 10, step => 1 );
   is( $span->perl, '(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)', 'perl()' );
   $span = Perl6::Value::List->from_num_range( start => 0, end => Inf, step => 1 );
-  is( $span->perl, '(0, 1, 2 ... '.&Inf.')', 'perl()' );
+  is( $span->perl, '(0, 1, 2 ... Inf)', 'perl()' );
 }
 
 {
@@ -31,11 +33,11 @@ use constant Inf => Perl6::Value::Num::Inf;
 
   is( $span->elems, 14, 'elems' );
 
-  my $grepped = $span->grep( sub { $_[0] % 3 == 0 } );
+  my $grepped = $span->grep( bless sub { $_[0] % 3 == 0 }, 'MySub' );
   is( $grepped->shift, 0, 'grep  ' );  
   is( $grepped->shift, 3, 'grep 0' );
 
-  my $mapped = $grepped->map( sub { $_[0] % 6 == 0 ? ($_[0], $_[0]) : () } );
+  my $mapped = $grepped->map( bless sub { $_[0] % 6 == 0 ? ($_[0], $_[0]) : () }, 'MySub' );
   is( $mapped->shift,  6, 'map 0' );
   is( $mapped->shift,  6, 'map 1' );
   is( $mapped->shift, 12, 'map 0' );
@@ -85,15 +87,16 @@ use constant Inf => Perl6::Value::Num::Inf;
 {
   # kv
   
-  my @a = ( 4, 5 ); 
-  sub mylist2 { shift @a }
+#  my @a = ( 4, 5 ); 
+#  sub mylist2 { shift @a }
   
-  my $a1 = Perl6::Value::List->new( cstart => \&mylist2 ); 
-  $a1 = $a1->kv;
-  is( $a1->shift, 0, 'kv' );
-  is( $a1->shift, 4, 'kv' );
-  is( $a1->shift, 1, 'kv' );
-  is( $a1->shift, 5, 'kv' );
+#  my $a1 = Perl6::Value::List->new( cstart => \&mylist2 ); 
+#  $a1 = $a1->kv;
+#  is( $a1->shift, 0, 'kv' );
+#  is( $a1->shift, 4, 'kv' );
+#  is( $a1->shift, 1, 'kv' );
+#  is( $a1->shift, 5, 'kv' );
+;
 }
 
 {
