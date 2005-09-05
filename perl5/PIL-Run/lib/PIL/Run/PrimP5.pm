@@ -308,7 +308,7 @@ MULTI SUB shift ($xx) { $xx->shift };
 #MULTI SUB sum ($xx) {...};
 MULTI SUB min ($xx) {...};
 MULTI SUB max ($xx) {...};
-MULTI SUB uniq ($xx) {...};
+#MULTI SUB uniq ($xx) {...};
 MULTI SUB chr ($xx) { p6_from_s( chr( p6_to_n( $xx ) ) ) };
 MULTI SUB ord ($xx) { p6_from_n( ord( p6_to_s( $xx ) ) ) };
 MULTI SUB hex ($xx) { p6_from_n( eval '0x' . $xx->unboxed ) };
