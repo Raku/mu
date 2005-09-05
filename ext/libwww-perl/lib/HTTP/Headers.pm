@@ -71,10 +71,10 @@ submethod BUILD ($self: Str *%headers) {
 }
 
 method header ($self: Str $field) is rw {
-    return Proxy.new(
-	FETCH => { %:headers{$field} },
-	STORE => -> Str $val { $self.:header($field, $val) }
-    );
+  return Proxy.new(
+    FETCH => { %:headers{$field} },
+    STORE => -> Str $val { $self.:header($field, $val) }
+  );
 }
 
 method clear () { %:headers = () }
@@ -158,7 +158,7 @@ method scan ($self: Code $sub) {
     my $vals = %:headers{$key};
     if $vals ~~ Array {
       for @$vals -> $val {
-	$sub.(%standard_case{$key} || $key, $val);
+        $sub.(%standard_case{$key} || $key, $val);
       }
     } else {
       $sub.(%standard_case{$key} || $key, $vals);
@@ -222,13 +222,13 @@ method content_type ($self: ) is rw {
 
       my @ct = split /;\s*/, $ct, 2;
       given @ct[0] {
-	s:g/\s+//;
-	$_ .= lc;
+        s:g/\s+//;
+        $_ .= lc;
       }
 
       given want {
-	when List   { return @ct }
-	when Scalar { return @ct[0] }
+        when List   { return @ct }
+        when Scalar { return @ct[0] }
       }
     },
     STORE => -> Str $type {
@@ -241,13 +241,13 @@ method referer ($self: ) is rw {
     FETCH => { @{$self.:header("Referer")}[0] },
     STORE => -> $new is copy {
       if ($new ~~ /\#/) {
-	# Strip fragment per RFC 2616, section 14.36.
-	if ($new ~~ URI) {
-	  $new .= clone;
-	  $uri.fragment = undef;
-	} else {
-	  $new ~~ s/\#.*//;
-	}
+        # Strip fragment per RFC 2616, section 14.36.
+        if ($new ~~ URI) {
+          $new .= clone;
+          $uri.fragment = undef;
+        } else {
+          $new ~~ s/\#.*//;
+        }
       }
 
       $self.:header("Referer", $new);
@@ -282,12 +282,12 @@ method :basic_auth ($self: Str $h) is rw {
     FETCH => {
       my $cur = $self.:header($h);
       if (defined $old and $old ~~ s/^\s* Basic \s+//) {
-	#my $val = MIME::Base64::decode($cur);
+        #my $val = MIME::Base64::decode($cur);
 
-	given want {
-	  when Scalar { return $val }
-	  when List   { return split /\:/, $val, 2 }
-	}
+        given want {
+          when Scalar { return $val }
+          when List   { return split /\:/, $val, 2 }
+        }
       }
 
       return undef;

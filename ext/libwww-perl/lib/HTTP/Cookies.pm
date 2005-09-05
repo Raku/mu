@@ -166,10 +166,10 @@ class HTTP::Cookies-0.0.1 {
                     # results in a domain with no leading dot, it is for
                     # Netscape cookie compatibility only:
                     #
-                    # a.b.c.net	Any cookie
-                    # .b.c.net	Any cookie
-                    # b.c.net	Netscape cookie only
-                    # .c.net	Any cookie
+                    # a.b.c.net Any cookie
+                    # .b.c.net  Any cookie
+                    # b.c.net   Netscape cookie only
+                    # .c.net    Any cookie
                     
                     if ($domain ~~ s:P5/^\.+//) {
                         $netscape_only = 1;
