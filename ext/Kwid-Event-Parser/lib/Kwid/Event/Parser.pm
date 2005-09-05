@@ -112,13 +112,13 @@ sub parse (Str $filename, Hash %events is rw) returns Void is export {
 sub interpolate (Str $text, Hash %events) returns Void {  
     %events<start_element>('line_interpolation');
     # grab all the tokens with a split
-	my @tokens = split(rx:perl5{([\*\/\`])}, $text); #`
+    my @tokens = split(rx:perl5{([\*\/\`])}, $text); #`
     @tokens = @tokens.grep:{ defined($_) }; 
-	# this is a memory stack for modifiers
-	# it helps us track down problems
-	my @modifier_stack;
-	my $in_code = 0;
-	for (@tokens) -> $token {	
+    # this is a memory stack for modifiers
+    # it helps us track down problems
+    my @modifier_stack;
+    my $in_code = 0;
+    for (@tokens) -> $token {    
         given $token {
             when rx:perl5{([\*\/\`])} { #`
                 if ($in_code && $token ne '`') {
@@ -157,12 +157,12 @@ sub interpolate (Str $text, Hash %events) returns Void {
                 %events<string>($token);
             }
         }
-	}
-	# if we find we still have some modifiers
-	# on the stack, then we have an error, so 
-	# we need to throw an exception about it.
-	(!@modifier_stack) 
-		|| die "Unbalanced modifier(s) found (" ~ join(", ", @modifier_stack) ~ ") in the string (@tokens)";
+    }
+    # if we find we still have some modifiers
+    # on the stack, then we have an error, so 
+    # we need to throw an exception about it.
+    (!@modifier_stack) 
+        || die "Unbalanced modifier(s) found (" ~ join(", ", @modifier_stack) ~ ") in the string (@tokens)";
     %events<end_element>('line_interpolation');      
 }
 
