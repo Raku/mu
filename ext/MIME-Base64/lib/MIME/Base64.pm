@@ -47,7 +47,7 @@ sub encode (*@string is copy) returns Array {
   gather {
     while (@string>=3) {
       my Int $octstring = {given [map { ord $_} splice @string,0,3] {
-	$_.[0]+<16 +| $_.[1]+<8 +| $_.[2]}}();
+        $_.[0]+<16 +| $_.[1]+<8 +| $_.[2]}}();
 
       take encode(0x3F +& ($octstring +>0x12)); # 0.index
       take encode(0x3F +& ($octstring +>0x0C)); # 1.index
@@ -57,7 +57,7 @@ sub encode (*@string is copy) returns Array {
 
     if (@string == 2) {
       my Int $octstring = {given [map { ord $_} splice @string,0,3] {
-	$_.[0]+<16 +| $_.[1]+<8}}();
+        $_.[0]+<16 +| $_.[1]+<8}}();
 
       take encode(0x3F +& ($octstring +>0x12)); # 0.index
       take encode(0x3F +& ($octstring +>0x0C)); # 1.index
@@ -65,7 +65,7 @@ sub encode (*@string is copy) returns Array {
       take "=";
     } elsif (@string == 1) {
       my Int $octstring = {given [map { ord $_} splice @string,0,3] {
-	$_.[0]+<16}}();
+        $_.[0]+<16}}();
 
       take encode(0x3F +& ($octstring +>0x12)); # 0.index
       take encode(0x3F +& ($octstring +>0x0C)); # 1.index
@@ -79,17 +79,17 @@ sub encode (*@string is copy) returns Array {
 sub decode (Str $didget) {
 #  say "decode Str ->" ~ $didget ~ "<-";
   given $didget {
-		when /^<[A..Z]>$/ {     ord($didget)-ord("A")}
-		when /^<[a..z]>$/ {26 + ord($didget)-ord("a")}
-		when /^<[0..9]>$/ {52 + $didget}
-		when /^   \+   $/ {62}
-                when /^   \/   $/ {63}
-		when /^   \=   $/ {-1}
-		when /^<-[A..Za..z0..9+\/=]>$/ {fail "This should never happen"}
- 		default {
-		  my @index = split('',$didget);
-		  @index = grep {$_ ~~ /^<[A..Za..z0..9+\/=]>+$/},@index;
-		  [~] map {chr ($_)} decode(@index)}
+    when /^<[A..Z]>$/ {     ord($didget)-ord("A")}
+    when /^<[a..z]>$/ {26 + ord($didget)-ord("a")}
+    when /^<[0..9]>$/ {52 + $didget}
+    when /^   \+   $/ {62}
+    when /^   \/   $/ {63}
+    when /^   \=   $/ {-1}
+    when /^<-[A..Za..z0..9+\/=]>$/ {fail "This should never happen"}
+    default {
+      my @index = split('',$didget);
+      @index = grep {$_ ~~ /^<[A..Za..z0..9+\/=]>+$/},@index;
+      [~] map {chr ($_)} decode(@index)}
   }
 }
 
@@ -99,26 +99,26 @@ sub decode (*@index is copy) {
   gather {
     while (@index>0 and all(@index[0..3])>0) {
       my $octstring = {
-	given [splice @index,0,4]
-		       {$_.[0]+<0x12 +| $_.[1]+<0x0C +| $_.[2]+<0x06 +| $_.[3] }
-		       }();
+        given [splice @index,0,4]
+                       {$_.[0]+<0x12 +| $_.[1]+<0x0C +| $_.[2]+<0x06 +| $_.[3] }
+                       }();
       take (0xFF +& ($octstring +> 0x10));
       take (0xFF +& ($octstring +> 0x08));
       take (0xFF +& ($octstring +> 0x00));
     }
 
     if (all(@index[0..2])>0) {
-	my $octstring = @index[0]+<0x12 +| @index[1]+<0x0C +| @index[2]+<0x06;
-        take (0xFF +& ($octstring +> 0x10));
-        take (0xFF +& ($octstring +> 0x08));
-#	take (0xFF +& ($octstring +> 0x00));
+      my $octstring = @index[0]+<0x12 +| @index[1]+<0x0C +| @index[2]+<0x06;
+      take (0xFF +& ($octstring +> 0x10));
+      take (0xFF +& ($octstring +> 0x08));
+#      take (0xFF +& ($octstring +> 0x00));
     } elsif (all(@index[0..1])>0) {
-	my $octstring = @index[0]+<0x12 +| @index[1]+<0x0C;
-        take (0xFF +& ($octstring +> 0x10));
-#       take (0xFF +& ($octstring +> 0x08));
+      my $octstring = @index[0]+<0x12 +| @index[1]+<0x0C;
+      take (0xFF +& ($octstring +> 0x10));
+#      take (0xFF +& ($octstring +> 0x08));
     } elsif (@index[0]>0) {
-	my $octstring = @index.[0]+<0x12;
-        take (0xFF +& ($octstring +> 0x10));
+      my $octstring = @index.[0]+<0x12;
+      take (0xFF +& ($octstring +> 0x10));
     }
   }
 }
