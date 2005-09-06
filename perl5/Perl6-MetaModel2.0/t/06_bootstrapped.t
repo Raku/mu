@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 14;
+use Test::More tests => 18;
 use Test::Exception; 
 
 do 'lib/genesis.pl';
@@ -13,6 +13,9 @@ do 'lib/genesis.pl';
 my $Foo = $::Class->new('$:name' => 'Foo', '$:version' => '0.0.1');
 is($Foo->name, 'Foo', '... Foo->name == Foo');
 is($Foo->version, '0.0.1', '... Foo->version == 0.0.1');
+is($Foo->authority, undef, '... Foo->authority == undef');
+
+is($Foo->identifier, 'Foo-0.0.1', '... Foo->identifier == Foo-0.0.1');
 
 lives_ok {
     $Foo->superclasses([ $::Object ]);
@@ -32,9 +35,12 @@ ok($iFoo->isa('Foo'), '... iFoo isa Foo');
 
 # Now try to create a new class ....
 
-my $Bar = $::Class->new('$:name' => 'Bar', '$:version' => '0.0.1');
+my $Bar = $::Class->new('$:name' => 'Bar', '$:version' => '0.0.1', '$:authority' => 'cpan:JRANDOM');
 is($Bar->name, 'Bar', '... Bar->name == Bar');
 is($Bar->version, '0.0.1', '... Bar->version == 0.0.1');
+is($Bar->authority, 'cpan:JRANDOM', '... Bar->authority == cpan:JRANDOM');
+
+is($Bar->identifier, 'Bar-0.0.1-cpan:JRANDOM', '... Bar->identifier == Bar-0.0.1-cpan:JRANDOM');
 
 lives_ok {
     $Bar->superclasses([ $Foo ]);

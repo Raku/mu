@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 26;
+use Test::More tests => 27;
 use Test::Exception; 
 
 use Perl6::MetaModel;
@@ -11,10 +11,11 @@ use Perl6::MetaModel;
 # make sure genesis loaded correctly
 ok($::Object->isa('Object'), '... genesis was loaded ok');
 ok($::Class->isa('Class'), '... genesis was loaded ok');
+ok($::Class->isa('Module'), '... genesis was loaded ok');
 ok($::Class->isa('Object'), '... genesis was loaded ok');
 is_deeply(
     $::Class->superclasses,
-    [ $::Object ],
+    [ $::Module, $::Object ],
     '... genesis was loaded ok');
       
 ## class-is-a-closure form 

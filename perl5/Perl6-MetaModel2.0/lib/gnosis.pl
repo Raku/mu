@@ -15,9 +15,7 @@ sub ::create_class (%) {
         \$::Class,
         (
             # meta-information
-            '$:name'             => $attrs{'$:name'}      || undef,
-            '$:version'          => $attrs{'$:version'}   || '0.0.0',
-            '$:authority'        => $attrs{'$:authority'} || undef,
+            '$:name'             => $attrs{'$:name'} || undef,
             # the guts
             '@:MRO'              => [],
             '@:superclasses'     => [],

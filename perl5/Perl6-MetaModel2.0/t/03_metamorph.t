@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 88;
+use Test::More tests => 72;
 use Test::Exception;
 
 do 'lib/metamorph.pl';
@@ -27,18 +27,6 @@ sub lives_ok_and_is (&$;$) {
 lives_ok_and_is {
     $::Class->name;
 } 'Class', '... got the name we expected';
-
-lives_ok_and_is {
-    $::Class->version;
-} '0.0.0', '... got the version we expected';
-
-lives_ok_and_is {
-    $::Class->authority;
-} undef, '... got the authority we expected';
-
-lives_ok_and_is {
-    $::Class->identifier;
-} 'Class-0.0.0', '... got the identifier we expected';
 
 lives_ok_and_is {
     $::Class->superclasses;
@@ -85,9 +73,6 @@ lives_ok_and_ok {
 
 # check public methods
 foreach my $method_name (qw(name
-                            version
-                            authority
-                            identifier
                             superclasses
                             MRO
                             dispatcher
@@ -119,9 +104,7 @@ foreach my $method_name (qw(_merge
     } '... $::Class->has_method(' . $method_name . ')';
 }
 
-my @attribute_name_list = ('$:name',
-                           '$:version',      
-                           '$:authority',        
+my @attribute_name_list = ('$:name',       
                            '@:MRO',              
                            '@:superclasses',    
                            '%:private_methods',  

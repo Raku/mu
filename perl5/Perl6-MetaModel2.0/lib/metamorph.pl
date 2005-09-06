@@ -100,26 +100,6 @@ $::Class->add_method('name' => ::make_method(sub {
     ::opaque_instance_attrs($self)->{'$:name'};
 }, $::Class));
 
-$::Class->add_method('version' => ::make_method(sub {
-    my ($self, $version) = @_;
-    if (defined $version) {
-        ($version =~ /^\d+\.\d+\.\d+$/)
-            || confess "The version ($version) is not in the correct format '0.0.0'";
-        ::opaque_instance_attrs($self)->{'$:version'} = $version;
-    }
-    ::opaque_instance_attrs($self)->{'$:version'};    
-}, $::Class));
-
-$::Class->add_method('authority' => ::make_method(sub {
-    my $self = shift;
-    ::opaque_instance_attrs($self)->{'$:authority'} = shift if @_;        
-    ::opaque_instance_attrs($self)->{'$:authority'};
-}, $::Class));
-
-$::Class->add_method('identifier' => ::make_method(sub {
-    return join '-' => ($::SELF->name, $::SELF->version, ($::SELF->authority || ()));
-}, $::Class));
-
 $::Class->add_method('superclasses' => ::make_method(sub {        
     my ($self, $superclasses) = @_;
     if (defined $superclasses) {
@@ -388,8 +368,6 @@ $::Class->add_method('find_attribute_spec' => ::make_method(sub {
 # now add the $::Class attributes
 
 $::Class->add_attribute('$:name'             => ::make_attribute('$:name'));
-$::Class->add_attribute('$:version'          => ::make_attribute('$:version'));
-$::Class->add_attribute('$:authority'        => ::make_attribute('$:authority'));
 $::Class->add_attribute('@:MRO'              => ::make_attribute('@:MRO'));
 $::Class->add_attribute('@:superclasses'     => ::make_attribute('@:superclasses'));
 $::Class->add_attribute('%:private_methods'  => ::make_attribute('%:private_methods'));
