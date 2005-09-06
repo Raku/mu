@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 5;
+plan 12;
 
 # Following tests test whether the declaration succeeded.
 {
@@ -60,15 +60,61 @@ plan 5;
 
         try { grtz = 23 };
         $ok++ if $!;
+        $ok++ if grtz == 42;
     ';
 
-    is $ok, 2, "a constant declared using 'constant' is actually constant";
+    is $ok, 3, "a constant declared using 'constant' is actually constant (1)";
 }
 
-=for discussion
+{
+    my $ok;
+
+    eval '
+        constant baka = 42;
+        $ok++ if baka == 42;
+
+        try { baka := 23 };
+        $ok++ if $!;
+        $ok++ if baka == 42;
+    ';
+
+    is $ok, 3, "a constant declared using 'constant' is actually constant (2)";
+}
+
+{
+    my $ok;
+
+    eval '
+        constant wobble = 42;
+        $ok++ if wobble == 42;
+
+        try { &wobble = { 23 } };
+        $ok++ if $!;
+        $ok++ if wobble == 42;
+    ';
+
+    is $ok, 3, "a constant declared using 'constant' is actually constant (3)";
+}
+
+{
+    my $ok;
+
+    eval '
+        constant wibble = 42;
+        $ok++ if wibble == 42;
+
+        try { &wibble := { 23 } };
+        $ok++ if $!;
+        $ok++ if wibble == 42;
+    ';
+
+    is $ok, 3, "a constant declared using 'constant' is actually constant (4)";
+}
 
 # See thread "our constant pi, my constant pi" on p6l started by Ingo
-# Blechschmidt: http://www.nntp.perl.org/group/perl.perl6.language/23000
+# Blechschmidt (http://www.nntp.perl.org/group/perl.perl6.language/23000),
+# especially Luke's reply
+# (http://www.nntp.perl.org/group/perl.perl6.language/23000).
 
 {
     my $ok;
@@ -79,7 +125,7 @@ plan 5;
             $ok++ if grtz == 42;
         }
 
-        $ok++ unless eval 'grtz; 1';
+        $ok++ unless eval "grtz; 1";
     ';
 
     is $ok, 2, "declaring constants using 'my constant' works";
@@ -116,4 +162,19 @@ plan 5;
     ';
 
     is $ok, 2, "declaring constants using 'our constant' works";
+}
+
+{
+    my $ok;
+
+    eval '
+        {
+            constant grtz = 42;
+            $ok++ if grtz == 42;
+        }
+
+        $ok++ if grtz;
+    ';
+
+    is $ok, 2, "declaring constants using 'constant' creates package-scoped vars";
 }
