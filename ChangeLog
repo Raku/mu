@@ -18,6 +18,7 @@
 
 * Expanded any existing literal tab chars to spaces in these files:
 ** /t/*, /t_disabled/*
+** /examples/* (but some tabs remain in literal strings, and data files)
 
 === Bug Fixes
 

@@ -10,6 +10,6 @@ use v6;
 # XXX currently it seems you cannot eliminate the $_ from while expression
 
 while $_ = =<> {
-	print;
+    print;
 }
 

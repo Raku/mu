@@ -11,11 +11,11 @@ You want to read or write a file from Perl.
 my $path = "07-01opening_file.p6";
 
 my $input = open($path, :r)
-	err die "Could not open $path for reading $!\n";
+    err die "Could not open $path for reading $!\n";
 
 my $filename = "test_file";
 my $output = open($filename, :w) 
-	err die "Could not open $filename for writing $!\n";
+    err die "Could not open $filename for writing $!\n";
 
 
 # File-access modes

@@ -36,17 +36,17 @@ $phrase = q:c/I have {$n + 1} guanacos./;     # interpolation closures only
 # XXX: Confirming via p6l that this works as the first param like this:
 # XXX I think s/<<//
 die "Couldn't send mail" unless send_mail <<qq:to/EOTEXT/, $target
-	To: $naughty
-	From: Your Bank
-	Cc: &get_manager_list($naughty)
-	Date: { do { my $now = `date`; $now .= chomp; $now } } (today)
+    To: $naughty
+    From: Your Bank
+    Cc: &get_manager_list($naughty)
+    Date: { do { my $now = `date`; $now .= chomp; $now } } (today)
 
-	Dear $naughty,
+    Dear $naughty,
 
-	Today, you bounced check number { 500 + int rand(100) } to us.
-	Your account is now closed.
+    Today, you bounced check number { 500 + int rand(100) } to us.
+    Your account is now closed.
 
-	Sincerely,
-	the management
-	EOTEXT
+    Sincerely,
+    the management
+    EOTEXT
 

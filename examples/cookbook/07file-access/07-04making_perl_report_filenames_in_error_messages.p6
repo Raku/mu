@@ -10,5 +10,5 @@ use v6;
 my $path = "file";
 
 #my $fh = open($path)
-#	err die "Could not open '$path' for reading: $!\n";
+#    err die "Could not open '$path' for reading: $!\n";
  

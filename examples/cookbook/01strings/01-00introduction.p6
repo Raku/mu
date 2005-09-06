@@ -189,9 +189,9 @@ a hash, closures, functions, backslashed control characters, and
 other good stuff.  Single-quoted strings do not.
 
     # literal whitespace  
-    my $squot = 	'    The quick brown fox jumps over the lazy dog.
+    my $squot = '    The quick brown fox jumps over the lazy dog.
     	dog.';
-    my $dquot = 	"    The quick brown fox jumps over the lazy
+    my $dquot = "    The quick brown fox jumps over the lazy
     	dog.";
     say $squot;
     say $dquot;
@@ -218,9 +218,9 @@ other good stuff.  Single-quoted strings do not.
 =cut
 
 # literal whitespace  
-my $squot = 	'    The quick brown fox jumps over the lazy dog.
+my $squot = '    The quick brown fox jumps over the lazy dog.
 	dog.';
-my $dquot = 	"    The quick brown fox jumps over the lazy
+my $dquot = "    The quick brown fox jumps over the lazy
 	dog.";
 say $squot;
 say $dquot;
