@@ -162,7 +162,8 @@ method sum(@self:) { sum *@self }
 sub JS::Root::sum(*@vals) is primitive {
   my $sum = 0;
   $sum += +$_ for @vals;
-  $sum;
+  @vals ?? $sum :: undef;
+  # We should return undef if we haven't been giving @vals to sum.
 }
 
 method reverse(*@things is copy:) {

@@ -11,7 +11,8 @@ Basic tests for the exp() builtin
 
 =cut
 
-# will this be the same on all machines? or should I truncate it?
-# 148.413159102577   was failing on the tinderboxes.
-# 148.4131591025766  So we'll see how this works (2005-04-08).
-is(exp(5), 148.4131591025766, 'got the exponent of 5');
+sub is_approx (Num $is, Num $expected, Str $descr) {
+  ok abs($is - $expected) <= 0.00001, $descr;
+}
+
+is_approx(exp(5), 148.4131591025766, 'got the exponent of 5');
