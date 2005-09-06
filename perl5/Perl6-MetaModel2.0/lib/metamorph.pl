@@ -365,7 +365,6 @@ $::Class->add_method('find_attribute_spec' => ::make_method(sub {
 
 # now add the $::Class attributes
 
-#$::Class->add_attribute('$:name'             => ::make_attribute('$:name'));
 $::Class->add_attribute('@:MRO'              => ::make_attribute('@:MRO'));
 $::Class->add_attribute('@:superclasses'     => ::make_attribute('@:superclasses'));
 $::Class->add_attribute('%:private_methods'  => ::make_attribute('%:private_methods'));

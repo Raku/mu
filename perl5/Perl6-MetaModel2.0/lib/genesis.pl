@@ -10,7 +10,7 @@ BEGIN { do "lib/pneuma.pl" };
 ## ----------------------------------------------------------------------------
 ## Module (added with r6792)
 
-$::Module = $::Class->new(); #'$:name' => 'Module');
+$::Module = $::Class->new();
 
 $::Module->superclasses([ $::Object ]);
 
@@ -55,6 +55,7 @@ $::Module->add_method('identifier' => ::make_method(sub {
 ::opaque_instance_attrs($::Class)->{'@:MRO'} = [ $::Class, $::Module, $::Object ];
 ::opaque_instance_attrs($::Object)->{'@:MRO'} = [ $::Object ];
 
+# now make sure we set everyone's name properly
 $::Class->name('Class');
 $::Object->name('Object');
 $::Module->name('Module');

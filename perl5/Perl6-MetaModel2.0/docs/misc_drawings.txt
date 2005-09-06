@@ -26,7 +26,6 @@ This is a file of misc. ASCII art drawings of the Meta Model.
    |   +--------------------+   |                              |
    |   | class              |---+                              |
    |   +--------------------+                                  |
-   |   | $:name             |                                  |
    |   | @:superclasses     |................................. |
    |   | @:MRO              |                                : |
    |   | %:attributes       |                                : |

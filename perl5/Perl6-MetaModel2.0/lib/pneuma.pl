@@ -10,7 +10,7 @@ BEGIN { do "lib/metamorph.pl" };
 $::Object = undef;
 
 # The 'Object' class
-$::Object = $::Class->new(); #'$:name' => 'Object');
+$::Object = $::Class->new();
 
 ## submethods
 

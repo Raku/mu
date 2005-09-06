@@ -14,9 +14,6 @@ sub ::create_class (%) {
         # < a Class object is an instance of the Class class >
         \$::Class,
         (
-            # meta-information
-#            '$:name'             => $attrs{'$:name'} || undef,
-            # the guts
             '@:MRO'              => [],
             '@:superclasses'     => [],
             '%:private_methods'  => {},
@@ -29,7 +26,7 @@ sub ::create_class (%) {
 }
 
 # The 'Class' class
-$::Class = ::create_class(); #'$:name' => 'Class');
+$::Class = ::create_class();
 
 ## create the body of 'add_method' here,.. 
 my $_add_method = sub {
