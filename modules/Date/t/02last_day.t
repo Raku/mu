@@ -17,7 +17,7 @@ for 1 .. 12 -> $month {
     is( $dt.year, 2001, 'check year' );
     is( $dt.month, $month, 'check month' );
     is( $dt.day, @last[ $month - 1 ], 'check day', :todo<bug>,
-	:depends<oo/attributes/mutators.t> );
+        :depends<oo/attributes/mutators.t> );
 }
 
 for 1 .. 12 -> $month {
@@ -26,7 +26,7 @@ for 1 .. 12 -> $month {
     is( $dt.year, 2004, 'check year' );
     is( $dt.month, $month, 'check month' );
     is( $dt.day, @leap_last[ $month - 1 ], 'check day', :todo<bug>,
-	:depends<oo/attributes/mutators.t>
+        :depends<oo/attributes/mutators.t>
       );
 }
 

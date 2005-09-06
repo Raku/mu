@@ -45,7 +45,7 @@ Currently in Pugs, the closest corresponding entities are;
       - Type in Pugs/Types.hs (as a base class)
 
       - VStr, VBool, VInt, VRat, VNum, VComplex, VHandle, VSocket,
-	VThread, MatchPGE in Pugs/Types.hs
+        VThread, MatchPGE in Pugs/Types.hs
 
       - VRef, VOpaque, VControl, VScalar, VPair, VList, VSubst,
         VArray, VHash, VThunk, VProcess, VMatch, VCode, VJunc,

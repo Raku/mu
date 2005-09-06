@@ -10,9 +10,9 @@ use Date::Gregorian;
 plan 301;
 
 my $dg = Date::Gregorian.new( :year(1870), :month(10), :day(21),
-			      :hour(12),   :minute(10),
-			      :second(45.000123456),
-			    );
+                              :hour(12),   :minute(10),
+                              :second(45.000123456),
+                            );
 
 is( $dg.year, '1870', "Year accessor, outside of the epoch" );
 is( $dg.month, '10',  "Month accessor, outside the epoch" );
@@ -49,13 +49,13 @@ is($dg.second, 12, "positional date()");
 # of a date module, this is why it is in this test.
 
 my @forms = < YY YYYY YYYY-MM YYYYMM YYYY-MM-DD YYYYMMDD
-	      YY-MM YY-MM-DD --DD -MM
-	      YYYY-DDD YYYYDDD YY-DDD YYDDD
+              YY-MM YY-MM-DD --DD -MM
+              YYYY-DDD YYYYDDD YY-DDD YYDDD
               YYYYWNN YYYYWNND YYWNND
-	      YYYY-MM-DDTHH:MN:SS YYYY-MM-DDHH:MN:SS
-	      YYYYMMDDHH:MN:SS YYYYMMDDHHMNSS
-	      YYYYMMDDHH YYYYMMDDHHMN YYYYMMDDHHMNSSF
-	      YY-MMDD YY-MMDDHH YY-MMDDHHMN YY-MMDDHHMNSS
+              YYYY-MM-DDTHH:MN:SS YYYY-MM-DDHH:MN:SS
+              YYYYMMDDHH:MN:SS YYYYMMDDHHMNSS
+              YYYYMMDDHH YYYYMMDDHHMN YYYYMMDDHHMNSSF
+              YY-MMDD YY-MMDDHH YY-MMDDHHMN YY-MMDDHHMNSS
               YY-MMDDHHMNSSF
               THH HH.FFF HH,FFF HH:MN THHMN HH:MN.FFF
               HH:MN,FFF HH:MN:SS THHMNSS HH:MN:SS.FFF
@@ -66,7 +66,7 @@ for @forms -> $form {
 
     # pick a random time for each form, then test it parses correctly.
     my ($year, $week, $dow, $doy, $month, $day, $hour, $min, $sec, 
-	$frac)
+        $frac)
         = (r(100)+1950, r(53)+1, r(7)+1, r(366)+1, r(12)+1, r(31)+1,
            r(24), r(60), r(60), r(1000)/1000);
 
@@ -74,17 +74,17 @@ for @forms -> $form {
     # note: no support for :e perl5 modifier to s//
 
     #for ( rx:perl5/YYYY/ => { ($year = r(100)+1950).as("%04d") },
-    #	  rx:perl5/YY/   => { ( $year = r(100)).as("%02d") },
-    #	  rx:perl5/WNN/  => { ( $week = r(53)+1 ).as("W%02d") },
-    #	  rx:perl5/MM/   => { ( $month = r(12)+1 ).as("W%02d") },
-    #	  rx:perl5/DDD/  => { ( $doy = r($year % 4 ?? 365 : 366)+1 )
-    #			      .as("W%03d") },
-    #	  rx:perl5/DD/   => { ( $month = r(31)+1 ).as("W%02d") },
-    #	  rx:perl5/D/    => { ( $wday = r(7)+1 ).as("W%01d") },
-    #	) -> ($rx, $do) {
-    #	if ( $iso ~~ $rx ) {
-    #	    substr($iso, $/.from, $/.chars) = $rx();
-    #	}
+    #     rx:perl5/YY/   => { ( $year = r(100)).as("%02d") },
+    #     rx:perl5/WNN/  => { ( $week = r(53)+1 ).as("W%02d") },
+    #     rx:perl5/MM/   => { ( $month = r(12)+1 ).as("W%02d") },
+    #     rx:perl5/DDD/  => { ( $doy = r($year % 4 ?? 365 : 366)+1 )
+    #                         .as("W%03d") },
+    #     rx:perl5/DD/   => { ( $month = r(31)+1 ).as("W%02d") },
+    #     rx:perl5/D/    => { ( $wday = r(7)+1 ).as("W%01d") },
+    #   ) -> ($rx, $do) {
+    #   if ( $iso ~~ $rx ) {
+    #       substr($iso, $/.from, $/.chars) = $rx();
+    #   }
     #}
 
     ($iso ~~ rx:perl5/(YYYY)/) && (substr($iso,$/.from,$/.chars)= sprintf("%04d", $year))
@@ -104,50 +104,50 @@ for @forms -> $form {
     # following code to only have one copy of the fractional bits :)
     my $fractional;
     if $iso ~~ rx:perl5/(HH([,\.]?)(F+))/ {
-	my $comma = $1;
+        my $comma = $1;
         my ($from, $chars) = ($/.from, $/.chars);
-	$fractional = format_2_n_dp($2.chars, $seconds/3600);
-	$min = int((numify($fractional) - $hour)*60);
-	$sec = int((numify($fractional) - $hour)*3600 - $min * 60);
-	$frac = (numify($fractional) - $hour)*3600 - $min * 60 - $sec;
-	$fractional ~~ s:perl5/\./$comma/; #:
+        $fractional = format_2_n_dp($2.chars, $seconds/3600);
+        $min = int((numify($fractional) - $hour)*60);
+        $sec = int((numify($fractional) - $hour)*3600 - $min * 60);
+        $frac = (numify($fractional) - $hour)*3600 - $min * 60 - $sec;
+        $fractional ~~ s:perl5/\./$comma/; #:
         substr($iso, $from, $chars) = $fractional;
     }
 
     elsif $iso ~~ rx:perl5/(HH)/ {
 
-	substr($iso, $/.from, $/.chars) = sprintf("%02d", $hour);
+        substr($iso, $/.from, $/.chars) = sprintf("%02d", $hour);
         $seconds -= $hour * 3600;
 
         if $iso ~~ rx:perl5/(MN([,\.]?)(F+))/ {
-	    my $comma = $1;
+            my $comma = $1;
             my ($from, $chars) = ($/.from, $/.chars);
-	    $fractional = format_2_n_dp($2.chars, $seconds/60);
-	    $sec = int( ( numify($fractional) - $min )*60 );
+            $fractional = format_2_n_dp($2.chars, $seconds/60);
+            $sec = int( ( numify($fractional) - $min )*60 );
             $frac = (numify($fractional) - $min)*60 - $sec;
-	    $fractional ~~ s:perl5/\./$comma/; #:
+            $fractional ~~ s:perl5/\./$comma/; #:
             substr($iso, $from, $chars) = $fractional;
-	}
+        }
 
         elsif $iso ~~ rx:perl5/(MN)/ {
-	    substr($iso, $/.from, $/.chars) = sprintf("%02d", $min);
-	    $seconds -= $min * 60;
+            substr($iso, $/.from, $/.chars) = sprintf("%02d", $min);
+            $seconds -= $min * 60;
             if $iso ~~ rx:perl5/(SS([,\.]?)(F+))/ {
                 my $comma = $1;
-		my ($from, $chars) = ($/.from, $/.chars);
-		$fractional = format_2_n_dp($2.chars, $seconds);
-	        $frac = numify($fractional) - $sec;
-	        $fractional ~~ s:perl5/\./$comma/;  #:
+                my ($from, $chars) = ($/.from, $/.chars);
+                $fractional = format_2_n_dp($2.chars, $seconds);
+                $frac = numify($fractional) - $sec;
+                $fractional ~~ s:perl5/\./$comma/;  #:
                 substr($iso, $from, $chars) = $fractional;
             }
 
             elsif $iso ~~ rx:perl5/(SS)/ {
-		substr($iso, $/.from, $/.chars) = sprintf("%02d", $sec);
-		undefine($frac);
-	    }
-	    else { undefine($sec); undefine($frac) }
-	}
-	else { undefine($min); undefine($sec); undefine($frac); }
+                substr($iso, $/.from, $/.chars) = sprintf("%02d", $sec);
+                undefine($frac);
+            }
+            else { undefine($sec); undefine($frac) }
+        }
+        else { undefine($min); undefine($sec); undefine($frac); }
     }
     else { undefine($hour); undefine($min); undefine($sec); undefine($frac) }
 
@@ -157,23 +157,23 @@ for @forms -> $form {
     my $date = eval { date($iso) };
     if ( $! ) {
         fail("exception parsing ISO form $form (used: $iso)");
-	skip (4 + ($doy ?? 1 :: 0) + ($week ?? 1 :: 0)
-		+ ( ($doy||$week) ?? 0 :: 2 )), "failed to parse";
+        skip (4 + ($doy ?? 1 :: 0) + ($week ?? 1 :: 0)
+                + ( ($doy||$week) ?? 0 :: 2 )), "failed to parse";
     } else {
         if ( $year > 100 ) {
-	    is($date.year, $year, "$form - year");
-	} else {
-	    is($date.yy, $year, "$form - yy");
-	}
- 	if $doy {
-	    $doy = 365 if $doy == 366 and $year % 4;
+            is($date.year, $year, "$form - year");
+        } else {
+            is($date.yy, $year, "$form - yy");
+        }
+        if $doy {
+            $doy = 365 if $doy == 366 and $year % 4;
             is($date.doy, $doy, "$form - doy")
-	}
- 	if $week {
-	    # FIXME - figure out which years are "short" in ISO weeks
-	    $week-- while ($week > 52 and $date.week and $date.week < $week);
+        }
+        if $week {
+            # FIXME - figure out which years are "short" in ISO weeks
+            $week-- while ($week > 52 and $date.week and $date.week < $week);
             is($date.week, $week, "$form - week") if $week;
-	}
+        }
         is($date.month, $month, "$form - month") unless $week or $doy;
         is($date.day, $day, "$form - day") unless $week or $doy;
 
