@@ -74,7 +74,7 @@ sub _make_preorder_dispatcher {
                 return $current_metaclass;
             }
             return undef;
-		}
+        }
     };
 }
 

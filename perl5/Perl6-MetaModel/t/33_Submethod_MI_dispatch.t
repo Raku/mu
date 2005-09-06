@@ -12,11 +12,11 @@ use Perl6::Object;
 =pod
 
 class Foo {
-	method baz { ... }
+    method baz { ... }
 }
 
 class Bar {
-	submethod baz { ... }
+    submethod baz { ... }
 }
 
 class FooBar is Foo is Bar {}

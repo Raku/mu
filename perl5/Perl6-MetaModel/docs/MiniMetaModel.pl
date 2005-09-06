@@ -12,7 +12,7 @@ plan tests => 32 + sum(map { $_->{tests} } @plugins);
 
 {
     use Hash::Util 'lock_keys';
-	use Carp 'confess';
+    use Carp 'confess';
 
     # Every instance should have a unique ID
     my $instance_counter = 0;
@@ -36,19 +36,19 @@ plan tests => 32 + sum(map { $_->{tests} } @plugins);
 }
 
 my $bootstrap_find_dispatcher = sub {
-	my $class = shift;
+    my $class = shift;
 
-	{
-		my $method = ::opaque_instance_attrs($class)->{'%:methods'}{dispatch_method};
-		return $method if $method;
+    {
+        my $method = ::opaque_instance_attrs($class)->{'%:methods'}{dispatch_method};
+        return $method if $method;
 
-		$class = ::opaque_instance_attrs($class)->{'$:superclass'};
-		redo;
-	}
+        $class = ::opaque_instance_attrs($class)->{'$:superclass'};
+        redo;
+    }
 };
 
 {
-	# perl 5 call notation compatibility
+    # perl 5 call notation compatibility
     package Dispatchable;
 
     sub isa { our $AUTOLOAD = 'isa'; goto &AUTOLOAD; }
@@ -56,21 +56,21 @@ my $bootstrap_find_dispatcher = sub {
 
     sub AUTOLOAD {
         my $label = (split '::', our $AUTOLOAD)[-1];
-		my $instance = shift;
+        my $instance = shift;
 
-		return if $label eq 'DESTROY';
+        return if $label eq 'DESTROY';
 
-		my $class = ::opaque_instance_class($instance);
-		my $metaclass = ::opaque_instance_class($class);
+        my $class = ::opaque_instance_class($instance);
+        my $metaclass = ::opaque_instance_class($class);
 
-		# find the dispatcher in the metaclass of $class
-		# and make $class use it to dispatch $label on $instance
-		my $dispatch_method = $metaclass->$bootstrap_find_dispatcher($class);
-		
-		@_ = ( $class, $label, $instance, @_,);
+        # find the dispatcher in the metaclass of $class
+        # and make $class use it to dispatch $label on $instance
+        my $dispatch_method = $metaclass->$bootstrap_find_dispatcher($class);
+        
+        @_ = ( $class, $label, $instance, @_,);
 
-		goto &$dispatch_method;
-	}
+        goto &$dispatch_method;
+    }
 }
 
 # The 'Class' class -- placed here so ::create_class can refer to it
@@ -120,17 +120,17 @@ $Class = ::create_class(
 );
 
 my $bootstrap_find_method = sub {
-	my $class = shift;
-	my $label = shift;
+    my $class = shift;
+    my $label = shift;
 
-	while (defined $class){
-		my $method = ::opaque_instance_attrs($class)->{'%:methods'}{$label};
-		return $method if $method;
-	} continue {
-		$class = ::opaque_instance_attrs($class)->{'$:superclass'};
-	}
+    while (defined $class){
+        my $method = ::opaque_instance_attrs($class)->{'%:methods'}{$label};
+        return $method if $method;
+    } continue {
+        $class = ::opaque_instance_attrs($class)->{'$:superclass'};
+    }
 
-	return undef;
+    return undef;
 };
 
 # The 'Object' class
@@ -147,31 +147,31 @@ our $Object = ::create_class(
         'class' => sub ($) {
             ::opaque_instance_class(shift)
         },
-		'dispatch_method' => sub {
-			my $class = shift;
-			my $label = shift;
-			
-			# if we're finding the method 'find_method' using find_method, then we have to cheat
-			my $find_method = (::opaque_instance_id($class) <= 2) ? $bootstrap_find_method : "find_method";
-			
-			my $method = $class->$find_method($label);
-			goto &$method if $method;
-			
-			confess "No method found for $label";
-		},
-		'find_method' => sub {
-			my $class = shift;
-			my $label = shift;
+        'dispatch_method' => sub {
+            my $class = shift;
+            my $label = shift;
+            
+            # if we're finding the method 'find_method' using find_method, then we have to cheat
+            my $find_method = (::opaque_instance_id($class) <= 2) ? $bootstrap_find_method : "find_method";
+            
+            my $method = $class->$find_method($label);
+            goto &$method if $method;
+            
+            confess "No method found for $label";
+        },
+        'find_method' => sub {
+            my $class = shift;
+            my $label = shift;
 
-			while (defined $class){
-				my $method = $class->get_method($label);
-				return $method if $method;
-			} continue {
-				$class = $class->superclass;
-			}
+            while (defined $class){
+                my $method = $class->get_method($label);
+                return $method if $method;
+            } continue {
+                $class = $class->superclass;
+            }
 
-			return undef;
-		},
+            return undef;
+        },
     },
 );
 
