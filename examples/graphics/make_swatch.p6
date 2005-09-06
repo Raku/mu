@@ -42,7 +42,7 @@ for =$*IN -> $line {
     $column++;
     if ($column > $columns) {
         $column = 1;
-	$row++;
+        $row++;
     }
     #say $line;
     my @data = split(/,/, $line.chomp);

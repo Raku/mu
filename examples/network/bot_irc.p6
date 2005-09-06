@@ -38,9 +38,9 @@ while ($ligne = readline($hdl))
     given $ligne {
 
         when rx:perl5/^PING/ {
-    	    say "Reply to ping";
-	        $hdl.say("PONG $nick\n");
-	        $hdl.flush;
+            say "Reply to ping";
+            $hdl.say("PONG $nick\n");
+            $hdl.flush;
         }
 
         when rx:perl5/$nick/ 

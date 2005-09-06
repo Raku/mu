@@ -85,9 +85,9 @@ sub on_privmsg($event) {
 
     when rx:P5/^\?game$/ {
       $game = {
-	dev         => @devs.pick,
-	guesses     => [],
-	bad_guesses => 0,
+        dev         => @devs.pick,
+        guesses     => [],
+        bad_guesses => 0,
       };
 
       show_game($reply_to, $game);
@@ -95,44 +95,44 @@ sub on_privmsg($event) {
 
     when rx:P5/^\?show/ {
       if $game {
-	show_game($reply_to, $game);
+        show_game($reply_to, $game);
       } else {
-	$bot<privmsg>(to => $reply_to, text => "There's no game running currently. You can start one using \"?game\".");
+        $bot<privmsg>(to => $reply_to, text => "There's no game running currently. You can start one using \"?game\".");
       }
     }
 
     when rx:P5/^\?guess ([a-zA-Z])/ {
       if $game {
-	my $guess = lc $0;
-	my %guesses;
-	# No ».++ yet.
-	%guesses{$_}++ for $game<guesses>;
+        my $guess = lc $0;
+        my %guesses;
+        # No ».++ yet.
+        %guesses{$_}++ for $game<guesses>;
 
-	if %guesses{$guess} {
-	  $bot<privmsg>(to => $reply_to, text => "You've already guessed \"$guess\"!");
-	} else {
-	  %guesses{$guess}++;
-	  $game<guesses> = [ %guesses.keys.sort ];
-	  if $game<dev> ~~ m:Perl5:i/[$guess]/ {
-	    if complete($game) {
-	      $bot<privmsg>(to => $reply_to, text => "Congratulations! The developer was $game<dev>.");
-	      undef $game;
-	    } else {
-	      $bot<privmsg>(to => $reply_to, text => "Yeah, \"$guess\" is in the name.");
-	      show_game($reply_to, $game);
-	    }
-	  } else {
-	    $game<bad_guesses>++;
-	    if $game<bad_guesses> < $max_bad {
-	      $bot<privmsg>(to => $reply_to, text => "Sorry, \"$guess\" is not in the name.");
-	    } else {
-	      $bot<privmsg>(to => $reply_to, text => "Sorry, you exceedded the maximum number of tries. The developer was $game<dev>.");
-	      undef $game;
-	    }
-	  }
-	}
+        if %guesses{$guess} {
+          $bot<privmsg>(to => $reply_to, text => "You've already guessed \"$guess\"!");
+        } else {
+          %guesses{$guess}++;
+          $game<guesses> = [ %guesses.keys.sort ];
+          if $game<dev> ~~ m:Perl5:i/[$guess]/ {
+            if complete($game) {
+              $bot<privmsg>(to => $reply_to, text => "Congratulations! The developer was $game<dev>.");
+              undef $game;
+            } else {
+              $bot<privmsg>(to => $reply_to, text => "Yeah, \"$guess\" is in the name.");
+              show_game($reply_to, $game);
+            }
+          } else {
+            $game<bad_guesses>++;
+            if $game<bad_guesses> < $max_bad {
+              $bot<privmsg>(to => $reply_to, text => "Sorry, \"$guess\" is not in the name.");
+            } else {
+              $bot<privmsg>(to => $reply_to, text => "Sorry, you exceedded the maximum number of tries. The developer was $game<dev>.");
+              undef $game;
+            }
+          }
+        }
       } else {
-	$bot<privmsg>(to => $reply_to, text => "There's no game running currently. You can start one using \"?game\".");
+        $bot<privmsg>(to => $reply_to, text => "There's no game running currently. You can start one using \"?game\".");
       }
     }
   }

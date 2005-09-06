@@ -13,7 +13,7 @@ while (1) {
         while (=$hdl ~~ rx:perl5/\S/) { 1 };
         $hdl.say("HTTP/1.0 200 OK");
         $hdl.say("Content-Type: text/html; charset=UTF-8");
-	$hdl.say("Server: Pugs driven HTTP/1.0 server");
+        $hdl.say("Server: Pugs driven HTTP/1.0 server");
         $hdl.say(qq[
 
 <html>

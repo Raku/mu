@@ -33,7 +33,7 @@ sub pretty_duration ($seconds is copy) {
     %duration<seconds> = $seconds;
     my @pretty = ();
     for <days hours minutes seconds> -> $key {
-	push @pretty, "%duration{$key} $key" if %duration{$key};
+        push @pretty, "%duration{$key} $key" if %duration{$key};
     }
     my $pretty = join(' ', grep { defined $_ } @pretty[0..2]);
     debug "pretty duration is $pretty";
@@ -64,8 +64,8 @@ sub on_privmsg($event) {
 
     when rx:P5/^\??seen\s+(.+?)\s*$/ {
       my $reply_msg = %seen{$0}
-	?? "$0 was last seen {pretty_duration(int(time() - %seen{$0}<date>))} ago" ~ (%seen{$0}<text> ?? ", saying: %seen{$0}<text>" :: '.')
-	:: "Never seen $0.";
+        ?? "$0 was last seen {pretty_duration(int(time() - %seen{$0}<date>))} ago" ~ (%seen{$0}<text> ?? ", saying: %seen{$0}<text>" :: '.')
+        :: "Never seen $0.";
       $bot<notice>(to => $reply_to, text => $reply_msg);
     }
 

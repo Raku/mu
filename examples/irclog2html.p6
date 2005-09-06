@@ -110,8 +110,8 @@ my $process = -> $time, $nick, $type, $text {
     when "PRIVMSG" {
       # If it was a /ME, we format it differently.
       $htext = $text ~~ m:Perl5/^\001ACTION (.*)\001$/
-	?? "$nick {qhtml $0}"
-	:: qhtml $text;
+        ?? "$nick {qhtml $0}"
+        :: qhtml $text;
     }
 
     # Somebody set the topic.
@@ -136,8 +136,8 @@ my $process = -> $time, $nick, $type, $text {
     globfg => "black",
     globbg =>
       $type eq "PRIVMSG"    
-	?? $text ~~ rx:Perl5/^\001ACTION/ ?? "#eaeaea" :: "#f5f5f5"
-	:: "#dddddd",
+        ?? $text ~~ rx:Perl5/^\001ACTION/ ?? "#eaeaea" :: "#f5f5f5"
+        :: "#dddddd",
 
     # Nick foreground/background color
     nickfg => @nickc[0],
@@ -158,8 +158,8 @@ my $process = -> $time, $nick, $type, $text {
       $type eq "PART"    ?? qhtml "<" ::
       $type eq "JOIN"    ?? qhtml ">" ::
       $type eq "PRIVMSG"
-	?? ($text ~~ rx:Perl5/^\001ACTION/ ?? qhtml "*" :: "")
-	:: qhtml "*",
+        ?? ($text ~~ rx:Perl5/^\001ACTION/ ?? qhtml "*" :: "")
+        :: qhtml "*",
   );
 };
 
@@ -311,7 +311,7 @@ sub tmpl_logline(
 ) {"
     <tr style=\"color: $globfg; background-color: $globbg\">
       <td style=\"background-color: $nickbg; color: $nickfg; text-align: center;\">
-	{qhtml $nick}
+        {qhtml $nick}
       </td>
       <td>{$time}</td>
       <td title=\"$type\">{$sigil}</td>

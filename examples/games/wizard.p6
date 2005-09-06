@@ -150,7 +150,7 @@ class Person is Mortal {
 class Monster is Mortal { }
 
 my $person = Person.new(:life(100),:max_life(100),
-	:weapons((Weapon.new(:name<sword>, :power(4), :powerRange(2)),
+    :weapons((Weapon.new(:name<sword>, :power(4), :powerRange(2)),
              Weapon.new(:name<spell>, :power(0), :powerRange(7)))),
 );
 

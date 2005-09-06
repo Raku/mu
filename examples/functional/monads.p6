@@ -9,10 +9,10 @@ sub mreturn($a) { return { $a } }
 
 # (>>=) :: (Monad m) => m a -> (a -> m b) -> m b
 sub mbind(
-  Code $ma,	    # m a
-  Code $f,	    # (a -> m b)
-		    # This should be "Code $f returns Code", but Pugs doesn't
-		    # grok that yet.
+  Code $ma,        # m a
+  Code $f,        # (a -> m b)
+            # This should be "Code $f returns Code", but Pugs doesn't
+            # grok that yet.
 ) {
   return {
     my $a  = $ma();    # Run m a, yielding a
