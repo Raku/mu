@@ -1,6 +1,6 @@
 Revision history for Perl extension Perl6::Value::List.
 
 0.01  Tue Aug  9 13:10:03 2005
-	- original version; created by h2xs 1.23 with options
-		-A -X -n Perl6::Value::List --skip-exporter --use-new-tests --skip-autoloader
+    - original version; created by h2xs 1.23 with options
+        -A -X -n Perl6::Value::List --skip-exporter --use-new-tests --skip-autoloader
 
