@@ -15,7 +15,7 @@ for @trig -> $func {
 multi sub atan (Num $x, Num $y : Num +$base) returns Num
     { ... };
 
-multi sub pi is constant () returns Num
+multi sub pi is readonly () returns Num
     { 3.14159_26535_89793_23846_26433_83279_50288_41971_69399_37510_58209_74944_5923 };
 
 1;

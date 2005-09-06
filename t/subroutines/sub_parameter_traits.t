@@ -17,8 +17,8 @@ my $foo=1;
 sub mods_param ($x) { $x++; }
 dies_ok  { mods_param($foo) }, 'can\'t modify parameter, constant by default';
 
-# is constant
-sub mods_param_constant ($x is constant) { $x++; }
+# is readonly
+sub mods_param_constant ($x is readonly) { $x++; }
 dies_ok  { mods_param_constant($foo) }, 'can\'t modify constant parameter, constant by default';
 
 sub mods_param_rw ($x is rw) { $x++; }

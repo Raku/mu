@@ -72,7 +72,7 @@ C<until> or <while> which it can take.
 
 The character for blank should be a constant, e.g.:
 
-    my ($BLANK) is constant = ' ';
+    my constant $BLANK = ' ';
 
 but it is not implemented yet.
 
