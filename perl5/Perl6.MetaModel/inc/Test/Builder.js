@@ -758,7 +758,7 @@ if (window) {
 };
 
 Test.Builder.prototype.beginAsync = function (timeout) {
-	var id = ++this.asyncID;
+    var id = ++this.asyncID;
     if (timeout && window && window.setTimeout) {
         // Are there other ways of setting timeout in non-browser settings?
         var aTest = this;
@@ -769,15 +769,15 @@ Test.Builder.prototype.beginAsync = function (timeout) {
         // Make sure it's defined.
         this.asyncs[id] = 0;
     }
-	return id;
+    return id;
 };
 
 Test.Builder.prototype.endAsync = function (id) {
     if (this.asyncs[id] == undefined) return;
     if (this.asyncs[id]) {
-		// Remove the timeout
-		window.clearTimeout(this.asyncs[id]);
-	}
+        // Remove the timeout
+        window.clearTimeout(this.asyncs[id]);
+    }
     if (--this.asyncID < 0) this._ending();
 };
 
