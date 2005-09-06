@@ -20,9 +20,9 @@ class 'PIL::Run::Container::Scalar' => {
                 my ($self, $value) = @_;
                 $self->set_value('$:value' => $value);                        
             },
-			'scalar_const' => sub {
-				0;
-			},
+            'scalar_const' => sub {
+                0;
+            },
         }        
     }
 };

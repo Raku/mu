@@ -57,14 +57,14 @@ sub p6_var_macro {
     my $mn = $m; $mn =~ s/\\/\\\\/g; $mn =~ s/\'/\\\'/g;
     my $dontdie = $defined1_autovivify2 ? ',1' : '';
     my %vivifiers = ('$' => 'Scalar->new()',
-		     '&' => 'Scalar->new()',
-		     '@' => 'Array->new()',
-		     '%' => 'Hash->new()',
-		     ':' => "p6_declare_class('$barename')",
-		     );
+                     '&' => 'Scalar->new()',
+                     '@' => 'Array->new()',
+                     '%' => 'Hash->new()',
+                     ':' => "p6_declare_class('$barename')",
+                     );
     my $vivifier = $vivifiers{$sigil} || die "bug";
     my $vivify = ($defined1_autovivify2 && $defined1_autovivify2 == 2
-		  ? "||do{\$$m = $vivifier}" : '');
+                  ? "||do{\$$m = $vivifier}" : '');
     "do{no strict;(defined(\$$m)?\$$m:p6_lookup('$mn'$dontdie)$vivify)}";
 }
 sub p6_root {"PIL::Run::Root"}
@@ -199,50 +199,50 @@ sub p6_new {
 sub p6_new_sub_from_pil_macro {
     my($name,$pil_params,$body,$want_macro,$SubOrCode)=@_;
     my $listify = sub {
-	join(",",map{
-	    s/\\/\\\\/g; s/\'/\\\'/g;
-	    "'$_'";
-	} @_);
+        join(",",map{
+            s/\\/\\\\/g; s/\'/\\\'/g;
+            "'$_'";
+        } @_);
     };
     my(@names6arg,@names6param,@names5);
     for my $p (@{$pil_params}) {
-	my $n6p = $p->{'tpParam'}{'paramName'};
-	my $n5  = '$'.p6_mangle($n6p);
-	my $n6a = $n6p;
-	my $is_slurpy = ref($p->{'tpParam'}{'paramContext'}) =~ /Slurpy/;
-	my $is_optional = ref($p->{'tpParam'}{'isOptional'});
-	$n6a = '?'.$n6a if $is_optional;
-	$n6a = '*'.$n6a if $is_slurpy;
-	push(@names6param,$n6p);
-	push(@names6arg,$n6a);
-	push(@names5,$n5);
+        my $n6p = $p->{'tpParam'}{'paramName'};
+        my $n5  = '$'.p6_mangle($n6p);
+        my $n6a = $n6p;
+        my $is_slurpy = ref($p->{'tpParam'}{'paramContext'}) =~ /Slurpy/;
+        my $is_optional = ref($p->{'tpParam'}{'isOptional'});
+        $n6a = '?'.$n6a if $is_optional;
+        $n6a = '*'.$n6a if $is_slurpy;
+        push(@names6param,$n6p);
+        push(@names6arg,$n6a);
+        push(@names5,$n5);
     }
     my $my_args = "";
     if (@names5) {
-	my $sig = @names6param > 1 ? '@' : '$';
-	$my_args = ('my('
-		    .join(",",@names5)
-		    .")=${sig}_param{"
-		    .$listify->(@names6param)
-		    .'};');
+        my $sig = @names6param > 1 ? '@' : '$';
+        $my_args = ('my('
+                    .join(",",@names5)
+                    .")=${sig}_param{"
+                    .$listify->(@names6param)
+                    .'};');
     }
     my $subdef = ('sub{'
-		  .'my $_sub = shift; my %_param = $_sub->bind_params(@_); '
-		  .$my_args
-		  .$body
-		  .'}');
+                  .'my $_sub = shift; my %_param = $_sub->bind_params(@_); '
+                  .$my_args
+                  .$body
+                  .'}');
     if($want_macro) {
-	my $params = ('[map{Perl6::Param->new(\'name\' => $_)} '
-		      .'('.$listify->(@names6arg).')]');
-	$SubOrCode."->new(".("'\$.name' => '$name',".
-		     "'\$.params' => $params,".
-		     "'\$.body' => $subdef)");
+        my $params = ('[map{Perl6::Param->new(\'name\' => $_)} '
+                      .'('.$listify->(@names6arg).')]');
+        $SubOrCode."->new(".("'\$.name' => '$name',".
+                     "'\$.params' => $params,".
+                     "'\$.body' => $subdef)");
     } else {
-	my $params = [map{Perl6::Param->new('name' => $_)} @names6arg];
-	my $subdef = eval($subdef);  die "bug $@" if $@;
-	$SubOrCode->new('$.name' => $name,
-			'$.params' => $params,
-			'$.body' => $subdef);
+        my $params = [map{Perl6::Param->new('name' => $_)} @names6arg];
+        my $subdef = eval($subdef);  die "bug $@" if $@;
+        $SubOrCode->new('$.name' => $name,
+                        '$.params' => $params,
+                        '$.body' => $subdef);
     }
 }
 sub p6_declare_class {
@@ -250,8 +250,8 @@ sub p6_declare_class {
     use Perl6::MetaModel;
     use Perl6::Object;
     my $cls = class $name => {
-	is => [ 'Perl6::Object' ]
-	};
+        is => [ 'Perl6::Object' ]
+        };
     $cls;
 }
 sub p6_create_instance {
@@ -265,10 +265,10 @@ sub p6_apply {
     my($f,@args)=@_;
     #print STDERR "\n<$f,",@args,">\n";
     if(!ref($f)) { # XXX - see PApp in EvalX.
-	return $args[0]->$f(splice(@args,1));
+        return $args[0]->$f(splice(@args,1));
     }
     if(!p6_to_b($f->defined())) {
-	Carp::confess "Error: Application of undef.\n";
+        Carp::confess "Error: Application of undef.\n";
     }
     $f->do(@args);
 }
@@ -287,8 +287,8 @@ sub p6_package_init {
     $code .= "use PIL::Run::ApiX;\n";
     $code .= "sub p6_lookup { ";
     for my $cls (@classes) {
-	my $symtab = '$'.$cls.'::{$_[0]}';
-	$code .= "exists $symtab ? \${$symtab} : ";
+        my $symtab = '$'.$cls.'::{$_[0]}';
+        $code .= "exists $symtab ? \${$symtab} : ";
     }
     $code .= '$_[1] ? 0 : Carp::croak("Undefined variable $_[0]") ';
     $code .= "}\n";

@@ -227,12 +227,12 @@ MULTI SUB require ($xx) {
     my $fn = File::Spec->catfile(split(/::/,$name));
     my @candidates;
     push(@candidates,
-	 $fn,
-	 File::Spec->catfile('lib6',$fn),
-	 File::Spec->catfile($FindBin::Bin,'lib6',$fn));
+         $fn,
+         File::Spec->catfile('lib6',$fn),
+         File::Spec->catfile($FindBin::Bin,'lib6',$fn));
     for my $f (@candidates) {
-	next if !-e $f;
-	return PIL::Run::EvalX::p6_eval_file($f);
+        next if !-e $f;
+        return PIL::Run::EvalX::p6_eval_file($f);
     }
     die "require($name) - file not found";
 };

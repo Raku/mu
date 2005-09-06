@@ -24,7 +24,7 @@ sub subnodes_of {
     } elsif (UNIVERSAL::isa($n,'HASH')) {
         values(%$n);
     } else {
-	();
+        ();
     }
 }
 
@@ -39,13 +39,13 @@ sub expand {
     while (@subnodes) {
         my $n = shift(@subnodes);
         if(blessed($n)) {
-	    my $flag = rand;
-	    my $ret = $n->expand($flag);
-	    if($ret ne $flag) {
-		$code .= $ret;
-	    } else {
-		unshift(@subnodes,PIL::Run::EvalX::subnodes_of($n));
-	    }
+            my $flag = rand;
+            my $ret = $n->expand($flag);
+            if($ret ne $flag) {
+                $code .= $ret;
+            } else {
+                unshift(@subnodes,PIL::Run::EvalX::subnodes_of($n));
+            }
         } elsif(ref($n)) {
             unshift(@subnodes,PIL::Run::EvalX::subnodes_of($n));
         }
@@ -78,7 +78,7 @@ package PApp; @ISA = qw(EvalX::BaseClass); sub expand {
     my($self)=@_;
 
     return $self->{'pFun'}{'pBody'}->expand() # XXX - bypass PCode - kludge
-	if UNIVERSAL::isa($self->{'pFun'},"PCode");
+        if UNIVERSAL::isa($self->{'pFun'},"PCode");
 
     my $f = $self->{'pFun'}->expand();
     my $invocant = defined $self->{'pInv'} ? $self->{'pInv'}->expand() : undef;
@@ -93,9 +93,9 @@ package PApp; @ISA = qw(EvalX::BaseClass); sub expand {
         my $macro_expansion = $fv->do(@args);
         $macro_expansion;
     } elsif(defined $f_name && defined $invocant) {
-	# XXX - horrid compensation for mm methods being mere p5 methods.
-	my $fn = $f_name; $fn =~ s/^\&//; $fn =~ s/([\\\'])/\\$1/g;
-	my $f2 = "do{my \$_f=$f;p6_to_b(\$_f->defined()) ? \$_f : '$fn'}";
+        # XXX - horrid compensation for mm methods being mere p5 methods.
+        my $fn = $f_name; $fn =~ s/^\&//; $fn =~ s/([\\\'])/\\$1/g;
+        my $f2 = "do{my \$_f=$f;p6_to_b(\$_f->defined()) ? \$_f : '$fn'}";
         "p6_apply(".join(",",$f2,@args).")";
     } else {
         "p6_apply(".join(",",$f,@args).")";
@@ -118,28 +118,28 @@ package PSub; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
     my $body = $_[0]{'pSubBody'} eq 'PNil' ? "" : $_[0]{'pSubBody'}->expand();
     my $sub = p6_new_sub_from_pil_macro($_[0]{'pSubName'},
-					$_[0]{'pSubParams'},
-					$body,
-					'macro',
-					'Sub');
+                                        $_[0]{'pSubParams'},
+                                        $body,
+                                        'macro',
+                                        'Sub');
     if($_[0]{'pSubType'} eq 'SubMethod') {
-	my $name = $_[0]{'pSubName'};
-	my $class = $name;
-	$name =~ s/.*:://;
-	$class =~ s/::[^:]+$//; $class =~ s/^&//;
-	("(sub{ (::dispatch(::meta(".p6_var_macro(":$class", 2)."),"
-	 ." 'add_method',"
-	 ." ('$name' => Perl6::Method->create_instance_method('$class' =>"
-	 ." sub \{ "
-	 .$body
+        my $name = $_[0]{'pSubName'};
+        my $class = $name;
+        $name =~ s/.*:://;
+        $class =~ s/::[^:]+$//; $class =~ s/^&//;
+        ("(sub{ (::dispatch(::meta(".p6_var_macro(":$class", 2)."),"
+         ." 'add_method',"
+         ." ('$name' => Perl6::Method->create_instance_method('$class' =>"
+         ." sub \{ "
+         .$body
          ."})))) })->()"
-	 .";\n"); # XXX why?
+         .";\n"); # XXX why?
     } else {
-	("BEGIN{"
-	 ."p6_set(".p6_var_macro($_[0]{'pSubName'},2).','
-	 .$sub
-	 .");"
-	 ."}\n");
+        ("BEGIN{"
+         ."p6_set(".p6_var_macro($_[0]{'pSubName'},2).','
+         .$sub
+         .");"
+         ."}\n");
     }
 }
 # package PCode;  also see hack above
@@ -147,10 +147,10 @@ package PCode; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
     my $body = $_[0]{'pBody'} eq 'PNil' ? "" : $_[0]{'pBody'}->expand();
     my $sub = p6_new_sub_from_pil_macro("<just a block>",
-					$_[0]{'pParams'},
-					$body,
-					'macro',
-					'Code');
+                                        $_[0]{'pParams'},
+                                        $body,
+                                        'macro',
+                                        'Code');
     $sub;
 }
 package PIL::Environment; @ISA = qw(EvalX::BaseClass); sub expand {
