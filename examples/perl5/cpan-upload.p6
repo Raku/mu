@@ -130,19 +130,19 @@ sub ftp_upload_files (*@files) {
     if $config.ftp_gateway {
         _debug("  establishing connection via an FTP gateway\n");
         @new_args = ($config.ftp_gateway);
-	($user, $password) = ("ftp\@$SITE", $config.mailto);
+        ($user, $password) = ("ftp\@$SITE", $config.mailto);
     }
     else {
         ($user, $password) = ('ftp', $config.mailto);
         @new_args = ($SITE);
-	if $config.ftp_proxy {
-	    _debug("  establishing connection via proxy",
+        if $config.ftp_proxy {
+            _debug("  establishing connection via proxy",
                      $config.ftp_proxy, "\n");
             push(@new_args, 'Firewall' => $config.ftp_proxy);
-	}
-	else {
-	    _debug("  establishing connection\n");
-	}
+        }
+        else {
+            _debug("  establishing connection\n");
+        }
     }
 
     #-------------------------------------------------------------------
@@ -166,7 +166,7 @@ sub ftp_upload_files (*@files) {
     if (!$ftp.cwd($UPLOAD_DIR))
     {
         $ftp.quit();
-	die "failed to change directory to $UPLOAD_DIR!\n";
+        die "failed to change directory to $UPLOAD_DIR!\n";
     }
 
     _debug("  setting binary mode.\n");
@@ -183,20 +183,20 @@ sub ftp_upload_files (*@files) {
 
         _verbose("  uploading file \"$file\"\n");
         if $ftp.put($file) {
-	    push(@uploaded, $file);
-	}
-	else {
+            push(@uploaded, $file);
+        }
+        else {
             warn "failed to upload $file - ", $ftp.message(), "\n";
-	    if (@files > 0 and !$config.non_interactive) {
-		my $continue;
+            if (@files > 0 and !$config.non_interactive) {
+                my $continue;
 
-		loop {
-		    print "Do you want to continue? [y] ";
-		    $continue = =$*IN;
-		    $continue = 'y' if $continue ~~ m:P5/^$/;
-		} while ($continue !~ m:P5<i>/^[yn]/);
-		exit(0) if $continue ~~ m:P5<i>/^n/;
-	    }
+                loop {
+                    print "Do you want to continue? [y] ";
+                    $continue = =$*IN;
+                    $continue = 'y' if $continue ~~ m:P5/^$/;
+                } while ($continue !~ m:P5<i>/^[yn]/);
+                exit(0) if $continue ~~ m:P5<i>/^n/;
+            }
         }
     }
 
@@ -243,20 +243,20 @@ sub pause_add_files (*@files) {
     # Post an upload message to the PAUSE web site for each file
     #-------------------------------------------------------------------
     for @files -> $file {
-	$basename = basename($file);
+        $basename = basename($file);
 
         #---------------------------------------------------------------
         # Create the request to add the file
         #---------------------------------------------------------------
-	$argref = {
+        $argref = {
                     'HIDDENNAME'                    , "$config.user()",
                     'pause99_add_uri_upload'        , "$basename",
                     'SUBMIT_pause99_add_uri_upload' , " Upload the checked file "
                    };
-	if ($config.directory)
-	{
-	    $argref.{'pause99_add_uri_subdirtext'} = $config.directory;
-	}
+        if ($config.directory)
+        {
+            $argref.{'pause99_add_uri_subdirtext'} = $config.directory;
+        }
 
         $request = POST($PAUSE_ADD_URI, $argref);
         $request.authorization_basic("$config.user()", "$config.password()");

@@ -16,7 +16,7 @@ sub show_rate($num) {
         say "for searching a solution space of $num!";
     }
     if (defined($piggy_bank)) {
-	say "There are $piggy_bank coins left in the bank.";
+        say "There are $piggy_bank coins left in the bank.";
     }
 }
 
@@ -29,10 +29,10 @@ sub do_it($a,$b,$c) {
     if ( any($a, $b, $c) == one($a, $b, $c) ) {
         my $ac = $a * 10 + $c;
         if ( $a + $b == $ac ) {
-	    say "  A =  $a";
-	    say "+ B =  $b";
-	    say "--------";
-	    say " AC = $ac";
+            say "  A =  $a";
+            say "+ B =  $b";
+            say "--------";
+            say " AC = $ac";
         }
     }
 }
@@ -58,7 +58,7 @@ sub show_me_the_money($s,$e,$n,$d,$m,$o,$r,$y) {
             say "+more =  $more";
             say "-------------";
             say "money = $money";
-	}
+        }
     }
 }
 
@@ -96,47 +96,47 @@ collapse($c3, $m, -> $c3, $m {
 
         # FOURTH column of addition
         $piggy_bank--;
-	if ($s != $m && $s != $o && $m != $o &&
-	    (( $s+$m+$c2 ) % 10 == $o ) && ( int( ( $s+$m+$c2 ) / 10 ) == $c3 ) ) {
-    	say " found s = $s, o = $o, c2 = $c2";
-    	collapse($e, $c1, -> $e, $c1 {
+        if ($s != $m && $s != $o && $m != $o &&
+            (( $s+$m+$c2 ) % 10 == $o ) && ( int( ( $s+$m+$c2 ) / 10 ) == $c3 ) ) {
+        say " found s = $s, o = $o, c2 = $c2";
+        collapse($e, $c1, -> $e, $c1 {
 
             $piggy_bank--;
-	    if ( $e != $s && $e != $o && $e != $m &&
-	          ( int( ( $e+$o+$c1 ) / 10 ) == $c2 ) ) {
-    	    say "  found e = $e, c1 = $c1";
-    	    collapse($d, $y, $c0, -> $d, $y, $c0 {
+            if ( $e != $s && $e != $o && $e != $m &&
+                  ( int( ( $e+$o+$c1 ) / 10 ) == $c2 ) ) {
+            say "  found e = $e, c1 = $c1";
+            collapse($d, $y, $c0, -> $d, $y, $c0 {
 
                 $piggy_bank--;
-		if ($d != $s && $d != $m && $d != $s && $d != $e && $d != $o &&
-		    $y != $s && $y != $m && $y != $s && $y != $e && $y != $o &&
-		    $d != $y &&
-	     	    (( $d+$e     ) % 10 == $y ) &&
-		    ( int( ( $d+$e     ) / 10 ) == $c0 )) {
-    	        say "   found d = $d, y = $y, c0 = $c0";
-		
-		collapse($n, $r, -> $n, $r {
+                if ($d != $s && $d != $m && $d != $s && $d != $e && $d != $o &&
+                    $y != $s && $y != $m && $y != $s && $y != $e && $y != $o &&
+                    $d != $y &&
+                    (( $d+$e     ) % 10 == $y ) &&
+                    ( int( ( $d+$e     ) / 10 ) == $c0 )) {
+                say "   found d = $d, y = $y, c0 = $c0";
+                
+                collapse($n, $r, -> $n, $r {
 
                     $piggy_bank--;
-		    if ($n != $s && $n != $m && $n != $s && $n != $o &&
-		        $n != $e && $n != $d && $n != $y &&
-		        $r != $s && $r != $m && $r != $s && $r != $o &&
-		        $r != $e && $r != $d && $r != $y && $r != $n &&
-	         	(( $e+$o+$c1 ) % 10 == $n ) &&
-	     		( ( $n+$r+$c0 ) % 10 == $e ) &&
-			( int( ( $n+$r+$c0 ) / 10 ) == $c1 )) {
+                    if ($n != $s && $n != $m && $n != $s && $n != $o &&
+                        $n != $e && $n != $d && $n != $y &&
+                        $r != $s && $r != $m && $r != $s && $r != $o &&
+                        $r != $e && $r != $d && $r != $y && $r != $n &&
+                        (( $e+$o+$c1 ) % 10 == $n ) &&
+                        ( ( $n+$r+$c0 ) % 10 == $e ) &&
+                        ( int( ( $n+$r+$c0 ) / 10 ) == $c1 )) {
 
-    	        	say "    found n = $n, r = $r (that should be it)";
+                        say "    found n = $n, r = $r (that should be it)";
 
-			show_me_the_money($s,$e,$n,$d,$m,$o,$r,$y);	
+                        show_me_the_money($s,$e,$n,$d,$m,$o,$r,$y);     
 
-		    }
-		});
-		}
-	    });
-	    }
+                    }
+                });
+                }
+            });
+            }
         });
-	}
+        }
     });
     }
 });
