@@ -17,9 +17,7 @@ Message-Id: <20050905061111.GA25085@aut.dyndns.org>
 
 =cut
 
-# Shmuck.  This doesn't work yet
-#our $VERSION = sprintf "%d.%02d", q$Revision: 0.1 $ =~ /(\d+)/g;
-our $VERSION = '0.01';
+our $VERSION = sprintf "%d.%02d", q$Revision: 0.1 $ ~~ m:P5:g/(\d+)/;
 
 # macro lambda { 'sub' } 
 
@@ -38,10 +36,12 @@ our $SUCC = -> $n { -> $f { -> $x { $f.($n.($f)($x)) }}};
 =cut
 
 sub num2int($n){ $n.(sub($i){ 1 + $i })(0) }
-sub num2str($n){ 'sub($f){ sub($x) { '
-                     ~ $n.( sub($s){sprintf '$f.(%s)', $s } )('$x') 
-                         ~ ' }}' }
-sub int2num($n){ return $n == 0 ?? $ZERO :: $SUCC.(int2num($n - 1)) }
+sub num2str($n){ [~]
+    'sub($f){ sub($x) { ',
+        $n.( sub($s){ $s.as('$f.(%s)') } )('$x'),
+    ' }}'
+}
+sub int2num($n){ ($n == 0) ?? $ZERO :: $SUCC.(int2num($n - 1)) }
 
 =for alternative
 
@@ -56,7 +56,8 @@ my $two     = $SUCC.($one);
 my $four    = $ADD.($two)($two);
 my $eight   = $MULT.($two)($four);
 my $sixteen = $POW.($four)($two);
-for($one, $two, $four, $eight, $sixteen) -> $n {
-    $n.(sub($i){ 1 + $i})(0).say
+
+for $one, $two, $four, $eight, $sixteen -> $n {
+    $n.(sub($i){ 1 + $i })(0).say
 };
 
