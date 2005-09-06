@@ -194,6 +194,7 @@ sub Perl6::Slice::write_thru {
     my $ary = $self->{array};
     my @idx = $self->{slice}->items;
     my $pos = 0;
+    #warn "WRITE THROUGH\n";
     for my $i ( @idx ) {
         #warn "write loop...";
         if ( UNIVERSAL::isa( $i, 'Perl6::Value::List' ) ) {
@@ -245,12 +246,14 @@ sub Perl6::Slice::write_thru {
             # non-lazy slicing
             my $p = $self->{slice}->fetch( $pos )->fetch;
             $p = $p->unboxed if ref( $p );
-            #warn "P $pos = $p";
+            # warn "P $pos = $p elems = ",$self->{array}->elems()->unboxed;
             next unless defined $p;
-            next if $p >= $self->{array}->elems()->unboxed || $p < 0;
+            # bugfix - non-lazy elements cause autovivification
+            # next if $p >= $self->{array}->elems()->unboxed || $p < 0;
+            next if $p < 0;
             my $tmp = $other->fetch( $pos )->fetch;
             $ary->store( $p, $tmp );
-            #warn "pos $pos - store $tmp to $p";
+            # warn "pos $pos - store $tmp to $p";
             $pos++;            
         }
     }
@@ -464,6 +467,7 @@ class 'Array'.$class_description => {
 
                         my @items = $other->unboxed->items;  
                         if ( UNIVERSAL::isa( $self->tied, 'Perl6::Slice' ) ) {
+                            #warn "WRITE THROUGH ".Perl6::Value::stringify($other);
                             $self->tied->write_thru( $other );
                             return $self;
                         }
@@ -483,15 +487,14 @@ class 'Array'.$class_description => {
                         #warn "STORING @param";
                         my $pos = shift @param;
                         my $elem = $tmp->fetch( $pos );
-                        my $scalar;
                         if ( UNIVERSAL::isa( $elem, 'Scalar' ) ) {
                             #warn "CELL TO STORE IS A SCALAR: $elem";
-                            $scalar->store( @param );
+                            $elem->store( @param );
                         }
                         else
                         {
                             #warn "CELL TO STORE IS NOT YET A SCALAR: $elem";
-                            $scalar = Scalar->new();
+                            my $scalar = Scalar->new();
                             $scalar->store( @param );
                             $tmp->store( $pos, $scalar );
                         }
