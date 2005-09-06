@@ -1,0 +1,71 @@
+#!/usr/bin/pugs
+
+use v6;
+use Test;
+
+# L<S03/"Binding">
+
+# Tests for binding the return value of subroutines (both as RHS and LHS).
+
+plan 9;
+
+{
+    my sub foo { 42 }
+
+    my $var := foo();
+    is $var, 42,
+        "binding a var to the return value of a sub (a constant) works (1)";
+
+    dies_ok { $var = 23 },
+        "binding a var to the return value of a sub (a constant) works (2)";
+}
+
+{
+    my sub foo { 42 }
+
+    dies_ok { foo() := 23 },
+        "using the constant return value of a sub as the LHS in a binding operation dies";
+}
+
+{
+    my sub foo { my $var = 42; $var }
+
+    my $var := foo();
+    is $var, 42,
+        "binding a var to the return value of a sub (a variable) works (1)";
+
+    dies_ok { $var = 23 },
+        "binding a var to the return value of a sub (a variable) works (2)";
+}
+
+{
+    my sub foo is rw { my $var = 42; $var }
+
+    my $var := foo();
+    is $var, 42,
+        "binding a var to the return value of an 'is rw' sub (a variable) works (1)";
+
+    lives_ok { $var = 23 },
+        "binding a var to the return value of an 'is rw' sub (a variable) works (2)";
+    is $var, 23,
+        "binding a var to the return value of an 'is rw' sub (a variable) works (3)";
+}
+
+{
+    my sub foo is rw { my $var = 42; $var }
+
+    lives_ok { foo() := 23 },
+        "using the variable return value of an 'is rw' sub as the LHS in a binding operation works";
+}
+
+=for discussion
+
+Should the constant return value be autopromoted to a var? Or should it stay a
+constant?
+
+{
+    my sub foo is rw { 42 }
+
+    dies_ok/lives_ok { foo() := 23 },
+        "using the constant return value of an 'is rw' sub as the LHS in a binding operation behaves correctly";
+}
