@@ -59,6 +59,7 @@
 #
 # TODO - ($a,undef,$b) = @a
 #      - (@a[1..10],$a,undef,$b) = @a
+#      - ($a,@x[1,2])=(4,5,6)
 #
 # TODO - @a[1] == Scalar
 # TODO - test - @a[1] := $x

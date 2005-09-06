@@ -3,6 +3,9 @@
 
 # ChangeLog
 #
+# 2005-09-06
+# * new class Perl6::Container::Hash::Native
+#
 # 2005-09-05
 # * delete hash element
 #
@@ -242,6 +245,54 @@ sub clear {
 sub scalar {
     my ( $this ) = @_;
     0 + %$this;
+}
+
+package Perl6::Container::Hash::Native;
+
+sub new {
+    my $class = shift;
+    # hashref => \%ENV;
+    bless { @_ }, $class;
+}
+
+sub store {
+    my ( $this, $key, $value ) = @_;
+    my $s = Perl6::Value::identify( $key );
+    $this->{hashref}{$s} = $value->unboxed;
+    return $value;
+}
+sub fetch {
+    my ( $this, $key ) = @_;
+    my $s = Perl6::Value::identify( $key );
+    $this->{hashref}{$s}
+    # warn "fetching " . $this->{$s}[1];
+}
+sub firstkey {
+    my ( $this ) = @_;
+    keys %{$this->{hashref}};  # force reset the iterator
+    each %{$this->{hashref}};
+}
+sub nextkey {
+    my ( $this, $key ) = @_;
+    each %{$this->{hashref}};
+}
+sub exists {
+    my ( $this, $key ) = @_;
+    my $s = Perl6::Value::identify( $key );
+    exists $this->{hashref}{$s};
+}
+sub delete {
+    my ( $this, $key ) = @_;
+    my $s = Perl6::Value::identify( $key );
+    my $r = delete $this->{hashref}{$s};
+}
+sub clear {
+    my ( $this ) = @_;
+    %{$this->{hashref}} = ();
+}
+sub scalar {
+    my ( $this ) = @_;
+    0 + %{$this->{hashref}};
 }
 
 package Perl6::Container::Hash;

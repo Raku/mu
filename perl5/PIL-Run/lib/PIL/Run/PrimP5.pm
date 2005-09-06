@@ -309,10 +309,10 @@ MULTI SUB IO::Dir::readdir ($xx) {...};
 MULTI SUB Pugs::Internals::runInteractiveCommand ($xx) {...};
 MULTI SUB Pugs::Internals::check_for_io_leak ($xx) {...};
 MULTI SUB system (*@xx) {
-    for ( $PIL::Run::Root::main::hash_ENV->keys->items ) {
-        $ENV{ Perl6::Value::stringify( $_ ) } = 
-            Perl6::Value::stringify( $PIL::Run::Root::main::hash_ENV->fetch( $_ ) ) ;
-    }
+    #for ( $PIL::Run::Root::main::hash_ENV->keys->items ) {
+    #    $ENV{ Perl6::Value::stringify( $_ ) } = 
+    #        Perl6::Value::stringify( $PIL::Run::Root::main::hash_ENV->fetch( $_ ) ) ;
+    #}
     @xx = map{ Perl6::Value::stringify( $_ ) } @xx;
     p6_from_n( system @xx );
 };
@@ -459,11 +459,11 @@ MULTI SUB Pugs::Internals::openFile ($xx0,$xx1) {...};
 MULTI SUB exp ($xx0,$xx1) {...};
 MULTI SUB Pugs::Internals::sprintf ($xx0,$xx1) {...};
 MULTI SUB exec (*@xx) {
-    for ( $PIL::Run::Root::main::hash_ENV->keys->items ) {
-        # warn "SETENV $_ = ".Perl6::Value::stringify( $PIL::Run::Root::main::hash_ENV->fetch( $_ ))."\n";
-        $ENV{ Perl6::Value::stringify( $_ ) } = 
-            Perl6::Value::stringify( $PIL::Run::Root::main::hash_ENV->fetch( $_ ) ) ;
-    }
+    #for ( $PIL::Run::Root::main::hash_ENV->keys->items ) {
+    #    # warn "SETENV $_ = ".Perl6::Value::stringify( $PIL::Run::Root::main::hash_ENV->fetch( $_ ))."\n";
+    #    $ENV{ Perl6::Value::stringify( $_ ) } = 
+    #        Perl6::Value::stringify( $PIL::Run::Root::main::hash_ENV->fetch( $_ ) ) ;
+    #}
     @xx = map{ Perl6::Value::stringify( $_ ) } @xx;
     # warn "EXEC @xx";
     exec @xx;

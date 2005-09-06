@@ -301,7 +301,12 @@ p6_package_init('');
 p6_package_init('main');
 
 $PIL::Run::Root::main::hash_ENV = Hash->new();
-$PIL::Run::Root::main::hash_ENV->store( $_, $ENV{$_} ) for keys %ENV;
+# $PIL::Run::Root::main::hash_ENV->store( $_, $ENV{$_} ) for keys %ENV;
+my $h = Perl6::Container::Hash::Native->new( hashref => \%ENV );
+#use Data::Dumper;
+#print Dumper( $h );
+$PIL::Run::Root::main::hash_ENV->{'instance_data'}{'$:cell'}{tieable} = 1;
+$PIL::Run::Root::main::hash_ENV->tie( $h );
 
 1;
 __END__
