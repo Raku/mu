@@ -3,12 +3,15 @@
 === Pugs Internals
 
 * Expanded any existing literal tab chars to spaces in these files:
-** /inc/*, /lib/*, /perl5/*
+** /inc/*, /perl5/*
+** /lib/* (except lib/Perl6/MakeMaker.pm, which retains 3 for literal output)
+** /Makefile.PL (except that it retains tabs in its literal output)
+** /debian/rules (TODO: test this on debian system to ensure nothing breaks)
 
 === Bundled Modules
 
 * Expanded any existing literal tab chars to spaces in these files:
-** /ext/*
+** /ext/*, /modules/*
 * Updated Locale-KeyedText to stay compat with p6 spec changes, moved POD around
 
 === Test, Examples and Documentations
