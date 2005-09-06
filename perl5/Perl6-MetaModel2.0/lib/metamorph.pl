@@ -238,7 +238,7 @@ $::Class->add_method('_make_preorder_dispatcher' => ::make_private_method(sub {
                 return $current_class;
             }
             return undef;
-    	}
+        }
     };    
 }, $::Class));
 
