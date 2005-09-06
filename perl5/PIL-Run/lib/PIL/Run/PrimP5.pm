@@ -86,7 +86,20 @@ MULTI SUB coerce:as ($x, $to) {
 };
 
 MULTI SUB infix:<,>  (*@a) {
-    p6_from_a( @a ) 
+    # warn "COMMA: @a\n";
+    my $a = p6_from_a( @a );
+    # warn "elems: ". p6_to_n( $a->elems );
+    my $idx = Array->new();
+    # TODO - split index into @a.each.elems parts
+    if ( p6_to_n( $a->elems ) == &Perl6::Value::Num::Inf ) {
+        $idx->push( Perl6::Value::List->from_num_range( start => 0, end => p6_to_n( $a->elems ) - 1 ) )
+    }
+    else {
+        for ( 0 .. p6_to_n( $a->elems ) - 1 ) {
+            $idx->push( $_ )
+        }
+    }
+    $a->slice( $idx );
 };
 # MULTI SUB Array::fetch ($a,$i) {
 #    # implements (1,2,3)[1] - see PrimP6.pm - postcircumfix:<[ ]>

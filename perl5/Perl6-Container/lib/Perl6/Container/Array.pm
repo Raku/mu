@@ -194,7 +194,7 @@ sub Perl6::Slice::write_thru {
     my $ary = $self->{array};
     my @idx = $self->{slice}->items;
     my $pos = 0;
-    #warn "WRITE THROUGH\n";
+    # warn "WRITE THROUGH\n";
     for my $i ( @idx ) {
         #warn "write loop...";
         if ( UNIVERSAL::isa( $i, 'Perl6::Value::List' ) ) {
@@ -237,7 +237,7 @@ sub Perl6::Slice::write_thru {
                 push @items, Perl6::Value::List->from_x( item => undef, count => $diff )
                     if $diff > 0;
             }
-            #warn "Storing to $start";
+            # warn "  STORE SLICE pos $pos to $start, $slice_size, @items";
             $ary->splice( $start, $slice_size, @items );
             $pos = $pos + $slice_size;
             #warn "pos = $pos";
@@ -253,7 +253,7 @@ sub Perl6::Slice::write_thru {
             next if $p < 0;
             my $tmp = $other->fetch( $pos )->fetch;
             $ary->store( $p, $tmp );
-            # warn "pos $pos - store $tmp to $p";
+            # warn "  STORE ELEMENT pos $pos - store $tmp to $p";
             $pos++;            
         }
     }
