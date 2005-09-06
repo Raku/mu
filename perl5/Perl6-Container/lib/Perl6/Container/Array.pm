@@ -411,7 +411,7 @@ class 'Array'.$class_description => {
                 my ($self, @param) = @_;
                 my $method = ::AUTOLOAD($self);
                 my $tmp = $self->unboxed;
-                # warn ref($tmp), ' ', $method, " @param == " . $tmp->$method( @param );
+                # warn "AUTOLOAD ",ref($tmp), ' ', $method, " @param == " . $tmp->$method( @param );
                 
                 @param = 
                     map {
@@ -477,10 +477,11 @@ class 'Array'.$class_description => {
                             } @items;
 
                         my $ret = Perl6::Container::Array->from_list( @items );
-                        _('$:cell')->{v} = $ret;
+                        $self->cell->{v} = $ret;
                         return $self;
                     }
 
+                    # warn "$method @param";
                     $tmp->$method( @param );
                     return $self;
                 }
@@ -764,11 +765,11 @@ sub flatten {
 }
 
 sub splice { 
-    my $array = shift;
-    my $offset = shift; $offset = 0   unless defined $offset;
-    my $length = shift; $length = Inf unless defined $length;
-    my $class = ref($array);
+    my $array =  shift;
+    my $offset = shift; $offset = Perl6::Value::numify( $offset ); $offset = 0   unless defined $offset;
+    my $length = shift; $length = Perl6::Value::numify( $length ); $length = Inf unless defined $length;
     my @list = @_;
+    my $class = ref($array);
     my ( @head, @body, @tail );
     my ( $len_head, $len_body, $len_tail );
     # print "items: ", $array->items, " splice: $offset, $length, ", @list, "\n";
@@ -824,12 +825,12 @@ sub fetch {
     # XXX - this is inefficient because it needs 2 splices
     # see also: splice()
     my $array = shift;
-    my $pos = shift;
+    my $pos =   shift; $pos = Perl6::Value::numify( $pos );
     
     #use Data::Dumper;
     #warn "-- array -- ". Dumper( $array );
-    warn "uninitialized value used in numeric context"
-        unless defined $pos;  
+    #warn "uninitialized value used in numeric context"
+    #    unless defined $pos;  
     return if $pos >= $array->elems;
 
     my $ret = $array->splice( $pos, 1 );
@@ -852,10 +853,10 @@ sub fetch {
 
 sub store {
     my $array = shift;
-    my $pos = shift;
+    my $pos =   shift; $pos = Perl6::Value::numify( $pos );
     my $item  = shift;
-    warn "uninitialized value used in numeric context"
-        unless defined $pos;  
+    # warn "uninitialized value used in numeric context"
+    #    unless defined $pos;  
     if ( UNIVERSAL::isa( $item, 'Perl6::Value::List') ) {
         my $class = ref($array);
         $item = $class->new( items => [$item] );

@@ -3,6 +3,9 @@
 
 # ChangeLog
 #
+# 2005-09-06
+# - tied()
+#
 # 2005-08-25
 # - Arrays stored in a Scalar can be accessed using indexed store/fetch
 #
@@ -176,8 +179,7 @@ class 'Scalar'.$class_description => {
                 _('$:cell')->store( @_);
             },
             'defined' => sub {
-                my $def = defined _('$:cell')->fetch ? 1 : 0;
-                Bit->new( '$.unboxed' => $def )
+                Bit->new( '$.unboxed' => defined _('$:cell')->fetch ? 1 : 0 )
             },
             'undefine' => sub {
                 # XXX - didn't undefine the value 
@@ -215,10 +217,11 @@ class 'Scalar'.$class_description => {
             'tieable' => sub { _('$:cell')->{tieable} != 0 },
             'tie' =>     sub { shift; _('$:cell')->tie(@_) },
             'untie' =>   sub { _('$:cell')->untie },
+            'tied' =>    sub { _('$:cell')->{tied} },
 
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
-            'isa' => sub { ::next_METHOD() },
-            'does' => sub { ::next_METHOD() },
+            'isa' =>     sub { ::next_METHOD() },
+            'does' =>    sub { ::next_METHOD() },
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
                 my $method = ::AUTOLOAD($self);
