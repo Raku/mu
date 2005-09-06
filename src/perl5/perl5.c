@@ -60,34 +60,34 @@ oRZ"warn 'compiled .'.__PACKAGE__;\n\n"
 "               warn 'unhandled supported: '.$type } \n"
 
 "sub TIEARRAY {\n"
-"	my ($class, $val) = @_;\n"
-"	bless \\$val, $class; }\n\n"
+"       my ($class, $val) = @_;\n"
+"       bless \\$val, $class; }\n\n"
 
 "sub STORE {\n"
-"	my ($self, $index, $elem) = @_;\n"
+"       my ($self, $index, $elem) = @_;\n"
 oRZ"    warn 'store! '.$elem;\n"
 "       pugs::guts::eval_apply('sub ($x is rw, $y, $z) { $x[$y] = $z;\n"
 oRZ"                                                     warn $x\n"
 "                               }', $$self, $index, $elem) }\n\n"
 
 "sub PUSH {\n"
-"	my ($self, $elem) = @_;\n"
+"       my ($self, $elem) = @_;\n"
 "       pugs::guts::eval_apply('sub ($x is rw, $z) { $x.push($z);\n"
 oRZ"                                                 warn $x\n"
 "                               }', $$self, $elem) }\n\n"
 
 "sub FETCHSIZE {\n"
-"	my ($self) = @_;\n"
+"       my ($self) = @_;\n"
 "       my $ret = pugs::guts::invoke('elems', $$self); \n"
 oRZ"    warn 'FETCHSIZE: '.$ret;\n"
 "       $ret; }\n\n"
 
 "sub EXISTS {\n"
-"	my ($self, $index) = @_;\n"
+"       my ($self, $index) = @_;\n"
 "       pugs::guts::eval_apply('sub ($x, $y) { $x.exists($y) }', $$self, $index) }\n"
 
 "sub FETCH {\n"
-"	my ($self, $index) = @_;\n"
+"       my ($self, $index) = @_;\n"
 oRZ"    warn 'FETCH: '.$index;\n"
 "       pugs::guts::eval_apply('sub ($x, $y) { $x.[$y] }', $$self, $index) }\n"
 
@@ -98,19 +98,19 @@ oRZ"    warn 'FETCH: '.$index;\n"
 "               warn 'unhandled supported: '.$type } \n"
 
 "sub TIEHASH {\n"
-"	my ($class, $val) = @_;\n"
-"	bless [$val,0], $class; }\n\n"
+"       my ($class, $val) = @_;\n"
+"       bless [$val,0], $class; }\n\n"
 
 "sub FIRSTKEY {\n"
-"	my ($self) = @_;\n"
+"       my ($self) = @_;\n"
 "       my $ret = pugs::guts::invoke('keys', $self->[0]); \n"
 oRZ"       warn $ret;\n"
-"	$self->[1] = 0; $self->[2] = $ret;"
+"       $self->[1] = 0; $self->[2] = $ret;"
 "       $self->NEXTKEY; }\n"
 
 "sub NEXTKEY {\n"
-"	my ($self) = @_;\n"
-"	return undef if $self->[1] > $#{$self->[2]};"
+"       my ($self) = @_;\n"
+"       return undef if $self->[1] > $#{$self->[2]};"
 "       $self->[2]->[$self->[1]++]; }"
 
 
@@ -128,20 +128,20 @@ XS(_pugs_guts_invoke) {
 
     sv = ST(0);
     if (sv_isa(sv, "pugs")) {
-	val = pugs_SvToVal(ST(0));
+        val = pugs_SvToVal(ST(0));
     }
     else {
-	char *method, *fullname;
-	fullname = SvPV_nolen(sv);
-	method = strrchr(fullname, ':');
-	method = method ? method+1 : fullname;
-	val = pugs_PvToVal(method);
+        char *method, *fullname;
+        fullname = SvPV_nolen(sv);
+        method = strrchr(fullname, ':');
+        method = method ? method+1 : fullname;
+        val = pugs_PvToVal(method);
     }
     inv = SvOK(ST(1)) ? pugs_SvToVal(ST(1)) : NULL;
 
     stack = (Val **)malloc(sizeof(Val*)*items-1);
     for (i = 2; i < items; ++i) {
-	stack[i-2] = pugs_SvToVal(ST(i));
+        stack[i-2] = pugs_SvToVal(ST(i));
     }
     stack[i-2] = NULL;
     
@@ -166,9 +166,9 @@ XS(_pugs_guts_eval_apply) {
     stack = (Val **)malloc(sizeof(Val*)*items-1);
     for (i = 1; i < items; ++i) {
 #if PERL5_EMBED_DEBUG
-	fprintf(stderr, "put into stack: %s\n", SvPV_nolen(ST(i)));
+        fprintf(stderr, "put into stack: %s\n", SvPV_nolen(ST(i)));
 #endif
-	stack[i-1] = pugs_SvToVal(ST(i));
+        stack[i-1] = pugs_SvToVal(ST(i));
     }
     stack[i-1] = NULL;
     
@@ -264,7 +264,7 @@ perl5_init ( int argc, char **argv )
     exitstatus = perl_parse(my_perl, xs_init, argc, argv, (char **)NULL);
 
     if (exitstatus == 0)
-	exitstatus = perl_run( my_perl );
+        exitstatus = perl_run( my_perl );
 
     __init = 1;
 

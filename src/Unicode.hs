@@ -43,7 +43,7 @@ module Unicode (
 
 import GHC.Base
 import GHC.Real  (fromIntegral)
-import GHC.Num	 (fromInteger)
+import GHC.Num   (fromInteger)
 import GHC.Read
 import GHC.Show
 import GHC.Enum
@@ -146,7 +146,7 @@ isSeparator c = case generalCategory c of
 -- | Selects the first 128 characters of the Unicode character set,
 -- corresponding to the ASCII character set.
 isAscii                 :: Char -> Bool
-isAscii c	 	=  c <  '\x80'
+isAscii c               =  c <  '\x80'
 
 -- | Selects the first 256 characters of the Unicode character set,
 -- corresponding to the ISO 8859-1 (Latin-1) character set.
@@ -171,14 +171,14 @@ isSpace                 :: Char -> Bool
 -- isSpace includes non-breaking space
 -- Done with explicit equalities both for efficiency, and to avoid a tiresome
 -- recursion with GHC.List elem
-isSpace c		=  c == ' '	||
-			   c == '\t'	||
-			   c == '\n'	||
-			   c == '\r'	||
-			   c == '\f'	||
-			   c == '\v'	||
-			   c == '\xa0'  ||
-			   iswspace (fromIntegral (ord c)) /= 0
+isSpace c               =  c == ' '     ||
+                           c == '\t'    ||
+                           c == '\n'    ||
+                           c == '\r'    ||
+                           c == '\f'    ||
+                           c == '\v'    ||
+                           c == '\xa0'  ||
+                           iswspace (fromIntegral (ord c)) /= 0
 
 -- | Selects alphabetic Unicode characters (letters) that are not lower-case.
 -- (In Unicode terms, this includes letters in upper and title cases,
@@ -203,12 +203,12 @@ isDigit                 :: Char -> Bool
 
 -- | Selects ASCII octal digits, i.e. @\'0\'@..@\'7\'@.
 isOctDigit              :: Char -> Bool
-isOctDigit c		=  c >= '0' && c <= '7'
+isOctDigit c            =  c >= '0' && c <= '7'
 
 -- | Selects ASCII hexadecimal digits,
 -- i.e. @\'0\'@..@\'9\'@, @\'a\'@..@\'f\'@, @\'A\'@..@\'F\'@.
 isHexDigit              :: Char -> Bool
-isHexDigit c		=  isDigit c || c >= 'A' && c <= 'F' ||
+isHexDigit c            =  isDigit c || c >= 'A' && c <= 'F' ||
                                         c >= 'a' && c <= 'f'
 
 -- | Convert a letter to the corresponding upper-case letter, leaving any

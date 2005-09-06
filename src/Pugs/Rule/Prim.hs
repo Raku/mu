@@ -108,10 +108,10 @@ setInput input      = do{ updateParserState (\(State _ pos user) -> State input 
                         ; return ()
                         }
 
-getParserState	    :: GenParser tok st (State tok st)
+getParserState      :: GenParser tok st (State tok st)
 getParserState      =  updateParserState id    
 
-setParserState	    :: State tok st -> GenParser tok st (State tok st)
+setParserState      :: State tok st -> GenParser tok st (State tok st)
 setParserState st   = updateParserState (const st)
 
 

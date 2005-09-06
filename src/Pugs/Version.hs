@@ -23,7 +23,7 @@ name       = "Perl6 User's Golfing System"
 versnum :: String
 versnum    = PUGS_VERSION
 date :: String
-date	   = PUGS_DATE
+date       = PUGS_DATE
 version :: String
 version    = name ++ ", version " ++ versnum ++ ", " ++ date ++ revision
 copyright :: String

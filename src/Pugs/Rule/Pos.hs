@@ -34,8 +34,8 @@ data SourcePos      = SourcePos {sourceName   :: SourceName,
                                  sourceLine   :: !Line,
                                  sourceColumn :: !Column}
                                                
-		     deriving (Eq,Ord)
-		
+                     deriving (Eq,Ord)
+                
 
 newPos :: SourceName -> Line -> Column -> SourcePos
 newPos sourceName line column

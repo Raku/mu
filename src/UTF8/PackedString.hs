@@ -19,60 +19,60 @@
 -- arch-tag: 8ad19c9c-9511-48a1-b25a-f5f98a386b8c
 
 module UTF8.PackedString (
-	-- * The @PackedString@ type
+        -- * The @PackedString@ type
         PackedString(..),      -- abstract, instances: Eq, Ord, Show, Typeable
 
          -- * Converting to and from @PackedString@s
-	packString,  -- :: String -> PackedString
-	unpackPS,    -- :: PackedString -> String
+        packString,  -- :: String -> PackedString
+        unpackPS,    -- :: PackedString -> String
         -- toString,   
         toUTF8,
         lengthPS,
         utfLengthPS,
 
-	joinPS,      -- :: PackedString -> [PackedString] -> PackedString
-	-- * List-like manipulation functions
-	nilPS,       -- :: PackedString
-	consPS,      -- :: Char -> PackedString -> PackedString
-	nullPS,      -- :: PackedString -> Bool
-	appendPS,    -- :: PackedString -> PackedString -> PackedString
+        joinPS,      -- :: PackedString -> [PackedString] -> PackedString
+        -- * List-like manipulation functions
+        nilPS,       -- :: PackedString
+        consPS,      -- :: Char -> PackedString -> PackedString
+        nullPS,      -- :: PackedString -> Bool
+        appendPS,    -- :: PackedString -> PackedString -> PackedString
         foldrPS,
         hashPS,
         filterPS,
         foldlPS,
         headPS,
-	concatPS    -- :: [PackedString] -> PackedString
+        concatPS    -- :: [PackedString] -> PackedString
 
 {-
-	headPS,      -- :: PackedString -> Char
-	tailPS,      -- :: PackedString -> PackedString
-	lengthPS,    -- :: PackedString -> Int
-	indexPS,     -- :: PackedString -> Int -> Char
-	mapPS,       -- :: (Char -> Char) -> PackedString -> PackedString
-	filterPS,    -- :: (Char -> Bool) -> PackedString -> PackedString
-	reversePS,   -- :: PackedString -> PackedString
-	elemPS,      -- :: Char -> PackedString -> Bool
-	substrPS,    -- :: PackedString -> Int -> Int -> PackedString
-	takePS,      -- :: Int -> PackedString -> PackedString
-	dropPS,      -- :: Int -> PackedString -> PackedString
-	splitAtPS,   -- :: Int -> PackedString -> (PackedString, PackedString)
+        headPS,      -- :: PackedString -> Char
+        tailPS,      -- :: PackedString -> PackedString
+        lengthPS,    -- :: PackedString -> Int
+        indexPS,     -- :: PackedString -> Int -> Char
+        mapPS,       -- :: (Char -> Char) -> PackedString -> PackedString
+        filterPS,    -- :: (Char -> Bool) -> PackedString -> PackedString
+        reversePS,   -- :: PackedString -> PackedString
+        elemPS,      -- :: Char -> PackedString -> Bool
+        substrPS,    -- :: PackedString -> Int -> Int -> PackedString
+        takePS,      -- :: Int -> PackedString -> PackedString
+        dropPS,      -- :: Int -> PackedString -> PackedString
+        splitAtPS,   -- :: Int -> PackedString -> (PackedString, PackedString)
 
-	foldlPS,     -- :: (a -> Char -> a) -> a -> PackedString -> a
-	foldrPS,     -- :: (Char -> a -> a) -> a -> PackedString -> a
-	takeWhilePS, -- :: (Char -> Bool) -> PackedString -> PackedString
-	dropWhilePS, -- :: (Char -> Bool) -> PackedString -> PackedString
-	spanPS,      -- :: (Char -> Bool) -> PackedString -> (PackedString, PackedString)
-	breakPS,     -- :: (Char -> Bool) -> PackedString -> (PackedString, PackedString)
-	linesPS,     -- :: PackedString -> [PackedString]
-	unlinesPS,   -- :: [PackedString] -> PackedString
-	wordsPS,     -- :: PackedString -> [PackedString]
-	unwordsPS,   -- :: [PackedString] -> PackedString
-	splitPS,     -- :: Char -> PackedString -> [PackedString]
-	splitWithPS, -- :: (Char -> Bool) -> PackedString -> [PackedString]
+        foldlPS,     -- :: (a -> Char -> a) -> a -> PackedString -> a
+        foldrPS,     -- :: (Char -> a -> a) -> a -> PackedString -> a
+        takeWhilePS, -- :: (Char -> Bool) -> PackedString -> PackedString
+        dropWhilePS, -- :: (Char -> Bool) -> PackedString -> PackedString
+        spanPS,      -- :: (Char -> Bool) -> PackedString -> (PackedString, PackedString)
+        breakPS,     -- :: (Char -> Bool) -> PackedString -> (PackedString, PackedString)
+        linesPS,     -- :: PackedString -> [PackedString]
+        unlinesPS,   -- :: [PackedString] -> PackedString
+        wordsPS,     -- :: PackedString -> [PackedString]
+        unwordsPS,   -- :: [PackedString] -> PackedString
+        splitPS,     -- :: Char -> PackedString -> [PackedString]
+        splitWithPS, -- :: (Char -> Bool) -> PackedString -> [PackedString]
 
-	-- * I\/O with @PackedString@s	
-	hPutPS,      -- :: Handle -> PackedString -> IO ()
-	hGetPS,      -- :: Handle -> Int -> IO PackedString
+        -- * I\/O with @PackedString@s  
+        hPutPS,      -- :: Handle -> PackedString -> IO ()
+        hGetPS,      -- :: Handle -> Int -> IO PackedString
     -}
 
 
@@ -238,7 +238,7 @@ hashPS (PS (UArray 0 (I# e) ba)) =  W# (f (unsafeCoerce# 5381#) 0#) where
 --takePS n ps = substrPS ps 0 (n-1)
 
 -- | The 'dropPS' function drops the first @n@ characters of a 'PackedString'.
---dropPS	:: Int -> PackedString -> PackedString
+--dropPS        :: Int -> PackedString -> PackedString
 --dropPS n ps = substrPS ps n (lengthPS ps - 1)
 
 -- | The 'splitWithPS' function splits a 'PackedString' at a given index.
@@ -334,15 +334,15 @@ joinPS filler pss = concatPS (splice pss)
 --      in
 --      if break_pt == n then -- immediate match, empty substring
 --         nilPS
---	 : splitify (break_pt + 1)
+--       : splitify (break_pt + 1)
 --      else 
 --         substrPS (PS ps) n (break_pt - 1) -- leave out the matching character
 --         : splitify (break_pt + 1)
 --
 --first_pos_that_satisfies pred ps len n = 
 --   case [ m | m <- [n..len-1], pred (ps ! m) ] of
---	[]    -> len
---	(m:_) -> m
+--      []    -> len
+--      (m:_) -> m
 
 -- -----------------------------------------------------------------------------
 -- Local utility functions
@@ -405,13 +405,13 @@ utfCount cs = uc 0# cs where
 toUTF :: String -> [Word8]
 toUTF [] = []
 toUTF (x:xs) | ord x<=0x007F = (fromIntegral $ ord x):toUTF xs
-	     | ord x<=0x07FF = fromIntegral (0xC0 .|. ((ord x `shift` (-6)) .&. 0x1F)):
-			       fromIntegral (0x80 .|. (ord x .&. 0x3F)):
-			       toUTF xs
-	     | otherwise     = fromIntegral (0xE0 .|. ((ord x `shift` (-12)) .&. 0x0F)):
-			       fromIntegral (0x80 .|. ((ord x `shift` (-6)) .&. 0x3F)):
-			       fromIntegral (0x80 .|. (ord x .&. 0x3F)):
-			       toUTF xs
+             | ord x<=0x07FF = fromIntegral (0xC0 .|. ((ord x `shift` (-6)) .&. 0x1F)):
+                               fromIntegral (0x80 .|. (ord x .&. 0x3F)):
+                               toUTF xs
+             | otherwise     = fromIntegral (0xE0 .|. ((ord x `shift` (-12)) .&. 0x0F)):
+                               fromIntegral (0x80 .|. ((ord x `shift` (-6)) .&. 0x3F)):
+                               fromIntegral (0x80 .|. (ord x .&. 0x3F)):
+                               toUTF xs
 
 
 
@@ -440,7 +440,7 @@ unpackFoldrUtf8# addr count f e = unpack 0# where
                      (ord# (indexCharArray# addr (nh +# 3#)) -# 0x80#))) `f`
           unpack (nh +# 4#)
       where
-	ch = indexCharArray# addr nh
+        ch = indexCharArray# addr nh
 
 {-# INLINE unpackFoldlUtf8# #-}
 unpackFoldlUtf8# ::  (a -> Char# -> a) -> a -> ByteArray# -> Int# -> a
@@ -461,7 +461,7 @@ unpackFoldlUtf8# f e addr count = unpack 0# e where
                     ((ord# (indexCharArray# addr (nh +# 2#)) -# 0x80#) `uncheckedIShiftL#`  6#) +#
                      (ord# (indexCharArray# addr (nh +# 3#)) -# 0x80#))) in n `seq` unpack (nh +# 4#) n
       where
-	ch = indexCharArray# addr nh
+        ch = indexCharArray# addr nh
 
 
 {-
@@ -477,18 +477,18 @@ fromUTF :: [Word8] -> String
 fromUTF xs = fromUTF' (map fromIntegral xs) where 
     fromUTF' [] = []
     fromUTF' (all@(x:xs)) 
-	| x<=0x7F = (chr (x)):fromUTF' xs
-	| x<=0xBF = err
-	| x<=0xDF = twoBytes all
-	| x<=0xEF = threeBytes all
-	| otherwise   = err
+        | x<=0x7F = (chr (x)):fromUTF' xs
+        | x<=0xBF = err
+        | x<=0xDF = twoBytes all
+        | x<=0xEF = threeBytes all
+        | otherwise   = err
     twoBytes (x1:x2:xs) = chr  ((((x1 .&. 0x1F) `shift` 6) .|.
-			       (x2 .&. 0x3F))):fromUTF' xs
+                               (x2 .&. 0x3F))):fromUTF' xs
     twoBytes _ = error "fromUTF: illegal two byte sequence"
 
     threeBytes (x1:x2:x3:xs) = chr ((((x1 .&. 0x0F) `shift` 12) .|.
-				    ((x2 .&. 0x3F) `shift` 6) .|.
-				    (x3 .&. 0x3F))):fromUTF' xs
+                                    ((x2 .&. 0x3F) `shift` 6) .|.
+                                    (x3 .&. 0x3F))):fromUTF' xs
     threeBytes _ = error "fromUTF: illegal three byte sequence" 
     
     err = error "fromUTF: illegal UTF-8 character"

@@ -5,7 +5,7 @@
 -- arch-tag: 0852a460-683f-4abb-9108-8205777e2033
 
 module RRegex.PCRE (
-    Regex,	 	-- abstract
+    Regex,              -- abstract
     compile,
     execute,
     executeExtract,
@@ -49,8 +49,8 @@ fi x = fromIntegral x
 
 -- | Compiles a regular expression
 compile
-  :: String  	-- ^ The regular expression to compile
-  -> Int    	-- ^ Flags (summed together)
+  :: String     -- ^ The regular expression to compile
+  -> Int        -- ^ Flags (summed together)
   -> IO (Either (Int,String) Regex)      -- ^ Returns: an error string and offset or the compiled regular expression
 compile pattern flags = withCString pattern $ \cstr -> 
     alloca $ \errOffset -> alloca $ \errPtr -> do
@@ -74,13 +74,13 @@ getNumSubs (pcre_ptr) =
             peek st
 
 -- | Matches a regular expression against a string
-execute :: Regex			-- ^ Compiled regular expression
-	-> String			-- ^ String to match against
+execute :: Regex                        -- ^ Compiled regular expression
+        -> String                       -- ^ String to match against
         -> Int                          -- ^ Options
-	-> IO (Maybe (Array Int (Int,Int)))
-	 	-- ^ Returns: 'Nothing' if the regex did not match the
-		-- string, or:
-		--   'Just' an array of (offset,length) pairs where index 0 is whole match, and the rest are the captured subexpressions.
+        -> IO (Maybe (Array Int (Int,Int)))
+                -- ^ Returns: 'Nothing' if the regex did not match the
+                -- string, or:
+                --   'Just' an array of (offset,length) pairs where index 0 is whole match, and the rest are the captured subexpressions.
 
 execute (Regex pcre_fptr) str _ = withCStringLen str $ \(cstr,clen) -> 
     withForeignPtr pcre_fptr $ \pcre_ptr -> do

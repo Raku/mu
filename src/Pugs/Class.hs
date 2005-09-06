@@ -169,15 +169,15 @@ data Type = Int | Str
 
   Package := MetaClass where clsName = "Package"
   Package.clsProperties =
-	{ pkgName = MetaProperty { type = Symbol } 
-	, pkgIsGlobal = MetaProperty { type = Bool  }
-	, pkgStash = MetaProperty { type = Map (sigil, Symbol) Object }
-	}
+        { pkgName = MetaProperty { type = Symbol } 
+        , pkgIsGlobal = MetaProperty { type = Bool  }
+        , pkgStash = MetaProperty { type = Map (sigil, Symbol) Object }
+        }
 
   -- Package->has_many("pkgChildren" => Package)
   -- Package->maybe_has_one("pkgParent" => Package)
   Package.clsCats =
-	{ pkgChildren = 
+        { pkgChildren = 
               (Public, MetaAssoc
                 { catIsComposite = true,
                   catRange = (Zero, One),
@@ -187,7 +187,7 @@ data Type = Int | Str
                      catRange = (Zero, Many),
                   },
                 })
-	}
+        }
 
 {-
   Traits - just what do we know about them?  They're mentioned in S02,
@@ -206,19 +206,19 @@ data Type = Int | Str
     
   Module := MetaClass where clsName = "Module"
   Module.clsProperties =
-	{ modVersion = MetaProperty { type = Version }
-	, modAuthorizer = MetaProperty { type = String }
-	}
+        { modVersion = MetaProperty { type = Version }
+        , modAuthorizer = MetaProperty { type = String }
+        }
 
   Module.clsMethods =
-	{ modName = MetaMethod
-	      { methodInvoke = ( self.pkgName
+        { modName = MetaMethod
+              { methodInvoke = ( self.pkgName
                                ~ "-" ~ self.modVersion
-			       ~ "-" ~ self.modAuthorizer ) }
-	}
+                               ~ "-" ~ self.modAuthorizer ) }
+        }
 
   Module.clsAssocs =
-	{ modTraits = (Public, MetaAssoc
+        { modTraits = (Public, MetaAssoc
                       { catIsComposite = true,
                         catRange = (Zero, Many),
                         catCompanion = "pkgParent",
@@ -227,7 +227,7 @@ data Type = Int | Str
                                    ( { catClass = PkgTrait,
                                        catRange = (One, One) } ),
                       })
-	}
+        }
   
   Class := MetaClass where clsName = "Class"
   Class.clsAssocs =

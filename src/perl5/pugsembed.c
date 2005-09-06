@@ -21,7 +21,7 @@ pugs_MkValRef ( Val *val )
     sv_setref_pv(sv, "pugs", val);
 
     if (!__init) {
-	fprintf(stderr, "MkValRef called before perl_init.\n");
+        fprintf(stderr, "MkValRef called before perl_init.\n");
     }
 
     isa[0] = NULL;
@@ -31,21 +31,21 @@ pugs_MkValRef ( Val *val )
     fprintf(stderr, "query the type: got %s\n", SvPV_nolen(type));
 #endif
     if (SvTRUE( type )) {
-	SV **rv;
-	stack[0] = type;
-	stack[1] = NULL;
-	rv = perl5_apply(newSVpv("can", 0), newSVpv("pugs::guts", 0), stack, NULL, G_SCALAR);
-	if (SvTRUE( rv[0] )) {
-	    stack[0] = sv;
-	    rv = perl5_apply(type, newSVpv("pugs::guts", 0), stack, NULL, G_SCALAR);
-	    sv = rv[0];
-	}
-	else {
-	    /* for scalar ref, should still turn into tied one */
+        SV **rv;
+        stack[0] = type;
+        stack[1] = NULL;
+        rv = perl5_apply(newSVpv("can", 0), newSVpv("pugs::guts", 0), stack, NULL, G_SCALAR);
+        if (SvTRUE( rv[0] )) {
+            stack[0] = sv;
+            rv = perl5_apply(type, newSVpv("pugs::guts", 0), stack, NULL, G_SCALAR);
+            sv = rv[0];
+        }
+        else {
+            /* for scalar ref, should still turn into tied one */
 #if PERL5_EMBED_DEBUG
-	    fprintf(stderr, "unknown type\n");
+            fprintf(stderr, "unknown type\n");
 #endif
-	}
+        }
     }
 
     return (sv);

@@ -296,15 +296,15 @@ syck_emitter_write( SyckEmitter *e, char *str, long len )
     if ( len + at >= e->bufsize )
     {
         syck_emitter_flush( e, 0 );
-	for (;;) {
-	    long rest = e->bufsize - (e->marker - e->buffer);
-	    if (len <= rest) break;
-	    S_MEMCPY( e->marker, str, char, rest );
-	    e->marker += rest;
-	    str += rest;
-	    len -= rest;
-	    syck_emitter_flush( e, 0 );
-	}
+        for (;;) {
+            long rest = e->bufsize - (e->marker - e->buffer);
+            if (len <= rest) break;
+            S_MEMCPY( e->marker, str, char, rest );
+            e->marker += rest;
+            str += rest;
+            len -= rest;
+            syck_emitter_flush( e, 0 );
+        }
     }
 
     /*

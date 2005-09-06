@@ -701,11 +701,11 @@ instance Show JuncType where
 
 instance Show VJunc where
     show (MkJunc jtype _ set) =
-       	(show jtype) ++ "(" ++
-	    (foldl (\x y ->
-		if x == "" then show y
-		else x ++ "," ++ show y)
-	    "" $ Set.elems set) ++ ")"
+        (show jtype) ++ "(" ++
+            (foldl (\x y ->
+                if x == "" then show y
+                else x ++ "," ++ show y)
+            "" $ Set.elems set) ++ ")"
 
 {-|
 Each 'VCode' structure has a 'SubType' indicating what \'level\' of
@@ -1098,8 +1098,8 @@ lookupPad :: Var -- ^ Symbol to look for
 -}
 
 lookupPad key (MkPad map) = case Map.lookup (possiblyFixOperatorName key) map of
-	Just xs -> Just [tvar | (_, tvar) <- xs]
-	Nothing -> Nothing
+        Just xs -> Just [tvar | (_, tvar) <- xs]
+        Nothing -> Nothing
 
 {-|
 Transform a pad into a flat list of bindings. The inverse of 'mkPad'.
@@ -1653,7 +1653,7 @@ data VRule
                                 --     'Regex' object)
         , rxGlobal    :: !Bool  -- ^ Flag indicating \'global\' (match-all)
         , rxNumSubs   :: !Int   -- ^ The number of subpatterns present.
-	    , rxStringify :: !Bool
+            , rxStringify :: !Bool
         , rxRuleStr   :: !String -- ^ The rule string, for user reference.
         , rxAdverbs   :: !Val
         }
@@ -1661,7 +1661,7 @@ data VRule
     | MkRulePGE
         { rxRule      :: !String -- ^ The rule string
         , rxGlobal    :: !Bool   -- ^ Flag indicating \'global\' (match-all)
-	    , rxStringify :: !Bool
+            , rxStringify :: !Bool
         , rxAdverbs   :: !Val
         }
     deriving (Show, Eq, Ord, Typeable)

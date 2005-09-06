@@ -33,10 +33,10 @@ instance ScalarClass IScalarCwd where
     scalar_iType = const $ mkType "Scalar::Cwd"
     scalar_fetch _ = do
         str <- liftIO $ getCurrentDirectory
-	return $ VStr str
+        return $ VStr str
     scalar_store _ val = do
         str <- fromVal val
-	tryIO () $ setCurrentDirectory str
+        tryIO () $ setCurrentDirectory str
     scalar_const = const Nothing
 
 instance ScalarClass VScalar where

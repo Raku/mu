@@ -297,7 +297,7 @@ syck_parser_file( SyckParser *p, FILE *fp, SyckIoFileRead read )
 {
     ASSERT( p != NULL );
     free_any_io( p );
-	syck_parser_reset_cursor( p );
+    syck_parser_reset_cursor( p );
     p->io_type = syck_io_file;
     p->io.file = S_ALLOC( SyckIoFile );
     p->io.file->ptr = fp;
@@ -316,7 +316,7 @@ syck_parser_str( SyckParser *p, char *ptr, long len, SyckIoStrRead read )
 {
     ASSERT( p != NULL );
     free_any_io( p );
-	syck_parser_reset_cursor( p );
+    syck_parser_reset_cursor( p );
     p->io_type = syck_io_str;
     p->io.str = S_ALLOC( SyckIoStr );
     p->io.str->beg = ptr;

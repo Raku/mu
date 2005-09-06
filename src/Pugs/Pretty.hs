@@ -118,9 +118,9 @@ instance Pretty Val where
     format (VCode _) = text "sub {...}"
     format (VBlock _) = text "{...}"
     format (VError x posList)
-	-- Is this correct? Does this work on win32, too?
-	| last x == '\n' = text . init $ x
-	| otherwise      = text "***" <+>
+        -- Is this correct? Does this work on win32, too?
+        | last x == '\n' = text . init $ x
+        | otherwise      = text "***" <+>
             (vcat (map text $ split "\n" x) $+$ (text "at" <+> vcat (map format $ reverse posList)))
         where
 --  format (VArray x) = format (VList $ Array.elems x)

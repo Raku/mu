@@ -164,39 +164,39 @@ Header:
 
 #line 7 "<stdout>"
 {
-	YYCTYPE yych;
-	unsigned int yyaccept;
-	goto yy0;
-yy1:	++YYCURSOR;
+        YYCTYPE yych;
+        unsigned int yyaccept;
+        goto yy0;
+yy1:    ++YYCURSOR;
 yy0:
-	if((YYLIMIT - YYCURSOR) < 3) YYFILL(3);
-	yych = *YYCURSOR;
-	switch(yych){
-	case '\000':	goto yy2;
-	case 'D':	goto yy3;
-	default:	goto yy5;
-	}
-yy2:	YYCURSOR = YYMARKER;
-	switch(yyaccept){
-	case 0:	goto yy4;
-	}
-yy3:	yyaccept = 0;
-	yych = *(YYMARKER = ++YYCURSOR);
-	switch(yych){
-	case '\n':	goto yy6;
-	case '\r':	goto yy8;
-	default:	goto yy4;
-	}
+        if((YYLIMIT - YYCURSOR) < 3) YYFILL(3);
+        yych = *YYCURSOR;
+        switch(yych){
+        case '\000':    goto yy2;
+        case 'D':       goto yy3;
+        default:        goto yy5;
+        }
+yy2:    YYCURSOR = YYMARKER;
+        switch(yyaccept){
+        case 0: goto yy4;
+        }
+yy3:    yyaccept = 0;
+        yych = *(YYMARKER = ++YYCURSOR);
+        switch(yych){
+        case '\n':      goto yy6;
+        case '\r':      goto yy8;
+        default:        goto yy4;
+        }
 yy4:
 #line 200 "bytecode.re"
 {   YYPOS(0);
             goto Document;
         }
 #line 37 "<stdout>"
-yy5:	yych = *++YYCURSOR;
-	goto yy4;
-yy6:	++YYCURSOR;
-	goto yy7;
+yy5:    yych = *++YYCURSOR;
+        goto yy4;
+yy6:    ++YYCURSOR;
+        goto yy7;
 yy7:
 #line 187 "bytecode.re"
 {   if ( lvl->status == syck_lvl_header )
@@ -212,11 +212,11 @@ yy7:
             }
         }
 #line 56 "<stdout>"
-yy8:	++YYCURSOR;
-	switch((yych = *YYCURSOR)) {
-	case '\n':	goto yy6;
-	default:	goto yy2;
-	}
+yy8:    ++YYCURSOR;
+        switch((yych = *YYCURSOR)) {
+        case '\n':      goto yy6;
+        default:        goto yy2;
+        }
 }
 #line 204 "bytecode.re"
 
@@ -234,69 +234,69 @@ Document:
 
 #line 65 "<stdout>"
 {
-	YYCTYPE yych;
-	unsigned int yyaccept;
-	goto yy9;
-yy10:	++YYCURSOR;
+        YYCTYPE yych;
+        unsigned int yyaccept;
+        goto yy9;
+yy10:   ++YYCURSOR;
 yy9:
-	if((YYLIMIT - YYCURSOR) < 3) YYFILL(3);
-	yych = *YYCURSOR;
-	switch(yych){
-	case '\000':	goto yy30;
-	case '\n':	goto yy27;
-	case '\r':	goto yy29;
-	case 'A':	goto yy19;
-	case 'D':	goto yy12;
-	case 'E':	goto yy16;
-	case 'M':	goto yy14;
-	case 'P':	goto yy13;
-	case 'Q':	goto yy15;
-	case 'R':	goto yy21;
-	case 'S':	goto yy17;
-	case 'T':	goto yy23;
-	case 'c':	goto yy25;
-	default:	goto yy11;
-	}
-yy11:yy12:	yych = *++YYCURSOR;
-	switch(yych){
-	case '\n':	goto yy41;
-	case '\r':	goto yy44;
-	default:	goto yy11;
-	}
-yy13:	yych = *++YYCURSOR;
-	switch(yych){
-	case '\n':	goto yy41;
-	case '\r':	goto yy43;
-	default:	goto yy11;
-	}
-yy14:	yych = *++YYCURSOR;
-	switch(yych){
-	case '\n':	goto yy38;
-	case '\r':	goto yy40;
-	default:	goto yy11;
-	}
-yy15:	yych = *++YYCURSOR;
-	switch(yych){
-	case '\n':	goto yy35;
-	case '\r':	goto yy37;
-	default:	goto yy11;
-	}
-yy16:	yych = *++YYCURSOR;
-	switch(yych){
-	case '\n':	goto yy32;
-	case '\r':	goto yy34;
-	default:	goto yy11;
-	}
-yy17:	++YYCURSOR;
-	goto yy18;
+        if((YYLIMIT - YYCURSOR) < 3) YYFILL(3);
+        yych = *YYCURSOR;
+        switch(yych){
+        case '\000':    goto yy30;
+        case '\n':      goto yy27;
+        case '\r':      goto yy29;
+        case 'A':       goto yy19;
+        case 'D':       goto yy12;
+        case 'E':       goto yy16;
+        case 'M':       goto yy14;
+        case 'P':       goto yy13;
+        case 'Q':       goto yy15;
+        case 'R':       goto yy21;
+        case 'S':       goto yy17;
+        case 'T':       goto yy23;
+        case 'c':       goto yy25;
+        default:        goto yy11;
+        }
+yy11:yy12:      yych = *++YYCURSOR;
+        switch(yych){
+        case '\n':      goto yy41;
+        case '\r':      goto yy44;
+        default:        goto yy11;
+        }
+yy13:   yych = *++YYCURSOR;
+        switch(yych){
+        case '\n':      goto yy41;
+        case '\r':      goto yy43;
+        default:        goto yy11;
+        }
+yy14:   yych = *++YYCURSOR;
+        switch(yych){
+        case '\n':      goto yy38;
+        case '\r':      goto yy40;
+        default:        goto yy11;
+        }
+yy15:   yych = *++YYCURSOR;
+        switch(yych){
+        case '\n':      goto yy35;
+        case '\r':      goto yy37;
+        default:        goto yy11;
+        }
+yy16:   yych = *++YYCURSOR;
+        switch(yych){
+        case '\n':      goto yy32;
+        case '\r':      goto yy34;
+        default:        goto yy11;
+        }
+yy17:   ++YYCURSOR;
+        goto yy18;
 yy18:
 #line 289 "bytecode.re"
 {   ADD_BYTE_LEVEL(lvl, lvl->spaces + 1, syck_lvl_str); 
             goto Scalar;
         }
 #line 127 "<stdout>"
-yy19:	++YYCURSOR;
-	goto yy20;
+yy19:   ++YYCURSOR;
+        goto yy20;
 yy20:
 #line 293 "bytecode.re"
 {   ADD_BYTE_LEVEL(lvl, lvl->spaces + 1, syck_lvl_open);
@@ -306,8 +306,8 @@ yy20:
             return YAML_ANCHOR;
         }
 #line 138 "<stdout>"
-yy21:	++YYCURSOR;
-	goto yy22;
+yy21:   ++YYCURSOR;
+        goto yy22;
 yy22:
 #line 300 "bytecode.re"
 {   ADD_BYTE_LEVEL(lvl, lvl->spaces + 1, syck_lvl_str);
@@ -317,8 +317,8 @@ yy22:
             return YAML_ALIAS;
         }
 #line 149 "<stdout>"
-yy23:	++YYCURSOR;
-	goto yy24;
+yy23:   ++YYCURSOR;
+        goto yy24;
 yy24:
 #line 307 "bytecode.re"
 {   char *qstr;
@@ -381,14 +381,14 @@ yy24:
             return YAML_TAGURI;
         }
 #line 213 "<stdout>"
-yy25:	++YYCURSOR;
-	goto yy26;
+yy25:   ++YYCURSOR;
+        goto yy26;
 yy26:
 #line 367 "bytecode.re"
 {   goto Comment; }
 #line 219 "<stdout>"
-yy27:	++YYCURSOR;
-	goto yy28;
+yy27:   ++YYCURSOR;
+        goto yy28;
 yy28:
 #line 369 "bytecode.re"
 {   CHK_NL(YYCURSOR);
@@ -404,13 +404,13 @@ yy28:
             goto Document;
         }
 #line 236 "<stdout>"
-yy29:	yych = *++YYCURSOR;
-	switch(yych){
-	case '\n':	goto yy27;
-	default:	goto yy11;
-	}
-yy30:	++YYCURSOR;
-	goto yy31;
+yy29:   yych = *++YYCURSOR;
+        switch(yych){
+        case '\n':      goto yy27;
+        default:        goto yy11;
+        }
+yy30:   ++YYCURSOR;
+        goto yy31;
 yy31:
 #line 382 "bytecode.re"
 {   ENSURE_YAML_IEND(lvl, -1);
@@ -418,8 +418,8 @@ yy31:
             return 0;
         }
 #line 250 "<stdout>"
-yy32:	++YYCURSOR;
-	goto yy33;
+yy32:   ++YYCURSOR;
+        goto yy33;
 yy33:
 #line 253 "bytecode.re"
 {   if ( lvl->status == syck_lvl_seq && lvl->ncount == 0 )
@@ -458,13 +458,13 @@ yy33:
             return YAML_IEND;
         }
 #line 290 "<stdout>"
-yy34:	yych = *++YYCURSOR;
-	switch(yych){
-	case '\n':	goto yy32;
-	default:	goto yy11;
-	}
-yy35:	++YYCURSOR;
-	goto yy36;
+yy34:   yych = *++YYCURSOR;
+        switch(yych){
+        case '\n':      goto yy32;
+        default:        goto yy11;
+        }
+yy35:   ++YYCURSOR;
+        goto yy36;
 yy36:
 #line 238 "bytecode.re"
 {   int complex = 0;
@@ -482,13 +482,13 @@ yy36:
             return YAML_IOPEN;
         }
 #line 314 "<stdout>"
-yy37:	yych = *++YYCURSOR;
-	switch(yych){
-	case '\n':	goto yy35;
-	default:	goto yy11;
-	}
-yy38:	++YYCURSOR;
-	goto yy39;
+yy37:   yych = *++YYCURSOR;
+        switch(yych){
+        case '\n':      goto yy35;
+        default:        goto yy11;
+        }
+yy38:   ++YYCURSOR;
+        goto yy39;
 yy39:
 #line 223 "bytecode.re"
 {   int complex = 0;
@@ -506,13 +506,13 @@ yy39:
             return YAML_IOPEN;
         }
 #line 338 "<stdout>"
-yy40:	yych = *++YYCURSOR;
-	switch(yych){
-	case '\n':	goto yy38;
-	default:	goto yy11;
-	}
-yy41:	++YYCURSOR;
-	goto yy42;
+yy40:   yych = *++YYCURSOR;
+        switch(yych){
+        case '\n':      goto yy38;
+        default:        goto yy11;
+        }
+yy41:   ++YYCURSOR;
+        goto yy42;
 yy42:
 #line 218 "bytecode.re"
 {   ENSURE_YAML_IEND(lvl, -1);
@@ -520,16 +520,16 @@ yy42:
                 return 0;
             }
 #line 352 "<stdout>"
-yy43:	yych = *++YYCURSOR;
-	switch(yych){
-	case '\n':	goto yy41;
-	default:	goto yy11;
-	}
-yy44:	++YYCURSOR;
-	switch((yych = *YYCURSOR)) {
-	case '\n':	goto yy41;
-	default:	goto yy11;
-	}
+yy43:   yych = *++YYCURSOR;
+        switch(yych){
+        case '\n':      goto yy41;
+        default:        goto yy11;
+        }
+yy44:   ++YYCURSOR;
+        switch((yych = *YYCURSOR)) {
+        case '\n':      goto yy41;
+        default:        goto yy11;
+        }
 }
 #line 387 "bytecode.re"
 
@@ -543,366 +543,366 @@ Directive:
 
 #line 366 "<stdout>"
 {
-	YYCTYPE yych;
-	unsigned int yyaccept;
-	goto yy45;
-yy46:	++YYCURSOR;
+        YYCTYPE yych;
+        unsigned int yyaccept;
+        goto yy45;
+yy46:   ++YYCURSOR;
 yy45:
-	if((YYLIMIT - YYCURSOR) < 2) YYFILL(2);
-	yych = *YYCURSOR;
-	switch(yych){
-	case '\000':	goto yy47;
-	case 'V':	goto yy48;
-	default:	goto yy50;
-	}
-yy47:	YYCURSOR = YYMARKER;
-	switch(yyaccept){
-	case 0:	goto yy49;
-	}
-yy48:	yyaccept = 0;
-	yych = *(YYMARKER = ++YYCURSOR);
-	switch(yych){
-	case '.':
-	case '/':
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':
-	case '8':
-	case '9':
-	case ':':
-	case ';':
-	case '<':
-	case '=':
-	case '>':
-	case '?':
-	case '@':
-	case 'A':
-	case 'B':
-	case 'C':
-	case 'D':
-	case 'E':
-	case 'F':
-	case 'G':
-	case 'H':
-	case 'I':
-	case 'J':
-	case 'K':
-	case 'L':
-	case 'M':
-	case 'N':
-	case 'O':
-	case 'P':
-	case 'Q':
-	case 'R':
-	case 'S':
-	case 'T':
-	case 'U':
-	case 'V':
-	case 'W':
-	case 'X':
-	case 'Y':
-	case 'Z':
-	case '[':
-	case '\\':
-	case ']':
-	case '^':
-	case '_':	case 'a':
-	case 'b':
-	case 'c':
-	case 'd':
-	case 'e':
-	case 'f':
-	case 'g':
-	case 'h':
-	case 'i':
-	case 'j':
-	case 'k':
-	case 'l':
-	case 'm':
-	case 'n':
-	case 'o':
-	case 'p':
-	case 'q':
-	case 'r':
-	case 's':
-	case 't':
-	case 'u':
-	case 'v':
-	case 'w':
-	case 'x':
-	case 'y':
-	case 'z':	goto yy51;
-	default:	goto yy49;
-	}
+        if((YYLIMIT - YYCURSOR) < 2) YYFILL(2);
+        yych = *YYCURSOR;
+        switch(yych){
+        case '\000':    goto yy47;
+        case 'V':       goto yy48;
+        default:        goto yy50;
+        }
+yy47:   YYCURSOR = YYMARKER;
+        switch(yyaccept){
+        case 0: goto yy49;
+        }
+yy48:   yyaccept = 0;
+        yych = *(YYMARKER = ++YYCURSOR);
+        switch(yych){
+        case '.':
+        case '/':
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case ':':
+        case ';':
+        case '<':
+        case '=':
+        case '>':
+        case '?':
+        case '@':
+        case 'A':
+        case 'B':
+        case 'C':
+        case 'D':
+        case 'E':
+        case 'F':
+        case 'G':
+        case 'H':
+        case 'I':
+        case 'J':
+        case 'K':
+        case 'L':
+        case 'M':
+        case 'N':
+        case 'O':
+        case 'P':
+        case 'Q':
+        case 'R':
+        case 'S':
+        case 'T':
+        case 'U':
+        case 'V':
+        case 'W':
+        case 'X':
+        case 'Y':
+        case 'Z':
+        case '[':
+        case '\\':
+        case ']':
+        case '^':
+        case '_':       case 'a':
+        case 'b':
+        case 'c':
+        case 'd':
+        case 'e':
+        case 'f':
+        case 'g':
+        case 'h':
+        case 'i':
+        case 'j':
+        case 'k':
+        case 'l':
+        case 'm':
+        case 'n':
+        case 'o':
+        case 'p':
+        case 'q':
+        case 'r':
+        case 's':
+        case 't':
+        case 'u':
+        case 'v':
+        case 'w':
+        case 'x':
+        case 'y':
+        case 'z':       goto yy51;
+        default:        goto yy49;
+        }
 yy49:
 #line 400 "bytecode.re"
 {   YYCURSOR = YYTOKEN;
                return YAML_DOCSEP;
            }
 #line 469 "<stdout>"
-yy50:	yych = *++YYCURSOR;
-	goto yy49;
-yy51:	++YYCURSOR;
-	if(YYLIMIT == YYCURSOR) YYFILL(1);
-	yych = *YYCURSOR;
-	goto yy52;
-yy52:	switch(yych){
-	case '.':
-	case '/':
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':
-	case '8':
-	case '9':	case ';':
-	case '<':
-	case '=':
-	case '>':
-	case '?':
-	case '@':
-	case 'A':
-	case 'B':
-	case 'C':
-	case 'D':
-	case 'E':
-	case 'F':
-	case 'G':
-	case 'H':
-	case 'I':
-	case 'J':
-	case 'K':
-	case 'L':
-	case 'M':
-	case 'N':
-	case 'O':
-	case 'P':
-	case 'Q':
-	case 'R':
-	case 'S':
-	case 'T':
-	case 'U':
-	case 'V':
-	case 'W':
-	case 'X':
-	case 'Y':
-	case 'Z':
-	case '[':
-	case '\\':
-	case ']':
-	case '^':
-	case '_':	case 'a':
-	case 'b':
-	case 'c':
-	case 'd':
-	case 'e':
-	case 'f':
-	case 'g':
-	case 'h':
-	case 'i':
-	case 'j':
-	case 'k':
-	case 'l':
-	case 'm':
-	case 'n':
-	case 'o':
-	case 'p':
-	case 'q':
-	case 'r':
-	case 's':
-	case 't':
-	case 'u':
-	case 'v':
-	case 'w':
-	case 'x':
-	case 'y':
-	case 'z':	goto yy51;
-	case ':':	goto yy53;
-	default:	goto yy47;
-	}
-yy53:	yych = *++YYCURSOR;
-	switch(yych){
-	case '.':
-	case '/':
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':
-	case '8':
-	case '9':
-	case ':':
-	case ';':
-	case '<':
-	case '=':
-	case '>':
-	case '?':
-	case '@':
-	case 'A':
-	case 'B':
-	case 'C':
-	case 'D':
-	case 'E':
-	case 'F':
-	case 'G':
-	case 'H':
-	case 'I':
-	case 'J':
-	case 'K':
-	case 'L':
-	case 'M':
-	case 'N':
-	case 'O':
-	case 'P':
-	case 'Q':
-	case 'R':
-	case 'S':
-	case 'T':
-	case 'U':
-	case 'V':
-	case 'W':
-	case 'X':
-	case 'Y':
-	case 'Z':
-	case '[':
-	case '\\':
-	case ']':
-	case '^':
-	case '_':	case 'a':
-	case 'b':
-	case 'c':
-	case 'd':
-	case 'e':
-	case 'f':
-	case 'g':
-	case 'h':
-	case 'i':
-	case 'j':
-	case 'k':
-	case 'l':
-	case 'm':
-	case 'n':
-	case 'o':
-	case 'p':
-	case 'q':
-	case 'r':
-	case 's':
-	case 't':
-	case 'u':
-	case 'v':
-	case 'w':
-	case 'x':
-	case 'y':
-	case 'z':	goto yy54;
-	default:	goto yy47;
-	}
-yy54:	++YYCURSOR;
-	if(YYLIMIT == YYCURSOR) YYFILL(1);
-	yych = *YYCURSOR;
-	goto yy55;
-yy55:	switch(yych){
-	case '\n':	goto yy56;
-	case '\r':	goto yy58;
-	case '.':
-	case '/':
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':
-	case '8':
-	case '9':
-	case ':':
-	case ';':
-	case '<':
-	case '=':
-	case '>':
-	case '?':
-	case '@':
-	case 'A':
-	case 'B':
-	case 'C':
-	case 'D':
-	case 'E':
-	case 'F':
-	case 'G':
-	case 'H':
-	case 'I':
-	case 'J':
-	case 'K':
-	case 'L':
-	case 'M':
-	case 'N':
-	case 'O':
-	case 'P':
-	case 'Q':
-	case 'R':
-	case 'S':
-	case 'T':
-	case 'U':
-	case 'V':
-	case 'W':
-	case 'X':
-	case 'Y':
-	case 'Z':
-	case '[':
-	case '\\':
-	case ']':
-	case '^':
-	case '_':	case 'a':
-	case 'b':
-	case 'c':
-	case 'd':
-	case 'e':
-	case 'f':
-	case 'g':
-	case 'h':
-	case 'i':
-	case 'j':
-	case 'k':
-	case 'l':
-	case 'm':
-	case 'n':
-	case 'o':
-	case 'p':
-	case 'q':
-	case 'r':
-	case 's':
-	case 't':
-	case 'u':
-	case 'v':
-	case 'w':
-	case 'x':
-	case 'y':
-	case 'z':	goto yy54;
-	default:	goto yy47;
-	}
-yy56:	++YYCURSOR;
-	goto yy57;
+yy50:   yych = *++YYCURSOR;
+        goto yy49;
+yy51:   ++YYCURSOR;
+        if(YYLIMIT == YYCURSOR) YYFILL(1);
+        yych = *YYCURSOR;
+        goto yy52;
+yy52:   switch(yych){
+        case '.':
+        case '/':
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':       case ';':
+        case '<':
+        case '=':
+        case '>':
+        case '?':
+        case '@':
+        case 'A':
+        case 'B':
+        case 'C':
+        case 'D':
+        case 'E':
+        case 'F':
+        case 'G':
+        case 'H':
+        case 'I':
+        case 'J':
+        case 'K':
+        case 'L':
+        case 'M':
+        case 'N':
+        case 'O':
+        case 'P':
+        case 'Q':
+        case 'R':
+        case 'S':
+        case 'T':
+        case 'U':
+        case 'V':
+        case 'W':
+        case 'X':
+        case 'Y':
+        case 'Z':
+        case '[':
+        case '\\':
+        case ']':
+        case '^':
+        case '_':       case 'a':
+        case 'b':
+        case 'c':
+        case 'd':
+        case 'e':
+        case 'f':
+        case 'g':
+        case 'h':
+        case 'i':
+        case 'j':
+        case 'k':
+        case 'l':
+        case 'm':
+        case 'n':
+        case 'o':
+        case 'p':
+        case 'q':
+        case 'r':
+        case 's':
+        case 't':
+        case 'u':
+        case 'v':
+        case 'w':
+        case 'x':
+        case 'y':
+        case 'z':       goto yy51;
+        case ':':       goto yy53;
+        default:        goto yy47;
+        }
+yy53:   yych = *++YYCURSOR;
+        switch(yych){
+        case '.':
+        case '/':
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case ':':
+        case ';':
+        case '<':
+        case '=':
+        case '>':
+        case '?':
+        case '@':
+        case 'A':
+        case 'B':
+        case 'C':
+        case 'D':
+        case 'E':
+        case 'F':
+        case 'G':
+        case 'H':
+        case 'I':
+        case 'J':
+        case 'K':
+        case 'L':
+        case 'M':
+        case 'N':
+        case 'O':
+        case 'P':
+        case 'Q':
+        case 'R':
+        case 'S':
+        case 'T':
+        case 'U':
+        case 'V':
+        case 'W':
+        case 'X':
+        case 'Y':
+        case 'Z':
+        case '[':
+        case '\\':
+        case ']':
+        case '^':
+        case '_':       case 'a':
+        case 'b':
+        case 'c':
+        case 'd':
+        case 'e':
+        case 'f':
+        case 'g':
+        case 'h':
+        case 'i':
+        case 'j':
+        case 'k':
+        case 'l':
+        case 'm':
+        case 'n':
+        case 'o':
+        case 'p':
+        case 'q':
+        case 'r':
+        case 's':
+        case 't':
+        case 'u':
+        case 'v':
+        case 'w':
+        case 'x':
+        case 'y':
+        case 'z':       goto yy54;
+        default:        goto yy47;
+        }
+yy54:   ++YYCURSOR;
+        if(YYLIMIT == YYCURSOR) YYFILL(1);
+        yych = *YYCURSOR;
+        goto yy55;
+yy55:   switch(yych){
+        case '\n':      goto yy56;
+        case '\r':      goto yy58;
+        case '.':
+        case '/':
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+        case ':':
+        case ';':
+        case '<':
+        case '=':
+        case '>':
+        case '?':
+        case '@':
+        case 'A':
+        case 'B':
+        case 'C':
+        case 'D':
+        case 'E':
+        case 'F':
+        case 'G':
+        case 'H':
+        case 'I':
+        case 'J':
+        case 'K':
+        case 'L':
+        case 'M':
+        case 'N':
+        case 'O':
+        case 'P':
+        case 'Q':
+        case 'R':
+        case 'S':
+        case 'T':
+        case 'U':
+        case 'V':
+        case 'W':
+        case 'X':
+        case 'Y':
+        case 'Z':
+        case '[':
+        case '\\':
+        case ']':
+        case '^':
+        case '_':       case 'a':
+        case 'b':
+        case 'c':
+        case 'd':
+        case 'e':
+        case 'f':
+        case 'g':
+        case 'h':
+        case 'i':
+        case 'j':
+        case 'k':
+        case 'l':
+        case 'm':
+        case 'n':
+        case 'o':
+        case 'p':
+        case 'q':
+        case 'r':
+        case 's':
+        case 't':
+        case 'u':
+        case 'v':
+        case 'w':
+        case 'x':
+        case 'y':
+        case 'z':       goto yy54;
+        default:        goto yy47;
+        }
+yy56:   ++YYCURSOR;
+        goto yy57;
 yy57:
 #line 397 "bytecode.re"
 {   CHK_NL(YYCURSOR);
                goto Directive; }
 #line 724 "<stdout>"
-yy58:	++YYCURSOR;
-	switch((yych = *YYCURSOR)) {
-	case '\n':	goto yy56;
-	default:	goto yy47;
-	}
+yy58:   ++YYCURSOR;
+        switch((yych = *YYCURSOR)) {
+        case '\n':      goto yy56;
+        default:        goto yy47;
+        }
 }
 #line 403 "bytecode.re"
 
@@ -916,40 +916,40 @@ Comment:
 
 #line 733 "<stdout>"
 {
-	YYCTYPE yych;
-	unsigned int yyaccept;
-	goto yy59;
-yy60:	++YYCURSOR;
+        YYCTYPE yych;
+        unsigned int yyaccept;
+        goto yy59;
+yy60:   ++YYCURSOR;
 yy59:
-	if((YYLIMIT - YYCURSOR) < 2) YYFILL(2);
-	yych = *YYCURSOR;
-	switch(yych){
-	case '\000':	goto yy61;
-	case '\n':	goto yy62;
-	case '\r':	goto yy64;
-	default:	goto yy66;
-	}
-yy61:yy62:	++YYCURSOR;
-	goto yy63;
+        if((YYLIMIT - YYCURSOR) < 2) YYFILL(2);
+        yych = *YYCURSOR;
+        switch(yych){
+        case '\000':    goto yy61;
+        case '\n':      goto yy62;
+        case '\r':      goto yy64;
+        default:        goto yy66;
+        }
+yy61:yy62:      ++YYCURSOR;
+        goto yy63;
 yy63:
 #line 413 "bytecode.re"
 {   CHK_NL(YYCURSOR);
                 goto Document; }
 #line 754 "<stdout>"
-yy64:	++YYCURSOR;
-	switch((yych = *YYCURSOR)) {
-	case '\n':	goto yy67;
-	default:	goto yy65;
-	}
+yy64:   ++YYCURSOR;
+        switch((yych = *YYCURSOR)) {
+        case '\n':      goto yy67;
+        default:        goto yy65;
+        }
 yy65:
 #line 416 "bytecode.re"
 {   goto Comment; }
 #line 763 "<stdout>"
-yy66:	yych = *++YYCURSOR;
-	goto yy65;
-yy67:	++YYCURSOR;
-	yych = *YYCURSOR;
-	goto yy63;
+yy66:   yych = *++YYCURSOR;
+        goto yy65;
+yy67:   ++YYCURSOR;
+        yych = *YYCURSOR;
+        goto yy63;
 }
 #line 418 "bytecode.re"
 
@@ -971,84 +971,84 @@ Scalar2:
 
 #line 771 "<stdout>"
 {
-	YYCTYPE yych;
-	unsigned int yyaccept;
-	goto yy68;
-yy69:	++YYCURSOR;
+        YYCTYPE yych;
+        unsigned int yyaccept;
+        goto yy68;
+yy69:   ++YYCURSOR;
 yy68:
-	if((YYLIMIT - YYCURSOR) < 3) YYFILL(3);
-	yych = *YYCURSOR;
-	switch(yych){
-	case '\000':	goto yy74;
-	case '\n':	goto yy70;
-	case '\r':	goto yy72;
-	default:	goto yy76;
-	}
-yy70:	++YYCURSOR;
-	switch((yych = *YYCURSOR)) {
-	case 'C':	goto yy78;
-	case 'N':	goto yy80;
-	case 'Z':	goto yy83;
-	default:	goto yy71;
-	}
+        if((YYLIMIT - YYCURSOR) < 3) YYFILL(3);
+        yych = *YYCURSOR;
+        switch(yych){
+        case '\000':    goto yy74;
+        case '\n':      goto yy70;
+        case '\r':      goto yy72;
+        default:        goto yy76;
+        }
+yy70:   ++YYCURSOR;
+        switch((yych = *YYCURSOR)) {
+        case 'C':       goto yy78;
+        case 'N':       goto yy80;
+        case 'Z':       goto yy83;
+        default:        goto yy71;
+        }
 yy71:
 #line 462 "bytecode.re"
 {   YYCURSOR = tok;
             goto ScalarEnd; 
         }
 #line 798 "<stdout>"
-yy72:	++YYCURSOR;
-	switch((yych = *YYCURSOR)) {
-	case '\n':	goto yy77;
-	default:	goto yy73;
-	}
+yy72:   ++YYCURSOR;
+        switch((yych = *YYCURSOR)) {
+        case '\n':      goto yy77;
+        default:        goto yy73;
+        }
 yy73:
 #line 470 "bytecode.re"
 {   CAT(str, cap, idx, tok[0]);
             goto Scalar2; 
         }
 #line 809 "<stdout>"
-yy74:	++YYCURSOR;
-	goto yy75;
+yy74:   ++YYCURSOR;
+        goto yy75;
 yy75:
 #line 466 "bytecode.re"
 {   YYCURSOR = tok;
             goto ScalarEnd;
         }
 #line 817 "<stdout>"
-yy76:	yych = *++YYCURSOR;
-	goto yy73;
-yy77:	yych = *++YYCURSOR;
-	switch(yych){
-	case 'C':	goto yy78;
-	case 'N':	goto yy80;
-	case 'Z':	goto yy83;
-	default:	goto yy71;
-	}
-yy78:	++YYCURSOR;
-	goto yy79;
+yy76:   yych = *++YYCURSOR;
+        goto yy73;
+yy77:   yych = *++YYCURSOR;
+        switch(yych){
+        case 'C':       goto yy78;
+        case 'N':       goto yy80;
+        case 'Z':       goto yy83;
+        default:        goto yy71;
+        }
+yy78:   ++YYCURSOR;
+        goto yy79;
 yy79:
 #line 436 "bytecode.re"
 {   CHK_NL(tok+1);
             goto Scalar2; }
 #line 833 "<stdout>"
-yy80:	++YYCURSOR;
-	if(YYLIMIT == YYCURSOR) YYFILL(1);
-	yych = *YYCURSOR;
-	goto yy81;
-yy81:	switch(yych){
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':
-	case '8':
-	case '9':	goto yy80;
-	default:	goto yy82;
-	}
+yy80:   ++YYCURSOR;
+        if(YYLIMIT == YYCURSOR) YYFILL(1);
+        yych = *YYCURSOR;
+        goto yy81;
+yy81:   switch(yych){
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':       goto yy80;
+        default:        goto yy82;
+        }
 yy82:
 #line 439 "bytecode.re"
 {   CHK_NL(tok+1);
@@ -1069,8 +1069,8 @@ yy82:
             goto Scalar2;
         }
 #line 871 "<stdout>"
-yy83:	++YYCURSOR;
-	goto yy84;
+yy83:   ++YYCURSOR;
+        goto yy84;
 yy84:
 #line 457 "bytecode.re"
 {   CHK_NL(tok+1);
@@ -1116,50 +1116,50 @@ Inline:
 
 #line 884 "<stdout>"
 {
-	YYCTYPE yych;
-	unsigned int yyaccept;
-	goto yy85;
-yy86:	++YYCURSOR;
+        YYCTYPE yych;
+        unsigned int yyaccept;
+        goto yy85;
+yy86:   ++YYCURSOR;
 yy85:
-	if((YYLIMIT - YYCURSOR) < 2) YYFILL(2);
-	yych = *YYCURSOR;
-	switch(yych){
-	case '\000':	goto yy91;
-	case '\n':	goto yy87;
-	case '\r':	goto yy89;
-	default:	goto yy93;
-	}
-yy87:	++YYCURSOR;
-	goto yy88;
+        if((YYLIMIT - YYCURSOR) < 2) YYFILL(2);
+        yych = *YYCURSOR;
+        switch(yych){
+        case '\000':    goto yy91;
+        case '\n':      goto yy87;
+        case '\r':      goto yy89;
+        default:        goto yy93;
+        }
+yy87:   ++YYCURSOR;
+        goto yy88;
 yy88:
 #line 509 "bytecode.re"
 {   CHK_NL(YYCURSOR);
                 return str; }
 #line 905 "<stdout>"
-yy89:	++YYCURSOR;
-	switch((yych = *YYCURSOR)) {
-	case '\n':	goto yy94;
-	default:	goto yy90;
-	}
+yy89:   ++YYCURSOR;
+        switch((yych = *YYCURSOR)) {
+        case '\n':      goto yy94;
+        default:        goto yy90;
+        }
 yy90:
 #line 516 "bytecode.re"
 {   CAT(str, cap, idx, tok[0]);
                 goto Inline; 
             }
 #line 916 "<stdout>"
-yy91:	++YYCURSOR;
-	goto yy92;
+yy91:   ++YYCURSOR;
+        goto yy92;
 yy92:
 #line 512 "bytecode.re"
 {   YYCURSOR = tok;
                 return str;
             }
 #line 924 "<stdout>"
-yy93:	yych = *++YYCURSOR;
-	goto yy90;
-yy94:	++YYCURSOR;
-	yych = *YYCURSOR;
-	goto yy88;
+yy93:   yych = *++YYCURSOR;
+        goto yy90;
+yy94:   ++YYCURSOR;
+        yych = *YYCURSOR;
+        goto yy88;
 }
 #line 520 "bytecode.re"
 

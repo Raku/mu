@@ -134,14 +134,14 @@ op2Match x (VSubst (rx, subst)) = do
 op2Match x (VRule rx) | rxGlobal rx = do
     str     <- fromVal x
     rv      <- matchOnce str
-    cxt	    <- asks envContext
+    cxt     <- asks envContext
     if (not $ isSlurpyCxt cxt)
-	then return (VInt $ genericLength rv)
-	else if rxStringify rx
-	    then do
+        then return (VInt $ genericLength rv)
+        else if rxStringify rx
+            then do
                 strs <- mapM fromVal rv
                 return (VList $ map VStr strs)
-	    else return (VList rv)
+            else return (VList rv)
     where
     hasSubpatterns = case rx of
         MkRulePGE{}             -> True -- bogus

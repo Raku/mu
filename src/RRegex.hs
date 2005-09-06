@@ -59,31 +59,31 @@ mkRegexWithPCRE
 mkRegexWithOpts
    :: String  -- ^ The regular expression to compile
    -> Bool    -- ^ 'True' @\<=>@ @\'^\'@ and @\'$\'@ match the beginning and 
-	      -- end of individual lines respectively, and @\'.\'@ does /not/
-	      -- match the newline character.
+              -- end of individual lines respectively, and @\'.\'@ does /not/
+              -- match the newline character.
    -> Bool    -- ^ 'True' @\<=>@ matching is case-sensitive
    -> Regex   -- ^ Returns: the compiled regular expression
 
 -- | Match a regular expression against a string
 matchRegex
-   :: Regex	-- ^ The regular expression
-   -> String	-- ^ The string to match against
-   -> Maybe [String]	-- ^ Returns: @'Just' strs@ if the match succeeded
-			-- (and @strs@ is the list of subexpression matches),
-			-- or 'Nothing' otherwise.
+   :: Regex     -- ^ The regular expression
+   -> String    -- ^ The string to match against
+   -> Maybe [String]    -- ^ Returns: @'Just' strs@ if the match succeeded
+                        -- (and @strs@ is the list of subexpression matches),
+                        -- or 'Nothing' otherwise.
 
 -- | Match a regular expression against a string, returning more information
 -- about the match.
 matchRegexAll
-   :: Regex	-- ^ The regular expression
-   -> String	-- ^ The string to match against
+   :: Regex     -- ^ The regular expression
+   -> String    -- ^ The string to match against
    -> Maybe ( String, String, String, [String] )
-		-- ^ Returns: 'Nothing' if the match failed, or:
-		-- 
-		-- >  Just ( everything before match,
-		-- >         portion matched,
-		-- >         everything after the match,
-		-- >         subexpression matches )
+                -- ^ Returns: 'Nothing' if the match failed, or:
+                -- 
+                -- >  Just ( everything before match,
+                -- >         portion matched,
+                -- >         everything after the match,
+                -- >         subexpression matches )
 
 mkRegexWithPCRE s flags = unsafePerformIO $
     compile s (sum flags) >>= \x -> case x of
@@ -95,11 +95,11 @@ mkRegexWithPCRE s flags = unsafePerformIO $
 mkRegex s = mkRegexWithOpts s False True
 mkRegexWithOpts s single_line case_sensitive = mkRegexWithPCRE s [pcreUtf8, newline, igcase]
       where
-	newline | single_line = pcreMultiline
-		| otherwise   = 0
+        newline | single_line = pcreMultiline
+                | otherwise   = 0
 
-	igcase  | case_sensitive = 0 
-		| otherwise 	 = pcreCaseless
+        igcase  | case_sensitive = 0 
+                | otherwise      = pcreCaseless
 
 matchRegex p str = fmap f (str =~~ p) where
     f :: Array Int String -> [String]

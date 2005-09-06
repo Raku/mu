@@ -34,8 +34,8 @@ instance Monad m => Monad (CC r m) where
 
 instance MonadTrans (CC r) where
     lift m = CC (\ (Cont k) -> 
-		 MC (\mk -> lift (m >>= (\a -> let MC mc = k a
-					       in PromptTR.runP (mc mk)))))
+                 MC (\mk -> lift (m >>= (\a -> let MC mc = k a
+                                               in PromptTR.runP (mc mk)))))
 
 instance (MonadIO m) => MonadIO (CC r m) where
     liftIO = lift . liftIO
@@ -75,7 +75,7 @@ pushPrompt p (CC e) =
                          in me (PushP p (PushSeg k mk))))
     
 letSubCont :: Monad m => 
-	      Prompt r b -> (SubCont r m a b -> CC r m b) -> CC r m a
+              Prompt r b -> (SubCont r m a b -> CC r m b) -> CC r m a
 letSubCont p f = 
     CC (\k -> MC (\mk -> 
        let (subk,mk') = splitSeq p mk

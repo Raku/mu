@@ -248,7 +248,7 @@ doRunSingle menv opts prog = (`catch` handler) $ do
     parse = do
         env <- liftSTM $ readTVar menv
         return $ envBody $ parseProgram env "<interactive>" $
-	  (decodeUTF8 prog)
+          (decodeUTF8 prog)
     theEnv = do
         ref <- if runOptSeparately opts
                 then (liftSTM . newTVar) =<< tabulaRasa "<interactive>"
@@ -326,7 +326,7 @@ printConfigInfo [] = do
         ++ [ "@*INC:" ] ++ libs
 
 printConfigInfo (item:_) = do
-	putStrLn $ createConfigLine item
+        putStrLn $ createConfigLine item
 
 compPIR :: String -> IO ()
 compPIR prog = do

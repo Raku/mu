@@ -84,26 +84,26 @@ op1MinMax min_or_max v = do
     op1MinMax' _ Nothing valList = foldM default_compare (head valList) valList
     -- or use the one of the user
     op1MinMax' min_or_max (Just subVal) valList = do
-	  sub <- fromVal subVal
-	  evl <- asks envEval
-	  -- Here we execute the user's sub
-	  foldM (\a b -> do
-	      rv  <- local (\e -> e{ envContext = cxtItem "Int" }) $ do
-		  evl (App (Val sub) Nothing [Val a, Val b])
-	      int <- fromVal rv
-	      -- If the return value from the sub was
-	      --   -1 ==> a < b
-	      --    0 ==> a == b
-	      --   +1 ==> a > b
-	      -- We call min_or_max so we can work for both min() and max().
-	      return $ if min_or_max (int > (0::VInt)) then a else b) (head valList) valList
+          sub <- fromVal subVal
+          evl <- asks envEval
+          -- Here we execute the user's sub
+          foldM (\a b -> do
+              rv  <- local (\e -> e{ envContext = cxtItem "Int" }) $ do
+                  evl (App (Val sub) Nothing [Val a, Val b])
+              int <- fromVal rv
+              -- If the return value from the sub was
+              --   -1 ==> a < b
+              --    0 ==> a == b
+              --   +1 ==> a > b
+              -- We call min_or_max so we can work for both min() and max().
+              return $ if min_or_max (int > (0::VInt)) then a else b) (head valList) valList
     -- This is the default comparision function, which will be used if the user
     -- hasn't specified a own comparision function.
     default_compare a b = do
-	a' <- vCastRat a
-	b' <- vCastRat b
-	let cmp = if a' < b' then (-1) else if a' == b' then 0 else 1
-	return $ if min_or_max (cmp > (0::VInt)) then a else b
+        a' <- vCastRat a
+        b' <- vCastRat b
+        let cmp = if a' < b' then (-1) else if a' == b' then 0 else 1
+        return $ if min_or_max (cmp > (0::VInt)) then a else b
 
 op1Uniq :: Val -> Eval Val
 op1Uniq v = do
@@ -127,33 +127,33 @@ op1Uniq v = do
     op1Uniq' Nothing valList = return . VList $ nub valList
     -- Else, we have to write our own nubByM and use that.
     op1Uniq' (Just subVal) valList = do
-	sub <- fromVal subVal
-	evl <- asks envEval
-	-- Here we execute the user's sub
-	result <- nubByM (\a b -> do
-	    rv  <- local (\e -> e{ envContext = cxtItem "Bool" }) $ do
-		evl (App (Val sub) Nothing [Val a, Val b])
-	    -- The sub returns either true or false.
-	    bool <- fromVal rv
-	    return . VBool $ bool) valList
-	return . VList $ result
+        sub <- fromVal subVal
+        evl <- asks envEval
+        -- Here we execute the user's sub
+        result <- nubByM (\a b -> do
+            rv  <- local (\e -> e{ envContext = cxtItem "Bool" }) $ do
+                evl (App (Val sub) Nothing [Val a, Val b])
+            -- The sub returns either true or false.
+            bool <- fromVal rv
+            return . VBool $ bool) valList
+        return . VList $ result
     -- This is the same as nubBy, only lifted into the Eval monad
     nubByM :: (Val -> Val -> Eval Val) -> [Val] -> Eval [Val]
     nubByM eq l = nubByM' l []
       where
-	nubByM' [] _      = return []
-	nubByM' (y:ys) xs = do
-	    -- elemByM returns a Val, but we need a VBool, so we have to use fromVal.
-	    cond <- fromVal =<< elemByM eq y xs
-	    if cond then nubByM' ys xs else do
-		result <- nubByM' ys (y:xs)
-		return (y:result)
-	elemByM :: (Val -> Val -> Eval Val) -> Val -> [Val] -> Eval Val
-	elemByM _  _ []     = return . VBool $ False
-	elemByM eq y (x:xs) = do
-	    cond <- fromVal =<< eq x y
-	    -- Same here (we need a VBool, not a Var).
-	    if cond then return . VBool $ cond else elemByM eq y xs
+        nubByM' [] _      = return []
+        nubByM' (y:ys) xs = do
+            -- elemByM returns a Val, but we need a VBool, so we have to use fromVal.
+            cond <- fromVal =<< elemByM eq y xs
+            if cond then nubByM' ys xs else do
+                result <- nubByM' ys (y:xs)
+                return (y:result)
+        elemByM :: (Val -> Val -> Eval Val) -> Val -> [Val] -> Eval Val
+        elemByM _  _ []     = return . VBool $ False
+        elemByM eq y (x:xs) = do
+            cond <- fromVal =<< eq x y
+            -- Same here (we need a VBool, not a Var).
+            if cond then return . VBool $ cond else elemByM eq y xs
 
 op2FoldL :: Val -> Val -> Eval Val
 op2FoldL sub@(VCode _) list = op2FoldL list sub
