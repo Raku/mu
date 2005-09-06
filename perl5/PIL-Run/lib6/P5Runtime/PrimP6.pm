@@ -51,5 +51,5 @@ multi sub grep ($array,$code) {
 multi sub uniq ($array) { 
     my %seen;
     # XXX - remove '[deleted]' after debugging 
-    $array.map( { if %seen.fetch($_) { '[deleted]' } else { %seen.store($_,1); $_ } } )
+    $array.map( { if %seen.fetch($_) { () } else { %seen.store($_,1); $_ } } )
 }
