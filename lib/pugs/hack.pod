@@ -279,12 +279,16 @@ Practices" book (O'Reilly, 2005) should be followed by default.  At the very
 least, all indenting should be done with spaces (4 per indent level) rather than
 tabs, so the code and documentation looks the same to everyone.
 
-If use use Vim, you may want to set the following settings:
+If you use Vim, you may want to set the following settings:
 
     set shiftwidth=4 autoindent expandtab smarttab softtabstop=1
 
 This will cause Vim to insert four spaces instead of a real tab upon pressing
-C<< <Tab> >>.
+C<< <Tab> >>.  The equivalent settings for Emacs are:
+
+    c-indentation-style: bsd
+    c-basic-offset: 4
+    indent-tabs-mode: nil
 
 =head2 Testing
 
