@@ -2,9 +2,9 @@
 # Sets the usual svn properties on files.
 
 if [ -d .svn ]; then
-	BINARY=svn
+  BINARY=svn
 else
-	BINARY=svk
+  BINARY=svk
 fi
 
 [ "$1" ] || {

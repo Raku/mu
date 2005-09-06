@@ -216,8 +216,8 @@ step
   ensure => sub { @modfiles > 0 },
   using  => sub {
     @modfiles = map { (/^\Q$lib6\E\/(.+)$/)[0] }
-		split "\000",
-		`find $lib6 -print0`;
+                split "\000",
+                `find $lib6 -print0`;
   };
 my $newest_mod_stamp = 100000; # ugly
 -M "$lib6/$_" <= $newest_mod_stamp and $newest_mod_stamp = -M "$lib6/$_"
@@ -229,9 +229,9 @@ step
   ensure => sub { @pfiles > 0 },
   using  => sub {
     @pfiles = map { (/^\Q$parrot_path\/runtime\/parrot\/include\E(.+)$/)[0] }
-	      grep { !/(^|\/)\.(?!\.)/ }
-	      split "\000",
-	      `find $parrot_path/runtime/parrot/include -print0`;
+              grep { !/(^|\/)\.(?!\.)/ }
+              split "\000",
+              `find $parrot_path/runtime/parrot/include -print0`;
   };
 my $newest_p_stamp = 100000; # ugly
 -M "$parrot_path/runtime/parrot/include/$_" <= $newest_p_stamp and
@@ -291,8 +291,8 @@ HELP
 HELP
 
   my @dirs = map { "$initrd_mnt/$_" }
-	       "bin", "dev", "lib", "lib6", "tmp",
-	       "etc", "etc/terminfo", "etc/terminfo/l";
+               "bin", "dev", "lib", "lib6", "tmp",
+               "etc", "etc/terminfo", "etc/terminfo/l";
   step
     descr  => "Creating directories " . join(", ", map { "$_" } @dirs),
     ensure => sub { -d $_ or return for @dirs; 1 },
@@ -316,20 +316,20 @@ HELP
     help   => "Note: You might want to strip pugs and parrot to safe space.",
     ensure => sub {
       for(@files) {
-	my ($src, $dest) = @$_;
+        my ($src, $dest) = @$_;
         -r $dest and -x $dest and
-	-M $dest <= -M $src   and
-	-s $dest == -s $src
-	  or return;
+        -M $dest <= -M $src   and
+        -s $dest == -s $src
+          or return;
       }
       1;
     },
     using  => sub {
       utime undef, undef, $initrd_img;
       for(@files) {
-	my ($src, $dest) = @$_;
-	copy $src => $dest;
-	chmod 0755, $dest;
+        my ($src, $dest) = @$_;
+        copy $src => $dest;
+        chmod 0755, $dest;
       };
     };
 
@@ -339,11 +339,11 @@ HELP
     using  => sub {
       utime undef, undef, $initrd_img;
       for(@modfiles) {
-	if(-d "$lib6/$_") {
-	  mkdir "$initrd_mnt/lib6/$_";
-	} else {
-	  copy "$lib6/$_" => "$initrd_mnt/lib6/$_";
-	}
+        if(-d "$lib6/$_") {
+          mkdir "$initrd_mnt/lib6/$_";
+        } else {
+          copy "$lib6/$_" => "$initrd_mnt/lib6/$_";
+        }
       }
     };
 
@@ -353,11 +353,11 @@ HELP
     using  => sub {
       utime undef, undef, $initrd_img;
       for(@pfiles) {
-	if(-d "$parrot_path/runtime/parrot/include/$_") {
-	  mkdir "$initrd_mnt/$_";
-	} else {
-	  copy "$parrot_path/runtime/parrot/include/$_" => "$initrd_mnt/$_";
-	}
+        if(-d "$parrot_path/runtime/parrot/include/$_") {
+          mkdir "$initrd_mnt/$_";
+        } else {
+          copy "$parrot_path/runtime/parrot/include/$_" => "$initrd_mnt/$_";
+        }
       }
     };
 
@@ -368,11 +368,11 @@ HELP
     using  => sub {
       utime undef, undef, $initrd_img;
       for(@pge) {
-	if(-d "$pge/$_") {
-	  mkdir "$initrd_mnt/$_";
-	} else {
-	  copy "$pge/$_" => "$initrd_mnt/$_";
-	}
+        if(-d "$pge/$_") {
+          mkdir "$initrd_mnt/$_";
+        } else {
+          copy "$pge/$_" => "$initrd_mnt/$_";
+        }
       }
     };
 
@@ -385,8 +385,8 @@ HELP
     using  => sub {
       utime undef, undef, $initrd_img;
       for(@libs) {
-	copy $_ => "$initrd_mnt/lib/" . basename $_;
-	chmod 0755, "$initrd_mnt/lib/" . basename $_;
+        copy $_ => "$initrd_mnt/lib/" . basename $_;
+        chmod 0755, "$initrd_mnt/lib/" . basename $_;
       }
     };
 

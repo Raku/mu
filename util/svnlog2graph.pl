@@ -79,7 +79,7 @@ sub dayify {
 
     if($cur_day != $#till_day) {
       push @till_day, $till_day[-1] || 0
-	while $#till_day < $cur_day;
+        while $#till_day < $cur_day;
     } else {
       $till_day[-1]++;
     }

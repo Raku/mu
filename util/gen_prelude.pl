@@ -157,7 +157,7 @@ initPreludePC env = do
     print { $Config{out_fh} } $program;
 
     die "Pugs ".(($?&255)?"killed by signal $?"
-		 :"exited with error code ".($?>>8)) if $?;
+         :"exited with error code ".($?>>8)) if $?;
     print STDERR "done.\n" if $Config{verbose};
 }
 

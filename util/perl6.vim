@@ -1,7 +1,7 @@
 " Vim syntax file
-" Language: 	Perl 6
-" Maintainer:	Luke Palmer <fibonaci@babylonia.flatirons.org>
-" Last Change:  ???? ?? ??	
+" Language:     Perl 6
+" Maintainer:   Luke Palmer <fibonaci@babylonia.flatirons.org>
+" Last Change:  ???? ?? ??
 " 
 " This is a big undertaking. Perl 6 is the sort of language that only Perl
 " can parse. But I'll do my best to get vim to.

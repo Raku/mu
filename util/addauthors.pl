@@ -26,37 +26,37 @@ foreach my $c (sort {$comitters{$b} <=> $comitters{$a}} keys %comitters) {
   my $author;
   my $re = qr/$c/i;
   foreach my $a (@$authors) {
-	if ($a->{wholeline} =~ $re) {
-	  $author = $a;
-	  last;
-	}
+    if ($a->{wholeline} =~ $re) {
+      $author = $a;
+      last;
+    }
   }
   if (!$author) {
-	# Time for some hurestics: Try matching _ as space -- Darren_Duncan for example.
-	my $re = $c;
-	$re =~ s/_/ /;
-	$re = qr/$re/i;
-	foreach my $a (@$authors) {
-	  if ($a->{wholeline} =~ $re) {
-		$author = $a;
-		last;
-	  }
-	}
+    # Time for some hurestics: Try matching _ as space -- Darren_Duncan for example.
+    my $re = $c;
+    $re =~ s/_/ /;
+    $re = qr/$re/i;
+    foreach my $a (@$authors) {
+      if ($a->{wholeline} =~ $re) {
+        $author = $a;
+        last;
+      }
+    }
   }
   if (!$author) {
-	# Guess first initial, last name.
-	my ($initial, $last) = $c =~ m/^(.)(.*)/;
-	$re = qr/^$initial.*$last/i;
-	foreach my $a (@$authors) {
-	  if ($a->{wholeline} =~ $re) {
-		$author = $a;
-		last;
-	  }
-	}
+    # Guess first initial, last name.
+    my ($initial, $last) = $c =~ m/^(.)(.*)/;
+    $re = qr/^$initial.*$last/i;
+    foreach my $a (@$authors) {
+      if ($a->{wholeline} =~ $re) {
+        $author = $a;
+        last;
+      }
+    }
   }
 
   if (!$author) {
-	warn "$c missing from AUTHORS file\n";
+    warn "$c missing from AUTHORS file\n";
   }
 
   $author->{commitid}=$c;
@@ -78,14 +78,14 @@ sub readauthors {
   my (%bycpan, %bynick);
 
   while (<$fh>) {
-	last if /^$/;
+    last if /^$/;
   }
   while (<$fh>) {
-	chomp;
-	my ($cpanid) = m/\(([A-Z]+)\)/;
-	my ($nick)   = m/"([^"]+)"/;
-	my $author   = {cpanid => $cpanid, nick => $nick, wholeline => $_};
-	push @authors, $author;
+    chomp;
+    my ($cpanid) = m/\(([A-Z]+)\)/;
+    my ($nick)   = m/"([^"]+)"/;
+    my $author   = {cpanid => $cpanid, nick => $nick, wholeline => $_};
+    push @authors, $author;
   }
   return \@authors;
 }

@@ -24,9 +24,9 @@ foreach (@a) {
   
   chomp;
   if ($1) {
-	$_ .= "   " . cpanid2realname($1) . "\n";
+    $_ .= "   " . cpanid2realname($1) . "\n";
   } else {
-	$_ .= "\n";
+    $_ .= "\n";
   }
 }
 

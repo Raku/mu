@@ -74,11 +74,11 @@ conv_self {
 
 #       print Dumper \@s, \@e;
 #       foreach my $i (0..$#s){
-#	   print "$i >> ", substr($_, $n[$i], $e[$i] - $s[$i]),$/;
+#          print "$i >> ", substr($_, $n[$i], $e[$i] - $s[$i]),$/;
 #       }
 
        if($n !~ /${re_reserved}/){
-	   $c =~ s/\$self->{(${re_symbol})}/\$.$1/g;
+           $c =~ s/\$self->{(${re_symbol})}/\$.$1/g;
            $c =~ s/\$self->/\$./g;
        }
        $_ = $` . 'sub ' . $n . $c . $';
@@ -99,9 +99,9 @@ conv_open {
 
 conv_condition {
     if(/(${re_condition})\s*($RE{balanced}{-parens=>'()'})\s*($RE{balanced}{-parens=>'{}'})/){
-	my ($c, $t, $p) = ($1, $2, $3);
-	$t =~ s/^\((.+)\)$/$1/;
-	$_ = "$c $t $p";
+        my ($c, $t, $p) = ($1, $2, $3);
+        $t =~ s/^\((.+)\)$/$1/;
+        $_ = "$c $t $p";
     }
 }
 
@@ -150,20 +150,20 @@ HELP
 
 while(my $arg = shift @ARGV){
     if($arg eq '-e'){
-	$src = shift(@ARGV) or die "Enter a one-liner";
+        $src = shift(@ARGV) or die "Enter a one-liner";
     }
     elsif($arg eq '-d'){
-	$DEBUG = 1;
+        $DEBUG = 1;
     }
     elsif ($arg eq '-c'){
-	no strict;
-	print "---- Regexps ----\n";
-	print map{ "$_ => ${$_}\n" } sort grep { /patt/ } keys %main::;
-	print "\n---- Conversion subs ----\n";
-	print $conv;
+        no strict;
+        print "---- Regexps ----\n";
+        print map{ "$_ => ${$_}\n" } sort grep { /patt/ } keys %main::;
+        print "\n---- Conversion subs ----\n";
+        print $conv;
     }
     elsif  ($arg eq '-s'){
-	print <<'SUPPORTED_FEATURES' and exit;
+        print <<'SUPPORTED_FEATURES' and exit;
 
 << SUPPORTED FEATURES >>
 
@@ -190,25 +190,25 @@ while(my $arg = shift @ARGV){
     open my $f, 'file';   -->  my $f = open 'file';
     open our $f, 'file';  -->  our $f = open 'file';
 
-    sub { $self->blah }	        --> sub { $.blah };
-    sub my_sub { $self->blah }	--> sub my_sub { $.blah };
+    sub { $self->blah }         --> sub { $.blah };
+    sub my_sub { $self->blah }  --> sub my_sub { $.blah };
 
 SUPPORTED_FEATURES
 }
     else {
-	$srcfile = $arg;
+        $srcfile = $arg;
         local $/;
-	open my $f, $srcfile or die "Could'nt open file $srcfile";
-	$src = <$f>;
+        open my $f, $srcfile or die "Could'nt open file $srcfile";
+        $src = <$f>;
     }
 }
 
 for my $c (qw(
 
-	      conv_self conv_array conv_hash conv_reference
-	      conv_foreach conv_package conv_open conv_condition
-	  
-	      )){
+              conv_self conv_array conv_hash conv_reference
+              conv_foreach conv_package conv_open conv_condition
+          
+              )){
     no strict;
 if(main->can($c)){
     $src = &{$c}($src);
@@ -221,7 +221,7 @@ else {
 
 if($srcfile){
     open my $f, '>', "${srcfile}.p6"
-	or "Couldn't open file ${srcfile}.p6 for writing";
+        or "Couldn't open file ${srcfile}.p6 for writing";
     print {$f} $src;
 }
 else {

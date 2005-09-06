@@ -34,8 +34,8 @@ elsif (-r $svn_entries) {
     open FH, $svn_entries or die $!;
     while (<FH>) {
         /^ *committed-rev=.(\d+)./ or next;
-	$revision = $1;
-	last;
+        $revision = $1;
+        last;
     }
     close FH;
 } elsif (my @info = qx/svk info/ and $? == 0) {

@@ -56,26 +56,26 @@ USAGE
 }
 
 {
-	package My::Model;
-	use base qw/Test::TAP::Model::Visual/;
-	sub file_class { "My::File" }
-	
-	package My::File;
-	use base qw/Test::TAP::Model::File::Visual/;
-	sub subtest_class { "My::Subtest" }
-	sub link {
-		my $self = shift;
-		my $link = $self->SUPER::link;
-		$link =~ s/\.t$/.html/;
-		$link;
-	}
+    package My::Model;
+    use base qw/Test::TAP::Model::Visual/;
+    sub file_class { "My::File" }
+    
+    package My::File;
+    use base qw/Test::TAP::Model::File::Visual/;
+    sub subtest_class { "My::Subtest" }
+    sub link {
+        my $self = shift;
+        my $link = $self->SUPER::link;
+        $link =~ s/\.t$/.html/;
+        $link;
+    }
 
-	package My::Subtest;
-	use base qw/Test::TAP::Model::Subtest::Visual/;
-	sub link {
-		my $self = shift;
-		my $link = $self->SUPER::link;
-		$link =~ s/\.t(?=#line|$)/.html/;
-		$link;
-	}
+    package My::Subtest;
+    use base qw/Test::TAP::Model::Subtest::Visual/;
+    sub link {
+        my $self = shift;
+        my $link = $self->SUPER::link;
+        $link =~ s/\.t(?=#line|$)/.html/;
+        $link;
+    }
 }

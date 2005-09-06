@@ -33,9 +33,9 @@ while (<>) {
   my @args = split /, *| +/, $args;
 
   if (exists $assoc{$assoc}) {
-	$assoc = $assoc{$assoc};
+    $assoc = $assoc{$assoc};
   } else {
-	$assoc = "FIXME: $assoc";
+    $assoc = "FIXME: $assoc";
   }
 
   push @ops, {name=>$name, ret=>$ret, assoc=>$assoc, args=>[@args], line=>$.}
@@ -46,11 +46,11 @@ print '<?xml version="1.1" encoding="UTF-8" ?><html><body><table border="1">';
 
 
 foreach my $op (sort 
-		 {
-		   $a->{name} cmp $b->{name} or
-			 $a->{assoc} cmp $b->{assoc} or
-			   @{$a->{args}} <=> @{$b->{args}}} @ops
-	    ) {
+         {
+           $a->{name} cmp $b->{name} or
+             $a->{assoc} cmp $b->{assoc} or
+               @{$a->{args}} <=> @{$b->{args}}} @ops
+        ) {
 
   my $example;
   
@@ -61,27 +61,27 @@ foreach my $op (sort
   my $arity = 0+@{$op->{args}};
 
   if (/prefix/) {
-	if (($arity>1 and $a0 =~ s/:$//) or
-	    $arity==1) {
-	  $example = "\$$a0.$name(".join(', ', map {"\$$_"} @{$op->{args}}[1..$arity-1]).")<br />";
-	}
-	$example .= "$name(". join(', ', map {$a=$_; $a=~s/:$//; '$'.$a} @{$op->{args}}) .")";
+    if (($arity>1 and $a0 =~ s/:$//) or
+        $arity==1) {
+      $example = "\$$a0.$name(".join(', ', map {"\$$_"} @{$op->{args}}[1..$arity-1]).")<br />";
+    }
+    $example .= "$name(". join(', ', map {$a=$_; $a=~s/:$//; '$'.$a} @{$op->{args}}) .")";
   } elsif (/(list|chaining) infix/) {
-	$example = "\$$a0 $name \$$a0 $name \$$a0";
+    $example = "\$$a0 $name \$$a0 $name \$$a0";
   } elsif (/left-associative/ and $arity==2) {
-	$example = "(\$$a0 $name \$$a1) $name \$$a1";
+    $example = "(\$$a0 $name \$$a1) $name \$$a1";
   } elsif (/left-associative/ and $arity==2) {
-	$example = "HUH: left-associative with arity $arity";
+    $example = "HUH: left-associative with arity $arity";
   } elsif (/right-associative/) {
-	$example = "\$$a0 $name (\$$a0 $name \$$a1)";
+    $example = "\$$a0 $name (\$$a0 $name \$$a1)";
   } elsif (/non-associative/) {
-	$example = "\$$a0 $name \$$a1";
+    $example = "\$$a0 $name \$$a1";
   } elsif (/postfix/ and $arity == 1) {
-	$example = "\$$a0$name";
+    $example = "\$$a0$name";
   } elsif (/special/ and $arity == 1) {
-	$example = "$name\$$a0 # ???";
+    $example = "$name\$$a0 # ???";
   } else {
-	$example = "$_ ($arity)";
+    $example = "$_ ($arity)";
   }
 
   print "   <tr>";
@@ -92,7 +92,7 @@ foreach my $op (sort
   print "<td>(</td>";
   print "<td><table border='1' width='100%'><tr>";
   foreach my $arg (@{$op->{args}}) {
-	print "<td>$arg</td>";
+    print "<td>$arg</td>";
   }
   print "</td></tr></table>";
   print "<td>)</td>";

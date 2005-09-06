@@ -40,7 +40,7 @@ $ENV{PERL6LIB}      = join $Config{path_sep},
 my @yaml_harness_args;
 push(@yaml_harness_args,'--exclude','Disabled,^ext\b')
     if $ENV{PUGS_RUNTIME} and ($ENV{PUGS_RUNTIME} eq 'JS' or
-			       $ENV{PUGS_RUNTIME} eq 'PERL5');
+                   $ENV{PUGS_RUNTIME} eq 'PERL5');
 
 sub make { return `$Config{make} @_` };
 my $dev_null = File::Spec->devnull;
@@ -52,9 +52,9 @@ upload_smoke($html_location);
 print "*** All done! Smoke matrix saved as '$html_location'.\n";
 
 sub upload_smoke {
-	my ($loc) = @_;
-	return unless defined $ENV{PUGS_SMOKE_UPLOAD};
-	system("$ENV{PUGS_SMOKE_UPLOAD} $loc") == 0 or die "couldn't run user smoke upload command: $!";
+    my ($loc) = @_;
+    return unless defined $ENV{PUGS_SMOKE_UPLOAD};
+    system("$ENV{PUGS_SMOKE_UPLOAD} $loc") == 0 or die "couldn't run user smoke upload command: $!";
 }
 
 sub check_prereq {
