@@ -22,35 +22,35 @@ class MatchX {
     has $.to;
 
     submethod BUILD() {
-	./set(1,1,"",[],hash);
+        ./set(1,1,"",[],hash);
     }
     multi method set($b,$i,$s,$a,$h,?$f,?$t) {
-	$.as_b = $b;
-	$.as_i = $i;
-	$.as_s = $s;
-	$.as_a = $a;
-	$.as_h = $h;
-	$.from = $f;
-	$.to = $t;
-	$?SELF;
+        $.as_b = $b;
+        $.as_i = $i;
+        $.as_s = $s;
+        $.as_a = $a;
+        $.as_h = $h;
+        $.from = $f;
+        $.to = $t;
+        $?SELF;
     }
     multi method set_as_failed() {
-	./set(0,0,"",[],hash);
-	$?SELF;
+        ./set(0,0,"",[],hash);
+        $?SELF;
     }
     multi method set_from_match($m) {
-	if !$m {
-	    ./set_as_failed;
-	} else {
-	    $.as_b = $m ?? bool::true :: bool::false;#?$m;
-	    $.as_i = 0+$m;#+$m; #Should usually be 1.
-	    $.as_s = ""~$m;#~$m;
-	    $.as_a = [@$m];
-	    $.as_h = hash %$m;
-	    $.from = $m.from;
-	    $.to = $m.to;
-	}
-	$?SELF;
+        if !$m {
+            ./set_as_failed;
+        } else {
+            $.as_b = $m ?? bool::true :: bool::false;#?$m;
+            $.as_i = 0+$m;#+$m; #Should usually be 1.
+            $.as_s = ""~$m;#~$m;
+            $.as_a = [@$m];
+            $.as_h = hash %$m;
+            $.from = $m.from;
+            $.to = $m.to;
+        }
+        $?SELF;
     }
 
     multi method prefix:<?> {$.as_b}
@@ -86,14 +86,14 @@ multi method MatchX::describe() returns String {
     my @ae = $.as_a;
     my $a = join(",\n",map {$_.describe}, @ae);
     if $a ne "" {
-	$a = MatchX::indent(2,$a);
-	$a = "\n$a\n "; }
+        $a = MatchX::indent(2,$a);
+        $a = "\n$a\n "; }
     my $h = join(",\n", map -> $k,$v {
-	"$k =>" ~ MatchX::indent(1,$v.describe);
-	}, $.as_h.kv);
+        "$k =>" ~ MatchX::indent(1,$v.describe);
+        }, $.as_h.kv);
     if $h ne "" {
-	$h = MatchX::indent(2,$h);
-	$h = "\n$h\n "; }
+        $h = MatchX::indent(2,$h);
+        $h = "\n$h\n "; }
     "<$cls,$.as_b,$.as_i,'$.as_s',[$a],\{$h}>"
 }
 multi method Match::describe() returns String {
@@ -104,14 +104,14 @@ multi method Match::describe() returns String {
     my $s = ""~$m;
     my $a = join(",\n",map {$_.describe},@$m);
     if $a ne "" {
-	$a = MatchX::indent(2,$a);
-	$a = "\n$a\n "; }
+        $a = MatchX::indent(2,$a);
+        $a = "\n$a\n "; }
     my $h = join(",\n", map -> $k,$v {
-	"$k =>" ~ MatchX::indent(1,$v.describe);
-	}, %$m);
+        "$k =>" ~ MatchX::indent(1,$v.describe);
+        }, %$m);
     if $h ne "" {
-	$h = MatchX::indent(2,$h);
-	$h = "\n$h\n "; }
+        $h = MatchX::indent(2,$h);
+        $h = "\n$h\n "; }
     "<$cls,$b,$i,'$s',[$a],\{$h}>"
 }
 sub MatchX::indent($n,$str) returns String {
