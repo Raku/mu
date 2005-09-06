@@ -34,7 +34,6 @@
 
 # TODO - lvalue substr
 
-# TODO - tied() method
 # TODO - test tied Scalar
 # TODO - test 'readonly' and 'tieable' using traits - Scalar, Hash and Array
 # TODO - test Scalar auto-deref with a lazy List

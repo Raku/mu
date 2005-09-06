@@ -44,8 +44,9 @@
 # 2005-08-10
 # * Ported from Perl6 version
 
+# TODO - PIL-Run - (1,undef,2) returns (1,2) - but (1,\undef,2) works
 # TODO - PIL-Run - grep() using 'Code'
-# TODO - check 'x' implementation - is the result a string?
+
 # TODO - check specification of Array, Hash, Pair stringification
 
 # TODO - sum()

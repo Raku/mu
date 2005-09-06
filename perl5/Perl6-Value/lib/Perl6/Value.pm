@@ -46,12 +46,12 @@
 #   are implemented using multisubs
 # - 'Ref' do not auto-deref List or any other Value - only Containers
 
-# TODO - XXX - perl5 doesn't support string decrement
+# TODO - XXX - perl5 doesn't support string decrement (neither Pugs)
 
 # TODO - implement tests from t/var/autoderef.t
-# TODO - tie
+
 # TODO - constant
-# TODO - List methods: .str, .perl
+
 # TODO - move .increment, .decrement to Primitives (this will break some tests)
 # TODO - move Num::Inf, Num::NaN to Primitives
 
