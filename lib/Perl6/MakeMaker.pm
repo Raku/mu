@@ -86,7 +86,7 @@ sub external {
     my @to_install = ("$module_name.o", "$module_name.hi", "$module_name.hs");
     push @to_install, glob("src/*");
 
-    my $cp_to_install = join "\n", map "    \$(CP) $_ \$(INST_ARCHLIB)", @to_install;
+    my $cp_to_install = join "\n", map "	\$(CP) $_ \$(INST_ARCHLIB)", @to_install;
     my ($ghc, $ghc_version, $ghc_flags) = assert_ghc();
 
     $postamble = <<_;
@@ -94,10 +94,10 @@ pure_all :: $module_name.o $module_name.hi
 $cp_to_install
 
 $module_name.o :: $module_name.hs
-    $ghc --make -isrc -Isrc $ghc_flags \$(GHC_FLAGS) $module_name.hs
+	$ghc --make -isrc -Isrc $ghc_flags \$(GHC_FLAGS) $module_name.hs
 
 $module_name.hs :: $module_path
-    pugs --external $module_name $module_path > $module_name.hs
+	pugs --external $module_name $module_path > $module_name.hs
 _
 }
 
