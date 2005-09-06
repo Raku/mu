@@ -55,12 +55,19 @@ Expanding this one level deeper:
     |  |-- compat              Sets debhelper compatibility version
     |  |-- control             File containing package definitions/dependencies
     |  |-- copyright           Debian copyright notice
+    |  |-- patches             Debian specific patches
+    |  |   |-- 00list          List of patches
+    |  |   `-- 10smoker.dpatch Patch to djust smoker.yml path
     |  |-- pugs-doc.dirs       Directories to be created in the pugs-doc package
+    |  |-- pugs-modules.dirs   Directories to be created in the pugs-modules
     |  |-- pugs-modules.install  Installation rules for the pugs-modules package
+    |  |-- pugs-modules.lintian-overrides  Lintian overrides for pugs-modules
     |  |-- pugs.dirs           Directories to be created in the pugs package
     |  |-- pugs.docs           Documentation to be installed in the pugs package
     |  |-- pugs.install        Installation rules for the pugs package
-    |  `-- rules               Makefile for building the Debian package
+    |  |-- pugs.links          List of links to be installed in the pugs package
+    |  |-- rules               Makefile for building the Debian package
+    |  `-- smoker.yml          Configuration file for smoke runs
     |
     |-- docs               Documentation relating to Pugs/Perl 6/Haskell
     |   |-- AES                Drafts of Perl6::Bible chapters
