@@ -8,7 +8,7 @@ use T2::Schema;
 use T2::Perl6;
 
 my $schema = T2::Schema->new( site_name => "test",
-			    );
+                );
 
 $schema->add_class_from_schema( T2::Perl6::Generated => $T2::Perl6::schema );
 

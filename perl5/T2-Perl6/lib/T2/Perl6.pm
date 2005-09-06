@@ -12,12 +12,12 @@ our $VERSION = 0.01;
 our $schema =
     { fields =>
       { ref =>
-	{ schema => { class => "T2::Schema" }
-	},
+        { schema => { class => "T2::Schema" }
+        },
       },
       methods => { map { $_ => \&$_ }
-		   qw( generate_p6mm generate_attribute )
-		 },
+                   qw( generate_p6mm generate_attribute )
+                 },
     };
 
 sub generate_p6mm {
@@ -27,23 +27,23 @@ sub generate_p6mm {
 
     for my $class ( $schema->classes ) {
 
-	class($class->name =>
-	      { instance =>
-		{ methods => { map { $_->name => $_->code }
-			       $class->methods->members
-			     },
+        class($class->name =>
+              { instance =>
+                { methods => { map { $_->name => $_->code }
+                               $class->methods->members
+                             },
 
-		  # Perl 6 has no concept of associative attributes,
-		  # so we represent them all as attributes
-		  attrs => [ map { $self->generate_attribute($_) }
-			     $class->attributes->members,
-			     $class->associations->members,
-			     # 2-way associations won't work without
-			     # MM support (or proxy accessors)
-			     # $self->rev_assocs->members,
-			   ],
-		},
-	      });
+                  # Perl 6 has no concept of associative attributes,
+                  # so we represent them all as attributes
+                  attrs => [ map { $self->generate_attribute($_) }
+                             $class->attributes->members,
+                             $class->associations->members,
+                             # 2-way associations won't work without
+                             # MM support (or proxy accessors)
+                             # $self->rev_assocs->members,
+                           ],
+                },
+              });
     }
 }
 
@@ -51,19 +51,19 @@ sub generate_p6mm {
 # there are more types ... but this will do for now
 our %types
     = ( int => "Int",
-	real => "Num",
-	string => "Str",
-	flat_hash => "Hash",   # of Scalar
-	flat_array => "Array", # ditto
-	ref => "Object",   # for now
-	set => "Set", iset => "Set",         # also for now
-	hash => "Hash", ihash => "Hash",     #  └── "" ──┘
-	array => "Array", iarray => "Array", #  └── "" ──┘
+        real => "Num",
+        string => "Str",
+        flat_hash => "Hash",   # of Scalar
+        flat_array => "Array", # ditto
+        ref => "Object",   # for now
+        set => "Set", iset => "Set",         # also for now
+        hash => "Hash", ihash => "Hash",     #  └── "" ──┘
+        array => "Array", iarray => "Array", #  └── "" ──┘
       );
 
 our %sigils
     = ( (map { $_ => '%' } qw(flat_hash hash ihash)),
-	(map { $_ => '@' } qw(flat_array array iarray)),
+        (map { $_ => '@' } qw(flat_array array iarray)),
       );
 
 sub generate_attribute {
@@ -79,12 +79,12 @@ sub generate_attribute {
     my $name = $sigil.".".$attr->name;
 
     if ( my $perl6_type = $type_lookup{$attr->type} ) {
-	return [ $name => { type => $perl6_type,
-			    access => "rw",
-			  } ];
+        return [ $name => { type => $perl6_type,
+                            access => "rw",
+                          } ];
     }
     else {
-	return $name;
+        return $name;
     }
 }
 
