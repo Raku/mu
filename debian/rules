@@ -38,7 +38,7 @@ clean: clean1 unpatch
 clean1:
 	dh_testdir
 	dh_testroot
-	rm -f build-arch-stamp build-indep-stamp configure-stamp debian/pugs.1 debian/pugscc.1 src/Pugs/CodeGen/PIR/Prelude.hi src/Pugs/CodeGen/PIR/Prelude.o ext/Test-Builder/destroy_test.p6 smoke*.html
+	rm -f build-arch-stamp build-indep-stamp configure-stamp debian/pugs.1 debian/pugscc.1 src/Pugs/CodeGen/PIR/Prelude.hi src/Pugs/CodeGen/PIR/Prelude.o ext/Test-Builder/destroy_test.p6 smoke*.html config.yml
 	-$(MAKE) realclean
 	dh_clean
 
