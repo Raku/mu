@@ -2,16 +2,19 @@
 
 === Pugs Internals
 
-
+* Expanded any existing literal tab chars to spaces in these files:
+** /inc/*, /lib/*, /perl5/*
 
 === Bundled Modules
 
-* Expanded any existing literal tab chars to spaces in /ext/* files.
+* Expanded any existing literal tab chars to spaces in these files:
+** /ext/*
+* Updated Locale-KeyedText to stay compat with p6 spec changes, moved POD around
 
 === Test, Examples and Documentations
 
-* Expanded any existing literal tab chars to spaces in /t/*, except 'rules.t'.
-** Also did the same in /t_disabled/*
+* Expanded any existing literal tab chars to spaces in these files:
+** /t/*, /t_disabled/*
 
 === Bug Fixes
 
