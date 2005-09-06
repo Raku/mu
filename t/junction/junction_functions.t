@@ -13,7 +13,7 @@ These tests are derived from the Perl6 and Parrot Essentials Chapter 4, page 42
 
 =cut
 
-my $j = (1 | 2 | 3);
+my $j = any(1, 2, 3);
 is(ref($j), 'Junction', '$j is a Junc');
 
 is($j.perl, '\(1 | 2 | 3)', 'got the right stringified junction');
