@@ -57,7 +57,7 @@ anyType = mkType "Any"
 cxtItem   :: String -> Cxt
 cxtItem   = CxtItem . mkType
 cxtSlurpy :: String -> Cxt
-cxtSlurpy = CxtItem . mkType
+cxtSlurpy = CxtSlurpy . mkType
 cxtVoid   :: Cxt
 cxtVoid   = CxtVoid
 
