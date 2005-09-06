@@ -19,12 +19,12 @@ sub JS::Root::rx_helper_(%mods0, Str $pat0, Str $qo, Str $qc) is primitive {
   if !%modifiers_known.keys {
     %modifiers_known = map {;($_ => 1)}
         <perl5 Perl5 P5 i ignorecase w words g global c continue p pos
-	once bytes codes graphs langs x nth ov overlap ex exhaustive
-	rw keepall e each any parsetree>;
+        once bytes codes graphs langs x nth ov overlap ex exhaustive
+        rw keepall e each any parsetree>;
     %modifiers_supported_p6 = map {;($_ => 1)}
-	<i ignorecase w words g global>;
+        <i ignorecase w words g global>;
     %modifiers_supported_p5 = map {;($_ => 1)}
-	<perl5 Perl5 P5 i ignorecase g global ov overlap>;
+        <perl5 Perl5 P5 i ignorecase g global ov overlap>;
     %rx_helper_cache{'re_x'}   = rx_core_({perl5=>1},'^(\d+)x$','/','/');
     %rx_helper_cache{'re_nth'} = rx_core_({perl5=>1},'^(\d+)(?:th|st|nd|rd)$','/','/');
   }

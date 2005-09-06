@@ -16,7 +16,7 @@ sub new {
     $jssm->init();
     $jssm->function_set("print", sub { print "@_\n"; });
     my $self = {
-	JS => $jssm
+        JS => $jssm
     };
     bless $self,$class;
     $self->init();
@@ -29,9 +29,9 @@ sub init {
     die "$self: init: $@" if $@;
 
     $self->{JS}->function_set("_bare_js_function__eval_perl5",
-			      sub { my($code)=@_;
-				    my @res = eval($code);  warn $@ if $@;
-				    return @res; });
+                              sub { my($code)=@_;
+                                    my @res = eval($code);  warn $@ if $@;
+                                    return @res; });
     $self->eval(q/sub eval_perl5 ($str) { # XXX - should be *eval_perl5
       return JS::inline('(function (str) {
           return _bare_js_function__eval_perl5(str);
