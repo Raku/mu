@@ -32,7 +32,7 @@ $VERSION = '0.01';
        p6_package_init
        );
 
-sub p6_to_b {my($b)=@_; $b->bit()->unboxed ? 1 : 0}
+sub p6_to_b {my($b)=@_; return 0 unless defined $b; $b->bit()->unboxed ? 1 : 0}
 sub p6_to_n { Perl6::Value::numify( @_ ) }
 sub p6_to_s { Perl6::Value::stringify( @_ ) }
 sub p6_to_a {my($a_obj)=@_; [ $a_obj->unboxed ] }
@@ -264,6 +264,7 @@ sub p6_create_instance {
 sub p6_apply {
     my($f,@args)=@_;
     #print STDERR "\n<$f,",@args,">\n";
+    return p6_from_b(0) if $f eq 'bit' && ! defined $args[0];  # test for definedness - undef.bit()
     if(!ref($f)) { # XXX - see PApp in EvalX.
         return $args[0]->$f(splice(@args,1));
     }

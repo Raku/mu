@@ -77,6 +77,8 @@ MULTI SUB coerce:as ($x, $to) {
         eval { $tmp = $class->new( '$.unboxed' => $x->unboxed ) };
     } 
     if ( $@ ) {
+        no warnings 'numeric';
+        return p6_from_b($tmp) if $class eq 'Bit' && ! ref( $tmp );
         warn "can't coerce $x to $class ($@)";
         $tmp = p6_from_s("");
     }
