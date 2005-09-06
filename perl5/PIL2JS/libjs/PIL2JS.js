@@ -104,9 +104,29 @@ PIL2JS.Multi.prototype.run = function (args) {
   var argc = args.length;
 
   var candidates = [];
-  for(var i = 0; i < this.variants; i++) {
-    if(this.variants[arity] == argc) {
-      candidates.push(this.variants[arity]);
+  for(var i = 0; i < this.variants.length; i++) {
+    if(this.variants[i].arity == argc) {
+      candidates.push(this.variants[i]);
+    }
+  }
+
+  if(candidates.length == 0) {
+    // Hack?
+    for(var i = 0; i < this.variants.length; i++) {
+      var pargs = [].concat(orig_args);
+      pargs.only_check_for_params = true;
+
+      var ok = true;
+      try { this.variants[i].code.FETCH()(pargs) } catch(err) {
+        // The sub wasn't able to bind pargs to its parameters.
+        ok = false;
+      }
+
+      // Was the sub able to bind pargs to its parameters?
+      if(ok) {
+        // Yes, so add the sub to our candidate list!
+        candidates.push(this.variants[i]);
+      }
     }
   }
 
@@ -116,7 +136,7 @@ PIL2JS.Multi.prototype.run = function (args) {
     PIL2JS.warn("More than one suitable multi variant found, using first one.");
   }
 
-  return canidates[0].code(orig_args);
+  return candidates[0].code.FETCH()(orig_args);
 };
 PIL2JS.new_multi = function () {
   var multi = new PIL2JS.Multi;

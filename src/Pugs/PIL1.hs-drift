@@ -70,6 +70,7 @@ data PIL_Expr
         { pType    :: !SubType
         , pParams  :: ![TParam]
         , pLValue  :: !Bool
+        , pIsMulti :: !Bool
         , pBody    :: !PIL_Stmts
         }
     deriving (Show, Eq, Ord, Typeable)
@@ -79,6 +80,7 @@ data PIL_Decl = PSub
     , pSubType      :: !SubType
     , pSubParams    :: ![TParam]
     , pSubLValue    :: !Bool
+    , pSubIsMulti   :: !Bool
     , pSubBody      :: !PIL_Stmts
     }
     deriving (Show, Eq, Ord, Typeable)

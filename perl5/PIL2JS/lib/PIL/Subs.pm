@@ -13,11 +13,12 @@ use strict;
   our @ISA = qw< PIL::PCode >;
 
   sub prefix { "Sub" }
-  sub name   :lvalue { $_[0]->{pSubName}   }
-  sub type   :lvalue { $_[0]->{pSubType}   }
-  sub params :lvalue { $_[0]->{pSubParams} }
-  sub lvalue :lvalue { $_[0]->{pSubLValue} }
-  sub body   :lvalue { $_[0]->{pSubBody}   }
+  sub name   :lvalue { $_[0]->{pSubName}    }
+  sub type   :lvalue { $_[0]->{pSubType}    }
+  sub params :lvalue { $_[0]->{pSubParams}  }
+  sub lvalue :lvalue { $_[0]->{pSubLValue}  }
+  sub body   :lvalue { $_[0]->{pSubBody}    }
+  sub multi  :lvalue { $_[0]->{pSubIsMulti} }
 
   sub fixup {
     die if ref $_[0]->name;
@@ -54,14 +55,24 @@ use strict;
     warn "Skipping " . $self->name . ".\n" and return ""
       if $self->name =~ /^__export_c.*import$/;
 
-    my $js = sprintf
-      "%s%s = new PIL2JS.Box(%s.FETCH());\n%s.FETCH().pil2js_name = %s;\n",
-      $PIL::IN_GLOBPIL ? "" : "var ",
+    my $def  = sprintf "new PIL2JS.Box(%s.FETCH())",  $self->SUPER::as_js;
+    my $name = sprintf "%s.FETCH().pil2js_name = %s",
       PIL::name_mangle($self->name),
-      $self->SUPER::as_js,
-      PIL::name_mangle($self->name),
-      # "or $self->name" needed for the /^__export/ and /^__init/ subs.
       PIL::doublequote(($self->name =~ /^&.*::(?:prefix:|postfix:|infix:|circumfix:|coerce:|self:|term:|postcircumfix:|rule_modifier:|trait_verb:|trait_auxiliary:|scope_declarator:|statement_control:|infix_postfix_meta_operator:|postfix_prefix_meta_operator:|prefix_postfix_meta_operator:|infix_circumfix_meta_operator:)?(.+)$/)[0] or $self->name);
+      # "or $self->name" needed for the /^__export/ and /^__init/ subs.
+
+    my $decl = $self->multi
+      ? sprintf "if(!%s) var %s = new PIL2JS.Box(PIL2JS.new_multi());\n%s.FETCH().pil2js_multi.add_variant(%s, %d)",
+        PIL::name_mangle($self->name),
+        PIL::name_mangle($self->name),
+        PIL::name_mangle($self->name),
+        $def,
+        $self->arity
+      : sprintf "%s%s = %s;",
+        $PIL::IN_GLOBPIL ? "" : "var ",
+        PIL::name_mangle($self->name),
+        $def;
+    my $js = "$decl;\n$name;\n";
 
     # Special magic for methods.
     if($self->type->isa("PIL::SubMethod")) {
@@ -95,10 +106,12 @@ use strict;
 
   sub prefix { "" }
   sub name   { "<anonymous@{[$PIL::CUR_SUBNAME ? ' in ' . $PIL::CUR_SUBNAME : '']}>" }
-  sub type   :lvalue { $_[0]->{pType}   }
-  sub params :lvalue { $_[0]->{pParams} }
-  sub lvalue :lvalue { $_[0]->{pLValue} }
-  sub body   :lvalue { $_[0]->{pBody}   }
+  sub arity  { $_[0]->params->arity }
+  sub type   :lvalue { $_[0]->{pType}    }
+  sub params :lvalue { $_[0]->{pParams}  }
+  sub lvalue :lvalue { $_[0]->{pLValue}  }
+  sub body   :lvalue { $_[0]->{pBody}    }
+  sub multi  :lvalue { $_[0]->{pIsMulti} }
 
   sub fixup {
     my $self = shift;
@@ -119,8 +132,9 @@ use strict;
       $self->isa("PIL::PSub")
         ? (pSubName => $self->name)
         : (),
-      "p" . $self->prefix . "Type"   => $self->type,
-      "p" . $self->prefix . "LValue" => $self->lvalue,
+      "p" . $self->prefix . "Type"    => $self->type,
+      "p" . $self->prefix . "LValue"  => $self->lvalue,
+      "p" . $self->prefix . "IsMulti" => $self->multi,
       $self->params->fixup(
         $self->prefix,
         $self->body eq "PNil"
@@ -198,12 +212,17 @@ EOF
     my $bind        = $self->params->as_js_bind;
     my $wrappedbody = "$new_pad;\n$callchain$magical_vars\n$bind;\n\n$body";
 
-    my $jsbody = $params . "\n" . $self->params->autothread_wrapper($wrappedbody);
+    my $jsbody = $self->multi
+      ? "$params\nif(only_check_for_params) return;\n\n" . $self->params->autothread_wrapper($wrappedbody)
+      : $params . "\n" . $self->params->autothread_wrapper($wrappedbody);
 
-    return sprintf "PIL2JS.Box.constant_func(%d, function (args) {\n%s;\n%s;\n%s\n%s\n})",
-      $self->params->arity,
+    return sprintf "PIL2JS.Box.constant_func(%d, function (args) {\n%s;\n%s%s;\n%s\n%s\n})",
+      $self->arity,
       # Lexicalize PIL2JS and thus speed up PIL2JS
       PIL::add_indent(1, "var PIL2JS = AlsoPIL2JS_SpeedupHack"),
+      $self->multi
+        ? PIL::add_indent(1, "var only_check_for_params = args.only_check_for_params;\n")
+        : "",
       PIL::add_indent(1, $backup),
       PIL::add_indent(1, $ccsetup),
       PIL::add_indent(1, $jsbody);

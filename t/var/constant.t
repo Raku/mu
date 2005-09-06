@@ -121,11 +121,11 @@ plan 12;
 
     eval '
         {
-            my constant grtz = 42;
-            $ok++ if grtz == 42;
+            my constant wack = 42;
+            $ok++ if wack == 42;
         }
 
-        $ok++ unless eval "grtz; 1";
+        $ok++ unless eval "wack; 1";
     ';
 
     is $ok, 2, "declaring constants using 'my constant' works";
@@ -135,15 +135,15 @@ plan 12;
     my $ok;
 
     eval '
-        my constant grtz = 42;
-        $ok++ if grtz == 42;
+        my constant wack = 42;
+        $ok++ if wack == 42;
 
         {
-            my constant grtz = 23;
-            $ok++ if grtz == 23;
+            my constant wack = 23;
+            $ok++ if wack == 23;
         }
 
-        $ok++ if grtz == 23;
+        $ok++ if wack == 23;
     ';
 
     is $ok, 3, "constants declared by 'my constant' shadow correctly";
@@ -154,11 +154,11 @@ plan 12;
 
     eval '
         {
-            our constant grtz = 42;
-            $ok++ if grtz == 42;
+            our constant globconst1 = 42;
+            $ok++ if globconst1 == 42;
         }
 
-        $ok++ if grtz;
+        $ok++ if globconst1 == 42;
     ';
 
     is $ok, 2, "declaring constants using 'our constant' works";
@@ -169,11 +169,11 @@ plan 12;
 
     eval '
         {
-            constant grtz = 42;
-            $ok++ if grtz == 42;
+            constant globconst2 = 42;
+            $ok++ if globconst2 == 42;
         }
 
-        $ok++ if grtz;
+        $ok++ if globconst2 == 42;
     ';
 
     is $ok, 2, "declaring constants using 'constant' creates package-scoped vars";

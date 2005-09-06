@@ -200,10 +200,10 @@ sub as_js {
   # A.pm: my $a = 3          # ==> my $a_1 = 3;
   # B.pm: use A; my $a = 4;  # ==> my $a_1 = 4; XXX!
 
-  {
-    my %seen;
-    $self->{pilGlob} = [grep { not $seen{$_->{pSubName}}++ } @{ $self->{pilGlob} }];
-  }
+  #{
+  #  my %seen;
+  #  $self->{pilGlob} = [grep { not $seen{$_->{pSubName}}++ } @{ $self->{pilGlob} }];
+  #}
 
   my $fixed_tree = $self->fixup;
   warn "# Number of lexical scopes: $CUR_LEXSCOPE_ID\n";
