@@ -44,7 +44,7 @@
 # 2005-08-10
 # * Ported from Perl6 version
 
-# TODO - map(), grep() using 'Code'
+# TODO - PIL-Run - grep() using 'Code'
 # TODO - check 'x' implementation - is the result a string?
 # TODO - check specification of Array, Hash, Pair stringification
 
@@ -62,9 +62,7 @@
 #
 # TODO - @a[1] == Scalar
 # TODO - test - @a[1] := $x
-# TODO - exists
-# TODO - defined
-#
+
 # TODO - tied arrays are copied in "Eager" mode?
 #        (PerlJam) - well, I wouldn't think you'd have to copy them all at once.
 #        Each element of @a would be sort of a lazy proxy for each element in the tied array @b
@@ -481,7 +479,25 @@ class 'Array'.$class_description => {
                         return $self;
                     }
 
-                    # warn "$method @param";
+                    if ( $method eq 'store' ) {
+                        #warn "STORING @param";
+                        my $pos = shift @param;
+                        my $elem = $tmp->fetch( $pos );
+                        my $scalar;
+                        if ( UNIVERSAL::isa( $elem, 'Scalar' ) ) {
+                            #warn "CELL TO STORE IS A SCALAR: $elem";
+                            $scalar->store( @param );
+                        }
+                        else
+                        {
+                            #warn "CELL TO STORE IS NOT YET A SCALAR: $elem";
+                            $scalar = Scalar->new();
+                            $scalar->store( @param );
+                            $tmp->store( $pos, $scalar );
+                        }
+                        return $self;
+                    }
+
                     $tmp->$method( @param );
                     return $self;
                 }
@@ -495,12 +511,12 @@ class 'Array'.$class_description => {
                     my $elem = $tmp->$method( @param );
                     my $scalar;
                     if ( UNIVERSAL::isa( $elem, 'Scalar' ) ) {
-                        # warn "FETCHED CELL IS A SCALAR: $elem";
+                        #warn "FETCHED CELL IS A SCALAR: $elem";
                         $scalar = $elem;
                     }
                     else
                     {
-                        # warn "FETCHED CELL IS NOT YET A SCALAR: $elem";
+                        #warn "FETCHED CELL IS NOT YET A SCALAR: $elem";
                         $scalar = Scalar->new();
                         $scalar->store( $elem );
                         # replace Value with Scalar
@@ -862,7 +878,7 @@ sub store {
         $item = $class->new( items => [$item] );
     }
     if ( $pos <= $array->elems ) {
-        # XXX - TODO - if the cell is bound, the binding must be kept
+        # 'Array' takes care of proper cell re-binding 
         $array->splice( $pos, 1, $item );
         return $array;
     }
