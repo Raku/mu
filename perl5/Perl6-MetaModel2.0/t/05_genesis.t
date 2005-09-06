@@ -3,40 +3,55 @@
 use strict;
 use warnings;
 
-use Test::More tests => 49;
+use Test::More tests => 55;
 use Test::Exception; 
 
-do 'lib/genesis.pl';
+do 'lib/genesis.pl'; 
 
 is_deeply(
-    $::Class->superclasses, 
-    [ $::Module ], 
-    '... $::Class->superclasses() is [ $::Module ]');    
+    $::Package->superclasses, 
+    [ $::Object ], 
+    '... $::Package->superclasses() is [ $::Object ]');    
     
 is_deeply(
     $::Module->superclasses, 
-    [ $::Object ], 
-    '... $::Module->superclasses() is [ $::Object ]');    
+    [ $::Package ], 
+    '... $::Module->superclasses() is [ $::Package ]');   
+    
+is_deeply(
+    $::Class->superclasses, 
+    [ $::Module ], 
+    '... $::Class->superclasses() is [ $::Module ]');        
 
 is_deeply(
     $::Object->superclasses, 
     [], 
-    '... $::Object->superclasses() is []');         
+    '... $::Object->superclasses() is []');            
 
 is_deeply(
-    [ $::Class->MRO() ], 
-    [ $::Class, $::Module, $::Object ], 
-    '... $::Class->MRO() is ($::Class, $::Module, $::Object)');    
+    [ $::Package->MRO() ], 
+    [ $::Package, $::Object ], 
+    '... $::Module->MRO() is ($::Module, $::Package, $::Object)');   
 
 is_deeply(
     [ $::Module->MRO() ], 
-    [ $::Module, $::Object ], 
-    '... $::Module->MRO() is ($::Module, $::Object)');    
+    [ $::Module, $::Package, $::Object ], 
+    '... $::Module->MRO() is ($::Module, $::Package, $::Object)');   
+    
+is_deeply(
+    [ $::Class->MRO() ], 
+    [ $::Class, $::Module, $::Package, $::Object ], 
+    '... $::Class->MRO() is ($::Class, $::Module, $::Package, $::Object)');      
 
 is_deeply(
     [ $::Object->MRO() ], 
     [ $::Object ], 
-    '... $::Object->MRO() is ($::Object)');        
+    '... $::Object->MRO() is ($::Object)');       
+    
+is($::Package->name, 'Package', '... $::Package->name eq Package'); 
+is($::Module->name, 'Module', '... $::Module->name eq Module'); 
+is($::Class->name, 'Class', '... $::Class->name eq Class'); 
+is($::Object->name, 'Object', '... $::Object->name eq Object'); 
 
 ok($::Class->is_a($::Class), '... $::Class->is_a($::Class)');
 ok($::Class->isa('Class'), '... $::Class->isa(Class)');

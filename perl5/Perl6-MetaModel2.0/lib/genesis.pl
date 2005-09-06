@@ -6,23 +6,33 @@ use warnings;
 BEGIN { do "lib/pneuma.pl" };
 
 ## Now create some of the other things we need ...
+## see http://article.gmane.org/gmane.comp.lang.perl.perl6.language/4599 for 
+## more info on the Class isa Module isa Package isa Object thing.
+
+## ----------------------------------------------------------------------------
+## Package
+
+$::Package = $::Class->new();
+
+$::Package->superclasses([ $::Object ]);
+
+$::Package->add_attribute('$:name' => ::make_attribute('$:name'));
+
+$::Package->add_method('name' => ::make_method(sub {
+    my $self = shift;
+    ::opaque_instance_attrs($self)->{'$:name'} = shift if @_;        
+    ::opaque_instance_attrs($self)->{'$:name'};
+}, $::Package));
 
 ## ----------------------------------------------------------------------------
 ## Module (added with r6792)
 
 $::Module = $::Class->new();
 
-$::Module->superclasses([ $::Object ]);
+$::Module->superclasses([ $::Package ]);
 
-$::Module->add_attribute('$:name'      => ::make_attribute('$:name'));
 $::Module->add_attribute('$:version'   => ::make_attribute('$:version'));
 $::Module->add_attribute('$:authority' => ::make_attribute('$:authority'));
-
-$::Module->add_method('name' => ::make_method(sub {
-    my $self = shift;
-    ::opaque_instance_attrs($self)->{'$:name'} = shift if @_;        
-    ::opaque_instance_attrs($self)->{'$:name'};
-}, $::Module));
 
 $::Module->add_method('version' => ::make_method(sub {
     my ($self, $version) = @_;
@@ -52,13 +62,14 @@ $::Module->add_method('identifier' => ::make_method(sub {
 
 # NOTE:
 # this is to avoid recursion
-::opaque_instance_attrs($::Class)->{'@:MRO'} = [ $::Class, $::Module, $::Object ];
+::opaque_instance_attrs($::Class)->{'@:MRO'} = [ $::Class, $::Module, $::Package, $::Object ];
 ::opaque_instance_attrs($::Object)->{'@:MRO'} = [ $::Object ];
 
 # now make sure we set everyone's name properly
+$::Package->name('Package');
+$::Module->name('Module');
 $::Class->name('Class');
 $::Object->name('Object');
-$::Module->name('Module');
 
 ## ----------------------------------------------------------------------------
 ## Role

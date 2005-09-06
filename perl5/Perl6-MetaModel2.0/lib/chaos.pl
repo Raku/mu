@@ -323,10 +323,16 @@ our $DISPATCH_TRACE = 0;
 
         # gather all the classes to look through
         my @classes = ($self);
-        # we need to just dig one level deep here since
-        # we know it is a class, that is okay, but
-        # still it is a hack. 
-        push @classes => @{::opaque_instance_attrs($self)->{'@:superclasses'}}
+        # we take the MRO first, however at some early
+        # stages of the bootstrap, this is not yet 
+        # populated with anything, so ....
+        my @supers = @{::opaque_instance_attrs($self)->{'@:MRO'}};
+        # if nothing is in MRO, we take the superclasses
+        # because we know that is there ...
+        @supers = @{::opaque_instance_attrs($self)->{'@:superclasses'}} 
+            if scalar @supers == 0;
+        # ... carry on,.. nothing to see here ....
+        push @classes => @supers
             # however, we dont actually need to go there
             # if what we are asking for is a private method
             if $method_table_name ne '%:private_methods';

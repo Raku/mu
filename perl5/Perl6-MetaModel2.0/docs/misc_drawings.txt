@@ -7,13 +7,16 @@ This is a file of misc. ASCII art drawings of the Meta Model.
 
 =head1 DRAWINGS
 
-=head2 Class/Object/Module inter-relationships
+=head2 Class/Object/Package/Module inter-relationships
 
    class-of $::Class is $::Class
    $::Class is-subclass-of $::Module
    
    class-of $::Module is $::Class
-   $::Module is-subclass-of $::Object      
+   $::Module is-subclass-of $::Package
+   
+   class-of $::Package is $::Class
+   $::Package is-subclass-of $::Object         
    
    class-of $::Object is $::Class
    $::Object has no superclasses         
@@ -21,33 +24,32 @@ This is a file of misc. ASCII art drawings of the Meta Model.
    ...> (sub/super)class relations
    ---> (class/instance)-of relations
 
-       +--------------------+                              
-   +-->| $::Class           |<--+<-----------------------------+
-   |   +--------------------+   |                              |
-   |   | class              |---+                              |
-   |   +--------------------+                                  |
-   |   | @:superclasses     |................................. |
-   |   | @:MRO              |                                : |
-   |   | %:attributes       |                                : |
-   |   | %:methods          |                                : |
-   |   | %:private_methods  |                                : |
-   |   | %:class_methods    |                                : |
-   |   | %:class_attributes |                                : |
-   |   +--------------------+                                : |
-   |                                                         : |
-   |                                                         : |
-   |   +--------------------+       +--------------------+   : |
-   |   | $::Object          |<......| $::Module          |<... |
-   |   +--------------------+       +--------------------+     |
-   +---| class              |       | class              |-----+
-       +--------------------+       +--------------------+
-       | < >                |       | $:name             |
-       +--------------------+       | $:version          |
-                                    | $:authority        |
-                                    +--------------------+
-                                    
-                                    
-                                    
+       +--------------------+                                                            
+   +-->| $::Class           |<--+<-----------------------------+-----------------------------+
+   |   +--------------------+   |                              |                             |
+   |   | class              |---+                              |                             |
+   |   +--------------------+                                  |                             |
+   |   | @:superclasses     |............................................................... |
+   |   | @:MRO              |                                  |                           : |
+   |   | %:attributes       |                                  |                           : |
+   |   | %:methods          |                                  |                           : |
+   |   | %:private_methods  |                                  |                           : |
+   |   | %:class_methods    |                                  |                           : |
+   |   | %:class_attributes |                                  |                           : |
+   |   +--------------------+                                  |                           : |
+   |                                                           |                           : |
+   |                                                           |                           : |
+   |   +--------------------+       +--------------------+     |  +--------------------+   : |
+   |   | $::Object          |<......| $::Package         |<.......| $::Module          |<... |
+   |   +--------------------+       +--------------------+     |  +--------------------+     |
+   +---| class              |       | class              |-----+  | class              |-----+
+       +--------------------+       +--------------------+        +--------------------+
+       | < >                |       | $:name             |        | $:version          |
+       +--------------------+       +--------------------+        | $:authority        |
+                                                                  +--------------------+
+
+   see also: http://article.gmane.org/gmane.comp.lang.perl.perl6.language/4599                                                                  
+                             
 =head1 AUTHORS
 
 Stevan Little E<lt>stevan@iinteractive.comE<gt>
