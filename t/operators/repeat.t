@@ -27,12 +27,12 @@ is(@foo3[0], 1, 'can repeat lists');
 is(@foo3[1], 2, 'can repeat lists');
 is(@foo3[2], 1, 'can repeat lists');
 is(@foo3[3], 2, 'can repeat lists');
-my @2d = [1, 2] xx 2; # should create 2d
-is(@2d[1], [1, 2], 'can create 2d arrays', :todo<bug>); # creates a flat 1d array
-# Wrong: \(1, 2) does not create a ref to the array/list (1,2), but returns a
-# list containing two references, i.e. (\1, \2).
-#my @2d2 = \(1, 2) xx 2; # just in case it's a parse bug
-#is(@2d[1], [1, 2], 'can create 2d arrays (2)', :todo<bug>); # creates a flat 1d array
+my @foo_2d = [1, 2] xx 2; # should create 2d
+is(@foo_2d[1], [1, 2], 'can create 2d arrays', :todo<bug>); # creates a flat 1d array
+# Wrong/unsure: \(1, 2) does not create a ref to the array/list (1,2), but
+# returns a list containing two references, i.e. (\1, \2).
+#my @foo_2d2 = \(1, 2) xx 2; # just in case it's a parse bug
+#is(@foo_2d[1], [1, 2], 'can create 2d arrays (2)', :todo<bug>); # creates a flat 1d array
 
 # test x=
 my $twin = 'Lintilla';
