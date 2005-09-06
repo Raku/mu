@@ -51,8 +51,8 @@ method <[[Put]]> ($O: JSX::String $P, JSX::Value $V) {
     my $Result1 = $O.<[[CanPut]]>($P);
     return if $Result1 ~~ JSX::false;
     if $O.property_value.exists($P) {
-	$O.property_value($P) = $V;
-	return;
+        $O.property_value($P) = $V;
+        return;
     }
     $O.property_value($P) = $V;
     return;
@@ -60,9 +60,9 @@ method <[[Put]]> ($O: JSX::String $P, JSX::Value $V) {
 # 8.6.2.3
 method <[[CanPut]]> ($O: JSX::String $P) {
     if $O.property_value.exists($P) {
-	my $attr = $O.property_attributes{$P};
-	return JSX::false if $attr && $attr.ReadOnly;
-	return JSX::true;
+        my $attr = $O.property_attributes{$P};
+        return JSX::false if $attr && $attr.ReadOnly;
+        return JSX::true;
     }
     my $proto = $O.<[[Prototype]]>;
     return JSX::true if $proto ~~ JSX::null;
@@ -87,29 +87,29 @@ method <[[Delete]]> ($O: JSX::String $P) {
 # 8.6.2.6
 multi method <[[DefaultValue]]> ($O: ?$hint = 'Number') {
     if $hint eq 'String' {
-	my $Result1 = $O.<[[Get]]>('toString');
-	if $Result1.isa(JSX::Value::Object) {
-	    my $Result3 = JSX::with_this($O) { $Result1.<[[Get]]>() };
-	    return $Result3 if $Result3.isa(JSX::ValuePrimitive);
-	} # 5
-	my $Result5 = $O.<[[Get]]>('valueOf');
-	if $Result5.isa(JSX::Value::Object) {
-	    my $Result7 = JSX::with_this($O) { $Result1.<[[Get]]>() };
-	    return $Result7 if $Result7.isa(JSX::ValuePrimitive);
-	} # 9
+        my $Result1 = $O.<[[Get]]>('toString');
+        if $Result1.isa(JSX::Value::Object) {
+            my $Result3 = JSX::with_this($O) { $Result1.<[[Get]]>() };
+            return $Result3 if $Result3.isa(JSX::ValuePrimitive);
+        } # 5
+        my $Result5 = $O.<[[Get]]>('valueOf');
+        if $Result5.isa(JSX::Value::Object) {
+            my $Result7 = JSX::with_this($O) { $Result1.<[[Get]]>() };
+            return $Result7 if $Result7.isa(JSX::ValuePrimitive);
+        } # 9
         raise TypeError;
     } elsif $hint eq 'Number' {
-	my $Result1 = $O.<[[Get]]>('valueOf');
-	if $Result1.isa(JSX::Value::Object) {
-	    my $Result3 = JSX::with_this($O) { $Result1.<[[Get]]>() };
-	    return $Result3 if $Result3.isa(JSX::ValuePrimitive);
-	} # 5
-	my $Result5 = $O.<[[Get]]>('toString');
-	if $Result5.isa(JSX::Value::Object) {
-	    my $Result7 = JSX::with_this($O) { $Result1.<[[Get]]>() };
-	    return $Result7 if $Result7.isa(JSX::ValuePrimitive);
-	} # 9
-	raise TypeError;
+        my $Result1 = $O.<[[Get]]>('valueOf');
+        if $Result1.isa(JSX::Value::Object) {
+            my $Result3 = JSX::with_this($O) { $Result1.<[[Get]]>() };
+            return $Result3 if $Result3.isa(JSX::ValuePrimitive);
+        } # 5
+        my $Result5 = $O.<[[Get]]>('toString');
+        if $Result5.isa(JSX::Value::Object) {
+            my $Result7 = JSX::with_this($O) { $Result1.<[[Get]]>() };
+            return $Result7 if $Result7.isa(JSX::ValuePrimitive);
+        } # 9
+        raise TypeError;
     } else {
         die "bug - invalid hint $hint";
     }
@@ -255,30 +255,30 @@ multi sub ToUint16(JSX::Value $v) {
 class JSX::Value::Array;
 submethod BUILD {
     $.property_attributes{'length'} =
-	JSX::PropertyAttributes.new(:DontEnum :DontDelete);
+        JSX::PropertyAttributes.new(:DontEnum :DontDelete);
 }
 # 15.4.5.1
 method <[[Put]]> ($A: JSX::String $P, JSX::Value $V) {
     my $Result1 = $A.<[[CanPut]]>($P);
     return if $Result1 ~~ JSX::false;
     if $A.property_value.exists($P) {
-	if $P eq 'length' { # 12-16
-	    my $Result12 = ToUint32($V);
-	    raise RangeError if $Result12 != ToNumber($V);
-	    my $length = +($A.property_value{'length'});
-	    my $k;
-	    loop(;$k < $length; $k++) {
-		my $key = $k; # Eh. Spec would have us use ToString(k).
-		$A.<[[Delete]]>($k) if exists $A.property_value{$key};
-		# XXX - need to wrap $k?
-	    }
-	    $A.property_value{$P} = $Result12;
-	    return;
-	}
-	# 5
-	$A.property_value($P) = $V;
+        if $P eq 'length' { # 12-16
+            my $Result12 = ToUint32($V);
+            raise RangeError if $Result12 != ToNumber($V);
+            my $length = +($A.property_value{'length'});
+            my $k;
+            loop(;$k < $length; $k++) {
+                my $key = $k; # Eh. Spec would have us use ToString(k).
+                $A.<[[Delete]]>($k) if exists $A.property_value{$key};
+                # XXX - need to wrap $k?
+            }
+            $A.property_value{$P} = $Result12;
+            return;
+        }
+        # 5
+        $A.property_value($P) = $V;
     } else { # 7
-	$A.property_value($P) = $V;
+        $A.property_value($P) = $V;
     }
     # 8
     my sub not_an_array_index($P){ !($P ~~ rx:perl5/\A\d+\Z/); };
