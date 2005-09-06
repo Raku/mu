@@ -9,7 +9,7 @@ our @trig = q:x:/ sin cos tan asin acos atan sec cosec cotan asec
 
 for @trig -> $func {
     &$func = multi sub (: Num ?$x = $CALLER::_, +$base)
-		    returns Num { ... };
+            returns Num { ... };
 }
 
 multi sub atan (Num $x, Num $y : Num +$base) returns Num

@@ -20,10 +20,10 @@ multi sub rand (: Num ?$x = 1, Num +$seed )
 
 multi sub sign (: Num ?$x = $CALLER::_)
     returns Int { ( defined $x
-		    ? ( ($x > 0)
-			? 1
-			: ($x < 0 ? -1 : 0 ) )
-		    : undef ) }
+            ? ( ($x > 0)
+            ? 1
+            : ($x < 0 ? -1 : 0 ) )
+            : undef ) }
 
 multi sub sqrt (: Num ?$x = $CALLER::_)
     returns Num { exp($x,0.5) }

@@ -49,7 +49,7 @@ method set_superclasses($self: Set $super) {
 
     my $supers = $self.all_superclasses;
     die "Uh-oh, there's a super in my duper!"
-	if $supers.includes($self);
+        if $supers.includes($self);
 
     $self.SUPER::set_superclasses($super);
 
@@ -57,28 +57,28 @@ method set_superclasses($self: Set $super) {
 
 method all_superclasses($self:) returns Set {
     if ( $:superclasses.size ) {
-	return ([+] $:superclasses,
-		$:superclasses.map:{ .all_superclasses });
+        return ([+] $:superclasses,
+                $:superclasses.map:{ .all_superclasses });
     } else {
-	return set();
+        return set();
     }
 }
 
 method all_attributes($self:) returns Set {
     set(
-	set( $self.all_superclasses, $self ).members.map:{ .get_attributes }
+        set( $self.all_superclasses, $self ).members.map:{ .get_attributes }
        );
 }
 
 method all_methods($self:) returns Set {
     set(
-	set( $self.all_superclasses, $self ).members.map:{ .get_methods }
+        set( $self.all_superclasses, $self ).members.map:{ .get_methods }
        );
 }
 
 method all_assocs($self:) returns Set {
     set(
-	set( $self.all_superclasses, $self ).members.map:{ .get_assocations }
+        set( $self.all_superclasses, $self ).members.map:{ .get_assocations }
        );
 }
 
