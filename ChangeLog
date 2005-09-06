@@ -3,10 +3,9 @@
 === Pugs Internals
 
 * Expanded any existing literal tab chars to spaces in these files:
-** /inc/*, /perl5/*, /util/*
+** /src/*, /inc/*, /perl5/*, /util/*
 ** /lib/* (except lib/Perl6/MakeMaker.pm, which retains 3 for literal output)
 ** /Makefile.PL (except that it retains tabs in its literal output)
-** /debian/rules (TODO: test this on debian system to ensure nothing breaks)
 
 === Bundled Modules
 
