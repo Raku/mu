@@ -39,8 +39,8 @@ our $SUCC = -> $n { -> $f { -> $x { $f.($n.($f)($x)) }}};
 
 sub num2int($n){ $n.(sub($i){ 1 + $i })(0) }
 sub num2str($n){ 'sub($f){ sub($x) { '
-		     ~ $n.( sub($s){sprintf '$f.(%s)', $s } )('$x') 
-			 ~ ' }}' }
+                     ~ $n.( sub($s){sprintf '$f.(%s)', $s } )('$x') 
+                         ~ ' }}' }
 sub int2num($n){ return $n == 0 ?? $ZERO :: $SUCC.(int2num($n - 1)) }
 
 =for alternative

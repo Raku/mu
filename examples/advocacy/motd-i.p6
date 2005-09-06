@@ -74,8 +74,8 @@ unless $orig eq ~@list {
         for @list->$line{say $newfh,$line}
         $newfh.close;
 
-		# Display the differences
-		# between old and new versions
+        # Display the differences
+        # between old and new versions
         say "diff -u $backup $dict";
     }
 }

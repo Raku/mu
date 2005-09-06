@@ -26,12 +26,12 @@ sub newton(
 
         if ($count > $max_iterations) {
             die "excessive looping";
-		}
+        }
 
         update_guess($guess, $target, $f, $fprime);
 
         say "{$count++}: $guess" if $verbose;
-	}
+    }
     return $guess;
 }
 
@@ -41,14 +41,14 @@ Newton - performs one dimensional Newton's method
 
 =head1 SYNOPSIS
 
-	#!/usr/bin/pugs
-	use v6;
+    #!/usr/bin/pugs
+    use v6;
 
-	use Newton;
+    use Newton;
 
-	sub f(Num $x) { return $x ** 3; }
+    sub f(Num $x) { return $x ** 3; }
 
-	say "The cube root of 7 is: {newton(7, &f, $verbose => 1)}";
+    say "The cube root of 7 is: {newton(7, &f, $verbose => 1)}";
 
 =head1 DESCRIPTION
 
@@ -59,18 +59,18 @@ Currying in a real context.
 
 The newton function must receive at least:
 
-	y - target value for y
-	f - function of one variable
+    y - target value for y
+    f - function of one variable
 
 It looks for an x such that f(x) is y.
 
 You may optionally supply:
 
-	epsilon - tolerance (how accurate the answer must be)
-	fprime  - an exact first derivative of f (which Newton's method
-	          uses to update its guess at each iteration)
-	verbose - a boolean which will turn on per iteration printing
-	
+    epsilon - tolerance (how accurate the answer must be)
+    fprime  - an exact first derivative of f (which Newton's method
+              uses to update its guess at each iteration)
+    verbose - a boolean which will turn on per iteration printing
+    
 If you omit the fprime, a second order centered difference is provided
 as a curried default.
 
