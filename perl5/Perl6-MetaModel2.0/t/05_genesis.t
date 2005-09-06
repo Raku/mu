@@ -3,37 +3,63 @@
 use strict;
 use warnings;
 
-use Test::More tests => 47;
+use Test::More tests => 49;
 use Test::Exception; 
 
 do 'lib/genesis.pl';
 
 is_deeply(
     $::Class->superclasses, 
-    [ $::Module, $::Object ], 
-    '... $::Class->superclasses() is [ $::Module, $::Object ]');    
+    [ $::Module ], 
+    '... $::Class->superclasses() is [ $::Module ]');    
+    
+is_deeply(
+    $::Module->superclasses, 
+    [ $::Object ], 
+    '... $::Module->superclasses() is [ $::Object ]');    
 
 is_deeply(
-    [ $::Object->MRO() ], 
-    [ $::Object ], 
-    '... $::Object->MRO() is ($::Object)');      
-    
+    $::Object->superclasses, 
+    [], 
+    '... $::Object->superclasses() is []');         
+
 is_deeply(
     [ $::Class->MRO() ], 
     [ $::Class, $::Module, $::Object ], 
     '... $::Class->MRO() is ($::Class, $::Module, $::Object)');    
 
-ok($::Class->is_a('Module'), '... $::Class->is_a(Module)');
+is_deeply(
+    [ $::Module->MRO() ], 
+    [ $::Module, $::Object ], 
+    '... $::Module->MRO() is ($::Module, $::Object)');    
+
+is_deeply(
+    [ $::Object->MRO() ], 
+    [ $::Object ], 
+    '... $::Object->MRO() is ($::Object)');        
+
+ok($::Class->is_a($::Class), '... $::Class->is_a($::Class)');
+ok($::Class->isa('Class'), '... $::Class->isa(Class)');
+
+ok($::Class->is_a($::Module), '... $::Class->is_a($::Module)');
 ok($::Class->isa('Module'), '... $::Class->isa(Module)');
 
-ok($::Class->is_a('Object'), '... $::Class->is_a(Object)');
+ok($::Class->is_a($::Object), '... $::Class->is_a($::Object)');
 ok($::Class->isa('Object'), '... $::Class->isa(Object)');
 
-ok($::Object->is_a('Object'), '... $::Object->is_a(Object)');
+ok($::Module->is_a($::Module), '... $::Module->is_a($::Module)');
+ok($::Module->isa('Module'), '... $::Module->isa(Module)');
+
+ok($::Module->is_a($::Object), '... $::Module->is_a($::Object)');
+ok($::Module->isa('Object'), '... $::Module->isa(Object)');
+
+ok($::Object->is_a($::Object), '... $::Object->is_a($::Object)');
 ok($::Object->isa('Object'), '... $::Object->isa(Object)');
 
-ok($::Module->is_a('Object'), '... $::Module->is_a(Object)');
-ok($::Module->isa('Object'), '... $::Module->isa(Object)');
+# Class can call all of Modules's methods ...
+foreach my $method_name (qw(name version authority identifier)) {
+    ok($::Class->can($method_name), '... Class->can(' . $method_name . ')');
+}
 
 # Module can call all of Modules's methods and all of Object's ...
 foreach my $method_name (qw(name version authority identifier
@@ -41,19 +67,9 @@ foreach my $method_name (qw(name version authority identifier
     ok($::Module->can($method_name), '... Module->can(' . $method_name . ')');
 }
 
-# Class can call all of Modules's methods ...
-foreach my $method_name (qw(name version authority identifier)) {
-    ok($::Class->can($method_name), '... Class->can(' . $method_name . ')');
-}
-
 # Object can call all of Modules's methods ...
 foreach my $method_name (qw(name version authority identifier)) {
     ok($::Object->can($method_name), '... Object->can(' . $method_name . ')');
-}
-
-# can call all of Object's methods as well ...
-foreach my $method_name (qw(BUILD BUILDALL DESTROYALL isa can)) {
-    ok($::Class->can($method_name), '... Class->can(' . $method_name . ')');
 }
 
 # now create an Object
@@ -81,6 +97,4 @@ cmp_ok($MyModule->id, '>', 3, '... $MyModule is the at least the third object in
 foreach my $method_name (qw(name version authority identifier)) {
     ok($MyModule->can($method_name), '... MyModule->can(' . $method_name . ')');
 }
-
-
 

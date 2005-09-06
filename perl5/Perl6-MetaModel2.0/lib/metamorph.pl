@@ -79,9 +79,14 @@ $::Class->add_method('DESTROYALL' => ::make_method(sub {
 }, $::Class));
 
 $::Class->add_method('isa' => ::make_method(sub { 
-    my ($self, $class) = @_;
-    return undef unless $class;
-    return $self->is_a($class);
+    my ($self, $class_name) = @_;
+    return undef unless $class_name;
+    return 1 if $self->name eq $class_name;  
+    my $dispatcher = $self->dispatcher(':canonical');
+    while (my $next = $dispatcher->()) {    
+        return 1 if $self->name eq $next->name;
+    }
+    return 0; 
 }, $::Class));
 
 $::Class->add_method('can' => ::make_method(sub { 
@@ -91,14 +96,6 @@ $::Class->add_method('can' => ::make_method(sub {
 }, $::Class));
 
 $::Class->add_method('id' => ::make_method(sub { ::opaque_instance_id(shift) }, $::Class));
-
-# ----
-
-$::Class->add_method('name' => ::make_method(sub {
-    my $self = shift;
-    ::opaque_instance_attrs($self)->{'$:name'} = shift if @_;        
-    ::opaque_instance_attrs($self)->{'$:name'};
-}, $::Class));
 
 $::Class->add_method('superclasses' => ::make_method(sub {        
     my ($self, $superclasses) = @_;
@@ -260,10 +257,11 @@ $::Class->add_method('_make_ascendant_dispatcher' => ::make_private_method(sub {
 
 $::Class->add_method('is_a' => ::make_method(sub {        
     my ($self, $class) = @_;
-    return 1 if $self->name eq $class;
+    return 0 unless defined $class;
+    return 1 if ::opaque_instance_id($self) == ::opaque_instance_id($class);
     my $dispatcher = $self->dispatcher(':canonical');
     while (my $next = $dispatcher->()) {    
-        return 1 if $next->name() eq $class;
+        return 1 if ::opaque_instance_id($next) eq ::opaque_instance_id($class);
     }
     return 0; 
 }, $::Class));
@@ -367,7 +365,7 @@ $::Class->add_method('find_attribute_spec' => ::make_method(sub {
 
 # now add the $::Class attributes
 
-$::Class->add_attribute('$:name'             => ::make_attribute('$:name'));
+#$::Class->add_attribute('$:name'             => ::make_attribute('$:name'));
 $::Class->add_attribute('@:MRO'              => ::make_attribute('@:MRO'));
 $::Class->add_attribute('@:superclasses'     => ::make_attribute('@:superclasses'));
 $::Class->add_attribute('%:private_methods'  => ::make_attribute('%:private_methods'));

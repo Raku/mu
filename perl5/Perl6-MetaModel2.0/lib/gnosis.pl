@@ -15,7 +15,7 @@ sub ::create_class (%) {
         \$::Class,
         (
             # meta-information
-            '$:name'             => $attrs{'$:name'} || undef,
+#            '$:name'             => $attrs{'$:name'} || undef,
             # the guts
             '@:MRO'              => [],
             '@:superclasses'     => [],
@@ -29,7 +29,7 @@ sub ::create_class (%) {
 }
 
 # The 'Class' class
-$::Class = ::create_class('$:name' => 'Class');
+$::Class = ::create_class(); #'$:name' => 'Class');
 
 ## create the body of 'add_method' here,.. 
 my $_add_method = sub {

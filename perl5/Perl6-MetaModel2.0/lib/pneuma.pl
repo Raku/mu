@@ -10,7 +10,7 @@ BEGIN { do "lib/metamorph.pl" };
 $::Object = undef;
 
 # The 'Object' class
-$::Object = $::Class->new('$:name' => 'Object');
+$::Object = $::Class->new(); #'$:name' => 'Object');
 
 ## submethods
 
@@ -54,9 +54,9 @@ $::Object->add_method('DESTROYALL' => ::make_method(sub {
 $::Object->add_method('id' => ::make_method(sub { ::opaque_instance_id(shift) }, $::Object));
 
 $::Object->add_method('isa' => ::make_method(sub { 
-    my ($self, $class) = @_;
-    return undef unless $class;
-    return ::opaque_instance_class($self)->is_a($class);    
+    my ($self, $class_name) = @_;
+    return undef unless $class_name;
+    return ::opaque_instance_class($self)->isa($class_name);    
 }, $::Object));
 
 $::Object->add_method('can' => ::make_method(sub { 

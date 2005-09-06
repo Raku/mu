@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More tests => 5;
 use Test::Exception;
 
 do 'lib/pneuma.pl'; 
@@ -11,8 +11,6 @@ do 'lib/pneuma.pl';
 # check some methods
 
 is($::Object->id, 2, '... $::Object is the second object in the system');
-
-is($::Object->name, 'Object', '... $::Object->name() is Object');
 
 is_deeply(
     $::Object->superclasses(), 

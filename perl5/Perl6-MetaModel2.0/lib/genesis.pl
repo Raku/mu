@@ -8,15 +8,15 @@ BEGIN { do "lib/pneuma.pl" };
 ## Now create some of the other things we need ...
 
 ## ----------------------------------------------------------------------------
-## Module
+## Module (added with r6792)
 
-$::Module = $::Class->new('$:name' => 'Module');
+$::Module = $::Class->new(); #'$:name' => 'Module');
 
 $::Module->superclasses([ $::Object ]);
 
-$::Module->add_attribute('$:name'       => ::make_attribute('$:name'));
-$::Module->add_attribute('$:version'    => ::make_attribute('$:version'));
-$::Module->add_attribute('$:authority'  => ::make_attribute('$:authority'));
+$::Module->add_attribute('$:name'      => ::make_attribute('$:name'));
+$::Module->add_attribute('$:version'   => ::make_attribute('$:version'));
+$::Module->add_attribute('$:authority' => ::make_attribute('$:authority'));
 
 $::Module->add_method('name' => ::make_method(sub {
     my $self = shift;
@@ -47,13 +47,17 @@ $::Module->add_method('identifier' => ::make_method(sub {
 # ... this makes ::Class a subclass of ::Object
 # the result of this is (Theos)
 
-# < Class is a subclass of Object >
-::opaque_instance_attrs($::Class)->{'@:superclasses'} = [ $::Module, $::Object ];
+# < Class is a subclass of Module is a subclass of Object >
+::opaque_instance_attrs($::Class)->{'@:superclasses'} = [ $::Module ];
 
 # NOTE:
 # this is to avoid recursion
 ::opaque_instance_attrs($::Class)->{'@:MRO'} = [ $::Class, $::Module, $::Object ];
 ::opaque_instance_attrs($::Object)->{'@:MRO'} = [ $::Object ];
+
+$::Class->name('Class');
+$::Object->name('Object');
+$::Module->name('Module');
 
 ## ----------------------------------------------------------------------------
 ## Role

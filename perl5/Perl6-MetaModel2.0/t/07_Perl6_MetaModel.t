@@ -10,13 +10,10 @@ use Perl6::MetaModel;
 
 # make sure genesis loaded correctly
 ok($::Object->isa('Object'), '... genesis was loaded ok');
+ok($::Module->isa('Object'), '... genesis was loaded ok');
 ok($::Class->isa('Class'), '... genesis was loaded ok');
 ok($::Class->isa('Module'), '... genesis was loaded ok');
 ok($::Class->isa('Object'), '... genesis was loaded ok');
-is_deeply(
-    $::Class->superclasses,
-    [ $::Module, $::Object ],
-    '... genesis was loaded ok');
       
 ## class-is-a-closure form 
 {
@@ -42,7 +39,7 @@ is_deeply(
         [ $::Object ],
         '... $Foo has the right superclasses');
 
-    ok($Foo->is_a('Object'), '... $Foo is a Object');
+    ok($Foo->is_a($::Object), '... $Foo is a Object');
 
     ok($Foo->has_method('foo', (for => 'class')), '... $Foo has a foo method');
     ok($Foo->has_method('bar', (for => 'class')), '... $Foo has a bar method');
@@ -77,7 +74,7 @@ is_deeply(
         [ $::Object ],
         '... $Foo has the right superclasses');
 
-    ok($Foo->is_a('Object'), '... $Foo is a Object');
+    ok($Foo->is_a($::Object), '... $Foo is a Object');
 
     ok($Foo->has_method('foo', (for => 'class')), '... $Foo has a foo method');
     ok($Foo->has_method('bar', (for => 'class')), '... $Foo has a bar method');

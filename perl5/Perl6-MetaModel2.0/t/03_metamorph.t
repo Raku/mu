@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 72;
+use Test::More tests => 66;
 use Test::Exception;
 
 do 'lib/metamorph.pl';
@@ -23,10 +23,6 @@ sub lives_ok_and_is (&$;$) {
 }
 
 ## test all our defaults ...
-
-lives_ok_and_is {
-    $::Class->name;
-} 'Class', '... got the name we expected';
 
 lives_ok_and_is {
     $::Class->superclasses;
@@ -62,18 +58,17 @@ sub lives_ok_and_ok (&$;$) {
 }
 
 lives_ok_and_ok {
-    $::Class->is_a('Class');
+    $::Class->is_a($::Class);
 } '... $::Class->is_a(Class)';
 
 lives_ok_and_ok {
-    $::Class->is_a('Foo');
+    $::Class->is_a(my $Foo);
 } '... not $::Class->is_a(Foo)', 1;
 
 ## now check the API using the has_method method
 
 # check public methods
-foreach my $method_name (qw(name
-                            superclasses
+foreach my $method_name (qw(superclasses
                             MRO
                             dispatcher
                             is_a
@@ -104,8 +99,7 @@ foreach my $method_name (qw(_merge
     } '... $::Class->has_method(' . $method_name . ')';
 }
 
-my @attribute_name_list = ('$:name',       
-                           '@:MRO',              
+my @attribute_name_list = ('@:MRO',              
                            '@:superclasses',    
                            '%:private_methods',  
                            '%:attributes',       
