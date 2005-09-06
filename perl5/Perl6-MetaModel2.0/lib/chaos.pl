@@ -349,13 +349,6 @@ our $DISPATCH_TRACE = 0;
     sub _normal_dispatch ($$$;$) {
         my ($self, $label, $args, $is_class_method) = @_; 
         warn "... entering _normal_dispatch with label($label)" if $DISPATCH_TRACE;                    
-        # NOTE:
-        # DESTROYALL is what should really be called
-        # so we just deal with it like this :)
-        if ($label =~ /DESTROY/) {
-            $label = 'DESTROYALL';
-        }
-        
         my $class = ::opaque_instance_class($self);
         
         my @return_value;
@@ -458,12 +451,22 @@ our $DISPATCH_TRACE = 0;
     sub AUTOLOAD {
         my @autoload = (split '::', our $AUTOLOAD);
         my $label = $autoload[-1];
-        # XXX -
-        # this is not okay, we need to pass the DESTORY on
-        # but it is not working now, this might be a trivial 
-        # issue though ... have to see as development progresses
-        return if $label =~ /DESTROY/ && not defined &::dispatch;
-        my $self = shift;          
+        my $self = shift;   
+        # NOTE:
+        # DESTROYALL is what should really be called
+        # so we just deal with it like this, and we deal
+        # with it here since this is a p5 issue.
+        if ($label =~ /DESTROY/) {
+            $label = 'DESTROYALL';
+            # XXX -
+            # I am not 100% sure why I need the following 
+            # line, but I am guessing it has something to
+            # do with how perl 5 does not always do ordered
+            # destruction of objects. I might be able to 
+            # fix this issue with en END block
+            return unless defined ::opaque_instance_class($self) && defined $::Class;
+        }        
+        # go about our dispatching ....      
         return ::dispatcher($self, $label, \@_, ($autoload[0] eq 'class' ? 1 : 0));
     }
 }

@@ -3,14 +3,14 @@
 use strict;
 use warnings;
 
-use Test::More tests => 19;
+use Test::More tests => 39;
 use Test::Exception;
 
 use Perl6::MetaModel;
 
 =pod
 
-this test was converted from t/oo/submethods.t
+some of these tests were converted from t/oo/submethods.t in Pugs
 
 =cut
 
@@ -92,28 +92,9 @@ this test was converted from t/oo/submethods.t
     # No :todo to avoid unexpected suceedings
     is($was_in_grtz_submethod, 1, "Grtz's submethod blarb was called now");
 
-=pod
-
-  NOTE: 
-  This test will not work because it cannot dispatch this correctly.
-
-  eval { 
-      $grtz->Baz::blarb() 
-  };
-  is($was_in_baz_submethod,  2, "Baz's submethod blarb was called again now");
-  # No :todo to avoid unexpected suceedings
-  is($was_in_grtz_submethod, 1, "Grtz's submethod blarb was not called again");
-=cut
 }
 
-=pod
-
-The next set of tests were regarding Roles and BUILD, 
-which is not currently supported either.
-
-=cut
-
-# BUILD with signatures that don't map directly to attributes
+# submethod BUILD with signatures that don't map directly to attributes
 {
 
     my $ClassC = class 'ClassC' => {
@@ -136,4 +117,156 @@ which is not currently supported either.
 
     my $C2 = $ClassC->new(value => 100);
     is($C2->double_value, 200, '... or value passed in');
+}
+
+## submethods are not inherited ...
+{
+    my $Foo2 = class 'Foo2' => {
+        'is' => [ $::Object ],    
+        'submethods' => {
+            'bar' => sub { 'Foo::bar<submethod>' }
+        }
+    };
+
+    # call the submethod in the direct instance
+
+    my $foo = $Foo2->new();
+    isa_ok($foo, 'Foo2');
+
+    can_ok($foo, 'bar');
+
+    {
+        my $value;
+        lives_ok {
+            $value = $foo->bar()
+        } '... calling bar() succedded';
+        is($value, 'Foo::bar<submethod>', '... got the right return value');    
+    }
+
+    # fail calling it from a subclass
+
+    my $Baz2 = class 'Baz2' => { 'is' => [ $Foo2 ] };
+
+    my $baz = $Baz2->new();
+    isa_ok($baz, 'Baz2');
+    isa_ok($baz, 'Foo2');
+
+    can_ok($baz, 'bar');
+
+    dies_ok {
+        $baz->bar()
+    } '... calling bar() failed';
+}
+
+## submethods are skipped in some cases ....
+
+# single inheritance example ...
+=pod
+
+class Foo {
+    method baz { ... }
+}    
+
+class Bar is Foo {
+    submethod baz { ... }
+}
+
+class FooBar is Bar {}
+
+my $foo_bar = FooBar.new();
+$foo_bar.baz() # calls Foo::baz()
+
+=cut
+
+{
+
+    my $Foo3 = class 'Foo3' => {
+        'is' => [ $::Object ],    
+        'methods' => {
+            'baz' => sub { 'Foo::baz' }
+        }
+    };
+
+    my $Bar3 = class 'Bar3' => {
+        'is' => [ $Foo3 ],
+        'submethods' => {
+            'baz' => sub { 'Bar::baz<submethod>' }
+        }
+    };
+
+    my $FooBar3 = class 'FooBar3' => { is => [ $Bar3 ] };
+
+    # now check that the correct method is called
+
+    my $foo_bar = $FooBar3->new();
+    isa_ok($foo_bar, 'FooBar3');
+    isa_ok($foo_bar, 'Bar3');
+    isa_ok($foo_bar, 'Foo3');
+
+    can_ok($foo_bar, 'baz');
+
+    {
+        my $value;
+        lives_ok {
+            $value = $foo_bar->baz()
+        } '... calling baz() succedded';
+        is($value, 'Foo::baz', '... got the right return value (not submethod)');    
+    }    
+    
+}
+
+# multiple inheritence example
+=pod
+
+class Foo {
+    method baz { ... }
+}
+
+class Bar {
+    submethod baz { ... }
+}
+
+class FooBar is Foo is Bar {}
+
+my $foo_bar = FooBar.new();
+$foo_bar.baz() # calls Foo::baz()
+
+=cut
+{
+    
+    my $Foo4 = class 'Foo4' => {
+        'is' => [ $::Object ],    
+        'methods' => {
+            'baz' => sub { 'Foo::baz' }
+        }
+    };
+
+    my $Bar4 = class 'Bar4' => {
+        'is' => [ $::Object ],    
+        'submethods' => {
+            'baz' => sub { 'Bar::baz<submethod>' }
+        }
+    };
+
+    my $FooBar4 = class 'FooBar4' => {
+        'is' => [ $Bar4, $Foo4 ]
+    };
+
+    # now check that the correct method is called
+
+    my $foo_bar = $FooBar4->new();
+    isa_ok($foo_bar, 'FooBar4');
+    isa_ok($foo_bar, 'Bar4');
+    isa_ok($foo_bar, 'Foo4');
+
+    can_ok($foo_bar, 'baz');
+
+    {
+        my $value;
+        lives_ok {
+            $value = $foo_bar->baz()
+        } '... calling baz() succedded';
+        is($value, 'Foo::baz', '... got the right return value');    
+    }
+
 }
