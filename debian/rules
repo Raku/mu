@@ -1,5 +1,7 @@
 #!/usr/bin/make -f
 
+include /usr/share/dpatch/dpatch.make
+
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	CFLAGS = unoptimized
 else
@@ -9,7 +11,7 @@ endif
 TESTS='smoke-pugs'
 
 configure: configure-stamp
-configure-stamp:
+configure-stamp: patch-stamp
 	dh_testdir
 	perl Makefile.PL INSTALLDIRS=vendor
 	touch configure-stamp
@@ -32,7 +34,8 @@ build-indep: build-indep-stamp
 build-indep-stamp: configure-stamp 
 	touch build-indep-stamp
 
-clean:
+clean: clean1 unpatch
+clean1:
 	dh_testdir
 	dh_testroot
 	rm -f build-arch-stamp build-indep-stamp configure-stamp debian/pugs.1 debian/pugscc.1 src/Pugs/CodeGen/PIR/Prelude.hi src/Pugs/CodeGen/PIR/Prelude.o ext/Test-Builder/destroy_test.p6 smoke*.html
@@ -102,4 +105,4 @@ binary-arch: build-arch install-arch
 	dh_builddeb -a
 
 binary: binary-arch binary-indep
-.PHONY: build clean binary-indep binary-arch binary install install-indep install-arch configure
+.PHONY: build clean binary-indep binary-arch binary install install-indep install-arch configure patch unpatch clean1

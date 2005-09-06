@@ -1,0 +1,7 @@
+--- 
+# These fields will be used to identify you as a tester in
+# the smoke server. They are all optional, so if you want
+# anonymity, just omit them.
+name: Florian Ragwitz (Debian builds)
+email: florian.ragwitz@s2004.tu-chemnitz.de
+
