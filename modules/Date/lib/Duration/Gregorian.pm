@@ -18,12 +18,12 @@ multi sub duration( Int|Real ?$seconds ) returns Duration::Gregorian is export {
 }
 
 multi sub duration( Int ?$year, Int ?$month, Int ?$day,
-		    Int ?$hour, Int ?$minute, Int|Real ?$second #)
-		     )
+                    Int ?$hour, Int ?$minute, Int|Real ?$second #)
+                     )
     returns Duration::Gregorian is export {
     Duration::Gregorian.new( :year($year), :month($month), :day($day),
-			     :hour($hour), :minute($minute), :second($second),
-			   );
+                             :hour($hour), :minute($minute), :second($second),
+                           );
 }
 
 # convert from an iso duration
@@ -37,24 +37,24 @@ multi method duration( Str $iso8601 ) returns Duration::Gregorian is export {
 
     my $duration;
     if ( defined $0 ) {
-	$duration = duration($/[1..7]);
-	if ( defined $8 ) {
-	    $duration.end = duration($/[9..17]);
-	}
+        $duration = duration($/[1..7]);
+        if ( defined $8 ) {
+            $duration.end = duration($/[9..17]);
+        }
     }
     elsif ( defined $/[18] ) {
-	my $start = date($/[19..27]);
+        my $start = date($/[19..27]);
 
-	if ( defined $/[28] ) {
-	    $duration = duration($/[29..35]);
-	    $duration.start = $start;
-	} else {
-	    my $end = date($/[37..35]);
-	    $duration = Duration::Gregorian.new
-		( :start($start), :end($end) );
-	}
+        if ( defined $/[28] ) {
+            $duration = duration($/[29..35]);
+            $duration.start = $start;
+        } else {
+            my $end = date($/[37..35]);
+            $duration = Duration::Gregorian.new
+                ( :start($start), :end($end) );
+        }
     } else {
-	!!!
+        !!!
     }
 
 =cut
@@ -75,8 +75,8 @@ multi method duration( Str $iso8601 ) returns Duration::Gregorian is export {
 #multi method infix:<->( $self: Str $what ) {
     #my $other = eval { date($what) };
     #if ( $other ) {
-	#return $self - $other;
+        #return $self - $other;
     #} else {
-	#return $self - duration($what);
+        #return $self - duration($what);
     #}
 #}

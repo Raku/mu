@@ -16,14 +16,14 @@ has Time::Zone $.tz;
 our $iso8601_re_anchored = rx:perl5/^$iso8601_re$/;
 
 multi sub date( Int ?$year, Int ?$month, Int ?$day,
-		   Int ?$hour, Int ?$minute, Int|Real ?$second,
-		   Str|Time::Zone ?$tz )#?
+                   Int ?$hour, Int ?$minute, Int|Real ?$second,
+                   Str|Time::Zone ?$tz )#?
     returns Date::Gregorian is export {
-	#$tz = tz($tz) if $tz.defined and !$tz.isa("Time::Zone");
+        #$tz = tz($tz) if $tz.defined and !$tz.isa("Time::Zone");
     return
-	Date::Gregorian.new( :year($year), :month($month), :day($day),
-			     :hour($hour), :minute($minute), :second($second),
-			     :tz($tz) );
+        Date::Gregorian.new( :year($year), :month($month), :day($day),
+                             :hour($hour), :minute($minute), :second($second),
+                             :tz($tz) );
 }
 
 # convert from an iso date
@@ -34,45 +34,45 @@ multi sub date( Str $iso8601 ) returns Date::Gregorian is export {
 
     my $year = $0;
     if ( $year.defined and $year.chars == 2 ) {
-	$year = 2000 + $year;  # XXX - fixme ;)
+        $year = 2000 + $year;  # XXX - fixme ;)
     }
 
     if ( $3 ) {
-	# day of year ..
-	!!!
+        # day of year ..
+        !!!
     }
     elsif ( $4 ) {
-	# week of year ..
-	!!!
+        # week of year ..
+        !!!
     }
     my $second = $7 || 0;
     if ( $8.defined ) {
-	$second += "0.$8";
+        $second += "0.$8";
     }
 
     my $tz;
     if ( $9.defined ) {
-	$tz = tz $9;
+        $tz = tz $9;
     }
 
     return Date::Gregorian.new
-	( :year($year), :month($1),  :day($2),
-	  :hour($5),    :minute($6), :second( $second ),
-	  :tz($tz) );
+        ( :year($year), :month($1),  :day($2),
+          :hour($5),    :minute($6), :second( $second ),
+          :tz($tz) );
 }
 
 # convert from a unix time_t
 multi sub time_t( Int $time_t ) returns Date::Gregorian is export {
     Date::Gregorian.new( :year(1970), :month(1),  :day(1),
-			:hour(0),    :minute(0), :second(0),
-			:tz(tz "UTC") ) + $time_t;
+                        :hour(0),    :minute(0), :second(0),
+                        :tz(tz "UTC") ) + $time_t;
 }
 
 # convert from a perl float
 multi sub epoch( Real $epoch ) returns Date::Gregorian is export {
     Date::Gregorian.new( :year(1970), :month(1),  :day(1),
-			:hour(0),    :minute(0), :second(0),
-			:tz(tz "UTC") ) + $epoch;
+                        :hour(0),    :minute(0), :second(0),
+                        :tz(tz "UTC") ) + $epoch;
 }
 
 method nanosecond returns Int {
@@ -132,9 +132,9 @@ method mday_0 returns Int { $.day - 1 }
 #multi method infix:<->( $self: Str $what ) {
     #my $other = eval { date($what) };
     #if ( $other ) {
-	#return $self - $other;
+        #return $self - $other;
     #} else {
-	#return $self - duration($what);
+        #return $self - duration($what);
     #}
 #}
 
