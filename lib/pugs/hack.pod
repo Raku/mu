@@ -278,7 +278,7 @@ is the name of the Perl 5 interpreter.
 
 =head2 Editing
 
-There is a F<util/perl6.vim> Vim syntax file.  There is no emacs mode yet,
+There is a F<util/perl6.vim> Vim syntax file.  There is no Emacs mode yet,
 but perl-mode works better than cperl-mode.
 
 Where applicable, conventions documented in Damian Conway's "Perl Best
@@ -299,12 +299,33 @@ C<< <Tab> >>.  The equivalent settings for Emacs are:
 
 If you use BBEdit, you can configure it to auto-expand tabs like this:
 
-    0. Launch the BBEdit application.
-    1. In the 'BBEdit' (application) menu, choose 'Preferences'.
-    2. In the resulting dialog box, choose 'Editor Defaults' from the left col.
-    3. In the resulting panel, ensure 'Auto-Expand Tabs' is checked.
-    4. Also ensure the 'Default Font' is set to '4 spaces per tab'.
-    5. Close the dialog box.
+=over
+
+=item 0.
+
+Launch the BBEdit application.
+
+=item 1.
+
+In the 'BBEdit' (application) menu, choose 'Preferences'.
+
+=item 2.
+
+In the resulting dialog box, choose 'Editor Defaults' from the left col.
+
+=item 3.
+
+In the resulting panel, ensure 'Auto-Expand Tabs' is checked.
+
+=item 4.
+
+Also ensure the 'Default Font' is set to '4 spaces per tab'.
+
+=item 5.
+
+Close the dialog box.
+
+=back
 
 These exact settings apply to BBEdit 8, the newest version; older versions of
 the program may store the same configuration options elsewhere.
