@@ -4,19 +4,19 @@ PIL2JS - PIL to JavaScript compiler
 
 =head1 DESCRIPTION
 
-C<pil2js.pl> is a Perl 5 program taking PIL (as given by C<pugs -CPerl5>) and
-outputting JavaScript.
+C<pil2js.pl> is a Perl 5 program which takes PIL as input (as given by C<pugs
+-CPerl5>) and outputs JavaScript.
 
 =head1 USAGE
 
-There's an interactive shell, C<jspugs.pl>. Simply start C<jspugs.pl>, then
+There's an interactive shell, F<jspugs.pl>. Simply start F<jspugs.pl>, then
 precompile the Prelude by entering C<:precomp>. Now enter some Perl 6 code and
-point your browser to C<./output.html> or prefix your expression with C<:e> if
-you want it to be evaluated outside the browser using Spidermonkey's C<bin/js>.
+point your browser to F<./output.html> or prefix your expression with C<:e> if
+you want it to be evaluated outside the browser using Spidermonkey's F<bin/js>.
 
-Additionally, there's C<./runjs.pl>, which accepts the same options as Pugs.
+Additionally, there's F<./runjs.pl>, which accepts the same options as Pugs.
 It will first compile your code to JavaScript and then run it using
-Spidermonkey's C<bin/js>:
+Spidermonkey's F<bin/js>:
 
   $ ./runjs.pl -e 'say "Hello, World!"'
 
@@ -35,8 +35,8 @@ Alternatively, you can use the compiler directly:
 =head1 SMOKING
 
 You can use C<make smoke-js> to compile the whole testsuite to JavaScript and
-run it using Spidermonkey's C<bin/js>. The test results will be outputted as
-C<smoke-js.html>.
+run it using Spidermonkey's F<bin/js>. The test results will be outputted as
+F<smoke-js.html>.
 
 =head1 FILE HIERARCHY
 
@@ -85,12 +85,12 @@ lexical declarations)
 
 Subroutine and method invocation, including optional and named parameters,
 slurpy scalars, arrays, and hashes, C<< &prefix:<*> >> (e.g.
-C<foo(*@parameters)>), C<is rw>, and C<is copy>
+C<foo(*@parameters)>), C<is rw>, C<is readonly>, and C<is copy>
 
 =item *
 
 Basic operators (C<< &infix:<==> >>, C<< &infix:<eq> >>, C<< &prefix:<+> >>,
-C<< &infix:<=:=> >>, ...)
+C<< &infix:<=:=> >>, C<< &infix:<eqv> >>...)
 
 =item *
 
@@ -100,6 +100,14 @@ Basic builtins (C<say>, C<defined>, C<if>, C<loop>, C<while>, C<until>, ...)
 
 Primitives which change the control flow (C<return>, C<last>, C<next>, C<redo>,
 C<die>, C<try>, ...)
+
+=item *
+
+Container semantics, binding, autodereferencing references
+
+=item *
+
+Basic array and hash autovivification
 
 =item *
 
@@ -195,8 +203,8 @@ and hash containers.
 
 =head4 List magic
 
-Lists have a number of additional properties (which, BTW, explains C<<
-&infix:<,> >>'s length):
+Lists have a number of additional properties (which, BTW, explains the length
+of C<< &infix:<,> >>'s implementation (in C<Prelude::JS::Array>)):
 
   ($a, $b) = ($foo, $bar);  # same as
   $a = $foo; $b = $bar;
@@ -274,25 +282,19 @@ C<PIL2JS.cps2normal>:
 
   var retval = PIL2JS.cps2normal(unboxed_function, [...args...]);
 
-Note that this breaks, of course, call/cc magic -- only the first return value
-is respected. I.e.
+Note that this breaks, of course, call/cc magic. This means that coroutines,
+C<&?CALLER_CONTINUATION>, etc. might not work correctly. The workaround is
+easy, luckily:
 
-  my ($cont, $x);
-  sub foo {
-    $cont = callcc;
-    return ++$x;
-  }
+  # Instead of (&statement_control:<if> uses PIL2JS.cps2normal)...
+  if some_coroutine() {...}
+  
+  # ...use:
+  my $retval = some_coroutine();
+  if $retval {...}
 
-  sub bar {
-    foo();
-    $cont();
-  }
-
-  var retval = PIL2JS.cps2normal(&bar, [...]);
-  // retval is 1. The second return value, 2, is ignored.
-
-C<&next>, C<&last>, and C<&redo> will be converted to use continuations, too,
-but currently, they still use exceptions to escape.
+C<&next>, C<&last>, and C<&redo> will be converted to use continuations,
+but currently they still use exceptions to escape.
 
 =head3 Coroutines
 
@@ -409,8 +411,8 @@ exports. This means, that the following works:
   say JS::to_roman 42;
 
 Note that the JSAN integration is not available when running under
-Spidermonkey's C<bin/js>; This is not a bug in PIL2JS or JSAN, it's because
-C<bin/js> can't download arbitrary URLs.
+Spidermonkey's F<bin/js>; This is not a bug in PIL2JS or JSAN, it's because
+F<bin/js> can't download arbitrary URLs.
 
 =head3 Usage
 
@@ -492,7 +494,7 @@ ways:
 
 =item *
 
-The compiled code is given to SpiderMonkey's C<bin/js>. This approach does not
+The compiled code is given to SpiderMonkey's F<bin/js>. This approach does not
 need any special Perl 5 modules, but it suffers from a buffering problem and it
 seems to need much more RAM than the other engines.
 
@@ -500,8 +502,8 @@ seems to need much more RAM than the other engines.
 
 There's the C<JavaScript::SpiderMonkey> Perl 5 module (also named C<JSSM>)
 which embeds allows embedding of JavaScript code in Perl 5 applications. It
-does not suffer from C<bin/js>'s buffering problems and it seems that,
-curiously, it doesn't need as much RAM as C<bin/js>, but the installation of
+does not suffer from F<bin/js>'s buffering problems and it seems that,
+curiously, it doesn't need as much RAM as F<bin/js>, but the installation of
 C<JSSM> is a bit tricky.
 
 =back
@@ -530,7 +532,8 @@ to give better context information.
 
 =item *
 
-Hash and array autovification (C<my $hash; $hash<foo> = "bar">).
+More extensive hash and array autovification (C<< my @ar; $hash<foo> = "bar"
+>>).
 
 =item *
 
@@ -539,7 +542,7 @@ Required to implement hash and array autovification elegantly.
 
 =item *
 
-More OO and meta stuff (but requires fixes to PIL1 or PIL2).
+More OO and meta stuff (but requires PIL2 or fixes to PIL1).
 
 =item *
 
