@@ -25,6 +25,10 @@ sub _ {
 
 sub class {
     my ($full_name, $body) = @_;
+    # support anon-classes here
+    if (!defined($body) && ref($full_name) && ref($full_name) =~ /HASH|CODE/) {
+        return _build_class(undef, undef, undef, $full_name);
+    }
     my ($name, $version, $authority) = split '-' => $full_name;       
     my $new_class = _build_class($name, $version, $authority, $body);
     $CLASSES_BY_NAME{$new_class->name} = $new_class;
