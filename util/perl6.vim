@@ -15,6 +15,9 @@ if exists("b:current_syntax")
   finish
 endif
 
+" Recommended formatting options (see pugs::hack)
+setlocal shiftwidth=4 autoindent expandtab smarttab softtabstop=1
+
 " Billions of keywords
 syn keyword p6Attn          ACHTUNG ATTN ATTENTION FIXME NB contained 
 syn keyword p6Attn          todo Todo TODO WTF XXX contained
