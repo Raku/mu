@@ -122,7 +122,7 @@ my @maps = (
 plan +@maps;
 
 for @maps -> $char, $code {
-  my $descr = "\\{$code}{$code >= 32 ?? " == '{$char}'" :: ""}";
+  my $descr = "\\{$code}{$code >= 32 ?? " == '{$char}'" !! ""}";
   is ord($char), $code, "ord() works for $descr";
   is chr($code), $char, "chr() works for $descr";
 }

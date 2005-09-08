@@ -103,16 +103,16 @@ ok((0 || 1 == (2-1) == (0+1) || "foo") ne "foo", "== binds tigher than || also w
 
 # 14. tight or (||, ^^, //)
 
-is((1 && 0 ?? 2 :: 3), 3, "&& binds tighter than ??");
+is((1 && 0 ?? 2 !! 3), 3, "&& binds tighter than ??");
 ### FIXME - need also ||, otherwise we don't prove || and ?? are diff
 
 # 15. ternary
 
 {
-    my $a = 0 ?? "yes" :: "no";
-    is($a, "no", "??:: binds tighter than =");
-#    (my $b = 1) ?? "true" :: "false";
-#    is($b, 1, "?? :: just thrown away with = in parens");
+    my $a = 0 ?? "yes" !! "no";
+    is($a, "no", "??!! binds tighter than =");
+#    (my $b = 1) ?? "true" !! "false";
+#    is($b, 1, "?? !! just thrown away with = in parens");
 };
 
 

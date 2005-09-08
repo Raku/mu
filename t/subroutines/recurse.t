@@ -14,11 +14,11 @@ sub gcd {
 }
 
 sub factorial {
-    @_[0] < 2 ?? 1 :: @_[0] * factorial(@_[0] - 1);
+    @_[0] < 2 ?? 1 !! @_[0] * factorial(@_[0] - 1);
 }
 
 sub fibonacci {
-    @_[0] < 2 ?? 1 :: &?SUB(@_[0] - 2) + &?SUB(@_[0] - 1);
+    @_[0] < 2 ?? 1 !! &?SUB(@_[0] - 2) + &?SUB(@_[0] - 1);
 }
 
 # Highly recursive, highly aggressive.
@@ -41,7 +41,7 @@ sub takeuchi {
         takeuchi(takeuchi(@_[0] - 1, @_[1], @_[2]),
                  takeuchi(@_[1] - 1, @_[2], @_[0]),
                  takeuchi(@_[2] - 1, @_[0], @_[1]))
-            :: @_[2];
+            !! @_[2];
 }
 
 ok(gcd(1147, 1271) == 31);

@@ -45,6 +45,6 @@ for (1..10) { $nexttest++; next; $nexttest++; }
 ok($nexttest == 10, "next");
 
 is(12.eval, 12, "12.eval");
-is(eval(1 ?? 1 :: 0), 1, "?? ::");
+is(eval(1 ?? 1 !! 0), 1, "?? !!");
 
 ok({ my $_ = 1; $_ }, '{ my $_ = 1; $_ }');

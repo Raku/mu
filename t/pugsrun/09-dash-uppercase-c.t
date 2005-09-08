@@ -10,7 +10,7 @@ Test handling of C<-Cbackend>.
 =cut
 
 sub flatten (Any|Junction $x) {
-    ($x.isa(Junction)) ?? map &flatten, $x.values :: $x
+    ($x.isa(Junction)) ?? map &flatten, $x.values !! $x
 }
 
 my @t_good = map &flatten, (

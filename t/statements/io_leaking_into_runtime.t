@@ -16,7 +16,7 @@ my $ignore_errors = q[
 my $tmpfile = "temp-test" ~ nonce();
 my @tests = (
     # Test that "open 'README'" works
-    'my $fh = open "README"; print($fh ?? "ok" :: "nok")',
+    'my $fh = open "README"; print($fh ?? "ok" !! "nok")',
     { $^a eq "ok" },
     
     # Test that BEGIN { open 'README' } does *not* work
@@ -28,7 +28,7 @@ my @tests = (
     { $^a !~ rx:P5/_nok_/ },
 
     # Test that INIT { open 'README' } *does* work
-    'my $fh = INIT { open "README" }; print($fh ?? "ok" :: "nok")',
+    'my $fh = INIT { open "README" }; print($fh ?? "ok" !! "nok")',
     { $^a eq "ok" },
 );
 

@@ -111,7 +111,7 @@ is($case, 'title', "case param was named with funny syntax");
 }
 
 {
-sub h($a,$b,$d) { $d ?? h($b,$a,$d-1) :: $a~$b }
+sub h($a,$b,$d) { $d ?? h($b,$a,$d-1) !! $a~$b }
 
 is(h('a','b',1),'ba',"parameters don\'t bind incorrectly");
 }
