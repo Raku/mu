@@ -9,10 +9,13 @@ use LWP::UserAgent;
 use constant VERSION => 0.4;
 sub debug($);
 
+our $compress = sub { return };
+
 GetOptions(
   "smokeserv=s" =>
     \(my $smokeserv = "http://m19s28.vlinux.de/cgi-bin/pugs-smokeserv.pl"),
   "help"        => \&usage,
+  "compress|c"  => \&setup_compression,
   "version"     => sub { print "smokeserv-client.pl v" . VERSION . "\n"; exit },
 ) or usage();
 @ARGV == 1 or usage();
@@ -34,7 +37,7 @@ my %request = (upload => 1, version => VERSION, smokes => []);
     exit 1;
   }
 
-  $request{smoke} = $smoke;
+  $request{smoke} = $compress->($smoke) || $smoke;
   debug "ok.\n";
 }
 
@@ -84,4 +87,11 @@ USAGE
     $fresh = 0 if substr($msg, -1) eq "\n";
     1;
   }
+}
+
+sub setup_compression {
+  eval { require Compress::Bzip2; debug "Bzip2 compression on\n" } and
+    return $compress = sub { Compress::Bzip2::memBzip(shift) };
+  eval { require Compress::Zlib; debug "Gzip compression on\n" } and
+    $compress = sub { Compress::Zlib::memGzip(shift) };
 }

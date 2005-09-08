@@ -13,6 +13,8 @@ use Algorithm::TokenBucket;
 use Time::Piece;
 use Time::Seconds;
 
+require_compression_modules();
+
 use constant {
   VERSION     => 0.4,
   MAX_SIZE    => 2**20 * 3.0,  # MiB limit
@@ -57,10 +59,26 @@ sub validate_params {
     exit;
   }
 
+  uncompress_smoke();
   unless($CGI->param("smoke") =~ /^<!DOCTYPE html/) {
     print "The submitted smoke does not look like a smoke!";
     exit;
   }
+}
+
+sub uncompress_smoke {
+  $CGI->param("smoke") =
+      Compress::Zlib::memGunzip($CGI->param("smoke")) ||
+      Compress::Bzip2::memBunzip($CGI->param("smoke")) ||
+    $CGI->param("smoke");
+}
+
+sub require_compression_modules {
+  no strict 'refs';
+  eval { require Compress::Zlib } or
+    *Compress::Zlib::memGunzip = sub { return };
+  eval { require Compress::Bzip2 } or
+    *Compress::Bzip2::memBunzip = sub { return };
 }
 
 sub add_smoke {
