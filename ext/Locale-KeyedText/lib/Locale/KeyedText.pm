@@ -174,6 +174,10 @@ method new_translator( Any $set_names is rw, Any $member_names is rw ) returns L
 
 Locale::KeyedText - Refer to user messages in programs by keys
 
+=head1 VERSION
+
+This document describes Locale::KeyedText version 1.6.0.
+
 =head1 SYNOPSIS
 
     use Locale::KeyedText;
@@ -245,7 +249,7 @@ returns its results for calling code to output as it sees fit.  It also does not
 make direct use of environment variables, which can aid in portability.
 
 Locale::KeyedText itself is trivially easy to install, since it is written in
-pure Perl and it has no external dependencies of any kind.
+pure Perl and it has few external dependencies.
 
 Practically speaking, Locale::KeyedText doesn't actually do a lot internally; it
 exists mainly to document a certain localization methodology in an easily
@@ -494,13 +498,6 @@ in found in the most preferred language is used.
 Each of a Translator object's Template Sets and Template Members properties must
 contain 1 or more elements each, and each element must be a defined value,
 though those values can be '' or '0' if you want.
-
-=head1 SYNTAX
-
-This class does not export any functions or methods, so you need to call them
-using object notation.  This means using B<Class.function()> for functions and
-B<$object.method()> for methods.  If you are inheriting this class for your own
-modules, then that often means something like B<$self.method()>.
 
 =head1 CONSTRUCTOR WRAPPER FUNCTIONS
 
@@ -870,11 +867,15 @@ Core Modules: I<none>
 
 Non-Core Modules: I<none>
 
+=head1 INCOMPATIBILITIES
+
+None reported.
+
 =head1 SEE ALSO
 
 L<Locale::Maketext>, L<Locale::gettext>, L<Locale::PGetText>, L<DBIx::BabelKit>.
 
-=head1 CAVEATS
+=head1 BUGS AND LIMITATIONS
 
 All Locale::KeyedText functions and methods currently will fail silently if
 they are given bad input; they will not throw any exceptions.  (At the same
@@ -894,7 +895,11 @@ require external files itself to resolve them, leading to recursive complexity.
 Suggestions for an alternate "proper" solution are welcome; meanwhile, the
 current solution seems best to me.
 
-=head1 COPYRIGHT AND LICENSE
+=head1 AUTHOR
+
+Darren R. Duncan (perl@DarrenDuncan.net)
+
+=head1 LICENCE AND COPYRIGHT
 
 This file is part of the Locale::KeyedText library.
 
@@ -923,7 +928,7 @@ would appreciate being informed any time you create a modified version of
 Locale::KeyedText that you are willing to distribute, because that is a
 practical way of suggesting improvements to the standard version.
 
-=head1 CREDITS
+=head1 ACKNOWLEDGEMENTS
 
 Besides myself as the creator ...
 
