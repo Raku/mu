@@ -460,8 +460,8 @@ MACROP5   infix:<//> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; defined($_v1) ? $_v1 
 MACROP5   infix:<!!> ($xx0,$xx1) {...};
 MULTI SUB infix:<.[]> ($xx0,$xx1) {...};
 MULTI SUB infix:<.{}> ($xx0,$xx1) {...};
-MULTI SUB infix:<and> ($xx0,$xx1) {...};
-MULTI SUB infix:<or> ($xx0,$xx1) {...};
+MACROP5 infix:<and> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; p6_to_b($_v1) ? ('.$xx1.') : $_v1 }' };
+MACROP5 infix:<or> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; p6_to_b($_v1) ? $_v1 : ('.$xx1.') }' };
 MULTI SUB infix:<xor> ($xx0,$xx1) {...};
 MULTI SUB infix:<err> ($xx0,$xx1) {...};
 MULTI SUB infix:<nor> ($xx0,$xx1) {...};
