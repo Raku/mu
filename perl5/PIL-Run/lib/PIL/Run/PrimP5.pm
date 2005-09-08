@@ -518,7 +518,11 @@ MULTI SUB Pugs::Internals::localtime ($xx0,$xx1,$xx2) {...};
 MULTI SUB Pugs::Internals::hSeek ($xx0,$xx1,$xx2) {...};
 
 # op4
-MULTI SUB substr ($xx0,$xx1,$xx2,$xx3) {...};
+MULTI SUB substr ($xx0,$xx1,*@xxa) {
+    my($s,$v1) = (p6_to_s($xx0),p6_to_n($xx1));
+    my($v2,$v3)= map { defined $_ ? p6_to_n($_) : undef } @xxa;
+    p6_from_s(substr($s,$v1,$v2)); # XXX - doesnt handle replacement.
+};
 # splice - see op2
 
 1;
