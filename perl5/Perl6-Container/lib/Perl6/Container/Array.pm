@@ -301,12 +301,13 @@ class 'Array'.$class_description => {
             'tied' =>     sub { _('$:cell')->{tied} },
 
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
-            'isa' => sub { ::next_METHOD() },
-            'does' => sub { ::next_METHOD() },
-            'unboxed' => sub { 
+            'isa' =>      sub { ::next_METHOD() },
+            'does' =>     sub { ::next_METHOD() },
+            'ref' =>      sub { ::CLASS }, 
+            'unboxed' =>  sub { 
                 _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v}
             },
-            'delete' => sub {
+            'delete' =>   sub {
                 # delete a slice, returns deleted items
                 my ( $self, @list ) = @_;
                 my $ret = $self->slice( @list );
@@ -315,7 +316,7 @@ class 'Array'.$class_description => {
                 $ret->store( Perl6::Value::List->from_x( item => undef, count => Inf ) );
                 return $ret2;
             },
-            'slice' => sub {
+            'slice' =>    sub {
                 # Returns an array whose fetch/store are bound to this array
                 my ( $self, @list ) = @_;
 
