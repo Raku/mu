@@ -44,6 +44,12 @@
 # 2005-08-10
 # * Ported from Perl6 version
 
+# BUGS
+# - Infinite sub slices are not supported yet:
+#   ($x,@a[1..99])=(1,2,3,4)   - ok - non-finite sub-slice
+#   (@a[1..Inf])=(1,2,3,4)     - ok - not a sub-slice
+#   ($x,@a[1..Inf])=(1,2,3,4)  - not supported
+
 # TODO - PIL-Run - (1,undef,2) returns (1,2) - but (1,\undef,2) works
 # TODO - PIL-Run - grep() using 'Code'
 
@@ -105,12 +111,21 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
 sub Perl6::Slice::new { 
     my $class = shift;
     my %param = @_;  
+    #warn "NEW SLICE: ".Perl6::Value::stringify($param{array})." -- ".Perl6::Value::stringify($param{slice})."\n";
     bless { %param }, $class;
 } 
 sub Perl6::Slice::items {
     my $self = shift;
-    # warn "SLICE ITEMS: ".Perl6::Value::stringify($self->{array})." -- ".Perl6::Value::stringify($self->{slice})."\n";
-    $self->{array}->items;
+    #warn "SLICE ITEMS: ".Perl6::Value::stringify($self->{array})." -- ".Perl6::Value::stringify($self->{slice})."\n";
+    #$self->{array}->items;
+    my @a;
+    warn "Infinite sub-slices are not supported yet" 
+        if Perl6::Value::numify( $self->is_infinite );
+    for ( 0 .. Perl6::Value::numify( $self->elems ) - 1 ) {
+        push @a, $self->fetch( $_ );
+    }
+    # warn "    items: @a\n";
+    return @a;
 }
 sub Perl6::Slice::fetch {
     my $self = shift;
@@ -226,7 +241,8 @@ sub Perl6::Slice::write_thru {
                 push @items, Perl6::Value::List->from_x( item => undef, count => $diff )
                     if $diff > 0;
             }
-            # warn "  STORE SLICE pos $pos to $start, $slice_size, @items";
+            #warn "  STORE SLICE pos $pos to $start, $slice_size, @items";
+            # TODO - XXX - don't use splice on slices, because it drops bindings
             $ary->splice( $start, $slice_size, @items );
             $pos = $pos + $slice_size;
             #warn "pos = $pos";
