@@ -137,7 +137,8 @@ MULTI SUB Array::slice ($a,$i) {
 
 # Things which dont appear in Prim.hs
 MACROP5   statement_control:<if> ($xx0,$xx1,$xx2) {
-    "if (p6_to_b($xx0)) $xx1 else $xx2";
+    "if (p6_to_b($xx0)) $xx1 else { $xx2 }";
+    # XXX - the {} on xx2 are because thunks are being mishandled.
 };
 MACROP5   statement_control:<while> ($xx0,$xx1) {
     "while (p6_to_b(p6_apply($xx0))) { p6_apply($xx1) }";
@@ -470,13 +471,16 @@ MULTI SUB infix:<nor> ($xx0,$xx1) {...};
 # join - see op1
 MULTI SUB reduce ($xx0,$xx1) {...};
 # kill - see op1
-MULTI SUB does ($xx0,$xx1) { $xx0->does( $xx1->unboxed ) };
-MULTI SUB isa  ($xx0,$xx1) { $xx0->isa( $xx1->unboxed ) };
+MULTI SUB does ($xx0,$xx1) { p6_from_b($xx0->does( $xx1->unboxed )) };
+MULTI SUB isa  ($xx0,$xx1) { p6_from_b($xx0->isa( $xx1->unboxed )) };
 #MULTI SUB delete ($xx0,$xx1) {...}; -- implemented in Array, Hash
 #MULTI SUB exists ($xx0,$xx1) {...};
 MULTI SUB unshift (@xx0,*@xxa) { $xx0->unshift( @xxa ) };
 MULTI SUB push (@xx0,*@xxa) { $xx0->push( @xxa ) };
-MULTI SUB split (*@xxa) {...};
+MULTI SUB split (*@xxa) {
+    my($splitstr,$str) = map{p6_to_s($_)} @xxa;
+    p6_from_l(split(/$splitstr/,$str));
+};
 # Str::split - see op1
 MULTI SUB connect ($xx0,$xx1) {...};
 MULTI SUB Pugs::Internals::hSetBinaryMode ($xx0,$xx1) {...};

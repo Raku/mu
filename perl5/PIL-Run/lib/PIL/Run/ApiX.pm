@@ -36,7 +36,13 @@ $VERSION = '0.01';
 
 sub p6_to_b {my($b)=@_; return 0 unless defined $b; $b->bit()->unboxed ? 1 : 0}
 sub p6_to_n { Perl6::Value::numify( @_ ) }
-sub p6_to_s { Perl6::Value::stringify( @_ ) }
+sub p6_to_s {
+    if (UNIVERSAL::isa($_[0],"Perl6::Class")) {
+	die "Help!  How do I stringify Class into a class name?";
+    } else {
+        Perl6::Value::stringify( @_ );
+    }
+}
 sub p6_to_a {my($a_obj)=@_; [ $a_obj->unboxed ] }
 sub p6_to_l {my($a_obj)=@_;   $a_obj->unboxed }
 sub p6_from_b {my($b)=@_; p6_new('Bit',$b ? 1 : 0)}
