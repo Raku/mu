@@ -125,7 +125,9 @@ sub add_smoke {
 
 sub clean_obsolete_smokes {
   my $category = sub {
-    return join "-", map { $_[0]->{$_} } qw<pugs_version osname runcore>;
+    return join "-",
+      (map { $_[0]->{$_} } qw<pugs_version osname runcore>),
+      $_[0]->{pugs_revision} == 0 ? "release" : "dev",
   };
 
   my %cats;
@@ -156,20 +158,41 @@ sub process_list {
   print "Content-Type: text/html\n\n";
   #$tmpl->output(print_to => *STDOUT);
 
+  my $category = sub {
+    return sprintf "%s / %s",
+      $_[0]->{pugs_revision} == 0 ? "release" : "repository snapshot",
+      $_[0]->{osname};
+  };
+
   my @smokes  = map { unpack_smoke($_) } glob "pugs-smoke-*.html";
   my %runcores;
-  push @{ $runcores{$_->{runcore}} }, $_ for @smokes;
-  $runcores{$_} = [
-    map  {{ %$_, timestamp => $_->{timestamp}[1] }}
-    sort {
-      $b->{pugs_revision} <=> $a->{pugs_revision} ||
-      $a->{osname}        cmp $b->{osname}        ||
-      $b->{timestamp}[0]  <=> $a->{timestamp}[0]
-    } @{ $runcores{$_} }
-  ] for keys %runcores;
+  push @{ $runcores{$_->{runcore}}{$category->($_)} }, $_ for @smokes;
+
+  foreach my $runcore (keys %runcores) {
+    foreach my $cat   (keys %{ $runcores{$runcore} }) {
+      $runcores{$runcore}{$cat} = [
+        map  {{ %$_, timestamp => $_->{timestamp}[1] }}
+        sort {
+          $b->{pugs_revision} <=> $a->{pugs_revision} ||
+          $a->{osname}        cmp $b->{osname}        ||
+          $b->{timestamp}[0]  <=> $a->{timestamp}[0]
+        } @{ $runcores{$runcore}{$cat} }
+      ];
+    }
+
+    $runcores{$runcore} = [
+      map {{
+        catname => $_,
+        smokes  => $runcores{$runcore}{$_},
+      }} sort keys %{ $runcores{$runcore} }
+    ];
+  }
 
   $tmpl->param(runcores => [
-    map {{ name => $_, smokes => $runcores{$_} }} sort keys %runcores
+    map {{
+      name       => $_,
+      categories => $runcores{$_},
+    }} sort keys %runcores
   ]);
   print $tmpl->output;
 }
@@ -192,7 +215,16 @@ sub unpack_smoke {
       pugs_revision => $2,
       osname        => $3,
       runcore       => runcore2human($4),
-      timestamp     => [ $5, localtime($5)->strftime ],
+      timestamp     => [
+        $5,
+        do { 
+          my $str = localtime($5)->strftime;
+          $str =~ s/ /&nbsp;/g;
+          # hack, to make the timestamps not break so the smoke reports look
+          # good even on 640x480
+          $str;
+        },
+      ],
       duration      => sprintf("%.02f", Time::Seconds->new($6)->minutes) . " min",
       summary       => [{
         total       => $7,
@@ -283,9 +315,10 @@ __DATA__
     }
 
     th       { text-align: left; }
-    .indent0 { padding-top:  20px; border-bottom: 2px solid #313052; }
-    .indent1 { padding-left: 20px; }
-    .indent2 { padding-left: 50px; padding-bottom: 10px; }
+    .indent0 { padding-top:  40px; border-bottom: 2px solid #313052; }
+    .indent1 { padding-top:  10px; border-bottom: 1px solid #313052; }
+    .indent2 { padding-left: 40px; }
+    .indent3 { padding-left: 80px; padding-bottom: 10px; }
 
     p, dl, pre, table { margin:      15px; }
     dt    { font-weight: bold; }
@@ -311,7 +344,8 @@ __DATA__
     Submitting your own smoke is easy,
   </p>
 
-  <pre class="indent1">$ ./util/smokeserv/smokeserv-client.pl ./smoke.html</pre>
+  <pre class="indent2">$ make smoke
+$ ./util/smokeserv/smokeserv-client.pl ./smoke.html</pre>
 
   <p>
     should suffice. See the <a
@@ -329,36 +363,43 @@ __DATA__
   <table>
     <tmpl_loop name=runcores>
       <tr><th colspan="6" class="indent0"><tmpl_var name=name></th></tr>
-      <tr>
-        <th colspan="3" class="indent1">Pugs</th>
-        <th colspan="2">Times</th>
-      </tr>
-      <tr>
-        <th class="indent1">Version</th>
-        <th>Revision</th>
-        <th>OS</th>
-        <th>Upload date</th>
-        <th>Duration</th>
-        <th>% ok</th>
-      </tr>
-      <tmpl_loop name=smokes>
+      <tmpl_loop name=categories>
+        <tr><th colspan="6" class="indent1"><tmpl_var name=catname></th></tr>
         <tr>
-          <td class="indent1">Pugs <tmpl_var name=pugs_version></td>
-          <td>r<tmpl_var name=pugs_revision></td>
-          <td><tmpl_var name=osname escape=html></td>
-          <td><tmpl_var name=timestamp></td>
-          <td><tmpl_var name=duration></td>
-          <td><tmpl_var name=percentage> %</td>
+          <th colspan="3" class="indent2">Pugs</th>
+          <th colspan="2">Times</th>
         </tr>
         <tr>
-          <td colspan="6" class="indent2">
-            <tmpl_loop name=summary>
-              <tmpl_var name=total> test cases: <tmpl_var name=ok> ok, <tmpl_var name=failed> failed, <tmpl_var name=todo> todo,
-              <tmpl_var name=skipped> skipped and <tmpl_var name=unexpect> unexpectedly succeeded
-            </tmpl_loop><br />
-            <a href="<tmpl_var name=link>">View details</a>
-          </td>
+          <th class="indent2">Version</th>
+          <th>Revision</th>
+          <th>OS</th>
+          <th>Upload date</th>
+          <th>Duration</th>
+          <th>% ok</th>
         </tr>
+        <tmpl_loop name=smokes>
+          <tr>
+            <td class="indent2">Pugs <tmpl_var name=pugs_version></td>
+            <td>
+              <tmpl_if name=pugs_revision>
+                r<tmpl_var name=pugs_revision>
+              </tmpl_if>
+            </td>
+            <td><tmpl_var name=osname escape=html></td>
+            <td><tmpl_var name=timestamp></td>
+            <td><tmpl_var name=duration></td>
+            <td><tmpl_var name=percentage> %</td>
+          </tr>
+          <tr>
+            <td colspan="6" class="indent3">
+              <tmpl_loop name=summary>
+                <tmpl_var name=total> test cases: <tmpl_var name=ok> ok, <tmpl_var name=failed> failed, <tmpl_var name=todo> todo,
+                <tmpl_var name=skipped> skipped and <tmpl_var name=unexpect> unexpectedly succeeded
+              </tmpl_loop><br />
+              <a href="<tmpl_var name=link>">View details</a>
+            </td>
+          </tr>
+        </tmpl_loop>
       </tmpl_loop>
     </tmpl_loop>
   </table>

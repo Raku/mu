@@ -15,33 +15,28 @@ by C<smokeserv-client.pl>.
 
 =head2 Client
 
-Using the client is easy, to upload your smoke C<smoke.html> simply run:
+Using the client is easy. In the first place, you have to generate a
+C<smoke.html>. You can achieve this by running C<make>:
+
+  $ make smoke        # or
+  $ make smoke-js     # or
+  $ make smoke-perl5  # or
+  $ make smoke-pir
+
+Then you can upload the resulting smoke:
 
   $ ./util/smokeserv/smokeserv-client.pl ./smoke.html
 
-You don't need to be careful to only submit a smoke once, etc. -- the
+You don't need to be careful to only submit a smoke only once, etc. -- the
 smokeserver takes care of this.
 
 =head2 Server
 
-Setting up the server is easy, too, all you have to do is to install several
-CPAN modules (C<CGI>, C<CGI::Carp>, C<Fcntl>, C<Storable>, C<HTML::Template>,
-C<Algorithm::TokenBucket>, C<Time::Piece>, and C<Time::Seconds>) and change the
-constants at the top of C<smokeserv-server.pl>.
-
-=head1 TODO
-
-=over
-
-=item *
-
-Compression support
-
-=back
-
-=head1 AUTHOR
-
-Ingo Blechschmidt C<< <iblech@web.de> >>
+Setting up a server is easy, too, all you have to do is to install several CPAN
+modules (C<CGI>, C<CGI::Carp>, C<Fcntl>, C<Storable>, C<HTML::Template>,
+C<Algorithm::TokenBucket>, C<Time::Piece>, C<Time::Seconds>, C<Compress::Zlib>,
+and C<Compress::Bzip2>) and change the constants at the top of
+C<smokeserv-server.pl>.
 
 =head1 LICENSE
 
