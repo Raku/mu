@@ -76,6 +76,14 @@ package PVar; @ISA = qw(EvalX::BaseClass); sub expand {
     p6_var_macro($s,2)
     ."\n";
 }
+package PVal; @ISA = qw(EvalX::BaseClass); sub expand {
+    my($self)=@_;
+    if (defined $self->{'pVal'} && $self->{'pVal'} eq "VUndef") {
+	"Scalar->new()";
+    } else {
+	$self->SUPER::expand();
+    }
+}
 package PApp; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
     my($self)=@_;
