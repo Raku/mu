@@ -67,10 +67,10 @@ sub validate_params {
 }
 
 sub uncompress_smoke {
-  $CGI->param("smoke") =
-      Compress::Zlib::memGunzip($CGI->param("smoke")) ||
-      Compress::Bzip2::memBunzip($CGI->param("smoke")) ||
-    $CGI->param("smoke");
+  $CGI->param("smoke",
+    Compress::Zlib::memGunzip($CGI->param("smoke")) ||
+    Compress::Bzip2::memBunzip($CGI->param("smoke")) ||
+    $CGI->param("smoke"));
 }
 
 sub require_compression_modules {

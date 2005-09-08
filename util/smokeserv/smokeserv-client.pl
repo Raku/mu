@@ -15,12 +15,14 @@ GetOptions(
   "smokeserv=s" =>
     \(my $smokeserv = "http://m19s28.vlinux.de/cgi-bin/pugs-smokeserv.pl"),
   "help"        => \&usage,
-  "compress|c"  => \&setup_compression,
+  "compress|c!" => \(my $compression_wanted = 1),
   "version"     => sub { print "smokeserv-client.pl v" . VERSION . "\n"; exit },
 ) or usage();
 @ARGV == 1 or usage();
 
 debug "smokeserv-client v" . VERSION . " started.\n";
+
+setup_compression() if $compression_wanted;
 
 my %request = (upload => 1, version => VERSION, smokes => []);
 
