@@ -65,6 +65,25 @@ MULTI SUB circumfix:<{}> (*@a) {
     return $h;
 };
 
+MULTI SUB circumfix:<[]> (*@a) {
+    my $h = Array->new();
+    if ( @a ) {
+        my $p = shift @a;
+        if ( UNIVERSAL::isa( $p, 'Array' ) ) {
+            for ( $p->items ) {
+                my $pp = $_; # ->clone; XXX
+                # warn "pp = $pp ". $pp->str->unboxed;
+                $h->push( $pp );
+            }
+        }
+        else {
+            $h->push( $p );
+        }
+    }
+    $h = Ref->new( '$.referred' => $h );
+    return $h;
+};
+
 MULTI SUB coerce:as ($x, $to) { 
     my $tmp;
     my $class = $to->unboxed;

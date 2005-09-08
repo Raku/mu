@@ -20,7 +20,7 @@ multi sub nothing () is builtin is primitive is safe {
 
 multi sub postcircumfix:<[ ]> ($a,$i) { Array::slice($a,$i) }
 
-multi sub circumfix:<[]> ($a) { \$a }
+# multi sub circumfix:<[]> ($a) { \($a) }
 
 # TODO - string versions
 multi sub infix:<..^>   ($x0,$x1) { $x0..($x1.decrement) }
