@@ -186,6 +186,26 @@ class 'Hash'.$class_description => {
             # TODO - XXX - remove this after implementing hash slice
             'postcircumfix:{}' => sub { (shift)->fetch( @_ ) },
 
+            'store' => sub {
+                my ($self, @param) = @_;
+                my $tmp = _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v};
+                if ( scalar @param == 1 && UNIVERSAL::isa( $param[0], 'Hash' ) ) {
+                    # store whole hash
+                    $self->clear;
+                    my $key = $param[0]->firstkey;
+                    while ( defined $key ) {
+                        my $tmp = $param[0]->fetch( $key );
+                        # TODO - XXX fetch should always return Scalar
+                        $tmp = $tmp->fetch if UNIVERSAL::isa( $tmp, 'Scalar' ); 
+                        my $s = Scalar->new;
+                        $s->store( $tmp );
+                        $self->store( $key, $s );
+                        $key = $param[0]->nextkey;
+                    }
+                    return $self;
+                }
+                return $tmp->store( @param );
+            },
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
                 my $method = ::AUTOLOAD($self);
@@ -193,23 +213,6 @@ class 'Hash'.$class_description => {
                 # TODO - check if scalar := hash works properly
                 my $tmp = _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v};
                 # warn ref($tmp), ' ', $method, " @param == " . $tmp->$method( @param );
-
-                if ( $method eq 'store' ) {
-                    # warn "HASH STORE @param\n";
-                    if ( scalar @param == 1 && UNIVERSAL::isa( $param[0], 'Hash' ) ) {
-                        # store whole hash
-                        my $key = $param[0]->firstkey;
-                        while ( defined $key ) {
-                            my $tmp = $param[0]->fetch( $key );
-                            # TODO - XXX fetch should always return Scalar
-                            $tmp = $tmp->fetch if UNIVERSAL::isa( $tmp, 'Scalar' ); 
-                            $self->store( $key, $tmp );
-                            $key = $param[0]->nextkey;
-                        }
-                        return $self;
-                    }
-                }
-
                 return $tmp->$method( @param );
             },
         },
