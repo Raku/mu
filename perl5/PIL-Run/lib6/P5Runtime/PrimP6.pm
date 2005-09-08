@@ -53,3 +53,18 @@ multi sub uniq ($array) {
     my %seen;
     $array.map( { if %seen.fetch($_) { () } else { %seen.store($_,1); $_ } } )
 }
+
+multi sub statement_control:loop ($init,$test,$incr,$code) {
+    while($test()) {
+	$code();
+	$incr();
+    }
+}
+multi sub statement_control:for (@_a,$_code) {
+    my $_i = 0;
+    my $_len = +@_a;
+    while($_i < $_len) {
+	$_code(@_a[$_i]);
+	$_i++;
+    }
+}

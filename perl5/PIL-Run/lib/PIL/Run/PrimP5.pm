@@ -139,6 +139,9 @@ MULTI SUB Array::slice ($a,$i) {
 MACROP5   statement_control:<if> ($xx0,$xx1,$xx2) {
     "if (p6_to_b($xx0)) $xx1 else $xx2";
 };
+MACROP5   statement_control:<while> ($xx0,$xx1) {
+    "while (p6_to_b(p6_apply($xx0))) { p6_apply($xx1) }";
+};
 MACROP5   Class::_create ($xx0) {""};
 
 
