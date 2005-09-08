@@ -185,7 +185,20 @@ class 'Hash'.$class_description => {
 
             # TODO - XXX - remove this after implementing hash slice
             'postcircumfix:{}' => sub { (shift)->fetch( @_ ) },
-
+            'fetch' => sub {
+                my ($self, @param) = @_;
+                my $tmp = _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v};
+                my $key = shift @param;
+                my $v = $tmp->fetch( $key );
+                if ( ! UNIVERSAL::isa( $v, 'Scalar' ) ) {
+                    #warn "autovivify - $key - $v\n";
+                    my $s = Scalar->new;
+                    $s->store( $v );
+                    $tmp->store( $key, $s );
+                    return $s;
+                } 
+                return $v;
+            },
             'store' => sub {
                 my ($self, @param) = @_;
                 my $tmp = _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v};
@@ -194,17 +207,24 @@ class 'Hash'.$class_description => {
                     $self->clear;
                     my $key = $param[0]->firstkey;
                     while ( defined $key ) {
-                        my $tmp = $param[0]->fetch( $key );
-                        # TODO - XXX fetch should always return Scalar
-                        $tmp = $tmp->fetch if UNIVERSAL::isa( $tmp, 'Scalar' ); 
-                        my $s = Scalar->new;
-                        $s->store( $tmp );
-                        $self->store( $key, $s );
+                        my $tmp = $param[0]->fetch( $key )->fetch;
+                        # fetch should always return Scalar
+                        #$tmp = $tmp->fetch if UNIVERSAL::isa( $tmp, 'Scalar' ); 
+                        $self->store( $key, $tmp );
                         $key = $param[0]->nextkey;
                     }
                     return $self;
                 }
-                return $tmp->store( @param );
+                my $key = shift @param;
+                my $s = $self->fetch( $key );
+                # fetch should always return Scalar
+                if ( ! UNIVERSAL::isa( $tmp, 'Scalar' ) ) {
+                    #warn "creating scalar";
+                    $s = Scalar->new;
+                    $tmp->store( $key, $s );
+                }
+                $s->store( @param );
+                return @param;
             },
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
