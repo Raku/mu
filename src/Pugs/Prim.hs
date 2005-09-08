@@ -810,12 +810,6 @@ op2 "^^" = \x y -> do
         xor False False = VBool False
     op2Cast xor x y
 op2 "//" = op2Logical (return . defined)
-op2 "!!" = \x y -> callCC $ \esc -> do
-    bx <- fromVal x
-    when bx $ esc (VBool False)
-    by <- fromVal y
-    when by $ esc (VBool False)
-    return (VBool True)
 op2 ".[]" = \x y -> do
     evl <- asks envEval
     evl $ Syn "[]" [Val x, Val y]
@@ -827,7 +821,6 @@ op2 "and"= op2 "&&"
 op2 "or" = op2 "||"
 op2 "xor"= op2 "^^"
 op2 "err"= op2 "//"
-op2 "nor"= op2 "!!"
 op2 "grep" = op2Grep
 op2 "map"  = op2Map
 op2 "join" = op2Join
@@ -1621,7 +1614,6 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      chain   gt      safe   (Str, Str)\
 \\n   Bool      chain   ge      safe   (Str, Str)\
 \\n   Scalar    left    &&      safe   (Bool, ~Bool)\
-\\n   Scalar    left    !!      safe   (Bool, ~Bool)\
 \\n   Scalar    left    ||      safe   (Bool, ~Bool)\
 \\n   Scalar    left    ^^      safe   (Bool, Bool)\
 \\n   Scalar    left    //      safe   (Bool, ~Bool)\
@@ -1633,7 +1625,6 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      left    ==>     safe   (List, Code)\
 \\n   Scalar    left    and     safe   (Bool, ~Bool)\
 \\n   Scalar    left    or      safe   (Bool, ~Bool)\
-\\n   Scalar    left    nor     safe   (Bool, ~Bool)\
 \\n   Scalar    left    xor     safe   (Bool, Bool)\
 \\n   Scalar    left    err     safe   (Bool, ~Bool)\
 \\n   Str       pre     chr     safe   (?Int=$_)\

@@ -1252,9 +1252,9 @@ tightOperators = do
     , chainOps $
                " != == < <= > >= ~~ !~ " ++
                " eq ne lt le gt ge =:= eqv "            -- Chained Binary
-    , leftOps  " && !! "                                -- Tight And
+    , leftOps  " && "                                   -- Tight And
     , leftOps  " || ^^ // "                             -- Tight Or
-    , [ternOp "??" "::" "if"]                           -- Ternary
+    , [ternOp "??" "!!" "if"]                           -- Ternary
     -- Assignment
     , rightOps " => "                                -- Pair constructor
       ++ rightSyn (
@@ -1269,7 +1269,7 @@ looseOperators = do
     return $
         [ -- preOps names                               -- List Operator
           leftOps  " ==> "                              -- Pipe Forward
-        , leftOps  " and nor "                          -- Loose And
+        , leftOps  " and "                              -- Loose And
         , leftOps  " or xor err "                       -- Loose Or
         ]
 
@@ -1644,9 +1644,9 @@ ruleFoldOp = verbatimRule "reduce metaoperator" $ do
         , " => "
         , " != == < <= > >= ~~ !~ "
         , " eq ne lt le gt ge =:= eqv "
-        , " && !! "
+        , " && "
         , " || ^^ // "
-        , " and nor or xor err "
+        , " and or xor err "
         , " .[] .{} "
         ]
 
