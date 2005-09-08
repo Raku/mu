@@ -480,7 +480,8 @@ ruleSubName = verbatimRule "subroutine name" $ do
 ruleOperatorName :: RuleParser String
 ruleOperatorName = do
     fixity <- choice (map (try . string) fixities)
-    name <- try (between (string "<<") (string ">>")
+    name <- identifier
+            <|> try (between (string "<<") (string ">>")
               (many1 (satisfy (/= '>') <|> lookAhead (satisfy (/= '>')))))
             <|> between (char '<') (char '>') (many1 $ satisfy (/= '>'))
             <|> between (char '\171') (char '\187') (many1 $ satisfy (/= '\187'))
