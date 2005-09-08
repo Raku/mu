@@ -15,6 +15,7 @@ sub ::create_class (%) {
         \$::Class,
         (
             '@:MRO'              => [],
+            '@:subclasses'       => [],
             '@:superclasses'     => [],
             '%:private_methods'  => {},
             '%:attributes'       => {},

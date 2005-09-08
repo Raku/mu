@@ -255,17 +255,3 @@ is_deeply(
     [ $Pedalo->MRO ],
     [ $Pedalo, $PedalWheelBoat, $EngineLess, $SmallCatamaran, $SmallMultiHull, $DayBoat, $WheelBoat, $Boat, $::Object ],
     '... got the right list for the Pedalo Dylan Example');  
-
-
-
-
-
-
-
-
-
-
-
-
-
-

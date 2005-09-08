@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 2;
+use Test::More tests => 3;
 use Test::Exception;
 
 =pod
@@ -77,3 +77,22 @@ throws_ok {
         is => [ $Diamond2_D, $Diamond2_E ]
     };
 } qr/Inconsistent hierarchy/, '... this should die';
+
+
+=pod
+
+circular inheritence
+    
+  +-- B <-+
+  |       |
+  +-> A --+
+
+=cut
+
+my $B = class 'B' => { is => [ $::Object ] };
+my $A = class 'A' => { is => [ $B ] };
+
+throws_ok {
+    $B->superclasses([ $::Object, $A ]);
+} qr/Inconsistent hierarchy/, '... this should die';    
+

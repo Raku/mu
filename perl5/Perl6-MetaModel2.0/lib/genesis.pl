@@ -75,12 +75,13 @@ $::Module->add_method('identifier' => ::make_method(sub {
 # ... this makes ::Class a subclass of ::Object
 # the result of this is (Theos)
 
-# < Class is a subclass of Module is a subclass of Object >
+# < Class is a subclass of Module is a subclass of Package is a subclass of Object >
 ::opaque_instance_attrs($::Class)->{'@:superclasses'} = [ $::Module ];
+::opaque_instance_attrs($::Module)->{'@:subclasses'}  = [ $::Class  ];
 
 # NOTE:
 # this is to avoid recursion
-::opaque_instance_attrs($::Class)->{'@:MRO'} = [ $::Class, $::Module, $::Package, $::Object ];
+::opaque_instance_attrs($::Class)->{'@:MRO'}  = [ $::Class, $::Module, $::Package, $::Object ];
 ::opaque_instance_attrs($::Object)->{'@:MRO'} = [ $::Object ];
 
 # now make sure we set everyone's name properly
@@ -150,6 +151,8 @@ $::Class->add_method('STORE' => ::make_method(sub {
         ::next_METHOD();
     }
 }, $::Class));
+
+__END__
 
 ## ----------------------------------------------------------------------------
 ## Role

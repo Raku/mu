@@ -95,13 +95,16 @@ $::Class->add_method('can' => ::make_method(sub {
     return ::WALKMETH(::opaque_instance_class($self)->dispatcher(':canonical'), $label);
 }, $::Class));
 
-$::Class->add_method('id' => ::make_method(sub { ::opaque_instance_id(shift) }, $::Class));
+$::Class->add_method('id' => ::make_method(sub { ::opaque_instance_id($::SELF) }, $::Class));
 
 $::Class->add_method('superclasses' => ::make_method(sub {        
     my ($self, $superclasses) = @_;
     if (defined $superclasses) {
         confess "You must pass the superclasses in an ARRAY ref"
             unless ref($superclasses) eq 'ARRAY';
+        foreach my $super (@{$superclasses}) {
+            $super->add_subclass($self);
+        }
         # XXX -
         # we should check that none of the classes passed to us
         # are also subclasses of us, this is circular inheritance
@@ -113,6 +116,15 @@ $::Class->add_method('superclasses' => ::make_method(sub {
         $self->MRO();
     }
     ::opaque_instance_attrs($self)->{'@:superclasses'};
+}, $::Class));
+
+$::Class->add_method('subclasses' => ::make_method(sub {        
+    ::opaque_instance_attrs($::SELF)->{'@:subclasses'};
+}, $::Class));
+
+$::Class->add_method('add_subclass' => ::make_method(sub {      
+    my ($self, $subclass) = @_;  
+    push @{::opaque_instance_attrs($self)->{'@:subclasses'}} => $subclass;
 }, $::Class));
 
 $::Class->add_method('_merge' => ::make_private_method(sub {                
@@ -368,6 +380,7 @@ $::Class->add_method('find_attribute_spec' => ::make_method(sub {
 
 $::Class->add_attribute('@:MRO'              => ::make_attribute('@:MRO'));
 $::Class->add_attribute('@:superclasses'     => ::make_attribute('@:superclasses'));
+$::Class->add_attribute('@:subclasses'       => ::make_attribute('@:subclasses'));
 $::Class->add_attribute('%:private_methods'  => ::make_attribute('%:private_methods'));
 $::Class->add_attribute('%:attributes'       => ::make_attribute('%:attributes'));
 $::Class->add_attribute('%:methods'          => ::make_attribute('%:methods'));

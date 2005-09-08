@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 55;
+use Test::More tests => 59;
 use Test::Exception; 
 
 do 'lib/genesis.pl'; 
@@ -11,7 +11,12 @@ do 'lib/genesis.pl';
 is_deeply(
     $::Package->superclasses, 
     [ $::Object ], 
-    '... $::Package->superclasses() is [ $::Object ]');    
+    '... $::Package->superclasses() is [ $::Object ]'); 
+    
+is_deeply(
+    $::Package->subclasses, 
+    [ $::Module ], 
+    '... $::Package->subclasses() is [ $::Module ]');        
     
 is_deeply(
     $::Module->superclasses, 
@@ -19,14 +24,29 @@ is_deeply(
     '... $::Module->superclasses() is [ $::Package ]');   
     
 is_deeply(
+    $::Module->subclasses, 
+    [ $::Class ], 
+    '... $::Module->subclasses() is [ $::Class ]');      
+    
+is_deeply(
     $::Class->superclasses, 
     [ $::Module ], 
     '... $::Class->superclasses() is [ $::Module ]');        
+    
+is_deeply(
+    $::Class->subclasses, 
+    [], 
+    '... $::Class->subclasses() is []');            
 
 is_deeply(
     $::Object->superclasses, 
     [], 
-    '... $::Object->superclasses() is []');            
+    '... $::Object->superclasses() is []');   
+    
+is_deeply(
+    $::Object->subclasses, 
+    [ $::Package ], 
+    '... $::Object->subclasses() is [ $::Package ]');                 
 
 is_deeply(
     [ $::Package->MRO() ], 

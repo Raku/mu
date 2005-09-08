@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 66;
+use Test::More tests => 72;
 use Test::Exception;
 
 do 'lib/metamorph.pl';
@@ -69,6 +69,8 @@ lives_ok_and_ok {
 
 # check public methods
 foreach my $method_name (qw(superclasses
+                            subclasses
+                            add_subclass
                             MRO
                             dispatcher
                             is_a
@@ -99,7 +101,8 @@ foreach my $method_name (qw(_merge
     } '... $::Class->has_method(' . $method_name . ')';
 }
 
-my @attribute_name_list = ('@:MRO',              
+my @attribute_name_list = ('@:MRO',        
+                           '@:subclasses',      
                            '@:superclasses',    
                            '%:private_methods',  
                            '%:attributes',       
