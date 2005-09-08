@@ -295,7 +295,7 @@ Autrijus Tang
 +* Interactive mode:
 
     % pugs
-    pugs> { $_ ?? $_ * &?BLOCK( $_ - 1 ) :: 1 }.(10)
+    pugs> { $_ ?? $_ * &?BLOCK( $_ - 1 ) !! 1 }.(10)
     3628800
 
 ----
@@ -683,7 +683,7 @@ Perl-Compiler Tree
 +* Unicode operators
 
     sub prefix:<Σ>  (@x) { sum(@x) }
-    sub postfix:<!> ($n) { ($n < 2) ?? 1 :: $n * ($n-1)! }
+    sub postfix:<!> ($n) { ($n < 2) ?? 1 !! $n * ($n-1)! }
     say( Σ 1..5! );             # 7260
     (1, 2) ¥ ('a', 'b');        # (1, 'a', 2, 'b')
 

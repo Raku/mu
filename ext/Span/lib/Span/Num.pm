@@ -111,7 +111,7 @@ method union ($self: Span::Num $span )
     }
     elsif ($cmp == 0) {
         $i_start = $.start;
-        $open_start = $.start_is_open ?? $span.start_is_open :: 0;
+        $open_start = $.start_is_open ?? $span.start_is_open !! 0;
     }
     else {
         $i_start = $.start;
@@ -125,7 +125,7 @@ method union ($self: Span::Num $span )
     }
     elsif ($cmp == 0) {
         $i_end = $.end;
-        $open_end = $.end_is_open ?? $span.end_is_open :: 0;
+        $open_end = $.end_is_open ?? $span.end_is_open !! 0;
     }
     else {
         $i_end = $.end;
@@ -188,9 +188,9 @@ method stringify () returns String {
     my $tmp1 = "$.start";
     my $tmp2 = "$.end";
     return $tmp1 if $tmp1 eq $tmp2;
-    return ( $.start_is_open ?? '(' :: '[' ) ~
+    return ( $.start_is_open ?? '(' !! '[' ) ~
            $tmp1 ~ ',' ~ $tmp2 ~
-           ( $.end_is_open   ?? ')' :: ']' );
+           ( $.end_is_open   ?? ')' !! ']' );
 }
 
 method compare ( Span::Num $span ) returns int {

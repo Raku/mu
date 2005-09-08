@@ -37,7 +37,7 @@ method plugins {
                };
                unless %plugins{$class} {
                    %plugins{$class} =
-                       $.require ?? $class :: $.callback.($class);
+                       $.require ?? $class !! $.callback.($class);
                }
                # XXX: add advanced class detection
            }

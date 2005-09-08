@@ -69,13 +69,13 @@ class Locale::KeyedText::Translator {
 
 method new( $class: Any $set_names is rw, Any $member_names is rw ) returns Locale::KeyedText::Translator {
 
-    my $set_names_copy = $set_names.does(Array) ?? [@{$set_names}] :: [$set_names];
+    my $set_names_copy = $set_names.does(Array) ?? [@{$set_names}] !! [$set_names];
     +$set_names_copy > 0 or return;
     for $set_names_copy -> $set_name {
         $set_name.defined or return;
     }
 
-    my $member_names_copy = $member_names.does(Array) ?? [@{$member_names}] :: [$member_names];
+    my $member_names_copy = $member_names.does(Array) ?? [@{$member_names}] !! [$member_names];
     +$member_names_copy > 0 or return;
     for $member_names_copy -> $member_name {
         $member_name.defined or return;

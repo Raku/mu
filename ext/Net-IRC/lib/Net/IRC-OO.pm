@@ -483,7 +483,7 @@ class Net::IRC {
     submethod BUILD(Bool ?$.floodcontrol = 0) {
       $:bucket = $.floodcontrol
         ?? Bucket.new(rate => (1/2),    burst_size => 5)
-        :: Bucket.new(rate => (1000/2), burst_size => 5000); # hack
+        !! Bucket.new(rate => (1000/2), burst_size => 5000); # hack
       $:bucket.fill;
     }
 

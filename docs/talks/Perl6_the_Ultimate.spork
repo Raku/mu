@@ -384,7 +384,7 @@ presentation_date: March 27th, 2005
 +* 萬國碼算符
 
     sub prefix:<Σ>  (@x) { sum(@x) }
-    sub postfix:<!> ($n) { ($n < 2) ?? 1 :: $n * ($n-1)! }
+    sub postfix:<!> ($n) { ($n < 2) ?? 1 !! $n * ($n-1)! }
     say( Σ 1..5! );             # 7260
     (1, 2) ¥ ('a', 'b');        # (1, 'a', 2, 'b')
 
@@ -406,7 +406,7 @@ presentation_date: March 27th, 2005
 
 +* 三元算符
 
-    $x ?? $y :: $z;
+    $x ?? $y !! $z;
 
 ----
 == Perl 6: 字串
@@ -905,7 +905,7 @@ presentation_date: March 27th, 2005
 +* 互動式界面
 
     % pugs
-    pugs> { $_ ?? $_ * &?BLOCK( $_ - 1 ) :: 1 }.(10)
+    pugs> { $_ ?? $_ * &?BLOCK( $_ - 1 ) !! 1 }.(10)
     3628800
 
 ----

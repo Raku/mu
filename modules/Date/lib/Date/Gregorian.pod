@@ -64,10 +64,10 @@ Date::Gregorian - dates on the Gregorian Calendar
   $new_date = $date.as_tz('Iceland');
 
   # comparison between absolute dates
-  say $date1 > $date2 ?? "I am older" :: "I am younger";
+  say $date1 > $date2 ?? "I am older" !! "I am younger";
 
   # comparison between relative dates
-  say $reldate1 > $reldate2 ?? "I am faster" :: "I am slower";
+  say $reldate1 > $reldate2 ?? "I am faster" !! "I am slower";
 
   # Adding / Subtracting months and years are sometimes
   # tricky; in general be sure whether you mean "one month"

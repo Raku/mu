@@ -26,7 +26,7 @@ sub _time_func ($loop) {
 sub timethese ($count, %hash) is export {
     for %hash.kv -> $name, $code {
         my @time = timeit($count, $code);
-        say "$name: { @time[0] != 0 ?? int($count / @time[0]) :: "Inf" }/s";
+        say "$name: { @time[0] != 0 ?? int($count / @time[0]) !! "Inf" }/s";
     }
 }
 

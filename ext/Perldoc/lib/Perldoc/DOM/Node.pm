@@ -16,7 +16,7 @@ method dom_attr($self:) returns Hash {
     { $self.dom_fields.map:{
         my $val = eval '$self.'~$_;
         say "warning: error $!" if $!;
-        ($val.defined ?? ($_ => $self.($_)) :: ())
+        ($val.defined ?? ($_ => $self.($_)) !! ())
     } };
 }
 

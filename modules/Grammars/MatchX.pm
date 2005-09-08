@@ -42,7 +42,7 @@ class MatchX {
         if !$m {
             ./set_as_failed;
         } else {
-            $.as_b = $m ?? bool::true :: bool::false;#?$m;
+            $.as_b = $m ?? bool::true !! bool::false;#?$m;
             $.as_i = 0+$m;#+$m; #Should usually be 1.
             $.as_s = ""~$m;#~$m;
             $.as_a = [@$m];
@@ -82,7 +82,7 @@ class MatchX::Submatch is MatchX {
 
 multi method MatchX::describe() returns String {
     my $cls = .ref; $cls ~~ s:perl5/\A:://;
-    my $b = $.as_b ?? 1 :: 0;
+    my $b = $.as_b ?? 1 !! 0;
     my @ae = $.as_a;
     my $a = join(",\n",map {$_.describe}, @ae);
     if $a ne "" {
@@ -99,7 +99,7 @@ multi method MatchX::describe() returns String {
 multi method Match::describe() returns String {
     my $m = $?SELF;
     my $cls = $m.ref; $cls ~~ s:perl5/\A:://;
-    my $b = $m ?? 1 :: 0;
+    my $b = $m ?? 1 !! 0;
     my $i = 0+$m;
     my $s = ""~$m;
     my $a = join(",\n",map {$_.describe},@$m);

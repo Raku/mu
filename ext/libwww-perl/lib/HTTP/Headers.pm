@@ -93,7 +93,7 @@ method remove_header (Str *@fields) {
   for @fields -> $field is copy {
     $field ~~ tr/_/-/ if not $field ~~ /^\:/ and $TRANSLATE_UNDERSCORE;
     my $v = %:headers.delete($field.lc);
-    push @values, $v ~~ Array ?? @$v :: $v if defined $v;
+    push @values, $v ~~ Array ?? @$v !! $v if defined $v;
   }
 
   return @values;
@@ -124,17 +124,17 @@ method :header (Str $field is copy, Str $val is copy, Str ?$op = "") {
 
   my $h = %:headers{$field};
   $h //= [];
-  my @old = $h ~~ Array ?? @$h :: ($h);
+  my @old = $h ~~ Array ?? @$h !! ($h);
 
   $val = undef if $op eq "INIT" and @old;
   if $val.defined {
-    my @new = ($op eq "PUSH") ?? @old :: ();
+    my @new = ($op eq "PUSH") ?? @old !! ();
     if $val !~ Array {
       push @new, $val;
     } else {
       push @new, *@$val;
     }
-    %:headers{$field} = @new > 1 ?? \@new :: @new[0];
+    %:headers{$field} = @new > 1 ?? \@new !! @new[0];
   }
 
   return @old;

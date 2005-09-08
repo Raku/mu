@@ -30,23 +30,23 @@ method glob_to_regex ($glob) {
             $regex ~= "\\$char";
         }
         elsif ( $char eq '*' ) {
-            $regex ~= $escaping ?? "\\*" ::
-              $.strict_wildcard_slash ?? "[^/]*" :: ".*";
+            $regex ~= $escaping ?? "\\*" !!
+              $.strict_wildcard_slash ?? "[^/]*" !! ".*";
         }
         elsif ( $char eq '?' ) {
-            $regex ~= $escaping ?? "\\?" ::
-              $.strict_wildcard_slash ?? "[^/]" :: ".";
+            $regex ~= $escaping ?? "\\?" !!
+              $.strict_wildcard_slash ?? "[^/]" !! ".";
         }
         elsif ( $char eq '{' ) {
-            $regex ~= $escaping ?? '\{' :: '(';
+            $regex ~= $escaping ?? '\{' !! '(';
             ++$in_curlies unless $escaping;
         }
         elsif ( $char eq '}' && $in_curlies ) {
-            $regex ~= $escaping ?? "}" :: ")";
+            $regex ~= $escaping ?? "}" !! ")";
             --$in_curlies unless $escaping;
         }
         elsif ( $char eq ',' && $in_curlies ) {
-            $regex ~= $escaping ?? "," :: "|"
+            $regex ~= $escaping ?? "," !! "|"
         }
         elsif ( $char eq "\\" ) {
             if ($escaping) {

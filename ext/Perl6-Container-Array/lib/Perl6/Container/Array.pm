@@ -142,7 +142,7 @@ method elems ( $array: ) {
     my $count = 0;
     for $.items {
         $count += $_.isa( 'Perl6::Value::List' )  ?? 
-                  $_.Perl6::Value::List::elems  :: 
+                  $_.Perl6::Value::List::elems  !! 
                   1;
     }
     $count;
@@ -261,7 +261,7 @@ method store ( $array: Int $pos, $item ) {
 method reverse ( $array: ) { 
     my $rev = Perl6::Array::reverse $array.items;
     $rev = $rev.Perl6::Array::map:{
-            $_.isa('Perl6::Value::List') ?? $_.Perl6::Value::List::reverse :: $_
+            $_.isa('Perl6::Value::List') ?? $_.Perl6::Value::List::reverse !! $_
         };
     return Perl6::Container::Array.from_list( @{$rev} );
 }

@@ -1,6 +1,6 @@
 #=euler.pl - Berechnung der Euler'schen Zahl in Perl 6
 use v6;
-sub infix:«>?» ($a, $b) { $a > $b ?? $a :: $b }
+sub infix:«>?» ($a, $b) { $a > $b ?? $!!:: $b }
 sub postfix:<!> ($x) { [*] 1..$x >? 1 }
 sub e {
 	my $ret = 0;

@@ -8,5 +8,5 @@ say PI;
 say term:<PI>()
 
 #=tertiärer Operator
-$wahr ?? $a :: $b	# in Perl 5 war das $wahr ? $a : $b
-$wahr.tertiary:<?? ::>($a, $b) # keine Ahnung ob richtig!
+$wahr ?? $a !! $b	# in Perl 5 war das $wahr ? $a : $b
+$wahr.tertiary:<?? !!>($a, $b) # keine Ahnung ob richtig!

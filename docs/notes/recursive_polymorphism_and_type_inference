@@ -138,7 +138,7 @@ Then, to write visitors, you can use multis:
     multi run ($v`pred)   { run($v) - 1 }
     multi run ($v`iszero) { run($v) == 0 }
     multi run (`cond:($c, $true, $false)) {
-        run($c) ?? run($true) :: run($false);
+        run($c) ?? run($true) !! run($false);
     }
 
 Hmmm.. this imples some sort of signature-signature binding.  What I'd

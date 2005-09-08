@@ -228,7 +228,7 @@ method size () returns Object {
 
 sub _normalize_parameter ( $self, $param ) {
     # TODO - reorder these rules or move to the subclasses
-    my $span0 = $self.isa( 'Span' ) ?? $self.span :: $self;
+    my $span0 = $self.isa( 'Span' ) ?? $self.span !! $self;
     my $span1 = $param;
     # say "normalize ", $span0, $span1;
     if $span1.isa( 'Recurrence' ) {
@@ -347,7 +347,7 @@ method current ( $x ) {
 method closest ($self: $x ) {
     my $n = $self.next( $x );
     my $p = $self.current( $x );
-    return $n - $x < $x - $p ?? $n :: $p;
+    return $n - $x < $x - $p ?? $n !! $p;
 }
 
 method iterator ($self: ) returns Span::Iterator {

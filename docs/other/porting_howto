@@ -14,7 +14,7 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
   - Often, the translation of P5 -> P6 is quite mechanic:
     - $array[idx] -> @array[idx]
     - scalar @foo -> +@foo # or @foo.elems
-    - a ? b : c -> a ?? b :: c
+    - a ? b : c -> a ?? b !! c
     - $self->method(...) -> .method(...)
     - sub { my ($self, $a, $b) = @_; ... } ->
       method($a, $b) { ... }

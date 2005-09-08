@@ -19,7 +19,7 @@ class HTTP::Query-0.0.1 {
         
         return unless @val > 0;
         
-        return (want.List) ?? @val :: @val[0];
+        return (want.List) ?? @val !! @val[0];
     }
     
     multi method param ($query: Str $name, Str *@vals) is rw {

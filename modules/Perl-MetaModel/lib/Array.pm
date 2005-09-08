@@ -125,7 +125,7 @@ multi sub Array::pop () returns Scalar {
                              ) returns List
  multi sub Perl6::Lists::zip (: Array *@lists, Bit +$shortest) returns Lazy {
    gather {
-     while $shortest ?? all (@lists) :: any(@lists) {
+     while $shortest ?? all (@lists) !! any(@lists) {
        for @lists -> @list {
          take shift @list;
        }

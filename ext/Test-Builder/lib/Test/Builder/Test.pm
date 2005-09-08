@@ -62,7 +62,7 @@ role Test::Builder::Test::Base
 
     method report returns Str
     {
-        my $ok  = $.passed ?? 'ok ' :: 'not ok ';
+        my $ok  = $.passed ?? 'ok ' !! 'not ok ';
         $ok    ~= $.number;
         $ok    ~= " - $.description" if $.description;
 
@@ -109,7 +109,7 @@ class Test::Builder::Test::TODO does Test::Builder::Test::WithReason
 {
     method report returns Str
     {
-        my $ok          = $.passed ?? 'ok' :: 'not ok';
+        my $ok          = $.passed ?? 'ok' !! 'not ok';
         my $description = "# TODO $.description";
         return join( ' ', $ok, $.number, $description );
     }

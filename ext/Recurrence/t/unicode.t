@@ -26,18 +26,18 @@ my $odd_numbers = $even_numbers.complement;
 {
     # 0 .. Inf
     my $span1 = Recurrence.new( 
-        closure_next =>        sub { $_ >= 0 ?? $_ + 1 ::    0 },
-        closure_previous =>    sub { $_ > 0 ??  $_ - 1 :: -Inf },
-        complement_next =>     sub { $_ < 1 ??  $_ + 1 ::  Inf },
-        complement_previous => sub { $_ < 0 ??  $_ - 1 ::   -1 },
+        closure_next =>        sub { $_ >= 0 ?? $_ + 1 !!    0 },
+        closure_previous =>    sub { $_ > 0 ??  $_ - 1 !! -Inf },
+        complement_next =>     sub { $_ < 1 ??  $_ + 1 !!  Inf },
+        complement_previous => sub { $_ < 0 ??  $_ - 1 !!   -1 },
         universe => $universe );
     
     # -Inf .. 10
     my $span3 = Recurrence.new( 
-        closure_next =>         sub { $_ < 10 ??  $_ + 1 ::  Inf },
-        closure_previous =>     sub { $_ < 11 ??  $_ - 1 ::   10 },
-        complement_next =>      sub { $_ >= 10 ?? $_ + 1 ::   11 },
-        complement_previous =>  sub { $_ > 11 ??  $_ - 1 :: -Inf },
+        closure_next =>         sub { $_ < 10 ??  $_ + 1 !!  Inf },
+        closure_previous =>     sub { $_ < 11 ??  $_ - 1 !!   10 },
+        complement_next =>      sub { $_ >= 10 ?? $_ + 1 !!   11 },
+        complement_previous =>  sub { $_ > 11 ??  $_ - 1 !! -Inf },
         universe => $universe );
     
     {

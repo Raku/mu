@@ -155,7 +155,7 @@ sub file_name_is_absolute (Str $file) returns Bool is export {
 
 sub path returns Array is export {
     return unless %*ENV{'PATH'}.defined;
-    return split(':', %*ENV{'PATH'}).map:{ $_ eq '' ?? '.' :: $_ };
+    return split(':', %*ENV{'PATH'}).map:{ $_ eq '' ?? '.' !! $_ };
 }
 
 # This HACK is worse than

@@ -285,7 +285,7 @@ multi sub decode_entities($string is rw) is export
     my $result = $string;
     
     $result ~~ s:perl5:g/&\#(\d+);?/{chr($0)}/;
-    $result ~~ s:perl5:g/(&\#[xX]([0-9a-fA-F]+);?)/{my $c = hex($1); $c < 256 ?? chr($c) :: $0}/;
+    $result ~~ s:perl5:g/(&\#[xX]([0-9a-fA-F]+);?)/{my $c = hex($1); $c < 256 ?? chr($c) !! $0}/;
     $result ~~ s:perl5:g/(&(\w+);?)/{%entity_to_char{$1} // $0}/;
     
     $string = $result;
@@ -332,7 +332,7 @@ sub encode_entities (Str $string is rw, ?$unsafe_chars) is export
         $result ~~ s:perl5:g/([$unsafe_chars])/{
             %char_to_entity.exists($0)
                 ?? %char_to_entity{$0}
-                :: num_entity($0)
+                !! num_entity($0)
         }/;
     }
     else {
@@ -340,7 +340,7 @@ sub encode_entities (Str $string is rw, ?$unsafe_chars) is export
         $result ~~ s:perl5:g/([^\n\r\t !\#\$%\'-;=?-~])/{
             %char_to_entity.exists($0)
                 ?? %char_to_entity{$0}
-                :: num_entity($0)
+                !! num_entity($0)
         }/;
     }
     $string = $result;

@@ -26,7 +26,7 @@ rule block {
 ## the main subs
 
 sub run_widget($match_in, %variables) {
-    my $match = $match_in<elem> ?? $match_in<elem> :: $match_in<block>;
+    my $match = $match_in<elem> ?? $match_in<elem> !! $match_in<block>;
     my $widget = $match[0];
     my %parameters;
     %parameters{'_content'} = $match[3] if $match[3];

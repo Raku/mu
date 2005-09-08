@@ -198,7 +198,7 @@ method contains ($self: $x ) returns bool {
 method closest ($self: $x ) {
     my $n = $self.next( $x );
     my $p = $self.current( $x );
-    return $n - $x < $x - $p ?? $n :: $p;
+    return $n - $x < $x - $p ?? $n !! $p;
 }
 
 method is_empty ($self: ) {
@@ -224,7 +224,7 @@ submethod _get_union ( $closure1, $closure2, $direction ) {
     return sub ( $x is copy ) {
         my $n1 = &{ $closure1 }( $x );
         my $n2 = &{ $closure2 }( $x );
-        return ( $n1 <=> $n2 ) == $direction ?? $n1 :: $n2;
+        return ( $n1 <=> $n2 ) == $direction ?? $n1 !! $n2;
     }
 }
 
@@ -303,10 +303,10 @@ Recurrence - An object representing an infinite recurrence set
 
     # all non-zero integers
     $non_zero = Recurrence.new( 
-        closure_next =>        sub ($x) { $x == -1 ??  1 :: $x + 1 },
-        closure_previous =>    sub ($x) { $x ==  1 ?? -1 :: $x - 1 },
-        complement_next =>     sub ($x) { $x < 0   ??  0 ::    Inf },
-        complement_previous => sub ($x) { $x > 0   ??  0 ::   -Inf },
+        closure_next =>        sub ($x) { $x == -1 ??  1 !! $x + 1 },
+        closure_previous =>    sub ($x) { $x ==  1 ?? -1 !! $x - 1 },
+        complement_next =>     sub ($x) { $x < 0   ??  0 !!    Inf },
+        complement_previous => sub ($x) { $x > 0   ??  0 !!   -Inf },
         universe => $universe );
 
     # TODO - test this

@@ -152,7 +152,7 @@ method decoded_content ($self: ) {
 method as_string ($self: Str ?$newline = "\n") returns Str {
     my $content = $self.content;
     
-    return [~] ($:headers.as_string($newline), $newline, ($content.chars && $content !~ /\n$/) ?? "\n" :: "");
+    return [~] ($:headers.as_string($newline), $newline, ($content.chars && $content !~ /\n$/) ?? "\n" !! "");
 }
 
 method parts ($self: *@new) is rw {
@@ -215,7 +215,7 @@ method :parts ($self: ) {
     } elsif ($content_type eq "message/http") {
         my $content = $self.content;
         
-        my $class = ($content ~~ m,^(HTTP/.*)\n,) ?? HTTP::Response :: HTTP::Request;
+        my $class = ($content ~~ m,^(HTTP/.*)\n,) ?? HTTP::Response !! HTTP::Request;
         @:parts = $class.parse($content);
     } elsif ($content_type ~~ m,message/,) {
         @:parts = HTTP::Message.parse($self.content);

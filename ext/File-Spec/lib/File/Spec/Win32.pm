@@ -84,7 +84,7 @@ sub catpath (Str $volume, Str $directory, Str $file) returns Str is export {
            $file ~~ rx:perl5{[^\\/]}
        ) {
         $vol ~~ rx:perl5{([\\/])};
-        my $sep = $0 ?? $0 :: "\\";
+        my $sep = $0 ?? $0 !! "\\";
         $vol ~= $sep;
     }
     $vol ~= $file;
@@ -149,7 +149,7 @@ sub no_upwards (*@filenames) returns Array is export {
 
 sub path returns Array is export {
     my $path = %*ENV{'PATH'} || %*ENV{'Path'} || %*ENV{'path'};
-    return split(';', $path).map:{ $_ eq '' ?? '.' :: $_ };
+    return split(';', $path).map:{ $_ eq '' ?? '.' !! $_ };
 }
 
 sub file_name_is_absolute (Str $file) returns Bool is export {

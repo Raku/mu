@@ -27,7 +27,7 @@ method members() returns List {
     # does not seem to get initialized properly
     # and calling members before any values are
     # set results in a error
-    %:members ?? %:members.values :: ();
+    %:members ?? %:members.values !! ();
 }
 
 # NOTE:

@@ -10,9 +10,9 @@ sub make_attribute(%attrs, Bool ?$escape = 0) is export {
         
         $copy ~~ s:P5:g/_/-/;
         
-        my $value = ($escape) ?? simple_escape(%attrs{$key}) :: %attrs{$key};
+        my $value = ($escape) ?? simple_escape(%attrs{$key}) !! %attrs{$key};
         
-        push @return, (%attrs{$key}.defined) ?? qq/$copy="$value"/ :: qq/$copy/;
+        push @return, (%attrs{$key}.defined) ?? qq/$copy="$value"/ !! qq/$copy/;
     }
     
     return @return;

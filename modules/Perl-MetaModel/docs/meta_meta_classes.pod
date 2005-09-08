@@ -226,7 +226,7 @@ MetaMetaClass is actually independent of a given programming language. That it i
 something which the "user" should ever really have access too. It is a part of the compiler 
 and/or runtime environment upon which a programming language resides.
 
-The second thing is ... hmmm, what was it??
+The second thing is ... hmmm, what was it?
 
 =head1 Why do we need all this abstraction?
 

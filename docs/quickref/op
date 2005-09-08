@@ -14,7 +14,7 @@ Precedence
     chaining binary     != == < <= > >= ~~ !~ eq ne lt le gt ge =:=
     tight and           &&
     tight or            || ^^ //
-    ternary             ?? ::
+    ternary             ?? !!
     assignment          = := ::= += -= **= xx= etc.
     list item separator , ¥
     list op (rightward) <== [+] print push any all true not etc.
@@ -100,7 +100,7 @@ Logic operators
     //        err       # infix (defined-or)
     !         not       # prefix
     ?         true      # prefix
-    ?? ::               # ternary
+    ?? !!               # ternary
 
 Quote-like operators
 

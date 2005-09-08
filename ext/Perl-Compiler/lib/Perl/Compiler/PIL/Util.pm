@@ -8,7 +8,7 @@ class Perl::Compiler::PIL::Util::Pad {
             $?SELF;
         }
         else {
-            $.parent ?? $.parent.lookup_pad($name) :: fail;
+            $.parent ?? $.parent.lookup_pad($name) !! fail;
         }
     }
 }

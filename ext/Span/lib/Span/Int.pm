@@ -20,8 +20,8 @@ method end_is_closed   () { return bool::true  }
 method end_is_open     () { return bool::false }
 
 method intersects ( Span::Int $span ) returns bool {
-    my $i_start = $.start < $span.start ?? $span.start :: $.start;
-    my $i_end =   $.end > $span.end     ?? $span.end   :: $.end;
+    my $i_start = $.start < $span.start ?? $span.start !! $.start;
+    my $i_end =   $.end > $span.end     ?? $span.end   !! $.end;
     return $i_start <= $i_end;
 }
 
@@ -43,16 +43,16 @@ method union ($self: Span::Int $span )
 {
     return ( $self, $span ) if $.end + $.density     < $span.start;
     return ( $span, $self ) if $span.end + $.density < $.start;
-    my $i_start = $.start > $span.start ?? $span.start :: $.start;
-    my $i_end =   $.end   < $span.end   ?? $span.end   :: $.end;
+    my $i_start = $.start > $span.start ?? $span.start !! $.start;
+    my $i_end =   $.end   < $span.end   ?? $span.end   !! $.end;
     return $self.new( start => $i_start, end =>   $i_end, density => $.density );
 }
 
 method intersection ($self: $span ) {
     return $span.intersection( $self )
         if $span.isa( 'Span::Code' ) || $span.isa( 'Span::Num' );
-    my $i_start = $.start < $span.start ?? $span.start :: $.start;
-    my $i_end =   $.end > $span.end     ?? $span.end   :: $.end;
+    my $i_start = $.start < $span.start ?? $span.start !! $.start;
+    my $i_end =   $.end > $span.end     ?? $span.end   !! $.end;
     return () if $i_start > $i_end;
     return $self.new( start => $i_start, end =>   $i_end, density => $.density );
 }

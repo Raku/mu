@@ -113,7 +113,7 @@ sub cmp_ok (Str $got, Code &compare_func, Str $expected, Str ?$desc, +$todo, +$d
 ## isa_ok
 
 sub isa_ok (Any|Junction|Pair $ref is rw, Str $expected_type, Str ?$desc, +$todo, +$depends) returns Bool is export {
-    my $out := defined($desc) ?? $desc :: "The object is-a '$expected_type'";
+    my $out := defined($desc) ?? $desc !! "The object is-a '$expected_type'";
     my $test := $ref.isa($expected_type);
     Test::proclaim($test, $out, $todo, $ref.ref, $expected_type, $depends);
 }
@@ -227,7 +227,7 @@ sub proclaim (Bool $cond, Str ?$desc is copy, ?$todo, Str ?$got, Str ?$expected,
             $context = $todo;        
         }
         else {
-            $context =  "TODO" ~ ($todo.isa('Str') ?? " $todo" :: '');
+            $context =  "TODO" ~ ($todo.isa('Str') ?? " $todo" !! '');
             if ( $cond ) {
                 $Test::num_of_tests_badpass ++;
             }
@@ -238,10 +238,10 @@ sub proclaim (Bool $cond, Str ?$desc is copy, ?$todo, Str ?$got, Str ?$expected,
         $context ~= " (depends on $depends working)";
     }
 
-    my $out = $desc.defined ?? " - $desc" :: "";
+    my $out = $desc.defined ?? " - $desc" !! "";
     $out = "$out <pos:$?CALLER::CALLER::POSITION>" if $Test::ALWAYS_CALLER;
 
-    my $context_out = $context.defined ?? " # $context" :: "";
+    my $context_out = $context.defined ?? " # $context" !! "";
 
     print "not " unless $cond;
     say "ok ", $Test::num_of_tests_run, $out, $context_out;
@@ -263,11 +263,11 @@ sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool {
     # As PIL2JS doesn't support junctions yet, skip the junction part when
     # running under PIL2JS.
     if ($*OS eq "browser" or $?CALLER::CALLER::SUBNAME eq ('&Test::is' | '&Test::isnt' | '&Test::cmp_ok' | '&Test::eval_is' | '&Test::isa_ok' | '&Test::is_deeply' | '&Test::todo_is' | '&Test::todo_isnt' | '&Test::todo_cmp_ok' | '&Test::todo_eval_is' | '&Test::todo_isa_ok')) {
-        Test::diag("  Expected: '" ~ ($expected.defined ?? $expected :: "undef") ~ "'");
-        Test::diag("       Got: '" ~ ($got.defined ?? $got :: "undef") ~ "'");
+        Test::diag("  Expected: '" ~ ($expected.defined ?? $expected !! "undef") ~ "'");
+        Test::diag("       Got: '" ~ ($got.defined ?? $got !! "undef") ~ "'");
     }
     else {
-        Test::diag("       Got: " ~ ($got.defined ?? $got :: "undef"));
+        Test::diag("       Got: " ~ ($got.defined ?? $got !! "undef"));
     }
 }
 

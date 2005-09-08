@@ -196,7 +196,7 @@ method current ($self: $x ) {
 method closest ($self: $x ) {
     my $n = $self.next( $x );
     my $p = $self.current( $x );
-    return $n - $x < $x - $p ?? $n :: $p;
+    return $n - $x < $x - $p ?? $n !! $p;
 }
 
 method iterator ($self: ) returns Set::Infinite::Iterator {

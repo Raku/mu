@@ -22,7 +22,7 @@ use Perl6::Value::List;
   is( $grepped.shift, 0, 'grep  ' );  
   is( $grepped.shift, 3, 'grep 0' );
 
-  my $mapped = $grepped.map:{ $_ % 6 == 0 ?? ($_, $_) :: () };
+  my $mapped = $grepped.map:{ $_ % 6 == 0 ?? ($_, $_) !! () };
   is( $mapped.shift,  6, 'map 0' );
   is( $mapped.shift,  6, 'map 1' );
   is( $mapped.shift, 12, 'map 0' );

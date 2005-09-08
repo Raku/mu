@@ -510,7 +510,7 @@ tell($limit);
   any(1 .. 100).pick() # pick random number between 1 and 100
       
   # factorial with anon block
-  my $fact = -> $n { $n < 2 ?? 1 :: $n * &?BLOCK($n - 1) };
+  my $fact = -> $n { $n < 2 ?? 1 !! $n * &?BLOCK($n - 1) };
   $fact(10);
 
 +* iblech

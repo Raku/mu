@@ -58,7 +58,7 @@ sub init {
             last unless defined $linktext;
             $script = file_name_is_absolute($linktext)
               ?? $linktext
-              :: catfile( $RealBin, $linktext );
+              !! catfile( $RealBin, $linktext );
         }
         $Bin     = rel2abs($Bin)     if $Bin;
         $RealBin = rel2abs($RealBin) if $RealBin;

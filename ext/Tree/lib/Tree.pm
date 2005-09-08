@@ -40,7 +40,7 @@ method :_set_parent ($self: Tree $parent) returns Void {
 ## ----------------------------------------------------------------------------
 ## informational methods
 
-method is_root returns Bool { $:parent.defined ?? 0 :: 1 }
+method is_root returns Bool { $:parent.defined ?? 0 !! 1 }
 method is_leaf returns Bool { +@:children == 0 }
 
 method child_count returns Int { +@:children }

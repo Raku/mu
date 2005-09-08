@@ -19,10 +19,10 @@ my $universe = Recurrence.new(
 {
     # 0 .. Inf
     my $span = Recurrence.new( 
-        closure_next =>        sub { $_ >= 0 ?? $_ + 1 ::    0 },
-        closure_previous =>    sub { $_ > 0 ??  $_ - 1 :: -Inf },
-        complement_next =>     sub { $_ < 1 ??  $_ + 1 ::  Inf },
-        complement_previous => sub { $_ < 0 ??  $_ - 1 ::   -1 },
+        closure_next =>        sub { $_ >= 0 ?? $_ + 1 !!    0 },
+        closure_previous =>    sub { $_ > 0 ??  $_ - 1 !! -Inf },
+        complement_next =>     sub { $_ < 1 ??  $_ + 1 !!  Inf },
+        complement_previous => sub { $_ < 0 ??  $_ - 1 !!   -1 },
         universe => $universe );
 
     my $span1 = $span.grep:{ 

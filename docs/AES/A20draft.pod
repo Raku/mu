@@ -32,13 +32,13 @@ infectious traits, enabling the implementation of taint mode and more complex va
 With taint mode generalized into a debugging system, this perl statement will
 yield:
 
-	$x = ($a ?? $b :: $c); # assuming $a is true
+	$x = ($a ?? $b !! $c); # assuming $a is true
 
 Assuming:
 
 	Xs is the whole statement
 	Xe is the single expression in Xs, it is apply(=, $x, ...);
-	E is the ( ?? :: ) expression, it is apply(??::, A, B, C);
+	E is the ( ?? !! ) expression, it is apply(??!!, A, B, C);
 	A, B, C are expressions for the vars $a, $b, $c ($x expr omitted for brevity)
 
 The following callbacks:
@@ -47,7 +47,7 @@ The following callbacks:
 		eval(Xs);
 			eval(Xe);
 				eval(E);
-					apply(??::, A, B, C);
+					apply(??!!, A, B, C);
 						eval(A);
 						# evaluated
 						participated(A, $a); # $a is a value, perhaps is copy

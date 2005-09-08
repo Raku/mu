@@ -173,10 +173,10 @@ multi sub ToBoolean(JSX::Value::Undefined $v) { JSX::false }
 multi sub ToBoolean(JSX::Value::Null $v)      { JSX::false }
 multi sub ToBoolean(JSX::Value::Boolean $v)   { $v }
 multi sub ToBoolean(JSX::Value::Number $v) {
-    +$v == (+0|-0|NaN) ?? JSX::false :: JSX::true;
+    +$v == (+0|-0|NaN) ?? JSX::false !! JSX::true;
 }
 multi sub ToBoolean(JSX::Value::String $v) {
-    ~$v eq "" ?? JSX::false :: JSX::true;
+    ~$v eq "" ?? JSX::false !! JSX::true;
 }
 multi sub ToBoolean(JSX::Value::Object $v) { JSX::true }
 

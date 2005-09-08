@@ -77,7 +77,7 @@ for @forms -> $form {
     #     rx:perl5/YY/   => { ( $year = r(100)).as("%02d") },
     #     rx:perl5/WNN/  => { ( $week = r(53)+1 ).as("W%02d") },
     #     rx:perl5/MM/   => { ( $month = r(12)+1 ).as("W%02d") },
-    #     rx:perl5/DDD/  => { ( $doy = r($year % 4 ?? 365 : 366)+1 )
+    #     rx:perl5/DDD/  => { ( $doy = r($year % 4 ?? 365 !! 366)+1 )
     #                         .as("W%03d") },
     #     rx:perl5/DD/   => { ( $month = r(31)+1 ).as("W%02d") },
     #     rx:perl5/D/    => { ( $wday = r(7)+1 ).as("W%01d") },
@@ -157,8 +157,8 @@ for @forms -> $form {
     my $date = eval { date($iso) };
     if ( $! ) {
         fail("exception parsing ISO form $form (used: $iso)");
-        skip (4 + ($doy ?? 1 :: 0) + ($week ?? 1 :: 0)
-                + ( ($doy||$week) ?? 0 :: 2 )), "failed to parse";
+        skip (4 + ($doy ?? 1 !! 0) + ($week ?? 1 !! 0)
+                + ( ($doy||$week) ?? 0 !! 2 )), "failed to parse";
     } else {
         if ( $year > 100 ) {
             is($date.year, $year, "$form - year");

@@ -67,7 +67,7 @@ class Perl6::Value::List {
     {
         unless defined $.celems {
             $.celems =
-                ( defined $.cstart || defined $.cend ) ?? sub { Inf } :: sub { 0 }
+                ( defined $.cstart || defined $.cend ) ?? sub { Inf } !! sub { 0 }
         }
         $.cstart = sub {} unless defined $.cstart;
         $.cend   = sub {} unless defined $.cend;    

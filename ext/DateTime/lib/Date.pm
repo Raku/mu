@@ -58,7 +58,7 @@ multi submethod BUILD (Str $string) returns Date {
 # day as Str where { rx:i/^last$/ }
 multi submethod BUILD (Int +$year, Int +$month = 1, Int|Str +$day is copy = 1) returns Date {
     if $day ~~ rx:perl5<i>/^last$/ {
-        my @lengths := _is_leap_year($year) ?? @LeapYearMonthLengths :: @MonthLengths;
+        my @lengths := _is_leap_year($year) ?? @LeapYearMonthLengths !! @MonthLengths;
 
         $day = @lengths[ $month - 1 ];
     }
@@ -103,13 +103,13 @@ method quarter () returns Int {
 method day_of_quarter () returns Int {
     my $doy = $_.day_of_year();
 
-    my @doy := _is_leap_year($.year) ?? @PreviousMonthDoLY :: @PreviousMonthDoY;
+    my @doy := _is_leap_year($.year) ?? @PreviousMonthDoLY !! @PreviousMonthDoY;
 
     return $doy - @doy[ ( 3 * $_.quarter() ) - 3 ];
 }
 
 method day_of_year () returns Int {
-    my @doy := _is_leap_year($.year) ?? @PreviousMonthDoLY :: @PreviousMonthDoY;
+    my @doy := _is_leap_year($.year) ?? @PreviousMonthDoLY !! @PreviousMonthDoY;
 
     @doy[$.month - 1] + $.day;
 }

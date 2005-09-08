@@ -57,12 +57,12 @@ method is_empty ($self: ) {
 
 method start ($self: ) {
     my $tmp = $self.next( -Inf );
-    return $tmp == Inf ?? undef :: $tmp;
+    return $tmp == Inf ?? undef !! $tmp;
 }
 
 method end ($self: ) {
     my $tmp = $self.previous( Inf );
-    return $tmp == -Inf ?? undef :: $tmp;
+    return $tmp == -Inf ?? undef !! $tmp;
 }
 
 method start_is_closed () { return bool::true }
