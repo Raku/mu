@@ -365,7 +365,10 @@ sub Perl6::Value::numify {
     $s = $tmp unless $@;
     eval { $tmp = $s->unboxed };
     $s = $tmp unless $@;
-    warn "attempting to use 'undef' as a number" unless defined $s;
+    unless ( defined $s ) {
+        warn "attempting to use 'undef' as a number";
+        return 0;
+    }
     no warnings 'numeric';
     $s = Perl6::Value::Str::to_num( $s ) if $s+0 ne $s;
     return $s;

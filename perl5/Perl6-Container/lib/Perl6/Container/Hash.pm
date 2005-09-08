@@ -187,8 +187,27 @@ class 'Hash'.$class_description => {
             'postcircumfix:{}' => sub { (shift)->fetch( @_ ) },
             'fetch' => sub {
                 my ($self, @param) = @_;
+                #warn "FETCH: @param\n";
                 my $tmp = _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v};
                 my $key = shift @param;
+                if ( UNIVERSAL::isa( $key, 'Array' ) ) {
+                    #warn "Hash slice $key\n";
+                    warn "Infinite hash slice not supported\n" 
+                        if Perl6::Value::numify( $key->is_infinite );
+                    #warn "not implemented";
+                    my $a = Array->new();
+                    for ( 0 .. Perl6::Value::numify( $key->elems ) - 1 ) {
+                        my $k = $key->fetch( $_ );
+                        $a->push( $self->fetch( $k ) );
+                        #warn "push $_ - ",Perl6::Value::stringify( $a ),"\n";
+                        #warn "bind $_ -- $k \n";
+                        #$a->fetch( $_ )->bind( $self->fetch( $k ) );
+                    }
+                    #warn $a->fetch( 1 );
+                    #warn $self->fetch( 1 );
+                    #$a->fetch( 1 )->bind( $self->fetch( 1 ) );
+                    return $a->slice( 0 .. Perl6::Value::numify( $a->elems ) - 1 );
+                }
                 my $v = $tmp->fetch( $key );
                 if ( ! UNIVERSAL::isa( $v, 'Scalar' ) ) {
                     #warn "autovivify - $key - $v\n";
@@ -196,7 +215,7 @@ class 'Hash'.$class_description => {
                     $s->store( $v );
                     $tmp->store( $key, $s );
                     return $s;
-                } 
+                }
                 return $v;
             },
             'store' => sub {
@@ -245,12 +264,14 @@ package Perl6::Container::Hash::Object;
 
 sub store {
     my ( $this, $key, $value ) = @_;
+    $key = $key->fetch if UNIVERSAL::isa( $key, 'Scalar' );
     my $s = Perl6::Value::identify( $key );
     $this->{$s} = [ $key, $value ];
     return $value;
 }
 sub fetch {
     my ( $this, $key ) = @_;
+    $key = $key->fetch if UNIVERSAL::isa( $key, 'Scalar' );
     my $s = Perl6::Value::identify( $key );
     $this->{$s}[1];
     # warn "fetching " . $this->{$s}[1];
@@ -270,11 +291,13 @@ sub nextkey {
 }
 sub exists {
     my ( $this, $key ) = @_;
+    $key = $key->fetch if UNIVERSAL::isa( $key, 'Scalar' );
     my $s = Perl6::Value::identify( $key );
     exists $this->{$s};
 }
 sub delete {
     my ( $this, $key ) = @_;
+    $key = $key->fetch if UNIVERSAL::isa( $key, 'Scalar' );
     my $s = Perl6::Value::identify( $key );
     my $r = delete $this->{$s};
     $r->[1];
