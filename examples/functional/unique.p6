@@ -9,7 +9,7 @@ say member('bar', 1, 'foo', 3, 4, 'bar');
 
 
 multi sub unique ()          { () }
-multi sub unique (*$x, *@xs) { member($x, @xs) ?? unique(@xs) :: ($x, unique(@xs)) }
+multi sub unique (*$x, *@xs) { member($x, @xs) ?? unique(@xs) !! ($x, unique(@xs)) }
 
 say "... unique";
 my @result = unique('foo', 5, 4, 3, 3, 3, 3, 1, 'foo', 3, 4, 'bar'); 

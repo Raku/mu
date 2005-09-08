@@ -67,7 +67,7 @@ loop (;;) {
             # catch "fail_"s.
             $ret    = try { $ret.perl };
             say chomp $! and next if $!;
-            say substr($ret, 0, 1) eq "\\" ?? substr($ret, 1) :: $ret;   # XXX NASTY HACK
+            say substr($ret, 0, 1) eq "\\" ?? substr($ret, 1) !! $ret;   # XXX NASTY HACK
             #" #--vim
         }
     }

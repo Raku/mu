@@ -5,7 +5,7 @@
 Returns nothing.
 
 Checks the magical lexical (S02) C<$?OS> against a junction consisting of 3
-values. Use the ternary operator C<?? ::> to decide what system command to use
+values. Use the ternary operator C<?? !!> to decide what system command to use
 to clear the screen.
 
 =head1 sub get_committer_list
@@ -67,7 +67,7 @@ C<until> or <while> which it can take.
 =head1 sub draw_if_greater_than
 
     sub draw_if_greater_than (Str $char, Int $num) returns Bool { 
-        ($number_of_bad_guesses >= $num) ?? $char :: ' ';
+        ($number_of_bad_guesses >= $num) ?? $char !! ' ';
     }
 
 The character for blank should be a constant, e.g.:

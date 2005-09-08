@@ -18,8 +18,8 @@ debug "  Will connect as...                  $nick";
 debug "  to...                               $host:$port";
 debug "  checking for new revisions of...    $repository";
 debug "  every...                            $interval seconds.";
-debug "  Branch information will {$show_branch ?? "" :: "not "}be shown.";
-debug "  There {$sep_header ?? "will" :: "won't"} be a separate header line.";
+debug "  Branch information will {$show_branch ?? "" !! "not "}be shown.";
+debug "  There {$sep_header ?? "will" !! "won't"} be a separate header line.";
 debug "To change any of these parameters, restart $*PROGRAM_NAME";
 debug "and supply appropriate arguments:";
 debug "  $*PROGRAM_NAME nick host[:port] interval repository show_branch sep_header";
@@ -57,7 +57,7 @@ sub on_privmsg($event) {
         debug "Received a ?-request from $event<from>: $event<rest>"
             if substr($event<rest>, 0, 1) eq "?";
 
-        my $reply_to = substr($event<object>, 0, 1) eq "#" ?? $event<object> :: $event<from_nick>;
+        my $reply_to = substr($event<object>, 0, 1) eq "#" ?? $event<object> !! $event<from_nick>;
         my $reply    = { $bot<privmsg>(to => $reply_to, text => $^text) };
 
         when rx:P5/^\?help/ {
@@ -161,7 +161,7 @@ sub svn_commits() {
         when rx:P5/^   [MAUDCGR] / {
             $branch = $_ ~~ rx:P5:i{branches/([^/]+)}
                 ?? $0
-                :: "trunk";
+                !! "trunk";
             $commits ~~ s:P5:g/$subst/$branch/;
         }
 
@@ -171,7 +171,7 @@ sub svn_commits() {
             # commits.
             next if $0 == $cur_svnrev;
             $cur_svnrev = +$0 if $0 > $cur_svnrev;
-            $commits ~= "{$cur_entry}{$show_branch ?? " | $subst" :: ""}:\n"
+            $commits ~= "{$cur_entry}{$show_branch ?? " | $subst" !! ""}:\n"
                 if $sep_header;
         }
 
@@ -180,7 +180,7 @@ sub svn_commits() {
               $_ ~~ rx:P5/^(.*)$/;
               $commits ~= $sep_header
                   ?? ": "
-                  :: "$cur_entry | {$show_branch ?? "$branch | " :: ""}";
+                  !! "$cur_entry | {$show_branch ?? "$branch | " !! ""}";
               $commits ~= "$0\n";
            }
        }

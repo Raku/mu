@@ -29,7 +29,7 @@ sub nothing($input) {
 }
 
 sub End_of_Input($input) is exported(:all) {
-  return defined($input) ?? () :: (undef, undef);
+  return defined($input) ?? () !! (undef, undef);
 }
 
 ## Chapter 8 section 3.1
@@ -41,7 +41,7 @@ sub End_of_Input($input) is exported(:all) {
 
 sub lookfor($wanted, Code ?$value = { $^v.[1] }, ?$u) is exported(:all) {
   ## XXX - orig: $wanted = [$wanted] unless ref $wanted;
-  my $wp := $wanted.isa(Array) ?? $wanted :: [$wanted];
+  my $wp := $wanted.isa(Array) ?? $wanted !! [$wanted];
 
   return sub($input) {
     return

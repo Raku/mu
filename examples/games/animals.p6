@@ -8,7 +8,7 @@ sub try(Any $this) {
   # say "c {$this.perl}";
   # say "d {$this.ref}";
   if(ref $this eq "Hash") {
-    my $yesno    = yes($this<question>) ?? "yes" :: "no";
+    my $yesno    = yes($this<question>) ?? "yes" !! "no";
     my %new      = $this;
     # say "a {%new.ref}";
     # say "a' {(%new{$yesno}).ref}";
@@ -34,8 +34,8 @@ sub try(Any $this) {
   # so this ugly hack is needed.
   my %new = (
     question => $q,
-    yes      => sub { $yes ?? $new  :: $this }.(),
-    no       => sub { $yes ?? $this :: $new  }.(),
+    yes      => sub { $yes ?? $new  !! $this }.(),
+    no       => sub { $yes ?? $this !! $new  }.(),
   );
   # say "f {%new.perl}";
   # say "g {(\%new).ref}";
@@ -49,8 +49,8 @@ sub yes(Str $q) {
   my $input = lc substr(=$*IN, 0, 1);
   
   return
-    $input eq "y" ?? 1 ::
-    $input eq "n" ?? 0 :: yes($q);
+    $input eq "y" ?? 1 !!
+    $input eq "n" ?? 0 !! yes($q);
 }
 
 my $info = "dog";

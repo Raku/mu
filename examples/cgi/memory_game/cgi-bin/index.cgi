@@ -107,7 +107,7 @@ given $page {
         if ($flipped == 24) {
             say 'Congratulations, you won the game! <a href="?action=new">Start new game</a>';
          } else {
-            say 'Turns: ' ~ $turns ~ ' - Flipped: ' ~ $flipped/2 ~ ' pair' ~ ($flipped > 2 ?? 's' :: '' );
+            say 'Turns: ' ~ $turns ~ ' - Flipped: ' ~ $flipped/2 ~ ' pair' ~ ($flipped > 2 ?? 's' !! '' );
         }
     }
 }

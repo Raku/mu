@@ -32,8 +32,8 @@ sub score ( @hand ) returns Int {
 
     # Flush
     $score += ([eq] @hand[0..3]>>.<suit>)
-        ?? ([eq] @hand[3,4]>>.<suit>) ?? 5 :: 4
-        :: 0;
+        ?? ([eq] @hand[3,4]>>.<suit>) ?? 5 !! 4
+        !! 0;
 
     # Check for right-jack, @hand[-1] is community card
     $score++ if grep { $_<num> == 11 && $_<suit> eq @hand[-1]<suit> } @hand[0..3]; 
@@ -80,7 +80,7 @@ sub combo (Int $by is copy, @list is copy) returns Ref {
 sub new_deck () returns Array {
     return map -> $num {
         map -> $suit {
-            { num => $num, val => $num > 10 ?? 10 :: $num, suit => $suit }
+            { num => $num, val => $num > 10 ?? 10 !! $num, suit => $suit }
         } <H D C S>;
     } 1..13;
 }

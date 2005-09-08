@@ -48,6 +48,6 @@ system $pugs, "-e", '
     Pugs::Safe::safe_print "\n";
   }
   -> $ret {
-    Pugs::Safe::safe_print ($! ?? "Error: $!" :: $ret) ~ "\n";
+    Pugs::Safe::safe_print ($! ?? "Error: $!" !! $ret) ~ "\n";
   }(eval("' . $code . '").perl);
 ';

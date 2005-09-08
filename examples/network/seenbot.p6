@@ -60,12 +60,12 @@ sub on_privmsg($event) {
     debug "Received a ?-request from $event<from>: $event<rest>"
       if substr($event<rest>, 0, 1) eq "?";
 
-    my $reply_to = substr($event<object>, 0, 1) eq "#" ?? $event<object> :: $event<from_nick>;
+    my $reply_to = substr($event<object>, 0, 1) eq "#" ?? $event<object> !! $event<from_nick>;
 
     when rx:P5/^\??seen\s+(.+?)\s*$/ {
       my $reply_msg = %seen{$0}
-        ?? "$0 was last seen {pretty_duration(int(time() - %seen{$0}<date>))} ago" ~ (%seen{$0}<text> ?? ", saying: %seen{$0}<text>" :: '.')
-        :: "Never seen $0.";
+        ?? "$0 was last seen {pretty_duration(int(time() - %seen{$0}<date>))} ago" ~ (%seen{$0}<text> ?? ", saying: %seen{$0}<text>" !! '.')
+        !! "Never seen $0.";
       $bot<notice>(to => $reply_to, text => $reply_msg);
     }
 

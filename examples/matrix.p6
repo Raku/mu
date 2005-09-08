@@ -40,7 +40,7 @@ sub build_re ($y, $x, $todo is copy, ?%had is copy) {
 
     return $todo == 1 
         ?? "$r\<[{ @next.join('') }]>?"
-        :: "$r\[{ @next.join('|') }]{ $todo < 4 ?? '?' :: '' }";
+        !! "$r\[{ @next.join('|') }]{ $todo < 4 ?? '?' !! '' }";
 }
 my @re;
 #say build_re 1, 1, 5;

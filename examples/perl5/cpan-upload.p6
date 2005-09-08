@@ -36,7 +36,7 @@ initialise();
 
 @uploaded_files = ftp_upload_files(@ARGS);
 pause_add_files(@uploaded_files) if @uploaded_files > 0;
-_verbose(int(@ARGS), int(@ARGS) == 1 ?? " file " :: " files ",
+_verbose(int(@ARGS), int(@ARGS) == 1 ?? " file " !! " files ",
          "uploaded successfully.\n");
 
 exit 0;

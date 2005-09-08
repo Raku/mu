@@ -9,7 +9,7 @@ use v6;
 sub lazy_merge1 (@list is copy) returns Ref {
     my $last = 0;
 
-    my $by_n = sub { my ($n, $k) = (shift(@_), 0); return sub { @_[0] ?? $k += $n :: $k } };
+    my $by_n = sub { my ($n, $k) = (shift(@_), 0); return sub { @_[0] ?? $k += $n !! $k } };
     for @list { $_ = $by_n( $_ ) }
 
     return sub {
@@ -27,7 +27,7 @@ sub lazy_merge1 (@list is copy) returns Ref {
 sub lazy_merge2 (@list is copy) returns Sub {
     my $last = 0;
 
-    my $by_n = sub ($n) { my $k = 0; return -> $x { $x ?? $k += $n :: $k } };
+    my $by_n = sub ($n) { my $k = 0; return -> $x { $x ?? $k += $n !! $k } };
     @list = @list.map:{ $by_n( $_ ) };
 
     return sub {
@@ -45,7 +45,7 @@ sub lazy_merge2 (@list is copy) returns Sub {
 sub lazy_merge3 (@list is copy) returns Sub {
     my $last = 0;
 
-    my &by_n = -> $n { my $k = 0; -> $x { $x ?? $k += $n :: $k } };
+    my &by_n = -> $n { my $k = 0; -> $x { $x ?? $k += $n !! $k } };
     @list .= map:{ by_n $_ };
 
     sub {

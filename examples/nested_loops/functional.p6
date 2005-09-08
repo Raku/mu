@@ -13,12 +13,12 @@ sub NestedLoops (*@loop) returns Ref {
     my sub incr($i) {
         if ( ++@pos[$i] == @loop[$i].elems ) {
             @pos[$i] = 0;
-            return $i ?? incr($i - 1) :: 0;
+            return $i ?? incr($i - 1) !! 0;
         }
         return 1;
     };
 
-    return sub {
+    return sub () {
        incr(@loop.end) or return;
        zip(@loop, @pos) ==> map -> $a, $i { $a[$i] };
     };

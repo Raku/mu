@@ -43,7 +43,7 @@ my %status;
 
 # Additional callback which is called when the status of a computer changes.
 my &on_change = -> Str $host, Int $new_status {
-  system "beep", "-r2", "-l150", "-f", $new_status == $ON ?? "1700" :: "200"
+  system "beep", "-r2", "-l150", "-f", $new_status == $ON ?? "1700" !! "200"
     if $new_status == $ON or $new_status == $OFF;
 };
 
@@ -93,7 +93,7 @@ loop {
 
     %last_check{$host} = time;
     # Update the status (maybe).
-    write_if_change $host, { %status{$host} = ping($host) ?? $ON :: $OFF };
+    write_if_change $host, { %status{$host} = ping($host) ?? $ON !! $OFF };
   }
 
   # We don't want to hog the CPU.

@@ -34,8 +34,8 @@ say sum(1 .. 10);
 say sum(1 .. 5);
 say sum(2, 2, 2, 2);
 
-sub is_even (Int $val) returns Bool { ($val <= 0) ?? 1 :: is_odd($val - 1)  }
-sub is_odd  (Int $val) returns Bool { ($val <= 0) ?? 0 :: is_even($val - 1) }
+sub is_even (Int $val) returns Bool { ($val <= 0) ?? 1 !! is_odd($val - 1)  }
+sub is_odd  (Int $val) returns Bool { ($val <= 0) ?? 0 !! is_even($val - 1) }
 
 say "... mutually recursive even and odd predicates";
 say is_even(4);
@@ -65,7 +65,7 @@ say member('baz', 1, 'foo', 3, 4, 'bar');
 say member('bar', 1, 'foo', 3, 4, 'bar');           
 
 multi sub unique ()          { () }
-multi sub unique (*$x, *@xs) { member($x, @xs) ?? unique(@xs) :: ($x, unique(@xs)) }
+multi sub unique (*$x, *@xs) { member($x, @xs) ?? unique(@xs) !! ($x, unique(@xs)) }
 
 say "... unique";
 my @result = unique('foo', 5, 4, 3, 3, 3, 3, 1, 'foo', 3, 4, 'bar'); 

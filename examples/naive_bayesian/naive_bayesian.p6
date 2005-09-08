@@ -73,7 +73,7 @@ sub classify (%words_in_file) returns Void {
     # do this weird sort block because: 
     #    %score{$^a} <=> %score{$^b}
     # does not currently work
-    for (%count.keys.sort:{ %score{$^a} == %score{$^b} ?? 0 :: %score{$^a} > %score{$^b} ?? -1 :: 1 }) -> $category {
+    for (%count.keys.sort:{ %score{$^a} == %score{$^b} ?? 0 !! %score{$^a} > %score{$^b} ?? -1 !! 1 }) -> $category {
         say("$category %score{$category}");
     }
 }

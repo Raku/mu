@@ -41,7 +41,7 @@ sub num2str($n){ [~]
         $n.( sub($s){ $s.as('$f.(%s)') } )('$x'),
     ' }}'
 }
-sub int2num($n){ ($n == 0) ?? $ZERO :: $SUCC.(int2num($n - 1)) }
+sub int2num($n){ ($n == 0) ?? $ZERO !! $SUCC.(int2num($n - 1)) }
 
 =for alternative
 

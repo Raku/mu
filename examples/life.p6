@@ -16,7 +16,7 @@ use v6;
 #
 sub print_world($world) {  
     for ($world) -> $row {
-          say $row.map:{ +$_ ?? '*' :: ' '}.join("");
+          say $row.map:{ +$_ ?? '*' !! ' '}.join("");
     }
     say "----------------";
 }

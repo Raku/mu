@@ -48,7 +48,7 @@ while (any(@board) eq '.') {
         }
 
         print_board @board;
-        $player = ($player eq 'X') ?? 'O' :: 'X';
+        $player = ($player eq 'X') ?? 'O' !! 'X';
     }
 }
 

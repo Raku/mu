@@ -58,7 +58,7 @@ class Chat {
     my @c = 0 .. 2;
     @c   .= map:{ $rgb[$n][$_] * $m };
     my $g = @c[0] * 0.3 + @c[1] * 0.59 + @c[2] * 0.11;
-    my $f = $g > 127 ?? "#000000" :: "#ffffff";
+    my $f = $g > 127 ?? "#000000" !! "#ffffff";
     my $h = sprintf "#%02x%02x%02x", *@c;
 
     return [$f, $h];
@@ -111,7 +111,7 @@ my $process = -> $time, $nick, $type, $text {
       # If it was a /ME, we format it differently.
       $htext = $text ~~ m:Perl5/^\001ACTION (.*)\001$/
         ?? "$nick {qhtml $0}"
-        :: qhtml $text;
+        !! qhtml $text;
     }
 
     # Somebody set the topic.
@@ -121,14 +121,14 @@ my $process = -> $time, $nick, $type, $text {
 
     # It's some other event (JOIN, PART, etc.).
     default {
-      $htext = chars $text ?? "$type: {qhtml $text}" :: $type;
+      $htext = chars $text ?? "$type: {qhtml $text}" !! $type;
     }
   }
 
   # These are the colors of the nick.
   # If we don't have a ID for $nick, $nick has never said anything, so we
   # default to foreground #000 and background #fff.
-  my @nickc = %nick2num{$nick} ?? $chat.color[%nick2num{$nick}] :: ("#000", "#fff");
+  my @nickc = %nick2num{$nick} ?? $chat.color[%nick2num{$nick}] !! ("#000", "#fff");
 
   # Now we give our variables to the template.
   tmpl_logline(
@@ -136,8 +136,8 @@ my $process = -> $time, $nick, $type, $text {
     globfg => "black",
     globbg =>
       $type eq "PRIVMSG"    
-        ?? $text ~~ rx:Perl5/^\001ACTION/ ?? "#eaeaea" :: "#f5f5f5"
-        :: "#dddddd",
+        ?? $text ~~ rx:Perl5/^\001ACTION/ ?? "#eaeaea" !! "#f5f5f5"
+        !! "#dddddd",
 
     # Nick foreground/background color
     nickfg => @nickc[0],
@@ -154,12 +154,12 @@ my $process = -> $time, $nick, $type, $text {
     # Sigil: One of "<" (user has left), ">", (user has joined"), " " (normal
     # message), or "*" (/ME)
     sigil  =>
-      $type eq "QUIT"    ?? qhtml "<" ::
-      $type eq "PART"    ?? qhtml "<" ::
-      $type eq "JOIN"    ?? qhtml ">" ::
+      $type eq "QUIT"    ?? qhtml "<" !!
+      $type eq "PART"    ?? qhtml "<" !!
+      $type eq "JOIN"    ?? qhtml ">" !!
       $type eq "PRIVMSG"
-        ?? ($text ~~ rx:Perl5/^\001ACTION/ ?? qhtml "*" :: "")
-        :: qhtml "*",
+        ?? ($text ~~ rx:Perl5/^\001ACTION/ ?? qhtml "*" !! "")
+        !! qhtml "*",
   );
 };
 
@@ -223,12 +223,12 @@ sub parse_ilogger2(Str $line is copy) {
 # E.g. "a<b" → "a&lt;b"
 sub qhtml (Str $str is copy) returns Str {
   $str ~~ s:Perl5:g/([&<>"'-])/{ #"#--vim
-    $0 eq "&" ?? "&amp;"  ::
-    $0 eq "<" ?? "&lt;"   ::
-    $0 eq ">" ?? "&gt;"   ::
-    $0 eq '"' ?? "&quot;" ::
-    $0 eq "'" ?? "&#39;"  ::
-    $0 eq "-" ?? "&#45;"  :: die
+    $0 eq "&" ?? "&amp;"  !!
+    $0 eq "<" ?? "&lt;"   !!
+    $0 eq ">" ?? "&gt;"   !!
+    $0 eq '"' ?? "&quot;" !!
+    $0 eq "'" ?? "&#39;"  !!
+    $0 eq "-" ?? "&#45;"  !! die
   }/;
   $str;
 }

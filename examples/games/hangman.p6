@@ -14,7 +14,7 @@ my $allowed_bad_guesses   = 6;  # number of allowed bad guesses
 ## do our functions
 
 sub cls returns Void {
-    system(($?OS eq any<MSWin32 mingw cygwin>) ?? 'cls' :: 'clear');
+    system(($?OS eq any<MSWin32 mingw cygwin>) ?? 'cls' !! 'clear');
 }
 
 sub get_committer_list (Str $dict_file) returns List {
@@ -79,7 +79,7 @@ sub guess (Str $g) returns Bool {
 }
 
 sub draw_if_greater_than (Str $char, Int $num) returns Bool { 
-    ($number_of_bad_guesses >= $num) ?? $char :: ' ';
+    ($number_of_bad_guesses >= $num) ?? $char !! ' ';
 }
 
 sub draw_hangman (Str ?$msg) returns Str {

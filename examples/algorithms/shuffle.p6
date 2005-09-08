@@ -11,7 +11,7 @@ sub fisher_yates_shuffle (@copy is copy) returns Array {
 
 sub compare (@a,@b) returns Str{
     state $compared; 
-    for 0..(@a >= @b ?? @a-1 :: @b-1) -> $i{
+    for 0..(@a >= @b ?? @a-1 !! @b-1) -> $i{
         $compared ~= "@a[$i] \t @b[$i]\n"; 
     }
     $compared;    

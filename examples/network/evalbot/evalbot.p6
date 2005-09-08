@@ -68,7 +68,7 @@ sub on_privmsg($event) {
     debug "Received a ?-request from $event<from>: $event<rest>"
       if substr($event<rest>, 0, 1) eq "?";
 
-    my $reply_to = substr($event<object>, 0, 1) eq "#" ?? $event<object> :: $event<from_nick>;
+    my $reply_to = substr($event<object>, 0, 1) eq "#" ?? $event<object> !! $event<from_nick>;
     my $reply    = { $bot<privmsg>(to => $reply_to, text => $^text) };
 
     when rx:P5/^\?help/ {
@@ -141,5 +141,5 @@ sub evalhelper(Str $code) {
   # the channel.
   my $result = join " ", split "\n", slurp $tmpfile;
   unlink $tmpfile;
-  return bytes($result) ?? $result :: "(no output)";
+  return bytes($result) ?? $result !! "(no output)";
 }

@@ -19,7 +19,7 @@ class MultiCounter {
             @.positions[$i + 1] = 0;
          }
         }
-        return (@.positions[0] > @.lengths[0]) ?? 0 :: 1;             
+        return (@.positions[0] > @.lengths[0]) ?? 0 !! 1;             
       }                
 }
 

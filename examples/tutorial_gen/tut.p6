@@ -122,7 +122,7 @@ die "Source file directory '%conf<tut_src_dir> ('%conf<f_tut_src_dir>') not foun
 
 sub get_output ( Str $tut_fp, +$each_line = 0 ) {
     my $file_t = slurp $tut_fp || die "Slurp failed '$tut_fp'\n";
-    my @parts = ( $each_line ) ?? split( "\n", $file_t ) :: split( "\n\n", $file_t );
+    my @parts = ( $each_line ) ?? split( "\n", $file_t ) !! split( "\n\n", $file_t );
 
     my $new_pl = '';
     for @parts.kv -> $part_num, $part {

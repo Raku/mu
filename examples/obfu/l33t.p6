@@ -118,13 +118,13 @@ method con() {
 
 method mem($target is rw, ++$wrap, ?$down) {
     ./IIP;
-    $target += (@.mem[$.ip] + 1) * ($down ?? -1 :: 1);
+    $target += (@.mem[$.ip] + 1) * ($down ?? -1 !! 1);
     $target %= $wrap;
     ./IIP;
 }
 
 method bracket(: $own, $matching) {
-    my $move     = (($own == 3) ?? {./IIP} :: {./DIP}); # mover in the right direction
+    my $move     = (($own == 3) ?? {./IIP} !! {./DIP}); # mover in the right direction
     if (($own == 3 && @.mem[$.mp] == 0) || ($own == 4 && @.mem[$.mp] != 0)) {
         my $iflevel = 1;
         loop {
@@ -188,7 +188,7 @@ method debug_help {
     q (quit)   - end program
     r (run)    - continue running until next breakpoint
     s (step)   - single step [enter to keep stepping]
-    t (trace)  - toggle trace prints [currently {$:trace ?? "ON" :: "OFF"}]
+    t (trace)  - toggle trace prints [currently {$:trace ?? "ON" !! "OFF"}]
     w PROG     - write program fragment PROG beginning at MP (changes MP)
     END;
 } # : f1x0rz v1m
@@ -217,7 +217,7 @@ method debug_action(Str $cmd is copy) returns Bool {
         };
         when 'i' {
             say "(urr3nt (0nn3xxx10n: " ~ ($:coninfo // "stdio");
-            say "tr4(3 m0de: " ~ ($:trace ?? "0n" :: "0ff");
+            say "tr4(3 m0de: " ~ ($:trace ?? "0n" !! "0ff");
             return bool::true;
         };
         when rx:perl5<i>/^\s*ip\s*(([-+])?\d+)/ {
@@ -271,8 +271,8 @@ method debug_trace() {
         when 0 { $msg = "NOP" };
         when 1 { $msg = "WRT @.mem[$.mp]" };
         when 2 { $msg = "RD => $.mp [01d v4l = @.mem[$.mp]" };
-        when 3 { $msg = "IF [{@.mem[$.mp] ?? 'tru3' :: 'f4l53'}]" };
-        when 4 { $msg = "EIF [{@.mem[$.mp] ?? 'f4l53' :: 'tru3'}]" };
+        when 3 { $msg = "IF [{@.mem[$.mp] ?? 'tru3' !! 'f4l53'}]" };
+        when 4 { $msg = "EIF [{@.mem[$.mp] ?? 'f4l53' !! 'tru3'}]" };
         when 5 {
             my $nmp = ($.mp + @.mem[($.ip+1) % $MEMSIZE] + 1) % $MEMSIZE;
             $msg = "FWD {@.mem[($.ip+1) % $MEMSIZE]} => $nmp [@.mem[$.mp]]" };

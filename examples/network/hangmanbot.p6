@@ -63,7 +63,7 @@ sub on_privmsg($event) {
   state $game;
 
   given $event<rest> {
-    my $reply_to = substr($event<object>, 0, 1) eq "#" ?? $event<object> :: $event<from_nick>;
+    my $reply_to = substr($event<object>, 0, 1) eq "#" ?? $event<object> !! $event<from_nick>;
     debug "Got ?-request from \"$event<from>\": $_" if m:Perl5/^\?/;
 
     when rx:P5/^\?quit\s*(.*)$/ {
