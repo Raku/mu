@@ -49,7 +49,8 @@ sub p6_bind {my($o,$v)=@_; $o->bind($v);}
 sub p6_var_macro {
     my($name,$defined1_autovivify2)=@_;
     $name =~ s/\[ \]/\[\]/; # XXX - pugsbug workaround.
-    $name =~ /([\$\@\%\&\:])(.+)/ or die "bug";
+    $name = "&".$name if $name =~ /^__init_/; # XXX - pugsbug? workaround.
+    $name =~ /([\$\@\%\&\:])(.+)/ or die "bug $name";
     my $sigil = $1;
     my $barename = $2;
     my $m = p6_mangle($name);
@@ -65,6 +66,14 @@ sub p6_var_macro {
     my $vivify = ($defined1_autovivify2 && $defined1_autovivify2 == 2
                   ? "||do{\$$m = $vivifier}" : '');
     "do{no strict;(defined(\$$m)?\$$m:p6_lookup('$mn'$dontdie)$vivify)}";
+}
+sub p6_var {
+    my($name,$defined1_autovivify2)=@_;
+    my $code = ("package ".p6_main()."; "
+		.&p6_var_macro($name,$defined1_autovivify2));
+    my $v = eval $code;
+    Carp::confess "p6_var: $@\n$code\n" if $@;
+    $v;
 }
 sub p6_root {"PIL::Run::Root"}
 sub p6_main {"PIL::Run::Root::main"}
@@ -306,6 +315,8 @@ my $h = Perl6::Container::Hash::Native->new( hashref => \%ENV );
 #print Dumper( $h );
 $PIL::Run::Root::main::hash_ENV->{'instance_data'}{'$:cell'}{tieable} = 1;
 $PIL::Run::Root::main::hash_ENV->tie( $h );
+
+END { p6_apply(p6_var('&*END')); }
 
 1;
 __END__
