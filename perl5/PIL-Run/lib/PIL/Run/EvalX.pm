@@ -57,7 +57,10 @@ package VInt; @ISA = qw(EvalX::BaseClass); sub expand {
 }
 package VNum; @ISA = qw(EvalX::BaseClass); sub expand {
     if ( $_[0][0] eq 'Inf' || $_[0][0] eq 'inf' ) {
-        return "p6_new('Num',9E99999999)";
+        return "p6_new('Num',Perl6::Value::numify('Inf'))";
+    }
+    if ( $_[0][0] eq 'NaN' ) {
+        return "p6_new('Num',Perl6::Value::numify('NaN'))";
     }
     "p6_new('Num','$_[0][0]')";
 }

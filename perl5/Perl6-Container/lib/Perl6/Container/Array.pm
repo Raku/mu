@@ -107,22 +107,23 @@ sub Perl6::Slice::new {
     my %param = @_;  
     bless { %param }, $class;
 } 
+sub Perl6::Slice::items {
+    my $self = shift;
+    # warn "SLICE ITEMS: ".Perl6::Value::stringify($self->{array})." -- ".Perl6::Value::stringify($self->{slice})."\n";
+    $self->{array}->items;
+}
 sub Perl6::Slice::fetch {
     my $self = shift;
     my $i = shift;
-    my $pos = $self->{slice}->fetch( $i )->fetch;
-    $pos = $pos->unboxed if ref( $pos );
-    return unless defined $pos;
-    return if $pos >= $self->{array}->elems()->unboxed || $pos < 0;
+    my $pos = Perl6::Value::numify( $self->{slice}->fetch( $i ) );
+    return unless defined $pos && $pos >= 0;
     $self->{array}->fetch( $pos, @_ );
 }
 sub Perl6::Slice::store {
     my $self = shift;
     my $i = shift;
-    my $pos = $self->{slice}->fetch( $i )->fetch;
-    $pos = $pos->unboxed if ref( $pos );
-    return unless defined $pos;
-    return if $pos >= $self->{array}->elems()->unboxed || $pos < 0;
+    my $pos = Perl6::Value::numify( $self->{slice}->fetch( $i ) );
+    return unless defined $pos && $pos >= 0;
     $self->{array}->store( $pos, @_ );
 }
 sub Perl6::Slice::is_infinite {
@@ -136,6 +137,7 @@ sub Perl6::Slice::elems {
 sub Perl6::Slice::unbind {
     # creates a new Array - not bound to the original array/slice
     my $self = shift; 
+    # warn "SLICE UNBIND: ".Perl6::Value::stringify($self->{array})." -- ".Perl6::Value::stringify($self->{slice})."\n";
     my $ary = $self->{array};
     my @idx = $self->{slice}->items;
     my $result = Array->new;
@@ -151,8 +153,7 @@ sub Perl6::Slice::unbind {
                 unless defined $end && defined $start;
             die "Not implemented: instantiate lazy slice using a reversed list"
                 unless $end >= $start;
-            #warn "unbind: \n";
-            #warn "    Index: ". $i->str . "\n";
+            #warn "unbind: Index: ". $i->str . "\n";
             # warn "Slicing from $start to $end";
             my $slice = $ary->splice( $start, ( $end - $start + 1 ) );
             my $elems = $slice->elems->unboxed;
@@ -176,14 +177,8 @@ sub Perl6::Slice::unbind {
         }
         else {
             # non-lazy slicing
-            my $p = $self->{slice}->fetch( $pos )->fetch;
-            $p = $p->unboxed if ref( $p );
-            #warn "P $pos = $p";
-            next unless defined $p;
-            next if $p >= $ary->elems()->unboxed || $p < 0;
-            my $tmp = $ary->fetch( $p )->fetch;
+            my $tmp = $ary->fetch( $i )->fetch;
             $result->store( $pos, $tmp );
-            #warn "store $tmp to $pos";
             $pos++;            
         }
     }
@@ -193,12 +188,15 @@ sub Perl6::Slice::write_thru {
     # writes back to the bound Array using the slice as an index
     my $self = shift; 
     my $other = shift;
+    # warn "SLICE WRITE THROUGH: ".Perl6::Value::stringify($self->{array})." -- ".Perl6::Value::stringify($self->{slice})."\n";
+    # warn "               FROM: ".Perl6::Value::stringify($other)."\n";
+    #warn "SLICE WRITE THROUGH: ".$self->{array}." -- ".$self->{slice}."\n";
+    #warn "               FROM: ".$other."\n";
     my $ary = $self->{array};
     my @idx = $self->{slice}->items;
     my $pos = 0;
-    # warn "WRITE THROUGH\n";
     for my $i ( @idx ) {
-        #warn "write loop...";
+        #warn "write loop... ". Perl6::Value::stringify($i)." -- $i\n";
         if ( UNIVERSAL::isa( $i, 'Perl6::Value::List' ) ) {
             # warn "List -- ". $i->is_contiguous;
             die "Not implemented: instantiate lazy slice using a non-contiguous list"
@@ -221,18 +219,7 @@ sub Perl6::Slice::write_thru {
             my $slice = $other->splice( $pos, $slice_size );
             my $elems = $slice->elems->unboxed;
             # warn "splice 3 - elems = $elems - slice isa $slice";
-            # $other->splice( $pos, 0, $slice );  # does this make any difference?
-
-            # is the slice too big?
-            #if ( $start + $elems > $ary_elems ) {
-            #    $slice = 
-            #}
-            
             my @items = $slice->unboxed->items;
-            # @items = map {
-            #            UNIVERSAL::isa( $_, 'Perl6::Value::List' ) ? $_->clone : $_
-            #        } @items;
-            
             if ( $elems < $slice_size ) {
                 my $diff = $slice_size - $elems;
                 #warn "Missing $diff elements";
@@ -246,16 +233,8 @@ sub Perl6::Slice::write_thru {
         }
         else {
             # non-lazy slicing
-            my $p = $self->{slice}->fetch( $pos )->fetch;
-            $p = $p->unboxed if ref( $p );
-            # warn "P $pos = $p elems = ",$self->{array}->elems()->unboxed;
-            next unless defined $p;
-            # bugfix - non-lazy elements cause autovivification
-            # next if $p >= $self->{array}->elems()->unboxed || $p < 0;
-            next if $p < 0;
             my $tmp = $other->fetch( $pos )->fetch;
-            $ary->store( $p, $tmp );
-            # warn "  STORE ELEMENT pos $pos - store $tmp to $p";
+            $ary->store( $i, $tmp );
             $pos++;            
         }
     }
@@ -471,7 +450,8 @@ class 'Array'.$class_description => {
                         if ( UNIVERSAL::isa( $self->tied, 'Perl6::Slice' ) ) {
                             #warn "WRITE THROUGH ".Perl6::Value::stringify($other);
                             $self->tied->write_thru( $other );
-                            return $self;
+                            return $other;
+                            #return $self;
                         }
                         # warn "got @items - current = ". _('$:cell')->{v};
 
@@ -884,7 +864,14 @@ sub store {
     }
     if ( $pos <= $array->elems ) {
         # 'Array' takes care of proper cell re-binding 
-        $array->splice( $pos, 1, $item );
+        my $scalar = $array->fetch( $pos );
+        if ( UNIVERSAL::isa( $scalar, 'Scalar' ) ) {
+            # warn "Store to scalar\n";
+            $scalar->store( $item );
+        }
+        else {
+            $array->splice( $pos, 1, $item );
+        }
         return $array;
     }
     # store after the end 
