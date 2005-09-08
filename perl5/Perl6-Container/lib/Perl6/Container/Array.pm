@@ -3,6 +3,9 @@
 
 # ChangeLog
 #
+# 2005-09-08
+# * finite sub-slices work: ($x,@a[1..3])=(1,2,3,4)
+#
 # 2005-09-05
 # * delete slice
 #
@@ -50,6 +53,10 @@
 #   (@a[1..Inf])=(1,2,3,4)     - ok - not a sub-slice
 #   ($x,@a[1..Inf])=(1,2,3,4)  - not supported
 
+# RECENTLY FIXED
+#   @a[10,100,1000,10000,100000]=(1..9999999) 
+#        returned undef (the list went into array element zero)
+
 # TODO - PIL-Run - (1,undef,2) returns (1,2) - but (1,\undef,2) works
 # TODO - PIL-Run - grep() using 'Code'
 
@@ -57,10 +64,6 @@
 
 # TODO - sum()
 # TODO - there are too many methods under AUTOLOAD - upgrade them to real methods
-#
-# TODO - TEST FAIL - PIL-Run> @a[10,100,1000,10000,100000]=(1..9999999) 
-#        returns undef (the list goes into array element zero)
-#        might be a signature problem
 #
 # TODO - optimize Eager array to O(1)
 #
