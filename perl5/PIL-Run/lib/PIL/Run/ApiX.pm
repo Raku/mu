@@ -19,6 +19,7 @@ $VERSION = '0.01';
        p6_from_l
        p6_die
        p6_set
+       p6_bind
        p6_var_macro
        p6_root
        p6_main
@@ -43,10 +44,8 @@ sub p6_from_s {my($s)=@_; p6_new('Str',"$s")}
 sub p6_from_a {my(@a)=@_; p6_new('Array', @a)}
 sub p6_from_l {my(@a)=@_; p6_new('List', @a)}; 
 sub p6_die {my(@args)=@_; die @args;}
-sub p6_set {
-    my($o,$v)=@_;
-    $o->store($v);
-}
+sub p6_set {my($o,$v)=@_; $o->store($v);}
+sub p6_bind {my($o,$v)=@_; $o->bind($v);}
 sub p6_var_macro {
     my($name,$defined1_autovivify2)=@_;
     $name =~ s/\[ \]/\[\]/; # XXX - pugsbug workaround.

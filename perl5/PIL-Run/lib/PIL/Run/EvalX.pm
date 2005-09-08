@@ -107,6 +107,9 @@ package PApp; @ISA = qw(EvalX::BaseClass); sub expand {
 package PAssign; @ISA = qw(EvalX::BaseClass); sub expand {
     'p6_set('.$_[0]{'pLHS'}[0]->expand().','.$_[0]{'pRHS'}->expand().')';
 }
+package PBind; @ISA = qw(EvalX::BaseClass); sub expand {
+    'p6_bind('.$_[0]{'pLHS'}[0]->expand().','.$_[0]{'pRHS'}->expand().')';
+}
 package PStmt; @ISA = qw(EvalX::BaseClass); sub expand {
     #$_[0]->SUPER::expand().";\n";
     #"eval(<<'E$n');\n".$_[0]->SUPER::expand().";\nE$n\n";
