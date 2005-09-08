@@ -160,3 +160,12 @@ is_deeply(
     $Baz->get_trace_log(),
     [ 'bar called ...', 'foo called ...' ],
     '... we now have more in our Bar trace log');
+
+# TracingClass has some GC issues,.. 
+# so we need to manually remove it here
+# these are mostly because perl does not
+# do any kind of ordered destruction
+END {
+    delete $Perl6::MetaModel::CLASSES_BY_NAME{'TraceingClass'};
+    $TraceingClass = undef;
+}

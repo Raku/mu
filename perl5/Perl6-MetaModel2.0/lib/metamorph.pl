@@ -301,7 +301,7 @@ $::Class->add_method('get_method' => ::make_method(sub {
 
 $::Class->add_method('add_attribute' => ::make_method(sub {
     my ($self, $label, $attribute) = @_;
-    (defined $label && defined $attribute)
+    (defined $label && defined $attribute && blessed($attribute))
         || confess "InsufficientArguments : you must provide an attribute and a label";
     #$self->_create_accessor($attribute);          
     if (blessed($attribute) eq 'Perl6::Attribute') {
@@ -317,9 +317,10 @@ $::Class->add_method('add_attribute' => ::make_method(sub {
 
 $::Class->add_method('_get_attribute_table' => ::make_private_method(sub {         
     my ($self, $params) = @_;
+    # default to instance ... 
+    $params->{for} = 'instance' if not exists $params->{for};    
     my $method_table;
-    if (not exists $params->{for}       || 
-        lc($params->{for}) eq 'instance') {
+    if (lc($params->{for}) eq 'instance') {
         return ::opaque_instance_attrs($self)->{'%:attributes'};
     }
     elsif (lc($params->{for}) eq 'class') {

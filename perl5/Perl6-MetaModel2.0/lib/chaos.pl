@@ -48,7 +48,7 @@ our $DISPATCH_TRACE = 0;
     }
     sub ::opaque_instance_attrs ($) { 
         my $instance = shift;
-        (blessed($instance))
+        (defined $instance && blessed($instance) eq 'Dispatchable')
             || confess "Bad instance (" . ($instance || 'undef') . ")";
         $instance->{attrs};
     }
@@ -309,12 +309,15 @@ our $DISPATCH_TRACE = 0;
             $method_table_name = '%:private_methods';
         }
         else {
-            if ($is_class_method) {
-                $method_table_name = '%:class_methods';                
-            }
-            else {
+            # NOTE:
+            # we never have class methods in $::Class so
+            # we can ignore this safely for now
+            #if ($is_class_method) {
+            #    $method_table_name = '%:class_methods';                
+            #}
+            #else {
                 $method_table_name = '%:methods';                
-            }
+            #}
         }
         # NOTE:
         # we need to just access stuff directly here
@@ -361,11 +364,18 @@ our $DISPATCH_TRACE = 0;
         }
         else {   
             
+            # XXX - 
+            # this seems to prevent some GC issues,.. 
+            # so I am leaving it here for now
+            warn "got an undef class here ... (" . Data::Dumper::Dumper($self) . ")" 
+                unless defined $class; 
+            
             my %opts = (for => 'instance');
             if ($is_class_method) {
                 %opts = (for => 'class');
                 $class = $self;
             }
+            
                         
             # get the dispatcher instance ....
             my $dispatcher = $class->dispatcher(':canonical');  
@@ -464,7 +474,12 @@ our $DISPATCH_TRACE = 0;
             # do with how perl 5 does not always do ordered
             # destruction of objects. I might be able to 
             # fix this issue with en END block
-            return unless defined ::opaque_instance_class($self) && defined $::Class;
+            return unless defined $self && 
+                          defined ::opaque_instance_class($self) && 
+                          defined $::Object  &&
+                          defined $::Package &&
+                          defined $::Module  &&
+                          defined $::Class;
         }        
         # go about our dispatching ....      
         return ::dispatcher($self, $label, \@_, ($autoload[0] eq 'class' ? 1 : 0));
