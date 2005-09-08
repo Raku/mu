@@ -243,9 +243,11 @@ op1 "require_parrot" = \v -> do
     return $ VBool True
 op1 "require_perl5" = \v -> do
     name    <- fromVal v
-    val     <- op1 "Pugs::Internals::eval_perl5" (VStr $ "require " ++ name ++ "; '" ++ name ++ "'");
+    val     <- op1 "Pugs::Internals::eval_perl5" (VStr $ "require " ++ name ++ "; '" ++ name ++ "'")
     evalExp $ Sym SGlobal ('$':'*':name) (Syn ":=" [Var ('$':'*':name), Val val])
-    return val
+    case val of
+        PerlSV _  -> return val
+        _         -> fail "perl5 is not available"
 op1 "Pugs::Internals::eval_parrot" = \v -> do
     code    <- fromVal v
     liftIO . evalParrot $ case code of
