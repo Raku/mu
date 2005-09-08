@@ -1,8 +1,13 @@
 
 package PIL::Run::Main;
 
-require Math::BigInt;
+#require Math::BigInt;
+
 require Perl6::Value;
+
+sub Math::BigInt::binf { Perl6::Value::Num::Inf() };
+sub Math::BigInt::bnan { Perl6::Value::Num::NaN() };
+
 require Perl6::Container::Scalar;
 require Perl6::Container::Array;
 require Perl6::Container::Hash;
