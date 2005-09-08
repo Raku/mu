@@ -1,7 +1,7 @@
 sub JS::Root::substr(Str $str, Int $a, Int ?$b = chars $str) is primitive {
   JS::inline('(function (str, a, b) {
     return String(str).substr(Number(a), Number(b));
-  })')(~$str, +$a, +$b < 0 ?? +$b + chars $str :: +$b);
+  })')(~$str, +$a, +$b < 0 ?? +$b + chars $str !! +$b);
 }
 
 method split(Str $self: Str $splitter) { split $splitter, $self }

@@ -50,13 +50,13 @@ sub statement_control:<until>(Code $cond, Code $body) is primitive {
 sub statement_control:<postwhile>(Code $cond, Code $body) is primitive {
   my $first_run_done = 0;
 
-  while($first_run_done ?? $cond() :: ++$first_run_done) { $body() }
+  while($first_run_done ?? $cond() !! ++$first_run_done) { $body() }
 }
 
 sub statement_control:<postuntil>(Code $cond, Code $body) is primitive {
   my $first_run_done = 0;
 
-  until($first_run_done ?? $cond() :: $first_run_done++) { $body() }
+  until($first_run_done ?? $cond() !! $first_run_done++) { $body() }
 }
 
 # XXX: Handle redo() correctly!
@@ -105,8 +105,8 @@ sub JS::Root::try(Code $code) is primitive {
 
 sub JS::Root::warn(*@msg) is primitive {
   my $arg = @msg > 1  ?? join "", @msg
-         :: @msg == 1 ?? @msg[0]
-         :: "Warning: something's wrong";
+         !! @msg == 1 ?? @msg[0]
+         !! "Warning: something's wrong";
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cc = args.pop();
     PIL2JS.warn(args[1]);
@@ -116,8 +116,8 @@ sub JS::Root::warn(*@msg) is primitive {
 }
 sub JS::Root::die(*@msg)  is primitive {
   my $arg = @msg > 1  ?? join "", @msg
-         :: @msg == 1 ?? @msg[0]
-         :: "Died";
+         !! @msg == 1 ?? @msg[0]
+         !! "Died";
   JS::inline('new PIL2JS.Box.Constant(function (args) { PIL2JS.die(args[1]) })')($arg);
 }
 

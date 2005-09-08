@@ -143,7 +143,7 @@ sub JS::Root::max(Code ?$cmp = &infix:«<=>», *@array) is primitive {
   }
 
   my $max = @array.shift;
-  $max = ($cmp($max, $_)) < 0 ?? $_ :: $max for @array;
+  $max = ($cmp($max, $_)) < 0 ?? $_ !! $max for @array;
   $max;
 }
 
@@ -162,7 +162,7 @@ method sum(@self:) { sum *@self }
 sub JS::Root::sum(*@vals) is primitive {
   my $sum = 0;
   $sum += +$_ for @vals;
-  @vals ?? $sum :: undef;
+  @vals ?? $sum !! undef;
   # We should return undef if we haven't been giving @vals to sum.
 }
 
@@ -438,8 +438,8 @@ sub splice (@a is rw, ?$offset=0, ?$length, *@list) is primitive {
         }
     }
 
-    #  want.List ?? *@result :: pop(@result)
-    #  want.List ?? *@result :: +@result ?? @result[-1] :: undef;
+    #  want.List ?? *@result !! pop(@result)
+    #  want.List ?? *@result !! +@result ?? @result[-1] !! undef;
     #  *@result;
     @result;
 }

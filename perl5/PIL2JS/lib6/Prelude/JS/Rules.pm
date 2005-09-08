@@ -147,7 +147,7 @@ sub JS::Root::rx_core_(%mods, Str $pat, Str $qo, Str $qc) is primitive {
         $a.push($m0) if $at > $prev; $prev = $at;
         $pos += $m.from + 1;
        }
-       # 0 ?? ([|] @$a) :: $a;  # XXX - 0 should be want.Scalar
+       # 0 ?? ([|] @$a) !! $a;  # XXX - 0 should be want.Scalar
        $a;
     };
   } else {

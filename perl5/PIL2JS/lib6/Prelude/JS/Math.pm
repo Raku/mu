@@ -2,7 +2,7 @@
 sub JS::Root::pi () is primitive { 3.14159265358979323846264338327950288419716939937510 }
 
 sub JS::Root::atan (Num $y, Num ?$x) is primitive {
-  defined($x) ?? $JS::Math.atan2(+$y, +$x) :: $JS::Math.atan(+$y);
+  defined($x) ?? $JS::Math.atan2(+$y, +$x) !! $JS::Math.atan(+$y);
 }
 
 method sin  (Num ?$self = $CALLER::_:) { $JS::Math.sin(+$self)  }
