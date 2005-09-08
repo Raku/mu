@@ -278,7 +278,10 @@ MULTI SUB evalfile ($xx) {...};
 MULTI SUB Pugs::Internals::eval_perl5 ($xx) {...};
 MULTI SUB Pugs::Internals::eval_haskell ($xx) {...};
 MULTI SUB Pugs::Internals::eval_yaml ($xx) {...};
-MULTI SUB try ($xx) {...};
+MULTI SUB try ($xx) {
+    use Error qw(:try);
+    try { p6_apply($xx); } otherwise { p6_set(p6_var('$!',2),$_[0]); };
+};
 MULTI SUB lazy ($xx) {...};
 MULTI SUB defined ($xx) { $xx->defined };
 MULTI SUB last ($xx) {...};
@@ -295,7 +298,7 @@ MULTI SUB IO::say (*@xxa) {...};
 MULTI SUB IO::print (*@xxa) {...};
 MULTI SUB IO::next ($xx) {...};
 MULTI SUB Pugs::Safe::safe_print ($xx) {...};
-MULTI SUB die (*@xxa) { die "die: ",map{p6_to_s($_)}@xxa; };
+MULTI SUB die (*@xxa) { die map{p6_to_s($_)}@xxa; };
 MULTI SUB warn ($xx) { 
     # TODO - add line number, if string doesn't terminate in "\n"
     warn $xx->unboxed . " at ...\n";

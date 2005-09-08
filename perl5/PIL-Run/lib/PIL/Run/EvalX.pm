@@ -69,20 +69,20 @@ package VStr; @ISA = qw(EvalX::BaseClass); sub expand {
     $s =~ s/\\/\\\\/g; $s =~ s/\'/\\\'/g;
     "p6_new('Str','$s')";
 }
+package PVal; @ISA = qw(EvalX::BaseClass); sub expand {
+    my($self)=@_;
+    if (defined $self->{'pVal'} && $self->{'pVal'} eq "VUndef") {
+        "Scalar->new()";
+    } else {
+        $self->SUPER::expand();
+    }
+}
 package PVar; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
     my $s = $_[0]{'pVarName'};
     "\n# $s\n".
     p6_var_macro($s,2)
     ."\n";
-}
-package PVal; @ISA = qw(EvalX::BaseClass); sub expand {
-    my($self)=@_;
-    if (defined $self->{'pVal'} && $self->{'pVal'} eq "VUndef") {
-	"Scalar->new()";
-    } else {
-	$self->SUPER::expand();
-    }
 }
 package PApp; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
@@ -121,9 +121,15 @@ package PBind; @ISA = qw(EvalX::BaseClass); sub expand {
 package PStmt; @ISA = qw(EvalX::BaseClass); sub expand {
     #$_[0]->SUPER::expand().";\n";
     #"eval(<<'E$n');\n".$_[0]->SUPER::expand().";\nE$n\n";
-    my $n = int(rand(10000000));
-    "do{my \@_res$n=eval(<<'E$n');warn '#' x 40,\"\\n\",'Fyi: ',\$\@ if \$\@; \@_res$n = \@_res$n;};\n".$_[0]->SUPER::expand().";\nE$n\n";
+    if ($EvalX::PStmt::already_protected) {
+	$_[0]->SUPER::expand().";\n";
+    } else {
+	local $EvalX::PStmt::already_protected = 1;
+	my $n = int(rand(10000000));
+	"do{my \@_res$n=eval(<<'E$n');warn '#' x 40,\"\\n\",'Fyi: ',\$\@ if \$\@; \@_res$n = \@_res$n;};\n".$_[0]->SUPER::expand().";\nE$n\n";
+    }
 }
+local $EvalX::PStmt::already_protected = 0;
 package PThunk; @ISA = qw(EvalX::BaseClass); sub expand {
     my $body = $_[0]->{'pThunk'}{'pLV'}{'pFun'}{'pBody'};
     defined $body ? ' { '.$body->expand().' } ' : $_[0]->SUPER::expand();

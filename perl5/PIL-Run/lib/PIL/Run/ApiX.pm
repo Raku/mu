@@ -21,6 +21,7 @@ $VERSION = '0.01';
        p6_set
        p6_bind
        p6_var_macro
+       p6_var
        p6_root
        p6_main
        p6_mangle
