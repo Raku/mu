@@ -18,6 +18,8 @@ my $?PUGS_BACKEND = "BACKEND_PERL5";
 multi sub nothing () is builtin is primitive is safe {
     bool::true}
 
+multi sub not ($x) {!$x}
+
 multi sub postcircumfix:<[ ]> ($a,$i) { Array::slice($a,$i) }
 
 # multi sub circumfix:<[]> ($a) { \($a) }
