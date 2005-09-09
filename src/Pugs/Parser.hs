@@ -489,7 +489,7 @@ ruleOperatorName = do
                                             Nothing 
                                             (Val (VStr " ") : [expr])
                    return name
-    return $ trace (fixity ++ name) (fixity ++ name)
+    return $ fixity ++ name
 
 
 ruleSubParameters :: ParensOption -> RuleParser (Maybe [Param])
