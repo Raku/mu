@@ -231,7 +231,18 @@ MULTI SUB prefix:<--> ($xx)  { p6_set($xx,p6_from_n(p6_to_n($xx)+1)) };
 MULTI SUB scalar ($xx) {...};
 MULTI SUB sort (*@xxa) {p6_from_l(sort map{p6_to_s($_)} @xxa)};
 #MULTI SUB reverse (@xx) { $xx->reverse };
-MULTI SUB reverse ($xx) { p6_from_s(reverse(p6_to_s($xx))) };
+MULTI SUB reverse ($xx) { 
+    if ( UNIVERSAL::isa( $xx, 'Array' ) ) {
+        my $ret = Array->new();
+        $ret->store( $xx );  # unbind slice
+        $ret->reverse
+    }
+    else {
+        my $tmp = Perl6::Value::stringify( $xx );
+        $tmp = reverse( $tmp );
+        Str->new( '$.unboxed' => $tmp ); 
+    }
+};
 MULTI SUB zip (@x0,*@x1) { 
     # warn "x0 ".ref($x0)." ".$x0->perl->unboxed;
     my $a;
