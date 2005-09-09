@@ -637,7 +637,7 @@ sub attempt_rx_match {
 			       defined $ci ? $ci : "",
 			       [],{},@-[$i],@+[$i]));
 	    }
-	    $m = Match_new(1,"$&",[@cap],{});
+	    $m = Match_new(1,"$&",[@cap],{},@-[0],@+[0]);
 	} else {
 	    $m = Match_new()->set_as_failed();
 	}
