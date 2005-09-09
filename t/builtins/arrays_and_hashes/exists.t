@@ -50,11 +50,15 @@ ok !%hash.exists("42"), "exists on hashes (2)";
   is( $empty_hash.pairs.sort.join( ',' ), '', "empty hash stays same when read from (4)", :todo<bug> );
 
   my $popul_hash = hash('a'=>'b','c'=>'d');
-  is( $popul_hash.pairs.sort.join( ',' ), 'a b,c d', "populated hash stays same when read from (1)" );
+  my sub popul_hash_contents () {
+    $popul_hash.pairs.sort.map:{ $_.key ~ ":" ~ $_.value }.join( ',' );
+  }
+
+  is( popul_hash_contents, "a:b,c:d", "populated hash stays same when read from (1)" );
   $popul_hash{'z'};
-  is( $popul_hash.pairs.sort.join( ',' ), 'a b,c d', "populated hash stays same when read from (2)" );
+  is( popul_hash_contents, "a:b,c:d", "populated hash stays same when read from (2)" );
   bar( $popul_hash{'y'} );
-  is( $popul_hash.pairs.sort.join( ',' ), 'a b,c d', "populated hash stays same when read from (3)" );
+  is( popul_hash_contents, "a:b,c:d", "populated hash stays same when read from (3)" );
   foo( $popul_hash{'x'} );
-  is( $popul_hash.pairs.sort.join( ',' ), 'a b,c d', "populated hash stays same when read from (4)", :todo<bug> );
+  is( popul_hash_contents, "a:b,c:d", "populated hash stays same when read from (4)", :todo<bug> );
 }

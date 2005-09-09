@@ -9,7 +9,7 @@ Testing hash slices.
 
 =cut
 
-plan 15;
+plan 14;
 
 {   my %hash = (1=>2,3=>4,5=>6);
     my @s=(2,4,6);
@@ -40,7 +40,12 @@ plan 15;
 
 # Slices on hash literals
 {   is ~({:a(1), :b(2), :c(3), :d(4)}<b c>), "2 3", "slice on hashref literal";
+
+=for discussion
     is ~((:a(1), :b(2), :c(3), :d(4))<b c>), "2 3", "slice on hash literal";
+Should this really work? &infix:<,> constructs arrays, not hashes...
+=cut
+
 }
 
 # Calculated slices

@@ -96,20 +96,21 @@ ok($now > $beg && $now - $beg < 10, 'very basic time test');
 ok time + 10, "'time()' may drop its parentheses";
 
 #-- 4 --
-{
+if $*OS eq "browser" {
+    skip 1, "Programs running in browsers don't have access to regular IO.";
+} else {
     my ($beguser,$begsys);
     my ($nowuser,$nowsys);
 
-    # eval '($beguser,$begsys) = times';
     ($beguser,$begsys) = times;
-        my $i;
-        loop $i = 0; $i < 100000; $i++ {
-            ($nowuser, $nowsys) = times;
-            $i = 200000 if $nowuser > $beguser && ( $nowsys >= $begsys || (!$nowsys && !$begsys));
-            $now = time;
-            last() if ($now - $beg > 20);
-        }
-        ok($i >= 200000, 'very basic times test');
+    my $i;
+    loop $i = 0; $i < 100000; $i++ {
+        ($nowuser, $nowsys) = times;
+        $i = 200000 if $nowuser > $beguser && ( $nowsys >= $begsys || (!$nowsys && !$begsys));
+        $now = time;
+        last() if ($now - $beg > 20);
+    }
+    ok($i >= 200000, 'very basic times test');
 }
 
 #-- 5 --
