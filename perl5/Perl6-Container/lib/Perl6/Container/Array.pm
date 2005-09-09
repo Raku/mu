@@ -417,25 +417,16 @@ class 'Array'.$class_description => {
                 
                 @param = 
                     map {
-                        UNIVERSAL::isa( $_, 'List' ) ? $_->unboxed : $_ 
+                        UNIVERSAL::isa( $_, 'Array' ) ? $_->unboxed->items :  
+                        UNIVERSAL::isa( $_, 'List' ) ? $_->unboxed :  
+                        UNIVERSAL::isa( $_, 'Perl6::Container::Array' ) ? $_->items : 
+                        $_ 
                     } @param;
+                #warn "AUTOLOAD ",ref($tmp), ' ', $method, " @param == " . $tmp->$method( @param );
 
                 if ( $method eq 'clone' || $method eq 'splice' || $method eq 'reverse' ) {
-                    my @p;
-                    #warn "-- $method";
-                    for ( @param ) {
-                        # my @items = ($_);
-                        $_ = $_->unboxed if UNIVERSAL::isa( $_, 'Array' );
-                        if ( UNIVERSAL::isa( $_, 'Perl6::Container::Array' ) ) {
-                            push @p, $_->items;
-                            #warn "    SPLICE $_ - @p"; 
-                            next;
-                        }
-                        #warn "    SPLICE $_ "; 
-                        push @p, $_;
-                    }
                     my $ret = Array->new();
-                    $ret->push( $tmp->$method( @p )->items );
+                    $ret->push( $tmp->$method( @param ) );
                     return $ret;
                 }
                 
@@ -529,9 +520,10 @@ class 'Array'.$class_description => {
                         # XXX - TODO - test with multi-dim fetch
                         $self->store( $_[1], $scalar );
                     }
-                    my $ret = Scalar->new();
-                    $ret->bind( $scalar );
-                    return $ret;
+                    return $scalar;
+                    #my $ret = Scalar->new();
+                    #$ret->bind( $scalar );
+                    #return $ret;
                 }
 
                 if ( $method eq 'pop'   || $method eq 'shift' ) {
@@ -904,7 +896,7 @@ sub reverse {
     my $array = shift;
     my @rev = reverse @{$array->{items}};
     @rev = map {
-            $_->isa('Perl6::Value::List') ? $_->reverse : $_
+            UNIVERSAL::isa( $_, 'Perl6::Value::List' ) ? $_->reverse : $_
         } @rev;
     return Perl6::Container::Array->from_list( @rev );
 }

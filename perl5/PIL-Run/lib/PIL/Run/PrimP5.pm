@@ -235,7 +235,11 @@ MULTI SUB reverse ($xx) {
     if ( UNIVERSAL::isa( $xx, 'Array' ) ) {
         my $ret = Array->new();
         $ret->store( $xx );  # unbind slice
-        $ret->reverse
+        #warn "reversing ".p6_to_s($ret)." -- $ret\n";
+        # return $ret->reverse;
+        $ret = $ret->reverse;
+        #warn "      got ".p6_to_s($ret)." -- $ret\n";
+        $ret;
     }
     else {
         my $tmp = Perl6::Value::stringify( $xx );
