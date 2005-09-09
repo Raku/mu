@@ -169,9 +169,9 @@ sub flatten       {
 sub from_num_range {
     my $class = shift;
     my %param = @_;
-    my $start = $param{start};
-    my $end =   $param{end};
-    my $step =  $param{step} || 1;
+    my $start = Perl6::Value::numify( $param{start} );
+    my $end =   Perl6::Value::numify( $param{end} );
+    my $step =  Perl6::Value::numify( $param{step} || 1 );
     $class->new(
         clone => sub { 
             $class->from_num_range( start => $start, end => $end, step => $step ) 

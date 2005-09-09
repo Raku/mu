@@ -380,7 +380,12 @@ use constant Inf => 100**100**100;
 use constant NaN => Inf / Inf;
 
 sub to_str        { 
-    my $v = 0 + $_[0];
+    my $v = shift;
+    # native
+    return 'Inf'  if $v eq "".&Perl6::Value::Num::Inf;
+    return '-Inf' if $v eq "".(-&Perl6::Value::Num::Inf);
+    return 'NaN'  if $v eq "".&Perl6::Value::Num::NaN;
+    $v = 0 + $v;
     return 'Inf'  if $v == Inf;
     return '-Inf' if $v == -&Inf;
     return 'NaN'  if $v =~ m/n/i;
@@ -414,9 +419,15 @@ sub to_bit        {
 sub to_num        {
     my $v = $_[0];
     $v =~ s/\s+//g;
-    return Perl6::Value::Num::Inf  if $v eq 'Inf';
+    # Perl 6
+    return Perl6::Value::Num::Inf   if $v eq 'Inf';
     return -&Perl6::Value::Num::Inf if $v eq '-Inf';
-    return Perl6::Value::Num::NaN  if $v eq 'NaN';
+    return Perl6::Value::Num::NaN   if $v eq 'NaN';
+    # native
+    return Perl6::Value::Num::Inf   if $v eq "".&Perl6::Value::Num::Inf;
+    return -&Perl6::Value::Num::Inf if $v eq "".(-&Perl6::Value::Num::Inf);
+    return Perl6::Value::Num::NaN   if $v eq "".&Perl6::Value::Num::NaN;
+
     no warnings 'numeric';
     return 0 + $v;
 }
