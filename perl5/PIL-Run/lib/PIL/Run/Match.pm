@@ -3,7 +3,7 @@ use strict;
 use Perl6::MetaModel;
 use Perl6::Object;
 
-my $class_description = '-0.0.1-cpan:PUTTER';
+my $class_description = '-0.0.1-cpan:PUGS';
 
 class 'Match'.$class_description => {
     is => [ 'Perl6::Object' ],
@@ -18,9 +18,9 @@ class 'Match'.$class_description => {
         ],
         methods => {
             'num' =>  sub { ::SELF->int },
-            'int' =>  sub { Int->new( '$.unboxed' => 0 ) },
-            'str' =>  sub { Str->new( '$.unboxed' => 'a match' ) },
-            'bit' =>  sub { Bit->new( '$.unboxed' => 1 ) },
+            'int' =>  sub { Int->new( '$.unboxed' => 0+::SELF->val_string() ) },
+            'str' =>  sub { Str->new( '$.unboxed' => ::SELF->val_string() ) },
+            'bit' =>  sub { Bit->new( '$.unboxed' => ::SELF->val_bool() ) },
             'perl' => sub { ::SELF->str },
             'ref' =>  sub { ::CLASS }, 
 
