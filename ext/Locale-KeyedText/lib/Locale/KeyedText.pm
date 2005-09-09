@@ -861,11 +861,7 @@ Content of alternate text Template file 'MyApp/L/Homer.pm':
 
 =head1 DEPENDENCIES
 
-Perl Version: 6
-
-Core Modules: I<none>
-
-Non-Core Modules: I<none>
+This module requires any version of Perl 6.x.y that is at least 6.0.0.
 
 =head1 INCOMPATIBILITIES
 
@@ -897,7 +893,7 @@ current solution seems best to me.
 
 =head1 AUTHOR
 
-Darren R. Duncan (perl@DarrenDuncan.net)
+Darren R. Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENCE AND COPYRIGHT
 
@@ -905,12 +901,12 @@ This file is part of the Locale::KeyedText library.
 
 Locale::KeyedText is Copyright (c) 2003-2005, Darren R. Duncan.  All rights
 reserved.  Address comments, suggestions, and bug reports to
-perl@DarrenDuncan.net, or visit http://www.DarrenDuncan.net/ for more
+C<perl@DarrenDuncan.net>, or visit L<http://www.DarrenDuncan.net/> for more
 information.
 
 Locale::KeyedText is free software; you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License (LGPL) as published by
-the Free Software Foundation (http://www.fsf.org/); either version 2.1 of the
+the Free Software Foundation (L<http://www.fsf.org/>); either version 2.1 of the
 License, or (at your option) any later version.  You should have received a copy
 of the LGPL as part of the Locale::KeyedText distribution, in the file named
 "LGPL"; if not, write to the Free Software Foundation, Inc., 51 Franklin St,

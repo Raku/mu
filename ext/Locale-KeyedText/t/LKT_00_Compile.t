@@ -6,7 +6,7 @@ use Test;
 plan( 13 );
 
 use_ok( 'Locale::KeyedText' );
-skip( "cmp_ok( Locale::KeyedText.meta.identifier.version, '==', 1.6.0, \"Locale::KeyedText is the correct version\" );" );
+skip( "is( Locale::KeyedText.meta.identifier.version, 1.6.0, \"Locale::KeyedText is the correct version\" );" );
 
 use lib <t/lib ext/Locale-KeyedText/t/lib>;
 
