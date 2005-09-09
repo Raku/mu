@@ -43,7 +43,7 @@ sub smart_match {
     my($a,$b)=@_;
     my $ret = attempt_rx_match($a,$b);
     return $ret if defined $ret;
-    p6_to_s($a) eq p6_to_s($b);
+    p6_from_b(p6_to_s($a) eq p6_to_s($b));
 }
 
 
