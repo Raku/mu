@@ -129,7 +129,7 @@ package PStmt; @ISA = qw(EvalX::BaseClass); sub expand {
     } else {
 	local $EvalX::PStmt::already_protected = 1;
 	my $n = int(rand(10000000));
-	"do{my \@_res$n=eval(<<'E$n');warn '#' x 40,\"\\n\",'Fyi: ',\$\@ if \$\@; \@_res$n = \@_res$n;};\n".$_[0]->SUPER::expand().";\nE$n\n";
+	"do{my \@_res$n=eval(<<'E$n');die \$\@ if \$\@ eq \"timeout\\n\";warn '#' x 40,\"\\n\",'Fyi: ',\$\@ if \$\@; \@_res$n = \@_res$n;};\n".$_[0]->SUPER::expand().";\nE$n\n";
     }
 }
 local $EvalX::PStmt::already_protected = 0;

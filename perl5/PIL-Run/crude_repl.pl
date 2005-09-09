@@ -16,6 +16,7 @@ $Data::Dumper::Indent = 1;
 $Data::Dumper::Terse = 1;
 require YAML;
 use Scriptalicious 1.05;
+use Getopt::Long qw(:config no_auto_version);
 
 sub p6_repl_simple {
     my $verbose = 0;
@@ -75,7 +76,7 @@ sub p6_repl {
 }
 
 my (@eval, $repl,$warn,$timeout);
-getopt(
+GetOptions(
     'version'   => sub{ print "--version is not implemented.\n"; exit; },
     'V'         => sub{ print "$0 has no version itself.\n";
                         system("pugs","-V");
@@ -86,6 +87,7 @@ getopt(
     'timeout=i' => \$timeout,
 );
 $timeout = defined $timeout ? $timeout : $ENV{PUGS_HACK_TIMEOUT};
+$timeout = 1*60 if !defined($timeout) && @ARGV && !$repl;
 local $SIG{ALRM} = sub { die "timeout\n" } if $timeout;
 alarm $timeout if $timeout;
 

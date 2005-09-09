@@ -325,6 +325,10 @@ MULTI SUB try ($xx) {
     use Error qw(:try);
     try { p6_apply($xx); } otherwise { p6_set(p6_var('$!',2),$_[0]); };
 };
+{ package Error::Simple;
+  use PIL::Run::ApiX;
+  sub bit {my $e=shift; $e ? p6_from_b(1) : p6_from_b(0); }
+}
 MULTI SUB lazy ($xx) {...};
 MULTI SUB defined ($xx) { $xx->defined };
 MULTI SUB last ($xx) {...};
