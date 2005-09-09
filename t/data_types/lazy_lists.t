@@ -1,4 +1,4 @@
-﻿#!/usr/bin/pugs
+#!/usr/bin/pugs
 
 # Tests for lazy lists
 #
@@ -14,7 +14,7 @@
 use v6;
 use Test;
 
-plan( 29 );
+plan( 30 );
 
 die "$?PUGS_BACKEND does not support lazy lists yet"
     unless $?PUGS_BACKEND eq "BACKEND_PERL5";
@@ -40,6 +40,10 @@ is( (-Inf..0).perl,
 is( ('aaaa'..'zzzz').perl, 
     "'aaaa', 'aaab', 'aaac' ... 'zzzx', 'zzzy', 'zzzz')", 
     "string lazy list" );
+
+is( (1...,2,3).perl,
+    "(1, 2, 3 ... Inf, 2, 3)",
+    "infinite list with non-lazy elements" );
 
 # splices
 
