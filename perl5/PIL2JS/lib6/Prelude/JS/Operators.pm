@@ -27,7 +27,7 @@ my @subs = (
   "exp",          1, "N", "Math.exp(a)",
   "log",          1, "N", "Math.log(a)",
   "log10",        1, "N", "Math.log(a) / Math.log(10)",
-  "int",          1, "N", "parseInt(String(a))",
+  "int",          1, "N", "a == Infinity || a == -Infinity || a != a ? a : parseInt(String(a))",
   "chr",          1, "N", "String.fromCharCode(a)",
   "ord",          1, "S", "a.length > 0 ? a.charCodeAt(0) : undefined",
   "hex",          1, "S", "parseInt(a, 16)",
