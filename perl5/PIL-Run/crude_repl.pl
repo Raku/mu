@@ -51,7 +51,6 @@ sub p6_repl {
         print "\n",(map {p6_to_s($_)} @res),"\n";
     };
     print "See perl5/PIL-Run/TODO.\n";
-    print "say 'hi' and say 3 are about all that works.\n";
     p6_repl_print_help();
     while (1) {
         my $line = prompt_string("p5ugs> ");

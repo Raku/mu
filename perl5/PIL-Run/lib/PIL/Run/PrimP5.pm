@@ -39,6 +39,11 @@ sub def {
     PIL::Run::ApiX::def_prim($what,$name,$argl,$f);
 };
 
+sub smart_match {
+    my($a,$b)=@_;
+    p6_to_s($a) eq p6_to_s($b);
+}
+
 # a first few - dont add more here?
 MULTI SUB pi () {p6_from_n(Math::Trig::pi)};
 MULTI SUB say (*@args) {
@@ -154,15 +159,15 @@ MACROP5   Class::_create ($xx0) {""};
 MULTI SUB want () {...};
 MULTI SUB bool::true () { p6_from_b(1) };
 MULTI SUB bool::false () { p6_from_b(0) };
-MULTI SUB time () {...};
-MULTI SUB times () {...};
+MULTI SUB time () { use Time::HiRes; p6_from_n(time)};
+MULTI SUB times () {p6_from_l(times)};
 MULTI SUB so () {...};
 #MULTI SUB ¥ () {...}; - need protective unicode mangling/encoding first.
 #MULTI SUB Y () {...};
-MULTI SUB File::Spec::cwd () {...};
+MULTI SUB File::Spec::cwd () {p6_from_s(cwd)};
 MULTI SUB File::Spec::tmpdir () {...};
 # pi say - placed above, as a temporary dev hack.
-MULTI SUB print () {...};
+MULTI SUB print (*@xxa) {print(map{p6_to_s($_)} @xxa);};
 MULTI SUB return () {...};
 MULTI SUB yield () {...};
 MULTI SUB take () {...};
@@ -191,8 +196,8 @@ MULTI SUB capitalize ($xx) {
     $string =~ s/([\w\']+)/\u\L$1/g;
     p6_from_s($string);
 };
-MULTI SUB undef ($xx) {...};
-MULTI SUB undefine ($xx) {...};
+MULTI SUB undef ($xx) {p6_undef};
+MULTI SUB undefine ($xx) {p6_set($xx,p6_undef)};
 #MULTI SUB prefix:<+> ($xx) {...}; # in PrimP6
 #MULTI SUB abs ($xx) {...};
 MULTI SUB Pugs::Internals::truncate ($xx) {...};
@@ -217,7 +222,7 @@ MULTI SUB postfix:<--> ($xx) {
 MULTI SUB prefix:<--> ($xx)  { p6_set($xx,p6_from_n(p6_to_n($xx)+1)) };
 
 MULTI SUB scalar ($xx) {...};
-MULTI SUB sort (*@xxa) {...};
+MULTI SUB sort (*@xxa) {p6_from_l(sort map{p6_to_s($_)} @xxa)};
 #MULTI SUB reverse (@xx) { $xx->reverse };
 MULTI SUB reverse ($xx) { p6_from_s(reverse(p6_to_s($xx))) };
 MULTI SUB zip (@x0,*@x1) { 
@@ -255,7 +260,7 @@ MULTI SUB none ($xx) {...};
 MULTI SUB perl ($xx) { $xx->perl };
 MULTI SUB require_haskell ($xx) {...};
 MULTI SUB require_parrot ($xx) {...};
-MULTI SUB require_perl5 ($xx) {...};
+MULTI SUB require_perl5 ($xx) { p6_from_x(eval("require ".p6_to_s($xx).";"));};
 MULTI SUB Pugs::Internals::eval_parrot ($xx) {...};
 MULTI SUB use ($xx) {...};
 MULTI SUB require ($xx) {
@@ -276,7 +281,7 @@ MULTI SUB require ($xx) {
 };
 MULTI SUB Pugs::Internals::eval ($xx) {...};
 MULTI SUB evalfile ($xx) {...};
-MULTI SUB Pugs::Internals::eval_perl5 ($xx) {...};
+MULTI SUB Pugs::Internals::eval_perl5 ($xx) {p6_from_x(eval(p6_to_s($xx)))};
 MULTI SUB Pugs::Internals::eval_haskell ($xx) {...};
 MULTI SUB Pugs::Internals::eval_yaml ($xx) {...};
 MULTI SUB try ($xx) {
@@ -324,8 +329,8 @@ MULTI SUB elems ($xx) { $xx->elems };
 MULTI SUB graphs ($xx) {...};
 MULTI SUB codes ($xx) {...};
 MULTI SUB chars ($xx) {...};
-MULTI SUB bytes ($xx) {...};
-MULTI SUB unlink ($xx) {...};
+MULTI SUB bytes ($xx) {};
+MULTI SUB unlink ($xx) {unlink(p6_to_s($xx0))};
 MULTI SUB readdir ($xx) {...};
 MULTI SUB slurp ($xx) {...};
 MULTI SUB opendir ($xx) {...};
@@ -451,8 +456,8 @@ MULTI SUB infix:<lt> ($xx0,$xx1) { p6_from_b(p6_to_s($xx0) lt p6_to_s($xx1)) };
 MULTI SUB infix:<le> ($xx0,$xx1) { p6_from_b(p6_to_s($xx0) le p6_to_s($xx1)) };
 MULTI SUB infix:<gt> ($xx0,$xx1) { p6_from_b(p6_to_s($xx0) gt p6_to_s($xx1)) };
 MULTI SUB infix:<ge> ($xx0,$xx1) { p6_from_b(p6_to_s($xx0) ge p6_to_s($xx1)) };
-MULTI SUB infix:<~~> ($xx0,$xx1) {...};
-MULTI SUB infix:<!~> ($xx0,$xx1) {...};
+MULTI SUB infix:<~~> ($xx0,$xx1) { p6_from_b(smart_match($xx0,$xx1)) };
+MULTI SUB infix:<!~> ($xx0,$xx1) { p6_from_b(!smart_match($xx0,$xx1)) };
 MULTI SUB infix:<=:=> ($xx0,$xx1) { Perl6::Value::identify($xx0) eq Perl6::Value::identify($xx1) };
 MACROP5   infix:<&&> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; p6_to_b($_v1) ? ('.$xx1.') : $_v1 }' };
 MACROP5   infix:<||> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; p6_to_b($_v1) ? $_v1 : ('.$xx1.') }' };
@@ -485,8 +490,10 @@ MULTI SUB split (*@xxa) {
 MULTI SUB connect ($xx0,$xx1) {...};
 MULTI SUB Pugs::Internals::hSetBinaryMode ($xx0,$xx1) {...};
 MULTI SUB Pugs::Internals::openFile ($xx0,$xx1) {...};
-MULTI SUB exp ($xx0,$xx1) {...};
-MULTI SUB Pugs::Internals::sprintf ($xx0,$xx1) {...};
+MULTI SUB exp ($xx0,$xx1) {p6_from_n(p6_to_n($xx0)**p6_to_n($xx1))};
+MULTI SUB sprintf ($xx0,*@xxa) {
+    p6_from_s(sprintf(p6_to_s($xx0), map{p6_to_s($_)} @xxa));
+};
 MULTI SUB exec (*@xx) {
     #for ( $PIL::Run::Root::main::hash_ENV->keys->items ) {
     #    # warn "SETENV $_ = ".Perl6::Value::stringify( $PIL::Run::Root::main::hash_ENV->fetch( $_ ))."\n";
@@ -498,7 +505,7 @@ MULTI SUB exec (*@xx) {
     exec @xx;
 };
 # system - see op1
-MULTI SUB chmod ($xx0,$xx1) {...};
+MULTI SUB chmod ($xx0,@xxa) {chmod(p6_to_n($xx0),map{p6_to_s($_)}@xxa)};
 MULTI SUB splice ($xx0,*@xxa) { 
     for (0,1) {
         $xxa[$_] = Perl6::Value::numify( $xxa[$_] ) if defined $xxa[$_]; 
@@ -512,8 +519,20 @@ MULTI SUB BUILDALL ($xx0,$xx1) {...};
 
 # op3
 MULTI SUB Pugs::Internals::caller ($xx0,$xx1,$xx2) {...};
-MULTI SUB index ($xx0,$xx1,$xx2) {...};
-MULTI SUB rindex ($xx0,$xx1,$xx2) {...};
+MULTI SUB index ($xx0,$xx1,$xx2) {
+    my($v0,$v1,$v2)=(p6_to_s($xx0),p6_to_s($xx1),undef);
+    $v2 = p6_to_n($xx2) if p6_defined($xx2);
+    (defined $v2
+     ? p6_from_n(index($v0,$v1,$v2))
+     : p6_from_n(index($v0,$v1)));
+};
+MULTI SUB rindex ($xx0,$xx1,$xx2) {
+    my($v0,$v1,$v2)=(p6_to_s($xx0),p6_to_s($xx1),undef);
+    $v2 = p6_to_n($xx2) if p6_defined($xx2);
+    (defined $v2
+     ? p6_from_n(rindex($v0,$v1,$v2))
+     : p6_from_n(rindex($v0,$v1)));
+};
 # splice - see op2
 # split - see op2
 # Str::split - see op1

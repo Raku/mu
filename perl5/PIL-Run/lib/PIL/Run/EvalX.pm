@@ -55,6 +55,9 @@ sub expand {
 package VInt; @ISA = qw(EvalX::BaseClass); sub expand {
     "p6_new('Int','$_[0][0]')";
 }
+package VRat; @ISA = qw(EvalX::BaseClass); sub expand {
+    "p6_new('Num','$_[0][0]')";
+}
 package VNum; @ISA = qw(EvalX::BaseClass); sub expand {
     if ( $_[0][0] eq 'Inf' || $_[0][0] eq 'inf' ) {
         return "p6_new('Num',Perl6::Value::numify('Inf'))";
@@ -72,7 +75,7 @@ package VStr; @ISA = qw(EvalX::BaseClass); sub expand {
 package PVal; @ISA = qw(EvalX::BaseClass); sub expand {
     my($self)=@_;
     if (defined $self->{'pVal'} && $self->{'pVal'} eq "VUndef") {
-        "Scalar->new()";
+        "p6_undef()";
     } else {
         $self->SUPER::expand();
     }
