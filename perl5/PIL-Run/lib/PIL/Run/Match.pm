@@ -24,47 +24,24 @@ class 'Match'.$class_description => {
             'perl' => sub { ::SELF->str },
             'ref' =>  sub { ::CLASS }, 
 
-        },
-    }
-};
+            set_as_failed => sub {
+                ::SELF->val_bool( 0 );
+                ::SELF->val_string( "" );
+                ::SELF->val_array( [] );
+                ::SELF->val_hash( {} );
+                ::SELF;
+            },
+            init => sub {
+                ::SELF->val_bool( 1 );
+                ::SELF->val_string( "" );
+                ::SELF->val_array( [] );
+                ::SELF->val_hash( {} );
+                ::SELF;
+            },
 
-package Match;
-use overload
-    'bool' => 'as_bool',
-    '""'   => 'as_string',
-    '@{}'  => 'as_array',
-    '%{}'  => 'as_hash',
-    fallback => 1
-    ;
-
-sub new_failed {
-    my($cls)=@_;
-    $cls->new()->set_as_failed();
-}
-
-sub init {
+            describe => sub {
     my($o)=@_;
-    $o->set(1,"",[],{});
-    return $o;
-}
-sub set {
-    my($o,$b,$s,$a,$h,$from,$to)=@_;
-    $$o->{'val_bool'}   = $b;
-    $$o->{'val_string'} = $s;
-    $$o->{'val_array'}  = $a;
-    $$o->{'val_hash'}   = $h;
-    $$o->{'from'}  = $from;
-    $$o->{'to'}    = $to;
-    return $o;
-}
-sub set_as_failed {
-    my($o)=@_;
-    $o->set(0,"",[],{});
-    return $o;
-}
-sub describe {
-    my($o)=@_;
-    my $s = overload::StrVal($o)."<".($o?"1":"0").",\"$o\",[";
+    my $s = ($o->val_string)."<".($o?"1":"0").",\"$o\",[";
     for (@{$o}) { $s .= "\n".$o->_indent($_->describe())."," }
     $s .= "\n " if @{$o};
     $s .= "],{";
@@ -77,8 +54,13 @@ sub describe {
     $to   = "" if !defined $to;
     $s .= "$from,$to>";
     return $s;
-}
-sub _indent {my($o,$s)=@_; $s =~ s/^(?!\Z)/  /mg; $s}
-sub _indent_except_top {my($o,$s)=@_; $s =~ s/^(?<!\A)(?!\Z)/  /mg; $s}
+            },
+
+            _indent => sub {my($o,$s)=@_; $s =~ s/^(?!\Z)/  /mg; $s},
+            _indent_except_top => sub {my($o,$s)=@_; $s =~ s/^(?<!\A)(?!\Z)/  /mg; $s},
+        },
+    }
+};
+
 
 1;
