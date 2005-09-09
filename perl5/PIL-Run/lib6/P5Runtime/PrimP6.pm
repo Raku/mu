@@ -69,7 +69,7 @@ multi sub statement_control:for (@_a,$_code) {
     }
 }
 
-multi sub eval($code,+$langpair) {
+multi sub eval($code,+$langpair = undef) {
     my $lang = "Perl6";
     try { $lang = $langpair.value }; # XXX - pilrun multi-bug workaround
     $lang = lc $lang;

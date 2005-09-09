@@ -232,7 +232,8 @@ my $pugs = 'pugs'; # path_from_me('..','..','pugs');
 
 sub pil_from_p6 {
     my($p6)=@_;
-    $p6 =~ s/^use /require /mg && warn "faking use() with require()\n"; # XXX
+    my $frob = sub{ my $n=$_[0];($n =~ /^perl5/ ? "" : "require $n;")."use_avoiding_pugs('$n');"};
+    $p6 =~ s/^use\s+([^;]+);/$frob->($1)/emg;
     my $fn = "deleteme.p6";
     open(F,">$fn") or die "Couldn't open \"$fn\" for writing: $!\n"; # XXX - kluge
     print F $p6; close F or die "Couldn't close \"$fn\": $!\n";

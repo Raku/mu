@@ -269,11 +269,37 @@ MULTI SUB require_haskell ($xx) {...};
 MULTI SUB require_parrot ($xx) {...};
 MULTI SUB require_perl5 ($xx) { p6_from_x(eval("require ".p6_to_s($xx).";"));};
 MULTI SUB Pugs::Internals::eval_parrot ($xx) {...};
-MULTI SUB use ($xx) {...};
-MULTI SUB require ($xx) {
+MULTI SUB use_avoiding_pugs ($xx) {help_require_use($xx,1)};
+MULTI SUB require ($xx) {help_require_use($xx,0)};
+sub help_require_use {
+    my($xx,$use)=@_;
     use FindBin;
     use File::Spec;
     my $name = p6_to_s($xx);
+    if ($name =~ /^v6\b/) {
+	return;
+    }
+    if ($name =~ /^perl5:(.+)/) {
+	my $pkg = $1;
+	eval "require $pkg;";
+	die "require($pkg) - $@\n" if $@;
+	if($use) {
+	    my $tmp = "Temp".int(rand(10000000));
+	    my $code = "package $tmp; use $pkg; \\\%${tmp}::;";
+	    print STDERR $code,"\n";
+	    my $sym = eval $code; die "bug $@" if $@;
+	    for my $key (keys(%$sym)) {
+		next if $key =~ /BEGIN/;
+		# XXX - *@a doesnt work yet
+#		my $sub = "sub $key (*\@a) { PIL::Run::Internals::call_perl5('${tmp}::$key',*\@a) }";
+		my $sub = "sub $key (*\@a) { PIL::Run::Internals::call_perl5('${tmp}::$key',\@a) }";
+	    print STDERR $sub,"\n";
+		PIL::Run::EvalX::p6_eval($sub);
+	    }
+	}
+	return;
+    }
+    $name = $name.".pm" if $name !~ /\.pm/; # help out use();
     my $fn = File::Spec->catfile(split(/::/,$name));
     my @candidates;
     push(@candidates,
@@ -285,12 +311,16 @@ MULTI SUB require ($xx) {
         return PIL::Run::EvalX::p6_eval_file($f);
     }
     die "require($name) - file not found";
-};
+}
 MULTI SUB Pugs::Internals::eval ($xx) {PIL::Run::EvalX::p6_eval(p6_to_s($xx))};
-MULTI SUB evalfile ($xx) {...};
+MULTI SUB evalfile ($xx) {PIL::Run::EvalX::p6_eval_file(p6_to_s($xx))};
 MULTI SUB Pugs::Internals::eval_perl5 ($xx) {p6_from_x(eval(p6_to_s($xx)))};
 MULTI SUB Pugs::Internals::eval_haskell ($xx) {...};
 MULTI SUB Pugs::Internals::eval_yaml ($xx) {...};
+#MULTI SUB PIL::Run::Internals::call_perl5 ($xx0,*@xxa) { # XXX - see help_require_use() above
+MULTI SUB PIL::Run::Internals::call_perl5 ($xx0,@xxa) {
+    p6_from_x(p6_to_s($xx0)->(map{p6_to_s($_)}@$xxa)); #XXX p6_to_x
+}; 
 MULTI SUB try ($xx) {
     use Error qw(:try);
     try { p6_apply($xx); } otherwise { p6_set(p6_var('$!',2),$_[0]); };
