@@ -398,7 +398,7 @@ utfCount cs = uc 0# cs where
         | ord x <= 0x1fffff = uc (n +# 4#) xs
         | ord x <= 0x3ffffff = uc (n +# 5#) xs
         | ord x <= 0x7fffffff = uc (n +# 6#) xs
-        | otherwise = error "invalid string"
+        | otherwise = n -- error "invalid string"
 
 
 -- | Convert Unicode characters to UTF-8.
