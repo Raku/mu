@@ -50,6 +50,7 @@ use strict;
 use Perl6::MetaModel;
 use Perl6::Object;
 use Perl6::Value;
+use Carp;
 
 my $class_description = '-0.0.1-cpan:FGLOCK';
 
@@ -174,8 +175,15 @@ class 'Scalar'.$class_description => {
             'fetch' => sub { shift; _('$:cell')->fetch( @_ ) },
             'store' => sub { 
                 # TODO - copy cell 'type'
-                shift; 
-                _('$:cell')->store( @_);
+                my $self = shift; 
+                my $value = shift;
+                #carp "Too many arguments to Scalar->store: @_" if @_;
+                if ( UNIVERSAL::isa( $value, 'Scalar' ) ) {
+                    #carp "Attempting to store a Scalar into a Scalar";
+                    $value = $value->cell->{v};
+                    #warn "value was a $value";
+                }
+                _('$:cell')->store( $value, @_ );
             },
             'defined' => sub {
                 Bit->new( '$.unboxed' => defined _('$:cell')->fetch ? 1 : 0 )
