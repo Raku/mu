@@ -375,8 +375,7 @@ our $DISPATCH_TRACE = 0;
                 %opts = (for => 'class');
                 $class = $self;
             }
-            
-                        
+             
             # get the dispatcher instance ....
             my $dispatcher = $class->dispatcher(':canonical');  
             # walk the methods

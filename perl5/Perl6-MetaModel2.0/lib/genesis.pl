@@ -16,7 +16,7 @@ $::Package = $::Class->new();
 
 $::Package->superclasses([ $::Object ]);
 
-$::Package->add_attribute('$:name'         => ::make_attribute('$:name'));
+$::Package->add_attribute('$:name'      => ::make_attribute('$:name'));
 $::Package->add_attribute('%:namespace' => ::make_attribute('%:namespace'));
 
 $::Package->add_method('name' => ::make_method(sub {
@@ -40,7 +40,7 @@ $::Package->add_method('STORE' => ::make_method(sub {
 }, $::Package));
 
 ## ----------------------------------------------------------------------------
-## Module (added with r6792)
+## Module
 
 $::Module = $::Class->new();
 
@@ -152,10 +152,17 @@ $::Class->add_method('STORE' => ::make_method(sub {
     }
 }, $::Class));
 
+
 __END__
 
 ## ----------------------------------------------------------------------------
 ## Role
+
+# Notes on Roles:
+# - role methods need to be special, this is because we need to be able to bind
+#   the $?ROLE value at Role creation time, but the $?CLASS value at composition 
+#   time. Currently I think the best approach is to make role methods a special 
+#   case of some kind, and then "upgrade" them when we compose them into the class. 
 
 $::Role = $::Class->new('$:name' => 'Role');
 
