@@ -633,11 +633,11 @@ sub attempt_rx_match {
 	    for(my $i=1;$i < @+; $i++) {
 		my $ci = $$i;
 		push(@cap,
-		     Match->new(defined $ci ? 1 : 0,
-				defined $ci ? $ci : "",
-				[],{},@-[$i],@+[$i]));
+		     Match_new(defined $ci ? 1 : 0,
+			       defined $ci ? $ci : "",
+			       [],{},@-[$i],@+[$i]));
 	    }
-	    $m = Match->new(1,"$&",[@cap],{});
+	    $m = Match_new(1,"$&",[@cap],{});
 	} else {
 	    $m = Match->new_failed();
 	}
@@ -647,5 +647,12 @@ sub attempt_rx_match {
     return $ret;
 }
 
-1;
-__END__
+sub Match_new {
+    my($b,$s,$a,$h,$from,$to)=@_;
+    Match->new('$.val_bool' => $b,
+               '$.val_string' => $s,
+               '$.val_array' => $a,
+               '$.val_hash' => $h,
+               '$.from' => $from,
+               '$.to' => $to);
+}
