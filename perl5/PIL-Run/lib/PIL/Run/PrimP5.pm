@@ -639,7 +639,7 @@ sub attempt_rx_match {
 	    }
 	    $m = Match_new(1,"$&",[@cap],{});
 	} else {
-	    $m = Match->new_failed();
+	    $m = Match_new()->set_as_failed();
 	}
 	p6_set(p6_var('$/',2),$m);
 	$ret = $m;
