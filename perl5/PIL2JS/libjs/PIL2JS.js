@@ -289,7 +289,7 @@ PIL2JS.Box.prototype = {
       this.isConstant = other.isConstant;
     } else if(my_ctype == PIL2JS.ContainerType.Array && other_ctype == PIL2JS.ContainerType.Scalar) {
       var other_val = fetch();
-      if(other_val instanceof PIL2JS.Ref && other_val.referencee.FETCH() instanceof Array) {
+      if(other_val instanceof PIL2JS.Ref && other_val.autoderef && other_val.referencee.FETCH() instanceof Array) {
         // Ok.
         var other_box   = other_val.referencee;
         this.FETCH      = other_box.FETCH;
@@ -301,7 +301,7 @@ PIL2JS.Box.prototype = {
       }
     } else if(my_ctype == PIL2JS.ContainerType.Hash && other_ctype == PIL2JS.ContainerType.Scalar) {
       var other_val = fetch();
-      if(other_val instanceof PIL2JS.Ref && other_val.referencee.FETCH() instanceof PIL2JS.Hash) {
+      if(other_val instanceof PIL2JS.Ref && other_val.autoderef && other_val.referencee.FETCH() instanceof PIL2JS.Hash) {
         // Ok.
         var other_box   = other_val.referencee;
         this.FETCH      = other_box.FETCH;
@@ -1058,6 +1058,9 @@ var _26main_3a_3aprefix_3a_7e = PIL2JS.Box.constant_func(1, function (args) {
       if(ref == "Str") {
         cc(new PIL2JS.Box.Constant(String(thing).toString()));
       } else if(ref == "Array") {
+        // It's safe to blindly access .referencee here (without checking
+        // .autoderef), as &ref wouldn't have returned "Array" if the thing was
+        // a non-autodereffing array reference.
         if(thing.referencee) thing = thing.referencee.FETCH();
         var res = "";
         for(var i = 0; i < thing.length; i++) {
@@ -1097,7 +1100,14 @@ var _26main_3a_3aprefix_3a_7e = PIL2JS.Box.constant_func(1, function (args) {
             : ""
         ));
       } else if(ref == "Num") {
-        cc(new PIL2JS.Box.Constant(Number(thing).toString()));
+        var num2str = function (num) {
+          if(num == Infinity)  return "Inf";
+          if(num == -Infinity) return "-Inf";
+          if(num == num)       return num.toString();
+          return NaN;
+        };
+
+        cc(new PIL2JS.Box.Constant(num2str(thing)));
       } else if(ref == "Junction") {
         var res = "", values = thing.values;
         for(var i = 0; i < values.length; i++) {
@@ -1132,8 +1142,22 @@ var _26main_3a_3aprefix_3a_2b = PIL2JS.Box.constant_func(1, function (args) {
     var unboxed = thing.FETCH();
     if(unboxed == undefined) return cc(new PIL2JS.Box.Constant(0));
 
+    var str2num = function (str) {
+      if(Number(str) == Number(str)) {
+        return Number(str);
+      } else {
+        // JavaScript's Number couldn't parse str (Number(str) returned NaN)
+        str = str.replace(/\s+$/, "");
+        if(str == "Inf")  return Infinity;
+        if(str == "-Inf") return -Infinity;
+        if(str == "NaN")  return NaN;
+        if(Number(str) == Number(str)) return Number(str);
+        return 0;
+      }
+    };
+
     if(ref == "Str") {
-      cc(new PIL2JS.Box.Constant(Number(unboxed)));
+      cc(new PIL2JS.Box.Constant(str2num(unboxed)));
     } else if(ref == "Array") {
       if(unboxed.referencee) unboxed = unboxed.referencee.FETCH();
       cc(new PIL2JS.Box.Constant(unboxed.length));
@@ -1151,7 +1175,7 @@ var _26main_3a_3aprefix_3a_2b = PIL2JS.Box.constant_func(1, function (args) {
     } else if(ref == "Ref") {
       PIL2JS.die("Can't numfiy non-array or hash references!");
     } else if(ref == "Match") {
-      cc(new PIL2JS.Box.Constant(Number(thing.str)));
+      cc(new PIL2JS.Box.Constant(str2num(thing.str)));
     } else {
       PIL2JS.die(
         "Numification for objects of class "+
