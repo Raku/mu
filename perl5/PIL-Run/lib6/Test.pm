@@ -1,14 +1,19 @@
 
 sub plan ($n) { say "1..$n"; }
 
+my $count = 0;
+
 sub ok ($v,?$msg) {
-    if $v { say "ok" } else { say "not ok" }
+    $count++;
+    if $v { say "ok $count - $msg" } else { say "not ok $count - $msg" }
 }
 
 sub is ($v,$v2, ?$msg) {
-    if $v eq $v2 { say "ok" } else { say "not ok" }
+    $count++;
+    if $v eq $v2 { say "ok $count - $msg" } else { say "not ok $count - $msg" }
 }
 
 sub eval_ok ($v,?$msg) {
-    say "not ok - eval_ok isnt implemented yet!";
+    $count++;
+    say "not ok $count - $msg - eval_ok isnt implemented yet!";
 }
