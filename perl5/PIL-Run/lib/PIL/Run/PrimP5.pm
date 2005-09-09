@@ -41,8 +41,11 @@ sub def {
 
 sub smart_match {
     my($a,$b)=@_;
+    my $ret = attempt_rx_match($a,$b);
+    return $ret if defined $ret;
     p6_to_s($a) eq p6_to_s($b);
 }
+
 
 # a first few - dont add more here?
 MULTI SUB pi () {p6_from_n(Math::Trig::pi)};
@@ -456,8 +459,8 @@ MULTI SUB infix:<lt> ($xx0,$xx1) { p6_from_b(p6_to_s($xx0) lt p6_to_s($xx1)) };
 MULTI SUB infix:<le> ($xx0,$xx1) { p6_from_b(p6_to_s($xx0) le p6_to_s($xx1)) };
 MULTI SUB infix:<gt> ($xx0,$xx1) { p6_from_b(p6_to_s($xx0) gt p6_to_s($xx1)) };
 MULTI SUB infix:<ge> ($xx0,$xx1) { p6_from_b(p6_to_s($xx0) ge p6_to_s($xx1)) };
-MULTI SUB infix:<~~> ($xx0,$xx1) { p6_from_b(smart_match($xx0,$xx1)) };
-MULTI SUB infix:<!~> ($xx0,$xx1) { p6_from_b(!smart_match($xx0,$xx1)) };
+MULTI SUB infix:<~~> ($xx0,$xx1) { smart_match($xx0,$xx1) };
+MULTI SUB infix:<!~> ($xx0,$xx1) { p6_from_b(!p6_to_b(smart_match($xx0,$xx1))) };
 MULTI SUB infix:<=:=> ($xx0,$xx1) { Perl6::Value::identify($xx0) eq Perl6::Value::identify($xx1) };
 MACROP5   infix:<&&> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; p6_to_b($_v1) ? ('.$xx1.') : $_v1 }' };
 MACROP5   infix:<||> ($xx0,$xx1) { 'do{my $_v1 = '.$xx0.'; p6_to_b($_v1) ? $_v1 : ('.$xx1.') }' };
@@ -547,6 +550,114 @@ MULTI SUB substr ($xx0,$xx1,*@xxa) {
     p6_from_s(substr($s,$v1,$v2)); # XXX - doesnt handle replacement.
 };
 # splice - see op2
+
+
+
+sub rx_common {
+    my($mods6,$pat6,$qo6,$qc6)=@_;
+    my $pat = p6_to_s($pat6);
+    my $qo = defined $qo ? p6_to_s($qo6) : '/';
+    my $qc = defined $qc ? p6_to_s($qc6) : '/';
+    my $m = "";
+    $m = join("",$mods->keys) if defined $mods;
+    eval "qr$qo$pat$qc$m";
+}
+MULTI SUB rxbare_ ($pat) { rx_common(undef,$pat,undef,undef); };
+MULTI SUB rx_ ($mods,$pat,$qo,$qc) { rx_common($mods,$pat,$qo,$qc) };
+MULTI SUB m_ ($mods,$pat,$qo,$qc) { rx_common($mods,$pat,$qo,$qc) };
+
+sub attempt_rx_match {
+    my($a,$b)=@_;
+    my $ret;
+    eval {
+	my $m;
+	my $as = p6_to_s($a);
+	if ($as =~ $b) {
+	    my $i = 0;
+	    my @cap;
+	    for(my $i=1;$i < @+; $i++) {
+		my $ci = $$i;
+		push(@cap,
+		     Match->new(defined $ci ? 1 : 0,
+				defined $ci ? $ci : "",
+				[],{},@-[$i],@+[$i]));
+	    }
+	    $m = Match->new(1,"$&",[@cap],{});
+	} else {
+	    $m = Match->new_failed();
+	}
+	p6_set(p6_var('$/',2),$m);
+	$ret = $m;
+    };
+    return $ret;
+}
+
+package Match;
+use overload
+    'bool' => 'as_bool',
+    '""'   => 'as_string',
+    '@{}'  => 'as_array',
+    '%{}'  => 'as_hash',
+    fallback => 1
+    ;
+
+sub as_bool   {my($o)=@_;$$o->{'val_bool'}}
+sub as_string {my($o)=@_;$$o->{'val_string'}}
+sub as_array  {my($o)=@_;$$o->{'val_array'}}
+sub as_hash   {my($o)=@_;$$o->{'val_hash'}}
+
+sub from {my($o)=@_;$$o->{'from'}}
+sub to   {my($o)=@_;$$o->{'to'}}
+
+sub new {
+    my($cls,$b,$s,$a,$h,$from,$to)=@_;
+    my $h = {};
+    my $o = (bless \$h,$cls)->set($b,$s,$a,$h,$from,$to);
+    return $o;
+}
+sub new_failed {
+    my($cls)=@_;
+    $cls->new()->set_as_failed();
+}
+
+sub init {
+    my($o)=@_;
+    $o->set(1,"",[],{});
+    return $o;
+}
+sub set {
+    my($o,$b,$s,$a,$h,$from,$to)=@_;
+    $$o->{'val_bool'}   = $b;
+    $$o->{'val_string'} = $s;
+    $$o->{'val_array'}  = $a;
+    $$o->{'val_hash'}   = $h;
+    $$o->{'from'}  = $from;
+    $$o->{'to'}    = $to;
+    return $o;
+}
+sub set_as_failed {
+    my($o)=@_;
+    $o->set(0,"",[],{});
+    return $o;
+}
+sub describe {
+    my($o)=@_;
+    my $s = overload::StrVal($o)."<".($o?"1":"0").",\"$o\",[";
+    for (@{$o}) { $s .= "\n".$o->_indent($_->describe())."," }
+    $s .= "\n " if @{$o};
+    $s .= "],{";
+    for (keys(%{$o})) {
+        $s .= "\n$_ => " .$o->_indent_except_top($o->describe())."," }
+    $s .= "\n " if %{$o};
+    $s .= "},";
+    my($from,$to)=($o->from,$o->to);
+    $from = "" if !defined $from;
+    $to   = "" if !defined $to;
+    $s .= "$from,$to>";
+    return $s;
+}
+sub _indent {my($o,$s)=@_; $s =~ s/^(?!\Z)/  /mg; $s}
+sub _indent_except_top {my($o,$s)=@_; $s =~ s/^(?<!\A)(?!\Z)/  /mg; $s}
 
 1;
 __END__
