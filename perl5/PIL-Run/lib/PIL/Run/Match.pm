@@ -23,6 +23,11 @@ class 'Match'.$class_description => {
             'bit' =>  sub { Bit->new( '$.unboxed' => ::SELF->val_bool() ) },
             'perl' => sub { ::SELF->str },
             'ref' =>  sub { ::CLASS }, 
+	    fetch => sub {
+		my($o,$idx)=@_;
+		return ::SELF->val_array() if @_ < 2;
+		::SELF->val_array()->[$idx];
+	    },
 
             set_as_failed => sub {
                 ::SELF->val_bool( 0 );
