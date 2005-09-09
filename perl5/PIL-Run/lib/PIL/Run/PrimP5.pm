@@ -175,7 +175,9 @@ MULTI SUB File::Spec::cwd () {p6_from_s(cwd)};
 MULTI SUB File::Spec::tmpdir () {...};
 # pi say - placed above, as a temporary dev hack.
 MULTI SUB print (*@xxa) {print(map{p6_to_s($_)} @xxa);};
-MULTI SUB return () {...};
+MACROP5   return (*@xxa) {
+    "return (".join(",",@xxa).")";
+};
 MULTI SUB yield () {...};
 MULTI SUB take () {...};
 # nothing - in PrimP6
@@ -346,8 +348,10 @@ MULTI SUB try ($xx) {
 }
 MULTI SUB lazy ($xx) {...};
 MULTI SUB defined ($xx) { $xx->defined };
-MULTI SUB last ($xx) {...};
-MULTI SUB next ($xx) {...};
+MACROP5   last (*@xx) {"last";};# XXX - ?$xx
+MACROP5   next (*@xx) {"next";};
+#MULTI SUB last ($xx) {...};
+#MULTI SUB next ($xx) {...};
 MULTI SUB redo ($xx) {...};
 # return - see op0
 # yield - see op0
