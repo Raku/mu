@@ -350,8 +350,6 @@ MULTI SUB lazy ($xx) {...};
 MULTI SUB defined ($xx) { $xx->defined };
 MACROP5   last (*@xx) {"last";};# XXX - ?$xx
 MACROP5   next (*@xx) {"next";};
-#MULTI SUB last ($xx) {...};
-#MULTI SUB next ($xx) {...};
 MULTI SUB redo ($xx) {...};
 # return - see op0
 # yield - see op0
@@ -438,8 +436,8 @@ MULTI SUB ord ($xx) { p6_from_n( ord( p6_to_s( $xx ) ) ) };
 MULTI SUB hex ($xx) { p6_from_n( eval '0x' . $xx->unboxed ) };
 MULTI SUB log ($xx)   { p6_from_n( log( p6_to_s( $xx ) ) ) };
 MULTI SUB log10 ($xx) { p6_from_n( log( p6_to_s( $xx ) ) / log(10) ) };
-MULTI SUB from ($xx) {...};
-MULTI SUB to ($xx) {...};
+#MULTI SUB from ($xx) {...}; - implemented as methods.
+#MULTI SUB to ($xx) {...};
 MULTI SUB matches ($xx) {...};
 MULTI SUB gather ($xx) {...};
 MULTI SUB Thread::yield ($xx) {...};
