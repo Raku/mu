@@ -121,13 +121,13 @@ Test that a constant list can have C<map> applied to it.
 should be equivalent to
 
   my @val = ("foo","bar");
-  @val = map { substr($_,1,1) }, @val;
+  @val = map { substr($_,1,1) } @val;
 
 =cut
 
 {
-my @expected = ("foo","bar");
-@expected = map { substr($_,1,1) }, @expected;
+  my @expected = ("foo","bar");
+  @expected = map { substr($_,1,1) } @expected;
 
-is(("foo","bar").map:{ $_.substr(1,1) }, @expected,"map of constant list works");
+  is(("foo","bar").map:{ $_.substr(1,1) }, @expected, "map of constant list works");
 }
