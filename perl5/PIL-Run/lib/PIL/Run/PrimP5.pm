@@ -286,7 +286,7 @@ MULTI SUB require ($xx) {
     }
     die "require($name) - file not found";
 };
-MULTI SUB Pugs::Internals::eval ($xx) {...};
+MULTI SUB Pugs::Internals::eval ($xx) {PIL::Run::EvalX::p6_eval(p6_to_s($xx))};
 MULTI SUB evalfile ($xx) {...};
 MULTI SUB Pugs::Internals::eval_perl5 ($xx) {p6_from_x(eval(p6_to_s($xx)))};
 MULTI SUB Pugs::Internals::eval_haskell ($xx) {...};

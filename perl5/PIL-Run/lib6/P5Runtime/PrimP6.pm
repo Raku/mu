@@ -68,3 +68,12 @@ multi sub statement_control:for (@_a,$_code) {
 	$_i++;
     }
 }
+
+multi sub eval($code,+$langpair) {
+    my $lang = "Perl6";
+    try { $lang = $langpair.value }; # XXX - pilrun multi-bug workaround
+    $lang = lc $lang;
+    if $lang eq "perl6" { Pugs::Internals::eval($code) }
+    elsif $lang eq "perl5" { Pugs::Internals::eval_perl5($code) }
+    else { die "Language \"$lang\" unknown."; }
+}
