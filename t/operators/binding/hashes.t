@@ -5,7 +5,7 @@ use Test;
 
 # L<S03/"Binding">
 
-plan 30;
+plan 34;
 
 # Binding of hash elements.
 # See thread "Binding of array elements" on p6l started by Ingo Blechschmidt:
@@ -141,9 +141,26 @@ plan 30;
   is %hash<b>, "e",                   "hash assignment creates new containers (1)";
 
   my %new_hash = %hash;
-  $var          = "f";
+  $var         = "f";
   # %hash<b> and $var are now "f", but %new_hash is unchanged.
-  is $var,        "f",                "hash assignment creates new containers (2)";
+  is $var,                   "f",     "hash assignment creates new containers (2)";
   is ~%hash    .values.sort, "f x z", "hash assignment creates new containers (3)";
   is ~%new_hash.values.sort, "e x z", "hash assignment creates new containers (4)";
+}
+
+# Binding does not create new containers
+{
+  my %hash  = (:a<x>, :b<y>, :c<z>);
+  my $var   = "d";
+
+  %hash<b> := $var;
+  $var      = "e";
+  is %hash<b>, "e",                   "hash binding does not create new containers (1)";
+
+  my %new_hash := %hash;
+  $var          = "f";
+  # %hash<b> and $var are now "f", but %new_hash is unchanged.
+  is $var,        "f",                "hash binding does not create new containers (2)";
+  is ~%hash    .values.sort, "f x z", "hash binding does not create new containers (3)";
+  is ~%new_hash.values.sort, "f x z", "hash binding does not create new containers (4)";
 }

@@ -5,7 +5,7 @@ use Test;
 
 # L<S03/"Binding">
 
-plan 39;
+plan 43;
 
 # Binding of array elements.
 # See thread "Binding of array elements" on p6l started by Ingo Blechschmidt:
@@ -187,4 +187,21 @@ plan 39;
   is $var,        "f",     "array assignment creates new containers (2)";
   is ~@array,     "a f c", "array assignment creates new containers (3)";
   is ~@new_array, "a e c", "array assignment creates new containers (4)";
+}
+
+# Binding does not create new containers
+{
+  my @array  = <a b c>;
+  my $var    = "d";
+
+  @array[1] := $var;
+  $var       = "e";
+  is @array[1], "e",       "array binding does not create new containers (1)";
+
+  my @new_array := @array;
+  $var           = "f";
+  # @array[$idx] and $var are now "f", but @new_array is unchanged.
+  is $var,        "f",     "array binding does not create new containers (2)";
+  is ~@array,     "a f c", "array binding does not create new containers (3)";
+  is ~@new_array, "a f c", "array binding does not create new containers (4)";
 }

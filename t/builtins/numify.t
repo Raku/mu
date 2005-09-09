@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 14;
+plan 37;
 
 is(int('-1.999'), -1, "int('-1.999') is -1");
 is(int('0x123'), 0x123, "int('0x123') is 0x123");
@@ -14,8 +14,34 @@ is(int('3e4d5'), 3e4, "int('3e4d5') is 3e4");
 is(+'1.9e3', 1900, "+'1.9e3' is 1900");
 is(+'Inf', Inf, "+'Inf' is Inf");
 is(+'Info', 0, "+'Info' is 0");
+is(+'-Inf', -Inf, "+'-Inf' is -Inf");
+is(+'-Info', 0, "+'-Info' is 0");
 is(+'NaN', NaN, "+'NaN' is NaN");
 is(+'NaNa', 0, "+'NaNa' is 0");
+
+# XXX Not sure whether the following tests are correct
+is(+'Inf ',      Inf, "numification of strings with whitspace (1)");
+is(+'Inf o',       0, "numification of strings with whitspace (2)");
+is(+'NaN ',      NaN, "numification of strings with whitspace (3)");
+is(+'NaN a',       0, "numification of strings with whitspace (4)");
+is(+"Inf\t",     Inf, "numification of strings with whitspace (5)");
+is(+"Inf\to",      0, "numification of strings with whitspace (6)");
+is(+"NaN\t",     NaN, "numification of strings with whitspace (7)");
+is(+"NaN\ta",      0, "numification of strings with whitspace (8)");
+is(+"Inf\n",     Inf, "numification of strings with whitspace (9)");
+is(+"Inf\no",      0, "numification of strings with whitspace (10)");
+is(+"NaN\n",     NaN, "numification of strings with whitspace (11)");
+is(+"NaN\na",      0, "numification of strings with whitspace (12)");
+is(+"Inf\n\t ",  Inf, "numification of strings with whitspace (13)");
+is(+"Inf\n\t o",   0, "numification of strings with whitspace (14)");
+is(+"NaN\n\t ",  NaN, "numification of strings with whitspace (15)");
+is(+"NaN\n\t a",   0, "numification of strings with whitspace (16)");
+is(+"3 ",          3, "numification of strings with whitspace (17)");
+
+is(+'aInf',  0, "+'aInf'  is 0");
+is(+'aInfo', 0, "+'aInfo' is 0");
+is(+'aNaN',  0, "+'aNaN'  is 0");
+is(+'aNaNa', 0, "+'aNaNa' is 0");
 
 is( Inf,  'Inf', "'Inf' is Inf");
 is(-Inf, '-Inf', "'-Inf' is -Inf");

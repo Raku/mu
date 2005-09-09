@@ -16,15 +16,15 @@ This is a file of misc. ASCII art drawings of the Meta Model.
    $::Module is-subclass-of $::Package
    
    class-of $::Package is $::Class
-   $::Package is-subclass-of $::Object         
+   $::Package is-subclass-of $::Object
    
    class-of $::Object is $::Class
-   $::Object has no superclasses         
+   $::Object has no superclasses
 
    ...> (sub/super)class relations
    ---> (class/instance)-of relations
 
-       +--------------------+                                   
+       +--------------------+
    +-->| $::Class           |<--+<------------------------------+
    |   +--------------------+   |                               |
    |   | class              |---+                               |
@@ -36,20 +36,20 @@ This is a file of misc. ASCII art drawings of the Meta Model.
    |   | %:private_methods  |       | $:version          |      |
    |   | %:class_methods    |       | $:authority        |      |
    |   | %:class_attributes |       +--------------------+      |
-   |   +--------------------+                 :                 | 
-   |                                          :                 | 
+   |   +--------------------+                 :                 |
+   |                                          :                 |
    |                                          V                 |
    |   +--------------------+       +--------------------+      |
    |   | $::Object          |<......| $::Package         |      |
    |   +--------------------+       +--------------------+      |
    +---| class              |       | class              |------+
-       +--------------------+       +--------------------+      
-       | < >                |       | $:name             |      
-       +--------------------+       +--------------------+      
-                                                                
+       +--------------------+       +--------------------+
+       | < >                |       | $:name             |
+       +--------------------+       +--------------------+
 
-   see also: http://article.gmane.org/gmane.comp.lang.perl.perl6.language/4599                                                                 
-                             
+
+   see also: http://article.gmane.org/gmane.comp.lang.perl.perl6.language/4599
+
 =head1 AUTHORS
 
 Stevan Little E<lt>stevan@iinteractive.comE<gt>
