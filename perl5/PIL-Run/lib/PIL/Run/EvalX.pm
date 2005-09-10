@@ -162,6 +162,7 @@ package PThunk; @ISA = qw(EvalX::BaseClass); sub expand {
 }
 package PSub; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
+    local $EvalX::PStmt::protection_unacceptable; # block further propagation.
     my $body = $_[0]{'pSubBody'}->expand();
     my $sub = p6_new_sub_from_pil_macro($_[0]{'pSubName'},
                                         $_[0]{'pSubParams'},
