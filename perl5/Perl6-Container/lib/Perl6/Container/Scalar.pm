@@ -32,6 +32,8 @@
 # 2005-08-15
 # - created the 'Scalar' container
 
+# TODO - allow dual-behaviour objects with 'array_fetch' and 'hash_fetch'
+# TODO - separate 'whole_array_fetch' and 'array_element_fetch' (hash too)
 # TODO - lvalue substr
 
 # TODO - test tied Scalar

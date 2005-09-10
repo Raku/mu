@@ -393,13 +393,17 @@ sub p6_redo_macro {
 p6_package_init('');
 p6_package_init('main');
 
+{
 $PIL::Run::Root::main::hash_ENV = Hash->new();
-# $PIL::Run::Root::main::hash_ENV->store( $_, $ENV{$_} ) for keys %ENV;
 my $h = Perl6::Container::Hash::Native->new( hashref => \%ENV );
-#use Data::Dumper;
-#print Dumper( $h );
 $PIL::Run::Root::main::hash_ENV->{'instance_data'}{'$:cell'}{tieable} = 1;
 $PIL::Run::Root::main::hash_ENV->tie( $h );
+
+$PIL::Run::Root::main::array_INC = Array->new();
+my $a = Perl6::Container::Array::Native->new( arrayref => \@INC );
+$PIL::Run::Root::main::array_INC->{'instance_data'}{'$:cell'}{tieable} = 1;
+$PIL::Run::Root::main::array_INC->tie( $a );
+}
 
 END { p6_apply(p6_var('&*END')); }
 

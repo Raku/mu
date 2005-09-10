@@ -31,7 +31,6 @@
 # TODO - hash cells with rw, ro, binding hash elements
 # TODO - tied hashes
 
-# TODO - hash slices
 # TODO - delete hash slice
 
 # TODO - %a = %b - whole hash fetch/store

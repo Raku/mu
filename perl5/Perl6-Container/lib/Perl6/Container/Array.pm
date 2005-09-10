@@ -60,6 +60,10 @@
 # TODO - PIL-Run - (1,undef,2) returns (1,2) - but (1,\undef,2) works
 # TODO - PIL-Run - grep() using 'Code'
 
+# TODO - finish lazy slices
+#        @a[1..100000000]=@b[1..20000000]
+#        (@a[1..100],@b[1..50])=(@a[1..50],@b[1..100])
+
 # TODO - check specification of Array, Hash, Pair stringification
 
 # TODO - sum()
@@ -940,6 +944,39 @@ sub shift {
     # warn "SHIFT $length -- ". $ret->elems if UNIVERSAL::isa( $ret, 'Perl6::Value::List' );
     $ret = $ret->shift if UNIVERSAL::isa( $ret, 'Perl6::Value::List' );
     return $ret;
+}
+
+package Perl6::Container::Array::Native;
+
+sub new {
+    my $class = shift;
+    # arrayref => \@INC;
+    bless { @_ }, $class;
+}
+
+sub store {
+    my ( $this, $key, $value ) = @_;
+    my $s = Perl6::Value::numify( $key );
+    $this->{arrayref}[$s] = $value->unboxed;
+    return $value;
+}
+sub fetch {
+    my ( $this, $key ) = @_;
+    my $s = Perl6::Value::numify( $key );
+    $this->{arrayref}[$s]
+}
+sub delete {
+    my ( $this, $key ) = @_;
+    my $s = Perl6::Value::numify( $key );
+    my $r = delete $this->{arrayref}[$s];
+}
+sub clear {
+    my ( $this ) = @_;
+    @{$this->{arrayref}} = ();
+}
+sub elems {
+    my ( $this ) = @_;
+    scalar @{$this->{arrayref}};
 }
 
 1;
