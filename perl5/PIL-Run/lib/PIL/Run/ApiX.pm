@@ -36,6 +36,11 @@ $VERSION = '0.01';
        p6_create_instance
        p6_apply
        p6_package_init
+       p6_return_macro
+       p6_loop_macro
+       p6_last_macro
+       p6_next_macro
+       p6_redo_macro
        );
 
 sub p6_to_b {my($b)=@_; return 0 unless defined $b; $b->bit()->unboxed ? 1 : 0}
@@ -261,10 +266,16 @@ sub p6_new_sub_from_pil_macro {
                     .$listify->(@names6param)
                     .'};');
     }
+    my $body_wrapped = $body;
+    $body_wrapped = ("try {"
+		     ."\n".$body_wrapped
+		     ."\n} catch PIL::Run::ApiX::Exception::Return with {"
+		     ." return \@{\$_[0]{'-value'}}; }\n"
+		     ) if $SubOrCode eq 'Sub';
     my $subdef = ('sub{'
                   .'my $_sub = shift; my %_param = $_sub->bind_params(@_); '
                   .$my_args
-                  .$body
+                  .$body_wrapped
                   .'}');
     if($want_macro) {
         my $params = ('[map{Perl6::Param->new(\'name\' => $_)} '
@@ -321,6 +332,7 @@ sub p6_package_init {
     my $code = "";
     $code .= "package PIL::Run::Root".($pkg eq "" ? "" : "::$pkg").";\n";
     $code .= "use PIL::Run::ApiX;\n";
+    $code .= "use Error qw(:try);\n";
     $code .= "sub p6_lookup { ";
     for my $cls (@classes) {
         my $symtab = '$'.$cls.'::{$_[0]}';
@@ -331,6 +343,50 @@ sub p6_package_init {
     #print $code;
     eval($code); die if $@;
 }
+
+no strict 'vars';
+package PIL::Run::ApiX::Exception;
+@ISA=qw(Error);
+package PIL::Run::ApiX::Exception::Return;
+@ISA=qw(PIL::Run::ApiX::Exception);
+package PIL::Run::ApiX::Exception::LoopControl;
+@ISA=qw(PIL::Run::ApiX::Exception);
+package PIL::Run::ApiX;
+
+sub p6_return_macro {
+    my(@args)=@_;
+    my $argl = join(",",@args);
+    #return "return ($argl)";
+    $EvalX::PStmt::protection_unacceptable = 1;
+    "(throw PIL::Run::ApiX::Exception::Return(-text =>q{$argl},-value => [$argl]))";
+}
+sub p6_loop_macro {
+    my($body)=@_;
+    $EvalX::PStmt::protection_unacceptable = 1;
+    'my $__flag;
+     try { '.$body.' }
+     catch PIL::Run::ApiX::Exception::LoopControl with { $__flag = $_[0]{"-text"} };
+     if($__flag) {
+        last if $__flag eq "last";
+        next if $__flag eq "next";
+        redo if $__flag eq "redo";
+     }'."\n";
+}
+sub p6_last_macro {
+    $EvalX::PStmt::protection_unacceptable = 1;
+    "(throw PIL::Run::ApiX::Exception::LoopControl('-text' => 'last'))";
+}
+sub p6_next_macro {
+    $EvalX::PStmt::protection_unacceptable = 1;
+    "(throw PIL::Run::ApiX::Exception::LoopControl('-text' => 'next'))";
+}
+sub p6_redo_macro {
+    $EvalX::PStmt::protection_unacceptable = 1;
+    "(throw PIL::Run::ApiX::Exception::LoopControl('-text' => 'redo'))";
+}
+
+
+# Boot runtime.  # XXX - needs a cleanup pass
 
 p6_package_init('');
 p6_package_init('main');

@@ -151,7 +151,7 @@ MACROP5   statement_control:<unless> ($xx0,$xx1,$xx2) {
     "if (!p6_to_b($xx0)) { $xx1 } else { $xx2 }";
 };
 MACROP5   statement_control:<while> ($xx0,$xx1) {
-    "while (p6_to_b(p6_apply($xx0))) { p6_apply($xx1) }";
+    "while (p6_to_b(p6_apply($xx0))) { ".p6_loop_macro("p6_apply($xx1)")." }";
 };
 MACROP5   Class::_create ($xx0) {""};
 
@@ -173,9 +173,7 @@ MULTI SUB File::Spec::cwd () {p6_from_s(cwd)};
 MULTI SUB File::Spec::tmpdir () {...};
 # pi say - placed above, as a temporary dev hack.
 MULTI SUB print (*@xxa) {print(map{p6_to_s($_)} @xxa);};
-MACROP5   return (*@xxa) {
-    "return (".join(",",@xxa).")";
-};
+MACROP5   return (*@xxa) {p6_return_macro(@xxa)};
 MULTI SUB yield () {...};
 MULTI SUB take () {...};
 # nothing - in PrimP6
@@ -346,9 +344,9 @@ MULTI SUB try ($xx) {
 }
 MULTI SUB lazy ($xx) {...};
 MULTI SUB defined ($xx) { $xx->defined };
-MACROP5   last (*@xx) {"last";};# XXX - ?$xx
-MACROP5   next (*@xx) {"next";};
-MULTI SUB redo ($xx) {...};
+MACROP5   last (*@xx) {p6_last_macro()}; # XXX - ?$xx
+MACROP5   next (*@xx) {p6_next_macro()};
+MACROP5   redo (*@xx) {p6_redo_macro()};
 # return - see op0
 # yield - see op0
 # take - see op0

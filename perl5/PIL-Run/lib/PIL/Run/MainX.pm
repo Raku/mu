@@ -1,10 +1,10 @@
 
 package PIL::Run::Main;
 
-#require Math::BigInt;
-
+require Error;
 require Perl6::Value;
 
+#require Math::BigInt;
 sub Math::BigInt::binf { Perl6::Value::Num::Inf() };
 sub Math::BigInt::bnan { Perl6::Value::Num::NaN() };
 

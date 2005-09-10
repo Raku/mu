@@ -52,6 +52,7 @@ sub expand {
     }
     $code;
 }
+package PNil; sub expand {""}
 package VInt; @ISA = qw(EvalX::BaseClass); sub expand {
     "p6_new('Int','$_[0][0]')";
 }
@@ -144,8 +145,14 @@ package PStmt; @ISA = qw(EvalX::BaseClass); sub expand {
 	$_[0]->SUPER::expand().";\n";
     } else {
 	local $EvalX::PStmt::already_protected = 1;
-	my $n = int(rand(10000000));
-	"do{my \@_res$n=eval(<<'E$n');die \$\@ if \$\@ eq \"timeout\\n\";warn '#' x 40,\"\\n\",'Fyi: ',\$\@ if \$\@; \@_res$n = \@_res$n;};\n".$_[0]->SUPER::expand().";\nE$n\n";
+	local $EvalX::PStmt::protection_unacceptable = 0;
+	my $dn = $_[0]->SUPER::expand();
+	if($EvalX::PStmt::protection_unacceptable) {
+	    $dn.";\n";
+	} else {
+	    my $n = int(rand(10000000));
+	    "do{my \@_res$n=eval(<<'E$n');die \$\@ if \$\@ eq \"timeout\\n\";warn '#' x 40,\"\\n\",'Fyi: ',\$\@ if \$\@; \@_res$n = \@_res$n;};\n".$dn.";\nE$n\n";
+	}
     }
 }
 local $EvalX::PStmt::already_protected = 0;
@@ -155,7 +162,7 @@ package PThunk; @ISA = qw(EvalX::BaseClass); sub expand {
 }
 package PSub; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
-    my $body = $_[0]{'pSubBody'} eq 'PNil' ? "" : $_[0]{'pSubBody'}->expand();
+    my $body = $_[0]{'pSubBody'}->expand();
     my $sub = p6_new_sub_from_pil_macro($_[0]{'pSubName'},
                                         $_[0]{'pSubParams'},
                                         $body,
@@ -184,7 +191,7 @@ package PSub; @ISA = qw(EvalX::BaseClass); sub expand {
 # package PCode;  also see hack above
 package PCode; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
-    my $body = $_[0]{'pBody'} eq 'PNil' ? "" : $_[0]{'pBody'}->expand();
+    my $body = $_[0]{'pBody'}->expand();
     my $sub = p6_new_sub_from_pil_macro("<just a block>",
                                         $_[0]{'pParams'},
                                         $body,
