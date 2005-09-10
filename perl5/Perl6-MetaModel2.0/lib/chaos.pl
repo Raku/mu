@@ -354,6 +354,12 @@ our $DISPATCH_TRACE = 0;
         warn "... entering _normal_dispatch with label($label)" if $DISPATCH_TRACE;                    
         my $class = ::opaque_instance_class($self);
         
+        # XXX - 
+        # this seems to prevent some GC issues,.. 
+        # so I am leaving it here for now
+        #warn "got an undef class here ... ($self)" 
+        return unless defined $class;         
+        
         my @return_value;
         # check if this is a private method
         if ($label =~ /^_/) {           
@@ -363,12 +369,6 @@ our $DISPATCH_TRACE = 0;
             @return_value = $method->($self, @{$args});  
         }
         else {   
-            
-            # XXX - 
-            # this seems to prevent some GC issues,.. 
-            # so I am leaving it here for now
-            warn "got an undef class here ... (" . Data::Dumper::Dumper($self) . ")" 
-                unless defined $class; 
             
             my %opts = (for => 'instance');
             if ($is_class_method) {

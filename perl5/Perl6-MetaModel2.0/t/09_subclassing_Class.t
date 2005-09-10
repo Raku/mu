@@ -166,6 +166,7 @@ is_deeply(
 # these are mostly because perl does not
 # do any kind of ordered destruction
 END {
+    $Perl6::MetaModel::CLASSES_BY_NAME{'TraceingClass'} = undef;
     delete $Perl6::MetaModel::CLASSES_BY_NAME{'TraceingClass'};
     $TraceingClass = undef;
 }
