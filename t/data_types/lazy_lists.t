@@ -16,8 +16,10 @@ use Test;
 
 plan( 30 );
 
-die "$?PUGS_BACKEND does not support lazy lists yet"
-    unless $?PUGS_BACKEND eq "BACKEND_PERL5";
+unless $?PUGS_BACKEND eq "BACKEND_PERL5" {
+    skip_rest "$?PUGS_BACKEND does not support lazy lists yet";
+    exit;
+}
 
 # constructors
 
