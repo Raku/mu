@@ -478,6 +478,22 @@ compile to JavaScript) and compile it to JavaScript.
 
 =back
 
+=head2 Laziness
+
+=head3 C<lazy {...}>
+
+PIL2JS fully supports nothingmuch's accepted C<lazy {...}> proposal (see
+F<t/var/lazy.t>). Only one real problem arose during implementing C<&lazy>:
+C<.FETCH> is called very often, for example at sub return (because of
+C<PIL2JS.Box.ReadOnly>). Therefore, C<&lazy>'s current implementation does not
+return the lazy value directly, but an autodereffing reference to it. This way
+the body is only called when it is really needed.
+
+=head3 Lazy lists
+
+Lazy lists aren't supported at all yet, you may want to look at PIL-Run if you
+want to experiment with lazy lists.
+
 =head1 JAVASCRIPT RUNTIME ENVIRONMENTS
 
 PIL2JS does not generate code depending on a special JavaScript runtime or

@@ -6,8 +6,9 @@ use Test;
 # See http://use.perl.org/~autrijus/journal/25337 and
 # http://www.nntp.perl.org/group/perl.perl6.language/22532.
 
-plan 18;
+plan 22;
 
+# Refs to "non-objects" (in this case, a number) should not autoderef.
 {
   my $x = 3;
   my $y = \$x;
@@ -20,6 +21,7 @@ plan 18;
   ok ?$y, "'real refs' always booleanify to true";
 }
 
+# Refs to "objects" (in this case, an array) should autoderef.
 {
   my @x = (1,2,3);
   my $y = \@x;
@@ -33,6 +35,7 @@ plan 18;
   ok !?$y,            "refs to non-'non-objects' should booleanify (2)";
 }
 
+# Refs to "objects" (in this case, a hash) should autoderef.
 {
   my %x = (:a(1), :b(2), :c(3));
   my $y = \%x;
@@ -46,17 +49,31 @@ plan 18;
   ok !?$y,           "refs to non-'non-objects' should booleanify (2)";
 }
 
+# Refs to "non-objects" (in this case, a ref) should not autoderef.
 {
   my @x = (1,2,3);
   my $y = \@x;
   my $z = \$y;
 
   ok !$z.isa("Array"), "refs to Refs should not autoderef", :todo<bug>;
-  dies_ok { +$z },     "refs to Refs don't numify", :todo<bug>;
-  dies_ok { ~$z },     "refs to Refs don't stringify", :todo<bug>;
+  dies_ok { +$z },     "refs to Refs don't numify (1)", :todo<bug>;
+  dies_ok { ~$z },     "refs to Refs don't stringify (1)", :todo<bug>;
 
   @x = ();
-  ok ?$z, "refs to Refs always booleanify to true", :todo<bug>;
+  ok ?$z, "refs to Refs always booleanify to true (1)", :todo<bug>;
+}
+
+# Refs to "non-objects" (in this case, a subref) should not autoderef.
+{
+  my $x = { 42 };
+  my $y = \$x;
+
+  ok !$y.isa("Code"), "refs to subrefs should not autoderef", :todo<bug>;
+  dies_ok { +$y },    "'real refs' don't numify (2)";
+  dies_ok { ~$y },    "'real refs' don't stringify (2)", :todo<bug>;
+
+  $x = undef;
+  ok ?$y, "'real refs' always booleanify to true (2)";
 }
 
 =begin more-discussion-needed

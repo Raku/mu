@@ -71,9 +71,13 @@ provides.
 causes Pugs to execute the program using C<I<backend>>. Currently, valid
 backends are C<Parrot> and C<PIR>.
 
-The JavaScript backend provides an interactive shell in
+The JavaScript backend (PIL2JS) provides an interactive shell in
 F<perl5/PIL2JS/jspugs.pl>; The interactive compiler and evaluator of the Perl 5
-backend can be found in F<perl5/PIL-Run/crude_repl.pl>.
+backend (PIL-Run) can be found in F<perl5/PIL-Run/crude_repl.pl>.
+
+The normal runcore supports more features than the other runcores, the Parrot
+backend is quite fast, PIL2JS is good on binding and references, and PIL-Run
+offers excellent support for laziness.
 
 =item C<-CI<backend>>
 
