@@ -12,7 +12,7 @@ L<http://groups.google.de/group/perl.perl6.language/msg/bd9eb275d5da2eda>
 
 =cut
 
-plan 28;
+plan 30;
 
 # [...] reduce metaoperator
 {
@@ -24,6 +24,10 @@ plan 28;
   is(([-]  1,2,3),    (1-2-3), "[-] works");
   is(([/]  12,4,3),  (12/4/3), "[/] works");
   is(([**] 2,2,3),  (2**2**3), "[**] works");
+}
+
+{
+  is ([~] <a b c d>), "abcd", "[~] works";
 }
 
 ok (    [<]  1, 2, 3, 4), "[<] works (1)";
@@ -48,7 +52,8 @@ ok (not [!=] 4, 4, 4),    "[!=] works (2)";
 }
 
 {
-  is ([~] <a b c d>), "abcd", "[~] works";
+  my $hash = {a => {b => {c => {d => 42, e => 23}}}};
+  is try { [.{}] $hash, <a b c d> }, 42, '[.{}] works';
 }
 
 {
@@ -57,9 +62,6 @@ ok (not [!=] 4, 4, 4),    "[!=] works (2)";
 }
 
 {
-  my $hash = {a => {b => {c => {d => 42, e => 23}}}};
-  is try { [.{}] $hash, <a b c d> }, 42, '[.{}] works';
-
   my $arr = [[[1,2,3],[4,5,6]],[[7,8,9],[10,11,12]]];
   is ([.[]] $arr, 1, 0, 2), 9, '[.[]] works';
 }
@@ -68,7 +70,7 @@ ok (not [!=] 4, 4, 4),    "[!=] works (2)";
   # 18:45 < autrijus> hm, I found a way to easily do linked list consing in Perl6
   # 18:45 < autrijus> [=>] 1..10;
   my $list = [=>] 1,2,3;
-  is $list.key,         1, "[=>] works (1)";
+  is $list.key,              1, "[=>] works (1)";
   is try{$list.value.key},   2, "[=>] works (2)";
   is try{$list.value.value}, 3, "[=>] works (3)";
 }
@@ -85,3 +87,18 @@ lives_ok({my @foo = [>>+<<] ([1..3],[1..3],[1..3])},'Parse [>>+<<]');
 # Check that user defined infix ops work with [...], too.
 sub infix:<more_than_plus>(Int $a, Int $b) { $a + $b + 1 }
 is(([more_than_plus] 1, 2, 3), 8, "[...] reduce metaop works on user defined ops");
+
+{
+  my $arr = [ 42, [ 23 ] ];
+  $arr[1][1] = $arr;
+
+  is ([.[]] $arr, 1, 1, 1, 1, 1, 0), 23, '[.[]] works with infinite data structures';
+}
+
+{
+  my $hash = {a => {b => 42}};
+  $hash<a><c> = $hash;
+
+  is ([.{}] $hash, <a c a c a b>), 42, '[.{}] works with infinite data structures';
+}
+

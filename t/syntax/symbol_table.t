@@ -3,13 +3,18 @@
 use v6;
 use Test;
 
+plan 1;
+skip_rest "test needs to be rewritten because of recent design changes";
+
+=begin obsolete
+
 plan 28;
 
 =kwid
 
 Namespaces, symbol tables and symbolic references.
 
-=cut
+#=cut
 
 # fail("%:: parse", :todo);
 eval_ok('%::', '%:: parses', :todo);

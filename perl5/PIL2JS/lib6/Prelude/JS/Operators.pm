@@ -64,6 +64,31 @@ for @subs -> $name, $arity, $type, $body {
   ";
 }
 
+# [...] reduce metaoperator
+# XXX This implementation is, of course, incorrect. There is *no* attention
+# paid to the associativity of the original operator and auto-metaed versions
+# of user-defined ops are not generated.
+for «
+  <  >  <= >= == !=
+  lt gt le ge eq ne
+  + - * / % **
+  ~
+  <=> cmp
+  &&  || //
+  and or err
+» -> $op {
+  $eval ~= "
+    sub prefix:«[$op]» (*\@things) is primitive \{
+      if \@things \{
+        reduce \{ \$^a $op \$^b \} \@things;
+      \} else \{
+        # We should fail() here, but as &fail isn't yet implemented...
+        undef;
+      \}
+    \}
+  ";
+}
+
 # From here on, most normal things won't work any longer, as all the standard
 # operators are overloaded with calls to JS::inline.
 Pugs::Internals::eval $eval;
@@ -76,3 +101,28 @@ sub postfix:<--> ($a is rw)    is primitive { my $cur = $a; $a = $a - 1; $cur }
 sub JS::Root::rand (?$a = 1)   is primitive { $JS::Math.random() * $a }
 
 sub infix:<=>    ($a is rw, $b) is primitive is rw { $a = $b }
+
+sub prefix:<[.{}]> (*$head is copy, *@rest is copy) is primitive {
+  while @rest {
+    $head = $head{shift @rest};
+  }
+
+  $head;
+}
+
+sub prefix:<[.[]]> (*$head is copy, *@rest is copy) is primitive {
+  while @rest {
+    $head = $head[shift @rest];
+  }
+
+  $head;
+}
+
+# XXX weird pugsbug, should be able to declare [=>] using the eval loop above
+sub prefix:«[=>]» (*$head is copy, *@rest is copy) is primitive {
+  while @rest {
+    $head = $head => shift @rest;
+  }
+
+  $head;
+}
