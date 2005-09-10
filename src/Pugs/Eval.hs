@@ -735,7 +735,7 @@ reduceApp (Var "&list") invs args =
         [exp] -> exp
         exps  -> Syn "," exps
 
-reduceApp (Var "&scalar") invs args
+reduceApp (Var "&item") invs args
     | [exp] <- maybeToList invs ++ args = enterEvalContext cxtItemAny exp
     | otherwise = enterEvalContext cxtItemAny $ Syn "," (maybeToList invs ++ args)
 
@@ -862,10 +862,10 @@ cxtOfExp (Val (VRef ref))       = do
     return $ if isaType cls "List" typ
         then cxtSlurpyAny
         else CxtItem typ
-cxtOfExp (Val _)                = return cxtItemAny
-cxtOfExp (Var (sigil:_))            = return $ cxtOfSigil sigil
-cxtOfExp (App (Var "&list") _ _)   = return cxtSlurpyAny
-cxtOfExp (App (Var "&scalar") _ _) = return cxtSlurpyAny
+cxtOfExp (Val _)                 = return cxtItemAny
+cxtOfExp (Var (sigil:_))         = return $ cxtOfSigil sigil
+cxtOfExp (App (Var "&list") _ _) = return cxtSlurpyAny
+cxtOfExp (App (Var "&item") _ _) = return cxtSlurpyAny
 cxtOfExp (App (Var name) invs args)   = do
     -- inspect the return type of the function here
     env <- ask

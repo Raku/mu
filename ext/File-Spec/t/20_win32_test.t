@@ -78,7 +78,7 @@ is(catpath("C:\\\\", 'dir', 'file'), "C:\\\\dir\\file",
 
 {
     my @path = path();
-    ok(scalar @path, '... we have elements in the path'); 
+    ok(+@path, '... we have elements in the path'); 
 }
 
 {

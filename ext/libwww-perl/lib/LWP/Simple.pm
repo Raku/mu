@@ -80,7 +80,7 @@ sub head (Str $url) is export {
     #say $head;
 
     # XXX want() is not yet implemented :(
-    #if (want.Scalar) {
+    #if (want.Item) {
       return $head
     #};
     # my @list = "X-LWP-HTTP-Status: $code", (split rx:perl5/\015?\012/, $head);
@@ -235,7 +235,7 @@ The HTTP status code (success/failure) is returned
 
 The HTTP status code is returned
 
-=item Scalar Context
+=item Item Context
 
 All headers are returned as one long string, or maybe as a L<HTTP::Headers>
 object, depending on when C<want> gets implemented. Currently, the headers

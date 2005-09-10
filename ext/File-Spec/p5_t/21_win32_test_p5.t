@@ -26,7 +26,7 @@ ok(File::Spec::Win32->case_tolerant(), '... Win32 is case tolerant');
     my $path = "\\path\\to\\a\\dir";
 
     my @path = File::Spec::Win32->splitdir($path);
-    is(scalar @path, 5, '... we have 5 elements in the path');
+    is(+@path, 5, '... we have 5 elements in the path');
     is($path[0], '', '... our first element is ""');    
     is($path[1], 'path', '... our second element is "path"');    
     is($path[2], 'to', '... our third element is "to"');    
@@ -40,7 +40,7 @@ ok(File::Spec::Win32->case_tolerant(), '... Win32 is case tolerant');
     my $path = "path\\to\\a\\dir";
 
     my @path = File::Spec::Win32->splitdir($path);
-    is(scalar @path, 4, '... we have 4 elements in the path');
+    is(+@path, 4, '... we have 4 elements in the path');
     is($path[0], 'path', '... our third element is "path"');    
     is($path[1], 'to', '... our fourth element is "to"');    
     is($path[2], 'a', '... our fifth element is "a"');      
@@ -53,7 +53,7 @@ ok(File::Spec::Win32->case_tolerant(), '... Win32 is case tolerant');
     my $path = "\\path\\to\\a\\file.txt";
 
     my @path = File::Spec::Win32->splitdir($path);
-    is(scalar @path, 5, '... we have 5 elements in the path');
+    is(+@path, 5, '... we have 5 elements in the path');
     is($path[0], '', '... our first element is ""');    
     is($path[1], 'path', '... our second element is "path"');    
     is($path[2], 'to', '... our third element is "to"');    
@@ -73,14 +73,14 @@ is(File::Spec::Win32->catpath('C:\\\\', 'dir', 'file'), "C:\\\\dir\\file",
 {
     my @upwards = ('path/to/file', '..', '.', ".\n/path");
     my @no_upwards = File::Spec::Win32->no_upwards(@upwards);
-    is(scalar @no_upwards, 2, '... got one element');
+    is(+@no_upwards, 2, '... got one element');
     is($no_upwards[0], 'path/to/file', '... got the right element');  
     is($no_upwards[1], ".\n/path", '... got the right element');        
 }  
 
 {
     my @path = File::Spec::Win32->path();
-    ok(scalar @path, '... we have elements in the path'); 
+    ok(+@path, '... we have elements in the path'); 
 } 
 
 {

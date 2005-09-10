@@ -48,7 +48,7 @@ ok(!File::Spec::Unix->case_tolerant(), '... unix is not case tolerant');
     my $path = '/path/to/a/dir';
 
     my @path = File::Spec::Unix->splitdir($path);
-    is(scalar @path, 5, '... we have 5 elements in the path');
+    is(+@path, 5, '... we have 5 elements in the path');
     is($path[0], '', '... our first element is ""');    
     is($path[1], 'path', '... our second element is "path"');    
     is($path[2], 'to', '... our third element is "to"');    
@@ -62,7 +62,7 @@ ok(!File::Spec::Unix->case_tolerant(), '... unix is not case tolerant');
     my $path = '/path/to/a/file.txt';
 
     my @path = File::Spec::Unix->splitdir($path);
-    is(scalar @path, 5, '... we have 5 elements in the path');
+    is(+@path, 5, '... we have 5 elements in the path');
     is($path[0], '', '... our first element is ""');    
     is($path[1], 'path', '... our second element is "path"');    
     is($path[2], 'to', '... our third element is "to"');    
@@ -90,7 +90,7 @@ is(File::Spec::Unix->catpath('', '', ''), '',
 {
     my @upwards = ('path/to/file', '..', '.', ".\n/path");
     my @no_upwards = File::Spec::Unix->no_upwards(@upwards);
-    is(scalar @no_upwards, 2, '... got one element');
+    is(+@no_upwards, 2, '... got one element');
     is($no_upwards[0], 'path/to/file', '... got the right element');  
     is($no_upwards[1], ".\n/path", '... got the right element');        
 }   
@@ -101,7 +101,7 @@ ok(!File::Spec::Unix->file_name_is_absolute("\n/path/from/root"), '... checking 
 
 {
     my @path = File::Spec::Unix->path();
-    ok(scalar @path, '... we have elements in the path'); 
+    ok(+@path, '... we have elements in the path'); 
 
 #     my $orig_path = %*ENV{'PATH'};
 #     

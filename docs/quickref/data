@@ -1,11 +1,11 @@
 Scalar, sigil: $
 
-      list $foo        # $foo
-          +$foo        # $foo as Num
-          ~$foo        # $foo as Str
-          ?$foo        # $foo as Bool
-          "$foo"       # $foo as Str
-    scalar $foo        # $foo     
+    list $foo        # $foo
+        +$foo        # $foo as Num
+        ~$foo        # $foo as Str
+        ?$foo        # $foo as Bool
+        "$foo"       # $foo as Str
+    item $foo        # $foo
 
 Scalar -> Str
 
@@ -45,15 +45,15 @@ Scalar -> Num
     
 Array, sigil: @
     
-      list @foo        # List of elements
-          +@foo        # @foo.elems
-          ~@foo        # join ' ', @foo
-          ?@foo        # ? @foo.elems
-          "@foo[]"     # join ' ', @foo
-           @foo[i]     # subscript
-           @foo[i, i]  # slice
-           @foo[i; i]  # multi-dimensional access
-    scalar @foo        # \@foo
+    list @foo        # List of elements
+        +@foo        # @foo.elems
+        ~@foo        # join ' ', @foo
+        ?@foo        # ? @foo.elems
+        "@foo[]"     # join ' ', @foo
+         @foo[i]     # subscript
+         @foo[i, i]  # slice
+         @foo[i; i]  # multi-dimensional access
+    item @foo        # \@foo
 
     Methods:
 
@@ -80,17 +80,17 @@ Array, sigil: @
 
 Hash, sigil: %
 
-      list %foo        # List of pairs
-          +%foo        # +%foo.keys
-          ~%foo        # ???
-          ?%foo        # ? %foo.keys
-          "%foo{}"     # ???
-           %foo{k}     # subscript
-           %foo{k, k}  # slice
-           %foo<>      # %foo{<>}
-           %foo<<>>    # %foo{<<>>}
-           %foo{k; k}  # multi-dimensional access
-    scalar %foo        # \%foo
+    list %foo        # List of pairs
+        +%foo        # +%foo.keys
+        ~%foo        # ???
+        ?%foo        # ? %foo.keys
+        "%foo{}"     # ???
+         %foo{k}     # subscript
+         %foo{k, k}  # slice
+         %foo<>      # %foo{<>}
+         %foo<<>>    # %foo{<<>>}
+         %foo{k; k}  # multi-dimensional access
+    item %foo        # \%foo
 
     Methods:
 
@@ -112,12 +112,12 @@ Hash, sigil: %
 
 Pair (used via reference)
 
-      list $foo        # $foo   # ref, so doesn't flatten to $k, $v
-          +$foo        # ???
-          ~$foo        # ???
-          ?$foo        # ???
-          "$foo"       # ???
-    scalar $foo        # $foo
+    list $foo        # $foo   # ref, so doesn't flatten to $k, $v
+        +$foo        # ???
+        ~$foo        # ???
+        ?$foo        # ???
+        "$foo"       # ???
+    item $foo        # $foo
 
     Methods:
 

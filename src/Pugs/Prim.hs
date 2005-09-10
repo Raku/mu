@@ -175,7 +175,7 @@ op1 "--"   = \mv -> do
     op1 "post:--" mv
     fromVal mv
 op1 "-"    = op1Numeric negate
-op1 "scalar" = return -- XXX refify?
+op1 "item" = return -- XXX refify?
 op1 "sort" = \v -> do
     args    <- fromVal v
     (valList, sortBy) <- case args of
@@ -678,7 +678,7 @@ Read a char or a line from a handle.
 -}
 op1Read :: Val                   -- ^ The handle to read from (packed in a 'Val')
         -> (VHandle -> Eval Val) -- ^ The function to call in list context
-        -> (VHandle -> Eval Val) -- ^ The function to call in scalar context
+        -> (VHandle -> Eval Val) -- ^ The function to call in item context
         -> Eval Val              -- ^ The return value (a list of strings or a
                                  --   string, packed in a 'Val')
 op1Read v fList fScalar = do
@@ -1400,7 +1400,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     list    safe   (List)\
 \\n   Hash      pre     hash    safe   (List)\
 \\n   List      pre     pair    safe   (List)\
-\\n   Scalar    pre     scalar  safe   (Scalar)\
+\\n   Scalar    pre     item    safe   (Scalar)\
 \\n   Any       pre     reverse safe   (rw!Any)\
 \\n   Any       pre     reverse safe   (List)\
 \\n   Int       spre    +^      safe   (Int)\

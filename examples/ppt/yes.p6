@@ -10,7 +10,7 @@ for @ARGS {
     when <-->        { shift @ARGS; last };
 }
 
-@ARGS = <y> unless scalar @ARGS;
+@ARGS = <y> unless @ARGS;
 
 loop { say @ARGS.join(" ") };
 

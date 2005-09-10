@@ -227,8 +227,8 @@ method content_type ($self: ) is rw {
       }
 
       given want {
-        when List   { return @ct }
-        when Scalar { return @ct[0] }
+        when List { return @ct }
+        when Item { return @ct[0] }
       }
     },
     STORE => -> Str $type {
@@ -285,8 +285,8 @@ method :basic_auth ($self: Str $h) is rw {
         #my $val = MIME::Base64::decode($cur);
 
         given want {
-          when Scalar { return $val }
-          when List   { return split /\:/, $val, 2 }
+          when Item { return $val }
+          when List { return split /\:/, $val, 2 }
         }
       }
 

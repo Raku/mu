@@ -6,7 +6,7 @@ use v6;
 plan 15;
 
 # L<S06/"The C<want> function" /or has the corresponding methods called on it:/>
-sub obj_ok_in_scalar { want.Scalar       ?? 42 !! 0 }
+sub obj_ok_in_item   { want.Item         ?? 42 !! 0 }
 sub obj_ok_in_list   { want.List         ?? 42 !! 0 }
 sub obj_ok_in_count2 { (want.count == 2) ?? 42 !! 0 }
 sub obj_ok_in_count3 { (want.count == 3) ?? 42 !! 0 }
@@ -20,10 +20,10 @@ sub obj_ok_in_rw is rw {
   want.count ?? $forty_two !! $zero;
 }
 
-is try { my $scalar_ctx = obj_ok_in_scalar() }, 42,
-  "want() works correctly in Scalar context (object-form)", :todo<feature>;
+is try { my $item_ctx = obj_ok_in_item() }, 42,
+  "want() works correctly in Item context (object-form)", :todo<feature>;
 
-is try { my @list_ctx   = obj_ok_in_list() },   42,
+is try { my @list_ctx = obj_ok_in_list() },   42,
     "want() works correctly in List context (object-form)", :todo<feature>;
 
 my ($a, $b, $c, $d, $e);
@@ -40,15 +40,15 @@ is try { obj_ok_in_rw() = 23 },              42,
 
 # The same again, but this time using the smartmatch operator.
 # L<S06/"The C<want> function" /typically tested with a smart match/>
-sub sm_ok_in_scalar { want ~~ 'Scalar' ?? 42 !! 0 }
-sub sm_ok_in_list   { want ~~ 'List'   ?? 42 !! 0 }
-sub sm_ok_in_count2 { want ~~ 2        ?? 42 !! 0 }
-sub sm_ok_in_count3 { want ~~ 3        ?? 42 !! 0 }
+sub sm_ok_in_item   { want ~~ 'Item' ?? 42 !! 0 }
+sub sm_ok_in_list   { want ~~ 'List' ?? 42 !! 0 }
+sub sm_ok_in_count2 { want ~~ 2      ?? 42 !! 0 }
+sub sm_ok_in_count3 { want ~~ 3      ?? 42 !! 0 }
 
-my ($scalar_ctx, @list_ctx);
+my ($item_ctx, @list_ctx);
 
-is try { $scalar_ctx = sm_ok_in_scalar() }, 42,
-  "want() works correctly in Scalar context (smartmatch-form)", :todo<feature>;
+is try { $item_ctx = sm_ok_in_item() }, 42,
+  "want() works correctly in Item context (smartmatch-form)", :todo<feature>;
 
 is try { @list_ctx   = sm_ok_in_list() },   42,
     "want() works correctly in List context (smartmatch-form)", :todo<feature>;
@@ -65,8 +65,8 @@ my @a = gives_array;
 @a = wants_array( @a );
 my @b = wants_array(gives_array());
 is( substr(@a, 0, 4), substr(@b, 0, 4), "want() context propagates consistently" ); 
-like( @a[0], rx:P5/Scalar/, "The context is Scalar", :todo<bug> );
-like( @b[0], rx:P5/Scalar/, "... on both subs", :todo<bug> );
+like( @a[0], rx:P5/Item/, "The context is Item", :todo<bug> );
+like( @b[0], rx:P5/Item/, "... on both subs", :todo<bug> );
 
 # Test the identity again, via splice(), a builtin:
 sub wants_array( @got ) { return @got };

@@ -290,11 +290,11 @@ fail("FIXME (autoload tests)", :todo<parsefail>);
 #        AUTOMETHDEF   { %::«{'&' ~ $_}» = { "automethdef" } }
 #    }
 #
-#    is(ref $AutoMechanic::scalar0,    "Scalar", "autload - scalar");
-#    is(ref @AutoMechanic::array0,     "Array",  "autload - array");
-#    is(ref %AutoMechanic::hash,       "Hash",   "autload - hash");
-#    is(ref &AutoMechanic::sub0,       "Code",   "autload - sub");
-#    is(ref AutoMechanic.can("meth0"), "Code",   "autload - meth");
+#    is(ref $AutoMechanic::scalar0,    "Scalar", "autoload - scalar");
+#    is(ref @AutoMechanic::array0,     "Array",  "autoload - array");
+#    is(ref %AutoMechanic::hash,       "Hash",   "autoload - hash");
+#    is(ref &AutoMechanic::sub0,       "Code",   "autoload - sub");
+#    is(ref AutoMechanic.can("meth0"), "Code",   "autoload - meth");
 #
 #    is($AutoMechanic::scalar, "autoscalardef",            "autoloaddef - scalar");
 #    is(~@AutoMechanic::ary,   ~("autoarraydef".split(""), "autoloaddef - array");

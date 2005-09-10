@@ -226,7 +226,7 @@ MULTI SUB postfix:<--> ($xx) {
     $old };
 MULTI SUB prefix:<--> ($xx)  { p6_set($xx,p6_from_n(p6_to_n($xx)+1)) };
 
-MULTI SUB scalar ($xx) {...};
+MULTI SUB item ($xx) {...};
 MULTI SUB sort (*@xxa) {p6_from_l(sort map{p6_to_s($_)} @xxa)};
 #MULTI SUB reverse (@xx) { $xx->reverse };
 MULTI SUB reverse ($xx) { 

@@ -227,7 +227,7 @@ ok($tree =:= $sub_tree_3.parent(), '... make sure our sub_tree_3 parent is tree'
 ## test getting all children and siblings
 ## ----------------------------------------------------------------------------    
 =pod
-# get it in scalar context and
+# get it in item context and
 # check that our arrays are equal
 my $children = $tree.get_all_children();
 ok eq_array($children, [ $sub_tree, $sub_tree_2, $sub_tree_3, $sub_tree_4 ]);
@@ -244,7 +244,7 @@ ok eq_array($children, \@children);
 # now check that the siblings of all the 
 # sub_trees are the same as the children
 foreach my $_sub_tree (@children) {
-    # test siblings in scalar context
+    # test siblings in item context
     my $siblings = $sub_tree.get_all_siblings();
     ok eq_array($children, $siblings);
     # and now in array context
@@ -839,6 +839,6 @@ is(~@_all_node_values, ~@all_node_values, '... our nodes match our control nodes
 is($tree.size(), (@_all_node_values + 1), '... our size is as we expect it to be', :todo<bug>);
 
 # NOTE:
-# it is (scalar(@_all_node_values) + 1) so that 
+# it is (item(@_all_node_values) + 1) so that 
 # we account for the root node which is not in 
 # the list.

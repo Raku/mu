@@ -125,7 +125,7 @@ is( @a, [6,7,8], "Explicit call/assignment gives the expected results");
 is( @b, [6,7,8], "Implicit context gives the expected results" );
 
 my @tmp = (1..10);
-@a = scalar splice @tmp, 5, 3;
+@a = item splice @tmp, 5, 3;
 is( @a, [8], "Explicit scalar context returns the last element");
 
 ## test some error conditions

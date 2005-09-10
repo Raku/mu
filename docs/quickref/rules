@@ -52,7 +52,7 @@ Modifiers
     :perl5              Use Perl 5 syntax for regex
     :ov, :overlap       Match at all possible character positions, including
                         overlapping; return all matches in list context,
-                        disjunction in scalar context
+                        disjunction in item context
     :rw                 Claim string for modification, instead of copy-on-write
     :w, :words          Replaces every sequence of literal whitespace in
                         pattern with \s+ or \s* according to <?ws> rule
@@ -143,7 +143,7 @@ Aliasing
     
         / @x := [ (\S+) \s* ]* /
         
-        # returns anonymous list in scalar context for *, +, **{n,m}:
+        # returns anonymous list in item context for *, +, **{n,m}:
         / $x := [ (\S+) \s* ]* /
         
         # ? does not pluralize -- result or undef
@@ -158,7 +158,7 @@ Aliasing
     
     Can capture return values of closures:
         
-        / $x := { "Scalar context" } /
+        / $x := { "Item context" } /
         / @x := { "List", "context" } /
         / %x := { "Hash" => "context" } /
         # note: no parens around closure

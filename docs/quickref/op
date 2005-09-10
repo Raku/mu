@@ -49,7 +49,7 @@ Unary context operators
     ~           # Str
     ?           # Bool
     int         # Int
-    scalar      # Scalar
+    item        # Item
     list        # List
     hash        # Hash
     pair        # Pair
@@ -135,7 +135,7 @@ Miscellaneous operators
     $foo x 3            # $foo ~ $foo ~ $foo
     $foo xx 3           # ($foo, $foo, $foo)
     @foo Y @bar Y @baz  # zip(@foo, @bar, @baz)
-    scalar($foo, $bar)  # [ $foo, $bar ]
+    item($foo, $bar)    # [ $foo, $bar ]  (XXX, correct?)
     1..5                # (1, 2, 3, 4, 5)
     ;                   # statement separator
 

@@ -65,7 +65,7 @@ Yes, Byte is both a string and a number.
 
 =item MatchTest
 
- type MatchTest ::= Scalar | Junction;
+ type MatchTest ::= Item | Junction;
 
 Used to supply a test to match against. Assume C<~~> will be used against it.
 
@@ -786,11 +786,11 @@ activitities, but I'm not sure. They likely need to be renamed, as well.
 Forces List Context on it's arguements, and returns them.
 
 
-=item scalar
+=item item
 
- multi sub Conversions::Scalar:scalar ($scalar) returns Scalar
+ multi sub Conversions::Item:item ($item) returns Item
 
-Forces generic Scalar context on it's arguement, and returns it.
+Forces generic Item context on it's argument, and returns it.
 
 
 =item 0x, 0o, 0b, 0d
@@ -836,7 +836,7 @@ Replaces Perl 5 C<hex> and C<oct>.
 
 =item undef
 
-=item scalar 
+=item item 
 
 =item want
 
