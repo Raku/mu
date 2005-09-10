@@ -86,7 +86,7 @@ PIL2JS.Ref = function (referencee) {
   this.referencee = referencee;
   this.autoderef  = referencee.FETCH() instanceof Array
                  || referencee.FETCH() instanceof PIL2JS.Hash;
-  // || referencee instanceof PIL2JS.OwnObject, see
+  // || referencee instanceof PIL2JS.OwnObject will be needed later, see
   // http://www.nntp.perl.org/group/perl.perl6.language/22532.
   return this;
 };
@@ -951,7 +951,7 @@ PIL2JS.catch_end_exception = function (code) {
   }
 };
 
-// Will, of course, break if call/cc magic is done.
+// Will, of course, break when call/cc magic is done.
 PIL2JS.cps2normal = function (f, args) {
   var ret = undefined;
   PIL2JS.runloop(function () { f(args.concat(function (r) { ret = r })) });
@@ -963,6 +963,7 @@ PIL2JS.cps2normal = function (f, args) {
 var _26main_3a_3aref = PIL2JS.Box.constant_func(1, function (args) {
   var thing = args[1].FETCH();
   var cc    = args.pop();
+  if(thing != undefined && thing.referencee && thing.autoderef) thing = thing.referencee.FETCH();
 
   if(thing == undefined) {
     cc(new PIL2JS.Box.Constant("Scalar")); // XXX?
@@ -980,8 +981,6 @@ var _26main_3a_3aref = PIL2JS.Box.constant_func(1, function (args) {
     cc(new PIL2JS.Box.Constant("Pair"));
   } else if(thing instanceof Function) {
     cc(new PIL2JS.Box.Constant("Code"));
-  } else if(thing instanceof PIL2JS.Ref && thing.autoderef) {
-    _26main_3a_3aref.FETCH()([PIL2JS.Context.ItemAny, thing.referencee, cc]);
   } else if(thing instanceof PIL2JS.Ref) {
     cc(new PIL2JS.Box.Constant("Ref"));
   } else if(thing instanceof PIL2JS.Junction.Any || thing instanceof PIL2JS.Junction.All || thing instanceof PIL2JS.Junction.One || thing instanceof PIL2JS.Junction.None) {
@@ -996,7 +995,7 @@ var _26main_3a_3aref = PIL2JS.Box.constant_func(1, function (args) {
     PIL2JS.die(
       "Internal error: .ref() not yet implemented for " +
       typeof(thing) +
-      " (constructor: " + thing.constructor + ")"
+      " (constructor: " + thing.constructor + ", value: " + thing + ")"
     );
   }
 });
@@ -1054,14 +1053,11 @@ var _26main_3a_3aprefix_3a_7e = PIL2JS.Box.constant_func(1, function (args) {
   } else {
     _26main_3a_3aref.FETCH()([PIL2JS.Context.ItemAny, args[1], function (ref) {
       ref = ref.FETCH();
+      if(thing != undefined && thing.referencee && thing.autoderef) thing = thing.referencee.FETCH();
 
       if(ref == "Str") {
         cc(new PIL2JS.Box.Constant(String(thing).toString()));
       } else if(ref == "Array") {
-        // It's safe to blindly access .referencee here (without checking
-        // .autoderef), as &ref wouldn't have returned "Array" if the thing was
-        // a non-autodereffing array reference.
-        if(thing.referencee) thing = thing.referencee.FETCH();
         var res = "";
         for(var i = 0; i < thing.length; i++) {
           if(thing[i] != undefined) {
@@ -1074,7 +1070,6 @@ var _26main_3a_3aprefix_3a_7e = PIL2JS.Box.constant_func(1, function (args) {
         if(thing.length > 0) res = res.slice(0, -1);
         cc(new PIL2JS.Box.Constant(res));
       } else if(ref == "Hash") {
-        if(thing.referencee) thing = thing.referencee.FETCH();
         var res   = "";
         var pairs = thing.pairs();
         for(var i = 0; i < pairs.length; i++) {
@@ -1141,6 +1136,8 @@ var _26main_3a_3aprefix_3a_2b = PIL2JS.Box.constant_func(1, function (args) {
 
     var unboxed = thing.FETCH();
     if(unboxed == undefined) return cc(new PIL2JS.Box.Constant(0));
+    if(unboxed.referencee && unboxed.autoderef) unboxed = unboxed.referencee.FETCH();
+    if(unboxed == undefined) return cc(new PIL2JS.Box.Constant(0));
 
     var str2num = function (str) {
       if(Number(str) == Number(str)) {
@@ -1159,10 +1156,8 @@ var _26main_3a_3aprefix_3a_2b = PIL2JS.Box.constant_func(1, function (args) {
     if(ref == "Str") {
       cc(new PIL2JS.Box.Constant(str2num(unboxed)));
     } else if(ref == "Array") {
-      if(unboxed.referencee) unboxed = unboxed.referencee.FETCH();
       cc(new PIL2JS.Box.Constant(unboxed.length));
     } else if(ref == "Hash") {
-      if(unboxed.referencee) unboxed = unboxed.referencee.FETCH();
       cc(new PIL2JS.Box.Constant(unboxed.num_of_entries));
     } else if(ref == "Bool") {
       cc(new PIL2JS.Box.Constant(
