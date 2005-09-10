@@ -11,7 +11,7 @@ BEGIN { do "lib/gnosis.pl" };
 $::Class->add_method('new' => ::make_method(sub {
     my ($class, %params) = @_;
     return $class->bless(undef, %params);    
-}, $::Class));
+}));
 
 $::Class->add_method('bless' => ::make_method(sub {
     my ($class, $canidate, %params) = @_;
@@ -19,7 +19,7 @@ $::Class->add_method('bless' => ::make_method(sub {
     my $self = $class->CREATE(repr => $canidate, %params);
     $self->BUILDALL(%params);
     return $self;  
-}, $::Class));
+}));
 
 $::Class->add_method('CREATE' => ::make_method(sub { 
     my ($class, %params) = @_;
@@ -41,7 +41,7 @@ $::Class->add_method('CREATE' => ::make_method(sub {
     my $self = ::create_opaque_instance(\$class, %attrs);              
     # and now return it ...
     return $self;
-}, $::Class));
+}));
 
 $::Class->add_method('BUILDALL' => ::make_method(sub { 
     my ($self, %params) = @_;
@@ -49,7 +49,7 @@ $::Class->add_method('BUILDALL' => ::make_method(sub {
     while (my $method = ::WALKMETH($dispatcher, 'BUILD')) { 
         $method->($Perl6::Submethod::FORCE, $self, %params);                  
     }      
-}, $::Class));
+}));
 
 $::Class->add_method('BUILD' => ::make_submethod(sub { 
     my ($self, %params) = @_;
@@ -68,7 +68,7 @@ $::Class->add_method('BUILD' => ::make_submethod(sub {
             # otherwise ignore it ... but this will do
             if ::opaque_instance_class($self)->find_attribute_spec($key);
     }
-}, $::Class));
+}));
 
 $::Class->add_method('DESTROYALL' => ::make_method(sub { 
     my ($self) = @_;
@@ -76,7 +76,7 @@ $::Class->add_method('DESTROYALL' => ::make_method(sub {
     while (my $method = ::WALKMETH($dispatcher, 'DESTROY')) {  
         $method->($Perl6::Submethod::FORCE, $self);   
     }  
-}, $::Class));
+}));
 
 $::Class->add_method('isa' => ::make_method(sub { 
     my ($self, $class_name) = @_;
@@ -87,15 +87,15 @@ $::Class->add_method('isa' => ::make_method(sub {
         return 1 if $self->name eq $next->name;
     }
     return 0; 
-}, $::Class));
+}));
 
 $::Class->add_method('can' => ::make_method(sub { 
     my ($self, $label) = @_;
     return undef unless $label;
     return ::WALKMETH(::opaque_instance_class($self)->dispatcher(':canonical'), $label);
-}, $::Class));
+}));
 
-$::Class->add_method('id' => ::make_method(sub { ::opaque_instance_id($::SELF) }, $::Class));
+$::Class->add_method('id' => ::make_method(sub { ::opaque_instance_id($::SELF) }));
 
 $::Class->add_method('superclasses' => ::make_method(sub {        
     my ($self, $superclasses) = @_;
@@ -116,16 +116,16 @@ $::Class->add_method('superclasses' => ::make_method(sub {
         $self->MRO();
     }
     ::opaque_instance_attrs($self)->{'@:superclasses'};
-}, $::Class));
+}));
 
 $::Class->add_method('subclasses' => ::make_method(sub {        
     ::opaque_instance_attrs($::SELF)->{'@:subclasses'};
-}, $::Class));
+}));
 
 $::Class->add_method('add_subclass' => ::make_method(sub {      
     my ($self, $subclass) = @_;  
     push @{::opaque_instance_attrs($self)->{'@:subclasses'}} => $subclass;
-}, $::Class));
+}));
 
 $::Class->add_method('_merge' => ::make_private_method(sub {                
     my ($self, @seqs) = @_;
@@ -159,7 +159,7 @@ $::Class->add_method('_merge' => ::make_private_method(sub {
             shift @{$seq} if $seq->[0] eq $cand;
         }
     }
-}, $::Class));
+}));
 
 $::Class->add_method('MRO' => ::make_method(sub { 
     my $self = shift;
@@ -173,7 +173,7 @@ $::Class->add_method('MRO' => ::make_method(sub {
         ];
     }
     return @{::opaque_instance_attrs($self)->{'@:MRO'}};
-}, $::Class));
+}));
 
 $::Class->add_method('dispatcher' => ::make_method(sub {
     my ($self, $order) = @_;   
@@ -196,13 +196,13 @@ $::Class->add_method('dispatcher' => ::make_method(sub {
         confess 'Unsupported dispatch order ($order)'
     }
     return $dispatcher;  
-}, $::Class));
+}));
 
 $::Class->add_method('_make_dispatcher_iterator' => ::make_private_method(sub {
     my (undef, @values) = @_;
     my $counter = 0;
     return sub { $values[$counter++] };
-}, $::Class));
+}));
 
 $::Class->add_method('_make_preorder_dispatcher' => ::make_private_method(sub {
     my @stack = $::SELF->_make_dispatcher_iterator($::SELF);
@@ -229,7 +229,7 @@ $::Class->add_method('_make_preorder_dispatcher' => ::make_private_method(sub {
             return undef;
         }
     };    
-}, $::Class));
+}));
 
 $::Class->add_method('_make_breadth_dispatcher' => ::make_private_method(sub {
     my @stack = $::SELF->_make_dispatcher_iterator($::SELF);
@@ -255,17 +255,17 @@ $::Class->add_method('_make_breadth_dispatcher' => ::make_private_method(sub {
             }
             return undef;
     };
-}, $::Class));
+}));
 
 $::Class->add_method('_make_descendant_dispatcher' => ::make_private_method(sub {
     my @MRO = $::SELF->MRO();
     return $::SELF->_make_dispatcher_iterator(reverse @MRO);
-}, $::Class));
+}));
 
 $::Class->add_method('_make_ascendant_dispatcher' => ::make_private_method(sub {
     my @MRO = $::SELF->MRO();
     return $::SELF->_make_dispatcher_iterator(@MRO);
-}, $::Class));
+}));
 
 $::Class->add_method('is_a' => ::make_method(sub {        
     my ($self, $class) = @_;
@@ -276,7 +276,7 @@ $::Class->add_method('is_a' => ::make_method(sub {
         return 1 if ::opaque_instance_id($next) eq ::opaque_instance_id($class);
     }
     return 0; 
-}, $::Class));
+}));
 
 $::Class->add_method('_get_method_table' => ::make_private_method(sub {         
     my ($self, $params) = @_;
@@ -296,12 +296,12 @@ $::Class->add_method('_get_method_table' => ::make_private_method(sub {
     else {
         confess "There is no " . $params->{for} . " method table";
     }
-}, $::Class));
+}));
 
 $::Class->add_method('has_method' => ::make_method(sub {
     my ($self, $label, %params) = @_;
     $self->get_method($label, %params) ? 1 : 0;                    
-}, $::Class));
+}));
 
 $::Class->add_method('get_method' => ::make_method(sub {
     my ($self, $label, %params) = @_;
@@ -309,7 +309,7 @@ $::Class->add_method('get_method' => ::make_method(sub {
         unless defined $label;
     my $method_table = $self->_get_method_table(\%params);
     return $method_table->{$label};                
-}, $::Class));
+}));
 
 $::Class->add_method('add_attribute' => ::make_method(sub {
     my ($self, $label, $attribute) = @_;
@@ -325,7 +325,7 @@ $::Class->add_method('add_attribute' => ::make_method(sub {
     else {
         confess "I do not recognize the attribute type ($attribute)";
     }    
-}, $::Class));
+}));
 
 $::Class->add_method('_get_attribute_table' => ::make_private_method(sub {         
     my ($self, $params) = @_;
@@ -341,7 +341,7 @@ $::Class->add_method('_get_attribute_table' => ::make_private_method(sub {
     else {
         confess "There is no " . $params->{for} . " attribute table";
     }
-}, $::Class));
+}));
 
 $::Class->add_method('get_attribute' => ::make_method(sub {
     my ($self, $label, %params) = @_;
@@ -349,20 +349,20 @@ $::Class->add_method('get_attribute' => ::make_method(sub {
         || confess "InsufficientArguments : you must provide a label";
     my $table = $self->_get_attribute_table(\%params);                    
     return $table->{$label};
-}, $::Class));
+}));
                            
 
 $::Class->add_method('has_attribute' => ::make_method(sub {
     my ($self, $label, %params) = @_;
     return $self->get_attribute($label, %params) ? 1 : 0;
-}, $::Class));
+}));
 
 
 $::Class->add_method('get_attribute_list' => ::make_method(sub {
     my ($self, %params) = @_;
     my $table = $self->_get_attribute_table(\%params);                  
     return keys %{$table};
-}, $::Class));
+}));
 
 # "spec" here means "whatever annotation went with this attribute when it's declared"
 $::Class->add_method('find_attribute_spec' => ::make_method(sub {
@@ -374,7 +374,7 @@ $::Class->add_method('find_attribute_spec' => ::make_method(sub {
             if $next->has_attribute($label, %params)
     } 
     return undef;
-}, $::Class));
+}));
 
 # now add the $::Class attributes
 

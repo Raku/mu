@@ -31,7 +31,7 @@ $::Object->add_method('BUILD' => ::make_submethod(sub {
             # otherwise ignore it ... but this will do
             if ::opaque_instance_class($self)->find_attribute_spec($key);
     }
-}, $::Object));
+}));
 
 ## instance methods
 
@@ -41,7 +41,7 @@ $::Object->add_method('BUILDALL' => ::make_method(sub {
     while (my $method = ::WALKMETH($dispatcher, 'BUILD')) {                      
         $method->($Perl6::Submethod::FORCE, $self, %params);                  
     }      
-}, $::Object));
+}));
 
 $::Object->add_method('DESTROYALL' => ::make_method(sub { 
     my ($self) = @_;
@@ -49,20 +49,20 @@ $::Object->add_method('DESTROYALL' => ::make_method(sub {
     while (my $method = ::WALKMETH($dispatcher, 'DESTROY')) {  
         $method->($Perl6::Submethod::FORCE, $self);   
     }  
-}, $::Object));
+}));
 
-$::Object->add_method('id' => ::make_method(sub { ::opaque_instance_id(shift) }, $::Object));
+$::Object->add_method('id' => ::make_method(sub { ::opaque_instance_id(shift) }));
 
 $::Object->add_method('isa' => ::make_method(sub { 
     my ($self, $class_name) = @_;
     return undef unless $class_name;
     return ::opaque_instance_class($self)->isa($class_name);    
-}, $::Object));
+}));
 
 $::Object->add_method('can' => ::make_method(sub { 
     my ($self, $label) = @_;   
     return undef unless $label;
     return ::WALKMETH(::opaque_instance_class($self)->dispatcher(':canonical'), $label);    
-}, $::Object));
+}));
 
 1;

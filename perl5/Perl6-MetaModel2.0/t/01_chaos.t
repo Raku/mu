@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 52;
+use Test::More tests => 58;
 use Test::Exception;
 
 do 'lib/chaos.pl';
@@ -37,6 +37,28 @@ ok(!defined($::SELF), '... cannot get $?SELF outside of a valid context');
 ok(!defined($::CLASS), '... cannot get $?CLASS outside of a valid context');
     
 ## test the method constructors
+
+{
+    # basic methods can be created ...
+    
+    my $m = ::make_method(sub { return 'Foo' });
+    ok(ref($m), 'Perl6::Method');
+
+    # and even called ...
+    is($m->(), 'Foo', '... got the right return value');
+
+    # but they do not have $?SELF or $?CLASS bound 
+    
+    my $m2 = ::make_method(sub { return $::SELF });
+    ok(ref($m2), 'Perl6::Method');
+
+    is($m2->($i), undef, '... got the right return value');
+
+    my $m3 = ::make_method(sub { return $::CLASS });
+    ok(ref($m3), 'Perl6::Method');
+
+    is($m3->($i), undef, '... got the right return value');    
+}
 
 {
     my $m = ::make_method(sub { return 'Foo' });

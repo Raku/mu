@@ -23,21 +23,21 @@ $::Package->add_method('name' => ::make_method(sub {
     my $self = shift;
     ::opaque_instance_attrs($self)->{'$:name'} = shift if @_;        
     ::opaque_instance_attrs($self)->{'$:name'};
-}, $::Package));
+}));
 
 $::Package->add_method('FETCH' => ::make_method(sub {
     my ($self, $label) = @_;
     (defined $label && $label)
         || confess "Cannot FETCH at (" . ($label || 'undef') . ")";
     ::opaque_instance_attrs($self)->{'%:namespace'}->{$label};
-}, $::Package));
+}));
 
 $::Package->add_method('STORE' => ::make_method(sub {
     my ($self, $label, $value) = @_;
     (defined $label && $label)
         || confess "Cannot STORE at (" . ($label || 'undef') . ")";    
     ::opaque_instance_attrs($self)->{'%:namespace'}->{$label} = $value;
-}, $::Package));
+}));
 
 ## ----------------------------------------------------------------------------
 ## Module
@@ -57,17 +57,17 @@ $::Module->add_method('version' => ::make_method(sub {
         ::opaque_instance_attrs($self)->{'$:version'} = $version;
     }
     ::opaque_instance_attrs($self)->{'$:version'};    
-}, $::Module));
+}));
 
 $::Module->add_method('authority' => ::make_method(sub {
     my $self = shift;
     ::opaque_instance_attrs($self)->{'$:authority'} = shift if @_;        
     ::opaque_instance_attrs($self)->{'$:authority'};
-}, $::Module));
+}));
 
 $::Module->add_method('identifier' => ::make_method(sub {
     return join '-' => ($::SELF->name, $::SELF->version, ($::SELF->authority || ()));
-}, $::Module));
+}));
 
 ## ----------------------------------------------------------------------------
 ## now for some bootstrapping ....
@@ -127,7 +127,7 @@ $::Class->add_method('FETCH' => ::make_method(sub {
     else {
         ::next_METHOD();
     }    
-}, $::Class));
+}));
 
 $::Class->add_method('STORE' => ::make_method(sub {
     my ($self, $label, $value) = @_;
@@ -150,7 +150,7 @@ $::Class->add_method('STORE' => ::make_method(sub {
     else {
         ::next_METHOD();
     }
-}, $::Class));
+}));
 
 
 __END__

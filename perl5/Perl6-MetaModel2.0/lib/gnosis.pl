@@ -79,7 +79,7 @@ my $_add_method = sub {
 };
 
 # and use it to add itself to the $::Class
-$_add_method->($::Class, 'add_method', ::make_method($_add_method, $::Class));
+$_add_method->($::Class, 'add_method', ::make_method($_add_method));
 
 # ... now we have all we need to construct our $::Class 
 

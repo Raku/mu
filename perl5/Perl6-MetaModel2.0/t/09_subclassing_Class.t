@@ -22,13 +22,13 @@ ok($CountedClass->has_attribute('$:count'), '... the attribute was added success
 $CountedClass->add_method('new' => ::make_method(sub {
     ::opaque_instance_attrs($::SELF)->{'$:count'}++;
     return ::next_METHOD();
-}, $CountedClass));
+}));
 
 ok($CountedClass->has_method('new'), '... the new method was overridden successfully');
 
 $CountedClass->add_method('count' => ::make_method(sub {
     ::opaque_instance_attrs($::SELF)->{'$:count'};
-}, $CountedClass));
+}));
 
 ok($CountedClass->has_method('count'), '... the count method was added successfully');
 
@@ -41,7 +41,7 @@ can_ok($Foo, 'count');
 is($Foo->count(), undef, '... we have no Foo instances');
 
 $Foo->superclasses([ $::Object ]);
-$Foo->add_method('bar' => ::make_method(sub { 'Foo::bar' }, $Foo));
+$Foo->add_method('bar' => ::make_method(sub { 'Foo::bar' }));
 
 ok($Foo->has_method('bar'), '... Foo is a proper Class, and can get methods added');
 
@@ -71,7 +71,7 @@ my $TraceingClass = class 'TracingClass' => {
             $_[2] = ::make_method(sub {  
                 push @{::opaque_instance_attrs($self)->{'@:trace_log'}} => "$label called ...";
                 $method->(@_);
-            }, $::CLASS);
+            });
             ::next_METHOD();
         }
     }
@@ -93,8 +93,8 @@ is_deeply(
     [],
     '... nothing in the Bar trace log yet');
 
-$Bar->add_method('foo' => ::make_method(sub { 'Bar::foo' }, $Bar));
-$Bar->add_method('baz' => ::make_method(sub { 'Bar::baz' }, $Bar));
+$Bar->add_method('foo' => ::make_method(sub { 'Bar::foo' }));
+$Bar->add_method('baz' => ::make_method(sub { 'Bar::baz' }));
 
 # and another to show it is truely a per-class thing
 

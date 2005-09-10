@@ -44,18 +44,18 @@ $Point->add_method('x' => ::make_method(sub {
     my $self = shift;
     die "Cannot assign to a read-only accessor" if @_;
     ::opaque_instance_attrs($self)->{'$.x'};
-}, $Point));
+}));
 
 $Point->add_method('y' => ::make_method(sub {
     my $self = shift;
     ::opaque_instance_attrs($self)->{'$.y'} = shift if @_;
     ::opaque_instance_attrs($self)->{'$.y'};
-}, $Point));
+}));
 
 $Point->add_method('clear' => ::make_method(sub {
     ::opaque_instance_attrs($::SELF)->{'$.x'} = 0;
     ::opaque_instance_attrs($::SELF)->{'$.y'} = 0;    
-}, $Point));
+}));
 
 my $point = $Point->new('$.x' => 1, '$.y' => 3);
 isa_ok($point, 'Point');
@@ -94,12 +94,12 @@ $Point3D->add_attribute('$:z' => ::make_attribute('$:z'));
 
 $Point3D->add_method('get_z' => ::make_method(sub {
     ::opaque_instance_attrs($::SELF)->{'$:z'};
-}, $Point));
+}));
 
 $Point3D->add_method('clear' => ::make_method(sub {
     ::opaque_instance_attrs($::SELF)->{'$:z'} = 0;
     ::next_METHOD()
-}, $Point));
+}));
 
 my $point3D = $Point3D->new('$.x' => 2, '$.y' => 3, '$:z' => 4);
 isa_ok($point3D, 'Point3D');

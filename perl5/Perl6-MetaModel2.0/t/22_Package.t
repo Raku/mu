@@ -72,7 +72,7 @@ package Foo {
     is($Foo->FETCH('$.bizzle'), $bizzle, '... it is the same attribute we stored');        
       
     lives_ok {
-        $Foo->STORE('&bizzle' => ::make_method(sub { _('$.bizzle') }, $Foo));
+        $Foo->STORE('&bizzle' => ::make_method(sub { _('$.bizzle') }));
     } '... make a bizzle accessor';
     
     is($Foo->new('$.bizzle' => 42)->bizzle(), 42, '... created and stored the attribute value');
@@ -83,14 +83,14 @@ package Foo {
     
     # check adding instance methods
     lives_ok {
-        $Foo->STORE('&baz' => ::make_method(sub { 'Foo::baz' }, $Foo));
+        $Foo->STORE('&baz' => ::make_method(sub { 'Foo::baz' }));
     } '... did store a method object';
     is($Foo->FETCH('&baz')->($Foo->new()), 'Foo::baz', '... got the STORE-ed CODE right');  
     is($Foo->new()->baz(), 'Foo::baz', '... and we can call the method normally too');
 
     # check adding class methods     
     lives_ok {
-        $Foo->STORE('&blarch' => ::make_class_method(sub { 'Foo::blarch' }, $Foo));
+        $Foo->STORE('&blarch' => ::make_class_method(sub { 'Foo::blarch' }));
     } '... did store a class method object';
     is($Foo->FETCH('&blarch')->($Foo), 'Foo::blarch', '... got the STORE-ed CODE right');  
     is($Foo->class::blarch(), 'Foo::blarch', '... and we can call the method normally too');     

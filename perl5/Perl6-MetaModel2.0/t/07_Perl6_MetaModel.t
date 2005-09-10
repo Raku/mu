@@ -31,7 +31,7 @@ ok($::Class->isa('Object'), '... genesis was loaded ok');
         $Foo = class 'Foo-0.0.1-cpan:STEVAN' => sub {    
             $::CLASS->superclasses([ $::Object ]);
             foreach my $name (qw(foo bar)) {
-                $::CLASS->add_method($name => ::make_class_method(sub { "Hello from $name" }, $::CLASS));
+                $::CLASS->add_method($name => ::make_class_method(sub { "Hello from $name" }));
             }
         };    
     } '... created a class with the closure form';

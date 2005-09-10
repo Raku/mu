@@ -30,12 +30,12 @@ is($foo->foo(), 'FOO', '... $foo->foo() works');
 
 ok(!$foo->can('bar'), '... $foo cannot bar() yet');
 
-$Foo->add_method('bar' => ::make_method(sub { 'BAR' }, $Foo));
+$Foo->add_method('bar' => ::make_method(sub { 'BAR' }));
 
 can_ok($foo, 'bar');
 is($foo->bar(), 'BAR', '... $foo->bar() works');
 
-$::Object->add_method('a_method' => ::make_method(sub { 'Perl6::Object::a_method' }, $::Object));
+$::Object->add_method('a_method' => ::make_method(sub { 'Perl6::Object::a_method' }));
 
 can_ok($foo, 'a_method');
 is($foo->a_method(), 'Perl6::Object::a_method', '... $foo->a_method() works ("a_method" was added to $::Object)');

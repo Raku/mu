@@ -73,12 +73,12 @@ sub _build_class {
             foreach my $method_name (keys %{$body->{methods}}) {
                 if ($method_name =~ /^_/) {
                     $new_class->add_method($method_name => ::make_private_method(
-                        $body->{methods}->{$method_name}, $new_class
+                        $body->{methods}->{$method_name}
                     ));                    
                 }
                 else {
                     $new_class->add_method($method_name => ::make_method(
-                        $body->{methods}->{$method_name}, $new_class
+                        $body->{methods}->{$method_name}
                     ));
                 }
             }
@@ -86,7 +86,7 @@ sub _build_class {
         if ($body->{submethods}) {
             foreach my $method_name (keys %{$body->{submethods}}) {
                 $new_class->add_method($method_name => ::make_submethod(
-                    $body->{submethods}->{$method_name}, $new_class
+                    $body->{submethods}->{$method_name}
                 ));
             }
         }                
@@ -98,12 +98,12 @@ sub _build_class {
                     # private class method or the private instance 
                     # method, maybe there should be, but I am not sure
                     $new_class->add_method($method_name => ::make_private_method(
-                        $body->{class_methods}->{$method_name}, $new_class
+                        $body->{class_methods}->{$method_name}
                     ));
                 }
                 else {
                     $new_class->add_method($method_name => ::make_class_method(
-                        $body->{class_methods}->{$method_name}, $new_class
+                        $body->{class_methods}->{$method_name}
                     ));                    
                 }
             }

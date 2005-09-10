@@ -186,6 +186,10 @@ our $DISPATCH_TRACE = 0;
     # since Perl 5 does not have method
     # primatives, we have to make them.
     
+    # This sub basically takes a subroutine
+    # and wraps it so that it binds values 
+    # to $?SELF and $?CLASS are bound within
+    # it.    
     sub ::bind_method_to_class ($$) {
         my ($method, $associated_with) = @_;
         (defined $method && blessed($method) && $method->isa('Perl6::Method'))
@@ -207,17 +211,9 @@ our $DISPATCH_TRACE = 0;
         } => blessed($method);            
     }
 
-    # a method is basically a subroutine
-    # in which $?SELF and $?CLASS are bound
-    # values. This method builder will wrap
-    # a sub to 'bind' those two values, 
-    # and 'tag' the type of the sub.
-    sub ::make_method ($$) {
+    # make a basic method ...
+    sub ::make_method ($) {
         my ($method) = @_;
-        # NOTE:
-        # all the other make_*_method subs will, at some
-        # point, go through this one, so we only need to 
-        # do error checking here
         (defined $method && ref($method) eq 'CODE')
             || confess "Bad method body (" . ($method || 'undef') . ")";     
         return bless $method => 'Perl6::Method';
@@ -225,50 +221,43 @@ our $DISPATCH_TRACE = 0;
     
     # a class method is the same as a regular 
     # method, it just has a class as an invocant
-    sub ::make_class_method ($$) {    
-        return bless ::make_method($_[0], $_[1]) => 'Perl6::ClassMethod';
+    sub ::make_class_method ($) {  
+        my ($method) = @_;
+        (defined $method && ref($method) eq 'CODE')
+            || confess "Bad method body (" . ($method || 'undef') . ")";          
+        return bless $method => 'Perl6::ClassMethod';
     } 
     
     # this is a private method
-    sub ::make_private_method ($$) {
-        my $method = $_[0];
-        my $associated_with = $_[1];        
+    sub ::make_private_method ($) {
+        my ($method) = @_;
+        (defined $method && ref($method) eq 'CODE')
+            || confess "Bad method body (" . ($method || 'undef') . ")"; 
         # then the private method wrapper is wrapped
-        # around the wrapped basic method. This allows
-        # us to see the $?CLASS of the previous call
+        # around the basic method body. This checks
+        # to see the $?CLASS of the previous call
         # and know if we are being called from within
         # our own class or not.
-        return bless ::make_method(sub {
+        return bless sub {
             confess "Cannot call private method from different class"
                 unless defined $::CALLER::CLASS &&
                        ::opaque_instance_id($::CALLER::CLASS) 
                        eq 
                        ::opaque_instance_id($::CLASS);   
             return $method->(@_);
-        }, $associated_with) => 'Perl6::PrivateMethod';
+        } => 'Perl6::PrivateMethod';
     }
     
     # a submethod is a method which has an 
     # implicit:
     #    next METHOD unless $?SELF.class =:= $?CLASS
-    # in it. So first we wrap the sub in that test
-    # and then we make it a regular method ($?SELF and 
-    # $?CLASS aware). Submethod are also special in that
+    # in it. Submethods are also special in that
     # this implcit test can be overridden.
-    sub ::make_submethod ($$) {
-        # we create the basic method wrapper first        
-        my $method = $_[0]; #::make_method($_[0], $_[1]);
-        my $associated_with = $_[1]; 
-        # then the submethod wrapper is wrapped
-        # around the wrapped basic method. This allows
-        # us to be sure that $?SELF is the correct value
-        # otherwise the FORCE value could be taken as 
-        # $?SELF which is not correct. However this means
-        # that I cannot test it as speced really with
-        #    next METHOD if $?SELF.class =:= $?CLASS
-        # and I have to rely on the values which will
-        # eventually be bound to $?SELF and $?CLASS.       
-        return bless ::make_method(sub {
+    sub ::make_submethod ($) {
+        my ($method) = @_;
+        (defined $method && ref($method) eq 'CODE')
+            || confess "Bad method body (" . ($method || 'undef') . ")";     
+        return bless sub {
             if (!$_[0] || $_[0] ne $Perl6::Submethod::FORCE) {
                 return ::next_METHOD()
                     if ::opaque_instance_id(::opaque_instance_class($_[0])) 
@@ -288,7 +277,7 @@ our $DISPATCH_TRACE = 0;
             my @rval = $method->(@_);
             ::unbind_SELF();
             return wantarray ? @rval : $rval[0];            
-        }, $associated_with) => 'Perl6::Submethod';
+        } => 'Perl6::Submethod';
     }   
     
     {   ## Method "Types"

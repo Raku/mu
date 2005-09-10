@@ -62,7 +62,7 @@ use Perl6::MetaModel;
             "~~" . $::CLASS->name . "~~";
         };        
     
-        $::CLASS->add_method('pretty' => ::make_method($pretty, $::CLASS));
+        $::CLASS->add_method('pretty' => ::make_method($pretty));
     };
     
     my $pp = $PrettyPrinter2->new();
