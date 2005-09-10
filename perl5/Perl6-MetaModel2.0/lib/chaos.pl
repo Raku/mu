@@ -64,19 +64,28 @@ our $DISPATCH_TRACE = 0;
     # this mimics the $?SELF and $?CLASS variables    
     $::SELF  = undef;
     $::CLASS = undef;   
+    # this allows us to investigate from where the
+    # call came, it is used in private methods 
+    $::CALLER::CLASS = undef;
     {
         my (@SELF, @CLASS);        
         sub ::bind_SELF_and_CLASS ($$) {
             my ($self, $class) = @_;
             (defined $self && defined $class)
-                || confess "Must have defined values to bind $?SELF and $?CLASS";                
+                || confess "Must have defined values to bind $?SELF and $?CLASS"; 
+            $::CALLER::CLASS = (@CLASS ? $CLASS[-1] : undef);               
             push @SELF  => ($::SELF  = $self );
             push @CLASS => ($::CLASS = $class);        
         }
     
         sub ::unbind_SELF_and_CLASS () { 
             pop @SELF;  $::SELF  = (@SELF  ? $SELF[-1]  : undef);
-            pop @CLASS; $::CLASS = (@CLASS ? $CLASS[-1] : undef);
+            pop @CLASS; $::CLASS = (@CLASS ? $CLASS[-1] : undef); 
+            # NOTE:
+            # we do not bother to re-bind the $::CALLER::CLASS here
+            # because it is only used internally, and only used by
+            # the private methods so far, if we expose it to the user
+            # we will have to restore it's previous binding here           
         }   
         
         # NOTE:
@@ -91,7 +100,21 @@ our $DISPATCH_TRACE = 0;
         
         sub ::unbind_CLASS () { 
             pop @CLASS; $::CLASS = (@CLASS ? $CLASS[-1] : undef);
-        }         
+        }    
+        
+        # NOTE:
+        # these are used during forcing submethods
+        # to bind $?SELF
+        sub ::bind_SELF ($) {
+            my ($self) = @_;
+            (defined $self)
+                || confess "Must have a defined value to bind to $?SELF";
+            push @SELF => ($::SELF = $self);   
+        } 
+
+        sub ::unbind_SELF () { 
+            pop @SELF; $::SELF = (@SELF ? $SELF[-1] : undef);
+        }              
     }
 
     # these are actually two functiosn
@@ -199,20 +222,21 @@ our $DISPATCH_TRACE = 0;
     
     # this is a private method
     sub ::make_private_method ($$) {
-        # we create the basic method wrapper first
-        my $method = ::make_method($_[0], $_[1]);
+        my $method = $_[0];
         my $associated_with = $_[1];        
         # then the private method wrapper is wrapped
         # around the wrapped basic method. This allows
         # us to see the $?CLASS of the previous call
         # and know if we are being called from within
         # our own class or not.
-        return bless sub {
+        return bless ::make_method(sub {
             confess "Cannot call private method from different class"
-                unless ::opaque_instance_id($::CLASS) 
-                    eq ::opaque_instance_id($associated_with);   
+                unless defined $::CALLER::CLASS &&
+                       ::opaque_instance_id($::CALLER::CLASS) 
+                       eq 
+                       ::opaque_instance_id($associated_with);   
             return $method->(@_);
-        } => 'Perl6::PrivateMethod';
+        }, $associated_with) => 'Perl6::PrivateMethod';
     }
     
     # a submethod is a method which has an 
@@ -224,7 +248,7 @@ our $DISPATCH_TRACE = 0;
     # this implcit test can be overridden.
     sub ::make_submethod ($$) {
         # we create the basic method wrapper first        
-        my $method = ::make_method($_[0], $_[1]);
+        my $method = $_[0]; #::make_method($_[0], $_[1]);
         my $associated_with = $_[1]; 
         # then the submethod wrapper is wrapped
         # around the wrapped basic method. This allows
@@ -235,7 +259,7 @@ our $DISPATCH_TRACE = 0;
         #    next METHOD if $?SELF.class =:= $?CLASS
         # and I have to rely on the values which will
         # eventually be bound to $?SELF and $?CLASS.       
-        return bless sub {
+        return bless ::make_method(sub {
             if (!$_[0] || $_[0] ne $Perl6::Submethod::FORCE) {
                 return ::next_METHOD()
                     if ::opaque_instance_id(::opaque_instance_class($_[0])) 
@@ -244,9 +268,18 @@ our $DISPATCH_TRACE = 0;
             }
             elsif ($_[0] eq $Perl6::Submethod::FORCE) {
                 shift(@_);
-            }
-            return $method->(@_);
-        } => 'Perl6::Submethod';
+            }   
+            # XXX -
+            # this is currently a hack to rebind the 
+            # $?SELF variable, it is needed until we 
+            # can properly handle the forcing of method
+            # calls without the use of the FORCE 
+            # parameter
+            ::bind_SELF($_[0]);
+            my @rval = $method->(@_);
+            ::unbind_SELF();
+            return wantarray ? @rval : $rval[0];            
+        }, $associated_with) => 'Perl6::Submethod';
     }   
     
     {   ## Method "Types"
