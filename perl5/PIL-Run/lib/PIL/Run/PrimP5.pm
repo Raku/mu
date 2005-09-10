@@ -145,15 +145,18 @@ MULTI SUB Array::slice ($a,$i) {
 
 # Things which dont appear in Prim.hs
 MACROP5   statement_control:<if> ($xx0,$xx1,$xx2) {
-    "if (p6_to_b($xx0)) { $xx1 } else { $xx2 }";
+    "do{ if (p6_to_b($xx0)) { $xx1 } else { $xx2 } }";
 };
 MACROP5   statement_control:<unless> ($xx0,$xx1,$xx2) {
-    "if (!p6_to_b($xx0)) { $xx1 } else { $xx2 }";
+    "do{ if (!p6_to_b($xx0)) { $xx1 } else { $xx2 } }";
 };
 MACROP5   statement_control:<while> ($xx0,$xx1) {
-    "while (p6_to_b(p6_apply($xx0))) { ".p6_loop_macro("p6_apply($xx1)")." }";
+    "do{ while (p6_to_b(p6_apply($xx0))) { ".p6_loop_macro("p6_apply($xx1)")." } }";
 };
+MACROP5   Package::_create ($xx0) {""};
+MACROP5   Module::_create ($xx0) {""};
 MACROP5   Class::_create ($xx0) {""};
+MACROP5   Role::_create ($xx0) {""};
 
 
 # From Prim.hs
@@ -284,7 +287,7 @@ MULTI SUB require_perl5 ($xx) { p6_from_x(eval("require ".p6_to_s($xx).";"));};
 MULTI SUB Pugs::Internals::eval_parrot ($xx) {...};
 MULTI SUB use_avoiding_pugs ($xx) {help_require_use($xx,1)};
 MULTI SUB require ($xx) {help_require_use($xx,0)};
-sub help_require_use {
+sub help_require_use { # XXX - getting crufty...
     my($xx,$use)=@_;
     use FindBin;
     use File::Spec;
@@ -314,16 +317,27 @@ sub help_require_use {
     }
     $name = $name.".pm" if $name !~ /\.pm/; # help out use();
     my $fn = File::Spec->catfile(split(/::/,$name));
-    my @candidates;
-    push(@candidates,
-         $fn,
-         File::Spec->catfile('lib6',$fn),
-         File::Spec->catfile($FindBin::Bin,'lib6',$fn));
-    for my $f (@candidates) {
+    my @incdirs;
+    my $inc6 = p6_var('@INC',2);
+    my $inc = p6_to_a($inc6);
+    for (@$inc) {
+	my $dir = p6_to_s($_);
+	warn "p6_to_a() is still broken, so \@INC wasn't used." # XXX
+	    if $dir =~ /Container::Array=HASH/;
+	push(@incdirs,$dir);
+    }
+    push(@incdirs,
+	 '.',
+         'lib6', # XXX - almost time to remove these.  but not yet.
+         File::Spec->catfile('blib6','lib'),
+         File::Spec->catfile($FindBin::Bin,'lib6'));
+    for my $dir (@incdirs) {
+	my $f = File::Spec->catfile($dir,$fn);
         next if !-e $f;
+	PIL::Run::EvalX::p6_eval("%INC{'$fn'} = '$f';");
         return PIL::Run::EvalX::p6_eval_file($f);
     }
-    die "require($name) - file not found";
+    die "Don't see $name in \@INC (".join(" ",@incdirs).")";
 }
 MULTI SUB Pugs::Internals::eval ($xx) {PIL::Run::EvalX::p6_eval(p6_to_s($xx))};
 MULTI SUB evalfile ($xx) {PIL::Run::EvalX::p6_eval_file(p6_to_s($xx))};

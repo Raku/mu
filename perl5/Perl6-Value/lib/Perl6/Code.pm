@@ -159,6 +159,10 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
                 Perl6::Type->new( 
                     name => 'Hash', 
                     match => sub { ref($_[0]) eq 'HASH'  || ref($_[0]) eq 'Hash' } ) : 
+            $name =~ /^\&/ ?
+                Perl6::Type->new( 
+                    name => 'Any',  # XXX - should be Sub or Code or something
+                    match => sub { 1 } ) : 
             die 'Sigil required in the parameter name ('.$name.')';
         bless {
             name =>     $name,

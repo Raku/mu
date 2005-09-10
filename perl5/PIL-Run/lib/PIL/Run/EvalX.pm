@@ -181,6 +181,12 @@ package PSub; @ISA = qw(EvalX::BaseClass); sub expand {
          .$body
          ."})))) })->()"
          .";\n"); # XXX why?
+    } elsif($_[0]{'pSubType'} eq 'SubPrim'
+	    && $_[0]{'pSubName'} =~ /^__export_/) {
+	# XXX - blech.  but a PIL issue.
+	("BEGIN{"
+	 .$body
+	 ."}\n");
     } else {
         ("BEGIN{"
          ."p6_set(".p6_var_macro($_[0]{'pSubName'},2).','
@@ -259,14 +265,16 @@ sub pil_from_p6 {
     my $frob = sub{ my $n=$_[0];($n =~ /^perl5/ ? "" : "require $n;")."use_avoiding_pugs('$n');"};
     $p6 =~ s/^use\s+([^;]+);/$frob->($1)/emg;
     my $fn = "deleteme.p6";
-    open(F,">$fn") or die "Couldn't open \"$fn\" for writing: $!\n"; # XXX - kluge
+    open(F,">$fn") or die "Couldn't open \"$fn\" for writing: $!\n"; # XXX - kludge
     print F $p6; close F or die "Couldn't close \"$fn\": $!\n";
     my $dir = "-I$src_root/lib6";
     if ( $^O =~ /win/i ) {
         # fixes dir-name-with-spaces in Windows
         $dir = '"' . $dir . '"';
     }
-    my $pil = `$pugs $dir -CPerl5 $fn`; #die if $!;
+    my $extra_args = $main::pugs_args ? $main::pugs_args : ""; #XXX- kludge
+    my $cmd = "$pugs $extra_args $dir -CPerl5 $fn";
+    my $pil = `$cmd`; #die if $!;
     unlink $fn or die "Couldn't remove \"$fn\": $!\n";
     $pil;
 }

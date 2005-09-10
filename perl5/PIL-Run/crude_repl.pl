@@ -75,7 +75,7 @@ sub p6_repl {
     }
 }
 
-my (@eval, $repl,$warn,$timeout);my($debug);
+my (@eval, $repl,$warn,$timeout,@inc_dirs);my($debug);
 GetOptions(
     'version'   => sub{ print "--version is not implemented.\n"; exit; },
     'V'         => sub{ print "$0 has no version itself.\n";
@@ -86,13 +86,17 @@ GetOptions(
     'w'         => \$warn,
     'timeout=i' => \$timeout,
     'debug'     => \$debug,
+    'I=s'       => \@inc_dirs,
 );
 $timeout = defined $timeout ? $timeout : $ENV{PUGS_HACK_TIMEOUT};
 $timeout = 1*60 if !defined($timeout) && @ARGV && !$repl;
 local $SIG{ALRM} = sub { die "timeout\n" } if $timeout;
 alarm $timeout if $timeout;
 
+# XXX - blech.  create a blackboard namespace
 local $main::global_debug = $debug;
+local $main::pugs_args = join(" ",map{"-I$_"}@inc_dirs);
+for (@inc_dirs) {p6_eval("push(\@INC,'$_');");}
 
 for my $e (@eval) {
     p6_eval($e);

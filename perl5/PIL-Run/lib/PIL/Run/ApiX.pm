@@ -81,7 +81,9 @@ sub p6_bind {my($o,$v)=@_; $o->bind($v);}
 sub p6_var_macro {
     my($name,$defined1_autovivify2)=@_;
     $name =~ s/\[ \]/\[\]/; # XXX - pugsbug workaround.
+    # see EvalX.pm re __export_ etal.
     $name = "&".$name if $name =~ /^__init_/; # XXX - pugsbug? workaround.
+    $name = "&".$name if $name =~ /^__export_/; # XXX - pugsbug? workaround.
     $name =~ /([\$\@\%\&\:])(.+)/ or die "bug $name";
     my $sigil = $1;
     my $barename = $2;
