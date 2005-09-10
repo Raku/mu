@@ -91,7 +91,7 @@ sub p6_var_macro {
                      );
     my $vivifier = $vivifiers{$sigil} || die "bug";
     my $vivify = ($defined1_autovivify2 && $defined1_autovivify2 == 2
-                  ? "||do{\$$m = $vivifier}" : '');
+                  ? "||do{warn \"autovivifying $m\\n\" if \$main::global_debug;\$$m = $vivifier}" : '');
     "do{no strict;(defined(\$$m)?\$$m:p6_lookup('$mn'$dontdie)$vivify)}";
 }
 sub p6_var {

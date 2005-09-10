@@ -87,6 +87,22 @@ package PVar; @ISA = qw(EvalX::BaseClass); sub expand {
     p6_var_macro($s,2)
     ."\n";
 }
+package PPad; @ISA = qw(EvalX::BaseClass); sub expand {
+    use PIL::Run::ApiX;
+    my($pre,$post) = ("","");
+    my $scope = "my";
+    if ($_[0]{'pScope'} eq 'STemp') {
+	$scope = "local";
+	$pre = "no strict 'vars';";
+	$post = ""; # use strict 'vars'; # XXX - what is the policy?
+    }
+    # XXX - should have a p6_var_int() or somesuch.
+    my @vars = map{$_->[0]} @{$_[0]{'pSyms'}};
+    my $varlist = join(",",map{'$'.p6_mangle($_)} @vars); # XXX - ApiX abstraction violation
+    my $body = $_[0]{'pStmts'}->expand();
+    my $code = "\ndo{$pre$scope($varlist);$post\n$body \n}";
+    $code;
+}
 package PApp; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
     my($self)=@_;
@@ -135,7 +151,7 @@ package PStmt; @ISA = qw(EvalX::BaseClass); sub expand {
 local $EvalX::PStmt::already_protected = 0;
 package PThunk; @ISA = qw(EvalX::BaseClass); sub expand {
     my $body = $_[0]->{'pThunk'}{'pLV'}{'pFun'}{'pBody'};
-    defined $body ? ' { '.$body->expand().' } ' : $_[0]->SUPER::expand();
+    defined $body ? ' do{ '.$body->expand().' } ' : $_[0]->SUPER::expand();
 }
 package PSub; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;

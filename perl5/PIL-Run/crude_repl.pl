@@ -75,7 +75,7 @@ sub p6_repl {
     }
 }
 
-my (@eval, $repl,$warn,$timeout);
+my (@eval, $repl,$warn,$timeout);my($debug);
 GetOptions(
     'version'   => sub{ print "--version is not implemented.\n"; exit; },
     'V'         => sub{ print "$0 has no version itself.\n";
@@ -85,11 +85,14 @@ GetOptions(
     'repl'      => \$repl,
     'w'         => \$warn,
     'timeout=i' => \$timeout,
+    'debug'     => \$debug,
 );
 $timeout = defined $timeout ? $timeout : $ENV{PUGS_HACK_TIMEOUT};
 $timeout = 1*60 if !defined($timeout) && @ARGV && !$repl;
 local $SIG{ALRM} = sub { die "timeout\n" } if $timeout;
 alarm $timeout if $timeout;
+
+local $main::global_debug = $debug;
 
 for my $e (@eval) {
     p6_eval($e);

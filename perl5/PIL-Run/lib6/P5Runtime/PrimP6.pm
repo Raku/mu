@@ -62,12 +62,12 @@ multi sub statement_control:loop ($init,$test,$incr,$code) {
 	$incr();
     }
 }
-multi sub statement_control:for (@_a,$_code) {
-    my $_i = 0;
-    my $_len = +@_a;
-    while($_i < $_len) {
-	$_code(@_a[$_i]);
-	$_i++;
+multi sub statement_control:for (@a,$code) {
+    my $i = 0;
+    my $len = +@a;
+    while($i < $len) {
+	$_code(@a[$i]);
+	$i++;
     }
 }
 

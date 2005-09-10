@@ -145,12 +145,10 @@ MULTI SUB Array::slice ($a,$i) {
 
 # Things which dont appear in Prim.hs
 MACROP5   statement_control:<if> ($xx0,$xx1,$xx2) {
-    "if (p6_to_b($xx0)) $xx1 else { $xx2 }";
-    # XXX - the {} on xx2 are because thunks are being mishandled.
+    "if (p6_to_b($xx0)) { $xx1 } else { $xx2 }";
 };
 MACROP5   statement_control:<unless> ($xx0,$xx1,$xx2) {
-    "if (!p6_to_b($xx0)) $xx1 else { $xx2 }";
-    # XXX - the {} on xx2 are because thunks are being mishandled.
+    "if (!p6_to_b($xx0)) { $xx1 } else { $xx2 }";
 };
 MACROP5   statement_control:<while> ($xx0,$xx1) {
     "while (p6_to_b(p6_apply($xx0))) { p6_apply($xx1) }";
