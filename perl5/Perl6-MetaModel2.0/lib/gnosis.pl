@@ -60,6 +60,8 @@ my $_add_method = sub {
                                     :
                                     $self->name) . '::' . $label, $method);    
 =cut
+    
+    ::bind_method_to_class($method, $self);
         
     if (blessed($method) eq 'Perl6::Method'   ||
         blessed($method) eq 'Perl6::Submethod') {

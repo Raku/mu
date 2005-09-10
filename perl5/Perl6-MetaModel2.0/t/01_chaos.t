@@ -39,54 +39,78 @@ ok(!defined($::CLASS), '... cannot get $?CLASS outside of a valid context');
 ## test the method constructors
 
 {
-    my $m = ::make_method(sub { return 'Foo' }, $i);
+    my $m = ::make_method(sub { return 'Foo' });
     ok(ref($m), 'Perl6::Method');
+
+    ::bind_method_to_class($m, $i);
 
     is($m->($i), 'Foo', '... got the right return value');
 
-    my $m2 = ::make_method(sub { return $::SELF }, $i);
+    my $m2 = ::make_method(sub { return $::SELF });
     ok(ref($m2), 'Perl6::Method');
+    
+    ::bind_method_to_class($m2, $i);
 
     is($m2->('Bar'), 'Bar', '... got the right return value');
     
-    my $m3 = ::make_method(sub { return $::CLASS }, $i);
+    my $m3 = ::make_method(sub { return $::CLASS });
     ok(ref($m3), 'Perl6::Method');
+
+    ::bind_method_to_class($m3, $i);
 
     is($m3->($i), $i, '... got the right return value');    
 }
 
 {
-    my $m = ::make_class_method(sub { return 'Foo::Bar' }, $i);
+    my $m = ::make_class_method(sub { return 'Foo::Bar' });
     ok(ref($m), 'Perl6::ClassMethod');
+
+    ::bind_method_to_class($m, $i);
 
     is($m->($i), 'Foo::Bar', '... got the right return value');
     
-    my $m2 = ::make_class_method(sub { return $::SELF }, $i);
+    my $m2 = ::make_class_method(sub { return $::SELF });
     ok(ref($m2), 'Perl6::ClassMethod');
+    
+    ::bind_method_to_class($m2, $i);
 
     is($m2->('Bar::Baz'), 'Bar::Baz', '... got the right return value');    
     
-    my $m3 = ::make_class_method(sub { return $::CLASS }, $i);
+    my $m3 = ::make_class_method(sub { return $::CLASS });
     ok(ref($m3), 'Perl6::Method');
+
+    ::bind_method_to_class($m3, $i);
 
     is($m3->($i), $i, '... got the right return value');       
 }
 
 {
-    my $m = ::make_submethod(sub { return 'Baz' }, $i);
+    my $m = ::make_submethod(sub { return 'Baz' });
     ok(ref($m), 'Perl6::Submethod');
+    
+    ::bind_method_to_class($m, $i);
+    
     is($m->($i), 'Baz', '... got the right return value');
     
-    my $m2 = ::make_submethod(sub { return 'Baz' }, $i);
+    my $m2 = ::make_submethod(sub { return 'Baz' });
     ok(ref($m2), 'Perl6::Submethod');
+    
+    ::bind_method_to_class($m2, $i);    
+    
     is($m2->($j), 'Baz', '... got the right return value');    
 
-    my $m3 = ::make_submethod(sub { return $::SELF }, $i);
+    my $m3 = ::make_submethod(sub { return $::SELF });
     ok(ref($m3), 'Perl6::Submethod');
+    
+    ::bind_method_to_class($m3, $i);    
+    
     is($m3->($j), $j, '... got the right return value');    
     
-    my $m4 = ::make_submethod(sub { return $::CLASS }, $i);
+    my $m4 = ::make_submethod(sub { return $::CLASS });
     ok(ref($m4), 'Perl6::Submethod');
+
+    ::bind_method_to_class($m4, $i);    
+    
     is($m4->($j), $i, '... got the right return value');        
     
     {
@@ -95,31 +119,42 @@ ok(!defined($::CLASS), '... cannot get $?CLASS outside of a valid context');
         
         *{'::next_METHOD'} = sub () { "fake next_METHOD" };
     
-        my $m = ::make_submethod(sub { return 'Baz' }, $j);
+        my $m = ::make_submethod(sub { return 'Baz' });
         ok(ref($m), 'Perl6::Submethod');
+        
+        ::bind_method_to_class($m, $j);
+        
         is($m->($i), 'fake next_METHOD', '... got the right return value');    
     }
     
     {
-        my $m = ::make_submethod(sub { return 'Baz' }, $j);
+        my $m = ::make_submethod(sub { return 'Baz' });
         ok(ref($m), 'Perl6::Submethod');
         ok($Perl6::Submethod::FORCE, '... $Perl6::Submethod::FORCE is defined');
+    
+        ::bind_method_to_class($m, $j);
+        
         is($m->($Perl6::Submethod::FORCE, $i), 'Baz', '... got the right return value (with force call)');          
     }
 }
 
 {
     
-    my $pm = ::make_private_method(sub { return 'Foo' }, $i);
+    my $pm = ::make_private_method(sub { return 'Foo' });
     ok(ref($pm), 'Perl6::PrivateMethod');    
 
-    my $m = ::make_method(sub { $pm->($i) }, $i);
+    my $m = ::make_method(sub { $pm->($i) });
     ok(ref($m), 'Perl6::Method');
+    
+    ::bind_method_to_class($pm, $i);    
+    ::bind_method_to_class($m,  $i);    
     
     is($m->($i), 'Foo', '... called private method successfully');
     
-    my $m2 = ::make_method(sub { $pm->($i) }, $j);
-    ok(ref($m2), 'Perl6::Method');    
+    my $m2 = ::make_method(sub { $pm->($i) });
+    ok(ref($m2), 'Perl6::Method');  
+    
+    ::bind_method_to_class($m2, $j);      
 
     dies_ok {
         $m2->($i);

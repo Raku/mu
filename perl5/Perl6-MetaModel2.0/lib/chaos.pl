@@ -185,23 +185,16 @@ our $DISPATCH_TRACE = 0;
     ## Method primitives
     # since Perl 5 does not have method
     # primatives, we have to make them.
-
-    # a method is basically a subroutine
-    # in which $?SELF and $?CLASS are bound
-    # values. This method builder will wrap
-    # a sub to 'bind' those two values, 
-    # and 'tag' the type of the sub.
-    sub ::make_method ($$) {
+    
+    sub ::bind_method_to_class ($$) {
         my ($method, $associated_with) = @_;
-        # NOTE:
-        # all the other make_*_method subs will, at some
-        # point, go through this one, so we only need to 
-        # do error checking here
-        (defined $method && ref($method) eq 'CODE')
-            || confess "Bad method body (" . ($method || 'undef') . ")";
+        (defined $method && blessed($method) && $method->isa('Perl6::Method'))
+            || confess "Bad method (" . ($method || 'undef') . ")";
         (blessed($associated_with) && blessed($associated_with) eq 'Dispatchable')
-            || confess "You must associate the method with a class";        
-        return bless sub {
+            || confess "You must associate the method with a class";          
+        # now wrap the method once again, 
+        # making sure to rebless it
+        $_[0] = bless sub {
             my $invocant = shift;
             # NOTE: 
             # we die if we do not have a
@@ -211,7 +204,23 @@ our $DISPATCH_TRACE = 0;
             my @rval = $method->($invocant, @_);
             ::unbind_SELF_and_CLASS();
             return wantarray ? @rval : $rval[0];            
-        } => 'Perl6::Method';
+        } => blessed($method);            
+    }
+
+    # a method is basically a subroutine
+    # in which $?SELF and $?CLASS are bound
+    # values. This method builder will wrap
+    # a sub to 'bind' those two values, 
+    # and 'tag' the type of the sub.
+    sub ::make_method ($$) {
+        my ($method) = @_;
+        # NOTE:
+        # all the other make_*_method subs will, at some
+        # point, go through this one, so we only need to 
+        # do error checking here
+        (defined $method && ref($method) eq 'CODE')
+            || confess "Bad method body (" . ($method || 'undef') . ")";     
+        return bless $method => 'Perl6::Method';
     }
     
     # a class method is the same as a regular 
@@ -234,7 +243,7 @@ our $DISPATCH_TRACE = 0;
                 unless defined $::CALLER::CLASS &&
                        ::opaque_instance_id($::CALLER::CLASS) 
                        eq 
-                       ::opaque_instance_id($associated_with);   
+                       ::opaque_instance_id($::CLASS);   
             return $method->(@_);
         }, $associated_with) => 'Perl6::PrivateMethod';
     }
@@ -264,7 +273,7 @@ our $DISPATCH_TRACE = 0;
                 return ::next_METHOD()
                     if ::opaque_instance_id(::opaque_instance_class($_[0])) 
                        != 
-                       ::opaque_instance_id($associated_with); 
+                       ::opaque_instance_id($::CLASS); 
             }
             elsif ($_[0] eq $Perl6::Submethod::FORCE) {
                 shift(@_);
