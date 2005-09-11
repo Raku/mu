@@ -10,9 +10,10 @@ use lib 'inc';
 use PugsBuild::Config;
 
 my $pugs = "pugs$Config{_exe}";
+my $pugs_bin = "pugs_bin$Config{_exe}";
 my ($fs) = ($Config{sitelib} =~ /([\/\\])/)
        or die "Can't determine file_sep";
-my $thispugs = ".${fs}pugs$Config{_exe}";
+my $thispugs = ".${fs}pugs_bin$Config{_exe}";
 my $version_h = "src/Pugs/pugs_version.h";
 my $config_h = "src/Pugs/pugs_config.h";
 my @srcdirs  = grep {-d} glob("src"), glob("src/*"), glob("src/*/*"), glob("src/*/*/*");
@@ -30,6 +31,7 @@ abstract_from   ('lib/Perl6/Pugs.pm');
 author          ('Autrijus Tang <autrijus@autrijus.org>');
 license         ('perl');
 install_script  ($pugs);
+install_script  ($pugs_bin);
 install_script  (glob('script/*'));
 recommends      ('Perl6::Bible');
 recommends      ('Inline');
@@ -56,7 +58,7 @@ if (my $prefix = PugsBuild::Config->lookup('install_dir')) {
 }
 
 clean_files     (map fixpaths($_),
-    "pugs*", "src/Pugs/pugs_config.h", $version_h, $config_h,
+    "pugs_bin*", "src/Pugs/pugs_config.h", $version_h, $config_h,
     'src/Pugs/Config.hs', 'blib6',
     'src/Pugs/PreludePC.hs',
     'src/Pugs/CodeGen/PIR/Prelude.hs',
@@ -140,7 +142,7 @@ sub set_postamble {
 .
     }
 
-    my $ghc_output = "-o pugs$Config{_exe} src/Main.hs";
+    my $ghc_output = "-o $pugs_bin src/Main.hs";
     my $hasktags = $ENV{HASKTAGS} || 'hasktags';
 
     my $pcre_c = "src/pcre/pcre.c";
@@ -362,7 +364,7 @@ unoptimised :: unoptimized
 unoptimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml src/perl6/Prelude.pm
 	\$(PERL) util/build_pugs.pl _+GHC $ghc $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
-$pugs : src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml src/perl6/Prelude.pm
+$pugs_bin : src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h @prereqs config.yml src/perl6/Prelude.pm
 	\$(PERL) util/build_pugs.pl _+GHC $ghc $threaded __optimization__ --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 
@@ -390,16 +392,16 @@ smoke : smoke-pugs
 
 smoke-all : smoke-pugs smoke-js smoke-pir smoke-perl5
 
-smoke-pugs : $pugs util/run-smoke.pl all
+smoke-pugs : $pugs_bin util/run-smoke.pl all
 	\$(PERL) util/run-smoke.pl . smoke.html
 
-smoke-pir : $pugs util/run-smoke.pl all
+smoke-pir : $pugs_bin util/run-smoke.pl all
 	\$(PERL) util/run-smoke.pl . smoke-pir.html -BPIR
 
-smoke-js : $pugs util/run-smoke.pl all
+smoke-js : $pugs_bin util/run-smoke.pl all
 	\$(PERL) -e "ENV->{PUGS_RUNTIME}=q+JS+; exec qw+$^X util/run-smoke.pl . smoke-js.html+"
 
-smoke-perl5 : $pugs util/run-smoke.pl all
+smoke-perl5 : $pugs_bin util/run-smoke.pl all
 	\$(PERL) -e "ENV->{PUGS_RUNTIME}=q+PERL5+; exec qw+$^X util/run-smoke.pl . smoke-perl5.html -BPERL5+"
 
 

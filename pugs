@@ -1,0 +1,8 @@
+#! /usr/bin/perl -w
+
+use FindBin;
+use File::Spec;
+use Config;
+my $pugs_bin = File::Spec->catfile($FindBin::Bin,'pugs_bin').$Config{_exe};
+exec($pugs_bin,@ARGV);
+die "$0: exec of $pugs_bin failed. $!";
