@@ -12,15 +12,15 @@ local $_= join($v,"",@ARGV,"");
 
 if(s/${v}-B${v}JS${vf}//) {
     if(/${v}-e${v}/) {
-	$bin = File::Spec->catfile($FindBin::Bin,'perl5','PIL2JS',
-				   'runjs.pl').$Config{_exe};
+        $bin = File::Spec->catfile($FindBin::Bin,'perl5','PIL2JS',
+                                   'runjs.pl').$Config{_exe};
     } else {
-	$bin = File::Spec->catfile($FindBin::Bin,'perl5','PIL2JS',
-				   'jspugs.pl').$Config{_exe};	
+        $bin = File::Spec->catfile($FindBin::Bin,'perl5','PIL2JS',
+                                   'jspugs.pl').$Config{_exe};  
     }
 } elsif(s/${v}-B${v}(?i:Perl5)${vf}//) {
     $bin = File::Spec->catfile($FindBin::Bin,'perl5','PIL-Run',
-			       'crude_repl.pl').$Config{_exe};
+                               'crude_repl.pl').$Config{_exe};
 }
 
 s/^$v+//;
