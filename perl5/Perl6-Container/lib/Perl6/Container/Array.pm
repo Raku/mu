@@ -591,18 +591,17 @@ class 'Array'.$class_description => {
                     no warnings 'numeric';
                     last if $_ >= $self->elems;
                     $tmp = $self->fetch( $_ );
-                    #warn "-- got $tmp ", Perl6::Value::stringify($tmp),"\n";
+                    $tmp = Perl6::Value::stringify( $tmp );
                     push @start, $tmp;
-                    last if Perl6::Value::numify($tmp) == &Inf;
-                    last if Perl6::Value::numify($tmp) == -&Inf;
+                    last if $tmp eq 'Inf' || $tmp eq '-Inf';
                 }
                 for ( map { - $_ - 1 } 0 .. $samples ) {
                     no warnings 'numeric';
                     last unless $self->elems + $_ > scalar @start;
                     $tmp = $self->fetch( $_ );
+                    $tmp = Perl6::Value::stringify( $tmp );
                     unshift @end, $tmp;
-                    last if Perl6::Value::numify($tmp) == -&Inf;
-                    last if Perl6::Value::numify($tmp) == &Inf;
+                    last if $tmp eq 'Inf' || $tmp eq '-Inf';
                 }
                 my $str = '';
                 if ( @start > 0 ) {
