@@ -27,4 +27,4 @@ s/^$v+//;
 s/$v+$//;
 my @newARGV = split($v,$_);
 exec($bin,@newARGV);
-die "$0: exec of $pugs_bin failed. $!";
+die "$0: exec of $bin failed. $!";
