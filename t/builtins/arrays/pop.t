@@ -9,7 +9,7 @@ Pop tests
 
 =cut
 
-plan 26;
+plan 27;
 
 { # pop() elements into variables
     my @pop = (1, 2, 3, 4);
@@ -72,6 +72,7 @@ plan 26;
     dies_ok({ pop()         }, 'pop() requires arguments');    
     dies_ok({ pop(@pop, 10) }, 'pop() should not allow extra arguments');            
     dies_ok({ @pop.pop(10)  }, 'pop() should not allow extra arguments');    
+    dies_ok({ 42.pop        }, '.pop should not work on scalars');
 }
 
 # Pop with Inf arrays (waiting on answers from perl6-compiler email)

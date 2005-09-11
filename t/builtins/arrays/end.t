@@ -9,7 +9,7 @@ Array .end tests
 
 =cut
 
-plan 13;
+plan 14;
 
 # basic array .end tests
 
@@ -56,4 +56,5 @@ plan 13;
 # test some errors
 {
     dies_ok { end() }, '... end() dies without an argument';
+    dies_ok { 3.end }, '... .end does not work on scalars';
 }

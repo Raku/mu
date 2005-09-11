@@ -9,7 +9,7 @@ Shift tests
 
 =cut
 
-plan 26;
+plan 27;
 
 {
 
@@ -73,6 +73,7 @@ plan 26;
     dies_ok({ shift()           }, 'shift() requires arguments');    
     dies_ok({ shift(@shift, 10) }, 'shift() should not allow extra arguments');            
     dies_ok({ @shift.shift(10)  }, 'shift() should not allow extra arguments');     
+    dies_ok({ 42.shift          }, '.shift should not work on scalars');
 }
 
 # Push with Inf arrays (waiting on answers to perl6-compiler email)

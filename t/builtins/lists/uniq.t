@@ -3,7 +3,7 @@
 use Test;
 use v6;
 
-plan 7;
+plan 9;
 
 =head1 DESCRIPTION
 
@@ -35,4 +35,10 @@ See the thread "[S29] uniq" on p6l, too.
   # Semantics w/ junctions
   # is eval('~@array.uniq:{ lc $^a eq lc $^b }.values.sort'),
   #   "A b c d a b c d", :todo;
+}
+
+# Error cases
+{
+  dies_ok { 42.uniq }, ".uniq should not work on scalars";
+  is (42,).uniq, 42,   ".uniq should work on one-elem arrays";
 }

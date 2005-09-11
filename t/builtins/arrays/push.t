@@ -9,7 +9,7 @@ Push tests
 
 =cut
 
-plan 39;
+plan 41;
 
 # basic push tests
 {
@@ -104,7 +104,10 @@ plan 39;
 
 # testing some error cases
 {
-    dies_ok({ push() }, 'push() requires arguments');        
+    dies_ok({ push()     }, 'push() requires arguments (1)');
+    # This one is okay, as push will push 0 elems to a rw arrayref.
+    lives_ok({ push([])  }, 'push() requires arguments (2)');
+    dies_ok({ 42.push(3) }, '.push should not work on scalars');
 }
 
 # Push with Inf arrays (waiting on answers to perl6-compiler email)

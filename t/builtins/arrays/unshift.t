@@ -9,7 +9,7 @@ Unshift tests
 
 =cut
 
-plan 52;
+plan 53;
 
 # basic unshift tests
 
@@ -125,7 +125,8 @@ plan 52;
 
 # testing some error cases
 {
-    dies_ok({ unshift() }, 'unshift() requires arguments');        
+    dies_ok({ unshift()     }, 'unshift() requires arguments');        
+    dies_ok({ 42.unshift(3) }, '.unshift should not work on scalars');
 }
 
 # Push with Inf arrays (waiting on answers to perl6-compiler email)
