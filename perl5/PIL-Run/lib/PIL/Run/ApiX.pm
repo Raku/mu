@@ -53,7 +53,16 @@ sub p6_to_s {
         Perl6::Value::stringify( @_ );
     }
 }
-sub p6_to_a {my($a_obj)=@_; [ $a_obj->unboxed ] }
+sub p6_to_a {
+    my($ary)=@_;
+    my $is_infinite = 0;
+    #eval { $is_infinite = Perl6::Value::numify( $ary->is_infinite ) };
+    warn "Trying to instantiate an infinite Array"
+        if $ary->can('is_infinite') && $ary->is_infinite;
+    my @a;
+    $a[$_] = $ary->fetch($_) for 0 .. Perl6::Value::numify( $ary->elems ) - 1;
+    @a;
+}
 sub p6_to_l {my($a_obj)=@_;   $a_obj->unboxed }
 sub p6_to_x {my($o)=@_; die "XXX - Unimplemented"}
 sub p6_from_b {my($b)=@_; p6_new('Bit',$b ? 1 : 0)}

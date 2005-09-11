@@ -319,8 +319,8 @@ sub help_require_use { # XXX - getting crufty...
     $name = $name.".pm" if $name !~ /\.pm/; # help out use();
     my $fn = File::Spec->catfile(split(/::/,$name));
     my @incdirs;
-    my $inc6 = p6_var('@INC',2);
-    my $inc = p6_to_a($inc6);
+    #my $inc6 = p6_var('@INC',2);
+    my $inc = \@INC; # p6_to_a($inc6);
     for (@$inc) {
 	my $dir = p6_to_s($_);
 	warn "p6_to_a() is still broken, so \@INC wasn't used." # XXX
