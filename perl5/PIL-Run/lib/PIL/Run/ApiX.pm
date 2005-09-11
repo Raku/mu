@@ -408,10 +408,10 @@ my $h = Perl6::Container::Hash::Native->new( hashref => \%ENV );
 $PIL::Run::Root::main::hash_ENV->{'instance_data'}{'$:cell'}{tieable} = 1;
 $PIL::Run::Root::main::hash_ENV->tie( $h );
 
-$PIL::Run::Root::main::array_INC = Array->new();
+$PIL::Run::Root::main::Perl5::array_INC = Array->new();
 my $a = Perl6::Container::Array::Native->new( arrayref => \@INC );
-$PIL::Run::Root::main::array_INC->{'instance_data'}{'$:cell'}{tieable} = 1;
-$PIL::Run::Root::main::array_INC->tie( $a );
+$PIL::Run::Root::main::Perl5::array_INC->{'instance_data'}{'$:cell'}{tieable} = 1;
+$PIL::Run::Root::main::Perl5::array_INC->tie( $a );
 }
 
 END { p6_apply(p6_var('&*END')); }
