@@ -420,6 +420,14 @@ class 'Array'.$class_description => {
                 my $method = ::AUTOLOAD($self);
                 my $tmp = $self->unboxed;
                 # warn "AUTOLOAD ",ref($tmp), ' ', $method, " @param == " . $tmp->$method( @param );
+
+                @param = 
+                    map {
+                        # UNIVERSAL::isa( $_, 'Array' ) ? $_->unboxed->items :  
+                        UNIVERSAL::isa( $_, 'List' ) ? $_->unboxed :  
+                        UNIVERSAL::isa( $_, 'Perl6::Container::Array' ) ? $_->items : 
+                        $_ 
+                    } @param;
                 
                 if ( $method eq 'clone' || $method eq 'splice' || $method eq 'reverse' ) {
                     my $ret = Array->new();
