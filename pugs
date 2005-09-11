@@ -4,5 +4,27 @@ use FindBin;
 use File::Spec;
 use Config;
 my $pugs_bin = File::Spec->catfile($FindBin::Bin,'pugs_bin').$Config{_exe};
-exec($pugs_bin,@ARGV);
+my $bin = $pugs_bin;
+
+my $v = "\014";
+my $vf = qr/(?=$v)/;
+local $_= join($v,"",@ARGV,"");
+
+if(s/${v}-B${v}JS${vf}//) {
+    if(/${v}-e${v}/) {
+	$bin = File::Spec->catfile($FindBin::Bin,'perl5','PIL2JS',
+				   'runjs.pl').$Config{_exe};
+    } else {
+	$bin = File::Spec->catfile($FindBin::Bin,'perl5','PIL2JS',
+				   'jspugs.pl').$Config{_exe};	
+    }
+} elsif(s/${v}-B${v}(?i:Perl5)${vf}//) {
+    $bin = File::Spec->catfile($FindBin::Bin,'perl5','PIL-Run',
+			       'crude_repl.pl').$Config{_exe};
+}
+
+s/^$v+//;
+s/$v+$//;
+my @newARGV = split($v,$_);
+exec($bin,@newARGV);
 die "$0: exec of $pugs_bin failed. $!";
