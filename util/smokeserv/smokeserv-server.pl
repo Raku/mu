@@ -174,7 +174,7 @@ sub process_list {
         map  {{ %$_, timestamp => $_->{timestamp}[1] }}
         sort {
           $b->{pugs_revision} <=> $a->{pugs_revision} ||
-          $a->{osname}        cmp $b->{osname}        ||
+          lc $a->{osname}     cmp lc $b->{osname}     ||
           $b->{timestamp}[0]  <=> $a->{timestamp}[0]
         } @{ $runcores{$runcore}{$cat} }
       ];
@@ -184,7 +184,7 @@ sub process_list {
       map {{
         catname => $_,
         smokes  => $runcores{$runcore}{$_},
-      }} sort keys %{ $runcores{$runcore} }
+      }} sort { lc $a cmp lc $b } keys %{ $runcores{$runcore} }
     ];
   }
 
@@ -218,7 +218,7 @@ sub unpack_smoke {
       timestamp     => [
         $5,
         do { 
-          my $str = localtime($5)->strftime;
+          my $str = localtime($5)->strftime("%d %b %Y %H:%M %a");
           $str =~ s/ /&nbsp;/g;
           # hack, to make the timestamps not break so the smoke reports look
           # good even on 640x480
@@ -315,7 +315,7 @@ __DATA__
     }
 
     th       { text-align: left; }
-    .indent0 { padding-top:  40px; border-bottom: 2px solid #313052; }
+    .indent0 { padding-top:  30px; border-bottom: 2px solid #313052; }
     .indent1 { padding-top:  10px; border-bottom: 1px solid #313052; }
     .indent2 { padding-left: 40px; }
     .indent3 { padding-left: 80px; padding-bottom: 10px; }
@@ -323,6 +323,7 @@ __DATA__
     p, dl, pre, table { margin:      15px; }
     dt    { font-weight: bold; }
     dd+dt { margin-top:  1em;  }
+    .leftsep  { padding-left: 10px; }
 
     .details  { display: none; }
     .expander { color: blue; cursor: pointer; }  /* hack? */
@@ -330,11 +331,14 @@ __DATA__
 
   <script type="text/javascript">//<![CDATA[[
     function toggle_visibility (id) {
-      var elem = document.getElementById(id);
+      var elem     = document.getElementById("details_"  + id),
+          expander = document.getElementById("expander_" + id);
       if(elem.className == "details") {
 	elem.className = "";  /* hack? */
+	expander.innerHTML = "&laquo;";
       } else {
 	elem.className = "details";
+	expander.innerHTML = "&raquo;";
       }
     }
   //]]></script>
@@ -370,8 +374,16 @@ $ ./util/smokeserv/smokeserv-client.pl ./smoke.html</pre>
   </p>
 
   <p>
-    (Note that old smoke reports are automatically deleted, so you may not want
-    to link directly to a smoke.)
+    Note that old smoke reports are automatically deleted, so you may not want
+    to link directly to a smoke.
+  </p>
+
+  <p>
+    (Timezone is UTC. Also note that, depending on the backend, the
+    <code>ext/</code> tests may or may not be run, causing durations to not be
+    comparable. Also note that the percentage of passed tests is calculated
+    using the total number of tests run -- for example, if a backend only ran
+    three tests, which it passed, this page would report 100 % test passes.)
   </p>
 
   <table>
@@ -379,18 +391,6 @@ $ ./util/smokeserv/smokeserv-client.pl ./smoke.html</pre>
       <tr><th colspan="7" class="indent0"><tmpl_var name=name></th></tr>
       <tmpl_loop name=categories>
         <tr><th colspan="7" class="indent1"><tmpl_var name=catname></th></tr>
-        <tr>
-          <th colspan="3" class="indent2">Pugs</th>
-          <th colspan="2">Times</th>
-        </tr>
-        <tr>
-          <th class="indent2">Version</th>
-          <th>Revision</th>
-          <th>OS</th>
-          <th>Upload date</th>
-          <th>Duration</th>
-          <th>% ok</th>
-        </tr>
         <tmpl_loop name=smokes>
           <tr>
             <td class="indent2">Pugs <tmpl_var name=pugs_version></td>
@@ -401,14 +401,15 @@ $ ./util/smokeserv/smokeserv-client.pl ./smoke.html</pre>
             </td>
             <td><tmpl_var name=osname escape=html></td>
             <td><tmpl_var name=timestamp></td>
-            <td><tmpl_var name=duration></td>
-            <td><tmpl_var name=percentage> %</td>
-	    <td><span class="expander" onclick="toggle_visibility('details_<tmpl_var name=id>')" id="expander_<tmpl_var name=id>">&raquo;</span></td>
+            <td class="leftsep"><tmpl_var name=duration></td>
+            <td class="leftsep"><tmpl_var name=percentage> % ok</td>
+	    <td><span class="expander" onclick="toggle_visibility('<tmpl_var name=id>')" id="expander_<tmpl_var name=id>">&raquo;</span></td>
           </tr>
           <tr class="details" id="details_<tmpl_var name=id>">
             <td colspan="7" class="indent3">
               <tmpl_loop name=summary>
-                <tmpl_var name=total> test cases: <tmpl_var name=ok> ok, <tmpl_var name=failed> failed, <tmpl_var name=todo> todo,
+                <tmpl_var name=total> test cases:<br />
+		<tmpl_var name=ok> ok, <tmpl_var name=failed> failed, <tmpl_var name=todo> todo,<br />
                 <tmpl_var name=skipped> skipped and <tmpl_var name=unexpect> unexpectedly succeeded
               </tmpl_loop><br />
               <a href="<tmpl_var name=link>">View details</a>
