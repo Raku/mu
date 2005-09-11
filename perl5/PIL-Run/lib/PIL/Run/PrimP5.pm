@@ -126,6 +126,7 @@ MULTI SUB infix:<,>  (*@a) {
             $idx->push( $_ )
         }
     }
+    #warn "INFIX COMMA: ",p6_to_s($a)," -- SLICE: ", p6_to_s($idx),"\n";
     $a->slice( $idx );
 };
 # MULTI SUB Array::fetch ($a,$i) {

@@ -75,8 +75,8 @@ sub p6_from_x {
 }
 sub p6_undef {Scalar->new()}
 sub p6_defined {my($x)=@_; defined $x;}# XXX - p6_defined(p6_undef) is not 1!
-sub p6_die {my(@args)=@_; die @args;}
-sub p6_set {my($o,$v)=@_; $o->store($v);}
+sub p6_die  {my(@args)=@_; die @args;}
+sub p6_set  {my($o,$v)=@_; $o->store($v);}
 sub p6_bind {my($o,$v)=@_; $o->bind($v);}
 sub p6_var_macro {
     my($name,$defined1_autovivify2)=@_;

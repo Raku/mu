@@ -138,6 +138,7 @@ sub Perl6::Slice::fetch {
     my $self = shift;
     my $i = shift;
     my $pos = Perl6::Value::numify( $self->{slice}->fetch( $i ) );
+    #warn "SLICE FETCH: at ($i) $pos -- @_ -- ".Perl6::Value::stringify($self->{array}->fetch( $pos, @_ ))."\n";
     return unless defined $pos && $pos >= 0;
     $self->{array}->fetch( $pos, @_ );
 }
@@ -145,6 +146,7 @@ sub Perl6::Slice::store {
     my $self = shift;
     my $i = shift;
     my $pos = Perl6::Value::numify( $self->{slice}->fetch( $i ) );
+    #warn "SLICE STORE: at ($i) $pos -- @_"."\n";
     return unless defined $pos && $pos >= 0;
     $self->{array}->store( $pos, @_ );
 }
@@ -159,7 +161,7 @@ sub Perl6::Slice::elems {
 sub Perl6::Slice::unbind {
     # creates a new Array - not bound to the original array/slice
     my $self = shift; 
-    # warn "SLICE UNBIND: ".Perl6::Value::stringify($self->{array})." -- ".Perl6::Value::stringify($self->{slice})."\n";
+    #warn "SLICE UNBIND: ".Perl6::Value::stringify($self->{array})." -- ".Perl6::Value::stringify($self->{slice})."\n";
     my $ary = $self->{array};
     my @idx = $self->{slice}->items;
     my $result = Array->new;
@@ -210,8 +212,8 @@ sub Perl6::Slice::write_thru {
     # writes back to the bound Array using the slice as an index
     my $self = shift; 
     my $other = shift;
-    # warn "SLICE WRITE THROUGH: ".Perl6::Value::stringify($self->{array})." -- ".Perl6::Value::stringify($self->{slice})."\n";
-    # warn "               FROM: ".Perl6::Value::stringify($other)."\n";
+    #warn "SLICE WRITE THROUGH: ".Perl6::Value::stringify($self->{array})." -- ".Perl6::Value::stringify($self->{slice})."\n";
+    #warn "               FROM: ".Perl6::Value::stringify($other)."\n";
     #warn "SLICE WRITE THROUGH: ".$self->{array}." -- ".$self->{slice}."\n";
     #warn "               FROM: ".$other."\n";
     my $ary = $self->{array};
@@ -419,15 +421,6 @@ class 'Array'.$class_description => {
                 my $tmp = $self->unboxed;
                 # warn "AUTOLOAD ",ref($tmp), ' ', $method, " @param == " . $tmp->$method( @param );
                 
-                @param = 
-                    map {
-                        UNIVERSAL::isa( $_, 'Array' ) ? $_->unboxed->items :  
-                        UNIVERSAL::isa( $_, 'List' ) ? $_->unboxed :  
-                        UNIVERSAL::isa( $_, 'Perl6::Container::Array' ) ? $_->items : 
-                        $_ 
-                    } @param;
-                #warn "AUTOLOAD ",ref($tmp), ' ', $method, " @param == " . $tmp->$method( @param );
-
                 if ( $method eq 'clone' || $method eq 'splice' || $method eq 'reverse' ) {
                     my $ret = Array->new();
                     $ret->push( $tmp->$method( @param ) );
@@ -438,7 +431,7 @@ class 'Array'.$class_description => {
                     #warn "STORING THINGS $method @param";
                     if ( $method eq 'store' && @param == 1 ) {
                         # whole Array store
-                        # warn "WHOLE ARRAY STORE";
+                        #warn "WHOLE ARRAY STORE";
                         # XXX - what if the array is tied?
                         #  @a = (2,3,4,5); @a[1,2] = @a[0,3]
                         my $other = $param[0];
@@ -468,7 +461,7 @@ class 'Array'.$class_description => {
                             return $other;
                             #return $self;
                         }
-                        # warn "got @items - current = ". _('$:cell')->{v};
+                        #warn "got @items - current = ". $self->cell->{v};
 
                         # unbind cells
                         @items = map {
@@ -498,6 +491,17 @@ class 'Array'.$class_description => {
                         return $self;
                     }
 
+                    #for ( @param ) {
+                    #    next if UNIVERSAL::isa( $_, 'Perl6::Value::List' );
+                    #    next if UNIVERSAL::isa( $_, 'Scalar' );
+                    #    next if UNIVERSAL::isa( $_, 'Array' );
+                    #    next if UNIVERSAL::isa( $_, 'Hash' );
+                    #    my $tmp = $_;
+                    #    $_ = Scalar->new();
+                    #    $_->store( $tmp );
+                    #    warn " SCALAR ",$_->str->unboxed;
+                    #};
+                    # warn "PARAM @param\n";
                     $tmp->$method( @param );
                     return $self;
                 }
@@ -977,6 +981,10 @@ sub clear {
 sub elems {
     my ( $this ) = @_;
     scalar @{$this->{arrayref}};
+}
+sub items {
+    my ( $this ) = @_;
+    @{$this->{arrayref}};
 }
 
 1;
