@@ -7,7 +7,7 @@ use Test;
 # for this test. See
 # http://www.nntp.perl.org/group/perl.perl6.language/22924.
 
-plan 14;
+plan 18;
 
 # Indexing lists
 {
@@ -112,4 +112,58 @@ plan 14;
   ($foo, $bar, $baz) := ($baz, $foo, $bar);
   ok $foo == 3 && $bar == 1 && $baz == 2,
     "using lists as lvalues in a binding operation to swap three variables works";
+}
+
+# \(...) should create a list of references, as in Perl 5.
+# See thread "\(...)" on p6l started by Ingo Blechschmidt, especially Larry's
+# ruling: http://www.nntp.perl.org/group/perl.perl6.language/23027
+#   "Unless someone can come up with a better proposal, \($a,$b) is the default
+#   winner on the basis of prior Perl 5 art."
+{
+  my @array_of_refs = \(1,2,3);
+
+  is +@array_of_refs,           3, '\(...) creates a list of references (1)';
+  is try{${@array_of_refs[1]}}, 2, '\(...) creates a list of references (2)';
+}
+
+{
+  my $foo = 42;
+  my @array_of_refs = \(1,$foo,3);
+
+  is +@array_of_refs,  3, '\(...) creates a list of references (3)';
+  try { ${ @array_of_refs[1] }++ };
+  is $foo,            43, '\(...) creates a list of references (4)';
+}
+
+=begin more-discussion-needed
+See http://www.nntp.perl.org/group/perl.perl6.language/23085:
+>     \(@array);  # List of refs to @array's elements, i.e. same as
+>     map { \$_ } @array;
+>     # Weird (violating the "parens are only for grouping" rule), but
+>     # consistent with Perl 5.
+> 
+> Correct?
+
+{
+  my @array         = (1,2,3);
+  my @array_of_refs = \(@array);
+
+  is +@array_of_refs,      3, '\(...) creates a list of references (5)';
+  is ${@array_of_refs[1]}, 2, '\(...) creates a list of references (6)';
+}
+
+{
+  my @array         = (1,2,3);
+  my @array_of_refs = \(@array,);
+
+  is +@array_of_refs,      3, '\(...) creates a list of references (7)';
+  is ${@array_of_refs[1]}, 2, '\(...) creates a list of references (8)';
+}
+
+{
+  my @array    = (1,2,3);
+  my $arrayref = \@array;
+
+  is +$arrayref,    3, '\@array creates an arrayref (1)';
+  is +$arrayref[1], 2, '\@array creates an arrayref (2)';
 }

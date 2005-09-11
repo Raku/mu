@@ -175,9 +175,7 @@ EOF
     my $name = $self->name;
 
     # If we're a name-only arg, skip as_js2.
-    #return "" if
-    #  !$self->{tpParam}{isNamed}->isa("PIL::True") and not
-    #  $name eq '$_';
+    return "" if $self->{tpParam}{isNamed};
 
     # It's a slurpy parameter? Flatten args so we can .shift() one item at a
     # time.

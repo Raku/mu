@@ -11,6 +11,11 @@ I/O tests
 
 plan 4;
 
+if $*OS eq "browser" {
+  skip_rest "Programs running in browsers don't have access to regular IO.";
+  exit;
+}
+
 my $filename = 'tempfile';
 
 # Test is continued from io_finalized_part1.t
