@@ -57,6 +57,9 @@
 #   @a[10,100,1000,10000,100000]=(1..9999999) 
 #        returned undef (the list went into array element zero)
 
+# TODO - tied arrays should use the standard Perl 5 interface
+#        test push, scalar, etc - with @INC
+
 # TODO - PIL-Run - (1,undef,2) returns (1,2) - but (1,\undef,2) works
 # TODO - PIL-Run - grep() using 'Code'
 
@@ -431,7 +434,12 @@ class 'Array'.$class_description => {
                 
                 if ( $method eq 'clone' || $method eq 'splice' || $method eq 'reverse' ) {
                     my $ret = Array->new();
-                    $ret->push( $tmp->$method( @param ) );
+                    my @result = $tmp->$method( @param )->items;
+                    $ret->unboxed->push( @result );
+                    #warn "-- @result "; # . Perl6::Value::stringify($result->shift). " ... ". Perl6::Value::stringify($result->pop);
+                    #warn "reversed: ".$ret->str->unboxed;
+                    #use Data::Dumper; $Data::Dumper::Indent=1;
+                    #print Dumper($ret);
                     return $ret;
                 }
                 
@@ -509,7 +517,7 @@ class 'Array'.$class_description => {
                     #    $_->store( $tmp );
                     #    warn " SCALAR ",$_->str->unboxed;
                     #};
-                    # warn "PARAM @param\n";
+                    #warn "Array.$method PARAM @param\n";
                     $tmp->$method( @param );
                     return $self;
                 }
@@ -568,10 +576,11 @@ class 'Array'.$class_description => {
             },
             
             str => sub {
-                my $array = shift;
+                #warn "PRINT @_\n";
+                my $self = shift;
                 my %param = @_;
                 my $samples = $param{'max'};
-                my $self = _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v};
+                # my $self = $array->unboxed; # _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v};
                 $samples-- if defined $samples;
                 $samples = 100 unless defined $samples || $self->is_infinite; 
                 $samples = 2   unless defined $samples;
@@ -582,17 +591,18 @@ class 'Array'.$class_description => {
                     no warnings 'numeric';
                     last if $_ >= $self->elems;
                     $tmp = $self->fetch( $_ );
-                    last if $tmp == &Inf;
+                    #warn "-- got $tmp ", Perl6::Value::stringify($tmp),"\n";
                     push @start, $tmp;
-                    last if $tmp == -&Inf;
+                    last if Perl6::Value::numify($tmp) == &Inf;
+                    last if Perl6::Value::numify($tmp) == -&Inf;
                 }
                 for ( map { - $_ - 1 } 0 .. $samples ) {
                     no warnings 'numeric';
                     last unless $self->elems + $_ > scalar @start;
                     $tmp = $self->fetch( $_ );
-                    last if $tmp == -&Inf;
                     unshift @end, $tmp;
-                    last if $tmp == &Inf;
+                    last if Perl6::Value::numify($tmp) == -&Inf;
+                    last if Perl6::Value::numify($tmp) == &Inf;
                 }
                 my $str = '';
                 if ( @start > 0 ) {
