@@ -245,6 +245,22 @@ argument.
 
 The last argument is always the return continuation.
 
+=head3 Flattening (C<< &prefix:<*> >>)
+
+  # Perl 6
+  foo *@a, $x, *@b;
+
+  # PIL
+  foo(&prefix:<*>(@a), $x, &prefix:<*>(@b));
+
+C<< &prefix:<*> >> is a special subroutine which returns its input argument
+(always an array) with the special C<flatten_me> JavaScript property set (you
+could think of it as C<< @input_array but PIL2JS::Internals::flatten_me >>).
+
+Subroutines then search their input arguments for arrays which have the
+C<flatten_me> property set and handle accordingly (see
+C<PIL2JS.possibly_flatten> in F<libjs/PIL2JS.js>).
+
 =head2 Full continuations
 
 Because JavaScript doesn't natively support full continuations, I had to fake
