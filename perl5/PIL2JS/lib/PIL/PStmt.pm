@@ -16,6 +16,7 @@ sub as_js {
 
   ($self->{pExpr}{CC} and die) or $self->{pExpr}{CC} = $self->{CC} if $self->{CC};
 
+  no warnings "recursion";
   return $self->{pExpr}->as_js . "\n";
 }
 

@@ -16,6 +16,7 @@ sub as_js {
 
   ($self->{pLV}{CC} and die) or $self->{pLV}{CC} = $self->{CC} if $self->{CC};
 
+  no warnings "recursion";
   return $self->{pLV}->as_js;
 }
 

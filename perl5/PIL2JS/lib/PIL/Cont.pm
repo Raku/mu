@@ -6,6 +6,7 @@ use strict;
 sub new { bless { @_[1..$#_] } => $_[0] }
 
 sub as_js {
+  no warnings "recursion";
   return sprintf "(function (%s) {\n%s%s\n})",
     $_[0]->{argname},
     defined $_[1] ? PIL::add_indent(1, "$_[1]\n") : "",

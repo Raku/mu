@@ -23,6 +23,7 @@ sub fixup {
 sub as_js {
   my $self = shift;
   local $_;
+  no warnings "recursion";
 
   my $as_js = sub {
     my @jsparams = @_; my $jsobj = pop @jsparams;

@@ -27,6 +27,7 @@
     local $PIL::CUR_POS = $self->{pPos};
     ($self->{pNode}{CC} and die) or $self->{pNode}{CC} = $self->{CC} if $self->{CC};
 
+    no warnings "recursion";
     return sprintf
       "_24main_3a_3a_3fPOSITION.BINDTO(new PIL2JS.Box.Constant(%s));\n%s",
       PIL::doublequote($self->{pPos}), $self->{pNode}->as_js;

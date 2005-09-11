@@ -229,6 +229,8 @@ EOF
     my $self   = shift;
     my $name   = $self->name;
     my $jsname = $self->jsname;
+    no warnings "recursion";
+
     # - !perl/PIL::MkTParam
     # tpDefault: !perl/@PIL::Nothing []
     # tpParam: !perl/PIL::MkParam

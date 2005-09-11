@@ -9,6 +9,7 @@ use strict;
 sub fixup {
   die unless keys %{ $_[0] } == 2;
 
+  no warnings "recursion";
   return bless {
     pStmt  =>
       ($_[0]->{pStmt}  eq "PNoop" ? bless {} => "PIL::PNoop" : $_[0]->{pStmt})->fixup,

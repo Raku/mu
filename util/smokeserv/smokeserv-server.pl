@@ -23,7 +23,7 @@ use constant {
   BUCKET      => "bucket.dat",
   MAX_RATE    => 1 / 30,       # Allow a new smoke all 30s
   BURST       => 5,            # Set max burst to 5
-  MAX_SMOKES_OF_SAME_CATEGORY => 4,
+  MAX_SMOKES_OF_SAME_CATEGORY => 5,
 };
 $CGI::POST_MAX = MAX_SIZE;
 chdir BASEDIR or die "Couldn't chdir into \"@{[ BASEDIR ]}\": $!\n";
@@ -323,7 +323,21 @@ __DATA__
     p, dl, pre, table { margin:      15px; }
     dt    { font-weight: bold; }
     dd+dt { margin-top:  1em;  }
+
+    .details  { display: none; }
+    .expander { color: blue; cursor: pointer; }  /* hack? */
   </style>
+
+  <script type="text/javascript">//<![CDATA[[
+    function toggle_visibility (id) {
+      var elem = document.getElementById(id);
+      if(elem.className == "details") {
+	elem.className = "";  /* hack? */
+      } else {
+	elem.className = "details";
+      }
+    }
+  //]]></script>
 </head>
 
 <body>
@@ -362,9 +376,9 @@ $ ./util/smokeserv/smokeserv-client.pl ./smoke.html</pre>
 
   <table>
     <tmpl_loop name=runcores>
-      <tr><th colspan="6" class="indent0"><tmpl_var name=name></th></tr>
+      <tr><th colspan="7" class="indent0"><tmpl_var name=name></th></tr>
       <tmpl_loop name=categories>
-        <tr><th colspan="6" class="indent1"><tmpl_var name=catname></th></tr>
+        <tr><th colspan="7" class="indent1"><tmpl_var name=catname></th></tr>
         <tr>
           <th colspan="3" class="indent2">Pugs</th>
           <th colspan="2">Times</th>
@@ -389,9 +403,10 @@ $ ./util/smokeserv/smokeserv-client.pl ./smoke.html</pre>
             <td><tmpl_var name=timestamp></td>
             <td><tmpl_var name=duration></td>
             <td><tmpl_var name=percentage> %</td>
+	    <td><span class="expander" onclick="toggle_visibility('details_<tmpl_var name=id>')" id="expander_<tmpl_var name=id>">&raquo;</span></td>
           </tr>
-          <tr>
-            <td colspan="6" class="indent3">
+          <tr class="details" id="details_<tmpl_var name=id>">
+            <td colspan="7" class="indent3">
               <tmpl_loop name=summary>
                 <tmpl_var name=total> test cases: <tmpl_var name=ok> ok, <tmpl_var name=failed> failed, <tmpl_var name=todo> todo,
                 <tmpl_var name=skipped> skipped and <tmpl_var name=unexpect> unexpectedly succeeded
