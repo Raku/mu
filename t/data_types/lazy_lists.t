@@ -36,7 +36,7 @@ is( (-Inf..Inf).perl,
     "double infinite list" );
 
 is( (-Inf..0).perl, 
-    "-Inf ... -2, -1, 0)", 
+    "(-Inf ... -2, -1, 0)", 
     "negative infinite list" );
 
 is( ('aaaa'..'zzzz').perl, 
