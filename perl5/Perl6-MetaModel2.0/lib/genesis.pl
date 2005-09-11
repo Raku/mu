@@ -158,11 +158,24 @@ __END__
 ## ----------------------------------------------------------------------------
 ## Role
 
-# Notes on Roles:
-# - role methods need to be special, this is because we need to be able to bind
-#   the $?ROLE value at Role creation time, but the $?CLASS value at composition 
-#   time. Currently I think the best approach is to make role methods a special 
-#   case of some kind, and then "upgrade" them when we compose them into the class. 
+# Notes on Role methods:
+# - we need to add support for $?ROLE, which will be just like how $?CLASS is done
+#   so that code can be copied. 
+# - when a method is added to a Role, it will likely check it's type (method, 
+#   class-method, submethod, etc) much as Class does. Then it will bind the method
+#   to the Role (allowing $?ROLE to work)
+# - when a method from a Role is combined into a Class, it will be added using 
+#   add_method. THis will ensure that it will have properly bound $?SELF and $?CLASS
+#   values while still retaining the original $?ROLE binding
+
+# Questions on Role methods (for p6l maybe):
+# - if a method stub (method foo { ... }) is added into a Role, should the eventually
+#   implemented method still have a binding for $?ROLE
+# - when a Role itself has subroles, how is $?ROLE bound? is it the top-most Role which 
+#   it is bound too? or is it bound to the Role it originally came from? 
+#   NOTE: the answer to this will affect when we bind $?ROLE, early or late.
+# - if a parent role has a method stub, and it has subroles which implement that method
+#   do they still conflict? or does the subrole's version fufill the parent roles contract?
 
 $::Role = $::Class->new('$:name' => 'Role');
 
