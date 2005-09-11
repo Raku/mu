@@ -32,7 +32,7 @@ is( (1...).perl,
     "simple infinite list" );
 
 is( (-Inf..Inf).perl, 
-    "-Inf ... Inf)", 
+    "(-Inf ... Inf)", 
     "double infinite list" );
 
 is( (-Inf..0).perl, 
@@ -40,7 +40,7 @@ is( (-Inf..0).perl,
     "negative infinite list" );
 
 is( ('aaaa'..'zzzz').perl, 
-    "'aaaa', 'aaab', 'aaac' ... 'zzzx', 'zzzy', 'zzzz')", 
+    "('aaaa', 'aaab', 'aaac' ... 'zzzx', 'zzzy', 'zzzz')", 
     "string lazy list" );
 
 is( (1...,2,3).perl,
@@ -84,7 +84,7 @@ is( (1..Inf).pop,
     "pop" );
 
 is( (1..Inf).clone, 
-    "(1..Inf)", 
+    "(1, 2, 3 ... Inf)", 
     "clone" );
 
 is( (1..Inf).reverse.perl, 
@@ -180,7 +180,7 @@ is( (1..Inf)[2..100000].perl,
 
 # assorted operations
 
-is( (1..Inf, 1..Inf.reverse ).perl, 
-    "1, 2, 3, ... 3, 2, 1)", 
+is( (1..Inf, (1..Inf).reverse ).perl, 
+    "(1, 2, 3, ... 3, 2, 1)", 
     "end of infinite list is readable" );
 
