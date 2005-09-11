@@ -142,7 +142,7 @@ sub use_ok (Str $module, +$todo, +$depends) is export {
 sub throws_ok (Code &code, Any $match, Str ?$desc, +$todo, +$depends) returns Bool is export {
     try { code() };
     if ($!) {
-        &Test::ok.goto($! ~~ $match, $desc, $todo, $depends);            
+        &Test::ok.goto($! ~~ $match, $desc, :todo($todo), :depends($depends));
     }
     else {
         Test::proclaim(undef, $desc, $todo, "No exception thrown", :depends($depends));
@@ -154,7 +154,7 @@ sub throws_ok (Code &code, Any $match, Str ?$desc, +$todo, +$depends) returns Bo
 sub dies_ok (Code &code, Str ?$desc, +$todo, +$depends) returns Bool is export {
     try { code() };
     if ($!) {
-        &Test::ok.goto(1, $desc, $todo);
+        &Test::ok.goto(1, $desc, :todo($todo));
     }
     else {
         Test::proclaim(undef, $desc, $todo, "No exception thrown", :depends($depends));
@@ -169,7 +169,7 @@ sub lives_ok (Code &code, Str ?$desc, +$todo, +$depends) returns Bool is export 
         Test::proclaim(undef, $desc, $todo, "An exception was thrown : $!", :depends($depends));
     }
     else {
-        &Test::ok.goto(1, $desc, $todo, :depends($depends));
+        &Test::ok.goto(1, $desc, :todo($todo), :depends($depends));
     }
 }
 

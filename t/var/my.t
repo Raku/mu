@@ -7,11 +7,10 @@ use Test;
 # my() declarations scopes lexically to the rest of the block; using $MY::x or
 # $::("x") in the block before the actual declaration is erroneous.
 
-plan 6;
+plan 7;
 
 {
   dies_ok { my $x; my $x }, "test declare my() variable twice in same scope";
-
 }
 
 {
