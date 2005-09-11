@@ -71,7 +71,7 @@ See L<S06/"Types"> for more information about Code, Routine, Sub, Block, etc.
     is $foo.(42),      142,    "calling an anonymous sub with a positional param";
     is $foo.(x => 42), 142,    "calling an anonymous sub with a positional param addressed by name";
     try{ $foo.() };
-    ok($!, "calling an anonymous sub expecting a param without a param dies",:todo);
+    ok($!, "calling an anonymous sub expecting a param without a param dies");
     try{ $foo.(42, 5) };
     ok($!, "calling an anonymous sub expecting one param with two params dies",:todo);
 }

@@ -22,9 +22,9 @@ is($val, 'a: 1 b: 2', '... slurpy args flattening and matching parameters', :tod
 # try to flatten the args for the anon sub to match
 
 sub invoke2 ($f, *@args) { $f(*@args) }; 
-is(invoke2(sub ($a, $b) { return "a: $a b: $b"}, 1, 2), 'a: 1 b: 2', 
+is(try { invoke2(sub ($a, $b) { return "a: $a b: $b"}, 1, 2) }, 'a: 1 b: 2', 
     '... slurpy args flattening and matching parameters', :todo<bug>);    
 
 dies_ok {
     invoke2(sub ($a, $b) { return "a: $a b: $b"}, 1, 2, 3);
-}, '... slurpy args flattening and not matching because of too many parameters', :todo<bug>;  
+}, '... slurpy args flattening and not matching because of too many parameters';  

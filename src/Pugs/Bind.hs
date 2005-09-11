@@ -23,7 +23,7 @@ message (@Left@).
 type MaybeError a = Either String a
 
 isRequired :: Param -> Bool
-isRequired prm = not ( isOptional prm || isNamed prm )
+isRequired prm = not $ isOptional prm
 
 {-|
 Match up named arguments with named parameters, producing a list of new
