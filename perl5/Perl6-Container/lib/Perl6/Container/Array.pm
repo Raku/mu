@@ -124,6 +124,12 @@ sub Perl6::Slice::new {
     #warn "NEW SLICE: ".Perl6::Value::stringify($param{array})." -- ".Perl6::Value::stringify($param{slice})."\n";
     bless { %param }, $class;
 } 
+sub Perl6::Slice::clone { 
+    my $self = shift;
+    my $a = Array->new;
+    $a->push( $self->items );
+    return $a;
+} 
 sub Perl6::Slice::items {
     my $self = shift;
     #warn "SLICE ITEMS: ".Perl6::Value::stringify($self->{array})." -- ".Perl6::Value::stringify($self->{slice})."\n";
