@@ -604,7 +604,7 @@ class 'Array'.$class_description => {
                 }
                 for ( map { - $_ - 1 } 0 .. $samples ) {
                     no warnings 'numeric';
-                    # warn "  UNSHIFT: ".Perl6::Value::numify( $self->elems )." + $_ >= scalar ".(scalar @start)."\n";
+                    # warn "  UNSHIFT: ".$self->elems->unboxed." ".Perl6::Value::numify( $self->elems )." + $_ >= scalar ".(scalar @start)."\n";
                     last unless Perl6::Value::numify( $self->elems ) + $_ >= scalar @start;
                     $tmp = $self->fetch( $_ );
                     $tmp = Perl6::Value::stringify( $tmp );

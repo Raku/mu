@@ -212,6 +212,8 @@ sub from_num_range {
             return $r;
         },
         celems =>  sub {
+            # warn "ELEMS $end - $start = ".($end - $start + 1)."\n";
+            return Inf if $start == -&Inf || $end == Inf;
             return $end - $start + 1 unless defined $step;
             return CORE::int(( $end - $start + 1 ) / $step);
         },
