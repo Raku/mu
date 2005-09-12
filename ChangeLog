@@ -55,13 +55,18 @@ XXX not sure where to put this
 * `int()` works correctly on special values like `Inf` or `NaN` now
 
 === Perl 5 backend
-* Has enough functionality to run Perl 6 version of Test.pm
-* Integrated the MetaModel
+* Already has enough functionality to run Perl 6 version of Test.pm
+* Integrated the MetaModel 1.0
 * Added support for an extensive list of operators
-* Initial support for multi Sub, Class, Match, exceptions
-* Supports Scalar, Hash and Array containers, with tie, binding and read-only 
-  capabilities
-* Supports Infinite lists
+* Initial support for multi Sub, Class, Match, exceptions, types and subtypes
+* Supports Scalar, Hash and Array containers, with tieing, binding and 
+  read-only capabilities
+* Supports Infinite lists, Pairs, References, and the base classes Int, Num, 
+  Str, Rat
+* Supports eval() with Perl 5 and Perl 6 code
+* %ENV is shared with Perl 5; @INC is separate from @Perl5::INC
+* $?PUGS_BACKEND can be used to tell which runtime is in use 
+* Perl 5 backend can be invoked with 'pugs -B Perl5'
 
 
 == Changes for 6.2.9 (r6050) - Aug 4, 2005
