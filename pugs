@@ -12,15 +12,12 @@ local $_= join($v,"",@ARGV,"");
 
 if(s/${v}-B${v}JS${vf}//) {
     if(/${v}-e${v}/) {
-        $bin = File::Spec->catfile($FindBin::Bin,'perl5','PIL2JS',
-                                   'runjs.pl').$Config{_exe};
+        $bin = helper_exe('perl5','PIL2JS','runjs.pl');
     } else {
-        $bin = File::Spec->catfile($FindBin::Bin,'perl5','PIL2JS',
-                                   'jspugs.pl').$Config{_exe};  
+        $bin = helper_exe('perl5','PIL2JS','jspugs.pl');
     }
 } elsif(s/${v}-B${v}(?i:Perl5)${vf}//) {
-    $bin = File::Spec->catfile($FindBin::Bin,'perl5','PIL-Run',
-                               'crude_repl.pl').$Config{_exe};
+    $bin = helper_exe('perl5','PIL-Run','crude_repl.pl');
 }
 
 s/^$v+//;
@@ -28,3 +25,11 @@ s/$v+$//;
 my @newARGV = split($v,$_);
 exec($bin,@newARGV);
 die "$0: exec of $bin failed. $!";
+
+sub helper_exe {
+    my(@path)=@_;
+    my $fn1 = File::Spec->catfile($FindBin::Bin,@path).$Config{_exe};
+    my $fn2 = $path[-1].$Config{_exe};
+    return $fn1 if -e $fn1;
+    return $fn2;
+}
