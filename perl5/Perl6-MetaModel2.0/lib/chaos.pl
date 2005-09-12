@@ -60,27 +60,32 @@ our $DISPATCH_TRACE = 0;
     # characteristics of the Perl 6 object 
     # space. 
     
-    ## $?SELF and $?CLASS
-    # this mimics the $?SELF and $?CLASS variables    
-    $::SELF  = undef;
-    $::CLASS = undef;   
+    ## $?SELF, $?CLASS, $?PACKAGE and $?ROLE
+    # this mimics the above magical variables    
+    $::SELF    = undef;
+    $::CLASS   = undef;   
+    $::PACKAGE = undef;
+    $::ROLE    = undef;
     # this allows us to investigate from where the
     # call came, it is used in private methods 
     $::CALLER::CLASS = undef;
     {
-        my (@SELF, @CLASS);        
+        my (@SELF, @CLASS, @PACKAGE, @ROLE);        
         sub ::bind_SELF_and_CLASS ($$) {
             my ($self, $class) = @_;
             (defined $self && defined $class)
                 || confess "Must have defined values to bind $?SELF and $?CLASS"; 
             $::CALLER::CLASS = (@CLASS ? $CLASS[-1] : undef);               
-            push @SELF  => ($::SELF  = $self );
-            push @CLASS => ($::CLASS = $class);        
+            push @SELF    => ($::SELF    = $self );
+            push @CLASS   => ($::CLASS   = $class);        
+            # the $?PACKAGE is the same as $?CLASS
+            push @PACKAGE => ($::PACKAGE = $class);              
         }
     
         sub ::unbind_SELF_and_CLASS () { 
-            pop @SELF;  $::SELF  = (@SELF  ? $SELF[-1]  : undef);
-            pop @CLASS; $::CLASS = (@CLASS ? $CLASS[-1] : undef); 
+            pop @SELF;    $::SELF    = (@SELF    ? $SELF[-1]    : undef);
+            pop @CLASS;   $::CLASS   = (@CLASS   ? $CLASS[-1]   : undef); 
+            pop @PACKAGE; $::PACKAGE = (@PACKAGE ? $PACKAGE[-1] : undef);
             # NOTE:
             # we do not bother to re-bind the $::CALLER::CLASS here
             # because it is only used internally, and only used by
@@ -114,7 +119,32 @@ our $DISPATCH_TRACE = 0;
 
         sub ::unbind_SELF () { 
             pop @SELF; $::SELF = (@SELF ? $SELF[-1] : undef);
-        }              
+        }     
+        
+        # NOTE:
+        # these are used when STORE-ing subs in a package
+        # to make sure they have $?PACKAGE in their scope
+        sub ::bind_PACKAGE ($) {
+            my ($pkg) = @_;
+            (defined $pkg)
+                || confess "Must have a defined value to bind to $?PACKAGE";
+            push @PACKAGE => ($::PACKAGE = $pkg);   
+        } 
+
+        sub ::unbind_PACKAGE () { 
+            pop @PACKAGE; $::PACKAGE = (@PACKAGE ? $PACKAGE[-1] : undef);
+        }  
+        
+        # a convience wrapper for binding/unbinding $?PACKAGE
+        sub ::make_package_sub {
+            my ($sub, $pkg) = @_;
+            return sub {
+                ::bind_PACKAGE($pkg);
+                my @rval = $sub->(@_);
+                ::unbind_PACKAGE();
+                return wantarray ? @rval : $rval[0];          
+            };
+        }                
     }
 
     # these are actually two functiosn

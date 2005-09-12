@@ -6,8 +6,12 @@ use warnings;
 BEGIN { do "lib/pneuma.pl" };
 
 ## Now create some of the other things we need ...
-## see http://article.gmane.org/gmane.comp.lang.perl.perl6.language/4599 for 
+
+## See http://article.gmane.org/gmane.comp.lang.perl.perl6.language/4599 for 
 ## more info on the Class isa Module isa Package isa Object thing.
+
+## See http://article.gmane.org/gmane.comp.lang.perl.perl6.language/4956 for
+## disucssion on how Packages work
 
 ## ----------------------------------------------------------------------------
 ## Package
@@ -35,7 +39,10 @@ $::Package->add_method('FETCH' => ::make_method(sub {
 $::Package->add_method('STORE' => ::make_method(sub {
     my ($self, $label, $value) = @_;
     (defined $label && $label)
-        || confess "Cannot STORE at (" . ($label || 'undef') . ")";    
+        || confess "Cannot STORE at (" . ($label || 'undef') . ")";   
+    if ($label =~ /^\&/ && ref($value) eq 'CODE') {
+        $value = ::make_package_sub($value, $self);
+    } 
     ::opaque_instance_attrs($self)->{'%:namespace'}->{$label} = $value;
 }));
 
@@ -168,14 +175,8 @@ __END__
 #   add_method. THis will ensure that it will have properly bound $?SELF and $?CLASS
 #   values while still retaining the original $?ROLE binding
 
-# Questions on Role methods (for p6l maybe):
-# - if a method stub (method foo { ... }) is added into a Role, should the eventually
-#   implemented method still have a binding for $?ROLE
-# - when a Role itself has subroles, how is $?ROLE bound? is it the top-most Role which 
-#   it is bound too? or is it bound to the Role it originally came from? 
-#   NOTE: the answer to this will affect when we bind $?ROLE, early or late.
-# - if a parent role has a method stub, and it has subroles which implement that method
-#   do they still conflict? or does the subrole's version fufill the parent roles contract?
+# Questions on Role methods sent to p6l 
+# - see recent thread: Concerning Roles and $?ROLE
 
 $::Role = $::Class->new('$:name' => 'Role');
 
