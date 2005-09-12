@@ -229,8 +229,18 @@ class 'Scalar'.$class_description => {
             'tied' =>    sub { _('$:cell')->{tied} },
 
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
-            'isa' =>     sub { ::next_METHOD() },
-            'does' =>    sub { ::next_METHOD() },
+            'isa' =>     sub {
+                my($self,$cls)=@_;
+                return 1 if $cls eq 'Scalar';
+                my $tmp = _('$:cell')->fetch;
+                defined $tmp ? $tmp->isa($cls) : 0;
+            },
+            'does' =>    sub {
+                my($self,$cls)=@_;
+                return 1 if $cls eq 'Scalar';
+                my $tmp = _('$:cell')->fetch;
+                defined $tmp ? $tmp->does($cls) : 0;
+            },
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
                 my $method = ::AUTOLOAD($self);

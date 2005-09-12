@@ -47,7 +47,7 @@ sub p6_to_b {my($b)=@_; return 0 unless defined $b; $b->bit()->unboxed ? 1 : 0}
 sub p6_to_n { Perl6::Value::numify( @_ ) }
 sub p6_to_s {
     if (UNIVERSAL::isa($_[0],"Perl6::Class")) {
-	$_[0]->{instance_data}{identifier}; # and {name} is the short name.
+	$_[0]->{instance_data}{name}; # {identifier} is long, {name} is short
     } else {
         Perl6::Value::stringify( @_ );
     }
