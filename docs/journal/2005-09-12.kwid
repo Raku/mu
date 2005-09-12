@@ -33,3 +33,8 @@ pugs with perl5 and haskell eval support. Now the only thing missing for a full
 featured pugs in Debian is parrot, which is being worked on currently.
 
 * General Pugs updates
+
+Pugs can now be called with a specific runtime engine. 
+The Perl 5 backend is invoked with 'pugs -B Perl5', and the JavaScript backend can be invoked with 'pugs -B JS'
+
+The $?PUGS_BACKEND variable tells which is the current backend.
