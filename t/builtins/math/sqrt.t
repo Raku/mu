@@ -11,7 +11,9 @@ Basic tests for the sqrt() builtin
 
 =cut
 
-# will these be the same on all machines? or should I truncate them?
+sub is_approx (Num $is, Num $expected, Str $descr) {
+  ok abs($is - $expected) <= 0.00001, $descr;
+}
 
-is(sqrt(2), 1.4142135623730951, 'got the square root of 2');
-is(sqrt(5), 2.23606797749979, 'got the square root of 5');
+is_approx(sqrt(2), 1.4142135623730951, 'got the square root of 2');
+is_approx(sqrt(5), 2.23606797749979,   'got the square root of 5');

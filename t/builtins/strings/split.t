@@ -23,9 +23,9 @@ my %ords = (
 
 sub split_test(@splitted, @expected, Str $desc, ?$todo = 0) {
   is +@splitted, +@expected,
-     "split created the correct value amount for: $desc", $todo;
+     "split created the correct value amount for: $desc", :todo($todo);
   is @splitted[$_], @expected[$_],
-     "the %ords{$_ + 1} value matched for: $desc", $todo
+     "the %ords{$_ + 1} value matched for: $desc", :todo($todo)
     for 0 .. @splitted.end;
 }
 

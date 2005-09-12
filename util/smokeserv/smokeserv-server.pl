@@ -234,7 +234,7 @@ sub unpack_smoke {
         skipped     => $11,
         unexpect    => $12,
       }],
-      percentage    => sprintf("%.02f", $8 / $7 * 100),
+      percentage    => sprintf("%.02f", $8 / ($7||1) * 100),
       id            => $13,
       filename      => $name,
       link          => BASEHTTPDIR . $name, 
