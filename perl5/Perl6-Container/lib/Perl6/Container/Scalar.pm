@@ -199,6 +199,8 @@ class 'Scalar'.$class_description => {
                 _('$:cell')->{type} = undef;
                 return $self;
             },
+            # adds support for @a[1].delete
+            'delete' => sub { (shift)->undefine },
 
             # There is no 'set_access' - use 'is Readonly' instead
             # See: t/trait.t
