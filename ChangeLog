@@ -21,6 +21,38 @@
 
 === Bug Fixes
 
+XXX not sure where to put this
+
+=== JavaScript backend
+* Integrated the MetaModel
+* Switched to much faster `-CPerl5`
+* Switched to continuation passing style (CPS) to properly support `return()`,
+  `&?CALLER_CONTINUATION`, coroutines, and `sleep()`
+* Added support for `$CALLER::` and `$OUTER::`
+* Added support for junctions
+* Added support for the `eqv` operator
+* Added support for slurpy hashes in subroutine signatures
+* Added support for `lazy {...}`
+* Added support for lvalue subroutines (`foo() = ...`)
+* Added support for `temp` and `let` declarations
+* Proper UTF-8 handling
+* List construction no longer creates new containers
+* Improved binding support
+* Improved support for autodereferentiating references
+* Named-only arguments (`+$x` and `++$x`) can't be passed positionally any
+  longer
+* Initial support for symbolic dereferentiation
+* Parts of the Prelude can be written in Perl 5 now, resulting in performance
+  improvements
+* Initial support for multi subs
+* Initial support for array and hash autovivification
+* Perl 5-like regular expressions mostly working
+* Miscellaneous performance improvements
+* Support for loading JSAN modules by using `use jsan:Module.Name`
+* Support for evaluating expressions in the PIL2JS shell (`:e <exp>`)
+* Support for "monkey-but" (`$foo but {...}`)
+* Using `for` with only one element to loop over works now
+* `int()` works correctly on special values like `Inf` or `NaN` now
 
 
 == Changes for 6.2.9 (r6050) - Aug 4, 2005
