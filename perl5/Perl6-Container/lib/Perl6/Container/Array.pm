@@ -581,6 +581,7 @@ class 'Array'.$class_description => {
                 my %param = @_;
                 my $samples = $param{'max'};
                 # my $self = $array->unboxed; # _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v};
+                # warn "ELEMS ",$self->elems;
                 $samples-- if defined $samples;
                 $samples = 100 unless defined $samples || $self->is_infinite; 
                 $samples = 2   unless defined $samples;
@@ -589,7 +590,7 @@ class 'Array'.$class_description => {
                 my $tmp;
                 for ( 0 .. $samples ) {
                     no warnings 'numeric';
-                    last if $_ >= $self->elems;
+                    last if $_ >= Perl6::Value::numify( $self->elems );
                     $tmp = $self->fetch( $_ );
                     $tmp = Perl6::Value::stringify( $tmp );
                     push @start, $tmp;
@@ -597,7 +598,8 @@ class 'Array'.$class_description => {
                 }
                 for ( map { - $_ - 1 } 0 .. $samples ) {
                     no warnings 'numeric';
-                    last unless $self->elems + $_ > scalar @start;
+                    # warn "  UNSHIFT: ".Perl6::Value::numify( $self->elems )." + $_ >= scalar ".(scalar @start)."\n";
+                    last unless Perl6::Value::numify( $self->elems ) + $_ >= scalar @start;
                     $tmp = $self->fetch( $_ );
                     $tmp = Perl6::Value::stringify( $tmp );
                     unshift @end, $tmp;
@@ -605,7 +607,7 @@ class 'Array'.$class_description => {
                 }
                 my $str = '';
                 if ( @start > 0 ) {
-                    if ( $self->elems == ( scalar @start + scalar @end ) ) {
+                    if ( Perl6::Value::numify( $self->elems ) == ( scalar @start + scalar @end ) ) {
                         $str =  join( ', ', map { Perl6::Value::stringify($_) } @start, @end );
                     }
                     else {
@@ -985,6 +987,24 @@ sub fetch {
     my ( $this, $key ) = @_;
     my $s = Perl6::Value::numify( $key );
     $this->{arrayref}[$s]
+}
+sub push {
+    my ( $this, $value ) = @_;
+    push @{$this->{arrayref}}, $value->unboxed;
+    return $value;
+}
+sub unshift {
+    my ( $this, $value ) = @_;
+    unshift @{$this->{arrayref}}, $value->unboxed;
+    return $value;
+}
+sub pop {
+    my ( $this ) = @_;
+    return pop @{$this->{arrayref}};
+}
+sub shift {
+    my ( $this ) = @_;
+    return shift @{$this->{arrayref}};
 }
 sub delete {
     my ( $this, $key ) = @_;
