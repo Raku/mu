@@ -537,10 +537,10 @@ This function wraps Locale::KeyedText::Message.new( MSG_KEY[, MSG_VARS] ).
 This function wraps Locale::KeyedText::Translator.new( SET_NAMES,
 MEMBER_NAMES ).
 
-=head1 MESSAGE CONSTRUCTOR FUNCTIONS AND METHODS
+=head1 MESSAGE CONSTRUCTOR FUNCTIONS
 
-This function/method is stateless and can be invoked off of either the
-Message class name or an existing Message object, with the same result.
+This function is stateless and can be invoked off of either the Message
+class name or an existing Message object, with the same result.
 
 =head2 new( MSG_KEY[, MSG_VARS] )
 
@@ -582,11 +582,10 @@ name specified in VAR_NAME.
 This method returns all Message Variable names and values in this object as
 a hash ref.
 
-=head1 TRANSLATOR CONSTRUCTOR FUNCTIONS AND METHODS
+=head1 TRANSLATOR CONSTRUCTOR FUNCTIONS
 
-This function/method is stateless and can be invoked off of either the
-Translator class name or an existing Translator object, with the same
-result.
+This function is stateless and can be invoked off of either the Translator
+class name or an existing Translator object, with the same result.
 
 =head2 new_translator( SET_NAMES, MEMBER_NAMES )
 
