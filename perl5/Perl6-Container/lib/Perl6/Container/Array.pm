@@ -332,12 +332,21 @@ class 'Array'.$class_description => {
             'delete' =>   sub {
                 # delete a slice, returns deleted items
                 my ( $self, @list ) = @_;
-                warn "Trying to delete() a non-slice" unless $self->tied;
-                #my $ret = $self->slice( @list )->clone;
-                my $ret = Array->new();
-                $ret = $self->clone;
-                $self->store( Perl6::Value::List->from_x( item => undef, count => Inf ) );
-                return $ret;
+                #warn "Trying to delete() a non-slice" unless $self->tied;
+
+                if ( UNIVERSAL::isa( $self->tied, 'Perl6::Slice' ) ) {
+                    # delete from slice
+                    my $ret = Array->new();
+                    $ret = $self->clone;
+                    $self->store( Perl6::Value::List->from_x( item => undef, count => Inf ) );
+                    return $ret;
+                }
+
+                #warn "DELETE LIST @list";
+                $self->slice( @list )->delete( 
+                    Perl6::Value::List->from_num_range( start => 0, end => Inf ) 
+                );
+                
             },
             'slice' =>    sub {
                 # Returns an array whose fetch/store are bound to this array
