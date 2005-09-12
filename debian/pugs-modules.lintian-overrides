@@ -5,4 +5,5 @@ pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/HTTP/Cookies.pm #!/usr/b
 pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/HTTP/Query.pm #!/usr/bin/pugs
 pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/HTTP/Response.pm #!/usr/bin/pugs
 pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/HTTP/Request/CGI.pm #!/usr/bin/pugs
+pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/Locale/KeyedText.pm #!/usr/bin/pugs
 pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/URI/Escape.pm #!/usr/bin/pugs 
