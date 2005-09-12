@@ -2,6 +2,9 @@
 
 === Pugs Internals
 
+* $?PUGS_BACKEND can be used to tell which runtime is in use 
+* Perl 5 backend can be invoked with 'pugs -B Perl5', 
+  JavaScript backend can be invoked with 'pugs -B JS'
 * Expanded any existing literal tab chars to spaces in these files:
 ** /src/*, /inc/*, /perl5/*, /util/*
 ** /lib/* (except lib/Perl6/MakeMaker.pm, which retains 3 for literal output)
@@ -12,6 +15,10 @@
 * Expanded any existing literal tab chars to spaces in these files:
 ** /ext/*, /modules/*
 * Updated Locale-KeyedText to stay compat with p6 spec changes, moved POD around
+* New Perl 6 modules:
+** Perl6-Container-Array and Perl6-Value-List prototype modules for 
+  implementing Lazy lists in Perl 6.
+** Log-Selective
 
 === Test, Examples and Documentations
 
@@ -61,12 +68,10 @@ XXX not sure where to put this
 * Initial support for multi Sub, Class, Match, exceptions, types and subtypes
 * Supports Scalar, Hash and Array containers, with tieing, binding and 
   read-only capabilities
-* Supports Infinite lists, Pairs, References, and the base classes Int, Num, 
-  Str, Rat
+* Supports Infinite lazy lists, Pairs, References, and the base classes Int,
+  Num, Str, Rat
 * Supports eval() with Perl 5 and Perl 6 code
 * %ENV is shared with Perl 5; @INC is separate from @Perl5::INC
-* $?PUGS_BACKEND can be used to tell which runtime is in use 
-* Perl 5 backend can be invoked with 'pugs -B Perl5'
 
 
 == Changes for 6.2.9 (r6050) - Aug 4, 2005
