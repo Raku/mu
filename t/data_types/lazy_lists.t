@@ -17,7 +17,7 @@ use Test;
 plan( 30 );
 
 unless $?PUGS_BACKEND eq "BACKEND_PERL5" {
-    skip_rest "$?PUGS_BACKEND does not support lazy lists yet";
+    skip_rest ("$?PUGS_BACKEND does not support lazy lists yet", :depends("lazy lists") );
     exit;
 }
 
@@ -124,11 +124,12 @@ is( (1..Inf)[2..Inf].perl,
     "(3, 4, 5 ... Inf)",
     "lazy slice" );
 
-=for later - countable lazy slice not fully implemented in p5 backend
-is( (1..Inf)[2..100000].perl,
-    "(3, 4, 5 ... 100001, 100002, 100003)",
-    "countable lazy slice" );
-=cut
+if $?PUGS_BACKEND eq "BACKEND_PERL5" {
+    skip ( 1, "countable lazy slice not fully implemented in $?PUGS_BACKEND yet", :depends("lazy slices") );
+    is( (1..Inf)[2..100000].perl,
+        "(3, 4, 5 ... 100001, 100002, 100003)",
+        "countable lazy slice" );
+}
 
 # array assignment
 

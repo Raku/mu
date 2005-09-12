@@ -315,13 +315,18 @@ package Perl6::Container::Hash::Native;
 sub new {
     my $class = shift;
     # hashref => \%ENV;
-    bless { @_ }, $class;
+    my %param = @_;
+    $param{hashref} = {} unless defined $param{hashref};
+    bless { %param }, $class;
 }
 
 sub store {
     my ( $this, $key, $value ) = @_;
     my $s = Perl6::Value::identify( $key );
-    $this->{hashref}{$s} = $value->unboxed;
+    my $v;
+    $v = $value->unboxed if ref( $value );
+    no warnings 'uninitialized';
+    $this->{hashref}{$s} = $v;
     return $value;
 }
 sub fetch {
