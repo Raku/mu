@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 26;
+use Test::More tests => 25;
 use Test::Exception;
 
 use Perl6::MetaModel;
@@ -59,10 +59,6 @@ package Foo {
     
 
     ok(!defined($Foo->FETCH('%:baz')), '... no attribute by that name here');
-    
-    dies_ok {
-        $Foo->STORE('$.bling' => 1);
-    } '... cannot store a non Perl6::Attribute';
     
     my $bizzle = ::make_attribute('$.bizzle');
     lives_ok {

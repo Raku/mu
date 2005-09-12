@@ -20,7 +20,6 @@ sub ::create_class (%) {
             '%:private_methods'  => {},
             '%:attributes'       => {},
             '%:methods'          => {},
-            '%:class_attributes' => {},
             '%:class_methods'    => {},            
         )
     );
@@ -36,30 +35,6 @@ my $_add_method = sub {
         || confess "You must supply a valid method label";
     (blessed($method))
         || confess "A method must be a blessed Perl6::Method object";
-     
-=pod  
-    # NOTE:
-    # this is useful to some degree when doing profiling
-    # however this only captures the name of the outer method
-    # and not the other closures inside 
-    
-    use Sub::Name ();
-    
-    $method = Sub::Name::subname((
-                    $self == $::Class ?
-                        'Class'
-                        :
-                        $self == $::Object ?
-                            'Object'
-                            :
-                            $self == $::Package ?
-                                'Package'
-                                :
-                                $self == $::Module ?
-                                    'Module'
-                                    :
-                                    $self->name) . '::' . $label, $method);    
-=cut
     
     ::bind_method_to_class($method, $self);
         

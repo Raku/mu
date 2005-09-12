@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 58;
+use Test::More tests => 52;
 use Test::Exception;
 
 do 'lib/chaos.pl';
@@ -201,21 +201,3 @@ ok(!defined($::CLASS), '... cannot get $?CLASS outside of a valid context');
 
    is_deeply(::instantiate_attribute_container($hash), {}, '... got the right attribute container');    
 }
-
-{
-   my $scalar = ::make_class_attribute('$.scalar');
-   isa_ok($scalar, 'Perl6::ClassAttribute');
-
-   is(::instantiate_attribute_container($scalar), undef, '... got the right attribute container');
-
-   my $array = ::make_class_attribute('@.array');
-   isa_ok($array, 'Perl6::ClassAttribute');
-
-   is_deeply(::instantiate_attribute_container($array), [], '... got the right attribute container');
-
-   my $hash = ::make_class_attribute('%.hash');      
-   isa_ok($hash, 'Perl6::ClassAttribute');    
-
-   is_deeply(::instantiate_attribute_container($hash), {}, '... got the right attribute container');    
-}
-

@@ -185,12 +185,13 @@ our $DISPATCH_TRACE = 0;
         return bless \$name => 'Perl6::Attribute';
     }
     
-    sub ::make_class_attribute ($) {
-        my ($name) = @_;
-        (defined $name)
-            || confess "You must provide a name for the attribute";        
-        return bless \$name => 'Perl6::ClassAttribute';
-    }     
+    # DEPRECATED
+    # sub ::make_class_attribute ($) {
+    #     my ($name) = @_;
+    #     (defined $name)
+    #         || confess "You must provide a name for the attribute";        
+    #     return bless \$name => 'Perl6::ClassAttribute';
+    # }     
     
     sub ::instantiate_attribute_container ($) {
         my ($attr) = @_;
@@ -208,8 +209,9 @@ our $DISPATCH_TRACE = 0;
 
         package Perl6::Attribute;
 
-        package Perl6::ClassAttribute;        
-        @Perl6::ClassAttribute::ISA = ('Perl6::Attribute');     
+        # DEPRECATED
+        # package Perl6::ClassAttribute;        
+        # @Perl6::ClassAttribute::ISA = ('Perl6::Attribute');     
     }     
  
     ## Method primitives

@@ -25,11 +25,11 @@ Testing that $?PACKAGE is bound when it should be
     my $FooClass = $::Class->new('$:name' => 'Foo::Class');
     $FooClass->superclasses([ $::Object ]);
 
-    $FooClass->add_method('bar' => ::make_class_method(sub { $::PACKAGE }));
+    $FooClass->add_method('bar1' => ::make_class_method(sub { $::PACKAGE }));
     $FooClass->add_method('bar2' => ::make_method(sub { $::PACKAGE }));  
     $FooClass->add_method('bar3' => ::make_submethod(sub { $::PACKAGE }));        
     
-    is($FooClass->class::bar(), $FooClass, '... got the $?PACKAGE value right for class method');
+    is($FooClass->class::bar1(), $FooClass, '... got the $?PACKAGE value right for class method');
     is($FooClass->new()->bar2(), $FooClass, '... got the $?PACKAGE value right for instance method'); 
     is($FooClass->new()->bar3(), $FooClass, '... got the $?PACKAGE value right for submethod');        
 }

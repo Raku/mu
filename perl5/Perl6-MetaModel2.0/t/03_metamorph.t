@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 72;
+use Test::More tests => 70;
 use Test::Exception;
 
 do 'lib/metamorph.pl';
@@ -107,7 +107,6 @@ my @attribute_name_list = ('@:MRO',
                            '%:private_methods',  
                            '%:attributes',       
                            '%:methods',          
-                           '%:class_attributes', 
                            '%:class_methods');
 
 foreach my $attr_name (@attribute_name_list) {

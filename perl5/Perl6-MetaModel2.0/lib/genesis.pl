@@ -40,6 +40,10 @@ $::Package->add_method('STORE' => ::make_method(sub {
     my ($self, $label, $value) = @_;
     (defined $label && $label)
         || confess "Cannot STORE at (" . ($label || 'undef') . ")";   
+    # NOTE: special case
+    # if we are storing CODE in the package, we 
+    # need to wrap it so that $?PACKAGE is bound
+    # correctly within it
     if ($label =~ /^\&/ && ref($value) eq 'CODE') {
         $value = ::make_package_sub($value, $self);
     } 
@@ -124,12 +128,10 @@ $::Class->add_method('FETCH' => ::make_method(sub {
         return $self->has_attribute($label, for => 'instance') ?
                     $self->get_attribute($label, for => 'instance')
                     :
-                    # check for class attribute
-                    $self->has_attribute($label, for => 'class') ?
-                        $self->get_attribute($label, for => 'class')
-                        :
-                        # otherwise we got nothin
-                        undef;
+                    # class attributes are really just package 
+                    # variables with an "our" scope... so we 
+                    # just go to the next method for them 
+                    ::next_METHOD();
     } 
     else {
         ::next_METHOD();
@@ -146,12 +148,10 @@ $::Class->add_method('STORE' => ::make_method(sub {
     }  
     # XXX -
     # this reg-exp is probably not correct ...     
-    elsif ($label =~ /^.(\.|\:).*$/) {
-        # NOTE:
-        # since the twigil ($. and $:) is only allowed
-        # for instance/class attributes, then we do not
-        # check the type of $value. This means that this
-        # could potentially fail
+    elsif ($label =~ /^.(\.|\:).*$/ && (blessed($value) && $value->isa('Perl6::Attribute'))) {
+        # only store instance attributes with the meta model, 
+        # class attributes are just package scoped "our" variables
+        # so they are added to the Package normally
         return $self->add_attribute($label, $value);
     } 
     else {

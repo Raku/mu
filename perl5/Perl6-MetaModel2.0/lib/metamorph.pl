@@ -319,9 +319,6 @@ $::Class->add_method('add_attribute' => ::make_method(sub {
     if (blessed($attribute) eq 'Perl6::Attribute') {
         ::opaque_instance_attrs($self)->{'%:attributes'}->{$label} = $attribute;
     }
-    elsif (blessed($attribute) eq 'Perl6::ClassAttribute') {
-        ::opaque_instance_attrs($self)->{'%:class_attributes'}->{$label} = $attribute;
-    }
     else {
         confess "I do not recognize the attribute type ($attribute)";
     }    
@@ -334,10 +331,7 @@ $::Class->add_method('_get_attribute_table' => ::make_private_method(sub {
     my $method_table;
     if (lc($params->{for}) eq 'instance') {
         return ::opaque_instance_attrs($self)->{'%:attributes'};
-    }
-    elsif (lc($params->{for}) eq 'class') {
-        return ::opaque_instance_attrs($self)->{'%:class_attributes'};
-    }      
+    }     
     else {
         confess "There is no " . $params->{for} . " attribute table";
     }
@@ -384,7 +378,6 @@ $::Class->add_attribute('@:subclasses'       => ::make_attribute('@:subclasses')
 $::Class->add_attribute('%:private_methods'  => ::make_attribute('%:private_methods'));
 $::Class->add_attribute('%:attributes'       => ::make_attribute('%:attributes'));
 $::Class->add_attribute('%:methods'          => ::make_attribute('%:methods'));
-$::Class->add_attribute('%:class_attributes' => ::make_attribute('%:class_attributes'));
 $::Class->add_attribute('%:class_methods'    => ::make_attribute('%:class_methods'));
 
 1;
