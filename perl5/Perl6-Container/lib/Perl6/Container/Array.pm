@@ -126,9 +126,11 @@ sub Perl6::Slice::new {
 } 
 sub Perl6::Slice::clone { 
     my $self = shift;
-    my $a = Array->new;
-    $a->push( $self->items );
-    return $a;
+    return $self->unbind;
+    #my $a = Array->new;
+    #$a->push( $self->items );
+    #$a = $a->clone;
+    #return $a;
 } 
 sub Perl6::Slice::items {
     my $self = shift;
@@ -325,11 +327,12 @@ class 'Array'.$class_description => {
             'delete' =>   sub {
                 # delete a slice, returns deleted items
                 my ( $self, @list ) = @_;
-                my $ret = $self->slice( @list );
-                my $ret2 = Array->new();
-                $ret2->store( $ret );
-                $ret->store( Perl6::Value::List->from_x( item => undef, count => Inf ) );
-                return $ret2;
+                warn "Trying to delete() a non-slice" unless $self->tied;
+                #my $ret = $self->slice( @list )->clone;
+                my $ret = Array->new();
+                $ret = $self->clone;
+                $self->store( Perl6::Value::List->from_x( item => undef, count => Inf ) );
+                return $ret;
             },
             'slice' =>    sub {
                 # Returns an array whose fetch/store are bound to this array
