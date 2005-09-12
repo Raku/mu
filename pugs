@@ -1,35 +1,37 @@
-#! /usr/bin/perl -w
+#!/usr/bin/perl -w
 
+use strict;
 use FindBin;
 use File::Spec;
 use Config;
-my $pugs_bin = File::Spec->catfile($FindBin::RealBin,'pugs_bin').$Config{_exe};
-my $bin = $pugs_bin;
 
-my $v = "\014";
+my $bin = File::Spec->catfile($FindBin::RealBin, 'pugs_bin') . $Config{_exe};
+
+my $v  = ' ';          # space
 my $vf = qr/(?=$v)/;
-local $_= join($v,"",@ARGV,"");
 
-if(s/${v}-B${v}?JS${vf}//) {
-    if(/${v}-e${v}/) {
-        $bin = helper_exe('perl5','PIL2JS','runjs.pl');
-    } else {
-        $bin = helper_exe('perl5','PIL2JS','jspugs.pl');
+local $_ = join($v, "", @ARGV, "");
+
+if (s/${v}-B${v}?JS${vf}//) {
+    if (/${v}-e${v}/) {
+        $bin = helper_exe('perl5', 'PIL2JS', 'runjs.pl');
     }
-} elsif(s/${v}-B${v}(?i:Perl5)${vf}//) {
-    $bin = helper_exe('perl5','PIL-Run','crude_repl.pl');
+    else {
+        $bin = helper_exe('perl5', 'PIL2JS', 'jspugs.pl');
+    }
+}
+elsif (s/${v}-B${v}(?i:Perl5)${vf}//) {
+    $bin = helper_exe('perl5', 'PIL-Run', 'crude_repl.pl');
 }
 
 s/^$v+//;
 s/$v+$//;
-my @newARGV = split($v,$_);
-exec($bin,@newARGV);
+
+exec($bin, split($v, $_));
 die "$0: exec of $bin failed. $!";
 
 sub helper_exe {
-    my(@path)=@_;
-    my $fn1 = File::Spec->catfile($FindBin::RealBin,@path).$Config{_exe};
-    my $fn2 = $path[-1].$Config{_exe};
-    return $fn1 if -e $fn1;
-    return $fn2;
+    my $fn = File::Spec->catfile($FindBin::RealBin, @_) . $Config{_exe};
+    return $fn if -e $fn;
+    return $_[-1] . $Config{_exe};
 }
