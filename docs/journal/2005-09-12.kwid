@@ -4,9 +4,13 @@ Pugs Development for 9/12/2005
 
 * PIL-Run
 
-With newly added 'my' variables in the weekend, the Perl 5 backend now supports complex definitions of lazy lists:
+With newly added 'my' variables in the weekend, the Perl 5 backend now supports
+complex definitions of lazy lists:
 
-  sub fat ($x) { if ($x == Inf) { $x } else { if ( $x == 1 ) { $x } else { fat( $x-1) * $x }  } }
+  sub fat ($x) {
+    if ($x == Inf) { $x }
+    else { if ( $x == 1 ) { $x } else { fat( $x-1) * $x }  }
+  }
   @a = (1..Inf).map:{ fat($_) }
 
   (1, 2, 6 ... Inf)
