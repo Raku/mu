@@ -3,6 +3,9 @@
 
 # ChangeLog
 #
+# 2005-09-12
+# * several fixes: @a[1,2].delete; @a.uniq; (-Inf..Inf); (-Inf..0) 
+#
 # 2005-09-08
 # * finite sub-slices work: ($x,@a[1..3])=(1,2,3,4)
 #
@@ -57,6 +60,8 @@
 #   @a[10,100,1000,10000,100000]=(1..9999999) 
 #        returned undef (the list went into array element zero)
 
+# TODO - @a[1].delete doesn't work
+
 # TODO - tied arrays should use the standard Perl 5 interface
 #        test push, scalar, etc - with @INC
 
@@ -74,7 +79,7 @@
 #
 # TODO - optimize Eager array to O(1)
 #
-# TODO - ($a,undef,$b) = @a
+# TODO - ($a,undef,$b) = @a - fixed, add test
 #      - (@a[1..10],$a,undef,$b) = @a
 #      - ($a,@x[1,2])=(4,5,6)
 #
@@ -93,7 +98,7 @@
 # TODO - fix "defined $i" to "elems == 0" in push/pop, Perl6 version
 # TODO - splice() should accept a 'List' object, Perl6 version too
 #
-# TODO - Tests:
+# TODO - Tests: - add to t/data_types/lazy_lists.t
 # TODO - fetch/store should not destroy binding
 # TODO - test splice offset == 0, 1, 2, -1, -2, -Inf, Inf
 # TODO - test splice length == 0, 1, 2, Inf, negative
