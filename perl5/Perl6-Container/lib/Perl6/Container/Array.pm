@@ -329,6 +329,7 @@ class 'Array'.$class_description => {
             'unboxed' =>  sub { 
                 _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v}
             },
+            'undefine' => sub { warn "undefine!!!";(shift)->store( Array->new ) },
             'delete' =>   sub {
                 # delete a slice, returns deleted items
                 my ( $self, @list ) = @_;

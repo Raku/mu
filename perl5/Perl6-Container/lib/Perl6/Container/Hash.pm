@@ -106,6 +106,8 @@ class 'Hash'.$class_description => {
             'cell' =>     sub { _('$:cell') },  # cell() is used by bind()
             'id' =>       sub { _('$:cell')->{id} },  
 
+            'undefine' => sub { _('$:cell')->{v}->clear },
+
             'tieable' =>  sub { _('$:cell')->{tieable} != 0 },
             'tie' =>      sub { shift; _('$:cell')->tie(@_) },
             'untie' =>    sub { _('$:cell')->untie },

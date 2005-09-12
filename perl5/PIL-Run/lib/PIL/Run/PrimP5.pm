@@ -206,7 +206,7 @@ MULTI SUB capitalize ($xx) {
     p6_from_s($string);
 };
 MULTI SUB undef ($xx) {p6_undef};
-MULTI SUB undefine ($xx) {p6_set($xx,p6_undef)};
+#MULTI SUB undefine ($xx) {p6_set($xx,p6_undef)};
 #MULTI SUB prefix:<+> ($xx) {...}; # in PrimP6
 #MULTI SUB abs ($xx) {...};
 MULTI SUB Pugs::Internals::truncate ($xx) {...};
