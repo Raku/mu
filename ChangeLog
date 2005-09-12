@@ -54,6 +54,15 @@ XXX not sure where to put this
 * Using `for` with only one element to loop over works now
 * `int()` works correctly on special values like `Inf` or `NaN` now
 
+=== Perl 5 backend
+* Has enough functionality to run Perl 6 version of Test.pm
+* Integrated the MetaModel
+* Added support for an extensive list of operators
+* Initial support for multi Sub, Class, Match, exceptions
+* Supports Scalar, Hash and Array containers, with tie, binding and read-only 
+  capabilities
+* Supports Infinite lists
+
 
 == Changes for 6.2.9 (r6050) - Aug 4, 2005
 
