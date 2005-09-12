@@ -560,13 +560,14 @@ class 'Array'.$class_description => {
                     }
                     else
                     {
-                        #warn "FETCHED CELL IS NOT YET A SCALAR: $elem";
+                        #warn "FETCHED CELL IS NOT YET A SCALAR: $elem [ @param ]";
                         $scalar = Scalar->new();
                         $scalar->store( $elem );
                         # replace Value with Scalar
-                        #warn "STORE = $_[1], $scalar";
+                        #warn "STORE = @param, $scalar";
                         # XXX - TODO - test with multi-dim fetch
-                        $self->store( $_[1], $scalar );
+                        $self->store( @param, $scalar );
+                        $scalar = $tmp->$method( @param );
                     }
                     return $scalar;
                     #my $ret = Scalar->new();
