@@ -29,10 +29,10 @@ the meta-model prototype, our next step is to add Roles.
 
 * Debian package updates
 
-pugs 6.2.9 was recently uploaded to Debian unstable. It's currently waiting in
-the [Debian NEW Queue http://ftp-master.debian.org/new.html] to be approved.
+pugs 6.2.9 was recently uploaded to Debian unstable and will go into the
+archive with the next dinstall run on 14.Sept 05.
 
-The Debian package now Build-Depends on `libghc6-haskell-dev`. So now we have a
+The Debian package now Build-Depends on `libghc6-plugins-dev`. So now we have a
 pugs with perl5 and haskell eval support. Now the only thing missing for a full
 featured pugs in Debian is parrot, which is being worked on currently.
 
