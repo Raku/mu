@@ -45,7 +45,7 @@ $::Package->add_method('STORE' => ::make_method(sub {
     # need to wrap it so that $?PACKAGE is bound
     # correctly within it
     if ($label =~ /^\&/ && ref($value) eq 'CODE') {
-        $value = ::make_package_sub($value, $self);
+        $value = ::wrap_package_sub($value, $self);
     } 
     ::opaque_instance_attrs($self)->{'%:namespace'}->{$label} = $value;
 }));
@@ -160,10 +160,8 @@ $::Class->add_method('STORE' => ::make_method(sub {
 }));
 
 
-__END__
-
 ## ----------------------------------------------------------------------------
-## Role
+## Roles
 
 # Notes on Role methods:
 # - we need to add support for $?ROLE, which will be just like how $?CLASS is done
@@ -194,38 +192,54 @@ $::Role->add_method('add_method' => ::make_method(sub {
     # methods are then required to be implemented by the 
     # composing class.
     # (see A12/Class Composition with Roles/Declaration of Roles/Interfaces)
-    ::opaque_instance_attrs($self)->{'%:methods'}->{$label} = $method;
-}, $::Role));
+    ::opaque_instance_attrs($self)->{'%:methods'}->{$label} = (
+        defined $method ? 
+            ::wrap_role_method($method, $self)
+            :
+            undef);
+}));
 
 $::Role->add_method('get_method_list' => ::make_method(sub {
     keys %{::opaque_instance_attrs($::SELF)->{'%:methods'}};
-}, $::Role));
+}));
 
 $::Role->add_method('add_attribute' => ::make_method(sub {
     my ($self, $label, $attribute) = @_;
     ::opaque_instance_attrs($self)->{'%:attributes'}->{$label} = $attribute;
-}, $::Role));
+}));
 
 $::Role->add_method('get_attribute_list' => ::make_method(sub {
     keys %{::opaque_instance_attrs($::SELF)->{'%:attributes'}};
-}, $::Role));
+}));
 
 $::Role->add_method('subroles' => ::make_method(sub {
     my $self = shift;
     ::opaque_instance_attrs($self)->{'@:subroles'} = shift if @_;
     ::opaque_instance_attrs($self)->{'@:subroles'};
-}, $::Role));
+}));
 
 $::Role->add_method('does' => ::make_method(sub {
     my $self = shift;
     if (my $role_name = shift) {
-        foreach (@{::opaque_instance_attrs($self)->{'@:subroles'}}) {
+        foreach ($self, @{::opaque_instance_attrs($self)->{'@:subroles'}}) {
             return 1 if $_->name eq $role_name;            
         }
         return 0;
     }
-    return map { $_->name } @{::opaque_instance_attrs($self)->{'@:subroles'}};
-}, $::Role));
+    return map { $_->name } ($self, @{::opaque_instance_attrs($self)->{'@:subroles'}});
+}));
 
+# implement the package interface
+
+$::Role->add_method('FETCH' => ::make_method(sub {
+    my $self = shift;
+    # ...
+}));
+
+
+$::Role->add_method('STORE' => ::make_method(sub {
+    my $self = shift;
+    # ...
+}));
 
 1;

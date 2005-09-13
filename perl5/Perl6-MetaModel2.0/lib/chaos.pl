@@ -121,6 +121,28 @@ our $DISPATCH_TRACE = 0;
             pop @SELF; $::SELF = (@SELF ? $SELF[-1] : undef);
         }     
         
+        sub ::bind_ROLE ($) {
+            my ($role) = @_;
+            (defined $role)
+                || confess "Must have a defined value to bind to $?ROLE";
+            push @ROLE => ($::ROLE = $role);
+        }
+        
+        sub ::unbind_ROLE () {
+            pop @ROLE; $::ROLE = (@ROLE ? $ROLE[-1] : undef);
+        }
+        
+        # a convience wrapper for binding/unbinding $?ROLE
+        sub ::wrap_role_method {
+            my ($sub, $role) = @_;
+            return sub {
+                ::bind_ROLE($role);
+                my @rval = $sub->(@_);
+                ::unbind_ROLE();
+                return wantarray ? @rval : $rval[0];          
+            };
+        }         
+        
         # NOTE:
         # these are used when STORE-ing subs in a package
         # to make sure they have $?PACKAGE in their scope
@@ -136,7 +158,7 @@ our $DISPATCH_TRACE = 0;
         }  
         
         # a convience wrapper for binding/unbinding $?PACKAGE
-        sub ::make_package_sub {
+        sub ::wrap_package_sub {
             my ($sub, $pkg) = @_;
             return sub {
                 ::bind_PACKAGE($pkg);
@@ -407,7 +429,9 @@ our $DISPATCH_TRACE = 0;
         foreach my $class (@classes) {
             my $method_table = ::opaque_instance_attrs($class)->{$method_table_name};
             return $method_table->{$label}->($self, @{$args}) 
-                if exists $method_table->{$label};             
+                if  exists $method_table->{$label} &&
+                   defined $method_table->{$label} &&
+                   $method_table->{$label};             
         }
         confess "Method ($label) not found in \$::Class";          
     }
