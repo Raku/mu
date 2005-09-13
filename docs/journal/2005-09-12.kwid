@@ -4,7 +4,7 @@ Pugs Development for 9/12/2005
 
 * PIL-Run
 
-With newly added 'my' variables in the weekend, the Perl 5 backend now supports
+With newly added `my` variables in the weekend, the Perl 5 backend now supports
 complex definitions of lazy lists:
 
   sub fat ($x) {
@@ -19,27 +19,31 @@ complex definitions of lazy lists:
 
 We decided today, after some discussion on #perl6 that class attributes need
 not be handled by the metamodel, and could be just treated as package level
-"our" variables. This of course simplifies the meta-model, which is always a
+`our` variables. This of course simplifies the meta-model, which is always a
 good thing. 
 
-The latest version of the object model diagram
-L<http://svn.openfoundry.org/pugs/perl5/Perl6-MetaModel2.0/docs/p6_object_model.jpg>
+The latest version of the [object model diagram
+http://svn.openfoundry.org/pugs/perl5/Perl6-MetaModel2.0/docs/p6_object_model.jpg]
 was posted to perl6-langauge for review. This represents the current state of
 the meta-model prototype, our next step is to add Roles. 
 
 * Debian package updates
 
 pugs 6.2.9 was recently uploaded to Debian unstable. It's currently waiting in
-the L<Debian NEW Queue|http://ftp-master.debian.org/new.html> to be approved.
+the [Debian NEW Queue http://ftp-master.debian.org/new.html] to be approved.
 
-The Debian package now Build-Depends on libghc6-haskell-dev. So now we have a
+The Debian package now Build-Depends on `libghc6-haskell-dev`. So now we have a
 pugs with perl5 and haskell eval support. Now the only thing missing for a full
 featured pugs in Debian is parrot, which is being worked on currently.
 
 * General Pugs updates
 
 Pugs can now be called with a specific runtime engine.  The Perl 5 backend is
-invoked with 'pugs -B Perl5', and the JavaScript backend can be invoked with
-'pugs -B JS'
+invoked with `pugs -B Perl5`, and the JavaScript backend can be invoked with
+`pugs -B JS`.
 
-The $?PUGS_BACKEND variable tells which is the current backend.
+The `$?PUGS_BACKEND` variable tells which is the current backend.
+
+The wrapper script around `pugs_bin`, `pugs`, was modified so `pugs -BJS`
+respectively `pugs -BPerl5` will launch the interactive shells of
+PIL2JS/PIL-Run. This also means that `make test-js` works now.

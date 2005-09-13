@@ -8,7 +8,7 @@ would like current details, please ask on irc.freenode.net #perl6.
 - Haskell-Old  Working (delta general pugs bugs)
 - Haskell-PIL  Started 2005-08-09
 - Java         Nonexistant; metamodel implementation in progress nonetheless
-- JavaScript   Passes more than 2/3 of test suite; missing P6 regexen, some
+- JavaScript   Passes almost 90% of the test suite; missing P6 regexen, some
                builtins, state (needs PIL1 fixes), full OO (needs PIL2)
 - Perl 5       Restarted; currently implementing OO, standard types, run core
 - PIR          Stalled; waiting for Parrot leo-ctx5 branch to merge
