@@ -65,8 +65,8 @@ sub _build_class {
             }
         }
         if ($body->{class_attributes}) {
-            foreach my $attribute_name (@{$body->{class_attributes}}) {
-                $new_class->add_attribute($attribute_name => ::make_class_attribute($attribute_name));
+            foreach my $attr_name (@{$body->{class_attributes}}) {
+                $new_class->STORE($attr_name => ($attr_name =~ /^@/ ? [] : $attr_name =~ /^%/ ? {} : undef));
             }
         }        
         if ($body->{methods}) {
