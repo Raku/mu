@@ -7,7 +7,7 @@ use Config;
 
 my $bin = File::Spec->catfile($FindBin::RealBin, 'pugs_bin') . $Config{_exe};
 
-my $v  = ' ';          # space
+my $v  = "\014\014\014";   # a string unlikely to be part of a filename
 my $vf = qr/(?=$v)/;
 
 local $_ = join($v, "", @ARGV, "");
