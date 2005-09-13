@@ -130,18 +130,7 @@ our $DISPATCH_TRACE = 0;
         
         sub ::unbind_ROLE () {
             pop @ROLE; $::ROLE = (@ROLE ? $ROLE[-1] : undef);
-        }
-        
-        # a convience wrapper for binding/unbinding $?ROLE
-        sub ::wrap_role_method {
-            my ($sub, $role) = @_;
-            return sub {
-                ::bind_ROLE($role);
-                my @rval = $sub->(@_);
-                ::unbind_ROLE();
-                return wantarray ? @rval : $rval[0];          
-            };
-        }         
+        }       
         
         # NOTE:
         # these are used when STORE-ing subs in a package
@@ -240,6 +229,25 @@ our $DISPATCH_TRACE = 0;
     # since Perl 5 does not have method
     # primatives, we have to make them.
     
+    # a convience wrapper for binding/unbinding $?ROLE
+    sub ::wrap_role_method {
+        my ($method, $role) = @_;
+        (defined $method && blessed($method) && $method->isa('Perl6::Method'))
+            || confess "You can only wrap proper methods for Roles";
+        return bless sub {
+            ::bind_ROLE($role);
+            my @rval = $method->(@_);
+            ::unbind_ROLE();
+            return wantarray ? @rval : $rval[0];       
+        # NOTE:
+        # we bless the new wrapper method 
+        # into the same class as before 
+        # because this operation should be 
+        # fairly transparent to anything 
+        # outside of the Role.
+        } => blessed($method);
+    }      
+    
     # This sub basically takes a subroutine
     # and wraps it so that it binds values 
     # to $?SELF and $?CLASS are bound within
@@ -272,6 +280,11 @@ our $DISPATCH_TRACE = 0;
             || confess "Bad method body (" . ($method || 'undef') . ")";     
         return bless $method => 'Perl6::Method';
     }
+    
+    # make a method stub
+    sub ::make_stub_method () {
+        return bless sub { confess "Stub Method!" } => 'Perl6::StubMethod';
+    }    
     
     # a class method is the same as a regular 
     # method, it just has a class as an invocant
@@ -340,6 +353,9 @@ our $DISPATCH_TRACE = 0;
         # types of the methods
         
         package Perl6::Method;
+        
+        package Perl6::StubMethod;
+        @Perl6::StubMethod::ISA = ('Perl6::Method');                
 
         package Perl6::ClassMethod;        
         @Perl6::ClassMethod::ISA = ('Perl6::Method');

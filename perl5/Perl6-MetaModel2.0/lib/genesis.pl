@@ -163,16 +163,6 @@ $::Class->add_method('STORE' => ::make_method(sub {
 ## ----------------------------------------------------------------------------
 ## Roles
 
-# Notes on Role methods:
-# - we need to add support for $?ROLE, which will be just like how $?CLASS is done
-#   so that code can be copied. 
-# - when a method is added to a Role, it will likely check it's type (method, 
-#   class-method, submethod, etc) much as Class does. Then it will bind the method
-#   to the Role (allowing $?ROLE to work)
-# - when a method from a Role is combined into a Class, it will be added using 
-#   add_method. THis will ensure that it will have properly bound $?SELF and $?CLASS
-#   values while still retaining the original $?ROLE binding
-
 # Questions on Role methods sent to p6l 
 # - see recent thread: Concerning Roles and $?ROLE
 
@@ -183,6 +173,8 @@ $::Role->superclasses([ $::Module ]);
 $::Role->add_attribute('@:subroles'   => ::make_attribute('@:subroles'));
 $::Role->add_attribute('%:methods'    => ::make_attribute('%:methods'));
 $::Role->add_attribute('%:attributes' => ::make_attribute('%:attributes'));
+
+## methods
 
 $::Role->add_method('add_method' => ::make_method(sub {
     my ($self, $label, $method) = @_;
@@ -196,21 +188,45 @@ $::Role->add_method('add_method' => ::make_method(sub {
         defined $method ? 
             ::wrap_role_method($method, $self)
             :
-            undef);
+            ::make_stub_method());
+}));
+
+$::Role->add_method('get_method' => ::make_method(sub {
+    my ($self, $label) = @_;
+    ::opaque_instance_attrs($self)->{'%:methods'}->{$label};
+}));
+
+$::Role->add_method('has_method' => ::make_method(sub {
+    my ($self, $label) = @_;
+    exists ::opaque_instance_attrs($self)->{'%:methods'}->{$label} ? 1 : 0;
 }));
 
 $::Role->add_method('get_method_list' => ::make_method(sub {
     keys %{::opaque_instance_attrs($::SELF)->{'%:methods'}};
 }));
 
+## attributes
+
 $::Role->add_method('add_attribute' => ::make_method(sub {
     my ($self, $label, $attribute) = @_;
     ::opaque_instance_attrs($self)->{'%:attributes'}->{$label} = $attribute;
 }));
 
+$::Role->add_method('get_attribute' => ::make_method(sub {
+    my ($self, $label) = @_;    
+    ::opaque_instance_attrs($self)->{'%:attributes'}->{$label};
+}));
+
+$::Role->add_method('has_attribute' => ::make_method(sub {
+    my ($self, $label) = @_;    
+    ::opaque_instance_attrs($self)->{'%:attributes'}->{$label} ? 1 : 0;
+}));
+
 $::Role->add_method('get_attribute_list' => ::make_method(sub {
     keys %{::opaque_instance_attrs($::SELF)->{'%:attributes'}};
 }));
+
+## subroles
 
 $::Role->add_method('subroles' => ::make_method(sub {
     my $self = shift;
@@ -218,18 +234,31 @@ $::Role->add_method('subroles' => ::make_method(sub {
     ::opaque_instance_attrs($self)->{'@:subroles'};
 }));
 
+## introspective methods
+
 $::Role->add_method('does' => ::make_method(sub {
-    my $self = shift;
-    if (my $role_name = shift) {
-        foreach ($self, @{::opaque_instance_attrs($self)->{'@:subroles'}}) {
-            return 1 if $_->name eq $role_name;            
-        }
-        return 0;
+    my ($self, $role_name) = @_;
+    return undef unless defined $role_name;
+    return 1 if $self->name eq $role_name;
+    foreach my $sub_role (@{$self->subroles}) {
+        return 1 if $sub_role->does($role_name);            
     }
-    return map { $_->name } ($self, @{::opaque_instance_attrs($self)->{'@:subroles'}});
+    return 0;
 }));
 
-# implement the package interface
+## NOTE:
+## we want to prevent the default version 
+## of this from taking over which would make
+## things like: FooRole.isa(FooRole) true,
+## when they really should not be true
+$::Role->add_method('isa' => ::make_method(sub { 
+    my ($self, $class_name) = @_;
+    return undef unless $class_name;
+    return 1 if $class_name eq 'Role';
+    return 0;
+}));
+
+# TODO ... implement the package interface
 
 $::Role->add_method('FETCH' => ::make_method(sub {
     my $self = shift;
