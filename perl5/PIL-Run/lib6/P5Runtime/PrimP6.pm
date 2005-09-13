@@ -68,7 +68,7 @@ multi sub statement_control:for (@a,$code) {
     my $i = 0;
     my $len = +@a;
     while($i < $len) {
-	$_code(@a[$i]);
+	$code(@a[$i]);
 	$i++;
     }
 }
