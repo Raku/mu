@@ -55,7 +55,8 @@ multi sub grep ($array,$code) {
 
 multi sub uniq ($array) { 
     my %seen;
-    $array.map( { if %seen.fetch($_) { () } else { %seen.store($_,1); $_ } } )
+    # $array.map( { if %seen.fetch($_) { () } else { %seen.store($_,1); $_ } } )
+    $array.map( { if %seen{$_} { () } else { %seen{$_} = 1; $_ } } )
 }
 
 multi sub statement_control:loop ($init,$test,$incr,$code) {
