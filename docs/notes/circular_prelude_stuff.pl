@@ -3,11 +3,9 @@ use warnings;
 
 no warnings 'recursion';
 
-use Digest::SHA1 ();
 use Scalar::Util ();
-use List::Util ();
-use Data::Dumper ();
 use String::Escape ();
+use Term::ReadKey;
 
 {
     package Map;
@@ -127,23 +125,76 @@ my $env = Env->new(
         '&ternary:<?? !!>',
         '&print',
         '&infix:<==>',
+        '&infix:<<=>',
+        '&infix:<<>',
         '&infix:<->',
         '&infix:<+>',
     ),
-    '&infix:<*>' => Thunk->new(
+    '&infix:<**>' => Thunk->new(
         Seq->new(
             Param->new('$x'),
             Param->new('$y'),
             App->new(
-                Sym->new('&multiply_recursion_helper'),
+                Sym->new('&repeatedly_apply_and_accum'),
+                Sym->new('&infix:<*>'),
                 Sym->new('$x'),
                 Sym->new('$x'),
                 Sym->new('$y'),
             ),
         ),
     ),
-    '&multiply_recursion_helper' => Thunk->new(
+    '&infix:<*>' => Thunk->new(
         Seq->new(
+            Param->new('$x'),
+            Param->new('$y'),
+            App->new(
+                Sym->new('&repeatedly_apply_and_accum'),
+                Sym->new('&infix:<+>'),
+                Sym->new('$x'),
+                Sym->new('$x'),
+                Sym->new('$y'),
+            ),
+        ),
+    ),
+    '&infix:</>' => Thunk->new(
+        Seq->new(
+            Param->new('$x'),
+            Param->new('$y'),
+            App->new(
+                Sym->new('&control_structure:<if>'),
+                App->new(
+                    Sym->new('&infix:<<>'),
+                    Sym->new('$x'),
+                    Sym->new('$y'),
+                ),
+                Val->new(
+                    Thunk->new(
+                        Val->new(0),
+                    )
+                ),
+                Val->new(
+                    Thunk->new(
+                        App->new(
+                            Sym->new('&infix:<+>'),
+                            Val->new(1),
+                            App->new(
+                                Sym->new('&infix:</>'),
+                                App->new(
+                                    Sym->new('&infix:<->'),
+                                    Sym->new('$x'),
+                                    Sym->new('$y'),
+                                ),
+                                Sym->new('$y'),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    ),
+    '&repeatedly_apply_and_accum' => Thunk->new(
+        Seq->new(
+            Param->new('&f'),
             Param->new('$accum'),
             Param->new('$x'),
             Param->new('$y'),
@@ -162,9 +213,10 @@ my $env = Env->new(
                 Val->new(
                     Thunk->new(
                         App->new(
-                            Sym->new('&multiply_recursion_helper'),
+                            Sym->new('&repeatedly_apply_and_accum'),
+                            Sym->new('&f'),
                             App->new(
-                                Sym->new('&infix:<+>'),
+                                Sym->new('&f'),
                                 Sym->new('$accum'),
                                 Sym->new('$x'),
                             ),
@@ -212,6 +264,47 @@ my $env = Env->new(
 
 
     # user definitions
+    '&fib' => Thunk->new(
+        Seq->new(
+            Param->new('$n'),
+            App->new(
+                Sym->new('&control_structure:<if>'),
+                App->new(
+                    Sym->new('&infix:<<=>'),
+                    Sym->new('$n'),
+                    Val->new(1),
+                ),
+                Val->new(
+                    Thunk->new(
+                        Sym->new('$n'),
+                    ),
+                ),
+                Val->new(
+                    Thunk->new(
+                        App->new(
+                            Sym->new('&infix:<+>'),
+                            App->new(
+                                Sym->new('&fib'),
+                                App->new(
+                                    Sym->new('&infix:<->'),
+                                    Sym->new('$n'),
+                                    Val->new(1),
+                                ),
+                            ),
+                            App->new(
+                                Sym->new('&fib'),
+                                App->new(
+                                    Sym->new('&infix:<->'),
+                                    Sym->new('$n'),
+                                    Val->new(2),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    ),
     '&postfix:<!>' => Thunk->new(
         Seq->new(
             Param->new('$n'),
@@ -220,7 +313,7 @@ my $env = Env->new(
                     Sym->new('&control_structure:<if>'),
                     App->new(
                         Sym->new('&infix:<==>'),
-                        Sym->new('$n'),
+                       Sym->new('$n'),
                         Val->new(0),
                     ),
                     Val->new(
@@ -264,15 +357,33 @@ sub native {
     )
 }
 
-
-
+my $x = 15;
 my $prog = AST->new(
-    App->new(
-        Sym->new('&say'),
-        App->new(
-            Sym->new('&postfix:<!>'),
-            Val->new(6),
-        ),
+    Seq->new(
+        map {
+            App->new(
+                Sym->new('&print'),
+                Sym->new('$*OUT'),
+                Val->new("(($_ ** $x) / ($_ ** ($x - 1)) = "),
+                Val->new(''),
+            ),
+            App->new(
+                Sym->new('&say'),
+                App->new(
+                    Sym->new('&infix:</>'),
+                    App->new(
+                        Sym->new('&infix:<**>'),
+                        Val->new($_),
+                        Val->new($x),
+                    ),
+                    App->new(
+                        Sym->new('&infix:<**>'),
+                        Val->new($_),
+                        Val->new($x-1),
+                    ),
+                ),
+            ),
+        } 1 .. 10,
     ),
 );
 
@@ -295,15 +406,26 @@ my $r = Runtime->new( map { native(env => $env, %$_) }
             print $fh @_;
         }
     },
-    map {{ arity => 2, name => "&infix:<$_>", body => eval 'sub { $_[1] '.$_.' $_[2] }' }} qw/+ - ==/, do {
-        my $f = rand(1) > 0.5;
-        warn "Runtime " . ($f ? "with" : "without") . " builtin &infix:<*>";
-        ($f ? "*" : ());
+    map {{ arity => 2, name => "&infix:<$_>", body => eval 'sub { $_[1] '.$_.' $_[2] }' } || die $@} qw(+ - == <=), '<', do {
+        grep {
+            print "Implement &infix:<$_> in perl instead of the mini language? ";
+            ReadMode(3);
+            my $y = lc(ReadKey(0)) eq 'y';
+            ReadMode(0);
+            print " - " . ($y ? "compiling" : "skipping") . "...\n";
+            $y;
+        } qw(* ** /),
     }
 );
 
-print "Resulting AST: " . Dumper->reduce($r->run($env, $prog)), "\n";
-
+my $t1 = times;
+my $c = $r->compile($env, $prog);
+my $t2 = times;
+my $res  = $r->execute($c);
+my $t3 = times;
+print "Resulting AST: " . Dumper->reduce($res->val), "\n";
+printf"Run took: %.3f (%.3f compilation, %.3f execution)\n", $t3 - $t1, $t2 - $t1, $t3 - $t2;
+# this is useful to see that the unnecessary parts of the prelude weren't compiled into the code #print "Compiled AST: " . Dumper->reduce($c);
 
 package Reducer;
 
@@ -433,6 +555,10 @@ sub reduce_app {
 sub reduce_thunk {
     my $self = shift;
     my $thunk = shift;
+
+    # FIXME - ought to check if the runtime has a hash for this
+    # in the future the compiler might allow adding globals
+    # right now this is a non issue since even higher order functions get prims instead of thunks when possible
 
     my $body = $thunk->val;
 
