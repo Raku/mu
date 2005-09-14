@@ -1,12 +1,3 @@
-
-Usage tip:
- $ pugs -v
-[...] # pugs is in your path
- $ pwd
- .../perl5/PIL-Run
- $ perl -w crude_repl.pl
-
-
 Here are some things which would help move development along on the p5
 runtime.
 
@@ -19,10 +10,5 @@ write them in p6, and add them either to the perl6/Prelude.pm
 (preferred), or to PIL/Run/Root/P5Runtime/PrimP6.pm (less so), and
 comment them out in PrimP5 (with a note saying why).
 
-* MainX should load PIL/Run/Root/P5Runtime/PrimP6.pm at startup.
-
 Slightly more distant tasks:
-* Get the prelude to compile.
-* Get Test.pm to run.
 * Get the examples/eval.pm p6 read-eval-print loop to run.
-
