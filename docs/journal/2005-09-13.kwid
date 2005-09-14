@@ -1,0 +1,11 @@
+Pugs Development for (mm, dd yyyy)
+
+* PIL2JS
+
+* PIL-Run
+
+* Perl6-MetaModel
+
+Some basic work on Roles was done, and several new tests added for this. Mostly just getting the basic Role object working as expected. Next step is to do Role compositing and Role consumption by Classes.
+
+* General Pugs
