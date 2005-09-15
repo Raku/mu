@@ -53,9 +53,8 @@ sub _build_class {
     $new_class->authority($authority) if defined $authority;     
     
     if (ref($body) eq 'CODE') {
-        ::bind_CLASS($new_class);
+        local $::CLASS = $new_class;
         $body->();
-        ::unbind_CLASS();
     }
     elsif (ref($body) eq 'HASH') {
         $new_class->superclasses($body->{is}) if exists $body->{is};

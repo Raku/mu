@@ -69,94 +69,6 @@ our $DISPATCH_TRACE = 0;
     # this allows us to investigate from where the
     # call came, it is used in private methods 
     $::CALLER::CLASS = undef;
-    {
-        my (@SELF, @CLASS, @PACKAGE, @ROLE);        
-        sub ::bind_SELF_and_CLASS ($$) {
-            my ($self, $class) = @_;
-            (defined $self && defined $class)
-                || confess "Must have defined values to bind $?SELF and $?CLASS"; 
-            $::CALLER::CLASS = (@CLASS ? $CLASS[-1] : undef);               
-            push @SELF    => ($::SELF    = $self );
-            push @CLASS   => ($::CLASS   = $class);        
-            # the $?PACKAGE is the same as $?CLASS
-            push @PACKAGE => ($::PACKAGE = $class);              
-        }
-    
-        sub ::unbind_SELF_and_CLASS () { 
-            pop @SELF;    $::SELF    = (@SELF    ? $SELF[-1]    : undef);
-            pop @CLASS;   $::CLASS   = (@CLASS   ? $CLASS[-1]   : undef); 
-            pop @PACKAGE; $::PACKAGE = (@PACKAGE ? $PACKAGE[-1] : undef);
-            # NOTE:
-            # we do not bother to re-bind the $::CALLER::CLASS here
-            # because it is only used internally, and only used by
-            # the private methods so far, if we expose it to the user
-            # we will have to restore it's previous binding here           
-        }   
-        
-        # NOTE:
-        # these are used during class creation
-        # to bind $?CLASS within the class closure
-        sub ::bind_CLASS ($) {
-            my ($class) = @_;
-            (defined $class)
-                || confess "Must have a defined value to bind to $?CLASS";
-            push @CLASS => ($::CLASS = $class);   
-        } 
-        
-        sub ::unbind_CLASS () { 
-            pop @CLASS; $::CLASS = (@CLASS ? $CLASS[-1] : undef);
-        }    
-        
-        # NOTE:
-        # these are used during forcing submethods
-        # to bind $?SELF
-        sub ::bind_SELF ($) {
-            my ($self) = @_;
-            (defined $self)
-                || confess "Must have a defined value to bind to $?SELF";
-            push @SELF => ($::SELF = $self);   
-        } 
-
-        sub ::unbind_SELF () { 
-            pop @SELF; $::SELF = (@SELF ? $SELF[-1] : undef);
-        }     
-        
-        sub ::bind_ROLE ($) {
-            my ($role) = @_;
-            (defined $role)
-                || confess "Must have a defined value to bind to $?ROLE";
-            push @ROLE => ($::ROLE = $role);
-        }
-        
-        sub ::unbind_ROLE () {
-            pop @ROLE; $::ROLE = (@ROLE ? $ROLE[-1] : undef);
-        }       
-        
-        # NOTE:
-        # these are used when STORE-ing subs in a package
-        # to make sure they have $?PACKAGE in their scope
-        sub ::bind_PACKAGE ($) {
-            my ($pkg) = @_;
-            (defined $pkg)
-                || confess "Must have a defined value to bind to $?PACKAGE";
-            push @PACKAGE => ($::PACKAGE = $pkg);   
-        } 
-
-        sub ::unbind_PACKAGE () { 
-            pop @PACKAGE; $::PACKAGE = (@PACKAGE ? $PACKAGE[-1] : undef);
-        }  
-        
-        # a convience wrapper for binding/unbinding $?PACKAGE
-        sub ::wrap_package_sub {
-            my ($sub, $pkg) = @_;
-            return sub {
-                ::bind_PACKAGE($pkg);
-                my @rval = $sub->(@_);
-                ::unbind_PACKAGE();
-                return wantarray ? @rval : $rval[0];          
-            };
-        }                
-    }
 
     # these are actually two functiosn
     # which are detailed in A12 and are
@@ -223,7 +135,16 @@ our $DISPATCH_TRACE = 0;
         # DEPRECATED
         # package Perl6::ClassAttribute;        
         # @Perl6::ClassAttribute::ISA = ('Perl6::Attribute');     
-    }     
+    }  
+    
+    # a convience wrapper for binding/unbinding $?PACKAGE
+    sub ::wrap_package_sub {
+        my ($sub, $pkg) = @_;
+        return sub {
+            local $::PACKAGE = $pkg;
+            return $sub->(@_);       
+        };
+    }         
  
     ## Method primitives
     # since Perl 5 does not have method
@@ -235,10 +156,8 @@ our $DISPATCH_TRACE = 0;
         (defined $method && blessed($method) && $method->isa('Perl6::Method'))
             || confess "You can only wrap proper methods for Roles";
         return bless sub {
-            ::bind_ROLE($role);
-            my @rval = $method->(@_);
-            ::unbind_ROLE();
-            return wantarray ? @rval : $rval[0];       
+            local $::ROLE = $role;
+            return $method->(@_);       
         # NOTE:
         # we bless the new wrapper method 
         # into the same class as before 
@@ -261,15 +180,14 @@ our $DISPATCH_TRACE = 0;
         # now wrap the method once again, 
         # making sure to rebless it
         $_[0] = bless sub {
-            my $invocant = shift;
-            # NOTE: 
-            # we die if we do not have a
-            # defined invocant and a class
-            # (see bind_SELF_and_CLASS above)
-            ::bind_SELF_and_CLASS($invocant, $associated_with);
-            my @rval = $method->($invocant, @_);
-            ::unbind_SELF_and_CLASS();
-            return wantarray ? @rval : $rval[0];            
+            # bind the previous value of $?CLASS
+            local $::CALLER::CLASS = $::CLASS;
+            # get all the others
+            local $::SELF    = $_[0];
+            local $::CLASS   = $associated_with;
+            local $::PACKAGE = $associated_with;
+            # and call the method ...
+            $method->(@_);
         } => blessed($method);            
     }
 
@@ -340,10 +258,8 @@ our $DISPATCH_TRACE = 0;
             # can properly handle the forcing of method
             # calls without the use of the FORCE 
             # parameter
-            ::bind_SELF($_[0]);
-            my @rval = $method->(@_);
-            ::unbind_SELF();
-            return wantarray ? @rval : $rval[0];            
+            local $::SELF = $_[0];
+            return $method->(@_);            
         } => 'Perl6::Submethod';
     }   
     
