@@ -1,7 +1,11 @@
 Pugs Development for 9/15/2005
 
 * PIL2JS
-** ...
+** Reminded by gaal's `t/pugsbugs/value_alias_readonly.t`, iblech
+   fixed `.values` and `.kv` on hashes and arrays to return aliases. This means
+   that `%hash.kv[1]++` or `@array.kv[1]++` modifies `%hash` or `@array`
+   respectively.
+   Additionally, the tests of `.kv` and `.pairs` were appropriately improved.
 
 * PIL-Run
 ** ...

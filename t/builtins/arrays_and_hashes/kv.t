@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 25;
+plan 31;
 
 =pod
 
@@ -108,4 +108,35 @@ test4 %hash;
 for %hash.kv -> $key,$value {
     is($key, 'foo', "for(): from {+%hash}-elem {%hash.ref} \%hash got the right \$key");
     is($value, 'baz', "for(): from {+%hash}-elem {%hash.ref} \%hash got the right \$value");
+}
+
+# The things returned by .kv should be aliases
+{
+    my %hash = (:a(1), :b(2), :c(3));
+
+    lives_ok { for %hash.kv -> $key, $value is rw {
+        $value += 100;
+    } }, 'aliases returned by %hash.kv should be rw (1)';
+
+    is %hash<b>, 102, 'aliases returned by %hash.kv should be rw (2)';
+}
+
+{
+    my @array = (17, 23, 42);
+
+    lives_ok { for @array.kv -> $key, $value is rw {
+        $value += 100;
+    } }, 'aliases returned by @array.kv should be rw (1)';
+
+    is @array[1], 123, 'aliases returned by @array.kv should be rw (2)';
+}
+
+{
+    my $pair = (a => 42);
+
+    lives_ok { for $pair.kv -> $key, $value is rw {
+        $value += 100;
+    } }, 'aliases returned by $pair.kv should be rw (1)';
+
+    is $pair.value, 142, 'aliases returned by $pair.kv should be rw (2)';
 }

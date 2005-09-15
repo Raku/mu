@@ -79,7 +79,11 @@ method values (Hash|Pair|Array|Junction $self:) {
       cc(new PIL2JS.Box.Constant(junc.values));
     })')($self);
   } elsif $self.isa("Hash") {
-    $self.keys.map:{ $self{$_} };
+    # $self.keys.map:{ $self{$_} } can't work, as map returns new containers.
+    # (I think.)
+    my @res;
+    @res[+@res] := $self{$_} for $self.keys;
+    @res;
   } elsif $self.isa("Pair") {
     ($self.value,);
   } elsif $self.isa("Array") {
@@ -91,11 +95,21 @@ method values (Hash|Pair|Array|Junction $self:) {
 
 method kv (Hash|Pair|Array $self:) {
   if $self.isa("Hash") {
-    $self.keys.map:{ $_, $self{$_} };
+    my @res;
+    for $self.keys {
+        push @res, $_, undef;
+        @res[-1] := $self{$_};
+    }
+    @res;
   } elsif $self.isa("Pair") {
     ($self.key, $self.value);
   } elsif $self.isa("Array") {
-    $self.keys.map:{ $_, $self[$_] };
+    my @res;
+    for $self.keys {
+        push @res, $_, undef;
+        @res[-1] := $self[$_];
+    }
+    @res;
   } else {
     die ".kv does not work on objects of type {$self.ref}!";
   }
