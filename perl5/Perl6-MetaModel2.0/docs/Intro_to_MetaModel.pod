@@ -2,13 +2,13 @@
 
 =head1 NAME
 
-Introduction to Perl6::MetaModel prototype
+Introduction to the Perl6::MetaModel prototype
 
 =head1 DESCRIPTION
 
-This document attempts to describe the details of the usage of this prototype 
-of the Perl 6 Object Model. It does not descibe how the actually Perl 6 object 
-model will work, for that information see the F<S12.5.pod> document. 
+This document attempts to describe the details of the usage of this particular
+prototype of the Perl 6 Object Model. It does not describe how the actual 
+Perl 6 object model will work. For that information see F<S12.5.pod>. 
 
 NOTE: This document describes version 2.0 of Perl6::MetaModel only.
 
@@ -16,19 +16,19 @@ NOTE: This document describes version 2.0 of Perl6::MetaModel only.
 
 Perl6::MetaModel is a Perl 5 prototype of the Perl 6 object model based upon 
 information found in the Perl 6 Apocalypse & Synopsis documents as well as the  
-perl6-language mailing list. It is an subproject of the Pugs effort, and will 
+perl6-language mailing list. It is a subproject of the Pugs effort, and will 
 eventually be used as a guide to implementing the metamodel into the Haskell 
 Pugs core. 
 
 =head2 Why prototype in Perl 5?
 
-Perl 5, with it's very "slim" object model and extremely flexible package system, 
+Perl 5, with its very "slim" object model and extremely flexible package system, 
 is actually an excellent tool for prototyping object models. In addition to this 
 version (2.0) and the original 1.0 version, I have probably written about 10-15  
-other models, all with various levels of success and using various different  
+other models, all with varying levels of success and using various different  
 approaches. I can think of very few languages in which I would have been able to 
-accomplish some of the insane voodoo needed to perform some of the experimentation 
-needed to arrive at this 2.0 version. All hail TIMTOWTDI!
+accomplish some of the insane voodoo needed to arrive at this 2.0 version. All 
+hail TIMTOWTDI!
 
 =head2 What can I do with Perl6::MetaModel?
 
@@ -47,16 +47,16 @@ See below.
 
 =head2 A Basic Example
 
-Lets start with the Perl6::MetaModel module. This is a currently just 
+Let's start with the Perl6::MetaModel module. This is a currently just 
 a "UI" layer which makes composing objects with the meta-model easier then doing 
 it by hand. In fact, Perl6::MetaModel is all disposable code, and is not actually 
 part of the true meta-model itself. 
 
 Using Perl6::MetaModel will load all the files needed to bootstrap the meta-model, 
 so all you need to do in order to use the meta-model is put C<use Perl6::MetaModel> 
-at the top of your file, and you are ready to do. 
+at the top of your file and you are ready to go. 
 
-The first example is taken from Apocalypse 12, here is the Perl 6.
+The first example is taken from Apocalypse 12, here is the Perl 6:
 
   class Point {
       has $.x;
@@ -66,7 +66,7 @@ The first example is taken from Apocalypse 12, here is the Perl 6.
   }
   
 Now here is the equivalent Perl6::MetaModel code to do the same thing, it is 
-explained below in a line-by-line basis.
+explained below on a line-by-line basis.
 
   my $Point = class 'Point' => {
       is => [ $::Object ],
@@ -90,26 +90,26 @@ explained below in a line-by-line basis.
   };
 
 The first line declares the class using the C<class> function exported by 
-Perl6::MetaModel. It also illustrated something new about Perl 6 objects, 
+Perl6::MetaModel. It also illustrating something new about Perl 6 objects, 
 which is the existence of proper class objects. Basically every class is 
-now an instance of the class Class, more on that later though.
+now an instance of the class Class. More on that later though.
 
   my $Point = class 'Point' => {
 
-The next line sets up the superclasses for our C<$Point> class.
+The next line sets up the superclasses for our C<$Point> class:
 
       is => [ $::Object ],
       
 The default Object class can be found in the C<$::Object> variable, and 
 you will need to inherit from this. You actually don't I<need> to inherit 
-from it, but if you don't, you will need to implement a number of things 
+from it, but if you don't, you will have to implement a number of things 
 manually that Object gives you for free, so just inherit it. Eventually 
-this may be the default, but for now it is must be stated explicitly.
+this may be the default, but for now it must be stated explicitly.
 
 The next line declares the attributes which will be stored within the 
 opaque instance type. Since the meta-model does not yet support 
 auto-generated accessors and mutators, the C<is rw> trait from the Perl 6 
-example is not needed here.
+example is not needed here:
 
       attributes => [ '$.x', '$.y' ],
 
@@ -117,7 +117,7 @@ The next several lines are the method of our new class. As i said above,
 we do not yet support auto-generated accessors for the attributes, so 
 you will need to implement these yourself. Getting at attributes within 
 the opaque instance is accomplished using the minimally named C<_> 
-function. Lets examine how C<Point::y> is implemented to see it's usage.
+function. Let's examine how C<Point::y> is implemented to see its usage:
 
   'y' => sub {
       shift;
@@ -125,10 +125,10 @@ function. Lets examine how C<Point::y> is implemented to see it's usage.
       _('$.y');
   },
 
-The rationale behing using C<_> as a function name is so that the syntax  
-would be as minimally invasive as possible. After all the Perl 6 equivilant 
-looks like basic variable accessors. Of course, this is not how things will 
-be in the real Perl 6 Meta-model, it is mearly syntactic-sugar for this 
+The rationale behind using C<_> as a function name is so that the syntax  
+would be as minimally invasive as possible. After all, the Perl 6 equivalent 
+looks like a basic variable accessor. Of course, this is not how things will 
+be in the real Perl 6 Meta-model, it is mearly syntactic sugar for this 
 prototype.
 
 Anyway, the C<_> function either takes the name of the attribute as a string 
@@ -146,9 +146,9 @@ Will look like this in the meta-model:
 
   push @{_('@.foo')} => "Foo";
 
-Kinda ugly I know, but Perl 6 deferencing is very different from Perl 5, so  
-to deal with and potentially implement that in the meta-model was just not  
-appropriate.
+Kinda ugly, I know, but Perl 6 dereferencing is very different from Perl 5, so  
+it was just not appropriate to deal with and potentially implement that in the 
+meta-model.
 
 Okay, so we pretty much have our Point class now. Now it's time to actually 
 use it. Here is the rest of the Perl 6 code from the A12 example:
@@ -175,9 +175,9 @@ And here is how it looks with the meta-model:
                       
   $point->clear;      # reset to 0,0
   
-As you can see the code is pretty much the same, the most signifigant changes 
+As you can see, the code is pretty much the same. The most signifigant changes 
 are the use of the twigils in the named parameters to C<Point::new> and the lack 
-of l-value methods. 
+of lvalue methods. 
 
 Now, the A12 example continues on with a subclass, which looks like this:
 
@@ -202,41 +202,41 @@ The meta-model version of this is fairly straightforward, and looks like this:
 I will only outline the new things here. Just as we do not have auto-generated 
 accessors, we also do not have default values for attributes yet, so we just punt 
 on that part of the Perl 6 version. It could be simulated with a custom C<BUILD>  
-submethod, and will leave that as an exercise for the reader :).
+submethod. That will be left as an exercise for the reader :).
 
 The C<clear> method makes use of the "next METHOD" concept found in Perl 6. Some 
 may look and say this could have easily been a C<SUPER::> call. However, under 
-multiple inheritence, C<SUPER::> can be ambigious. Perl 6 (and the meta-model) 
-also use a proper MRO, or Method Resolution Order. This means we do not look for 
-a method using depth-first left-to-right traversal as in Perl 5, but instead we 
-use a linearized list of subclasses to find the proper "next" method to call. 
-More information on MROs and C3 in particular can be found by googling "C3 MRO" 
-and following any of the first few links. 
+multiple inheritance, C<SUPER::> can be ambigious. Perl 6 (and the meta-model) 
+also uses a proper Method Resolution Order, or MRO, known as "C3". This means we 
+do not look for a method using depth-first left-to-right traversal as in Perl 5,
+but instead we use a linearized list of subclasses to find the proper "next" 
+method to call. More information on MROs and C3 in particular can be found by 
+googling "C3 MRO" and following any of the first few links. 
 
 The result of the C<next_METHOD()> call is that C<Point::clear> is executed with 
 the exact same arguments that C<Point3D::clear> was executed with. You do not need 
 to pass C<@_> explicitly. 
 
-Now lets see how the Perl 6 and the meta-model's usages differ, here is the Perl 6:
+Now lets see how the Perl 6 and the meta-model's usages differ. Here is the Perl 6:
 
   my $point3d = Point3d.new(x => 2, y => 3, z => 4);
   $c = $point3d.z;    # illegal, $:z is invisible 
 
-And here is the meta-model.
+And here is the meta-model:
   
   my $point3d = $Point3d->new('$.x' => 2, '$.y' => 3, '$:z' => 4);
   $c = $point3d->z;    # illegal, $:z is invisible   
 
 The most obvious thing here is that Perl 6 and the meta-model both automatically 
-inherit an object's attributes. This is a refreshing change over Perl 5, which forced
-you to do this manually. 
+inherit an object's attributes. This is a refreshing change over Perl 5, which 
+forced you to do this manually. 
 
 =head2 More Examples
 
 The above example was quite simple, however it illustrated many of the basic 
 elements of how classes are created in the meta-model. This next set of examples  
 will be less complete, but will attempt to illustrate some of the more advanced 
-elements of the meta-model.
+features of the meta-model.
 
 =head3 BUILD & DESTROY
 
@@ -245,10 +245,10 @@ destruction using the same order as the MRO (method resolution order). This mean
 that your classes will be built in the proper order, with attributes in subclasses 
 properly shadowing those in superclasses. Since it uses the MRO, this also means 
 that each attribute will be initialized exactly once. The same, of course, applies 
-for destruction. This is accomplished because of the methods C<BUILDALL> and 
-C<DESTROYALL> which are automatically called during object creation and destruction, 
-and will themselved call C<BUILD> and C<DESTORY> on each class in an object's 
-inheritence chain. 
+for destruction. This is accomplished because the methods C<BUILDALL> and 
+C<DESTROYALL> are automatically called during object creation and destruction, 
+and will themselves call C<BUILD> and C<DESTROY> on each class in an object's 
+inheritance chain. 
 
 In the meta-model C<BUILD> and C<DESTROY> look like this:
 
@@ -267,18 +267,18 @@ In the meta-model C<BUILD> and C<DESTROY> look like this:
   {
       my $foo = $Foo->new(); # <- BUILDALL is called here ..
   }
-  # <- DESTORYALL is call here when the object is out of scope
+  # <- DESTROYALL is call here when the object is out of scope
 
-For more detailed examples see the following tests in the test suite;
+For more detailed examples see the following tests in the test suite:
 F<t/15_submethods.t>, F<t/16_DESTROY.t>.
   
 =head3 $?SELF, $?CLASS and other "magicals"
 
-Perl 6 offer a "magical" variables which contain a method's invocant as well
-as the class in which the method came from. The meta-model offers this feature 
+Perl 6 offers "magical" variables which contain a method's invocant as well
+as the class from which the method came. The meta-model offers this feature 
 as well. The syntax is slightly different, instead of the C<$?> twigil, the 
 variables are in the top level Perl 5 namespace and referenced with a leading
-C<$::> instead. Their usage is pretty much the same though, here are some examples:
+C<$::>. Their usage is pretty much the same though, here are some examples:
 
   my $Bar = class 'Bar' => {
       is => [ $::Object ],
@@ -289,8 +289,8 @@ C<$::> instead. Their usage is pretty much the same though, here are some exampl
       }  
   };
   
-Roles (which are currently not fully supported yet), will also make available 
-the C<$::ROLE> variable (spelt C<$?ROLE> in Perl 6). This will be valid within 
+Roles (which are not fully supported yet), will also make available the 
+C<$::ROLE> variable (spelled C<$?ROLE> in Perl 6). This will be valid within 
 the context of all functions defined inside a Role. 
 
 In addition to method context, the C<$::CLASS> magical is also available 
@@ -305,15 +305,16 @@ exported by Perl6::MetaModel. Here is an example of that usage:
   };
 
 In this form, the class body is a closure, and in this example, the value 
-of C<$::CLASS> is actually the same eventually bound to C<$Bar>. This is an 
-experimental option to explore the idea of programatic class creation using
-the Class instances rather than symbol table manipulation (like in Perl 5).
+of C<$::CLASS> is actually the same as that eventually bound to C<$Bar>. This 
+is an experimental option to explore the idea of programmatic class creation 
+using the Class instances rather than symbol table manipulation (like in 
+Perl 5).
 
 =head3 next METHOD
 
-As mention earlier, C<SUPER::> is ambigious in the context of multiple 
+As mentioned earlier, C<SUPER::> is ambigious in the context of multiple 
 inheritance, since an object can have multiple superclasses. The usual approach 
-is to just take the first in the list, and proceed depth-first, left-to-right
+is just to take the first in the list, and proceed depth-first, left-to-right
 on down the superclass tree. However, this is not ideal and frought with issues.
 
 The meta-model implements this syntax with the C<next_METHOD> function, which 
@@ -325,13 +326,13 @@ and is shown quite simply in the F<t/12_next_METHOD.t> test file.
 
 In the meta-model, private methods are any methods prefixed by an underscore. 
 These methods are actually in a seperate method table from the other methods, 
-and can only be called from within the class they are defined. 
+and can only be called from within the class where they are defined. 
 
 =head3 Class methods
 
-Class methods need to be called in a special way, this is because class objects
+Class methods need to be called in a special way. This is because class objects
 are themselves instances of Class, so naturally they respond to methods of Class.
-They are also defined differently, here is a basic example:
+They are also defined differently. Here is a basic example:
 
   my $Foo = class 'Foo' => {
       is => [ $::Object ],
@@ -343,14 +344,14 @@ They are also defined differently, here is a basic example:
   # they are then called like this...
   $Foo->class::foo();
 
-This syntax is inconvient at best, but I currently cannot figure out a better 
+This syntax is inconvenient at best, but I currently cannot figure out a better 
 approach. Suggestions are welcome :)
 
 =head3 Class attributes
 
 Class level attributes are implemented as package level variables and stashed
 in the package namespace. Since Class is-a Package in the metamodel, this is 
-easily accomplished using the (not yet mentioned) Package accessing API. Which
+easily accomplished using the (not yet mentioned) Package accessing API, which
 is a very simple C<FETCH> and C<STORE>. For a good example of this usage, see
 the test F<t/25_example_People_Employee.t>.
 
@@ -365,8 +366,8 @@ the name argument for C<class>, like this:
       methods => { foo => sub { 'Anon Foo' }}
   };
 
-Anonymous are just like any other classes, they can even be subclassed if you 
-like. 
+Anonymous classes are just like any other classes. They can even be subclassed 
+if you like. 
 
 =head2 Meta Examples
 
@@ -391,7 +392,7 @@ line of code?
 At this point, I<every> object instance in the system will now respond to the 
 C<hello_world> method.
 
-NOTE: Since Perl 5 does not have native a method type, we must create our own, 
+NOTE: Since Perl 5 does not have a native method type, we must create our own, 
 this is the responsibiltiy of the C<::make_method> function used above. There is
 also C<::make_submethod>, C<::make_class_method> and C<::make_private_method>
 functions available to make each different 'type' of method.
@@ -401,8 +402,8 @@ functions available to make each different 'type' of method.
 In addition to adding methods, you can also interrogate a class as to what methods
 it supports. It should be noted that the Perl 5 C<can> does not work as you might 
 expect on Class objects. In that context, C<can> will tell you what methods Class
-responds too. If you are looking for methods a class instance supports, you can use
-the C<has_method> method. This will only check locally defined methods, and not 
+responds to. If you are looking for the methods a class instance supports, you 
+can use the C<has_method> method. This will only check locally defined methods, and not 
 attempt to check for inherited methods. 
 
 By default C<has_method> will look for instance methods. You can also specify 
@@ -414,7 +415,7 @@ by passing a second pair argument to C<has_method> like this:
 
 =head3 Changing superclass relationships
 
-Changing inheritence relationships at runtime is almost never a good idea. However,
+Changing inheritance relationships at runtime is almost never a good idea. However,
 following Perl's idea of "it is open unless explicitly closed", it is possible to
 do just this. Here is how you do it with the meta-model:
 
@@ -422,7 +423,7 @@ do just this. Here is how you do it with the meta-model:
  
 This will force a recalculation of the MRO (method resolution order), however the
 overall impact of an operation like this on a running system is an "undefined" 
-behavior. Which basically means, "it's your problem now" :)
+behavior. Which basically means, "it's your problem now". :)
 
 NOTE: This does B<not> add elements to the superclass list, it will always 
 overwrite the existing list.

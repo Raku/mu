@@ -12,9 +12,9 @@ our $DISPATCH_TRACE = 0;
 
 {   ## Opaque instances     
     # These functions build opaque instance
-    # variables and acces their internal data
-    # this is basically the implementation of
-    # the p6opaque canidate as described in A12 
+    # variables and access their internal data.
+    # This is basically the implementation of
+    # the p6opaque candidate as described in A12 
     
     # Every instance should have a unique ID
     my $GLOBAL_INSTANCE_COUNT = 0;
@@ -70,7 +70,7 @@ our $DISPATCH_TRACE = 0;
     # call came, it is used in private methods 
     $::CALLER::CLASS = undef;
 
-    # these are actually two functiosn
+    # these are actually two functions
     # which are detailed in A12 and are
     # called 'iterators', they basically
     # are ways to walk a dispatcher() 
@@ -98,7 +98,7 @@ our $DISPATCH_TRACE = 0;
         return $dispatcher->();        
     }
  
-    ## Attribute Primatives
+    ## Attribute Primitives
     # this is kind of a hack currently ..
     
     sub ::make_attribute ($) {
@@ -137,7 +137,7 @@ our $DISPATCH_TRACE = 0;
         # @Perl6::ClassAttribute::ISA = ('Perl6::Attribute');     
     }  
     
-    # a convience wrapper for binding/unbinding $?PACKAGE
+    # a convenience wrapper for binding/unbinding $?PACKAGE
     sub ::wrap_package_sub {
         my ($sub, $pkg) = @_;
         return sub {
@@ -148,9 +148,9 @@ our $DISPATCH_TRACE = 0;
  
     ## Method primitives
     # since Perl 5 does not have method
-    # primatives, we have to make them.
+    # primitives, we have to make them.
     
-    # a convience wrapper for binding/unbinding $?ROLE
+    # a convenience wrapper for binding/unbinding $?ROLE
     sub ::wrap_role_method {
         my ($method, $role) = @_;
         (defined $method && blessed($method) && $method->isa('Perl6::Method'))
@@ -237,7 +237,7 @@ our $DISPATCH_TRACE = 0;
     # implicit:
     #    next METHOD unless $?SELF.class =:= $?CLASS
     # in it. Submethods are also special in that
-    # this implcit test can be overridden.
+    # this implicit test can be overridden.
     sub ::make_submethod ($) {
         my ($method) = @_;
         (defined $method && ref($method) eq 'CODE')
@@ -406,7 +406,7 @@ our $DISPATCH_TRACE = 0;
             # call the method
             @return_value = $method->($self, @{$args});     
             # we can dispose of the dispatcher state
-            # as it  should never be called outside of 
+            # as it should never be called outside of 
             # a method invocation
             pop @DISPATCHER;
         }
