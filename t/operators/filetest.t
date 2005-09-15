@@ -22,10 +22,10 @@ if $*OS eq "browser" {
 }
 
 # Basic tests
-ok -d 't',    "-d returns true on directories";
+ok -d 't',            "-d returns true on directories";
 ok -f $*PROGRAM_NAME, "-f returns true on files";
 ok -e $*PROGRAM_NAME, "-e returns true on files";
-ok -e 't',    "-e returns true on directories";
+ok -e 't',            "-e returns true on directories";
 ok -r $*PROGRAM_NAME, "-r returns true on readable files";
 ok -w $*PROGRAM_NAME, "-w returns true on writable files";
 
@@ -84,7 +84,7 @@ unlink "empty_file";
 # Stacked filetests
 # L<A03/"RFC 320: Allow grouping of -X file tests and add filetest builtin">
 ok -e -d -r "t",               "stacking of filetest operators (1)";
-ok -e -f -r -w $*PROGRAM_NAME,         "stacking of filetest operators (2)";
+ok -e -f -r -w $*PROGRAM_NAME, "stacking of filetest operators (2)";
 ok !-e -f -r "doesnotexist.t", "stacking of filetest operators (3)";
 # This one should return false *all the time* (-f and -d are mutually
 # exclusive):
