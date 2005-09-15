@@ -11,9 +11,15 @@ Pugs Development for 9/15/2005
 
 * General Pugs
 
-cperl6-mode: Many new keywords/builtins, much better indentation,
+cperl6-mode (Perl code editing commands for (X)Emacs): 
+Many new keywords/builtins, much better indentation,
 better working of parameterized rx// modifiers, highlighting of sub
 prototypes, non-parenthesized conditions for most statements, more
 Perl6'ish sigil interpretation, dedicated "Pugs" style for pugs::hack
 code conventions.
 
+nothingmuch checked in the experimental "Blondie" language
+(perl5/Blondie). Blondie is a dumb intermediate language and a compiler collection for
+the purpose of demonstrating an approach to compilation. 
+It has no syntax, only an abstract syntax tree, and some very simple
+operations.
