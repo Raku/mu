@@ -9,7 +9,7 @@ Testing array slices.
 
 =cut
 
-plan 13;
+plan 19;
 
 {   my @array = (3,7,9);
 
@@ -32,6 +32,31 @@ plan 13;
     is ~(@slice = <A B C D>), "A B",
         "assigning a slice too many items yields a correct return value",
         :todo<bug>;
+}
+
+# Binding on array slices
+{   my @array = <a b c d>;
+
+    try { @array[1, 2] := <B C> };
+    is ~@array, "a B C d", "binding array slices works (1)";
+}
+
+{   my @array = <a b c d>;
+    my $foo   = "B";
+    my $bar   = "C";
+
+    try { @array[1, 2] := ($foo, $bar) };
+    is ~@array, "a B C d", "binding array slices works (2)";
+
+    $foo = "BB";
+    $bar = "CC";
+    is ~@array, "a BB CC d", "binding array slices works (3)";
+
+    @array[1] = "BBB";
+    @array[2] = "CCC";
+    is ~@array, "a BBB CCC d", "binding array slices works (4)";
+    is $foo,    "BBB",         "binding array slices works (5)";
+    is $bar,    "CCC",         "binding array slices works (6)";
 }
 
 # Slices on array literals

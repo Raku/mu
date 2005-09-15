@@ -9,7 +9,7 @@ Testing hash slices.
 
 =cut
 
-plan 13;
+plan 23;
 
 {   my %hash = (1=>2,3=>4,5=>6);
     my @s=(2,4,6);
@@ -51,6 +51,35 @@ Quoting Larry:
   Well, conservatively, we don't have to make it work yet.
 =cut
 
+}
+
+# Binding on hash slices
+{   my %hash = (:a<foo>, :b<bar>, :c<baz>);
+
+    try { %hash<a b> := <FOO BAR> };
+    is %hash<a>, "FOO", "binding hash slices works (1)";
+    is %hash<b>, "BAR", "binding hash slices works (2)";
+}
+
+{   my %hash = (:a<foo>, :b<bar>, :c<baz>);
+    my $foo  = "FOO";
+    my $bar  = "BAR";
+
+    try { %hash<a b> := ($foo, $bar) };
+    is %hash<a>, "FOO", "binding hash slices works (3)";
+    is %hash<b>, "BAR", "binding hash slices works (4)";
+
+    $foo = "BB";
+    $bar = "CC";
+    is %hash<a>, "BB", "binding hash slices works (5)";
+    is %hash<b>, "CC", "binding hash slices works (6)";
+
+    %hash<a> = "BBB";
+    %hash<b> = "CCC";
+    is %hash<a>, "BBB", "binding hash slices works (7)";
+    is %hash<b>, "BCC", "binding hash slices works (8)";
+    is $foo,     "BBB", "binding hash slices works (9)";
+    is $bar,     "CCC", "binding hash slices works (10)";
 }
 
 # Calculated slices
