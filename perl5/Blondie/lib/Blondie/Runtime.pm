@@ -47,13 +47,24 @@ __END__
 
 =head1 NAME
 
-Blondie::Runtime - 
+Blondie::Runtime - Base class for execution system (compiler + interpreter or equivalent).
 
 =head1 SYNOPSIS
 
-    use Blondie::Runtime;
+    use Blondie::Backend::Foo; # is-a Blondie::Runtime
+
+    my $compiled = Blondie::Backend::Foo->compile($program);
+    my $result = Blondie::Backend::Foo->execute($compiled);
+
+    my $same_result = Blondie::Backend::Foo->run($program);
 
 =head1 DESCRIPTION
+
+The runtime object is responsible for providing the compiler with replacement
+data for stubs and other thingies.
+
+It also gives the compiler the default environment to work with (from
+L<Blondie::Prelude>), and provides an easy interface for executing ASTs.
 
 =cut
 

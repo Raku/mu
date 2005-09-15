@@ -49,13 +49,18 @@ __END__
 
 =head1 NAME
 
-Blondie::Backend::Perl - 
+Blondie::Backend::Perl - an interpreting backend for Blondie ASTs
 
 =head1 SYNOPSIS
 
     use Blondie::Backend::Perl;
 
 =head1 DESCRIPTION
+
+L<Blondie::Backend::Perl::Interpreter> contains the tree reduction code.
+
+L<Blondie::Backend::Perl::Builtins> contains the builtin operations and values
+that replace prelude nodes.
 
 =cut
 

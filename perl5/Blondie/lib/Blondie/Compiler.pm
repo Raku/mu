@@ -114,13 +114,46 @@ __END__
 
 =head1 NAME
 
-Blondie::Compiler - 
+Blondie::Compiler - the base compiler for Blondie ASTs
 
 =head1 SYNOPSIS
 
     use Blondie::Compiler;
 
+    my $c = Blondie::Compiler->new;
+    $c->compile($runtime, $env, $program);
+
+    # or more conveniently
+
+    my $r = Blondie::Backend::Foo->new;
+    my $compiled = $r->compile($program);
+
 =head1 DESCRIPTION
+
+The compiler reduces an AST into an executable program. This process has three
+main aspects:
+
+=over 4
+
+=item *
+
+Resolving compile time resolvable symbols into values
+
+=item *
+
+Replacing all values which the runtime provides builtins for with the replacement nodes
+
+=item *
+
+Ensuring that there is no crap in the AST - no calls to stubs and no inexistant symbols
+
+=back
+
+The compiler inherits L<Blondie::Reducer> in order to traverse the node
+structure. The only dirty part is C<reduce_sym> which must handle recursive calls.
+
+The compiler inherits L<Blondie::Recducer::DynamicScoping> to assist in the
+verification of paramter symbol resolution.
 
 =cut
 

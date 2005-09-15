@@ -36,13 +36,17 @@ __END__
 
 =head1 NAME
 
-Blondie::Prelude - 
+Blondie::Prelude - Aggregator of builtin functions for Blondie runtimes
 
 =head1 SYNOPSIS
 
     use Blondie::Prelude;
 
 =head1 DESCRIPTION
+
+The prelude is essentially a reference implementation of all the things the
+language must provide, including stuff for what cannot have a reference
+implementation but is builtin anyway.
 
 =cut
 

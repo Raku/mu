@@ -21,7 +21,7 @@ __END__
 
 =head1 NAME
 
-Blondie::Prelude::Strings - 
+Blondie::Prelude::Strings - String related builtins
 
 =head1 SYNOPSIS
 

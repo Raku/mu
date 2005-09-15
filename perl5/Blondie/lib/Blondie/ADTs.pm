@@ -121,6 +121,8 @@ more objects.
 
 They provide stringification, fmapping and value encapsulation features.
 
+They are discussed in the main L<Blondie> documentation.
+
 =cut
 
 

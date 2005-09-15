@@ -97,7 +97,7 @@ sub constructor {
     my $node = shift;
 
     my $class = ref $node;
-    if ($class =~ /^Blondie::(\w+)$/){
+    if ($class =~ /^Blondie::(\w+)$/ and Blondie::Nodes->can($1)){
         return $1
     } else {
         return $class . "->new"

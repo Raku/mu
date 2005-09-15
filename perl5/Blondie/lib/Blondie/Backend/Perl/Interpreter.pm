@@ -136,6 +136,9 @@ Blondie::Backend::Perl::Interpreter - A perl interpreter for compiled Blondie pr
 
 =head1 DESCRIPTION
 
+This is a subclass of L<Blondie::Reducere> that performs the actions denoted by
+the AST, ultimately flattenning the tree down to a single value.
+
 =cut
 
 

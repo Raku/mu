@@ -109,19 +109,6 @@ mk_constructors();
     use base qw/Blondie::Node::Unit/;
 }
 
-=begin comment
-    package Blondie::Env;
-    use base 'Blondie::Node::Map';
-
-    package Prim;
-    use base qw/Map/;
-
-    package Placeholder;
-    use base 'Val';
-    sub set { ${ $_[0] } = $_[1]; bless $_[0], "Val" }
-
-=cut
-
 __PACKAGE__;
 
 __END__
@@ -130,11 +117,13 @@ __END__
 
 =head1 NAME
 
-Blondie::Nodes - 
+Blondie::Nodes - Basic AST nodes
 
 =head1 SYNOPSIS
 
     use Blondie::Nodes;
+
+    Val(1); # a node
 
 =head1 DESCRIPTION
 
@@ -142,7 +131,8 @@ see L<Blondie> for a documentation of the node types
 
 =head1 EXPORTS
 
-For eaxch 
+For eacn node type a function named for it's class (without the prefix) is
+exported. This is very convenient for constructing trees and helps readability.
 
 =cut
 

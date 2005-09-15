@@ -36,7 +36,7 @@ __END__
 
 =head1 NAME
 
-Blondie::Prelude::IO - 
+Blondie::Prelude::IO - IO related builtins
 
 =head1 SYNOPSIS
 

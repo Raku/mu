@@ -35,11 +35,15 @@ __END__
 
 =head1 NAME
 
-Blondie::Backend::Perl::Silly - 
+Blondie::Backend::Perl::Silly - a subclass of the perl backend that
+conditionally excludes some builtin operators to demonstrate dynamicity.
 
 =head1 SYNOPSIS
 
-    use Blondie::Backend::Perl::Silly;
+    use Blondie::Backend::Perl::Silly; # prompts
+
+    Blondie::Backend::Perl::Silly->new; # might or might not have some builtins
+                                        # instead of prelude functions
 
 =head1 DESCRIPTION
 

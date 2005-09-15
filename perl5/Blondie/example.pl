@@ -39,8 +39,6 @@ my $prog = Seq(
 
 my $t1 = times;
 my $c = $r->compile($prog);
-
-
 my $t2 = times;
 my $res  = $r->execute($c);
 my $t3 = times;
@@ -49,5 +47,7 @@ my $pretty = Blondie::Emitter::Pretty->new;
 
 print "Resulting AST: " . $pretty->string($res), "\n";
 printf "Total time: %.3f seconds (%.3f compilation, %.3f execution)\n", $t3 - $t1, $t2 - $t1, $t3 - $t2;
+
+# print "Compiled: " . $pretty->string($c);
 
 

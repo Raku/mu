@@ -81,13 +81,16 @@ __END__
 
 =head1 NAME
 
-Blondie::Backend::Perl::Builtins - 
+Blondie::Backend::Perl::Builtins - table of prelude replacement relevant to the perl backend
 
 =head1 SYNOPSIS
 
     use Blondie::Backend::Perl::Builtins;
 
 =head1 DESCRIPTION
+
+This file bridges between perl and Blondie, by providing implementations of
+some math, string and IO operations (including a value for $*OUT).
 
 =cut
 

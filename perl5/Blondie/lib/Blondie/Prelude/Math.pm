@@ -131,7 +131,7 @@ __END__
 
 =head1 NAME
 
-Blondie::Prelude::Math - 
+Blondie::Prelude::Math - Math related builtins
 
 =head1 SYNOPSIS
 
