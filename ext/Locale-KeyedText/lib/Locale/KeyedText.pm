@@ -101,7 +101,7 @@ method translate_message( $translator: Locale::KeyedText::Message $message is rw
     my Str $text = undef;
     for $translator.tmpl_mem_nms.map:{ $translator.tmpl_set_nms »~« $_ } -> $template_module_name {
         try {
-            unless( 0 ) { # TODO: the class is already loaded
+            if( 1 ) { # TODO: "if !$package_is_loaded"
                 my $mod_to_req = $template_module_name;
                 $mod_to_req ~~ s:perl5:g/::/\//; # this version only needs Pugs
 #               $mod_to_req ~~ s:g/::/\//; # this version requires PGE/Parrot
@@ -147,10 +147,10 @@ method as_string( $translator: ) returns Str {
 ######################################################################
 ######################################################################
 
-class Locale::KeyedText-1.6.1 { # based on 5v1.6.1
+class Locale::KeyedText-1.6.2 { # based on 5v1.6.2
     # could be a 'module' having 'sub' instead, since has no attributes
 
-    # I *should* be able to declare this class above other classes, but can't for 
+    # I *should* be able to declare this class above other classes, but can't for
     # now because my new() aren't invoked then under current Pugs; it is a Pugs bug.
 
 ######################################################################
@@ -176,7 +176,7 @@ Locale::KeyedText - Refer to user messages in programs by keys
 
 =head1 VERSION
 
-This document describes Locale::KeyedText version 1.6.1.
+This document describes Locale::KeyedText version 1.6.2.
 
 =head1 SYNOPSIS
 
@@ -186,7 +186,7 @@ This document describes Locale::KeyedText version 1.6.1.
 
     sub main() {
         # Create a translator.
-        my $translator = Locale::KeyedText.new_translator( 
+        my $translator = Locale::KeyedText.new_translator(
             ['MyLib::Lang::', 'MyApp::Lang::'],  # set package prefixes for localized app components
             ['Eng', 'Fr', 'De', 'Esp']           # set list of available languages in order of preference
         );
@@ -208,7 +208,7 @@ This document describes Locale::KeyedText version 1.6.1.
 
         # This will print '<FIRST> plus <SECOND> equals <RESULT>' in the first possible language.
         # For example, if the user inputs '3' and '4', it the output will be '3 plus 4 equals 7'.
-        print $translator.translate_message( Locale::KeyedText.new_message( 'MYLIB_RESULT', 
+        print $translator.translate_message( Locale::KeyedText.new_message( 'MYLIB_RESULT',
             { 'FIRST' => $first, 'SECOND' => $second, 'RESULT' => $sum } ) );
     }
 
@@ -290,7 +290,7 @@ mapped to a user-readable message at some point.  For example, Oracle
 databases often have error codes in a format like 'ORA-03542'.  These codes
 are "machine readable"; any application receiving such a code can identify
 it easily in its conditional logic, using a simple 'equals', and then the
-application can "do the right thing".  No parsing or ambiguity involved. 
+application can "do the right thing".  No parsing or ambiguity involved.
 By contrast, if a program simply returned words for the user, such as
 'error opening file', programs would have a harder time figuring out the
 best way to deal with it.  But for displaying to users, easy messages are
@@ -433,7 +433,7 @@ undefined.
 =head1 TEMPLATE OBJECT PROPERTIES
 
 Locale::KeyedText doesn't define any "Template" objects, but it expects you
-to make modules having a specific simple API that will serve their role. 
+to make modules having a specific simple API that will serve their role.
 See the SYNOPSIS POD for examples of valid Template modules.
 
 A Template module is very simple, consisting mainly of a data-stuffed hash
@@ -481,7 +481,7 @@ else, such as XML or tab-delimited plain text files.>
 
 =head1 TRANSLATOR OBJECT PROPERTIES
 
-Another object type that this module implements is the B<Translator>. 
+Another object type that this module implements is the B<Translator>.
 While it stores some properties for configuration, its main purpose is to
 convert Message objects on demand into user-readable message strings, using
 data from external Template objects as a template.
@@ -497,7 +497,7 @@ Set Name.  When we have to translate a message, the corresponding Template
 modules will be searched in the order they appear in this array until a
 match for that message is found.  Since a program or library may wish to
 override the user text of another library which it uses, the Template
-module for the program or first library should appear first in the array. 
+module for the program or first library should appear first in the array.
 This property is analogous to Perl's @ISA package variable.
 
 =item
@@ -524,14 +524,14 @@ convenience.
 
 =head2 new_message( MSG_KEY[, MSG_VARS] )
 
-    my $message = Locale::KeyedText.new_message( 'INVALID_FOO_ARG', 
+    my $message = Locale::KeyedText.new_message( 'INVALID_FOO_ARG',
         { 'ARG_NAME' => 'BAR', 'GIVEN_VAL' => $bar_value } );
 
 This function wraps Locale::KeyedText::Message.new( MSG_KEY[, MSG_VARS] ).
 
 =head2 new_translator( SET_NAMES, MEMBER_NAMES )
 
-    my $translator = Locale::KeyedText.new_translator( 
+    my $translator = Locale::KeyedText.new_translator(
         ['Foo::L::','Bar::L::'], ['Eng', 'Fre', 'Ger'] );
 
 This function wraps Locale::KeyedText::Translator.new( SET_NAMES,
@@ -545,10 +545,10 @@ class name or an existing Message object, with the same result.
 =head2 new( MSG_KEY[, MSG_VARS] )
 
     my $message = Locale::KeyedText::Message.new( 'FOO_GOT_NO_ARGS' );
-    my $message2 = Locale::KeyedText::Message.new( 'INVALID_FOO_ARG', 
+    my $message2 = Locale::KeyedText::Message.new( 'INVALID_FOO_ARG',
         { 'ARG_NAME' => 'BAR', 'GIVEN_VAL' => $bar_value } );
     my $message3 = $message.new( 'TABLE_NO_EXIST', { 'GIVEN_TABLE_NAME' => $table_name } );
-    my $message4 = Locale::KeyedText::Message.new( 'TABLE_COL_NO_EXIST', 
+    my $message4 = Locale::KeyedText::Message.new( 'TABLE_COL_NO_EXIST',
         { 'GIVEN_TABLE_NAME' => $table_name, 'GIVEN_COL_NAME' => $col_name } );
 
 This function creates a new Locale::KeyedText::Message object and returns
@@ -589,7 +589,7 @@ class name or an existing Translator object, with the same result.
 
 =head2 new_translator( SET_NAMES, MEMBER_NAMES )
 
-    my $translator = Locale::KeyedText::Translator.new( 
+    my $translator = Locale::KeyedText::Translator.new(
         ['Foo::L::','Bar::L::'], ['Eng', 'Fre', 'Ger'] );
     my $translator2 = $translator.new( 'Foo::L::', 'Eng' );
 
@@ -659,7 +659,7 @@ Content of shared library file 'MyLib.pm':
 
     sub my_invert( Str $number ) returns Num {
         $number.defined or throw Locale::KeyedText.new_message( 'MYLIB_MYINV_NO_ARG' );
-        $number ~~ m/\d/ or throw Locale::KeyedText.new_message( 
+        $number ~~ m/\d/ or throw Locale::KeyedText.new_message(
             'MYLIB_MYINV_BAD_ARG', { 'GIVEN_VALUE' => $number } );
         $number == 0 and throw Locale::KeyedText.new_message( 'MYLIB_MYINV_RES_INF' );
         return 1 / $number;
@@ -693,7 +693,7 @@ Content of main program 'MyApp.pl':
     main( grep { $_ ~~ m/^<[a-zA-Z]>+$/ } @*ARGS ); # user indicates language as command line argument
 
     sub main( Str ?@user_lang_prefs = 'Eng' ) {
-        my Locale::KeyedText::Translator $translator = Locale::KeyedText.new_translator( 
+        my Locale::KeyedText::Translator $translator = Locale::KeyedText.new_translator(
             ['MyApp::L::', 'MyLib::L::'], @user_lang_prefs );
         show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_HELLO' ) );
         LOOP: {
@@ -702,7 +702,7 @@ Content of main program 'MyApp.pl':
             $user_input or last LOOP; # user chose to exit program
             try {
                 my Num $result = MyLib.my_invert( $user_input );
-                show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_RESULT', 
+                show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_RESULT',
                     { 'ORIGINAL' => $user_input, 'INVERTED' => $result } ) );
                 CATCH {
                     show_message( $translator, $! ); # input error, detected by library
@@ -715,8 +715,8 @@ Content of main program 'MyApp.pl':
 
     sub show_message( Locale::KeyedText::Translator $translator, Locale::KeyedText::Message $message ) returns Str {
         my Str $user_text = $translator.translate_message( $message );
-        unless( $user_text ) {
-            print $*ERR "internal error: can't find user text for a message: \n"~
+        if( !$user_text ) {
+            print $*ERR "internal error: can't find user text for a message:\n"~
                 "   "~$message.as_string()~"\n"~
                 "   "~$translator.as_string()~"\n";
             exit;
@@ -789,7 +789,7 @@ Content of shared library file 'MyLib.pm':
         use Locale::KeyedText;
         sub my_invert( Str $number ) returns Num {
             $number.defined or throw Locale::KeyedText.new_message( 'MYLIB_MYINV_NO_ARG' );
-            $number ~~ m/\d/ or throw Locale::KeyedText.new_message( 
+            $number ~~ m/\d/ or throw Locale::KeyedText.new_message(
                 'MYLIB_MYINV_BAD_ARG', { 'GIVEN_VALUE' => $number } );
             $number == 0 and throw Locale::KeyedText.new_message( 'MYLIB_MYINV_RES_INF' );
             return 1 / $number;
@@ -822,7 +822,7 @@ Content of main program 'MyApp.pl':
     main( grep { $_ ~~ m/^<[a-zA-Z]>+$/ } @*ARGS ); # user indicates language as command line argument
 
     sub main( Str ?@user_lang_prefs = 'Eng' ) {
-        my Locale::KeyedText::Translator $translator = Locale::KeyedText.new_translator( 
+        my Locale::KeyedText::Translator $translator = Locale::KeyedText.new_translator(
             ['MyApp::L::', 'MyLib::L::'], @user_lang_prefs );
         show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_HELLO' ) );
         LOOP: {
@@ -831,7 +831,7 @@ Content of main program 'MyApp.pl':
             $user_input or last LOOP; # user chose to exit program
             try {
                 my Num $result = MyLib.my_invert( $user_input );
-                show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_RESULT', 
+                show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_RESULT',
                     { 'ORIGINAL' => $user_input, 'INVERTED' => $result } ) );
                 CATCH {
                     show_message( $translator, $! ); # input error, detected by library
@@ -844,8 +844,8 @@ Content of main program 'MyApp.pl':
 
     sub show_message( Locale::KeyedText::Translator $translator, Locale::KeyedText::Message $message ) returns Str {
         my Str $user_text = $translator.translate_message( $message );
-        unless( $user_text ) {
-            print $*ERR "internal error: can't find user text for a message: \n"~
+        if( !$user_text ) {
+            print $*ERR "internal error: can't find user text for a message:\n"~
                 "   "~$message.as_string()~"\n"~
                 "   "~$translator.as_string()~"\n";
             exit;

@@ -18,56 +18,56 @@ $should = 'undef, ';
 is( $did, $should, "Locale::KeyedText.new_message( undef ) returns '$did'" );
 
 $msg1 = Locale::KeyedText.new_message( '' );
-isa_ok( $msg1, "Locale::KeyedText::Message", 
+isa_ok( $msg1, "Locale::KeyedText::Message",
     "msg1 = new_message( '' ) ret MSG obj" );
 $did = $msg1.as_string();
 $should = ': ';
 is( $did, $should, "on init msg1.as_string() returns '$did'" );
 
 $msg1 = Locale::KeyedText.new_message( '0' );
-isa_ok( $msg1, "Locale::KeyedText::Message", 
+isa_ok( $msg1, "Locale::KeyedText::Message",
     "msg1 = new_message( '0' ) ret MSG obj" );
 $did = $msg1.as_string();
 $should = '0: ';
 is( $did, $should, "on init msg1.as_string() returns '$did'" );
 
 $msg1 = Locale::KeyedText.new_message( 'zZ9' );
-isa_ok( $msg1, "Locale::KeyedText::Message", 
+isa_ok( $msg1, "Locale::KeyedText::Message",
     "msg1 = new_message( 'zZ9' ) ret MSG obj" );
 $did = $msg1.as_string();
 $should = 'zZ9: ';
 is( $did, $should, "on init msg1.as_string() returns '$did'" );
 
 $msg1 = Locale::KeyedText.new_message( 'foo', undef );
-isa_ok( $msg1, "Locale::KeyedText::Message", 
+isa_ok( $msg1, "Locale::KeyedText::Message",
     "msg1 = new_message( 'foo', undef ) ret MSG obj" );
 $did = $msg1.as_string();
 $should = 'foo: ';
 is( $did, $should, "on init msg1.as_string() returns '$did'" );
 
 $msg1 = Locale::KeyedText.new_message( 'foo', hash() );
-isa_ok( $msg1, "Locale::KeyedText::Message", 
+isa_ok( $msg1, "Locale::KeyedText::Message",
     "msg1 = new_message( 'foo', hash() ) ret MSG obj" );
 $did = $msg1.as_string();
 $should = 'foo: ';
 is( $did, $should, "on init msg1.as_string() returns '$did'" );
 
 $msg1 = Locale::KeyedText.new_message( 'foo', { '' => 'g' } );
-isa_ok( $msg1, "Locale::KeyedText::Message", 
+isa_ok( $msg1, "Locale::KeyedText::Message",
     "msg1 = new_message( 'foo', \{ '' => 'g' \} ) ret MSG obj" );
 $did = $msg1.as_string();
 $should = 'foo: =g';
 is( $did, $should, "on init msg1.as_string() returns '$did'" );
 
 $msg1 = Locale::KeyedText.new_message( 'foo', { 'bar' => 'baz' } );
-isa_ok( $msg1, "Locale::KeyedText::Message", 
+isa_ok( $msg1, "Locale::KeyedText::Message",
     "msg1 = new_message( 'foo', \{ 'bar' => 'baz' \} ) ret MSG obj" );
 $did = $msg1.as_string();
 $should = 'foo: bar=baz';
 is( $did, $should, "on init msg1.as_string() returns '$did'" );
 
 $msg1 = Locale::KeyedText.new_message( 'foo', { 'bar'=>'baz','c'=>'-','0'=>'1','z'=>'','y'=>'0' } );
-isa_ok( $msg1, "Locale::KeyedText::Message", 
+isa_ok( $msg1, "Locale::KeyedText::Message",
     "msg1 = new_message( 'foo', \{ 'bar'=>'baz','c'=>'d','0'=>'1','z'=>'','y'=>'0' \} ) ret MSG obj" );
 $did = $msg1.as_string();
 $should = 'foo: 0=1, bar=baz, c=-, y=0, z=';
