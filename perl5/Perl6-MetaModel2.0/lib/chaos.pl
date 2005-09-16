@@ -108,6 +108,13 @@ our $DISPATCH_TRACE = 0;
         return bless \$name => 'Perl6::Attribute';
     }
     
+    sub ::make_stub_attribute ($) {
+        my ($name) = @_;
+        (defined $name)
+            || confess "You must provide a name for the attribute";
+        return bless \$name => 'Perl6::StubAttribute';
+    }    
+    
     # DEPRECATED
     # sub ::make_class_attribute ($) {
     #     my ($name) = @_;
@@ -131,6 +138,9 @@ our $DISPATCH_TRACE = 0;
         # types of the attributes
 
         package Perl6::Attribute;
+
+        package Perl6::StubAttribute;        
+        @Perl6::StubAttribute::ISA = ('Perl6::Attribute'); 
 
         # DEPRECATED
         # package Perl6::ClassAttribute;        
@@ -470,7 +480,7 @@ our $DISPATCH_TRACE = 0;
         '0+' => sub { $_[0]->{id} },       
         '""' => sub {
             "#<" . (${$_[0]->{class}}->{attrs}->{'$:name'} || 'AnonClass') . "=(" . $_[0]->{id} . ")>"
-        },     
+        }, 
         fallback => 1;
 
     sub isa { our $AUTOLOAD = 'isa'; goto &AUTOLOAD; }

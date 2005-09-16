@@ -159,6 +159,14 @@ $::Class->add_method('STORE' => ::make_method(sub {
     }
 }));
 
+$::Class->add_method('does' => ::make_method(sub {
+    undef;
+}));
+
+$::Object->add_method('does' => ::make_method(sub {
+    # ... this should forward to $::Class?
+    undef;
+}));
 
 ## ----------------------------------------------------------------------------
 ## Roles
@@ -166,11 +174,15 @@ $::Class->add_method('STORE' => ::make_method(sub {
 # Questions on Role methods sent to p6l 
 # - see recent thread: Concerning Roles and $?ROLE
 
+# More questions ...
+# - should a Class hold references to the Roles it does?
+# - should Class does Role? or Object does Role?
+
 $::Role = $::Class->new('$:name' => 'Role');
 
 $::Role->superclasses([ $::Module ]);
 
-$::Role->add_attribute('@:subroles'   => ::make_attribute('@:subroles'));
+$::Role->add_attribute('@:roles'      => ::make_attribute('@:roles'));
 $::Role->add_attribute('%:methods'    => ::make_attribute('%:methods'));
 $::Role->add_attribute('%:attributes' => ::make_attribute('%:attributes'));
 
@@ -201,6 +213,11 @@ $::Role->add_method('has_method' => ::make_method(sub {
     exists ::opaque_instance_attrs($self)->{'%:methods'}->{$label} ? 1 : 0;
 }));
 
+$::Role->add_method('is_method_stub' => ::make_method(sub {
+    my ($self, $label) = @_;
+    blessed(::opaque_instance_attrs($self)->{'%:methods'}->{$label}) eq 'Perl6::StubMethod';
+}));
+
 $::Role->add_method('get_method_list' => ::make_method(sub {
     keys %{::opaque_instance_attrs($::SELF)->{'%:methods'}};
 }));
@@ -209,7 +226,11 @@ $::Role->add_method('get_method_list' => ::make_method(sub {
 
 $::Role->add_method('add_attribute' => ::make_method(sub {
     my ($self, $label, $attribute) = @_;
-    ::opaque_instance_attrs($self)->{'%:attributes'}->{$label} = $attribute;
+    ::opaque_instance_attrs($self)->{'%:attributes'}->{$label} = (
+        defined $attribute ?
+            $attribute
+            :
+            ::make_stub_attribute($label));
 }));
 
 $::Role->add_method('get_attribute' => ::make_method(sub {
@@ -219,7 +240,12 @@ $::Role->add_method('get_attribute' => ::make_method(sub {
 
 $::Role->add_method('has_attribute' => ::make_method(sub {
     my ($self, $label) = @_;    
-    ::opaque_instance_attrs($self)->{'%:attributes'}->{$label} ? 1 : 0;
+    exists ::opaque_instance_attrs($self)->{'%:attributes'}->{$label} ? 1 : 0;
+}));
+
+$::Role->add_method('is_attribute_stub' => ::make_method(sub {
+    my ($self, $label) = @_;    
+    blessed(::opaque_instance_attrs($self)->{'%:attributes'}->{$label}) eq 'Perl6::StubAttribute';
 }));
 
 $::Role->add_method('get_attribute_list' => ::make_method(sub {
@@ -228,10 +254,10 @@ $::Role->add_method('get_attribute_list' => ::make_method(sub {
 
 ## subroles
 
-$::Role->add_method('subroles' => ::make_method(sub {
+$::Role->add_method('roles' => ::make_method(sub {
     my $self = shift;
-    ::opaque_instance_attrs($self)->{'@:subroles'} = shift if @_;
-    ::opaque_instance_attrs($self)->{'@:subroles'};
+    ::opaque_instance_attrs($self)->{'@:roles'} = shift if @_;
+    ::opaque_instance_attrs($self)->{'@:roles'};
 }));
 
 ## introspective methods
@@ -240,10 +266,63 @@ $::Role->add_method('does' => ::make_method(sub {
     my ($self, $role_name) = @_;
     return undef unless defined $role_name;
     return 1 if $self->name eq $role_name;
-    foreach my $sub_role (@{$self->subroles}) {
+    foreach my $sub_role (@{$self->roles}) {
         return 1 if $sub_role->does($role_name);            
     }
     return 0;
+}));
+
+$::Role->add_method('collect_all_roles' => ::make_method(sub {
+    my ($self, $seen) = @_;
+    $seen ||= {};
+    my @roles;
+    foreach my $role ($self, @{$self->roles}) {
+        unless (exists $seen->{$role->name}) {
+            $seen->{$role->name}++;
+            push @roles => $role;
+            push @roles => $role->collect_all_roles($seen) if scalar @{$role->roles};            
+        }
+    }
+    #warn Data::Dumper::Dumper $seen;
+    return @roles;
+}));
+
+## composition methods
+
+$::Role->add_method('resolve' => ::make_method(sub {
+    my $composite;
+    $composite = $::Role->new('$:name' => 'Composite<' . (0 + \$composite) . '>');
+    my @subroles = $::SELF->collect_all_roles;
+    foreach my $role (@subroles) {
+        foreach my $method_name ($role->get_method_list) {
+            # if we have a conflict, but it is not, or has 
+            # not already been stubbed out then ...
+            if ($composite->has_method($method_name) &&
+                !$composite->is_method_stub($method_name)) {
+                # we stub the method for the class to implement
+                $composite->add_method($method_name => undef);
+            }
+            else {
+                # no conflicts ... add method
+                $composite->add_method($method_name => $role->get_method($method_name));
+            }
+        }
+        foreach my $attr_name ($role->get_attribute_list) {
+            # same as for methods, if we have the attribute
+            # and it is not already a stub then ...
+            if ($composite->has_attribute($attr_name) &&
+                !$composite->is_attribute_stub($attr_name)) {
+                # we stub it out ...
+                $composite->add_attribute($attr_name => undef);
+            }
+            else {
+                # no conflicts ... add attribute
+                $composite->add_attribute($attr_name => $role->get_attribute($attr_name));
+            }
+        }        
+    }
+    $composite->roles(\@subroles);  
+    return $composite;
 }));
 
 ## NOTE:

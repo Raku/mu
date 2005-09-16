@@ -7,6 +7,36 @@ This is a file of misc. ASCII art drawings of the Meta Model.
 
 =head1 DRAWINGS
 
+=head2 Role -> Class relationship
+
+Class does Role
+Object does Role
+
+role Role => {
+    attributes => [ 
+        '@:roles',
+        '%:methods',
+        '%:attributes'
+    ]
+    methods => {
+        'does' => sub {},
+        
+        'roles' => sub {},                # returns value in @:roles
+        'collect_all_roles' => sub {},    # recursively make list of roles
+        
+        'add_method' => sub {},           # ... deals with methods 
+        'get_method' => sub {},
+        'has_method' => sub {},                
+        'get_method_list' => sub {},        
+        
+        'add_attribute' => sub {},        # ... deals with attributes
+        'get_attribute' => sub {},
+        'has_attribute' => sub {},                
+        'get_attribute_list' => sub {},                
+    }
+};
+
+
 =head2 Class/Object/Package/Module inter-relationships
 
    class-of $::Class is $::Class

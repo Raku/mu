@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 70;
+use Test::More tests => 72;
 use Test::Exception;
 
 do 'lib/metamorph.pl';
@@ -77,6 +77,7 @@ foreach my $method_name (qw(superclasses
                             has_method
                             get_method
                             add_method
+                            get_method_list
                             add_attribute
                             get_attribute
                             has_attribute

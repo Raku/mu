@@ -311,6 +311,12 @@ $::Class->add_method('get_method' => ::make_method(sub {
     return $method_table->{$label};                
 }));
 
+$::Class->add_method('get_method_list' => ::make_method(sub {
+    my ($self, %params) = @_;
+    my $table = $self->_get_method_table(\%params);                  
+    return keys %{$table};
+}));
+
 $::Class->add_method('add_attribute' => ::make_method(sub {
     my ($self, $label, $attribute) = @_;
     (defined $label && defined $attribute && blessed($attribute))

@@ -29,14 +29,14 @@ ok($Bar->does('Bar'), '... our role does Bar');
 ok(!$Bar->does('Baz'), '... our role does not do Baz');
 
 is_deeply(
-    $Foo->subroles(),
+    $Foo->roles(),
     [],
     '... no subroles yet in Foo');
 
-$Foo->subroles([ $Bar ]);
+$Foo->roles([ $Bar ]);
 
 is_deeply(
-    $Foo->subroles(),
+    $Foo->roles(),
     [ $Bar ],
     '... subroles added successfully');
 
@@ -51,14 +51,14 @@ ok(!$Baz->isa('Baz'), '... $Baz is not a Baz');
 ok($Baz->does('Baz'), '... our role does Baz');
 
 is_deeply(
-    $Bar->subroles(),
+    $Bar->roles(),
     [],
     '... no subroles yet in Bar');
 
-$Bar->subroles([ $Baz ]);
+$Bar->roles([ $Baz ]);
 
 is_deeply(
-    $Bar->subroles(),
+    $Bar->roles(),
     [ $Baz ],
     '... subroles added successfully');
     
@@ -68,3 +68,6 @@ ok($Bar->does('Baz'), '... our role now does Baz');
 ok($Foo->does('Foo'), '... our role still does Foo');
 ok($Foo->does('Bar'), '... our role still does Bar');
 ok($Foo->does('Baz'), '... our role now does Baz');
+
+
+

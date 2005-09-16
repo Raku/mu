@@ -1,7 +1,4 @@
 
-# load the metamodel ....
-do "lib/genesis.pl";
-
 package Perl6::MetaModel;
 
 use strict;
@@ -12,12 +9,18 @@ use Carp 'confess';
 our $VERSION = '2.00';
 
 sub import {
+    # load the meta-model ..
+    do "lib/genesis.pl";    
+    
+    # export &class
     no strict 'refs';
     my $pkg = caller;
     *{"${pkg}::class"} = \&class;
+    *{"${pkg}::role"}  = \&role;    
 }
 
 our %CLASSES_BY_NAME;
+our %ROLES_BY_NAME;
 
 sub _ {
     my $attr = shift;
@@ -37,6 +40,18 @@ sub class {
     my $new_class = _build_class($name, $version, $authority, $body);
     $CLASSES_BY_NAME{$new_class->name} = $new_class;
     return $new_class;
+}
+
+sub role {
+    my ($full_name, $body) = @_;
+    # support anon-role here
+    if (!defined($body) && ref($full_name) && ref($full_name) =~ /HASH|CODE/) {
+        return _build_role(undef, undef, undef, $full_name);
+    }
+    my ($name, $version, $authority) = split '-' => $full_name;       
+    my $new_role = _build_role($name, $version, $authority, $body);
+    $ROLES_BY_NAME{$new_role->name} = $new_role;
+    return $new_role;    
 }
 
 sub _build_class {
@@ -73,7 +88,7 @@ sub _build_class {
                 if ($method_name =~ /^_/) {
                     $new_class->add_method($method_name => ::make_private_method(
                         $body->{methods}->{$method_name}
-                    ));                    
+                    ));                   
                 }
                 else {
                     $new_class->add_method($method_name => ::make_method(
@@ -111,6 +126,72 @@ sub _build_class {
     
     return $new_class;
 }
+
+
+sub _build_role {
+    my ($name, $version, $authority, $body) = @_;
+
+    my $new_role = $::Role->new();    
+
+    $new_role->name($name)           if defined $name;
+    $new_role->version($version)     if defined $version;
+    $new_role->authority($authority) if defined $authority;     
+
+    if (ref($body) eq 'CODE') {
+        local $::ROLE = $new_role;
+        $body->();
+    }
+    elsif (ref($body) eq 'HASH') {
+        $new_role->roles($body->{does}) if exists $body->{does};        
+        if ($body->{attributes}) {
+            foreach my $attribute_name (@{$body->{attributes}}) {
+                $new_role->add_attribute($attribute_name => ::make_attribute($attribute_name));
+            }
+        }     
+        if ($body->{methods}) {
+            foreach my $method_name (keys %{$body->{methods}}) {
+                if ($method_name =~ /^_/) {
+                    $new_role->add_method($method_name => ::make_private_method(
+                        $body->{methods}->{$method_name}
+                    ));                    
+                }
+                else {
+                    $new_role->add_method($method_name => ::make_method(
+                        $body->{methods}->{$method_name}
+                    ));
+                }
+            }
+        }
+        if ($body->{submethods}) {
+            foreach my $method_name (keys %{$body->{submethods}}) {
+                $new_role->add_method($method_name => ::make_submethod(
+                    $body->{submethods}->{$method_name}
+                ));
+            }
+        }  
+        if ($body->{class_methods}) {
+            foreach my $method_name (keys %{$body->{class_methods}}) {
+                if ($method_name =~ /^_/) {
+                    # we just add a private method in here...
+                    # there is no real distinction between the
+                    # private class method or the private instance 
+                    # method, maybe there should be, but I am not sure
+                    $new_role->add_method($method_name => ::make_private_method(
+                        $body->{class_methods}->{$method_name}
+                    ));
+                }
+                else {
+                    $new_role->add_method($method_name => ::make_class_method(
+                        $body->{class_methods}->{$method_name}
+                    ));                    
+                }
+            }
+        }                               
+    }
+
+    return $new_role;
+}
+
 
 1;
 
