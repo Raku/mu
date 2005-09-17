@@ -5,9 +5,18 @@ use warnings;
 
 BEGIN { do "lib/metamorph.pl" };
 
-# ... this makes ::Object
+# This is pneuma, this creates ::Object, ::Package and ::Module
 
-$::Object = undef;
+# According to the Gnostics, the Demiurge was able to endow man 
+# only with psyche (sensuous soul) — the pneuma (rational soul) 
+# having been added by God.
+
+$::Object  = undef;
+$::Package = undef;
+$::Module  = undef;
+
+## ----------------------------------------------------------------------------
+## Object
 
 # The 'Object' class
 $::Object = $::Class->new();
@@ -63,6 +72,76 @@ $::Object->add_method('can' => ::make_method(sub {
     my ($self, $label) = @_;   
     return undef unless $label;
     return ::WALKMETH(::opaque_instance_class($self)->dispatcher(':canonical'), $label);    
+}));
+
+## ----------------------------------------------------------------------------
+## Package
+
+## See http://article.gmane.org/gmane.comp.lang.perl.perl6.language/4956 for
+## disucssion on how Packages work
+
+$::Package = $::Class->new();
+
+$::Package->superclasses([ $::Object ]);
+
+$::Package->add_attribute('$:name'      => ::make_attribute('$:name'));
+$::Package->add_attribute('%:namespace' => ::make_attribute('%:namespace'));
+
+$::Package->add_method('name' => ::make_method(sub {
+    my $self = shift;
+    ::opaque_instance_attrs($self)->{'$:name'} = shift if @_;        
+    ::opaque_instance_attrs($self)->{'$:name'};
+}));
+
+$::Package->add_method('FETCH' => ::make_method(sub {
+    my ($self, $label) = @_;
+    (defined $label && $label)
+        || confess "Cannot FETCH at (" . ($label || 'undef') . ")";
+    ::opaque_instance_attrs($self)->{'%:namespace'}->{$label};
+}));
+
+$::Package->add_method('STORE' => ::make_method(sub {
+    my ($self, $label, $value) = @_;
+    (defined $label && $label)
+        || confess "Cannot STORE at (" . ($label || 'undef') . ")";   
+    # NOTE: special case
+    # if we are storing CODE in the package, we 
+    # need to wrap it so that $?PACKAGE is bound
+    # correctly within it
+    if ($label =~ /^\&/ && ref($value) eq 'CODE') {
+        $value = ::wrap_package_sub($value, $self);
+    } 
+    ::opaque_instance_attrs($self)->{'%:namespace'}->{$label} = $value;
+}));
+
+## ----------------------------------------------------------------------------
+## Module
+
+$::Module = $::Class->new();
+
+$::Module->superclasses([ $::Package ]);
+
+$::Module->add_attribute('$:version'   => ::make_attribute('$:version'));
+$::Module->add_attribute('$:authority' => ::make_attribute('$:authority'));
+
+$::Module->add_method('version' => ::make_method(sub {
+    my ($self, $version) = @_;
+    if (defined $version) {
+        ($version =~ /^\d+\.\d+\.\d+$/)
+            || confess "The version ($version) is not in the correct format '0.0.0'";
+        ::opaque_instance_attrs($self)->{'$:version'} = $version;
+    }
+    ::opaque_instance_attrs($self)->{'$:version'};    
+}));
+
+$::Module->add_method('authority' => ::make_method(sub {
+    my $self = shift;
+    ::opaque_instance_attrs($self)->{'$:authority'} = shift if @_;        
+    ::opaque_instance_attrs($self)->{'$:authority'};
+}));
+
+$::Module->add_method('identifier' => ::make_method(sub {
+    return join '-' => ($::SELF->name, $::SELF->version, ($::SELF->authority || ()));
 }));
 
 1;
