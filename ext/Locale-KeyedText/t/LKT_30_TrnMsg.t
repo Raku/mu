@@ -14,9 +14,9 @@ t_LKT_Util::message( 'testing Translator.translate_message() method' );
 module t_LKT_C_L_Eng {
 
 my Str %text_strings is readonly = (
-    'one' => '{fork} shore {spoon}',
-    'two' => 'sky fly high',
-    'three' => '{knife} zot',
+    'one' => q[{fork} shore {spoon}],
+    'two' => q[sky fly high],
+    'three' => q[{knife} zot],
 );
 
 sub get_text_by_key( Str $msg_key ) returns Str {
@@ -96,64 +96,64 @@ $trn4 = Locale::KeyedText.new_translator( [$BS,$AS],['Fre','Eng'] );
 pass( "trn4 = new_translator( [$AS],['Eng'] ) contains '"~$trn4.as_string()~"'" );
 
 $did = t_LKT_Util::serialize( $trn1.translate_message( $msg1 ) );
-$should = '\'AE - word poke { fork } lift {poke}\', ';
+$should = q|'AE - word poke { fork } lift {poke}', |;
 is( $did, $should, "trn1.translate_message( msg1 ) returns '$did'" );
 
 $did = t_LKT_Util::serialize( $trn1.translate_message( $msg2 ) );
-$should = '\'AE - sky pie rye\', ';
+$should = q|'AE - sky pie rye', |;
 is( $did, $should, "trn1.translate_message( msg2 ) returns '$did'" );
 
 $did = t_LKT_Util::serialize( $trn1.translate_message( $msg3 ) );
-$should = '\'BE - eat sharp\', ';
+$should = q|'BE - eat sharp', |;
 is( $did, $should, "trn1.translate_message( msg3 ) returns '$did'" );
 
 $did = t_LKT_Util::serialize( $trn2.translate_message( $msg1 ) );
-$should = '\'AF - word poke { fork } lift {poke}\', ';
+$should = q|'AF - word poke { fork } lift {poke}', |;
 is( $did, $should, "trn2.translate_message( msg1 ) returns '$did'" );
 
 $did = t_LKT_Util::serialize( $trn2.translate_message( $msg2 ) );
-$should = '\'AF - sky pie rye\', ';
+$should = q|'AF - sky pie rye', |;
 is( $did, $should, "trn2.translate_message( msg2 ) returns '$did'" );
 
 $did = t_LKT_Util::serialize( $trn2.translate_message( $msg3 ) );
-$should = '\'BF - eat sharp\', ';
+$should = q|'BF - eat sharp', |;
 is( $did, $should, "trn2.translate_message( msg3 ) returns '$did'" );
 
 $did = t_LKT_Util::serialize( $trn3.translate_message( $msg1 ) );
-$should = '\'AE - word poke { fork } lift {poke}\', ';
+$should = q|'AE - word poke { fork } lift {poke}', |;
 is( $did, $should, "trn3.translate_message( msg1 ) returns '$did'" );
 
 $did = t_LKT_Util::serialize( $trn3.translate_message( $msg2 ) );
-$should = '\'BE - sky pie rye\', ';
+$should = q|'BE - sky pie rye', |;
 is( $did, $should, "trn3.translate_message( msg2 ) returns '$did'" );
 
 $did = t_LKT_Util::serialize( $trn3.translate_message( $msg3 ) );
-$should = '\'BE - eat sharp\', ';
+$should = q|'BE - eat sharp', |;
 is( $did, $should, "trn3.translate_message( msg3 ) returns '$did'" );
 
 $did = t_LKT_Util::serialize( $trn4.translate_message( $msg1 ) );
-$should = '\'AF - word poke { fork } lift {poke}\', ';
+$should = q|'AF - word poke { fork } lift {poke}', |;
 is( $did, $should, "trn4.translate_message( msg1 ) returns '$did'" );
 
 $did = t_LKT_Util::serialize( $trn4.translate_message( $msg2 ) );
-$should = '\'BF - sky pie rye\', ';
+$should = q|'BF - sky pie rye', |;
 is( $did, $should, "trn4.translate_message( msg2 ) returns '$did'" );
 
 $did = t_LKT_Util::serialize( $trn4.translate_message( $msg3 ) );
-$should = '\'BF - eat sharp\', ';
+$should = q|'BF - eat sharp', |;
 is( $did, $should, "trn4.translate_message( msg3 ) returns '$did'" );
 
 $trn11 = Locale::KeyedText.new_translator( [$CS],['Eng'] );
 pass( "trn11 = new_translator( [$CS],['Eng'] ) contains '"~$trn11.as_string()~"'" );
 
 $did = t_LKT_Util::serialize( $trn11.translate_message( $msg1 ) );
-$should = '\'poke shore lift\', ';
+$should = q|'poke shore lift', |;
 is( $did, $should, "trn11.translate_message( msg1 ) returns '$did'" );
 
 $did = t_LKT_Util::serialize( $trn11.translate_message( $msg2 ) );
-$should = '\'sky fly high\', ';
+$should = q|'sky fly high', |;
 is( $did, $should, "trn11.translate_message( msg2 ) returns '$did'" );
 
 $did = t_LKT_Util::serialize( $trn11.translate_message( $msg3 ) );
-$should = '\'sharp zot\', ';
+$should = q|'sharp zot', |;
 is( $did, $should, "trn11.translate_message( msg3 ) returns '$did'" );

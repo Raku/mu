@@ -18,7 +18,7 @@ method new( $class: Str $msg_key is rw, Hash ?$msg_vars is rw ) returns Locale::
     $msg_key.defined or return;
 
     my $msg_vars_copy = hash();
-    if( $msg_vars.defined ) {
+    if ($msg_vars.defined) {
         $msg_vars.does(Hash) or return;
         $msg_vars_copy = hash(%{$msg_vars});
     }
@@ -101,7 +101,7 @@ method translate_message( $translator: Locale::KeyedText::Message $message is rw
     my Str $text = undef;
     for $translator.tmpl_mem_nms.map:{ $translator.tmpl_set_nms »~« $_ } -> $template_module_name {
         try {
-            if( 1 ) { # TODO: "if !$package_is_loaded"
+            if (1) { # TODO: "if !$package_is_loaded"
                 my $mod_to_req = $template_module_name;
                 $mod_to_req ~~ s:perl5:g/::/\//; # this version only needs Pugs
 #               $mod_to_req ~~ s:g/::/\//; # this version requires PGE/Parrot
@@ -669,9 +669,9 @@ Content of English language Template file 'MyLib/L/Eng.pm':
 
     module MyLib::L::Eng;
     my Str %text_strings is readonly = (
-        'MYLIB_MYINV_NO_ARG' => 'my_invert(): argument NUMBER is missing',
-        'MYLIB_MYINV_BAD_ARG' => 'my_invert(): argument NUMBER is not a number, it is "{GIVEN_VALUE}"',
-        'MYLIB_MYINV_RES_INF' => 'my_invert(): result is infinite because argument NUMBER is zero',
+        'MYLIB_MYINV_NO_ARG' => q[my_invert(): argument NUMBER is missing],
+        'MYLIB_MYINV_BAD_ARG' => q[my_invert(): argument NUMBER is not a number, it is "{GIVEN_VALUE}"],
+        'MYLIB_MYINV_RES_INF' => q[my_invert(): result is infinite because argument NUMBER is zero],
     );
     sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 
@@ -679,9 +679,9 @@ Content of French language (rough manual translation) Template file 'MyLib/L/Fre
 
     module MyLib::L::Fre;
     my Str %text_strings is readonly = (
-        'MYLIB_MYINV_NO_ARG' => 'my_invert(): paramètre NUMBER est manquant',
-        'MYLIB_MYINV_BAD_ARG' => 'my_invert(): paramètre NUMBER est ne nombre, il est "{GIVEN_VALUE}"',
-        'MYLIB_MYINV_RES_INF' => 'my_invert(): aboutir a est infini parce que paramètre NUMBER est zero',
+        'MYLIB_MYINV_NO_ARG' => q[my_invert(): paramètre NUMBER est manquant],
+        'MYLIB_MYINV_BAD_ARG' => q[my_invert(): paramètre NUMBER est ne nombre, il est "{GIVEN_VALUE}"],
+        'MYLIB_MYINV_RES_INF' => q[my_invert(): aboutir a est infini parce que paramètre NUMBER est zero],
     );
     sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 
@@ -696,7 +696,8 @@ Content of main program 'MyApp.pl':
         my Locale::KeyedText::Translator $translator = Locale::KeyedText.new_translator(
             ['MyApp::L::', 'MyLib::L::'], @user_lang_prefs );
         show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_HELLO' ) );
-        LOOP: {
+        LOOP:
+        {
             show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_PROMPT' ) );
             my Str $user_input = $*IN; $user_input .= chomp;
             $user_input or last LOOP; # user chose to exit program
@@ -715,10 +716,10 @@ Content of main program 'MyApp.pl':
 
     sub show_message( Locale::KeyedText::Translator $translator, Locale::KeyedText::Message $message ) returns Str {
         my Str $user_text = $translator.translate_message( $message );
-        if( !$user_text ) {
+        if (!$user_text) {
             print $*ERR "internal error: can't find user text for a message:\n"~
-                "   "~$message.as_string()~"\n"~
-                "   "~$translator.as_string()~"\n";
+                '   '~$message.as_string()~"\n"~
+                '   '~$translator.as_string()~"\n";
             exit;
         }
         print $*OUT $user_text~"\n";
@@ -728,10 +729,10 @@ Content of English language Template file 'MyApp/L/Eng.pm':
 
     module MyApp::L::Eng;
     my Str %text_strings is readonly = (
-        'MYAPP_HELLO' => 'Welcome to MyApp.',
-        'MYAPP_GOODBYE' => 'Goodbye!',
-        'MYAPP_PROMPT' => 'Enter a number to be inverted, or press ENTER to quit.',
-        'MYAPP_RESULT' => 'The inverse of "{ORIGINAL}" is "{INVERTED}".',
+        'MYAPP_HELLO' => q[Welcome to MyApp.],
+        'MYAPP_GOODBYE' => q[Goodbye!],
+        'MYAPP_PROMPT' => q[Enter a number to be inverted, or press ENTER to quit.],
+        'MYAPP_RESULT' => q[The inverse of "{ORIGINAL}" is "{INVERTED}".],
     );
     sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 
@@ -739,10 +740,10 @@ Content of French language (rough manual translation) Template file 'MyApp/L/Fre
 
     module MyApp::L::Fre;
     my Str %text_strings is readonly = (
-        'MYAPP_HELLO' => 'Bienvenue allé MyApp.',
-        'MYAPP_GOODBYE' => 'Salut!',
-        'MYAPP_PROMPT' => 'Fournir nombre être inverser, ou appuyer sur ENTER être arrêter.',
-        'MYAPP_RESULT' => 'Renversement "{ORIGINAL}" est "{INVERTED}".',
+        'MYAPP_HELLO' => q[Bienvenue allé MyApp.],
+        'MYAPP_GOODBYE' => q[Salut!],
+        'MYAPP_PROMPT' => q[Fournir nombre être inverser, ou appuyer sur ENTER être arrêter.],
+        'MYAPP_RESULT' => q[Renversement "{ORIGINAL}" est "{INVERTED}".],
     );
     sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 
@@ -750,13 +751,13 @@ Content of alternate text Template file 'MyApp/L/Homer.pm':
 
     module MyApp::L::Homer;
     my Str %text_strings is readonly = (
-        'MYAPP_HELLO' => 'Light goes on!',
-        'MYAPP_GOODBYE' => 'Light goes off!',
-        'MYAPP_PROMPT' => 'Give me a county thingy, or push that big button instead.',
-        'MYAPP_RESULT' => 'Turn "{ORIGINAL}" upside down and get "{INVERTED}", not "{ORIGINAL}".',
-        'MYLIB_MYINV_NO_ARG' => 'Why you little ...!',
-        'MYLIB_MYINV_BAD_ARG' => '"{GIVEN_VALUE}" isn\'t a county thingy!',
-        'MYLIB_MYINV_RES_INF' => 'Don\'t you give me a big donut!',
+        'MYAPP_HELLO' => q[Light goes on!],
+        'MYAPP_GOODBYE' => q[Light goes off!],
+        'MYAPP_PROMPT' => q[Give me a county thingy, or push that big button instead.],
+        'MYAPP_RESULT' => q[Turn "{ORIGINAL}" upside down and get "{INVERTED}", not "{ORIGINAL}".],
+        'MYLIB_MYINV_NO_ARG' => q[Why you little ...!],
+        'MYLIB_MYINV_BAD_ARG' => q["{GIVEN_VALUE}" isn't a county thingy!],
+        'MYLIB_MYINV_RES_INF' => q[Don't you give me a big donut!],
     );
     sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 
@@ -798,18 +799,18 @@ Content of shared library file 'MyLib.pm':
 
     module MyLib::L::Eng {
         my Str %text_strings is readonly = (
-            'MYLIB_MYINV_NO_ARG' => 'my_invert(): argument NUMBER is missing',
-            'MYLIB_MYINV_BAD_ARG' => 'my_invert(): argument NUMBER is not a number, it is "{GIVEN_VALUE}"',
-            'MYLIB_MYINV_RES_INF' => 'my_invert(): result is infinite because argument NUMBER is zero',
+            'MYLIB_MYINV_NO_ARG' => q[my_invert(): argument NUMBER is missing],
+            'MYLIB_MYINV_BAD_ARG' => q[my_invert(): argument NUMBER is not a number, it is "{GIVEN_VALUE}"],
+            'MYLIB_MYINV_RES_INF' => q[my_invert(): result is infinite because argument NUMBER is zero],
         );
         sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
     }
 
     module MyLib::L::Fre {
         my Str %text_strings is readonly = (
-            'MYLIB_MYINV_NO_ARG' => 'my_invert(): paramètre NUMBER est manquant',
-            'MYLIB_MYINV_BAD_ARG' => 'my_invert(): paramètre NUMBER est ne nombre, il est "{GIVEN_VALUE}"',
-            'MYLIB_MYINV_RES_INF' => 'my_invert(): aboutir a est infini parce que paramètre NUMBER est zero',
+            'MYLIB_MYINV_NO_ARG' => q[my_invert(): paramètre NUMBER est manquant],
+            'MYLIB_MYINV_BAD_ARG' => q[my_invert(): paramètre NUMBER est ne nombre, il est "{GIVEN_VALUE}"],
+            'MYLIB_MYINV_RES_INF' => q[my_invert(): aboutir a est infini parce que paramètre NUMBER est zero],
         );
         sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
     }
@@ -825,7 +826,8 @@ Content of main program 'MyApp.pl':
         my Locale::KeyedText::Translator $translator = Locale::KeyedText.new_translator(
             ['MyApp::L::', 'MyLib::L::'], @user_lang_prefs );
         show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_HELLO' ) );
-        LOOP: {
+        LOOP:
+        {
             show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_PROMPT' ) );
             my Str $user_input = $*IN; $user_input.chomp;
             $user_input or last LOOP; # user chose to exit program
@@ -844,10 +846,10 @@ Content of main program 'MyApp.pl':
 
     sub show_message( Locale::KeyedText::Translator $translator, Locale::KeyedText::Message $message ) returns Str {
         my Str $user_text = $translator.translate_message( $message );
-        if( !$user_text ) {
+        if (!$user_text) {
             print $*ERR "internal error: can't find user text for a message:\n"~
-                "   "~$message.as_string()~"\n"~
-                "   "~$translator.as_string()~"\n";
+                '   '~$message.as_string()~"\n"~
+                '   '~$translator.as_string()~"\n";
             exit;
         }
         print $*OUT $user_text~"\n";
@@ -855,20 +857,20 @@ Content of main program 'MyApp.pl':
 
     module MyApp::L::Eng {
         my Str %text_strings is readonly = (
-            'MYAPP_HELLO' => 'Welcome to MyApp.',
-            'MYAPP_GOODBYE' => 'Goodbye!',
-            'MYAPP_PROMPT' => 'Enter a number to be inverted, or press ENTER to quit.',
-            'MYAPP_RESULT' => 'The inverse of "{ORIGINAL}" is "{INVERTED}".',
+            'MYAPP_HELLO' => q[Welcome to MyApp.],
+            'MYAPP_GOODBYE' => q[Goodbye!],
+            'MYAPP_PROMPT' => q[Enter a number to be inverted, or press ENTER to quit.],
+            'MYAPP_RESULT' => q[The inverse of "{ORIGINAL}" is "{INVERTED}".],
         );
         sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
     }
 
     module MyApp::L::Fre {
         my Str %text_strings is readonly = (
-            'MYAPP_HELLO' => 'Bienvenue allé MyApp.',
-            'MYAPP_GOODBYE' => 'Salut!',
-            'MYAPP_PROMPT' => 'Fournir nombre être inverser, ou appuyer sur ENTER être arrêter.',
-            'MYAPP_RESULT' => 'Renversement "{ORIGINAL}" est "{INVERTED}".',
+            'MYAPP_HELLO' => q[Bienvenue allé MyApp.],
+            'MYAPP_GOODBYE' => q[Salut!],
+            'MYAPP_PROMPT' => q[Fournir nombre être inverser, ou appuyer sur ENTER être arrêter.],
+            'MYAPP_RESULT' => q[Renversement "{ORIGINAL}" est "{INVERTED}".],
         );
         sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
     }
@@ -877,13 +879,13 @@ Content of alternate text Template file 'MyApp/L/Homer.pm':
 
     module MyApp::L::Homer;
     my Str %text_strings is readonly = (
-        'MYAPP_HELLO' => 'Light goes on!',
-        'MYAPP_GOODBYE' => 'Light goes off!',
-        'MYAPP_PROMPT' => 'Give me a county thingy, or push that big button instead.',
-        'MYAPP_RESULT' => 'Turn "{ORIGINAL}" upside down and get "{INVERTED}", not "{ORIGINAL}".',
-        'MYLIB_MYINV_NO_ARG' => 'Why you little ...!',
-        'MYLIB_MYINV_BAD_ARG' => '"{GIVEN_VALUE}" isn\'t a county thingy!',
-        'MYLIB_MYINV_RES_INF' => 'Don\'t you give me a big donut!',
+        'MYAPP_HELLO' => q[Light goes on!],
+        'MYAPP_GOODBYE' => q[Light goes off!],
+        'MYAPP_PROMPT' => q[Give me a county thingy, or push that big button instead.],
+        'MYAPP_RESULT' => q[Turn "{ORIGINAL}" upside down and get "{INVERTED}", not "{ORIGINAL}".],
+        'MYLIB_MYINV_NO_ARG' => q[Why you little ...!],
+        'MYLIB_MYINV_BAD_ARG' => q["{GIVEN_VALUE}" isn't a county thingy!],
+        'MYLIB_MYINV_RES_INF' => q[Don't you give me a big donut!],
     );
     sub get_text_by_key( Str $msg_key ) returns Str { return %text_strings{$msg_key}; }
 

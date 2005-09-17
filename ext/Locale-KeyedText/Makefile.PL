@@ -1,5 +1,5 @@
 use strict;
-use lib "../..", "../../inc";
+use lib '../..', '../../inc';
 use inc::Module::Install prefix => '../../inc';
 
 name       ('Locale-KeyedText');

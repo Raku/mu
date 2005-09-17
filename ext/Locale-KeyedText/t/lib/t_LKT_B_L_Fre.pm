@@ -5,8 +5,8 @@ module t_LKT_B_L_Fre;
 
 my $xy is readonly = 'BF';
 my Str %text_strings is readonly = (
-    'two' => $xy~' - sky pie rye',
-    'three' => $xy~' - eat {knife}',
+    'two' => $xy~q[ - sky pie rye],
+    'three' => $xy~q[ - eat {knife}],
 );
 
 sub get_text_by_key( Str $msg_key ) returns Str {
