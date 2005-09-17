@@ -142,6 +142,8 @@ my $Object = ::create_class(
 ## BOOTSTRAPPING Roles
 ## ----------------------------------------------------------------------------
 
+my $Role;
+
 my $_resolve = sub ($) {
     my ($self) = @_;
     my %roles;
@@ -163,7 +165,7 @@ my $_resolve = sub ($) {
 };
 
 # our class(Role), which is also the role(Role) as well
-my $Role = $Class->new(
+$Role = $Class->new(
     '$:name' => 'Role',
     '$:superclass' => $Object,
     '%:methods' => {
@@ -185,9 +187,13 @@ my $Role = $Class->new(
 
 ok(!$Class->has_method('resolve'), '... we do not have the resolve method');
 
-# Bootstrap Role into Class.. 
+# Bootstrap -> Class does Role 
 ::opaque_instance_attrs($Class)->{'@:roles'} = [ $Role ];
 $_resolve->($Class);
+
+# Bootstrap -> Role does Role
+::opaque_instance_attrs($Role)->{'@:roles'} = [ $Role ];
+$_resolve->($Role);
 
 # Class gets a special case Does
 # to avoid endless recursion
@@ -205,16 +211,21 @@ $Class->add_method('does' => sub {
 ok($Class->does('Role'), '... Class now does Role');
 ok($Class->has_method('resolve'), '... we now have the resolve method');
 
+ok($Role->has_method('does'), '... we now have the does() method');
+ok($Role->does('Role'), '... Role now does Role');
+
 ## create some roles
 my $rFoo = $Role->new(
     '$:name' => 'rFoo',
     '%:methods' => { foo => sub { 'rFoo::foo' } }
 );
+ok($rFoo->does('Role'), '... rFoo now does Role');
 
 my $rBar = $Role->new(
     '$:name' => 'rBar',
     '%:methods' => { bar => sub { 'rBar::bar' } }
 );
+ok($rBar->does('Role'), '... rBar now does Role');
 
 # create a class to put the roles in ...
 my $FooBar = $Class->new(
@@ -245,6 +256,6 @@ ok($FooBar->does('rBar'), '... FooBar does rBar');
 # and our instances do the roles as well
 my $iFooBar = $FooBar->new();    
 ok($iFooBar->does('rFoo'), '... iFooBar does rFoo');
-ok($iFooBar->does('rBar'), '... iFooBar does rBar');    
+ok($iFooBar->does('rBar'), '... iFooBar does rBar');     
     
 1;
