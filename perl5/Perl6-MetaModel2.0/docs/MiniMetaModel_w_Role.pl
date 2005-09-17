@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 9;
+use Test::More tests => 13;
 
 ## ----------------------------------------------------------------------------
 ## Mini Meta-Model with Self-Bootstrapping Roles

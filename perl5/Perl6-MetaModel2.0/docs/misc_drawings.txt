@@ -9,33 +9,28 @@ This is a file of misc. ASCII art drawings of the Meta Model.
 
 =head2 Role -> Class relationship
 
-Class does Role
-Object does Role
-
-role Role => {
-    attributes => [ 
-        '@:roles',
-        '%:methods',
-        '%:attributes'
-    ]
-    methods => {
-        'does' => sub {},
-        
-        'roles' => sub {},                # returns value in @:roles
-        'collect_all_roles' => sub {},    # recursively make list of roles
-        
-        'add_method' => sub {},           # ... deals with methods 
-        'get_method' => sub {},
-        'has_method' => sub {},                
-        'get_method_list' => sub {},        
-        
-        'add_attribute' => sub {},        # ... deals with attributes
-        'get_attribute' => sub {},
-        'has_attribute' => sub {},                
-        'get_attribute_list' => sub {},                
-    }
-};
-
+   $::Class in an instance of $::Class
+   $::Role is an instance of $::Class
+   $::Class does $::Role
+   $::Role does $::Role (because $::Role is an instance of $::Class)
+   
+   ---> class relations
+   ...> role (does) relations
+   
+   ,_____________,
+   |             |
+   |   +--------------------+
+   `-->| $::Class           |
+       +--------------------+
+                ^ :           
+                | :           
+                | V           
+       +--------------------+
+       | $::Role            |<...
+       +--------------------+   :
+                 :              :
+                 :..............; 
+                  
 
 =head2 Class/Object/Package/Module inter-relationships
 
