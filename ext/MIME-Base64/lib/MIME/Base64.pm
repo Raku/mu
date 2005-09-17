@@ -41,84 +41,94 @@ sub encode (Str $string) {
   [~] encode(@oct);
 }
 
+sub index (Int $a,Int $ashift,Int $b,Int $bshift,Int $mask --> Int) {
+  (($a +& ($mask +>$ashift)) +< $ashift) +| ($b +> $bshift);
+}
+
 sub encode (*@string is copy) returns Array {
 #  say "Array";
 
   gather {
     while (@string>=3) {
-      my Int $octstring = {given [map { ord $_} splice @string,0,3] {
-        $_.[0]+<16 +| $_.[1]+<8 +| $_.[2]}}();
 
-      take encode(0x3F +& ($octstring +>0x12)); # 0.index
-      take encode(0x3F +& ($octstring +>0x0C)); # 1.index
-      take encode(0x3F +& ($octstring +>0x06)); # 2.index
-      take encode(0x3F +& ($octstring +>0x00)); # 3.index
+      my Int @octect = map { ord $_} splice @string,0,3;
+
+      take encode(index(0         ,0,@octect[0],2,0x3F)); # 0.index
+      take encode(index(@octect[0],4,@octect[1],4,0x3F)); # 1.index
+      take encode(index(@octect[1],2,@octect[2],6,0x3F)); # 2.index
+      take encode(index(@octect[2],0,         0,0,0x3F)); # 3.index
     }
 
     if (@string == 2) {
-      my Int $octstring = {given [map { ord $_} splice @string,0,3] {
-        $_.[0]+<16 +| $_.[1]+<8}}();
+      my Int @octect = map { ord $_} splice @string,0,3;
 
-      take encode(0x3F +& ($octstring +>0x12)); # 0.index
-      take encode(0x3F +& ($octstring +>0x0C)); # 1.index
-      take encode(0x3F +& ($octstring +>0x06)); # 2.index
+      take encode(index(0         ,0,@octect[0],2,0x3F)); # 0.index
+      take encode(index(@octect[0],4,@octect[1],4,0x3F)); # 1.index
+      take encode(index(@octect[1],2,         0,0,0x3F)); # 2.index
       take "=";
-    } elsif (@string == 1) {
-      my Int $octstring = {given [map { ord $_} splice @string,0,3] {
-        $_.[0]+<16}}();
 
-      take encode(0x3F +& ($octstring +>0x12)); # 0.index
-      take encode(0x3F +& ($octstring +>0x0C)); # 1.index
+    } elsif (@string == 1) {
+      my Int @octect = map { ord $_} splice @string,0,3;
+
+      take encode(index(0         ,0,@octect[0],2,0x3F)); # 0.index
+      take encode(index(@octect[0],4,         0,0,0x3F)); # 1.index
       take "=";
       take "=";
     }
   }
 }
-
 
 sub decode (Str $didget) {
 #  say "decode Str ->" ~ $didget ~ "<-";
   given $didget {
-    when /^<[A..Z]>$/ {     ord($didget)-ord("A")}
-    when /^<[a..z]>$/ {26 + ord($didget)-ord("a")}
-    when /^<[0..9]>$/ {52 + $didget}
-    when /^   \+   $/ {62}
-    when /^   \/   $/ {63}
-    when /^   \=   $/ {-1}
-    when /^<-[A..Za..z0..9+\/=]>$/ {fail "This should never happen"}
-    default {
-      my @index = split('',$didget);
-      @index = grep {$_ ~~ /^<[A..Za..z0..9+\/=]>+$/},@index;
-      [~] map {chr ($_)} decode(@index)}
+		when /^<[A..Z]>$/ {     ord($didget)-ord("A")}
+		when /^<[a..z]>$/ {26 + ord($didget)-ord("a")}
+		when /^<[0..9]>$/ {52 + $didget}
+		when /^   \+   $/ {62}
+                when /^   \/   $/ {63}
+		when /^   \=   $/ {-1}
+		when /^<-[A..Za..z0..9+\/=]>$/ {fail "This should never happen"}
+ 		default {
+		  my @index = split('',$didget);
+		  @index = grep {$_ ~~ /^<[A..Za..z0..9+\/=]>+$/},@index;
+		  [~] map {chr ($_)} decode(@index)}
   }
 }
 
-sub decode (*@index is copy) {
+#        1716151413121110 F E D C B A 9 8 7 6 5 4 3 2 1 0
+#        +--0     octet--+-1      octet--+--2     octet--+
+#        |7 6 5 4 3 2 1 0|7 6 5 4 3 2 1 0|7 6 5 4 3 2 1 0|
+#        +-----------+---+-------+-------+---+-----------+
+#        |5 4 3 2 1 0|5 4 3 2 1 0|5 4 3 2 1 0|5 4 3 2 1 0|
+#        +--0.index--+--1.index--+--2.index--+--3.index--+
+#######################################################################
+
+sub decode (*@string is copy) {
 #  say "decode Array ->" ~ @index.perl ~ "<-";
-  @index = map{ decode($_) } @index;
+  @string = map{ decode($_) } @string;
   gather {
-    while (@index>0 and all(@index[0..3])>0) {
-      my $octstring = {
-        given [splice @index,0,4]
-                       {$_.[0]+<0x12 +| $_.[1]+<0x0C +| $_.[2]+<0x06 +| $_.[3] }
-                       }();
-      take (0xFF +& ($octstring +> 0x10));
-      take (0xFF +& ($octstring +> 0x08));
-      take (0xFF +& ($octstring +> 0x00));
+    while (@string>0 and all(@string[0..3])>0) {
+      my Int @index = splice @string,0,4;
+      take index(@index[0],2,@index[1],4,0xFF); # 0.octet
+      take index(@index[1],4,@index[2],2,0xFF); # 1.octet
+      take index(@index[2],6,@index[3],0,0xFF); # 2.octet
     }
 
-    if (all(@index[0..2])>0) {
-      my $octstring = @index[0]+<0x12 +| @index[1]+<0x0C +| @index[2]+<0x06;
-      take (0xFF +& ($octstring +> 0x10));
-      take (0xFF +& ($octstring +> 0x08));
-#      take (0xFF +& ($octstring +> 0x00));
-    } elsif (all(@index[0..1])>0) {
-      my $octstring = @index[0]+<0x12 +| @index[1]+<0x0C;
-      take (0xFF +& ($octstring +> 0x10));
-#      take (0xFF +& ($octstring +> 0x08));
-    } elsif (@index[0]>0) {
-      my $octstring = @index.[0]+<0x12;
-      take (0xFF +& ($octstring +> 0x10));
+    if (all(@string[0..2])>0) {
+      my Int @index = splice @string,0,4;
+      take index(@index[0],2,@index[1],4,0xFF); # 0.octet
+      take index(@index[1],4,@index[2],2,0xFF); # 1.octet
+#      take index(@index[2],6,@index[3],0,0xFF); # 2.octet
+    } elsif (all(@string[0..1])>0) {
+      my Int @index = splice @string,0,4;
+      take index(@index[0],2,@index[1],4,0xFF); # 0.octet
+#      take index(@index[1],4,@index[2],2,0xFF); # 1.octet
+#      take index(@index[2],6,@index[3],0,0xFF); # 2.octet
+    } elsif (@string[0]>0) {
+      my Int @index = splice @string,0,4;
+      take index(@index[0],2,@index[1],4,0xFF); # 0.octet
+#      take index(@index[1],4,@index[2],2,0xFF); # 1.octet
+#      take index(@index[2],6,@index[3],0,0xFF); # 2.octet
     }
   }
 }
