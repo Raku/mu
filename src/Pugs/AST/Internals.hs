@@ -8,6 +8,7 @@ module Pugs.AST.Internals (
     Env(..),   -- uses Pad, TVar, Exp, Eval, Val
     Val(..),   -- uses V.* (which ones?)
     Value(..), -- uses Val, Eval
+    InitDat(..),
 
     EvalT(..), ContT(..),
 
@@ -78,6 +79,7 @@ import qualified Data.Map       as Map
 import qualified Data.IntMap    as IntMap
 
 import Pugs.Parser.Number
+import Pugs.AST.Prag
 import Pugs.AST.Pos
 import Pugs.AST.Scope
 import Pugs.AST.SIO
@@ -861,6 +863,7 @@ data Exp
                                         --     be represented by 'App'.
     | Cxt !Cxt !Exp                     -- ^ Context
     | Pos !Pos !Exp                     -- ^ Position
+    | Prag !Pragmas !Exp                -- ^ Lexical pragmas
     | Pad !Scope !Pad !Exp              -- ^ Lexical pad
     | Sym !Scope !Var !Exp              -- ^ Symbol declaration
     | Stmts !Exp !Exp                   -- ^ Multiple statements
@@ -903,6 +906,7 @@ instance Unwrap [Exp] where
 instance Unwrap Exp where
     unwrap (Cxt _ exp)      = unwrap exp
     unwrap (Pos _ exp)      = unwrap exp
+    unwrap (Prag _ exp)     = unwrap exp
     unwrap (Pad _ _ exp)    = unwrap exp
     unwrap (Sym _ _ exp)    = unwrap exp
     unwrap x                = x
@@ -953,6 +957,9 @@ extract (Var name) vs
     = (Var name, nub (name:vs))
     | otherwise
     = (Var name, vs)
+extract (Prag prag ex) vs = ((Prag prag ex'), vs')
+    where
+    (ex', vs') = extract ex vs
 extract (Pos pos ex) vs = ((Pos pos ex'), vs')
     where
     (ex', vs') = extract ex vs
@@ -1042,6 +1049,22 @@ data Env = MkEnv
     , envDepth   :: !Int                 -- ^ Recursion depth
     , envDebug   :: !DebugInfo           -- ^ Debug info map
     , envPos     :: !Pos                 -- ^ Source position range
+    , envPragmas :: !Pragmas             -- ^ List of pragmas in effect
+    , envInitDat :: !(TVar InitDat)      -- ^ BEGIN result information
+    } deriving (Show, Eq, Ord, Typeable)
+
+{-|
+Module initialization information.
+
+When a module is loaded and initialized (i.e., its &import routine is
+called), it may need to communicate information back to the parser. 
+This information is held in a TVar to which the parser has access.
+Currently we use this for keeping track of lexical pragma change
+requests, but the possiblyExit mechanism may be refactored to use
+this as well.
+-}
+data InitDat = MkInitDat
+    { initPragmas :: [Pragma]            -- ^ Pragma values being installed
     } deriving (Show, Eq, Ord, Typeable)
 
 envWant :: Env -> String

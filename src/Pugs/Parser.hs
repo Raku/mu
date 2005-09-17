@@ -897,11 +897,28 @@ ruleClosureTrait rhs = rule "closure trait" $ do
             return Noop
         "BEGIN" -> do
             -- We've to exit if the user has written code like BEGIN { exit }.
-            possiblyExit =<< unsafeEvalExp (checkForIOLeak fun)
+            val <- possiblyExit =<< unsafeEvalExp (checkForIOLeak fun)
+            -- And install any pragmas they've requested.
+            env <- getRuleEnv
+            let idat = unsafePerformIO $ liftSTM $ readTVar $ envInitDat env
+            install $ initPragmas idat
+            return val
         "CHECK" -> vcode2checkBlock code
         "INIT"  -> vcode2initBlock code
         "FIRST" -> vcode2firstBlock code
         _       -> fail ""
+    where
+        install [] = return ()
+        install (x:xs) = do
+            env' <- getRuleEnv
+            let env'' = envCaller env'  -- not sure about this.
+            case env'' of
+                Just target -> do
+                    putRuleEnv target { envPragmas =
+                        PrPrags{ pragma  = x
+                               , pragmas = envPragmas target} }
+                    install xs
+                _ -> fail "no caller env to install pragma in"
 
 {-| Wraps a call to @&Pugs::Internals::check_for_io_leak@ around the input
     expression. @&Pugs::Internals::check_for_io_leak@ should @die()@ if the

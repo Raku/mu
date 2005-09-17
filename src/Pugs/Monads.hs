@@ -70,7 +70,7 @@ enterContext :: Cxt -> Eval a -> Eval a
 enterContext cxt = local (\e -> e{ envContext = cxt })
 
 {-|
-Evaluate the specified wxpression in the specified (Perl 6) context ('Cxt').
+Evaluate the specified expression in the specified (Perl 6) context ('Cxt').
 
 (Subsequent chained 'Eval's do /not/ see this new scope.)
 -}

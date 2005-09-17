@@ -597,6 +597,21 @@ op1 "Pugs::Internals::rule_adverbs" = \v -> do
         VRule MkRulePGE{rxAdverbs=hash} -> return hash
         VRule MkRulePCRE{rxAdverbs=hash} -> return hash
         _ -> fail $ "Not a rule: " ++ show v
+op1 "Pugs::Internals::current_pragma_value" = \v -> do
+    name <- fromVal v
+    prags <- asks envPragmas
+    return $ findPrag name prags
+    where
+        findPrag :: String -> Pragmas -> Val
+        findPrag _ PrNil = VUndef
+        findPrag n PrPrags {pragma=this, pragmas=rest}
+            | n == pragName this = VInt $ toInteger $ pragDat this
+            | otherwise          = findPrag n rest
+op1 "Pugs::Internals::caller_pragma_value" = \v -> do
+    caller <- asks envCaller
+    case caller of
+        Just env -> local (const env) (op1 "Pugs::Internals::current_pragma_value" v)
+        _        -> return $ VUndef
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 op1IO :: Value a => (Handle -> IO a) -> Val -> Eval Val
@@ -926,6 +941,16 @@ op2 "sort" = \x y -> do
 op2 "IO::say" = op2Print hPutStrLn
 op2 "IO::print" = op2Print hPutStr
 op2 "BUILDALL" = op1WalkAll reverse "BUILD"
+op2 "Pugs::Internals::install_pragma_value" = \x y -> do
+    name <- fromVal x
+    val  <- fromVal y
+    idat <- asks envInitDat
+    idatval <- liftSTM $ readTVar idat
+    trace ("installing " ++ name ++ "/" ++ (show val)) $ return ()
+    let prag = initPragmas idatval
+    liftSTM $ writeTVar idat idatval{initPragmas = 
+        prag ++ [MkPrag{ pragName=name, pragDat=val }]}
+    return (VBool True)
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
 
 op2Print :: (Handle -> String -> IO ()) -> Val -> Val -> Eval Val
@@ -1677,4 +1702,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Any       pre     Pugs::Internals::reduceVar  unsafe (Str)\
 \\n   Str       pre     Pugs::Internals::rule_pattern safe (Pugs::Internals::VRule)\
 \\n   Hash      pre     Pugs::Internals::rule_adverbs safe (Pugs::Internals::VRule)\
+\\n   Int       pre     Pugs::Internals::install_pragma_value safe (Str, Int)\
+\\n   Bool      pre     Pugs::Internals::current_pragma_value safe (Str)\
+\\n   Bool      pre     Pugs::Internals::caller_pragma_value safe (Str)\
 \\n"

@@ -20,6 +20,7 @@ module Pugs.AST (
     newPackage,
 
     module Pugs.AST.Internals,
+    module Pugs.AST.Prag,
     module Pugs.AST.Pos,
     module Pugs.AST.Scope,
     module Pugs.AST.SIO,
@@ -30,6 +31,7 @@ import Pugs.Types
 import qualified Data.Map as Map
 
 import Pugs.AST.Internals
+import Pugs.AST.Prag
 import Pugs.AST.Pos
 import Pugs.AST.Scope
 import Pugs.AST.SIO

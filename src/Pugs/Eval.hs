@@ -60,6 +60,7 @@ emptyEnv name genPad = liftSTM $ do
     ref  <- newTVar Map.empty
     syms <- initSyms
     glob <- newTVar (combine (pad ++ syms) $ mkPad [])
+    init <- newTVar $ MkInitDat { initPragmas=[] }
     return $ MkEnv
         { envContext = CxtVoid
         , envLexical = mkPad []
@@ -76,6 +77,8 @@ emptyEnv name genPad = liftSTM $ do
         , envBody    = Val undef
         , envDebug   = Just ref -- Set to "Nothing" to disable debugging
         , envPos     = MkPos name 1 1 1 1
+        , envPragmas = PrNil
+        , envInitDat = init
         }
 
 -- Evaluation ---------------------------------------------------------------
@@ -228,6 +231,8 @@ reduce (Var name) = reduceVar name
 
 reduce (Stmts this rest) = reduceStmts this rest
 
+reduce (Prag prag exp) = reducePrag prag exp
+
 reduce (Pos pos exp) = reducePos pos exp
 
 reduce (Pad scope lexEnv exp) = reducePad scope lexEnv exp
@@ -282,6 +287,11 @@ reduceStmts this rest = do
             writeVar "$*_" val
             return . VControl $ ControlEnv env
         _ -> reduce rest
+
+reducePrag :: Pragmas -> Exp -> Eval Val
+reducePrag prag exp = do
+    local (\e -> e{ envPragmas = prag }) $ do
+        evalExp exp
 
 {-|
 Reduce a 'Pos' expression by reducing its subexpression in a new 'Env', which
