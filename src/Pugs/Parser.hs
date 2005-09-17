@@ -768,7 +768,7 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
         let sub = Var $ ('&':pkg) ++ if use then "::import" else "::unimport"
         unsafeEvalExp $ Syn "if"
             [ App (Var "&name") (Just sub) [] -- XXX Hack
-            , App sub (Just $ Val $ VStr $ envPackage env) [imp]
+            , App sub (Just $ Val $ VStr $ pkg) [imp]
             , emptyExp
             ]
         return ()
