@@ -193,7 +193,7 @@ $_resolve->($Class);
 
 # Bootstrap -> Role does Role
 ::opaque_instance_attrs($Role)->{'@:roles'} = [ $Role ];
-$_resolve->($Role);
+$Role->resolve(); # Role can resolve itself now :)
 
 # Class gets a special case Does
 # to avoid endless recursion

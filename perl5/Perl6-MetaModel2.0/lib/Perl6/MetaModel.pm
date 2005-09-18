@@ -16,7 +16,9 @@ sub import {
     no strict 'refs';
     my $pkg = caller;
     *{"${pkg}::class"} = \&class;
-    *{"${pkg}::role"}  = \&role;    
+    *{"${pkg}::role"}  = \&role;   
+    
+    *{"${pkg}::__"}  = \&__;        
 }
 
 our %CLASSES_BY_NAME;
@@ -28,6 +30,12 @@ sub _ {
         || confess "Attribute ($attr) is not a valid attribute for $::SELF";
     ::opaque_instance_attrs($::SELF)->{$attr} = shift if @_;
     ::opaque_instance_attrs($::SELF)->{$attr};    
+}
+
+sub __ {
+    my $attr = shift;
+    $::CLASS->STORE($attr => shift) if @_;
+    $::CLASS->FETCH($attr);  
 }
 
 sub class {

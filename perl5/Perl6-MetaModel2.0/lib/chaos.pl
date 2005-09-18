@@ -70,6 +70,7 @@ our $DISPATCH_TRACE = 0;
     # call came, it is used in private methods 
     $::CALLER::CLASS = undef;
 
+    ## WALKMETH and WALKCLASS
     # these are actually two functions
     # which are detailed in A12 and are
     # called 'iterators', they basically
@@ -116,6 +117,7 @@ our $DISPATCH_TRACE = 0;
     }    
     
     # DEPRECATED
+    # Class attribute are just package level variables now
     # sub ::make_class_attribute ($) {
     #     my ($name) = @_;
     #     (defined $name)
@@ -123,6 +125,8 @@ our $DISPATCH_TRACE = 0;
     #     return bless \$name => 'Perl6::ClassAttribute';
     # }     
     
+    # this just initializes the instance attribute container type, in
+    # perl 6 this should be done automatically
     sub ::instantiate_attribute_container ($) {
         my ($attr) = @_;
         (blessed($attr) && $attr->isa('Perl6::Attribute'))

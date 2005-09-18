@@ -216,4 +216,71 @@ $::Role->add_method('STORE' => ::make_method(sub {
     # ...
 }));
 
+=pod
+
+-------------------------------------------------------------------------------
+
+This is a rough sketch of that role(Role) might look like. 
+
+role Role {
+    has @:roles is rw;  # makes the roles mutator/accessor
+
+    # -----------------------------------------------      
+    # this collects a unique list of roles 
+    # gather recursively, &resolve uses it
+    # to gather all the roles to be 'resolved'
+    # -----------------------------------------------      
+    method collect_all_roles () { "<implemented>" }  
+
+    # -----------------------------------------------    
+    # NOTE:
+    # I am not sure I need to define these attrs in 
+    # the Role it can remain an implementation detail 
+    # for the methods described below.
+    # -----------------------------------------------
+    # has %:methods;
+    # has %:attributes;
+    # -----------------------------------------------    
+      
+    # -----------------------------------------------  
+    # collects all the roles, and applies them to the
+    # invocant, which usually will be a class, but it
+    # can be a role too.
+    # -----------------------------------------------    
+    method resolve () { "<implemented>" }
+
+    # -----------------------------------------------    
+    # NOTE:
+    # &resolve requires the following interface
+    # to be implemented, so it makes abstract 
+    # methods which must be implemented
+    # -----------------------------------------------
+
+    method add_method;
+    method get_method;
+    method has_method;
+    method get_method_list;        
+    
+    method add_attribute;
+    method get_attribute;
+    method has_attribute;
+    method get_attribute_list;            
+}
+
+-------------------------------------------------------------------------------
+Random Thoughts on Role state:
+-------------------------------------------------------------------------------
+
+What if Roles could provide their own BUILD submethods? This would 
+mean that BUILD methods would need to be collected in some way.
+So that BUILDALL not only ran the Class BUILD submethod, but any
+Role BUILD submethods. It is important that submethods are used
+because they will not get inherited. This provides more predictable 
+behavior to class consturction because it isolates the Role specifc
+code to the class that consumed it.
+
+-------------------------------------------------------------------------------
+
+=cut
+
 1;

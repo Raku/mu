@@ -7,9 +7,12 @@ BEGIN { do "lib/metamorph.pl" };
 
 # This is pneuma, this creates ::Object, ::Package and ::Module
 
+# From Answers.com:
 # According to the Gnostics, the Demiurge was able to endow man 
 # only with psyche (sensuous soul) — the pneuma (rational soul) 
 # having been added by God.
+
+## (see psyche.pl for more information)
 
 $::Object  = undef;
 $::Package = undef;
