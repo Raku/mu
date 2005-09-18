@@ -13,7 +13,16 @@ use Blondie::ADTs;
 
 our @EXPORT = qw/stub/;
 
-sub stub { map { $_, Thunk(Stub($_)) } @_ }
+sub stub {
+	my $name = shift;
+	my @params = shift;
+	$name => Thunk(
+		Seq(
+			(map { Param($_) } @params),
+			Stub($name),
+		)
+	)
+}
 
 sub mk_constructors {
     foreach my $class (@{ Class::Inspector->subclasses("Blondie::Node") }) {
@@ -63,16 +72,24 @@ mk_constructors();
         my $sha1 = Digest->new("SHA-1");
 
         {
-            local *STDERR;
+			local $SIG{__WARN__} = sub { };
             local $Storable::forgive_me = 1;
             local $Storable::canonical = 1;
             local $Storable::Deparse = 1;
 
             $sha1->add( Storable::nfreeze($self) );
-        }
+        };
 
         $sha1->hexdigest;
     }
+}
+
+{
+	package Blondie::Node::Atomic;
+	use base qw/Blondie::Node/;
+
+	sub digest { "" }
+	sub atomic { 1 }
 }
 
 {

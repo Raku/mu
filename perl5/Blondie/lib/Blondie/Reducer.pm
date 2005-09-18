@@ -12,25 +12,35 @@ sub reduce {
     my $self = shift;
     my $node = shift;
 
-    if (Scalar::Util::blessed($node) and my $meth = $self->can("reduce_" . $node->moniker)) {
-        return $self->$meth($node);
-    } else {
-        return $self->generic_reduce($node);
-    }
+	return $node unless $self->can_reduce($node);
+
+	if (Scalar::Util::blessed($node) && (my $meth = $self->can("reduce_" . $node->moniker))) {
+		return $self->$meth($node);
+	} else {
+		return $self->generic_reduce($node);
+	}
+}
+
+sub can_reduce {
+	my $self = shift;
+	my $node = shift;;
+
+	return unless Scalar::Util::blessed($node);
+	return if $node->atomic;
+
+	return 1;
 }
 
 sub generic_reduce {
     my $self = shift;
     my $node = shift;
 
-    if (Scalar::Util::blessed($node)) {
-        $node->isa("Blondie::Node")
-            or Carp::croak "it doesn't look like $node is a piece of a Blondie program.";
+	return $node unless Scalar::Util::blessed($node);
 
-        return $node->atomic ? $node : $node->fmap(sub { $self->reduce($_[0]) });
-    } else {
-        return $node;
-    }
+	$node->isa("Blondie::Node")
+		or Carp::croak "it doesn't look like $node is a piece of a Blondie program.";
+
+   	$node->fmap(sub { $self->reduce($_[0]) });
 }
 
 __PACKAGE__;

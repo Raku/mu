@@ -22,7 +22,7 @@ sub compiler {
 
     my $class = $self->compiler_class;
 
-    $class->require;
+    $class->require or die $UNIVERSAL::require::ERROR;
     $class->new;
 }
 

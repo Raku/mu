@@ -6,96 +6,102 @@ use strict;
 use warnings;
 
 {
-    package Blondie::Unit;
+	package Blondie::Unit;
 
-    sub new {
-        my $class = shift;
-        my $value = shift;
+	sub new {
+		my $class = shift;
+		my $value = shift;
 
-        bless \$value, $class;
-    }
+		bless \$value, $class;
+	}
 
-    sub val { ${ $_[0] } }
+	sub val { ${ $_[0] } }
 
-    sub str { "${ $_[0] }" }
+	sub str { "${ $_[0] }" }
 
-    sub fmap {
-    my $self = shift;
-    my $f = shift;
-    (ref $self)->new(&$f($self->val));
-    }
+	sub fmap {
+		my $self = shift;
+		my $f = shift;
+		my $res = (ref $self)->new($f->($self->val));
+	}
 }
 
 {
-    package Blondie::List;
+	package Blondie::List;
 
-    sub new {
-    my $class = shift;
-    bless [@_], $class;
-    }
+	sub new {
+	my $class = shift;
+		bless [@_], $class;
+	}
 
-    sub str { map { "$_" } @{ $_[0] } }
+	sub str { map { "$_" } @{ $_[0] } }
 
-    sub fmap {
-    my $self = shift;
-    my $f = shift;
-    (ref $self)->new(map { &$f($_) } @$self);
-    }
+	sub fmap {
+	my $self = shift;
+	my $f = shift;
+		(ref $self)->new(map { &$f($_) } @$self);
+	}
 
-    sub values { @{ $_[0] } }
+	sub values { @{ $_[0] } }
 }
 
 {
-    package Blondie::Map;
+	package Blondie::Map;
 
-    sub new {
-    my $class = shift;
-    bless {@_}, $class;
-    }
+	sub new {
+		my $class = shift;
+		bless {@_}, $class;
+	}
 
-    sub AUTOLOAD {
-    our $AUTOLOAD =~ /([^:]+)$/;
-    my $method = $1;
+	sub AUTOLOAD {
+		our $AUTOLOAD =~ /([^:]+)$/;
+		my $method = $1;
 
-        my $a = sub { $_[0]{$method} };
+		my $a = sub { $_[0]{$method} };
 
-        {
-            no strict 'refs';
-            *{$method} = $a;
-        }
+		{
+			no strict 'refs';
+			*{$method} = $a;
+		}
 
-    $_[0]->$a;
-    }
+		$_[0]->$a;
+	}
 
-    sub get {
-    $_[0]{$_[1]}
-    }
+	sub can {
+		my $self = shift;
+		my $key = shift;
 
-    sub fmap {
-    my $self = shift; my $f = shift;
+		exists $self->{$key} || $self->SUPER::can($key);
+	}
 
-        (ref $self)->new( map { $_ => &$f($self->get($_)) } $self->keys );
-    }
+	sub get {
+		$_[0]{$_[1]}
+	}
 
-    sub values { values %{ $_[0] } }
+	sub fmap {
+		my $self = shift; my $f = shift;
+		(ref $self)->new( map { $_ => &$f($self->get($_)) } $self->keys );
+	}
 
-    sub keys { keys %{ $_[0] } }
+	sub values { values %{ $_[0] } }
 
-    sub str {
-    map { "$_ => $_[0]{$_}" } $_[0]->keys;
-    }
+	sub keys { keys %{ $_[0] } }
 
-    sub merge {
-        my $self = shift;
-        my $other = shift;
+	sub str {
+		map { "$_ => $_[0]{$_}" } $_[0]->keys;
+	}
 
-        (ref $self)->new(%$self, %$other);
-    }
+	sub merge {
+		my $self = shift;
+		my $other = shift;
+
+		(ref $self)->new(%$self, %$other);
+	}
 }
 
 {
-    package Blondie::Env;
-    use base qw/Blondie::Map/;
+	package Blondie::Env;
+	use base qw/Blondie::Map/;
 }
 
 __PACKAGE__;
@@ -110,9 +116,9 @@ Blondie::ADTs - Reused abstract data types.
 
 =head1 SYNOPSIS
 
-    use Blondie::ADTs;
+	use Blondie::ADTs;
 
-    # Blondie::Map, Blondie::Unit and Blondie::List are defined
+	# Blondie::Map, Blondie::Unit and Blondie::List are defined
 
 =head1 DESCRIPTION
 

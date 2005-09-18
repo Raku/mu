@@ -6,6 +6,7 @@ use base qw/Blondie::Reducer Blondie::Reducer::DynamicScoping Class::Accessor/;
 use Scalar::Util qw/blessed/;
 
 use Blondie::Nodes ();
+use Blondie::Emitter::Pretty;
 
 use strict;
 use warnings;
@@ -24,12 +25,12 @@ sub reduce {
     my $self = shift;
     my $node = shift;
 
-    if (blessed($node)) {
-        my $r = $self->runtime;
-        if (my $native = $r->provides($node->digest)) {
-            return $native;
-        }
-    }
+    if ($self->can_reduce($node)){
+		my $r = $self->runtime;
+		if (my $replacement = $r->provides($node)) {
+			return $self->reduce($replacement);
+		}
+	}
 
     return $self->SUPER::reduce($node);
 }
@@ -63,20 +64,49 @@ sub reduce_param {
 
     $self->new_pad($param->val => undef);
 
+	$self->count_param;
+
     return $param;
 }
 
-sub reduce_thunk {
+sub enter_scope {
+	my $self = shift;
+
+	push @{ $self->{param_count_stack} }, 0;
+	
+	$self->SUPER::enter_scope;	
+}
+
+sub leave_scope {
+	my $self = shift;
+
+	$self->SUPER::leave_scope;
+
+	pop @{ $self->{param_count_stack} };
+}
+
+sub count_param {
+	my $self = shift;
+	$self->{param_count_stack}[-1]++;
+}
+
+sub reduce_app {
     my $self = shift;
-    my $thunk = shift;
+    my $app = shift;
+
+	my $sent = scalar($app->values) - 1; # thunk + params
 
     $self->enter_scope;
 
-    my $node = $self->generic_reduce($thunk);
+    my $reduced = $self->generic_reduce($app);
 
-    $self->leave_scope;
+    my $received = $self->leave_scope;
 
-    return $node;
+	die "Thunk is accepting $received parameters, while App is providing $sent parameters: "
+		. Blondie::Emitter::Pretty->new->string($reduced)
+			if $received != $sent and $reduced->isa("Blondie::Thunk"); # FIXME - enforce param checking on stubs or prims some how?
+
+    return $reduced;
 }
 
 sub reduce_sym {

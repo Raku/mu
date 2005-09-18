@@ -25,13 +25,21 @@ sub run {
 sub interpreter {
     my $self = shift;
     my $class = $self->interpreter_class;
-    $class->require;
+    $class->require or die $UNIVERSAL::require::ERROR;
     $class->new;
 }
 
 sub provides {
     my $self = shift;
-    Blondie::Backend::Perl::Builtins->find(@_);
+	my $node = shift;
+
+	warn Carp::longmess unless $node->can("digest");
+    Blondie::Backend::Perl::Builtins->find($node->digest || return);
+}
+
+sub cast_node_type {
+	my $self = shift;
+	Blondie::Backend::Perl::Builtins->cast(@_);
 }
 
 sub execute {

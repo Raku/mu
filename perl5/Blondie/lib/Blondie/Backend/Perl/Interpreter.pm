@@ -15,6 +15,14 @@ sub new {
     }, $class;
 }
 
+sub can_reduce { 1 }
+
+sub generic_reduce {
+	my $self = shift;
+	my $node = shift;
+	die "generic reductions don't make sense while interpreting ($node)";
+}
+
 sub execute {
     my $self = shift;
     my $prog = shift;
@@ -71,10 +79,10 @@ sub reduce_prim {
     my $self = shift;
     my $prim = shift;
 
-    # the body is a code ref
     $self->enter_scope;
     my @params = $self->params;
 
+    # the body is a code ref
     my $v = $prim->body->($self, map { $self->shift_param } 1 .. $prim->arity);
 
     $self->leave_scope;

@@ -8,11 +8,11 @@ use warnings;
 use Blondie::Prelude;
 use Blondie::ADTs;
 use Blondie::Nodes;
+use Blondie::TypeSafe;
 
 {
     package Blondie::Backend::Perl::Prim;
-    use base qw/Blondie::Map Blondie::Node/;
-    sub atomic { 1 }
+    use base qw/Blondie::Map Blondie::Node::Atomic/;
 }
 
 sub native {
@@ -23,10 +23,11 @@ sub native {
     my $digest = $node->digest;
 
     $digest => Blondie::Backend::Perl::Prim->new(
-    equals => $digest,
-    body => $params->{body},
-    arity => $params->{arity},
-    name => $params->{name},
+		equals => $digest,
+		body => $params->{body},
+		arity => $params->{arity},
+		name => $params->{name},
+		type => $params->{type},
     );
 }
 
@@ -42,7 +43,8 @@ my %by_digest = (
             name => '&ternary:<?? !!>',
             body => sub {
                 $_[1] ? $_[2] : $_[3]
-            }
+            },
+			type => [map { Blondie::TypeSafe::Type::Std->new($_) } qw/GV str/ => "int"], # "bool, x, x -> x"
         },
         {
             arity => 2,
@@ -52,15 +54,16 @@ my %by_digest = (
                 my $fh = shift->val;
                 my $string = shift;
                 print $fh $string;
-            }
+            },
+			type => [map { Blondie::TypeSafe::Type::Std->new($_) } qw/GV PV/ => "IV"],
         },
-
         (
             map {{
-                arity => 2,
-                name => "&infix:<$_>",
-                body => eval 'sub { $_[1] ' . (exists $p6p5{$_} ? $p6p5{$_} : $_) . ' $_[2] }' || die $@,
-            }} qw(+ - == <= ~ * ** /), '<',
+				arity => 2,
+				name => "&infix:<$_>",
+				type => [ map { Blondie::TypeSafe::Type::Std->new($_) } (($_ eq '~') ? "PV" : "IV") x 3 ],
+				body => eval 'sub { $_[1] ' . (exists $p6p5{$_} ? $p6p5{$_} : $_) . ' $_[2] }' || die $@,
+			}} qw(+ - == <= ~ * ** /), '<',
         ),
     ),
 );
@@ -72,6 +75,58 @@ sub find {
     $by_digest{$digest};
 }
 
+sub build_indirect_typed_value {
+	my $class = shift;
+	my $val = shift;
+	my $type = shift || $val->type;
+
+	Blondie::TypeSafe::Annotation->new(
+		type => $type,
+		struct_equiv => Blondie::Val->new(
+			Blondie::TypeSafe::Annotation->new(
+				type => $type,
+				struct_equiv => $val,
+			),
+		),
+	);
+}
+
+sub cast {
+	my $class = shift;
+	my $node = shift;
+
+	my $from = shift;
+	my $to = shift;
+
+	Blondie::TypeSafe::Annotation->new(
+		type => $to,
+		struct_equiv => Blondie::App->new(
+			$class->build_indirect_typed_value(
+				Blondie::Backend::Perl::Prim->new(
+					arity => 3,
+					name => '&cast',
+					body => \&do_cast,
+					type => [ "Type" => "Type" => $to ],
+				),
+			),
+			$node,
+			( map { $class->build_indirect_typed_value($_->type, Blondie::TypeSafe::Type::Std->new("Type")) } $from, $to )
+		),
+	);
+}
+
+sub do_cast {
+	my $self = shift;
+	my $node = shift;
+	my $from = shift;
+	my $to = shift;
+
+	if ($to eq "PV") {
+		return "$node";
+	} else {
+		die "can't perform runtime cast of ($node)::$from to $to";
+	}
+}
 
 __PACKAGE__;
 

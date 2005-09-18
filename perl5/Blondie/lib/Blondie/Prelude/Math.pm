@@ -8,7 +8,8 @@ use warnings;
 use Blondie::Nodes;
 
 sub symbols {
-    stub (
+    (
+		map { stub($_, '$x', '$y') }
         '&infix:<==>',
         '&infix:<<=>',
         '&infix:<<>',

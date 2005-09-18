@@ -8,7 +8,7 @@ use warnings;
 use Blondie::Nodes;
 
 sub symbols {
-    stub('&ternary:<?? !!>'),
+    stub('&ternary:<?? !!>', '$cond', '$true', '$false'), # non short circuiting
 
     '&control_structure:<if>' => Thunk(
         Seq(

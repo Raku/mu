@@ -8,7 +8,7 @@ use warnings;
 use Blondie::Nodes;
 
 sub symbols {
-    stub('&print'),
+    stub('&print', '$handle', '$string'),
 
     '$*OUT' => Stub('$*OUT'),
 
