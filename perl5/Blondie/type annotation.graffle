@@ -2165,10 +2165,21 @@ GV -&gt; PV -&gt; IV}</string>
 					<dict>
 						<key>stroke</key>
 						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.0962234</string>
+								<key>g</key>
+								<string>0.484947</string>
+								<key>r</key>
+								<string>0.189166</string>
+							</dict>
 							<key>HeadArrow</key>
 							<string>0</string>
 							<key>TailArrow</key>
 							<string>0</string>
+							<key>Width</key>
+							<real>3</real>
 						</dict>
 					</dict>
 					<key>Tail</key>
@@ -2196,10 +2207,21 @@ GV -&gt; PV -&gt; IV}</string>
 					<dict>
 						<key>stroke</key>
 						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.0962234</string>
+								<key>g</key>
+								<string>0.484947</string>
+								<key>r</key>
+								<string>0.189166</string>
+							</dict>
 							<key>HeadArrow</key>
 							<string>0</string>
 							<key>TailArrow</key>
 							<string>0</string>
+							<key>Width</key>
+							<real>3</real>
 						</dict>
 					</dict>
 					<key>Tail</key>
@@ -2227,10 +2249,21 @@ GV -&gt; PV -&gt; IV}</string>
 					<dict>
 						<key>stroke</key>
 						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.0962234</string>
+								<key>g</key>
+								<string>0.484947</string>
+								<key>r</key>
+								<string>0.189166</string>
+							</dict>
 							<key>HeadArrow</key>
 							<string>0</string>
 							<key>TailArrow</key>
 							<string>0</string>
+							<key>Width</key>
+							<real>3</real>
 						</dict>
 					</dict>
 					<key>Tail</key>
@@ -2258,10 +2291,21 @@ GV -&gt; PV -&gt; IV}</string>
 					<dict>
 						<key>stroke</key>
 						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.0962234</string>
+								<key>g</key>
+								<string>0.484947</string>
+								<key>r</key>
+								<string>0.189166</string>
+							</dict>
 							<key>HeadArrow</key>
 							<string>0</string>
 							<key>TailArrow</key>
 							<string>0</string>
+							<key>Width</key>
+							<real>3</real>
 						</dict>
 					</dict>
 					<key>Tail</key>
@@ -2289,10 +2333,21 @@ GV -&gt; PV -&gt; IV}</string>
 					<dict>
 						<key>stroke</key>
 						<dict>
+							<key>Color</key>
+							<dict>
+								<key>b</key>
+								<string>0.0962234</string>
+								<key>g</key>
+								<string>0.484947</string>
+								<key>r</key>
+								<string>0.189166</string>
+							</dict>
 							<key>HeadArrow</key>
 							<string>0</string>
 							<key>TailArrow</key>
 							<string>0</string>
+							<key>Width</key>
+							<real>3</real>
 						</dict>
 					</dict>
 					<key>Tail</key>
@@ -6488,7 +6543,7 @@ App}</string>
 		</dict>
 	</array>
 	<key>ModificationDate</key>
-	<string>2005-09-18 20:57:04 +0300</string>
+	<string>2005-09-18 21:00:52 +0300</string>
 	<key>Modifier</key>
 	<string>יובל קוג'מן</string>
 	<key>NotesVisible</key>
@@ -6561,7 +6616,7 @@ App}</string>
 		<key>ShowStatusBar</key>
 		<true/>
 		<key>VisibleRegion</key>
-		<string>{{-442, 0}, {1456, 728}}</string>
+		<string>{{-442, 359}, {1456, 728}}</string>
 		<key>Zoom</key>
 		<string>1</string>
 	</dict>
