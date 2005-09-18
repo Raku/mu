@@ -8,10 +8,22 @@ use warnings;
 use Blondie::Nodes;
 
 sub symbols {
-    stub('&print', '$handle', '$string'),
+    stub('&printf', '$format', '$handle', '$string'),
 
     '$*OUT' => Stub('$*OUT'),
 
+	'&print' => Thunk(
+		Seq(
+			Param('$handle'),
+			Param('$string'),
+			App(
+				Sym('&printf'),
+				Sym('$handle'),
+				Val('%s'),
+				Sym('$string'),
+			),
+		),
+	),
     '&say' => Thunk(
         Seq(
             Param('$string'),

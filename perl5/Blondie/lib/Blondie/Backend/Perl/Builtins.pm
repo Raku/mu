@@ -12,7 +12,7 @@ use Blondie::TypeSafe;
 
 {
     package Blondie::Backend::Perl::Prim;
-    use base qw/Blondie::Map Blondie::Node::Atomic/;
+	use base qw/Blondie::Backend::Prim/;
 }
 
 sub native {

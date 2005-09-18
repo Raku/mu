@@ -8,6 +8,22 @@ use warnings;
 use Blondie::ADTs;
 use Blondie::Nodes;
 
+
+sub new {
+	my $class = shift;
+	bless { }, $class;
+}
+
+sub typecheck {
+	my $self = shift;
+	my $runtime = shift;
+	my $prog = shift;
+
+	Blondie::TypeSafe::Flatten->new->reduce(
+		Blondie::TypeSafe::Annotator->new->annotate($runtime, $prog)
+	);
+}
+
 {
 	package Blondie::TypeSafe::Annotation;
 	use base qw/Blondie::Node::Map/;
@@ -98,7 +114,6 @@ use Blondie::Nodes;
 	use base qw/Blondie::Reducer Blondie::Reducer::DynamicScoping Class::Accessor/;
 
 	use Scalar::Util ();
-	use Test::Deep ();
 	use B ();
 	use B::Flags ();
 
@@ -109,16 +124,14 @@ use Blondie::Nodes;
 
 	BEGIN { __PACKAGE__->mk_accessors(qw/runtime/) }
 
-	sub typecheck {
+	sub annotate {
 		my $self = shift;
 		my $runtime = shift;
 		my $prog = shift;
-
+		
 		$self->{runtime} = $runtime;
 
-		Blondie::TypeSafe::Flatten->new->reduce(
-			$self->reduce($prog)
-		);
+		$self->reduce($prog);
 	}
 
 	sub reduce {
@@ -127,7 +140,7 @@ use Blondie::Nodes;
 		my $node = shift;
 		warn "reducing " . qprintable($node) . "...";
 		my $res = $self->SUPER::reduce($node);
-		warn "reduce(" . qprintable($node) .") = $res (type = " . $res->type . ")";
+		warn "reduce(" . (ref($node) ? $node : qprintable($node)) .") = $res (type = " . $self->display_type($res->type) . ")";
 		$res;
 	}
 	
@@ -182,7 +195,7 @@ use Blondie::Nodes;
 
 		Blondie::TypeSafe::Annotation->new(
 			type => $type,
-			struct_equiv => $sym->fmap(sub { $self->reduce($_[0]) }),
+			struct_equiv => $sym->fmap(sub { Blondie::TypeSafe::Annotation->new(struct_equiv => $_[0]) }),
 		);
 	}
 
@@ -210,12 +223,15 @@ use Blondie::Nodes;
 		my @context = ref $thunk_type eq "ARRAY" ? @$thunk_type : $thunk_type;
 		my $return_type = pop @context;
 
+		warn "Unifying paramter types with thunk prototype in $app";
+
 		my $i; my $unified_app = $rapp->fmap(sub {
 			my $node = shift;
 			return $node unless $i++; # skip the thunk
 
 			my $expected = shift @context;
 
+			#warn "## unifying " . $self->display_type($expected) . " with " . Data::Dumper::Dumper($node);
 			$self->unify_type($node, $expected);
 		});
 
@@ -226,6 +242,25 @@ use Blondie::Nodes;
 
 	}
 
+	sub simplify_type {
+		my $self = shift;
+		my $type = shift;
+		while (Scalar::Util::blessed($type) and !$type->isa("Blondie::TypeSafe::Type::Placeholder")){
+			my $new = $type->type;
+			return $type if ref $new and $new == $type;
+			$type = $new;
+		}
+		$type;
+	}
+
+	sub display_type {
+		my $self = shift;
+		my $type = $self->simplify_type(@_);
+		Scalar::Util::blessed($type)
+			? '<Placeholder>'
+			: (ref $type ? ("( " . join(" -> ", map { $self->display_type($_) } @{$type}) . " )") : $type);
+	}
+
 	sub unify_type {
 		my $self = shift;
 
@@ -234,14 +269,15 @@ use Blondie::Nodes;
 
 		my $de_facto_type = $node->type;
 		
-		warn "attempting to unify " . $node->struct_equiv . " whose type is " . $de_facto_type->type . " with " . $expected_type->type;
+		warn "attempting to unify " . $node->struct_equiv . " whose type is " . $self->display_type($de_facto_type) . " with " . $self->display_type($expected_type);
+		warn Data::Dumper::Dumper($expected_type) unless defined $self->simplify_type($expected_type);
 
 		return $node if $self->types_eq($de_facto_type, $expected_type);
 
 		warn "types do not eq";
 
 		if ($self->is_placeholder($de_facto_type)) {
-			warn "filling placeholder";
+			warn "filling " . $self->display_type($expected_type) . " for placeholder of " . Blondie::Emitter::Pretty->new->string(Blondie::TypeSafe::Flatten->new->reduce($node));
 			$de_facto_type->set($expected_type);
 			return $node;
 		} else {
@@ -252,7 +288,7 @@ use Blondie::Nodes;
 
 	sub is_placeholder {
 		my $self = shift;
-		my $type = shift;
+		my $type = $self->simplify_type(shift);
 
 		Scalar::Util::blessed($type) and $type->isa("Blondie::TypeSafe::Type::Placeholder")
 	}
@@ -267,7 +303,12 @@ use Blondie::Nodes;
 		warn "comparing $x and $y";
 
 		if (Scalar::Util::blessed($x) and Scalar::Util::blessed($y)) {
-			return $self->types_eq($x->type, $y->type);
+			die "baaah! expected type cannot be placeholder" if $y->isa("Blondie::TypeSafe::Type::Placeholder");
+			if (!$x->isa("Blondie::TypeSafe::Type::Placeholder")) {
+				return $self->types_eq($x->type, $y->type);
+			} else {
+				return undef;
+			}
 		} elsif (ref($x) and ref($y)) {
 			return unless @$x == @$y;
 			my @x = @$x;
@@ -329,7 +370,7 @@ use Blondie::Nodes;
 		$self->new_pad( $param->val, my $placeholder = Blondie::TypeSafe::Type::Placeholder->new );
 
 		return Blondie::TypeSafe::Annotation->new(
-			type => [ Blondie::TypeSafe::Type::Bottom->new ],
+			type => Blondie::TypeSafe::Type::Bottom->new,
 			accepts_type => $placeholder,
 			struct_equiv => $param,
 		);

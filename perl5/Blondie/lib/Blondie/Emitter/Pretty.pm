@@ -6,10 +6,11 @@ use base qw/Blondie::Emitter/;
 use strict;
 use warnings;
 
-use String::Escape qw/qprintable/;
+use String::Escape qw/quote printable/;
 use Scalar::Util qw/blessed/;
 
 use Blondie::Reducer::DuplicateFinder;
+use Blondie::TypeSafe;
 
 sub new {
 	my $class = shift;
@@ -60,9 +61,9 @@ sub layout {
 
 	if (@_ > 1 or "@_" =~ /\n/){
 	return join(
-		"\n" . ("\t" x $indent),
+		"\n" . ("    " x $indent),
 		"(", (map { "$_," } @_)
-	) . "\n" . ("\t" x ($indent-1)) . ")";
+	) . "\n" . ("    " x ($indent-1)) . ")";
 	} else {
 	return "(@_)";
 	}	
@@ -83,11 +84,26 @@ sub generic_reduce {
 	our $indent ||= 0;
 	local $indent = $indent + 1;
 
-	my $reduced = $self->SUPER::generic_reduce($node);
-	if (Scalar::Util::blessed($reduced)){
-		return $self->constructor($reduced) . $self->layout($reduced->str);
+	if (Scalar::Util::blessed($node)) {
+		if ($node->isa("Blondie::Node")){
+			my $reduced = $self->SUPER::generic_reduce($node);
+			return $self->constructor($reduced) . $self->layout($reduced->str);
+		}
+	}
+
+	if (ref $node) {
+		use Data::Dumper ();
+		local $Data::Dumper::Pad = "    " x ($indent -1);
+		local $Data::Dumper::Terse = 1;
+		local $Data::Dumper::Indent = 1;
+		my $str = Data::Dumper::Dumper($node);
+		chomp($str);
+		$str =~ s/^\s*//;
+		return $str;
 	} else {
-		return defined $node ? qprintable($node) : "undef";
+		return "undef" unless defined $node;
+		return "$node" if Blondie::TypeSafe::Annotator->guess_perl_type($node) eq "IV";
+		return quote(printable($node)),
 	}
 }
 

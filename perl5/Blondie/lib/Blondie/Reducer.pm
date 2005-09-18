@@ -38,7 +38,7 @@ sub generic_reduce {
 	return $node unless Scalar::Util::blessed($node);
 
 	$node->isa("Blondie::Node")
-		or Carp::croak "it doesn't look like $node is a piece of a Blondie program.";
+		or die "it doesn't look like $node is a piece of a Blondie program.";
 
    	$node->fmap(sub { $self->reduce($_[0]) });
 }

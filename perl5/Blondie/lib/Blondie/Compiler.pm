@@ -55,7 +55,10 @@ sub compile {
 
 sub reduce_stub {
     my $self = shift;
-    die "trying to reduce a stub";
+
+	my $node = shift;
+
+    die "trying to reduce a stub: " . Blondie::Emitter::Pretty->new->string($node);
 }
 
 sub reduce_param {
