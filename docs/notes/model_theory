@@ -339,3 +339,24 @@ the field would be parameters to that theory.  However, I'm sure "Ord
 $foo" could be shorthand for "::T $foo | Ord[::T]" for
 single-parameter theories.  Incidentally, single-parameter theories
 are just roles. :-)
+
+=======================================================
+
+That last statement wasn't quite true.  Consider the theory Num, which
+is single-parameter.  This theory mandates that if you add two As
+together, and A is a Num, then you get back another A (closure under
+addition).  Clearly Int is a Num.  However, the subtype Int where { $_ <
+10 } is not, since 8+8 == 16, and 16 isn't in that type.
+
+However, if you have a type that does a role, you want every subtype
+also to do that role (of course, my parent supplies these methods so I
+do too).  That is, roles are more like interfaces than algebras.  So in
+Theory theory, the formal definition of a role is:
+
+    A theory R is a role if: for all types T and U, U is an instance of
+    R and T does U implies that T is an instance of R.
+
+Programmatically, this I<usually> means that all operations in the
+theory depend covariantly on the type.  That is, you can't specify that
+a method returns the parameter type of the theory, only that the methods
+accept the type as a parameter.
