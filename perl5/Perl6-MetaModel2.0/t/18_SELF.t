@@ -38,7 +38,7 @@ my $Bar = class 'Bar' => {
         'foo' => sub { _('$.foo') },
         'bar' => sub { 'Bar::bar' },
         'baz' => sub {
-            my $val = $::SELF->foo()->baz();
+            my $val = _('$.foo')->baz();
             return "$val -> " . $::SELF->bar();
         }
     }

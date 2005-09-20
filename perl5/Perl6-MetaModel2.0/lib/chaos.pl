@@ -308,7 +308,7 @@ our $DISPATCH_TRACE = 0;
     # for use by 'next METHOD', the other of which 
     # is to deal with the special case of the
     # early $::Class object.
-    my @DISPATCHER = ();
+
     sub ::dispatcher ($$$;$) {
         (blessed($_[0]) && blessed($_[0]) eq 'Dispatchable' &&
          defined $_[1]  && 
@@ -399,7 +399,7 @@ our $DISPATCH_TRACE = 0;
             confess "Private Method ($label) not found for current class ($::CLASS)"
                 unless $::CLASS->has_method($label, for => 'private');
             my $method = $::CLASS->get_method($label, for => 'private');
-            @return_value = $method->($self, @{$args});  
+            return $method->($self, @{$args});  
         }
         else {   
             
@@ -416,34 +416,26 @@ our $DISPATCH_TRACE = 0;
             (defined $method)
                 || confess "Method ($label) not found for " . $opts{for} . " ($self)";   
             # store the dispatcher state
-            push @DISPATCHER => [ $dispatcher, $label, $self, $args, \%opts ];
-            # call the method
-            @return_value = $method->($self, @{$args});     
-            # we can dispose of the dispatcher state
-            # as it should never be called outside of 
-            # a method invocation
-            pop @DISPATCHER;
-        }
-        # return our values
-        return wantarray ?
-                    @return_value
-                    :
-                    $return_value[0];          
+            {
+                no warnings 'redefine';
+                local *::next_METHOD = sub {
+                    my $method = ::WALKMETH($dispatcher, $label, %opts); 
+                    confess "No next-method for '$label' found" unless defined $method;
+                    return $method->($self, @{$args});                   
+                };
+                # call the method
+                return $method->($self, @{$args});     
+            }
+        }        
     }
 
     ## next METHOD;
     # this mimics the 'next METHOD' 
     # construct to go to the next
-    # applicable method 
-    sub ::next_METHOD () {
-        (@DISPATCHER)
-            || confess "Cannot call next METHOD, we have no current dispatcher";
-        warn ">>>> next METHOD called" if $DISPATCH_TRACE;
-        my ($dispatcher, $label, $self, $args, $opts) = @{$DISPATCHER[-1]};             
-        my $method = ::WALKMETH($dispatcher, $label, %{$opts}); 
-        confess "No next-method for '$label' found" unless defined $method;
-        return $method->($self, @{$args});            
-    }
+    # applicable method it is localized
+    # in each run of _normal_dispatch
+    # so that 
+    sub ::next_METHOD () { confess "next METHOD is no longer here ..." }
 
 }
 
