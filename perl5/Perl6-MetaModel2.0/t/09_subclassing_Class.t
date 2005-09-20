@@ -20,14 +20,14 @@ $CountedClass->add_attribute('$:count', ::make_attribute('$:count'));
 ok($CountedClass->has_attribute('$:count'), '... the attribute was added successfully');
 
 $CountedClass->add_method('new' => ::make_method(sub {
-    ::opaque_instance_attrs($::SELF)->{'$:count'}++;
+    ::opaque_instance_attr($::SELF => '$:count')++;
     return ::next_METHOD();
 }));
 
 ok($CountedClass->has_method('new'), '... the new method was overridden successfully');
 
 $CountedClass->add_method('count' => ::make_method(sub {
-    ::opaque_instance_attrs($::SELF)->{'$:count'};
+    ::opaque_instance_attr($::SELF => '$:count');
 }));
 
 ok($CountedClass->has_method('count'), '... the count method was added successfully');
@@ -69,7 +69,7 @@ my $TraceingClass = class 'TracingClass' => {
         'add_method' => sub {
             my ($self, $label, $method) = @_;
             $_[2] = ::make_method(sub {  
-                push @{::opaque_instance_attrs($self)->{'@:trace_log'}} => "$label called ...";
+                push @{::opaque_instance_attr($self => '@:trace_log')} => "$label called ...";
                 $method->(@_);
             });
             ::next_METHOD();

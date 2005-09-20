@@ -55,7 +55,7 @@ $::Role->add_method('add_method' => ::make_method(sub {
     # methods are then required to be implemented by the 
     # composing class.
     # (see A12/Class Composition with Roles/Declaration of Roles/Interfaces)
-    ::opaque_instance_attrs($self)->{'%:methods'}->{$label} = (
+    ::opaque_instance_attr($self => '%:methods')->{$label} = (
         defined $method ? 
             ::wrap_role_method($method, $self)
             :
@@ -64,28 +64,28 @@ $::Role->add_method('add_method' => ::make_method(sub {
 
 $::Role->add_method('get_method' => ::make_method(sub {
     my ($self, $label) = @_;
-    ::opaque_instance_attrs($self)->{'%:methods'}->{$label};
+    ::opaque_instance_attr($self => '%:methods')->{$label};
 }));
 
 $::Role->add_method('has_method' => ::make_method(sub {
     my ($self, $label) = @_;
-    exists ::opaque_instance_attrs($self)->{'%:methods'}->{$label} ? 1 : 0;
+    exists ::opaque_instance_attr($self => '%:methods')->{$label} ? 1 : 0;
 }));
 
 $::Role->add_method('is_method_stub' => ::make_method(sub {
     my ($self, $label) = @_;
-    blessed(::opaque_instance_attrs($self)->{'%:methods'}->{$label}) eq 'Perl6::StubMethod';
+    blessed(::opaque_instance_attr($self => '%:methods')->{$label}) eq 'Perl6::StubMethod';
 }));
 
 $::Role->add_method('get_method_list' => ::make_method(sub {
-    keys %{::opaque_instance_attrs($::SELF)->{'%:methods'}};
+    keys %{::opaque_instance_attr($::SELF => '%:methods')};
 }));
 
 ## attributes
 
 $::Role->add_method('add_attribute' => ::make_method(sub {
     my ($self, $label, $attribute) = @_;
-    ::opaque_instance_attrs($self)->{'%:attributes'}->{$label} = (
+    ::opaque_instance_attr($self => '%:attributes')->{$label} = (
         defined $attribute ?
             $attribute
             :
@@ -94,29 +94,29 @@ $::Role->add_method('add_attribute' => ::make_method(sub {
 
 $::Role->add_method('get_attribute' => ::make_method(sub {
     my ($self, $label) = @_;    
-    ::opaque_instance_attrs($self)->{'%:attributes'}->{$label};
+    ::opaque_instance_attr($self => '%:attributes')->{$label};
 }));
 
 $::Role->add_method('has_attribute' => ::make_method(sub {
     my ($self, $label) = @_;    
-    exists ::opaque_instance_attrs($self)->{'%:attributes'}->{$label} ? 1 : 0;
+    exists ::opaque_instance_attr($self => '%:attributes')->{$label} ? 1 : 0;
 }));
 
 $::Role->add_method('is_attribute_stub' => ::make_method(sub {
     my ($self, $label) = @_;    
-    blessed(::opaque_instance_attrs($self)->{'%:attributes'}->{$label}) eq 'Perl6::StubAttribute';
+    blessed(::opaque_instance_attr($self => '%:attributes')->{$label}) eq 'Perl6::StubAttribute';
 }));
 
 $::Role->add_method('get_attribute_list' => ::make_method(sub {
-    keys %{::opaque_instance_attrs($::SELF)->{'%:attributes'}};
+    keys %{::opaque_instance_attr($::SELF => '%:attributes')};
 }));
 
 ## subroles
 
 $::Role->add_method('roles' => ::make_method(sub {
-    my $self = shift;
-    ::opaque_instance_attrs($self)->{'@:roles'} = shift if @_;
-    ::opaque_instance_attrs($self)->{'@:roles'};
+    my $self = shift;                        
+    ::opaque_instance_attr($self => '@:roles') = shift if @_;
+    ::opaque_instance_attr($self => '@:roles');
 }));
 
 ## introspective methods

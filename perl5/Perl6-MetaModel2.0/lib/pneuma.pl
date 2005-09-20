@@ -35,7 +35,7 @@ $::Object->add_method('BUILD' => ::make_submethod(sub {
         # attributes. It will do nothing with them
         # but it will allow them to exist.
         # - (see t_oo/submethods.t)
-        ::opaque_instance_attrs($self)->{$key} = $params{$key}
+        ::opaque_instance_attr($self => $key) = $params{$key}
             # NOTE:
             # this is an ugly way to do this, ideally
             # we would peek into the instance structure
@@ -92,15 +92,15 @@ $::Package->add_attribute('%:namespace' => ::make_attribute('%:namespace'));
 
 $::Package->add_method('name' => ::make_method(sub {
     my $self = shift;
-    ::opaque_instance_attrs($self)->{'$:name'} = shift if @_;        
-    ::opaque_instance_attrs($self)->{'$:name'};
+    ::opaque_instance_attr($self => '$:name') = shift if @_;        
+    ::opaque_instance_attr($self => '$:name');
 }));
 
 $::Package->add_method('FETCH' => ::make_method(sub {
     my ($self, $label) = @_;
     (defined $label && $label)
         || confess "Cannot FETCH at (" . ($label || 'undef') . ")";
-    ::opaque_instance_attrs($self)->{'%:namespace'}->{$label};
+    ::opaque_instance_attr($self => '%:namespace')->{$label};
 }));
 
 $::Package->add_method('STORE' => ::make_method(sub {
@@ -114,7 +114,7 @@ $::Package->add_method('STORE' => ::make_method(sub {
     if ($label =~ /^\&/ && ref($value) eq 'CODE') {
         $value = ::wrap_package_sub($value, $self);
     } 
-    ::opaque_instance_attrs($self)->{'%:namespace'}->{$label} = $value;
+    ::opaque_instance_attr($self => '%:namespace')->{$label} = $value;
 }));
 
 ## ----------------------------------------------------------------------------
@@ -132,15 +132,15 @@ $::Module->add_method('version' => ::make_method(sub {
     if (defined $version) {
         ($version =~ /^\d+\.\d+\.\d+$/)
             || confess "The version ($version) is not in the correct format '0.0.0'";
-        ::opaque_instance_attrs($self)->{'$:version'} = $version;
+        ::opaque_instance_attr($self => '$:version') = $version;
     }
-    ::opaque_instance_attrs($self)->{'$:version'};    
+    ::opaque_instance_attr($self => '$:version');    
 }));
 
 $::Module->add_method('authority' => ::make_method(sub {
     my $self = shift;
-    ::opaque_instance_attrs($self)->{'$:authority'} = shift if @_;        
-    ::opaque_instance_attrs($self)->{'$:authority'};
+    ::opaque_instance_attr($self => '$:authority') = shift if @_;        
+    ::opaque_instance_attr($self => '$:authority');
 }));
 
 $::Module->add_method('identifier' => ::make_method(sub {

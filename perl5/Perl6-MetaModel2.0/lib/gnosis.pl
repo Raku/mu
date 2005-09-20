@@ -41,13 +41,13 @@ $::Class = ::create_class();
         
         if (blessed($method) eq 'Perl6::Method'   ||
             blessed($method) eq 'Perl6::Submethod') {
-            ::opaque_instance_attrs($self)->{'%:methods'}->{$label} = $method;
+            ::opaque_instance_attr($self => '%:methods')->{$label} = $method;
         }
         elsif (blessed($method) eq 'Perl6::ClassMethod') {
-            ::opaque_instance_attrs($self)->{'%:class_methods'}->{$label} = $method;                
+            ::opaque_instance_attr($self => '%:class_methods')->{$label} = $method;                
         }
         elsif (blessed($method) eq 'Perl6::PrivateMethod') {
-            ::opaque_instance_attrs($self)->{'%:private_methods'}->{$label} = $method;                
+            ::opaque_instance_attr($self => '%:private_methods')->{$label} = $method;                
         }            
         else {
             confess "I do not recognize the method type ($method)";

@@ -14,7 +14,7 @@ is(::opaque_instance_class($::Class), $::Class, '... our $::Class is its own cla
 lives_ok {
     $::Class->add_method('has_method' => ::make_method(sub {
         my ($self, $label) = @_;
-        return ::opaque_instance_attrs($self)->{'%:methods'}->{$label} ? 1 : 0;
+        return ::opaque_instance_attr($self => '%:methods')->{$label} ? 1 : 0;
     }, $::Class));
 } '... we can add a method';
 
@@ -34,8 +34,8 @@ dies_ok {
 
 my $Foo;
 $Foo = ::create_class('$:name' => 'Foo');
-::opaque_instance_attrs($Foo)->{'%:methods'}->{'hello'} = ::make_method(sub { 'Hello World' }, $Foo);
+::opaque_instance_attr($Foo => '%:methods')->{'hello'} = ::make_method(sub { 'Hello World' }, $Foo);
 
-::opaque_instance_attrs($::Class)->{'@:superclasses'} = [ $Foo ];
+::opaque_instance_attr($::Class => '@:superclasses') = [ $Foo ];
 
 is($::Class->hello(), 'Hello World', '... and we can dispatch to a superclass');

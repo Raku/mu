@@ -16,20 +16,14 @@ ok(ref($i), 'Dispatchable');
 
 is(::opaque_instance_id($i), 1, '... got the right ID');
 is(::opaque_instance_class($i), $i, '... got the right class');
-is_deeply(
-    ::opaque_instance_attrs($i), 
-    { foo => 1 }, 
-    '... got the right attrs');
+is(::opaque_instance_attr($i, 'foo'), 1, '... got the right attrs');
     
 my $j = ::create_opaque_instance(\$i, (bar => 1));
 ok(ref($j), 'Dispatchable');
 
 is(::opaque_instance_id($j), 2, '... got the right ID');    
 is(::opaque_instance_class($j), $i, '... got the right class');
-is_deeply(
-    ::opaque_instance_attrs($j), 
-    { bar => 1 }, 
-    '... got the right attrs');
+is(::opaque_instance_attr($j, 'bar'), 1, '... got the right attrs');
     
 ## test out some of the global functions ...
 

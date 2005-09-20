@@ -15,13 +15,13 @@ BEGIN { do "lib/psyche.pl" };
 # the result of this is (Theos)
 
 # < Class is a subclass of Module is a subclass of Package is a subclass of Object >
-::opaque_instance_attrs($::Class)->{'@:superclasses'} = [ $::Module ];
-::opaque_instance_attrs($::Module)->{'@:subclasses'}  = [ $::Class, $::Role  ];
+::opaque_instance_attr($::Class => '@:superclasses') = [ $::Module ];
+::opaque_instance_attr($::Module => '@:subclasses')  = [ $::Class, $::Role  ];
 
 # NOTE:
 # this is to avoid recursion
-::opaque_instance_attrs($::Class)->{'@:MRO'}  = [ $::Class, $::Module, $::Package, $::Object ];
-::opaque_instance_attrs($::Object)->{'@:MRO'} = [ $::Object ];
+::opaque_instance_attr($::Class => '@:MRO')  = [ $::Class, $::Module, $::Package, $::Object ];
+::opaque_instance_attr($::Object => '@:MRO') = [ $::Object ];
 
 # now make sure we set everyone's name properly
 $::Package->name('Package');

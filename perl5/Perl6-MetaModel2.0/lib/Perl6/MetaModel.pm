@@ -28,8 +28,8 @@ sub _ {
     my $attr = shift;
     ($::CLASS->find_attribute_spec($attr))
         || confess "Attribute ($attr) is not a valid attribute for $::SELF";
-    ::opaque_instance_attrs($::SELF)->{$attr} = shift if @_;
-    ::opaque_instance_attrs($::SELF)->{$attr};    
+    ::opaque_instance_attr($::SELF => $attr) = shift if @_;
+    ::opaque_instance_attr($::SELF => $attr);    
 }
 
 sub __ {

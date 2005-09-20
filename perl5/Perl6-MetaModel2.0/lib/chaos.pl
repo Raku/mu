@@ -46,11 +46,13 @@ our $DISPATCH_TRACE = 0;
             || confess "Bad instance (" . ($instance || 'undef') . ")";        
         ${$instance->{class}};
     }
-    sub ::opaque_instance_attrs ($) { 
+    sub ::opaque_instance_attr ($$) : lvalue { 
         my $instance = shift;
         (defined $instance && blessed($instance) eq 'Dispatchable')
             || confess "Bad instance (" . ($instance || 'undef') . ")";
-        $instance->{attrs};
+        my $label = shift;
+        (defined $label) || confess "No label to fetch";
+        $instance->{attrs}->{$label};
     }
 }
 
@@ -360,10 +362,10 @@ our $DISPATCH_TRACE = 0;
         # we take the MRO first, however at some early
         # stages of the bootstrap, this is not yet 
         # populated with anything, so ....
-        my @supers = @{::opaque_instance_attrs($self)->{'@:MRO'}};
+        my @supers = @{::opaque_instance_attr($self => '@:MRO')};
         # if nothing is in MRO, we take the superclasses
         # because we know that is there ...
-        @supers = @{::opaque_instance_attrs($self)->{'@:superclasses'}} 
+        @supers = @{::opaque_instance_attr($self => '@:superclasses')} 
             if scalar @supers == 0;
         # ... carry on,.. nothing to see here ....
         push @classes => @supers
@@ -373,7 +375,7 @@ our $DISPATCH_TRACE = 0;
 
         # now try and find out method ...
         foreach my $class (@classes) {
-            my $method_table = ::opaque_instance_attrs($class)->{$method_table_name};
+            my $method_table = ::opaque_instance_attr($class => $method_table_name);
             return $method_table->{$label}->($self, @{$args}) 
                 if  exists $method_table->{$label} &&
                    defined $method_table->{$label} &&

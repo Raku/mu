@@ -60,7 +60,7 @@ $::Class->add_method('BUILD' => ::make_submethod(sub {
         # attributes. It will do nothing with them
         # but it will allow them to exist.
         # - (see t_oo/submethods.t)
-        ::opaque_instance_attrs($self)->{$key} = $params{$key}
+        ::opaque_instance_attr($self => $key) = $params{$key}
             # NOTE:
             # this is an ugly way to do this, ideally
             # we would peek into the instance structure
@@ -109,22 +109,22 @@ $::Class->add_method('superclasses' => ::make_method(sub {
         # we should check that none of the classes passed to us
         # are also subclasses of us, this is circular inheritance
         # and not allowed.
-        ::opaque_instance_attrs($self)->{'@:superclasses'} = $superclasses; 
+        ::opaque_instance_attr($self => '@:superclasses') = $superclasses; 
         # clear the MRO now
-        ::opaque_instance_attrs($self)->{'@:MRO'} = [];
+        ::opaque_instance_attr($self => '@:MRO') = [];
         # and recalculate it ..
         $self->MRO();
     }
-    ::opaque_instance_attrs($self)->{'@:superclasses'};
+    ::opaque_instance_attr($self => '@:superclasses');
 }));
 
 $::Class->add_method('subclasses' => ::make_method(sub {        
-    ::opaque_instance_attrs($::SELF)->{'@:subclasses'};
+    ::opaque_instance_attr($::SELF => '@:subclasses');
 }));
 
 $::Class->add_method('add_subclass' => ::make_method(sub {      
     my ($self, $subclass) = @_;  
-    push @{::opaque_instance_attrs($self)->{'@:subclasses'}} => $subclass;
+    push @{::opaque_instance_attr($self => '@:subclasses')} => $subclass;
 }));
 
 $::Class->add_method('_merge' => ::make_private_method(sub {                
@@ -163,8 +163,8 @@ $::Class->add_method('_merge' => ::make_private_method(sub {
 
 $::Class->add_method('MRO' => ::make_method(sub { 
     my $self = shift;
-    unless (@{::opaque_instance_attrs($self)->{'@:MRO'}}) {
-        ::opaque_instance_attrs($self)->{'@:MRO'} = [
+    unless (@{::opaque_instance_attr($self => '@:MRO')}) {
+        ::opaque_instance_attr($self => '@:MRO') = [
             $self->_merge(
                 [ $self ],                                      # the class we are linearizing
                 (map { [ $_->MRO() ] } @{$self->superclasses}), # the MRO of all the superclasses
@@ -172,7 +172,7 @@ $::Class->add_method('MRO' => ::make_method(sub {
             )
         ];
     }
-    return @{::opaque_instance_attrs($self)->{'@:MRO'}};
+    return @{::opaque_instance_attr($self => '@:MRO')};
 }));
 
 $::Class->add_method('dispatcher' => ::make_method(sub {
@@ -285,13 +285,13 @@ $::Class->add_method('_get_method_table' => ::make_private_method(sub {
     my $method_table;
     if (lc($params->{for}) eq 'instance' ||
         lc($params->{for}) eq 'submethod') {
-        return ::opaque_instance_attrs($self)->{'%:methods'};
+        return ::opaque_instance_attr($self => '%:methods');
     }
     elsif (lc($params->{for}) eq 'class') {
-        return ::opaque_instance_attrs($self)->{'%:class_methods'};
+        return ::opaque_instance_attr($self => '%:class_methods');
     }
     elsif (lc($params->{for}) eq 'private') {
-        return ::opaque_instance_attrs($self)->{'%:private_methods'};
+        return ::opaque_instance_attr($self => '%:private_methods');
     }        
     else {
         confess "There is no " . $params->{for} . " method table";
@@ -323,7 +323,7 @@ $::Class->add_method('add_attribute' => ::make_method(sub {
         || confess "InsufficientArguments : you must provide an attribute and a label";
     #$self->_create_accessor($attribute);          
     if (blessed($attribute) eq 'Perl6::Attribute') {
-        ::opaque_instance_attrs($self)->{'%:attributes'}->{$label} = $attribute;
+        ::opaque_instance_attr($self => '%:attributes')->{$label} = $attribute;
     }
     else {
         confess "I do not recognize the attribute type ($attribute)";
@@ -336,7 +336,7 @@ $::Class->add_method('_get_attribute_table' => ::make_private_method(sub {
     $params->{for} = 'instance' if not exists $params->{for};    
     my $method_table;
     if (lc($params->{for}) eq 'instance') {
-        return ::opaque_instance_attrs($self)->{'%:attributes'};
+        return ::opaque_instance_attr($self => '%:attributes');
     }     
     else {
         confess "There is no " . $params->{for} . " attribute table";
