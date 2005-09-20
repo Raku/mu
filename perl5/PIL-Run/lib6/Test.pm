@@ -3,38 +3,39 @@ sub plan ($n) { say "1..$n"; }
 
 my $count = 0;
 
-sub _hlp (%adv) {
-    "";
+sub ok ($v, ?$msg="", ?$todo) {
+    my $st = ref($todo) eq 'Pair' ?? " # TODO "~$todo.value !! "";
+    $count++;
+    if $v { say "ok $count - $msg"~$st }
+    else { say "not ok $count - $msg"~$st }
 }
 
-sub ok ($v, ?$msg="", *%adv) {
+sub is ($v,$v2, ?$msg="", ?$todo) {
+    my $st = ref($todo) eq 'Pair' ?? " # TODO "~$todo.value !! "";
     $count++;
-    if $v { say "ok $count - $msg"~_hlp(%adv) }
-    else { say "not ok $count - $msg"~_hlp(%adv) }
+    if $v eq $v2 { say "ok $count - $msg"~$st }
+    else { say "not ok $count - $msg"~$st }
 }
 
-sub is ($v,$v2, ?$msg="", *%adv) {
+sub eval_ok ($v, ?$msg="", ?$todo) {
+    my $st = ref($todo) eq 'Pair' ?? " # TODO "~$todo.value !! "";
     $count++;
-    if $v eq $v2 { say "ok $count - $msg"~_hlp(%adv) }
-    else { say "not ok $count - $msg"~_hlp(%adv) }
+    if eval($v) { say "ok $count - $msg"~$st }
+    else { say "not ok $count - $msg"~$st }
 }
 
-sub eval_ok ($v, ?$msg="", *%adv) {
+sub eval_is ($v,$v2, ?$msg="", ?$todo) {
+    my $st = ref($todo) eq 'Pair' ?? " # TODO "~$todo.value !! "";
     $count++;
-    if eval($v) { say "ok $count - $msg"~_hlp(%adv) }
-    else { say "not ok $count - $msg"~_hlp(%adv) }
+    if eval($v) eq $v2 { say "ok $count - $msg"~$st }
+    else { say "not ok $count - $msg"~$st }
 }
 
-sub eval_is ($v,$v2, ?$msg="", *%adv) {
+sub dies_ok ($c, ?$msg="", ?$todo) {
+    my $st = ref($todo) eq 'Pair' ?? " # TODO "~$todo.value !! "";
     $count++;
-    if eval($v) eq $v2 { say "ok $count - $msg"~_hlp(%adv) }
-    else { say "not ok $count - $msg"~_hlp(%adv) }
-}
-
-sub dies_ok ($c, ?$msg="", *%adv) {
-    $count++;
-    my $r = try { $c(); say "not ok $count - $msg"~_hlp(%adv); 13 };
-    say "ok $count - $msg"~_hlp(%adv) if $r != 13;
+    my $r = try { $c(); say "not ok $count - $msg"~$st; 13 };
+    say "ok $count - $msg"~$st if $r != 13;
 }
 
 sub pass (?$msg="") {
