@@ -51,7 +51,6 @@ sub p6_repl {
         my @res = run_p5r($p5r);
         print "\n",(map {p6_to_s($_)} @res),"\n";
     };
-    print "See perl5/PIL-Run/TODO.\n";
     p6_repl_print_help();
     while (1) {
         my $line = prompt_string("p5ugs> ");
