@@ -90,18 +90,20 @@ package PVar; @ISA = qw(EvalX::BaseClass); sub expand {
 }
 package PPad; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
-    my($pre,$post) = ("","");
-    my $scope = "my";
-    if ($_[0]{'pScope'} eq 'STemp') {
-	$scope = "local";
-	$pre = "no strict 'vars';";
-	$post = ""; # use strict 'vars'; # XXX - what is the policy?
-    }
     # XXX - should have a p6_var_int() or somesuch.
     my @vars = map{$_->[0]} @{$_[0]{'pSyms'}};
-    my $varlist = join(",",map{'$'.p6_mangle($_)} @vars); # XXX - ApiX abstraction violation
+    my @varsm = map{p6_mangle($_)} @vars;# XXX - ApiX abstraction violation
+    my $varlist = join(",",map{'$'.$_}@varsm); 
     my $body = $_[0]{'pStmts'}->expand();
-    my $code = "\ndo{$pre$scope($varlist);$post\n$body \n}";
+    my $decl = "my($varlist);";
+    if ($_[0]{'pScope'} eq 'STemp') {
+	my $vl2 = join(",",map{'${__PACKAGE__."::'.$_.'"}'}@varsm);
+	my $vl3 = join(",",map{'*{__PACKAGE__."::'.$_.'"}'}@varsm);
+	my $vl4 = join(",",map{'\\$'.$_}@varsm);
+	$decl = "no strict 'refs'; my($varlist);local($vl2);($vl3)=($vl4);";
+	# XXX - "strict 'refs';" afterward?
+    }
+    my $code = "\ndo{$decl;\n$body \n}";
     $code;
 }
 package PApp; @ISA = qw(EvalX::BaseClass); sub expand {
@@ -244,6 +246,7 @@ sub define_classes_for {
 sub expand {
     my($pilc)=@_;
     define_classes_for($pilc);
+    return "" if !defined $pilc;
     $pilc->expand();
 }
 

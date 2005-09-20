@@ -38,6 +38,13 @@ sub dies_ok ($c, ?$msg="", ?$todo) {
     say "ok $count - $msg"~$st if $r != 13;
 }
 
+sub lives_ok ($c, ?$msg="", ?$todo) {
+    my $st = ref($todo) eq 'Pair' ?? " # TODO "~$todo.value !! "";
+    $count++;
+    my $r = try { $c(); say "ok $count - $msg"~$st; 13 };
+    say "not ok $count - $msg"~$st if $r != 13;
+}
+
 sub pass (?$msg="") {
     $count++;
     say "ok $count - $msg";
