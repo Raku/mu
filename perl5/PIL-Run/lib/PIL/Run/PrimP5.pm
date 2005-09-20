@@ -189,10 +189,10 @@ MULTI SUB take () {...};
 MULTI SUB chop ($xx)  {...};
 MULTI SUB chomp ($xx) {...};
 MULTI SUB Str::split (*@xxa) {...};
-MULTI SUB lc ($xx)      { p6_from_s( lc( $xx->unboxed ) ) };
-MULTI SUB lcfirst ($xx) { p6_from_s( lcfirst( $xx->unboxed ) ) };
-MULTI SUB uc ($xx)      { p6_from_s( uc( $xx->unboxed ) )  };
-MULTI SUB ucfirst ($xx) {  p6_from_s( ucfirst( $xx->unboxed ) ) };
+MULTI SUB lc ($xx)      { p6_from_s( lc(p6_to_s($xx)) ) };
+MULTI SUB lcfirst ($xx) { p6_from_s( lcfirst(p6_to_s($xx)) ) };
+MULTI SUB uc ($xx)      { p6_from_s( uc(p6_to_s($xx)) )  };
+MULTI SUB ucfirst ($xx) {  p6_from_s( ucfirst(p6_to_s($xx)) ) };
 MULTI SUB capitalize ($xx) {
     my $string = $xx->unboxed;
     # from the Perl FAQ
@@ -213,11 +213,11 @@ MULTI SUB Pugs::Internals::truncate ($xx) {...};
 MULTI SUB Pugs::Internals::round ($xx) {...};
 MULTI SUB Pugs::Internals::floor ($xx) {...};
 MULTI SUB Pugs::Internals::ceiling ($xx) {...};
-MULTI SUB cos ($xx)  { p6_from_n( cos( $xx->unboxed ) ) };
-MULTI SUB sin ($xx)  { p6_from_n( sin( $xx->unboxed ) ) };
-MULTI SUB tan ($xx)  { p6_from_n( tan( $xx->unboxed ) ) };
-MULTI SUB sqrt ($xx) { p6_from_n( sqrt( $xx->unboxed ) ) };
-MULTI SUB atan (*@xxa) {...};
+MULTI SUB cos ($xx)  { p6_from_n( cos(p6_to_n($xx)) ) };
+MULTI SUB sin ($xx)  { p6_from_n( sin(p6_to_n($xx)) ) };
+MULTI SUB tan ($xx)  { p6_from_n( tan(p6_to_n($xx)) ) };
+MULTI SUB sqrt ($xx) { p6_from_n( sqrt(p6_to_n($xx)) ) };
+MULTI SUB atan (*@xxa) { p6_from_n( atan(map{p6_to_n($_)}@xxa) ) };
 
 MULTI SUB postfix:<++> ($xx) { 
     my $old = p6_new(Num => p6_to_n($xx)); # XXX - use clone() - needs MM2
@@ -244,7 +244,7 @@ MULTI SUB reverse ($xx) {
         $ret;
     }
     else {
-        my $tmp = Perl6::Value::stringify( $xx );
+        my $tmp = p6_to_s( $xx );
         $tmp = reverse( $tmp );
         Str->new( '$.unboxed' => $tmp ); 
     }
@@ -383,32 +383,32 @@ MULTI SUB Pugs::Safe::safe_print ($xx) {...};
 MULTI SUB die (*@xxa) { die map{p6_to_s($_)}@xxa; };
 MULTI SUB warn ($xx) { 
     # TODO - add line number, if string doesn't terminate in "\n"
-    warn $xx->unboxed . " at ...\n";
+    warn p6_to_s($xx). " at ...\n";
 };
-MULTI SUB fail_ ($xx) {...};
-MULTI SUB exit ($xx) {...};
+MULTI SUB fail_ ($xx) { die(p6_to_s($xx)); };
+MULTI SUB exit ($xx) { exit(p6_to_n($xx)); };
 MULTI SUB readlink ($xx) {...};
 MULTI SUB sleep ($xx) { sleep ( p6_to_n($xx) ) };
-MULTI SUB mkdir ($xx) {...};
-MULTI SUB rmdir ($xx) {...};
-MULTI SUB chdir ($xx) {...};
-MULTI SUB prefix:<-r> ($xx) {...};
-MULTI SUB prefix:<-w> ($xx) {...};
-MULTI SUB prefix:<-x> ($xx) {...};
-MULTI SUB prefix:<-e> ($xx) {...};
-MULTI SUB prefix:<-z> ($xx) {...};
-MULTI SUB prefix:<-s> ($xx) {...};
-MULTI SUB prefix:<-f> ($xx) {...};
-MULTI SUB prefix:<-d> ($xx) {...};
+MULTI SUB mkdir ($xx) { mkdir(p6_to_s($xx)); };
+MULTI SUB rmdir ($xx) { rmdir(p6_to_s($xx)); };
+MULTI SUB chdir ($xx) { chdir(p6_to_s($xx)); };
+MULTI SUB prefix:<-r> ($xx) { -r p6_to_s($xx) ? $xx : p6_from_b(0) };
+MULTI SUB prefix:<-w> ($xx) { -w p6_to_s($xx) ? $xx : p6_from_b(0) };
+MULTI SUB prefix:<-x> ($xx) { -x p6_to_s($xx) ? $xx : p6_from_b(0) };
+MULTI SUB prefix:<-e> ($xx) { -e p6_to_s($xx) ? $xx : p6_from_b(0) };
+MULTI SUB prefix:<-z> ($xx) { -z p6_to_s($xx) ? $xx : p6_from_b(0) };
+MULTI SUB prefix:<-s> ($xx) { -s p6_to_s($xx) ? $xx : p6_from_b(0) };
+MULTI SUB prefix:<-f> ($xx) { -f p6_to_s($xx) ? $xx : p6_from_b(0) };
+MULTI SUB prefix:<-d> ($xx) { -d p6_to_s($xx) ? $xx : p6_from_b(0) };
 MULTI SUB end ($xx) { $xx->end };
 MULTI SUB elems ($xx) { $xx->elems };
 MULTI SUB graphs ($xx) {...};
 MULTI SUB codes ($xx) {...};
-MULTI SUB chars ($xx) {...};
-MULTI SUB bytes ($xx) {};
+MULTI SUB chars ($xx) { p6_from_n(length(p6_to_s($xx))) };
+MULTI SUB bytes ($xx) { use bytes; p6_from_n(length(p6_to_s($xx))) };
 MULTI SUB unlink ($xx) {unlink(p6_to_s($xx0))};
 MULTI SUB readdir ($xx) {...};
-MULTI SUB slurp ($xx) {...};
+MULTI SUB slurp ($xx) { p6_from_s(`cat $xx`); };
 MULTI SUB opendir ($xx) {...};
 MULTI SUB IO::Dir::closedir ($xx) {...};
 MULTI SUB IO::Dir::rewinddir ($xx) {...};
@@ -416,17 +416,13 @@ MULTI SUB IO::Dir::readdir ($xx) {...};
 MULTI SUB Pugs::Internals::runInteractiveCommand ($xx) {...};
 MULTI SUB Pugs::Internals::check_for_io_leak ($xx) {...};
 MULTI SUB system (*@xx) {
-    #for ( $PIL::Run::Root::main::hash_ENV->keys->items ) {
-    #    $ENV{ Perl6::Value::stringify( $_ ) } = 
-    #        Perl6::Value::stringify( $PIL::Run::Root::main::hash_ENV->fetch( $_ ) ) ;
-    #}
-    @xx = map{ Perl6::Value::stringify( $_ ) } @xx;
-    p6_from_n( system @xx );
+    @xx = map{p6_to_s($_)} @xx;
+    p6_from_n(system(@xx));
 };
 MULTI SUB accept ($xx) {...};
 MULTI SUB detach ($xx) {...};
-MULTI SUB kill (*@xxa) {...};
-MULTI SUB join (*@xxa) {...};
+MULTI SUB kill (*@xxa) { kill(map{p6_to_n($_)}@xxa); };
+MULTI SUB join (*@xxa) { p6_from_s(join(map{p6_to_s($_)}@xxa)); };
 MULTI SUB async ($xx) {...};
 MULTI SUB listen ($xx) {...};
 MULTI SUB flush ($xx) {...};
@@ -451,7 +447,7 @@ MULTI SUB max ($xx) {...};
 #MULTI SUB uniq ($xx) {...};
 MULTI SUB chr ($xx) { p6_from_s( chr( p6_to_n( $xx ) ) ) };
 MULTI SUB ord ($xx) { p6_from_n( ord( p6_to_s( $xx ) ) ) };
-MULTI SUB hex ($xx) { p6_from_n( eval '0x' . $xx->unboxed ) };
+MULTI SUB hex ($xx) { p6_from_n( eval '0x' .p6_to_s($xx)) };
 MULTI SUB log ($xx)   { p6_from_n( log( p6_to_s( $xx ) ) ) };
 MULTI SUB log10 ($xx) { p6_from_n( log( p6_to_s( $xx ) ) / log(10) ) };
 #MULTI SUB from ($xx) {...}; - implemented as methods.
@@ -481,10 +477,10 @@ MULTI SUB infix:<*> ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) * p6_to_n($xx1)) };
 MULTI SUB infix:</> ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) / p6_to_n($xx1)) };
 MULTI SUB infix:<%> ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) % p6_to_n($xx1)) };
 MULTI SUB infix:<x> ($xx0,$xx1) {
-    p6_from_s( Perl6::Value::stringify($xx0) x  $xx1->unboxed ) 
+    p6_from_s( p6_to_s($xx0) x  p6_to_n($xx1) ) 
 };
 MULTI SUB infix:<xx> ($xx0,$xx1) {
-    p6_from_a( Perl6::Value::List->from_x( item => $xx0, count => $xx1->unboxed ) ) 
+    p6_from_a( Perl6::Value::List->from_x( item => $xx0, count => p6_to_n($xx1) ) ) 
 };
 MULTI SUB infix:<+&> ($xx0,$xx1) {...};
 MULTI SUB infix:[+<] ($xx0,$xx1) {...};
@@ -507,14 +503,14 @@ MULTI SUB infix:<=>  ($xx0,$xx1) {...};
 MULTI SUB infix:<cmp> ($xx0,$xx1) { p6_from_n(p6_to_s($xx0) cmp p6_to_s($xx1)) };
 MULTI SUB infix:[<=>] ($xx0,$xx1) { p6_from_n(p6_to_n($xx0) <=> p6_to_n($xx1)) };
 MULTI SUB infix:<..> ($xx0,$xx1) { 
-    my $n = Perl6::Value::numify( $xx0 );
+    my $n = p6_to_n( $xx0 );
     if ( $n eq $xx0->unboxed ) {
         return p6_from_a(
-            Perl6::Value::List->from_num_range( start => $xx0->unboxed, end => $xx1->unboxed )
+            Perl6::Value::List->from_num_range( start => $xx0->unboxed, end => p6_to_n($xx1) )
         )         
     }
     return p6_from_a(
-        Perl6::Value::List->from_range( start => $xx0->unboxed, end => $xx1->unboxed )
+        Perl6::Value::List->from_range( start => $xx0->unboxed, end => p6_to_n($xx1) )
     )         
 };
 #MULTI SUB infix:<..^> ($xx0,$xx1) {...}; # in PrimP6
@@ -552,8 +548,8 @@ MULTI SUB infix:<nor> ($xx0,$xx1) {...};
 # join - see op1
 MULTI SUB reduce ($xx0,$xx1) {...};
 # kill - see op1
-MULTI SUB does ($xx0,$xx1) { p6_from_b($xx0->does( $xx1->unboxed )) };
-MULTI SUB isa  ($xx0,$xx1) { p6_from_b($xx0->isa( $xx1->unboxed )) };
+MULTI SUB does ($xx0,$xx1) { p6_from_b($xx0->does( p6_to_s($xx1) )) };
+MULTI SUB isa  ($xx0,$xx1) { p6_from_b($xx0->isa( p6_to_s($xx1) )) };
 #MULTI SUB delete ($xx0,$xx1) {...}; -- implemented in Array, Hash
 #MULTI SUB exists ($xx0,$xx1) {...};
 MULTI SUB unshift (@xx0,*@xxa) { $xx0->unshift( @xxa ) };
@@ -571,20 +567,14 @@ MULTI SUB sprintf ($xx0,*@xxa) {
     p6_from_s(sprintf(p6_to_s($xx0), map{p6_to_s($_)} @xxa));
 };
 MULTI SUB exec (*@xx) {
-    #for ( $PIL::Run::Root::main::hash_ENV->keys->items ) {
-    #    # warn "SETENV $_ = ".Perl6::Value::stringify( $PIL::Run::Root::main::hash_ENV->fetch( $_ ))."\n";
-    #    $ENV{ Perl6::Value::stringify( $_ ) } = 
-    #        Perl6::Value::stringify( $PIL::Run::Root::main::hash_ENV->fetch( $_ ) ) ;
-    #}
-    @xx = map{ Perl6::Value::stringify( $_ ) } @xx;
-    # warn "EXEC @xx";
+    @xx = map{p6_to_s($_)} @xx;
     exec @xx;
 };
 # system - see op1
 MULTI SUB chmod ($xx0,@xxa) {chmod(p6_to_n($xx0),map{p6_to_s($_)}@xxa)};
 MULTI SUB splice ($xx0,*@xxa) { 
     for (0,1) {
-        $xxa[$_] = Perl6::Value::numify( $xxa[$_] ) if defined $xxa[$_]; 
+        $xxa[$_] = p6_to_n( $xxa[$_] ) if defined $xxa[$_]; 
     }
     $xx0->splice( @xxa );
 };

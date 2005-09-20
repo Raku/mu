@@ -264,7 +264,7 @@ sub pil_from_p6 {
     my($p6)=@_;
     my $frob = sub{ my $n=$_[0];($n =~ /^perl5/ ? "" : "require $n;")."use_avoiding_pugs('$n');"};
     $p6 =~ s/^use\s+([^;]+);/$frob->($1)/emg;
-    my $fn = "deleteme.p6";
+    my $fn = "deleteme$$.p6";
     open(F,">$fn") or die "Couldn't open \"$fn\" for writing: $!\n"; # XXX - kludge
     print F $p6; close F or die "Couldn't close \"$fn\": $!\n";
     my $dir = "-I$src_root/lib6";
