@@ -397,7 +397,7 @@ MULTI SUB prefix:<-w> ($xx) { -w p6_to_s($xx) ? $xx : p6_from_b(0) };
 MULTI SUB prefix:<-x> ($xx) { -x p6_to_s($xx) ? $xx : p6_from_b(0) };
 MULTI SUB prefix:<-e> ($xx) { -e p6_to_s($xx) ? $xx : p6_from_b(0) };
 MULTI SUB prefix:<-z> ($xx) { -z p6_to_s($xx) ? $xx : p6_from_b(0) };
-MULTI SUB prefix:<-s> ($xx) { -s p6_to_s($xx) ? $xx : p6_from_b(0) };
+MULTI SUB prefix:<-s> ($xx) { p6_from_n(-s p6_to_s($xx)) };
 MULTI SUB prefix:<-f> ($xx) { -f p6_to_s($xx) ? $xx : p6_from_b(0) };
 MULTI SUB prefix:<-d> ($xx) { -d p6_to_s($xx) ? $xx : p6_from_b(0) };
 MULTI SUB end ($xx) { $xx->end };

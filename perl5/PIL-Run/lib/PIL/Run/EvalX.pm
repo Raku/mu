@@ -28,6 +28,8 @@ sub subnodes_of {
     }
 }
 
+local $PIL::Run::EvalX::bb_tree_is_var;
+
 no strict;
 package EvalX::BaseClass;
 use Scalar::Util qw(blessed);
@@ -83,6 +85,7 @@ package PVal; @ISA = qw(EvalX::BaseClass); sub expand {
 }
 package PVar; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
+    $PIL::Run::EvalX::bb_tree_is_var = 1;
     my $s = $_[0]{'pVarName'};
     "\n# $s\n".
     p6_var_macro($s,2)
@@ -110,7 +113,11 @@ package PApp; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
     my($self)=@_;
 
+    $PIL::Run::EvalX::bb_tree_is_var = 0;
+    local $PIL::Run::EvalX::bb_tree_is_var = 0;
     my $f = $self->{'pFun'}->expand();
+    my $f_is_idempotent = $PIL::Run::EvalX::bb_tree_is_var;
+
     my $invocant = defined $self->{'pInv'} ? $self->{'pInv'}->expand() : undef;
     my @args = map{$_->expand()} @{$self->{'pArgs'}};
 
@@ -118,7 +125,10 @@ package PApp; @ISA = qw(EvalX::BaseClass); sub expand {
 
     unshift(@args,$invocant) if defined $invocant;
 
-    my($fv) = PIL::Run::EvalX::run_p5r("package ".p6_root.";".$f); # XXX - kludge
+    my $fv;
+    if($f_is_idempotent) {
+	($fv) = PIL::Run::EvalX::run_p5r("package ".p6_root.";".$f); # XXX - kludge
+    }
     if(defined $fv && ref($fv) =~ /Macro/) { # XXX - kludge
         my $macro_expansion = $fv->do(@args);
         $macro_expansion;
@@ -202,7 +212,8 @@ package PCode; @ISA = qw(EvalX::BaseClass); sub expand {
                                         $body,
                                         'macro',
                                         'Code');
-    $sub;
+    my $var = '$code::c_'.int(rand(100000000));
+    "(defined($var)?$var:do{$var=$sub})";
 }
 package PIL::Environment; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
@@ -317,6 +328,7 @@ sub p6_eval {
     my($p6)=@_;
     my $p5r = p5r_from_p6($p6);
     $p5r = "package ".p6_main."; use utf8; ".$p5r;
+    #print STDERR "\n\n\n",$p5r;
     run_p5r($p5r);
 }
 sub p6_eval_file {

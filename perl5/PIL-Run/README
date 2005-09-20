@@ -27,8 +27,7 @@ p5ugs> :v
 
 Todo:
  - Perl6-Value and Perl6-Container need work.
- - Loops,etc, are creating new Code objects on every pass. Which is
-   both glacial and incorrect.  They should be lifted before the loop.
+   Especially slurpy Code parameters, and hashes.
  - PIL node handling is still very incomplete.  See EvalX.
  - Things have gotten rather crufty. Cleaning is needed.
 

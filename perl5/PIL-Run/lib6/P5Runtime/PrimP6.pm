@@ -65,11 +65,16 @@ multi sub statement_control:loop ($init,$test,$incr,$code) {
 	$incr();
     }
 }
+multi sub statement_control:until ($test,$code) {
+    while(!$test()) {
+	$code();
+    }
+}
 multi sub statement_control:for (@a,$code) {
     my $i = 0;
     my $len = +@a;
     my $arity = $code.arity;
-    if $arity == 1 {
+    if $arity <= 1 {
 	while($i < $len) {
 	    $code(@a[$i]);
 	    $i++;
@@ -96,4 +101,8 @@ multi sub eval($code,+$langpair = undef) {
     if $lang eq "perl6" { Pugs::Internals::eval($code) }
     elsif $lang eq "perl5" { Pugs::Internals::eval_perl5($code) }
     else { die "Language \"$lang\" unknown."; }
+}
+
+multi sub infix:<eqv> ($a, $b) {
+    $a eq $b
 }

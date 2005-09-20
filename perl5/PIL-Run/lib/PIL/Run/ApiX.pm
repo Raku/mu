@@ -382,6 +382,7 @@ sub p6_loop_macro {
         last if $__flag eq "last";
         next if $__flag eq "next";
         redo if $__flag eq "redo";
+        die "p6_loop_macro: bug";
      }'."\n";
 }
 sub p6_last_macro {
@@ -404,6 +405,8 @@ p6_package_init('');
 p6_package_init('main');
 
 {
+require Perl6::Container::Hash;
+require Perl6::Container::Array;
 $PIL::Run::Root::main::hash_ENV = Hash->new();
 my $h = Perl6::Container::Hash::Native->new( hashref => \%ENV );
 $PIL::Run::Root::main::hash_ENV->{'instance_data'}{'$:cell'}{tieable} = 1;
