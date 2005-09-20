@@ -369,10 +369,17 @@ sub typecheck {
 		
 		$self->new_pad( $param->val, my $placeholder = Blondie::TypeSafe::Type::Placeholder->new );
 
+		my $rparam = $param->fmap(sub {
+			Blondie::TypeSafe::Annotation->new(
+				struct_equiv => $_[0],
+				type => Blondie::TypeSafe::Type::Bottom->new,
+			);
+		});
+
 		return Blondie::TypeSafe::Annotation->new(
 			type => Blondie::TypeSafe::Type::Bottom->new,
 			accepts_type => $placeholder,
-			struct_equiv => $param,
+			struct_equiv => $rparam,
 		);
 	}
 

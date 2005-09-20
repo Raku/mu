@@ -16,10 +16,21 @@ sub find_dyn_sym {
     my $symbol = shift;
 
     foreach my $pad ($self->pads) {
-    return $pad if $pad->name eq $symbol;
+		return $pad if $pad->name eq $symbol;
     }
 
     die "symbol $symbol could not be resolved by $self";
+}
+
+sub find_immediate_dyn_sym {
+	my $self = shift;
+	my $symbol = shift;
+
+	foreach my $pad (@{ ($self->scopes)[-1] }) {
+		return $pad if $pad->name eq $symbol;
+	}
+
+	die "symbol $symbol could not be resolved in the last scope by $self. It may be defined in an upper scope";
 }
 
 sub new_pad {
