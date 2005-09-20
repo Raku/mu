@@ -173,6 +173,7 @@ package PSub; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
     local $EvalX::PStmt::protection_unacceptable; # block further propagation.
     my $body = $_[0]{'pSubBody'}->expand();
+    $body = 'my %_codes_; '.$body;
     my $sub = p6_new_sub_from_pil_macro($_[0]{'pSubName'},
                                         $_[0]{'pSubParams'},
                                         $body,
@@ -212,8 +213,8 @@ package PCode; @ISA = qw(EvalX::BaseClass); sub expand {
                                         $body,
                                         'macro',
                                         'Code');
-    my $var = '$code::c_'.int(rand(100000000));
-    "(defined($var)?$var:do{$var=$sub})";
+    my $var = '$_codes_{'.int(rand(100000000)).'}';
+    "(do{no strict;(defined($var)?$var:do{$var=$sub})})";
 }
 package PIL::Environment; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;

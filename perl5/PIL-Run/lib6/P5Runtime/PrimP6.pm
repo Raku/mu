@@ -75,17 +75,17 @@ multi sub statement_control:for (@a,$code) {
     my $len = +@a;
     my $arity = $code.arity;
     if $arity <= 1 {
-	while($i < $len) {
+	while $i < $len {
 	    $code(@a[$i]);
 	    $i++;
 	}
     } elsif $arity == 2 {
-	while($i < $len) {
+	while $i < $len {
 	    $code(@a[$i],@a[$i+1]);
 	    $i += 2;
 	}
     } elsif $arity == 5 {
-	while($i < $len) {
+	while $i < $len {
 	    $code(@a[$i],@a[$i+1],@a[$i+2],@a[$i+3],@a[$i+4]);
 	    $i += 5;
 	}
