@@ -68,9 +68,19 @@ multi sub statement_control:loop ($init,$test,$incr,$code) {
 multi sub statement_control:for (@a,$code) {
     my $i = 0;
     my $len = +@a;
-    while($i < $len) {
-	$code(@a[$i]);
-	$i++;
+    my $arity = $code.arity;
+    if $arity == 1 {
+	while($i < $len) {
+	    $code(@a[$i]);
+	    $i++;
+	}
+    } elsif $arity == 2 {
+	while($i < $len) {
+	    $code(@a[$i],@a[$i+1]);
+	    $i += 2;
+	}
+    } else {
+	die "statement_control:for not fully implemented";
     }
 }
 

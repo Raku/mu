@@ -108,9 +108,6 @@ package PApp; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
     my($self)=@_;
 
-    return $self->{'pFun'}{'pBody'}->expand() # XXX - bypass PCode - kludge
-        if UNIVERSAL::isa($self->{'pFun'},"PCode");
-
     my $f = $self->{'pFun'}->expand();
     my $invocant = defined $self->{'pInv'} ? $self->{'pInv'}->expand() : undef;
     my @args = map{$_->expand()} @{$self->{'pArgs'}};
@@ -195,7 +192,6 @@ package PSub; @ISA = qw(EvalX::BaseClass); sub expand {
          ."}\n");
     }
 }
-# package PCode;  also see hack above
 package PCode; @ISA = qw(EvalX::BaseClass); sub expand {
     use PIL::Run::ApiX;
     my $body = $_[0]{'pBody'}->expand();
