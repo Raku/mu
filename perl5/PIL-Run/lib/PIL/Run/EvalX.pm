@@ -313,7 +313,7 @@ sub run_p5r {
 sub p6_eval {
     my($p6)=@_;
     my $p5r = p5r_from_p6($p6);
-    $p5r = "package ".p6_main."; ".$p5r;
+    $p5r = "package ".p6_main."; use utf8; ".$p5r;
     run_p5r($p5r);
 }
 sub p6_eval_file {

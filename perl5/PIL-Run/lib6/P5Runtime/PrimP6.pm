@@ -79,6 +79,11 @@ multi sub statement_control:for (@a,$code) {
 	    $code(@a[$i],@a[$i+1]);
 	    $i += 2;
 	}
+    } elsif $arity == 5 {
+	while($i < $len) {
+	    $code(@a[$i],@a[$i+1],@a[$i+2],@a[$i+3],@a[$i+4]);
+	    $i += 5;
+	}
     } else {
 	die "statement_control:for not fully implemented";
     }
