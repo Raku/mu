@@ -15,5 +15,11 @@ sub is ($v,$v2, ?$msg) {
 
 sub eval_ok ($v,?$msg) {
     $count++;
-    say "not ok $count - $msg - eval_ok isnt implemented yet!";
+    if eval($v) { say "ok $count - $msg" } else { say "not ok $count - $msg" }
+}
+
+sub dies_ok ($c,?$msg) {
+    $count++;
+    my $r = try { $c(); say "not ok $count - $msg"; 13 };
+    say "ok $count - $msg" if $r != 13;
 }

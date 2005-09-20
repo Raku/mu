@@ -319,17 +319,24 @@ sub help_require_use { # XXX - getting crufty...
     $name = $name.".pm" if $name !~ /\.pm/; # help out use();
     my $fn = File::Spec->catfile(split(/::/,$name));
     my @incdirs;
-    #my $inc6 = p6_var('@INC',2);
-    my $inc = \@INC; # p6_to_a($inc6);
+    my $inc6 = p6_var('@INC',2);
+    my $inc =  p6_to_a($inc6);
     for (@$inc) {
 	my $dir = p6_to_s($_);
 	warn "p6_to_a() is still broken, so \@INC wasn't used." # XXX
 	    if $dir =~ /Container::Array=HASH/;
 	push(@incdirs,$dir);
     }
+    if($name eq 'Test.pm'
+       && (defined $ENV{HARNESS_PERL_SWITCHES} ||
+	   defined $ENV{PUGS_RUNTIME})
+       && 1) {
+	warn "Adding PIL-Run/lib6 to \@INC to avoid using non-working normal Test.pm in make test-perl5 and make smoke-perl5.";
+	unshift(@incdirs,File::Spec->catfile($FindBin::Bin,'lib6'));
+    }
     push(@incdirs,
 	 '.',
-         'lib6', # XXX - almost time to remove these.  but not yet.
+         'lib6',
          File::Spec->catfile('blib6','lib'),
          File::Spec->catfile($FindBin::Bin,'lib6'));
     for my $dir (@incdirs) {

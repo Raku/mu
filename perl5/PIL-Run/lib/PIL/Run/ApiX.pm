@@ -59,8 +59,10 @@ sub p6_to_a {
     warn "Trying to instantiate an infinite Array"
         if $ary->can('is_infinite') && $ary->is_infinite;
     my @a;
-    $a[$_] = $ary->fetch($_) for 0 .. Perl6::Value::numify( $ary->elems ) - 1;
-    @a;
+    for(my $i=Perl6::Value::numify( $ary->elems ) - 1; $i >=0; $i--) {
+	$a[$i] = $ary->fetch($i)->fetch;
+    }
+    \@a;
 }
 sub p6_to_l {my($a_obj)=@_;   $a_obj->unboxed }
 sub p6_to_x {my($o)=@_; die "XXX - Unimplemented"}
