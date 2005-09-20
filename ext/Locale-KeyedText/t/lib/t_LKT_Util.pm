@@ -24,8 +24,8 @@ sub serialize( Any $input is rw ) returns Str {
             qq|'{$input.key}' => '{$input.value}', |
         !! $input.does(Array) ??
             ( '[ ', ( $input.map:{ serialize( $_ ) } ), '], ' )
-        !! qq|'$input', |
-    ].join( '' );
+        !! ($input eq q{} ? 'q{}' : qq|'$input'|)~', '
+    ].join( q{} );
 }
 
 ######################################################################

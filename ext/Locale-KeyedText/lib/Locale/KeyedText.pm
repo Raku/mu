@@ -4,6 +4,12 @@ use v6;
 ######################################################################
 ######################################################################
 
+# These are constant values used by this module.
+my $EMPTY_STR = q{};
+
+######################################################################
+######################################################################
+
 class Locale::KeyedText::Message {
     trusts Locale::KeyedText::Translator;
     # Pugs bug: These should actually be private attrs, but those don't work right now.
@@ -48,7 +54,7 @@ method as_string( $message: ) returns Str {
     # This method is intended for debugging use only.
     my %temp = $message.msg_vars; # the use of %temp should not be necessary
     return $message.msg_key~': '~%temp.pairs.sort
-        .map:{ .key~'='~(.value // '') }.join( ', ' ); # /S02 says sorting Pairs sorts keys by default.
+        .map:{ .key~'='~(.value // $EMPTY_STR) }.join( ', ' ); # /S02 says sorting Pairs sorts keys by default.
     # we expect that .map will be invoked off of the list that .sort returns
     # I might use Hash.as() later, but don't know if it is customizable to sort or make undefs the empty str.
 }
@@ -123,7 +129,7 @@ method translate_message( $translator: Locale::KeyedText::Message $message is rw
         $text or next;
         my %temp = $message.msg_vars; # the use of %temp should not be necessary
         for %temp.kv -> $var_name, $var_value is copy {
-            $var_value //= '';
+            $var_value //= $EMPTY_STR;
             $text ~~ s:perl5:g/\{$var_name\}/$var_value/; # this version only needs Pugs
 #           $text ~~ s:g/\{$var_name\}/$var_value/; # this version requires PGE/Parrot
         }
