@@ -25,10 +25,11 @@ sub native {
 		arity => $params->{arity},
 		name => $params->{name},
 		type => $params->{type},
+		fixity => $params->{fixity} || "listy",
     );
 }
 
-sub type {[ map { Blondie::TypeSafe::Type::Std->new($_) } @_ ]}
+sub type { [ map { Blondie::TypeSafe::Type::Std->new($_) } grep { $_ ne "->" } split /\s+/, $_[0] ]}
 
 my %by_digest = (
 	map { native($_) } (
@@ -36,19 +37,27 @@ my %by_digest = (
 			arity => 0,
 			name => '$*OUT',
 			body => 'stdout',
+			fixity => "nullary",
 			type => Blondie::TypeSafe::Type::Std->new("GV"),
 		},
 		{
 			arity => 3,
 			name => '&printf',
 			body => 'prel_printf',
-			type => type(qw/GV PV PV/ => "IV"),
+			type => type("GV -> PV -> PV -> IV"),
 		},
 		{
 			arity => 2,
 			name => '&infix:<~>',
 			body => 'prel_cat',
-			type => type(qw/PV PV/ => "PV"),
+			type => type("PV -> PV -> PV"),
+		},
+		{
+			arity => 2,
+			name => '&infix:<+>',
+			body => '+',
+			type => type("IV -> IV -> IV"),
+			fixity => "infix",
 		},
 	)
 );

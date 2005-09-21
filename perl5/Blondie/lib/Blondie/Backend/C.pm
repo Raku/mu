@@ -96,11 +96,16 @@ sub cast_node_type {
 		struct_equiv => Blondie::App->new(
 			Blondie::TypeSafe::Annotation->new(
 				type => [$from => $to],
-				struct_equiv => Blondie::Backend::C::Prim->new(
-					arity => 1,
-					body => "type_convert_${from}_${to}",
-					type => [$from => $to],
-				),
+				struct_equiv => Blondie::Val->new(
+					Blondie::TypeSafe::Annotation->new(
+						type => [$from => $to],
+						struct_equiv => Blondie::Backend::C::Prim->new(
+							arity => 1,
+							body => "type_convert_${from}_${to}",
+							type => [$from => $to],
+						),
+					),
+				),	
 			),
 			(ref $node)->new(
 				%$node,

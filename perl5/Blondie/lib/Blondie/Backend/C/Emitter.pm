@@ -16,8 +16,6 @@ use Set::Object ();
 	package Blondie::Backend::C::Emitter::DuplicateFinder;
 	use base qw/Blondie::Reducer::DuplicateFinder/;
 
-	# FIXME duplicate thunks are not found, sometimes ->orig is missing
-
 	sub generic_reduce {
 		my $self = shift;
 		my $node = shift;
@@ -25,22 +23,14 @@ use Set::Object ();
 		my $struct = $node->struct_equiv;
 		my $orig = $node->orig;
 
-		# Prims will be duplicated but are already atomical
-		return if Scalar::Util::blessed($struct) and $struct->isa("Blondie::Backend::C::Prim");
-
-		$Data::Dumper::Maxdepth = 3;
-		warn "$node (" . $struct . ") does not have an orig". Data::Dumper::Dumper($node) unless defined $orig;
-
-		if ($self->{seen}->includes($orig)) {
-			push @{ $self->{dups} }, $node;
-			warn "adding $node ($struct, $orig) to dups";
+		if (defined($orig) and $self->{seen}->includes($orig)) {
+			$self->{dups}->insert($orig);
 			return;
 		} else {
-			unless (Scalar::Util::blessed($struct) and $struct->isa("Blondie::Val")) {
-				warn "marking $node as seen based on ($orig, $struct)";
-				$self->{seen}->insert($orig)
+			if (defined($orig) and not(Scalar::Util::blessed($struct) and $struct->isa("Blondie::Val"))) {
+				$self->{seen}->insert($orig);
 			}
-			$self->SUPER::generic_reduce($node->struct_equiv);
+			$self->Blondie::Reducer::generic_reduce($node->struct_equiv);
 		}
 	}
 }
@@ -81,7 +71,7 @@ sub reduce {
 sub inner_reduce {
 	my $self = shift;
 	my $node = shift;
-	return $self->literal_value($node) unless $self->can_reduce($node);
+	return $self->literal_value($node) unless Scalar::Util::blessed($node->struct_equiv);
 
 	if (my $meth = $self->can("reduce_" . $node->struct_equiv->moniker)) {
 		return $self->$meth($node);
@@ -147,7 +137,8 @@ sub declare {
 	my $node = shift;
 
 	$self->{names}{$node->orig} ||= do {
-		my $type = $node->struct_equiv->moniker;
+		my $struct = $node->struct_equiv;
+		my $type = Scalar::Util::blessed($struct) ? $struct->moniker : "const";
 		join("_", $type, ++$self->{counters}{$type});
 	}
 }
@@ -226,9 +217,7 @@ sub is_duplicate {
 	my $self = shift;
 	my $node = shift;
 
-	warn "is $node a dup?";
-
-	$self->{dups}->includes($node);
+	$self->{dups}->includes($node->orig);
 }
 
 sub reduce_val {
@@ -289,7 +278,7 @@ sub reduce_thunk {
 		}
 		$self->leave_scope;
 	
-		$self->add_definition($node => "$return_type $symbol (" . join(", ", @params) . ") {\n\t".join(";\n\t", @exps).";\n}");
+		$self->add_definition($node => "$return_type $symbol (" . join(", ", @params) . ") {" . join("\n\t", "", map { "$_;" } @exps) . "\n}");
 
 		return $symbol;
 	} else {
@@ -328,8 +317,7 @@ sub reduce_seq {
 	my $node = $self->generic_reduce(shift);
 
 	my $seq = $node->struct_equiv;
-
-	join(";\n", $seq->values);
+	join("\n\t", "", map { "$_;" } $seq->values);
 }
 
 sub emit {
@@ -345,15 +333,9 @@ sub emit {
 	my $dup_finder = Blondie::Backend::C::Emitter::DuplicateFinder->new;
 	$self->{dups} = Set::Object->new( $dup_finder->duplicate_nodes($prog) );
 
-	warn "Duplicate nodes: " . join("\n", map {
-		Scalar::Util::blessed($_)
-			? Dumper($_)
-			: quote(printable($_))
-	} $self->{dups}->members);
-
 	my $main = $self->reduce($prog);
 
-	push @{ $self->{defs} }, "int main () {\n\t$main;\n\treturn 1;\n}";
+	push @{ $self->{defs} }, "int main () {$main\n\treturn 1;\n}";
 
 	join("\n\n", Blondie::Backend::C::Builtins->prelude, @{$self->{defs}});
 }
@@ -366,7 +348,12 @@ sub reduce_app {
 
 	my ($thunk, @params) = $rapp->struct_equiv->values;
 
-	"$thunk( " . join(", ", @params) . " )";
+	my $orig_thunk = ($app->struct_equiv->values)[0]->struct_equiv->val->struct_equiv; # eep!
+	if ($orig_thunk->isa("Blondie::Backend::C::Prim") and ($orig_thunk->fixity || "") eq "infix") {
+		return "( $params[0] $thunk $params[1] )";
+	} else {
+		return "$thunk( " . join(", ", @params) . " )";
+	}
 }
 
 sub reduce_prim {

@@ -157,7 +157,6 @@ sub typecheck {
 			return Blondie::TypeSafe::Annotation->new(
 				type => $node->type,
 				struct_equiv => $node,
-				orig => $node,
 			);
 		} else {
 			my $type = $self->guess_perl_type($node);
@@ -197,8 +196,7 @@ sub typecheck {
 
 		Blondie::TypeSafe::Annotation->new(
 			type => $type,
-			orig => $sym,
-			struct_equiv => $sym->fmap(sub { Blondie::TypeSafe::Annotation->new(struct_equiv => $_[0], orig => $_[0]) }),
+			struct_equiv => $sym->fmap(sub { Blondie::TypeSafe::Annotation->new(struct_equiv => $_[0]) }),
 		);
 	}
 
@@ -383,7 +381,6 @@ sub typecheck {
 			Blondie::TypeSafe::Annotation->new(
 				struct_equiv => $_[0],
 				type => Blondie::TypeSafe::Type::Bottom->new,
-				orig => $_[0],
 			);
 		});
 

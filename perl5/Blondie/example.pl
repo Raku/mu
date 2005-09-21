@@ -15,11 +15,19 @@ my $x = 15;
 my $prog = Seq(
 	App(
 		Sym('&say'),
-		Val(42),
-	),
-	App(
-		Sym('&say'),
-		Val(43),
+		App(
+			Sym('&infix:<+>'),
+			App(
+				Sym('&infix:<+>'),
+				Val(42),
+				Val(42),
+			),
+			App(
+				Sym('&infix:<+>'),
+				Val(42),
+				Val(42),
+			),
+		),
 	),
 );
 
@@ -30,9 +38,9 @@ my $annotated = $r->annotate($c);
 my $t3 = times;
 my $res  = $r->emit($annotated);
 my $t4 = times;
-my $f = $r->bind($res);
+#my $f = $r->bind($res);
 my $t5 = times;
-&$f;
+#&$f;
 my $t6 = times;
 
 printf "Total time: %.3f seconds (%.3f compilation, %.3f type checking, %.3f emission, %.3f binding, %.3f execution)\n", $t6 - $t1, $t2 - $t1, $t3 - $t2, $t4 - $t3, $t5 - $t4, $t6 - $t5;

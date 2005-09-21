@@ -11,10 +11,9 @@ use Set::Object;
 sub new {
     my $class = shift;
 
-
     bless {
         seen => undef,
-		dups => [],
+		dups => undef,
     }, $class;
 }
 
@@ -23,11 +22,13 @@ sub duplicate_nodes {
     my $program = shift;
 
     $self->{seen} = Set::Object->new;
-	$self->{dups} = [];
+	$self->{dups} = Set::Object->new;
+
+	warn  "initial dups: @{ $self->{dups} }";
 
     $self->reduce($program);
 
-    @{ $self->{dups} };
+	$self->{dups}->members;
 }
 
 sub generic_reduce {
@@ -35,7 +36,7 @@ sub generic_reduce {
     my $node = shift;
 
     if ($self->{seen}->includes($node)){
-		push @{ $self->{dups} }, $node;
+		$self->{dups}->insert($node);
 	} else {
 		$self->{seen}->insert($node);
 		$self->SUPER::generic_reduce($node);
