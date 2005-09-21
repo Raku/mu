@@ -36,7 +36,11 @@ sub compile {
 sub compiler_class { "Blondie::Compiler" }
 
 sub provides {
-    die "virtual method provides called on @_";
+    die "virtual method 'provides' called on @_";
+}
+
+sub run {
+	die "virtual method 'run' called on @_";
 }
 
 __PACKAGE__;

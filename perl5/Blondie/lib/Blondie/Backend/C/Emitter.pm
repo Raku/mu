@@ -277,8 +277,10 @@ sub reduce_thunk {
 			}
 		}
 		$self->leave_scope;
+		
+		my $last_exp = pop @exps;
 	
-		$self->add_definition($node => "$return_type $symbol (" . join(", ", @params) . ") {" . join("\n\t", "", map { "$_;" } @exps) . "\n}");
+		$self->add_definition($node => "$return_type $symbol (" . join(", ", @params) . ") {" . join("\n\t", "", (map { "$_;" } @exps), "return $last_exp;") . "\n}");
 
 		return $symbol;
 	} else {
@@ -334,8 +336,10 @@ sub emit {
 	$self->{dups} = Set::Object->new( $dup_finder->duplicate_nodes($prog) );
 
 	my $main = $self->reduce($prog);
+	my $type = $self->resolve_type($prog);
 
-	push @{ $self->{defs} }, "int main () {$main\n\treturn 1;\n}";
+	push @{ $self->{defs} }, "$type b_main () {\n\treturn $main;\n}";
+	push @{ $self->{defs} }, "int main () { b_main(); return 0; }";
 
 	join("\n\n", Blondie::Backend::C::Builtins->prelude, @{$self->{defs}});
 }

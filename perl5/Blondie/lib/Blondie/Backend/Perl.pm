@@ -16,8 +16,9 @@ sub interpreter_class { __PACKAGE__ . "::Interpreter" }
 
 sub run {
     my $self = shift;
+	my $prog = shift;
 
-    my $c = $self->compile(@_);
+    my $c = $self->compile($prog);
 
     $self->execute($c);
 }

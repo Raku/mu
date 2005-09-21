@@ -24,8 +24,6 @@ sub duplicate_nodes {
     $self->{seen} = Set::Object->new;
 	$self->{dups} = Set::Object->new;
 
-	warn  "initial dups: @{ $self->{dups} }";
-
     $self->reduce($program);
 
 	$self->{dups}->members;

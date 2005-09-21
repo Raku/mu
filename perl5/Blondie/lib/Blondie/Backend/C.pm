@@ -11,6 +11,17 @@ use Blondie::TypeSafe ();
 
 use Blondie::Backend::C::Builtins;
 
+sub run {
+	my $self = shift;
+	my $prog = shift;
+
+	my $c = $self->compile($prog);
+	my $type_annotated = $self->annotate($c);
+	my $c_code = $self->emit($type_annotated);
+	my $main = $self->bind($c_code);
+	$main->();
+}
+
 sub annotator_class { "Blondie::TypeSafe::Annotator" }
 
 sub annotator {
@@ -54,14 +65,20 @@ sub generate_inline_c {
 	my $self = shift;
 	my $c_code = shift;
 
-	$c_code =~ s/(.V)/blondie_$1/g;
-	$c_code =~ s/int main/int blondie_main/;
+	my %table = (
+		IV => "int",
+		PV => "char *",
+	);
+	
+	$c_code =~ s/^([GIP]V) b_main/$table{$1} b_main/m;
+	$c_code =~ s/([GIP]V)/blondie_$1/g;
+	$c_code =~ s/int main \(\) {.*?}//;
 
 	my $func = eval sprintf <<'BIND', __PACKAGE__, ++$i;
 		package %s::inline_bindings::%d;
 		use Inline C => Config => LIBS => "-lgc"; # http://www.hpl.hp.com/personal/Hans_Boehm/gc/
 		Inline->bind(C => $c_code); # marble losing routine
-		\&blondie_main;
+		\&b_main;
 BIND
 
 	die $@ if $@;

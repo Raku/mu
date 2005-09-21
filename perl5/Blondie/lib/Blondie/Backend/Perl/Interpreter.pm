@@ -15,18 +15,18 @@ sub new {
     }, $class;
 }
 
+sub execute {
+    my $self = shift;
+    my $prog = shift;
+    $self->reduce($prog);
+}
+
 sub can_reduce { 1 }
 
 sub generic_reduce {
 	my $self = shift;
 	my $node = shift;
 	die "generic reductions don't make sense while interpreting ($node)";
-}
-
-sub execute {
-    my $self = shift;
-    my $prog = shift;
-    $self->reduce($prog);
 }
 
 sub reduce_val { $_[1]->val }
