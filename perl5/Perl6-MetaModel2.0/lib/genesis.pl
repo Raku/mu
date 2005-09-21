@@ -28,6 +28,7 @@ $::Package->name('Package');
 $::Module->name('Module');
 $::Class->name('Class');
 $::Object->name('Object');
+$::Role->name('Role');
 
 ## ----------------------------------------------------------------------------
 ## Now we make Class conform to the Package interface

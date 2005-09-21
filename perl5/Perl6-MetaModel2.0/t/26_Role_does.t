@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 23;
+use Test::More tests => 24;
 use Test::Exception;
 
 use Perl6::MetaModel;
@@ -17,6 +17,8 @@ This test is primarily focues on Roles and subroles
 my $Foo = $::Role->new('$:name' => 'Foo');
 isa_ok($Foo, 'Role');
 ok(!$Foo->isa('Foo'), '... $Foo is not a Foo'); 
+
+ok($Foo->does('Role'), '... our role does Role');
 
 ok($Foo->does('Foo'), '... our role does Foo');
 ok(!$Foo->does('Baz'), '... our role does not do Baz');

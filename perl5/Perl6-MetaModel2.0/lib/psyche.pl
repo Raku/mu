@@ -37,7 +37,7 @@ $::Role = undef;
 # Questions on Role methods sent to p6l 
 # - see recent thread: 'Concerning Roles and $?ROLE'
 
-$::Role = $::Class->new('$:name' => 'Role');
+$::Role = $::Class->new();
 
 $::Role->superclasses([ $::Module ]);
 
@@ -119,77 +119,100 @@ $::Role->add_method('roles' => ::make_method(sub {
     ::opaque_instance_attr($self => '@:roles');
 }));
 
+## ----------------------------------------------------------------------------
+## BEGIN BOOTSTRAPPING AREA
+## ----------------------------------------------------------------------------
+## NOTE:
+## code in this section has special cases within it to deal with 
+## meta-circularity issues and other such ugliness 
+
 ## introspective methods
 
 $::Role->add_method('does' => ::make_method(sub {
     my ($self, $role_name) = @_;
     return undef unless defined $role_name;
+    # obviously if we are a role, we do Role, 
+    # and the same goes for Class too, this
+    # is a special case though ...
+    return 1 if $role_name eq 'Role' && ($self->isa('Role') || $self->isa('Class'));
+    # regular checking here ...
     return 1 if $self->name eq $role_name;
-    foreach my $sub_role (@{$self->roles}) {
-        return 1 if $sub_role->does($role_name);            
+    foreach my $sub_role ($self->collect_all_roles) {      
+        return 1 if $sub_role->name eq $role_name;            
     }
     return 0;
 }));
 
-$::Role->add_method('collect_all_roles' => ::make_method(sub {
+## composition methods
+
+my $_collect_all_roles = sub {
     my ($self, $seen) = @_;
     $seen ||= {};
     my @roles;
-    foreach my $role ($self, @{$self->roles}) {
+    foreach my $role (@{$self->roles}) {
         unless (exists $seen->{$role->name}) {
             $seen->{$role->name}++;             
             push @roles => $role;
             push @roles => $role->collect_all_roles($seen) if scalar @{$role->roles};            
         }              
     }
-    #warn Data::Dumper::Dumper $seen;
     return @roles;
-}));
+};
+$::Role->add_method('collect_all_roles' => ::make_method($_collect_all_roles));
 
-## composition methods
-
-$::Role->add_method('resolve' => ::make_method(sub {
-    # XXX -
-    # What if $composite was an optional argument?
-    # and then I could pass the class in...
-    #    $Foo->resolve($Foo)
-    # where a Role would not do that.. however that
-    # said, there is little use for a Role to resolve
-    # itself, at least not the way we are approaching it
-    my $composite;
-    $composite = $::Role->new('$:name' => 'Composite<' . (0 + \$composite) . '>');
-    my @subroles = $::SELF->collect_all_roles;
+my $_resolve = sub {
+    my ($self) = @_;
+    my @subroles = $self->collect_all_roles;
     foreach my $role (@subroles) {
         foreach my $method_name ($role->get_method_list) {
             # if we have a conflict, but it is not, or has 
             # not already been stubbed out then ...
-            if ($composite->has_method($method_name) &&
-                !$composite->is_method_stub($method_name)) {
+            if ($self->has_method($method_name)) {
                 # we stub the method for the class to implement
-                $composite->add_method($method_name => undef);
+                #$self->add_method($method_name => undef);
             }
             else {
                 # no conflicts ... add method
-                $composite->add_method($method_name => $role->get_method($method_name));
+                $self->add_method($method_name => $role->get_method($method_name));
             }
         }
         foreach my $attr_name ($role->get_attribute_list) {
             # same as for methods, if we have the attribute
             # and it is not already a stub then ...
-            if ($composite->has_attribute($attr_name) &&
-                !$composite->is_attribute_stub($attr_name)) {
+            if ($self->has_attribute($attr_name)) {
                 # we stub it out ...
-                $composite->add_attribute($attr_name => undef);
+                #$self->add_attribute($attr_name => undef);
             }
             else {
                 # no conflicts ... add attribute
-                $composite->add_attribute($attr_name => $role->get_attribute($attr_name));
+                $self->add_attribute($attr_name => $role->get_attribute($attr_name));
             }
         }        
-    }
-    $composite->roles(\@subroles);  
-    return $composite;
-}));
+    }  
+    $self->add_method('does' => ::make_method(sub{
+        my ($self, $role_name) = @_;
+        ::opaque_instance_class($self)->does($role_name);
+    })) if $self != $::Class && !$self->isa('Role');
+};
+$::Role->add_method('resolve' => ::make_method($_resolve));
+
+## ----------------------------------------------------------------------------
+## BOOTSTRAPPING ROLES
+## ----------------------------------------------------------------------------
+
+# stub this for the moment ...
+$::Class->add_method('collect_all_roles' => ::make_method(sub { $::Role }));
+
+# manually add the ::Role
+::opaque_instance_attr($::Class => '@:roles') = [ $::Role ];
+$_resolve->($::Class);
+
+# restore this correctly
+$::Class->add_method('collect_all_roles' => ::make_method($_collect_all_roles));
+
+## ----------------------------------------------------------------------------
+## END BOOTSTRAPPING ROLES
+## ----------------------------------------------------------------------------
 
 ## NOTE:
 ## we want to prevent the default version 
@@ -288,8 +311,6 @@ and roles can be polymorphic to one another.
 Because instances of class all conform to the Role interface/API they are 
 interchangable with one another, classes and Roles are unified. THis is like
 Scala IIRC. 
-
- 
 
 
 =cut

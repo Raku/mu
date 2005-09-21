@@ -92,6 +92,8 @@ sub _build_class {
     }
     elsif (ref($body) eq 'HASH') {
         $new_class->superclasses($body->{is}) if exists $body->{is};
+        $new_class->roles($body->{does}) if exists $body->{does};        
+        
         if ($body->{attributes}) {
             foreach my $attribute_name (@{$body->{attributes}}) {
                 $new_class->add_attribute($attribute_name => ::make_attribute($attribute_name));

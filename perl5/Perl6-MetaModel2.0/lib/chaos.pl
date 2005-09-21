@@ -210,6 +210,14 @@ our $DISPATCH_TRACE = 0;
     # make a basic method ...
     sub ::make_method ($) {
         my ($method) = @_;
+        # this accounts for a strange optimization in Perl 5
+        # it seems that sometimes when a sub being returned
+        # from another sub has the same opcodes (a constant
+        # subroutine basically), Perl 5 will optimze it and
+        # return the exact same sub. This results in this
+        # method being passed an already blessed method 
+        # instead of a plain CODE ref. This solution is also
+        # duplicated in the other ::make_*_method subs below
         return $method if blessed($method) && $method->isa('Perl6::Method');
         (defined $method && ref($method) eq 'CODE')
             || confess "Bad method body (" . ($method || 'undef') . ")";     
@@ -225,6 +233,7 @@ our $DISPATCH_TRACE = 0;
     # method, it just has a class as an invocant
     sub ::make_class_method ($) {  
         my ($method) = @_;
+        return $method if blessed($method) && $method->isa('Perl6::ClassMethod');        
         (defined $method && ref($method) eq 'CODE')
             || confess "Bad method body (" . ($method || 'undef') . ")";          
         return bless $method => 'Perl6::ClassMethod';
@@ -233,6 +242,7 @@ our $DISPATCH_TRACE = 0;
     # this is a private method
     sub ::make_private_method ($) {
         my ($method) = @_;
+        return $method if blessed($method) && $method->isa('Private::Method');        
         (defined $method && ref($method) eq 'CODE')
             || confess "Bad method body (" . ($method || 'undef') . ")"; 
         # then the private method wrapper is wrapped
@@ -257,6 +267,7 @@ our $DISPATCH_TRACE = 0;
     # this implicit test can be overridden.
     sub ::make_submethod ($) {
         my ($method) = @_;
+        return $method if blessed($method) && $method->isa('Perl6::Submethod');        
         (defined $method && ref($method) eq 'CODE')
             || confess "Bad method body (" . ($method || 'undef') . ")";     
         return bless sub {

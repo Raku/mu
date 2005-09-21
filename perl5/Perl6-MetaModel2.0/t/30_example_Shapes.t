@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 42; #60;
+use Test::More tests => 60;
 use Test::Exception;
 
 use Perl6::MetaModel;
@@ -21,13 +21,7 @@ commiting this.
 
 my $Shape = role 'Shape' => {
     methods => {
-        'area' => sub {}, 
-        'show' => sub {
-            foreach my $method ($::CLASS->get_method_list) {
-                next if $method eq 'show'; # dont print ourselves
-                print "$method : " . $::SELF->$method() . "\n";
-            }
-        }
+        'area' => sub {},
     }
 };
 
@@ -55,6 +49,8 @@ my $Square = class 'Square' => {
     }
 };
 
+$Square->resolve();
+
 my $Square3D = class 'Square3D' => {
     is => [ $Square ],
     does => [ $Shape3D ],
@@ -63,6 +59,8 @@ my $Square3D = class 'Square3D' => {
         'area'   => sub { ::next_METHOD() * 6 }
     }
 };
+
+$Square3D->resolve();
 
 my $Rectangle = class 'Rectangle' => {
     is   => [ $Square ],
@@ -78,6 +76,8 @@ my $Rectangle = class 'Rectangle' => {
         },      
     }
 };
+
+$Rectangle->resolve();
 
 my $Rectangle3D = class 'Rectangle3D' => {
     is => [ $Rectangle ],
@@ -100,6 +100,8 @@ my $Rectangle3D = class 'Rectangle3D' => {
     }
 };
 
+$Rectangle3D->resolve();
+
 my $Circle = class 'Circle' => {
     is => [ $::Object ],
     does => [ $Shape ],
@@ -116,6 +118,8 @@ my $Circle = class 'Circle' => {
     }
 };
 
+$Circle->resolve();
+
 $Circle->STORE('$.PI' => 3.14159);
 
 my $Circle3D = class 'Circle3D' => {
@@ -127,10 +131,12 @@ my $Circle3D = class 'Circle3D' => {
     }
 };
 
+$Circle3D->resolve();
+
 {
-=pod
+
     ok($Rectangle->does('Shape'), '... the Rectangle class does Shape');
-    
+   
     ok($Rectangle3D->does('Shape'), '... the Rectangle3D class does Shape');
     ok($Rectangle3D->does('Shape3D'), '... the Rectangle3D class does Shape3D');    
 
@@ -143,7 +149,7 @@ my $Circle3D = class 'Circle3D' => {
     
     ok($Circle3D->does('Shape'), '... the Circle3D class does Shape');    
     ok($Circle3D->does('Shape3D'), '... the Circle3D class does Shape3D');          
-=cut
+
 }
 
 
@@ -151,7 +157,7 @@ my $Circle3D = class 'Circle3D' => {
     my $rect = $Rectangle->new('$.height' => 10, '$.length' => 10);
     isa_ok($rect, 'Rectangle');
 
-#    ok($rect->does('Shape'), '... the rectangle does Shape');
+    ok($rect->does('Shape'), '... the rectangle does Shape');
 
     is($rect->height, 10, '... got the right height');
     is($rect->length, 10, '... got the right length');
@@ -169,16 +175,14 @@ my $Circle3D = class 'Circle3D' => {
     is($rect->length, 2, '... got the right length');
     is($rect->area, 10, '... got the right area');
     is($rect->perimeter, 14, '... got the right area');        
-    
-#    $rect->show();
 }
 
 {
     my $rect3D = $Rectangle3D->new('$.height' => 4, '$.length' => 8, '$.width' => 3);
     isa_ok($rect3D, 'Rectangle3D');
     
-#    ok($rect3D->does('Shape'), '... the rectangle does Shape');
-#    ok($rect3D->does('Shape3D'), '... the rectangle does Shape3D');        
+    ok($rect3D->does('Shape'), '... the rectangle does Shape');
+    ok($rect3D->does('Shape3D'), '... the rectangle does Shape3D');        
 
     is($rect3D->length, 8, '... got the right length');
     is($rect3D->height, 4, '... got the right height');
@@ -193,7 +197,7 @@ my $Circle3D = class 'Circle3D' => {
     my $square = $Square->new('$.length' => 10);
     isa_ok($square, 'Square');
     
-#    ok($square->does('Shape'), '... the square does Shape');    
+    ok($square->does('Shape'), '... the square does Shape');    
 
     is($square->length, 10, '... got the right length');
     is($square->area, 100, '... got the right area');
@@ -210,8 +214,8 @@ my $Circle3D = class 'Circle3D' => {
     my $square3D = $Square3D->new('$.length' => 2.1);
     isa_ok($square3D, 'Square3D');
     
-#    ok($square3D->does('Shape'), '... the square does Shape');  
-#    ok($square3D->does('Shape3D'), '... the square does Shape3D');          
+    ok($square3D->does('Shape'), '... the square does Shape');  
+    ok($square3D->does('Shape3D'), '... the square does Shape3D');          
 
     is($square3D->length, 2.1, '... got the right length');
     is($square3D->area, 26.46, '... got the right area');
@@ -228,7 +232,7 @@ my $Circle3D = class 'Circle3D' => {
     my $circle = $Circle->new('$.radius' => 4.2);
     isa_ok($circle, 'Circle');
 
-#    ok($circle->does('Shape'), '... the circle does Shape');  
+    ok($circle->does('Shape'), '... the circle does Shape');  
 
     is($circle->radius, 4.2, '... got the right radius');
     is($circle->diameter, 8.4, '... got the right diameter');    
@@ -240,8 +244,8 @@ my $Circle3D = class 'Circle3D' => {
     my $circle3D = $Circle3D->new('$.radius' => 4);
     isa_ok($circle3D, 'Circle3D');
 
-#    ok($circle3D->does('Shape'), '... the circle does Shape');  
-#    ok($circle3D->does('Shape3D'), '... the circle does Shape3D');      
+    ok($circle3D->does('Shape'), '... the circle does Shape');  
+    ok($circle3D->does('Shape3D'), '... the circle does Shape3D');      
 
     is($circle3D->radius, 4, '... got the right radius');
     is($circle3D->diameter, 8, '... got the right diameter');    

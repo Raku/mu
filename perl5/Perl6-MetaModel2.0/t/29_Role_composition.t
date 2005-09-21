@@ -35,6 +35,8 @@ role rFooBar does rFoo does rBar {
 
 =cut
 
+{
+    
 my $rFoo = $::Role->new('$:name' => 'rFoo');
 $rFoo->add_method(foo => ::make_method(sub { 'rFoo::foo' }));
 $rFoo->add_attribute('$.foo' => ::make_attribute('$.foo'));
@@ -73,20 +75,22 @@ is_deeply(
     [ '$.foo_bar' ],
     '... got the right (unresolved) attribute list for FooBar');    
 
-my $rFooBar_flat = $rFooBar->resolve();
+$rFooBar->resolve();
 
 is_deeply(
-    [ sort $rFooBar_flat->get_method_list ],
+    [ sort $rFooBar->get_method_list ],
     [ 'bar', 'foo', 'foo_bar' ],
     '... got the right (resolved) method list for FooBar');
     
 is_deeply(
-    [ sort $rFooBar_flat->get_attribute_list ],
+    [ sort $rFooBar->get_attribute_list ],
     [ '$.bar', '$.foo', '$.foo_bar' ],
     '... got the right (resolved) attribute list for FooBar');    
     
-is(scalar(grep { $rFooBar_flat->is_method_stub($_) } $rFooBar_flat->get_method_list), 
+is(scalar(grep { $rFooBar->is_method_stub($_) } $rFooBar->get_method_list), 
    0, '... we have no method stubs');
+
+}
 
 =pod
 
@@ -104,6 +108,28 @@ role rFooBarBaz does rFooBar does rBaz {
 
 =cut
 
+{
+   
+# NOTE:
+# we need to duplicate these roles here since resolve() is
+# actually a destructive action (it modifies it's invocant)    
+
+my $rFoo = $::Role->new('$:name' => 'rFoo');
+$rFoo->add_method(foo => ::make_method(sub { 'rFoo::foo' }));
+$rFoo->add_attribute('$.foo' => ::make_attribute('$.foo'));
+
+my $rBar = $::Role->new('$:name' => 'rBar');
+$rBar->add_method(bar => ::make_method(sub { 'rBar::bar' }));
+$rBar->add_attribute('$.bar' => ::make_attribute('$.bar'));
+
+my $rFooBar = $::Role->new('$:name' => 'rFooBar');
+$rFooBar->roles([ $rFoo, $rBar ]);
+$rFooBar->add_attribute('$.foo_bar' => ::make_attribute('$.foo_bar'));
+$rFooBar->add_method(foo_bar => ::make_method(sub { 
+    my $self = shift;
+    ($self->foo() . '/' . $self->bar());
+}));    
+    
 my $rBaz = $::Role->new('$:name' => 'rBaz');
 $rBaz->add_method(baz => ::make_method(sub { 'rBaz::baz' }));
 $rBaz->add_attribute('$.baz' => ::make_attribute('$.baz'));
@@ -139,20 +165,22 @@ is_deeply(
     [ '$.foo_bar_baz' ],
     '... got the right (unresolved) attribute list for FooBarBaz');    
 
-my $rFooBarBaz_flat = $rFooBarBaz->resolve();
+$rFooBarBaz->resolve();
 
 is_deeply(
-    [ sort $rFooBarBaz_flat->get_method_list ],
+    [ sort $rFooBarBaz->get_method_list ],
     [ 'bar', 'baz', 'foo', 'foo_bar', 'foo_bar_baz' ],
     '... got the right (resolved) method list for FooBarBaz');
 
 is_deeply(
-    [ sort $rFooBarBaz_flat->get_attribute_list ],
+    [ sort $rFooBarBaz->get_attribute_list ],
     [ '$.bar', '$.baz', '$.foo', '$.foo_bar', '$.foo_bar_baz' ],
     '... got the right (resolved) attribute list for FooBarBaz');   
     
-is(scalar(grep { $rFooBarBaz_flat->is_method_stub($_) } $rFooBarBaz_flat->get_method_list), 
+is(scalar(grep { $rFooBarBaz->is_method_stub($_) } $rFooBarBaz->get_method_list), 
    0, '... we have no method stubs');    
+
+}
 
 =pod
 
@@ -172,24 +200,59 @@ role rFahShizzle does rFooBar does rFooBarBaz {}
 
 =cut
 
+{
+    
+# NOTE:
+# we need to duplicate these roles here since resolve() is
+# actually a destructive action (it modifies it's invocant)   
+    
+my $rFoo = $::Role->new('$:name' => 'rFoo');
+$rFoo->add_method(foo => ::make_method(sub { 'rFoo::foo' }));
+$rFoo->add_attribute('$.foo' => ::make_attribute('$.foo'));
+
+my $rBar = $::Role->new('$:name' => 'rBar');
+$rBar->add_method(bar => ::make_method(sub { 'rBar::bar' }));
+$rBar->add_attribute('$.bar' => ::make_attribute('$.bar'));
+
+my $rFooBar = $::Role->new('$:name' => 'rFooBar');
+$rFooBar->roles([ $rFoo, $rBar ]);
+$rFooBar->add_attribute('$.foo_bar' => ::make_attribute('$.foo_bar'));
+$rFooBar->add_method(foo_bar => ::make_method(sub { 
+    my $self = shift;
+    ($self->foo() . '/' . $self->bar());
+}));    
+
+my $rBaz = $::Role->new('$:name' => 'rBaz');
+$rBaz->add_method(baz => ::make_method(sub { 'rBaz::baz' }));
+$rBaz->add_attribute('$.baz' => ::make_attribute('$.baz'));
+
+my $rFooBarBaz = $::Role->new('$:name' => 'rFooBarBaz');
+$rFooBarBaz->roles([ $rFooBar, $rBaz ]);
+$rFooBarBaz->add_attribute('$.foo_bar_baz' => ::make_attribute('$.foo_bar_baz'));
+$rFooBarBaz->add_method(foo_bar_baz => ::make_method(sub { 
+    my $self = shift;
+    ($self->foo . '/' . $self->bar . '/' . $self->baz);
+}));    
+
 my $rFahShizzle = $::Role->new('$:name' => 'rFahShizzle');
 $rFahShizzle->roles([ $rFooBar, $rFooBarBaz ]);
 
-my $rFahShizzle_flat = $rFahShizzle->resolve();
+$rFahShizzle->resolve();
 
 is_deeply(
-    [ sort $rFahShizzle_flat->get_method_list ],
+    [ sort $rFahShizzle->get_method_list ],
     [ 'bar', 'baz', 'foo', 'foo_bar', 'foo_bar_baz' ],
     '... got the right (resolved) method list for rFahShizzle');
     
 is_deeply(
-    [ sort $rFahShizzle_flat->get_attribute_list ],
+    [ sort $rFahShizzle->get_attribute_list ],
     [ '$.bar', '$.baz', '$.foo', '$.foo_bar', '$.foo_bar_baz' ],
     '... got the right (resolved) attribute list for rFahShizzle');    
 
-is(scalar(grep { $rFahShizzle_flat->is_method_stub($_) } $rFahShizzle_flat->get_method_list), 
+is(scalar(grep { $rFahShizzle->is_method_stub($_) } $rFahShizzle->get_method_list), 
    0, '... we have 3 method stubs');     
     
-is(scalar(grep { $rFahShizzle_flat->is_attribute_stub($_) } $rFahShizzle_flat->get_attribute_list), 
+is(scalar(grep { $rFahShizzle->is_attribute_stub($_) } $rFahShizzle->get_attribute_list), 
    0, '... we have 3 attribute stubs');     
-    
+
+}
