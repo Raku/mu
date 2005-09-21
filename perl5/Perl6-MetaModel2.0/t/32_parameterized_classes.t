@@ -7,6 +7,7 @@ use Test::More tests => 25;
 use Test::Exception;
 
 use Carp 'confess';
+use Scalar::Util 'blessed';
 
 use Perl6::MetaModel;
 
@@ -26,16 +27,16 @@ my $Scalar = class 'Scalar' => [ '::T' ] => sub {
         
     $::CLASS->add_attribute('$:value' => ::make_attribute('$:value'));    
     
-    $::CLASS->add_method('FETCH' => ::make_method(sub { 
-        ::opaque_instance_attr($::SELF => '$:value') 
-    }));
-    
     $::CLASS->add_method('STORE' => ::make_method(sub {
         my ($self, $value) = @_;
         ($value->isa($T->name)) # || $value->does($T)) 
             || confess "Incorrect Type";
         ::opaque_instance_attr($self => '$:value') = $value;
     }));
+    
+    $::CLASS->add_method('FETCH' => ::make_method(sub { 
+        ::opaque_instance_attr($::SELF => '$:value');
+    }));    
 };
 
 my $Int = class 'Int' => { is => [ $::Object ] };
@@ -52,7 +53,7 @@ isa_ok($IntScalar, 'Class');
 
 my $int_scalar = $IntScalar->new();
 isa_ok($int_scalar, 'Scalar[Int]');
-isa_ok($IntScalar, 'Class');
+isa_ok($int_scalar, 'Object');
 
 my $Five = $Int->new();
 isa_ok($Five, 'Int');
