@@ -12,7 +12,7 @@ ok($options = GetOptions <foo, Foo=s>, 'call to GetOptions');
 ok(exists $options<foo>,               'foo is a key in $options');
 is(+$options<foo>, 1,                  'the value of $options<foo> is 1');
 ok(exists $options<Foo>,               'Foo is a key in $options');
-is($options<Foo>, '-baR',              'the value of $options<foo> is "-baR"');
+is($options<Foo>, '-baR',              'the value of $options<Foo> is "-baR"');
 is(@*ARGS.elems, 1,                    'only 1 element left in @*ARGS');
 is(@*ARGS[0], 'bar',                   'the remaining element is "bar"');
 ok(not exists $options<baR>,           'baR is not a key in $options');
