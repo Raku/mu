@@ -178,6 +178,7 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
     sub required { $_[0]{required} }
     sub optional { ! $_[0]{required} }
     sub slurpy   { $_[0]{slurpy} }
+    sub type     { $_[0]{type} }
     sub match_type { 
         ref($_[1]) ? 
         $_[0]{type}->match( $_[1] ) : 
@@ -257,8 +258,8 @@ class 'Code'.$class_description => {
                     my $spec = ${ $self->params }[$i];
                     my $candidate = $params[$i];
                     next if $spec->optional && ! defined $candidate;
-                    if ( $spec->slurpy ) {
-                        return 0 unless $spec->match_type( [ @params[$i..$#params] ] );
+                    if ( $spec->slurpy ) {    ## && $spec->name eq 'Array' ) {
+                        ## return 0 unless $spec->match_type( [ @params[$i..$#params] ] ); XXX
                         return 1;   # @params = ();
                     }
                     else {
@@ -276,10 +277,25 @@ class 'Code'.$class_description => {
                     my $candidate = $params[$i];
                     $candidate = $spec->default if $spec->optional && ! defined $candidate;
                     if ( $spec->slurpy ) {
-                        my $ary = Array->new;
-                        $ary->push( @params[$i..$#params] );
-                        $bound_params{ ${$self->params}[$i]->name } = $ary;
-                        # $bound_params{ ${$self->params}[$i]->name } = [ @params[$i..$#params] ];
+                        if ( $spec->type->name eq 'Array' ) {
+                            my $ary = Array->new;
+                            $ary->push( @params[$i..$#params] );
+                            $bound_params{ ${$self->params}[$i]->name } = $ary;
+                            # $bound_params{ ${$self->params}[$i]->name } = [ @params[$i..$#params] ];
+                        }
+                        elsif ( $spec->type->name eq 'Hash' ) {
+                            my $ary = Hash->new;
+                            for ( @params[$i..$#params] ) {
+                                my $key = $_->key;
+                                my $value = $_->value;
+                                $ary->store( $key, $value ) 
+                            }
+                            $bound_params{ ${$self->params}[$i]->name } = $ary;
+                            # $bound_params{ ${$self->params}[$i]->name } = [ @params[$i..$#params] ];
+                        }
+                        else {
+                            warn "Don't know how to handle slurpy ".$spec->name;
+                        }
                         @params = ();
                     }
                     else {
