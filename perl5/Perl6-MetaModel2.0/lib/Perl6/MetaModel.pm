@@ -40,7 +40,18 @@ sub __ {
 
 sub class {
     my ($full_name, $body) = @_;
-    # support anon-classes here
+    # support generic classes here ...
+    if (defined($body) && defined($_[2]) && ref($body) && ref($body) =~ 'ARRAY') {
+        my ($body, @param_names) = ($_[2], @{$_[1]});
+        my ($name, $version, $authority) = split '-' => $full_name;       
+        return sub {
+            confess "No parameters passed, looking for { "  . (join ", " => @param_names) . " }"
+                unless @_;
+            my %params = @_;
+            return _build_class($name, $version, $authority, sub { $body->(%params) });
+        };
+    }
+    # support anon-classes here ....
     if (!defined($body) && ref($full_name) && ref($full_name) =~ /HASH|CODE/) {
         return _build_class(undef, undef, undef, $full_name);
     }

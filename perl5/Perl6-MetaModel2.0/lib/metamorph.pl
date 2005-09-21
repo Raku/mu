@@ -81,12 +81,22 @@ $::Class->add_method('DESTROYALL' => ::make_method(sub {
 $::Class->add_method('isa' => ::make_method(sub { 
     my ($self, $class_name) = @_;
     return undef unless $class_name;
-    return 1 if $self->name eq $class_name;  
     my $dispatcher = $self->dispatcher(':canonical');
     while (my $next = $dispatcher->()) {    
-        return 1 if $self->name eq $next->name;
+        #warn 'Hello there ... looking for ' . $class_name . ' =>  ' . $next->name;        
+        return 1 if $class_name eq $next->name;
     }
-    return 0; 
+    # if we are not a class of something
+    # maybe they are asking of we are an 
+    # instance of something,.. so we pass
+    # it back up to our class
+    return ::opaque_instance_class($self)->isa($class_name) 
+        # however, we need to not do this 
+        # for $::Class as that presents a 
+        # meta-circularity issue, and it
+        # loops endlessly
+        unless $self == $::Class;
+    return 0;
 }));
 
 $::Class->add_method('can' => ::make_method(sub { 

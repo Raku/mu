@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 14;
+use Test::More tests => 15;
 use Test::Exception;
 
 use Perl6::MetaModel;
@@ -41,6 +41,7 @@ my $Foo = class 'Foo' => {
     }
 };
 isa_ok($Foo, 'Class');
+isa_ok($Foo, 'Foo');
 
 is($Foo->class::instance_count, 0, '... no instances to count');
 

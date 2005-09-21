@@ -210,7 +210,7 @@ our $DISPATCH_TRACE = 0;
     # make a basic method ...
     sub ::make_method ($) {
         my ($method) = @_;
-        (defined $method && ref($method) eq 'CODE')
+        (defined $method && ref($method) eq 'CODE' || blessed($method) && $method->isa('Perl6::Method'))
             || confess "Bad method body (" . ($method || 'undef') . ")";     
         return bless $method => 'Perl6::Method';
     }

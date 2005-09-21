@@ -137,10 +137,10 @@ $::Role->add_method('collect_all_roles' => ::make_method(sub {
     my @roles;
     foreach my $role ($self, @{$self->roles}) {
         unless (exists $seen->{$role->name}) {
-            $seen->{$role->name}++;
+            $seen->{$role->name}++;             
             push @roles => $role;
             push @roles => $role->collect_all_roles($seen) if scalar @{$role->roles};            
-        }
+        }              
     }
     #warn Data::Dumper::Dumper $seen;
     return @roles;
@@ -281,6 +281,20 @@ code to the class that consumed it.
 
 -------------------------------------------------------------------------------
 
+With this Role meta-model , any Class instances, themselves does Role since they
+are just instances of Class which does Role too. So this means that all classes
+and roles can be polymorphic to one another. 
+
+Because instances of class all conform to the Role interface/API they are 
+interchangable with one another, classes and Roles are unified. THis is like
+Scala IIRC. 
+
+ 
+
+
 =cut
 
 1;
+
+
+
