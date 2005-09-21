@@ -3,14 +3,14 @@
 {-|
     The Main REPL loop.
 
->   Une nef neuve alors lui firent
->   De mithril et de verre elfique,
->   À la proue brillante, sans rame
->   Ni voiles à son mât d’argent:
->   Le Silmaril comme lanterne
->   Et bannière, vivante flamme,
->   Pour resplendir y fut placé
->   Par Elbereth même, qui vint...
+>   Un nuevo barco para él construyeron
+>   de sándalo. y de vidrio élfico,
+>   de proa brillante; ningún remo desnudo,
+>   ninguna vela en el mástil de plata:
+>   el Silmaril como linterna
+>   y en la bandera un fuego vivo
+>   puesto allí mismo por Elbereth,
+>   y otorgándole alas inmortales 
 
 -}
 
