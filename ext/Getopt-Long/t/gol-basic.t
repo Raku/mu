@@ -7,8 +7,8 @@ plan 9;
 use Getopt::Long <:config no_ignore_case>;
 
 @ARGV = <-Foo -baR --foo bar>;
-undef $opt_baR;
-undef $opt_bar;
+undefine $opt_baR;
+undefine $opt_bar;
 ok(GetOptions ("foo", "Foo=s"));
 ok(defined $opt_foo);
 is(+$opt_foo, 1);
