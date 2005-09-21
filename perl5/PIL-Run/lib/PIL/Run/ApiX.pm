@@ -262,7 +262,12 @@ sub p6_new_sub_from_pil_macro {
         my $n5  = '$'.p6_mangle($n6p);
         my $n6a = $n6p;
         my $is_slurpy = ref($p->{'tpParam'}{'paramContext'}) =~ /Slurpy/;
-        my $is_optional = ref($p->{'tpParam'}{'isOptional'});
+        my $is_invocant = $p->{'tpParam'}{'isInvocant'};
+        my $is_lvalue   = $p->{'tpParam'}{'isLValue'};
+        my $is_lazy     = $p->{'tpParam'}{'isLazy'};
+        my $is_named    = $p->{'tpParam'}{'isNamed'};
+        my $is_optional = $p->{'tpParam'}{'isOptional'};
+        my $is_writable = $p->{'tpParam'}{'isWritable'};
         $n6a = '?'.$n6a if $is_optional;
         $n6a = '*'.$n6a if $is_slurpy;
         push(@names6param,$n6p);

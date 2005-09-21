@@ -422,7 +422,15 @@ MULTI SUB system (*@xx) {
 MULTI SUB accept ($xx) {...};
 MULTI SUB detach ($xx) {...};
 MULTI SUB kill (*@xxa) { kill(map{p6_to_n($_)}@xxa); };
-MULTI SUB join (*@xxa) { my($j,@b)=map{p6_to_s($_)}@xxa;p6_from_s(join($j,@b)); };
+MULTI SUB join (*@xxa) {
+    my($j6,@b6)=@xxa;
+    my $j = p6_to_s($j6);
+    my @b = map{my $x = $_;
+		ref($x)=~/Array/i
+		    ? (map{p6_to_s($_)}@{p6_to_a($x)})
+		    : p6_to_s($_); } @b6;
+    p6_from_s(join($j,@b));
+};
 MULTI SUB async ($xx) {...};
 MULTI SUB listen ($xx) {...};
 MULTI SUB flush ($xx) {...};
