@@ -1,0 +1,50 @@
+Pugs Development for (mm, dd yyyy)
+
+* PIL2JS
+
+* PIL-Run
+
+* Perl6-MetaModel
+
+Some re-arranging has been done, ::Object now shares pneuma.pl with 
+::Package and ::Module, while ::Role has been moved to the new 
+psyche.pl file. This means that genesis.pl is concerned simply with
+bootstrapping things, and nothing more. 
+
+The Role work is progressing slowly becuase of $work. However, we have 
+added pictures L<p6_role_model.jpg|http://svn.openfoundry.org/pugs/perl5/Perl6-MetaModel2.0/docs/p6_role_model.jpg> 
+and there is some general thoughts/comments in L<pysche.pl|http://svn.openfoundry.org/pugs/perl5/Perl6-MetaModel2.0/lib/psyche.pl>
+as to how the bootstrapping will actually work.
+
+We recently added a test which implements the inside-out style of 
+objects within the meta-model. This basically shows that the meta
+model is capable of itself hosting other models.
+
+Basic support (read: very experimental) for parameterized classes
+has been added recently. This is implemented entirely on the "macro"
+level, and not actually part of the meta-model itself. Here is an
+example of how it is used:
+
+  my $Scalar = class 'Scalar' => [ '::T' ] => sub {
+      my %params = @_;
+      my $T = $params{'::T'};
+      
+      $::CLASS->add_method('STORE' => ::make_method(sub {
+          my ($self, $value) = @_;
+          $value->isa($T->name) or die "Incorrect Type";
+          # ... store the value here 
+      }));
+  };
+
+At this point $Scalar is not actually a Class instance, but more a 
+Class instance factory (actually it's a CODE ref). Here is how it
+is used:
+
+  my $Int = class 'Int' => {};
+  my $ScalarInt = $Scalar->('::T' => $Int) 
+
+Now $ScalarInt is actually an instance of Class parameterized to 
+only accept Int objects. For a working version of this example see
+L<32_parameterized_classes.t|http://svn.openfoundry.org/pugs/perl5/Perl6-MetaModel2.0/t/32_parameterized_classes.t>
+
+* General Pugs
