@@ -863,7 +863,7 @@ data Exp
                                         --     be represented by 'App'.
     | Cxt !Cxt !Exp                     -- ^ Context
     | Pos !Pos !Exp                     -- ^ Position
-    | Prag !Pragmas !Exp                -- ^ Lexical pragmas
+    | Prag ![Pragma] !Exp               -- ^ Lexical pragmas
     | Pad !Scope !Pad !Exp              -- ^ Lexical pad
     | Sym !Scope !Var !Exp              -- ^ Symbol declaration
     | Stmts !Exp !Exp                   -- ^ Multiple statements
@@ -1049,7 +1049,7 @@ data Env = MkEnv
     , envDepth   :: !Int                 -- ^ Recursion depth
     , envDebug   :: !DebugInfo           -- ^ Debug info map
     , envPos     :: !Pos                 -- ^ Source position range
-    , envPragmas :: !Pragmas             -- ^ List of pragmas in effect
+    , envPragmas :: ![Pragma]            -- ^ List of pragmas in effect
     , envInitDat :: !(TVar InitDat)      -- ^ BEGIN result information
     } deriving (Show, Eq, Ord, Typeable)
 

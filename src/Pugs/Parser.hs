@@ -908,16 +908,12 @@ ruleClosureTrait rhs = rule "closure trait" $ do
         "FIRST" -> vcode2firstBlock code
         _       -> fail ""
     where
-        install [] = return ()
-        install (x:xs) = do
+        install prag = do
             env' <- getRuleEnv
             let env'' = envCaller env'  -- not sure about this.
             case env'' of
                 Just target -> do
-                    putRuleEnv target { envPragmas =
-                        PrPrags{ pragma  = x
-                               , pragmas = envPragmas target} }
-                    install xs
+                    putRuleEnv target { envPragmas = prag ++ envPragmas target }
                 _ -> fail "no caller env to install pragma in"
 
 {-| Wraps a call to @&Pugs::Internals::check_for_io_leak@ around the input

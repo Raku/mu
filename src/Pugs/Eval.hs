@@ -77,7 +77,7 @@ emptyEnv name genPad = liftSTM $ do
         , envBody    = Val undef
         , envDebug   = Just ref -- Set to "Nothing" to disable debugging
         , envPos     = MkPos name 1 1 1 1
-        , envPragmas = PrNil
+        , envPragmas = []
         , envInitDat = init
         }
 
@@ -288,7 +288,7 @@ reduceStmts this rest = do
             return . VControl $ ControlEnv env
         _ -> reduce rest
 
-reducePrag :: Pragmas -> Exp -> Eval Val
+reducePrag :: [Pragma] -> Exp -> Eval Val
 reducePrag prag exp = do
     local (\e -> e{ envPragmas = prag }) $ do
         evalExp exp

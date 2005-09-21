@@ -602,9 +602,9 @@ op1 "Pugs::Internals::current_pragma_value" = \v -> do
     prags <- asks envPragmas
     return $ findPrag name prags
     where
-        findPrag :: String -> Pragmas -> Val
-        findPrag _ PrNil = VUndef
-        findPrag n PrPrags {pragma=this, pragmas=rest}
+        findPrag :: String -> [Pragma] -> Val
+        findPrag _ [] = VUndef
+        findPrag n (this:rest)
             | n == pragName this = VInt $ toInteger $ pragDat this
             | otherwise          = findPrag n rest
 op1 "Pugs::Internals::caller_pragma_value" = \v -> do
@@ -949,7 +949,7 @@ op2 "Pugs::Internals::install_pragma_value" = \x y -> do
     trace ("installing " ++ name ++ "/" ++ (show val)) $ return ()
     let prag = initPragmas idatval
     liftSTM $ writeTVar idat idatval{initPragmas = 
-        prag ++ [MkPrag{ pragName=name, pragDat=val }]}
+        MkPrag{ pragName=name, pragDat=val } : prag }
     return (VBool True)
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
 
