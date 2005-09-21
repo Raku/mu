@@ -8,7 +8,7 @@ use Getopt::Long <:config no_ignore_case>;
 
 @*ARGS = <-Foo -baR --foo bar>;
 my $options;
-ok($options = GetOptions ("foo", "Foo=s"));
+ok($options = GetOptions <foo, Foo=s>);
 ok(exists $options<foo>);
 is(+$options<foo>, 1);
 ok(exists $options<Foo>);
