@@ -222,7 +222,7 @@ sub p6_new {
             my $sub = shift;
             my %param = $sub->bind_params( @_ );
             my(@a) = (@param{@args_nonslurpy},
-                      map{@$_} @param{@args_slurpy});
+                      map{@{p6_to_a($_)}} @param{@args_slurpy});
             $f->(@a);
         };
         return Sub->new('$.name' => $name,
