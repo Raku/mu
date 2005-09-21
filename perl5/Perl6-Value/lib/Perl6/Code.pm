@@ -276,7 +276,10 @@ class 'Code'.$class_description => {
                     my $candidate = $params[$i];
                     $candidate = $spec->default if $spec->optional && ! defined $candidate;
                     if ( $spec->slurpy ) {
-                        $bound_params{ ${$self->params}[$i]->name } = [ @params[$i..$#params] ];
+                        my $ary = Array->new;
+                        $ary->push( @params[$i..$#params] );
+                        $bound_params{ ${$self->params}[$i]->name } = $ary;
+                        # $bound_params{ ${$self->params}[$i]->name } = [ @params[$i..$#params] ];
                         @params = ();
                     }
                     else {
