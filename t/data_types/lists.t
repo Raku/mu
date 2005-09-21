@@ -7,7 +7,7 @@ use Test;
 # for this test. See
 # http://www.nntp.perl.org/group/perl.perl6.language/22924.
 
-plan 18;
+plan 14;
 
 # Indexing lists
 {
@@ -114,11 +114,10 @@ plan 18;
     "using lists as lvalues in a binding operation to swap three variables works";
 }
 
+=begin more-discussion-needed
+
 # \(...) should create a list of references, as in Perl 5.
-# See thread "\(...)" on p6l started by Ingo Blechschmidt, especially Larry's
-# ruling: http://www.nntp.perl.org/group/perl.perl6.language/23027
-#   "Unless someone can come up with a better proposal, \($a,$b) is the default
-#   winner on the basis of prior Perl 5 art."
+# See the long thread "\(...)" on p6l started by Ingo Blechschmidt.
 {
   my @array_of_refs = \(1,2,3);
 
@@ -136,6 +135,7 @@ plan 18;
 }
 
 =begin more-discussion-needed
+
 See http://www.nntp.perl.org/group/perl.perl6.language/23085:
 >     \(@array);  # List of refs to @array's elements, i.e. same as
 >     map { \$_ } @array;
