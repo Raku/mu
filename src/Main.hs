@@ -10,7 +10,7 @@
 >   el Silmaril como linterna
 >   y en la bandera un fuego vivo
 >   puesto allí mismo por Elbereth,
->   y otorgándole alas inmortales 
+>   y otorgándole alas inmortales...
 
 -}
 
@@ -33,7 +33,7 @@ import qualified Data.Map as Map
 import Data.IORef
 
 {-|
-Pugs' entry point. Uses 'Pugs.Run.runWithArgs' to normalise the command-line
+The entry point of Pugs. Uses 'Pugs.Run.runWithArgs' to normalise the command-line
 arguments and pass them to 'run'.
 -}
 main :: IO ()
