@@ -250,13 +250,20 @@ class 'Code'.$class_description => {
                 my ($self, @params) = @_;
                 # my $max = ( scalar @params > scalar @{ $self->params } ) ? scalar @params : @{ $self->params };
                 my $i = 0;
+                my $num_required = 0;
                 # warn "params ". @{ $self->params } . " -- @params";
                 while(1) {
-                    return 1 if $i > scalar $#{ $self->params } && $i > scalar $#params;
+                    if ( $i >= scalar @{ $self->params } && $i >= scalar @params ) {
+                        #warn "CHECK: $i - required $num_required - given @params";
+                        return 0 if $num_required > scalar @params;
+                        return 1;
+                    }
+                    # return 1 if $i > scalar $#{ $self->params } && $i > scalar $#params;
                     return 0 if $i > scalar $#{ $self->params } && $i <= scalar $#params;
                     # warn $i;
                     my $spec = ${ $self->params }[$i];
                     my $candidate = $params[$i];
+                    $num_required++ if $spec->required;
                     next if $spec->optional && ! defined $candidate;
                     if ( $spec->slurpy ) {    ## && $spec->name eq 'Array' ) {
                         ## return 0 unless $spec->match_type( [ @params[$i..$#params] ] ); XXX
