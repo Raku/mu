@@ -102,8 +102,12 @@ sub cast_node_type {
 					type => [$from => $to],
 				),
 			),
-			$node,
+			(ref $node)->new(
+				%$node,
+				orig => Blondie::Val->new($node->orig),
+			),
 		),
+		orig => $node->orig,
 	);
 }
 

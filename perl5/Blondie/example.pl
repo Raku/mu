@@ -17,6 +17,10 @@ my $prog = Seq(
 		Sym('&say'),
 		Val(42),
 	),
+	App(
+		Sym('&say'),
+		Val(43),
+	),
 );
 
 my $t1 = times;

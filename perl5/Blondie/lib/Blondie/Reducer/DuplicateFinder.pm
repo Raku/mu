@@ -6,7 +6,7 @@ use base qw/Blondie::Reducer/;
 use strict;
 use warnings;
 
-use Tie::RefHash;
+use Set::Object;
 
 sub new {
     my $class = shift;
@@ -14,6 +14,7 @@ sub new {
 
     bless {
         seen => undef,
+		dups => [],
     }, $class;
 }
 
@@ -21,22 +22,24 @@ sub duplicate_nodes {
     my $self = shift;
     my $program = shift;
 
-    $self->{seen} = { };
+    $self->{seen} = Set::Object->new;
+	$self->{dups} = [];
 
     $self->reduce($program);
 
-    grep { $self->{seen}{$_} > 1 } @{ $self->{nodes} };
+    @{ $self->{dups} };
 }
 
 sub generic_reduce {
     my $self = shift;
     my $node = shift;
 
-    return $node if $self->{seen}{$node}++;
-
-    push @{ $self->{nodes} }, $node;
-
-    $self->SUPER::generic_reduce($node);
+    if ($self->{seen}->includes($node)){
+		push @{ $self->{dups} }, $node;
+	} else {
+		$self->{seen}->insert($node);
+		$self->SUPER::generic_reduce($node);
+	}
 }
 
 __PACKAGE__;

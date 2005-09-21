@@ -26,7 +26,7 @@ sub find_immediate_dyn_sym {
 	my $self = shift;
 	my $symbol = shift;
 
-	foreach my $pad (@{ ($self->scopes)[-1] }) {
+	foreach my $pad (@{ ($self->scopes)[0] }) {
 		return $pad if $pad->name eq $symbol;
 	}
 

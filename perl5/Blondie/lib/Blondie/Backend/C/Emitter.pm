@@ -12,11 +12,45 @@ use Blondie::Reducer::DuplicateFinder;
 use Blondie::TypeSafe;
 use Set::Object ();
 
+{
+	package Blondie::Backend::C::Emitter::DuplicateFinder;
+	use base qw/Blondie::Reducer::DuplicateFinder/;
+
+	# FIXME duplicate thunks are not found, sometimes ->orig is missing
+
+	sub generic_reduce {
+		my $self = shift;
+		my $node = shift;
+
+		my $struct = $node->struct_equiv;
+		my $orig = $node->orig;
+
+		# Prims will be duplicated but are already atomical
+		return if Scalar::Util::blessed($struct) and $struct->isa("Blondie::Backend::C::Prim");
+
+		$Data::Dumper::Maxdepth = 3;
+		warn "$node (" . $struct . ") does not have an orig". Data::Dumper::Dumper($node) unless defined $orig;
+
+		if ($self->{seen}->includes($orig)) {
+			push @{ $self->{dups} }, $node;
+			warn "adding $node ($struct, $orig) to dups";
+			return;
+		} else {
+			unless (Scalar::Util::blessed($struct) and $struct->isa("Blondie::Val")) {
+				warn "marking $node as seen based on ($orig, $struct)";
+				$self->{seen}->insert($orig)
+			}
+			$self->SUPER::generic_reduce($node->struct_equiv);
+		}
+	}
+}
+
 sub new {
 	my $class = shift;
 	bless {
 		defs => [],
-		defined_nodes => {},
+		defined_nodes => Set::Object->new,
+		names => {},
 	}, $class;
 }
 
@@ -28,17 +62,25 @@ sub reduce {
 	warn "annotation: $node";
 	warn "reducing " . $node->struct_equiv; #. Data::Dumper::Dumper($node->struct_equiv);
 
-	if ($self->{dups}->includes($node->struct_equiv)) {
-		$self->add_natural_def($node);
+	if ($self->has_symbol($node)){
+		return $self->symbolic_representation($node);
+	}
+
+	my $symbol = $self->declare($node) if $self->is_duplicate($node);
+	warn $node->struct_equiv . " is duplicated, and has been alocated $symbol" if defined $symbol;
+
+	my $result = $self->inner_reduce($node);
+	
+	if (defined $symbol) {
+		return $self->define($node, $symbol, $result);
 	} else {
-		return $self->simple_reduce($node);
+		return $result;
 	}
 }
 
-sub simple_reduce {
+sub inner_reduce {
 	my $self = shift;
 	my $node = shift;
-
 	return $self->literal_value($node) unless $self->can_reduce($node);
 
 	if (my $meth = $self->can("reduce_" . $node->struct_equiv->moniker)) {
@@ -46,8 +88,6 @@ sub simple_reduce {
 	} else {
 		return $self->generic_reduce($node);
 	}
-
-	$self->SUPER::reduce($node);
 }
 
 sub literal_value {
@@ -90,79 +130,105 @@ sub resolve_type {
 	my $self = shift;
 	my $type = shift;
 
-	$type = $type->type while ref $type;
+	$type = $type->type while Scalar::Util::blessed($type);
+	$type = $type->[0] while ref $type and @$type == 1;
 	$type;
 }
 
-sub add_natural_def {
+sub has_symbol {
 	my $self = shift;
 	my $node = shift;
 
-	die "This method is not yet ready";
+	exists $self->{names}{$node->orig};
+}
 
-	my $method;
-	if (Scalar::Util::blessed($node->struct_equiv)){
-		my $moniker = $node->struct_equiv->moniker;
-		$method = "add_${moniker}_def";
-	} else {
-		$method = "add_const_def";
+sub declare {
+	my $self = shift;
+	my $node = shift;
+
+	$self->{names}{$node->orig} ||= do {
+		my $type = $node->struct_equiv->moniker;
+		join("_", $type, ++$self->{counters}{$type});
 	}
-
-	$self->$method($self, $node);
 }
 
-sub add_const_def {
+sub define {
 	my $self = shift;
-	my $node = shift;
+	my ($node, $symbol, $body) = @_;
 
-	my $num = ++$self->{const_counter};
-	my $symbol = "const_$num";
+	return if $self->node_is_defined($node);
 
-	my $type = $self->t($node);
+	return $self->define_literal(@_) unless $self->can_reduce($node);
+
+	my $kind = $node->struct_equiv->moniker;
+	my $method = "define_$kind";
+	warn "defining a new $kind (@_)";
+	return $self->$method(@_);
+}
+
+sub define_prim {
+	my $self = shift;
+	my ($node, $symbol, $body) = @_;
+
+	return $body;
+}
+
+sub define_literal {
+	my $self = shift;
+	my ($node, $symbol, $body) = @_;
+
+	my $type = $self->resolve_type($node);
 	
-	$self->define_node($node, $symbol);
+	$self->add_definition($node, "const $type $symbol = $body;");
 
-	my $body = $self->simple_reduce($node);
-
-	$self->add_def($node, "const $type $symbol = $body");
-
+	return $symbol;
 }
 
-sub add_thunk_def {
+sub define_thunk {
 	my $self = shift;
-	my $node = shift;
-	my $body = shift;
+	my ($node, $symbol, $body) = @_;
 
-	warn "body $body is blessed" if Scalar::Util::blessed($body);
-
-	warn "adding a definition of $node = " . $body;
-	warn "type of $node is " . Data::Dumper::Dumper($node->type);
-
-	my $num = ++$self->{thunk_counter};
-	my $symbol = "def_thunk_$num";
+	# all thunks with protos were already defined as functions
 	
-	my $type = $self->t($node->type->[-1]);
+	my $type = $self->resolve_type($node); # unlike parametered thunks these thunk have no -> type
 
-	$self->add_def($node, "$type $symbol $body");
-	$self->define_node($node, $symbol);
-
-	$symbol;
+	$self->define_named_block($node, $symbol, $body, $type);
 }
 
-sub add_def {
+sub define_app {
 	my $self = shift;
-	my $node = shift;
-	my $string = shift;
+	my ($node, $symbol, $body) = @_;
 
-	push @{$self->{defs}}, $string;
+	$self->define_named_block($node, $symbol, $body, $self->resolve_type($node));
 }
 
+sub define_named_block {
+	my $self = shift;
+	my ($node, $symbol, $body, $type) = @_;
+	$self->add_definition($node, "$type $symbol () {\n\t$body;\n}");
+	return $symbol . "()";
+}
 
-sub define_node {
+sub define_val {
+	my $self = shift;
+	my ($node, $symbol, $body, $type) = @_;
+	return $body;
+}
+
+sub symbolic_representation {
 	my $self = shift;
 	my $node = shift;
-	my $value = shift;
-	$self->{defined_nodes}{$node} = $value;
+
+	$self->{names}{$node->orig};
+}
+
+sub is_duplicate {
+	my $self = shift;
+	my $node = shift;
+
+	warn "is $node a dup?";
+
+	$self->{dups}->includes($node);
 }
 
 sub reduce_val {
@@ -172,6 +238,29 @@ sub reduce_val {
 	$self->reduce($val->struct_equiv->val);
 }
 
+sub add_definition {
+	my $self = shift;
+	my $node = shift;
+	my $body = shift;
+
+	push @{ $self->{defs} }, $body;
+
+	$self->mark_defined($node);
+}
+
+sub mark_defined {
+	my $self = shift;
+	my $node = shift;
+
+	$self->{defined_nodes}->insert($node);
+}
+
+sub node_is_defined {
+	my $self = shift;
+	my $node = shift;
+	$self->{defined_nodes}->includes($node);
+}
+
 sub reduce_thunk {
 	my $self = shift;
 	my $node = shift;
@@ -179,7 +268,11 @@ sub reduce_thunk {
 	my $thunk = $node->struct_equiv;
 	my $child = $thunk->val->struct_equiv;
 
-	if ($child->isa("Blondie::Seq")){
+	if ($child->isa("Blondie::Seq")){ # FIXME if (has_params)
+		my $symbol = $self->declare($node);
+
+		my $return_type = $node->type->[-1]->type;
+		
 		my @children = $child->values;
 		my @params;
 		my @exps;
@@ -195,8 +288,10 @@ sub reduce_thunk {
 			}
 		}
 		$self->leave_scope;
+	
+		$self->add_definition($node => "$return_type $symbol (" . join(", ", @params) . ") {\n\t".join(";\n\t", @exps).";\n}");
 
-		$self->add_thunk_def($node, "(" . join(", ", @params) . ") {\n\t".join(";\n\t", @exps).";\n}");
+		return $symbol;
 	} else {
 		$self->reduce($thunk->val);
 	}
@@ -242,18 +337,23 @@ sub emit {
 	my $prog = shift;
 
 	use Data::Dumper;
-	$Data::Dumper::Maxdepth = 7;
-	$Data::Dumper::Indent = 1;
+	$Data::Dumper::Maxdepth = 4;
+	#$Data::Dumper::Indent = 1;
 	$Data::Dumper::Terse = 1;
-	warn Dumper($prog);
+	#warn Dumper($prog);
 
-	my $dup_finder = Blondie::Reducer::DuplicateFinder->new;
-	my $flat = Blondie::TypeSafe::Flatten->new->reduce($prog);
-	$self->{dups} = Set::Object->new( $dup_finder->duplicate_nodes($flat) );
+	my $dup_finder = Blondie::Backend::C::Emitter::DuplicateFinder->new;
+	$self->{dups} = Set::Object->new( $dup_finder->duplicate_nodes($prog) );
+
+	warn "Duplicate nodes: " . join("\n", map {
+		Scalar::Util::blessed($_)
+			? Dumper($_)
+			: quote(printable($_))
+	} $self->{dups}->members);
 
 	my $main = $self->reduce($prog);
 
-	push @{ $self->{defs} }, "int main () {\n\t(void)$main;\n\treturn 1;\n}";
+	push @{ $self->{defs} }, "int main () {\n\t$main;\n\treturn 1;\n}";
 
 	join("\n\n", Blondie::Backend::C::Builtins->prelude, @{$self->{defs}});
 }

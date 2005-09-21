@@ -40,9 +40,9 @@ my %by_digest = (
 		},
 		{
 			arity => 3,
-			name => '&print',
-			body => 'prel_print',
-			type => type(qw/GV PV/ => "IV"),
+			name => '&printf',
+			body => 'prel_printf',
+			type => type(qw/GV PV PV/ => "IV"),
 		},
 		{
 			arity => 2,
@@ -69,8 +69,8 @@ typedef int IV;
 typedef FILE * GV;
 typedef char * PV;
 
-int prel_print (GV f, const PV c) {
-	return fprintf(f, "%s", c);
+int prel_printf (GV f, const PV format, const PV c) {
+	return fprintf(f, format, c);
 }
 
 PV prel_cat (PV x, PV y) {

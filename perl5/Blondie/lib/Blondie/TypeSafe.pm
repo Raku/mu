@@ -157,6 +157,7 @@ sub typecheck {
 			return Blondie::TypeSafe::Annotation->new(
 				type => $node->type,
 				struct_equiv => $node,
+				orig => $node,
 			);
 		} else {
 			my $type = $self->guess_perl_type($node);
@@ -164,6 +165,7 @@ sub typecheck {
 			return Blondie::TypeSafe::Annotation->new(
 				type => Blondie::TypeSafe::Type::Std->new($type),
 				struct_equiv => $node,
+				orig => $node,
 			);
 		}
 	}
@@ -195,7 +197,8 @@ sub typecheck {
 
 		Blondie::TypeSafe::Annotation->new(
 			type => $type,
-			struct_equiv => $sym->fmap(sub { Blondie::TypeSafe::Annotation->new(struct_equiv => $_[0]) }),
+			orig => $sym,
+			struct_equiv => $sym->fmap(sub { Blondie::TypeSafe::Annotation->new(struct_equiv => $_[0], orig => $_[0]) }),
 		);
 	}
 
@@ -209,6 +212,7 @@ sub typecheck {
 		Blondie::TypeSafe::Annotation->new(
 			type => $sub->type,
 			struct_equiv => $rval,
+			orig => $val,
 		);
 	}
 
@@ -235,11 +239,11 @@ sub typecheck {
 			$self->unify_type($node, $expected);
 		});
 
-		Blondie::TypeSafe::Annotation->new(
+		return Blondie::TypeSafe::Annotation->new(
 			type => $return_type,
-			struct_equiv => $unified_app
+			orig => $app,
+			struct_equiv => $unified_app,
 		);
-
 	}
 
 	sub simplify_type {
@@ -330,7 +334,10 @@ sub typecheck {
 		my $self = shift;
 		my $thunk = shift;
 
+		$self->enter_scope;
 		my $rthunk = $thunk->fmap(sub { $self->reduce($_[0]) });
+		$self->leave_scope;
+		
 		my $child = $rthunk->val->struct_equiv;
 
 		if ($child->isa("Blondie::Seq")){
@@ -342,11 +349,13 @@ sub typecheck {
 			return Blondie::TypeSafe::Annotation->new(
 				type => [ ( map { $_->accepts_type } @params ) => $last->type, ],
 				struct_equiv => $rthunk,
+				orig => $thunk,
 			);
 		} else {
 			return Blondie::TypeSafe::Annotation->new(
 				type => [ $child->type ],
 				struct_equiv => $rthunk,
+				orig => $thunk,
 			);
 		}
 	}
@@ -360,6 +369,7 @@ sub typecheck {
 		return Blondie::TypeSafe::Annotation->new(
 			type => ($rseq->values)[-1]->type,
 			struct_equiv => $rseq,
+			orig => $seq,
 		);
 	}
 
@@ -373,6 +383,7 @@ sub typecheck {
 			Blondie::TypeSafe::Annotation->new(
 				struct_equiv => $_[0],
 				type => Blondie::TypeSafe::Type::Bottom->new,
+				orig => $_[0],
 			);
 		});
 
@@ -380,6 +391,7 @@ sub typecheck {
 			type => Blondie::TypeSafe::Type::Bottom->new,
 			accepts_type => $placeholder,
 			struct_equiv => $rparam,
+			orig => $param,
 		);
 	}
 
