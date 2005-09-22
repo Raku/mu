@@ -46,7 +46,16 @@ s/^($v)+//;
 s/($v)+$//;
 
 if($^O eq 'MSWin32') {
-    if( system($bin, split($v, $_)) == 0 ) {
+    my(@args)=($bin, split($v, $_));
+
+    # PxPerl gives a choice, at installation, of the .pl suffix
+    # triggering either execution, or an editor.  So call perl explicitly.
+    # This also removes the need for any .pl configuration existing.
+    unshift(@args,$^X) if $bin =~ /\.pl$/;
+
+    # exec() is broken on some windows.  Interactive use of pugs_bin gets
+    # command interpreter output mixed in.  So we use system() instead.
+    if( system(@args) == 0 ) {
 	exit(0);
     } elsif( $? == -1 ) {
 	die "system( $bin , ...) failed to execute!\n";
