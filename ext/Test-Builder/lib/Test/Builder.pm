@@ -123,7 +123,7 @@ method report_test ( Test::Builder::Test $test )
 {
     fail 'No plan set!' unless $.testplan;
 
-    push $.results, $test;
+    push @:results, $test;
     $.output.write( $test.report() );
 }
 

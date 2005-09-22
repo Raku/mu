@@ -1,4 +1,23 @@
-= Blondie wants You (pointing finger) to give it more backends
+Pugs Development for (mm, dd yyyy)
+
+* PIL2JS
+
+* PIL-Run
+
+* Perl6-MetaModel
+
+Role work is now (mostly) complete. We still need more tests, and there is
+still more Class and Role integration planned but not yet implemented. 
+
+To exercise the meta-model I have ported chromatic's Perl 6 version of 
+Test::Builder (complete with tests) to the meta-model. The translation 
+was fairly seemless, and even used the meta-model based package system 
+instead of Perl 5 packages.  
+
+You can see it L<here|http://svn.openfoundry.org/pugs/perl5/Perl6-MetaModel2.0/ext/Test-Builder/>
+and you will find the Perl6 code in the POD documentation for reference.
+
+* Blondie wants You (pointing finger) to give it more backends
 
 Blondie is a side project whose purpose is to prototype some approaches towards
 compiling the dynamic/static conglomerate that is Perl 6 into something that
@@ -12,25 +31,25 @@ by a primitive type inferrencer), but we want more!
 
 The backends we're still interested in are:
 
-* Parrot and PIR
+** Parrot and PIR
 This is what Perl 6 will run on by default, so we better support it
 
-* Other virtual machines, e.g. LLVM, Ruby's YARV, the JVM through Jasmin, C--
+** Other virtual machines, e.g. LLVM, Ruby's YARV, the JVM through Jasmin, C--
 For two reasons:
 Running Perl 6 on foreign runtimes designed for high level languages
 Learning what VMs look like when targeted uniformly
 
-* GCC's GENERIC
+** GCC's GENERIC
 Although we're already harnessing GCC with the C backend, making a GCC
 frontend for Blondie has two interesting aspects: it's higher level than a
 VM, so this illustrates AST conversion, and it requires completely manual
 memory management
 
-* Other interpreted backends, e.g. JavaScript
+** Other interpreted backends, e.g. JavaScript
 Interpreting approaches are by far the quickest way to get Blondie to run on
 strange platforms.  This will stress the way the shared prelude is handled.
 
-* Mock backends
+** Mock backends
 Harsh environments for a dynamic language, like no IO, hard real time (all
 builtins which cannot be realtime are masked from the prelude), etc.
 
