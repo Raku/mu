@@ -2,7 +2,7 @@
 # http://search.cpan.org/src/JV/Getopt-Long-2.34/t/gol-linkage.t
 use v6;
 use Test;
-plan 18;
+plan 19;
 
 use Getopt::Long;
 
