@@ -23,7 +23,7 @@ Affected code:
 
 This frees the Seq node to mean what it really means, instead of being the hack it is.
 
-The perl interpreter can have it's own type of prim, and can compile thunks
+The perl interpreter can have its own type of prim, and can compile thunks
 into a seq that pops params of the stack, but that sounds more work than the
 efficient version ;-)
 
@@ -50,7 +50,7 @@ replacing.
 == AST level branching
 
 Right now if prelude builtin provides thunks to the <?? !!> operator. The
-ternary operator is actually pretty broken - it evalutaes both it's params, and
+ternary operator is actually pretty broken - it evalutaes both its params, and
 then returns one, so if takes thunks, evaluates the condition, asks ?? !! to
 return one of the thunks, and then applies that thunk.
 
@@ -117,6 +117,6 @@ Share code with the C emitter - they're essentially the same.
 	@arrray[$i]; # int|str
 
 The type returned from the last expression must be boxed, containing the value
-and it's type.
+and its type.
 
 Perhaps lessons should be learned from Dynaml
