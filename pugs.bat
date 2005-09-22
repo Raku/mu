@@ -47,10 +47,11 @@ s/($v)+$//;
 
 if($^O eq 'MSWin32') {
     system($bin, split($v, $_));
+    exit($? >> 8);
 } else {
     exec($bin, split($v, $_));
+    die "$0: exec of $bin failed. $!";
 }
-die "$0: exec of $bin failed. $!";
 
 sub helper_exe {
     my @tries;
