@@ -1,0 +1,75 @@
+# Takahashi format - each paragraph is a slide.
+
+Pugs
+Perl 6 For Real
+
+Autrijus Tang
+
+Perl
+
+P is for
+Practical
+
+Humble beginning
+
+
+
+Swiss army chainsaw
+Duct tape for the Net
+
+Perl 5
+
+A huge step sideways
+in language evolution
+
+# highlights from perl5 here
+
+CPAN
+
+Inline
+
+# highlights from CPAN here
+
+Perl 6
+
+Self hosting
+
+Macros and DSL
+
+Rules
+
+Incremental Typing
+
+Junctions
+
+Pugs
+
+# ...fast scrolling through milestones...
+
+P is also
+Polymorphic
+
+Platforms
+
+On JavaScript
+
+On Perl5
+
+On GHC
+
+Parrot
+
+# ...
+
+People
+
+# ...
+
+"Practical"?
+
+# .. .
+
+Plans
+
+# ...
+
