@@ -29,7 +29,7 @@ my $Scalar = class 'Scalar' => [ '::T' ] => sub {
     
     $::CLASS->add_method('STORE' => ::make_method(sub {
         my ($self, $value) = @_;
-        ($value->isa($T->name)) # || $value->does($T)) 
+        ($value->isa($T->name) || $value->does($T)) 
             || confess "Incorrect Type";
         ::opaque_instance_attr($self => '$:value') = $value;
     }));

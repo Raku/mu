@@ -3,6 +3,8 @@
 use strict;
 use warnings;
 
+use lib '../../lib', '../../';
+
 use Perl6::MetaModel;
 use Carp 'confess';
 use Scalar::Util 'blessed';

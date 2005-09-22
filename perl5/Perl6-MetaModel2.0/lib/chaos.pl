@@ -132,7 +132,7 @@ our $DISPATCH_TRACE = 0;
     sub ::instantiate_attribute_container ($) {
         my ($attr) = @_;
         (blessed($attr) && $attr->isa('Perl6::Attribute'))
-            || confess "You must provide an attribute to instantiate";        
+            || confess "You must provide an attribute to instantiate";       
         return [] if ${$attr} =~ /^@/;
         return {} if ${$attr} =~ /^%/;        
         return undef;

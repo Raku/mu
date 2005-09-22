@@ -49,8 +49,6 @@ my $Square = class 'Square' => {
     }
 };
 
-$Square->resolve();
-
 my $Square3D = class 'Square3D' => {
     is => [ $Square ],
     does => [ $Shape3D ],
@@ -59,8 +57,6 @@ my $Square3D = class 'Square3D' => {
         'area'   => sub { ::next_METHOD() * 6 }
     }
 };
-
-$Square3D->resolve();
 
 my $Rectangle = class 'Rectangle' => {
     is   => [ $Square ],
@@ -76,8 +72,6 @@ my $Rectangle = class 'Rectangle' => {
         },      
     }
 };
-
-$Rectangle->resolve();
 
 my $Rectangle3D = class 'Rectangle3D' => {
     is => [ $Rectangle ],
@@ -100,8 +94,6 @@ my $Rectangle3D = class 'Rectangle3D' => {
     }
 };
 
-$Rectangle3D->resolve();
-
 my $Circle = class 'Circle' => {
     is => [ $::Object ],
     does => [ $Shape ],
@@ -118,8 +110,6 @@ my $Circle = class 'Circle' => {
     }
 };
 
-$Circle->resolve();
-
 $Circle->STORE('$.PI' => 3.14159);
 
 my $Circle3D = class 'Circle3D' => {
@@ -130,8 +120,6 @@ my $Circle3D = class 'Circle3D' => {
         'area'   => sub { 4 * ::next_METHOD() },        
     }
 };
-
-$Circle3D->resolve();
 
 {
 
