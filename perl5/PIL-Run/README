@@ -27,7 +27,7 @@ p5ugs> :v
 
 Todo:
  - Perl6-Value and Perl6-Container need work.
-   Especially slurpy Code parameters, and hashes.
+   Especially hashes.
  - PIL node handling is still very incomplete.  See EvalX.
  - Things have gotten rather crufty. Cleaning is needed.
 

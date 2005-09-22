@@ -258,6 +258,13 @@ sub p6_new_sub_from_pil_macro {
     };
     my(@names6arg,@names6param,@names5);
     for my $p (@{$pil_params}) {
+	my @info;
+	my $default = $p->{'tpDefault'};
+	if(defined $default) {
+	    my $code = $default->expand(); # XXX - abstraction violation
+	    $code = "sub{ $code }";
+	    push(@info,['default',$code]);
+	}
         my $n6p = $p->{'tpParam'}{'paramName'};
         my $n5  = '$'.p6_mangle($n6p);
         my $n6a = $n6p;
@@ -270,8 +277,13 @@ sub p6_new_sub_from_pil_macro {
         my $is_writable = $p->{'tpParam'}{'isWritable'};
         $n6a = '?'.$n6a if $is_optional;
         $n6a = '*'.$n6a if $is_slurpy;
+	push(@info,['invocant',1]) if $is_invocant;
+	push(@info,['lvalue',1])   if $is_lvalue;
+	push(@info,['lazy',1])     if $is_lazy;
+	push(@info,['named',1])    if $is_named;
+	push(@info,['writable',1]) if $is_writable;
         push(@names6param,$n6p);
-        push(@names6arg,$n6a);
+        push(@names6arg,[['name',$listify->($n6a)],@info]);
         push(@names5,$n5);
     }
     my $my_args = "";
@@ -295,13 +307,16 @@ sub p6_new_sub_from_pil_macro {
                   .$body_wrapped
                   .'}');
     if($want_macro) {
-        my $params = ('[map{Perl6::Param->new(\'name\' => $_)} '
-                      .'('.$listify->(@names6arg).')]');
+	my $args = join(",",map{
+	    "[".join(",",map{join("=>",@$_)}@$_)."]"
+	    } @names6arg);
+        my $params = ('[map{Perl6::Param->new(@$_)} '
+                      .'('.$args.')]');
         $SubOrCode."->new(".("'\$.name' => '$name',".
                      "'\$.params' => $params,".
                      "'\$.body' => $subdef)");
     } else {
-        my $params = [map{Perl6::Param->new('name' => $_)} @names6arg];
+        my $params = [map{Perl6::Param->new(map{@$_}@$_)} @names6arg];
         my $subdef = eval($subdef);  die "bug $@" if $@;
         $SubOrCode->new('$.name' => $name,
                         '$.params' => $params,
