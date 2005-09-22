@@ -4,6 +4,7 @@ module DrIFT.Perl5 where
 import Data.Ratio
 import Data.List (intersperse)
 import Data.Char (chr)
+import GHC.Exts
 import UTF8
 
 type Perl5Class = String
