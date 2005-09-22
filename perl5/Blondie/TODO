@@ -1,4 +1,3 @@
-= Easy
 
 == Refactor the Thunk and Param nodes
 
@@ -83,9 +82,46 @@ The type object is currently overly nested sometimes, this could be cleaned up
 a bit, and the functions to "resolve" types (type annotator, c emitter) could
 be thrown away.
 
-== Variable Assignment
+The needed type values:
 
-Container creation and binding
+* Runtime types - these are just values circulated for the runtime, the
+values that come out of its Prims, and go back to its casts.
+
+* Thunk values - this is a type that has other types, including params and
+return value. Reduciton of apps must ensure that the node they are trying to
+apply is of this type. This is a higher order value and symbols as well as
+params can be of this type. It's essentially a tree.
+
+* Apps with no parameters can flatten the thunk type into the return value
+and eliminate the app all together... See the peephole optimizer.
+
+== Optimizer
+
+This is actually a simple step, but probably a lot of work.
+
+Introduce a new family of reducers that is applied between every conversion
+(between initial and compilation, between compilation and SSA, between SSA and
+type annotation, between type annotation and emission). This step will apply
+pluggable reducers as it sees fit by being told at what step it is.
+
+The only pluggable reducer that I think is useful right now is a peephole
+optimizer (which is pluggable in itself).
+
+The peephole optimizer has plugins which say to what step they apply, and what
+root node they need. The root node is passed to the highest priority peephole
+pattern, and the result is then reapplied. If the peephole pattern made no
+change, the next one is tried.
+
+An example pattern:
+
+	peephole App(Thunk(x)) = x
+
+If $x happens to be an App(Thunk($y)) the pattern will be reapplied on its
+result anyway.
+
+== Variable Assignment & binding
+
+Container creation and binding of values is good for defining the prelude as a program, and 
 
 (Blondie could be SSA, or could be converted by an SSA converter - either
 example works well).
@@ -99,8 +135,6 @@ http://citeseer.ist.psu.edu/flanagan93essence.html
 I don't like dynamic scoping, but lexical scoping makes little sense in an AST
 with no definitions. Once we have assignment forms, we can see how lexical
 scoping enters the picture.
-
-Variables
 
 == PIR emitter
 
@@ -119,4 +153,9 @@ Share code with the C emitter - they're essentially the same.
 The type returned from the last expression must be boxed, containing the value
 and its type.
 
-Perhaps lessons should be learned from Dynaml
+Perhaps lessons should be learned from Dynaml.
+
+The SSA phi operation can help us generate the type UNIONS and upgrade a value
+into a dynamic type as late as possible to reduce the overhead.
+
+
