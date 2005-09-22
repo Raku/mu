@@ -10,7 +10,7 @@ our $VERSION = '2.00';
 
 sub import {
     # load the meta-model ..
-    do "lib/genesis.pl";    
+    require "lib/genesis.pl";    
     
     # export &class
     no strict 'refs';
@@ -21,7 +21,13 @@ sub import {
     *{"${pkg}::__"}  = \&__;        
 }
 
-our %CLASSES_BY_NAME;
+our %CLASSES_BY_NAME = (
+    'Class'   => $::Class,
+    'Object'  => $::Object,
+    'Package' => $::Package,
+    'Module'  => $::Module,            
+    'Role'    => $::Role,    
+    );
 our %ROLES_BY_NAME;
 
 sub _ {
@@ -53,7 +59,7 @@ sub class {
     }
     # support anon-classes here ....
     if (!defined($body) && ref($full_name) && ref($full_name) =~ /HASH|CODE/) {
-        return _build_class(undef, undef, undef, $full_name);
+        return _build_class('', undef, undef, $full_name);
     }
     my ($name, $version, $authority) = split '-' => $full_name;       
     my $new_class = _build_class($name, $version, $authority, $body);
@@ -145,6 +151,7 @@ sub _build_class {
         }        
     }
     
+    $new_class->resolve; # if $body->{does};
     return $new_class;
 }
 

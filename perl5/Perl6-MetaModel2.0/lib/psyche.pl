@@ -229,8 +229,33 @@ $::Role->add_method('isa' => ::make_method(sub {
 # TODO ... implement the package interface
 
 $::Role->add_method('FETCH' => ::make_method(sub {
-    my $self = shift;
-    # ...
+    my ($self, $label) = @_;
+    (defined $label && $label)
+        || confess "Cannot FETCH at (" . ($label || 'undef') . ")";
+    if ($label =~ /^\&(.*)$/) {
+        # check for instance method
+        return $self->has_method($1) ? 
+                    $self->get_method($1) 
+                    :
+                    # if all else fails, maybe it is 
+                    # a sub, so we just call next METHOD
+                    ::next_METHOD();
+    }   
+    # XXX -
+    # this reg-exp is probably not correct ...
+    elsif ($label =~ /^.(\.|\:).*$/) {
+        # check for instance attribute
+        return $self->has_attribute($label) ?
+                    $self->get_attribute($label)
+                    :
+                    # class attributes are really just package 
+                    # variables with an "our" scope... so we 
+                    # just go to the next method for them 
+                    ::next_METHOD();
+    } 
+    else {
+        ::next_METHOD();
+    }
 }));
 
 
