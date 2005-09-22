@@ -32,6 +32,8 @@ our %ROLES_BY_NAME;
 
 sub _ {
     my $attr = shift;
+    ($::SELF != $::CLASS)
+        || confess 'You cannot change an attribute in $::CLASS using this function';
     ($::CLASS->find_attribute_spec($attr))
         || confess "Attribute ($attr) is not a valid attribute for $::SELF";
     ::opaque_instance_attr($::SELF => $attr) = shift if @_;

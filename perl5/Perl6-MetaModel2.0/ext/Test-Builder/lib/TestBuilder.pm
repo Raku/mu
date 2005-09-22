@@ -11,8 +11,10 @@ $::TestBuilder = undef;
 
 $::TestBuilder = class 'TestBuilder' => {
     is => [ $::Object ],
+    class_attributes => [
+        '$:singleton',    
+    ],
     attributes => [
-        '$:singleton',
         '$.output',
         '$.testplan',
         '@:results',
@@ -20,9 +22,9 @@ $::TestBuilder = class 'TestBuilder' => {
     class_methods => {
         'new'    => sub { 
             my ($class, $plan, $output) = @_;
-            _('$:singleton' => $::CLASS->new('$.testplan' => $plan, '$.output'   => $output)) 
-                unless defined _('$:singleton');
-            _('$:singleton');
+            __('$:singleton' => $::CLASS->new('$.testplan' => $plan, '$.output'   => $output)) 
+                unless defined __('$:singleton');
+            __('$:singleton');
         },
         'create' => sub { shift; $::CLASS->new(@_) }        
     },
