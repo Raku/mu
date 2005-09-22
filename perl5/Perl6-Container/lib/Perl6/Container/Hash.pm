@@ -222,18 +222,33 @@ class 'Hash'.$class_description => {
             'store' => sub {
                 my ($self, @param) = @_;
                 my $tmp = _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v};
-                if ( scalar @param == 1 && UNIVERSAL::isa( $param[0], 'Hash' ) ) {
+                if ( scalar @param == 1 ) {
                     # store whole hash
-                    $self->clear;
-                    my $key = $param[0]->firstkey;
-                    while ( defined $key ) {
-                        my $tmp = $param[0]->fetch( $key )->fetch;
-                        # fetch should always return Scalar
-                        #$tmp = $tmp->fetch if UNIVERSAL::isa( $tmp, 'Scalar' ); 
-                        $self->store( $key, $tmp );
-                        $key = $param[0]->nextkey;
+                    if ( UNIVERSAL::isa( $param[0], 'Hash' ) ) {
+                        $self->clear;
+                        my $key = $param[0]->firstkey;
+                        while ( defined $key ) {
+                            my $tmp = $param[0]->fetch( $key )->fetch;
+                            $self->store( $key, $tmp );
+                            $key = $param[0]->nextkey;
+                        }
+                        return $self;
                     }
-                    return $self;
+                    if ( UNIVERSAL::isa( $param[0], 'Array' ) ) {
+                        $self->clear;
+                        for ( 0 .. $param[0]->elems->unboxed - 1 ) {
+                            my $pair = $param[0]->fetch( $_ );
+                            $self->store( $pair->key, $pair->value );
+                        }
+                        return $self;
+                    }
+                    if ( UNIVERSAL::isa( $param[0], 'Pair' ) ) {
+                        $self->clear;
+                        my $pair = $param[0];
+                        $self->store( $pair->key, $pair->value );
+                        return $self;
+                    }
+                    warn "Don't know how to store @param into a Hash";
                 }
                 my $key = shift @param;
                 my $s = $self->fetch( $key );
