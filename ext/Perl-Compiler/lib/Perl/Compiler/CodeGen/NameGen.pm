@@ -12,11 +12,11 @@ class Perl::Compiler::CodeGen::NameGen {
     
     method fork($ident) {
         my $ret = $?CLASS.new(
-            template => $.template,
-            conter => $.counter,
-            parent   => $?SELF,
+            template     => $.template,
+            conter       => $.counter,
+            parent       => $?SELF,
             parent_ident => $ident,
-            state => hash(%.state),
+            state        => %.state,
         );
         $ret;
     }
