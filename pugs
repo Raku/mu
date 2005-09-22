@@ -33,8 +33,13 @@ s/^($v)+//;
 s/($v)+$//;
 
 if($^O eq 'MSWin32') {
-    system($bin, split($v, $_));
-    exit($? >> 8);
+    if( system($bin, split($v, $_)) == 0 ) {
+	exit(0);
+    } elsif( $? == -1 ) {
+	die "system( $bin , ...) failed to execute!\n";
+    } else {
+	exit($? >> 8);
+    }
 } else {
     exec($bin, split($v, $_));
     die "$0: exec of $bin failed. $!";
