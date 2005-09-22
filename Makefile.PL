@@ -31,6 +31,7 @@ abstract_from   ('lib/Perl6/Pugs.pm');
 author          ('Autrijus Tang <autrijus@autrijus.org>');
 license         ('perl');
 install_script  ($pugs);
+install_script  ("$pugs.bat") if $^O eq 'MSWin32';
 install_script  ($pugs_bin);
 install_script  (glob('script/*'));
 recommends      ('Perl6::Bible');
