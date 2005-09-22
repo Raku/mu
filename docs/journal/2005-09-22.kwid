@@ -11,7 +11,7 @@ still more Class and Role integration planned but not yet implemented.
 
 To exercise the meta-model I have ported chromatic's Perl 6 version of 
 Test::Builder (complete with tests) to the meta-model. The translation 
-was fairly seemless, and even used the meta-model based package system 
+was fairly seamless, and even used the meta-model based package system 
 instead of Perl 5 packages.  
 
 You can see it L<here|http://svn.openfoundry.org/pugs/perl5/Perl6-MetaModel2.0/ext/Test-Builder/>
