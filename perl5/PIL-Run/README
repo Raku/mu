@@ -34,3 +34,18 @@ Todo:
 Plan:
  - Support/encourage development of Perl6-Value and Perl6-Container.
  - Switch over to MetaModel2.0 when it's ready.
+
+
+Smoke notes:
+
+make smoke-perl5 is currently buggy.
+Some tests non-terminate or exhaust memory.
+To run make smoke-perl5 on linux, 
+ $ ulimit -v 750000   # 750 MB.  Or whatever. May not be needed anymore.
+ $ export PUGS_HACK_TIMEOUT=1000
+ $ rm t/builtins/control_flow/die.t t/operators/repeat.t t/statements/next.t t/subroutines/recurse.t t/builtins/arrays_and_hashes/kv.t
+ $ make smoke-perl5 > log 2>&1
+But first, run
+ $ ./pugs -B perl5 -e 'say "ok"'
+just to make sure your PATH is configured.
+Takes about 2 hours at 1GHz.
