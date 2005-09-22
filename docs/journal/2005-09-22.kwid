@@ -1,0 +1,38 @@
+= Blondie wants You (pointing finger) to give it more backends
+
+Blondie is a side project whose purpose is to prototype some approaches towards
+compiling the dynamic/static conglomerate that is Perl 6 into something that
+runs efficiently and portably, in as little effort as possible.
+
+Blondie needs as many backends as possible as early as possible to stress it's
+design.
+
+Blondie is already interpreted in perl, and partially compiled to C (supported
+by a primitive type inferrencer), but we want more!
+
+The backends we're still interested in are:
+
+* Parrot and PIR
+This is what Perl 6 will run on by default, so we better support it
+
+* Other virtual machines, e.g. LLVM, Ruby's YARV, the JVM through Jasmin, C--
+For two reasons:
+Running Perl 6 on foreign runtimes designed for high level languages
+Learning what VMs look like when targeted uniformly
+
+* GCC's GENERIC
+Although we're already harnessing GCC with the C backend, making a GCC
+frontend for Blondie has two interesting aspects: it's higher level than a
+VM, so this illustrates AST conversion, and it requires completely manual
+memory management
+
+* Other interpreted backends, e.g. JavaScript
+Interpreting approaches are by far the quickest way to get Blondie to run on
+strange platforms.  This will stress the way the shared prelude is handled.
+
+* Mock backends
+Harsh environments for a dynamic language, like no IO, hard real time (all
+builtins which cannot be realtime are masked from the prelude), etc.
+
+Please see the todo file for more tasks under perl5/Blondie/TODO in the pugs
+repository.
