@@ -47,7 +47,8 @@ sub get_config {
     add_path(installsitearch    => $config); 
     add_path(installsitelib     => $config); 
 
-    $config->{pugspath} =
+    $config->{perl5path} = $^X;
+    $config->{pugspath}  =
       File::Spec->catfile($config->{bin}, "pugs$config->{exe_ext}");
 
     ($config->{file_sep}) =
