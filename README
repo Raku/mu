@@ -19,6 +19,9 @@ under the Perl license.  See src/pge/README.
 The "PCRE" subsystem is derived from PCRE 5.0 by Philip Hazel,
 under a BSD-style license.  See src/pcre/LICENCE.
 
+The "FilePath" subsystem is derived from FilePath 0.1.0 by Isaac Jones,
+under a BSD-style license.  See src/System/LICENSE.
+
 The "Syck" subsystem is derived from Syck 0.55 by "why the lucky stiff",
 under a BSD-style license.  See src/syck/COPYING.
 

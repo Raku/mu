@@ -31,6 +31,7 @@ import Pugs.Embed
 import Pugs.Prim.Eval (requireInc)
 import qualified Data.Map as Map
 import Data.IORef
+import System.FilePath
 
 {-|
 The entry point of Pugs. Uses 'Pugs.Run.runWithArgs' to normalise the command-line
@@ -80,8 +81,7 @@ run ("-c":file:_)               = readFile file >>= doCheck file
 run ("-C":backend:"-e":prog:_)           = doCompileDump backend "-e" prog
 run ("-C":backend:file:_)                = slurpFile file >>= doCompileDump backend file
 
-run ("-B":backend:"-e":prog:_)           = doCompileRun backend "-e" prog
-run ("-B":backend:file:_)                = slurpFile file >>= doCompileRun backend file
+run ("-B":backend:args)                  = doHelperRun backend args
 
 run ("--external":mod:"-e":prog:_)    = doExternal mod "-e" prog
 run ("--external":mod:file:_)         = readFile file >>= doExternal mod file
@@ -205,6 +205,47 @@ doCompileRun backend file prog = do
     backend' = capitalizeWord backend
     capitalizeWord []     = []
     capitalizeWord (c:cs) = toUpper c:(map toLower cs)
+
+doHelperRun :: String -> [String] -> IO ()
+doHelperRun backend args =
+    case map toLower backend of
+        "js"    -> if (args == [])
+                   then (doExecuteHelper [ "perl5", "PIL2JS",  "jspugs.pl"     ] [])
+                   else (doExecuteHelper [ "perl5", "PIL2JS",  "runjs.pl"      ] args)
+        "perl5" ->       doExecuteHelper [ "perl5", "PIL-Run", "crude_repl.pl" ] args
+        _       ->       fail ("unknown backend: " ++ backend)
+
+doExecuteHelper :: [FilePath] -> [String] -> IO ()
+doExecuteHelper helper args = do
+    mbin <- findHelper [["."], ["..", ".."]]
+    case mbin of
+        Just binary -> do
+            exitWith =<< executeFile' perl5 True (binary:args) Nothing
+        _ -> fail ("Couldn't find helper program" ++ (foldl1 joinFileName helper))
+    where
+    perl5 = getConfig "perl5path"
+    findHelper :: [[FilePath]] -> IO (Maybe FilePath)
+    findHelper []     = return Nothing
+    {- interesting riddle: how to do the following monadically?
+    findHelper (x:xs)
+        | fileExists $ file  x = Just $ file  x
+        | fileExists $ file' x = Just $ file' x
+        | otherwise            = findHelper xs
+    -}
+    findHelper (x:xs) = do -- not lazy, but that's not really important here
+        filex  <- fileExists (file  x)
+        filex' <- fileExists (file' x)
+        case () of
+            _
+                | filex     -> return $ Just $ file  x
+                | filex'    -> return $ Just $ file' x
+                | otherwise -> findHelper xs
+    file  x = foldl1 joinFileName (x ++ helper)
+    file' x = (file x) ++ (getConfig "exe_ext")
+    fileExists path = do
+        let (p,f) = splitFileName path
+        dir <- getDirectoryContents p
+        return $ f `elem` dir
 
 doParseWith :: (Env -> FilePath -> IO a) -> FilePath -> String -> IO a
 doParseWith f name prog = do
