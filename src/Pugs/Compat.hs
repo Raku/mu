@@ -53,6 +53,7 @@ import System.Posix.Env hiding (getEnvironment)
 import System.Posix.Files
 import System.Posix.Directory
 import System.Posix.User
+import System.Exit
 import System.Environment (getEnvironment)
 import Foreign.C.Types
 import Foreign.C.String
