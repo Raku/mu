@@ -633,6 +633,49 @@ class 'Array'.$class_description => {
                 my $str = '';
                 if ( @start > 0 ) {
                     if ( Perl6::Value::numify( $self->elems ) == ( scalar @start + scalar @end ) ) {
+                        $str =  join( ' ', map { Perl6::Value::stringify($_) } @start, @end );
+                    }
+                    else {
+                        $str =  join( ' ', map { Perl6::Value::stringify($_) } @start ) .
+                                ' ... ' . 
+                                join( ' ', map { Perl6::Value::stringify($_) } @end );
+                    }
+                }
+                return Str->new( '$.unboxed' => $str );                
+            },
+            perl => sub {
+                #warn "PRINT @_\n";
+                my $self = shift;
+                my %param = @_;
+                my $samples = $param{'max'};
+                # my $self = $array->unboxed; # _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v};
+                # warn "ELEMS ",$self->elems;
+                $samples-- if defined $samples;
+                $samples = 100 unless defined $samples || $self->is_infinite; 
+                $samples = 2   unless defined $samples;
+                my @start;
+                my @end;
+                my $tmp;
+                for ( 0 .. $samples ) {
+                    no warnings 'numeric';
+                    last if $_ >= Perl6::Value::numify( $self->elems );
+                    $tmp = $self->fetch( $_ );
+                    $tmp = Perl6::Value::stringify( $tmp );
+                    push @start, $tmp;
+                    last if $tmp eq 'Inf' || $tmp eq '-Inf';
+                }
+                for ( map { - $_ - 1 } 0 .. $samples ) {
+                    no warnings 'numeric';
+                    # warn "  UNSHIFT: ".$self->elems->unboxed." ".Perl6::Value::numify( $self->elems )." + $_ >= scalar ".(scalar @start)."\n";
+                    last unless Perl6::Value::numify( $self->elems ) + $_ >= scalar @start;
+                    $tmp = $self->fetch( $_ );
+                    $tmp = Perl6::Value::stringify( $tmp );
+                    unshift @end, $tmp;
+                    last if $tmp eq 'Inf' || $tmp eq '-Inf';
+                }
+                my $str = '';
+                if ( @start > 0 ) {
+                    if ( Perl6::Value::numify( $self->elems ) == ( scalar @start + scalar @end ) ) {
                         $str =  join( ', ', map { Perl6::Value::stringify($_) } @start, @end );
                     }
                     else {
@@ -643,7 +686,6 @@ class 'Array'.$class_description => {
                 }
                 return Str->new( '$.unboxed' => '(' . $str . ')' );                
             },
-            perl => sub { my $self = shift; $self->str( @_ ) },
         },
     }
 };
