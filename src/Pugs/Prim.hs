@@ -986,7 +986,9 @@ op3 "Pugs::Internals::exec" = \x y z -> do
             errSV   <- findSymRef "$!" glob
             writeRef errSV (VInt $ toInteger x)
             return $ VBool False
-        ExitSuccess -> return $ VBool True
+        ExitSuccess -> do
+            liftIO $ exitWith ExitSuccess
+            return $ VBool True -- not reached ;-)
 op3 "Pugs::Internals::caller" = \x y z -> do
     --kind <- fromVal =<< op1 "ref" x
     kind <- case x of
