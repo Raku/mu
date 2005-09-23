@@ -60,11 +60,10 @@ import Foreign.C.String
 import Data.Typeable
 import qualified System.Posix.Signals
 
-executeFile' :: FilePath -> Bool -> [String] -> Maybe -> [(String, String)] -> IO ExitCode
+executeFile' :: FilePath -> Bool -> [String] -> Maybe [(String, String)] -> IO ExitCode
 executeFile' prog search args env = do
-    case try $ executeFile prog search args env of
-        Right x -> return ExitSuccess
-        Left  x -> return $ ExitFailure 1
+	executeFile prog search args env
+	return $ ExitFailure 1            -- if we got here, it failed.
 
 statFileSize :: FilePath -> IO Integer
 statFileSize f = do
