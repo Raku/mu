@@ -906,12 +906,6 @@ op2 "Pugs::Internals::sprintf" = \x y -> do
        VInt i -> printf str i
        VStr s -> printf str s
        _      -> fail "should never be reached given the type declared below"
-op2 "exec" = \x y -> do
-    prog  <- fromVal x
-    args  <- fromVals y
-    tryIO (VBool False) $ do
-        executeFile prog True args Nothing
-        return $ VBool True
 op2 "system" = \x y -> do
     prog        <- fromVal x
     args        <- fromVals y
@@ -981,6 +975,18 @@ op2Split x y = do
 
 -- |Implementation of 3-arity primitive operators and functions
 op3 :: String -> Val -> Val -> Val -> Eval Val
+op3 "Pugs::Internals::exec" = \x y z -> do
+    prog  <- fromVal x
+    shell <- fromVal y
+    args  <- fromVals z
+    exitCode    <- liftIO $ executeFile' prog shell args Nothing
+    case exitCode of
+        ExitFailure x -> do
+            glob    <- askGlobal
+            errSV   <- findSymRef "$!" glob
+            writeRef errSV (VInt $ toInteger x)
+            return $ VBool False
+        ExitSuccess -> return $ VBool True
 op3 "Pugs::Internals::caller" = \x y z -> do
     --kind <- fromVal =<< op1 "ref" x
     kind <- case x of
@@ -1543,7 +1549,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   List      pre     slurp   unsafe (?Str=$_)\
 \\n   List      pre     slurp   unsafe (Handle)\
 \\n   List      pre     readdir unsafe (Str)\
-\\n   Bool      pre     exec    unsafe (Str: List)\
+\\n   Bool      pre     Pugs::Internals::exec    unsafe (Str, Bool, List)\
 \\n   Int       pre     system  unsafe (Str)\
 \\n   Int       pre     system  unsafe (Str: List)\
 \\n   Bool      pre     binmode unsafe (IO: ?Int=1)\

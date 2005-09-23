@@ -34,7 +34,6 @@ module Pugs.Compat (
     getEnv,
     unsetEnv,
     signalProcess,
-    executeFile,
     ProcessTimes(..),
     clocksPerSecond,
     DirStream,
@@ -42,6 +41,7 @@ module Pugs.Compat (
     readDirStream,
     rewindDirStream,
     closeDirStream,
+    executeFile',        -- the prime signifies we changed signature.
 ) where
 
 import Foreign
@@ -58,6 +58,12 @@ import Foreign.C.Types
 import Foreign.C.String
 import Data.Typeable
 import qualified System.Posix.Signals
+
+executeFile' :: FilePath -> Bool -> [String] -> Maybe -> [(String, String)] -> IO ExitCode
+executeFile' prog search args env = do
+    case try $ executeFile prog search args env of
+        Right x -> return ExitSuccess
+        Left  x -> return $ ExitFailure 1
 
 statFileSize :: FilePath -> IO Integer
 statFileSize f = do
@@ -82,6 +88,8 @@ import Debug.Trace
 import qualified System.Environment
 import IO
 import System.IO
+import System.Cmd
+import System.Exit
 import Foreign.C.String
 import Foreign.Ptr
 import Foreign.C.Types
@@ -228,8 +236,10 @@ getEffectiveGroupID = return 1
 signalProcess :: Int -> Int -> IO ()
 signalProcess _ _ = failWith "kill"
 
-executeFile :: FilePath -> Bool -> [String] -> Maybe [(String, String)] -> IO ()
-executeFile _ _ _ _ = failWith "executeFile"
+executeFile' :: FilePath -> Bool -> [String] -> Maybe [(String, String)] -> IO ExitCode
+executeFile' prog True args Nothing = do
+    rawSystem prog args
+executeFile' _ _ _ _ = failWith "executeFile"
 
 #endif
 
