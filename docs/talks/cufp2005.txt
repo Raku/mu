@@ -1,75 +1,33 @@
-# Takahashi format - each paragraph is a slide.
+Perl is ergonomic
+* P is for Practical
+* Manipulexity vs. Whipuptitude
+* Abstractions are sexy
+* Shorthands are comfortable
+* "Huge step sideways in language evolution"
 
-Pugs
-Perl 6 For Real
+CPAN is versatile
+* Vocabulary > Syntax
+* Best kind of coding
+* ...is no coding at all
+* Addictive Superglue
 
-Autrijus Tang
+Perl 6 is powerful
+* RFCs and Apocalypses
+* Soft Typing
+* Syntactic Aspartame: Shorthands without Bloat
 
-Perl
+Pugs is expansive
+* Feb 1st: Exercise for TaPL
+* -Ofun
+* --enable-anarchy
+* Test Driven
+* Runtime Independence
 
-P is for
-Practical
+People are alive
+* @Larry
+* Lambdacamels
 
-Humble beginning
-
-
-
-Swiss army chainsaw
-Duct tape for the Net
-
-Perl 5
-
-A huge step sideways
-in language evolution
-
-# highlights from perl5 here
-
-CPAN
-
-Inline
-
-# highlights from CPAN here
-
-Perl 6
-
-Self hosting
-
-Macros and DSL
-
-Rules
-
-Incremental Typing
-
-Junctions
-
-Pugs
-
-# ...fast scrolling through milestones...
-
-P is also
-Polymorphic
-
-Platforms
-
-On JavaScript
-
-On Perl5
-
-On GHC
-
-Parrot
-
-# ...
-
-People
-
-# ...
-
-"Practical"?
-
-# .. .
-
-Plans
-
-# ...
-
+Plans are for real
+* Self-hosting on Perl 5
+* "Commercial Use"
+* Erdosing
