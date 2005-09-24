@@ -908,6 +908,7 @@ ruleClosureTrait rhs = rule "closure trait" $ do
         "FIRST" -> vcode2firstBlock code
         _       -> fail ""
     where
+        install [] = return $ ()
         install prag = do
             env' <- getRuleEnv
             let env'' = envCaller env'  -- not sure about this.
