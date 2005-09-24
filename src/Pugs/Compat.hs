@@ -99,6 +99,9 @@ import Data.Typeable
 failWith :: (Monad m) => String -> m a
 failWith s = fail $ "'" ++ s ++ "' not implemented on this platform."
 
+failWithIncomplete :: (Monad m) => String -> m a
+failWithIncomplete s = fail $ "'" ++ s ++ "' not fully implemented on this platform."
+
 warnWith :: String -> IO ()
 warnWith s = trace ("'" ++ s ++ "' not implemented on this platform.") $ return ()
 
@@ -239,7 +242,7 @@ signalProcess _ _ = failWith "kill"
 executeFile' :: FilePath -> Bool -> [String] -> Maybe [(String, String)] -> IO ExitCode
 executeFile' prog True args Nothing = do
     rawSystem prog args
-executeFile' _ _ _ _ = failWith "executeFile"
+executeFile' _ _ _ _ = failWithIncomplete "executeFile"
 
 #endif
 
