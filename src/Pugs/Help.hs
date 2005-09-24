@@ -16,6 +16,7 @@ module Pugs.Help (printInteractiveHelp, printCommandLineHelp,
              copyright, disclaimer, intro) where
 import Pugs.Version
 import Pugs.CodeGen (backends)
+import Data.List (sort)
 
 printInteractiveHelp :: IO ()
 printInteractiveHelp
@@ -50,7 +51,7 @@ printCommandLineHelp
         putStrLn "-l -d and -w are ignored for compatibility with Perl 5"
         putStrLn "See documentation of pugs::run for more help."
     where
-    backendsStr = foldr1 addComma backends
+    backendsStr = foldr1 addComma $ sort ("JS":backends)
     addComma w s = w ++ (',':' ':s)
 
 versionFill :: Int -> String

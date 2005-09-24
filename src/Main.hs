@@ -78,10 +78,15 @@ run ("-v":_)                    = banner
 run ("-c":"-e":prog:_)          = doCheck "-e" prog
 run ("-c":file:_)               = readFile file >>= doCheck file
 
+run ("-C":backend:args) | map toUpper backend == "JS" =
+    doHelperRun "JS" ("--compile-only":args)
 run ("-C":backend:"-e":prog:_)           = doCompileDump backend "-e" prog
 run ("-C":backend:file:_)                = slurpFile file >>= doCompileDump backend file
 
-run ("-B":backend:args)                  = doHelperRun backend args
+run ("-B":backend:args) | (== map toLower backend) `any` ["js","perl5"] =
+    doHelperRun backend args
+run ("-B":backend:"-e":prog:_)           = doCompileRun backend "-e" prog
+run ("-B":backend:file:_)                = slurpFile file >>= doCompileRun backend file
 
 run ("--external":mod:"-e":prog:_)    = doExternal mod "-e" prog
 run ("--external":mod:file:_)         = readFile file >>= doExternal mod file

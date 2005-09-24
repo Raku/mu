@@ -69,20 +69,20 @@ provides.
 =item C<-BI<backend>>
 
 causes Pugs to execute the program using C<I<backend>>. Currently, valid
-backends are C<Parrot> and C<PIR>.
+backends are C<Parrot>, C<PIR>, C<Perl5>, and C<JS>.
 
-The JavaScript backend (PIL2JS) provides an interactive shell in
-F<perl5/PIL2JS/jspugs.pl>; The interactive compiler and evaluator of the Perl 5
-backend (PIL-Run) can be found in F<perl5/PIL-Run/crude_repl.pl>.
+To start the interactive shell of a backend, run C<pugs -BI<backend>>, but note
+that currently only the Perl 5 and JavaScript backends provide interactive
+shells.
 
 The normal runcore supports more features than the other runcores, the Parrot
-backend is quite fast, PIL2JS is good on binding and references, and PIL-Run
-offers excellent support for laziness.
+backend is quite fast, the JavaScript backend is good on binding and
+references, and Perl 6 on Perl 5 offers excellent support for laziness.
 
 =item C<-CI<backend>>
 
 causes Pugs to compile the program using C<I<backend>>. Currently, valid
-backends are C<Pugs>, C<Parrot>, C<PIR>, C<Haskell>, and C<PIL> with its
+backends are C<Pugs>, C<Parrot>, C<PIR>, C<Haskell>, C<JS>, and C<PIL> with its
 variants C<Perl5>, C<JSON>, and C<Binary>.
 
 Note that, as with C<-c>, C<BEGIN {...}> and C<CHECK {...}> blocks, as well as

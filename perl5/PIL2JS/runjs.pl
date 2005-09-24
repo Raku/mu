@@ -36,6 +36,7 @@ GetOptions(
   "p6preludepc=s" => \$PIL2JS::cfg{preludepc},
   "p6prelude=s"   => \$PIL2JS::cfg{prelude},
   "testpc=s"      => \$PIL2JS::cfg{testpc},
+  "compile-only"  => \my $compile_only,
   "help"          => \&usage,
 ) and @pugs_args or usage();
 
@@ -57,6 +58,7 @@ my $js = jsbin_hack(compile_perl6_to_standalone_js(
   # "-e", 'BEGIN { %*INC{"Test.pm"}++ }',
   @pugs_args
 ));
+print($js), exit if $compile_only;
 run_js($js);
 #run_js_on_jssm($js);
 
@@ -77,7 +79,7 @@ Available options are:
   --pugs=/path/to/pugs
   --pil2js=/path/to/pil2js.pl               (usually in perl5/PIL2JS/)
   --p6prelude=/path/to/lib6/Prelude/JS.pm   (usually in perl5/PIL2JS/lib6/)
-  --p6preludepc=/path/to/preludepc.js       (compile using
-                                            perl5/PIL2JS/jspugs.pl)
+  --p6preludepc=/path/to/preludepc.js       (automatically created)
+  --compile-only
   --help
 EOF

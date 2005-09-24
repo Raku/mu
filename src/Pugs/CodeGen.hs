@@ -27,24 +27,35 @@ type Generator = Eval Val
 
 generators :: Map String Generator
 generators = Map.fromList $
-    [ ("Ghc",         genGHC)
+    [ ("GHC",         genGHC)
     , ("Parrot",      genPIR)
-    , ("Pir",         genPIR)
-    , ("Pil",         genPIL)
---  , ("Pil2",        genPIL2)
+    , ("PIR",         genPIR)
+    , ("PIL",         genPIL)
+--  , ("PIL2",        genPIL2)
     , ("Perl5",       genPerl5)
     , ("Pugs",        genPugs)
     , ("Binary",      genBinary)
-    , ("Json",        genJSON)
---  , ("Xml",         genXML)
+    , ("JSON",        genJSON)
+--  , ("XML",         genXML)
     ]
 
 backends :: [String]
 backends = Map.keys generators
 
 norm :: String -> String
-norm "" = ""
-norm (x:xs) = toUpper x : map toLower xs
+norm = norm' . map toLower
+    where
+    norm' "ghc"    = "GHC"
+    norm' "parrot" = "Parrot"
+    norm' "pir"    = "PIR"
+    norm' "pil"    = "PIL"
+    -- norm' "pil2"   = "PIL2"
+    norm' "perl5"  = "Perl5"
+    norm' "pugs"   = "Pugs"
+    norm' "binary" = "Binary"
+    norm' "json"   = "JSON"
+    -- norm' "xml"    = "XML"
+    norm' x        = x
 
 doLookup :: String -> IO Generator
 doLookup s = Map.lookup (norm s) generators
