@@ -28,6 +28,10 @@ my $optional_args   = $ARGV[2] || "";
 
 chdir($pugs_sandbox) or die "Could change directory: $!";
 
+# '.' needs to be at the front of the path for everything to find the correct
+# pugs executable.
+$ENV{PATH} = "." . $Config{path_sep} . $ENV{PATH};
+
 $ENV{HARNESS_PERL}  = "./pugs $optional_args";
 $ENV{HARNESS_PERL}  = "$^X $FindBin::Bin/../perl5/PIL2JS/pugs-smokejs.pl ./pugs $optional_args"
     if $ENV{PUGS_RUNTIME} and $ENV{PUGS_RUNTIME} eq 'JS';
