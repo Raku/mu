@@ -575,3 +575,19 @@ our $DISPATCH_TRACE = 0;
 
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+chaos
+
+=head1 DESCRIPTION
+
+=head1 AUTHORS
+
+Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+=cut

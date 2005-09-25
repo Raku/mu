@@ -396,4 +396,77 @@ $::Class->add_attribute('%:attributes'       => ::make_attribute('%:attributes')
 $::Class->add_attribute('%:methods'          => ::make_attribute('%:methods'));
 $::Class->add_attribute('%:class_methods'    => ::make_attribute('%:class_methods'));
 
+## Now we make Class conform to the Package interface
+
+$::Class->add_method('FETCH' => ::make_method(sub {
+    my ($self, $label) = @_;
+    (defined $label && $label)
+        || confess "Cannot FETCH at (" . ($label || 'undef') . ")";
+    if ($label =~ /^\&(.*)$/) {
+        # check for instance method
+        return $self->has_method($1, for => 'instance') ? 
+                    $self->get_method($1, for => 'instance') 
+                    :
+                    # check for class method
+                    $self->has_method($1, for => 'class') ?
+                        $self->get_method($1, for => 'class')
+                        :
+                        # if all else fails, maybe it is 
+                        # a sub, so we just call next METHOD
+                        ::next_METHOD();
+    }   
+    # XXX -
+    # this reg-exp is probably not correct ...
+    elsif ($label =~ /^.(\.|\:).*$/) {
+        # check for instance attribute
+        return $self->has_attribute($label, for => 'instance') ?
+                    $self->get_attribute($label, for => 'instance')
+                    :
+                    # class attributes are really just package 
+                    # variables with an "our" scope... so we 
+                    # just go to the next method for them 
+                    ::next_METHOD();
+    } 
+    else {
+        ::next_METHOD();
+    }    
+}));
+
+$::Class->add_method('STORE' => ::make_method(sub {
+    my ($self, $label, $value) = @_;
+    (defined $label && $label)
+        || confess "Cannot STORE at (" . ($label || 'undef') . ")";    
+    # only store method objects,.. regular subs go in the namespace
+    if ($label =~ /^\&(.*)$/ && (blessed($value) && $value->isa('Perl6::Method'))) {
+        return $self->add_method($1, $value);
+    }  
+    # XXX -
+    # this reg-exp is probably not correct ...     
+    elsif ($label =~ /^.(\.|\:).*$/ && (blessed($value) && $value->isa('Perl6::Attribute'))) {
+        # only store instance attributes with the meta model, 
+        # class attributes are just package scoped "our" variables
+        # so they are added to the Package normally
+        return $self->add_attribute($label, $value);
+    } 
+    else {
+        ::next_METHOD();
+    }
+}));
+
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+metamorph
+
+=head1 DESCRIPTION
+
+=head1 AUTHORS
+
+Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+=cut

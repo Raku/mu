@@ -21,15 +21,6 @@ sub import {
     *{"${pkg}::__"}  = \&__;        
 }
 
-our %CLASSES_BY_NAME = (
-    'Class'   => $::Class,
-    'Object'  => $::Object,
-    'Package' => $::Package,
-    'Module'  => $::Module,            
-    'Role'    => $::Role,    
-    );
-our %ROLES_BY_NAME;
-
 sub _ {
     my $attr = shift;
     ($::SELF != $::CLASS)
@@ -65,7 +56,7 @@ sub class {
     }
     my ($name, $version, $authority) = split '-' => $full_name;       
     my $new_class = _build_class($name, $version, $authority, $body);
-    $CLASSES_BY_NAME{$new_class->name} = $new_class;
+    $::{'*'}->STORE('::' . $new_class->name => $new_class);
     return $new_class;
 }
 
@@ -77,7 +68,7 @@ sub role {
     }
     my ($name, $version, $authority) = split '-' => $full_name;       
     my $new_role = _build_role($name, $version, $authority, $body);
-    $ROLES_BY_NAME{$new_role->name} = $new_role;
+    $::{'*'}->STORE('::' . $new_role->name => $new_role);    
     return $new_role;    
 }
 

@@ -342,5 +342,20 @@ Scala IIRC.
 
 1;
 
+__END__
+
+=pod
+
+=head1 NAME
+
+psyche
+
+=head1 DESCRIPTION
+
+=head1 AUTHORS
+
+Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+=cut
 
 

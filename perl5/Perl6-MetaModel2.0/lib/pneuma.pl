@@ -148,3 +148,19 @@ $::Module->add_method('identifier' => ::make_method(sub {
 }));
 
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+pneuma
+
+=head1 DESCRIPTION
+
+=head1 AUTHORS
+
+Stevan Little E<lt>stevan@iinteractive.comE<gt>
+
+=cut
