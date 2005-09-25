@@ -21,11 +21,13 @@ class Locale::KeyedText::Message {
 method new( $class: Str $msg_key is rw, Hash ?$msg_vars is rw ) returns Locale::KeyedText::Message {
     # Note: the 'is rw' is a workaround, until Pugs' "transparent refs" are fixed.
 
-    return if !$msg_key.defined;
+    return
+        if !$msg_key.defined;
 
     my $msg_vars_copy = hash();
     if ($msg_vars.defined) {
-        return if !$msg_vars.does(Hash);
+        return
+            if !$msg_vars.does(Hash);
         $msg_vars_copy = hash(%{$msg_vars});
     }
     # we are assuming that hash keys never undef, so aren't testing them
@@ -40,7 +42,8 @@ method get_message_key( $message: ) returns Str {
 }
 
 method get_message_variable( $message: Str $var_name is rw ) returns Str {
-    return if !$var_name.defined;
+    return
+        if !$var_name.defined;
     return $message.msg_vars{$var_name};
 }
 
@@ -76,15 +79,19 @@ class Locale::KeyedText::Translator {
 method new( $class: Any $set_names is rw, Any $member_names is rw ) returns Locale::KeyedText::Translator {
 
     my $set_names_copy = $set_names.does(Array) ?? [@{$set_names}] !! [$set_names];
-    return if +$set_names_copy == 0;
+    return
+        if +$set_names_copy == 0;
     for $set_names_copy -> $set_name {
-        return if !$set_name.defined;
+        return
+            if !$set_name.defined;
     }
 
     my $member_names_copy = $member_names.does(Array) ?? [@{$member_names}] !! [$member_names];
-    return if +$member_names_copy == 0;
+    return
+        if +$member_names_copy == 0;
     for $member_names_copy -> $member_name {
-        return if !$member_name.defined;
+        return
+            if !$member_name.defined;
     }
 
     return $class.SUPER::new( tmpl_set_nms => $set_names_copy, tmpl_mem_nms => $member_names_copy );
@@ -103,7 +110,8 @@ method get_template_member_names( $translator: ) returns Array of Str {
 ######################################################################
 
 method translate_message( $translator: Locale::KeyedText::Message $message is rw ) returns Str {
-    return if !$message.defined or !$message.does(Locale::KeyedText::Message);
+    return
+        if !$message.defined or !$message.does(Locale::KeyedText::Message);
     my Str $text = undef;
     SET_MEMBER:
     for $translator.tmpl_mem_nms.map:{ $translator.tmpl_set_nms »~« $_ } -> $template_module_name {
@@ -127,7 +135,8 @@ method translate_message( $translator: Locale::KeyedText::Message $message is rw
                 next SET_MEMBER;
             }
         };
-        next SET_MEMBER if !$text;
+        next SET_MEMBER
+            if !$text;
         my %temp = $message.msg_vars; # the use of %temp should not be necessary
         for %temp.kv -> $var_name, $var_value is copy {
             $var_value //= $EMPTY_STR;
@@ -708,7 +717,8 @@ Content of main program 'MyApp.pl':
             show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_PROMPT' ) );
             my Str $user_input = $*IN;
             $user_input .= chomp;
-            last INPUT_LINE if !$user_input; # user chose to exit program
+            last INPUT_LINE
+                if !$user_input; # user chose to exit program
             try {
                 my Num $result = MyLib.my_invert( $user_input );
                 show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_RESULT',
@@ -839,7 +849,8 @@ Content of main program 'MyApp.pl':
             show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_PROMPT' ) );
             my Str $user_input = $*IN;
             $user_input.chomp;
-            last INPUT_LINE if !$user_input; # user chose to exit program
+            last INPUT_LINE
+                if !$user_input; # user chose to exit program
             try {
                 my Num $result = MyLib.my_invert( $user_input );
                 show_message( $translator, Locale::KeyedText.new_message( 'MYAPP_RESULT',
