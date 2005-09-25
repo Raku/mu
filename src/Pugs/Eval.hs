@@ -317,6 +317,19 @@ reducePad SMy lex exp = do
     local (\e -> e{ envLexical = lex' `unionPads` envLexical e }) $ do
         evalExp exp
 
+reducePad STemp lex exp = do
+    tmps <- mapM (\(sym, _) -> evalExp $ App (Var "&TEMP") (Just $ Var sym) []) $ padToList lex
+    -- default to nonlocal exit
+    isNonLocal  <- liftSTM $ newTVar True
+    val <- resetT $ do
+        val' <- evalExp exp
+        -- exp evaluated without error; no need to shift out
+        liftSTM $ writeTVar isNonLocal False
+        return val'
+    mapM_ (\tmp -> evalExp $ App (Val tmp) Nothing []) tmps
+    isn <- liftSTM $ readTVar isNonLocal
+    (if isn then (shiftT . const) else id) (return val)
+
 reducePad _ lex exp = do
     local (\e -> e{ envLexical = lex `unionPads` envLexical e }) $ do
         evalExp exp

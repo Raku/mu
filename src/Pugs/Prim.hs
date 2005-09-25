@@ -579,6 +579,14 @@ op1 "IO::tell"    = \v -> do
     h <- fromVal v
     res <- liftIO $ hTell h
     return $ VInt res
+op1 "TEMP" = \v -> do
+    ref <- fromVal v
+    val <- readRef ref
+    return . VCode $ mkPrim
+        { subBody = Prim . const $ do
+            writeRef ref val
+            retEmpty
+        }
 op1 "Pugs::Internals::hIsOpen" = op1IO hIsOpen
 op1 "Pugs::Internals::hIsClosed" = op1IO hIsClosed
 op1 "Pugs::Internals::hIsReadable" = op1IO hIsReadable
@@ -1679,6 +1687,7 @@ initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
 \\n   Object    pre     Object::new     safe   (Object: Named)\
 \\n   Object    pre     BUILDALL   safe   (Object)\
 \\n   Object    pre     DESTROYALL safe   (Object)\
+\\n   Code      pre     TEMP    safe   (rw!Any)\
 \\n   Object    pre     clone   safe   (Any)\
 \\n   Object    pre     id      safe   (Any)\
 \\n   Bool      pre     Thread::yield   safe   (Thread)\

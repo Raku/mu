@@ -93,7 +93,7 @@ plan 31;
     eval 'temp $struct[1]<key>[1] = 23';
     is $struct[1]<key>[1], 23, "temp() changed our nested arrayref/hashref element", :todo<feature>;
   }
-  is $struct[1]<key>[1], 1, "temp() restored our nested arrayref/hashref element";
+  is $struct[1]<key>[1], 1, "temp() restored our nested arrayref/hashref element", :todo<feature>;
 }
 
 # Block TEMP{}
