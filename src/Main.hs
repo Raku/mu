@@ -215,9 +215,9 @@ doHelperRun :: String -> [String] -> IO ()
 doHelperRun backend args =
     case map toLower backend of
         "js"    -> if (args == [])
-                   then (doExecuteHelper [ "perl5", "PIL2JS",  "jspugs.pl"     ] [])
-                   else (doExecuteHelper [ "perl5", "PIL2JS",  "runjs.pl"      ] args)
-        "perl5" ->       doExecuteHelper [ "perl5", "PIL-Run", "crude_repl.pl" ] args
+                   then (doExecuteHelper [ "perl5", "PIL2JS",  "jspugs.pl"  ] [])
+                   else (doExecuteHelper [ "perl5", "PIL2JS",  "runjs.pl"   ] args)
+        "perl5" ->       doExecuteHelper [ "perl5", "PIL-Run", "pugs-p5.pl" ] args
         _       ->       fail ("unknown backend: " ++ backend)
 
 doExecuteHelper :: [FilePath] -> [String] -> IO ()

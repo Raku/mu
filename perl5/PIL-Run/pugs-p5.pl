@@ -1,7 +1,4 @@
 #!/usr/bin/perl -w
-# run me...
-# perl -w crude_repl.pl
-# with pugs in your PATH.
 
 use FindBin '$Bin';
 use lib ("$Bin/lib",

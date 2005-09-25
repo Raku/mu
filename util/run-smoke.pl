@@ -35,7 +35,7 @@ $ENV{PATH} = "." . $Config{path_sep} . $ENV{PATH};
 $ENV{HARNESS_PERL}  = "./pugs $optional_args";
 $ENV{HARNESS_PERL}  = "$^X $FindBin::Bin/../perl5/PIL2JS/pugs-smokejs.pl ./pugs $optional_args"
     if $ENV{PUGS_RUNTIME} and $ENV{PUGS_RUNTIME} eq 'JS';
-$ENV{HARNESS_PERL}  = "$^X $FindBin::Bin/../perl5/PIL-Run/crude_repl.pl"
+$ENV{HARNESS_PERL}  = "$^X $FindBin::Bin/../perl5/PIL-Run/pugs-p5.pl"
     if $ENV{PUGS_RUNTIME} and $ENV{PUGS_RUNTIME} eq 'PERL5';
 
 $ENV{PERL6LIB}      = join $Config{path_sep},
