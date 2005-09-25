@@ -439,12 +439,18 @@ sub p6_initialize {
     }
     
     END { p6_apply(p6_var('&*END')); }
-    
+}
+p6_initialize();
+
+sub p6_initialize_late {
+    { local $SIG{__WARN__} = sub {};
+      require PIL::Run::PrimP5; }
+
     require PIL::Run::EvalX;
     PIL::Run::EvalX::p6_eval('require P5Runtime::PrimP6;');
 }
+p6_initialize_late();
 
-p6_initialize();
 
 
 1;

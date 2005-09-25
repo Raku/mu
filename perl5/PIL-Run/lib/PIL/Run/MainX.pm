@@ -16,8 +16,8 @@ require PIL::Run::Type::Object;
 require PIL::Run::Type::Macro;
 require PIL::Run::Match;
 
-local $SIG{__WARN__} = sub {};
-require PIL::Run::PrimP5;
+require PIL::Run::ApiX;
+require PIL::Run::EvalX;
 
 1;
 __END__

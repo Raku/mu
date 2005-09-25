@@ -5,15 +5,59 @@ use lib ("$Bin/lib",
          "$Bin/../Perl6-Value/lib",
          "$Bin/../Perl6-Container/lib",
          "$Bin/../Perl6-MetaModel/lib");
-use PIL::Run::MainX;
-use PIL::Run::EvalX;
-use PIL::Run::ApiX; # for p6_to_s() p6_main()
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Terse = 1;
 require YAML;
 use Scriptalicious 1.05;
 use Getopt::Long qw(:config no_auto_version);
+
+my (@eval, $repl,$warn,$timeout,@inc_dirs);my($debug);my($ignore);
+use vars qw($PIL::Run::EvalX::pugs);
+GetOptions(
+    'version'   => sub{ print "--version is not implemented.\n"; exit; },
+    'V'         => sub{ print "$0 has no version itself.\n";
+                        system("pugs","-V");
+                        exit;},
+    'e|eval=s'  => \@eval,
+    'repl'      => \$repl,
+    'w'         => \$warn,
+    'timeout=i' => \$timeout,
+    'debug'     => \$debug,
+    'I=s'       => \@inc_dirs,
+    'pugs=s'    => \$PIL::Run::EvalX::pugs,
+    'B=s'       => \$ignore,
+    );
+
+$timeout = defined $timeout ? $timeout : $ENV{PUGS_HACK_TIMEOUT};
+$timeout = 1*60 if !defined($timeout) && @ARGV && !$repl;
+local $SIG{ALRM} = sub { die "timeout\n" } if $timeout;
+alarm $timeout if $timeout;
+
+# XXX - create a blackboard namespace
+use vars qw($main::global_debug $main::pugs_args);
+local $main::global_debug = $debug; 
+local $main::pugs_args = join(" ",map{"-I$_"}@inc_dirs);
+
+eval q{
+use PIL::Run::MainX;
+use PIL::Run::EvalX;
+use PIL::Run::ApiX; # for p6_to_s() p6_main()
+};
+
+for (@inc_dirs) {p6_eval("push(\@INC,'$_');");}
+
+for my $e (@eval) {
+    p6_eval($e);
+}
+for my $fn (@ARGV) {
+    p6_eval_file($fn);
+}
+if ($repl || (!@eval && !@ARGV)) {
+    p6_repl();
+}
+exit(0);
+
 
 sub p6_repl_simple {
     my $verbose = 0;
@@ -71,38 +115,5 @@ sub p6_repl {
     }
 }
 
-my (@eval, $repl,$warn,$timeout,@inc_dirs);my($debug);
-GetOptions(
-    'version'   => sub{ print "--version is not implemented.\n"; exit; },
-    'V'         => sub{ print "$0 has no version itself.\n";
-                        system("pugs","-V");
-                        exit;},
-    'e|eval=s'  => \@eval,
-    'repl'      => \$repl,
-    'w'         => \$warn,
-    'timeout=i' => \$timeout,
-    'debug'     => \$debug,
-    'I=s'       => \@inc_dirs,
-    'pugs=s'    => \$PIL::Run::EvalX::pugs,
-);
-$timeout = defined $timeout ? $timeout : $ENV{PUGS_HACK_TIMEOUT};
-$timeout = 1*60 if !defined($timeout) && @ARGV && !$repl;
-local $SIG{ALRM} = sub { die "timeout\n" } if $timeout;
-alarm $timeout if $timeout;
-
-# XXX - blech.  create a blackboard namespace
-local $main::global_debug = $debug;
-local $main::pugs_args = join(" ",map{"-I$_"}@inc_dirs);
-for (@inc_dirs) {p6_eval("push(\@INC,'$_');");}
-
-for my $e (@eval) {
-    p6_eval($e);
-}
-for my $fn (@ARGV) {
-    p6_eval_file($fn);
-}
-if ($repl || (!@eval && !@ARGV)) {
-    p6_repl();
-}
 
 __END__
