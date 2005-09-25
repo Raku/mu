@@ -6,7 +6,7 @@ use warnings;
 use Test::More tests => 61;
 use Test::Exception; 
 
-do 'lib/genesis.pl'; 
+require 'lib/genesis.pl'; 
 
 is_deeply(
     $::Package->superclasses, 
@@ -76,7 +76,7 @@ is_deeply(
 is_deeply(
     [ $::Object->MRO() ], 
     [ $::Object ], 
-    '... $::Object->MRO() is ($::Object)');       
+    '... $::Object->MRO() is ($::Object)');          
     
 is($::Package->name, 'Package', '... $::Package->name eq Package'); 
 is($::Module->name, 'Module', '... $::Module->name eq Module'); 

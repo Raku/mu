@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use Carp 'confess';
-use Hash::Util 'lock_keys';
+use Hash::Util 'lock_keys', 'unlock_keys';
 use Scalar::Util 'blessed';
 use Data::Dumper ();
 
@@ -29,7 +29,8 @@ our $DISPATCH_TRACE = 0;
             'class' => $class,
             'attrs' => \%attrs,
         }, 'Dispatchable';
-        lock_keys(%{$instance});
+        lock_keys(%{$instance});  
+        lock_keys(%{$instance->{attrs}});              
         return $instance;
     }
 
@@ -53,6 +54,17 @@ our $DISPATCH_TRACE = 0;
         my $label = shift;
         (defined $label) || confess "No label to fetch";
         $instance->{attrs}->{$label};
+    }
+    
+    sub ::opaque_instance_add_new_attribute ($$;$) {
+        my $instance = shift;
+        (defined $instance && blessed($instance) eq 'Dispatchable')
+            || confess "Bad instance (" . ($instance || 'undef') . ")";       
+        my ($label, $value) = @_;
+        (defined $label) || confess "No label to fetch";
+        unlock_keys(%{$instance->{attrs}}); 
+        $instance->{attrs}->{$label} = $value;       
+        lock_keys(%{$instance->{attrs}});       
     }
 }
 
@@ -489,7 +501,10 @@ our $DISPATCH_TRACE = 0;
     use overload 
         '0+' => sub { $_[0]->{id} },       
         '""' => sub {
-            "#<" . (${$_[0]->{class}}->{attrs}->{'$:name'} || 'AnonClass') . "=(" . $_[0]->{id} . ")>"
+            "#<" . (exists ${$_[0]->{class}}->{attrs}->{'$:name'} ?
+                        ${$_[0]->{class}}->{attrs}->{'$:name'} 
+                        : 
+                        'AnonClass') . "=(" . $_[0]->{id} . ")>"
         }, 
         fallback => 1;
 

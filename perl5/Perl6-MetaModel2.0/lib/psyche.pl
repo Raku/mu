@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-BEGIN { do "lib/pneuma.pl" };
+BEGIN { require "lib/pneuma.pl" };
 
 # This is psyche, this creates ::Role
 
@@ -204,6 +204,9 @@ $::Role->add_method('resolve' => ::make_method($_resolve));
 $::Class->add_method('collect_all_roles' => ::make_method(sub { $::Role }));
 
 # manually add the ::Role
+# NOTE:
+# this is done again
+::opaque_instance_add_new_attribute($::Class => '@:roles');  
 ::opaque_instance_attr($::Class => '@:roles') = [ $::Role ];
 $_resolve->($::Class);
 

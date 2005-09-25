@@ -6,7 +6,7 @@ use warnings;
 use Test::More tests => 52;
 use Test::Exception;
 
-do 'lib/chaos.pl';
+require 'lib/chaos.pl';
 
 ## test the opaque instance containers
 

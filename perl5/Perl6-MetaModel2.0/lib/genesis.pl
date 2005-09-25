@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-BEGIN { do "lib/psyche.pl" };
+BEGIN { require "lib/psyche.pl" };
 
 ## ----------------------------------------------------------------------------
 ## now for some bootstrapping ....
@@ -22,6 +22,22 @@ BEGIN { do "lib/psyche.pl" };
 # this is to avoid recursion
 ::opaque_instance_attr($::Class => '@:MRO')  = [ $::Class, $::Module, $::Package, $::Object ];
 ::opaque_instance_attr($::Object => '@:MRO') = [ $::Object ];
+
+# ::Class now actually inherits a number of new attributes from various sources
+# and we need to now create these attributes in all the currently live instances
+# of Class (which are ::Class, ::Package, ::Object, ::Module and ::Role). This is
+# needed because we lock the keys inside the opaque instance structure (see chaos.pl)
+foreach my $meta_obj ($::Class, $::Object, $::Package, $::Module, $::Role) {
+    ::opaque_instance_add_new_attribute($meta_obj => '$:name'      => '');
+    ::opaque_instance_add_new_attribute($meta_obj => '%:namespace' => {});
+    ::opaque_instance_add_new_attribute($meta_obj => '$:version'   => '0.0.0');
+    ::opaque_instance_add_new_attribute($meta_obj => '$:authority' => '');
+    ::opaque_instance_add_new_attribute($meta_obj => '@:roles'     => []) 
+        # we already added this to ::Class 
+        # in psyche.pl, so we dont want to
+        # overwrite it here
+        unless $meta_obj == $::Class; 
+}
 
 # now make sure we set everyone's name properly
 $::Package->name('Package');

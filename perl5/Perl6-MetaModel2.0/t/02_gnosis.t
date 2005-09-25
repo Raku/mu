@@ -6,7 +6,7 @@ use warnings;
 use Test::More tests => 8;
 use Test::Exception;
 
-do 'lib/gnosis.pl';
+require 'lib/gnosis.pl';
 
 is(::opaque_instance_id($::Class), 1, '... our $::Class is the root');
 is(::opaque_instance_class($::Class), $::Class, '... our $::Class is its own class');

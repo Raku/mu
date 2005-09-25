@@ -6,7 +6,7 @@ use warnings;
 use Test::More tests => 18;
 use Test::Exception; 
 
-do 'lib/genesis.pl';
+require 'lib/genesis.pl';
 
 # Now try to create a new class ....
 

@@ -6,7 +6,7 @@ use warnings;
 use Test::More tests => 5;
 use Test::Exception;
 
-do 'lib/pneuma.pl'; 
+require 'lib/pneuma.pl'; 
 
 # check some methods
 

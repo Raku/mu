@@ -6,7 +6,7 @@ use warnings;
 use Test::More tests => 11;
 use Test::Exception; 
 
-do 'lib/genesis.pl'; 
+require 'lib/genesis.pl'; 
 
 ok($::Class->does('Role'), '... $::Class does Role');
 ok($::Role->does('Role'), '... $::Role does Role'); 

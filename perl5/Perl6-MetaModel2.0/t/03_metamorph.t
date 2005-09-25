@@ -6,7 +6,7 @@ use warnings;
 use Test::More tests => 72;
 use Test::Exception;
 
-do 'lib/metamorph.pl';
+require 'lib/metamorph.pl';
 
 sub lives_ok_and_is (&$;$) {
     my ($block, $expected, $message) = @_;

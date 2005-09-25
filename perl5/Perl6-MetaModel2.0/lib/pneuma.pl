@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-BEGIN { do "lib/metamorph.pl" };
+BEGIN { require "lib/metamorph.pl" };
 
 # This is pneuma, this creates ::Object, ::Package and ::Module
 
@@ -116,6 +116,40 @@ $::Package->add_method('STORE' => ::make_method(sub {
     } 
     ::opaque_instance_attr($self => '%:namespace')->{$label} = $value;
 }));
+
+=pod
+
+Thoughts on ::Package's API:
+
+- LOCATE
+
+FETCH and STORE work on very basic levels, but I think a LOCATE method would 
+be helpful as well. It would take a fully qualified name, and attempt to 
+locate the item. 
+
+The other option is to ask FETCH and STORE to handle this, however, this would
+put a burdon on subclassers possibly.
+
+- CREATE
+
+CREATE would take a fully qualified name, and create any missing packages 
+nessecary, possibly storing a value in the last location.
+
+  # create ::Foo and ::Bar as needed from the current level
+  $pkg->CREATE('Foo::Bar::&baz' => sub { ... }); 
+  
+  # create ::Foo and ::Bar as needed from the top level
+  $pkg->CREATE('*Foo::Bar::&baz' => sub { ... });   
+
+- parentage
+
+Should a child package know it's parent package? How would this look in Perl 6?
+Would it be a package level version of OUTER::?
+
+Either way, I think it might be useful to have this if for nothing other than 
+a helper to other functions.  
+
+=cut
 
 ## ----------------------------------------------------------------------------
 ## Module
