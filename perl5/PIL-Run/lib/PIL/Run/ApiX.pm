@@ -419,26 +419,33 @@ sub p6_redo_macro {
 }
 
 
-# Boot runtime.  # XXX - needs a cleanup pass
+sub p6_initialize {
+    # Boot runtime.  # XXX - needs a cleanup pass
+    p6_package_init('');
+    p6_package_init('main');
 
-p6_package_init('');
-p6_package_init('main');
-
-{
-require Perl6::Container::Hash;
-require Perl6::Container::Array;
-$PIL::Run::Root::main::hash_ENV = Hash->new();
-my $h = Perl6::Container::Hash::Native->new( hashref => \%ENV );
-$PIL::Run::Root::main::hash_ENV->{'instance_data'}{'$:cell'}{tieable} = 1;
-$PIL::Run::Root::main::hash_ENV->tie( $h );
-
-$PIL::Run::Root::main::Perl5::array_INC = Array->new();
-my $a = Perl6::Container::Array::Native->new( arrayref => \@INC );
-$PIL::Run::Root::main::Perl5::array_INC->{'instance_data'}{'$:cell'}{tieable} = 1;
-$PIL::Run::Root::main::Perl5::array_INC->tie( $a );
+    {
+	require Perl6::Container::Hash;
+	require Perl6::Container::Array;
+	$PIL::Run::Root::main::hash_ENV = Hash->new();
+	my $h = Perl6::Container::Hash::Native->new( hashref => \%ENV );
+	$PIL::Run::Root::main::hash_ENV->{'instance_data'}{'$:cell'}{tieable} = 1;
+	$PIL::Run::Root::main::hash_ENV->tie( $h );
+	
+	$PIL::Run::Root::main::Perl5::array_INC = Array->new();
+	my $a = Perl6::Container::Array::Native->new( arrayref => \@INC );
+	$PIL::Run::Root::main::Perl5::array_INC->{'instance_data'}{'$:cell'}{tieable} = 1;
+	$PIL::Run::Root::main::Perl5::array_INC->tie( $a );
+    }
+    
+    END { p6_apply(p6_var('&*END')); }
+    
+    require PIL::Run::EvalX;
+    PIL::Run::EvalX::p6_eval('require P5Runtime::PrimP6;');
 }
 
-END { p6_apply(p6_var('&*END')); }
+p6_initialize();
+
 
 1;
 __END__

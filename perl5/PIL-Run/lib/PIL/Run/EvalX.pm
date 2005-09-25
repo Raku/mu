@@ -266,10 +266,13 @@ sub expand {
 
 use FindBin;
 use File::Spec;
-sub path_from_me { File::Spec->catfile($FindBin::Bin, @_) }
 
+sub path_from_me { File::Spec->catfile($FindBin::Bin, @_) }
 my $src_root = path_from_me();
-my $pugs = 'pugs'; # path_from_me('..','..','pugs');
+
+our $pugs; # Perhaps set by a client.
+$pugs = $ENV{PUGS_EXECUTABLE} if !defined $pugs;
+$pugs = "pugs" if !defined $pugs;
 
 sub pil_from_p6 {
     my($p6)=@_;
@@ -338,9 +341,6 @@ sub p6_eval_file {
     my $p6 = do { local $/; <IN> }; close IN;
     eval { p6_eval($p6); };
 }
-
-p6_eval('require P5Runtime::PrimP6;');
-
 
 1;
 __END__

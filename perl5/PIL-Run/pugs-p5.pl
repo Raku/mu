@@ -83,6 +83,7 @@ GetOptions(
     'timeout=i' => \$timeout,
     'debug'     => \$debug,
     'I=s'       => \@inc_dirs,
+    'pugs=s'    => \$PIL::Run::EvalX::pugs,
 );
 $timeout = defined $timeout ? $timeout : $ENV{PUGS_HACK_TIMEOUT};
 $timeout = 1*60 if !defined($timeout) && @ARGV && !$repl;
