@@ -10,7 +10,7 @@ P is for
 Practical
 
 Manipulexity
-     &
+&
 Whipuptitude
 
 Abstraction
@@ -71,13 +71,13 @@ Dependent
 Constrained
 Soft Typing
 
-Traits
-etamodel
+Traits
+Metamodel
 
 MMD on
 Type & Value
 
-SyntacticAspartame
+Syntactic Aspartame
 without Bloat
 
 use perl5:DBI;
@@ -102,7 +102,7 @@ SVK
 steals from the best:
 Darcs
 
-"The Dream thatstuff are made of"
+"The Dream that stuff are made of"
 "An alien language"
 
 $work in C
@@ -131,7 +131,8 @@ Feb 1st
 TaPL arrived
 as an exercise...
 
-Pugsis expansive
+Pugs
+is expansive
 
 Feb 6th
 Primitive Interpreter
