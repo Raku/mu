@@ -22,7 +22,12 @@ INIT {
 sub pwd { File::Spec->catfile($FindBin::Bin, @_) }
 
 my (@runjs_args, @pugs_args);
+my $ignore_dash_B_arg_kludge = 0;
 while (@ARGV) {
+    if( $ARGV[0] eq '-B') {
+	$ignore_dash_B_arg_kludge = 1; shift(@ARGV); next; };
+    if( $ignore_dash_B_arg_kludge) {
+	$ignore_dash_B_arg_kludge = 0; shift(@ARGV); next; };
     $ARGV[0] =~ /^--/ or last;
     push @runjs_args, shift(@ARGV);
 }
