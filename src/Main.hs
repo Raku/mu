@@ -83,8 +83,8 @@ run ("-C":backend:args) | map toUpper backend == "JS" =
 run ("-C":backend:"-e":prog:_)           = doCompileDump backend "-e" prog
 run ("-C":backend:file:_)                = slurpFile file >>= doCompileDump backend file
 
-run ("-B":backend:args) | (== map toLower backend) `any` ["js","perl5"] =
-    doHelperRun backend args
+run ("-B":backend:_) | (== map toLower backend) `any` ["js","perl5"] =
+    doHelperRun backend =<< getArgs
 run ("-B":backend:"-e":prog:_)           = doCompileRun backend "-e" prog
 run ("-B":backend:file:_)                = slurpFile file >>= doCompileRun backend file
 
