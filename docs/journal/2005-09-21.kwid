@@ -6,9 +6,9 @@ Pugs Development for (mm, dd yyyy)
 
 * Perl6-MetaModel
 
-Some re-arranging has been done, ::Object now shares pneuma.pl with 
-::Package and ::Module, while ::Role has been moved to the new 
-psyche.pl file. This means that genesis.pl is concerned simply with
+Some re-arranging has been done, `::Object` now shares `pneuma.pl` with 
+`::Package` and `::Module`, while `::Role` has been moved to the new 
+psyche.pl file. This means that `genesis.pl` is concerned simply with
 bootstrapping things, and nothing more. 
 
 The Role work is progressing slowly becuase of $work. However, we have 
@@ -36,14 +36,14 @@ example of how it is used:
       }));
   };
 
-At this point $Scalar is not actually a Class instance, but more a 
-Class instance factory (actually it's a CODE ref). Here is how it
+At this point `$Scalar` is not actually a `Class` instance, but more a 
+`Class` instance factory (actually it's a `CODE` ref). Here is how it
 is used:
 
   my $Int = class 'Int' => {};
   my $ScalarInt = $Scalar->('::T' => $Int) 
 
-Now $ScalarInt is actually an instance of Class parameterized to 
+Now `$ScalarInt` is actually an instance of Class parameterized to 
 only accept Int objects. For a working version of this example see
 L<32_parameterized_classes.t|http://svn.openfoundry.org/pugs/perl5/Perl6-MetaModel2.0/t/32_parameterized_classes.t>
 
