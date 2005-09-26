@@ -170,7 +170,7 @@ class1 'Scalar'.$class_description => {
         DESTROY => sub {
             # XXX - didn't undefine the value 
             # _('$.value' => undef) },
-            $_[0]->{'instance_data'}{'$:cell'} = undef;  
+            _('$:cell' => undef);
         },
         methods => { 
             'fetch' => sub { shift; _('$:cell')->fetch( @_ ) },

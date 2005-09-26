@@ -46,8 +46,8 @@ $VERSION = '0.01';
 sub p6_to_b {my($b)=@_; return 0 unless defined $b; $b->bit()->unboxed ? 1 : 0}
 sub p6_to_n { Perl6::Value::numify( @_ ) }
 sub p6_to_s {
-    if (UNIVERSAL::isa($_[0],"Perl6::Class")) {
-	$_[0]->{instance_data}{name}; # {identifier} is long, {name} is short
+    if ("$_[0]" =~ /^\#<Class=/) { # XXX - kludge
+	$_[0]->name; # {identifier} is long, {name} is short
     } else {
         Perl6::Value::stringify( @_ );
     }
@@ -326,7 +326,7 @@ sub p6_new_sub_from_pil_macro {
 sub p6_declare_class {
     my($name)=@_;
     use Perl6::Value;
-    my $cls = Perl6::Value::class1($name => {
+    my $cls = class1($name => {
         is => [ $::Object ],
         });
     $cls;

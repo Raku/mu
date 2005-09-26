@@ -314,7 +314,7 @@ class1 'Ref'.$class_description => {
             # XXX - didn't undefine the value 
             # _('$.cell' => undef) },
             my $self = shift;
-            $self->{'instance_data'}{'$.referred'} = undef;  # XXX
+            _('$.referred' => undef);  # XXX
         },
         methods => { 
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  

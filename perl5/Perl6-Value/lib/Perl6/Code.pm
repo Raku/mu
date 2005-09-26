@@ -212,7 +212,7 @@ class1 'Code'.$class_description => {
             'bit' =>  sub { Bit->new( '$.unboxed' => 1 ) },
             'perl' => sub { 
                 #my $s = "sub "; 
-                my $s = lc( $::CLASS->{instance_data}{name} ) . " ";
+                my $s = lc( $::CLASS->name ) . " ";
                 $s .= Perl6::Value::stringify( _('$.name') ) . " " if defined _('$.name');
                 $s .= "(" . $_[0]->signature_str . ") {...}"; 
                 return Str->new( '$.unboxed' => $s ) 

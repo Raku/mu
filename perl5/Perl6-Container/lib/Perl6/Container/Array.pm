@@ -301,7 +301,7 @@ class1 'Array'.$class_description => {
                             return $cell;
                         } } ] ],
         DESTROY => sub {
-            $_[0]->{'instance_data'}{'$:cell'} = undef;  
+            _('$:cell' => undef);
         },
         methods => { 
 
