@@ -9,7 +9,7 @@ use Test;
 
 =cut
 
-plan 59;
+plan 62;
 
 # basic Pair
 
@@ -193,7 +193,17 @@ http://www.nntp.perl.org/group/perl.perl6.language/20122
 
 # This is per the pairs-behave-like-one-element-hashes-rule.
 # (I asked p6l once, but the "thread" got warnocked.  --iblech)
+# (I asked p6l again, now the thread did definitely not get warnocked:
+# http://groups.google.de/group/perl.perl6.language/browse_thread/thread/e0e44be94bd31792/6de6667398a4d2c7?q=perl6.language+Stringification+pairs&)
+# Also see http://www.nntp.perl.org/group/perl.perl6.language/23224.
 {
   my $pair = (a => 1);
-  is ~$pair, "a\t1", "pairs stringify correctly";
+  is try { ~$pair  }, "a\t1", "pairs stringify correctly (1)";
+  is try { "$pair" }, "a\t1", "pairs stringify correctly (2)";
+}
+
+{
+  my $pair = (a => [1,2,3]);
+  is try { ~$pair  }, "a\t1 2 3", "pairs with arrayrefs as values stringify correctly (1)";
+  is try { "$pair" }, "a\t1 2 3", "pairs with arrayrefs as values stringify correctly (2)";
 }
