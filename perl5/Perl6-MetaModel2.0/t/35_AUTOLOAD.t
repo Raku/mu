@@ -13,7 +13,7 @@ my $FooAUTOLOADED = class 'FooAUTOLOADED' => {
         'isa' => sub { next_METHOD() },
         'AUTOLOAD' => sub {
             my ($self, @args) = @_;
-            my $label = $::AUTOLOAD;
+            my $label = ::opaque_instance_class($self)->FETCH('$AUTOLOAD');
             return $label;
         }
     }
@@ -34,7 +34,7 @@ my $BarAUTOLOADED = class 'BarAUTOLOADED' => {
     class_methods => {
         'AUTOLOAD' => sub {
             my ($self, @args) = @_;
-            my $label = $::AUTOLOAD;
+            my $label = $self->FETCH('$AUTOLOAD');
             return $label;
         }
     }        

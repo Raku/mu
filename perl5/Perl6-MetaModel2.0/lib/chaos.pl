@@ -439,20 +439,19 @@ our $DISPATCH_TRACE = 0;
             my $dispatcher = $class->dispatcher(':canonical');  
             # walk the methods
             my $method = ::WALKMETH($dispatcher, $label, %opts);
-            
-            my $was_autoloaded;            
+                 
             unless (defined $method) {
-                $was_autoloaded = 1;
                 # if we find an AUTOLOAD anywhere in the chain, then we can use it ...
-                $method = ::WALKMETH($class->dispatcher(':canonical'), 'AUTOLOAD', %opts);
+                if ($method = ::WALKMETH($class->dispatcher(':canonical'), 'AUTOLOAD', %opts)) {
+                    $class->STORE('$AUTOLOAD' => $label);
+                }
             }            
             
             (defined $method)
                 || confess "Method ($label) not found for " . $opts{for} . " ($self)";   
             # store the dispatcher state
             {
-                no warnings 'redefine';
-                local $::AUTOLOAD = $label if $was_autoloaded;            
+                no warnings 'redefine';        
                 local *::next_METHOD = sub {
                     my $method = ::WALKMETH($dispatcher, $label, %opts); 
                     confess "No next-method for '$label' found" unless defined $method;
