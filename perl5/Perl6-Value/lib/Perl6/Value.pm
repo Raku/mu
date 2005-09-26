@@ -311,10 +311,7 @@ class1 'Ref'.$class_description => {
     instance => {
         attrs => [ '$.referred' ],
         DESTROY => sub {
-            # XXX - didn't undefine the value 
-            # _('$.cell' => undef) },
-            my $self = shift;
-            _('$.referred' => undef);  # XXX
+            # _('$.referred' => undef); # XXX - MM2.0 gc workaround
         },
         methods => { 
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  

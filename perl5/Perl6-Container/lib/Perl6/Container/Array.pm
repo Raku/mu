@@ -301,7 +301,7 @@ class1 'Array'.$class_description => {
                             return $cell;
                         } } ] ],
         DESTROY => sub {
-            _('$:cell' => undef);
+            # _('$:cell' => undef); # XXX - MM2.0 gc workaround
         },
         methods => { 
 

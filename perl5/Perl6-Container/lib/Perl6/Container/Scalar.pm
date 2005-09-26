@@ -168,9 +168,7 @@ class1 'Scalar'.$class_description => {
                         access => 'rw', 
                         build => sub { Perl6::Cell->new } } ] ],
         DESTROY => sub {
-            # XXX - didn't undefine the value 
-            # _('$.value' => undef) },
-            _('$:cell' => undef);
+            # _('$:cell' => undef); # XXX - MM2.0 gc workaround
         },
         methods => { 
             'fetch' => sub { shift; _('$:cell')->fetch( @_ ) },
