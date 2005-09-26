@@ -9,6 +9,7 @@ use lib File::Spec->catfile($FindBin::Bin, "lib");
 use PIL2JS;
 use PIL::Parser;
 use Term::ReadLine;
+use Getopt::Long;
 use Encode;  # needed by pil2js.pl, better die now than later
              # (user-friendlyness etc.)
 
@@ -27,6 +28,17 @@ our %cfg;
 *cfg = \%PIL2JS::cfg;
 $cfg{output} = "output.html";
 $cfg{verbose}++;
+
+GetOptions(
+  "js=s"          => \$cfg{js},
+  "pugs=s"        => \$cfg{pugs},
+  "pil2js=s"      => \$cfg{pil2js},
+  "p6preludepc=s" => \$cfg{preludepc},
+  "p6prelude=s"   => \$cfg{prelude},
+  "testpc=s"      => \$cfg{testpc},
+  "output=s"      => \$cfg{output},
+) or warn "Unknown options ignored.\n";
+
 command_conf(pugs           => $cfg{pugs});
 command_conf(metamodel_base => $cfg{metamodel_base});
 command_conf(pil2js         => $cfg{pil2js});
