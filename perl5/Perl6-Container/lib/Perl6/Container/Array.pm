@@ -113,7 +113,6 @@ use strict;
 use Carp;
 
 use Perl6::MetaModel;
-use Perl6::Object;
 use Perl6::Value;
 use Perl6::Container::Scalar;
 
@@ -284,8 +283,8 @@ sub Perl6::Slice::write_thru {
 
 # ------ end Perl6::Slice -----
 
-class 'Array'.$class_description => {
-    is => [ 'Perl6::Object' ],
+class1 'Array'.$class_description => {
+    is => [ $::Object ],
     class => {
         attrs => [],
         methods => {}
@@ -325,7 +324,7 @@ class 'Array'.$class_description => {
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
             'isa' =>      sub { ::next_METHOD() },
             'does' =>     sub { ::next_METHOD() },
-            'ref' =>      sub { ::CLASS }, 
+            'ref' =>      sub { $::CLASS }, 
             'unboxed' =>  sub { 
                 _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v}
             },
@@ -444,7 +443,7 @@ class 'Array'.$class_description => {
             },
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
-                my $method = ::AUTOLOAD($self);
+                my $method = __('$AUTOLOAD');
                 my $tmp = $self->unboxed;
                 # warn "AUTOLOAD ",ref($tmp), ' ', $method, " @param == " . $tmp->$method( @param );
 

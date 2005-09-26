@@ -50,7 +50,6 @@
 use strict;
 
 use Perl6::MetaModel;
-use Perl6::Object;
 use Perl6::Value;
 use Carp;
 
@@ -158,8 +157,8 @@ role readonly => {
 # Scalar is implemented as a Perl6 class
 #
 
-class 'Scalar'.$class_description => {
-    is => [ 'Perl6::Object' ],
+class1 'Scalar'.$class_description => {
+    is => [ $::Object ],
     class => {
         attrs => [],
         methods => {}
@@ -208,7 +207,7 @@ class 'Scalar'.$class_description => {
             #    die "access must be 'ro' or 'rw'"
             #        if $_[1] ne 'ro' && $_[1] ne 'rw';
             #    _('$:cell')->{ro} = $_[1] eq 'ro';
-            #    return ::SELF;
+            #    return $::SELF;
             # },
 
             'bind' =>    sub {
@@ -245,13 +244,13 @@ class 'Scalar'.$class_description => {
             },
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
-                my $method = ::AUTOLOAD($self);
+                my $method = __('$AUTOLOAD');
                 my $tmp = _('$:cell')->fetch;
 
                 if ( defined $tmp ) {
                     if ( $method eq 'increment' || $method eq 'decrement' ) {
                         _('$:cell')->store( $tmp->$method( @param ) );
-                        return ::SELF; 
+                        return $::SELF; 
                     }
                     # warn "calling Scalar -> $method on $tmp ";
                     return Str->new( '$.unboxed' => $tmp ) unless ref( $tmp );   # unboxed
@@ -260,15 +259,15 @@ class 'Scalar'.$class_description => {
                 else {
                     # empty cell
                     return Bit->new( '$.unboxed' => 0 ) if $method eq 'bit';  # XXX ?
-                    return ::CLASS if $method eq 'ref';
+                    return $::CLASS if $method eq 'ref';
                     return Str->new( '$.unboxed' => '\\undef' ) if $method eq 'perl';
                     if ( $method eq 'increment' ) {
                         _('$:cell')->store( Int->new( '$.unboxed' => 1 ) );
-                        return ::SELF 
+                        return $::SELF 
                     }
                     if ( $method eq 'decrement' ) {
                         _('$:cell')->store( Int->new( '$.unboxed' => -1 ) );
-                        return ::SELF 
+                        return $::SELF 
                     }
                     return Str->new( '$.unboxed' => 'undef' ) if $method eq 'str';
                     return if $method eq 'unboxed';
@@ -279,6 +278,7 @@ class 'Scalar'.$class_description => {
     }
 };
 
+1;
 __END__
 
 

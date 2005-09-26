@@ -4,7 +4,8 @@ use FindBin '$Bin';
 use lib ("$Bin/lib",
          "$Bin/../Perl6-Value/lib",
          "$Bin/../Perl6-Container/lib",
-         "$Bin/../Perl6-MetaModel/lib");
+         "$Bin/../Perl6-MetaModel2.0", # XXX
+         "$Bin/../Perl6-MetaModel2.0/lib");
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Terse = 1;
@@ -43,7 +44,7 @@ eval q{
 use PIL::Run::MainX;
 use PIL::Run::EvalX;
 use PIL::Run::ApiX; # for p6_to_s() p6_main()
-};
+}; die $@ if $@;
 
 for (@inc_dirs) {p6_eval("push(\@INC,'$_');");}
 

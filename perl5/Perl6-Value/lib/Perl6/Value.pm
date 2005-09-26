@@ -58,12 +58,85 @@
 use strict;
 
 use Perl6::MetaModel;
-use Perl6::Object;
+
+sub class1 {
+    my ($name, $params) = @_;
+    my $barename = $name; $barename =~ s/-0.*//;
+    my $code="";
+    $code .= "package $barename;\n";
+    $code .= "our \$MM = \$::Class->new('\$:name' => '$barename');\n";
+    $code .= "sub new { shift; \$MM->new(\@_) }\n";
+    #$code .= "sub new { my \$c = shift; my \$o = \$MM->new(\@_); warn \"new: \$c  \$o\"; \$o; }\n";
+    $code .= "\$MM;";
+    my $MM = eval($code); die "$@\n$code" if $@;
+    for my $key (keys %$params) {
+	my $val = $params->{$key};
+	if($key eq 'is') {
+	    my $sc = [map{ref($_)?$_:do{no strict;my $n=$_."::MM";$$n}}@$val];
+	    #print STDERR "$barename  @$sc\n";
+	    $MM->superclasses($sc);
+	} elsif($key eq 'class') {
+	    for my $k (keys %$val) {
+		my $v = $val->{$k};
+		if($k eq 'methods') {
+		    foreach my $m (keys %$v) {
+			#warn "$barename $m\n";
+			$MM->add_method($m => ::make_class_method($v->{$m}));
+		    }
+		}
+	    }
+	} elsif($key eq 'instance') {
+	    for my $k (keys %$val) {
+		my $v = $val->{$k};
+		if($k eq 'attrs') {
+		    #print STDERR "$barename  @$v\n";
+		    foreach my $a (@$v) {
+			my $a_config = {};
+			if(ref($a)) {
+			    $a_config = $a->[1];
+			    $a = $a->[0];
+			}
+			my $am = $a; $am =~ s/\$.//;
+			$MM->add_attribute($a => ::make_attribute($a));
+			my $access = $a_config->{'access'};
+			my $build  = $a_config->{'build'};
+			my $is_rw = $access && $access eq 'rw';
+			# XXX - everything treated as rw;
+			$MM->add_method($am => ::make_method(sub {
+			    my $self = shift;
+			    ::opaque_instance_attr($self => $a) = shift if @_;
+			    ::opaque_instance_attr($self => $a);
+			}));
+			if($build) {
+			    $MM->add_method('BUILD' => ::make_submethod(sub{
+				shift;
+				_($a => $build->());
+			    }));
+			}
+		    }
+		} elsif($k eq 'DESTROY') {
+		    $MM->add_method('DESTROY' => ::make_method(sub{
+			shift;
+			$v->();
+		    }));
+		} elsif($k eq 'methods') {
+		    foreach my $m (keys %$v) {
+			#warn "$barename $m\n";
+			$MM->add_method($m => ::make_method($v->{$m}));
+		    }
+		}
+	    }
+	}
+    }
+    $MM;
+}
+
+
 
 my $class_description = '-0.0.1-cpan:FGLOCK';
 
-class 'Num'.$class_description => {
-    is => [ 'Perl6::Object' ],
+class1 'Num'.$class_description => {
+    is => [ $::Object ],
     class => {
         attrs => [],
         methods => {
@@ -82,24 +155,24 @@ class 'Num'.$class_description => {
         attrs => [ '$.unboxed' ],
         DESTROY => sub {},
         methods => {
-            'num' =>  sub { ::SELF },
+            'num' =>  sub { $::SELF },
             'int' =>  sub { Int->new( '$.unboxed' => Perl6::Value::Num::to_int( _('$.unboxed') ) ) },
             'str' =>  sub { Str->new( '$.unboxed' => Perl6::Value::Num::to_str( _('$.unboxed') ) ) },
             'bit' =>  sub { Bit->new( '$.unboxed' => Perl6::Value::Num::to_bit( _('$.unboxed') ) ) },
-            'perl' => sub { ::SELF->str },
+            'perl' => sub { $::SELF->str },
             'increment' => sub { 
                 my $value = _('$.unboxed');
-                ::SELF->ref->new( '$.unboxed' => ++$value ) },
+                $::SELF->ref->new( '$.unboxed' => ++$value ) },
             'decrement' => sub { 
                 my $value = _('$.unboxed');
-                ::SELF->ref->new( '$.unboxed' => --$value ) },
-            'ref' => sub { ::CLASS }, 
+                $::SELF->ref->new( '$.unboxed' => --$value ) },
+            'ref' => sub { $::CLASS }, 
         },
     }
 };
 
-class 'Int'.$class_description => {
-    is => [ 'Perl6::Object' ],
+class1 'Int'.$class_description => {
+    is => [ $::Object ],
     class => {
         attrs => [],
         methods => {}
@@ -109,23 +182,23 @@ class 'Int'.$class_description => {
         DESTROY => sub {},
         methods => {
             'num' =>  sub { Num->new( '$.unboxed' => Perl6::Value::Int::to_num( _('$.unboxed') ) ) },
-            'int' =>  sub { ::SELF },
+            'int' =>  sub { $::SELF },
             'str' =>  sub { Str->new( '$.unboxed' => Perl6::Value::Int::to_str( _('$.unboxed') ) ) },
             'bit' =>  sub { Bit->new( '$.unboxed' => Perl6::Value::Int::to_bit( _('$.unboxed') ) ) },
-            'perl' => sub { ::SELF->str },
+            'perl' => sub { $::SELF->str },
             'increment' => sub { 
                 my $value = _('$.unboxed');
-                ::SELF->ref->new( '$.unboxed' => ++$value ) },
+                $::SELF->ref->new( '$.unboxed' => ++$value ) },
             'decrement' => sub { 
                 my $value = _('$.unboxed');
-                ::SELF->ref->new( '$.unboxed' => --$value ) },
-            'ref' => sub { ::CLASS }, 
+                $::SELF->ref->new( '$.unboxed' => --$value ) },
+            'ref' => sub { $::CLASS }, 
         },
     }
 };
 
-class 'Str'.$class_description => {
-    is => [ 'Perl6::Object' ],
+class1 'Str'.$class_description => {
+    is => [ $::Object ],
     class => {
         attrs => [],
         methods => {}
@@ -136,7 +209,7 @@ class 'Str'.$class_description => {
         methods => {
             'num' =>  sub { Num->new( '$.unboxed' => Perl6::Value::Str::to_num( _('$.unboxed') ) ) },
             'int' =>  sub { Int->new( '$.unboxed' => Perl6::Value::Str::to_int( _('$.unboxed') ) ) },
-            'str' =>  sub { ::SELF },
+            'str' =>  sub { $::SELF },
             'bit' =>  sub { Bit->new( '$.unboxed' => Perl6::Value::Str::to_bit( _('$.unboxed') ) ) },
             'perl' => sub { 
                 my $tmp = _('$.unboxed');
@@ -145,18 +218,18 @@ class 'Str'.$class_description => {
               },
             'increment' => sub { 
                 my $value = _('$.unboxed');
-                ::SELF->ref->new( '$.unboxed' => ++$value ) },
+                $::SELF->ref->new( '$.unboxed' => ++$value ) },
             'decrement' => sub { 
                 my $value = _('$.unboxed');
                 # XXX - perl5 doesn't support string decrement
-                ::SELF->ref->new( '$.unboxed' => --$value ) },
-            'ref' => sub { ::CLASS }, 
+                $::SELF->ref->new( '$.unboxed' => --$value ) },
+            'ref' => sub { $::CLASS }, 
         },
     }
 };
 
-class 'Bit'.$class_description => {
-    is => [ 'Perl6::Object' ],
+class1 'Bit'.$class_description => {
+    is => [ $::Object ],
     class => {
         attrs => [],
         methods => {}
@@ -168,15 +241,15 @@ class 'Bit'.$class_description => {
             'num' => sub { Num->new( '$.unboxed' => Perl6::Value::Bit::to_num( _('$.unboxed') ) ) },
             'int' => sub { Int->new( '$.unboxed' => Perl6::Value::Bit::to_int( _('$.unboxed') ) ) },
             'str' => sub { Str->new( '$.unboxed' => Perl6::Value::Bit::to_str( _('$.unboxed') ) ) },
-            'bit' => sub { ::SELF },
-            'perl' => sub { ::SELF->str },
-            'ref' => sub { ::CLASS }, 
+            'bit' => sub { $::SELF },
+            'perl' => sub { $::SELF->str },
+            'ref' => sub { $::CLASS }, 
         },
     }
 };
 
-class 'Rat'.$class_description => {
-    is => [ 'Perl6::Object' ],
+class1 'Rat'.$class_description => {
+    is => [ $::Object ],
     class => {
         attrs => [],
         methods => {},
@@ -189,14 +262,14 @@ class 'Rat'.$class_description => {
             'int' =>  sub { Int->new( '$.unboxed' => Perl6::Value::Num::to_int( _('$.a')/_('$.b') ) ) },
             'str' =>  sub { Str->new( '$.unboxed' => Perl6::Value::Num::to_str( _('$.a')/_('$.b') ) ) },
             'bit' =>  sub { Bit->new( '$.unboxed' => Perl6::Value::Num::to_bit( _('$.a')/_('$.b') ) ) },
-            'perl' => sub { ::SELF->str },
-            'ref' =>  sub { ::CLASS }, 
+            'perl' => sub { $::SELF->str },
+            'ref' =>  sub { $::CLASS }, 
         },
     }
 };
 
-class 'Pair'.$class_description => {
-    is => [ 'Perl6::Object' ],
+class1 'Pair'.$class_description => {
+    is => [ $::Object ],
     class => {
         attrs => [],
         methods => {}
@@ -216,12 +289,12 @@ class 'Pair'.$class_description => {
                 Str->new( '$.unboxed' => "($key, $value)" ) 
               },
             'unboxed' => sub { ( _('$.key'), _('$.value') ) },
-            'ref' => sub { ::CLASS }, 
+            'ref' => sub { $::CLASS }, 
             'isa' => sub { ::next_METHOD() },
             'does' => sub { ::next_METHOD() },
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
-                my $method = ::AUTOLOAD($self);
+                my $method = __('$AUTOLOAD');
                 die "unsupported pair method .$method";
             },
 
@@ -229,8 +302,8 @@ class 'Pair'.$class_description => {
     }
 };
 
-class 'Ref'.$class_description => {
-    is => [ 'Perl6::Object' ],
+class1 'Ref'.$class_description => {
+    is => [ $::Object ],
     class => {
         attrs => [],
         methods => {}
@@ -250,7 +323,7 @@ class 'Ref'.$class_description => {
             'unboxed' => sub { \(_('$.referred')) },
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
-                my $method = ::AUTOLOAD($self);
+                my $method = __('$AUTOLOAD');
                 my $tmp = _('$.referred');
                 # Array and Hash are auto-dereferenced
                 if ( ref $tmp && ( 
@@ -261,7 +334,7 @@ class 'Ref'.$class_description => {
                 # everything else is not auto-dereferenced
                 return Bit->new( '$.unboxed' => 1 ) 
                     if $method eq 'bit';
-                return ::CLASS 
+                return $::CLASS 
                     if $method eq 'ref';
                 if ( $method eq 'perl' || $method eq 'str' ) {
                     return Str->new( '$.unboxed' => '\\' . Perl6::Value::stringify($tmp) ) 
@@ -282,8 +355,8 @@ role Eager => {
     methods => {}
 };
 
-class 'List'.$class_description => {
-    is => [ 'Perl6::Object' ],
+class1 'List'.$class_description => {
+    is => [ $::Object ],
     class => {
         attrs => [],
         methods => {}
@@ -297,7 +370,7 @@ class 'List'.$class_description => {
             'str' =>  sub { Str->new( '$.unboxed' => _('$.unboxed')->str  ) },
             'bit' =>  sub { Bit->new( '$.unboxed' => _('$.unboxed')->bit  ) },
             'perl' => sub { Str->new( '$.unboxed' => _('$.unboxed')->perl ) },
-            'ref' =>  sub { ::CLASS }, 
+            'ref' =>  sub { $::CLASS }, 
 
             'shift' => sub { _('$.unboxed')->shift },
             'pop' =>   sub { _('$.unboxed')->pop   },

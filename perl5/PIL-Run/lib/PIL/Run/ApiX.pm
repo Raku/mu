@@ -325,18 +325,15 @@ sub p6_new_sub_from_pil_macro {
 }
 sub p6_declare_class {
     my($name)=@_;
-    use Perl6::MetaModel;
-    use Perl6::Object;
-    my $cls = class $name => {
-        is => [ 'Perl6::Object' ]
-        };
+    use Perl6::Value;
+    my $cls = Perl6::Value::class1($name => {
+        is => [ $::Object ],
+        });
     $cls;
 }
 sub p6_create_instance {
     my($name,@args)=@_;
-    use Perl6::MetaModel;
-    use Perl6::Object;
-    $name->create(@args);
+    $name->new(@args);
 }
 
 sub p6_apply {
@@ -424,7 +421,7 @@ sub p6_initialize {
     p6_package_init('');
     p6_package_init('main');
 
-    {
+    if(0){
 	require Perl6::Container::Hash;
 	require Perl6::Container::Array;
 	$PIL::Run::Root::main::hash_ENV = Hash->new();

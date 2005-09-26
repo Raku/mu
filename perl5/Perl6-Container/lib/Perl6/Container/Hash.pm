@@ -68,14 +68,13 @@
 use strict;
 
 use Perl6::MetaModel;
-use Perl6::Object;
 use Perl6::Value;
 use Perl6::Container::Scalar;
 
 my $class_description = '-0.0.1-cpan:FGLOCK';
 
-class 'Hash'.$class_description => {
-    is => [ 'Perl6::Object' ],
+class1 'Hash'.$class_description => {
+    is => [ $::Object ],
     class => {
         attrs => [],
         methods => {}
@@ -116,7 +115,7 @@ class 'Hash'.$class_description => {
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
             'isa' =>      sub { ::next_METHOD() },
             'does' =>     sub { ::next_METHOD() },
-            'ref' =>      sub { ::CLASS }, 
+            'ref' =>      sub { $::CLASS }, 
 
             'elems' =>    sub { Int->new( '$.unboxed' =>
                                 _('$:cell')->{tied} ? 
@@ -263,7 +262,7 @@ class 'Hash'.$class_description => {
             },
             'AUTOLOAD' => sub {
                 my ($self, @param) = @_;
-                my $method = ::AUTOLOAD($self);
+                my $method = __('$AUTOLOAD');
                 # TODO - add support for tied hash
                 # TODO - check if scalar := hash works properly
                 my $tmp = _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v};

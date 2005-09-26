@@ -1,12 +1,11 @@
 use strict;
 
 use Perl6::MetaModel;
-use Perl6::Object;
 
 my $class_description = '-0.0.1-cpan:PUGS';
 
-class 'Match'.$class_description => {
-    is => [ 'Perl6::Object' ],
+class1 'Match'.$class_description => {
+    is => [ $::Object ],
     instance => {
         attrs => [ 
             [ '$.val_bool' => { access => 'rw' } ],
@@ -17,30 +16,30 @@ class 'Match'.$class_description => {
             [ '$.to' =>       { access => 'rw' } ],
         ],
         methods => {
-            'num' =>  sub { ::SELF->int },
-            'int' =>  sub { Int->new( '$.unboxed' => 0+::SELF->val_string() ) },
-            'str' =>  sub { Str->new( '$.unboxed' => ::SELF->val_string() ) },
-            'bit' =>  sub { Bit->new( '$.unboxed' => ::SELF->val_bool() ) },
-            'perl' => sub { ::SELF->str },
-            'ref' =>  sub { ::CLASS }, 
+            'num' =>  sub { $::SELF->int },
+            'int' =>  sub { Int->new( '$.unboxed' => 0+$::SELF->val_string() ) },
+            'str' =>  sub { Str->new( '$.unboxed' => $::SELF->val_string() ) },
+            'bit' =>  sub { Bit->new( '$.unboxed' => $::SELF->val_bool() ) },
+            'perl' => sub { $::SELF->str },
+            'ref' =>  sub { $::CLASS }, 
             'fetch' => sub {
                 my($o,$idx)=@_;
-                return ::SELF->val_array() if @_ < 2;
-                ::SELF->val_array()->[$idx];
+                return $::SELF->val_array() if @_ < 2;
+                $::SELF->val_array()->[$idx];
             },
             set_as_failed => sub {
-                ::SELF->val_bool( 0 );
-                ::SELF->val_string( "" );
-                ::SELF->val_array( [] );
-                ::SELF->val_hash( {} );
-                ::SELF;
+                $::SELF->val_bool( 0 );
+                $::SELF->val_string( "" );
+                $::SELF->val_array( [] );
+                $::SELF->val_hash( {} );
+                $::SELF;
             },
             init => sub {
-                ::SELF->val_bool( 1 );
-                ::SELF->val_string( "" );
-                ::SELF->val_array( [] );
-                ::SELF->val_hash( {} );
-                ::SELF;
+                $::SELF->val_bool( 1 );
+                $::SELF->val_string( "" );
+                $::SELF->val_array( [] );
+                $::SELF->val_hash( {} );
+                $::SELF;
             },
             describe => sub {
                 my($o)=@_;

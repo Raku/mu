@@ -94,7 +94,6 @@ use warnings;
 use Carp 'confess';
 
 use Perl6::MetaModel;
-use Perl6::Object;
 use Perl6::Value;
 
 my $class_description = '-0.0.1-cpan:FGLOCK';
@@ -196,8 +195,8 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
     }      
 }
 
-class 'Code'.$class_description => {
-    is => [ 'Perl6::Object' ],
+class1 'Code'.$class_description => {
+    is => [ $::Object ],
     class => {
         attrs => [],
         methods => {}
@@ -213,19 +212,19 @@ class 'Code'.$class_description => {
             'bit' =>  sub { Bit->new( '$.unboxed' => 1 ) },
             'perl' => sub { 
                 #my $s = "sub "; 
-                my $s = lc( ::CLASS->{instance_data}{name} ) . " ";
+                my $s = lc( $::CLASS->{instance_data}{name} ) . " ";
                 $s .= Perl6::Value::stringify( _('$.name') ) . " " if defined _('$.name');
                 $s .= "(" . $_[0]->signature_str . ") {...}"; 
                 return Str->new( '$.unboxed' => $s ) 
             },
-            'ref' =>  sub { ::CLASS }, 
+            'ref' =>  sub { $::CLASS }, 
             'defined' => sub { Bit->new( '$.unboxed' => 1 ) },
     
             do => sub {
                 my ($self, @arguments) = @_;
                 $self->check_params(@arguments)
                     || confess "Signature does not match - (" . $self->signature_str . ")";
-                # my %bound_params = ::SELF->bind_params(@arguments); 
+                # my %bound_params = $::SELF->bind_params(@arguments); 
                 # warn "entering sub ".$self->name;   
                 my ($ret) = $self->body->( $self, @arguments );  # @_ = self + raw arguments
                 # warn "RETURN $ret\n";
@@ -235,7 +234,7 @@ class 'Code'.$class_description => {
                 return $ret;
             },
             arity => sub {
-                scalar @{ ::SELF->params }
+                scalar @{ $::SELF->params }
             }, 
             signature_str => sub {
                 my $self = shift;
@@ -315,8 +314,8 @@ class 'Code'.$class_description => {
     }
 };
 
-class 'Sub'.$class_description => {
-    is => [ 'Code', 'Perl6::Object' ],
+class1 'Sub'.$class_description => {
+    is => [ 'Code', $::Object ],
     class => {},
     instance => {
         attrs => [], 
@@ -324,8 +323,8 @@ class 'Sub'.$class_description => {
     },
 };
     
-class 'MultiSub'.$class_description => {
-    is => [ 'Code', 'Perl6::Object' ],
+class1 'MultiSub'.$class_description => {
+    is => [ 'Code', $::Object ],
     class => {},
     instance => {
         attrs => [ '@.subs' ],     # , '$.return_value' ],
@@ -344,8 +343,8 @@ class 'MultiSub'.$class_description => {
     },
 };
 
-class 'Block'.$class_description => {
-    is => [ 'Code', 'Perl6::Object' ],
+class1 'Block'.$class_description => {
+    is => [ 'Code', $::Object ],
     class => {},
     instance => {},
 };
