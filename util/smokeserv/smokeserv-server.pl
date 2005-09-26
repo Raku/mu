@@ -412,12 +412,12 @@ $ ./util/smokeserv/smokeserv-client.pl ./smoke.html</pre>
             <td class="leftsep num"><tmpl_var name=duration></td>
             <td class="leftsep num"><tmpl_var name=percentage>&nbsp;%&nbsp;ok</td>
 	    <tmpl_loop name=summary>
-	      <td class="leftsep num tests_total"><tmpl_var name=total>:</td>
-	      <td class="num tests_ok"><tmpl_var name=ok>,</td>
-	      <td class="num tests_failed"><tmpl_var name=failed>,</td>
-	      <td class="num tests_todo"><tmpl_var name=todo>,</td>
-	      <td class="num tests_skipped"><tmpl_var name=skipped>,</td>
-	      <td class="num tests_unexpect"><tmpl_var name=unexpect></td>
+	      <td class="leftsep num tests_total"><span title="<tmpl_var name=total> total"><tmpl_var name=total></span>:</td>
+	      <td class="num tests_ok"><span title="<tmpl_var name=ok> ok"><tmpl_var name=ok></span>,</td>
+	      <td class="num tests_failed"><span title="<tmpl_var name=failed> failed"><tmpl_var name=failed></span>,</td>
+	      <td class="num tests_todo"><span title="<tmpl_var name=todo> todo"><tmpl_var name=todo></span>,</td>
+	      <td class="num tests_skipped"><span title="<tmpl_var name=skipped> skipped"><tmpl_var name=skipped></span>,</td>
+	      <td class="num tests_unexpect"><span title="<tmpl_var name=unexpect> unexpectedly succeeded"><tmpl_var name=unexpect></span></td>
 	    </tmpl_loop>
 	    <td><span title="Details" class="expander" onclick="toggle_visibility('<tmpl_var name=id>')" id="expander_<tmpl_var name=id>">&raquo;</span></td>
 	    <td><a style="text-decoration: none" href="<tmpl_var name=link>" title="Full smoke report">&raquo;</a></td>
