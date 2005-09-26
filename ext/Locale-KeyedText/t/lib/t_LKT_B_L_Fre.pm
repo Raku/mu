@@ -9,6 +9,6 @@ my Str %text_strings is readonly = (
     'three' => $xy~q[ - eat {knife}],
 );
 
-sub get_text_by_key( Str $msg_key ) returns Str {
+sub get_text_by_key (Str $msg_key) returns Str {
     return %text_strings{$msg_key};
 }

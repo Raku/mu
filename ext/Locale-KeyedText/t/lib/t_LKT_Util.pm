@@ -14,7 +14,7 @@ sub message( Str $detail is rw ) {
 
 ######################################################################
 
-sub serialize( Any $input is rw ) returns Str {
+sub serialize (Any $input is rw) returns Str {
     return [
         !$input.defined ??
             'undef, '
