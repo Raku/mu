@@ -35,13 +35,17 @@ import Pugs.Parser.Number
 import Pugs.Parser.Unsafe
 
 fixities :: [String]
-fixities = words " prefix: postfix: infix: circumfix: coerce: self: term: postcircumfix: rule_modifier: trait_verb: trait_auxiliary: scope_declarator: statement_control: infix_postfix_meta_operator: postfix_prefix_meta_operator: prefix_postfix_meta_operator: infix_circumfix_meta_operator: "
+fixities = words $ " prefix: postfix: infix: circumfix: coerce: self: term: "
+    ++ " postcircumfix: rule_modifier: trait_verb: trait_auxiliary: "
+    ++ " scope_declarator: statement_control: infix_postfix_meta_operator: "
+    ++ " postfix_prefix_meta_operator: prefix_postfix_meta_operator: "
+    ++ " infix_circumfix_meta_operator: "
 
 isOperatorName :: String -> Bool
-isOperatorName ('&':opa@(_:opb)) = isOperatorName' opa || isOperatorName' opb
+isOperatorName ('&':name) = any hasOperatorPrefix [name, tail name]
     where
-    isOperatorName' :: String -> Bool
-    isOperatorName' oper = or (map (flip isPrefixOf oper) fixities)
+    hasOperatorPrefix :: String -> Bool
+    hasOperatorPrefix name = any (`isPrefixOf` name) fixities
 isOperatorName _ = False
 
 -- Lexical units --------------------------------------------------

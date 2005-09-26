@@ -78,7 +78,7 @@ C<Val> is a type of unit because it encloses one value, and has a type (C<Val>).
 
 A list is a a node with multiple children.
 
-C<App> is a type of value - it applies it's first child to the rest of it's
+C<App> is a type of value - it applies its first child to the rest of its
 children.
 
 =item Map
@@ -193,9 +193,9 @@ Will reduce all the children of the top level App into
 At which point the App will put the 10 into the parameter stack and reduce the
 Thunk.
 
-Inside the Thunk the Seq will reduce it's children one by one. First Param will
+Inside the Thunk the Seq will reduce its children one by one. First Param will
 introduce a new symbol, $x, taking the 10 off the parameter stack and binding
-it to $x. Then the app is reduced. First it's children will be reduced -
+it to $x. Then the app is reduced. First its children will be reduced -
 Sym('&infix:<+>') will resolve '&infix:<+>' into the thunk that does
 addition, C<< Val(1) >> will reduce to 1, and C<< Sym('$x') >> will
 be reduced to 10 (as bound by the Param object).

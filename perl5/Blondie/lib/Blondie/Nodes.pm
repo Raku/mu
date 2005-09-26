@@ -148,7 +148,7 @@ see L<Blondie> for a documentation of the node types
 
 =head1 EXPORTS
 
-For eacn node type a function named for it's class (without the prefix) is
+For each node type a function named for its class (without the prefix) is
 exported. This is very convenient for constructing trees and helps readability.
 
 =cut

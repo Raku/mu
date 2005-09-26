@@ -185,7 +185,7 @@ Ensuring that there is no crap in the AST - no calls to stubs and no inexistant 
 The compiler inherits L<Blondie::Reducer> in order to traverse the node
 structure. The only dirty part is C<reduce_sym> which must handle recursive calls.
 
-The compiler inherits L<Blondie::Recducer::DynamicScoping> to assist in the
+The compiler inherits L<Blondie::Reducer::DynamicScoping> to assist in the
 verification of paramter symbol resolution.
 
 =cut

@@ -434,7 +434,7 @@ though it looks like C<Branch> is behaving covariantly by looking at the
 union, it isn't.  A branch accepts any two things that behave like this
 C<Tree>.
 
-(XXX Wait a minute, those T's on the left side of the pattern, they seem
+(XXX Wait a minute, those C<T>s on the left side of the pattern, they seem
 to be making this theory not a factory.  How did that happen?)
 
 =head2 Vocabulary
