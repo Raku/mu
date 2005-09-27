@@ -11,6 +11,10 @@
 
 # ChangeLog
 #
+# 2005-09-27
+# * Str.decrement() works
+# * Migrated to MetaModel-2 (putter)
+#
 # 2005-09-03
 # * Fixed Pair stringification
 #
@@ -46,12 +50,8 @@
 #   are implemented using multisubs
 # - 'Ref' do not auto-deref List or any other Value - only Containers
 
-# TODO - XXX - perl5 doesn't support string decrement (neither Pugs)
-
 # TODO - implement tests from t/var/autoderef.t
-
 # TODO - constant
-
 # TODO - move .increment, .decrement to Primitives (this will break some tests)
 # TODO - move Num::Inf, Num::NaN to Primitives
 
@@ -221,7 +221,7 @@ class1 'Str'.$class_description => {
                 $::SELF->ref->new( '$.unboxed' => ++$value ) },
             'decrement' => sub { 
                 my $value = _('$.unboxed');
-                # XXX - perl5 doesn't support string decrement
+                # perl5 doesn't support string decrement
                 $::SELF->ref->new( '$.unboxed' => Perl6::Value::Str::decrement( $value ) ) },
             'ref' => sub { $::CLASS }, 
         },
