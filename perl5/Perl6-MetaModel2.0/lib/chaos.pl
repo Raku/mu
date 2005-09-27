@@ -543,13 +543,14 @@ our $DISPATCH_TRACE = 0;
     
     sub ::multi_sub {
         my $wrapper;
-        my $registry = {
+        my $registry; 
+        $registry = {
             # maybe we should start our own multi registry to handle scoping
             multi => \%Class::Multimethods::Pure::MULTI,
             multiparam => \%Class::Multimethods::Pure::MULTIPARAM,
             install_wrapper => sub { 
-                my ($name, $registry) = @_;
-                $wrapper = $registry->{multi}{$name};
+                my (undef, $_name) = @_;
+                $wrapper = $registry->{multi}->{$_name};
             },
         };
 
@@ -557,7 +558,11 @@ our $DISPATCH_TRACE = 0;
         Class::Multimethods::Pure::process_multi($registry,
             $name, -core => 'DumbCache', @_);
 
-        return $wrapper;
+        return sub {
+            my $call = $wrapper->can('call');
+            unshift @_, $wrapper;
+            goto &$call;
+        };
     }    
 }
 

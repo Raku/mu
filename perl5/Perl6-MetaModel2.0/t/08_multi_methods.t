@@ -3,12 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 1;
-
-pass("Luqui broke me");
-
-__END__
-
+use Test::More tests => 12;
 use Test::Exception; 
 
 use Perl6::MetaModel;
