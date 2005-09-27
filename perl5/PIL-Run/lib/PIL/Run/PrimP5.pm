@@ -518,7 +518,7 @@ MULTI SUB infix:<..> ($xx0,$xx1) {
         )         
     }
     return p6_from_a(
-        Perl6::Value::List->from_range( start => $xx0->unboxed, end => p6_to_n($xx1) )
+        Perl6::Value::List->from_range( start => $xx0, end => $xx1 )
     )         
 };
 #MULTI SUB infix:<..^> ($xx0,$xx1) {...}; # in PrimP6

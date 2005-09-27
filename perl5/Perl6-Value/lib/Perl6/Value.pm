@@ -222,7 +222,7 @@ class1 'Str'.$class_description => {
             'decrement' => sub { 
                 my $value = _('$.unboxed');
                 # XXX - perl5 doesn't support string decrement
-                $::SELF->ref->new( '$.unboxed' => --$value ) },
+                $::SELF->ref->new( '$.unboxed' => Perl6::Value::Str::decrement( $value ) ) },
             'ref' => sub { $::CLASS }, 
         },
     }
@@ -502,6 +502,14 @@ sub to_num        {
     return 0 + $v;
 }
 sub to_int        { Perl6::Value::Num::to_int( to_num( $_[0] ) ) }
+
+sub decrement {
+    return '' if $_[0] eq '' || $_[0] eq 'a' || $_[0] eq '0';
+    my ($s,$c) = $_[0] =~ /(.*)(.)/;
+    return str_decr($s) . 'z' if $c eq 'a';
+    return str_decr($s) . '9' if $c eq '0';
+    return $s . chr( ord($c) - 1 );
+}
 
 package Perl6::Value::Bit;
 

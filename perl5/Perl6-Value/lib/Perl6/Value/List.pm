@@ -230,8 +230,8 @@ sub from_range {
     my $count = $param{celems};
     $count = sub { 
             no warnings 'numeric';
-            return Inf if $end == Inf;
-            $start le $end ? Inf : 0 
+            return Inf if $end->unboxed == Inf;
+            $start->unboxed le $end->unboxed ? Inf : 0 
         } 
         unless defined $count;
     $class->new(
@@ -243,8 +243,16 @@ sub from_range {
         },
         start =>   sub { $start },
         end =>     sub { $end },
-        cstart =>  sub { $start++ },
-        cend =>    sub { $end-- },
+        cstart =>  sub { 
+            my $tmp = $start; 
+            $start = $start->increment; 
+            $tmp; 
+        },
+        cend =>    sub { 
+            my $tmp = $end; 
+            $end = $end->decrement; 
+            $tmp; 
+        },
         celems =>  $count,
         cis_contiguous => sub { 1 },
     );
