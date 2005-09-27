@@ -293,10 +293,10 @@ MULTI SUB prefix:<?^> ($xx) {...};
 MULTI SUB prefix:<\\> ($xx) { p6_new(Ref => $xx) };
 # MULTI SUB postfix:<...> ($xx) {...}; # in PrimP6
 # MULTI SUB true ($xx) {...}; # in PrimP6
-MULTI SUB any ($xx) {...};
-MULTI SUB all ($xx) {...};
-MULTI SUB one ($xx) {...};
-MULTI SUB none ($xx) {...};
+MULTI SUB any  (*@xx) { p6_new(Junction => 'any',  @xx) };
+MULTI SUB all  (*@xx) { p6_new(Junction => 'all',  @xx) };
+MULTI SUB one  (*@xx) { p6_new(Junction => 'one',  @xx) };
+MULTI SUB none (*@xx) { p6_new(Junction => 'none', @xx) };
 MULTI SUB perl ($xx) { $xx->perl };
 MULTI SUB require_haskell ($xx) {...};
 MULTI SUB require_parrot ($xx) {...};

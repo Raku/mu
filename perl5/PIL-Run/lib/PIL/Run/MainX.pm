@@ -3,6 +3,7 @@ package PIL::Run::Main;
 
 require Error;
 require Perl6::Value;
+require Perl6::Junction;
 
 #require Math::BigInt;
 sub Math::BigInt::binf { Perl6::Value::Num::Inf() };

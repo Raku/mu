@@ -249,6 +249,14 @@ sub p6_new {
         $ary->push( @arg );
         return $ary;
     }
+    if ($type eq 'Junction') {
+        my $type = shift @arg;
+        my $j = Junction->new;
+        $j->type( $type );    # unboxed str
+        $j->values( \@arg );  # ptr to native ARRAY of objects
+        # warn "JUNCTION: ", $j->type," of @{$j->values}";
+        return $j;
+    }
     Carp::confess "unknown class";
 }
 sub p6_new_sub_from_pil_macro {
