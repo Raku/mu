@@ -402,7 +402,7 @@ MULTI SUB prefix:<-f> ($xx) { -f p6_to_s($xx) ? $xx : p6_from_b(0) };
 MULTI SUB prefix:<-d> ($xx) { -d p6_to_s($xx) ? $xx : p6_from_b(0) };
 MULTI SUB end ($xx) { $xx->end };
 MULTI SUB elems ($xx) { $xx->elems };
-MULTI SUB graphs ($xx) { use String::Multibyte; my $len = String::Multibyte->new('Grapheme')->length(p6_to_s($xx)); p6_from_n($len) };
+MULTI SUB graphs ($xx) { require String::Multibyte; my $len = String::Multibyte->new('Grapheme')->length(p6_to_s($xx)); p6_from_n($len) };
 MULTI SUB codes ($xx) { my @c = unpack("U*",p6_to_s($xx)); p6_from_n(0+@c) };
 MULTI SUB chars ($xx) { p6_from_n(length(p6_to_s($xx))) };
 MULTI SUB bytes ($xx) { use bytes; p6_from_n(length(p6_to_s($xx))) };
