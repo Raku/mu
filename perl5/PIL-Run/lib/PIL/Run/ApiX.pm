@@ -13,6 +13,7 @@ $VERSION = '0.01';
        p6_to_a
        p6_to_l
        p6_to_x
+       p6_to_perl
        p6_from_b
        p6_from_n
        p6_from_s
@@ -66,6 +67,7 @@ sub p6_to_a {
 }
 sub p6_to_l {my($a_obj)=@_;   $a_obj->unboxed }
 sub p6_to_x {my($o)=@_; die "XXX - Unimplemented"}
+sub p6_to_perl {my($o)=@_; eval {p6_to_s($o->perl)} || p6_to_s($o) }
 sub p6_from_b {my($b)=@_; p6_new('Bit',$b ? 1 : 0)}
 sub p6_from_n {my($n)=@_; p6_new(int($n) == $n ? 'Int' : 'Num', 0+$n)}
 sub p6_from_s {my($s)=@_; p6_new('Str',"$s")}
@@ -150,6 +152,7 @@ my %sigil_from_space = map {$space_from_sigil{$_},$_} keys(%space_from_sigil);
 sub p6_mangle {
     my($n)=@_;
     my($sigil,$mn) = sigil_and_rest($n);
+    return "${mn}::MM" if $sigil eq ':';
     my $space = $space_from_sigil{$sigil};
     my $is_absolute_name = $mn =~ /::/;
     $mn =~ s/^(::)?(\*)?(::)?//;

@@ -91,7 +91,7 @@ sub p6_repl {
         print $p5r,"\n" if $verbose;
         print "----\n";
         my @res = run_p5r($p5r);
-        print "\n",(map {p6_to_s($_)} @res),"\n";
+        print "\n",(map {p6_to_perl($_)} @res),"\n";
     };
     p6_repl_print_help();
     while (1) {
@@ -101,7 +101,7 @@ sub p6_repl {
         if ($line =~ /\A:q\s*\Z/) { exit(0);}
         if ($line =~ /\A:v\s*\Z/) { $verbose = !$verbose; next;}
         if ($line =~ /\A:5\s+(.+)/) {
-            print eval("package ".p6_main."; ".$1),"\n";
+            print eval("package ".&p6_main()."; ".$1),"\n";
             warn $@ if $@;
             next;
         }

@@ -184,6 +184,7 @@ package PSub; @ISA = qw(EvalX::BaseClass); sub expand {
         my $class = $name;
         $name =~ s/.*:://;
         $class =~ s/::[^:]+$//; $class =~ s/^&//;
+	die "not yet updated to MM2.0";
         ("(sub{ (::dispatch(::meta(".p6_var_macro(":$class", 2)."),"
          ." 'add_method',"
          ." ('$name' => Perl6::Method->create_instance_method('$class' =>"
@@ -331,7 +332,7 @@ sub run_p5r {
 sub p6_eval {
     my($p6)=@_;
     my $p5r = p5r_from_p6($p6);
-    $p5r = "package ".p6_main."; use utf8; ".$p5r;
+    $p5r = "package ".&p6_main()."; use utf8; ".$p5r;
     #print STDERR "\n\n\n",$p5r;
     run_p5r($p5r);
 }
