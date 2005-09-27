@@ -546,7 +546,7 @@ our $DISPATCH_TRACE = 0;
     
     sub ::multi_sub {
         my $wrapper;
-        my $registry = { {
+        my $registry = {
             # maybe we should start our own multi registry to handle scoping
             multi => \%Class::Multimethods::Pure::MULTI,
             multiparam => \%Class::Multimethods::Pure::MULTIPARAM,
