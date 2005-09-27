@@ -220,23 +220,31 @@ MULTI SUB sqrt ($xx) { p6_from_n( sqrt(p6_to_n($xx)) ) };
 MULTI SUB atan (*@xxa) { p6_from_n( atan(map{p6_to_n($_)}@xxa) ) };
 
 MULTI SUB postfix:<++> ($xx) { 
-    my $tmp = $xx;
+    my $tmp = $xx; # XXX - use clone() - needs MM2
     $xx->store( $xx->fetch->increment );
     return $tmp;
     #my $old = p6_new(Num => p6_to_n($xx)); # XXX - use clone() - needs MM2
     #p6_set($xx,p6_from_n(p6_to_n($xx)+1)); 
     #$old
 };
-MULTI SUB prefix:<++> ($xx)  { p6_set($xx,p6_from_n(p6_to_n($xx)+1)) };
+MULTI SUB prefix:<++> ($xx)  { 
+    $xx->store( $xx->fetch->increment );
+    return $xx;
+    #p6_set($xx,p6_from_n(p6_to_n($xx)+1)) 
+};
 MULTI SUB postfix:<--> ($xx) { 
-    my $tmp = $xx;
+    my $tmp = $xx; # XXX - use clone() - needs MM2
     $xx->store( $xx->fetch->decrement );
     return $tmp;
     #my $old = p6_new(Num => p6_to_n($xx)); # XXX - use clone() - needs MM2
     #p6_set($xx,p6_from_n(p6_to_n($xx)-1)); 
     #$old
 };
-MULTI SUB prefix:<--> ($xx)  { p6_set($xx,p6_from_n(p6_to_n($xx)+1)) };
+MULTI SUB prefix:<--> ($xx)  { 
+    $xx->store( $xx->fetch->decrement );
+    return $xx;
+    #p6_set($xx,p6_from_n(p6_to_n($xx)+1)) 
+};
 
 MULTI SUB item ($xx) {...};
 MULTI SUB sort (*@xxa) {p6_from_l(sort map{p6_to_s($_)} @xxa)};
