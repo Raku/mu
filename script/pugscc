@@ -103,6 +103,7 @@ else {
     }
 
     push @ghc_flags, "$core/pcre/pcre.o";
+    push @ghc_flags, bsd_glob("$core/cbits/*.o");
     push @ghc_flags, bsd_glob("$core/syck/*.o");
     push @ghc_flags, "$core/UnicodeC.o";
 

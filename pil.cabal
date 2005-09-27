@@ -1,0 +1,25 @@
+Name:                pil
+Version:             0.1
+License:             GPL
+License-file:        LICENSE
+Author:              Autrijus Tang
+Maintainer:          autrijus@autrijus.org
+Build-Depends:       base, stm, mtl, QuickCheck
+Exposed-modules:     PIL
+Other-modules:       PIL.Compile,   PIL.Exp,       PIL.MetaModel, PIL.Pad,    PIL.Tie,
+                     PIL.Container, PIL.Internals, PIL.Monads,    PIL.Parser, PIL.Val,
+                     PIL.PIL,       PIL.Str
+Extensions:          CPP, ForeignFunctionInterface
+GHC-options:         -Wall -O0
+C-sources:           src/cbits/fpstring.c, src/UnicodeC.c
+Include-dirs:        src/cbits, src
+Hs-source-dirs:      src
+
+Executable:          pil
+Main-is:             PIL/Main.hs
+Other-modules:       PIL.Compile,   PIL.Exp,       PIL.MetaModel, PIL.Pad,    PIL.Tie,
+                     PIL.Container, PIL.Internals, PIL.Monads,    PIL.Parser, PIL.Val,
+                     PIL.PIL,       PIL.Str
+C-sources:           src/cbits/fpstring.c, src/UnicodeC.c
+Include-dirs:        src/cbits, src
+Hs-source-dirs:      src
