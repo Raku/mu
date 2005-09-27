@@ -66,7 +66,7 @@ import GHC.Exts
 import GHC.IOBase               ( IO(..) )
 import GHC.Word                 ( Word8(..) )
 import System.IO                ( openBinaryFile )
-import UTF8.PackedString
+--import UTF8.PackedString
 --import Atom
 import Time
 import Monad
