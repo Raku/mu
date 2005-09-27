@@ -100,6 +100,9 @@ $::Package->add_method('FETCH' => ::make_method(sub {
     my ($self, $label) = @_;
     (defined $label && $label)
         || confess "Cannot FETCH at (" . ($label || 'undef') . ")";
+    if ($label eq '{}') {
+        return ::opaque_instance_attr($self => '%:namespace');
+    }
     ::opaque_instance_attr($self => '%:namespace')->{$label};
 }));
 

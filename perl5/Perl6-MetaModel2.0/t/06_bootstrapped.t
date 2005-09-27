@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 18;
+use Test::More tests => 24;
 use Test::Exception; 
 
 require 'lib/genesis.pl';
@@ -27,11 +27,15 @@ is_deeply(
     '... got the superclasses of Foo ok');
 
 ok($Foo->isa('Foo'), '... Foo isa Foo');
+ok($Foo->isa('Object'), '... Foo isa Object');
+ok($Foo->isa('Class'), '... Foo isa Class');
 
 # now try to create an instance from that class ...
 
 my $iFoo = $Foo->new();
 ok($iFoo->isa('Foo'), '... iFoo isa Foo');
+ok($iFoo->isa('Object'), '... iFoo isa Object');
+#ok(!$iFoo->isa('Class'), '... iFoo isa Class');
 
 # Now try to create a new class ....
 
@@ -53,9 +57,13 @@ is_deeply(
 
 ok($Bar->isa('Bar'), '... Bar isa Bar');
 ok($Bar->isa('Foo'), '... Bar isa Foo');
+ok($Bar->isa('Object'), '... Bar isa Object');
+ok($Bar->isa('Class'), '... Bar isa Class');
 
 # now try to create an instance from that class ...
 
 my $iBar = $Bar->new();
 ok($iBar->isa('Bar'), '... iBar isa Bar');
 ok($iBar->isa('Foo'), '... iBar isa Foo');
+ok($iBar->isa('Object'), '... iBar isa Object');
+#ok(!$iBar->isa('Class'), '... not iBar isa Class');

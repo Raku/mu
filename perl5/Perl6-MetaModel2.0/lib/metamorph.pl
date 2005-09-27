@@ -327,6 +327,14 @@ $::Class->add_method('get_method_list' => ::make_method(sub {
     return keys %{$table};
 }));
 
+$::Class->add_method('remove_method' => ::make_method(sub {
+    my ($self, $label, %params) = @_;
+    confess "You must provide a method label"
+        unless defined $label;
+    my $method_table = $self->_get_method_table(\%params);
+    delete $method_table->{$label};   
+}));
+
 $::Class->add_method('add_attribute' => ::make_method(sub {
     my ($self, $label, $attribute) = @_;
     (defined $label && defined $attribute && blessed($attribute))

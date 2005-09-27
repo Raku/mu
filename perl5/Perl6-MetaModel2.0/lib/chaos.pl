@@ -529,18 +529,9 @@ our $DISPATCH_TRACE = 0;
         # with it here since this is a p5 issue.
         if ($label =~ /DESTROY/) {
             $label = 'DESTROYALL';
-            # XXX -
-            # I am not 100% sure why I need the following 
-            # line, but I am guessing it has something to
-            # do with how perl 5 does not always do ordered
-            # destruction of objects. I might be able to 
-            # fix this issue with en END block
-            return unless defined $self && 
-                          defined ::opaque_instance_class($self) && 
-                          defined $::Object  &&
-                          defined $::Package &&
-                          defined $::Module  &&
-                          defined $::Class;
+            # this is to avoid GC errors during global destruction
+            # I am not 100% sure it will work 100% of the time
+            return unless !$::IN_GLOBAL_DESTRUCTION && defined $::Class;
         }        
         # go about our dispatching ....      
         return ::dispatcher($self, $label, \@_, ($autoload[0] eq 'class' ? 1 : 0));
@@ -595,7 +586,35 @@ our $DISPATCH_TRACE = 0;
     }    
 }
 
-
+# NOTE:
+# this *might* work correctly, it should
+# collect all the classes, then call DESTROY
+# on all them, then set a flag to tell the
+# dispatcher to ignore any futher DESTROY calls
+$::IN_GLOBAL_DESTRUCTION = 0;
+END {
+    if (defined $::Class && defined $::Object) {
+        my @classes;
+        my %seen;
+        my $traversal;
+        $traversal = sub {
+            my $class = shift;
+            foreach my $subclass (@{$class->subclasses}) {
+                unless (exists $seen{$subclass}) {
+                    $seen{$subclass} = undef;
+                    push @classes => $subclass;
+                    $traversal->($subclass);
+                }
+            }
+        };
+        $traversal->($::Object);
+        push @classes => $::Object;
+        foreach my $class (reverse @classes) {
+            $class->DESTROY();
+        }
+        $::IN_GLOBAL_DESTRUCTION = 1;
+    }
+}
 
 1;
 
