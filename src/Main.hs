@@ -363,7 +363,7 @@ runFile file = do
     withArgs [file] main
 
 runProgramWith ::
-    (Env -> Env) -> (Val -> IO ()) -> VStr -> [VStr] -> String -> IO ()
+    (Env -> Env) -> (Val -> IO a) -> VStr -> [VStr] -> String -> IO a
 runProgramWith fenv f name args prog = do
     env <- prepareEnv name args
     val <- runEnv $ parseProgram (fenv env) name $ decodeUTF8 prog
