@@ -1,4 +1,4 @@
-#!/usr/bin/perl6
+#!/usr/bin/pugs
 # This is a simple IRC log to HTML converter.
 # It accepts only logfiles in ilogger2 format, such as those provided by
 # http://colabti.de/irclogger/irclogger_logs/perl6 (click on "raw text").
