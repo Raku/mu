@@ -66,7 +66,7 @@ import GHC.Exts
 import GHC.IOBase               ( IO(..) )
 import GHC.Word                 ( Word8(..) )
 import System.IO                ( openBinaryFile )
---import UTF8.PackedString
+-- import Data.FastPackedString
 --import Atom
 import Time
 import Monad
@@ -433,9 +433,11 @@ instance Binary ClockTime where
         return $ toClockTime $ (toUTCTime epoch) {ctYear = year, ctDay = day, ctMonth = month, ctHour = hour, ctMin = min, ctSec = sec}
 epoch = toClockTime $ CalendarTime { ctYear = 1970, ctMonth = January, ctDay = 0, ctHour = 0, ctMin = 0, ctSec = 0, ctTZ = 0, ctPicosec = 0, ctWDay = undefined, ctYDay = undefined, ctTZName = undefined, ctIsDST = undefined}
 
-instance Binary PackedString where
+{-
+instance Binary FastPackedString where
     put_ bh (PS a) = put_ bh a
     get bh = fmap PS $ get bh 
+-}
 
 --put_ bh $ (snd $ Data.Array.IArray.bounds a) + 1
 --mapM_ (put_ bh) (Data.Array.IArray.elems a)
