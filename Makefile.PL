@@ -144,7 +144,7 @@ sub set_postamble {
     my $hasktags = $ENV{HASKTAGS} || 'hasktags';
 
     my $pcre_c = "src/pcre/pcre.c";
-    my @cbits_c = glob("src/cbits/*.c");
+    my @cbits_c = (glob("src/syck/*.c"), glob("src/cbits/*.c"));
     my $pcre = "src/pcre/pcre.o";
     my @cbits = map { substr($_, 0, -1) . 'o' } @cbits_c;
     my $unicode = "src/UnicodeC.o";
