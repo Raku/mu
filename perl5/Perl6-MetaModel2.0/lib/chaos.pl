@@ -510,7 +510,7 @@ our $DISPATCH_TRACE = 0;
         '0+' => sub { $_[0]->{id} },       
         '""' => sub {
             "#<" . (exists ${$_[0]->{class}}->{attrs}->{'$:name'} ?
-                        ${$_[0]->{class}}->{attrs}->{'$:name'} 
+                        (${$_[0]->{class}}->{attrs}->{'$:name'} || 'AnonClass')
                         : 
                         'AnonClass') . "=(" . $_[0]->{id} . ")>"
         }, 
@@ -531,7 +531,7 @@ our $DISPATCH_TRACE = 0;
             $label = 'DESTROYALL';
             # this is to avoid GC errors during global destruction
             # I am not 100% sure it will work 100% of the time
-            return unless !$::IN_GLOBAL_DESTRUCTION && defined $::Class;
+            return if $::IN_GLOBAL_DESTRUCTION || !defined($::Class);
         }        
         # go about our dispatching ....      
         return ::dispatcher($self, $label, \@_, ($autoload[0] eq 'class' ? 1 : 0));
