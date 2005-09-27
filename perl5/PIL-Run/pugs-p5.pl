@@ -91,7 +91,7 @@ sub p6_repl {
         print $p5r,"\n" if $verbose;
         print "----\n";
         my @res = run_p5r($p5r);
-        print "\n",(map {p6_to_perl($_)} @res),"\n";
+        print "\n",(map {p6_to_s($_)} @res),"\n";
     };
     p6_repl_print_help();
     while (1) {
