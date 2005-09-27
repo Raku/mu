@@ -20,10 +20,12 @@
 #include <stdio.h>
 #include <sys/types.h>
 
+#ifdef USE_MMAP
 #ifdef _WIN32
 #include <windows.h>
 #else
 #include <sys/mman.h>
+#endif
 #endif
 
 #include "fpstring.h"
@@ -67,6 +69,7 @@ int lastnonspace(const char *s, int len)
 
 // mmapping...
 
+#ifdef USE_MMAP
 #ifdef _WIN32
 
 /* I have no idea if this works or not, and it is very tied to the usage
@@ -96,6 +99,7 @@ char *my_mmap(int len, int fd) {
   else return (char *)maybeok;
 }
 
+#endif
 #endif
 
 /* Specification: RFC 2279 */

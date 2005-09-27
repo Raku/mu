@@ -34,6 +34,9 @@ under a BSD-style license.  See src/RRegex/LICENSE.
 The "UTF8" subsystem is derived from Sven Moritz Hallberg's work,
 under a BSD-style license.  See src/UTF8.lhs.
 
+The "FastPackedString" subsystem is derived from Don Stewart et all's work,
+under a BSD-style license.  See src/Data/FastPackedString.hs.
+
 The "Unicode" subsystem is derived from Dimitry Golubovsky's work,
 under the same license as GHC.  See LICENSES/GHC.
 

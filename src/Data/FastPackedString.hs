@@ -33,6 +33,8 @@ module Data.FastPackedString (
 
         -- * Introducing and eliminating 'FastString's
         empty,        -- :: FastString
+        nil,          -- :: FastString -- DEPRECATED
+
         pack,         -- :: String -> FastString
         unpack,       -- :: FastString -> String
         packWords,    -- :: [Word8] -> FastString
@@ -77,6 +79,7 @@ module Data.FastPackedString (
         take,         -- :: Int -> FastString -> FastString
         drop,         -- :: Int -> FastString -> FastString
         splitAt,      -- :: Int -> FastString -> (FastString, FastString)
+        substr,       -- :: FastString -> Int -> Int -> FastString -- DEPRECATED
 
         takeWhile,    -- :: (Char -> Bool) -> FastString -> FastString
         dropWhile,    -- :: (Char -> Bool) -> FastString -> FastString
@@ -121,7 +124,10 @@ module Data.FastPackedString (
         dropSpaceEnd, -- :: FastString -> FastString
         spanEnd,      -- :: (Char -> Bool) -> FastString -> (FastString, FastString)
         split,        -- :: Char -> FastString -> [FastString]
+
         tokens,       -- :: (Char -> Bool) -> FastString -> [FastString]
+        splitWith,    -- :: (Char -> Bool) -> FastString -> [FastString] -- DEPRECATED
+
         hash,         -- :: FastString -> Int32
         elemIndexLast,-- :: Char -> FastString -> Maybe Int
         betweenLines, -- :: FastString -> FastString -> FastString -> Maybe (FastString)
@@ -168,6 +174,8 @@ module Data.FastPackedString (
         gzWriteFilePSs,         -- :: FilePath -> [FastString] -> IO ()
 #endif
 
+	fromForeignPtr,         -- :: ForeignPtr Word8 -> Int -> FastString
+	toForeignPtr,           -- :: FastString -> (ForeignPtr Word8, Int, Int)
    ) where
 
 import qualified Prelude
@@ -269,6 +277,11 @@ comparePS (PS x1 s1 l1) (PS x2 s2 l2) = unsafePerformIO $
 empty :: FastString
 empty = unsafePerformIO $ mallocForeignPtr 1 >>= \fp -> return $ PS fp 0 0
 {-# NOINLINE empty #-}
+
+-- | /O(1)/ Alias for 'empty' to agree with old PackedString interface
+{-# DEPRECATED nil "Use empty instead" #-}
+nil :: FastString
+nil = empty
 
 -- | /O(n)/ Convert a 'String' into a 'FastString'
 pack :: String -> FastString
@@ -535,6 +548,12 @@ drop n ps@(PS x s l)
     | otherwise = PS x (s+n) (l-n)
 {-# INLINE drop #-}
 
+-- | /O(1)/ 'substr' @begin end xs@ returns the substring of @xs@ between
+-- (and including) the two indices.
+{-# DEPRECATED substr "Use take/drop instead" #-}
+substr :: FastString -> Int -> Int -> FastString
+substr str begin end = take (end - begin + 1) (drop begin str)
+
 -- | /O(1)/ 'splitAt' @n xs@ is equivalent to @('take' n xs, 'drop' n xs)@.
 splitAt :: Int -> FastString -> (FastString, FastString)
 splitAt  n ps  = (take n ps, drop n ps)
@@ -781,6 +800,10 @@ split c = splitWord8 (c2w c)
 --
 tokens :: (Char -> Bool) -> FastString -> [FastString]
 tokens p = Prelude.filter (not.null) . breakAll p
+
+{-# DEPRECATED splitWith "Use tokens instead" #-}
+splitWith :: (Char -> Bool) -> FastString -> [FastString]
+splitWith = tokens
 
 -- | Splits a 'FastString' into components delimited by separators,
 -- where the predicate returns True for a separator element.  The
@@ -1073,6 +1096,12 @@ construct p l f = do
     fp <- FC.newForeignPtr p f
     return $ PS fp 0 l
 #endif
+
+fromForeignPtr :: ForeignPtr Word8 -> Int -> FastString
+fromForeignPtr fp l = PS fp 0 l
+
+toForeignPtr :: FastString -> (ForeignPtr Word8, Int, Int)
+toForeignPtr (PS ps s l) = (ps, s, l)
 
 -- | /O(n)/ Build a @FastString@ from a malloced @CString@. This value will
 -- have a @free(3)@ finalizer associated to it.
