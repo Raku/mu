@@ -1,4 +1,4 @@
-#!/usr/bin/perl6
+#!/usr/bin/pugs
 
 use Test;
 use Algorithm::TokenBucket;
