@@ -2,21 +2,21 @@
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 module PIL.Str where
-import qualified UTF8.PackedString as PS
+import qualified Data.FastPackedString as P
 import Foreign.C.String
 import PIL.Internals
 import System.IO
 
-type Str = PS.PackedString
+type Str = P.FastString
 
 fromString :: String -> Str
-fromString = PS.packString
+fromString = P.pack
 
 toString :: Str -> String
-toString = PS.unpackPS
+toString = P.unpack
 
 from :: (Show a) => a -> Str
-from = PS.packString . Prelude.show
+from = P.pack . Prelude.show
 
 put :: Handle -> Str -> IO ()
-put fh = hPutStr fh . toString
+put = P.hPut

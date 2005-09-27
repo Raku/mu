@@ -92,9 +92,9 @@ else {
     # XXX - Maybe enable -threaded based on config?
     # XXX - This chunk should be read off Pugs config anyway.
     my @ghc_flags = (
-        "-L$base", "-L$core", "-L$core/pcre", "-L$core/syck",
-        "-I$base", "-I$core", "-I$core/pcre", "-I$core/syck",
-        "-i$base", "-i$core", "-i$core/pcre", "-i$core/syck",
+        "-L$base", "-L$core", "-L$core/pcre", "-L$core/syck", "-L$core/cbits",
+        "-I$base", "-I$core", "-I$core/pcre", "-I$core/syck", "-I$core/cbits",
+        "-i$base", "-i$core", "-i$core/pcre", "-i$core/syck", "-i$core/cbits",
         qw(-static -Wall -fno-warn-unused-imports -fno-warn-unused-binds -fno-warn-missing-signatures -fno-warn-name-shadowing),
     );
 

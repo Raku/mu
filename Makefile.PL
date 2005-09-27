@@ -69,7 +69,7 @@ clean_files     (map fixpaths($_),
     'src/Pugs/Run/Perl5_stub.*',
     'src/Data/Yaml/Syck_stub.*',
     'src/Data/Yaml/Syck.hs',
-    (map {("$_/*.o*")} qw(pcre perl5 syck)),
+    (map {("$_/*.o*")} qw(pcre perl5 syck cbits)),
     (map {("$_/*.hpp", "$_/*.hi", "$_/*.o*")} @srcdirs),
     'temp-ex*',
     'unlink-test*',
@@ -144,14 +144,14 @@ sub set_postamble {
     my $hasktags = $ENV{HASKTAGS} || 'hasktags';
 
     my $pcre_c = "src/pcre/pcre.c";
-    my @syck_c = glob("src/syck/*.c");
+    my @cbits_c = glob("src/cbits/*.c");
     my $pcre = "src/pcre/pcre.o";
-    my @syck = map { substr($_, 0, -1) . 'o' } @syck_c;
+    my @cbits = map { substr($_, 0, -1) . 'o' } @cbits_c;
     my $unicode = "src/UnicodeC.o";
     my $unicode_c = "src/UnicodeC.c";
 
-    my @prereqs = ($config_h, $pcre, @syck, $unicode);
-    $ghc_output .= " $pcre @syck $unicode";
+    my @prereqs = ($config_h, $pcre, @cbits, $unicode);
+    $ghc_output .= " $pcre @cbits $unicode";
 
     my $embed_flags = "";
     my $hsc2hs_flags = "";
@@ -303,7 +303,7 @@ $version_h : .svn/entries util/version_h.pl
 .svn/entries :
 	\$(NOOP)
 
-@{[join("\n", map {$emit->($_)} ($unicode_c, $pcre_c, @syck_c))]}
+@{[join("\n", map {$emit->($_)} ($unicode_c, $pcre_c, @cbits_c))]}
 
 src/perl5/perl5.o : src/perl5/perl5.h src/perl5/perlxsi.c src/perl5/perl5.c src/perl5/pugsembed.c src/perl5/pugsembed.h
 	$ghc $threaded $ghc_flags -no-link -no-hs-main -O -o src/perl5/perl5.o src/perl5/perl5.c
@@ -406,11 +406,11 @@ smoke-perl5 : $pugs util/run-smoke.pl all
 ghci ::
 	$ghc --interactive $ghc_flags $ghc_output
 
-pil :: src/UnicodeC.o @srcfiles
-	$ghc --make -H0 -L. -Lsrc -I. -Isrc -i. -isrc -static -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs src/UnicodeC.o
+pil :: src/cbits/fpstring.o src/UnicodeC.o @srcfiles
+	$ghc --make -H0 -L. -Lsrc -I. -Isrc -i. -isrc -static -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs src/UnicodeC.o src/cbits/fpstring.o
 
-pili :: src/UnicodeC.o @srcfiles
-	$ghc --interactive -H0 -L. -Lsrc -I. -Isrc -i. -isrc -static -fno-warn-name-shadowing src/PIL.hs src/UnicodeC.o
+pili :: src/cbits/fpstring.o src/UnicodeC.o @srcfiles
+	$ghc --interactive -H0 -L. -Lsrc -I. -Isrc -i. -isrc -static -fno-warn-name-shadowing src/PIL.hs src/UnicodeC.o src/cbits/fpstring.o
 
 tags : @srcfiles
 	$hasktags -c @srcfiles
