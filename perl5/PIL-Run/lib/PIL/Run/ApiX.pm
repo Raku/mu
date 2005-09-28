@@ -255,7 +255,7 @@ sub p6_new {
         $j->type( $type );    # unboxed str
         my @val;
         $val[$_] = $arg[0]->fetch($_)->fetch for 0 .. $arg[0]->elems->unboxed - 1;
-        $j->values( \@val );  # unboxed array of objects
+        $j->things( \@val );  # unboxed array of objects
         # warn "JUNCTION: ", $j->type," of @{$j->values}";
         return $j;
     }

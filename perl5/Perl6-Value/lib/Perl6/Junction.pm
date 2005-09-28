@@ -18,10 +18,15 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
 class1 'Junction'.$class_description => {
     is => [ $::Object ],
     instance => {
-        attrs => [ '$.type', '$.values' ],
+        attrs => [ '$.type', '$.things' ],
                 # type - unboxed str
-                # values - ptr to native ARRAY of objects
+                # things - ptr to native ARRAY of objects
         methods => {
+            'values' => sub { 
+                my $ary = Array->new;
+                $ary->push( @{_('$.things')} );
+                return $ary;
+            },
             'num' =>  sub { warn "Junction.num() not implemented" },
             'int' =>  sub { warn "Junction.int() not implemented" },
             'str' =>  sub { 
@@ -32,7 +37,7 @@ class1 'Junction'.$class_description => {
                 Str->new( '$.unboxed' => 
                     "(" . 
                     join(" $sep ", 
-                        map { $_->str->unboxed } @{_('$.values')}
+                        map { $_->str->unboxed } @{_('$.things')}
                     ) . 
                     ")"
                 ) 
@@ -42,7 +47,7 @@ class1 'Junction'.$class_description => {
                 Str->new( '$.unboxed' =>  
                     _('$.type') . "(" . 
                     join(", ", 
-                        map { $_->str->unboxed } @{_('$.values')}
+                        map { $_->str->unboxed } @{_('$.things')}
                     ) . ")"
                 ) 
             },
