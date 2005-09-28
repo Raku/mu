@@ -220,7 +220,7 @@ class1 'Code'.$class_description => {
             'ref' =>  sub { $::CLASS }, 
             'defined' => sub { Bit->new( '$.unboxed' => 1 ) },
     
-            do => sub {
+            'expand_junctions' => sub {
                 my ($self, @arguments) = @_;
                 #warn "DO @arguments\n";
 
@@ -245,6 +245,13 @@ class1 'Code'.$class_description => {
                         return $j;
                     }
                 }
+                return;
+            },
+            do => sub {
+                my ($self, @arguments) = @_;
+
+                my $j = $self->expand_junctions( @arguments );
+                return $j if $j;
 
                 $self->check_params(@arguments)
                     || confess "Signature does not match - (" . $self->signature_str . ")";
@@ -355,6 +362,10 @@ class1 'MultiSub'.$class_description => {
         methods => {
             do => sub {
                 my ($self, @args) = @_;
+
+                my $j = $self->expand_junctions( @args );
+                return $j if $j;
+
                 # warn "testing multisub, ".( scalar @{ _('@.subs') } );
                 foreach my $_sub ( @{ _('@.subs') } ) {
                     if ( $_sub->check_params( @args ) ) {
