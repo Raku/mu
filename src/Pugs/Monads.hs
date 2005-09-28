@@ -24,7 +24,6 @@ module Pugs.Monads (
 ) where
 import Pugs.Internals
 import Pugs.AST
-import Pugs.Context
 import Pugs.Types
 import Control.Monad.RWS
 

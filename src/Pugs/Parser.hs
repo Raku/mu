@@ -22,7 +22,6 @@ module Pugs.Parser (
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
-import Pugs.Context
 import Pugs.Version (versnum)
 import Pugs.Lexer
 import Pugs.Rule

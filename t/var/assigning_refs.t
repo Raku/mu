@@ -20,14 +20,14 @@ plan 18;
   my $arrayref = [<a b c>];
   my @array    = ($arrayref);
 
-  is +@array, 1, '@array = ($arrayref) does not flatten the arrayref';
+  is +@array, 1, '@array = ($arrayref) does not flatten the arrayref', :todo<bug>;
 }
 
 {
   my $arrayref = [<a b c>];
   my @array    = $arrayref;
 
-  is +@array, 1, '@array = $arrayref does not flatten the arrayref';
+  is +@array, 1, '@array = $arrayref does not flatten the arrayref', :todo<bug>;
 }
 
 # %hash = $hashref
@@ -36,21 +36,21 @@ plan 18;
   my $hashref = {:a(1), :b(2), :c(3)};
   my %hash    = ($hashref,);
 
-  is +%hash, 1, '%hash = ($hashref,) does not flatten the hashref';
+  is +%hash, 1, '%hash = ($hashref,) does not flatten the hashref', :todo<bug>;
 }
 
 {
   my $hashref = {:a(1), :b(2), :c(3)};
   my %hash    = ($hashref);
 
-  is +%hash, 1, '%hash = ($hashref) does not flatten the hashref';
+  is +%hash, 1, '%hash = ($hashref) does not flatten the hashref', :todo<bug>;
 }
 
 {
   my $hashref = {:a(1), :b(2), :c(3)};
   my %hash    = $hashref;
 
-  is +%hash, 1, '%hash = $hashref does not flatten the hashref';
+  is +%hash, 1, '%hash = $hashref does not flatten the hashref', :todo<bug>;
 }
 
 # Same as above, but now we never use arrays, but only array*refs*.

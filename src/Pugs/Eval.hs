@@ -34,7 +34,6 @@ import Pugs.Junc
 import Pugs.Bind
 import Pugs.Prim
 import Pugs.Prim.List (op0Zip)
-import Pugs.Context
 import Pugs.Monads
 import Pugs.Pretty
 import Pugs.Types

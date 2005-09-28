@@ -16,7 +16,7 @@ plan 9;
     is $a, 23, "let() changed the variable (1)";
     1;
   }
-  is $a, 23, "let() should not restore the variable, as our block exited succesfully (1)";
+  is $a, 23, "let() should not restore the variable, as our block exited succesfully (1)", :todo<feature>;
 }
 
 # let() should restore the variable if the block failed (returned a false
@@ -39,10 +39,10 @@ plan 9;
   {
     let $a = 23;
     is $a,       23, "let() changed the variable (2-1)";
-    is $get_a(), 23, "let() changed the variable (2-2)";
+    is $get_a(), 23, "let() changed the variable (2-2)", :todo<feature>;
     1;
   }
-  is $a, 23, "let() should not restore the variable, as our block exited succesfully (2)";
+  is $a, 23, "let() should not restore the variable, as our block exited succesfully (2)", :todo<feature>;
 }
 
 # Test that let() restores variable even when not exited regularly (using a

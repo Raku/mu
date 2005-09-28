@@ -21,7 +21,6 @@ import Pugs.Run.Args
 import Pugs.Run.Perl5 ()
 import Pugs.Internals
 import Pugs.Config
-import Pugs.Context
 import Pugs.AST
 import Pugs.Types
 import Pugs.Eval

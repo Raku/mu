@@ -14,7 +14,7 @@ plan 12;
         $ok = foo == 42;
     ';
 
-    ok $ok, "declaring a sigilless constant using 'constant' works";
+    ok $ok, "declaring a sigilless constant using 'constant' works", :todo<feature>;
 }
 
 {
@@ -25,7 +25,7 @@ plan 12;
         $ok = $bar == 42;
     ';
 
-    ok $ok, "declaring a constant with a sigil using 'constant' works";
+    ok $ok, "declaring a constant with a sigil using 'constant' works", :todo<feature>;
 }
 
 {
@@ -36,7 +36,7 @@ plan 12;
         $ok = baz == 42;
     ';
 
-    ok $ok, "declaring a sigilless constant with a type specification using 'constant' works";
+    ok $ok, "declaring a sigilless constant with a type specification using 'constant' works", :todo<feature>;
 }
 
 {
@@ -47,7 +47,7 @@ plan 12;
         $ok = λ == 42;
     ';
 
-    ok $ok, "declaring an Unicode constant using 'constant' works";
+    ok $ok, "declaring an Unicode constant using 'constant' works", :todo<feature>;
 }
 
 # Following tests test whether the constants are actually constant.
@@ -63,7 +63,7 @@ plan 12;
         $ok++ if grtz == 42;
     ';
 
-    is $ok, 3, "a constant declared using 'constant' is actually constant (1)";
+    is $ok, 3, "a constant declared using 'constant' is actually constant (1)", :todo<feature>;
 }
 
 {
@@ -78,7 +78,7 @@ plan 12;
         $ok++ if baka == 42;
     ';
 
-    is $ok, 3, "a constant declared using 'constant' is actually constant (2)";
+    is $ok, 3, "a constant declared using 'constant' is actually constant (2)", :todo<feature>;
 }
 
 {
@@ -93,7 +93,7 @@ plan 12;
         $ok++ if wobble == 42;
     ';
 
-    is $ok, 3, "a constant declared using 'constant' is actually constant (3)";
+    is $ok, 3, "a constant declared using 'constant' is actually constant (3)", :todo<feature>;
 }
 
 {
@@ -108,7 +108,7 @@ plan 12;
         $ok++ if wibble == 42;
     ';
 
-    is $ok, 3, "a constant declared using 'constant' is actually constant (4)";
+    is $ok, 3, "a constant declared using 'constant' is actually constant (4)", :todo<feature>;
 }
 
 # See thread "our constant pi, my constant pi" on p6l started by Ingo
@@ -128,7 +128,7 @@ plan 12;
         $ok++ unless eval "wack; 1";
     ';
 
-    is $ok, 2, "declaring constants using 'my constant' works";
+    is $ok, 2, "declaring constants using 'my constant' works", :todo<feature>;
 }
 
 {
@@ -146,7 +146,7 @@ plan 12;
         $ok++ if wack == 23;
     ';
 
-    is $ok, 3, "constants declared by 'my constant' shadow correctly";
+    is $ok, 3, "constants declared by 'my constant' shadow correctly", :todo<feature>;
 }
 
 {
@@ -161,7 +161,7 @@ plan 12;
         $ok++ if globconst1 == 42;
     ';
 
-    is $ok, 2, "declaring constants using 'our constant' works";
+    is $ok, 2, "declaring constants using 'our constant' works", :todo<feature>;
 }
 
 {
@@ -176,5 +176,5 @@ plan 12;
         $ok++ if globconst2 == 42;
     ';
 
-    is $ok, 2, "declaring constants using 'constant' creates package-scoped vars";
+    is $ok, 2, "declaring constants using 'constant' creates package-scoped vars", :todo<feature>;
 }

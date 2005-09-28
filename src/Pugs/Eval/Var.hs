@@ -15,7 +15,6 @@ import Pugs.Embed.Perl5
 import Pugs.Bind
 import Pugs.Prim.List (op2Fold, op1HyperPrefix, op1HyperPostfix, op2Hyper)
 import Pugs.Prim.Param (foldParam)
-import Pugs.Context
 import Pugs.Pretty
 import Pugs.Config
 import Pugs.Monads

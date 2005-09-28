@@ -19,7 +19,7 @@ plan 9;
     try { $a := 42 };
     is $a, 42, "binding the variable now works";
 
-    dies_ok { $a := 17 }, "but binding it again does not work";
+    dies_ok { $a := 17 }, "but binding it again does not work", :todo<feature>;
 }
 
 {
@@ -27,11 +27,11 @@ plan 9;
     ok !(try{ exists $a }), "exists() returns false on an uninitialized var declared with 'is readonly'";
 
     $a := 42;
-    ok (try{ exists $a }), "exists() returns true now";
+    ok (try{ exists $a }), "exists() returns true now", :todo<feature>;
 }
 
 {
     my $a = 3;
 
-    ok (try{ exists $a }), "exists() on a plain normal initialized variable returns true";
+    ok (try{ exists $a }), "exists() on a plain normal initialized variable returns true", :todo<feature>;
 }

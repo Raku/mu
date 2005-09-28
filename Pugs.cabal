@@ -1,9 +1,10 @@
-Name:                pil
-Version:             0.1
+Name:                Pugs
+Version:             6.2.10
+Copyright:           2005, Autrijus Tang
+Author:              Autrijus Tang <autrijus@autrijus.org>
+Maintainer:          Autrijus Tang <autrijus@autrijus.org>
 License:             GPL
-License-file:        LICENSE
-Author:              Autrijus Tang
-Maintainer:          autrijus@autrijus.org
+License-File:        LICENSE
 Build-Depends:       base, stm, mtl, QuickCheck
 Exposed-modules:     PIL
 Other-modules:       PIL.Compile,   PIL.Exp,       PIL.MetaModel, PIL.Pad,    PIL.Tie,
@@ -22,4 +23,13 @@ Other-modules:       PIL.Compile,   PIL.Exp,       PIL.MetaModel, PIL.Pad,    PI
                      PIL.PIL,       PIL.Str
 C-sources:           src/cbits/fpstring.c, src/UnicodeC.c
 Include-dirs:        src/cbits, src
+Hs-source-dirs:      src
+
+Executable:          pugs
+Main-is:             Main.hs
+Other-modules:       PIL.Compile,   PIL.Exp,       PIL.MetaModel, PIL.Pad,    PIL.Tie,
+                     PIL.Container, PIL.Internals, PIL.Monads,    PIL.Parser, PIL.Val,
+                     PIL.PIL,       PIL.Str
+C-sources:           src/cbits/fpstring.c, src/UnicodeC.c
+Include-dirs:        src/cbits, src/syck, src
 Hs-source-dirs:      src

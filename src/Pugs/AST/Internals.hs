@@ -71,7 +71,6 @@ module Pugs.AST.Internals (
     expToEvalVal, -- Hack, should be removed once it's figured out how
 ) where
 import Pugs.Internals
-import Pugs.Context
 import Pugs.Types
 import Pugs.Cont hiding (shiftT, resetT)
 import qualified Data.Set       as Set

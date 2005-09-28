@@ -2,6 +2,12 @@
 
 {-|
     Version information.
+
+>   Tree and flower and leaf and grass,
+>   Let them pass! Let them pass!
+>   Hill and water under sky,
+>   Pass them by! Pass them by!
+
 -}
 
 #include "pugs_config.h"

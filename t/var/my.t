@@ -10,7 +10,7 @@ use Test;
 plan 7;
 
 {
-  dies_ok { my $x; my $x }, "test declare my() variable twice in same scope";
+  is(eval('my $x; my $x; 1'), undef, "test declare my() variable twice in same scope");
 }
 
 {
