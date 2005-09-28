@@ -226,7 +226,7 @@ class1 'Code'.$class_description => {
                 # is there a junction in the arg list?
                 for my $i ( 0 .. $#arguments ) {
                     my $arg = $arguments[$i];
-                    if ( $arg->isa( 'Junction' ) ) {
+                    if ( ref($arg) && $arg->isa( 'Junction' ) ) {
                         #warn "HAS JUNCTION ", $arg->str->unboxed;
                         my @items = @{$arg->things};
                         #warn "ITEMS @items = @{[ map { Perl6::Value::stringify($_) } @items ]}";

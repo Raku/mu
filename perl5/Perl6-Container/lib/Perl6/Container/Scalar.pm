@@ -232,12 +232,14 @@ class1 'Scalar'.$class_description => {
                 my($self,$cls)=@_;
                 return 1 if $cls eq 'Scalar';
                 my $tmp = _('$:cell')->fetch;
+                return 0 unless ref($tmp);
                 defined $tmp ? $tmp->isa($cls) : 0;
             },
             'does' =>    sub {
                 my($self,$cls)=@_;
                 return 1 if $cls eq 'Scalar';
                 my $tmp = _('$:cell')->fetch;
+                return 0 unless ref($tmp);
                 defined $tmp ? $tmp->does($cls) : 0;
             },
             'AUTOLOAD' => sub {
