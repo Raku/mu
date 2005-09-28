@@ -1,0 +1,12 @@
+Pugs Development for (mm, 28 yyyy)
+
+* PIL2JS
+
+* PIL-Run
+
+fglock added Junctions to the Perl 5 backend.
+
+Yesterday putter migrated the object model to stevan's new Perl6-MetaModel2.0.
+
+* Perl6-MetaModel
+
