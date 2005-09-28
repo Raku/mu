@@ -40,10 +40,11 @@ class1 'Junction'.$class_description => {
                     $_ = $_->fetch if $_->isa('Scalar');
                 }
                 @res = sort { Perl6::Value::identify($a) cmp Perl6::Value::identify($b) } @res;
-                my $last_id = '';
+                my $last_id = rand();
                 #warn "SORTED @res";
                 @res = grep { 
                         my $id = Perl6::Value::identify( $_ );
+                        #warn "ID $id";
                         $id eq $last_id ? 0 : ( $last_id = $id, 1 )
                     } @res;
                 @{_('$.things')} = @res;

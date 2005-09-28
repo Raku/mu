@@ -223,21 +223,20 @@ class1 'Code'.$class_description => {
             'expand_junctions' => sub {
                 my ($self, @arguments) = @_;
                 #warn "DO @arguments\n";
-
                 # is there a junction in the arg list?
                 for my $i ( 0 .. $#arguments ) {
                     my $arg = $arguments[$i];
-                    if ( $arg =~ /Junction/ ) {
+                    if ( $arg->isa( 'Junction' ) ) {
                         #warn "HAS JUNCTION ", $arg->str->unboxed;
                         my @items = @{$arg->things};
-                        #warn "ITEMS @items";
-
+                        #warn "ITEMS @items = @{[ map { Perl6::Value::stringify($_) } @items ]}";
                         my @r;
                         for my $element ( @items ) {
                             my @a = @arguments;
                             $a[$i] = $element;
                             push @r, $self->do( @a );
                         }
+                        #warn "RETURNING @r = @{[ map { Perl6::Value::stringify($_) } @items ]}";
                         my $j = Junction->new;
                         $j->type( $arg->type );  
                         $j->things( \@r );  

@@ -192,7 +192,7 @@ MULTI SUB Str::split (*@xxa) {...};
 MULTI SUB lc ($xx)      { p6_from_s( lc(p6_to_s($xx)) ) };
 MULTI SUB lcfirst ($xx) { p6_from_s( lcfirst(p6_to_s($xx)) ) };
 MULTI SUB uc ($xx)      { p6_from_s( uc(p6_to_s($xx)) )  };
-MULTI SUB ucfirst ($xx) {  p6_from_s( ucfirst(p6_to_s($xx)) ) };
+MULTI SUB ucfirst ($xx) { p6_from_s( ucfirst(p6_to_s($xx)) ) };
 MULTI SUB capitalize ($xx) {
     my $string = $xx->unboxed;
     # from the Perl FAQ
