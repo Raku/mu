@@ -240,7 +240,7 @@ class1 'Code'.$class_description => {
                         my $j = Junction->new;
                         $j->type( $arg->type );  
                         $j->things( \@r );  
-                        $j->junction_simplify;
+                        $j->junction_normalize;
                         return $j;
                     }
                 }

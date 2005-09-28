@@ -256,6 +256,7 @@ sub p6_new {
         my @val;
         $val[$_] = $arg[0]->fetch($_)->fetch for 0 .. $arg[0]->elems->unboxed - 1;
         $j->things( \@val );  # unboxed array of objects
+        $j->junction_normalize;
         # warn "JUNCTION: ", $j->type," of @{$j->values}";
         return $j;
     }

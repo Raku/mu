@@ -22,7 +22,7 @@ class1 'Junction'.$class_description => {
                 # type - unboxed str
                 # things - ptr to native ARRAY of objects
         methods => {
-            'junction_simplify' => sub {
+            'junction_normalize' => sub {
                 my @ary = @{_('$.things')};
                 my $type = _('$.type');
                 my @res;
