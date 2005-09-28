@@ -229,15 +229,17 @@ class1 'Code'.$class_description => {
                         #warn "HAS JUNCTION ", $arg->str->unboxed;
                         my @items = @{$arg->values};
                         #warn "ITEMS @items";
-                        my $ret;
+
                         my @r;
                         for my $element ( @items ) {
                             my @a = @arguments;
                             $a[$i] = $element;
                             push @r, $self->do( @a );
                         }
-                        warn "TODO: RETURN JUNCTION ",$arg->type,"( @r )";
-                        return $ret;
+                        my $j = Junction->new;
+                        $j->type( $arg->type );  
+                        $j->values( \@r );  
+                        return $j;
                     }
                 }
 
