@@ -69,7 +69,35 @@ class1 'Junction'.$class_description => {
                     ")"
                 ) 
             },
-            'bit' =>  sub { warn "Junction.bit() not implemented" },
+            'bit' =>  sub { 
+                #warn "Junction.bit() not implemented";
+                my @ary = @{_('$.things')};
+                my $type = _('$.type');
+                @ary = map {
+                        ref($_) ?
+                        $_->bit->unboxed :
+                        $_ != 0
+                    } @ary;
+                #warn "BIT: $type [ @ary ]";
+                if ( $type eq 'all' ) {
+                    for ( @ary ) { return Bit->new( '$.unboxed' => 0 ) unless $_ }
+                    return Bit->new( '$.unboxed' => 1 );
+                }
+                if ( $type eq 'any' ) {
+                    for ( @ary ) { return Bit->new( '$.unboxed' => 1 ) if $_ }
+                    return Bit->new( '$.unboxed' => 0 );
+                }
+                if ( $type eq 'one' ) {
+                    my $count = 0;
+                    for ( @ary ) { $count++ if $_ }
+                    return Bit->new( '$.unboxed' => ( $count == 1 ) );
+                }
+                if ( $type eq 'none' ) {
+                    for ( @ary ) { return Bit->new( '$.unboxed' => 0 ) if $_ }
+                    return Bit->new( '$.unboxed' => 1 );
+                }
+                die "Unknown Junction $type";
+            },
             'perl' => sub {
                 Str->new( '$.unboxed' =>  
                     _('$.type') . "(" . 
