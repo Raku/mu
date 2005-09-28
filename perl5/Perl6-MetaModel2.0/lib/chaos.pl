@@ -4,9 +4,9 @@ use strict;
 use warnings;
 
 use Carp 'confess';
-use Hash::Util 'lock_keys', 'unlock_keys';
+#use Hash::Util 'lock_keys', 'unlock_keys';
 use Scalar::Util 'blessed';
-use Data::Dumper ();
+#use Data::Dumper ();
 
 our $DISPATCH_TRACE = 0;
 
@@ -105,10 +105,7 @@ our $DISPATCH_TRACE = 0;
         #    }
         #}
         my $dispatcher = shift;
-        my $method;
-        LOOP:
-            $method = ($dispatcher->() || return)->get_method(@_) || goto LOOP;
-        return $method;
+        { ($dispatcher->() || return)->get_method(@_) || redo }
         #return undef;        
     }
     
