@@ -22,6 +22,32 @@ class1 'Junction'.$class_description => {
                 # type - unboxed str
                 # things - ptr to native ARRAY of objects
         methods => {
+            'junction_simplify' => sub {
+                my @ary = @{_('$.things')};
+                my $type = _('$.type');
+                my @res;
+                for ( @ary ) {
+                    if ( $_->isa('Junction') && $_->type eq $type ) {
+                        push @res, @{ $_->things };
+                    }
+                    else {
+                        push @res, $_
+                    }
+                }
+                #warn "SORT @res";
+                # remove duplicates
+                for ( @res ) {
+                    $_ = $_->fetch if $_->isa('Scalar');
+                }
+                @res = sort { Perl6::Value::identify($a) cmp Perl6::Value::identify($b) } @res;
+                my $last_id = '';
+                #warn "SORTED @res";
+                @res = grep { 
+                        my $id = Perl6::Value::identify( $_ );
+                        $id eq $last_id ? 0 : ( $last_id = $id, 1 )
+                    } @res;
+                @{_('$.things')} = @res;
+            },
             'values' => sub { 
                 my $ary = Array->new;
                 $ary->push( @{_('$.things')} );

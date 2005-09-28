@@ -395,12 +395,12 @@ sub Perl6::Value::identify {
     my $key = shift;
     return $Perl6::Value::obj_id unless defined $key;
     my $s = $key;
-    if (
-        UNIVERSAL::isa( $key, 'Int' ) ||
-        UNIVERSAL::isa( $key, 'Num' ) ||
-        UNIVERSAL::isa( $key, 'Str' ) ||
-        UNIVERSAL::isa( $key, 'Bit' ) ||
-        UNIVERSAL::isa( $key, 'Rat' )
+    if ( ref($key) && (
+        $key->isa( 'Int' ) ||
+        $key->isa( 'Num' ) ||
+        $key->isa( 'Str' ) ||
+        $key->isa( 'Bit' ) ||
+        $key->isa( 'Rat' ) )
     ) {
         $s = $key->str->unboxed
     }
