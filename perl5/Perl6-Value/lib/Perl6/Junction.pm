@@ -24,12 +24,28 @@ class1 'Junction'.$class_description => {
         methods => {
             'num' =>  sub { warn "Junction.num() not implemented" },
             'int' =>  sub { warn "Junction.int() not implemented" },
-            'str' =>  sub { Str->new( '$.unboxed' => Perl6::Value::Num::to_str( 
-                    _('$.type') . "(" . join(", ", @{_('$.values')} ) . ")"
+            'str' =>  sub { 
+                my $sep = "!";  # none?
+                $sep = "|" if _('$.type') eq 'any';
+                $sep = "&" if _('$.type') eq 'all';
+                $sep = "^" if _('$.type') eq 'one';                
+                Str->new( '$.unboxed' => Perl6::Value::Num::to_str( 
+                    "(" . 
+                    join(" $sep ", 
+                        map { $_->str->unboxed } @{_('$.values')}
+                    ) . 
+                    ")"
                 ) ) 
             },
             'bit' =>  sub { warn "Junction.bit() not implemented" },
-            'perl' => sub { $::SELF->str },
+            'perl' => sub {
+                Str->new( '$.unboxed' => Perl6::Value::Num::to_str( 
+                    _('$.type') . "(" . 
+                    join(", ", 
+                        map { $_->str->unboxed } @{_('$.values')}
+                    ) . ")"
+                ) ) 
+            },
             'ref' =>  sub { $::CLASS }, 
         },
     }

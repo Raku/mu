@@ -222,6 +222,25 @@ class1 'Code'.$class_description => {
     
             do => sub {
                 my ($self, @arguments) = @_;
+                #warn "DO @arguments\n";
+                for my $i ( 0 .. $#arguments ) {
+                    my $arg = $arguments[$i];
+                    if ( $arg =~ /Junction/ ) {
+                        #warn "HAS JUNCTION ", $arg->str->unboxed;
+                        my @items = @{$arg->values};
+                        #warn "ITEMS @items";
+                        my $ret;
+                        my @r;
+                        for my $element ( @items ) {
+                            my @a = @arguments;
+                            $a[$i] = $element;
+                            push @r, $self->do( @a );
+                        }
+                        warn "TODO: RETURN JUNCTION ",$arg->type,"( @r )";
+                        return $ret;
+                    }
+                }
+
                 $self->check_params(@arguments)
                     || confess "Signature does not match - (" . $self->signature_str . ")";
                 # my %bound_params = $::SELF->bind_params(@arguments); 

@@ -22,6 +22,10 @@ multi sub not ($x) {!$x}
 
 multi sub postcircumfix:<[ ]> ($a,$i) { Array::slice($a,$i) }
 
+multi sub infix:<|> (*@x) { any(@x) }
+multi sub infix:<&> (*@x) { all(@x) }
+multi sub infix:<^> (*@x) { one(@x) }
+
 # multi sub circumfix:<[]> ($a) { \($a) }
 
 # TODO - string versions

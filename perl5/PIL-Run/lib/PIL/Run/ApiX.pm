@@ -253,7 +253,9 @@ sub p6_new {
         my $type = shift @arg;
         my $j = Junction->new;
         $j->type( $type );    # unboxed str
-        $j->values( \@arg );  # ptr to native ARRAY of objects
+        my @val;
+        $val[$_] = $arg[0]->fetch($_)->fetch for 0 .. $arg[0]->elems->unboxed - 1;
+        $j->values( \@val );  # unboxed array of objects
         # warn "JUNCTION: ", $j->type," of @{$j->values}";
         return $j;
     }
