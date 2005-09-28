@@ -22,10 +22,10 @@ sub as_js {
   my $self = shift;
   no warnings "recursion";
 
-  return PIL::possibly_ccify $self->{pRHS}, sub {
-    my $src = shift;
-    return PIL::possibly_ccify $self->{pLHS}, sub {
-      my $dest = shift;
+  return PIL::possibly_ccify $self->{pLHS}, sub {
+    my $dest = shift;
+    return PIL::possibly_ccify $self->{pRHS}, sub {
+      my $src = shift;
       sprintf "%s(%s.BINDTO(%s))",
       $self->{CC}->as_js,
       $dest,
