@@ -28,23 +28,23 @@ class1 'Junction'.$class_description => {
                 my $sep = "!";  # none?
                 $sep = "|" if _('$.type') eq 'any';
                 $sep = "&" if _('$.type') eq 'all';
-                $sep = "^" if _('$.type') eq 'one';                
-                Str->new( '$.unboxed' => Perl6::Value::Num::to_str( 
+                $sep = "^" if _('$.type') eq 'one';             
+                Str->new( '$.unboxed' => 
                     "(" . 
                     join(" $sep ", 
                         map { $_->str->unboxed } @{_('$.values')}
                     ) . 
                     ")"
-                ) ) 
+                ) 
             },
             'bit' =>  sub { warn "Junction.bit() not implemented" },
             'perl' => sub {
-                Str->new( '$.unboxed' => Perl6::Value::Num::to_str( 
+                Str->new( '$.unboxed' =>  
                     _('$.type') . "(" . 
                     join(", ", 
                         map { $_->str->unboxed } @{_('$.values')}
                     ) . ")"
-                ) ) 
+                ) 
             },
             'ref' =>  sub { $::CLASS }, 
         },
