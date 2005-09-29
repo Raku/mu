@@ -79,8 +79,8 @@ sub Perl6::Cell::store {
     }
     if ( @_ > 2 ) {
            # && (
-           # p6v_isa( $_[0]{v}, 'Array' ) || 
-           # p6v_isa( $_[0]{v}, 'Hash'  )
+           # Perl6::Value::p6v_isa( $_[0]{v}, 'Array' ) || 
+           # Perl6::Value::p6v_isa( $_[0]{v}, 'Hash'  )
            # ))  {
         my $cell = shift;
         # warn "storing @_ to ".ref($cell->{v});
@@ -98,8 +98,8 @@ sub Perl6::Cell::fetch {
     }
     if ( @_ > 1 ) {
            # && (
-           # p6v_isa( $_[0]{v}, 'Array' ) || 
-           # p6v_isa( $_[0]{v}, 'Hash'  )
+           # Perl6::Value::p6v_isa( $_[0]{v}, 'Array' ) || 
+           # Perl6::Value::p6v_isa( $_[0]{v}, 'Hash'  )
            # ))  {
         my $cell = shift;
         #warn "fetching @_ from ".ref($cell->{v});
@@ -177,7 +177,7 @@ class1 'Scalar'.$class_description => {
                 my $self = shift; 
                 my $value = shift;
                 #carp "Too many arguments to Scalar->store: @_" if @_;
-                if ( p6v_isa( $value, 'Scalar' ) ) {
+                if ( Perl6::Value::p6v_isa( $value, 'Scalar' ) ) {
                     #carp "Attempting to store a Scalar into a Scalar";
                     $value = $value->cell->{v};
                     #warn "value was a $value";

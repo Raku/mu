@@ -353,7 +353,7 @@ class1 'Array'.$class_description => {
                 my ( $self, @list ) = @_;
 
                 my $list = $list[0];
-                if ( !p6v_isa($list,'Array') ) {
+                if ( !Perl6::Value::p6v_isa($list,'Array') ) {
                     $list = Array->new();
                     $list->push( $_ ) for @list;
                 }
@@ -374,7 +374,7 @@ class1 'Array'.$class_description => {
             },
             'zip' => sub {
                 my ( $array, @array_list ) = map {
-                        p6v_isa( $_, 'Array' ) ? 
+                        Perl6::Value::p6v_isa( $_, 'Array' ) ? 
                         $_->to_list : 
                         warn "Argument to zip() must be an Array"; 
                     } @_; 
@@ -385,7 +385,7 @@ class1 'Array'.$class_description => {
             'map' => sub {
                 my $array = shift;  $array = $array->clone->to_list;
                 my $code = shift;
-                die "Argument to map() must be a Code" unless p6v_isa( $code, 'Code' );
+                die "Argument to map() must be a Code" unless Perl6::Value::p6v_isa( $code, 'Code' );
                 my $res = Array->new;
                 $res->push( $array->map( $code ) );
                 return $res;
@@ -449,8 +449,8 @@ class1 'Array'.$class_description => {
 
                 @param = 
                     map {
-                        # p6v_isa( $_, 'Array' ) ? $_->unboxed->items :  
-                        p6v_isa( $_, 'List' ) ? $_->unboxed :  
+                        # Perl6::Value::p6v_isa( $_, 'Array' ) ? $_->unboxed->items :  
+                        Perl6::Value::p6v_isa( $_, 'List' ) ? $_->unboxed :  
                         UNIVERSAL::isa( $_, 'Perl6::Container::Array' ) ? $_->items : 
                         $_ 
                     } @param;
@@ -481,7 +481,7 @@ class1 'Array'.$class_description => {
                         #    die "Infinite slices and tied arrays are not yet fully supported";
                         # }
 
-                        if ( p6v_isa( $other, 'Array' ) ) {
+                        if ( Perl6::Value::p6v_isa( $other, 'Array' ) ) {
                             if ( UNIVERSAL::isa( $other->tied, 'Perl6::Slice' ) ) {
                                 # unbind the slice from the original arrays
                                 $other = $other->tied->unbind;
@@ -504,7 +504,7 @@ class1 'Array'.$class_description => {
 
                         # unbind cells
                         @items = map {
-                                p6v_isa($_,'Scalar') ? $_->fetch : $_
+                                Perl6::Value::p6v_isa($_,'Scalar') ? $_->fetch : $_
                             } @items;
 
                         my $ret = Perl6::Container::Array->from_list( @items );
@@ -516,7 +516,7 @@ class1 'Array'.$class_description => {
                         #warn "STORING @param";
                         my $pos = shift @param;
                         my $elem = $tmp->fetch( $pos );
-                        if ( p6v_isa( $elem, 'Scalar' ) ) {
+                        if ( Perl6::Value::p6v_isa( $elem, 'Scalar' ) ) {
                             #warn "CELL TO STORE IS A SCALAR: $elem";
                             $elem->store( @param );
                         }
@@ -532,9 +532,9 @@ class1 'Array'.$class_description => {
 
                     #for ( @param ) {
                     #    next if UNIVERSAL::isa( $_, 'Perl6::Value::List' );
-                    #    next if p6v_isa( $_, 'Scalar' );
-                    #    next if p6v_isa( $_, 'Array' );
-                    #    next if p6v_isa( $_, 'Hash' );
+                    #    next if Perl6::Value::p6v_isa( $_, 'Scalar' );
+                    #    next if Perl6::Value::p6v_isa( $_, 'Array' );
+                    #    next if Perl6::Value::p6v_isa( $_, 'Hash' );
                     #    my $tmp = $_;
                     #    $_ = Scalar->new();
                     #    $_->store( $tmp );
@@ -553,7 +553,7 @@ class1 'Array'.$class_description => {
                     }
                     my $elem = $tmp->$method( @param );
                     my $scalar;
-                    if ( p6v_isa( $elem, 'Scalar' ) ) {
+                    if ( Perl6::Value::p6v_isa( $elem, 'Scalar' ) ) {
                         #warn "FETCHED CELL IS A SCALAR: $elem";
                         $scalar = $elem;
                     }
@@ -576,7 +576,7 @@ class1 'Array'.$class_description => {
 
                 if ( $method eq 'pop'   || $method eq 'shift' ) {
                     my $elem = $tmp->$method( @param );
-                    unless ( p6v_isa( $elem, 'Scalar' ) ) {
+                    unless ( Perl6::Value::p6v_isa( $elem, 'Scalar' ) ) {
                         # XXX - I think only fetch() need to return Scalar 
                         my $scalar = Scalar->new();
                         $scalar->store( $elem );
@@ -970,7 +970,7 @@ sub store {
     if ( $pos <= $array->elems ) {
         # 'Array' takes care of proper cell re-binding 
         my $scalar = $array->fetch( $pos );
-        if ( p6v_isa( $scalar, 'Scalar' ) ) {
+        if ( Perl6::Value::p6v_isa( $scalar, 'Scalar' ) ) {
             # warn "Store to scalar\n";
             $scalar->store( $item );
         }

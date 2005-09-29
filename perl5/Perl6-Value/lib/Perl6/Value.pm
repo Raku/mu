@@ -57,14 +57,15 @@
 
 use strict;
 
-use Perl6::MetaModel;
-
-sub p6v_isa {
+sub Perl6::Value::p6v_isa {
     my($o,$cls)=@_;
     my $ref = ref($o);
     return 1 if $ref eq 'Dispatchable' && $o->isa($cls);
     return 0;
 }
+
+use Perl6::MetaModel;
+
 sub class1 {
     my ($name, $params) = @_;
     my $barename = $name; $barename =~ s/-0.*//;
@@ -418,7 +419,7 @@ sub Perl6::Value::identify {
 
 sub Perl6::Value::stringify {
     my $s = shift;
-    $s = $s->fetch if p6v_isa( $s, 'Scalar');
+    $s = $s->fetch if Perl6::Value::p6v_isa( $s, 'Scalar');
     my $tmp;
     # warn "stringify - $s\n";
     eval { $tmp = $s->str(max=>3) };
@@ -435,7 +436,7 @@ sub Perl6::Value::stringify {
 
 sub Perl6::Value::numify {
     my $s = shift;
-    $s = $s->fetch if p6v_isa( $s, 'Scalar');
+    $s = $s->fetch if Perl6::Value::p6v_isa( $s, 'Scalar');
     my $tmp;
     eval { $tmp = $s->num };
     $s = $tmp unless $@;

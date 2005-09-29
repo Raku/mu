@@ -190,7 +190,7 @@ class1 'Hash'.$class_description => {
                 #warn "FETCH: @param\n";
                 my $tmp = _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v};
                 my $key = shift @param;
-                if ( p6v_isa( $key, 'Array' ) ) {
+                if ( Perl6::Value::p6v_isa( $key, 'Array' ) ) {
                     #warn "Hash slice $key\n";
                     warn "Infinite hash slice not supported\n" 
                         if Perl6::Value::numify( $key->is_infinite );
@@ -209,7 +209,7 @@ class1 'Hash'.$class_description => {
                     return $a->slice( 0 .. Perl6::Value::numify( $a->elems ) - 1 );
                 }
                 my $v = $tmp->fetch( $key );
-                if ( ! p6v_isa( $v, 'Scalar' ) ) {
+                if ( ! Perl6::Value::p6v_isa( $v, 'Scalar' ) ) {
                     #warn "autovivify - $key - $v\n";
                     my $s = Scalar->new;
                     $s->store( $v );
@@ -223,7 +223,7 @@ class1 'Hash'.$class_description => {
                 my $tmp = _('$:cell')->{tied} ? _('$:cell')->{tied} : _('$:cell')->{v};
                 if ( scalar @param == 1 ) {
                     # store whole hash
-                    if ( p6v_isa( $param[0], 'Hash' ) ) {
+                    if ( Perl6::Value::p6v_isa( $param[0], 'Hash' ) ) {
                         $self->clear;
                         my $key = $param[0]->firstkey;
                         while ( defined $key ) {
@@ -233,7 +233,7 @@ class1 'Hash'.$class_description => {
                         }
                         return $self;
                     }
-                    if ( p6v_isa( $param[0], 'Array' ) ) {
+                    if ( Perl6::Value::p6v_isa( $param[0], 'Array' ) ) {
                         $self->clear;
                         for ( 0 .. $param[0]->elems->unboxed - 1 ) {
                             my $pair = $param[0]->fetch( $_ );
@@ -241,7 +241,7 @@ class1 'Hash'.$class_description => {
                         }
                         return $self;
                     }
-                    if ( p6v_isa( $param[0], 'Pair' ) ) {
+                    if ( Perl6::Value::p6v_isa( $param[0], 'Pair' ) ) {
                         $self->clear;
                         my $pair = $param[0];
                         $self->store( $pair->key, $pair->value );
@@ -252,7 +252,7 @@ class1 'Hash'.$class_description => {
                 my $key = shift @param;
                 my $s = $self->fetch( $key );
                 # fetch should always return Scalar
-                if ( ! p6v_isa( $tmp, 'Scalar' ) ) {
+                if ( ! Perl6::Value::p6v_isa( $tmp, 'Scalar' ) ) {
                     #warn "creating scalar";
                     $s = Scalar->new;
                     $tmp->store( $key, $s );
@@ -279,14 +279,14 @@ package Perl6::Container::Hash::Object;
 
 sub store {
     my ( $this, $key, $value ) = @_;
-    $key = $key->fetch if p6v_isa( $key, 'Scalar' );
+    $key = $key->fetch if Perl6::Value::p6v_isa( $key, 'Scalar' );
     my $s = Perl6::Value::identify( $key );
     $this->{$s} = [ $key, $value ];
     return $value;
 }
 sub fetch {
     my ( $this, $key ) = @_;
-    $key = $key->fetch if p6v_isa( $key, 'Scalar' );
+    $key = $key->fetch if Perl6::Value::p6v_isa( $key, 'Scalar' );
     my $s = Perl6::Value::identify( $key );
     $this->{$s}[1];
     # warn "fetching " . $this->{$s}[1];
@@ -306,13 +306,13 @@ sub nextkey {
 }
 sub exists {
     my ( $this, $key ) = @_;
-    $key = $key->fetch if p6v_isa( $key, 'Scalar' );
+    $key = $key->fetch if Perl6::Value::p6v_isa( $key, 'Scalar' );
     my $s = Perl6::Value::identify( $key );
     exists $this->{$s};
 }
 sub delete {
     my ( $this, $key ) = @_;
-    $key = $key->fetch if p6v_isa( $key, 'Scalar' );
+    $key = $key->fetch if Perl6::Value::p6v_isa( $key, 'Scalar' );
     my $s = Perl6::Value::identify( $key );
     my $r = delete $this->{$s};
     $r->[1];
