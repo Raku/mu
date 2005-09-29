@@ -153,11 +153,11 @@ my $class_description = '-0.0.1-cpan:FGLOCK';
             $name =~ /^\@/ ? 
                 Perl6::Type->new( 
                     name => 'Array', 
-                    match => sub { ref($_[0]) eq 'ARRAY' || ref($_[0]) eq 'Array' } ) : 
+                    match => sub { ref($_[0]) eq 'ARRAY' || ref($_[0]) eq 'Array' || ref($_[0]) eq 'Dispatchable' && $_[0]->isa('Array') } ) : 
             $name =~ /^\%/ ? 
                 Perl6::Type->new( 
                     name => 'Hash', 
-                    match => sub { ref($_[0]) eq 'HASH'  || ref($_[0]) eq 'Hash' } ) : 
+                    match => sub { ref($_[0]) eq 'HASH'  || ref($_[0]) eq 'Hash' || ref($_[0]) eq 'Dispatchable' && $_[0]->isa('Hash') } ) : 
             $name =~ /^\&/ ?
                 Perl6::Type->new( 
                     name => 'Any',  # XXX - should be Sub or Code or something
@@ -252,8 +252,8 @@ class1 'Code'.$class_description => {
                 my $j = $self->expand_junctions( @arguments );
                 return $j if $j;
 
-                $self->check_params(@arguments)
-                    || confess "Signature does not match - (" . $self->signature_str . ")";
+                my($ok,$err)=$self->check_params(@arguments);
+                $ok || confess "Signature does not match - (" . $self->signature_str . "): $err";
                 # my %bound_params = $::SELF->bind_params(@arguments); 
                 # warn "entering sub ".$self->name;   
                 my ($ret) = $self->body->( $self, @arguments );  # @_ = self + raw arguments
@@ -284,22 +284,24 @@ class1 'Code'.$class_description => {
                 while(1) {
                     if ( $i >= scalar @{ $self->params } && $i >= scalar @params ) {
                         #warn "CHECK: $i - required $num_required - given @params";
-                        return 0 if $num_required > scalar @params;
+                        return (0,"err1") if $num_required > scalar @params;
                         return 1;
                     }
                     # return 1 if $i > scalar $#{ $self->params } && $i > scalar $#params;
-                    return 0 if $i > scalar $#{ $self->params } && $i <= scalar $#params;
+                    return (0,"err2") if $i > scalar $#{ $self->params } && $i <= scalar $#params;
                     # warn $i;
                     my $spec = ${ $self->params }[$i];
                     my $candidate = $params[$i];
                     $num_required++ if $spec->required;
                     next if $spec->optional && ! defined $candidate;
                     if ( $spec->slurpy ) {    ## && $spec->name eq 'Array' ) {
-                        ## return 0 unless $spec->match_type( [ @params[$i..$#params] ] ); XXX
+                        ## return (0,"") unless $spec->match_type( [ @params[$i..$#params] ] ); XXX
                         return 1;   # @params = ();
                     }
                     else {
-                        return 0 unless $spec->match_type($candidate);
+                        my $mt = $spec->match_type($candidate);
+                        return (0,"type mismatch: $candidate vs ".$spec->str)
+                            if !$mt;
                     }
                 }
                 continue { $i++ }
