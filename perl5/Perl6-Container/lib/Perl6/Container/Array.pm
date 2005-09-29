@@ -353,7 +353,7 @@ class1 'Array'.$class_description => {
                 my ( $self, @list ) = @_;
 
                 my $list = $list[0];
-                if ( ref($list) ne 'Array' ) {
+                if ( !p6v_isa($list,'Array') ) {
                     $list = Array->new();
                     $list->push( $_ ) for @list;
                 }
@@ -504,7 +504,7 @@ class1 'Array'.$class_description => {
 
                         # unbind cells
                         @items = map {
-                                ( ref($_) eq 'Scalar' ) ? $_->fetch : $_
+                                p6v_isa($_,'Scalar') ? $_->fetch : $_
                             } @items;
 
                         my $ret = Perl6::Container::Array->from_list( @items );

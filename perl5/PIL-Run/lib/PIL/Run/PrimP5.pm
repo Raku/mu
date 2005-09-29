@@ -135,7 +135,7 @@ MULTI SUB infix:<,>  (*@a) {
 #};
 MULTI SUB Array::slice ($a,$i) {
     # implements (1,2,3)[1] - see PrimP6.pm - postcircumfix:<[ ]>
-    if ( ref($i) eq 'Array' ) {
+    if ( p6_isa($i,'Array') ) {
         # warn "SLICE: ".$i->perl->unboxed;
         $a->slice( $i )
     }
@@ -450,7 +450,7 @@ MULTI SUB join (*@xxa) {
     my($j6,@b6)=@xxa;
     my $j = p6_to_s($j6);
     my @b = map{my $x = $_;
-		ref($x)=~/Array/i
+		p6_isa($x,'Array')
 		    ? (map{p6_to_s($_)}@{p6_to_a($x)})
 		    : p6_to_s($_); } @b6;
     p6_from_s(join($j,@b));

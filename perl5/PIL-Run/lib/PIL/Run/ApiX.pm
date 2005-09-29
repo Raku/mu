@@ -7,6 +7,7 @@ $VERSION = '0.01';
 @ISA = qw(Exporter);
 @EXPORT =
     qw(
+       p6_isa
        p6_to_b
        p6_to_n
        p6_to_s
@@ -43,6 +44,14 @@ $VERSION = '0.01';
        p6_next_macro
        p6_redo_macro
        );
+
+sub p6_isa {
+    my($o,$cls)=@_;
+    my $ref = ref($o);
+    return 1 if $ref eq 'Dispatchable' && $o->isa($cls);
+    return 1 if lc($ref) eq lc($cls);
+    return 0;
+}
 
 sub p6_to_b {my($b)=@_; return 0 unless defined $b; $b->bit()->unboxed ? 1 : 0}
 sub p6_to_n { Perl6::Value::numify( @_ ) }

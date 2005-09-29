@@ -59,6 +59,12 @@ use strict;
 
 use Perl6::MetaModel;
 
+sub p6v_isa {
+    my($o,$cls)=@_;
+    my $ref = ref($o);
+    return 1 if $ref eq 'Dispatchable' && $o->isa($cls);
+    return 0;
+}
 sub class1 {
     my ($name, $params) = @_;
     my $barename = $name; $barename =~ s/-0.*//;
