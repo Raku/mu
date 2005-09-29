@@ -322,7 +322,11 @@ class1 'Ref'.$class_description => {
         },
         methods => { 
              # See perl5/Perl6-MetaModel/t/14_AUTOLOAD.t  
-            'isa' => sub { ::next_METHOD() },
+            'isa' => sub { 
+                return 1 if $_[1] eq 'Array' && Perl6::Value::p6v_isa( _('$.referred'), 'Array' );
+                return 1 if $_[1] eq 'Hash' && Perl6::Value::p6v_isa( _('$.referred'), 'Hash' );
+                ::next_METHOD();
+            },
             'does' => sub { ::next_METHOD() },
             'unboxed' => sub { \(_('$.referred')) },
             'AUTOLOAD' => sub {
