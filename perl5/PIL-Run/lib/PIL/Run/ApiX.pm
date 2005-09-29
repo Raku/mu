@@ -254,7 +254,14 @@ sub p6_new {
         my $j = Junction->new;
         $j->type( $type );    # unboxed str
         my @val;
-        $val[$_] = $arg[0]->fetch($_)->fetch for 0 .. $arg[0]->elems->unboxed - 1;
+        for my $arg ( @arg ) {
+            if ( $arg->isa( "Array" ) ) {
+                push @val, $arg->fetch($_)->fetch for 0 .. $arg->elems->unboxed - 1;
+            }
+            else {
+                push @val, $arg->fetch;
+            }
+        }
         $j->things( \@val );  # unboxed array of objects
         $j->junction_normalize;
         # warn "JUNCTION: ", $j->type," of @{$j->values}";
