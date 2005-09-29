@@ -5,3 +5,10 @@ This directory is intended for the development of a JavaScript
 _frontend_ for p6.  It has nothing to do with the existing JavaScript
 _backend_.  These are p6 modules which parse and compile JS code into
 p6, and provide a p6-based JS runtime.
+
+This project is currently on hold as there are higher priority ones.
+
+My current thought on the runtime is it needs to be more automagically
+generated from the spec.  Human involvement is required, but the degree
+of hand editing used with the current file would require days to do the
+entire runtime, and no doubt introduce errors.
