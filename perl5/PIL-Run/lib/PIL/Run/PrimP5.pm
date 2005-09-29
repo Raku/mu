@@ -220,17 +220,25 @@ MULTI SUB sqrt ($xx) { p6_from_n( sqrt(p6_to_n($xx)) ) };
 MULTI SUB atan (*@xxa) { p6_from_n( atan(map{p6_to_n($_)}@xxa) ) };
 
 MULTI SUB postfix:<++> ($xx) { 
+ if(0){# XXX
     my $tmp = $xx; # XXX - use clone() - needs MM2
     $xx->store( $xx->fetch->increment );
     return $tmp;
-    #my $old = p6_new(Num => p6_to_n($xx)); # XXX - use clone() - needs MM2
-    #p6_set($xx,p6_from_n(p6_to_n($xx)+1)); 
-    #$old
+ }else{
+    warn "faking increment\n";
+    my $old = p6_new(Num => p6_to_n($xx)); # XXX - use clone() - needs MM2
+    p6_set($xx,p6_from_n(p6_to_n($xx)+1)); 
+    $old
+ }
 };
 MULTI SUB prefix:<++> ($xx)  { 
+ if(0){# XXX
     $xx->store( $xx->fetch->increment );
     return $xx;
-    #p6_set($xx,p6_from_n(p6_to_n($xx)+1)) 
+ }else{
+    warn "faking increment\n";
+    p6_set($xx,p6_from_n(p6_to_n($xx)+1)) 
+ }
 };
 MULTI SUB postfix:<--> ($xx) { 
     my $tmp = $xx; # XXX - use clone() - needs MM2
