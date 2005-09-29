@@ -384,7 +384,7 @@ sub map {
                 push @x, $ret->shift for 1 .. $arity;
                 my $res = $code->do( @x );
                 my @res;
-                if ( UNIVERSAL::isa( $res, 'Array' ) ) {
+                if ( p6v_isa( $res, 'Array' ) ) {
                     @res = $res->items 
                 }
                 else {
@@ -404,7 +404,7 @@ sub map {
                 unshift @x, $ret->pop for 1 .. $arity;
                 my $res = $code->do( @x );
                 my @res;
-                if ( UNIVERSAL::isa( $res, 'Array' ) ) {
+                if ( p6v_isa( $res, 'Array' ) ) {
                     @res = $res->items 
                 }
                 else {

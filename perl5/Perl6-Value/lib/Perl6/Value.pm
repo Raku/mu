@@ -418,7 +418,7 @@ sub Perl6::Value::identify {
 
 sub Perl6::Value::stringify {
     my $s = shift;
-    $s = $s->fetch if UNIVERSAL::isa( $s, 'Scalar');
+    $s = $s->fetch if p6v_isa( $s, 'Scalar');
     my $tmp;
     # warn "stringify - $s\n";
     eval { $tmp = $s->str(max=>3) };
@@ -435,7 +435,7 @@ sub Perl6::Value::stringify {
 
 sub Perl6::Value::numify {
     my $s = shift;
-    $s = $s->fetch if UNIVERSAL::isa( $s, 'Scalar');
+    $s = $s->fetch if p6v_isa( $s, 'Scalar');
     my $tmp;
     eval { $tmp = $s->num };
     $s = $tmp unless $@;

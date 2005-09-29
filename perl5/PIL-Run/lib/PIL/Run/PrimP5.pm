@@ -77,7 +77,7 @@ MULTI SUB circumfix:<[]> (*@a) {
     my $h = Array->new();
     if ( @a ) {
         my $p = shift @a;
-        if ( UNIVERSAL::isa( $p, 'Array' ) ) {
+        if ( p6_isa( $p, 'Array' ) ) {
             for ( $p->items ) {
                 my $pp = $_; # ->clone; XXX
                 # warn "pp = $pp ". $pp->str->unboxed;
@@ -258,7 +258,7 @@ MULTI SUB item ($xx) {...};
 MULTI SUB sort (*@xxa) {p6_from_l(sort map{p6_to_s($_)} @xxa)};
 #MULTI SUB reverse (@xx) { $xx->reverse };
 MULTI SUB reverse ($xx) { 
-    if ( UNIVERSAL::isa( $xx, 'Array' ) ) {
+    if ( p6_isa( $xx, 'Array' ) ) {
         my $ret = Array->new();
         $ret->store( $xx );  # unbind slice
         #warn "reversing ".p6_to_s($ret)." -- $ret\n";
