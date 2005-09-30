@@ -1,0 +1,66 @@
+Rosetta - Rigorous Database Portability
+---------------------------------------
+
+The direct parent folder of this README file is home to the
+2005.09.29-initiated re-birth of the various modules that comprise and/or
+were created to be used by or used with the Rosetta database access
+framework.  There are 2 versions of this Rosetta framework that are being
+developed concurrently, which are coded natively in Perl 6 and Perl 5
+respectively, and which will frequently maintain parity with each other;
+both versions have a copy of this same README file.
+
+All of these modules are Copyright (c) 2002-2005, Darren R. Duncan
+(perl@DarrenDuncan.net, "http://www.DarrenDuncan.net/").  All rights
+reserved.  See the individual modules themselves for their licensing terms;
+most of them are GPL v2+ with an exception.
+
+The Perl 6 version is currently included with Autrijus Tang's Pugs project,
+and lives in its "/modules/Rosetta-Incubator" sub-directory during the
+short term, and its components will later be moved to "/ext"
+sub-directories; Pugs' homepage is at "http://pugscode.org/", and it has an
+open Subversion repository at "http://svn.openfoundry.org/pugs/".
+
+The Perl 5 version has an open Subversion repository at
+"http://svn.utsl.gen.nz/trunk/Rosetta-Incubator/", and it its components
+are regularly packaged for CPAN under "http://search.cpan.org/~duncand/".
+
+The Perl 6 version is the "main" one which is expected to have a longer
+life, and its design is optimized around best practices that are natural in
+Perl 6.  At the same time, however, the Perl 6 language is new and a moving
+target, and current hosts or run-times for Perl 6 code are only partially
+complete, so this version may not actually be functional for awhile.  This
+said, the Rosetta framework is being developed in Perl 6 now so it can
+serve as an integration test for Pugs, helping its development.  Moreover,
+it should assist other early-adopter developers that want to write database
+using applications in Perl 6.
+
+The Perl 5 version is designed to approximate the Perl 6 version as much as
+is possible under Perl 5, and it employs various third-party extensions to
+Perl 5 which assist in that effort, such as "version", "List::MoreUtils",
+and "Class::Std".  At the same time, it should still be efficient by Perl 5
+standards and be very useful to Perl 5 programs.  Certainly it will be
+stable and useable in production environments a lot earlier, due to the
+fact that Perl 5 isn't a moving target.
+
+These are the anticipated core components of the Rosetta framework:
+
+* Locale::KeyedText
+* SQL::Routine
+* Rosetta (and Rosetta::Validator)
+* SQL::Routine::SQLBuilder
+* SQL::Routine::SQLParser
+* Rosetta::Engine::Generic
+* Rosetta::Emulator::DBI
+
+For reference, the older pre-rebirth Perl 5 version has an open Subversion
+repository at "http://svn.utsl.gen.nz/trunk/Rosetta/" (holding the last 2
+months of its development, and it has been released on CPAN under
+"http://search.cpan.org/~duncand/" in the form of 165 distribution releases
+dated between 2003.01.05 and 2005.09.28, all of which are on BACKPAN and on
+the author's web site.
+
+Feedback on and assistence with this framework is greatly appreciated.
+
+This project has no email or IRC channels dedicated to it, but the author
+is frequently on #perl6 at irc.freenode.net and #tangram at irc.perl.org,
+as well as various email lists for Perl database related projects.
