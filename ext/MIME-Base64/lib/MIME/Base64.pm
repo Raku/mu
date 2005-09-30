@@ -31,21 +31,17 @@ module MIME::Base64;
 #######################################################################
 
 
-sub encode (Int $value) returns Str {
+multi encode (Int $value) returns Str {
 #  say "Int";
   ("A".."Z","a".."z",0..9,"+","/")[$value];
 }
 
-sub encode (Str $string) {
+multi encode (Str $string) {
   my @oct = split('',$string);
   [~] encode(@oct);
 }
 
-sub index (Int $a,Int $ashift,Int $b,Int $bshift,Int $mask --> Int) {
-  (($a +& ($mask +>$ashift)) +< $ashift) +| ($b +> $bshift);
-}
-
-sub encode (*@string is copy) returns Array {
+multi encode (*@string is copy) returns Array {
 #  say "Array";
 
   gather {
@@ -76,6 +72,10 @@ sub encode (*@string is copy) returns Array {
       take "=";
     }
   }
+}
+
+sub index (Int $a, Int $ashift, Int $b, Int $bshift, Int $mask) returns Int {
+  (($a +& ($mask +>$ashift)) +< $ashift) +| ($b +> $bshift);
 }
 
 sub decode (Str $didget) {
