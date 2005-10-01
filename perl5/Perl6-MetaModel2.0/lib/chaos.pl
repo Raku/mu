@@ -22,50 +22,26 @@ our $DISPATCH_TRACE = 0;
     # Input: reference to class and a slurpy attr hash
     sub ::create_opaque_instance {
         my ($class, %attrs) = @_;
-        #(defined $class) 
-        #    || confess "Cannot create an opaque instance without a class";
-        #my $instance = 
         bless [
             ++$GLOBAL_INSTANCE_COUNT, # 'id'    => 
             $class,                   # 'class' => 
             \%attrs,                  # 'attrs' => 
         ], 'Dispatchable';
-        #lock_keys(%{$instance});  
-        #lock_keys(%{$instance->[2]});              
-        #return $instance;
     }
 
     # Accessors for the inside of the opaque structure
     sub ::opaque_instance_id { 
-        #my $instance = shift;
-        #(defined $_[0] && blessed($_[0]) eq 'Dispatchable')
-        #    || confess "Bad instance (" . ($_[0] || 'undef') . ")";
         $_[0]->[0];
     }
-    sub ::opaque_instance_class { 
-        #my $instance = shift;
-        #(defined $_[0] && blessed($_[0]) eq 'Dispatchable')
-        #    || confess "Bad instance (" . ($_[0] || 'undef') . ")";        
+    sub ::opaque_instance_class {  
         ${$_[0]->[1]};
     }
     sub ::opaque_instance_attr : lvalue { 
-        #my $instance = shift;
-        #(defined $instance && blessed($instance) eq 'Dispatchable')
-        #    || confess "Bad instance (" . ($instance || 'undef') . ")";
-        #my $label = shift;
-        #(defined $label) || confess "No label to fetch";
         $_[0]->[2]->{$_[1]};
     }
     
     sub ::opaque_instance_add_new_attribute {
-        #my $instance = shift;
-        #(defined $instance && blessed($instance) eq 'Dispatchable')
-        #    || confess "Bad instance (" . ($instance || 'undef') . ")";       
-        #my ($label, $value) = @_;
-        #(defined $label) || confess "No label to fetch";
-        #unlock_keys(%{$_[0]->[2]}); 
-        $_[0]->[2]->{$_[1]} = $_[2];       
-        #lock_keys(%{$_[0]->[2]});       
+        $_[0]->[2]->{$_[1]} = $_[2];            
     }
 }
 
@@ -92,28 +68,11 @@ our $DISPATCH_TRACE = 0;
     # are ways to walk a dispatcher() 
     # object. They are very useful :)
     sub ::WALKMETH {
-        #my ($dispatcher, $label, %opts) = @_;
-        #(defined $dispatcher && ref($dispatcher) eq 'CODE')
-        #    || confess "Bad dispatcher (" . ($dispatcher || 'undef') . ")";
-        #(defined $label)
-        #    || confess "You must provide a method label for WALKMETH";
-        #warn "::WALKMETH called for ($label) ... for " . $opts{for} if $DISPATCH_TRACE;
-        #while (my $current = $dispatcher->()) {
-            #warn "\t> Currently looking in id($current) for ($label)" if $DISPATCH_TRACE;
-        #    if ($current->has_method($label, %opts)) {
-        #        return $current->get_method($label, %opts);
-        #    }
-        #}
         my $dispatcher = shift;
-        { ($dispatcher->() || return)->get_method(@_) || redo }
-        #return undef;        
+        { ($dispatcher->() || return)->get_method(@_) || redo }       
     }
     
-    sub ::WALKCLASS {
-        #my ($dispatcher) = @_;
-        #(defined $dispatcher && ref($dispatcher) eq 'CODE')
-        #    || confess "Bad dispatcher (" . ($dispatcher || 'undef') . ")";        
-        #return $dispatcher->();        
+    sub ::WALKCLASS {      
         return $_[0]->();
     }
  
@@ -132,23 +91,11 @@ our $DISPATCH_TRACE = 0;
         (defined $name)
             || confess "You must provide a name for the attribute";
         return bless \$name => 'Perl6::StubAttribute';
-    }    
-    
-    # DEPRECATED
-    # Class attribute are just package level variables now
-    # sub ::make_class_attribute ($) {
-    #     my ($name) = @_;
-    #     (defined $name)
-    #         || confess "You must provide a name for the attribute";        
-    #     return bless \$name => 'Perl6::ClassAttribute';
-    # }     
+    }     
     
     # this just initializes the instance attribute container type, in
     # perl 6 this should be done automatically
-    sub ::instantiate_attribute_container ($) {
-        #my ($attr) = @_;
-        #(blessed($attr) && $attr->isa('Perl6::Attribute'))
-        #    || confess "You must provide an attribute to instantiate";       
+    sub ::instantiate_attribute_container ($) {       
         return [] if ${$_[0]} =~ /^@/o;
         return {} if ${$_[0]} =~ /^%/o;        
         return undef;
@@ -162,11 +109,7 @@ our $DISPATCH_TRACE = 0;
         package Perl6::Attribute;
 
         package Perl6::StubAttribute;        
-        @Perl6::StubAttribute::ISA = ('Perl6::Attribute'); 
-
-        # DEPRECATED
-        # package Perl6::ClassAttribute;        
-        # @Perl6::ClassAttribute::ISA = ('Perl6::Attribute');     
+        @Perl6::StubAttribute::ISA = ('Perl6::Attribute');    
     }  
     
     # a convenience wrapper for binding/unbinding $?PACKAGE
@@ -217,7 +160,6 @@ our $DISPATCH_TRACE = 0;
             # get all the others
             local $::SELF  = $_[0];
             local $::CLASS = local $::PACKAGE = $associated_with;
-#            $associated_with;
             # and call the method ...
             $method->(@_);
         } => blessed($method);            
@@ -336,52 +278,24 @@ our $DISPATCH_TRACE = 0;
     # early $::Class object.
 
     sub ::dispatcher {
-        #(blessed($_[0]) && blessed($_[0]) eq 'Dispatchable' &&
-        # defined $_[1]  && 
-        # defined $_[2]  && ref($_[2]) eq 'ARRAY')
-        #    || confess "dispatch must have an invocant, a label and an arguments array";        
-        # deal with the $::Class special case ...
-        # NOTE: 
-        # we refer to $::Class here even though
-        # it will not be defined yet, however, 
-        # we know this wont be used anyway 
-        #if ($_[0] == $::Class) {
-             #warn "got the ::Class, going to &_class_dispatch" if $DISPATCH_TRACE;
-        #     goto &_class_dispatch;
-        #}
-        #else {
-             #warn "Not a ::Class, going to &_normal_dispatch" if $DISPATCH_TRACE;            
-        #     goto &_normal_dispatch;
-        #}
-        goto &_class_dispatch if $_[0] == $::Class;
-        goto &_normal_dispatch;
+        return _class_dispatch(@_)->($_[0], @{$_[2]}) if $_[0] == $::Class;
+        return _normal_dispatch(@_);
     }
 
     # this will handle all dispatching 
     # for the root $::Class
-    sub _class_dispatch {
-        #my ($self, $label, $args) = @_; 
-        #warn "... entering _class_dispatch with label($label)" if $DISPATCH_TRACE;  
+    my %_class_dispatch_cache;
+    sub _class_dispatch { 
+        # memoize the method lookup ...
+        return $_class_dispatch_cache{$_[1]} 
+            if exists $_class_dispatch_cache{$_[1]};
+            
         my $method_table_name = '%:methods';
         # check the private methods
         $method_table_name = '%:private_methods' if $_[1] =~ /^_/o;
-        
-        # NOTE:
-        # we need to just access stuff directly here
-        # so as to avoid the method call, this
-        # is needed to avoid meta-circularity issues
 
         # gather all the classes to look through
         my @classes = ($_[0]);
-        # we take the MRO first, however at some early
-        # stages of the bootstrap, this is not yet 
-        # populated with anything, so ....
-        #my @supers = @{$_[0]->[2]->{'@:MRO'}};
-        # if nothing is in MRO, we take the superclasses
-        # because we know that is there ...
-        #@supers = @{$_[0]->[2]->{'@:superclasses'}} 
-        #    if scalar @supers == 0;
-        # ... carry on,.. nothing to see here ....
         push @classes => ((scalar @{$_[0]->[2]->{'@:MRO'}}) ? @{$_[0]->[2]->{'@:MRO'}} : @{$_[0]->[2]->{'@:superclasses'}})
             # however, we dont actually need to go there
             # if what we are asking for is a private method
@@ -390,39 +304,39 @@ our $DISPATCH_TRACE = 0;
         # now try and find out method ...
         foreach my $class (@classes) {
             my $method_table = $class->[2]->{$method_table_name};
-            return $method_table->{$_[1]}->($_[0], @{$_[2]}) 
-                if $method_table->{$_[1]};             
+            return ($_class_dispatch_cache{$_[1]} = $method_table->{$_[1]}) 
+                if exists $method_table->{$_[1]};             
         }
         confess "Method ($_[1]) not found in \$::Class";          
     }
 
-    sub _normal_dispatch {
-        #my ($self, $label, $args, $is_class_method) = @_; 
-        #warn "... entering _normal_dispatch with label($label)" if $DISPATCH_TRACE;                    
+    # we use this to store the 
+    # memoized method lookup :)
+    my %_normal_dispatch_cache;
+    sub _normal_dispatch {                    
         my $class = ${$_[0]->[1]};
-        
         # XXX - 
         # this seems to prevent some GC issues,.. 
         # so I am leaving it here for now
         #warn "got an undef class here ... ($self)" 
-        return unless defined $class;         
+        return unless defined $class;  
+            
+        my %opts;
+        do { %opts = (for => 'class'); $class = $_[0] } if $_[3];
+                
+        local $::ARGS = [ $_[1], \%opts, $_[0], $_[2] ];          
+
+        return $_normal_dispatch_cache{$class}->{ $_[1] }->[0]->($_[0], @{$_[2]}) 
+            if exists $_normal_dispatch_cache{$class}->{ $_[1] };        
         
         # check if this is a private method
         if ($_[1] =~ /^_/) {           
-            #confess "Private Method ($label) not found for current class ($::CLASS)"
-            #    unless $::CLASS->has_method($label, for => 'private');
             my $method = $::CLASS->get_method($_[1], for => 'private') 
                       || confess "Private Method ($_[1]) not found for current class ($::CLASS)";
+            $_normal_dispatch_cache{$::CLASS} = { $_[1] => [ $method, undef ] };
             return $method->($_[0], @{$_[2]});  
         }
         else {   
-            
-            my %opts; # = (for => 'instance');
-            do { %opts = (for => 'class'); $class = $_[0] } if $_[3];
-            #if ($is_class_method) {
-            #    %opts = (for => 'class');
-            #    $class = $self;
-            #}
              
             # get the dispatcher instance ....
             my $dispatcher = $class->dispatcher(':canonical');  
@@ -437,18 +351,9 @@ our $DISPATCH_TRACE = 0;
             
             (defined $method)
                 || confess "Method ($_[1]) not found for " . ($opts{for} || 'instance') . " ($_[0])";   
-            # store the dispatcher state
-            #{
-                #no warnings 'redefine';   
-                local $::DISPATCHER = [ $dispatcher, $_[1], \%opts, $_[0], $_[2] ];     
-                #local *::next_METHOD = sub {
-                #    my $method = ::WALKMETH($dispatcher, $label, %opts); 
-                #    confess "No next-method for '$label' found" unless defined $method;
-                #    return $method->($self, @{$args});                   
-                #};
-                # call the method
-                return $method->($_[0], @{$_[2]});     
-            #}
+
+            $_normal_dispatch_cache{$class} = { $_[1] => [ $method, $dispatcher->(1) ] };
+            return $method->($_[0], @{$_[2]});     
         }        
     }
 
@@ -459,10 +364,22 @@ our $DISPATCH_TRACE = 0;
     # in each run of _normal_dispatch
     # so that 
     sub ::next_METHOD () {
-        #my ($dispatcher, $label, $opts, $self, $args) = @{$::DISPATCHER};
-        my $method = ::WALKMETH($::DISPATCHER->[0], $::DISPATCHER->[1], %{$::DISPATCHER->[2]}); 
-        confess "No next-method for found" unless defined $method;
-        return $method->($::DISPATCHER->[3], @{$::DISPATCHER->[4]});         
+        my $dispatcher;
+        if ($::DISPATCHER) {
+           $dispatcher = $::DISPATCHER; 
+        }
+        else {
+                                                          # class-id               # label         # dispacther-depth
+            my $dispatcher_depth = $_normal_dispatch_cache{${$::ARGS->[2]->[1]}}->{$::ARGS->[0]}->[1];
+                            # class
+            $dispatcher = ${$::ARGS->[2]->[1]}->dispatcher(':canonical');
+            $dispatcher->() while $dispatcher_depth--;
+        }
+        
+        local $::DISPATCHER = $dispatcher;
+        my $method = ::WALKMETH($dispatcher, $::ARGS->[0], %{$::ARGS->[1]}); 
+        confess "No next-method for $::ARGS->[0] found" unless defined $method;
+        return $method->($::ARGS->[2], @{$::ARGS->[3]});         
     }
 
 }
@@ -594,12 +511,6 @@ END {
 1;
 
 __END__
-
-START:
-Files=38, Tests=743, 74 wallclock secs (56.29 cusr +  2.16 csys = 58.45 CPU)
-
-CURRENT:
-Files=38, Tests=743, 28 wallclock secs (20.04 cusr +  1.73 csys = 21.77 CPU)
 
 =pod
 

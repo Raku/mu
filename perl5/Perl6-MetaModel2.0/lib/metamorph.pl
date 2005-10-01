@@ -211,7 +211,7 @@ $::Class->add_method('dispatcher' => ::make_method(sub {
 $::Class->add_method('_make_dispatcher_iterator' => ::make_private_method(sub {
     my (undef, @values) = @_;
     my $counter = 0;
-    return sub { $values[$counter++] };
+    return sub { return $counter if @_; $values[$counter++] };
 }));
 
 $::Class->add_method('_make_preorder_dispatcher' => ::make_private_method(sub {
@@ -420,8 +420,9 @@ $::Class->add_method('FETCH' => ::make_method(sub {
                         $self->get_method($1, for => 'class')
                         :
                         # if all else fails, maybe it is 
-                        # a sub, so we just call next METHOD
-                        ::next_METHOD();
+                        # a sub, so we just  grab it from 
+                        # the namespoace stash
+                        ::opaque_instance_attr($self => '%:namespace')->{$label};
     }   
     # XXX -
     # this reg-exp is probably not correct ...
@@ -432,11 +433,18 @@ $::Class->add_method('FETCH' => ::make_method(sub {
                     :
                     # class attributes are really just package 
                     # variables with an "our" scope... so we 
-                    # just go to the next method for them 
-                    ::next_METHOD();
+                    # just grab it from the namespoace stash
+                    ::opaque_instance_attr($self => '%:namespace')->{$label};
     } 
-    else {
-        ::next_METHOD();
+    else {        
+        # XXX -
+        # we need to duplicate the ::Package code here
+        # because calling next_METHOD here can be 
+        # problematic since ::Class does not dispatch
+        # in the same way other classes do (this should
+        # be fixed at some point though, becuase it is 
+        # actually wrong)
+        ::opaque_instance_attr($self => '%:namespace')->{$label};
     }    
 }));
 
@@ -457,7 +465,17 @@ $::Class->add_method('STORE' => ::make_method(sub {
         return $self->add_attribute($label, $value);
     } 
     else {
-        ::next_METHOD();
+        # XXX -
+        # we need to duplicate the ::Package code here
+        # because calling next_METHOD here can be 
+        # problematic since ::Class does not dispatch
+        # in the same way other classes do (this should
+        # be fixed at some point though, becuase it is 
+        # actually wrong)
+        if ($label =~ /^\&/ && ref($value) eq 'CODE') {
+            $value = ::wrap_package_sub($value, $self);
+        } 
+        ::opaque_instance_attr($self => '%:namespace')->{$label} = $value;
     }
 }));
 
