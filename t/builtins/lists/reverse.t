@@ -9,7 +9,7 @@ tests for "reverse"
 
 =cut
 
-plan 35;
+plan 36;
 
 my @a = reverse(1, 2, 3, 4);
 my @e = (4, 3, 2, 1);
@@ -32,18 +32,33 @@ is(@a[0], "bar", 'the list was reversed properly');
 
 is(@a[1], "foo", 'the list was reversed properly');
 
-class Foo {
-	has @.n;
-	method foo () { (1, 2, 3) }
-	method bar () {
-		return @.n = reverse $?SELF.foo;
+{
+	my @cxt_log;
+
+	class Foo {
+		has @.n;
+		method foo () {
+			push @cxt_log, want();
+			(1, 2, 3)
+		}
+		method bar () {
+			push @cxt_log, want();
+			return @.n = do {
+				push @cxt_log, want();
+				reverse $?SELF.foo;
+			}
+		}
 	}
+
+	my @n = do {
+		push @cxt_log, want();
+		Foo.new.bar;
+	};
+
+	is(~@cxt_log, ~("List (Any)" xx 4), "contexts were passed correctly around masak's bug");
+	is(+@n, 3, "list context reverse in masak's bug");
+	is(~@n, "3 2 1", "elements seem reversed");
 }
-
-my @n = Foo.new.bar;
-
-is(+@n, 3, "list context reverse in masak's bug");
-is(~@n, "3 2 1", "elements seem reversed");
 
 {    
     my @a = "foo";
