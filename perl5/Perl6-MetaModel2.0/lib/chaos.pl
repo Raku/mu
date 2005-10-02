@@ -375,7 +375,6 @@ our $DISPATCH_TRACE = 0;
             $dispatcher = ${$::ARGS->[2]->[1]}->dispatcher(':canonical');
             $dispatcher->() while $dispatcher_depth--;
         }
-        
         local $::DISPATCHER = $dispatcher;
         my $method = ::WALKMETH($dispatcher, $::ARGS->[0], %{$::ARGS->[1]}); 
         confess "No next-method for $::ARGS->[0] found" unless defined $method;

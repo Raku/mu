@@ -25,7 +25,8 @@ you can do with the object returned by C<$obj.meta>.
 
 =head2 The Perl 6 Meta Object Protocol.
 
-...
+The following protocol defines the behavior of I<all> classes in the Perl 6 object model. 
+This is not meant to be documentation for one particular class, but for classes in general.
 
 =head3 Basic Introspection
 
@@ -34,7 +35,7 @@ Synopsis 12.
 
 =over 4
 
-=item C<name (?$name)>
+=item C<name (Str ?$name) returns Str>
 
 This is a read-write accessor method which determines the name of the class it is associated 
 with. Its default value is C<undef>, which is essentially an anonymous class.
@@ -42,12 +43,18 @@ with. Its default value is C<undef>, which is essentially an anonymous class.
 NOTE: Changing the name of a class at runtime is possible, however it is likely that doing so
 could have many unforseen consequences, and so it is generally discouraged.
 
-=item C<version (?$version)>
+=item C<version (T ?$version) returns T>
 
 Also a read-write accessor method, this is the version number of the class it is associated 
 with. Its default value is C<0.0.0>.
 
-=item C<authority (?$authority)>
+=begin NOTE
+
+I am not sure what "Type" a version number would be. 
+
+=end
+
+=item C<authority (Str ?$authority) returns Str>
 
 This is also a read-write accessor method; it is the certifying authority for the class 
 it is associated with. This will likely be a string in one of the following formats:
@@ -56,7 +63,7 @@ it is associated with. This will likely be a string in one of the following form
   email:jrandom@cpan.org
   url:http://www.random-inc.com/~jrandom/
   
-=item C<identifier>
+=item C<identifier returns Str>
  
 This is a read-only method which takes the C<name>, C<version> and C<identifier> and concatenates
 them into a single string separated by '-' characters. This is the format found in the class 
@@ -73,20 +80,33 @@ MRO (Method Resolution Order) of a given class.
 
 =over 4 
 
-=item C<superclasses (?$superclasses)>
+=item C<superclasses (Array of Class ?@superclasses) returns Array of Class>
 
-=item C<is_a ($class_name)>
+This is a read-write accessor for a class's superclass list. Passing a C<@superclasses> list will 
+overwrite the list, it will not attempt to push or shift elements onto the list.
 
-=item C<MRO>
+Changing the superclass list will result in a recalculation of the classes MRO, and possible other
+"cache clearing" actions as yet to be determined.
 
-=item C<dispatcher (?$order)>
+=item C<is_a (Class $class) returns Bool>
 
-The following values of C<$order> are supported:
+This is a predicate function which is used to determine of one Class instance inherits from another.
+It is similar in function to C<isa>, however, it requires a Class instance, and not a Str for it's 
+argument.
 
-  :preorder
-  :breadth
-  :descendant
-  :ascendant
+=item C<MRO returns Array of Class>
+
+=item C<dispatcher (+$preorder, +$breadth, +$descendant, +$ascendant) returns Dispatcher>
+
+The named arguments here are used as a means of determining the order in which the dispatcher will 
+dispense the class precendence list. 
+
+=begin NOTE
+
+I am not sure the return value should be of type Dispatcher or not. Maybe it should just be of 
+type Code. This will need some thought.
+
+=end
 
 =back
 
@@ -128,11 +148,21 @@ the invocant, while still retaining the privacy of the method during internal ca
 
 =over 4
 
-=item C<has_method ($label)>
+=item C<has_method (Str $label) returns Bool>
 
-=item C<get_method ($label)>
+=item C<get_method (Str $label) returns Method>
 
-=item C<add_method ($label, $method)>
+=item C<remove_method (Str $label) returns Void>
+
+=item C<add_method (Str $label, Method $method) returns Void>
+
+This method can be used to associate a C<$method> with a class. It's usage is simple enough:
+
+  Foo.meta.add_method('bar', method (Foo $self:) { ... });
+
+=item C<get_method_list returns Array of Str>
+
+This method returns a list of the method labels for a given class.
 
 =back
 
