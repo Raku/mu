@@ -1,3 +1,4 @@
+#!/usr/bin/pugs
 
 # I don't normally do this, but keep all the compile tests seperate..
 # seem to be compile time vs. run time issues with not doing this

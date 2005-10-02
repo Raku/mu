@@ -441,7 +441,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     when (isExported && isOperatorName name) $
         trace 
             ("You probably don't want to export an operator name; instead\n\
-  define a new variant on the new operator (eg. multi sub *infix:<+>):" 
+  define a new variant on the new operator (eg. multi sub *infix:<+>): "
                 ++ show name ++ " at " ++ show namePos)
             (return ())
             

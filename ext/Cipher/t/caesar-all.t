@@ -1,4 +1,4 @@
-#!pugs
+#!/usr/bin/pugs
 # Tests of Cipher::Caesar in rotate-all mode
 
 use Test;

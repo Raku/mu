@@ -25,17 +25,22 @@ my %tests =
          [ -0.1, 0 ], [ -1, -1 ], [ -5.9, -5 ],
          [ -0.5, 0 ], [ -0.499, 0 ], [ -5.499, -5 ]  ],
     );
-      
+
+if $?PUGS_BACKEND ne "BACKEND_PUGS" {
+    skip_rest "PIL2JS and PIL-Run do not support eval() yet.";
+    exit;
+}
+
 for %tests.keys.sort -> $type {
     my @subtests = %tests{$type};
     for @subtests -> $test {
-    my $code = "{$type}($test[0])";
-        my $res = eval($code);
-    if ($!) {
-        fail("failed to parse $code ($!)", :todo<feature>);
-    } else {
-        is($res, $test[1], "$code == $test[1]");
-    }
+        my $code = "{$type}($test[0])";
+            my $res = eval($code);
+        if ($!) {
+            fail("failed to parse $code ($!)", :todo<feature>);
+        } else {
+            is($res, $test[1], "$code == $test[1]");
+        }
     }
 }
 
