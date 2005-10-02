@@ -31,11 +31,12 @@ would like current details, please ask on irc.freenode.net #perl6.
 -- Java        In early stages
 -- JavaScript  Integrated into JS backend but not bootstrapped like P5 version,
                and unable to work fully because old PIL still in use
--- Perl 5      Most complete, but not used yet; lacking some role functionality
+-- Perl 5      Mostly complete, used by PIL-Run
 -- Perl 6      Requires complete rewrite
 * stevan working on MetalModel 2.0, based on MiniMetaModel, as of 2005-08-22
 * MM2 designed to be cleaner, and as minimalist as possible internally, without
   significant changes to user-facing MM1 API
+* MM2 used by PIL-Run
 
 
 = Embedding
@@ -80,7 +81,7 @@ would like current details, please ask on irc.freenode.net #perl6.
 
 = Test Suite
 
-* Currently over 9800 tests, including module tests
+* Currently over 10100 tests, including module tests
 * This is known to be only a small percentage of the total needed to cover
   the currently available Perl 6 design
 * putter merged make targets for various testing methods on different backends

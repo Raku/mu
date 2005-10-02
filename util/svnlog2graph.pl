@@ -56,7 +56,7 @@ $graph->set(
   x_label      => "Days",
   y_label      => "Commits/Developers",
   x_label_skip => 10,
-  y_max_value  => 7000,
+  y_max_value  => (int(@commits / 500) + 1) * 500,
 ) or die $graph->error;
 
 my @data = (
