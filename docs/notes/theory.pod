@@ -34,7 +34,25 @@ Perl 6 Theories - Grand unified object model
 
 =head1 DESCRIPTION
 
-XXX INTRO
+If Perl 6 is to have a strongly typed dialect but still maintain its
+dynamicity, it must have a theoretical model for its typing.  Strong
+typing without a model ends up with kludges and special cases (see C++).
+This document presents a model that is precise and general, but still
+feels like Perl.
+
+The root of this model is the distinction between interface and
+implementation.  In particular, it holds the idea of a I<mock object>
+very dearly; that is, if you can create an object that pretends to be of
+a particular type, then it can be used anywhere that a real object of
+that type can.  In fact, this proposal destroys the concept of a mock
+object, by saying that any object that conforms to the interface of a
+type I<is> of that type.
+
+You can never refer to a concrete type explicitly, and you cannot create
+a concrete type without creating an interface to go along with it.
+
+Before we get to the type theory, there are two pieces of machinery that
+need to be built: tuples and pattern constructors.
 
 =head2 Tuples
 
