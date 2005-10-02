@@ -9,7 +9,7 @@ tests for "reverse"
 
 =cut
 
-plan 33;
+plan 35;
 
 my @a = reverse(1, 2, 3, 4);
 my @e = (4, 3, 2, 1);
@@ -31,6 +31,19 @@ is(+@a, 2, 'the reversed list has two elements');
 is(@a[0], "bar", 'the list was reversed properly');
 
 is(@a[1], "foo", 'the list was reversed properly');
+
+class Foo {
+	has @.n;
+	method foo () { (1, 2, 3) }
+	method bar () {
+		return @.n = reverse $?SELF.foo;
+	}
+}
+
+my @n = Foo.new.bar;
+
+is(+@n, 3, "list context reverse in masak's bug");
+is(~@n, "3 2 1", "elements seem reversed");
 
 {    
     my @a = "foo";
