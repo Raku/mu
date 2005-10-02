@@ -4,7 +4,7 @@ use v6;
 use Test;
 use File::Spec;
 
-plan 18;
+plan 17;
 
 use_ok('Config::Tiny');
 chdir "ext/Config-Tiny"; # Hack if we're run from `make smoke`
@@ -61,8 +61,7 @@ ok(!-e $new_config_path, '... the file is really gone');
 
 # check some errors
 
-ok(!$cfg<read>(), '... dont give it a file at all');
-is($cfg<err_str>(), 'You did not specify a file name', '... got the error we expected');
+dies_ok({ $cfg<read>() }, '... dont give it a file at all');
 
 ok(!$cfg<read>('bad_file_name'), '... give it a bad file name');
 is($cfg<err_str>(), "Failed to open 'bad_file_name' for reading", '... got the error we expected');
