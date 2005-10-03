@@ -328,7 +328,7 @@ method decipher(Class $class: Str $ciphertext, *%options) {
 }
 
 method encipherer(Class $class: *%options) {
-    my $self = $class.new(*%options, :mode<enciphering>);
+    my $self = $class.new(:mode<enciphering>, *%options);
     return sub(Str ?$plaintext) {
         if defined $plaintext  { return $self.cipher($plaintext) }
         else                   { return $self.finishstr() }
