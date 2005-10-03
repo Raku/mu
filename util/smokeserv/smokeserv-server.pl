@@ -13,6 +13,9 @@ use Algorithm::TokenBucket;
 use Time::Piece;
 use Time::Seconds;
 
+# All dates should be displayed as UTC (Time::Piece honours $*ENV<TZ>).
+$ENV{TZ} = "UTC";
+
 require_compression_modules();
 
 use constant {
