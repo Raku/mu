@@ -7,8 +7,8 @@ use Test;
 
 my @tests = (
     # Basic scalar values
-    42, Inf, -Inf, NaN,
-    "a string", "", "\0",
+    42, 3e5, Inf, -Inf, NaN,
+    "a string", "", "\0", "\t", "\n", "\r\n",
     ?1, ?0,
     undef,
 
@@ -43,9 +43,9 @@ unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
 {
     for @tests -> $obj {
         is ~$obj.perl.eval, ~$obj,
-            ".perl returned something which eval()ed stringification is unchanged";
+            ".perl returned something whose eval()ed stringification is unchanged";
         is $obj.perl.eval.ref, $obj.ref,
-            ".perl returned something which eval()ed .ref is unchanged";
+            ".perl returned something whose eval()ed .ref is unchanged";
     }
 }
 

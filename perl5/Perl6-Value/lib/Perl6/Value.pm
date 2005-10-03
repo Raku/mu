@@ -11,6 +11,10 @@
 
 # ChangeLog
 #
+# 2005-10-03
+# * Fixed Pair stringification ("$key\t$value") and .perlification
+#   ("($key.perl() => $value.perl())")
+#
 # 2005-09-27
 # * Str.decrement() works
 # * Migrated to MetaModel-2 (putter)
@@ -287,13 +291,17 @@ class1 'Pair'.$class_description => {
         methods => {
             'num' => sub { Num->new( '$.unboxed' => 0 ) },
             'int' => sub { Int->new( '$.unboxed' => 0 ) },
-            'str' => sub { $_[0]->perl }, 
+            'str' => sub {
+                my $key =   Perl6::Value::stringify( _('$.key') );
+                my $value = Perl6::Value::stringify( _('$.value') );
+                Str->new( '$.unboxed' => "$key\t$value" ) 
+              },
             'bit' => sub { Bit->new( '$.unboxed' => 0 ) },
             'perl' => sub { 
                 my $self = shift;
-                my $key =   Perl6::Value::stringify( $self->key );
-                my $value = Perl6::Value::stringify( $self->value );
-                Str->new( '$.unboxed' => "($key, $value)" ) 
+                my $key =   Perl6::Value::stringify( $self->key->perl );
+                my $value = Perl6::Value::stringify( $self->value->perl );
+                Str->new( '$.unboxed' => "($key => $value)" ) 
               },
             'unboxed' => sub { ( _('$.key'), _('$.value') ) },
             'ref' => sub { $::CLASS }, 
