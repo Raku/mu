@@ -2,6 +2,15 @@
 
 use v6;
 use Test;
+plan 1;
+
+# See thread "Packages, Modules and Classes" on p6l
+# started by Stevan Little:
+# http://www.nntp.perl.org/group/perl.perl6.language/23019
+skip_rest "test needs to be rewritten because of recent design changes";
+
+=begin obsolete
+
 plan 2;
 
 # test the functions to browse the symbol table, and refer to packages

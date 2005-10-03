@@ -67,8 +67,8 @@ sub prefix:<Σ> (@x) { [+] *@x }
 is(Σ [1..10], 55, "sum prefix operator");
 
 # check that the correct overloaded method is called
-sub postfix:<!> ($x) { [*] 1..$x }
-sub postfix:<!> (Str $x) { return($x.uc ~ "!!!") }
+multi postfix:<!> ($x) { [*] 1..$x }
+multi postfix:<!> (Str $x) { return($x.uc ~ "!!!") }
 
 is(10!, 3628800, "factorial postfix operator");
 is("boobies"!, "BOOBIES!!!", "correct overloaded method called");

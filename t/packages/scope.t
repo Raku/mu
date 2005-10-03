@@ -8,6 +8,11 @@ use Test;
 # at in S10
 plan 23;
 
+if $?PUGS_BACKEND ne "BACKEND_PUGS" {
+  skip_rest "PIL2JS and PIL-Run do not support eval() yet.";
+  exit;
+}
+
 # 4 different ways to be imported
 {
     package Test1;

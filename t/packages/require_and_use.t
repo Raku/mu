@@ -6,6 +6,11 @@ use Test;
 plan 18;
 force_todo 1..2, 4..12;
 
+if $?PUGS_BACKEND ne "BACKEND_PUGS" {
+  skip_rest "PIL2JS and PIL-Run do not support eval() yet.";
+  exit;
+}
+
 my @tests = (
   "t::packages::RequireAndUse1", { $^a == 42 },
   "t::packages::RequireAndUse2", { $^a != 23 },
