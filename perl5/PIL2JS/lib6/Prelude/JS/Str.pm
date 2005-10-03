@@ -50,6 +50,8 @@ method chomp(Str $self:) {
   }
 }
 
+method chop(Str $self:) { substr $self, 0, -1 }
+
 sub infix:<x>    (Str $a, Int $count) is primitive {
   my $ret = "";
   $ret ~= $a for 1..$count;

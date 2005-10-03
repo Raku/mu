@@ -363,7 +363,7 @@ sub PIL2JS::Internals::Hacks::array_postcircumfix_for_undefs (
   }
 
   $array = [];
-  $array{*@idxs};
+  $array[*@idxs];
 }
 
 sub PIL2JS::Internals::Hacks::init_undef_array_postcircumfix_method () is primitive {
