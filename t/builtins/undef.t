@@ -242,7 +242,7 @@ else {
     #   (except for special circumstances)
         "abcde" ~~ rx:perl5/(.)(.)(.)/;
         "abcde" ~~ rx:perl5/(\d)/;
-    ok((!grep { defined($_) } ($0, $1, $2, $3, $4, $5)),
+    ok((!try { grep { defined($_) } ($0, $1, $2, $3, $4, $5) }),
             "all submatches undefined after failed match") or
         diag("match state: " ~ eval '$/');
 

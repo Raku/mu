@@ -92,7 +92,7 @@ method postcircumfix:<{}>(%self: *@keys) is rw {
       }
 
       // Needed for %a<a b> = <c d>.
-      cc(new PIL2JS.Box.Proxy(
+      var proxy = new PIL2JS.Box.Proxy(
         function ()  { return ret },
         function (n) {
           var arr = new PIL2JS.Box([]).STORE(n).FETCH();
@@ -102,7 +102,30 @@ method postcircumfix:<{}>(%self: *@keys) is rw {
 
           return this;
         }
-      ));
+      );
+      proxy.BINDTO = function (other) {
+        var arr = other.FETCH();
+
+        if(!(arr instanceof Array)) {
+          PIL2JS.die("Can\'t bind hash slice to non-array object!");
+        }
+
+        var backup_arr = [];
+        for(var i = 0; i < arr.length; i++) {
+          backup_arr[i]        = new PIL2JS.Box;
+          backup_arr[i].FETCH  = arr[i].FETCH;
+          backup_arr[i].STORE  = arr[i].STORE;
+          backup_arr[i].BINDTO = arr[i].BINDTO;
+        }
+
+        for(var i = 0; i < backup_arr.length; i++) {
+          ret[i].BINDTO(backup_arr[i]);
+        }
+
+        return this;
+      };
+
+      cc(proxy);
     }
   })')(%self, @keys);
 }

@@ -9,7 +9,7 @@ Testing array slices.
 
 =cut
 
-plan 19;
+plan 21;
 
 {   my @array = (3,7,9);
 
@@ -42,21 +42,28 @@ plan 19;
 }
 
 {   my @array = <a b c d>;
+
+    try { @array[1, 2] := <B> };
+    is ~@array, "a B d",    "binding array slices works (2-1)";
+    ok !defined(@array[2]), "binding array slices works (2-2)";
+}
+
+{   my @array = <a b c d>;
     my $foo   = "B";
     my $bar   = "C";
 
     try { @array[1, 2] := ($foo, $bar) };
-    is ~@array, "a B C d", "binding array slices works (2)";
+    is ~@array, "a B C d", "binding array slices works (3-1)";
 
     $foo = "BB";
     $bar = "CC";
-    is ~@array, "a BB CC d", "binding array slices works (3)";
+    is ~@array, "a BB CC d", "binding array slices works (3-2)";
 
     @array[1] = "BBB";
     @array[2] = "CCC";
-    is ~@array, "a BBB CCC d", "binding array slices works (4)";
-    is $foo,    "BBB",         "binding array slices works (5)";
-    is $bar,    "CCC",         "binding array slices works (6)";
+    is ~@array, "a BBB CCC d", "binding array slices works (3-3)";
+    is $foo,    "BBB",         "binding array slices works (3-4)";
+    is $bar,    "CCC",         "binding array slices works (3-5)";
 }
 
 # Slices on array literals
