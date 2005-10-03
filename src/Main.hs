@@ -234,11 +234,12 @@ doHelperRun backend args =
 
 doExecuteHelper :: [FilePath] -> [String] -> IO ()
 doExecuteHelper helper args = do
-    mbin <- findHelper [["."], ["..", ".."]]
+    let searchPaths = [["."], ["..", ".."], [getConfig "sourcedir"]]
+    mbin <- findHelper searchPaths
     case mbin of
         Just binary -> do
             exitWith =<< executeFile' perl5 True (binary:args) Nothing
-        _ -> fail ("Couldn't find helper program" ++ (foldl1 joinFileName helper))
+        _ -> fail ("Couldn't find helper program " ++ (foldl1 joinFileName helper) ++ " (searched in " ++ show searchPaths ++ ")")
     where
     perl5 = getConfig "perl5path"
     findHelper :: [[FilePath]] -> IO (Maybe FilePath)
@@ -261,8 +262,10 @@ doExecuteHelper helper args = do
     file' x = (file x) ++ (getConfig "exe_ext")
     fileExists path = do
         let (p,f) = splitFileName path
-        dir <- getDirectoryContents p
-        return $ f `elem` dir
+        dir <- tryIO Nothing $ fmap Just $ getDirectoryContents p
+        case dir of
+            Just dir' -> return $ f `elem` dir'
+            _         -> return False
 
 doParseWith :: (Env -> FilePath -> IO a) -> FilePath -> String -> IO a
 doParseWith f name prog = do

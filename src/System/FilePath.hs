@@ -144,7 +144,7 @@ joinFileName "." fname = fname
 joinFileName dir ""    = dir
 joinFileName dir ('.':chr:fname)
   | isPathSeparator chr = joinFileName dir fname
-  | chr == '.' && isPathSeparator (head fname) = joinFileName (reverse $ dropWhile (not . isPathSeparator) $ reverse dir) (tail fname)
+  | chr == '.' && not (null fname) && isPathSeparator (head fname) = joinFileName (reverse $ dropWhile (not . isPathSeparator) $ reverse dir) (tail fname)
 joinFileName dir fname
   | isPathSeparator (last dir) = dir++fname
   | otherwise                  = dir++pathSeparator:fname
