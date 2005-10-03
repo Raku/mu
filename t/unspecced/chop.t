@@ -3,13 +3,23 @@
 use v6;
 use Test;
 
-plan 9;
+plan 2;
+
+# See http://use.perl.org/~autrijus/journal/25351:
+#   &chomp and &wrap are now nondestructive; chomp returns the chomped part,
+#   which can be defined by the filehandle that obtains the default string at
+#   the first place. To get destructive behaviour, use the .= form.
 
 { # chop a string
     my $str = "foo";
-    is(chop($str), "o", "o removed");
-    is($str, "fo", "and isn't in the string anymore");
+    is(chop($str), "fo", "o removed");
+    is($str, "foo", "original string unchanged");
 };
+
+=begin more-discussion-needed
+
+XXX: chop(@array) should return an array of chopped strings?
+XXX: chop(%has)   should return a  hash  of chopped strings?
 
 { # chop serveral things
     my ($a, $b) = ("bar", "gorch");

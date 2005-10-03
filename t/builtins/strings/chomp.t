@@ -12,7 +12,10 @@ Basic tests for the chomp() builtin
 =cut
 
 # L<S29/"Perl6::Str" /chomp/>
-# See http://use.perl.org/~autrijus/journal/25351, too.
+# Also see http://use.perl.org/~autrijus/journal/25351:
+#   &chomp and &wrap are now nondestructive; chomp returns the chomped part,
+#   which can be defined by the filehandle that obtains the default string at
+#   the first place. To get destructive behaviour, use the .= form.
 
 {
     my $foo = "foo\n";
