@@ -108,13 +108,10 @@ op1 "clone" = \x -> do
     writeIVar (IHash attrs') attrs
     return $ VObject o{ objAttrs = attrs', objId = uniq }
 op1 "chop" = \x -> do
-    ref <- fromVal x
     str <- fromVal x
     if null str
-        then return undef
-        else do
-            writeRef ref $ VStr (init str)
-            return $ VStr [last str]
+        then return $ VStr str
+        else return $ VStr $ init str
 op1 "chomp" = \x -> do
     str <- fromVal x
     if null str || last str /= '\n'
