@@ -191,15 +191,16 @@ sub set_postamble {
     my $cc = $ENV{CC} || 'gcc';
     $ghc_flags .= " -pgmc $cc " unless $cc eq 'gcc';
 
-    # OS X / Tiger and gcc4.0 doesn't work with pugs. complain.
+    # GHC 6.4.1, OS X / Tiger and gcc4.0 doesn't work together. complain.
     if ($Config{osname} eq "darwin") {
       my $gcc_version = `$cc -v 2>&1`;
       my $os_version = `uname -r`;
-      if ($gcc_version =~ /4.0.0/ && $os_version =~ /^8./) {
+      if ($ghc_version =~ /^6.4(?:.0)?$/ and $gcc_version =~ /\b4.0.0\b/ && $os_version =~ /^8./) {
          die <<EOD;
 *** GHC 6.4.0 cannot work with GCC 4.0 on Mac OS X.
-    Please use "sudo gcc_select 3.3" to pick an earlier version of gcc,
-    or set the CC environment variable to "/usr/bin/gcc-3.3".
+    Please upgrade to GHC 6.4.1, or use "sudo gcc_select 3.3" to pick an
+    earlier version of gcc, or set the CC environment variable to
+    "/usr/bin/gcc-3.3".
 EOD
       }
     }
