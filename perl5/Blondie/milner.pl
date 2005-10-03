@@ -258,13 +258,22 @@ package types;
 use Class::Multimethods::Pure;
 use Data::Dumper;
 
+
+# The unification of the various types depends on their data...
+# this is why this code is so big.
+
+# in a language with native multimetods this would be much more concise
+
+# a free variable instantiates into whatever it is combined with (except instantiated variables, which delegate. see below)
 multi unify => ( 'type::variable::free', any(qw/type::variable::free type::operator/) ) => sub { $_[0]->instantiate($_[1]) };
 multi unify => ('type::operator', 'type::variable::free') => sub { $_[1]->instantiate($_[0]) };
 
+# an instantiated variable will unify it's instantiated value instead of itself
 multi unify => ('type::variable::instantiated', 'type') => sub { unify($_[0]{instance}, $_[1], @_[2, 3]) };
 multi unify => ('type', 'type::variable::instantiated') => sub { unify($_[1]{instance}, $_[0], @_[2, 3]) };
 multi unify => ('type::variable::instantiated', 'type::variable::instantiated') => sub { unify($_[0]{instance}, $_[1]{instance}, @_[2, 3]) };
 
+# nullary operators much have the same name (e.g. int == int, str == str, int != str)
 multi unify => ('type::operator::nullary', 'type::operator::nullary') => sub {
 	my ($x, $y) = (shift, shift);
 
@@ -272,6 +281,7 @@ multi unify => ('type::operator::nullary', 'type::operator::nullary') => sub {
 		or die "can't unify $x->{name} with $y->{name} in " . Dumper(@_);
 };
 
+# binary operators must have the same symbol, and are also unified recursively
 multi unify => ('type::operator::binary', 'type::operator::binary') => sub {
 	my ($x, $y) = (shift, shift);
 	
@@ -286,7 +296,10 @@ multi unify => ('type', 'type') => sub {
 	die "trying to unify unknown type type: " . Dumper(@_);
 };
 
+
+# these are the type signatures of some builtins
 our %prelude = (
+	# int -> int -> int
 	add => type::operator::arrow->new(
 		type::operator::nullary->new("int"),	
 		type::operator::arrow->new(
@@ -294,6 +307,7 @@ our %prelude = (
 			type::operator::nullary->new("int"),
 		),
 	),
+	# a -> b -> (a x b)
 	pair => do {
 		my $a = type::variable::free->new;
 		my $b = type::variable::free->new;
@@ -306,6 +320,7 @@ our %prelude = (
 			),
 		);
 	},
+	# (a x b) -> a
 	fst => do {
 		my $a = type::variable::free->new;
 		my $b = type::variable::free->new;
@@ -315,6 +330,7 @@ our %prelude = (
 			$a,
 		);
 	},
+	# (a x b) -> b
 	snd => do {
 		my $a = type::variable::free->new;
 		my $b = type::variable::free->new;
