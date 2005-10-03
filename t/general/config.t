@@ -21,7 +21,7 @@ ok $?OS, "We were compiled in '$?OS'";
 ok $*OS, "We are running under '$*OS'";
 
 # my $osnames = 'darwin' | 'linux' | 'MSWin32' | 'FreeBSD';
-my $osnames = any<darwin linux FreeBSD MSWin32 mingw msys cygwin>;
+my $osnames = any<darwin linux FreeBSD MSWin32 mingw msys cygwin browser>;
 if ($?OS eq $osnames) {
     pass("...and we know of the OS we were compiled in")
 } else {

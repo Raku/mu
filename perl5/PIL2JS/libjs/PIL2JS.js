@@ -728,6 +728,7 @@ var _24main_3a_3aPUGS_HAS_HSPLUGINS    = _24main_3a_3a_2aPUGS_HAS_HSPLUGINS;
 var _40main_3a_3a_2aINC      = new PIL2JS.Box([]);
 var _26main_3a_3a_3fBLOCK    = new PIL2JS.Box(undefined);
 var _26main_3a_3a_3fSUB      = new PIL2JS.Box(undefined);
+var _24main_3a_3a_3fOS       = new PIL2JS.Box.Constant("unknown");  // XXX
 var _24main_3a_3a_2aOS       = new PIL2JS.Box.Constant("browser");
 var _24main_3a_3aOS          = _24main_3a_3a_2aOS;
 var _24main_3a_3a_3fPUGS_BACKEND = new PIL2JS.Box.Constant("BACKEND_JAVASCRIPT");

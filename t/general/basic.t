@@ -13,12 +13,6 @@ plan 15;
 
 ok(1, "Welcome to Pugs!");
 
-sub cool { ok(fine($_), " # We've got " ~ toys) }
-sub fine { $_ == 2 }
-sub toys { "fun and games!" }
-
-(2).cool;  # and that is it, folks!
-
 my $foo = "Foo";
 undefine $foo;
 ok(!$foo, 'undef');
@@ -44,7 +38,18 @@ my $nexttest = 0;
 for (1..10) { $nexttest++; next; $nexttest++; }
 ok($nexttest == 10, "next");
 
-is(12.eval, 12, "12.eval");
-is(eval(1 ?? 1 !! 0), 1, "?? !!");
+if $?PUGS_BACKEND ne "BACKEND_PUGS" {
+    skip 1, "PIL2JS and PIL-Run do not support eval() yet.";
+} else {
+    is(12.eval, 12, "12.eval");
+}
+
+is(1 ?? 1 !! 0, 1, "?? !!");
 
 ok({ my $_ = 1; $_ }, '{ my $_ = 1; $_ }');
+
+sub cool { ok(fine($_), " # We've got " ~ toys) }
+sub fine { $_ == 2 }
+sub toys { "fun and games!" }
+
+(2).cool;  # and that is it, folks!
