@@ -17,31 +17,29 @@ method JS::Root::pop(@self:) is rw {
 }
 
 method JS::Root::unshift($self is rw: *@things) is rw {
-  if not defined $self {
-    $self = [];
-  }
-
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var array = args[1].FETCH(), add = args[2].FETCH(), cc = args.pop();
+    if(array == undefined) args[1].STORE(new PIL2JS.Box.Constant(array = []));
+    if(array.referencee && array.autoderef) array = array.referencee.FETCH();
+
     for(var i = add.length - 1; i >= 0; i--) {
       array.unshift(new PIL2JS.Box(add[i].FETCH()));
     }
     cc(new PIL2JS.Box.Constant(array.length));
-  })')(@$self, @things);
+  })')($self, @things);
 }
 
 method JS::Root::push($self is rw: *@things) is rw {
-  if not defined $self {
-    $self = [];
-  }
-
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var array = args[1].FETCH(), add = args[2].FETCH(), cc = args.pop();
+    if(array == undefined) args[1].STORE(new PIL2JS.Box.Constant(array = []));
+    if(array.referencee && array.autoderef) array = array.referencee.FETCH();
+
     for(var i = 0; i < add.length; i++) {
       array.push(new PIL2JS.Box(add[i].FETCH()));
     }
     cc(new PIL2JS.Box.Constant(array.length));
-  })')(@$self, @things);
+  })')($self, @things);
 }
 
 method join(@self: Str $sep) { join $sep, *@self }
