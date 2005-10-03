@@ -9,6 +9,8 @@ import Distribution.PackageDescription
 main :: IO ()
 main = defaultMain
 
+\end{code}
+
 main' :: IO ()
 main' = defaultMainWithHooks $ defaultUserHooks
     { runTests = test
@@ -25,10 +27,5 @@ ppDrift = error "bar!"
 -- Basic plan: Here we detect, by virtue of --bootstrap, whether
 -- we are to do a stage1 build or skip over to the main build after all.
 
-{- 
--}
-
 stage1 :: Args -> Int -> IO HookedBuildInfo
 stage1 = error "baz!"
-
-\end{code}

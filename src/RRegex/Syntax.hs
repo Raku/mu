@@ -53,11 +53,11 @@ module RRegex.Syntax(
     (!~), 
     MatchResult(..)) where
 
-import Array
+import Data.Array
 import RRegex.PCRE as PCRE
 --import RRegex
-import Maybe
-import Monad
+import Data.Maybe
+import Control.Monad
 import System.IO.Unsafe
 
 

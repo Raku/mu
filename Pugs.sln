@@ -1,0 +1,18 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{C0AB5119-7A36-4E57-9FD6-C9DBBD6E8BCE}") = "Pugs", "Pugs.cabal", "{61F99F9D-A3DF-4CD4-A135-698FD6D99FD6}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{61F99F9D-A3DF-4CD4-A135-698FD6D99FD6}.Debug.ActiveCfg = Debug
+		{61F99F9D-A3DF-4CD4-A135-698FD6D99FD6}.Debug.Build.0 = Debug
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

@@ -1,35 +1,39 @@
-Name:                Pugs
-Version:             6.2.10
-Copyright:           2005, Autrijus Tang
-Author:              Autrijus Tang <autrijus@autrijus.org>
-Maintainer:          Autrijus Tang <autrijus@autrijus.org>
-License:             GPL
-License-File:        LICENSE
-Build-Depends:       base, stm, mtl, QuickCheck
-Exposed-modules:     PIL
-Other-modules:       PIL.Compile,   PIL.Exp,       PIL.MetaModel, PIL.Pad,    PIL.Tie,
-                     PIL.Container, PIL.Internals, PIL.Monads,    PIL.Parser, PIL.Val,
-                     PIL.PIL,       PIL.Str
-Extensions:          CPP, ForeignFunctionInterface
-GHC-options:         -Wall -O0
-C-sources:           src/cbits/fpstring.c, src/UnicodeC.c
-Include-dirs:        src/cbits, src
-Hs-source-dirs:      src
-
-Executable:          pil
-Main-is:             PIL/Main.hs
-Other-modules:       PIL.Compile,   PIL.Exp,       PIL.MetaModel, PIL.Pad,    PIL.Tie,
-                     PIL.Container, PIL.Internals, PIL.Monads,    PIL.Parser, PIL.Val,
-                     PIL.PIL,       PIL.Str
-C-sources:           src/cbits/fpstring.c, src/UnicodeC.c
-Include-dirs:        src/cbits, src
-Hs-source-dirs:      src
-
-Executable:          pugs
-Main-is:             Main.hs
-Other-modules:       PIL.Compile,   PIL.Exp,       PIL.MetaModel, PIL.Pad,    PIL.Tie,
-                     PIL.Container, PIL.Internals, PIL.Monads,    PIL.Parser, PIL.Val,
-                     PIL.PIL,       PIL.Str
-C-sources:           src/cbits/fpstring.c, src/UnicodeC.c
-Include-dirs:        src/cbits, src/syck, src
-Hs-source-dirs:      src
+name: Pugs
+version: 6.2.10
+license: GPL
+license-file: ""
+copyright: 2005, Autrijus Tang
+maintainer: Autrijus Tang <autrijus@autrijus.org>
+build-depends: QuickCheck -any, base -any, mtl -any, stm -any
+stability: experimental
+homepage: http://pugscode.org/
+package-url:
+synopsis: A Perl 6 Implementation
+description: A Perl 6 Implementation
+category:
+author: Autrijus Tang <autrijus@autrijus.org>
+tested-with: GHC -any
+-- extra-source-files: Makefile.PL
+-- extra-tmp-files:
+exposed-modules: Main
+buildable: True
+cc-options:
+ld-options:
+frameworks:
+c-sources: src/cbits/fpstring.c src/pcre/pcre.c src/UnicodeC.c
+           syck/bytecode.c syck/emitter.c syck/gram.c syck/handler.c
+           syck/implicit.c syck/node.c syck/syck.c syck/syck_st.c syck/token.c
+           syck/yaml2byte.c
+extensions: CPP ForeignFunctionInterface
+extra-libraries:
+extra-lib-dirs:
+includes: syck.h pcre.h
+include-dirs: . src/pcre src/syck src/cbits src
+hs-source-dir: src
+other-modules: Pugs.AST Pugs.Bind Pugs.Class Pugs.CodeGen
+               Pugs.Compat Pugs.Compile Pugs.Config Pugs.Cont Pugs.Embed Pugs.Eval
+               Pugs.External Pugs.Help Pugs.Internals Pugs.Junc Pugs.Lexer
+               Pugs.Monads Pugs.PIL1 Pugs.Parser Pugs.Prelude Pugs.Pretty
+               Pugs.Prim Pugs.Rule Pugs.Run Pugs.Shell Pugs.Types Pugs.Version
+               RRegex UTF8
+ghc-options: -Wall -O0

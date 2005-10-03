@@ -38,7 +38,7 @@ import RRegex.PCRE
 
 import System.IO.Unsafe
 import RRegex.Syntax
-import Array
+import Data.Array
 
 -- | Makes a regular expression with the default options (multi-line,
 -- case-sensitive).  The syntax of regular expressions is

@@ -1,8 +1,8 @@
 {-# OPTIONS_GHC -fglasgow-exts -fvia-C -cpp #-}
 
-#if __GLASGOW_HASKELL__ > 604
+#if __GLASGOW_HASKELL__ > 904
 module Unicode (module Char) where
-import Char hiding (chr, ord, digitToInt)
+import Char -- hiding (chr, ord, digitToInt)
 #else
 
 {-# OPTIONS_GHC -fno-implicit-prelude #-}
