@@ -1,7 +1,40 @@
-method JS::Root::substr(Str $str: Int $a, Int ?$b = chars $str) {
-  JS::inline('(function (str, a, b) {
-    return String(str).substr(Number(a), Number(b));
-  })')(~$str, +$a, +$b < 0 ?? +$b + chars $str !! +$b);
+method JS::Root::substr(Str $str is rw: Int $a, Int ?$b = chars $str) is rw {
+  JS::inline('new PIL2JS.Box.Constant(function (args) {
+    var str  = args[1],
+        a    = Number(args[2].toNative()),
+        b    = Number(args[3].toNative()),
+        cc   = args.pop();
+    if(str.FETCH().referencee && str.FETCH().autoderef) str = str.FETCH().referencee;
+
+    var proxy = new PIL2JS.Box.Proxy(
+      function () {
+        var str_ = String(PIL2JS.cps2normal(
+          _26main_3a_3aprefix_3a_7e.FETCH(),
+          [ PIL2JS.Context.ItemAny, str ]
+        ).toNative());
+
+        return str_.substr(a, b);
+      },
+      function (n) {
+        var str_ = String(PIL2JS.cps2normal(
+          _26main_3a_3aprefix_3a_7e.FETCH(),
+          [ PIL2JS.Context.ItemAny, str ]
+        ).toNative());
+        var repl = String(PIL2JS.cps2normal(
+          _26main_3a_3aprefix_3a_7e.FETCH(),
+          [ PIL2JS.Context.ItemAny, n ]
+        ).toNative());
+
+        str.STORE(new PIL2JS.Box.Constant(
+          str_.substr(0, a) +
+          repl +
+          str_.substr(a + b)
+        ));
+      }
+    );
+
+    cc(proxy);
+  })')($str, +$a, +$b < 0 ?? +$b - $a + chars $str !! +$b);
 }
 
 method split(Str $self: Str $splitter) { split $splitter, $self }

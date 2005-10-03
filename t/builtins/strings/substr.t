@@ -25,6 +25,10 @@ plan 31;
     is($str, "foobar", "original string still not changed");
 };
 
+skip 4, "more discussion needed";
+
+=begin more-discussion-needed
+
 { # replacement
     my $str = "foobar";
 
@@ -40,6 +44,10 @@ plan 31;
     substr($str, 1, -1, "aye");
     is($str, "fayeh", "replacement with negative length");
 };
+
+=end more-discussion-needed
+
+=cut
 
 # as lvalue, XXX: not sure this should work, as that'd be action at distance:
 #   my $substr = \substr($str, ...);
