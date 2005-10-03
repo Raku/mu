@@ -275,7 +275,7 @@ class Cipher-0.02;
 has $.mode;
 has bool $:seen_head;
 
-submethod BEGIN(?$.mode = "enciphering") {
+submethod BUILD(?$.mode = "enciphering") {
     $:seen_head = 0;
     given lc $.mode {
         when any <enciphering encipher encrypting encrypt> {
@@ -296,13 +296,13 @@ method _head() returns Array { return }
 method _tail() returns Array { return }
 
 # What we implement for them.
-method finish() returns Array {
-    my @tail=.tail();
-    .zeroize();
+method finish(Cipher $self:) returns Array {
+    my @tail=$self._tail();
+    $self.zeroize();
     return @tail;
 }
-method finishstr() returns Str {
-    return .:stringify(.finish());
+method finishstr(Cipher $self:) returns Str {
+    return $self.:stringify($self.finish());
 }
 
 multi method cipher(Cipher $self: Array $data) returns Array {
@@ -327,15 +327,15 @@ method decipher(Class $class: Str $ciphertext, *%options) {
     return $self.cipher($ciphertext) ~ $self.finishstr();
 }
 
-method encipherer(Class $self: *%options) {
-    my $self = $class.new(*%options);
+method encipherer(Class $class: *%options) {
+    my $self = $class.new(*%options, :mode<enciphering>);
     return sub(Str ?$plaintext) {
         if defined $plaintext  { return $self.cipher($plaintext) }
         else                   { return $self.finishstr() }
     };
 }
-method decipherer(Class $self: *%options) {
-    my $self = $class.new(*%options);
+method decipherer(Class $class: *%options) {
+    my $self = $class.new(*%options, :mode<deciphering>);
     return sub(Str ?$ciphertext) {
         if defined $ciphertext { return $self.cipher($ciphertext) }
         else                   { return $self.finishstr() }
