@@ -52,7 +52,7 @@ XXX not sure where to put this
 * Parts of the Prelude can be written in Perl 5 now, resulting in performance
   improvements
 * Initial support for multi subs
-* Initial support for array and hash autovivification
+* Support for array and hash autovivification
 * Perl 5-like regular expressions mostly working
 * Miscellaneous performance improvements
 * Support for loading JSAN modules by using `use jsan:Module.Name`
@@ -60,6 +60,11 @@ XXX not sure where to put this
 * Support for "monkey-but" (`$foo but {...}`)
 * Using `for` with only one element to loop over works now
 * `int()` works correctly on special values like `Inf` or `NaN` now
+* Fixed `.values` and `.kv` to return aliases
+* Fixed evaluation order of assignments and bindings
+* Support for array and hash slices
+* `substr()` returns a readwrite proxy object now (`substr($str, $pos, $len) =
+  $replacement)`)
 
 === Perl 5 backend
 * Already has enough functionality to run Perl 6 version of Test.pm
