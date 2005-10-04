@@ -80,7 +80,10 @@ use strict;
       $methname = ($methname =~ /^&.*::(.+)$/)[0] or
         PIL::fail("Method names must be simple strings!");
       # method foo (A|B|C $self:) {...}
-      my @classes = map { ":" . $_->as_string } $self->params->[0]->type->all_types;
+      my @classes =
+        $self->params->[0]->name =~ /^@/ ? (":Array") :
+        $self->params->[0]->name =~ /^%/ ? (":Hash")  :
+        map { ":" . $_->as_string } $self->params->[0]->type->all_types;
       $js .= sprintf
         "PIL2JS.addmethod(%s, %s, %s);\n",
         PIL::name_mangle($_),
