@@ -128,7 +128,8 @@ method zeroize() {
 method generate_keystream(Int $n) returns Array {
     return gather {
         for 1..$n {
-            ++$.i %= 256;
+            ++$.i;
+            $.i %= 256;
             ($.j += @.state[$.i]) %= 256;
             @.state[$.i, $.j] = @.state[$.j, $.i];
             take @.state[ (@.state[$.i] + @.state[$.j]) % 256 ];
