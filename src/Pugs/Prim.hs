@@ -1305,7 +1305,7 @@ primOp sym assoc prms ret isSafe =
          = "&*" ++ fixity ++ (':':sym)
     sub  = codeRef $ mkPrim
         { subName     = sym
-        , subType     = SubPrim
+        , subType     = if sym == "Object::new" then SubMethod else SubPrim
         , subAssoc    = assoc
         , subParams   = prms
         , subReturns  = mkType ret
