@@ -554,11 +554,11 @@ callThunkCC fun | parrotBrokenXXX =
     [ tempINT   <-- "get_addr" $ [fun]
     , tempSTR   <:= tempINT
     , "store_global" .- [tempSTR, funPMC]
-    , "invoke" .- [fun]
+    , "invokecc" .- [fun]
     ]
 callThunkCC fun =
     [ "set_args" .- sigList [funPMC]
-    , "invoke" .- [fun]
+    , "invokecc" .- [fun]
     ]
 
 {-| Creates appropriate @&statement_control:foo@ subroutines. -}
