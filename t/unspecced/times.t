@@ -12,7 +12,7 @@ for (1..1000) {
 my @end = times();
 ok(@end[0] > @start[0], 'something changed in times()');
 
-cmp_ok(@end[0] - @start[0], &infix:<<=>, 10, 'sensible time spent')
+cmp_ok(@end[0] - @start[0], &infix:«<=», 10, 'sensible time spent')
   or do {
     diag "Start: "~ @start;
     diag "End:   "~ @end;  
@@ -34,7 +34,7 @@ my @diff = @end >>-<< @start;
 my $total = [+] @diff;
 ok( $total <= $end - $start, "Total time accounted is less than or equal wallclock time");
 
-cmp_ok(@diff[0], &infix:<<=>, 2, "Spent more than 2 seconds in user space")
+cmp_ok(@diff[0], &infix:«<=», 2, "Spent more than 2 seconds in user space")
   or do {
     diag "Start: "~ @start;
     diag "End:   "~ @end;
