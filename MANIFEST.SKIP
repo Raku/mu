@@ -4,6 +4,7 @@
 ^\.settings
 ^pugs
 ^tags
+^throw_away
 ^MANIFEST.bak$
 Makefile$
 Makefile.old$
