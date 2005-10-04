@@ -13,32 +13,32 @@ sub bar {
 
 
 use pragma::Demo 'x1';
-is(Pugs::Internals::current_pragma_value('pragma::Demo'), '1', "Outer value is set");
+is(Pugs::Internals::current_pragma_value('pragma::Demo'), '1', "Outer value is set", :todo<feature>);
 {
-  is(Pugs::Internals::current_pragma_value('pragma::Demo'), '1', "Outer value is inherited");
+  is(Pugs::Internals::current_pragma_value('pragma::Demo'), '1', "Outer value is inherited", :todo<feature>);
   use pragma::Demo 'x2';
-  is(Pugs::Internals::current_pragma_value('pragma::Demo'), '2', "Inner value is set");
+  is(Pugs::Internals::current_pragma_value('pragma::Demo'), '2', "Inner value is set", :todo<feature>);
   bar();
 }
-is(Pugs::Internals::current_pragma_value('pragma::Demo'), '1', "Outer value is restored");
+is(Pugs::Internals::current_pragma_value('pragma::Demo'), '1', "Outer value is restored", :todo<feature>);
 use pragma::Demo 'x3';
-is(Pugs::Internals::current_pragma_value('pragma::Demo'), '3', "Outer value is overidden");
+is(Pugs::Internals::current_pragma_value('pragma::Demo'), '3', "Outer value is overidden", :todo<feature>);
 bar();
 
 {
-  is(Pugs::Internals::current_pragma_value('pragma::Demo'), '3', "Outer value is inherited");
+  is(Pugs::Internals::current_pragma_value('pragma::Demo'), '3', "Outer value is inherited", :todo<feature>);
   {
-    is(Pugs::Internals::current_pragma_value('pragma::Demo'), '3', "Outer value is inherited");
+    is(Pugs::Internals::current_pragma_value('pragma::Demo'), '3', "Outer value is inherited", :todo<feature>);
     use pragma::Demo 'x4';
-    is(Pugs::Internals::current_pragma_value('pragma::Demo'), '4', "Inner value is overridden");
+    is(Pugs::Internals::current_pragma_value('pragma::Demo'), '4', "Inner value is overridden", :todo<feature>);
     bar();
   }   
-  is(Pugs::Internals::current_pragma_value('pragma::Demo'), '3', "Inner value is restored");
+  is(Pugs::Internals::current_pragma_value('pragma::Demo'), '3', "Inner value is restored", :todo<feature>);
   use pragma::Demo 'x5';
-  is(Pugs::Internals::current_pragma_value('pragma::Demo'), '5', "Inner value is overridden");
+  is(Pugs::Internals::current_pragma_value('pragma::Demo'), '5', "Inner value is overridden", :todo<feature>);
   bar();
 }
-is(Pugs::Internals::current_pragma_value('pragma::Demo'), '3', "Outer value is restored");
+is(Pugs::Internals::current_pragma_value('pragma::Demo'), '3', "Outer value is restored", :todo<feature>);
 is(Pugs::Internals::current_pragma_value('SNONK'), undef, "Absent pragma is undef");
 bar();
 
@@ -60,7 +60,7 @@ sub foo {
 
 sub check_cpv ($expected) {
   is(Pugs::Internals::caller_pragma_value('pragma::Demo'), $expected, 
-        "Caller pragma value $expected");
+        "Caller pragma value $expected", :todo<feature>);
 }
 
 foo();
