@@ -56,7 +56,8 @@ upload_smoke($html_location);
 print <<EOF;
 *** All done! Smoke matrix saved as '$html_location'.
     You may want to submit the report to the public smokeserver:
-    \$ ./util/smokeserv/smokeserv-client.pl $html_location
+
+        perl util/smokeserv/smokeserv-client.pl $html_location
 EOF
 
 sub upload_smoke {
