@@ -358,23 +358,23 @@ findSyms name = do
                 Nothing -> return []
                 Just xs -> return xs
     where
-        findLexical :: MaybeT EvalMonad [(Var, Val)]
+        findLexical :: MaybeT Eval [(Var, Val)]
         findLexical = do
             lex <- lift $ asks envLexical
             padSym lex name
             
-        findPackage :: MaybeT EvalMonad [(Var, Val)]
+        findPackage :: MaybeT Eval [(Var, Val)]
         findPackage = do
             glob <- lift $ askGlobal
             pkg  <- lift $ asks envPackage
             padSym glob name `mplus` padSym glob (toPackage pkg name)
 
-        findGlobal :: MaybeT EvalMonad [(Var, Val)]
+        findGlobal :: MaybeT Eval [(Var, Val)]
         findGlobal = do
             glob <- lift $ askGlobal
             padSym glob (toGlobal name)
 
-        padSym :: Pad -> Var -> MaybeT EvalMonad [(Var, Val)]
+        padSym :: Pad -> Var -> MaybeT Eval [(Var, Val)]
         padSym pad var = do
             case lookupPad var pad of
                 Just tvar -> lift $ do

@@ -3,7 +3,6 @@
 
 module Pugs.AST.Internals (
     Eval,      -- uses Val, Env, SIO
-    EvalMonad,
     Exp(..),   -- uses Pad, Eval, Val
     Env(..),   -- uses Pad, TVar, Exp, Eval, Val
     Val(..),   -- uses V.* (which ones?)
@@ -1135,8 +1134,8 @@ listToPad :: [(Var, [(TVar Bool, TVar VRef)])] -> Pad
 listToPad = MkPad . Map.fromList
 
 {- Eval Monad -}
-type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
-type EvalMonad = EvalT (ContT Val (ReaderT Env SIO))
+-- type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
+type Eval = EvalT (ContT Val (ReaderT Env SIO))
 newtype EvalT m a = EvalT { runEvalT :: m a }
 
 runEvalSTM :: Env -> Eval Val -> STM Val
@@ -1211,7 +1210,7 @@ resetT :: Eval Val -- ^ An evaluation, possibly containing a 'shiftT'
 resetT e = lift . lift $
     runContT (runEvalT e) return
 
-instance Monad EvalMonad where
+instance Monad Eval where
     return a = EvalT $ return a
     m >>= k = EvalT $ do
         a <- runEvalT m
@@ -1223,18 +1222,18 @@ instance Monad EvalMonad where
 instance MonadTrans EvalT where
     lift x = EvalT x
 
-instance Functor EvalMonad where
+instance Functor Eval where
     fmap f (EvalT a) = EvalT (fmap f a)
 
-instance MonadIO EvalMonad where
+instance MonadIO Eval where
     liftIO io = EvalT (liftIO io)
 
-instance MonadSTM EvalMonad where
+instance MonadSTM Eval where
     -- XXX: Should be this:
     -- liftSTM stm = EvalT (lift . lift . liftSTM $ stm)
     liftSTM stm = EvalT (lift . lift . liftIO . liftSTM $ stm)
 
-instance MonadReader Env EvalMonad where
+instance MonadReader Env Eval where
     ask       = lift ask
     local f m = EvalT $ local f (runEvalT m)
 
@@ -1249,9 +1248,9 @@ findSym name pad = case lookupPad name pad of
     Just (x:_)  -> Just x
     _           -> Nothing
 
-instance MonadEval EvalMonad
+instance MonadEval Eval
 
-instance MonadCont EvalMonad where
+instance MonadCont Eval where
     -- callCC :: ((a -> Eval b) -> Eval a) -> Eval a
     callCC f = EvalT . callCCT $ \c -> runEvalT . f $ \a -> EvalT $ c a
 
