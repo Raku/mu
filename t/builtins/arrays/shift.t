@@ -73,7 +73,7 @@ plan 27;
     dies_ok({ shift()           }, 'shift() requires arguments');    
     dies_ok({ shift(@shift, 10) }, 'shift() should not allow extra arguments');            
     dies_ok({ @shift.shift(10)  }, 'shift() should not allow extra arguments');     
-    dies_ok({ 42.shift          }, '.shift should not work on scalars'), :todo<bug>;
+    dies_ok({ 42.shift          }, '.shift should not work on scalars', :todo<bug>);
 }
 
 # Push with Inf arrays (waiting on answers to perl6-compiler email)
