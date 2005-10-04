@@ -72,7 +72,7 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
   # Exercise various mixes of "f", parens "()",
   # and adverbs with "X' and without "x" an argument.
 
-  sub f(+$x,+$y){$x~$y}
+  my sub f(+$x,+$y){$x~$y}
   my $v;
 
   # f(XY) f(YX) f(xY) f(Xy)
@@ -204,11 +204,11 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
   # Exercise mixes of adverbs and positional arguments.
 
   my $v;
-  sub f(+$x,$s){$x~$s}
-  sub g($s1,+$x,$s2){$s1~$x~$s2}
-  sub h(*@a){@a.perl}
-  sub i(*%h){%h.perl}
-  sub j($s1,*%h,$s2){$s1~%h.perl~$s2}
+  my sub f(+$x,$s){$x~$s}
+  my sub g($s1,+$x,$s2){$s1~$x~$s2}
+  my sub h(*@a){@a.perl}
+  my sub i(*%h){%h.perl}
+  my sub j($s1,*%h,$s2){$s1~%h.perl~$s2}
 
   # f(X s) f(Xs) f(s X) f(sX) f(xs) f(sx)
 
@@ -268,17 +268,17 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
 
   { # adverbs as pairs
 
-    sub f1($s,+$x){$s.perl~$x}
+    my sub f1($s,+$x){$s.perl~$x}
 
     $v = f1(\:bar :x("b"));
     is $v, "('bar' => 1)b", 'f1(\:bar :x("b"))';
 
-    sub f2(Pair $p){$p.perl}
+    my sub f2(Pair $p){$p.perl}
 
     $v = f2(:bar);
     is $v, "('bar' => 1)", 'f2(:bar)';
 
-    sub f3(Pair $p1, Pair $p2){$p1.perl~" - "~$p2.perl}
+    my sub f3(Pair $p1, Pair $p2){$p1.perl~" - "~$p2.perl}
 
     $v = f3(:bar,:hee(3));
     is $v, "('bar' => 1) - ('hee' => 3)", 'f3(:bar,:hee(3))';
