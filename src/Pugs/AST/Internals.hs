@@ -47,7 +47,7 @@ module Pugs.AST.Internals (
     -- MonadEval(..),
 
     runEvalSTM, runEvalIO, shiftT, resetT, callCC,
-    undef, defined,
+    undef, defined, tryIO,
     readRef, writeRef, clearRef, dumpRef, forceRef,
     askGlobal, writeVar, readVar,
     findSymRef, findSym,
@@ -72,6 +72,7 @@ module Pugs.AST.Internals (
 import Pugs.Internals
 import Pugs.Types
 import Pugs.Cont hiding (shiftT, resetT)
+import System.IO.Error (try)
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 import qualified Data.IntMap    as IntMap
@@ -1144,6 +1145,9 @@ runEvalSTM env = runSTM . (`runReaderT` env) . (`runContT` return) . runEvalT
 runEvalIO :: Env -> Eval Val -> IO Val
 runEvalIO env = runIO . (`runReaderT` env) . (`runContT` return) . runEvalT
 
+tryIO :: a -> IO a -> Eval a
+tryIO err = lift . liftIO . (`catch` (const $ return err))
+
 {-|
 'shiftT' is like @callCC@, except that when you activate the continuation
 provided by 'shiftT', it will run to the end of the nearest enclosing 'resetT',
@@ -1226,7 +1230,11 @@ instance Functor Eval where
     fmap f (EvalT a) = EvalT (fmap f a)
 
 instance MonadIO Eval where
-    liftIO io = EvalT (liftIO io)
+    liftIO io = do
+        rv <- liftIO $ try io
+        case rv of
+            Left e -> fail (show e)
+            Right v -> return v
 
 instance MonadSTM Eval where
     -- XXX: Should be this:
