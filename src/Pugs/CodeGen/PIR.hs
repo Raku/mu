@@ -102,7 +102,7 @@ instance Translate PIL_Expr Expression where
         tellIns $ if parrotBrokenXXX
             then "store_global" .- [tempSTR, expC]
             else "set_args" .- [lit "(0b10)", expC]
-        tellIns $ "invoke" .- [reg cc]
+        tellIns $ "invokecc" .- [reg cc]
         tellLabel endL
         return (ExpLV this)
     trans (PCode styp params _ _ body) = do
