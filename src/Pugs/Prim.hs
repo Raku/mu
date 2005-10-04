@@ -945,7 +945,7 @@ op2 "Pugs::Internals::install_pragma_value" = \x y -> do
     val  <- fromVal y
     idat <- asks envInitDat
     idatval <- liftSTM $ readTVar idat
-    trace ("installing " ++ name ++ "/" ++ (show val)) $ return ()
+    --trace ("installing " ++ name ++ "/" ++ (show val)) $ return ()
     let prag = initPragmas idatval
     liftSTM $ writeTVar idat idatval{initPragmas = 
         MkPrag{ pragName=name, pragDat=val } : prag }
