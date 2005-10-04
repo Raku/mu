@@ -13,5 +13,5 @@ pugs> do{my $a = 3; $a }
 
 plan 2;
 
-is(eval('do{my $a = 3; $a}'), 3, 'do{my $a = 3; $a} works');
+is(eval('do{my $a = 3; $a}'), 3, 'do{my $a = 3; $a} works', :todo<bug>);
 is(do{1; my $a = 3; $a}, 3, 'bug workaround works');

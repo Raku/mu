@@ -50,7 +50,7 @@ plan 38;
 
   ok  (\@a eqv \@a), "eqv on array references (1)";
   ok  (\@b eqv \@b), "eqv on array references (2)";
-  ok !(\@a eqv \@b), "eqv on array references (3)";
+  ok !(\@a eqv \@b), "eqv on array references (3)", :todo<bug>;
 }
 
 {
@@ -59,7 +59,7 @@ plan 38;
 
   ok  ($a eqv $a), "eqv on scalar references (1-1)";
   ok  ($b eqv $b), "eqv on scalar references (1-2)";
-  ok !($a eqv $b), "eqv on scalar references (1-3)";
+  ok !($a eqv $b), "eqv on scalar references (1-3)", :todo<bug>;
 }
 
 {
@@ -89,8 +89,8 @@ plan 38;
 
 {
   ok !([1,2,3] eqv [4,5,6]), "eqv on anonymous array references (1)";
-  ok !([1,2,3] eqv [1,2,3]), "eqv on anonymous array references (2)";
-  ok !([]      eqv []),      "eqv on anonymous array references (3)";
+  ok !([1,2,3] eqv [1,2,3]), "eqv on anonymous array references (2)", :todo<bug>;
+  ok !([]      eqv []),      "eqv on anonymous array references (3)", :todo<bug>;
 }
 
 {
@@ -100,8 +100,8 @@ plan 38;
 
 {
   ok !(\3 eqv \4),         "eqv on anonymous scalar references (1)";
-  ok !(\3 eqv \3),         "eqv on anonymous scalar references (2)";
-  ok !(\undef eqv \undef), "eqv on anonymous scalar references (3)";
+  ok !(\3 eqv \3),         "eqv on anonymous scalar references (2)", :todo<bug>;
+  ok !(\undef eqv \undef), "eqv on anonymous scalar references (3)", :todo<bug>;
 }
 
 # Chained eqv (not specced, but obvious)

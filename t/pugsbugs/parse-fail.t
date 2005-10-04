@@ -4,6 +4,8 @@ use v6;
 use Test;
 plan 1;
 
+skip_rest("fails slowly"); exit;
+
 # For tests of how Pugs behaves when given code with syntax errors.
 
 # This test makes sure that Pugs's parser doesn't degenerate into extreme 

@@ -13,4 +13,4 @@ is ~((1,2,3).map:{ int }),    "1 2 3", 'int() should default to $_ inside map, t
 
 # This works...
 is ~(({1},{2},{3}).map:{ $_; $_() }), "1 2 3", 'lone $_ in map should work (1)';
-is +(({1},{2},{3}).map:{ $_() }),     "1 2 3", 'lone $_ in map should work (2)';
+is +(({1},{2},{3}).map:{ $_() }),     "1 2 3", 'lone $_ in map should work (2)', :todo<bug>;

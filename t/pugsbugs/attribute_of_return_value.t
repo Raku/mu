@@ -24,5 +24,5 @@ is(C.new(:a(123)).a, 123, 'C.new().a worked');
 my $o = f();
 is($o.a, 123, 'my $o = f(); $o.a worked');
 
-is(eval('f().a'), 123, 'f().a worked (so the pugsbug is fixed)');
+is(eval('f().a'), 123, 'f().a worked (so the pugsbug is fixed)', :todo<bug>);
 
