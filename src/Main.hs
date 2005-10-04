@@ -262,7 +262,7 @@ doExecuteHelper helper args = do
     file' x = (file x) ++ (getConfig "exe_ext")
     fileExists path = do
         let (p,f) = splitFileName path
-        dir <- tryIO Nothing $ fmap Just $ getDirectoryContents p
+        dir <- (fmap Just $ getDirectoryContents p) `catch` (const $ return Nothing)
         case dir of
             Just dir' -> return $ f `elem` dir'
             _         -> return False
