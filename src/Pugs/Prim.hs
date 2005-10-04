@@ -61,7 +61,7 @@ op0 "want"  = const $ fmap VStr (asks (maybe "Void" envWant . envCaller))
 op0 "bool::true" = const $ return (VBool True)
 op0 "bool::false" = const $ return (VBool False)
 op0 "time"  = const $ do
-    clkt <- liftIO getClockTime
+    clkt <- guardIO getClockTime
     return $ VRat $ fdiff $ diffClockTimes clkt epochClkT
     where
        epochClkT = toClockTime epoch
@@ -71,17 +71,17 @@ op0 "time"  = const $ do
                    / (clocksPerSecond * clocksPerSecond)
                    + (fromIntegral $ tdSec d)
 op0 "times"  = const $ do
-    ProcessTimes _ u s cu cs <- liftIO getProcessTimes
+    ProcessTimes _ u s cu cs <- guardIO getProcessTimes
     return . VList $ map (castV . (% (clocksPerSecond :: VInt)) . toInteger . fromEnum)
         [u, s, cu, cs]
 op0 "so" = const (return $ VBool True)
 op0 "¥" = op0Zip
 op0 "Y" = op0 "¥"
 op0 "File::Spec::cwd" = const $ do
-    cwd <- liftIO getCurrentDirectory
+    cwd <- guardIO getCurrentDirectory
     return $ VStr cwd
 op0 "File::Spec::tmpdir" = const $ do
-    tmp <- liftIO getTemporaryDirectory
+    tmp <- guardIO getTemporaryDirectory
     return $ VStr tmp
 op0 "pi" = const $ return (VNum pi)
 op0 "say" = const $ op1 "IO::say" (VHandle stdout)
@@ -296,7 +296,7 @@ op1 "sign" = \v -> if defined v
 
 op1 "rand"  = \v -> do
     x    <- fromVal v
-    rand <- liftIO $ randomRIO (0, if x == 0 then 1 else x)
+    rand <- guardIO $ randomRIO (0, if x == 0 then 1 else x)
     return $ VNum rand
 op1 "say" = op2 "IO::say" (VHandle stdout)
 op1 "print" = op2 "IO::print" (VHandle stdout)
@@ -304,13 +304,11 @@ op1 "IO::say" = \v -> op2 "IO::say" v =<< readVar "$_"
 op1 "IO::print" = \v -> op2 "IO::print" v =<< readVar "$_"
 op1 "IO::next" = \v -> do
     fh  <- fromVal v
-    tryIO undef $
-        fmap (VStr . (++ "\n") . decodeUTF8) (hGetLine fh)
+    guardIO $ fmap (VStr . (++ "\n") . decodeUTF8) (hGetLine fh)
 op1 "Pugs::Safe::safe_print" = \v -> do
     str  <- fromVal v
-    tryIO undef $ do
-        hPutStr stdout $ encodeUTF8 str
-        return $ VBool True
+    guardIO $ hPutStr stdout $ encodeUTF8 str
+    return $ VBool True
 op1 "die" = \v -> do
     strs <- fromVal v
     fail (errmsg . concat $ strs)
@@ -344,14 +342,14 @@ op1 "fail_" = \v -> do
 op1 "exit" = op1Exit
 op1 "readlink" = \v -> do
     str  <- fromVal v
-    tryIO undef $ fmap VStr (readSymbolicLink str)
+    guardIO $ fmap VStr (readSymbolicLink str)
 op1 "sleep" = \v -> do
     x <- fromVal v
-    tryIO undef $ do
-       TOD t0s t0ps <- liftIO getClockTime
-       threadDelay (x * clocksPerSecond)
-       TOD t1s t1ps <- liftIO getClockTime
-       return $ VRat ((fromInteger $ t1ps - t0ps)
+    guardIO $ do
+        TOD t0s t0ps <- getClockTime
+        threadDelay (x * clocksPerSecond)
+        TOD t1s t1ps <- getClockTime
+        return $ VRat ((fromInteger $ t1ps - t0ps)
                       / (clocksPerSecond * clocksPerSecond) -- 10^12
                       + (fromInteger $ t1s - t0s))
 op1 "mkdir" = boolIO createDirectory
@@ -378,14 +376,14 @@ op1 "unlink" = \v -> do
     return $ VInt $ sum $ map bool2n rets
 op1 "readdir" = \v -> do
     path  <- fromVal v
-    files <- liftIO $ getDirectoryContents path
+    files <- guardIO $ getDirectoryContents path
     return . VList $ map VStr files
 op1 "slurp" = \v -> do
     ifValTypeIsa v "IO"
         (do h <- fromVal v
             ifListContext
                 (op1 "=" v)
-                (fmap VStr (liftIO $ hGetContents h)))
+                (fmap VStr (guardIO $ hGetContents h)))
         (do
             fileName    <- fromVal v
             ifListContext
@@ -393,33 +391,29 @@ op1 "slurp" = \v -> do
                 (slurpScalar fileName))
     where
     slurpList file = op1 "=" (VList [VStr file])
-    slurpScalar file = tryIO VUndef $ do
-        content <- readFile file
+    slurpScalar file = do
+        content <- guardIO $ readFile file
         return $ VStr content
 op1 "opendir" = \v -> do
     str <- fromVal v
-    rv  <- tryIO Nothing . fmap Just $ openDirStream str
-    case rv of
-        Nothing     -> return undef
-        Just dir    -> do
-            obj <- createObject (mkType "IO::Dir") []
-            return . VObject $ obj{ objOpaque = Just $ toDyn dir }
+    dir <- guardIO $ openDirStream str
+    obj <- createObject (mkType "IO::Dir") []
+    return . VObject $ obj{ objOpaque = Just $ toDyn dir }
 op1 "IO::Dir::closedir" = boolIO (closeDirStream . fromObject)
 op1 "IO::Dir::rewinddir" = boolIO (rewindDirStream . fromObject)
 op1 "IO::Dir::readdir" = \v -> do
     dir <- fmap fromObject (fromVal v)
     ifListContext
         (fmap castV $ readDirStreamList dir)
-        (tryIO undef $ fmap (\x -> if null x then undef else castV x) $ readDirStream dir)
+        (guardIO $ fmap (\x -> if null x then undef else castV x) $ readDirStream dir)
     where
     readDirStreamList dir = do
-        this <- tryIO "" $ readDirStream dir
-        if null this then return [] else do
+        this <- guardIO $ readDirStream dir
         rest <- readDirStreamList dir
         return $ (this:rest)
 op1 "Pugs::Internals::runInteractiveCommand" = \v -> do
     str <- fromVal v
-    tryIO undef $ do
+    guardIO $ do
         (inp,out,err,phand) <- runInteractiveCommand str
         return $ VList [ VHandle inp
                        , VHandle out
@@ -435,7 +429,7 @@ op1 "Pugs::Internals::check_for_io_leak" = \v -> do
     return rv
 op1 "system" = \v -> do
     cmd         <- fromVal v
-    exitCode    <- liftIO $ system cmd
+    exitCode    <- guardIO $ system cmd
     case exitCode of
         ExitFailure x -> do
             glob    <- askGlobal
@@ -445,7 +439,7 @@ op1 "system" = \v -> do
         ExitSuccess -> return $ VBool True
 op1 "accept" = \v -> do
     socket      <- fromVal v
-    (h, _, _)   <- liftIO $ accept socket
+    (h, _, _)   <- guardIO $ accept socket
     return $ VHandle h
 op1 "detach" = \v -> do
     case v of
@@ -456,7 +450,7 @@ op1 "detach" = \v -> do
 op1 "kill" = \v -> do
     case v of
         VThread thr -> do
-            liftIO . killThread $ threadId thr
+            guardIO . killThread $ threadId thr
             return $ VBool True
         _           -> fail $ "Not a thread: " ++ show v
 op1 "join" = \v -> do
@@ -467,7 +461,7 @@ op1 "async" = \v -> do
     env     <- ask
     code    <- fromVal v
     lock    <- liftSTM $ newEmptyTMVar
-    tid     <- liftIO . (if rtsSupportsBoundThreads then forkOS else forkIO) $ do
+    tid     <- guardIO . (if rtsSupportsBoundThreads then forkOS else forkIO) $ do
         val <- runEvalIO env $ do
             enterEvalContext CxtVoid $ App (Val code) Nothing []
         liftSTM $ tryPutTMVar lock val
@@ -478,7 +472,7 @@ op1 "async" = \v -> do
         }
 op1 "listen" = \v -> do
     port    <- fromVal v
-    socket  <- liftIO $ listenOn (PortNumber $ fromInteger port)
+    socket  <- guardIO $ listenOn (PortNumber $ fromInteger port)
     return $ VSocket socket
 op1 "flush" = boolIO hFlush
 op1 "close" = \v -> do
@@ -518,12 +512,12 @@ op1 "readline" = \v -> op1Read v (getLines) (getLine)
                 return $ VList (line:rest)
             else return $ VList []
     getLine :: VHandle -> Eval Val
-    getLine fh = tryIO undef $
+    getLine fh = guardIO $
         fmap (VStr . (++ "\n") . decodeUTF8) (hGetLine fh)
 op1 "getc"     = \v -> op1Read v (getChar) (getChar)
     where
     getChar :: VHandle -> Eval Val
-    getChar fh = tryIO undef $ do
+    getChar fh = guardIO $ do
         char <- hGetChar fh
         str  <- getChar' fh char
         return $ VStr $ decodeUTF8 str
@@ -562,7 +556,7 @@ op1 "gather" = \v -> do
     evl <- asks envEval
     evl (Syn "gather" [Val v])
 op1 "Thread::yield" = const $ do
-    ok <- tryIO False $ do { yield ; return True }
+    ok <- tryIO False $ do { yield ; return True } -- change to guardIO?
     return $ VBool ok
 op1 "DESTROYALL" = op1WalkAllNoArgs id "DESTROY"
 -- [,] is a noop -- It simply returns the input list
@@ -574,7 +568,7 @@ op1 "Code::body"  = op1CodeBody
 op1 "Code::pos"   = op1CodePos
 op1 "IO::tell"    = \v -> do
     h <- fromVal v
-    res <- liftIO $ hTell h
+    res <- guardIO $ hTell h
     return $ VInt res
 op1 "TEMP" = \v -> do
     ref <- fromVal v
@@ -622,7 +616,7 @@ op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 op1IO :: Value a => (Handle -> IO a) -> Val -> Eval Val
 op1IO = \fun v -> do
     val <- fromVal v
-    fmap castV (liftIO $ fun val)
+    fmap castV (guardIO $ fun val)
 
 returnList :: [Val] -> Eval Val
 returnList vals = ifListContext
@@ -725,10 +719,7 @@ op1Read v fList fScalar = do
                         writeVar "$*ARGS" (VHandle hdl)
                         return hdl
     handleOf (VStr x) = do
-        rv <- tryIO Nothing (fmap Just $ openFile x ReadMode)
-        case rv of
-            Nothing  -> retError "No such file or directory" x
-            Just hdl -> return hdl
+        return =<< guardIO $ openFile x ReadMode
     handleOf (VList [x]) = handleOf x
     handleOf v = fromVal v
 
@@ -876,19 +867,18 @@ op2 "Str::split" = flip op2Split
 op2 "connect" = \x y -> do
     host <- fromVal x
     port <- fromVal y
-    hdl  <- liftIO $ connectTo host (PortNumber $ fromInteger port)
+    hdl  <- guardIO $ connectTo host (PortNumber $ fromInteger port)
     return $ VHandle hdl
 op2 "Pugs::Internals::hSetBinaryMode" = \x y -> do
     fh    <- fromVal x
     mode  <- fromVal y
-    liftIO $ hSetBinaryMode fh mode
+    guardIO $ hSetBinaryMode fh mode
     return $ VBool True
 op2 "Pugs::Internals::openFile" = \x y -> do
     filename <- fromVal x
     mode     <- fromVal y
-    tryIO undef $ do
-        fh <- openFile filename (modeOf mode)
-        return $ VHandle fh
+    hdl      <- guardIO $ openFile filename (modeOf mode)
+    return $ VHandle $ hdl
     where
     modeOf "r"  = ReadMode
     modeOf "w"  = WriteMode
@@ -914,7 +904,7 @@ op2 "Pugs::Internals::sprintf" = \x y -> do
 op2 "system" = \x y -> do
     prog        <- fromVal x
     args        <- fromVals y
-    exitCode    <- liftIO $ rawSystem prog args
+    exitCode    <- guardIO $ rawSystem prog args
     case exitCode of
         ExitFailure x -> do
             glob    <- askGlobal
@@ -958,7 +948,7 @@ op2Print f h v = do
     strs   <- mapM fromVal =<< case v of
         VList vs  -> return vs
         _         -> return [v]
-    tryIO undef $ do
+    guardIO $ do
         f handle . concatMap encodeUTF8 $ strs
         return $ VBool True
 
@@ -984,7 +974,7 @@ op3 "Pugs::Internals::exec" = \x y z -> do
     prog  <- fromVal x
     shell <- fromVal y
     args  <- fromVals z
-    exitCode    <- liftIO $ executeFile' prog shell args Nothing
+    exitCode    <- guardIO $ executeFile' prog shell args Nothing
     case exitCode of
         ExitFailure x -> do
             glob    <- askGlobal
@@ -992,7 +982,7 @@ op3 "Pugs::Internals::exec" = \x y z -> do
             writeRef errSV (VInt $ toInteger x)
             return $ VBool False
         ExitSuccess -> do
-            liftIO $ exitWith ExitSuccess
+            guardIO $ exitWith ExitSuccess
             return $ VBool True -- not reached ;-)
 op3 "Pugs::Internals::caller" = \x y z -> do
     --kind <- fromVal =<< op1 "ref" x
@@ -1055,7 +1045,7 @@ op3 "Object::new" = \t n p -> do
     -- Now start calling BUILD for each of parent classes (if defined)
     op2 "BUILDALL" obj $ (VRef . hashRef) named
     -- Register finalizers by keeping weakrefs somehow
-    liftIO $ do
+    guardIO $ do
         objRef <- mkWeakPtr obj (Just $ objectFinalizer env obj)
         modifyIORef _GlobalFinalizer (>> finalize objRef)
     return obj
@@ -1063,7 +1053,7 @@ op3 "Pugs::Internals::localtime"  = \x y z -> do
     wantString <- fromVal x
     sec <- fromVal y
     pico <- fromVal z
-    c <- liftIO $ toCalendarTime $ TOD (offset + sec) pico
+    c <- guardIO $ toCalendarTime $ TOD (offset + sec) pico
     if wantString then return $ VStr $ calendarTimeToString c else
         returnList $ [ vI $ ctYear c
                      , vI $ (1+) $ fromEnum $ ctMonth c
@@ -1085,7 +1075,7 @@ op3 "Pugs::Internals::hSeek" = \x y z -> do
     handle <- fromVal x
     pos <- fromVal y
     mode <- fromVal z
-    liftIO $ hSeek handle (modeOf mode) pos
+    guardIO $ hSeek handle (modeOf mode) pos
     retEmpty
     where
         modeOf :: Int -> SeekMode
