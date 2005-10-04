@@ -22,6 +22,9 @@ use Test;
 
 plan 683;
 
+skip_rest "skipped tests - this file will be moved to parrot land";
+exit;
+
 if(!eval('("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
   exit;
