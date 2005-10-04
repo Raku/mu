@@ -15,7 +15,7 @@ L<S04/"The Relationship of Blocks and Declarations">
 
 =cut
 
-plan 25;
+plan 27;
 
 # anon blocks L<S06/"Standard Subroutines">
 my $anon_sub = sub { 1 };
@@ -59,11 +59,21 @@ my $foo2;
 {$foo2 = "blah"};
 is($foo2, "blah", "lone block w/out a semicolon actually executes it's content");
 
+my $foo3;
+({$foo3 = "blah"});
+ok(!defined($foo3), "block enclosed by parentheses should not auto-execute (1)", :todo<bug>);
+
+my $foo4;
+({$foo4 = "blah"},);
+ok(!defined($foo4), "block enclosed by parentheses should not auto-execute (2)");
+
 my ($one, $two);
 # The try's here because it should die: $foo{...} should only work if $foo isa
 # Hash (or sth. which provides appropriate tieing/&postcircumfix:<{
-# }>/whatever, but a Code should surely not support hash access).  --ingo
-try { {$one = 1} {$two = 2} };
+# }>/whatever, but a Code should surely not support hash access).
+# Additionally, a smart compiler will detect thus errors at compile-time, so I
+# added an eval().  --iblech
+try { eval '{$one = 1} {$two = 2}' };
 is($one, undef, 'two blocks ({} {}) no semicolon after either,.. first block does not execute');
 is($two, 2, '... but second block does (parsed as hash subscript)');
 
