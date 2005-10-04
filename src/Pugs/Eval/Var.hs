@@ -296,8 +296,13 @@ evalExpType (Var var) = do
     rv  <- findVar var
     case rv of
         Nothing  -> return $ typeOfSigil (head var)
-        Just ref -> evalValType (VRef ref)
-evalExpType (Val val) = evalValType val
+        Just ref -> do
+            let typ = refType ref
+            cls <- asks envClasses
+            if isaType cls "List" typ
+                then return typ
+                else fromVal =<< readRef ref
+evalExpType (Val val) = fromVal val
 evalExpType (App (Val val) _ _) = do
     sub <- fromVal val
     return $ subReturns sub
@@ -309,7 +314,7 @@ evalExpType (App (Var name) invs args) = do
         Nothing     -> return $ mkType "Any"
 evalExpType exp@(Syn syn _) | (syn ==) `any` words "{} []" = do
     val <- evalExp exp
-    evalValType val
+    fromVal val
 evalExpType (Cxt cxt _) | typeOfCxt cxt /= (mkType "Any") = return $ typeOfCxt cxt
 evalExpType (Cxt _ exp) = evalExpType exp
 evalExpType (Pos _ exp) = evalExpType exp

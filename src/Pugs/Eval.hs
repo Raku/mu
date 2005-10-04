@@ -191,10 +191,9 @@ evalRef :: VRef -> Eval Val
 evalRef ref = do
     if refType ref == (mkType "Thunk") then forceRef ref else do
     val <- callCC $ \esc -> do
-        cxt <- asks envContext
-        lv  <- asks envLValue
+        MkEnv{ envContext = cxt, envLValue = lv, envClasses = cls } <- ask
         let typ = typeOfCxt cxt
-            isCollectionRef = (refType ref /= mkType "Scalar")
+            isCollectionRef = isaType cls "List" (refType ref)
         -- If RValue, read from the reference
         unless lv $ do
             when (isCollectionRef && isItemCxt cxt) $ do
