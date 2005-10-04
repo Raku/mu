@@ -53,11 +53,12 @@ my $output ;# = svn("up") or die "Could not update pugs tree: $!";
 system($^X, qw(-w ./util/yaml_harness.pl),@yaml_harness_args) == 0 or die "Could not run yaml harness: $!";
 system($^X, qw(-w ./util/testgraph.pl --inlinecss tests.yml), $html_location) == 0 or die "Could not convert .yml to testgraph: $!";
 upload_smoke($html_location);
+my $client = File::Spec->catfile(undef, "util/smokeserv", "smokeserv-client.pl");
 print <<EOF;
 *** All done! Smoke matrix saved as '$html_location'.
     You may want to submit the report to the public smokeserver:
 
-        perl util/smokeserv/smokeserv-client.pl $html_location
+        $^X $client $html_location
 EOF
 
 sub upload_smoke {
