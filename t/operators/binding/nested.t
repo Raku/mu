@@ -65,11 +65,11 @@ plan 43;
 
     $struct[1]<key><subkey>[1] = 31;
     is $abbrev, 31,
-        "using a multidimensional structure as LHS in a binding op works (2)";
+        "using a multidimensional structure as LHS in a binding op works (2)", :todo<bug>;
 
     $abbrev = 32;
     is $struct[1]<key><subkey>[1], 32,
-        "using a multidimensional structure as LHS in a binding op works (3)";
+        "using a multidimensional structure as LHS in a binding op works (3)", :todo<bug>;
 }
 
 # Evil more evil structure: with an embedded "is rw" sub!
@@ -137,11 +137,11 @@ plan 43;
 
     $struct[1]<key>()<subkey>[1] = 31;
     is $abbrev, 31,
-        "using a multidimensional structure with an embedded sub as LHS works (2)";
+        "using a multidimensional structure with an embedded sub as LHS works (2)", :todo<bug>;
 
     $abbrev = 32;
     is $struct[1]<key>()<subkey>[1], 32,
-        "using a multidimensional structure with an embedded sub as LHS works (3)";
+        "using a multidimensional structure with an embedded sub as LHS works (3)", :todo<bug>;
 }
 
 # Binding should cope with a subtree being redefined.
@@ -209,13 +209,13 @@ plan 43;
 
     $struct[1]<key><subkey>[1] = 43;
     is $abbrev, 43,
-        "LHS binding should cope with a subtree being redefined (2)";
+        "LHS binding should cope with a subtree being redefined (2)", :todo<bug>;
 
     $struct[1] = "foo";
     is $struct[1], "foo",
         "LHS binding should cope with a subtree being redefined (3)";
     is $abbrev, 43,
-        "LHS binding should cope with a subtree being redefined (4)";
+        "LHS binding should cope with a subtree being redefined (4)", :todo<bug>;
 
     $abbrev = 44;
     is $abbrev, 44,
@@ -257,15 +257,15 @@ plan 43;
 
     try { $bar[1]<key><subkey> := $foo[1]<key> };
     is try{ $bar[1]<key><subkey><subkey>[1] }, 2,
-        "binding an element of a structure to an element of another structure works (1)";
+        "binding an element of a structure to an element of another structure works (1)", :todo<bug>;
 
     try { $foo[1]<key><subkey>[1] = 7 };
     is try{ $bar[1]<key><subkey><subkey>[1] }, 7,
-        "binding an element of a structure to an element of another structure works (2)";
+        "binding an element of a structure to an element of another structure works (2)", :todo<bug>;
 
     try { $bar[1]<key><subkey><subkey>[1] = 8 };
     is try { $foo[1]<key><subkey>[1] }, 8,
-        "binding an element of a structure to an element of another structure works (3)";
+        "binding an element of a structure to an element of another structure works (3)", :todo<bug>;
 }
 
 # Tests for binding an element of a structure to an element of *the same*
@@ -287,19 +287,19 @@ plan 43;
 
     try { $struct[1]<key><subkey>[1] := $struct[1]<key> };
     is $struct[1]<key><subkey>[1]<foo>, "bar",
-        "binding an element of a structure to an element of the same structure works (1)";
+        "binding an element of a structure to an element of the same structure works (1)", :todo<bug>;
 
     try { $struct[1]<key><subkey>[1]<foo> = "new_value" };
     is $struct[1]<key><foo>, "new_value",
-        "binding an element of a structure to an element of the same structure works (2)";
+        "binding an element of a structure to an element of the same structure works (2)", :todo<bug>;
 
     $struct[1]<key><foo> = "very_new_value";
     is $struct[1]<key><subkey>[1]<foo>, "very_new_value",
-        "binding an element of a structure to an element of the same structure works (3)";
+        "binding an element of a structure to an element of the same structure works (3)", :todo<bug>;
 
     $struct[1]<key><subkey>[1] = 23;
     is $struct[1]<key>, 23,
-        "binding an element of a structure to an element of the same structure works (4)";
+        "binding an element of a structure to an element of the same structure works (4)", :todo<bug>;
 }
 
 # Test that rebinding to some other value really breaks up the binding.

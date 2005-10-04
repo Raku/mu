@@ -35,7 +35,7 @@ plan 9;
         "binding a var to the return value of a sub (a variable) works (1)";
 
     dies_ok { $var = 23 },
-        "binding a var to the return value of a sub (a variable) works (2)";
+        "binding a var to the return value of a sub (a variable) works (2)", :todo<bug>;
 }
 
 {
@@ -55,7 +55,7 @@ plan 9;
     my sub foo is rw { my $var = 42; $var }
 
     lives_ok { foo() := 23 },
-        "using the variable return value of an 'is rw' sub as the LHS in a binding operation works";
+        "using the variable return value of an 'is rw' sub as the LHS in a binding operation works", :todo<bug>;
 }
 
 =for discussion

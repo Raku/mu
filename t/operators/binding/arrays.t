@@ -15,7 +15,7 @@ plan 43;
   my $var    = "d";
 
   try { @array[1] := $var };
-  is @array[1], "d", "basic binding of an array element (1)";
+  is @array[1], "d", "basic binding of an array element (1)", :todo<feature>;
   unless @array[1] eq "d" {
     skip_rest "Skipping binding of array elements tests (not yet implemented in the normal runcore)";
     exit;
