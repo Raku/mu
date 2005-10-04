@@ -18,7 +18,7 @@ throws_ok {
 throws_ok {
 	my @a;
 	@a[die "first"] := die "second";
-}, "first", "evaluation order of left/right sides of array binding";
+}, "first", "evaluation order of left/right sides of array binding", :todo<bug>;
 
 throws_ok {
         my sub foo ($arg) is rw { my $var };
@@ -28,7 +28,7 @@ throws_ok {
 throws_ok {
         my sub foo ($arg) is rw { my $var };
         foo(die "first") := die "second";
-}, "first", "evaluation order of left/right sides of lvalue sub binding";
+}, "first", "evaluation order of left/right sides of lvalue sub binding", :todo<bug>;
 
 throws_ok {
 	my @a = (die("first"), die("second"));

@@ -9,7 +9,7 @@ Test basic escape continuations obtained from &?CALLER_CONTINUATION
 
 =cut
 
-plan 14;
+plan 12;
 
 sub simple1() returns Int {
   &?CALLER_CONTINUATION(2);

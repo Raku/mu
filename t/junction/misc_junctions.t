@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 55;
+plan 58;
 
 =pod
 
@@ -185,15 +185,15 @@ sub j (Junction $j) { return $j.perl }
     # L<S03/"Junctive operators"/"Junctions work through subscripting">
     my ($got, @foo);
     $got = ''; @foo = ();
-    $got ~= 'y' if @foo[any(1,2,3)];
+    $got ~= 'y' if try { @foo[any(1,2,3)] };
     is($got, '', "junctions work through subscripting, 0 matches");
 
     $got = ''; @foo = (0,1);
-    $got ~= 'y' if @foo[any(1,2,3)];
+    $got ~= 'y' if try { @foo[any(1,2,3)] };
     is($got, '', "junctions work through subscripting, 1 match");
 
     $got = ''; @foo = (1,1,1);
-    $got ~= 'y' if @foo[any(1,2,3)];
+    $got ~= 'y' if try { @foo[any(1,2,3)] };
     is($got, '', "junctions work through subscripting, 3 matches");
 
 

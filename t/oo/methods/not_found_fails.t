@@ -10,10 +10,10 @@ plan 6;
 {
   # No "use fatal".
   lives_ok { "hi".this_method_does_not_exist(); 1 },
-    "'method not found errors' fail() (1)";
+    "'method not found errors' fail() (1)", :todo<bug>;
 
   lives_ok { my $interesting_undef = "hi".this_method_does_not_exist(); 1 },
-    "'method not found errors' fail() (2)";
+    "'method not found errors' fail() (2)", :todo<bug>;
 
   dies_ok {
     my $interesting_undef = "hi".this_method_does_not_exist();

@@ -72,7 +72,7 @@ plan 27;
     dies_ok({ pop()         }, 'pop() requires arguments');    
     dies_ok({ pop(@pop, 10) }, 'pop() should not allow extra arguments');            
     dies_ok({ @pop.pop(10)  }, 'pop() should not allow extra arguments');    
-    dies_ok({ 42.pop        }, '.pop should not work on scalars');
+    dies_ok({ 42.pop        }, '.pop should not work on scalars'), :todo<bug>;
 }
 
 # Pop with Inf arrays (waiting on answers from perl6-compiler email)

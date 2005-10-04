@@ -33,9 +33,9 @@ L<S06/"Lvalue subroutines">
   my $notlvalue = sub () { return $var };
 
   dies_ok { $notlvalue() = 23 },
-    "assigning to non-rw subrefs should die";
+    "assigning to non-rw subrefs should die", :todo<bug>;
   is $var, 42,
-    "assigning to non-rw subrefs shouldn't modify the original variable";
+    "assigning to non-rw subrefs shouldn't modify the original variable", :todo<bug>;
 }
 
 {

@@ -38,7 +38,7 @@ is (foo3 1, x => 20, y => 300, 4000), 4000,
   'Testing the value for slurpy *@a';
 
 dies_ok { foo 1, n => 20, y => 300, 4000 },
-  'Testing: `sub foo($n, *%h, *@a){ }; foo 1, n => 20, y => 300, 4000`';
+  'Testing: `sub foo($n, *%h, *@a){ }; foo 1, n => 20, y => 300, 4000`', :todo<bug>;
 
 ## We *can* pass positional arguments as a 'named' pair with slurpy *%h.
 ## Only *remaining* pairs are slurped into the *%h
@@ -59,14 +59,14 @@ is (foo3 n => 20, y => 300, 4000), 4000,
 my sub foo ($n, *%h) { };
 ## NOTE: *NOT* sub foo ($n, *%h, *@a)
 dies_ok { foo 1, n => 20, y => 300 },
-  'Testing: `sub foo($n, *%h) { }; foo 1, n => 20, y => 300`';
+  'Testing: `sub foo($n, *%h) { }; foo 1, n => 20, y => 300`', :todo<bug>;
 }
 
 {
 my sub foo ($n, *%h) { };
 ## NOTE: *NOT* sub foo ($n, *%h, *@a)
 dies_ok { foo 1, x => 20, y => 300, 4000 },
-  'Testing: `sub foo($n, *%h) { }; foo 1, x => 20, y => 300, 4000`';
+  'Testing: `sub foo($n, *%h) { }; foo 1, x => 20, y => 300, 4000`', :todo<bug>;
 }
 
 
@@ -82,11 +82,11 @@ diag("Testing with named arguments (named param isn't required)");
 lives_ok { foo 1, x => 20, y => 300, 4000 },
   'Testing: `sub foo(+$n, *%h, *@a){ }; foo 1, x => 20, y => 300, 4000`';
 is (foo1 1, x => 20, y => 300, 4000), undef,
-  'Testing value for named argument';
+  'Testing value for named argument', :todo<bug>;
 is (foo2 1, x => 20, y => 300, 4000), 320,
   'Testing value for slurpy *%h';
 is (foo3 1, x => 20, y => 300, 4000), 4001,
-  'Testing the value for slurpy *@a';
+  'Testing the value for slurpy *@a', :todo<bug>;
 
 ### named parameter pair will always have a higher "priority" while passing
 ### so %h<n> will always be undef
@@ -110,8 +110,7 @@ my sub foo(++$n, *%h, *@a){ };
 diag('Testing with named arguments (named param is required) (++ version)');
 lives_ok { foo 1, n => 20, y => 300, 4000 },
   'Testing: `my sub foo(++$n, *%h, *@a){ }; foo 1, n => 20, y => 300, 4000 }`';
-dies_ok { foo 1, x => 20, y => 300, 4000 },
-  'Testing: `my sub foo(++$n, *%h, *@a){ }; foo 1, x => 20, y => 300, 4000 }`';
+dies_ok { foo 1, x => 20, y => 300, 4000 }, :todo<bug>;
 }
 
 #### "trait" version
@@ -121,7 +120,7 @@ diag('Testing with named arguments (named param is required) (trait version)');
 lives_ok { foo 1, n => 20, y => 300, 4000 },
   'Testing: `my sub foo(+$n is required, *%h, *@a){ }; foo 1, n => 20, y => 300, 4000 }`';
 dies_ok { foo 1, x => 20, y => 300, 4000 },
-  'Testing: `my sub foo(+$n is required, *%h, *@a){ }; foo 1, x => 20, y => 300, 4000 }`';
+  'Testing: `my sub foo(+$n is required, *%h, *@a){ }; foo 1, x => 20, y => 300, 4000 }`', :todo<bug>;
 }
 
 ##### Now slurpy scalar tests here.

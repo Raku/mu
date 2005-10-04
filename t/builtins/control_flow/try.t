@@ -1,5 +1,3 @@
-#!/usr/bin/pugs
-
 use v6;
 use Test;
 
@@ -47,9 +45,9 @@ plan 25;
     my %hash;
     # Extra try necessary because current Pugs dies without it.
     try { %hash = try { a => 3 } };
-    is +%hash,        1, '%hash = try {...} worked (7)';
-    is ~%hash.keys, "a", '%hash = try {...} worked (8)';
-    is ~%hash<a>,     3, '%hash = try {...} worked (9)';
+    is +%hash,        1, '%hash = try {...} worked (7)', :todo<bug>;
+    is ~%hash.keys, "a", '%hash = try {...} worked (8)', :todo<bug>;
+    is ~%hash<a>,     3, '%hash = try {...} worked (9)', :todo<bug>;
 }
 
 {

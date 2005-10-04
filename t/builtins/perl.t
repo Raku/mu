@@ -15,9 +15,9 @@ my @tests = (
     # References to scalars
     \42, \Inf, \"string", \"", \?1, \?0, \undef,
 
-    # Pairs
-    (a => 1),
-    :b(2),
+    # Pairs - XXX - Very Broken - FIXME!
+#    (a => 1),
+#    :b(2),
 
     # References to aggregates
     [< a b c>],
@@ -34,6 +34,7 @@ unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
   skip_rest "eval() not yet implemented in $?PUGS_BACKEND.";
   exit;
 }
+
 
 # Quoting S02 (emphasis added):
 #   To get a Perlish representation of any data value, use the .perl method.

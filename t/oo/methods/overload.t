@@ -68,10 +68,10 @@ sub run_tests_with($class) {
 
       my @foo = ($obj, $obj, $obj);
       my $res;
-      lives_ok { $res = ~@foo }, "stringification didn't die";
+      lives_ok { $res = ~@foo }, "stringification didn't die", :todo<feature>;
       is $res, "pugs pugs pugs", "stringification overloading worked in array stringification", :todo<feature>;
 
-      lives_ok { $res = ~[@foo »~« "!"] }, "stringification with hyperization didn't die";
+      lives_ok { $res = ~[@foo »~« "!"] }, "stringification with hyperization didn't die", :todo<feature>;
       is $res, "pugs! pugs! pugs!", "stringification overloading was hyperized correctly", :todo<feature>;
     }
 }

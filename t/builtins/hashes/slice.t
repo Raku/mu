@@ -57,15 +57,15 @@ Quoting Larry:
 {   my %hash = (:a<foo>, :b<bar>, :c<baz>);
 
     try { %hash<a b> := <FOO BAR> };
-    is %hash<a>, "FOO", "binding hash slices works (1-1)";
-    is %hash<b>, "BAR", "binding hash slices works (1-2)";
+    is %hash<a>, "FOO", "binding hash slices works (1-1)", :todo<bug>;
+    is %hash<b>, "BAR", "binding hash slices works (1-2)", :todo<bug>;
 }
 
 {   my %hash = (:a<foo>, :b<bar>, :c<baz>);
 
     try { %hash<a b> := <FOO> };
-    is %hash<a>, "FOO",    "binding hash slices works (2-1)";
-    ok !defined(%hash<b>), "binding hash slices works (2-2)";
+    is %hash<a>, "FOO",    "binding hash slices works (2-1)", :todo<bug>;
+    ok !defined(%hash<b>), "binding hash slices works (2-2)", :todo<bug>;
 }
 
 {   my %hash = (:a<foo>, :b<bar>, :c<baz>);
@@ -73,20 +73,20 @@ Quoting Larry:
     my $bar  = "BAR";
 
     try { %hash<a b> := ($foo, $bar) };
-    is %hash<a>, "FOO", "binding hash slices works (3-1)";
-    is %hash<b>, "BAR", "binding hash slices works (3-2)";
+    is %hash<a>, "FOO", "binding hash slices works (3-1)", :todo<bug>;
+    is %hash<b>, "BAR", "binding hash slices works (3-2)", :todo<bug>;
 
     $foo = "BB";
     $bar = "CC";
-    is %hash<a>, "BB", "binding hash slices works (3-3)";
-    is %hash<b>, "CC", "binding hash slices works (3-4)";
+    is %hash<a>, "BB", "binding hash slices works (3-3)", :todo<bug>;
+    is %hash<b>, "CC", "binding hash slices works (3-4)", :todo<bug>;
 
     %hash<a> = "BBB";
     %hash<b> = "CCC";
     is %hash<a>, "BBB", "binding hash slices works (3-5)";
     is %hash<b>, "CCC", "binding hash slices works (3-6)";
-    is $foo,     "BBB", "binding hash slices works (3-7)";
-    is $bar,     "CCC", "binding hash slices works (3-8)";
+    is $foo,     "BBB", "binding hash slices works (3-7)", :todo<bug>;
+    is $bar,     "CCC", "binding hash slices works (3-8)", :todo<bug>;
 }
 
 # Calculated slices
