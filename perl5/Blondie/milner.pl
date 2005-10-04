@@ -48,10 +48,8 @@ ROOT: level($$) = { 0 }
 type::operator::binary: level($.left) = { level($$) + 1 }
 type::operator::binary: level($.right) = { level($$) }
 
-type::operator::binary: layout($$) = {
-	my $inner = join(" ", layout($.left), $.symbol, layout($.right));
-	parenthesize($$) ? "($inner)" : $inner;
-}
+type::operator::binary: inner_layout($$) = { join(" ", layout($.left), $.symbol, layout($.right)) }
+type::operator::binary: layout($$) = { return parenthesize($$) ? "($_)" : $_ for inner_layout($$) }
 
 type::operator::binary: parenthesize($$) = { $$->isa("type::operator::pair") || level($$) }
 #'EOG
@@ -254,15 +252,17 @@ sub right {
 }
 
 package node;
+# all AST nodes inherit from this
 
 sub new {
 	my $class = shift;
 	bless {
 		t => undef,
-		(@_ == 1 ? (v => $_[0]) : @_),
+		(@_ == 1 ? (v => $_[0]) : @_), # an easy constructor
 	}, $class;
 }
 
+# functions are applied 
 package fun;
 use base qw/node/;
 
