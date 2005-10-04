@@ -64,7 +64,6 @@ module Pugs.Internals (
     encodeUTF8,
     forM,
     forM_,
-    tryIO,
     combine,
     modifyTVar,
     unsafePerformSTM,
@@ -223,9 +222,6 @@ forM_ :: (Monad m)
       -> (a -> m b) -- ^ The \'body\' of the for loop
       -> m ()
 forM_ = flip mapM_
-
-tryIO :: (MonadIO m) => a -> IO a -> m a
-tryIO err = liftIO . (`catch` (const $ return err))
 
 {-|
 Compose a list of @(a -> a)@ transformer functions into a single chained

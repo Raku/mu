@@ -47,7 +47,7 @@ module Pugs.AST.Internals (
     -- MonadEval(..),
 
     runEvalSTM, runEvalIO, shiftT, resetT, callCC,
-    undef, defined, tryIO,
+    undef, defined, tryIO, guardIO,
     readRef, writeRef, clearRef, dumpRef, forceRef,
     askGlobal, writeVar, readVar,
     findSymRef, findSym,
@@ -1230,11 +1230,14 @@ instance Functor Eval where
     fmap f (EvalT a) = EvalT (fmap f a)
 
 instance MonadIO Eval where
-    liftIO io = do
-        rv <- liftIO $ try io
-        case rv of
-            Left e -> fail (show e)
-            Right v -> return v
+    liftIO io = EvalT (liftIO io)
+    
+guardIO :: IO a -> Eval a
+guardIO io = do
+    rv <- liftIO $ try io
+    case rv of
+        Left e -> fail (show e)
+        Right v -> return v
 
 instance MonadSTM Eval where
     -- XXX: Should be this:
