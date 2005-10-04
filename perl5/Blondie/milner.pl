@@ -1,7 +1,5 @@
 #!/usr/bin/perl -CDS
 
-close STDERR; # can't get rid of the Wide char in print errors any other way
-
 # A typed lambda calculus in perl6-ish perl 5
 # (makes use of attribute grammars and multimethods)
 
@@ -35,17 +33,27 @@ use base qw/Clone/;
 #	::binary - takes 2 params (e.g. ->, x)
 #	::nullary - takes 0 params (e.g. int)
 # type::variable - a placeholder to make a DAG out of a tree (to gain strong typing)
-# 	::free - an unbound type variable
-#   ::instantiated - points to another variable or operator
+#	::free - an unbound type variable
+#	::instantiated - points to another variable or operator
 
 use Language::AttributeGrammar;
 
 # this attribute grammer pretty prints bare types (no foralll)
-my $pretty = Language::AttributeGrammar->new({ prefix => 'type::' }, <<'#\'EOG');
+my $pretty = Language::AttributeGrammar->new(<<'#\'EOG');
 #\
-variable::instantiated: layout($$) = { $.instance }
-operator::nullary: layout($$) = { $.name }
-operator::binary: layout($$) = { "(" . join(" ", layout($.left), $.symbol, layout($.right)) . ")" }
+type::variable::instantiated: layout($$) = { $.instance }
+type::operator::nullary: layout($$) = { $.name }
+
+ROOT: level($$) = { 0 }
+type::operator::binary: level($.left) = { level($$) + 1 }
+type::operator::binary: level($.right) = { level($$) }
+
+type::operator::binary: layout($$) = {
+	my $inner = join(" ", layout($.left), $.symbol, layout($.right));
+	parenthesize($$) ? "($inner)" : $inner;
+}
+
+type::operator::binary: parenthesize($$) = { $$->isa("type::operator::pair") || level($$) }
 #'EOG
 
 sub stringify {
@@ -60,7 +68,7 @@ sub stringify {
 	my @letters = split //, "αβγδεζηθικλμνξοπρστυφχψω"; # some identifiers for types. Let'shope we never need to print more than these ;-)
 	
 	my %map;
-    my @forall;
+	my @forall;
 
 	# allocate letters for type variables
 	# it's ok to destroy the objects since they're copies
@@ -76,10 +84,10 @@ sub stringify {
 
 	eval {
 	   join(" ",
-	       (map { "∀${_}." } @forall),
-	       $pretty->apply($tree)->layout,
+		   (map { "∀${_}." } @forall),
+		   $pretty->apply($tree)->layout,
 	   );
-    } || die "$@\n" . Data::Dumper::Dumper($dag);
+	} || die "$@\n" . Data::Dumper::Dumper($dag);
 }
 
 sub splat {
@@ -109,10 +117,10 @@ package type::operator::nullary;
 use base qw/type::operator/;
 
 sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new;
-    $self->{name} = shift;
-    $self;
+	my $class = shift;
+	my $self = $class->SUPER::new;
+	$self->{name} = shift;
+	$self;
 }
 
 package type::operator::binary;
@@ -160,7 +168,7 @@ sub splat { # recursive splatting happens in parametrized type operators, since 
 	my $accum = shift;
 
 	bless {
-		%$self,	
+		%$self, 
 		left => $self->left->splat($accum),
 		right => $self->right->splat($accum),
 	}, (ref $self);
@@ -373,6 +381,17 @@ use Test::Exception;
 use Data::Dumper;
 use Language::AttributeGrammar;
 
+{
+	# please forgive me
+	my $orig = \&Test::Builder::output;
+	no warnings 'redefine';
+	*Test::Builder::output = sub {
+		my $ret = &$orig(@_);
+		binmode $ret, ":utf8";
+		$ret;
+	};
+}
+
 $Data::Dumper::Terse = 1; # no need for pointless $VARx
 
 
@@ -532,7 +551,7 @@ my $plus_ten = fun(
 	),
 );
 
-# fun(x) x  -  takes any value and returns it
+# fun(x) x	-  takes any value and returns it
 # x stays free, and thus becomes generic (id is polymorphic)
 my $id = fun(
 	param => "x",
@@ -663,42 +682,90 @@ my $app_plus_ten_to_str = comb(
 		type::variable::free->new,
 		my $b = type::variable::free->new,
 	);
-	is($type->stringify, "∀α. ∀β. (α → β)", "pretty print a -> b");
+	is($type->stringify, "∀α. ∀β. α → β", "pretty print a -> b");
 
 	$b->instantiate( type::operator::nullary->new("int") );
-	is($type->stringify, "∀α. (α → int)", "pretty print a -> b where b = int");
+	is($type->stringify, "∀α. α → int", "pretty print a -> b where b = int");
 }
 {
-    my $a = type::variable::free->new;
-    my $type = type::operator::arrow->new($a, $a);
+	my $a = type::variable::free->new;
+	my $type = type::operator::arrow->new($a, $a);
 
-    is($type->stringify, "∀α. (α → α)", "pretty print a -> a");
+	is($type->stringify, "∀α. α → α", "pretty print a -> a");
 }
-
 {
 	my $type = type::operator::arrow->new(
 		my $a = type::variable::free->new,
 		my $b = type::variable::free->new,
 	);
 	$a->instantiate($b);
-	is($type->stringify, "∀α. (α → α)", "pretty print a -> b where a = b");
+	is($type->stringify, "∀α. α → α", "pretty print a -> b where a = b");
+}
+{
+	my $type = type::operator::arrow->new(
+		type::operator::arrow->new(
+			type::variable::free->new,
+			type::variable::free->new,
+		),
+		type::variable::free->new,
+	);
+	is($type->stringify, "∀α. ∀β. ∀γ. (α → β) → γ", "pretty print (a -> b) -> c");
+}
+{
+	my $type = type::operator::arrow->new(
+		type::variable::free->new,
+		type::operator::arrow->new(
+			type::variable::free->new,
+			type::variable::free->new,
+		),
+	);
+	is($type->stringify, "∀α. ∀β. ∀γ. α → β → γ", "pretty print a -> b -> c");
+}
+{
+	my $type = type::operator::pair->new(
+		type::variable::free->new,
+		type::variable::free->new,
+	);
+	is($type->stringify, "∀α. ∀β. (α × β)", "pretty print a x b");
+}
+{
+	my $type = type::operator::arrow->new(
+		type::variable::free->new,
+		type::operator::pair->new(
+			type::variable::free->new,
+			type::variable::free->new,
+		),
+	);
+	is($type->stringify, "∀α. ∀β. ∀γ. α → (β × γ)", "pretty print a -> b x c");
+}
+{
+	my $type = type::operator::arrow->new(
+		type::operator::pair->new(
+			type::variable::free->new,
+			type::variable::free->new,
+		),
+		type::variable::free->new,
+	);
+	is($type->stringify, "∀α. ∀β. ∀γ. (α × β) → γ", "pretty print a x b -> c");
 }
 
 
+
+
 # tests for the type inferrencer
-is(t($id), "∀α. (α → α)", ":t id");
+is(t($id), "∀α. α → α", ":t id");
 is(t($app_id), "int", ":t id(3)");
-is(t($plus_ten), "(int → int)", ":t (+ 10)");
+is(t($plus_ten), "int → int", ":t (+ 10)");
 is(t($fifteen), "int", ":t (+ 10) 5");
-is(t($half_pair), "∀α. (α → (int × α))", ":t pair(10)");
+is(t($half_pair), "∀α. α → (int × α)", ":t pair(10)");
 is(t($pair), "(int × str)", ":t pair(10)('foo')");
 is(t($fst), "int", ":t fst( pair(10)('foo') )");
 is(t($snd), "str", ":t snd( pair(10)('foo') )");
-is(t(ide("pair")), "∀α. ∀β. (α → (β → (α × β)))", ":t pair");
-is(t(ide("fst")), "∀α. ∀β. ((α × β) → α)", ":t fst");
-is(t(ide("snd")), "∀α. ∀β. ((α × β) → β)", ":t snd");
+is(t(ide("pair")), "∀α. ∀β. α → β → (α × β)", ":t pair");
+is(t(ide("fst")), "∀α. ∀β. (α × β) → α", ":t fst");
+is(t(ide("snd")), "∀α. ∀β. (α × β) → β", ":t snd");
 is(t($id_pair), "(int × str)", ":t id(pair(id(10))(id('foo')))");
-is(t($app_to_str), "∀α. ((str → α) → α)", ":t (λx. (x 'str'))");
+is(t($app_to_str), "∀α. (str → α) → α", ":t (λx. (x 'str'))");
 is(t($app_id_to_str), "str", ":t (λx. (x 'str'))(id)");
 
 dies_ok { t($flatten_polymorphic) } "can't type λf.(pair (f 3))(f 'foo')";
