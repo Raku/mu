@@ -107,7 +107,12 @@ Container semantics, binding, autodereferencing references
 
 =item *
 
-Basic array and hash autovivification
+C<Proxy> class (but not yet user-visible, as support for class methods is still
+lacking)
+
+=item *
+
+Array and hash autovivification
 
 =item *
 
@@ -500,10 +505,12 @@ compile to JavaScript) and compile it to JavaScript.
 
 PIL2JS fully supports nothingmuch's accepted C<lazy {...}> proposal (see
 F<t/var/lazy.t>). Only one real problem arose during implementing C<&lazy>:
-C<.FETCH> is called very often, for example at sub return (because of
-C<PIL2JS.Box.ReadOnly>). Therefore, C<&lazy>'s current implementation does not
-return the lazy value directly, but an autodereffing reference to it. This way
-the body is only called when it is really needed.
+C<.FETCH> is called very often, for example at sub return (because
+C<PIL2JS.Box.ReadOnly> needs to find out the container type of the thing it'll
+proxy -- and this operation requires a C<.FETCH>). Therefore, C<&lazy>'s
+current implementation does not return the lazy value directly, but an
+autodereffing reference to it. This way the body is only called when it is
+really needed.
 
 =head3 Lazy lists
 
@@ -564,13 +571,9 @@ to give better context information.
 
 =item *
 
-More extensive hash and array autovification (C<< my @ar; $hash<foo> = "bar"
->>).
-
-=item *
-
 C<method foo (Bar $self:)> should create a C<&Bar::foo>, not a C<&main::foo>.
-Required to implement hash and array autovification elegantly.
+Required to implement hash and array autovification elegantly. (Partly a PIL1
+bug.)
 
 =item *
 
@@ -578,10 +581,26 @@ More OO and meta stuff (but requires PIL2 or fixes to PIL1).
 
 =item *
 
-Short term goals: Fix the P5Macros C<< &statement_control:<if> >> and C<<
-&statement_control:<unless> >> to preserve lvaluehood, fix a problem with
-C<pad["$_"]> being stomped in combination with rules stuff (C<int.t> doesn't
-work because of this)
+Short term goals:
+
+=over
+
+=item *
+
+Fix the P5Macros C<< &statement_control:<if> >> and C<<
+&statement_control:<unless> >> to preserve lvaluehood.
+
+=item *
+
+Fix a problem with C<pad["$_"]> being stomped in combination with rules stuff
+(C<int.t> doesn't pass 100% because of this).
+
+=item *
+
+Make C<&?SUB> available in anonymous subs as well (C<my sub> counts as
+anonymous).
+
+=back
 
 =back
 

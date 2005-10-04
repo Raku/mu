@@ -31,6 +31,7 @@
 XXX not sure where to put this
 
 === JavaScript backend
+* Passes 91% of the test suite
 * Integrated the MetaModel
 * Switched to much faster `-CPerl5`
 * Switched to continuation passing style (CPS) to properly support `return()`,
@@ -65,6 +66,8 @@ XXX not sure where to put this
 * Support for array and hash slices
 * `substr()` returns a readwrite proxy object now (`substr($str, $pos, $len) =
   $replacement)`)
+* Support for the `Proxy` class (but not yet user-visible, as support for class
+  methods is lacking)
 
 === Perl 5 backend
 * Already has enough functionality to run Perl 6 version of Test.pm
