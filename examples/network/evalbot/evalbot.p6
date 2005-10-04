@@ -125,7 +125,7 @@ sub evalhelper(Str $code) {
   };
 
   # Prevent possible abuse.
-  return "Code to eval exceeds maximum length limit." if bytes $code > 500;
+  return "Code to eval exceeds maximum length limit." if bytes($code) > 500;
   return "No code to eval given."
     if bytes($code) == 0 or $code ~~ rx:Perl5/^\s*$/;
 
