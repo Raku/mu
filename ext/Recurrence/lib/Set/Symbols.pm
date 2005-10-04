@@ -1,4 +1,3 @@
-﻿
 use v6;
 
 role Set::Symbols;
@@ -14,50 +13,50 @@ sub ∅ {
 =cut
 
 # unicode intersection
-multi sub *infix:<∩> ($one, $two) {
+multi sub *infix:<∩> (Set $one, Set $two) {
     $one.intersection($two);
 }
 
 # unicode union
-multi sub *infix:<∪> ($one, $two) {
+multi sub *infix:<∪> (Set $one, Set $two) {
     $one.union($two);
 }
 
 # addition is union
-multi sub *infix:<+> ($one, $two) {
+multi sub *infix:<+> (Set $one, Set $two) {
     $one.union($two);
 }
 
 # subtraction is difference
-multi sub *infix:<-> ($one, $two) {
+multi sub *infix:<-> (Set $one, Set $two) {
     $one.difference($two);
 }
 
 # unicode difference operator
 #  note the difference - ∖ vs \ (backslash)
-multi sub *infix:<∖> ($one, $two) {
+multi sub *infix:<∖> (Set $one, Set $two) {
     $one.difference($two);
 }
 
 # multiplication is intersection
-multi sub *infix:<*> ($one, $two) {
+multi sub *infix:<*> (Set $one, Set $two) {
     $one.intersection($two);
 }
 
 # modulus is symmetric difference
-multi sub *infix:<%> ($one, $two) {
+multi sub *infix:<%> (Set $one, Set $two) {
     $one.symmetric_difference($two);
 }
 
 # XXX define multisubs
 # comparison is subset/superset
-#multi sub *infix:<==> ($one, $two) {
+#multi sub *infix:<==> (Set $one, Set $two) {
 #    $one.equal($two);
 #}
-#multi sub *infix:<!=> ($one, $two) {
+#multi sub *infix:<!=> (Set $one, Set $two) {
 #    $one.not_equal($two);
 #}
-#multi sub *infix:<≠> ($one, $two) {
+#multi sub *infix:<≠> (Set $one, Set $two) {
 #    $one.not_equal($two);
 #}
 
@@ -67,90 +66,90 @@ method prefix:<~> ($self) returns Str {
 }
 
 # removed - spans can be numerically compared
-# multi sub *infix:«<» ($one, $two) {
+# multi sub *infix:«<» (Set $one, Set $two) {
 #    $one.proper_subset($two);
 #}
-#multi sub *infix:«>» ($one, $two) {
+#multi sub *infix:«>» (Set $one, Set $two) {
 #    $one.proper_superset($two);
 #}
-#multi sub *infix:«<=» ($one, $two) {
+#multi sub *infix:«<=» (Set $one, Set $two) {
 #    $one.subset($two);
 #}
-#multi sub *infix:«>=» ($one, $two) {
+#multi sub *infix:«>=» (Set $one, Set $two) {
 #    $one.superset($two);
 #}
 
 # look at all these great unicode operators!  :D
-multi sub *infix:«⊂» ($one, $two) {
+multi sub *infix:«⊂» (Set $one, Set $two) {
     $one.proper_subset($two);
 }
-multi sub *infix:«⊃» ($one, $two) {
+multi sub *infix:«⊃» (Set $one, Set $two) {
     $one.proper_superset($two);
 }
-multi sub *infix:«⊆» ($one, $two) {
+multi sub *infix:«⊆» (Set $one, Set $two) {
     $one.subset($two);
 }
-multi sub *infix:«⊇» ($one, $two) {
+multi sub *infix:«⊇» (Set $one, Set $two) {
     $one.superset($two);
 }
-multi sub *infix:«⊄» ($one, $two) {
+multi sub *infix:«⊄» (Set $one, Set $two) {
     !$one.proper_subset($two);
 }
-multi sub *infix:«⊅» ($one, $two) {
+multi sub *infix:«⊅» (Set $one, Set $two) {
     !$one.proper_superset($two);
 }
-multi sub *infix:«⊈» ($one, $two) {
+multi sub *infix:«⊈» (Set $one, Set $two) {
     !$one.subset($two);
 }
-multi sub *infix:«⊉» ($one, $two) {
+multi sub *infix:«⊉» (Set $one, Set $two) {
     !$one.superset($two);
 }
-multi sub *infix:«⊊» ($one, $two) {
+multi sub *infix:«⊊» (Set $one, Set $two) {
     $one.proper_subset($two);
 }
-multi sub *infix:«⊋» ($one, $two) {
+multi sub *infix:«⊋» (Set $one, Set $two) {
     $one.proper_superset($two);
 }
 
 # several unicode operators for includes!
-multi sub *infix:<∋> ($one, $member) returns Bool {
+multi sub *infix:<∋> (Set $one, $member) returns Bool {
     $one.includes($member);
 }
-multi sub *infix:<∈> ($member, $set) returns Bool {
+multi sub *infix:<∈> ($member, Set $set) returns Bool {
     $set.includes($member);
 }
-multi sub *infix:<∍> ($one, $member) returns Bool {
+multi sub *infix:<∍> (Set $one, $member) returns Bool {
     $one.includes($member);
 }
-multi sub *infix:<∊> ($member, $set) returns Bool {
+multi sub *infix:<∊> ($member, Set $set) returns Bool {
     $set.includes($member);
 }
-multi sub *infix:<∌> ($one, $member) returns Bool {
+multi sub *infix:<∌> (Set $one, $member) returns Bool {
     !$one.includes($member);
 }
-multi sub *infix:<∉> ($member, $set) returns Bool {
+multi sub *infix:<∉> ($member, Set $set) returns Bool {
     !$set.includes($member);
 }
 
 # these methods are for overloaded operations with non-sets
-multi sub *infix:<+> ($one, *@args) {
+multi sub *infix:<+> (Set $one, *@args) {
     $one.union(@args);
 }
-multi sub *infix:<-> ($one, *@args) {
+multi sub *infix:<-> (Set $one, *@args) {
     $one.difference(@args);
 }
-multi sub *infix:<*> ($one, *@args) {
+multi sub *infix:<*> (Set $one, *@args) {
     $one.intersection(@args);
 }
-multi sub *infix:<%> ($one, *@args) {
+multi sub *infix:<%> (Set $one, *@args) {
     $one.symmetric_difference(@args);
 }
-multi sub *infix:<~~> ($one, $member) returns Bool {
+multi sub *infix:<~~> (Set $one, $member) returns Bool {
     $one.includes($member);
 }
 # XXX -- IIRC, there's a "is commutative" or such, so duplicating shouldn't be
 # necessary.
-multi sub *infix:<~~> ($member, $one) returns Bool {
+multi sub *infix:<~~> ($member, Set $one) returns Bool {
     $one.includes($member);
 }
 
