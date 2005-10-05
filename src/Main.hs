@@ -234,7 +234,7 @@ doHelperRun backend args =
 
 doExecuteHelper :: [FilePath] -> [String] -> IO ()
 doExecuteHelper helper args = do
-    let searchPaths = [["."], ["..", ".."], [getConfig "sourcedir"]]
+    let searchPaths = [["."], ["..", ".."], [getConfig "installsitelib"], [getConfig "sourcedir"]]
     mbin <- findHelper searchPaths
     case mbin of
         Just binary -> do
