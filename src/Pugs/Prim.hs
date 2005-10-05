@@ -512,7 +512,7 @@ op1 "readline" = \v -> op1Read v (getLines) (getLine)
                 return $ VList (line:rest)
             else return $ VList []
     getLine :: VHandle -> Eval Val
-    getLine fh = guardIO $
+    getLine fh = tryIO undef $
         fmap (VStr . (++ "\n") . decodeUTF8) (hGetLine fh)
 op1 "getc"     = \v -> op1Read v (getChar) (getChar)
     where
