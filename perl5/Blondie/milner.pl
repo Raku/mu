@@ -25,6 +25,8 @@ use Set::Object ();
 use Data::Dumper ();
 use Storable ();
 
+use Devel::STDERR::Indent;
+
 package type;
 use base qw/Clone/;
 
@@ -43,6 +45,9 @@ my $pretty = Language::AttributeGrammar->new(<<'#\'EOG');
 #\
 type::variable::instantiated: layout($$) = { $.instance }
 type::operator::nullary: layout($$) = { $.name }
+
+type::operator::nary: layout($$) = { join(" ", $.name, layout($.param)) }
+type::operator::nary: level($.param) = { level($$) }
 
 ROOT: level($$) = { 0 }
 type::operator::binary: level($.left) = { level($$) + 1 }
@@ -91,7 +96,7 @@ sub stringify {
 sub splat {
 	my $self = shift;
 	my $accum = shift;
-
+	
 	$self->shallow_clone;
 }
 
@@ -100,8 +105,8 @@ sub shallow_clone {
 	bless {%$self}, (ref $self);
 }
 
-sub is_free { 0 } # most types are not free variables
 sub is_arrow { 0 }; # or arrows
+sub free_vars { () }; # typicall there are no free vars inside a thingy
 
 package type::operator;
 use base qw/type/;
@@ -172,6 +177,39 @@ sub splat { # recursive splatting happens in parametrized type operators, since 
 	}, (ref $self);
 }
 
+sub free_vars {
+	my $self = shift;
+	map { $_->free_vars} $self->left, $self->right;
+}
+
+package type::operator::nary;
+use base qw/type::operator/;
+
+sub new {
+	my $class = shift;
+	my $self = $class->SUPER::new;
+	$self->{name} = shift;
+	$self->{param} = shift;
+
+	$self;
+}
+
+sub splat {
+	my $self = shift;
+	my $accum = shift;
+
+	bless {
+		%$self,
+		param => $self->{param}->splat($accum),
+	}, (ref $self);
+}
+
+sub free_vars {
+	my $self = shift;
+	$self->{param}->free_vars;
+}
+
+
 package type::operator::arrow;
 use base qw/type::operator::binary/;
 
@@ -221,15 +259,10 @@ sub splat {
 	$entry->{new} = $self->SUPER::splat($accum);
 }
 
-sub is_free { 1 } # whether or not this is a free variable
+sub free_vars { $_[0] }
 
 package type::variable::instantiated;
 use base qw/type::variable/;
-
-sub is_free {
-	my $self = shift;
-	$self->{instance}->is_free; # a unified variable might be free if it's instantiated to a free var
-}
 
 sub is_arrow {
 	my $self = shift;
@@ -249,6 +282,11 @@ sub left {
 sub right {
 	my $self = shift;
 	$self->{instance}->right;
+}
+
+sub free_vars {
+	my $self = shift;
+	$self->{instance}->free_vars;
 }
 
 package node;
@@ -275,6 +313,9 @@ use base qw/node/;
 package let;
 use base qw/node/;
 
+package cond;
+use base qw/node/;
+
 package val;
 use base qw/node/;
 
@@ -297,7 +338,10 @@ use Data::Dumper;
 # in a language with native multimetods this would be much more concise
 
 # a free variable instantiates into whatever it is combined with (except instantiated variables, which delegate. see below)
-multi unify => ( 'type::variable::free', any(qw/type::variable::free type::operator/) ) => sub { $_[0]->instantiate($_[1]) };
+multi unify => ( 'type::variable::free', any(qw/type::variable::free type::operator/) ) => sub {
+	return if ($_[0] == $_[1]); # in a recursive let expr a generic recursive function will be reunified with it's still free variable
+	$_[0]->instantiate($_[1]);
+};
 multi unify => ('type::operator', 'type::variable::free') => sub { $_[1]->instantiate($_[0]) };
 
 # an instantiated variable will unify it's instantiated value instead of itself
@@ -324,8 +368,17 @@ multi unify => ('type::operator::binary', 'type::operator::binary') => sub {
 	unify($x->right, $y->right, @_);
 };
 
+multi unify => ('type::operator::nary', 'type::operator::nary') => sub {
+	my ($x, $y) = (shift, shift);
+
+	$x->{name} eq $y->{name}
+		or die "Can't unify $x->{name} with $y->{name} in " . Dumper(@_);
+
+	unify($x->{param}, $y->{param}, @_);
+};
+
 multi unify => ('type', 'type') => sub {
-	die "trying to unify unknown type type: " . Dumper(@_);
+	die "trying to unify incompatible types:\n" . Dumper(@_);
 };
 
 
@@ -339,6 +392,52 @@ our %prelude = (
 			type::operator::nullary->new("int"),
 		),
 	),
+	sub => type::operator::arrow->new(
+		type::operator::nullary->new("int"),	
+		type::operator::arrow->new(
+			type::operator::nullary->new("int"),
+			type::operator::nullary->new("int"),
+		),
+	),
+	mul => type::operator::arrow->new(
+		type::operator::nullary->new("int"),	
+		type::operator::arrow->new(
+			type::operator::nullary->new("int"),
+			type::operator::nullary->new("int"),
+		),
+	),
+	# a -> list a -> list a
+	cons => do {
+		my $a = type::variable::free->new;
+		type::operator::arrow->new(
+			$a,
+			type::operator::arrow->new(
+				type::operator::nary->new(list => $a),
+				type::operator::nary->new(list => $a),
+			),
+		);
+	},
+	# list a
+	nil => type::operator::nary->new(list => type::variable::free->new),
+	# list a -> bool
+	'is_nil?' => type::operator::arrow->new(
+		type::operator::nary->new(list => type::variable::free->new),
+		type::operator::nullary->new("bool"),
+	),
+	# list a -> a
+	head => do {
+		my $a = type::variable::free->new;
+		type::operator::arrow->new(
+			type::operator::nary->new(list => $a),
+			$a,
+		);
+	},
+	# list a -> list a
+	tail => do {
+		my $a = type::variable::free->new;
+		my $l = type::operator::nary->new(list => $a);
+		type::operator::arrow->new( $l, $l );
+	},
 	# a -> b -> (a x b)
 	pair => do {
 		my $a = type::variable::free->new;
@@ -372,10 +471,22 @@ our %prelude = (
 			$b,
 		);
 	},
+	# int -> int -> bool
+	'==' => type::operator::arrow->new(
+		type::operator::nullary->new("int"),
+		type::operator::arrow->new(
+			type::operator::nullary->new("int"),
+			type::operator::nullary->new("bool"),
+		),
+	),
 );
 
 
 package main;
+
+use strict;
+use warnings;
+
 use Test::More 'no_plan';
 use Test::Exception;
 use Data::Dumper;
@@ -393,6 +504,7 @@ use Language::AttributeGrammar;
 }
 
 $Data::Dumper::Terse = 1; # no need for pointless $VARx
+$Data::Dumper::Indent = 1;
 
 
 sub AUTOLOAD { # an easy constructor... fun() instead of fun->new()
@@ -405,9 +517,18 @@ sub AUTOLOAD { # an easy constructor... fun() instead of fun->new()
 my $i = Language::AttributeGrammar->new(<<'#\'EOG');
 #\
 
-# at the root we initialize the predefined symbols, and the (empty) set of generic variables
+# at the root we initialize the predefined symbols, and the initial set of generic variables
 ROOT: env($$) = { Clone::clone(\%types::prelude) }
-ROOT: generic_in($$) = { Set::Object->new }
+ROOT: generic_in($$) = {
+	my $env = env($$);
+
+	Set::Object->new(
+		grep { $_->free_vars }
+			map { $_->left }
+				grep { $_->is_arrow }
+					values %$env
+	);
+}
 
 # entering a function creates a new env (the parameter is associated with a new type variable)
 # this new env is passed down to the body, but is also reused in the 'type' attr
@@ -429,11 +550,11 @@ fun: generic($$) = {
 	my $t_of_param = type($$)->left;
 	my $prev_generic = generic($.body);
 
-	if ($t_of_param->is_free) {
-		return $prev_generic + Set::Object->new( $t_of_param )
+	if ($t_of_param->free_vars) {
+		return $prev_generic + Set::Object->new($t_of_param);
+	} else {
+		return $prev_generic;
 	}
-
-	$prev_generic;	
 }
 
 # the type of the function the arrow operator, applied to the type of the parameter (as allocated in the new env), and the type of the body
@@ -474,15 +595,15 @@ comb: type($$) = {
 	my $f = type($.fun);
 	my $p = type($.param);
 
-	if ($f->is_free) {
-		types::unify(
-			$f,
-			type::operator::arrow->new(
-				type::variable::free->new,
-				type::variable::free->new,
-			),
+	types::unify(
+		$f,
+		type::operator::arrow->new(
+			type::variable::free->new,
+			type::variable::free->new,
 		),
-	}
+		$.fun,
+		$.param,
+	);
 
 	# first of all the type of the thing we're appling must be a function
 	die "Can't apply non function type (" . $.fun . " has type " . $f->stringify
@@ -520,17 +641,50 @@ let: generic($$) = { generic($.in) }
 
 # the env is augmented to contain the new symbol introduced by the binding
 # the body of the binding contains the env with the the symbols of our outer scope
-let: env($.is) = { env($$) }
-let: env($.in) = {
+let: new_env($$) = {
 	my $orig = env($$);
 	my %new = (
 		%$orig,
-		($.ide) => type($.is),
+		($.ide) => type::variable::free->new,
 	);
 	\%new;
 }
+let: env($.is) = { new_env($$) }
+let: env($.in) = { new_env($$) }
 
-let: type($$) = { type($.in) }
+let: type($$) = {
+	types::unify(
+		new_env($$)->{ $.ide }, type($.is),
+		$.ide, $.is,
+	);
+
+
+	type($.in);
+}
+
+cond: env($.if) = { env($$) }
+cond: env($.then) = { env($$) }
+cond: env($.else) = { env($$) }
+
+cond: generic_in($.if) = { generic_in($$) }
+cond: generic_in($.then) = { generic($.if) }
+cond: generic_in($.else) = { generic($.then) }
+cond: generic($$) = { generic($.else) }
+
+cond: type($$) = {
+	types::unify(
+		type($.if), type::operator::nullary->new("bool"),
+		$.if, "bool",
+	);
+
+	types::unify(
+		my $t = type($.then), type($.else),
+		$.then, $.else
+	);
+
+	$t;
+}
+
 
 #'EOG
 
@@ -676,6 +830,177 @@ my $app_plus_ten_to_str = comb(
 	param => $plus_ten,
 );
 
+my $fac = fun(
+	param => "x",
+	body => let(
+		ide => "fac'",
+		is => fun(
+			param => "x",
+			body => fun(
+				param => "r",
+				body => cond(
+					if => comb(
+						fun => comb(
+							fun => ide("=="),
+							param => ide("x"),
+						),
+						param => val(0),
+					),
+					then => ide("r"),
+					else => comb(
+						fun => comb(
+							fun => ide("fac'"),
+							param => comb(
+								fun => comb(
+									fun => ide("sub"),
+									param => ide("x"),
+								),
+								param => val(1),
+							),
+						),
+						param => comb(
+							fun => comb(
+								fun => ide("mul"),
+								param => ide("r"),
+							),
+							param => ide("x"),
+						),
+					),
+				),
+			),
+		),
+		in => comb(
+			fun => comb(
+				fun => ide("fac'"),
+				param => ide("x"),
+			),
+			param => val(1),
+		),
+	),
+);
+
+my $length = fun(
+    param => "xs",
+    body => let(
+        ide => "length'",
+        is => fun(
+            param => "xs",
+            body => fun(
+                param => "n",
+                body => cond(
+                    if => comb(
+                        fun => ide("is_nil?"),
+                        param => ide("xs"),
+                    ),
+                    then => val("n"),
+                    else => comb(
+                        fun => comb(
+                            fun => ide("length'"),
+                            param => comb(
+								fun => ide("tail"),
+								param => ide("xs"),
+							),
+						),
+						param => comb(
+							fun => comb(
+								fun => ide("add"),
+								param => ide("n"),
+							),
+							param => val(1),
+						),
+					),
+				),
+            ),
+        ),
+        in => comb(
+            fun => comb(
+                fun => ide("length'"),
+                param => ide("xs"),
+            ),
+            param => val(0),
+        ),
+    ),
+);
+
+my $fac_5 = comb(
+	fun => $fac,
+	param => val(5),
+);
+
+my $length_and_first = fun(
+	param => "xs",
+	body => comb(
+		fun => comb(
+			fun => ide("pair"),
+			param => comb(
+				fun => ide("head"),
+				param => ide("xs"),
+			),
+		),
+		param => comb(
+			fun => $length,
+			param => ide("xs"),
+		),
+	),
+);
+
+my $one_elem_list = fun(
+	param => "x",
+	body => comb(
+		fun => comb(
+			fun => ide("cons"),
+			param => ide("x"),
+		),
+		param => ide("nil"),
+	),
+);
+
+my $length_and_first_p = let(
+	ide => "listify",
+	is => $one_elem_list,
+	in => let(
+		ide => "length_and_first",
+		is => $length_and_first,
+		in => comb(
+			fun => ide("length_and_first"),
+			param => comb(
+				fun => ide("listify"),
+				param => val(10),
+			),
+		),
+	),
+);
+
+my $length_and_first_gen = let(
+	ide => "listify",
+	is => $one_elem_list,
+	in => let(
+		ide => "length_and_first",
+		is => $length_and_first,
+		in => comb(
+			fun => comb(
+				fun => ide("pair"),
+				param => comb(
+					fun => ide("length_and_first"),
+					param => comb(
+						fun => ide("listify"),
+						param => val(10),
+					),
+				),
+			),
+
+			param => comb(
+				fun => ide("length_and_first"),
+				param => comb(
+					fun => ide("listify"),
+					param => val(v => "foo", t => type::operator::nullary->new("str")),
+				),
+			),
+		),
+	),
+);
+			
+
 # tests for the type pretty printer
 {
 	my $type = type::operator::arrow->new(
@@ -748,6 +1073,30 @@ my $app_plus_ten_to_str = comb(
 	);
 	is($type->stringify, "∀α. ∀β. ∀γ. (α × β) → γ", "pretty print a x b -> c");
 }
+{
+	my $type = type::operator::nary->new(list => type::variable::free->new);
+	is($type->stringify, "∀α. list α", "pretty print list a");
+}
+{
+	my $a = type::variable::free->new;
+	my $type = type::operator::arrow->new(
+		type::operator::nary->new(list => $a),
+		$a,
+	);
+	is($type->stringify, "∀α. list α → α", "pretty print list a -> a");
+}
+{
+	my $a = type::variable::free->new;
+	my $b = type::variable::free->new;
+	my $type = type::operator::arrow->new(
+		type::operator::nary->new(list => $a),
+		type::operator::arrow->new(
+            type::operator::nary->new(list => $b),
+            type::operator::nary->new(list => type::operator::pair->new( $a, $b )),
+		),
+	);
+	is($type->stringify, "∀α. ∀β. list α → list β → list (α × β)", "pretty print :t zip");
+}
 
 
 
@@ -767,6 +1116,14 @@ is(t(ide("snd")), "∀α. ∀β. (α × β) → β", ":t snd");
 is(t($id_pair), "(int × str)", ":t id(pair(id(10))(id('foo')))");
 is(t($app_to_str), "∀α. (str → α) → α", ":t (λx. (x 'str'))");
 is(t($app_id_to_str), "str", ":t (λx. (x 'str'))(id)");
+is(t($fac), "int → int", ":t fac");
+is(t($length), "∀α. list α → int", ":t length");
+is(t($fac_5), "int", ":t fac 5");
+is(t($one_elem_list), "∀α. α → list α", ":t listify(x)");
+is(t(comb( fun => $one_elem_list, param => val(5) )), "list int", ":t listify(5)");
+is(t($length_and_first), "∀α. list α → (α × int)", ":t length_and_first");
+is(t($length_and_first_p), "(int × int)", ":t length_and_first [1]");
+is(t($length_and_first_gen), "((int × int) × (str × int))", ":t (length_and_first ['foo'], length_and_first [1])");
 
 dies_ok { t($flatten_polymorphic) } "can't type λf.(pair (f 3))(f 'foo')";
 dies_ok { t($no_such_sym) } "all identifiers need to be resolvable";
