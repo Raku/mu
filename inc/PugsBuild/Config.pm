@@ -69,8 +69,8 @@ sub defaults {
 
 sub lookup {
     my($class, $what) = @_;
+    die "unknown option: $what" unless exists $Conf->{$what};
     my $value = $Conf->{$what};
-    die "unknown option: $what" unless defined $value;
     return $value;
 }
 
