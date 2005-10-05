@@ -1,0 +1,7 @@
+blib
+\.svn
+\.DS_Store$
+\.bak$
+Makefile$
+test$
+\.tar\.gz$
