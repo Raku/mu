@@ -21,16 +21,11 @@ HEADER
 tie my %exprs, 'Tie::RefHash', (
 	qr{ \$ <> }x=> sub { compare => "whole_match" },
 	qr{ \$ \/ \. from }x, sub { compare => "pos_whole_match_begin" },
-	qr{ \$ (?: 0 | \/ ) \[ \d+ \] \. from }x => sub {
-		$_[0] =~ /\[(\d+)\]/;
-		match_var => $1, compare => "pos_match_var_begin";
+	qr{ \$ (?: 0 | \/ ) (?: \[ -? \d+ \] )+ (?: \.from ) }x => sub {
+		my @slice = ($_[0] =~ /\[ (-? \d+) \]/gx);
+		my $pos = ($_[0] =~ /from/);
+		match_var => "@slice", compare => ($pos ? "match_var" : "pos_match_var_begin");
 	},
-	qr{ \$ (?: 0 | \/ ) \[ -1  \] \. from }x => sub { match_var => "last", compare => "pos_match_var_begin"},
-	qr{ \$ (?: 0 | \/ ) \[ \d+ \] }x => sub {
-		$_[0] =~ /\[(\d+)\]/;
-		match_var => $1, compare => "match_var";
-	},
-	qr{ \$ (?: 0 | \/ ) \[ -1  \] }x => sub { match_var => "last", compare => "match_var"},
 	qr{ \$ \d+ }x => sub {
 		$_[0] =~ /^\$(\d+)$/;
 		match_var => $1, compare => "match_var";
