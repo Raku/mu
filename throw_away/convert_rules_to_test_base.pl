@@ -54,17 +54,17 @@ tie my %comparisons, 'Tie::RefHash', (
 				$expr = { $exprs{$ep}->($expr) };
 				last;
 			}
-		};
+		}
 
-		printf "p6rule_like($const, '%s', qr{%s}, $desc%s);\n", unre($pat), expr_desc_to_qr($expr, quotemeta(unquote($eq))), maybe_todo($todo);
+		printf "p6rule_like($const, '%s', qr{%s}, $desc%s);\n", rx($pat), expr_desc_to_qr($expr, quotemeta(unquote($eq))), maybe_todo($todo);
 	},
 	qr/ ok \s* \( \s* \( \s* not \s* \( $str ~~ $re \) \s* \) $comma $str $todo \) \s* ; /x => sub {
 		my ($line, $const, $opt, $pat, $desc, $todo) = @_;
-		printf "p6rule_isnt($const, '%s', $desc%s);\n", unre($pat), maybe_todo($todo);
+		printf "p6rule_isnt($const, '%s', $desc%s);\n", rx($pat), maybe_todo($todo);
 	},
 	qr/ ok \s* \( \s* \( $str ~~ $re \) $comma $str $todo \) \s* ;/x => sub {
 		my ($line, $const, $opt, $pat, $desc, $todo) = @_;
-		printf "p6rule_is($const, '%s', $desc%s);\n", unre($pat), maybe_todo($todo);
+		printf "p6rule_is($const, '%s', $desc%s);\n", rx($pat), maybe_todo($todo);
 	},
 	qr/ fail \s* \( $str $todo \);/x => sub {
 		my ($line, $reason, $todo) = @_;
@@ -110,6 +110,7 @@ sub expr_desc_to_qr {
 	my $desc = shift;
 	my $against = shift;
 
+
 	my $mv_ident = "mob ".($desc->{match_var}). ":";
 	my $whole_match = "mob:";
 
@@ -121,17 +122,28 @@ sub expr_desc_to_qr {
 	);
 
 	if (my $c = $desc->{compare}) {
-		return ($descs{$c} || die "no handler for $c")->();
+		my $qr = ($descs{$c} || die "no handler for $c")->();
 	} else {
 		die @_;
 	}
 }
 
-sub spec_is { qr/$_[0] <$_[1] @ \d+> \d+/ }
+sub spec_is {
+	if ($_[1] ne "") {
+		return qr/$_[0] <$_[1] @ \d+> \d+/;
+	} else {
+		return qr/(?!$_[0] <)|$_[0] < @/;
+	}
+}
 
 sub pos_is { qr/$_[0] <.*? @ $_[1]> \d+/ }
 
 sub maybe_todo {
 	my $reason || return '';
 	quote($reason);
+}
+
+sub rx {
+	my $pat = unre(shift);
+	$pat;
 }
