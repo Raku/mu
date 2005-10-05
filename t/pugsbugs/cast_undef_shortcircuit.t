@@ -25,10 +25,10 @@ plan 2;
 {
     my $a = sub { 1 };
     my $b;
-    sub c($code) { return 1 if $code and $code(); return 0 }
+    sub c($code) { return 1 if $code and $code(); return 2 }
 
     is c($a), 1, 'shortcircuit idiom given coderef works';
 
     # This one will just kill pugs with the cast failure, so force fail
-    eval_ok '# c($b)', 'shortcircuit idiom given undef works', :todo<bug>;
+    is try { c($b) }, 0, 'shortcircuit idiom given undef works';
 }

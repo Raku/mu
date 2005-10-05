@@ -28,6 +28,6 @@ plan 2;
 # but curiously it parses and works if semicolons are added...
 {
     my $foo = 1;
-    eval 'if { 0 } { $foo = 2; } else { $foo = 3; }';
+    if { 0 } { $foo = 2; } else { $foo = 3; };
     is $foo, 2, 'if with no parens, and closure as cond';
 };
