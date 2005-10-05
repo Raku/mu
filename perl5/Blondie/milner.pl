@@ -1042,16 +1042,7 @@ my $map = let(
 
 my $list_plus_ten = comb(
     fun => $map,
-    param => fun(
-        param => "x",
-        body => comb(
-            fun => comb(
-                fun => ide("add"),
-                param => ide("x"),
-            ),
-            param => val(10),
-        ),
-    ),
+    param => $plus_ten
 );
 
 # tests for the type pretty printer
@@ -1178,7 +1169,7 @@ is(t($length_and_first), "∀α. list α → (α × int)", ":t length_and_first"
 is(t($length_and_first_p), "(int × int)", ":t length_and_first [1]");
 is(t($length_and_first_gen), "((int × int) × (str × int))", ":t (length_and_first ['foo'], length_and_first [1])");
 is(t($map), "∀α. ∀β. (α → β) → list α → list β", ":t map");
-is(t($plus_ten), "list int → list int", ":t map (\\x -> 10 + x)");
+is(t($list_plus_ten), "list int → list int", ":t map (\\x -> 10 + x)");
 
 dies_ok { t($flatten_polymorphic) } "can't type λf.(pair (f 3))(f 'foo')";
 dies_ok { t($no_such_sym) } "all identifiers need to be resolvable";
