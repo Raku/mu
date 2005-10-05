@@ -991,10 +991,10 @@ doApply :: Env         -- ^ Environment to evaluate in
         -> Eval Val
 doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = do
     -- check invs and args for Pair types; if they are, reduce them fully
-    -- to stringified normal form.  However, "is primitive" subs are exempt.
-    (invs', args') <- if typ == SubPrim
-        then return (invs, args)
-        else expandPairs sub invs args
+    -- to stringified normal form.  However, real primitives are exempt.
+    (invs', args') <- case fun of
+        Prim _ | typ == SubPrim -> return (invs, args)
+        _ -> expandPairs sub invs args
     case bindParams sub invs' args' of
         Left errMsg -> fail errMsg
         Right sub   -> do
