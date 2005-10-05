@@ -1359,7 +1359,7 @@ primDecl str = primOp sym assoc params ret (safe == "safe")
 
 -- op1 "perl"
 prettyVal :: Int -> Val -> Eval VStr
-prettyVal 10 _ = return "..."
+prettyVal 1024 _ = return " ... "
 prettyVal d v@(VRef r) = do
     v'  <- readRef r
     ifValTypeIsa v "Pair"
