@@ -137,7 +137,7 @@ method translate_message
     return
         if !$message.defined or !$message.does(Locale::KeyedText::Message);
     my Str $text = undef;
-    SET_MEMBER:
+#    SET_MEMBER:
     for $translator.tmpl_mem_nms.map:{ $translator.tmpl_set_nms »~« $_ }
             -> $template_module_name {
         try {
@@ -153,16 +153,19 @@ method translate_message
                     # fails with a "Can't locate Bar.pm in @*INC" error.
             }
             CATCH {
-                next SET_MEMBER;
+#                next SET_MEMBER;
+                next;
             }
         };
         try {
             $text = &::($template_module_name)::get_text_by_key(
                 $message.msg_key );
             CATCH {
-                next SET_MEMBER;
+#                next SET_MEMBER;
+                next;
             }
         };
+#        next SET_MEMBER
         next SET_MEMBER
             if !$text;
         my %temp = $message.msg_vars;
@@ -172,7 +175,8 @@ method translate_message
             $text ~~ s:perl5:g/\{$var_name\}/$var_value/; # this v, Pugs
 #           $text ~~ s:g/\{$var_name\}/$var_value/; # this v, PGE/Parrot
         }
-        last SET_MEMBER;
+#        last SET_MEMBER;
+        last;
     }
     return $text;
 }

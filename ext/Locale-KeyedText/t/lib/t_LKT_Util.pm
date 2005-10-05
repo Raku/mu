@@ -25,7 +25,7 @@ sub serialize (Any $input is rw) returns Str {
         !! $input.does(Array)
             ?? ( '[ ', ( $input.map:{ serialize( $_ ) } ), '], ' )
         !!
-               ($input eq q{} ? 'q{}' : qq|'$input'|) ~ ', '
+               ($input eq q{} ?? 'q{}' !! qq|'$input'|) ~ ', '
     ].join( q{} );
 }
 
