@@ -166,7 +166,7 @@ method translate_message
             }
         };
 #        next SET_MEMBER
-        next SET_MEMBER
+        next
             if !$text;
         my %temp = $message.msg_vars;
             # the use of %temp should not be necessary

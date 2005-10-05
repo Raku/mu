@@ -1,4 +1,4 @@
-== Changes for 6.2.10 (rXXXX) - Sep X, 2005
+== Changes for 6.2.10 (rXXXX) - Oct X, 2005
 
 === Pugs Internals
 
@@ -14,11 +14,14 @@
 
 * Expanded any existing literal tab chars to spaces in these files:
 ** /ext/*, /modules/*
-* Updated Locale-KeyedText to stay compat with p6 spec changes, moved POD around
+* Updated /ext/Locale-KeyedText : resync with p5 version 1.6.2, updates to
+  stay compatible with latest Perl 6 spec changes
 * New Perl 6 modules:
 ** Perl6-Container-Array and Perl6-Value-List prototype modules for 
   implementing Lazy lists in Perl 6.
 ** Log-Selective
+** Rosetta-Incubator, under /modules, having a complete set of
+   2005.09.29-restarted Rosetta[|::*] and SQL::Routine[|::*] modules
 
 === Test, Examples and Documentations
 
