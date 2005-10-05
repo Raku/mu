@@ -6,16 +6,35 @@ no warnings 'uninitialized';
 
 use Tie::RefHash;
 use Regexp::Common;
-use String::Escape ();
+use String::Escape qw/quote/;
+use Data::Dumper;
+
+print <<HEADER;
+
+use strict;
+use warnings;
+use Parrot::Test 'no_plan';
+use Parrot::Test::PGE;
+
+HEADER
 
 tie my %exprs, 'Tie::RefHash', (
-	qr{ \$ <> }x=> sub { compare => "match" },
-	qr{ \$ \/ \. from }x, sub { compare => "pos_match_begin" },
-	qr{ \$ (?: 0 | \/ ) \[ \d+ \] \. from }x => sub { match_var => $1 + 1, compare => "pos_match_begin"},
-	qr{ \$ (?: 0 | \/ ) \[ -1  \] \. from }x => sub { match_var => "last", compare => "pos_match_begin"},
-	qr{ \$ (?: 0 | \/ ) \[ \d+ \] }x => sub { match_var => $1 + 1, compare => "match_var"},
+	qr{ \$ <> }x=> sub { compare => "whole_match" },
+	qr{ \$ \/ \. from }x, sub { compare => "pos_whole_match_begin" },
+	qr{ \$ (?: 0 | \/ ) \[ \d+ \] \. from }x => sub {
+		$_[0] =~ /\[(\d+)\]/;
+		match_var => $1, compare => "pos_match_var_begin";
+	},
+	qr{ \$ (?: 0 | \/ ) \[ -1  \] \. from }x => sub { match_var => "last", compare => "pos_match_var_begin"},
+	qr{ \$ (?: 0 | \/ ) \[ \d+ \] }x => sub {
+		$_[0] =~ /\[(\d+)\]/;
+		match_var => $1, compare => "match_var";
+	},
 	qr{ \$ (?: 0 | \/ ) \[ -1  \] }x => sub { match_var => "last", compare => "match_var"},
-	qr{ \$ \d+ }x => sub { match_var => $1 + 1, compare => "match_var" }
+	qr{ \$ \d+ }x => sub {
+		$_[0] =~ /^\$(\d+)$/;
+		match_var => $1, compare => "match_var";
+	}
 );
 
 my $exprs = do { my $x = join("|", keys %exprs); qr/\s* ($x) \s*/x };
@@ -30,43 +49,31 @@ my $sm = qr/~~/;
 my $todo = qr/(?: $comma :todo<(feature|bug)> )?/x;
 
 tie my %comparisons, 'Tie::RefHash', (
+	qr/use (v6|Test)|plan \d+/ => sub { },
+	
 	qr/ is \s* \( \s* \( $str ~~ $re && $exprs \) $comma $val $comma $str $todo \) \s* ; /x => sub {
 		my ( $line, $const, $opt, $pat, $expr, $eq, $desc, $todo ) = @_;
 
-		$const = unquote($const);
-		$desc  = unquote($desc);
-		$pat   = unre($pat);
-
 		foreach my $ep (keys %exprs) {
 			if ($expr =~ $ep){
-				$expr = { $exprs{$ep}->() };
+				$expr = { $exprs{$ep}->($expr) };
 				last;
 			}
 		};
 
-		print "'$const' ~= /$pat/ and ($expr->{compare} eq $eq). desc='$desc' todo=$todo # $line\n";
+		printf "p6rule_like($const, '%s', qr{%s}, $desc%s);\n", unre($pat), expr_desc_to_qr($expr, quotemeta(unquote($eq))), maybe_todo($todo);
 	},
 	qr/ ok \s* \( \s* \( \s* not \s* \( $str ~~ $re \) \s* \) $comma $str $todo \) \s* ; /x => sub {
 		my ($line, $const, $opt, $pat, $desc, $todo) = @_;
-
-		$const = unquote($const);
-		$desc  = unquote($desc);
-		$pat   = unre($pat);
-
-		print "'$const' !~ /$pat/. desc='$desc' todo=$todo # $line\n";
+		printf "p6rule_isnt($const, '%s', $desc%s);\n", unre($pat), maybe_todo($todo);
 	},
 	qr/ ok \s* \( \s* \( $str ~~ $re \) $comma $str $todo \) \s* ;/x => sub {
 		my ($line, $const, $opt, $pat, $desc, $todo) = @_;
-		
-		$const = unquote($const);
-		$desc  = unquote($desc);
-		$pat   = unre($pat);
-
-		print "'$const' ~= /$pat/. desc='$desc' todo=$todo # $line\n";
+		printf "p6rule_is($const, '%s', $desc%s);\n", unre($pat), maybe_todo($todo);
 	},
 	qr/ fail \s* \( $str $todo \);/x => sub {
 		my ($line, $reason, $todo) = @_;
-		print "fail; # $line\n";
+		print "#NOTREADY; # $line\n";
 	}
 );
 
@@ -95,11 +102,41 @@ sub unquote {
 		$str =~ s/\\'/'/g;
 		return $str;
 	} else {
-		return String::Escape::unquote($1);
+		return String::Escape::unquote($str);
 	}
 }
 
 sub unre {
 	$_[0] =~ $RE{delimited}{-delim => '/'}{-keep} or die "can't remove regex delims on something that doesn't look like a regex";
 	$3;
+}
+
+sub expr_desc_to_qr {
+	my $desc = shift;
+	my $against = shift;
+
+	my $mv_ident = "mob ".($desc->{match_var}). ":";
+	my $whole_match = "mob:";
+
+	my %descs = (
+		whole_match => sub { spec_is($whole_match, $against) },
+		match_var => sub { spec_is($mv_ident, $against) },
+		pos_whole_match_begin => sub { pos_is($whole_match, $against) },
+		pos_match_var_begin => sub { pos_is($mv_ident, $against) },
+	);
+
+	if (my $c = $desc->{compare}) {
+		return ($descs{$c} || die "no handler for $c")->();
+	} else {
+		die @_;
+	}
+}
+
+sub spec_is { qr/$_[0] <$_[1] @ \d+> \d+/ }
+
+sub pos_is { qr/$_[0] <.*? @ $_[1]> \d+/ }
+
+sub maybe_todo {
+	my $reason || return '';
+	quote($reason);
 }
