@@ -209,7 +209,7 @@ are:
 * 6.2: Basic IO and control flow elements; mutable variables; assignment.
 * 6.28: Classes and traits.
 * 6.283: Rules and Grammars.
-* 6.2831: Role composition and other runtime features.
+* 6.2831: Type system and linking.
 * 6.28318: Macros.
 * 6.283185: Port Pugs to Perl 6, if needed.
 
