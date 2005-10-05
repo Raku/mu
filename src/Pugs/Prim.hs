@@ -477,8 +477,8 @@ op1 "listen" = \v -> do
 op1 "flush" = boolIO hFlush
 op1 "close" = \v -> do
     case v of
-        (VSocket _) -> boolIO sClose v
-        _           -> boolIO hClose v
+        (VSocket _) -> guardedIO sClose v
+        _           -> guardedIO hClose v
 op1 "key" = fmap fst . (fromVal :: Val -> Eval VPair)
 op1 "value" = \v -> do
     ivar <- join $ doPair v pair_fetchElem
@@ -748,6 +748,12 @@ boolIO2 f u v = do
     tryIO (VBool False) $ do
         f x y
         return (VBool True)
+
+guardedIO :: Value a => (a -> IO b) -> Val -> Eval Val
+guardedIO f v = do
+    x <- fromVal v
+    guardIO $ f x
+    return $ VBool True
 
 mapStr :: (Word8 -> Word8) -> [Word8] -> String
 mapStr f = map (chr . fromEnum . f)
