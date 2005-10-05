@@ -12,6 +12,6 @@ use Test;
 plan 1;
 
 
-multi sub testsub (Str $x, +$y) is primitive { $y }
+multi sub testsub (Str $x, +$y) is primitive { "$x $y" }
 
-ok testsub("moose", 42), 42, "named args in primive subs", :todo<bug>;
+is testsub("moose", y => 42), "moose 42", "named args in primitive subs";

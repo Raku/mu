@@ -14,7 +14,7 @@ http://www.unicode.org/unicode/reports/tr11/
 
 =cut
 
-plan 31;
+plan 33;
 
 # string literals, for sanity
 
@@ -24,6 +24,10 @@ my $x = undef;
 ok(!(try { $x.bytes }), "undef.bytes fail()s");
 # See thread "undef.chars" on p6l started by Ingo Blechschmidt:
 # http://www.nntp.perl.org/group/perl.perl6.language/22595
+
+# Precedence tests
+ok (chars "abcdef" > 4),     "chars() has the right precedence (1)";
+is (chars("abcdef" > 4)), 0, "chars() has the right precedence (2)";
 
 # and the real tests.
 
