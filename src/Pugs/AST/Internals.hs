@@ -47,7 +47,7 @@ module Pugs.AST.Internals (
     -- MonadEval(..),
 
     runEvalSTM, runEvalIO, shiftT, resetT, callCC,
-    undef, defined, tryIO, guardIO,
+    undef, defined, tryIO, guardIO, guardIOexcept,
     readRef, writeRef, clearRef, dumpRef, forceRef,
     askGlobal, writeVar, readVar,
     findSymRef, findSym,
@@ -1232,12 +1232,33 @@ instance Functor Eval where
 instance MonadIO Eval where
     liftIO io = EvalT (liftIO io)
     
+{-|
+Perform an IO action and raise an exception if it fails.
+-}
 guardIO :: IO a -> Eval a
 guardIO io = do
     rv <- liftIO $ try io
     case rv of
         Left e -> fail (show e)
         Right v -> return v
+
+{-|
+Like @guardIO@, perform an IO action and raise an exception if it fails.
+
+If the failure matches one of the IOErrors in the 'safetyNet' list,
+supress the exception and return an associated value instead.
+-}
+guardIOexcept :: [((IOError -> Bool), a)] -> IO a -> Eval a
+guardIOexcept safetyNet io = do
+    rv <- liftIO $ try io
+    case rv of
+        Right v -> return v
+        Left  e -> catcher e safetyNet
+    where
+    catcher e [] = fail (show e)
+    catcher e ((f, res):safetyNets)
+        | f e       = return res
+        | otherwise = catcher e safetyNets
 
 instance MonadSTM Eval where
     -- XXX: Should be this:

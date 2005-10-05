@@ -35,6 +35,7 @@ import Pugs.External
 import Pugs.Embed
 import qualified Data.Map as Map
 import Data.IORef
+import System.IO.Error (isEOFError)
 
 import Pugs.Prim.Keyed
 import Pugs.Prim.Yaml
@@ -512,7 +513,7 @@ op1 "readline" = \v -> op1Read v (getLines) (getLine)
                 return $ VList (line:rest)
             else return $ VList []
     getLine :: VHandle -> Eval Val
-    getLine fh = tryIO undef $
+    getLine fh = guardIOexcept [(isEOFError, undef)] $
         fmap (VStr . (++ "\n") . decodeUTF8) (hGetLine fh)
 op1 "getc"     = \v -> op1Read v (getChar) (getChar)
     where
