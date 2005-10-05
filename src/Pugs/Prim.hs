@@ -518,7 +518,7 @@ op1 "readline" = \v -> op1Read v (getLines) (getLine)
 op1 "getc"     = \v -> op1Read v (getChar) (getChar)
     where
     getChar :: VHandle -> Eval Val
-    getChar fh = guardIO $ do
+    getChar fh = guardIOexcept [(isEOFError, undef)] $ do
         char <- hGetChar fh
         str  <- getChar' fh char
         return $ VStr $ decodeUTF8 str
