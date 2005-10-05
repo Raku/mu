@@ -409,7 +409,8 @@ op1 "IO::Dir::readdir" = \v -> do
         (guardIO $ fmap (\x -> if null x then undef else castV x) $ readDirStream dir)
     where
     readDirStreamList dir = do
-        this <- guardIO $ readDirStream dir
+        this <- tryIO "" $ readDirStream dir
+        if null this then return [] else do
         rest <- readDirStreamList dir
         return $ (this:rest)
 op1 "Pugs::Internals::runInteractiveCommand" = \v -> do
