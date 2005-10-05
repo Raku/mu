@@ -13,12 +13,12 @@ use v6;
 ###########################################################################
 ###########################################################################
 
-class Foo-0.0.0 {
+class SQL::Routine::SQLBuilder-0.22.0 {
 
-    # External modules used by the Foo class, that do export symbols:
+    # External modules used by the SQL::Routine::SQLBuilder class, that do export symbols:
     # (None Yet)
 
-    # Attributes of every Foo object:
+    # Attributes of every SQL::Routine::SQLBuilder object:
     # (None Yet)
 
 ###########################################################################
@@ -27,7 +27,7 @@ class Foo-0.0.0 {
 
 ###########################################################################
 
-} # class Foo
+} # class SQL::Routine::SQLBuilder
 
 ###########################################################################
 ###########################################################################
@@ -36,11 +36,11 @@ class Foo-0.0.0 {
 
 =head1 NAME
 
-I<This documentation is pending.>
+SQL::Routine::SQLBuilder - Generate ANSI/ISO SQL:2003 and other SQL variants
 
 =head1 VERSION
 
-I<This documentation is pending; also list other classes/modules in file, if any.>
+This document describes SQL::Routine::SQLBuilder version 0.22.0.
 
 =head1 SYNOPSIS
 
@@ -86,7 +86,51 @@ Darren R. Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENCE AND COPYRIGHT
 
-I<This documentation is pending.>
+This file is part of the SQL::Routine::SQLBuilder reference implementation
+of a SQL:2003 string builder that uses the SQL::Routine database
+portability library.
+
+SQL::Routine::SQLBuilder is Copyright (c) 2002-2005, Darren R. Duncan.  All
+rights reserved.  Address comments, suggestions, and bug reports to
+C<perl@DarrenDuncan.net>, or visit L<http://www.DarrenDuncan.net/> for more
+information.
+
+SQL::Routine::SQLBuilder is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License (GPL) as
+published by the Free Software Foundation (L<http://www.fsf.org/>); either
+version 2 of the License, or (at your option) any later version.  You
+should have received a copy of the GPL as part of the
+SQL::Routine::SQLBuilder distribution, in the file named "GPL"; if not,
+write to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+Boston, MA  02110-1301, USA.
+
+Linking SQL::Routine::SQLBuilder statically or dynamically with other
+modules is making a combined work based on SQL::Routine::SQLBuilder.  Thus,
+the terms and conditions of the GPL cover the whole combination.  As a
+special exception, the copyright holders of SQL::Routine::SQLBuilder give
+you permission to link SQL::Routine::SQLBuilder with independent modules,
+regardless of the license terms of these independent modules, and to copy
+and distribute the resulting combined work under terms of your choice,
+provided that every copy of the combined work is accompanied by a complete
+copy of the source code of SQL::Routine::SQLBuilder (the version of
+SQL::Routine::SQLBuilder used to produce the combined work), being
+distributed under the terms of the GPL plus this exception.  An independent
+module is a module which is not derived from or based on
+SQL::Routine::SQLBuilder, and which is fully useable when not linked to
+SQL::Routine::SQLBuilder in any form.
+
+Any versions of SQL::Routine::SQLBuilder that you modify and distribute
+must carry prominent notices stating that you changed the files and the
+date of any changes, in addition to preserving this original copyright
+notice and other credits.  SQL::Routine::SQLBuilder is distributed in the
+hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+While it is by no means required, the copyright holders of
+SQL::Routine::SQLBuilder would appreciate being informed any time you
+create a modified version of SQL::Routine::SQLBuilder that you are willing
+to distribute, because that is a practical way of suggesting improvements
+to the standard version.
 
 =head1 ACKNOWLEDGEMENTS
 

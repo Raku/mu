@@ -13,12 +13,12 @@ use v6;
 ###########################################################################
 ###########################################################################
 
-class Foo-0.0.0 {
+class Locale::KeyedText-1.7.0 {
 
-    # External modules used by the Foo class, that do export symbols:
+    # External modules used by the Locale::KeyedText class, that do export symbols:
     # (None Yet)
 
-    # Attributes of every Foo object:
+    # Attributes of every Locale::KeyedText object:
     # (None Yet)
 
 ###########################################################################
@@ -27,7 +27,7 @@ class Foo-0.0.0 {
 
 ###########################################################################
 
-} # class Foo
+} # class Locale::KeyedText
 
 ###########################################################################
 ###########################################################################
@@ -36,11 +36,11 @@ class Foo-0.0.0 {
 
 =head1 NAME
 
-I<This documentation is pending.>
+Locale::KeyedText - Refer to user messages in programs by keys
 
 =head1 VERSION
 
-I<This documentation is pending; also list other classes/modules in file, if any.>
+This document describes Locale::KeyedText version 1.7.0.
 
 =head1 SYNOPSIS
 
@@ -86,7 +86,34 @@ Darren R. Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENCE AND COPYRIGHT
 
-I<This documentation is pending.>
+This file is part of the Locale::KeyedText library.
+
+Locale::KeyedText is Copyright (c) 2003-2005, Darren R. Duncan.  All rights
+reserved.  Address comments, suggestions, and bug reports to
+C<perl@DarrenDuncan.net>, or visit L<http://www.DarrenDuncan.net/> for more
+information.
+
+Locale::KeyedText is free software; you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License (LGPL) as
+published by the Free Software Foundation (L<http://www.fsf.org/>); either
+version 2.1 of the License, or (at your option) any later version.  You
+should have received a copy of the LGPL as part of the Locale::KeyedText
+distribution, in the file named "LGPL"; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301, USA.
+
+Any versions of Locale::KeyedText that you modify and distribute must carry
+prominent notices stating that you changed the files and the date of any
+changes, in addition to preserving this original copyright notice and other
+credits. Locale::KeyedText is distributed in the hope that it will be
+useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the LGPL for more
+details.
+
+While it is by no means required, the copyright holders of
+Locale::KeyedText would appreciate being informed any time you create a
+modified version of Locale::KeyedText that you are willing to distribute,
+because that is a practical way of suggesting improvements to the standard
+version.
 
 =head1 ACKNOWLEDGEMENTS
 
