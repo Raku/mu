@@ -1722,25 +1722,29 @@ parseHasParenParamList = do
 
 parseNoParenParamList :: RuleParser (Maybe Exp, [Exp])
 parseNoParenParamList = do
-    formal <- (`sepEndBy` symbol ":") $ fix $ \rec -> do
-        rv <- option Nothing $ do
-            fmap Just $ tryChoice
-                [ do x <- ruleBlockLiteral
-                     lookAhead (satisfy (/= ','))
-                     return ([x], return "")
-                , do x <- pairOrBlockAdverb
-                     lookAhead (satisfy (/= ','))   
-                     return ([x], return "")
-                , do x <- parseTightOp
-                     a <- option [] $ try $ many pairOrBlockAdverb
-                     return (x:a, symbol ",")
-                ]
+    formal <- formalSegment [argVanilla] `sepEndBy` symbol ":"
+    processFormals formal
+    where
+    formalSegment args = do
+        rv <- option Nothing (fmap Just $ tryChoice args)
         case rv of
             Nothing           -> return []
             Just (exp, trail) -> do
-                rest <- option [] $ do { trail; rec }
+                rest <- option [] $ do { trail; formalSegment argBlockish }
                 return (exp ++ rest)
-    processFormals formal
+    argBlockish =
+        [ do x <- ruleBlockLiteral
+             lookAhead (satisfy (/= ','))
+             return ([x], return "")
+        , do x <- pairOrBlockAdverb
+             lookAhead (satisfy (/= ','))   
+             return ([x], return "")
+        , argVanilla
+        ]
+    argVanilla = do
+        x <- parseTightOp
+        a <- option [] $ try $ many pairOrBlockAdverb
+        return (x:a, symbol ",")
 
 processFormals :: Monad m => [[Exp]] -> m (Maybe Exp, [Exp])
 processFormals formal = case formal of
