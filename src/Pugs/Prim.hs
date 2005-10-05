@@ -352,9 +352,9 @@ op1 "sleep" = \v -> do
         return $ VRat ((fromInteger $ t1ps - t0ps)
                       / (clocksPerSecond * clocksPerSecond) -- 10^12
                       + (fromInteger $ t1s - t0s))
-op1 "mkdir" = boolIO createDirectory
-op1 "rmdir" = boolIO removeDirectory
-op1 "chdir" = boolIO setCurrentDirectory
+op1 "mkdir" = guardedIO createDirectory
+op1 "rmdir" = guardedIO removeDirectory
+op1 "chdir" = guardedIO setCurrentDirectory
 op1 "-r"    = FileTest.isReadable
 op1 "-w"    = FileTest.isWritable
 op1 "-x"    = FileTest.isExecutable
@@ -399,8 +399,8 @@ op1 "opendir" = \v -> do
     dir <- guardIO $ openDirStream str
     obj <- createObject (mkType "IO::Dir") []
     return . VObject $ obj{ objOpaque = Just $ toDyn dir }
-op1 "IO::Dir::closedir" = boolIO (closeDirStream . fromObject)
-op1 "IO::Dir::rewinddir" = boolIO (rewindDirStream . fromObject)
+op1 "IO::Dir::closedir" = guardedIO (closeDirStream . fromObject)
+op1 "IO::Dir::rewinddir" = guardedIO (rewindDirStream . fromObject)
 op1 "IO::Dir::readdir" = \v -> do
     dir <- fmap fromObject (fromVal v)
     ifListContext
@@ -474,7 +474,7 @@ op1 "listen" = \v -> do
     port    <- fromVal v
     socket  <- guardIO $ listenOn (PortNumber $ fromInteger port)
     return $ VSocket socket
-op1 "flush" = boolIO hFlush
+op1 "flush" = guardedIO hFlush
 op1 "close" = \v -> do
     case v of
         (VSocket _) -> guardedIO sClose v
@@ -755,6 +755,14 @@ guardedIO f v = do
     guardIO $ f x
     return $ VBool True
 
+guardedIO2 :: (Value a, Value b)
+    => (a -> b -> IO c) -> Val -> Val -> Eval Val
+guardedIO2 f u v = do
+    x <- fromVal u
+    y <- fromVal v
+    guardIO $ f x y
+    return $ VBool True
+
 mapStr :: (Word8 -> Word8) -> [Word8] -> String
 mapStr f = map (chr . fromEnum . f)
 
@@ -772,9 +780,9 @@ mapStr2Fill f x y = map (chr . fromEnum . uncurry f) $ x `zipFill` y
 
 -- |Implementation of 2-arity primitive operators and functions
 op2 :: String -> Val -> Val -> Eval Val
-op2 "rename" = boolIO2 rename
-op2 "symlink" = boolIO2 createSymbolicLink
-op2 "link" = boolIO2 createLink
+op2 "rename" = guardedIO2 rename
+op2 "symlink" = guardedIO2 createSymbolicLink
+op2 "link" = guardedIO2 createLink
 op2 "*"  = op2Numeric (*)
 op2 "/"  = op2Divide
 op2 "%"  = op2Modulus
