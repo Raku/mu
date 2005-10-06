@@ -3,8 +3,8 @@
 
 module Main where
 import Distribution.Simple
-import Distribution.PreProcess
-import Distribution.PackageDescription
+-- import Distribution.PreProcess
+-- import Distribution.PackageDescription
 
 main :: IO ()
 main = defaultMain
