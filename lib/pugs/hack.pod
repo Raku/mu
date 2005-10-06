@@ -15,8 +15,9 @@ pugs::hack - How to hack on Pugs
     $ make
 
     # Test
-    $ make test       # or
-    $ make smoke      # generates a smoke.html
+    $ make test                            # or
+    $ sudo cpan Bundle::Pugs::SmokeKit     # (once)
+    $ make smoke                           # generates a smoke.html
     # Optionally, submit your smoke report to the public smokeserver:
     $ perl util/smokeserv/smokeserv-client.pl smoke.html
 
