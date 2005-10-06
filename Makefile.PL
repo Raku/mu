@@ -98,13 +98,17 @@ sub set_postamble {
     push @srcfiles, map { map { substr($_, 0, -1) } glob("$_/*.*hsc") } @srcdirs;
 
     my ($ghc, $ghc_version, $ghc_flags) = assert_ghc();
-    my $hsc2hs;
-    if ($ENV{HSC2HS}) {
-        $hsc2hs = $ENV{HSC2HS};
-    }
-    else {
+    my $hsc2hs = $ENV{HSC2HS};
+    my $runghc = $ENV{RUNGHC};
+
+    if (!$hsc2hs) {
         $hsc2hs = $ghc;
         $hsc2hs =~ s{(.*)ghc}{$1hsc2hs};
+    }
+
+    if (!$runghc) {
+        $runghc = $ghc;
+        $runghc =~ s{(.*)ghc}{$1runghc};
     }
 
     my $heap = PugsBuild::Config->lookup('ghc_heap_size');
@@ -294,6 +298,10 @@ EOD
         return "$o : $c\n\t$ghc $threaded $ghc_flags -no-link -no-hs-main -O -o $o $c\n";
     };
 
+    # XXX - write build conf here!
+    sleep 1;
+    system $runghc, 'Setup.lhs', 'configure';
+
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
 	\$(PERL) util/config_h.pl "$ghc $ghc_flags"
@@ -433,6 +441,8 @@ pure_all ::
 	\$(PERLRUN) util/src_to_blib.pl
 
 pure_site_install ::
+	\$(NOECHO) $runghc Setup.lhs build
+	\$(NOECHO) $runghc Setup.lhs install
 	\$(NOECHO) \$(MOD_INSTALL) \\
 		\$(INST6_LIB) \$(DESTDIR)$config->{sitelib} \\
 		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{sitearch} \\
@@ -442,6 +452,8 @@ pure_site_install ::
 		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installsiteman3dir}
 
 pure_vendor_install ::
+	\$(NOECHO) $runghc Setup.lhs build
+	\$(NOECHO) $runghc Setup.lhs install
 	\$(NOECHO) \$(MOD_INSTALL) \\
 		\$(INST6_LIB) \$(DESTDIR)$config->{privlib} \\
 		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{archlib} \\

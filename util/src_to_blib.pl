@@ -9,7 +9,7 @@ use File::Copy qw(copy);
 use File::Path qw(mkpath);
 
 {
-    copy_all('src', 'blib6/arch/CORE/pugs');
+#   copy_all('src', 'blib6/arch/CORE/pugs');
     copy_all('perl5', 'blib6/lib/perl5');
 }
 
