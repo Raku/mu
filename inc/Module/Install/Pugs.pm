@@ -164,7 +164,7 @@ sub assert_ghc {
     }
     my $ghc_flags = "-H0 -L. -Lsrc -Lsrc/syck -Lsrc/pcre -I. -Isrc -Isrc/pcre -Isrc/syck ";
     $ghc_flags .= " -i. -isrc -isrc/pcre -isrc/syck -static ";
-    $ghc_flags .= " -Wall -package-name Pugs -odir dist/build/src -hidir dist/build/src "
+    $ghc_flags .= " -Wall " # -package-name Pugs -odir dist/build/src -hidir dist/build/src "
       unless $self->is_extension_build;
     $ghc_flags .= " -fno-warn-name-shadowing ";
     $ghc_flags .= " -I../../src -i../../src "

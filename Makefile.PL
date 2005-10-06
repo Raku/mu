@@ -9,6 +9,7 @@ use inc::Module::Install;
 use lib 'inc';
 use PugsBuild::Config;
 
+my @warn;
 my $pugs = "pugs$Config{_exe}";
 my ($fs) = ($Config{sitelib} =~ /([\/\\])/)
        or die "Can't determine file_sep";
@@ -84,8 +85,11 @@ no_index        (
 sign            (1);
 WritePugs       (5);
 
-print << ".";
+print(('=' x 78), "\n\n");
 
+print @warn;
+
+print << ".";
 *** Enter '$Config{make}' to build Pugs.  If compilation is too slow,
     consider using '$Config{make} unoptimized' instead.
 
@@ -99,17 +103,14 @@ sub set_postamble {
 
     my ($ghc, $ghc_version, $ghc_flags) = assert_ghc();
     my $hsc2hs = $ENV{HSC2HS};
-    my $runghc = $ENV{RUNGHC};
+    my $setup = File::Spec->catfile(".", "Setup$Config{_exe}");
 
     if (!$hsc2hs) {
         $hsc2hs = $ghc;
         $hsc2hs =~ s{(.*)ghc}{$1hsc2hs};
     }
 
-    if (!$runghc) {
-        $runghc = $ghc;
-        $runghc =~ s{(.*)ghc}{$1runghc};
-    }
+    system($ghc, '--make', '-o' => $setup, 'Setup.lhs');
 
     my $heap = PugsBuild::Config->lookup('ghc_heap_size');
     $ghc_flags .= " +RTS -M$heap -RTS" if $heap;
@@ -121,7 +122,7 @@ sub set_postamble {
                         .'main = (eval_ "return ()" [] [] [] [] :: IO (Either [String] (Maybe ()))) >> return ()', '-package', 'plugins')) {
         $ghc_flags .= ' -package plugins -DPUGS_HAVE_HSPLUGINS=1 ';
     } else {
-        warn << '.';
+        push @warn, << '.';
 *** Inline Haskell support disabled.  If you want dynamic loading
     of haskell modules, please install the hs-plugins library:
         http://www.cse.unsw.edu.au/~dons/code/hs-plugins
@@ -137,14 +138,14 @@ sub set_postamble {
       $ghc_flags .= ' -DPUGS_HAVE_READLINE=1 -package readline';
     }
     else {
-      warn << '.';
+      push @warn, << '.';
 *** Readline support disabled.  If you want readline support,
     please install the GNU readline library.
 
 .
     }
 
-    my $ghc_output = "-o pugs$Config{_exe} src/Main.hs";
+    my $ghc_output = ''; # "-o pugs$Config{_exe} src/Main.hs";
     my $hasktags = $ENV{HASKTAGS} || 'hasktags';
 
     my $pcre_c = "src/pcre/pcre.c";
@@ -155,15 +156,15 @@ sub set_postamble {
     my $unicode_c = "src/UnicodeC.c";
 
     my @prereqs = ($config_h, $pcre, @cbits, $unicode);
-    $ghc_output .= " $pcre @cbits $unicode";
+    #$ghc_output .= " $pcre @cbits $unicode";
 
     my $embed_flags = "";
     my $hsc2hs_flags = "";
     my $ccdlflags = "";
 
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/i  and !($Config{cc} eq 'cl') )  {
-        push @prereqs, "src/perl5/perl5.o";
-        $ghc_output .= " src/perl5/perl5.o ";
+        push @prereqs, "src/perl5/perl5.o"; # XXX
+        # $ghc_output .= " src/perl5/perl5.o ";
         $ghc_flags .= " -DPUGS_HAVE_PERL5 ";
         my $flags = "$Config{ccflags} $Config{ccdlflags}";
         if ($flags =~ /\S/) {
@@ -173,13 +174,13 @@ sub set_postamble {
         }
     }
     elsif( $ENV{PUGS_EMBED} and $Config{cc} eq 'cl' and $^O =~ /Win32/ )   {
-            $ENV{PUGS_EMBED} =~ s/\bperl5\b//g;
-            warn << '.'
+        $ENV{PUGS_EMBED} =~ s/\bperl5\b//g;
+        push @warn, << '.'
 *** Perl 5 embedding disabled on Win32 systems.
 .
     }
     else {
-        warn << '.';
+        push @warn, << '.';
 *** Perl 5 embedding disabled.  If you want Perl 5 support, please set the
     PUGS_EMBED environment variable to contain "perl5".
 
@@ -187,7 +188,10 @@ sub set_postamble {
     }
     
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bparrot\b/i and $Config{cc} eq 'cl') {
-        warn "*** Parrot linking not supported with MSVC.  Parrot linking will be disabled.\n\n";
+        push @warn, << '.';
+*** Parrot linking not supported with MSVC.  Parrot linking will be disabled.
+
+.
         $ENV{PUGS_EMBED} =~ s/\bparrot\b//g;
     }
 
@@ -260,7 +264,7 @@ EOD
         $hsc2hs_flags .= " -DPUGS_HAVE_PARROT -I$base/include ";
     }
     else {
-        warn << '.';
+        push @warn, << '.';
 *** Parrot linking disabled; external 'parrot' executable will be used for
     Rules support -- please make sure that the executable is available in
     your PATH.  If you want to link against Parrot, set the PUGS_EMBED
@@ -278,7 +282,7 @@ EOD
         ? '-threaded' : '';
 
     if ($threaded and $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/ and !$Config{usethreads}) {
-        warn << '.';
+        push @warn, << '.';
 *** Thread support disabled because you are building with embedded perl5 and
     your perl5 is not threaded.
 
@@ -301,7 +305,6 @@ EOD
     mkdir 'dist';
     mkdir 'dist/build';
     mkdir 'dist/build/src';
-    system $runghc, 'Setup.lhs', 'configure';
 
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
@@ -356,24 +359,24 @@ haddock : $version_h $config_h @hppfiles docs/haddock
 docs/haddock :
 	\@\$(PERL) -e "mkdir q-docs/haddock-"
 
-profiled :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+GHC $runghc $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+profiled :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm
+	\$(PERL) util/build_pugs.pl _+GHC $setup $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 pugs.prof :: profiled
 	find t -type f | grep -v D | grep -v R | grep -v pugsrun | ./pugs +RTS -p -RTS -e 'my sub exit {}; for =\$\$*IN -> \$\$t is copy { \$\$t .= chomp; require \$\$t }'
 
 optimised :: optimized
 
-optimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+GHC $runghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+optimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm
+	\$(PERL) util/build_pugs.pl _+GHC $setup $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 unoptimised :: unoptimized
 
-unoptimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+GHC $runghc $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+unoptimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm
+	\$(PERL) util/build_pugs.pl _+GHC $setup $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
-$pugs : src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+GHC $runghc $threaded __optimization__ --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+$pugs : src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm
+	\$(PERL) util/build_pugs.pl _+GHC $setup $threaded __optimization__ --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 
 pirtest : test-pir
@@ -442,8 +445,8 @@ pure_all ::
 	\$(PERLRUN) util/src_to_blib.pl
 
 pure_site_install ::
-	\$(NOECHO) $runghc Setup.lhs build
-	\$(NOECHO) $runghc Setup.lhs install
+	\$(NOECHO) $setup build
+	\$(NOECHO) $setup install
 	\$(NOECHO) \$(MOD_INSTALL) \\
 		\$(INST6_LIB) \$(DESTDIR)$config->{sitelib} \\
 		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{sitearch} \\
@@ -453,8 +456,8 @@ pure_site_install ::
 		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installsiteman3dir}
 
 pure_vendor_install ::
-	\$(NOECHO) $runghc Setup.lhs build
-	\$(NOECHO) $runghc Setup.lhs install
+	\$(NOECHO) $setup build
+	\$(NOECHO) $setup install
 	\$(NOECHO) \$(MOD_INSTALL) \\
 		\$(INST6_LIB) \$(DESTDIR)$config->{privlib} \\
 		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{archlib} \\

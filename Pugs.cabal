@@ -19,19 +19,19 @@ c-sources: src/cbits/fpstring.c src/pcre/pcre.c src/UnicodeC.c
            src/syck/yaml2byte.c
 extensions: CPP ForeignFunctionInterface
 includes: syck.h pcre.h
-include-dirs: . src/pcre src/syck src/cbits src
+include-dirs: . src/pcre src/cbits src/perl5 src/syck src/cbits src
 hs-source-dir: src
 other-modules: Pugs.CodeGen.PIR.Prelude Emit.Common Emit.PIR DrIFT.JSON DrIFT.Binary Pugs.Run.Perl5 Data.Yaml.Syck Pugs.Version Pugs.Config Pugs.Cont Pugs.AST.Prag Pugs.AST.Pos Pugs.AST.Scope Pugs.AST.SIO Pugs.Embed.Perl5 System.FilePath UTF8 DrIFT.Perl5 Unicode Pugs.Compat Pugs.Embed.Parrot RRegex.PCRE RRegex.Syntax RRegex Pugs.Rule.Pos Pugs.Rule.Error Pugs.Rule.Prim Pugs.Rule.Char Pugs.Rule.Combinator Pugs.Rule Pugs.Rule.Token Pugs.Rule.Language Pugs.Rule.Expr Pugs.Internals Pugs.Types Pugs.Parser.Number Pugs.AST.Internals Pugs.AST.Pad Pugs.AST Pugs.Prim.Keyed Pugs.Embed.Haskell Pugs.Embed Pugs.Prim.Param Pugs.Prim.Lifts Pugs.External.Haskell Pugs.Pretty Pugs.Monads Pugs.Prim.Numeric Pugs.Prim.List Pugs.Bind Pugs.Eval.Var Pugs.Parser.Types Pugs.Parser.Unsafe Pugs.Lexer Pugs.Parser Pugs.Parser.Program Pugs.Prim.Eval Pugs.Prim.Code Pugs.Prim.FileTest Pugs.Prim.Match Pugs.Prim.Yaml Pugs.External Pugs.Junc Pugs.Prim Pugs.Eval Pugs.Run.Args Pugs.Run Pugs.Compile.Haskell Pugs.Compile.Pugs Pugs.PIL1 Pugs.Compile Pugs.CodeGen.Binary Pugs.CodeGen.JSON Pugs.CodeGen.Perl5 Pugs.CodeGen.PIR Pugs.CodeGen.PIL Pugs.CodeGen Pugs.Help Pugs.Shell
 
 executable:          pugs
 main-is:             Main.hs
 buildable: True
+extensions: CPP ForeignFunctionInterface
+includes: syck.h pcre.h
+include-dirs: . src/pcre src/cbits src/perl5 src/syck src/cbits src
+hs-source-dir: src
 c-sources: src/cbits/fpstring.c src/pcre/pcre.c src/UnicodeC.c
            src/syck/bytecode.c src/syck/emitter.c src/syck/gram.c src/syck/handler.c
            src/syck/implicit.c src/syck/node.c src/syck/syck.c src/syck/syck_st.c src/syck/token.c
            src/syck/yaml2byte.c
-extensions: CPP ForeignFunctionInterface
-includes: syck.h pcre.h
-include-dirs: . src/pcre src/syck src/cbits src
-hs-source-dir: src
 other-modules: Pugs.CodeGen.PIR.Prelude Emit.Common Emit.PIR DrIFT.JSON DrIFT.Binary Pugs.Run.Perl5 Data.Yaml.Syck Pugs.Version Pugs.Config Pugs.Cont Pugs.AST.Prag Pugs.AST.Pos Pugs.AST.Scope Pugs.AST.SIO Pugs.Embed.Perl5 System.FilePath UTF8 DrIFT.Perl5 Unicode Pugs.Compat Pugs.Embed.Parrot RRegex.PCRE RRegex.Syntax RRegex Pugs.Rule.Pos Pugs.Rule.Error Pugs.Rule.Prim Pugs.Rule.Char Pugs.Rule.Combinator Pugs.Rule Pugs.Rule.Token Pugs.Rule.Language Pugs.Rule.Expr Pugs.Internals Pugs.Types Pugs.Parser.Number Pugs.AST.Internals Pugs.AST.Pad Pugs.AST Pugs.Prim.Keyed Pugs.Embed.Haskell Pugs.Embed Pugs.Prim.Param Pugs.Prim.Lifts Pugs.External.Haskell Pugs.Pretty Pugs.Monads Pugs.Prim.Numeric Pugs.Prim.List Pugs.Bind Pugs.Eval.Var Pugs.Parser.Types Pugs.Parser.Unsafe Pugs.Lexer Pugs.Parser Pugs.Parser.Program Pugs.Prim.Eval Pugs.Prim.Code Pugs.Prim.FileTest Pugs.Prim.Match Pugs.Prim.Yaml Pugs.External Pugs.Junc Pugs.Prim Pugs.Eval Pugs.Run.Args Pugs.Run Pugs.Compile.Haskell Pugs.Compile.Pugs Pugs.PIL1 Pugs.Compile Pugs.CodeGen.Binary Pugs.CodeGen.JSON Pugs.CodeGen.Perl5 Pugs.CodeGen.PIR Pugs.CodeGen.PIL Pugs.CodeGen Pugs.Help Pugs.Shell Pugs

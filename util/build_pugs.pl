@@ -2,8 +2,10 @@
 
 use strict;
 use warnings;
+use File::Copy;
 
 our %BuildPrefs;
+use Config;
 use PugsBuild::Config;
 
 help() if ($ARGV[0] || '--help') =~ /^--?h(?:elp)?/i;
@@ -41,28 +43,52 @@ sub build {
         my $ppc_hs = "src/Pugs/PreludePC.hs";
         my $ppc_null = "src/Pugs/PreludePC.hs-null";
         if (-e $ppc_hs and -s $ppc_hs > -s $ppc_null and -M $ppc_hs < -M $pm) {
-            return run_build(@{$opts->{GHC}});
+            return run_build(1, @{$opts->{GHC}});
         }
     }
 
     run($^X, qw<util/gen_prelude.pl -v --touch --null --output src/Pugs/PreludePC.hs>);
-    run_build(@{$opts->{GHC}});
+    run_build(0, @{$opts->{GHC}});
 
     if (PugsBuild::Config->lookup('precompile_prelude')) {
         run($^X, qw<util/gen_prelude.pl -v -i src/perl6/Prelude.pm>,
                 (map { ('-i' => $_) } @{ PugsBuild::Config->lookup('precompile_modules') }),
                 '-p', $thispugs, qw<--touch --output src/Pugs/PreludePC.hs>);
-        return run_build(@{$opts->{GHC}});
+        return run_build(1, @{$opts->{GHC}});
     }
 }
 
 sub run_build {
-    my ($runghc, @args) = @_;
+    my ($is_final, $setup, @args) = @_;
+
+    write_buildinfo($is_final, @args);
+    system $setup, 'configure';
+    system $setup, 'build', '--verbose';
+
+    if ($is_final--) {
+        write_buildinfo($is_final, @args);
+        system $setup, 'configure';
+        system $setup, 'build', '--verbose';
+    }
+
+    copy "dist/build/Pugs/pugs$Config{_exe}", "pugs$Config{_exe}";
+}
+
+sub write_buildinfo { 
+    my ($is_final, @args) = @_;
+    my $build_lib = ($is_final ? 'True' : 'False');
+    my $build_exe = ($is_final ? 'False' : 'True');
+
     open INFO, "> Pugs.buildinfo" or die $!;
-    print INFO "ghc-options: @_\n";
+    print INFO << ".";
+ghc-options: @args
+buildable: $build_lib
+
+executable: pugs
+ghc-options: @args
+buildable: $build_exe
+.
     close INFO;
-    system $runghc, 'Setup.lhs', 'build';
-    die;
 }
 
 sub classify_options {
