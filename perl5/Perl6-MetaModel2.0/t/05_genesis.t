@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 61;
+use Test::More tests => 63;
 use Test::Exception; 
 
 require 'lib/genesis.pl'; 
@@ -35,8 +35,18 @@ is_deeply(
     
 is_deeply(
     $::Class->subclasses, 
+    [ $::EigenClass ], 
+    '... $::Class->subclasses() is [ $::EigenClass ]');  
+    
+is_deeply(
+    $::EigenClass->superclasses, 
+    [ $::Class ], 
+    '... $::EigenClass->superclasses() is [ $::Class ]');        
+
+is_deeply(
+    $::EigenClass->subclasses, 
     [], 
-    '... $::Class->subclasses() is []');     
+    '... $::EigenClass->subclasses() is []');       
     
 is_deeply(
     $::Role->superclasses, 

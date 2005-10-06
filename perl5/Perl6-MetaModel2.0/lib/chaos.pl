@@ -43,6 +43,10 @@ our $DISPATCH_TRACE = 0;
     sub ::opaque_instance_add_new_attribute {
         $_[0]->[2]->{$_[1]} = $_[2];            
     }
+    
+    sub ::opaque_instance_change_class {
+        ${$_[0]->[1]} = $_[1]; 
+    }    
 }
 
 {   ## Perl 6 Global Functions

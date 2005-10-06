@@ -15,19 +15,22 @@ BEGIN { require "lib/psyche.pl" };
 # the result of this is (Theos)
 
 # < Class is a subclass of Module is a subclass of Package is a subclass of Object >
-::opaque_instance_attr($::Class => '@:superclasses') = [ $::Module ];
-::opaque_instance_attr($::Module => '@:subclasses')  = [ $::Class, $::Role  ];
+::opaque_instance_attr($::Class  => '@:superclasses') = [ $::Module ];
+::opaque_instance_attr($::Module => '@:subclasses')   = [ $::Class, $::Role  ];
 
 # NOTE:
 # this is to avoid recursion
-::opaque_instance_attr($::Class => '@:MRO')  = [ $::Class, $::Module, $::Package, $::Object ];
+::opaque_instance_attr($::Class  => '@:MRO') = [ $::Class, $::Module, $::Package, $::Object ];
 ::opaque_instance_attr($::Object => '@:MRO') = [ $::Object ];
+
+# this is to get the right @:MRO
+$::EigenClass->superclasses([ $::Class ]);
 
 # ::Class now actually inherits a number of new attributes from various sources
 # and we need to now create these attributes in all the currently live instances
 # of Class (which are ::Class, ::Package, ::Object, ::Module and ::Role). This is
 # needed because we lock the keys inside the opaque instance structure (see chaos.pl)
-foreach my $meta_obj ($::Class, $::Object, $::Package, $::Module, $::Role) {
+foreach my $meta_obj ($::Class, $::Object, $::Package, $::Module, $::Role, $::EigenClass) {
     ::opaque_instance_add_new_attribute($meta_obj => '$:name'      => '');
     ::opaque_instance_add_new_attribute($meta_obj => '%:namespace' => {});
     ::opaque_instance_add_new_attribute($meta_obj => '$:version'   => '0.0.0');
@@ -45,6 +48,7 @@ $::Module->name('Module');
 $::Class->name('Class');
 $::Object->name('Object');
 $::Role->name('Role');
+$::EigenClass->name('EigenClass');
 
 # now create the * (root) package ... 
 
@@ -52,11 +56,12 @@ $::{'*'} = $::Package->new('$:name' => '*');
 
 # and add our meta-objects to it ...
 
-$::{'*'}->STORE('::Package' => $::Package);
-$::{'*'}->STORE('::Module'  => $::Module);
-$::{'*'}->STORE('::Class'   => $::Class);
-$::{'*'}->STORE('::Object'  => $::Object);
-$::{'*'}->STORE('::Role'    => $::Role);
+$::{'*'}->STORE('::Package'    => $::Package);
+$::{'*'}->STORE('::Module'     => $::Module);
+$::{'*'}->STORE('::Class'      => $::Class);
+$::{'*'}->STORE('::Object'     => $::Object);
+$::{'*'}->STORE('::Role'       => $::Role);
+$::{'*'}->STORE('::EigenClass' => $::EigenClass);
 
 # and create our Main package 
 

@@ -19,6 +19,13 @@ $::Package = undef;
 $::Module  = undef;
 
 ## ----------------------------------------------------------------------------
+## Eigenclass
+
+$::EigenClass = $::Class->new();
+# do this later
+# $::EigenClass->superclasses([ $::Class ]);
+
+## ----------------------------------------------------------------------------
 ## Object
 
 # The 'Object' class
@@ -41,7 +48,7 @@ $::Object->add_method('BUILD' => ::make_submethod(sub {
             # we would peek into the instance structure
             # itself and see if we had the spot, and
             # otherwise ignore it ... but this will do
-            if ::opaque_instance_class($self)->find_attribute_spec($key);
+            if $self->class->find_attribute_spec($key);
     }
 }));
 
@@ -49,7 +56,7 @@ $::Object->add_method('BUILD' => ::make_submethod(sub {
 
 $::Object->add_method('BUILDALL' => ::make_method(sub { 
     my ($self, %params) = @_;
-    my $dispatcher = ::opaque_instance_class($self)->dispatcher(':descendant');
+    my $dispatcher = $self->class->dispatcher(':descendant');
     while (my $method = ::WALKMETH($dispatcher, 'BUILD')) {                      
         $method->($Perl6::Submethod::FORCE, $self, %params);                  
     }      
@@ -57,24 +64,40 @@ $::Object->add_method('BUILDALL' => ::make_method(sub {
 
 $::Object->add_method('DESTROYALL' => ::make_method(sub { 
     my ($self) = @_;
-    my $dispatcher = ::opaque_instance_class($self)->dispatcher(':ascendant');
+    my $dispatcher = $self->class->dispatcher(':ascendant');
     while (my $method = ::WALKMETH($dispatcher, 'DESTROY')) {  
         $method->($Perl6::Submethod::FORCE, $self);   
     }  
 }));
 
-$::Object->add_method('id' => ::make_method(sub { ::opaque_instance_id(shift) }));
+$::Object->add_method('id'    => ::make_method(sub { ::opaque_instance_id($::SELF)    }));
+$::Object->add_method('class' => ::make_method(sub { ::opaque_instance_class($::SELF) }));
 
 $::Object->add_method('isa' => ::make_method(sub { 
     my ($self, $class_name) = @_;
     return undef unless $class_name;
-    return ::opaque_instance_class($self)->isa($class_name);    
+    return $self->class->isa($class_name);    
 }));
 
 $::Object->add_method('can' => ::make_method(sub { 
     my ($self, $label) = @_;   
     return undef unless $label;
-    return ::WALKMETH(::opaque_instance_class($self)->dispatcher(':canonical'), $label);    
+    return ::WALKMETH($self->class->dispatcher(':canonical'), $label);    
+}));
+
+$::Object->add_method('add_singleton_method' => ::make_method(sub { 
+    my ($self, $label, $method) = @_;   
+    my $eigenclass = $::EigenClass->new('$:name' => '_EigenClass(' . $self->id . ')');
+    $eigenclass->superclasses([ $self->class ]);
+    ::opaque_instance_change_class($self, $eigenclass);
+    $eigenclass->add_method($label, $method);
+}));
+
+$::Object->add_method('dump' => ::make_method(sub { 
+    my $self = shift;
+    require Data::Dumper;
+    $Data::Dumper::Maxdepth = shift || 2;
+    Data::Dumper::Dumper $self;
 }));
 
 ## ----------------------------------------------------------------------------

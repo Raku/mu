@@ -10,7 +10,7 @@ require 'lib/pneuma.pl';
 
 # check some methods
 
-is($::Object->id, 2, '... $::Object is the second object in the system');
+is($::Object->id, 3, '... $::Object is the second object in the system');
 
 is_deeply(
     $::Object->superclasses(), 
