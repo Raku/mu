@@ -111,6 +111,7 @@ sub set_postamble {
     }
 
     system($ghc, '--make', '-o' => $setup, 'Setup.lhs');
+    system($setup, 'configure');
 
     my $heap = PugsBuild::Config->lookup('ghc_heap_size');
     $ghc_flags .= " +RTS -M$heap -RTS" if $heap;
