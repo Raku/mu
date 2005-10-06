@@ -16,11 +16,9 @@ if $*OS eq "browser" {
 }
 
 {
-  my $contents = slurp "does-not-exist";
-  ok !defined($contents), "slurp() on not-existant files returns undef";
+  dies_ok { slurp "does-not-exist" } "slurp() on not-existant files fails";
 }
 
 {
-  my $contents = slurp "t/";
-  ok !defined($contents), "slurp() on directories returns undef";
+  dies_ok { slurp "t/" } "slurp() on directories fails";
 }

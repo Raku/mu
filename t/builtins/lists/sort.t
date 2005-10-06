@@ -135,7 +135,7 @@ plan 19;
 
 # .sort shouldn't work on non-arrays
 {
-    dies_ok { 42.sort:{ 0 } },    "method form of sort should not work on numbers";
-    dies_ok { "str".sort:{ 0 } }, "method form of sort should not work on strings";
+    dies_ok { 42.sort:{ 0 } },    "method form of sort should not work on numbers", :todo<bug>;
+    dies_ok { "str".sort:{ 0 } }, "method form of sort should not work on strings", :todo<bug>;
     is ~(42,).sort:{ 0 }, "42",   "method form of sort should work on arrays";
 }

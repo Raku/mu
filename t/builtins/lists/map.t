@@ -107,8 +107,8 @@ my @list = (1 .. 5);
 
 # .map shouldn't work on non-arrays
 {
-  dies_ok { 42.map:{ $_ } },    "method form of map should not work on numbers";
-  dies_ok { "str".map:{ $_ } }, "method form of map should not work on strings";
+  dies_ok { 42.map:{ $_ } },    "method form of map should not work on numbers", :todo<bug>;
+  dies_ok { "str".map:{ $_ } }, "method form of map should not work on strings", :todo<bug>;
   is ~(42,).map:{ $_ }, "42",   "method form of map should work on arrays";
 }
 

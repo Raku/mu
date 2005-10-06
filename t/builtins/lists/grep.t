@@ -55,7 +55,7 @@ my @list = (1 .. 10);
 
 # .grep shouldn't work on non-arrays
 {
-  dies_ok { 42.grep:{ $_ } },    "method form of grep should not work on numbers";
-  dies_ok { "str".grep:{ $_ } }, "method form of grep should not work on strings";
+  dies_ok { 42.grep:{ $_ } },    "method form of grep should not work on numbers", :todo<bug>;
+  dies_ok { "str".grep:{ $_ } }, "method form of grep should not work on strings", :todo<bug>;
   is ~(42,).grep:{ 1 }, "42",    "method form of grep should work on arrays";
 }

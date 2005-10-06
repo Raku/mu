@@ -33,7 +33,7 @@ plan 6;
   my $empty  = [];
   my @result = map { $empty } @array;
 
-  is +@result, 4, "map works with the map body returning an empty arrayref variable";
+  is +@result, 4, "map works with the map body returning an empty arrayref variable", :todo<bug>;
 }
 
 {
