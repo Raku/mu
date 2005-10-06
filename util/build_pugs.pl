@@ -73,11 +73,8 @@ sub build_lib {
 
 sub build_exe {
     my $ghc = shift;
-    rmtree(["dist/src", "dist/build/src"]);
-    copy_all("dist/build" => "dist/src");
-    rename("dist/src" => "dist/build/src");
-    my @obj = qw(dist/build/src/cbits/fpstring.o dist/build/src/pcre/pcre.o dist/build/src/UnicodeC.o dist/build/src/syck/bytecode.o dist/build/src/syck/emitter.o dist/build/src/syck/gram.o dist/build/src/syck/handler.o dist/build/src/syck/implicit.o dist/build/src/syck/node.o dist/build/src/syck/syck.o dist/build/src/syck/syck_st.o dist/build/src/syck/token.o dist/build/src/syck/yaml2byte.o dist/build/src/Data/Yaml/Syck_stub.o);
-    system $ghc, '--make', -o => "pugs$Config{_exe}", @_, @obj, 'src/Main.hs';
+    system $ghc, qw(-package stm -package network -package mtl -package template-haskell -package unix -package base -idist/build -idist/build -Ldist/build src/Main.hs -lHSPugs-6.2.10);
+
 }
 
 sub write_buildinfo { 
@@ -115,7 +112,7 @@ sub copy_all {
     opendir(DIR, $src) or die $!;
     my @nodes = readdir(DIR);
     foreach my $node (sort @nodes) {
-        next if $node =~ /^(\.|\.\.|\.svn)$/;
+        next if $node =~ /^(\.|\.\.|\.svn|src)$/;
         my $src_path = "$src/$node";
         my $dest_path = "$dest/$node";
         if (-f $src_path) {
