@@ -38,7 +38,7 @@ sub read {
     my($class, $filename) = @_;
     my $stream;
     
-    if (!-e ($filename ||= "config.yml")) {
+    if (!-e ($filename ||= ($ENV{PUGS_BUILD_CONFIG} || "config.yml"))) {
         require File::Copy;
         File::Copy::copy ('util/config-template.yml', $filename) or
             die "copy: $!";

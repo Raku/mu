@@ -6,6 +6,7 @@ use Shell qw(svn);
 use Config;
 use File::Spec;
 use FindBin;
+use lib File::Spec->catdir($FindBin::Bin, "..", "inc");
 use PugsBuild::Config;
 
 my $failed = 0;
@@ -69,9 +70,10 @@ print <<EOF;
 
         $^X $smoke_upload_script $html_location
 
-    Or add:
-     smoke_upload: 1 
-    To your config.yml file to automaticaly upload your smoke file.
+    Or add
+        smoke_upload: 1 
+    to your config.yml file if you want the reports to be uploaded
+    automatically.
 EOF
 }
 sub upload_smoke {

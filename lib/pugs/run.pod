@@ -219,6 +219,11 @@ This is equivalent to running C<< util/yaml_harness.pl -j I<number> >>.
 
 (Has no effect on Windows.)
 
+=item C<PUGS_BUILD_CONFIG> [BUILD]
+
+If set, the file specified in C<PUGS_BUILD_CONFIG> will be used as
+configuration file. The default is F<config.yml>.
+
 =back
 
 =head1 SEE ALSO
