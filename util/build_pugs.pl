@@ -76,7 +76,8 @@ sub build_exe {
     rmtree(["dist/src", "dist/build/src"]);
     copy_all("dist/build" => "dist/src");
     rename("dist/src" => "dist/build/src");
-    system $ghc, '--make', -o => "pugs$Config{_exe}", @_, 'src/Main.hs';
+    my @obj = qw(dist/build/src/cbits/fpstring.o dist/build/src/pcre/pcre.o dist/build/src/UnicodeC.o dist/build/src/syck/bytecode.o dist/build/src/syck/emitter.o dist/build/src/syck/gram.o dist/build/src/syck/handler.o dist/build/src/syck/implicit.o dist/build/src/syck/node.o dist/build/src/syck/syck.o dist/build/src/syck/syck_st.o dist/build/src/syck/token.o dist/build/src/syck/yaml2byte.o dist/build/src/Data/Yaml/Syck_stub.o);
+    system $ghc, '--make', -o => "pugs$Config{_exe}", @_, @obj, 'src/Main.hs';
 }
 
 sub write_buildinfo { 
