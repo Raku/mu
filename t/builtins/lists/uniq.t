@@ -39,6 +39,6 @@ See the thread "[S29] uniq" on p6l, too.
 
 # Error cases
 {
-  dies_ok { 42.uniq }, ".uniq should not work on scalars";
+  dies_ok { 42.uniq }, ".uniq should not work on scalars", :todo<bug>;
   is (42,).uniq, 42,   ".uniq should work on one-elem arrays";
 }

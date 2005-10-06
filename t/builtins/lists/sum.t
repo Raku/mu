@@ -25,6 +25,6 @@ is sum(-1,2,3), 4,    "subroutine form of sum on a list works";
 ok(!defined(sum()), 'sum()ing nothing returns undef');
 
 dies_ok { "a string can't be .summed".sum },
-  "method form of sum on a string should not work";
+  "method form of sum on a string should not work", :todo<bug>;
 dies_ok { 42.sum },
-  "method form of sum on a number should not work";
+  "method form of sum on a number should not work", :todo<bug>;

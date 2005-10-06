@@ -114,11 +114,11 @@ is try { $array11[0][0] = 6; $array11[0][0] }, 6, "changing nested array (2)";
 # [] creates new containers (() does not)
 {
   my $foo;
-  ok !([$foo][0] =:= $foo), "creating arrays using [] creates new containers (1)";
+  ok !([$foo][0] =:= $foo), "creating arrays using [] creates new containers (1)", :todo<bug>;
 }
 
 {
   my $foo;
   my $arrayref = [$foo];
-  ok !($arrayref[0] =:= $foo), "creating arrays using [] creates new containers (2)";
+  ok !($arrayref[0] =:= $foo), "creating arrays using [] creates new containers (2)", :todo<bug>;
 }
