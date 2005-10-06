@@ -50,9 +50,11 @@ use strict;
 
     local $PIL::CUR_SUBNAME = $self->name;
 
-    warn "Skipping &*END.\n"               and return ""
+    #warn "Skipping &*END.\n"               and return ""
+    return ""
       if $self->name eq "&*END";
-    warn "Skipping " . $self->name . ".\n" and return ""
+    #warn "Skipping " . $self->name . ".\n" and return ""
+    return ""
       if $self->name =~ /^__export_c.*import$/;
 
     my $def  = sprintf "new PIL2JS.Box(%s.FETCH())",  $self->SUPER::as_js;

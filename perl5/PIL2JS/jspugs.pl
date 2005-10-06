@@ -27,7 +27,7 @@ EOF
 our %cfg;
 *cfg = \%PIL2JS::cfg;
 $cfg{output} = "output.html";
-$cfg{verbose}++;
+#$cfg{verbose}++;
 
 GetOptions(
   "js=s"          => \$cfg{js},
@@ -154,6 +154,6 @@ sub command_js {
 }
 
 sub command_e {
-  my $js = jsbin_hack(compile_perl6_to_standalone_js("-e", shift));
-  run_js($js);
+  my $js = eval { jsbin_hack(compile_perl6_to_standalone_js("-e", shift)) };
+  run_js($js) if $js;
 }

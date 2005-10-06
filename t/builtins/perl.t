@@ -20,16 +20,29 @@ my @tests = (
 #    :b(2),
 
     # References to aggregates
+    [],      # empty array
+    [ 42 ],  # only one elem
     [< a b c>],
+    {},           # empty hash
+    { a => 42 },  # only one elem
     { :a(1), :b(2), :c(3) },
 
+    # Infinite/lazy arrays, commented because they take infram and inftime in
+    # current Pugs
+    # [ 3..42 ],
+    # [ 3..Inf ],
+    # [ -Inf..Inf ],
+    # [ 3..42, 17..Inf, -Inf..5 ],
+
     # Nested things
+    { a => [1,2,3] },  # only one elem
+    [      [1,2,3] ],  # only one elem
     { a => [1,2,3], b => [4,5,6] },
     [ { :a(1) }, { :b(2), :c(3) } ],
 );
 
 plan 7 + 2*@tests;
-force_todo 4, 7..8, 45..49, 52, 54, 56;
+force_todo 4, 7..8, 49..50, 53..54, 59..61, 64, 66, 68;
 
 unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
   skip_rest "eval() not yet implemented in $?PUGS_BACKEND.";

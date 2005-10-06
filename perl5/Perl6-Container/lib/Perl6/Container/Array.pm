@@ -3,6 +3,17 @@
 
 # ChangeLog
 #
+# 2005-10-06
+# * Fixed perlification of arrays -- basically it used to be
+#     join ",", map { ~$_ }     @elems;  # it's now:
+#     join ",", map { $_.perl } @elems;
+# * Don't output "..." to create ranges, but "..", so .perl will return valid
+#   Perl 6 code for lazy/infinite arrays:
+#     (1, 2 ... 42)  # wrong
+#     (1, 2 .. 42)   # correct
+# * The perlification of an array containing only one element is now ($item,)
+#   instead of ($item) (($item) is not an array, but ($item,) is).
+#
 # 2005-09-12
 # * several fixes: @a[1,2].delete; @a.uniq; (-Inf..Inf); (-Inf..0) 
 #
@@ -636,7 +647,7 @@ class1 'Array'.$class_description => {
                     }
                     else {
                         $str =  join( ' ', map { Perl6::Value::stringify($_) } @start ) .
-                                ' ... ' . 
+                                ' .. ' . 
                                 join( ' ', map { Perl6::Value::stringify($_) } @end );
                     }
                 }
@@ -659,7 +670,7 @@ class1 'Array'.$class_description => {
                     no warnings 'numeric';
                     last if $_ >= Perl6::Value::numify( $self->elems );
                     $tmp = $self->fetch( $_ );
-                    $tmp = Perl6::Value::stringify( $tmp );
+                    $tmp = Perl6::Value::stringify( $tmp->perl );
                     push @start, $tmp;
                     last if $tmp eq 'Inf' || $tmp eq '-Inf';
                 }
@@ -668,21 +679,24 @@ class1 'Array'.$class_description => {
                     # warn "  UNSHIFT: ".$self->elems->unboxed." ".Perl6::Value::numify( $self->elems )." + $_ >= scalar ".(scalar @start)."\n";
                     last unless Perl6::Value::numify( $self->elems ) + $_ >= scalar @start;
                     $tmp = $self->fetch( $_ );
-                    $tmp = Perl6::Value::stringify( $tmp );
+                    $tmp = Perl6::Value::stringify( $tmp->perl );
                     unshift @end, $tmp;
                     last if $tmp eq 'Inf' || $tmp eq '-Inf';
                 }
                 my $str = '';
                 if ( @start > 0 ) {
                     if ( Perl6::Value::numify( $self->elems ) == ( scalar @start + scalar @end ) ) {
-                        $str =  join( ', ', map { Perl6::Value::stringify($_) } @start, @end );
+                        $str =  join( ', ', @start, @end );
                     }
                     else {
-                        $str =  join( ', ', map { Perl6::Value::stringify($_) } @start ) .
-                                ' ... ' . 
-                                join( ', ', map { Perl6::Value::stringify($_) } @end );
+                        $str =  join( ', ', @start ) .
+                                ' .. ' . 
+                                join( ', ', @end );
                     }
                 }
+                # Ensure that ($only_one_item,).perl gets perlificated
+                # correctly (i.e. not ($item), but ($item,)).
+                $str .= "," if Perl6::Value::numify( $self->elems ) == 1;
                 return Str->new( '$.unboxed' => '(' . $str . ')' );                
             },
         },
