@@ -1544,6 +1544,7 @@ parseTerm = rule "term" $ do
         , ruleApply False   -- Normal application
         , verbatimParens ruleExpression
         ]
+    -- rulePostTerm returns an (Exp -> Exp) that we apply to the original term
     fs <- many rulePostTerm
     return $ combine (reverse fs) term
 
@@ -1625,11 +1626,33 @@ ruleCodeSubscript = tryVerbatimRule "code subscript" $ do
     (invs,args) <- parens $ parseParamList
     return $ \x -> App x invs args
 
-ruleApply :: Bool -> RuleParser Exp
+{-|
+Match a sub application, returning the appropriate 'App' expression.
+
+Note that this only handles regular sub application (@foo(\$bar)@) and
+implicit-invocant calls (@.foo@); regular method invocation (@\$obj.foo@) is
+handled by 'ruleInvocation' as a post-term ('rulePostTerm').
+
+The boolean argument is @True@ if we're trying to parse a reduce-metaop
+application (e.g. @[+] 1, 2, 3@), and @False@ otherwise.
+
+/NOTE: This is where the dot-slash and dot-colon statement
+forms get parsed, so if they need to be changed\/killed, this is the place./
+-}
+ruleApply :: Bool -- ^ @True@ if we are parsing for the reduce-metaop
+          -> RuleParser Exp
 ruleApply isFolded = tryVerbatimRule "apply" $ do
-    (colon, inv) <- option (id, Nothing) $ do
-        when isFolded $ fail ""
-        char '.'
+    {- (colon :: String -> String) is a function that will take a name
+       like '&foo', and MIGHT convert it to '&:foo'.  This only happens if
+       you're using the '.:foo' implicit-invocant syntax, otherwise 'colon' will
+       just be 'id'.
+    
+       (inv :: Maybe Exp) might hold a 'Var' expression indicating the implicit
+       invocant.  Of course, if you're not using implicit-invocant syntax, this
+       will be 'Nothing'. -}
+    (colonify, implicitInv) <- option (id, Nothing) $ do
+        when isFolded $ fail "" -- can't have implicit-invocant for [+]
+        char '.'                -- implicit-invocant forms all begin with '.'
         option (id, Just $ Var "$_") $ choice
             [ do { char '/'; return (id, (Just $ Var "$?SELF")) }
             , do char ':'
@@ -1637,17 +1660,29 @@ ruleApply isFolded = tryVerbatimRule "apply" $ do
                         , Just $ Var "$?SELF"
                         )
             ]
-    name    <- if isFolded then ruleFoldOp else fmap colon ruleSubName
+
+    name    <- if isFolded
+        then ruleFoldOp
+        else fmap colonify ruleSubName
+                   
     when ((name ==) `any` words " &if &unless &while &until &for ") $
         fail "reserved word"
+        
+    -- True for `foo .($bar)`-style applications
     hasDot  <- option False $ try $ do { whiteSpace; char '.'; return True }
-    (inv', args) <- if hasDot
+    (paramListInv, args) <- if hasDot
         then parseNoParenParamList
-        else if isJust inv
-            then parseParenParamListMaybe
+        else if isJust implicitInv
+            then parseParenParamListMaybe -- if we have an implicit invocant,
+                                          -- then we need to follow method-call
+                                          -- syntax rules
             else parseParenParamList <|> do { whiteSpace; parseNoParenParamList }
-    -- XXX - warn when there's both inv and inv'
-    possiblyApplyMacro $ App (Var name) (inv `mplus` inv') args
+    inv     <- mergeMaybes implicitInv paramListInv
+    possiblyApplyMacro $ App (Var name) inv args
+    where
+    mergeMaybes :: Monad m => Maybe a -> Maybe a -> m (Maybe a)
+    mergeMaybes (Just _) (Just _) = fail "can't have more than one invocant"
+    mergeMaybes x y               = return $ x `mplus` y -- like $x // $y in P6
 
 ruleFoldOp :: RuleParser String
 ruleFoldOp = verbatimRule "reduce metaoperator" $ do
@@ -1681,7 +1716,7 @@ parseParenParamList = do
         verbatimParens $ parseHasParenParamList
     trailing    <- option [] $ try $ many pairOrBlockAdverb
     when (isNothing params && null trailing && null leading) $ fail ""
-    let (inv, args) = maybe (Nothing, []) id params
+    let (inv, args) = fromMaybe (Nothing, []) params
     return (inv, leading ++ args ++ trailing)
 
 parseParenParamListMaybe :: RuleParser (Maybe Exp, [Exp])
@@ -1690,7 +1725,7 @@ parseParenParamListMaybe = do
     params      <- option Nothing . fmap Just $
         verbatimParens $ parseHasParenParamList
     trailing    <- option [] $ try $ many pairOrBlockAdverb
-    let (inv, args) = maybe (Nothing, []) id params
+    let (inv, args) = fromMaybe (Nothing, []) params
     return (inv, leading ++ args ++ trailing)
 
 pairOrBlockAdverb :: RuleParser Exp
@@ -1934,6 +1969,10 @@ arrayLiteral = try $ do
     item <- verbatimBrackets ruleExpression
     return $ Syn "\\[]" [item]
 
+{-|
+Match a pair literal -- either an arrow pair (@a => 'b'@), or an adverbial pair
+(@:foo('bar')@).
+-}
 pairLiteral :: RuleParser Exp
 pairLiteral = tryChoice [ pairArrow, pairAdverb ]
 
@@ -2273,6 +2312,7 @@ rxLiteral6 :: Char -- ^ Opening delimiter
            -> RuleParser Exp
 rxLiteral6 delimStart delimEnd = qLiteral1 (string [delimStart]) (string [delimEnd]) $
     rxP6Flags { qfProtectedChar = delimEnd }
+
 
 ruleAdverbHash :: RuleParser Exp
 ruleAdverbHash = do

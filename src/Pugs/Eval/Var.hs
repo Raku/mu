@@ -291,6 +291,10 @@ findSub name' invs args = do
         typ <- evalExpType y
         return $ deltaType cls x typ
 
+{-|
+Take an expression, and attempt to predict what type it will evaluate to
+/without/ actually evaluating it.
+-}
 evalExpType :: Exp -> Eval Type
 evalExpType (Var var) = do
     rv  <- findVar var
