@@ -2,7 +2,8 @@
 
 use strict;
 use warnings;
-use File::Copy;
+use File::Copy qw(copy);
+use File::Path qw(mkpath rmtree);
 
 our %BuildPrefs;
 use Config;
@@ -72,9 +73,10 @@ sub build_lib {
 
 sub build_exe {
     my $ghc = shift;
-    system $ghc, -o => "pugs$Config{_exe}", qw(
-        -package stm -package network -package mtl -package template-haskell -package unix -package base -idist/build  src/Main.hs
-    ), glob("dist/build/HSPugs-*.o");
+    rmtree(["dist/src", "dist/build/src"]);
+    copy_all("dist/build" => "dist/src");
+    rename("dist/src" => "dist/build/src");
+    system $ghc, '--make', -o => "pugs$Config{_exe}", @_, 'src/Main.hs';
 }
 
 sub write_buildinfo { 
@@ -103,4 +105,23 @@ sub classify_options {
 sub run {
     print ((join " ", @_) . "\n");
     system @_ and die (sprintf "system: [%s]: $!", join " ", @_);
+}
+
+sub copy_all {
+    my ($src, $dest) = @_;
+    mkpath($dest);
+    local *DIR;
+    opendir(DIR, $src) or die $!;
+    my @nodes = readdir(DIR);
+    foreach my $node (sort @nodes) {
+        next if $node =~ /^(\.|\.\.|\.svn)$/;
+        my $src_path = "$src/$node";
+        my $dest_path = "$dest/$node";
+        if (-f $src_path) {
+            copy($src_path, $dest_path);
+        }
+        if (-d $src_path) {
+            copy_all($src_path, $dest_path);
+        }
+    }
 }
