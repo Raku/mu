@@ -29,7 +29,9 @@ import Pugs.Embed
 import Data.IORef
 import qualified Data.Map as Map
 
+
 #include "PreludePC.hs"
+
 
 {-|
 Run 'Main.run' with command line args. 

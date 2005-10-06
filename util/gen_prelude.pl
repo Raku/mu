@@ -24,10 +24,10 @@ exit 1;
 
 sub setup_output {
     if ($Config{output}) {
-        open $Config{out_fh}, ">", $Config{output} or
+        open OUT, "> $Config{output}" or
             die "open: $Config{output}: $!";
     } else {
-        $Config{out_fh} = \*STDOUT;
+        *OUT = *STDOUT;
     }
 }
 
@@ -45,9 +45,9 @@ sub touch {
 
 sub null {
     print STDERR "Generating null Prelude... " if $Config{verbose};
-    open my $np, "src/Pugs/PreludePC.hs-null" or
+    open NP, "src/Pugs/PreludePC.hs-null" or
         die "Couldn't open null Prelude (src/Pugs/PreludePC.hs-null): $!";
-    print { $Config{out_fh} } $_ while (<$np>);
+    print OUT <NP>;
     print STDERR "done.\n" if $Config{verbose};
 }
 
@@ -101,7 +101,7 @@ sub precomp {
 
     exit 1 unless length $program;
 
-    print { $Config{out_fh} } <<'.';
+    print OUT <<'.';
 {-# OPTIONS_GHC -fglasgow-exts -fno-full-laziness -fno-cse #-}
 {-
     *** NOTE ***
@@ -154,7 +154,7 @@ initPreludePC env = do
 
     $program =~ s/.*^globC/globPCP :: IO Pad\nglobPCP/ms;
     $program =~ s/^expC/astPCP :: IO Exp\nastPCP/ms;
-    print { $Config{out_fh} } $program;
+    print OUT $program;
 
     die "Pugs ".(($?&255)?"killed by signal $?"
          :"exited with error code ".($?>>8)) if $?;

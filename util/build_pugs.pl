@@ -73,11 +73,12 @@ sub build_lib {
 
 sub build_exe {
     my $ghc = shift;
-    my @pkgs = qw(-package stm -package network -package mtl -package template-haskell -package base);
-    if ($^O !~ /(?:MSWin32|mingw|msys|cygwin)/) {
-        push @pkgs, -package => 'unix';
-    }
-    system $ghc, @pkgs, qw(-idist/build -idist/build -Ldist/build -o pugs src/Main.hs -lHSPugs-6.2.10);
+    system $ghc, '--make', @_, '-o' => 'pugs', 'src/Main.hs';
+    #my @pkgs = qw(-package stm -package network -package mtl -package template-haskell -package base);
+    # if ($^O !~ /(?:MSWin32|mingw|msys|cygwin)/) {
+    #     push @pkgs, -package => 'unix';
+    # }
+    # system $ghc, @pkgs, qw(-idist/build -idist/build -Ldist/build -o pugs src/Main.hs -lHSPugs-6.2.10);
 }
 
 sub write_buildinfo { 
