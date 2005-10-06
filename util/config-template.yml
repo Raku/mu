@@ -10,6 +10,9 @@ optimization: -O
 # If you have SMP and some unix, set this to > 1 for faster smokes
 smoke_concurrent: 1
 
+# Automaticaly upload smoke.html after make smoke (1 = yes)
+smoke_upload: 0
+
 # Embed a precompiled image of Prelude.pm in pugs? This makes pugs
 # faster to load, but slower to build. The payoff is usually worth it,
 # so this is on by default.

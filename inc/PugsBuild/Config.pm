@@ -13,6 +13,7 @@ our $Conf;
 our %DEFAULTS = (
     optimization          => '-O',
     smoke_concurrent      => 1,
+    smoke_upload          => '',
     inline_prelude_source => 0,
     precompile_prelude    => 1,
     precompile_modules    => [],

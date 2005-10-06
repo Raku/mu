@@ -6,6 +6,7 @@ use Shell qw(svn);
 use Config;
 use File::Spec;
 use FindBin;
+use PugsBuild::Config;
 
 my $failed = 0;
 for (qw/YAML Test::TAP::Model Test::TAP::HTMLMatrix/) {
@@ -25,6 +26,9 @@ EOF
 my $pugs_sandbox    = $ARGV[0] or die "Need pugs sandbox location";
 my $html_location   = $ARGV[1] or die "Need HTML output file location";
 my $optional_args   = $ARGV[2] || "";
+
+my $smoke_upload     = PugsBuild::Config->lookup('smoke_upload');
+my $smoke_upload_script = File::Spec->canonpath('./util/smokeserv/smokeserv-client.pl'); 
 
 chdir($pugs_sandbox) or die "Could change directory: $!";
 
@@ -50,21 +54,30 @@ sub make { return `$Config{make} @_` };
 my $dev_null = File::Spec->devnull;
 
 my $output ;# = svn("up") or die "Could not update pugs tree: $!";
-system($^X, qw(-w ./util/yaml_harness.pl),@yaml_harness_args) == 0 or die "Could not run yaml harness: $!";
-system($^X, qw(-w ./util/testgraph.pl --inlinecss tests.yml), $html_location) == 0 or die "Could not convert .yml to testgraph: $!";
+#system($^X, qw(-w ./util/yaml_harness.pl),@yaml_harness_args) == 0 or die "Could not run yaml harness: $!";
+#system($^X, qw(-w ./util/testgraph.pl --inlinecss tests.yml), $html_location) == 0 or die "Could not convert .yml to testgraph: $!";
 upload_smoke($html_location);
-my $client = File::Spec->canonpath('./util/smokeserv/smokeserv-client.pl');
+if ($smoke_upload) {
+  if (defined $smoke_upload_script) {
+    system("$^X $smoke_upload_script $html_location") == 0
+        or die "Couln't run smoke upload script: $!";
+  }
+} else {
 print <<EOF;
 *** All done! Smoke matrix saved as '$html_location'.
     You may want to submit the report to the public smokeserver:
 
-        $^X $client $html_location
-EOF
+        $^X $smoke_upload_script $html_location
 
+    Or add:
+     smoke_upload: 1 
+    To your config.yml file to automaticaly upload your smoke file.
+EOF
+}
 sub upload_smoke {
     my ($loc) = @_;
     return unless defined $ENV{PUGS_SMOKE_UPLOAD};
-    system("$ENV{PUGS_SMOKE_UPLOAD} $loc") == 0 or die "couldn't run user smoke upload command: $!";
+    system("$^X $ENV{PUGS_SMOKE_UPLOAD} $loc") == 0 or die "couldn't run user smoke upload command: $!";
 }
 
 sub check_prereq {
