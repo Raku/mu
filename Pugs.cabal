@@ -16,7 +16,7 @@ buildable: True
 c-sources: src/cbits/fpstring.c src/pcre/pcre.c src/UnicodeC.c
            src/syck/bytecode.c src/syck/emitter.c src/syck/gram.c src/syck/handler.c
            src/syck/implicit.c src/syck/node.c src/syck/syck.c src/syck/syck_st.c src/syck/token.c
-           src/syck/yaml2byte.c
+           src/syck/yaml2byte.c src/Data/Yaml/Syck_stub.c
 extensions: CPP ForeignFunctionInterface
 includes: syck.h pcre.h
 include-dirs: . src/pcre src/cbits src/perl5 src/syck src/cbits src

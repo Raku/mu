@@ -53,6 +53,7 @@ sub build {
     }
 
     run($^X, qw<util/gen_prelude.pl -v --touch --null --output src/Pugs/PreludePC.hs>);
+    build_lib($setup);
     build_exe($ghc, @args);
 
     if (PugsBuild::Config->lookup('precompile_prelude')) {
@@ -71,7 +72,9 @@ sub build_lib {
 
 sub build_exe {
     my $ghc = shift;
-    system $ghc, "--make", @_, '-o' => "pugs$Config{_exe}", 'src/Main.hs';
+    system $ghc, -o => "pugs$Config{_exe}", qw(
+        -package stm -package network -package mtl -package template-haskell -package unix -package base -idist/build  src/Main.hs
+    ), glob("dist/build/HSPugs-*.o");
 }
 
 sub write_buildinfo { 
