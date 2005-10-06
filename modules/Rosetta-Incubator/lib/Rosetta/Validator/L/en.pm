@@ -1,13 +1,13 @@
 #!/usr/bin/pugs
 use v6;
 
-# External classes used by classes in this file, that don't export symbols:
+# External packages used by packages in this file, that don't export symbols:
 # (None Yet)
 
 ###########################################################################
 ###########################################################################
 
-# Constant values used by classes in this file:
+# Constant values used by packages in this file:
 # (None Yet)
 
 ###########################################################################
@@ -15,7 +15,7 @@ use v6;
 
 class Rosetta::Validator::L::en-0.15.0 {
 
-    # External modules used by the Rosetta::Validator::L::en class, that do export symbols:
+    # External packages used by the Rosetta::Validator::L::en class, that do export symbols:
     # (None Yet)
 
     # Attributes of every Rosetta::Validator::L::en object:
@@ -64,9 +64,7 @@ I<This documentation is pending.>
 
 =head1 DEPENDENCIES
 
-This module requires any version of Perl 6.x.y that is at least 6.0.0.
-
-I<This documentation is otherwise pending.>
+This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 =head1 INCOMPATIBILITIES
 
@@ -100,16 +98,16 @@ copy of the GPL as part of the Rosetta distribution, in the file named
 "GPL"; if not, write to the Free Software Foundation, Inc., 51 Franklin St,
 Fifth Floor, Boston, MA  02110-1301, USA.
 
-Linking Rosetta statically or dynamically with other modules is making a
+Linking Rosetta statically or dynamically with other files is making a
 combined work based on Rosetta.  Thus, the terms and conditions of the GPL
 cover the whole combination.  As a special exception, the copyright holders
-of Rosetta give you permission to link Rosetta with independent modules,
-regardless of the license terms of these independent modules, and to copy
+of Rosetta give you permission to link Rosetta with independent files,
+regardless of the license terms of these independent files, and to copy
 and distribute the resulting combined work under terms of your choice,
 provided that every copy of the combined work is accompanied by a complete
 copy of the source code of Rosetta (the version of Rosetta used to produce
 the combined work), being distributed under the terms of the GPL plus this
-exception.  An independent module is a module which is not derived from or
+exception.  An independent file is a file which is not derived from or
 based on Rosetta, and which is fully useable when not linked to Rosetta in
 any form.
 

@@ -1,13 +1,13 @@
 #!/usr/bin/pugs
 use v6;
 
-# External classes used by classes in this file, that don't export symbols:
+# External packages used by packages in this file, that don't export symbols:
 # (None Yet)
 
 ###########################################################################
 ###########################################################################
 
-# Constant values used by classes in this file:
+# Constant values used by packages in this file:
 # (None Yet)
 
 ###########################################################################
@@ -15,7 +15,7 @@ use v6;
 
 class Locale::KeyedText-1.7.0 {
 
-    # External modules used by the Locale::KeyedText class, that do export symbols:
+    # External packages used by the Locale::KeyedText class, that do export symbols:
     # (None Yet)
 
     # Attributes of every Locale::KeyedText object:
@@ -64,9 +64,7 @@ I<This documentation is pending.>
 
 =head1 DEPENDENCIES
 
-This module requires any version of Perl 6.x.y that is at least 6.0.0.
-
-I<This documentation is otherwise pending.>
+This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 =head1 INCOMPATIBILITIES
 

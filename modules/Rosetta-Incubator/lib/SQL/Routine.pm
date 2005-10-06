@@ -1,13 +1,14 @@
 #!/usr/bin/pugs
 use v6;
 
-# External classes used by classes in this file, that don't export symbols:
-# (None Yet)
+# External packages used by packages in this file, that don't export symbols:
+#use Locale::KeyedText-(1.7.0...);
+use Locale::KeyedText-1.7.0;
 
 ###########################################################################
 ###########################################################################
 
-# Constant values used by classes in this file:
+# Constant values used by packages in this file:
 # (None Yet)
 
 ###########################################################################
@@ -15,7 +16,7 @@ use v6;
 
 class SQL::Routine-0.71.0 {
 
-    # External modules used by the SQL::Routine class, that do export symbols:
+    # External packages used by the SQL::Routine class, that do export symbols:
     # (None Yet)
 
     # Attributes of every SQL::Routine object:
@@ -64,9 +65,10 @@ I<This documentation is pending.>
 
 =head1 DEPENDENCIES
 
-This module requires any version of Perl 6.x.y that is at least 6.0.0.
+This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
-I<This documentation is otherwise pending.>
+It also requires these Perl 6 classes that are on CPAN:
+L<Locale::KeyedText-(1.7.0...)|Locale::KeyedText> (for error messages).
 
 =head1 INCOMPATIBILITIES
 
@@ -101,17 +103,17 @@ copy of the GPL as part of the SQL::Routine distribution, in the file named
 "GPL"; if not, write to the Free Software Foundation, Inc., 51 Franklin St,
 Fifth Floor, Boston, MA 02110-1301, USA.
 
-Linking SQL::Routine statically or dynamically with other modules is making
+Linking SQL::Routine statically or dynamically with other files is making
 a combined work based on SQL::Routine.  Thus, the terms and conditions of
 the GPL cover the whole combination.  As a special exception, the copyright
 holders of SQL::Routine give you permission to link SQL::Routine with
-independent modules, regardless of the license terms of these independent
-modules, and to copy and distribute the resulting combined work under terms
+independent files, regardless of the license terms of these independent
+files, and to copy and distribute the resulting combined work under terms
 of your choice, provided that every copy of the combined work is
 accompanied by a complete copy of the source code of SQL::Routine (the
 version of SQL::Routine used to produce the combined work), being
 distributed under the terms of the GPL plus this exception.  An independent
-module is a module which is not derived from or based on SQL::Routine, and
+file is a file which is not derived from or based on SQL::Routine, and
 which is fully useable when not linked to SQL::Routine in any form.
 
 Any versions of SQL::Routine that you modify and distribute must carry

@@ -1,4 +1,8 @@
-use 5.008001; use utf8; use strict; use warnings;
+use 5.008001;
+use utf8;
+use strict;
+use warnings;
+
 use lib '../..', '../../inc';
 use inc::Module::Install prefix => '../../inc';
 

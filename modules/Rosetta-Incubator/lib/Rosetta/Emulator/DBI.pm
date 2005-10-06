@@ -1,13 +1,18 @@
 #!/usr/bin/pugs
 use v6;
 
-# External classes used by classes in this file, that don't export symbols:
-# (None Yet)
+# External packages used by packages in this file, that don't export symbols:
+#use Rosetta-(0.49.0...);
+#use SQL::Routine::SQLBuilder-(0.22.0...);
+#use SQL::Routine::SQLParser-(0.3.0...);
+use Rosetta-0.49.0;
+use SQL::Routine::SQLBuilder-0.22.0;
+use SQL::Routine::SQLParser-0.3.0;
 
 ###########################################################################
 ###########################################################################
 
-# Constant values used by classes in this file:
+# Constant values used by packages in this file:
 # (None Yet)
 
 ###########################################################################
@@ -15,7 +20,7 @@ use v6;
 
 class Rosetta::Emulator::DBI-0.1.0 {
 
-    # External modules used by the Rosetta::Emulator::DBI class, that do export symbols:
+    # External packages used by the Rosetta::Emulator::DBI class, that do export symbols:
     # (None Yet)
 
     # Attributes of every Rosetta::Emulator::DBI object:
@@ -64,9 +69,12 @@ I<This documentation is pending.>
 
 =head1 DEPENDENCIES
 
-This module requires any version of Perl 6.x.y that is at least 6.0.0.
+This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
-I<This documentation is otherwise pending.>
+It also requires these Perl 6 classes that are on CPAN:
+L<Rosetta-(0.49.0...)|Rosetta>,
+L<SQL::Routine::SQLBuilder-(0.22.0...)|SQL::Routine::SQLBuilder>,
+L<SQL::Routine::SQLParser-(0.3.0...)|SQL::Routine::SQLParser>.
 
 =head1 INCOMPATIBILITIES
 
@@ -87,7 +95,7 @@ Darren R. Duncan (C<perl@DarrenDuncan.net>)
 =head1 LICENCE AND COPYRIGHT
 
 This file is part of the Rosetta::Emulator::DBI portability enhanced clone
-of the DBI module.
+of the DBI class.
 
 Rosetta::Emulator::DBI is Copyright (c) 2002-2005, Darren R. Duncan.  All
 rights reserved.  Address comments, suggestions, and bug reports to
@@ -103,18 +111,18 @@ Rosetta::Emulator::DBI distribution, in the file named "GPL"; if not, write
 to the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
 MA  02110-1301, USA.
 
-Linking Rosetta::Emulator::DBI statically or dynamically with other modules
+Linking Rosetta::Emulator::DBI statically or dynamically with other files
 is making a combined work based on Rosetta::Emulator::DBI.  Thus, the terms
 and conditions of the GPL cover the whole combination.  As a special
 exception, the copyright holders of Rosetta::Emulator::DBI give you
-permission to link Rosetta::Emulator::DBI with independent modules,
-regardless of the license terms of these independent modules, and to copy
+permission to link Rosetta::Emulator::DBI with independent files,
+regardless of the license terms of these independent files, and to copy
 and distribute the resulting combined work under terms of your choice,
 provided that every copy of the combined work is accompanied by a complete
 copy of the source code of Rosetta::Emulator::DBI (the version of
 Rosetta::Emulator::DBI used to produce the combined work), being
 distributed under the terms of the GPL plus this exception.  An independent
-module is a module which is not derived from or based on
+file is a file which is not derived from or based on
 Rosetta::Emulator::DBI, and which is fully useable when not linked to
 Rosetta::Emulator::DBI in any form.
 
