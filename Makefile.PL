@@ -360,7 +360,7 @@ docs/haddock :
 	\@\$(PERL) -e "mkdir q-docs/haddock-"
 
 profiled :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+GHC $setup $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+GHC $ghc $setup $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 pugs.prof :: profiled
 	find t -type f | grep -v D | grep -v R | grep -v pugsrun | ./pugs +RTS -p -RTS -e 'my sub exit {}; for =\$\$*IN -> \$\$t is copy { \$\$t .= chomp; require \$\$t }'
@@ -368,15 +368,15 @@ pugs.prof :: profiled
 optimised :: optimized
 
 optimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+GHC $setup $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+GHC $ghc $setup $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 unoptimised :: unoptimized
 
 unoptimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+GHC $setup $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+GHC $ghc $setup $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 $pugs : src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+GHC $setup $threaded __optimization__ --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+GHC $ghc $setup $threaded __optimization__ --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 
 pirtest : test-pir
@@ -445,8 +445,6 @@ pure_all ::
 	\$(PERLRUN) util/src_to_blib.pl
 
 pure_site_install ::
-	\$(NOECHO) $setup build
-	\$(NOECHO) $setup install
 	\$(NOECHO) \$(MOD_INSTALL) \\
 		\$(INST6_LIB) \$(DESTDIR)$config->{sitelib} \\
 		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{sitearch} \\
@@ -456,8 +454,6 @@ pure_site_install ::
 		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installsiteman3dir}
 
 pure_vendor_install ::
-	\$(NOECHO) $setup build
-	\$(NOECHO) $setup install
 	\$(NOECHO) \$(MOD_INSTALL) \\
 		\$(INST6_LIB) \$(DESTDIR)$config->{privlib} \\
 		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{archlib} \\

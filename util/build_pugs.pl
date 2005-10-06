@@ -37,56 +37,47 @@ sub build {
     
     print "Build configuration:\n" . PugsBuild::Config->pretty_print;
 
+    my ($ghc, $setup, @args) = @{$opts->{GHC}};
+    write_buildinfo(@args);
+
     # if Prelude.pm wasn't changed, don't bother to recompile Run.hs.
     if (PugsBuild::Config->lookup('precompile_prelude')) {
         my $pm = "src/perl6/Prelude.pm";
         my $ppc_hs = "src/Pugs/PreludePC.hs";
         my $ppc_null = "src/Pugs/PreludePC.hs-null";
         if (-e $ppc_hs and -s $ppc_hs > -s $ppc_null and -M $ppc_hs < -M $pm) {
-            return run_build(1, @{$opts->{GHC}});
+            build_lib($setup);
+            build_exe($ghc, @args);
+            return;
         }
     }
 
     run($^X, qw<util/gen_prelude.pl -v --touch --null --output src/Pugs/PreludePC.hs>);
-    run_build(0, @{$opts->{GHC}});
+    build_exe($ghc, @args);
 
     if (PugsBuild::Config->lookup('precompile_prelude')) {
         run($^X, qw<util/gen_prelude.pl -v -i src/perl6/Prelude.pm>,
                 (map { ('-i' => $_) } @{ PugsBuild::Config->lookup('precompile_modules') }),
                 '-p', $thispugs, qw<--touch --output src/Pugs/PreludePC.hs>);
-        return run_build(1, @{$opts->{GHC}});
+        build_lib($setup);
+        build_exe($ghc, @args);
     }
 }
 
-sub run_build {
-    my ($is_final, $setup, @args) = @_;
-
-    write_buildinfo($is_final, @args);
-    system $setup, 'configure';
+sub build_lib {
+    my $setup = shift;
     system $setup, 'build', '--verbose';
+}
 
-    if ($is_final--) {
-        write_buildinfo($is_final, @args);
-        system $setup, 'configure';
-        system $setup, 'build', '--verbose';
-    }
-
-    copy "dist/build/Pugs/pugs$Config{_exe}", "pugs$Config{_exe}";
+sub build_exe {
+    my $ghc = shift;
+    system $ghc, "--make", @_, '-o' => "pugs$Config{_exe}", 'src/Main.hs';
 }
 
 sub write_buildinfo { 
-    my ($is_final, @args) = @_;
-    my $build_lib = ($is_final ? 'True' : 'False');
-    my $build_exe = ($is_final ? 'False' : 'True');
-
     open INFO, "> Pugs.buildinfo" or die $!;
     print INFO << ".";
-ghc-options: @args
-buildable: $build_lib
-
-executable: pugs
-ghc-options: @args
-buildable: $build_exe
+ghc-options: @_
 .
     close INFO;
 }
