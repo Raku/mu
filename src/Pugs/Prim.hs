@@ -737,20 +737,6 @@ doBoolIO f v = do
         f x
         return True
 
-boolIO :: Value a => (a -> IO b) -> Val -> Eval Val
-boolIO f v = do
-    ok <- doBoolIO f v
-    return $ VBool ok
-
-boolIO2 :: (Value a, Value b)
-    => (a -> b -> IO c) -> Val -> Val -> Eval Val
-boolIO2 f u v = do
-    x <- fromVal u
-    y <- fromVal v
-    tryIO (VBool False) $ do
-        f x y
-        return (VBool True)
-
 guardedIO :: Value a => (a -> IO b) -> Val -> Eval Val
 guardedIO f v = do
     x <- fromVal v
