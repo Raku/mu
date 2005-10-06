@@ -2,10 +2,8 @@
 use v6;
 
 # External packages used by packages in this file, that don't export symbols:
-#use Locale::KeyedText-(1.7.0...);
-#use SQL::Routine-(0.71.0...);
-use Locale::KeyedText-1.7.0;
-use SQL::Routine-0.71.0;
+use Locale::KeyedText-(1.7.0...);
+use SQL::Routine-(0.71.0...);
 
 ###########################################################################
 ###########################################################################

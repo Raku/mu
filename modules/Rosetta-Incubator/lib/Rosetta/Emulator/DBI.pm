@@ -2,12 +2,9 @@
 use v6;
 
 # External packages used by packages in this file, that don't export symbols:
-#use Rosetta-(0.49.0...);
-#use SQL::Routine::SQLBuilder-(0.22.0...);
-#use SQL::Routine::SQLParser-(0.3.0...);
-use Rosetta-0.49.0;
-use SQL::Routine::SQLBuilder-0.22.0;
-use SQL::Routine::SQLParser-0.3.0;
+use Rosetta-(0.49.0...);
+use SQL::Routine::SQLBuilder-(0.22.0...);
+use SQL::Routine::SQLParser-(0.3.0...);
 
 ###########################################################################
 ###########################################################################

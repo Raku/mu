@@ -833,7 +833,7 @@ rulePackageFullName = do
 ruleVersionPart :: RuleParser String
 ruleVersionPart = do -- version - XXX
     char '-'
-    str <- many (choice [ digit, char '.' ])
+    str <- many (choice [ digit, char '.', char '(', char ')' ])
     return ('-':str)
 
 -- | The author part of a fully-qualified package name.

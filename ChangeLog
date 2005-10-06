@@ -9,6 +9,7 @@
 ** /src/*, /inc/*, /perl5/*, /util/*
 ** /lib/* (except lib/Perl6/MakeMaker.pm, which retains 3 for literal output)
 ** /Makefile.PL (except that it retains tabs in its literal output)
+* Pugs will now compile version ranges in 'use/require' statements
 
 === Bundled Modules
 
