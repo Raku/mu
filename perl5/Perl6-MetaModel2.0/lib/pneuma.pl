@@ -6,6 +6,7 @@ use warnings;
 BEGIN { require "lib/metamorph.pl" };
 
 # This is pneuma, this creates ::Object, ::Package and ::Module
+# (also the ::EigenClass too)
 
 # From Answers.com:
 # According to the Gnostics, the Demiurge was able to endow man 
@@ -14,15 +15,16 @@ BEGIN { require "lib/metamorph.pl" };
 
 ## (see psyche.pl for more information)
 
-$::Object  = undef;
-$::Package = undef;
-$::Module  = undef;
+$::Object     = undef;
+$::Package    = undef;
+$::Module     = undef;
+$::EigenClass = undef;
 
 ## ----------------------------------------------------------------------------
 ## Eigenclass
 
 $::EigenClass = $::Class->new();
-# do this later
+# do this (and some other stuff later), in the bootstrap  
 # $::EigenClass->superclasses([ $::Class ]);
 
 ## ----------------------------------------------------------------------------
