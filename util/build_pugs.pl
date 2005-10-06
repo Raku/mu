@@ -41,19 +41,28 @@ sub build {
         my $ppc_hs = "src/Pugs/PreludePC.hs";
         my $ppc_null = "src/Pugs/PreludePC.hs-null";
         if (-e $ppc_hs and -s $ppc_hs > -s $ppc_null and -M $ppc_hs < -M $pm) {
-            return run(@{ $opts->{GHC} });
+            return run_build(@{$opts->{GHC}});
         }
     }
 
     run($^X, qw<util/gen_prelude.pl -v --touch --null --output src/Pugs/PreludePC.hs>);
-    run(@{ $opts->{GHC} });
+    run_build(@{$opts->{GHC}});
 
     if (PugsBuild::Config->lookup('precompile_prelude')) {
         run($^X, qw<util/gen_prelude.pl -v -i src/perl6/Prelude.pm>,
                 (map { ('-i' => $_) } @{ PugsBuild::Config->lookup('precompile_modules') }),
                 '-p', $thispugs, qw<--touch --output src/Pugs/PreludePC.hs>);
-        run(@{ $opts->{GHC} });
+        return run_build(@{$opts->{GHC}});
     }
+}
+
+sub run_build {
+    my ($runghc, @args) = @_;
+    open INFO, "> Pugs.buildinfo" or die $!;
+    print INFO "ghc-options: @_\n";
+    close INFO;
+    system $runghc, 'Setup.lhs', 'build';
+    die;
 }
 
 sub classify_options {
