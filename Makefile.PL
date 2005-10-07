@@ -60,7 +60,7 @@ if (my $prefix = PugsBuild::Config->lookup('install_dir')) {
 
 clean_files     (map fixpaths($_),
     "pugs*", "src/Pugs/pugs_config.h", $version_h, $config_h,
-    'src/Pugs/Config.hs', 'blib6',
+    'src/Pugs/Config.hs', 'blib6', 'dist',
     'src/Pugs/PreludePC.hs',
     'src/Pugs/CodeGen/PIR/Prelude.hs',
     'src/Pugs/CodeGen/PIR/Prelude.hi',
