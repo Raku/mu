@@ -52,21 +52,21 @@ sub build {
         my $ppc_null = "src/Pugs/PreludePC.hs-null";
         if (-e $ppc_hs and -s $ppc_hs > -s $ppc_null and -M $ppc_hs < -M $pm) {
             build_lib($version, $ghc, $setup);
-            build_exe($version, $ghc, @args);
+            build_exe($version, $ghc, $ghc_version, @args);
             return;
         }
     }
 
     run($^X, qw<util/gen_prelude.pl -v --touch --null --output src/Pugs/PreludePC.hs>);
     build_lib($version, $ghc, $setup);
-    build_exe($version, $ghc, @args);
+    build_exe($version, $ghc, $ghc_version, @args);
 
     if (PugsBuild::Config->lookup('precompile_prelude')) {
         run($^X, qw<util/gen_prelude.pl -v -i src/perl6/Prelude.pm>,
                 (map { ('-i' => $_) } @{ PugsBuild::Config->lookup('precompile_modules') }),
                 '-p', $thispugs, qw<--touch --output src/Pugs/PreludePC.hs>);
         build_lib($version, $ghc, $setup);
-        build_exe($version, $ghc, @args);
+        build_exe($version, $ghc, $ghc_version, @args);
     }
 }
 
@@ -100,14 +100,15 @@ sub build_lib {
 }
 
 sub build_exe {
-    my $version = shift;
-    my $ghc     = shift;
+    my $version     = shift;
+    my $ghc         = shift;
+    my $ghc_version = shift;
     #my @o = qw( src/pcre/pcre.o src/syck/bytecode.o src/syck/emitter.o src/syck/gram.o src/syck/handler.o src/syck/implicit.o src/syck/node.o src/syck/syck.o src/syck/syck_st.o src/syck/token.o src/syck/yaml2byte.o src/cbits/fpstring.o );
     #push @o, 'src/UnicodeC.o' if grep /WITH_UNICODEC/, @_;
     #system $ghc, '--make', @_, @o, '-o' => 'pugs', 'src/Main.hs';
     my @pkgs = qw(-package stm -package network -package mtl -package template-haskell -package base);
     if ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) {
-        push @pkgs, -package => 'Win32';
+        push @pkgs, -package => 'Win32' unless $ghc_version =~ /^6.4(?:.0)$/;
     }
     else {
         push @pkgs, -package => 'unix';
