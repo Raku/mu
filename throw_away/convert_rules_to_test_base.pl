@@ -26,17 +26,11 @@ my $from = qr/(?: \.from )?/x;
 tie my %exprs, 'Tie::RefHash', (
 	qr{ \$ <> }x=> sub { compare => "whole_match" },
 	qr{ $var $slices $from }x => sub {
-		warn "matched an expr: $_[0]";
 		my @slice = ($_[0] =~ /(-?\d+)/g);
 		my $pos = ($_[0] =~ /\.from/);
 		my $unit = @slice ? "match_var" : "whole_match";
-		warn "slice=@slice pos=$pos unit=$unit";
-		my @res = (
-			(@slice ? (match_var => \@slice) : ()),
-			compare => ($pos ? "pos_${unit}_begin" : $unit)
-		);
-		warn "res=@res";
-		@res;
+
+		(@slice ? (match_var => \@slice) : ()), compare => ($pos ? "pos_${unit}_begin" : $unit)
 	},
 );
 
