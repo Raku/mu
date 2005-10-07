@@ -257,6 +257,9 @@ EOD
         if (!$base and -d "../parrot") {
             $base = abs_path('../parrot/');
         }
+        if (!$base and -d "../parrot-trunk") {
+            $base = abs_path('../parrot-trunk/');
+        }
         (-d $base and -e "$base/parrot-config.imc")
             or die "*** Please set \$ENV{PARROT_PATH} to the base path with a built parrot tree.\n";
         my $ldflags = parrot_config($base, 'ldflags');
@@ -518,7 +521,7 @@ sub parrot_config {
     chdir( $sp_base ) or die "Can't change dir to '$sp_base'";
     my $parrot = "parrot$Config{_exe}";
     $parrot = "bin/$parrot" if not -e $parrot;
-    my $value = `$parrot parrot-config.imc $config`;
+    my $value = `./$parrot parrot-config.imc $config`;
     chomp($value);
     chdir( $ac_path ) or die "Can't change dir to '$ac_path'";
     return $value;
