@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use File::Copy qw(copy);
 use File::Path qw(mkpath rmtree);
+use File::Find qw(find);
 
 our %BuildPrefs;
 use Config;
@@ -87,13 +88,27 @@ sub build_lib {
         $ar =~ s{(.*)ghc}{$1ar};
     }
 
-    # XXX - work around Cabal bug
+    # XXX - work around Cabal bug --
+    # we have to locate "Syck_stub.o" and copy it into
+    # dist/build/src/Data/Yaml/.
+    my @candidates;
+    my $target = File::Spec->canonpath("dist/build/src/Data/Yaml/Syck_stub.o");
+    my $wanted = sub {
+      return unless $_ eq "Syck_stub.o";
+      return if     File::Spec->canonpath($File::Find::name) eq $target;
+      push @candidates, $File::Find::name;
+    };
+    find $wanted, "dist";
+
+    if(@candidates > 1) {
+      warn "*** Found more than one 'Syck_stub.o' -- using first one\n";
+    } elsif(@candidates == 0) {
+      warn "*** Wasn't able to find 'Syck_stub.o', aborting...\n";
+      exit 1;
+    }
+
     copy(
-        "dist/build/src/Syck_stub.o",
-        "dist/build/src/Data/Yaml/Syck_stub.o"
-    );
-    copy(
-        "dist/build/src/src/Data/Yaml/Syck_stub.o",
+        $candidates[0],
         "dist/build/src/Data/Yaml/Syck_stub.o"
     );
 
