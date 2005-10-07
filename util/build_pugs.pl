@@ -100,7 +100,7 @@ sub write_buildinfo {
     open OUT, "> Pugs.cabal" or die $!;
 
     my $depends;
-    if ($^O !~ /(?:MSWin32|mingw|msys|cygwin)/) {
+    if ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) {
         $depends = 'Win32 -any';
     }
     else {
