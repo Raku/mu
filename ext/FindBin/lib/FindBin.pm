@@ -51,7 +51,7 @@ sub init {
         $Script = pop @path;
         $Bin = catdir(@path);
         loop {
-            my $linktext = readlink($script);
+            my $linktext = try { readlink($script) };
             my @path = splitpath($script);
             $RealScript = pop @path;
             $RealBin = catdir(@path);

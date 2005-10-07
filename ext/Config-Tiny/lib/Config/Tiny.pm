@@ -12,7 +12,7 @@ sub Config::Tiny::new () returns Ref {
     my %methods = (
         'err_str' => { %self<_err_str> },
         'read' => sub ($file) {
-            my $input = open($file);
+            my $input = try { open($file) };
             if ( ref $input ne 'IO' ) {
                 %self<_err_str> = "Failed to open '$file' for reading" and return FALSE;
             }
