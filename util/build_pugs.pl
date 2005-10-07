@@ -157,7 +157,7 @@ sub build_exe {
     else {
         push @pkgs, -package => 'unix';
     }
-    push @pkgs, -package => 'readline' if grep /^readline$/, @_;
+    push @pkgs, -package => 'readline' if grep /^-DPUGS_HAVE_READLINE$/, @_;
     my @libs = "-lHSPugs-$version";
     push @libs, grep /\.a$/, @_;
     push @libs, grep /^-[lL]/, @_;

@@ -126,7 +126,7 @@ sub set_postamble {
         and  try_compile("import System.Eval\n"
                         ."main :: IO ()\n"
                         .'main = (eval_ "return ()" [] [] [] [] :: IO (Either [String] (Maybe ()))) >> return ()', '-package', 'plugins')) {
-        $ghc_flags .= ' -package plugins -DPUGS_HAVE_HSPLUGINS=1 ';
+        $ghc_flags .= ' -package plugins -DPUGS_HAVE_HSPLUGINS ';
     } else {
         push @warn, << '.';
 *** Inline Haskell support disabled.  If you want dynamic loading
@@ -141,7 +141,7 @@ sub set_postamble {
         and  try_compile("import System.Console.Readline\n"
                         ."main :: IO ()\n"
                         .'main = readline "" >> return ()')) {
-      $ghc_flags .= ' -DPUGS_HAVE_READLINE=1 -package readline';
+      $ghc_flags .= ' -DPUGS_HAVE_READLINE '; # -package readline';
     }
     else {
       push @warn, << '.';
@@ -271,7 +271,7 @@ EOD
         $libs =~ s/-[^IlL]\S*//g;
         $icuflags =~ s/-[^IlL]\S*//g;
 
-        $embed_flags .= " -I$base/include -L$base/blib/lib -DPUGS_HAVE_PARROT=1 -L$base/blib/lib -L/usr/local/lib $ldflags ";
+        $embed_flags .= " -I$base/include -L$base/blib/lib -DPUGS_HAVE_PARROT -L$base/blib/lib -L/usr/local/lib $ldflags ";
         $ghc_output .= " -lparrot $libs $icuflags ";
         my $config = "$base/src/parrot_config$Config{_o}";
         $ghc_output .= " $config " if -e $config;
@@ -309,7 +309,7 @@ EOD
 
     # XXX - hsplugins doesn't build with profiles
     my $profiled_flags = $ghc_flags;
-    $profiled_flags =~ s{-DPUGS_HAVE_HSPLUGINS=1}{};
+    $profiled_flags =~ s{-DPUGS_HAVE_HSPLUGINS}{};
     $profiled_flags =~ s{-package plugins}{};
 
     my $emit = sub {
