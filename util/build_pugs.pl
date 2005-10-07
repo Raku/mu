@@ -121,6 +121,7 @@ sub build_lib {
 
     $fixup->('Data.Yaml.Syck');
     $fixup->('Pugs.Embed.Perl5') if grep /^-DPUGS_HAVE_PERL5$/, @_;
+    $fixup->('Pugs.Embed.Parrot') if grep /^-DPUGS_HAVE_PARROT$/, @_;
 
     system($ar, r => $a_file, $_) for grep /\.(?:o(?:bj)?)$/, @_;
     foreach my $a_ext (grep /\.a$/, @_) {
