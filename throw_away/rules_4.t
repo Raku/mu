@@ -101,11 +101,11 @@ ok(("x~~" ~~ /x(~~)*[[F]?]?/), 're_tests 737  (#933)');
 # 496: '^a (?#xxx) (?#yyy) {3}c'x    aaac    y    $&    aaac
 # -- SKIPPED - p5re_to_p6rule doesn't support `(?#...' yet
 # 497: (?<![cd])b    dbcb    n    -    -
-ok((not ("dbcb" ~~ /<!after <[cd]>>b/)), 're_tests 741  (#937)');
+ok((not ("dbcb" ~~ /<!after <[cd]>>b/)), 're_tests 741  (#937)', :todo<feature>);
 # 498: (?<![cd])[ab]    dbaacb    y    $&    a
 is(("dbaacb" ~~ /<!after <[cd]>><[ab]>/ && $<>), "a", 're_tests 743/0 (#939)', :todo<feature>);
 # 499: (?<!(c|d))b    dbcb    n    -    -
-ok((not ("dbcb" ~~ /<!after (c|d)>b/)), 're_tests 745  (#941)');
+ok((not ("dbcb" ~~ /<!after (c|d)>b/)), 're_tests 745  (#941)', :todo<feature>);
 # 500: (?<!(c|d))[ab]    dbaacb    y    $&    a
 is(("dbaacb" ~~ /<!after (c|d)><[ab]>/ && $<>), "a", 're_tests 747/0 (#943)', :todo<feature>);
 # 501: (?<!cd)[ab]    cdaccb    y    $&    b
@@ -142,17 +142,17 @@ ok((not ("a\nb\nc\n" ~~ /(<?null>)^b/)), 're_tests 762  (#958)');
 # 515: ((?m)^b)    a\nb\nc\n    y    $0    b
 # -- SKIPPED - p5re_to_p6rule doesn't support `(?m)' yet
 # 516: (?(1)a|b)    a    n    -    -
-ok((not ("a" ~~ /[ <(defined $0)> :: a|b ]/)), 're_tests 765  (#961)');
+ok((not ("a" ~~ /[ <(defined $0)> :: a|b ]/)), 're_tests 765  (#961)', :todo<feature>);
 # 517: (?(1)b|a)    a    y    $&    a
 is(("a" ~~ /[ <(defined $0)> :: b|a ]/ && $<>), "a", 're_tests 767/0 (#963)', :todo<feature>);
 # 518: (x)?(?(1)a|b)    a    n    -    -
-ok((not ("a" ~~ /(x)?[ <(defined $0)> :: a|b ]/)), 're_tests 769  (#965)');
+ok((not ("a" ~~ /(x)?[ <(defined $0)> :: a|b ]/)), 're_tests 769  (#965)', :todo<feature>);
 # 519: (x)?(?(1)b|a)    a    y    $&    a
 is(("a" ~~ /(x)?[ <(defined $0)> :: b|a ]/ && $<>), "a", 're_tests 771/0 (#967)', :todo<feature>);
 # 520: ()?(?(1)b|a)    a    y    $&    a
 is(("a" ~~ /(<?null>)?[ <(defined $0)> :: b|a ]/ && $<>), "a", 're_tests 773/0 (#969)', :todo<feature>);
 # 521: ()(?(1)b|a)    a    n    -    -
-ok((not ("a" ~~ /(<?null>)[ <(defined $0)> :: b|a ]/)), 're_tests 775  (#971)');
+ok((not ("a" ~~ /(<?null>)[ <(defined $0)> :: b|a ]/)), 're_tests 775  (#971)', :todo<feature>);
 # 522: ()?(?(1)a|b)    a    y    $&    a
 is(("a" ~~ /(<?null>)?[ <(defined $0)> :: a|b ]/ && $<>), "a", 're_tests 777/0 (#973)', :todo<feature>);
 # 523: ^(\()?blah(?(1)(\)))$    (blah)    y    $1    )
@@ -161,18 +161,18 @@ is(("(blah)" ~~ /^(\()?blah[ <(defined $0)> :: (\)) ]$/ && $1), ")", 're_tests 7
 # SKIPPED: script doesn't understand `($1)' yet
 # SKIPPED: script doesn't understand `($1)' yet
 # 525: ^(\()?blah(?(1)(\)))$    blah)    n    -    -
-ok((not ("blah)" ~~ /^(\()?blah[ <(defined $0)> :: (\)) ]$/)), 're_tests 781  (#977)');
+ok((not ("blah)" ~~ /^(\()?blah[ <(defined $0)> :: (\)) ]$/)), 're_tests 781  (#977)', :todo<feature>);
 # 526: ^(\()?blah(?(1)(\)))$    (blah    n    -    -
-ok((not ("(blah" ~~ /^(\()?blah[ <(defined $0)> :: (\)) ]$/)), 're_tests 783  (#979)');
+ok((not ("(blah" ~~ /^(\()?blah[ <(defined $0)> :: (\)) ]$/)), 're_tests 783  (#979)', :todo<feature>);
 # 527: ^(\(+)?blah(?(1)(\)))$    (blah)    y    $1    )
 is(("(blah)" ~~ /^(\(+)?blah[ <(defined $0)> :: (\)) ]$/ && $1), ")", 're_tests 785/2 (#981)', :todo<feature>);
 # 528: ^(\(+)?blah(?(1)(\)))$    blah    y    ($1)    ()
 # SKIPPED: script doesn't understand `($1)' yet
 # SKIPPED: script doesn't understand `($1)' yet
 # 529: ^(\(+)?blah(?(1)(\)))$    blah)    n    -    -
-ok((not ("blah)" ~~ /^(\(+)?blah[ <(defined $0)> :: (\)) ]$/)), 're_tests 787  (#983)');
+ok((not ("blah)" ~~ /^(\(+)?blah[ <(defined $0)> :: (\)) ]$/)), 're_tests 787  (#983)', :todo<feature>);
 # 530: ^(\(+)?blah(?(1)(\)))$    (blah    n    -    -
-ok((not ("(blah" ~~ /^(\(+)?blah[ <(defined $0)> :: (\)) ]$/)), 're_tests 789  (#985)');
+ok((not ("(blah" ~~ /^(\(+)?blah[ <(defined $0)> :: (\)) ]$/)), 're_tests 789  (#985)', :todo<feature>);
 # 531: (?(1?)a|b)    a    c    -    Switch condition not recognized
 # -- SKIPPED - TESTS ERROR MESSAGE
 # 532: (?(1)a|b|c)    a    c    -    Switch (?(condition)... contains too many branches
@@ -204,7 +204,7 @@ is(("a" ~~ /$<after ^(a)>/ && $0), "a", 're_tests 805/1 (#1001)', :todo<feature>
 # 545: (?=(a+?))(\1ab)    aaab    y    $1    aab
 is(("aaab" ~~ /<before (a+?)>($0ab)/ && $1), "aab", 're_tests 807/2 (#1003)', :todo<feature>);
 # 546: ^(?=(a+?))\1ab    aaab    n    -    -
-ok((not ("aaab" ~~ /^<before (a+?)>$0ab/)), 're_tests 809  (#1005)');
+ok((not ("aaab" ~~ /^<before (a+?)>$0ab/)), 're_tests 809  (#1005)', :todo<feature>);
 # 547: ([\w:]+::)?(\w+)$    abcd:    n    -    -
 ok((not ("abcd:" ~~ /(<[\w:]>+\:\:)?(\w+)$/)), 're_tests 811  (#1007)');
 # 548: ([\w:]+::)?(\w+)$    abcd    y    $0-$1    -abcd

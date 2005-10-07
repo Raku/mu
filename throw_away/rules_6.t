@@ -250,7 +250,7 @@ fail("PGE segfault", :todo<bug>);
 # SKIPPED: script doesn't understand `-$0-' yet
 # SKIPPED: script doesn't understand `-$0-' yet
 # 864: ^(a)?(?(1)a|b)+$    a    n    -    -
-ok((not ("a" ~~ /^(a)?[ <(defined $0)> :: a|b ]+$/)), 're_tests 1217  (#1421)');
+ok((not ("a" ~~ /^(a)?[ <(defined $0)> :: a|b ]+$/)), 're_tests 1217  (#1421)', :todo<feature>);
 # 865: ^(a\1?)(a\1?)(a\2?)(a\3?)$    aaaaaa    y    $0,$1,$2,$3    a,aa,a,aa
 # SKIPPED: script doesn't understand `$0,$1,$2,$3' yet
 # SKIPPED: script doesn't understand `$0,$1,$2,$3' yet
@@ -303,7 +303,7 @@ is(("CD" ~~ /(A|B)*?[ <(defined $0)> :: (CD)|(CD) ]/ && $2), "CD", 're_tests 125
 is(("ABCD" ~~ /(A|B)*?[ <(defined $0)> :: (CD)|(CD) ]/ && $1), "CD", 're_tests 1253/2 (#1470)', :todo<feature>);
 is(("ABCD" ~~ /(A|B)*?[ <(defined $0)> :: (CD)|(CD) ]/ && $2), "", 're_tests 1253/3 (#1471)');
 # 886: '^(o)(?!.*\1)'i    Oo    n    -    -
-ok((not ("Oo" ~~ rx:i/^(o)<!before \N*$0>/)), 're_tests 1255  (#1473)');
+ok((not ("Oo" ~~ rx:i/^(o)<!before \N*$0>/)), 're_tests 1255  (#1473)', :todo<feature>);
 # 887: (.*)\d+\1    abc12bc    y    $0    bc
 is(("abc12bc" ~~ /(\N*)\d+$0/ && $0), "bc", 're_tests 1257/1 (#1475)');
 # 888: (?m:(foo\s*$))    foo\n bar    y    $0    foo

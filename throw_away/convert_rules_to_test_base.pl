@@ -65,7 +65,7 @@ tie my %comparisons, 'Tie::RefHash', (
 			}
 		}
 
-		printf "p6rule_like($const, '%s', qr{%s}, $desc, opt => '$opt', %s);\n", rx($pat), expr_desc_to_qr($expr, quotemeta(unquote($eq))), maybe_todo($todo);
+		printf "p6rule_like($const, '%s', qr{%s}, $desc, opt => '$opt', %s);\n", rx($pat), expr_desc_to_qr($expr, const($eq)), maybe_todo($todo);
 	},
 	qr/ ok \s* \( \s* \( \s* not \s* \( $str ~~ $re \) \s* \) $comma $str $todo \) \s* ; /x => sub {
 		my ($line, $const, $opt, $pat, $desc, $todo) = @_;
@@ -155,13 +155,13 @@ sub match_var_qr {
 
 sub spec_is {
 	if ($_[1] ne "") {
-		return qr/$_[0] <$_[1] @ \d+> \d+/;
+		return qr/$_[0] <$_[1] @ \d+> \d+/s;
 	} else {
-		return qr/(?!$_[0] <)|$_[0] < @/;
+		return qr/(?!$_[0] <)|$_[0] < @/s;
 	}
 }
 
-sub pos_is { qr/$_[0] <.*? @ $_[1]> \d+/ }
+sub pos_is { qr/$_[0] <.*? @ $_[1]> \d+/s }
 
 sub maybe_todo {
 	my $reason = shift || return '';
@@ -170,5 +170,12 @@ sub maybe_todo {
 
 sub rx {
 	my $pat = unre(shift);
+	$pat =~ s/\\b/\\\\b/g;
 	$pat;
+}
+
+sub const {
+	my $str = quotemeta(unquote(shift));
+	$str =~ s/\\\\/\\/g;
+	$str;
 }

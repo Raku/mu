@@ -91,7 +91,7 @@ is(("foobarbar" ~~ /^\N**{2..3}?([b|a|r]+?)$0$/ && $0), "bar", 're_tests 1359/1 
 # 942: ^(?:f|o|b){2,3}?((?:b|a|r)+?)\1\z    foobarbar    y    $0    bar
 is(("foobarbar" ~~ /^[f|o|b]**{2..3}?([b|a|r]+?)$0$/ && $0), "bar", 're_tests 1361/1 (#1579)');
 # 943: .*a(?!(b|cd)*e).*f    ......abef    n    -    -    # [perl #23030]
-ok((not ("......abef" ~~ /\N*a<!before (b|cd)*e>\N*f/)), 're_tests 1363  (#1581)');
+ok((not ("......abef" ~~ /\N*a<!before (b|cd)*e>\N*f/)), 're_tests 1363  (#1581)', :todo<feature>);
 # 944: x(?#    x    c    -    Sequence (?#... not terminated
 # -- SKIPPED - TESTS ERROR MESSAGE
 # 945: :x(?#:    x    c    -    Sequence (?#... not terminated
