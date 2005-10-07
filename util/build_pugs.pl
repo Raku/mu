@@ -69,6 +69,7 @@ sub build {
 sub build_lib {
     my $setup = shift;
     system $setup, 'build', '--verbose';
+    system("ar r dist/build/libHSPugs-6.2.10.a ./dist/build/src/src/Data/Yaml/Syck_stub.o");
 }
 
 sub build_exe {

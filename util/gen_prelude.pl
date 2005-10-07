@@ -39,6 +39,10 @@ sub touch {
     print STDERR "Triggering rebuild... " if $Config{verbose};
     unlink "src/Pugs/Run.hi";
     unlink "src/Pugs/Run.o";
+    unlink "dist/build/Pugs/Run.hi";
+    unlink "dist/build/Pugs/Run.o";
+    unlink "dist/build/src/Pugs/Run.hi";
+    unlink "dist/build/src/Pugs/Run.o";
     #unlink "pugs$Config::Config{_exe}";
     print STDERR "done.\n" if $Config{verbose};
 }
