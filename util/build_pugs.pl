@@ -130,9 +130,9 @@ sub write_buildinfo {
     open IN, "< Pugs.cabal.in" or die $!;
     open OUT, "> Pugs.cabal" or die $!;
 
-    my $depends = 'unix -any';
+    my $depends = ', unix -any';
     if ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) {
-        $depends = 'Win32 -any';
+        $depends = ', Win32 -any' unless $ghc_version =~ /^6.4(?:.0)$/;
     }
 
     if (grep /^readline$/, @_) {
