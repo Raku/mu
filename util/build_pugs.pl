@@ -7,6 +7,9 @@ use File::Path qw(mkpath rmtree);
 
 our %BuildPrefs;
 use Config;
+use FindBin;
+BEGIN { chdir $FindBin::RealBin; chdir '..'; };
+use lib 'inc';
 use PugsBuild::Config;
 
 help() if ($ARGV[0] || '--help') =~ /^--?h(?:elp)?/i;
@@ -71,8 +74,14 @@ sub build_lib {
     my $version = shift;
     my $ghc     = shift;
     my $setup   = shift;
-    system $setup, 'build'; # , '--verbose';
+
     my $ar = $Config{full_ar};
+    my $a_file = "dist/build/libHSPugs-$version.a";
+
+    unlink $a_file;
+    system($setup, 'build'); # , '--verbose';
+    die "Build failed: $?" unless -e $a_file;
+
     if (!$ar) {
         $ar = $ghc;
         $ar =~ s{(.*)ghc}{$1ar};
@@ -86,7 +95,7 @@ sub build_lib {
 
     system(
         $ar,
-        r => "dist/build/libHSPugs-$version.a", "dist/build/src/Data/Yaml/Syck_stub.o"
+        r => $a_file, "dist/build/src/Data/Yaml/Syck_stub.o"
     );
 }
 
@@ -104,7 +113,9 @@ sub build_exe {
         push @pkgs, -package => 'unix';
     }
     push @pkgs, -package => 'readline' if grep /^readline$/, @_;
-    system $ghc, @pkgs, qw(-idist/build -idist/build -Ldist/build -o pugs src/Main.hs), "-lHSPugs-$version";
+    print "*** Building: ", join(' ', $ghc, @pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -o pugs src/Main.hs), "-lHSPugs-$version"), $/;
+    system $ghc, @pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -o pugs src/Main.hs), "-lHSPugs-$version";
+    die "Build failed: $?" unless -e "pugs$Config{_exe}";
 }
 
 sub write_buildinfo { 
