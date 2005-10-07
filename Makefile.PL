@@ -79,7 +79,8 @@ clean_files     (map fixpaths($_),
     'tmp-Prelude.pm',
 	'Pugs.cabal',
 	'Setup.hi',
-	'Setup'
+	'Setup',
+	'.setup-config';
 );
 
 set_postamble   ();
