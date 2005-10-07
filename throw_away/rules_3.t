@@ -36,9 +36,9 @@ ok((not ("ABD" ~~ rx:i/a<-[bc]>d/)), 're_tests 456  (#566)');
 # 315: 'a[^-b]c'i    ADC    y    $&    ADC
 is(("ADC" ~~ rx:i/a<-[\-b]>c/ && $<>), "ADC", 're_tests 458/0 (#568)', :todo<feature>);
 # 316: 'a[^-b]c'i    A-C    n    -    -
-ok((not ("A-C" ~~ rx:i/a<-[\-b]>c/)), 're_tests 460  (#570)', :todo<feature>);
+ok((not ("A-C" ~~ rx:i/a<-[\-b]>c/)), 're_tests 460  (#570)');
 # 317: 'a[^]b]c'i    A]C    n    -    -
-ok((not ("A]C" ~~ rx:i/a<-[\]b]>c/)), 're_tests 462  (#572)', :todo<feature>);
+ok((not ("A]C" ~~ rx:i/a<-[\]b]>c/)), 're_tests 462  (#572)');
 # 318: 'a[^]b]c'i    ADC    y    $&    ADC
 is(("ADC" ~~ rx:i/a<-[\]b]>c/ && $<>), "ADC", 're_tests 464/0 (#574)', :todo<feature>);
 # 319: 'ab|cd'i    ABC    y    $&    AB
@@ -64,7 +64,7 @@ is(("AB" ~~ rx:i/a\(*b/ && $<>), "AB", 're_tests 476/0 (#590)', :todo<feature>);
 # 328: 'a\(*b'i    A((B    y    $&    A((B
 is(("A((B" ~~ rx:i/a\(*b/ && $<>), "A((B", 're_tests 478/0 (#592)', :todo<feature>);
 # 329: 'a\\b'i    A\B    y    $&    A\B
-is(("A\B" ~~ rx:i/a\\b/ && $<>), "A\B", 're_tests 480/0 (#594)', :todo<feature>);
+is(("A\\B" ~~ rx:i/a\\b/ && $<>), "A\\B", 're_tests 480/0 (#594)', :todo<feature>);
 # 330: 'abc)'i    -    c    -    Unmatched )
 # -- SKIPPED - TESTS ERROR MESSAGE
 # 331: '(abc'i    -    c    -    Unmatched (
@@ -295,9 +295,9 @@ ok((not ("aaaaaaaaaaa" ~~ /^(a$0?)**{4}$/)), 're_tests 638  (#822)');
 # 422: ^(a(?(1)\1)){4}$    aaaaaaaaaa    y    $0    aaaa
 is(("aaaaaaaaaa" ~~ /^(a[ <(defined $0)> :: $0 ])**{4}$/ && $0), "aaaa", 're_tests 640/1 (#824)', :todo<feature>);
 # 423: ^(a(?(1)\1)){4}$    aaaaaaaaa    n    -    -
-ok((not ("aaaaaaaaa" ~~ /^(a[ <(defined $0)> :: $0 ])**{4}$/)), 're_tests 642  (#826)');
+ok((not ("aaaaaaaaa" ~~ /^(a[ <(defined $0)> :: $0 ])**{4}$/)), 're_tests 642  (#826)', :todo<feature>);
 # 424: ^(a(?(1)\1)){4}$    aaaaaaaaaaa    n    -    -
-ok((not ("aaaaaaaaaaa" ~~ /^(a[ <(defined $0)> :: $0 ])**{4}$/)), 're_tests 644  (#828)');
+ok((not ("aaaaaaaaaaa" ~~ /^(a[ <(defined $0)> :: $0 ])**{4}$/)), 're_tests 644  (#828)', :todo<feature>);
 # 425: ((a{4})+)    aaaaaaaaa    y    $0    aaaaaaaa
 is(("aaaaaaaaa" ~~ /((a**{4})+)/ && $0), "aaaaaaaa", 're_tests 646/1 (#830)');
 # 426: (((aa){2})+)    aaaaaaaaaa    y    $0    aaaaaaaa
@@ -310,13 +310,13 @@ is(("aaaaaaaaaa" ~~ /(((a**{2})**{2})+)/ && $0), "aaaaaaaa", 're_tests 650/1 (#8
 # 429: (?<=a)b    ab    y    $&    b
 is(("ab" ~~ /<after a>b/ && $<>), "b", 're_tests 652/0 (#836)', :todo<feature>);
 # 430: (?<=a)b    cb    n    -    -
-ok((not ("cb" ~~ /<after a>b/)), 're_tests 654  (#838)');
+ok((not ("cb" ~~ /<after a>b/)), 're_tests 654  (#838)', :todo<feature>);
 # 431: (?<=a)b    b    n    -    -
-ok((not ("b" ~~ /<after a>b/)), 're_tests 656  (#840)');
+ok((not ("b" ~~ /<after a>b/)), 're_tests 656  (#840)', :todo<feature>);
 # 432: (?<!c)b    ab    y    $&    b
 is(("ab" ~~ /<!after c>b/ && $<>), "b", 're_tests 658/0 (#842)', :todo<feature>);
 # 433: (?<!c)b    cb    n    -    -
-ok((not ("cb" ~~ /<!after c>b/)), 're_tests 660  (#844)');
+ok((not ("cb" ~~ /<!after c>b/)), 're_tests 660  (#844)', :todo<feature>);
 # 434: (?<!c)b    b    y    -    -
 ok(("b" ~~ /<!after c>b/), 're_tests 662  (#846)', :todo<feature>);
 # 435: (?<!c)b    b    y    $&    b
@@ -333,11 +333,11 @@ is(("abc" ~~ /^[b|a<before (\N)>]*$0/ && $<>), "ab", 're_tests 670/0 (#854)', :t
 # SKIPPED: script doesn't understand `a$0' yet
 # SKIPPED: script doesn't understand `a$0' yet
 # 441: ^(a+)*ax    aax    y    $0    a
-is(("aax" ~~ /^(a+)*ax/ && $0), "a", 're_tests 672/1 (#856)');
+is(("aax" ~~ /^(a+)*ax/ && $0), "a", 're_tests 672/1 (#856)', :todo<bug>);
 # 442: ^((a|b)+)*ax    aax    y    $0    a
-is(("aax" ~~ /^((a|b)+)*ax/ && $0), "a", 're_tests 674/1 (#858)');
+is(("aax" ~~ /^((a|b)+)*ax/ && $0), "a", 're_tests 674/1 (#858)', :todo<bug>);
 # 443: ^((a|bc)+)*ax    aax    y    $0    a
-is(("aax" ~~ /^((a|bc)+)*ax/ && $0), "a", 're_tests 676/1 (#860)');
+is(("aax" ~~ /^((a|bc)+)*ax/ && $0), "a", 're_tests 676/1 (#860)', :todo<bug>);
 # 444: (a|x)*ab    cab    y    y$0    y
 # SKIPPED: script doesn't understand `y$0' yet
 # SKIPPED: script doesn't understand `y$0' yet

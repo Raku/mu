@@ -25,7 +25,7 @@ is(("ab" ~~ /(a+|b)*/ && $0[-1]), "b", 're_tests 218/1 (#262)');
 is(("ab" ~~ /(a+|b)*/ && $/.from), 0, 're_tests 220/0 (#264)');
 # 160: (a+|b)*    ab    y    $-[1]    1
 # 161: (a+|b)*    ab    y    $+[1]    2 # SKIP
-is(("ab" ~~ /(a+|b)*/ && $/[0].from), 1, 're_tests 222/1 (#266)', :todo<bug>);
+is(("ab" ~~ /(a+|b)*/ && $/[0][1].from), 1, 're_tests 222/1 (#266)');
 # 162: (a+|b){0,}    ab    y    $&-$0    ab-b
 is(("ab" ~~ /(a+|b)**{0...}/ && $<>), "ab", 're_tests 224/0 (#269)');
 is(("ab" ~~ /(a+|b)**{0...}/ && $0), "b", 're_tests 224/1 (#270)');
@@ -54,7 +54,7 @@ is(("abbbcd" ~~ /(<[abc]>)*d/ && $<>), "abbbcd", 're_tests 240/0 (#295)');
 is(("abbbcd" ~~ /(<[abc]>)*d/ && $0[-1]), "c", 're_tests 240/1 (#296)');
 # 172: ([abc])*bcd    abcd    y    $&-$0    abcd-a
 is(("abcd" ~~ /(<[abc]>)*bcd/ && $<>), "abcd", 're_tests 242/0 (#299)');
-is(("abcd" ~~ /(<[abc]>)*bcd/ && $0), "a", 're_tests 242/1 (#300)');
+is(("abcd" ~~ /(<[abc]>)*bcd/ && $0[0]), "a", 're_tests 242/1 (#300)');
 # 173: a|b|c|d|e    e    y    $&    e
 is(("e" ~~ /a|b|c|d|e/ && $<>), "e", 're_tests 244/0 (#302)');
 # 174: (a|b|c|d|e)f    ef    y    $&-$0    ef-e
@@ -146,13 +146,14 @@ is(("abcd" ~~ /((a)(b)c)(d)/ && $/.from), 0, 're_tests 298/0 (#382)');
 is(("abcd" ~~ /((a)(b)c)(d)/ && $/[0].from), 0, 're_tests 300/1 (#384)');
 # 216: ((a)(b)c)(d)    abcd    y    $-[2]    0
 # 217: ((a)(b)c)(d)    abcd    y    $+[2]    1 # SKIP
-is(("abcd" ~~ /((a)(b)c)(d)/ && $/[1].from), 0, 're_tests 302/2 (#386)', :todo<bug>);
+is(("abcd" ~~ /((a)(b)c)(d)/ && $/[0].from), 0, 're_tests 302/2 (#386)');
+is(("abcd" ~~ /((a)(b)c)(d)/ && $/[0][0].from), 0, 're_tests 302/3 (#386)');
 # 218: ((a)(b)c)(d)    abcd    y    $-[3]    1
 # 219: ((a)(b)c)(d)    abcd    y    $+[3]    2 # SKIP
-is(("abcd" ~~ /((a)(b)c)(d)/ && $/[2].from), 1, 're_tests 304/3 (#388)', :todo<bug>);
+is(("abcd" ~~ /((a)(b)c)(d)/ && $/[0][1].from), 1, 're_tests 304/3 (#388)');
 # 220: ((a)(b)c)(d)    abcd    y    $-[4]    3
 # 221: ((a)(b)c)(d)    abcd    y    $+[4]    4 # SKIP
-is(("abcd" ~~ /((a)(b)c)(d)/ && $/[3].from), 3, 're_tests 306/4 (#390)', :todo<bug>);
+is(("abcd" ~~ /((a)(b)c)(d)/ && $/[1].from), 3, 're_tests 306/4 (#390)');
 # 222: [a..zA..Z_][a..zA..Z0..9_]*    alpha    y    $&    alpha
 is(("alpha" ~~ /<[a..zA..Z_]><[a..zA..Z0..9_]>*/ && $<>), "alpha", 're_tests 308/0 (#392)');
 # 223: ^a(bc+|b[eh])g|.h$    abh    y    $&-$0    bh-
@@ -165,7 +166,7 @@ is(("effgz" ~~ /(bc+d$|ef*g\N|h?i(j|k))/ && $1), "", 're_tests 312/2 (#402)');
 # 225: (bc+d$|ef*g.|h?i(j|k))    ij    y    $&-$0-$1    ij-ij-j
 is(("ij" ~~ /(bc+d$|ef*g\N|h?i(j|k))/ && $<>), "ij", 're_tests 314/0 (#406)');
 is(("ij" ~~ /(bc+d$|ef*g\N|h?i(j|k))/ && $0), "ij", 're_tests 314/1 (#407)');
-is(("ij" ~~ /(bc+d$|ef*g\N|h?i(j|k))/ && $1), "j", 're_tests 314/2 (#408)', :todo<bug>);
+is(("ij" ~~ /(bc+d$|ef*g\N|h?i(j|k))/ && $/[0][0]), "j", 're_tests 314/2 (#408)');
 # 226: (bc+d$|ef*g.|h?i(j|k))    effg    n    -    -
 ok((not ("effg" ~~ /(bc+d$|ef*g\N|h?i(j|k))/)), 're_tests 316  (#410)');
 # 227: (bc+d$|ef*g.|h?i(j|k))    bcdd    n    -    -
@@ -175,7 +176,7 @@ is(("reffgz" ~~ /(bc+d$|ef*g\N|h?i(j|k))/ && $<>), "effgz", 're_tests 320/0 (#41
 is(("reffgz" ~~ /(bc+d$|ef*g\N|h?i(j|k))/ && $0), "effgz", 're_tests 320/1 (#417)');
 is(("reffgz" ~~ /(bc+d$|ef*g\N|h?i(j|k))/ && $1), "", 're_tests 320/2 (#418)');
 # 229: ((((((((((a))))))))))    a    y    $00    a
-is(("a" ~~ /((((((((((a))))))))))/ && $00), "a", 're_tests 322/10 (#420)');
+is(("a" ~~ /((((((((((a))))))))))/ && $0), "a", 're_tests 322/10 (#420)');
 # 230: ((((((((((a))))))))))    a    y    $-[0]    0
 # 231: ((((((((((a))))))))))    a    y    $+[0]    1 # SKIP
 is(("a" ~~ /((((((((((a))))))))))/ && $/.from), 0, 're_tests 324/0 (#422)');
@@ -183,7 +184,7 @@ is(("a" ~~ /((((((((((a))))))))))/ && $/.from), 0, 're_tests 324/0 (#422)');
 # 233: ((((((((((a))))))))))    a    y    $+[10]    1 # SKIP
 is(("a" ~~ /((((((((((a))))))))))/ && $/[0].from), 0, 're_tests 326/10 (#424)');
 # 234: ((((((((((a))))))))))\10    aa    y    $&    aa
-is(("aa" ~~ /((((((((((a))))))))))$00/ && $<>), "aa", 're_tests 328/0 (#426)');
+is(("aa" ~~ /((((((((((a))))))))))$0/ && $<>), "aa", 're_tests 328/0 (#426)');
 # 235: ((((((((((a))))))))))${bang}    aa    n    -    -
 # -- SKIPPED - p5re_to_p6rule doesn't support this yet
 # 236: ((((((((((a))))))))))${bang}    a!    y    $&    a!
@@ -229,7 +230,7 @@ is(("abcabc" ~~ /(<[a..c]>*)$0/ && $0), "abc", 're_tests 346/1 (#448)');
 # 253: (([a-c])b*?\2)*    ababbbcbc    y    $&-$0-$1    ababb-bb-b
 is(("ababbbcbc" ~~ /((<[a..c]>)b*?$1)*/ && $<>), "ababb", 're_tests 352/0 (#456)', :todo<feature>);
 is(("ababbbcbc" ~~ /((<[a..c]>)b*?$1)*/ && $0), "bb", 're_tests 352/1 (#457)', :todo<feature>);
-is(("ababbbcbc" ~~ /((<[a..c]>)b*?$1)*/ && $1), "b", 're_tests 352/2 (#458)', :todo<feature>);
+is(("ababbbcbc" ~~ /((<[a..c]>)b*?$1)*/ && $0[0]), "b", 're_tests 352/2 (#458)', :todo<feature>);
 # 254: (([a-c])b*?\2){3}    ababbbcbc    y    $&-$0-$1    ababbbcbc-cbc-c
 is(("ababbbcbc" ~~ /((<[a..c]>)b*?$1)**{3}/ && $<>), "ababbbcbc", 're_tests 354/0 (#462)', :todo<feature>);
 is(("ababbbcbc" ~~ /((<[a..c]>)b*?$1)**{3}/ && $0), "cbc", 're_tests 354/1 (#463)', :todo<feature>);
@@ -251,7 +252,7 @@ is(("b" ~~ /(a)|(b)/ && $/.from), 0, 're_tests 358/0 (#468)');
 # SKIPPED: script doesn't understand `x$-[1]' yet
 # 262: (a)|(b)    b    y    $-[2]    0
 # 263: (a)|(b)    b    y    $+[2]    1 # SKIP
-is(("b" ~~ /(a)|(b)/ && $/[1].from), 0, 're_tests 360/2 (#470)');
+is(("b" ~~ /(a)|(b)/ && $/[1].from), 0, 're_tests 360/2 (#470)', :todo<bug>);
 # 264: 'abc'i    ABC    y    $&    ABC
 is(("ABC" ~~ rx:i/abc/ && $<>), "ABC", 're_tests 362/0 (#472)', :todo<feature>);
 # 265: 'abc'i    XBC    n    -    -
