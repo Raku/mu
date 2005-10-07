@@ -36,16 +36,30 @@ sub pretty_print {
 
 sub read {
     my($class, $filename) = @_;
+    my $config_default    = 'config.yml';
+    my $config_template   = 'util/config-template.yml';
+    $filename           ||= $ENV{PUGS_BUILD_CONFIG} || $config_default;
     my $stream;
     
-    if (!-e ($filename ||= ($ENV{PUGS_BUILD_CONFIG} || "config.yml"))) {
+    if (!-e $filename) {
         require File::Copy;
-        File::Copy::copy ('util/config-template.yml', $filename) or
+        File::Copy::copy ($config_template, $filename) or
             die "copy: $!";
         warn <<".";
+***
 Default build config file created. Edit your settings in $filename.
 .
     }       
+
+    if (-M $filename > -M $config_template) {
+        warn <<".";
+***
+Build config file '$filename' is older than template
+'$config_template'.
+
+You may wish to check for new settings.
+.
+    }
 
     open my $fh, $filename or die "open: $filename: $!";
     { local $/; $stream = <$fh> }
