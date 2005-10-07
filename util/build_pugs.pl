@@ -156,7 +156,7 @@ sub build_exe {
     push @pkgs, -package => 'readline' if grep /^readline$/, @_;
     my @libs = "-lHSPugs-$version";
     push @libs, grep /\.a$/, @_;
-    push @libs, grep /^-l/, @_;
+    push @libs, grep /^-[lL]/, @_;
 
     @_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -o pugs src/Main.hs), @libs);
     print "*** Building: ", join(' ', $ghc, @_), $/;
