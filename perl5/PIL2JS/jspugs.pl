@@ -29,6 +29,25 @@ our %cfg;
 $cfg{output} = "output.html";
 #$cfg{verbose}++;
 
+{
+  my $ignore_dash_B_arg_kludge = 0;
+  my @new_args;
+  while (@ARGV) {
+    if( $ARGV[0] eq '-B') {
+      $ignore_dash_B_arg_kludge = 1; shift(@ARGV); next;
+    } elsif( $ARGV[0] eq '-BJS' ) {
+      shift(@ARGV); next;
+    }
+
+    if( $ignore_dash_B_arg_kludge ) {
+      $ignore_dash_B_arg_kludge = 0; shift(@ARGV); next;
+    }
+
+    $ARGV[0] =~ /^--/ or last;
+    push @new_args, shift(@ARGV);
+  }
+  @ARGV = @new_args;
+}
 GetOptions(
   "js=s"          => \$cfg{js},
   "pugs=s"        => \$cfg{pugs},
