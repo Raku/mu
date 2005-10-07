@@ -107,10 +107,7 @@ sub build_lib {
       exit 1;
     }
 
-    copy(
-        $candidates[0],
-        "dist/build/src/Data/Yaml/Syck_stub.o"
-    );
+    copy($candidates[0] => $target);
 
     system(
         $ar,
