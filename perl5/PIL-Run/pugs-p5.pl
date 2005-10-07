@@ -4,8 +4,8 @@ use FindBin '$Bin';
 use lib ("$Bin/lib",
          "$Bin/../Perl6-Value/lib",
          "$Bin/../Perl6-Container/lib",
-         "$Bin/../Perl6-MetaModel2.0", # XXX
-         "$Bin/../Perl6-MetaModel2.0/lib");
+         "$Bin/../Perl6-MetaModel", # XXX
+         "$Bin/../Perl6-MetaModel/lib");
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Terse = 1;
