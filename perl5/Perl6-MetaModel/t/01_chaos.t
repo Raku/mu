@@ -6,7 +6,7 @@ use warnings;
 use Test::More tests => 52;
 use Test::Exception;
 
-require 'lib/chaos.pl';
+require Perl6::MetaModel::Chaos;
 
 ## test the opaque instance containers
 

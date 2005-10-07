@@ -6,7 +6,7 @@ use warnings;
 use Test::More tests => 72;
 use Test::Exception;
 
-require 'lib/metamorph.pl';
+require Perl6::MetaModel::Metamorph;
 
 sub lives_ok_and_is (&$;$) {
     my ($block, $expected, $message) = @_;

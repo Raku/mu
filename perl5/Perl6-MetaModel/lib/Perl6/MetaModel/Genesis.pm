@@ -2,8 +2,7 @@
 
 use strict;
 use warnings;
-
-BEGIN { require "lib/psyche.pl" };
+use Perl6::MetaModel::Psyche;
 
 ## ----------------------------------------------------------------------------
 ## now for some bootstrapping ....

@@ -9,5 +9,5 @@ use Test::Exception;
 # this loads all the libs in order ...
 
 lives_ok {
-    require 'lib/genesis.pl';
+    require Perl6::MetaModel::Genesis;
 } '... we can load genesis ok';

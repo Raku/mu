@@ -2,8 +2,7 @@
 
 use strict;
 use warnings;
-
-BEGIN { require "lib/pneuma.pl" };
+use Perl6::MetaModel::Pneuma;
 
 # This is psyche, this creates ::Role
 

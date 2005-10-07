@@ -2,8 +2,7 @@
 
 use strict;
 use warnings;
-
-BEGIN { require "lib/metamorph.pl" };
+use Perl6::MetaModel::Metamorph;
 
 # This is pneuma, this creates ::Object, ::Package and ::Module
 # (also the ::EigenClass too)

@@ -6,7 +6,7 @@ use warnings;
 use Test::More tests => 63;
 use Test::Exception; 
 
-require 'lib/genesis.pl'; 
+require Perl6::MetaModel::Genesis;
 
 is_deeply(
     $::Package->superclasses, 

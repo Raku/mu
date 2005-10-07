@@ -6,7 +6,7 @@ use warnings;
 use Test::More tests => 5;
 use Test::Exception;
 
-require 'lib/pneuma.pl'; 
+require Perl6::MetaModel::Pneuma;
 
 # check some methods
 

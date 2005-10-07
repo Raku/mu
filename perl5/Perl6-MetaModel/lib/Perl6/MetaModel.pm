@@ -10,7 +10,7 @@ our $VERSION = '2.00';
 
 sub import {
     # load the meta-model ..
-    require "lib/genesis.pl";    
+    require Perl6::MetaModel::Genesis;
     
     # export &class
     no strict 'refs';

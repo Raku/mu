@@ -2,8 +2,7 @@
 
 use strict;
 use warnings;
-
-BEGIN { require "lib/chaos.pl" };
+use Perl6::MetaModel::Chaos;
 
 # The 'Class' class -- placed here so ::create_class can refer to it
 $::Class = undef;

@@ -6,7 +6,7 @@ use warnings;
 use Test::More tests => 24;
 use Test::Exception; 
 
-require 'lib/genesis.pl';
+require Perl6::MetaModel::Genesis;
 
 # Now try to create a new class ....
 

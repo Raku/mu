@@ -6,7 +6,7 @@ use warnings;
 use Test::More tests => 19;
 use Test::Exception; 
 
-require 'lib/genesis.pl';
+require Perl6::MetaModel::Genesis;
 
 =pod
 

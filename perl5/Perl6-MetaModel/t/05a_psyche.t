@@ -6,7 +6,7 @@ use warnings;
 use Test::More tests => 11;
 use Test::Exception; 
 
-require 'lib/genesis.pl'; 
+require Perl6::MetaModel::Genesis;
 
 ok($::Class->does('Role'), '... $::Class does Role');
 ok($::Role->does('Role'), '... $::Role does Role'); 

@@ -2,8 +2,7 @@
 
 use strict;
 use warnings;
-
-BEGIN { require "lib/gnosis.pl" };
+use Perl6::MetaModel::Gnosis;
 
 # ... this constructs the rest of the ::Class
 # the result of this file is the (demiurge)
