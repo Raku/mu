@@ -47,28 +47,34 @@ sub build {
         my $ppc_hs = "src/Pugs/PreludePC.hs";
         my $ppc_null = "src/Pugs/PreludePC.hs-null";
         if (-e $ppc_hs and -s $ppc_hs > -s $ppc_null and -M $ppc_hs < -M $pm) {
-            build_lib($setup);
+            build_lib($ghc, $setup);
             build_exe($ghc, @args);
             return;
         }
     }
 
     run($^X, qw<util/gen_prelude.pl -v --touch --null --output src/Pugs/PreludePC.hs>);
-    build_lib($setup);
+    build_lib($ghc, $setup);
     build_exe($ghc, @args);
 
     if (PugsBuild::Config->lookup('precompile_prelude')) {
         run($^X, qw<util/gen_prelude.pl -v -i src/perl6/Prelude.pm>,
                 (map { ('-i' => $_) } @{ PugsBuild::Config->lookup('precompile_modules') }),
                 '-p', $thispugs, qw<--touch --output src/Pugs/PreludePC.hs>);
-        build_lib($setup);
+        build_lib($ghc, $setup);
         build_exe($ghc, @args);
     }
 }
 
 sub build_lib {
+    my $ghc = shift;
     my $setup = shift;
     system $setup, 'build', '--verbose';
+    my $ar = $Config{full_ar};
+    if (!$ar) {
+        $ar = $ghc;
+        $ar =~ s{(.*)ghc}{$1ar};
+    }
     system("ar r dist/build/libHSPugs-6.2.10.a ./dist/build/src/src/Data/Yaml/Syck_stub.o");
 }
 
