@@ -1,8 +1,13 @@
 Changes
+lib/Perl6/Code.pm
+lib/Perl6/Junction.pm
+lib/Perl6/Value.pm
+lib/Perl6/Value/List.pm
 Makefile.PL
 MANIFEST
 README
-lib/Perl6/Value/List.pm
-t/array-lazy.t
-t/array-operations.t
-
+t/code.t
+t/item-boxed.t
+t/item-functions.t
+t/list-lazy.t
+t/list-operations.t
