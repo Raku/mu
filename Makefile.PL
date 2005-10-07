@@ -169,8 +169,8 @@ sub set_postamble {
     my $ccdlflags = "";
 
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/i  and !($Config{cc} eq 'cl') )  {
-        push @prereqs, "src/perl5/perl5.o"; # XXX
-        # $ghc_output .= " src/perl5/perl5.o ";
+        push @prereqs, "src/perl5/p5embed.o"; # XXX
+        # $ghc_output .= " src/perl5/p5embed.o ";
         $ghc_flags .= " -DPUGS_HAVE_PERL5 ";
         my $flags = "$Config{ccflags} $Config{ccdlflags}";
         if ($flags =~ /\S/) {
@@ -331,8 +331,8 @@ $version_h : .svn/entries util/version_h.pl
 
 @{[join("\n", map {$emit->($_)} ($unicode_c, $pcre_c, @cbits_c))]}
 
-src/perl5/perl5.o : src/perl5/perl5.h src/perl5/perlxsi.c src/perl5/perl5.c src/perl5/pugsembed.c src/perl5/pugsembed.h
-	$ghc $threaded $ghc_flags -no-link -no-hs-main -O -o src/perl5/perl5.o src/perl5/perl5.c
+src/perl5/p5embed.o : src/perl5/p5embed.h src/perl5/perlxsi.c src/perl5/p5embed.c src/perl5/pugsembed.c src/perl5/pugsembed.h
+	$ghc $threaded $ghc_flags -no-link -no-hs-main -O -o src/perl5/p5embed.o src/perl5/p5embed.c
 
 src/Pugs/Config.hs : util/PugsConfig.pm
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs

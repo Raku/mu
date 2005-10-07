@@ -1,4 +1,4 @@
-#include "perl5.h"
+#include "p5embed.h"
 #include <HsFFI.h>
 
 #ifndef PugsValDefined

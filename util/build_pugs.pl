@@ -177,7 +177,7 @@ sub write_buildinfo {
 
     my $perl5_c = '';
     if (grep /^-DPUGS_HAVE_PERL5$/, @_) {
-        $perl5_c = 'src/perl5/perl5.c';
+        $perl5_c = 'src/perl5/p5embed.c';
     }
 
     my @include_dirs = map substr($_, 2), grep /^-I/, @_;

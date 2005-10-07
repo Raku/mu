@@ -1,4 +1,4 @@
-#include <perl5.h>
+#include <p5embed.h>
 #include <XSUB.h>
 #include "perlxsi.c"
 #include "pugsembed.c"
