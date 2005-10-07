@@ -60,7 +60,7 @@ sub is_deeply(Any $wanted, Any $got, Str ?$desc, +$todo, +$depends) returns Bool
 
 sub isnt (Str $got, Str $expected, Str ?$desc, +$todo, +$depends) returns Bool is export {
     my $test := not($got eq $expected);
-    Test::proclaim($test, "Should not match: $desc", $todo, $got, $expected, $depends);
+    Test::proclaim($test, "Should not match: $desc", $todo, $got, $expected, $depends, :negate);
 }
 
 ## like
@@ -74,7 +74,7 @@ sub like (Str $got, Rule $expected, Str ?$desc, +$todo, +$depends) returns Bool 
 
 sub unlike (Str $got, Rule $expected, Str ?$desc, +$todo, +$depends) returns Bool is export {
     my $test := not($got ~~ $expected);
-    Test::proclaim($test, $desc, $todo, $got, $expected, $depends);
+    Test::proclaim($test, $desc, $todo, $got, $expected, $depends, :negate);
 }
 
 ## eval_ok
@@ -210,7 +210,7 @@ sub diag (Str $diag) is export {
 
 ## 'private' subs
 
-sub proclaim (Bool $cond, Str ?$desc is copy, ?$todo, Str ?$got, Str ?$expected, ?$depends) returns Bool {
+sub proclaim (Bool $cond, Str ?$desc is copy, ?$todo, Str ?$got, Str ?$expected, ?$depends, ?$negate) returns Bool {
     $Test::testing_started = 1;
     $Test::num_of_tests_run++;
 
@@ -246,12 +246,12 @@ sub proclaim (Bool $cond, Str ?$desc is copy, ?$todo, Str ?$got, Str ?$expected,
     print "not " unless $cond;
     say "ok ", $Test::num_of_tests_run, $out, $context_out;
 
-    Test::report_failure($context, $got, $expected) unless $cond;
+    Test::report_failure($context, $got, $expected, $negate) unless $cond;
 
     return $cond;
 }
 
-sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool {
+sub report_failure (Str ?$todo, Str ?$got, Str ?$expected, Bool ?$negate) returns Bool {
     if ($todo) {
         Test::diag("  Failed ($todo) test ($?CALLER::CALLER::CALLER::POSITION)");
     }
@@ -259,15 +259,16 @@ sub report_failure (Str ?$todo, Str ?$got, Str ?$expected) returns Bool {
         Test::diag("  Failed test ($?CALLER::CALLER::CALLER::POSITION)");
         $Test::num_of_tests_failed++;
     }
+    my $wanted = $negate ?? "Unwanted" !! "Expected";
 
     # As PIL2JS doesn't support junctions yet, skip the junction part when
     # running under PIL2JS.
     if ($*OS eq "browser" or $?CALLER::CALLER::SUBNAME eq ('&Test::is' | '&Test::isnt' | '&Test::cmp_ok' | '&Test::eval_is' | '&Test::isa_ok' | '&Test::is_deeply' | '&Test::todo_is' | '&Test::todo_isnt' | '&Test::todo_cmp_ok' | '&Test::todo_eval_is' | '&Test::todo_isa_ok')) {
-        Test::diag("  Expected: '" ~ ($expected.defined ?? $expected !! "undef") ~ "'");
-        Test::diag("       Got: '" ~ ($got.defined ?? $got !! "undef") ~ "'");
+        Test::diag("  $wanted: '" ~ ($expected.defined ?? $expected !! "undef") ~ "'");
+        Test::diag("    Actual: '" ~ ($got.defined ?? $got !! "undef") ~ "'");
     }
     else {
-        Test::diag("       Got: " ~ ($got.defined ?? $got !! "undef"));
+        Test::diag("    Actual: " ~ ($got.defined ?? $got !! "undef"));
     }
 }
 
@@ -522,6 +523,8 @@ Nathan Gray <kolibrie@graystudios.org>
 Max Maischein <corion@cpan.org>
 
 Ingo Blechschmidt <iblech@web.de>
+
+Gaal Yahas <gaal@forum2.org>
 
 = COPYRIGHT
 
