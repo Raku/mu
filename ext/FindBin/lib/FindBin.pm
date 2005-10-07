@@ -30,6 +30,8 @@ sub init {
         # XXX: Insert VMS support here
 
         my Int $dosish = ( $?OS eq 'MSWin32' or $?OS eq 'os2' );
+        &readlink := { undef } if $dosish;
+
         unless ( ( $script ~~ m:P5#/# || ( $dosish && $script ~~ m:P5#\\# ) )
                  && -f $script )
         {
