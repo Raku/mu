@@ -1395,10 +1395,7 @@ objectFinalizer env obj = do
 initSyms :: STM [Pad -> Pad]
 initSyms = mapM primDecl syms
     where
-    normalize "" = ""
-    normalize ('\\':'n':xs) = ('\n':normalize xs)
-    normalize (x:xs) = (x:normalize xs)
-    syms = filter (not . null) . lines . normalize $ decodeUTF8 "\
+    syms = filter (not . null) . lines $ decodeUTF8 "\
 \\n   Bool      spre    !       safe   (Bool)\
 \\n   Num       spre    +       safe   (Num)\
 \\n   Num       pre     abs     safe   (?Num=$_)\
