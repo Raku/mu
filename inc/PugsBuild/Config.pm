@@ -4,6 +4,7 @@ use warnings;
 our $VERSION = '0.01';
 
 use File::Copy;
+use File::Spec;
 
 # change these two lines if it turns out we need the real YAML.pm
 use PugsBuild::MiniYAML ();
@@ -37,7 +38,7 @@ sub pretty_print {
 sub read {
     my($class, $filename) = @_;
     my $config_default    = 'config.yml';
-    my $config_template   = 'util/config-template.yml';
+    my $config_template   = File::Spec->canonpath('util/config-template.yml');
     $filename           ||= $ENV{PUGS_BUILD_CONFIG} || $config_default;
     my $stream;
     
