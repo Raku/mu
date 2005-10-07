@@ -516,7 +516,9 @@ sub parrot_config {
     my $sp_base = $base;
     $sp_base =~ s{\\}{\/}g;
     chdir( $sp_base ) or die "Can't change dir to '$sp_base'";
-    my $value = `./parrot parrot-config.imc $config`;
+    my $parrot = "parrot$Config{_exe}";
+    $parrot = "bin/$parrot" if not -e $parrot;
+    my $value = `$parrot parrot-config.imc $config`;
     chomp($value);
     chdir( $ac_path ) or die "Can't change dir to '$ac_path'";
     return $value;
