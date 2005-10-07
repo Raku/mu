@@ -71,7 +71,7 @@ sub build_lib {
     my $version = shift;
     my $ghc     = shift;
     my $setup   = shift;
-    system $setup, 'build', '--verbose';
+    system $setup, 'build'; # , '--verbose';
     my $ar = $Config{full_ar};
     if (!$ar) {
         $ar = $ghc;
