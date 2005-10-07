@@ -80,7 +80,7 @@ clean_files     (map fixpaths($_),
 	'Pugs.cabal',
 	'Setup.hi',
 	'Setup',
-	'.setup-config';
+	'.setup-config'
 );
 
 set_postamble   ();
