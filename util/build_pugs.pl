@@ -89,6 +89,10 @@ sub build_lib {
 
     # XXX - work around Cabal bug
     copy(
+        "dist/build/src/Syck_stub.o",
+        "dist/build/src/Data/Yaml/Syck_stub.o"
+    );
+    copy(
         "dist/build/src/src/Data/Yaml/Syck_stub.o",
         "dist/build/src/Data/Yaml/Syck_stub.o"
     );
