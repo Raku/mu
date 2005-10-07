@@ -46,26 +46,28 @@ sub read {
         File::Copy::copy ($config_template, $filename) or
             die "copy: $!";
         warn <<".";
-***
-Default build config file created. Edit your settings in $filename.
+*** Default build config file created. Edit your settings in $filename.
 .
     }       
-
-    if (-M $filename > -M $config_template) {
-        warn <<".";
-***
-Build config file '$filename' is older than template
-'$config_template'.
-
-You may wish to check for new settings.
-.
-    }
 
     open my $fh, $filename or die "open: $filename: $!";
     { local $/; $stream = <$fh> }
     my $conf = $YAML->load($stream);
-    $class->env_override($conf);
     
+    if (-M $filename > -M $config_template) {
+        warn <<".";
+*** Build config file '$filename' is older than template
+    '$config_template'.  I will merge them for you, but
+    you may wish to check for new settings.
+
+.
+        open my $tpl, $config_template or die "open: $config_template: $!";
+        my $tpl_stream = do { local $/; <$tpl> };
+        my $tpl_config = $YAML->load($stream);
+        $conf = { %$tpl_config, %$conf };
+    }
+
+    $class->env_override($conf);
     $class->defaults($conf);
     return $conf;
 }
