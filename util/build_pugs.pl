@@ -52,21 +52,21 @@ sub build {
         my $ppc_hs = "src/Pugs/PreludePC.hs";
         my $ppc_null = "src/Pugs/PreludePC.hs-null";
         if (-e $ppc_hs and -s $ppc_hs > -s $ppc_null and -M $ppc_hs < -M $pm) {
-            build_lib($version, $ghc, $setup);
+            build_lib($version, $ghc, $setup, @args);
             build_exe($version, $ghc, $ghc_version, @args);
             return;
         }
     }
 
     run($^X, qw<util/gen_prelude.pl -v --touch --null --output src/Pugs/PreludePC.hs>);
-    build_lib($version, $ghc, $setup);
+    build_lib($version, $ghc, $setup, @args);
     build_exe($version, $ghc, $ghc_version, @args);
 
     if (PugsBuild::Config->lookup('precompile_prelude')) {
         run($^X, qw<util/gen_prelude.pl -v -i src/perl6/Prelude.pm>,
                 (map { ('-i' => $_) } @{ PugsBuild::Config->lookup('precompile_modules') }),
                 '-p', $thispugs, qw<--touch --output src/Pugs/PreludePC.hs>);
-        build_lib($version, $ghc, $setup);
+        build_lib($version, $ghc, $setup, @args);
         build_exe($version, $ghc, $ghc_version, @args);
     }
 }
@@ -88,31 +88,41 @@ sub build_lib {
         $ar =~ s{(.*)ghc}{$1ar};
     }
 
-    # XXX - work around Cabal bug --
-    # we have to locate "Syck_stub.o" and copy it into
-    # dist/build/src/Data/Yaml/.
-    my @candidates;
-    my $target = File::Spec->canonpath("dist/build/src/Data/Yaml/Syck_stub.o");
-    my $wanted = sub {
-      return unless $_ eq "Syck_stub.o";
-      return if     File::Spec->canonpath($File::Find::name) eq $target;
-      push @candidates, $File::Find::name;
+    my $fixup = sub {
+        my $module = shift; # eg. "Data.Yaml.Syck"
+        my $pathname = $module;
+        $pathname =~ s!\.!/!g;
+        $pathname .= '_stub.o';
+        my $basename = $pathname;
+        $basename =~ s!.*/!!;
+
+        # XXX - work around Cabal bug --
+        # we have to locate "Syck_stub.o" and copy it into
+        # dist/build/src/Data/Yaml/.
+        my @candidates;
+        my $target = File::Spec->canonpath("dist/build/src/$pathname");
+        my $wanted = sub {
+            return unless $_ eq $basename;
+            return if     File::Spec->canonpath($File::Find::name) eq $target;
+            push @candidates, $File::Find::name;
+        };
+        find $wanted, "dist";
+
+        if (@candidates > 1) {
+            warn "*** Found more than one '$basename' -- using first one. \n";
+        }
+        elsif (@candidates == 0) {
+            die "*** Wasn't able to find '$basename', aborting...\n";
+        }
+
+        copy($candidates[0] => $target);
+        system($ar, r => $a_file, "dist/build/src/$pathname");
     };
-    find $wanted, "dist";
 
-    if(@candidates > 1) {
-      warn "*** Found more than one 'Syck_stub.o' -- using first one\n";
-    } elsif(@candidates == 0) {
-      warn "*** Wasn't able to find 'Syck_stub.o', aborting...\n";
-      exit 1;
-    }
+    $fixup->('Data.Yaml.Syck');
+    $fixup->('Pugs.Embed.Perl5') if grep /^-DPUGS_HAVE_PERL5$/, @_;
 
-    copy($candidates[0] => $target);
-
-    system(
-        $ar,
-        r => $a_file, "dist/build/src/Data/Yaml/Syck_stub.o"
-    );
+    system($ar, r => $a_file, $_) for grep /\.(?:o(?:bj)?)$/, @_;
 }
 
 sub build_exe {
@@ -130,8 +140,14 @@ sub build_exe {
         push @pkgs, -package => 'unix';
     }
     push @pkgs, -package => 'readline' if grep /^readline$/, @_;
-    print "*** Building: ", join(' ', $ghc, @pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -o pugs src/Main.hs), "-lHSPugs-$version"), $/;
-    system $ghc, @pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -o pugs src/Main.hs), "-lHSPugs-$version";
+    my @libs = "-lHSPugs-$version";
+    push @libs, grep /\.a$/, @_;
+    push @libs, grep /^-l/, @_;
+
+    @_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -o pugs src/Main.hs), @libs);
+    print "*** Building: ", join(' ', $ghc, @_), $/;
+    system $ghc, @_;
+
     die "Build failed: $?" unless -e "pugs$Config{_exe}";
 }
 
@@ -165,9 +181,9 @@ sub write_buildinfo {
     }
 
     my @include_dirs = map substr($_, 2), grep /^-I/, @_;
-    my @libs = map substr($_, 2), grep /^-l/, @_;
     my @lib_dirs = map substr($_, 2), grep /^-L/, @_;
-    push @libs, grep /\.(?:a|o(?:bj))?$/, @_;
+    my @libs = map substr($_, 2), grep /^-l/, @_;
+    #push @libs, grep /\.(?:a|o(?:bj)?)$/, @_;
 
     while (<IN>) {
         s/__OPTIONS__/@_/;
