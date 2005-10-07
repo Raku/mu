@@ -112,7 +112,7 @@ sub build_exe {
     #system $ghc, '--make', @_, @o, '-o' => 'pugs', 'src/Main.hs';
     my @pkgs = qw(-package stm -package network -package mtl -package template-haskell -package base);
     if ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) {
-        push @pkgs, -package => 'Win32' unless $ghc_version =~ /^6.4(?:.0)$/;
+        push @pkgs, -package => 'Win32' unless $ghc_version =~ /^6.4(?:.0)?$/;
     }
     else {
         push @pkgs, -package => 'unix';
@@ -130,9 +130,12 @@ sub write_buildinfo {
     open IN, "< Pugs.cabal.in" or die $!;
     open OUT, "> Pugs.cabal" or die $!;
 
-    my $depends = ', unix -any';
+    my $depends = '';
     if ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) {
-        $depends = ', Win32 -any' unless $ghc_version =~ /^6.4(?:.0)$/;
+        $depends = ', Win32 -any' unless $ghc_version =~ /^6.4(?:.0)?$/;
+    }
+    else {
+        $depends = ', unix -any';
     }
 
     if (grep /^readline$/, @_) {
