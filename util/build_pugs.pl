@@ -138,6 +138,9 @@ sub build_lib {
         chdir '..';
         rmdir $dir;
     }
+
+    # Run ranlib.
+    system($ar, s => $a_file);
 }
 
 sub build_exe {
