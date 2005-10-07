@@ -77,7 +77,7 @@ sub build_lib {
     my $setup   = shift;
 
     my $ar = $Config{full_ar};
-    my $a_file = "dist/build/libHSPugs-$version.a";
+    my $a_file = File::Spec->rel2abs("dist/build/libHSPugs-$version.a");
 
     unlink $a_file;
     system($setup, 'build', '--verbose');
@@ -123,6 +123,20 @@ sub build_lib {
     $fixup->('Pugs.Embed.Perl5') if grep /^-DPUGS_HAVE_PERL5$/, @_;
 
     system($ar, r => $a_file, $_) for grep /\.(?:o(?:bj)?)$/, @_;
+    foreach my $a_ext (grep /\.a$/, @_) {
+        # Do some very sneaky things -- linking other .a with us!
+        my $basename = $a_ext;
+        $basename =~ s!.*/!!;
+        my $dir = "dist/tmp-$basename";
+        mkdir $dir;
+        chdir $dir;
+        system($ar, x => $a_ext);
+        system($ar, r => $a_file, glob("*"));
+        unlink(glob("*"));
+        chdir '..';
+        chdir '..';
+        rmdir $dir;
+    }
 }
 
 sub build_exe {
