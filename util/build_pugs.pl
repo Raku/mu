@@ -38,8 +38,9 @@ sub build {
     
     print "Build configuration:\n" . PugsBuild::Config->pretty_print;
 
-    my ($ghc, $setup, @args) = @{$opts->{GHC}};
-    write_buildinfo(@args);
+    my ($version, $ghc, $setup, @args) = @{$opts->{GHC}};
+    write_buildinfo($version, @args);
+    system($setup, 'configure');
 
     # if Prelude.pm wasn't changed, don't bother to recompile Run.hs.
     if (PugsBuild::Config->lookup('precompile_prelude')) {
@@ -47,35 +48,39 @@ sub build {
         my $ppc_hs = "src/Pugs/PreludePC.hs";
         my $ppc_null = "src/Pugs/PreludePC.hs-null";
         if (-e $ppc_hs and -s $ppc_hs > -s $ppc_null and -M $ppc_hs < -M $pm) {
-            build_lib($ghc, $setup);
+            build_lib($version, $ghc, $setup);
             build_exe($ghc, @args);
             return;
         }
     }
 
     run($^X, qw<util/gen_prelude.pl -v --touch --null --output src/Pugs/PreludePC.hs>);
-    build_lib($ghc, $setup);
+    build_lib($version, $ghc, $setup);
     build_exe($ghc, @args);
 
     if (PugsBuild::Config->lookup('precompile_prelude')) {
         run($^X, qw<util/gen_prelude.pl -v -i src/perl6/Prelude.pm>,
                 (map { ('-i' => $_) } @{ PugsBuild::Config->lookup('precompile_modules') }),
                 '-p', $thispugs, qw<--touch --output src/Pugs/PreludePC.hs>);
-        build_lib($ghc, $setup);
+        build_lib($version, $ghc, $setup);
         build_exe($ghc, @args);
     }
 }
 
 sub build_lib {
-    my $ghc = shift;
-    my $setup = shift;
+    my $version = shift;
+    my $ghc     = shift;
+    my $setup   = shift;
     system $setup, 'build', '--verbose';
     my $ar = $Config{full_ar};
     if (!$ar) {
         $ar = $ghc;
         $ar =~ s{(.*)ghc}{$1ar};
     }
-    system("ar r dist/build/libHSPugs-6.2.10.a ./dist/build/src/src/Data/Yaml/Syck_stub.o");
+    system(
+        $ar,
+        r => "dist/build/libHSPugs-$version.a", "dist/build/src/src/Data/Yaml/Syck_stub.o"
+    );
 }
 
 sub build_exe {
@@ -90,16 +95,26 @@ sub build_exe {
 }
 
 sub write_buildinfo { 
-    open INFO, "> Pugs.buildinfo" or die $!;
-    print INFO << ".";
-ghc-options: @_
-.
+    my $version = shift;
+    open IN, "< Pugs.cabal.in" or die $!;
+    open OUT, "> Pugs.cabal" or die $!;
+
+    my $depends;
     if ($^O !~ /(?:MSWin32|mingw|msys|cygwin)/) {
-        print INFO << ".";
-build-depends: unix -any
-.
+        $depends = 'Win32 -any';
     }
-    close INFO;
+    else {
+        $depends = 'unix -any';
+    }
+    while (<IN>) {
+        s/__OPTIONS__/@_/;
+        s/__VERSION__/$version/;
+        s/__DEPENDS__/$depends/;
+        print OUT $_;
+    }
+
+    close IN;
+    close OUT;
 }
 
 sub classify_options {
