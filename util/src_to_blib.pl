@@ -20,7 +20,7 @@ sub copy_all {
     opendir(DIR, $src) or die $!;
     my @nodes = readdir(DIR);
     foreach my $node (sort @nodes) {
-        next if $node =~ /^(\.|\.\.|\.svn)$/;
+        next if $node =~ /^(\.|\.\.|\.svn|t)$/;
         my $src_path = "$src/$node";
         my $dest_path = "$dest/$node";
         if (-f $src_path) {
