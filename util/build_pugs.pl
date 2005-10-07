@@ -80,7 +80,7 @@ sub build_lib {
     my $a_file = "dist/build/libHSPugs-$version.a";
 
     unlink $a_file;
-    system($setup, 'build'); # , '--verbose';
+    system($setup, 'build', '--verbose');
     die "Build failed: $?" unless -e $a_file;
 
     if (!$ar) {
@@ -159,11 +159,25 @@ sub write_buildinfo {
         $unicode_c = 'src/UnicodeC.c';
     }
 
+    my $perl5_c = '';
+    if (grep /^-DPUGS_HAVE_PERL5$/, @_) {
+        $perl5_c = 'src/perl5/perl5.c';
+    }
+
+    my @include_dirs = map substr($_, 2), grep /^-I/, @_;
+    my @libs = map substr($_, 2), grep /^-l/, @_;
+    my @lib_dirs = map substr($_, 2), grep /^-L/, @_;
+    push @libs, grep /\.(?:a|o(?:bj))?$/, @_;
+
     while (<IN>) {
         s/__OPTIONS__/@_/;
         s/__VERSION__/$version/;
         s/__DEPENDS__/$depends/;
         s/__UNICODE_C__/$unicode_c/;
+        s/__PERL5_C__/$perl5_c/;
+        s/__INCLUDE_DIRS__/@include_dirs/;
+        s/__LIBS__/@libs/;
+        s/__LIB_DIRS__/@lib_dirs/;
         print OUT $_;
     }
 
