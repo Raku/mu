@@ -125,7 +125,7 @@ sub write_buildinfo {
 
     my $unicode_c = '';
     if ($ghc_version =~ /^6\.4(?:\.0)?$/) {
-        $unicode_c = 'src/Unicode.c';
+        $unicode_c = 'src/UnicodeC.c';
     }
 
     while (<IN>) {
