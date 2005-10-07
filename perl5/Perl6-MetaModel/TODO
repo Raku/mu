@@ -1,4 +1,0 @@
-== TO DO list for the MetaModel
-
-- remove perl 5 package dependency (class lookup by name)
-   - make class object more important ..
