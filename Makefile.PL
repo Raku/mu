@@ -446,6 +446,8 @@ pure_all ::
 	\$(PERLRUN) util/src_to_blib.pl
 
 pure_site_install ::
+	$setup install
+	$setup register
 	\$(NOECHO) \$(MOD_INSTALL) \\
 		\$(INST6_LIB) \$(DESTDIR)$config->{sitelib} \\
 		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{sitearch} \\
@@ -455,6 +457,8 @@ pure_site_install ::
 		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installsiteman3dir}
 
 pure_vendor_install ::
+	$setup install
+	$setup register
 	\$(NOECHO) \$(MOD_INSTALL) \\
 		\$(INST6_LIB) \$(DESTDIR)$config->{privlib} \\
 		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{archlib} \\
