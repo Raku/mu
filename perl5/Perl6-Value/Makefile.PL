@@ -11,5 +11,5 @@ use inc::Module::Install prefix => '../../inc';
 name          ('Perl6-Value-List');
 version_from  ('lib/Perl6/Value/List.pm');
 abstract_from ('lib/Perl6/Value/List.pm');
-author        ('Flavio S. Glock <fglock@gmail.com');
+author        ('Flavio S. Glock <fglock@gmail.com>');
 WritePugs     (5);

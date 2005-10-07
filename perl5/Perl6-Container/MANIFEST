@@ -1,8 +1,16 @@
 Changes
+lib/Perl6/Container/Array.pm
+lib/Perl6/Container/Hash.pm
+lib/Perl6/Container/Scalar.pm
 Makefile.PL
 MANIFEST
 README
-lib/Perl6/Container/Array.pm
+t/array-boxed.t
 t/array-fetch-store.t
 t/array-lazy.t
 t/array-operations.t
+t/array.t
+t/hash.t
+t/hash_more.t
+t/scalar.t
+t/trait.t
