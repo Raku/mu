@@ -13,7 +13,7 @@ author: Autrijus Tang <autrijus@autrijus.org>
 tested-with: GHC -any
 exposed-modules: Pugs
 buildable: True
-c-sources: src/cbits/fpstring.c src/pcre/pcre.c src/UnicodeC.c
+c-sources: src/cbits/fpstring.c src/pcre/pcre.c __UNICODE_C__
            src/syck/bytecode.c src/syck/emitter.c src/syck/gram.c src/syck/handler.c
            src/syck/implicit.c src/syck/node.c src/syck/syck.c src/syck/syck_st.c src/syck/token.c
            src/syck/yaml2byte.c

@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse -fvia-C #-}
 {-# OPTIONS_GHC -#include "UnicodeC.h" #-}
 
 {-|
@@ -1393,7 +1393,12 @@ objectFinalizer env obj = do
 --
 -- >  ret_val   assoc   op_name [safe|unsafe] args
 initSyms :: STM [Pad -> Pad]
-initSyms = mapM primDecl . filter (not . null) . lines $ decodeUTF8 "\
+initSyms = mapM primDecl syms
+    where
+    normalize "" = ""
+    normalize ('\\':'n':xs) = ('\n':normalize xs)
+    normalize (x:xs) = (x:normalize xs)
+    syms = filter (not . null) . lines . normalize $ decodeUTF8 "\
 \\n   Bool      spre    !       safe   (Bool)\
 \\n   Num       spre    +       safe   (Num)\
 \\n   Num       pre     abs     safe   (?Num=$_)\

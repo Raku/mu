@@ -200,6 +200,13 @@ sub set_postamble {
     my $cc = $ENV{CC} || 'gcc';
     $ghc_flags .= " -pgmc $cc " unless $cc eq 'gcc';
 
+    if ($ghc_version =~ /^6.4(?:.0)?$/) {
+        $ghc_flags .= " -DWITH_UNICODEC ";
+    }
+    else {
+        $unicode = $unicode_c = '';
+    }
+
     # GHC 6.4.1, OS X / Tiger and gcc4.0 doesn't work together. complain.
     if ($Config{osname} eq "darwin") {
       my $gcc_version = `$cc -v 2>&1`;
@@ -361,7 +368,7 @@ docs/haddock :
 	\@\$(PERL) -e "mkdir q-docs/haddock-"
 
 profiled :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h @prereqs config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+GHC $version $ghc $setup $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+GHC $version $ghc $ghc_version $setup $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 pugs.prof :: profiled
 	find t -type f | grep -v D | grep -v R | grep -v pugsrun | ./pugs +RTS -p -RTS -e 'my sub exit {}; for =\$\$*IN -> \$\$t is copy { \$\$t .= chomp; require \$\$t }'
@@ -369,15 +376,15 @@ pugs.prof :: profiled
 optimised :: optimized
 
 optimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h @prereqs config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+GHC $version $ghc $setup $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+GHC $version $ghc $ghc_version $setup $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 unoptimised :: unoptimized
 
 unoptimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h @prereqs config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+GHC $version $ghc $setup $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+GHC $version $ghc $ghc_version $setup $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 $pugs : src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h @prereqs config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+GHC $version $ghc $setup $threaded __optimization__ --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+GHC $version $ghc $ghc_version $setup $threaded __optimization__ --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 
 pirtest : test-pir
@@ -420,11 +427,11 @@ smoke-perl5 : $pugs util/run-smoke.pl all
 ghci ::
 	$ghc --interactive $ghc_flags $ghc_output
 
-pil :: src/cbits/fpstring.o src/UnicodeC.o @srcfiles
-	$ghc --make -H0 -L. -Lsrc -I. -Isrc -i. -isrc -static -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs src/UnicodeC.o src/cbits/fpstring.o
+pil :: src/cbits/fpstring.o $unicode @srcfiles
+	$ghc --make -H0 -L. -Lsrc -I. -Isrc -i. -isrc -static -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs $unicode src/cbits/fpstring.o
 
-pili :: src/cbits/fpstring.o src/UnicodeC.o @srcfiles
-	$ghc --interactive -H0 -L. -Lsrc -I. -Isrc -i. -isrc -static -fno-warn-name-shadowing src/PIL.hs src/UnicodeC.o src/cbits/fpstring.o
+pili :: src/cbits/fpstring.o $unicode @srcfiles
+	$ghc --interactive -H0 -L. -Lsrc -I. -Isrc -i. -isrc -static -fno-warn-name-shadowing src/PIL.hs $unicode src/cbits/fpstring.o
 
 tags : @srcfiles
 	$hasktags -c @srcfiles

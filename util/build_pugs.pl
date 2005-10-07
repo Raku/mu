@@ -38,8 +38,8 @@ sub build {
     
     print "Build configuration:\n" . PugsBuild::Config->pretty_print;
 
-    my ($version, $ghc, $setup, @args) = @{$opts->{GHC}};
-    write_buildinfo($version, @args);
+    my ($version, $ghc, $ghc_version, $setup, @args) = @{$opts->{GHC}};
+    write_buildinfo($version, $ghc_version, @args);
     system($setup, 'configure');
 
     # if Prelude.pm wasn't changed, don't bother to recompile Run.hs.
@@ -77,15 +77,23 @@ sub build_lib {
         $ar = $ghc;
         $ar =~ s{(.*)ghc}{$1ar};
     }
+
+    # XXX - work around Cabal bug
+    copy(
+        "dist/build/src/src/Data/Yaml/Syck_stub.o",
+        "dist/build/src/Data/Yaml/Syck_stub.o"
+    );
+
     system(
         $ar,
-        r => "dist/build/libHSPugs-$version.a", "dist/build/src/src/Data/Yaml/Syck_stub.o"
+        r => "dist/build/libHSPugs-$version.a", "dist/build/src/Data/Yaml/Syck_stub.o"
     );
 }
 
 sub build_exe {
     my $ghc = shift;
-    my @o = qw( src/pcre/pcre.o src/syck/bytecode.o src/syck/emitter.o src/syck/gram.o src/syck/handler.o src/syck/implicit.o src/syck/node.o src/syck/syck.o src/syck/syck_st.o src/syck/token.o src/syck/yaml2byte.o src/cbits/fpstring.o src/UnicodeC.o );
+    my @o = qw( src/pcre/pcre.o src/syck/bytecode.o src/syck/emitter.o src/syck/gram.o src/syck/handler.o src/syck/implicit.o src/syck/node.o src/syck/syck.o src/syck/syck_st.o src/syck/token.o src/syck/yaml2byte.o src/cbits/fpstring.o );
+    push @o, 'src/UnicodeC.o' if grep /WITH_UNICODEC/, @_;
     system $ghc, '--make', @_, @o, '-o' => 'pugs', 'src/Main.hs';
     #my @pkgs = qw(-package stm -package network -package mtl -package template-haskell -package base);
     # if ($^O !~ /(?:MSWin32|mingw|msys|cygwin)/) {
@@ -96,20 +104,30 @@ sub build_exe {
 
 sub write_buildinfo { 
     my $version = shift;
+    my $ghc_version = shift;
+
     open IN, "< Pugs.cabal.in" or die $!;
     open OUT, "> Pugs.cabal" or die $!;
 
-    my $depends;
+    my $depends = 'unix -any';
     if ($^O =~ /(?:MSWin32|mingw|msys|cygwin)/) {
         $depends = 'Win32 -any';
     }
-    else {
-        $depends = 'unix -any';
+
+    if (grep /^readline$/, @_) {
+        $depends .= ', readline -any';
     }
+
+    my $unicode_c = '';
+    if ($ghc_version =~ /^6\.4(?:\.0)?$/) {
+        $unicode_c = 'src/Unicode.c';
+    }
+
     while (<IN>) {
         s/__OPTIONS__/@_/;
         s/__VERSION__/$version/;
         s/__DEPENDS__/$depends/;
+        s/__UNICODE_C__/$unicode_c/;
         print OUT $_;
     }
 
