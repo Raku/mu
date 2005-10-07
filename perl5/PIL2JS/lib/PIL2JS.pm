@@ -30,7 +30,7 @@ our %cfg = (
   preludepc => pwd('Prelude.js'),
   testpc    => pwd('Test.js'),
   prelude   => pwd(qw< lib6 Prelude JS.pm >),
-  metamodel_base => pwd(qw< .. Perl6.MetaModel lib >) . "/", # hack?
+  metamodel_base => pwd(qw< libjs >) . "/", # hack?
 );
 
 sub diag($) { warn "# $_[0]\n" if $cfg{verbose} }
