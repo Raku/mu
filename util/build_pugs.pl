@@ -123,7 +123,8 @@ sub build_lib {
     $fixup->('Pugs.Embed.Perl5') if grep /^-DPUGS_HAVE_PERL5$/, @_;
     $fixup->('Pugs.Embed.Parrot') if grep /^-DPUGS_HAVE_PARROT$/, @_;
 
-    system($ar, r => $a_file, $_) for grep /\.(?:o(?:bj)?)$/, @_;
+    # system($ar, r => $a_file, $_) for grep /\.(?:o(?:bj)?)$/, @_;
+
     foreach my $a_ext (grep /\.a$/, @_) {
         # Do some very sneaky things -- linking other .a with us!
         my $basename = $a_ext;
@@ -161,6 +162,7 @@ sub build_exe {
     my @libs = "-lHSPugs-$version";
     push @libs, grep /\.a$/, @_;
     push @libs, grep /^-[lL]/, @_;
+    push @libs, grep /\.o$/, @_;
 
     @_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -o pugs src/Main.hs), @libs);
     print "*** Building: ", join(' ', $ghc, @_), $/;
