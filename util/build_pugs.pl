@@ -186,7 +186,7 @@ sub write_buildinfo {
         $depends = ', unix -any';
     }
 
-    if (grep /^readline$/, @_) {
+    if (grep /^-DPUGS_HAVE_READLINE$/, @_) {
         $depends .= ', readline -any';
     }
 

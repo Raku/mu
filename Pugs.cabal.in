@@ -4,7 +4,7 @@ license: GPL
 license-file: LICENSE
 copyright: 2005, Autrijus Tang
 maintainer: Autrijus Tang <autrijus@autrijus.org>
-build-depends: QuickCheck -any, base -any, mtl -any, stm -any, haskell98 -any, network -any, readline -any, template-haskell -any__DEPENDS__
+build-depends: QuickCheck -any, base -any, mtl -any, stm -any, haskell98 -any, network -any, template-haskell -any__DEPENDS__
 stability: experimental
 homepage: http://pugscode.org/
 synopsis: A Perl 6 Implementation
