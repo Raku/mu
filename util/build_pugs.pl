@@ -35,6 +35,8 @@ Current settings:
     exit 0;
 }
 
+my $run_setup;
+
 sub build {
     my($opts) = @_;
     my $thispugs = { @{ $opts->{GEN_PRELUDE} } }->{'--pugs'} or # laugh at me now.
@@ -44,7 +46,8 @@ sub build {
 
     my ($version, $ghc, $ghc_version, $setup, @args) = @{$opts->{GHC}};
     write_buildinfo($version, $ghc_version, @args);
-    system($setup, 'configure');
+    $run_setup = sub { system($setup, @_) };
+    $run_setup->('configure', grep !/^--.*=$/, @{$opts->{SETUP}});
 
     # if Prelude.pm wasn't changed, don't bother to recompile Run.hs.
     if (PugsBuild::Config->lookup('precompile_prelude')) {
@@ -52,21 +55,21 @@ sub build {
         my $ppc_hs = "src/Pugs/PreludePC.hs";
         my $ppc_null = "src/Pugs/PreludePC.hs-null";
         if (-e $ppc_hs and -s $ppc_hs > -s $ppc_null and -M $ppc_hs < -M $pm) {
-            build_lib($version, $ghc, $setup, @args);
+            build_lib($version, $ghc, @args);
             build_exe($version, $ghc, $ghc_version, @args);
             return;
         }
     }
 
     run($^X, qw<util/gen_prelude.pl -v --touch --null --output src/Pugs/PreludePC.hs>);
-    build_lib($version, $ghc, $setup, @args);
+    build_lib($version, $ghc, @args);
     build_exe($version, $ghc, $ghc_version, @args);
 
     if (PugsBuild::Config->lookup('precompile_prelude')) {
         run($^X, qw<util/gen_prelude.pl -v -i src/perl6/Prelude.pm>,
                 (map { ('-i' => $_) } @{ PugsBuild::Config->lookup('precompile_modules') }),
                 '-p', $thispugs, qw<--touch --output src/Pugs/PreludePC.hs>);
-        build_lib($version, $ghc, $setup, @args);
+        build_lib($version, $ghc, @args);
         build_exe($version, $ghc, $ghc_version, @args);
     }
 }
@@ -74,13 +77,12 @@ sub build {
 sub build_lib {
     my $version = shift;
     my $ghc     = shift;
-    my $setup   = shift;
 
     my $ar = $Config{full_ar};
     my $a_file = File::Spec->rel2abs("dist/build/libHSPugs-$version.a");
 
     unlink $a_file;
-    system($setup, 'build', '--verbose');
+    $run_setup->('build');
     die "Build failed: $?" unless -e $a_file;
 
     if (!$ar) {

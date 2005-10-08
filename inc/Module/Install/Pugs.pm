@@ -175,11 +175,18 @@ sub assert_ghc {
                         split (' ', `$^X -MExtUtils::Embed -e ccopts,ldopts`));
     }
     chomp $ghc_flags;
-    return ($ghc, $ghc_version, $ghc_flags);
+
+    return ($ghc, $ghc_version, $ghc_flags, $self->assert_ghc_pkg);
 }
 
 sub has_ghc_package {
     my ($self, $package) = @_;
+    my $ghc_pkg = $self->assert_ghc_pkg;
+    `$ghc_pkg describe $package` =~ /package-url/;
+}
+
+sub assert_ghc_pkg {
+    my $self = shift;
     my $ghc_pkg = $ENV{GHC_PKG};
 
     unless($ghc_pkg) {
@@ -189,8 +196,12 @@ sub has_ghc_package {
         $ghc_pkg = $self->can_run($ghc_pkg) || $self->can_run('ghc-pkg');
     }
 
-    `$ghc_pkg describe $package` =~ /package-url/;
+    die "*** Cannot find ghc-pkg; please set it in your GHC_PKG environment variable.\n"
+        unless $ghc_pkg;
+
+    return $ghc_pkg;
 }
+
 
 sub fixpaths {
     my $self = shift;

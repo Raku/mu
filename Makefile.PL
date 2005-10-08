@@ -96,7 +96,7 @@ sub set_postamble {
     push @srcfiles, map { glob("$_/*.*hs-boot") } @srcdirs;
     push @srcfiles, map { map { substr($_, 0, -1) } glob("$_/*.*hsc") } @srcdirs;
 
-    my ($ghc, $ghc_version, $ghc_flags) = assert_ghc();
+    my ($ghc, $ghc_version, $ghc_flags, $ghc_pkg) = assert_ghc();
     my $hsc2hs = $ENV{HSC2HS};
     my $setup = File::Spec->catfile(".", "Setup$Config{_exe}");
 
@@ -324,6 +324,8 @@ EOD
     mkdir 'dist/build';
     mkdir 'dist/build/src';
 
+    my $setup_flags = "--prefix=\$(DESTDIR) --with-hc-pkg=$ghc_pkg --with-hsc2hs=$hsc2hs --ghc --with-compiler=$ghc";
+
     postamble(fixpaths(<< "."));
 $config_h : lib/Perl6/Pugs.pm util/config_h.pl
 	\$(PERL) util/config_h.pl "$ghc $ghc_flags"
@@ -378,7 +380,7 @@ docs/haddock :
 	\@\$(PERL) -e "mkdir q-docs/haddock-"
 
 profiled :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+GHC $version $ghc $ghc_version $setup $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_version $setup $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 pugs.prof :: profiled
 	find t -type f | grep -v D | grep -v R | grep -v pugsrun | ./pugs +RTS -p -RTS -e 'my sub exit {}; for =\$\$*IN -> \$\$t is copy { \$\$t .= chomp; require \$\$t }'
@@ -386,15 +388,15 @@ pugs.prof :: profiled
 optimised :: optimized
 
 optimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+GHC $version $ghc $ghc_version $setup $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_version $setup $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 unoptimised :: unoptimized
 
 unoptimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+GHC $version $ghc $ghc_version $setup $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_version $setup $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 $pugs : src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+GHC $version $ghc $ghc_version $setup $threaded __optimization__ --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_version $setup $threaded __optimization__ --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 
 pirtest : test-pir
@@ -480,10 +482,10 @@ pure_all :: build_perl5
 	\$(NOECHO) \$(ECHO) "*** Done!  Type '\$(MAKE) install' to install."
 
 register ::
-	$setup register
+	\$(PERLRUN) util/ghc_setup.pl register --prefix=\$(DESTDIR)
 
 pure_site_install ::
-	$setup copy --copy-prefix=\$(DESTDIR)
+	\$(PERLRUN) util/ghc_setup.pl copy --prefix=\$(DESTDIR)
 	\$(NOECHO) \$(MOD_INSTALL) \\
 		\$(INST6_LIB) \$(DESTDIR)$config->{sitelib} \\
 		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{sitearch} \\
@@ -495,7 +497,7 @@ pure_site_install ::
 	\$(NOECHO) \$(ECHO) "*** Installed!  Type '\$(MAKE) register' to make Pugs a GHC package."
 
 pure_vendor_install ::
-	$setup copy --copy-prefix=\$(DESTDIR)
+	\$(PERLRUN) util/ghc_setup.pl copy --prefix=\$(DESTDIR)
 	\$(NOECHO) \$(MOD_INSTALL) \\
 		\$(INST6_LIB) \$(DESTDIR)$config->{privlib} \\
 		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{archlib} \\
