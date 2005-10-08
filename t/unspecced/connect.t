@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 3;
+plan 4;
 
 if $*OS eq "browser" {
   skip_rest "Programs running in browsers don't have access to regular IO.";
@@ -26,6 +26,13 @@ unless %*ENV<PUGS_TESTS_ALLOW_NETWORK> {
 }
 
 {
+  dies_ok { connect "localhost", 70000 }, "&connect fails when it can't connect";
+}
+
+skip_rest("waiting on 'use fatal'"); exit;
+
+{
+  # no fatal;
   lives_ok { connect "localhost", 70000 },
     "&connect does not die when it can't connect";
 
