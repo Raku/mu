@@ -36,7 +36,7 @@ use_ok('HTTP::Headers::Util');
 
 my $test_num = 0;
 
-for @s_tests -> $test is copy {
+for @s_tests -> Pair $test is copy {
     my $arg = $test[0];
     my $expect = $test[1];
     
