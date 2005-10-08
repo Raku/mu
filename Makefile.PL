@@ -466,8 +466,30 @@ INST6_BIN = blib6/bin
 INST6_LIB = blib6/lib
 INST6_MAN1DIR = blib6/man1
 INST6_MAN3DIR = blib6/man3
+INSTPUGS_LIB = blib6/pugs
 
-pure_all ::
+build_perl5 ::
+	for dir in perl5/*; do \\
+		if [ -d \$\$dir ]; then \\
+			(cd \$\$dir; perl Makefile.PL; make) \\
+		fi \\
+	done
+
+clean ::
+	-for dir in perl5/*; do \\
+		if [ -d \$\$dir ]; then \\
+			cd \$\$dir && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) clean; \\
+		fi \\
+	done
+
+realclean ::
+	-for dir in perl5/*; do \\
+		if [ -d \$\$dir ]; then \\
+			cd \$\$dir && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) realclean; \\
+		fi \\
+	done
+
+pure_all :: build_perl5
 	\$(PERLRUN) util/src_to_blib.pl
 	\$(NOECHO) \$(ECHO) "*** Done!  Type '\$(MAKE) install' to install."
 
@@ -475,25 +497,27 @@ register ::
 	$setup register
 
 pure_site_install ::
-	$setup install
+	$setup copy --copy-prefix=\$(DESTDIR)
 	\$(NOECHO) \$(MOD_INSTALL) \\
 		\$(INST6_LIB) \$(DESTDIR)$config->{sitelib} \\
 		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{sitearch} \\
 		\$(INST6_BIN) \$(DESTDIR)$config->{sitebin} \\
 		\$(INST6_SCRIPT) \$(DESTDIR)$config->{sitescript} \\
 		\$(INST6_MAN1DIR) \$(DESTDIR)$config->{installsiteman1dir} \\
-		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installsiteman3dir}
+		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installsiteman3dir} \\
+		\$(INSTPUGS_LIB) \$(DESTDIR)$config->{pugslibdir}
 	\$(NOECHO) \$(ECHO) "*** Installed!  Type '\$(MAKE) register' to make Pugs a GHC package."
 
 pure_vendor_install ::
-	$setup install
+	$setup copy --copy-prefix=\$(DESTDIR)
 	\$(NOECHO) \$(MOD_INSTALL) \\
 		\$(INST6_LIB) \$(DESTDIR)$config->{privlib} \\
 		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{archlib} \\
 		\$(INST6_BIN) \$(DESTDIR)$config->{installbin} \\
 		\$(INST6_SCRIPT) \$(DESTDIR)$config->{installscript} \\
 		\$(INST6_MAN1DIR) \$(DESTDIR)$config->{installman1dir} \\
-		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installman3dir}
+		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installman3dir} \\
+		\$(INSTPUGS_LIB) \$(DESTDIR)$config->{pugslibdir}
 	\$(NOECHO) \$(ECHO) "*** Installed!  Type '\$(MAKE) register' to make Pugs a GHC package."
 .
 }

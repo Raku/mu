@@ -34,6 +34,8 @@ sub get_config {
         installsiteman1dir => $Config{installsiteman1dir} || $Config{installman1dir},
         installsiteman3dir => $Config{installsiteman3dir} || $Config{installman3dir},
 
+        pugslibdir  => '$(PREFIX)/share/pugs',
+
         sourcedir      => Cwd::abs_path(),
     };
 

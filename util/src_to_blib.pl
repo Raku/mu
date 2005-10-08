@@ -10,14 +10,16 @@ use File::Path qw(mkpath);
 
 {
 #   copy_all('src', 'blib6/arch/CORE/pugs');
-    copy_all('perl5', 'blib6/lib/perl5');
+    copy_all("$_/blib/", 'blib6/pugs/perl5') for <perl5/*>;
+    copy_all("$_/blib6/", 'blib6/pugs/perl6') for <perl5/*>;
+    copy_all("$_/blibjs/", 'blib6/pugs/js') for <perl5/*>;
 }
 
 sub copy_all {
     my ($src, $dest) = @_;
     mkpath($dest);
     local *DIR;
-    opendir(DIR, $src) or die $!;
+    opendir(DIR, $src) or warn "opendir failed for $src: $!", return;
     my @nodes = readdir(DIR);
     foreach my $node (sort @nodes) {
         next if $node =~ /^(\.|\.\.|\.svn|t)$/;
