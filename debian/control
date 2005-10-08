@@ -38,3 +38,16 @@ Description: Pugs core modules
  Homepage: http://pugscode.org/
  .
  This package contains architecture independent pugs modules.
+
+Package: libghc6-pugs-dev
+Architecture: any
+Depends: ghc6 (>= 6.4), ghc6 (<< 6.4-999)
+Description: Pugs haskell interface
+ Pugs is an implementation of Perl 6, written in Haskell. It aims to implement
+ the full Perl 6 specification, as detailed in the Synopses at
+ http://dev.perl.org/perl6/synopsis/
+ .
+ Homepage: http://pugscode.org/
+ .
+ This package contains everything necessary to use pugs directly from haskell
+ code.

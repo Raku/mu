@@ -43,22 +43,26 @@ clean1:
 	dh_clean
 
 install: install-indep install-arch
-install-indep:
+install-stamp:
 	dh_testdir
 	dh_testroot
+	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
+	find $(CURDIR) -exec chmod u+rw {} \;
 	dh_installdirs
-	dh_install -i --sourcedir=$(CURDIR)/debian/tmp --list-missing
+	dh_install --sourcedir=$(CURDIR)/debian/tmp --list-missing
+	touch install-stamp
+
+install-indep: install-stamp
+	dh_testdir
+	dh_testroot
 	cp -r $(CURDIR)/docs/* $(CURDIR)/debian/pugs-doc/usr/share/doc/pugs-doc/
 	cp $(CURDIR)/debian/pugs-modules.lintian-overrides $(CURDIR)/debian/pugs-modules/usr/share/lintian/overrides/pugs-modules
 	rm -f $(CURDIR)/debian/pugs-doc/usr/share/doc/pugs-doc/SEEALSO
 
-install-arch:
+install-arch: install-stamp
 	dh_testdir
 	dh_testroot
-	dh_installdirs -s
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 	cp util/perl6.vim $(CURDIR)/debian/pugs/usr/share/vim/vim63/syntax/
-	dh_install -s --sourcedir=$(CURDIR)/debian/tmp --list-missing
 	rm -f $(CURDIR)/debian/pugs/usr/lib/perl6/5.8/CORE/pugs/gen_prelude \
 	$(CURDIR)/debian/pugs/usr/lib/perl6/5.8/CORE/pugs/Pugs/Rule/LICENSE \
 	$(CURDIR)/debian/pugs/usr/lib/perl6/5.8/CORE/pugs/RRegex/LICENSE \
