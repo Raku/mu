@@ -517,6 +517,12 @@ ruleParamList wantParens parse = rule "parameter list" $ do
     f = case wantParens of
         ParensOptional  -> maybeParensBool
         ParensMandatory -> \x -> do rv <- parens x; return (rv, True)
+        
+maybeParensBool :: RuleParser a -> RuleParser (a, Bool)
+maybeParensBool p = choice
+    [ do rv <- parens p; return (rv, True)
+    , do rv <- p; return (rv, False)
+    ]
 
 ruleFormalParam :: RuleParser Param
 ruleFormalParam = rule "formal parameter" $ do
@@ -547,7 +553,7 @@ ruleParamDefault :: Bool -> RuleParser Exp
 ruleParamDefault True  = return Noop
 ruleParamDefault False = rule "default value" $ option Noop $ do
     symbol "="
-    parseLitOp
+    parseExpWithItemOps
 
 ruleTrustsDeclaration :: RuleParser Exp
 ruleTrustsDeclaration = do
@@ -1026,7 +1032,7 @@ ruleForConstruct = rule "for construct" $ do
     symbol "for"
     list  <- maybeParens ruleExpression
     optional (symbol ",")
-    block <- ruleBlockLiteral <|> parseLitOp
+    block <- ruleBlockLiteral <|> parseExpWithItemOps
     retSyn "for" [list, block]
 
 ruleLoopConstruct :: RuleParser Exp
@@ -1068,7 +1074,7 @@ ruleCondBody csym = rule "conditional expression" $ do
 
 ruleCondPart :: RuleParser Exp
 ruleCondPart = maybeParens $ do
-    ruleTypeVar <|> ruleTypeLiteral <|> parseLitOp <|> ruleExpression
+    ruleTypeVar <|> ruleTypeLiteral <|> parseExpWithItemOps <|> ruleExpression
 
 ruleElseConstruct :: RuleParser Exp
 ruleElseConstruct = rule "else or elsif construct" $
@@ -1111,7 +1117,7 @@ ruleDefaultConstruct = rule "default construct" $ do
 -- Expressions ------------------------------------------------
 
 ruleExpression :: RuleParser Exp
-ruleExpression = (<?> "expression") $ parseOp
+ruleExpression = (<?> "expression") $ parseExpWithOps
 
 {-|
 Match a statement's /conditional/ statement-modifier,
@@ -1383,8 +1389,9 @@ currentTightFunctions = do
     return $ map (encodeUTF8 . unwords . filter (/= ",") . nub) $
         [nullary, optionary, namedUnary, preUnary, postUnary, infixOps]
 
-parseOpWith :: (DynParsers -> RuleParser Exp) -> RuleParser Exp
-parseOpWith f = do
+-- was: parseOpWith
+parseExpWithCachedParser :: (DynParsers -> RuleParser Exp) -> RuleParser Exp
+parseExpWithCachedParser f = do
     state <- getState
     case ruleDynParsers state of
         MkDynParsersEmpty   -> refillCache state f
@@ -1401,14 +1408,29 @@ parseOpWith f = do
         setState state{ ruleDynParsers = opParsers }
         f opParsers
 
-parseOp :: RuleParser Exp
-parseOp = parseOpWith dynParseOp
+-- was: parseOp
+parseExpWithOps :: RuleParser Exp
+parseExpWithOps = parseExpWithCachedParser dynParseOp
 
-parseTightOp :: RuleParser Exp
-parseTightOp = parseOpWith dynParseTightOp
+-- was: parseTightOp
+parseExpWithTightOps :: RuleParser Exp
+parseExpWithTightOps = parseExpWithCachedParser dynParseTightOp
 
-parseLitOp :: RuleParser Exp
-parseLitOp = parseOpWith dynParseLitOp
+{-
+was: parseLitOp
+[09:23] <autrijus> lit = tight+loose
+[09:24] <autrijus> i.e. all operators minus the list-associative , Y
+[09:24] <scook0> any reason it's called 'lit'?
+[09:26] <scook0> I didn't realise parseLitOp/parseTightOp were parsing terms, btw
+[09:29] <autrijus> please fix them
+[09:29] <autrijus> ruleLitTerms
+[09:29] <autrijus> "lit" as in "literal"
+[09:29] <autrijus> as in non-list
+[09:29] <autrijus> but this is too vague
+[09:29] <autrijus> maybe "Item".
+-}
+parseExpWithItemOps :: RuleParser Exp
+parseExpWithItemOps = parseExpWithCachedParser dynParseLitOp
 
 ops :: (String -> a) -> String -> [a]
 ops f s = [f n | n <- sortBy revLength (nub . words $ decodeUTF8 s)]
@@ -1581,22 +1603,20 @@ rulePostTerm = tryVerbatimRule "term postfix" $ do
         ]
 
 ruleInvocation :: RuleParser (Exp -> Exp)
-ruleInvocation = tryVerbatimRule "invocation" $ do
-    colon       <- maybeColon
-    hasEqual    <- option False $ do char '='; whiteSpace; return True
-    name        <- do { str <- ruleSubName; return $ colon str }
-    (invs,args) <- option (Nothing,[]) $ parseParenParamList
-    when (isJust invs) $ fail "Only one invocant allowed"
-    return $ \x -> if hasEqual
-        then Syn "=" [x, App (Var name) (Just x) args]
-        else App (Var name) (Just x) args
+ruleInvocation = ruleInvocationCommon False
 
+-- used only by 'qInterpolatorPostTerm'?
 ruleInvocationParens :: RuleParser (Exp -> Exp)
-ruleInvocationParens = do
+ruleInvocationParens = ruleInvocationCommon True
+        
+ruleInvocationCommon :: Bool -> RuleParser (Exp -> Exp)
+ruleInvocationCommon mustHaveParens = do
     colon       <- maybeColon
     hasEqual    <- option False $ do { char '='; whiteSpace; return True }
     name        <- do { str <- ruleSubName; return $ colon str }
-    (invs,args) <- verbatimParens $ parseNoParenParamList
+    (invs,args) <- if mustHaveParens
+        then verbatimParens $ parseNoParenParamList
+        else option (Nothing,[]) $ parseParenParamList
     when (isJust invs) $ fail "Only one invocant allowed"
     return $ \x -> if hasEqual
         then Syn "=" [x, App (Var name) (Just x) args]
@@ -1706,25 +1726,23 @@ ruleFoldOp = verbatimRule "reduce metaoperator" $ do
         , " .[] .{} "
         ]
 
+
+-- used only by 'ruleCodeSubscript'!
 parseParamList :: RuleParser (Maybe Exp, [Exp])
 parseParamList = parseParenParamList <|> parseNoParenParamList
 
 parseParenParamList :: RuleParser (Maybe Exp, [Exp])
-parseParenParamList = do
-    leading     <- option [] $ try $ many pairAdverb
-    params      <- option Nothing . fmap Just $
-        verbatimParens $ parseHasParenParamList
-    trailing    <- option [] $ try $ many pairOrBlockAdverb
-    when (isNothing params && null trailing && null leading) $ fail ""
-    let (inv, args) = fromMaybe (Nothing, []) params
-    return (inv, leading ++ args ++ trailing)
+parseParenParamList = parseParenParamListCommon True
 
 parseParenParamListMaybe :: RuleParser (Maybe Exp, [Exp])
-parseParenParamListMaybe = do
+parseParenParamListMaybe = parseParenParamListCommon False
+    
+parseParenParamListCommon :: Bool -> RuleParser (Maybe Exp, [Exp])
+parseParenParamListCommon mustHaveParens = do
     leading     <- option [] $ try $ many pairAdverb
-    params      <- option Nothing . fmap Just $
-        verbatimParens $ parseHasParenParamList
+    params      <- option Nothing . fmap Just $ parseHasParenParamList
     trailing    <- option [] $ try $ many pairOrBlockAdverb
+    when (mustHaveParens && isNothing params && null trailing && null leading) $ fail ""
     let (inv, args) = fromMaybe (Nothing, []) params
     return (inv, leading ++ args ++ trailing)
 
@@ -1736,15 +1754,19 @@ blockAdverb = do
     char ':'
     ruleBlockLiteral
 
+-- used only by 'parseParenParamListCommon'
 parseHasParenParamList :: RuleParser (Maybe Exp, [Exp])
-parseHasParenParamList = do
+parseHasParenParamList = verbatimParens $ do
+    -- formal :: [[Exp]]
+    -- outer level of listness provided by `sepEndBy`
+    -- the inner (`fix`ed) part returns [Exp]
     formal <- (`sepEndBy` symbol ":") $ fix $ \rec -> do
         rv <- option Nothing $ do
             fmap Just $ tryChoice
                 [ do x <- pairOrBlockAdverb
                      lookAhead (satisfy (/= ','))   
                      return ([x], return "")
-                , do x <- parseLitOp
+                , do x <- parseExpWithItemOps
                      a <- option [] $ try $ many pairOrBlockAdverb
                      return (x:a, symbol ",")
                 ]
@@ -1755,9 +1777,23 @@ parseHasParenParamList = do
                 return (exp ++ rest)
     processFormals formal
 
+{-
+Used by:
+~~~~~~~~
+parseParamList (after trying parseParenParamList)
+ruleInvocationParens (<= qInterpolatorPostTerm)
+ruleApply (when `foo .($bar)`?) (after whitespace when there's no implicit-inv)
+
+[09:12] <scook0> so really the only difference is that NoParens has to be 
+                 careful not to swallow `{}.blah`?
+[09:15] <autrijus> nodnod.
+-}
 parseNoParenParamList :: RuleParser (Maybe Exp, [Exp])
 parseNoParenParamList = do
     formal <- (<|> return []) $ do
+        -- Autrijus says that 'dotForbidden' is needed so that 
+        -- `foo {}.blah` gets parsed as `foo ({}.blah)`
+        -- rather than `(foo {}).blah` or something else
         x <- formalSegment dotForbidden
         (<|> return [x]) $ do
             sep
@@ -1766,6 +1802,7 @@ parseNoParenParamList = do
     processFormals formal
     where
     sep = symbol ":"
+    formalSegment :: (Char -> Bool) -> RuleParser [Exp]
     formalSegment dot = do
         rv <- option Nothing (fmap Just $ tryChoice (argBlockish dot))
         case rv of
@@ -1773,19 +1810,22 @@ parseNoParenParamList = do
             Just (exp, trail) -> do
                 rest <- option [] $ do { trail; formalSegment dot }
                 return (exp ++ rest)
+    argBlockish :: (Char -> Bool) -> [RuleParser ([Exp], RuleParser String)]
     argBlockish dot =
         [ argBlockWith ruleBlockLiteral dot
         , argBlockWith pairOrBlockAdverb dot
         , argVanilla
         ]
+    argBlockWith :: Monad m => RuleParser a -> (Char -> Bool) -> RuleParser ([a], m String)
     argBlockWith rule pred = do
         x <- rule
         lookAhead $ satisfy pred
         return ([x], return "")
     dotAllowed = (/= '.')
     dotForbidden = (not . (`elem` ".,"))
+    argVanilla :: RuleParser ([Exp], RuleParser String)
     argVanilla = do
-        x <- parseTightOp
+        x <- parseExpWithTightOps
         a <- option [] $ try $ many pairOrBlockAdverb
         return (x:a, symbol ",")
 
@@ -1815,12 +1855,6 @@ nameToParam name = MkParam
         _    -> CxtItem   $ typeOfSigil (head name)
     , paramDefault  = Noop
     }
-
-maybeParensBool :: RuleParser a -> RuleParser (a, Bool)
-maybeParensBool p = choice
-    [ do rv <- parens p; return (rv, True)
-    , do rv <- p; return (rv, False)
-    ]
 
 ruleParamName :: RuleParser String
 ruleParamName = literalRule "parameter name" $ do
@@ -1940,12 +1974,6 @@ undefLiteral :: RuleParser Exp
 undefLiteral = try $ do
     symbol "undef"
     return $ Val VUndef
-    {-
-        (invs,args)   <- maybeParens $ parseParamList
-        return $ if isNothing invs && null args
-            then Val VUndef
-            else App (Var "&undef") invs args
-    -}
 
 numLiteral :: RuleParser Exp
 numLiteral = do
@@ -1980,7 +2008,7 @@ pairArrow :: RuleParser Exp
 pairArrow = do
     key <- identifier
     symbol "=>"
-    val <- parseTightOp
+    val <- parseExpWithTightOps
     return (Val (VStr key), val)
     return $ App (Var "&infix:=>") Nothing [Val (VStr key), val]
 
@@ -2399,7 +2427,7 @@ methOps _ = []
 ternOp :: String -> String -> String -> RuleOperator Exp
 ternOp pre post syn = (`Infix` AssocRight) $ do
     symbol pre
-    y <- parseTightOp
+    y <- parseExpWithTightOps
     symbol post
     return $ \x z -> Syn syn [x, y, z]
 
