@@ -307,6 +307,16 @@ EOD
         $threaded = '';
     }
 
+    # As of now, Test::TAP::HTMLMatrix is the key dependency for smokes,
+    # so we need only check for that.
+    eval { require Test::TAP::HTMLMatrix } or push @warn, << '.';
+*** You do not appear to have a Smoke Kit installed. You can still build
+    Pugs and even run `make test', but you won't be able to run the more
+    modern `make smoke' target to produce nice graphs and send them to the
+    public smoke server. Installing Bundle::Pugs::SmokeKit from CPAN will
+    bring in the necessary dependencies.
+
+.
     # XXX - hsplugins doesn't build with profiles
     my $profiled_flags = $ghc_flags;
     $profiled_flags =~ s{-DPUGS_HAVE_HSPLUGINS}{};
