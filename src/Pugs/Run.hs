@@ -27,6 +27,7 @@ import Pugs.Eval
 import Pugs.Prim
 import Pugs.Embed
 import Data.IORef
+import System.FilePath
 import qualified Data.Map as Map
 
 
@@ -195,5 +196,6 @@ getLibs = do
                  , getConfig "privlib"
                  , getConfig "sitearch"
                  , getConfig "sitelib"
+                 , foldl1 joinFileName [getConfig "pugslibdir", "perl6", "lib"]
                  ]
               ++ [ "." ]

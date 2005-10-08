@@ -231,9 +231,9 @@ doHelperRun :: String -> [String] -> IO ()
 doHelperRun backend args =
     case map toLower backend of
         "js"    -> if (args' == [])
-                   then (doExecuteHelper [ "perl5", "PIL2JS",  "jspugs.pl"  ] args)
-                   else (doExecuteHelper [ "perl5", "PIL2JS",  "runjs.pl"   ] args)
-        "perl5" ->       doExecuteHelper [ "perl5", "PIL-Run", "pugs-p5.pl" ] args
+                   then (doExecuteHelper "jspugs.pl"  args)
+                   else (doExecuteHelper "runjs.pl"   args)
+        "perl5" ->       doExecuteHelper "pugs-p5.pl" args
         _       ->       fail ("unknown backend: " ++ backend)
     where
     args' = f args
@@ -243,15 +243,22 @@ doHelperRun backend args =
     f (pugspath:rest) | "--pugs=" `isPrefixOf` pugspath = f rest
     f (x:xs) = x:f xs
 
-doExecuteHelper :: [FilePath] -> [String] -> IO ()
+doExecuteHelper :: FilePath -> [String] -> IO ()
 doExecuteHelper helper args = do
-    let searchPaths = [["."], ["..", ".."], [getConfig "installsitelib"], [getConfig "sourcedir"]]
+    let searchPaths = concatMap (\x -> map (x++) suffixes) [["."], ["..", ".."], [getConfig "sourcedir"], [getConfig "pugslibdir"]]
     mbin <- findHelper searchPaths
     case mbin of
         Just binary -> do
             exitWith =<< executeFile' perl5 True (binary:args) Nothing
-        _ -> fail ("Couldn't find helper program " ++ (foldl1 joinFileName helper) ++ " (searched in " ++ show searchPaths ++ ")")
+        _ -> fail ("Couldn't find helper program " ++ helper ++ " (searched in " ++ show (map (foldl1 joinFileName) searchPaths) ++ ")")
     where
+    suffixes =
+        [ []
+        , ["perl5", "PIL2JS"]      --  $sourcedir/perl5/PIL2JS/jspugs.pl
+        , ["perl5", "PIL-Run"]     --  $sourcedir/perl5/PIL-Run/pugs-p5.pl
+        , ["perl5", "lib"]         --  $pugslibdir/perl5/lib/jspugs.pl
+        , ["perl5", "lib", "PIL"]  --  $pugslibdir/perl5/PIL/pugs-p5.pl
+        ]
     perl5 = getConfig "perl5path"
     findHelper :: [[FilePath]] -> IO (Maybe FilePath)
     findHelper []     = return Nothing
@@ -269,7 +276,7 @@ doExecuteHelper helper args = do
                 | filex     -> return $ Just $ file  x
                 | filex'    -> return $ Just $ file' x
                 | otherwise -> findHelper xs
-    file  x = foldl1 joinFileName (x ++ helper)
+    file  x = foldl1 joinFileName (x ++ [helper])
     file' x = (file x) ++ (getConfig "exe_ext")
     fileExists path = do
         let (p,f) = splitFileName path
