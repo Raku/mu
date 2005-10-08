@@ -65,8 +65,9 @@ F<smoke-js.html>.
   |   |   `-- JS/         Submodules of the Prelude (e.g. Prelude::JS::Array,
   |   |                   Prelude::JS::ControlFlow, etc.)
   |-- libjs
-  |   `-- PIL2JS.js       Part of the JavaScript Prelude,
-  |                       written in JavaScript
+  |   |-- PIL2JS.js       Part of the JavaScript Prelude,
+  |   |                   written in JavaScript
+  |   `-- Perl6/          JavaScript Perl 6 Metamodel
 
 =head1 WHAT'S WORKING ALREADY?
 

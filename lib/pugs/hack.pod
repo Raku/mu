@@ -38,8 +38,8 @@ The Pugs source tree includes several major sections:
     |-- ext          Perl 6 modules that are installed with Pugs
     |-- inc          Perl 5 modules needed for build/test/install
     |-- lib          Perl 5 modules that are installed with Pugs
-    |-- modules      Perl 6 modules not working today; -> FreePAN
-    |-- perl5        Perl 5 modules not installed with Pugs
+    |-- misc         Other modules, not directly used by Pugs
+    |-- perl5        Internal Perl 5 modules for Pugs (compiler backends)
     |-- script       pugscc, the Pugs Compiler Collection
     |-- src          Source code for Pugs itself
     |-- t            Perl 6 test suite
@@ -153,28 +153,31 @@ Expanding this one level deeper:
     |   |-- Perl6              Perl6::MakeMaker, Perl6::Pugs
     |   `-- pugs               POD docs for Pugs itself
     |
-    |-- modules            Perl 6 modules not working today; -> FreePAN
+    |-- misc               Other modules, not directly used by Pugs
+    |   |-- Blondie            Intermediate language and compiler collection
+    |   |                      used to demonstrate a possible approach to
+    |   |                      compilation
     |   |-- Class-Events       Redesign of Perl 5's Class::Publisher
     |   |-- Date               Date/calendar calculations
     |   |-- Grammars           Perl 6 grammer written as Perl 6 rules
+    |   |-- JavaScript-FrontEnd  JavaScript Frontend
+    |   |-- org.perl6.metamodel  Prototype Perl 6 metaclass model: Java
+    |   |-- Perl-MetaModel     Prototype Perl 6 metaclass model: Perl 5,
+    |   |                      version 1.0
     |   |-- POE                Beginning of an experimental port of Perl 5 POE
-    |   |-- Perl-MetaModel     Sketch of Perl 6 Object Meta Model
-    |   `-- Sample-Module      Sample module for Perl 6 authors
+    |   |-- Rosetta-Incubator  Rigorous Database Portability
+    |   |-- T2-Perl6           T2 (Tangram::Schema redesign) -> Perl6::Class 
+    |   |-- XML-Sax            Simple API for XML
     |
-    |-- perl5              Perl 5 modules not installed with Pugs
-    |   |-- Code-Perl          Helper module for Perl 5 code generation
-    |   |-- PIL-Run            PIL virtual machine in Perl 5
-    |   |-- PIL2JS             PIL to JavaScript compiler
+    |-- perl5              Internal Perl 5 modules for Pugs (compiler backends)
     |   |-- Perl6-Container    Perl 6 containers implemented using the Perl 5
     |   |                      metamodel
-    |   |-- Perl6-MetaModel    Prototype Perl 6 metaclass model: Perl 5
-    |   |-- Perl6-MetaModel2.0 Prototype Perl 6 metaclass model: Perl 5,
+    |   |-- Perl6-MetaModel    Prototype Perl 6 metaclass model: Perl 5,
     |   |                      version 2.0
     |   |-- Perl6-Value        Perl 6 values implemented using the Perl 5
     |   |                      metamodel
-    |   |-- Perl6.MetaModel    Prototype Perl 6 metaclass model: JS
-    |   |-- T2-Perl6           T2 (Tangram::Schema redesign) -> Perl6::Class 
-    |   `-- org.perl6.metamodel  Prototype Perl 6 metaclass model: Java
+    |   |-- PIL-Run            PIL virtual machine in Perl 5
+    |   `-- PIL2JS             PIL to JavaScript compiler
     |
     |-- script             pugscc, the Pugs Compiler Collection
     |
