@@ -1611,12 +1611,11 @@ ruleInvocationParens = ruleInvocationCommon True
         
 ruleInvocationCommon :: Bool -> RuleParser (Exp -> Exp)
 ruleInvocationCommon mustHaveParens = do
-    colonify    <- maybeColon
-    -- should the '=' come before the colon?
+    colon       <- maybeColon
     hasEqual    <- option False $ do { char '='; whiteSpace; return True }
-    name        <- do { str <- ruleSubName; return $ colonify str }
+    name        <- do { str <- ruleSubName; return $ colon str }
     (invs,args) <- if mustHaveParens
-        then parseHasParenParamList
+        then verbatimParens $ parseNoParenParamList
         else option (Nothing,[]) $ parseParenParamList
     when (isJust invs) $ fail "Only one invocant allowed"
     return $ \x -> if hasEqual
@@ -1644,7 +1643,7 @@ ruleHashSubscriptQW = do
 
 ruleCodeSubscript :: RuleParser (Exp -> Exp)
 ruleCodeSubscript = tryVerbatimRule "code subscript" $ do
-    (invs, args) <- parseHasParenParamList -- XXX leading/trailing adverbs?
+    (invs,args) <- parens $ parseParamList
     return $ \x -> App x invs args
 
 {-|
@@ -1754,23 +1753,29 @@ blockAdverb :: RuleParser Exp
 blockAdverb = do
     char ':'
     ruleBlockLiteral
-    
+
+-- used only by 'parseParenParamListCommon'
 parseHasParenParamList :: RuleParser (Maybe Exp, [Exp])
 parseHasParenParamList = verbatimParens $ do
-    invocant        <- option Nothing $ try $ do
-        inv <- parseExpWithItemOps
-        symbol ":"
-        return $ Just inv
-        
-    leadingAdverbs  <- doParseAdverbs
-    
-    arguments       <- parseExpWithItemOps `sepBy` (symbol ",")
-    
-    trailingAdverbs <- doParseAdverbs
-    
-    return (invocant, leadingAdverbs ++ arguments ++ trailingAdverbs)
-    where
-    doParseAdverbs = option [] $ try $ many pairOrBlockAdverb
+    -- formal :: [[Exp]]
+    -- outer level of listness provided by `sepEndBy`
+    -- the inner (`fix`ed) part returns [Exp]
+    formal <- (`sepEndBy` symbol ":") $ fix $ \rec -> do
+        rv <- option Nothing $ do
+            fmap Just $ tryChoice
+                [ do x <- pairOrBlockAdverb
+                     lookAhead (satisfy (/= ','))   
+                     return ([x], return "")
+                , do x <- parseExpWithItemOps
+                     a <- option [] $ try $ many pairOrBlockAdverb
+                     return (x:a, symbol ",")
+                ]
+        case rv of
+            Nothing           -> return []
+            Just (exp, trail) -> do
+                rest <- option [] $ do { trail; rec }
+                return (exp ++ rest)
+    processFormals formal
 
 {-
 Used by:
