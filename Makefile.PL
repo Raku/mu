@@ -59,28 +59,17 @@ if (my $prefix = PugsBuild::Config->lookup('install_dir')) {
 }
 
 clean_files     (map fixpaths($_),
-    "pugs*", "src/Pugs/pugs_config.h", $version_h, $config_h,
-    'src/Pugs/Config.hs', 'blib6', 'dist',
-    'src/Pugs/PreludePC.hs',
-    'src/Pugs/CodeGen/PIR/Prelude.hs',
-    'src/Pugs/CodeGen/PIR/Prelude.hi',
-    'src/Pugs/CodeGen/PIR/Prelude.o',
+    $version_h, $config_h,
+    (map {"$_/*.hpp"} @srcdirs),
     "src/gen_prelude$Config{_exe}",
-    'test.log',
-    'src/Pugs/Embed/Parrot.hs',
-    'src/Pugs/Embed/Parrot_hsc.*',
-    'src/Pugs/Run/Perl5_stub.*',
-    'src/Data/Yaml/Syck_stub.*',
-    'src/Data/Yaml/Syck.hs',
-    (map {("$_/*.o*")} qw(pcre perl5 syck cbits)),
-    (map {("$_/*.hpp", "$_/*.hi", "$_/*.o*")} @srcdirs),
-    'temp-ex*',
-    'unlink-test*',
-    'tmp-Prelude.pm',
-	'Pugs.cabal',
-	'Setup.hi',
-	'Setup',
-	'.setup-config'
+    "Setup$Config{_exe}", qw(
+    pugs* src/Pugs/pugs_config.h src/Pugs/Config.hs blib6 dist
+    src/Pugs/PreludePC.hs src/Pugs/CodeGen/PIR/Prelude.hs test.log
+    src/Pugs/Embed/Parrot.hs src/Pugs/Embed/Parrot_hsc.*
+    src/Pugs/Run/Perl5_stub.* src/Data/Yaml/Syck_stub.* src/Data/Yaml/Syck.hs
+    temp-ex* unlink-test* tmp-Prelude.pm Pugs.cabal Setup.hi Setup.o
+    .setup-config .installed-pkg-config
+    )
 );
 
 set_postamble   ();
@@ -116,6 +105,9 @@ sub set_postamble {
         $hsc2hs =~ s{(.*)ghc}{$1hsc2hs};
     }
 
+    unlink("Setup$Config{_exe}");
+    unlink("Setup.o");
+    unlink("Setup.hi");
     system($ghc, '--make', '-o' => $setup, 'Setup.lhs');
 
     my $heap = PugsBuild::Config->lookup('ghc_heap_size');
@@ -469,25 +461,19 @@ INST6_MAN3DIR = blib6/man3
 INSTPUGS_LIB = blib6/pugs
 
 build_perl5 ::
-	for dir in perl5/*; do \\
-		if [ -d \$\$dir ]; then \\
-			(cd \$\$dir; perl Makefile.PL; make) \\
-		fi \\
-	done
+@{[for_perl5("
+	cd __DIR__ && perl Makefile.PL && make
+")]}
 
 clean ::
-	-for dir in perl5/*; do \\
-		if [ -d \$\$dir ]; then \\
-			cd \$\$dir && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) clean; \\
-		fi \\
-	done
+@{[for_perl5("
+	cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) clean
+")]}
 
 realclean ::
-	-for dir in perl5/*; do \\
-		if [ -d \$\$dir ]; then \\
-			cd \$\$dir && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) realclean; \\
-		fi \\
-	done
+@{[for_perl5("
+	cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) realclean
+")]}
 
 pure_all :: build_perl5
 	\$(PERLRUN) util/src_to_blib.pl
@@ -520,6 +506,18 @@ pure_vendor_install ::
 		\$(INSTPUGS_LIB) \$(DESTDIR)$config->{pugslibdir}
 	\$(NOECHO) \$(ECHO) "*** Installed!  Type '\$(MAKE) register' to make Pugs a GHC package."
 .
+}
+
+sub for_perl5 {
+    my $cmd = shift;
+    $cmd =~ s{\n}{}g;
+    my @cmds;
+    foreach my $dir (grep -d, glob('perl5/*')) {
+        my $this = $cmd;
+        $this =~ s{__DIR__}{$dir}g;
+        push @cmds, $this;
+    }
+    return join("\n", @cmds);
 }
 
 sub try_compile {
