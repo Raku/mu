@@ -16,9 +16,6 @@ unless try { "a" ~~ /a/ } {
     exit;
 }
 
-skip_rest "skipping hanging tests";  # XXX
-exit;
-
 is((MIME::Base64::encode($plain)),$base64,"Encoding");
 is((MIME::Base64::decode($base64)),$plain,"Decoding");
 is((MIME::Base64::decode(MIME::Base64::encode($unicode))),$unicode,"Unicode round trip");
