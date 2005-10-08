@@ -15,7 +15,7 @@ original golf solutions and rg0now's improved solutions.
 plan 10;
 
 # XXX - the golf works when run by hand, but not via this test... disable for now. :-(
-skip_rest; exit;
+skip_rest "must be run manually"; exit;
 
 # XXX: in file paths, '/' works on Unix and Windows.
 # For greater portability, we will need File::Spec or equivalent.
