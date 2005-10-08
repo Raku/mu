@@ -32,7 +32,7 @@ method new ($class: Str $msg_key is rw, Hash ?$msg_vars is rw)
     if ($msg_vars.defined) {
         return
             if !$msg_vars.does(Hash);
-        $msg_vars_copy = hash(%{$msg_vars});
+        $msg_vars_copy = %{$msg_vars};
     }
     # we are assuming that hash keys never undef, so aren't testing them
 
@@ -51,20 +51,22 @@ method get_message_key ($message:) returns Str {
 method get_message_variable ($message: Str $var_name is rw) returns Str {
     return
         if !$var_name.defined;
-    return $message.msg_vars{$var_name};
+    my %temp = %{$message.msg_vars}; # work around auto-vivify bug in Pugs
+    return %temp{$var_name};
 }
 
 method get_message_variables ($message:) returns Hash of Str {
-    return hash(%{$message.msg_vars});
+    return %{$message.msg_vars};
 }
 
 ######################################################################
 
 method as_string ($message:) returns Str {
     # This method is intended for debugging use only.
-    my %temp = $message.msg_vars; # use of %temp should not be necessary
-    return $message.msg_key ~ ': ' ~ %temp.pairs.sort
-        .map:{ .key ~ '=' ~ (.value // $EMPTY_STR) }.join( ', ' );
+    return $message.msg_key ~ ': ' ~ $message.msg_vars.keys.sort
+        .map:{ $_ ~ '=' ~ ($message.msg_vars{$_} // $EMPTY_STR) }.join( ', ' );
+#    return $message.msg_key ~ ': ' ~ $message.msg_vars.pairs.sort
+#        .map:{ .key ~ '=' ~ (.value // $EMPTY_STR) }.join( ', ' );
         # /S02 says sorting Pairs sorts keys by default.
     # we expect that .map will be invoked off of list that .sort returns
     # I might use Hash.as() later, but don't know if it is customizable to
@@ -138,7 +140,7 @@ method translate_message
         if !$message.defined or !$message.does(Locale::KeyedText::Message);
     my Str $text = undef;
 #    SET_MEMBER:
-    for $translator.tmpl_mem_nms.map:{ $translator.tmpl_set_nms »~« $_ }
+    for @{$translator.tmpl_mem_nms}.map:{ $translator.tmpl_set_nms »~« $_ }
             -> $template_module_name {
         try {
             if (1) { # TODO: "if !$package_is_loaded"
@@ -168,9 +170,7 @@ method translate_message
 #        next SET_MEMBER
         next
             if !$text;
-        my %temp = $message.msg_vars;
-            # the use of %temp should not be necessary
-        for %temp.kv -> $var_name, $var_value is copy {
+        for $message.msg_vars.kv -> $var_name, $var_value is copy {
             $var_value //= $EMPTY_STR;
             $text ~~ s:perl5:g/\{$var_name\}/$var_value/; # this v, Pugs
 #           $text ~~ s:g/\{$var_name\}/$var_value/; # this v, PGE/Parrot
