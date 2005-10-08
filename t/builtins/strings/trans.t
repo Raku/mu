@@ -16,7 +16,7 @@ is("ABC".trans( 'A'=>'a', 'B'=>'b', 'C'=>'c' ),"abc",
         "Each side can be individual characters");
 
 is("XYZ".trans( 'XYZ' => 'xyz' ),"xyz",
-           "The two sides of the any pair can be strings interpreted as tr/// would.mulychar");
+           "The two sides of the any pair can be strings interpreted as tr/// would multichar");
 
 
 is("ABC".trans( 'A-C' => 'a-c' ),"abc",
