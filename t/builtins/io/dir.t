@@ -6,7 +6,7 @@ use Test;
 plan 3;
 
 if ($*OS eq any<MSWin32 mingw msys cygwin browser>) {
-    skip_rest;
+    skip_rest "not supported on this platform";
     exit;
 }
 
