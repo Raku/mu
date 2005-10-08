@@ -159,6 +159,7 @@ sub build_exe {
         push @pkgs, -package => 'unix';
     }
     push @pkgs, -package => 'readline' if grep /^-DPUGS_HAVE_READLINE$/, @_;
+    push @pkgs, -package => 'plugins', -package => 'haskell-src' if grep /^-DPUGS_HAVE_HSPLUGINS$/, @_;
     my @libs = "-lHSPugs-$version";
     push @libs, grep /\.a$/, @_;
     push @libs, grep /^-[lL]/, @_;
