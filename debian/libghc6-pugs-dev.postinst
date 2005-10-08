@@ -1,0 +1,20 @@
+#!/bin/sh
+
+GHC=ghc-6.4
+VERSION=6.2.10
+
+case "$1" in
+	configure)
+		/usr/lib/${GHC}/bin/ghc-pkg -g --add-package < /usr/lib/haskell-packages/ghc6/lib/Pugs-${VERSION}/installed-pkg-config
+	;;
+
+	abort-upgrade|abort-remove|abort-deconfigure)
+	;;
+
+	*)
+		echo "postinst called with unknown argument \`$1'" >&2
+		exit 1;
+	;;
+esac
+
+#DEBHELPER#

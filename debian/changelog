@@ -1,3 +1,9 @@
+pugs (6.2.10-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Florian Ragwitz <rafl@debianforum.de>  Sat,  8 Oct 2005 15:33:45 +0200
+
 pugs (6.2.9-1) unstable; urgency=low
 
   * Initial release (Closes: #297871).
