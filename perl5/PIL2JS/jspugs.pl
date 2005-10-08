@@ -5,7 +5,8 @@ use strict;
 
 use FindBin;
 use File::Spec;
-use lib File::Spec->catfile($FindBin::Bin, "lib");
+use lib File::Spec->catdir($FindBin::Bin, "lib");
+use lib File::Spec->catdir($FindBin::Bin);
 use PIL2JS;
 use PIL::Parser;
 use Term::ReadLine;
@@ -174,5 +175,6 @@ sub command_js {
 
 sub command_e {
   my $js = eval { jsbin_hack(compile_perl6_to_standalone_js("-e", shift)) };
+  print $OUT $@ and return if $@;
   run_js($js) if $js;
 }

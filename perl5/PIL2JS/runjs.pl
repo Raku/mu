@@ -5,7 +5,8 @@ use strict;
 
 use FindBin;
 use File::Spec;
-use lib File::Spec->catfile($FindBin::Bin, "lib");
+use lib File::Spec->catdir($FindBin::Bin, "lib");
+use lib File::Spec->catdir($FindBin::Bin);
 use PIL2JS;
 use Getopt::Long;
 
@@ -53,13 +54,13 @@ GetOptions(
   "help"          => \&usage,
 ) and @pugs_args or usage();
 
-unless(-e $PIL2JS::cfg{preludepc}) {
+unless(-e $PIL2JS::cfg{preludepc} and -s $PIL2JS::cfg{preludepc}) {
   warn "*** Precompiled Prelude doesn't exist yet; precompiling...\n";
   my $js = precomp_module_to_mini_js "-I", PIL2JS::pwd("lib6"), "-MPrelude::JS";
   write_file($js => $PIL2JS::cfg{preludepc});
 }
 
-unless(-e $PIL2JS::cfg{testpc}) {
+unless(-e $PIL2JS::cfg{testpc} and -s $PIL2JS::cfg{testpc}) {
   warn "*** Precompiled Test.pm doesn't exist yet; precompiling...\n";
   my $js = precomp_module_to_mini_js "-MTest";
   write_file($js => $PIL2JS::cfg{testpc});

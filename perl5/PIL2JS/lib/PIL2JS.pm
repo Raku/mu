@@ -22,6 +22,13 @@ our @EXPORT    = qw<
 our @EXPORT_OK = qw< pwd >;
 
 sub pwd { File::Spec->catfile($FindBin::Bin, @_) }
+sub try_files {
+  my @cands = @_;
+  -e $_ and return $_ for @cands;
+  return $cands[0];
+}
+
+sub jsprelude_path { try_files pwd(qw< libjs PIL2JS.js >), pwd(qw< .. .. js lib PIL2JS.js >) }
 
 our %cfg = (
   js        => "js",
@@ -29,8 +36,8 @@ our %cfg = (
   pil2js    => pwd('pil2js.pl'),
   preludepc => pwd('Prelude.js'),
   testpc    => pwd('Test.js'),
-  prelude   => pwd(qw< lib6 Prelude JS.pm >),
-  metamodel_base => pwd(qw< libjs >) . "/", # hack?
+  prelude   => try_files(pwd(qw< lib6 Prelude JS.pm >), pwd(qw< .. .. perl6 lib Prelude JS.pm>)),
+  metamodel_base => try_files(pwd(qw< libjs >), pwd(qw< .. .. js lib >)) . "/", # hack?
 );
 
 sub diag($) { warn "# $_[0]\n" if $cfg{verbose} }
@@ -209,7 +216,5 @@ var navigator = { userAgent: undefined };
 var alert     = function (msg) { document.write("Alert: " + msg) };
 EOF
 }
-
-sub jsprelude_path { pwd qw< libjs PIL2JS.js > }
 
 1;
