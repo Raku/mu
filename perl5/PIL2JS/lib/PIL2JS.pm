@@ -46,7 +46,7 @@ sub diag($) { warn "# $_[0]\n" if $cfg{verbose} }
 # there's always a newline at the end. So our fake document.write outputs
 # "string_to_output#IGNORE NEXT LINEFEED#\n", and we can s/#IGNORE NEXT
 # LINEFEED#\n// later.
-our $MAGIC_NOLF = "#IGNORE NEXT LINEFEED#";
+our $MAGIC_NOLF = "#PIL2JS // IGNORE NEXT LINEFEED#";
 
 sub preludepc_check {
   unless(-e $cfg{preludepc} and -s $cfg{preludepc}) {
@@ -136,7 +136,7 @@ sub run_pil2js {
       $_ = "-";
     }
   }
-  my @cmd = ($cfg{pil2js}, @args);
+  my @cmd = ("perl", $cfg{pil2js}, @args);
   diag "@cmd";
 
   my $pid = open2 my($read_fh), my($write_fh), @cmd

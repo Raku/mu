@@ -18,7 +18,8 @@ INIT {
 
 use FindBin;
 use File::Spec;
-use lib File::Spec->catfile($FindBin::Bin, "lib");
+use lib File::Spec->catdir($FindBin::Bin, "lib");
+use lib File::Spec->catdir($FindBin::Bin);
 use PIL2JS qw< run_pugs >;
 use Getopt::Long;
 use PIL::Parser;
