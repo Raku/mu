@@ -2,6 +2,7 @@
 
 use FindBin '$Bin';
 use lib ("$Bin/lib",
+         "$Bin/..",
          "$Bin/../Perl6-Value/lib",
          "$Bin/../Perl6-Container/lib",
          "$Bin/../Perl6-MetaModel", # XXX

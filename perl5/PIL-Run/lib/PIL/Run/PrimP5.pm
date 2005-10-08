@@ -361,8 +361,9 @@ sub help_require_use { # XXX - getting crufty...
     push(@incdirs,
 	 '.',
          'lib6',
-         File::Spec->catfile('blib6','lib'),
-         File::Spec->catfile($FindBin::Bin,'lib6'));
+         File::Spec->catdir('blib6','lib'),
+         File::Spec->catdir($FindBin::Bin,'lib6'),
+         File::Spec->catdir($FindBin::Bin,qw< .. .. .. perl6 lib>));
     for my $dir (@incdirs) {
 	my $f = File::Spec->catfile($dir,$fn);
         next if !-e $f;
