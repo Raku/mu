@@ -105,7 +105,7 @@ use Perl6::Value::List;
   my $a1 = Perl6::Container::Array.from_list( $iter );
   $a1 = $a1.to_list.Perl6::Value::List::pairs;
   my $p = $a1.shift;
-  is( $p.ref,  'Pair',     'pair' );
+  is( ~($p.ref),  'Pair',     'pair' );
   is( $p.perl, '(0 => 4)', 'pair' );
 }
 
