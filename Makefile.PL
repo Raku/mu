@@ -479,7 +479,7 @@ realclean ::
 
 pure_all :: build_perl5
 	\$(PERLRUN) util/src_to_blib.pl
-	\$(NOECHO) \$(ECHO) "*** Done!  Type '\$(MAKE) install' to install."
+	\$(NOECHO) \$(ECHO) "*** Successfully built!  Type '\$(MAKE) install' to install."
 
 register ::
 	\$(PERLRUN) util/ghc_setup.pl register --prefix=\$(DESTDIR)
