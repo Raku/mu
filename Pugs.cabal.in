@@ -11,7 +11,7 @@ synopsis: A Perl 6 Implementation
 description: A Perl 6 Implementation
 author: Autrijus Tang <autrijus@autrijus.org>
 tested-with: GHC -any
-exposed-modules: Pugs
+exposed-modules: Pugs Pugs.AST Pugs.AST.Internals Pugs.AST.Pad Pugs.AST.Pos Pugs.AST.Prag Pugs.AST.SIO Pugs.AST.Scope Pugs.Bind Pugs.CodeGen Pugs.CodeGen.Binary Pugs.CodeGen.JSON Pugs.CodeGen.PIL Pugs.CodeGen.PIR Pugs.CodeGen.PIR.Prelude Pugs.CodeGen.Perl5 Pugs.Compat Pugs.Compile Pugs.Compile.Haskell Pugs.Compile.Pugs Pugs.Config Pugs.Cont Pugs.Embed Pugs.Embed.Haskell Pugs.Embed.Parrot Pugs.Embed.Perl5 Pugs.Eval Pugs.Eval.Var Pugs.External Pugs.External.Haskell Pugs.Help Pugs.Internals Pugs.Junc Pugs.Lexer Pugs.Monads Pugs.PIL1 Pugs.Parser Pugs.Parser.Number Pugs.Parser.Program Pugs.Parser.Types Pugs.Parser.Unsafe Pugs.Pretty Pugs.Prim Pugs.Prim.Code Pugs.Prim.Eval Pugs.Prim.FileTest Pugs.Prim.Keyed Pugs.Prim.Lifts Pugs.Prim.List Pugs.Prim.Match Pugs.Prim.Numeric Pugs.Prim.Param Pugs.Prim.Yaml Pugs.Rule Pugs.Rule.Char Pugs.Rule.Combinator Pugs.Rule.Error Pugs.Rule.Expr Pugs.Rule.Language Pugs.Rule.Pos Pugs.Rule.Prim Pugs.Rule.Token Pugs.Run Pugs.Run.Args Pugs.Run.Perl5 Pugs.Shell Pugs.Types Pugs.Version Emit.Common Emit.PIR 
 buildable: True
 c-sources: src/cbits/fpstring.c src/pcre/pcre.c __UNICODE_C__
            src/syck/bytecode.c src/syck/emitter.c src/syck/gram.c src/syck/handler.c
@@ -23,5 +23,5 @@ extensions: ForeignFunctionInterface
 includes: syck.h pcre.h
 include-dirs: . src/pcre src/cbits src/perl5 src/syck src/cbits src __INCLUDE_DIRS__
 hs-source-dir: src
-other-modules: Pugs.CodeGen.PIR.Prelude Emit.Common Emit.PIR DrIFT.JSON DrIFT.Binary Pugs.Run.Perl5 Data.Yaml.Syck Pugs.Version Pugs.Config Pugs.Cont Pugs.AST.Prag Pugs.AST.Pos Pugs.AST.Scope Pugs.AST.SIO Pugs.Embed.Perl5 System.FilePath UTF8 DrIFT.Perl5 Unicode Pugs.Compat Pugs.Embed.Parrot RRegex.PCRE RRegex.Syntax RRegex Pugs.Rule.Pos Pugs.Rule.Error Pugs.Rule.Prim Pugs.Rule.Char Pugs.Rule.Combinator Pugs.Rule Pugs.Rule.Token Pugs.Rule.Language Pugs.Rule.Expr Pugs.Internals Pugs.Types Pugs.Parser.Number Pugs.AST.Internals Pugs.AST.Pad Pugs.AST Pugs.Prim.Keyed Pugs.Embed.Haskell Pugs.Embed Pugs.Prim.Param Pugs.Prim.Lifts Pugs.External.Haskell Pugs.Pretty Pugs.Monads Pugs.Prim.Numeric Pugs.Prim.List Pugs.Bind Pugs.Eval.Var Pugs.Parser.Types Pugs.Parser.Unsafe Pugs.Lexer Pugs.Parser Pugs.Parser.Program Pugs.Prim.Eval Pugs.Prim.Code Pugs.Prim.FileTest Pugs.Prim.Match Pugs.Prim.Yaml Pugs.External Pugs.Junc Pugs.Prim Pugs.Eval Pugs.Run.Args Pugs.Run Pugs.Compile.Haskell Pugs.Compile.Pugs Pugs.PIL1 Pugs.Compile Pugs.CodeGen.Binary Pugs.CodeGen.JSON Pugs.CodeGen.Perl5 Pugs.CodeGen.PIR Pugs.CodeGen.PIL Pugs.CodeGen Pugs.Help Pugs.Shell
+other-modules: Data.Yaml.Syck DrIFT.Binary DrIFT.JSON DrIFT.Perl5 RRegex RRegex.PCRE RRegex.Syntax System.FilePath UTF8 Unicode
 ghc-options: __OPTIONS__
