@@ -3,7 +3,7 @@ use v6;
 class FA::DFA::Node;
 
 has %.arc;
-has Bool $.final;
+has bool $.final;
 
 multi method addarc(Str $trigger,+$node = FA::DFA::Node.new --> FA::DFA::Node) {
   %.arc{$trigger} = $node;
@@ -13,6 +13,15 @@ multi method addarc(Str $trigger,+$node = FA::DFA::Node.new --> FA::DFA::Node) {
 multi method next(Str $trigger --> FA::DFA::Node) {
   %.arc{$trigger};
 }
+
+multi method finalize() {
+  $.final=bool::true;
+}
+
+multi method finalq() {
+  $.final;
+}
+
 
 class FA::DFA;
 
@@ -40,6 +49,14 @@ multi method addarc(Str $trigger --> FA::DFA::Node) {
 
 multi method next(Str $trigger) {
   $.state = $.state.next($trigger);
+}
+
+multi method final() {
+  $.state.final;
+}
+
+multi method final($final) {
+  $.state.final = $final;
 }
 
 
