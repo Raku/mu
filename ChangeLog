@@ -1,20 +1,17 @@
-== Changes for 6.2.10 (rXXXX) - Oct X, 2005
+== Changes for 6.2.10 (r7506) - Oct 10, 2005
 
 === Pugs Internals
 
+* Significant backend enhancements (see below)
 * $?PUGS_BACKEND can be used to tell which runtime is in use 
 * Perl 5 backend can be invoked with 'pugs -B Perl5', 
   JavaScript backend can be invoked with 'pugs -B JS'
-* Expanded any existing literal tab chars to spaces in these files:
-** /src/*, /inc/*, /perl5/*, /util/*
-** /lib/* (except lib/Perl6/MakeMaker.pm, which retains 3 for literal output)
-** /Makefile.PL (except that it retains tabs in its literal output)
+* Code convention is to expanded literal tab chars to spaces in Haskell,
+  tests, and example Perl 6 code.
 * Pugs will now compile version ranges in 'use/require' statements
 
 === Bundled Modules
 
-* Expanded any existing literal tab chars to spaces in these files:
-** /ext/*, /modules/*
 * Updated /ext/Locale-KeyedText : resync with p5 version 1.6.2, updates to
   stay compatible with latest Perl 6 spec changes
 * New Perl 6 modules:
@@ -23,12 +20,22 @@
 ** Log-Selective
 ** Rosetta-Incubator, under /modules, having a complete set of
    2005.09.29-restarted Rosetta[|::*] and SQL::Routine[|::*] modules
+** Cipher::* - Cipher API for cryptographic ciphers, including
+   implementations of TEA and Arcfour (RC4)
+** FA-DFA
+** Beginnings of XML::SAX port
+** Beginnings of Getopt::Long port
 
 === Test, Examples and Documentations
 
-* Expanded any existing literal tab chars to spaces in these files:
-** /t/*, /t_disabled/*
-** /examples/* (but some tabs remain in literal strings, and data files)
+* Many new tests and test refactoring, we now have 10300+ tests
+* Documentation for Draft GC API at `docs/notes/GC.pod`
+* Datafile for curcular prelude exploratory diagram at
+  `docs/notes/compilation_of_circular_prelude.graffle`, some
+  examples at `docs/notes/circular_prelude_stuff.pl`
+* Collaborative journal at `/docs/journal`
+* Autrijus' CUFP talk at `/mirror/pugs/docs/talks/cufp2005.txt`
+* Theory proposal at `docs/notes/theory.pod`
 
 === Bug Fixes
 
@@ -36,8 +43,8 @@ XXX not sure where to put this
 
 === JavaScript backend
 * Passes 91% of the test suite
-* Integrated the MetaModel
-* Switched to much faster `-CPerl5`
+* Integrated MetaModel 1.0
+* Faster code generation, taking advantage of `-CPerl5` output.
 * Switched to continuation passing style (CPS) to properly support `return()`,
   `&?CALLER_CONTINUATION`, coroutines, and `sleep()`
 * Added support for `$CALLER::` and `$OUTER::`
