@@ -4,21 +4,20 @@
 
 ==== Shared components
 
-* Pugs is Cabalized now, exposing Pugs as a library to other Haskell
-  users and paving the way for use in IDEs, and with future Inline::Pugs
-  and Inline::GHC modules.
-* Significant backend enhancements (see below)
+* Support for the Haskell Cabal framework, exposing Pugs as a library to other
+  Haskell users, paving the way for use in IDEs, as well as future Inline::Pugs
+  and Inline::GHC modules
+* Significant backend enhancements; see below
 * $?PUGS_BACKEND can be used to tell which runtime is in use 
-* Perl 5 backend can be invoked with 'pugs -B Perl5', 
-  JavaScript backend can be invoked with 'pugs -B JS'
-* Code convention is to expanded literal tab chars to spaces in Haskell,
-  tests, and example Perl 6 code.
+* Perl 5 backend can be invoked with `pugs -B Perl5`
+* JavaScript backend can be invoked with `pugs -B JS`
+* Adopted the code convention of expanding literal tab chars to spaces
 * Pugs will now compile version ranges in 'use/require' statements
 * `exec` emulated (parially) on Win32
 
 ==== JavaScript backend
 
-* Passes 91% of the test suite
+* Passes 91% of the main test suite (including TODO failures)
 * Integrated MetaModel 1.0
 * Faster code generation, taking advantage of `-CPerl5` output.
 * Switched to continuation passing style (CPS) to properly support `return()`,
@@ -55,14 +54,13 @@
   methods is lacking)
 
 ==== Perl 5 backend
+* Passes 33% of the main test suite (including TODO failures)
 * Already has enough functionality to run Perl 6 version of Test.pm
-* Integrated the MetaModel 1.0
-* Added support for an extensive list of operators
-* Initial support for multi Sub, Class, Match, exceptions, types and subtypes
-* Supports Scalar, Hash and Array containers, with tieing, binding and 
-  read-only capabilities
-* Supports Infinite lazy lists, Pairs, References, and the base classes Int,
-  Num, Str, Rat
+* Integrated with the Perl 5 edition of MetaModel 2.0
+* Support for an extensive list of operators
+* Multi Sub, Class, Match, exceptions, types and subtypes
+* Scalar, Hash and Array containers, with tieing, binding and read-onlyness
+* Infinite lazy lists, Pairs, References, and intrinsic classes
 * Supports eval() with Perl 5 and Perl 6 code
 * %ENV is shared with Perl 5; @INC is separate from @Perl5::INC
 
@@ -82,11 +80,11 @@
 
 === Bundled Modules
 
-* Updated /ext/Locale-KeyedText : resync with p5 version 1.6.2, updates to
-  stay compatible with latest Perl 6 spec changes
+* Updated /ext/Locale-KeyedText: syncronized with p5 version 1.6.2
+  and updates to stay compatible with latest Perl 6 spec changes
 * New Perl 6 modules:
-** Perl6-Container-Array and Perl6-Value-List prototype modules for 
-  implementing Lazy lists in Perl 6.
+** Perl6-Container-Array, Perl6-Value-List: prototype modules for 
+   implementing Lazy lists in Perl 6.
 ** Log-Selective
 ** Rosetta-Incubator, under /modules, having a complete set of
    2005.09.29-restarted Rosetta[|::*] and SQL::Routine[|::*] modules
@@ -104,8 +102,8 @@
   `docs/notes/compilation_of_circular_prelude.graffle`, some
   examples at `docs/notes/circular_prelude_stuff.pl`
 * Collaborative journal at `/docs/journal`
-* Autrijus' CUFP talk at `/mirror/pugs/docs/talks/cufp2005.txt`
-* Theory proposal at `docs/notes/theory.pod`
+* Autrijus's CUFP talk at `/mirror/pugs/docs/talks/cufp2005.txt`
+* Theory Model proposal at `docs/notes/theory.pod`
 
 == Changes for 6.2.9 (r6050) - Aug 4, 2005
 
