@@ -2,6 +2,9 @@
 
 === Pugs Internals
 
+* Pugs is Cabalized now, exposing Pugs as a library to other Haskell
+  users and paving the way for use in IDEs, and with future Inline::Pugs
+  and Inline::GHC modules.
 * Significant backend enhancements (see below)
 * $?PUGS_BACKEND can be used to tell which runtime is in use 
 * Perl 5 backend can be invoked with 'pugs -B Perl5', 
@@ -9,6 +12,7 @@
 * Code convention is to expanded literal tab chars to spaces in Haskell,
   tests, and example Perl 6 code.
 * Pugs will now compile version ranges in 'use/require' statements
+* `exec` emulated (parially) on Win32
 
 === Bundled Modules
 
@@ -39,7 +43,10 @@
 
 === Bug Fixes
 
-XXX not sure where to put this
+* Fixed infinite loop on sub { 1 }.pairs
+* "sub foo" no longer silently means "multi foo"
+* Fixed `foo {1}.blah` being misparsed as `foo({1}).blah`
+* Fixed a hashref infinite loop
 
 === JavaScript backend
 * Passes 91% of the test suite
