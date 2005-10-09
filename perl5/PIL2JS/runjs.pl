@@ -7,6 +7,16 @@ use FindBin;
 use File::Spec;
 use lib File::Spec->catdir($FindBin::Bin, "lib");
 use lib File::Spec->catdir($FindBin::Bin);
+BEGIN {
+  eval { require Class::Rebless };
+  if($@) {
+    warn <<MSG;
+*** PIL2JS needs the Class::Rebless module from CPAN.
+
+MSG
+    exit 1;
+  }
+}
 use PIL2JS;
 use Getopt::Long;
 
