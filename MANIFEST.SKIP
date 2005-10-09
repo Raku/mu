@@ -31,3 +31,4 @@ svn-commit\.tmp$
 ^t_disabled/
 ^t/builtins/system/
 ^Setup(?!\.lhs)
+^throw_away/
