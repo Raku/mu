@@ -114,6 +114,7 @@ Expanding this one level deeper:
     |   |-- Config-Tiny        Pre-Pugs-OO .ini file reader
     |   |-- DateTime           Port of Perl 5 DateTime, with API changes
     |   |-- DateTime-Set       Port of Perl 5 DateTime::Set/Span/SpanSet
+    |   |-- FA-DFA             Simple Deterministic Finite Automata
     |   |-- File-Find          Traverse a directory tree
     |   |-- File-Spec          Portable File handling
     |   |-- FindBin            Find directory of Perl script

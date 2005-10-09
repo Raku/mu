@@ -3,7 +3,7 @@ use inc::Module::Install prefix => '../../inc';
 
 name       ('FA-DFA');
 version    ('0.01');
-abstract   ('An extreemly simple Deterministic Finite Automata');
+abstract   ('An extremely simple Deterministic Finite Automata');
 author     ('David Formosa');
 license    ('perl');
 
