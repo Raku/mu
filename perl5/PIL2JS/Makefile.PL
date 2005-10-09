@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use lib '../..', '../../inc';
 use inc::Module::Install prefix => '../../inc';
+use File::Spec;
 
 name          ('PIL2JS');
 version_from  ('lib/PIL2JS.pm');
@@ -29,9 +30,7 @@ INSTJS_LIB = blibjs/lib
 
 pure_all ::
 	\$(PERLRUN) util/src_to_blib.pl
-	\$(MKPATH) blibjs/lib/PIL2JS
-	\$(PERLRUN) -Ilib -MPIL2JS -e'print precomp_module_to_mini_js "-I", PIL2JS::pwd("lib6"), "-MPrelude::JS"' > blib/lib/Prelude.js
-	\$(PERLRUN) -Ilib -MPIL2JS -e'print precomp_module_to_mini_js "-MTest"' > blib/lib/Test.js
+	\$(PERLRUN) runjs.pl --compile-only --p6preludepc=blib/lib/Prelude.js --testpc=blib/lib/Test.js -e 1 > @{[ File::Spec->devnull ]}
 
 pure_js_install ::
 	\$(NOECHO) \$(MOD_INSTALL) \\

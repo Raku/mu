@@ -53,11 +53,11 @@ our $MAGIC_NOLF = "#PIL2JS // IGNORE NEXT LINEFEED#";
 sub preludepc_check {
   unless(-e $cfg{preludepc} and -s $cfg{preludepc}) {
     die "* Error: Precompiled Prelude (\"$cfg{preludepc}\") does not exist.\n";
-  } elsif(-e $cfg{prelude} and -M $cfg{prelude} <= -M $cfg{preludepc}) {
-    die "* Error: Your precompiled Prelude is outdated.\n";
-  } elsif(not -e $cfg{prelude}) {
-    warn "* Warning: Couldn't check whether your compiled Prelude is outdated.\n";
-    warn "           Please run runjs.pl with an approproate --p6prelude option.\n";
+  #} elsif(-e $cfg{prelude} and -M $cfg{prelude} <= -M $cfg{preludepc}) {
+  #  die "* Error: Your precompiled Prelude is outdated.\n";
+  #} elsif(not -e $cfg{prelude}) {
+  #  warn "* Warning: Couldn't check whether your compiled Prelude is outdated.\n";
+  #  warn "           Please run runjs.pl with an approproate --p6prelude option.\n";
   }
 }
 
