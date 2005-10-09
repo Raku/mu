@@ -67,7 +67,7 @@ clean_files     (map fixpaths($_),
     src/Pugs/PreludePC.hs src/Pugs/CodeGen/PIR/Prelude.hs test.log
     src/Pugs/Embed/Parrot.hs src/Pugs/Embed/Parrot_hsc.*
     src/Pugs/Run/Perl5_stub.* src/Data/Yaml/Syck_stub.* src/Data/Yaml/Syck.hs
-    temp-ex* unlink-test* tmp-Prelude.pm Pugs.cabal Setup.hi Setup.o
+    temp-ex* unlink-test* Prelude Pugs.cabal Setup.hi Setup.o
     .setup-config .installed-pkg-config
     )
 );

@@ -10,7 +10,7 @@ use Config ();
 # Sets up either the Null Prelude placeholder, or a real precompiled
 # AST of Prelude.pm.
 
-our $TEMP_PRELUDE = "tmp-Prelude.pm"; # XXX: move this to config.yml?
+our $TEMP_PRELUDE = "Prelude"; # XXX: move this to config.yml?
 
 GetOptions \our %Config, qw(--null --pugs|p=s --inline|i=s@ --verbose|v --touch --output|o=s);
 setup_output();
