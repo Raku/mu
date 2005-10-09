@@ -111,6 +111,7 @@ sub run_pugs {
   diag "$cfg{pugs} @args";
 
   $ENV{PERL5LIB} = join $Config{path_sep}, pwd('lib'), ($ENV{PERL5LIB} || "");
+  unshift @args, "-Iblib6/lib", "-I../../blib6/lib";
 
   my $pid = open2 my($read_fh), my($write_fh), "$cfg{pugs}", @args
     or die "Couldn't open pipe to \"$cfg{pugs} @args\": $!\n";
