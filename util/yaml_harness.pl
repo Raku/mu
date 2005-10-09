@@ -22,7 +22,7 @@ use Test::Harness;
 use Test::TAP::Model;
 use File::Spec;
 our @ISA = qw(Test::TAP::Model);
-our $SMOKERFILE = ".smoker.yml";
+our $SMOKERFILE = "debian/smoker.yml";
 
 $| = 1;
 
