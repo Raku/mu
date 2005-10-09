@@ -8,7 +8,7 @@ plan 5;
 
 use_ok('Pod::Event::Parser');
 use_ok('Pod::Event::Handler::POD');
-chdir "ext/Pod-Event-Parser"; # Hack if we're run from make smoke
+try { chdir "ext/Pod-Event-Parser" }; # Hack if we're run from make smoke
 
 my $test_output = "";
 
