@@ -1,4 +1,4 @@
-== Changes for 6.2.10 (r7508) - Oct 10, 2005
+== Changes for 6.2.10 (r7512) - Oct 10, 2005
 
 === Pugs Internals Feature Changes
 
@@ -13,7 +13,7 @@
 * JavaScript backend can be invoked with `pugs -B JS`
 * Adopted the code convention of expanding literal tab chars to spaces
 * Pugs will now compile version ranges in 'use/require' statements
-* `exec` emulated (parially) on Win32
+* `exec` emulated (partially) on Win32
 
 ==== JavaScript backend
 
