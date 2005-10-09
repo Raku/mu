@@ -112,8 +112,15 @@ sub run_pugs {
 
   $ENV{PERL5LIB} = join $Config{path_sep}, pwd('lib'), ($ENV{PERL5LIB} || "");
 
-  open my $fh, "-|", "$cfg{pugs} @args" or
-    warn "Couldn't open pipe to \"$cfg{pugs} @args\": $!\n" and return;
+  my $fh;
+  if($^O eq "MSWin32") {  # XXX hack?
+    open $fh, "-|", "$cfg{pugs} @args" or
+      warn "Couldn't open pipe to \"$cfg{pugs} @args\": $!\n" and return;
+  } else {
+    open $fh, "-|", "$cfg{pugs}", @args or
+      warn "Couldn't open pipe to \"$cfg{pugs} @args\": $!\n" and return;
+  }
+
   local $/;
   my $res = <$fh>;
   return undef if not defined $res or length($res) == 0;
