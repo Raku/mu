@@ -245,7 +245,7 @@ doHelperRun backend args =
 
 doExecuteHelper :: FilePath -> [String] -> IO ()
 doExecuteHelper helper args = do
-    let searchPaths = concatMap (\x -> map (x++) suffixes) [["."], ["..", ".."], [getConfig "sourcedir"], [getConfig "pugslibdir"]]
+    let searchPaths = concatMap (\x -> map (x++) suffixes) [["."], ["..", ".."], [getConfig "sourcedir"], [getConfig "perl5privlib", "auto", "pugs"], [getConfig "perl5sitelib", "auto", "pugs"]]
     mbin <- findHelper searchPaths
     case mbin of
         Just binary -> do
