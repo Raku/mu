@@ -18,7 +18,7 @@ method new ( Test::Builder $Class: ?$plan, ?$output )
 
 method create ( Test::Builder $Class: ?$plan, ?$output )
 {
-    return $Class.new( testplan => $plan, output => $output );
+    return $Class.SUPER::new( testplan => $plan, output => $output );
 }
 
 submethod BUILD
