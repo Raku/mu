@@ -1,6 +1,8 @@
-== Changes for 6.2.10 (r7506) - Oct 10, 2005
+== Changes for 6.2.10 (r7508) - Oct 10, 2005
 
-=== Pugs Internals
+=== Pugs Internals Feature Changes
+
+==== Shared components
 
 * Pugs is Cabalized now, exposing Pugs as a library to other Haskell
   users and paving the way for use in IDEs, and with future Inline::Pugs
@@ -14,41 +16,8 @@
 * Pugs will now compile version ranges in 'use/require' statements
 * `exec` emulated (parially) on Win32
 
-=== Bundled Modules
+==== JavaScript backend
 
-* Updated /ext/Locale-KeyedText : resync with p5 version 1.6.2, updates to
-  stay compatible with latest Perl 6 spec changes
-* New Perl 6 modules:
-** Perl6-Container-Array and Perl6-Value-List prototype modules for 
-  implementing Lazy lists in Perl 6.
-** Log-Selective
-** Rosetta-Incubator, under /modules, having a complete set of
-   2005.09.29-restarted Rosetta[|::*] and SQL::Routine[|::*] modules
-** Cipher::* - Cipher API for cryptographic ciphers, including
-   implementations of TEA and Arcfour (RC4)
-** FA-DFA
-** Beginnings of XML::SAX port
-** Beginnings of Getopt::Long port
-
-=== Test, Examples and Documentations
-
-* Many new tests and test refactoring, we now have 10300+ tests
-* Documentation for Draft GC API at `docs/notes/GC.pod`
-* Datafile for curcular prelude exploratory diagram at
-  `docs/notes/compilation_of_circular_prelude.graffle`, some
-  examples at `docs/notes/circular_prelude_stuff.pl`
-* Collaborative journal at `/docs/journal`
-* Autrijus' CUFP talk at `/mirror/pugs/docs/talks/cufp2005.txt`
-* Theory proposal at `docs/notes/theory.pod`
-
-=== Bug Fixes
-
-* Fixed infinite loop on sub { 1 }.pairs
-* "sub foo" no longer silently means "multi foo"
-* Fixed `foo {1}.blah` being misparsed as `foo({1}).blah`
-* Fixed a hashref infinite loop
-
-=== JavaScript backend
 * Passes 91% of the test suite
 * Integrated MetaModel 1.0
 * Faster code generation, taking advantage of `-CPerl5` output.
@@ -79,15 +48,13 @@
 * Support for "monkey-but" (`$foo but {...}`)
 * Using `for` with only one element to loop over works now
 * `int()` works correctly on special values like `Inf` or `NaN` now
-* Fixed `.values` and `.kv` to return aliases
-* Fixed evaluation order of assignments and bindings
 * Support for array and hash slices
 * `substr()` returns a readwrite proxy object now (`substr($str, $pos, $len) =
   $replacement)`)
 * Support for the `Proxy` class (but not yet user-visible, as support for class
   methods is lacking)
 
-=== Perl 5 backend
+==== Perl 5 backend
 * Already has enough functionality to run Perl 6 version of Test.pm
 * Integrated the MetaModel 1.0
 * Added support for an extensive list of operators
@@ -99,6 +66,46 @@
 * Supports eval() with Perl 5 and Perl 6 code
 * %ENV is shared with Perl 5; @INC is separate from @Perl5::INC
 
+=== Pugs Internals Bug Fixes
+
+==== Shared components
+
+* Fixed infinite loop on sub { 1 }.pairs
+* "sub foo" no longer silently means "multi foo"
+* Fixed `foo {1}.blah` being misparsed as `foo({1}).blah`
+* Fixed a hashref infinite loop
+
+==== JavaScript backend
+
+* Fixed `.values` and `.kv` to return aliases
+* Fixed evaluation order of assignments and bindings
+
+=== Bundled Modules
+
+* Updated /ext/Locale-KeyedText : resync with p5 version 1.6.2, updates to
+  stay compatible with latest Perl 6 spec changes
+* New Perl 6 modules:
+** Perl6-Container-Array and Perl6-Value-List prototype modules for 
+  implementing Lazy lists in Perl 6.
+** Log-Selective
+** Rosetta-Incubator, under /modules, having a complete set of
+   2005.09.29-restarted Rosetta[|::*] and SQL::Routine[|::*] modules
+** Cipher::* - Cipher API for cryptographic ciphers, including
+   implementations of TEA and Arcfour (RC4)
+** FA-DFA
+** Beginnings of XML::SAX port
+** Beginnings of Getopt::Long port
+
+=== Test, Examples and Documentations
+
+* Many new tests and test refactoring, we now have 10300+ tests
+* Documentation for Draft GC API at `docs/notes/GC.pod`
+* Datafile for curcular prelude exploratory diagram at
+  `docs/notes/compilation_of_circular_prelude.graffle`, some
+  examples at `docs/notes/circular_prelude_stuff.pl`
+* Collaborative journal at `/docs/journal`
+* Autrijus' CUFP talk at `/mirror/pugs/docs/talks/cufp2005.txt`
+* Theory proposal at `docs/notes/theory.pod`
 
 == Changes for 6.2.9 (r6050) - Aug 4, 2005
 
