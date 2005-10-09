@@ -485,7 +485,7 @@ register ::
 	\$(PERLRUN) util/ghc_setup.pl register --prefix=\$(DESTDIR)
 
 pure_site_install ::
-	\$(PERLRUN) util/ghc_setup.pl copy --prefix=\$(DESTDIR)
+	\$(PERLRUN) util/ghc_setup.pl copy --copy-prefix=\$(DESTDIR)
 	\$(NOECHO) \$(MOD_INSTALL) \\
 		\$(INST6_LIB) \$(DESTDIR)$config->{sitelib} \\
 		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{sitearch} \\
@@ -497,7 +497,7 @@ pure_site_install ::
 	\$(NOECHO) \$(ECHO) "*** Installed!  Type '\$(MAKE) register' to make Pugs a GHC package."
 
 pure_vendor_install ::
-	\$(PERLRUN) util/ghc_setup.pl copy --prefix=\$(DESTDIR)
+	\$(PERLRUN) util/ghc_setup.pl copy --copy-prefix=\$(DESTDIR)
 	\$(NOECHO) \$(MOD_INSTALL) \\
 		\$(INST6_LIB) \$(DESTDIR)$config->{privlib} \\
 		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{archlib} \\
