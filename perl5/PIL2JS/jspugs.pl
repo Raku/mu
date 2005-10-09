@@ -57,6 +57,7 @@ GetOptions(
   "p6prelude=s"   => \$cfg{prelude},
   "testpc=s"      => \$cfg{testpc},
   "output=s"      => \$cfg{output},
+  "metamodel-base=s" => \$cfg{metamodel_base},
 ) or warn "Unknown options ignored.\n";
 
 command_conf(pugs           => $cfg{pugs});

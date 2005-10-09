@@ -50,6 +50,7 @@ GetOptions(
   "p6preludepc=s" => \$PIL2JS::cfg{preludepc},
   "p6prelude=s"   => \$PIL2JS::cfg{prelude},
   "testpc=s"      => \$PIL2JS::cfg{testpc},
+  "metamodel-base=s" => \$PIL2JS::cfg{metamodel_base},
   "compile-only"  => \my $compile_only,
   "help"          => \&usage,
 ) and @pugs_args or usage();
@@ -93,7 +94,9 @@ Available options are:
   --pugs=/path/to/pugs
   --pil2js=/path/to/pil2js.pl               (usually in perl5/PIL2JS/)
   --p6prelude=/path/to/lib6/Prelude/JS.pm   (usually in perl5/PIL2JS/lib6/)
+  --metamodel-base=...                      (usually perl5/PIL2JS/libjs/)
   --p6preludepc=/path/to/preludepc.js       (automatically created)
+  --testpc=/path/to/test.js                 (automatically created)
   --compile-only
   --help
 EOF
