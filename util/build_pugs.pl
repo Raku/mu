@@ -105,7 +105,6 @@ sub build_lib {
         my $target = File::Spec->canonpath("dist/build/src/$pathname");
         my $wanted = sub {
             return unless $_ eq $basename;
-            return if     File::Spec->canonpath($File::Find::name) eq $target;
             push @candidates, $File::Find::name;
         };
         find $wanted, "dist";
@@ -117,7 +116,10 @@ sub build_lib {
             die "*** Wasn't able to find '$basename', aborting...\n";
         }
 
-        copy($candidates[0] => $target);
+	unless( File::Spec->canonpath($candidates[0]) eq $target ) {
+	    copy($candidates[0] => $target);
+	}
+
         system($ar, r => $a_file, "dist/build/src/$pathname");
     };
 
