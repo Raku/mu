@@ -61,9 +61,10 @@ if (my $prefix = PugsBuild::Config->lookup('install_dir')) {
 clean_files     (map fixpaths($_),
     $version_h, $config_h,
     (map {"$_/*.hpp"} @srcdirs),
+    "pugs$Config{_exe}",
     "src/gen_prelude$Config{_exe}",
     "Setup$Config{_exe}", qw(
-    pugs* src/Pugs/pugs_config.h src/Pugs/Config.hs blib6 dist
+    src/Pugs/pugs_config.h src/Pugs/Config.hs blib6 dist
     src/Pugs/PreludePC.hs src/Pugs/CodeGen/PIR/Prelude.hs test.log
     src/Pugs/Embed/Parrot.hs src/Pugs/Embed/Parrot_hsc.*
     src/Pugs/Run/Perl5_stub.* src/Data/Yaml/Syck_stub.* src/Data/Yaml/Syck.hs
