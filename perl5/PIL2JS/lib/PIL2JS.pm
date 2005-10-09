@@ -9,6 +9,8 @@ use Config;
 use File::Spec;
 use Encode;
 
+our $VERSION = 0.0.1;
+
 use base "Exporter";
 our @EXPORT    = qw<
   compile_perl6_to_standalone_js

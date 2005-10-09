@@ -9,7 +9,7 @@ name          ('PIL2JS');
 version_from  ('lib/PIL2JS.pm');
 abstract_from ('lib/PIL2JS.pm');
 author        ('Ingo Blechschmidt <iblech@web.de>');
-clean_files   (map fixpaths($_), 'blib6', 'blibjs');
+clean_files   (map fixpaths($_), qw< Prelude.js Test.js output.html blib6 blibjs >);
 set_postamble ();
 WritePugs     (5);
 
