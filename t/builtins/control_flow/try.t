@@ -1,3 +1,5 @@
+#!/usr/bin/pugs
+
 use v6;
 use Test;
 
@@ -36,6 +38,8 @@ plan 25;
 }
 
 {
+    warn "Please ignore the next warning about odd number of elements,\n";
+    warn "it's expected.\n";
     my %hash = try { hash("a",) };
     is +%hash,        1, '%hash = try {...} worked (5)';
     is ~%hash.keys, "a", '%hash = try {...} worked (6)';

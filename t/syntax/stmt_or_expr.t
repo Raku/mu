@@ -1,5 +1,6 @@
-use v6;
+#!/usr/bin/pugs
 
+use v6;
 use Test;
 
 plan 2;

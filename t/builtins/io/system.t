@@ -19,7 +19,7 @@ my $res;
 $res = system($pugs,'-e1');
 ok($res,"system() to an existing program does not die (and returns something true)");
 
-$res = system("program_that_does_not_exist_ignore_errors_please.exe");
+$res = system("program_that_does_not_exist_ignore_this_error_please.exe");
 ok(!$res, "system() to a nonexisting program does not die (and returns something false)");
 
 if $*OS ~~ any<cygwin MSWin32 msys> {
