@@ -136,11 +136,14 @@ sub run_pil2js {
     if(ref $_ and defined $push) {
       die "Only one reference argument may be given to &PIL2JS::run_pil2js!";
     } elsif(ref $_) {
-      $push = $$_;
-      $_ = "-";
+      open my $fh, '>', "pil2js-$$.tmp";
+      END { unlink "pil2js-$$.tmp" };
+      print $fh $$_;
+      $_ = "pil2js-$$.tmp";
+      close $fh;
     }
   }
-  my @cmd = ("perl", $cfg{pil2js}, @args);
+  my @cmd = ($^X, $cfg{pil2js}, @args);
   diag "@cmd";
 
   my $pid = open2 my($read_fh), my($write_fh), @cmd
