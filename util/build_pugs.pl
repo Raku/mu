@@ -165,9 +165,9 @@ sub build_exe {
     push @pkgs, -package => 'readline' if grep /^-DPUGS_HAVE_READLINE$/, @_;
     push @pkgs, -package => 'plugins', -package => 'haskell-src' if grep /^-DPUGS_HAVE_HSPLUGINS$/, @_;
     my @libs = "-lHSPugs-$version";
-    push @libs, grep /\.a$/, @_;
+    push @libs, grep /^-opt/, @_;
     push @libs, grep /^-[lL]/, @_;
-    push @libs, grep /\.(?:o|\Q$Config{so}\E)$/, @_;
+    push @libs, grep /\.(?:a|o(?:bj)?|\Q$Config{so}\E)$/, @_;
 
     @_ = (@pkgs, qw(-idist/build -Ldist/build -idist/build/src -Ldist/build/src -o pugs src/Main.hs), @libs);
     print "*** Building: ", join(' ', $ghc, @_), $/;
