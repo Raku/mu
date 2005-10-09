@@ -18,7 +18,6 @@ module Pugs (
     printCommandLineHelp,
     intro,
     initializeShell,
-    envDebug,
     getCommand,
     pretty,
     printInteractiveHelp,
@@ -122,7 +121,7 @@ readStdin = do
 repLoop :: IO ()
 repLoop = do
     initializeShell
-    env <- liftSTM . newTVar . (\e -> e{ envDebug = Nothing }) =<< tabulaRasa "<interactive>"
+    env <- liftSTM . newTVar . noEnvDebug =<< tabulaRasa "<interactive>"
     fix $ \loop -> do
         command <- getCommand
         case command of
@@ -368,7 +367,7 @@ runImperatively menv eval = do
 
 doRun :: String -> [String] -> String -> IO ()
 doRun = do
-    runProgramWith (\e -> e{ envDebug = Nothing }) end
+    runProgramWith noEnvDebug end
     where
     end err@(VError _ _)  = do
         hPutStrLn stderr $ encodeUTF8 $ pretty err
@@ -378,6 +377,9 @@ doRun = do
         globalFinalize
         exitWith exit
     end _ = return ()
+
+noEnvDebug :: Env -> Env
+noEnvDebug e = e{ envDebug = Nothing }
 
 runProgramWith ::
     (Env -> Env) -> (Val -> IO a) -> VStr -> [VStr] -> String -> IO a
