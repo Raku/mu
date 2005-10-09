@@ -1,21 +1,21 @@
-== Changes for 6.2.10 (r7512) - Oct 10, 2005
+= Changes for 6.2.10 (r7512) - Oct 10, 2005
 
-=== Pugs Internals Feature Changes
+== Feature Changes
 
-==== Shared components
+=== Shared components
 
 * Support for the Haskell Cabal framework, exposing Pugs as a library to other
   Haskell users, paving the way for use in IDEs, as well as future Inline::Pugs
   and Inline::GHC modules
-* Significant backend enhancements; see below
 * $?PUGS_BACKEND can be used to tell which runtime is in use 
 * Perl 5 backend can be invoked with `pugs -B Perl5`
 * JavaScript backend can be invoked with `pugs -B JS`
 * Adopted the code convention of expanding literal tab chars to spaces
 * Pugs will now compile version ranges in 'use/require' statements
 * `exec` emulated (partially) on Win32
+* Significant backend enhancements; see below
 
-==== JavaScript backend
+=== JavaScript backend
 
 * Passes 91% of the main test suite (including TODO failures)
 * Integrated MetaModel 1.0
@@ -53,7 +53,8 @@
 * Support for the `Proxy` class (but not yet user-visible, as support for class
   methods is lacking)
 
-==== Perl 5 backend
+=== Perl 5 backend
+
 * Passes 33% of the main test suite (including TODO failures)
 * Already has enough functionality to run Perl 6 version of Test.pm
 * Integrated with the Perl 5 edition of MetaModel 2.0
@@ -64,23 +65,23 @@
 * Supports eval() with Perl 5 and Perl 6 code
 * %ENV is shared with Perl 5; @INC is separate from @Perl5::INC
 
-=== Pugs Internals Bug Fixes
+== Bug Fixes
 
-==== Shared components
+=== Shared components
 
 * Fixed infinite loop on sub { 1 }.pairs
-* "sub foo" no longer silently means "multi foo"
 * Fixed `foo {1}.blah` being misparsed as `foo({1}).blah`
 * Fixed a hashref infinite loop
+* Multiple `sub foo` no longer silently means `multi foo`
 
-==== JavaScript backend
+=== JavaScript backend
 
 * Fixed `.values` and `.kv` to return aliases
 * Fixed evaluation order of assignments and bindings
 
-=== Bundled Modules
+== Bundled Modules
 
-* Updated /ext/Locale-KeyedText: syncronized with p5 version 1.6.2
+* Updated /ext/Locale-KeyedText: Syncronized with p5 version 1.6.2
   and updates to stay compatible with latest Perl 6 spec changes
 * New Perl 6 modules:
 ** Perl6-Container-Array, Perl6-Value-List: prototype modules for 
@@ -91,23 +92,26 @@
 ** Cipher::* - Cipher API for cryptographic ciphers, including
    implementations of TEA and Arcfour (RC4)
 ** FA-DFA
-** Beginnings of XML::SAX port
-** Beginnings of Getopt::Long port
+* Experiemental modules (in misc/, not installed)
+** Blondie, a prototype of native code generation and type-inferencing
+   with Attribute Grammers
+** XML::SAX
+** Getopt::Long
 
-=== Test, Examples and Documentations
+== Test, Examples and Documentations
 
 * Many new tests and test refactoring, we now have 10300+ tests
-* Documentation for Draft GC API at `docs/notes/GC.pod`
-* Datafile for curcular prelude exploratory diagram at
+* Documentation for draft GC API at `docs/notes/GC.pod`
+* Data file for curcular prelude exploratory diagram at
   `docs/notes/compilation_of_circular_prelude.graffle`, some
   examples at `docs/notes/circular_prelude_stuff.pl`
 * Collaborative journal at `/docs/journal`
 * Autrijus's CUFP talk at `/mirror/pugs/docs/talks/cufp2005.txt`
 * Theory Model proposal at `docs/notes/theory.pod`
 
-== Changes for 6.2.9 (r6050) - Aug 4, 2005
+= Changes for 6.2.9 (r6050) - Aug 4, 2005
 
-=== Pugs Internals
+== Pugs Internals
 
 * New build system in `inc/PugsBuild`
 ** Configuration preferences are stored in `config.yml`
@@ -129,7 +133,7 @@
 ** QuickCheck-based specification tests added
 * Precompilation for arbitrary modules (not enabled by default)
 
-=== Bundled Modules
+== Bundled Modules
 
 * New Perl 6 modules:
 ** `MIME::Base64`
@@ -144,7 +148,7 @@
 * Additions to `DateTime`:
 ** `DateTime::Set`
 
-=== Test, Examples and Documentations
+== Test, Examples and Documentations
 
 * Many new tests and test refactoring, we now have 8100+ tests
 * A number of additions to `examples/cookbook`
@@ -160,7 +164,7 @@
 * iblech's LUGA talk as `Anatomie_eines_Compilers_am_Beispiel_von_Pugs.latex`
 * ingy's OSCON talk as `oscon-apocalypse.spork`
 
-=== Bug Fixes
+== Bug Fixes
 
 * Fix pair binding for functions expecting pairs as arguments
 * Global destruction is now guaranteed upon program exit
@@ -173,9 +177,9 @@
 * `.end` and `.elems` no longer work as scalar methods
 * `/a/ ~~ "a"` now works the same way as `"a" ~~ /a/`
 
-== Changes for 6.2.8 (r5577) - July 13, 2005
+= Changes for 6.2.8 (r5577) - July 13, 2005
 
-=== Pugs Internals
+== Pugs Internals
 
 * Added code generation backends: `PIR`, `PIL`
 ** Pugs can now generate PIL (Pugs Intermediate Language)
@@ -207,7 +211,7 @@
 * `our` variables in packages now generate qualified symbols
 * `use perl5:DBI` replaces the old `use DBI--perl5` syntax
 
-=== Bundled Modules
+== Bundled Modules
 
 * New Perl 6 modules:
 ** `DateTime::Set`
@@ -229,7 +233,7 @@
 ** Some skips and workarounds remain due to missing Pugs features
 * Completed port: `Test::Builder`
 
-=== Test, Examples and Documentations
+== Test, Examples and Documentations
 
 * Examples of methods acting on builtin types in `examples/vmethods/`
 * Interpreter and debugger for the l33t language in `examples/obfu/l33t.p6`
@@ -242,7 +246,7 @@
 * Updates and cleanups to PA01; master copy is now `docs/01Overview.kwid`
 * YAPC::NA talk: /Apocalypse Now/ (in `docs/talks/Apocalypse_Now.spork`)
 
-=== Bug Fixes
+== Bug Fixes
 
 * Call parrot with `-C` (CGP) instead of `-j` (JIT) runcore to avoid segfaults
 * Fixed `!~` to mean negated `~~` instead of `ne`
@@ -260,9 +264,9 @@
 * `sleep()` returns seconds slept instead of undef
 * `try` is now capable of catching all type casting errors
 
-== Changes for 6.2.7 (r4612) - June 13, 2005
+= Changes for 6.2.7 (r4612) - June 13, 2005
 
-=== Pugs Internals
+== Pugs Internals
 
 * Add `::?CLASS`, `::?ROLE`, and `::?PACKAGE` magicals
 * Allow bypassing the Standard Prelude by setting `$ENV<PUGS_BYPASS_PRELUDE>`
@@ -278,7 +282,7 @@
 * `method foo ($.x) {}` now sets `$.x`
 * `undef($x)` is now spelled `undefine($x)`
 
-=== Bundled Modules
+== Bundled Modules
 
 * New modules added:
 ** `FindBin`
@@ -287,7 +291,7 @@
 ** `URI::Escape`
 * Extended tests for `Tree`
 
-=== Tests, Examples and Documentation
+== Tests, Examples and Documentation
 
 * APW talk: "Apocalypse Now" in `docs/talks/Apocalypse_Now.spork`
 * APW talk: "Eine Einfuehrung in Perl 6" in `docs/talks/perl6-apw2005/`
@@ -300,7 +304,7 @@
 * Unit manipulation and conversion examples in `units.p6`
 * `examples/algorithms` subdir now unifies algorithmic examples
 
-=== Bug Fixes
+== Bug Fixes
 
 * '\' protects delimiters in rules
 * Chained comparisons now work again (were broken in 6.2.6)
@@ -312,9 +316,9 @@
 * `Test::is()` now shows the expected result correctly again
 * `module Foo {...}` now parses
 
-== Changes for 6.2.6 (r4318) - June 2, 2005
+= Changes for 6.2.6 (r4318) - June 2, 2005
 
-=== Pugs Internals
+== Pugs Internals
 
 * Pugs can now embed Perl 5 and use CPAN modules
 ** Perl 5 objects, classes and functions are understood by Pugs
@@ -347,7 +351,7 @@
 * `map` and `reduce` can now take n-ary functions. 
 * `when .does(Foo)`, `when $_.does(Foo)` and `when Foo`
 
-=== Bundled Modules
+== Bundled Modules
 
 * Many more code sketches and documentation added to `Perl-MetaModel`
 * New `Benchmark` module added
@@ -364,7 +368,7 @@
 * `fp` now exports `&identity` instead of `&id` to avoid clash with `$obj.id`
 * `use lib 'path';` now works
 
-=== Tests, Examples and Documentations
+== Tests, Examples and Documentations
 
 * Some new test and several tests refactored, we now have 7200+ tests
 * Pugs Apocryphon 2 improved and edited in `docs/02Internals.pod`
@@ -376,7 +380,7 @@
 * Some new additions and cleanup of the cookbook
 * `examples/network/screen-nodestatus.p6` added to monitor hosts in GNU screen
 
-=== Bug Fixes
+== Bug Fixes
 
 * Hyper-reduction prefix operators such as `[+]«` are now parsed
 * Single-character class names were not parsed correctly
@@ -390,15 +394,15 @@
 * `times` now really works on Win32
 * `when .isa(Foo)` is no longer parsed as `when $_ ~~ .isa(Foo)` now
 
-== Changes for 6.2.5 (r3794) - May 24, 2005
+= Changes for 6.2.5 (r3794) - May 24, 2005
 
-=== Bundled Modules
+== Bundled Modules
 
 * Fix one broken test from the `Set` module
 
-== Changes for 6.2.4 (r3790) - May 24, 2005
+= Changes for 6.2.4 (r3790) - May 24, 2005
 
-=== Pugs Internals
+== Pugs Internals
 
 * All infix operators now receive reduction forms, such as `[+]`
 * All operators now receive hyperised forms, such as `>>+<<` and `~<<`
@@ -431,7 +435,7 @@
 * `try {...}` literal allowed at expression level
 * `warn()`, `uniq()`, `fail()`, `times()` implemented
 
-=== Bundled Modules
+== Bundled Modules
 
 * `Inline::Pugs` and `pugs` module to allow Perl 6 in Perl 5 programs
 * `Locale::KeyedText` re-added (this was our first contributed module)
@@ -444,7 +448,7 @@
 * `Test::cmp_ok` now gives better diagnostic messages
 * `fp` module added for functional programming
 
-=== Tests, Examples and Documentations
+== Tests, Examples and Documentations
 
 * Many new tests; several tests refactored; we now have 5600+ tests
 * Hangman IRC bot created from `hangman.p6`
@@ -457,7 +461,7 @@
 * Perl6::Rules test suite incorporated under `t/rules/`
 * Replaced `force_todo()` with `:todo`
 
-=== Bug Fixes
+== Bug Fixes
 
 * Bare blocks containing `$_` are now executed correctly
 * Correct parsing for user-defined nullary functions
@@ -475,9 +479,9 @@
 * `state $x = 42` now only assigns `$x` once
 * `system()` returns proper exit codes
 
-== Changes for 6.2.3 (r3111) - May 12, 2005
+= Changes for 6.2.3 (r3111) - May 12, 2005
 
-=== Pugs Internals
+== Pugs Internals
 
 * Pugs can now embed Parrot or use an external `parrot` executable
 ** Under embedded mode, Pugs is a registered Parrot compiler
@@ -515,7 +519,7 @@
 * `state $var` implemented
 * `system(Str: List)` and `exec(Str: List)` on Unix platforms
 
-=== Bundled Modules
+== Bundled Modules
 
 * All modules have their own `ChangeLog` now
 * `Algorithm::TokenBucket`, with closure objects
@@ -528,7 +532,7 @@
 * `Test::Builder`, with Perl 6 objects (parses, but does not work yet)
 * `Tree::Simple`, with closure objects
 
-=== Tests, Examples and Documentations
+== Tests, Examples and Documentations
 
 * Many new test and several tests refactored, we now have 4921 tests
 * Documentation for `hangman.p6` added in `examples/games/hangman.pod`
@@ -538,7 +542,7 @@
 * TODO tests now use `:todo<reason>` for better reporting
 * The first Perl 6 poem in `examples/poetry/`
 
-=== Bug Fixes
+== Bug Fixes
 
 * Logical short-circuiting operators no longer flattens references
 * Prohibit Array and Hash dereference on plain values
@@ -553,9 +557,9 @@
 * `to => 123` parses again; arrow pairs now always trumps unary functions
 * `{}` in P5 rules is no longer closure interpolation
 
-== Changes for 6.2.2 (r2604) - May 1, 2005
+= Changes for 6.2.2 (r2604) - May 1, 2005
 
-=== Pugs Internals
+== Pugs Internals
 
 * Many performance speed-ups, including:
 ** New, much much faster implementation type for Pad
@@ -583,7 +587,7 @@
 * `use Module;` supported and happens at `BEGIN` time
 * `|=` `^=` `&=` for junctions
 
-=== Tests, Examples and Documentations
+== Tests, Examples and Documentations
 
 * Many new tests and cleanup of older tests, we are now at 4600+ tests
 * API documentation available in `docs/haddock/`
@@ -597,7 +601,7 @@
 * Smoke testing tool now includes timing data in YAML harness data
 * German talk /Perl 6, genau jetzt!/ finished
 
-=== Bug Fixes
+== Bug Fixes
 
 * Constant references now automatically dereference when used in rvalue context
 * Junctive `^` should join junctions instead of autothread them
@@ -612,9 +616,9 @@
 * `one(1,1).pick` bug fixed; it should return `undef`
 * `splice([], 1)` no longer causes division by zero errors
 
-== Changes for 6.2.1 (r2288) - April 24, 2005
+= Changes for 6.2.1 (r2288) - April 24, 2005
 
-=== Pugs Internals
+== Pugs Internals
 
 * Unification of the quoting code, most quoting constructs now work
 ** <<>> now works
@@ -651,7 +655,7 @@
 * `list()` now actually imposes list context
 * `want()` has been implemented, returning a simple string
 
-=== Tests, Examples and Documentations
+== Tests, Examples and Documentations
 
 * Many new tests and cleanup of older tests, we are now at 4500+ tests
 ** removed all usages of todo_* functions since the are now deprecated
@@ -673,7 +677,7 @@
 * The `fp.p6` file has been broken into seperate files in `examples/fp/`
 * UTF-8 URL decoding added to `CGI.pm`
 
-=== Bug Fixes
+== Bug Fixes
 
 * Accessing `@array[1000]` (without setting it) no longer extends `@array`
 * Code blocks as subroutine arguments now results in correct arity
@@ -698,9 +702,9 @@
 * `=cut` without a newline at EOF is now parsed correctly
 * `return() if 1` now works correctly
 
-== Changes for 6.2.0 (r1921) - April 13, 2005
+= Changes for 6.2.0 (r1921) - April 13, 2005
 
-=== Pugs Internals
+== Pugs Internals
 
 * Major refactor of ITypes subsystem, we now have:
 ** Nested structures: `$a{1}[2]{3}`
@@ -734,7 +738,7 @@
 * `sort {}` now works
 * Some support for the /splat/ star `*` 
 
-=== Tests, Examples and Documentations
+== Tests, Examples and Documentations
 
 * Many new tests and cleaning up of older tests, we now have 4200+
 * `examples/games/hangman.p6` added, with `AUTHORS` as the dictionary file
@@ -752,7 +756,7 @@
 ** Synopsis 29 - Builtin Functions
 * Early work on Perl 6 Object System in `docs/class/`
 
-=== Bug Fixes
+== Bug Fixes
 
 * Parens no longer required for; `last()` and `return()`
 * Fixed issue with binding invocant parameters
@@ -773,9 +777,9 @@
 * `xor` and `^^` now returns the true operand instead of `bool::true`
 * Named bindings to `%_` repaired
 
-== Changes for 6.0.14 - April 4, 2005
+= Changes for 6.0.14 - April 4, 2005
 
-=== Pugs Internals
+== Pugs Internals
 
 * We now require GHC 6.4 on all platforms
 * Added socket primitives: `listen()`, `connect()`, `accept()`
@@ -792,7 +796,7 @@
 * Began work on GADTs; the Pad now holds `Symbol Val` types only
 * Support definition and invocation of subs with namespaces
 
-=== Tests, Examples and Documentations
+== Tests, Examples and Documentations
 
 * Many new tests: we have around 3850 now
 * `modules/` have been relocated to FreePAN. See `modules/README`
@@ -808,7 +812,7 @@
 * First Pugs obfuscation in `examples/obfu/`
 * HTTP server and client examples in `examples/network/`
 
-=== Bug Fixes
+== Bug Fixes
 
 * `~~` now takes variables on the right hand side
 * Correct installation locations for `ext/` modules
@@ -819,9 +823,9 @@
 * Readline support is correctly probed on `Makefile.PL` time
 * Mimick Perl 5's behaviour for function that defaults to `$_`
 
-== Changes for 6.0.13 - March 27, 2005
+= Changes for 6.0.13 - March 27, 2005
 
-=== Pugs Internals
+== Pugs Internals
 
 * Support for `given`, `when` and `elsif` statements
 * Support for Perl5 style `-I` on the command line
@@ -839,7 +843,7 @@
 * Several numeric builtins: `atan2`, `cos`, `sin`, `sqrt`, `exp`
 * Beginings of a Pugs class meta-model
 
-=== Test, Examples and Documentations
+== Test, Examples and Documentations
 
 * New test for junctions, regexp and more; about 3200 tests now
 * Added 200+ new TODO tests for objects in `t/oo/`
@@ -857,7 +861,7 @@
 * Added `examples/mandel.p5` for benchmarking against `mandel.p6`
 * The first JAPH for Pugs in `examples/japh/`
 
-=== Bug Fixes
+== Bug Fixes
 
 * Numification now uses the same lexer as numeric literals
 * Passing pairs to named parameters works
@@ -868,9 +872,9 @@
 * Hash keys are now strings
 * Contextual logicals like `+^` and `~^` are parsed correctly
 
-== Changes for 6.0.12 - March 21, 2005
+= Changes for 6.0.12 - March 21, 2005
 
-=== Pugs Internals
+== Pugs Internals
 
 * We now require GHC 6.4 on Win32
 * Perl5-compatible regular expressions as rx:perl5/.../
@@ -891,7 +895,7 @@
 * More experimental shell commands like :i and !
 * Symbol table now contains Vals instead of Exps
 
-=== Tests, Examples and Documentations
+== Tests, Examples and Documentations
 
 * Massive reorganization for t/ hierarchy; we have 2450 subtests now
 * Test coverage catalog utility in util/catalog_tests.pl
@@ -905,7 +909,7 @@
 * PA01.kwid, Kwid version of Pugs Apocryphon 1
 * Perl5-Kwid, Perl 5 implementation of the Kwid language
 
-=== Bug Fixes
+== Bug Fixes
 
 * Infix junction constructors no longer falltens its operands
 * Mutable variables are now properly pretty-printed
@@ -916,9 +920,9 @@
 * Hanoi.p6 was broken due to premature binding of subroutine parameters
 * "&sub.foo" no longer attempts to interpolate
 
-== Changes for 6.0.11 (r690) - March 14, 2005
+= Changes for 6.0.11 (r690) - March 14, 2005
 
-=== Pugs Internals
+== Pugs Internals
 
 * Ported to GHC 6.4 final
 * Source code is now always treated as UTF-8
@@ -944,7 +948,7 @@
 * Experimental support for "pugscc", which compiles Perl 6 code
   into stand-alone executables
 
-=== Tests, Examples and Documentations
+== Tests, Examples and Documentations
 
 * Much more extensive TODO tests; we have 1477 now
 * Sample Perl 6 modules under modules/, including Sample-Module and
@@ -958,7 +962,7 @@
 * Include IRC nicks and UTF8 names in AUTHORS
 * Some releng and utility scripts under util/
 
-=== Bug Fixes
+== Bug Fixes
 
 * In pointy subs, -> () {...} and -> {...} are now distinguished
 * require() now reports errors correctly
@@ -977,9 +981,9 @@
 * $?CALLER:: variables in subroutine parameters and defaults are
   now both evaluated in the caller's scope
 
-== Changes for 6.0.10 - March 5, 2005
+= Changes for 6.0.10 - March 5, 2005
 
-=== Pugs Internals
+== Pugs Internals
 
 * Massive `-Wall` cleanup
 * Some work on Pugs extension mechanisms (XS for Pugs)
@@ -991,7 +995,7 @@
 * Ported to GHC 6.4 pre-release
 * More works on junctions
 
-=== Tests, Examples and Documentations
+== Tests, Examples and Documentations
 
 * Test, tests and more tests, we now have over 1050
 * Added several tests for unimplemented features
@@ -1003,7 +1007,7 @@
 * Haskell source documentation begun
 * Kwid documentation for `Test.pm`
 
-=== Bug Fixes
+== Bug Fixes
 
 * Fixed double-evaluation bug in `say($a++)`
 * Fixed `@a` interpolation bug
@@ -1012,7 +1016,7 @@
 * Fixed `grep`/`map`/`push`/`unshift` parsing so they are properly binOp now
 * Fixed prefix function parsing bug that eats more parens than it should
 
-== Changes for 6.0.9 (r335) - February 28, 2005
+= Changes for 6.0.9 (r335) - February 28, 2005
 
 * First Perl 6 module: `Test.pm`
 * First Pugs Apocryphon: `docs/01Overview.html`
@@ -1032,7 +1036,7 @@
 * A first draft of /Kwid/ documentation format
 * A first draft of builtins declarations
 
-== Changes for 6.0.8 - February 21, 2005
+= Changes for 6.0.8 - February 21, 2005
 
 * New example code snippet: `examples/quicksort.p6`
 * Unit tests ported from th Perl5 tree
@@ -1050,7 +1054,7 @@
 * User-defined function applications now takes arbitary expressions
 * Deep recursion detection
 
-== Changes for 6.0.7 - February 18, 2005
+= Changes for 6.0.7 - February 18, 2005
 
 * Beginning of synopses-based unit tests
 * Two code snippets that runs: `examples/life.p6` and `examples/mandel.p6`
@@ -1066,7 +1070,7 @@
 * Assignment to mutable variables and to array slices
 * `loop`, `for` and `if` constructs
 
-== Changes for 6.0.5 - February 15, 2005
+= Changes for 6.0.5 - February 15, 2005
 
 * The `rand` primitive
 * Taking references of junctions no longer create a junction of references
@@ -1080,14 +1084,14 @@
 * The /Eval/ monad now supports `shift`/`reset`/`callcc`, lexical and dynamic scopes
 * Improved pretty-printing code for syntactic constructs
 
-== Changes for 6.0.4 - February 12, 2005
+= Changes for 6.0.4 - February 12, 2005
 
 * The `eval` primitive
 * Refactor junctive logic into `Junc.hs`
 * /JuncAny/ and /JuncAll/ now collapses operands of the same type correctly
 * /JuncOne/ now collapses into an empty set when operands contains duplicates
 
-== Changes for 6.0.3 - February 12, 2005
+= Changes for 6.0.3 - February 12, 2005
 
 * Formal parameters declaration and binding
 * Invocant-based multimethod dispatch
@@ -1104,7 +1108,7 @@
 * New operators: `!!` and `nor`
 * The `all` junction builder now collapses nested junctions under it
 
-== Changes for 6.0.2 - February 9, 2005
+= Changes for 6.0.2 - February 9, 2005
 
 * User-defined subroutine with `$_` and `@_` as parameters
 * Variable binding
@@ -1116,13 +1120,13 @@
 * Array references as literals
 * Flattening (slurpy) star
 
-== Changes for 6.0.1 - February 7, 2005
+= Changes for 6.0.1 - February 7, 2005
 
 * Fix building on Mac OS X
 * Characters in single quotes should not be escaped
 * Add one very basic test in `t/`
 
-== Changes for 6.0.0 - February 7, 2005
+= Changes for 6.0.0 - February 7, 2005
 
 * Initial CPAN release
 * Evaluation of most simple expressions
