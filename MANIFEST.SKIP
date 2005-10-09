@@ -30,3 +30,4 @@ svn-commit\.tmp$
 ^debian/
 ^t_disabled/
 ^t/builtins/system/
+^Setup(?!\.lhs)
