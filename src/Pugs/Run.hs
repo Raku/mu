@@ -196,7 +196,7 @@ getLibs = do
                  , getConfig "privlib"
                  , getConfig "sitearch"
                  , getConfig "sitelib"
-                 , foldl1 joinFileName [getConfig "perl5privlib", "auto", "pugs", "perl6", "lib"]
-                 , foldl1 joinFileName [getConfig "perl5sitelib", "auto", "pugs", "perl6", "lib"]
+                 , foldl1 joinFileName [getConfig "privlib", "auto", "pugs", "perl6", "lib"]
+                 , foldl1 joinFileName [getConfig "sitelib", "auto", "pugs", "perl6", "lib"]
                  ]
               ++ [ "." ]

@@ -35,9 +35,6 @@ sub get_config {
         installsiteman3dir => $Config{installsiteman3dir} || $Config{installman3dir},
 
         sourcedir      => Cwd::abs_path(),
-
-        perl5privlib => $Config{privlib},
-        perl5sitelib => $Config{sitelib},
     };
 
     add_path(archlib            => $config); 
