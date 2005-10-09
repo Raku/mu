@@ -371,13 +371,13 @@ ${() = '%.hpp : %.hs @prereqs $version_h
 .hs-drift.hs :
 	\$(PERL) util/drift.pl \$< > \$@
 
-haddock : $version_h $config_h @hppfiles docs/haddock
-	haddock -t Pugs-$version -h -o docs/haddock/ @hppfiles
+haddock : $version_h $config_h @hppfiles dist/doc/html
+	haddock -t Pugs-$version -h -o dist/doc/html/ @hppfiles
 	\@\$(RM_F) @{[map "$_.pre", @hppfiles]} @hppfiles
-	\@\$(PERL) -le "print and print q-*** API Documentation generated in @{[File::Spec->catfile('docs', 'haddock', 'index.html')]}-"
+	\@\$(PERL) -le "print and print q-*** API Documentation generated in @{[File::Spec->catfile('dist', 'doc', 'html', 'index.html')]}-"
 
-docs/haddock :
-	\@\$(PERL) -e "mkdir q-docs/haddock-"
+dist/doc/html :
+	\@\$(PERL) -e "mkdir q-dist/doc/html-"
 
 profiled :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm
 	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_version $setup $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
