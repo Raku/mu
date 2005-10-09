@@ -111,8 +111,8 @@ sub run_pugs {
   diag "$cfg{pugs} @args";
 
   $ENV{PERL5LIB} = join $Config{path_sep}, pwd('lib'), ($ENV{PERL5LIB} || "");
-    
-  open my $fh, "-|", "$cfg{pugs}", @args or
+
+  open my $fh, "-|", "$cfg{pugs} @args" or
     warn "Couldn't open pipe to \"$cfg{pugs} @args\": $!\n" and return;
   local $/;
   my $res = <$fh>;
