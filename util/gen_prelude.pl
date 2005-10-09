@@ -10,10 +10,11 @@ use Config ();
 # Sets up either the Null Prelude placeholder, or a real precompiled
 # AST of Prelude.pm.
 
+our %Config;
 our $TEMP_PRELUDE = "Prelude.pm"; # XXX: move this to config.yml?
-END { unlink $TEMP_PRELUDE };
+END { unlink $TEMP_PRELUDE unless $Config{keep} };
 
-GetOptions \our %Config, qw(--null --pugs|p=s --inline|i=s@ --verbose|v --touch --output|o=s);
+GetOptions \%Config, qw(--null --pugs|p=s --inline|i=s@ --verbose|v --touch --output|o=s --keep|k);
 setup_output();
 
 touch() if $Config{touch};
