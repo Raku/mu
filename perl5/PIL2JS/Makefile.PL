@@ -31,6 +31,7 @@ pure_all ::
 	\$(PERLRUN) util/src_to_blib.pl
 	\$(MKPATH) blibjs/lib/PIL2JS
 	\$(PERLRUN) -Ilib -MPIL2JS -e'print precomp_module_to_mini_js "-I", PIL2JS::pwd("lib6"), "-MPrelude::JS"' > blibjs/lib/PIL2JS/Prelude.js
+	\$(PERLRUN) -Ilib -MPIL2JS -e'print precomp_module_to_mini_js "-MTest"' > blibjs/lib/PIL2JS/Test.js
 
 pure_js_install ::
 	\$(NOECHO) \$(MOD_INSTALL) \\
