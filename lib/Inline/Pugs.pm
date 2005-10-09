@@ -1,18 +1,13 @@
 package Inline::Pugs;
 
 use strict;
-use File::Basename;
-use constant LIBDIRS => qw<
-    PIL-Run
-    Perl6-Value
-    Perl6-Container
-    Perl6-MetaModel
->;
-use lib (map {
-    dirname(__FILE__) . "/../../perl5/$_/lib",
-} LIBDIRS);
+use vars qw<$VERSION @ISA>;
+use constant MAGIC =>
+    'my$Z= =$*IN;while 1{$_=perl eval eval=$*IN;print$Z;say$!//$_;print$Z;flush$*OUT}';
+use constant COOKIE => rand();
+use Perl6::Pugs;
+use IPC::Open2;
 use Data::Dumper;
-use vars qw< @ISA $VERSION >;
 
 @ISA     = 'Inline';
 $VERSION = 0.01;
@@ -80,26 +75,13 @@ sub load {
     foreach my $sym ($code =~ /^\s*(?:sub|coro)\s+(\w+)\s+/mg) {
         *{"$pkg\::$sym"} = sub {
             local $Data::Dumper::Terse = 1;
-            my @args = map { Dumper($_) } @_;
+            my @args = map { $self->quote_pugs(Dumper($_)).'.eval' } @_;
             $self->eval_pugs(
                 "$sym(".join(',', @args).")"
             );
         }
     }
 }
-
-sub init_pugs {
-    use PIL::Run::MainX;
-    use PIL::Run::EvalX;
-    use PIL::Run::ApiX;
-}
-
-sub eval_pugs {
-    my $self = shift;
-    p6_eval($_[0]);
-}
-
-=begin comment
 
 sub init_pugs {
     my $self = shift;
@@ -119,8 +101,6 @@ sub eval_pugs {
     die $out if $out =~ /\n/;
     return eval $out;
 }
-
-=cut
 
 sub quote_pugs {
     my $self = shift;
