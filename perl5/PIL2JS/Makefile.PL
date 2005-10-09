@@ -30,7 +30,7 @@ INSTJS_LIB = blibjs/lib
 
 pure_all ::
 	\$(PERLRUN) util/src_to_blib.pl
-	\$(PERLRUN) runjs.pl --compile-only --p6preludepc=blib/lib/Prelude.js --testpc=blib/lib/Test.js -e 1 > @{[ File::Spec->devnull ]}
+	\$(PERLRUN) runjs.pl --precompile-only --p6preludepc=blib/lib/Prelude.js --testpc=blib/lib/Test.js -e 1 > @{[ File::Spec->devnull ]}
 
 pure_js_install ::
 	\$(NOECHO) \$(MOD_INSTALL) \\

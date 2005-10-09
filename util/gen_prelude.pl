@@ -164,7 +164,6 @@ initPreludePC env = do
 
     die "Pugs ".(($?&255)?"killed by signal $?"
          :"exited with error code ".($?>>8)) if $?;
-    unlink $TEMP_PRELUDE;
     print STDERR "done.\n" if $Config{verbose};
 }
 

@@ -24,24 +24,26 @@ sub pwd { File::Spec->catfile($FindBin::Bin, @_) }
 
 my (@runjs_args, @pugs_args);
 {
-  my $ignore_dash_B_arg_kludge = 0;
-  while (@ARGV) {
-    if( $ARGV[0] eq '-B') {
-      $ignore_dash_B_arg_kludge = 1; shift(@ARGV); next;
-    } elsif( $ARGV[0] eq '-BJS' ) {
-      shift(@ARGV); next;
-    }
+  while(@ARGV) {
+    my $arg = shift @ARGV;
 
-    if( $ignore_dash_B_arg_kludge ) {
-      $ignore_dash_B_arg_kludge = 0; shift(@ARGV); next;
+    # Ignore -B JS and -BJS
+    if(uc $arg eq "-B") {
+      shift @ARGV;
+      next;
+    } elsif(uc $arg eq "-BJS") {
+      next;
+    } elsif($arg eq "--") {
+      push @pugs_args, splice @ARGV;
+    } elsif($arg =~ /^--/) {  # treat all --options as belonging to runjs
+      push @runjs_args, $arg;
+    } else {
+      push @pugs_args, $arg;
     }
-
-    $ARGV[0] =~ /^--/ or last;
-    push @runjs_args, shift(@ARGV);
   }
+
+  @ARGV = @runjs_args;
 }
-@pugs_args = @ARGV;
-@ARGV = @runjs_args;
 
 GetOptions(
   "js=s"          => \$PIL2JS::cfg{js},
@@ -51,8 +53,9 @@ GetOptions(
   "p6prelude=s"   => \$PIL2JS::cfg{prelude},
   "testpc=s"      => \$PIL2JS::cfg{testpc},
   "metamodel-base=s" => \$PIL2JS::cfg{metamodel_base},
-  "compile-only"  => \my $compile_only,
-  "help"          => \&usage,
+  "compile-only"     => \my $compile_only,
+  "precompile-only"  => \my $precompile_only,
+  "help"             => \&usage,
 ) and @pugs_args or usage();
 
 unless(-e $PIL2JS::cfg{preludepc} and -s $PIL2JS::cfg{preludepc}) {
@@ -66,6 +69,8 @@ unless(-e $PIL2JS::cfg{testpc} and -s $PIL2JS::cfg{testpc}) {
   my $js = precomp_module_to_mini_js "-MTest";
   write_file($js => $PIL2JS::cfg{testpc});
 }
+
+exit if $precompile_only;
 
 my $js = jsbin_hack(compile_perl6_to_standalone_js(
   # "-I" . PIL2JS::pwd("lib6"),
@@ -92,11 +97,12 @@ Usage: $0 [options] regular_pugs_options
 Available options are:
   --js=/path/to/js/interpreter
   --pugs=/path/to/pugs
-  --pil2js=/path/to/pil2js.pl               (usually in perl5/PIL2JS/)
-  --p6prelude=/path/to/lib6/Prelude/JS.pm   (usually in perl5/PIL2JS/lib6/)
-  --metamodel-base=...                      (usually perl5/PIL2JS/libjs/)
-  --p6preludepc=/path/to/preludepc.js       (automatically created)
-  --testpc=/path/to/test.js                 (automatically created)
-  --compile-only
+  --pil2js=/path/to/pil2js.pl              (usually in perl5/PIL2JS/)
+  --p6prelude=/path/to/lib6/Prelude/JS.pm  (usually in perl5/PIL2JS/lib6/)
+  --metamodel-base=...                     (usually perl5/PIL2JS/libjs/)
+  --p6preludepc=/path/to/preludepc.js      (automatically created)
+  --testpc=/path/to/test.js                (automatically created)
+  --compile-only                           (outputs the resulting JS to STDOUT)
+  --precompile-only
   --help
 EOF

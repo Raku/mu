@@ -30,25 +30,29 @@ our %cfg;
 $cfg{output} = "output.html";
 #$cfg{verbose}++;
 
+my (@runjs_args, @pugs_args);
 {
-  my $ignore_dash_B_arg_kludge = 0;
-  my @new_args;
-  while (@ARGV) {
-    if( $ARGV[0] eq '-B') {
-      $ignore_dash_B_arg_kludge = 1; shift(@ARGV); next;
-    } elsif( $ARGV[0] eq '-BJS' ) {
-      shift(@ARGV); next;
-    }
+  while(@ARGV) {
+    my $arg = shift @ARGV;
 
-    if( $ignore_dash_B_arg_kludge ) {
-      $ignore_dash_B_arg_kludge = 0; shift(@ARGV); next;
+    # Ignore -B JS and -BJS
+    if(uc $arg eq "-B") {
+      shift @ARGV;
+      next;
+    } elsif(uc $arg eq "-BJS") {
+      next;
+    } elsif($arg eq "--") {
+      push @pugs_args, splice @ARGV;
+    } elsif($arg =~ /^--/) {  # treat all --options as belonging to runjs
+      push @runjs_args, $arg;
+    } else {
+      push @pugs_args, $arg;
     }
-
-    $ARGV[0] =~ /^--/ or last;
-    push @new_args, shift(@ARGV);
   }
-  @ARGV = @new_args;
+
+  @ARGV = @runjs_args;
 }
+
 GetOptions(
   "js=s"          => \$cfg{js},
   "pugs=s"        => \$cfg{pugs},
