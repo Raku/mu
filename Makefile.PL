@@ -469,12 +469,12 @@ build_perl5 ::
 
 clean ::
 @{[for_perl5("
-	cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) clean
+	-cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) clean
 ")]}
 
 realclean ::
 @{[for_perl5("
-	cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) realclean
+	-cd __DIR__ && \$(TEST_F) \$(FIRST_MAKEFILE) && \$(MAKE) realclean
 ")]}
 
 pure_all :: build_perl5
@@ -493,7 +493,7 @@ pure_site_install ::
 		\$(INST6_SCRIPT) \$(DESTDIR)$config->{sitescript} \\
 		\$(INST6_MAN1DIR) \$(DESTDIR)$config->{installsiteman1dir} \\
 		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installsiteman3dir} \\
-		\$(INSTPUGS_LIB) \$(DESTDIR)$config->{pugslibdir}
+		\$(INSTPUGS_LIB) \$(DESTDIR)$config->{sitelib}/auto/pugs
 	\$(NOECHO) \$(ECHO) "*** Installed!  Type '\$(MAKE) register' to make Pugs a GHC package."
 
 pure_vendor_install ::
@@ -505,7 +505,7 @@ pure_vendor_install ::
 		\$(INST6_SCRIPT) \$(DESTDIR)$config->{installscript} \\
 		\$(INST6_MAN1DIR) \$(DESTDIR)$config->{installman1dir} \\
 		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installman3dir} \\
-		\$(INSTPUGS_LIB) \$(DESTDIR)$config->{pugslibdir}
+		\$(INSTPUGS_LIB) \$(DESTDIR)$config->{privlib}/auto/pugs
 	\$(NOECHO) \$(ECHO) "*** Installed!  Type '\$(MAKE) register' to make Pugs a GHC package."
 .
 }
