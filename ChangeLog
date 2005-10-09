@@ -7,96 +7,96 @@
 * Support for the Haskell Cabal framework, exposing Pugs as a library to other
   Haskell users, paving the way for use in IDEs, as well as future Inline::Pugs
   and Inline::GHC modules
-* $?PUGS_BACKEND can be used to tell which runtime is in use 
-* Perl 5 backend can be invoked with `pugs -B Perl5`
-* JavaScript backend can be invoked with `pugs -B JS`
 * Adopted the code convention of expanding literal tab chars to spaces
+* JavaScript backend can be invoked with `pugs -B JS`
+* Perl 5 backend can be invoked with `pugs -B Perl5`
 * Pugs will now compile version ranges in 'use/require' statements
-* `exec` emulated (partially) on Win32
 * Significant backend enhancements; see below
+* `$?PUGS_BACKEND` can be used to tell which runtime is in use 
+* `exec` emulated (partially) on Win32
 
 === JavaScript backend
 
 * Passes 91% of the main test suite (including TODO failures)
-* Integrated MetaModel 1.0
+* Integrated with MetaModel 1.0
 * Faster code generation, taking advantage of `-CPerl5` output.
-* Switched to continuation passing style (CPS) to properly support `return()`,
-  `&?CALLER_CONTINUATION`, coroutines, and `sleep()`
-* Added support for `$CALLER::` and `$OUTER::`
-* Added support for junctions
-* Added support for the `eqv` operator
-* Added support for slurpy hashes in subroutine signatures
-* Added support for `lazy {...}`
-* Added support for lvalue subroutines (`foo() = ...`)
-* Added support for `temp` and `let` declarations
-* Proper UTF-8 handling
-* List construction no longer creates new containers
-* Improved binding support
-* Improved support for autodereferentiating references
-* Named-only arguments (`+$x` and `++$x`) can't be passed positionally any
-  longer
-* Initial support for symbolic dereferentiation
-* Parts of the Prelude can be written in Perl 5 now, resulting in performance
-  improvements
+* Switched to continuation passing style (CPS) to properly support
+  `return()`, `&?CALLER_CONTINUATION`, coroutines, and `sleep()`
+* Improved support for binding and autodereferentiation
 * Initial support for multi subs
-* Support for array and hash autovivification
-* Perl 5-like regular expressions mostly working
+* Initial support for symbolic dereferentiation
+* List construction no longer creates new containers
 * Miscellaneous performance improvements
-* Support for loading JSAN modules by using `use jsan:Module.Name`
-* Support for evaluating expressions in the PIL2JS shell (`:e <exp>`)
+* Named-only arguments (`+$x` and `++$x`) can't be passed positionally anymore
+* Parts of the Prelude can be written in Perl 5 now to improve performance
+* Perl 5-like regular expressions mostly working
+* Proper UTF-8 handling
 * Support for "monkey-but" (`$foo but {...}`)
+* Support for `$CALLER::` and `$OUTER::`
+* Support for `lazy {...}` blocks for delayed evaluation
+* Support for `temp` and `let` declarations
+* Support for array and hash autovivification
+* Support for array and hash slices
+* Support for evaluating expressions in the PIL2JS shell (`:e <exp>`)
+* Support for junctions
+* Support for loading JSAN modules by using `use jsan:Module.Name`
+* Support for lvalue subroutines (`foo() = ...`)
+* Support for slurpy hashes in subroutine signatures
+* Support for the `Proxy` class (not yet user-visible)
+* Support for the `eqv` operator
 * Using `for` with only one element to loop over works now
 * `int()` works correctly on special values like `Inf` or `NaN` now
-* Support for array and hash slices
-* `substr()` returns a readwrite proxy object now (`substr($str, $pos, $len) =
-  $replacement)`)
-* Support for the `Proxy` class (but not yet user-visible, as support for class
-  methods is lacking)
+* `substr()` returns a r/w proxy: `substr($str, $pos, $len) = $replacement)`
 
 === Perl 5 backend
 
 * Passes 33% of the main test suite (including TODO failures)
-* Already has enough functionality to run Perl 6 version of Test.pm
 * Integrated with the Perl 5 edition of MetaModel 2.0
-* Support for an extensive list of operators
+* Compiles and runs Perl 6 version of `Test.pm`
+* Infinite lazy lists, Pairs, References, and intrinsic classes
 * Multi Sub, Class, Match, exceptions, types and subtypes
 * Scalar, Hash and Array containers, with tieing, binding and read-onlyness
-* Infinite lazy lists, Pairs, References, and intrinsic classes
+* Support for an extensive list of operators
 * Supports eval() with Perl 5 and Perl 6 code
-* %ENV is shared with Perl 5; @INC is separate from @Perl5::INC
+* `%ENV` is shared with Perl 5; `@INC` is separate from `@Perl5::INC`
 
 == Bug Fixes
 
 === Shared components
 
-* Fixed infinite loop on sub { 1 }.pairs
 * Fixed `foo {1}.blah` being misparsed as `foo({1}).blah`
 * Fixed a hashref infinite loop
+* Fixed infinite loop on sub { 1 }.pairs
 * Multiple `sub foo` no longer silently means `multi foo`
 
 === JavaScript backend
 
-* Fixed `.values` and `.kv` to return aliases
 * Fixed evaluation order of assignments and bindings
+* Fixed `.values` and `.kv` to return aliases
 
 == Bundled Modules
 
-* Updated /ext/Locale-KeyedText: Syncronized with p5 version 1.6.2
-  and updates to stay compatible with latest Perl 6 spec changes
-* New Perl 6 modules:
-** Perl6-Container-Array, Perl6-Value-List: prototype modules for 
-   implementing Lazy lists in Perl 6.
-** Log-Selective
-** Rosetta-Incubator, under /modules, having a complete set of
-   2005.09.29-restarted Rosetta[|::*] and SQL::Routine[|::*] modules
-** Cipher::* - Cipher API for cryptographic ciphers, including
-   implementations of TEA and Arcfour (RC4)
-** FA-DFA
-* Experiemental modules (in misc/, not installed)
-** Blondie, a prototype of native code generation and type-inferencing
-   with Attribute Grammers
-** XML::SAX
-** Getopt::Long
+=== New Perl 6 modules
+
+* Perl6-Container-Array, Perl6-Value-List:
+  prototype modules for implementing Lazy lists in Perl 6.
+* Log-Selective
+* Cipher - Cipher API suite for cryptographic ciphers
+* FA-DFA
+
+=== Updated modules
+
+* Locale-KeyedText: Synchronized with p5 version 1.6.2
+* Test-Builder: new APIs, including test_pass() and test_fail()
+
+=== Experimental modules (in misc/, not installed)
+
+* Blondie, prototype compiler for native code generation and type-inferencing
+  with Attribute Grammers 
+* XML::SAX
+* Getopt::Long
+* Rosetta-Incubator, a complete set of Rosetta[|::*] and SQL::Routine[|::*]
+  modules, restarted development at 2005.09.29
 
 == Test, Examples and Documentations
 
