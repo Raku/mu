@@ -2,7 +2,8 @@
 
 use v6;
 
-unshift @*INC, 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec /lib';
+unshift @*INC, 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec/lib';
+
 require File::Spec;
 my $progdir   = splitpath($*PROGRAM_NAME)[1] || '.';
 unshift @*INC, $progdir;

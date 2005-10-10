@@ -3,13 +3,13 @@
 use v6;
 
 #XXX just so that File:;Spec can be used w/o being installed
-unshift @*INC, 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec /lib';
+unshift @*INC, 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec/lib';
 
 require File::Spec;
 
-my $progdir = splitpath($*PROGRAM_NAME)[1] || '.'; 
+my $progdir = splitpath($*PROGRAM_NAME)[1] || '.';
 @*INC.push($progdir);
-require Motd; #must be in PERL6LIB path, to say 'use'; 
+require Motd; #must be in PERL6LIB path, to say 'use';
 
 my $limit     = @ARGS[0] // '2';
 my $dict      = canonpath("$progdir/pugspraise");
