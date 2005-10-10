@@ -121,7 +121,6 @@ Expanding this one level deeper:
     |   |-- HTML-Entities      Encode/decode HTML entities
     |   |-- HTTP-Server-Simple Base class for simple CGI-capable HTTP servers
     |   |-- Kwid-Event-Parser  Event-based API (like XML SAX) for Kwid
-    |   |-- Locale-KeyedText   Refer to UI strings by key
     |   |-- MIME-Base64        Base64 encode/decode (not a Perl 5 port)
     |   |-- Module-Pluggable-Fast  Find and load plugin modules
     |   |-- Net-IRC            IRC protocol implementation
@@ -131,6 +130,7 @@ Expanding this one level deeper:
     |   |-- Perldoc            Event-based API for Perldoc DOM
     |   |-- Pod-Event-Parser   Event-based API (like XML SAX) for POD
     |   |-- Recurrence         Recurrence operations
+    |   |-- Rosetta-Incubator  Rigorous Database Portability
     |   |-- Set                Set calculus operations
     |   |-- Set-Infinite       Infinite set operations
     |   |-- Span               Span operations
@@ -166,7 +166,6 @@ Expanding this one level deeper:
     |   |-- Perl-MetaModel     Prototype Perl 6 metaclass model: Perl 5,
     |   |                      version 1.0
     |   |-- POE                Beginning of an experimental port of Perl 5 POE
-    |   |-- Rosetta-Incubator  Rigorous Database Portability
     |   |-- T2-Perl6           T2 (Tangram::Schema redesign) -> Perl6::Class 
     |   |-- XML-Sax            Simple API for XML
     |

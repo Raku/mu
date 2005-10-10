@@ -15,8 +15,8 @@ reserved.  See the individual modules themselves for their licensing terms;
 most of them are GPL v2+ with an exception.
 
 The Perl 6 version is currently included with Autrijus Tang's Pugs project,
-and lives in its "/modules/Rosetta-Incubator" sub-directory during the
-short term, and its components will later be moved to "/ext"
+and lives in its "/ext/Rosetta-Incubator" sub-directory during the short
+term, and its components may later be split up into other "/ext"
 sub-directories; Pugs' homepage is at "http://pugscode.org/", and it has an
 open Subversion repository at "http://svn.openfoundry.org/pugs/".
 
@@ -28,19 +28,20 @@ The Perl 6 version is the "main" one which is expected to have a longer
 life, and its design is optimized around best practices that are natural in
 Perl 6.  At the same time, however, the Perl 6 language is new and a moving
 target, and current hosts or run-times for Perl 6 code are only partially
-complete, so this version may not actually be functional for awhile.  This
-said, the Rosetta framework is being developed in Perl 6 now so it can
-serve as an integration test for Pugs, helping its development.  Moreover,
-it should assist other early-adopter developers that want to write database
-using applications in Perl 6.
+complete, so this version may be slower to become functional in the first
+place.  This said, the Rosetta framework is being developed in Perl 6 now
+so it can serve as an integration test for Pugs, helping its development. 
+Moreover, it should assist other early-adopter developers that want to
+write database using applications in Perl 6.
 
 The Perl 5 version is designed to approximate the Perl 6 version as much as
 is possible under Perl 5, and it employs various third-party extensions to
 Perl 5 which assist in that effort, such as "version", "List::MoreUtils",
-and "Class::Std".  At the same time, it should still be efficient by Perl 5
-standards and be very useful to Perl 5 programs.  Certainly it will be
-stable and useable in production environments a lot earlier, due to the
-fact that Perl 5 isn't a moving target.
+and "Class::Std", but no non-trivial source filters.  At the same time, it
+should still be efficient by Perl 5 standards and be very useful to Perl 5
+programs.  Certainly it will be stable and useable in production
+environments a lot earlier, due to the fact that Perl 5 isn't a moving
+target.
 
 These are the anticipated core components of the Rosetta framework:
 
@@ -57,7 +58,9 @@ repository at "http://svn.utsl.gen.nz/trunk/Rosetta/" (holding the last 2
 months of its development, and it has been released on CPAN under
 "http://search.cpan.org/~duncand/" in the form of 165 distribution releases
 dated between 2003.01.05 and 2005.09.28, all of which are on BACKPAN and on
-the author's web site.
+the author's web site.  An older pre-rebirth Perl 6 version of just the
+Locale::KeyedText component was included with Pugs between its 6.0.11
+(2005.03.14) and 6.2.10 (2005.10.10) releases, inclusive.
 
 Feedback on and assistence with this framework is greatly appreciated.
 

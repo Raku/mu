@@ -28,7 +28,9 @@
 
 === Updated modules
 
-
+* Moved Rosetta-Incubator to ext/ from misc/, as it is expected to be 
+  installable by the 6.28.0 release.
+** Also deleted the older ext/Locale-KeyedText, which the above supersedes.
 
 === Experimental modules (in misc/, not installed)
 

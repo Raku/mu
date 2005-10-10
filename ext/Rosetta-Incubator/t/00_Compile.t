@@ -1,6 +1,8 @@
 #!/usr/bin/pugs
 use v6;
 
+use lib <t/lib ext/Rosetta-Incubator/t/lib>;
+
 use Test;
 
 plan( 30 );
