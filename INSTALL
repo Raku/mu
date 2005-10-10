@@ -132,6 +132,20 @@ See `util/config-template.yml` for more information.
 [1] See <http://yaml.org/>. Only a subset of the YAML syntax is permitted
 at the moment, to avoid a dependency on the full parser.
 
+CAVEATS FOR ALL USERS
+---------------------
+
+Parrot is used to provide Perl6-style regular expressions.
+Perl5-style regular expressions (eg, rx:perl5/foo/) can be used
+without any parrot at all.  Pugs can be built to use parrot external
+(the default), or embedded.  External is recommended.
+
+Embedding parrot currently requires a parrot version later than 0.3.0.
+Parrot 0.3.0 is unfortunately, as of Oct 10 2005, the latest parrot
+release.  It had a bug which has since been fixed.  More recent but
+unreleased and unstable copies of parrot can be obtained from
+http://www.parrotcode.org/source.html .
+
 CAVEATS FOR Win32 USERS
 -------------------------
 
@@ -170,3 +184,5 @@ CAVEATS FOR x86_64 MACHINES
 ---------------------------
 
 GHC 6.4.1 or later is required.
+
+There is currently an undiagnosed bug in eval_yaml().
