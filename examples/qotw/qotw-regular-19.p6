@@ -18,15 +18,14 @@ for =$FH -> $line {
   my ($sail_info, $coord)    = split ":", $line;
   my ($sail_name, $verticie) = split ".", $sail_info;
   my ($x, $y)                = split ",", $coord;
-  $x ~~ s:perl5:g/\s*//;
-  $y ~~ s:perl5:g/\s*//;
-
+  $x ~~ s:perl5:g/\s+//;
+  $y ~~ s:perl5:g/\s+//;
   push %sails{$sail_name}<points>, [$x, $y];
 }
 
 my $total = 0;
 for %sails.keys -> $sail {
-  my $sail_area = _calc_area($sails{$sail}<points>) * ($scale / 100);
+  my $sail_area = _calc_area(%sails{$sail}<points>) * ($scale / 100);
   say "$sail.area: $sail_area cm^2";
   $total += $sail_area;
 }
@@ -35,8 +34,8 @@ say "total.area: $total cm^2";
 
 close $FH;
 
-sub calc_area($p) {
-  my ($x, $y) = conv_p_to_x_y($p);
+sub _calc_area($p) {
+  my ($x, $y) = _conv_p_to_x_y($p);
   my $area;
 
   # from http://mathworld.wolfram.com/PolygonArea.html
@@ -56,7 +55,7 @@ sub calc_area($p) {
 sub _conv_p_to_x_y($p) {
   my $x;
   my $y;
-  
+
   for $p -> $x_y {
     push $x, $x_y[0];
     push $y, $x_y[1];
