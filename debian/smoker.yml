@@ -4,4 +4,4 @@
 # anonymity, just omit them.
 name: Florian Ragwitz (Debian builds)
 email: florian.ragwitz@s2004.tu-chemnitz.de
-
+smoke_upload: 1
