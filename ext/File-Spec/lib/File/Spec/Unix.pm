@@ -21,8 +21,8 @@ sub splitpath (Str $path, Bool ?$nofile) returns Array is export {
     }
     else {
         $path ~~ rx:perl5{^((?:.*/(?:\.\.?\Z(?!\n))?)?)([^/]*)};
-        $directory = $0;
-        $file      = $1;
+        $directory = ~$0;
+        $file      = ~$1;
     }
     return ($volume, $directory, $file);
 }
@@ -32,10 +32,10 @@ sub splitpath (Str $path, Bool ?$nofile) returns Array is export {
 sub catdir (*@path) returns Str is export { canonpath(join('/', (@path, ''))) }
 
 sub catfile (*@_path) returns Str is export {
-    # take a copy of our args here, maybe 
-    # replace this with 'is copy' parameter 
-    # trait at some point    
-    my @path = @_path; 
+    # take a copy of our args here, maybe
+    # replace this with 'is copy' parameter
+    # trait at some point
+    my @path = @_path;
     my $file = canonpath(pop(@path));
     return $file unless ?@path;
     my $dir = catdir(@path);
