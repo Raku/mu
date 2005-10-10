@@ -7,6 +7,7 @@ use FindBin;
 use IPC::Open2;
 use Config;
 use File::Spec;
+use File::Temp;
 use Encode;
 
 our $VERSION = 0.0.1;
@@ -132,16 +133,14 @@ sub run_pil2js {
   my @args = @_;
   unshift @args, "--pugs=" . $cfg{pugs}, "--metamodel-base=" . $cfg{metamodel_base};
 
-  my $push;
+  my $tmp;
   for(@args) {
-    if(ref $_ and defined $push) {
+    if(ref $_ and defined $tmp) {
       die "Only one reference argument may be given to &PIL2JS::run_pil2js!";
     } elsif(ref $_) {
-      open my $fh, '>', "pil2js-$$.tmp";
-      END { unlink "pil2js-$$.tmp" };
-      print $fh $$_;
-      $_ = "pil2js-$$.tmp";
-      close $fh;
+      $tmp = File::Temp->new(UNLINK => 1);
+      print $tmp $$_;
+      $_ = "$tmp";
     }
   }
   my @cmd = ($^X, $cfg{pil2js}, @args);
@@ -150,8 +149,6 @@ sub run_pil2js {
   my $pid = open2 my($read_fh), my($write_fh), @cmd
     or die "Couldn't open pipe to \"@cmd\": $!\n";
 
-  print $write_fh $push or die "Couldn't write into pipe to \"@cmd\": $!\n"
-    if defined $push;
   close $write_fh       or die "Couldn't close pipe to \"@cmd\": $!\n";
 
   local $/;

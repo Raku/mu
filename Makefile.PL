@@ -378,6 +378,8 @@ haddock : $version_h $config_h @hppfiles dist/doc/html
 	\@\$(PERL) -le "print and print q-*** API Documentation generated in @{[File::Spec->catfile('dist', 'doc', 'html', 'index.html')]}-"
 
 dist/doc/html :
+	\@\$(PERL) -e "mkdir q-dist-"
+	\@\$(PERL) -e "mkdir q-dist/doc-"
 	\@\$(PERL) -e "mkdir q-dist/doc/html-"
 
 profiled :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm
