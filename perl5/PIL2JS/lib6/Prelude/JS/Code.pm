@@ -10,6 +10,12 @@ method name(Code $self:) {
   })')($self);
 }
 
+# XXX waiting for luqui's tuple type:
+# method assuming(Code $self: *$args) {
+#   return sub (*$new_args) {
+#     $self(*$args, *$new_args);
+#   };
+# }
 method assuming(Code $self: *@args) {
   return sub (*@new_args) {
     $self(*@args, *@new_args);

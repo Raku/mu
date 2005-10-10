@@ -15,7 +15,7 @@ Tests curried subs as defined by L<S06/Currying>
 
 plan 8;
 
-sub foo (+$x, +$y, +$z = 'd') {
+sub foo (?$x, ?$y, ?$z = 'd') {
     "x=$x y=$y z=$z";
 }
 
