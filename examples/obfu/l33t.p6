@@ -41,7 +41,7 @@ submethod BUILD {
    say "BUILD done" if $:debug;
 }
 
-submethod trace(: Str $msg) {
+submethod trace( Str $msg) {
     say $msg if $:trace;
 }
 
