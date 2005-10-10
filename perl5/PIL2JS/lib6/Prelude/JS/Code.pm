@@ -10,6 +10,12 @@ method name(Code $self:) {
   })')($self);
 }
 
+method assuming(Code $self: *@args) {
+  return sub (*@new_args) {
+    $self(*@args, *@new_args);
+  };
+}
+
 sub lazy (Code $fetch) is primitive {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var fetch = args[1].FETCH(), cc = args.pop();
