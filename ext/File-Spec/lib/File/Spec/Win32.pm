@@ -18,6 +18,7 @@ sub splitdir (Str $directories) returns Array is export {
     if (($directories ~~ rx:perl5{[\\/]\Z(?!\n)})) {
         @dirs[@dirs - 1] = '';
     }
+    @dirs = map {~$_ } @dirs;
     return @dirs;
 }
 
@@ -25,14 +26,14 @@ sub splitpath (Str $path, Bool ?$nofile) returns Array is export {
     my ($volume, $directory, $file) = ('','','');
     if ($nofile) {
         $path ~~ rx:perl5{^((?:[a-zA-Z]:|(?:\\\\|//)[^\\/]+[\\/][^\\/]+)?)(.*)};
-        $volume    = $0;
-        $directory = $1;
+        $volume    = ~$0;
+        $directory = ~$1;
     }
     else {
         $path ~~ rx:perl5{^((?:[a-zA-Z]:|(?:\\\\|//)[^\\/]+[\\/][^\\/]+)?)((?:.*[\\/](?:\.\.?\Z(?!\n))?)?)(.*)};
-        $volume    = $0;
-        $directory = $1;
-        $file      = $2;
+        $volume    = ~$0;
+        $directory = ~$1;
+        $file      = ~$2;
     }
     return ($volume, $directory, $file);
 }
