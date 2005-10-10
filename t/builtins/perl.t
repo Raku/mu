@@ -8,7 +8,7 @@ use Test;
 my @tests = (
     # Basic scalar values
     42, 3e5, Inf, -Inf, NaN,
-    "a string", "", "\0", "\t", "\n", "\r\n",
+    "a string", "", "\0", "\t", "\n", "\r\n", "\7", "\123",
     ?1, ?0,
     undef,
     rx:Perl5{foo}, rx:Perl5{}, rx:Perl5{^.*$},
@@ -43,7 +43,7 @@ my @tests = (
 );
 
 plan 7 + 2*@tests;
-force_todo 4, 7..8, 29..34, 55..56, 59..60, 65..67, 70, 72, 74;
+force_todo 4, 7..8, 33..38, 59..60, 63..64, 69..71, 74, 76, 78;
 
 unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
   skip_rest "eval() not yet implemented in $?PUGS_BACKEND.";
