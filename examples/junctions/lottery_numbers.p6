@@ -10,5 +10,9 @@ This examples exploits the fact that $junction.pick is choosen (pseudo)-randomly
 
 my $lottery_numbers = any(1 .. 99);
 my @your_numbers;
-for (0 .. 10) { @your_numbers.push($lottery_numbers.pick()) }
+my $new = $lottery_numbers.pick();
+for (0 .. 10) {
+    $new = $lottery_numbers.pick() while $new == any(@your_numbers);
+    @your_numbers.push($new)
+}
 say "Your lottery numbers are: { join('-', @your_numbers) }";
