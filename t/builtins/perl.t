@@ -11,6 +11,7 @@ my @tests = (
     "a string", "", "\0", "\t", "\n", "\r\n",
     ?1, ?0,
     undef,
+    rx:Perl5{foo}, rx:Perl5{}, rx:Perl5{^.*$},
 
     # References to scalars
     \42, \Inf, \"string", \"", \?1, \?0, \undef,
@@ -42,7 +43,7 @@ my @tests = (
 );
 
 plan 7 + 2*@tests;
-force_todo 4, 7..8, 49..50, 53..54, 59..61, 64, 66, 68;
+force_todo 4, 7..8, 29..34, 55..56, 59..60, 65..67, 70, 72, 74;
 
 unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
   skip_rest "eval() not yet implemented in $?PUGS_BACKEND.";
