@@ -112,8 +112,15 @@ op2Match x (VSubst (rx, subst)) | rxGlobal rx = do
         matchSV <- findSymRef "$/" glob
         writeRef matchSV (VMatch match)
         str'    <- fromVal =<< evalExp subst
-        (after', ok') <- doReplace (genericDrop (matchTo match) str) (ok + 1)
-        return (concat [genericTake (matchFrom match) str, str', after'], ok')
+        -- XXX - on zero-width match, advance the cursor and, if can't,
+        --       don't even bother with the recursive call.
+        case (matchTo match, matchFrom match) of
+            (0, 0) -> if null str then return (str' ++ str, ok) else do
+                (after', ok') <- doReplace (tail str) (ok + 1)
+                return (concat [str' ++ (head str:after')], ok')
+            (to, from) -> do
+                (after', ok') <- doReplace (genericDrop to str) (ok + 1)
+                return (concat [genericTake from str, str', after'], ok')
 
 op2Match x (VSubst (rx, subst)) = do
     str     <- fromVal x
