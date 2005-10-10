@@ -72,6 +72,7 @@ import Pugs.Internals
 import Foreign
 import Foreign.C.Types
 import Foreign.C.String
+import Data.IORef (modifyIORef)
 
 type PerlInterpreter = Ptr ()
 type PerlSV = Ptr ()
