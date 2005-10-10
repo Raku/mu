@@ -72,6 +72,7 @@ module Pugs.Internals (
     safeMode,
     warn,
     die,
+    _GlobalFinalizer,
 ) where
 
 import UTF8
@@ -79,6 +80,7 @@ import Unicode
 import Pugs.Compat
 import RRegex
 import RRegex.Syntax
+import Data.IORef
 import Data.Dynamic
 import Data.Array (elems)
 import Network
@@ -312,3 +314,7 @@ safeMode = case (unsafePerformIO $ getEnv "PUGS_SAFEMODE") of
     Just ""     -> False
     Just "0"    -> False
     _           -> True
+
+{-# NOINLINE _GlobalFinalizer #-}
+_GlobalFinalizer :: IORef (IO ())
+_GlobalFinalizer = unsafePerformIO $ newIORef (return ())

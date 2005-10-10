@@ -134,6 +134,7 @@ initPerl5 str env = do
             case env of
                 Just val -> pugs_setenv =<< mkVal val
                 Nothing -> return ()
+            modifyIORef _GlobalFinalizer (>> perl_free interp)
             return interp
 
 mkVal :: (Show a) => a -> IO PugsVal

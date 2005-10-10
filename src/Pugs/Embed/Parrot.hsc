@@ -133,6 +133,7 @@ import Foreign.C.String
 import Foreign.Storable
 import System.IO.Unsafe
 import System.Directory
+import Pugs.Internals (_GlobalFinalizer)
 
 type ParrotString               = Ptr ()
 type ParrotInterp               = Ptr (Ptr ())
@@ -162,6 +163,7 @@ initParrot = do
 #elsif defined(PARROT_CGP_CORE)
     parrot_set_run_core interp PARROT_CGP_CORE
 #endif
+    -- parrot_set_debug interp 0x20
     parrot_imcc_init interp
     callback    <- mkCompileCallback compileToParrot
     pugsStr     <- withCString "Pugs" (const_string interp)
@@ -173,6 +175,7 @@ initParrot = do
         parrot_packfile_segment_new_seg interp pf_dir 4 p 1
     set_pf_cur_cs pf seg
     parrot_loadbc interp pf
+    modifyIORef _GlobalFinalizer (>> parrot_exit 0)
     return interp
 
 loadPGE :: ParrotInterp -> FilePath -> IO (ParrotPMC, ParrotPMC)
@@ -281,6 +284,12 @@ foreign import ccall "Parrot_find_global"
 
 foreign import ccall "Parrot_get_strreg"
     parrot_get_strreg :: ParrotInterp -> CInt -> IO ParrotString
+
+foreign import ccall "Parrot_set_debug"
+    parrot_set_debug :: ParrotInterp -> CInt -> IO ()
+
+foreign import ccall "Parrot_exit"
+    parrot_exit :: CInt -> IO ()
 
 foreign import ccall "string_to_cstring"
     parrot_string_to_cstring :: ParrotInterp -> ParrotString -> IO CString
