@@ -48,7 +48,6 @@ install-stamp:
 	dh_testroot
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 	find $(CURDIR) -exec chmod u+rw {} \;
-	rm -rfv ./usr/share/perl6/5.8/FA/t/
 	dh_installdirs
 	dh_install --sourcedir=$(CURDIR)/debian/tmp --list-missing
 	cp -r $(CURDIR)/docs/* $(CURDIR)/debian/pugs-doc/usr/share/doc/pugs-doc/
