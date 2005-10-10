@@ -185,7 +185,8 @@ loadPGE interp path = do
     if match /= nullPtr then return (match, add) else do
     cwd     <- getCurrentDirectory
     setCurrentDirectory path
-    evalParrot ".sub main\nload_bytecode 'PGE.pbc'\nload_bytecode 'PGE/Hs.pir'\n.end\n"
+    withCString "PGE.pbc" $ parrot_load_bytecode interp
+    withCString "PGE/Hs.pir" $ parrot_load_bytecode interp
     setCurrentDirectory cwd
     loadPGE interp path
 
@@ -262,6 +263,9 @@ foreign import ccall "Parrot_set_run_core"
 
 foreign import ccall "Parrot_compreg"
     parrot_compreg :: ParrotInterp -> ParrotString -> FunPtr ParrotCompilerFunc -> IO ()
+
+foreign import ccall "Parrot_load_bytecode"
+    parrot_load_bytecode :: ParrotInterp -> CString -> IO ()
 
 foreign import ccall "Parrot_call_sub"
     parrot_call_sub_vv :: ParrotInterp -> ParrotPMC -> CString -> IO ()
