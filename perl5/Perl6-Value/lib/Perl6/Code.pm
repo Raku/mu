@@ -205,6 +205,23 @@ class1 'Code'.$class_description => {
         attrs => [ '$.body', '$.params', '$.name', '$.returns' ],
         DESTROY => sub {},
         methods => {
+
+            # Currying
+            'prebind' => sub {
+                my ( $self, @args ) = @_;
+                #warn "PREBIND $self => @args";
+                return Code->new( 
+                    '$.body' => sub { 
+                        my $obj = shift;
+                        #warn "PREBOUND @args, @_";
+                        return $self->do( @args, @_ );
+                    },
+                    '$.name' => $self->name . '_Curried_',
+                    '$.params' => [ Perl6::Param->new( 'name' => '*@_' ) ],
+                    '$.returns' => undef,
+                );
+            },
+
             # TODO
             #'num' =>  sub { Num->new( '$.unboxed' => _('$.unboxed')->num  ) },
             #'int' =>  sub { Int->new( '$.unboxed' => _('$.unboxed')->int  ) },
