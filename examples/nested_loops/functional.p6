@@ -20,7 +20,8 @@ sub NestedLoops (*@loop) returns Ref {
 
     return sub () {
        incr(@loop.end) or return;
-       zip(@loop, @pos) ==> map -> $a, $i { $a[$i] };
+       map -> $a, $i { $a[$i] } zip(@loop, @pos);
+       # zip(@loop, @pos) ==> map -> $a, $i { $a[$i] };   #doesn't work as of  7529
     };
 };
 

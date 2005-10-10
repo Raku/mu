@@ -32,8 +32,8 @@ class NestedLoops {
       method reset () {
           $.counter = MultiCounter.new( :lengths( @.loops.map:{.end } ) );
       }
-      method iter () returns Bool { $.counter.inc;  }
-      method iter ($self: Code $code) {
+      multi method iter () returns Bool { $.counter.inc;  }
+      multi method iter ($self: Code $code) {
              while ($self.iter) { $code($self.data) };
              $self.reset;
       }
