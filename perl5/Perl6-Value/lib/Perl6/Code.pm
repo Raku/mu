@@ -207,7 +207,7 @@ class1 'Code'.$class_description => {
         methods => {
 
             # Currying
-            'prebind' => sub {
+            'assuming' => sub {
                 my ( $self, @args ) = @_;
                 #warn "PREBIND $self => @args";
                 return Code->new( 
