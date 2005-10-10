@@ -96,7 +96,7 @@ sub as_js {
 
     # For debugging
     unless($self->{CC}) {
-      use YAML; warn Dump($self);
+      require YAML; warn YAML::Dump($self);
     }
 
     # Minor hack -- we undefine all params to not suck up all memory.
