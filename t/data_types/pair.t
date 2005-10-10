@@ -15,7 +15,7 @@ plan 62;
 
 my $pair = 'foo' => 'bar';
 isa_ok($pair, 'Pair');
-is($pair.perl, "('foo' => 'bar')", 'canonical representation');
+is($pair.perl, '("foo" => "bar")', 'canonical representation');
 
 # get key and value from the pair as many ways as possible
 
@@ -198,12 +198,12 @@ http://www.nntp.perl.org/group/perl.perl6.language/20122
 # Also see http://www.nntp.perl.org/group/perl.perl6.language/23224.
 {
   my $pair = (a => 1);
-  is try { ~$pair  }, "a\t1", "pairs stringify correctly (1)", :todo<unspecced>;
-  is try { "$pair" }, "a\t1", "pairs stringify correctly (2)", :todo<unspecced>;
+  is try { ~$pair  }, "a\t1", "pairs stringify correctly (1)";
+  is try { "$pair" }, "a\t1", "pairs stringify correctly (2)";
 }
 
 {
   my $pair = (a => [1,2,3]);
-  is try { ~$pair  }, "a\t1 2 3", "pairs with arrayrefs as values stringify correctly (1)", :todo<unspecced>;
-  is try { "$pair" }, "a\t1 2 3", "pairs with arrayrefs as values stringify correctly (2)", :todo<unspecced>;
+  is try { ~$pair  }, "a\t1 2 3", "pairs with arrayrefs as values stringify correctly (1)";
+  is try { "$pair" }, "a\t1 2 3", "pairs with arrayrefs as values stringify correctly (2)";
 }

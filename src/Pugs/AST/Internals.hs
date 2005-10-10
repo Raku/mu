@@ -454,13 +454,23 @@ instance Value VStr where
     fromVal v@(PerlSV _) = fromVal' v
     fromVal v = do
         vt  <- evalValType v
-        if vt /= mkType "Hash" then fromVal' v else do
-        --- XXX special case for Hash -- need to Objectify
-        hv      <- join $ doHash v hash_fetch
-        lns     <- forM (Map.assocs hv) $ \(k, v) -> do
-            str <- fromVal v
-            return $ k ++ "\t" ++ str
-        return $ unlines lns
+        case () of
+            _
+                -- Special case for pairs: "$pair" eq
+                -- "$pair.key()\t$pair.value()"
+                | vt == mkType "Pair" -> do
+                      (k,v) <- join $ doPair v pair_fetch
+                      k' <- fromVal k
+                      v' <- fromVal v
+                      return $ k' ++ "\t" ++ v'
+                | vt == mkType "Hash" -> do
+                      --- XXX special case for Hash -- need to Objectify
+                      hv      <- join $ doHash v hash_fetch
+                      lns     <- forM (Map.assocs hv) $ \(k, v) -> do
+                          str <- fromVal v
+                          return $ k ++ "\t" ++ str
+                      return $ unlines lns
+                | otherwise -> fromVal' v
     doCast VUndef        = return ""
     doCast (VStr s)      = return s
     doCast (VBool b)     = return $ if b then "1" else ""
