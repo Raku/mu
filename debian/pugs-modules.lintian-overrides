@@ -1,3 +1,4 @@
+pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/FA/t/DFA.t #!/usr/bin/pugs
 pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/HTTP/Status.pm #!/usr/bin/pugs
 pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/HTTP/Date.pm #!/usr/bin/pugs
 pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/HTTP/Request.pm #!/usr/bin/pugs
@@ -7,3 +8,8 @@ pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/HTTP/Response.pm #!/usr/
 pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/HTTP/Request/CGI.pm #!/usr/bin/pugs
 pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/Locale/KeyedText.pm #!/usr/bin/pugs
 pugs-modules: unusual-interpreter ./usr/share/perl6/5.8/URI/Escape.pm #!/usr/bin/pugs 
+pugs-modules: script-not-executable ./usr/share/perl6/5.8/auto/pugs/perl5/lib/jspugs.pl
+pugs-modules: script-not-executable ./usr/share/perl6/5.8/auto/pugs/perl5/lib/pil2js.pl
+pugs-modules: script-not-executable ./usr/share/perl6/5.8/auto/pugs/perl5/lib/pugs-smokejs.pl
+pugs-modules: script-not-executable ./usr/share/perl6/5.8/auto/pugs/perl5/lib/runjs.pl
+pugs-modules: script-not-executable ./usr/share/perl6/5.8/auto/pugs/perl5/lib/PIL/pugs-p5.pl

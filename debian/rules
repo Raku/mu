@@ -8,7 +8,7 @@ else
 	CFLAGS = optimized
 endif
 
-PUGS_BUILD_OPTIONS = $(DEB_BUILD_OPTIONS)
+PUGS_BUILD_OPTS = $(DEB_BUILD_OPTIONS)
 
 TESTS='smoke-pugs'
 
@@ -25,7 +25,7 @@ build-arch-stamp: configure-stamp
 	$(MAKE) $(CFLAGS)
 	-test $$SKIP_TESTS || $(MAKE) $(TESTS)
 	# use DEB_BUILD_OPTIONS="smoke_upload=0" to avoid uploading the smoke file automatically
-	for html in $(CURDIR)/smoke*.html; do \
+	-for html in $(CURDIR)/smoke*.html; do \
 		./util/smokeserv/smokeserv-client.pl $$html; \
 	done;
 	pod2man --section=1 --release="Debian Project" --center="Debian GNU/Linux manual" $(CURDIR)/script/pugscc $(CURDIR)/debian/pugscc.1
@@ -39,8 +39,10 @@ clean: clean1 unpatch
 clean1:
 	dh_testdir
 	dh_testroot
-	rm -f build-arch-stamp build-indep-stamp configure-stamp debian/pugs.1 debian/pugscc.1 src/Pugs/CodeGen/PIR/Prelude.hi src/Pugs/CodeGen/PIR/Prelude.o ext/Test-Builder/destroy_test.p6 smoke*.html config.yml
+	rm -f build-arch-stamp build-indep-stamp configure-stamp install-stamp
 	-$(MAKE) realclean
+	rm -f debian/pugscc.1 src/Pugs/CodeGen/PIR/Prelude.hi src/Pugs/CodeGen/PIR/Prelude.o ext/Test-Builder/destroy_test.p6 smoke*.html config.yml tests.yml src/gen_prelude.hi src/gen_prelude.o src/Main.hi src/Main.o
+	find -name Makefile.old -exec rm -f {} \;
 	dh_clean
 
 install: install-indep install-arch
@@ -49,6 +51,7 @@ install-stamp:
 	dh_testroot
 	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
 	find $(CURDIR) -exec chmod u+rw {} \;
+	rm -rfv ./usr/share/perl6/5.8/FA/t/
 	dh_installdirs
 	dh_install --sourcedir=$(CURDIR)/debian/tmp --list-missing
 	cp -r $(CURDIR)/docs/* $(CURDIR)/debian/pugs-doc/usr/share/doc/pugs-doc/

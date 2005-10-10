@@ -1,6 +1,13 @@
 pugs (6.2.10-1) unstable; urgency=low
 
   * New upstream release.
+  * Build-Depend on libyaml-perl, libtest-tap-model-perl,
+    libtest-tap-htmlmatrix-perl, libcompress-bzip2-perl. They are needed for
+    smoking.
+  * Use smoke-pugs instead of a simple Harness test.
+  * Removed environment hook for not sending smoke results from debian/rules.
+    PUGS_BUILD_OPTS can handle that now.
+  * Suggest perl and spidermonkey-bin needed by -BJS and -BPerl5.
 
  -- Florian Ragwitz <rafl@debianforum.de>  Sat,  8 Oct 2005 15:33:45 +0200
 
