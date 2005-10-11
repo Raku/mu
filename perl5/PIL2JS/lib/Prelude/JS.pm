@@ -82,8 +82,8 @@ EOF
     [ "infix:+",  "N", "Number(a)  + Number(b)" ],
     [ "infix:-",  "N", "Number(a)  - Number(b)" ],
     [ "infix:*",  "N", "Number(a)  * Number(b)" ],
-    [ "infix:/",  "N", "Number(a)  / Number(b)" ],
-    [ "infix:%",  "N", "Number(a)  % Number(b)" ],
+    [ "infix:/",  "N", "Number(b) == 0 ? eval('throw(new Error(\\'Division by zero\\'))') : Number(a)  / Number(b)" ],
+    [ "infix:%",  "N", "Number(b) == 0 ? eval('throw(new Error(\\'Modulo zero\\'))') : Number(a)  % Number(b)" ],
     [ "infix:**", "N", "Math.pow(Number(a), Number(b))" ],
   );
 

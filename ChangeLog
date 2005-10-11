@@ -88,7 +88,7 @@
 * Support for the `eqv` operator
 * Using `for` with only one element to loop over works now
 * `int()` works correctly on special values like `Inf` or `NaN` now
-* `substr()` returns a r/w proxy: `substr($str, $pos, $len) = $replacement)`
+* `substr()` returns a r/w proxy: `substr($str, $pos, $len) = $replacement`
 
 === Perl 5 backend
 

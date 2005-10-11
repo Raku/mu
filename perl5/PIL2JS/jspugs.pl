@@ -5,6 +5,7 @@ use strict;
 
 use FindBin;
 use File::Spec;
+use Cwd qw< cwd >;
 use lib File::Spec->catdir($FindBin::Bin, "lib");
 use lib File::Spec->catdir($FindBin::Bin);
 use PIL2JS;
@@ -124,7 +125,7 @@ sub command_conf {
 
   my $descr =  "$human{$what}:" . " " x (25 - length $human{$what});
   my $path  =  $cfg{$what};
-  $path     =~ s/^@{[ PIL2JS::pwd() ]}.//;
+  $path     =~ s/^@{[ +cwd ]}.//;
   $path    .=  " " x (25 - length $path);
   print $OUT
     "* Path to $descr $path [" .
@@ -181,5 +182,5 @@ sub command_js {
 sub command_e {
   my $js = eval { jsbin_hack(compile_perl6_to_standalone_js("-e", shift)) };
   print $OUT $@ and return if $@;
-  run_js($js) if $js;
+  eval { run_js($js) } if $js;
 }
