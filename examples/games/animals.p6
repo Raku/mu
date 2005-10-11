@@ -22,11 +22,11 @@ sub try(Any $this) {
   my $q   = chomp(=$*IN);
   my $yes = yes "And for a $new, the answer would be...";
 
-  my %new = {
+  my %new = (
     question => $q,
     yes      => sub { $yes ?? $new  !! $this }.(),
     no       => sub { $yes ?? $this !! $new  }.(),
-  };
+  );
   return \%new;
 }
 
