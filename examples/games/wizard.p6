@@ -4,8 +4,7 @@ my $DEBUG = 0;
 
 multi *prompt (?$prompt) {
     print $prompt;
-    my $input = =<>; 
-    $input  .= chomp;
+    my $input = chomp(=$*IN);
     return $input;
 }
 
@@ -14,14 +13,14 @@ multi *prompt ($prompt, @options is copy) {
     .key //= ++$i for @options;
 
     my $choice;
-#    until ($choice eq any(@options>>.<key>)) {  #not implemented in pugs yet
+#    until ($choice eq any(@options>>.<key>)) {  # XXX not implemented in pugs yet
     until ($choice eq any(@options.map:{ .key }) ) {
         say $prompt;
         say "\t$_.key() $_.text()" for @options;
         $choice = prompt;
     }
-     
-    my %options_by_key = map { .key => $_; } @options;
+
+    my %options_by_key = @options.map:{ .key => $_; };
     $choice = %options_by_key.{$choice};
     return $choice.param // $choice.key;
 }
@@ -47,14 +46,14 @@ class wObject {
         "$.name {$.plural ?? 'are' !! 'is'} currently in the $.location";
     };
 }
-   
+
 class Weapon is wObject {
     has Int $.power         is rw;
     has Int $.powerRange    is rw;
     method damage () { random($.power - $.powerRange, $.power + $.powerRange);};
 }
 
-class Room is wObject { 
+class Room is wObject {
    has Monster @.monsters is rw;
    has Str     @.exits is rw;
    method are_monsters () { @.monsters // 0 }
@@ -70,26 +69,26 @@ class Room is wObject {
 class Mortal is wObject {
     has Int     $.life      is rw;
     has Int     $.max_life  is rw;
-    
+
     has Weapon  $.weapon    is rw;
     method damage ($damage) {
            $.life -= $damage;
            $.life = 0 if $.life < 0;
     }
-    
+
     method hit  (Mortal $enemy) {
       my $weapon = $.weapon;
       my $power  = $.weapon.damage;
       if ($power > 0) {
             say "$.name attacks $enemy.name() ",
                 "with $weapon.name() doing $power damage!";
-            $enemy.damage($power);                
+            $enemy.damage($power);
       } elsif ($power < 0) {
             say "$.name hurts himself doing $power damage!";
-            ./damage($power);                
-      }       
+            ./damage($power);
+      }
     }
-    method dead ()  { $.life <= 0 }    
+    method dead ()  { $.life <= 0 }
 }
 
 class Person is Mortal {
@@ -114,13 +113,13 @@ class Person is Mortal {
             cls;
             given $choice {
                 when 'f' {
-                    say "You ran away from the $enemy.name()!"; 
+                    say "You ran away from the $enemy.name()!";
                 }
                 #when Weapon {  #not yet working right.
                 when .does(Weapon) {
                     $.weapon = $_;
                     ./attack($enemy);
-                } 
+                }
                 default {
                     say "Please enter a valid command!"
                 }
@@ -132,7 +131,7 @@ class Person is Mortal {
       }
       return 0;
     }
-      
+
     method attack (Monster $enemy) {
         ./hit($enemy);
         $enemy.hit($_);
@@ -144,14 +143,14 @@ class Person is Mortal {
         exit if .dead;
     }
 
-    
+
 }
 
 class Monster is Mortal { }
 
 my $person = Person.new(:life(100),:max_life(100),
     :weapons((Weapon.new(:name<sword>, :power(4), :powerRange(2)),
-             Weapon.new(:name<spell>, :power(0), :powerRange(7)))),
+              Weapon.new(:name<spell>, :power(0), :powerRange(7)))),
 );
 
 

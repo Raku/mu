@@ -15,11 +15,11 @@ my $entered = any();
 my $choice  = any(0 .. 8);
 
 my $player = 'X';
-my @board   = '.' xx 9;
+my @board   = (1..9);
 
 print_board @board;
 
-while (any(@board) eq '.') {
+while (any(@board) eq one(1..9) ) {
     say %player{$player} ~ ": Enter the Position [1-9]:";
 
     my $idx = =$IN - 1;
@@ -28,7 +28,7 @@ while (any(@board) eq '.') {
         say "*** Please enter a value within 1-9";
     }
     elsif $idx == $entered {
-        say "*** Element already entered at { $idx + 1 }";
+        say "*** Some one already played at { $idx + 1 }";
     }
     else {
         $entered |= $idx;
