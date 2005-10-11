@@ -1,8 +1,21 @@
-my $mapStr2 = -> Str $op, Str $x, Str $y {
+my $mapStr = -> Code $f, Str $x {
   "
     (function () \{
       var res = \"\";
       for(var i = 0; i < {$x}.length; i++) \{
+        res += String.fromCharCode($f("{$x}.charCodeAt(i)"));
+      \}
+      return res;
+    \})()
+  ";
+};
+
+my $mapStr2 = -> Str $op, Str $x, Str $y {
+  "
+    (function () \{
+      var res    = \"\";
+      var minlen = {$x}.length < {$y}.length ? {$x}.length : {$y}.length;
+      for(var i = 0; i < minlen; i++) \{
         res += String.fromCharCode({$x}.charCodeAt(i) $op {$y}.charCodeAt(i));
       \}
       return res;
@@ -54,6 +67,8 @@ my @subs = (
   "infix:«~&»",   2, "S", "$mapStr2("&", "String(a)", "String(b)")",
   "infix:«~|»",   2, "S", "a = String(a), b = String(b), $mapStr2Fill("|", "a", "b")",
   "infix:«~^»",   2, "S", "a = String(a), b = String(b), $mapStr2Fill("^", "a", "b")",
+  "prefix:«~^»",  1, "S", "$mapStr({ "255 - $^ord" }, "String(a)")",
+  "prefix:«+^»",  1, "N", "~Number(a)",
   "infix:«+^»",   2, "N", "Number(a)  ^ Number(b)",
   "infix:«+<»",   2, "N", "Number(a) << Number(b)",
   "infix:«+>»",   2, "N", "Number(a) >> Number(b)",
