@@ -13,4 +13,4 @@ my $dollar_underscore;
     }
 }
 
-is $dollar_underscore, 42, 'bare blocks containing $_ work correctly (1)';
+is $dollar_underscore, 42, 'bare blocks containing $_ work correctly';
