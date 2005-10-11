@@ -1,0 +1,169 @@
+#
+# Lightning talk, Euro OSCON 2005,
+# to be performed by Allison and Autrijus
+#
+# Currently this is all "unadapted" -- i.e. the same as the
+# original poem.  The idea is to turn it gradually into something
+# clearly Perl related, preserving only the general structure.
+#
+
+= Stanza 1: Origin of Perl
+
+Eärendil was a mariner
+that tarried in Arvenien;
+he built a boat of timber felled
+in Nimbrethil to journey in;
+her sails he wove of silver fair,
+of silver were her lanterns made,
+her prow was fashioned like a swan,
+and light upon her banners laid.
+            
+= Stanza 2: Perl grows in power
+
+In panoply of ancient kings,
+in chained rings he armoured him;
+his shining shield was scored with runes
+to ward all wounds and harm from him;
+his bow was made of dragon-horn,
+his arrows shorn of ebony;
+of silver was his habergeon;
+his scabbard of chalcedony;
+his sword of steel was valiant,
+of adamant his helmet tall,
+an eagle-plume upon his crest,
+upon his breast an emerald.
+
+= Stanza 3: Rewrite of Perl 5
+
+Beneath the Moon and under star
+he wandered far from northern strands,
+bewildered on enchanted ways
+beyond the days of mortal lands.
+From gnashing of the Narrow Ice
+where shadow lies on frozen hills,
+from nether heats and burning waste,
+he turned in haste, and roving still
+on starless waters far astray
+at least he came to Night of Naught,
+and passed, and never sight he saw
+of shining shore nor light he sought.
+
+= Stanza 4: Advent of CPAN
+
+The winds of wrath came driving him,
+and blindly in the foam he fled
+from west to east and errandless,
+unheralded he homeward sped.
+There flying Elwing came to him,
+and flame was in the darkness lit;
+more bright than light of diamond
+the fire upon her carcanet.
+
+= Stanza 5: Perl Communities
+
+The Silmaril she bound on him
+and crowned him with the living light,
+and dauntless then with burning brow
+he turned his prow; and in the night
+from otherworld beyond the Sea
+there strong and free a storm arose,
+a wind of power in Tarmenel;
+by paths that seldom mortal goes
+his boat it bore with biting breath
+as might of death across the grey
+and long-forsaken seas distressed:
+from east to west he passed away.
+
+= Stanza 6: Decision of the second rewrite
+
+Through Evernight he back was borne
+on black and roaring waves that ran
+o'er leagues unlit and foundered shores
+that drowned before the Days began,
+until he hears on strands of pearl
+where ends the world the music long,
+where ever-foaming billows roll
+the yellow gold and jewels wan.
+He saw the Mountain silent rise
+where twilight lies upon the knees
+of Valinor, and Eldamar
+beheld afar beyond the seas.
+
+= Stanza 7: Announcement of Perl 6
+
+A wanderer escaped from night
+to haven white he came at least,
+to Elvenhome the green and fair
+where keen the air, where pale as glass
+beneath the Hill of Ilmarin
+a-glimmer in a valley sheer
+the lamplit towers of Tirion
+are mirrored on the Shadowmere.
+
+= Stanza 8: The Brainstorming Process
+            
+He tarried there from errantry,
+and melodies they taught him,
+and sages old him marvels told,
+and harps of gold they brought to him.
+They clothed him then in elven-white,
+and seven lights before him sent,
+    as through Calacirian
+to hidden land forlorn he went.
+
+= Stanza 9: Unveiling of Apocalypses
+
+He came unto the timeless halls
+where shining fall the countless years,
+and endless reigns the Elder King
+in Ilmarin on Mountain sheer;
+and words unheard were spoken then
+of folk of Men and Elven-kin,
+beyond the world were visions showed
+forbid to those that dwell therein.
+
+= Stanza 10: Advent of Perl 6 Implementations
+
+A ship then new they built for him
+Of mithril and of elven-glass
+With shining prow; no shaven oar
+Nor sail she bore on silver mast:
+the Silmaril as lantern light
+and banner bright with living flame
+to gleam thereon by Elbereth
+herself was set, who thither came
+and wings immortal made for him,
+and laid on him undying doom,
+to sail the shoreless skies and come
+behind the Sun and light of Moon.
+
+= Stanza 11: Advocacy for the future of Perl 6
+            
+From Evereven's lofty hills
+where softly silver fountains fall
+his wings him bore, a wandering light,
+beyond the mighty Mountain Wall.
+From World's End then he turned away,
+And yearned again to find afar
+his home through shadows journeying,
+and burning as an island star
+on high above the mists he came,
+a distant flame before the Sun,
+a wonder ere the waking dawn
+where grey the Norland waters run.
+
+= Stanza 12: Conclusion of the legend
+
+And over Middle-earth he passed
+and heart at last the weeping sore
+of women and of elven-maids
+in Elder Days, in years of yore.
+But on him mighty doom was laid,
+till Moon should fade, an orbéd star
+to pass, and tarry never more
+on Hither Shores where mortals are;
+or ever still a herald on
+an errand that should never rest
+to bear his shining lamp afar,
+the Flammifer of Westernesse.
+
