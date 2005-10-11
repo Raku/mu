@@ -529,16 +529,16 @@ There's a little problem with the GADT form:
         Const(::T --> AST[::T]),
     );
 
-This reduces to:
+This convolves to:
 
-    theory AST[::A]{::B} {
+    theory AST{::A, ::B} {
         multi Const(::T --> ::U <= AST[::T]{::U}) {...}
     }
 
 Which doesn't even say anything about C<::B>.  It should be:
 
     theory AST{V} {
-        multi Const(::T --> ::U <= V[::T]{::U}) {...}
+        multi Const(::T --> ::U <= V{::T, ::U}) {...}
     }
 
 That is, it is a theory-valued theory.  I guess this makes sense, as all
@@ -550,3 +550,33 @@ can be, so you have to go through interfaces.
 I suppose theory-valued theories are necessary if we want GADT (and
 there are probably some other uses as well), but I fear what it will do
 to the type inferencer.  Maybe there is another way.
+
+UPDATE: There is, and here it is.  Each case gets its own theory, which
+lifts the return value from the constructor.  Let's consider a
+two-constructor union:
+
+    union AST[::] (
+        Const(::T         --> AST[::T]),
+        TestZero(AST[Int] --> AST[Bool]),
+    );
+    
+This convolves to:
+
+    theory AST::Const{::T, ::ASTT} {
+        multi Const(T --> ASTT) {...}
+    }
+
+    theory AST::TestZero{::ASTBool} {
+        multi TestZero(::T --> ASTBool 
+                    <= AST{::TInt, ::T} && Int{::TInt}) {...}
+    }
+
+    # I'll use => as a shorthand for "implies"; i.e. a => b is
+    # equivalent to !a || b
+    theory AST{::Param, ::Tree}
+            <= AST::Const{::Param, ::Tree}
+            && (Bool{::Param} => AST::TestZero{::Tree})
+    { }
+
+So it all reduces to complex logic between concrete (non-variable)
+theories C<T> and type variables C<::V> in the form C<T{::V}>.
