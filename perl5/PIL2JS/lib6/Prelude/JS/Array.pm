@@ -80,7 +80,10 @@ sub JS::Root::map(Code $code, *@array is rw) is primitive {
   @res;
 }
 
-method sort(@self: Code ?$cmp = &infix:<cmp>) { sort $cmp, *@self }
+# XXX XXX XXX XXX ("luckily", the fully qualified name of a method doesn't
+# matter. XXX XXX evil hack)
+method sort(@self: Code ?$cmp = &infix:<cmp>) { sort $cmp, @self }
+method PIL2JS::Internals::This::Is::A::Truly::Horrible::Hack::sort(%self: Code ?$cmp = &infix:<cmp>) { sort $cmp, %self.pairs }
 sub JS::Root::sort(Code ?$cmp is copy = &infix:<cmp>, *@array) is primitive {
   # Hack
   unless $cmp.isa("Code") {
@@ -185,14 +188,15 @@ method reverse(*@things is copy:) {
   }
 }
 
-sub infix:<..>(Num $from is copy, Num $to) is primitive {
-  my @array = ($from,);
+sub infix:<..>(Num $from, Num $to) is primitive {
+  my $i;
+  my @res;
 
-  while(($from += 1) <= $to) {
-    push @array: $from;
+  loop $i = $from; $i <= $to; $i++ {
+    push @res, $i;
   }
 
-  @array;
+  @res;
 }
 sub infix:<^..>  (Num $from, Num $to) is primitive { ($from + 1)..$to }
 sub infix:<..^>  (Num $from, Num $to) is primitive { $from..($to - 1) }
