@@ -441,6 +441,9 @@ sub splice (@a is rw, ?$offset=0, ?$length, *@list) is primitive {
         my $i = $size + $size_change -1;
         my $final = $off + $size_change;
         while $i >= $final {
+            # The .delete here is necessary to destroy all possible bindings
+            # user code has to @a[$i], see t/operators/binding/arrays.t.
+            @a.delete($i);
             @a[$i] = @a[$i-$size_change];
             $i--;
         }
@@ -448,6 +451,9 @@ sub splice (@a is rw, ?$offset=0, ?$length, *@list) is primitive {
         my $i = $off;
         my $final = $size + $size_change -1;
         while $i <= $final {
+            # The .delete here is necessary to destroy all possible bindings
+            # user code has to @a[$i], see t/operators/binding/arrays.t.
+            @a.delete($i);
             @a[$i] = @a[$i-$size_change];
             $i++;
         }
@@ -462,6 +468,9 @@ sub splice (@a is rw, ?$offset=0, ?$length, *@list) is primitive {
     if $listlen > 0 {
         my $i = 0;
         while $i < $listlen {
+            # The .delete here is necessary to destroy all possible bindings
+            # user code has to @a[$off+$i], see t/operators/binding/arrays.t.
+            @a.delete($off+$i);
             @a[$off+$i] = @list[$i];
             $i++;
         }

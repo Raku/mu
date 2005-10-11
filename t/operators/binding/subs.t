@@ -7,7 +7,7 @@ use Test;
 
 # Tests for binding the return value of subroutines (both as RHS and LHS).
 
-plan 9;
+plan 8;
 
 {
     my sub foo { 42 }
@@ -20,12 +20,27 @@ plan 9;
         "binding a var to the return value of a sub (a constant) works (2)";
 }
 
+=begin unspecced
+
 {
     my sub foo { 42 }
 
     dies_ok { foo() := 23 },
         "using the constant return value of a sub as the LHS in a binding operation dies";
 }
+
+There're two ways one can argue:
+* 42 is constant, and rebinding constants doesn't work, so foo() := 23 should
+  die.
+* 42 is constant, but the implicit return() packs the constant 42 into a
+  readonly 42, and readonly may be rebound.
+  To clear the terminology,
+    42                  # 42 is a constant
+    sub foo ($a) {...}  # $a is a readonly
+
+=end unspecced
+
+=cut
 
 {
     my sub foo { my $var = 42; $var }
