@@ -598,12 +598,12 @@ reduceSyn "[]" exps
     = reduce (Syn "[...]" [lhs, idx])
     | otherwise = do
         let [listExp, indexExp] = exps
+        varVal  <- enterLValue $ enterEvalContext (cxtItem "Array") listExp
         idxCxt  <- cxtOfExp indexExp 
         {- if envLValue env
             then cxtOfExp indexExp else return (envContext env)
         -}
         idxVal  <- enterRValue $ enterEvalContext idxCxt indexExp
-        varVal  <- enterLValue $ enterEvalContext (cxtItem "Array") listExp
         lv      <- asks envLValue
         doFetch (mkFetch $ doArray varVal array_fetchElem)
                 (mkFetch $ doArray varVal array_fetchVal)
@@ -648,12 +648,12 @@ reduceSyn (sigil:"::()") exps = do
     evalExp . Var $ varname
 
 reduceSyn "{}" [listExp, indexExp] = do
+    varVal  <- enterLValue $ enterEvalContext (cxtItem "Hash") listExp
     idxCxt  <- cxtOfExp indexExp 
     {- if envLValue env
         then cxtOfExp indexExp else return (envContext env)
     -}
     idxVal  <- enterRValue $ enterEvalContext idxCxt indexExp
-    varVal  <- enterLValue $ enterEvalContext (cxtItem "Hash") listExp
     lv      <- asks envLValue
     doFetch (mkFetch $ doHash varVal hash_fetchElem)
             (mkFetch $ doHash varVal hash_fetchVal)

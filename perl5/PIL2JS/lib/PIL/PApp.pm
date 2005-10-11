@@ -26,7 +26,7 @@ sub as_js {
   no warnings "recursion";
 
   my $as_js = sub {
-    my @jsparams = @_; my $jsobj = pop @jsparams;
+    my @jsparams = @_; my $jsobj = shift @jsparams;
 
     my $subname;
     if($self->{pFun}->{pLV} and $self->{pFun}->{pLV}->isa("PIL::PVar") and not ref $self->{pFun}->{pLV}->{pVarName}) {
@@ -131,10 +131,12 @@ sub as_js {
 
   return possibly_ccify_many(
     [
-      @{ $self->{pArgs} },
+      # XXX this doesn't deal with $obj.$methref(...) (but as Pugs can't even
+      # parse these constructs currently, it doesn't matter much (yet))
       $self->{pInv}
         ? $self->{pInv}
         : $self->{pFun},
+      @{ $self->{pArgs} },
     ],
     $as_js,
   );
