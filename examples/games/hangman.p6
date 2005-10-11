@@ -41,7 +41,7 @@ sub pick_committer (@committers) returns Str {
     @committers.pick;
 }
 
-sub draw_board returns Str { 
+sub draw_board returns Str {
     my $output = '';
     for (0 .. (+@letters - 1)) -> $i {
         if (@letters[$i] ~~ rx:perl5{[-.,\s]}) {
@@ -69,7 +69,7 @@ sub guess (Str $g) returns Bool {
     @guesses.push($guess);
     my $success = 0;
     my $i;
-    loop ($i = 0; $i < +@letters; $i++) {
+    for 0 .. +@letters - 1 -> $i {
         if (uc(@letters[$i]) eq $guess) {
             @solution[$i] = @letters[$i];
             $success = 1;
@@ -78,16 +78,16 @@ sub guess (Str $g) returns Bool {
     return $success;
 }
 
-sub draw_if_greater_than (Str $char, Int $num) returns Bool { 
+sub draw_if_greater_than (Str $char, Int $num) returns Bool {
     ($number_of_bad_guesses >= $num) ?? $char !! ' ';
 }
 
 sub draw_hangman (Str ?$msg) returns Str {
     "Hangman (with the Pugs AUTHORS list)
-    
+
   +-----+       The committer's name is:
   |     |       { draw_board }
-  |     { draw_if_greater_than('O', 1) }   
+  |     { draw_if_greater_than('O', 1) }
   |    {
           draw_if_greater_than('/', 2) ~
           draw_if_greater_than('|', 3) ~
@@ -96,7 +96,7 @@ sub draw_hangman (Str ?$msg) returns Str {
   |    { draw_if_greater_than('/', 5) } {
           draw_if_greater_than('\\', 6)
        }      [@guesses[]]
-  |         
+  |
 |-+--------|
 
 $msg";
@@ -105,9 +105,9 @@ $msg";
 ## main loop
 unshift @*INC, 'ext/File-Spec/lib', '../ext/File-Spec/lib', '../../ext/File-Spec/lib';
 require File::Spec;
-my @path_parts = splitpath($*PROGRAM_NAME);
-my $progdir = @path_parts[1];
-my $dict = canonpath("$progdir../../AUTHORS");
+
+my $progdir    = splitpath($*PROGRAM_NAME)[1] || ".";
+my $dict       = canonpath("$progdir/../../AUTHORS");
 my @committers = get_committer_list($dict);
 my $current_committer = pick_committer(@committers);
 
@@ -115,15 +115,14 @@ my $current_committer = pick_committer(@committers);
 @solution = ('' xx +@letters);
 
 cls;
-print draw_hangman("guess a letter? "); 
+print draw_hangman("guess a letter? ");
 my $letter;
-while ($letter = =$*IN) {
+while ($letter = chomp(=$*IN)) {
     cls;
-    $letter .= chomp;
 
     if (guess($letter)) {
         if (has_won()) {
-            print draw_hangman("You won!!!!\n");         
+            print draw_hangman("You won!!!!\n");
             exit;
         }
     }
@@ -133,12 +132,12 @@ while ($letter = =$*IN) {
             print draw_hangman(
                 "You have exceeded the maximum number of tries.\n" ~
                 "Sorry, the committer was '$current_committer'\n"
-            ); 
+            );
             exit;
         }
     }
 
-    print draw_hangman("guess a letter? ");  
+    print draw_hangman("guess a letter? ");
 }
 
 =pod
@@ -150,7 +149,7 @@ hangman.p6 - Hangman (with the Pugs AUTHORS list)
 =head1 DESCRIPTION
 
 This is a perl6 implementation of the classic Hangman game
-using the Pugs AUTHORS file as a word list. 
+using the Pugs AUTHORS file as a word list.
 
 =head1 AUTHORS
 
