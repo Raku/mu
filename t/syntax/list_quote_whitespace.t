@@ -31,6 +31,11 @@ character and thus should B<not> break the list.
 
 =cut
 
+if $?PUGS_BACKEND ne "BACKEND_PUGS" {
+  skip_rest "PIL2JS and PIL-Run do not support eval() yet.";
+  exit;
+}
+
 my @list = <a b c d>;
 my @separators = ("\t","\r","\n"," ");
 my @nonseparators = (",","/","\\",";","\xa0");
