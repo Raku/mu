@@ -1,3 +1,33 @@
+my $mapStr2 = -> Str $op, Str $x, Str $y {
+  "
+    (function () \{
+      var res = \"\";
+      for(var i = 0; i < {$x}.length; i++) \{
+        res += String.fromCharCode({$x}.charCodeAt(i) $op {$y}.charCodeAt(i));
+      \}
+      return res;
+    \})()
+  ";
+};
+
+my $mapStr2Fill = -> Str $op, Str $x, Str $y {
+  "
+    (function () \{
+      var res = \"\";
+
+      for(var i = {$x}.length; i < {$y}.length; i++)
+        $x += \"\\000\";
+      for(var i = {$y}.length; i < {$x}.length; i++)
+        $y += \"\\000\";
+
+      for(var i = 0; i < {$x}.length; i++) \{
+        res += String.fromCharCode({$x}.charCodeAt(i) $op {$y}.charCodeAt(i));
+      \}
+      return res;
+    \})()
+  ";
+};
+
 # Standard operators
 my @subs = (
   "infix:«<»",    2, "N", "Number(a)  < Number(b)",
@@ -21,6 +51,9 @@ my @subs = (
   "infix:«**»",   2, "N", "Math.pow(Number(a), Number(b))",
   "infix:«+|»",   2, "N", "Number(a)  | Number(b)",
   "infix:«+&»",   2, "N", "Number(a)  & Number(b)",
+  "infix:«~&»",   2, "S", "$mapStr2("&", "String(a)", "String(b)")",
+  "infix:«~|»",   2, "S", "a = String(a), b = String(b), $mapStr2Fill("|", "a", "b")",
+  "infix:«~^»",   2, "S", "a = String(a), b = String(b), $mapStr2Fill("^", "a", "b")",
   "infix:«+^»",   2, "N", "Number(a)  ^ Number(b)",
   "infix:«+<»",   2, "N", "Number(a) << Number(b)",
   "infix:«+>»",   2, "N", "Number(a) >> Number(b)",
