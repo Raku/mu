@@ -180,3 +180,6 @@ sub prefix:«[=>]» (*$head is copy, *@rest is copy) is primitive {
 
   $head;
 }
+
+sub infix:«Y» (Array *@arrays) is primitive is rw { zip *@arrays }
+sub infix:«¥» (Array *@arrays) is primitive is rw { zip *@arrays }

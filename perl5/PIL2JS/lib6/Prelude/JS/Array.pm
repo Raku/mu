@@ -89,12 +89,6 @@ sub JS::Root::sort(Code ?$cmp is copy = &infix:<cmp>, *@array) is primitive {
   unless $cmp.isa("Code") {
     unshift @array, @$cmp;
     $cmp := &infix:<cmp>;
-    # Hack: $cmp = &infix:<cmp> should work, too, but doesn't, as $cmp is an
-    # array, *not* an arrayref! (Therefore, that's rewritten as $cmp =
-    # (&infix:<cmp>), causing $cmp to stay an Array and only $cmp[0] to be the
-    # Code object we want. Fixing this would require a more intelligent
-    # parameter binding routine or separate PIL2JS.Box.Scalar,
-    # PIL2JS.Box.Array, etc. (later!)
   }
 
   die "&sort needs a Code as first argument!" unless $cmp.isa("Code");
@@ -173,6 +167,34 @@ sub JS::Root::sum(*@vals) is primitive {
   $sum += +$_ for @vals;
   @vals ?? $sum !! undef;
   # We should return undef if we haven't been giving @vals to sum.
+}
+
+method uniq(@self: Code ?$cmp = &infix:<eqv>) { uniq $cmp, @self }
+sub JS::Root::uniq(Code ?$cmp is copy = &infix:<cmp>, *@array) is primitive {
+  # Hack
+  unless $cmp.isa("Code") {
+    unshift @array, @$cmp;
+    $cmp := &infix:<eqv>;
+  }
+
+  # XXX O(n²) implementation, needing .id or eqv hashes for a better
+  # implementation
+  my @res;
+  for @array -> $elem {
+    unless $cmp($elem, any(@res)) {
+      push @res, $elem;
+    }
+  }
+
+  @res;
+}
+
+sub JS::Root::zip(Array *@arrays) is primitive is rw {
+  my $maxlen = max map { +$_ } @arrays;  # XXX wanting hyperops
+  map {
+    my $i := $_;
+    map { @arrays[$_][$i] } 0..@arrays.end;
+  } 0..$maxlen-1;
 }
 
 method reverse(*@things is copy:) {
