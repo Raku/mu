@@ -191,6 +191,10 @@ sub write_buildinfo {
         $depends = ', unix -any';
     }
 
+    if (grep /^-DPUGS_HAVE_HSPLUGINS$/, @_) {
+        $depends .= ', plugins -any, haskell-src -any';
+    }
+
     if (grep /^-DPUGS_HAVE_READLINE$/, @_) {
         $depends .= ', readline -any';
     }
