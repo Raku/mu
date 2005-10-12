@@ -1151,6 +1151,9 @@ var _26main_3a_3aprefix_3a_2b = PIL2JS.Box.constant_func(1, function (args) {
         if(str == "Inf")  return Infinity;
         if(str == "-Inf") return -Infinity;
         if(str == "NaN")  return NaN;
+        if(str.substr(0,2) == "0d") return str2num(str.substring(2));
+        if(str.substr(0,2) == "0b") return parseInt(str.substring(2), 2);
+        if(str.substr(0,2) == "0o") return parseInt(str.substring(2), 8);
         if(Number(str) == Number(str)) return Number(str);
         return 0;
       }
