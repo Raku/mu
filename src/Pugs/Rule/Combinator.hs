@@ -133,7 +133,7 @@ anyToken            = tokenPrim show (\pos _ _ -> pos) Just
 eof :: Show tok => GenParser tok st ()
 eof                 = notFollowedBy anyToken <?> "end of input"   
 
-notFollowedBy :: Show tok => GenParser tok st tok -> GenParser tok st ()   
+notFollowedBy :: Show a => GenParser tok st a -> GenParser tok st ()   
 notFollowedBy p     = try (do{ c <- p; unexpected (show [c]) }
                            <|> return ()
                           )

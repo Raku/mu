@@ -1611,11 +1611,12 @@ ruleInvocationParens = ruleInvocationCommon True
         
 ruleInvocationCommon :: Bool -> RuleParser (Exp -> Exp)
 ruleInvocationCommon mustHaveParens = do
-    colon       <- maybeColon
+    colonify    <- maybeColon
     hasEqual    <- option False $ do { char '='; whiteSpace; return True }
-    name        <- do { str <- ruleSubName; return $ colon str }
+    name        <- do { str <- ruleSubName; return $ colonify str }
     (invs,args) <- if mustHaveParens
         then verbatimParens $ parseNoParenParamList
+        -- then parseHasParenParamList -- FAILED PARSER PATCH
         else option (Nothing,[]) $ parseParenParamList
     when (isJust invs) $ fail "Only one invocant allowed"
     return $ \x -> if hasEqual
@@ -1644,6 +1645,9 @@ ruleHashSubscriptQW = do
 ruleCodeSubscript :: RuleParser (Exp -> Exp)
 ruleCodeSubscript = tryVerbatimRule "code subscript" $ do
     (invs,args) <- parens $ parseParamList
+    -- FAILED PARSER PATCH
+    --(invs, args) <- parseHasParenParamList -- XXX doesn't handle trailing 
+    --                                       --       adverbs outside parens
     return $ \x -> App x invs args
 
 {-|
@@ -1697,6 +1701,21 @@ ruleApply isFolded = tryVerbatimRule "apply" $ do
                                           -- then we need to follow method-call
                                           -- syntax rules
             else parseParenParamList <|> do { whiteSpace; parseNoParenParamList }
+    -- FAILED PARSER PATCH
+    {-(paramListInv, args) <- tryChoice
+        -- foo .()
+        [ whiteSpace >> char '.' >> parseHasParenParamList
+        , if isJust implicitInv
+            -- .foo()
+            then parseParenParamListMaybe
+            else tryChoice
+                -- foo $bar, $baz
+                -- (turns out we really need whiteSpace, not skipMany1 space)
+                [ skipMany1 space >> parseNoParenParamList
+                -- foo($bar, $baz):goo
+                , parseParenParamListMaybe
+                ]
+        ] -}
     inv     <- mergeMaybes implicitInv paramListInv
     possiblyApplyMacro $ App (Var name) inv args
     where
@@ -1776,6 +1795,33 @@ parseHasParenParamList = verbatimParens $ do
                 rest <- option [] $ do { trail; rec }
                 return (exp ++ rest)
     processFormals formal
+-- FAILED PARSER PATCH
+{-
+parseHasParenParamList = (<?> "paren arg-list") $ try $ verbatimParens $ do
+    invocant        <- option Nothing $ try $ do
+        inv <- parseExpWithItemOps
+        doParseInvocantColon
+        return $ Just inv
+        
+    leadingAdverbs  <- doParseAdverbs
+    
+    -- use 'sepEndBy', because `foo($bar, $baz,)` is legal
+    arguments       <- parseExpWithItemOps `sepEndBy` (symbol ",")
+    
+    trailingAdverbs <- doParseAdverbs
+    
+    return (invocant, leadingAdverbs ++ arguments ++ trailingAdverbs)
+    where
+    doParseAdverbs = option [] $ try $ many pairOrBlockAdverb
+    doParseInvocantColon = do
+        -- make sure it's really an invocant colon, and not a :foo() or ::Foo
+        -- colon
+        -- To get this to work, I had to tweak 'notFollowedBy'
+        notFollowedBy pairOrBlockAdverb
+        notFollowedBy $ symbol "::"
+        symbol ":"
+-}
+       
 
 {-
 Used by:
