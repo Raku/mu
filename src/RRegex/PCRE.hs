@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts -fvia-C #-}
+{-# INCLUDE "../pcre/pcre.h" #-}
 
-{-# INCLUDE <pcre.h> #-}
 -- \#include <sys/types.h>
 -- arch-tag: 0852a460-683f-4abb-9108-8205777e2033
 
@@ -119,15 +119,15 @@ getVersion = unsafePerformIO $ do
     return $ Just hs
 
 
-foreign import ccall unsafe "pcre.h pcre_compile" 
+foreign import ccall unsafe "pcre_compile" 
     c_pcre_compile :: Ptr CChar -> CInt -> Ptr (Ptr CChar) -> Ptr CInt -> Ptr CChar -> IO (Ptr PCRE)
-foreign import ccall unsafe "pcre.h pcre_exec" 
+foreign import ccall unsafe "pcre_exec" 
     c_pcre_exec :: Ptr PCRE -> Ptr () -> Ptr CChar -> CInt -> CInt -> CInt -> Ptr CInt -> CInt -> IO CInt
-foreign import ccall unsafe "pcre.h pcre_fullinfo"
+foreign import ccall unsafe "pcre_fullinfo"
     c_pcre_fullinfo :: Ptr PCRE -> Ptr () -> CInt -> Ptr a -> IO CInt
-foreign import ccall unsafe "pcre.h pcre_version"
+foreign import ccall unsafe "pcre_version"
     c_pcre_version :: IO (Ptr CChar)
--- foreign import ccall unsafe "pcre.h &pcre_free"
+-- foreign import ccall unsafe "&pcre_free"
 --    c_ptr_free :: FunPtr (Ptr a -> IO ())
 
     
