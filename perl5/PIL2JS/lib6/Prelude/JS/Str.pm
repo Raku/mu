@@ -97,3 +97,7 @@ sub infix:<xx>   (*@a) is primitive {
   push @ret, @a for 1..$count;
   @ret;
 }
+
+sub sprintf (Str $format, *@parts) is primitive {
+  "&sprintf not yet implemented in PIL2JS";
+}

@@ -1,3 +1,3 @@
 #!/usr/bin/pugs
 use v6;
-@ARGS.perl.say;
+(*@ARGS,).perl.say;
