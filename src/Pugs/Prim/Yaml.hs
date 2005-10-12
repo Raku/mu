@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans #-}
-{-# OPTIONS_GHC -#include "UnicodeC.h" #-}
+{-# OPTIONS_GHC -#include "../../UnicodeC.h" #-}
 
 module Pugs.Prim.Yaml (
   evalYaml

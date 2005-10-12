@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -fno-full-laziness -fno-cse #-}
-{-# OPTIONS_GHC -#include "UnicodeC.h" #-}
+{-# OPTIONS_GHC -#include "../UnicodeC.h" #-}
 
 {-|
     Primitive operators.

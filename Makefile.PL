@@ -365,7 +365,7 @@ ${() = '%.hpp : %.hs @prereqs $version_h
 .SUFFIXES: .hsc .hs
 
 .hsc.hs :
-	$hsc2hs $hsc2hs_flags \$<
+	\$(PERL) -MFile::Spec -e'my (undef, \$\$dir, \$\$file) = File::Spec->splitpath("\$<"); chdir("\$\$dir"); system("$hsc2hs $hsc2hs_flags \$\$file");'
 
 .SUFFIXES: .hs-drift .hs
 

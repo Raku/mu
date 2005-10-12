@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
-{-# OPTIONS_GHC -#include "UnicodeC.h" #-}
+{-# OPTIONS_GHC -#include "../../UnicodeC.h" #-}
 
 -----------------------------------------------------------------------------
 -- |

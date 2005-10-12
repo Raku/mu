@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -#include "UnicodeC.h" #-}
+{-# OPTIONS_GHC -#include "../../UnicodeC.h" #-}
 
 module Pugs.Parser.Number (
     parseNatOrRat,

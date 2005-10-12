@@ -162,7 +162,8 @@ sub assert_ghc {
 *** Please install a newer version from http://haskell.org/ghc/.
 .
     }
-    my $ghc_flags = "-H0 -L. -Lsrc -Lsrc/syck -Lsrc/pcre -I. -Isrc -Isrc/pcre -Isrc/syck ";
+#    my $ghc_flags = "-H0 -L. -Lsrc -Lsrc/syck -Lsrc/pcre -I. -Isrc -Isrc/pcre -Isrc/syck ";
+    my $ghc_flags = "-H0 -L. -Lsrc -Lsrc/syck -Lsrc/pcre ";
     $ghc_flags .= " -i. -isrc -isrc/pcre -isrc/syck -static ";
     $ghc_flags .= " -Wall " #  -package-name Pugs -odir dist/build/src -hidir dist/build/src "
       unless $self->is_extension_build;
@@ -170,7 +171,8 @@ sub assert_ghc {
     $ghc_flags .= " -I../../src -i../../src "
       if $self->is_extension_build;
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /perl5/i) {
-        $ghc_flags .= " -isrc/perl5 -Isrc/perl5 ";
+#        $ghc_flags .= " -isrc/perl5 -Isrc/perl5 ";
+        $ghc_flags .= " -isrc/perl5 ";
         $ghc_flags .= join(' ', grep { m{^/} or m{^-[DILl]} or m{^-Wl,-R} }
                         split (' ', `$^X -MExtUtils::Embed -e ccopts,ldopts`));
     }

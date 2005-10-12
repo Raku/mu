@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans #-}
-{-# OPTIONS_GHC -#include "UnicodeC.h" #-}
+{-# OPTIONS_GHC -#include "../../UnicodeC.h" #-}
 
 module Pugs.Prim.Match (
     op2Match, rxSplit, rxSplit_n, matchFromMR, pkgParents

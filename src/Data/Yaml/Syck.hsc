@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -fglasgow-exts -fvia-C #-}
-#include <syck.h>
+#include "../../syck/syck.h"
 
 module Data.Yaml.Syck (
     parseYaml,

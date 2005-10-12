@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -funbox-strict-fields #-}
-{-# OPTIONS_GHC -#include "UnicodeC.h" #-}
+{-# OPTIONS_GHC -#include "../UnicodeC.h" #-}
 
 {-|
     Abstract syntax tree.

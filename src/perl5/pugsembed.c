@@ -1,4 +1,4 @@
-#include <pugsembed.h>
+#include "pugsembed.h"
 extern int __init;
 
 Val *
