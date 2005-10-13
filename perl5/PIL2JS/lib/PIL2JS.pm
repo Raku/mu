@@ -138,9 +138,9 @@ sub run_pil2js {
     if(ref $_ and defined $tmp) {
       die "Only one reference argument may be given to &PIL2JS::run_pil2js!";
     } elsif(ref $_) {
-      $tmp = File::Temp->new(UNLINK => 1);
-      print $tmp $$_;
-      $_ = "$tmp";
+      my ($fh, $fn) = File::Temp::tempfile(UNLINK => 1);
+      print $fh $$_;
+      $_ = $fn;
     }
   }
   my @cmd = ($^X, $cfg{pil2js}, @args);
