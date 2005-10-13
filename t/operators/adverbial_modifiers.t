@@ -271,17 +271,17 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
     my sub f1($s,+$x){$s.perl~$x}
 
     $v = f1(\:bar :x("b"));
-    is $v, "('bar' => 1)b", 'f1(\:bar :x("b"))';
+    is $v, '("bar" => 1)b', 'f1(\:bar :x("b"))';
 
     my sub f2(Pair $p){$p.perl}
 
     $v = f2(:bar);
-    is $v, "('bar' => 1)", 'f2(:bar)';
+    is $v, '("bar" => 1)', 'f2(:bar)';
 
     my sub f3(Pair $p1, Pair $p2){$p1.perl~" - "~$p2.perl}
 
     $v = f3(:bar,:hee(3));
-    is $v, "('bar' => 1) - ('hee' => 3)", 'f3(:bar,:hee(3))';
+    is $v, '("bar" => 1) - ("hee" => 3)', 'f3(:bar,:hee(3))';
   
   }
 
