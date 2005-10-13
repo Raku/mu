@@ -2,43 +2,42 @@
 # Lightning talk, Euro OSCON 2005,
 # to be performed by Allison and Autrijus
 #
-# Currently this is all "unadapted" -- i.e. the same as the
-# original poem.  The idea is to turn it gradually into something
-# clearly Perl related, preserving only the general structure.
-#
 
 = Stanza 1: Origin of Perl
 
-Eärendil was a mariner
-that tarried in Arvenien;
-he built a boat of timber felled
-in Nimbrethil to journey in;
-her sails he wove of silver fair,
-of silver were her lanterns made,
-her prow was fashioned like a swan,
-and light upon her banners laid.
-            
+Larry was a mariner
+that tarried in the world of C;
+he built a tool from sed and awk
+in Unix shell to script things in;
+
+Its operators were vast and fair,
+of dollars were its sigils made;
+the syntax fashioned with utmost care,
+and "Perl" upon its banners laid.
+
 = Stanza 2: Perl grows in power
 
-In panoply of ancient kings,
-in chained rings he armoured him;
-his shining shield was scored with runes
-to ward all wounds and harm from him;
-his bow was made of dragon-horn,
-his arrows shorn of ebony;
-of silver was his habergeon;
-his scabbard of chalcedony;
-his sword of steel was valiant,
-of adamant his helmet tall,
-an eagle-plume upon his crest,
-upon his breast an emerald.
+In panoply of pumpkin kings,
+in three virtues he armoured it;
+his regexes were scored with runes
+to match all \n+ and \w+ for it.
+
+Its POD made writing docs a breeze,
+its arrays indexed orderly;
+its hashes were looked up with keys
+its sockets connect with TCP.
+
+Its harness of tests was valiant,
+of adamant its manpages tall;
+a tour de force upon his pen,
+upon its cover a Camel.
 
 = Stanza 3: Rewrite of Perl 5
 
 Beneath the Moon and under star
 he wandered far from northern strands,
-bewildered on enchanted ways
-beyond the days of mortal lands.
+bewildered on enchanted ways     # mmm OO
+beyond the days of mortal lands. # mmm closures
 From gnashing of the Narrow Ice
 where shadow lies on frozen hills,
 from nether heats and burning waste,
@@ -48,46 +47,90 @@ at least he came to Night of Naught,
 and passed, and never sight he saw
 of shining shore nor light he sought.
 
+# modules, not compiling everything into the main executable
+# packages
+# somehow work "bless" into it
+# other perl 5 features (come back and list)
+# but I think it's good -- the theme being attracted by something beautiful and
+# mysterious and rushing forward to seek it
+# so we'll just poetic licencify the Night of Naught ;)
+# ...change it around to a positive
+
 = Stanza 4: Advent of CPAN
 
-The winds of wrath came driving him,
-and blindly in the foam he fled
-from west to east and errandless,
-unheralded he homeward sped.
-There flying Elwing came to him,
+The world-wide web came driving him,
+and blindly in the foam he fled   # totally maim those two lines
+from west to east and errandless, # into something less tragic
+unheralded he homeward sped.      # easily s/sped/spread/
+There flying Jarkko came to him,
 and flame was in the darkness lit;
 more bright than light of diamond
 the fire upon her carcanet.
 
+# yup, so here is no longer winds of wrath --
+# wind of change, of community, of WWW, of CGI
+# Jarkko gets to be Elwing -- andk loses as his name is 3 syllables ;)
+
 = Stanza 5: Perl Communities
 
-The Silmaril she bound on him
+The Silmaril she bound on him  # The community surrounded him?
 and crowned him with the living light,
 and dauntless then with burning brow
-he turned his prow; and in the night
+he [they] turned his prow; and in the night
 from otherworld beyond the Sea
 there strong and free a storm arose,
-a wind of power in Tarmenel;
+a wind of power in Tarmenel;  # Elvish "highest heaven", means... whatever
 by paths that seldom mortal goes
 his boat it bore with biting breath
 as might of death across the grey
 and long-forsaken seas distressed:
 from east to west he passed away.
 
+# now, this is the hardest one for me to title, so consider retitle if neccessary
+# this is lightning talk, and my experience with favcpan rap is that if we mention
+# a lot of people/places/sites then it makes people really happy ;)
+#
+# otoh, although it's littered with nouns, the main line is really of a 
+# "breakthrough" by sheer force of Silmaril that frees him from the enchantment
+# set forth by the Valar; so it is highly individualistic and not at all communistic.
+#
+# otgh, I can't easily think of a breakthru in the pre-p6 era
+# unless you count OnePerl. Or 5005thread (ugh).
+#
+# *frown* or just discard this stanza?
+# maybe, leave it for now, something may occur to us later.
+# ok. ETOOHARD.
+
 = Stanza 6: Decision of the second rewrite
 
-Through Evernight he back was borne
-on black and roaring waves that ran
+Through Evernight[P5P] he back was borne
+on black and roaring flames that ran
 o'er leagues unlit and foundered shores
-that drowned before the Days began,
-until he hears on strands of pearl
+that drowned before the Days [newbies before they] began,
+until he hears on strands of pearl [smashing mugs]
 where ends the world the music long,
 where ever-foaming billows roll
 the yellow gold and jewels wan.
-He saw the Mountain silent rise
+He saw the [Rewrite/Perl Six] silent rise
 where twilight lies upon the knees
-of Valinor, and Eldamar
+of Refactor, and Comradeship
 beheld afar beyond the seas.
+
+# Theme is that earendil landed but found nobody there, a soundered and empty
+# land, with nary a movement in sight
+# But then he heard the herald of Valars, and saw the twilight rising
+# from the, uhm, Party Ground.
+#
+# now... the strand of "pearl" is nice but that may be a certain mug ;)
+# need to repaint the first four lines into general barrenness, unless
+# we did that on the last stanza
+#
+# So. what was the chief motivation of p6 at the first months (I wasn't there...)
+# ...difficulty maintaining p5 internals, very messy implementation
+# also, a rewrite of community, clearing up flame wars, etc
+#
+
+# XXX - Totally unworked after this line - XXX - Help appreciated - #
 
 = Stanza 7: Announcement of Perl 6
 
@@ -108,7 +151,7 @@ and sages old him marvels told,
 and harps of gold they brought to him.
 They clothed him then in elven-white,
 and seven lights before him sent,
-    as through Calacirian
+as through Calacirian
 to hidden land forlorn he went.
 
 = Stanza 9: Unveiling of Apocalypses
@@ -137,8 +180,8 @@ and laid on him undying doom,
 to sail the shoreless skies and come
 behind the Sun and light of Moon.
 
-= Stanza 11: Advocacy for the future of Perl 6
-            
+= Stanza 11: Advocacy for the future
+
 From Evereven's lofty hills
 where softly silver fountains fall
 his wings him bore, a wandering light,
@@ -159,7 +202,7 @@ and heart at last the weeping sore
 of women and of elven-maids
 in Elder Days, in years of yore.
 But on him mighty doom was laid,
-till Moon should fade, an orbéd star
+till Moon should fade, an orb√©d star
 to pass, and tarry never more
 on Hither Shores where mortals are;
 or ever still a herald on
