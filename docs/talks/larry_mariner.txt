@@ -20,7 +20,7 @@ and "Perl" upon its banners laid.
 In panoply of pumpkin kings,
 in three virtues he armoured it;
 his regexes were scored with runes
-to match all \n+ and \w+ for it.
+to match all \n+ and \w+ for it. # pronounced "lines and words"
 
 Its POD made writing docs a breeze,
 its arrays indexed orderly;
