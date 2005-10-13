@@ -219,7 +219,7 @@ op2Map sub@(VCode _) list = op2Map list sub
 op2Map (VList [v@(VRef _)]) sub = op2Map v sub
 op2Map list sub = do
     args  <- fromVal list
-    arity <- liftM length $ (fromVal sub >>= return . subParams)
+    arity <- fmap length $ (fromVal sub >>= return . subParams)
     evl  <- asks envEval
     vals <- mapMn args arity $ \x -> do
         rv  <- local (\e -> e{ envContext = cxtSlurpyAny }) $ do

@@ -1575,7 +1575,7 @@ ruleTypeVar = rule "type" $ try $ do
     -- We've to allow symbolic references with type vars, too.
     nameExps <- many1 $ do
         string "::"
-        (parens ruleExpression) <|> (liftM (Val . VStr . concat) $ sequence [ruleTwigil, many1 wordAny])
+        (parens ruleExpression) <|> (fmap (Val . VStr . concat) $ sequence [ruleTwigil, many1 wordAny])
     -- Optimization: We don't have to construct a symbolic deref syn (":::()"),
     -- but can use a simple Var, if nameExps consists of only one expression
     -- and this expression is a plain string, i.e. it is not a
@@ -1966,11 +1966,11 @@ ruleSymbolicDeref = do
         -- We've to include ruleTwigil here to make $::?SELF parse.
         -- XXX: This looks slightly odd to me -- is one forced to say
         --  $::("?SELF") instead?
-        (parens ruleExpression) <|> (liftM (Val . VStr) $ do
+        (parens ruleExpression) <|> (fmap (Val . VStr) $ do
             choice
                 [ string "!"  --  $!
                 , string "/"  --  $/
-                , liftM concat $ sequence [ruleTwigil, many1 wordAny] ])
+                , fmap concat $ sequence [ruleTwigil, many1 wordAny] ])
     return $ Syn (sigil:"::()") nameExps
 
 makeVar :: String -> Exp
@@ -2168,7 +2168,7 @@ qLiteral = do -- This should include q:anything// as well as '' "" <>
     if not (qfHereDoc flags) then
         qLiteral1 qStart qEnd flags
       else do -- XXX an ugly kludge providing crude heredocs
-        endMarker <- (liftM (string) $ many1 wordAny)
+        endMarker <- (fmap string $ many1 wordAny)
         qEnd; ruleWhiteSpaceLine
         qLiteral1 (fail "never match") endMarker flags
 

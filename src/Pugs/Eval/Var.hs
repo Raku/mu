@@ -270,7 +270,7 @@ findSub name' invs args = do
             ((_, sub):_)    -> Just sub
             _               -> Nothing
     subs :: Int -> [(String, Val)] -> Eval [((Bool, Bool, Int, Int), VCode)]
-    subs slurpLen subSyms = (liftM catMaybes) $ (`mapM` subSyms) $ \(_, val) -> do
+    subs slurpLen subSyms = fmap catMaybes . forM subSyms $ \(_, val) -> do
         sub@(MkCode{ subReturns = ret, subParams = prms }) <- fromVal val
         let rv = return $ arityMatch sub (length (maybeToList invs ++ args)) slurpLen
         maybeM rv $ \fun -> do
