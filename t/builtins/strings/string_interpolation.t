@@ -11,12 +11,13 @@ These tests derived from comments in http://use.perl.org/~autrijus/journal/23398
 
 =cut
 
-plan 22;
+plan 25;
 
 my $world = "World";
 my @list  = (1,2);
 my %hash  = (1=>2);
 sub func { return "func-y town" }
+sub func_w_args($x,$y) { return "[$x][$y]" }
 
 # Double quotes
 is("Hello $world", 'Hello World', 'double quoted string interpolation works');
@@ -30,7 +31,11 @@ is("&func() is where I live", 'func-y town is where I live', "make sure function
 
 # L<S02/Names and Variables /except when interpolating/>
 is("&func. () is where I live", '&func. () is where I live', '"&func. ()" should not interpolate');
-is("&func .() is where I live", '&func .() is where I live', '"&func .()" should not interpolate');
+is("&func_w_args("foo","bar"))", '[foo][bar])', '"&func_w_args(...)" should interpolate');
+# L<S02/"Literals" /"In order to interpolate the result of a method call">
+is("$world.chars()", '5', 'method calls with parens should interpolate');
+is("$world.chars", 'World.chars', 'method calls without parens should not interpolate');
+is("$world.substr(0,1)", 'W', 'method calls with parens and args should interpolate');
 
 # Single quotes
 # XXX the next tests will always succeed even if '' interpolation is buggy
