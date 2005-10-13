@@ -213,6 +213,7 @@ Expanding this one level deeper:
     |   |-- statements         Statement-level construct tests
     |   |-- subroutines        Block/Code/Sub/etc. tests
     |   |-- syntax             Basic syntax tests
+    |   |-- types              Tests for types
     |   |-- unspecced          Tests for Pugs extensions to Perl 6
     |   `-- var                Variable declaration tests
     |
