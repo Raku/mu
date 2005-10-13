@@ -18,16 +18,16 @@ and "Perl" upon its banners laid.
 = Stanza 2: Perl grows in power
 
 In panoply of pumpkin kings,
-in three virtues he armoured it;
-his regexes were scored with runes
-to match all \n+ and \w+ for it. # pronounced "lines and words"
+in three virtues it shone for him;
+its regexes were scored with runes
+to match all \n+ and \w+ for him. # pronounced "lines and words"
 
 Its POD made writing docs a breeze,
 its arrays indexed orderly;
 its hashes were looked up with keys
 its sockets connect with TCP.
 
-Its harnessed tests was valiant,
+Its harnessed tests were valiant,
 of adamant its manpages tall;
 a tour de force upon his pen,
 upon its cover a Camel.
