@@ -1000,7 +1000,7 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
         Right sub   -> do
             forM_ (subSlurpLimit sub) $ \limit@(n, _) -> do
                 extra <- checkSlurpyLimit limit
-                when (not $ null extra) $ do
+                unless (null extra) $ do
                     fail $
                         "Too many slurpy arguments for " ++ subName sub ++ ": "
                         ++ show ((genericLength (take 1000 extra)) + n) ++ " actual, "
