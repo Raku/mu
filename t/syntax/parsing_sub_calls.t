@@ -8,6 +8,10 @@ plan 14;
 # Since these are all parsing tests, they should use eval to ensure all tests
 # can run even if something is broken.  (Unless things are VERY broken.)
 
+if $?PUGS_BACKEND ne "BACKEND_PUGS" {
+  skip_rest "PIL2JS and PIL-Run do not support eval() yet.";
+  exit;
+}
 
 # These tests are for parse-fails:
 {

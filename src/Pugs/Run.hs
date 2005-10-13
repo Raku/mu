@@ -145,6 +145,8 @@ prepareEnv name args = do
         , genSym "$=POD"        $ MkRef $ constScalar (VStr "")
         -- To answer the question "what revision does evalbot run on?"
         , genSym "$?PUGS_VERSION" $ MkRef $ constScalar (VStr $ getConfig "pugs_version")
+        -- If you change the name or contents of $?PUGS_BACKEND, be sure
+        -- to update all t/ and perl5/{PIL2JS,PIL-Run} as well.
         , genSym "$?PUGS_BACKEND" $ MkRef $ constScalar (VStr "BACKEND_PUGS")
         , genSym "$*OS"         $ hideInSafemode $ MkRef $ constScalar (VStr $ getConfig "osname")
         , genSym "&?BLOCK_EXIT" $ codeRef $ mkPrim

@@ -158,7 +158,7 @@ ruleStatementList = rule "statements" $ choice
         -- pos     <- getPosition
         exp        <- rule
         appendRest <- option id $ do
-            count $ symbol ";"
+            sepCount $ symbol ";"
             -- try to parse more statement-list, recursively
             rest <- option Noop ruleStatementList
             -- function to append recursive results to this iteration's results
