@@ -1286,9 +1286,7 @@ findSymRef name pad = do
         Nothing  -> fail $ "Cannot find variable: " ++ show name
 
 findSym :: String -> Pad -> Maybe (TVar VRef)
-findSym name pad = case lookupPad name pad of
-    Just (x:_)  -> Just x
-    _           -> Nothing
+findSym name pad = liftM head (lookupPad name pad)
 
 instance MonadEval Eval
 
