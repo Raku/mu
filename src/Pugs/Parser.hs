@@ -151,18 +151,19 @@ ruleStatementList = rule "statements" $ choice
     , semiSep ruleStatement
     ]
     where
-    nonSep = doSep many
-    semiSep = doSep many1
-    doSep count rule = do
+    nonSep  = doSep many  -- must be followed by 0+ semicolons
+    semiSep = doSep many1 -- must be followed by 1+ semicolons
+    doSep sepCount rule = do
         whiteSpace
         -- pos     <- getPosition
-        exp     <- rule
-        rest    <- option return $ do
-            count (symbol ";")
-            option (\exp -> return $ mergeStmts exp Noop) $ do
-                stmts <- ruleStatementList
-                return $ \exp -> return $ mergeStmts exp stmts
-        rest exp
+        exp        <- rule
+        appendRest <- option id $ do
+            count $ symbol ";"
+            -- try to parse more statement-list, recursively
+            rest <- option Noop ruleStatementList
+            -- function to append recursive results to this iteration's results
+            return $ (`mergeStmts` rest)
+        return $ appendRest exp
 
 {-|
 Assert that we're at the beginning of a line, but consume no input (and produce

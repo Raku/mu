@@ -46,7 +46,14 @@ bindNames exps prms = (bound, exps', prms')
         = ( bound, (Syn "=>" [Val (VStr name), exp]:exps) )
 
 
-matchNamedAttribute :: String -> String -> Bool
+{-|
+Return @True@ if the given argument-pair-key matches the given parameter name.
+Sigils and the twigils '@.@' and '@:@' are discarded from the parameter name
+for the purposes of the match.
+-}
+matchNamedAttribute :: String -- ^ Named argument's key
+                    -> String -- ^ Parameter name to match against
+                    -> Bool
 matchNamedAttribute arg (_:'.':param) = param == arg
 matchNamedAttribute arg (_:':':param) = param == arg
 matchNamedAttribute arg     (_:param) = param == arg
@@ -198,11 +205,11 @@ finalizeBindings :: VCode -> MaybeError VCode
 finalizeBindings sub = do
     let params    = subParams sub
         bindings  = subBindings sub
-        boundInvs = filter (\x -> isInvocant (fst x)) bindings -- bound invocants
-        invocants = takeWhile isInvocant params                -- expected invocants
+        boundInvs = filter (isInvocant . fst) bindings    -- bound invocants
+        invocants = takeWhile isInvocant params           -- expected invocants
 
     -- Check that we have enough invocants bound
-    when (not $ null invocants) $ do
+    unless (null invocants) $ do
         let cnt = length invocants
             act = length boundInvs
         fail $ "Wrong number of invocant parameters: "
