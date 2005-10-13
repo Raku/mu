@@ -20,8 +20,7 @@ my @d = ( 1, $n+1, -1, -$n-1 );
 # Our starting direction, an index into @d; 0 for "right", $d[0]:
 my $d = 0;
 
-# Our starting position (index into @s); -1 so our first step
-# to the right will land us at $s[0]:
+# Our starting position (index into @s); 0 so we start at $s[0]:
 my $p = 0;
 
 # Our starting value (to be stored into @s);
@@ -30,9 +29,9 @@ my $v = 0;
 
 # So continue while zero (not true):
 
-while (  @s[$p] == 0) {
+for 0 .. $n*$n {
     # Store the next value where we just stepped to:
-    @s[$p]= ++$v;
+    @s[$p] = ++$v;
     # Look where we will step next.
     # If occupied (not zero, i.e. true)...
     if(  @s[ $p + @d[$d] ]  ) {
@@ -40,16 +39,16 @@ while (  @s[$p] == 0) {
         # wrapping back to $d[0] if needed:
         $d = ($d+1) % @d;
     }
-    
+
     #take the next step
     $p += @d[$d];
 };
 
-# Print out the 1..$v values plus $n newlines represented
-# by the first $v+$n elements of @s:
+my $format = " %" ~ $v.chars ~ "d";
+for @s { $_ .= as($format) };
 
 for 0 .. $n - 1 -> $y {
-    my $start = ($y * $n + ($y * 1));
+    my $start = ($y * ($n+1));
     my $end   = $start + $n - 1;
-    @s[ $start ..  $end].map:{.as(" %" ~ $v.chars ~ "d")}.say;
+    @s[ $start ..  $end].say;
 }
