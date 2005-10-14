@@ -84,6 +84,10 @@ sub ::create_class (%) {
 $Class = ::create_class(
     '$:name'    => 'Class',
     '%:methods' => {
+        'new' => sub ($%) {
+            my ($class, %attrs) = @_;
+            return ::create_opaque_instance(\$class, %attrs);
+        },         
         'name' => sub ($) {
             ::opaque_instance_attrs(shift)->{'$:name'}
         },
@@ -119,13 +123,9 @@ $Class = ::create_class(
     },
 );
 # The 'Object' class
-my $Object = ::create_class(
+my $Object = $Class->new(
     '$:name'    => 'Object',
-    '%:methods' => {
-        'new' => sub ($%) {
-            my ($class, %attrs) = @_;
-            return ::create_opaque_instance(\$class, %attrs);
-        },      
+    '%:methods' => {     
         'id'    => sub ($) { ::opaque_instance_id(shift)    },
         'class' => sub ($) { ::opaque_instance_class(shift) }
     },

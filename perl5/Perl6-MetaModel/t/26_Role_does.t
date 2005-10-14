@@ -71,5 +71,3 @@ ok($Foo->does('Foo'), '... our role still does Foo');
 ok($Foo->does('Bar'), '... our role still does Bar');
 ok($Foo->does('Baz'), '... our role now does Baz');
 
-
-

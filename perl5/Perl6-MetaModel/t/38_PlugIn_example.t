@@ -9,6 +9,8 @@ use Perl6::MetaModel;
 
 =pod
 
+from http://www.nntp.perl.org/group/perl.perl6.language/23474
+
 class Host {
     my $.plugInClass;
 }
