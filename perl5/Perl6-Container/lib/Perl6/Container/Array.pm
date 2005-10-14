@@ -89,6 +89,7 @@
 # TODO - there are too many methods under AUTOLOAD - upgrade them to real methods
 #
 # TODO - optimize Eager array to O(1)
+#      - currently disabled with "if 0 &&" (Perl6::Container::Array)
 #
 # TODO - ($a,undef,$b) = @a - fixed, add test
 #      - (@a[1..10],$a,undef,$b) = @a
@@ -773,30 +774,42 @@ sub _shift_n {
     while ( @tmp ) {
         # warn "ret $ret_length == ".scalar(@ret)." length $length";
         last if $ret_length >= $length;
-        if ( ! UNIVERSAL::isa( $tmp[0], 'Perl6::Value::List') ) {
-            push @ret, shift @tmp;
-            $ret_length++;
-            # warn "push elem @ret[-1]";
-            next;
-        }
-        if ( $tmp[0]->elems > 0 ) {
-            # my $i = $tmp[0]->shift;
-            my $li = $tmp[0];
-            my $diff = $length - $ret_length;
-            my $i = $li->shift_n( $diff );
-            push @ret, $i;
-            if ( UNIVERSAL::isa( $i, 'Perl6::Value::List') ) {
-                $ret_length += $i->elems;
+        if ( 0 && UNIVERSAL::isa( $tmp[0], 'ARRAY') ) {
+            if ( @{$tmp[0]} ) {
+                my $diff = $length - $ret_length;
+                my @i = splice( @{$tmp[0]}, 0, $diff );
+                push @ret, \@i;
+                $ret_length += @i;
+                last if $ret_length >= $length;
             }
             else {
-                $ret_length++;
+                shift @tmp;
             }
-            # warn "push list ". $i->start . ".." . $i->end . " now length=$ret_length";
-            last if $ret_length >= $length;
+            next;
         }
-        else {
-            shift @tmp;
+        if ( UNIVERSAL::isa( $tmp[0], 'Perl6::Value::List') ) {
+            if ( $tmp[0]->elems > 0 ) {
+                # my $i = $tmp[0]->shift;
+                my $li = $tmp[0];
+                my $diff = $length - $ret_length;
+                my $i = $li->shift_n( $diff );
+                push @ret, $i;
+                if ( UNIVERSAL::isa( $i, 'Perl6::Value::List') ) {
+                    $ret_length += $i->elems;
+                }
+                else {
+                    $ret_length++;
+                }
+                # warn "push list ". $i->start . ".." . $i->end . " now length=$ret_length";
+                last if $ret_length >= $length;
+            }
+            else {
+                shift @tmp;
+            }
+            next;
         }
+        push @ret, shift @tmp;
+        $ret_length++;
     };
     @{$array->{items}} = @tmp;
     # warn "ret @ret ; array @tmp ";
@@ -817,30 +830,43 @@ sub _pop_n {
     while ( @tmp ) {
         # warn "ret ".scalar(@ret)." length $length";
         last if $ret_length >= $length;
-        if ( ! UNIVERSAL::isa( $tmp[-1], 'Perl6::Value::List') ) {
-            unshift @ret, pop @tmp;
-            $ret_length++;
-            next;
-        }
-        if ( $tmp[-1]->elems > 0 ) {
-            # my $i = $tmp[-1]->pop;
-            # unshift @ret, $i;
-            my $li = $tmp[-1];
-            my $diff = $length - $ret_length;
-            my $i = $li->pop_n( $diff );
-            unshift @ret, $i;
-            if ( UNIVERSAL::isa( $i, 'Perl6::Value::List') ) {
-                $ret_length += $i->elems;
+        if ( 0 && UNIVERSAL::isa( $tmp[0], 'ARRAY') ) {
+            if ( @{$tmp[0]} ) {
+                my $diff = $length - $ret_length;
+                my @i = splice( @{$tmp[0]}, -$diff, $diff );
+                push @ret, \@i;
+                $ret_length += @i;
+                last if $ret_length >= $length;
             }
             else {
-                $ret_length++;
+                shift @tmp;
             }
-            # warn "pop list ". $i->start . ".." . $i->end . " now length=$ret_length";
-            last if $ret_length >= $length;
+            next;
         }
-        else {
-            pop @tmp;
+        if ( UNIVERSAL::isa( $tmp[-1], 'Perl6::Value::List') ) {
+            if ( $tmp[-1]->elems > 0 ) {
+                # my $i = $tmp[-1]->pop;
+                # unshift @ret, $i;
+                my $li = $tmp[-1];
+                my $diff = $length - $ret_length;
+                my $i = $li->pop_n( $diff );
+                unshift @ret, $i;
+                if ( UNIVERSAL::isa( $i, 'Perl6::Value::List') ) {
+                    $ret_length += $i->elems;
+                }
+                else {
+                    $ret_length++;
+                }
+                # warn "pop list ". $i->start . ".." . $i->end . " now length=$ret_length";
+                last if $ret_length >= $length;
+            }
+            else {
+                pop @tmp;
+            }
+            next;
         }
+        unshift @ret, pop @tmp;
+        $ret_length++;
     };
     @{$array->{items}} = @tmp;
     # warn "ret @ret ; array @tmp ";
@@ -851,8 +877,8 @@ sub elems {
     my $array = shift;
     my $count = 0;
     for ( @{$array->{items}} ) {
-        $count += UNIVERSAL::isa( $_, 'Perl6::Value::List') ?
-                  $_->elems  :
+        $count += UNIVERSAL::isa( $_, 'ARRAY') ? 0 + @$_ :
+                  UNIVERSAL::isa( $_, 'Perl6::Value::List') ? $_->elems  :
                   1;
     }
     $count;
@@ -1003,7 +1029,9 @@ sub reverse {
     my $array = shift;
     my @rev = reverse @{$array->{items}};
     @rev = map {
-            UNIVERSAL::isa( $_, 'Perl6::Value::List' ) ? $_->reverse : $_
+            UNIVERSAL::isa( $_, 'ARRAY' ) ? [ reverse( @$_ ) ] : 
+            UNIVERSAL::isa( $_, 'Perl6::Value::List' ) ? $_->reverse : 
+            $_
         } @rev;
     return Perl6::Container::Array->from_list( @rev );
 }
