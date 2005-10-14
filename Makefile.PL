@@ -124,7 +124,7 @@ sub set_postamble {
         push @warn, << '.';
 *** Inline Haskell support disabled.  If you want dynamic loading
     of haskell modules, please install the hs-plugins library:
-        http://www.cse.unsw.edu.au/~dons/code/hs-plugins
+        http://www.cse.unsw.edu.au/~dons/hs-plugins/
     Remember to "make register" after "make install" for hs-plugins!
 
 .
