@@ -10,7 +10,7 @@ String transliteration
 =cut
 
 
-plan 10;
+plan 12;
 
 is("ABC".trans( 'A'=>'a', 'B'=>'b', 'C'=>'c' ),"abc",
         "Each side can be individual characters");
@@ -21,6 +21,13 @@ is("XYZ".trans( 'XYZ' => 'xyz' ),"xyz",
 
 is("ABC".trans( 'A-C' => 'a-c' ),"abc",
            "The two sides of the any pair can be strings interpreted as tr/// would range");
+
+is("ABC-DEF".trans("-AB-Z" => "_a-z"),"abc-def",
+           "If the first character is a dash it isn't part of a range");
+
+is("ABC-DEF".trans("A-YZ-" => "a-z_"),"abc-def",
+           "If the last character is a dash it isn't part of a range");
+
 
 #skip 2, "loops forever with Pugs 6.2.10";
 is("ABCDEF".trans( 'AB-E' => 'ab-e' ), "abcdeF",
