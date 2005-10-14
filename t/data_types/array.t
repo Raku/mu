@@ -9,7 +9,7 @@ Arrays
 
 =cut
 
-plan 59;
+plan 65;
 
 # array of strings
 
@@ -154,4 +154,18 @@ is ~@b,
   my @arr = (0, 1, 2, 3);
   @arr[0] = "new value";
   is @arr[0], "new value", "modifying of array contents (constants) works";
+}
+
+{
+  my @arr;
+  lives_ok { defined @arr[-1] },  "readonly accessing [-1] of an empty array is ok (1)";
+  ok !(try { defined @arr[-1] }), "readonly accessing [-1] of an empty array is ok (2)";
+  dies_ok { @arr[-1] = 42 },      "assigning to [-1] of an empty array is fatal";
+}
+
+{
+  my @arr = (23);
+  lives_ok { defined @arr[-2] },  "readonly accessing [-2] of an one-elem array is ok (1)";
+  ok !(try { defined @arr[-2] }), "readonly accessing [-2] of an one-elem array is ok (2)";
+  dies_ok { @arr[-2] = 42 },      "assigning to [-2] of an one-elem array is fatal";
 }
