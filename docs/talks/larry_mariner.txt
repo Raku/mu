@@ -8,7 +8,7 @@
 Larry was a mariner
 that tarried in the world of C;
 he built a tool from sed and awk
-in Unix shell to script things in;
+in Unix shell to script things free.
 
 Its operators were vast and fair,
 of dollars were its sigils made;
