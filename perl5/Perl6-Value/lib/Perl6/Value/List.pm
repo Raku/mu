@@ -230,8 +230,15 @@ sub from_range {
     my $count = $param{celems};
     $count = sub { 
             no warnings 'numeric';
-            return Inf if $end->unboxed == Inf;
-            $start->unboxed le $end->unboxed ? Inf : 0 
+            if ( ref($end) ) {
+                return Inf if $end->unboxed == Inf;
+                return $start->unboxed le $end->unboxed ? Inf : 0 
+            }
+            else
+            {
+                return Inf if $end == Inf;
+                return $start le $end ? Inf : 0 
+            }
         } 
         unless defined $count;
     $class->new(
@@ -245,12 +252,22 @@ sub from_range {
         end =>     sub { $end },
         cstart =>  sub { 
             my $tmp = $start; 
-            $start = $start->increment; 
+            if ( ref( $start ) ) {
+                $start = $start->increment; 
+            }
+            else {
+                $start++;
+            }
             $tmp; 
         },
         cend =>    sub { 
             my $tmp = $end; 
-            $end = $end->decrement; 
+            if ( ref( $end ) ) {
+                $end = $end->decrement; 
+            }
+            else {
+                $end--;
+            }
             $tmp; 
         },
         celems =>  $count,
