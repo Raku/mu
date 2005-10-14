@@ -57,6 +57,7 @@ strRange :: String -> String -> [String]
 strRange s1 s2
     | s1 == s2              = [s2]
     | length s1 > length s2 = []
+    | s1 >  s2              = []
     | otherwise             = (s1:strRange (strInc s1) s2)
 
 {-|
