@@ -94,10 +94,14 @@ instance Pretty Val where
             JOne  -> text " ^ "
             JNone -> text " ! "
     format (VBool x) = if x then text "bool::true" else text "bool::false"
-    format (VNum x) = if x == 1/0 then text "Inf" else text $ show x
+    format (VNum x) = if x == 1/0
+                         then text "Inf"
+                         else if x == -1/0 
+                                then text "-Inf"
+                                else text $ show x
     format (VInt x) = integer x
     format (VStr x) = text $ "\"" ++ encodeUTF8 (concatMap quoted x) ++ "\""
-    format (VRat x) = text $ showRat x
+    format (VRat x) = text $ showTrueRat x
     format (VComplex x) = text $ show x
     format (VControl (ControlEnv _)) = text "<env>"
     format (VControl x) = text $ show x
@@ -160,5 +164,5 @@ joinList :: Doc -> [Doc] -> Doc
 joinList x y = cat $ punctuate x y
 
 pretty :: Pretty a => a -> String
-pretty a = render $ format a 
+pretty a = render $ format a
 

@@ -1,6 +1,6 @@
 use v6;
 
-# Brute force proof that every cribbage hand with a 5 is >= 2 points 
+# Brute force proof that every cribbage hand with a 5 is >= 2 points
 # See http://perlmonks.org/index.pl?node_id=458728 for details
 
 # The following code will not work yet as of revision 4167
@@ -11,15 +11,15 @@ use v6;
 # Feature 2 - t/statements/last.t (last <label>)
 
 my $next = combo(5, new_deck());
-while my @combo = $next() {
+while $combo == 1 {
     # Skip all hands that do not contain a 5
-    next if none( @combo>>.<val> ) == 5;
+#    next if none( @combo>>.<val> ) == 5;
 
     # Skip all hands that have a score of at least 2
-    next if score( @combo ) > 1;
+#    next if score( @combo ) > 1;
 
     # Print out the rest
-    say ~@combo>>.<suit>;
+#    say ~@combo>>.<suit>;
 }
 
 sub score ( @hand ) returns Int {
@@ -36,7 +36,7 @@ sub score ( @hand ) returns Int {
         !! 0;
 
     # Check for right-jack, @hand[-1] is community card
-    $score++ if grep { $_<num> == 11 && $_<suit> eq @hand[-1]<suit> } @hand[0..3]; 
+    $score++ if grep { $_<num> == 11 && $_<suit> eq @hand[-1]<suit> } @hand[0..3];
 
     # Count 15's
     my @vals = @hand>>.<val>;
@@ -50,7 +50,7 @@ sub score ( @hand ) returns Int {
     for 5, 4, 3 -> $span {
         for sort { $^a <=> $^b } %ordval.keys -> $start {
             if all( %ordval{$start .. $start + $span} ) > 1 {
-                $score += [*] %ordval{$start .. $start + $span}, $span; 
+                $score += [*] %ordval{$start .. $start + $span}, $span;
                 last SPAN;
             }
         }
@@ -72,7 +72,7 @@ sub combo (Int $by is copy, @list is copy) returns Ref {
             @position[ $cur .. @position.end ] = $new_pos .. $new_pos + $by;
             last;
         }
-        $done = 1 if @position[ 0 ] == @stop[ 0 ]; 
+        $done = 1 if @position[ 0 ] == @stop[ 0 ];
         return @list[ @position ];
     };
 }

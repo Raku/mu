@@ -43,7 +43,7 @@ my @tests = (
 );
 
 plan 7 + 2*@tests;
-force_todo 4, 7..8, 33..38, 59..60, 63..64, 69..71, 74, 76, 78;
+force_todo 7..8, 33..38, 59..60, 63..64, 69..71, 74, 76, 78;
 
 unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
   skip_rest "eval() not yet implemented in $?PUGS_BACKEND.";

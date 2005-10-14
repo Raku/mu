@@ -58,7 +58,7 @@ module Pugs.AST.Internals (
     retError, retControl, retEmpty, retIVar, readIVar, writeIVar,
     fromVals, refType,
     lookupPad, padToList, listToPad,
-    mkPrim, mkSub, showRat,
+    mkPrim, mkSub, showRat, showTrueRat,
     cxtOfSigil, typeOfSigil,
     buildParam, defaultArrayParam, defaultHashParam, defaultScalarParam,
     emptyExp,
@@ -500,6 +500,14 @@ showRat r
     frac = round ((rem * (10 ^ (40 :: VInt))) % d)
     showFrac = reverse . dropWhile (== '0') . reverse . pad . show
     pad x = (replicate (40 - length x) '0') ++ x
+
+showTrueRat :: VRat -> VStr
+showTrueRat r =
+    (show n) ++ "/" ++ (show d)
+    where
+    n = numerator r
+    d = denominator r
+
 
 instance Value [PerlSV] where
     fromVal = fromVals
