@@ -4,10 +4,7 @@
 
 use v6;
 
-# XXX! Pugs forgets about the splatty star if a type qualifier (e.g. Int) is
-# specified!
-sub format_number_list(*@_input) {
-  my @input = @_input; # no "is copy" yet
+sub format_number_list(*@input is copy) {
   my @output;
   while (@input) {
     my $range_start = shift @input;
