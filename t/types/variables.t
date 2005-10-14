@@ -13,6 +13,5 @@ plan 3;
     # should this be eval_ok? it depends on the previous test not being fatal to get the declaration
     eval_ok q($ref = &foo), "can assign a sub with a compatible type to a typed subref", :todo<unspecced>;
     # should use throws_ok? 
-    dies_ok q($ref = &bar), "assigment of incompatible sub type dies", :todo<unspecced>;
+    dies_ok { $ref = &bar }, "assigment of incompatible sub type dies";
 }
-    

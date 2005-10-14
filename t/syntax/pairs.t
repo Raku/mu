@@ -63,7 +63,7 @@ plan 16;
     my @array_of_pairs = (a => 42);
 
     is foo(@array_of_pairs), "[a\t42]",
-        'an array of pairs is not treated magically...', :todo<feature>;
+        'an array of pairs is not treated magically...';
     is foo(*@array_of_pairs), "[a\t42]",
         '...and *@array isn\'t either', :todo<unspecced>;
 }
