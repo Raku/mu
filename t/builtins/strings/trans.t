@@ -10,7 +10,7 @@ String transliteration
 =cut
 
 
-plan 7;
+plan 10;
 
 is("ABC".trans( 'A'=>'a', 'B'=>'b', 'C'=>'c' ),"abc",
         "Each side can be individual characters");
@@ -34,12 +34,18 @@ is("ABCDEFGH".trans( 'A-CE-G' => 'a-ce-g' ),"abcDefgH",
 is("ABCXYZ".trans( ['A'..'C'] => ['a'..'c'], <X Y Z> => <x y z> ),"abcxyz",
            "The two sides of each pair may also be array references" );
 
+# We're probally unable to "fix" these two as long as the left hand of => gets stringified
 is("ABCDE".trans( 'a-e' => ['A' .. 'E'] ), "abcde",
 	   "Using string range on one side and array reference on the other",:todo );
 
 
 is("ABCDE".trans( ['A' .. 'E'] => "a-e" ), "abcde",
 	   "Using array reference on one side and string range on the other",:todo );
+
+
+is(" <>&".trans( ['<',    '>',    '&',    ] => 
+                 ['&lt;', '&gt;', '&amp;' ])," &lt;&gt;&amp;",
+         "The array version can map one characters to one-or-more characters except spaces");
 
 is(" <>&".trans( [' ',      '<',    '>',    '&'    ] => 
                  ['&nbsp;', '&lt;', '&gt;', '&amp;' ]),"&nbsp;&lt;&gt;&amp;",
