@@ -69,7 +69,7 @@ method postcircumfix:<{}>(%self: *@keys) is rw {
 
       ret.uid = hash.exists(key) ? hash.get_value(key).uid : undefined;
 
-      // .BINDTO is special: %hash{$key} := $foo should work.
+      // %hash{$key} := $foo should autovivify %hash{$key} if necessary.
       ret.BINDTO = function (other) {
         if(!hash.exists(key))
           hash.add_pair(new PIL2JS.Pair(

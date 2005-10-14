@@ -318,9 +318,15 @@ method postcircumfix:<[]>(@self: Int *@idxs) is rw {
     var cc    = args.pop();
     var array = args[0].FETCH();
     var idxs  = args[1].toNative();
+
+    var orig_value = [];
     for(var i = 0; i < idxs.length; i++) {
       idxs[i] = Number(idxs[i]);
-      idxs[i] = idxs[i] < 0 ? array.length + idxs[i] : idxs[i];
+      if(idxs[i] < 0) {
+        var orig = Number(idxs[i]);
+        idxs[i] = array.length + idxs[i];
+        orig_value[idxs[i]] = orig;
+      }
     }
 
     if(idxs.length == 0) PIL2JS.die("No indices given to &postcircumfix:<[ ]>!");
@@ -333,6 +339,9 @@ method postcircumfix:<[]>(@self: Int *@idxs) is rw {
           return ret == undefined ? undefined : ret.FETCH();
         },
         function (n) {
+          if(idx < 0)
+            PIL2JS.die("Modification of non-creatable array value attempted, subscript " + orig_value[idx]);
+
           // Support (in a slightly hacky manner) ($a, undef, $b) = (3,4,5).
           if(
             array[idx] == undefined || (
@@ -349,9 +358,11 @@ method postcircumfix:<[]>(@self: Int *@idxs) is rw {
 
       ret.uid = array[idx] == undefined ? undefined : array[idx].uid;
 
-      // .BINDTO is special: @a[$idx] := $foo should work, but @a[1000], with +@a
-      // < 1000, should not.
+      // @a[$idx] := $foo should autovivify @a[$idx] if necessary.
       ret.BINDTO = function (other) {
+        if(idx < 0)
+          PIL2JS.die("Modification of non-creatable array value attempted, subscript " + orig_value[idx]);
+
         if(array[idx] == undefined)
           array[idx] = new PIL2JS.Box(undefined);
 
