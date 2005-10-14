@@ -17,6 +17,14 @@ This document describes version 6.2.10 of Pugs, released October 10, 2005.
     % pugs -e "{ 'Hello, ', @^x }.('World!').say"
     Hello, World!
 
+With Perl 5 embedding support (also note the C<--> in the C<#!> line):
+
+    #!/usr/bin/pugs --
+    use v6;
+    use perl5:DBI;
+    my $dbh = DBI.connect('dbi:SQLite:dbname=test.db');
+    $dbh.do("CREATE TABLE Test (Project, Pumpking)");
+
 =head1 DESCRIPTION
 
 Pugs is an implementation of L<Perl 6|http://dev.perl.org/perl6>, written in
