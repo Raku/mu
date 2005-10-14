@@ -4,9 +4,15 @@ use v6;
 use Test;
 
 # Tests testing that automatical referentiation (e.g. $arrayref = @array)
-# works.
+# works. To be more detailled, things tested are:
+# * Implicit&explicit referentiation of arrays&hashes in assignment
+# * Implicit&explicit referentiation of arrays&hashes in assignment to an
+#   array&hash element
+# * Implicit&explicit referentiation of array&hashes&array literals&arrayref
+#   literals&hashref literals in pair creation with key => ... and :key(...)
+#   and ... => key.
 
-plan 42;
+plan 57;
 
 # Implicit referentiation of arrays in assignment
 {
@@ -196,4 +202,73 @@ plan 42;
 
     is ~$pair.value.values.sort, "1 2 3", '(:key(\%hash)) works (1)';
     is +$pair.value.values,            3, '(:key(\%hash)) works (2)';
+}
+
+# Implicit referentiation of array literals in pair creation with key => ...
+{
+    my $pair  = (key => <a b c>);
+
+    is ~$pair.value, "a b c", '(key => <...>) works (1)';
+    is +$pair.value,       3, '(key => <...>) works (2)';
+}
+
+# Arrayref literals in pair creation with key => ...
+{
+    my $pair  = (key => [<a b c>]);
+
+    is ~$pair.value, "a b c", '(key => [<...>]) works (1)';
+    is +$pair.value,       3, '(key => [<...>]) works (2)';
+}
+
+# Hashref literals in pair creation with key => ...
+{
+    my $pair  = (key => { a => 1, b => 2 });
+
+    is +$pair.value, 2, '(key => {...}) works';
+}
+
+# Implicit referentiation of array literals in pair creation with :key(...)
+{
+    my $pair  = (:key(<a b c>));
+
+    is ~$pair.value, "a b c", '(:key(<...>)) works (1)';
+    is +$pair.value,       3, '(:key(<...>)) works (2)';
+}
+
+# Arrayref literals in pair creation with :key(...)
+{
+    my $pair  = (:key([<a b c>]));
+
+    is ~$pair.value, "a b c", '(:key([<...>])) works (1)';
+    is +$pair.value,       3, '(:key([<...>])) works (2)';
+}
+
+# Hashref literals in pair creation with :key(...)
+{
+    my $pair  = (:key({ a => 1, b => 2 }));
+
+    is +$pair.value, 2, '(:key({...})) works';
+}
+
+# Implicit referentiation of array literals in pair creation with ... => "value"
+{
+    my $pair  = (<a b c> => "value");
+
+    is ~$pair.key, "a b c", '(<...> => "value") works (1)';
+    is +$pair.key,       3, '(<...> => "value") works (2)';
+}
+
+# Arrayref literals in pair creation with ... => "value"
+{
+    my $pair  = ([<a b c>] => "value");
+
+    is ~$pair.key, "a b c", '(<...> => "value") works (1)';
+    is +$pair.key,       3, '(<...> => "value") works (2)';
+}
+
+# Hashref literals in pair creation with ... => "value"
+{
+    my $pair  = ({ a => 1, b => 2 } => "value");
+
+    is +$pair.key, 2, '({...} => "value") works';
 }

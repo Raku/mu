@@ -9,7 +9,7 @@ use Test;
 
 =cut
 
-plan 68;
+plan 71;
 
 # basic Pair
 
@@ -208,6 +208,10 @@ http://www.nntp.perl.org/group/perl.perl6.language/20122
   is try { "$pair" }, "a\t1 2 3", "pairs with arrayrefs as values stringify correctly (2)";
 }
 
+# Per Larry (http://www.nntp.perl.org/group/perl.perl6.language/23525):
+#   Actually, it looks like the bug is probably that => is forcing
+#   stringification on its left argument too agressively.  It should only do
+#   that for an identifier.
 {
   my $arrayref = [< a b c >];
   my $hashref  = { :d(1), :e(2) };
@@ -222,4 +226,21 @@ http://www.nntp.perl.org/group/perl.perl6.language/20122
   is ~$pair.value, ~$hashref,  "=> should not stringify the key (4)";
   is +$pair.key,            4, "=> should not stringify the key (5)";
   is +$pair.value,          3, "=> should not stringify the key (6)";
+}
+
+{
+  my $arrayref = [< a b c >];
+  my $hashref  = { :d(1), :e(2) };
+
+  my $pair = ($arrayref => $hashref);
+  my sub pair_key (Pair $pair) { $pair.key }
+
+  is ~pair_key($pair), ~$arrayref,
+    "the keys of pairs should not get auto-stringified when passed to a sub (1)";
+
+  push $pair.key, "d";
+  is ~pair_key($pair), ~$arrayref,
+    "the keys of pairs should not get auto-stringified when passed to a sub (2)";
+  is +pair_key($pair),          4,
+    "the keys of pairs should not get auto-stringified when passed to a sub (3)";
 }
