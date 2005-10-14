@@ -9,7 +9,7 @@ use Test;
 
 =cut
 
-plan 62;
+plan 68;
 
 # basic Pair
 
@@ -206,4 +206,20 @@ http://www.nntp.perl.org/group/perl.perl6.language/20122
   my $pair = (a => [1,2,3]);
   is try { ~$pair  }, "a\t1 2 3", "pairs with arrayrefs as values stringify correctly (1)";
   is try { "$pair" }, "a\t1 2 3", "pairs with arrayrefs as values stringify correctly (2)";
+}
+
+{
+  my $arrayref = [< a b c >];
+  my $hashref  = { :d(1), :e(2) };
+
+  my $pair = ($arrayref => $hashref);
+  is ~$pair.key,   ~$arrayref, "=> should not stringify the key (1)";
+  is ~$pair.value, ~$hashref,  "=> should not stringify the key (2)";
+
+  push $pair.key, "d";
+  $pair.value<f> = 3;
+  is ~$pair.key,   ~$arrayref, "=> should not stringify the key (3)";
+  is ~$pair.value, ~$hashref,  "=> should not stringify the key (4)";
+  is +$pair.key,            4, "=> should not stringify the key (5)";
+  is +$pair.value,          3, "=> should not stringify the key (6)";
 }
