@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 14;
+plan 19;
 
 # Since these are all parsing tests, they should use eval to ensure all tests
 # can run even if something is broken.  (Unless things are VERY broken.)
@@ -14,6 +14,8 @@ if $?PUGS_BACKEND ne "BACKEND_PUGS" {
 }
 
 # These tests are for parse-fails:
+# (They check that the parser doesn't abort, but they might still parse
+#  incorrectly.)
 {
     my sub foo(*@args, *%named) { 1 }
 
@@ -30,6 +32,14 @@ if $?PUGS_BACKEND ne "BACKEND_PUGS" {
 
     ok(eval(q/foo 1, 2; /), 'call with two args, no parens');
     ok(eval(q/foo(1, 2);/), 'call with two args, has parens');
+    
+    
+    ok(eval(q/foo:bar;  /), 'call with adverb after no space');
+    ok(eval(q/foo :bar; /), 'call with adverb after space');
+    
+    ok(eval(q/foo(:bar);  /), 'call with adverb in parens');
+    ok(eval(q/foo.(:bar); /), 'call with adverb in dotted-parens');
+    ok(eval(q/foo .(:bar);/), 'call with adverb in space-dotted parens');
 }
 
 
