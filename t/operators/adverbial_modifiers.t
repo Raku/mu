@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 75;
+plan 74;
 
 eval_is 'infix:<..>(1, 10, by => 2)', <1 3 5 7 9>, 'range operator, :by parameter, long name', :todo<feature>;
 eval_is '1..10 :by(2)', <1 3 5 7 9>, 'range operator, :by adverb, space', :todo<feature>;
@@ -172,8 +172,10 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
 
   # f_X(Y) f_X_Y() f_X_Y_() f_XY_() f_XY() fXY ()
 
-  $v = f :x("a")(:y("b"));
-  is $v, "ab", 'f :x("a")(:y("b"))';
+  # $v = f :x("a")(:y("b"));
+  # is $v, "ab", 'f :x("a")(:y("b"))';
+  # Since the demagicalizing of pairs, this test shouldn't and doesn't work any
+  # longer.
 
   $v = 'eval failed';
   eval '$v = f :x("a") :y("b")()';
@@ -275,13 +277,13 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
 
     my sub f2(Pair $p){$p.perl}
 
-    $v = f2(:bar);
-    is $v, '("bar" => 1)', 'f2(:bar)';
+    $v = f2((:bar));
+    is $v, '("bar" => 1)', 'f2((:bar))';
 
     my sub f3(Pair $p1, Pair $p2){$p1.perl~" - "~$p2.perl}
 
-    $v = f3(:bar,:hee(3));
-    is $v, '("bar" => 1) - ("hee" => 3)', 'f3(:bar,:hee(3))';
+    $v = f3((:bar),(:hee(3)));
+    is $v, '("bar" => 1) - ("hee" => 3)', 'f3((:bar),(:hee(3)))';
   
   }
 
