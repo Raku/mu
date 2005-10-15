@@ -1,0 +1,16 @@
+Pugs Development for (mm, dd yyyy)
+
+* General Pugs
+** scook0 demagicalized pairs. This means `foo($thing)` does now always pass
+   `$thing` positionally to `&foo`, even if `$thing` happens to be a `Pair`.
+   Also `foo(bar => $baz)` does now always pass `$baz` by the name `bar`, even
+   if `&foo` expects `Pair`s.
+   See the thread "Demagicalizing pair" on p6l started by Luke
+   (http://article.gmane.org/gmane.comp.lang.perl.perl6.language/4778/),
+   http://colabti.de/irclogger/irclogger_log/perl6?date=2005-10-09,Sun&sel=528#l830,
+   and http://www.nntp.perl.org/group/perl.perl6.language/23532.
+
+* PIL2JS
+** iblech then proceeded to update PIL2JS accordingly, which means that
+   PIL2JS is the first backend which fully supports demagicalized pairs -- it
+   passes all of the 26 tests of `t/syntax/pairs.t`.
