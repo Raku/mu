@@ -11,7 +11,7 @@ plan 2;
     my $pair = (a => 1);
     my $Pair = $pair.ref;
 
-    ok try { foo($Pair) }, "passing ::Pair to a sub works", :todo<bug>;
+    ok try { foo($Pair) }, "passing ::Pair to a sub works";
 }
 
 # But this works:
