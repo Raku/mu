@@ -1772,12 +1772,24 @@ parseParenParamListCommon mustHaveParens = do
 named :: RuleParser Exp -> RuleParser Exp
 named parser = do
     result <- parser
-    case result of
+    case unwrap result of
         (App (Var "&infix:=>") Nothing [key, val]) -> return (Syn "named" [key, val])
         _                                          -> fail "internal error--was expecting a pair"
 
 namedArg :: RuleParser Exp
-namedArg = named pairLiteral
+namedArg = named (pairLiteral <|> complexNamed)
+    where
+    -- complexNamed parses a pair literal which has a complex expression (as
+    -- opposed to a simply identifier) as its LHS, e.g.
+    -- "a" => 5 or @array => 5.
+    -- XXX should this be merged with pairLiteral?
+    complexNamed = do
+        -- ("a" => 5), with the parens, is not a named arg.
+        notFollowedBy $ char '('
+        exp <- parseExpWithTightOps
+        case unwrap exp of
+            (App (Var "&infix:=>") Nothing [_, _]) -> return exp
+            _ -> fail "internal error--was expecting a pair"
 
 namedArgOr :: RuleParser Exp -> RuleParser Exp
 namedArgOr other = try namedArg <|> other

@@ -37,8 +37,11 @@ use strict;
   our @ISA = qw<PIL::PVal>;
 
   sub as_js {
+    my $key = ref $_[0]->{key}
+      ? sprintf "PIL2JS.cps2normal(_26main_3a_3aprefix_3a_7e.FETCH(), [PIL2JS.Context.ItemAny, %s]).toNative()", $_[0]->{key}->as_js
+      : PIL::doublequote($_[0]->{key});
     sprintf "new PIL2JS.Box.Constant(new PIL2JS.NamedPair(%s, %s))",
-      PIL::doublequote($_[0]->{key}),
+      $key,
       $_[0]->{value}->as_js;
   }
 }

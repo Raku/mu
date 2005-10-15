@@ -19,28 +19,34 @@ use Test;
 #   foo($pair);      # pair passed positionally
 #   foo(*$pair);     # named
 
-plan 21;
+plan 27;
 
 {
     my sub foo ($a, $b) { "[$a] [$b]" }
 
-    is foo(a => 42, 23), "[42] [23]", "'a => 42' is a named";
-    is foo(:a(42),  23), "[42] [23]", "':a(42)' is a named";
-    is foo(:a,      23), "[1] [23]",  "':a' is a named";
+    is foo(a   => 42, 23), "[42] [23]", "'a => 42' is a named";
+    is foo("a" => 42, 23), "[42] [23]", "'\"a\" => 42' is a named";
+    is foo(:a(42),  23),   "[42] [23]", "':a(42)' is a named";
+    is foo(:a,      23),   "[1] [23]",  "':a' is a named";
 
-    is foo((a => 42), 23), "[a\t42] [23]", "'(a => 42)' is a pair", :todo<unspecced>;
-    is foo((:a(42)),  23), "[a\t42] [23]", "'(:a(42))' is a pair",  :todo<unspecced>;
-    is foo((:a),      23), "[a\t1] [23]",  "'(:a)' is a pair",      :todo<unspecced>;
+    is foo((a   => 42), 23), "[a\t42] [23]", "'(a => 42)' is a pair";
+    is foo(("a" => 42), 23), "[a\t42] [23]", "'(\"a\" => 42)' is a pair";
+    is foo((:a(42)),    23), "[a\t42] [23]", "'(:a(42))' is a pair";
+    is foo((:a),        23), "[a\t1] [23]",  "'(:a)' is a pair";
 }
 
 {
     my sub foo (+$a) { "[$a]" }
 
-    is foo(a => 42), "[42]", "'a => 42' is a named";
-    is foo(:a(42)),  "[42]", "':a(42)' is a named";
+    is foo(a   => 42), "[42]", "'a => 42' is a named";
+    is foo("a" => 42), "[42]", "'\"a\" => 42' is a named";
+    is foo(:a(42)),    "[42]", "':a(42)' is a named";
+    is foo(:a),        "[1]",  "':a' is a named";
 
-    dies_ok { foo((a => 42)) }, "'(a => 42)' is a pair", :todo<unspecced>;
-    dies_ok { foo((:a(42)))  }, "'(:a(42))' is a pair",  :todo<unspecced>;
+    dies_ok { foo((a   => 42)) }, "'(a => 42)' is a pair";
+    dies_ok { foo(("a" => 42)) }, "'(\"a\" => 42)' is a pair";
+    dies_ok { foo((:a(42)))  }, "'(:a(42))' is a pair";
+    dies_ok { foo((:a))      }, "'(:a)' is a pair";
 }
 
 {

@@ -18,8 +18,19 @@ sub fixup {
   }
   # Minor hack -- we want syntactical pairs to be efficient.
   if($subname and $subname eq "&Pugs::Internals::named_pair") {
+    my $key;
+    my $unwrapped = $self->{pArgs}[0]->unwrap;
+    if(
+      $unwrapped->isa("PIL::PLit") and
+      $unwrapped->{pLit}->isa("PIL::PVal") and
+      (my $lhs = $unwrapped->{pLit}{pVal})->isa("PIL::VStr")
+    ) {
+      $key = $lhs->[0];
+    } else {
+      $key = $self->{pArgs}[0]->fixup;
+    }
     my $pair = bless { pVal => bless {
-      key   => $self->{pArgs}[0]{pLit}{pVal}[0],
+      key   => $key,
       value => $self->{pArgs}->[1]->fixup,
     } => "PIL::NamedPair" } => "PIL::PLit";
     return $pair->fixup;
@@ -109,6 +120,7 @@ sub as_js {
 
     # For debugging
     unless($self->{CC}) {
+      warn "Internal error: Missing CC!\n";
       require YAML; warn YAML::Dump($self);
     }
 
