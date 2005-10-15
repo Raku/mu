@@ -98,7 +98,7 @@ sub on_privmsg($event) {
       $reply("Running for {int(time() - $start_time)} seconds.");
     }
 
-    when rx:P5/^\?eval\s+(.+)$/ {
+    when rx:P5/^\?eval\s*(.+)$/ {
       # Allow ?eval anywhere, as you can make #whateverfoo, invite evalbot
       # to that channel, and abuse the heck out of him.
       $reply(evalhelper $0);
@@ -140,6 +140,7 @@ sub evalhelper(Str $code) {
   # Read the result, but convert all linebreaks into spaces, so we don't flood
   # the channel.
   my $result = join " ", split "\n", slurp $tmpfile;
+  $result = substr $result, 0, 500;  # max len limit
   unlink $tmpfile;
   return bytes($result) ?? $result !! "(no output)";
 }
