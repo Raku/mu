@@ -38,7 +38,7 @@ bindNames :: [Exp] -- ^ List of argument expressions to be bound
 bindNames exps prms = (bound, exps', prms')
     where
     prms' = prms \\ (map fst bound)
-    (bound, exps') = foldr doBind ([], []) (map unPair exps)
+    (bound, exps') = foldr doBind ([], []) (map unwrapNamedArg exps)
     doBind (name, exp) (bound, exps) 
         | Just prm <- find ((matchNamedAttribute name) . paramName) prms
         = ( ((prm, exp) : bound), exps )
@@ -147,27 +147,15 @@ doBindArray v (xs, n)  (p, _) = case v of
     _               -> return (((p, doIndex v n):xs), n+1)
 -- doBindArray _ (_, _)  (_, x) = internalError $ "doBindArray: unexpected char: " ++ (show x)
 
-{-|
-Return @True@ if the given expression represents a pair (i.e. it uses the
-\"=>\" pair constructor).
--}
-isPair :: Exp -> Bool
-isPair (Pos _ exp) = isPair exp
-isPair (Cxt _ exp) = isPair exp
-isPair (Syn "=>" [(Cxt _ (Val _)), _])   = True
-isPair (Syn "=>" [(Val _), _])   = True
-isPair _                         = False
 
-{-|
-Decompose a pair-constructor 'Exp'ression (\"=>\") into a Haskell pair
-(@key :: 'String'@, @value :: 'Exp'@).
--}
-unPair :: Exp -> (String, Exp)
-unPair (Pos _ exp) = unPair exp
-unPair (Cxt _ exp) = unPair exp
-unPair (Syn "=>" [key, exp])
-    | Val (VStr k) <- unwrap key = (k, exp)
-unPair x = error ("Not a pair: " ++ show x)
+isNamedArg :: Exp -> Bool
+isNamedArg (Syn "named" [(Val (VStr _)), _]) = True
+isNamedArg arg@(Syn "named" _)               = error $ "malformed named arg: " ++ show arg
+isNamedArg _                                 = False
+
+unwrapNamedArg :: Exp -> (String, Exp)
+unwrapNamedArg (Syn "named" [(Val (VStr key)), val]) = (key, val)
+unwrapNamedArg x = error $ "not a well-formed named arg: " ++ show x
 
 {-|
 Bind parameters to a callable, then verify that the binding is complete
@@ -209,7 +197,7 @@ finalizeBindings sub = do
         invocants = takeWhile isInvocant params           -- expected invocants
 
     -- Check that we have enough invocants bound
-    unless (null invocants) $ do
+    when (not . null $ invocants) $ do
         let cnt = length invocants
             act = length boundInvs
         fail $ "Wrong number of invocant parameters: "
@@ -217,7 +205,7 @@ finalizeBindings sub = do
             ++ (show $ act + cnt) ++ " expected in "
             ++ (show $ subName sub)
             
-    let (boundReq, boundOpt) = partition (\x -> isRequired (fst x)) bindings -- bound params which are required
+    let (boundReq, boundOpt) = partition (isRequired . fst) bindings -- bound params which are required
         (reqPrms, optPrms)   = span isRequired params -- all params which are required, and all params which are opt
 
     -- Check length of required parameters
@@ -257,7 +245,7 @@ bindSomeParams sub invExp argsExp = do
             else (maybeToList invExp, argsExp)
 
     let boundInv                = invPrms `zip` givenInvs -- invocants are just bound, params to given
-        (namedArgs, posArgs)    = partition isPair givenArgs -- pairs are named arguments, they go elsewhere
+        (namedArgs, posArgs)    = partition isNamedArg givenArgs
         (boundNamed, namedForSlurp, allPosPrms) = bindNames namedArgs argPrms -- bind pair args to params. namedForSlup = leftover pair args
         (posPrms, slurpyPrms)   = break isSlurpy allPosPrms -- split any prms not yet bound, into regular and slurpy. allPosPrms = not bound by named
         boundPos                = posPrms `zip` posArgs -- bind all the unbound params in positional order

@@ -154,11 +154,11 @@ newPackage cls name traits = Sym SGlobal (':':'*':name) $ Syn ":="
     [ Var (':':'*':name)
     , App (Var "&Object::new")
         (Just $ Val (VType $ mkType cls))
-        [ App (Var "&infix:=>") Nothing
+        [ Syn "named"
             [ Val (VStr "traits")
             , Val (VList $ map VStr traits)
             ]
-        , App (Var "&infix:=>") Nothing
+        , Syn "named"
             [ Val (VStr "name")
             , Val (VStr name)
             ]

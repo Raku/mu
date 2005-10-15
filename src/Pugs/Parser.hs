@@ -175,7 +175,7 @@ at the beginning of a line.
 ruleBeginOfLine :: RuleParser ()
 ruleBeginOfLine = do
     pos <- getPosition
-    unless (sourceColumn pos == 1) $ fail ""
+    when (sourceColumn pos /= 1) $ fail ""
     return ()
 
 {-|
@@ -396,7 +396,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     body    <- ruleBlock
     let (fun, names, params) = doExtract styp formal body
     -- Check for placeholder vs formal parameters
-    unless (isNothing formal || null names) $ 
+    when (isJust formal && (not.null) names) $
         fail "Cannot mix placeholder variables with formal parameters"
     env <- getRuleEnv
     let subExp = Val . VCode $ MkCode
@@ -895,7 +895,7 @@ ruleClosureTrait rhs = rule "closure trait" $ do
     block   <- ruleBlock
     let (fun, names) = extract block []
     -- Check for placeholder vs formal parameters
-    unless (null names) $
+    when (not $ null names) $
         fail "Closure traits take no formal parameters"
     let code = VCode mkSub { subName = name, subBody = fun } 
     case name of
@@ -1186,7 +1186,7 @@ retVerbatimBlock :: SubType -> Maybe [Param] -> Bool -> Exp -> RuleParser Exp
 retVerbatimBlock styp formal lvalue body = expRule $ do
     let (fun, names, params) = doExtract styp formal body
     -- Check for placeholder vs formal parameters
-    unless (isNothing formal || null names) $ 
+    when (isJust formal && (not.null) names) $
         fail "Cannot mix placeholder variables with formal parameters"
     env <- getRuleEnv
     let sub = MkCode
@@ -1518,7 +1518,7 @@ makeOp1 :: (RuleParser (Exp -> a) -> b) ->
 makeOp1 prec sigil con name = prec $ try $ do
     symbol name
     -- `int(3)+4` should not be parsed as `int((3)+4)`
-    when (isWordAny (last name)) $ try $ choice
+    when (isWordAny $ last name) $ try $ choice
         [ do { char '('; unexpected "(" } 
         , do { string "=>"; unexpected "=>" } 
         , return ()
@@ -1759,15 +1759,34 @@ parseParenParamListMaybe = parseParenParamListCommon False
     
 parseParenParamListCommon :: Bool -> RuleParser (Maybe Exp, [Exp])
 parseParenParamListCommon mustHaveParens = do
-    leading     <- option [] $ try $ many pairAdverb
+    leading     <- option [] $ try $ many namedAdverb
     params      <- option Nothing . fmap Just $ parseHasParenParamList
     trailing    <- option [] $ try $ many pairOrBlockAdverb
     when (mustHaveParens && isNothing params && null trailing && null leading) $ fail ""
     let (inv, args) = fromMaybe (Nothing, []) params
     return (inv, leading ++ args ++ trailing)
+    
+-- initial helpers for demagicalized pairs
+-- to DISABLE special parsing for pairs in argument-lists, replace this
+-- definition with `id`
+named :: RuleParser Exp -> RuleParser Exp
+named parser = do
+    result <- parser
+    case result of
+        (App (Var "&infix:=>") Nothing [key, val]) -> return (Syn "named" [key, val])
+        _                                          -> fail "internal error--was expecting a pair"
+
+namedArg :: RuleParser Exp
+namedArg = named pairLiteral
+
+namedArgOr :: RuleParser Exp -> RuleParser Exp
+namedArgOr other = try namedArg <|> other
+
+namedAdverb :: RuleParser Exp
+namedAdverb = named pairAdverb
 
 pairOrBlockAdverb :: RuleParser Exp
-pairOrBlockAdverb = tryChoice [ pairAdverb, blockAdverb ]
+pairOrBlockAdverb = tryChoice [ namedAdverb, blockAdverb ]
 
 blockAdverb :: RuleParser Exp
 blockAdverb = do
@@ -1786,7 +1805,7 @@ parseHasParenParamList = verbatimParens $ do
                 [ do x <- pairOrBlockAdverb
                      lookAhead (satisfy (/= ','))   
                      return ([x], return "")
-                , do x <- parseExpWithItemOps
+                , do x <- namedArgOr parseExpWithItemOps
                      a <- option [] $ try $ many pairOrBlockAdverb
                      return (x:a, symbol ",")
                 ]
@@ -1872,7 +1891,7 @@ parseNoParenParamList = do
     dotForbidden = (not . (`elem` ".,"))
     argVanilla :: RuleParser ([Exp], RuleParser String)
     argVanilla = do
-        x <- parseExpWithTightOps
+        x <- namedArgOr parseExpWithTightOps
         a <- option [] $ try $ many pairOrBlockAdverb
         return (x:a, symbol ",")
 

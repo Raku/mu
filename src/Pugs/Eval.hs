@@ -801,8 +801,7 @@ reduceApp (Var "&goto") (Just subExp) args = do
 reduceApp (Var "&assuming") (Just subExp) args = do
     vsub <- enterEvalContext (cxtItem "Code") subExp
     sub  <- fromVal vsub
-    (invs', args') <- expandPairs sub Nothing args
-    case bindSomeParams sub invs' args' of
+    case bindSomeParams sub Nothing args of
         Left errMsg      -> fail errMsg
         Right curriedSub -> retVal $ castV $ curriedSub
 
@@ -956,27 +955,14 @@ apply sub invs args = do
     env <- ask
     doApply env sub invs args
 
-expandPairs :: VCode -> Maybe Exp -> [Exp] -> Eval (Maybe Exp, [Exp])
-expandPairs sub invs args = do
-    env   <- ask
-    let isPairs = (map (isPairParam . typeOfCxt . paramContext) (subParams sub)) ++ repeat False
-        isPairParam typ = isaType' cls typ (MkType "Pair")
-        cls = envClasses env
-        argsPairs = if isJust invs then tail isPairs else isPairs
-    invs' <- fmapM (reducePair cls (head isPairs)) invs
-    args' <- fmapM (uncurry (reducePair cls)) (argsPairs `zip` args)
-    return (invs', args')
+-- XXX not entirely sure how this evaluation should proceed
+reduceNamedArg :: Exp -> Eval Exp
+reduceNamedArg (Syn "named" [keyExp, val]) = do
+    key    <- fmap VStr $ fromVal =<< enterEvalContext cxtItemAny keyExp
+    return $ Syn "named" [Val key, val]
+reduceNamedArg other = return other
 
-reducePair :: ClassTree -> Bool -> Exp -> Eval Exp
-reducePair _ True exp = return exp
-reducePair cls _ exp = do
-    typ     <- evalExpType exp
-    if not (isaType cls "Pair" typ) then return exp else do
-    ref     <- enterLValue $ enterContext (CxtItem (mkType "Pair")) $ evalExp exp
-    (k, v)  <- join $ doPair ref pair_fetch
-    key     <- fromVal k
-    return $ Syn "=>" [Val (VStr key), Val v]
-    
+        
 
 -- XXX - faking application of lexical contexts
 -- XXX - what about defaulting that depends on a junction?
@@ -990,12 +976,9 @@ doApply :: Env         -- ^ Environment to evaluate in
         -> [Exp]       -- ^ List of arguments (not including explicit invocant)
         -> Eval Val
 doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args = do
-    -- check invs and args for Pair types; if they are, reduce them fully
-    -- to stringified normal form.  However, real primitives are exempt.
-    (invs', args') <- case fun of
-        Prim _ | typ == SubPrim -> return (invs, args)
-        _ -> expandPairs sub invs args
-    case bindParams sub invs' args' of
+    realInvs <- fmapM reduceNamedArg invs
+    realArgs <-  mapM reduceNamedArg args  
+    case bindParams sub realInvs realArgs of
         Left errMsg -> fail errMsg
         Right sub   -> do
             forM_ (subSlurpLimit sub) $ \limit@(n, _) -> do
