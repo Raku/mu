@@ -19,16 +19,18 @@ use Test;
 #   foo($pair);      # pair passed positionally
 #   foo(*$pair);     # named
 
-plan 17;
+plan 21;
 
 {
     my sub foo ($a, $b) { "[$a] [$b]" }
 
     is foo(a => 42, 23), "[42] [23]", "'a => 42' is a named";
     is foo(:a(42),  23), "[42] [23]", "':a(42)' is a named";
+    is foo(:a,      23), "[1] [23]",  "':a' is a named";
 
     is foo((a => 42), 23), "[a\t42] [23]", "'(a => 42)' is a pair", :todo<unspecced>;
     is foo((:a(42)),  23), "[a\t42] [23]", "'(:a(42))' is a pair",  :todo<unspecced>;
+    is foo((:a),      23), "[a\t1] [23]",  "'(:a)' is a pair",      :todo<unspecced>;
 }
 
 {
@@ -83,8 +85,28 @@ plan 17;
 {
     my sub foo (+$bar) { "[$bar]" }
 
+    my $bar = "bar";
+
+    is try { foo($bar => 42) }, "[42]",
+        "the keys of syntactical pairs are stringified (1)";
+}
+
+{
+    my sub foo (+$bar) { "[$bar]" }
+
     my @array = <bar>;
     # @array's stringification is "bar". This is important for this test.
 
-    is try { foo(@array => 42) }, "[42]", "the keys of syntactical pairs are stringified";
+    is try { foo(@array => 42) }, "[42]",
+        "the keys of syntactical pairs are stringified (2)";
+}
+
+{
+    my sub foo (+$bar) { "[$bar]" }
+
+    my $arrayref = <bar>;
+    # $arrayref's stringification is "bar". This is important for this test.
+
+    is try { foo($arrayref => 42) }, "[42]",
+        "the keys of syntactical pairs are stringified (3)";
 }
