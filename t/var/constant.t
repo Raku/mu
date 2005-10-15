@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 12;
+plan 13;
 
 # Following tests test whether the declaration succeeded.
 {
@@ -177,4 +177,18 @@ plan 12;
     ';
 
     is $ok, 2, "declaring constants using 'constant' creates package-scoped vars", :todo<feature>;
+}
+
+# L<S04/The Relationship of Blocks and Declarations /In any case the initializing value is evaluated at BEGIN time./>
+{
+    my $ok;
+
+    eval '
+        my $foo = 42;
+        BEGIN { $foo = 23 }
+        my constant timecheck = $foo;
+        $ok++ if timecheck == 23;
+    ';
+
+    ok $ok, "the initializing values for constants are evaluated at compile-time", :todo<feature>;
 }
