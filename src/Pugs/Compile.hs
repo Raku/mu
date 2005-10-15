@@ -289,10 +289,10 @@ instance Compile Exp PIL_LValue where
         -- XXX HACK
         isLogicalLazy (PExp (PVar "&infix:or"))  = True
         isLogicalLazy (PExp (PVar "&infix:and")) = True
+        isLogicalLazy (PExp (PVar "&infix:err")) = True
         isLogicalLazy (PExp (PVar "&infix:||"))  = True
         isLogicalLazy (PExp (PVar "&infix:&&"))  = True
         isLogicalLazy (PExp (PVar "&infix://"))  = True
-        isLogicalLazy (PExp (PVar "&infix:err"))  = True
         isLogicalLazy _ = False
     compile exp@(Syn "if" _) = compConditional exp
     compile (Syn "{}" (x:xs)) = compile $ App (Var "&postcircumfix:{}") (Just x) xs
@@ -332,6 +332,11 @@ instance Compile Exp PIL_LValue where
                 , subParams = []
                 }
             ]) Nothing []
+    -- For PIL2 we want real zone separation, e.g.
+    --   PApp { pNamedArgs = [...], pPositionalArgs = [...], ... }
+    -- For now, using &Pugs::Internals::named_pair is probably ok.
+    compile (Syn "named" kv@[_, _]) = do
+        compile $ App (Var "&Pugs::Internals::named_pair") Nothing kv
     compile exp = compError exp
 
 compLoop :: Exp -> Comp PIL_Stmt
