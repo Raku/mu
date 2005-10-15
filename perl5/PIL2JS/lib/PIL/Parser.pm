@@ -1,6 +1,6 @@
 package PIL::Parser;
-# This module parses PIL (as given by pugs -CPIL) into a structure of objects.
-# Its design is slightly influenced by Haskell's excellent Parsec module.
+# This module takes the output of pugs -CPerl5, eval()s it, and reblesses most
+# objects (we want PIL::PVal, not PVal).
 
 use warnings;
 use strict;

@@ -12,6 +12,19 @@ sub fixup {
   die unless $self->{pCxt}->isa("PIL::TCxt");
   die unless ref($self->{pArgs}) eq "ARRAY";
 
+  my $subname;
+  if($self->{pFun}->{pLV} and $self->{pFun}->{pLV}->isa("PIL::PVar") and not ref $self->{pFun}->{pLV}->{pVarName}) {
+    $subname = $self->{pFun}->{pLV}->{pVarName};
+  }
+  # Minor hack -- we want syntactical pairs to be efficient.
+  if($subname and $subname eq "&Pugs::Internals::named_pair") {
+    my $pair = bless { pVal => bless {
+      key   => $self->{pArgs}[0]{pLit}{pVal}[0],
+      value => $self->{pArgs}->[1],
+    } => "PIL::NamedPair" } => "PIL::PLit";
+    return $pair->fixup;
+  }
+
   return bless {
     pCxt  => $self->{pCxt}->fixup,
     pFun  => $self->{pFun}->fixup,

@@ -6,6 +6,7 @@ use Test;
 # See thread "Demagicalizing pair" on p6l started by Luke Palmer,
 # http://article.gmane.org/gmane.comp.lang.perl.perl6.language/4778/ and
 # http://colabti.de/irclogger/irclogger_log/perl6?date=2005-10-09,Sun&sel=528#l830.
+# Also see http://www.nntp.perl.org/group/perl.perl6.language/23532.
 
 # To summarize:
 #   foo(a => 42);  # named
@@ -18,7 +19,7 @@ use Test;
 #   foo($pair);      # pair passed positionally
 #   foo(*$pair);     # named
 
-plan 16;
+plan 17;
 
 {
     my sub foo ($a, $b) { "[$a] [$b]" }
@@ -75,4 +76,15 @@ plan 16;
 
     is foo(%hash_of_pairs),  "[Hash]", 'a hash is not treated magically...';
     is foo(*%hash_of_pairs), "[Str]",  '...but *%hash is', :todo<unspecced>;
+}
+
+# Per http://www.nntp.perl.org/group/perl.perl6.language/23532, the keys of
+# syntactical pairs should get stringified.
+{
+    my sub foo (+$bar) { "[$bar]" }
+
+    my @array = <bar>;
+    # @array's stringification is "bar". This is important for this test.
+
+    is try { foo(@array => 42) }, "[42]", "the keys of syntactical pairs are stringified";
 }

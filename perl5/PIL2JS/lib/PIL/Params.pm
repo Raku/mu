@@ -47,9 +47,9 @@
     # Finally, in as_js3, the actual checking is done.
     # In as_js_bind, the vars are then bound, and defaults are filled in, etc.
     my $js;
-    $js .= "var cxt   = args.shift();\n";
-    $js .= "args      = PIL2JS.possibly_flatten(args);\n";
-    $js .= "var pairs = PIL2JS.grep_for_pairs(args);\n\n";
+    $js .= "var cxt    = args.shift();\n";
+    $js .= "args       = PIL2JS.possibly_flatten(args);\n";
+    $js .= "var nameds = PIL2JS.grep_for_namedpairs(args);\n\n";
     $js .= $_->as_js0() . "\n" for @$self;
     $js .= $_->as_js1() . "\n" for @$self;
     $js .= $_->as_js2() . "\n" for @$self;
@@ -144,10 +144,7 @@ EOF
     my $self = shift;
     my $name = $self->name;
 
-    # If a param expects a real Pair, don't use it for named argument purposes.
-    return "" if
-      $_->type->matches("Any") or $_->type->matches("Pair") or
-      $_->is_invocant or $_->is_slurpy;
+    return "" if $_->is_invocant or $_->is_slurpy;
     # New change as of 2005-08-22:
     #   On 8/22/05, Larry Wall <larry@wall.org> wrote:
     #   > I think the simplest thing is to say that you can't bind to the name
@@ -163,9 +160,9 @@ EOF
     my $pairname = PIL::doublequote substr $name, 1;
     my $undef    = PIL::undef_of $name;
     return substr <<EOF, 0, -1;  # cosmetical issue: strip the /\n$/.
-if(pairs[$pairname] != undefined) {
-  $jsname = $undef.BINDTO(pairs[$pairname]);
-  args = PIL2JS.delete_pair_from_args(args, $pairname);
+if(nameds[$pairname] != undefined) {
+  $jsname = $undef.BINDTO(nameds[$pairname]);
+  args = PIL2JS.delete_namedpair_from_args(args, $pairname);
 }
 EOF
   }
@@ -199,7 +196,7 @@ EOF
     } elsif($self->is_slurpy and $name =~ /^%/) {
       push @js, (<<EOF =~ /^(.*)\n$/s)[0];
 if($jsname == undefined) {
-  var obj = PIL2JS.get_and_remove_all_pairs(args);
+  var obj = PIL2JS.get_and_remove_all_namedpairs(args);
   args    = obj["args"];
   $jsname = new PIL2JS.Box.Constant(obj["hash"]);
 }

@@ -81,6 +81,13 @@ PIL2JS.Pair = function (key, value) {
 };
 PIL2JS.Pair.prototype.toString = function () { return "<PIL2JS.Pair>" };
 
+// class PIL2JS::Internals::NamedPair { has "native_js_str" $.key; has $.value }
+PIL2JS.NamedPair = function (key, value) {
+  this.key   = key;
+  this.value = value;
+};
+PIL2JS.NamedPair.prototype.toString = function () { return "<PIL2JS.NamedPair>" };
+
 // class Ref { has $.referencee }
 PIL2JS.Ref = function (referencee) {
   this.referencee = referencee;
@@ -349,6 +356,9 @@ PIL2JS.Box.prototype = {
     } else if(unboxed instanceof PIL2JS.Pair) {
       var hash = {};
       hash[unboxed.key.toNative()] = unboxed.value.toNative();
+
+    } else if(unboxed instanceof PIL2JS.NamedPair) {
+      PIL2JS.die("Can't .toNative() named pairs!");
 
     // Special magic for Function: Create a wrapper function which wraps all
     // arguments in PIL2JS.Boxes and unwraps the results.
@@ -628,6 +638,8 @@ PIL2JS.nativeclass2realclass = function (constr) {
     return _3amain_3a_3aHash;
   } else if(constr == PIL2JS.Pair) {
     return _3amain_3a_3aPair;
+  } else if(constr == PIL2JS.NamedPair) {
+    PIL2JS.die("A named pair leaked into PIL2JS.nativeclass2realclass!");
   } else if(constr == String) {
     return _3amain_3a_3aStr;
   } else if(constr == Number) {
@@ -841,26 +853,30 @@ PIL2JS.resolve_callervar = function (delta, name) {
   }
 };
 
-// Greps args for PIL2JS.Pairs and returns them as a hash.
-PIL2JS.grep_for_pairs = function (args) {
+// Greps args for PIL2JS.NamedPairs and returns them as a hash.
+PIL2JS.grep_for_namedpairs = function (args) {
   var pairs = {};
 
   for(var i = 0; i < args.length; i++) {
-    if(args[i].FETCH() instanceof PIL2JS.Pair) {
-      pairs[args[i].FETCH().key.toNative()] = args[i].FETCH().value;
+    if(args[i].FETCH() instanceof PIL2JS.NamedPair) {
+      pairs[args[i].FETCH().key] = args[i].FETCH().value;
     }
   }
 
   return pairs;
 };
 
-PIL2JS.get_and_remove_all_pairs = function (args) {
+PIL2JS.get_and_remove_all_namedpairs = function (args) {
   var hash     = new PIL2JS.Hash;
   var new_args = [];
 
   for(var i = 0; i < args.length; i++) {
-    if(args[i].FETCH() instanceof PIL2JS.Pair) {
-      hash.add_pair(args[i].FETCH());
+    if(args[i].FETCH() instanceof PIL2JS.NamedPair) {
+      var pair = new PIL2JS.Pair(
+        (new PIL2JS.Box.Constant(args[i].FETCH().key)),
+        args[i].FETCH().value
+      );
+      hash.add_pair(pair);
     } else {
       new_args.push(args[i]);
     }
@@ -888,7 +904,11 @@ PIL2JS.possibly_flatten = function (args) {
     } else if(args[i].FETCH() instanceof PIL2JS.Hash && args[i].FETCH().flatten_me) {
       var pairs = args[i].FETCH().pairs();
       for(var j = 0; j < pairs.length; j++) {
-        pairs[j] = new PjL2JS.Box.Constant(pairs[j]);
+        var named = new PIL2JS.NamedPair(
+          pairs[j].key.toNative(),
+          pairs[j].value
+        );
+        pairs[j] = new PIL2JS.Box.Constant(named);
       }
       ret = ret.concat(pairs);
     } else {
@@ -900,11 +920,11 @@ PIL2JS.possibly_flatten = function (args) {
 };
 
 // Searches args for pairs and deletes the pairs where .key eq name.
-PIL2JS.delete_pair_from_args = function (args, name) {
+PIL2JS.delete_namedpair_from_args = function (args, name) {
   var n = [];
 
   for(var i = 0; i < args.length; i++) {
-    if(!(args[i].FETCH() instanceof PIL2JS.Pair && args[i].FETCH().key.toNative() == name)) {
+    if(!(args[i].FETCH() instanceof PIL2JS.NamedPair && args[i].FETCH().key == name)) {
       n.push(args[i]);
     }
   }
@@ -1242,7 +1262,7 @@ var _26main_3a_3aprefix_3a_3f = PIL2JS.Box.constant_func(1, function (args) {
 /*PIL2JS.bind_params = function (pdefs, args, sub) {
   var cxt   = args.shift();
   args      = PIL2JS.possibly_flatten(args);
-  var pairs = PIL2JS.grep_for_pairs(args);
+  var pairs = PIL2JS.grep_for_namedpairs(args);
 
   // Phase 1: Possibly remove and extract named args.
   for(var i = 0; i < pdefs.length; i++) {

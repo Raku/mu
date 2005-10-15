@@ -31,6 +31,18 @@ use strict;
   }
 }
 
+# This class does not have a Haskell equivalent.
+{
+  package PIL::NamedPair;
+  our @ISA = qw<PIL::PVal>;
+
+  sub as_js {
+    sprintf "new PIL2JS.Box.Constant(new PIL2JS.NamedPair(%s, %s))",
+      PIL::doublequote($_[0]->{key}),
+      $_[0]->{value}->as_js;
+  }
+}
+
 # Basic datatypes (VInt, VRat, VStr, VUndef). Important: Box the things with
 # new PIL2JS.Box.Constant!
 {
