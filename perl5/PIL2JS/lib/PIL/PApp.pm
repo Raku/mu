@@ -20,7 +20,7 @@ sub fixup {
   if($subname and $subname eq "&Pugs::Internals::named_pair") {
     my $pair = bless { pVal => bless {
       key   => $self->{pArgs}[0]{pLit}{pVal}[0],
-      value => $self->{pArgs}->[1],
+      value => $self->{pArgs}->[1]->fixup,
     } => "PIL::NamedPair" } => "PIL::PLit";
     return $pair->fixup;
   }
