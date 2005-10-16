@@ -64,8 +64,13 @@ sub parse {
             my $current_class = $self->env->get('current_class');
             $self->_discard_whitespace($i);
             my $method_name = $i->nextToken;
-            my $method = $self->_parse_method($i);
-            $current_class->add_method($method_name, ::make_method($method));
+            my ($type, $method) = $self->_parse_method($i);
+            if ($type eq 'class') {
+                $current_class->add_singleton_method($method_name, $method);               
+            }
+            else {
+                $current_class->add_method($method_name, $method);
+            }
         }                             
         else {
             $self->env->set(
@@ -125,9 +130,17 @@ sub _parse_superclasses {
 
 sub _parse_method {
     my ($self, $i) = @_;
+    my ($method_type, @params) = ('', ());
+    $self->_discard_whitespace($i);    
+    if ($i->lookAheadToken() eq '(') {
+        ($method_type, @params) = $self->_parse_parameters($i);
+    }
     $i->skipTokensUntil('{');
     $i->nextToken; # now discard the {
     my $method_source = "sub {\n";
+    if (@params) {
+        $method_source .= 'my (' . (join ", " => @params) . ') = @_;' . "\n";
+    }
     my $curly_count = 1;
     while ($i->hasNextToken) {
         my $next = $i->nextToken;    
@@ -150,11 +163,40 @@ sub _parse_method {
     warn "post: " . $method_source if $DEBUG;    
     my $method = eval $method_source;
     die "method eval failed : $@" if $@;
-    return $method;
+    return ($method_type, ::make_method($method));
+}
+
+sub _parse_parameters {
+    my ($self, $i) = @_;
+    $i->nextToken; # discard the (
+    my ($method_type, @params);
+    my @tokens = $i->collectTokensUntil(')');
+    if ($tokens[0] eq 'Class') {
+        $method_type = 'class';
+        shift @tokens;
+    }
+    elsif ($tokens[0] eq $self->env->get('current_class')->name) {
+        $method_type = 'instance';
+        shift @tokens;
+    }
+    foreach my $token (@tokens) {
+        next if $token =~ /\s+/;
+        if ($token =~ /^(.*)\:$/) { # an invocant
+            push @params => $1;
+        }
+        else {
+            push @params => $token;
+        }        
+    }
+    warn "method type: $method_type => params: [" . (join ", " => @params) . ']' if $DEBUG;
+    return ($method_type, @params);
 }
 
 sub _post_process_method {
     my ($self, $method_source) = @_;
+    
+    $method_source =~ s/(\w+)\./$1\-\>/g;
+    $method_source =~ s/\~/\./g;    
     
     # scalar access
     $method_source =~ s/(\$[.:]\w+)/\:\:opaque_instance_attr\(\$\:\:SELF, \'$1\'\)/g;
