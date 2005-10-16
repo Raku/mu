@@ -7,18 +7,18 @@ use Test;
 
 my @tests = (
     # Basic scalar values
-    42, 3e5, Inf, -Inf, NaN,
-    "a string", "", "\0", "\t", "\n", "\r\n", "\7", "\123",
+    42, 42/10, 4.2, sqrt(2), 3e5, Inf, -Inf, NaN,
+    "a string", "", "\0", "\t", "\n", "\r\n", "\7", '{', '}', "\123",
     ?1, ?0,
     undef,
     rx:Perl5{foo}, rx:Perl5{}, rx:Perl5{^.*$},
 
     # References to scalars
-    \42, \Inf, \"string", \"", \?1, \?0, \undef,
+    \42, \Inf, \-Inf, \NaN, \"string", \"", \?1, \?0, \undef,
 
     # Pairs - XXX - Very Broken - FIXME!
-#    (a => 1),
-#    :b(2),
+    (a => 1),
+    :b(2),
 
     # References to aggregates
     [],      # empty array
@@ -43,7 +43,7 @@ my @tests = (
 );
 
 plan 7 + 2*@tests;
-force_todo 7..8, 33..38, 59..60, 63..64, 69..71, 74, 76, 78;
+force_todo 8, 43..48, 77..78, 81..82, 87..89, 92, 94, 96;
 
 unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
   skip_rest "eval() not yet implemented in $?PUGS_BACKEND.";
@@ -59,9 +59,9 @@ unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
 {
     for @tests -> $obj {
         is ~$obj.perl.eval, ~$obj,
-            ".perl returned something whose eval()ed stringification is unchanged";
+            "($obj.perl()).perl returned something whose eval()ed stringification is unchanged";
         is $obj.perl.eval.ref, $obj.ref,
-            ".perl returned something whose eval()ed .ref is unchanged";
+            "($obj.perl()).perl returned something whose eval()ed .ref is unchanged";
     }
 }
 

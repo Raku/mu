@@ -49,7 +49,7 @@ ok !%hash.exists("42"), "exists on hashes (2)";
   foo( $empty_hash{'x'} );
   is( $empty_hash.pairs.sort.join( ',' ), '', "empty hash stays same when read from (4)", :todo<bug> );
 
-  my $popul_hash = hash('a'=>'b','c'=>'d');
+  my $popul_hash = hash(('a'=>'b'),('c'=>'d'));
   my sub popul_hash_contents () {
     $popul_hash.pairs.sort.map:{ $_.key ~ ":" ~ $_.value }.join( ',' );
   }
