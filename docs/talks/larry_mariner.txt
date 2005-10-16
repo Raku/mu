@@ -20,7 +20,7 @@ and "Perl" upon its banners laid.
 In panoply of pumpkin kings,
 in three virtues it shone for him;
 its regexes were scored with runes
-to match all \n+ and \w+ for him. # pronounced "lines and words"
+to match all \n+ and \w+ for him.
 
 Its POD made writing docs a breeze,
 its arrays indexed orderly;
@@ -34,45 +34,32 @@ upon its cover a Camel.
 
 = Stanza 3: Rewrite of Perl 5
 
-Beneath the Moon and under star
-he wandered far from northern strands,
-bewildered on enchanted ways     # mmm OO
-beyond the days of mortal lands. # mmm closures
+Beneath Smalltalk and under CLOS
+he wandered far in OO halls,
+blessed with enchanted names
+unveiled the use of method calls.
 
-From gnashing of the Narrow Ice
-where shadow lies on frozen hills,
-from nether heats and burning waste,
-he turned in haste, and roving still.
+From FETCH and STORE of magic ties
+where XS hooks with foreign code,
+from nested refs and scoped my()s,
+ahead he dived, in deep hack mode.
 
-On starless waters far astray
-at least he came to Night of Naught,
-and passed, and never sight he saw
-of shining shore nor light he sought.
-
-# modules, not compiling everything into the main executable
-# packages
-# somehow work "bless" into it
-# other perl 5 features (come back and list)
-# but I think it's good -- the theme being attracted by something beautiful and
-# mysterious and rushing forward to seek it
-# so we'll just poetic licencify the Night of Naught ;)
-# ...change it around to a positive
+On a starless night in '94
+at least he came to Version Five,
+released, and from this mighty core
+a thousand modules sprung to life.
 
 = Stanza 4: Advent of CPAN
 
-The world-wide web came driving him,
-and blindly in the foam he fled   # totally maim those two lines
-from west to east and errandless, # into something less tragic
-unheralded he homeward sped.      # easily s/sped/spread/
+Then world-wide web came driving him,
+and blindly in the foam he fled
+from west to east and errandless,
+unheralded he homeward spread.
 
-There flying Jarkko came to him,
+There flying CPAN came to him,
 and flame was in the darkness lit;
 more bright than light of diamond
 the fire upon her carcanet.
-
-# yup, so here is no longer winds of wrath --
-# wind of change, of community, of WWW, of CGI
-# Jarkko gets to be Elwing -- andk loses as his name is 3 syllables ;)
 
 = Stanza 5: Perl Communities
 
