@@ -42,7 +42,7 @@ plan 35;
 
     is foo(a     => 42), "[42]", "'a => 42' is a named";
     is foo("a"   => 42), "[42]", "'\"a\" => 42' is a named";
-    is foo(("a") => 42), "[42]", "'(\"a\") => 42' is a named", :todo<bug>;
+    is try { foo(("a") => 42) }, "[42]", "'(\"a\") => 42' is a named", :todo<bug>;
     is foo(:a(42)),      "[42]", "':a(42)' is a named";
     is foo(:a),          "[1]",  "':a' is a named";
     
