@@ -50,25 +50,26 @@ install-stamp:
 	find $(CURDIR) -exec chmod u+rw {} \;
 	dh_installdirs
 	dh_install --sourcedir=$(CURDIR)/debian/tmp --list-missing
-	cp -r $(CURDIR)/docs/* $(CURDIR)/debian/pugs-doc/usr/share/doc/pugs-doc/
-	cp util/perl6.vim $(CURDIR)/debian/pugs/usr/share/vim/vim63/syntax/
-	cp .installed-pkg-config $(CURDIR)/debian/libghc6-pugs-dev/usr/lib/haskell-packages/ghc6/lib/Pugs-6.2.10/installed-pkg-config
 	touch install-stamp
 
 install-indep: install-stamp
 	dh_testdir
 	dh_testroot
 	cp $(CURDIR)/debian/pugs-modules.lintian-overrides $(CURDIR)/debian/pugs-modules/usr/share/lintian/overrides/pugs-modules
+	cp -r $(CURDIR)/docs/* $(CURDIR)/debian/pugs-doc/usr/share/doc/pugs-doc/
+	cp util/perl6.vim $(CURDIR)/debian/pugs/usr/share/vim/vim63/syntax/
 	rm -f $(CURDIR)/debian/pugs-doc/usr/share/doc/pugs-doc/SEEALSO
 
 install-arch: install-stamp
 	dh_testdir
 	dh_testroot
+	cp .installed-pkg-config $(CURDIR)/debian/libghc6-pugs-dev/usr/lib/haskell-packages/ghc6/lib/Pugs-6.2.10/installed-pkg-config
 	rm -f $(CURDIR)/debian/pugs/usr/lib/perl6/5.8/CORE/pugs/gen_prelude \
 	$(CURDIR)/debian/pugs/usr/lib/perl6/5.8/CORE/pugs/Pugs/Rule/LICENSE \
 	$(CURDIR)/debian/pugs/usr/lib/perl6/5.8/CORE/pugs/RRegex/LICENSE \
 	$(CURDIR)/debian/pugs/usr/lib/perl6/5.8/CORE/pugs/pcre/LICENCE \
 	$(CURDIR)/debian/pugs/usr/lib/perl6/5.8/CORE/pugs/syck/COPYING
+	rmdir --ignore-fail-on-non-empty $(CURDIR)/debian/pugs/usr/lib/perl6/5.8/
 
 # Build architecture independant packages using the common target.
 binary-indep: build-indep install-indep
@@ -83,10 +84,7 @@ binary-indep: build-indep install-indep
 	dh_link -i
 	dh_compress  -i
 	dh_fixperms -i
-	dh_strip -i
-	dh_makeshlibs -i
 	dh_installdeb -i
-	dh_shlibdeps -i
 	dh_gencontrol -i
 	dh_md5sums -i
 	dh_builddeb -i
