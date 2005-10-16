@@ -15,7 +15,7 @@ TESTS='smoke-pugs'
 configure: configure-stamp
 configure-stamp: patch-stamp
 	dh_testdir
-	PUGS_EMBED=perl5 perl Makefile.PL INSTALLDIRS=vendor
+	PUGS_EMBED=perl5 perl Makefile.PL INSTALLDIRS=vendor DESTDIR=/usr/lib/haskell-packages/ghc6/
 	touch configure-stamp
 
 build: build-arch build-indep
