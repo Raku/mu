@@ -19,13 +19,14 @@ use Test;
 #   foo($pair);      # pair passed positionally
 #   foo(*$pair);     # named
 
-plan 27;
+plan 35;
 
 {
     my sub foo ($a, $b) { "[$a] [$b]" }
 
-    is foo(a   => 42, 23), "[42] [23]", "'a => 42' is a named";
-    is foo("a" => 42, 23), "[42] [23]", "'\"a\" => 42' is a named";
+    is foo(a     => 42, 23), "[42] [23]", "'a => 42' is a named";
+    is foo("a"   => 42, 23), "[42] [23]", "'\"a\" => 42' is a named";
+    is foo(("a") => 42, 23), "[42] [23]", "'(\"a\") => 42' is a named", :todo<bug>;
     is foo(:a(42),  23),   "[42] [23]", "':a(42)' is a named";
     is foo(:a,      23),   "[1] [23]",  "':a' is a named";
 
@@ -37,16 +38,30 @@ plan 27;
 
 {
     my sub foo (+$a) { "[$a]" }
+    my $foo = &foo;
 
-    is foo(a   => 42), "[42]", "'a => 42' is a named";
-    is foo("a" => 42), "[42]", "'\"a\" => 42' is a named";
-    is foo(:a(42)),    "[42]", "':a(42)' is a named";
-    is foo(:a),        "[1]",  "':a' is a named";
+    is foo(a     => 42), "[42]", "'a => 42' is a named";
+    is foo("a"   => 42), "[42]", "'\"a\" => 42' is a named";
+    is foo(("a") => 42), "[42]", "'(\"a\") => 42' is a named", :todo<bug>;
+    is foo(:a(42)),      "[42]", "':a(42)' is a named";
+    is foo(:a),          "[1]",  "':a' is a named";
+    
+    fail("FIXME parsefail (in 'foo.(:a)', ':a' is a named)", :todo<bug>);
+    #is foo.(:a),         "[1]",  "in 'foo.(:a)', ':a' is a named";
+    
+    is $foo(:a),         "[1]",  "in '\$foo(:a)', ':a' is a named";
+    is $foo.(:a),        "[1]",  "in '\$foo.(:a)', ':a' is a named";
 
     dies_ok { foo((a   => 42)) }, "'(a => 42)' is a pair";
     dies_ok { foo(("a" => 42)) }, "'(\"a\" => 42)' is a pair";
-    dies_ok { foo((:a(42)))  }, "'(:a(42))' is a pair";
-    dies_ok { foo((:a))      }, "'(:a)' is a pair";
+    dies_ok { foo((:a(42)))    }, "'(:a(42))' is a pair";
+    dies_ok { foo((:a))        }, "'(:a)' is a pair";
+    
+    fail("FIXME parsefail (in 'foo.((:a))', '(:a)' is a pair)", :todo<bug>);
+    #dies_ok { foo.((:a))       }, "in 'foo.((:a))', '(:a)' is a pair";
+    
+    dies_ok { $foo((:a))       }, "in '\$foo((:a))', '(:a)' is a pair";
+    dies_ok { $foo.((:a))      }, "in '\$foo.((:a))', '(:a)' is a pair";
 }
 
 {
@@ -54,7 +69,7 @@ plan 27;
 
     my $pair = (a => 42);
 
-    is foo($pair),  "[a\t42]", 'a $pair is not treated magically...', :todo<feature>;
+    is foo($pair),  "[a\t42]", 'a $pair is not treated magically...';
     is foo(*$pair), "[42]",    '...but *$pair is', :todo<feature>;
 }
 
