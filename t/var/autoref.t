@@ -262,8 +262,8 @@ plan 57;
 {
     my $pair  = ([<a b c>] => "value");
 
-    is ~$pair.key, "a b c", '(<...> => "value") works (1)';
-    is +$pair.key,       3, '(<...> => "value") works (2)';
+    is ~$pair.key, "a b c", '([<...>] => "value") works (1)';
+    is +$pair.key,       3, '([<...>] => "value") works (2)';
 }
 
 # Hashref literals in pair creation with ... => "value"

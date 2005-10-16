@@ -30,5 +30,5 @@ plan 2;
     is c($a), 1, 'shortcircuit idiom given coderef works';
 
     # This one will just kill pugs with the cast failure, so force fail
-    is try { c($b) }, 0, 'shortcircuit idiom given undef works', :todo<bug>;
+    is try { c($b) }, 2, 'shortcircuit idiom given undef works', :todo<bug>;
 }

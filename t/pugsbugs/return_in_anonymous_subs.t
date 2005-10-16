@@ -28,7 +28,7 @@ sub bar (Code $return) { $return(42) }
 {
   sub foo2 (Code $code) {
     my $return_to_caller = -> $ret {
-      -> $ret_ { return $ret_ }; 
+      (-> $ret_ { return $ret_ })($ret);
     };
 
     $code($return_to_caller); 
@@ -42,7 +42,7 @@ sub bar (Code $return) { $return(42) }
 
 =begin more-discussion-needed
 
-Problem is: How does a plain reference to return know what scope to leave?
+Problem is: How does a plain reference to return know which scope to leave?
 
 # &return
 {
