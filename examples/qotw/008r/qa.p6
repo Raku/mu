@@ -1,4 +1,4 @@
-#!/usr/local/bin/pugs
+#!/usr/bin/pugs
 
 # Regular QOTW #8
 # http://perl.plover.com/qotw/r/solution/008

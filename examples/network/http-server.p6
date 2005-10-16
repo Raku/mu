@@ -1,4 +1,5 @@
-#!perl6
+#!/usr/bin/pugs
+
 use v6;
 
 my $port = @ARGS[0] // 8080;

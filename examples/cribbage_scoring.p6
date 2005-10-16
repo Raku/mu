@@ -1,3 +1,5 @@
+#!/usr/bin/pugs
+
 use v6;
 
 # Brute force proof that every cribbage hand with a 5 is >= 2 points

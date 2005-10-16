@@ -11,6 +11,10 @@ You want to swap values without using a temporary variable
 my ($x, $y) = (3,2);
 ($x, $y) = ($y, $x);
 # XXX Binding (:=) is more efficient, because it doesn't copy the values.
-# XXX I don't know if compile time binding (::=) would be even better here.
+# XXX Compile-time binding (::=) could not be used here, as the cells
+#     would be swapped at compile-time, not runtime. ::= doesn't have an effect
+#     at runtime:
+#         $a ::= $b;  # sugar for
+#         BEGIN { $a := $b }
 say $x;
 say $y;

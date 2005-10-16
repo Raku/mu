@@ -1,4 +1,5 @@
-#!perl6
+#!/usr/bin/pugs
+
 use v6;
 
 say "*** Fetching from the Jerk It (tm) RSS feed...";

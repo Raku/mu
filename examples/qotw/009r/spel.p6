@@ -1,4 +1,4 @@
-#!/usr/local/bin/pugs
+#!/usr/bin/pugs
 
 # Regular QOTW #9
 # http://perl.plover.com/qotw/r/solution/009
@@ -7,6 +7,8 @@
 # ".spel files", he is talking about files that end with the text
 # ".spel". So, for instance, a filename of "dominus.spel" is considered
 # a ".spel file"
+
+use v6;
 
 my @speldirs = split /\:+/, %ENV<SPELWORDS> || "%ENV<HOME>:.";
 my @spelfiles;
