@@ -108,7 +108,7 @@ Hash, sigil: %
 
     HASH = LIST
     { PAIR, PAIR, ... }   # anonymous ref
-    hash { LIST }         # anonymous ref
+    hash( LIST )
 
 Pair (used via reference)
 
