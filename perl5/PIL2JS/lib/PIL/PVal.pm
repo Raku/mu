@@ -74,7 +74,7 @@ use strict;
   package PIL::VRat;
   our @ISA = qw<PIL::PVal>;
 
-  sub as_js { "new PIL2JS.Box.Constant($_[0]->[0])" }
+  sub as_js { "new PIL2JS.Box.Constant($_[0]->[0][0]/$_[0]->[0][1])" }
 }
 
 {

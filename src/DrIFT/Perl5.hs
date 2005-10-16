@@ -60,7 +60,7 @@ instance Perl5 Bool where
 instance Perl5 Integer where 
     showPerl5 = show
 instance Perl5 Rational where 
-    showPerl5 r = "(" ++ show x ++ "/" ++ show y ++ ")"
+    showPerl5 r = showPerl5 (x, y)
         where
         x = numerator r
         y = denominator r
