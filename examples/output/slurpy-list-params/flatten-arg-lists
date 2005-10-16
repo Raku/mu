@@ -1,0 +1,9 @@
+# -------------------------------
+# flattening arg lists
+# -------------------------------
+x foo 1
+y foo 2
+z foo 3
+x boo 1
+y boo 2
+z boo 3

@@ -18,6 +18,8 @@ my @examples = <
   junctions/1 junctions/3 junctions/all-all junctions/all-any junctions/any-any
   junctions/any-any2 junctions/grades
   vmethods/escape vmethods/bytes vmethods/time vmethods/math
+  japh/curry japh/ipw-japh japh/list_fun3 japh/madgolfer
+  slurpy-list-params/head-neck-tail slurpy-list-params/flatten-arg-lists
   cashiers overloading
 >;
 
