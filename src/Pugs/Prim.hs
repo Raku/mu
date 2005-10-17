@@ -538,8 +538,8 @@ op1 "getc"     = \v -> op1Read v (getChar) (getChar)
             return $ char:new
 
 op1 "ref"   = fmap VType . evalValType
-op1 "pop"   = \x -> join $ doArray x array_pop -- monadic join
-op1 "shift" = \x -> join $ doArray x array_shift -- monadic join
+op1 "List::pop"   = \x -> join $ doArray x array_pop -- monadic join
+op1 "List::shift" = \x -> join $ doArray x array_shift -- monadic join
 op1 "pick"  = op1Pick
 op1 "sum"   = op1Sum
 op1 "min"   = op1Min
@@ -1484,8 +1484,8 @@ initSyms = mapM primDecl syms
 \\n   Any       pre     splice  safe   (rw!Array, Int, Int, List)\
 \\n   Int       pre     push    safe   (rw!Array, List)\
 \\n   Int       pre     unshift safe   (rw!Array, List)\
-\\n   Scalar    pre     pop     safe   (rw!Array)\
-\\n   Scalar    pre     shift   safe   (rw!Array)\
+\\n   Scalar    pre     List::pop     safe   (rw!Array)\
+\\n   Scalar    pre     List::shift   safe   (rw!Array)\
 \\n   Scalar    pre     sum     safe   (List)\
 \\n   Scalar    pre     min     safe   (List)\
 \\n   Scalar    pre     max     safe   (List)\
