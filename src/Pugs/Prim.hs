@@ -538,8 +538,8 @@ op1 "getc"     = \v -> op1Read v (getChar) (getChar)
             return $ char:new
 
 op1 "ref"   = fmap VType . evalValType
-op1 "pop"   = \x -> join $ doArray x array_pop -- monadic join
-op1 "shift" = \x -> join $ doArray x array_shift -- monadic join
+op1 "Array::pop"   = \x -> join $ doArray x array_pop -- monadic join
+op1 "Array::shift" = \x -> join $ doArray x array_shift -- monadic join
 op1 "pick"  = op1Pick
 op1 "sum"   = op1Sum
 op1 "min"   = op1Min
