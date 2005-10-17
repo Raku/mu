@@ -1375,9 +1375,15 @@ prettyVal d v@(VRef r) = do
         )
 prettyVal d (VList vs) = do
     vs' <- mapM (prettyVal (d+1)) vs
-    return $ "(" ++ concat (intersperse ", " vs') ++ ")"
+    -- (3,) should dump as (3,), not a (3), which would be the same as 3.
+    if null (tail vs')
+        then return $ "(" ++ (head vs') ++ ",)"
+        else return $ "(" ++ concat (intersperse ", " vs') ++ ")"
 prettyVal d v@(VObject obj) = do
     -- ... dump the objAttrs
+    -- XXX this needs fixing WRT demagicalized pairs:
+    -- currently, this'll return Foo.new((attr => "value)), with the inner
+    -- parens, which is, of course, wrong.
     hash    <- fromVal v :: Eval VHash
     str     <- prettyVal d (VRef (hashRef hash))
     return $ showType (objType obj)
