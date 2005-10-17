@@ -1616,8 +1616,7 @@ ruleInvocationCommon mustHaveParens = do
     hasEqual    <- option False $ do { char '='; whiteSpace; return True }
     name        <- do { str <- ruleSubName; return $ colonify str }
     (invs,args) <- if mustHaveParens
-        then verbatimParens $ parseNoParenParamList
-        -- then parseHasParenParamList -- FAILED PARSER PATCH
+        then parseHasParenParamList
         else option (Nothing,[]) $ parseParenParamList
     when (isJust invs) $ fail "Only one invocant allowed"
     return $ \x -> if hasEqual

@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 4;
+plan 5;
 
 {
     my sub foo () {}
