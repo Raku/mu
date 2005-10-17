@@ -47,6 +47,7 @@ use v6;
 # ---------
 
 class Perl6::Value::List {
+    does List;
     has Code $.cstart;
     has Code $.cend;
     has Code $.celems;
