@@ -3,10 +3,10 @@
 use v6;
 use Test;
 
-plan 5;
+plan 8;
 
 {
-  my $a = 9;
+  my $a is env = 9;
   my $sub = sub { $CALLER::a };
 
   {
@@ -16,10 +16,10 @@ plan 5;
 }
 
 {
-  my $a = 9;
+  my $a is env = 9;
   my $sub2 = sub { $CALLER::a };
   my $sub1 = sub {
-    my $a = 10;
+    my $a is env = 10;
     $sub2();
   };
 
@@ -30,9 +30,9 @@ plan 5;
 }
 
 {
-  my $a = 9;
+  my $a is env = 9;
   my $sub2 = sub { $CALLER::a };
-  my $sub1 = sub ($a) {
+  my $sub1 = sub ($a is env) {
     $sub2();
   };
 
@@ -45,11 +45,11 @@ plan 5;
 {
   my $get_caller = sub { return sub { $CALLER::CALLER::a } };
   my $sub1 = sub {
-    my $a = 3;
+    my $a is env = 3;
     $get_caller();
   };
   my $sub2 = sub {
-    my $a = 5;
+    my $a is env = 5;
     $get_caller();
   };
 
@@ -60,6 +60,45 @@ plan 5;
   # calculation.
   ok !(try{ $result_of_sub1() }), '$CALLER::CALLER:: is recalculated on each access (1)';
   ok !(try{ $result_of_sub2() }), '$CALLER::CALLER:: is recalculated on each access (2)';
+}
+
+# L<S02/"Names" /The CALLER package refers to the lexical scope/>
+{
+  # $_ is always implicitly declared "is env".
+  my sub foo () { $CALLER::_ }
+  my sub bar () {
+    $_ = 42;
+    foo();
+  }
+
+  $_ = 23;
+  is bar(), 42, '$_ is implicitly declared "is env" (1)';
+}
+
+{
+  # $_ is always implicitly declared "is env".
+  # (And, BTW, $_ is lexical.)
+  my sub foo () { $_ = 17; $CALLER::_ }
+  my sub bar () {
+    $_ = 42;
+    foo();
+  }
+
+  $_ = 23;
+  is bar(), 42, '$_ is implicitly declared "is env" (2)';
+}
+
+{
+  # ...but other vars are not
+  my sub foo { my $abc = 17; $CALLER::_ }
+  my sub bar {
+    my $abc = 42;
+    foo();
+  }
+
+  my $abs = 23;
+  dies_ok { bar() },
+    'vars not declared "is env" are not accessible via $CALLER::_';
 }
 
 =pod
