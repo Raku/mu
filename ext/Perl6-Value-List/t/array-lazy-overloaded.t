@@ -3,11 +3,17 @@
 use v6;
 use Test;
 
-plan 10;
+plan 11;
  
 use Perl6::Value::List;
 
 multi infix:<..> ( Int $a, Int $b ) { Perl6::Value::List.from_range( start => $a, end => $b, step => 1 ) }
+
+multi pop ( Array @a ) { 
+    return unless @a;
+    return @a[0].pop if @a[0].isa( 'Perl6::Value::List' );
+    return @a.pop;
+}
 
 {
   # end of stream
@@ -35,3 +41,7 @@ multi infix:<..> ( Int $a, Int $b ) { Perl6::Value::List.from_range( start => $a
   is( $rev.pop,   2,   'pop reverse' );
 }
 
+{
+    my @a = 1..Inf;
+    is( @a.pop, Inf, 'pop infinite array' );
+}
