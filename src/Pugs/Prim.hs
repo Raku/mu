@@ -547,7 +547,10 @@ op1 "max"   = op1Max
 op1 "uniq"  = op1Uniq
 op1 "chr"   = op1Cast (VStr . (:[]) . chr)
 op1 "ord"   = op1Cast $ \str -> if null str then undef else (castV . ord . head) str
-op1 "hex"   = op1Cast (VInt . read . ("0x"++))
+op1 "hex"   = \v -> do
+    s <- fromVal v
+    tryIO VUndef . fmap VInt $ do
+        readIO ("0x" ++ s)
 op1 "log"   = op1Cast (VNum . log)
 op1 "log10" = op1Cast (VNum . logBase 10)
 op1 "from"  = op1Cast (castV . matchFrom)
