@@ -25,10 +25,10 @@ to match all \n+ and \w+ for him.
 Its POD made writing docs a breeze,
 its arrays indexed orderly;
 its hashes were looked up with keys
-its sockets connect with TCP.
+its sockets flowed with TCP.
 
 Its harnessed tests were valiant,
-of adamant its manpages tall;
+of adamant its manpage tall;
 a tour de force upon his pen,
 upon its cover a Camel.
 
@@ -36,11 +36,11 @@ upon its cover a Camel.
 
 Beneath Smalltalk and under CLOS
 he wandered far in OO halls,
-blessed with enchanted names
+bless()ed with enchanted names
 unveiled the use of method calls.
 
 From FETCH and STORE of magic ties
-where XS hooks with foreign code,
+where XS hooked with foreign code,
 from nested refs and scoped my()s,
 ahead he dived, in deep hack mode.
 
@@ -52,162 +52,147 @@ a thousand modules sprung to life.
 = Stanza 4: Advent of CPAN
 
 Then world-wide web came driving him,
-and blindly in the foam he fled
-from west to east and errandless,
-unheralded he homeward spread.
+and wildly on the net Perl spread
+from west to east, a messy mess;
+the comp.lang.perl. was filled with dread. # pronounced "CLP"
 
 There flying CPAN came to him,
 and flame was in the darkness lit;
 more bright than light of diamond
-the fire upon her carcanet.
+flared through mirrors of funet.
 
-= Stanza 5: Perl Communities
+= Stanza 5: Perl Folks
 
-The Silmaril she bound on him  # The community surrounded him?
+Communities surrounded him
 and crowned him with the living light,
 and dauntless then with burning brow
 he [they] turned his prow; and in the night
 from otherworld beyond the Sea
 there strong and free a storm arose,
-a wind of power in Tarmenel;  # Elvish "highest heaven", means... whatever
+a wind of power in Tarmenel;
 by paths that seldom mortal goes
 his boat it bore with biting breath
 as might of death across the grey
 and long-forsaken seas distressed:
 from east to west he passed away.
 
-# now, this is the hardest one for me to title, so consider retitle if neccessary
-# this is lightning talk, and my experience with favcpan rap is that if we mention
-# a lot of people/places/sites then it makes people really happy ;)
-#
-# otoh, although it's littered with nouns, the main line is really of a 
-# "breakthrough" by sheer force of Silmaril that frees him from the enchantment
-# set forth by the Valar; so it is highly individualistic and not at all communistic.
-#
-# otgh, I can't easily think of a breakthru in the pre-p6 era
-# unless you count OnePerl. Or 5005thread (ugh).
-#
-# *frown* or just discard this stanza?
-# maybe, leave it for now, something may occur to us later.
-# ok. ETOOHARD.
+=begin communities
+
+TPC
+Perl Mongers
+perlmonks
+cpan testers / phalanx
+use.perl
+#perl
+clp*
+perl.com
+mox.perl.com
+p5p (which is about to wage trollish wars)
+
+=cut
 
 = Stanza 6: Decision of the second rewrite
 
-Through Evernight[P5P] he back was borne
-on black and roaring flames that ran
-o'er leagues unlit and foundered shores
-that drowned before the Days [newbies before they] began.
+On P5P waged trollish wars
+with black and roaring flames that ran
+o'er trivial dots and underscores
+that drowned new porters ere they began.
 
-Until he hears on strands of pearl [smashing mugs]
-where ends the world the music long,
-where ever-foaming billows roll
-the yellow gold and jewels wan.
+Until they heard the smashing mugs
+that end the world where boredom reigned;
+a new Perl free from warts and bugs
+a sense of excitement now regained.
 
-He saw the [Rewrite/Perl Six] silent rise
+He saw the Rewrite silent rise
 where twilight lies upon the knees
-of Refactor, and Comradeship
+of Refactor, and Surprise
 beheld afar beyond the seas.
-
-# Theme is that earendil landed but found nobody there, a soundered and empty
-# land, with nary a movement in sight
-# But then he heard the herald of Valars, and saw the twilight rising
-# from the, uhm, Party Ground.
-#
-# now... the strand of "pearl" is nice but that may be a certain mug ;)
-# need to repaint the first four lines into general barrenness, unless
-# we did that on the last stanza
-#
-# So. what was the chief motivation of p6 at the first months (I wasn't there...)
-# ...difficulty maintaining p5 internals, very messy implementation
-# also, a rewrite of community, clearing up flame wars, etc
-#
-
-# XXX - Totally unworked after this line - XXX - Help appreciated - #
 
 = Stanza 7: Announcement of Perl 6
 
-A wanderer escaped from night
-to haven white he came at least,
-to Elvenhome the green and fair
-where keen the air, where pale as glass.
+A prophet reappeared from night
+to Camelfolk he made a speech
+of a fresh Community Rewrite,
+with much to learn and much to teach.
 
-Beneath the Hill of Ilmarin
-a-glimmer in a valley sheer
-the lamplit towers of Tirion
-are mirrored on the Shadowmere.
+Beyond the halls of TPC
+a-glimmer with a new hope near
+the tidings of Apocalypse
+are mirrored through the Blogosphere.
 
 = Stanza 8: The Brainstorming Process
-            
-He tarried there from errantry,
-and melodies they taught him,
-and sages old him marvels told,
-and harps of gold they brought to him.
 
-They clothed him then in elven-white,
-and seven lights before him sent,
-as through Calacirian
-to hidden land forlorn he went.
+He tallied there the RFCs:
+and PDLs they brought to him,
+and lispers old him macros told,
+and OO tricks were sought from him.
+
+They clothed him in Designer's Sleeves,
+three hundred scrolls before him lay,
+as through three hundred morns and eves
+in hidden lands he found his way.
 
 = Stanza 9: Unveiling of Apocalypses
 
-He came unto the timeless halls
-where shining fall the countless years,
-and endless reigns the Elder King
-in Ilmarin on Mountain sheer.
+# Chimera-Perl Image on "Designing Perl 6"
+
+He came unto the timeless Book,
+where Camel rode the countless years;
+the endless chapters pondered through
+in volumes like the mountain sheer.
 
 And words unheard were spoken then
-of folk of Men and Elven-kin,
+of Good, of Bad, of Ugly Sin,
 beyond the world were visions showed
-forbid to those that dwell therein.
+announced to those that dwell therein.
 
 = Stanza 10: Advent of Perl 6 Implementations
 
-A ship then new they built for him
-Of mithril and of elven-glass
-With shining prow; no shaven oar
-Nor sail she bore on silver mast.
+A Perl then new they built for him
+Of Parrot and of PGE;
+Continuations!  What subtle art!
+So cunning its assembly!
 
-The Silmaril as lantern light
-and banner bright with living flame
-to gleam thereon by Elbereth
-herself was set, who thither came.
+The Synopses as lantern light
+and banner bright of TODO tests
+the λ-powered Pugs did fly
+on Parrot, Perl5 and JS.
 
-And wings immortal made for him,
-and laid on him undying doom,
-to sail the shoreless skies and come
-behind the Sun and light of Moon.
+With wings immortal made for it,
+he laid on them undying Kewl,
+to sail the shoreless skies and bring
+the word proclaiming "Perl 6 Rules!"
 
 = Stanza 11: Advocacy for the future
 
-From Evereven's lofty hills
-where softly silver fountains fall
-his wings him bore, a wandering light,
-beyond the mighty Mountain Wall.
+From the gatherings of Camel tribes
+where ideas pour as fountains fall
+its wings them bore, a spreading light,
+beyond the mighty Larry Wall.
 
-From World's End then he turned away,
-And yearned again to find afar
-his home through shadows journeying,
-and burning as an island star
-
-On high above the mists he came,
-a distant flame before the Sun,
-a wonder ere the waking dawn
-where grey the Norland waters run.
+From realms of Perl they sailed around,
+and yearned again to find afar
+the Elephants, Rhinos, Snakes and Gems
+and radiating as clouds of stars
+on high above the mists they came,
+to link between the agile clans,
+a wonder forged by Open Folks
+where symphonies of Free Code run.
 
 = Stanza 12: Conclusion of the legend
 
-And over Middle-earth he passed
-and heart at last the weeping sore
-of women and of elven-maids
-in Elder Days, in years of yore.
+And then one day as prophesied
+we'll land at last on far-away shores,
+forgotten then the fears and doubts
+from Elder Days, in years of yore.
 
+# Idea!  $muse.listen(4000);
 But on him mighty doom was laid,
-till Moon should fade, an orbed star
+till Moon should fade, an orbéd star
 to pass, and tarry never more
 on Hither Shores where mortals are;
 
-Or ever still a herald on
-an errand that should never rest
-to bear his shining lamp afar,
-the Flammifer of Westernesse.
-
+And ever still a herald on
+an errand that runs glad and true
+to bear his shining LAMP afar,
+the Mariner of Mountain View.
