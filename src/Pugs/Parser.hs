@@ -1984,9 +1984,10 @@ ruleDereference = try $ do
     return $ Syn (sigil:"{}") [exp]
 
 ruleVar :: RuleParser Exp
-ruleVar = try ruleNormalVar <|> ruleSymbolicDeref
+ruleVar = try ruleSelf <|> try ruleNormalVar <|> ruleSymbolicDeref
     where
     ruleNormalVar = ruleVarNameString >>= return . makeVar
+    ruleSelf      = string "self" >> (return $ makeVar "$?SELF")
 
 ruleSymbolicDeref :: RuleParser Exp
 ruleSymbolicDeref = do
