@@ -133,8 +133,8 @@ announced to those that dwell therein.
 
 A Perl then new they built for him
 Of Parrot and of PGE;
-Continuations!  What subtle art!
-So cunning its assembly!
+Continuation -- subtle art!
+So cunning in its assembly!
 
 The Synopses as lantern light
 and banner bright of TODO tests
