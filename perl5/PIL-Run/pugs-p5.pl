@@ -31,6 +31,10 @@ GetOptions(
     'B=s'       => \$ignore,
     );
 
+if ( $ENV{PUGS_SAFEMODE} ) {
+    warn "*** [TODO] PUGS_SAFEMODE not implemented ***\n";
+}
+
 $timeout = defined $timeout ? $timeout : $ENV{PUGS_HACK_TIMEOUT};
 $timeout = 1*60 if !defined($timeout) && @ARGV && !$repl;
 local $SIG{ALRM} = sub { die "timeout\n" } if $timeout;
