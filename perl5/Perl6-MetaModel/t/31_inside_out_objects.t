@@ -43,13 +43,13 @@ my $Foo = class 'Foo' => {
 isa_ok($Foo, 'Class');
 isa_ok($Foo, 'Foo');
 
-is($Foo->class::instance_count, 0, '... no instances to count');
+is($Foo->instance_count, 0, '... no instances to count');
 
 {   
     my $iFoo = $Foo->new();
     isa_ok($iFoo, 'Foo');
     
-    is($Foo->class::instance_count, 1, '... one instances to count');    
+    is($Foo->instance_count, 1, '... one instances to count');    
 
     ok(!defined($iFoo->bar), '... no instance variable in first instance');
 
@@ -60,7 +60,7 @@ is($Foo->class::instance_count, 0, '... no instances to count');
         my $iFoo2 = $Foo->new();
         isa_ok($iFoo2, 'Foo');
         
-        is($Foo->class::instance_count, 2, '... two instances to count');            
+        is($Foo->instance_count, 2, '... two instances to count');            
 
         ok(!defined($iFoo2->bar), '... no instance value in second instance');
         is($iFoo->bar, 5, '... got the (unchanged) instance value in first instance');
@@ -70,7 +70,7 @@ is($Foo->class::instance_count, 0, '... no instances to count');
         is($iFoo->bar, 5, '... got the (unchanged) instance value in first instance');
     }
     
-    is($Foo->class::instance_count, 1, '... one instances to count');        
+    is($Foo->instance_count, 1, '... one instances to count');        
 }
 
-is($Foo->class::instance_count, 0, '... no instances to count');
+is($Foo->instance_count, 0, '... no instances to count');

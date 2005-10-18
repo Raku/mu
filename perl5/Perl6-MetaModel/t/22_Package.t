@@ -89,7 +89,7 @@ package Foo {
         $Foo->STORE('&blarch' => ::make_class_method(sub { 'Foo::blarch' }));
     } '... did store a class method object';
     is($Foo->FETCH('&blarch')->($Foo), 'Foo::blarch', '... got the STORE-ed CODE right');  
-    is($Foo->class::blarch(), 'Foo::blarch', '... and we can call the method normally too');     
+    is($Foo->blarch(), 'Foo::blarch', '... and we can call the method normally too');     
      
     # now just store some misc. subs in the class namespace
     lives_ok {

@@ -14,7 +14,7 @@ my $Foo = class 'Foo' => {
         'this_will_not_die' => sub { $::CLASS }
     },
     'methods' => {
-        'bar' => sub { $::CLASS->class::this_will_not_die },
+        'bar' => sub { $::CLASS->this_will_not_die },
         'foo' => sub { $::CLASS }
     }
 };
@@ -22,7 +22,7 @@ my $Foo = class 'Foo' => {
 {
     my $val;
     lives_ok {
-        $val = $Foo->class::this_will_not_die();
+        $val = $Foo->this_will_not_die();
     } '... $::CLASS can be called from a Class method';
     cmp_ok($val, '==', $Foo, '... we got the class object back');
 }

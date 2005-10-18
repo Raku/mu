@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use Perl6::MetaModel::Gnosis;
 
+use constant BOOTSTRAPPED_COMPLETE => 8;
+
 # ... this constructs the rest of the ::Class
 # the result of this file is the (demiurge)
 
@@ -37,7 +39,8 @@ $::Class->add_method('CREATE' => ::make_method(sub {
     }
     # this is our P6opaque data structure
     # it's nothing special, but it works :)
-    my $self = ::create_opaque_instance(\$class, %attrs);              
+    my $self = ::create_opaque_instance(\$class, %attrs);     
+               
     # and now return it ...
     return $self;
 }));
@@ -67,6 +70,21 @@ $::Class->add_method('BUILD' => ::make_submethod(sub {
             # otherwise ignore it ... but this will do
             if ::opaque_instance_class($self)->find_attribute_spec($key);
     }
+    if (::opaque_instance_id($self) > BOOTSTRAPPED_COMPLETE && 
+        $self->class->class->class != $::EigenClass         &&
+        $self->class               != $::EigenClass         ) { 
+        #my $class = $self->class;
+        #warn "class: $class => self: $self => class-class: " . ::opaque_instance_class($class);
+        my $eigenclass = $::EigenClass->new('$:name' => 'EigenClass[' . $self->class->name . ']');
+        if (@{$self->superclasses}) {
+            $eigenclass->superclasses([ map { $_->class } @{$self->superclasses} ]);
+        }
+        else {
+            $eigenclass->superclasses([ $self->class ]);            
+        }
+        ::opaque_instance_change_class($self, $eigenclass);        
+        #warn "class: $class => self: $self => class-class: " . ::opaque_instance_class($class);
+    }      
 }));
 
 $::Class->add_method('DESTROYALL' => ::make_method(sub { 
@@ -104,7 +122,8 @@ $::Class->add_method('can' => ::make_method(sub {
     return ::WALKMETH(::opaque_instance_class($self)->dispatcher(':canonical'), $label);
 }));
 
-$::Class->add_method('id' => ::make_method(sub { ::opaque_instance_id($::SELF) }));
+$::Class->add_method('id'    => ::make_method(sub { ::opaque_instance_id($::SELF)    }));
+$::Class->add_method('class' => ::make_method(sub { ::opaque_instance_class($::SELF) }));
 
 $::Class->add_method('superclasses' => ::make_method(sub {        
     my ($self, $superclasses) = @_;
@@ -123,6 +142,17 @@ $::Class->add_method('superclasses' => ::make_method(sub {
         ::opaque_instance_attr($self => '@:MRO') = [];
         # and recalculate it ..
         $self->MRO();
+        
+        # the eigenclasses now
+        if (::opaque_instance_id($self) > BOOTSTRAPPED_COMPLETE &&
+            ::opaque_instance_class($self) != $::EigenClass     ) {
+            #warn "hello from superclasses for $self";
+            ::opaque_instance_attr(::opaque_instance_class($self) => '@:superclasses') = [ 
+                map { ::opaque_instance_class($_) } @{$superclasses}
+            ];
+            ::opaque_instance_attr(::opaque_instance_class($self) => '@:MRO') = [];
+            ::opaque_instance_class($self)->MRO();
+        }
     }
     ::opaque_instance_attr($self => '@:superclasses');
 }));
@@ -287,6 +317,13 @@ $::Class->add_method('is_a' => ::make_method(sub {
     return 0; 
 }));
 
+$::Class->add_method('add_singleton_method' => ::make_method(sub { 
+    my ($self, $label, $method) = @_;  
+#    warn "hello from (CLASS) already eigened : $self";
+    ::bind_method_to_class($method, $self);        
+    $self->class->add_method($label, $method);
+}));
+
 $::Class->add_method('_get_method_table' => ::make_private_method(sub {         
     my ($self, $params) = @_;
     # default to instance ... 
@@ -415,8 +452,8 @@ $::Class->add_method('FETCH' => ::make_method(sub {
                     $self->get_method($1, for => 'instance') 
                     :
                     # check for class method
-                    $self->has_method($1, for => 'class') ?
-                        $self->get_method($1, for => 'class')
+                    $self->class->has_method($1) ?
+                        $self->class->get_method($1)
                         :
                         # if all else fails, maybe it is 
                         # a sub, so we just  grab it from 
@@ -453,6 +490,7 @@ $::Class->add_method('STORE' => ::make_method(sub {
         || confess "Cannot STORE at (" . ($label || 'undef') . ")";    
     # only store method objects,.. regular subs go in the namespace
     if ($label =~ /^\&(.*)$/ && (blessed($value) && $value->isa('Perl6::Method'))) {
+        return $self->add_singleton_method($1, $value) if $value->isa('Perl6::ClassMethod');
         return $self->add_method($1, $value);
     }  
     # XXX -

@@ -24,7 +24,7 @@ my $Foo = $::Class->new('$:name' => 'Foo');
 $Foo->superclasses([ $::Object ]);
 isa_ok($Foo, 'Class');
 
-is($Foo->class, $::Class, '... Foo.class is Class');
+cmp_ok($Foo->class, '!=', $::Class, '... Foo.class is not Class (it is the eigenclass)');
 
 $Foo->add_singleton_method('class_test' => ::make_method(sub { '$Foo::class_test' }));
 is($Foo->class_test(), '$Foo::class_test', '... got the singleton class method');

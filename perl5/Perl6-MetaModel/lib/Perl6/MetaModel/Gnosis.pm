@@ -38,13 +38,14 @@ $::Class = ::create_class();
     
         ::bind_method_to_class($method, $self);
         
-        if (blessed($method) eq 'Perl6::Method'   ||
-            blessed($method) eq 'Perl6::Submethod') {
+        if (blessed($method) eq 'Perl6::Method'     ||
+            blessed($method) eq 'Perl6::Submethod'  ||
+            blessed($method) eq 'Perl6::ClassMethod') {
             ::opaque_instance_attr($self => '%:methods')->{$label} = $method;
         }
-        elsif (blessed($method) eq 'Perl6::ClassMethod') {
-            ::opaque_instance_attr($self => '%:class_methods')->{$label} = $method;                
-        }
+        #elsif (blessed($method) eq 'Perl6::ClassMethod') {
+        #    ::opaque_instance_attr($self => '%:class_methods')->{$label} = $method;                
+        #}
         elsif (blessed($method) eq 'Perl6::PrivateMethod') {
             ::opaque_instance_attr($self => '%:private_methods')->{$label} = $method;                
         }            

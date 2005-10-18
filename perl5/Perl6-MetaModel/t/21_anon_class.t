@@ -19,11 +19,11 @@ lives_ok {
     $class = class { 
         'is' => [ $::Object ], 
         'methods' => {
-            'meth' => sub { 42 } 
+            'meth' => sub { 42 }
         }
     };
 } '... anonymous class created';
-cmp_ok(::opaque_instance_class($class), '==', $::Class, '... $class is instance of $::Class');
+isa_ok($class, 'Class');
 ok($class->is_a($::Object), '... $class is a $::Object');
 
 my $a;

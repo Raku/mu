@@ -213,7 +213,9 @@ our $DISPATCH_TRACE = 0;
         # and know if we are being called from within
         # our own class or not.
         return bless sub {
-            (defined $::CALLER::CLASS && $::CALLER::CLASS->[0] == $::CLASS->[0]) 
+            (defined $::CALLER::CLASS                    && 
+             $::CALLER::CLASS->[0] == $::CLASS->[0]      ||    # for instance methods
+             $::CALLER::CLASS->[0] == ${$::CLASS->[1]}->[0])   # for EigenClass methods
                 || confess "Cannot call private method from different class";   
             return $method->(@_);
         } => 'Perl6::PrivateMethod';
@@ -326,7 +328,6 @@ our $DISPATCH_TRACE = 0;
         return unless defined $class;  
             
         my %opts;
-        do { %opts = (for => 'class'); $class = $_[0] } if $_[3];
                 
         local $::ARGS = [ $_[1], \%opts, $_[0], $_[2] ];          
 
@@ -335,8 +336,9 @@ our $DISPATCH_TRACE = 0;
         
         # check if this is a private method
         if ($_[1] =~ /^_/) {           
-            my $method = $::CLASS->get_method($_[1], for => 'private') 
-                      || confess "Private Method ($_[1]) not found for current class ($::CLASS)";
+            my $method =  $::CLASS->get_method($_[1], for => 'private')          # for instance methods
+                       || $::CLASS->class->get_method($_[1], for => 'private')   # for eigenclass methods
+                       || confess "Private Method ($_[1]) not found for current class ($::CLASS)";
             $_normal_dispatch_cache{$::CLASS} = { $_[1] => [ $method, undef ] };
             return $method->($_[0], @{$_[2]});  
         }
@@ -390,30 +392,6 @@ our $DISPATCH_TRACE = 0;
 ###############################################################################
 ## Perl 5 magic sugar down here ...
 
-{
-    package class;
-    
-    # this package represents the "magic"
-    # of the class layer. Using this 
-    # we can get a class invocant which 
-    # is how class methods get called 
-    
-    sub isa {
-        $Dispatchable::AUTOLOAD = 'class::isa';
-        goto &Dispatchable::AUTOLOAD;        
-    }
-
-    sub can {
-        $Dispatchable::AUTOLOAD = 'class::can';
-        goto &Dispatchable::AUTOLOAD;        
-    }
-    
-    sub AUTOLOAD {
-        $Dispatchable::AUTOLOAD = our $AUTOLOAD;
-        goto &Dispatchable::AUTOLOAD;
-    }
-}
-
 { ## Perl 5 dispatcher magic
     package Dispatchable;
     
@@ -448,7 +426,7 @@ our $DISPATCH_TRACE = 0;
             $label = 'DESTROYALL';
         }        
         # go about our dispatching ....      
-        return ::dispatcher(shift, $label, \@_, ($autoload[0] eq 'class' ? 1 : 0));
+        return ::dispatcher(shift, $label, \@_);
     }
 }
 

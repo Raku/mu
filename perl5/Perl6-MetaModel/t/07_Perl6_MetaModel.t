@@ -31,7 +31,7 @@ ok($::Class->isa('Object'), '... genesis was loaded ok');
         $Foo = class 'Foo-0.0.1-cpan:STEVAN' => sub {    
             $::CLASS->superclasses([ $::Object ]);
             foreach my $name (qw(foo bar)) {
-                $::CLASS->add_method($name => ::make_class_method(sub { "Hello from $name" }));
+                $::CLASS->add_singleton_method($name => ::make_method(sub { "Hello from $name" }));
             }
         };    
     } '... created a class with the closure form';
@@ -48,12 +48,12 @@ ok($::Class->isa('Object'), '... genesis was loaded ok');
         '... $Foo has the right superclasses');
 
     ok($Foo->is_a($::Object), '... $Foo is a Object');
+                                    
+    ok($Foo->class->has_method('foo'), '... $Foo has a foo method');
+    ok($Foo->class->has_method('bar'), '... $Foo has a bar method');
 
-    ok($Foo->has_method('foo', (for => 'class')), '... $Foo has a foo method');
-    ok($Foo->has_method('bar', (for => 'class')), '... $Foo has a bar method');
-
-    is($Foo->class::foo(), 'Hello from foo', '... $Foo->class::foo() generated method worked great');
-    is($Foo->class::bar(), 'Hello from bar', '... $Foo->class::bar() generated method worked great');
+    is($Foo->foo(), 'Hello from foo', '... $Foo->foo() generated method worked great');
+    is($Foo->bar(), 'Hello from bar', '... $Foo->bar() generated method worked great');
 
 }
 
@@ -88,12 +88,12 @@ ok($::Class->isa('Object'), '... genesis was loaded ok');
         '... $Foo has the right superclasses');
 
     ok($Foo->is_a($::Object), '... $Foo is a Object');
+                                    
+    ok($Foo->class->has_method('foo'), '... $Foo has a foo method');
+    ok($Foo->class->has_method('bar'), '... $Foo has a bar method');
 
-    ok($Foo->has_method('foo', (for => 'class')), '... $Foo has a foo method');
-    ok($Foo->has_method('bar', (for => 'class')), '... $Foo has a bar method');
-
-    is($Foo->class::foo(), 'Hello from foo', '... $Foo->class::foo() generated method worked great');
-    is($Foo->class::bar(), 'Hello from bar', '... $Foo->class::bar() generated method worked great'); 
+    is($Foo->foo(), 'Hello from foo', '... $Foo->class::foo() generated method worked great');
+    is($Foo->bar(), 'Hello from bar', '... $Foo->class::bar() generated method worked great'); 
     
     is($Foo->new('$.baz' => 42)->baz(), 42, '... $.baz attribute set and accessed correctly');   
     dies_ok { $Foo->new()->bad() } '... cannot access attributes which do not exist';

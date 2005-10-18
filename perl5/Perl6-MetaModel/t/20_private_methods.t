@@ -18,7 +18,7 @@ my $Foo = class 'Foo' => {
     'is' => [ $::Object ],
     'class_methods' => {
         '_foo_class'     => sub { 'Foo::_foo' },
-        'call_foo_class' => sub { $::CLASS->class::_foo_class() }
+        'call_foo_class' => sub { $::CLASS->_foo_class() }
     },
     'methods' => {
         '_foo_instance' => sub { 'iFoo::_foo' },
@@ -29,7 +29,7 @@ my $Foo = class 'Foo' => {
 ok(!Foo->can('_foo_instance'), '... can() does not expose private methods');
 
 dies_ok {
-    $Foo->class::_foo_class();
+    $Foo->_foo_class();
 } '... this should die';
 
 dies_ok {
@@ -39,7 +39,7 @@ dies_ok {
 {
     my $value;
     lives_ok {
-        $value = $Foo->class::call_foo_class();
+        $value = $Foo->call_foo_class();
     } '... this should live';
     is($value, 'Foo::_foo', '... we got the right value');
 }
@@ -56,7 +56,7 @@ dies_ok {
 my $Bar = class Bar => {
     'is' => [ $::Object ],
     'class_methods' => {
-        'call_foo_class' => sub { $Foo->class::_foo_class() }
+        'call_foo_class' => sub { $Foo->_foo_class() }
     }
 };
 
@@ -64,7 +64,7 @@ my $Bar = class Bar => {
 # I am not sure this throws the right error,.. it does die though :)
 
 dies_ok {
-    $Bar->class::call_foo_class();
+    $Bar->call_foo_class();
 } '... this should die';
 
 

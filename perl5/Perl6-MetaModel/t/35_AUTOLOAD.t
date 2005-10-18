@@ -13,7 +13,7 @@ my $FooAUTOLOADED = class 'FooAUTOLOADED' => {
         'isa' => sub { next_METHOD() },
         'AUTOLOAD' => sub {
             my ($self, @args) = @_;
-            my $label = ::opaque_instance_class($self)->FETCH('$AUTOLOAD');
+            my $label = $self->class->FETCH('$AUTOLOAD');
             return $label;
         }
     }
@@ -34,15 +34,15 @@ my $BarAUTOLOADED = class 'BarAUTOLOADED' => {
     class_methods => {
         'AUTOLOAD' => sub {
             my ($self, @args) = @_;
-            my $label = $self->FETCH('$AUTOLOAD');
+            my $label = $self->class->FETCH('$AUTOLOAD');
             return $label;
         }
     }        
 };
 
-is($BarAUTOLOADED->class::test(), 'test', '... AUTOLOAD captrured the "test" method correctly');
-is($BarAUTOLOADED->class::testing(), 'testing', '... AUTOLOAD captrured the "testing" method correctly');
-is($BarAUTOLOADED->class::hello(), 'hello', '... AUTOLOAD captrured the "hello" method correctly');
+is($BarAUTOLOADED->test(), 'test', '... AUTOLOAD captrured the "test" method correctly');
+is($BarAUTOLOADED->testing(), 'testing', '... AUTOLOAD captrured the "testing" method correctly');
+is($BarAUTOLOADED->hello(), 'hello', '... AUTOLOAD captrured the "hello" method correctly');
 
 my $bar = $BarAUTOLOADED->new();
 isa_ok($bar, 'BarAUTOLOADED');

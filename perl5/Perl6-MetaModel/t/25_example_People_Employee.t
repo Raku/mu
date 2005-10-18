@@ -43,7 +43,7 @@ my $Person = class 'Person-0.0.1-cpan:STEVAN' => {
             my ($class, %params) = @_;           
             # this CLASS should be the class it 
             # is defined in (i.e: Person)
-            $::CLASS->STORE('$.population' => $::CLASS->class::population() + 1);
+            $::CLASS->STORE('$.population' => $::CLASS->population() + 1);
             # we want this $class to possibly
             # be a subclass
             return $class->bless(undef, %params);
@@ -52,7 +52,7 @@ my $Person = class 'Person-0.0.1-cpan:STEVAN' => {
     attributes => [ '$.first_name', '$.last_name', '$.age' ],
     submethods => {
         DESTROY => sub {
-            $::CLASS->STORE('$.population' => $::CLASS->class::population() - 1);
+            $::CLASS->STORE('$.population' => $::CLASS->population() - 1);
         }
     },
     methods => {
@@ -69,13 +69,13 @@ my $Person = class 'Person-0.0.1-cpan:STEVAN' => {
     }
 };
 
-is($Person->class::population(), 0, '... Person population is 0');
+is($Person->population(), 0, '... Person population is 0');
 
 {
-    my $p = $Person->class::create('$.first_name' => 'Steve', '$.last_name' => 'Little', '$.age' => 31);
+    my $p = $Person->create('$.first_name' => 'Steve', '$.last_name' => 'Little', '$.age' => 31);
     isa_ok($p, 'Person');
 
-    is($Person->class::population(), 1, '... population is 1');
+    is($Person->population(), 1, '... population is 1');
 
     can_ok($p, 'first_name');
     can_ok($p, 'last_name');
@@ -89,7 +89,7 @@ is($Person->class::population(), 0, '... Person population is 0');
     is($p->age(), 31, '... got the right age');
 }
 
-is($Person->class::population(), 0, '... Person population is back to 0 again');
+is($Person->population(), 0, '... Person population is back to 0 again');
 
 # subclassing too...
 =pod
@@ -115,19 +115,19 @@ my $Employee = class 'Employee-0.0.1' => {
 ok($Employee->isa('Object'), '... Employee isa Object');
 ok($Employee->isa('Person'), '... Employee isa Person');
 
-is($Employee->class::population(), 0, '... Employee population is 0');
-is($Person->class::population(), 0, '... Person population is 0');
+is($Employee->population(), 0, '... Employee population is 0');
+is($Person->population(), 0, '... Person population is 0');
 
 {
-    my $e = $Employee->class::create(
+    my $e = $Employee->create(
         '$.first_name' => 'Steve', 
         '$.last_name'  => 'Little', 
     );
     isa_ok($e, 'Employee');
     isa_ok($e, 'Person');
 
-    is($Employee->class::population(), 1, '... Employee population is 1');
-    is($Person->class::population(), 1, '... Person population is 1 too (it is the Person class attribute)');
+    is($Employee->population(), 1, '... Employee population is 1');
+    is($Person->population(), 1, '... Person population is 1 too (it is the Person class attribute)');
 
     can_ok($e, 'first_name');
     can_ok($e, 'last_name');
@@ -146,5 +146,5 @@ is($Person->class::population(), 0, '... Person population is 0');
     is($e->job(), 'Programmer', '... got the right job');    
 }
 
-is($Employee->class::population(), 0, '... Employee population is 0 again');
-is($Person->class::population(), 0, '... and Person population is 0 again too');
+is($Employee->population(), 0, '... Employee population is 0 again');
+is($Person->population(), 0, '... and Person population is 0 again too');

@@ -131,12 +131,12 @@ sub _build_class {
                     # there is no real distinction between the
                     # private class method or the private instance 
                     # method, maybe there should be, but I am not sure
-                    $new_class->add_method($method_name => ::make_private_method(
+                    $new_class->add_singleton_method($method_name => ::make_private_method(
                         $body->{class_methods}->{$method_name}
                     ));
                 }
                 else {
-                    $new_class->add_method($method_name => ::make_class_method(
+                    $new_class->add_singleton_method($method_name => ::make_method(
                         $body->{class_methods}->{$method_name}
                     ));                    
                 }
