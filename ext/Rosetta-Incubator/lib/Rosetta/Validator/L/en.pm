@@ -13,9 +13,9 @@ use v6;
 ###########################################################################
 ###########################################################################
 
-class Rosetta::Validator::L::en-0.15.0 {
+module Rosetta::Validator::L::en-0.15.0 {
 
-    # External packages used by the Rosetta::Validator::L::en class, that do export symbols:
+    # External packages used by the Rosetta::Validator::L::en module, that do export symbols:
     # (None Yet)
 
     # Attributes of every Rosetta::Validator::L::en object:
@@ -27,7 +27,7 @@ class Rosetta::Validator::L::en-0.15.0 {
 
 ###########################################################################
 
-} # class Rosetta::Validator::L::en
+} # module Rosetta::Validator::L::en
 
 ###########################################################################
 ###########################################################################

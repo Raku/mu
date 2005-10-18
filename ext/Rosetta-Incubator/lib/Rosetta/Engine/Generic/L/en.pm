@@ -13,9 +13,9 @@ use v6;
 ###########################################################################
 ###########################################################################
 
-class Rosetta::Engine::Generic::L::en-0.14.0 {
+module Rosetta::Engine::Generic::L::en-0.14.0 {
 
-    # External packages used by the Rosetta::Engine::Generic::L::en class, that do export symbols:
+    # External packages used by the Rosetta::Engine::Generic::L::en module, that do export symbols:
     # (None Yet)
 
     # Attributes of every Rosetta::Engine::Generic::L::en object:
@@ -27,7 +27,7 @@ class Rosetta::Engine::Generic::L::en-0.14.0 {
 
 ###########################################################################
 
-} # class Rosetta::Engine::Generic::L::en
+} # module Rosetta::Engine::Generic::L::en
 
 ###########################################################################
 ###########################################################################

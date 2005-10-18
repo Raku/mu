@@ -13,9 +13,9 @@ use v6;
 ###########################################################################
 ###########################################################################
 
-class Rosetta::L::en-0.20.0 {
+module Rosetta::L::en-0.20.0 {
 
-    # External packages used by the Rosetta::L::en class, that do export symbols:
+    # External packages used by the Rosetta::L::en module, that do export symbols:
     # (None Yet)
 
     # Attributes of every Rosetta::L::en object:
@@ -27,7 +27,7 @@ class Rosetta::L::en-0.20.0 {
 
 ###########################################################################
 
-} # class Rosetta::L::en
+} # module Rosetta::L::en
 
 ###########################################################################
 ###########################################################################

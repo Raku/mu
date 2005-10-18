@@ -13,9 +13,9 @@ use v6;
 ###########################################################################
 ###########################################################################
 
-class SQL::Routine::SQLParser::L::en-0.3.0 {
+module SQL::Routine::SQLParser::L::en-0.3.0 {
 
-    # External packages used by the SQL::Routine::SQLParser::L::en class, that do export symbols:
+    # External packages used by the SQL::Routine::SQLParser::L::en module, that do export symbols:
     # (None Yet)
 
     # Attributes of every SQL::Routine::SQLParser::L::en object:
@@ -27,7 +27,7 @@ class SQL::Routine::SQLParser::L::en-0.3.0 {
 
 ###########################################################################
 
-} # class SQL::Routine::SQLParser::L::en
+} # module SQL::Routine::SQLParser::L::en
 
 ###########################################################################
 ###########################################################################

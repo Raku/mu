@@ -13,9 +13,9 @@ use v6;
 ###########################################################################
 ###########################################################################
 
-class SQL::Routine::L::en-0.39.0 {
+module SQL::Routine::L::en-0.39.0 {
 
-    # External packages used by the SQL::Routine::L::en class, that do export symbols:
+    # External packages used by the SQL::Routine::L::en module, that do export symbols:
     # (None Yet)
 
     # Attributes of every SQL::Routine::L::en object:
@@ -27,7 +27,7 @@ class SQL::Routine::L::en-0.39.0 {
 
 ###########################################################################
 
-} # class SQL::Routine::L::en
+} # module SQL::Routine::L::en
 
 ###########################################################################
 ###########################################################################

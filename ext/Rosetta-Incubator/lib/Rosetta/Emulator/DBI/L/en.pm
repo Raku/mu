@@ -13,9 +13,9 @@ use v6;
 ###########################################################################
 ###########################################################################
 
-class Rosetta::Emulator::DBI::L::en-0.1.0 {
+module Rosetta::Emulator::DBI::L::en-0.1.0 {
 
-    # External packages used by the Rosetta::Emulator::DBI::L::en class, that do export symbols:
+    # External packages used by the Rosetta::Emulator::DBI::L::en module, that do export symbols:
     # (None Yet)
 
     # Attributes of every Rosetta::Emulator::DBI::L::en object:
@@ -27,7 +27,7 @@ class Rosetta::Emulator::DBI::L::en-0.1.0 {
 
 ###########################################################################
 
-} # class Rosetta::Emulator::DBI::L::en
+} # module Rosetta::Emulator::DBI::L::en
 
 ###########################################################################
 ###########################################################################

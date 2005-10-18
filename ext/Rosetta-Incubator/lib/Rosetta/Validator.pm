@@ -13,9 +13,9 @@ use Rosetta-0.49.0;
 ###########################################################################
 ###########################################################################
 
-class Rosetta::Validator-0.49.0 {
+module Rosetta::Validator-0.49.0 {
 
-    # External packages used by the Rosetta::Validator class, that do export symbols:
+    # External packages used by the Rosetta::Validator module, that do export symbols:
     # (None Yet)
 
     # Attributes of every Rosetta::Validator object:
@@ -27,7 +27,7 @@ class Rosetta::Validator-0.49.0 {
 
 ###########################################################################
 
-} # class Rosetta::Validator
+} # module Rosetta::Validator
 
 ###########################################################################
 ###########################################################################
