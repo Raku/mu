@@ -52,7 +52,7 @@ use strict;
   package PIL::VInt;
   our @ISA = qw<PIL::PVal>;
 
-  sub as_js { PIL::pregen_constant("new PIL2JS.Box.Constant($_[0]->[0])") }
+  sub as_js { "new PIL2JS.Box.Constant($_[0]->[0])" }
 }
 
 {
@@ -62,11 +62,11 @@ use strict;
   sub as_js {
     my $self = shift;
 
-    return PIL::pregen_constant(sprintf "new PIL2JS.Box.Constant(%s)", {
+    return sprintf "new PIL2JS.Box.Constant(%s)", {
       "inf"  => "Infinity",
       "-inf" => "-Infinity",
       "NaN"  => "NaN",
-    }->{$self->[0]} || $self->[0]);
+    }->{$self->[0]} || $self->[0];
   }
 }
 
@@ -74,14 +74,14 @@ use strict;
   package PIL::VRat;
   our @ISA = qw<PIL::PVal>;
 
-  sub as_js { PIL::pregen_constant("new PIL2JS.Box.Constant($_[0]->[0][0]/$_[0]->[0][1])") }
+  sub as_js { "new PIL2JS.Box.Constant($_[0]->[0][0]/$_[0]->[0][1])" }
 }
 
 {
   package PIL::VStr;
   our @ISA = qw<PIL::PVal>;
 
-  sub as_js { PIL::pregen_constant(sprintf "new PIL2JS.Box.Constant(%s)", PIL::doublequote $_[0]->[0]) }
+  sub as_js { sprintf "new PIL2JS.Box.Constant(%s)", PIL::doublequote $_[0]->[0] }
 }
 
 {
@@ -89,8 +89,8 @@ use strict;
   our @ISA = qw<PIL::PVal>;
 
   sub as_js {
-    return PIL::pregen_constant(sprintf "new PIL2JS.Box.Constant(%s)",
-      $_[0]->[0] ? "true" : "false");
+    return sprintf "new PIL2JS.Box.Constant(%s)",
+      $_[0]->[0] ? "true" : "false";
   }
 }
 

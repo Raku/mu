@@ -55,18 +55,9 @@ our @VARS_TO_BACKUP;
 our $CORO_ID;
 # XXX PIL1 hack
 our @PIL1_HACK_CLASSDECLS;
-# Optimization, see http://www.sidhe.org/~dan/blog/archives/000433.html
-our %JS_CONSTANTS;
 
 # Guard against reentrancy.
 our $PROCESSING_HAS_STARTED;
-
-sub pregen_constant {
-  my $const = shift;
-
-  use Digest::MD5 qw< md5_hex >;
-  $JS_CONSTANTS{$const} ||= "constant_" . md5_hex $const;
-}
 
 my $possibly_ccify_argid = 0;
 sub possibly_ccify {
@@ -222,15 +213,6 @@ sub as_js {
   $IN_GLOBPIL = 0;
   my $main_js = $fixed_tree->{pilMain}->as_js;
 
-  my $const_js =
-    "// Constants:\n" .
-    join("\n", map {
-      sprintf "var %s = %s;",
-        $JS_CONSTANTS{$_},
-        $_;
-    } keys %JS_CONSTANTS) .
-    "\n// End of constants.\n";
-        
   my $decl_js =
     "// Declaration of vars:\n" .
     join("\n", map {
@@ -255,8 +237,7 @@ sub as_js {
     } @{ $fixed_tree->{"pilGlob" } })  .
     "\n// End of initialization of global vars and exportation of subs.\n";
 
-  return sprintf <<EOF, $const_js, $decl_js, add_indent(3, join "\n", @glob_js, $init_js, $main_js);
-%s
+  return sprintf <<EOF, $decl_js, add_indent(3, join "\n", @glob_js, $init_js, $main_js);
 %s
 PIL2JS.catch_all_exceptions(function () {
   PIL2JS.catch_end_exception(function() {
