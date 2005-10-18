@@ -53,8 +53,8 @@ a thousand modules sprung to life.
 
 Then world-wide web came driving him,
 and wildly on the net Perl spread
-from west to east, a messy mess;
-the comp.lang.perl was filled with dread. # pronounced "CLP"
+from west to east, a noisy mess;
+and comp.lang.perl was filled with dread. # pronounced "CLP"
 
 There flying CPAN came to him,
 and flame was in the darkness lit;
