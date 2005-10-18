@@ -1980,13 +1980,17 @@ ruleMatchNamed = do
 ruleDereference :: RuleParser Exp
 ruleDereference = try $ do
     sigil   <- oneOf "$@%&"
-    exp     <- ruleDereference <|> ruleVar <|> braces ruleExpression
+    exp     <- ruleDereference <|> ruleSigiledVar <|> braces ruleExpression
     return $ Syn (sigil:"{}") [exp]
 
-ruleVar :: RuleParser Exp
-ruleVar = try ruleSelf <|> try ruleNormalVar <|> ruleSymbolicDeref
+ruleSigiledVar :: RuleParser Exp
+ruleSigiledVar = try ruleNormalVar <|> ruleSymbolicDeref
     where
     ruleNormalVar = ruleVarNameString >>= return . makeVar
+
+ruleVar :: RuleParser Exp
+ruleVar = try ruleSelf <|> try ruleSigiledVar
+    where
     ruleSelf      = string "self" >> (return $ makeVar "$?SELF")
 
 ruleSymbolicDeref :: RuleParser Exp
