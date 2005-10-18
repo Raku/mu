@@ -6,7 +6,7 @@
 = Stanza 1: Origin of Perl
 
 Larry was a mariner
-that tarried in the world of C;
+who tarried in the world of C;
 he built a tool from sed and awk
 in Unix shell to script things free.
 
@@ -45,7 +45,7 @@ from nested refs and scoped my()s,
 ahead he dived, in deep hack mode.
 
 On a starless night in '94
-at least he came to Version Five,
+at last he came to Version Five,
 released, and from this mighty core
 a thousand modules sprung to life.
 
@@ -54,7 +54,7 @@ a thousand modules sprung to life.
 Then world-wide web came driving him,
 and wildly on the net Perl spread
 from west to east, a messy mess;
-the comp.lang.perl. was filled with dread. # pronounced "CLP"
+the comp.lang.perl was filled with dread. # pronounced "CLP"
 
 There flying CPAN came to him,
 and flame was in the darkness lit;
@@ -134,8 +134,6 @@ in hidden lands he found his way.
 
 = Stanza 9: Unveiling of Apocalypses
 
-# Chimera-Perl Image on "Designing Perl 6"
-
 He came unto the timeless Book,
 where Camel rode the countless years;
 the endless chapters pondered through
@@ -186,13 +184,12 @@ we'll land at last on far-away shores,
 forgotten then the fears and doubts
 from Elder Days, in years of yore.
 
-# Idea!  $muse.listen(4000);
-But on him mighty doom was laid,
-till Moon should fade, an orbéd star
-to pass, and tarry never more
-on Hither Shores where mortals are;
+But on him mighty fate was laid,
+till Code should fade, an gliding star
+to pass, and tarry ever more
+on Internet where hackers are;
 
-And ever still a herald on
+Or ever still a herald on
 an errand that runs glad and true
 to bear his shining LAMP afar,
 the Mariner of Mountain View.
