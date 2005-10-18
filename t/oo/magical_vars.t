@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 16;
+plan 17;
 
 class Foo {
   method get_self_normal()    { $?SELF }
@@ -115,4 +115,8 @@ class SimpleClass does Bar {}
     'self is an alias for $?SELF (1)';
   is $grtz.run_foo, 42,
     'self is an alias for $?SELF (2)';
+}
+
+{
+  dies_ok { self }, "there is no self outside of a method";
 }

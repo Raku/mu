@@ -79,6 +79,7 @@ op0 "File::Spec::tmpdir" = const $ do
     tmp <- guardIO getTemporaryDirectory
     return $ VStr tmp
 op0 "pi" = const $ return (VNum pi)
+op0 "self" = const $ evalExp $ Var "$?SELF"
 op0 "say" = const $ op1 "IO::say" (VHandle stdout)
 op0 "print" = const $ op1 "IO::print" (VHandle stdout)
 op0 "return" = const $ op1Return (shiftT . const $ retEmpty)
@@ -1424,6 +1425,7 @@ initSyms = mapM primDecl syms
 \\n   Num       pre     sin     safe   (?Num=$_)\
 \\n   Num       pre     tan     safe   (?Num=$_)\
 \\n   Any       pre     pi      safe   ()\
+\\n   Any       pre     self    safe   ()\
 \\n   Bool      pre     nothing safe   ()\
 \\n   Num       pre     exp     safe   (?Num=$_, ?Num)\
 \\n   Num       pre     sqrt    safe   (?Num=$_)\

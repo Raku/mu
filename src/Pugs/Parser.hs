@@ -1989,9 +1989,7 @@ ruleSigiledVar = try ruleNormalVar <|> ruleSymbolicDeref
     ruleNormalVar = ruleVarNameString >>= return . makeVar
 
 ruleVar :: RuleParser Exp
-ruleVar = try ruleSelf <|> try ruleSigiledVar
-    where
-    ruleSelf      = string "self" >> (return $ makeVar "$?SELF")
+ruleVar = ruleSigiledVar
 
 ruleSymbolicDeref :: RuleParser Exp
 ruleSymbolicDeref = do
