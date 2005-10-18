@@ -2,38 +2,40 @@
 
 use v6;
 
-# Test.pm doesn't work well with these tests
-#use Test;
+use Test;
 
-#plan 4;
-say "1..4";
+plan 4;
 
 my $here;
 
-multi infix:<..> ( Int $a, Int $b ) { $here++ }
-multi push ( Array @a, *@data ) { $here++ }
-multi postcircumfix:<[]> ( *@a ) { $here++ }
-
+{
 my @a;
-my @b;
-
 $here = 0;
+multi infix:<..> ( Int $a, Int $b ) { $here++ }
 @a = 1..2;
-print "not " unless $here; 
-say "ok - range operator was redefined";
+}
+is $here, 1, "range operator was redefined";
 
+{
+my @a;
 $here = 0;
+multi push ( Array @a, *@data ) { $here++ }
 push @a, 2;
-print "not " unless $here; 
-say "ok - push operator was redefined";
+}
+is $here, 1, "push operator was redefined";
 
+{
+my @a;
 $here = 0;
+multi postcircumfix:<[]> ( *@a ) { $here++ }
 my $x = @a[1];
-print "not " unless $here; 
-say "ok - slice fetch was redefined";
+}
+is $here, 1, "slice fetch was redefined";
 
+{
+my @a;
 $here = 0;
+multi postcircumfix:<[]> ( *@a ) { $here++ }
 @a[1] = 0;
-print "not " unless $here; 
-say "ok - slice store was redefined";
-
+}
+is $here, 1, "slice store was redefined";
