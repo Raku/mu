@@ -163,7 +163,7 @@ the word proclaiming "Perl 6 Rules!"
 
 = Stanza 11: Advocacy for the future
 
-From the gatherings of Camel tribes
+From gatherings of Camel tribes
 where ideas pour as fountains fall
 its wings them bore, a spreading light,
 beyond the mighty Larry Wall.
@@ -185,7 +185,7 @@ forgotten then the fears and doubts
 from Elder Days, in years of yore.
 
 But on him mighty fate was laid,
-till Code should fade, an gliding star
+till Code should fade, a gliding star
 to pass, and tarry ever more
 on Internet where hackers are;
 
