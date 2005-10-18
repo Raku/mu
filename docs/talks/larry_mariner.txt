@@ -65,15 +65,17 @@ flared through mirrors of funet.
 
 Communities surrounded him
 and crowned him with the living light,
-and dauntless then with burning brow
+and dauntless then the Mongers crew
 they turned his prow; and in the night
+
 from otherworlds within the Net
-there strong and free a Folk arose,
-a wind of power in Camel shape;
-by paths that seldom mortal goes
-their boats were bore with lively breath
-as might of Code across the grey
-and long-forsaken seas distressed:
+there strong and free Phalanx arose,
+a wind of power blows CPAN smokes
+where #perl and the Perl Monk goes.
+
+As perl.com, with lively breath
+delivered news across the web,
+so use.perl had journaled long;
 from east to west they lit the day.
 
 = Stanza 6: Decision of the second rewrite
