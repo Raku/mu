@@ -82,3 +82,16 @@ ok eval('class MultiFrontend { has $.backend is rw handles <hi cool> }; 1'),
   is eval('$a.hi'),     42, "method was successfully handled by backend object (5-1)", :todo<feature>;
   is eval('$a.cool'), 1337, "method was successfully handled by backend object (5-2)", :todo<feature>;
 }
+
+#
+ok eval('class MyArray { has @.elems handles join; method concat handles <chars bytes graphs codes> { .join("") } }',
+  "class with attribute and return value delegation";
+{
+  my $a;
+  ok eval('$a = MyArray.new(elems => [1..5]'), "basic instantiation worked", :todo<feature>;
+  ok eval('$a.concat eq "12345"'), "attribute delegation worked", :todo<feature>;
+  ok eval('$a.bytes == 5'), "return delegation worked", :todo<feature>;
+  ok eval('$a.chars == 5'), "return delegation worked", :todo<feature>;
+  ok eval('$a.codes == 5'), "return delegation worked", :todo<feature>;
+  is eval('$a.graphs == 5'), "return delegation worked", :todo<feature>;
+}
