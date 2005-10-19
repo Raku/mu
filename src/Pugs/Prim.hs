@@ -69,7 +69,6 @@ op0 "times"  = const $ do
     ProcessTimes _ u s cu cs <- guardIO getProcessTimes
     return . VList $ map (castV . (% (clocksPerSecond :: VInt)) . toInteger . fromEnum)
         [u, s, cu, cs]
-op0 "so" = const (return $ VBool True)
 op0 "¥" = op0Zip
 op0 "Y" = op0 "¥"
 op0 "File::Spec::cwd" = const $ do
@@ -280,7 +279,16 @@ op1 "try" = \v -> do
 -- Tentative implementation of nothingsmuch's lazy proposal.
 op1 "lazy" = \v -> do
     sub <- fromVal v
-    return $ VRef . thunkRef . MkThunk . evalExp $ App (Val $ VCode sub) Nothing []
+    result <- liftSTM $ newTVar Nothing
+    let thunk = do
+        cur <- liftSTM $ readTVar result
+        maybe (do res <- evalExp $ App (Val $ VCode sub) Nothing []
+                  liftSTM $ writeTVar result (Just res)
+                  return res)
+              return
+              cur
+    return $ VRef $ thunkRef $ MkThunk thunk
+
 op1 "defined" = op1Cast (VBool . defined)
 op1 "last" = const $ fail "cannot last() outside a loop"
 op1 "next" = const $ fail "cannot next() outside a loop"

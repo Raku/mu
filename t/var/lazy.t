@@ -33,7 +33,7 @@ plan 15;
   ok $was_in_lazy,      'our lazy block was executed';
 
   is $var,          42, 'our lazy var still has the correct value';
-  is $was_in_lazy,   1, 'our lazy block was not executed again', :todo<bug>;
+  is $was_in_lazy,   1, 'our lazy block was not executed again';
 }
 
 # Same, but passing the lazy value around before accessing it:
