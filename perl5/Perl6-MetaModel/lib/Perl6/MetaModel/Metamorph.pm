@@ -75,7 +75,7 @@ $::Class->add_method('BUILD' => ::make_submethod(sub {
         $self->class               != $::EigenClass         ) { 
         #my $class = $self->class;
         #warn "class: $class => self: $self => class-class: " . ::opaque_instance_class($class);
-        my $eigenclass = $::EigenClass->new('$:name' => 'EigenClass[' . $self->class->name . ']');
+        my $eigenclass = $::EigenClass->new('$:name' => 'EigenClass[' . ($self->name || $params{'$:name'} || 'anon') . ']');
         if (@{$self->superclasses}) {
             $eigenclass->superclasses([ map { $_->class } @{$self->superclasses} ]);
         }
@@ -85,6 +85,18 @@ $::Class->add_method('BUILD' => ::make_submethod(sub {
         ::opaque_instance_change_class($self, $eigenclass);        
         #warn "class: $class => self: $self => class-class: " . ::opaque_instance_class($class);
     }      
+}));
+
+# NOTE: This needs to be here to keep the Eigenclass name in sync
+$::Class->add_method('name' => ::make_method(sub {
+    my ($self, $name) = @_;
+    if ($name) {
+        ::opaque_instance_attr($self->class => '$:name') = 'EigenClass[' . $name . ']'
+            if $self->class->class == $::EigenClass ||
+               $self->class        == $::EigenClass;
+        ::opaque_instance_attr($self        => '$:name') = $name;
+    }
+    ::opaque_instance_attr($self => '$:name');
 }));
 
 $::Class->add_method('DESTROYALL' => ::make_method(sub { 

@@ -17,7 +17,7 @@ is($Foo->object, 'Object::object', '... got our singleton method correctly from 
 is($Foo->bar, 'Foo::bar', '... got our singleton method correctly');
 
 my $Bar = $::Class->new('$:name' => 'Bar');
-$Foo->superclasses([ $::Object ]);
+$Bar->superclasses([ $::Object ]);
 $Bar->add_singleton_method('baz' => ::make_method(sub { 'Bar::baz' }));
 
 is($Bar->object, 'Object::object', '... got our singleton method correctly from Object');

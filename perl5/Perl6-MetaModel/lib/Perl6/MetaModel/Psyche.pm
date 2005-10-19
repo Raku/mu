@@ -207,6 +207,7 @@ $::Class->add_method('collect_all_roles' => ::make_method(sub { $::Role }));
 # this is done again
 ::opaque_instance_add_new_attribute($::Class => '@:roles');  
 ::opaque_instance_attr($::Class => '@:roles') = [ $::Role ];
+::opaque_instance_attr($::Role  => '@:roles') = [ $::Role ];
 $_resolve->($::Class);
 
 # restore this correctly

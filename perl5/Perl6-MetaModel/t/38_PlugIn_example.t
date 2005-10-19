@@ -63,10 +63,12 @@ my $FeatureB = role 'FeatureB' => {};
 my $FeatureC = role 'FeatureC' => {};
 
 my $AB = class 'AB' => {
+    is   => [ $::Object ],
     does => [ $PlugIn, $FeatureA, $FeatureB ]
 };
 
 my $ABC = class 'ABC' => {
+    is   => [ $::Object ],
     does => [ $AB, $FeatureC ]
 };
 
