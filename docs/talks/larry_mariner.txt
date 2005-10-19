@@ -10,15 +10,15 @@ who tarried in the world of C;
 he built a tool from sed and awk
 in Unix shell to script things free.
 
-Its operators were vast and fair,
+Its operators vast and fair,
 of dollars were its sigils made;
-the syntax fashioned with utmost care,
+the syntax wrought with utmost care,
 and "Perl" upon its banners laid.
 
 = Stanza 2: Perl grows in power
 
 In panoply of pumpkin kings,
-in three virtues it shone for him;
+in virtues three it shone for him;
 its regexes were scored with runes
 to match all \n+ and \w+ for him.
 
@@ -44,7 +44,7 @@ where XS hooked with foreign code,
 from nested refs and scoped my()s,
 ahead he dived, in deep hack mode.
 
-On a starless night in '94
+One starless night in '94
 at last he came to Version Five,
 released, and from this mighty core
 a thousand modules sprung to life.
@@ -59,7 +59,7 @@ and comp.lang.perl was filled with dread. # pronounced "CLP"
 There flying CPAN came to him,
 and flame was in the darkness lit;
 more bright than light of diamond
-flared through mirrors of funet.
+flared through mirrors on FUNet.
 
 = Stanza 5: Perl Folks
 
@@ -83,21 +83,21 @@ from east to west they lit the day.
 On P5P waged trollish wars
 with black and roaring flames that ran
 o'er trivial dots and underscores
-that drowned new porters ere they began.
+that drowned new porters unbegun.
 
 Until they heard the smashing mugs
 that end the world where boredom reigned;
 a new Perl free from warts and bugs
-a sense of excitement now regained.
+a sense of moment now regained.
 
 He saw the Rewrite silent rise
 where twilight lies upon the knees
-of Refactor, and Surprise
+of lean Refactor, and Surprise
 beheld afar beyond the seas.
 
 = Stanza 7: Announcement of Perl 6
 
-A prophet reappeared from night
+A prophet reappeared from night,
 to Camelfolk he made a speech
 of fresh Community Rewrite,
 with much to learn and much to teach.
@@ -127,7 +127,7 @@ the endless chapters pondered through
 in volumes like the mountain sheer.
 
 And words unheard were spoken then
-of Good, of Bad, of Ugly Sin,
+of Good, and Bad, and Ugly Sin,
 beyond the world were visions showed
 announced to those that dwell therein.
 
@@ -157,8 +157,9 @@ beyond the saintly Larry Wall.
 
 From realms of Perl they sailed around,
 and yearned again to find afar
-the Elephants, Rhinos, Snakes and Gems
+the Elephants, Rhinos, Snakes and Gems,   ## Elaphs?
 and radiating as clouds of stars
+
 on high above the mists they came,
 to link between the agile clans,
 a wonder forged by Open Folks
@@ -167,11 +168,11 @@ where symphonies of Free Code run.
 = Stanza 12: Conclusion of the legend
 
 And then one day as prophesied
-we'll land at last on distant shores,
+we'll land at last on distant shores;
 forgotten then the fears and doubts
 from Elder Days, in years of yore.
 
-But on him mighty boon was laid,
+But on him mighty boon is laid,
 till Code should fade, a gliding star
 to pass, and tarry ever more
 on Internet where hackers are;
