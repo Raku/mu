@@ -1,11 +1,14 @@
 Secondary Sigils (also known as "twigils"):
 
+    $+   # currently compiling scope (see S02)
     $?   # lexically-scoped (compile time, see S02)
     $*   # global (run time, see S02)
     $=   # file-scoped (see S02)
     $^   # implicit block argument (see S06 placeholder variables)
+    $<   # current $/ scope (see S02)
     $.   # public attribute (see S12 attributes)
     $:   # private attribute (see S12 attributes)
+
 
 Named variables (see S02):
 
