@@ -84,7 +84,7 @@ ok eval('class MultiFrontend { has $.backend is rw handles <hi cool> }; 1'),
 }
 
 #
-ok eval('class MyArray { has @.elems handles join; method concat handles <chars bytes graphs codes> { .join("") } }',
+ok eval('class MyArray { has @.elems handles "join"; method concat handles <chars bytes graphs codes> { .join("") } }',
   "class with attribute and return value delegation";
 {
   my $a;

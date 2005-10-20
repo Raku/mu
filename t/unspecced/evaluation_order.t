@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 16;
+plan 17;
 
 throws_ok {
 	die "first";
@@ -67,6 +67,10 @@ throws_ok {
 throws_ok {
 	say(die("first"), die("second"));
 }, "first", "evaluation in function application";
+
+throws_ok {
+        die("first").say(die "second");
+}, "first", "evaluation in method application";
 
 throws_ok {
         (die "first")(die "second");

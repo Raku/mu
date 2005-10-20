@@ -47,7 +47,7 @@ is("ABCDE".trans( ('a-e' => ['A' .. 'E']) ), "abcde",
 
 
 is("ABCDE".trans( (['A' .. 'E'] => "a-e") ), "abcde",
-	   "Using array reference on one side and string range on the other",:todo );
+	   "Using array reference on one side and string range on the other");
 
 
 is(" <>&".trans( (['<',    '>',    '&',    ] => 
@@ -56,8 +56,7 @@ is(" <>&".trans( (['<',    '>',    '&',    ] =>
 
 is(" <>&".trans( ([' ',      '<',    '>',    '&'    ] => 
                   ['&nbsp;', '&lt;', '&gt;', '&amp;' ])),"&nbsp;&lt;&gt;&amp;",
-         "The array version can map one-or-more characters to one-or-more characters"
-         ,:todo);
+         "The array version can map one-or-more characters to one-or-more characters");
 
 eval_is('"abc".trans(<== "a" => "A")', "Abc",
     "you're allowed to leave off the (...) named arg parens when you use <==",
