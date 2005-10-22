@@ -9,9 +9,9 @@ my subtype HQ9PlusStep
 
 has HQ9PlusProgram $.program;
 has Int            $.accumulator = 0;
-has Int            $:position = 0;
+has Int            $position = 0; # twigilless are private
 
-has %:actions = (
+has %actions = (
     'h' => { self._hello },
     'q' => { self._quine },
     '9' => { self._nine  },
@@ -19,6 +19,7 @@ has %:actions = (
 );
 
 method run    () {
+    # Java, anyone? Feel free to fix this.
     loop {
         .step;
         CATCH { 
@@ -31,8 +32,8 @@ method run    () {
 }
 
 method step   () {
-    given $.program.substr($:position++, 1) {
-        $:actions<$_>();
+    given $.program.substr($position++, 1) {
+        $actions<$_>();
     }
 }
 
