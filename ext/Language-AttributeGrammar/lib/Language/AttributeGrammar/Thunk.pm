@@ -24,7 +24,7 @@ method get() {
         when 1  { die "Attempt to evaluate a stage 1 thunk" }
         when 2  { 
             $.stage++;
-            $.value = $.value{code}.($.value{dep});
+            $.value = $.value<code>.($.value<dep>);
             $.stage++;
             $.value;
         }
