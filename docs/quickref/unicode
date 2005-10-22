@@ -42,9 +42,9 @@ So, these *might* be considered not too awful;
 
     ×           *           ^k * X     C-x 8 x
     ¬           !           ^k N O     C-x 8 ~ ~
-    ∕           /                      C-q 1236065
-    ÷           /                      C-x 8 / /
-    ≡          =:=                     \equiv
+    ∕           /           ^k / f     C-q 1236065
+    ÷           /           ^k : -     C-x 8 / /
+    ≡          =:=          ^k = 3     \equiv
     ≔           :=                     \coloneq
   ⩴ or ≝       ::=                     C-q 1113524 / C-q 1236175
   ≈ or ≊        ~~          ^k ? 2     \approx / \approxeq
@@ -67,7 +67,7 @@ be abused; however ❝cute❞ it might be…
    ⟨ ⟩         < >
    ⟪ ⟫         « »        (er, I mean << >> ;-) )
     →           ->
-    ‼          !(!($a))   (ie, cast to boolean)
+    ‼          !(!($a))   (ie, cast to boolean (better: ?$a))
    ⁇ ∷        ?? !!
     ∥         || or //
     ¹           **1       (as these glyphs are just "superscript 1" etc)
