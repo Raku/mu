@@ -39,8 +39,7 @@ tcItem      = TCxtItem anyType
 tcSlurpy    = TCxtSlurpy anyType
 -}
 
-type Comp a = Eval a
-type CompMonad = EvalT (ContT Val (ReaderT Env SIO))
+type Comp = Eval
 
 {-| Currently only 'Exp' → 'PIL' -}
 class (Show a, Typeable b) => Compile a b where
@@ -150,10 +149,10 @@ instance Compile Exp PIL_Stmts where
 class EnterClass m a where
     enter :: a -> m b -> m b
 
-instance EnterClass CompMonad VCode where
+instance EnterClass Comp VCode where
     enter sub = local (\e -> e{ envLValue = subLValue sub, envContext = CxtItem (subReturns sub) })
 
-instance EnterClass CompMonad Cxt where
+instance EnterClass Comp Cxt where
     enter cxt = local (\e -> e{ envContext = cxt })
 
 compileStmts :: Exp -> Comp PIL_Stmts
