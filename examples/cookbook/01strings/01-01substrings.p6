@@ -12,10 +12,5 @@ my ($string, $offset, $count) = ('Pugs is da bomb', 2, 5);
 say $string.substr($offset, $count);
 say $string.substr($offset);
 
-# fails with 
-# Cannot modify constant item
-#App "&substr" [] [Var "$string",Var "$offset"]
 substr($string, $offset) = "gilism ain't for wimps";
-
-# XXX Provide both function and method syntax for both fetch and store
-# operations, to avoid confusion?
+say $string;
