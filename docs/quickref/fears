@@ -1,0 +1,39 @@
+Frequently heard Perl 6 fears
+
+Fears end in exclamation marks for extra drama and silliness.
+
+Later, we can add responses below each listed fear. For now, I'm mostly
+collecting fears. Feel free to add responses, though.
+
+
+FEAR: Perl 6 has too many operators!
+
+FEAR: I will never be able to type Unicode ops!
+
+FEAR: Unicode ops cannot be read by me!
+
+FEAR: My Perl knowledge will be useless!
+
+FEAR: All my existing code will have to be rewritten!
+
+FEAR: Perl 6 is hard to learn!
+
+FEAR: Perl 6 will never be released!
+
+FEAR: A language or VM this powerful can never be fast!
+
+FEAR: Perl 6 is not Perl! Perl 6 does not look like Perl!
+
+FEAR: The new features won't be used by people!
+
+FEAR: Perl 6 will not be used as much as Perl 5 was!
+
+FEAR: Junctions will be abused!
+
+FEAR: The development process will implode in to a giant ball of ego and misery!
+
+FEAR: Perl 6 will be too much like Haskell!
+
+FEAR: Perl 6 has too many features just for completeness, rather than utility!
+
+
