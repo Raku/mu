@@ -47,6 +47,16 @@ our $DISPATCH_TRACE = 0;
             || confess "Bad instance (" . ($instance || 'undef') . ")";        
         ${$instance->{class}};
     }
+    
+    sub ::opaque_instance_change_class {
+        my ($instance, $class) = @_;
+        (defined $instance && blessed($instance) eq 'Dispatchable')
+            || confess "Bad instance (" . ($instance || 'undef') . ")";        
+        (defined $class && blessed($class) eq 'Dispatchable')
+            || confess "Bad instance (" . ($class || 'undef') . ")";                    
+        ${$instance->{class}} = $class;
+    }      
+    
     sub ::opaque_instance_attr ($$) : lvalue { 
         my $instance = shift;
         (defined $instance && blessed($instance) eq 'Dispatchable')
@@ -66,6 +76,8 @@ our $DISPATCH_TRACE = 0;
         $instance->{attrs}->{$label} = $value;       
         lock_keys(%{$instance->{attrs}});       
     }
+    
+    
 }
 
 {   ## Perl 6 Global Functions
