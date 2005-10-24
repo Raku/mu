@@ -35,7 +35,6 @@ for @a -> $elem {
 }
 
 # if you're not sure which type of data you have
-say "Rats.  Smartmatch isn't working yet.";
 @a = ('foo', 1, 2, 3, 4, 5, 'bar', 'baz');
 @b = ('bar', 3, 5);
 for @a -> $elem {
