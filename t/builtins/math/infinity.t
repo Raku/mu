@@ -20,12 +20,12 @@ plan 8;
 
 {
     my $x = int( Inf );
-    is( $x, Inf,   'int numeric equal', :todo<bug> );
-    is( $x, 'Inf', 'int string equal', :todo<bug> );
+    cmp_ok( $x, sub ($a,$b) { $a == $b }, Inf,   'int numeric equal' );
+    cmp_ok( $x, sub ($a,$b) { $a == $b }, 'Inf', 'int string equal', :todo<bug> );
 }
 
 {
     my $x = int( -Inf );
-    is( $x, -Inf,   'int negative numeric equal', :todo<bug> );
-    is( $x, '-Inf', 'int negative string equal', :todo<bug> );
+    cmp_ok( $x, sub ($a,$b) { $a == $b }, -Inf,   'int negative numeric equal');
+    cmp_ok( $x, sub ($a,$b) { $a == $b },'-Inf',  'int negative string equal', :todo<bug> );
 }
