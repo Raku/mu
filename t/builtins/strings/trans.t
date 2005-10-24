@@ -22,10 +22,10 @@ is("XYZ".trans( ('XYZ' => 'xyz') ),"xyz",
 is("ABC".trans( ('A-C' => 'a-c') ),"abc",
            "The two sides of the any pair can be strings interpreted as tr/// would range");
 
-is("ABC-DEF".trans(("-AB-Z" => "_a-z")),"abc-def",
+is("ABC-DEF".trans(("-AB-Z" => "_a-z")),"abc_def",
            "If the first character is a dash it isn't part of a range");
 
-is("ABC-DEF".trans(("A-YZ-" => "a-z_")),"abc-def",
+is("ABC-DEF".trans(("A-YZ-" => "a-z_")),"abc_def",
            "If the last character is a dash it isn't part of a range");
 
 
@@ -42,8 +42,8 @@ is("ABCXYZ".trans( (['A'..'C'] => ['a'..'c']), (<X Y Z> => <x y z>) ),"abcxyz",
            "The two sides of each pair may also be array references" );
 
 # We're probally unable to "fix" these two as long as the left hand of => gets stringified
-is("ABCDE".trans( ('a-e' => ['A' .. 'E']) ), "abcde",
-	   "Using string range on one side and array reference on the other",:todo );
+is("abcde".trans( ('a-e' => ['A' .. 'E']) ), "ABCDE",
+	   "Using string range on one side and array reference on the other");
 
 
 is("ABCDE".trans( (['A' .. 'E'] => "a-e") ), "abcde",
