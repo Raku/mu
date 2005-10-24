@@ -25,14 +25,15 @@ p5ugs> f(5)
 p5ugs> :v
 # toggle off verbosity
 
+
 Todo:
- - Perl6-Value and Perl6-Container need work.
-   Especially hashes.
- - PIL node handling is still very incomplete.  See EvalX.
- - Things have gotten rather crufty. Cleaning is needed.
+ - Perl6-Value and Perl6-Container need an overhaul.
+ - PIL-Run needs an overhaul.  (putter did most of a rewrite,
+   but it hasn't been checked in - feel free to contact him).
 
 Plan:
- - Support/encourage development of Perl6-Value and Perl6-Container.
+ - Await someone with interest and "tuits".
+   Or progress on Perl6-Value/Container or PIL2.
 
 
 Smoke notes:

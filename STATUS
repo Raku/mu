@@ -11,7 +11,7 @@ would like current details, please ask on irc.freenode.net #perl6.
 - JavaScript   Passes >90% of main tests (no ext/); missing P6 rules, some
                builtins, state (needs PIL1 fixes), full OO (needs PIL2)
 - Perl 5       Passes <50% of main tests (no ext/); currently implementing
-               run core, standard types, OO
+               standard types; run core development is inactive.
 - PIR          Restarted 2005-10-04
 
 
