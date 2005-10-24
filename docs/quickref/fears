@@ -2,29 +2,147 @@ Frequently heard Perl 6 fears
 
 Fears end in exclamation marks for extra drama and silliness.
 
-Later, we can add responses below each listed fear. For now, I'm mostly
-collecting fears. Feel free to add responses, though.
+Please feel free to revise this document, if your writing skills are better!
+(Read the pointers at the end of the file first, please.)
 
 
 FEAR: Perl 6 has too many operators!
 
+Perl 6 has a few more operators than Perl 5 had. This doesn't automatically make
+the language harder to learn. Many operators are there to make your life much
+easier. Many tedious and error prone loops are no longer needed, and there are
+operators that are very easy to learn that let you avoid constructs that are
+hard to learn.
+
+The number of operators has greatly increased because of some much needed
+separation. The single bitwise-AND operator is now three different operators.
+That does not mean you have to learn each of them. Their spelling is very
+consistent and takes very little learning. It will take less time to learn the
+new operators, than to learn how the old ones behaved in all the different
+situations.
+
+Perl uses symbols where other languages use words. Either way, to use a feature,
+you have to first learn how the feature is spelled. In this respect, a function
+with two arguments is just as hard as a symbol, especially if English is not
+your native language.
+
+If we say that you can now write "$foo == 1 | 2 | 3" instead of "$foo == 1 ||
+$foo == 2 || $foo == 3", you have learned a new operator in less than a second,
+with no effort at all. You don't even need to know that "1 | 2 | 3" is actually
+a single value that represents any of the three to use the "|" operator
+productively.
+
+
 FEAR: I will never be able to type Unicode ops!
+
+Configuring your system so that you can enter the new pretty glyphs may be hard,
+but it is expected to become much easier in the coming years. Some archaic
+technology may never be able to let you input these characters, though.
+
+It is not necessary to type any of the unicode symbols. They all have an
+equivalent that is plain ASCII, typable with one of the most limited keyboards
+used today: the US QWERTY keyboard. The ASCII variant may be one character more,
+but in many cases, it will be easier to type and work exactly the same.
+
 
 FEAR: Unicode ops cannot be read by me!
 
+A good editor will provide you a way to display the glyphs in other ways, and
+you can always choose to convert the source code to ASCII. 
+
+
 FEAR: My Perl knowledge will be useless!
+
+Programming isn't a skill of knowing syntax and a bunch of functions. It is a
+way of structured thinking. The philosophies behind different languages may
+differ, but the way you programmed in Perl 5 is still possible in Perl 6.  Just
+the spelling changed a little.
+
+Besides that, your Perl 5 knowledge will come in handy the many times that you
+encounter legacy Perl 5 code. When Perl 6 was released, there was still Perl 4
+code in production, even though very few people had experience with it.
+
 
 FEAR: All my existing code will have to be rewritten!
 
+Perl 5 will be around for as long as you need it. It is free software, not a
+subscription. There is no way it can be taken from you. But that is probably
+not what you meant. You don't want to have to keep Perl 5 around. That's what
+Ponie is for. Ponie implements Perl 5 for Parrot. Parrot is the virtual machine
+for Perl 6. You can use Perl 5 code in a Perl 6 application, if you want.
+
+If you want it to be real Perl 6 code, you can use the automatic conversion
+program. This takes your Perl 5 program and turns it into Perl 6. It may
+require some manual adjustments afterwards, but most will work automatically.
+This is assuming you didn't obfuscate or golf :) And of course, that your code
+does not depend on bugs in Perl 5.
+
+To get idiomatic Perl 6, yes, you will need to rewrite the code by hand.
+Whether this is worth the effort is up to you to decide. Keep in mind that Perl
+5 will not suddenly disappear.
+
+
 FEAR: Perl 6 is hard to learn!
+
+Perl has always been hard to learn. It pays off, though. Perl 6 can do more
+than Perl 5, and of course it will take longer to learn all of it. But for a
+fair comparison, you have to compare the feature subset of Perl 6 that was
+already available in Perl 5. And then you will see that learning the language
+will in fact be much easier, because unexpected side effects and changing
+symbols have been taken care of. Many things that required manual fiddling are
+now automatic. Especially in object oriented programming, the differences are
+huge. Perl 5 supported OOP, but didn't do much to help you do so. Perl 6 has a
+very complete object model. Perl 5 was, because of its complexity when dealing
+with objects, not well suited for teaching OO to beginners. Perl 6 aims to be
+much more usable in academic programming, and for first time programmers.
+
 
 FEAR: Perl 6 will never be released!
 
+While a release date is purposefully not given, there is no reason to assume
+that it will never be released. Building a language that supports all the ways
+of programming currently known to man, but also ways that are entirely new to
+us, is challenging and takes a lot of time. Perl 5 has been around for over 15
+years, and Perl 6 will also be built to last at least 20. Note, by the way,
+that it took all this time since 1987 to get Perl 5 where it is now. Doing that
+all over again (the right way, this time) isn't something we can do in a few
+dozen months.
+
+
 FEAR: All the Perl documentation will never be rewritten to match Perl 6!
+
+Of course not. I still have some old IBM BASIC manuals, and I'm quite sure that
+those have never been rewritten to match current BASIC dialects. Some books and
+manuals will be rewritten to match Perl 6, some new ones will be written from
+scratch and some will never see a Perl 6 version. As long as all target
+audiences get Perl 6 documentation suited to them, this does not have to be a
+problem.
+
+The official reference documentation will probably be rewritten from scratch,
+in a more structured and beginner friendly way, but with all the important
+warnings and side information you have learned to love from Perl 5.
+
 
 FEAR: A language or VM this powerful can never be fast!
 
+That has been said about almost every new language. The truth is that it all
+boils down to machine code eventually, and that this is fast, regardless of
+where this came from. The number of layers in between is somewhat important,
+but there's no universal rule than something that is powerful has to be slow.
+We're not about to invent the rule, either.
+
+Perl 6 is still a compiled language, like Perl 5 was. The VM that executes it
+is separated from the rest, but separation doesn't make slow. In fact, it
+allows for new optimization techniques that can apply to all the languages
+supported by the Parrot VM.
+
+
 FEAR: Perl 6 is not Perl! Perl 6 does not look like Perl!
+
+Perl 6 is not Perl 5 and hence does not look like Perl 5. But ask yourself what
+makes Perl be Perl and what makes Perl look like Perl. Sigils, context and
+expressive power are what make Perl, and each of these were improved.
+
 
 FEAR: The new features won't be used by people!
 
@@ -66,7 +184,23 @@ FEAR: Perl 6 is un-necessary and hurting Perl 5 development!
 
 FEAR: There is too much misinformation surrounding Perl 6!
 
-FEAR: perl6 will be far too slow!
+FEAR: Perl 6 will be far too slow!
 
-FEAR: I'll have to separately compile my Perl 6 programs (like what's usually
-      done with C programs)!
+FEAR: I'll have to separately compile my Perl 6 programs!
+
+(When adding your own, please keep in mind:
+ * 80 characters width, including the "FEAR: "
+ * No explanations. These can sound through in the responses if needed.
+ * Simple sentence structures
+ * Perl 6 has a capital P, and a space before the 6
+ * Fears end in exclamation points
+ * Try not to repeat existing fears)
+
+(When adding responses, please keep in mind:
+ * If the fear was in present tense, Perl 6 is present, Perl 5 is past
+ * If the fear was in future tense, Perl 5 is present, Perl 6 is future
+ * Don't cloud the explanation with actual Perl 6 code and examples
+ * This isn't a migration or tutorial document
+ * Do provide some code if you believe it's an extremely non-scary example
+ * This document is plain text, not POD, not HTML. Enclose code in "".
+ * Word wrap at 80 columns)
