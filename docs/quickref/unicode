@@ -67,8 +67,8 @@ be abused; however ❝cute❞ it might be…
    ⟨ ⟩         < >
    ⟪ ⟫         « »        (er, I mean << >> ;-) )
     →           ->
-    ‼          !(!($a))   (ie, cast to boolean (better: ?$a))
-   ⁇ ∷        ?? !!
+    ‼          !(!($a))   (i.e., cast to boolean (better: ?$a))
+   ⁇ ‼        ?? !!
     ∥         || or //
     ¹           **1       (as these glyphs are just "superscript 1" etc)
     ²           **2                    C-x ^ 2

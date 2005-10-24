@@ -13,6 +13,7 @@ Alphabetically sorted:
 
 - control      # looping / topicalizing constructs (while, given, if, etc)
 - data         # data types (scalars, arrays, hashes, pairs, ...)
+- fears        # frequently heard Perl 6 fears
 - func         # list of functions with their arguments
 - mod          # modules
 - namespace    # namespaces

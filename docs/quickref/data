@@ -78,6 +78,30 @@ Array, sigil: @
     ARRAY = LIST
     [ LIST ]       # anonymous ref
 
+    Note:
+        (42)       # this is neither a list nor an array,
+                   # but a scalar (the Num 42)
+        (42,)      # this is an one-element array
+        list 42    # this is an one-element array
+        (42,23)    # this is a two-element array
+
+        []         # this is a zero-element arrayref
+        [42]       # this is an one-element arrayref
+        [42,]      # this is an one-element arrayref
+        [42,23]    # this is a two-element arrayref
+
+    List construction (via the comma operator, &infix:<,>), does not create
+    containers, meaning that the elements are aliases:
+
+        ($foo,$bar)[0] =:= $foo;  # true
+        ($foo,$bar)[0]   = $baz;  # $foo changed to $baz
+
+    By contast, arrayref construction by the [] operator, &circumfix:<[ ]>,
+    does create new containers:
+
+        [$foo,$bar][0] =:= $foo;  # false
+        [$foo,$bar][0]   = $baz;  # $foo not changed
+
 Hash, sigil: %
 
     list %foo        # List of pairs
