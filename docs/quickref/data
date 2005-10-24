@@ -116,6 +116,41 @@ Array, sigil: @
         shift @array;             # works too, as assignment to an array
                                   # implicitly creates new containers.
 
+    (While in Perl 5 the distinction between lists and arrays was necessary and
+    very useful, this distinction is very much blurred in Perl 6. Amongst other
+    reasons, this is because arrays auto-reference in scalar context to a
+    reference to itself. Also, it's no longer the parentheses which create list
+    context, but a slurpy array in some signature. In Perl 6, the comma
+    operator creates arrays, parens are only for grouping:
+
+        # Perl 5
+        sub foo { (1,2,3) }
+        my $scalar = foo();  # 3
+        my @array  = foo();  # (1,2,3)
+
+        # Perl 6
+        sub foo { (1,2,3) }
+        my $scalar = foo();  # [1,2,3]
+        my @array  = foo();  # (1,2,2)
+
+    Also note that list context, i.e. the context supplied by a slurpy array in
+    a signature, automatically flattens arrays and hashes (but not references
+    to arrays or hashes):
+
+        sub this_provides_list_context (*@things) { @things[0] }
+        my @foo = <a b c>;
+        my @bar = <d e f>;
+        say this_provides_list_context(@foo, @bar);
+        # "a", not the stringification of @foo (which would be "a b c").
+
+    The list constructing comma operator supplies this list context:
+
+        sub *infix:<*> (*@things) {...}
+
+    This also explains why (@foo, @bar) does not create an array containing two
+    elements, but an array containing @foo+@bar items. (Like
+    "@foo.concat(@bar)" in other languages.))
+
 Hash, sigil: %
 
     list %foo        # List of pairs
