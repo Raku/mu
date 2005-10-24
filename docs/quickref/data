@@ -96,11 +96,25 @@ Array, sigil: @
         ($foo,$bar)[0] =:= $foo;  # true
         ($foo,$bar)[0]   = $baz;  # $foo changed to $baz
 
+    This also means that
+
+        (42,23)[0] = 17;  # is a fatal error ("can't modify constant")
+        # Similarly, you can't shift(), pop(), unshift() etc. arrays created by
+        # the comma operator:
+        shift (42,23);    # dies
+
     By contast, arrayref construction by the [] operator, &circumfix:<[ ]>,
     does create new containers:
 
         [$foo,$bar][0] =:= $foo;  # false
         [$foo,$bar][0]   = $baz;  # $foo not changed
+
+        shift [42,23];            # lives (but the arrayref is discarded after
+                                  # the operation)
+
+        my @array = (42,23);
+        shift @array;             # works too, as assignment to an array
+                                  # implicitly creates new containers.
 
 Hash, sigil: %
 
