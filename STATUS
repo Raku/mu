@@ -70,8 +70,7 @@ would like current details, please ask on irc.freenode.net #perl6.
 *** No support for aliases
 *** No support for embedded closures
 *** Rules do not always behave correctly
-** Other implementations in progress; putter working on several variations,
-   currently blocked on ability to return a Rul (default class that does Rule)
+** Other implementations have been started, but are currently inactive.
 ** Preparing to move all Pugs-hosted Perl 6 rule tests to Parrot repository
    as of 2005-10-04
 
