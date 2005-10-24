@@ -42,9 +42,9 @@ So, these *might* be considered not too awful;
 
     ×           *           ^k * X     C-x 8 x
     ¬           !           ^k N O     C-x 8 ~ ~
-    ∕           /           ^k / f     C-q 1236065
-    ÷           /           ^k : -     C-x 8 / /
-    ≡          =:=          ^k = 3     \equiv
+    ∕           /                      C-q 1236065
+    ÷           /                      C-x 8 / /
+    ≡          =:=                     \equiv
     ≔           :=                     \coloneq
   ⩴ or ≝       ::=                     C-q 1113524 / C-q 1236175
   ≈ or ≊        ~~          ^k ? 2     \approx / \approxeq
