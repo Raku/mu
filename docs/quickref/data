@@ -205,6 +205,58 @@ Pair (used via reference)
     \__ thus: :key<>, :key<<>>
     key => 'value'  # 'key' => 'value' (LHS auto-quoted)
 
+References
+
+    In Perl 6, references usually auto-dereference when treated
+    non-referencially. This auto-referenciation magic applies to references to
+    arrays and hashes:
+
+        my $arrayref = @array;     # sugar for
+        my $arrayref = \@array;
+        say $arrayref[42];         # outputs @array[42]
+        say $arrayref ~~ Ref;      # false
+        say $arrayref ~~ Array;    # true
+
+        my $hashref = %hash;       # sugar for
+        my $hashref = \%hash;
+        say $hashref<key>;         # outputs %hash<key>
+        say $hashref ~~ Ref;       # false
+        say $hashref ~~ Hash;      # true
+
+    References to other things do not automatically dereference:
+
+        my $scalarref = \42;
+        say ~$scalarref;           # dies ("can't stringify references")
+        say +$scalarref;           # dies ("can't numify references")
+        say ?$scalarref;           # true, even if $scalarref happened to
+                                   # point to an otherwise false value
+                                   # (e.g. undef or 0).
+        say $scalarref ~~ Ref;     # true
+        say $scalarref ~~ Num;     # false
+
+        my $scalarref = \\@array;  # reference to a reference to an array
+        say $scalarref ~~ Ref;     # true
+        say $scalarref ~~ Array;   # false
+
+    The auto-dereferentiation magic does only apply to numification,
+    stringification, and booleanification, *not* to assignment and binding.
+
+        my $foo  = @array;
+        my $bar  = $foo;
+        $bar[42] = $new;           # @array[42] changed to $new
+
+    References (even references to arrays or hashes) do not flatten in list
+    context:
+
+        my @array = ($arrayref1, $arrayref2);
+        # @array consists of two elements
+
+    (Also note that
+
+        my @array = $arrayref;     # is sugar for
+        my @array = ($arrayref,);  # which means that
+        say +@array;               # will output 1.)
+
 Things with blocks
 
     Named               Anonymous             See also

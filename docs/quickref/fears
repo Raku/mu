@@ -66,3 +66,7 @@ FEAR: Perl 6 is un-necessary and hurting Perl 5 development!
 
 FEAR: There is too much misinformation surrounding Perl 6!
 
+FEAR: perl6 will be far too slow!
+
+FEAR: I'll have to separately compile my Perl 6 programs (like what's usually
+      done with C programs)!
