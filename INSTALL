@@ -185,4 +185,3 @@ CAVEATS FOR x86_64 MACHINES
 
 GHC 6.4.1 or later is required.
 
-There is currently an undiagnosed bug in eval_yaml().
