@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 183;
+plan 185;
 
 my $five = abs(-5);
 
@@ -321,10 +321,11 @@ is $inf2, Inf, "Inf**Inf";
 
 # See http://mathworld.wolfram.com/Indeterminate.html
 # for why these three values are defined like they are.
-#tryeq 0.9**Inf, 0, "0.9**Inf converges towards 0";
-#tryeq 1.1**Inf, Inf, "1.1**Inf diverges towards Inf";
-# is 1**Inf, NaN; ## XXX - platform-specific!
-fail("1**Inf is platform-specific -- it's 1 on OSX and NaN elsewhere", :todo);
+is 0.9**Inf, 0,   "0.9**Inf converges towards 0";
+is 1.1**Inf, Inf, "1.1**Inf diverges towards Inf";
+is 1**Inf, 1 , :todo("1**Inf == 1");
+
+#fail("1**Inf is platform-specific -- it's 1 on OSX and NaN elsewhere", :todo);
 
 # NaN
 is NaN, NaN;
