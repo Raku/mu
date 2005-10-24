@@ -42,13 +42,13 @@ So, these *might* be considered not too awful;
 
     ×           *           ^k * X     C-x 8 x
     ¬           !           ^k N O     C-x 8 ~ ~
-    ∕           /                      C-q 1236065
-    ÷           /                      C-x 8 / /
-    ≡          =:=                     \equiv
-    ≔           :=                     \coloneq
+    ∕           /           ^k / f     C-q 1236065
+    ÷           /           ^k :-      C-x 8 / /
+    ≡          =:=          ^k = 3     \equiv
+    ≔           :=          ^v u 2254  \coloneq
   ⩴ or ≝       ::=                     C-q 1113524 / C-q 1236175
   ≈ or ≊        ~~          ^k ? 2     \approx / \approxeq
-    …          ...                     \ldots
+    …          ...          ^v u 2026  \ldots
     √          sqrt()       ^k R T     \surd
     ∧           &&          ^k A N     \wedge
     ∨           ||          ^k O R     \vee
