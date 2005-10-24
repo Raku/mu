@@ -12,6 +12,8 @@ use Pod::Simple::HTML;
 use Pod::PlainText;
 use Tie::RefHash;
 use List::Util 'first';
+use CGI;
+
 $|++;
 
 () = <<__NOTES__;
@@ -21,6 +23,9 @@ as we go.  Then get the design docs, and format those as HTML, linking to
 the links, and inserting a names where needed.
 
 __NOTES__
+
+
+my $cgi = new CGI;
 
 # You will need the Synopses checked out. Do this:
 #   cd ..
@@ -34,8 +39,9 @@ __NOTES__
 #   $PERL6-BIBLE =  http://tpe.freepan.org/repos/iblech/Perl6-Bible/
 
 my $syn_src_dir; # The root directory for Synopsis POD
-my $t_dir;      # The root directory of the test tree.
-my $output_dir; # The root directory of the output tree.
+my $t_dir;       # The root directory of the test tree.
+my $output_dir;  # The root directory of the output tree.
+
 # ref to hash of information about links that we mean to insert.
 # Top level index is file, second level is an array ref of hash refs.
 # FIXME: Document next level.
@@ -51,11 +57,11 @@ if  ( $syn_src_dir ) {
         $syn_src_dir = catdir('..', 'Perl6-Bible', 'lib', 'Perl6', 'Bible') unless -f catfile($syn_src_dir, 'syn', "S12.pod");
     }
 }
-$t_dir ||= 't';
+$t_dir      ||= 't';
 $output_dir ||= 't_index';
 
-$t_dir = rel2abs($t_dir);
-$output_dir = rel2abs($output_dir);
+$t_dir       = rel2abs($t_dir);
+$output_dir  = rel2abs($output_dir);
 $syn_src_dir = rel2abs($syn_src_dir);
 
 print "Synopsis: $syn_src_dir\n";
@@ -63,9 +69,43 @@ print "Tests   : $t_dir\n";
 print "Output  : $output_dir\n";
 print "\n";
 
+my $index = {};
+
 find(\&handle_t_file, $t_dir);
 
 infest_syns($link_info);
+
+my $index_file = catfile($output_dir,"index.html");
+open( my $fh,'>',  $index_file) or die "Failed to open $index_file: $!";
+print $fh output_index($index);
+close $fh;
+
+use Data::Dumper;
+print Dumper($index);
+
+sub output_index {
+    my $index = shift;
+    my $output = "<HTML><HEAD><TITLE>Index</TITLE></HEAD><BODY><UL>";
+    $output .= process_head("t", $index);
+    $output .= "</UL></BODY></HTML>";
+    return $output;
+}
+
+sub process_head {
+    my $path = shift;
+    my $head = shift;
+    my $output;
+    return $head unless ref $head eq "HASH";
+    if (exists $head->{_dirs}) {
+        $output .= "<LI>$_<ul>" . process_head($path ."/". $_, $head->{_dirs}->{$_}) . "</ul></LI>" for sort keys %{$head->{_dirs}};
+    }
+    
+    if (exists $head->{_files}) {
+        $output .= "<li><a href='$path/$_.html'>$_</a></li>\n" for sort @{$head->{_files}};
+    }
+
+    return $output;
+}
 
 # Note: this is intended to be called from File::Find::find as a wanted
 # routine, so takes odd parameters.
@@ -73,15 +113,25 @@ sub handle_t_file {
   return unless /\.t$/;
   my $input_path=rel2abs($_);
   my $output_path=inpath_to_outpath($input_path);
+  my ($path, $file) = $input_path =~ m|^$t_dir/(.*)/(.*)\.t$|;
   
+  my (@paths) = splitdir($path);
+  my $loc  = 'push @{$index';
+  $loc .= "->{_dirs}->{" . $_ . "}" for @paths;
+  $loc .= "->{_files}} , '$file'";
+  eval $loc;
   print "$input_path => $output_path\n";
   
   mkpath(dirname $output_path);
 
-  my $infile = IO::File->new($input_path, "<:utf8") or die "Can't open input test file $input_path: $!";
-  my $outfile = IO::File->new($output_path, ">:utf8") or die "Can't open output test file $output_path: $!";
+  my $infile  = IO::File->new($input_path, "<:utf8") 
+                         or die "Can't open input test file $input_path: $!";
+  my $outfile = IO::File->new($output_path, ">:utf8")
+                         or die "Can't open output test file $output_path: $!";
   
-  my $outtree = HTML::TreeBuilder->new_from_content("<html><head><title></title></head><body><tt><pre></pre></tt></body></html>");
+  my $outtree = HTML::TreeBuilder->new_from_content(
+                          "<html><head><title></title></head>" .
+                          "<body><tt><pre></pre></tt></body></html>");
   
   $outtree->look_down(_tag=>'title')->push_content($input_path);
   my $body = $outtree->look_down(_tag=>'pre');
@@ -167,7 +217,7 @@ sub infest_syns {
         unless ( -f $synpod ) {
             if    ( $syn =~ /^S/i ) { $synpod = catfile($syn_src_dir, 'syn', "$syn.pod"); }
             elsif ( $syn =~ /^A/i ) { $synpod = catfile($syn_src_dir, 'apo', "$syn.pod"); } 
-            elsif ( $syn =~ /^E/i ) { $synpod = catfile($syn_src_dir, 'e', "$syn.pod"); } 
+            elsif ( $syn =~ /^E/i ) { $synpod = catfile($syn_src_dir, 'exe', "$syn.pod"); } 
         }
         Pod::Simple::HTML->parse_from_file($synpod, $synhtml);
 
@@ -251,7 +301,7 @@ sub infest_syns {
                 # $backlink->push_content(abs2rel($source, $output_dir));
                 $h->push_content($backlink);
                 my $t = HTML::Element->new('sup');
-                $t->push_content('t');
+                $t->push_content('test');
                 $backlink->push_content($t);
 
                 
