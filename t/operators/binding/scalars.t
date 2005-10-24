@@ -15,7 +15,7 @@ L<S03/"Binding">
 
 plan 28;
 
-# L<S03/"Binding" /replaces the container itself.  For instance:/>
+# L<S03/"Binding" /replaces the container itself\.  For instance:/>
 # Basic scalar binding tests
 {
   my $x = 'Just Another';

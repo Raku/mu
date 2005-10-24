@@ -7,7 +7,7 @@ plan 5;
 
 =kwid
 
-L<perlop/"Quote and Quote-like Operators"> # search for SMILEY
+<perlop/"Quote and Quote-like Operators"> # search for SMILEY
 
 =cut
 

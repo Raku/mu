@@ -8,7 +8,7 @@ use Test;
 
 These tests are the testing for "Method" section of Synopsis 12
 
-L<<S12/"Method" /Indirect object notation now requires a colon after the invocant if there are any arguments.*the same thing:/>>
+L<<S12/"Methods" /Indirect object notation now requires a colon after the invocant if there are any arguments.*the same thing:/>>
 
 =cut
 

@@ -7,11 +7,11 @@ plan 10;
 
 =pod
 
-Conflict resolution role tests, see L<S12/"Conflict Resolution">
+Conflict resolution role tests, see L<S12/"Roles">
 
 =cut
 
-# L<S12/"Conflict Resolution">
+# L<S12/"Roles">
 my ($was_in_sentry_shake, $was_in_pet_shake, $was_in_general_shake) = (0) xx 3;
 eval_ok '
   role Sentry { method shake() { $was_in_sentry_shake++; "A" } }

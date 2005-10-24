@@ -44,7 +44,7 @@ eval 'class Foo2 { has $.bar = "baz"; }';
     # what exactly will happen if we try to set bar()
 }
 
-# L<S12/"Attributes" /trait causes the generated accessor to be declared C\<rw\>\, making it/>
+# L<S12/"Attributes" /making it an lvalue method/>
 
 class Foo3 { has $.bar is rw; };
 

@@ -80,9 +80,6 @@ open( my $fh,'>',  $index_file) or die "Failed to open $index_file: $!";
 print $fh output_index($index);
 close $fh;
 
-use Data::Dumper;
-print Dumper($index);
-
 sub output_index {
     my $index = shift;
     my $output = "<HTML><HEAD><TITLE>Index</TITLE></HEAD><BODY><UL>";
@@ -120,7 +117,7 @@ sub handle_t_file {
   $loc .= "->{_dirs}->{" . $_ . "}" for @paths;
   $loc .= "->{_files}} , '$file'";
   eval $loc;
-  print "$input_path => $output_path\n";
+  #print "$input_path => $output_path\n";
   
   mkpath(dirname $output_path);
 
@@ -221,7 +218,7 @@ sub infest_syns {
         }
         Pod::Simple::HTML->parse_from_file($synpod, $synhtml);
 
-        print STDERR "$synpod => $synhtml\n";
+        #print STDERR "$synpod => $synhtml\n";
 
         # and parse it into a tree
         my $sobj = HTML::TreeBuilder->new_from_file($synhtml);
@@ -344,7 +341,7 @@ sub infest_syns {
                     }
 
                     if (!$found) {
-                      warn "Found $regex in $target / $heading, but couldn't localize (from $source)";
+#                      warn "Found $regex in $target / $heading, but couldn't localize (from $source)";
 
                       # Part of the content is inside a pre.
                       $h->push_content($backlink);

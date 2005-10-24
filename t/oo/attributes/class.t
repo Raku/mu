@@ -9,7 +9,7 @@ Class Attributes
 
 =cut
 
-# L<S12/"Attributes" /"Class attributes are declared"/>
+# L<S12/"Attributes">
 
 plan 8;
 
