@@ -59,7 +59,7 @@ differ, but the way you programmed in Perl 5 is still possible in Perl 6.  Just
 the spelling changed a little.
 
 Besides that, your Perl 5 knowledge will come in handy the many times that you
-encounter legacy Perl 5 code. When Perl 6 was released, there was still Perl 4
+encounter legacy Perl 5 code. When Perl 5 was released, there was still Perl 4
 code in production, even though very few people had experience with it.
 
 
@@ -175,6 +175,9 @@ FEAR: Perl 6 has too many features just for completeness, rather than utility!
 FEAR: Implementing unnecessary features will delay development!
 
 FEAR: Perl 6 makes golf (and obfuscation) hard and thus ruin culture!
+
+Look at the examples/obfu/, examples/japh/ and examples/golf/
+directories in the pugs repository.
 
 FEAR: Perl 6 is made for big programs, not for oneliners and short scripts!
 
