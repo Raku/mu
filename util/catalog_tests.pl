@@ -105,7 +105,7 @@ sub build_indexes {
     my @files = sort @{$index->{_files}};
     my $template = HTML::Template->new(filename => 'util/catalog_tmpl/directory.tmpl');
     $template->param(directories => [ map { { title => $_ }} @dirs  ]);    
-    $template->param(files       => [ map { { file  => $_ }} @files ]); 
+    $template->param(files       => [ @files ]); 
     print $fh $template->output();
     close $fh;
     for (@dirs) {
@@ -130,13 +130,7 @@ sub handle_t_file {
   $relative_file =~ s/t$/html/;
   my $output_path   = inpath_to_outpath($input_path);
   my ($path, $file) = $input_path =~ m|^$t_dir/(.*)/(.*)\.t$|;
-  
-  my (@paths) = splitdir($path);
-  my $loc  = 'push @{$index';
-  $loc .= "->{_dirs}->{" . $_ . "}" for @paths;
-  $loc .= "->{_files}} , '$file'";
-  eval $loc;
-  #print "$input_path => $output_path\n";
+  my $links = 0;
   
   mkpath(dirname $output_path);
 
@@ -205,6 +199,7 @@ sub handle_t_file {
       )->push_content($whole));
 
       push @{$link_info->{$linkfile}}, $link;
+      $links++;
     }
     
     if ($rest) {
@@ -213,6 +208,14 @@ sub handle_t_file {
     $body->push_content("\n");
   }
   
+  my $data = { file => $file, links => $links};
+  my (@paths) = splitdir($path);
+  my $loc  = 'push @{$index';
+  $loc .= "->{_dirs}->{" . $_ . "}" for @paths;
+  $loc .= "->{_files}} , \$data";
+  eval $loc;
+  #print "$input_path => $output_path\n";
+  #
   $outfile->print($outtree->as_HTML(undef, ' '));
   $outtree->delete;
 }
