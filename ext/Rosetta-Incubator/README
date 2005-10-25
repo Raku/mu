@@ -30,7 +30,7 @@ Perl 6.  At the same time, however, the Perl 6 language is new and a moving
 target, and current hosts or run-times for Perl 6 code are only partially
 complete, so this version may be slower to become functional in the first
 place.  This said, the Rosetta framework is being developed in Perl 6 now
-so it can serve as an integration test for Pugs, helping its development. 
+so it can serve as an integration test for Pugs, helping its development.
 Moreover, it should assist other early-adopter developers that want to
 write database using applications in Perl 6.
 
