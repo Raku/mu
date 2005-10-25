@@ -3,6 +3,7 @@
 use v6;
 use Test;
 
+# L<A02/"RFC 212: Make C<length(@array)> Work">
 plan 12;
 
 {

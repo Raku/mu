@@ -6,7 +6,7 @@ use Test;
 =kwid
 
 Array .end tests
-
+L<A02/"Other Decisions About Variables" /use \@foo\.end instead\./>
 =cut
 
 plan 14;

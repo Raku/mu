@@ -4,7 +4,7 @@ use v6;
 use Test;
 
 # Tests for sprintf() and .as().
-
+# L<S02/"Names and Variables" /formatted representation of any scalar data value/>
 plan 10;
 
 is sprintf("Hi"),                 "Hi",     "sprintf() works with zero args";

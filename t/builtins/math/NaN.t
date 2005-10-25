@@ -7,6 +7,7 @@ plan 2;
 
 # Undeterminate Math results
 # see http://mathworld.wolfram.com/Indeterminate.html
+L<S02/"Built-In Data Types" /Perl 6 should by default make standard IEEE floating point concepts visible/>
 
 is 0 * Inf  , NaN, "0 * Inf";
 is Inf / Inf, NaN, "Inf / Inf";
