@@ -201,8 +201,10 @@ FEAR: Perl 6 is un-necessary and hurting Perl 5 development!
 FEAR: There is too much misinformation surrounding Perl 6!
 
 FEAR: Perl 6 will be far too slow!
+# s/Perl 6/perl6/? (The fear refers to the compiler/interpreter/VM, not the
+# language)
 
-FEAR: I'll have to separately compile my Perl 6 programs!
+FEAR: I'll have to manually separately compile my Perl 6 programs!
 
 (When adding your own, please keep in mind:
  * 80 characters width, including the "FEAR: "
