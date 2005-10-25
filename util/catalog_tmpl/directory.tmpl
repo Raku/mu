@@ -1,0 +1,22 @@
+<hmtl>
+<head>
+<title>Test Catalog and Documentation cross reference.</title>
+</head>
+<body>
+<TMPL_IF name='directories'><h2>Sub-Directories</h2>
+<ul>
+<TMPL_LOOP name="directories">
+    <li><a href='<TMPL_VAR name="title">'><TMPL_VAR name="title"></a></li>
+</TMPL_LOOP>
+</ul>
+</TMPL_IF>
+
+<h2>Files</h2>
+<ul>
+<TMPL_LOOP name="files">
+    <li><a href='<TMPL_VAR name='file'>.html'><TMPL_VAR name="file"></a> (<TMPL_VAR name="links">)</li>
+</TMPL_LOOP>
+</ul>
+</body>
+</html>
+
