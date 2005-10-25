@@ -146,6 +146,22 @@ expressive power are what make Perl, and each of these were improved.
 
 FEAR: The new features won't be used by people!
 
+This was said about Perl 5 too, when it got object orientation, references and
+lexical variables. New features can be very intimidating, but eventually people
+do discover their use, and that they're not so hard to get used to. Not
+everyone will use every feature, but that too is true for every sane
+programming language in existence. This is okay, because without the new
+features, Perl 6 is still a great language. If someone uses a loop instead of a
+nice hyper operator, that is just another way of doing the same thing. 
+
+Many new features make programming much easier, even for beginning programmers
+who may not know the details of the new features. It is probably safe to assume
+that the majority of new features will be used. If you are really afraid that
+they won't, do know that you can play a role in their acceptance. Be active in
+the community, show that you are using the new features in intelligent ways,
+and others will catch up.
+
+
 FEAR: Perl 6 will not be used as much as Perl 5 was!
 
 FEAR: Junctions will be abused!
