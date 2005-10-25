@@ -205,7 +205,15 @@ FEAR: There is too much misinformation surrounding Perl 6!
 
 FEAR: Perl 6 will be far too slow!
 # s/Perl 6/perl6/? (The fear refers to the compiler/interpreter/VM, not the
-# language)
+# language) This kind of distinction isn't necessary when the context is clear.
+# The whole is called Perl 6. That includes the language and the compiler. If
+# you wish to specifically address the VM, use its name, Parrot. I prefer to
+# keep this document non-nerdy. There are numerous "normal" people out there
+# who have to work with Perl, and they are the most frightened.
+# For practical purposes, this fear is equal to: FEAR: A language or VM this
+# powerful can never be fast!
+
+
 
 FEAR: I'll have to manually separately compile my Perl 6 programs!
 
