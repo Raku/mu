@@ -12,7 +12,9 @@ use Pod::Simple::HTML;
 use Pod::PlainText;
 use Tie::RefHash;
 use List::Util 'first';
-use CGI;
+use Data::Dumper;
+
+use HTML::Template;
 
 $|++;
 
@@ -25,7 +27,6 @@ the links, and inserting a names where needed.
 __NOTES__
 
 
-my $cgi = new CGI;
 
 # You will need the Synopses checked out. Do this:
 #   cd ..
@@ -54,9 +55,11 @@ if  ( $syn_src_dir ) {
     $syn_src_dir = catdir($t_dir, 'Synopsis');
     unless ( -f catfile($syn_src_dir, "S12.pod") ) {
         $syn_src_dir = catdir('..', 'perl6_doc', 'design' );
-        $syn_src_dir = catdir('..', 'Perl6-Bible', 'lib', 'Perl6', 'Bible') unless -f catfile($syn_src_dir, 'syn', "S12.pod");
+        $syn_src_dir = catdir('..', 'Perl6-Bible', 'lib', 'Perl6', 'Bible') 
+                        unless -f catfile($syn_src_dir, 'syn', "S12.pod");
     }
 }
+
 $t_dir      ||= 't';
 $output_dir ||= 't_index';
 
@@ -70,46 +73,62 @@ print "Output  : $output_dir\n";
 print "\n";
 
 my $index = {};
+my (@unresolved, @bad_regex, @bad_heading);
 
 find(\&handle_t_file, $t_dir);
 
 infest_syns($link_info);
 
+my @dirs = sort keys %{$index->{_dirs}};
 my $index_file = catfile($output_dir,"index.html");
 open( my $fh,'>',  $index_file) or die "Failed to open $index_file: $!";
-print $fh output_index($index);
+my $template = HTML::Template->new(filename => 'util/catalog_tmpl/index.tmpl');
+$template->param(directories => [ map { { title => $_ }} @dirs ]);
+print $fh $template->output();
 close $fh;
 
-sub output_index {
-    my $index = shift;
-    my $output = "<HTML><HEAD><TITLE>Index</TITLE></HEAD><BODY><UL>";
-    $output .= process_head("t", $index);
-    $output .= "</UL></BODY></HTML>";
-    return $output;
+
+
+for (@dirs) {
+    build_indexes(catdir("t",$_), $index->{_dirs}->{$_});
 }
 
-sub process_head {
-    my $path = shift;
-    my $head = shift;
-    my $output;
-    return $head unless ref $head eq "HASH";
-    if (exists $head->{_dirs}) {
-        $output .= "<LI>$_<ul>" . process_head($path ."/". $_, $head->{_dirs}->{$_}) . "</ul></LI>" for sort keys %{$head->{_dirs}};
-    }
+sub build_indexes {
+    my $path     = shift;
+    my $index    = shift;
     
-    if (exists $head->{_files}) {
-        $output .= "<li><a href='$path/$_.html'>$_</a></li>\n" for sort @{$head->{_files}};
+    return unless exists $index->{_dirs} or exists $index->{_files};
+    
+    my $index_file = catfile($output_dir, $path, "index.html");
+    open (my $fh,'>', $index_file) or die "Failed to open $index_file: $!";
+    my @dirs  = sort keys %{$index->{_dirs}};
+    my @files = sort @{$index->{_files}};
+    my $template = HTML::Template->new(filename => 'util/catalog_tmpl/directory.tmpl');
+    $template->param(directories => [ map { { title => $_ }} @dirs  ]);    
+    $template->param(files       => [ map { { file  => $_ }} @files ]); 
+    print $fh $template->output();
+    close $fh;
+    for (@dirs) {
+        build_indexes( catdir($path, $_), $index->{_dirs}->{$_});
     }
+} 
 
-    return $output;
-}
+
+my $error_file = catfile($output_dir,"error.html");
+open( my $error, '>', $error_file) or die "Failed to open $error_file: $!";
+my $template = HTML::Template->new(filename => 'util/catalog_tmpl/error.tmpl');
+$template->param(unresolved => \@unresolved);
+print $error $template->output;
+close $error;
 
 # Note: this is intended to be called from File::Find::find as a wanted
 # routine, so takes odd parameters.
 sub handle_t_file {
   return unless /\.t$/;
-  my $input_path=rel2abs($_);
-  my $output_path=inpath_to_outpath($input_path);
+  my $input_path    = rel2abs($_);
+  my $relative_file = abs2rel($input_path,$t_dir);
+  $relative_file =~ s/t$/html/;
+  my $output_path   = inpath_to_outpath($input_path);
   my ($path, $file) = $input_path =~ m|^$t_dir/(.*)/(.*)\.t$|;
   
   my (@paths) = splitdir($path);
@@ -125,12 +144,11 @@ sub handle_t_file {
                          or die "Can't open input test file $input_path: $!";
   my $outfile = IO::File->new($output_path, ">:utf8")
                          or die "Can't open output test file $output_path: $!";
+                         
+  my $template = HTML::Template->new(filename => '/home/eric256/pugs/util/catalog_tmpl/code.tmpl');  
+  $template->param("file" => $file);
+  my $outtree = HTML::TreeBuilder->new_from_content($template->output);
   
-  my $outtree = HTML::TreeBuilder->new_from_content(
-                          "<html><head><title></title></head>" .
-                          "<body><tt><pre></pre></tt></body></html>");
-  
-  $outtree->look_down(_tag=>'title')->push_content($input_path);
   my $body = $outtree->look_down(_tag=>'pre');
   
   my $quotable = qr/\w+|$RE{delimited}{-delim=>'"'}/;
@@ -157,24 +175,22 @@ sub handle_t_file {
       my $linkhead = $4;
       # $5  captures the entire match
       # $6  captures the opening delimiter (provided only one delimiter was specified)
-      my $regex=$7;  # captures delimited portion of the string (provided only one delimiter was specified)
+      my $regex    = $7; 
+      # captures delimited portion of the string (provided only one delimiter was specified)
       # $8  captures the closing delimiter (provided only one delimiter was specified)
-      my $reopts=$9;
-      $rest=$10;
+      my $reopts   = $9;
+      $rest        = $10;
       
       $linkfile = $1 if ($linkfile =~ /^"(.*)"$/);
       $linkhead = $1 if ($linkhead =~ /^"(.*)"$/);
       
-#     print STDERR "before link: $text\n";
-#     print STDERR "$whole: linkfile: $linkfile linkhead: $linkhead regex: $regex reopts: $reopts\n";
-#     print STDERR "after link: $rest\n";
-      
       $body->push_content(HTML::Element->new('pre')->push_content($text));
       
       my $link = {};
-      $link->{linkfile}=$linkfile;
-      $link->{linkhead}=$linkhead;
-      $link->{whole}=$whole;
+      $link->{linkfile} = $linkfile;
+      $link->{linkhead} = $linkhead;
+      $link->{whole}    = $whole;
+      $link->{relfile}  = $relative_file;
       if ($regex) {
         $reopts||='';
         $link->{regex} = eval "qr/$regex/$reopts";
@@ -248,11 +264,6 @@ sub infest_syns {
             
             my $end_n = $end->pindex;
 
-#           print STDERR "$tag from $beg_n to $end_n: ";
-#           print STDERR "\n";
-#           $beg->dump(\*STDERR);
-#           $end->dump(\*STDERR);
-
             my $name = join '', 
               map {$_->attr('text')} 
                 $beg->look_down(_tag=>'~text');
@@ -270,11 +281,12 @@ sub infest_syns {
         $sobj->deobjectify_text;
 
         tie my %sup_links, 'Tie::RefHash';
-        foreach my $link (reverse @{ $index->{$syn} }){ # reverse is since we're splicing right after the h1
-            my $target = $link->{linkfile};
+        foreach my $link (reverse @{ $index->{$syn} }){
+          # reverse is since we're splicing right after the h1
+            my $target  = $link->{linkfile};
             my $heading = $link->{linkhead};
-            my $source = $link->{sourcepath};
-            my $regex = $link->{regex};
+            my $source  = $link->{sourcepath};
+            my $regex   = $link->{regex};
 
             # create a representation that is like the $html->as_text
             $heading = $p->interpolate($heading);
@@ -289,7 +301,8 @@ sub infest_syns {
                 my $h = $sobj->look_down(_tag=>'div', class => qr/^h\d$/, name => $heading_re);
                 
                 unless ($h) {
-                    warn qq{Couldn't resolve L<$target/"$heading"> from $source.\n};
+                    push @unresolved, { target => $target, heading  => $heading,
+                                        relative => $link->{relfile} };
                     next;
                 };
 
@@ -298,7 +311,7 @@ sub infest_syns {
                 # $backlink->push_content(abs2rel($source, $output_dir));
                 $h->push_content($backlink);
                 my $t = HTML::Element->new('sup');
-                $t->push_content('test');
+                $t->push_content('T');
                 $backlink->push_content($t);
 
                 
@@ -306,13 +319,8 @@ sub infest_syns {
                 if ($regex) {
                     # we're skipping forward till we find a regex
 
-#                   print STDERR "Looking for RE $regex\n";
-
-#                   $h->dump(\*STDERR);
-
                     my @stuff = $h->look_down(sub {$_[0]->as_text =~ $regex});
 
-#                   warn "Found ".(@stuff+0)." matches";
 
                     if (!@stuff) {
                       goto notregex;
@@ -341,8 +349,6 @@ sub infest_syns {
                     }
 
                     if (!$found) {
-#                      warn "Found $regex in $target / $heading, but couldn't localize (from $source)";
-
                       # Part of the content is inside a pre.
                       $h->push_content($backlink);
                       $found = 1;
@@ -353,17 +359,17 @@ sub infest_syns {
                 # insert just a normal link, after the header, when there is no regex
                 # or if the regex failed
                 unless ($found) {
-                  warn "falling back to normal backlinking, $regex didn't match under $target / $heading (from $source)" if $regex;
+                  push @bad_regex, {regex=>$regex,target=> $target,heading =>  $heading, source => $source} if $regex;
                   ($h->content_list)[0]->push_content($backlink);
                 }
+                
 
               } else {
                 # perhaps L<S02> etc should just link to the top?
                 # this is what you get at the moment
-                warn "link in $source to $target does not have a heading\n";
+                push @bad_heading, "link in $source to $target does not have a heading\n";
               }
             
-#           #warn "$target $heading ... $regex -> $source #" . (0+$link);
           }
         
         # finally, write out the synopsis
@@ -373,7 +379,7 @@ sub infest_syns {
 }
 
 sub inpath_to_outpath {
-    my $inpath=shift;
+    my $inpath = shift;
     # print "$inpath => ";
 
     my $outpath = abs2rel($inpath, $t_dir);
