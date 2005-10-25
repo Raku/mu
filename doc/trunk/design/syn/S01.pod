@@ -8,11 +8,11 @@ Larry Wall <larry@wall.org>
 
 =head1 VERSION
 
-  Maintainer: Luke Palmer <luke@luqui.org>
+  Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 29 Aug 2005
+  Last Modified: 24 Oct 2005
   Number: 1
-  Version: 1
+  Version: 3
 
 This document summarizes Apocalypse 1, which covers the initial
 design concept.  (These Synopses also contain updates to reflect
@@ -81,13 +81,10 @@ code in some other way, such as by:
 
 Scaling is one of those areas where Perl needs to be multiparadigmatic
 and context sensitive.  Perl 5 code is not strict by default, while
-Perl 6 code is.   But it should be easy to relax with C<-e> or maybe
-even a bare version number:
+Perl 6 code is.   But it should be easy to relax with C<-e> or
+a bare version number:
 
     perl -e '$x = 1'
-
-    #!/usr/bin/perl -e
-    $x = 1;
 
     #!/usr/bin/perl
     v6; $x = 1;

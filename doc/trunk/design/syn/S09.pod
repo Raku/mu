@@ -100,7 +100,7 @@ In declarations of the form:
     my int @ints;
     my num @nums;
     my int4 @nybbles;
-    my str @buffers;
+    my buf @buffers;
     my ref[Array] @ragged2d;
     my complex128 @longdoublecomplex;
 
@@ -122,21 +122,19 @@ declared dimensionality.  Such arrays tend to be faster to allocate and
 access as well.
 
 A multidimensional array is indexed by a semicolon list, which is really
-a list of lists in disguise.  Each sublist is a slice of one particular
+a list of pipes in disguise.  Each sublist is a slice/pipe of one particular
 dimension.  So
 
     @array[0..10; 42; @x]
 
 is really short for
 
-    @array.postcircumfix:<[ ]>( <== [0..10], [42], [@x] );
+    @array.postcircumfix:<[ ]>( <== 0..10 <== 42 <== @x );
 
-though in the list of lists form, a bare number is interpreted as if
-it were a list of one element, so you can also say:
+The compiler is free to optimize to something faster when it is known
+that lazy multidimensional subscripts are not necessary.
 
-    @array.postcircumfix:<[ ]>( <== [0..10], 42, [@x] );
-
-Note that at the comma level, a list such as:
+Note that
 
     @array[@x,@y]
 
@@ -147,24 +145,16 @@ dimension, which is the same as:
 
 or more verbosely:
 
-    @array.postcircumfix:<[ ]>( <== [@x,@y] );
+    @array.postcircumfix:<[ ]>( <== @x,@y );
 
 To interpolate an array at the semicolon level rather than the comma level,
-use the C<dims> list operator:
+use the C<[;]> reduce operator:
 
-    @array[dims @x; @y]
+    @array[[;] @x]
 
 which is equivalent to
 
-    @array.postcircumfix:<[ ]>( <== @x, [@y] );
-
-Note the difference between that and
-
-    @array[dims @x, @y]
-
-which is the same as
-
-    @array.postcircumfix:<[ ]>( <== @x, @y );
+    @array.postcircumfix:<[ ]>( <== @x[0] <== @x[1] <== @x[2]...);
 
 To declare a multidimensional array, you add a shape parameter:
 

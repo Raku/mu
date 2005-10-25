@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 12 Oct 2005
+  Last Modified: 24 Oct 2005
   Number: 6
-  Version: 7
+  Version: 8
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -41,6 +41,9 @@ B<Rules> (keyword: C<rule>) are methods (of a grammar) that perform
 pattern matching. Their associated block has a special syntax (see
 Synopsis 5).
 
+B<Tokens> (keyword: C<token>) are rules that perform low-level
+pattern matching (and also enable rules to do whitespace dwimmery).
+
 B<Macros> (keyword: C<macro>) are routines whose calls execute as soon
 as they are parsed (i.e. at compile-time). Macros may return another
 source code string or a parse-tree.
@@ -64,11 +67,11 @@ See L<"Traits and Properties">
 
 =head2 Perl5ish subroutine declarations
 
-You can still declare a sub without parameter list, as in Perl 5:
+You can declare a sub without parameter list, as in Perl 5:
 
     sub foo {...}
 
-Arguments still come in via the C<@_> array, but they are B<constant>
+Arguments implicitly come in via the C<@_> array, but they are C<readonly>
 aliases to actual arguments:
 
     sub say { print qq{"@_"\n}; }   # args appear in @_
@@ -86,8 +89,7 @@ with the C<is rw> trait:
 Raw blocks are also executable code structures in Perl 6.
 
 Every block defines an object of type C<Code>, which may either be executed
-immediately or passed in as a C<Code> reference argument to some other
-subroutine.
+immediately or passed on as a C<Code> reference argument.
 
 
 =head2 "Pointy subs"
@@ -120,6 +122,14 @@ The old Perl 5 form:
 
 is a compile-time error in Perl 6 (for reasons explained in Apocalypse 6).
 
+Redefining a stub subroutine does not produce an error.  To redefine
+any other subroutine you must explicitly use the "C<is instead>" trait.
+
+The C<...> is the "yadayadayada" operator, which is executable but returns
+a failure.  You can also use C<???> to produce a warning, or C<!!!> to
+always die.  These also officially define stub blocks if used as the
+only expression in the block.
+
 
 =head2 Globally scoped subroutines
 
@@ -127,8 +137,9 @@ Subroutines and variables can be declared in the global namespace, and are
 thereafter visible everywhere in a program.
 
 Global subroutines and variables are normally referred to by prefixing
-their identifier with C<*>, but it may be omitted if the reference is
-unambiguous:
+their identifiers with C<*> (short for "C<GLOBAL::>").   The C<*>
+is normally required on the declaration but may be omitted on use if
+the reference is unambiguous:
 
     $*next_id = 0;
     sub *saith($text)  { print "Yea verily, $text" }
@@ -143,6 +154,9 @@ unambiguous:
         saith($next_id);    # Unambiguously the global $next_id
     }
 
+Only the name is installed into the C<GLOBAL> package by C<*>.  To define
+subs completely within the scope of the C<GLOBAL> namespace you should
+use "C<package GLOBAL {...}>" around the declaration.
 
 =head2 Lvalue subroutines
 
@@ -175,14 +189,16 @@ C<FETCH> and C<STORE> methods:
                          };
     }
 
+Other methods may be defined for specialized purposes such as temporizing
+the value of the proxy.
 
 =head2 Operator overloading
 
-Operators are just subroutines with special names.  An operator name
-consists of a grammatical category name followed by a single colon
-followed by an operator name specified as if it were a hash subscript
-(but evaluated at compile time).  So any of these indicate the same
-binary addition operator:
+Operators are just subroutines with special names and scoping.
+An operator name consists of a grammatical category name followed by
+a single colon followed by an operator name specified as if it were
+a hash subscript (but evaluated at compile time).  So any of these
+indicate the same binary addition operator:
 
     infix:<+>
     infix:«+»
@@ -201,16 +217,31 @@ Binary operators are defined as infix:
 
     sub infix:<OPNAME> ($leftop, $rightop) {...}
 
-Bracketing operators are defined as circumfix.  A two element slice containing
-the leading and trailing delimiters is the name of the operator.
+Bracketing operators are defined as circumfix where a term is expected
+or postcircumfix where a postfix is expected.  A two-element slice
+containing the leading and trailing delimiters is the name of the
+operator.
 
     sub circumfix:<LEFTDELIM RIGHTDELIM> ($contents) {...}
     sub circumfix:{'LEFTDELIM','RIGHTDELIM'} ($contents) {...}
 
-(There is no longer any rule about splitting an even number of characters.
-You must use a two element slice.)
+Contrary to A6, there is no longer any rule about splitting an even
+number of characters.  You must use a two element slice.  Such names
+are canonicalized to a single form within the symbol table, so you
+must use the canonical name if you wish to subscript the symbol table
+directly (as in C<< PKG::{'infix:<+>'} >>).  Otherwise any form will
+do.  (Symbolic references do not count as direct subscripts since they
+go through a parsing process.)  The canonical form always uses angle
+brackets and a single space between slice elements.  The elements
+are not escaped, so C<< PKG::circumfix:{'<','>'} >> is canonicalized
+to C<<< PKG::{'circumfix:<< >>'} >>>, and decanonicalizing always
+involves stripping the outer angles and splitting on space, if any.
+This works because a hash key knows how long it is, so there's no
+ambiguity about where the final angle is.  And space works because
+operators are not allowed to contain spaces.
 
-Operator names can be any sequence of non-whitespace Unicode characters. For example:
+Operator names can be any sequence of non-whitespace characters
+including Unicode characters. For example:
 
     sub infix:<(c)> ($text, $owner) { return $text but Copyright($owner) }
     method prefix:<±> (Num $x) returns Num { return +$x | -$x }
@@ -238,11 +269,17 @@ etc. rule modifiers, something like this:
 Such default rules are attempted in the order declared.  (They always follow
 any rules with a known prefix, by the longest-token-first rule.)
 
+Although the name of an operator can be installed into any package or
+lexical namespace, the syntactic effects of an operator declaration are
+always lexically scoped.  Operators other than the standard ones should
+not be installed into the C<*> namespace.  Always use exportation to make
+non-standard syntax available to other scopes.
+
 =head1 Parameters and arguments
 
 Perl 6 subroutines may be declared with parameter lists.
 
-By default, all parameters are constant aliases to their corresponding
+By default, all parameters are readonly aliases to their corresponding
 arguments--the parameter is just another name for the original
 argument, but the argument can't be modified through it. To allow
 modification, use the C<is rw> trait. To pass-by-copy, use the C<is copy>
@@ -250,12 +287,118 @@ trait.
 
 Parameters may be required or optional. They may be passed by position,
 or by name. Individual parameters may confer a scalar or list context
-on their corresponding arguments.
+on their corresponding arguments, but unlike in Perl 5, this is decided
+lazily at parameter binding time.
 
-Arguments destined for required parameters must come before those bound
-to optional parameters. Arguments destined for positional parameters
-must come before those bound to named parameters.
+Arguments destined for required positional parameters must come before
+those bound to optional positional parameters. Arguments destined for named
+parameters may come before and/or after the positional parameters,
+but all positional parameters must be contiguous in the call syntax.
+Named arguments are recognized syntactically at the "comma" level.
+Pairs intended as positional arguments rather than named arguments
+must be isolated by extra parens:
 
+    doit :when<now>,1,2,3;	# always a named arg
+    doit (:when<now>),1,2,3;	# always a positional arg
+
+    doit when => 'now',1,2,3;	# always a named arg
+    doit (when => 'now'),1,2,3;	# always a positional arg
+
+Going the other way, pairs intended as named arguments that don't look
+like pairs must be introduced with C<*>:
+
+    $pair = :when<now>;
+    doit $pair,1,2,3;	# always a positional arg
+    doit *$pair,1,2,3;	# always a named arg
+
+Likewise, if you wish to pass a hash and have its entries treated as
+named arguments, you must introduce it with a C<*>:
+
+    %pairs = {:when<now> :what<any>};
+    doit %pairs,1,2,3;	# always a positional arg
+    doit *%pairs,1,2,3;	# always named args
+
+Variables with a C<:> prefix in rvalue context autogenerate pairs, so you
+can also say this:
+
+    $when = 'now';
+    doit $when,1,2,3;	# always a positional arg of 'now'
+    doit :$when,1,2,3;	# always a named arg of :when<now>
+
+In other words C<:$when> is shorthand for C<:when($when)>.
+
+There is a corresponding shortcut for hash keys, but it replicates the
+key name rather than the hash.  So
+
+    doit :%hash<a>,1,2,3;
+
+is short for
+
+    doit :a{%hash<a>},1,2,3;
+
+rather than
+
+    doit :hash{%hash<a>},1,2,3;
+
+Of course, you could always say
+
+    doit *%hash.pairs('a'),1,2,3;
+
+Note that the C<:> prefix is not quite a unary operator.  It just instructs
+the following container to return pairs.  If you say
+
+    :$hashref<b>
+
+you're going to get 
+
+    :hashref($hashref)<b>
+
+which is not what you want.  Instead say
+
+    :%$hashref<b>
+
+[XXX I wonder if we can fudge this the way we fudge "exists" and "delete"?
+These are all macros that speak to the container of the following expression
+rather than evaluating it completely first.  Unary C<:> could the same,
+presumably, in which case it would be perceived as a unary operator,
+much like "delete" is.  Then :$hashref<b> could work as expected.  Another
+way to look at it is that these are prefix adverbs to the final lookup.]
+
+Pairs are recognized syntactically at the call level and mystically
+transformed into special C<Named> objects that may be bound to
+positionals only by name, not as ordinary positional C<Pair> objects.
+Leftover special C<Named> objects can be slurped into a slurpy hash.
+
+After the positional and named arguments, all the rest of the arguments
+are taken to be list arguments.  Any pairs within the list are taken
+to be list elements rather than named arguments, and mystically show
+up as C<Pair> arguments even if the compiler marked them as C<Named>.
+
+It is possible that named pairs are not really a separate type; it
+would be sufficient to have a bit somewhere in the Pair that can be
+interrogated under the C<.named> property.  The compiler is allowed to
+stop marking "named" pairs at the first C<< <== >>, but the code that
+converts unused positional arguments to implicit slurpy list needs to
+be careful to clear the C<.named> property on arguments so converted.
+For instance, if you say
+
+    push @array, 1, 2, :a<b>;
+
+the compiler cannot know that the slurpy list starts at 1, so it markes
+:a<b> as a named pair.  But that mark needs to be cleared, or
+
+    say pop(@array);
+
+will then think you said:
+
+    say *pop(@array);
+
+and treat :a<b> as a named argument to print, which is not what you want.
+
+In any event, the named parameters need to be kept in the list until
+bound.  an implementation that pulls named parameters out of the list
+into a hash prematurely will lose the ordering of the push above,
+for instance.
 
 =head2 Invocant parameters
 
@@ -294,10 +437,13 @@ same precedence:
     # Indirect multimethod call...
     handle_event $w, $e: $m;
 
-Passing too many or too few invocants is a fatal error.
+Passing too many or too few invocants is a fatal error if no matching
+definition can be found.
 
-The first invocant is always the topic of the corresponding method
-or multi.
+An invocant is the topic of the corresponding method or multi if that
+formal parameter is declared with the name C<$_>.  A method's single
+invocant always has the alias C<self>.  Other styles of self can be
+declared with the C<self> pragma.
 
 
 =head2 Required parameters
@@ -306,6 +452,10 @@ Required parameters are specified at the start of a subroutine's parameter
 list:
 
     sub numcmp ($x, $y) { return $x <=> $y }
+
+Required parameters may optionally be declared with a C<+>:
+
+    sub numcmp (+$x, +$y) { return $x <=> $y }
 
 The corresponding arguments are evaluated in scalar context and may be
 passed positionally or by name. To pass an argument by name,
@@ -320,7 +470,9 @@ Pairs may also be passed in adverbial pair notation:
     $comparison = numcmp(:x(2), :y(7));
     $comparison = numcmp(:y(7), :x(2));
 
-Passing the wrong number of required arguments is a fatal error.
+Passing the wrong number of required arguments to a normal subroutine
+is a fatal error.  Passing a NamedArg that cannot be bound to a normal
+subroutine is also a fatal error.  (Methods are different.)
 
 The number of required parameters a subroutine has can be determined by
 calling its C<.arity> method:
@@ -353,30 +505,39 @@ name:
     my_substr("foobar",1,3);        # $from is 1, $len is 3
     my_substr("foobar",len=>3);     # $from is 0, $len is 3
 
-Missing optional arguments default to their default value, or to C<undef>
-if they have no default.
+Missing optional arguments default to their default value, or to
+an undefined value if they have no default.  (A supplied argument that is
+undefined is not considered to be missing, and hence does not trigger
+the default.  Use C<//=> within the body for that.)
 
 
 =head2 Named parameters
 
-Named parameters follow any required or optional parameters in the
-signature. They are marked by a C<+> before the parameter.
+Named-only parameters follow any required or optional parameters in the
+signature. They are marked by a C<:>:
 
-    sub formalize($text, +$case, +$justify) {...}
+    sub formalize($text, :$case, :$justify) {...}
+
+This is actually shorthand for:
+
+    sub formalize($text, :case($case), :justify($justify)) {...}
 
 Arguments that correspond to named parameters are evaluated in scalar
 context. They can only be passed by name, so it doesn't matter what
-order you pass them in, so long as they follow any positional arguments:  
+order you pass them in, so long as they don't intermingle with any
+positional arguments:
 
     $formal = formalize($title, case=>'upper');
     $formal = formalize($title, justify=>'left');
     $formal = formalize($title, :justify<right>, :case<title>);
 
-Named parameters are optional unless marked with the C<is required>
-trait.  (Alternately, we might allow a C<++> prefix for required
-name parameters.)  Default values for optional named parameters are
-defined in the same way as for positional parameters. Named parameters
-default to C<undef> if they have no default.
+Named parameters are optional unless marked C<+>.  Default values for
+optional named parameters are defined in the same way as for positional
+parameters, but may depend only on the values of parameters that have
+already been bound.  (Note that binding happens in the call order,
+not declaration order.)  Named optional parameters default to C<undef> if they
+have no default.  Named required parameters fail unless an argument pair
+of that name is supplied.
 
 Again, note the use of adverbial pairs in the argument list.  The following
 table shows the correspondence:
@@ -386,6 +547,8 @@ table shows the correspondence:
     a => 1		:a
     a => 0		:a(0)
     a => $x		:a($x)
+    a => $a		:$a
+    a => %foo<a>	:%foo<a>
     a => 'foo'		:a<foo>
     a => <foo bar>	:a<foo bar>
     a => «$foo @bar»	:a«$foo @bar»
@@ -456,12 +619,62 @@ It's also possible to declare a slurpy block: C<*&block>.  It slurps
 up any nameless block, specified by C<:{...}>.  This will turn out
 useful when we discuss adverbs below.
 
+=head2 Argument list binding
+
+The underlying argument list (List) object may be bound to a single
+scalar parameter marked with a C<\>:
+
+    sub foo (\$args) { say $args.perl; &bar.call(*$args); }
+    sub bar ($a,$b,$c,:$mice) { say $mice }
+
+    foo 1,2,3,:mice<blind>;	# says "\(1,2,3,:mice<blind>)" then "blind"
+
+It is allowed to specify a return type:
+
+    sub foo (\$args --> Num) { ... }
+
+Apart from that, no other parameters are allowed in the signature
+after the List.  Parameters before the List either do not show up in
+the List or are marked as already bound somehow.  In other words,
+parameters are bound normally up to the List parameter, and then
+C<\$args> takes a snapshot of the remaining input without further
+attempts at binding.
+
+=head2 Multidimensional argument list binding
+
+Some functions take multiple Lists that they wish not to be flattened into
+one list.  For instance, zip() wants to iterate several lists in parallel,
+while array and hash subscripts want to process multidimensional slices.
+The set of underlying argument list (List) objects may be bound to a single
+array parameter marked with a C<\>:
+
+    sub foo (\@slices) { ... }
+
+It is allowed to specify a return type:
+
+    sub foo (\@slices --> Num) { ... }
+
+Apart from that, no other parameters are allowed in the signature
+after the List.  Parameters before the List either do not show up in
+the List or are marked as already bound somehow.  In other words,
+parameters are bound normally up to the List parameter, and then
+C<\@args> takes a snapshot of the remaining input without further
+attempts at binding.  The only difference from C<\$args> is that
+C<\@args> pays attention to semicolons and pipes, while C<\$args>
+flattens them.
+
 =head2 Flattening argument lists
 
-The unary prefix operator C<*> flattens its operand (which allows the
-elements of an array or iterator to be used as an argument list). The
-C<*> operator also causes its operand -- and any subsequent arguments
-in the argument list -- to be evaluated in list context.
+The unary prefix operator C<*> dereferences its operand (which allows
+the elements of an array or iterator or List or Tuple to be used as
+part of an argument list). The C<*> operator also causes its operand --
+and any subsequent arguments in the argument list -- to be evaluated in
+list context.  It also turns off syntactic recognition of named pairs.
+The eventual argument list will be parsed at call time for named pairs.
+All contiguous pairs are treated as named arguments until the first
+non-Pair, and the rest of the arguments are considered slurpy args.
+[XXX still underspecified...]
+
 
     sub foo($x, $y, $z) {...}    # expects three scalars
     @onetothree = 1..3;          # array stores three scalars
@@ -470,7 +683,7 @@ in the argument list -- to be evaluated in list context.
     foo(@onetothree);            # error: only one arg
     foo(*@onetothree);           # okay:  @onetothree flattened to three args
 
-The C<*> operator flattens lazily -- the array is only flattened if
+The C<*> operator flattens lazily -- the array is flattened only if
 flattening is actually required within the subroutine. To flatten before
 the list is even passed into the subroutine, use the unary prefix C<**>
 operator:
@@ -515,14 +728,22 @@ chain of operations, to make it read left-to-right:
 Note that the parens are necessary there due to precedence.
 
 If the operand on the sharp end of a pipe is not a call to a variadic
-operation, it must be a variable, in which case the list value is
-assigned to the variable. This special case allows for "pure" processing
-chains:
+operation, it must be a variable (or variable declaration), in which
+case the list value is bound to the variable. This special case allows
+for "pure" processing chains:
 
     @oddsquares <== map { $_**2 } <== sort <== grep { $_ % 2 } <== @nums;
 
     @nums ==> grep { $_ % 2 } ==> sort ==> map { $_**2 } ==> @oddsquares;
 
+If multiple pipes terminate in a single slurpy destination, they are processed
+sequentially from inside to outside, with C<< <== >> pipes always taking
+precedence over C<< ==> >> pipes.  To the slurpy destination it appears to be a
+single long list.  (Certain operators, however, may read the list of pipes in
+a different order, but only with a specially declared slurpy parameter that
+reveals the dimensionality of the list argument.  Multidimensional slices
+(specified with semicolons) are treated identically.  For example, the zip()
+function uses semicolon to separate its input lists.)
 
 =head2 Closure parameters
 
@@ -552,12 +773,53 @@ with C<:(...)>:
 
 and even a return type:
 
-    sub limited_Dog_grep ($count, &block:(Dog) returns Bool, Dog *@list) {...}
+    sub limited_Dog_grep ($count, &block:(Dog --> Bool), Dog *@list) {...}
 
 When an argument is passed to a closure parameter that has this kind of
 signature, the argument must be a C<Code> object with a compatible
 parameter list and return type.
 
+=head2 Class parameters
+
+Unlike normal parameters, class parameters often come in piggybacked on
+the actual value, and you'd like a way to capture both the value and
+its class at once.  A Class variable can be used anywhere a class name
+can, but instead of asserting that the value must conform to a particular
+class, instead captures the actual class of object and declares a
+temporary type by which you can refer to that class later in the
+signature or body.  For instance, if you wanted to match any two
+Dogs or Cats as long as they were of the same type, you can say:
+
+    sub matchedset (Dog|Cat ¢T $fido, T $spot) {...}
+
+(Note that C<¢T> is not required to contain C<Dog> or C<Cat>, only
+a type that is compatible with one or the other.)
+
+The C<¢> sigil is short for "class" in much the same way that C<&> is
+short for "sub".  Just as C<&> can be used to name any kind of code,
+so too C<¢> can be used to name any kind of type.  Both of them insert
+a bare identifier into the grammar, though they fill different syntactic
+spots.
+
+Note that it is not required to capture the object associated with the
+class unless you want it.  The sub above could be written
+
+    sub matchedset (Dog|Cat ¢T, T) {...}
+
+if we're not interested in C<$fido> or C<$spot>.  Or just 
+
+    sub matchedset (¢T, T) {...}
+
+if we don't care about anything but the matching.  Note that if we'd
+said
+
+    sub matchedset (::T, T) {...}
+
+it would have been subtly different.  C<::T> declares that there exists
+an external type C<T> that we just haven't seen the declaration for
+yet.  It doesn't attempt to bind the actual type of of the argument.
+It merely specifies that, by the time this function is called, C<T> is
+defined and both arguments match that type.
 
 =head2 Unpacking array parameters
 
@@ -579,6 +841,12 @@ parameters:
 This subroutine still expects an array as its first argument, just like
 the first version.
 
+=head2 Unpacking a single list argument
+
+To match the first element of the slurpy list, use a "slurpy" scalar:
+
+    sub quicksort (:$reverse, :$inplace, *$pivot, *@data)
+
 =head2 Unpacking hash parameters
 
 Likewise, a hash argument can be mapped to a hash of parameters, specified
@@ -592,25 +860,98 @@ as named parameters within curlies.  Instead of saying:
                                                                                 
 you can get the same effect with:
                                                                                 
-    sub register ({+$name, +$addr, *%guest_data}, $room_num) {
+    sub register ({:$name, :$addr, *%guest_data}, $room_num) {
         ...
     }
 
+=head2 Unpacking tree node parameters
+
+You can unpack tree nodes in various dwimmy ways by enclosing the bindings
+of child nodes and attributes in parentheses following the declaration of
+the node itself
+
+    sub traverse ( BinTree $top ( $left, $right ) ) {
+	traverse($left);
+	traverse($right);
+    }
+
+In this, C<$left> and C<$right> are automatically bound to the left
+and right nodes of the tree.  If $top is an ordinary object, it binds
+the C<$top.left> and C<$top.right> attributes.  If it's a hash,
+it binds C<< $top<left> >> and C<< $top<right> >>.  If C<BinTree> is a
+signature type and $top is a List (argument list) object, the child types
+of the signature are applied to the actual arguments in the argument
+list object.  (Signature types have the benefit that you can view
+them inside-out as constructors with positional arguments, such that
+the transformations can be reversible.)
+
+However, the full power of signatures can be applied to pattern match
+just about any argument or set of arguments, even though in some cases
+the reverse transformation is not intuitable.  For instance, to bind to
+an array of children named C<.kids> or C<.<kids>, use something like:
+
+    sub traverse ( NAry $top ( :kids [$eldest, *@siblings] ) ) {
+	traverse($eldest);
+	traverse(@siblings);
+    }
+
+Likewise, to bind to a hash element of the node and then bind to
+keys in that hash by name:
+
+    sub traverse ( AttrNode $top ( :%attr{ :$vocalic, :$tense } ) {
+	say "Has {+%attr} attributes, of which";
+	say "vocalic = $vocalic";
+	say "tense = $tense";
+    }
+
+You may omit the top variable if you prefix the parentheses with a colon
+to indicate a signature.  Otherwise you must at least put the sigil of
+the variable, or we can't correctly differentiate:
+
+    my Dog ($fido, $spot) = twodogs();		# list of two dogs
+    my Dog $ ($fido, $spot) := twodogs();	# one twodog object
+    my Dog :($fido, $spot) := twodogs();	# one twodog object
+
+Subsignatures can be matched directly with rules by using C<:(...)>
+notation, though if you want a parameter bound into C<$/>, you have
+to say C<< $<eldest> >> within the signature in that case.  Otherwise
+it will try to bind an external C<$eldest> instead, and fail if no such
+variable is declared.
+
+Note that a rule-embedded signature has no associated "returns"
+syntactic slot, so you have to use C<< --> >> within the signature
+to specify the return type.
+
 =head2 Attributive parameters
 
-If a method's parameter is declared with a C<.> after the sigil (like an
+If a submethod's parameter is declared with a C<.> after the sigil (like an
 attribute):
 
-    method initialize($.name, $.age) {}
+    submethod initialize($.name, $.age) {}
 
 then the argument is assigned directly to the object's attribute of the
 same name. This avoids the frequent need to write code like:
 
-    method initialize($name, $age) {
+    submethod initialize($name, $age) {
         $.name = $name;
         $.age  = $age;
     }
 
+[Conjecture: within a submethod, attribute names are not virtual if
+we recognize them as our own.]
+
+To rename an attribute parameter you can use the explicit pair form:
+
+    submethod initialize(:moniker($.name), :youth($.age)) {}
+
+The C<:$name> shortcut may be combined with the C<$.name> shortcut,
+but the dot is ignored for the parameter name, so
+
+    submethod initialize(:$.name, :$.age) {}
+
+is the same as:
+
+    submethod initialize(:name($.name), :($.age)) {}
 
 =head2 Placeholder variables
 
@@ -626,21 +967,24 @@ So:
 
 is a shorthand for:
 
-    sub ($x,$y,$z) { $y < $z && $x != 2 }
+    -> $x,$y,$z { $y < $z && $x != 2 }
 
+Note that placeholder variables syntactically cannot have type constraints.
 
 =head1 Types
 
-These are the standard type names in Perl 6 (at least this week):
+These are some of the standard type names in Perl 6 (at least this week):
 
     bit         single native bit
     int         native integer
-    str         native string (sequence of integers, no Unicode)
+    buf         native 8-bit string (sequence of 8-bit integers, no Unicode)
+    str         native string (sequence of arbitrary integers, no Unicode)
     num         native floating point
+    complex	native complex number
     ref         native pointer 
     bool        native boolean
-    Bit         Perl single bit (allows traits, aliasing, etc.)
-    Int         Perl integer (allows traits, aliasing, etc.)
+    Bit         Perl single bit (allows traits, aliasing, undef, etc.)
+    Int         Perl integer (allows traits, aliasing, undef, etc.)
     Str         Perl string (Unicode semantics)
     Num         Perl number
     Complex     Perl complex number
@@ -656,17 +1000,15 @@ These are the standard type names in Perl 6 (at least this week):
     Submethod   Perl subroutine acting like a method
     Macro       Perl compile-time subroutine
     Rule        Perl pattern
-    Block       Base class for all unnameable executable objects
-    Bare        Basic Perl block
-    Parametric  Basic Perl block with placeholder parameters
+    Block       Base class for all embedded executable objects
     Package     Perl 5 compatible namespace
     Module      Perl 6 standard namespace
     Class       Perl 6 standard class namespace
+    Role        Perl 6 standard generic interface/implementation
     Object      Perl 6 object
     Grammar     Perl 6 pattern matching namespace
-    List        Perl list
-    Lazy        Lazily evaluated Perl list
-    Eager       Non-lazily evaluated Perl list
+    List        Lazy Perl list
+    Tuple       Completely evaluated (hence immutable) list
 
 
 =head2 Value types
@@ -693,6 +1035,7 @@ A value type on an array or hash specifies the type stored by each element:
 
     my Rat %ship;   # the value of each entry stores a Rat
 
+The key type of a hash may be specified as a shape trait--see S9.
 
 =head2 Implementation types
 
@@ -727,7 +1070,7 @@ type on its left. Parametric types are named using square brackets, so:
 
 actually means:
 
-    my Hash[returns=>Array[returns=>Recipe]] %book; 
+    my Hash[returns => Array[returns => Recipe]] %book; 
 
 Because the actual variable can be hard to find when complex types are
 specified, there is a postfix form as well:
@@ -738,19 +1081,38 @@ specified, there is a postfix form as well:
 
 The C<returns> form is more commonly seen in subroutines:
 
-    my Hash of Array of Recipe sub get_book () {...}
-    my sub get_book () of Hash of Array of Recipe {...}
-    my sub get_book returns Hash of Array of Recipe {...}
+    my Hash of Array of Recipe sub get_book ($key) {...}
+    my sub get_book ($key) of Hash of Array of Recipe {...}
+    my sub get_book ($key) returns Hash of Array of Recipe {...}
 
+Alternately, the return type may be specified within the signature:
 
-=head2 Junctive types
+    my sub get_book ($key --> Hash of Array of Recipe) {...}
 
-Anywhere you can use a single type you can use a junction of types:
+There is a slight difference, insofar as the type inferencer will
+ignore a C<returns> but pay attention to C<< --> >> declarations.
+Only the inside of the subroutine pays attention to C<returns>.
+
+=head2 Polymorphic types
+
+Anywhere you can use a single type you can use a set of types, for convenience
+specifiable as if it were an "or" junction:
 
     my Int|Str $error = $val;              # can assign if $val~~Int or $val~~Str
 
-    if $shimmer.isa(Wax & Topping) {...}   # $shimmer must inherit from both
+Fancier type constrains may be expressed through a subtype:
 
+    subtype Shinola of Any where {.does(DessertWax) and .does(FloorTopping)};
+    if $shimmer ~~ Shinola {...}  # $shimmer must do both interfaces
+
+Since the terms in a parameter could be viewed as a set of
+contraints that are implicitly "anded" together (the variable itself
+supplies type constraints, and where clauses or tree matching just
+add more constraints), we relax this to allow juxtaposition of
+anded types:
+
+    my Cat|Dog Fish $mitsy = new Fish but { int rand 2 ?? .does Cat;
+						       !! .does Dog };
 
 =head2 Parameter types
 
@@ -758,6 +1120,32 @@ Parameters may be given types, just like any other variable:
 
     sub max (int @array is rw) {...}
     sub max (@array of int is rw) {...}
+
+=head2 Generic types
+
+Within a declaration, a class variable (either by itself or
+following an existing type name) declares a new type name and takes
+its parametric value from the actual type of the parameter it is
+associated with.  It declares the new type name in whatever scope
+the surrounding declaration is associated lexical scope.
+
+    sub max (Num ¢X @array ) {
+	push @array, X.new();
+    }
+
+The new type name is introduced immediately, so two such types in
+the same signature must unify compatibly if they have the same name:
+
+    sub compare (Any ¢T $x, T $y) {
+	return $x eqv $y;
+    }
+
+The C<¢> sigil is just short for 'class', so if your keyboard is
+deficient in Latin-1 you can write:
+
+    sub compare (Any class T $x, T $y) {
+	return $x eqv $y;
+    }
 
 
 =head2 Return types
@@ -787,6 +1175,35 @@ unless you use the "anonymous declarator" (C<a>/C<an>):
     $lay = an Egg sub {...};
     $hat = a Rabbit sub {...};
 
+The return type may also be specified after a C<< --> >> token within the
+signature.  This doesn't mean exactly the same thing as C<returns>.  The
+arrow form is an "official" return type, and may be used to do type
+inferencing outside the sub.  The C<returns> form only makes the return
+type available to the internals of the sub so that the C<return> statement
+can know its context, but outside the sub it just we don't know anything
+about the return value, as if no return type had been declared.  The prefix
+form actually corresponds to the C<< --> >> semantics rather than the
+C<returns> semantics, so the return type of
+
+    my Fish sub wanda ($x) { ... }
+
+is known to return an object of type Fish, as if you'd said:
+
+    my sub wanda ($x --> Fish) { ... }
+
+not as if you'd said
+
+    my sub wanda ($x) returns Fish { ... }
+
+It is possible for the outer type to disagree with the outside type:
+
+    my Squid sub wanda ($x) returns Fish { ... }
+
+or equivalently,
+
+    my sub wanda ($x --> Squid) returns Fish { ... }
+
+It's not clear why you'd want to lie to yourself like that, though.
 
 =head1 Properties and traits
 
@@ -873,6 +1290,10 @@ Specifies the associativity of an operator explicitly.  Valid values are:
     chain	== eq ~~	($a op $b) and ($b op $c)
     list	| & ^ ¥		listop($a, $b, $c)
 
+Note that operators "equiv" to relationals are automatically considered
+chaining operators.  At other precedence levels, only chaining operators
+participate in a chain.
+
 =item C<PRE>/C<POST>
 
 Mark blocks that are to be unconditionally executed before/after
@@ -883,7 +1304,9 @@ otherwise an exception is thrown.
 
 Mark blocks that are to be conditionally executed before or after
 the subroutine's C<do> block. These blocks are generally used only for
-their side effects, since most return values will be ignored.
+their side effects, since most return values will be ignored.  C<FIRST>
+may be an exception, but in that case you probably want to use a
+state variable anyway.
 
 =back
 
@@ -894,7 +1317,7 @@ The following traits can be applied to many types of parameters.
 
 =over 
 
-=item C<is constant>
+=item C<is readonly>
 
 Specifies that the parameter cannot be modified (e.g. assigned to,
 incremented). It is the default for parameters.
@@ -994,6 +1417,9 @@ or has the corresponding methods called on it:
     elsif (want.rw)        {...}    # expected to return an lvalue
     elsif (want.count > 2) {...}    # expected to return more than two values
 
+Note these are pseudo type associations.  There's no such thing as an
+Lvalue object, and a List is really an unbound argument list object,
+parts of which may in fact be eventually bound into scalar context.
 
 =head2 The C<leave> function
 
@@ -1073,6 +1499,9 @@ the temporizing scope to restore the subroutine to its pre-C<temp> state:
 Hypothetical variables use the same mechanism, except that the restoring
 closure is called only on failure.
 
+Note that "env" variables may be a better solution than temporized
+globals in the face of multithreading.
+
 =head2 Wrapping
 
 Every subroutine has a C<.wrap> method. This method expects a single
@@ -1115,6 +1544,9 @@ a declaration, C<call> magically steals the dispatch list from the
 current dispatcher, and redispatches to the next-most-likely method
 or multi-sub.)
 
+The entire unprocessed argument List can be captured by a C<\$args> parameter.
+It can then be passed to C<call> as C<*$args>.
+
 =head2 The C<&?SUB> routine
 
 C<&?SUB> is always an alias for the current subroutine, so you can
@@ -1126,6 +1558,10 @@ specify tail-recursion on an anonymous sub:
                         };
 
 C<$?SUBNAME> contains the name of the current subroutine, if any.
+
+Note that C<&?SUB> refers to the current single sub, even if it is
+declared "multi".  To redispatch to the entire suite under a given short
+name, just use the named form, since there are no anonymous multis.
 
 =head2 The C<&?BLOCK> routine
 
@@ -1139,11 +1575,14 @@ specify tail-recursion on an anonymous block:
 
 C<$?BLOCKLABEL> contains the label of the current block, if any.
 
+[Note: to refer to any C<$?> or C<&?> variable at the time the sub or
+block is being compiled, use the C<< COMPILING:: >> pseudopackage.]
+
 =head2 Currying
 
-Every subroutine has an C<.assuming> method. This method takes a series
-of named arguments, whose names must match parameters of the subroutine
-itself:
+Every subroutine has an C<.assuming> method. This method does a partial
+binding of a set of arguments to a signature and returns a new function
+that takes only the remaining arguments.
 
     &textfrom := &substr.assuming(str=>$text, len=>Inf);
 
@@ -1168,6 +1607,8 @@ an C<.assuming> method, allowing the user to bind parameters in all the
 module's subroutines/methods/etc. simultaneously:
 
     (use IO::Logging).assuming(logfile => ".log");
+
+This form should generally be restricted to named parameters.
 
 To curry a particular multimethod it may be necessary to specify the type
 of one or more of its invocants:
@@ -1231,17 +1672,31 @@ the assignment:
 
 When binding pairs, names can be used to "match up" lvalues and rvalues:
 
-    (who => $name, why => $reason) := (why => $because, who => "me");
+    (:who($name), :why($reason)) := (why => $because, who => "me");
 
 
 =head2 Out-of-scope names
 
-C<$CALLER::varname> specifies the C<$varname> visible in the dynamic
-scope from which the current block/closure/subroutine was called.
+C<< GLOBAL::<$varname> >> specifies the C<$varname> declared in the C<*>
+namespace.
 
-C<$MY::varname> specifies the lexical C<$varname> declared in the current
-lexical scope.  C<%MY::> is the hash representing that scope.
+C<< CALLER::<$varname> >> specifies the C<$varname> visible in the dynamic
+scope from which the current block/closure/subroutine was called, provided
+that variable is declared "C<is env>".  (Implicit lexicals such as C<$_>
+are automatically assumed to be environmental.)
 
-C<$OUTER::varname> specifies the C<$varname> declared in the lexical
+C<< ENV::<$varname> >> specifies the C<$varname> visible in the
+innermost dynamic scope that declares the variable as "C<is env>".
+
+C<< MY::<$varname> >> specifies the lexical C<$varname> declared in the current
+lexical scope.
+
+C<< OUR::<$varname> >> specifies the C<$varname> declared in the current
+package's namespace.
+
+C<< COMPILING::<$varname> >> specifies the C<$varname> declared (or about
+to be declared) in the lexical scope currently being compiled.
+
+C<< OUTER::<$varname> >> specifies the C<$varname> declared in the lexical
 scope surrounding the current lexical scope (i.e. the scope in which
 the current block was defined).

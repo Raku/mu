@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 25 Aug 2005
+  Last Modified: 25 Oct 2005
   Number: 2
-  Version: 7
+  Version: 8
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -42,7 +42,8 @@ line numbers matches what your editor thinks about Unicode lines.
 
 Unicode horizontal whitespace is counted as whitespace, but it's better
 not to use thin spaces where they will make adjoining tokens look like
-a single token.
+a single token.  On the other hand, Perl doesn't use indentation as syntax,
+so you are free to use any whitespace anywhere that whitespace makes sense.
 
 =back
 
@@ -72,7 +73,8 @@ C<< infix:<++> >> operator, then it must have space before it, and the
 normal autoincrementing C<< postfix:<++> >> operator may not have
 space before it, or must be written as C<.++> instead.  In standard Perl
 6, however, it doesn't matter if you put a space in front of
-C<< postfix:<++> >>.
+C<< postfix:<++> >>.  To be future proof, though, you should omit
+the space or use dot.
 
 =item *
 
@@ -90,9 +92,10 @@ stream will do to make it a comment.  Bare C<=begin> and C<=end>
 probably aren't good enough though, unless you want all your comments
 to end up in the manpage...)
 
-Probably we could have single paragraph comments with C<=for COMMENT>
-as well.  That would let C<=for> keep its meaning as the equivalent
-of a C<=begin> and C<=end> combined.
+We have single paragraph comments with C<=for COMMENT> as well.
+That lets C<=for> keep its meaning as the equivalent of a C<=begin>
+and C<=end> combined.  As with C<=begin> and C<=end>, a comment started
+in code reverts to code afterwards.
 
 =item *
 
@@ -114,7 +117,9 @@ calls, even for attributes.
 =item *
 
 Perl 6 will have an optional type system that helps you write safer
-code that performs better.
+code that performs better.  The compiler is free to infer what type
+information it can from the types you supply, but will not complain
+about missing type information unless you ask it to.
 
 =item *
 
@@ -122,19 +127,23 @@ Perl 6 will support the notion of "properties" on various kinds of
 objects.  Properties are like object attributes, except that they're
 managed by the individual object rather than by the object's class.
 According to A12, properties are actually implemented by a
-kind of mixin mechanism.
+kind of mixin mechanism, and such mixins are accomplished by the
+generation of an individual anonymous class for the object (unless
+an identical anonymous class already exists and can safely be shared).
 
 =item *
 
 Properties applied to compile-time objects such as variables and
 classes are also called "traits".  Traits are not expected to change
-at run time.
+at run time.  Changing run-time properties should be done via mixin
+instead, so that the compiler can optimize based on declared traits.
 
 =item *
 
 Perl 6 is an OO engine, but you're not generally required to think
 in OO when that's inconvenient.  However, some built-in concepts such
-as filehandles will be more object-oriented in a user-visible way.
+as filehandles will be more object-oriented in a user-visible way
+than in Perl 5.
 
 =item *
 
@@ -152,7 +161,7 @@ You'll be able to ask for the length of an array, but it won't be
 called that, because "length" does not specify units.  So
 C<.elems> is the number of array elements.  (You can also
 ask for the length of an array in bytes or codepoints or graphemes.
-Same for strings.)
+Same for strings.  There is no C<.length> on strings either.)
 
 =item *
 
@@ -174,12 +183,29 @@ the same performance issues they have in Perl 5.
 =item *
 
 Built-in object types start with an uppercase letter: C<Int>, C<Num>,
-C<Str>, C<Bit>, C<Ref>, C<Scalar>, C<Array>, C<Hash>, C<Rule> and
-C<Code>.  Non-object (value) types are lowercase: C<int>, C<num>,
-C<str>, C<bit>, and C<ref>.  Value types are primarily intended for
-declaring compact array storage.  However, Perl will try to make
-those look like their corresponding uppercase types if you treat them
-that way.
+C<Complex>, C<Str>, C<Bit>, C<Ref>, C<Scalar>, C<Array>, C<Hash>,
+C<Rule> and C<Code>.  Non-object (value) types are lowercase: C<int>,
+C<num>, C<complex>, C<str>, C<bit>, and C<ref>.  Value types are
+primarily intended for declaring compact array storage.  However, Perl
+will try to make those look like their corresponding uppercase types if
+you treat them that way.  (In other words, it does autoboxing.  Note,
+however, that sometimes repeated autoboxing can slow your program more
+that the native type can speed it up.)
+
+=item *
+
+All Object types support the "undefined" role, and may contain an
+alternate set of attributes when undefined, such as the unthrown
+exception explaining why the value is undefined.  Non-object types
+are not required to support undefinedness, but it is an error to
+assign an undefined value to such a location.
+
+=item *
+
+Regardless of whether they are defined, all objects support a C<.meta>
+method that returns the metaclass managing the current class.
+Any object (whether defined, undefined, class or instance) can be
+used as a class when stored in a class variable such as C<¢MyClass>.
 
 =item *
 
@@ -189,7 +215,8 @@ promotion to arbitrary precision.  C<Rat> supports arbitrary precision
 rational arithmetic.  Value types like C<int> and C<num> imply
 the natural machine representation for integers and floating-point
 numbers, respectively, and do not promote to arbitrary precision.
-Untyped scalars use C<Int> semantics rather than C<int>.
+Untyped numeric scalars use C<Int> and C<Num> semantics rather than
+C<int> and C<num>.
 
 =item *
 
@@ -222,12 +249,27 @@ structural type of a variable:
     @	ordered array
     %	unordered hash (associative array)
     &	code
-    ::	package/module/class/role/type
+    ¢	class/type variable
+
+In addition, package literals may be introduced with C<::> when they
+would otherwise be misinterpreted:
+
+    ::	package/module/class/role/type literal
+
+Within a declaration, the C<&> sigil also declares the visibility of the
+subroutine name without the sigil within the scope of the declaration.
+
+Within a declaration, the C<¢> sigil also declares the visibility of the
+type name without the sigil within the scope of the declaration.
+The first such declaration within a scope is assumed to be an unbound
+type, and takes the actual type of its associated argument.  With
+subsequent declarations the use of the sigil is optional, since the
+bare type name is also declared.
 
 =item *
 
-You may no longer put whitespace between a sigil and its following
-name or construct.
+Unlike in Perl 5, you may no longer put whitespace between a sigil
+and its following name or construct.
 
 =item *
 
@@ -240,13 +282,16 @@ is subject to:
     $.foo	object attribute accessor
     $^foo	self-declared formal parameter
     $*foo	global variable
-    $?foo	compiler hint variable (already compiled)
-    $+foo	compiler hint variable (currently compiling)
+    $+foo	environmental variable
+    $?foo	compiler hint variable
     $=foo	pod variable
     $<foo>	match variable, short for $/{'foo'}
+    $:foo	:foo($foo) shortcut (allowed only on ordinary variables)
 
-Most variables with twigils are implicitly declared, and don't need a
-"my" or "our".  Attribute variables are declared with "has", though.
+Most variables with twigils are implicitly declared or assumed to
+be declared in some other scope, and don't need a "my" or "our".
+Attribute variables are declared with C<has>, though, and environment
+variables are declared somewhere in the dynamic scope with C<env>.
 
 =item *
 
@@ -267,8 +312,8 @@ are any elements in the container.
 
 To get a Perlish representation of any data value, use the C<.perl>
 method.  This will put quotes around strings, square brackets around
-list values, curlies around hash values, etc., such that standard
-Perl could reparse the result.
+list values, curlies around hash values, constructors around objects,
+etc., such that standard Perl could reparse the result.
 
 =item *
 
@@ -290,7 +335,7 @@ may also be written as C<< %bar<a> >> or C<< %bar.<a> >>.
 
 =item *
 
-Slicing will be specified by the nature of the subscript, not by
+Slicing is specified by the nature of the subscript, not by
 the sigil.
 
 =item *
@@ -311,6 +356,37 @@ arguments are bound to formal parameters.  See A6.
 
 =item *
 
+An argument list object (C<List>) may be created with backslashed parens:
+
+    $args = \(1,2,3,:mice<blind>)
+
+A C<List>'s values are parsed as ordinary expressions.  By default a
+C<List> is lazy.  If all of a C<List>'s arguments are fully evaluated
+(such as when all the arguments are constants), the C<List> is
+promoted to being an immutable C<Tuple>.  (You can use a C<Tuple>
+anywhere you can use a C<List>, so in general it doesn't matter.)
+
+=item *
+
+A signature object may be created with coloned parens:
+
+    my ¢MySig = :(Int,Num,Complex, Status :mice)
+
+A signature's values are parsed as declarations rather than ordinary
+expressions.  You may not put arbitrary expressions, but you may, for
+instance stack multiple types that all must match:
+
+    :(Any Num Dog|Cat $numdog)
+
+Such a signature may be used within another signature to apply
+additional type constraints.  When applied to a tuple argument, the
+signature allows you to specify the types of parameters that would
+otherwise be untyped:
+
+    :(Any Num Dog|Cat $numdog, MySig *$a ($i,$j,$k,$mousestatus))
+
+=item *
+
 Unlike in Perl 5, the notation C<&foo> merely creates a reference
 to function "foo" without calling it.  Any function reference may
 be dereferenced and called using parens (which may, of course,
@@ -321,13 +397,26 @@ insert optional whitespace before the dot.
 =item *
 
 With multis, C<&foo> may not be sufficient to uniquely name a specific
-function.  In that case, a type signature may also be included in angles:
-C<< &foo<int,num> >>.  It still just returns a function reference.
+function.  In that case, the type may be refined by using a
+signature literal as a postfix operator:
+
+    &foo:(Int,Num)
+
+It still just returns a function reference.  A call may also be partially
+applied by using a tuple literal as a postfix operator:
+
+    &foo\(1,2,3,:mice<blind>)
+
+This is really just a shorthand for
+
+    &foo.assuming(1,2,3,:mice<blind>)
+
 
 =item *
 
 Slicing syntax is covered in S9.  Multidimensional
 slices will be done with semicolons between individual slice subscripts.
+Each such slice is evaluated lazily.
 
 =item *
 
@@ -387,6 +476,11 @@ Ordinary package-qualified names look like in Perl 5:
 
     $Foo::Bar::baz	# the $baz variable in package Foo::bar
 
+Sometimes it's clearer to keep the sigil with the variable name, so an
+alternate way to write this is:
+
+    Foo::Bar::<$baz>
+
 =item *
 
 The following pseudo-package names are reserved in the first position:
@@ -398,6 +492,12 @@ The following pseudo-package names are reserved in the first position:
     CALLER
     ENV
     SUPER
+    COMPILING
+
+Other all-caps names are semi-reserved.  We may add more of them in
+the future, so you can protect yourself from future collisions by using
+mixed case on your top-level packages.  (We promise not to break
+any existing top-level CPAN package, of course.)
 
 =item *
 
@@ -435,9 +535,9 @@ to limit the scopes to package.
 To do direct lookup in a package's symbol table without scanning, treat
 the package name as a hash:
 
-    Foo::Bar{'&baz'}	# same as &Foo::Bar::baz
-    GLOBAL<$IN>		# Same as $*IN
-    Foo<::Bar><::Baz>	# same as Foo::Bar::Baz
+    Foo::Bar::{'&baz'}	# same as &Foo::Bar::baz
+    GLOBAL::<$IN>	# Same as $*IN
+    Foo::<::Bar><::Baz>	# same as Foo::Bar::Baz
 
 Unlike C<::()> symbolic references, this does not parse the argument
 for C<::>, nor does it initiate a namespace scan from that initial point.
@@ -446,8 +546,8 @@ for C<::>, nor does it initiate a namespace scan from that initial point.
 
 The current lexical symbol table may now be referenced through the
 pseudo-package C<MY>.  The current package symbol table is visible as
-pseudo-package C<OUR>.  The C<OUTER> name refers to the MY symbol table
-immediately surrounding the current MY, and C<OUTER::OUTER> is the one
+pseudo-package C<OUR>.  The C<OUTER> name refers to the C<MY> symbol table
+immediately surrounding the current C<MY>, and C<OUTER::OUTER> is the one
 surrounding that one.
 
     our $foo = 41;
@@ -471,39 +571,65 @@ by reference, to add symbols to a lexical scope that is done compiling.
 
 =item *
 
-The CALLER package refers to the lexical scope of the (dynamically
+The C<CALLER> package refers to the lexical scope of the (dynamically
 scoped) caller.  The caller's lexical scope is allowed to hide any
 variable except C<$_> from you.  In fact, that's the default, and a
-lexical variable must be declared "C<is env>" to be visible via C<CALLER>.
-(C<$_> is always visible. [Conjectural: so are C<$!> and C<$/>.])
+lexical variable must be declared using "C<env>" rather than C<my> to be visible via C<CALLER>.
+(C<$_> is always environmental. [Conjectural: so are C<$!> and C<$/>.])
 If the variable is not visible in the caller, it returns failure.
+
+An explicit C<env> declaration is implicitly readonly.  You may add
+C<is rw> to allow subroutines from modifying your value.  C<$_> is
+C<rw> by default.  In any event, your lexical scope can access the
+variable as if it were an ordinary C<my>; the restriction on writing
+applies only to subroutines.
 
 =item *
 
-[Conjectural] The C<ENV> pseudo-package is just like C<CALLER> except
-that it scans outward through all dynamic scopes until it finds a
-variable of that name.  If there is no variable of that name, it
-looks in the C<*> package.  If there is no variable in the C<*> package,
-it looks in C<%*ENV> for the variable name without the sigil, that is,
-in the environment variables passed to program.  If the value is
-not found there, it returns failure.  (Subprocesses are passed only
-the global C<%*ENV> values.  They do not see any lexical variables or
-their values.  The C<ENV> package is only for internal overriding of
-environmental parameters.)
+The C<ENV> pseudo-package is just like C<CALLER> except that it scans
+outward through all dynamic scopes until it finds an environmental
+variable of that name in that caller's lexical scope.  (Use of C<$+FOO>
+is equivalent to ENV::<$FOO> or $ENV::FOO.)  If after scanning all
+the lexical scopes of each dynamic scope, there is no variable of
+that name, it looks in the C<*> package.  If there is no variable in
+the C<*> package, it looks in C<%*ENV> for the name, that is, in the
+environment variables passed to program.  If the value is not found
+there, it returns failure.  Note that C<$+_> is always the same as
+CALLER::<$_> since all callers have a C<$_> that is automatically
+considered environmental.  Note also that C<ENV> and C<$+> always
+skip the current scope, since you can always name the variable
+directly without the C<ENV> or C<+> if it's been declared C<env>
+in the current lexical scope.
+
+Subprocesses are passed only the global C<%*ENV> values.  They do not
+see any lexical variables or their values.  The C<ENV> package is only
+for internal overriding of environmental parameters.  Change C<%*ENV>
+to change what subprocesses see.  [Conjecture: This might be suboptimal
+in the abstract, but it would be difficult to track the current set of
+environment variable names unless we actually passed around a list.
+The alternative seems to be to walk the entire dynamic scope and
+reconstruct %*ENV for each subprogram call, and then we only slow
+down subprogram calls.]
 
 =item *
 
 There is no longer any special package hash such as C<%Foo::>.  Just
 subscript the package object itself as a hash object, the key of which
-is the variable name, including any sigil.
+is the variable name, including any sigil.  The package object can
+be derived from a type name by use of the C<::> postfix operator:
 
-=item *
+    MyType .:: .{'$foo'}
+    MyType::<$foo>		# same thing
+
+(Directly subscripting the type with either square brackets or curlies
+is reserved for various generic type-theoretic operations.  In most other
+matters type names and package names are interchangeable.)
 
 Typeglobs are gone.  Use binding (C<:=> or C<::=>) to do aliasing.
 Individual variable objects are still accessible through the
 hash representing each symbol table, but you have to include the
-sigil in the variable name now: C<MyPackage{'$foo'}> (or also
-C<< MyPackage<$foo> >> these days).
+sigil in the variable name now: C<MyPackage::{'$foo'}> (or also
+C<< MyPackage::<$foo> >> these days).
 
 =item *
 
@@ -584,45 +710,52 @@ While C<$?> variables are constant to the run time, the compiler
 has to have a way of changing these values at compile time without
 getting confused about its own C<$?> variables (which were frozen in
 when the compile-time code was itself compiled).  The compiler can
-talk about these compiler-dynamic values using the C<$+> sigil/twigil.
+talk about these compiler-dynamic values using the C<COMPILING> pseudopackage.
 
-References to C<$+> variables are automatically hoisted into the
-context currently being compiled.  Setting or temporizing a C<$+>
+References to C<COMPILING> variables are automatically hoisted into the
+context currently being compiled.  Setting or temporizing a C<COMPILING>
 variable sets or temporizes the incipient C<$?> variable in the
 surrounding lexical context that is being compiled.  If nothing in
 the context is being compiled, an exception is thrown.
 
     $?FOO // say "undefined";	# probably says undefined
-    BEGIN { $+FOO = 42 }
+    BEGIN { COMPILING::<$?FOO> = 42 }
     say $?FOO;			# prints 42
     {
 	say $?FOO;		# prints 42
-	BEGIN { temp $+FOO = 43 } # temporizes to *compiling* block
+	BEGIN { temp COMPILING::<$?FOO> = 43 } # temporizes to *compiling* block
 	say $?FOO;		# prints 43
-	BEGIN { $+FOO = 44 }
+	BEGIN { COMPILING::<$?FOO> = 44 }
 	say $?FOO;		# prints 44
-	BEGIN { say $+FOO }	# prints 44, but $?FOO probably undefined
+	BEGIN { say COMPILING::<$?FOO> }	# prints 44, but $?FOO probably undefined
     }
     say $?FOO;			# prints 42 (left scope of temp above)
     $?FOO = 45;			# always an error
-    $+FOO = 45;			# an error unless we are compiling something
+    COMPILING::<$?FOO> = 45;	# an error unless we are compiling something
 
-Note that C<< CALLER<$?FOO> >> might discover the same variable as
-C<$+FOO>, but only if the compiling context is the immediate caller.
-Likewise C<< OUTER<$?FOO> >> might or might not get you to the
-right place.  C<$+FOO> goes outwards dynamically until it finds a
-compiling scope, and so is guaranteed to find the "right" C<$?FOO>.
+Note that C<< CALLER<$?FOO> >> might discover the same variable
+as C<COMPILING::<$?FOO>>, but only if the compiling context is the
+immediate caller.  Likewise C<< OUTER::<$?FOO> >> might or might not
+get you to the right place.  In the abstract, C<COMPILING::<$?FOO>>
+goes outwards dynamically until it finds a compiling scope, and so is
+guaranteed to find the "right" C<$?FOO>.  (In practice, the compiler
+hopefully keeps track of its current compiling scope anyway, so no
+scan is needed.)
 
 Perceptive readers will note that this subsumes various "compiler hints"
-proposals.
+proposals.  Crazy readers will wonder whether this means you could
+set an initial value for other lexicals in the compiling scope.  The
+answer is yes.  In fact, this mechanism is probably used by the
+exporter to bind names into the importer's namespace.
 
 =item *
 
-The currently compiling Perl parser is switched by modifying $+PARSER.
-Lexically scoped parser changes should temporize the modification.
-Changes from here to end-of-compilation unit can just assign or bind
-it.  In general, most parser changes involve deriving a new grammar
-and then pointing $+PARSER at that new grammar.  Alternately, the
+The currently compiling Perl parser is switched by modifying
+C<< COMPILING::<$?PARSER> >>.  Lexically scoped parser changes
+should temporize the modification.  Changes from here to
+end-of-compilation unit can just assign or bind it.  In general,
+most parser changes involve deriving a new grammar and then pointing
+C<< COMPILING::<$?PARSER> >> at that new grammar.  Alternately, the
 tables driving the current parser can be modified without derivation,
 but at least one level of anonymous derivation must intervene from
 the standard Perl grammar, or you might be messing up someone else's
@@ -646,8 +779,8 @@ or exponentiator.
 
 =item *
 
-Initial C<0> no longer indicates octal numbers.  You must use an explicit
-radix marker for that.  Pre-defined radix prefixes include:
+Initial C<0> no longer indicates octal numbers by itself.  You must use
+an explicit radix marker for that.  Pre-defined radix prefixes include:
 
     0b		base 2, digits 0..1
     0o		base 8, digits 0..7
@@ -812,14 +945,22 @@ just have to embed your construct inside a C<\qq[...]>.
 
 =item *
 
-Bare scalar variables always interpolate in double-quotish strings.
-Bare array, hash, and subroutine variables may I<never> be interpolated.
-However, any sigiled variable may start an interpolation if it is
-followed by a sequence of one or more bracketed dereferencers: that
-is, any of 1) an array subscript, 2) a hash subscript, 3) a set of
-parentheses indicating a function call, 4) any of 1 through 3 in their
-"dot" form, or 5) a dot-form method call that includes argument parentheses if
-it's the last item in the sequence.
+Bare scalar variables always interpolate in double-quotish
+strings.  Bare array, hash, and subroutine variables may I<never> be
+interpolated.  However, any sigiled variable may start an interpolation
+if it is followed by a sequence of one or more bracketed dereferencers:
+that is, any of 1) an array subscript, 2) a hash subscript, 3) a set
+of parentheses indicating a function call, 4) any of 1 through 3 in
+their "dot" form, 5) a dot-form method call that includes argument
+parentheses, or 6) a sequence of one or more unparenthesized method
+call if followed by any of 1 through 5.  In other words, this is legal:
+
+    "Val = $a.ord.as('%x')\n"
+
+and is equivalent to
+
+    "Val = { $a.ord.as('%x') }\n"
+
 
 =item *
 
@@ -828,7 +969,7 @@ with empty brackets:
 
     print "The answers are @foo[]\n"
 
-Note that this fixes the spurious "@" problem in double-quoted email addresses.
+Note that this fixes the spurious "C<@>" problem in double-quoted email addresses.
 
 As with Perl 5 array interpolation, the elements are separated by a space.
 (Except that a space is not added if the element already ends in some kind
@@ -843,7 +984,7 @@ with empty braces or angles:
     print "The associations are:\n%bar{}"
     print "The associations are:\n%bar<>"
 
-Note that this avoids the spurious "%" problem in double-quoted printf formats.
+Note that this avoids the spurious "C<%>" problem in double-quoted printf formats.
 
 By default, keys and values are separated by tab characters, and pairs
 are terminated by newlines.  (This is almost never what you want, but
@@ -862,9 +1003,11 @@ that list is interpolated as if it were an array.)
 =item *
 
 In order to interpolate the result of a method call without arguments,
-it's necessary to include parentheses:
+it's necessary to include parentheses or extend the call with something
+ending in brackets:
 
     print "The attribute is $obj.attr().\n"
+    print "The attribute is $obj.attr<Jan>.\n"
 
 The method is called in scalar context.  (If it returns a list,
 that list is interpolated as if it were an array.)
@@ -965,7 +1108,7 @@ Use curlies with the appropriate function instead: C<"{ucfirst $word}">.
 
 There are no barewords in Perl 6.  An undeclared bare identifier will
 always be taken to mean a subroutine or method name.  (Class names
-are predeclared, or prefixed with the C<::> sigil.)  A consequence of
+are predeclared, or prefixed with the C<::> marker.)  A consequence of
 this is that there's no longer any "C<use strict subs>".
 
 =item *
@@ -995,9 +1138,10 @@ subject to keyword or even macro interpretation.  If you say
     }
 
 then C<$x> ends up containing the pair C<< ("if" => 1) >>.  Always.
+(Unlike in Perl 5, where version numbers didn't autoquote.)
 
 You can also use the :key($value) form to quote the keys of option
-pairs.  To align values of option pairs, you may no longer use the
+pairs.  To align values of option pairs, you may not use the
 dot postfix forms:
 
     :longkey  .($value)
@@ -1175,6 +1319,11 @@ functioning as a comma.  Both sides are in scalar context.
 
 =item *
 
+The C<< .. >> operator now constructs C<Range> objects rather than merely
+functioning as an operator.  Both sides are in scalar context.
+
+=item *
+
 There is no such thing as a hash list context.  Assignment to a hash
 produces an ordinary list context.  You may assign alternating keys
 and values just as in Perl 5.  You may also assign lists of C<Pair> objects, in
@@ -1261,7 +1410,7 @@ called "properties".
 
 Properties are accessed just like attributes because they are in fact
 attributes of some class or other, even if it's an anonymous singleton
-class generated on the fly for that purpose.  Since "rw" attributes
+class generated on the fly for that purpose.  Since "C<rw>" attributes
 behave in all respects as variables, properties may therefore also
 be temporized with C<temp>, or hypotheticalized with C<let>.
 
