@@ -33,9 +33,8 @@ syn keyword p6KeyException  die fail try CATCH CONTROL
 syn keyword p6KeyIO         print open read write readline say seek
 syn keyword p6KeyProperty   constant prec key value kv irs ofs ors pos export
 syn keyword p6KeyProperty   float int str true false rw
-syn keyword p6KeyProperty   Array Bool Class Code Hash Int IO Num NumRange 
-syn keyword p6KeyProperty   Str StrRange Sub Role Rule Rat
-syn match   p6KeyProperty   "::\w\+"
+syn keyword p6KeyType       Array Bool Class Code Hash Int IO Num NumRange 
+syn keyword p6KeyType       Str StrRange Sub Role Rule Rat
 syn keyword p6KeyFunc       grep map sort join split reduce reverse truncate zip
 syn keyword p6KeyFunc       keys values pairs defined delete exists  
 syn keyword p6KeyFunc       arity assuming gather take any pick all none
@@ -43,6 +42,7 @@ syn keyword p6KeyFunc       pop push shift splice unshift
 syn keyword p6KeyFunc       abs exp log log10 rand sign sqrt      
 syn keyword p6KeySpecial    eval operator undef undefine
 syn keyword p6KeyCompare    eq ne lt le gt ge == != < <= > >=
+syn match   p6Normal        "\w*::\w\+"
 
 syn match p6KeyIO "-[rwxoRWXOezsfdlpSbctugkTBMAC]"
 
@@ -64,6 +64,7 @@ syn match p6PODSecKwid   "^=\{3,4\} " nextgroup=p6PODSecTitle contained
 syn match p6PODSecTitle  ".*$"        contained 
 
 " Variables, arrays, and hashes with ordinary \w+ names
+syn match p6KeyType      "¢[:\.*^?]\?[a-zA-Z_]\w*"
 syn match p6VarPlain     "\(::?\|[$@%][:\.*^?]\?\)[a-zA-Z_]\w*"
 syn match p6VarException "\$!"
 syn match p6VarCapt      "\$[0-9\/]"
