@@ -83,7 +83,12 @@ my @dirs = sort keys %{$index->{_dirs}};
 my $index_file = catfile($output_dir,"index.html");
 open( my $fh,'>',  $index_file) or die "Failed to open $index_file: $!";
 my $template = HTML::Template->new(filename => 'util/catalog_tmpl/index.tmpl');
-$template->param(directories => [ map { { title => $_ }} @dirs ]);
+my $i = 0;
+my $c = int((@dirs+1) / 3)+1;
+$template->param(directories => [ map { { title => $_,
+                                          wrap  => !(++$i % $c),
+                                        }} @dirs ]);
+$template->param(updated => localtime() . "");
 print $fh $template->output();
 close $fh;
 
@@ -104,7 +109,12 @@ sub build_indexes {
     my @dirs  = sort keys %{$index->{_dirs}};
     my @files = sort @{$index->{_files}};
     my $template = HTML::Template->new(filename => 'util/catalog_tmpl/directory.tmpl');
-    $template->param(directories => [ map { { title => $_ }} @dirs  ]);    
+    my $i = 0;
+    my $c = int((@dirs+1) / 3) +1;
+    $template->param(directories => [ map { { 
+                                            title => $_,
+                                            wrap  => !(++$i % $c),
+                                             }} @dirs  ]);    
     $template->param(files       => [ @files ]); 
     print $fh $template->output();
     close $fh;

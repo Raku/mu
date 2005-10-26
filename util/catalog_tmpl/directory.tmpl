@@ -4,11 +4,15 @@
 </head>
 <body>
 <TMPL_IF name='directories'><h2>Sub-Directories</h2>
-<ul>
+<table>
+<tr valign="top">
+<td>
 <TMPL_LOOP name="directories">
-    <li><a href='<TMPL_VAR name="title">'><TMPL_VAR name="title"></a></li>
+    <a href='<TMPL_VAR name="title">'><TMPL_VAR name="title"></a><br />
+    <TMPL_IF name="wrap"></td><td></TMPL_IF>
 </TMPL_LOOP>
-</ul>
+</td></tr>
+</table>
 </TMPL_IF>
 
 <h2>Files</h2>
