@@ -126,7 +126,7 @@ sub build_indexes {
 
 my $error_file = catfile($output_dir,"error.html");
 open( my $error, '>', $error_file) or die "Failed to open $error_file: $!";
-my $template = HTML::Template->new(filename => 'util/catalog_tmpl/error.tmpl');
+$template = HTML::Template->new(filename => 'util/catalog_tmpl/error.tmpl');
 $template->param(unresolved => \@unresolved);
 print $error $template->output;
 close $error;
@@ -151,15 +151,15 @@ sub handle_t_file {
                          
   my $template = HTML::Template->new(filename => '/home/eric256/pugs/util/catalog_tmpl/code.tmpl');  
   $template->param("file" => $file);
-  my $outtree = HTML::TreeBuilder->new_from_content($template->output);
-  
-  my $body = $outtree->look_down(_tag=>'pre');
+#  my $outtree = HTML::TreeBuilder->new_from_content($template->output);
+  my $output = ""; 
+ # my $body = $outtree->look_down(_tag=>'pre');
   
   my $quotable = qr/\w+|$RE{delimited}{-delim=>'"'}/;
   
   while (my $rest = <$infile>) {
     chomp $rest;
-    $body->push_content(HTML::Element->new('a', name=>"line_$."));
+    $output .= "<a name='line_$.'></a>";
     
     while ($rest =~ m{
                       (.*?)                                     # Leading bit
@@ -187,8 +187,8 @@ sub handle_t_file {
       
       $linkfile = $1 if ($linkfile =~ /^"(.*)"$/);
       $linkhead = $1 if ($linkhead =~ /^"(.*)"$/);
-      
-      $body->push_content(HTML::Element->new('pre')->push_content($text));
+      $output .= $text; 
+#     $body->push_content(HTML::Element->new('pre')->push_content($text));
       
       my $link = {};
       $link->{linkfile} = $linkfile;
@@ -202,22 +202,25 @@ sub handle_t_file {
       $link->{sourcepath}=$output_path;
 
       my $syn_path = catfile($output_dir, "Synopsis", "$linkfile.html");
-      $body->push_content(HTML::Element->new(
-        'a',
-        href => abs2rel($syn_path, dirname($output_path)) . "#" .(0+$link),
-        id => 0+$link
-      )->push_content($whole));
-
+ #     $body->push_content(HTML::Element->new(
+ #       'a',
+ #       href => abs2rel($syn_path, dirname($output_path)) . "#" .(0+$link),
+ #       id => 0+$link
+ #     )->push_content($whole));
+      $output .= "<a href='". abs2rel($syn_path, dirname($output_path)) . "#" .(0+$link) . 
+                    "' id='" . (0+$link) . "'>$whole</a>";
       push @{$link_info->{$linkfile}}, $link;
       $links++;
     }
     
     if ($rest) {
-      $body->push_content($rest);
+#      $body->push_content($rest);
+      $output .= $rest;
     }
-    $body->push_content("\n");
+#    $body->push_content("\n");
+     $output .= "\n";
   }
-  
+  $template->param("tests", $output);
   my $data = { file => $file, links => $links};
   my (@paths) = splitdir($path);
   my $loc  = 'push @{$index';
@@ -226,8 +229,9 @@ sub handle_t_file {
   eval $loc;
   #print "$input_path => $output_path\n";
   #
-  $outfile->print($outtree->as_HTML(undef, ' '));
-  $outtree->delete;
+  #$outfile->print($outtree->as_HTML(undef, ' '));
+  $outfile->print($template->output);
+  #outtree->delete;
 }
 
 sub infest_syns {
