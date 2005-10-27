@@ -377,7 +377,7 @@ operator:
 Perl 6 has 22 precedence levels (fewer than Perl 5):
 
     terms		42 "eek" $x /abc/ (1+2) a(1) :by(2) .meth listop
-    method postfix	. .+ .? .* .+ .() .[] .{} .«» .=
+    method postfix	. .+ .? .* .() .[] .{} .«» .=
     autoincrement	++ --
     exponentiation	**
     symbolic unary	! + - ~ ? * ** +^ ~^ ?^ \
