@@ -14,6 +14,19 @@ The parser has difficulties with if statements whose condition is a closure.
     at <interactive> at line 1, column 24
   pugs>
 
+
+The parser will also fail with if statements whose condition is a
+function call without parenthesis.
+
+  pugs> sub func( $a, $b, $c ) { 5 }; if func 1, 2, 3 { 1 } else { 0 };
+  Internal error while running expression:
+  ***
+      unexpected "i"
+      expecting ";", statements or end of input
+      reserved word
+      at <interactive> line 1, column 31
+  pugs>
+
 =cut
 
 plan 2;
@@ -31,3 +44,14 @@ plan 2;
     if { 0 } { $foo = 2; } else { $foo = 3; };
     is $foo, 2, 'if with no parens, and closure as cond';
 };
+
+
+
+
+{
+	my $var = 9;
+	my sub func( $a, $b, $c ) { $var };
+	eval_ok 'if func 1, 2, 3 { $var = 4 } else { $var = 5 }';
+	is $var, 4, 'if with no parens, and call a function without parenthesis',:todo<bug>;
+}
+
