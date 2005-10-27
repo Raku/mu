@@ -29,7 +29,7 @@ function call without parenthesis.
 
 =cut
 
-plan 2;
+plan 3;
 
 # This incorrectly fails to parse...
 {
@@ -51,7 +51,7 @@ plan 2;
 {
 	my $var = 9;
 	my sub func( $a, $b, $c ) { $var };
-	eval_ok 'if func 1, 2, 3 { $var = 4 } else { $var = 5 }';
+	eval 'if func 1, 2, 3 { $var = 4 } else { $var = 5 }';
 	is $var, 4, 'if with no parens, and call a function without parenthesis',:todo<bug>;
 }
 
