@@ -8,7 +8,12 @@ use Test;
 # TODO
 # named wrapping/unwrapping
 # unwrap with no args pops the top most
-# mutating wraps
+#
+# mutating wraps -- those should be "deep", as in not touching coderefs
+# but actually mutating how the coderef works.
+#
+# of course, if we allow assigning into coderefs, then the wrap semantic
+# could become a simple reassignment; but that is unspecced.
 
 plan 20;
 
