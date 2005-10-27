@@ -253,7 +253,7 @@ class Foo8 {
   has $.a;
   has $.b;
   
-  submethod BUILD(+$foo, +$bar) {
+  submethod BUILD(:$foo, :$bar) {
     $.a = $foo;
     $.b = $bar;
   }
@@ -273,7 +273,7 @@ class Foo9 {
   has $.a;
   has $.b;
   
-  submethod BUILD($foo, +$bar) {
+  submethod BUILD($foo, :$bar) {
     $.a = $foo;
     $.b = $bar;
   }
@@ -287,7 +287,7 @@ class Foo10 {
   has $.b;
   has $.c;
   
-  submethod BUILD(Class $self: +$foo, +$bar) {
+  submethod BUILD(Class $self: :$foo, :$bar) {
     $.a = $foo;
     $.b = $bar;
     $.c = 'y' if $self.isa(Foo10);

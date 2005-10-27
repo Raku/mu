@@ -119,8 +119,8 @@ reasons.
 
 =item exp
 
- multi sub  Num::exp (  Num  $exponent             : Num +$base) returns Num
- multi sub Math::Basic::exp (: Num ?$exponent = $CALLER::_, Num +$base) returns Num
+ multi sub  Num::exp (  Num  $exponent             : Num :$base) returns Num
+ multi sub Math::Basic::exp (: Num ?$exponent = $CALLER::_, Num :$base) returns Num
 
 Performs similar to C<$base ** $exponent>. C<$base> defaults to the
 constant I<e>.
@@ -128,8 +128,8 @@ constant I<e>.
 
 =item log
 
- multi sub  Num::log (  Num  $x             : Num +$base) returns Num
- multi sub Math::Basic::log (: Num ?$x = $CALLER::_, Num +$base) returns Num
+ multi sub  Num::log (  Num  $x             : Num :$base) returns Num
+ multi sub Math::Basic::log (: Num ?$x = $CALLER::_, Num :$base) returns Num
 
 Logarithm of base C<$base>, default Natural. Calling with C<$x == 0> is an
 error.
@@ -185,8 +185,8 @@ C<$x ** 0.5>
 
 =item I<Standard Trig Functions>
 
- multi sub Num::func (  Num  $x             : +$base) returns Num
- multi sub Math::Trig::func (: Num ?$x = $CALLER::_, +$base) returns Num
+ multi sub Num::func (  Num  $x             : :$base) returns Num
+ multi sub Math::Trig::func (: Num ?$x = $CALLER::_, :$base) returns Num
 
 where I<func> is one of:
 sin, cos, tan, asin, acos, atan, sec, cosec, cotan, asec, acosec,
@@ -208,7 +208,7 @@ Given the value of an arc representing a single full revolution.
 
 =item atan
 
- multi sub Math::Trig::atan (Num $y, Num $x : Num +$base) returns Num
+ multi sub Math::Trig::atan (Num $y, Num $x : Num :$base) returns Num
 
 This second form of C<atan> computes the arctangent of $y/$x, and takes
 the quadrant into account. Otherwise behaves as other trigonometric functions.
@@ -429,17 +429,17 @@ been iterated.
 
  multi sub Array::sort(                 @values is rw,
                                               *&by
-                              :           Bit +$inplace
+                              :           Bit :$inplace
                              ) returns Array
 
  multi sub Array::sort(                 @values is rw,
                                 SortCriterion  @by
-                              :           Bit +$inplace
+                              :           Bit :$inplace
                              ) returns Array
 
  multi sub Array::sort(                 @values is rw
-                              : SortCriterion +$by = &infix:<cmp>,
-                                          Bit +$inplace
+                              : SortCriterion :$by = &infix:<cmp>,
+                                          Bit :$inplace
                              ) returns Array
 
  multi sub  List::sort(  SortCriterion  @by
@@ -495,7 +495,7 @@ details and examples.
 
 =item zip
 
- multi sub Lists::zip (: Array *@lists, Bit +$shortest) returns Lazy {
+ multi sub Lists::zip (: Array *@lists, Bit :$shortest) returns Lazy {
    gather {
      while $shortest ?? all (@lists) !! any(@lists) {
        for @lists -> @list {
@@ -714,7 +714,7 @@ C<s:g/(\w+)/{ucfirst $1}/> on it.
 
 =item eval 
  
- multi sub Control::Basic::eval (: Str $code = $CALLER::_, Str +$lang = 'Perl6')
+ multi sub Control::Basic::eval (: Str $code = $CALLER::_, Str :$lang = 'Perl6')
 
 Execute C<$code> as if it were code written in C<$lang>. C<Perl6> is the
 only required language, but supporting C<Perl5> is I<strongly>
@@ -725,7 +725,7 @@ Returns whatever C<$code> returns, or undef on error.
 
 =item evalfile
 
- multi sub Control::Basic::evalfile (Str $filename : Str +$lang = 'Perl6')
+ multi sub Control::Basic::evalfile (Str $filename : Str :$lang = 'Perl6')
 
 Behaves like, and replaces Perl 5 C<do EXPR>, with optional C<$lang>
 support.

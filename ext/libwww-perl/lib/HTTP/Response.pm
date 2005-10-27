@@ -12,7 +12,7 @@ class HTTP::Response[?::URI_CLASS = URI] {
     has $.previous  is rw;
     has $.request   is rw;
     
-    submethod BUILD (+$.code, +$.message) { }
+    submethod BUILD (:$.code, :$.message) { }
     
     method parse (Str $str is copy) {
         my $status_line;

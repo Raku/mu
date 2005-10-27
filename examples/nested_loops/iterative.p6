@@ -7,7 +7,7 @@ use v6;
 
 my @loops = ([1..3], ['a'..'e'], ['foo', 'bar']);
 
-sub NestedLoop (++@loop, +$OnlyWhen, +$code) returns Ref{
+sub NestedLoop (+:@loop, :$OnlyWhen, :$code) returns Ref{
     my @pos = 0 xx (@loop.elems - 1), -1;
     return sub {
         my @group;

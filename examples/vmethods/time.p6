@@ -62,13 +62,13 @@ multi sub centuries (Int $value:) {
 
 our &century:=&centuries;
 
-multi sub ago (Int $value: Int +$time = time()) {
+multi sub ago (Int $value: Int :$time = time()) {
     $time - $value;
 }
 
 our &until:=&ago;
 
-multi sub since (Int $value: Int +$time = time()) {
+multi sub since (Int $value: Int :$time = time()) {
     $time + $value;
 }
 

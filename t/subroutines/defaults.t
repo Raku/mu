@@ -13,7 +13,7 @@ plan 2;
 
 sub doubler($x) { return 2 * $x }
 
-sub value_v(Code +$func = &doubler) {
+sub value_v(Code :$func = &doubler) {
     return $func(5);
 }
 
@@ -25,7 +25,7 @@ use v6;
 
 sub double($x) { return 2 * $x }
 
-sub val_v(Code +$func = &double) is export {
+sub val_v(Code :$func = &double) is export {
     return $func(5);
 }
 

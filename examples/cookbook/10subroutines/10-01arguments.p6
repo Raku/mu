@@ -47,7 +47,7 @@ sub optional ($required, ?$optional) {
 optional('this');
 optional('this', 'that');
 
-sub named_params ($first, +$second, +$third) {
+sub named_params ($first, :$second, :$third) {
     say $first, $second, $third;
 }
 

@@ -319,10 +319,10 @@ ruleBareTrait trait = rule "bare trait" $ do
 
 ruleType :: GenParser Char st String
 ruleType = literalRule "context" $ do
-    -- Valid type names: Foo, Bar::Baz, ::Grtz, ::?CLASS
-    lead    <- wordAlpha <|> char ':'
+    -- Valid type names: Foo, Bar::Baz, ::Grtz, ::?CLASS, but not :Foo
+    lead    <- count 1 wordAlpha <|> string "::"
     rest    <- many (wordAny <|> oneOf ":&|?")
-    return (lead:rest)
+    return (lead ++ rest)
 
 {-|
 Attempt each of the given parsers in turn until one succeeds, but if one of

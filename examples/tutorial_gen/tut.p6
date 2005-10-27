@@ -120,7 +120,7 @@ die "Source file directory '%conf<tut_src_dir> ('%conf<f_tut_src_dir>') not foun
     unless -d %conf<f_tut_src_dir>;
 
 
-sub get_output ( Str $tut_fp, +$each_line = 0 ) {
+sub get_output ( Str $tut_fp, :$each_line = 0 ) {
     my $file_t = slurp $tut_fp || die "Slurp failed '$tut_fp'\n";
     my @parts = ( $each_line ) ?? split( "\n", $file_t ) !! split( "\n\n", $file_t );
 
@@ -179,7 +179,7 @@ sub get_output ( Str $tut_fp, +$each_line = 0 ) {
 sub gen_html ( 
     @parts, @out_parts, 
     Str $prev_tut_fn, Str $tut_fn, Str $next_tut_fn, 
-    Str $out_dir, Str +$suffix 
+    Str $out_dir, Str :$suffix 
 ) {
     use HTML::Entities;
 

@@ -167,7 +167,7 @@ Binding
     foo $a;
     sub foo ($param) { $param =:= $a }
 
-    my ($foo, ?$blarb, +$baz) := some_sub();
+    my ($foo, ?$blarb, :$baz) := some_sub();
 
     # ::= is binding at compile-time.
     $foo ::= $bar;

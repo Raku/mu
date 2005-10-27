@@ -6,7 +6,7 @@ has Int $.port;
 has IO  $.socket;
 has IO  $.remote;
 
-submethod BUILD ( +$port ) {
+submethod BUILD ( :$port ) {
     $.port = $port || 8080;
 }
 

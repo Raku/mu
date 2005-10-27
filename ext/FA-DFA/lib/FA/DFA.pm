@@ -5,7 +5,7 @@ class FA::DFA::Node;
 has %.arc;
 has bool $.final;
 
-multi method addarc(Str $trigger,+$node = FA::DFA::Node.new --> FA::DFA::Node) {
+multi method addarc(Str $trigger,:$node = FA::DFA::Node.new --> FA::DFA::Node) {
   %.arc{$trigger} = $node;
   $node;
 }

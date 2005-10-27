@@ -12,7 +12,7 @@ has Code  $.wanted_file;
 
 submethod BUILD { $.debug = 0 }
 
-method find ( $self: +@dirs, +$wanted_dir, +$wanted_file ) {
+method find ( $self: :@dirs, :$wanted_dir, :$wanted_file ) {
     my @start    = @dirs        || @{$.dirs};
     my $wdir_cb  = $wanted_dir  || $.wanted_dir  || sub { 1 };
     my $wfile_cb = $wanted_file || $.wanted_file || sub { 1 };

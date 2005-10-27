@@ -116,7 +116,7 @@ method con() {
     $.mp %= $MAXSIZE;
 };
 
-method mem($target is rw, ++$wrap, ?$down) {
+method mem($target is rw, +:$wrap, ?$down) {
     ./IIP;
     $target += (@.mem[$.ip] + 1) * ($down ?? -1 !! 1);
     $target %= $wrap;

@@ -301,7 +301,7 @@ method :basic_auth ($self: Str $h) is rw {
     });
 }
 
-method redirect (::?CLASS ::class: Str $location, Str ?$target, Str ?$status = "302 Found", Str +$cookie, Bool +$nph, *%extra) {
+method redirect (::?CLASS ::class: Str $location, Str ?$target, Str ?$status = "302 Found", Str :$cookie, Bool :$nph, *%extra) {
     my $h = ::class.new();
     
     $h.header('Status') = $status;

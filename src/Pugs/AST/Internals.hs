@@ -1017,14 +1017,14 @@ typeOfSigil ':'  = mkType "Type"
 typeOfSigil x    = internalError $ "typeOfSigil: unexpected character: " ++ show x
 
 buildParam :: String -- ^ Type of the parameter
-           -> String -- ^ Parameter-sigil (@+@, @++@, or @?@)
+           -> String -- ^ Parameter-sigil (@:@, @+:@, @?@, or @+@)
            -> String -- ^ Name of the parameter (including primary sigil)
            -> Exp    -- ^ Expression for the param's default value
            -> Param
 buildParam typ sigil name e = MkParam
     { isInvocant    = False
-    , isOptional    = (sigil ==) `any` ["?", "+"]
-    , isNamed       = (sigil ==) `any` ["+", "++"]
+    , isOptional    = '?' `elem` sigil
+    , isNamed       = ':' `elem` sigil
     , isLValue      = True
     , isWritable    = (name == "$_")
     , isLazy        = False

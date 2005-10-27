@@ -37,7 +37,7 @@ plan 35;
 }
 
 {
-    my sub foo (+$a) { "[$a]" }
+    my sub foo (:$a) { "[$a]" }
     my $foo = &foo;
 
     is foo(a     => 42), "[42]", "'a => 42' is a named";
@@ -104,7 +104,7 @@ plan 35;
 # Per http://www.nntp.perl.org/group/perl.perl6.language/23532, the keys of
 # syntactical pairs should get stringified.
 {
-    my sub foo (+$bar) { "[$bar]" }
+    my sub foo (:$bar) { "[$bar]" }
 
     my $bar = "bar";
 
@@ -113,7 +113,7 @@ plan 35;
 }
 
 {
-    my sub foo (+$bar) { "[$bar]" }
+    my sub foo (:$bar) { "[$bar]" }
 
     my @array = <bar>;
     # @array's stringification is "bar". This is important for this test.
@@ -123,7 +123,7 @@ plan 35;
 }
 
 {
-    my sub foo (+$bar) { "[$bar]" }
+    my sub foo (:$bar) { "[$bar]" }
 
     my $arrayref = <bar>;
     # $arrayref's stringification is "bar". This is important for this test.

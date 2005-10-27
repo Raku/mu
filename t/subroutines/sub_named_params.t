@@ -27,6 +27,7 @@ These tests test named parmaeters. L<S06/"Named parameters">
 # 23:50 <autrijus> and :name<value> syntax
 #
 
+# Update: See http://www.nntp.perl.org/group/perl.perl6.language/23820
 
 =cut
 
@@ -35,19 +36,19 @@ is simple_pos_param(x => 3), 3, "positional param may be addressed by name (1)";
 is simple_pos_param(:x(3)),  3, "positional param may be addressed by name (2)";
 
 # L<S06/"Named parameters" /marked by a \+/>
-sub simple_pos_params (+$x) { $x }
+sub simple_pos_params (:$x) { $x }
 
 is(simple_pos_params( 'x' => 4 ), 4, "simple named param");
 
 
-sub foo (+$x = 3) { $x }
+sub foo (:$x = 3) { $x }
 
 is(foo(), 3, "not specifying named params that aren't mandatory works");
 dies_ok({foo(4)}, "using a named as a positional fails", :todo<bug>);
 
 is(foo( 'x' => 5), 5, "naming named param also works");
 
-sub foo2 (+$x = 3, +$y = 5) { $x + $y }
+sub foo2 (:$x = 3, :$y = 5) { $x + $y }
 
 is(foo2(), 8, "not specifying named params that aren't mandatory works (foo2)");
 dies_ok({foo2(4)}, "using a named as a positional fails (foo2)", :todo<bug>);
@@ -56,7 +57,7 @@ is(foo2( 'x' => 5), 10, "naming named param x also works (foo2)");
 is(foo2( 'y' => 3), 6, "naming named param y also works (foo2)");
 is(foo2( 'x' => 10, 'y' => 10), 20, "naming named param x & y also works (foo2)");
 
-sub assign_based_on_named_positional ($x, +$y = $x) { $y } 
+sub assign_based_on_named_positional ($x, :$y = $x) { $y } 
 
 
 is(assign_based_on_named_positional(5), 5, "When we don't explicitly specify, we get the original value");
@@ -67,14 +68,14 @@ is(assign_based_on_named_positional(5, $var => 2), 2,
    "When we explicitly specify, we get our value");
 
 # L<S06/"Named parameters" /a \+\+ prefix.*?required/>
-sub mandatory (++$param) {
+sub mandatory (+:$param) {
     return $param;
 }
 
 is(mandatory('param' => 5) , 5, "named mandatory parameter is returned");
 is(try { mandatory() }, undef, "not specifying a mandatory parameter fails");
 
-sub mandatory_by_trait (+$param is required) {
+sub mandatory_by_trait (:$param is required) {
     return $param;
 }
 
@@ -83,7 +84,7 @@ is(try { mandatory_by_trait() }, undef, "not specifying a mandatory parameter fa
 
 
 # From L<S06/"Named parameters" /sub formalize/>
-sub formalize($text, +$case, +$justify)  returns List {
+sub formalize($text, :$case, :$justify)  returns List {
    return($text,$case,$justify); 
 }
 
@@ -130,7 +131,7 @@ is(%fellowship<dwarf>, undef, "dwarf arg was not given");
   if $*OS eq "browser" {
     skip 5, "skipping tests which infloop under PIL2JS";
   } else {
-    sub named_and_slurp(+$grass, *%rest) { return($grass, %rest) }
+    sub named_and_slurp(:$grass, *%rest) { return($grass, %rest) }
     my ($grass, %rest) = named_and_slurp(sky => 'blue', grass => 'green', fire => 'red');
     is($grass, 'green', "explicit named arg received despite slurpy hash");
     is(+%rest, 2, "exactly 2 arguments were slurped");

@@ -100,7 +100,7 @@ sub prefix:<*>(Array|Pair|Hash $thing) {
   })')($thing);
 }
 
-sub JS::Root::eval(Str ?$code, Str +$lang = 'Perl6') {
+sub JS::Root::eval(Str ?$code, Str :$lang = 'Perl6') {
   $! = "&eval does not work under PIL2JS.";
   undef;
 }

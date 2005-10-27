@@ -508,7 +508,7 @@ ruleSubParameters wantParens = rule "subroutine parameters" $ do
 ruleParamList :: ParensOption -> RuleParser a -> RuleParser (Maybe [[a]])
 ruleParamList wantParens parse = rule "parameter list" $ do
     (formal, hasParens) <- f $
-        ((parse `sepEndBy` symbol ",") `sepEndBy` symbol ":")
+        (((try parse) `sepEndBy` symbol ",") `sepEndBy` invColon)
     case formal of
         [[]]   -> return $ if hasParens then Just [[], []] else Nothing
         [args] -> return $ Just [[], args]
@@ -518,6 +518,14 @@ ruleParamList wantParens parse = rule "parameter list" $ do
     f = case wantParens of
         ParensOptional  -> maybeParensBool
         ParensMandatory -> \x -> do rv <- parens x; return (rv, True)
+    invColon = do
+        string ":"
+        -- Compare:
+        --   sub foo (: $a)   # vs.
+        --   sub foo (:$a)
+        lookAhead $ (many1 space <|> string ")")
+        whiteSpace
+        return ":"
         
 maybeParensBool :: RuleParser a -> RuleParser (a, Bool)
 maybeParensBool p = choice
@@ -528,14 +536,18 @@ maybeParensBool p = choice
 ruleFormalParam :: RuleParser Param
 ruleFormalParam = rule "formal parameter" $ do
     typ     <- option "" $ ruleType
-    sigil   <- option "" $ choice . map symbol $ words " ? * + ++ "
+    sigil   <- option "" $ choice . map (try . string) $ words " ?: +: ? * + : "
     name    <- ruleParamName -- XXX support *[...]
     traits  <- many ruleTrait
-    let sigil' | not ("required" `elem` traits) = sigil
-               | (sigil == "+") = "++"  -- promote "+$x is required" to "++$x"
-               | (sigil == "?") = ""    -- well, heh, confused?
-               | otherwise      = sigil -- required anyway
-    let required = (sigil' /=) `all` ["?", "+"]
+    -- sigil' is the canonical form of sigil, e.g.
+    --   $foo is required -->  +$foo
+    --  :$foo             --> ?:$foo
+    --  :$foo is required --> +:$foo
+    let sigil' | "required" `elem` traits = '+':sigil
+               | sigil == ""              = "+"
+               | sigil == ":"             = "?:"
+               | otherwise                = sigil
+    let required = '+' `elem` sigil'
     exp     <- ruleParamDefault required
     optional $ do
         symbol "-->"

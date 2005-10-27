@@ -57,10 +57,10 @@ sub header (
     Str ?$content_type = 'text/html',
     Str ?$status = '200 OK',
     Str ?$charset,
-    Str +$cookies,
-    Str +$target,
-    +$expires,
-    Bool +$nph,
+    Str :$cookies,
+    Str :$target,
+    :$expires,
+    Bool :$nph,
     *%extra
 ) returns Str is export {
     # construct our header
@@ -105,8 +105,8 @@ sub redirect (
     Str $location,
     Str ?$target,
     Str ?$status = "302 Found",
-    Str +$cookie,
-    Bool +$nph,
+    Str :$cookie,
+    Bool :$nph,
     *%extra
 ) returns Str is export {
     my %out;
@@ -240,7 +240,7 @@ sub load_params {
     }    
 }
 
-sub escapeHTML (Str $string, Bool +$newlines) returns Str is export {
+sub escapeHTML (Str $string, Bool :$newlines) returns Str is export {
     # XXX check for $self.escape == 0
     #unless ($self.escape != 0) { return $toencode; }
     
@@ -376,7 +376,7 @@ B<The following informational functions are fetched on-demand>
 
 =over 4
 
-=item B<header (+$status = '200 OK', +$content_type = 'text/html', +$charset, +$location) returns Str>
+=item B<header (:$status = '200 OK', :$content_type = 'text/html', :$charset, :$location) returns Str>
 
 =item B<redirect (Str $location) returns Str>
 

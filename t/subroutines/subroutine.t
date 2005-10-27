@@ -100,7 +100,7 @@ L<S06/"Unpacking hash parameters">
 
 =cut
 
-eval 'sub unpack_hash({+$yo, *%other}){ return $yo; }';
+eval 'sub unpack_hash({:$yo, *%other}){ return $yo; }';
 
 my %params = yo => 3, nope => 4;
 is(try { unpack_hash(%params) }, 3, 'unpacking a hash parameter', :todo);
