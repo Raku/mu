@@ -35,7 +35,7 @@ class Locale::KeyedText::Message {
 
 ###########################################################################
 
-submethod BUILD (Str :$msg_key is required, Any :%msg_vars = hash()) {
+submethod BUILD (Str +:$msg_key, Any :%msg_vars = hash()) {
 
     throw 'invalid arg'
         if !$msg_key.defined or $msg_key eq '';
@@ -87,8 +87,7 @@ class Locale::KeyedText::Translator {
 
 ###########################################################################
 
-submethod BUILD (Str :@set_names is required,
-        Str :@member_names is required) {
+submethod BUILD (Str +:@set_names, Str +:@member_names) {
 
     throw 'invalid arg'
         if !@set_names.defined or +@set_names == 0;
