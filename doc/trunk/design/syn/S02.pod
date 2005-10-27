@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 25 Oct 2005
+  Last Modified: 27 Oct 2005
   Number: 2
-  Version: 8
+  Version: 9
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -203,9 +203,9 @@ assign an undefined value to such a location.
 =item *
 
 Regardless of whether they are defined, all objects support a C<.meta>
-method that returns the metaclass managing the current class.
-Any object (whether defined, undefined, class or instance) can be
-used as a class when stored in a class variable such as C<¢MyClass>.
+method that returns the class instance managing the current kind of object.
+Any object (whether defined, undefined, or somewhere between) can be
+used as a "kind" when stored in a type variable such as C<^MyClass>.
 
 =item *
 
@@ -249,7 +249,7 @@ structural type of a variable:
     @	ordered array
     %	unordered hash (associative array)
     &	code
-    ¢	class/type variable
+    ^	class/type/kind variable
 
 In addition, package literals may be introduced with C<::> when they
 would otherwise be misinterpreted:
@@ -259,7 +259,7 @@ would otherwise be misinterpreted:
 Within a declaration, the C<&> sigil also declares the visibility of the
 subroutine name without the sigil within the scope of the declaration.
 
-Within a declaration, the C<¢> sigil also declares the visibility of the
+Within a declaration, the C<^> sigil also declares the visibility of the
 type name without the sigil within the scope of the declaration.
 The first such declaration within a scope is assumed to be an unbound
 type, and takes the actual type of its associated argument.  With
@@ -370,7 +370,7 @@ anywhere you can use a C<List>, so in general it doesn't matter.)
 
 A signature object may be created with coloned parens:
 
-    my ¢MySig = :(Int,Num,Complex, Status :mice)
+    my ^MySig = :(Int,Num,Complex, Status :mice)
 
 A signature's values are parsed as declarations rather than ordinary
 expressions.  You may not put arbitrary expressions, but you may, for
@@ -840,11 +840,11 @@ The C<qw/foo bar/> quote operator now has a bracketed form: C<< <foo bar> >>.
 When used as a subscript it performs a slice equivalent to C<{'foo','bar'}>.
 Much like the relationship between single quotes and double quotes, single
 angles do not interpolate while double angles do.  The double angles may
-be written either with French quotes, C<«$foo @bar»>, or
-with "Texas" quotes, C<<< <<$foo @bar>> >>>, as the ASCII workaround.
+be written either with French quotes, C<«$foo @bar[]»>, or
+with "Texas" quotes, C<<< <<$foo @bar[]>> >>>, as the ASCII workaround.
 The implicit split is done after interpolation, but respects quotes
-in a shell-like fashion, so that C<«'$foo' "@bar"»> is guaranteed to
-produce a list of two "words" equivalent to C<< ('$foo', "@bar") >>.
+in a shell-like fashion, so that C<«'$foo' "@bar[]"»> is guaranteed to
+produce a list of two "words" equivalent to C<< ('$foo', "@bar[]") >>.
 C<Pair> notation is also recognized inside C<«...»> and such "words" are
 returned as C<Pair> objects.
 
@@ -1022,6 +1022,14 @@ end-bracket rule.)
 
 =item *
 
+A class method can be called as a method if you use the type sigil:
+
+    print "The dog bark is ^Dog.bark().\n"
+
+Again, the parens are required.
+
+=item *
+
 Multiple dereferencers may be stacked as long as each one ends in
 some kind of bracket:
 
@@ -1080,7 +1088,7 @@ is dead.  Use closure curlies instead:
 
 =item *
 
-To interpolate a class method, use curlies: C<"{Dog.bark}">.
+To interpolate an unparenthesized class method, use curlies: C<"{Dog.bark}">.
 
 =item *
 
@@ -1108,8 +1116,9 @@ Use curlies with the appropriate function instead: C<"{ucfirst $word}">.
 
 There are no barewords in Perl 6.  An undeclared bare identifier will
 always be taken to mean a subroutine or method name.  (Class names
-are predeclared, or prefixed with the C<::> marker.)  A consequence of
-this is that there's no longer any "C<use strict subs>".
+(and other type names) are predeclared, or prefixed with the C<::>
+package literal marker, or the C<^> type sigil.)  A consequence
+of this is that there's no longer any "C<use strict subs>".
 
 =item *
 
@@ -1282,7 +1291,7 @@ represents an iterator.
 There is an argumentless form of C<*> which may be used within a
 multi-dimensional array or hash subscript to indicate all of the
 current set of subscripts available for this dimension.  It actually
-returns a class value of C<Any>, so it can be used in any selector
+returns a type value of C<Any>, so it can be used in any selector
 where you would use C<Any>.
 
 =item *

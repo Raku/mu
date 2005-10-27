@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 24 Oct 2005
+  Last Modified: 26 Oct 2005
   Number: 6
-  Version: 8
+  Version: 9
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -28,11 +28,11 @@ parameter lists.
 
 B<Methods> (keyword: C<method>) are inheritable routines which always
 have an associated object (known as their invocant) and belong to a
-particular class.
+particular kind or class.
 
 B<Submethods> (keyword: C<submethod>) are non-inheritable methods, or
 subroutines masquerading as methods. They have an invocant and belong to
-a particular class.
+a particular kind or class.
 
 B<Multimethods> (keyword: C<multi>) are routines that transcend class
 boundaries, and can have one or more invocants. 
@@ -453,9 +453,10 @@ list:
 
     sub numcmp ($x, $y) { return $x <=> $y }
 
-Required parameters may optionally be declared with a C<+>:
+Required parameters may optionally be declared with a trailing C<!>,
+though that's already the default for positional parameters:
 
-    sub numcmp (+$x, +$y) { return $x <=> $y }
+    sub numcmp ($x!, $y!) { return $x <=> $y }
 
 The corresponding arguments are evaluated in scalar context and may be
 passed positionally or by name. To pass an argument by name,
@@ -483,18 +484,19 @@ calling its C<.arity> method:
 =head2 Optional parameters
 
 Optional positional parameters are specified after all the required
-parameters and each is marked with a C<?> before the parameter:
+parameters and each is marked with a C<?> after the parameter:
 
-    sub my_substr ($str, ?$from, ?$len) {...}
+    sub my_substr ($str, $from?, $len?) {...}
 
+Alternately, optional fields may be marked by supplying a default value.
 The C<=> sign introduces a default value:
 
-    sub my_substr ($str, ?$from = 0, ?$len = Inf) {...}
+    sub my_substr ($str, $from = 0, $len = Inf) {...}
 
 Default values can be calculated at run-time. They may even use the values of
 preceding parameters:
 
-    sub xml_tag ($tag, ?$endtag = matching_tag($tag) ) {...}
+    sub xml_tag ($tag, $endtag = matching_tag($tag) ) {...}
 
 Arguments that correspond to optional parameters are evaluated in
 scalar context. They can be omitted, passed positionally, or passed by
@@ -531,7 +533,7 @@ positional arguments:
     $formal = formalize($title, justify=>'left');
     $formal = formalize($title, :justify<right>, :case<title>);
 
-Named parameters are optional unless marked C<+>.  Default values for
+Named parameters are optional unless marked with C<!>.  Default values for
 optional named parameters are defined in the same way as for positional
 parameters, but may depend only on the values of parameters that have
 already been bound.  (Note that binding happens in the call order,
@@ -547,14 +549,15 @@ table shows the correspondence:
     a => 1		:a
     a => 0		:a(0)
     a => $x		:a($x)
-    a => $a		:$a
-    a => %foo<a>	:%foo<a>
     a => 'foo'		:a<foo>
     a => <foo bar>	:a<foo bar>
     a => «$foo @bar»	:a«$foo @bar»
     a => {...}		:a{...}
     a => [...]		:a[...]
-    "" => {...}		:{...}
+    a => $a		:$a
+    a => @a		:@a
+    a => %a		:%a
+    a => %foo<a>	%foo:<a>
 
 =head2 List parameters
 
@@ -616,7 +619,8 @@ so you can refer to it within the body.
 =head2 Slurpy block
 
 It's also possible to declare a slurpy block: C<*&block>.  It slurps
-up any nameless block, specified by C<:{...}>.  This will turn out
+up any nameless block, specified by C<{...}>, at either the current positional
+location or the end of the syntactic list.  XXX This will turn out
 useful when we discuss adverbs below.
 
 =head2 Argument list binding
@@ -779,36 +783,39 @@ When an argument is passed to a closure parameter that has this kind of
 signature, the argument must be a C<Code> object with a compatible
 parameter list and return type.
 
-=head2 Class parameters
+=head2 Type parameters
 
-Unlike normal parameters, class parameters often come in piggybacked on
-the actual value, and you'd like a way to capture both the value and
-its class at once.  A Class variable can be used anywhere a class name
-can, but instead of asserting that the value must conform to a particular
-class, instead captures the actual class of object and declares a
-temporary type by which you can refer to that class later in the
-signature or body.  For instance, if you wanted to match any two
-Dogs or Cats as long as they were of the same type, you can say:
+Unlike normal parameters, type parameters often come in piggybacked
+on the actual value as "kind", and you'd like a way to capture both
+the value and its kind at once.  (A "kind" is a class or type that
+an object is allowed to be.  An object is not officially allowed
+to take on a constrained or contravariant type.)  A type variable
+can be used anywhere a type name can, but instead of asserting that
+the value must conform to a particular type, instead captures the
+actual "kind" of object and also declares a package/type name
+by which you can refer to that kind later in the signature or body.
+For instance, if you wanted to match any two Dogs as long as they
+were of the same kind, you can say:
 
-    sub matchedset (Dog|Cat ¢T $fido, T $spot) {...}
+    sub matchedset (Dog ^T $fido, T $spot) {...}
 
-(Note that C<¢T> is not required to contain C<Dog> or C<Cat>, only
-a type that is compatible with one or the other.)
+(Note that C<^T> is not required to contain C<Dog>, only
+a type that is compatible with C<Dog>.)
 
-The C<¢> sigil is short for "class" in much the same way that C<&> is
+The C<^> sigil is short for "type" in much the same way that C<&> is
 short for "sub".  Just as C<&> can be used to name any kind of code,
-so too C<¢> can be used to name any kind of type.  Both of them insert
+so too C<^> can be used to name any kind of type.  Both of them insert
 a bare identifier into the grammar, though they fill different syntactic
 spots.
 
 Note that it is not required to capture the object associated with the
 class unless you want it.  The sub above could be written
 
-    sub matchedset (Dog|Cat ¢T, T) {...}
+    sub matchedset (Dog ^T, T) {...}
 
 if we're not interested in C<$fido> or C<$spot>.  Or just 
 
-    sub matchedset (¢T, T) {...}
+    sub matchedset (^T, T) {...}
 
 if we don't care about anything but the matching.  Note that if we'd
 said
@@ -1129,21 +1136,21 @@ its parametric value from the actual type of the parameter it is
 associated with.  It declares the new type name in whatever scope
 the surrounding declaration is associated lexical scope.
 
-    sub max (Num ¢X @array ) {
+    sub max (Num ^X @array ) {
 	push @array, X.new();
     }
 
 The new type name is introduced immediately, so two such types in
 the same signature must unify compatibly if they have the same name:
 
-    sub compare (Any ¢T $x, T $y) {
+    sub compare (Any ^T $x, T $y) {
 	return $x eqv $y;
     }
 
-The C<¢> sigil is just short for 'class', so if your keyboard is
+The C<^> sigil is just short for 'type', so if your keyboard is
 deficient in Latin-1 you can write:
 
-    sub compare (Any class T $x, T $y) {
+    sub compare (Any type T $x, T $y) {
 	return $x eqv $y;
     }
 
