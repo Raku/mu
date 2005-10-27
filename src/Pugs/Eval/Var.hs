@@ -91,7 +91,7 @@ findSub name' invs args = do
     let name = possiblyFixOperatorName name'
     case invs of
         Just _ | Just (package, name') <- breakOnGlue "::" name
-                 , Just (sig, "") <- breakOnGlue "SUPER" package -> do
+               , Just (sig, "") <- breakOnGlue "SUPER" package -> do
             typ <- asks envPackage
             findSuperSub (mkType typ) (sig ++ name')
         Just exp | not (':' `elem` drop 2 name) -> do
@@ -333,7 +333,7 @@ evalExpType (Syn "&{}" _)  = return $ mkType "Code"
 evalExpType (Syn "@{}" _)  = return $ mkType "Array"
 evalExpType (Syn "%{}" _)  = return $ mkType "Hash"
 evalExpType (Syn "=>" _)   = return $ mkType "Pair"
-evalExpType _ = return $ mkType "Any"
+evalExpType _ = return anyType
 
 {-|
 Evaluate the \'magical\' variable associated with a given name. Returns 

@@ -31,6 +31,7 @@ import Pugs.Pretty
 import Text.Printf
 import Pugs.External
 import Pugs.Embed
+import Pugs.Eval.Var
 import qualified Data.Map as Map
 import Data.IORef
 import System.IO.Error (isEOFError)
@@ -278,16 +279,18 @@ op1 "try" = \v -> do
                              ,evalError=EvalErrorUndef}
 -- Tentative implementation of nothingsmuch's lazy proposal.
 op1 "lazy" = \v -> do
-    sub <- fromVal v
-    result <- liftSTM $ newTVar Nothing
-    let thunk = do
-        cur <- liftSTM $ readTVar result
-        maybe (do res <- evalExp $ App (Val $ VCode sub) Nothing []
-                  liftSTM $ writeTVar result (Just res)
-                  return res)
-              return
-              cur
-    return $ VRef $ thunkRef $ MkThunk thunk
+    sub     <- fromVal v
+    result  <- liftSTM $ newTVar Nothing
+    let exp = App (Val $ VCode sub) Nothing []
+        thunk = do
+            cur <- liftSTM $ readTVar result
+            maybe eval return cur
+        eval = do
+            res <- evalExp exp
+            liftSTM $ writeTVar result (Just res)
+            return res
+    typ <- evalExpType exp
+    return . VRef . thunkRef $ MkThunk thunk typ
 
 op1 "defined" = op1Cast (VBool . defined)
 op1 "last" = const $ fail "cannot last() outside a loop"
@@ -344,7 +347,7 @@ op1 "fail_" = \v -> do
         then fail msg
         -- We've to return a unthrown exception.
         -- The error message to output
-        else shiftT . const $ return . VRef . thunkRef . MkThunk $ fail msg
+        else shiftT . const . return . VRef . thunkRef $ MkThunk (fail msg) anyType
     where
     errmsg "" = "Failed"
     errmsg x  = x
@@ -684,7 +687,7 @@ op1Yield action = do
     case subCont sub of
         Nothing -> fail $ "cannot yield() from a " ++ pretty (subType sub)
         Just tvar -> callCC $ \esc -> do
-            liftSTM $ writeTVar tvar (MkThunk (esc undef))
+            liftSTM $ writeTVar tvar (MkThunk (esc undef) anyType)
             action
 
 op1ShiftOut :: Val -> Eval Val

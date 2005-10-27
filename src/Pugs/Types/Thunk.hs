@@ -5,5 +5,6 @@ class (Typeable a) => ThunkClass a where
     thunk_force :: a -> Eval Val
 
 instance ThunkClass VThunk where
-    thunk_force (MkThunk c) = c
+    thunk_iType (MkThunk _ t) = t
+    thunk_force (MkThunk c _) = c
 

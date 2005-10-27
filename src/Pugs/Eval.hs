@@ -383,7 +383,7 @@ reduceSyn "sub" [exp] = do
     env  <- ask
     cont <- if subType sub /= SubCoroutine then return Nothing else liftSTM $ do
         tvar <- newTVar undefined
-        let thunk = MkThunk . fix $ \redo -> do
+        let thunk = (`MkThunk` anyType) . fix $ \redo -> do
             evalExp $ subBody sub
             liftSTM $ writeTVar tvar thunk
             redo
@@ -916,7 +916,8 @@ applyExp styp bound body = do
     let (attrib, normal) = partition isAttrib bound
     sequence_ [ evalExp (Syn "=" [Syn "{}" [Val (argValue invocant), Val (VStr key)], Val val]) |
         ApplyArg{ argName = (_:_:key), argValue = val } <- attrib ]
-    ret <- applyThunk styp normal (MkThunk $ evalExp body)
+    -- typ <- evalExpType body
+    ret <- applyThunk styp normal $ MkThunk (evalExp body) anyType
     return ret
 
 isAttrib :: ApplyArg -> Bool
@@ -1036,7 +1037,10 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
         env <- ask -- freeze environment at this point for thunks
         let eval = local (const env{ envLValue = lv }) $ do
                 enterEvalContext (cxtOfSigil $ head name) exp
-        val <- if thunk then return (VRef . thunkRef $ MkThunk eval) else do
+            thunkify = do
+                -- typ <- evalExpType exp
+                return . VRef . thunkRef $ MkThunk eval (anyType)
+        val <- if thunk then thunkify else do
             v   <- eval
             typ <- evalValType v
             let cls = envClasses env

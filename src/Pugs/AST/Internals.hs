@@ -601,7 +601,10 @@ type VList = [Val]
 type VSubst = (VRule, Exp)
 type VArray = [Val]
 type VHash = Map VStr Val
-newtype VThunk = MkThunk (Eval Val)
+data VThunk = MkThunk
+    { thunkExp  :: Eval Val
+    , thunkType :: VType
+    }
     deriving (Typeable)
 newtype VProcess = MkProcess (ProcessHandle)
     deriving (Typeable)
