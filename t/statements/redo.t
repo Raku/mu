@@ -2,7 +2,7 @@
 
 use v6;
 use Test;
-
+# L<S04/"Loop statments" /work as in Perl 5/>
 plan 10;
 
 {

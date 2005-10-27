@@ -7,7 +7,7 @@ use Test;
 
 Tests for post condition/iterating/looping including:
   if, unless, for, while, until
-
+L<S04/"Conditional statements" /Conditional statement modifiers also work as in Perl 5/>
 =cut
 
 plan 21;

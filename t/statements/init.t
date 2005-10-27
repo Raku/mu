@@ -5,6 +5,7 @@ use Test;
 
 plan 8;
 
+# L<S04/"Closure traits" /at run time, ASAP/>
 # INIT {...} blocks in "void" context
 {
   my $var;

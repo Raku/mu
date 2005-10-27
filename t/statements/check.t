@@ -5,6 +5,7 @@ use Test;
 
 plan 8;
 
+# L<S04/"Closure traits" /at compile time, ALAP/>
 # CHECK {...} block in "void" context
 {
   my $var;
