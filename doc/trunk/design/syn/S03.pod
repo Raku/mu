@@ -12,7 +12,7 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 26 Aug 2005
+  Last Modified: 27 Oct 2005
   Number: 3
   Version: 6
 
@@ -48,7 +48,7 @@ true.
 of a string to produce a single string), and C<xx> (which creates a list of 
 repetitions of a list or scalar).
 
-=item * Trinary C<? :> becomes C<?? ::>.
+=item * Trinary C<? :> becomes C<?? !!>.
 
 =item * C<qw{ ... }> gets a synonym: C< < ... > >, and an interpolating
 variant, C<«...»>.
@@ -380,7 +380,7 @@ Perl 6 has 22 precedence levels (fewer than Perl 5):
     chaining binary	!= == < <= > >= ~~ !~ eq ne lt le gt ge =:=
     tight and		&&
     tight or		|| ^^ //
-    ternary		?? ::
+    ternary		?? !!
     assignment		= := ::= += -= **= xx= etc.
     list item separator	, ¥
     list op (rightward)	<== print push any all true not etc.
