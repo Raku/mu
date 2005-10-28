@@ -247,7 +247,11 @@ EOD
 
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bparrot\b/i) {
         my $base = $ENV{PARROT_PATH};
-		chomp(my $parrot_config = `which parrot-config.imc 2>/dev/null`);
+		my $parrot_config;
+		for my $item (split(/:/, $ENV{PATH})) {
+			my $path = File::Spec->catfile($item, 'parrot-config.imc');
+			$parrot_config = $path, last if -e $path;
+		}
 		if (!$base && -e $parrot_config) {
 			$base = (File::Spec->splitpath($parrot_config))[1];
 		}
@@ -262,13 +266,15 @@ EOD
         my $ldflags = parrot_config($base, 'ldflags');
         my $libs = parrot_config($base, 'libs');
         my $icuflags = parrot_config($base, 'icu_shared');
+		my $include_path = parrot_config($base, 'prefix') . parrot_config($base, 'inc');
 
         # strip non-GHC flags
         $ldflags =~ s/-[^IlL]\S*//g;
         $libs =~ s/-[^IlL]\S*//g;
         $icuflags =~ s/-[^IlL]\S*//g;
+        $include_path =~ s/-[^IlL]\S*//g;
 
-        $embed_flags .= " -I$base/include -L$base/blib/lib -DPUGS_HAVE_PARROT -L$base/blib/lib -L/usr/local/lib $ldflags ";
+        $embed_flags .= " -I$include_path -I$base/include -L$base/blib/lib -DPUGS_HAVE_PARROT -L$base/blib/lib -L/usr/local/lib $ldflags ";
         $ghc_output .= " -lparrot $libs $icuflags ";
         my $config = "$base/src/parrot_config$Config{_o}";
         $ghc_output .= " $config " if -e $config;
