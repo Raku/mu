@@ -4,7 +4,7 @@ use v6;
 use Test;
 
 plan 4;
-
+# L<S03/Precedence "loose and">
 my $run = 1;
 
 sub isfive (*@args) {

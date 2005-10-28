@@ -7,7 +7,7 @@ use Test;
 
 This is going to be in S03 (mail from Luke to p6l:
 http://www.nntp.perl.org/group/perl.perl6.language/22849).
-
+L<S03/"New operators" /Binary C<eqv>/>
 Binary C<eqv> tests value equivalence: for two value types, tests whether they
 are the same value (eg. C<1 eqv 1>); for two reference types, checks whether
 they are the same reference (eg. it is not true that C<[1,2] eqv [1,2]>, but it
