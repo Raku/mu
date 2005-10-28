@@ -247,14 +247,10 @@ EOD
 
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bparrot\b/i) {
         my $base = $ENV{PARROT_PATH};
-		my $parrot_config;
-		for my $item (split(/:/, $ENV{PATH})) {
-			my $path = File::Spec->catfile($item, 'parrot-config.imc');
-			$parrot_config = $path, last if -e $path;
-		}
-		if (!$base && -e $parrot_config) {
-			$base = (File::Spec->splitpath($parrot_config))[1];
-		}
+        my $parrot_config = which('parrot-config.imc') || '';
+        if (!$base && -e $parrot_config) {
+            $base = (File::Spec->splitpath($parrot_config))[1];
+        }
         if (!$base and -d "../parrot") {
             $base = abs_path('../parrot/');
         }
@@ -570,4 +566,13 @@ sub parrot_config {
     chomp($value);
     chdir( $ac_path ) or die "Can't change dir to '$ac_path'";
     return $value;
+}
+
+sub which {
+    my $file = shift;
+    for ( File::Spec->path() ) {
+        my $full_name = File::Spec->catfile($_, $file);
+        return $full_name if -e $full_name;
+    }
+    return undef;    
 }
