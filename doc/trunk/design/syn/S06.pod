@@ -208,17 +208,17 @@ indicate the same binary addition operator:
 
 Use the C<&> sigil just as you would on ordinary subs.
 
-Unary operators are defined as prefix or postfix:
+Unary operators are defined as C<prefix> or C<postfix>:
 
     sub prefix:<OPNAME>  ($operand) {...}
     sub postfix:<OPNAME> ($operand) {...}
 
-Binary operators are defined as infix:
+Binary operators are defined as C<infix>:
 
     sub infix:<OPNAME> ($leftop, $rightop) {...}
 
-Bracketing operators are defined as circumfix where a term is expected
-or postcircumfix where a postfix is expected.  A two-element slice
+Bracketing operators are defined as C<circumfix> where a term is expected
+or C<postcircumfix> where a postfix is expected.  A two-element slice
 containing the leading and trailing delimiters is the name of the
 operator.
 
@@ -895,7 +895,8 @@ the transformations can be reversible.)
 However, the full power of signatures can be applied to pattern match
 just about any argument or set of arguments, even though in some cases
 the reverse transformation is not intuitable.  For instance, to bind to
-an array of children named C<.kids> or C<.<kids>, use something like:
+an array of children named C<.kids> or C<< .<kids> >>, use something
+like:
 
     sub traverse ( NAry $top ( :kids [$eldest, *@siblings] ) ) {
 	traverse($eldest);
@@ -958,7 +959,7 @@ but the dot is ignored for the parameter name, so
 
 is the same as:
 
-    submethod initialize(:name($.name), :($.age)) {}
+    submethod initialize(:name($.name), :age($.age)) {}
 
 =head2 Placeholder variables
 

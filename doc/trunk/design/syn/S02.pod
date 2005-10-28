@@ -190,7 +190,7 @@ primarily intended for declaring compact array storage.  However, Perl
 will try to make those look like their corresponding uppercase types if
 you treat them that way.  (In other words, it does autoboxing.  Note,
 however, that sometimes repeated autoboxing can slow your program more
-that the native type can speed it up.)
+than the native type can speed it up.)
 
 =item *
 
@@ -1118,12 +1118,12 @@ There are no barewords in Perl 6.  An undeclared bare identifier will
 always be taken to mean a subroutine or method name.  (Class names
 (and other type names) are predeclared, or prefixed with the C<::>
 package literal marker, or the C<^> type sigil.)  A consequence
-of this is that there's no longer any "C<use strict subs>".
+of this is that there's no longer any "C<use strict 'subs'>".
 
 =item *
 
 There's also no
-"C<use strict refs>" because symbolic dereferences are now syntactically
+"C<use strict 'refs'>" because symbolic dereferences are now syntactically
 distinguished from hard dereferences.  C<@{$arrayref}> must now be a
 hard reference, while C<@::($string)> is explicitly a symbolic reference.
 (Yes, this may give fits to the P5-to-P6 translator, but I think it's
