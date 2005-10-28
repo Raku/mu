@@ -247,6 +247,10 @@ EOD
 
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bparrot\b/i) {
         my $base = $ENV{PARROT_PATH};
+		chomp(my $parrot_config = `which parrot-config.imc 2>/dev/null`);
+		if (!$base && -e $parrot_config) {
+			$base = (File::Spec->splitpath($parrot_config))[1];
+		}
         if (!$base and -d "../parrot") {
             $base = abs_path('../parrot/');
         }
