@@ -1690,11 +1690,11 @@ namespace.
 
 C<< CALLER::<$varname> >> specifies the C<$varname> visible in the dynamic
 scope from which the current block/closure/subroutine was called, provided
-that variable is declared "C<is env>".  (Implicit lexicals such as C<$_>
+that variable is declared "C<env>".  (Implicit lexicals such as C<$_>
 are automatically assumed to be environmental.)
 
 C<< ENV::<$varname> >> specifies the C<$varname> visible in the
-innermost dynamic scope that declares the variable as "C<is env>".
+innermost dynamic scope that declares the variable as "C<env>".
 
 C<< MY::<$varname> >> specifies the lexical C<$varname> declared in the current
 lexical scope.
