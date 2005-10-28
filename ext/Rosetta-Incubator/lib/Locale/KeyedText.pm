@@ -119,7 +119,13 @@ method get_member_names () returns Array of Str {
     return [@:member_names];
 }
 
-######################################################################
+###########################################################################
+
+method get_set_member_combinations () returns Array of Str {
+    return [@:member_names.map:{ @:set_names »~« $_ }];
+}
+
+###########################################################################
 
 method translate_message (Locale::KeyedText::Message $message)
         returns Str {
@@ -128,54 +134,100 @@ method translate_message (Locale::KeyedText::Message $message)
         if !$message.defined or !$message.does(Locale::KeyedText::Message);
 
     my Str $text = undef;
-# TODO: Pugs won't parse the following line yet:
-#    MEMBER:
-    for @:member_names -> $member_name {
-# TODO: Pugs won't parse the following line yet:
-#        SET:
-        for @:set_names -> $set_name {
-            my Str $module_name = $set_name ~ $member_name;
+#    SET_MEMBER:
+    for .get_set_member_combinations() -> $module_name {
+        # Determine if requested template module is already loaded.
+        # It may have been embedded in a core program file and hence
+        # should never be loaded by translate_message().
+        my $module_is_loaded = .template_module_is_loaded( $module_name );
 
-            # Determine if requested template module is already loaded.
-            # It may have been embedded in a core program file and hence
-            # should never be loaded by translate_message().
-            my $module_is_loaded = defined ::($module_name);
-
-            # Try to load an external Perl template module; on a require
-            # failure, we assume that module intentionally doesn't exist,
-            # and so skip to the next candidate module name.
-            if (!$module_is_loaded) {
-                # Note: We have to invoke this 'require' in an eval string
-                # because we need the bareword semantics, where 'require'
-                # will munge the package name into file system paths.
-                eval "require $module_name;";
-                next SET
-                    if $!;
-            }
-
-            # Try to fetch template text for the given message key from the
-            # successfully loaded template module; on a function call
-            # death, assume module is damaged and say so; an undefined
-            # ret val means module doesn't define key, skip to next module.
+        # Try to load an external Perl template module; on a require
+        # failure, we assume that module intentionally doesn't exist,
+        # and so skip to the next candidate module name.
+        if (!$module_is_loaded) {
             try {
-                $text = &::($module_name)::get_text_by_key(
-                    $message.get_msg_key() );
+                .load_template_module( $module_name );
                 CATCH {
-                    throw "damaged template '$module_name': $!";
+#                    next SET_MEMBER;
+                    next;
                 }
             };
-            next SET
-                if !$text.defined;
-
-            # We successfully got template text for the message key, so
-            # interpolate the message vars into it and return that.
-            for $message.get_msg_vars().kv -> $var_name, $var_value {
-                my Str $var_value_as_str = $var_value // $EMPTY_STR;
-                $text ~~ s:perl5:g/\{$var_name\}/$var_value_as_str/; # Pugs
-#                $text ~~ s:g/\{$var_name\}/$var_value_as_str/; #PGE/Parrot
-            }
-            last MEMBER;
         }
+
+        # Try to fetch template text for the given message key from the
+        # successfully loaded template module; on a function call
+        # death, assume module is damaged and say so; an undefined
+        # ret val means module doesn't define key, skip to next module.
+        $text = .get_template_text_from_loaded_module( $module_name, 
+            $message.get_msg_key() ); # let escape any thrown exception
+#        next SET_MEMBER
+        next
+            if !$text.defined;
+
+        # We successfully got template text for the message key, so
+        # interpolate the message vars into it and return that.
+        $text = .interpolate_vars_into_template_text( 
+            $text, $message.get_msg_vars() );
+#        last SET_MEMBER;
+        last;
+    }
+
+    return $text;
+}
+
+###########################################################################
+
+submethod template_module_is_loaded (Str $module_name) returns Bool {
+    throw 'invalid arg'
+        if !$module_name.defined or $module_name eq '';
+    return defined ::($module_name);
+}
+
+submethod load_template_module (Str $module_name) {
+    throw 'invalid arg'
+        if !$module_name.defined or $module_name eq '';
+
+    # Note: We have to invoke this 'require' in an eval string
+    # because we need the bareword semantics, where 'require'
+    # will munge the package name into file system paths.
+    eval "require $module_name;";
+    throw "can't load template module '$module_name': $!"
+        if $!;
+
+    return;
+}
+
+submethod get_template_text_from_loaded_module
+        (Str $module_name, Str $msg_key) returns Str {
+
+    throw 'invalid arg'
+        if !$module_name.defined or $module_name eq '';
+    throw 'invalid arg'
+        if !$msg_key.defined or $msg_key eq '';
+
+    my Str $text = undef;
+    try {
+        $text = &::($module_name)::get_text_by_key( $msg_key );
+        CATCH {
+            throw "can't invoke get_text_by_key() on '$module_name': $!";
+        }
+    };
+
+    return $text;
+}
+
+submethod interpolate_vars_into_template_text 
+        (Str $text is copy, Any %msg_vars) returns Str {
+
+    throw 'invalid arg'
+        if !$text.defined;
+    throw 'invalid arg'
+        if !%msg_vars.defined or %msg_vars.exists('');
+
+    for %msg_vars.kv -> $var_name, $var_value {
+        my Str $var_value_as_str = $var_value // $EMPTY_STR;
+        $text ~~ s:perl5:g/\<$var_name\>/$var_value_as_str/; # v req Pugs
+#        $text ~~ s:g/\<$var_name\>/$var_value_as_str/; # v req PGE/Parrot
     }
 
     return $text;
@@ -524,7 +576,7 @@ For example, inside the text Template file "MyApp/L/Eng.pm" you can have:
         'MYAPP_GOODBYE' => q[Goodbye!],
         'MYAPP_PROMPT'
             => q[Enter a number to be inverted, or press ENTER to quit.],
-        'MYAPP_RESULT' => q[The inverse of "{ORIGINAL}" is "{INVERTED}".],
+        'MYAPP_RESULT' => q[The inverse of "<ORIGINAL>" is "<INVERTED>".],
     );
 
     module MyApp::L::Eng {
@@ -541,7 +593,7 @@ And inside the text Template file "MyApp/L/Fre.pm" you can have:
         'MYAPP_PROMPT'
             => q[Fournir nombre être inverser, ou appuyer sur]
                ~ q[ ENTER être arrêter.],
-        'MYAPP_RESULT' => q[Renversement "{ORIGINAL}" est "{INVERTED}".],
+        'MYAPP_RESULT' => q[Renversement "<ORIGINAL>" est "<INVERTED>".],
     );
 
     module MyApp::L::Fre {
@@ -598,8 +650,9 @@ else, such as XML or tab-delimited plain text files.>
 While a Translator object stores some attributes for configuration, its
 main purpose is to convert Message objects on demand into user-readable
 message strings, using data from external Template modules as a template.
-Except for the C<translate_message()> method, which does that conversion,
-the Translator class is pure and deterministic container.
+The Translator class as a whole is not pure and deterministic because it
+invokes user-defined external files for reading, mainly in the
+C<translate_message()> method, but it has no other side effects.
 
 A Translator object has 2 main attributes:
 
@@ -668,6 +721,17 @@ This method returns all Set Names elements in this object as an array ref.
 This method returns all Member Names elements in this object as an array
 ref.
 
+=item C<get_set_member_combinations()>
+
+This method returns an array ref having all combinations of this object's
+Set Names and Member Names elements, concatenated in the form
+"<Set><Member>".  All combinations having the same Member Name are adjacent
+to each other in the output; for example, with Sets of ['MyApp','MyLib']
+and Members of ['Eng','Fre'], the resulting list is
+['MyAppEng','MyLibEng','MyAppFre','MyLibFre'].  This method is used
+internally by translate_message() to produce the list of Template module
+names that it will search.
+
 =item C<translate_message( $message )>
 
 This method takes a (machine-readable) Message object as its positional
@@ -680,6 +744,45 @@ considered to implement the 'main' functionality of Locale::KeyedText.
 Some example usage:
 
     my Str $user_text_string = $translator.translate_message( $message );
+
+=back
+
+The Translator class also has these utility submethods, which are all used
+by translate_message() to handle the trickier parts of its work:
+
+=over
+
+=item C<template_module_is_loaded( $module_name )>
+
+This submethod takes the name of a Perl package in its positional argument
+$module_name (a string) and checks whether or not it has already been
+loaded, returning true if so and false if not.
+
+=item C<load_template_module( $module_name )>
+
+This submethod takes the name of a Perl package in its positional argument
+$module_name (a string) and tries to load it using 'require'.
+
+=item C<get_template_text_from_loaded_module( $module_name, $msg_key )>
+
+This submethod takes the name of a Perl package in its positional argument
+$module_name (a string), and a Message Key in its positional argument
+$msg_key (a string).  Assuming that a Perl module by the given module name
+is already loaded, it tries to invoke $module_name.get_text_by_key(
+$msg_key ) and return that subroutine's result, which is a Template text 
+string if the module recognizes $msg_key, and the undefined value if not.
+
+=item <interpolate_vars_into_template_text( $text, %msg_vars )>
+
+This submethod takes a defined (but possibly empty) Template text string in
+its positional argument $text (a string), and a Message Variables hash ref
+in its positional argument %msg_vars.  It returns a copy of $text modified
+by interpolating the %msg_vars into it, where each variable value is
+substituted for any occurance of its corresponding variable name that is
+bounded by '<' and '>'.  For example, given "Hello <place>!" in $text and
+"{ 'place' => 'World' }" in %msg_vars, it will return "Hello World!".  All
+occurances of any given variable name will be replaced, non-recursively,
+and any "<foo>" not matched by a variable name will be left intact.
 
 =back
 

@@ -50,7 +50,7 @@ I<This documentation is pending.>
 
 I<This documentation is pending.>
 
-=head1 FUNCTIONS AND METHODS
+=head1 INTERFACE
 
 I<This documentation is pending; this section may also be split into several.>
 
