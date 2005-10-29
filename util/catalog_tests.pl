@@ -7,12 +7,14 @@ use File::Path;
 use File::Basename;
 use IO::File;
 use HTML::TreeBuilder;
+use HTML::Entities;
 use Regexp::Common qw/balanced delimited/;
 use Pod::Simple::HTML;
 use Pod::PlainText;
 use Tie::RefHash;
 use List::Util 'first';
 use Data::Dumper;
+use YAML qw(LoadFile);
 
 use HTML::Template;
 
@@ -75,6 +77,11 @@ print "\n";
 my $index = {};
 my (@unresolved, @bad_regex, @bad_heading);
 
+my $tests = LoadFile("tests.yml");
+my $files = {};
+$files->{$_->{file}} = $_ for @{ $tests->{meat}->{test_files} };
+
+
 find(\&handle_t_file, $t_dir);
 
 infest_syns($link_info);
@@ -115,7 +122,7 @@ sub build_indexes {
                                             title => $_,
                                             wrap  => !(++$i % $c),
                                              }} @dirs  ]);    
-    $template->param(files       => [ @files ]); 
+    $template->param(files       => [sort {$a->{file} cmp $b->{file}} @files ]); 
     print $fh $template->output();
     close $fh;
     for (@dirs) {
@@ -141,9 +148,20 @@ sub handle_t_file {
   my $output_path   = inpath_to_outpath($input_path);
   my ($path, $file) = $input_path =~ m|^$t_dir/(.*)/(.*)\.t$|;
   my $links = 0;
-  
+#  die Dumper( $files->{"t/" . abs2rel($input_path,$t_dir)} );
   mkpath(dirname $output_path);
-
+  my $test_results = $files->{"t/" . abs2rel($input_path,$t_dir)};
+  my $lines = {};
+  for my $test (@{$test_results->{events}} ) {
+      next unless defined $test->{pos};
+      my ($line) = $test->{pos} =~ /line (\d+)/;
+      next unless $line;
+      if (exists $lines->{$line}) {
+        $lines->{$line} = 0 if $test->{ok} == 0;
+      } else {
+        $lines->{$line} = $test->{ok};
+      }
+   }
   my $infile  = IO::File->new($input_path, "<:utf8") 
                          or die "Can't open input test file $input_path: $!";
   my $outfile = IO::File->new($output_path, ">:utf8")
@@ -151,9 +169,7 @@ sub handle_t_file {
                          
   my $template = HTML::Template->new(filename => '/home/eric256/pugs/util/catalog_tmpl/code.tmpl');  
   $template->param("file" => $file);
-#  my $outtree = HTML::TreeBuilder->new_from_content($template->output);
   my $output = ""; 
- # my $body = $outtree->look_down(_tag=>'pre');
   
   my $quotable = qr/\w+|$RE{delimited}{-delim=>'"'}/;
   
@@ -187,7 +203,8 @@ sub handle_t_file {
       
       $linkfile = $1 if ($linkfile =~ /^"(.*)"$/);
       $linkhead = $1 if ($linkhead =~ /^"(.*)"$/);
-      $output .= $text; 
+ 
+      
 #     $body->push_content(HTML::Element->new('pre')->push_content($text));
       
       my $link = {};
@@ -200,28 +217,45 @@ sub handle_t_file {
         $link->{regex} = eval "qr/$regex/$reopts";
       }
       $link->{sourcepath}=$output_path;
-
+      $output .= $text;
       my $syn_path = catfile($output_dir, "Synopsis", "$linkfile.html");
  #     $body->push_content(HTML::Element->new(
  #       'a',
  #       href => abs2rel($syn_path, dirname($output_path)) . "#" .(0+$link),
  #       id => 0+$link
  #     )->push_content($whole));
+      
       $output .= "<a href='". abs2rel($syn_path, dirname($output_path)) . "#" .(0+$link) . 
-                    "' id='" . (0+$link) . "'>$whole</a>";
+                    "' id='" . (0+$link) . "'>" . encode_entities($whole) . "</a>";
       push @{$link_info->{$linkfile}}, $link;
       $links++;
     }
     
     if ($rest) {
+       $rest = encode_entities($rest);
 #      $body->push_content($rest);
-      $output .= $rest;
+      if (exists $lines->{$.}) {
+        if ($lines->{$.} == 0) {
+         $output .= "<span class='test_fail'>$rest</span>"; 
+        } else {
+         $output .= "<span class='test_pass'>$rest</span>";
+        }
+      } else {
+        $output .= "<span class='non_test'>$rest</span>";
+      }
     }
 #    $body->push_content("\n");
      $output .= "\n";
   }
   $template->param("tests", $output);
-  my $data = { file => $file, links => $links};
+  my $data = { 
+        file   => $file, 
+        links  => $links,
+        ok     => $test_results->{results}->{ok},
+        todo   => $test_results->{results}->{todo},
+        failed => ($test_results->{results}->{seen} || 0) -
+                  ($test_results->{results}->{ok} || 0),
+  };
   my (@paths) = splitdir($path);
   my $loc  = 'push @{$index';
   $loc .= "->{_dirs}->{" . $_ . "}" for @paths;
