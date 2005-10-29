@@ -3,8 +3,8 @@ Subroutines
     Whitespace matters
 
         foo 42;           # calls &foo, one positional argument (number 42)
-        foo(42);          # same
-        foo (42);         # same
+        foo(42);          # same, the parens are subcall parens (postfix .())
+        foo (42);         # same, but the parens are grouping parens
 
         foo 42, 23;       # two positional arguments (42 and 23)
         foo(42, 23);      # same
