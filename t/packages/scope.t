@@ -5,7 +5,7 @@ use Test;
 
 # test that packages work.  Note that the correspondance between type
 # objects as obtained via the ::() syntax and packages is only hinted
-# at in S10
+# at in L<S10/"Packages" /or use the sigil-like/>
 plan 23;
 
 if $?PUGS_BACKEND ne "BACKEND_PUGS" {

@@ -9,7 +9,7 @@ plan 5;
 # mutation.  On the other hand, it seems useful to preserve the bugward
 # behaviour.  Marking :todo<unspecced>, pending p6l discussion (see thread
 # "[S29] Mutating map and grep" on p6l started by Ingo Blechschmidt
-# L<"http://www.nntp.perl.org/group/perl.perl6.language/22553>) and S29 patch.
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/22553">) and S29 patch.
 
 {
   my @array = <a b c d>;

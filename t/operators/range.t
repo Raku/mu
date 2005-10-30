@@ -24,7 +24,7 @@ is ~(3..9-3), "3 4 5 6", "(..) has correct precedence (1)";
 is ~(2+1..6), "3 4 5 6", "(..) has correct precedence (2)";
 
 # Test the three exclusive range operators:
-# L<S03/"New Operators"/binary range operator has variants/>
+# L<S03/"New Operators" /binary range operator has variants/>
 is [1^..9], [2..9],  "bottom-exclusive range (^..) works";
 is [1 ..^9], [1..8], "top-exclusive range (..^) works";
 is [1^..^9], [2..8], "double-exclusive range (^..^) works";

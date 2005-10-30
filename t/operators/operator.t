@@ -6,7 +6,7 @@ use Test;
 =kwid
 
 Tests for Synopsis 3
-
+L<S03/"New operators">
 =cut
 
 plan 29;

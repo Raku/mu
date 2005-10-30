@@ -74,7 +74,7 @@ my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
     ok(eval('!(%hash5 ~~ .{$string})'), 'hash.{Any} untruth', :todo);
 };
 
-{ #L<<S04/"Smart matching" /Hash\s+.<string>\s+hash\s+element\s+truth*\s+match\s+if\s+\$_<string>/>>
+{ #L<<S04/"Smart matching" /Hash\s+.<string>\s+hash\s+element\s+truth*\s+match\s+if\s+\$_\<string\>/>>
     ok(eval('(%hash5 ~~ .<foo>)'), "hash<string> truth", :todo);
     ok(eval('!(%hash5 ~~ .<gorch>)'), "hash<string> untruth", :todo);
 };

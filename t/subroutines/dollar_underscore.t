@@ -13,7 +13,7 @@ plan 3;
 my @list = ('a');
 
 
-# according to A06:    
+# according to A06: L<A06/"Lexical context">    
 #
 #   Methods, submethods, macros, rules, and pointy subs all  
 #   bind their first argument to C<$_>; ordinary subs declare
