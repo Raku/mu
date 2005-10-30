@@ -5,45 +5,6 @@ use Test;
 
 # L<S02/Names and Variables /To get a Perlish representation of any data value/>
 
-my @tests = (
-    # Basic scalar values
-    42, 42/10, 4.2, sqrt(2), 3e5, Inf, -Inf, NaN,
-    "a string", "", "\0", "\t", "\n", "\r\n", "\7", '{', '}', "\123",
-    ?1, ?0,
-    undef,
-    rx:Perl5{foo}, rx:Perl5{}, rx:Perl5{^.*$},
-
-    # References to scalars
-    \42, \Inf, \-Inf, \NaN, \"string", \"", \?1, \?0, \undef,
-
-    # Pairs - XXX - Very Broken - FIXME!
-    (a => 1),
-    :b(2),
-
-    # References to aggregates
-    [],      # empty array
-    [ 42 ],  # only one elem
-    [< a b c>],
-    {},           # empty hash
-    { a => 42 },  # only one elem
-    { :a(1), :b(2), :c(3) },
-
-    # Infinite/lazy arrays, commented because they take infram and inftime in
-    # current Pugs
-    # [ 3..42 ],
-    # [ 3..Inf ],
-    # [ -Inf..Inf ],
-    # [ 3..42, 17..Inf, -Inf..5 ],
-
-    # Nested things
-    { a => [1,2,3] },  # only one elem
-    [      [1,2,3] ],  # only one elem
-    { a => [1,2,3], b => [4,5,6] },
-    [ { :a(1) }, { :b(2), :c(3) } ],
-);
-
-plan 7 + 2*@tests;
-force_todo 8, 43..48, 77..78, 81..82, 87..89, 92, 94, 96;
 
 unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
   skip_rest "eval() not yet implemented in $?PUGS_BACKEND.";
@@ -56,13 +17,72 @@ unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
 #   This will put quotes around strings, square brackets around list values,
 #   curlies around hash values, etc., **such that standard Perl could reparse
 #   the result**.
+sub desc_perl ($obj) {
+    "($obj.perl()).perl returned something whose eval()ed stringification is unchanged";
+}
+sub desc_ref ($obj) {
+    "($obj.perl()).perl returned something whose eval()ed .ref is unchanged";
+}
+
 {
-    for @tests -> $obj {
-        is ~$obj.perl.eval, ~$obj,
-            "($obj.perl()).perl returned something whose eval()ed stringification is unchanged";
-        is $obj.perl.eval.ref, $obj.ref,
-            "($obj.perl()).perl returned something whose eval()ed .ref is unchanged";
+    for (42, 42/10, 4.2, sqrt(2), 3e5, Inf, -Inf, NaN,) -> $obj {
+        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj);
+        is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
     }
+
+    for ("a string", "", "\0", "\t", "\n", "\r\n", "\7", '{', '}', "\123",) -> $obj {
+        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj);
+        is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
+    }
+
+    for (?1, ?0, undef,) -> $obj {
+        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj);
+        is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
+    }
+
+    for (rx:Perl5{foo}, rx:Perl5{}, rx:Perl5{^.*$},) -> $obj {
+        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj);
+        is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
+    }
+
+    for (\42, \Inf, \-Inf, \NaN, \"string", \"", \?1, \?0, \undef,) -> $obj {
+        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj);
+        is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
+    }
+
+    # Pairs - XXX - Very Broken - FIXME!
+    for ((a => 1),:b(2),) -> $obj {
+        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj);
+        is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
+    }
+
+    for ([],  [ 42 ]     ,  [< a b c>],) -> $obj {
+        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj);
+        is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
+    }
+
+    for ({},  { a => 42 },  { :a(1), :b(2), :c(3) },) -> $obj {
+        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj);
+        is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
+    }
+
+#    for ([ 3..42 ], [ 3..Inf ], [ -Inf..Inf ], [ 3..42, 17..Inf, -Inf..5 ],) -> $obj {
+#        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj);
+#        is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
+#    }
+
+
+    for ({ a => [1,2,3] }, [ [1,2,3] ],) -> $obj {
+        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj);
+        is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
+    }
+
+    for ({ a => [1,2,3], b => [4,5,6] }, [ { :a(1) }, { :b(2), :c(3) } ],) -> $obj {
+        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj);
+        is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
+    }
+
+
 }
 
 # Recursive data structures
