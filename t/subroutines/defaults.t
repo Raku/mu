@@ -6,7 +6,7 @@ use Test;
 =kwid
 
 Tests assigning default values to variables of type code in sub definitions.
-
+L<S06/"Optional parameters" /Default values can be calculated at run-time/>
 =cut
 
 plan 2;
