@@ -17,12 +17,12 @@ plan 3;
 
 {
     my $var = 100;
-    class a {
+    class a1 {
         has $.a;
         has $.c;
         method update { $var -= $.a; }
     };
-    eval 'a.new( a => 10 ).udpate';
+    a1.new( a => 10 ).update;
     is $var, 90, "Testing suite 1.";
 }
 
@@ -30,36 +30,35 @@ plan 3;
 
 {
     my $var = 100;
-    class a {
+    class a2 {
         has $.a;
-        method udpate { $var -= $.a; }
+        method update { $var -= $.a; }
     };
-    class b {
+    class b2 {
         has $.a;
-        method BUILD { a.new( a => $.a ).udpate; };
+        submethod BUILD { a2.new( a => $.a ).update; };
     };
-    eval 'b.new( a => 20 ).udpate';
+    b2.new( a => 20 );
     is $var, 80, "Testing suite 2.";
 }
 
 
 
 {
-##### the example below will cause pugs hang.
     my $var = 100;
-    class a {
+    class a3 {
         has $.a;
-        method udpate { $var -= $.a; }
+        method update { $var -= $.a; }
     };
-    class b {
+    class b3 {
         has $.a;
-        method BUILD { a.new( a => $.a ); }
+        submethod BUILD { a3.new( a => $.a ).update; }
     };
-    class c {
+    class c3 {
         has $.b;
-        method BUILD { b.new( a => $.b ); }
+        submethod BUILD { b3.new( a => $.b ); }
     };
 
-    eval 'c.new( b => 30 ).udpate';
+    c3.new( b => 30 );
     is $var, 70, "Testing suite 3.";
 }
