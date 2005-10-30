@@ -4,7 +4,7 @@ use v6;
 use Test;
 
 =kwid
-L<S04/"Loop statments" /work as in Perl 5/>
+L<S04/"Loop statements" /work as in Perl 5/>
 next
 next if <condition>;
 <condition> and next;

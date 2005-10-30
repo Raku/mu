@@ -7,7 +7,7 @@ use Test;
 
 This tests proper return of values from subroutines.
 
-L<S06/"Subroutines">
+L<S06/"Subroutines and other code objects">
 
 =cut
 
