@@ -158,8 +158,10 @@ sub handle_t_file {
       next unless $line;
       if (exists $lines->{$line}) {
         $lines->{$line} = 0 if $test->{ok} == 0;
+      } elsif ($test->{todo} eq '') {
+        $lines->{$line} = 1;
       } else {
-        $lines->{$line} = $test->{ok};
+        $lines->{$line} = 2;
       }
    }
   my $infile  = IO::File->new($input_path, "<:utf8") 
@@ -234,15 +236,16 @@ sub handle_t_file {
     if ($rest) {
        $rest = encode_entities($rest);
 #      $body->push_content($rest);
+      my $test_class = { 0 => 'test_fail',
+                      1 => 'test_pass',
+                      2 => 'test_todo',
+                      };
+      my $class = 'non_test';
       if (exists $lines->{$.}) {
-        if ($lines->{$.} == 0) {
-         $output .= "<span class='test_fail'>$rest</span>"; 
-        } else {
-         $output .= "<span class='test_pass'>$rest</span>";
-        }
-      } else {
-        $output .= "<span class='non_test'>$rest</span>";
+        $class = $test_class->{$lines->{$.}};
       }
+      $output .= "<span class='$class'>$rest</span>";
+      
     }
 #    $body->push_content("\n");
      $output .= "\n";

@@ -15,14 +15,28 @@
 </table>
 </TMPL_IF>
 
+<TMPL_IF name='Files'>
 <h2>Files</h2>
-<ul>
+<table>
+<tr>
+  <th>Links</th>
+  <th>Pass</th>
+  <th>Todo</th>
+  <th>Fail</th>
+  <th>File</th>
+</tr>
+
 <TMPL_LOOP name="files">
-    <li><a href='<TMPL_VAR name='file'>.html'><TMPL_VAR name="file"></a>
-            (Links: <TMPL_VAR name="links">, Tests: <TMPL_VAR name="ok">/<TMPL_VAR name="todo">/<TMPL_VAR name="failed">)
-    </li>
+    <tr> 
+       <td><TMPL_VAR name="links"></td>
+       <td><TMPL_VAR name="ok"></td>
+       <td><TMPL_VAR name="todo"></td>
+       <td><TMPL_VAR name="failed"></td>
+       <td><a href='<TMPL_VAR name='file'>.html'><TMPL_VAR name="file"></a></td>
+    </tr>
 </TMPL_LOOP>
-</ul>
+</table>
+</TMPL_IF>
 </body>
 </html>
 
