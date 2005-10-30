@@ -18,6 +18,24 @@ class a {has $.a; method update { $.a; } }; class b { has $.a; submethod BUILD {
 ##### this example will say sub isn't found.
 class a { has $.a; method update { $.a; } };class b { has $.a; submethod BUILD { a.new( a => $.a ).update; }; }; b.new( a => 20 );
 
+Problems with this test:
+* The classes "a", "b", and "c" are redefined several times.
+  { class Foo {...} }; say Foo.new;
+  # works, even though Foo was declared in a different lexical scope
+  Proposal: Change the class names to "a1", "b1", "a2", "b2", etc.
+
+* This also causes some infloops, as some classes' BUILD call itself
+  (indirectly) (this is a consequence of the first problem).
+
+* It's *sub*method BUILD, not method BUILD.
+
+  Proposal: s/method BUILD/submethod BUILD/
+
+* class Foo {...}; eval "Foo" doesn't resolve "Foo" to the class Foo currently
+  -- one has to use eval "::Foo" or, even better, try {...}.
+
+  Proposal: s/eval "..."/try {...}/;
+
 =cut
 
 plan 3;
