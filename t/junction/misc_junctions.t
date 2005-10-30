@@ -151,7 +151,7 @@ L<S03/"Junctive operators">
 sub j (Junction $j) { return $j.perl }
 
 {
-    # L<S03/"Junctive operators"/"They thread through operations">
+    # L<S03/"Junctive operators" /They thread through operations/>
     my ($got, $want);
     $got = ((1|2|3)+4);
     $want = (5|6|7);
@@ -161,7 +161,7 @@ sub j (Junction $j) { return $j.perl }
     $want = ((4|5) & (5|6));
     is( j($got), j($want), 'thread + returning junctive combination of results');
 
-    # L<S03/"Junctive operators"/"This opens doors for constructions like">
+    # L<S03/"Junctive operators" /This opens doors for constructions like/>
     # unless $roll == any(1..6) { print "Invalid roll" }
     my ($roll, $note);
     $roll = 3; $note = '';
@@ -182,7 +182,7 @@ sub j (Junction $j) { return $j.perl }
     is($note, "Low roll", '| junction threading ==');
 
 
-    # L<S03/"Junctive operators"/"Junctions work through subscripting">
+    # L<S03/"Junctive operators" /Junctions work through subscripting/>
     my ($got, @foo);
     $got = ''; @foo = ();
     $got ~= 'y' if try { @foo[any(1,2,3)] };
@@ -197,7 +197,7 @@ sub j (Junction $j) { return $j.perl }
     is($got, '', "junctions work through subscripting, 3 matches");
 
 
-    # L<S03/"Junctive operators"/"Junctions are specifically unordered">
+    # L<S03/"Junctive operators" /Junctions are specifically unordered/>
     # Compiler *can* reorder and parallelize but *may not* so don't test
     # for all(@foo) {...};  
 
@@ -213,7 +213,7 @@ sub j (Junction $j) { return $j.perl }
 
 These are implemented but still awaiting clarification on p6l.
 
-L<S03/"Junctive operators"/"They thread through operations">
+L<S03/"Junctive operators" /They thread through operations/>
 
  On Fri, 2005-02-11 at 10:46 +1100, Damian Conway wrote:
  > Subject: Re: Fwd: Junctive puzzles.

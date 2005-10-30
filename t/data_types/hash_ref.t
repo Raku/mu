@@ -72,7 +72,7 @@ plan 32;
 }
 
 # hashref assignment using {}
-# L<S06/"Anonymous hashes vs blocks" /"So you may use sub or hash or pair to disambiguate:">
+# L<S06/"Anonymous hashes vs blocks" /So you may use sub or hash or pair to disambiguate:/>
 {
   my $hash_a = { a => 1, b => 2 };              isa_ok $hash_a, "Hash";
   my $hash_b = { a => 1, "b", 2 };              isa_ok $hash_b, "Hash";
