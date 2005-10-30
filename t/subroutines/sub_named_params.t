@@ -22,12 +22,12 @@ These tests test named parmaeters. L<S06/"Named parameters">
 # 23:49 <autrijus> # defaults to 3
 # 23:49 <autrijus> sub foo ($x, +$y = $x) { } # this even works.
 # 23:50 <autrijus> I _think_ t/syntax
-# 23:50 <autrijus> see details in http://dev.perl.org/perl6/synopsis/S06.html
+# 23:50 <autrijus> see details in L<"http://dev.perl.org/perl6/synopsis/S06.html">
 # 23:50 <autrijus> also do some TODO for bareword quoting
 # 23:50 <autrijus> and :name<value> syntax
 #
 
-# Update: See http://www.nntp.perl.org/group/perl.perl6.language/23820
+# Update: See L<"http://www.nntp.perl.org/group/perl.perl6.language/23820">
 
 =cut
 

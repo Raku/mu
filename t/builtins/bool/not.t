@@ -8,7 +8,7 @@ plan 14;
 
 # not() tests
 # expected values for not() taken from 
-# http://www.nntp.perl.org/group/perl.perl6.language/19397
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/19397">
 
 my $not = not();
 my @not = not();

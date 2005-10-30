@@ -159,7 +159,7 @@ test1;
 test2 %h;
 
 # See thread "Hash creation with duplicate keys" on p6l started by Ingo
-# Blechschmidt: http://www.nntp.perl.org/group/perl.perl6.language/22401
+# Blechschmidt: L<"http://www.nntp.perl.org/group/perl.perl6.language/22401">
 {
   my %dupl = (a => 1, b => 2, a => 3);
   is %dupl<a>, 1, "hash creation with duplicate keys works correctly", :todo<bug>;

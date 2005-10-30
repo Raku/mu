@@ -46,7 +46,7 @@ plan 8;
 
 # for with only one item, an arrayref
 # See thread "for $arrayref {...}" on p6l started by Ingo Blechschmidt,
-# http://www.nntp.perl.org/group/perl.perl6.language/22970.
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/22970">
 {
   my $arrayref = [1,2,3];
 

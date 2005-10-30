@@ -9,7 +9,7 @@ plan 34;
 
 # Binding of hash elements.
 # See thread "Binding of array elements" on p6l started by Ingo Blechschmidt:
-# http://www.nntp.perl.org/group/perl.perl6.language/22915
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/22915">
 {
   my %hash  = (:a<x>, :b<y>, :c<z>);
   my $var   = "d";

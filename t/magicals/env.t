@@ -4,7 +4,7 @@
 
 use v6;
 use Test;
-
+# L<S02/"Names" /environment variables passed to program/>
 plan 11;
 
 if $*OS eq "browser" {

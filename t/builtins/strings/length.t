@@ -10,7 +10,7 @@ Various length tests (though "length" should not be used)
 This does not adequately test .chars, which is language dependent 
 and needs more careful tests.
 
-http://www.unicode.org/unicode/reports/tr11/
+L<"http://www.unicode.org/unicode/reports/tr11/">
 
 =cut
 
@@ -23,7 +23,7 @@ is("moose".bytes,    5, "moose");
 my $x = undef; 
 ok(!(try { $x.bytes }), "undef.bytes fail()s");
 # See thread "undef.chars" on p6l started by Ingo Blechschmidt:
-# http://www.nntp.perl.org/group/perl.perl6.language/22595
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/22595">
 
 # Precedence tests
 ok (chars "abcdef" > 4),     "chars() has the right precedence (1)";

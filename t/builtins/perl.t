@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-# L<S02/Names and Variables /To get a Perlish representation of any data value/>
+# L<S02/"Names and Variables" /To get a Perlish representation of any data value/>
 
 my @tests = (
     # Basic scalar values

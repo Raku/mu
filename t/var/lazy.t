@@ -8,7 +8,7 @@ use Test;
 This test tests nothingmuch's C<lazy> proposal.
 
 This proposal was accepted on 2005-08-23 in a p6l post by Larry
-(http://www.nntp.perl.org/group/perl.perl6.language/22890):
+L<"http://www.nntp.perl.org/group/perl.perl6.language/22890">:
 
   > Which already seems to be there with
   > 

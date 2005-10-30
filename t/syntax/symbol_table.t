@@ -6,7 +6,7 @@ use Test;
 plan 1;
 # See thread "Packages, Modules and Classes" on p6l
 # started by Stevan Little:
-# http://www.nntp.perl.org/group/perl.perl6.language/23019
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/23019">
 skip_rest "test needs to be rewritten because of recent design changes";
 
 =begin obsolete

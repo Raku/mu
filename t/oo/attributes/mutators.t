@@ -79,7 +79,7 @@ if ($parsefail) {
 }
 
 # test interface tentatively not entirely disapproved of by
-# all(@Larry) at http://xrl.us/gnxp
+# all(@Larry) at L<"http://xrl.us/gnxp">
 $parsefail = !eval_ok '
     class MagicSub {
         has Int $.constant;

@@ -25,7 +25,7 @@ plan 6;
 }
 
 # See thread "is rw basically a null-op on objects/references?" on p6l
-# (http://www.nntp.perl.org/group/perl.perl6.language/20671)
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/20671">
 {
   my %hash = (a => 23);
   # First check .value = ... works (as this is a dependency for the next test)

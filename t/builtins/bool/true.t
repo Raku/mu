@@ -24,5 +24,5 @@ ok(!true(true  0), "true(true  0) is false");
 #   is short for something like:
 #     0 but bool::true
 # :)  --iblech
-# L<S04/"Switch statements" /"is exactly equivalent to">
+# L<S04/"Switch statements" /is exactly equivalent to/>
 eval_ok('true; 1', "bare 'true' is true", :todo<feature>);

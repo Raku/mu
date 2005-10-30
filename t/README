@@ -83,6 +83,10 @@ from the linked section, so the backlink is put in a more specific place:
 The above link is appropriate next to a test case checking rule application in
 numeric context, and it will place the backlink appropriately.
 
+   L<"http://groups.google.de/group/perl.perl6.language/msg/07aefb88f5fc8429">
+
+You can put a URL in quotes to create a generic link.
+
 Try running 'grep -r "L<" t/' to see some examples.
 
 - Dealing with parse failures

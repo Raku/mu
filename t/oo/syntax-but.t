@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-# http://use.perl.org/~autrijus/journal/25365
+# L<"http://use.perl.org/~autrijus/journal/25365">
 # A closure form of but is desugared into a do given block that eliminates the
 # need of returning $_ explicitly. So those two forms are equivalent:
 #

@@ -35,4 +35,4 @@ plan 5;
 # .arity. Also it's unclear what the result of &multisub.arity is.
 # See the thread "&multisub.arity?" on p6l started by Ingo Blechschmidt for
 # details:
-# http://thread.gmane.org/gmane.comp.lang.perl.perl6.language/4915
+# L<"http://thread.gmane.org/gmane.comp.lang.perl.perl6.language/4915">

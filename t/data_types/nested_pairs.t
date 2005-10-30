@@ -7,7 +7,7 @@ plan 7;
 
 =pod
 
-Pair list a la http://www.nntp.perl.org/group/perl.perl6.language/19360
+Pair list a la L<"http://www.nntp.perl.org/group/perl.perl6.language/19360">
 
 =cut
 

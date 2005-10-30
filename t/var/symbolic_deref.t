@@ -5,7 +5,7 @@ use Test;
 
 plan 22;
 
-# See http://www.nntp.perl.org/group/perl.perl6.language/22858 --
+# See L<"http://www.nntp.perl.org/group/perl.perl6.language/22858"> --
 # previously, "my $a; say $::("a")" died (you had to s/my/our/). Now, it was
 # re-specced to work.
 

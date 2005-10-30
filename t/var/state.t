@@ -82,7 +82,7 @@ plan 10;
 }
 
 # Anonymous state vars
-# http://groups.google.de/group/perl.perl6.language/msg/07aefb88f5fc8429
+# L<"http://groups.google.de/group/perl.perl6.language/msg/07aefb88f5fc8429">
 {
     my $gen = { try { \state } };
 
@@ -93,7 +93,7 @@ plan 10;
     is $$svar_ref, 2, "anonymous state() vars", :todo<feature>;
 }
 
-# http://www.nntp.perl.org/group/perl.perl6.language/20888
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/20888">
 # ("Re: Declaration and definition of state() vars" from Larry)
 {
     my ($a, $b);

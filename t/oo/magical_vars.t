@@ -89,7 +89,7 @@ class SimpleClass does Bar {}
     "::?ROLE in roles works", :todo<bug>;
 }
 
-# Per http://www.nntp.perl.org/group/perl.perl6.language/23541:
+# Per L<"http://www.nntp.perl.org/group/perl.perl6.language/23541">:
 #     On Sat, Oct 15, 2005 at 07:39:36PM +0300, wolverian wrote:
 #     : On Sat, Oct 15, 2005 at 08:25:15AM -0700, Larry Wall wrote:
 #     : > [snip]

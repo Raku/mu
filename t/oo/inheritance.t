@@ -49,7 +49,7 @@ lives_ok {
 is($fud, "Foo::Bar::fud", "returned value is correct", :todo<bug>);
 
 # See thread "Quick OO .isa question" on p6l started by Ingo Blechschmidt:
-# http://www.nntp.perl.org/group/perl.perl6.language/22220
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/22220">
 
 ok  Foo::Bar.isa(Foo),      "subclass.isa(superclass) is true";
 ok  Foo::Bar.isa(Foo::Bar), "subclass.isa(same_subclass) is true";

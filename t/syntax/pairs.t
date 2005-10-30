@@ -4,9 +4,9 @@ use v6;
 use Test;
 
 # See thread "Demagicalizing pair" on p6l started by Luke Palmer,
-# http://article.gmane.org/gmane.comp.lang.perl.perl6.language/4778/ and
-# http://colabti.de/irclogger/irclogger_log/perl6?date=2005-10-09,Sun&sel=528#l830.
-# Also see http://www.nntp.perl.org/group/perl.perl6.language/23532.
+# L<"http://article.gmane.org/gmane.comp.lang.perl.perl6.language/4778/"> and
+# L<"http://colabti.de/irclogger/irclogger_log/perl6?date=2005-10-09,Sun&sel=528#l830">.
+# Also see L<"http://www.nntp.perl.org/group/perl.perl6.language/23532">.
 
 # To summarize:
 #   foo(a => 42);  # named
@@ -101,7 +101,7 @@ plan 35;
     is foo(*%hash_of_pairs), "[Str]",  '...but *%hash is', :todo<unspecced>;
 }
 
-# Per http://www.nntp.perl.org/group/perl.perl6.language/23532, the keys of
+# Per L<"http://www.nntp.perl.org/group/perl.perl6.language/23532">, the keys of
 # syntactical pairs should get stringified.
 {
     my sub foo (:$bar) { "[$bar]" }

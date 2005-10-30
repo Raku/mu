@@ -3,8 +3,8 @@
 use v6;
 use Test;
 
-# See http://use.perl.org/~autrijus/journal/25337 and
-# http://www.nntp.perl.org/group/perl.perl6.language/22532.
+# See L<"http://use.perl.org/~autrijus/journal/25337"> and
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/22532">.
 
 plan 22;
 

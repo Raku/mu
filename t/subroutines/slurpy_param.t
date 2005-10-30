@@ -10,9 +10,9 @@ These tests are the testing for "List paameters" section of Synopsis 06
 
 L<<S06/"List parameters" /Slurpy parameters follow any required or optional parameters. They are marked by a * before the parameter:/>>
 
-You might also be interested in the thread L<"Calling positionals by name in
+You might also be interested in the thread Calling positionals by name in
 presence of a slurpy hash" on p6l started by Ingo
-Blechschmidt|http://www.nntp.perl.org/group/perl.perl6.language/22883>.
+Blechschmidt L<"http://www.nntp.perl.org/group/perl.perl6.language/22883">
 
 =cut
 

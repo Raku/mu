@@ -7,7 +7,7 @@ use Test;
 
 # Return value of assignments of Proxy objects is decided now.
 # See thread "Assigning Proxy objects" on p6l,
-# http://www.nntp.perl.org/group/perl.perl6.language/21838.
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/21838">.
 # Quoting Larry:
 #   The intention is that lvalue subs behave in all respects as if they
 #   were variables.  So consider what

@@ -18,7 +18,7 @@ exit;
 
 # See thread "Stringification, numification, and booleanification of pairs" on
 # p6l started by Ingo Blechschmidt:
-# http://www.nntp.perl.org/group/perl.perl6.language/23148
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/23148">
 
 {
     my $true_pair  = 1 => 1;

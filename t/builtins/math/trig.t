@@ -16,7 +16,7 @@ sub approx(Num $a, Num $b) {
   ($EPSILON > abs($a - $b));
 }
 
-# See also: L<http://theory.cs.iitm.ernet.in/~arvindn/pi/> :)
+# See also: L<"http://theory.cs.iitm.ernet.in/~arvindn/pi/"> :)
 my $PI = 3.14159265358979323846264338327950288419716939937510;
 
 # L<S29/"Math::Trig" /"pi"/> -- pi

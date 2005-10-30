@@ -8,7 +8,7 @@ use Test;
 This test tests the C<[...]> reduce metaoperator.
 
 Reference:
-L<http://groups.google.de/group/perl.perl6.language/msg/bd9eb275d5da2eda>
+L<"http://groups.google.de/group/perl.perl6.language/msg/bd9eb275d5da2eda">
 
 =cut
 

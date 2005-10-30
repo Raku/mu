@@ -101,7 +101,7 @@ my $array11 = [[2,3]];
 is try { $array11[0][0] = 6; $array11[0][0] }, 6, "changing nested array (2)";
 
 # creating a AoA using ";" doesn't work any longer
-# As of http://www.nntp.perl.org/group/perl.perl6.language/20795:
+# As of L<"http://www.nntp.perl.org/group/perl.perl6.language/20795">:
 #   In ordinary list context, infix:<;> is just a list-op-ending "big comma",
 #   but is otherwise treated like an ordinary comma (but only if the
 #   list is in some kind of brackets, of course).

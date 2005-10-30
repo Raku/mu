@@ -14,7 +14,7 @@ lives_ok {
     $test1 = ::Foo;
 }, "::Foo is a valid class literal";
 
-# Test removed per http://www.nntp.perl.org/group/perl.perl6.language/22220
+# Test removed per L<"http://www.nntp.perl.org/group/perl.perl6.language/22220">
 # Foo.isa(Class) is false.
 #isa_ok($test1, "Class", "It's a class");
 

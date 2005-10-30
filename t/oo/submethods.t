@@ -42,7 +42,7 @@ Basic submethod tests. See L<S12/"Submethods">
 }
 
 # See thread "BUILD and other submethods" on p6l
-# http://groups-beta.google.com/group/perl.perl6.language/msg/e9174e5538ded4a3
+# L<"http://groups-beta.google.com/group/perl.perl6.language/msg/e9174e5538ded4a3">
 {
   my $was_in_baz_submethod  = 0;
   my $was_in_grtz_submethod = 0;
@@ -72,7 +72,7 @@ Basic submethod tests. See L<S12/"Submethods">
 
 # Roles with BUILD
 # See thread "Roles and BUILD" on p6l
-# L<http://www.nntp.perl.org/group/perl.perl6.language/21277>
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/21277">
 {
   my $was_in_a1_build = 0;
   my $was_in_a2_build = 0;

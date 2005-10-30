@@ -7,7 +7,7 @@ use Test;
 
 =head1 String interpolation
 
-These tests derived from comments in http://use.perl.org/~autrijus/journal/23398
+These tests derived from comments in L<"http://use.perl.org/~autrijus/journal/23398">
 
 =cut
 

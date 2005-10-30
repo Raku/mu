@@ -88,7 +88,7 @@ my $quux = (quux => "xyzzy");
 is($quux.key, 'quux', "lhs quotes" );
 
 # lvalue Pair assignments from S06 and thread starting with
-# http://www.nntp.perl.org/group/perl.perl6.language/19425
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/19425">
 
 my $val;
 ("foo" => $val) = "baz";
@@ -130,7 +130,7 @@ sub test2 (Hash %h){
 test2 %hash;
 
 # See thread "$pair[0]" on p6l started by Ingo Blechschmidt:
-# http://www.nntp.perl.org/group/perl.perl6.language/22593
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/22593">
 
 sub test3 (Hash %h){
     for %h.pairs -> $pair {
@@ -165,7 +165,7 @@ isa_ok $should_be_a_pair, "Pair", "=> has correct precedence";
 =pod
 
 Stated by Larry on p6l in:
-http://www.nntp.perl.org/group/perl.perl6.language/20122
+L<"http://www.nntp.perl.org/group/perl.perl6.language/20122">
 
  "Oh, and we recently moved => to assignment precedence so it would
  more naturally be right associative, and to keep the non-chaining
@@ -194,8 +194,8 @@ http://www.nntp.perl.org/group/perl.perl6.language/20122
 # This is per the pairs-behave-like-one-element-hashes-rule.
 # (I asked p6l once, but the "thread" got warnocked.  --iblech)
 # (I asked p6l again, now the thread did definitely not get warnocked:
-# http://groups.google.de/group/perl.perl6.language/browse_thread/thread/e0e44be94bd31792/6de6667398a4d2c7?q=perl6.language+Stringification+pairs&)
-# Also see http://www.nntp.perl.org/group/perl.perl6.language/23224.
+# L<"http://groups.google.de/group/perl.perl6.language/browse_thread/thread/e0e44be94bd31792/6de6667398a4d2c7?q=perl6.language+Stringification+pairs&">
+# Also see L<"http://www.nntp.perl.org/group/perl.perl6.language/23224">
 {
   my $pair = (a => 1);
   is try { ~$pair  }, "a\t1", "pairs stringify correctly (1)";
@@ -208,7 +208,7 @@ http://www.nntp.perl.org/group/perl.perl6.language/20122
   is try { "$pair" }, "a\t1 2 3", "pairs with arrayrefs as values stringify correctly (2)";
 }
 
-# Per Larry (http://www.nntp.perl.org/group/perl.perl6.language/23525):
+# Per Larry L<"http://www.nntp.perl.org/group/perl.perl6.language/23525">:
 #   Actually, it looks like the bug is probably that => is forcing
 #   stringification on its left argument too agressively.  It should only do
 #   that for an identifier.

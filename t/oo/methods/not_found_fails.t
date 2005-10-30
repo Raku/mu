@@ -6,7 +6,7 @@ use Test;
 plan 6;
 
 # See thread "undef.chars" on p6l started by Ingo Blechschmidt:
-# http://www.nntp.perl.org/group/perl.perl6.language/22598
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/22598">
 {
   # No "use fatal".
   lives_ok { "hi".this_method_does_not_exist(); 1 },

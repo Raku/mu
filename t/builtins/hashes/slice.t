@@ -46,7 +46,7 @@ plan 25;
 =for not-yet
     is ~((:a(1), :b(2), :c(3), :d(4))<b c>), "2 3", "slice on hash literal";
 See thread "Accessing a list literal by key?" on p6l started by Ingo
-Blechschmidt: http://www.nntp.perl.org/group/perl.perl6.language/23076
+Blechschmidt: L<"http://www.nntp.perl.org/group/perl.perl6.language/23076">
 Quoting Larry:
   Well, conservatively, we don't have to make it work yet.
 =cut

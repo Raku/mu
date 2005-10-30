@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-# http://use.perl.org/~autrijus/journal/25337
+# L<"http://use.perl.org/~autrijus/journal/25337">
 # my() declarations scopes lexically to the rest of the block; using $MY::x or
 # $::("x") in the block before the actual declaration is erroneous.
 

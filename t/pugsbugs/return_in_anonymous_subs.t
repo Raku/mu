@@ -6,7 +6,7 @@ use Test;
 plan 2;
 
 # See thread "return() in pointy blocks" by Ingo Blechschmidt on p6l
-# http://www.nntp.perl.org/group/perl.perl6.language/21745
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/21745">
 # We may have to change the expected results of this test if Larry changes his
 # mind (which I don't hope).
 

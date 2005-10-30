@@ -6,9 +6,9 @@ use Test;
 # Tests the generic "=" prefix operator.
 # See thread "PATCH: S04 - unary C<=> is not slurpy" from Patrick R. Michaud,
 # especially Damian's reply at
-# http://www.nntp.perl.org/group/perl.perl6.language/21895.
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/21895">.
 
-# Update: http://use.perl.org/~autrijus/journal/25337
+# Update: L<"http://use.perl.org/~autrijus/journal/25337">
 # &prefix:<=> is just .shift in item context; in slurpy context it just turns
 # the iterator into a generator. All arrays are concatenations of generators
 # (which may or may not be preflattened)

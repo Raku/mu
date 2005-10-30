@@ -77,7 +77,7 @@ See L<S06/"Types"> for more information about Code, Routine, Sub, Block, etc.
 }
 
 # Confirmed by p6l, see thread "Anonymous macros?" by Ingo Blechschmidt
-# http://www.nntp.perl.org/group/perl.perl6.language/21825
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/21825">
 {
     # We do all this in a eval() not because the code doesn't parse,
     # but because it's safer to only call macro references at compile-time.

@@ -5,7 +5,7 @@ use Test;
 
 # Reference:
 # Thread "How do I... create a value type" started by Ingo Blechschmidt
-# (http://www.nntp.perl.org/group/perl.perl6.language/22217)
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/22217">
 
 plan 5;
 

@@ -319,7 +319,7 @@ my $inf2 = Inf**Inf;
 is $inf2, Inf, "Inf**Inf";
 
 
-# See http://mathworld.wolfram.com/Indeterminate.html
+# See L<"http://mathworld.wolfram.com/Indeterminate.html">
 # for why these three values are defined like they are.
 is 0.9**Inf, 0,   "0.9**Inf converges towards 0";
 is 1.1**Inf, Inf, "1.1**Inf diverges towards Inf";

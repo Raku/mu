@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-# http://use.perl.org/~autrijus/journal/25351
+# L<"http://use.perl.org/~autrijus/journal/25351">
 # Roles are also classes! They can be instantiated just fine if they are
 # concrete enough. Basically they mean composable classes or mixin-able
 # classes. Hence, RoleName.new() instantiates an object that will probably fail

@@ -56,7 +56,7 @@ is 2e0_1, 20, "Underscores work in the argument for e";
 
 # Ambiguity tests, see thread "Ambiguity of parsing numbers with
 # underscores/methods" on p6l started by Ingo Blechschmidt:
-# http://www.nntp.perl.org/group/perl.perl6.language/22769
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/22769">
 # Answer from Luke:
 #   I think we should go with the method call semantics in all of the ambiguous
 #   forms, mostly because "no such method: Int::e5" is clearer than silently

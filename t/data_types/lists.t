@@ -5,7 +5,7 @@ use Test;
 
 # XXX -- Lists are not real datatypes, but I haven't found a better location
 # for this test. See
-# http://www.nntp.perl.org/group/perl.perl6.language/22924.
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/22924">
 
 plan 14;
 
@@ -136,7 +136,7 @@ plan 14;
 
 =begin more-discussion-needed
 
-See http://www.nntp.perl.org/group/perl.perl6.language/23085:
+See L<"http://www.nntp.perl.org/group/perl.perl6.language/23085>
 >     \(@array);  # List of refs to @array's elements, i.e. same as
 >     map { \$_ } @array;
 >     # Weird (violating the "parens are only for grouping" rule), but

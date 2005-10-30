@@ -14,7 +14,7 @@ to test anything other than the "normal" behavior of @array.isa()
 
 Further clarification of .isa() can be found here:
 
-http://www.nntp.perl.org/group/perl.perl6.language/20974
+L<"http://www.nntp.perl.org/group/perl.perl6.language/20974">
 
 =cut
 

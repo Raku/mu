@@ -26,7 +26,7 @@ eval_is 'OwnConstr.own.x', 42,        "attribute was set from our constructor", 
 is      $in_own, 1,                   "own constructor was actually called", :todo<feature>;
 
 
-# L<http://www.mail-archive.com/perl6-language@perl.org/msg20241.html>
+# L<"http://www.mail-archive.com/perl6-language@perl.org/msg20241.html">
 # provide constructor for single positional argument
 
 class Foo {

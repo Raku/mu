@@ -8,7 +8,7 @@ use v6;
 This test tests the C<reduce> builtin.
 
 Reference:
-L<http://groups.google.com/groups?selm=420DB295.3000902%40conway.org>
+L<"http://groups.google.com/groups?selm=420DB295.3000902%40conway.org">
 
 =cut
 

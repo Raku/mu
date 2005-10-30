@@ -112,9 +112,9 @@ plan 13;
 }
 
 # See thread "our constant pi, my constant pi" on p6l started by Ingo
-# Blechschmidt (http://www.nntp.perl.org/group/perl.perl6.language/23000),
+# Blechschmidt L<"http://www.nntp.perl.org/group/perl.perl6.language/23000">,
 # especially Luke's reply
-# (http://www.nntp.perl.org/group/perl.perl6.language/23000).
+# L<"http://www.nntp.perl.org/group/perl.perl6.language/23000">.
 
 {
     my $ok;

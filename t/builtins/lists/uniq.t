@@ -10,7 +10,7 @@ plan 9;
 This test tests the C<uniq> builtin.
 
 Reference:
-L<http://groups.google.com/groups?selm=420DB295.3000902%40conway.org>
+L<"http://groups.google.com/groups?selm=420DB295.3000902%40conway.org">
 
 See the thread "[S29] uniq" on p6l, too.
 
