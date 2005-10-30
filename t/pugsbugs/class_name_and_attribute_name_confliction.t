@@ -8,7 +8,15 @@ use Test;
 The parser won't do right thing when two(or more) class-es get
 attributes whose name are the same.
 
+hmm, It's conflicted with class name and attribute name.
 
+***** These two examples below will fail to parse. *****
+
+##### this example below will cause pugs hang.
+class a {has $.a; method update { $.a; } }; class b { has $.a; submethod BUILD { a.new( a => $.a ).update; } };class c { has $.b; submethod BUILD { b.new( a => $.b ); } };c.new( b => 30 );
+
+##### this example will say sub isn't found.
+class a { has $.a; method update { $.a; } };class b { has $.a; submethod BUILD { a.new( a => $.a ).update; }; }; b.new( a => 20 );
 
 =cut
 
@@ -17,12 +25,12 @@ plan 3;
 
 {
     my $var = 100;
-    class a1 {
+    class a {
         has $.a;
         has $.c;
         method update { $var -= $.a; }
     };
-    a1.new( a => 10 ).update;
+    eval 'a.new( a => 10 ).update';
     is $var, 90, "Testing suite 1.";
 }
 
@@ -30,15 +38,27 @@ plan 3;
 
 {
     my $var = 100;
-    class a2 {
+    class a {
         has $.a;
         method update { $var -= $.a; }
     };
-    class b2 {
+    class b {
         has $.a;
-        submethod BUILD { a2.new( a => $.a ).update; };
+        method BUILD { a.new( a => $.a ).update; };
     };
-    b2.new( a => 20 );
+
+=pod
+  pugs> class a { has $.a; method update { $var -= $.a; } };class b { has $.a; submethod BUILD { a.new( a => $.a ).update; };};b.new( a => 20 );
+  *** No compatible subroutine found: "&update"
+      at <interactive> line 1, column 90-114
+      <interactive> line 1, column 120-136
+      <interactive> line 1, column 120-136
+  pugs>
+
+=cut
+
+##### will cause pugs hang if uncomment it
+#    eval 'b.new( a => 20 )';
     is $var, 80, "Testing suite 2.";
 }
 
@@ -46,19 +66,21 @@ plan 3;
 
 {
     my $var = 100;
-    class a3 {
+    class a {
         has $.a;
         method update { $var -= $.a; }
     };
-    class b3 {
+    class b {
         has $.a;
-        submethod BUILD { a3.new( a => $.a ).update; }
+        method BUILD { a.new( a => $.a ); }
     };
-    class c3 {
+    class c {
         has $.b;
-        submethod BUILD { b3.new( a => $.b ); }
+        method BUILD { b.new( a => $.b ); }
     };
 
-    c3.new( b => 30 );
+##### cause pugs hang.
+#    eval 'c.new( b => 30 ).update';
     is $var, 70, "Testing suite 3.";
 }
+
