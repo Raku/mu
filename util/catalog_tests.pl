@@ -192,16 +192,25 @@ sub handle_t_file {
   my $lines = {};
   for my $test (@{$test_results->{events}} ) {
       next unless defined $test->{pos};
-      my ($line) = $test->{pos} =~ /line (\d+)/;
-      next unless $line;
-      if (exists $lines->{$line}) {
-        $lines->{$line} = 0 if $test->{ok} == 0;
-      } elsif ($test->{todo} eq '') {
-        $lines->{$line} = 1;
+ 
+      my ($start, $end);
+      ($start, $end) = $test->{pos} =~ /line (\d+)(?:.*line (\d+))?/s;
+      my @lines;
+      if (defined $end && $end > 0) {
+         @lines = $start .. $end;
       } else {
-        $lines->{$line} = 2;
+         @lines = ($start);
       }
-   }
+      next unless $start;
+      for (@lines) {
+          if (exists $lines->{$_}) {
+              $lines->{$_} = 0 if $test->{ok} == 0;
+          } else {
+              $lines->{$_} = $test->{ok};
+          }
+      }
+  }
+                                                                                           
   my $infile  = IO::File->new($input_path, "<:utf8") 
                          or die "Can't open input test file $input_path: $!";
   my $outfile = IO::File->new($output_path, ">:utf8")
