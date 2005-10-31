@@ -1,6 +1,6 @@
 #!/bin/sh
 
-GHC=ghc-6.4
+GHC=ghc-6.4.1
 VERSION=6.2.10
 
 case "$1" in

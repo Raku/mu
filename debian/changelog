@@ -1,3 +1,24 @@
+pugs (6.2.10-4) unstable; urgency=low
+
+  * Renamed 30includedirs.dpatch to 30cabal.dpatch and added some more changes
+    that should make installing libghc6-pugs-dev finally work.
+  * Removed libghc6-plugins-dev build-dep. It isn't in sid yet anyway.
+
+ -- Florian Ragwitz <rafl@debianforum.de>  Tue, 25 Oct 2005 15:38:48 +0200
+
+pugs (6.2.10-3) unstable; urgency=low
+
+  * Adjusted ghc version in libghc6-pugs-dev postinst/prerm.
+
+ -- Florian Ragwitz <rafl@debianforum.de>  Sun, 23 Oct 2005 12:12:22 +0200
+
+pugs (6.2.10-2) unstable; urgency=low
+
+  * Recompile against ghc 6.4.1.
+  * Added build-dep to libghc6-plugins-dev to enable haskell eval support.
+
+ -- Florian Ragwitz <rafl@debianforum.de>  Sun, 16 Oct 2005 16:59:24 +0200
+
 pugs (6.2.10-1) unstable; urgency=low
 
   * New upstream release.

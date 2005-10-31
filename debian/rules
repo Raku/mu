@@ -24,7 +24,9 @@ build-arch: build-arch-stamp
 build-arch-stamp: configure-stamp 
 	$(MAKE) $(CFLAGS)
 	-test $$SKIP_TESTS || $(MAKE) $(TESTS)
-	# use DEB_BUILD_OPTIONS="smoke_upload=0" to avoid uploading the smoke file automatically
+	-for html in $(CURDIR)/smoke*.html; do \
+		./util/smokeserv/smokeserv-client.pl $$html; \
+	done
 	pod2man --section=1 --release="Debian Project" --center="Debian GNU/Linux manual" $(CURDIR)/script/pugscc $(CURDIR)/debian/pugscc.1
 	touch build-arch-stamp
 
