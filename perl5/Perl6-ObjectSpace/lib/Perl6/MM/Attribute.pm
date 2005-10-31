@@ -1,5 +1,5 @@
 
-package Perl6::MetaModel::Attribute;
+package Perl6::MM::Attribute;
 
 use strict;
 use warnings;

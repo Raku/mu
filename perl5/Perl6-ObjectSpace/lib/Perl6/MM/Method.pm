@@ -1,5 +1,5 @@
 
-package Perl6::MetaModel::Method;
+package Perl6::MM::Method;
 
 use strict;
 use warnings;

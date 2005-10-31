@@ -1,5 +1,5 @@
 
-package Perl6::MetaModel::Opaque;
+package Perl6::MM::Opaque;
 
 use strict;
 use warnings;
