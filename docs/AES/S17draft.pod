@@ -1,0 +1,134 @@
+=encoding utf8
+
+=head1 TITLE
+
+Synopsis 17: Concurrency [DRAFT]
+
+=head1 AUTHOR
+
+Elizabeth Mattijsen <elizabeth@cpan.org>
+Autrijus Tang <autrijus@autrijus.org>
+
+=head1 VERSION
+
+  Maintainer: Elizabeth Mattijsen <elizabeth@cpan.org>
+  Date: 13 Jun 2005
+  Last Modified: 31 Oct 2005
+  Number: 0
+  Version: 1
+
+=head1 Overview
+
+This is a rough sketch of how concurrency works in Perl 6.
+
+(actually this is just random notes, put here under the release-early
+release-often principle.)
+
+=head1 RANDOM SKETCH
+
+=head2 Atomic sections
+
+    my ($x, $y);
+    sub c is atomic {
+        $x -= 3;
+        $y += 3;
+    };
+
+=head2 Critical sections
+
+if $i { is atomic; ...  } else { ...; }
+
+CORE::GLOBAL::exit; # kills all the threads
+
+use Conc::Processes; # fork() or createProcess based implementation
+use Conc::Threads;   # maybe it just exports &async to override the default one, yay
+use Conc::Multiplex; # this is default
+
+my $thr = async {
+    ...do something...
+    END { }
+};
+
+Conc object # name is still up for grabs!
+- numify to TIDs (as in pugs)
+- stringify to something sensible (eg. "<Conc:tid=5>");
+- enumerable with Conc.list
+- Conc.yield (if this is to live but deprecated, maybe call it sleep(0)?)
+- sleep() always respects other threads, thank you very much
+- standard methods:
+    - .wait    # wait for invocant to finish
+    - .die     # throw exception in the invocant thread
+    - .suspend # pause a thread; fail if already paused
+    - .resume  # revive a thread; fail if already running
+    - .detach  # survives parent thread demise (promoted to process)
+               # process-local changes no longer affects parent
+               # tentatively, the control methods still applies to it
+               # including wait (which will always return undef)
+               # XXX revisit tentative
+
+- IO objects and containers gets concurrency love!
+    - $obj.sleep_until_readable # horrible name, fixme
+    - $obj.sleep_until_writable # horrible name, fixme
+    - $obj.sleep_until_either_readable_or_writable_or_passed_time(3); # fixme fixme
+
+    my @a is Array::Chan = 1..Inf;
+    async { @a.push(1) };
+    async { @a.blocking_shift({ ... }) };
+    async { @a.unshift({ ... }) };
+
+Communication abstractions
+- shared, transactional variables by default
+
+# program will wait for _all_ threads
+# unjoined threads will be joined at the beginning of the END block batch
+# of the parent thread that spawned them
+
+### INTERFACE BARRIER ###
+module Blah;
+{
+    # Both "atomic" and "critical" propagates downwards in the call chain
+    # critical->atomic is always ok (by definition)
+    # atomic->critical dies if critical does naughty things
+
+    is atomic;   # retry/orelse/whatever other rollback stuff
+                 # limitation: no external IO (without lethal warnings anyway)
+                 # can't do anything irreversible
+
+    is critical; # free to do anything irreversible
+                 # means "don't interrupt me"
+                 # in system with critical section, no interrupts from
+                 # other threads will happen during execution
+                 # you can't suspend me
+
+    my $boo is export;
+    $boo = 1;
+
+    # We decree that this part forms the static interface
+    # it's run once during initial compilation under the
+    # Separate Compilation doctrine and the syms sealed off
+    # to form part fo bytecode syms headers
+    %CALLER::<&blah> = { 1 }; # work - adds to export set
+    die "Eureka!" if %CALLER::<$sym>; # never dies
+
+    # BEGIN { $boo = time };
+
+    sub IMPORT {
+        # VERY DYNAMIC!
+
+        our $i = time;
+        %CALLER::<&blah> = { 1 }; # work - adds to export set
+        die "Eureka!" if %CALLER::<$sym>; # probes interactively
+    }
+}
+### INTERFACE BARRIER ###
+
+my $sym;
+threads.new({
+    use Blah;
+    BEGIN { require(Blah).import }
+
+    my $boo; BEGIN { eval slurp<Blah.pm>; $boo := $Blah::boo };
+
+    ...
+});
+
