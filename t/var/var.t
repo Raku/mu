@@ -5,7 +5,7 @@ use Test;
 
 plan 35;
 
-# L<S02/"Out-of-scope names">
+# L<S02/"Names" /names are reserved in the first position/>
 ok !eval('module MY;     1'), "MY is an out of scope name";
 ok !eval('module OUTER;  1'), "OUTER is an out of scope name";
 ok !eval('module CALLER; 1'), "CALLER is an out of scope name";

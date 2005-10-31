@@ -1,6 +1,19 @@
 <hmtl>
 <head>
 <title>Test Catalog and Documentation cross reference.</title>
+ <style type="text/css">
+  <!--
+   th.test_pass { background-color: rgb(100, 250, 100); }
+   th.test_fail { background-color: rgb(250, 100, 100); }
+   th.test_todo { background-color: rgb(250, 250, 100); }
+   
+   td.test_pass { color: rgb(0, 250, 0); }
+   td.test_fail { color: rgb(250, 0, 0); }
+   td.test_todo { color: rgb(250, 250, 0); }
+   
+  -->
+</style>
+       
 </head>
 <body>
 <TMPL_IF name='directories'><h2>Sub-Directories</h2>
@@ -20,18 +33,18 @@
 <table>
 <tr>
   <th>Links</th>
-  <th style="color: #050">Pass</th>
-  <th style="color: #500">Todo</th>
-  <th style="color: #030">Fail</th>
+  <th class="test_pass">Pass</th>
+  <th class="test_todo">Todo</th>
+  <th class="test_fail">Fail</th>
   <th>File</th>
 </tr>
 
 <TMPL_LOOP name="files">
     <tr> 
        <td><TMPL_VAR name="links"></td>
-       <td style="color: #050" title="ok"><TMPL_VAR name="ok"></td>
-       <td style="color: #030" title="todo"><TMPL_VAR name="todo"></td>
-       <td style="color: #500" title="failed"><TMPL_VAR name="failed"></td>
+       <td class="test_pass" title="ok"><TMPL_VAR name="ok"></td>
+       <td class="test_todo" title="todo"><TMPL_VAR name="todo"></td>
+       <td class="test_fail" title="failed"><TMPL_VAR name="failed"></td>
        <td><a href='<TMPL_VAR name='file'>.html'><TMPL_VAR name="file"></a></td>
     </tr>
 </TMPL_LOOP>

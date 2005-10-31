@@ -16,7 +16,7 @@ my $y = do {
 }
 + 1;
 
-# L<A02/"RFC 022: Control flow: Builtin switch statement" /the final curly is on a line by itself/>
+# L<A04/"RFC 022: Control flow: Builtin switch statement" /the final curly is on a line by itself/>
 
 is($y, 10, "}\\n + 1 are two statements", :todo<bug>);
 
