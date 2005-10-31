@@ -23,8 +23,8 @@ sub new {
     # of variables, and whose values are the 
     # expected types of those objects (or possibly
     # the default values too)
-    (blessed($params) && $params->isa('hash'))
-        || confess "params must be an hash type";
+    (blessed($params) && $params->isa('list'))
+        || confess "params must be an list type";
     (ref($body) eq 'CODE')
         || confess "body must be a code ref";
     my $local_env = closure::env->new();
@@ -36,32 +36,34 @@ sub new {
     } => $class;
 }
 
+# we dont really have a native form
+sub to_native { shift }
+
+# conversion to other native types
+sub to_num { num->new((shift) + 0)  }
+sub to_str { str->new((shift) . '') }
+sub to_bit { bit->new(1)            }
+
+# methods 
+
 sub do {
     my ($self, $args) = @_;
+    $args ||= list->new();
     $self->_bind_params($args);
     $self->{body}->($self->{env});
 } 
 
 sub _bind_params {
     my ($self, $args) = @_;
-    (blessed($args) && $args->isa('hash'))
-        || confess "Args must be a hash";
+    (blessed($args) && $args->isa('list'))
+        || confess "Args must be a list";
     # loop through the param keys
-    for my $param ($self->{params}->keys->to_native) {
+    for my $i (0 .. $self->{params}->elems->to_native) {
         my $value; 
-        # if we have an arg match, get it
-        if ($args->exists($param)->to_native) {
-            $value = $args->fetch($param);            
-        }
-        # otherwise use the "default"
-        # in the params
-        else {
-            $value = $self->{params}->fetch($param);
-        }
-        # NOTE: 
-        # we need to convert the 
-        # param to a native string
-        $self->{env}->set($param->to_native => $value);
+        $self->{env}->set(
+            $self->{params}->fetch(num->new($i))->to_native,
+            $args->fetch(num->new($i))
+            );
     }
 }
 

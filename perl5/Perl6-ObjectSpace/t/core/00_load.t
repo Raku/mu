@@ -5,8 +5,12 @@ use warnings;
 
 use Test::More no_plan => 1;
 
+use_ok('Perl6::Core::Type');
+use_ok('Perl6::Core::Type::Comparable');
+
 use_ok('Perl6::Core::Bit');
 use_ok('Perl6::Core::Num');
+use_ok('Perl6::Core::Nil');
 use_ok('Perl6::Core::Str');
 use_ok('Perl6::Core::Ref');
 use_ok('Perl6::Core::List');

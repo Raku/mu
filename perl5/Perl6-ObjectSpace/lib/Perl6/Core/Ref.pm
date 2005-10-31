@@ -5,6 +5,7 @@ use Perl6::Core::Type;
 use Perl6::Core::Str;
 use Perl6::Core::Num;
 use Perl6::Core::Bit;
+use Perl6::Core::Nil;
 
 package reference;
 

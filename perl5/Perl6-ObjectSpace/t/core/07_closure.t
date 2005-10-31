@@ -26,13 +26,13 @@ sub dynamic_accessor ($num = 50) {
 
 {
 
-    my $closure = closure->new($top_level_env, hash->new(str->new('$num') => num->new(50)), sub { 
+    my $closure = closure->new($top_level_env, list->new(str->new('$num')), sub { 
         my $e = shift;
         return list->new($e->get('$num'), $e->get('$foo'));
     });
 
     {
-        my $results = $closure->do(hash->new(str->new('$num') => num->new(100)));
+        my $results = $closure->do(list->new(num->new(100)));
         isa_ok($results, 'list');
 
         isa_ok($results->fetch(num->new(0)), 'num');
@@ -45,11 +45,10 @@ sub dynamic_accessor ($num = 50) {
     $top_level_env->set('$foo' => num->new(35));
 
     {
-        my $results = $closure->do(hash->new());
+        my $results = $closure->do();
         isa_ok($results, 'list');
 
-        isa_ok($results->fetch(num->new(0)), 'num');
-        cmp_ok($results->fetch(num->new(0))->to_native, '==', 50, '... got one of the expected values');
+        isa_ok($results->fetch(num->new(0)), 'nil');
 
         isa_ok($results->fetch(num->new(1)), 'num');
         cmp_ok($results->fetch(num->new(1))->to_native, '==', 35, '... got one of the expected values');
@@ -70,10 +69,10 @@ sub create_counter {
 
 {
 
-    my $closure = closure->new($top_level_env, hash->new(), sub { 
+    my $closure = closure->new($top_level_env, list->new(), sub { 
         my $e = shift;
         $e->create('$counter' => num->new(0));
-        return closure->new($e, hash->new(), sub {
+        return closure->new($e, list->new(), sub {
             my $e = shift;
             $e->set('$counter' => $e->get('$counter')->increment);
             $e->get('$counter');
@@ -81,23 +80,23 @@ sub create_counter {
     });
 
     {
-        my $inner = $closure->do(hash->new());
+        my $inner = $closure->do();
         isa_ok($inner, 'closure');
 
         {
-            my $result = $inner->do(hash->new());
+            my $result = $inner->do();
             isa_ok($result, 'num');            
             cmp_ok($result->to_native, '==', 1, '... got the right inc value');
         }
         
         {
-            my $result = $inner->do(hash->new());
+            my $result = $inner->do();
             isa_ok($result, 'num');            
             cmp_ok($result->to_native, '==', 2, '... got the right inc value');
         }        
         
         {
-            my $result = $inner->do(hash->new());
+            my $result = $inner->do();
             isa_ok($result, 'num');            
             cmp_ok($result->to_native, '==', 3, '... got the right inc value');
         }        
