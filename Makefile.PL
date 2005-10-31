@@ -251,6 +251,10 @@ EOD
         if (!$base && -e $parrot_config) {
             $base = (File::Spec->splitpath($parrot_config))[1];
         }
+        if (!$base) {
+            $parrot_config = which('parrot-config') || '';
+            $base = (File::Spec->splitpath($parrot_config))[1] if -e $parrot_config;
+        }
         if (!$base and -d File::Spec->catdir(File::Spec->updir() . 'parrot')) {
             $base = abs_path(File::Spec->catdir(File::Spec->updir() . 'parrot'));
         }
