@@ -15,6 +15,6 @@ sub foo (Sub $code, Str $a, Str $b) { return $a.ref }
 
 is(foo(-> { die "test" }, "a", "b"), "Str", 'this will die with a "No compatible subroutine found: &foo"');
 
-sub foo2 (Sub $code, Str $a, Str ?$b) { return $a.ref }
+sub foo2 (Sub $code, Str $a, Str $b?) { return $a.ref }
 
 is(foo2(-> { die "test" }, "a", "b"), "Str", 'this should return "Str"');

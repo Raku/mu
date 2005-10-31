@@ -27,7 +27,7 @@ class HTTP::Cookies-0.0.1 {
     }
     
     ## Creation and destruction
-    submethod BUILD (Str $.file, Bool ?$.autosave = 0, Bool ?$.ignore_discard = 0, Bool ?$.hide_cookie2 = 0) {
+    submethod BUILD (Str $.file, Bool $.autosave = 0, Bool $.ignore_discard = 0, Bool $.hide_cookie2 = 0) {
         ./load();
     }
     
@@ -191,7 +191,7 @@ class HTTP::Cookies-0.0.1 {
     }
     
     # XXX lots of potential `where /.../` clauses here :-)
-    method set_cookie (Num $version, Str $key, Str $val, Str $path, Str $domain, Str ?$port, Bool ?$path_spec = bool::false, Bool ?$secure = bool::false, Num ?$maxage, Bool ?$discard = bool::false, *%rest) {
+    method set_cookie (Num $version, Str $key, Str $val, Str $path, Str $domain, Str $port?, Bool $path_spec = bool::false, Bool $secure = bool::false, Num $maxage?, Bool $discard = bool::false, *%rest) {
         return $?SELF if $path !~ m,^/, || $key ~~ m,^\$,;
         
         if $port.defined {
@@ -220,7 +220,7 @@ class HTTP::Cookies-0.0.1 {
     
     method set_cookie_ok (*@_) { 1; }
     
-    method save (Str ?$file = $.file) {
+    method save (Str $file = $.file) {
         my $fh = open($file, :w);
         
         $fh.say("#LWP-Cookies-1.0");
@@ -230,7 +230,7 @@ class HTTP::Cookies-0.0.1 {
         1;
     }
     
-    method load (Str ?$file = $.file) {
+    method load (Str $file = $.file) {
         my $fh = open($file, :r) or return;
         
         # XXX ensure record seperator == "\n" -- how?
@@ -309,10 +309,10 @@ class HTTP::Cookies-0.0.1 {
         }
     }
     
-    method as_string (Bool ?$skip_discardables) {
+    method as_string (Bool $skip_discardables?) {
         # XXX use nested gather/take
         my @ret = (gather {
-            ./scan(sub ($version, $key, $val, $path, $domain, ?$port, ?$path_spec, ?$secure, ?$maxage, ?$discard, *%rest) {
+            ./scan(sub ($version, $key, $val, $path, $domain, $port?, $path_spec?, $secure?, $maxage?, $discard?, *%rest) {
                 return if $discard && $skip_discardables;
                 
                 my @h = ($key, $val);

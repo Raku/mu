@@ -9,22 +9,22 @@ has Test::Builder::Output   $.output handles 'diag';
 has Test::Builder::TestPlan $.testplan;
 has                         @:results;
 
-method new ( Test::Builder $Class: ?$plan, ?$output )
+method new ( Test::Builder $Class: $plan?, $output? )
 {
     return $:singleton //= $Class.SUPER::new(
         testplan => $plan, output => $output
     );
 }
 
-method create ( Test::Builder $Class: ?$plan, ?$output )
+method create ( Test::Builder $Class: $plan?, $output? )
 {
     return $Class.SUPER::new( testplan => $plan, output => $output );
 }
 
 submethod BUILD
 (
-    Test::Builder::TestPlan ?$.testplan,
-    Test::Builder::Output   ?$.output = Test::Builder::Output.new()
+    Test::Builder::TestPlan $.testplan?,
+    Test::Builder::Output   $.output = Test::Builder::Output.new()
 )
 {}
 
@@ -39,7 +39,7 @@ method get_test_number
     return +@:results + 1;
 }
 
-method plan ( Str ?$explanation, Int ?$tests )
+method plan ( Str $explanation?, Int $tests? )
 {
     fail "Plan already set!" if $.testplan;
 
@@ -59,7 +59,7 @@ method plan ( Str ?$explanation, Int ?$tests )
     $.output.write( $.testplan.header() );
 }
 
-method ok returns Bit ( $self: Bit $passed, Str ?$description = '' )
+method ok returns Bit ( $self: Bit $passed, Str $description = '' )
 {
     $self.report_test(
         Test::Builder::Test.new(
@@ -72,12 +72,12 @@ method ok returns Bit ( $self: Bit $passed, Str ?$description = '' )
     return $passed;
 }
 
-method diag ( Str ?$diagnostic = '' )
+method diag ( Str $diagnostic? = '' )
 {
     $.output.diag( $diagnostic );
 }
 
-method todo returns Bit ( $self: Bit $passed, Str ?$description, Str ?$reason )
+method todo returns Bit ( $self: Bit $passed, Str $description?, Str $reason? )
 {
     $self.report_test(
         Test::Builder::Test.new(
@@ -91,7 +91,7 @@ method todo returns Bit ( $self: Bit $passed, Str ?$description, Str ?$reason )
     return $passed;
 }
 
-method skip ( $self: Int ?$num = 1, Str ?$reason = 'skipped' )
+method skip ( $self: Int $num = 1, Str $reason = 'skipped' )
 {
     for 1 .. $num
     {
@@ -113,7 +113,7 @@ method skip_all
     exit 0;
 }
 
-method BAILOUT ( Str ?$reason = '' )
+method BAILOUT ( Str $reason = '' )
 {
     $.output.write( "Bail out!  $reason" );
     exit 255;
@@ -146,11 +146,11 @@ Test::Builder - Backend for building test libraries
         )
     );
 
-  sub plan (Str ?$explanation, Int ?$tests) is export {
+  sub plan (Str $explanation?, Int $tests?) is export {
      $Test.testplan($explanation, $tests);
   }
 
-  sub ok ($passed, ?$description, ?$todo) is export {
+  sub ok ($passed, $description?, $todo?) is export {
      if $todo {
         $Test.todo($passed, $description, $todo) 
             || $Test.diag("FAILED : $description");
@@ -161,7 +161,7 @@ Test::Builder - Backend for building test libraries
      }
   }
 
-  sub is ($got, $expected, ?$description, ?$todo) is export {
+  sub is ($got, $expected, $description?, $todo?) is export {
      if $todo {
         $Test.todo($got eq $expected, $description, $todo)
             || $Test.diag("FAILED : $description");
@@ -223,7 +223,7 @@ A Test::Builder::TestPlan object.
 This method actually creates and returns a new Test::Builder instance.  It
 takes the same optional named arguments as C<new>.
 
-=item B<plan( Str ?$explanation, Int ?$tests )>
+=item B<plan( Str $explanation?, Int $tests? )>
 
 Sets the current test plan or throws an exception if there's already a plan in
 place.  You have two options for the plan.  If you pass a pair such as C<tests
@@ -234,18 +234,18 @@ Those are the only valid arguments.
 
 You must have a plan set before you can record any tests.
 
-=item B<ok returns Bit ( Bit $passed, Str ?$description = '' )>
+=item B<ok returns Bit ( Bit $passed, Str $description = '' )>
 
 Records that a test has passed or failed, depending on the value of C<$passed>,
 recording C<$description> as an optional explanation.
 
-=item B<todo returns Bit ( Bit $passed, Str ?$description, Str ?$reason )>
+=item B<todo returns Bit ( Bit $passed, Str $description?, Str $reason? )>
 
 Records that a test has passed or failed, depending on C<$passed> with an
 optional C<$description>, but marks it as a TODO test with an optional
 C<$reason>.
 
-=item B<skip( Int ?$num = 1, Str ?$reason = 'skipped' )>
+=item B<skip( Int $num = 1, Str $reason = 'skipped' )>
 
 Records the skipping of C<$num> tests (one by default), giving an optional
 C<$reason> for skipping them.

@@ -74,7 +74,7 @@ class HTTP::Response[?::URI_CLASS = URI] {
         return undef;
     }
     
-    method as_string (Str ?$newline = "\n") {
+    method as_string (Str $newline = "\n") {
         my $code = ./code;
         my $status_message = HTTP::Status::status_message($code) // "Unknown code";
         my $message = ./message // "";

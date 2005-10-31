@@ -22,7 +22,7 @@ sub splitdir (Str $directories) returns Array is export {
     return @dirs;
 }
 
-sub splitpath (Str $path, Bool ?$nofile) returns Array is export {
+sub splitpath (Str $path, Bool $nofile?) returns Array is export {
     my ($volume, $directory, $file) = ('','','');
     if ($nofile) {
         $path ~~ rx:perl5{^((?:[a-zA-Z]:|(?:\\\\|//)[^\\/]+[\\/][^\\/]+)?)(.*)};
@@ -173,7 +173,7 @@ sub tmpdir returns Str is export {
   return File::Spec::tmpdir();
 }
 
-sub rel2abs (Str $_path, Str ?$_base) returns Str is export {
+sub rel2abs (Str $_path, Str $_base?) returns Str is export {
     # take a copy of our args here, maybe
     # replace this with 'is copy' parameter
     # trait at some point
@@ -196,7 +196,7 @@ sub rel2abs (Str $_path, Str ?$_base) returns Str is export {
     return canonpath($path);
 }
 
-sub abs2rel (Str $_path, Str ?$_base) returns Str is export {
+sub abs2rel (Str $_path, Str $_base?) returns Str is export {
     my $base;
     if (defined($_base) && $_base ne '') {
         # take a copy of our args here, maybe
@@ -262,7 +262,7 @@ This is a very primitive port of the Perl 5 File::Spec::Win32 module.
 
 - `splitdir (Str $dir) returns Array`
 
-- `splitpath (Str $path, Bool ?$nofile) returns Array`
+- `splitpath (Str $path, Bool $nofile?) returns Array`
 
 - `catdir (*@path) returns Str`
 
@@ -270,7 +270,7 @@ This is a very primitive port of the Perl 5 File::Spec::Win32 module.
 
 - `catpath (Str $volume, Str $directory, Str $file) returns Str`
 
-- `rel2abs (Str $path, Str ?$base) returns Str`
+- `rel2abs (Str $path, Str $base?) returns Str`
 
 - `abs2rel (Str $path, Str $base) returns Str`
 

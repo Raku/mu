@@ -40,7 +40,7 @@ sub is_promise($a) {
 
 ## Chapter 6 section 2.2
 
-sub show(Array $s is copy, Int ?$n is copy) {
+sub show(Array $s is copy, Int $n? is copy) {
   my $ret = '';
   while $s && (!defined($n) || $n-- > 0) {
     ## XXX - what's $" these days?

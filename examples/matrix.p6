@@ -24,7 +24,7 @@ for 1..5 -> $y {
 }
 
 
-sub build_re ($y, $x, $todo is copy, ?%had is copy) {
+sub build_re ($y, $x, $todo is copy, %had? is copy) {
     %had{"$y/$x"} = 1;
     my $r = @matrix[$y][$x] or die "y=$y,x=$x is empty";
     --$todo or return $r;

@@ -39,7 +39,7 @@ sub End_of_Input($input) is exported(:all) {
 
 ## Chapter 8 section 3.1
 
-sub lookfor($wanted, Code ?$value = { $^v.[1] }, ?$u) is exported(:all) {
+sub lookfor($wanted, Code $value = { $^v.[1] }, ?$u) is exported(:all) {
   ## XXX - orig: $wanted = [$wanted] unless ref $wanted;
   my $wp := $wanted.isa(Array) ?? $wanted !! [$wanted];
 

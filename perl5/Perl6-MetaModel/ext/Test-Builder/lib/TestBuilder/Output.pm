@@ -101,7 +101,7 @@ documentation by Stevan Little E<lt>stevan@iinteractive.comE<gt> and chromatic.
   has $.output;
   has $.error_output;
   
-  submethod BUILD ( ?$.output = $*OUT, ?$.error_output = $*ERR ) {}
+  submethod BUILD ( $.output = $*OUT, $.error_output = $*ERR ) {}
   
   method write ( Str $message is copy )
   {

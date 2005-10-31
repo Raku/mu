@@ -110,7 +110,7 @@ method remove_content_headers () {
 }
 
 # XXX Str where { .length > 0 }
-method :header (Str $field is copy, Str $val is copy, Str ?$op = "") {
+method :header (Str $field is copy, Str $val is copy, Str $op = "") {
   unless $field ~~ /^\:/ {
     $field ~~ s:g/_/-/ if $TRANSLATE_UNDERSCORE;
     my $old = $field;
@@ -168,7 +168,7 @@ method scan ($self: Code $sub) {
 
 multi sub *coerce:<as> (::?CLASS $self, Str ::to) { $self.as_string("\n") }
 
-method as_string ($self: Str ?$ending = "\n") {
+method as_string ($self: Str $ending = "\n") {
   my @result;
 
   $self.scan(-> $field is copy, $val is copy {
@@ -296,12 +296,12 @@ method :basic_auth ($self: Str $h) is rw {
     #   Carp::croak("Basic authorization user name can't contain ':'")
     # back.
     # XXX Str where { $^str !~ /\:/ }
-    STORE => -> Str $user, Str ?$passwd = "" {
+    STORE => -> Str $user, Str $passwd = "" {
       #$self.:header($h, "Basic " ~ MIME::Base64::encode("$user:$passwd", ""));
     });
 }
 
-method redirect (::?CLASS ::class: Str $location, Str ?$target, Str ?$status = "302 Found", Str :$cookie, Bool :$nph, *%extra) {
+method redirect (::?CLASS ::class: Str $location, Str $target?, Str $status = "302 Found", Str :$cookie, Bool :$nph, *%extra) {
     my $h = ::class.new();
     
     $h.header('Status') = $status;

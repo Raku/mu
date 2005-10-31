@@ -77,7 +77,7 @@ Conc object # name is still up for grabs!
 
 - "is throttled" trait
 
-    method throttled::trait_auxillary:<is> (?$limit=1, :$key=gensym()) {
+    method throttled::trait_auxillary:<is> ($limit=1, :$key=gensym()) {
         # "is throttled" limits max connection to this Code object
         # the throttling is shared among closures with the same key
         # the limit may differ on closures with the same key.

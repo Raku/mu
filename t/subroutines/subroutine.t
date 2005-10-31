@@ -34,7 +34,7 @@ ok(twice(5 - 3) == 4);
 
 my $_;
 
-sub callerunderscore (?$foo = $CALLER::_) {
+sub callerunderscore ($foo = $CALLER::_) {
     return "-" ~ $foo ~ "-"
 }
 

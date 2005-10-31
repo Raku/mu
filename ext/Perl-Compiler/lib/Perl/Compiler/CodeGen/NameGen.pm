@@ -8,7 +8,7 @@ class Perl::Compiler::CodeGen::NameGen {
     has %.names;
     has %.state is rw;
 
-    submethod BUILD ($.template, ?$.counter = [0], ?$.parent, ?$.parent_ident, ?$.state) { }
+    submethod BUILD ($.template, $.counter = [0], $.parent?, $.parent_ident?, $.state?) { }
     
     method fork($ident) {
         my $ret = $?CLASS.new(

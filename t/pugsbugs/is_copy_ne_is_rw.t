@@ -3,7 +3,7 @@ use v6;
 
 use Test;
 
-sub foo (?$foo = 5 is copy, ?$bar = 10 is copy) {
+sub foo ($foo = 5 is copy, $bar = 10 is copy) {
     $foo += $bar;
     $foo;
 }

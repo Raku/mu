@@ -536,19 +536,24 @@ maybeParensBool p = choice
 ruleFormalParam :: RuleParser Param
 ruleFormalParam = rule "formal parameter" $ do
     typ     <- option "" $ ruleType
-    sigil   <- option "" $ choice . map (try . string) $ words " ?: +: ? * + : "
+    sigil1  <- option "" $ choice . map symbol $ words " : * "
     name    <- ruleParamName -- XXX support *[...]
+    sigil2  <- option "" $ choice . map symbol $ words " ? ! "
     traits  <- many ruleTrait
-    -- sigil' is the canonical form of sigil, e.g.
-    --   $foo is required -->  +$foo
+    -- sigil' is the canonical form of sigil1 and sigil2, e.g.
+    --   $foo is required -->  !$foo
     --  :$foo             --> ?:$foo
-    --  :$foo is required --> +:$foo
-    let sigil' | "required" `elem` traits = '+':sigil
-               | sigil == ""              = "+"
-               | sigil == ":"             = "?:"
-               | otherwise                = sigil
-    let required = '+' `elem` sigil'
-    exp     <- ruleParamDefault required
+    --  :$foo!            --> !:$foo
+    --  :$foo is required --> !:$foo
+    isDefaultSpecified <- option False $ do
+        lookAhead $ symbol "="
+        return True
+    let isOptional = isDefaultSpecified
+                  || sigil2 == "?"
+                  || sigil1 == ":" && sigil2 /= "!" && "required" `notElem` traits
+                  || "optional" `elem` traits
+    let sigil'   = (if isOptional then '?' else '!'):sigil1
+    exp <- ruleParamDefault (not isOptional)
     optional $ do
         symbol "-->"
         ruleParamList ParensOptional $ tryChoice

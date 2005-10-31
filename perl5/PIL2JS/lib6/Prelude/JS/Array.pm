@@ -82,9 +82,9 @@ sub JS::Root::map(Code $code, *@array is rw) is primitive {
 
 # XXX XXX XXX XXX ("luckily", the fully qualified name of a method doesn't
 # matter. XXX XXX evil hack)
-method sort(@self: Code ?$cmp = &infix:<cmp>) { sort $cmp, @self }
-method PIL2JS::Internals::This::Is::A::Truly::Horrible::Hack::sort(%self: Code ?$cmp = &infix:<cmp>) { sort $cmp, %self.pairs }
-sub JS::Root::sort(Code ?$cmp is copy = &infix:<cmp>, *@array) is primitive {
+method sort(@self: Code $cmp = &infix:<cmp>) { sort $cmp, @self }
+method PIL2JS::Internals::This::Is::A::Truly::Horrible::Hack::sort(%self: Code $cmp = &infix:<cmp>) { sort $cmp, %self.pairs }
+sub JS::Root::sort(Code $cmp is copy = &infix:<cmp>, *@array) is primitive {
   # Hack
   unless $cmp.isa("Code") {
     unshift @array, @$cmp;
@@ -128,9 +128,9 @@ sub JS::Root::reduce(Code $code, *@array) is primitive {
   $ret;
 }
 
-method min(@self: Code ?$cmp = &infix:«<=>») { min $cmp, *@self }
-method max(@self: Code ?$cmp = &infix:«<=>») { max $cmp, *@self }
-sub JS::Root::min(Code ?$cmp = &infix:«<=>», *@array) is primitive {
+method min(@self: Code $cmp = &infix:«<=>») { min $cmp, *@self }
+method max(@self: Code $cmp = &infix:«<=>») { max $cmp, *@self }
+sub JS::Root::min(Code $cmp = &infix:«<=>», *@array) is primitive {
   # Hack, see comment at &sort.
   unless $cmp.isa("Code") {
     unshift @array, @$cmp;
@@ -138,7 +138,7 @@ sub JS::Root::min(Code ?$cmp = &infix:«<=>», *@array) is primitive {
   }
   @array.max:{ $cmp($^b, $^a) };
 }
-sub JS::Root::max(Code ?$cmp = &infix:«<=>», *@array) is primitive {
+sub JS::Root::max(Code $cmp = &infix:«<=>», *@array) is primitive {
   # Hack, see comment at &sort.
   unless $cmp.isa("Code") {
     unshift @array, @$cmp;
@@ -169,8 +169,8 @@ sub JS::Root::sum(*@vals) is primitive {
   # We should return undef if we haven't been giving @vals to sum.
 }
 
-method uniq(@self: Code ?$cmp = &infix:<eqv>) { uniq $cmp, @self }
-sub JS::Root::uniq(Code ?$cmp is copy = &infix:<cmp>, *@array) is primitive {
+method uniq(@self: Code $cmp = &infix:<eqv>) { uniq $cmp, @self }
+sub JS::Root::uniq(Code $cmp is copy = &infix:<cmp>, *@array) is primitive {
   # Hack
   unless $cmp.isa("Code") {
     unshift @array, @$cmp;
@@ -443,7 +443,7 @@ sub PIL2JS::Internals::Hacks::init_undef_array_postcircumfix_method () is primit
 }
 
 # Code from Prelude::PIR
-sub splice (@a is rw, ?$offset=0, ?$length, *@list) is primitive {
+sub splice (@a is rw, $offset=0, $length?, *@list) is primitive {
     my $off = +$offset;
     my $len = $length;
     my $size = +@a;

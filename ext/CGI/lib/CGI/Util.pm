@@ -2,7 +2,7 @@ module CGI::Util-0.0.1;
 
 use v6;
 
-sub make_attribute(%attrs, Bool ?$escape = 0) is export {
+sub make_attribute(%attrs, Bool $escape = 0) is export {
     my @return;
     
     for %attrs.keys -> $key {

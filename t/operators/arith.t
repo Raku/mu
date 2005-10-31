@@ -13,21 +13,21 @@ unless ($five == 5) {
     exit();
 }
 
-sub tryok ($ok, ?$todo = '') {
+sub tryok ($ok, $todo = '') {
     if ($todo) {
         &ok.goto($ok,$todo, :todo);
     } else {
         &ok.goto($ok);
     }
 }
-sub tryeq ($lhs, $rhs, ?$todo = '') {
+sub tryeq ($lhs, $rhs, $todo = '') {
     if ($todo) {
         &ok.goto($lhs == $rhs,$todo ~ " " ~ $lhs ~ " != " ~ $rhs, :todo);
     } else {
         &ok.goto($lhs == $rhs);
     }
 }
-sub tryeq_sloppy ($lhs, $rhs, ?$todo1 = '') {
+sub tryeq_sloppy ($lhs, $rhs, $todo1 = '') {
     my $todo = $todo1;  # TODO is rw
     $todo = ' # TODO ' ~ $todo if $todo;
     if ($lhs == $rhs) {

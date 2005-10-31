@@ -112,7 +112,7 @@ documentation by Stevan Little E<lt>stevan@iinteractive.comE<gt> and chromatic.
   {
       has Int $:expect;
   
-      submethod BUILD ( ?$:expect = 0 )
+      submethod BUILD ( $:expect = 0 )
       {
           fail "Invalid or missing plan" unless defined $:expect;
       }

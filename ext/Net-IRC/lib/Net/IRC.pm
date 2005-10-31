@@ -33,14 +33,14 @@ sub debug_sent(Str $msg) { say "> $msg" }
 # Definition of the bot "class"
 sub new_bot(
   Str $nick,
-  Str ?$username = $nick,
-  Str ?$ircname  = $nick,
+  Str $username = $nick,
+  Str $ircname  = $nick,
   Str $host,
-  Int ?$port          = 6667,
-  Int ?$autoping      = 90,     # Autoping the server when we haven't seen traffic for 90s
-  Int ?$live_timeout  = 120,    # Drop connection when we haven't seen traffic for 120s
-  Bool ?$floodcontrol = 0,      # Check that we don't flood excessively
-  Bool ?$debug_raw = 0,
+  Int $port          = 6667,
+  Int $autoping      = 90,     # Autoping the server when we haven't seen traffic for 90s
+  Int $live_timeout  = 120,    # Drop connection when we haven't seen traffic for 120s
+  Bool $floodcontrol = 0,      # Check that we don't flood excessively
+  Bool $debug_raw = 0,
 ) is export {
   my $connected = 0;
   my $inside    = 0;
@@ -437,7 +437,7 @@ sub new_bot(
     },
 
     # JOIN/PART/KICK/...
-    join => -> Str $channel, Str ?$key {
+    join => -> Str $channel, Str $key? {
       if $connected {
         if defined $key {
           enqueue "JOIN $channel $key";
@@ -452,17 +452,17 @@ sub new_bot(
     who   => -> Str $target  { enqueue "WHO $target" },
     whois => -> Str $target  { enqueue "WHOIS $target" },
     ison  => -> Str @targets { enqueue "ISON @targets[]" },
-    topic => -> Str $channel, Str ?$topic {
+    topic => -> Str $channel, Str $topic? {
       if defined $topic {
         enqueue "TOPIC $channel :$topic";
       } else {
         enqueue "TOPIC $channel";
       }
     },
-    kick  => -> Str $channel, Str $nick, Str ?$reason {
+    kick  => -> Str $channel, Str $nick, Str $reason? {
       enqueue "KICK $channel $nick :{$reason // ""}";
     },
-    mode  => -> Str $target, Str ?$mode {
+    mode  => -> Str $target, Str $mode? {
       if defined $mode {
         enqueue "MODE $target $mode";
       } else {
@@ -488,7 +488,7 @@ sub new_bot(
 }
 
 # Definition of queue "class"
-sub new_queue(Bool ?$floodcontrol = 0) {
+sub new_queue(Bool $floodcontrol = 0) {
   my @queue;
 
   my $bucket = $floodcontrol

@@ -63,14 +63,14 @@ class Net::IRC {
 
   submethod BUILD(
     Str $.nick,
-    Str ?$.username = $.nick,
-    Str ?$.ircname  = $.nick,
+    Str $.username = $.nick,
+    Str $.ircname  = $.nick,
     Str $.host,
-    Int ?$.port         = 6667,
-    Int ?$.autoping     = 90,   # Autoping the server when we haven't seen traffic for 90s
-    Int ?$.live_timeout = 120,  # Drop connection when we haven't seen traffic for 120s
-    Bool ?$floodcontrol = 0,    # Check that we don't flood excessively
-    Bool ?$.debug_raw   = 0,
+    Int $.port         = 6667,
+    Int $.autoping     = 90,   # Autoping the server when we haven't seen traffic for 90s
+    Int $.live_timeout = 120,  # Drop connection when we haven't seen traffic for 120s
+    Bool $floodcontrol = 0,    # Check that we don't flood excessively
+    Bool $.debug_raw   = 0,
   ) {
     ./:register_default_handlers;
     $:nickgen = Permutation.new($.nick);
@@ -433,7 +433,7 @@ class Net::IRC {
   }
 
   # JOIN/PART/KICK/...
-  method join(Str $channel, Str ?$key) {
+  method join(Str $channel, Str $key?) {
     if $.connected {
       if defined $key {
         ./:enqueue("JOIN $channel $key");
@@ -448,17 +448,17 @@ class Net::IRC {
   method who(Str $target)   { ./:enqueue("WHO $target") }
   method whois(Str $target) { ./:enqueue("WHOIS $target") }
   method ison(Str @targets) { ./:enqueue("ISON @targets[]") }
-  method topic(Str $channel, Str ?$topic) {
+  method topic(Str $channel, Str $topic?) {
     if defined $topic {
       ./:enqueue("TOPIC $channel :$topic");
     } else {
       ./:enqueue("TOPIC $channel");
     }
   }
-  method kick(Str $channel, Str $nick, Str ?$reason) {
+  method kick(Str $channel, Str $nick, Str $reason?) {
     ./:enqueue("KICK $channel $nick :{$reason // ""}");
   }
-  method mode(Str $target, Str ?$mode) {
+  method mode(Str $target, Str $mode?) {
     if defined $mode {
       ./:enqueue("MODE $target $mode");
     } else {
@@ -480,7 +480,7 @@ class Net::IRC {
     has Code @:queue;
     has      $:bucket;
 
-    submethod BUILD(Bool ?$.floodcontrol = 0) {
+    submethod BUILD(Bool $.floodcontrol = 0) {
       $:bucket = $.floodcontrol
         ?? Bucket.new(rate => (1/2),    burst_size => 5)
         !! Bucket.new(rate => (1000/2), burst_size => 5000); # hack

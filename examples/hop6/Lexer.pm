@@ -15,7 +15,7 @@ sub Lexer::import { }
 
 ## Chapter 8 section 1.3
 
-sub tokens(Code *$input, Str *$label, Str $pattern, Code ?$maketoken)
+sub tokens(Code *$input, Str *$label, Str $pattern, Code $maketoken?)
     is exported(:all) {
   ## XXX - slurpy magic doesn't work too well presently ...
   $maketoken := { [ $^tok_label, $^tok ] }

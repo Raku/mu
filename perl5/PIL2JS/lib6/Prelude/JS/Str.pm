@@ -1,4 +1,4 @@
-method JS::Root::substr(Str $str is rw: Int $a, Int ?$b = chars $str) is rw {
+method JS::Root::substr(Str $str is rw: Int $a, Int $b = chars $str) is rw {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var str  = args[1],
         a    = Number(args[2].toNative()),
@@ -46,12 +46,12 @@ sub JS::Root::split(Str $splitter, Str $str) is primitive {
   )')(~$splitter, ~$str);
 }
 
-# XXX! ?$self = $CALLER::_ is a hack!!
-method uc(Str ?$self = $CALLER::_:) { JS::inline('(function (str) { return str.toUpperCase() })')(~$self) }
-method lc(Str ?$self = $CALLER::_:) { JS::inline('(function (str) { return str.toLowerCase() })')(~$self) }
+# XXX! $self = $CALLER::_ is a hack!!
+method uc(Str $self = $CALLER::_:) { JS::inline('(function (str) { return str.toUpperCase() })')(~$self) }
+method lc(Str $self = $CALLER::_:) { JS::inline('(function (str) { return str.toLowerCase() })')(~$self) }
 
-method lcfirst(Str ?$self = $CALLER::_:) { lc(substr $self, 0, 1) ~ substr($self, 1) }
-method ucfirst(Str ?$self = $CALLER::_:) { uc(substr $self, 0, 1) ~ substr($self, 1) }
+method lcfirst(Str $self = $CALLER::_:) { lc(substr $self, 0, 1) ~ substr($self, 1) }
+method ucfirst(Str $self = $CALLER::_:) { uc(substr $self, 0, 1) ~ substr($self, 1) }
 
 # Of course, &bytes, &codes, &graphs will have to change. Dunno how to do
 # different Unicode levels in browsers.
@@ -60,12 +60,12 @@ method chars  (Str $self:) { JS::inline('(function (str) { return str.length })'
 method codes  (Str $self:) { JS::inline('(function (str) { return str.length })')(~$self) }
 method graphs (Str $self:) { JS::inline('(function (str) { return str.length })')(~$self) }
 
-method index(Str $self: Str $substr, Int ?$pos = 0) {
+method index(Str $self: Str $substr, Int $pos = 0) {
   JS::inline('(function (str, substr, pos) {
     return str.indexOf(substr, pos);
   })')(~$self, ~$substr, +$pos);
 }
-method rindex(Str $self: Str $substr, Int ?$pos = chars $self) {
+method rindex(Str $self: Str $substr, Int $pos = chars $self) {
   if $self eq "" and $substr ne "" {
     -1;
   } else {

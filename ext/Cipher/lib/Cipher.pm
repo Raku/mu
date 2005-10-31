@@ -275,7 +275,7 @@ class Cipher-0.02;
 has $.mode;
 has bool $:seen_head;
 
-submethod BUILD(?$.mode = "enciphering") {
+submethod BUILD($.mode = "enciphering") {
     $:seen_head = 0;
     given lc $.mode {
         when any <enciphering encipher encrypting encrypt> {
@@ -329,14 +329,14 @@ method decipher(Class $class: Str $ciphertext, *%options) {
 
 method encipherer(Class $class: *%options) {
     my $self = $class.new(:mode<enciphering>, *%options);
-    return sub(Str ?$plaintext) {
+    return sub(Str $plaintext?) {
         if defined $plaintext  { return $self.cipher($plaintext) }
         else                   { return $self.finishstr() }
     };
 }
 method decipherer(Class $class: *%options) {
     my $self = $class.new(*%options, :mode<deciphering>);
-    return sub(Str ?$ciphertext) {
+    return sub(Str $ciphertext?) {
         if defined $ciphertext { return $self.cipher($ciphertext) }
         else                   { return $self.finishstr() }
     };

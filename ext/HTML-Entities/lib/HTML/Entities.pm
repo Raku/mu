@@ -315,7 +315,7 @@ sub encode_entities_numeric (Str $string) returns Str is export
 }
 
 my %subst;  # compiled encoding regexps
-sub encode_entities (Str $string is rw, ?$unsafe_chars) is export
+sub encode_entities (Str $string is rw, $unsafe_chars?) is export
 {
     my $result = $string;
     if ($string.defined && $unsafe_chars.defined) {

@@ -12,7 +12,7 @@ default value.
 =cut
 
 plan 1;
-sub boom (?$arg = 0 is copy) { $arg++ }
+sub boom ($arg = 0 is copy) { $arg++ }
 
 lives_ok { boom(42) }, "can modify a copy", :todo<bug>;
 

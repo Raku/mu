@@ -35,7 +35,7 @@ class Locale::KeyedText::Message {
 
 ###########################################################################
 
-submethod BUILD (Str +:$msg_key, Any :%msg_vars = hash()) {
+submethod BUILD (Str :$msg_key!, Any :%msg_vars = hash()) {
 
     throw 'invalid arg'
         if !$msg_key.defined or $msg_key eq '';
@@ -87,7 +87,7 @@ class Locale::KeyedText::Translator {
 
 ###########################################################################
 
-submethod BUILD (Str +:@set_names, Str +:@member_names) {
+submethod BUILD (Str :@set_names!, Str :@member_names!) {
 
     throw 'invalid arg'
         if !@set_names.defined or +@set_names == 0;
@@ -517,7 +517,7 @@ This is the main Message constructor submethod:
 
 =over
 
-=item C<new( { $msg_key, ?%msg_vars } )>
+=item C<new( { $msg_key, %msg_vars? } )>
 
 This submethod creates and returns a new Locale::KeyedText::Message object.
 The Message Key attribute of the new object is set from the named argument

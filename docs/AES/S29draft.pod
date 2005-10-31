@@ -84,7 +84,7 @@ Used to supply a test to match against. Assume C<~~> will be used against it.
 =item abs
 
  multi sub  Num::abs (  Num  $x              ) returns Num
- multi sub Math::Basic::abs (: Num ?$x = $CALLER::_ ) returns Num
+ multi sub Math::Basic::abs (: Num $x = $CALLER::_ ) returns Num
 
 Absolute Value.
 
@@ -120,7 +120,7 @@ reasons.
 =item exp
 
  multi sub  Num::exp (  Num  $exponent             : Num :$base) returns Num
- multi sub Math::Basic::exp (: Num ?$exponent = $CALLER::_, Num :$base) returns Num
+ multi sub Math::Basic::exp (: Num $exponent = $CALLER::_, Num :$base) returns Num
 
 Performs similar to C<$base ** $exponent>. C<$base> defaults to the
 constant I<e>.
@@ -129,7 +129,7 @@ constant I<e>.
 =item log
 
  multi sub  Num::log (  Num  $x             : Num :$base) returns Num
- multi sub Math::Basic::log (: Num ?$x = $CALLER::_, Num :$base) returns Num
+ multi sub Math::Basic::log (: Num $x = $CALLER::_, Num :$base) returns Num
 
 Logarithm of base C<$base>, default Natural. Calling with C<$x == 0> is an
 error.
@@ -142,7 +142,7 @@ error.
 
 =item rand
 
- multi sub Math::Basic::rand (: Num ?$x = 1) returns Num
+ multi sub Math::Basic::rand (: Num $x = 1) returns Num
 
 Psuedo random number between C<0> and C<$x>.
 
@@ -150,7 +150,7 @@ Psuedo random number between C<0> and C<$x>.
 =item sign
 
  multi sub  Num::sign (  Num  $x             ) returns Int
- multi sub Math::Basic::sign (: Num ?$x = $CALLER::_) returns Int {
+ multi sub Math::Basic::sign (: Num $x = $CALLER::_) returns Int {
    if !defined($x) { return undef };
    if $x < 0       { return -1    };
    if $x > 0       { return  1    };
@@ -161,7 +161,7 @@ Psuedo random number between C<0> and C<$x>.
 
 =item srand
 
- multi sub Math::Basic::srand (: Num ?$seed)
+ multi sub Math::Basic::srand (: Num $seed)
 
 Seed the generator C<rand> uses. C<$seed> defaults to some combination
 of various platform dependent characteristics to yield a non-
@@ -171,7 +171,7 @@ deterministic seed.
 =item sqrt
 
  multi sub  Num::sqrt (  Num  $x             ) returns Num
- multi sub Math::Basic::sqrt (: Num ?$x = $CALLER::_) returns Num
+ multi sub Math::Basic::sqrt (: Num $x = $CALLER::_) returns Num
 
 C<$x ** 0.5>
 
@@ -186,7 +186,7 @@ C<$x ** 0.5>
 =item I<Standard Trig Functions>
 
  multi sub Num::func (  Num  $x             : :$base) returns Num
- multi sub Math::Trig::func (: Num ?$x = $CALLER::_, :$base) returns Num
+ multi sub Math::Trig::func (: Num $x = $CALLER::_, :$base) returns Num
 
 where I<func> is one of:
 sin, cos, tan, asin, acos, atan, sec, cosec, cotan, asec, acosec,
@@ -286,8 +286,8 @@ An unary form is expected. See C<Hash::delete>.
 =item splice
 
  multi sub Array::splice (       @array is rw 
-                                 : Int ?$offset = 0,
-                                   Int ?$length,
+                                 : Int $offset = 0,
+                                   Int $length,
                                        *@values
                                 ) returns List is rw
 
@@ -629,8 +629,8 @@ instead of this step.
 
 =item lc
 
- multi sub Str::lc         (  Str  $string              ) returns Str
- multi sub Str::lc         (: Str ?$string = $CALLER::_ ) returns Str
+ multi sub Str::lc         (  Str $string              ) returns Str
+ multi sub Str::lc         (: Str $string = $CALLER::_ ) returns Str
 
 Returns the input string after converting each character to it's lowercase
 form, if uppercase.
@@ -638,16 +638,16 @@ form, if uppercase.
 
 =item lcfirst
 
- multi sub Str::lcfirst    (  Str  $string              ) returns Str
- multi sub Str::lcfirst    (: Str ?$string = $CALLER::_ ) returns Str
+ multi sub Str::lcfirst    (  Str $string              ) returns Str
+ multi sub Str::lcfirst    (: Str $string = $CALLER::_ ) returns Str
 
 Like C<lc>, but only affects the first character.
 
 
 =item uc
 
- multi sub Str::uc         (  Str  $string              ) returns Str
- multi sub Str::uc         (: Str ?$string = $CALLER::_ ) returns Str
+ multi sub Str::uc         (  Str $string              ) returns Str
+ multi sub Str::uc         (: Str $string = $CALLER::_ ) returns Str
 
 Returns the input string after converting each character to it's uppercase
 form, if lowercase. This is not a Unicode "titlecase" operation, but a
@@ -656,16 +656,16 @@ full "uppercase".
 
 =item ucfirst
 
- multi sub Str::ucfirst    (  Str  $string              ) returns Str
- multi sub Str::ucfirst    (: Str ?$string = $CALLER::_ ) returns Str
+ multi sub Str::ucfirst    (  Str $string              ) returns Str
+ multi sub Str::ucfirst    (: Str $string = $CALLER::_ ) returns Str
 
 Performs a Unicode "titlecase" operation on the first character of the string.
 
 
 =item capitalize
 
- multi sub Str::capitalize (  Str  $string              ) returns Str
- multi sub Str::capitalize (: Str ?$string = $CALLER::_ ) returns Str
+ multi sub Str::capitalize (  Str $string              ) returns Str
+ multi sub Str::capitalize (: Str $string = $CALLER::_ ) returns Str
 
 Has the effect of first doing an C<lc> on the entire string, then performing a
 C<s:g/(\w+)/{ucfirst $1}/> on it.
@@ -685,19 +685,19 @@ C<s:g/(\w+)/{ucfirst $1}/> on it.
 
 =item split
 
- multi sub Str::split (  Str $delimiter ,  Str ?$input = $CALLER::_, Int ?$limit = inf ) returns List
- multi sub Str::split ( Rule $delimiter ,  Str ?$input = $CALLER::_, Int ?$limit = inf ) returns List
- multi sub Str::split (      Str $input :  Str $delimiter          , Int ?$limit = inf ) returns List
- multi sub Str::split (      Str $input : Rule $delimiter          , Int ?$limit = inf ) returns List
+ multi sub Str::split (  Str $delimiter ,  Str $input = $CALLER::_, Int $limit = inf ) returns List
+ multi sub Str::split ( Rule $delimiter ,  Str $input = $CALLER::_, Int $limit = inf ) returns List
+ multi sub Str::split (      Str $input :  Str $delimiter          , Int $limit = inf ) returns List
+ multi sub Str::split (      Str $input : Rule $delimiter          , Int $limit = inf ) returns List
  &split<> := &split<Str>.assuming:delimiter(' ');
 
 =item sprintf
 
 =item substr
 
- multi sub substr(Str $s, StrPos $start  : StrPos ?$end,     ?$replace)
- multi sub substr(Str $s, StrPos $start,   StrLen $length  : ?$replace)
- multi sub substr(Str $s, StrLen $offset : StrLen ?$length,  ?$replace)
+ multi sub substr(Str $s, StrPos $start  : StrPos $end,      $replace)
+ multi sub substr(Str $s, StrPos $start,   StrLen $length  : $replace)
+ multi sub substr(Str $s, StrLen $offset : StrLen $length,   $replace)
 
 
 =item unpack
@@ -733,7 +733,7 @@ support.
 
 =item exit 
 
- multi sub Control::Basic::exit (: Int ?$status = 0)
+ multi sub Control::Basic::exit (: Int $status = 0)
 
 Stops all program execution, and returns C<$status> to the calling environment.
 
@@ -747,7 +747,7 @@ No operation. Literally does nothing.
 
 =item sleep
 
- multi sub Control::Basic::sleep (: Num ?$for = Inf ) returns Num
+ multi sub Control::Basic::sleep (: Num $for = Inf ) returns Num
 
 Attempt to sleep for up to C<$for> seconds. Implementations are only obligated
 to support integral seconds, but higher resolutions are preferred.
@@ -795,10 +795,10 @@ Forces generic Item context on it's argument, and returns it.
 
 =item 0x, 0o, 0b, 0d
  
- multi sub prefix::<0x> (: Str ?$hexstr = $CALLER::_) returns Num
- multi sub prefix::<0o> (: Str ?$octstr = $CALLER::_) returns Num
- multi sub prefix::<0b> (: Str ?$binstr = $CALLER::_) returns Num
- multi sub prefix::<0d> (: Str ?$binstr = $CALLER::_) returns Num
+ multi sub prefix::<0x> (: Str $hexstr = $CALLER::_) returns Num
+ multi sub prefix::<0o> (: Str $octstr = $CALLER::_) returns Num
+ multi sub prefix::<0b> (: Str $binstr = $CALLER::_) returns Num
+ multi sub prefix::<0d> (: Str $binstr = $CALLER::_) returns Num
 
 Interprets string as a number, with a default
 hexadecimal/octal/binary/decimal radix. Any radix mentioned inside the

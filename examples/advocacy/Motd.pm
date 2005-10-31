@@ -36,7 +36,7 @@ sub max (Array @x) returns Int is export{
     $max.int
 }    
 
-sub whisper_about (Int $sizeof_crowd, Array ?@x) returns Hash is
+sub whisper_about (Int $sizeof_crowd, Array @x?) returns Hash is
 export{
     my %terms;
     for 1 .. $sizeof_crowd {
@@ -75,7 +75,7 @@ sub append_last ($x,$string is rw,$pass){
     }
 }
 
-sub matchval ($x,Hash %x,Int ?$cap) returns Array is export{
+sub matchval ($x,Hash %x,Int $cap?) returns Array is export{
     my @matches;
     for %x.kv->$key,$value{
         if $value eq $x { push @matches,$key }  

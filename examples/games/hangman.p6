@@ -82,7 +82,7 @@ sub draw_if_greater_than (Str $char, Int $num) returns Bool {
     ($number_of_bad_guesses >= $num) ?? $char !! ' ';
 }
 
-sub draw_hangman (Str ?$msg) returns Str {
+sub draw_hangman (Str $msg?) returns Str {
     "Hangman (with the Pugs AUTHORS list)
 
   +-----+       The committer's name is:

@@ -42,7 +42,7 @@ plan 7;
 
 {
     my ($got_x, $got_y, @got_z);
-    sub foo ($x, ?$y, *@z) {
+    sub foo ($x, $y?, *@z) {
         $got_x = $x;
         $got_y = $y;
         @got_z = @z;

@@ -18,7 +18,7 @@ has @:children;
 ## ----------------------------------------------------------------------------
 ## constructors
 
-submethod BUILD (?$node) {
+submethod BUILD ($node?) {
     $.depth  = -1;
     $.height = 1;
     $.width  = 1;
@@ -212,7 +212,7 @@ our &Tree::insert_sibling ::= &Tree::insert_siblings;
 ## ----------------------------------------------------------------------------
 ## traversal
 
-method traverse ($self: Code $func, Str ?$traversal_order) returns Void {
+method traverse ($self: Code $func, Str $traversal_order?) returns Void {
     if !$traversal_order.defined || $traversal_order.lc() eq 'pre_order' {
         $self.pre_order_traverse($func)
     }
@@ -235,7 +235,7 @@ method post_order_traverse ($self: Code $func) returns Void {
     }
 }
 
-method traverse_iter($self: Str ?$traversal_order) returns Code {
+method traverse_iter($self: Str $traversal_order?) returns Code {
     return coro {
         $self.traverse(sub { yield $^node }, $traversal_order);
     };
@@ -373,13 +373,13 @@ Tree - A basic I<n>-ary tree
 
 =over 4
 
-=item B<new (?$node) returns Tree>
+=item B<new ($node?) returns Tree>
 
-=item B<node ($self: ?$node)>
+=item B<node ($self: $node?)>
 
 =item B<depth returns Int>
 
-=item B<parent ($self: Tree ?$parent) returns Tree>
+=item B<parent ($self: Tree $parent?) returns Tree>
 
 =item B<is_root returns Bool>
 

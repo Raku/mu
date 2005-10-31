@@ -3,7 +3,7 @@ class Test::Builder::Output-0.2.1;
 has $.output;
 has $.error_output;
 
-submethod BUILD ( ?$.output = $*OUT, ?$.error_output = $*ERR ) {}
+submethod BUILD ( $.output = $*OUT, $.error_output = $*ERR ) {}
 
 method write ( Str $message is copy )
 {

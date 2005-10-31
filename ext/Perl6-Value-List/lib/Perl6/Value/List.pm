@@ -57,13 +57,13 @@ class Perl6::Value::List {
     has Bool $.is_lazy;
 
     submethod BUILD ($class: 
-            Code ?$.cstart, 
-            Code ?$.cend, 
-            Code ?$.celems,
-            Code ?$.cis_infinite   = sub { &{$.celems}() == Inf },
-            Code ?$.cis_contiguous = sub { bool::false }, 
-            Code ?$.cstringify     = sub { &{$.cstart}() ~ '....' ~ &{$.cend}() }, 
-            Bool ?$.is_lazy        = bool::true,
+            Code $.cstart?,
+            Code $.cend?,
+            Code $.celems?,
+            Code $.cis_infinite   = sub { &{$.celems}() == Inf },
+            Code $.cis_contiguous = sub { bool::false }, 
+            Code $.cstringify     = sub { &{$.cstart}() ~ '....' ~ &{$.cend}() }, 
+            Bool $.is_lazy        = bool::true,
     )
     {
         unless defined $.celems {
@@ -99,7 +99,7 @@ class Perl6::Value::List {
         $self.from_single( @list ); 
     }
 
-    method from_range ( $class: $start is copy, $end is copy, ?$step ) {
+    method from_range ( $class: $start is copy, $end is copy, $step? ) {
         $class.new(
                     cstart =>  sub {
                                 my $r = $start;

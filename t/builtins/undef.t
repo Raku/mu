@@ -252,7 +252,7 @@ else {
 
 # subroutines
 {
-    sub bar ($bar, ?$baz, :$quux) {
+    sub bar ($bar, $baz?, :$quux) {
         is($bar, "BAR", "defined param"); # sanity
 
         # L<<S06/"Optional parameters" /Missing optional arguments/>>

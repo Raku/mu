@@ -38,7 +38,7 @@ sub run_widget($match_in, %variables) {
     return %WIDGETS{$widget}(%parameters, %variables);
 }
 
-sub fill_with($template: ?%variables) is export {
+sub fill_with($template: %variables?) is export {
     my $return = $template;
     $return ~~ s:g! <elem> | <block> !{ run_widget($/, %variables) }!;
     return $return;

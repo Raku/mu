@@ -114,15 +114,15 @@ method day_of_year () returns Int {
     @doy[$.month - 1] + $.day;
 }
 
-method ymd (Str ?$sep = "-") returns Str {
+method ymd (Str $sep = "-") returns Str {
     return [$.year, $.month, $.day].join($sep);
 }
 
-method mdy (Str ?$sep = "-") returns Str {
+method mdy (Str $sep = "-") returns Str {
     return [$.month, $.day, $.year].join($sep);
 }
 
-method dmy (Str ?$sep = "-") returns Str {
+method dmy (Str $sep = "-") returns Str {
     return [$.day, $.month, $.year].join($sep);
 }
 

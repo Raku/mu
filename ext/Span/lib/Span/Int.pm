@@ -6,9 +6,9 @@ has $.start;
 has $.end;
 has $.density;
 
-submethod BUILD ( $.start, $.end, ?$.density = 1 ) {}
+submethod BUILD ( $.start, $.end, $.density = 1 ) {}
 
-method empty_span ($class: ?$density = 1 ) {
+method empty_span ($class: $density = 1 ) {
     return $class.new( start => undef, end => undef, density => $density );
 }
 

@@ -105,12 +105,12 @@ for @subs -> $name, $arity, $type, $body {
   \}";
 
   # XXX! minor hack. See the end of Prelude::JS for explanation.
-  my $args  = $arity == 1  ?? '?$__a = $CALLER::_' !! '$__a, $__b';
-  my $c     = $type eq "S" ?? "~"                  !! "+";
-  my $args_ = $arity == 1  ?? "$c\$__a"            !! "$c\$__a, $c\$__b";
-  my $type  = $arity == 1  ?? "method"             !! "sub";
-  my $colon = $arity == 1  ?? ":"                  !! "";
-  my $trait = $arity == 1  ?? ""                   !! "is primitive";
+  my $args  = $arity == 1  ?? '$__a = $CALLER::_' !! '$__a, $__b';
+  my $c     = $type eq "S" ?? "~"                 !! "+";
+  my $args_ = $arity == 1  ?? "$c\$__a"           !! "$c\$__a, $c\$__b";
+  my $type  = $arity == 1  ?? "method"            !! "sub";
+  my $colon = $arity == 1  ?? ":"                 !! "";
+  my $trait = $arity == 1  ?? ""                  !! "is primitive";
   $eval ~= "
     $type $name ($args$colon) $trait \{
       JS::inline('($jsbody)').($args_);
@@ -152,7 +152,7 @@ sub prefix:<++>  ($a is rw)    is primitive { $a = $a + 1 }
 sub postfix:<++> ($a is rw)    is primitive { my $cur = $a; $a = $a + 1; $cur }
 sub prefix:<-->  ($a is rw)    is primitive { $a = $a - 1 }
 sub postfix:<--> ($a is rw)    is primitive { my $cur = $a; $a = $a - 1; $cur }
-sub JS::Root::rand (?$a = 1)   is primitive { $JS::Math.random() * $a }
+sub JS::Root::rand ($a = 1)    is primitive { $JS::Math.random() * $a }
 
 sub infix:<=>    ($a is rw, $b) is primitive is rw { $a = $b }
 

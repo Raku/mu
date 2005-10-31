@@ -68,7 +68,8 @@ is(assign_based_on_named_positional(5, $var => 2), 2,
    "When we explicitly specify, we get our value");
 
 # L<S06/"Named parameters" /a \+\+ prefix.*?required/>
-sub mandatory (+:$param) {
+# L<S06/"Required parameters" /declared with a trailing/>
+sub mandatory (:$param!) {
     return $param;
 }
 

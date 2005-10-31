@@ -53,7 +53,7 @@ my @lower is constant = map {ord} "abcdefghijklmnopqrstuvwxyz".split('');
 
 has byte %.table;
 
-submethod BUILD(int ?$shift = 13, ?$.all, ?$mode) {
+submethod BUILD(int $shift = 13, $.all?, $mode?) {
     if $.all {
         for 0..255 {
             %.table{$_} = ($_ + $shift) % 256;

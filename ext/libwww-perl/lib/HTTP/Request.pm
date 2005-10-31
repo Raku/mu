@@ -57,7 +57,7 @@ class HTTP::Request-0.1[?::URI_CLASS = URI] {
     
     our &url ::= &uri;
     
-    method as_string (Str ?$newline = "\n") {
+    method as_string (Str $newline = "\n") {
         my $req_line = $.method // "-";
         my $uri = (./uri().defined) ?? ./uri().as_string() !! "-";
         

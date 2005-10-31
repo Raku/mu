@@ -21,7 +21,7 @@ my %ords = (
   9 => 'ninth',
 );
 
-sub split_test(@splitted, @expected, Str $desc, ?$todo = 0) {
+sub split_test(@splitted, @expected, Str $desc, $todo = 0) {
   is +@splitted, +@expected,
      "split created the correct value amount for: $desc", :todo($todo);
   is @splitted[$_], @expected[$_],

@@ -106,7 +106,7 @@ is (foo3 1, n => 20, y => 300, 4000), 4001,
 
 #### ++ version
 {
-my sub foo(+:$n, *%h, *@a){ };
+my sub foo(:$n!, *%h, *@a){ };
 diag('Testing with named arguments (named param is required) (++ version)');
 lives_ok { foo 1, n => 20, y => 300, 4000 },
   'Testing: `my sub foo(+:$n, *%h, *@a){ }; foo 1, n => 20, y => 300, 4000 }`';

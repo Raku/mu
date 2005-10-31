@@ -153,7 +153,7 @@ class Foo6a {
   has $.baz;
   has $:hidden;
 
-  submethod BUILD ($:hidden, ?$.bar = 10, ?$.baz) {
+  submethod BUILD ($:hidden, $.bar = 10, $.baz?) {
     $.baz = 5;
   }
   method get_hidden() { $:hidden }
@@ -173,7 +173,7 @@ class Foo6b {
   has $.bar is rw;
   has $.baz;
 
-  submethod BUILD (?$.bar = 10, ?$.baz) {
+  submethod BUILD ($.bar = 10, $.baz?) {
     $.baz = 9;
     return;
   }
@@ -231,7 +231,7 @@ class Foo7 {
   has $.bar;
   has $.baz;
 
-  submethod BUILD (?$.bar = 5, ?$baz = 10 ) {
+  submethod BUILD ($.bar = 5, $baz = 10 ) {
     $.baz = 2 * $baz;
   }
 }

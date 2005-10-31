@@ -107,7 +107,7 @@ Basic submethod tests. See L<S12/"Submethods">
   {
     has $.double_value;
 
-    submethod BUILD ( ?$value = 1 )
+    submethod BUILD ( $value = 1 )
     {
       $.double_value = $value * 2;
     }

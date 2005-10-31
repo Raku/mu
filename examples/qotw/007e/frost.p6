@@ -19,7 +19,7 @@ sub cls returns Void {
 
 # create a volume of size M x N with vapor density D
 # and a single ice particle in the center
-sub create_volume (?$m is copy,?$n is copy,?$d is copy) {
+sub create_volume ($m? is copy,$n? is copy,$d? is copy) {
   $m //= 10; $n //= 20; $d //= 20;
   die "\$m must be even\n" if $m % 2;
   die "\$n must be even\n" if $n % 2;

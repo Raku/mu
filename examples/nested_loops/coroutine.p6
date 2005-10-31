@@ -8,7 +8,7 @@ use v6;
 
 my @loops = ([1..3], ['a'..'e'], ['foo', 'bar']);
 
-sub NestedLoop (+:@loop, :$only_when, :$code) {
+sub NestedLoop (:@loop!, :$only_when, :$code) {
     my &iter = NL2(loop => @loop);
 
     sub {
@@ -24,7 +24,7 @@ sub NestedLoop (+:@loop, :$only_when, :$code) {
     }
 }
 
-sub NL2 (+:@loop) {
+sub NL2 (:@loop!) {
     coro {
         given (@loop.elems) {
             when 0  { yield [] }

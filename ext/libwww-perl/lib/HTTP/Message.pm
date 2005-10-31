@@ -20,12 +20,12 @@ has $:protocol;
 
 has @:parts;
 
-multi submethod BUILD (HTTP::Headers $header, Str ?$content = "") {
+multi submethod BUILD (HTTP::Headers $header, Str $content = "") {
     $:headers = $header;
     $:content = $content;
 }
 
-multi submethod BUILD (%header, Str ?$content = "") {
+multi submethod BUILD (%header, Str $content = "") {
     $:headers = HTTP::Headers.new(*%header);
     $:content = $content;
 }
@@ -70,7 +70,7 @@ method clear ($self: ) returns Void {
     return;
 }
 
-method protocol (Str ?$protocol) is rw {
+method protocol (Str $protocol?) is rw {
     return Proxy.new(
         FETCH => { $:protocol; },
         STORE => -> Str $val { $:protocol = $val; }
@@ -78,7 +78,7 @@ method protocol (Str ?$protocol) is rw {
 }
 
 # XXX this might need to be rewritten
-method content ($self: Str ?$content, Bool ?$keep) is rw {
+method content ($self: Str $content?, Bool $keep?) is rw {
     return Proxy.new(
         FETCH => {
                 if (want.List) {
@@ -90,7 +90,7 @@ method content ($self: Str ?$content, Bool ?$keep) is rw {
                     return $old;
                 }
               },
-        STORE => -> Str $content, Bool ?$keep {
+        STORE => -> Str $content, Bool $keep? {
                 if (want ~~ List) {
                     $:content unless $:content.defined;
                     
@@ -108,7 +108,7 @@ method content ($self: Str ?$content, Bool ?$keep) is rw {
               });
 }
 
-method :set_content (Str $content, Bool ?$keep) returns Void {
+method :set_content (Str $content, Bool $keep?) returns Void {
     $:content = $content;
     @:parts = () unless $keep;
 }
@@ -119,7 +119,7 @@ method add_content (Str $content) {
     $:content ~= $content;
 }
 
-method content_ref (Ref ?$content) is rw {
+method content_ref (Ref $content?) is rw {
     $:content unless $:content.defined;
     
     @:parts = ();
@@ -149,7 +149,7 @@ method decoded_content ($self: ) {
     ...
 }
 
-method as_string ($self: Str ?$newline = "\n") returns Str {
+method as_string ($self: Str $newline = "\n") returns Str {
     my $content = $self.content;
     
     return [~] ($:headers.as_string($newline), $newline, ($content.chars && $content !~ /\n$/) ?? "\n" !! "");
