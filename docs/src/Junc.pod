@@ -48,11 +48,11 @@ Here is it's definition. Let's understand it:
 =head3 sameType and partition
 
 C<js> and C<vs> are defined by a call to C<partition>, which takes a
-list of elements and returns a list in which the first list is those
-elements which satisfied a predicate and the second list is those
-which failed. So, C<js> turns out to be all elements which are the
-same as the type we passed in and C<vs> are the ones which are not the
-same type. How does C<sameType> work? The call to sameType is using
+list of elements and returns a pair of lists in which the first list
+is those elements which satisfied a predicate and the second list is
+those which failed. So, C<js> turns out to be all elements which are
+the same as the type we passed in and C<vs> are the ones which are not
+the same type. How does C<sameType> work? The call to sameType is using
 pattern matching. C<VJunc>, if you look in F<AST.hs>, is part of some
 punnery being used in the C<Val> enumerated set type. VJunc is both a
 data constructor and it receives a parameter of type VJunc which is

@@ -160,7 +160,7 @@ Expanding this one level deeper:
     |   |                      compilation
     |   |-- Class-Events       Redesign of Perl 5's Class::Publisher
     |   |-- Date               Date/calendar calculations
-    |   |-- Grammars           Perl 6 grammer written as Perl 6 rules
+    |   |-- Grammars           Perl 6 grammar written as Perl 6 rules
     |   |-- JavaScript-FrontEnd  JavaScript Frontend
     |   |-- org.perl6.metamodel  Prototype Perl 6 metaclass model: Java
     |   |-- Perl-MetaModel     Prototype Perl 6 metaclass model: Perl 5,

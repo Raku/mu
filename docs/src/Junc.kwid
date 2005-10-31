@@ -48,9 +48,9 @@ Here is it's definition. Let's understand it:
 === sameType and partition
 
 `js` and `vs` are defined by a call to `partition`, which takes a
-list of elements and returns a list in which the first list is those
-elements which satisfied a predicate and the second list is those
-which failed. So, `js` turns out to be all elements which are the
+list of elements and returns a pair of lists in which the first list
+is those elements which satisfied a predicate and the second list is
+those which failed. So, `js` turns out to be all elements which are the
 same as the type we passed in and `vs` are the ones which are not the
 same type. How does `sameType` work? The call to sameType is using
 pattern matching. `VJunc`, if you look in {file: AST.hs}, is part of some
