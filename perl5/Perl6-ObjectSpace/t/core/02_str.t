@@ -33,6 +33,7 @@ cmp_ok($hello_world_num->to_native, '==', 0, '... got the right num');
 my $hello_world_bit = $hello_world->to_bit;
 isa_ok($hello_world_bit, 'bit');
 
+is($hello_world_bit, $bit::TRUE, '... got the right bit (the TRUE constant)');
 cmp_ok($hello_world_bit->to_native, '==', 1, '... got the right bit');
 
 is($hello_world->to_str, $hello_world, '... to_str returns itself');
@@ -52,6 +53,7 @@ cmp_ok($empty_string_num->to_native, '==', 0, '... got the right num');
 my $empty_string_bit = $empty_string->to_bit;
 isa_ok($empty_string_bit, 'bit');
 
+is($empty_string_bit, $bit::FALSE, '... got the right bit (the FALSE constant)');
 cmp_ok($empty_string_bit->to_native, '==', 0, '... got the right bit');
 
 is($empty_string->to_str, $empty_string, '... to_str returns itself');
@@ -81,13 +83,13 @@ is($hello_world_2_and_on->to_native, 'hello world21', '... got the right string 
 {
     my $value = str->new('a')->equal_to(str->new('a'));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 1, '... our comparison is true');
+    is($value, $bit::TRUE, '... our comparison is true');
 }
 
 {
     my $value = str->new('a')->equal_to(str->new('f'));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 0, '... our comparison is false');
+    is($value, $bit::FALSE, '... our comparison is false');
 }
 
 # not equal to
@@ -95,13 +97,13 @@ is($hello_world_2_and_on->to_native, 'hello world21', '... got the right string 
 {
     my $value = str->new('a')->not_equal_to(str->new('a'));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 0, '... our comparison is false');
+    is($value, $bit::FALSE, '... our comparison is false');
 }
 
 {
     my $value = str->new('a')->not_equal_to(str->new('g'));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 1, '... our comparison is true');
+    is($value, $bit::TRUE, '... our comparison is true');
 }
 
 # greater than
@@ -109,13 +111,13 @@ is($hello_world_2_and_on->to_native, 'hello world21', '... got the right string 
 {
     my $value = str->new('a')->greater_than(str->new('a'));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 0, '... our comparison is false');
+    is($value, $bit::FALSE, '... our comparison is false');
 }
 
 {
     my $value = str->new('m')->greater_than(str->new('a'));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 1, '... our comparison is true');
+    is($value, $bit::TRUE, '... our comparison is true');
 }
 
 # greater than or equal to
@@ -123,19 +125,19 @@ is($hello_world_2_and_on->to_native, 'hello world21', '... got the right string 
 {
     my $value = str->new('d')->greater_than_or_equal_to(str->new('b'));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 1, '... our comparison is true');
+    is($value, $bit::TRUE, '... our comparison is true');
 }
 
 {
     my $value = str->new('e')->greater_than_or_equal_to(str->new('e'));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 1, '... our comparison is true');
+    is($value, $bit::TRUE, '... our comparison is true');
 }
 
 {
     my $value = str->new('e')->greater_than_or_equal_to(str->new('x'));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 0, '... our comparison is false');
+    is($value, $bit::FALSE, '... our comparison is false');
 }
 
 # less than
@@ -143,19 +145,19 @@ is($hello_world_2_and_on->to_native, 'hello world21', '... got the right string 
 {
     my $value = str->new('e')->less_than(str->new('e'));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 0, '... our comparison is false');
+    is($value, $bit::FALSE, '... our comparison is false');
 }
 
 {
     my $value = str->new('e')->less_than(str->new('b'));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 0, '... our comparison is false');
+    is($value, $bit::FALSE, '... our comparison is false');
 }
 
 {
     my $value = str->new('e')->less_than(str->new('z'));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 1, '... our comparison is true');
+    is($value, $bit::TRUE, '... our comparison is true');
 }
 
 # less than or equal to
@@ -163,18 +165,18 @@ is($hello_world_2_and_on->to_native, 'hello world21', '... got the right string 
 {
     my $value = str->new('e')->less_than_or_equal_to(str->new('k'));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 1, '... our comparison is true');
+    is($value, $bit::TRUE, '... our comparison is true');
 }
 
 {
     my $value = str->new('e')->less_than_or_equal_to(str->new('e'));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 1, '... our comparison is true');
+    is($value, $bit::TRUE, '... our comparison is true');
 }
 
 {
     my $value = str->new('e')->less_than_or_equal_to(str->new('a'));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 0, '... our comparison is false');
+    is($value, $bit::FALSE, '... our comparison is false');
 }
 

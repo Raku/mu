@@ -5,6 +5,7 @@ use Perl6::Core::Type;
 use Perl6::Core::Num;
 use Perl6::Core::Str;
 use Perl6::Core::Bit;
+use Perl6::Core::Nil;
 use Perl6::Core::List;
 
 package hash;
@@ -61,7 +62,7 @@ sub remove {
     my ($self, $key) = @_;
     (blessed($key) && $key->isa('str'))
         || confess "Key must be a str type";
-    $self->{$key->to_native} = undef;
+    $self->{$key->to_native} = nil->new();
 }
 
 sub keys { 

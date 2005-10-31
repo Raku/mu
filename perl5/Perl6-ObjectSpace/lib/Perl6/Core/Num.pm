@@ -88,4 +88,33 @@ __END__
 
 num - the core num type
 
+
+=head1 METHODS
+
+=over 4
+
+=item B<new (*native*) returns num>
+
+=item B<to_native () returns *native*>
+
+=item B<to_bit () returns bit>
+
+=item B<to_num () returns num>
+
+=item B<to_str () returns str>
+
+=item B<add (x as num) returns num>
+
+=item B<subtract (x as num) returns num>
+
+=item B<mulitply (x as num) returns num>
+
+=item B<divide (x as num) returns num>
+
+=item B<increment () returns num>
+
+=item B<decrement () returns num>
+
+=back
+
 =cut

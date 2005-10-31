@@ -15,12 +15,17 @@ use Scalar::Util 'looks_like_number';
 
 use base 'type';
 
+our $TRUE  = bless \(my $t = 1) => __PACKAGE__;
+our $FALSE = bless \(my $f = 0) => __PACKAGE__;
+
 sub new {
-    my ($class, $value) = @_;
-    $value = 0 unless defined $value; # default to false
-    (looks_like_number($value) && ($value == 1 || $value == 0))
-        || confess "Bad bit value ($value)";
-    bless \$value => $class;
+    my (undef, $value) = @_;
+    (defined $value            && 
+     looks_like_number($value) && 
+     ($value == 1 || $value == 0))
+        || confess "Bad bit value ($value)";    
+    return $TRUE if $value;
+    return $FALSE;
 }
 
 # conversion to native value
@@ -30,7 +35,7 @@ sub to_native { ${$_[0]} }
 sub to_bit { shift }
 
 # conversion to other native types
-sub to_str { (shift)->to_native ? str->new('1') : str->new('0')  }
+sub to_str { (shift)->to_native ? str->new('1') : str->new('')  }
 sub to_num { (shift)->to_native == 0 ? num->new(0) : num->new(1) }
 
 1;
@@ -42,5 +47,21 @@ __END__
 =head1 NAME
 
 bit - the core bit type
+
+=head1 METHODS
+
+=over 4
+
+=item B<new (*native*) returns bit>
+
+=item B<to_native () returns *native*>
+
+=item B<to_bit () returns bit>
+
+=item B<to_num () returns num>
+
+=item B<to_str () returns str>
+
+=back
 
 =cut

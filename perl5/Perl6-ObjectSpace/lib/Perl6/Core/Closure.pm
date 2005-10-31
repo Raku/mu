@@ -3,6 +3,7 @@ package Perl6::Core::Closure;
 
 use Perl6::Core::Type;
 use Perl6::Core::Num;
+use Perl6::Core::Ref;
 
 package closure;
 
@@ -82,13 +83,30 @@ sub new {
     } => $class;
 }
 
+sub create {
+    my ($self, $name, $value) = @_;
+    (defined $name) 
+        || confess "You must supply a name to set";
+    (blessed($value) && $value->isa('type'))
+        || confess "You must set '$name' to a native type";
+    $self->{env}->{$name} = reference->new($value);      
+}
+
 sub set {
     my ($self, $name, $value) = @_;
     (defined $name) 
         || confess "You must supply a name to set";
     (blessed($value) && $value->isa('type'))
         || confess "You must set '$name' to a native type";
-    $self->{env}->{$name} = $value;  
+    my $current = $self;
+    while ($current) {
+        if (exists $current->{env}->{$name}) {
+            $current->{env}->{$name}->store($value);
+            return;
+        }
+        $current = $current->next;
+    }
+    $self->create($name, $value);
 }
 
 sub get {
@@ -97,7 +115,7 @@ sub get {
         || confess "You must supply a name to get";    
     my $current = $self;
     while ($current) {
-        return $current->{env}->{$name} 
+        return $current->{env}->{$name}->fetch
             if exists $current->{env}->{$name};  
         $current = $current->next;
     }

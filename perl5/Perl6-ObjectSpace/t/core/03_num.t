@@ -101,13 +101,13 @@ cmp_ok($five->to_native, '==', 5, '... got the right native value');
 {
     my $value = num->new(5)->equal_to(num->new(5));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 1, '... our comparison is true');
+    is($value, $bit::TRUE, '... our comparison is true');
 }
 
 {
     my $value = num->new(5)->equal_to(num->new(6));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 0, '... our comparison is false');
+    is($value, $bit::FALSE, '... our comparison is false');
 }
 
 # not equal to
@@ -115,13 +115,13 @@ cmp_ok($five->to_native, '==', 5, '... got the right native value');
 {
     my $value = num->new(5)->not_equal_to(num->new(5));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 0, '... our comparison is false');
+    is($value, $bit::FALSE, '... our comparison is false');
 }
 
 {
     my $value = num->new(5)->not_equal_to(num->new(10));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 1, '... our comparison is true');
+    is($value, $bit::TRUE, '... our comparison is true');
 }
 
 # greater than
@@ -129,13 +129,13 @@ cmp_ok($five->to_native, '==', 5, '... got the right native value');
 {
     my $value = num->new(5)->greater_than(num->new(5));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 0, '... our comparison is false');
+    is($value, $bit::FALSE, '... our comparison is false');
 }
 
 {
     my $value = num->new(5)->greater_than(num->new(2));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 1, '... our comparison is true');
+    is($value, $bit::TRUE, '... our comparison is true');
 }
 
 # greater than or equal to
@@ -143,19 +143,19 @@ cmp_ok($five->to_native, '==', 5, '... got the right native value');
 {
     my $value = num->new(5)->greater_than_or_equal_to(num->new(2));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 1, '... our comparison is true');
+    is($value, $bit::TRUE, '... our comparison is true');
 }
 
 {
     my $value = num->new(5)->greater_than_or_equal_to(num->new(5));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 1, '... our comparison is true');
+    is($value, $bit::TRUE, '... our comparison is true');
 }
 
 {
     my $value = num->new(5)->greater_than_or_equal_to(num->new(100));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 0, '... our comparison is false');
+    is($value, $bit::FALSE, '... our comparison is false');
 }
 
 # less than
@@ -163,19 +163,19 @@ cmp_ok($five->to_native, '==', 5, '... got the right native value');
 {
     my $value = num->new(5)->less_than(num->new(5));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 0, '... our comparison is false');
+    is($value, $bit::FALSE, '... our comparison is false');
 }
 
 {
     my $value = num->new(5)->less_than(num->new(2));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 0, '... our comparison is false');
+    is($value, $bit::FALSE, '... our comparison is false');
 }
 
 {
     my $value = num->new(5)->less_than(num->new(50));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 1, '... our comparison is true');
+    is($value, $bit::TRUE, '... our comparison is true');
 }
 
 # less than or equal to
@@ -183,19 +183,19 @@ cmp_ok($five->to_native, '==', 5, '... got the right native value');
 {
     my $value = num->new(5)->less_than_or_equal_to(num->new(10));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 1, '... our comparison is true');
+    is($value, $bit::TRUE, '... our comparison is true');
 }
 
 {
     my $value = num->new(5)->less_than_or_equal_to(num->new(5));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 1, '... our comparison is true');
+    is($value, $bit::TRUE, '... our comparison is true');
 }
 
 {
     my $value = num->new(5)->less_than_or_equal_to(num->new(1));
     isa_ok($value, 'bit');
-    cmp_ok($value->to_native, '==', 0, '... our comparison is false');
+    is($value, $bit::FALSE, '... our comparison is false');
 }
 
 # TODO: do some tests with the autoconversion stuff ...

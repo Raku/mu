@@ -61,4 +61,22 @@ __END__
 
 str - the core str type
 
+=head1 METHODS
+
+=over 4
+
+=item B<new (*native*) returns str>
+
+=item B<to_native () returns *native*>
+
+=item B<to_bit () returns bit>
+
+=item B<to_num () returns num>
+
+=item B<to_str () returns str>
+
+=item B<concat (str) returns str>
+
+=back
+
 =cut

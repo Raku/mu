@@ -1,0 +1,36 @@
+
+Perl6::MetaModel::Instance
+
+instance::new
+    args
+        reference -> instance
+        hash (sym => <type>)
+    returns
+        instance
+
+instance::id
+    returns
+        num
+        
+instance::class
+    returns
+        instance
+        
+instance::change_class
+    args
+        instance
+    returns 
+        nil
+        
+instance::get_attr
+    args
+        sym
+    returns 
+        <type>
+        
+instance::set_attr
+    args
+        sym
+        <type>        
+    returns 
+        nil        

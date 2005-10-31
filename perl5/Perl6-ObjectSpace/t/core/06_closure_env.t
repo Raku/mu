@@ -23,10 +23,10 @@ my $bar = 11;
 
 =cut
 
-$env->set('foo' => num->new(10));
+$env->create('foo' => num->new(10));
 is($env->get('foo')->to_native, 10, '... foo is 10');
 
-$env->set('bar' => num->new(11));
+$env->create('bar' => num->new(11));
 is($env->get('bar')->to_native, 11, '... bar is 11');
 
 my $env2 = closure::env->new();
@@ -36,7 +36,7 @@ $env2->next($env);
     is($env2->get('foo')->to_native, 10, '... foo is still 10');
     is($env2->get('bar')->to_native, 11, '... bar is still 11');
 
-    $env2->set('foo' => num->new(20));
+    $env2->create('foo' => num->new(20));
 
     is($env2->get('foo')->to_native, 20, '... foo is now 20');
     is($env2->get('bar')->to_native, 11, '... bar is still 11');    
@@ -48,7 +48,7 @@ $env2->next($env);
         is($env3->get('foo')->to_native, 20, '... foo is still 20');
         is($env3->get('bar')->to_native, 11, '... bar is still 11');    
 
-        $env3->set('bar' => num->new(30));    
+        $env3->create('bar' => num->new(30));    
 
         is($env3->get('foo')->to_native, 20, '... foo is still 20');
         is($env3->get('bar')->to_native, 30, '... bar is now 30');        

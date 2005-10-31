@@ -55,6 +55,7 @@ sub store {
     (blessed($value) && $value->isa('type'))
         || confess "Index must be a native type";            
     $self->[$index->to_native] = $value;
+    return nil->new();
 }
 
 sub remove {
@@ -63,6 +64,7 @@ sub remove {
         || confess "Index must be a num type";
     # replace the value with a nil type
     $self->[$index->to_native] = nil->new();
+    return nil->new();
 }
 
 sub slice {
@@ -70,7 +72,7 @@ sub slice {
     ((blessed($start_index) && $start_index->isa('num')) &&
      (blessed($end_index) && $end_index->isa('num')))    
         || confess "Indecies must be a num type";
-    list->new(
+    return list->new(
         # make sure to create any nils we need
         map { defined $_ ? $_ : nil->new() }
         @{$self}[$start_index->to_native .. $end_index->to_native]
@@ -79,17 +81,19 @@ sub slice {
 
 sub length {
     my $self = shift;
-    num->new(scalar(@{$self}));
+    return num->new(scalar(@{$self}));
 }
 
 sub elems {
     my $self = shift;
-    num->new($#{$self});
+    return num->new($#{$self});
 }
 
 sub join {
     my ($self, $delimiter) = @_;
-    str->new(
+    (blessed($delimiter) && $delimiter->isa('str'))
+        || confess "delimiter must be a string type";    
+    return str->new(
         join $delimiter->to_native => 
         map { $_->to_str->to_native } 
         $self->slice(num->new(0), $self->elems)->to_native
@@ -105,5 +109,35 @@ __END__
 =head1 NAME
 
 list - the core list type
+
+=head1 METHODS
+
+=over 4
+
+=item B<new (@x of ~type) returns list>
+
+=item B<to_native () returns *native*>
+
+=item B<to_bit () returns bit>
+
+=item B<to_num () returns num>
+
+=item B<to_str () returns str>
+
+=item B<fetch (num) returns ~type>
+
+=item B<store (num, ~type) returns nil>
+
+=item B<remove (num) returns nil>
+
+=item B<slice (num, num) returns list>
+
+=item B<length () returns num>
+
+=item B<elem () returns num>
+
+=item B<join (?str) returns str>
+
+=back
 
 =cut
