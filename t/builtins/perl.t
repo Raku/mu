@@ -51,6 +51,7 @@ unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
 }
 
 
+# L<S02/"Names and Variables" /to get a Perlish representation/>
 # Quoting S02 (emphasis added):
 #   To get a Perlish representation of any data value, use the .perl method.
 #   This will put quotes around strings, square brackets around list values,
