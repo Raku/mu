@@ -4,6 +4,7 @@ use v6;
 use Test;
 
 plan 3;
+# L<E07/"And every one shall share..." /returns them as a single string/>
 
 if $*OS eq "browser" {
   skip_rest "Programs running in browsers don't have access to regular IO.";

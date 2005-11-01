@@ -6,7 +6,7 @@ use Test;
 =kwid
 
 String transliteration
-
+L<S05/Transliteration>
 =cut
 
 

@@ -6,7 +6,7 @@ use Test;
 =kwid
 
 String appending with ~ operator
-
+L<S03/"Operator renaming" /becomes c\<~\>/>
 =cut
 
 plan 4;
