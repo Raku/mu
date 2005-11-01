@@ -89,6 +89,11 @@ sub elems {
     return num->new($#{$self});
 }
 
+sub is_empty {
+    my $self = shift;
+    @{$self} ? bit->new(0) : bit->new(1);
+}
+
 sub join {
     my ($self, $delimiter) = @_;
     (blessed($delimiter) && $delimiter->isa('str'))

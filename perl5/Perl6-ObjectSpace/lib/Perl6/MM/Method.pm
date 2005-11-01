@@ -23,7 +23,7 @@ sub do {
     my ($self, $args) = @_;
     (blessed($args) && $args->isa('list'))
         || confess "You must have an arg list";
-    ($args->length->greater_than_or_equal_to(num->new(1)) == $bit::TRUE)
+    ($args->is_empty == $bit::FALSE)
         || confess "Your arg list must at least include the invocant";
     my $inv = $args->fetch(num->new(0));
     (blessed($inv) && $inv->isa('opaque'))

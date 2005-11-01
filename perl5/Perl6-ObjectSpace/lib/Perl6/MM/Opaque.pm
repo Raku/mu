@@ -71,11 +71,15 @@ sub change_class {
 
 sub get_attr {
     my ($self, $name) = @_;
+    (blessed($name) && $name->isa('symbol'))
+        || confess "Attribute names must be symbols";
     return $self->[2]->fetch($name);
 }
 
 sub set_attr {
     my ($self, $name, $value) = @_;
+    (blessed($name) && $name->isa('symbol'))
+        || confess "Attribute names must be symbols";    
     return $self->[2]->store($name, $value);
 }
 
