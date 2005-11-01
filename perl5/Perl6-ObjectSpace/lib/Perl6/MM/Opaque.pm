@@ -6,6 +6,8 @@ use Perl6::Core::Hash;
 use Perl6::Core::Str;
 use Perl6::Core::Ref;
 
+use Perl6::MM::Attribute;
+
 package opaque;
 
 use strict;

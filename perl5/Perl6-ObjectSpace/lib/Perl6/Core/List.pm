@@ -105,10 +105,24 @@ sub join {
 sub head { @{$_[0]}[0] }
 sub tail { @{$_[0]}[1 .. $#{$_[0]}] }
 
-sub shift   : method { shift   @{(shift)}       }
-sub pop     : method { pop     @{(shift)}       }
-sub unshift : method { unshift @{(shift)} => @_ }
-sub push    : method { push    @{(shift)} => @_ }
+sub shift   : method { shift @{(shift)} }
+sub pop     : method { pop   @{(shift)} }
+
+sub unshift : method { 
+    my $self = shift;
+    (blessed($_) && $_->isa('type'))
+        || confess "you can only add types to a list"
+            foreach @_;
+    unshift @{$self} => @_; 
+}
+
+sub push : method { 
+    my $self = shift;
+    (blessed($_) && $_->isa('type'))
+        || confess "you can only add types to a list"
+            foreach @_;
+    push @{$self} => @_; 
+}
 
 1;
 

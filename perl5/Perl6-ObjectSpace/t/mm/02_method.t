@@ -19,7 +19,7 @@ isa_ok($o, 'opaque');
 my $e = closure::env->new();
 
 {
-    my $m = method->new($e, list->new(), sub { 
+    my $m = method->new($e, closure::params->new(), sub { 
         my $e = shift;
         return $e->get('$?SELF');
     });
@@ -31,7 +31,7 @@ my $e = closure::env->new();
 }
 
 {
-    my $m = method->new($e, list->new(), sub { 
+    my $m = method->new($e, closure::params->new(), sub { 
         my $e = shift;
         return $e->get('$?CLASS');
     });
@@ -43,7 +43,7 @@ my $e = closure::env->new();
 }
 
 {
-    my $m = method->new($e, list->new(), sub { 
+    my $m = method->new($e, closure::params->new(), sub { 
         my $e = shift;
         return $e->get('$?PACKAGE');
     });

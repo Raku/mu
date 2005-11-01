@@ -4,6 +4,8 @@ package Perl6::Core::Closure;
 use Perl6::Core::Type;
 use Perl6::Core::Num;
 use Perl6::Core::Ref;
+use Perl6::Core::Symbol;
+use Perl6::Core::List;
 
 package closure;
 
@@ -23,8 +25,8 @@ sub new {
     # of variables, and whose values are the 
     # expected types of those objects (or possibly
     # the default values too)
-    (blessed($params) && $params->isa('list'))
-        || confess "params must be an list type";
+    (blessed($params) && $params->isa('closure::params'))
+        || confess "params must be an closure::params type";
     (ref($body) eq 'CODE')
         || confess "body must be a code ref";
     my $local_env = closure::env->new();
@@ -60,11 +62,55 @@ sub _bind_params {
     # loop through the param keys
     for my $i (0 .. $self->{params}->elems->to_native) {
         my $value; 
-        $self->{env}->set(
-            $self->{params}->fetch(num->new($i))->to_native,
-            $args->fetch(num->new($i))
-            );
+        my $param      = $self->{params}->fetch(num->new($i));
+        my $param_type = $param->type->to_native;
+        my $arg        = $args->fetch(num->new($i));
+        (blessed($arg) && $arg->isa($param_type))
+            || confess "got the wrong type"
+                if $param_type ne '';
+        $self->{env}->set($param->to_str->to_native, $arg);
     }
+}
+
+package closure::params;
+
+use strict;
+use warnings;
+
+use Carp 'confess';
+use Scalar::Util 'blessed';
+
+use base 'list';
+
+sub new {
+    my ($class, @values) = @_;
+    (blessed($_) && $_->isa('symbol'))
+        || confess "You must store a symbol type in a param list"
+            foreach @values;
+    $class->SUPER::new(@values);
+}
+
+sub store {
+    my ($self, $index, $value) = @_;
+    (blessed($value) && $value->isa('symbol'))
+        || confess "You must store a symbol type in a param list";
+    $self->SUPER::store($index, $value);
+}
+
+sub unshift : method { 
+    my $self = shift;
+    (blessed($_) && $_->isa('symbol'))
+        || confess "you can only add symbol types to a param list"
+            foreach @_;
+    $self->SUPER::unshift(@_);
+}
+
+sub push : method { 
+    my $self = shift;
+    (blessed($_) && $_->isa('symbol'))
+        || confess "you can only add symbol types to a param list"
+            foreach @_;
+    $self->SUPER::push(@_);
 }
 
 package closure::env;

@@ -27,13 +27,13 @@ $::Object  = undef;
 $::Module  = undef;
 $::Package = undef;
 
-# for sending messages to an object 
+# for sending messages to an opaque object 
 # (very primitive at the moment)
-sub ::send {
+sub opaque::send {
     my ($inv, $label, @args) = @_;
-    unless (blessed($label) && $label->isa('str')) {
-        $label = str->new($label);
-    }
+    
+    $label = str->new($label) 
+        unless (blessed($label) && $label->isa('str'));
     
     my $args;
     if (blessed($args[0]) && $args[0]->isa('list')) {
@@ -43,11 +43,24 @@ sub ::send {
     else {
         $args = list->new($inv, @args);
     }
+    
+    # gather all the classes to look through
+    my @classes = ($inv);
+    # we take the MRO first, however at some early
+    # stages of the bootstrap, this is not yet 
+    # populated with anything, so ....
+    my @supers = $inv->get_attr(str->new('@:MRO'))->to_native;
+    # if nothing is in MRO, we take the superclasses
+    # because we know that is there ...
+    @supers = $inv->get_attr(str->new('@:superclasses'))->to_native 
+        if scalar @supers == 0;    
         
-    my $methods = $inv->get_attr(str->new('%:methods'));
-    ($methods->exists($label))
-        || confess "Method cannot be found";
-    return $methods->fetch($label)->do($args);
+    foreach my $class (@classes) {
+        my $methods = $inv->get_attr(str->new('%:methods'));
+        return $methods->fetch($label)->do($args) 
+            if $methods->exists($label);             
+    }
+    confess "Method ($label) not found in \$::Class";             
 }
 
 $::ENV = Perl6::Runtime::get_top_level_env();
@@ -96,16 +109,16 @@ method add_method ($self: str $label, method $method) returns nil {
     # add the first method
     my $_add_method = method->new(
             $::ENV,
-            list->new(str->new('$self:'), str->new('$label'), str->new('$method')),
+            closure::params->new(
+                symbol->new('$self:' => 'opaque'), 
+                symbol->new('$label' => 'str'), 
+                symbol->new('$method' => 'method')
+            ),
             sub {
                 my $e      = shift;
                 my $self   = $e->get('$self:');
                 my $label  = $e->get('$label');
                 my $method = $e->get('$method');
-                ($label->isa('str'))
-                    || confess "A label must be a str type";                        
-                ($method->isa('method'))
-                    || confess "A method must be a method type";
                 $self->get_attr(str->new('%:methods'))->store($label, $method);
             }
         );
@@ -122,21 +135,92 @@ method has_method ($self: str $label) returns bit {
 
 =cut
 
-::send($::Class, 'add_method' => (
+$::Class->send('add_method' => (
     # method label
         str->new('has_method'), 
     # method body
         method->new(
             $::ENV,
-            list->new(str->new('$self:'), str->new('$label')),
+            closure::params->new(
+                symbol->new('$self:' => 'opaque'), 
+                symbol->new('$label' => 'str')
+            ),
             sub {
                 my $e      = shift;
                 my $self   = $e->get('$self:');
                 my $label  = $e->get('$label');  
-                ($label->isa('str'))
-                    || confess "A label must be a str type";
                 $self->get_attr(str->new('%:methods'))->exists($label);                                                  
             }
         )
     )
 );
+
+=pod
+
+method new ($class: hash %params) returns opaque {
+    $class.bless(undef, %params);
+}
+
+=cut
+
+$::Class->send('add_method' => (
+    # method label
+        str->new('new'),
+    # method body
+        method->new(
+            $::ENV,
+            closure::params->new(
+                symbol->new('$class:' => 'opaque'), 
+                symbol->new('%params' => 'hash')
+            ),
+            sub {
+                my $e      = shift;
+                my $class  = $e->get('$class:');
+                my $params = $e->get('%params');
+                return $class->send('bless' => (nil->new(), $params));    
+            }
+        )
+    )
+);
+
+=pod
+
+method bless ($class: str $canidate, hash %params) returns opaque {
+    $canidate //= 'P6opaque';
+    my $self = $class.CREATE(repr => $canidate, %params);
+    $self.BUILDALL($params);
+    return $self;
+}
+
+=cut
+
+$::Class->send('add_method' => (
+    # method label
+        str->new('bless'),
+    # method body
+        method->new(
+            $::ENV,
+            closure::params->new(
+                symbol->new('$class:' => 'opaque'), 
+                symbol->new('$canidate' => 'str'), 
+                symbol->new('%params' => 'hash')
+            ),
+            sub {
+                my $e        = shift;
+                my $class    = $e->get('$class:');
+                my $canidate = $e->get('$canidate');                
+                my $params   = $e->get('%params');
+
+                # p6opaque is our default
+                $canidate = str->new('P6opaque') if $canidate == $nil::NIL; 
+                $params->store(str->new('repr') => $canidate);
+                
+                # create and init the object
+                my $self = $class->send('CREATE' => $params);
+                $self->send('BUILDALL' => ($params));
+                return $self;                  
+            }
+        )
+    )
+);
+

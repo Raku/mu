@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Test::More no_plan => 1;
+use Test::Exception;
 
 use_ok('Perl6::Core::Closure');
 use_ok('Perl6::Core::Hash');
@@ -26,7 +27,7 @@ sub dynamic_accessor ($num = 50) {
 
 {
 
-    my $closure = closure->new($top_level_env, list->new(str->new('$num')), sub { 
+    my $closure = closure->new($top_level_env, closure::params->new(symbol->new('$num')), sub { 
         my $e = shift;
         return list->new($e->get('$num'), $e->get('$foo'));
     });
@@ -54,6 +55,7 @@ sub dynamic_accessor ($num = 50) {
         cmp_ok($results->fetch(num->new(1))->to_native, '==', 35, '... got one of the expected values');
     }
 
+
 }
 
 =pod
@@ -69,10 +71,10 @@ sub create_counter {
 
 {
 
-    my $closure = closure->new($top_level_env, list->new(), sub { 
+    my $closure = closure->new($top_level_env, closure::params->new(), sub { 
         my $e = shift;
         $e->create('$counter' => num->new(0));
-        return closure->new($e, list->new(), sub {
+        return closure->new($e, closure::params->new(), sub {
             my $e = shift;
             $e->set('$counter' => $e->get('$counter')->increment);
             $e->get('$counter');
@@ -104,7 +106,62 @@ sub create_counter {
     
 }
 
+# type checking the params
 
+{
+
+    my $closure = closure->new(
+        $top_level_env, 
+        closure::params->new(symbol->new('$num' => 'num')), 
+        sub { 
+            my $e = shift;
+            return $e->get('$num')
+        }
+    );
+
+    my $val;
+    lives_ok {
+        $val = $closure->do(list->new(num->new(100)));
+    } '... we passed a correctly typed value';
+    isa_ok($val, 'num');
+    is($val->to_native, 100, '... our value is 100');
+
+    dies_ok {
+        $closure->do(list->new(str->new('FAIL')));
+    } '... we passed the wrong type value';
+    
+    dies_ok {
+        $closure->do(list->new());
+    } '... we passed the no value';    
+
+}
+
+# using 'type' to allow anything 
+
+{
+
+    my $closure = closure->new(
+        $top_level_env, 
+        closure::params->new(symbol->new('$num' => 'type')), 
+        sub { 
+            my $e = shift;
+            return $e->get('$num')
+        }
+    );
+
+    lives_ok {
+        $closure->do(list->new(num->new(100)));
+    } '... we passed a any typed value';
+    
+    lives_ok {
+        $closure->do(list->new(str->new('hello world')));
+    } '... we passed a any typed value';    
+    
+    lives_ok {
+        $closure->do(list->new());
+    } '... we passed a any typed value';    
+
+}
 
 
 

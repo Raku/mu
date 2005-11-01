@@ -1,7 +1,7 @@
 
 package Perl6::MM::Attribute;
 
-use Perl6::Core::Str;
+use Perl6::Core::Symbol;
 
 package attribute;
 
@@ -11,13 +11,13 @@ use warnings;
 use Carp 'confess';
 use Scalar::Util 'blessed';
 
-use base 'str';
+use base 'symbol';
 
 sub new {
-    my ($class, $name) = @_;
+    my ($class, $name, $type) = @_;
     (defined $name && $name =~ /^[\$\@\%\&][\.\:][a-zA-Z0-9_]+$/)
         || confess "bad attribute name ($name)";
-    $class->SUPER::new($name);
+    $class->SUPER::new($name, $type);
 }
 
 1;

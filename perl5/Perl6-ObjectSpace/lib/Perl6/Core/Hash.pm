@@ -24,10 +24,10 @@ sub new {
         || confess "not enough elements to construct a hash (must be an even number)";
     my %values;
     while (my ($key, $value) = splice(@values, 0, 2)) {
-        ((blessed($key)   && $key->isa('str')) && 
+        ((blessed($key)   && $key->isa('type')) && 
          (blessed($value) && $value->isa('type')))
             || confess "Keys must be strings, and values must be native types";
-        $values{$key->to_native()} = $value;
+        $values{$key->to_str->to_native()} = $value;
     }
     bless \%values => $class;
 }
@@ -44,25 +44,25 @@ sub to_bit { (shift)->keys->length->to_bit     }
 
 sub fetch {
     my ($self, $key) = @_;
-    (blessed($key) && $key->isa('str'))
+    (blessed($key) && $key->isa('type'))
         || confess "Key must be a str type";
-    return $self->{$key->to_native};
+    return $self->{$key->to_str->to_native};
 }
 
 sub store {
     my ($self, $key, $value) = @_;
-    (blessed($key) && $key->isa('str'))
+    (blessed($key) && $key->isa('type'))
         || confess "Key must be a str type";
     (blessed($value) && $value->isa('type'))
         || confess "Index must be a native type";            
-    $self->{$key->to_native} = $value;
+    $self->{$key->to_str->to_native} = $value;
 }
 
 sub remove {
     my ($self, $key) = @_;
-    (blessed($key) && $key->isa('str'))
+    (blessed($key) && $key->isa('type'))
         || confess "Key must be a str type";
-    $self->{$key->to_native} = nil->new();
+    $self->{$key->to_str->to_native} = nil->new();
 }
 
 sub keys { 
@@ -79,9 +79,9 @@ sub length { (shift)->keys->length }
 
 sub exists {
     my ($self, $key) = @_;
-    (blessed($key) && $key->isa('str'))
+    (blessed($key) && $key->isa('type'))
         || confess "Key must be a str type";
-    bit->new(exists $self->{$key->to_native} ? 1 : 0);    
+    bit->new(exists $self->{$key->to_str->to_native} ? 1 : 0);    
 }
 
 1;
