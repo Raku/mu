@@ -1,0 +1,138 @@
+Declaring subroutines
+
+    Basic subroutine declaration
+
+        Positional parameters
+
+            sub foo ($bar, @baz, %grtz) {...}
+            # Global (our()) subroutine &foo, taking a scalar, an array,
+            # and a hash.
+            foo(42,        @array,        %hash);          # works
+            foo(bar => 42, baz => @array, grtz => %hash);  # works as well
+            foo(:bar(42),  :baz(@array),  :grtz(%hash));   # ditto
+            # Mixing named and positional arguments is allowed, too:
+            foo(42, :baz(@array), :grtz(%hash));           # works
+
+            Positional parameters are required by default.
+
+        Named parameters
+
+            sub foo (:$named_only) {...}
+            foo 42;                # illegal
+            foo named_only => 42;  # ok
+            foo :named_only(42);   # ok
+
+            Named parameters are optional be default.
+
+        Optional parameters
+
+            sub foo ($bar?) {...}
+            sub foo ($bar is optional) {...}
+            foo();    # ok
+            foo(42);  # ok
+
+            sub foo (:$bar?) {...}  # allowed, but could be written as
+            sub foo (:$bar)  {...}  # as named parameters are optional by
+                                    # default.
+
+            You can specify defaults:
+
+            sub foo ($bar = 42) {...}
+            foo();          # $bar is 42
+            foo(17);        # $bar is 17
+
+            sub foo (:$bar = 42) {...}
+            foo();          # $bar is 42
+            foo(:bar(17));  # $bar is 17
+
+            Defaults are calculated at runtime and can even refer to preceding
+            parameters:
+
+            sub foo ($bar, $baz = grmbl($bar)) {...}
+
+        Required parameters
+
+            sub foo (:$bar!) {...}             # Required named parameter $bar
+            sub foo (:$bar is required) {...}  # same
+
+            sub foo ($bar!) {...}   # allowed, but could be written as
+            sub foo ($bar)  {...}   # as positional parameters are required
+                                    # by default.
+
+        
+        Slurpy parameters
+
+            Slurpy arrays slurp all remaining positional arguments:
+
+            sub foo ($a, $b, *@rest) {...}
+            foo 1,2,3,4,5;  # $a is 1, $b is 2, @rest is (3,4,5)
+            foo 1,2;        # $a is 1, $b is 2, @rest is ()
+
+            Slurpy hashes slurp all remaining named arguments:
+
+            sub foo ($a, $b, *%rest) {...}
+            foo 1,2,3,4,5;  # error: "Too many positional arguments"
+            foo 1,2, :foo<bar>;  # $a is 1, $b is 2, %rest is (foo => "bar")
+
+        [XXX: Unpacking arrays and hashes, pattern matching, specifying
+        parameter types]
+
+    Specifying the scope of a declaration
+
+        sub foo {...}
+        # our() subroutine, may be called before the declaration:
+        foo(...); sub foo {...}  # legal
+        # (Note that this is sugar for
+        #   BEGIN { our &foo := sub (...) {...} })
+        
+        my sub foo {...}
+        # Lexical (my()) subroutine, may not be called before the declaration.
+        # Only visible in the scope in which it was declared:
+        { my sub foo {...}; foo(...) }  # legal
+        { foo()                      }  # illegal
+                                        # ("Can't find subroutine &foo")
+
+        our sub foo {...}
+        # our() subroutine, may not be called before the declaration.
+
+        sub *foo {...}
+        # Really global subroutine, visible in all scopes.
+
+
+Calling subroutines
+
+    Whitespace matters
+
+        foo 42;           # calls &foo, one positional argument (number 42)
+        foo(42);          # same, the parens are subcall parens (postfix .())
+        foo (42);         # same, but the parens are grouping parens
+
+        foo 42, 23;       # two positional arguments (42 and 23)
+        foo(42, 23);      # same
+
+        foo (42, 23);     # one positional argument (the array (42, 23))
+
+    Parentheses matter
+
+        foo bar => 42;    # one named argument (42)
+        foo :bar(42);     # same
+        foo(bar => 42);   # same, the parans are grouping parens
+        foo(:bar(42));    # same, the parans are grouping parens
+
+        foo (bar => 42);  # one positional argument (the pair (bar => 42))
+        foo (:bar(42));   # same, the parens mark the pair to be a Pair object,
+                          # not a named argument
+
+    Splatting
+
+        foo $pair;        # one positional argument ($pair)
+        foo *$pair;       # one named argument
+                          # ($pair.value passed by the name $pair.key)
+
+        foo @array;       # one positional argument (the array @array)
+        foo *@array;      # many positional arguments
+                          # (@array's contents are passed positionally)
+
+        foo %hash;        # one positional argument (the hash %hash)
+        foo *%hash;       # many named arguments
+                          # (%hash.values are passed by the names %hash.keys)
