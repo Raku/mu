@@ -59,7 +59,6 @@ Declaring subroutines
             sub foo ($bar)  {...}   # as positional parameters are required
                                     # by default.
 
-        
         Slurpy parameters
 
             Slurpy arrays slurp all remaining positional arguments:
@@ -73,6 +72,65 @@ Declaring subroutines
             sub foo ($a, $b, *%rest) {...}
             foo 1,2,3,4,5;  # error: "Too many positional arguments"
             foo 1,2, :foo<bar>;  # $a is 1, $b is 2, %rest is (foo => "bar")
+
+        "is rw"
+
+            By default, all parameters are readonly aliases:
+
+            sub foo ($var) { $var = 42 };
+            my $bar = 17; foo($bar);  # dies: "Cannot modify readonly variable"
+
+            "is rw" causes *no* readonly proxy to be created:
+
+            sub foo ($var is rw) { $var = 42 };
+            my $bar = 17; foo($bar);  # works, $bar now 17
+
+        "is copy"
+
+            "is copy" copies the variable, the original will remain unaffected:
+            
+            sub foo ($var is copy) { $var = 42 };
+            my $bar = 17; foo($bar);  # works, but $bar unchanged
+
+            (This is the same as Perl 5's "my $var = shift" idiom.)
+
+            Note that "is rw" and "is copy" only refer to the first level of a
+            structure:
+
+            sub foo (@array) { @array[42] = 17 }
+            foo @some_array;  # works, even though @array is not "is rw";
+                              # @some_array[42] changed to 17
+
+            sub foo (@array) { push @array, 17 }
+            foo @some_array;  # does not work ("Cannot modify readonly
+                              # variable")
+            
+            sub foo (@array is rw) { push @array, 17 }
+            foo @some_array;  # does work, 17 appended to @some_array
+
+            Similarily, "is rw" and "is copy" may not do what you think they do
+            on references:
+
+            sub foo (Ref $ref) { $$ref = 17 }
+            foo $some_ref;  # works, $$some_ref changed to 17
+
+            sub foo (Ref $ref) { $ref = \$other_var }
+            foo $some_ref;  # dies ("Cannot modify readonly variable"
+            
+            sub foo (Ref $ref is rw) { $ref = \$other_var }
+            foo $some_ref;  # works, $some_ref changed to \$other_var
+
+        Rebinding parameters
+
+            The following code is legal and does not die:
+
+            sub foo ($var) { $var := $some_other_var; ... }
+            foo 42;
+            foo $some_var;
+
+            But the original containers are not modified in any way, neither 42
+            nor $some_var get rebound, only &foo's $var does no longer refer to
+            42 or $some_var, but to $some_other_var.
 
         [XXX: Unpacking arrays and hashes, pattern matching, specifying
         parameter types]
@@ -98,6 +156,47 @@ Declaring subroutines
         sub *foo {...}
         # Really global subroutine, visible in all scopes.
 
+    "is rw" on a subroutine
+
+        "is rw" applied to a subroutine causes *no* readonly proxy to be
+        created around the return value of a subroutine:
+
+        sub foo { $some_var }
+        foo() = 42;  # error: "Cannot modify readonly variable"
+
+        sub foo is rw { $some_var }
+        foo() = 42;  # works, $some_var set to 42
+
+        sub foo is rw { 17 }
+        foo() = 42;  # still does not work -- 17 is a constant
+        # Instead use:
+        sub foo is rw { my $var = 17 }
+        foo() = 42;  # works
+
+    The "Proxy" class
+
+        Following the "assignments should look like assignments" rule, usage of
+        "is rw" for accessor-like subroutines is encouraged. You can use the
+        "Proxy" class to validate input:
+
+        sub foo () is rw {
+            return new Proxy:
+                FETCH => { ...code to return on get... },
+                STORE => -> $new { ...code to run on assignment... };
+        }
+        say foo();
+        foo() = 42;
+
+        Note that assigning a proxy to a variable with = will loose the proxy's
+        magicalness:
+
+        my $var = foo();
+        $var = $invalid_input;  # works; STORE not called
+
+        You have to use binding (:=) instead:
+
+        my $var := foo();
+        $var = $invalid_input;  # STORE called
 
 Calling subroutines
 

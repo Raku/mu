@@ -11,7 +11,7 @@ Precedence
     junctive or (any)   | ^
     named unary         rand sleep abs etc.
     nonchaining binary  => but does cmp <=> .. ^.. ..^ ^..^
-    chaining binary     != == < <= > >= ~~ !~ eq ne lt le gt ge =:=
+    chaining binary     != == < <= > >= ~~ !~ eq ne lt le gt ge =:= eqv
     tight and           &&
     tight or            || ^^ //
     ternary             ?? !!
@@ -89,6 +89,7 @@ Comparison operators
                 ~~      # smart match (see smartmatch)
                 !~      # negated smart match
                 =:=     # equality (container)
+                eqv     # equality (value)
 
 Logic operators
 
@@ -135,8 +136,9 @@ Miscellaneous operators
     $foo x 3            # $foo ~ $foo ~ $foo
     $foo xx 3           # ($foo, $foo, $foo)
     @foo Y @bar Y @baz  # zip(@foo, @bar, @baz)
-    item($foo, $bar)    # [ $foo, $bar ]  (XXX, correct?)
+    item ($foo, $bar)   # [ $foo, $bar ]
     1..5                # (1, 2, 3, 4, 5)
+    "a".."g"            # <a b c d e f g>
     ;                   # statement separator
 
 See also

@@ -166,8 +166,11 @@ Binding
     # Binding is also used for the parameter binding in subroutines:
     foo $a;
     sub foo ($param) { $param =:= $a }
+    foo($a);               # true
+    foo($some_other_var);  # false
 
-    my ($foo, $blarb?, :$baz) := some_sub();
+    # := can take a subroutine signature as its LHS:
+    my ($foo, $blarb?, :$baz, *%rest) := some_sub();
 
     # ::= is binding at compile-time.
     $foo ::= $bar;
@@ -175,7 +178,8 @@ Binding
 
     # ::= is, for example, used implicitly in subroutine declarations:
     sub foo {...}             # is really
-    our &foo ::= sub {...};
+    our &foo ::= sub {...};   # which in turn is sugar for
+    BEGIN { our &foo := sub {...} }
 
 Examples
 
