@@ -100,6 +100,16 @@ sub join {
     )     
 }
 
+# some of the common list operations
+
+sub head { @{$_[0]}[0] }
+sub tail { @{$_[0]}[1 .. $#{$_[0]}] }
+
+sub shift   : method { shift   @{(shift)}       }
+sub pop     : method { pop     @{(shift)}       }
+sub unshift : method { unshift @{(shift)} => @_ }
+sub push    : method { push    @{(shift)} => @_ }
+
 1;
 
 __END__

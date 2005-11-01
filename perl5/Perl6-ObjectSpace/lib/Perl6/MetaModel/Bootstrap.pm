@@ -27,11 +27,22 @@ $::Object  = undef;
 $::Module  = undef;
 $::Package = undef;
 
-# for sending messages to an object
+# for sending messages to an object 
+# (very primitive at the moment)
 sub ::send {
-    my ($inv, $label, $args) = @_;
-    (blessed($label) && $label->isa('str'))
-        || confess "Label must be a string";
+    my ($inv, $label, @args) = @_;
+    unless (blessed($label) && $label->isa('str')) {
+        $label = str->new($label);
+    }
+    
+    my $args;
+    if (blessed($args[0]) && $args[0]->isa('list')) {
+        $args[0]->unshift($inv);
+        $args = $args[0];
+    }
+    else {
+        $args = list->new($inv, @args);
+    }
         
     my $methods = $inv->get_attr(str->new('%:methods'));
     ($methods->exists($label))
@@ -41,7 +52,21 @@ sub ::send {
 
 $::ENV = Perl6::Runtime::get_top_level_env();
 
+## ----------------------------------------------------------------------------
 ## now begin creating the metamodel
+
+=pod
+
+class Class {
+    has @:MRO;
+    has @:subclasses;
+    has @:superclasses;
+    has %:private_methods;
+    has %:attributes;
+    has %:methods;
+}
+
+=cut
 
 # create the basic Class
 $::Class = opaque->new(
@@ -58,6 +83,14 @@ $::Class = opaque->new(
     
 # link Class back to Class
 $::Class->change_class(reference->new($::Class));
+
+=pod
+
+method add_method ($self: str $label, method $method) returns nil {
+    %:methods{$label} = $method;
+}
+
+=cut
 
 {
     # add the first method
@@ -81,8 +114,19 @@ $::Class->change_class(reference->new($::Class));
     $_add_method->do(list->new($::Class, str->new('add_method'), $_add_method));
 }
 
-::send($::Class, str->new('add_method'), list->new(
-        $::Class, str->new('has_method'), method->new(
+=pod
+
+method has_method ($self: str $label) returns bit { 
+    %:methods.exists($label);
+}
+
+=cut
+
+::send($::Class, 'add_method' => (
+    # method label
+        str->new('has_method'), 
+    # method body
+        method->new(
             $::ENV,
             list->new(str->new('$self:'), str->new('$label')),
             sub {
