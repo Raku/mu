@@ -28,7 +28,8 @@ Problems with this test:
   (indirectly) (this is a consequence of the first problem).
 
 * *Most importantly*: Because the classes are redefined -- especially because
-  .update is redefined -- $vars of other scopes get updated!
+  .update is redefined -- only the $var of subtest #3 gets updated, *not* the
+  $var of subtest #1 or #2!
 
   { my $var; class Foo { method update { $var = 42 }; Foo.new.update; say $var }
   { my $var; class Foo { method update { $var = 42 } }
@@ -54,17 +55,8 @@ Problems with this test:
     { my $var; my sub update { $var = 42 } }
     # This outputs "42".]
 
-* It's *sub*method BUILD, not method BUILD.
-  (Yes, current Pugs doesn't differentiate between submethods and ordinary
-  methods, but the tests should be 100% valid Perl 6.)
-
-  Proposal: s/method BUILD/submethod BUILD/
-
-* class Foo {...}; eval "Foo" doesn't resolve "Foo" to the class Foo currently
-  -- one has to use eval "::Foo" or, even better, try {...}.
-  This means that currently, there is no single call to .update!
-
-  Proposal: s/eval "..."/try {...}/;
+* The last subtest calls c.new(...).update, but there is no &c::update and c
+  doesn't inherit from a class providing an "update" method, either.
 
 =cut
 
@@ -73,12 +65,17 @@ plan 3;
 
 {
     my $var = 100;
+    # XXX This definition doesn't have any effect, as it is overridden by the
+    # definition at the end of this file. This $var is not captured.
+    # All calls to &a::update will really call the &a::update as defined by
+    # subtest #3, which will update the $var of subtest #3's scope (not this
+    # $var).
     class a {
         has $.a;
         has $.c;
         method update { $var -= $.a; }
     };
-    eval 'a.new( a => 10 ).update';
+    a.new( a => 10 ).update;
     is $var, 90, "Testing suite 1.";
 }
 
@@ -86,13 +83,18 @@ plan 3;
 
 {
     my $var = 100;
+    # XXX This definition doesn't have any effect, as it is overridden by the
+    # definition at the end of this file. This $var is not captured.
+    # All calls to &a::update will really call the &a::update as defined by
+    # subtest #3, which will update the $var of subtest #3's scope (not this
+    # $var).
     class a {
         has $.a;
         method update { $var -= $.a; }
     };
     class b {
         has $.a;
-        method BUILD { a.new( a => $.a ).update; };
+        submethod BUILD { a.new( a => $.a ).update; };
     };
 
 =pod
@@ -106,7 +108,7 @@ plan 3;
 =cut
 
 ##### will cause pugs hang if uncomment it
-#    eval 'b.new( a => 20 )';
+#    b.new( a => 20 );
     is $var, 80, "Testing suite 2.";
 }
 
@@ -114,21 +116,24 @@ plan 3;
 
 {
     my $var = 100;
+    # XXX This definition *does* have an effect. This $var *is* captured.
+    # All calls to &a::update will update this $var, not the $var of subtest #1
+    # or #2.
     class a {
         has $.a;
         method update { $var -= $.a; }
     };
     class b {
         has $.a;
-        method BUILD { a.new( a => $.a ); }
+        submethod BUILD { a.new( a => $.a ); }
     };
     class c {
         has $.b;
-        method BUILD { b.new( a => $.b ); }
+        submethod BUILD { b.new( a => $.b ); }
     };
 
 ##### cause pugs hang.
-#    eval 'c.new( b => 30 ).update';
+#    c.new( b => 30 ).update;
     is $var, 70, "Testing suite 3.";
 }
 

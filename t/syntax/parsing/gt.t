@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 3;
+plan 9;
 
 # This parsefail is really weird...
 # I'm sorry I couldn't track down this bug further -- it's extremely weird.
@@ -28,3 +28,15 @@ ok 3 > 0, "3 is greater than 0";
 #   rand()< 1
 # (hash subscript), and then, of course, it had to die, as there was no
 # matching >.
+
+
+# Another bug:
+#   ~< foo bar >
+# doesn't parse (as does +< foo bar >).
+is eval('~< foo bar >'), "foo bar", "~<...> is parsed correctly";
+is eval('+< foo bar >'),         2, "+<...> is parsed correctly";
+ok eval('?< foo bar >'),            "?<...> is parsed correctly";
+
+is eval('~(< foo bar >)'), "foo bar", "~(<...>) is parsed correctly";
+is eval('+(< foo bar >)'),         2, "+(<...>) is parsed correctly";
+ok eval('?(< foo bar >)'),            "?(<...>) is parsed correctly";

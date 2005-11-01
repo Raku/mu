@@ -3,8 +3,11 @@
 use v6;
 use Test;
 
-plan 20;
+plan 26;
 
+# L<S02/"Atoms" /Perl is written in Unicode/>
+
+# Unicode variables
 # english ;-)
 ok(try {my $foo; sub foo {}; 1}, "ascii declaration");
 is(try {my $bar = 2; sub id ($x) { $x }; id($bar)}, 2, "evaluation"); 
@@ -44,3 +47,35 @@ is(try {my $באר = 2; sub זהות ($x) { $x }; זהות($באר)}, 2, "evalua
 # russian
 ok(try {my $один; sub раз {}; 1}, "russian declaration");
 is(try {my $два = 2; sub идентичный ($x) { $x }; идентичный($два)}, 2, "evaluation");
+
+# Unicode subs
+{
+    my sub äöü () { 42 }
+    is äöü, 42, "Unicode subs with no parameters";
+}
+{
+    my sub äöü ($x) { 1000 + $x }
+    is äöü 17, 1017, "Unicode subs with one parameter (parsed as prefix ops)";
+}
+
+# Unicode parameters
+{
+    my sub abc (:$äöü) { 1000 + $äöü }
+
+    is abc(äöü => 42), 1042, "Unicode named params (1)";
+    is abc(:äöü(42)),  1042, "Unicode named params (2)";
+}
+
+# Unicode placeholder variables
+{
+    is
+        ~(< foostraße barstraße fakestraße >.map:{ ucfirst $^straßenname }),
+        "Foostraße Barstraße Fakestraße",
+        "Unicode placeholder variables";
+}
+
+# Unicode methods
+{
+    my method Str::äöü { ucfirst self }
+    is "pugs".äöü, "Pugs", "Unicode methods";
+}
