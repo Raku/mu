@@ -27,12 +27,42 @@ Problems with this test:
 * This also causes some infloops, as some classes' BUILD call itself
   (indirectly) (this is a consequence of the first problem).
 
+* *Most importantly*: Because the classes are redefined -- especially because
+  .update is redefined -- $vars of other scopes get updated!
+
+  { my $var; class Foo { method update { $var = 42 }; Foo.new.update; say $var }
+  { my $var; class Foo { method update { $var = 42 } }
+  # This will output "" instead of "42", as the $var of the second scope is
+  # changed, not the $var of the first line.
+  # &Foo::update changes the $var of its scope. This $var is not the $var of
+  # the first line.
+
+  I see to solutions to this problem:
+
+  * Write "my class" instead of "class" -- but lexical classes are not yet
+    implemented.
+  * Change the class names -- there may only be one class "a", one class "b",
+    etc. in the file. (Note again that {} scopes don't have an effect on global
+    (OUR::) classes).
+
+  [A similar example:
+    { my $var; sub update { $var = 42 }; update(); say $var }
+    { my $var; sub update { $var = 42 } }
+    # This outputs "".
+
+    { my $var; my sub update { $var = 42 }; update(); say $var }
+    { my $var; my sub update { $var = 42 } }
+    # This outputs "42".]
+
 * It's *sub*method BUILD, not method BUILD.
+  (Yes, current Pugs doesn't differentiate between submethods and ordinary
+  methods, but the tests should be 100% valid Perl 6.)
 
   Proposal: s/method BUILD/submethod BUILD/
 
 * class Foo {...}; eval "Foo" doesn't resolve "Foo" to the class Foo currently
   -- one has to use eval "::Foo" or, even better, try {...}.
+  This means that currently, there is no single call to .update!
 
   Proposal: s/eval "..."/try {...}/;
 
