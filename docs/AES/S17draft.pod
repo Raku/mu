@@ -40,6 +40,8 @@ if $i { is atomic; ...  } else { ...; }
 
 CORE::GLOBAL::exit; # kills all the threads
 
+# We intententionally do not list cross-machine parallelism Conc:: classes here.
+# Consult your local 6PAN mirror with a time machine.
 use Conc::Processes; # fork() or createProcess based implementation
 use Conc::Threads;   # maybe it just exports &async to override the default one, yay
 use Conc::Multiplex; # this is default
@@ -48,6 +50,9 @@ my $thr = async {
     ...do something...
     END { }
 };
+
+Conc::Thread.this
+Conc::Proc.this
 
 Conc object # name is still up for grabs!
 - numify to TIDs (as in pugs)
@@ -58,6 +63,8 @@ Conc object # name is still up for grabs!
 - standard methods:
     - .join    # wait for invocant to finish (always item cxt)
     - .die     # throw exception in the invocant thread
+    - .alarm   # set up alarms
+    - .alarms  # query existing alarms
     - .suspend # pause a thread; fail if already paused
     - .resume  # revive a thread; fail if already running
     - .detach  # survives parent thread demise (promoted to process)
@@ -162,3 +169,95 @@ threads.new({
     ...
 });
 
+=head2 Signals
+
+Asynchronous exceptions are just like user-initiated exceptions with C<die>,
+so you can also catch it with regular C<CATCH> blocks as specified in S04.
+
+To declare your main program catches INT signals, put a CATCH block anywhere
+in the toplevel to handle exceptions like this:
+
+    CATCH {
+        when Error::Signal::INT { ... }
+    }
+
+=head2 Alarm
+
+An alarm is just a pre-arranged exception to be delivered to your program.
+
+By the time alarm has arrived, the current block may have already finished
+executing, so you would need to set up CATCH blocks in places where an alarm
+can rise to handle it properly.
+
+You can request an alarm using the number of seconds, or with a target date.
+It returns an alarm object that you can do interesting things with.
+
+    multi Alarm *alarm (Num $seconds = $CALLER::_, &do = {die Sig::ALARM}, :$repeat = 1)
+    multi Alarm *alarm (Date $date, &do = {die Sig::ALARM}, :$repeat = 1)
+
+Perl 6's C<alarm> has three additional features over traditional alarms:
+
+=head3 Multiple and Lexical Alarms
+
+One can set up multiple alarms using repeated alarm calls:
+
+    {
+        my $a1 = alarm(2);
+        my $a2 = alarm(2);
+        sleep 10;
+        CATCH {
+            is critical; # if you don't want $a2 to be raised inside this
+            when Sig::ALARM { ... } 
+        }
+    }
+
+To stop an alarm, call C<$alarm.stop>.  The C<alarms> method for Conc objects
+(including process and threads) returns a list of alarms currently scheduled
+for that concurrent context.
+
+When an alarm object is garbage collected, the alarm is stopped automatically.
+Under void context, the implicit alarm object can only be stopped by querying
+C<.alarms> on the current process.
+
+We are not sure what C<alarm(0)> would mean.  Probably a deprecation warning?
+
+=head3 Repeated Alarms
+
+If you request an repeated alarm using the C<repeated> named argument, it will
+attempt to fire off the alarm that many times.  However, the alarm will be
+supressed when inside a C<CATCH> block that's already handling the exception
+raised by I<same> alarm.
+
+To repeat 0 times is to not fire off any alarms at all.  To repeat +Inf times
+is to repeat over and over again.
+
+=head3 Callbacks in Alarms
+
+You can arrange a callback (like JavaScript's setTimeOut) in C<alarm>, which
+will then be invoked with the then-current code as caller.
+
+If you set up such a callback to another Conc object, what happens is just like
+when you called C<.die> on behalf of that object -- namely, the callback
+closure, along with anything it referenced, is shared to the target Conc
+context.
+
+Unlike in Perl 5's ithreads where you cannot share anything after the fact,
+this allows passing shared objects in an C<ad-hoc> fashion across concurrent
+parts of the program.  Under the default (multiplexing) concurency model, this
+is basically a no-op.
+
+=head2 Continuations
+
+=head3 Coroutines
+
+=head2 Junctive Autothreading and Hyper Operations
+
+=head2 Interprocess Communication
+
+=head2 I/O Considerations
+
+=head3 File Descriptors
+
+=head3 Sockets
+
+=cut
