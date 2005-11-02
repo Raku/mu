@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+   <title>wiki</title>
+   <style type="text/css" media="screen">
+   /* <![CDATA[ */
+   .default {
+      font-family: Verdana, Helvetica, sans-serif, Arial;
+      font-size: 11px;
+      color: #245199;
+      background-color: #aaa;
+   }
+   
+   #navigation {
+      float: right;
+      width: 150px;
+      background-color: #EEE;
+      padding: 4px;
+      padding-bottom: 20px;
+      border-style: solid;
+      border-width: 0px;
+      border-left-width: 2px;
+   }
+   
+   a { color: #245199; text-decoration: underline }
+   a:hover { color: #000; text-decoration: none }
+   a:active { color: #245199; text-decoration: none }
+   /* ]]> */
+   </style>
+</head> 
+
+<body class="default">
+   <div id="navigation">
+      <h2>navigation</h2>
+      <a href="wiki.pl?topic=[%topic%];action=edit">edit</a><br />
+      <a href="wiki.pl?action=new">new</a><br />
+      <a href="wiki.pl?topic=OverView">overview</a><br />
+   </div>
+   <div id="content">
+      <h1 id="topic">[%topic%]</h1>
+      
+      <div>
+         <form action="wiki.pl" method="GET">
+            Topic:&nbsp;<input name="topic" size="30" value="[%topic%]" />
+            <p>
+            Entry:&nbsp;<textarea name="entry" cols="80" rows="24">[%entry%]</textarea></p>
+            <p>
+            <input type="submit" name="action" value="update" />
+            </p>
+         </form>
+      </div>
+   </div>
+</body>
+</html>
