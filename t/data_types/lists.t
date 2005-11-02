@@ -7,7 +7,7 @@ use Test;
 # for this test. See
 # L<"http://www.nntp.perl.org/group/perl.perl6.language/22924">
 
-plan 14;
+plan 16;
 
 # Indexing lists
 {
@@ -112,52 +112,6 @@ plan 14;
   ($foo, $bar, $baz) := ($baz, $foo, $bar);
   ok $foo == 3 && $bar == 1 && $baz == 2,
     "using lists as lvalues in a binding operation to swap three variables works";
-}
-
-=begin more-discussion-needed
-
-# \(...) should create a list of references, as in Perl 5.
-# See the long thread "\(...)" on p6l started by Ingo Blechschmidt.
-{
-  my @array_of_refs = \(1,2,3);
-
-  is +@array_of_refs,           3, '\(...) creates a list of references (1)';
-  is try{${@array_of_refs[1]}}, 2, '\(...) creates a list of references (2)';
-}
-
-{
-  my $foo = 42;
-  my @array_of_refs = \(1,$foo,3);
-
-  is +@array_of_refs,  3, '\(...) creates a list of references (3)';
-  try { ${ @array_of_refs[1] }++ };
-  is $foo,            43, '\(...) creates a list of references (4)';
-}
-
-=begin more-discussion-needed
-
-See L<"http://www.nntp.perl.org/group/perl.perl6.language/23085>
->     \(@array);  # List of refs to @array's elements, i.e. same as
->     map { \$_ } @array;
->     # Weird (violating the "parens are only for grouping" rule), but
->     # consistent with Perl 5.
-> 
-> Correct?
-
-{
-  my @array         = (1,2,3);
-  my @array_of_refs = \(@array);
-
-  is +@array_of_refs,      3, '\(...) creates a list of references (5)';
-  is ${@array_of_refs[1]}, 2, '\(...) creates a list of references (6)';
-}
-
-{
-  my @array         = (1,2,3);
-  my @array_of_refs = \(@array,);
-
-  is +@array_of_refs,      3, '\(...) creates a list of references (7)';
-  is ${@array_of_refs[1]}, 2, '\(...) creates a list of references (8)';
 }
 
 {

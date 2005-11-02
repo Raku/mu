@@ -536,6 +536,7 @@ maybeParensBool p = choice
 ruleFormalParam :: RuleParser Param
 ruleFormalParam = rule "formal parameter" $ do
     typ     <- option "" $ ruleType
+    optional $ char '\\'  -- XXX hack to parse arglist (\$foo)
     sigil1  <- option "" $ choice . map symbol $ words " : * "
     name    <- ruleParamName -- XXX support *[...]
     sigil2  <- option "" $ choice . map symbol $ words " ? ! "
