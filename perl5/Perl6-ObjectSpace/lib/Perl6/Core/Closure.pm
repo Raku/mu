@@ -65,9 +65,11 @@ sub _bind_params {
         my $param      = $self->{params}->fetch(num->new($i));
         my $param_type = $param->type->to_native;
         my $arg        = $args->fetch(num->new($i));
-        (blessed($arg) && $arg->isa($param_type))
-            || confess "got the wrong type"
-                if $param_type ne '';
+        unless ($arg->isa('nil') && $param->to_str->to_native =~ /^\?/) {
+            (blessed($arg) && $arg->isa($param_type))
+                || confess "got the wrong type for " . $param->to_str->to_native
+                    if $param_type ne '';
+        }
         $self->{env}->set($param->to_str->to_native, $arg);
     }
 }

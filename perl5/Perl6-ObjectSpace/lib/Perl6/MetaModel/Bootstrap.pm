@@ -94,15 +94,14 @@ $::ENV->create('WALKMETH' => closure->new(
             my $label      = $e->get('$label');
             my $opts       = $e->get('%opts');  
             
-            my $NIL     = nil->new();
             my $current = $dispatcher->do();                                  
-            while ($current != $NIL) {
+            while ($current != $nil::NIL) {
                 if ($current->send('has_method' => ($label, $opts))) {
                     return $current->send('get_method' => ($label, $opts));
                 }
                 $current = $dispatcher->do();                                                  
             }
-            return $NIL;        
+            return $nil::NIL;        
         }
     )
 );
@@ -158,11 +157,11 @@ $::Class = opaque->new(
     );
     
 # link Class back to Class
-$::Class->change_class(reference->new($::Class));
+$::Class->change_class($::Class);
 
 =pod
 
-method add_method (opaque $self: str $label, method $method) returns nil {
+method add_method (opaque $self: symbol $label, method $method) returns nil {
     %:methods{$label} = $method;
 }
 
@@ -192,7 +191,7 @@ method add_method (opaque $self: str $label, method $method) returns nil {
 
 =pod
 
-method has_method (opaque $self: str $label) returns bit { 
+method has_method (opaque $self: symbol $label) returns bit { 
     %:methods.exists($label);
 }
 
@@ -519,6 +518,18 @@ $::Class->send('add_method' => (
 
 =pod
 
+method superclasses (opaque $self: list ?@superclasses) returns list {
+    if (@superclasses.defined) {
+        for @superclasses -> $super {
+            $super.add_subclass($self);
+        }
+        @:superclasses = @superclasses;
+        @:MRO = ();
+        $self.MRO();
+    }
+    return @:superclasses;
+}
+
 =cut
 
 $::Class->send('add_method' => (
@@ -528,17 +539,17 @@ $::Class->send('add_method' => (
         method->new(
             $::ENV,
             closure::params->new(
-                symbol->new('$self:'        => 'opaque'),                
-                symbol->new('@superclasses' => 'list'),                                
+                symbol->new('$self:'         => 'opaque'),                
+                symbol->new('?@superclasses' => 'list'),                                
             ),
             sub {
                 my $e            = shift;
                 my $self         = $e->get('$self:');
-                my $superclasses = $e->get('@superclasses');
+                my $superclasses = $e->get('?@superclasses');
                 
                 if ($superclasses != $nil::NIL) {
                     foreach my $super ($superclasses->get_native) {
-                        $super->add_subclass($self);
+                        $super->send('add_subclass' => ($self));
                     }
                     $self->set_attr(symbol->new('@:superclasses') => $superclasses); 
                     # clear the MRO now
