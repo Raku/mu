@@ -56,6 +56,15 @@ sub do_while {
     }
 }
 
+sub do_until {
+    my ($self, $condition) = @_;
+    (blessed($condition) && $condition->isa('block'))
+        || confess "Condition must be a block";
+    while ($condition->do()->to_bit == $bit::FALSE) {
+        $self->do();
+    }
+}
+
 1;
 
 __END__

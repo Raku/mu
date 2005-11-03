@@ -437,7 +437,8 @@ $::Class->send('add_method' => (
                 $e->create('$attrs' => hash->new());
                 $e->create('&dispatcher' => $e->get('$class:')->send('dispatcher' => (symbol->new(':descendant'))));
                 $e->create('$c' => $e->get('WALKCLASS')->do(list->new($e->get('&dispatcher'))));            
-                while ($e->get('$c')->is_nil == $bit::FALSE) {
+                block->new($e, sub {
+                    my $e = shift;
                     $e->get('$c')
                       ->send('get_attributes')
                       ->apply(
@@ -450,7 +451,12 @@ $::Class->send('add_method' => (
                           })
                       );
                     $e->set('$c' => $e->get('WALKCLASS')->do(list->new($e->get('&dispatcher'))));
-                }
+                })->do_until(
+                    block->new($e, sub {
+                        my $e = shift;
+                        $e->get('$c')->is_nil;
+                    })
+                );
                 return opaque->new(reference->new($e->get('$class:')), $e->get('$attrs'));     
             }
         )
@@ -482,10 +488,16 @@ $::Class->send('add_method' => (
                 my $e = shift;
                 $e->create('&dispatcher' => $e->get('$self:')->class->send('dispatcher' => symbol->new(':descendant')));
                 $e->create('$method' => $e->get('WALKMETH')->do(list->new($e->get('&dispatcher'), symbol->new('BUILD'))));
-                while ($e->get('$method')->is_nil != $bit::FALSE) { 
+                block->new($e, sub {
+                    my $e = shift;
                     $e->get('$method')->do(list->new($e->get('$self:'), $e->get('%params')));                  
                     $e->set('$method' => $e->get('WALKMETH')->do(list->new($e->get('&dispatcher'), symbol->new('BUILD'))));
-                }
+                })->do_until(
+                    block->new($e, sub {
+                        my $e = shift;
+                        $e->get('$method')->is_nil;
+                    })
+                );
                 return $nil::NIL;                 
             }
         )
