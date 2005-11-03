@@ -44,6 +44,7 @@ elsif ($ARGV[0] =~ /^--pugs$/) {
 print "*** Using the '$backend' backend.\n" if !$run;
 
 my $ghc_exe = $ENV{GHC} || 'ghc';
+my $ghc_pkg = $ENV{GHC_PKG} || 'ghc_pkg';
 my $ghc_version = ghc_version();
 my $base = cwd();
 
@@ -94,7 +95,17 @@ else {
     );
 
     my $err = $!;
-    (($rv == 0) and -e $out) or die $err;
+    unless (($rv == 0) and -e $out) {
+        if (`$ghc_pkg describe Pugs` !~ /package-url/) {
+            warn << '.';
+
+*** Cannot find the 'Pugs' package -- did you run 'make install'
+    or 'make register' for Pugs?
+
+.
+        };
+        die "*** Error making Pugs executable '$out'.\n";
+    };
 
     unlink "$base/MainCC.hs";
     unlink "$base/MainCC.hi";
