@@ -15,7 +15,7 @@ evalYaml cv = do
     str     <- fromVal cv
     rv      <- liftIO (parseYaml $ encodeUTF8 str)
     case rv of
-        Left err            -> fail err
+        Left err            -> fail $ "YAML Parse Error: " ++ err
         Right Nothing       -> return undef
         Right (Just node)   -> fromYaml node
 
