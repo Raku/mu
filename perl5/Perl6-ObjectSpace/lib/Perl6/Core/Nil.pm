@@ -21,6 +21,8 @@ sub to_num { num->new(0)  }
 sub to_bit { bit->new(0)  }
 sub to_str { str->new('') }
 
+sub is_nil { bit->new(1) }
+
 1;
 
 __END__

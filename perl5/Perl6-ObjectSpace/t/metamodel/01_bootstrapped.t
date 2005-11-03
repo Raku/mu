@@ -33,6 +33,10 @@ foreach my $method_name (qw(
     _make_ascendant_dispatcher    
     is_a
     add_attribute
+    get_attribute
+    get_attributes
+    has_attribute
+    get_attribute_list
     )) {
     is($::Class->send('has_method' => (symbol->new($method_name))),
        $bit::TRUE,
