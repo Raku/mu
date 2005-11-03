@@ -1,0 +1,26 @@
+=encoding utf8
+
+=head1 TITLE
+
+Synopsis 22: CPAN [DRAFT]
+
+=head1 AUTHOR
+
+Jos Boumans <kane@cpan.org>
+Autrijus Tang <autrijus@autrijus.org>
+
+=head1 VERSION
+
+  Maintainer: Jos Boumans <kane@cpan.org>
+  Date: 3 Nov 2005
+  Last Modified: 3 Nov 2005
+  Number: 0
+  Version: 1
+
+=head1 Overview
+
+Nothing to see here yet -- See L<http://sixpan.perl6.nl/> and also
+L<http://sixpan.perl6.nl/sixpan/index.cgi?KanesNotes> for now.
+
+(Expected SubEthaEdit design session in Nov 4.)
+
