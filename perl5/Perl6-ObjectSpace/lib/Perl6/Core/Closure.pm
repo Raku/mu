@@ -59,6 +59,8 @@ sub _bind_params {
     my ($self, $args) = @_;
     (blessed($args) && $args->isa('list'))
         || confess "Args must be a list";
+    ($args->length()->less_than_or_equal_to($self->{params}->length) == $bit::TRUE)
+        || confess "too many arguments passed to closure got(" . $args->length()->to_native . ") expected(" . $self->{params}->length->to_native . ")";      
     # loop through the param keys
     for my $i (0 .. $self->{params}->elems->to_native) {
         my $value; 
@@ -67,7 +69,7 @@ sub _bind_params {
         my $arg        = $args->fetch(num->new($i));
         unless ($arg->isa('nil') && $param->to_str->to_native =~ /^\?/) {
             (blessed($arg) && $arg->isa($param_type))
-                || confess "got the wrong type for " . $param->to_str->to_native
+                || confess "got the wrong type for " . $param->to_str->to_native . " got($arg) -> expected($param_type)"
                     if $param_type ne '';
         }
         $self->{env}->set($param->to_str->to_native, $arg);

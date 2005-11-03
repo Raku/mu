@@ -133,6 +133,10 @@ sub create_counter {
     dies_ok {
         $closure->do(list->new());
     } '... we passed the no value';    
+    
+    dies_ok {
+        $closure->do(list->new(num->new(10), num->new(100)));
+    } '... we passed in too many values';        
 
 }
 
@@ -160,6 +164,10 @@ sub create_counter {
     lives_ok {
         $closure->do(list->new());
     } '... we passed a any typed value';    
+    
+    dies_ok {
+        $closure->do(list->new(num->new(10), num->new(100)));
+    } '... we passed in too many values';        
 
 }
 

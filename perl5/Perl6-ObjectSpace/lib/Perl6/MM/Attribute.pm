@@ -20,6 +20,11 @@ sub new {
     $class->SUPER::new($name, $type);
 }
 
+sub instantiate_container {
+    my $self = shift;
+    return $self->{type}->new();
+}
+
 1;
 
 __END__

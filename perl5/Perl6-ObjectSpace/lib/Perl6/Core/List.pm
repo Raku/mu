@@ -108,7 +108,7 @@ sub join {
 # some of the common list operations
 
 sub head { @{$_[0]}[0] }
-sub tail { @{$_[0]}[1 .. $#{$_[0]}] }
+sub tail { list->new(@{$_[0]}[1 .. $#{$_[0]}]) }
 
 sub shift   : method { shift @{(shift)} }
 sub pop     : method { pop   @{(shift)} }
@@ -127,6 +127,11 @@ sub push : method {
         || confess "you can only add types to a list"
             foreach @_;
     push @{$self} => @_; 
+}
+
+sub reverse {
+    my $self = shift;
+    list->new(reverse @{$self});
 }
 
 ## list iterators

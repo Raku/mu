@@ -19,10 +19,15 @@ isa_ok($o, 'opaque');
 my $e = closure::env->new();
 
 {
-    my $m = method->new($e, closure::params->new(), sub { 
-        my $e = shift;
-        return $e->get('$?SELF');
-    });
+    my $m = method->new($e, 
+        closure::params->new(
+            symbol->new('$self:' => 'opaque')
+        ), 
+        sub { 
+            my $e = shift;
+            return $e->get('$?SELF');
+        }
+    );
     isa_ok($m, 'method');
     
     my $result = $m->do(list->new($o));
@@ -31,10 +36,15 @@ my $e = closure::env->new();
 }
 
 {
-    my $m = method->new($e, closure::params->new(), sub { 
-        my $e = shift;
-        return $e->get('$?CLASS');
-    });
+    my $m = method->new($e, 
+        closure::params->new(
+            symbol->new('$self:' => 'opaque')
+        ), 
+        sub { 
+            my $e = shift;
+            return $e->get('$?CLASS');
+        }
+    );
     isa_ok($m, 'method');
 
     my $result = $m->do(list->new($o));
@@ -43,10 +53,15 @@ my $e = closure::env->new();
 }
 
 {
-    my $m = method->new($e, closure::params->new(), sub { 
-        my $e = shift;
-        return $e->get('$?PACKAGE');
-    });
+    my $m = method->new($e, 
+        closure::params->new(
+            symbol->new('$self:' => 'opaque')
+        ),         
+        sub { 
+            my $e = shift;
+            return $e->get('$?PACKAGE');
+        }
+    );
     isa_ok($m, 'method');
 
     my $result = $m->do(list->new($o));

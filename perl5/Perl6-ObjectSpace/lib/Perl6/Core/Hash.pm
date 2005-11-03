@@ -56,13 +56,15 @@ sub store {
     (blessed($value) && $value->isa('type'))
         || confess "Index must be a native type";            
     $self->{$key->to_str->to_native} = $value;
+    nil->new();    
 }
 
 sub remove {
     my ($self, $key) = @_;
     (blessed($key) && $key->isa('type'))
         || confess "Key must be a str type";
-    $self->{$key->to_str->to_native} = nil->new();
+    delete $self->{$key->to_str->to_native};
+    nil->new();
 }
 
 sub keys { 
@@ -72,7 +74,7 @@ sub keys {
 
 sub values { 
     my %native = (shift)->to_native;
-    list->new(values %native) 
+    list->new(values %native);
 }
 
 sub length { (shift)->keys->length }
