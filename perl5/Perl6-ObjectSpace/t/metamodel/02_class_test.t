@@ -36,7 +36,9 @@ is($::Class->send('is_a' => $::Class), $bit::TRUE, '... Class is_a Class');
 
 my $superclasses = $::Class->send('superclasses');
 isa_ok($superclasses, 'list');
-is($superclasses->is_empty, $bit::TRUE, '... the superclass list is currently empty');
+is($superclasses->is_empty, $bit::FALSE, '... the superclass list is currently empty');
+is($superclasses->length->equal_to(num->new(1)), $bit::TRUE, '... the superclass list has one item in it');
+is($superclasses->fetch(num->new(0)), $::Object, '... and that item is Object');
 
 my $subclasses = $::Class->send('subclasses');
 isa_ok($subclasses, 'list');
@@ -45,8 +47,9 @@ is($subclasses->is_empty, $bit::TRUE, '... the subclasses list is currently empt
 my $MRO = $::Class->send('MRO');
 isa_ok($MRO, 'list');
 is($MRO->is_empty, $bit::FALSE, '... the MRO list is not empty');
-is($MRO->length->equal_to(num->new(1)), $bit::TRUE, '... the MRO list has one item in it');
-is($MRO->fetch(num->new(0)), $::Class, '... and that item is Class');
+is($MRO->length->equal_to(num->new(2)), $bit::TRUE, '... the MRO list has two items in it');
+is($MRO->fetch(num->new(0)), $::Class, '... and that first item is Class');
+is($MRO->fetch(num->new(1)), $::Object, '... and that second item is Object');
 
 {
     my $Foo;
@@ -55,7 +58,7 @@ is($MRO->fetch(num->new(0)), $::Class, '... and that item is Class');
     } '... we created a new class successfully';
 
     isa_ok($Foo, 'opaque');
-    is($Foo->id->equal_to(num->new(2)), $bit::TRUE, '... this is the second instance');
+    is($Foo->id->equal_to(num->new(3)), $bit::TRUE, '... this is the second instance');
     is($Foo->class, $::Class, 'Class is an instance of Class');
     
     is($Foo->send('is_a' => $Foo), $bit::TRUE, '... Foo is_a Foo');    

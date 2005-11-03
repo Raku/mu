@@ -7,7 +7,6 @@ use Test::More no_plan => 1;
 
 use_ok('Perl6::MetaModel::Bootstrap');
 
-
 foreach my $method_name (qw(
     add_method
     has_method
@@ -40,10 +39,23 @@ foreach my $method_name (qw(
     )) {
     is($::Class->send('has_method' => (symbol->new($method_name))),
        $bit::TRUE,
-       '... we have the methods "' . $method_name . '" in our class');    
+       '... we have the methods "' . $method_name . '" in our Class');    
+}
+
+foreach my $method_name (qw(
+    BUILD
+    BUILDALL
+    DESTROYALL
+    id
+    class
+    can
+    )) {
+    is($::Object->send('has_method' => (symbol->new($method_name))),
+       $bit::TRUE,
+       '... we have the methods "' . $method_name . '" in our Object');    
 }
 
 END {
-    my $temp = $bit::TRUE;
+    my $temp = $::Object;
     $temp = $::Class;
 }
