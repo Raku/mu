@@ -11,7 +11,7 @@ use strict;
 use warnings;
 
 use Carp 'confess';
-use Scalar::Util 'looks_like_number';
+use Scalar::Util 'blessed', 'looks_like_number';
 
 use base 'type';
 
@@ -37,6 +37,34 @@ sub to_bit { shift }
 # conversion to other native types
 sub to_str { (shift)->to_native ? str->new('1') : str->new('')  }
 sub to_num { (shift)->to_native == 0 ? num->new(0) : num->new(1) }
+
+# methods 
+
+sub and : method {
+    my ($self, $block) = @_;
+    (blessed($block) && $block->isa('block'))
+        || confess "AND takes a block";
+    if ($self == $TRUE) {
+        $block->do();
+        return $TRUE;
+    }
+    else {
+        return $FALSE;
+    }
+}
+
+sub or : method {
+    my ($self, $block) = @_;
+    (blessed($block) && $block->isa('block'))
+        || confess "OR takes a block";    
+    if ($self == $FALSE) {
+        $block->do();
+        return $TRUE;
+    }
+    else {
+        return $FALSE;
+    }        
+}
 
 1;
 

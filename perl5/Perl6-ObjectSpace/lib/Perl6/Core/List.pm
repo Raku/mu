@@ -129,6 +129,49 @@ sub push : method {
     push @{$self} => @_; 
 }
 
+## list iterators
+
+sub each : method {
+    my ($self, $closure) = @_;
+    (blessed($closure) && ($closure->isa('closure') || $closure->isa('block')))
+        || confess "argument to &each must be either a closure or a block";
+    foreach my $val (@{$self}) {
+        if ($closure->isa('closure')) {
+            my $ref = reference->new($val);            
+            $closure->do(list->new($ref));
+            $val = $ref->fetch;            
+        }
+        elsif ($closure->isa('block')) {
+            my $ref = reference->new($val);  
+            $closure->env->set('$_' => $ref);          
+            $closure->do();
+            $val = $ref->fetch;            
+        }
+    }
+    return nil->new();
+}
+
+sub apply {
+    my ($self, $closure) = @_;
+    (blessed($closure) && ($closure->isa('closure') || $closure->isa('block')))
+        || confess "argument to &apply must be either a closure or a block";    
+    my $list = list->new();
+    foreach my $val (@{$self}) {
+        if ($closure->isa('closure')) {
+            $list->push(
+                $closure->do(
+                    list->new($val)
+                )
+            );            
+        }
+        elsif ($closure->isa('block')) {
+            $closure->env->set('$_' => $val);          
+            $list->push($closure->do());      
+        }
+    }    
+    return $list;
+}
+
 1;
 
 __END__
@@ -166,6 +209,18 @@ list - the core list type
 =item B<elem () returns num>
 
 =item B<join (?str) returns str>
+
+=item B<each (closure) return nil>
+
+The closure here will be passed a reference to the current value, 
+this allows r/w access to the value.
+
+=item B<apply (closure) return list>
+
+The closure here will be passed the current value itself, which means 
+you it is essentially read-only, however, all the return values of the
+closure are collected into another list which is then returned from 
+this function.
 
 =back
 

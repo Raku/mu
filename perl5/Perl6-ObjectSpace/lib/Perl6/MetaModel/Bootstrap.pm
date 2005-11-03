@@ -11,6 +11,7 @@ use Perl6::Core::Num;
 use Perl6::Core::Ref;
 use Perl6::Core::Hash;
 use Perl6::Core::List;
+use Perl6::Core::Block;
 
 use Perl6::MM::Opaque;
 use Perl6::MM::Method;
@@ -79,6 +80,15 @@ sub *WALKMETH (closure &dispatcher, symbol $label, hash %opts) returns (method |
     }
 }
 
+
+(closure *WALKMETH ((closure &dispatcher) (symbol $label) (hash ?%opts))
+    ((= ($current (&dispatcher do)))
+        (while ($current equal_to (NIL)) 
+            ((if ($current send (has_method $label ?%opts))
+                 (return ($current send (get_method $label ?%opts))))
+             (= ($current (&dispatcher do)))))
+        (NIL)))
+
 =cut
 
 $::ENV->create('WALKMETH' => closure->new(
@@ -86,17 +96,17 @@ $::ENV->create('WALKMETH' => closure->new(
         closure::params->new(
             symbol->new('&dispatcher' => 'closure'),
             symbol->new('$label'      => 'symbol'),
-            symbol->new('%opts'       => 'hash'),                        
+            symbol->new('?%opts'      => 'hash'),                        
         ),
         sub {
             my $e = shift;
             my $dispatcher = $e->get('&dispatcher');
             my $label      = $e->get('$label');
-            my $opts       = $e->get('%opts');  
+            my $opts       = $e->get('?%opts');  
             
             my $current = $dispatcher->do();                                  
             while ($current != $nil::NIL) {
-                if ($current->send('has_method' => ($label, $opts))) {
+                if ($current->send('has_method' => ($label, $opts)) == $bit::TRUE) {
                     return $current->send('get_method' => ($label, $opts));
                 }
                 $current = $dispatcher->do();                                                  
@@ -111,6 +121,9 @@ $::ENV->create('WALKMETH' => closure->new(
 sub *WALKCLASS (closure &dispatcher) returns opaque {
     &dispatcher.()
 }
+
+(closure *WALKCLASS ((closure &dispatcher))
+    (&dispatcher do)
 
 =cut
 
@@ -165,6 +178,9 @@ method add_method (opaque $self: symbol $label, method $method) returns nil {
     %:methods{$label} = $method;
 }
 
+(method add_method ((opaque $self:) (symbol $label) (method $method))
+    ((($self: get_attr (symbol new (%:methods))) store ($label $method))))
+
 =cut
 
 {
@@ -195,6 +211,9 @@ method has_method (opaque $self: symbol $label) returns bit {
     %:methods.exists($label);
 }
 
+(method has_method ((opaque $self:) (symbol $label))
+    ((($self: get_attr (symbol new (%:methods))) exists ($label))))
+
 =cut
 
 $::Class->send('add_method' => (
@@ -223,6 +242,9 @@ method new (opaque $class: hash %params) returns opaque {
     $class.bless(undef, %params);
 }
 
+(method new ((opaque $class:) (hash %params)) 
+    ($class: send (bless NIL $params)))
+
 =cut
 
 $::Class->send('add_method' => (
@@ -239,7 +261,7 @@ $::Class->send('add_method' => (
                 my $e      = shift;
                 my $class  = $e->get('$class:');
                 my $params = $e->get('%params');
-                return $class->send('bless' => (nil->new(), $params));    
+                return $class->send('bless' => ($nil::NIL, $params));    
             }
         )
     )
@@ -371,11 +393,11 @@ $::Class->send('add_method' => (
                 
                 my $dispatcher = $self->class->send('dispatcher' => symbol->new(':descendant'));
                 my $WALKMETH = $e->get('WALKMETH');
-                my $method = $WALKMETH->do($dispatcher, symbol->new('BUILD'), hash->new());
+                my $method = $WALKMETH->do($dispatcher, symbol->new('BUILD'));
                 
                 while ($method != $nil::NIL) { 
                     $method->do(list->new($self, $params));                  
-                    $method = $WALKMETH->do($dispatcher, symbol->new('BUILD'), hash->new());
+                    $method = $WALKMETH->do($dispatcher, symbol->new('BUILD'));
                 }
                 
                 return $nil::NIL;                 
@@ -449,11 +471,11 @@ $::Class->send('add_method' => (
                 my $dispatcher = $self->class->send('dispatcher' => (symbol->new(':ascendant')));
                 
                 my $WALKMETH = $e->get('WALKMETH');
-                my $method = $WALKMETH->do($dispatcher, symbol->new('DESTROY'), hash->new());
+                my $method = $WALKMETH->do($dispatcher, symbol->new('DESTROY'));
 
                 while ($method != $nil::NIL) { 
                     $method->do(list->new($self));                  
-                    $method = $WALKMETH->do($dispatcher, symbol->new('DESTROY'), hash->new());
+                    $method = $WALKMETH->do($dispatcher, symbol->new('DESTROY'));
                 }       
                 
                 return $nil::NIL;                                            
