@@ -190,7 +190,7 @@ executing, so you would need to set up CATCH blocks in places where an alarm
 can rise to handle it properly.
 
 You can request an alarm using the number of seconds, or with a target date.
-It returns an alarm object that you can do interesting things with.
+It returns a proxy alarm object that you can do interesting things with.
 
     multi Alarm *alarm (Num $seconds = $CALLER::_, &do = {die Sig::ALARM}, :$repeat = 1)
     multi Alarm *alarm (Date $date, &do = {die Sig::ALARM}, :$repeat = 1)
