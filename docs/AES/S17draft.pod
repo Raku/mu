@@ -6,14 +6,14 @@ Synopsis 17: Concurrency [DRAFT]
 
 =head1 AUTHOR
 
-Elizabeth Mattijsen <elizabeth@cpan.org>
+Elizabeth Mattijsen <liz@dijkmat.nl>
 Autrijus Tang <autrijus@autrijus.org>
 
 =head1 VERSION
 
-  Maintainer: Elizabeth Mattijsen <elizabeth@cpan.org>
+  Maintainer: Elizabeth Mattijsen <liz@dijkmat.nl>
   Date: 13 Jun 2005
-  Last Modified: 31 Oct 2005
+  Last Modified: 3 Nov 2005
   Number: 0
   Version: 1
 
@@ -32,7 +32,30 @@ release-often principle.)
     sub c is atomic {
         $x -= 3;
         $y += 3;
+        if $x < 10 { retry }
     };
+
+    $e = &c.also( &d ); # 
+    $e();
+
+=head3 retry
+
+The C<retry> function basically restores the state of the thread at the
+last checkpoint and will wait there until an external event allows it to
+potentially run that atomic section of code again without having to retry
+again.
+
+If there are no external events possible that could restart execution, an
+exception will be raised.
+
+The last checkpoint is either the last atomic / non-atomic boundary, or
+the most immediate caller constructed with C<also>.
+
+=head3 also
+
+The C<also> method on an atomic Code object causes a checkpoint to be made
+for C<retry>, creating an alternate execution path to be followed when a
+retry is done.
 
 =head2 Critical sections
 
@@ -71,7 +94,7 @@ Conc object # name is still up for grabs!
                # process-local changes no longer affects parent
                # tentatively, the control methods still applies to it
                # including wait (which will always return undef)
-               # XXX revisit tentative
+               # also needs to discard any atomicity context
 - attributes:
     - .started  # time
     - .finished # time
