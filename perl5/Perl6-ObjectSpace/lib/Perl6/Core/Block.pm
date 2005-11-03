@@ -47,6 +47,15 @@ sub do {
     $self->{body}->($self->{env});
 } 
 
+sub do_while {
+    my ($self, $condition) = @_;
+    (blessed($condition) && $condition->isa('block'))
+        || confess "Condition must be a block";
+    while ($condition->do()->to_bit == $bit::TRUE) {
+        $self->do();
+    }
+}
+
 1;
 
 __END__
