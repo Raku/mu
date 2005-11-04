@@ -100,18 +100,29 @@ $::ENV->create('WALKMETH' => closure->new(
             my $e = shift;
             $e->create('$method' => $nil::NIL);
             $e->create('$current' => $e->get('&dispatcher')->do());                                  
-
             block->new($e, sub {
                 my $e = shift;
-                if ($e->get('$current')->send('has_method' => $e->get('$label')) == $bit::TRUE) {
-                    $e->set('$method' => $e->get('$current')->send('get_method' => $e->get('$label')));
-                }
+                $e->get('$current')
+                  ->send('has_method' => $e->get('$label'))
+                  ->and(
+                      block->new($e, sub {
+                          my $e = shift;
+                          $e->set('$method' => $e->get('$current')->send('get_method' => $e->get('$label')));                    
+                      })
+                  );    
                 $e->set('$current' => $e->get('&dispatcher')->do());
             })->do_while(
                 block->new($e, sub {
                     my $e = shift;
-                    ($e->get('$method') == $nil::NIL && $e->get('$current') != $nil::NIL)
-                        ? $bit::TRUE : $bit::FALSE
+                    $e->get('$current')
+                      ->is_nil
+                      ->not
+                      ->and(
+                          block->new($e, sub {
+                              my $e = shift;
+                              $e->get('$method')->is_nil
+                          })
+                      ); 
                 })
             );
             return $e->get('$method');        
@@ -537,14 +548,17 @@ $::Class->send('add_method' => (
                 symbol->new('%params' => 'hash')
             ),
             sub {
-                my $e      = shift;
-                my $self   = $e->get('$self:');
-                my $params = $e->get('%params');
-                foreach my $key ($params->keys->to_native) {
-                    my $symbol = symbol->new($key->to_native);
-                    $self->set_attr($symbol => $params->fetch($key));
-                        #if $self->class->send('find_attribute_spec' => ($symbol));
-                } 
+                my $e = shift;
+                $e->get('%params')->keys->each(
+                    block->new($e, sub {
+                        my $e = shift;                        
+                        $e->get('$self:')
+                          ->set_attr(
+                              symbol->new($e->get('$_')->to_native), 
+                              $e->get('%params')->fetch($e->get('$_'))
+                          );
+                    })
+                );
                 return $nil::NIL;               
             }
         )
@@ -1161,14 +1175,17 @@ $::Object->send('add_method' => (
                 symbol->new('%params' => 'hash')
             ),
             sub {
-                my $e      = shift;
-                my $self   = $e->get('$self:');
-                my $params = $e->get('%params');
-                foreach my $key ($params->keys->to_native) {
-                    my $symbol = symbol->new($key->to_native);
-                    $self->set_attr($symbol => $params->fetch($key));
-                        #if $self->class->send('find_attribute_spec' => ($symbol));
-                } 
+                my $e = shift;
+                $e->get('%params')->keys->each(
+                    block->new($e, sub {
+                        my $e = shift;                        
+                        $e->get('$self:')
+                          ->set_attr(
+                              symbol->new($e->get('$_')->to_native), 
+                              $e->get('%params')->fetch($e->get('$_'))
+                          );
+                    })
+                );
                 return $nil::NIL;               
             }
         )

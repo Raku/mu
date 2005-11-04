@@ -40,6 +40,16 @@ sub to_num { (shift)->to_native == 0 ? num->new(0) : num->new(1) }
 
 # methods 
 
+sub not {
+    my $self = shift;
+    if ($self == $TRUE) {
+        return $FALSE;
+    }
+    else {
+        return $TRUE;
+    }    
+}
+
 sub and : method {
     my ($self, $block) = @_;
     (blessed($block) && $block->isa('block'))
