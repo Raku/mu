@@ -70,7 +70,7 @@ GetOptions(
 
 unless(-e $PIL2JS::cfg{preludepc} and -s $PIL2JS::cfg{preludepc}) {
   warn << '.';
-*** Precompiled Prelude doesn't exist yet; precompiling...
+*** Precompiled Prelude for JS doesn't exist yet; precompiling...
     (You can safely ignore the 'useless use of constant' warnings.)
 .
   my $js = precomp_module_to_mini_js "-I", PIL2JS::pwd("lib6"), "-MPrelude::JS";
@@ -79,7 +79,7 @@ unless(-e $PIL2JS::cfg{preludepc} and -s $PIL2JS::cfg{preludepc}) {
 
 unless(-e $PIL2JS::cfg{testpc} and -s $PIL2JS::cfg{testpc}) {
   warn << '.';
-*** Precompiled Test.pm doesn't exist yet; precompiling...
+*** Precompiled Test.pm for JS doesn't exist yet; precompiling...
     (You can safely ignore the 'useless use of constant' warnings.)
 .
   my $js = precomp_module_to_mini_js "-MTest";
