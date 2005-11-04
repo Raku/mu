@@ -19,8 +19,222 @@ Autrijus Tang <autrijus@autrijus.org>
 
 =head1 Overview
 
-Nothing to see here yet -- See L<http://sixpan.perl6.nl/> and also
-L<http://sixpan.perl6.nl/sixpan/index.cgi?KanesNotes> for now.
+# This file needs reorganization - gnomes welcome!
 
-(Expected SubEthaEdit design session in Nov 4.)
+'package management means several things':
+    - metadata collection                           (1) perl6-thingy
+    - package building                              (2) make dist
+        - intermediate format for transport
+            - the equiv of Makefile.PL in it
+            - decomposed to hooks and probes
+        - uploading package to central area         (3) CPAN
+        - indexing                                  (4) aptftp-archive
+        - understanding/querying index              (5) apt-cache
+        - fetching package
+        - building final package                    (6) dpkg-deb
+            - with dependency, conflict, alternative, etc resolution    (7) apt
+        - installing package                        (8) dpkg -i
 
+- Check out the "prototype" directory here for the meta.info for #1
+http://p4.elixus.org:8181/@md=d&cd=//member/kane/pms/docs/&cdf=//member/kane/pms/docs/notes.txt&c=BYo@//member/kane/pms/
+
+- To use dpkg, let's not do manual patchfile
+    - instead import dpkg src into a src control
+    - then fink patches becomes a branch
+    - and we branch again
+    - and brings the diffs between them and figure out who can accept what
+    - but it's all in version control, not .diff files
+
+(au will bring this to jhi and aevil next Monday and see what they think about it, btw.)
+
+=head2 Packages
+
+- Binary and Source Package
+- Only Source Packages
+    - source -> package compilation on the client machine we can not use
+        standard dependency resolution engines, as the package that would
+        satisfy the dependency doesn't exist
+    - apt only groks binary pkgs
+        - which is why we are doing something finkish
+- Assume user have a compiler and other dev tools
+    - Because we are going to bundle them damnit
+    - Fall back statically and gracefully due to static C-side dep declaration
+
+Though this not necessarily represents the view of Runtimes:
+
+when comping to pir we need to recognize "use" for pir lib bundles
+when comping to p5 we need to recognize PAR (not really)
+when targetting jvm we have .jar capability
+but that's the runtime - we only provide bridge to them on the syntax level instead of on the package management level - to users of perl 6 it's all just "perl 6" regardless of the runtime they are going to use on the system.
+
+
+[foo.p6]
+given (use (perl5:DBI | java:JDBC)) {
+    when /perl5/ { ... }
+    when /java/ { ... }
+};
+
+[foo.p6o]
+- symbol resolution links to java:JDBC
+- remembers the policy that shaped this decision
+- would not relink unless the environment changes
+    - new available perl5:DBI
+    - modified policy
+    - et cetera
+- trigger a relink if the env changed under it
+    - it's the same as Inline::* for the changed source files
+    - except we also chase the dep pkgs and reqs
+
+- When you install a package
+    - you list the resolved pkgs as part of its install profile
+    - because perl6 uses ahead-of-time compilation (most of the times)
+    - this means the pkg is already statically linked to those resolved deps
+    - to change that requires a rebuild from source anyway
+    - the runtime is going to be exactly the same as install time
+    - to change that requires essentially a relink therefore a reinstall
+    - exactly like C#, Java, C, whatever
+        (not like Ruby, Python, PHP)
+
+separate compilation doctrine
+- each package will just remember specific versions it linked against
+    - when you do upgrade, you have the chance of relinking past
+      packages that depends on the older version
+      (again, just like C)
+
+ldd libfoo 
+    libz.3
+
+upgrade to libz4
+/usr/lib/libz.3.so
+
+
+=head2 Policies
+
+=head3 Repositories
+
+=head3 Probing
+
+Compress::Zlib
+- need zlib.h and -lz on the system
+- since it's C, we can reasonably put it as part of metadata
+- the requires section is probed according to the prefix
+- new prefixes may be added later in an extensible fashion
+- 2 categories of prefixes:
+    - those we are 'authoritive' for, i.e. can resolve
+    - the others are delegated to powers-that-be in the local system
+
+
+Requires: p5-Foo, p6-Bar,  c_lib-zlib, c_inc-malloc, bin-postfix
+
+mapping:
+    prefix -> probing tool
+
+c headers
+binaries
+libraries
+file
+
+network?
+
+
+=head3 Package Management
+
+kane thinks:
+- dpkg seems to be not the optimal choice
+- functionality good, custom patches bad
+    - described well in policy & we have source code :)
+    - rafl seems to be very passionate on the Right Thing
+    - (has C-fu and Perl-fu and dpkg-fu, worked with Parrot+Pugs)
+- fink "fixed" dpkg by introducing their own branch
+    - distributed as a "patchfile"
+        - http://cvs.sourceforge.net/viewcvs.py/fink/fink/10.4-transitional/dpkg.patch?rev=1.3&view=log
+        - main patch: adding @PREFIX@ to dpkg, so it no longer assumes it
+            manages all of /, but in finks case, just /sw
+            - that is a must-have patch for us, if using dpkg
+            - also means a shared root between admin & install files
+    - no hope of upstream merge?
+    - (make them our upstream and see if they take patches better?)
+    - dual-track system
+        - "fink" is srcpkg # this is more like what we are after
+        - "apt-get" is binpkg # don't have to realize that part right now?
+        - use 'intermediate format' (a la tarballs from "make dist")
+            - contains all files & metadata
+                - usable for anyone to build packages
+            - build .deb (or similar) on client machine
+                - deb has name (full pkg name) and provides:
+                    - p5-Foo-Bar
+                    - p5-Foo-Bar-Origin
+                    - allows users to depend more specifically
+               - requires a new EU::MM/M::B (no more make!)     
+            
+
+(other alternatives)
+- yum (as in yummy)
+    - vasi on irc.freenode.org:#fink knows a lot
+
+autrijus thinks:
+- ddundan is porting DBI::PurePerl to Perl6
+    - Going to call it "DBI-0.0.1-cpan:DDUNCAN"
+    - 4 parts in the name
+        - implicit: "perl6" -- "use perl6:DBI" is the same as "use DBI"
+            - mapped to "p6-" in the ondisk pkg string
+        - "DBI" is just "DBI"
+        - "0.0.1" (it is decreed that thou shalt not upload malformed version strings)
+        - scheme:location (with some validation somewhere.. or something)
+            - on disk, we turn the initial colon into dash
+            - URI-escape the location part
+    - one-to-one, reversible mapping between long names and ondisk package dirs
+        - adopting the "only.pm"-like scheme of installing modfiles into pkgdirs
+        
+    - blib/scripts/ & blib/man/
+        - problem is because shell could care less about multiversioning
+        - some sort of ln-s inevitable
+        - adopt the debian "alternatives" notion and be done with it
+        - DBI.3pm links to the "most desired" variant of DBI manpage
+    - we do have a way to tell what is more desired
+        - it's called the Policy File!
+            - Policy file API?
+        - whatever gets used via "use DBI" will win DBI.3pm as a bonus
+        - install everything under the module/package dir vs install systemwide + links?
+    - in the pugs buildsystem currently we're still using p5 MM
+        - except it goes to perl6sitelibdir perl6scriptdir perl6man3dir
+        - this can't go on forever - esp. we are having separate
+            - Net::IRC
+            - DBI
+            - Date
+            - Set
+        - only thing pending multiversioning is the Policy File
+            - without which we can't possibly roll this out
+
+=head2 Policy File
+
+=head3 API
+
+Policy.resolve_module(@modulespecs)
+    (see S11 for some module specs)
+    (allow junctions, yay)
+
+    - returns zero, one module object
+    - or an exception with 2+ overlapping ones
+
+=head3 Syntax
+
+Core < Vendor < Site < User policies
+
+- Whenever there could be a "use" line that is ambiguous,
+  the policy set is considered bogus and you have to edit
+  it to continue.
+
+
+- Tie breaker for multiple matches to a "use" line
+- Also a 'hintsfile' for package installer (& builder?)
+- Reasonable defaults
+
+p6-M-*-* > p5-M-*-*
+L-M-1.0.0-O > L-M-2.0.0-O
+
+language, module, version, origin
+
+- The user just have to subscribe to a policy source
+    - supplies the "user" part of the policy defaults
+    - eg. the CPAN policy source will prioritize anything cpan: in (say) modlist
