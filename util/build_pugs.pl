@@ -61,7 +61,7 @@ sub build {
         }
     }
 
-    run($^X, qw<util/gen_prelude.pl -v --touch --null --output src/Pugs/PreludePC.hs>);
+    run($^X, qw<util/gen_prelude.pl -v --touch --null -i src/perl6/Prelude.pm --output src/Pugs/PreludePC.hs>);
     build_lib($version, $ghc, @args);
     build_exe($version, $ghc, $ghc_version, @args);
 

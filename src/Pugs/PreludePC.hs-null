@@ -13,5 +13,19 @@ _BypassPreludePC :: IORef Bool
 _BypassPreludePC = unsafePerformIO $ newIORef False
 
 initPreludePC :: Env -> IO Env
-initPreludePC = return
+initPreludePC env = do
+    bypass <- readIORef _BypassPreludePC
+    if bypass then return env else do
+        let dispProgress = (posName . envPos $ env) == "<interactive>"
+        when dispProgress $ putStr "Loading Prelude... "
+        runEvalIO env{ envDebug = Nothing } $ opEval style "<prelude>" preludeStr
+        when dispProgress $ putStrLn "done."
+        return env
+    where
+    style = MkEvalStyle
+        { evalResult = EvalResultModule
+        , evalError  = EvalErrorFatal
+        }
 
+-- This is filled in by the null() procedure in util/gen_prelude.pl
+preludeStr :: String
