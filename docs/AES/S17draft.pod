@@ -35,7 +35,7 @@ release-often principle.)
         if $x < 10 { retry }
     };
 
-    $e = &c.also( &d ); # 
+    $e = &c.retry_with( &d ); # 
     $e();
 
 =head3 retry
@@ -49,11 +49,11 @@ If there are no external events possible that could restart execution, an
 exception will be raised.
 
 The last checkpoint is either the last atomic / non-atomic boundary, or
-the most immediate caller constructed with C<also>.
+the most immediate caller constructed with C<retry_with>.
 
-=head3 also
+=head3 retry_with
 
-The C<also> method on an atomic Code object causes a checkpoint to be made
+The C<retry_with> method on an atomic Code object causes a checkpoint to be made
 for C<retry>, creating an alternate execution path to be followed when a
 retry is done.
 
