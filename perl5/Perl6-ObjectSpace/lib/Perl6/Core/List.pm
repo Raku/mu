@@ -99,7 +99,7 @@ sub join {
     (blessed($delimiter) && $delimiter->isa('str'))
         || confess "delimiter must be a string type";    
     return str->new(
-        join $delimiter->to_native => 
+        CORE::join $delimiter->to_native => 
         map { $_->to_str->to_native } 
         $self->slice(num->new(0), $self->elems)->to_native
     )     
@@ -110,28 +110,30 @@ sub join {
 sub head { @{$_[0]}[0] }
 sub tail { list->new(@{$_[0]}[1 .. $#{$_[0]}]) }
 
-sub shift   : method { shift @{(shift)} }
-sub pop     : method { pop   @{(shift)} }
+sub shift   : method { CORE::shift(@{(shift)}) }
+sub pop     : method { CORE::pop(@{(shift)})   }
 
 sub unshift : method { 
     my $self = shift;
     (blessed($_) && $_->isa('type'))
         || confess "you can only add types to a list"
             foreach @_;
-    unshift @{$self} => @_; 
+    CORE::unshift(@{$self} => @_); 
+    nil->new();
 }
 
 sub push : method { 
     my $self = shift;
     (blessed($_) && $_->isa('type'))
-        || confess "you can only add types to a list"
+        || confess "you can only add types to a list got($_) => " . (CORE::join ", " => @_)
             foreach @_;
-    push @{$self} => @_; 
+    CORE::push(@{$self} => @_); 
+    nil->new();
 }
 
 sub reverse {
     my $self = shift;
-    list->new(reverse @{$self});
+    list->new(CORE::reverse(@{$self}));
 }
 
 ## list iterators

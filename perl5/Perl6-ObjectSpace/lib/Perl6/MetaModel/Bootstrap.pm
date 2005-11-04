@@ -16,6 +16,7 @@ use Perl6::Core::Block;
 use Perl6::MM::Opaque;
 use Perl6::MM::Method;
 use Perl6::MM::Attribute;
+use Perl6::MM::C3;
 
 use Carp 'confess';
 use Scalar::Util 'blessed';
@@ -58,8 +59,11 @@ sub opaque::send {
         
     foreach my $class (@classes) {
         my $methods = $class->get_attr(symbol->new('%:methods'));
-        return $methods->fetch($label)->do($args) 
-            if $methods->exists($label) == $bit::TRUE;             
+        #warn "looking for method (" . $label->to_native . ")";
+        if ($methods->exists($label) == $bit::TRUE) {
+            #warn "calling method (" . $label->to_native . ")";
+            return $methods->fetch($label)->do($args);
+        }
     }
     confess "Method (" . $label->to_native . ") not found in \$::Class " . $class->id->to_native;             
 }
@@ -549,7 +553,9 @@ $::Class->send('add_method' => (
             ),
             sub {
                 my $e = shift;
-                $e->get('%params')->keys->each(
+                $e->get('%params')
+                  ->keys
+                  ->apply(
                     block->new($e, sub {
                         my $e = shift;                        
                         $e->get('$self:')
@@ -585,21 +591,21 @@ $::Class->send('add_method' => (
             closure::params->new(
                 symbol->new('$self:' => 'opaque'),                
             ),
-            sub {
-                my $e    = shift;
-                my $self = $e->get('$self:');
-                                
-                my $dispatcher = $self->class->send('dispatcher' => (symbol->new(':ascendant')));
-                
-                my $WALKMETH = $e->get('WALKMETH');
-                my $method = $WALKMETH->do(list->new($dispatcher, symbol->new('DESTROY')));
-
-                while ($method != $nil::NIL) { 
-                    $method->do(list->new($self));                  
-                    $method = $WALKMETH->do(list->new($dispatcher, symbol->new('DESTROY')));
-                }       
-                
-                return $nil::NIL;                                            
+            sub {                
+                my $e = shift;
+                $e->create('&dispatcher' => $e->get('$self:')->class->send('dispatcher' => symbol->new(':ascendant')));
+                $e->create('$method' => $e->get('WALKMETH')->do(list->new($e->get('&dispatcher'), symbol->new('DESTROY'))));
+                block->new($e, sub {
+                    my $e = shift;
+                    $e->get('$method')->do(list->new($e->get('$self:'), $e->get('%params')));                  
+                    $e->set('$method' => $e->get('WALKMETH')->do(list->new($e->get('&dispatcher'), symbol->new('DESTROY'))));
+                })->do_until(
+                    block->new($e, sub {
+                        my $e = shift;
+                        $e->get('$method')->is_nil;
+                    })
+                );
+                return $nil::NIL;                                                                 
             }
         )
     )
@@ -685,17 +691,24 @@ $::Class->send('add_method' => (
             ),
             sub {
                 my $e = shift;
-                
-                if ($e->get('?@superclasses') != $nil::NIL) {
-                    foreach my $super ($e->get('?@superclasses')->to_native) {
-                        $super->send('add_subclass' => ($e->get('$self:')));
-                    }
-                    $e->get('$self:')->set_attr(symbol->new('@:superclasses') => $e->get('?@superclasses')); 
-                    # clear the MRO now
-                    $e->get('$self:')->set_attr(symbol->new('@:MRO') => list->new()); 
-                    # and recalculate it ..
-                    $e->get('$self:')->send('MRO');
-                }
+                $e->get('?@superclasses')
+                  ->is_nil
+                  ->or(
+                      block->new($e, sub {
+                          $e->get('?@superclasses')
+                            ->apply(
+                              block->new($e, sub {
+                                  my $e = shift;
+                                  $e->get('$_')->send('add_subclass' => $e->get('$self:'));
+                              })
+                          );
+                          $e->get('$self:')->set_attr(symbol->new('@:superclasses') => $e->get('?@superclasses')); 
+                          # clear the MRO now
+                          $e->get('$self:')->set_attr(symbol->new('@:MRO') => list->new()); 
+                          # and recalculate it ..
+                          $e->get('$self:')->send('MRO');                          
+                      })
+                  );
                 $e->get('$self:')->get_attr(symbol->new('@:superclasses'));                
             }
         )
@@ -746,7 +759,7 @@ $::Class->send('add_method' => (
                 symbol->new('$subclass' => 'opaque'),                                
             ),
             sub {
-                my $e = shift;
+                my $e = shift;        
                 $e->get('$self:')->get_attr(symbol->new('@:subclasses'))->push($e->get('$subclass'));                  
             }
         )
@@ -755,7 +768,7 @@ $::Class->send('add_method' => (
 
 =pod
 
-method _merge (opaque $self: list @seqs) returns list {
+method _merge (opaque $self:) returns list {
     ...
 }
 
@@ -768,47 +781,11 @@ $::Class->send('add_method' => (
         method->new(
             $::ENV,
             closure::params->new(
-                symbol->new('$self:' => 'opaque'),                
-                symbol->new('@seqs'  => 'list'),                                
+                symbol->new('$self:' => 'opaque'),                                             
             ),
             sub {
-                my $e    = shift;
-                my $self = $e->get('$self:');
-                my $seqs = $e->get('@seqs');
-                
-                # convert this to native
-                my @seqs = $seqs->to_native;
-                
-                my @res;
-                while (1) {
-                    # remove all empty seqences
-                    my @nonemptyseqs = (map { (($_->is_empty == $bit::FALSE) ? $_ : ()) } @seqs);
-                    # return the list if we have no more no-empty sequences
-                    return list->new(@res) if not @nonemptyseqs; 
-                    my $cand; # a canidate ..
-                    foreach my $seq (@nonemptyseqs) {
-                        $cand = $seq->fetch(num->new(0)); # get the head of the list
-                        my $nothead;            
-                        foreach my $sub_seq (@nonemptyseqs) {
-                            # XXX - this is instead of the python "in"
-                            my %in_tail = (map { $_ => 1 } $sub_seq->tail->to_native);
-                            # NOTE:
-                            # jump out as soon as we find one matching
-                            # there is no reason not too. However, if 
-                            # we find one, then just remove the '&& last'
-                            $nothead++ && last if exists $in_tail{$cand};      
-                        }
-                        last unless $nothead; # leave the loop with our canidate ...
-                        $cand = undef;        # otherwise, reject it ...
-                    }
-                    confess "Inconsistent hierarchy" if not $cand;
-                    push @res => $cand;
-                    # now loop through our non-empties and pop 
-                    # off the head if it matches our canidate
-                    foreach my $seq (@nonemptyseqs) {
-                        $seq->shift if $seq->fetch(num->new(0)) == $cand;
-                    }
-                }                
+                my $e = shift;
+                C3->new($e->get('$self:'))->linearize;
             }
         )
     )
@@ -818,11 +795,7 @@ $::Class->send('add_method' => (
 
 method MRO (opaque $self:) returns list {
     unless (@:MRO) {
-        $self._merge(
-            [ $self ],
-            @:superclasses.map:{ [ $_.MRO() ] },
-            [ @:superclasses ]
-        );
+        @:MRO = $self._merge();
     }
     @:MRO;
 }
@@ -840,17 +813,20 @@ $::Class->send('add_method' => (
             ),
             sub {
                 my $e = shift;
-                
                 # if it is empty ... 
-                if ($e->get('$self:')->get_attr(symbol->new('@:MRO'))->is_empty == $bit::TRUE) {
-                    my @supers = $e->get('$self:')->send('superclasses')->to_native;
-                    my $MRO = $e->get('$self:')->send('_merge' => list->new(
-                        list->new($e->get('$self:')),       # the class we are linearizing
-                        (map { $_->send('MRO') } @supers ), # the MRO of all the superclasses
-                        list->new(@supers)                  # a list of all the superclasses                        
-                    ));
-                    $e->get('$self:')->set_attr(symbol->new('@:MRO') => $MRO);
-                }
+                $e->get('$self:')
+                  ->get_attr(symbol->new('@:MRO'))
+                  ->is_empty
+                  ->and(
+                      block->new($e, sub {
+                          my $e = shift;
+                          $e->get('$self:')
+                            ->set_attr(
+                                symbol->new('@:MRO'),
+                                $e->get('$self:')->send('_merge')
+                            );                          
+                      })
+                  );
                 return $e->get('$self:')->get_attr(symbol->new('@:MRO'));                
             }
         )
@@ -923,19 +899,14 @@ $::Class->send('add_method' => (
                 symbol->new('@values' => 'list'),                                
             ),
             sub {
-                my $e    = shift;
-                my $self = $e->get('$self:');
-                
+                my $e = shift;
                 $e->create('$counter' => num->new(0));
-                return block->new(
-                    $e,
-                    sub { 
-                        my $local   = shift;
-                        my $counter = $local->get('$counter');
-                        $local->set('$counter' => $counter->increment);                        
-                        return $local->get('@values')->fetch($counter); 
-                    }
-                );                
+                return block->new($e, sub { 
+                    my $e = shift;
+                    $e->create('$temp' => $e->get('$counter'));
+                    $e->set('$counter' => $e->get('$counter')->increment);                        
+                    return $e->get('@values')->fetch($e->get('$temp')); 
+                });
             }
         )
     )
@@ -959,11 +930,8 @@ $::Class->send('add_method' => (
                 symbol->new('$self:' => 'opaque'),                
             ),
             sub {
-                my $e    = shift;
-                my $self = $e->get('$self:');
-                
-                my $MRO = $self->send('MRO');
-                return $self->send('_make_dispatcher_iterator' => $MRO->reverse);                
+                my $e = shift;
+                $e->get('$self:')->send('_make_dispatcher_iterator' => $e->get('$self:')->send('MRO')->reverse);
             }
         )
     )
@@ -987,11 +955,8 @@ $::Class->send('add_method' => (
                 symbol->new('$self:' => 'opaque'),                
             ),
             sub {
-                my $e    = shift;
-                my $self = $e->get('$self:');
-                
-                my $MRO = $self->send('MRO');
-                return $self->send('_make_dispatcher_iterator' => $MRO);
+                my $e = shift;
+                $e->get('$self:')->send('_make_dispatcher_iterator' => $e->get('$self:')->send('MRO'));
             }
         )
     )
@@ -1012,21 +977,39 @@ $::Class->send('add_method' => (
                 symbol->new('$class' => 'opaque'),                
             ),
             sub {
-                my $e     = shift;
-                my $self  = $e->get('$self:');
-                my $class = $e->get('$class');                
-                
-                return bit->new(1) 
-                    if $self->id->equal_to($class->id) == $bit::TRUE;
-                    
-                my $dispatcher = $self->send('dispatcher', symbol->new(':canonical'));
-                my $next = $dispatcher->do();
-                while ($next != $nil::NIL) {    
-                    return bit->new(1) 
-                        if $next->id->equal_to($class->id) == $bit::TRUE;
-                    $next = $dispatcher->do();
-                }
-                return bit->new(0);                 
+                my $e = shift;               
+                $e->create('$return' => bit->new(0));
+                $e->get('$self:')
+                  ->id
+                  ->equal_to(
+                     $e->get('$class')->id
+                  )->and(
+                      block->new($e, sub {
+                          my $e = shift;
+                          $e->set('$return' => bit->new(1))
+                      })
+                  );
+                $e->create('$dispatcher' => $e->get('$self:')->send('dispatcher', symbol->new(':canonical')));
+                $e->create('$next' => $e->get('$dispatcher')->do());             
+                block->new($e, sub {
+                    $e->get('$next')
+                      ->id
+                      ->equal_to(
+                          $e->get('$class')->id
+                      )->and(
+                          block->new($e, sub {
+                              my $e = shift;  
+                              $e->set('$return' => bit->new(1))
+                          })
+                      );
+                    $e->set('$next' => $e->get('$dispatcher')->do());
+                })->do_while(
+                    block->new($e, sub {
+                       my $e = shift;
+                       ($e->get('$return') == $bit::FALSE && $e->get('$next') != $nil::NIL) ? $bit::TRUE : $bit::FALSE 
+                    })
+                );
+                return $e->get('$return');                 
             }
         )
     )
@@ -1130,9 +1113,8 @@ $::Class->send('add_method' => (
                 symbol->new('$self:' => 'opaque'),  
             ),
             sub {
-                my $e     = shift;
-                my $self  = $e->get('$self:');
-                $self->get_attr(symbol->new('%:attributes'))->keys();                                 
+                my $e = shift;
+                $e->get('$self:')->get_attr(symbol->new('%:attributes'))->keys();                                 
             }
         )
     )
@@ -1176,7 +1158,9 @@ $::Object->send('add_method' => (
             ),
             sub {
                 my $e = shift;
-                $e->get('%params')->keys->each(
+                $e->get('%params')
+                  ->keys
+                  ->apply(
                     block->new($e, sub {
                         my $e = shift;                        
                         $e->get('$self:')
@@ -1288,20 +1272,20 @@ $::Object->send('add_method' => (
                 symbol->new('$self:' => 'opaque'),                
             ),
             sub {
-                my $e    = shift;
-                my $self = $e->get('$self:');
-
-                my $dispatcher = $self->class->send('dispatcher' => (symbol->new(':ascendant')));
-
-                my $WALKMETH = $e->get('WALKMETH');
-                my $method = $WALKMETH->do(list->new($dispatcher, symbol->new('DESTROY')));
-
-                while ($method != $nil::NIL) { 
-                    $method->do(list->new($self));                  
-                    $method = $WALKMETH->do(list->new($dispatcher, symbol->new('DESTROY')));
-                }       
-
-                return $nil::NIL;                                            
+                my $e = shift;
+                $e->create('&dispatcher' => $e->get('$self:')->class->send('dispatcher' => symbol->new(':ascendant')));
+                $e->create('$method' => $e->get('WALKMETH')->do(list->new($e->get('&dispatcher'), symbol->new('DESTROY'))));
+                block->new($e, sub {
+                    my $e = shift;
+                    $e->get('$method')->do(list->new($e->get('$self:'), $e->get('%params')));                  
+                    $e->set('$method' => $e->get('WALKMETH')->do(list->new($e->get('&dispatcher'), symbol->new('DESTROY'))));
+                })->do_until(
+                    block->new($e, sub {
+                        my $e = shift;
+                        $e->get('$method')->is_nil;
+                    })
+                );
+                return $nil::NIL;                                          
             }
         )
     )
