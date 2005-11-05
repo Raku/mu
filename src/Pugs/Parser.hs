@@ -1751,7 +1751,7 @@ ruleFoldOp = verbatimRule "reduce metaoperator" $ do
         [ " ** * / % x xx +& +< +> ~& ~< ~> "
         , " + - ~ +| +^ ~| ~^ ?| , "
         , " & ^ | "
-        , " => "
+        , " => = "
         , " != == < <= > >= ~~ !~ "
         , " eq ne lt le gt ge =:= eqv "
         , " && "

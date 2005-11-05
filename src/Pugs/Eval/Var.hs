@@ -169,11 +169,14 @@ findSub name' invs args = do
             { subName     = "&prefix:[" ++ op ++ "]"
             , subType     = SubPrim
             , subAssoc    = "spre"
-            , subParams   = makeParams ["List"]
-            , subReturns  = mkType "Str"
+            , subParams   = makeParams $
+                if any isLValue (subParams code)
+                    then ["rw!List"] -- XXX - does not yet work for the [=] case
+                    else ["List"]
+            , subReturns  = anyType
             , subBody     = Prim $ \[vs] -> do
                 list_of_args <- fromVal vs
-                op2Fold (list_of_args) (VCode code)
+                op2Fold list_of_args (VCode code)
             }
         -- Now we construct the sub. Is there a more simple way to do it?
     possiblyBuildMetaopVCode op' | "&prefix:" `isPrefixOf` op', "\171" `isSuffixOf` op' = do 
