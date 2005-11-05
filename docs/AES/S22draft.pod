@@ -8,7 +8,6 @@ Synopsis 22: CPAN [DRAFT]
 
 Jos Boumans <kane@cpan.org>
 Autrijus Tang <autrijus@autrijus.org>
-Florian Ragwitz <rafl@debian.org>
 
 =head1 VERSION
 
@@ -23,17 +22,14 @@ Florian Ragwitz <rafl@debian.org>
 # This file needs reorganization - gnomes welcome!
 
 'package management means several things':
-    - metadata collection                           (1) perl6-thingy or maybe debtags?
+    - metadata collection                           (1) perl6-thingy
     - package building                              (2) make dist
         - intermediate format for transport
             - the equiv of Makefile.PL in it
             - decomposed to hooks and probes
         - uploading package to central area         (3) CPAN
-        - indexing                                  (4) apt-ftparchive
-		    - I don't think apt-ftparchive is enough here. I think we'll need to set up
-			  or even wright something like dak, the Debian archive maintaince scripts
-			  packages.debian.org/dak
-        - understanding/querying index              (5) apt-cache, debtags
+        - indexing                                  (4) aptftp-archive
+        - understanding/querying index              (5) apt-cache
         - fetching package
         - building final package                    (6) dpkg-deb
             - with dependency, conflict, alternative, etc resolution    (7) apt
@@ -115,56 +111,6 @@ upgrade to libz4
 =head2 Policies
 
 =head3 Repositories
-
-My ideas for the repository layout look like this. It's modeled after the
-Debian archive structure.
-
- /
- |- dists/                  This directory only contains so called Packages files.
- |  |                       They know some meta-information about the packages (description, ...)
- |  |                       and a path to the real package inside pool/. Using this Packages
- |  |                       files modules can be categorized very well. There are more then the
- |  |                       showed categories possible, of course. It's only an example.
- |  |
- |  |- authors/             The whole archive sorted by authors
- |  |  |- stevan.gz         Stevan's modules
- |  |  |- autrijus.gz       All of autrijus modules
- |  |  |- autrijus/
- |  |  |  |- Perl6-Pugs.gz  Individual modules
- |  |  |  `- Acme-Hello.gz
- |  |  `- rafl.gz           rafl's modules.
- |  |
- |  |- languages/           The archive sorted by language
- |  |  |- perl.gz           All available perl modules
- |  |  |- perl/
- |  |  |  |- kane.gz        kane's modules
- |  |  |  `- gbarr.gz       gbarr's modules
- |  |  |- js.gz             All js modules
- |  |  |- js/
- |  |  |- ruby.gz
- |  |  `- ruby/             Ruby stuff
- |  |
- |  `- modules/             Categorized by modules
- |     |- DBI/
- |     |  |- timb.gz        Tim's DBI
- |     |  `- rafl.gz        My DBI
- |     |- Net-SMTP/
- |     `- Net-IMCP/
- |
- `- pool/                       The real modules are stored here. The Packages files point here.
-    |- a/                       Modules startihg with 'a'
-    |  |- Acme-Foo/             All Acme-Foo versions
-    |  |  |- Acme-Foo-0.1.deb   Packages for specific Acme-Foo versions
-    |  |  `- Acme-Foo-0.2.deb
-    |  |- Acme-Bar/
-    |  `- Acme-Hello/
-    |- b/
-    |- c/
-    |- ./
-    |- ./
-    |- ./
-    |- y/
-    `- z/
 
 =head3 Probing
 
@@ -259,15 +205,6 @@ autrijus thinks:
             - Set
         - only thing pending multiversioning is the Policy File
             - without which we can't possibly roll this out
-
-rafl thinks:
-- dpkg seems to be not the optimal choice
-    - maybe only adopt the package and metadata format from the .deb format version 2
-	  and write the tools to manipulate and install it ourself. Preferably in Perl 6.
-	- I fear that tools like dpkg/apt/.. aren't portable as we need it because they
-	  were mainly written for use with a single Linux distribution.
-	- The Debian tools can be useful as a provisional solutions until we wrote
-	  something own or as a reference implementation.
 
 =head2 Policy File
 

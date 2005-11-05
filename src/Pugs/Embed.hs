@@ -13,18 +13,20 @@ module Pugs.Embed (
     module Pugs.Embed.Perl5,
     module Pugs.Embed.Haskell,
     module Pugs.Embed.Parrot,
+    module Pugs.Embed.Pugs,
     evalEmbedded
     -- module Pugs.Embed.Ponie,
 ) where
 import Pugs.Embed.Perl5
 import Pugs.Embed.Haskell
 import Pugs.Embed.Parrot
--- import Pugs.Embed.Ponie
+import Pugs.Embed.Pugs
 
 evalEmbedded :: String -> String -> IO ()
 evalEmbedded "Pir" = evalParrot
 evalEmbedded "PIR" = evalParrot
 evalEmbedded "Parrot" = evalParrot
+evalEmbedded "Pugs" = evalPugs
 {- evalEmbedded "Haskell" code = do
     evalHaskell code
     return () -}

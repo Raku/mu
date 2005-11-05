@@ -25,7 +25,6 @@ import Pugs.AST
 import Pugs.Types
 import Pugs.Eval
 import Pugs.Prim
-import Pugs.Prim.Eval
 import Pugs.Embed
 import Data.IORef
 import System.FilePath

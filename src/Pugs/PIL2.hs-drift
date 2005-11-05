@@ -1,0 +1,202 @@
+{-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fallow-overlapping-instances -fno-warn-orphans -fno-warn-incomplete-patterns -fallow-undecidable-instances #-}
+
+{-|
+    Pugs Intermediate Language, version 2.
+
+>   And the Tree that was withered shall be renewed,
+>   And he shall plant it in the high places,
+>   And the City shall be blessed.
+>   Sing all ye people!
+
+-}
+
+
+module Pugs.PIL2 (
+    PIL_Environment(..),
+    PIL_Stmts(..), PIL_Stmt(..), PIL_Decl(..),
+    PIL_Expr(..), PIL_Literal(..), PIL_LValue(..),
+    TParam(..), TCxt(..), TEnv(..),
+) where
+import Pugs.AST hiding (Prim)
+import Pugs.Internals hiding (get, put)
+import Pugs.Types
+import Emit.PIR
+import DrIFT.Perl5
+import DrIFT.Binary
+import DrIFT.JSON
+
+-- import DrIFT.XML
+-- {-! global : Haskell2Xml !-}
+
+{-! global : GhcBinary, Perl5, JSON !-}
+
+{-|
+    The plan here is to first compile the environment (subroutines,
+    statements, etc.) to an abstract syntax tree ('PIL' -- Pugs Intermediate
+    Language) using the 'compile' function and 'Compile' class.
+-}
+
+data PIL_Environment = PIL_Environment
+    { pilGlob :: [PIL_Decl]
+    , pilMain :: PIL_Stmts
+    }
+    deriving (Show, Eq, Ord, Typeable)
+
+data PIL_Stmts = PNil
+    | PStmts
+        { pStmt  :: !PIL_Stmt
+        , pStmts :: !PIL_Stmts
+        }
+    | PPad
+        { pScope :: !Scope
+        , pSyms  :: ![(VarName, PIL_Expr)]
+        , pStmts :: !PIL_Stmts
+        }
+    deriving (Show, Eq, Ord, Typeable)
+
+data PIL_Stmt = PNoop | PStmt { pExpr :: !PIL_Expr } | PPos
+        { pPos  :: !Pos
+        , pExp  :: !Exp
+        , pNode :: !PIL_Stmt
+        }
+    deriving (Show, Eq, Ord, Typeable)
+
+data PIL_Expr
+    = PRawName { pRawName :: !VarName }
+    | PExp { pLV  :: !PIL_LValue }
+    | PLit { pLit :: !PIL_Literal }
+    | PThunk { pThunk :: !PIL_Expr }
+    | PCode
+        { pType    :: !SubType
+        , pParams  :: ![TParam]
+        , pLValue  :: !Bool
+        , pIsMulti :: !Bool
+        , pBody    :: !PIL_Stmts
+        }
+    deriving (Show, Eq, Ord, Typeable)
+
+data PIL_Decl = PSub
+    { pSubName      :: !SubName
+    , pSubType      :: !SubType
+    , pSubParams    :: ![TParam]
+    , pSubLValue    :: !Bool
+    , pSubIsMulti   :: !Bool
+    , pSubBody      :: !PIL_Stmts
+    }
+    deriving (Show, Eq, Ord, Typeable)
+
+data PIL_Literal = PVal { pVal :: Val }
+    deriving (Show, Eq, Ord, Typeable)
+
+data PIL_LValue = PVar { pVarName :: !VarName }
+    | PApp 
+        { pCxt  :: !TCxt
+        , pFun  :: !PIL_Expr
+        , pInv  :: !(Maybe PIL_Expr)
+        , pArgs :: ![PIL_Expr]
+        }
+    | PAssign
+        { pLHS  :: ![PIL_LValue]
+        , pRHS  :: !PIL_Expr
+        }
+    | PBind
+        { pLHS  :: ![PIL_LValue]
+        , pRHS  :: !PIL_Expr
+        }
+    deriving (Show, Eq, Ord, Typeable)
+
+data TParam = MkTParam
+    { tpParam   :: !Param
+    , tpDefault :: !(Maybe (PIL_Expr))
+    }
+    deriving (Show, Eq, Ord, Typeable)
+
+data TCxt
+    = TCxtVoid | TCxtLValue !Type | TCxtItem !Type | TCxtSlurpy !Type
+    | TTailCall !TCxt
+    deriving (Show, Eq, Ord, Typeable)
+
+data TEnv = MkTEnv
+    { tLexDepth :: !Int                 -- ^ Lexical scope depth
+    , tTokDepth :: !Int                 -- ^ Exp nesting depth
+    , tCxt      :: !TCxt                -- ^ Current context
+    , tReg      :: !(TVar (Int, String))-- ^ Register name supply
+    , tLabel    :: !(TVar Int)          -- ^ Label name supply
+    }
+    deriving (Show, Eq, Ord, Typeable)
+
+------------------------------------------------------------------------
+
+instance Binary Exp where
+    put_ _ _ = return ()
+    get  _   = return Noop
+instance Perl5 Exp where
+    showPerl5 _ = "(undef)"
+instance JSON Exp where
+    showJSON _ = "null"
+
+-- Non-canonical serialization... needs work
+instance (Show (TVar a)) => Perl5 (TVar a) where
+    showPerl5 _ = "(warn '<ref>')"
+instance (Show (TVar a)) => JSON (TVar a) where
+    showJSON _ = "null"
+
+=begin DRIFT
+
+data Scope = SState  -- ^ Persistent across calls
+           | SMy     -- ^ Lexical
+           | SOur    -- ^ Package
+           | SLet    -- ^ Hypotheticalised (reverted upon failure)
+           | STemp   -- ^ Temporary (reverted at scope exit)
+           | SGlobal -- ^ Global
+
+data SubType = SubMethod    -- ^ Method
+             | SubCoroutine -- ^ Coroutine
+             | SubMacro     -- ^ Macro
+             | SubRoutine   -- ^ Regular subroutine
+             | SubBlock     -- ^ Bare block
+             | SubPointy    -- ^ Pointy sub
+             | SubPrim      -- ^ Built-in primitive operator (see "Pugs.Prim")
+
+
+data Val
+    = VUndef                 -- ^ Undefined value
+    | VBool     !VBool       -- ^ Boolean value
+    | VInt      !VInt        -- ^ Integer value
+    | VRat      !VRat        -- ^ Rational number value
+    | VNum      !VNum        -- ^ Number (i.e. a double)
+    | VStr      !VStr        -- ^ String value
+    | VList     !VList       -- ^ List value
+    | VType     !VType       -- ^ Type value (e.g. @Int@ or @Type@)
+
+data Cxt = CxtVoid         -- ^ Context that isn't expecting any values
+         | CxtItem !Type   -- ^ Context expecting a value of the specified type
+         | CxtSlurpy !Type -- ^ Context expecting multiple values of the
+                           --     specified type
+data Type
+    = MkType !String      -- ^ A regular type
+    | TypeOr  !Type !Type -- ^ The disjunction (|) of two types
+    | TypeAnd !Type !Type -- ^ The conjunction (&) of two types
+
+data Param = MkParam
+    { isInvocant    :: !Bool        -- ^ Is it in invocant slot?
+    , isOptional    :: !Bool        -- ^ Is it optional?
+    , isNamed       :: !Bool        -- ^ Is it named-only?
+    , isLValue      :: !Bool        -- ^ Is it lvalue (i.e. not `is copy`)?
+    , isWritable    :: !Bool        -- ^ Is it writable (i.e. `is rw`)?
+    , isLazy        :: !Bool        -- ^ Is it call-by-name (short-circuit)?
+    , paramName     :: !String      -- ^ Parameter name
+    , paramContext  :: !Cxt         -- ^ Parameter context: slurpiness and type
+    , paramDefault  :: !Exp         -- ^ Default expression (to evaluate to)
+    }
+
+data Pos = MkPos
+    { posName           :: !String
+    , posBeginLine      :: !Int
+    , posBeginColumn    :: !Int
+    , posEndLine        :: !Int
+    , posEndColumn      :: !Int
+    }
+
+
+=cut

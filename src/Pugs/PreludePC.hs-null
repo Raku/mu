@@ -1,5 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts -fno-full-laziness -fno-cse #-}
 
+import Pugs.Prim.Eval
+
 {-
 
 Null Prelude bootstap. A placeholder used in first phase of the

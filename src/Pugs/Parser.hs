@@ -983,8 +983,7 @@ vcode2firstBlock code = do
     -- {
     --   state $?FIRST_RESULT;
     --   state $?FIRST_RUN;
-    --   $?FIRST_RUN || { $?FIRST_RUN++; $?FIRST_RESULT = { 42 }() };
-    --   $?FIRST_RESULT;
+    --   $?FIRST_RUN++ ?? $?FIRST_RESULT !! $?FIRST_RESULT = { 42 }();
     -- }
     -- These are the two state variables we need.
     -- This will soon add our two state vars to our pad
@@ -993,13 +992,11 @@ vcode2firstBlock code = do
     -- And that's the transformation part.
     return $ Syn "block"        -- The outer block
         [ Pad SState lexDiff $  -- state ($?FIRST_RESULT, $?FIRST_RUN);
-            Stmts (App (Var "&infix:||")    --  $?FIRST_RUN ||
-                Nothing
-                [ Var "$?FIRST_RUN"
-                , Stmts (App (Var "&postfix:++") Nothing [Var "$?FIRST_RUN"])
-                        (Syn "=" [Var "$?FIRST_RESULT", App (Val code) Nothing []])
-                ])   --  { $?FIRST_RUN++; $?FIRST_RESULT = { 42 }() };
-            (Var "$?FIRST_RESULT") --  $?FIRST_RESULT;
+            Syn "if"
+                [ App (Var "&postfix:++") Nothing [Var "$?FIRST_RUN"]
+                , Var "$?FIRST_RESULT"
+                , Syn "=" [Var "$?FIRST_RESULT", App (Val code) Nothing []]
+                ]   --  { $?FIRST_RUN++; $?FIRST_RESULT = { 42 }() };
         ]
 
 vcode2initBlock :: Val -> RuleParser Exp

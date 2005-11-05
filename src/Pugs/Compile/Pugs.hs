@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -cpp -fglasgow-exts -fth #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts #-}
 
 #include "../pugs_config.h"
 
@@ -7,6 +7,7 @@ import Pugs.AST
 import Pugs.Types
 import Pugs.Internals
 import Text.PrettyPrint
+import qualified Data.Map as Map
 
 class (Show x) => Compile x where
     compile :: x -> Eval Doc
@@ -24,15 +25,14 @@ prettyList :: [Doc] -> Doc
 prettyList = brackets . vcat . punctuate comma
 
 prettyDo :: [Doc] -> Doc
-prettyDo docs = parens $ sep (text "do":punctuate semi docs)
+prettyDo docs = parens $ text "do" <+> braces (sep $ punctuate semi docs)
 
 prettyRecord :: String -> [(String, Doc)] -> Doc
 prettyRecord con = (text con <+>) . braces . sep . punctuate comma . map assign
     where assign (name, val) = text name <+> char '=' <+> val
 
 prettyBind :: String -> Doc -> Doc
-prettyBind var doc = text var `sep1` nest 1 (text "<-" <+> doc)
-
+prettyBind var doc = text var <+> text "<-" <+> doc
 
 instance Compile (Maybe Exp) where
     compile Nothing = return $ text "return Nothing"
@@ -126,12 +126,23 @@ instance Compile (TVar Bool, TVar VRef) where
                 , text "return (fresh, tvar)"
                 ]
 
-instance Compile (TVar Bool) where
-    compile fresh = do
-        bool <- liftSTM $ readTVar fresh
-        return $ text "liftSTM" <+> parens (text "newTVar" <+> text (show bool))
+instance Compile Bool where
+    compile bool = return $ text "return" <+> parens (text $ show bool)
 
-instance Compile (TVar VRef) where
+instance Compile a => Compile (Map VStr a) where
+    compile map | Map.null map = return (text "return Map.empty")
+    compile map = error (show map) 
+
+instance Compile (IVar VScalar) where
+    compile iv = do
+        val     <- readIVar iv
+        valC    <- compile val
+        return $ prettyDo
+            [ prettyBind "val" valC
+            , text "newScalar val"
+            ]
+
+instance (Typeable a, Compile a) => Compile (TVar a) where
     compile fresh = do
         vref    <- liftSTM $ readTVar fresh
         vrefC   <- compile vref
@@ -168,9 +179,29 @@ instance Compile Val where
             [ prettyBind "code" codeC
             , text "return $ VCode code"
             ]
+    compile (VObject obj) = do
+        objC <- compile obj
+        return $ prettyDo
+            [ prettyBind "obj" objC
+            , text "return $ VObject obj"
+            ]
     compile x = return $ text "return" $+$ parens (text $ show x)
 
--- We need a compile VObject!
+instance Compile VObject where
+    compile (MkObject typ attrs Nothing _) = do
+        attrsC <- compile attrs
+        let vobj = prettyRecord "MkObject" $
+                [ ("objType",   text (show typ))
+                , ("objAttrs",  text "attrs")
+                , ("objOpaque", text "Nothing")
+                , ("objId",     text "id")
+                ]
+        return $ prettyDo
+            [ prettyBind "attrs" attrsC
+            , prettyBind "id" (text "liftIO newUnique")
+            , text "return" <+> parens vobj
+            ]
+    compile obj = fail $ "Cannot compile Object of Dynamic type: " ++ show obj
 
 -- Haddock can't cope with Template Haskell
 instance Compile VCode where
@@ -206,14 +237,15 @@ genPugs = do
     globC   <- compile glob
     expC    <- compile exp
     return . VStr . unlines $
-        [ "{-# OPTIONS_GHC -fglasgow-exts -fno-warn-unused-imports -fno-warn-unused-binds -O #-}"
-        , "module MainCC where"
+        [ "{-# OPTIONS_GHC -fglasgow-exts -fno-warn-unused-imports -fno-warn-unused-binds #-}"
+        , "module Main where"
         , "import Pugs.Run"
         , "import Pugs.AST"
         , "import Pugs.Types"
         , "import Pugs.Internals"
+        , "import qualified Data.Map as Map"
         , ""
-        , "mainCC = do"
+        , "main = do"
         , "    glob <- globC"
         , "    exp  <- expC"
         , "    runAST glob exp"

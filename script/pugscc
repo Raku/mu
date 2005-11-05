@@ -90,8 +90,7 @@ else {
 
     my $rv = system(
         $ghc_exe,
-        "-v0", "-o", $out, "--make", "-main-is", "MainCC.mainCC",
-        "$base/MainCC.hs"
+        "-v0", "-O", "-o", $out, "--make", "$base/MainCC.hs"
     );
 
     my $err = $!;

@@ -12,14 +12,14 @@
 module Pugs.CodeGen (codeGen, backends) where
 import Pugs.AST
 import Pugs.Internals
-import Pugs.CodeGen.PIL (genPIL)
+import Pugs.CodeGen.PIL1 (genPIL1)
+import Pugs.CodeGen.PIL2 (genPIL2)
 import Pugs.CodeGen.PIR (genPIR)
 import Pugs.CodeGen.Perl5 (genPerl5)
 import Pugs.CodeGen.JSON (genJSON)
 import Pugs.CodeGen.Binary (genBinary)
 import Pugs.Compile.Pugs (genPugs)
 import Pugs.Compile.Haskell (genGHC)
--- import Pugs.CodeGen.PIL2 (genPIL2)
 -- import Pugs.CodeGen.XML (genXML)
 import qualified Data.Map as Map
 
@@ -30,8 +30,8 @@ generators = Map.fromList $
     [ ("GHC",         genGHC)
     , ("Parrot",      genPIR)
     , ("PIR",         genPIR)
-    , ("PIL",         genPIL)
---  , ("PIL2",        genPIL2)
+    , ("PIL1",        genPIL1)
+    , ("PIL2",        genPIL2)
     , ("Perl5",       genPerl5)
     , ("Pugs",        genPugs)
     , ("Binary",      genBinary)
@@ -48,8 +48,9 @@ norm = norm' . map toLower
     norm' "ghc"    = "GHC"
     norm' "parrot" = "Parrot"
     norm' "pir"    = "PIR"
-    norm' "pil"    = "PIL"
-    -- norm' "pil2"   = "PIL2"
+    norm' "pil"    = "PIL1" -- XXX - this will change
+    norm' "pil1"   = "PIL1"
+    norm' "pil2"   = "PIL2"
     norm' "perl5"  = "Perl5"
     norm' "pugs"   = "Pugs"
     norm' "binary" = "Binary"
