@@ -62,8 +62,8 @@ sub null {
     close IN;
 
     print OUT <NP>;
-    $program =~ s{^[ \t]*#.*}{}mg;
-    $program =~ s{^=\w(.*?)^=cut$}{"\n" x ($1 =~ y/\n//)}mesg;
+
+    strip_comments($program);
     $program =~ s{(["\\])}{\\$1}g;
     $program =~ s{\n}{\\n\\\n}g;
     print OUT qq<preludeStr = "$program"\n>;
@@ -95,17 +95,29 @@ sub gen_source {
         open my $ifh, $file or die "open: $file: $!";
         
         print $ofh "\n{\n";
+        my $program;
         while (<$ifh>) {
             $module ||= $1 if /^(?:package|module|class) \s+ ([^-;]+)/x;
-            print $ofh $_;
+            $program .= $_;
         }
+
         die "could not guess module name: $file" unless $module;
+
+        strip_comments($program);
+        print $ofh $program;
+
         print STDERR ", $module" if $Config{verbose};
         $module =~ s#::#/#g;
         print $ofh "\n};\n%*INC<${module}.pm> = '<precompiled>';\n\n";
         # (the need for a semicolon in "};" is probably a bug.)
     }
     print STDERR "... " if $Config{verbose};
+}
+
+# Strip comments and docs while preserving the line counts
+sub strip_comments {
+    $_[0] =~ s{^[ \t]*#.*}{}mg;
+    $_[0] =~ s{^=\w(.*?)^=cut$}{"\n" x ($1 =~ y/\n//)}mesg;
 }
 
 sub precomp {
