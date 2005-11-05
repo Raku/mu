@@ -14,6 +14,8 @@ import qualified Data.Map as Map
 import qualified Data.Array as Array
 
 doMatch :: String -> VRule -> Eval VMatch
+-- Work around PGE bug on Parrot 0.3.1 -- empty rule matches automatically
+doMatch _ MkRulePGE{ rxRule = "" } = return $ mkMatchOk 0 0 "" [] Map.empty
 doMatch cs MkRulePGE{ rxRule = re } = do
     let pwd1 = getConfig "installarchlib" ++ "/CORE/pugs/pge"
         pwd2 = getConfig "sourcedir" ++ "/src/pge"
@@ -152,16 +154,22 @@ op2Match x (VRule rx) | rxGlobal rx = do
             else return (VList rv)
     where
     hasSubpatterns = case rx of
-        MkRulePGE{}             -> True -- bogus
+        MkRulePGE{}             -> True -- XXX bogus - use <p6rule> to parse itself
         MkRulePCRE{rxNumSubs=n} -> not (n == 0)
     matchOnce :: String -> Eval [Val]
     matchOnce str = do
         match <- str `doMatch` rx
         if not (matchOk match) then return [] else do
-        rest <- matchOnce (genericDrop (matchTo match) str)
-        return $ if hasSubpatterns
-                 then (matchSubPos match) ++ rest
-                 else (VMatch match):rest
+        let ret x = return $ if hasSubpatterns
+                        then (matchSubPos match) ++ x
+                        else (VMatch match):x
+        case (matchTo match, matchFrom match) of
+            (0, 0) -> if null str then ret [] else do
+                rest <- matchOnce (tail str)
+                ret rest
+            (to, _) -> do
+                rest <- matchOnce (genericDrop to str)
+                ret rest
 
 op2Match x (VRule rx) = do
     str     <- fromVal x
@@ -209,7 +217,7 @@ rxSplit rx str = do
     if matchFrom match == matchTo match
         then do
             let (c:cs) = str
-            rest <- rxSplit rx (cs)
+            rest <- rxSplit rx cs
             return (VStr [c]:rest)
         else do
             let before = genericTake (matchFrom match) str
