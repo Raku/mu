@@ -188,6 +188,7 @@ instance Binary PIL_Stmts where
 		    ad <- get bh
 		    ae <- get bh
 		    return (PPad ac ad ae)
+	      _ -> fail "invalid binary data found"
 
 instance Perl5 PIL_Stmts where
     showPerl5 (PNil) = showP5Class "PNil"
@@ -229,6 +230,7 @@ instance Binary PIL_Stmt where
 		    ac <- get bh
 		    ad <- get bh
 		    return (PPos ab ac ad)
+	      _ -> fail "invalid binary data found"
 
 instance Perl5 PIL_Stmt where
     showPerl5 (PNoop) = showP5Class "PNoop"
@@ -288,6 +290,7 @@ instance Binary PIL_Expr where
 		    ah <- get bh
 		    ai <- get bh
 		    return (PCode ae af ag ah ai)
+	      _ -> fail "invalid binary data found"
 
 instance Perl5 PIL_Expr where
     showPerl5 (PRawName aa) = showP5HashObj "PRawName"
@@ -393,6 +396,7 @@ instance Binary PIL_LValue where
 		    ah <- get bh
 		    ai <- get bh
 		    return (PBind ah ai)
+	      _ -> fail "invalid binary data found"
 
 instance Perl5 PIL_LValue where
     showPerl5 (PVar aa) = showP5HashObj "PVar"
@@ -465,6 +469,7 @@ instance Binary TCxt where
 	      4 -> do
 		    ad <- get bh
 		    return (TTailCall ad)
+	      _ -> fail "invalid binary data found"
 
 instance Perl5 TCxt where
     showPerl5 (TCxtVoid) = showP5Class "TCxtVoid"
@@ -540,6 +545,7 @@ instance Binary Scope where
 		    return STemp
 	      5 -> do
 		    return SGlobal
+	      _ -> fail "invalid binary data found"
 
 instance Perl5 Scope where
     showPerl5 (SState) = showP5Class "SState"
@@ -589,6 +595,7 @@ instance Binary SubType where
 		    return SubPointy
 	      6 -> do
 		    return SubPrim
+	      _ -> fail "invalid binary data found"
 
 instance Perl5 SubType where
     showPerl5 (SubMethod) = showP5Class "SubMethod"
@@ -658,6 +665,7 @@ instance Binary Val where
 	      7 -> do
 		    ag <- get bh
 		    return (VType ag)
+	      _ -> fail "invalid binary data found"
 
 instance Perl5 Val where
     showPerl5 (VUndef) = showP5Class "VUndef"
@@ -699,6 +707,7 @@ instance Binary Cxt where
 	      2 -> do
 		    ab <- get bh
 		    return (CxtSlurpy ab)
+	      _ -> fail "invalid binary data found"
 
 instance Perl5 Cxt where
     showPerl5 (CxtVoid) = showP5Class "CxtVoid"
@@ -737,6 +746,7 @@ instance Binary Type where
 		    ad <- get bh
 		    ae <- get bh
 		    return (TypeAnd ad ae)
+	      _ -> fail "invalid binary data found"
 
 instance Perl5 Type where
     showPerl5 (MkType aa) = showP5ArrayObj "MkType" [showPerl5 aa]
