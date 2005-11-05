@@ -109,8 +109,9 @@ instance Translate PIL_Expr Expression where
     trans (PCode styp params _ _ body) = do
         [begL, endL] <- genLabel ["blockBegin", "blockEnd"]
         this    <- genPMC "block"
-        tellIns $ InsNew (reg this) Closure
-        tellIns $ "set_addr" .- [reg this, bare begL]
+        let begP = begL ++ "_C"
+        tellIns $ InsConst (VAR begP) Sub (lit begL)
+        tellIns $ reg this <-- "newclosure" $ [bare begP]
         tellIns $ "goto" .- [bare endL]
         tellLabel begL
         let prms = map tpParam params

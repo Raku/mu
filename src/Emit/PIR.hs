@@ -47,6 +47,7 @@ data Ins
     | InsLabel      !LabelName                      -- ^ Label
     | InsComment    !String !(Maybe Ins)            -- ^ Comment
     | InsExp        !Expression                     -- ^ Generic expressions
+    | InsConst      !LValue !ObjType !Expression    -- ^ Constant
     deriving (Show, Eq, Typeable)
 
 data Expression
@@ -86,7 +87,7 @@ data RegType
 data ObjType
     = PerlScalar | PerlArray | PerlHash
     | PerlInt | PerlPair | PerlRef | PerlEnv
-    | Closure | Continuation
+    | Sub | Closure | Continuation
     | BareType String
     deriving (Show, Eq, Typeable)
 
@@ -151,6 +152,8 @@ instance Emit Ins where
     emit (InsTailFun (ExpLit (LitStr name)) args) = emitFunName "tailcall" name args []
     emit (InsTailFun fun args) = emitFun "tailcall" fun args []
     emit (InsExp _) = empty
+    emit (InsConst ident rtyp lit) =
+        emit ".const" <+> emit rtyp <+> emit ident <+> equals <+> emit lit
     emit (InsLabel label) = nest (-2) (emit label <> colon)
     emit (InsComment comment ins) = emit (StmtComment comment) $+$ emit ins
 
