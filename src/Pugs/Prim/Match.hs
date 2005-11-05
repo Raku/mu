@@ -29,6 +29,7 @@ doMatch cs MkRulePGE{ rxRule = re } = do
             `catch` (\e -> return $ ioeGetErrorString e)
     rv  <- tryIO Nothing $ fmap Just (readIO $ decodeUTF8 pge)
     let matchToVal PGE_Fail = VMatch mkMatchFail
+        matchToVal (PGE_String str) = VStr str
         matchToVal (PGE_Array ms) = VList (map matchToVal ms)
         matchToVal (PGE_Match from to pos named) = VMatch $
             mkMatchOk from to substr pos' named'

@@ -152,6 +152,7 @@ data VThread a = MkThread
 data MatchPGE
     = PGE_Match !Int !Int ![MatchPGE] ![(VStr, MatchPGE)]
     | PGE_Array ![MatchPGE]
+    | PGE_String !String
     | PGE_Fail
     deriving (Show, Eq, Ord, Read, Typeable)
 
