@@ -41,7 +41,7 @@ evalParrotFile file = do
     -- so we use the next fastest CGP core.
     args <- getEnv "PUGS_PARROT_OPTS"
     let args' | isJust args && fromJust args /= "" = fromJust args
-              | otherwise                          = "-C"
+              | otherwise                          = "-g" -- "-C" -- XXX broken on parrot 0.3.1
     rawSystem cmd [args', file]
     return ()
 
@@ -160,7 +160,10 @@ initParrot = do
     writeIORef _ParrotInterp interp
 #if PARROT_JIT_CAPABLE && defined(PARROT_JIT_CORE)
     parrot_set_run_core interp PARROT_JIT_CORE
+#elsif defined(PARROT_CGOTO_CORE)
+    parrot_set_run_core interp PARROT_CGOTO_CORE
 #elsif defined(PARROT_CGP_CORE)
+    -- XXX broken on parrot 0.3.1
     parrot_set_run_core interp PARROT_CGP_CORE
 #endif
     -- parrot_set_debug interp 0x20
