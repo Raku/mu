@@ -12,7 +12,7 @@ L<"http://groups.google.de/group/perl.perl6.language/msg/bd9eb275d5da2eda">
 
 =cut
 
-plan 30;
+plan 36;
 
 # [...] reduce metaoperator
 {
@@ -100,5 +100,17 @@ is(([more_than_plus] 1, 2, 3), 8, "[...] reduce metaop works on user defined ops
   $hash<a><c> = $hash;
 
   is ([.{}] $hash, <a c a c a b>), 42, '[.{}] works with infinite data structures';
+}
+
+{
+  my ($a, $b);
+
+  eval_ok '[=] $a, $b, 3', '[=] evaluates successfully';
+  is($a, 3, '[=] assigns successfully (1)');
+  is($b, 3, '[=] assigns successfully (2)');
+
+  eval_ok '([=] $a, $b, 3) = 5', '[=] lvalue context restored (1)';
+  is($a, 5, '[=] lvalue context restored (2)');
+  is($b, 3, '[=] lvalue context restored (3)');
 }
 
