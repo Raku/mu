@@ -20,6 +20,7 @@ import Pugs.Types
 import Pugs.AST
 import Text.PrettyPrint
 import qualified Data.Set as Set
+import qualified Data.Map as Map
 
 defaultIndent :: Int
 defaultIndent = 2
@@ -70,7 +71,7 @@ instance Pretty Env where
     format x = doubleBraces $ nest defaultIndent (format $ envBody x) 
 
 instance Pretty (Val, Val) where
-    format (x, y) = format x <+> text "=>" <+> format y
+    format (x, y) = hang (format x <+> text "=>") defaultIndent (format y)
 
 instance Pretty (Exp, SourcePos) where
     format (x, _) = format x 
@@ -80,6 +81,38 @@ instance Pretty (TVar VRef) where
 
 instance Pretty VRef where
     format x = braces $ text $ "ref:" ++ show x
+
+instance Pretty VMatch where
+    format m = joinList (text ", ")
+        [ form ("ok",        matchOk)
+        , form ("from",      matchFrom)
+        , form ("to",        matchTo)
+        , form ("str",       matchStr)
+        , form ("sub_pos",   matchSubPos)
+        , form ("sub_named", matchSubNamed)
+        ]
+        where
+        form :: Pretty a => (String, VMatch -> a) -> Doc
+        form (s, f) = hang (text s <+> text "=>") defaultIndent (format $ f m)
+
+instance Pretty Bool where
+    format x = text $ if x then "bool::true" else "bool::false"
+
+instance Pretty Int where
+    format i = int i
+
+instance Pretty VList where
+    format x 
+        | not . null . (drop 100) $ x = parens $ (format (head x) <+> text ", ...")
+        | otherwise = parens $ (joinList $ text ", ") (map format x)
+
+instance Pretty VHash where
+    format x = cat
+        [ text "{"
+        , nest defaultIndent . joinList (text ", ") $
+            [ format (VStr k, v) | (k, v) <- Map.toList x ]
+        , text "}"
+        ]
 
 instance Pretty Val where
     format (VJunc j) = parens $ joinList mark items 
@@ -93,7 +126,7 @@ instance Pretty Val where
             JAll  -> text " & "
             JOne  -> text " ^ "
             JNone -> text " ! "
-    format (VBool x) = if x then text "bool::true" else text "bool::false"
+    format (VBool x) = format x
     format (VNum x) = if x == 1/0
                          then text "Inf"
                          else if x == -1/0 
@@ -106,7 +139,6 @@ instance Pretty Val where
     format (VControl (ControlEnv _)) = text "<env>"
     format (VControl x) = text $ show x
     format (VProcess x) = text $ show x
-    format (VMatch x) = text $ show x
     format (VOpaque (MkOpaque x)) = braces $ text $ "obj:" ++ show x
 {-
     format (VRef (VList x))
@@ -115,10 +147,7 @@ instance Pretty Val where
         | otherwise = brackets $ cat $ (punctuate $ text ", ") (map format x)
 -}
     format (VRef x) = format x
-    format (VList x)
-        | not . null . (drop 100) $ x
-        = parens $ (format (head x) <+> text ", ...")
-        | otherwise = parens $ (joinList $ text ", ") (map format x)
+    format (VList x) = format x
     format (VCode _) = text "sub {...}"
     format (VBlock _) = text "{...}"
     format (VError x posList)
@@ -140,6 +169,11 @@ instance Pretty Val where
     format (VSubst _) = text $ "{subst}"
     format (VType t) = text $ "::" ++ showType t
     format (VObject o) = text $ "{obj:" ++ showType (objType o) ++ "}"
+    format (VMatch m) = cat
+        [ text "Match.new("
+        , nest defaultIndent $ format m
+        , text ")"
+        ]
     format (PerlSV _) = text $ "{obj-perl5}"
     format VUndef = text $ "undef"
 
