@@ -88,7 +88,8 @@ instance Translate PIL_Expr Expression where
     trans (PThunk exp) = do
         [begL, sndL, retL, endL] <- genLabel ["thunkBegin", "thunkAgain", "thunkReturn", "thunkEnd"]
         this    <- genPMC "block"
-        tellIns $ "newsub" .- [reg this, bare ".Continuation", bare begL]
+        tellIns $ InsNew (reg this) Continuation
+        tellIns $ "set_addr" .- [reg this, bare begL]
         tellIns $ "goto" .- [bare endL]
         tellLabel begL
         cc      <- genPMC "cc"
@@ -108,7 +109,8 @@ instance Translate PIL_Expr Expression where
     trans (PCode styp params _ _ body) = do
         [begL, endL] <- genLabel ["blockBegin", "blockEnd"]
         this    <- genPMC "block"
-        tellIns $ "newsub" .- [reg this, bare ".Closure", bare begL]
+        tellIns $ InsNew (reg this) Closure
+        tellIns $ "set_addr" .- [reg this, bare begL]
         tellIns $ "goto" .- [bare endL]
         tellLabel begL
         let prms = map tpParam params

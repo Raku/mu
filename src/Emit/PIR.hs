@@ -86,6 +86,7 @@ data RegType
 data ObjType
     = PerlScalar | PerlArray | PerlHash
     | PerlInt | PerlPair | PerlRef | PerlEnv
+    | Closure | Continuation
     | BareType String
     deriving (Show, Eq, Typeable)
 
@@ -586,31 +587,41 @@ stmtControlLoop name comp = sub ("&statement_control:" ++ name) [arg0, arg1] $
 stmtControlCond :: VarName     -- ^ Perl 6 name of the new sub
                 -> PrimName    -- ^ PIR opcode to use for branching
                 -> Decl        -- ^ Final declaration of the sub
-stmtControlCond name comp = sub ("&statement_control:" ++ name) [arg0, arg1, arg2] (
-    [ "newsub" .- [funPMC, bare ".Continuation", bare postL]
-    , comp .- [arg0, bare altL]
-    ] ++ callThunkCC arg1 ++
-    [ InsLabel altL
-    ] ++ callThunkCC arg2 ++ collectCC postL) --> [tempPMC]
+stmtControlCond name comp =
+    sub ("&statement_control:" ++ name) [arg0, arg1, arg2] body --> [tempPMC]
     where
     altL = ("sc_" ++ name ++ "_alt")
     postL = ("sc_" ++ name ++ "_post")
+    body = concat
+        [ newCont postL
+        , [ comp .- [arg0, bare altL] ]
+        , callThunkCC arg1
+        , [ InsLabel altL ]
+        , callThunkCC arg2,
+        collectCC postL
+        ]
+
+newCont :: VarName -> [Ins]
+newCont label =
+    [ InsNew funPMC Continuation
+    , "set_addr" .- [funPMC, bare label]
+    ]
 
 {-| Creates appropriate @&infix:foo@ subs for logical operators (@||@, @&&@,
     etc.). -}
 op2Logical :: VarName          -- ^ Perl 6 name of the sub to create
            -> PrimName         -- ^ PIR opcode to use (@if@, @unless@)
            -> Decl             -- ^ Final declaration of the sub
-op2Logical name comp = sub ("&infix:" ++ name) [arg0, arg1] (
-    [ "newsub" .- [funPMC, bare ".Continuation", bare postL]
-    , comp .- [arg0, bare altL]
-    , "set_returns" .- retSigList [arg0]
-    , "returncc" .- []
-    , InsLabel altL
-    ] ++ callThunkCC arg1 ++ collectCC postL) --> [tempPMC]
+op2Logical name comp = sub ("&infix:" ++ name) [arg0, arg1] body --> [tempPMC]
     where
     altL = ("sc_" ++ escaped name ++ "_alt")
     postL = ("sc_" ++ escaped name ++ "_post")
+    body = newCont postL ++
+        [ comp .- [arg0, bare altL]
+        , "set_returns" .- retSigList [arg0]
+        , "returncc" .- []
+        , InsLabel altL
+        ] ++ callThunkCC arg1 ++ collectCC postL
 
 {-| Escapes characters which have a special meaning in PIR. -}
 escaped :: String -> String
