@@ -4,7 +4,7 @@ use v6;
 
 my $DEBUG = 0;
 
-multi *prompt (?$prompt) {
+multi *prompt ($prompt?) {
     print $prompt;
     my $input = chomp(=$*IN);
     return $input;
