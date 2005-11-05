@@ -255,11 +255,11 @@ EOD
             $parrot_config = which('parrot-config') || '';
             $base = (File::Spec->splitpath($parrot_config))[1] if -e $parrot_config;
         }
-        if (!$base and -d File::Spec->catdir(File::Spec->updir() . 'parrot')) {
-            $base = abs_path(File::Spec->catdir(File::Spec->updir() . 'parrot'));
+        if (!$base and -d File::Spec->catdir(File::Spec->updir, 'parrot')) {
+            $base = abs_path(File::Spec->catdir(File::Spec->updir, 'parrot'));
         }
-        if (!$base and -d File::Spec->catdir(File::Spec->updir() . 'parrot-trunk')) {
-            $base = abs_path(File::Spec->catdir(File::Spec->updir() . 'parrot-trunk'));
+        if (!$base and -d File::Spec->catdir(File::Spec->updir, 'parrot-trunk')) {
+            $base = abs_path(File::Spec->catdir(File::Spec->updir, 'parrot-trunk'));
         }
         (-d $base and -e File::Spec->catfile($base, 'parrot-config.imc'))
             or die "*** Please set \$ENV{PARROT_PATH} to the base path with a built parrot tree.\n";
