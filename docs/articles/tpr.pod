@@ -169,11 +169,11 @@ make either of the following disastrous mistakes:
 The Perl 6 compiler has syntax to save you from all this. Here's how
 you spell out the car example:
 
-  sub make_car($model, ?$color = "black", Int ?$doors = 4) { ... }
+  sub make_car($model, $color? = "black", Int $doors? = 4) { ... }
 
 This single line does more than the four Perl 5 lines did. First, it
 specifies that the function receives three parameters, one of which is
-mandatory. The C<?> in C<?$black> and C<?$doors> means they are optional;
+mandatory. The C<?> in C<$black?> and C<$doors?> means they are optional;
 in both cases default values are supplied. (You don't have to give one:
 the default default is undef.) The C<Int> mark on the last parameter
 means calling the function with a non-integer will raise an error. As
