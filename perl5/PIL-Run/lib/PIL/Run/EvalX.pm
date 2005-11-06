@@ -288,7 +288,7 @@ sub pil_from_p6 {
         $dir = '"' . $dir . '"';
     }
     my $extra_args = $main::pugs_args ? $main::pugs_args : ""; #XXX- kludge
-    my $cmd = "$pugs $extra_args $dir -CPerl5 $fn";
+    my $cmd = "$pugs $extra_args $dir -CPIL1-Perl5 $fn";
     my $pil = `$cmd`; #die if $!;
     unlink $fn or die "Couldn't remove \"$fn\": $!\n";
     $pil;
@@ -305,7 +305,7 @@ sub p5r_from_p6 {
 sub pilc_from_pil {
     my($pil)=@_;
     my $pilc = eval($pil);
-    die "Eval of -CPerl5 code failed. $@" if $@;
+    die "Eval of -CPIL1-Perl5 code failed. $@" if $@;
     $pilc;
 }
 

@@ -28,17 +28,16 @@ type Generator = Eval Val
 generators :: Map String Generator
 generators = Map.fromList $
     [ ("GHC",         genGHC)
-    , ("Parrot",      genPIR)
     , ("PIR",         genPIR)
     , ("PIL1",        genPIL1)
+    , ("PIL1-Perl5",  genPerl5)
+    , ("PIL1-Binary", genBinary)
+    , ("PIL1-JSON",   genJSON)
     , ("PIL2",        genPIL2)
     , ("PIL2-Perl5",  genPIL2Perl5)
     , ("PIL2-JSON",   genPIL2JSON)
     , ("PIL2-Binary", genPIL2Binary)
-    , ("Perl5",       genPerl5)
     , ("Pugs",        genPugs)
-    , ("Binary",      genBinary)
-    , ("JSON",        genJSON)
 --  , ("XML",         genXML)
     ]
 
@@ -49,23 +48,32 @@ norm :: String -> String
 norm = norm' . map toLower . filter isAlphaNum
     where
     norm' "ghc"    = "GHC"
-    norm' "parrot" = "Parrot"
+    norm' "parrot" = "!PIR"
     norm' "pir"    = "PIR"
-    norm' "pil"    = "PIL1" -- XXX - this will change
+    norm' "pil"    = "!PIL1"
     norm' "pil1"   = "PIL1"
     norm' "pil2"   = "PIL2"
-    norm' "perl5"  = "Perl5"
+    norm' "perl5"  = "!PIL1-Perl5"
+    norm' "binary" = "!PIL1-Binary"
+    norm' "json"   = "!PIL1-JSON"
+    norm' "pil1perl5"  = "PIL1-Perl5"
+    norm' "pil1json"   = "PIL1-JSON"
+    norm' "pil1binary" = "PIL1-Binary"
     norm' "pil2perl5"  = "PIL2-Perl5"
     norm' "pil2json"   = "PIL2-JSON"
     norm' "pil2binary" = "PIL2-Binary"
     norm' "pugs"   = "Pugs"
-    norm' "binary" = "Binary"
-    norm' "json"   = "JSON"
     -- norm' "xml"    = "XML"
     norm' x        = x
 
 doLookup :: String -> IO Generator
-doLookup s = Map.lookup (norm s) generators
+doLookup s = do
+    case norm s of
+        ('!':key) -> do
+            putStrLn $ "*** The backend '" ++ s ++ "' is deprecated."
+            putStrLn $ "    Please use '" ++ key ++ "' instead."
+            Map.lookup key generators
+        key -> Map.lookup key generators
 
 codeGen :: String -> Env -> IO String
 codeGen s env = do

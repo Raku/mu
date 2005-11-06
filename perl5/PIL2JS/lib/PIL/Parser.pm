@@ -1,5 +1,5 @@
 package PIL::Parser;
-# This module takes the output of pugs -CPerl5, eval()s it, and reblesses most
+# This module takes the output of pugs -CPIL1-Perl5, eval()s it, and reblesses most
 # objects (we want PIL::PVal, not PVal).
 
 use warnings;
@@ -19,7 +19,7 @@ sub parse {
   local $@;
 
   my $struct = eval $str;
-  die "Couldn't parse -CPerl5 output: $@\n" if $@;
+  die "Couldn't parse -CPIL1-Perl5 output: $@\n" if $@;
   Class::Rebless->custom($struct, "PIL", { editor => sub {
     my ($obj, $namespace) = @_;
     # We don't want PIL::Math::BigInt.

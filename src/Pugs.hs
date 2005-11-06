@@ -77,8 +77,7 @@ run ("-v":_)                    = banner
 run ("-c":"-e":prog:_)          = doCheck "-e" prog
 run ("-c":file:_)               = readFile file >>= doCheck file
 
--- -CPerl5 outputs PIL formatted as Perl 5, PIL-Run is not involved.
--- Should we rename -CPerl5, -CJSON etc. to -CPIL.Perl5, -CPIL.JSON etc.?
+-- -CPIL1.Perl5 outputs PIL formatted as Perl 5.
 run ("-C":backend:args) | map toUpper backend == "JS" = do
     exec <- getArg0
     doHelperRun "JS" ("--compile-only":("--pugs="++exec):args)

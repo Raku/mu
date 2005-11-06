@@ -5,7 +5,7 @@ PIL2JS - PIL to JavaScript compiler
 =head1 DESCRIPTION
 
 C<pil2js.pl> is a Perl 5 program which takes PIL as input (as given by C<pugs
--CPerl5>) and outputs JavaScript.
+-CPIL1-Perl5>) and outputs JavaScript.
 
 =head1 USAGE
 
@@ -48,7 +48,7 @@ F<smoke-js.html>.
   |   |-- PIL2JS.pm       Perl 5 wrapper module for pil2js.pl, runjs.pl, etc.
   |   |-- PIL.pm          Main compiler modules, uses all other PIL:: modules
   |   |-- PIL
-  |   |   |-- Parser.pm   PIL::Parser (parses the output of -CPerl5)
+  |   |   |-- Parser.pm   PIL::Parser (parses the output of -CPIL1-Perl5)
   |   |   `-- <PIL nodetype>.pm
   |   |                   Backend compiler modules
   |   |-- Prelude
@@ -439,7 +439,7 @@ F<bin/js> can't download arbitrary URLs.
 =head3 Usage
 
   # Compile the Perl 6 to PIL
-  $ pugs -CPerl5 -we '
+  $ pugs -CPIL1-Perl5 -we '
       $*JS::JSAN.addRepository("/tmp/jsanlibs");
       use jsan:Number.Roman <to_roman>;
       say "42: {to_roman 42}";
@@ -567,7 +567,7 @@ Primitives!
 
 =item *
 
-Don't call all subs in list context -- but to fix this reliably, C<-CPerl5> has
+Don't call all subs in list context -- but to fix this reliably, C<-CPIL1-Perl5> has
 to give better context information.
 
 =item *

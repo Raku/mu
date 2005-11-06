@@ -55,7 +55,7 @@ unless($link) {
   warn "*** Reading input from \"$input[0]\"...\n" if $verbose;
 
   my $pil  = $input[0] =~ /\.(?:pl|p6|pm|p6m|t)$/i
-    ? decode "utf-8", run_pugs("-CPerl5", $input[0])
+    ? decode "utf-8", run_pugs("-CPIL1-Perl5", $input[0])
     : slurp $input[0];
   my $tree = PIL::Parser->parse($pil);
 

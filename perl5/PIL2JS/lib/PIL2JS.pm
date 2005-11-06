@@ -65,7 +65,7 @@ sub preludepc_check {
 sub compile_perl6_to_standalone_js {
   preludepc_check();
 
-  my $pil  = run_pugs("-CPerl5", @_);
+  my $pil  = run_pugs("-CPIL1-Perl5", @_);
   die "Error: Couldn't compile to PIL!\n" if not defined $pil;
   my $mini = run_pil2js(\$pil);
   my $js   = run_pil2js("--link=js", "METAMODEL", jsprelude_path(), $cfg{preludepc}, $cfg{testpc}, \$mini);
@@ -74,7 +74,7 @@ sub compile_perl6_to_standalone_js {
 }
 
 sub compile_perl6_to_mini_js {
-  my $pil = run_pugs("-CPerl5", @_);
+  my $pil = run_pugs("-CPIL1-Perl5", @_);
   die "Error: Couldn't compile to PIL!\n" if not defined $pil;
 
   local $ENV{PIL2JS_INDENT} = "true";
@@ -94,7 +94,7 @@ sub compile_perl6_to_htmljs_with_links {
 }
 
 sub precomp_module_to_mini_js {
-  my $pil = eval { run_pugs("-CPerl5", @_, "-e", "''") };
+  my $pil = eval { run_pugs("-CPIL1-Perl5", @_, "-e", "''") };
   die $@ if $@;
   my $js  = eval { run_pil2js("-v", \$pil) };
   die $@ if $@;
@@ -102,7 +102,7 @@ sub precomp_module_to_mini_js {
 }
 
 sub compile_perl6_to_pil {
-  my $pil = run_pugs("-CPerl5", @_);
+  my $pil = run_pugs("-CPIL1-Perl5", @_);
   die "Error: Couldn't compile to PIL!\n" if not defined $pil;
   return $pil;
 }
