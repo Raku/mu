@@ -13,18 +13,42 @@ Autrijus Tang <autrijus@autrijus.org>
 
   Maintainer: Elizabeth Mattijsen <liz@dijkmat.nl>
   Date: 13 Jun 2005
-  Last Modified: 3 Nov 2005
+  Last Modified: 6 Nov 2005
   Number: 0
   Version: 1
 
-=head1 Overview
+=head1 SKETCH
 
 This is a rough sketch of how concurrency works in Perl 6.
 
-(actually this is just random notes, put here under the release-early
-release-often principle.)
+(actually these are just random notes, put here under the release-early
+release-often principle, slowly being integrated in a more textual format.
+Patches welcome!)
 
-=head1 RANDOM SKETCH
+=head1 OVERVIEW
+
+Concurrency can take many forms in Perl 6.  With varying degrees of
+expliciteness and control capabilities.  This document attempts to describe
+what these capabilities are and in which form they can be accessed in Perl 6.
+
+=head2 Variables
+
+In the past, there have been two models for concurrent processes in Perl.
+In general, these are referred to as "5.005 threads" (C<perldoc perlothrtut>)
+and "ithreads" (C<perldoc perlthrtut>).
+
+The main difference between these two models from a programmer's point of
+view, is that variables in "5.005 threads" are shared by default.  Whereas
+in the "ithreads" model, only variables that have been indicated to be
+"shared", are actually shared between threads.  All other variable values
+are actually copies of the original variable's value.
+
+With regards to variables, the concurrency model of Perl 6 is closer to the
+"5.005 threads" model than it is to the "ithreads" model.  In fact, all
+variables "visible" to a particular scope in Perl 6, will be accessible and
+modifiable from all of the concurrent processes that start from that scope.
+In that sense, one could consider the "ithreads" model as a diversion: the
+Perl 6 concurrency picks up where the "5.005 threads" path left off.
 
 =head2 Atomic sections
 
