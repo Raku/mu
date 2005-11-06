@@ -1,0 +1,196 @@
+
+=pod
+
+=head1 Utility Functions
+  
+  (closure (* WALKMETH) ((block &dispatcher) (symbol $label) (hash ?%opts)) returns method 
+      ((= $method NIL)
+       (= $current (&dispatcher do))
+       (while (($current is_not_nil) and ($method is_nil))
+          (($current send (has_method $label)) and (= $method ($current send (get_method $label)))
+           (= $current (&dispatcher do))))
+       ($method))
+       
+  (closure (* WALKCLASS) ((block &dispatcher)) returns opaque
+      (&dispatcher do)     
+     
+
+=head1 Bootstrapping ::Class
+  
+  (= $NULL_OBJECT (opaque NULL_OBJECT))
+  
+  (= (* ::Class) 
+      (opaque new 
+          ((\$NULL_OBJECT)
+           (hash new 
+              ((attribute new (@:MRO))             (list new)
+               (attribute new (@:subclasses))      (list new)
+               (attribute new (@:superclasses))    (list new)
+               (attribute new (%:private_methods)) (hash new)
+               (attribute new (%:attributes))      (hash new)
+               (attribute new (%:methods))         (hash new))))))
+               
+  (::Class change_class (\::Class))
+  
+  (= &add_method (closure ((opaque $self:) (symbol $label) (method $method)) returns nil
+                    ((($self: get_attr (symbol new (%:methods))) store ($label $method)))))
+      
+  (&add_method do (::Class (symbol new (add_method)) &add_method))
+  
+  (method (::Class add_attribute) ((opaque $self:) (symbol $label) (attribute $attribute)) returns nil
+    ((($self: get_attr (symbol new (%:attributes))) store ($label $attribute))))
+                                                                                                                                                                                                 
+  (::Class send (add_attribute (symbol new @:MRO)             (attribute new @:MRO             list)))
+  (::Class send (add_attribute (symbol new @:superclasses)    (attribute new @:superclasses    list)))
+  (::Class send (add_attribute (symbol new @:subclasses)      (attribute new @:subclasses      list)))
+  (::Class send (add_attribute (symbol new %:private_methods) (attribute new %:private_methods hash)))
+  (::Class send (add_attribute (symbol new %:attributes)      (attribute new %:attributes      hash)))
+  (::Class send (add_attribute (symbol new %:methods)         (attribute new %:methods         hash)))  
+                                                                                              
+=head1 ::Class API
+                                                                                              
+=head2 Creation                                                                        
+
+  (method (::Class new) ((opaque $class:) (hash ?%params)) returns opaque
+      (((?%params is_nil) and (= ?%params (hash new)))
+       ($class: send (bless (NIL ?%params)))))
+
+  (method (::Class bless) ((opaque $class:) (str $canidate) (hash %params)) returns opaque
+      ((($canidate to_bit) or (= $canidate (str new (P6opaque))))
+       (= ($self ($class: send (CREATE ($canidate %params)))))
+       ($self send (BUILDALL %params))
+       ($self)))
+
+  (method (::Class CREATE) ((opaque $class:) (str $repr) (hash %params)) returns opaque
+      ((= %attrs (hash new))
+       (= &dispatcher ($class: send (dispatcher :descendent)))
+       (= $c (WALKCLASS (&dispatcher)))
+       (while ($c is_not_nil)
+          ((($c send (get_attributes)) apply 
+              ((= %attrs store (($_ name) ($_ instantite_container)))
+               (= $c (WALKCLASS (&dispatcher)))))))
+       (opaque new (\$class: %attrs)))
+
+  (method (::Class BUILDALL) ((opaque $self:) (hash %params)) returns nil
+      ((= &dispatcher (($self: class) send (dispatcher :descendant)))
+       (= $method (WALKMETH (&dispatcher (symbol new BUILD))))
+       (while ($method is_not_nil) 
+          ($method do ($self %params))
+          (= $method (WALKMETH (&dispatcher (symbol new BUILD)))))))
+          
+  (method (::Class BUILD) ((opaque $self:) (hash %params)) returns nil 
+      ((%params keys) apply 
+          ($self: set_attrs ((symbol new ($_)) (%params fetch ($_)))))
+      (nil))          
+          
+=head2 Destruction
+  
+  (method (::Class DESTROYALL) ((opaque $self:) (hash %params)) returns nil
+      ((= &dispatcher (($self: class) send (dispatcher :ascendant)))
+       (= $method (WALKMETH (&dispatcher (symbol new DESTROY))))
+       (while ($method is_not_nil) 
+          ($method do ($self %params))
+          (= $method (WALKMETH (&dispatcher (symbol new DESTROY)))))))
+
+=head2 Introspection
+  
+  (method (::Class id) ((opaque $self:)) returns num 
+      ($self: id))
+  
+  (method (::Class class) ((opaque $self:)) returns opaque 
+      ($self: class))
+      
+==head2 Superclasses & Subclasses
+  
+  (method (::Class superclasses) ((opaque $self) (list ?@superclasses)) returns list 
+      ((?@superclasses is_nil) or 
+       (?@superclasses apply 
+            ($_ send (add_subclass $self:))
+            ($self: set_attr ((symbol new @:superclasses) (?@superclasses)))
+            ($self: set_attr ((symbol new @:MRO) (list new)))          
+            ($self: send (MRO))))
+       ($self: get_attr (symbol new @:superclasses)))      
+
+  (method (::Class subclasses) ((opaque $self:)) returns list 
+      ($self: get_attr (symbol new @:subclasses)))
+  
+  (method (::Class add_subclass) ((opaque $self:) (opaque $subclass)) returns nil 
+      (($self: get_attr (symbol new @:subclasses)) push ($subclass)))
+      
+  (method (::Class MRO) ((opaque $self:)) returns list 
+      (($self: get_attr (symbol new @:MRO)) is_empty) and 
+       ($self: set_attr ((symbol new @:MRO) ($self: send (_merge)))) 
+      ($self: get_attr (symbol new @:MRO)))      
+    
+=head2 Method Table
+  
+  (method (::Class has_method) ((opaque $self:) (symbol $label)) returns bit
+      ((($self: get_attr (symbol new (%:methods))) exists ($label))))
+  
+  (method (::Class get_method) ((opaque $self:) (symbol $label)) returns method
+      ((($self: get_attr (symbol new (%:methods))) fetch ($label))))
+  
+  (method (::Class remove_method) ((opaque $self:) (symbol $label)) returns nil
+      ((($self: get_attr (symbol new (%:methods))) delete ($label))))
+  
+  (method (::Class get_method_list) ((opaque $self:)) returns list
+      ((($self: get_attr (symbol new (%:methods))) keys)))
+      
+=head2 Attribute Table
+
+  (method (::Class has_attribute) ((opaque $self:) (symbol $label)) returns bit
+      ((($self: get_attr (symbol new (%:attributes))) exists ($label))))
+  
+  (method (::Class get_attribute) ((opaque $self:) (symbol $label)) returns method
+      ((($self: get_attr (symbol new (%:attributes))) fetch ($label))))
+  
+  (method (::Class get_attribute_list) ((opaque $self:)) returns list
+      ((($self: get_attr (symbol new (%:attributes))) keys)))      
+
+  (method (::Class get_attributes) ((opaque $self:)) returns list
+      ((($self: get_attr (symbol new (%:attributes))) values)))            
+
+=head1 Creating ::Object
+
+  (= (* ::Object) (::Class send (new)))
+  
+  (::Class set_attr (symbol new @:superclasses) (list new (::Object)))
+  
+  (::Class set_attr (symbol new @:MRO) (list new (::Class ::Object)))  
+  (::Object set_attr (symbol new @:MRO) (list new (::Object)))    
+
+=head1 ::Object API
+
+=head2 Creation                                                                        
+  
+  (method (::Object BUILDALL) ((opaque $self:) (hash %params)) returns nil
+      ((= &dispatcher (($self: class) send (dispatcher :descendant)))
+       (= $method (WALKMETH (&dispatcher (symbol new BUILD))))
+       (while ($method is_not_nil) 
+          ($method do ($self %params))
+          (= $method (WALKMETH (&dispatcher (symbol new BUILD)))))))
+  
+  (method (::Object BUILD) ((opaque $self:) (hash %params)) returns nil 
+      ((%params keys) apply 
+          ($self: set_attrs ((symbol new ($_)) (%params fetch ($_)))))
+      (nil))          
+
+=head2 Destruction
+  
+  (method (::Object DESTROYALL) ((opaque $self:) (hash %params)) returns nil
+      ((= &dispatcher (($self: class) send (dispatcher :ascendant)))
+       (= $method (WALKMETH (&dispatcher (symbol new DESTROY))))
+       (while ($method is_not_nil) 
+          ($method do ($self %params))
+          (= $method (WALKMETH (&dispatcher (symbol new DESTROY)))))))
+
+=head2 Introspection
+  
+  (method (::Object id) ((opaque $self:)) returns num 
+      ($self: id))
+  
+  (method (::Object class) ((opaque $self:)) returns opaque 
+      ($self: class))
+  
+      
+=cut

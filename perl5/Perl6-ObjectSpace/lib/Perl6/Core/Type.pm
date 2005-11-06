@@ -16,7 +16,8 @@ sub to_num;
 sub to_bit;
 sub to_str;
 
-sub is_nil { bit->new(0) }
+sub is_nil     { bit->new(0) }
+sub is_not_nil { bit->new(1) }
 
 1;
 

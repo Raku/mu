@@ -75,21 +75,27 @@ $::ENV = Perl6::Runtime::get_top_level_env();
 
 =pod
 
-sub *WALKMETH (block &dispatcher, symbol $label, hash %opts) returns (method | nil) {
+sub *WALKMETH (block &dispatcher, symbol $label, hash %opts) returns method {
     while (my $current = &dispatcher.()) {
         return $current.get_method($label, %opts)
             if $current.has_method($label, %opts);
     }
 }
 
+# alternate p6 version
+sub *WALKMETH (block &dispatcher, symbol $label, hash %opts) returns method {
+    { (&dispatcher.() // return).get_method($label, %opts) || redo }       
+}
 
-(closure *WALKMETH ((block &dispatcher) (symbol $label) (hash ?%opts))
-    ((= ($current (&dispatcher do)))
-        (while (!= ($current NIL)) 
-            ((($current send (has_method $label ?%opts)) and 
-                 (return ($current send (get_method $label ?%opts))))
-             (= ($current (&dispatcher do)))))
-        (NIL)))
+
+
+(closure *WALKMETH ((block &dispatcher) (symbol $label) (hash ?%opts)) returns method 
+    ((= $method NIL)
+     (= $current (&dispatcher do))
+     (while (($current is_not_nil) and ($method is_nil))
+        (($current send (has_method $label)) and (= $method ($current send (get_method $label)))
+         (= $current (&dispatcher do))))
+     ($method))
 
 =cut
 
@@ -119,8 +125,7 @@ $::ENV->create('WALKMETH' => closure->new(
                 block->new($e, sub {
                     my $e = shift;
                     $e->get('$current')
-                      ->is_nil
-                      ->not
+                      ->is_not_nil
                       ->and(
                           block->new($e, sub {
                               my $e = shift;
@@ -140,7 +145,7 @@ sub *WALKCLASS (block &dispatcher) returns opaque {
     &dispatcher.()
 }
 
-(closure *WALKCLASS ((block &dispatcher))
+(closure *WALKCLASS ((block &dispatcher)) returns opaque
     (&dispatcher do)
 
 =cut
@@ -171,6 +176,14 @@ class Class {
     has %:methods;
 }
 
+(class (Class)
+    ((attribute new (@:MRO))             (list)
+     (attribute new (@:subclasses))      (list)
+     (attribute new (@:superclasses))    (list)
+     (attribute new (%:private_methods)) (hash)
+     (attribute new (%:attributes))      (hash)
+     (attribute new (%:methods))         (hash)))    
+
 =cut
 
 # create the basic Class
@@ -195,7 +208,7 @@ method add_method (opaque $self: symbol $label, method $method) returns nil {
     %:methods{$label} = $method;
 }
 
-(method add_method ((opaque $self:) (symbol $label) (method $method))
+(method add_method ((opaque $self:) (symbol $label) (method $method)) returns nil
     ((($self: get_attr (symbol new (%:methods))) store ($label $method))))
 
 =cut
@@ -230,7 +243,7 @@ method has_method (opaque $self: symbol $label) returns bit {
     %:methods.exists($label);
 }
 
-(method has_method ((opaque $self:) (symbol $label))
+(method has_method ((opaque $self:) (symbol $label)) returns bit
     ((($self: get_attr (symbol new (%:methods))) exists ($label))))
 
 =cut
@@ -261,7 +274,8 @@ method get_method (opaque $self: symbol $label) returns method {
     %:methods{$label};
 }
 
-(method get_method ((opaque $self:) (symbol $label))
+
+(method get_method ((opaque $self:) (symbol $label)) returns method
     ((($self: get_attr (symbol new (%:methods))) fetch ($label))))
 
 =cut
@@ -288,11 +302,11 @@ $::Class->send('add_method' => (
 
 =pod
 
-method remove_method (opaque $self: symbol $label) returns list { 
+method remove_method (opaque $self: symbol $label) returns nil { 
     %:methods.delete($label);
 }
 
-(method remove_method ((opaque $self:) (symbol $label))
+(method remove_method ((opaque $self:) (symbol $label)) returns nil
     ((($self: get_attr (symbol new (%:methods))) delete ($label))))
 
 =cut
@@ -323,7 +337,7 @@ method get_method_list (opaque $self:) returns list {
     %:methods.keys;
 }
 
-(method get_method_list ((opaque $self:))
+(method get_method_list ((opaque $self:)) returns list
     ((($self: get_attr (symbol new (%:methods))) keys)))
 
 =cut
@@ -350,12 +364,12 @@ $::Class->send('add_method' => (
 =pod
 
 method new (opaque $class: hash %params) returns opaque {
-    $class.bless(undef, %params);
+    $class.bless(undef, %params // hash());
 }
 
-(method new ((opaque $class:) (hash ?%params)) 
+(method new ((opaque $class:) (hash ?%params)) returns opaque
     (((?%params is_nil) and (= ?%params (hash new)))
-     ($class: send (bless (NIL $params)))))
+     ($class: send (bless (NIL ?%params)))))
 
 =cut
 
@@ -392,10 +406,10 @@ method bless (opaque $class: str $canidate, hash %params) returns opaque {
     return $self;
 }
 
-(method bless ((opaque $class:) (str $canidate) (hash %params))
+(method bless ((opaque $class:) (str $canidate) (hash %params)) returns opaque
     ((($canidate to_bit) or (= $canidate (str new ('P6opaque'))))
-     (let ($self ($class: CREATE ($canidate %params))))
-     ($self BUILDALL %params)
+     (= ($self ($class: send (CREATE ($canidate %params)))))
+     ($self send (BUILDALL %params))
      ($self)))
 
 =cut
@@ -443,6 +457,29 @@ method CREATE (opaque $class: str $repr, hash %params) returns opaque {
     return $self;
 }
 
+method CREATE (opaque $class: str $repr, hash %params) returns opaque {
+    my %attrs = hash();
+    my &dispatcher = $class.dispatcher(:descendent);
+    my $c = WALKCLASS(&dispatcher);
+    while (!$c.defined) {
+        $c.get_attributes().map:{
+            %attrs{$_.meta.name()} = $_.meta.instantite_container();
+        };
+        $c = WALKCLASS(&dispatcher);    
+    }
+    return opaque.new(\$class, %attrs)
+}
+
+(method CREATE ((opaque $class:) (str $repr) (hash %params)) returns opaque
+    ((= %attrs (hash new))
+     (= &dispatcher ($class: send (dispatcher :descendent)))
+     (= $c (WALKCLASS (&dispatcher)))
+     (while ($c is_not_nil)
+        ((($c send (get_attributes)) apply 
+            ((= %attrs store (($_ name) ($_ instantite_container)))
+             (= $c (WALKCLASS (&dispatcher)))))))
+     (opaque new (\$class: %attrs)))
+
 =cut
 
 $::Class->send('add_method' => (
@@ -475,10 +512,10 @@ $::Class->send('add_method' => (
                           })
                       );
                     $e->set('$c' => $e->get('WALKCLASS')->do(list->new($e->get('&dispatcher'))));
-                })->do_until(
+                })->do_while(
                     block->new($e, sub {
                         my $e = shift;
-                        $e->get('$c')->is_nil;
+                        $e->get('$c')->is_not_nil;
                     })
                 );
                 return opaque->new(reference->new($e->get('$class:')), $e->get('$attrs'));     
@@ -495,6 +532,13 @@ method BUILDALL (opaque $self: hash %params) returns nil {
         $method.($self, %params);
     }
 }
+
+(method BUILDALL ((opaque $self:) (hash %params)) returns nil
+    ((= &dispatcher (($self: class) send (dispatcher :descendant)))
+     (= $method (WALKMETH (&dispatcher (symbol new BUILD))))
+     (while ($method is_not_nil) 
+        ($method do ($self %params))
+        (= $method (WALKMETH (&dispatcher (symbol new BUILD)))))))
 
 =cut
 
@@ -516,10 +560,10 @@ $::Class->send('add_method' => (
                     my $e = shift;
                     $e->get('$method')->do(list->new($e->get('$self:'), $e->get('%params')));                  
                     $e->set('$method' => $e->get('WALKMETH')->do(list->new($e->get('&dispatcher'), symbol->new('BUILD'))));
-                })->do_until(
+                })->do_while(
                     block->new($e, sub {
                         my $e = shift;
-                        $e->get('$method')->is_nil;
+                        $e->get('$method')->is_not_nil;
                     })
                 );
                 return $nil::NIL;                 
@@ -538,6 +582,11 @@ method BUILD (opaque $self: hash %params) returns nil {
         $.($key) = $value if $.($key);
     }
 }
+
+(method BUILD ((opaque $self:) (hash %params)) returns nil 
+    ((%params keys) apply 
+        ($self: set_attrs ((symbol new ($_)) (%params fetch ($_)))))
+    (nil))
 
 =cut
 
@@ -580,6 +629,13 @@ method DESTROYALL (opaque $self:) returns nil {
     }    
 }
 
+(method DESTROYALL ((opaque $self:) (hash %params)) returns nil
+    ((= &dispatcher (($self: class) send (dispatcher :ascendant)))
+     (= $method (WALKMETH (&dispatcher (symbol new DESTROY))))
+     (while ($method is_not_nil) 
+        ($method do ($self %params))
+        (= $method (WALKMETH (&dispatcher (symbol new DESTROY)))))))
+
 =cut
 
 $::Class->send('add_method' => (
@@ -618,6 +674,9 @@ method id (opaque $self:) returns num {
     unbox($self).id
 }
 
+(method id ((opaque $self:)) returns num 
+    ($self: id))
+
 =cut
 
 $::Class->send('add_method' => (
@@ -643,6 +702,9 @@ method class (opaque $self:) returns opaque {
     # speculative syntax here :)
     unbox($self).class
 }
+
+(method class ((opaque $self:)) returns opaque 
+    ($self: class))
 
 =cut
 
@@ -676,6 +738,15 @@ method superclasses (opaque $self: list ?@superclasses) returns list {
     }
     return @:superclasses;
 }
+
+(method superclasses ((opaque $self) (list ?@superclasses)) returns list 
+    ((?@superclasses is_nil) or 
+     (?@superclasses apply 
+          ($_ send (add_subclass $self:))
+          ($self: set_attr ((symbol new @:superclasses) (?@superclasses)))
+          ($self: set_attr ((symbol new @:MRO) (list new)))          
+          ($self: send (MRO))))
+     ($self: get_attr (symbol new @:superclasses)))
 
 =cut
 
@@ -721,6 +792,9 @@ method subclasses (opaque $self:) returns list {
     @:subclasses;
 }
 
+(method subclasses ((opaque $self:)) returns list 
+    ($self: get_attr (symbol new @:subclasses)))
+
 =cut
 
 $::Class->send('add_method' => (
@@ -745,6 +819,9 @@ $::Class->send('add_method' => (
 method add_subclass (opaque $self: opaque $subclass) returns nil {
     @:subclasses.push($subclass);
 }
+
+(method add_subclass ((opaque $self:) (opaque $subclass)) returns nil 
+    (($self: get_attr (symbol new @:subclasses)) push ($subclass)))
 
 =cut
 
@@ -799,6 +876,11 @@ method MRO (opaque $self:) returns list {
     }
     @:MRO;
 }
+
+(method MRO ((opaque $self:)) returns list 
+    (($self: get_attr (symbol new @:MRO)) is_empty) and 
+     ($self: set_attr ((symbol new @:MRO) ($self: send (_merge)))) 
+    ($self: get_attr (symbol new @:MRO)))
 
 =cut
 
@@ -1066,6 +1148,10 @@ $::Class->send('add_method' => (
         )
     )
 );
+
+=pod
+
+=cut
 
 
 $::Class->send('add_attribute', (symbol->new('@:MRO')             => attribute->new('@:MRO'             => 'list')));
