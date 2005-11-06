@@ -246,7 +246,7 @@ We are not sure what C<alarm(0)> would mean.  Probably a deprecation warning?
 
 =head3 Repeated Alarms
 
-If you request an repeated alarm using the C<repeated> named argument, it will
+If you request a repeated alarm using the C<repeated> named argument, it will
 attempt to fire off the alarm that many times.  However, the alarm will be
 supressed when inside a C<CATCH> block that's already handling the exception
 raised by I<same> alarm.
