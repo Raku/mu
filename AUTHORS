@@ -3,24 +3,31 @@ log and the mailing list archives.  These people have either submitted
 patches or suggestions, or their bug reports or comments have inspired
 the appropriate patches.  Corrections, additions, deletions welcome:
 
+"Aankhen"
 Adam "alias" Kennedy             (ADAMK)     
 Adam Preble                                  
+Adrian "adehohum" Taylor
 Aldo "dada" Calpini              (ACALPINI)  
 Alin "alinbsp" Iacob             (ALIN)      
 Allison Randal                   (ARANDAL)
 Amir "lightstep" Livine Bar-On               עמיר ליבנה בר-און
 Andras Barthazi                              András Bártházi
 Andres "kosmikus" Loeh                       Andres Löh
+Andres Kievsky                   (ANK)
 Andrew Savige                    (ASAVIGE)   
-Anton Berezin                    (GRUBER)    
+Anton "tobez" Berezin            (GRUBER)    
+Arthur "sky" Bergman             (ABERGMAN)
+Ashley "jql" Winters             (AWIN)
 Autrijus Tang                    (AUTRIJUS)  唐宗漢
-Benjamin Smith                   (BSMITH)    
+Benjamin "integral" Smith        (BSMITH)    
 Bestian Tang                                 唐宗浩
-Brad Bowman                      (BOWMANBS)      
+Brad "bsb" Bowman                (BOWMANBS)  
 Brandon Michael "skew" Moore
-Brian Ingerson                   (INGY)      
+Brian Ingerson                   (INGY)      哇哈茶
 Bryan Donlan                     (BDONLAN)   
-Carey "revdiablo" Tilden         (CBTILDEN)
+Bryan "mrborisguy" Burgers
+Carey "revdiablo" Tilden         (CBTILDEN)  
+Carl "fireartist" Franks         (CFRANKS)   
 Carl Masak                       (MASAK)     
 Cheng-Lung Sung                  (CLSUNG)    宋政隆
 Chia-Liang Kao                   (CLKAO)     高嘉良
@@ -31,74 +38,114 @@ chromatic                        (CHROMATIC)
 Colin Paul Adams
 Chuck "sproingie" Adams
 Curtis "ovid" Poe                (OVID)      
+"cpruden"
 Damian Conway                    (DCONWAY)   
+Dan "broquaint" Brook            (BROQ)      
+Dan Kogai                        (DANKOGAI)  小飼弾
 Darren Duncan                    (DUNCAND)   
+Dave "autarch" Rolsky            (DROLSKY)
 David "machack666" Christensen   (DWC)       
+David "autark" Ranvig
 David Vergin                     (DVERGIN)   
+David "qtplatypus" Formosa
 Dimitry Golubovsky                           
-Don Stewart                                  
-Edwin Steiner                                
+Don "dons" Stewart
+Dudley Flanders                           
+Edwin Steiner                              
 Elizabeth Mattijsen              (ELIZABETH)
+Eric "eric256" Hodges                      
 Fayland Lam                      (FAYLAND)   林道
+Flavio S. Glock                  (FGLOCK)    Flávio S. Glock
+Florian "rafl" Ragwitz           (FLORA)
 Gaal Yahas                       (GAAL)      גל יחס
-Garret Rooney                    (ROONEG)    Garrett Rooney
+Garret Rooney                    (ROONEG)    
 "gcomnz"
+Geoffrey Broadwell
+Gianni "dakkar" Ceccarelli
 Hsin-Chan Chien                  (HCCHIEN)   簡信昌
+Ian "Igloo" Lynagh
 Ilmari "wolverian" Vacklin
 Ingo "iblech" Blechschmidt                   
 Isaac "SyntaxNinja" Jones                    
 James "theorbtwo" Mastros        (JMASTROS)  
+Jeff Horwitz                     (JHORWITZ)  
+Jens "jrieks" Rieks
 Jesse "obra" Vincent             (JESSE)     
+Joao Fernando Ferreira           (JOAO)
+Jody Belka                       (KNEW)      
 John van Krieken                 (VLADTZ)    
-Jonathan Scott Duff              (DUFF)      
+Jonathan Scott "PerlJam" Duff    (DUFF)      
 Jonathan Worthington             (JONATHAN)  
 Jos Boumans                      (KANE)
-Joshua "Limbic_Region" Gatcomb   (JGATCOMB)
+Joshua "Limbic_Region" Gatcomb   (JGATCOMB)  
 Juerd Waalboer                   (JUERD)     
 Julian Fondren                   (AYRNIEU)   
 Kang-Min Liu                     (GUGOD)     劉康民
+Kevin "puetzk" Puetz
 Kiran "mkirank" Kumar M.
-Kuang-che "kcwu" Wu                          吳光哲
+Konovalov Vadim                  (VKON)
+Kuang-Che "kcwu" Wu                          吳光哲
 Larry Wall                       (LWALL)     
 Leopold Toetsch                  (LTOETSCH)  Leopold Tötsch
 Liang-Qi "viirya" Xie                        謝良奇
+Lola Lee
 Luke "luqui" Palmer              (LPALMER)   
+Mark "ninereasons" McConnell
 Mark Stosberg                                
 Markus "malaire" Laire                       
 "mattc"
+Matt Diephouse
 Max Maischein                    (CORION)    
 Michael G Schwern                (MSCHWERN)  
+Michal "rootmj" Jurosz
+Miroslav "Shillo" Silovic
+Mitchell N "putter" Charity
 Nathan "kolibrie" Gray           (KOLIBRIE)  
 Nicholas Clark                   (NWCLARK)   
-Mark "ninereasons" McConnell
 Norman Nunley, Jr                (NNUNLEY)   
+Oleg Kiselyov
+Paolo "xerox" Martini
 Patrick R. "pmichaud" Michaud                
 Per "pernod" Christian Nodtvedt              Per Christian Nødtvedt
-Mitchell N "putter" Charity
+Peter Makholm
+Phil Crow                        (PHILCROW)
+Piers "pdcawley" Cawley          (PDCAWLEY)        
 Rafael "rgs" Garcia-Suarez       (RGARCIA)   Rafaël Garcia-Suarez
 Randal L. Schwartz               (MERLYN)    
 Richard "crysflame" Soderberg    (RSOD)      
-Rob "dragonchild" Kinyon         (RKINYON)
+Rob "dragonchild" Kinyon         (RKINYON)   
 Robin "elmex" Redeker                        
 Rod Adams                                    
+Roger "spinclad" Hale
+Roie "roie_m" Marianer                       רועי מריאנר
+Ronny "r0nny" Pfannschmidt
+Salvador Ortiz Garcia
 Sam "mugwump" Vilain             (SAMV)      
+Samuel "SamB" Bronson
 Scott McWhirter                  (KUNGFUFTR) 
+Sebastian "sri" Riedel           (SRI)
 Shae "shapr" Matijs Erisson                  
 Shawn Sorichetti                 (SSORICHE)  
+Shlomi "rindolf" Fish            (SHLOMIF)   שלומי פיש
 Shu-Chun "scw" Weng                          翁書鈞
+Simon "lathos" Cozens            (SIMON)
+Simon "JeffaCake" Marlow
+Solomon "colomon" Foster
 Stefano Rodighiero               (LARSEN)    
+Steffen "renormalist" Schwigon   (SCHWIGON)
 Stephane "cognominal" Payrard    (STEF)      Stéphane Payrard
 Stevan "stevan" Little           (STEVAN)    
 Steve Peters                     (SMPETERS)  
+Stuart "scook0" Cook
 Terrence "metaperl" Brannon      (TBONE)     
-Ting "tiw" Wang
 Thomas Sandlass                              Thomas Sandlaß
 Thomas Yeh                                   
-"tobez"
+Ting "tiw" Wang
 Tom Moertel                      (TMOERTEL)  Tom Moertel
-Roie "roie_m" Marianer                       רועי מריאנר
-Michal "rootmj" Jurosz
-Will "coke" Coleda                           
+Uri Guttman                      (URI)
+Will "Coke" Coleda                           
+Yiyi "xinming" Hu                            鹄驿懿
 Yuan-Chen "ycheng" Cheng                     鄭原真
-Yung-chung Lin                   (XERN)      林永忠
+Yung-Chung Lin                   (XERN)      林永忠
 Yuval "nothingmuch" Kogman       (NUFFIN)    יובל קוג'מן
+Zhen-Bang "Forth" Wei
