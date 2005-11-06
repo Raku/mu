@@ -5,7 +5,7 @@ use Test;
 
 # L<S03/"Binding">
 
-plan 34;
+plan 37;
 
 # Binding of hash elements.
 # See thread "Binding of array elements" on p6l started by Ingo Blechschmidt:
@@ -163,4 +163,20 @@ plan 34;
   is $var,        "f",                "hash binding does not create new containers (2)";
   is ~%hash    .values.sort, "f x z", "hash binding does not create new containers (3)";
   is ~%new_hash.values.sort, "f x z", "hash binding does not create new containers (4)";
+}
+
+# Binding %hash := $hashref.
+# See
+# http://colabti.de/irclogger/irclogger_log/perl6?date=2005-11-06,Sun&sel=388#l564
+# and consider the magic behind parameter binding (which is really normal
+# binding).
+{
+  my $hashref = { a => "a", b => "b" };
+  my %hash   := $hashref;
+
+  is +%hash, 2,                    'binding %hash := $hashref works (1)';
+
+  %hash<b> = "c";
+  is ~$hashref.values.sort, "a c", 'binding %hash := $hashref works (2)';
+  is ~%hash   .values.sort, "a c", 'binding %hash := $hashref works (3)';
 }
