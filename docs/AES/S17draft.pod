@@ -379,6 +379,8 @@ multi coro zoro ($odd is named) {}
 
 =head2 Junctive Autothreading and Hyper Operations
 
+Live in userland for the time being.
+
 =head2 Interprocess Communication
 
 =head2 I/O Considerations
