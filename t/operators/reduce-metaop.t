@@ -12,7 +12,7 @@ L<"http://groups.google.de/group/perl.perl6.language/msg/bd9eb275d5da2eda">
 
 =cut
 
-plan 36;
+plan 38;
 
 # [...] reduce metaoperator
 {
@@ -86,31 +86,35 @@ lives_ok({my @foo = [>>+<<] ([1..3],[1..3],[1..3])},'Parse [>>+<<]');
 
 # Check that user defined infix ops work with [...], too.
 sub infix:<more_than_plus>(Int $a, Int $b) { $a + $b + 1 }
-is(([more_than_plus] 1, 2, 3), 8, "[...] reduce metaop works on user defined ops");
+is(try { [more_than_plus] 1, 2, 3 }, 8, "[...] reduce metaop works on user defined ops");
 
 {
   my $arr = [ 42, [ 23 ] ];
   $arr[1][1] = $arr;
 
-  is ([.[]] $arr, 1, 1, 1, 1, 1, 0), 23, '[.[]] works with infinite data structures';
+  is try { [.[]] $arr, 1, 1, 1, 1, 1, 0 }, 23, '[.[]] works with infinite data structures';
 }
 
 {
   my $hash = {a => {b => 42}};
   $hash<a><c> = $hash;
 
-  is ([.{}] $hash, <a c a c a b>), 42, '[.{}] works with infinite data structures';
+  is try { [.{}] $hash, <a c a c a b> }, 42, '[.{}] works with infinite data structures';
 }
 
 {
   my ($a, $b);
 
-  eval_ok '[=] $a, $b, 3', '[=] evaluates successfully';
+  ok ([=] $a, $b, 3), '[=] evaluates successfully';
   is($a, 3, '[=] assigns successfully (1)');
   is($b, 3, '[=] assigns successfully (2)');
 
-  eval_ok '([=] $a, $b, 3) = 5', '[=] lvalue context restored (1)';
+  ok try { ([=] $a, $b, 4) = 5 }, '[=] lvalue context restored (1)';
   is($a, 5, '[=] lvalue context restored (2)');
-  is($b, 3, '[=] lvalue context restored (3)');
-}
+  is($b, 4, '[=] lvalue context restored (3)');
 
+  dies_ok { [=] "this_is_a_constant", 42 },
+      "[=] can't assign to constants (1)";
+  dies_ok { [=] $a, $b, "this_is_a_constant", 42 },
+      "[=] can't assign to constants (2)";
+}

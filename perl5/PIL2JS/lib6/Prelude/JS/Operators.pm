@@ -172,14 +172,19 @@ sub prefix:<[.[]]> (*$head is copy, *@rest is copy) is primitive {
   $head;
 }
 
-# XXX weird pugsbug, should be able to declare [=>] using the eval loop above
-sub prefix:«[=>]» (*$head is copy, *@rest is copy) is primitive {
-  while @rest {
-    $head = $head => shift @rest;
-  }
-
-  $head;
+sub prefix:«[=>]» (*@args) is primitive {
+  # XXX copying necessary because PIL2JS's => currently captures *containers*,
+  # not values.
+  reduce -> $a, $b {; my $B = $b; my $A = $a; $B => $A } reverse @args;
 }
+
+sub prefix:«[=]» (*@vars is copy) is primitive is rw {
+  my $dest := pop @vars;
+  $_ = $dest for @vars;
+  @vars[0];
+}
+
+our &prefix:«[,]» := &list;
 
 sub infix:«Y» (Array *@arrays) is primitive is rw { zip *@arrays }
 sub infix:«¥» (Array *@arrays) is primitive is rw { zip *@arrays }
