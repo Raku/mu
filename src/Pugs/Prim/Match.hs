@@ -14,8 +14,8 @@ import qualified Data.Map as Map
 import qualified Data.Array as Array
 
 doMatch :: String -> VRule -> Eval VMatch
--- Work around PGE bug on Parrot 0.3.1 -- empty rule matches automatically
-doMatch _ MkRulePGE{ rxRule = "" } = return $ mkMatchOk 0 0 "" [] Map.empty
+-- Work around PGE bug on Parrot 0.3.1 -- empty rules are errors
+doMatch _ MkRulePGE{ rxRule = "" } = fail "Null patterns are invalid; use <?null> or an empty string instead"
 doMatch cs MkRulePGE{ rxRule = re } = do
     let pwd1 = getConfig "installarchlib" ++ "/CORE/pugs/pge"
         pwd2 = getConfig "sourcedir" ++ "/src/pge"
