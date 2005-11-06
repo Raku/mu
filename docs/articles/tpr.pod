@@ -109,6 +109,12 @@ way as you could in Perl 5:
   my $rejoined   = join "", @characters;
   print $rejoined, "\n";
 
+[[ (EM) this seems overstating it to me... the real P5 equivalent would be:
+
+  print join("",split //,"Hello, world!"),"\n";
+
+]]
+
   # This code is valid Perl 5 and Perl 6. You will often
   # find Perl 5 code works as is, or with little modification,
   # in Perl 6.)
@@ -162,14 +168,18 @@ code in this style:
 Beginners (and insufficiently caffenated late-night hackers) can easily
 make either of the following disastrous mistakes:
 
-      my($foo, $bar, $baz);          # oops, forgot " = @_"
+      my ($foo, $bar, $baz);         # oops, forgot " = @_"
+
+      my ($foo, $bar, $baz) = shift; # oops, used shift() rather than "@_"
 
       my $single_arg = @_;           # oops, will usually be 1
 
 The Perl 6 compiler has syntax to save you from all this. Here's how
 you spell out the car example:
 
-  sub make_car($model, $color? = "black", Int $doors? = 4) { ... }
+  sub make_car ($model, $color? = "black", Int $doors? = 4) { ... }
+
+[[ (EM) added whitespace after "make_car", is that ok? ]]
 
 This single line does more than the four Perl 5 lines did. First, it
 specifies that the function receives three parameters, one of which is
@@ -181,6 +191,8 @@ you can see, this is an optional feature: you don't have to declare
 types everywhere.
 
 How is this make_car used? These are obvious:
+
+[[ (EM) Maybe source code examples should adhere to PBP ?? ]]
 
   make_car("VW Beetle", "green", 2);
   make_car("Ford Model T");              # black, 4-doored
@@ -243,12 +255,16 @@ which can also take more than one element at a time.
   # infix "¥" means the same thing as "zip"; this is a visual analogy.
   @differences = map -> $x, $y { $x - $y }, @Xs ¥ @Ys;
 
+[[ (EM): maybe mention that "Y" is the same as "¥"for the unicode challenged? ]]
+
 There's even a feature for the extremely lazy: formal parameters with
 no predeclaration. Variables mentioned in a closure that have the C<^>
 secondary sigil (caller "twigil" in Perl 6 speak) are all inferred as
 parameters to the block.
 
   @differences = map { $^x - $^y } , @Xs ¥ @Ys;
+
+[[ (EM) write out the same in P5 here maybe? ]]
 
 =item Many (but systematically arranged) operators
 
@@ -290,6 +306,9 @@ set to a file called "0". You'd have to spell this the long way:
   my $output_file = defined lookup("output_file") ?
                             lookup("output_file") : $DEFAULT_FILENAME;
 
+[[ (EM) // is part of bleadperl and HMBRANDT has been supplying patches for
+all versions of perl since 5.6 to support // and //= ]]
+
 This becomes especially annoying when you want to check in more than
 one place (for example, what if you can also get the output file from an
 environment variable?). Which brings me to the point of the digression,
@@ -320,6 +339,8 @@ ASCII fallbacks. Here's the current (short) core list:
 
 Since it's easy to add new operators, expect mathematical modules to say things like 
 ⌈$PI⌉ to mean 4.
+
+[[ (EM): the above looks bad in my editor ]]
 
 The file C<docs/quickref/unicode> in the pugs distribution explains how
 to type Unicode in popular editors.
