@@ -377,6 +377,20 @@ multi coro zoro ($type where 'odd') {}
 multi coro zoro ($even is named) {}
 multi coro zoro ($odd is named) {}
 
+
+# iblech's thoughts:
+# Coroutine parameters should never be rebound. Instead, yield(...)s return
+# value is an Arglist object containing the new arguments:
+coro bar ($a, $b) {
+    ...;
+    my $new_set_of_args = yield(...);
+    my $sum_of_old_a_and_new_a = $a + $new_set_of_args<$a>;
+    ...;
+}
+bar(42, 23);  # $a is 42, $b is 23
+bar(17, 19);  # $a still 42, $b still 19,
+              # $new_set_of_args is \(a => 17, b => 19)
+
 =head2 Junctive Autothreading and Hyper Operations
 
 Live in userland for the time being.
