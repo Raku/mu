@@ -11,7 +11,7 @@ my $pid = open2(
     'runhugs',
     "-P.:/usr/local/lib/hugs/libraries/:/usr/lib/hugs/libraries/:$Bin/../src/DrIFT:$Bin/../../DrIFT/src",
     "$Bin/../../DrIFT/src/DrIFT.hs",
-    $in;
+    $in
 );
 
 my @program = do { <$rh> };
@@ -25,5 +25,5 @@ open OUT, "> $out" or die "Cannot open $out: $!";
 
 for (@program) {
     next if /=begin DRIFT/ .. /=cut/;
-    print;
+    print OUT;
 }
