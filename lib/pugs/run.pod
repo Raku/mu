@@ -86,7 +86,7 @@ provides.
 =item C<-BI<backend>>
 
 causes Pugs to execute the program using C<I<backend>>. Currently, valid
-backends are C<Parrot>, C<PIR>, C<Perl5>, and C<JS>.
+backends are C<PIR> (execution via Parrot), C<JS> (JavaScript), and C<Pugs>.
 
 To start the interactive shell of a backend, run C<pugs -BI<backend>>, but note
 that currently only the Perl 5 and JavaScript backends provide interactive
@@ -99,8 +99,8 @@ references, and Perl 6 on Perl 5 offers excellent support for laziness.
 =item C<-CI<backend>>
 
 causes Pugs to compile the program using C<I<backend>>. Currently, valid
-backends are C<Pugs>, C<Parrot>, C<PIR>, C<Haskell>, C<JS>, and C<PIL> with its
-variants C<Perl5>, C<JSON>, and C<Binary>.
+backends are C<Pugs>, C<PIR>, C<GHC>, C<JS>, and various variants of PIL:
+C<PIL1>, C<PIL1-Binary>, C<PIL1-JSON>, C<PIL1-Perl5> (and C<PIL2-...>).
 
 Note that, as with C<-c>, C<BEGIN {...}> and C<CHECK {...}> blocks, as well as
 C<use Module> statements, are still executed. So don't try to compile
