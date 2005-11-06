@@ -380,7 +380,7 @@ ${() = '%.hpp : %.hs @prereqs $version_h
 .SUFFIXES: .hs-drift .hs
 
 .hs-drift.hs :
-	\$(PERL) util/drift.pl \$< > \$@
+	\$(PERL) util/drift.pl \$< \$@
 
 haddock : $version_h $config_h @hppfiles dist/doc/html
 	haddock -t Pugs-$version -h -o dist/doc/html/ @hppfiles
