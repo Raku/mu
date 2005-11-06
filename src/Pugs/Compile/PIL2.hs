@@ -1,16 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fno-warn-orphans -funbox-strict-fields -cpp #-}
-{-# OPTIONS_GHC -#include "../UnicodeC.h" #-}
+{-# OPTIONS_GHC -#include "../../UnicodeC.h" #-}
 
-{-|
-    Compiler interface.
-
->   And words unheard were spoken then
->   Of folk and Men and Elven-kin,
->   Beyond the world were visions showed
->   Forbid to those that dwell therein...
--}
-
-module Pugs.Compile (
+module Pugs.Compile.PIL2 (
     PIL_Stmts(..), PIL_Stmt(..), PIL_Expr(..), PIL_Decl(..), PIL_Literal(..), PIL_LValue(..),
     Compile(..),
     TEnv(..), initTEnv,
@@ -25,7 +16,7 @@ import Pugs.Types
 import Pugs.Eval
 import Pugs.Eval.Var
 import Pugs.Monads
-import Pugs.PIL1
+import Pugs.PIL2
 import Emit.PIR
 import Text.PrettyPrint
 

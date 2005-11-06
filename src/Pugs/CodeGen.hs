@@ -13,7 +13,7 @@ module Pugs.CodeGen (codeGen, backends) where
 import Pugs.AST
 import Pugs.Internals
 import Pugs.CodeGen.PIL1 (genPIL1)
-import Pugs.CodeGen.PIL2 (genPIL2)
+import Pugs.CodeGen.PIL2 (genPIL2, genPIL2Perl5, genPIL2Binary, genPIL2JSON)
 import Pugs.CodeGen.PIR (genPIR)
 import Pugs.CodeGen.Perl5 (genPerl5)
 import Pugs.CodeGen.JSON (genJSON)
@@ -32,6 +32,9 @@ generators = Map.fromList $
     , ("PIR",         genPIR)
     , ("PIL1",        genPIL1)
     , ("PIL2",        genPIL2)
+    , ("PIL2-Perl5",  genPIL2Perl5)
+    , ("PIL2-JSON",   genPIL2JSON)
+    , ("PIL2-Binary", genPIL2Binary)
     , ("Perl5",       genPerl5)
     , ("Pugs",        genPugs)
     , ("Binary",      genBinary)
@@ -43,7 +46,7 @@ backends :: [String]
 backends = Map.keys generators
 
 norm :: String -> String
-norm = norm' . map toLower
+norm = norm' . map toLower . filter isAlphaNum
     where
     norm' "ghc"    = "GHC"
     norm' "parrot" = "Parrot"
@@ -52,6 +55,9 @@ norm = norm' . map toLower
     norm' "pil1"   = "PIL1"
     norm' "pil2"   = "PIL2"
     norm' "perl5"  = "Perl5"
+    norm' "pil2perl5"  = "PIL2-Perl5"
+    norm' "pil2json"   = "PIL2-JSON"
+    norm' "pil2binary" = "PIL2-Binary"
     norm' "pugs"   = "Pugs"
     norm' "binary" = "Binary"
     norm' "json"   = "JSON"
