@@ -317,7 +317,6 @@ ASCII fallbacks. Here's the current (short) core list:
   Op      Fallback    Meaning
   «...»   <<...>>     Interpolating word quotes
   ¥       Y or &zip   Zip lists together
-  ¢       c|          Class sigil                 [[ XXX: not final ]]
 
 Since it's easy to add new operators, expect mathematical modules to say things like 
 ⌈$PI⌉ to mean 4.
@@ -335,5 +334,7 @@ This article was written by Gaal Yahas E<lt>L<gaal@forum2.org>E<gt>
 with the help and inspiration of #perl6. It is distributed
 under the Creative Commons Attribution-ShareAlike 2.0 license
 L<http://creativecommons.org/licenses/by-sa/2.0/>.
+
+Thanks to Eric Hodges for material suggestions.
 
 =cut
