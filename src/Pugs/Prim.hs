@@ -17,6 +17,7 @@ module Pugs.Prim (
     op2DefinedOr,
     op2ChainedList,
     op1Exit,
+    op1Return,
     -- used by Pugs.Compile.Haskell
     op0, op1, op2,
     -- used Pugs.Eval
@@ -672,12 +673,16 @@ op1Return action = do
     depth <- asks envDepth
     if depth == 0 then fail "cannot return() outside a subroutine" else do
     sub   <- fromVal =<< readVar "&?SUB"
+    -- If this is a coroutine, reset the entry point
     case subCont sub of
-        {- shiftT :: ((a -> Eval Val) -> Eval Val) -> Eval a -}
-        {- const :: a -> b -> a -}
-        {- FIXME: This should involve shiftT somehow, I think, but I'm not clear how. -}
         Nothing -> action
-        _       -> fail $ "cannot return() from a " ++ pretty (subType sub)
+        Just tvar -> do
+            let thunk = (`MkThunk` anyType) . fix $ \redo -> do
+                evalExp $ subBody sub
+                liftSTM $ writeTVar tvar thunk
+                redo
+            liftSTM $ writeTVar tvar thunk
+            action
 
 op1Yield :: Eval Val -> Eval Val
 op1Yield action = do
