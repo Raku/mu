@@ -102,9 +102,10 @@ instance Pretty Int where
     format i = int i
 
 instance Pretty VList where
-    format x 
-        | not . null . (drop 100) $ x = parens $ (format (head x) <+> text ", ...")
-        | otherwise = parens $ (joinList $ text ", ") (map format x)
+    format [x] = parens $ format x <> text ","
+    format xs
+        | not . null . (drop 100) $ xs = parens $ (format (head xs) <+> text ", ...")
+        | otherwise = parens $ (joinList $ text ", ") (map format xs)
 
 instance Pretty VHash where
     format x = cat
