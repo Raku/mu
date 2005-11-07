@@ -1976,7 +1976,7 @@ ruleVarNameString =   try (string "$!")  -- error variable
     return $ (sigil:twigil) ++ name
 
 ruleTwigil :: RuleParser String
-ruleTwigil = option "" . choice . map string $ words " ^ * ? . : "
+ruleTwigil = option "" . choice . map string $ words " ^ * ? . : + "
 
 ruleMatchPos :: RuleParser String
 ruleMatchPos = do

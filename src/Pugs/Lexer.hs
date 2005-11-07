@@ -274,6 +274,7 @@ ruleScope = tryRule "scope" $ do
     readScope "our"     = SOur
     readScope "let"     = SLet
     readScope "temp"    = STemp
+    readScope "env"     = SEnv
     readScope _         = SGlobal
 
 ruleScopeName :: RuleParser String

@@ -8,6 +8,7 @@ module Pugs.AST.Scope (
 data Scope = SState  -- ^ Persistent across calls
            | SLet    -- ^ Hypotheticalised (reverted upon failure)
            | STemp   -- ^ Temporary (reverted at scope exit)
+           | SEnv    -- ^ Environment (declared with @env@)
            | SMy     -- ^ Lexical
            | SOur    -- ^ Package
            | SGlobal -- ^ Global
