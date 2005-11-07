@@ -265,7 +265,7 @@ parameters to the block.
 
   @differences = map { $^x - $^y }, @Xs ¥ @Ys;
 
-How does this compare with Perl 5? If @Xs and @Ys can be assumed to be
+How does this compare with Perl 5? If C<@Xs> and C<@Ys> can be assumed to be
 the same length, then this isn't too bad, though the explicit subscripting
 does make it less elegant:
 
@@ -318,11 +318,11 @@ element, you'd need to write more support code. In Perl 6, you just say
 
 If non-ASCII operators and parameters that don't need to be declared
 haven't blown your mind yet, good. The two-list difference operation
-from the last section could also be written like this:[2]
+from the last section could also be written like this:[1]
 
   @differences = @Xs »-« @Ys;
 
-»« are "hyperoperators" that take a regular operator and "lift" it to
+C<< »« >> are "hyperoperators" that take a regular operator and "lift" it to
 work on lists. You can still use them when you don't have I<two> lists:
 
   @halves = @original »/« 2;      # 2 is upgraded to "(2, 2, 2, ...)"
@@ -340,8 +340,8 @@ similar to Perl 5's C<qw>:
 
   my @suspects = <Hockney McManus Fenster Keaton Verbal>;
 
-Like Perl 5, <...> does single-quoting. If you want interpolation,
-you can use the «...» variant.
+Like Perl 5, C<< <...> >> does single-quoting. If you want interpolation,
+you can use the C<< «...» >> variant.
 
 The second convenient new operator is C<//>, the "and-if-not-defined" operator.
 You'd typically use it like this:
@@ -349,7 +349,7 @@ You'd typically use it like this:
   my $output_file = lookup("output_file") // $DEFAULT_FILENAME;
 
 In Perl 5, you might use C<||> but risk the gotcha of the config value being
-set to a file called "0". You'd have to spell this the long way:
+set to a file called "C<0>". You'd have to spell this the long way:
 
   my $output_file = defined lookup("output_file") ?
                             lookup("output_file") : $DEFAULT_FILENAME;
@@ -402,7 +402,7 @@ to type Unicode in popular editors.
 
 [1] Yes, C<<< @Xs »-« @Ys »-« @Zs >>> also works.
 
-[2] // is scheduled for inclusion in perl 5.10. For those interested,
+[2] C<//> is scheduled for inclusion in perl 5.10. For those interested,
 patches are available for existing version all the way back to 5.6.
 
 =head1 AUTHOR INFORMATION
