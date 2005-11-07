@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 6;
+plan 9;
 
 =pod
 
@@ -22,6 +22,24 @@ plan 6;
     my $foo = 42;
     try { my @array = <a b c>; $foo.infix:<=>(@array) };
     is ~$foo, "a b c", "scalar assignment using .infix:<=>";
+}
+
+# .infix:<=> returns an lvalue
+{
+    my $foo = 42;
+    try { $foo.infix:<=>(23) = 19 };
+    is $foo, 19, ".infix:<=> returns an lvalue (1)";
+}
+
+{
+    my $foo = 42;
+    try { $foo.infix:<=>(23).infix:<=>(19) };
+    is $foo, 19, ".infix:<=> returns an lvalue (2)";
+}
+
+# .infix:<=> fails on constants (as does ordinary =)
+{
+    dies_ok { 42.infix:<=>(23) }, ".infix:<=> can't assign to constants";
 }
 
 =pod

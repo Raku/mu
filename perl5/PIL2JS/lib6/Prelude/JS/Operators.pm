@@ -154,7 +154,9 @@ sub prefix:<-->  ($a is rw)    is primitive { $a = $a - 1 }
 sub postfix:<--> ($a is rw)    is primitive { my $cur = $a; $a = $a - 1; $cur }
 sub JS::Root::rand ($a = 1)    is primitive { $JS::Math.random() * $a }
 
-sub infix:<=>    ($a is rw, $b) is primitive is rw { $a = $b }
+# The following line also installs &infix:<=>. (hack!)
+method infix:<=> (Item $a is rw: $b) is rw          { $a = $b }
+#sub infix:<=>    ($a is rw, $b) is primitive is rw { $a = $b }
 
 sub prefix:<[.{}]> (*$head is copy, *@rest is copy) is primitive {
   while @rest {
