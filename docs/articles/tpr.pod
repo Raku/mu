@@ -115,6 +115,10 @@ way as you could in Perl 5:
 
 ]]
 
+[[ (GY) sure. This section needs work; I was steering this towards the
+point below that this isn't "just" a chain of builins, it's a chain of
+builins dispatched as methods. Leaving for now until I word it better. ]]
+
   # This code is valid Perl 5 and Perl 6. You will often
   # find Perl 5 code works as is, or with little modification,
   # in Perl 6.)
@@ -178,8 +182,6 @@ The Perl 6 compiler has syntax to save you from all this. Here's how
 you spell out the car example:
 
   sub make_car ($model, $color? = "black", Int $doors? = 4) { ... }
-
-[[ (EM) added whitespace after "make_car", is that ok? ]]
 
 This single line does more than the four Perl 5 lines did. First, it
 specifies that the function receives three parameters, one of which is
@@ -252,25 +254,71 @@ elements:
 Of course, this kind of thing is usually better expressed with map,
 which can also take more than one element at a time.
 
-  # infix "¥" means the same thing as "zip"; this is a visual analogy.
+  # Infix "¥" means the same thing as "zip"; this is a visual analogy.
+  # See the sidebar on Unicode operators for details.
   @differences = map -> $x, $y { $x - $y }, @Xs ¥ @Ys;
-
-[[ (EM): maybe mention that "Y" is the same as "¥"for the unicode challenged? ]]
 
 There's even a feature for the extremely lazy: formal parameters with
 no predeclaration. Variables mentioned in a closure that have the C<^>
 secondary sigil (caller "twigil" in Perl 6 speak) are all inferred as
 parameters to the block.
 
-  @differences = map { $^x - $^y } , @Xs ¥ @Ys;
+  @differences = map { $^x - $^y }, @Xs ¥ @Ys;
 
-[[ (EM) write out the same in P5 here maybe? ]]
+How does this compare with Perl 5? If @Xs and @Ys can be assumed to be
+the same length, then this isn't too bad, though the explicit subscripting
+does make it less elegant:
+
+  @differences = map { $Xs[$_] - $Ys[$_] } 0 .. $#Xs;
+
+If we want to allow for lists of different length, though, we need a
+solution that's much more involved:
+
+  sub map2 (&@) {
+      my ($code, @list) = @_;
+      my @output;
+      
+      while (@list) {
+          my($x, $y) = splice @list, 0, 2;
+          push @output, $code->($x, $y);
+      }
+      
+      return @output;
+  }
+  
+  sub zip2 (\@\@) {
+      my($Xs, $Ys) = @_;
+      my @output;
+      for my $i (0 .. max(scalar(@$Xs), scalar(@$Ys))) {
+          push @output,
+              ($i < scalar(@$Xs) ? $Xs->[$i] : undef),
+              ($i < scalar(@$Ys) ? $Ys->[$i] : undef);
+      }
+      return @output;
+  }
+
+  sub max { $_[0] > $_[1] ? $_[0] : $_[1] }
+
+  my @differences = map2 { $_[0] - $_[1] } zip2(@Xs, @Ys);
+
+This took care of throwing undef instead of missing values from the
+shorter list, while taking care not to grow the original. It even uses
+some fancy prototypes to avoid gratitious syntax (the C<sub> keyword
+and reference-taking backslashes). It is much longer than the Perl 6
+version, but also less efficient (two temporary copies of the whole data
+are created in memory). Since we used prototypes, the utility functions
+need to be declared above the actual code (or stowed in a module, of
+course). But the strongest point against this is how it isn't extensible;
+if you wanted to take the differences of I<three> lists, element by
+element, you'd need to write more support code. In Perl 6, you just say
+
+  @differences = map { $^x - $^y - $^z }, @Xs ¥ @Ys ¥ @Zs;
 
 =item Many (but systematically arranged) operators
 
 If non-ASCII operators and parameters that don't need to be declared
-haven't blown your mind yet, good. The last line can also be written
-like this:
+haven't blown your mind yet, good. The two-list difference operation
+from the last section could also be written like this:[2]
 
   @differences = @Xs »-« @Ys;
 
@@ -306,9 +354,6 @@ set to a file called "0". You'd have to spell this the long way:
   my $output_file = defined lookup("output_file") ?
                             lookup("output_file") : $DEFAULT_FILENAME;
 
-[[ (EM) // is part of bleadperl and HMBRANDT has been supplying patches for
-all versions of perl since 5.6 to support // and //= ]]
-
 This becomes especially annoying when you want to check in more than
 one place (for example, what if you can also get the output file from an
 environment variable?). Which brings me to the point of the digression,
@@ -320,7 +365,7 @@ a suspect, you could talk to them one by one until you had an answer:
 It's important to note that unlike Perl 5, map is I<lazy>, which means
 it only "eats up" one element of input as an element of output is
 required. In this case, Verbal may not feel the heat at all if (say)
-McManus talks.
+McManus talks.[2]
 
 =item Junctions
 
@@ -340,7 +385,11 @@ ASCII fallbacks. Here's the current (short) core list:
 Since it's easy to add new operators, expect mathematical modules to say things like 
 ⌈$PI⌉ to mean 4.
 
-[[ (EM): the above looks bad in my editor ]]
+[[ Those are Unicode LEFT CEILING and RIGHT CEILING, U+2308 and
+U+2309. They look just like square brackets with the lower serifs
+sawn off. Sorry about the pain it must be to include this, it's worth
+mentioning since this kind of thing is definitely going to show up in
+Perl 6 code. ]]
 
 The file C<docs/quickref/unicode> in the pugs distribution explains how
 to type Unicode in popular editors.
@@ -349,6 +398,13 @@ to type Unicode in popular editors.
 
 [[ annotated webliography ]]
 
+=head1 FOOTNOTES
+
+[1] Yes, C<<< @Xs »-« @Ys »-« @Zs >>> also works.
+
+[2] // is scheduled for inclusion in perl 5.10. For those interested,
+patches are available for existing version all the way back to 5.6.
+
 =head1 AUTHOR INFORMATION
 
 This article was written by Gaal Yahas E<lt>L<gaal@forum2.org>E<gt>
@@ -356,6 +412,6 @@ with the help and inspiration of #perl6. It is distributed
 under the Creative Commons Attribution-ShareAlike 2.0 license
 L<http://creativecommons.org/licenses/by-sa/2.0/>.
 
-Thanks to Eric Hodges for material suggestions.
+Thanks to Eric Hodges and Elizabeth Mattijsen for material suggestions.
 
 =cut
