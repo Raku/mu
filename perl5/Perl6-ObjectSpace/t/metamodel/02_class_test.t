@@ -34,11 +34,15 @@ dies_ok {
 
 is($::Class->send('is_a' => $::Class), $bit::TRUE, '... Class is_a Class');
 
+my $name = $::Class->send('name');
+isa_ok($name, 'str');
+is($name->equal_to(str->new('Class')), $bit::TRUE, '... name is Class');
+
 my $superclasses = $::Class->send('superclasses');
 isa_ok($superclasses, 'list');
 is($superclasses->is_empty, $bit::FALSE, '... the superclass list is currently empty');
 is($superclasses->length->equal_to(num->new(1)), $bit::TRUE, '... the superclass list has one item in it');
-is($superclasses->fetch(num->new(0)), $::Object, '... and that item is Object');
+is($superclasses->fetch(num->new(0)), $::Module, '... and that item is Module');
 
 my $subclasses = $::Class->send('subclasses');
 isa_ok($subclasses, 'list');
@@ -47,9 +51,11 @@ is($subclasses->is_empty, $bit::TRUE, '... the subclasses list is currently empt
 my $MRO = $::Class->send('MRO');
 isa_ok($MRO, 'list');
 is($MRO->is_empty, $bit::FALSE, '... the MRO list is not empty');
-is($MRO->length->equal_to(num->new(2)), $bit::TRUE, '... the MRO list has two items in it');
+is($MRO->length->equal_to(num->new(4)), $bit::TRUE, '... the MRO list has two items in it');
 is($MRO->fetch(num->new(0)), $::Class, '... and that first item is Class');
-is($MRO->fetch(num->new(1)), $::Object, '... and that second item is Object');
+is($MRO->fetch(num->new(1)), $::Module, '... and that second item is Module');
+is($MRO->fetch(num->new(2)), $::Package, '... and that third item is Package');
+is($MRO->fetch(num->new(3)), $::Object, '... and that fourth item is Object');
 
 {
     my $Foo;
@@ -58,7 +64,7 @@ is($MRO->fetch(num->new(1)), $::Object, '... and that second item is Object');
     } '... we created a new class successfully';
 
     isa_ok($Foo, 'opaque');
-    is($Foo->id->equal_to(num->new(3)), $bit::TRUE, '... this is the second instance');
+    is($Foo->id->greater_than(num->new(3)), $bit::TRUE, '... this is the second instance');
     is($Foo->class, $::Class, 'Class is an instance of Class');
     
     is($Foo->send('is_a' => $Foo), $bit::TRUE, '... Foo is_a Foo');    
@@ -79,4 +85,7 @@ is($MRO->fetch(num->new(1)), $::Object, '... and that second item is Object');
     
 }
 
-
+END {
+    my $temp = $::Package;
+    $temp = $::Object;
+}

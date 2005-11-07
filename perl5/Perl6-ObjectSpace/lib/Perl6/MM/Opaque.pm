@@ -87,6 +87,15 @@ sub set_attr {
     return $self->[2]->store($name, $value);
 }
 
+sub add_attr {
+    my ($self, $name) = @_;
+    (blessed($name) && $name->isa('symbol'))
+        || confess "Attribute names must be symbols";
+    ($self->[2]->exists($name) == $bit::FALSE)
+        || confess "Attribute (" . $name->to_str->to_native . ") already exists";
+    return $self->[2]->store($name, $nil::NIL);    
+}
+
 1;
 
 __END__

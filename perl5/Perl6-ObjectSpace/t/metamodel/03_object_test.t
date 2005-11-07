@@ -45,7 +45,7 @@ foreach my $method (qw(foo bar baz)) {
 my $i = $::Object->send('new');
 isa_ok($i, 'opaque');
 
-is($i->id->equal_to(num->new(3)), $bit::TRUE, '... our id is the third id');
+is($i->id->greater_than(num->new(3)), $bit::TRUE, '... our id is the third id');
 is($i->class, $::Object, '... our class is Object');
 
 foreach my $method (qw(

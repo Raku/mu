@@ -19,6 +19,12 @@ sub to_str;
 sub is_nil     { bit->new(0) }
 sub is_not_nil { bit->new(1) }
 
+# sub isa {
+#     my $self = shift;
+#     my $result = $self->SUPER::isa(@_);
+#     return $result ? bit->new(1) : bit->new(0);
+# }
+
 1;
 
 __END__

@@ -1377,36 +1377,224 @@ $::Object->send('add_method' => (
     )
 );
 
-# < Class is subclass of Object >
-$::Class->set_attr(symbol->new('@:superclasses') => list->new($::Object));
+## ----------------------------------------------------------------------------
+## now build Package & Module, so we can create something here
 
-# NOTE:
-# this is to avoid recursion
-$::Class->set_attr(symbol->new('@:MRO') => list->new($::Class, $::Object));
-$::Object->set_attr(symbol->new('@:MRO') => list->new($::Object));
+$::Package = $::Class->send('new');
+$::Package->send('superclasses' => list->new($::Object));
+
+$::Package->send('add_attribute', (symbol->new('$:name')      => attribute->new('$:name'      => 'str')));
+$::Package->send('add_attribute', (symbol->new('%:namespace') => attribute->new('%:namespace' => 'hash')));
 
 
-__END__
-
-# METHOD TEMPLATE
-
-=pod
-
-=cut
-
-$::Class->send('add_method' => (
+$::Package->send('add_method' => (
     # method label
-        symbol->new(''),
+        symbol->new('name'),
     # method body
         method->new(
             $::ENV,
             closure::params->new(
                 symbol->new('$self:' => 'opaque'),                
+                symbol->new('?$name' => 'str'),                                
             ),
             sub {
-                my $e    = shift;
-                my $self = $e->get('$self:');
+                my $e = shift;
+                $e->get('?$name')
+                  ->is_not_nil
+                  ->and(block->new($e, sub {
+                      my $e = shift;
+                      $e->get('$self:')->set_attr(symbol->new('$:name'), $e->get('?$name'));
+                  }));
+                $e->get('$self:')->get_attr(symbol->new('$:name'));
             }
         )
     )
 );
+
+$::Package->send('add_method' => (
+    # method label
+        symbol->new('FETCH'),
+    # method body
+        method->new(
+            $::ENV,
+            closure::params->new(
+                symbol->new('$self:' => 'opaque'),                
+                symbol->new('$label' => 'symbol'),                                
+            ),
+            sub {
+                my $e = shift;
+                $e->create('$return' => $nil::NIL);
+                $e->get('$label')
+                  ->to_str
+                  ->is_equal(str->new('{}'))
+                  ->and(block->new($e, sub {
+                      $e->set('$return' => $e->get('$self:')->get_attr(symbol->new('%:namespace')));
+                  }))
+                  ->or(block->new($e, sub {
+                      $e->set('$return' => $e->get('$self:')->get_attr(symbol->new('%:namespace'))->fetch($e->get('$label')));
+                  }));
+                $e->get('$return');
+            }
+        )
+    )
+);
+
+$::Package->send('add_method' => (
+    # method label
+        symbol->new('STORE'),
+    # method body
+        method->new(
+            $::ENV,
+            closure::params->new(
+                symbol->new('$self:' => 'opaque'),                
+                symbol->new('$label' => 'symbol'),  
+                symbol->new('$value' => 'type'),                                                
+            ),
+            sub {
+                my $e = shift;
+                $e->get('$self:')
+                  ->get_attr(symbol->new('%:namespace'))
+                  ->store(
+                      $e->get('$label'),
+                      $e->get('$value')
+                  );
+            }
+        )
+    )
+);
+
+## ----------------------------------------------------------------------------
+## add Module
+
+$::Module = $::Class->send('new');
+$::Module->send('superclasses' => list->new($::Package));
+
+
+$::Module->send('add_attribute', (symbol->new('$:version')   => attribute->new('$:version'   => 'str')));
+$::Module->send('add_attribute', (symbol->new('$:authority') => attribute->new('$:authority' => 'str')));
+
+$::Module->send('add_method' => (
+    # method label
+        symbol->new('version'),
+    # method body
+        method->new(
+            $::ENV,
+            closure::params->new(
+                symbol->new('$self:' => 'opaque'),                
+                symbol->new('?$version' => 'str'),                                
+            ),
+            sub {
+                my $e = shift;
+                $e->get('?$version')
+                  ->is_not_nil
+                  ->and(block->new($e, sub {
+                      my $e = shift;
+                      $e->get('$self:')->set_attr(symbol->new('$:version'), $e->get('?$version'));
+                  }));
+                $e->get('$self:')->get_attr(symbol->new('$:version'));
+            }
+        )
+    )
+);
+
+$::Module->send('add_method' => (
+    # method label
+        symbol->new('authority'),
+    # method body
+        method->new(
+            $::ENV,
+            closure::params->new(
+                symbol->new('$self:' => 'opaque'),                
+                symbol->new('?$authority' => 'str'),                                
+            ),
+            sub {
+                my $e = shift;
+                $e->get('?$authority')
+                  ->is_not_nil
+                  ->and(block->new($e, sub {
+                      my $e = shift;
+                      $e->get('$self:')->set_attr(symbol->new('$:authority'), $e->get('?$authority'));
+                  }));
+                $e->get('$self:')->get_attr(symbol->new('$:authority'));
+            }
+        )
+    )
+);
+
+$::Module->send('add_method' => (
+    # method label
+        symbol->new('identifier'),
+    # method body
+        method->new(
+            $::ENV,
+            closure::params->new(
+                symbol->new('$self:' => 'opaque'),                         
+            ),
+            sub {
+                my $e = shift;
+                $e->create('$identifier' => $e->get('$self:')->get_attr(symbol->new('$:name')));
+                $e->get('$self:')
+                  ->get_attr(symbol->new('$:version'))
+                  ->to_bit()
+                  ->and(block->new($e, sub {
+                      my $e = shift;
+                      $e->set('$identifier' => 
+                          $e->get('$identifier')
+                            ->concat(
+                              str->new('-')
+                            )
+                            ->concat(
+                              $e->get('$self:')->get_attr(symbol->new('$:version'))
+                            )
+                      );
+                  }));
+                $e->get('$self:')
+                  ->get_attr(symbol->new('$:authority'))
+                  ->to_bit()
+                  ->and(block->new($e, sub {
+                      my $e = shift;
+                      $e->set('$identifier' => 
+                          $e->get('$identifier')
+                             ->concat(
+                                str->new('-')
+                            )                          
+                            ->concat(
+                              $e->get('$self:')->get_attr(symbol->new('$:authority'))
+                            )
+                      );
+                  }));
+                $e->get('$identifier');
+            }
+        )
+    )
+);
+
+## ----------------------------------------------------------------------------
+## finishing up the boostrapping
+
+# < Class is subclass of Object >
+$::Class->set_attr(symbol->new('@:superclasses') => list->new($::Module));
+
+$::Module->set_attr(symbol->new('@:subclasses') => list->new($::Class));
+
+# NOTE:
+# this is to avoid recursion
+$::Class->set_attr(symbol->new('@:MRO') => list->new($::Class, $::Module, $::Package, $::Object));
+$::Object->set_attr(symbol->new('@:MRO') => list->new($::Object));
+
+foreach my $meta ($::Class, $::Object, $::Package, $::Module) {
+    $meta->add_attr(symbol->new('$:name'      => 'str'));
+    $meta->add_attr(symbol->new('%:namespace' => 'hash'));    
+    $meta->add_attr(symbol->new('$:version'   => 'str'));        
+    $meta->add_attr(symbol->new('$:authority' => 'str'));            
+}
+
+# add their names in
+$::Class->send('name'   => str->new('Class'));
+$::Object->send('name'  => str->new('Object'));
+$::Package->send('name' => str->new('Package'));
+$::Module->send('name'  => str->new('Module'));
+
+1;
+
+__END__
