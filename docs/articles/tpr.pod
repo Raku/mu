@@ -367,6 +367,20 @@ it only "eats up" one element of input as an element of output is
 required. In this case, Verbal may not feel the heat at all if (say)
 McManus talks.[2]
 
+
+Another developement that's taken palce is the normalization of bitwise
+operators.  Where you once had C<$x | $y> mean different things depending
+on whether the two variables were numbers or string -- with the kludgy
+C<(0+$x) | (0+$y)> workaround guard to force numeric interpretation --
+the operators now explicitly state what kind of context they impose. This
+means that the amount of operators is large, but it is very clear what
+they do. The idea is that these operators now take a mandatory prefix:
+C<+>, C<~>, or C<?>; they mean numeric, string, or boolean context.
+
+[[ more: mention C<.> again, and C<~>. We don't want to turn into S03
+here but these things are all pretty prominent when someone sees p6 code
+for the first time. ]]
+
 =item Junctions
 
 =item Cleaned-up OOP
