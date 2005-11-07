@@ -9,7 +9,7 @@ use Test;
 
 =cut
 
-plan 71;
+plan 97;
 
 # basic Pair
 
@@ -243,4 +243,56 @@ L<"http://www.nntp.perl.org/group/perl.perl6.language/20122">
     "the keys of pairs should not get auto-stringified when passed to a sub (2)";
   is +pair_key($pair),          4,
     "the keys of pairs should not get auto-stringified when passed to a sub (3)";
+}
+
+# Per Larry: http://www.nntp.perl.org/group/perl.perl6.language/23984
+{
+  my ($key, $val) = <key val>;
+  my $pair        = ($key => $val);
+
+  lives_ok { $pair.key = "KEY" }, "setting .key does not die";
+  is $pair.key,          "KEY",   "setting .key actually changes the key";
+  is $key,               "key",   "setting .key does not change the original var";
+
+  lives_ok { $pair.value = "VAL" }, "setting .value does not die";
+  is $pair.value,          "VAL",   "setting .value actually changes the value";
+  is $val,                 "val",   "setting .value does not change the original var";
+}
+
+{
+  my ($key, $val) = <key val>;
+  my $pair        = ($key => $val);
+
+  lives_ok { $pair.key := "KEY" }, "binding .key does not die";
+  is $pair.key,           "KEY",   "binding .key actually changes the key";
+  is $key,                "key",   "binding .key does not change the original var";
+  dies_ok { $pair.key = 42 },      "the .key was really bound";  # (can't modify constant)
+
+  lives_ok { $pair.value := "VAL" }, "binding .value does not die";
+  is $pair.value,           "VAL",   "binding .value actually changes the value";
+  is $val,                  "val",   "binding .value does not change the original var";
+  dies_ok { $pair.value = 42 },      "the .value was really bound";  # (can't modify constant)
+}
+
+{
+  my ($key, $val) = <key val>;
+  my $pair        = (abc => "def");
+
+  lives_ok { $pair.key := $key }, "binding .key does not die";
+  is $pair.key,           "key",  "binding .key actually changes the key";
+  $key = "KEY";
+  is $key,                "KEY",  "binding .key to a var works (1)";
+  is $pair.key,           "KEY",  "binding .key to a var works (2)";
+  try { $pair.key = "new" };
+  is $key,                "new",  "binding .key to a var works (3)";
+  is $pair.key,           "new",  "binding .key to a var works (4)";
+
+  lives_ok { $pair.value := $val }, "binding .value does not die";
+  is $pair.value,           "val",  "binding .value actually changes the value";
+  $val = "VAL";
+  is $val,                  "VAL",  "binding .value to a var works (1)";
+  is $pair.value,           "VAL",  "binding .value to a var works (2)";
+  try { $pair.value = "new" };
+  is $val,                  "new",  "binding .value to a var works (3)";
+  is $pair.value,           "new",  "binding .value to a var works (4)";
 }

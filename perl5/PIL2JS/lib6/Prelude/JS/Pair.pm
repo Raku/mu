@@ -1,4 +1,4 @@
-method key (Pair $self:) {
+method key (Pair $self:) is rw {
   die ".key only works on objects of type Pair!" unless $self.isa("Pair");
 
   JS::inline('new PIL2JS.Box.Constant(function (args) {
@@ -14,15 +14,16 @@ method value (Pair $self:) is rw {
   })')($self);
 }
 
-sub infix:«=>»($key, $value is rw) is primitive is rw {
+sub infix:«=>»($key is copy, $value is rw) is primitive is rw {
   JS::inline('new PIL2JS.Box.Constant(function (args) {
     var cxt = args.shift(), cc = args.pop();
     var key = args[0], value = args[1];
+    var new_val_container = value.copy();
 
     // lvalue pair assignment, see S06 and
     // http://www.nntp.perl.org/group/perl.perl6.language/19425.
     cc(new PIL2JS.Box.Proxy(
-      function ()  { return new PIL2JS.Pair(key, value) },
+      function ()  { return new PIL2JS.Pair(key, new_val_container) },
       function (n) {
         value.STORE(n);
         return this;

@@ -116,12 +116,18 @@ method kv (Hash|Pair|Array $self:) {
 }
 
 method pairs (Hash|Pair|Array $self:) {
+  my sub infix:«=:>» ($key, $value is rw) is primitive is rw {
+    my $pair = ($key => $value);
+    $pair.value := $value;
+    $pair;
+  }
+
   if $self.isa("Hash") {
-    $self.keys.map:{ $_ => $self{$_}; };    # Don't remove the ";" inside the map!
+    $self.keys.map:{; $_ =:> $self{$_} };
   } elsif $self.isa("Pair") {
     ($self,);
   } elsif $self.isa("Array") {
-    $self.keys.map:{ $_ => $self[$_]; };    # ditto
+    $self.keys.map:{; $_ =:> $self[$_] };
   } else {
     die ".pairs does not work on objects of type {$self.ref}!";
   }
