@@ -5,7 +5,7 @@ use lib <t/lib ext/Rosetta-Incubator/t/lib>;
 
 use Test;
 
-plan( 30 );
+plan( 34 );
 
 # Locale-KeyedText:
 
