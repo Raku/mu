@@ -344,6 +344,17 @@ coro foo ($x) {
     ... # this is never reached, I think we all agree
 }
 
+# If you don't want your variables to get rebound, use "is copy":
+coro foo ($x is copy) {...}
+# which is sugar for
+coro foo ($x) {
+  {
+    my $x := $OUTER::x;
+    ...;
+    # Further calls of &foo rebound $OUTER::x, not $x.
+  }
+}
+
 sub foo {
     return undef if rand;
     ...
