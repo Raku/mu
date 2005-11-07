@@ -3,12 +3,12 @@
 use v6;
 use Test;
 
-plan 3;
+plan 4;
 
 =pod
 
-  $foo(42);  # is sugar for
-  $foo.postcircumfix:<( )>(42);
+    $foo(42);  # is sugar for
+    $foo.postcircumfix:<( )>(42);
 
 =cut
 
@@ -20,7 +20,7 @@ plan 3;
     eval '$foo does role {
         method postcircumfix:<( )> {}
     }';
-    lives_ok { $foo() }, "overriding postcircumfix:<( )> (1)";
+    lives_ok { $foo() }, "overriding postcircumfix:<( )> (1)", :todo<feature>;
 }
 
 # Example: Make $foo() modify another variable.
@@ -34,5 +34,27 @@ plan 3;
         }
     }';
     try { $foo() };
-    ok $bar, "overriding postcircumfix:<( )> (2)";
+    is $bar, 24, "overriding postcircumfix:<( )> (2)", :todo<feature>;
+}
+
+# .postcircumfix:<( )> is called even when you don't actually use ()s to
+# call, as
+#   foo;    # is merely sugar for
+#   foo();
+{
+    my $bar;
+    my sub foo {
+        # This body should never be called!
+        $bar = 23
+    };
+    eval '&foo does role {
+        method postcircumfix:<( )> {
+            $bar = 42;
+        }
+    }';
+
+    foo;
+    is $bar, 42,
+        ".postcircumfix:<( )> is called even when you don't actually use ()s to call",
+        :todo<feature>;
 }
