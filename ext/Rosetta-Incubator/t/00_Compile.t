@@ -41,6 +41,16 @@ use_ok( 'Rosetta::Validator::L::en' );
 skip( q{is( Rosetta::Validator::L::en.meta.identifier.version, 0.15.0,
     'Rosetta::Validator::L::en is the correct version' );} );
 
+# Rosetta-Engine-Native:
+
+use_ok( 'Rosetta::Engine::Native' );
+skip( q{is( Rosetta::Engine::Native.meta.identifier.version, 0.1.0,
+    'Rosetta::Engine::Native is the correct version' );} );
+
+use_ok( 'Rosetta::Engine::Native::L::en' );
+skip( q{is( Rosetta::Engine::Native::L::en.meta.identifier.version, 0.1.0,
+    'Rosetta::Engine::Native::L::en is the correct version' );} );
+
 # SQL-Routine-SQLBuilder:
 
 use_ok( 'SQL::Routine::SQLBuilder' );
@@ -60,16 +70,6 @@ skip( q{is( SQL::Routine::SQLParser.meta.identifier.version, 0.3.0,
 use_ok( 'SQL::Routine::SQLParser::L::en' );
 skip( q{is( SQL::Routine::SQLParser::L::en.meta.identifier.version, 0.3.0,
     'SQL::Routine::SQLParser::L::en is the correct version' );} );
-
-# Rosetta-Engine-Native:
-
-use_ok( 'Rosetta::Engine::Native' );
-skip( q{is( Rosetta::Engine::Native.meta.identifier.version, 0.1.0,
-    'Rosetta::Engine::Native is the correct version' );} );
-
-use_ok( 'Rosetta::Engine::Native::L::en' );
-skip( q{is( Rosetta::Engine::Native::L::en.meta.identifier.version, 0.1.0,
-    'Rosetta::Engine::Native::L::en is the correct version' );} );
 
 # Rosetta-Engine-Generic:
 
