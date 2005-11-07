@@ -84,13 +84,14 @@ plan 10;
 # Anonymous state vars
 # L<"http://groups.google.de/group/perl.perl6.language/msg/07aefb88f5fc8429">
 {
+    # XXX -- currently this is parsed as \&state()
     my $gen = { try { \state } };
 
-    my $svar_ref = $gen();      # $svar == 0
-    $$svar_ref++; $$svar_ref++; # $svar == 2
+    my $svar_ref = $gen();               # $svar == 0
+    try { $$svar_ref++; $$svar_ref++ };  # $svar == 2
 
-    my $svar_ref = $gen();      # $svar == 2
-    is $$svar_ref, 2, "anonymous state() vars", :todo<feature>;
+    my $svar_ref = $gen();               # $svar == 2
+    is try { $$svar_ref }, 2, "anonymous state() vars", :todo<feature>;
 }
 
 # L<"http://www.nntp.perl.org/group/perl.perl6.language/20888">

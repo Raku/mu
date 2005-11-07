@@ -15,9 +15,8 @@ sub fixup {
 
   # Skip creating a new sub-pad if
   #   a) we're in a subroutine (in this case, we use JS' lexicals) or
-  #   b) we're compiling a SLet, STemp, or SState (which all use an existing
-  #      variable).
-  if($self->{pScope} =~ /^(SLet|STemp|SState)$/) {
+  #   b) we're compiling a SLet, STemp (which all use an existing variable).
+  if($self->{pScope} =~ /^(SLet|STemp)$/) {
     return bless {
       pScope => $self->{pScope},
       pSyms  => [map {{ fixed => PIL::lookup_var($_->[0]), user => $_->[0] }} @{ $self->{pSyms} }],
@@ -64,6 +63,9 @@ sub as_js {
 
       if($self->{pScope} eq "SMy") {
         "$decl$jsname = $undef; pad[$qname] = $jsname";
+      } elsif($self->{pScope} eq "SState") {
+        push @PIL::ALL_LEXICALS, $_->{fixed};
+        "pad[$qname] = $jsname";
       } elsif($self->{pScope} eq "STemp") {
         PIL::fail("Can't use temp variable declarator outside a sub-scope!")
           unless $PIL::IN_SUBLIKE;

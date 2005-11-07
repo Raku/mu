@@ -11,7 +11,7 @@ oscon-apocalypse.spork: "Apocalypse Now" (English):
   HTML version: http://www.kwiki.org/apocalypse/start.html
 
 hw2005.tex: "Pugs: Bootstrapping Perl 6 with Haskell" (English):
-  Talk by Autrijus Tang for Haskell Workshop 2005 (rejected)
+  Paper by Autrijus Tang for Haskell Workshop 2005 (rejected)
   PDF version: http://perlcabal.org/~autrijus/hw2005.pdf
 
 perl6-apw2005/: "Eine Einfuehrung in Perl 6" (German):
@@ -31,6 +31,6 @@ cufp2005.txt: "Pugs: Perl 6 For Real" (English):
   PDF version: http://no.perlcabal.org/~autrijus/cufp2005.pdf
 
 sources are elsewhere: "Introducing Perl - Version VI: A New Hope" (English)
-  Talk by Grant McLean and Sam Vilain for Wellington.pm June 2005.
+  Talk by Grant McLean and Sam Vilain for Wellington.pm June 2005
   HTML version: http://wellington.pm.org/archive/200506/perl6-intro/html/index.html
   Sources: http://wellington.pm.org/archive/200506/perl6-intro/

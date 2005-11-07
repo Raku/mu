@@ -598,17 +598,13 @@ Fix a problem with C<pad["$_"]> being stomped in combination with rules stuff
 
 =item *
 
-Only make vars declared C<is rw> accessible via C<$CALLER::> (according to
-S02).
+Only make vars declared by C<env> accessible via C<$CALLER::> (according to
+newest S02).
 
 =item *
 
 Make C<&?SUB> available in anonymous subs as well (C<my sub> counts as
 anonymous).
-
-=item *
-
-L<Pre-generate constants|http://www.sidhe.org/~dan/blog/archives/000433.html>?
 
 =back
 
