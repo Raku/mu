@@ -170,12 +170,10 @@ code in this style:
       # ...
 
 Beginners (and insufficiently caffenated late-night hackers) can easily
-make either of the following disastrous mistakes:
+make one of the following disastrous mistakes:
 
       my ($foo, $bar, $baz);         # oops, forgot " = @_"
-
-      my ($foo, $bar, $baz) = shift; # oops, used shift() rather than "@_"
-
+      my ($foo, $bar, $baz) = shift; # oops, used shift() instead of "@_"
       my $single_arg = @_;           # oops, will usually be 1
 
 The Perl 6 compiler has syntax to save you from all this. Here's how
@@ -221,7 +219,7 @@ need to do that any more. If you have a function you'll be calling many
 times with a changing set of arguments, you can keep them in a hash and
 use the "splat" operator to flatten it:
 
-  sub make_many_cars($howmany) {
+  sub make_many_cars ($howmany) {
       my @cars;
       for 1 .. $howmany {         # the parens can be omitted here in Perl 6
           my %car_prefs = get_user_prefs();
@@ -256,20 +254,20 @@ which can also take more than one element at a time.
 
   # Infix "¥" means the same thing as "zip"; this is a visual analogy.
   # See the sidebar on Unicode operators for details.
-  @differences = map -> $x, $y { $x - $y }, @Xs ¥ @Ys;
+  my @differences = map -> $x, $y { $x - $y }, @Xs ¥ @Ys;
 
 There's even a feature for the extremely lazy: formal parameters with
 no predeclaration. Variables mentioned in a closure that have the C<^>
-secondary sigil (caller "twigil" in Perl 6 speak) are all inferred as
+secondary sigil (called "twigil" in Perl 6 speak) are all inferred as
 parameters to the block.
 
-  @differences = map { $^x - $^y }, @Xs ¥ @Ys;
+  my @differences = map { $^x - $^y }, @Xs ¥ @Ys;
 
 How does this compare with Perl 5? If C<@Xs> and C<@Ys> can be assumed to be
 the same length, then this isn't too bad, though the explicit subscripting
 does make it less elegant:
 
-  @differences = map { $Xs[$_] - $Ys[$_] } 0 .. $#Xs;
+  my @differences = map { $Xs[$_] - $Ys[$_] } 0 .. $#Xs;
 
 If we want to allow for lists of different length, though, we need a
 solution that's much more involved:
@@ -301,18 +299,19 @@ solution that's much more involved:
 
   my @differences = map2 { $_[0] - $_[1] } zip2(@Xs, @Ys);
 
-This took care of throwing undef instead of missing values from the
-shorter list, while taking care not to grow the original. It even uses
-some fancy prototypes to avoid gratitious syntax (the C<sub> keyword
-and reference-taking backslashes). It is much longer than the Perl 6
-version, but also less efficient (two temporary copies of the whole data
-are created in memory). Since we used prototypes, the utility functions
-need to be declared above the actual code (or stowed in a module, of
-course). But the strongest point against this is how it isn't extensible;
-if you wanted to take the differences of I<three> lists, element by
-element, you'd need to write more support code. In Perl 6, you just say
+This took care of throwing undef instead of missing values from
+the shorter list, while not growing the original. It even uses some
+fancy prototypes to avoid gratitious syntax (the C<sub> keyword and
+reference-taking backslashes). It is much longer than the Perl 6 version,
+but also less efficient (two temporary copies of the whole data are
+created in memory -- the Perl 6 version never allocates even I<one>
+extra copy). Since we used prototypes, the utility functions need to be
+declared above the actual code (or stowed in a module, of course). But
+the strongest point against this is how it isn't extensible; if you
+wanted to take the differences of elements in I<three> lists, you'd need
+to write more support code. In Perl 6, you just say
 
-  @differences = map { $^x - $^y - $^z }, @Xs ¥ @Ys ¥ @Zs;
+  my @differences = map { $^x - $^y - $^z }, @Xs ¥ @Ys ¥ @Zs;
 
 =item Many (but systematically arranged) operators
 
@@ -320,12 +319,12 @@ If non-ASCII operators and parameters that don't need to be declared
 haven't blown your mind yet, good. The two-list difference operation
 from the last section could also be written like this:[1]
 
-  @differences = @Xs »-« @Ys;
+  my @differences = @Xs »-« @Ys;
 
 C<< »« >> are "hyperoperators" that take a regular operator and "lift" it to
 work on lists. You can still use them when you don't have I<two> lists:
 
-  @halves = @original »/« 2;      # 2 is upgraded to "(2, 2, 2, ...)"
+  my @halves = @original »/« 2;   # 2 is upgraded to "(2, 2, 2, ...)"
 
 Relatedly, there's a way to "reduce" long expressions such as sums or
 products with the C<[]> metaoperator:
@@ -340,8 +339,8 @@ similar to Perl 5's C<qw>:
 
   my @suspects = <Hockney McManus Fenster Keaton Verbal>;
 
-Like Perl 5, C<< <...> >> does single-quoting. If you want interpolation,
-you can use the C<< «...» >> variant.
+Like C<qw> in Perl 5, C<< <...> >> single-quotes its arguments. If you
+want interpolation, you can use the C<< «...» >> variant.
 
 The second convenient new operator is C<//>, the "and-if-not-defined" operator.
 You'd typically use it like this:
@@ -365,7 +364,7 @@ a suspect, you could talk to them one by one until you had an answer:
 It's important to note that unlike Perl 5, map is I<lazy>, which means
 it only "eats up" one element of input as an element of output is
 required. In this case, Verbal may not feel the heat at all if (say)
-McManus talks.[2]
+McManus talks first.[2]
 
 
 Another developement that's taken palce is the normalization of bitwise
@@ -377,13 +376,101 @@ means that the amount of operators is large, but it is very clear what
 they do. The idea is that these operators now take a mandatory prefix:
 C<+>, C<~>, or C<?>; they mean numeric, string, or boolean context.
 
+  # Perl 5
+  print  7   &  54;    # 6
+  print "7"  & "54";   # "5"
+
+  # Perl 6
+  print  7  +&  54;    # 6
+  print "7" +& "54";   # 6
+  print  7  ~&  54;    # "5"
+  print "7" ~& "54";   # "5"
+
 [[ more: mention C<.> again, and C<~>. We don't want to turn into S03
 here but these things are all pretty prominent when someone sees p6 code
 for the first time. ]]
 
 =item Junctions
 
+Now that C<|>, C<&>, and C<^> no longer mean bitwise operations, they are
+free to be used for something else: junctions. These are several values
+lumped up into one. They are useful in clarifying logic expressions:
+
+
+  my $options = '--help' | '-d' | '-e';
+  if all($x, $y, $z) eq $options { ... }
+
+[[ XXX: this example is stolen from Autrijus's Apocalypse Now talk. Maybe
+think of something else? ]]
+
 =item Cleaned-up OOP
+
+When version 5 introduced object oriented programming to Perl, it did
+so with a minimal change to the existing syntax. It also mandated very
+little about how objects are arranged: the vast majority of Perl 5
+classes pick blessed hashes for their all-around usefulness, but the
+object system itself is flexible and can use other things, such as
+arrays or even globs. Certainly this has afforded authors with great
+creativity and power, but it has also made learning Perl OOP a little
+more difficult than it needed to be. If you do use the de-facto standard
+of hash elements for object fields, you are at risk of falling for some
+of the most frustrating bugs, the kind you don't feel you'd learned
+anything from after you'd spent hours hunting them down:
+
+  $self->{colour} = "red";
+  print $self->{color};        # oops!
+
+By rights, this should be something the compiler catches, and in Perl 6,
+it is. Classes are more than "just" packages. Instance variables are
+declared with the new C<has> keyword:
+
+  class Car;
+
+  has $.model;
+  has $.color;
+  has Int $.doors;
+
+For this money, you get a constructor with basic initialization, and
+three automatic accessors that can act as lvalues.
+
+  my $wheels    = Car.new(model => "Fast 'un");
+  $wheels.doors = 2;
+  $wheels.color = "red";
+
+If you want, you can provide your own C<BUILD> method that has the
+class-specific smarts (say, give a default color, or limit cars to a
+certain number of doors).
+
+The C<.> twigil meant the members above were public (and so they had
+accessors created for them which are visible outside the class. You can
+also declare private members:
+
+  has Int $:odometer;          # note ":" twigil, meaning "private".
+  has Location $:loc;          # let's assume there is a Location class.
+
+  # ...
+
+  $wheels.odometer -= 100;     # nice try, but it won't work.
+
+Methods are now declared with a keyword of their own. This distinguishes
+them from regular C<sub>s, and also means that you don't have to declare
+the invocant (by convention often called C<$self> or C<$this> in Perl 5)
+yourself.
+
+  method beep { say "beep!" }
+  
+  method drive (Location $destination) {
+      $:odometer += $:loc.distance($destination);
+      $:loc = $destination;
+
+      self.beep;
+  }
+
+There is, of course, much more to OOP in Perl, but there's no room to
+discuss it here.  We'll just mention the idea of Roles, where a class
+declares what kind of things it I<does>. Part of the implementation of a
+class may be taken directly from the providing Role. It works differently
+from inheritance and is worth looking into.
 
 =back
 
@@ -408,7 +495,141 @@ Perl 6 code. ]]
 The file C<docs/quickref/unicode> in the pugs distribution explains how
 to type Unicode in popular editors.
 
-[[ examples/ ]]
+=head2 The C<examples/> directory
+
+When you install B<pugs>, you get plenty of (working) example code. Let's
+look at a few of the things there.
+
+=head3 examples/network/http-client.p6
+
+  #!/usr/bin/pugs
+  
+  use v6;
+  
+  say "*** Fetching from the Jerk It (tm) RSS feed...";
+  
+  my $hdl = connect("www.phreeow.net", 80);
+  $hdl.say(
+      "GET /cgi-bin/jerkme.rss HTTP/1.0\n",
+      "Host: www.phreeow.net\n"
+  );
+  $hdl.flush;
+  
+  if ($hdl.slurp ~~ rx:perl5{<description>(.+)</description>\s*</item>}) {
+      say $0;
+  }
+  else {
+      say "*** Oops, connection failed."
+  }
+
+This example -- one of pugs' oldest, added two months after the
+project started -- is a very simple web client. The code is fairly
+straightforward, but it illustrates a few features of Perl 6 and of pugs.
+First, you'll notice that C<connect> returns an object that's used in a
+totally OOPish way. At the time this was added, networking wasn't fully
+specced: expect this to be called something like C<Socket.connect> in the
+official perl6 release (though there very well maybe an C<IO::All>-ish
+way to create lazyily defined IO objects as well). Pugs just went away
+and implemented a reasonable approximation.
+
+The client speaks very simple HTTP, C<.flush>es the request to make sure
+it's sent over the wire, and analyzes the response. This line is worth
+breaking down:
+
+  if ($hdl.slurp ~~ rx:perl5{<description>(.+)</description>\s*</item>}) { ... }
+
+  # Perl 5 equivalent
+
+  sub slurp { local $/; readline shift }    # works on open filehandles only
+  my $response = slurp($hdl);
+
+  if ($response =~ m{<description>(.+)</description>\s*</item>}x) { ... }
+
+The basic idea is clear -- get the whole HTTP response, perform a
+capturing pattern match. There are a few important details though. First,
+both P5 and P6 versions of the code use Perl 5 regular expressions for the
+match. Perl 6 defines a new language called Rules, but an implementation
+wasn't available when this code was written so P5 regexp were used. As you
+can see, these are accessible through C<rx:perl5>, which is the C<rx> Rule
+keyword with the Perl 5 I<adverbial modifier> attached to it.
+
+[[
+ XXX: not sure if this is worth the break in pace--
+
+You omit the modifier if you want a P6 rule; and just like you can omit
+C<m> in Perl 5 if you just want to C</match something/>, you could do
+the same if you were using C</> as your delimiters. In full Perl 6,
+this line becomes:
+
+ ..and then port the regexp to a rule, which kinda shows XML is annoying
+ to pattern match quickly and dirtily. So maybe skip this.
+]]
+
+Regardless of which pattern engine is used, the capture, if successful,
+goes to C<$0> and not C<$1> as it would in Perl 5. The other difference
+is that instead of using C<~=>, we now use C<~~> to match. The change
+is not just one of spelling: C<~~> is the shiny new I<smart match>
+operator, which has very well-defined semantics for matching anything
+against anything else. That is, you know in advance what it'd do if you
+say something like C<%hash ~~ @array> or C<$dow ~~ 0 .. 7>.
+
+=head3 examples/games/animals.p6
+
+  $ ./pugs examples/games/animals.p6
+  Is it a dog (yes/no)? n
+  No!?  What was it then? cat
+  And a question that distinguishes a dog from a cat would be? Does it purr?
+  And for a cat, the answer would be... (yes/no)? y
+  Play again? (yes/no)? y
+  Does it purr? (yes/no)? y
+  Is it a cat (yes/no)? y
+  I got it!
+  Play again? (yes/no)? n
+  Bye!
+  {('no' => 'dog'), ('question' => 'Does it purr?'), ('yes' => 'cat')}
+  $
+
+The code for this simple guessing game is just a little too long to
+fit here, so I'm just going to hilight some nice features. The program
+tries to guess what animal you are thinking of; if it fails it asks for
+distinctive knowledge it can use next time. Obviously, this knowledge is
+expressed in some data structure: the nice thing about this example is
+that the last thing it does when exiting is dump this structure. Or rather,
+the really nice thing about this is the code to do it:
+
+  say $info.perl;
+
+C<.perl> is similar to C<Data::Dumper>, but is built into perl. It
+provides sensible serialization for objects as well. If the pugs hackers
+have their way, you can expect an analogous C<.yaml> method too (though
+it may not be in the core).
+
+Recall the smart match operator from the previous example, and let's
+look at this snippet of code:
+
+  given $input {
+        when "y" { return 1;};
+        when "n" { return 0;};
+        default  { return yes($q) };
+  }
+
+This is Perl 6's switch statement. C<given> sets C<$_> (the I<topic> as
+it's now called) to be C<$input>, and thenruns the code in the block.
+Each C<when> block performs a smart match against the topic -- it's
+shorthand for something like
+
+  if $_ ~~ "y" { return 1; } else { ... }
+
+The beauty of this construct is that smart matches work on I<everything>,
+so you can have code like this:
+
+  given $food {
+      when "My tortilla"   { say "hey! give it back!" }
+      when Pizza | Lazagna { .eat }
+      when .caloric_value > $doctors_orders { warn "no, no no" }  # XXX: make this work
+  }
+
+
 
 [[ annotated webliography ]]
 
