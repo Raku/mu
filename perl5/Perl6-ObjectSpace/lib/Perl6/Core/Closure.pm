@@ -18,23 +18,31 @@ use Scalar::Util 'blessed';
 use base 'type';
 
 sub new {
-    my ($class, $env, $params, $body) = @_;
+    my ($class, $env, $signature, $body) = @_;
     (blessed($env) && $env->isa('closure::env'))
         || confess "env must be a closure::env";
     # params is a hash whose keys are the names
     # of variables, and whose values are the 
     # expected types of those objects (or possibly
     # the default values too)
-    (blessed($params) && $params->isa('closure::params'))
-        || confess "params must be an closure::params type";
+    (blessed($signature) && ($signature->isa('closure::params') || $signature->isa('closure::signature')))
+        || confess "signature must be an closure::params or closure::signature type";
     (ref($body) eq 'CODE')
         || confess "body must be a code ref";
+    
+    if ($signature->isa('closure::params')) {
+        $signature = closure::signature->new(
+            params  => $signature,
+            returns => 'type'
+        );
+    }    
+    
     my $local_env = closure::env->new();
     $local_env->next($env);
     bless {
-        params => $params,
-        body   => $body,
-        env    => $local_env
+        sig  => $signature,
+        body => $body,
+        env  => $local_env
     } => $class;
 }
 
@@ -48,23 +56,29 @@ sub to_bit { bit->new(1)            }
 
 # methods 
 
+sub signature { (shift)->{sig} }
+
 sub do {
     my ($self, $args) = @_;
     $args ||= list->new();
     $self->_bind_params($args);
-    $self->{body}->($self->{env});
+    my $return_value = $self->{body}->($self->{env});
+    (blessed($return_value) && ($return_value->isa($self->{sig}->returns) || $return_value->isa('nil')))
+        || confess "bad return value, got($return_value) expected(" . $self->{sig}->returns . ")";
+    return $return_value;
 } 
 
 sub _bind_params {
     my ($self, $args) = @_;
     (blessed($args) && $args->isa('list'))
         || confess "Args must be a list";
-    ($args->length()->less_than_or_equal_to($self->{params}->length) == $bit::TRUE)
-        || confess "too many arguments passed to closure got(" . $args->length()->to_native . ") expected(" . $self->{params}->length->to_native . ")";      
+    my $params = $self->signature->params;
+    ($args->length()->less_than_or_equal_to($params->length) == $bit::TRUE)
+        || confess "too many arguments passed to closure got(" . $args->length()->to_native . ") expected(" . $params->length->to_native . ")";      
     # loop through the param keys
-    for my $i (0 .. $self->{params}->elems->to_native) {
+    for my $i (0 .. $params->elems->to_native) {
         my $value; 
-        my $param      = $self->{params}->fetch(num->new($i));
+        my $param      = $params->fetch(num->new($i));
         my $param_type = $param->type->to_native;
         my $arg        = $args->fetch(num->new($i));
         unless ($arg->isa('nil') && $param->to_str->to_native =~ /^\?/) {
@@ -75,6 +89,25 @@ sub _bind_params {
         $self->{env}->set($param->to_str->to_native, $arg);
     }
 }
+
+package closure::signature;
+
+use strict;
+use warnings;
+
+use Carp 'confess';
+use Scalar::Util 'blessed';
+
+sub new {
+    my ($class, %options) = @_;
+    (exists $options{params} && blessed($options{params}) && $options{params}->isa('closure::params'))
+        || confess "Bad params in signature";
+    $options{returns} = 'type' if !(exists $options{returns});
+    bless { %options } => $class;
+}
+
+sub params  { (shift)->{params}  }
+sub returns { (shift)->{returns} }
 
 package closure::params;
 
