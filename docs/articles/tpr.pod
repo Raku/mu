@@ -445,8 +445,8 @@ The C<.> twigil meant the members above were public (and so they had
 accessors created for them which are visible outside the class. You can
 also declare private members:
 
-  has Int $:odometer;          # note ":" twigil, meaning "private".
-  has Location $:loc;          # let's assume there is a Location class.
+  has Int $!odometer;          # note "!" twigil, meaning "private".
+  has Location $!loc;          # let's assume there is a Location class.
 
   # ...
 
@@ -460,8 +460,8 @@ yourself.
   method beep { say "beep!" }
   
   method drive (Location $destination) {
-      $:odometer += $:loc.distance($destination);
-      $:loc = $destination;
+      $!odometer += $!loc.distance($destination);
+      $!loc = $destination;
 
       self.beep;
   }
@@ -631,7 +631,28 @@ so you can have code like this:
 
 
 
-[[ annotated webliography ]]
+=head2 More information
+
+L<http://pugscode.org/> - The Pugs homepage. Contains links to code and
+binaries, presentations and talks, journals and news, automatic smoke
+test results.
+
+L<http://planet.pugscode.org/> - PlanetSix aggregates the development
+journals of leading Perl6/Pugs personnel, as well as semiweekly summaries
+of the Perl 6 mailing lists.
+
+L<http://svn.openfoundry.org/pugs/> - Subversion repository of the pugs
+code, which you can browse with a web client. Check out the C<examples/>
+folder!
+
+The C<#perl6> channel on C<irc.freenode.org> - Come hang out with the
+hackers! This channel seldom sleeps as developers come from all around
+the world.
+
+L<http://dev.perl.org/perl6/doc/synopsis.html> - The Perl 6 Synopses
+are summaries of the longer Apocalypse and Exegesis documents, and are
+more up-to-date. In fact, they function as a specification for Perl 6
+implementations, Pugs included. They are, like Pugs, work in progress.
 
 =head1 FOOTNOTES
 
