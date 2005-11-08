@@ -31,6 +31,30 @@ Concurrency can take many forms in Perl 6.  With varying degrees of
 expliciteness and control capabilities.  This document attempts to describe
 what these capabilities are and in which form they can be accessed in Perl 6.
 
+=head2 Processes, threads, fibers?
+
+Concurrency comes in many shapes and forms.  Most Perl users are used to
+the concept of a "process" or a "thread" (usually depending on the OS they
+work on).  Some systems even are familiar with very lightweight threads
+called "fibers".
+
+When discussing issues about concurrency with different people, it soon
+becomes apparent that everybody has their own set of "understandings" about
+what each word means.  Which doesn't make it any easier to describe
+Perl 6 concurrency.
+
+It seemed the most natural to use the word "thread" to describe a process
+which has its own context, but also shares context with 0 or more
+concurrently running processes.  Depending on your OS, or even specific
+version of your OS, this could still be a single "process" from the OS's
+point of view.  Or it could contain an OS process for each thread.  Or
+any mixture of these two implementations.
+
+In this document we try to be agnostic about this: all we know in Perl 6
+are "threads", which have their own context and share context with other
+concurrently running "threads".  Whether they be process, threads or fibres
+at the OS level, should not matter at the Perl 6 level.
+
 =head2 Variables
 
 In the past, there have been two models for concurrent processes in Perl.
@@ -41,14 +65,15 @@ The main difference between these two models from a programmer's point of
 view, is that variables in "5.005 threads" are shared by default.  Whereas
 in the "ithreads" model, only variables that have been indicated to be
 "shared", are actually shared between threads.  All other variable values
-are actually copies of the original variable's value.
+are actually copies of the variable's value in the "parent" thread.
 
 With regards to variables, the concurrency model of Perl 6 is closer to the
 "5.005 threads" model than it is to the "ithreads" model.  In fact, all
 variables "visible" to a particular scope in Perl 6, will be accessible and
 modifiable from all of the concurrent processes that start from that scope.
-In that sense, one could consider the "ithreads" model as a diversion: the
-Perl 6 concurrency picks up where the "5.005 threads" path left off.
+In that sense, one could consider the "ithreads" model as a hostorical
+diversion: the Perl 6 concurrency picks up where the "5.005 threads" path
+left off.
 
 (EM: maybe point out that the "ithreads" behaviour can be simulated with
 some kind of copy-on-write magic to be automagically added to all variable
@@ -82,7 +107,7 @@ the Code block (with the L<retry> statement).
 (EM: maybe point out if / how old style locks can be "simulated", for those
 needing a migration path?)
 
-=head2 Atomic code blocks
+=head2 Atomic Code blocks
 
     my ($x, $y);
     sub c is atomic {
@@ -114,11 +139,22 @@ the most immediate caller constructed with C<retry_with>.
 
 =head3 retry_with
 
-The C<retry_with> method on an atomic Code object causes a checkpoint to be made
-for C<retry>, creating an alternate execution path to be followed when a
-retry is done.
+The C<retry_with> method on an atomic Code object causes a checkpoint to
+be made for C<retry>, creating an alternate execution path to be followed
+when a C<retry> is done.
 
-=head2 Critical sections
+=head3 limitations
+
+Because Perl 6 must be able to revert its state to the state it had at the
+checkpoint, it is not allowed to perform any non-revertable actions.  These
+would include reading / writing from file handles that do not support
+C<seek> (such as sockets).  Attempting to do so will cause a fatal error
+to occur.
+
+If you're not interested in revertability, but are interested in
+uninteruptability, you could use the "is critical" trait.
+
+=head2 Critical Code blocks
 
 if $i { is atomic; ...  } else { ...; }
 
