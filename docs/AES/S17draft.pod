@@ -6,16 +6,16 @@ Synopsis 17: Concurrency [DRAFT]
 
 =head1 AUTHOR
 
-Elizabeth Mattijsen <liz@dijkmat.nl>
-Autrijus Tang <autrijus@autrijus.org>
+ Elizabeth Mattijsen <liz@dijkmat.nl>
+ Autrijus Tang <autrijus@autrijus.org>
 
 =head1 VERSION
 
-  Maintainer: Elizabeth Mattijsen <liz@dijkmat.nl>
-  Date: 13 Jun 2005
-  Last Modified: 6 Nov 2005
-  Number: 0
-  Version: 1
+ Maintainer: Elizabeth Mattijsen <liz@dijkmat.nl>
+ Date: 13 Jun 2005
+ Last Modified: 8 Nov 2005
+ Number: 0
+ Version: 1
 
 =head1 SKETCH
 
@@ -50,7 +50,39 @@ modifiable from all of the concurrent processes that start from that scope.
 In that sense, one could consider the "ithreads" model as a diversion: the
 Perl 6 concurrency picks up where the "5.005 threads" path left off.
 
-=head2 Atomic sections
+(EM: maybe point out that the "ithreads" behaviour can be simulated with
+some kind of copy-on-write magic to be automagically added to all variable
+access inside a thread, except for those with an explicit "is shared"
+attribute?)
+
+=head2 No user accessible locks
+
+Differently from any current concurrent process implementation in Perl, there
+are no user accessible locks.  Instead, the concept of Software
+Transactionable Memory is used.  This is in concept similar to the use of
+
+ BEGIN TRANSACTION
+ ... do your uninterruptible actions
+ COMMIT
+
+in the database world.  More interestingly, this also includes the concept of
+rollback:
+
+ BEGIN TRANSACTION
+ ... do your stuff, but impossible to complete: ROLLBACK
+
+This causes the state of the process to be reverted to the state at the moment
+the BEGIN TRANSACTION was executed.
+
+Perl 6 supports this concept through Code blocks which are marked "is atomic".
+These sections are guaranteed to either be completed totally (when the Code
+block is exited), or have their state reverted to the state at the start of
+the Code block (with the L<retry> statement).
+
+(EM: maybe point out if / how old style locks can be "simulated", for those
+needing a migration path?)
+
+=head2 Atomic code blocks
 
     my ($x, $y);
     sub c is atomic {
@@ -61,6 +93,11 @@ Perl 6 concurrency picks up where the "5.005 threads" path left off.
 
     $e = &c.retry_with( &d ); # 
     $e();
+
+A Code block can be marked as "is atomic".  The start of such a block
+becomes a "checkpoint" to which execution can return (in exactly the same
+state) if a problem occurs (a.k.a. a L<retry> is done) inside the scope of
+the Code block.
 
 =head3 retry
 
