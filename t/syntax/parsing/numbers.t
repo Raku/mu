@@ -9,7 +9,7 @@ _ should be allowed in numbers
 
 =cut
 
-plan 17;
+plan 18;
 
 my $tot = 0;
 
@@ -67,3 +67,5 @@ dies_ok { 2._123 },    "2._123 parses as method call";
 is      2.1_23, 2.123, "2.1_23 parses as number";
 dies_ok { 2._e23 },    "2._23  parses as method call";
 dies_ok { 2.foo  },    "2.foo  parses as method call";
+
+is  +'00123', 123, "Leading zeroes stringify correctly";

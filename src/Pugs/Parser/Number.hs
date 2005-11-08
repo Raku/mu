@@ -21,8 +21,7 @@ naturalOrRat  = (<?> "number") $ do
             Right d -> Right $ -d
     where
     natRat = do
-            char '0'
-            zeroNumRat
+            try (char '0' >> zeroNumRat)
         <|> decimalRat
         <|> fractRatOnly
 
