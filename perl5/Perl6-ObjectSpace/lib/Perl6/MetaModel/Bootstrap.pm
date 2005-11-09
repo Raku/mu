@@ -101,10 +101,13 @@ sub *WALKMETH (block &dispatcher, symbol $label, hash %opts) returns method {
 
 $::ENV->create('WALKMETH' => closure->new(
         $::ENV,
-        closure::params->new(
-            symbol->new('&dispatcher' => 'block'),
-            symbol->new('$label'      => 'symbol'),
-            symbol->new('?%opts'      => 'hash'),                        
+        closure::signature->new(
+            params => closure::params->new(
+                           symbol->new('&dispatcher' => 'block'),
+                           symbol->new('$label'      => 'symbol'),
+                           symbol->new('?%opts'      => 'hash'),                        
+                       ),
+            returns => 'method'
         ),
         sub {
             my $e = shift;
@@ -152,8 +155,9 @@ sub *WALKCLASS (block &dispatcher) returns opaque {
 
 $::ENV->create('WALKCLASS' => closure->new(
         $::ENV,
-        closure::params->new(
-            symbol->new('&dispatcher' => 'block')
+        closure::signature->new(
+            params  => closure::params->new(symbol->new('&dispatcher' => 'block')),
+            returns => 'opaque' 
         ),
         sub {
             my $e = shift;
@@ -217,10 +221,13 @@ method add_method (opaque $self: symbol $label, method $method) returns nil {
     # add the first method
     my $_add_method = method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:'  => 'opaque'), 
-                symbol->new('$label'  => 'symbol'), 
-                symbol->new('$method' => 'method')
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:'  => 'opaque'), 
+                              symbol->new('$label'  => 'symbol'), 
+                              symbol->new('$method' => 'method')
+                          ),
+                returns => 'nil'
             ),
             sub {
                 my $e = shift;
@@ -254,9 +261,12 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'), 
-                symbol->new('$label' => 'symbol')
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:' => 'opaque'), 
+                              symbol->new('$label' => 'symbol')
+                          ),
+                returns => 'bit'
             ),
             sub {
                 my $e = shift;
@@ -286,9 +296,12 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'), 
-                symbol->new('$label' => 'symbol')
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:' => 'opaque'), 
+                              symbol->new('$label' => 'symbol')
+                          ),
+                returns => 'method'
             ),
             sub {
                 my $e = shift;
@@ -317,9 +330,12 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),
-                symbol->new('$label' => 'symbol')                
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:' => 'opaque'),
+                              symbol->new('$label' => 'symbol')                
+                          ),
+                returns => 'nil'
             ),
             sub {
                 my $e = shift;               
@@ -348,8 +364,9 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque')
+            closure::signature->new(
+                params  => closure::params->new(symbol->new('$self:' => 'opaque')),
+                returns => 'list'
             ),
             sub {
                 my $e = shift;
@@ -379,9 +396,12 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$class:' => 'opaque'), 
-                symbol->new('?%params' => 'hash')
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$class:' => 'opaque'), 
+                              symbol->new('?%params' => 'hash')
+                          ),
+                returns => 'opaque'
             ),
             sub {
                 my $e = shift;
@@ -420,11 +440,14 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$class:'   => 'opaque'), 
-                symbol->new('$canidate' => 'str'), 
-                symbol->new('%params'   => 'hash')
-            ),
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$class:'   => 'opaque'), 
+                              symbol->new('$canidate' => 'str'), 
+                              symbol->new('%params'   => 'hash')
+                          ),
+                returns => 'opaque'
+            ),            
             sub {
                 my $e = shift;
                 # p6opaque is our default
@@ -488,11 +511,14 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$class:' => 'opaque'), 
-                symbol->new('$repr'   => 'str'), 
-                symbol->new('%params' => 'hash')
-            ),
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$class:' => 'opaque'), 
+                              symbol->new('$repr'   => 'str'), 
+                              symbol->new('%params' => 'hash')
+                          ),
+                returns => 'opaque'
+            ),               
             sub {
                 my $e = shift;
                 $e->create('$attrs' => hash->new());
@@ -548,10 +574,13 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'), 
-                symbol->new('%params' => 'hash')
-            ),
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:'  => 'opaque'), 
+                              symbol->new('%params' => 'hash')
+                          ),
+                returns => 'nil'
+            ),   
             sub {
                 my $e = shift;
                 $e->create('&dispatcher' => $e->get('$self:')->class->send('dispatcher' => symbol->new(':descendant')));
@@ -596,10 +625,13 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'), 
-                symbol->new('%params' => 'hash')
-            ),
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:'  => 'opaque'), 
+                              symbol->new('%params' => 'hash')
+                          ),
+                returns => 'nil'
+            ), 
             sub {
                 my $e = shift;
                 $e->get('%params')
@@ -644,9 +676,10 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),                
-            ),
+            closure::signature->new(
+                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+                returns => 'nil'
+            ), 
             sub {                
                 my $e = shift;
                 $e->create('&dispatcher' => $e->get('$self:')->class->send('dispatcher' => symbol->new(':ascendant')));
@@ -685,9 +718,10 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),                
-            ),
+            closure::signature->new(
+                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+                returns => 'num'
+            ), 
             sub {
                 my $e = shift;
                 $e->get('$self:')->id;
@@ -714,9 +748,10 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),                
-            ),
+            closure::signature->new(
+                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+                returns => 'opaque'
+            ), 
             sub {
                 my $e = shift;
                 return $e->get('$self:')->class;                
@@ -756,10 +791,13 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:'         => 'opaque'),                
-                symbol->new('?@superclasses' => 'list'),                                
-            ),
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:'         => 'opaque'),
+                              symbol->new('?@superclasses' => 'list'),                              
+                          ),
+                returns => 'list'
+            ),             
             sub {
                 my $e = shift;
                 $e->get('?@superclasses')
@@ -803,9 +841,10 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),                
-            ),
+            closure::signature->new(
+                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+                returns => 'list'
+            ), 
             sub {
                 my $e = shift;
                 $e->get('$self:')->get_attr(symbol->new('@:subclasses'));                
@@ -831,10 +870,13 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:'    => 'opaque'),
-                symbol->new('$subclass' => 'opaque'),                                
-            ),
+            closure::signature->new(
+                params => closure::params->new(
+                            symbol->new('$self:'    => 'opaque'),
+                            symbol->new('$subclass' => 'opaque'),           
+                          ),
+                returns => 'nil'
+            ),             
             sub {
                 my $e = shift;        
                 $e->get('$self:')->get_attr(symbol->new('@:subclasses'))->push($e->get('$subclass'));                  
@@ -857,9 +899,10 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),                                             
-            ),
+            closure::signature->new(
+                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+                returns => 'list'
+            ), 
             sub {
                 my $e = shift;
                 C3->new($e->get('$self:'))->linearize;
@@ -890,9 +933,10 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),                
-            ),
+            closure::signature->new(
+                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+                returns => 'list'
+            ), 
             sub {
                 my $e = shift;
                 # if it is empty ... 
@@ -931,10 +975,13 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:'  => 'opaque'),                
-                symbol->new('?$order' => 'symbol'),                                
-            ),
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:' => 'opaque'),
+                              symbol->new('?$order' => 'symbol')                                                                
+                          ),
+                returns => 'block'
+            ),             
             sub {
                 my $e     = shift;
                 my $self  = $e->get('$self:');
@@ -976,10 +1023,13 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:'  => 'opaque'),                
-                symbol->new('@values' => 'list'),                                
-            ),
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:'  => 'opaque'),
+                              symbol->new('@values' => 'list')                                                                
+                          ),
+                returns => 'block'
+            ),                
             sub {
                 my $e = shift;
                 $e->create('$counter' => num->new(0));
@@ -1008,9 +1058,10 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),                
-            ),
+            closure::signature->new(
+                params  => closure::params->new(symbol->new('$self:'  => 'opaque')),
+                returns => 'block'
+            ),  
             sub {
                 my $e = shift;
                 $e->get('$self:')->send('_make_dispatcher_iterator' => $e->get('$self:')->send('MRO')->reverse);
@@ -1033,9 +1084,10 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),                
-            ),
+            closure::signature->new(
+                params  => closure::params->new(symbol->new('$self:'  => 'opaque')),
+                returns => 'block'
+            ),  
             sub {
                 my $e = shift;
                 $e->get('$self:')->send('_make_dispatcher_iterator' => $e->get('$self:')->send('MRO'));
@@ -1054,9 +1106,12 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'), 
-                symbol->new('$class' => 'opaque'),                
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:' => 'opaque'), 
+                              symbol->new('$class' => 'opaque'),                
+                          ),
+                returns => 'bit'
             ),
             sub {
                 my $e = shift;               
@@ -1107,10 +1162,13 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:'     => 'opaque'), 
-                symbol->new('$label'     => 'symbol'), 
-                symbol->new('$attribute' => 'attribute'),                                 
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:'     => 'opaque'), 
+                              symbol->new('$label'     => 'symbol'), 
+                              symbol->new('$attribute' => 'attribute'),                                 
+                          ),
+                returns => 'nil'
             ),
             sub {
                 my $e = shift;                               
@@ -1135,9 +1193,12 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),  
-                symbol->new('$label' => 'symbol'),                                
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:' => 'opaque'),  
+                              symbol->new('$label' => 'symbol'),                                
+                          ),
+                returns => 'attribute'
             ),
             sub {
                 my $e = shift; 
@@ -1171,9 +1232,12 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),  
-                symbol->new('$label' => 'symbol'),                                
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:' => 'opaque'),  
+                              symbol->new('$label' => 'symbol'),                                
+                          ),
+                returns => 'bit'
             ),
             sub {
                 my $e = shift;
@@ -1195,8 +1259,9 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),  
+            closure::signature->new(
+                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+                returns => 'list'
             ),
             sub {
                 my $e = shift;
@@ -1216,8 +1281,9 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),  
+            closure::signature->new(
+                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+                returns => 'list'
             ),
             sub {
                 my $e = shift;
@@ -1238,10 +1304,13 @@ $::Object->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'), 
-                symbol->new('%params' => 'hash')
-            ),
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:' => 'opaque'), 
+                              symbol->new('%params' => 'hash')
+                          ),
+                returns => 'nil'
+            ),          
             sub {
                 my $e = shift;
                 $e->get('%params')
@@ -1268,9 +1337,12 @@ $::Object->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'), 
-                symbol->new('%params' => 'hash')
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:' => 'opaque'), 
+                              symbol->new('%params' => 'hash')
+                          ),
+                returns => 'nil'
             ),
             sub {
                 my $e = shift;
@@ -1298,8 +1370,9 @@ $::Object->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),                
+            closure::signature->new(
+                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+                returns => 'num'
             ),
             sub {
                 my $e = shift;
@@ -1315,8 +1388,9 @@ $::Object->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),                
+            closure::signature->new(
+                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+                returns => 'opaque'
             ),
             sub {
                 my $e = shift;
@@ -1332,9 +1406,12 @@ $::Object->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),                
-                symbol->new('$label' => 'symbol'),                                
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:' => 'opaque'),                
+                              symbol->new('$label' => 'symbol'),                                
+                          ),
+                returns => 'method'
             ),
             sub {
                 my $e = shift;
@@ -1354,8 +1431,9 @@ $::Object->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),                
+            closure::signature->new(
+                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+                returns => 'nil'
             ),
             sub {
                 my $e = shift;
@@ -1393,9 +1471,12 @@ $::Package->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),                
-                symbol->new('?$name' => 'str'),                                
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:' => 'opaque'),
+                              symbol->new('?$name' => 'str'),
+                          ),
+                returns => 'str'
             ),
             sub {
                 my $e = shift;
@@ -1417,9 +1498,12 @@ $::Package->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),                
-                symbol->new('$label' => 'symbol'),                                
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:' => 'opaque'),                
+                              symbol->new('$label' => 'symbol'),                                
+                          ),
+                returns => 'type'
             ),
             sub {
                 my $e = shift;
@@ -1445,11 +1529,14 @@ $::Package->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),                
-                symbol->new('$label' => 'symbol'),  
-                symbol->new('$value' => 'type'),                                                
-            ),
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:' => 'opaque'),                
+                              symbol->new('$label' => 'symbol'), 
+                              symbol->new('$value' => 'type'),                               
+                          ),
+                returns => 'nil'
+            ),            
             sub {
                 my $e = shift;
                 $e->get('$self:')
@@ -1479,9 +1566,12 @@ $::Module->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),                
-                symbol->new('?$version' => 'str'),                                
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:' => 'opaque'),
+                              symbol->new('?$version' => 'str'),
+                          ),
+                returns => 'str'
             ),
             sub {
                 my $e = shift;
@@ -1503,10 +1593,13 @@ $::Module->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),                
-                symbol->new('?$authority' => 'str'),                                
-            ),
+            closure::signature->new(
+                params => closure::params->new(
+                              symbol->new('$self:' => 'opaque'),
+                              symbol->new('?$authority' => 'str'),
+                          ),
+                returns => 'str'
+            ),            
             sub {
                 my $e = shift;
                 $e->get('?$authority')
@@ -1527,8 +1620,9 @@ $::Module->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::params->new(
-                symbol->new('$self:' => 'opaque'),                         
+            closure::signature->new(
+                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+                returns => 'str'
             ),
             sub {
                 my $e = shift;

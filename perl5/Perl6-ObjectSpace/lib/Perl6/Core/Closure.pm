@@ -56,8 +56,6 @@ sub to_bit { bit->new(1)            }
 
 # methods 
 
-sub signature { (shift)->{sig} }
-
 sub do {
     my ($self, $args) = @_;
     $args ||= list->new();
@@ -72,7 +70,7 @@ sub _bind_params {
     my ($self, $args) = @_;
     (blessed($args) && $args->isa('list'))
         || confess "Args must be a list";
-    my $params = $self->signature->params;
+    my $params = $self->{sig}->params;
     ($args->length()->less_than_or_equal_to($params->length) == $bit::TRUE)
         || confess "too many arguments passed to closure got(" . $args->length()->to_native . ") expected(" . $params->length->to_native . ")";      
     # loop through the param keys
