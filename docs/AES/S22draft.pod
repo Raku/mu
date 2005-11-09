@@ -6,19 +6,152 @@ Synopsis 22: CPAN [DRAFT]
 
 =head1 AUTHOR
 
-Jos Boumans <kane@cpan.org>
-Autrijus Tang <autrijus@autrijus.org>
-Florian Ragwitz <rafl@debian.org>
+    Jos Boumans <kane@cpan.org>
+    Autrijus Tang <autrijus@autrijus.org>
+    Florian Ragwitz <rafl@debian.org>
 
 =head1 VERSION
 
-  Maintainer: Jos Boumans <kane@cpan.org>
-  Date: 3 Nov 2005
-  Last Modified: 7 Nov 2005
-  Number: 0
-  Version: 1
+    Maintainer: Jos Boumans <kane@cpan.org>
+    Date: 3 Nov 2005
+    Last Modified: 9 Nov 2005
+    Number: 0
+    Version: 1
 
 =head1 Overview
+
+    - None of the known tools can do what we want
+    - Will have to implement chain ourselves
+    - Start with the elementary things
+        - See C<Plan of Attack> for first steps
+
+=head1 Plan Of Attack
+
+    - Take small steps first
+        - build packages based only on metadata
+        - begin with Metadata -> source-package
+            - see metadata basic spec
+        - write basic create/install/uninstall scripts
+        - go from there
+        
+=head2 What do we have so far?
+
+Prototyping code is in kane's p4 repo for now:
+    http://p4.elixus.org:8181/@md=d&c=Ynk@//member/kane/pms/prototype2/
+
+Read the README file to see how to test the prototypes
+
+Note shortcomings are mostly mentioned in the code itself with 'XXX' markers.
+
+    - Got a basic create script:
+        - makes an archive (.jib file):
+            - reads in the META.info file
+            - builds archive in a seperate builddir
+                - takes all files, no MANIFEST/meta.info list yet for
+                    files to be packaged
+                - splits out metadata and installable files into 2 
+                    different .tgz archives (a la dpkg)
+                - creates a .tgz of both those archives in the name of
+                    ${package}.jib in the builddir
+        - outputs archive location when finished
+
+    - Got a basic install script:
+        - installs an archive (.jib file):
+            - extracts .jib file to temp dir
+            - extracts metadata to metadir/${package}
+                - doesn't write to tmpdir first, then moves at the end
+            - writes a .packlist equiv file
+            - verifies (simplistically) if dependencies have been met
+                - no Depends: a|b yet
+                - no Depends: a >= version yet
+                - aborts install if not
+            - registers this archive in the 'available' file (a la dpkg)
+            - runs preinst script if supplied
+                - no arguments yet
+            - copies installable files to target dir 
+                - does not use a specific 'build' tool yet
+                - doesn't write to tmpdir first, then moves at the end
+            - links scripts from the bindir to the targetdir
+                ie /usr/local/bin/script to /site_perl/${package}/bin/script
+                - does not do manpage generation or linking yet
+                - does not record links yet, nor manages them actively
+                    (a la update-alternatives)
+                - no support for upgrades/downgrades of linked files
+                    ie 2 installs of different versions of 1 package
+            - runs postinst script if supplied
+                - no arguments yet
+            - cleans up temp dir
+        - outputs diagnostics along the way
+
+    - Got a basic uninstall script:
+        - removes an archive
+            - verifies if uninstall is safe to do:
+                - verifies (simplistically) if dependencies are not violated
+                    - aborts install if not
+        - runs prerm script if supplied
+            - no arguments yet
+        - reads in .packlist equiv
+            - unlinks all files listed
+            - unlinks all bin/$script files that were linked
+                - not managed by something like update-alternatives yet
+                - doesn't unlink manpages
+        - updates 'available' file (a la dpkg)
+        - removes meta data associated with this package
+
+    - Got a basic cleanup script:
+        - Cleans out create's builddirectories
+        - Removes the 'root' directory for installs
+        - Creates a fresh structure of a 'root'
+        - Touches all relevant files
+
+                
+=head2 What NOT to do
+
+    - dpkg is too hard to port
+        - needs custom patches
+        - needs unix emulation layer
+        - needs to be compiled
+    - apt-get won't work on 'intermediate files'
+        - needs complete .debs
+        - gotten from standard archive meta-data
+
+=head1 Metadata Spec
+
+    - Define no more than needed to get started for now
+        - Allow for future extensions
+        - Use YAML as metadata format as it's portable and available standard
+            in perl6
+
+
+=head2 Supported fields
+
+    - Author        CPAN author id              (KANE)
+    - Name          Perl module name            (Foo::Bar)
+    - Version       Perl module version         (1.2.3)
+    - Description   Description of function     (This is what it does)
+    - Authority     From S11                    (cpan+KANE)
+    - Package       Full package name           (p5-Foo-Bar-1.2.3-cpan+kane)
+    - Depends       Packages it depends on[1]   (p5-Foo)
+    - Provides      Packages this one provides  (p5-Foo-Bar, 
+                                                    p5-Foo-Bar-cpan+kane)
+
+    [1] Or modules? must decide on best option -- module to package mapping
+        is an issue there too
+
+=head2 Suggested fields[2]
+
+    - Conflicts     Packages this one conflicts with
+    - Replaces      Packages this one replaces
+    - Tags          Arbitrary metadata about the package, 
+                    like flickr and debtags
+
+    [2] Steal more tags from debian policy
+
+
+__END__
+
+
+=head1 Past Rantings/Notes/Etc
 
 # This file needs reorganization - gnomes welcome!
 
@@ -202,9 +335,19 @@ kane thinks:
     - described well in policy & we have source code :)
     - rafl seems to be very passionate on the Right Thing
     - (has C-fu and Perl-fu and dpkg-fu, worked with Parrot+Pugs)
+    - patch only works on osx
+    - patched against an old version
+        - patch fails against newer versions of dpkg
+        - finkers claim updating patch is a PITA
+            - this is bad
+    - Use dpkg policy & source to write own tool?
+        - be dpkg-inspired?
 - fink "fixed" dpkg by introducing their own branch
     - distributed as a "patchfile"
         - http://cvs.sourceforge.net/viewcvs.py/fink/fink/10.4-transitional/dpkg.patch?rev=1.3&view=log
+            http://cvs.sourceforge.net/viewcvs.py/*checkout*/fink/fink/10.4-transitional/dpkg.patch
+            http://cvs.sourceforge.net/viewcvs.py/*checkout*/fink/fink/10.4-transitional/dpkg.info
+        
         - main patch: adding @PREFIX@ to dpkg, so it no longer assumes it
             manages all of /, but in finks case, just /sw
             - that is a must-have patch for us, if using dpkg
@@ -228,6 +371,10 @@ kane thinks:
 (other alternatives)
 - yum (as in yummy)
     - vasi on irc.freenode.org:#fink knows a lot
+- xar (http://www.opendarwin.org/projects/xar/)
+    - XAR requires libcurl, libxml2, OpenSSL, and zlib. 
+    - all c code
+    - underdevelopment by some #fink-ers, like bbraun
 
 autrijus thinks:
 - ddundan is porting DBI::PurePerl to Perl6
