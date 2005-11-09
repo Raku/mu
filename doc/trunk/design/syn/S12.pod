@@ -12,7 +12,7 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 2 Dec 2004
+  Last Modified: 8 Nov 2005
   Number: 12
   Version: 4
 
@@ -210,6 +210,7 @@ the class has to care how they're stored, since they're declared much like
 ordinary variables.  Instead of C<my>, use C<has>:
 
     class Dog is Mammal {
+        has $.name = "fido";
         has $.tail is rw;
         has @.legs;
         has $:brain;
