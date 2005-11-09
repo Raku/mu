@@ -145,7 +145,7 @@ Array, sigil: @
 
     The list constructing comma operator supplies this list context:
 
-        sub *infix:<*> (*@things) {...}
+        sub *infix:<,> (*@things) {...}
 
     This also explains why (@foo, @bar) does not create an array containing two
     elements, but an array containing @foo+@bar items. (Like
