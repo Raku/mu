@@ -7,13 +7,12 @@ use Test;
 
 Test miscellaneous golfish examples.
 
-See L<"http://www.nntp.perl.org/group/perl.perl6.compiler/1135">
-for discussion of:
-
-    (=<>).reverse.print
-    [=<>].reverse.print
-
 =cut
+
+# See L<"http://www.nntp.perl.org/group/perl.perl6.compiler/1135">
+# for discussion of:
+#    (=<>).reverse.print
+#    [=<>].reverse.print
 
 sub build_file (Str $fname, Str $data) {
     my $fh = open($fname, :w) err die("open '$fname' failed: $!");
