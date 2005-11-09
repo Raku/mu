@@ -12,7 +12,7 @@ For Loop structures
 
     for @foo { ... }
     for @foo -> $x { ... }
-    for @foo -> $x, $y, $x { ... }
+    for @foo -> $x, $y, $z { ... }
     for @foo.kv -> $index, $value { ... }
     
     for %hash.kv -> $key, $value { ... }
