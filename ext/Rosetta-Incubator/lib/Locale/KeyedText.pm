@@ -267,18 +267,18 @@ your code; instead refer to other above-named packages in this file.>
 
     sub main () {
         # Create a translator.
-        my Locale::KeyedText::Translator $translator .= new({
+        my Locale::KeyedText::Translator $translator .= new(
             'set_names' => ['MyLib::Lang::', 'MyApp::Lang::'],
                 # set package prefixes for localized app components
             'member_names' => ['Eng', 'Fr', 'De', 'Esp'],
                 # set list of available languages in order of preference
-        });
+        );
 
         # This will print 'Enter 2 Numbers' in the first of the four
         # languages that has a matching template available.
         print $translator.translate_message(
-            Locale::KeyedText::Message.new({
-                'msg_key' => 'MYAPP_PROMPT' }) );
+            Locale::KeyedText::Message.new(
+                'msg_key' => 'MYAPP_PROMPT' ) );
 
         # Read two numbers from the user.
         my Num ($first, $second) = $*IN;
@@ -297,9 +297,9 @@ your code; instead refer to other above-named packages in this file.>
         # the first possible language.  For example, if the user
         # inputs '3' and '4', it the output will be '3 plus 4 equals 7'.
         print $translator.translate_message(
-            Locale::KeyedText::Message.new({ 'msg_key' => 'MYLIB_RESULT',
+            Locale::KeyedText::Message.new( 'msg_key' => 'MYLIB_RESULT',
                 'msg_vars' => { 'FIRST' => $first, 'SECOND' => $second,
-                'RESULT' => $sum } }) );
+                'RESULT' => $sum } ) );
     }
 
 =head1 DESCRIPTION
