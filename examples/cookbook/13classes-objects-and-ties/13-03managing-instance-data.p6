@@ -21,8 +21,9 @@ class Foo {
     has int $.length is rw;
     has $.that;
 
-    # XXX Why do we manually declare &length and don't add additional
-    # validation code? "has $.length is rw" does the same.
+    # XXX Why do we manually declare &length here and then don't add any
+    # additional validation code? "has $.length is rw" does this automatically
+    # for us.
     method length ($self:) is rw {
         return new Proxy:
             FETCH => { $.length },
