@@ -9,6 +9,7 @@ import Pugs.Embed
 import Pugs.AST
 import Pugs.Types
 import Pugs.Config
+import Pugs.Prim.Code
 import qualified RRegex.PCRE as PCRE
 import qualified Data.Map as Map
 import qualified Data.Array as Array
@@ -80,6 +81,16 @@ not_VRule _            = True
 
 -- XXX - need to generalise this
 op2Match :: Val -> Val -> Eval Val
+
+op2Match _ y@(VCode _) = do
+    (arity :: Int) <- fromVal =<< op1CodeArity y
+    res <- fromVal =<< case arity of
+        0 -> evalExp $ App (Val y) Nothing []
+        1 -> do
+             topic <- readVar "$_"
+             evalExp $ App (Val y) Nothing [Val topic]
+        _ -> fail ("Unexpected arity in smart match: " ++ (show arity))
+    return $ VBool $ res
 
 op2Match x (VRef (MkRef (IScalar sv))) | scalar_iType sv == mkType "Scalar::Const" = do
     y' <- scalar_fetch' sv

@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 48;
+plan 49;
 
 =kwid
 
@@ -243,18 +243,26 @@ fail("when true is parsefail", :todo<feature>) if $!;
             when { .join() eq "abc" } { $x++ }
         }
     ';
-    ok($x, 'given tests closures for truth', :todo);
+    ok($x, 'given tests 0-arg closures for truth', :todo);
+}
+
+# given + closure with 0-arg code
+{
+    my $x = 41;
+    sub always_true { bool::true }
+    given 1 {
+        when &always_true { $x++ }
+    }
+    is($x, 42, 'given tests 0-arg subs for truth');
 }
 
 # given + closure with 1-arg code
 {
     my $x = 41;
-    sub setx ($value) { $value == 41 }
-    eval '
-        given 1 {
-            when &setx { $x++ }
-        }
-    ';
-    is($x, 42, 'given tests closures for truth', :todo);
+    sub maybe_true ($value) { $value eq "mytopic" }
+    given "mytopic" {
+        when &maybe_true { $x++ }
+    }
+    is($x, 42, 'given tests 1-arg subs for truth');
 }
 
