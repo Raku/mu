@@ -1,0 +1,217 @@
+Copying Rosetta
+by Darren Duncan
+2005 November 9
+
+PREFACE
+
+This document is about copyright issues concerning the Rosetta database
+access framework, both as they are now, and how I anticipate them being in
+the future.  These may very well be intuitive, but I'll follow the
+principle of least surprise and spell them out anyway, so that no one is
+surprised later on.
+
+COMPOSITION
+
+The inner core of the Rosetta framework, defined as the smallest number of
+components that all users of Rosetta require, are these Perl files; each
+one depends on all of the others listed above it:
+
+* /lib/Locale/KeyedText.pm
+* /lib/SQL/Routine.pm
+* /lib/Rosetta.pm
+
+Note that at least one additional file, whether from myself or a third
+party, is required to fulfil the role of an "Engine", in order to use
+lib/Rosetta.pm at all, meaning the actual minimal count is 4.
+
+Normally, each of these files is available as a separate distribution on
+CPAN, because it can be useful independently of the files below it in the
+list.  Each distribution may have additional files that are tied to the
+named file, because they serve as documentation or examples or tests or
+localization data for it, and the whole collection in the distribution is
+considered a single unit as far as ownership and licensing goes, unless
+explicitly stated otherwise therein.
+
+The Rosetta framework includes a comprehensive shared test suite to ensure
+the correctness of itself and of any Engine components, its middle core,
+which is comprised of these Perl files:
+
+* /lib/Rosetta/Validator.pm
+* /lib/Rosetta/Engine/Native.pm
+
+While not essential to the daily use of Rosetta, they are very important to
+the framework at large and are strongly recommended to be used at
+installation time.  The Validator.pm can be used to test any Engine, and is
+included in the Rosetta.pm distribution; it is expected that there never
+will be a third party substitution for it.  The Native.pm is in its own
+CPAN distribution and implements a standalone Engine for testing
+Validator.pm in the first place, so it has a working example of expected
+behaviour.  Neither depends on anything specific but the inner core.
+
+The outer core of the Rosetta framework, defined as additional components
+which I maintain and anticipate being frequently used but also being
+readily substituted for by third party components, are these Perl files:
+
+* /lib/SQL/Routine/SQLBuilder.pm
+* /lib/SQL/Routine/SQLParser.pm
+* /lib/Rosetta/Engine/Generic.pm
+* /lib/Rosetta/Engine/*.pm (for specific databases)
+* /lib/Rosetta/Emulator/DBI.pm
+
+As with the inner core list, normally, each of these outer core files is
+available as a separate distribution on CPAN.  The 'SQL' files only depend
+on Routine.pm, while the 'Engine' and 'Emulator' files depend on both the
+'SQL' files and Rosetta.pm.
+
+Any other independent distributions that exist and use Rosetta, whether
+made by myself or third parties, are not part of the Rosetta framework
+core, but constitute extensions.
+
+OWNERSHIP
+
+Presently, all of the Rosetta framework core files are owned entirely by
+myself, and I have complete freedom to use and license them under any terms
+of my choosing; there are no co-owners to consult.
+
+Presently, all of the Rosetta framework core files have been created and
+maintained entirely by myself, both code and documentation, save for small
+amounts of casual assistence by other people.  This consists mainly of
+providing me advice in discussions that went to improve Rosetta, or in
+correcting minor code details or typos (such as to remain consistent with a
+Perl 6 language spec change).  Exceptions are specifically mentioned.
+
+In accordance with common sense, I maintain that none of the assistence
+received to date, save any specifically mentioned, is enough to warrant
+partial ownership of affected portions of Rosetta to the other people, and
+so they remain entirely mine.
+
+Likewise, I disclaim any possible ownership over portions of other peoples'
+projects for whom my contribution was minor and casual, and even with more
+major contributions, I disclaim any ownership interest in them, unless
+explicitly stated otherwise.
+
+In the future, I am willing that the ownership of some of Rosetta's core
+components and extensions that I create can be shared with or transferred
+to other people for various reasons, but I am also not willing to share
+or relinquish full ownership of some other components at all.
+
+Specifically, I wish to retain full ownership and control of the inner and
+middle cores of Rosetta, namely:
+
+* /lib/Locale/KeyedText.pm
+* /lib/SQL/Routine.pm
+* /lib/Rosetta.pm
+* /lib/Rosetta/Validator.pm
+* /lib/Rosetta/Engine/Native.pm
+
+Whereas, I am willing to share or transfer ownership over any or all of the
+outer core or various Rosetta extensions, if other people contribute a lot
+to them and/or are willing and able to become their primary maintainers.
+
+LICENSING
+
+All components of the Rosetta framework that I own, particularly the core,
+are now and forever available under at least one free and open source
+license.  This grants all users the right to use it for any purpose, to
+make modifications, and to redistribute both the pristine and modified
+versions.  The specific license terms may differ for each component, and
+are specified in that component's documentation.
+
+This is a summary of their licensing terms, but what is written in the
+components themselves takes precedence.
+
+The distribution of lib/Locale/KeyedText.pm is licensed under the vanilla
+LGPL version 2.1 or later.
+
+Each other core distribution is licensed under the GPL version 2.0 or
+later, with an exception granted to linked but independent components that
+are fully useable when not linked to said distribution.
+
+That is, any third party component that links to Rosetta is required to be
+distributed under the GPL unless at least one of the following conditions
+is met:
+
+1. It is distributed separately from Rosetta, listing Rosetta as an
+*external* dependency, and the end user installs the third party component
+and Rosetta separately.  This is what the plain GPL allows.
+
+2. The third party component can bundle Rosetta with it, but that it's use
+of Rosetta is fully optional, and said component can still fulfil its
+purpose without Rosetta being present on the system.  This is what my
+exception permits but vanilla GPL does not.
+
+I expect that any older database access modules for CPAN which are upgraded
+to use Rosetta under the hood will qualify for #2, assuming their users
+will be able to choose between using Rosetta and its pre-existing engine,
+which will be available in parallel.  So they can continue to use their own
+choice of licenses.
+
+All components of the Rosetta framework that I own are also available for
+sale under a proprietary license, for those people that want to extricate
+themselves from the GPL.  This is one method of generating income from the
+Rosetta framework that I will have exclusive to myself, in addition to the
+methods that GPL licensing provides to everyone, such as support contracts
+and sponsored improvements.  The same dual-license business practice is
+also used effectively by MySQL AB and others.
+
+I have no intention of broadly releasing Rosetta under any open source
+license but the GPL, such as the Perl or Artistic or BSD licenses, because
+that would open a large hole in the dual-licensing plan.  However, workable
+and limited scope arrangements can be made on a case by case basis.
+
+All extensions that I create to the Rosetta framework whose sole purpose is
+to enable other modules or applications on top of Rosetta, such as Tangram
+or DBIx::Class or Bricolage, will be licensed under the same terms as those
+components being enabled.
+
+For example, "DBIx::Class::Storage::Rosetta is free software and is
+licensed under the same terms as DBIx::Class itself".
+
+A primary advantage of this approach is that the enabled component can
+choose to refactor itself by moving code from my glue module to itself,
+without impacting its licensing implications.  It also makes conceptual
+sense, since the glue is more part of the enabled component than Rosetta.
+
+CONTRIBUTIONS
+
+I welcome and encourage contributions towards improving Rosetta from anyone
+and at any time, big or small, and for any part of the system.
+
+Considering Rosetta's heavily componentized design, some improvements are
+best included in the core, and others are best done as externally
+distributed extensions.  As Rosetta matures, changes to extensions should
+become the more common way to extend it than modifying the core is, since a
+mature core should readily support a wide variety of extensions.
+
+In the case of extensions that you write and distribute separately, you
+retain ownership of them as usual.
+
+If your contribution fits best inside one of my modules and is non-trivial,
+then you would normally retain ownership of that contribution unless you
+grant said ownership to me.
+
+In the case of inner or middle core modules, I will require the transfer of
+ownership for your contribution, so I can maintain full ownership of said
+core modules.  Alternately, I would expect a perpetual grant over the
+contribution to use and sublicense it in any way I choose, so that it is as
+if I owned it, but you would then also retain ownership to use it yourself.
+
+If you refuse the transfer or grant, then I will not accept the
+contribution into the module, or may possibly rewrite it instead to make it
+my own work, in which case the contribution would effectively be 'advice'.
+
+As an exception to the above, material changes to a core module that are
+distributed independently as a patch will remain yours.
+
+In a worst case scenario, you are always allowed to fork Rosetta, and have
+shared ownership in your alternate version, though I would hope that a fork
+would never happen.
+
+CONCLUSION
+
+I created Rosetta in the hope that it would be greatly useful to and be
+used by a lot of people, and lead to positive change in society.  Releasing
+it free should take care that it serves this purpose over the long term.
+But I also strive that it can contribute to my ability to earn a living
+over the long term.  Hopefully the policies I have laid out are fair and
+acceptable to everyone.
