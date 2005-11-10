@@ -115,6 +115,18 @@ Note shortcomings are mostly mentioned in the code itself with 'XXX' markers.
         - needs complete .debs
         - gotten from standard archive meta-data
 
+=head1 .jib files
+
+C<.jib> files are archives designed to distribute source packages, not
+installable packages. As we will need to compile things on the client side
+(things that have C bits or equivalent), and because we can not know the
+install path before hand, a source package is an obvious choice.
+A binary, installable package like C<.deb> is therefor no option.
+
+These C<.jib> contain metadata and installable code quite analogous to 
+the C<.deb> packages we know, except that the metadata is also used to
+C<compile> (for the lack of a better term so far) the code on the user side.
+
 =head1 Metadata Spec
 
     - Define no more than needed to get started for now
