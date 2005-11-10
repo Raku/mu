@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 46;
+plan 48;
 
 =kwid
 
@@ -234,3 +234,27 @@ fail("when true is parsefail", :todo<feature>) if $!;
     eval 'given %h { .<key> = "value"; }';
     ok(%h{'key'} eq 'value', 'given and hash deref using .<>', :todo);
 }
+
+# given + simple closure
+{
+    my $x;
+    eval '
+        given <a b c> {
+            when { .join() eq "abc" } { $x++ }
+        }
+    ';
+    ok($x, 'given tests closures for truth', :todo);
+}
+
+# given + closure with 1-arg code
+{
+    my $x = 41;
+    sub setx ($value) { $value == 41 }
+    eval '
+        given 1 {
+            when &setx { $x++ }
+        }
+    ';
+    is($x, 42, 'given tests closures for truth', :todo);
+}
+
