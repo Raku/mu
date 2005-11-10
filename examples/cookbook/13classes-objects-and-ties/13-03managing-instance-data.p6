@@ -21,13 +21,12 @@ class Foo {
     has int $.length is rw;
     has $.that;
 
-    multi method length ($self: $length) {
-        $.length = $length;
-        return $self;
-    }
-
-    multi method length($self) {
-        return $.length;
+    # XXX Why do we manually declare &length and don't add additional
+    # validation code? "has $.length is rw" does the same.
+    method length ($self:) is rw {
+        return new Proxy:
+            FETCH => { $.length },
+            STORE => { $.length = $^length };
     }
 }
 
