@@ -14,7 +14,7 @@ Synopsis 22: CPAN [DRAFT]
 
     Maintainer: Jos Boumans <kane@cpan.org>
     Date: 3 Nov 2005
-    Last Modified: 9 Nov 2005
+    Last Modified: 11 Nov 2005
     Number: 0
     Version: 1
 
@@ -22,8 +22,152 @@ Synopsis 22: CPAN [DRAFT]
 
     - None of the known tools can do what we want
     - Will have to implement chain ourselves
+        - Be inspired by dpkg, apt-get and debian policy
     - Start with the elementary things
         - See C<Plan of Attack> for first steps
+
+
+=head2 General Flow (Basic)
+
+
+This describes the basic flow for installing modules using the new 6pan
+installer. This just deals with building a package from source and installing
+it. Not with the distribution of these files through the means of CPAN.
+That will be covered in the advanced flow.
+
+    1.  Setup package directory
+            * creates a directory for the project
+            * includes all relevant default files
+            * and default metadata setup
+            * [ ... write code ... ]
+    2.  Extract/Update metadata
+            * done by giving project code to the compiler
+            * extract the info given by the compiler about the code
+            * update the metadata according
+                * this involves 'use' statements, versions, packages, etc
+    3.  Build package based on metadata
+            * verify integrity of the code/metadata
+            * create a source package called a '.jib' file
+                See '.jib files' further down
+            * contains source code
+            * contains metadata
+    4.  Install package from '.jib' file
+            * Extract '.jib' to a temporary directoy
+                * Verify dependencies based on metadata
+            * Build the source code to installable code
+            * Move the installable code to it's final destination
+                * Run appropriate hook-code
+                * Perform appropriate linking
+            * Update system metadata based on package metadata
+    5.  Uninstall packages
+            * Query metadata to verify dependencies
+            * Remove the installed code
+                * Run appropriate hook-code
+                * Perform appropriate linking
+            * Update system metadata based on package metadata 
+    
+
+=head2 Package Layout
+
+
+=head3 Project directory
+    
+Step 1 of the general flow should ideally be done by an automated tool, like
+p5's current Module::Starter or somesuch. Suffice to say, it should produce
+a layout something along these lines (note, this is just an example):
+
+    p5-Foo-Bar/
+        lib/
+            Foo/
+                Bar.pm
+        t/
+            00_load.t
+        _jib/
+            META.info
+
+The files in the _jib dir are part of the package metadata. The most important
+file is the META.info file that holds all the collected metadata about the
+package, which ideally gets filled (mostly) by what is described in step 2 of
+the C<General Flow>. Any pre/posthook files should also go in this directory.
+This directory should be extendable, so new files can be added to extend
+functionality.
+See the section on C< Metadata Spec > for details.
+
+=head3 .jib files
+
+These files are created in step 3 of the C<General Flow>
+
+C<.jib> files are archives designed to distribute source packages, not
+installable packages. As we will need to compile things on the client side
+(things that have C bits or equivalent), and because we can not know the
+install path before hand, a source package is an obvious choice.
+A binary, installable package like C<.deb> is therefor no option.
+
+These C<.jib> contain metadata and installable code quite analogous to 
+the C<.deb> packages we know, except that the metadata is also used to
+C<compile> (for the lack of a better term so far) the code on the user side.
+
+The name of a C<.jib> file is determined as follows:
+
+    <prefix>-<package-name>-<version>-<authority>-<extension>
+    
+In praxis, this will produce a name along these lines:
+
+    p5-Foo-Bar-1.1-cpan+kane.jib
+
+The Internal layout is as follows:
+
+    - control.tgz
+        * contains the data in the _pms directory
+    - data.tgz      
+        * contains the following directories the other directories.
+            This may be limited in the future, by say, a manifest.skip
+            like functioality, or by dictating a list of directories/
+            files that will be included
+
+There is room to ship more files alongside the 2 above mentioned archives.
+This allows us to ship an extra md5sum, version, signature, anything.
+
+=head3 Installing a C<.jib>
+
+As outlines in step 4 of the C<General Flow>, a C<.jib> will need a few
+steps on the client machine to be installed. Here are some important details
+about that installation.
+
+    * Files will be installed in one base directory, prefixed with a 
+        user-defined prefix. 
+        By default this will be the C<site_perl> directory for this 
+        particular perl. I.e.:
+        /sw/site_perl/5.8.3
+
+    * The name of this base directory is the full name of the package, 
+        minus the extension. I.e.:
+        p5-Foo-Bar-1.2-cpan+kane
+
+    * The lib/, bin/ and docs/ directories, as well as the (generated) 
+        man/ directories, will be placed straight under this base 
+        directory. I.e.:
+        p5-Foo-Bar-1.2-cpan+kane/
+            lib/
+            bin/
+            man/
+            docs/
+    
+    * As the base directories bin/ and man/ path will not be in the 
+        standard $PATH and $MANPATH, symlinks will be created from the 
+        standard paths to the current active version of the package. I.e:
+        ln -s /sw/site_perl/5.8.3/p5-Foo-Bar-1.2-cpan+kane/bin/X
+            /usr/local/bin/X
+
+    * In the case of multiple installs of the same package (where 'same'
+        is determined by identical <prefix>-<package-name>), the perl6 
+        policy will determine which is the current active pacakge, just
+        like it would for a C<use> statement in normal perl6 code.
+        
+    * These links will be maintained by a linking system managed by the
+        installer, meaning that they will be updated according to policy 
+        when any up/downgrades or installs occur.
+
 
 =head1 Plan Of Attack
 
@@ -33,7 +177,7 @@ Synopsis 22: CPAN [DRAFT]
             - see metadata basic spec
         - write basic create/install/uninstall scripts
         - go from there
-        
+
 =head2 What do we have so far?
 
 Prototyping code is in kane's p4 repo for now:
@@ -44,6 +188,7 @@ Read the README file to see how to test the prototypes
 Note shortcomings are mostly mentioned in the code itself with 'XXX' markers.
 
     - Got a basic create script:
+        (Step 3 from general flow)
         - makes an archive (.jib file):
             - reads in the META.info file
             - builds archive in a seperate builddir
@@ -56,6 +201,7 @@ Note shortcomings are mostly mentioned in the code itself with 'XXX' markers.
         - outputs archive location when finished
 
     - Got a basic install script:
+        (Step 4 from general flow)
         - installs an archive (.jib file):
             - extracts .jib file to temp dir
             - extracts metadata to metadir/${package}
@@ -84,6 +230,7 @@ Note shortcomings are mostly mentioned in the code itself with 'XXX' markers.
         - outputs diagnostics along the way
 
     - Got a basic uninstall script:
+        (Step 5 from general flow)
         - removes an archive
             - verifies if uninstall is safe to do:
                 - verifies (simplistically) if dependencies are not violated
@@ -104,7 +251,7 @@ Note shortcomings are mostly mentioned in the code itself with 'XXX' markers.
         - Creates a fresh structure of a 'root'
         - Touches all relevant files
 
-                
+
 =head2 What NOT to do
 
     - dpkg is too hard to port
@@ -115,17 +262,7 @@ Note shortcomings are mostly mentioned in the code itself with 'XXX' markers.
         - needs complete .debs
         - gotten from standard archive meta-data
 
-=head1 .jib files
 
-C<.jib> files are archives designed to distribute source packages, not
-installable packages. As we will need to compile things on the client side
-(things that have C bits or equivalent), and because we can not know the
-install path before hand, a source package is an obvious choice.
-A binary, installable package like C<.deb> is therefor no option.
-
-These C<.jib> contain metadata and installable code quite analogous to 
-the C<.deb> packages we know, except that the metadata is also used to
-C<compile> (for the lack of a better term so far) the code on the user side.
 
 =head1 Metadata Spec
 
@@ -147,8 +284,9 @@ C<compile> (for the lack of a better term so far) the code on the user side.
     - Provides      Packages this one provides  (p5-Foo-Bar, 
                                                     p5-Foo-Bar-cpan+kane)
 
-    [1] Or modules? must decide on best option -- module to package mapping
-        is an issue there too
+    [1] This is packages, *not* modules. If we need a module -> package 
+        mapping, this needs to be done when extracting the data from the
+        compiler, and queried against the available packages cache.
 
 =head2 Suggested fields[2]
 
