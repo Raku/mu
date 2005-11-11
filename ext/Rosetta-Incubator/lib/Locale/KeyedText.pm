@@ -580,7 +580,7 @@ For example, inside the text Template file "MyApp/L/Eng.pm" you can have:
     );
 
     module MyApp::L::Eng {
-        sub get_text_by_key ($msg_key) {
+        sub get_text_by_key (Str $msg_key) returns Str {
             return %text_strings{$msg_key};
         }
     } # module MyApp::L::Eng
@@ -597,7 +597,7 @@ And inside the text Template file "MyApp/L/Fre.pm" you can have:
     );
 
     module MyApp::L::Fre {
-        sub get_text_by_key ($msg_key) {
+        sub get_text_by_key (Str $msg_key) returns Str {
             return %text_strings{$msg_key};
         }
     } # module MyApp::L::Fre
