@@ -23,6 +23,7 @@ Synopsis 22: CPAN [DRAFT]
     - None of the known tools can do what we want
     - Will have to implement chain ourselves
         - Be inspired by dpkg, apt-get and debian policy
+            - See: http://www.us.debian.org/doc/debian-policy
     - Start with the elementary things
         - See C<Plan of Attack> for first steps
 
@@ -155,8 +156,13 @@ about that installation.
     
     * As the base directories bin/ and man/ path will not be in the 
         standard $PATH and $MANPATH, symlinks will be created from the 
-        standard paths to the current active version of the package. I.e:
+        standard paths to the current active version of the package.
+        These links will go via an intermediate link in the metadir,
+        so all diversions to the automatic linking can be contained
+        to the metadir. I.e:
         ln -s /sw/site_perl/5.8.3/p5-Foo-Bar-1.2-cpan+kane/bin/X
+            /our/metadir/alternatives/X
+        ln -s /our/metadir/alternatives/X
             /usr/local/bin/X
 
     * In the case of multiple installs of the same package (where 'same'
@@ -167,6 +173,7 @@ about that installation.
     * These links will be maintained by a linking system managed by the
         installer, meaning that they will be updated according to policy 
         when any up/downgrades or installs occur.
+        See the section on C<Alternatives>
 
 
 =head1 Plan Of Attack
@@ -219,11 +226,10 @@ Note shortcomings are mostly mentioned in the code itself with 'XXX' markers.
                 - doesn't write to tmpdir first, then moves at the end
             - links scripts from the bindir to the targetdir
                 ie /usr/local/bin/script to /site_perl/${package}/bin/script
-                - does not do manpage generation or linking yet
-                - does not record links yet, nor manages them actively
-                    (a la update-alternatives)
-                - no support for upgrades/downgrades of linked files
+                - manages link generation, recording and linking
+                - supports up/downgrades 
                     ie 2 installs of different versions of 1 package
+                - all up/downgrades considered 'auto' for now                    
             - runs postinst script if supplied
                 - no arguments yet
             - cleans up temp dir
@@ -240,8 +246,9 @@ Note shortcomings are mostly mentioned in the code itself with 'XXX' markers.
         - reads in .packlist equiv
             - unlinks all files listed
             - unlinks all bin/$script files that were linked
-                - not managed by something like update-alternatives yet
+                - relinks them if there's a suitable replacement available
                 - doesn't unlink manpages
+                - all up/downgrades considered 'auto' for now                
         - updates 'available' file (a la dpkg)
         - removes meta data associated with this package
 
@@ -297,6 +304,70 @@ Note shortcomings are mostly mentioned in the code itself with 'XXX' markers.
 
     [2] Steal more tags from debian policy
 
+
+=head1 Alternatives
+
+The alternatives mechanism closely follows the ideas behind the debian's
+C<update-alternatives> system: 
+
+    http://www.die.net/doc/linux/man/man8/update-alternatives.8.html
+
+Alternatives, which may not be the most apt name, will be used in all cases
+where a module provides B<scripts> or B<manpages> that must be visible to
+any tool that looks in different places than where the installer will put them.
+
+Alternatives will be updated/altered when another version of the same package
+is installed (where 'same' is determined by identical <prefix>-<package-name>).
+
+Since an alternative can only point to one particular version at a time, another
+version might be the new C<current alternative>. 
+Deciding which alternative is to be used, is something that will be answered
+by the perl6 policy file, which also resolves C<use> statements.
+
+Alternatives will be stored in the C<alternatives> file in the metadata dir
+of the installation. Alternatives will have at least the following properties:
+
+    * package that registered one or more alternatives
+        * Files written for the 'man' alternative
+        * Files written for the 'bin' alternative
+        * [ ... more possible alternatives ... ]
+        * Whether the alternatives manager should update the alternatives
+            automatically, or leave it to the sysadmin (manually)
+
+The rules in changing the alternatives are as follows:
+
+    Install:
+                                            no
+        Should i register an alternative?   --->    Done
+            |
+            | yes
+            |
+            v                               no
+        Does the file exist already?        --->    Register alternative            
+            |
+            | yes
+            |
+            v                               no
+        Is this an upgrade?                 --->    Error[1]
+            |
+            | yes
+            |
+            v                               no
+        Are we the new alternative?         --->    Done
+        (Based on policy file)
+            |
+            | yes
+            |
+            v                               
+        Install new links, update alternatives file
+
+
+    [1] The alternative system doesn't support 2 different packages to
+        supply the same file.
+
+The uninstall rules are quite similar, except the installer has to check, when
+removing the links for this version, if the policy can point to a new default,
+and register those alternatives instead.
 
 __END__
 
