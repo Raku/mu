@@ -90,5 +90,3 @@ skip( q{is( Rosetta::Emulator::DBI.meta.identifier.version, 0.1.0,
 use_ok( 'Rosetta::Emulator::DBI::L::en' );
 skip( q{is( Rosetta::Emulator::DBI::L::en.meta.identifier.version, 0.1.0,
     'Rosetta::Emulator::DBI::L::en is the correct version' );} );
-
-1;

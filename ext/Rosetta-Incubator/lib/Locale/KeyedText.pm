@@ -158,7 +158,7 @@ method translate_message (Locale::KeyedText::Message $message)
         # successfully loaded template module; on a function call
         # death, assume module is damaged and say so; an undefined
         # ret val means module doesn't define key, skip to next module.
-        $text = .get_template_text_from_loaded_module( $module_name, 
+        $text = .get_template_text_from_loaded_module( $module_name,
             $message.get_msg_key() ); # let escape any thrown exception
 #        next SET_MEMBER
         next
@@ -166,7 +166,7 @@ method translate_message (Locale::KeyedText::Message $message)
 
         # We successfully got template text for the message key, so
         # interpolate the message vars into it and return that.
-        $text = .interpolate_vars_into_template_text( 
+        $text = .interpolate_vars_into_template_text(
             $text, $message.get_msg_vars() );
 #        last SET_MEMBER;
         last;
@@ -216,7 +216,7 @@ submethod get_template_text_from_loaded_module
     return $text;
 }
 
-submethod interpolate_vars_into_template_text 
+submethod interpolate_vars_into_template_text
         (Str $text is copy, Any %msg_vars) returns Str {
 
     throw 'invalid arg'
@@ -769,7 +769,7 @@ This submethod takes the name of a Perl package in its positional argument
 $module_name (a string), and a Message Key in its positional argument
 $msg_key (a string).  Assuming that a Perl module by the given module name
 is already loaded, it tries to invoke $module_name.get_text_by_key(
-$msg_key ) and return that subroutine's result, which is a Template text 
+$msg_key ) and return that subroutine's result, which is a Template text
 string if the module recognizes $msg_key, and the undefined value if not.
 
 =item <interpolate_vars_into_template_text( $text, %msg_vars )>

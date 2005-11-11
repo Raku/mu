@@ -4,9 +4,9 @@ use v6;
 my Str %text_strings is readonly = (
     'MYAPP_HELLO' => q[Light goes on!],
     'MYAPP_GOODBYE' => q[Light goes off!],
-    'MYAPP_PROMPT' 
+    'MYAPP_PROMPT'
         => q[Give me a county thingy, or push that big button instead.],
-    'MYAPP_RESULT' 
+    'MYAPP_RESULT'
         => q[Turn "<ORIGINAL>" upside down and get "<INVERTED>",]
            ~ q[ not "<ORIGINAL>".],
     'MYLIB_MYINV_NO_ARG' => q[Why you little ...!],

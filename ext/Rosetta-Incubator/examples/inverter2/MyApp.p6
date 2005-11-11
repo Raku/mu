@@ -22,7 +22,7 @@ sub main () {
 
     INPUT_LINE:
     {
-        show_message( $translator, Locale::KeyedText::Message.new( 
+        show_message( $translator, Locale::KeyedText::Message.new(
             'msg_key' => 'MYAPP_PROMPT' ) );
 
         my Str $user_input = $*IN;
@@ -36,26 +36,26 @@ sub main () {
             show_message( $translator, Locale::KeyedText::Message.new(
                 'msg_key'  => 'MYAPP_RESULT',
                 'msg_vars' => {
-                    'ORIGINAL' => $user_input, 
+                    'ORIGINAL' => $user_input,
                     'INVERTED' => $result,
-                }, 
+                },
             ) );
             CATCH {
                 # input error, detected by library
-                show_message( $translator, $! ); 
+                show_message( $translator, $! );
             }
         };
 
         redo INPUT_LINE;
     }
 
-    show_message( $translator, Locale::KeyedText::Message.new( 
+    show_message( $translator, Locale::KeyedText::Message.new(
         'msg_key' => 'MYAPP_GOODBYE' ) );
-    
+
     return;
 }
 
-sub show_message (Locale::KeyedText::Translator $translator, 
+sub show_message (Locale::KeyedText::Translator $translator,
         Locale::KeyedText::Message $message) {
     my Str $user_text = $translator.translate_message( $message );
     if (!$user_text) {
