@@ -56,27 +56,22 @@ class Perl6::Value::List {
     has Code $.cstringify;
     has Bool $.is_lazy;
 
-    submethod BUILD ($class: 
-            Code $.cstart?,
-            Code $.cend?,
-            Code $.celems?,
-            Code $.cis_infinite   = sub { &{$.celems}() == Inf },
-            Code $.cis_contiguous = sub { bool::false }, 
-            Code $.cstringify     = sub { &{$.cstart}() ~ '....' ~ &{$.cend}() }, 
-            Bool $.is_lazy        = bool::true,
-    )
-    {
-        unless defined $.celems {
-            $.celems =
-                ( defined $.cstart || defined $.cend ) ?? sub { Inf } !! sub { 0 }
-        }
-        $.cstart = sub {} unless defined $.cstart;
-        $.cend   = sub {} unless defined $.cend;    
+    submethod BUILD () {
+        $.cis_infinite   //= sub { &{$.celems}() == Inf },
+        $.cis_contiguous //= sub { bool::false }, 
+        $.cstringify     //= sub { &{$.cstart}() ~ '....' ~ &{$.cend}() }, 
+        $.is_lazy        //= bool::true,
+        $.celems         //= ( defined $.cstart || defined $.cend ) ?? 
+                             sub { Inf } !! 
+                             sub { 0 };
+        $.cstart         //= sub {};
+        $.cend           //= sub {};    
     }
 
-    method shift         ( $self: ) { &{$.cstart}() if &{$.celems}() }
-    method pop           ( $self: ) { &{$.cend}()   if &{$.celems}() }  
-    method elems         ( $self: ) { &{$.celems}() }
+    method start         () { &{$.cstart}() }  # == shift
+    method end           () { &{$.cend}() }    # == pop
+
+    method elems         () { &{$.celems}() }
     method is_infinite   ( $self: ) { &{$.cis_infinite}() }
     method is_contiguous ( $self: ) { &{$.cis_contiguous}() }
     method to_str        ( $self: ) { &{$.cstringify}() }
@@ -287,6 +282,9 @@ class Perl6::Value::List {
     }
 
 }  # end class Perl6::Value::List
+
+multi shift ( Perl6::Value::List $l ) { $l.start if $l.elems }
+multi pop   ( Perl6::Value::List $l ) { $l.end   if $l.elems }  
 
 =kwid
 
