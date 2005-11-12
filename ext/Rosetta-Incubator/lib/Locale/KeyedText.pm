@@ -37,10 +37,10 @@ class Locale::KeyedText::Message {
 
 submethod BUILD (Str :$msg_key!, Any :%msg_vars? = hash()) {
 
-    throw 'invalid arg'
+    die 'invalid arg'
         if !$msg_key.defined or $msg_key eq '';
 
-    throw 'invalid arg'
+    die 'invalid arg'
         if !%msg_vars.defined or %msg_vars.exists('');
 
     $:msg_key  = $msg_key;
@@ -56,7 +56,7 @@ method get_msg_key () returns Str {
 }
 
 method get_msg_var (Str $var_name) returns Any {
-    throw 'invalid arg'
+    die 'invalid arg'
         if !$var_name.defined or $var_name eq '';
     return %:msg_vars{$var_name};
 }
@@ -70,10 +70,8 @@ method get_msg_vars () returns Hash of Any {
 method as_debug_string () returns Str {
     return '$msg_key: "' ~ $:msg_key ~ '"; '
          ~ '%msg_vars: {' ~ %:msg_vars.pairs.sort.map:{
-               '"' ~ .key ~ '"="' ~ (.value // $EMPTY_STR) ~ '"'
-           }.join( q{, } ) ~ '}'; #/
-           # Note: the above '#/' comment is to help older syntax coloring
-           # text editors not to have a runaway // regexp quoted string.
+               '"' ~ .key ~ '"="' ~ (.value // $EMPTY_STR) ~ '"' #/
+           }.join( q{, } ) ~ '}';
 }
 
 ###########################################################################
@@ -100,17 +98,17 @@ class Locale::KeyedText::Translator {
 
 submethod BUILD (Str :@set_names!, Str :@member_names!) {
 
-    throw 'invalid arg'
+    die 'invalid arg'
         if !@set_names.defined or +@set_names == 0;
     for @set_names -> $set_name {
-        throw 'invalid arg'
+        die 'invalid arg'
             if !$set_name.defined or $set_name eq '';
     }
 
-    throw 'invalid arg'
+    die 'invalid arg'
         if !@member_names.defined or +@member_names == 0;
     for @member_names -> $member_name {
-        throw 'invalid arg'
+        die 'invalid arg'
             if !$member_name.defined or $member_name eq '';
     }
 
@@ -148,7 +146,7 @@ method get_set_member_combinations () returns Array of Str {
 method translate_message (Locale::KeyedText::Message $message)
         returns Str {
 
-    throw 'invalid arg'
+    die 'invalid arg'
         if !$message.defined or !$message.does(Locale::KeyedText::Message);
 
     my Str $text = undef;
@@ -165,11 +163,14 @@ method translate_message (Locale::KeyedText::Message $message)
         if (!$module_is_loaded) {
             try {
                 .load_template_module( $module_name );
-                CATCH {
-#                    next SET_MEMBER;
-                    next;
-                }
+#                CATCH {
+##                    next SET_MEMBER;
+#                    next;
+#                }
             };
+            next
+                if $!;
+                # This 'if' used because Pugs not executing CATCH yet
         }
 
         # Try to fetch template text for the given message key from the
@@ -196,20 +197,20 @@ method translate_message (Locale::KeyedText::Message $message)
 ###########################################################################
 
 submethod template_module_is_loaded (Str $module_name) returns Bool {
-    throw 'invalid arg'
+    die 'invalid arg'
         if !$module_name.defined or $module_name eq '';
     return defined ::($module_name);
 }
 
 submethod load_template_module (Str $module_name) {
-    throw 'invalid arg'
+    die 'invalid arg'
         if !$module_name.defined or $module_name eq '';
 
     # Note: We have to invoke this 'require' in an eval string
     # because we need the bareword semantics, where 'require'
     # will munge the package name into file system paths.
     eval "require $module_name;";
-    throw "can't load template module '$module_name': $!"
+    die "can't load template module '$module_name': $!"
         if $!;
 
     return;
@@ -218,18 +219,21 @@ submethod load_template_module (Str $module_name) {
 submethod get_template_text_from_loaded_module
         (Str $module_name, Str $msg_key) returns Str {
 
-    throw 'invalid arg'
+    die 'invalid arg'
         if !$module_name.defined or $module_name eq '';
-    throw 'invalid arg'
+    die 'invalid arg'
         if !$msg_key.defined or $msg_key eq '';
 
     my Str $text = undef;
     try {
         $text = &::($module_name)::get_text_by_key( $msg_key );
-        CATCH {
-            throw "can't invoke get_text_by_key() on '$module_name': $!";
-        }
+#        CATCH {
+#            die "can't invoke get_text_by_key() on '$module_name': $!";
+#        }
     };
+    die "can't invoke get_text_by_key() on '$module_name': $!"
+        if $!;
+        # This 'if' used because Pugs not executing CATCH yet
 
     return $text;
 }
@@ -237,15 +241,15 @@ submethod get_template_text_from_loaded_module
 submethod interpolate_vars_into_template_text
         (Str $text is copy, Any %msg_vars) returns Str {
 
-    throw 'invalid arg'
+    die 'invalid arg'
         if !$text.defined;
-    throw 'invalid arg'
+    die 'invalid arg'
         if !%msg_vars.defined or %msg_vars.exists('');
 
     for %msg_vars.kv -> $var_name, $var_value {
-        my Str $var_value_as_str = $var_value // $EMPTY_STR;
-        $text ~~ s:perl5:g/\<$var_name\>/$var_value_as_str/; # v req Pugs
-#        $text ~~ s:g/\<$var_name\>/$var_value_as_str/; # v req PGE/Parrot
+        my Str $var_value_as_str = $var_value // $EMPTY_STR; #/
+#        $text ~~ s:g/\<$var_name\>/$var_value_as_str/; #: v req PGE/Parrot
+        $text ~~ s:perl5:g/\<$var_name\>/$var_value_as_str/; #: v req Pugs
     }
 
     return $text;
@@ -302,7 +306,7 @@ your code; instead refer to other above-named packages in this file.>
         my Num ($first, $second) = $*IN;
 
         # Print a statement giving the operands and their sum.
-        MyLib.add_two( $first, $second, $translator );
+        MyLib::add_two( $first, $second, $translator );
     }
 
     module MyLib;

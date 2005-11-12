@@ -21,20 +21,22 @@ sub main () {
     show_message( $translator, Locale::KeyedText::Message.new(
         'msg_key' => 'MYAPP_HELLO' ) );
 
-    INPUT_LINE:
-    {
+#    INPUT_LINE:
+#    {
+    while (1) {
         show_message( $translator, Locale::KeyedText::Message.new(
             'msg_key' => 'MYAPP_PROMPT' ) );
 
-        my Str $user_input = $*IN;
+        my Str $user_input = =$*IN;
         $user_input .= chomp;
 
         # user simply hits return on an empty line to quit the program
-        last INPUT_LINE
+#        last INPUT_LINE
+        last
             if $user_input eq q{};
 
         try {
-            my Num $result = MyLib.my_invert( $user_input );
+            my Num $result = MyLib::my_invert( $user_input );
             show_message( $translator, Locale::KeyedText::Message.new(
                 'msg_key'  => 'MYAPP_RESULT',
                 'msg_vars' => {
@@ -42,13 +44,17 @@ sub main () {
                     'INVERTED' => $result,
                 },
             ) );
-            CATCH {
-                # input error, detected by library
-                show_message( $translator, $! );
-            }
+#            CATCH {
+#                # input error, detected by library
+#                show_message( $translator, $! );
+#            }
         };
+        show_message( $translator, $! )
+            if $!; # input error, detected by library
+            # This 'if' used because Pugs not executing CATCH yet
 
-        redo INPUT_LINE;
+#        redo INPUT_LINE;
+#        redo;
     }
 
     show_message( $translator, Locale::KeyedText::Message.new(
@@ -61,12 +67,12 @@ sub show_message (Locale::KeyedText::Translator $translator,
         Locale::KeyedText::Message $message) {
     my Str $user_text = $translator.translate_message( $message );
     if (!$user_text) {
-        print $*ERR "internal error: can't find user text for a message:\n"
+        $*ERR.print( "internal error: can't find user text for a message:\n"
             ~ '   ' ~ $message.as_debug_string() ~ "\n"
-            ~ '   ' ~ $translator.as_debug_string() ~ "\n";
+            ~ '   ' ~ $translator.as_debug_string() ~ "\n" );
         return;
     }
-    say $*OUT $user_text;
+    $*OUT.say( $user_text );
     return;
 }
 
