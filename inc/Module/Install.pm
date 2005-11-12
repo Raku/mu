@@ -26,7 +26,13 @@ sub import {
     my $self = $class->new(@_);
 
     if (not -f $self->{file}) {
-        die "Pugs build should not get here";
+        require Cwd;
+        die << ".";
+*** Error: $self->{file} does not exist!
+    Current directory is @{[Cwd::abs_path(Cwd::cwd())]}
+    Program path is @{[Cwd::abs_path($FindBin::Bin)]}
+*** Please report this issue to <perl6-compiler\@perl.org>.
+.
         require "$self->{path}/$self->{dispatch}.pm";
         File::Path::mkpath("$self->{prefix}/$self->{author}");
         $self->{admin} = 
@@ -67,7 +73,7 @@ sub new {
 
     # ignore the prefix on extension modules built from top level.
     delete $args{prefix}
-      unless Cwd::cwd() eq $FindBin::Bin;
+      unless Cwd::abs_path(Cwd::cwd()) eq Cwd::abs_path($FindBin::Bin);
 
     return $args{_self} if $args{_self};
 
@@ -75,7 +81,7 @@ sub new {
     $args{prefix}   ||= 'inc';
     $args{author}   ||= '.author';
     $args{bundle}   ||= 'inc/BUNDLES';
-    $args{base}     ||= $FindBin::Bin;
+    $args{base}     ||= Cwd::abs_path($FindBin::Bin);
 
     $class =~ s/^inc:://;
     $args{name}     ||= $class;
