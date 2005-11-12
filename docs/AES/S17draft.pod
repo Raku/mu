@@ -13,7 +13,7 @@ Synopsis 17: Concurrency [DRAFT]
 
  Maintainer: Elizabeth Mattijsen <liz@dijkmat.nl>
  Date: 13 Jun 2005
- Last Modified: 8 Nov 2005
+ Last Modified: 13 Nov 2005
  Number: 0
  Version: 1
 
@@ -54,6 +54,9 @@ In this document we try to be agnostic about this: all we know in Perl 6
 are "threads", which have their own context and share context with other
 concurrently running "threads".  Whether they be process, threads or fibres
 at the OS level, should not matter at the Perl 6 level.
+
+And for sake of consistency, an unthreaded "normal" program is considered
+to be also running in a single thread.
 
 =head2 Variables
 
@@ -119,10 +122,14 @@ needing a migration path?)
     $e = &c.retry_with( &d ); # 
     $e();
 
-A Code block can be marked as "is atomic".  The start of such a block
-becomes a "checkpoint" to which execution can return (in exactly the same
-state) if a problem occurs (a.k.a. a L<retry> is done) inside the scope of
-the Code block.
+    if $i { is atomic; ...  } else { ...; }
+
+A Code block can be marked as "is atomic".  This means that code executed
+inside that scope is guaranteed not to be interrupted in any way.
+
+The start of a block marked "is atomic" also becomes a "checkpoint" to
+which execution can return (in exactly the same state) if a problem occurs
+(a.k.a. a L<retry> is done) inside the scope of the Code block.
 
 =head3 retry
 
@@ -156,7 +163,52 @@ uninteruptability, you could use the "is critical" trait.
 
 =head2 Critical Code blocks
 
-if $i { is atomic; ...  } else { ...; }
+ sub tricky is critical {
+     # code accessing external info, not to be interrupted
+ }
+
+ if ($update) {
+     is critical;
+     # code accessing external info, not to be interrupted
+ }
+
+A Code block marked "is critical" can not be interrupted in any way.  But
+since it is able to access non-revertible data structures (such as
+non-seekable file handles), it cannot do a C<retry> as it would be impossible
+to restore the state to the beginning of the Code block.
+
+=head2 Mixing Atomic and Critical
+
+Both "atomic" as well as "critical" propagate down the call chain.  This means
+that any subroutine that in itself is not "atomic" or "critical" becomes
+uninterruptible if called inside a code block that is marked as "atomic" or
+"critical".
+
+Atomic Code blocks called inside the call chain of a "critical" code block
+do not pose a problem, as they are more restrictive.
+
+Any code that attempts to perform any non-revertible action (e.g. reading
+from a socket) will cause a fatal error when called inside the call chain
+of an Atomic Code block.
+
+=head2 Co-Routines
+
+The execution of co-routine (or "coro" for short) could be considered as a
+short "side-step" from the normal path of execution, much like the normal
+calling of a subroutine.  
+
+The main difference with a normal subroutine, is that the co-routine supports
+a special type of return, called "yield".
+
+(EM: not sure whether the "threads->yield" causes so much mental interference
+that we should use something else for "yield" in the coro context.  And
+whether we should have a seperate "coro" keyword at all: after all, the "yield"
+could be in a normal subroutine called from a coro, so it's not like the
+compiler would be allowed to flag "yield" in a sub as an error).
+
+
+#######################################################################
+Below here still the more or less unorganized stuff
 
 CORE::GLOBAL::exit; # kills all the threads
 
@@ -243,9 +295,6 @@ Communication abstractions
 ### INTERFACE BARRIER ###
 module Blah;
 {
-    # Both "atomic" and "critical" propagates downwards in the call chain
-    # critical->atomic is always ok (by definition)
-    # atomic->critical dies if critical does naughty things
 
     is atomic;   # retry/orelse/whatever other rollback stuff
                  # limitation: no external IO (without lethal warnings anyway)
@@ -297,9 +346,9 @@ so you can also catch it with regular C<CATCH> blocks as specified in S04.
 To declare your main program catches INT signals, put a CATCH block anywhere
 in the toplevel to handle exceptions like this:
 
-    CATCH {
-        when Error::Signal::INT { ... }
-    }
+ CATCH {
+     when Error::Signal::INT { ... }
+ }
 
 =head2 Alarm
 
@@ -363,7 +412,7 @@ context.
 
 Unlike in Perl 5's ithreads where you cannot share anything after the fact,
 this allows passing shared objects in an C<ad-hoc> fashion across concurrent
-parts of the program.  Under the default (multiplexing) concurency model, this
+parts of the program.  Under the default (multiplexing) concurrency model, this
 is basically a no-op.
 
 =head2 Continuations
