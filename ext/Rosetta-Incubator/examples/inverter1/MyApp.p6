@@ -4,7 +4,8 @@ use v6;
 use Locale::KeyedText;
 use MyLib;
 
-main();
+###########################################################################
+###########################################################################
 
 sub main () {
     # user indicates language pref as command line argument
@@ -28,8 +29,9 @@ sub main () {
         my Str $user_input = $*IN;
         $user_input .= chomp;
 
+        # user simply hits return on an empty line to quit the program
         last INPUT_LINE
-            if !$user_input; # user chose to exit program
+            if $user_input eq q{};
 
         try {
             my Num $result = MyLib.my_invert( $user_input );
@@ -59,12 +61,16 @@ sub show_message (Locale::KeyedText::Translator $translator,
         Locale::KeyedText::Message $message) {
     my Str $user_text = $translator.translate_message( $message );
     if (!$user_text) {
-        say $*ERR "internal error: can't find user text for a message:"
-#            ~ "\n" ~ '   ' ~ $message.as_string()
-#            ~ "\n" ~ '   ' ~ $translator.as_string()
-            ;
-        exit;
+        print $*ERR "internal error: can't find user text for a message:\n"
+            ~ '   ' ~ $message.as_debug_string() ~ "\n"
+            ~ '   ' ~ $translator.as_debug_string() ~ "\n";
+        return;
     }
     say $*OUT $user_text;
     return;
 }
+
+###########################################################################
+###########################################################################
+
+main();

@@ -35,7 +35,7 @@ class Locale::KeyedText::Message {
 
 ###########################################################################
 
-submethod BUILD (Str :$msg_key!, Any :%msg_vars = hash()) {
+submethod BUILD (Str :$msg_key!, Any :%msg_vars? = hash()) {
 
     throw 'invalid arg'
         if !$msg_key.defined or $msg_key eq '';
@@ -63,6 +63,17 @@ method get_msg_var (Str $var_name) returns Any {
 
 method get_msg_vars () returns Hash of Any {
     return hash(%:msg_vars);
+}
+
+######################################################################
+
+method as_debug_string () returns Str {
+    return '$msg_key: "' ~ $:msg_key ~ '"; '
+         ~ '%msg_vars: {' ~ %:msg_vars.pairs.sort.map:{
+               '"' ~ .key ~ '"="' ~ (.value // $EMPTY_STR) ~ '"'
+           }.join( q{, } ) ~ '}'; #/
+           # Note: the above '#/' comment is to help older syntax coloring
+           # text editors not to have a runaway // regexp quoted string.
 }
 
 ###########################################################################
@@ -117,6 +128,13 @@ method get_set_names () returns Array of Str {
 
 method get_member_names () returns Array of Str {
     return [@:member_names];
+}
+
+######################################################################
+
+method as_debug_string () returns Str {
+    return '@set_names: ["' ~ @:set_names.join( q{", "} ) ~ '"]; '
+         ~ '@member_names: ["' ~ @:member_names.join( q{", "} ) ~ '"]';
 }
 
 ###########################################################################
@@ -347,8 +365,9 @@ Locale::KeyedText, that is a terse way of saying that it subscribes to the
 localization methodology that is described here, and hence provides these
 benefits to developers and users alike.
 
-For some practical examples of Locale::KeyedText in use, see my dependent
-CPAN packages whose problem domain is databases and/or SQL.
+For some practical examples of Locale::KeyedText in use, see the /examples
+directory of this distribution.  Or, see my dependent CPAN packages whose
+problem domain is databases and/or SQL.
 
 =head2 How It Works
 
@@ -448,8 +467,8 @@ are supposed to pass in english text and they translate it, which could
 produce ambiguous results or associations.  Or alternately, the other
 packages require your text data to be stored in a format other than Perl
 files.  Or alternately they have a compiled C component or otherwise have
-external dependencies; Locale::KeyedText has no external dependencies (it
-is very simple).
+non-trivial external dependencies; Locale::KeyedText has no non-trivial
+external dependencies (it is very simple).
 
 There are other differences.  Where other solutions take variables, they
 seem to be positional (like with 'sprintf'); whereas, Locale::KeyedText has
@@ -561,6 +580,13 @@ string).
 
 This method returns all Message Variable names and values of this object as
 a hash ref.
+
+=item C<as_debug_string()>
+
+This method returns a stringified version of this object which is suitable
+for debugging purposes (such as to test that the object's contents look
+good at a glance); no attribute values are escaped and you shouldn't try to
+extract them.
 
 =back
 
@@ -721,6 +747,13 @@ This method returns all Set Names elements in this object as an array ref.
 This method returns all Member Names elements in this object as an array
 ref.
 
+=item C<as_debug_string()>
+
+This method returns a stringified version of this object which is suitable
+for debugging purposes (such as to test that the object's contents look
+good at a glance); no attribute values are escaped and you shouldn't try to
+extract them.
+
 =item C<get_set_member_combinations()>
 
 This method returns an array ref having all combinations of this object's
@@ -804,7 +837,8 @@ None reported.
 
 =head1 SEE ALSO
 
-I<This documentation is pending.>
+These Perl 6 packages are the initial main dependents of Locale::KeyedText:
+L<SQL::Routine>, L<Rosetta>.
 
 =head1 BUGS AND LIMITATIONS
 
@@ -847,6 +881,20 @@ version.
 
 =head1 ACKNOWLEDGEMENTS
 
-None yet.
+=over
+
+=item Jason Martin (C<jhmartin@toger.us>)
+
+On 2004.07.26, suggested a feature, and provided sample usage and patch
+code, that supports embedding of Template modules into the same files as
+program code, rather than requiring separate files.
+
+=item Stevan Little (C<stevan@iinteractive.com>)
+
+On 2005.03.21, provided feedback towards improving this module's
+documentation, particularly towards using a much shorter and
+non-intimidating SYNOPSIS.
+
+=back
 
 =cut

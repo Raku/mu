@@ -3,6 +3,9 @@ use v6;
 
 use Locale::KeyedText;
 
+###########################################################################
+###########################################################################
+
 module MyLib {
     sub my_invert (Str $number) returns Num {
         throw Locale::KeyedText::Message.new(
@@ -12,7 +15,7 @@ module MyLib {
                 'msg_key' => 'MYLIB_MYINV_BAD_ARG',
                 'msg_vars' => { 'GIVEN_VALUE' => $number },
             )
-            if $number !~ m/\d/;
+            if $number !~ m/^-?(\d+\.?|\d*\.\d+)$/; # integer or decimal
         throw Locale::KeyedText::Message.new(
                 'msg_key' => 'MYLIB_MYINV_RES_INF' )
             if $number == 0;
@@ -57,3 +60,6 @@ module MyLib::L::Fre {
         return %text_stringsF{$msg_key};
     }
 } # module MyLib::L::Fre
+
+###########################################################################
+###########################################################################
