@@ -44,14 +44,18 @@ if($runcore eq "vanilla") {
   $code =~ s/([^A-Za-z_0-9\^])/\\$1/g;
 
   system $pugs, "-e", '
+    my $__evalbot_print = 0;
     sub *print (*@_) {
+      unless $__evalbot_print++ { 
+        Pugs::Safe::safe_print "OUTPUT[";
+      }
       Pugs::Safe::safe_print join "", *@_;
     }
     sub *say (*@_) {
-      Pugs::Safe::safe_print join "", *@_;
-      Pugs::Safe::safe_print "\n";
+      print *@_, "\n";
     }
     -> $ret {
+      if $__evalbot_print { Pugs::Safe::safe_print "] " }
       Pugs::Safe::safe_print ($! ?? "Error: $!" !! $ret) ~ "\n";
     }(eval("' . $code . '").perl);
   ';
