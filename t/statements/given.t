@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 49;
+plan 52;
 
 =kwid
 
@@ -235,34 +235,53 @@ fail("when true is parsefail", :todo<feature>) if $!;
     ok(%h{'key'} eq 'value', 'given and hash deref using .<>', :todo);
 }
 
-# given + simple closure
+# given + 0-arg closure
 {
     my $x;
-    eval '
-        given <a b c> {
-            when { .join() eq "abc" } { $x++ }
-        }
-    ';
-    ok($x, 'given tests 0-arg closures for truth', :todo);
+    given 41 {
+        when ({ $_ == 49 }) { diag "this really shouldn't happen"; $x = 49 }
+        when ({ $_ == 41 }) { $x++ }
+    }
+    ok $x, 'given tests 0-arg closures for truth';
 }
 
-# given + closure with 0-arg code
+# given + 1-arg closure
+{
+    my $x;
+    given 41 {
+        when (-> $t { $t == 49 }) { diag "this really shouldn't happen"; $x = 49 }
+        when (-> $t { $t == 41 }) { $x++ }
+    }
+    ok $x, 'given tests 1-arg closures for truth';
+}
+
+# given + n>1-arg closure (should fail)
+{
+    dies_ok {
+        given 41 {
+            when (-> $t, $r { $t == $r }) { ... }
+        }
+    }, 'fail on arities > 1';
+    is $!, 'Unexpected arity in smart match: 2', '...with useful error message';
+}
+
+# given + 0-arg sub
 {
     my $x = 41;
     sub always_true { bool::true }
     given 1 {
         when &always_true { $x++ }
     }
-    is($x, 42, 'given tests 0-arg subs for truth');
+    is $x, 42, 'given tests 0-arg subs for truth';
 }
 
-# given + closure with 1-arg code
+# given + 1-arg sub
 {
     my $x = 41;
     sub maybe_true ($value) { $value eq "mytopic" }
     given "mytopic" {
         when &maybe_true { $x++ }
     }
-    is($x, 42, 'given tests 1-arg subs for truth');
+    is $x, 42, 'given tests 1-arg subs for truth';
 }
 
