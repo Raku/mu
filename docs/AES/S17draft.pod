@@ -28,7 +28,7 @@ Patches welcome!)
 =head1 OVERVIEW
 
 Concurrency can take many forms in Perl 6.  With varying degrees of
-expliciteness and control capabilities.  This document attempts to describe
+explicitness and control capabilities.  This document attempts to describe
 what these capabilities are and in which form they can be accessed in Perl 6.
 
 =head2 Processes, threads, fibers?
@@ -39,8 +39,8 @@ work on).  Some systems even are familiar with very lightweight threads
 called "fibers".
 
 When discussing issues about concurrency with different people, it soon
-becomes apparent that everybody has their own set of "understandings" about
-what each word means.  Which doesn't make it any easier to describe
+becomes apparent that everybody has his own set of "understandings" about
+what each word means, which doesn't make it any easier to describe
 Perl 6 concurrency.
 
 It seemed the most natural to use the word "thread" to describe a process
@@ -53,7 +53,7 @@ any mixture of these two implementations.
 In this document we try to be agnostic about this: all we know in Perl 6
 are "threads", which have their own context and share context with other
 concurrently running "threads".  Whether they be process, threads or fibres
-at the OS level, should not matter at the Perl 6 level.
+at the OS level should not matter at the Perl 6 level.
 
 And for sake of consistency, an unthreaded "normal" program is considered
 to be also running in a single thread.
@@ -72,9 +72,9 @@ are actually copies of the variable's value in the "parent" thread.
 
 With regards to variables, the concurrency model of Perl 6 is closer to the
 "5.005 threads" model than it is to the "ithreads" model.  In fact, all
-variables "visible" to a particular scope in Perl 6, will be accessible and
+variables "visible" to a particular scope in Perl 6 will be accessible and
 modifiable from all of the concurrent processes that start from that scope.
-In that sense, one could consider the "ithreads" model as a hostorical
+In that sense, one could consider the "ithreads" model as a historical
 diversion: the Perl 6 concurrency picks up where the "5.005 threads" path
 left off.
 
