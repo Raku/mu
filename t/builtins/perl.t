@@ -8,7 +8,7 @@ use Test;
 my @tests = (
     # Basic scalar values
     42, 42/10, 4.2, sqrt(2), 3e5, Inf, -Inf, NaN,
-    "a string", "", "\0", "\t", "\n", "\r\n", "\7", '{', '}', "\123",
+    "a string", "", "\0", "\t", "\n", "\r\n", "\7", '{', '}', "\123", '$a @string %with &sigils()',
     ?1, ?0,
     undef,
     rx:Perl5{foo}, rx:Perl5{}, rx:Perl5{^.*$},

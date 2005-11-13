@@ -186,10 +186,11 @@ quoted '{'  = "\\{"
 quoted '\t' = "\\t"
 quoted '\r' = "\\r"
 quoted '\n' = "\\n"
-quoted x | x < ' ' = "{chr " ++ show (ord x) ++ "}"
--- XXX is there a more elegant way? Remember that
---   my $str = chr(12) ~ "3"; $str.perl
--- may not perlify to "\123"...
+quoted '$'  = "\\$"
+quoted '@'  = "\\@"
+quoted '%'  = "\\%"
+quoted '&'  = "\\&"
+quoted x | x < ' ' || x > '~' = "\\d[" ++ show (ord x) ++ "]"
 quoted x = [x]
 
 doubleBraces :: Doc -> Doc
