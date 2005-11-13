@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 27 Oct 2005
+  Last Modified: 12 Nov 2005
   Number: 3
-  Version: 7
+  Version: 8
 
 =head1 Operator renaming
 
@@ -55,12 +55,18 @@ variant, C<«...»>.
 For those still living without the blessings of Unicode, that can also be
 written: C<<< << ... >> >>>.
 
-=item * The scalar comma C<,> now constructs a list reference of its
+=item * The scalar comma C<,> now constructs a List reference of its
 operands.  You have to use a C<[-1]> subscript to get the last one.
 
 =item * The backslash operator still produces a reference, but when
-applied to a parenthesized list, produces an Arglist object instead
-of a list of refs.
+applied to a parenthesized list, produces a List object (an arglist)
+instead of a list of refs.  (According to the previous item, in scalar
+context the backslash is redundant, but is good documentation anyway.)
+
+=item * The old scalar C<..> flipflop operator is now done with
+C<till> operator.  (C<..> now always produces a Range object
+even in scalar context.)  The C<till> operator may take a caret on
+either end to exclude either the beginning or ending.
 
 =back
 
@@ -72,14 +78,27 @@ of a list of refs.
 side for definedness instead of truth. There is a low-precedence form,
 too: C<err>.
 
-=item * Binary C<eqv> tests value equivalence: for two value types,
-tests whether they are the same value (eg. C<1 eqv 1>); for two
-reference types, checks whether they are the same reference (eg. it is
-not true that C<[1,2] eqv [1,2]>, but it is true that C<\@a eqv \@a>).
+=item * Binary C<===> tests type and value correspondence: for two value types,
+tests whether they are the same value (eg. C<1 === 1>); for two reference
+types, checks whether they have the same identity value.  For reference
+types that do not define an identity, the reference itself is used (eg. it
+is not true that C<[1,2] === [1,2]>, but it is true that C<\@a === \@a>).
+Any reference type may pretend to be a value type by defining a C<.id> method.
+(It may also overload C<< infix:<===> >> for more efficient comparison of
+any two objects of that type, but it had better return the same result as if
+the two identity values had been generated and compared.)  Two values are
+never equivalent unless they are of exactly the same type.  By contrast,
+C<eq> always coerces to string, while C<==> always coerces to numeric.
+In fact, C<$a eq $b> really means "C<~$a === ~$b>" and C<$a == $b> means
+"C<+$a === +$b>.
+
+Note also that, while string hashes use C<eq> semantics by default,
+object hashes use C<===> semantics.
 
 =item * Binary C<< => >> is no longer just a "fancy comma."  It now
 constructs a C<Pair> object that can, among other things, be used to
 pass named arguments to functions.  It provides scalar context to both sides.
+Its precedence is now equivalent to assignment, and it is right associative.
 
 =item * C<^^> is the high-precedence version of C<xor>.
 
@@ -90,8 +109,15 @@ C<~~> is much more general now.  See L<Synopsis 4> for details.
 =item * Unary C<.> calls its single argument (which must be a method, or an
 dereferencer for a hash or array) on C<$_>.
 
-=item * The C<..> binary range operator has variants with C<^> on either
-end to indicate exclusion of that endpoint from the range.
+=item * The C<..> range operator has variants with C<^> on either
+end to indicate exclusion of that endpoint from the range.  It always
+produces a Range object.  Range objects are lazy iterators, and can
+be interrogated for their current C<.min> and C<.max> values (which
+change as they are iterated).  Ranges are not autoreversing: C<2..1>
+is always a null range, as is C<1^..^2>.  However, smart matching
+against a Range object smartmatches the endpoints in the domain of
+the object being matched, so C<< 1.5 ~~ 1^..^2 >> is true.
+(But C<< 2.1 ~~ 1..2 >> is false.)
 
 =item * C<...> is a unary postfix operator that constructs a semi-infinite
 (and lazily evaluated) list, starting at the value of its single argument.
@@ -251,7 +277,7 @@ true in the above example.
 
 Since typeglobs are being removed, unary C<*> may now serve as a
 lazy list flattening operator.  It is used to "flatten" an Array
-(or Arglist) into the Arglist being constructed for the current call,
+(or List) into the List being constructed for the current call,
 usually to allow the array's contents to be used as the arguments of
 a subroutine call.  Note that those arguments still must comply with
 the subroutine's signature, but the presence of C<*> defers that test
@@ -266,7 +292,7 @@ is equivalent to:
 
 as is this:
 
-    my $args = \(@foo, @bar);	 # construct Arglist object
+    my $args = \(@foo, @bar);	 # construct List object
     push *$args;
 
 In list context, a scalar reference to an array does not flatten.  Hence
@@ -337,12 +363,17 @@ equivalent:
     $hacker.feed('Pizza and cola');
     feed $hacker: 'Pizza and cola';
 
+A colon may also be used on an ordinary method call to indicate that
+it should be parsed as a list operator:
+
+    $hacker.feed: 'Pizza and cola';
+
 =head1 C<zip>
 
 In order to support parallel iteration over multiple arrays, Perl 6 has
 a C<zip> function that interleaves the elements of two or more arrays.
 
-    for zip(@names; @codes) -> $name, $zip {
+    for zip(@names; @codes) -> [$name, $zip] {
         print "Name: $name;   Zip code: $zip\n";
     }
 
@@ -386,8 +417,8 @@ Perl 6 has 22 precedence levels (fewer than Perl 5):
     junctive and (all)	&
     junctive or (any)	| ^
     named unary		rand sleep abs etc.
-    nonchaining binary	=> but does cmp <=> .. ^.. ..^ ^..^
-    chaining binary	!= == < <= > >= ~~ !~ eq ne lt le gt ge =:=
+    nonchaining binary	=> but does cmp <=> .. ^.. ..^ ^..^ till
+    chaining binary	!= == < <= > >= ~~ !~ eq ne lt le gt ge =:= ===
     tight and		&&
     tight or		|| ^^ //
     ternary		?? !!

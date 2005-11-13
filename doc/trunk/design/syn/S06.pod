@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 26 Oct 2005
+  Last Modified: 12 Nov 2005
   Number: 6
-  Version: 9
+  Version: 10
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -291,12 +291,17 @@ on their corresponding arguments, but unlike in Perl 5, this is decided
 lazily at parameter binding time.
 
 Arguments destined for required positional parameters must come before
-those bound to optional positional parameters. Arguments destined for named
-parameters may come before and/or after the positional parameters,
-but all positional parameters must be contiguous in the call syntax.
-Named arguments are recognized syntactically at the "comma" level.
-Pairs intended as positional arguments rather than named arguments
-must be isolated by extra parens:
+those bound to optional positional parameters. Arguments destined
+for named parameters may come before and/or after the positional
+parameters.  (To avoid confusion it is highly recommended that all
+positional parameters be kept contiguous in the call syntax, but
+this is not enforced, and custom arg list processors are certainly
+possible on those arguments that are bound to a final slurpy or
+arglist variable.)
+
+Named arguments are recognized syntactically at the
+"comma" level.  Pairs intended as positional arguments rather than
+named arguments must be isolated by extra parens:
 
     doit :when<now>,1,2,3;	# always a named arg
     doit (:when<now>),1,2,3;	# always a positional arg
@@ -325,44 +330,28 @@ can also say this:
     doit $when,1,2,3;	# always a positional arg of 'now'
     doit :$when,1,2,3;	# always a named arg of :when<now>
 
-In other words C<:$when> is shorthand for C<:when($when)>.
+In other words C<:$when> is shorthand for C<:when($when)>.  This works
+for any sigil:
 
-There is a corresponding shortcut for hash keys, but it replicates the
-key name rather than the hash.  So
+    :$what	:what($what)
+    :@what	:what(@what)
+    :%what	:what(%what)
+    :&what	:what(&what)
+    :^what	:what(^what)
 
-    doit :%hash<a>,1,2,3;
+There is a corresponding shortcut for hash keys if you prefix the subscript
+instead of the sigil:
 
-is short for
+    doit %hash:<a>,1,2,3;
+    doit %hash:{'b'},1,2,3;
 
-    doit :a{%hash<a>},1,2,3;
+are short for
 
-rather than
+    doit :a(%hash<a>),1,2,3;
+    doit :b(%hash{'b'}),1,2,3;
 
-    doit :hash{%hash<a>},1,2,3;
-
-Of course, you could always say
-
-    doit *%hash.pairs('a'),1,2,3;
-
-Note that the C<:> prefix is not quite a unary operator.  It just instructs
-the following container to return pairs.  If you say
-
-    :$hashref<b>
-
-you're going to get 
-
-    :hashref($hashref)<b>
-
-which is not what you want.  Instead say
-
-    :%$hashref<b>
-
-[XXX I wonder if we can fudge this the way we fudge "exists" and "delete"?
-These are all macros that speak to the container of the following expression
-rather than evaluating it completely first.  Unary C<:> could the same,
-presumably, in which case it would be perceived as a unary operator,
-much like "delete" is.  Then :$hashref<b> could work as expected.  Another
-way to look at it is that these are prefix adverbs to the final lookup.]
+The C<:> is not functioning as an operator here, but as a modifier of
+the following token.
 
 Pairs are recognized syntactically at the call level and mystically
 transformed into special C<Named> objects that may be bound to
@@ -663,9 +652,12 @@ after the List.  Parameters before the List either do not show up in
 the List or are marked as already bound somehow.  In other words,
 parameters are bound normally up to the List parameter, and then
 C<\@args> takes a snapshot of the remaining input without further
-attempts at binding.  The only difference from C<\$args> is that
+attempts at binding.  (The only difference from C<\$args> is that
 C<\@args> pays attention to semicolons and pipes, while C<\$args>
-flattens them.
+doesn't commit to any further processing.)  If there is only one
+argument list remaining, C<@args> will contain only one element,
+and that one element is exactly what would have been bound to C<$args>
+had you used that instead.
 
 =head2 Flattening argument lists
 
@@ -740,14 +732,57 @@ for "pure" processing chains:
 
     @nums ==> grep { $_ % 2 } ==> sort ==> map { $_**2 } ==> @oddsquares;
 
-If multiple pipes terminate in a single slurpy destination, they are processed
-sequentially from inside to outside, with C<< <== >> pipes always taking
-precedence over C<< ==> >> pipes.  To the slurpy destination it appears to be a
-single long list.  (Certain operators, however, may read the list of pipes in
-a different order, but only with a specially declared slurpy parameter that
-reveals the dimensionality of the list argument.  Multidimensional slices
-(specified with semicolons) are treated identically.  For example, the zip()
-function uses semicolon to separate its input lists.)
+    @nums
+    ==> grep { $_ % 2 }
+    ==> sort
+    ==> map { $_**2 }
+    ==> @oddsquares;
+
+Since the pipe is bound to the final variable, the variable is just as
+lazy as the pipe.
+
+The "missing" list may be indicated by the C<< (*) >> "pipe here" token,
+otherwise known as the "unrequited star".  The parens are optional when
+followed by a comma, semicolon or right bracket, or by any operator looser
+than comma.  So the above is equivalent to:
+
+    @nums
+    ==> grep { $_ % 2 } (*)
+    ==> sort (*)
+    ==> map { $_**2 } (*)
+    ==> @oddsquares;
+
+This is more useful when you wish to pipe into an expression that is
+not an ordinary list operator:
+
+    picklist() ==>
+	my @foo = @bar[*];
+
+Various contexts may or may not be expecting multi-dimensional
+slices or pipes.  It is an error to feed multiple slices or pipes to
+a destination that is not expecting it.  It must be fed to a context
+that is expecting semicolons to separate lists, such as a subscript,
+or a zip-like function that specifies the order to process multiple lists:
+
+    @foo ==> mumble zip(*) <== @bar;
+    @foo ==> mumble turn(*) <== @bar;
+    @foo ==> mumble flat(*) <== @bar;
+
+    0... ==>
+    for para(@foo;*) -> $x, $i { ...}
+
+is the same as
+
+    for para(@foo; 0...) -> $x, $i { ...}
+
+and
+
+    \('a'...; 0...) ==>
+     for zip(*) <== @foo -> [$x, $a, $i] { ...}
+
+is the same as
+
+    for zip(@foo; 'a'...; 0...) -> [$x, $a, $i] { ...}
 
 =head2 Closure parameters
 
@@ -921,45 +956,91 @@ the variable, or we can't correctly differentiate:
     my Dog :($fido, $spot) := twodogs();	# one twodog object
 
 Subsignatures can be matched directly with rules by using C<:(...)>
-notation, though if you want a parameter bound into C<$/>, you have
-to say C<< $<eldest> >> within the signature in that case.  Otherwise
-it will try to bind an external C<$eldest> instead, and fail if no such
-variable is declared.
+notation.
 
-Note that a rule-embedded signature has no associated "returns"
-syntactic slot, so you have to use C<< --> >> within the signature
-to specify the return type.
+    push @a, "foo";
+    push @a, \(1,2,3);
+    push @a, "bar";
+    ...
+    my ($i, $j, $k);
+    @a ~~ rx/
+	    <,>				# match initial elem boundary
+	    :(Int $i,Int $j,Int? $k)	# match tuple with 2 or 3 ints
+	    <,>				# match final elem boundary
+	  /;
+    say "i = $<i>";
+    say "j = $<j>";
+    say "k = $<k>" if defined $<k>;
+
+If you want a parameter bound into C<$/>, you have to say C<< $<i> >>
+within the signature.  Otherwise it will try to bind an external C<$i>
+instead, and fail if no such variable is declared.
+
+Note that unlike a sub declaration, a rule-embedded signature has no
+associated "returns" syntactic slot, so you have to use C<< --> >>
+within the signature to specify the type of the tuple, or match as
+an arglist:
+
+    :(Num, Num --> Coord)
+    :(\Coord(Num, Num))
+
+A consequence of the latter form is that you can match the type of
+an object with C<:(\Dog)> without actually breaking it into its components.
+Note, however, that it's not equivalent to say
+
+    :(--> Dog)
+
+which would be equivalent to
+
+    :(\Dog())
+
+that is, match a null tuple of type C<Dog>.  Nor is it equivalent to
+
+    :(Dog)
+
+which would be equivalent to
+
+    :(\Any(Dog))
+
+or
+
+    :([Dog])
+
+and match a tuple-ish item with a single value of type Dog.
+
+Note also that bare C<\(1,2,3)> is never legal in a rule since the
+first paren would try to match literally.
 
 =head2 Attributive parameters
 
-If a submethod's parameter is declared with a C<.> after the sigil (like an
-attribute):
+If a submethod's parameter is declared with a C<.> or C<!> after the
+sigil (like an attribute):
 
-    submethod initialize($.name, $.age) {}
+    submethod initialize($.name, $!age) {}
 
 then the argument is assigned directly to the object's attribute of the
 same name. This avoids the frequent need to write code like:
 
     submethod initialize($name, $age) {
         $.name = $name;
-        $.age  = $age;
+        $!age  = $age;
     }
-
-[Conjecture: within a submethod, attribute names are not virtual if
-we recognize them as our own.]
 
 To rename an attribute parameter you can use the explicit pair form:
 
-    submethod initialize(:moniker($.name), :youth($.age)) {}
+    submethod initialize(:moniker($.name), :youth($!age)) {}
 
 The C<:$name> shortcut may be combined with the C<$.name> shortcut,
-but the dot is ignored for the parameter name, so
+but the twigil is ignored for the parameter name, so
 
-    submethod initialize(:$.name, :$.age) {}
+    submethod initialize(:$.name, :$!age) {}
 
 is the same as:
 
-    submethod initialize(:name($.name), :age($.age)) {}
+    submethod initialize(:name($.name), :age($!age)) {}
+
+Note that C<$!age> actually refers to the private "C<has>" variable that
+can be referred to either as C<$age> or C<$!age>.
 
 =head2 Placeholder variables
 
@@ -1148,8 +1229,7 @@ the same signature must unify compatibly if they have the same name:
 	return $x eqv $y;
     }
 
-The C<^> sigil is just short for 'type', so if your keyboard is
-deficient in Latin-1 you can write:
+The C<^> sigil is just short for 'type', so you can also write:
 
     sub compare (Any type T $x, T $y) {
 	return $x eqv $y;
@@ -1296,11 +1376,13 @@ Specifies the associativity of an operator explicitly.  Valid values are:
     right	** =		$a op ($b op $c)
     non		cmp <=> ..	ILLEGAL
     chain	== eq ~~	($a op $b) and ($b op $c)
-    list	| & ^ ¥		listop($a, $b, $c)
+    list	| & ^ ¥		listop($a, $b, $c) or listop($a; $b; $c)
 
-Note that operators "equiv" to relationals are automatically considered
-chaining operators.  At other precedence levels, only chaining operators
-participate in a chain.
+
+Note that operators "C<equiv>" to relationals are automatically considered
+chaining operators.  When creating a new precedence level, the chaining
+is determined by by the presence or absence of "C<is assoc('chaining')>",
+and other operators defined at that level are required to be the same.
 
 =item C<PRE>/C<POST>
 
@@ -1678,23 +1760,30 @@ the assignment:
 
     (key => $var) = "value";
 
-When binding pairs, names can be used to "match up" lvalues and rvalues:
+When binding pairs, names can be used to "match up" lvalues and rvalues,
+provided you write hte left side as a signature using C<:(...)> notation:
 
-    (:who($name), :why($reason)) := (why => $because, who => "me");
+    :(:who($name), :why($reason)) := (why => $because, who => "me");
 
+(Otherwise the parser doesn't know it should parse the insides as a
+signature and not as an ordinary expression until it gets to the C<:=>,
+and that would be bad.  Possibly we should require a "C<my>" out front
+as well...)
 
 =head2 Out-of-scope names
 
 C<< GLOBAL::<$varname> >> specifies the C<$varname> declared in the C<*>
 namespace.
 
-C<< CALLER::<$varname> >> specifies the C<$varname> visible in the dynamic
-scope from which the current block/closure/subroutine was called, provided
-that variable is declared "C<env>".  (Implicit lexicals such as C<$_>
-are automatically assumed to be environmental.)
+C<< CALLER::<$varname> >> specifies the C<$varname> visible in
+the dynamic scope from which the current block/closure/subroutine
+was called, provided that variable is declared with the "C<env>"
+declarator.  (Implicit lexicals such as C<$_> are automatically
+assumed to be environmental.)
 
 C<< ENV::<$varname> >> specifies the C<$varname> visible in the
-innermost dynamic scope that declares the variable as "C<env>".
+innermost dynamic scope that declares the variable with the "C<env>"
+declarator.
 
 C<< MY::<$varname> >> specifies the lexical C<$varname> declared in the current
 lexical scope.

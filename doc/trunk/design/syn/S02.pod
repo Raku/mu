@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 27 Oct 2005
+  Last Modified: 12 Nov 2005
   Number: 2
-  Version: 9
+  Version: 10
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -286,12 +286,13 @@ is subject to:
     $?foo	compiler hint variable
     $=foo	pod variable
     $<foo>	match variable, short for $/{'foo'}
-    $:foo	:foo($foo) shortcut (allowed only on ordinary variables)
+    $!foo	explicitly private attribute (mapped to $foo though)
 
 Most variables with twigils are implicitly declared or assumed to
 be declared in some other scope, and don't need a "my" or "our".
 Attribute variables are declared with C<has>, though, and environment
-variables are declared somewhere in the dynamic scope with C<env>.
+variables are declared somewhere in the dynamic scope with the C<env>
+declarator.
 
 =item *
 
@@ -361,10 +362,16 @@ An argument list object (C<List>) may be created with backslashed parens:
     $args = \(1,2,3,:mice<blind>)
 
 A C<List>'s values are parsed as ordinary expressions.  By default a
-C<List> is lazy.  If all of a C<List>'s arguments are fully evaluated
-(such as when all the arguments are constants), the C<List> is
-promoted to being an immutable C<Tuple>.  (You can use a C<Tuple>
-anywhere you can use a C<List>, so in general it doesn't matter.)
+C<List> is lazy.  This interacts oddly with the fact that a C<List>
+is immutable in the abstract.  Once all of a C<List>'s arguments are
+fully evaluated (which happens at compile time when all the arguments
+are constants), the C<List> functions as an immutable tuple type.
+Before that moment, the eventual value may well be unknown.  All we
+know is that is that we have the promise to make the bits of it
+immutable as they become known.  C<List> objects may contain multiple
+unresolved iterators such as pipes or slices.  How these are resolved
+depends on what they are eventually bound to.  Some bindings are
+sensitive to multiple dimensions while others are not.
 
 =item *
 
@@ -388,7 +395,7 @@ otherwise be untyped:
 =item *
 
 Unlike in Perl 5, the notation C<&foo> merely creates a reference
-to function "foo" without calling it.  Any function reference may
+to function "C<foo>" without calling it.  Any function reference may
 be dereferenced and called using parens (which may, of course,
 contain arguments).  Whitespace is not allowed before the parens,
 but there is a corresponding C<.()> operator, which allows you to
@@ -481,6 +488,8 @@ alternate way to write this is:
 
     Foo::Bar::<$baz>
 
+This is resolved at compile time because the variable name is a constant.
+
 =item *
 
 The following pseudo-package names are reserved in the first position:
@@ -497,7 +506,8 @@ The following pseudo-package names are reserved in the first position:
 Other all-caps names are semi-reserved.  We may add more of them in
 the future, so you can protect yourself from future collisions by using
 mixed case on your top-level packages.  (We promise not to break
-any existing top-level CPAN package, of course.)
+any existing top-level CPAN package, of course.  Except maybe ACME,
+and then only for coyotes.)
 
 =item *
 
@@ -541,6 +551,8 @@ the package name as a hash:
 
 Unlike C<::()> symbolic references, this does not parse the argument
 for C<::>, nor does it initiate a namespace scan from that initial point.
+In addition, for constant subscripts, it resolves the symbol at compile time.
+(Symbolic refs always delay lookup till run-time.)
 
 =item *
 
@@ -1003,8 +1015,8 @@ both the sigil and parentheses:
 
     print "The results are &baz().\n"
 
-The function is called in scalar context.  (If it returns a list,
-that list is interpolated as if it were an array.)
+The function is called in scalar context.  (If it returns a list anyway,
+that list is interpolated as if it were an array in string context.)
 
 =item *
 
@@ -1032,7 +1044,9 @@ A class method can be called as a method if you use the type sigil:
 
     print "The dog bark is ^Dog.bark().\n"
 
-Again, the parens are required.
+Again, the parens are required.  Of course, if C<Dog> is a type that
+has no methods, this will fail.  It will also fail if the C<.bark>
+method requires an actual dog object rather than just an abstract C<Dog>.
 
 =item *
 
