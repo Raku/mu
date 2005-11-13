@@ -11,7 +11,7 @@ These tests derived from comments in L<"http://use.perl.org/~autrijus/journal/23
 
 =cut
 
-plan 25;
+plan 26;
 
 my $world = "World";
 my @list  = (1,2);
@@ -27,7 +27,7 @@ is("%hash{}", "1\t2\n", 'hash interpolation works');
 is("%hash", '%hash', 'hash interpolation does not work if not followed by {}');
 is("Wont you take me to &func()", 'Wont you take me to func-y town', 'closure interpolation');
 is("2 + 2 = { 2+2 }", '2 + 2 = 4', 'double quoted closure interpolation works');
-is("&func() is where I live", 'func-y town is where I live', "make sure function interpolation doesn't eat all trailing whitespace", :todo<bug>);
+is("&func() is where I live", 'func-y town is where I live', "make sure function interpolation doesn't eat all trailing whitespace");
 
 # L<S02/Names and Variables /except when interpolating/>
 is("&func. () is where I live", '&func. () is where I live', '"&func. ()" should not interpolate');
@@ -58,3 +58,5 @@ is(q2"abc\\d\"\'\/", q0|abc\d"'/|, "double quotation works"); #"
 is(qa"$world @list[] %hash{}", q0"$world 1 2 %hash{}", "only interpolate array");
 is(qb"$world \\\"\n\t", "\$world \\\"\n\t", "only interpolate backslash");
 is('$world \qq[@list[]] %hash{}', '$world 1 2 %hash{}', "interpolate quoting constructs in ''");
+
+is(" \d[111] \d[107] ", ' o k ', "\\d[] respects whitespaces around it")

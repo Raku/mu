@@ -60,8 +60,9 @@ perl6Lexer = P.makeTokenParser perl6Def
 
 maybeParens :: CharParser st a -> CharParser st a
 maybeParens p = choice [ parens p, p ]
-maybeBrackets :: CharParser st a -> CharParser st a
-maybeBrackets p = choice [ brackets p, p ]
+
+maybeVerbatimBrackets :: CharParser st a -> CharParser st a
+maybeVerbatimBrackets p = choice [ verbatimBrackets p, p ]
 
 parens     :: CharParser st a -> CharParser st a
 parens     = P.parens     perl6Lexer
@@ -204,12 +205,19 @@ charControl     = do{ char '^'
                     }
 
 charNum :: GenParser Char st Char                    
-charNum         = do{ code <- decimal 
-                              <|> do{ char 'o'; maybeBrackets $ number 8 octDigit }
-                              <|> do{ char 'x'; maybeBrackets $ number 16 hexDigit }
-                              <|> do{ char 'd'; maybeBrackets $ number 10 digit }
-                    ; return (toEnum (fromInteger code))
-                    }
+charNum = do
+    code <- choice
+        [ decimal 
+        , based 'o'  8 octDigit
+        , based 'x' 16 hexDigit
+        , based 'd' 10 digit
+        ]
+    return . toEnum $ fromInteger code
+    where
+    based ch num p = do
+        char ch
+        let p' = number num p
+        choice [ verbatimBrackets p', p' ]
 
 number :: Integer -> GenParser tok st Char -> GenParser tok st Integer
 number base baseDigit

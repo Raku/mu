@@ -1659,7 +1659,7 @@ ruleHashSubscriptQW = do
 
 ruleCodeSubscript :: RuleParser (Exp -> Exp)
 ruleCodeSubscript = tryVerbatimRule "code subscript" $ do
-    (invs,args) <- parens $ parseParamList
+    (invs, args) <- verbatimParens parseParamList
     -- FAILED PARSER PATCH
     --(invs, args) <- parseHasParenParamList -- XXX doesn't handle trailing 
     --                                       --       adverbs outside parens
