@@ -808,7 +808,7 @@ safe thing is to put a space before the dot:
     16:dead_beef.face	# fraction
     16:dead_beef .face	# method call
 
-=item
+=item *
 
 Only base 10 (in any form) allows an additional exponentiator starting
 with 'e' or 'E'.  All other radixes must rely on the constant folding
@@ -833,6 +833,12 @@ and maybe a trailing Units type for an implied scaling.  Note also that
 leading 0 by itself never implies octal in Perl 6.  Also, the hextonum
 converter function will interpret leading 0b or 0d as hex digits,
 not radix switchers.
+
+=item *
+
+Characters indexed by hex, octal, and decimal can be interpolated into
+strings using either C<"\x123"> (with C<\o> and C<\d> behaving
+respectively) or using square brackets: C<"\x[123]">. 
 
 =item *
 
