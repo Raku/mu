@@ -80,7 +80,7 @@ plan 18;
     my $old_arglist = $arglist;
     lives_ok { foo(5,6,7,8) }, "arglists are first-class objects (3)";
     ok $arglist,               "arglists are first-class objects (4)";
-    ok !($arglist eqv $old_arglist), "arglists are first-class objects (5)";
+    ok !($arglist === $old_arglist), "arglists are first-class objects (5)";
 }
 
 {
@@ -90,7 +90,7 @@ plan 18;
     my $arglist2 = \(1,2,3);
     try { foo $arglist2 };  # note: no *$args here
 
-    cmp_ok $arglist1, &infix:<eqv>, $arglist2,
+    cmp_ok $arglist1, &infix:<===>, $arglist2,
         "unflattened arglists can be passed to subs";
 }
 
@@ -104,3 +104,5 @@ plan 18;
     is try { foo 1,2, *$arglist }, "1!2!bar!grtz",
         "mixing ordinary args with arglists (2)";
 }
+
+# XXX sub foo (\@arglist)

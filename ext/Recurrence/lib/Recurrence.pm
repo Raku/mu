@@ -89,7 +89,7 @@ method get_universe ($self: ) {
 }
 
 method equal ($self: $set ) returns Bool {
-    $self.closure_next =:= $set.closure_next
+    $self.closure_next === $set.closure_next
 }
 
 method stringify ($self: ) returns Str {
@@ -220,7 +220,7 @@ method end ($self: ) {
 # --------- internals -----------
 
 submethod _get_union ( $closure1, $closure2, $direction ) {
-    return $closure1 if $closure1 =:= $closure2;
+    return $closure1 if $closure1 === $closure2;
     return sub ( $x is copy ) {
         my $n1 = &{ $closure1 }( $x );
         my $n2 = &{ $closure2 }( $x );
@@ -229,7 +229,7 @@ submethod _get_union ( $closure1, $closure2, $direction ) {
 }
 
 submethod _get_intersection ( $closure1, $closure2, $closure3, $closure4 ) {
-    return $closure1 if $closure1 =:= $closure3;
+    return $closure1 if $closure1 === $closure3;
     return sub ( $x ) {
         my $n1;
         my $n2 = &{ $closure3 }( $x );
@@ -389,7 +389,7 @@ Returns true if this recurrence intersects (has any element in common) with the 
 
 Returns true if the closures that define the recurrences are exactly the same.
 
-This method tests the closures identities using the '=:=' operation.
+This method tests the closures identities using the '===' operation.
 
 = SCALAR FUNCTIONS
 

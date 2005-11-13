@@ -54,7 +54,7 @@ sub infix:<=:=>($a, $b) is primitive { JS::inline('new PIL2JS.Box.Constant(
   }
 )')($a, $b) }
 
-sub infix:<eqv>($a, $b) is primitive { JS::inline('new PIL2JS.Box.Constant(
+sub infix:<===>($a, $b) is primitive { JS::inline('new PIL2JS.Box.Constant(
   function (args) {
     var cxt = args.shift(),  cc  = args.pop();
     var a = args[0].FETCH(), b = args[1].FETCH();

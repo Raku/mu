@@ -1,7 +1,7 @@
 Precedence
 
     terms               42 "eek" $x /abc/ (1+2) a(1) :by(2) .meth ./meth listop
-    method postfix      . .+ .? .* .+ .() .[] .{} .«» .=
+    method postfix      . .+ .? .* .+ .() .[] .{} .Â«Â» .=
     autoincrement       ++ --
     exponentiation      **
     symbolic unary      ! + - ~ ? * ** +^ ~^ ?^ \
@@ -11,12 +11,12 @@ Precedence
     junctive or (any)   | ^
     named unary         rand sleep abs etc.
     nonchaining binary  => but does cmp <=> .. ^.. ..^ ^..^
-    chaining binary     != == < <= > >= ~~ !~ eq ne lt le gt ge =:= eqv
+    chaining binary     != == < <= > >= ~~ !~ eq ne lt le gt ge =:= ===
     tight and           &&
     tight or            || ^^ //
     ternary             ?? !!
     assignment          = := ::= += -= **= xx= etc.
-    list item separator , ¥
+    list item separator , Â¥
     list op (rightward) <== [+] print push any all true not etc.
     pipe forward        ==>
     loose and           and
@@ -89,7 +89,7 @@ Comparison operators
                 ~~      # smart match (see smartmatch)
                 !~      # negated smart match
                 =:=     # equality (container)
-                eqv     # equality (value)
+                ===     # equality (value)
 
 Logic operators
 
@@ -112,7 +112,7 @@ Quote-like operators
     q:2         qq      ""
     q:to
     q:0:w       qw      <>
-    q:2:w       qww     «» <<>>    # XXX qww or qqw? :2:w correct?
+    q:2:w       qww     Â«Â» <<>>    # XXX qww or qqw? :2:w correct?
                 m       //
                 rx      //
 

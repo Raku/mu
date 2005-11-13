@@ -21,7 +21,7 @@ isa_ok($c, 'Foo');
 is($c.get_attr(), 13, '... cloned object retained attr value');
 my $val;
 lives_ok {
-    $val = $c =:= $a;
+    $val = $c === $a;
 }, "... cloned object isn't identity equal to the original object";
 ok($val.defined && !$val, "... cloned object isn't identity equal to the original object");
 

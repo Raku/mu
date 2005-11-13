@@ -49,20 +49,3 @@ plan 8;
 }
 
 # (currently this dies with "Can't modify constant item: VInt 2")
-
-=pod
-
-It's unclear whether => should create new containers. Currently, PIL2JS does
-not create new containers (and thus passes the last two tests, but not the
-tests 5 and 6). I.e.:
-
-  my $var  = 42;
-  my $pair = (key => $var);
-
-  $pair.value =:= $var;  # true?
-  $pair.value   = 23;    # thus modifies $var?
-
-With arrays, we have a simple distinction:
-
-  ($foo, $bar)[0] =:= $foo;  # true  -- &infix:<,> does not create new containers
-  [$foo, $bar][0] =:= $foo;  # false -- &cirumfix:<[ ]> creates new containers

@@ -137,7 +137,7 @@ argument lists like so:
 There are several patterns with special syntax: square brackets for
 matching inside arrays, curly brackets for matching out of hashes, bare
 parentheses for matching a tuple, all numeric and string literals (for
-matching themselves under C<eqv>), perhaps among others.  These either
+matching themselves under C<===>), perhaps among others.  These either
 require a set of syntactic categories (like C<< pattern:term:<...> >>)
 or a straight-up grammar munge.  
 

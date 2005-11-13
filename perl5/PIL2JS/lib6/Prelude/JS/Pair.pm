@@ -36,7 +36,7 @@ sub infix:«=>»($key is copy, $value is rw) is primitive is rw {
 sub PIL2JS::Internals::Hacks::postcircumfix_for_pair_objects (
   Pair $pair, Any $key
 ) is primitive is rw {
-  if $pair.key eqv $key {
+  if $pair.key === $key {
     $pair.value;
   } else {
     undef;

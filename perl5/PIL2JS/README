@@ -91,7 +91,7 @@ C<foo(*@parameters)>), C<is rw>, C<is readonly>, and C<is copy>
 =item *
 
 Basic operators (C<< &infix:<==> >>, C<< &infix:<eq> >>, C<< &prefix:<+> >>,
-C<< &infix:<=:=> >>, C<< &infix:<eqv> >>...)
+C<< &infix:<=:=> >>, C<< &infix:<===> >>...)
 
 =item *
 

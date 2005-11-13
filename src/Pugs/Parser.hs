@@ -1294,7 +1294,7 @@ tightOperators = do
       ++ postOps "..."                                  -- Infinite range
     , chainOps $
                " != == < <= > >= ~~ !~ " ++
-               " eq ne lt le gt ge =:= eqv "            -- Chained Binary
+               " eq ne lt le gt ge =:= === "            -- Chained Binary
     , leftOps  " && "                                   -- Tight And
     , leftOps  " || ^^ // "                             -- Tight Or
     , [ternOp "??" "!!" "if"]                           -- Ternary
@@ -1753,7 +1753,7 @@ ruleFoldOp = verbatimRule "reduce metaoperator" $ do
         , " & ^ | "
         , " => = "
         , " != == < <= > >= ~~ !~ "
-        , " eq ne lt le gt ge =:= eqv "
+        , " eq ne lt le gt ge =:= === "
         , " && "
         , " || ^^ // "
         , " and or xor err "

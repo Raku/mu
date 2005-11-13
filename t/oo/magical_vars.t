@@ -48,7 +48,7 @@ class SimpleClass does Bar {}
   my $foo1 = Foo.new;
   my $foo2 = $foo1.get_self_normal;
 
-  ok $foo1 =:= $foo2, '$?SELF in classes works';
+  ok $foo1 === $foo2, '$?SELF in classes works';
 }
 
 {
@@ -69,7 +69,7 @@ class SimpleClass does Bar {}
   my $bar1 = SimpleClass.new;
   my $bar2 = $bar1.get_self_normal;
 
-  ok $bar1 =:= $bar2, '$?SELF in roles works';
+  ok $bar1 === $bar2, '$?SELF in roles works';
 }
 
 {
@@ -81,11 +81,11 @@ class SimpleClass does Bar {}
 
 # Now the same with type vars
 {
-  cmp_ok Foo.new.get_class_pvar, &infix:<=:=>, ::Foo,
+  cmp_ok Foo.new.get_class_pvar, &infix:<===>, ::Foo,
     "::?CLASS in classes works", :todo<bug>;
-  cmp_ok SimpleClass.new.get_class_pvar, &infix:<=:=>, ::SimpleClass,
+  cmp_ok SimpleClass.new.get_class_pvar, &infix:<===>, ::SimpleClass,
     "::?CLASS in roles works", :todo<bug>;
-  cmp_ok SimpleClass.new.get_role_pvar, &infix:<=:=>, ::Bar,
+  cmp_ok SimpleClass.new.get_role_pvar, &infix:<===>, ::Bar,
     "::?ROLE in roles works", :todo<bug>;
 }
 
@@ -111,7 +111,7 @@ class SimpleClass does Bar {}
   }
   my $grtz = Grtz.new;
 
-  cmp_ok $grtz.get_self1, &infix:<eqv>, $grtz.get_self2,
+  cmp_ok $grtz.get_self1, &infix:<===>, $grtz.get_self2,
     'self is an alias for $?SELF (1)';
   is $grtz.run_foo, 42,
     'self is an alias for $?SELF (2)';

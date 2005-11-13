@@ -27,14 +27,14 @@ plan 3;
 # splat does not do LHS yet
 
 {
-    my *$a := (1, 2, 3);
+    my :(*$a) := (1, 2, 3);
     is($a, 1, "*scalar := list");
     my @a = (1, 2, 3);
-    my *$a := @a;
+    my :(*$a) := @a;
     is($a, 1, "*scalar := array");
-    my *$a := *@a;
+    my :(*$a) := *@a;
     is($a, 1, "*scalar := *array");
-    my *$a := [1, 2, 3];
+    my :(*$a) := [1, 2, 3];
     is($a, [1, 2, 3], "*scalar := arrayref");
 };
 

@@ -162,7 +162,7 @@ method remove_child_at ($self: Int $index) returns Tree {
 method remove_child ($self: Tree $child_to_remove) returns Tree {
     my $index = 0;
     for @:children -> $child {
-        ($child =:= $child_to_remove) && return $self.remove_child_at($index);
+        ($child === $child_to_remove) && return $self.remove_child_at($index);
         $index++;
     }
     die "Child Not Found : cannot find object ($child_to_remove) in self";
@@ -309,7 +309,7 @@ method get_index ($self:) returns Int {
     return -1 if $self.is_root();
     my $index = 0;
     for  $self.parent().get_all_children() -> $sibling {
-        ($sibling =:= $self) && return $index;
+        ($sibling === $self) && return $index;
         $index++;
     }
 }

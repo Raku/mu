@@ -41,7 +41,7 @@ Net::IRC::SeenExt - Tracks the times people spoke lastly
   class MyBot does Net::IRC::SeenExt[public => 0] {...}
   my $bot = MyBot.new(...);
 
-  my (date => $date, text => $text) := $bot.seen("iblech");
+  my :(date => $date, text => $text) := $bot.seen("iblech");
   say "iblech was last seen {time - $date}s ago, saying: $text";
 
 =head1 DESCRIPTION

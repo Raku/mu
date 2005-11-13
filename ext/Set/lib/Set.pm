@@ -51,7 +51,7 @@ method remove($self: *@items) returns Int {
     if ( $:members.defined ) {
         $pre_size = $self.size;
         my $to_remove = none(@items);
-        $:members = any($:members.values.grep:{ $_ =:= none($to_remove) });
+        $:members = any($:members.values.grep:{ $_ === none($to_remove) });
     } else {
         $:members = any();
     }
@@ -59,7 +59,7 @@ method remove($self: *@items) returns Int {
 }
 
 method includes($self: *@items) returns Bool {
-    my $answer = (all(@items) =:= any($:members));
+    my $answer = (all(@items) === any($:members));
     return $answer;
 }
 

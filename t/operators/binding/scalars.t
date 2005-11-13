@@ -3,8 +3,6 @@
 use v6;
 use Test;
 
-=kwid
-
 =head1 Binding tests
 
 These tests are derived from the "Binding" section of Synopsis 3

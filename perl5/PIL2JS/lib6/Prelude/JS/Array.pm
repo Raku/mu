@@ -169,15 +169,15 @@ sub JS::Root::sum(*@vals) is primitive {
   # We should return undef if we haven't been giving @vals to sum.
 }
 
-method uniq(@self: Code $cmp = &infix:<eqv>) { uniq $cmp, @self }
+method uniq(@self: Code $cmp = &infix:<===>) { uniq $cmp, @self }
 sub JS::Root::uniq(Code $cmp is copy = &infix:<cmp>, *@array) is primitive {
   # Hack
   unless $cmp.isa("Code") {
     unshift @array, @$cmp;
-    $cmp := &infix:<eqv>;
+    $cmp := &infix:<===>;
   }
 
-  # XXX O(n²) implementation, needing .id or eqv hashes for a better
+  # XXX O(n²) implementation, needing .id or === hashes for a better
   # implementation
   my @res;
   for @array -> $elem {

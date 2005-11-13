@@ -170,7 +170,7 @@ Binding
     foo($some_other_var);  # false
 
     # := can take a subroutine signature as its LHS:
-    my ($foo, $blarb?, :$baz, *%rest) := some_sub();
+    my :($foo, $blarb?, :$baz, *%rest) := some_sub();
 
     # ::= is binding at compile-time.
     $foo ::= $bar;

@@ -14,7 +14,7 @@ is( $Test.ref, 'Test::Builder', 'new() should return a Test::Builder object' );
 
 {
     my $Test2 = Test::Builder.new();
-    ok( $Test =:= $Test2, '... Test::Builder is a singleton' );
+    ok( $Test === $Test2, '... Test::Builder is a singleton' );
 }
 
 my $custom_plan = Test::Builder::TestPlan.new();

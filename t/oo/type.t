@@ -12,7 +12,15 @@ L<"http://groups.google.com/groups?selm=420DB295.3000902%40conway.org">
 
 =cut
 
+# This test is much certainly hopelessly outdated.
+# C<type> as a subroutine/method is in no current Synopsis.
+# The notion of types and classes is changed currently.
+
 plan 7;
+
+skip_rest "test outdated";
+
+=begin end
 
 # Basic subroutine/method form tests for C<type>.
 {

@@ -95,7 +95,7 @@ plan 16;
   my $foo = 42;
   my $bar = 23;
 
-  ($foo, $bar) := ($bar, $foo);
+  :($foo, $bar) := ($bar, $foo);
   ok $foo == 23 && $bar == 42,
     "using lists as lvalues in a binding operation to swap two variables works";
 
@@ -109,7 +109,7 @@ plan 16;
   my $bar = 2;
   my $baz = 3;
 
-  ($foo, $bar, $baz) := ($baz, $foo, $bar);
+  :($foo, $bar, $baz) := ($baz, $foo, $bar);
   ok $foo == 3 && $bar == 1 && $baz == 2,
     "using lists as lvalues in a binding operation to swap three variables works";
 }

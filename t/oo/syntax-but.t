@@ -53,7 +53,7 @@ plan 7;
   };
 
   ok $was_in_but_block, 'syntax but ($obj but {...}) was executed';
-  cmp_ok $topic_in_but_block, &infix:<=:=>, $obj,
+  cmp_ok $topic_in_but_block, &infix:<===>, $obj,
     'topic in syntax but ($obj but {...}) was correct';
   my $attr = try { $obj.attr };
   is $attr, 42, "attribute setting worked correctly in syntax but";

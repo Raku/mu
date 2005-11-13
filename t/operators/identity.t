@@ -7,7 +7,7 @@ plan 39;
 
 =pod
 
-=:= is only for containers, not values
+C<=:=> is only for containers, not values
 
 ok(1 =:= 1, "int");
 ok(!(2 =:= 1), "int (neg)");

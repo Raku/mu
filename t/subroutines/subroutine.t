@@ -81,7 +81,7 @@ L<S06/"Unpacking array parameters">
 
 =cut
 
-sub argShifter (@a) {
+sub argShifter (@a is rw) {
     my $first := shift @a;
     return $first;
 }

@@ -52,7 +52,7 @@ plan 11;
 
     ok $siglist,
         "a subroutine's siglist can be accessed via .signature (1-1)", :todo<feature>;
-    cmp_ok $siglist, &infix:<eqv>, try { &foo.signature },
+    cmp_ok $siglist, &infix:<===>, try { &foo.signature },
         "a subroutine's siglist can be accessed via .signature (1-2)";
 }
 
@@ -61,7 +61,7 @@ plan 11;
     my sub foo (Num $a, $b?, *@rest) {}
     my $siglist = eval ':(Num $a, $b?, *@rest)';
 
-    cmp_ok $siglist, &infix:<eqv>, try { &foo.signature },
+    cmp_ok $siglist, &infix:<===>, try { &foo.signature },
         "a subroutine's siglist can be accessed via .signature (2)";
 }
 
@@ -69,7 +69,7 @@ plan 11;
     my sub foo ($a, $b) {}
     my $siglist = eval ':($a)';
 
-    ok !($siglist eqv try { &foo.signature }),
+    ok !($siglist === try { &foo.signature }),
         "a subroutine's siglist can be accessed via .signature (3)", :todo<feature>;
 }
 

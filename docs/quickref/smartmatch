@@ -3,7 +3,7 @@ Smart Matching Chart from S04
     $_      $x        Type of Match Implied    Matching Code
     ======  =====     =====================    =============
     Any     Code<$>   scalar sub truth         match if $x($_)
-    Hash    Hash      hash keys identical      match if $_.keys.sort »eq«
+    Hash    Hash      hash keys identical      match if $_.keys.sort Â»eqÂ«
     																	  $x.keys.sort
     Hash    any(Hash) hash key intersection    match if $_{any(Hash.keys)}
     Hash    Array     hash value slice truth   match if $_{any(@$x)}
@@ -13,7 +13,7 @@ Smart Matching Chart from S04
     Hash    Any       hash entry existence     match if exists $_{$x}
     Hash    .{Any}    hash element truth*      match if $_{Any}
     Hash    .<string> hash element truth*      match if $_<string>
-    Array   Array     arrays are identical     match if $_ »~~« $x
+    Array   Array     arrays are identical     match if $_ Â»~~Â« $x
     Array   any(list) list intersection        match if any(@$_) ~~ any(list)
     Array   Rule      array grep               match if any(@$_) ~~ /$x/
     Array   Num       array contains number    match if any($_) == $x

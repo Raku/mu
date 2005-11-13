@@ -32,7 +32,7 @@ is($?PACKAGE, "main", 'no declarations broke main $?PACKAGE');
 # block level
 is(Test1::ns, "Test1", "block-level package declarations");
 is(Test1::pkg, "Test1", 'block-level $?PACKAGE var');
-ok(Test1::pkg =:= ::Test1, '$?PACKAGE is a type object', :todo<bug>);
+ok(Test1::pkg === ::Test1, '$?PACKAGE is a type object', :todo<bug>);
 my $x;
 lives_ok { $x = test1_export() }, "export was imported successfully";
 is($x, "export yourself!", "exported OK");

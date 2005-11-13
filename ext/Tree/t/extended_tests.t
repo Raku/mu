@@ -74,7 +74,7 @@ is($tree.child_count(), 1, '... we should have 1 children now');
 # get the child we inserted
 # and compare it with sub_tree
 # they should be the same
-ok($tree.get_child(0) =:= $sub_tree, '... make sure our sub_tree is fetchable');
+ok($tree.get_child(0) === $sub_tree, '... make sure our sub_tree is fetchable');
 
 # get the parent of sub_tree
 my $sub_tree_parent = $sub_tree.parent();
@@ -82,7 +82,7 @@ my $sub_tree_parent = $sub_tree.parent();
 # now test that the parent of
 # our sub_tree is the same as
 # our root    
-ok($tree =:= $sub_tree_parent, '... make sure our sub_tree parent is tree');
+ok($tree === $sub_tree_parent, '... make sure our sub_tree parent is tree');
 
 ## ----------------------------------------------------------------------------
 ## testing adding siblings
@@ -124,14 +124,14 @@ is($tree.child_count(), 2, '... we should have 2 children now');
 
 # and verify that the child at index 1
 # is actually our second sub_tree    
-ok($tree.get_child(1) =:= $sub_tree_2, '... make sure our sub_tree is fetchable');    
+ok($tree.get_child(1) === $sub_tree_2, '... make sure our sub_tree is fetchable');    
     
 # get the parent of our second sub_tree
 my $sub_tree_2_parent = $sub_tree_2.parent();
 
 # and make sure that it is the 
 # same as our root
-ok($tree =:= $sub_tree_2_parent, '... make sure our sub_tree_2 parent is tree');
+ok($tree === $sub_tree_2_parent, '... make sure our sub_tree_2 parent is tree');
     
 ## ----------------------------------------------------------------------------
 ## test adding child by giving parent as a constructor argument
@@ -165,11 +165,11 @@ is($tree.child_count(), 3, '... we should have 3 children now');
 
 # and verify that the child at index 2
 # is actually our latest sub_tree    
-ok($tree.get_child(2) =:= $sub_tree_4, '... make sure our sub_tree is fetchable');    
+ok($tree.get_child(2) === $sub_tree_4, '... make sure our sub_tree is fetchable');    
 
 # and make sure that the new sub-trees
 # parent is the same as our root
-ok($tree =:= $sub_tree_4.parent(), '... make sure our sub_tree_4 parent is tree');
+ok($tree === $sub_tree_4.parent(), '... make sure our sub_tree_4 parent is tree');
 
 ## ----------------------------------------------------------------------------
 ## test inserting child 
@@ -212,16 +212,16 @@ is($tree.child_count(), 4, '... we should have 4 children now');
 
 # and verify that the child at index 2
 # is actually our latest sub_tree    
-ok($tree.get_child(2) =:= $sub_tree_3, '... make sure our sub_tree is fetchable');    
+ok($tree.get_child(2) === $sub_tree_3, '... make sure our sub_tree is fetchable');    
 
 # and verify that the child that was 
 # at index 2 is actually now actually
 # at index 3    
-ok($tree.get_child(3) =:= $sub_tree_4, '... make sure our sub_tree is fetchable');    
+ok($tree.get_child(3) === $sub_tree_4, '... make sure our sub_tree is fetchable');    
 
 # and make sure that the new sub-trees
 # parent is the same as our root
-ok($tree =:= $sub_tree_3.parent(), '... make sure our sub_tree_3 parent is tree');    
+ok($tree === $sub_tree_3.parent(), '... make sure our sub_tree_3 parent is tree');    
 
 ## ----------------------------------------------------------------------------
 ## test getting all children and siblings
@@ -304,7 +304,7 @@ for (@sub_children) -> $sub_child {
     ok($sub_child.is_leaf());
     
     # now we test their parental relationship
-    ok($sub_tree =:= $sub_child.parent(), '... their parent is the sub_tree');
+    ok($sub_tree === $sub_child.parent(), '... their parent is the sub_tree');
     
     # and they should all have a depth of 1
     is($sub_child.depth(), 1, '... depth should be 1');
@@ -365,7 +365,7 @@ for (@more_sub_children) -> $sub_child {
     ok($sub_child.is_leaf());
     
     # now we test their parental relationship
-    ok($sub_tree =:= $sub_child.parent(), '... their parent is the sub_tree');
+    ok($sub_tree === $sub_child.parent(), '... their parent is the sub_tree');
     
     # and they should all have a depth of 1
     is($sub_child.depth(), 1, '... depth should be 1');
@@ -409,8 +409,8 @@ is($tree.child_count(), 6, '... we should have 6 children now');
 
 # now check that tree's new children 
 # are the same as our list
-ok($tree.get_child(4) =:= @more_children[0], '... they are the same');
-ok($tree.get_child(5) =:= @more_children[1], '... they are the same');
+ok($tree.get_child(4) === @more_children[0], '... they are the same');
+ok($tree.get_child(5) === @more_children[1], '... they are the same');
 
 # now go through the children again
 # and test them
@@ -424,7 +424,7 @@ for (@more_children) -> $sub_child {
     ok($sub_child.is_leaf());
     
     # now we test their parental relationship
-    ok($tree =:= $sub_child.parent(), '... their parent is the tree');
+    ok($tree === $sub_child.parent(), '... their parent is the tree');
     
     # and they should all have a depth of 1
     is($sub_child.depth(), 0, '... depth should be 0');
@@ -464,9 +464,9 @@ is($tree.child_count(), 7, '... we should have 7 children now');
 # is in the right place and that it 
 # should have displaced the old value at
 # that index to index + 1 
-ok($tree.get_child(4) =:= @more_children[0], '... they are the same');
-ok($tree.get_child(5) =:= $new_sibling, '... they are the same');
-ok($tree.get_child(6) =:= @more_children[1], '... they are the same');
+ok($tree.get_child(4) === @more_children[0], '... they are the same');
+ok($tree.get_child(5) === $new_sibling, '... they are the same');
+ok($tree.get_child(6) === @more_children[1], '... they are the same');
 
 # they should no longer think
 # they are roots
@@ -477,7 +477,7 @@ ok(!$new_sibling.is_root());
 ok($new_sibling.is_leaf());
 
 # now we test their parental relationship
-ok($tree =:= $new_sibling.parent(), '... their parent is the tree');
+ok($tree === $new_sibling.parent(), '... their parent is the tree');
 
 # and they should all have a depth of 1
 is($new_sibling.depth(), 0, '... depth should be 0');
@@ -520,11 +520,11 @@ is($tree.child_count(), 9, '... we should have 6 children now');
 
 # now check that tree's new children 
 # are the same as our list
-ok($tree.get_child(4) =:= @more_children[0], '... they are the same');
-ok($tree.get_child(5) =:= @even_more_children[0], '... they are the same');
-ok($tree.get_child(6) =:= @even_more_children[1], '... they are the same');
-ok($tree.get_child(7) =:= $new_sibling, '... they are the same');
-ok($tree.get_child(8) =:= @more_children[1], '... they are the same');
+ok($tree.get_child(4) === @more_children[0], '... they are the same');
+ok($tree.get_child(5) === @even_more_children[0], '... they are the same');
+ok($tree.get_child(6) === @even_more_children[1], '... they are the same');
+ok($tree.get_child(7) === $new_sibling, '... they are the same');
+ok($tree.get_child(8) === @more_children[1], '... they are the same');
 
 # now go through the children again
 # and test them
@@ -538,7 +538,7 @@ for (@even_more_children) -> $sub_child {
     ok($sub_child.is_leaf());
     
     # now we test their parental relationship
-    ok($tree =:= $sub_child.parent(), '... their parent is the tree');
+    ok($tree === $sub_child.parent(), '... their parent is the tree');
     
     # and they should all have a depth of 1
     is($sub_child.depth(), 0, '... depth should be 0');
@@ -583,7 +583,7 @@ ok(!$self_ref_tree_test.is_root());
 ok(!$self_ref_tree_test.is_leaf());
 
 # make sure that the parent in the constructor worked
-ok($sub_tree_3 =:= $self_ref_tree_test.parent(), '... should be the same');
+ok($sub_tree_3 === $self_ref_tree_test.parent(), '... should be the same');
 
 # and the parents count should be 1
 is($sub_tree_3.child_count(), 1, '... we should have 1 child here');
@@ -601,7 +601,7 @@ for ($self_ref_tree_test.get_all_children()) ->  $sub_child {
     ok($sub_child.is_leaf());
     
     # now we test their parental relationship
-    ok($self_ref_tree_test =:= $sub_child.parent(), '... their parent is the tree');
+    ok($self_ref_tree_test === $sub_child.parent(), '... their parent is the tree');
     
     # and they should all have a depth of 1
     is($sub_child.depth(), 2, '... depth should be 0');
@@ -634,7 +634,7 @@ ok(!$self_ref_tree_test_2.is_root());
 ok(!$self_ref_tree_test_2.is_leaf());
 
 # make sure that the parent in the constructor worked
-ok($sub_tree_2 =:= $self_ref_tree_test_2.parent(), '... should be the same');
+ok($sub_tree_2 === $self_ref_tree_test_2.parent(), '... should be the same');
 
 # and the parents count should be 1
 is($sub_tree_2.child_count(), 1, '... we should have 1 child here');
@@ -653,7 +653,7 @@ ok(!$sub_child.is_root());
 ok($sub_child.is_leaf());
 
 # now we test their parental relationship
-ok($self_ref_tree_test_2 =:= $sub_child.parent(), '... their parent is the tree');
+ok($self_ref_tree_test_2 === $sub_child.parent(), '... their parent is the tree');
 
 # and they should all have a depth of 1
 is($sub_child.depth(), 2, '... depth should be 0');
@@ -692,14 +692,14 @@ is($tree_to_remove.depth(), 1, '... the depth should be 1');
 is($sub_tree_of_tree_to_remove.depth(), 2, '... the depth should be 2'); 
 
 # make sure it is there
-ok($sub_tree.get_child(1) =:= $tree_to_remove, '... these tree should be equal');        
+ok($sub_tree.get_child(1) === $tree_to_remove, '... these tree should be equal');        
 
 # remove the subtree (it will be returned)
 my $removed_tree = $sub_tree.remove_child_at(1);
 
 # now check that the one removed it the one 
 # we inserted origianlly
-ok($removed_tree =:= $tree_to_remove, '... these tree should be equal');
+ok($removed_tree === $tree_to_remove, '... these tree should be equal');
 
 # it should think its a root again
 ok($tree_to_remove.is_root());
@@ -736,14 +736,14 @@ is($tree_to_remove2.depth(), 1, '... the depth should be 1');
 is($sub_tree_of_tree_to_remove2.depth(), 2, '... the depth should be 2'); 
 
 # make sure it is there
-ok($sub_tree.get_child(1) =:= $tree_to_remove2, '... these tree should be equal');        
+ok($sub_tree.get_child(1) === $tree_to_remove2, '... these tree should be equal');        
 
 # remove the subtree (it will be returned)
 my $removed_tree2 = $sub_tree.remove_child($tree_to_remove2);
 
 # now check that the one removed it the one 
 # we inserted origianlly
-ok($removed_tree2 =:= $tree_to_remove2, '... these tree should be equal');
+ok($removed_tree2 === $tree_to_remove2, '... these tree should be equal');
 
 # it should think its a root again
 ok($tree_to_remove2.is_root());
@@ -765,14 +765,14 @@ my $tree_to_remove_2 = Tree.new(node => "1.7");
 $sub_tree.add_child($tree_to_remove_2);
 
 # make sure it is there
-ok($sub_tree.get_child($sub_tree.child_count() - 1) =:= $tree_to_remove_2, '... these tree should be equal');        
+ok($sub_tree.get_child($sub_tree.child_count() - 1) === $tree_to_remove_2, '... these tree should be equal');        
 
 # remove the subtree (it will be returned)
 my $removed_tree_2 = $sub_tree.remove_child_at($sub_tree.child_count() - 1);
 
 # now check that the one removed it the one 
 # we inserted origianlly
-ok($removed_tree_2 =:= $tree_to_remove_2, '... these tree should be equal');
+ok($removed_tree_2 === $tree_to_remove_2, '... these tree should be equal');
 
 # trees at the beginging
 
@@ -783,14 +783,14 @@ my $tree_to_remove_3 = Tree.new(node => "1.1.-1");
 $sub_tree.insert_child(0, $tree_to_remove_3);
 
 # make sure it is there
-ok($sub_tree.get_child(0) =:= $tree_to_remove_3, '... these tree should be equal');        
+ok($sub_tree.get_child(0) === $tree_to_remove_3, '... these tree should be equal');        
 
 # remove the subtree (it will be returned)
 my $removed_tree_3 = $sub_tree.remove_child_at(0);
 
 # now check that the one removed it the one 
 # we inserted origianlly
-ok($removed_tree_3 =:= $tree_to_remove_3, '... these tree should be equal');        
+ok($removed_tree_3 === $tree_to_remove_3, '... these tree should be equal');        
 
 ## ----------------------------------------------------------------------------
 ## test traverse
