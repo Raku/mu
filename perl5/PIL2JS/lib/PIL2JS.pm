@@ -183,7 +183,7 @@ sub run_js_on_jssm {
   $jssm->init();
   $jssm->function_set("print",               sub { print encode "utf-8", "@_\n"; });
   $jssm->function_set("printWithoutNewline", sub { print encode "utf-8", "@_"; });
-  open F,">deleteme_eval.js"; print F $js; close F; # XXX - debugging output
+  # open F,">deleteme_eval.js"; print F $js; close F; # XXX - debugging output
   my $rc = $jssm->eval($js);
   warn "JavaScript::SpiderMonkey: $@" if $@;
   $jssm->destroy();
