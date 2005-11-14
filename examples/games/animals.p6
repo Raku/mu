@@ -35,9 +35,9 @@ sub yes(Str $q) {
 
   my $input = lc substr(=$*IN, 0, 1);
   given $input {
-        when "y" { return 1;};
-        when "n" { return 0;};
-        default  { return yes($q) };
+        when "y" { 1 }
+        when "n" { 0 }
+        default  { yes($q) }
   }
 }
 

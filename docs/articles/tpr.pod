@@ -32,10 +32,10 @@ On Windows, you can fetch the PxPerl binary distribution from this site:
 
   http://www.pxperl.com/?pxperl
 
-If your OS isn't one of the above, or if you want to build pugs yourself,
+If your OS isn't one of the above, or if you want to build Pugs yourself,
 you'll need the latest GHC compiler from L<http://haskell.org/ghc/>,
 and then install L<Perl6::Pugs> via CPAN, like a standard Perl 5
-module. Compiling pugs takes a lot of memory, so try this on a strong
+module. Compiling Pugs takes a lot of memory, so try this on a strong
 machine.
 
 =head2 What's in the box?
@@ -105,7 +105,7 @@ printed by C<say>. Of course, you could spell this in longhand the same
 way as you could in Perl 5:
 
   my $original   = "Hello, world!";
-  my @characters = split //, $original;
+  my @characters = split "", $original;
   my $rejoined   = join "", @characters;
   print $rejoined, "\n";
 
@@ -138,8 +138,8 @@ C<< -> >> is uniformly a dot now.)
 Perl 6 offers many cleanups and rationalizations over Perl 5, as well as
 some shiny new features. If you've been programming Perl 5 for a while
 you may have gotten used to some quirks of the language, so much that
-you don't see what the fuss is about and why you'd like to switch. I'll
-list just a few things, and limit myself to what Pugs already supports.
+you don't see what the fuss is about and why you'd like to learn Perl 6.
+I'll list just a few things, and limit myself to what Pugs already supports.
 
 =over 4
 
@@ -169,7 +169,7 @@ code in this style:
       my($foo, $bar, $baz) = @_;
       # ...
 
-Beginners (and insufficiently caffenated late-night hackers) can easily
+Beginners (and insufficiently caffeinated late-night hackers) can easily
 make one of the following disastrous mistakes:
 
       my ($foo, $bar, $baz);         # oops, forgot " = @_"
@@ -184,13 +184,15 @@ you spell out the car example:
 This single line does more than the four Perl 5 lines did. First, it
 specifies that the function receives three parameters, one of which is
 mandatory. The C<?> in C<$black?> and C<$doors?> means they are optional;
-in both cases default values are supplied. (You don't have to give one:
-the default default is undef.) The C<Int> mark on the last parameter
-means calling the function with a non-integer will raise an error. As
-you can see, this is an optional feature: you don't have to declare
-types everywhere.
+in both cases default values are supplied.  You don't have to give one:
+the default default is undef.  On the other hand, if you do give a default,
+the C<?> itself becomes optional.
 
-How is this make_car used? These are obvious:
+The C<Int> mark on the last parameter means calling the function with a
+non-integer will raise an error. As you can see, this is an optional feature:
+you don't have to declare types everywhere.
+
+How is this C<make_car> used? These are obvious:
 
 [[ (EM) Maybe source code examples should adhere to PBP ?? ]]
 
@@ -217,7 +219,7 @@ You've probably seen Perl 5 functions that go out of their way to accept
 either positional args, or a hash or hashref with named args. There's no
 need to do that any more. If you have a function you'll be calling many
 times with a changing set of arguments, you can keep them in a hash and
-use the "splat" operator to flatten it:
+use the I<splat> operator C<*> to flatten it:
 
   sub make_many_cars ($howmany) {
       my @cars;
@@ -230,12 +232,12 @@ use the "splat" operator to flatten it:
 
 =item Lightweight closure syntax
 
-Every block potentially acts like a closure in Perl 6, and the syntax
-is at once simplified (you don't need to say C<sub> to declare anonymous
-pieces of code) and extended to include formal parameters.
+Every block acts like a closure in Perl 6. The syntax is at once simplified
+-- you don't need to say C<sub> to declare anonymous pieces of code -- and
+extended to include formal parameters.
 
   my $beeper = { say "beep!" };   # $beeper is a coderef. No need for "sub".
-  $beeper();                      # says "beep!". No p5ish "->" here.
+  $beeper();                      # says "beep!". No perl5ish "->" here.
 
   my $square = -> $x { $x * $x }; # use "->" to introduce args
   my @squares = map $square, 1 .. 10;
@@ -321,20 +323,20 @@ from the last section could also be written like this:[1]
 
   my @differences = @Xs »-« @Ys;
 
-C<< »« >> are "hyperoperators" that take a regular operator and "lift" it to
-work on lists. You can still use them when you don't have I<two> lists:
+C<< »« >> is the I<hyper> metaoperator that take a regular operator and lift it
+to work on lists. You can still use them when you don't have I<two> lists:
 
   my @halves = @original »/« 2;   # 2 is upgraded to "(2, 2, 2, ...)"
 
-Relatedly, there's a way to "reduce" long expressions such as sums or
-products with the C<[]> metaoperator:
+Relatedly, there's a way to I<reduce> long expressions, such as sums or
+products, with the C<[]> metaoperator:
 
   my $sum  = [+] (1, 2, 3, 4);    # 1 + 2 + 3 + 4
   my $prod = [*] (1, 2, 3, 4);    # 1 * 2 * 3 * 4
 
 If these sound a little too abstract, rest assured that they do become
 quite handy after you get used to them. Let's introduce two nice and
-less funky operators. The first is a new syntax for quoting words,
+less funky improvements. The first is a new syntax for quoting words,
 similar to Perl 5's C<qw>:
 
   my @suspects = <Hockney McManus Fenster Keaton Verbal>;
@@ -342,7 +344,7 @@ similar to Perl 5's C<qw>:
 Like C<qw> in Perl 5, C<< <...> >> single-quotes its arguments. If you
 want interpolation, you can use the C<< «...» >> variant.
 
-The second convenient new operator is C<//>, the "and-if-not-defined" operator.
+The second convenient new operator is C<//>, the I<defined-or> operator.
 You'd typically use it like this:
 
   my $output_file = lookup("output_file") // $DEFAULT_FILENAME;
@@ -367,14 +369,14 @@ required. In this case, Verbal may not feel the heat at all if (say)
 McManus talks first.[2]
 
 
-Another developement that's taken palce is the normalization of bitwise
+Another developement that's taken place is the normalization of bitwise
 operators.  Where you once had C<$x | $y> mean different things depending
 on whether the two variables were numbers or string -- with the kludgy
 C<(0+$x) | (0+$y)> workaround guard to force numeric interpretation --
 the operators now explicitly state what kind of context they impose. This
 means that the amount of operators is large, but it is very clear what
 they do. The idea is that these operators now take a mandatory prefix:
-C<+>, C<~>, or C<?>; they mean numeric, string, or boolean context.
+C<+>, C<~>, or C<?>; they stand for numeric, string, or boolean context.
 
   # Perl 5
   print  7   &  54;    # 6
@@ -396,21 +398,22 @@ Now that C<|>, C<&>, and C<^> no longer mean bitwise operations, they are
 free to be used for something else: junctions. These are several values
 lumped up into one. They are useful in clarifying logic expressions:
 
-
   my $options = '--help' | '-d' | '-e';
-  if all($x, $y, $z) eq $options { ... }
+  if all($x, $y, $z) eq $options {
+      say "All options are valid!";
+  }
 
 [[ XXX: this example is stolen from Autrijus's Apocalypse Now talk. Maybe
 think of something else? ]]
 
 =item Cleaned-up OOP
 
-When version 5 introduced object oriented programming to Perl, it did
+When version 5 introduced object-oriented programming to Perl, it did
 so with a minimal change to the existing syntax. It also mandated very
 little about how objects are arranged: the vast majority of Perl 5
-classes pick blessed hashes for their all-around usefulness, but the
+classes pick blessed hashrefs for their all-around usefulness, but the
 object system itself is flexible and can use other things, such as
-arrays or even globs. Certainly this has afforded authors with great
+arrays or even glob references. Certainly this has afforded authors with great
 creativity and power, but it has also made learning Perl OOP a little
 more difficult than it needed to be. If you do use the de-facto standard
 of hash elements for object fields, you are at risk of falling for some
@@ -438,10 +441,10 @@ three automatic accessors that can act as lvalues.
   $wheels.color = "red";
 
 If you want, you can provide your own C<BUILD> method that has the
-class-specific smarts (say, give a default color, or limit cars to a
-certain number of doors).
+class-specific smarts. For example, it may give a default color, or limit cars
+to a certain number of doors.
 
-The C<.> twigil meant the members above were public (and so they had
+The C<.> twigil meant the members above were public, and so they had
 accessors created for them which are visible outside the class. You can
 also declare private members:
 
@@ -492,13 +495,13 @@ sawn off. Sorry about the pain it must be to include this, it's worth
 mentioning since this kind of thing is definitely going to show up in
 Perl 6 code. ]]
 
-The file C<docs/quickref/unicode> in the pugs distribution explains how
+The file C<docs/quickref/unicode> in the Pugs distribution explains how
 to type Unicode in popular editors.
 
 =head2 The C<examples/> directory
 
-When you install B<pugs>, you get plenty of (working) example code. Let's
-look at a few of the things there.
+When you download Pugs, you get plenty of working example code to play with.
+Let's look at a few of the things there.
 
 =head3 examples/network/http-client.p6
 
@@ -522,14 +525,14 @@ look at a few of the things there.
       say "*** Oops, connection failed."
   }
 
-This example -- one of pugs' oldest, added two months after the
-project started -- is a very simple web client. The code is fairly
-straightforward, but it illustrates a few features of Perl 6 and of pugs.
+This example is one of the oldest, added two months after the Pugs project
+started. It implments a very simple web client. The code is fairly
+straightforward, but it illustrates a few features of Perl 6 and of Pugs.
 First, you'll notice that C<connect> returns an object that's used in a
 totally OOPish way. At the time this was added, networking wasn't fully
 specced: expect this to be called something like C<Socket.connect> in the
-official perl6 release (though there very well maybe an C<IO::All>-ish
-way to create lazyily defined IO objects as well). Pugs just went away
+official Perl 6 specification, though there may very well be an C<IO::All>-ish
+way to create lazily defined IO objects as well. Pugs just went away
 and implemented a reasonable approximation.
 
 The client speaks very simple HTTP, C<.flush>es the request to make sure
@@ -549,9 +552,9 @@ The basic idea is clear -- get the whole HTTP response, perform a
 capturing pattern match. There are a few important details though. First,
 both P5 and P6 versions of the code use Perl 5 regular expressions for the
 match. Perl 6 defines a new language called Rules, but an implementation
-wasn't available when this code was written so P5 regexp were used. As you
-can see, these are accessible through C<rx:perl5>, which is the C<rx> Rule
-keyword with the Perl 5 I<adverbial modifier> attached to it.
+wasn't available when this code was written, so it used a Perl 5 regex
+instead. As you can see, these are accessible through C<rx:perl5>, which is the
+C<rx> Rule keyword with the C<perl5> I<adverbial modifier> attached to it.
 
 [[
  XXX: not sure if this is worth the break in pace--
@@ -561,7 +564,7 @@ C<m> in Perl 5 if you just want to C</match something/>, you could do
 the same if you were using C</> as your delimiters. In full Perl 6,
 this line becomes:
 
- ..and then port the regexp to a rule, which kinda shows XML is annoying
+ ..and then port the regex to a rule, which kinda shows XML is annoying
  to pattern match quickly and dirtily. So maybe skip this.
 ]]
 
@@ -571,7 +574,7 @@ is that instead of using C<~=>, we now use C<~~> to match. The change
 is not just one of spelling: C<~~> is the shiny new I<smart match>
 operator, which has very well-defined semantics for matching anything
 against anything else. That is, you know in advance what it'd do if you
-say something like C<%hash ~~ @array> or C<$dow ~~ 0 .. 7>.
+say something like C<%hash ~~ @array> or C<$dow ~~ (0 .. 7)>.
 
 =head3 examples/games/animals.p6
 
@@ -590,7 +593,7 @@ say something like C<%hash ~~ @array> or C<$dow ~~ 0 .. 7>.
   $
 
 The code for this simple guessing game is just a little too long to
-fit here, so I'm just going to hilight some nice features. The program
+fit here, so I'm just going to highlight some nice features. The program
 tries to guess what animal you are thinking of; if it fails it asks for
 distinctive knowledge it can use next time. Obviously, this knowledge is
 expressed in some data structure: the nice thing about this example is
@@ -600,25 +603,25 @@ the really nice thing about this is the code to do it:
   say $info.perl;
 
 C<.perl> is similar to C<Data::Dumper>, but is built into perl. It
-provides sensible serialization for objects as well. If the pugs hackers
-have their way, you can expect an analogous C<.yaml> method too (though
-it may not be in the core).
+provides sensible serialization for objects as well. If the Pugs hackers
+have their way, you can expect an analogous C<.yaml> method too, although
+it may not be in the core.
 
 Recall the smart match operator from the previous example, and let's
 look at this snippet of code:
 
   given $input {
-        when "y" { return 1;};
-        when "n" { return 0;};
-        default  { return yes($q) };
+      when "y" { 1 }
+      when "n" { 0 }
+      default  { yes($q) }
   }
 
 This is Perl 6's switch statement. C<given> sets C<$_> (the I<topic> as
-it's now called) to be C<$input>, and thenruns the code in the block.
+it's now called) to be C<$input>, and then runs the code in the block.
 Each C<when> block performs a smart match against the topic -- it's
 shorthand for something like
 
-  if $_ ~~ "y" { return 1; } else { ... }
+  if $_ ~~ "y" { 1 } else { ... }
 
 The beauty of this construct is that smart matches work on I<everything>,
 so you can have code like this:
@@ -652,7 +655,7 @@ the world.
 L<http://dev.perl.org/perl6/doc/synopsis.html> - The Perl 6 Synopses
 are summaries of the longer Apocalypse and Exegesis documents, and are
 more up-to-date. In fact, they function as a specification for Perl 6
-implementations, Pugs included. They are, like Pugs, work in progress.
+implementations, Pugs included. They are, like Pugs, a work in progress.
 
 =head1 FOOTNOTES
 
