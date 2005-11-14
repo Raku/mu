@@ -12,7 +12,7 @@
 
 module Pugs.Lexer (
     wordAlpha, wordAny, isWordAlpha, isWordAny,
-    maybeParens, parens, whiteSpace, lexeme, identifier,
+    maybeParens, parens, whiteSpace, mandatoryWhiteSpace, lexeme, identifier,
     braces, brackets, angles, balanced, balancedDelim, decimal,
 
     ruleDelimitedIdentifier, ruleQualifiedIdentifier, ruleWhiteSpaceLine,
@@ -68,6 +68,8 @@ parens     :: CharParser st a -> CharParser st a
 parens     = P.parens     perl6Lexer
 whiteSpace :: CharParser st ()
 whiteSpace = P.whiteSpace perl6Lexer
+mandatoryWhiteSpace :: CharParser st ()
+mandatoryWhiteSpace = skipMany1 (oneOf " \t\n")  -- XXX unicode and whatnot
 lexeme     :: CharParser st a -> CharParser st a
 lexeme     = P.lexeme     perl6Lexer
 identifier :: CharParser st String
@@ -199,9 +201,9 @@ escapeCode      = charEsc <|> charNum <|> charAscii <|> charControl <|> anyChar
                 <?> "escape code"
 
 charControl :: GenParser Char st Char
-charControl     = do{ char '^'
+charControl     = do{ char 'c'
                     ; code <- upper
-                    ; return (toEnum (fromEnum code - fromEnum 'A'))
+                    ; return (toEnum (fromEnum code - fromEnum '@'))
                     }
 
 charNum :: GenParser Char st Char                    

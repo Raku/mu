@@ -1632,7 +1632,14 @@ ruleInvocationCommon mustHaveParens = do
     name        <- do { str <- ruleSubName; return $ colonify str }
     (invs,args) <- if mustHaveParens
         then parseHasParenParamList
-        else option (Nothing,[]) $ parseParenParamList
+        else do  -- $obj.foo: arg1, arg2    # listop method call
+                 -- we require whitespace after the colon (but not before)
+                 -- so that @list.map:{...} doesn't get interpreted the
+                 -- wrong way.
+            listcolon <- option False $ try $ do { char ':'; mandatoryWhiteSpace; return True }
+            if listcolon
+                then parseNoParenParamList
+                else option (Nothing,[]) $ parseParenParamList
     when (isJust invs) $ fail "Only one invocant allowed"
     return $ \x -> if hasEqual
         then Syn "=" [x, App (Var name) (Just x) args]

@@ -190,6 +190,7 @@ quoted '$'  = "\\$"
 quoted '@'  = "\\@"
 quoted '%'  = "\\%"
 quoted '&'  = "\\&"
+quoted '^'  = "\\^"
 quoted x | x < ' ' || x > '~' = "\\d[" ++ show (ord x) ++ "]"
 quoted x = [x]
 
