@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 73;
+plan 83;
 
 my $foo = "FOO";
 my $bar = "BAR";
@@ -270,3 +270,18 @@ FOO
     try { eval '@q = <<:p<moose>>>;' };
     is(@q[0].perl, (p => "moose").perl, ":pair<anglequoted>", :todo<bug>);
 };
+
+{ # weird char escape sequences
+    is("\d97", "a");
+    is("\d102oo", "foo");
+    is("\d123", chr 123);
+    is("\d[12]3", chr(12) ~ "3");
+    is("\d[12] 3", chr(12) ~ " 3");
+
+    is("\x41", "A");
+    is("\o101", "A");
+
+    is("\c@", "\0");
+    is("\cA", chr 1);
+    is("\cZ", chr 26);
+}

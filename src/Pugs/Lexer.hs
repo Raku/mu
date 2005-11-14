@@ -202,7 +202,7 @@ escapeCode      = charEsc <|> charNum <|> charAscii <|> charControl <|> anyChar
 
 charControl :: GenParser Char st Char
 charControl     = do{ char 'c'
-                    ; code <- upper
+                    ; code <- upper <|> char '@'
                     ; return (toEnum (fromEnum code - fromEnum '@'))
                     }
 

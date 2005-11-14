@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 19;
+plan 20;
 
 # Since these are all parsing tests, they should use eval to ensure all tests
 # can run even if something is broken.  (Unless things are VERY broken.)
@@ -55,4 +55,17 @@ if $?PUGS_BACKEND ne "BACKEND_PUGS" {
     my sub second($_) { $_ ~ "second" }
     
     is(eval(q/first.second/), 'firstsecond', '`first.second` means `&second(&first())`');
+}
+
+{
+    is(eval(q/"hello".substr: 1, 2/), "el", "listop method");
+
+    # foo $bar.baz: quux 
+    # should be (and is currently) interpreted as:
+    # foo($bar.baz(quux))
+    # where the alternate interpretation can be achieved by:
+    # foo ($bar.baz): quux
+    # which is interpreted as
+    # $bar.baz.foo(quux)
+    # but we need tests, tests, tests! XXX
 }
