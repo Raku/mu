@@ -40,10 +40,21 @@ elsif (-r $svn_entries) {
     close FH;
 } elsif (my @info = qx/svk info/ and $? == 0) {
     print "Writing version from `svk info` to $version_h\n";
-    my ($line) = grep /(?:file|svn|https?)\b/, @info;
-    ($revision) = $line =~ / (\d+)$/;
+    if (my ($line) = grep /(?:file|svn|https?)\b/, @info) {
+        ($revision) = $line =~ / (\d+)$/;
+    } elsif (my ($source_line) = grep /^(Copied|Merged) From/, @info) {
+        if (my ($source_depot) = $source_line =~ /From: (.*?), Rev\. \d+/) {
+            $source_depot = '/'.$source_depot; # convert /svk/trunk to //svk/trunk
+            if (my @info = qx/svk info $source_depot/ and $? == 0) {
+                if (my ($line) = grep /(?:file|svn|https?)\b/, @info) {
+                    ($revision) = $line =~ / (\d+)$/;
+                }
+            }
+        }
+    }
 }
 $revision ||= 0;
+print "Current version is $revision\n";
 
 if ($revision != $old_revision) {
   # As we've closed STDIN (filehandle #0), slot #0 is available for new
