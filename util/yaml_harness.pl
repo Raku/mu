@@ -191,10 +191,11 @@ sub get_tests {
 }
 
 sub get_revision {
-    # TODO: generalize to non-svn trees
     my($self) = @_;
-    do { $self->{_revision} = $1 if /Revision: (\d+)$/ } for `svn info`;
+    my $rev_get_cmd = $Config{"pugs-path"}.' -V:pugs_revision';
+    do { $self->{_revision} = $1 if /pugs_revision: (\d+)$/ } for `@{[$rev_get_cmd]}`;
     $self->{_revision} ||= "unknown";
+    print "$rev_get_cmd returns revision '@{[$self->{_revision}]}'\n";
 }
 
 sub run {
