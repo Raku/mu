@@ -80,6 +80,21 @@ emptyEnv name genPad = liftSTM $ do
         , envInitDat = init
         }
 
+makeNullaryBlock :: Exp -> Maybe Env -> VCode
+makeNullaryBlock fun env = MkCode {
+                      isMulti = False,
+                      subName = "<anon>",
+                      subEnv  = env,
+                      subType = SubBlock,
+                      subAssoc = "pre",
+                      subReturns = anyType,
+                      subLValue = False,
+                      subParams = [],
+                      subBindings = [],
+                      subSlurpLimit = [],
+                      subBody = fun,
+                      subCont = Nothing }
+
 -- Evaluation ---------------------------------------------------------------
 
 {-|
@@ -1037,9 +1052,7 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
         env <- ask -- freeze environment at this point for thunks
         let eval = local (const env{ envLValue = lv }) $ do
                 enterEvalContext (cxtOfSigil $ head name) exp
-            thunkify = do
-                -- typ <- evalExpType exp
-                return . VRef . thunkRef $ MkThunk eval (anyType)
+            thunkify = return . VCode $ (makeNullaryBlock exp (Just env))
         val <- if thunk then thunkify else do
             v   <- eval
             typ <- evalValType v
