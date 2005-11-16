@@ -380,6 +380,14 @@ rulePackageHead = do
         kind   = Val . VStr $ sym
     return (name, kind, pkgVal, env)
 
+lexEnvBracket :: RuleParser a -> RuleParser a
+lexEnvBracket inner = do
+    env <- getRuleEnv
+    result <- inner
+    env' <- getRuleEnv
+    putRuleEnv env'{ envLexical = envLexical env }
+    return result
+
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
     namePos <- getPosition
@@ -393,12 +401,30 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     typ''   <- option typ' $ try $ ruleBareTrait "returns"
     traits  <- many $ ruleTrait
     -- bodyPos <- getPosition
-    body    <- ruleBlock
+    
+    env <- getRuleEnv
+    let nameQualified | ':' `elem` name     = name
+                      | scope <= SMy        = name
+                      | isGlobal            = name
+                      | isBuiltin           = (head name:'*':tail name)
+                      | otherwise           = (head name:pkg) ++ "::" ++ tail name
+        isGlobal = case name of
+            (_:'*':_)   -> True
+            _           -> False
+        isBuiltin = ("builtin" `elem` traits)
+        pkg = envPackage env
+
+    unsafeEvalLexDiff $ Sym scope nameQualified emptyExp
+
+    body <- lexEnvBracket $ do
+        forM_ (fromMaybe [] formal) $ \param -> 
+            unsafeEvalLexDiff $ Sym SMy (paramName param) emptyExp
+        ruleBlock
+
     let (fun, names, params) = doExtract styp formal body
     -- Check for placeholder vs formal parameters
     when (isJust formal && (not.null) names) $
         fail "Cannot mix placeholder variables with formal parameters"
-    env <- getRuleEnv
     let subExp = Val . VCode $ MkCode
             { isMulti       = isMulti
             , subName       = nameQualified
@@ -414,12 +440,6 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             , subBody       = fun
             , subCont       = Nothing
             }
-        pkg = envPackage env
-        nameQualified | ':' `elem` name     = name
-                      | scope <= SMy        = name
-                      | isGlobal            = name
-                      | isBuiltin           = (head name:'*':tail name)
-                      | otherwise           = (head name:pkg) ++ "::" ++ tail name
         self :: [Param]
         self | styp > SubMethod = []
              | (prm:_) <- params, isInvocant prm = []
@@ -429,10 +449,6 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         -- Horrible hack! Sym "&&" is the multi form.
         mkMulti | isMulti   = ('&':)
                 | otherwise = id
-        isGlobal = case name of
-            (_:'*':_)   -> True
-            _           -> False
-        isBuiltin = ("builtin" `elem` traits)
         isExported = ("export" `elem` traits)
         
     -- XXX this belongs in semantic analysis, not in the parser
