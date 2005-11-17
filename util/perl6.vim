@@ -35,7 +35,7 @@ syn keyword p6KeyProperty   constant prec key value kv irs ofs ors pos export
 syn keyword p6KeyProperty   float int str true false rw
 syn keyword p6KeyType       Array Bool Class Code Hash Int IO Num NumRange 
 syn keyword p6KeyType       Str StrRange Sub Role Rule Rat
-syn keyword p6KeyFunc       grep map sort join split reduce reverse truncate zip
+syn keyword p6KeyFunc       grep map sort join split reduce min max reverse truncate zip
 syn keyword p6KeyFunc       keys values pairs defined delete exists  
 syn keyword p6KeyFunc       arity assuming gather take any pick all none
 syn keyword p6KeyFunc       pop push shift splice unshift  
