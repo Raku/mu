@@ -497,7 +497,6 @@ register ::
 	\$(PERLRUN) util/ghc_setup.pl register --prefix=\$(DESTDIR)
 
 pure_site_install ::
-	\$(PERLRUN) util/ghc_setup.pl copy --copy-prefix=\$(DESTDIR)
 	\$(NOECHO) \$(MOD_INSTALL) \\
 		\$(INST6_LIB) \$(DESTDIR)$config->{sitelib} \\
 		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{sitearch} \\
@@ -506,10 +505,9 @@ pure_site_install ::
 		\$(INST6_MAN1DIR) \$(DESTDIR)$config->{installsiteman1dir} \\
 		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installsiteman3dir} \\
 		\$(INSTPUGS_LIB) \$(DESTDIR)$config->{sitelib}/auto/pugs
-	\$(NOECHO) \$(ECHO) "*** Installed!  Type '\$(MAKE) register' to make Pugs a GHC package."
+	\$(PERLRUN) util/ghc_setup.pl copy --copy-prefix=\$(DESTDIR)
 
 pure_vendor_install ::
-	\$(PERLRUN) util/ghc_setup.pl copy --copy-prefix=\$(DESTDIR)
 	\$(NOECHO) \$(MOD_INSTALL) \\
 		\$(INST6_LIB) \$(DESTDIR)$config->{privlib} \\
 		\$(INST6_ARCHLIB) \$(DESTDIR)$config->{archlib} \\
@@ -518,6 +516,7 @@ pure_vendor_install ::
 		\$(INST6_MAN1DIR) \$(DESTDIR)$config->{installman1dir} \\
 		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installman3dir} \\
 		\$(INSTPUGS_LIB) \$(DESTDIR)$config->{privlib}/auto/pugs
+	\$(PERLRUN) util/ghc_setup.pl copy --copy-prefix=\$(DESTDIR)
 	\$(NOECHO) \$(ECHO) "*** Installed!  Type '\$(MAKE) register' to make Pugs a GHC package."
 .
 }
