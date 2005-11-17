@@ -517,7 +517,6 @@ pure_vendor_install ::
 		\$(INST6_MAN3DIR) \$(DESTDIR)$config->{installman3dir} \\
 		\$(INSTPUGS_LIB) \$(DESTDIR)$config->{privlib}/auto/pugs
 	\$(PERLRUN) util/ghc_setup.pl copy --copy-prefix=\$(DESTDIR)
-	\$(NOECHO) \$(ECHO) "*** Installed!  Type '\$(MAKE) register' to make Pugs a GHC package."
 .
 }
 
