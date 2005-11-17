@@ -26,7 +26,7 @@ acceptable.)
 
 The underlying match state object is now available as the C<$/>
 variable, which is implicitly lexically scoped.  All access to the
-current (or most recent) match are through this variable, even when
+current (or most recent) match is through this variable, even when
 it doesn't look like it.  The individual capture variables (such as C<$0>,
 C<$1>, etc.) are just elements of C<$/>.
 
@@ -374,8 +374,8 @@ neither carriage return nor line feed.
 
 The new C<&> metacharacter separates conjunctive terms.  The patterns on
 either side must match with the same beginning and end point.  The
-operator is list associative like C<|>, and backtracking makes the
-right argument vary faster than the left.
+operator is list associative like C<|>, has higher precedence than C<|>,
+and backtracking makes the right argument vary faster than the left.   
 
 =back
 
@@ -1952,7 +1952,7 @@ C<Match> object returned by one repetition of the subpattern. That is,
 an array alias on a subpattern flattens and collects all nested
 subpattern captures within the aliased subpattern. For example:
 
-     if m:w/ $<pairs>:=( (\w+) \: (\N+) ) / {
+     if m:w/ $<pairs>:=( (\w+) \: (\N+) )+ / {
          # Scalar alias, so $/<pairs> is assigned an array
          # of Match objects, each of which has its own array
          # of two subcaptures...
@@ -1964,7 +1964,7 @@ subpattern captures within the aliased subpattern. For example:
      }
 
 
-     if m:w/ @<pairs>:=( (\w+) \: (\N+) ) / {
+     if m:w/ @<pairs>:=( (\w+) \: (\N+) )+ / {
          # Array alias, so $/<pairs> is assigned an array
          # of Match objects, each of which is flattened out of
          # the two subcaptures within the subpattern
@@ -2235,9 +2235,9 @@ Just as a class can collect named actions together:
          method addr { "Addr = $.addr" }
 
          method desc {
-             print .name(), "\n",
-                   .age(),  "\n",
-                   .addr(), "\n";
+             print &.name(), "\n",
+                   &.age(),  "\n",
+                   &.addr(), "\n";
          }
 
          # etc.
