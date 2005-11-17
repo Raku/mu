@@ -64,7 +64,7 @@ my $lib6         = "../../blib6/lib";
 my $initrd_gz    = "initrd.gz";
 my $initrd_img   = "initrd.img";
 my $initrd_mnt   = "/mnt/loop0";
-my $initrd_size  = int 13.0 * 1024;
+my $initrd_size  = int 16.0 * 1024;
 my $cdroot       = "cdroot";
 my $iso          = "cd.iso";
 
@@ -149,6 +149,7 @@ GetOptions(
   "grub-uri=s"     => \$grub_uri,
   "kernel-local=s" => \$kernel_local,
   "grub-local=s"   => \$grub_local,
+  "parrot-path=s"  => \$parrot_path,
   "pugs=s"         => \$pugs,
   "bash=s"         => \$bash,
   "linuxrc=s"      => \$linuxrc,
@@ -159,6 +160,7 @@ GetOptions(
   "initrd-mnt=s"   => \$initrd_mnt,
   "cdroot=s"       => \$cdroot,
   "iso=s"          => \$iso,
+  "terminfo=s"     => \$terminfo,
   help             => \&usage,
 ) or usage();
 check_for_evil_chars($initrd_img, $initrd_gz, $initrd_mnt, $lib6, $parrot_path);
@@ -193,7 +195,7 @@ step
 
 step
   descr  => "Checking for Pugs binary",
-  help   => "Compile Pugs if you haven't done so already.",
+  help   => "Compile Pugs if you haven't done so already (looked at $pugs).",
   ensure => sub { -r $pugs and -s $pugs };
 
 step
@@ -277,8 +279,8 @@ HELP
 
   step
     descr  => "Creating an ext2 filesystem on \"$initrd_img\"",
-    ensure => sub { `file $initrd_img` =~ /ext2/ },
-    using  => sub { system "mkfs.ext2", "-F", $initrd_img };
+    ensure => sub { `strings $initrd_img | grep lost+found` },
+    using  => sub { system "mkfs.ext2", "-m", "0", "-F", $initrd_img };
 
   step
     descr  => "Mounting \"$initrd_img\"",
@@ -313,14 +315,14 @@ HELP
   );
   step
     descr  => "Copying Pugs, Parrot, Bash, inputrc, the terminfo description, linuxrc, and welcome.p6 to the initrd",
-    help   => "Note: You might want to strip pugs and parrot to safe space.",
+    help   => "Note: You might want to strip pugs and parrot to save space.",
     ensure => sub {
       for(@files) {
         my ($src, $dest) = @$_;
         -r $dest and -x $dest and
         -M $dest <= -M $src   and
         -s $dest == -s $src
-          or return;
+          or do { warn "mismatch: $src <=> $dest" ; return };
       }
       1;
     },
