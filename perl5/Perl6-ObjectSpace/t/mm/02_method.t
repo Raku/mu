@@ -20,7 +20,7 @@ my $e = closure::env->new();
 
 {
     my $m = method->new($e, 
-        closure::params->new(
+        method::params->new(
             symbol->new('$self:' => 'opaque')
         ), 
         sub { 
@@ -37,7 +37,7 @@ my $e = closure::env->new();
 
 {
     my $m = method->new($e, 
-        closure::params->new(
+        method::params->new(
             symbol->new('$self:' => 'opaque')
         ), 
         sub { 
@@ -54,7 +54,7 @@ my $e = closure::env->new();
 
 {
     my $m = method->new($e, 
-        closure::params->new(
+        method::params->new(
             symbol->new('$self:' => 'opaque')
         ),         
         sub { 

@@ -8,7 +8,7 @@ sub parse {
     my ($class, $source) = @_;
     my ($stack, $subexp) = ([], []);
     
-    my @tokens = ($source =~ /\(|\)|\'|\"|[a-zA-Z0-9_:=!$%?@&]+/g);
+    my @tokens = ($source =~ /\(|\)|\'|\"|[a-zA-Z0-9_\:\=\!\$\%\?\@\&\*\<\>\{\}\;]+/g);
     
 #    warn join "\n" => @tokens;
     

@@ -221,8 +221,8 @@ method add_method (opaque $self: symbol $label, method $method) returns nil {
     # add the first method
     my $_add_method = method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:'  => 'opaque'), 
                               symbol->new('$label'  => 'symbol'), 
                               symbol->new('$method' => 'method')
@@ -261,8 +261,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:' => 'opaque'), 
                               symbol->new('$label' => 'symbol')
                           ),
@@ -296,8 +296,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:' => 'opaque'), 
                               symbol->new('$label' => 'symbol')
                           ),
@@ -330,8 +330,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:' => 'opaque'),
                               symbol->new('$label' => 'symbol')                
                           ),
@@ -364,8 +364,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params  => closure::params->new(symbol->new('$self:' => 'opaque')),
+            method::signature->new(
+                params  => method::params->new(symbol->new('$self:' => 'opaque')),
                 returns => 'list'
             ),
             sub {
@@ -396,8 +396,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$class:' => 'opaque'), 
                               symbol->new('?%params' => 'hash')
                           ),
@@ -440,8 +440,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$class:'   => 'opaque'), 
                               symbol->new('$canidate' => 'str'), 
                               symbol->new('%params'   => 'hash')
@@ -511,8 +511,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$class:' => 'opaque'), 
                               symbol->new('$repr'   => 'str'), 
                               symbol->new('%params' => 'hash')
@@ -574,8 +574,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:'  => 'opaque'), 
                               symbol->new('%params' => 'hash')
                           ),
@@ -625,8 +625,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:'  => 'opaque'), 
                               symbol->new('%params' => 'hash')
                           ),
@@ -676,8 +676,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+            method::signature->new(
+                params => method::params->new(symbol->new('$self:' => 'opaque')),
                 returns => 'nil'
             ), 
             sub {                
@@ -718,8 +718,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+            method::signature->new(
+                params => method::params->new(symbol->new('$self:' => 'opaque')),
                 returns => 'num'
             ), 
             sub {
@@ -748,8 +748,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+            method::signature->new(
+                params => method::params->new(symbol->new('$self:' => 'opaque')),
                 returns => 'opaque'
             ), 
             sub {
@@ -791,8 +791,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:'         => 'opaque'),
                               symbol->new('?@superclasses' => 'list'),                              
                           ),
@@ -841,8 +841,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+            method::signature->new(
+                params => method::params->new(symbol->new('$self:' => 'opaque')),
                 returns => 'list'
             ), 
             sub {
@@ -870,8 +870,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                             symbol->new('$self:'    => 'opaque'),
                             symbol->new('$subclass' => 'opaque'),           
                           ),
@@ -899,8 +899,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+            method::signature->new(
+                params => method::params->new(symbol->new('$self:' => 'opaque')),
                 returns => 'list'
             ), 
             sub {
@@ -933,8 +933,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+            method::signature->new(
+                params => method::params->new(symbol->new('$self:' => 'opaque')),
                 returns => 'list'
             ), 
             sub {
@@ -975,8 +975,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:' => 'opaque'),
                               symbol->new('?$order' => 'symbol')                                                                
                           ),
@@ -1023,8 +1023,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:'  => 'opaque'),
                               symbol->new('@values' => 'list')                                                                
                           ),
@@ -1058,8 +1058,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params  => closure::params->new(symbol->new('$self:'  => 'opaque')),
+            method::signature->new(
+                params  => method::params->new(symbol->new('$self:'  => 'opaque')),
                 returns => 'block'
             ),  
             sub {
@@ -1084,8 +1084,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params  => closure::params->new(symbol->new('$self:'  => 'opaque')),
+            method::signature->new(
+                params  => method::params->new(symbol->new('$self:'  => 'opaque')),
                 returns => 'block'
             ),  
             sub {
@@ -1106,8 +1106,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:' => 'opaque'), 
                               symbol->new('$class' => 'opaque'),                
                           ),
@@ -1162,8 +1162,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:'     => 'opaque'), 
                               symbol->new('$label'     => 'symbol'), 
                               symbol->new('$attribute' => 'attribute'),                                 
@@ -1193,8 +1193,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:' => 'opaque'),  
                               symbol->new('$label' => 'symbol'),                                
                           ),
@@ -1232,8 +1232,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:' => 'opaque'),  
                               symbol->new('$label' => 'symbol'),                                
                           ),
@@ -1259,8 +1259,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+            method::signature->new(
+                params => method::params->new(symbol->new('$self:' => 'opaque')),
                 returns => 'list'
             ),
             sub {
@@ -1281,8 +1281,8 @@ $::Class->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+            method::signature->new(
+                params => method::params->new(symbol->new('$self:' => 'opaque')),
                 returns => 'list'
             ),
             sub {
@@ -1304,8 +1304,8 @@ $::Object->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:' => 'opaque'), 
                               symbol->new('%params' => 'hash')
                           ),
@@ -1337,8 +1337,8 @@ $::Object->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:' => 'opaque'), 
                               symbol->new('%params' => 'hash')
                           ),
@@ -1370,8 +1370,8 @@ $::Object->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+            method::signature->new(
+                params => method::params->new(symbol->new('$self:' => 'opaque')),
                 returns => 'num'
             ),
             sub {
@@ -1388,8 +1388,8 @@ $::Object->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+            method::signature->new(
+                params => method::params->new(symbol->new('$self:' => 'opaque')),
                 returns => 'opaque'
             ),
             sub {
@@ -1406,8 +1406,8 @@ $::Object->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:' => 'opaque'),                
                               symbol->new('$label' => 'symbol'),                                
                           ),
@@ -1431,8 +1431,8 @@ $::Object->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+            method::signature->new(
+                params => method::params->new(symbol->new('$self:' => 'opaque')),
                 returns => 'nil'
             ),
             sub {
@@ -1471,8 +1471,8 @@ $::Package->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:' => 'opaque'),
                               symbol->new('?$name' => 'str'),
                           ),
@@ -1498,8 +1498,8 @@ $::Package->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:' => 'opaque'),                
                               symbol->new('$label' => 'symbol'),                                
                           ),
@@ -1529,8 +1529,8 @@ $::Package->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:' => 'opaque'),                
                               symbol->new('$label' => 'symbol'), 
                               symbol->new('$value' => 'type'),                               
@@ -1566,8 +1566,8 @@ $::Module->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:' => 'opaque'),
                               symbol->new('?$version' => 'str'),
                           ),
@@ -1593,8 +1593,8 @@ $::Module->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(
+            method::signature->new(
+                params => method::params->new(
                               symbol->new('$self:' => 'opaque'),
                               symbol->new('?$authority' => 'str'),
                           ),
@@ -1620,8 +1620,8 @@ $::Module->send('add_method' => (
     # method body
         method->new(
             $::ENV,
-            closure::signature->new(
-                params => closure::params->new(symbol->new('$self:' => 'opaque')),
+            method::signature->new(
+                params => method::params->new(symbol->new('$self:' => 'opaque')),
                 returns => 'str'
             ),
             sub {

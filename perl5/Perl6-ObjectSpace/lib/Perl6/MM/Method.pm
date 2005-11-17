@@ -40,6 +40,20 @@ sub _bind_params {
     $self->{env}->set('$?PACKAGE' => $inv->class);        
 }
 
+package method::signature;
+
+use strict;
+use warnings;
+
+use base 'closure::signature';
+
+package method::params;
+
+use strict;
+use warnings;
+
+use base 'closure::params';
+
 1;
 
 __END__

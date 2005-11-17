@@ -6,9 +6,9 @@ use warnings;
 
 use Perl6::Core::Closure;
 
-our $TOP_LEVEL_ENV = closure::env->new();
+$::ENV = closure::env->new();
 
-sub get_top_level_env { $TOP_LEVEL_ENV } 
+sub get_top_level_env { $::ENV } 
 
 1;
 

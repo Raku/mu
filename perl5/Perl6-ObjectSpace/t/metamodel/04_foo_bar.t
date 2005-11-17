@@ -34,7 +34,7 @@ is($Foo->send('identifier')->equal_to(str->new('Foo-0.0.1')), $bit::TRUE, '... F
 
 my $foo = method->new(
     Perl6::Runtime::get_top_level_env(),
-    closure::params->new(symbol->new('$self:' => 'opaque')),
+    method::params->new(symbol->new('$self:' => 'opaque')),
     sub { str->new('Foo::foo') }    
 );
 

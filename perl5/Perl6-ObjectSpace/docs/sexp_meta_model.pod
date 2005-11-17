@@ -12,9 +12,8 @@
        ($method))
        
   (closure (* WALKCLASS) ((block &dispatcher)) returns opaque
-      (&dispatcher do)     
-     
-
+      (&dispatcher do))     
+         
 =head1 Bootstrapping ::Class
   
   (= $NULL_OBJECT (opaque NULL_OBJECT))
@@ -48,7 +47,7 @@
   (::Class send (add_attribute (symbol new %:methods)         (attribute new %:methods         hash)))  
                                                                                               
 =head1 ::Class API
-                                                                                              
+
 =head2 Creation                                                                        
 
   (method (::Class new) ((opaque $class:) (hash ?%params)) returns opaque
@@ -192,5 +191,29 @@
   (method (::Object class) ((opaque $self:)) returns opaque 
       ($self: class))
   
-      
+
+=head1 MACROS
+
+(macro (closure) (name args _ return_type body) 
+    ($::ENV create 
+        (name)
+        (closure new
+            ($::ENV
+            (closure::signature new 
+                ((closure::params new (#(map ( 'symbol 'new (second $_, first $_) ) args)#))
+                 (returns return_type)))
+            (body)))))  
+
+($::ENV create 
+    ((* WALKCLASS)
+     (closure new 
+         ($::ENV
+         (closure::signature new 
+             ((closure::params new (symbol new (&dispatcher block)))
+              (returns opaque)))
+         (&dispatcher do)))))                   
+
+(closure (* WALKCLASS) ((block &dispatcher)) returns opaque
+  (&dispatcher do)) 
+
 =cut

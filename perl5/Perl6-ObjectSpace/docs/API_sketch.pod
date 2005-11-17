@@ -1,36 +1,46 @@
 
-Perl6::MetaModel::Instance
+my $Bit = module::signature->new(
+    symbol->new('new') => method::signature->new(
+        params => method::params->new(
+            symbol->new('$class:' => 'Class')
+            symbol->new('?$x'     => '<native>')
+        ),
+        returns => 'Bit'
+    ),
+    symbol->new('to_bit') => method::signature->new(
+        params => method::params->new(symbol->new('$self:' => 'Bit')),
+        returns => 'Bit'
+    ),
+    symbol->new('to_str') => method::signature->new(
+        params => method::params->new(symbol->new('$self:' => 'Bit')),
+        returns => 'Str'
+    ),
+    symbol->new('to_num') => method::signature->new(
+        params => method::params->new(symbol->new('$self:' => 'Bit')),
+        returns => 'Num'
+    ),
+    symbol->new('not') => method::signature->new(
+        params => method::params->new(symbol->new('$self:' => 'Bit')),
+        returns => 'Bit'
+    ),      
+    symbol->new('and') => method::signature->new(
+        params => method::params->new(
+            symbol->new('$self:' => 'Bit'),
+            symbol->new('$block' => 'Block')
+        ),
+        returns => 'Bit'
+    ),                 
+    symbol->new('or') => method::signature->new(
+        params => method::params->new(
+            symbol->new('$self:' => 'Bit'),
+            symbol->new('$block' => 'Block')
+        ),
+        returns => 'Bit'
+    ),                             
+);
 
-instance::new
-    args
-        reference -> instance
-        hash (sym => <type>)
-    returns
-        instance
+*Bit = module::functor->new('Perl6::Core::Bit' => $BIT);
 
-instance::id
-    returns
-        num
-        
-instance::class
-    returns
-        instance
-        
-instance::change_class
-    args
-        instance
-    returns 
-        nil
-        
-instance::get_attr
-    args
-        sym
-    returns 
-        <type>
-        
-instance::set_attr
-    args
-        sym
-        <type>        
-    returns 
-        nil        
+Bit->new(1);
+
+
