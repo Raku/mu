@@ -3,7 +3,6 @@
 module Pugs.Embed.Pugs where
 import System.Cmd
 import System.Directory
-import System.Process
 import System.IO
 
 evalPugs :: String -> IO ()
