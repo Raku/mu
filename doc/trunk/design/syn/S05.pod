@@ -2137,7 +2137,7 @@ name that exist in the scope in which the rule declared.
 
 When an entire rule is successfully matched with repetitions
 (specified via the C<:x> or C<:g> flag) or overlaps (specified via the
-<:ov> or C<:ex> flag), it will usually produce a series
+C<:ov> or C<:ex> flag), it will usually produce a series
 of distinct matches.
 
 =item *
