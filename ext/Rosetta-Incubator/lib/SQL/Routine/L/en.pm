@@ -86,43 +86,9 @@ Darren R. Duncan (C<perl@DarrenDuncan.net>)
 
 This file is part of the SQL::Routine database portability library.
 
-SQL::Routine is Copyright (c) 2002-2005, Darren R. Duncan.  All rights
-reserved. Address comments, suggestions, and bug reports to
-C<perl@DarrenDuncan.net>, or visit L<http://www.DarrenDuncan.net/> for more
-information.
+SQL::Routine is Copyright (c) 2002-2005, Darren R. Duncan.
 
-SQL::Routine is free software; you can redistribute it and/or modify it
-under the terms of the GNU General Public License (GPL) as published by the
-Free Software Foundation (L<http://www.fsf.org/>); either version 2 of the
-License, or (at your option) any later version.  You should have received a
-copy of the GPL as part of the SQL::Routine distribution, in the file named
-"GPL"; if not, write to the Free Software Foundation, Inc., 51 Franklin St,
-Fifth Floor, Boston, MA 02110-1301, USA.
-
-Linking SQL::Routine statically or dynamically with other files is making
-a combined work based on SQL::Routine.  Thus, the terms and conditions of
-the GPL cover the whole combination.  As a special exception, the copyright
-holders of SQL::Routine give you permission to link SQL::Routine with
-independent files, regardless of the license terms of these independent
-files, and to copy and distribute the resulting combined work under terms
-of your choice, provided that every copy of the combined work is
-accompanied by a complete copy of the source code of SQL::Routine (the
-version of SQL::Routine used to produce the combined work), being
-distributed under the terms of the GPL plus this exception.  An independent
-file is a file which is not derived from or based on SQL::Routine, and
-which is fully useable when not linked to SQL::Routine in any form.
-
-Any versions of SQL::Routine that you modify and distribute must carry
-prominent notices stating that you changed the files and the date of any
-changes, in addition to preserving this original copyright notice and other
-credits. SQL::Routine is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-While it is by no means required, the copyright holders of SQL::Routine
-would appreciate being informed any time you create a modified version of
-SQL::Routine that you are willing to distribute, because that is a
-practical way of suggesting improvements to the standard version.
+See the LICENCE AND COPYRIGHT of L<SQL::Routine> for details.
 
 =head1 ACKNOWLEDGEMENTS
 
