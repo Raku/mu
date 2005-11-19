@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 12 Nov 2005
+  Last Modified: 18 Nov 2005
   Number: 6
-  Version: 10
+  Version: 11
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -633,32 +633,6 @@ parameters are bound normally up to the List parameter, and then
 C<\$args> takes a snapshot of the remaining input without further
 attempts at binding.
 
-=head2 Multidimensional argument list binding
-
-Some functions take multiple Lists that they wish not to be flattened into
-one list.  For instance, zip() wants to iterate several lists in parallel,
-while array and hash subscripts want to process multidimensional slices.
-The set of underlying argument list (List) objects may be bound to a single
-array parameter marked with a C<\>:
-
-    sub foo (\@slices) { ... }
-
-It is allowed to specify a return type:
-
-    sub foo (\@slices --> Num) { ... }
-
-Apart from that, no other parameters are allowed in the signature
-after the List.  Parameters before the List either do not show up in
-the List or are marked as already bound somehow.  In other words,
-parameters are bound normally up to the List parameter, and then
-C<\@args> takes a snapshot of the remaining input without further
-attempts at binding.  (The only difference from C<\$args> is that
-C<\@args> pays attention to semicolons and pipes, while C<\$args>
-doesn't commit to any further processing.)  If there is only one
-argument list remaining, C<@args> will contain only one element,
-and that one element is exactly what would have been bound to C<$args>
-had you used that instead.
-
 =head2 Flattening argument lists
 
 The unary prefix operator C<*> dereferences its operand (which allows
@@ -687,13 +661,27 @@ operator:
     foo(**@onetothree);          # array flattened before &foo called
 
 
+=head2 Multidimensional argument list binding
+
+Some functions take multiple Lists that they wish not to be flattened into
+one list.  For instance, C<zip()> wants to iterate several lists in parallel,
+while array and hash subscripts want to process multidimensional slices.
+The set of underlying argument list (List) objects may be bound to a single
+array parameter declared with a C<;> twigil:
+
+    sub foo (*@;slices) { ... }
+
+It is allowed to specify a return type:
+
+    sub foo (*@;slices --> Num) { ... }
+
 =head2 Pipe operators
 
 The variadic array of a subroutine call can be passed in separately
 from the normal argument list, by using either of the "pipe" operators:
 C<< <== >> or C<< ==> >>.
 
-Each operator expects to find a call to a variadic subroutine on its
+Each operator expects to find a call to a variadic receiver on its
 "sharp" end, and a list of values on its "blunt" end:
 
     grep { $_ % 2 } <== @data;
@@ -701,8 +689,9 @@ Each operator expects to find a call to a variadic subroutine on its
     @data ==> grep { $_ % 2 };
 
 It binds the (potentially lazy) list from the blunt end to the slurpy
-parameter(s) of the subroutine on the sharp end. So both of the calls
-above are equivalent to:
+parameter(s) of the receiver on the sharp end.  In the case of a receiver
+that is a variadic function, the pipe is received as part of its slurpy list.
+So both of the calls above are equivalent to:
 
     grep { $_ % 2 } @data;
 
@@ -724,65 +713,178 @@ chain of operations, to make it read left-to-right:
 Note that the parens are necessary there due to precedence.
 
 If the operand on the sharp end of a pipe is not a call to a variadic
-operation, it must be a variable (or variable declaration), in which
-case the list value is bound to the variable. This special case allows
-for "pure" processing chains:
+operation, it must be something else that can be interpreted as a
+list receiver.
 
-    @oddsquares <== map { $_**2 } <== sort <== grep { $_ % 2 } <== @nums;
+You may use a variable (or variable declaration) as a receiver, in
+which case the list value is bound as the "todo" of the variable.
+Do not think of it as an assignment, nor as an ordinary binding.
+Think of it as iterator creation.  In the case of a scalar variable,
+that variable contains the newly created iterator itself.  In the case
+of an array, the new iterator is installed as the method for extending
+the array.  Unlike with assignment, no clobbering of the array is implied.
+It's therefore more like a push than an assignment.
 
-    @nums ==> grep { $_ % 2 } ==> sort ==> map { $_**2 } ==> @oddsquares;
+In general you can simply think of a receiver array as representing
+the results of the pipeline, so you can equivalently write any of:
+
+    my @oddsquares <== map { $_**2 } <== sort <== grep { $_ % 2 } <== @nums;
+
+    my @oddsquares
+    	<== map { $_**2 }
+	<== sort
+	<== grep { $_ % 2 }
+	<== @nums;
+
+    @nums ==> grep { $_ % 2 } ==> sort ==> map { $_**2 } ==> my @oddsquares;
 
     @nums
     ==> grep { $_ % 2 }
     ==> sort
     ==> map { $_**2 }
-    ==> @oddsquares;
+    ==> my @oddsquares;
 
-Since the pipe is bound to the final variable, the variable is just as
-lazy as the pipe.
+Since the pipe iterator is bound into the final variable, the variable
+can be just as lazy as the pipe that is producing the values.
 
-The "missing" list may be indicated by the C<< (*) >> "pipe here" token,
-otherwise known as the "unrequited star".  The parens are optional when
-followed by a comma, semicolon or right bracket, or by any operator looser
-than comma.  So the above is equivalent to:
+Because pipes are bound to arrays with "push" semantics, you can have
+a receiver for multiple pipes:
 
-    @nums
-    ==> grep { $_ % 2 } (*)
-    ==> sort (*)
-    ==> map { $_**2 } (*)
-    ==> @oddsquares;
+    my @foo;
+    0..2       ==> @foo;
+    'a'..'c'   ==> @foo;
+    say @foo;	# 0,1,2,'a','b','c'
 
-This is more useful when you wish to pipe into an expression that is
-not an ordinary list operator:
+Note how the pipes are concatenated in C<@foo> so that C<@foo>
+is a list of 6 elements.  This is the default behavior.  However,
+sometimes you want to capture the outputs as a list of two iterators,
+namely the two iterators that represent the two input pipes.  You can
+get at those two iterators by using the name C<@;foo> instead, where
+the "pipe" twigil marks a multidimensional array, that is, an
+array of slices.
 
-    picklist() ==>
-	my @foo = @bar[*];
+    0...       ==> @;foo;
+    'a'...     ==> @;foo;
+    pidigits() ==> @;foo;
 
-Various contexts may or may not be expecting multi-dimensional
-slices or pipes.  It is an error to feed multiple slices or pipes to
-a destination that is not expecting it.  It must be fed to a context
-that is expecting semicolons to separate lists, such as a subscript,
-or a zip-like function that specifies the order to process multiple lists:
+    for zip(@;foo) { say }
 
-    @foo ==> mumble zip(*) <== @bar;
-    @foo ==> mumble turn(*) <== @bar;
-    @foo ==> mumble flat(*) <== @bar;
+	[0,'a',3]
+	[1,'b',1]
+	[2,'c',4]
+	[3,'d',1]
+	[4,'e',5]
+	[5,'f',9]
+	...
 
-    0... ==>
-    for para(@foo;*) -> $x, $i { ...}
+Here C<@;foo> is an array of three iterators, so
+
+    zip(@;foo)
+
+is equivalent to
+
+    zip(@;foo[0]; @;foo[1]; @;foo[2])
+
+A semicolon inside brackets is equivalent to stacked pipes.  The code above
+could be rewritten as:
+
+    (0...; 'a'...; pidigits()) ==> my @;foo;
+    for @;foo.zip { say }
+
+which is in turn equivalent to
+
+    for zip(0...; 'a'...; pidigits()) { say }
+
+A named receiver array is useful when you wish to pipe into an
+expression that is not an ordinary list operator, and you wish to be
+clear where the pipe's destination is supposed to be:
+
+    picklist() ==> my @baz;
+    my @foo = @bar[@baz];
+
+Various contexts may or may not be expecting multi-dimensional slices
+or pipes.  By default, ordinary arrays are flattened, that is, they
+have "cat" semantics.  If you say
+
+    (0..2; a..c) ==> my @tmp;
+    for @tmp { say }
+
+then you get 0,1,2,'a','b','c'.  If you have a multidim array, you
+can ask for cat semantics explicitly with cat():
+
+    (0..2; a..c) ==> my @;tmp;
+    for @;tmp.cat { say }
+
+As we saw earlier, "zip" produces little arrays by taking one element
+from each list in turn, so
+
+    (0..2; a..c) ==> my @;tmp;
+    for @;tmp.zip { say }
+
+produces [0,'a'],[1,'b'],[2,'c'].  If you don't want the subarrays, then
+use C<each()> instead:
+
+    (0..2; a..c) ==> my @;tmp;
+    for @;tmp.each { say }
+
+and then you just get 0,'a',1,'b',2,'c'.  This is good for
+
+    for @;tmp.each -> $i, $a { say "$i: $a" }
+
+In list context the C<@;foo> notation is really a shorthand for C<[;](@;foo)>.
+
+Every lexical scope gets its own implicitly declared C<@;> variable,
+which is the default receiver.  So instead of using C<@;foo> above
+you can just say
+
+    0...       ==> ;
+    'a'...     ==> ;
+    pidigits() ==> ;
+
+    for zip(@;) { say }
+
+Note that with the current definition, the order of pipes is preserved
+left to right in general regardless of the position of the receiver.
+
+So
+
+    ('a'...; 0...) ==> ;
+     for zip(@; <== @foo) -> [$a, $i, $x] { ...}
 
 is the same as
 
-    for para(@foo; 0...) -> $x, $i { ...}
+    'a'... ==> ;
+     0...  ==> ;
+     for zip(@; <== @foo) -> [$a, $i, $x] { ...}
 
-and
+which is the same as
 
-    \('a'...; 0...) ==>
-     for zip(*) <== @foo -> [$x, $a, $i] { ...}
+    for zip('a'...; 0...; @foo) -> [$a, $i, $x] { ...}
+
+And
+
+    @foo ==> ;
+    0... ==> ;
+    for each(@;) -> $x, $i { ...}
 
 is the same as
 
-    for zip(@foo; 'a'...; 0...) -> [$x, $a, $i] { ...}
+    0... ==> ;
+    for each(@foo; @;) -> $x, $i { ...}
+
+which is the same as
+
+    for each(@foo; 0...) -> $x, $i { ...}
+
+Note that the each method is also sensitive to multislicing, so you
+could also just write that as:
+
+    (@foo; 0...).each: -> $x, $i { ...}
+
+Also note that these come out to identical for ordinary arrays:
+
+    @foo.each
+    @foo.cat
 
 =head2 Closure parameters
 
