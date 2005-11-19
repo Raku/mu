@@ -5,18 +5,18 @@ use Tree::Visitor;
 
 class Tree::Visitor::FindByPath-0.0.1 is Tree::Visitor;
 
-has @:search_path;
-has $:success;
+has @!search_path;
+has $!success;
 
 sub set_search_path ($self: @path) {
     (@path) || die "Insufficient Arguments : You must specify a path";
-    @:search_path = @path;
+    @!search_path = @path;
 }
 
 sub visit ($self: $tree) {
 
     # reset our success flag
-    $:success = 0;
+    $!success = 0;
 
     # get our filter function
     my $func;
@@ -31,7 +31,7 @@ sub visit ($self: $tree) {
     my @results;
 
     # get our path
-    my @path = @:search_path;    
+    my @path = @!search_path;    
 
     # get our variables ready
     my $current_path;
@@ -55,7 +55,7 @@ sub visit ($self: $tree) {
             @results.push($current_tree);
             $self.set_results(@results);
             # and set the sucess flag
-            $:success = 1;
+            $!success = 1;
             return;
         }
         # otherwise we need to keep looking ...
@@ -89,7 +89,7 @@ sub visit ($self: $tree) {
 sub get_result ($self:) {
     # if we did not succeed, then 
     # we return undef, ...
-    return undef unless $:success;
+    return undef unless $!success;
     # otherwise we return the 
     # last in the results
     return ($self.get_results())[-1];

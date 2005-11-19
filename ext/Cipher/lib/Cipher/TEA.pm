@@ -6,10 +6,10 @@ my  int $delta is constant = 0x9e3779b9;
 
 submethod BUILD($key) {
     if $key.isa(Array) {
-        @.key = .:fusebytes($key);
+        @.key = self!fusebytes($key);
     }
     else {
-        @.key = .:fusebytes(map {ord} $key);
+        @.key = self!fusebytes(map {ord} $key);
     }
 }
 
@@ -19,7 +19,7 @@ method _zeroize() {
 
 method block_size() returns int { 8 }
 method cipher_block(Array $block) returns Array {
-    my int($v0, $v1) = .:fusebytes($block);
+    my int($v0, $v1) = self!fusebytes($block);
     
     if .mode eq 'enciphering' {
         my int $sum = 0;
@@ -38,10 +38,10 @@ method cipher_block(Array $block) returns Array {
         }
     }
     
-    return .:splitbytes($v0, $v1);
+    return self!splitbytes($v0, $v1);
 }
 
-method :fusebytes(@bytes) {
+my method fusebytes(@bytes) {
     gather {
         for @bytes -> $b1, $b2, $b3, $b4 {
             my $quad = $b1 +<< 24;
@@ -53,7 +53,7 @@ method :fusebytes(@bytes) {
     }
 }
 
-method :splitbytes(@bytes) {
+my method splitbytes(@bytes) {
     gather {
         for @bytes {
             take $_ +& 0xff000000 +>> 24;

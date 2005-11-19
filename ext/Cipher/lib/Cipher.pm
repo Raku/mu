@@ -273,10 +273,10 @@ class Cipher-0.02;
 
 #enum Cipher::Mode <enciphering deciphering>;
 has $.mode;
-has bool $:seen_head;
+has bool $!seen_head;
 
 submethod BUILD($.mode = "enciphering") {
-    $:seen_head = 0;
+    $!seen_head = 0;
     given lc $.mode {
         when any <enciphering encipher encrypting encrypt> {
             $.mode = "enciphering";
@@ -302,20 +302,20 @@ method finish(Cipher $self:) returns Array {
     return @tail;
 }
 method finishstr(Cipher $self:) returns Str {
-    return $self.:stringify($self.finish());
+    return $self!stringify($self.finish());
 }
 
 multi method cipher(Cipher $self: Array $data) returns Array {
     return gather {
-        unless $:seen_head {
+        unless $!seen_head {
             take *$self._head();
-            $:seen_head = 1;
+            $!seen_head = 1;
         }
         take *$self._cipher($data);
     };
 }
 multi method cipher(Cipher $self: Str $data) {
-    return $self.:stringify($self.cipher($self.:byteify($data)));
+    return $self!stringify($self.cipher($self!byteify($data)));
 }
 
 method encipher(Class $class: Str $plaintext, *%options) {

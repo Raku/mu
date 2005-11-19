@@ -117,19 +117,19 @@ Names and symbol tables
    Declarator    %::    %MY::
     my  $x       no     YES
     my  $.x
-    my  $:x
+    my  $!x
     our $x       YES
     our $.x
-    our $:x
+    our $!x
     temp $x      no     no
     temp $.x     no     no
-    temp $:x     no     no
+    temp $!x     no     no
     let  $x      no     no
     let  $.x     no     no
-    let  $:x     no     no
+    let  $!x     no     no
     state $x     no     yes
     state $.x
-    state $:x
+    state $!x
     package
     sub
     method

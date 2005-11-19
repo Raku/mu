@@ -7,7 +7,7 @@ Secondary Sigils (also known as "twigils"):
     $^   # implicit block argument (see S06 placeholder variables)
     $<   # current $/ scope (see S02)
     $.   # public attribute (see S12 attributes)
-    $:   # private attribute (see S12 attributes)
+    $!   # private attribute (see S12 attributes)
 
 
 Named variables (see S02):

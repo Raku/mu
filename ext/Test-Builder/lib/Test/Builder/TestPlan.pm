@@ -1,26 +1,26 @@
 class Test::Builder::TestPlan-0.2.1
 {
-    has Int $:expect;
+    has Int $!expect;
 
-    submethod BUILD ( $:expect = 0 )
+    submethod BUILD ( $!expect = 0 )
     {
-        fail "Invalid or missing plan" unless defined $:expect;
+        fail "Invalid or missing plan" unless defined $!expect;
     }
 
     method header returns Str
     {
-        return "1..$:expect";
+        return "1..$!expect";
     }
 
     method footer returns Str (Int $run)
     {
-        return '' if $run == $:expect;
+        return '' if $run == $!expect;
         return "Expected $.expect but ran $run";
     }
 }
 
 # XXX: extract the useful similarities into a role
-# cannot inherit from TestPlan because of the lack of $:expect
+# cannot inherit from TestPlan because of the lack of $!expect
 class Test::Builder::NullPlan
 {
     method header returns Str

@@ -25,8 +25,8 @@ class HTTP::Request::CGI-0.0.1[?::URI_CLASS = URI] {
         keywords
     » = { HTTP::Query.new() };
     
-    has @:keywords;
-    has %:params;
+    has @!keywords;
+    has %!params;
     
     submethod BUILD ($self: ) {
         $.method = %*ENV<REQUEST_METHOD>;
@@ -43,13 +43,13 @@ class HTTP::Request::CGI-0.0.1[?::URI_CLASS = URI] {
         for %pairs.kv -> $name, $key {
             my $val = %*ENV{$key};
             
-            $:headers.header($name => $val) if $val.defined;
+            $!headers.header($name => $val) if $val.defined;
         }
         
         $.remote_host = %*ENV<REMOTE_HOST> if %*ENV<REMOTE_HOST>;
         $.remote_addr = %*ENV<REMOTE_ADDR> if %*ENV<REMOTE_ADDR>;
         
-        $self.:load_params();
+        $self!load_params();
     }
     
     method :load_params ($self: ) {
@@ -66,10 +66,10 @@ class HTTP::Request::CGI-0.0.1[?::URI_CLASS = URI] {
             
             if (!$type || $type eq 'application/x-www-form-urlencoded') {
                 my $content;
-                $.query.:parse_params($content);
+                $.query!parse_params($content);
             }
         } elsif ($.PARSE_ARGV && (@*ARGS.elems > 0)) {
-            $.query.:parse_params([~] @*ARGS);
+            $.query!parse_params([~] @*ARGS);
         } else {
             # XXX
         }

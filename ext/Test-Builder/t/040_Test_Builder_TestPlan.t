@@ -14,7 +14,7 @@ isa_ok( $test_plan, Test::Builder::TestPlan,
     'new() should return a Test::Builder::TestPlan instance' );
 
 dies_ok { $test_plan.expect() },
-    '$:expect is a private property, so expect() should die';
+    '$!expect is a private property, so expect() should die';
 
 dies_ok { $test_plan.expect(100) }, '... as should expect( value )';
 

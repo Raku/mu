@@ -1969,21 +1969,23 @@ ruleVarName :: RuleParser String
 ruleVarName = rule "variable name" ruleVarNameString
 
 ruleVarNameString :: RuleParser String
-ruleVarNameString =   try (string "$!")  -- error variable
-                  <|> try (string "$/")  -- match object
+ruleVarNameString =   try (string "$/")  -- match object
                   <|> try ruleMatchPos
                   <|> try ruleMatchNamed
-                  <|> do
-    sigil   <- oneOf "$@%&"
-    if sigil == '&' then ruleSubName else do
-    --  ^ placeholder, * global, ? magical, . member, : private member
-    twigil  <- ruleTwigil
-    -- doesn't handle names /beginning/ with "::"
-    name    <- ruleQualifiedIdentifier
-    return $ (sigil:twigil) ++ name
+                  <|> try regularVarName
+                  <|> string "$!"  -- error variable
+    where
+    regularVarName = do
+        sigil   <- oneOf "$@%&"
+        if sigil == '&' then ruleSubName else do
+        --  ^ placeholder, * global, ? magical, . member, ! private member
+        twigil  <- ruleTwigil
+        -- doesn't handle names /beginning/ with "::"
+        name    <- ruleQualifiedIdentifier
+        return $ (sigil:twigil) ++ name
 
 ruleTwigil :: RuleParser String
-ruleTwigil = option "" . choice . map string $ words " ^ * ? . : + "
+ruleTwigil = option "" . choice . map string $ words " ^ * ? . ! + "
 
 ruleMatchPos :: RuleParser String
 ruleMatchPos = do
@@ -2037,7 +2039,7 @@ makeVar ('$':'<':name) =
     Syn "{}" [Var "$/", doSplitStr (init name)]
 makeVar (sigil:'.':name) =
     Cxt (cxtOfSigil sigil) (Syn "{}" [Var "$?SELF", Val (VStr name)])
-makeVar (sigil:':':name) =
+makeVar (sigil:'!':name) | not (null name) =
     Cxt (cxtOfSigil sigil) (Syn "{}" [Var "$?SELF", Val (VStr name)])
 makeVar var = Var var
 

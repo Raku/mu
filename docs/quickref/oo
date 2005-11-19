@@ -12,7 +12,7 @@ Basic class definition
 	has Type $.public_instance_var;
 	# Typed instance variable.
 
-	has $:private_instance_var;
+	has $!private_instance_var;
 	# Private instance variable, no accessor is automatically generated.
     }
 

@@ -6,16 +6,16 @@ use URI::Escape <uri_unescape>;
 class HTTP::Query-0.0.1 {
     does Hash;
     
-    has @:keywords;
-    has @:params;
-    has %:params;
+    has @!keywords;
+    has @!params;
+    has %!params;
     
     method params () {
-        return @:params;
+        return @!params;
     }
     
     multi method param (Str $name) {
-        my @val = %:params{$name};
+        my @val = %!params{$name};
         
         return unless @val > 0;
         
@@ -28,7 +28,7 @@ class HTTP::Query-0.0.1 {
                 return $query.param($name);
             },
             STORE => -> $name, *@vals {
-                %:params{$name} = @vals;
+                %!params{$name} = @vals;
                 return $query.param($name);
             };
     }
@@ -46,14 +46,14 @@ class HTTP::Query-0.0.1 {
             $key = uri_unescape($key);
             $value = uri_unescape($value);
             
-            if (%:params.exists($key)) {
-                @{%:params{$key}}.push($value);
+            if (%!params.exists($key)) {
+                @{%!params{$key}}.push($value);
             } else {
-                %:params{$key} = [ $value ];
+                %!params{$key} = [ $value ];
             }
             
-            if ($key != any(@:params)) {
-                @:params.push($key);
+            if ($key != any(@!params)) {
+                @!params.push($key);
             }
         }
     
@@ -64,24 +64,24 @@ class HTTP::Query-0.0.1 {
         $data = uri_unescape($data);
         $data .= trans('+' => ' ');
         
-        @:keywords = $data.split(/\s+/);
+        @!keywords = $data.split(/\s+/);
     }
     
     method delete (Str $name) {
-        return if !defined %:params{$name};
-        %:params.delete($name);
+        return if !defined %!params{$name};
+        %!params.delete($name);
     }
     
     method clear () {
-        %:params.delete($_) for %:params.keys;
+        %!params.delete($_) for %!params.keys;
     }
     
     method keywords () {
-        return @:keywords;
+        return @!keywords;
     }
     
-    method FETCH ($name)        { return %:params{$name};          }
-    method STORE ($name, $val)  { return (%:params{$name} = $val); }
+    method FETCH ($name)        { return %!params{$name};          }
+    method STORE ($name, $val)  { return (%!params{$name} = $val); }
 }
 
 =pod

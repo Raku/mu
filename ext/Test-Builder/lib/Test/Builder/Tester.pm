@@ -7,36 +7,36 @@ use Test::Builder::Output;
 
 class Test::Builder::Tester::Output
 {
-    has @:output;
-    has @:diagnostics;
+    has @!output;
+    has @!diagnostics;
 
     method write ( Str $message is copy )
     {
-        push @:output, $message;
+        push @!output, $message;
     }
 
     method diag ( Str $message is copy )
     {
-        push @:diagnostics, $message;
+        push @!diagnostics, $message;
     }
 
     method output returns Str
     {
         # XXX - hack or pugsbug?
-        return '' unless +@:output;
+        return '' unless +@!output;
 
-        my $output = @:output.join( "\n" );
-        @:output   = ();
+        my $output = @!output.join( "\n" );
+        @!output   = ();
         return $output;
     }
 
     method diagnostics returns Str
     {
         # XXX - hack or pugsbug?
-        return '' unless +@:diagnostics;
+        return '' unless +@!diagnostics;
 
-        my $diagnostics = @:diagnostics.join( "\n" );
-        @:diagnostics   = ();
+        my $diagnostics = @!diagnostics.join( "\n" );
+        @!diagnostics   = ();
         return $diagnostics;
     }
 }

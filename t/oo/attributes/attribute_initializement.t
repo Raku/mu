@@ -16,8 +16,8 @@ diag('Test for class attribute initializement');
 
 	eval_ok q|
 		class T2{
-		has $:t = 2;
-		method get { $:t };
+		has $!t = 2;
+		method get { $!t };
 			}; 1 |,
 		"Try to initialize private attribute",
 		:todo<unspecced>;

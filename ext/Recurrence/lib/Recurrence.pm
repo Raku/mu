@@ -60,7 +60,7 @@ class Recurrence-0.01
     has Code $.complement_next;
     has Code $.complement_previous;
     has Recurrence $.universe;   
-    has Int  $:arbitrary_limit;
+    has Int  $!arbitrary_limit;
 
 submethod BUILD (
     $.closure_next, 
@@ -71,8 +71,8 @@ submethod BUILD (
     ?$.universe, 
 ) 
 {
-    # TODO - get rid of "$:arbitrary_limit"
-    $:arbitrary_limit = 100;
+    # TODO - get rid of "$!arbitrary_limit"
+    $!arbitrary_limit = 100;
     
     if $is_universe {
         # $.universe = $self --> $self doesn't exist yet
@@ -233,7 +233,7 @@ submethod _get_intersection ( $closure1, $closure2, $closure3, $closure4 ) {
     return sub ( $x ) {
         my $n1;
         my $n2 = &{ $closure3 }( $x );
-        for ( 0 .. $:arbitrary_limit )
+        for ( 0 .. $!arbitrary_limit )
         {
             $n1 = &{ $closure1 }( &{ $closure2 }( $n2 ) );
             return $n1 if $n1 == $n2;
@@ -248,7 +248,7 @@ submethod _get_complement_next ($self: ) {
     $self.get_universe;
     return $.complement_next =
         sub ( $x is copy ) {
-            for ( 0 .. $:arbitrary_limit )
+            for ( 0 .. $!arbitrary_limit )
             {
                 $x = &{ $.universe.closure_next }( $x );
                 return $x if $x == Inf || $x == -Inf ||
@@ -263,7 +263,7 @@ submethod _get_complement_previous ($self: ) {
     $self.get_universe;
     return $.complement_previous =
         sub ( $x is copy ) {
-            for ( 0 .. $:arbitrary_limit )
+            for ( 0 .. $!arbitrary_limit )
             {
                 $x = &{ $.universe.closure_previous }( $x );
                 return $x if $x == Inf || $x == -Inf ||

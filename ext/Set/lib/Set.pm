@@ -29,37 +29,37 @@ sub ∅ returns Set {
 =cut
 
 # the Set is represented as a hash of (v => v)
-has Junction $:members;
+has Junction $!members;
 
 method members() returns List {
-    $:members.values;
+    $!members.values;
 }
 
 method insert($self: *@items) returns Int {
     my $pre_size = 0;
-    if ( $:members.defined ) {
+    if ( $!members.defined ) {
         $pre_size = $self.size;
-        $:members = any($:members, @items);
+        $!members = any($!members, @items);
     } else {
-        $:members = any(@items);
+        $!members = any(@items);
     }
     return ($self.size - $pre_size);
 }
 
 method remove($self: *@items) returns Int {
     my $pre_size = 0;
-    if ( $:members.defined ) {
+    if ( $!members.defined ) {
         $pre_size = $self.size;
         my $to_remove = none(@items);
-        $:members = any($:members.values.grep:{ $_ === none($to_remove) });
+        $!members = any($!members.values.grep:{ $_ === none($to_remove) });
     } else {
-        $:members = any();
+        $!members = any();
     }
     return ($pre_size - $self.size);
 }
 
 method includes($self: *@items) returns Bool {
-    my $answer = (all(@items) === any($:members));
+    my $answer = (all(@items) === any($!members));
     return $answer;
 }
 
@@ -68,7 +68,7 @@ method member($self: $item) returns Object {
 }
 
 method size() returns Int {
-    +$:members.values;
+    +$!members.values;
 }
 
 method invert($self: *@items) returns Int {
@@ -85,7 +85,7 @@ method invert($self: *@items) returns Int {
 }
 
 method clear() {
-    $:members = any();
+    $!members = any();
 }
 
 method clone ($self:) returns Set {

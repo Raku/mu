@@ -7,7 +7,7 @@ class HTTP::Request-0.1[?::URI_CLASS = URI] {
     is HTTP::Message;
     
     has $.method    is rw;
-    has $:uri       is rw;
+    has $!uri       is rw;
     
     submethod BUILD (Str $.method, $.uri) { }
     
@@ -34,25 +34,25 @@ class HTTP::Request-0.1[?::URI_CLASS = URI] {
     }
     
     multi method uri (Str $new) is rw {
-        my $old = $:uri;
+        my $old = $!uri;
     
         return Proxy.new(
             FETCH => { $old; },
-            STORE => { $:uri = $HTTP::URI_CLASS.new($^new); $old; }
+            STORE => { $!uri = $HTTP::URI_CLASS.new($^new); $old; }
         );
     }
     
     multi method uri (URI $new) is rw {
-        my $old = $:uri;
+        my $old = $!uri;
     
         return Proxy.new(
             FETCH => { $old; },
-            STORE => { $:uri = $^new; $old; }
+            STORE => { $!uri = $^new; $old; }
         );;
     }
     
     multi method uri () {
-        $:uri;
+        $!uri;
     }
     
     our &url ::= &uri;

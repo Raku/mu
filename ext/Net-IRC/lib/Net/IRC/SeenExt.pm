@@ -1,28 +1,28 @@
 role Net::IRC::SeenExt[: Bool ?$public = 1];
 
-has %:seen;
+has %!seen;
 
 submethod BUILD() {
   ./add_handler("PRIVMSG", -> $event {
     my $sent_to_a_chan = $event<object> ~~ rx:Perl5/^[#+&]/;
     
     # Only record if the message was sent to a channel.
-    %:seen{./normalize($event<from_nick>)} = {
+    %!seen{./normalize($event<from_nick>)} = {
       date => time,
       text => $event<rest>,
     } if $sent_to_a_chan;
 
     if $public and $event<rest> ~~ rx:Perl5/^\?seen\s+([^ ]+)/ {
       my $reply_to = $sent_to_a_chan ?? $event<object> !! $event<from_nick>;
-      my $reply_msg = %:seen{$0}
-        ?? "$0 was last seen {time() - %:seen{./normalize($0)}<date>} seconds ago, saying: %seen{./normalize($0)}<text>"
+      my $reply_msg = %!seen{$0}
+        ?? "$0 was last seen {time() - %!seen{./normalize($0)}<date>} seconds ago, saying: %seen{./normalize($0)}<text>"
         !! "Never seen $0.";
       ./notice(to => $reply_to, text => $reply_msg);
     }
   });
 }
 
-method seen(Str $nick) { %:seen{./normalize($nick)} }
+method seen(Str $nick) { %!seen{./normalize($nick)} }
 
 1;
 

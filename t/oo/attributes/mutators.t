@@ -10,10 +10,10 @@ plan 25;
 
 class LValueMutator {
     has Int $.foo;
-    has Int $:bar;
+    has Int $!bar;
 
     method foo returns Int is rw {
-    return $:bar;
+        return $!bar;
     }
     method get_foo returns Int is rw {
         return $.foo;

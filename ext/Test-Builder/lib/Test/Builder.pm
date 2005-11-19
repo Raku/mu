@@ -4,14 +4,14 @@ use Test::Builder::Test;
 use Test::Builder::Output;
 use Test::Builder::TestPlan;
 
-my  Test::Builder           $:singleton;
+my  Test::Builder           $!singleton;
 has Test::Builder::Output   $.output handles 'diag';
 has Test::Builder::TestPlan $.testplan;
-has                         @:results;
+has                         @!results;
 
 method new ( Test::Builder $Class: $plan?, $output? )
 {
-    return $:singleton //= $Class.SUPER::new(
+    return $!singleton //= $Class.SUPER::new(
         testplan => $plan, output => $output
     );
 }
@@ -30,13 +30,13 @@ submethod BUILD
 
 submethod DESTROY
 {
-    my $footer = $.testplan.footer( +@:results );
+    my $footer = $.testplan.footer( +@!results );
     $.output.write( $footer ) if $footer;
 }
 
 method get_test_number
 {
-    return +@:results + 1;
+    return +@!results + 1;
 }
 
 method plan ( Str $explanation?, Int $tests? )
@@ -123,7 +123,7 @@ method report_test ( Test::Builder::Test $test )
 {
     fail 'No plan set!' unless $.testplan;
 
-    push @:results, $test;
+    push @!results, $test;
     $.output.write( $test.report() );
 }
 

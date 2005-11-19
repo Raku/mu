@@ -12,8 +12,8 @@ has $.depth;
 has $.height;
 has $.width;
 
-has $:parent;
-has @:children;
+has $!parent;
+has @!children;
 
 ## ----------------------------------------------------------------------------
 ## constructors
@@ -29,25 +29,25 @@ submethod BUILD ($node?) {
 ## accessors and mutators
 
 method parent ($self:) returns Tree { 
-    return $:parent;
+    return $!parent;
 }
 
-method :_set_parent ($self: Tree $parent) returns Void {
-    $:parent = $parent;
+my method _set_parent ($self: Tree $parent) returns Void {
+    $!parent = $parent;
     $.depth  = $parent.depth() + 1;
 }
 
 ## ----------------------------------------------------------------------------
 ## informational methods
 
-method is_root returns Bool { $:parent.defined ?? 0 !! 1 }
-method is_leaf returns Bool { +@:children == 0 }
+method is_root returns Bool { $!parent.defined ?? 0 !! 1 }
+method is_leaf returns Bool { +@!children == 0 }
 
-method child_count returns Int { +@:children }
+method child_count returns Int { +@!children }
 
 method size ($self:) returns Int {
     my $size = 1;
-    for @:children -> $child {
+    for @!children -> $child {
         $size += $child.size();    
     }
     return $size;
@@ -57,11 +57,11 @@ method size ($self:) returns Int {
 ## adding children 
 
 method add_child ($self: Tree $child) returns Tree {
-    $child.:_set_parent($self);   
-    $self.:_set_height($child);
-    $self.:_set_width($child);    
+    $child!set_parent($self);   
+    $self!set_height($child);
+    $self!set_width($child);    
     $child.fix_depth() unless $child.is_leaf(); 
-    @:children.push($child);
+    @!children.push($child);
     $self;
 }
 
@@ -75,8 +75,8 @@ method add_children ($self: *@children) returns Tree {
 ## ----------------------------------------------------------------------------
 ## getting children
 
-method get_child ($self: Int $index) returns Tree { @:children[$index] }
-method get_all_children returns Array of Tree { @:children }
+method get_child ($self: Int $index) returns Tree { @!children[$index] }
+method get_all_children returns Array of Tree { @!children }
 
 ## ----------------------------------------------------------------------------
 ## inserting children
@@ -89,21 +89,21 @@ method insert_children ($self: Int $index, *@trees) returns Void {
     (@trees) 
         || die "Insufficient Arguments : no tree(s) to insert";    
     for @trees -> $tree {    
-        $tree.:_set_parent($self);
-        $self.:_set_height($tree);   
-        $self.:_set_width($tree);                         
+        $tree!set_parent($self);
+        $self!set_height($tree);   
+        $self!set_width($tree);                         
         $tree.fix_depth() unless $tree.is_leaf();
     }
     # if index is zero, use this optimization
     if ($index == 0) {
-        @:children.unshift(@trees);
+        @!children.unshift(@trees);
     }
     # otherwise do some heavy lifting here
     else {
-        @:children = (
-            @:children[0 .. ($index - 1)],
+        @!children = (
+            @!children[0 .. ($index - 1)],
             @trees,
-            @:children[$index .. (@:children - 1)],
+            @!children[$index .. (@!children - 1)],
         );
     }
 }
@@ -126,19 +126,19 @@ method remove_child_at ($self: Int $index) returns Tree {
     my $removed_child;
     # if index is zero, use this optimization    
     if ($index == 0) {
-        $removed_child = @:children.shift;
+        $removed_child = @!children.shift;
     }
     # if index is equal to the number of children
     # then use this optimization    
-    elsif ($index == +@:children) {
-        $removed_child = @:children.pop();    
+    elsif ($index == +@!children) {
+        $removed_child = @!children.pop();    
     }
     # otherwise do some heavy lifting here    
     else {
-        $removed_child = @:children[$index];
-        @:children = (
-            @:children[0 .. ($index - 1)],
-            @:children[($index + 1) .. (@:children - 1)],
+        $removed_child = @!children[$index];
+        @!children = (
+            @!children[0 .. ($index - 1)],
+            @!children[($index + 1) .. (@!children - 1)],
         );
     }
     # make sure we fix the height
@@ -147,7 +147,7 @@ method remove_child_at ($self: Int $index) returns Tree {
     # make sure that the removed child
     # is no longer connected to the parent
     # so we change its parent to ROOT
-    $removed_child.:_remove_parent();
+    $removed_child!remove_parent();
     # and now we make sure that the depth 
     # of the removed child is aligned correctly
     $removed_child.fix_depth() unless $removed_child.is_leaf();    
@@ -161,7 +161,7 @@ method remove_child_at ($self: Int $index) returns Tree {
 
 method remove_child ($self: Tree $child_to_remove) returns Tree {
     my $index = 0;
-    for @:children -> $child {
+    for @!children -> $child {
         ($child === $child_to_remove) && return $self.remove_child_at($index);
         $index++;
     }
@@ -222,14 +222,14 @@ method traverse ($self: Code $func, Str $traversal_order?) returns Void {
 }
 
 method pre_order_traverse ($self: Code $func) returns Void {
-    for @:children -> $child is rw {
+    for @!children -> $child is rw {
         $func($child);
         $child.traverse($func);
     }
 }
 
 method post_order_traverse ($self: Code $func) returns Void {
-    for @:children -> $child is rw {
+    for @!children -> $child is rw {
         $child.traverse($func);
         $func($child);
     }
@@ -267,7 +267,7 @@ method fix_depth ($self:) returns Void {
     # make sure the tree's depth 
     # is up to date all the way down
     $self.traverse(-> $t {
-        $t.:_set_depth($t.parent().depth() + 1);
+        $t!set_depth($t.parent().depth() + 1);
     });
 }
 
@@ -280,7 +280,7 @@ method fix_height ($self:) returns Void {
     # and use that to define the height
     my $max_height = 0;
     unless ($self.is_leaf()) {
-        for @:children -> $child is rw {
+        for @!children -> $child is rw {
             my $child_height = $child.height();
             $max_height = $child_height if $max_height < $child_height;
         }
@@ -298,7 +298,7 @@ method fix_height ($self:) returns Void {
 
 method fix_width ($self:) {
     my $fixed_width = 0;
-    for @:children -> $child is rw {
+    for @!children -> $child is rw {
         $fixed_width += $child.width();
     }
     $.width = $fixed_width;
@@ -317,25 +317,25 @@ method get_index ($self:) returns Int {
 ## ----------------------------------------------------------------------------
 ## private methods
 
-method :_set_height ($self: Tree $child) returns Void {
+my method set_height ($self: Tree $child) returns Void {
     my $child_height = $child.height();
     return if $.height >= $child_height + 1;
     $.height = $child_height + 1;
     # and now bubble up to the parent (unless we are the root)
-    $self.parent().:_set_height($self) unless $self.is_root();
+    $self.parent()!set_height($self) unless $self.is_root();
 }
 
-method :_set_width ($self: Tree $child) returns Void {
+my method set_width ($self: Tree $child) returns Void {
     return if $.width > $self.child_count();    
     my $child_width = $child.width();
     $.width += $child_width;
     # and now bubble up to the parent (unless we are the root)
-    $self.parent().:_set_width($self) unless $self.is_root();            
+    $self.parent()!set_width($self) unless $self.is_root();            
 }
 
-method :_set_depth ($self: Int $depth) returns Void { $.depth = $depth }
+my method set_depth ($self: Int $depth) returns Void { $.depth = $depth }
 
-method :_remove_parent returns Void { $:parent = undef }
+my method remove_parent returns Void { $!parent = undef }
 
 =pod
 

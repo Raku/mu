@@ -20,14 +20,14 @@ sub ∅ returns Set is export {
 =cut
 
 # the Set is represented as a hash of (v => v)
-has %:members;
+has %!members;
 
 method members() returns List {
     # XXX - this is nessecary because the hash 
     # does not seem to get initialized properly
     # and calling members before any values are
     # set results in a error
-    %:members ?? %:members.values !! ();
+    %!members ?? %!members.values !! ();
 }
 
 # NOTE:
@@ -45,7 +45,7 @@ method _stringify ($item) returns Str {
 method insert($self: *@items) returns Int {
     my $pre_size = $self.size;
 
-    for @items -> $x { %:members{$self._stringify($x)} = $x }
+    for @items -> $x { %!members{$self._stringify($x)} = $x }
 
     return ($self.size - $pre_size);
 }
@@ -53,21 +53,21 @@ method insert($self: *@items) returns Int {
 method remove($self: *@items) returns Int {
     my Int $pre_size = $self.size;
     for @items -> $x {
-        %:members.delete($self._stringify($x));
+        %!members.delete($self._stringify($x));
     }
     return $pre_size - $self.size;
 }
 
 method includes($self: *@items) returns Bool {
-    ?(%:members.exists(all(@items.map:{ $self._stringify($_) })));
+    ?(%!members.exists(all(@items.map:{ $self._stringify($_) })));
 }
 
 method member($self: $item) returns Object {
-    return %:members{$self._stringify($item)}
+    return %!members{$self._stringify($item)}
 }
 
 method size() returns int {
-    +%:members.keys;
+    +%!members.keys;
 }
 
 method invert($self: *@items) returns int {
@@ -84,7 +84,7 @@ method invert($self: *@items) returns int {
 }
 
 method clear() {
-    undefine %:members;
+    undefine %!members;
 }
 
 method clone ($self:) returns Set::Hash {

@@ -26,10 +26,10 @@ class Locale::KeyedText::Message {
     # (None Yet)
 
     # Attributes of every Locale::KeyedText::Message object:
-    has Str $:msg_key;
+    has Str $!msg_key;
         # Str
         # The machine-readable key that uniquely ident this message.
-    has Any %:msg_vars;
+    has Any %!msg_vars;
         # Hash(Str) of Any
         # Named variables for messages, if any, go here.
 
@@ -43,8 +43,8 @@ submethod BUILD (Str :$msg_key!, Any :%msg_vars? = hash()) {
     die 'invalid arg'
         if !%msg_vars.defined or %msg_vars.exists('');
 
-    $:msg_key  = $msg_key;
-    %:msg_vars = %msg_vars;
+    $!msg_key  = $msg_key;
+    %!msg_vars = %msg_vars;
 
     return;
 }
@@ -52,24 +52,24 @@ submethod BUILD (Str :$msg_key!, Any :%msg_vars? = hash()) {
 ###########################################################################
 
 method get_msg_key () returns Str {
-    return $:msg_key;
+    return $!msg_key;
 }
 
 method get_msg_var (Str $var_name) returns Any {
     die 'invalid arg'
         if !$var_name.defined or $var_name eq '';
-    return %:msg_vars{$var_name};
+    return %!msg_vars{$var_name};
 }
 
 method get_msg_vars () returns Hash of Any {
-    return hash(%:msg_vars);
+    return hash(%!msg_vars);
 }
 
 ######################################################################
 
 method as_debug_string () returns Str {
-    return '$msg_key: "' ~ $:msg_key ~ '"; '
-         ~ '%msg_vars: {' ~ %:msg_vars.pairs.sort.map:{
+    return '$msg_key: "' ~ $!msg_key ~ '"; '
+         ~ '%msg_vars: {' ~ %!msg_vars.pairs.sort.map:{
                '"' ~ .key ~ '"="' ~ (.value // $EMPTY_STR) ~ '"' #/
            }.join( q{, } ) ~ '}';
 }
@@ -87,10 +87,10 @@ class Locale::KeyedText::Translator {
     # (None Yet)
 
     # Attributes of every Locale::KeyedText::Translator object:
-    has Str @:set_names;
+    has Str @!set_names;
         # Array of Str
         # List of Template module Set Names to search.
-    has Str @:member_names;
+    has Str @!member_names;
         # Array of Str
         # List of Template module Member Names to search.
 
@@ -112,8 +112,8 @@ submethod BUILD (Str :@set_names!, Str :@member_names!) {
             if !$member_name.defined or $member_name eq '';
     }
 
-    @:set_names    = @set_names;
-    @:member_names = @member_names;
+    @!set_names    = @set_names;
+    @!member_names = @member_names;
 
     return;
 }
@@ -121,24 +121,24 @@ submethod BUILD (Str :@set_names!, Str :@member_names!) {
 ###########################################################################
 
 method get_set_names () returns Array of Str {
-    return [@:set_names];
+    return [@!set_names];
 }
 
 method get_member_names () returns Array of Str {
-    return [@:member_names];
+    return [@!member_names];
 }
 
 ######################################################################
 
 method as_debug_string () returns Str {
-    return '@set_names: ["' ~ @:set_names.join( q{", "} ) ~ '"]; '
-         ~ '@member_names: ["' ~ @:member_names.join( q{", "} ) ~ '"]';
+    return '@set_names: ["' ~ @!set_names.join( q{", "} ) ~ '"]; '
+         ~ '@member_names: ["' ~ @!member_names.join( q{", "} ) ~ '"]';
 }
 
 ###########################################################################
 
 method get_set_member_combinations () returns Array of Str {
-    return [@:member_names.map:{ @:set_names »~« $_ }];
+    return [@!member_names.map:{ @!set_names »~« $_ }];
 }
 
 ###########################################################################
@@ -514,7 +514,7 @@ A Message object has two main attributes:
 
 =over
 
-=item C<$:msg_key> - B<Message Key>
+=item C<$!msg_key> - B<Message Key>
 
 Str - This uniquely identifies the type of message that the object
 represents (or gives the name of a condition being reported, if it is used
@@ -523,7 +523,7 @@ mapped to a user-readable message; the key itself is not meant to be
 meaningful to a user.  The Message Key can be any defined and non-empty
 string.
 
-=item C<%:msg_vars> - B<Message Variables>
+=item C<%!msg_vars> - B<Message Variables>
 
 Hash(Str) of Any - This contains zero or more variable names and values
 that are associated with the message, and can be interpolated into the
@@ -689,7 +689,7 @@ A Translator object has 2 main attributes:
 
 =over
 
-=item C<@:set_names> - B<Set Names>
+=item C<@!set_names> - B<Set Names>
 
 Array of Str - This stores an ordered list of one or more elements where
 each element is a Template module Set Name.  When we have to translate a
@@ -700,7 +700,7 @@ which it uses, the Template module for the program or first library should
 appear first in the array.  Each Set Name can be any defined and non-empty
 string.
 
-=item C<@:member_names> - B<Member Names>
+=item C<@!member_names> - B<Member Names>
 
 Array of Str - This stores an ordered list one or more elements where each
 element is a Template module Member Name and usually corresponds to a

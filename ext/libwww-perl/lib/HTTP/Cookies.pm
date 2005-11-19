@@ -12,7 +12,7 @@ class HTTP::Cookies-0.0.1 {
     our $EPOCH_OFFSET;
     
     ## Attributes
-    has %:cookies           is rw;
+    has %!cookies           is rw;
     
     has $.file              is rw;
     has $.autosave          is rw;
@@ -63,16 +63,16 @@ class HTTP::Cookies-0.0.1 {
         my @vals = gather {
             loop ($domain ~~ m:P5/\./) {
                 #LWP::Debug::debug("Checking $domain for cookies");
-                my $cookies = %:cookies{$domain};
+                my $cookies = %!cookies{$domain};
                 
                 next unless $cookies;
                 
                 if (.delayload && defined $cookies{'//+delayload'}) {
                     my $data = $cookies{''//+delayload'}{'cookie'};
-                    %:cookies.delete($domain);
+                    %!cookies.delete($domain);
                     ./load_cookie($data[1]);
                     
-                    $cookies = %:cookies{$domain};
+                    $cookies = %!cookies{$domain};
                     next unless $cookies; # should not really happen
                 }
                 
@@ -202,7 +202,7 @@ class HTTP::Cookies-0.0.1 {
         
         if $maxage.defined {
             if $maxage <= 0 {
-                %:cookies{$domain}{$path}.delete($key);
+                %!cookies{$domain}{$path}.delete($key);
                 return $?SELF;
             }
             
@@ -214,7 +214,7 @@ class HTTP::Cookies-0.0.1 {
         
         @array.pop while !defined @array[-1];
         
-        %:cookies{$domain}{$path}{$key} = \@array;
+        %!cookies{$domain}{$path}{$key} = \@array;
         return $?SELF;
     }
     
@@ -262,7 +262,7 @@ class HTTP::Cookies-0.0.1 {
                 
                 my @array = ($version, $val, $port, $path_spec, $secure, $expires, $discard);
                 push @array, %hash if %hash;
-                %:cookies{$domain}{$path}{$key} = @array;
+                %!cookies{$domain}{$path}{$key} = @array;
             }
         }
 
@@ -275,18 +275,18 @@ class HTTP::Cookies-0.0.1 {
     }
     
     multi method clear () {
-        %:cookies = ();
+        %!cookies = ();
         
         $?SELF;
     }
     
     multi method clear (*@_) {
         if (@_ == 1) {
-            %:cookies.delete(@_[0]);
+            %!cookies.delete(@_[0]);
         } elsif (@_ == 2) {
-            %:cookies{@_[0]}.delete(@_[1]);
+            %!cookies{@_[0]}.delete(@_[1]);
         } elsif (@_ == 3) {
-            %:cookies{@_[0]}{@_[1]}.delete(@_[2]);
+            %!cookies{@_[0]}{@_[1]}.delete(@_[2]);
         }
         
         $?SELF;
@@ -297,9 +297,9 @@ class HTTP::Cookies-0.0.1 {
     }
     
     method scan (Code $callback) {
-        for %:cookies.keys.sort -> $domain {
-            for %:cookies{$domain}.keys.sort -> $path {
-                for %:cookies{$domain}{$path}.keys.sort -> $key is rw {
+        for %!cookies.keys.sort -> $domain {
+            for %!cookies{$domain}.keys.sort -> $path {
+                for %!cookies{$domain}{$path}.keys.sort -> $key is rw {
                     my :($version, $val, $port, $path_spec, $secure, $expires, $discard, *%rest) := @{$key};
                     %rest //= {};
                     
@@ -363,7 +363,7 @@ class HTTP::Cookies-0.0.1 {
     }
     
     # XXX how should this binding be done?
-    #our &:url_path ::= &:uri_path; # for backwards compatibility
+    #our &!url_path ::= &!uri_path; # for backwards compatibility
     
     method :normalize_path (Str $str is rw) {
         given ($str) {
