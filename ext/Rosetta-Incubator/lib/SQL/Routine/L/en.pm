@@ -92,6 +92,6 @@ See the LICENCE AND COPYRIGHT of L<SQL::Routine> for details.
 
 =head1 ACKNOWLEDGEMENTS
 
-None yet.
+The ACKNOWLEDGEMENTS in L<SQL::Routine> apply to this file too.
 
 =cut

@@ -92,6 +92,6 @@ See the LICENCE AND COPYRIGHT of L<Rosetta> for details.
 
 =head1 ACKNOWLEDGEMENTS
 
-None yet.
+The ACKNOWLEDGEMENTS in L<Rosetta> apply to this file too.
 
 =cut

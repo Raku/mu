@@ -94,6 +94,6 @@ See the LICENCE AND COPYRIGHT of L<SQL::Routine::SQLParser> for details.
 
 =head1 ACKNOWLEDGEMENTS
 
-None yet.
+The ACKNOWLEDGEMENTS in L<SQL::Routine::SQLParser> apply to this file too.
 
 =cut

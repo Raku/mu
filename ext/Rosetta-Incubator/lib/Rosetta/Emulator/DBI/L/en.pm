@@ -93,6 +93,6 @@ See the LICENCE AND COPYRIGHT of L<Rosetta::Emulator::DBI> for details.
 
 =head1 ACKNOWLEDGEMENTS
 
-None yet.
+The ACKNOWLEDGEMENTS in L<Rosetta::Emulator::DBI> apply to this file too.
 
 =cut
