@@ -75,7 +75,8 @@ None reported.
 
 =head1 SEE ALSO
 
-I<This documentation is pending.>
+These Perl 6 packages are the initial main dependents of SQL::Routine:
+L<Rosetta>, L<SQL::Routine::SQLBuilder>, L<SQL::Routine::SQLParser>.
 
 =head1 BUGS AND LIMITATIONS
 

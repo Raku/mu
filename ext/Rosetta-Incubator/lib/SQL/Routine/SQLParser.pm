@@ -77,7 +77,8 @@ None reported.
 
 =head1 SEE ALSO
 
-I<This documentation is pending.>
+These Perl 6 packages are the initial main dependents of
+SQL::Routine::SQLParser: L<Rosetta::Engine::Generic>.
 
 =head1 BUGS AND LIMITATIONS
 
