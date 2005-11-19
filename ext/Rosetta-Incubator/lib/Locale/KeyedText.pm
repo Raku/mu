@@ -266,7 +266,8 @@ submethod interpolate_vars_into_template_text
 
 =head1 NAME
 
-Locale::KeyedText - Refer to user messages in programs by keys
+Locale::KeyedText -
+Refer to user messages in programs by keys
 
 =head1 VERSION
 
@@ -809,7 +810,7 @@ is already loaded, it tries to invoke $module_name.get_text_by_key(
 $msg_key ) and return that subroutine's result, which is a Template text
 string if the module recognizes $msg_key, and the undefined value if not.
 
-=item <interpolate_vars_into_template_text( $text, %msg_vars )>
+=item C<interpolate_vars_into_template_text( $text, %msg_vars )>
 
 This submethod takes a defined (but possibly empty) Template text string in
 its positional argument $text (a string), and a Message Variables hash ref

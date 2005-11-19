@@ -36,7 +36,8 @@ class Rosetta::Engine::Native-0.1.0 {
 
 =head1 NAME
 
-Rosetta::Engine::Native - Self-contained reference implementation of a Rosetta Engine
+Rosetta::Engine::Native -
+Self-contained reference implementation of a Rosetta Engine
 
 =head1 VERSION
 

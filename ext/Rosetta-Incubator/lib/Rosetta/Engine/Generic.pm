@@ -38,7 +38,8 @@ class Rosetta::Engine::Generic-0.22.0 {
 
 =head1 NAME
 
-Rosetta::Engine::Generic - A catch-all Engine for any DBI-supported SQL database
+Rosetta::Engine::Generic -
+A catch-all Engine for any DBI-supported SQL database
 
 =head1 VERSION
 

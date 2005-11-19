@@ -37,7 +37,8 @@ class SQL::Routine::SQLBuilder-0.22.0 {
 
 =head1 NAME
 
-SQL::Routine::SQLBuilder - Generate ANSI/ISO SQL:2003 and other SQL variants
+SQL::Routine::SQLBuilder -
+Generate ANSI/ISO SQL:2003 and other SQL variants
 
 =head1 VERSION
 

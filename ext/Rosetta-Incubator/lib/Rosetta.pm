@@ -37,7 +37,8 @@ class Rosetta-0.49.0 {
 
 =head1 NAME
 
-Rosetta - Rigorous database portability
+Rosetta -
+Rigorous database portability
 
 =head1 VERSION
 

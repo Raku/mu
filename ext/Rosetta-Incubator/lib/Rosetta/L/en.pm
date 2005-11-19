@@ -36,7 +36,8 @@ module Rosetta::L::en-0.20.0 {
 
 =head1 NAME
 
-Rosetta::L::en - Localization of Rosetta for English
+Rosetta::L::en -
+Localization of Rosetta for English
 
 =head1 VERSION
 

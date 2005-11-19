@@ -36,7 +36,8 @@ module SQL::Routine::SQLBuilder::L::en-0.3.0 {
 
 =head1 NAME
 
-SQL::Routine::SQLBuilder::L::en - Localization of SQL::Routine::SQLBuilder for English
+SQL::Routine::SQLBuilder::L::en -
+Localization of SQL::Routine::SQLBuilder for English
 
 =head1 VERSION
 

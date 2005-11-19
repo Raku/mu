@@ -36,7 +36,8 @@ class SQL::Routine-0.71.0 {
 
 =head1 NAME
 
-SQL::Routine - Specify all database tasks with SQL routines
+SQL::Routine -
+Specify all database tasks with SQL routines
 
 =head1 VERSION
 

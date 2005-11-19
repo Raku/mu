@@ -36,7 +36,8 @@ module Rosetta::Validator::L::en-0.15.0 {
 
 =head1 NAME
 
-Rosetta::Validator::L::en - Localization of Rosetta::Validator for English
+Rosetta::Validator::L::en -
+Localization of Rosetta::Validator for English
 
 =head1 VERSION
 

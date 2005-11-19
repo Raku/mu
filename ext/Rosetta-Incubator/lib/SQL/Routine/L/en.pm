@@ -36,7 +36,8 @@ module SQL::Routine::L::en-0.39.0 {
 
 =head1 NAME
 
-SQL::Routine::L::en - Localization of SQL::Routine for English
+SQL::Routine::L::en -
+Localization of SQL::Routine for English
 
 =head1 VERSION
 

@@ -36,7 +36,8 @@ module Rosetta::Validator-0.49.0 {
 
 =head1 NAME
 
-Rosetta::Validator - A common comprehensive test suite to run against all Engines
+Rosetta::Validator -
+A common comprehensive test suite to run against all Engines
 
 =head1 VERSION
 

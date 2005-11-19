@@ -36,7 +36,8 @@ module Rosetta::Emulator::DBI::L::en-0.1.0 {
 
 =head1 NAME
 
-Rosetta::Emulator::DBI::L::en - Localization of Rosetta::Emulator::DBI for English
+Rosetta::Emulator::DBI::L::en -
+Localization of Rosetta::Emulator::DBI for English
 
 =head1 VERSION
 

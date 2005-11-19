@@ -36,7 +36,8 @@ module Rosetta::Engine::Generic::L::en-0.14.0 {
 
 =head1 NAME
 
-Rosetta::Engine::Generic::L::en - Localization of Rosetta::Engine::Generic for English
+Rosetta::Engine::Generic::L::en -
+Localization of Rosetta::Engine::Generic for English
 
 =head1 VERSION
 

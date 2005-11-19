@@ -36,7 +36,8 @@ module SQL::Routine::SQLParser::L::en-0.3.0 {
 
 =head1 NAME
 
-SQL::Routine::SQLParser::L::en - Localization of SQL::Routine::SQLParser for English
+SQL::Routine::SQLParser::L::en -
+Localization of SQL::Routine::SQLParser for English
 
 =head1 VERSION
 

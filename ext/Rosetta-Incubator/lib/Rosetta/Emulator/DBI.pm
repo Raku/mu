@@ -38,7 +38,8 @@ class Rosetta::Emulator::DBI-0.1.0 {
 
 =head1 NAME
 
-Rosetta::Emulator::DBI - A clone of DBI + DBD::* that is more portable
+Rosetta::Emulator::DBI -
+A clone of DBI + DBD::* that is more portable
 
 =head1 VERSION
 

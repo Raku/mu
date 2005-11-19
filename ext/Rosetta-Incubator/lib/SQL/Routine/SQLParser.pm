@@ -37,7 +37,8 @@ class SQL::Routine::SQLParser-0.3.0 {
 
 =head1 NAME
 
-SQL::Routine::SQLParser - Parse ANSI/ISO SQL:2003 and other SQL variants
+SQL::Routine::SQLParser -
+Parse ANSI/ISO SQL:2003 and other SQL variants
 
 =head1 VERSION
 
