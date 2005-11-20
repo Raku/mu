@@ -806,25 +806,25 @@ Various contexts may or may not be expecting multi-dimensional slices
 or pipes.  By default, ordinary arrays are flattened, that is, they
 have "cat" semantics.  If you say
 
-    (0..2; a..c) ==> my @tmp;
+    (0..2; 'a'..'c') ==> my @tmp;
     for @tmp { say }
 
 then you get 0,1,2,'a','b','c'.  If you have a multidim array, you
 can ask for cat semantics explicitly with cat():
 
-    (0..2; a..c) ==> my @;tmp;
+    (0..2; 'a'..'c') ==> my @;tmp;
     for @;tmp.cat { say }
 
 As we saw earlier, "zip" produces little arrays by taking one element
 from each list in turn, so
 
-    (0..2; a..c) ==> my @;tmp;
+    (0..2; 'a'..'c') ==> my @;tmp;
     for @;tmp.zip { say }
 
 produces [0,'a'],[1,'b'],[2,'c'].  If you don't want the subarrays, then
 use C<each()> instead:
 
-    (0..2; a..c) ==> my @;tmp;
+    (0..2; 'a'..'c') ==> my @;tmp;
     for @;tmp.each { say }
 
 and then you just get 0,'a',1,'b',2,'c'.  This is good for

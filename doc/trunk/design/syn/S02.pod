@@ -437,9 +437,9 @@ appropriate adverb to the subscript.
 
     @array = <A B>;
     @array[0,1,2];	# returns 'A', 'B', undef
-    @array[0,1,2]:p;	# returns a => 'A', b => 'B'
-    @array[0,1,2]:kv;	# returns 'a', 'A', 'b', 'B'
-    @array[0,1,2]:k;	# returns 'a', 'b'
+    @array[0,1,2]:p;	# returns 0 => 'A', 1 => 'B'
+    @array[0,1,2]:kv;	# returns 0, 'A', 1, 'B'
+    @array[0,1,2]:k;	# returns 0, 1
     @array[0,1,2]:v;	# returns 'A', 'B'
 
     %hash = (:a<A>, :b<B>);
