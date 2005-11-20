@@ -11,7 +11,7 @@ These tests derived from comments in L<"http://use.perl.org/~autrijus/journal/23
 
 =cut
 
-plan 26;
+plan 32;
 
 my $world = "World";
 my @list  = (1,2);
@@ -60,3 +60,12 @@ is(qb"$world \\\"\n\t", "\$world \\\"\n\t", "only interpolate backslash");
 is('$world \qq[@list[]] %hash{}', '$world 1 2 %hash{}', "interpolate quoting constructs in ''");
 
 is(" \d[111] \d[107] ", ' o k ', "\\d[] respects whitespaces around it")
+
+# L<S02/"Literals" /any of these by separating the numbers/>
+is("x  \x[41,42,43]  x",     "x  ABC  x",  "\\x[] allows multiple chars (1)");
+is("x  \x[41,42,00043]  x",  "x  ABC  x",  "\\x[] allows multiple chars (2)");
+is("x  \d[65,66,67]  x",     "x  ABC  x",  "\\d[] allows multiple chars (1)");
+is("x  \d[65,66,000067]  x", "x  ABC  x",  "\\d[] allows multiple chars (2)");
+
+is("x  \x[41,42,43]]  x",    "x  ABC]  x", "\\d[] should not eat following ]s");
+is("x  \d[65,66,67]]  x",    "x  ABC]  x", "\\x[] should not eat following ]s");
