@@ -1290,7 +1290,7 @@ tightOperators = do
     , listOps  " ^ | "                                  -- Junctive Or
     , optOps optionary, preOps namedUnary               -- Named Unary
     , noneSyn  " is but does "                          -- Traits
-      ++ noneOps " cmp <=> .. ^.. ..^ ^..^ "            -- Non-chaining Binary
+      ++ noneOps " cmp <=> .. ^.. ..^ ^..^ till ^till till^ "  -- Non-chaining Binary
       ++ postOps "..."                                  -- Infinite range
     , chainOps $
                " != == < <= > >= ~~ !~ " ++
