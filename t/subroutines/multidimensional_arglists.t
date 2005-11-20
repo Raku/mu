@@ -7,7 +7,7 @@ plan 7;
 
 # L<S06/"Multidimensional argument list binding">
 
-sub get_multidim_arglist (@;AoA) { @AoA }
+sub get_multidim_arglist (*@;AoA) { @;AoA }
 
 {
     my @array1 = <a b c>;
