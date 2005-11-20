@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 20 Nov 2004
+  Last Modified: 19 Nov 2005
   Number: 10
-  Version: 2
+  Version: 3
 
 =head1 Overview
 
@@ -43,15 +43,23 @@ Since there are no barewords in Perl 6, package names must be predeclared,
 or use the sigil-like C<::PackageName> syntax.  The C<::> prefix does not
 imply top-levelness as it does in Perl 5.  (Use C<::*> for that.)
 
-A bare C<package> declarator declares a global package name in C<::*>.
-To declare a package in the current package (or module, or class), use
-C<our package>.  To declare a lexically scoped package, use C<my package>.
+A bare C<package> declarator declares an C<our> package within the
+current package (or module, or class, or role, or...).  Use C<*>
+or C<GLOBAL::> to declare a global package name.
+
+To declare a lexically scoped package, use C<my package>.
 Package names are always searched for from innermost scopes to outermost.
 As with an initial C<::>, the presence of a C<::> within the name
-does not imply globalness (unlike in Perl 5).
+does not imply globalness (unlike in Perl 5).  True globals are always
+in the C<GLOBAL::> namespace, which has the shortcut C<*> where that
+is not ambiguous with "real" operators.
 
-The C<::*> namespace is not "main".  The default namespace for the main
-program is C<::*Main>.
+The C<*> namespace is not "main".  The default namespace for the main
+program is C<*Main> in Perl 6.  All files start out being parsed in the C<*>
+package, but switch to some other package scope depending on the first
+declaration.  If that first declaration is not a package variant, then
+the parsing switches to the "C<*main>" package for Perl 5 code and the
+"C<*Main>" package for Perl 6 code.
 
 Package traits are set using C<is>:
 
@@ -63,10 +71,10 @@ C<::Ident> is legal.  The string returned by the expression will be
 parsed for C<::> indicating subpackage names.  Do not confuse this
 with the
 
-    %Foo::{$key}
+    Foo::{$key}
 
 syntax that lets you do a lookup in a particular symbol table.  In this case,
-the key is not parsed for C<::>.
+the key is not parsed for C<::>.  It's just a hash lookup.
 
 =head1 Autoloading
 
