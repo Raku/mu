@@ -1,7 +1,7 @@
 
 package Perl6::Core::Symbol;
 
-use Perl6::Core::Type::Comparable;
+use Perl6::Core::Type::Equivalence;
 use Perl6::Core::Num;
 use Perl6::Core::Bit;
 use Perl6::Core::Str;
@@ -14,7 +14,7 @@ use warnings;
 use Carp 'confess';
 use Scalar::Util 'blessed';
 
-use base 'type::comparable';
+use base 'type::equivalence';
 
 sub new {
     my ($class, $name, $type) = @_;
@@ -46,18 +46,9 @@ sub equal_to {
     return bit->new(0) 
         unless blessed($right) && $right->isa('symbol');
     return bit->new(1) 
-        if $left->name eq $right->name && 
-           $left->type eq $right->type;
+        if $left->name->to_native eq $right->name->to_native && 
+           $left->type->to_native eq $right->type->to_native;
     return bit->new(0);
-}
-
-sub not_equal_to {
-    my ($left, $right) = @_;
-    ($left->equal_to($right) == bit->new(1)) ? bit->new(0) : bit->new(1);
-}
-
-sub _compare {
-    confess "Can only compare the equality of a symbol";
 }
 
 1;

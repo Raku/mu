@@ -96,6 +96,8 @@ use warnings;
 use Carp 'confess';
 use Scalar::Util 'blessed';
 
+use base 'type::equivalence';
+
 sub new {
     my ($class, %options) = @_;
     (exists $options{params} && blessed($options{params}) && $options{params}->isa('closure::params'))
@@ -107,6 +109,13 @@ sub new {
 sub params  { (shift)->{params}  }
 sub returns { (shift)->{returns} }
 
+sub equal_to {
+    my ($left, $right) = @_;
+    ($left->params->equal_to($right->params) == bit->new(1) && 
+     $left->returns eq $right->returns) ? 
+        bit->new(1) : bit->new(0)
+}
+
 package closure::params;
 
 use strict;
@@ -115,7 +124,7 @@ use warnings;
 use Carp 'confess';
 use Scalar::Util 'blessed';
 
-use base 'list';
+use base 'list', 'type::equivalence';
 
 sub new {
     my ($class, @values) = @_;
@@ -146,6 +155,19 @@ sub push : method {
         || confess "you can only add symbol types to a param list"
             foreach @_;
     $self->SUPER::push(@_);
+}
+
+sub equal_to {
+    my ($left, $right) = @_;
+    return bit->new(0) if not (blessed($right) && $right->isa('closure::params'));
+    return bit->new(0) if $left->length->not_equal_to($right->length) == bit->new(1);
+    foreach my $i (map { num->new($_)  } 0 .. $left->elems->to_native) {
+        # warn "calling equal_to on " . $left->fetch($i)->name->to_native . ' => ' . $left->fetch($i)->type->to_native;
+        # warn "with " . $right->fetch($i)->name->to_native . ' => ' . $right->fetch($i)->type->to_native;                    
+        return bit->new(0) 
+            if $left->fetch($i)->equal_to($right->fetch($i)) != bit->new(1);
+    }
+    return bit->new(1);
 }
 
 package closure::env;

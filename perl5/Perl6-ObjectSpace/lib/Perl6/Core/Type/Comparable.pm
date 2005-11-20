@@ -1,14 +1,17 @@
 
 package Perl6::Core::Type::Comparable;
 
-use Perl6::Core::Type;
+use Perl6::Core::Type::Equivalence;
 
 package type::comparable;
 
 use strict;
 use warnings;
 
-use base 'type';
+use Scalar::Util 'blessed';
+use Carp 'confess';
+
+use base 'type::equivalence';
 
 # need to load this here in 
 # order for things to init 
@@ -23,10 +26,9 @@ use Perl6::Core::Bit;
 # so it should be considered a protected 
 # method, which is used to implement the 
 # other methods below
-sub _compare; 
+sub _compare { confess 'You must override _compare in ' . (shift) } 
 
 sub equal_to     { $_[0]->_compare($_[1]) == 0  ? bit->new(1) : bit->new(0) }
-sub not_equal_to { $_[0]->_compare($_[1]) != 0  ? bit->new(1) : bit->new(0) }
 
 sub greater_than { $_[0]->_compare($_[1]) == 1  ? bit->new(1) : bit->new(0) }
 sub less_than    { $_[0]->_compare($_[1]) == -1 ? bit->new(1) : bit->new(0) }

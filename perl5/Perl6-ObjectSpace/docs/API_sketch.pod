@@ -39,8 +39,31 @@ my $Bit = module::signature->new(
     ),                             
 );
 
-*Bit = module::functor->new('Perl6::Core::Bit' => $BIT);
+*Bit = module::functor->new('bit' => $BIT);
 
 Bit->new(1);
 
+sub module::functor::native::convert {
+    my ($sig, $body) = @_;
+    closure->new(
+        $e,
+        $sig->params,
+        sub {
+            my $e = shift;
+            # extract the args from the environment
+            my @args;
+            foreach my $param ($sig->params->to_native) {
+                my $name = $param->name;
+                push @args => $e->get($name->to_native);
+            }
+            # execute the body of the method
+            return $body->(@args);    
+            # closure will automatically check the type of the return value ...
+        }
+    );
+}
 
+my $wrapped_or = module::functor::native::convert(
+                            $Bit->get_signature(symbol->new('or'))
+                            \&bit::or
+                        );
