@@ -1,0 +1,26 @@
+A draft on the runtime view of how Lazy things (like Arrays) work
+
+- Definitions
+
+-- Array is a subclass of "Container"
+
+Array can do "map", "grep", splice, push, pop, store, fetch. 
+Array can be "bound" and "tied".
+Array contains an ordered set of Scalar.
+
+-- List is a subclass of "Value"
+
+List is an anonymous set of things.
+At runtime, you only access List elements through Containers.
+A List slice is an Array that contains List elements.
+
+-- Generator is an object that represent a set of things 
+
+Generator is like a List, but it is "functional" rather than "physical memory"
+
+-- Slice
+
+-- Hash
+
+... ... more ...
+
