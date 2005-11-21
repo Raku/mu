@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 18 Nov 2005
+  Last Modified: 21 Nov 2005
   Number: 6
-  Version: 11
+  Version: 12
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -89,15 +89,20 @@ with the C<is rw> trait:
 Raw blocks are also executable code structures in Perl 6.
 
 Every block defines an object of type C<Code>, which may either be executed
-immediately or passed on as a C<Code> reference argument.
-
+immediately or passed on as a C<Code> reference argument.  A
+bare block where an operator is expected is bound to the current
+statement level control syntax.  A bare block where a term is expected
+merely produces a reference.  If the term bare block occurs in a list,
+it is considered the final element of that list unless followed immediately
+by a comma or comma surrogate.
 
 =head2 "Pointy subs"
 
-The arrow operator C<< -> >> is almost a synonym for the anonymous
-C<sub> keyword, except that the parameter list of a pointy sub does
-not require parentheses, it does not require a preceding comma when
-included in a list, and a pointy sub may not be given traits.
+Semantically the arrow operator C<< -> >> is almost a synonym for
+the anonymous C<sub> keyword, except that the parameter list of a
+pointy sub does not require parentheses, and a pointy sub may not be
+given traits.  Syntactically a pointy sub is parsed exactly like a
+bare block.
 
     $sq = -> $val { $val**2 };  # Same as: $sq = sub ($val) { $val**2 };
 
@@ -339,8 +344,10 @@ for any sigil:
     :&what	:what(&what)
     :^what	:what(^what)
 
-There is a corresponding shortcut for hash keys if you prefix the subscript
-instead of the sigil:
+There is a corresponding shortcut for hash keys if you prefix the
+subscript instead of the sigil.  The C<:> is not functioning as an
+operator here, but as a modifier of the following token:
+
 
     doit %hash:<a>,1,2,3;
     doit %hash:{'b'},1,2,3;
@@ -350,8 +357,13 @@ are short for
     doit :a(%hash<a>),1,2,3;
     doit :b(%hash{'b'}),1,2,3;
 
-The C<:> is not functioning as an operator here, but as a modifier of
-the following token.
+To pass pairs out of hash without their being interpreted as named
+parameters, use
+
+    doit %hash<a>:p,1,2,3;
+    doit %hash{'b'}:p,1,2,3;
+
+instead.
 
 Pairs are recognized syntactically at the call level and mystically
 transformed into special C<Named> objects that may be bound to
@@ -609,8 +621,9 @@ so you can refer to it within the body.
 
 It's also possible to declare a slurpy block: C<*&block>.  It slurps
 up any nameless block, specified by C<{...}>, at either the current positional
-location or the end of the syntactic list.  XXX This will turn out
-useful when we discuss adverbs below.
+location or the end of the syntactic list.  Put it first if you want the
+option of putting a block either first or last in the arguments.  Put it
+last if you want to force it to come in as the last argument.
 
 =head2 Argument list binding
 
@@ -698,7 +711,7 @@ So both of the calls above are equivalent to:
 Leftward pipes are a convenient way of explicitly indicating the typical
 right-to-left flow of data through a chain of operations:
 
-    @oddsquares = map { $_**2 } sort grep { $_ % 2 } @nums;
+    @oddsquares = map { $_**2 }, sort grep { $_ % 2 }, @nums;
 
     # more clearly written as...
 
@@ -896,7 +909,7 @@ optional, named, or slurpy.
 
     # and later...
 
-    @first_three = limited_grep 3 {$_<10} @data;
+    @first_three = limited_grep 3, {$_<10}, @data;
 
 Within the subroutine, the closure parameter can be used like any other
 lexically scoped subroutine:
@@ -1293,7 +1306,7 @@ specifiable as if it were an "or" junction:
 
 Fancier type constrains may be expressed through a subtype:
 
-    subtype Shinola of Any where {.does(DessertWax) and .does(FloorTopping)};
+    subset Shinola of Any where {.does(DessertWax) and .does(FloorTopping)};
     if $shimmer ~~ Shinola {...}  # $shimmer must do both interfaces
 
 Since the terms in a parameter could be viewed as a set of
@@ -1875,7 +1888,7 @@ as well...)
 =head2 Out-of-scope names
 
 C<< GLOBAL::<$varname> >> specifies the C<$varname> declared in the C<*>
-namespace.
+namespace.  Or maybe it's the other way around...
 
 C<< CALLER::<$varname> >> specifies the C<$varname> visible in
 the dynamic scope from which the current block/closure/subroutine
