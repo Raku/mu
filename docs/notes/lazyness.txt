@@ -1,26 +1,176 @@
-A draft on the runtime view of how Lazy things (like Arrays) work
+= Lazyness
 
-- Definitions
+A draft on the runtime view of how Lazy things (like Arrays) work.
 
--- Array is a subclass of "Container"
+The text assumes a knowledge of terms like "Container", "Scalar", "Cell", "Role".
 
-Array can do "map", "grep", splice, push, pop, store, fetch. 
-Array can be "bound" and "tied".
-Array contains an ordered set of Scalar.
+== TODO
 
--- List is a subclass of "Value"
+- include drawings
+
+== Definitions
+
+- Native array / Native hash
+
+These are fast, in-memory structures provided by the virtual machine.
+These structures are assumed to be one-dimensional.
+
+- Array class
+
+The Array class defines all objects that implement the array API.
+
+Array is a subclass of "Container"
+Array contains an ordered set of Cells.
+
+The actual implementation depends on the "Eager" or the "Lazy" roles.
+
+-- Eager role
+
+An Array object that wraps a native array.
+
+-- Lazy role
+
+An Array object that generates Cells on demand.
+This is the default implementation.
+
+- List class
 
 List is an anonymous set of things.
+List is a subclass of "Value"
 At runtime, you only access List elements through Containers.
-A List slice is an Array that contains List elements.
+A List slice is an Array in which the Cells point to List elements.
 
--- Generator is an object that represent a set of things 
+-- "Eager List"
 
-Generator is like a List, but it is "functional" rather than "physical memory"
+An Eager List is allocated in physical memory.
+An Eager List can be a set of things in the virtual machine stack, or
+a Native Array.
 
--- Slice
+-- Generator or "Lazy List"
 
--- Hash
+Generator is an object that creates Values on demand.
+Generator is "functional" rather than "physical memory"
+At runtime, you only access Generator elements through Containers.
+A Lazy List slice is an Array in which the Cells point to Generator elements.
+
+- Slice
+
+Slice is a specialized Array, in which all the elements are bound to objects 
+in other Containers (Array, Hash or Scalar).
+
+- Hash
+
+The Hash class defines all objects that implement the hash API.
+
+Hash is like an Array, in which the Cell indexes can be of any type 
+(not just numbers).
+
+
+== Generator Internals
+
+- TODO
+
+
+== Generator API
+
+This API is only used by the runtime internals.
+Perl 6 programs should only "see" the Array and Hash classes.
+
+- head(n)
+
+Takes "n" Values from the Generator, like "shift" does. 
+The result can be a Generator (when n is big), an Array (possibly Native), 
+a single Value (when n == 1), or Void (when n <= 0).
+
+- tail(n)
+
+Takes "n" Values from the back of the Generator, like "pop" does. 
+The result can be a Generator (when n is big), an Array (possibly Native), 
+a single Value (when n == 1), or Void (when n <= 0).
+
+- flatten
+
+Takes all Values from the Generator, and returns an Array (possibly Native).
+
+- elems
+
+The number of elements
+
+- is_contiguous
+
+True is the generated sequence is like "2 .. 10".
+This is useful when the sequence is used as a slice index.
+
+- sum / reverse / map / zip
+
+
+= Array internals
+
+An Eager Array contains a Native Array.
+
+   Contents:  1 2 3
+   Internals: [ 1, 2, 3 ] 
+
+A Lazy Array contains a Native Array, which contains Generators or Native Arrays.
+This structure permits near O(1) complexity for most operations.
+
+   Contents:  1 2 3
+   Internals: [ 
+                [ 1, 2, 3 ] 
+              ]
+
+   Contents:  10 20 30 100..10000 50 400..900
+   Internals: [
+                [ 10, 20, 30 ],
+                Generator( 100, 10000 ),
+                [ 50 ],
+                Generator( 400, 900 )
+              ]
+
+
+= Array API
+
+- TODO
+Array can do "map", "grep", splice, push, pop, store, fetch. 
+Array can be "bound" and "tied".
+
+
+= Hash internals
+
+A Hash contains a Native Hash.
+
+   Contents:  a:1 b:2 c:3
+   Internals: { a:1 b:2 c:3 } 
+
+A Hash may contain Lazy items. 
+This structure contains a Native Array, which contains Generators or Native Hashes.
+This structure permits near O(1) complexity for most operations.
+
+   Contents:  a:1 b:2 c:3
+   Internals: [ 
+                { a:1, b:2, c:3 }
+              ]
+
+   Contents:  a:10 b:20 c:30 (1:100 .. 10000:10100) d:50 
+   Internals: [
+                { a:10 b:20 c:30 },
+                Generator( 1:100, 10000:10100 ),
+                { d:50 },
+              ]
+
+
+= Hash API
+
+- TODO
+
+
+= Slice API
+
+- TODO
+
+
+= Slice Internals
+
+- TODO
 
 ... ... more ...
-
