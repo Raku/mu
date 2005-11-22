@@ -1,0 +1,407 @@
+Subject: Rosetta
+Document Title: Overview
+Author: Darren Duncan <perl@DarrenDuncan.net>
+Maintainer: Darren Duncan <perl@DarrenDuncan.net>
+Date: 2005 November 21
+Last Modified: 2005 November 21
+
+PREFACE
+
+This document is an overview of Rosetta database access framework, covering
+its purpose and high level architecture such that you should know how to
+begin to use it and why.  Details of the architecture such as data
+structures, allowed inputs, and functional APIs, are discussed in other
+documents.
+
+DESCRIPTION
+
+Rosetta provides a common API for access to relational databases of all
+shapes and sizes, including those implemented with libraries embedded in
+your application (such as SQLite) and those implemented with a
+client-server architecture (such as Oracle).
+
+The API is rigorously defined, such that an application written to it
+should easily have the characteristic of "write once, run anywhere" that
+the Java programming language advertises itself with, but that "anywhere"
+refers to relational database engines rather than CPU architectures.
+
+IN TERMS OF DBI SIMILARITIES
+
+The Rosetta framework is similar to the Perl DBI framework in several ways.
+
+Both frameworks are highly modular, and see this as a fundamental feature.
+Mainly this is due to the framework core mainly just defining a common
+database access API which multiple swappable back-ends implement (each of
+which is usually made by a third party); each back-end would usually map
+the framework API to a pre-existing native API for a particular database
+manager (such as with PostgreSQL), or it would sometimes implement the
+framework API itself (such as for CSV files).  DBI calls these back-ends
+"drivers", since they sit on top of and control the database manager
+(following a hardware device driver analogy), while Rosetta calls its
+back-ends "Engines", to emphasize that they are effectively its
+implementations, and be more abstract that they may not be controlling
+something else.  Each framework can use multiple back-ends at once.
+
+Both frameworks are conceptually close to the typical underlying database
+manager, and their native languages are expressed in relational database
+terms such as connections, users, permissions, transactions, schemas,
+tables, queries, views, joins, data manipulations, constraints, columns,
+rows, nullability, primary and foreign keys, domains, sequence generators,
+statements, preparations, cursors, LOBs, indexes, and more.  Both
+frameworks focus on being a transport medium between the database and the
+application, endeavouring to give applications the widest degree of
+interaction possible, and access to the most database features as possible,
+with relatively few transformations between both ends.  An application
+using either to access a database should be able to do all the same useful
+things they can do using the native API for that database (including
+queries plus both data and schema manipulation), although the details of
+the interaction would vary due to the frameworks' efforts to homogenize the
+process and aid in cross-database portability.
+
+Both frameworks are designed to be widely applicable and defacto standard
+tool kits upon which enterprising third parties can build alternate
+database access APIs that better serve the needs of themselves and others
+in less generic situations.  One type of common alternate API serves to
+factor out common usage cases and offer them up as a "simpler" and/or less
+verbose way to use a database, while still retaining relational database
+terminology.  Another common alternate API is one that is expressed in
+object oriented (rather than relational) language terms such as classes,
+objects, instances, attributes, properties, traits, inheritence,
+composition, and more.  The latter group is often known as "object oriented
+persistence" or "object relational mapper" solutions, and they tend to
+provide very powerful add-on functionality; examples of these are Tangram
+and DBIx::Class.  Both Rosetta and DBI take care of lower level transport
+matters and some cross-database portability issues, so that alternate APIs
+layered on top of them can focus on their added value instead.
+
+Both frameworks do not cache database records locally, although they can
+buffer row sets that are fetched piecemeal by an application.  They do
+cache database connections and prepared statements when appropriate.
+
+Both frameworks are designed to work with any existing database as it is,
+and do not store any of their own meta-data in the database or require
+their own custom schemas, using special tables such as some alternate APIs
+do.  By contrast, any meta-data is stored using a database's native
+mechanisms (such as what create-table can specify), or it is stored by the
+application as the application sees fit; this may happen to be in special
+database tables, but only ones that the application specifies, so the
+application doesn't have to worry about related namespace conflicts.
+
+IN TERMS OF DBI DIFFERENCES
+
+The Rosetta framework also differs from the Perl DBI framework in several
+ways, mainly being that it provides several kinds of added value.
+
+Rosetta has a much higher emphasis on elegant cross-database portability
+than DBI does, and the former's API contains more abstractive
+transformations relative to a database's native API than DBI does.
+
+The most prominant example of this is that DBI does transparent pass-thru
+of SQL statements, such that the database receives exactly the SQL string
+literal that the application provides (but perhaps with a few limited SQL
+host parameter substitutions), so that the application must know about and
+code to each database manager's proprietary SQL dialect, not the least of
+which includes the names of data types, formats of dates, and the syntax of
+outer joins.  By contrast, Rosetta will take its inputs as or process its
+inputs into an abstract syntax tree (AST) that represents the meaning (and
+has corresponding structure) to one or more standard SQL:2003 statements,
+and each Rosetta back-end will transform this into the database manager's
+proprietary SQL version or equivalent, so that the application only has to
+know *what* it wants to tell the database, and not how to express that in
+the database's native dialect.
+
+Rosetta represents all host parameters, query columns, stored procedure
+arguments, built-in function calls, and other such things in named format
+(such as ":foo") rather than positional format (?), so that the right thing
+will happen despite generated SQL using them in a different order than
+applications declare them or pass to them.
+
+The Rosetta native SQL AST is fully decomposed and does not normally
+contain any fragments of string SQL, although it does give the option for
+such to be used in esoteric situations.  Embedding composed SQL is meant to
+be a fall-back "circumvention" option for saavy developers that understand
+the consequences, so that no one actually loses functionality they had with
+DBI when using Rosetta.  Conceptually speaking, using Rosetta's
+circumvention feature is akin to putting CPU-specific assembly language in
+your code because the higher level language can't express what you want to
+do; it is better as a short term solution rather than a long-term one.
+
+Rosetta also does some basic transformations of data that it shuttles to
+and from the database, presenting a homogenous format.  Rosetta's native
+character set is Unicode 4; it will return all character strings as Unicode
+and expect its input that way too (Perl usually handles the details behind
+the scenes); it will declare all communication with the database as being
+UTF8, and all schema definitions likewise, where the database supports it,
+and gracefully degrade if not (but users can explicitly choose an alternate
+character set and encoding if they want).  Rosetta's native date format
+when expressed as a character string is ISO 8601, where units are always
+ordered from greatest to least mangitude; it returns all date-strings this
+way and expects its date-string input in this format only; it will try to
+get the database to communicate in that format too, and if it can't then
+will transform whatever format the database can work with.  Rosetta
+natively uses decimal format numbers (or integers), which have exact
+precision and are effectively of unlimited length; they don't lose accuracy
+like floating point numbers; Rosetta will return numbers as Perl strings
+and coerce any input to such as well.  Rosetta natively supports binary
+data also, which it receives and returns exactly as is.  By contrast, DBI
+passes-thru all data in the way the database sent it, which the application
+has to know about and specify, and doesn't guarantee particular formats
+between databases such that would help with portability.
+
+When reverse-engineering an existing database, Rosetta returns the schema
+definitions in the same AST format that it takes as input, so the result
+can be passed right back in to make a clone if one wishes.  By contrast,
+the DBI API has some native functions to return some schema info as hashes
+and arrays, and requires the application to encode SQL that requests the
+database send most other details in its native format, such as string SQL
+or information schema rows; the results are heterogeneous.
+
+Rosetta can be implemented as an alternate API over DBI (and the reverse is
+also true) whose main contribution is SQL generation and parsing, and
+limited data munging, but Rosetta can also be used independently of DBI;
+the choice is up to the Rosetta Engine implementer.
+
+The choice between using DBI and using Rosetta seems to be analogous to the
+choice between the C and Java programming languages, respectively, where
+each database product is analogous to a hardware CPU architecture or wider
+hardware platform.  The DBI is great for people who like working as close
+to the metal as possible, with much closer access to each database
+product's native way of doing things, those who *want* to talk to their
+database in its native SQL dialect, and those who want the absolute highest
+performance.  Rosetta is more high level, for those who want the write-once
+run-anywhere experience, less of a burden on their creativity, more
+development time saving features, and are willing to sacrifice a modicum of
+performance for the privilege.  Performance shouldn't differ too greatly
+for long running programs since most Rosetta ASTs can be generated at the
+start of a program and cached, and likewise a good Rosetta Engine will
+cache any generated string SQL for re-use.
+
+HIGH LEVEL DATA STRUCTURES
+
+Applications interact with Rosetta, for the most part, as if it was a
+dynamically linked library which implements a self-contained embedded
+relational database management system.  This RDBMS has a rigorously defined
+feature set, API, and behaviour, which collectively are referred to as the
+Rosetta Native Interface (RNI), but that some features can be disabled
+and/or customized to an extent.
+
+The Rosetta Engine reference implementation whose Perl package name is
+Rosetta::Engine::Native is expressly coded to work internally according to
+the RNI definition, and so when using it Rosetta isn't actually abstracting
+the database manager.  Most likely, all other Rosetta Engines are
+abstracting some pre-defined feature-set/API/behaviour, and the entire RNI
+may not necessarily be implementable for some of them.  For behaviours that
+are implemented, the work of the implementation will be done wherever it is
+most efficient, which is usually by the database manager itself.
+
+Here is a broad view of the Rosetta DBMS' data structure hierarchy,
+expressed visually like an XML document; each XML node is the name of a
+data structure, and it is composed of both scalar attributes that are not
+shown here and child data structures that are shown as child nodes:
+
+<rosetta_interface>
+    <rosetta_engine count="0..N">
+        <sql_server count="0..N"><!-- ... if cli-serv; c=1 if embedded -->
+            <depot count="0..N">
+                <user type="ROOT|NAMED|ANONYMOUS" count="1..N">
+                    <privilege_grant count="0..N" />
+                    <role_grant count="0..N" />
+                </user>
+                <role count="0..N">
+                    <privilege_grant count="0..N" />
+                </role>
+                <catalog type="TEMPORARY|LOCAL|REMOTE" count="1..N">
+                    <schema count="0..N">
+                        <character_set count="0..N" />
+                        <scalar_domain count="0..N" />
+                        <row_domain count="0..N" />
+                        <sequence count="0..N" />
+                        <table count="0..N" />
+                        <view count="0..N" />
+                        <trigger count="0..N" />
+                        <procedure count="0..N" />
+                        <function count="0..N" />
+                    </schema>
+                </catalog><!-- any SYSTEM catalog/schema is not exposed -->
+            </depot>
+        </sql_server>
+        <sql_client count="0..N">
+            <procedure count="0..N" />
+            <function count="0..N" />
+        </sql_client>
+    </rosetta_engine>
+</rosetta_interface>
+
+<scalar_domain>
+    <scalar_data_type count="1">
+        <scalar_data_type_value count="0..N" />
+    </scalar_data_type>
+</scalar_domain>
+
+<row_domain>
+    <row_data_type count="1">
+        <row_data_type_field count="1..N" /><!-- ref impl scalar_domain -->
+    </row_data_type>
+</row_domain>
+
+<table>
+    <interface_row count="1" /><!-- ref impl row_domain -->
+    <table_field_detail count="0..N" />
+    <table_index count="0..N">
+        <table_index_field count="1..N" />
+    </table_index>
+</table>
+
+<view>
+    <query count="1" />
+</view>
+
+<query>
+    <interface_row count="1" /><!-- ref impl row_domain -->
+    <subquery count="0..N"><!-- named, to support 'with' syntax -->
+        <subquery_arg count="0..N"><!-- ref impl scalar_domain -->
+        <query count="1" />
+    </subquery>
+    <query_source "0..N">
+        <query_source_arg count="0..N" />
+        <query_source_field count="1..N" />
+    </query_source>
+    <query_field_detail count="0..N" />
+    <query_join count="0..N">
+        <query_join_field count="1..N" />
+    </query_join>
+    <compound_query_element count="0..N" />
+    <query_clause type="RESULT|WHERE|GROUP|HAVING|ORDER|LIMIT"
+            count="0..N">
+        <expression count="1" /><!-- expression is n-recursive -->
+    </query_clause>
+</query>
+
+<trigger>
+    <trigger_arg count="1..2"><!-- ref impl row_domain -->
+    <routine_body count="1" />
+</trigger>
+
+<procedure>
+    <routine_arg count="0..N" /><!-- ref impl scalar|row_domain|other -->
+    <routine_body count="1" />
+</procedure>
+
+<function>
+    <routine_arg count="1..N" /><!-- ref impl ... the 1 is for 'RETURN' -->
+    <routine_body count="1" />
+</function>
+
+<routine_body>
+    <routine_var count="0..N" /><!-- ref impl scalar|row_domain|other -->
+        <cursor count="0..1">
+            <query count="1" />
+        </cursor>
+    </routine_var>
+    <select_stmt count="0..N">
+        <subquery count="1">
+        <query_clause type="INTO" count="1" /><!-- ref target arg|var -->
+    </select_stmt>
+    <insert_stmt count="0..N" />
+    <update_stmt count="0..N" />
+    <delete_stmt count="0..N" />
+    <merge_stmt count="0..N" />
+    <create_stmt count="0..N" />
+    <drop_stmt count="0..N" />
+    <alter_stmt count="0..N" />
+        ... TODO ...
+    <statement count="0..N">
+        <expression count="0..N" /><!-- expression is n-recursive -->
+    </statement>
+</routine_body>
+
+A "rosetta_interface" is a Rosetta::Interface tree root object; you usually
+have just one of these in your application.  (It corresponds to DBI's
+collection of global variables in the DBI::* namespace, but it is lexical.)
+
+A "rosetta_engine" is a Rosetta Engine tree root object; you have one of
+these per loaded Rosetta Engine package per "rosetta_interface.  (It
+corresponds to a DBI driver handle, or "drh", but is lexical.)
+
+A "sql_server" is the database management system software itself and
+corresponds to either a library embedded in the current application process
+or one instance of a separate server process that is running somewhere.  In
+a typical embedded case (such as SQLite), there is usually exactly one per
+"rosetta_engine", unless multiple versions are embedded at once (such as
+SQLite v3 and v2), and even then the Engine can choose to abstract those
+into a single "sql_server".  In the case of Rosetta::Engine::Native, there
+is exactly one "sql_server", since the Engine *is* it.  In the case of any
+typical client-server database (such as MySQL), there is a separate
+"sql_server" for each server process being accessed.  A server process is
+often qualified with an IP address and port, or local socket name.
+
+A "depot" is a completely self-contained data collection with its own name
+(usually), its own catalog and its own users (if applicable); one "depot"
+by definition never shares ownership of catalogs or users with another
+depot, even another managed by the same "sql_server".  When an application
+opens a connection to a database, a "depot" *is* what it is connecting to,
+and everything it sees within that connection is from within the context of
+the depot.  In other terms, when you hold a "data source name" / DSN, a
+single "depot" (qualified with a sql_server and/or rosetta_engine) is what
+it points to.  With a typical file-based database like SQLite or MS Access
+or a CSV file, one file equals one "depot", and you often invoke it using
+the filesystem file name.  With a typical client-server database, one
+"depot" is often one "database name" at the server.  With Oracle, it seems
+that one "sql_server" equals one "depot".
+
+A "user" is whom the application or its user authenticates themselves as
+against a depot connection, if the sql_server has a concept of users
+(SQLite does not, Oracle does, etc).  Note that some database managers will
+display a different view of the database depending on what user logged in,
+but Rosetta will abstract away this per-user difference where possible,
+mainly by using fully qualified identifiers for all database objects.
+There is 1 ROOT user that owns the depot and was created with it, and NAMED
+users are what a typical person connects as, unless they are ANONYMOUS.
+
+A "catalog" is the typical root of a database's contents, and often each
+depot will have exactly one catalog.  The LOCAL catalog type is the normal
+one, and contains all the typical persistent schema objects.  The TEMPORARY
+catalog type is where schema objects go that are declared with 'CREATE
+TEMPORARY ...'; each database connection has its own private one that
+disappears when the connection closes; there is always one TEMPORARY
+catalog, even if the Rosetta Engine has to implement it.  The REMOTE
+catalog type is used when you cause the depot/sql_server you are connected
+with to turn around and connect to another depot (whether under the same
+sql_server doesn't matter), so its contents also become visible to you like
+they were an extension of the current depot; by default all catalogs in the
+other depo are "mounted" as remote catalogs in the current one.  In SQLite
+terms, when you "attach" one or more database files to the "main" one you
+have open, then a new "remote" catalog appears that represents each one. In
+terms of MySQL, I would guess that tables of its "federated" table type
+qualify to conceptually live in a remote catalog.  Any other database,
+presumably such as Oracle, that lets you "connect to" a remote sql_server
+is implementing the REMOTE catalog feature.  In terms of a hypothetical
+Rosetta Engine that lets you use a single "connection" to access multiple
+remote databases at once, such as for a database cloning utility or a
+multiplexer, *all* of the visible catalogs would be the REMOTE type, and
+there wouldn't be any of the LOCAL type; also in that case, the TEMPORARY
+catalog would commonly be implemented by the Rosetta Engine.  Technically
+speaking, there is also a "system" or "INFORMATION_SCHEMA" catalog that
+displays meta-data in the form of normal tables and views, but Rosetta does
+not expose it for your direct access; you should use Rosetta's native
+reverse-engineering functionality instead (which use them on your behalf).
+
+A "schema" is a namespace within a catalog where your tables and other
+database objects go.  Each one is owned by a user, though users don't have
+to own any (though Oracle happens to create a schema for every user
+automatically, whether or not they store anything in it).  Often each
+database user is assigned a specific schema as their home, and they are
+only allowed to make changes to objects inside it; also, any unqualified
+SQL identifier usage defaults to objects in this one.  Rosetta natively may
+behave differently in some of these aspects, though (to be decided).
+
+A "role" is a named collection of privileges that a user has.
+
+Details of individual schema objects and SQL statements are covered in other
+documents rather than in this one.
+
+HIGH LEVEL ROSETTA INTERFACE CLASSES/ROLES
+
+... TODO ...
+
+OTHER ...
