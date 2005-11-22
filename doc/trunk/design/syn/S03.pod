@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 12 Nov 2005
+  Last Modified: 22 Nov 2005
   Number: 3
-  Version: 8
+  Version: 9
 
 =head1 Operator renaming
 
@@ -118,6 +118,11 @@ is always a null range, as is C<1^..^2>.  However, smart matching
 against a Range object smartmatches the endpoints in the domain of
 the object being matched, so C<< 1.5 ~~ 1^..^2 >> is true.
 (But C<< 2.1 ~~ 1..2 >> is false.)
+
+=item * The unary C<^> operator generates a range from C<0> up to
+one less than its argument.  so C<^4> is short for C<0..^4> or C<0..3>.
+
+    for ^4 { say $_ } # 0, 1, 2, 3
 
 =item * C<...> is a unary postfix operator that constructs a semi-infinite
 (and lazily evaluated) list, starting at the value of its single argument.
@@ -371,13 +376,31 @@ it should be parsed as a list operator:
 =head1 C<zip>
 
 In order to support parallel iteration over multiple arrays, Perl 6 has
-a C<zip> function that interleaves the elements of two or more arrays.
+a C<zip> function that builds tuples of the elements of two or more arrays.
 
     for zip(@names; @codes) -> [$name, $zip] {
         print "Name: $name;   Zip code: $zip\n";
     }
 
 C<zip> has an infix synonym, the Unicode operator C<¥>.
+
+To read arrays in parallel like C<zip> but just sequence the values
+rather than generating tuples, use C<each> instead of C<zip>.
+
+    for each(@names; @codes) -> $name, $zip {
+        print "Name: $name;   Zip code: $zip\n";
+    }
+
+The C<each> function reads to the end of the longest list, not counting
+lists that are known to be infinite such as C<0..Inf>.  Missing values
+are replaced with C<undef>.  In contrast, use C<roundrobin> if you just
+wish to skip missing entries:
+
+    for roundrobin(@queue1; @queue2; @queue3) -> $next {
+        ...
+    }
+
+To read arrays serially rather than in parallel, use C<cat(@x;@y)>.
 
 =head1 Minimal whitespace DWIMmery
 
@@ -411,7 +434,7 @@ Perl 6 has 22 precedence levels (fewer than Perl 5):
     method postfix	. .+ .? .* .() .[] .{} .«» .=
     autoincrement	++ --
     exponentiation	**
-    symbolic unary	! + - ~ ? * ** +^ ~^ ?^ \
+    symbolic unary	! + - ~ ? * ** +^ ~^ ?^ \ ^
     multiplicative	* / % x xx +& +< +> ~& ~< ~>
     additive		+ - ~ +| +^ ~| ~^
     junctive and (all)	&
