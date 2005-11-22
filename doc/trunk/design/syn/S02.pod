@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 19 Nov 2005
+  Last Modified: 22 Nov 2005
   Number: 2
-  Version: 11
+  Version: 12
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -205,7 +205,7 @@ assign an undefined value to such a location.
 Regardless of whether they are defined, all objects support a C<.meta>
 method that returns the class instance managing the current kind of object.
 Any object (whether defined, undefined, or somewhere between) can be
-used as a "kind" when stored in a type variable such as C<^MyClass>.
+used as a "kind" when the context requires it.
 
 =item *
 
@@ -249,26 +249,22 @@ structural type of a variable:
     @	ordered array
     %	unordered hash (associative array)
     &	code
-    ^	class/type/kind variable
-
-In addition, package literals may be introduced with C<::> when they
-would otherwise be misinterpreted:
-
-    ::	package/module/class/role/type literal
+    ::	package/module/class/role/subset/enum/type
 
 Within a declaration, the C<&> sigil also declares the visibility of the
 subroutine name without the sigil within the scope of the declaration.
 
-Within a declaration, the C<^> sigil also declares the visibility of
-the type name without the sigil within the scope of the declaration.
-The first such declaration within a scope is assumed to be an
-unbound type, and takes the actual type of its associated argument.
-With subsequent declarations in the same scope the use of the sigil is
-optional, since the bare type name is also declared.  A declaration
-nested within must not use the sigil if it wishes to refer to the
-same type, since the inner declaration would rebind the type.  (Note
-that the signature of a pointy block counts as part of the inner block,
-not the outer block.)
+Within a signature or other declaration, the C<::> sigil followed by an
+identifier marks a parametric type that also declares the visibility
+of a package/type name without the sigil within the scope of the
+declaration.  The first such declaration within a scope is assumed
+to be an unbound type, and takes the actual type of its associated
+argument.  With subsequent declarations in the same scope the use of
+the sigil is optional, since the bare type name is also declared.
+A declaration nested within must not use the sigil if it wishes to
+refer to the same type, since the inner declaration would rebind
+the type.  (Note that the signature of a pointy block counts as part
+of the inner block, not the outer block.)
 
 =item *
 
@@ -382,7 +378,7 @@ sensitive to multiple dimensions while others are not.
 
 A signature object may be created with coloned parens:
 
-    my ^MySig = :(Int,Num,Complex, Status :mice)
+    my ::MySig = :(Int,Num,Complex, Status :mice)
 
 A signature's values are parsed as declarations rather than ordinary
 expressions.  You may not put arbitrary expressions, but you may, for
@@ -1064,16 +1060,6 @@ end-bracket rule.)
 
 =item *
 
-A class method can be called as a method if you use the type sigil:
-
-    print "The dog bark is ^Dog.bark().\n"
-
-Again, the parens are required.  Of course, if C<Dog> is a type that
-has no methods, this will fail.  It will also fail if the C<.bark>
-method requires an actual dog object rather than just an abstract C<Dog>.
-
-=item *
-
 Multiple dereferencers may be stacked as long as each one ends in
 some kind of bracket:
 
@@ -1118,6 +1104,12 @@ No other expressions interpolate.  Use curlies.
 
 =item *
 
+A class method may not be directly interpolated.  Use curlies:
+
+    print "The dog bark is {Dog.bark}.\n"
+
+=item *
+
 The old disambiguation syntax:
 
     ${foo[$bar]}
@@ -1129,10 +1121,6 @@ is dead.  Use closure curlies instead:
     {$foo}[$bar]
 
 (You may be detecting a trend here...)
-
-=item *
-
-To interpolate an unparenthesized class method, use curlies: C<"{Dog.bark}">.
 
 =item *
 
@@ -1149,7 +1137,8 @@ And so on.
 =item *
 
 Backslash sequences still interpolate, but there's no longer any C<\v>
-to mean "vertical tab", whatever that is...
+to mean "vertical tab", whatever that is...  (C<\v> now match vertical
+whitespace in a rule.)
 
 =item *
 
@@ -1161,8 +1150,8 @@ Use curlies with the appropriate function instead: C<"{ucfirst $word}">.
 There are no barewords in Perl 6.  An undeclared bare identifier will
 always be taken to mean a subroutine or method name.  (Class names
 (and other type names) are predeclared, or prefixed with the C<::>
-package literal marker, or the C<^> type sigil.)  A consequence
-of this is that there's no longer any "C<use strict 'subs'>".
+type sigil when you're declaring a new one.)  A consequence of this
+is that there's no longer any "C<use strict 'subs'>".
 
 =item *
 

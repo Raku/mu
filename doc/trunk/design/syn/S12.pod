@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 21 Nov 2005
+  Last Modified: 22 Nov 2005
   Number: 12
-  Version: 6
+  Version: 7
 
 =head1 Overview
 
@@ -69,17 +69,12 @@ You may derive from any built-in type, but the derivation of a low-level
 type like C<int> may only add behaviors, not change the representation.
 Use composition and/or delegation to change the representation.
 
-Since there are no barewords in Perl 6, bare class names must be predeclared.
-Alternately, for a literal package name you know will exist by the time of
-evaluation, you can use the package literal prefix C<::> to introduce the
-name, as in C<::ClassName>.  The C<::> prefix does not imply top-levelness
-as it does in Perl 5.  (Use C<::*> or C<GLOBAL::> for that.)
-
-The C<::> prefix always refers to a package name that is defined elsewhere.
-In contrast, you can define a local class or type variable using the
-C<^> type sigil.  In an rvalue context it is identical to C<::>, but
-in a declarational context, it binds a new type name within its declared
-scope.
+Since there are no barewords in Perl 6, bare class names must be
+predeclared.  You can predeclare a stub class and fill it in later
+just as you would a subroutine.  Alternately, you can define a local
+class or type variable using the C<::> type sigil.  In an rvalue
+context the C<::> prefix is a no-op, but in a declarational context,
+it binds a new type name within its declared scope.
 
 Without a C<my> or other scoping declarator, a bare C<class>
 declarator declares an C<our> declarator, that is, a name within
@@ -686,11 +681,11 @@ a way to force a role to test its crony composition for infelicities.)
 A role's main type is generic by default, but you can also parameterize
 other types explicitly using type parameters:
 
-    role Pet[^Petfood = TableScraps] {
+    role Pet[::Petfood = TableScraps] {
 	method feed (Petfood $food) {...}
     }
 
-(Note that in this case you must not use ^Petfood in the inner declaration,
+(Note that in this case you must not use ::Petfood in the inner declaration,
 or it would rebind the type to type of the actual food parameter.)
 
 If a role merely declares methods without defining them, it degenerates
@@ -724,7 +719,7 @@ If you want to parameterize the initial value of a role attribute,
 be sure to put a colon if you don't want the parameter to be considered
 part of the long name:
 
-    role Pet[^ID: $tag] {
+    role Pet[::ID: $tag] {
 	has ID $.collar .= new($tag);
     }
 

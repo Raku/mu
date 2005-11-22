@@ -342,7 +342,6 @@ for any sigil:
     :@what	:what(@what)
     :%what	:what(%what)
     :&what	:what(&what)
-    :^what	:what(^what)
 
 There is a corresponding shortcut for hash keys if you prefix the
 subscript instead of the sigil.  The C<:> is not functioning as an
@@ -947,36 +946,27 @@ by which you can refer to that kind later in the signature or body.
 For instance, if you wanted to match any two Dogs as long as they
 were of the same kind, you can say:
 
-    sub matchedset (Dog ^T $fido, T $spot) {...}
+    sub matchedset (Dog ::T $fido, T $spot) {...}
 
-(Note that C<^T> is not required to contain C<Dog>, only
+(Note that C<::T> is not required to contain C<Dog>, only
 a type that is compatible with C<Dog>.)
 
-The C<^> sigil is short for "type" in much the same way that C<&> is
+The C<::> sigil is short for "subset" in much the same way that C<&> is
 short for "sub".  Just as C<&> can be used to name any kind of code,
-so too C<^> can be used to name any kind of type.  Both of them insert
+so too C<::> can be used to name any kind of type.  Both of them insert
 a bare identifier into the grammar, though they fill different syntactic
 spots.
 
 Note that it is not required to capture the object associated with the
 class unless you want it.  The sub above could be written
 
-    sub matchedset (Dog ^T, T) {...}
+    sub matchedset (Dog ::T, T) {...}
 
 if we're not interested in C<$fido> or C<$spot>.  Or just 
 
-    sub matchedset (^T, T) {...}
-
-if we don't care about anything but the matching.  Note that if we'd
-said
-
     sub matchedset (::T, T) {...}
 
-it would have been subtly different.  C<::T> declares that there exists
-an external type C<T> that we just haven't seen the declaration for
-yet.  It doesn't attempt to bind the actual type of of the argument.
-It merely specifies that, by the time this function is called, C<T> is
-defined and both arguments match that type.
+if we don't care about anything but the matching.
 
 =head2 Unpacking array parameters
 
@@ -1333,23 +1323,16 @@ its parametric value from the actual type of the parameter it is
 associated with.  It declares the new type name in whatever scope
 the surrounding declaration is associated lexical scope.
 
-    sub max (Num ^X @array ) {
+    sub max (Num ::X @array ) {
 	push @array, X.new();
     }
 
 The new type name is introduced immediately, so two such types in
 the same signature must unify compatibly if they have the same name:
 
-    sub compare (Any ^T $x, T $y) {
+    sub compare (Any ::T $x, T $y) {
 	return $x eqv $y;
     }
-
-The C<^> sigil is just short for 'type', so you can also write:
-
-    sub compare (Any type T $x, T $y) {
-	return $x eqv $y;
-    }
-
 
 =head2 Return types
 
