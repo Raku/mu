@@ -33,25 +33,19 @@ An Array object that wraps a native array.
 An Array object that generates Cells on demand.
 This is the default implementation.
 
-- List class
+- Tuple ("List") class
 
 List is an anonymous set of things.
 List is a subclass of "Value"
 At runtime, you only access List elements through Containers.
 A List slice is an Array in which the Cells point to List elements.
 
--- "Eager List"
-
-An Eager List is allocated in physical memory.
-An Eager List can be a set of things in the virtual machine stack, or
-a Native Array.
-
--- Generator or "Lazy List"
+-- Generator
 
 Generator is an object that creates Values on demand.
 Generator is "functional" rather than "physical memory"
 At runtime, you only access Generator elements through Containers.
-A Lazy List slice is an Array in which the Cells point to Generator elements.
+A Lazy slice is an Array in which the Cells point to Generator elements.
 
 - Slice
 
