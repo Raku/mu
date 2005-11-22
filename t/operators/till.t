@@ -3,24 +3,9 @@
 use v6;
 use Test;
 
-plan 19;
+plan 20;
 
 # L<S03/"Operator renaming" /flipflop operator is now done with/>
-
-# Following test copied from Perl 5.9.2's t/op/flip.t
-{
-    my @a = (1,2,3,4,5,6,7,8,9,10,11,12);
-    my ($z, $y);
-
-    for @a {
-        my $x = ($_ == 4) till ($_ == 8);
-        if $x { $z = $x }
-        $y ~= (index($_, 1) != -1) till (index($_, 2) != -1);
-    }
-
-    is $z, '5E0';
-    is $y, '12E0123E0';
-}
 
 sub take (Int $n, Code &f) { (1..$n).map:{ f() } }
 sub always_false { 0 }
@@ -118,5 +103,13 @@ sub always_true  { 1 }
         "LHS not evaluated in \"false\" state (till^)";
 }
 
-# XXX what about appending "E0"? This is probably done with "... but
-# end_of_sequence" now.
+# See thread "till (the flipflop operator, formerly ..)" on p6l started by Ingo
+# Blechschmidt, especially Larry's reply:
+# http://www.nntp.perl.org/group/perl.perl6.language/24098
+{
+    my sub foo ($x) { $x till 0 }
+
+    ok !foo(0), "all sub invocations share the same till-state (1)";
+    ok  foo(1), "all sub invocations share the same till-state (2)";
+    ok  foo(0), "all sub invocations share the same till-state (3)";
+}

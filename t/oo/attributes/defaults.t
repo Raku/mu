@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 15;
+plan 21;
 
 # L<S12/"Attributes" /The value on the right is evaluated at class composition/>
 
@@ -20,10 +20,23 @@ sub get_a_code {
     };
 }
 
+# L<S12/"Attributes" /the attribute being initialized/>
+
+my $set_by_code_attr;
+
 eval 'class Foo {
     has $.num  = get_a_num();
     has $.str  = { get_a_str() };
     has $.code = { get_a_code() };
+
+    has $.set_by_code = {
+        $set_by_code_attr := $_;
+        42;
+    };
+
+    has $.self_in_code = { self.echo };
+
+    method echo { "echo" }
 }';
 
 {
@@ -68,4 +81,23 @@ eval 'class Foo {
         is try { $foo.code() }, 42, "sub-coderef execution works";
         is $was_in_closure,      1, "sub-coderef still not executed";
     }
+}
+
+{
+    my Foo $foo .= new;
+
+    is try { $foo.set_by_code }, 42, '$_ is the attribute being initialized (1)';
+    is $set_by_code_attr,        42, '$_ is the attribute being initialized (2)';
+
+    lives_ok { $set_by_code_attr++ },
+        '$_ is the attribute being initialized (3)';
+
+    is try { $foo.set_by_code }, 43, '$_ is the attribute being initialized (4)';
+    is $set_by_code_attr,        43, '$_ is the attribute being initialized (5)';
+}
+
+{
+    my Foo $foo .= new;
+
+    is try { $foo.self_in_code }, "echo", "self is the object being initialized";
 }
