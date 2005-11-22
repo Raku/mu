@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
-  Last Modified: 2 Dec 2004
+  Last Modified: 22 Nov 2005
   Number: 9
-  Version: 4
+  Version: 5
 
 =head1 Overview
 
@@ -156,57 +156,95 @@ which is equivalent to
 
     @array.postcircumfix:<[ ]>( <== @x[0] <== @x[1] <== @x[2]...);
 
-To declare a multidimensional array, you add a shape parameter:
+Alternately, use a multislice array, indicated by a C<;> twigil:
 
-    my num @nums is shape(3);   # one dimension, @nums[0..2]
-    my int @ints is shape(4;2); # two dimensions, @ints[0..3; 0..1]
+    @array[@;x]
 
-The argument to a shape specification is a semicolon list, just like
-the inside of a multidimensional subscript.  Ranges are also allowed,
-so you can pretend you're programming in Fortran, or awk:
+Multislice arrays have the advantage of being able to collect individual
+pipes and keep them distinct:
 
-    my int @ints is shape(1..4;1..2); # two dimensions, @ints[1..4; 1..2]
+    my @;x;
+    @;x <==  %hash.keys.grep: {/^X/};
+    @;x <== =<>;
+    @;x <== 1...;
+    @;x <== gather { loop { take rand 100 } };
+
+    %hash{@;x}
+
+To declare a multidimensional array, you may declare it with a signature as
+if it were a function returning one of its entries:
+
+    my num @nums (Int);   # one dimension, @nums[Int]
+
+or alternately:
+
+    my @nums (Int --> num);   # one dimension, @nums[Int]
+
+You can use ranges as types:
+
+    my @nums (0..2 --> num);   # one dimension, @nums[0..2]
+    my @ints (0..3, 0..1 --> int);   # one dimension, @ints[0..3; 0..1]
+
+That includes the "upto" range type:
+
+    my @ints (^4, ^2 --> int);   # one dimension, @ints[0..3; 0..1]
+
+You can pretend you're programming in Fortran, or awk:
+
+    my int @ints (1..4, 1..2); # two dimensions, @ints[1..4; 1..2]
 
 Note that this only influences your view of the array, not the actual
-shape of the array.  If you pass this array to another module, it will
-see it as shape(0..3; 0..1) unless it also declares a variable to view
-it differently.
+shape of the array.  If you pass this array to another module, it
+will see it as have a shape of C<(0..3, 0..1)> unless it also declares
+a variable to view it differently.
 
-You can pass a list for the shape as well:
+Alternately, you may declare it using a prototype subscript,
+but then you must remember to use semicolons instead of commas to
+separate dimensions, because each slice represents an enumeration of
+the possible values, so the following are all equivalent:
 
-    my int @ints is shape(dims @foo.shape);
+    my @ints (0..3, 0..1 --> int);
+    my int @ints (0..3, 0..1);
+    my int @ints[^4;^2];
+    my int @ints[0..3; 0..1];
+    my int @ints[0,1,2,3; 0,1];
 
-Again, the C<dims> list operator interpolates a list into a semicolon
+You can pass a multislice for the shape as well:
+
+    my int @ints[[;]@fooshape];
+    my int @ints[@;fooshape];	# same thing
+
+Again, the C<[;]> list operator interpolates a list into a semicolon
 list, which we do for consistency with subscript notation, not because
 it makes a great deal of sense to allow slices for dimensional specs
 (apart from ranges).  So while the following is okay:
 
-    my int @ints is shape(0,1,2,3,4);	# same as 0..4
+    my int @ints[0,1,2,3,4];	# same as 0..4
 
 the following is a semantic error that the compiler should catch:
 
-    my int @ints is shape(3,3,3);	# oops, comma instead of semicolon
+    my int @ints[^3,^3,^3];	# oops, comma instead of semicolon
 
 The shape may be supplied entirely by the object at run-time:
 
-    my num @nums = Array of num.new(:shape(3;3;3));
-    my num @nums .=new():shape(3;3;3); # same thing 
+    my num @nums = Array of num.new(:shape(^3;^3;^3));
+    my num @nums .=new():shape(^3;^3;^3); # same thing 
 
 Any dimension of the array may be specified as "C<Int>", in which case
 that dimension will autoextend.  Typically this would be used in the
 final dimension to make a ragged array functionally equivalent to an
 array of arrays:
 
-    my int @ints is shape(42; Int);
+    my int @ints[^42; Int];
     push(@ints[41], getsomeints());
 
 The shape may also be specified by types rather than sizes:
 
-    my int @ints is shape(Even; Odd);
+    my int @ints[Even; Odd];
 
 or by both:
 
-    my int @ints is shape(0..100 where Even; 1..99 where Odd);
+    my int @ints[0..100 where Even; 1..99 where Odd];
 
 (presuming C<Even> and C<Odd> are types already constrained to be even or odd).
 
@@ -214,8 +252,8 @@ or by both:
 
 An array C<@array> can be tied to a piddle at declaration time:
 
-    my num @array is Piddle is shape(dims @mytensorshape);
-    my @array is Piddle(:shape(2;2;2;2)) of int8;
+    my num @array[@;mytensorshape] is Piddle;
+    my @array is Piddle(:shape(^2;^2;^2;^2)) of int8;
 
 Piddles are allowed to assume a type of C<num> by default rather than
 the usual simple scalar.  (And in general, the type info is merely
@@ -243,7 +281,7 @@ the actual dimensionality.  It's quite possible that the array variable
 is deliberately declared with a different dimensionality to provide a
 different "view" on the actual value:
 
-    my int @array is Puddle is shape(2;2) .= new(:shape(4) <== 0,1,2,3);
+    my int @array[^2;^2] is Puddle .= new(:shape(^4) <== 0,1,2,3);
 
 Again, reconciling those ideas is up to the implementation, C<Puddle>
 in this case.  The traits system is flexible enough to pass any
@@ -257,8 +295,8 @@ any object that doesn't conform to the variable's shape requirements.
 
 A subscript indicates a "slice" of an array.  Each dimension
 of an array is sliced separately, so we say a subscript is a
-semicolon-separated list of slice specifiers.  A three-dimensional
-slice might look like this:
+semicolon-separated list of slice specifiers, also known as a multislice.
+A three-dimensional slice might look like this:
 
     @x[0..10; 1,0; 1...:by(2)]
 
@@ -277,26 +315,19 @@ index value to each slice list:
 
 At the statement level, a semicolon terminates the current expression.
 Within any kind of bracketing construct, semicolon notionally
-produces a list of lists, the interpretation of which depends on
+separates slices, the interpretation of which depends on
 the context.  Such a semicolon list always provides list context to
-each of its sublists.  The following two constructs are structurally
-indistinguishable:
-
-    (0..10; 1,2,4; 3)
-    ([0..10], [1,2,3,4], [3])
-
-Of course, in known contexts such as array subscripts, the compiler
-is free to optimize away the actual construction of sublists where
-that's unnecessary.
+each of its sublists.  The storage of these sublists is hidden in
+the inner workings of the list.  It does not produce a list of lists. 
 
 Single dimensional arrays expect simple slice subscripts, meaning
 they will treat a list subscript as a slice in the single dimension of
-the array.  Multi-dimensional arrays, on the other hand, always expect
-a list of slice lists, one for each dimension.  You need not specify
+the array.  Multi-dimensional arrays, on the other hand, know how to
+handle multiple slices, one for each dimension.  You need not specify
 all the dimensions; if you don't, the unspecified dimensions are
 "wildcarded".  Supposing you have:
 
-    my num @nums is shape(3;3;3);
+    my num @nums[^3;^3;^3];
 
 Then
 
@@ -318,9 +349,9 @@ If you wanted that C<0..2> range to mean
 
     @nums[0;1;2]
 
-instead, then you need to use that C<dims> we keep mentioning:
+instead, then you need to use the C<[;]> reduction operator:
 
-    @nums[dims 0..2]
+    @nums[[;] 0..2]
 
 The zero-dimensional slice:
 
@@ -349,7 +380,8 @@ somehow.  It's possible the range operator could be taught that C<:2>
 means C<:by(2)>, for instance.  (But I rather dislike the RFC-proposed
 C<0:10:2> notation that makes colon mean two different things so close
 together, plus it conflicts with Perl 6's general adverb notation if
-the next thing is alphabetic.)
+the next thing is alphabetic.  On top of which, we're using C<:2> as
+a general radix notation.)
 
 Another thing that's not going to fly easily is simply dropping out
 terms.  Perl depends rather heavily on knowing when it's expecting
@@ -390,10 +422,10 @@ To rewrite a Perl 5 PDL definition like this:
 you might want to write a macro that parses something vaguely
 resembling this:
 
-    role PDL_stuff[type $TYPE] {
-	PDLsub inner (@a[$n], @b[$n]) returns(@c[]) {
-	    my ::($TYPE) $tmp = 0;
-	    for 0..^$n {
+    role PDL_stuff[::TYPE] {
+	PDLsub inner (@a[$n], @b[$n] --> @c[]) {
+	    my TYPE $tmp = 0;
+	    for ^$n {
 		$tmp += @a[$_] * @b[$_];
 	    }
 	    @c[] = tmp;
@@ -402,12 +434,12 @@ resembling this:
 
 where that turns into something like this:
 
-    role PDL_stuff[type $TYPE] {
-	multi sub inner (::($TYPE) @a, ::($TYPE) @b) returns(::($TYPE)) {
+    role PDL_stuff[::TYPE] {
+	multi sub inner (TYPE @a, TYPE @b --> TYPE) {
 	    my $n = @a.shape[0];	# or maybe $n is just a parameter
 	    assert($n == @b.shape[0]);	#  and this is already checked by PDL
-	    my ::($TYPE) $tmp = 0;
-	    for 0..^$n {
+	    my TYPE $tmp = 0;
+	    for ^$n {
 		$tmp += @a[$_] * @b[$_];
 	    }
 	    return $tmp;
@@ -574,11 +606,11 @@ them with a C<.assuming> method, in which only the unbound parameters
 autothread.
 
 If you use an unbound array parameter as a semicolon-list interpolator
-(via the C<dims> list operator), it functions as a wildcard list of
+(via the C<[;]> reduction operator), it functions as a wildcard list of
 subscripts that must match the same everywhere that parameter is used.
 For example,
 
-    do -> @wild { @b[dims reverse @wild] = @a[dims @wild]; };
+    do -> @wild { @b[[;] reverse @wild] = @a[[;] @wild]; };
 
 produces an array with the dimensions reversed regardless of the
 dimensionality of C<@a>.
@@ -597,21 +629,21 @@ if you're going to limit the keys of one dimension of a hash, you have
 to provide an explicit list of keys to that dimension of the shape,
 or an equivalent range:
 
-    my num %hash is shape(<a b c d e f>; Str);
-    my num %hash is shape('a'..'f'; Str);		# same thing
+    my num %hash{<a b c d e f>; Str};
+    my num %hash{'a'..'f'; Str};		# same thing
 
 To declare a hash that can take any object as a key rather than
 just a string, say something like:
 
-    my %hash is shape(Any);
+    my %hash{Any};
 
 Likewise, you can limit the keys to objects of particular types:
 
-    my Fight %hash is shape(Dog;Cat);
+    my Fight %hash{Dog;Cat};
 
 The standard Hash is just
 
-    my Any %hash is shape(Str);
+    my Any %hash{Str};
 
 Note that any type used as a key must be intrinsically immutable,
 or it has to be able to make a copy that functions as an immutable key,
@@ -629,7 +661,7 @@ In list context, it returns a lazy list fed by the iterator.  It must
 be possible for a hash to be in more than one iterator at at time,
 as long as the iterator state is stored in a lazy list.
 However, there is only one implicit iterator (the C<each> iterator)
-that works in scalar context to return the next pair.
+that works in scalar context to return the next pair.  [Or maybe not.]
 
 The downside to making a hash autosort via the iterator is that you'd
 have to store all the keys in sorted order, and resort it when the
@@ -638,4 +670,5 @@ implementation (not included (XXX or should it be?)).
 
 For multidimensional hashes, the key returned by any hash iterator is
 a list of keys, the size of which is the number of declared dimensions
-of the hash.
+of the hash.  [XXX but this seems to imply another lookup to find the
+value.  Perhaps the associated value can also be bundled in somehow.]
