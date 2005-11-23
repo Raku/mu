@@ -24,9 +24,9 @@ paragraph should point to it. ]]
 
 If you're on *nix, one of these commands should get you up to speed:
 
-  apt-get install pugs pugs-doc pugs-modules  # Debian
-  pkg_add pugs                                # FreeBSD
-  emerge pugs                                 # Gentoo
+  apt-get install pugs pugs-doc  # Debian
+  pkg_add pugs                   # FreeBSD
+  emerge pugs                    # Gentoo
  
 On Windows, you can fetch the PxPerl binary distribution from this site:
 
