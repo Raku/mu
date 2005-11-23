@@ -287,22 +287,28 @@ Note shortcomings are mostly mentioned in the code itself with 'XXX' markers.
     - Description   Description of function     (This is what it does)
     - Authority     From S11                    (cpan+KANE)
     - Package       Full package name           (p5-Foo-Bar-1.2.3-cpan+kane)
-    - Depends       Packages it depends on[1]   (p5-Foo)
+    - Depends       Packages it depends on[1][2](p5-Foo)
     - Provides      Packages this one provides  (p5-Foo-Bar, 
                                                     p5-Foo-Bar-cpan+kane)
 
     [1] This is packages, *not* modules. If we need a module -> package 
         mapping, this needs to be done when extracting the data from the
         compiler, and queried against the available packages cache.
+    [2] See the section on L<Dependencies>
 
-=head2 Suggested fields[2]
+=head2 Suggested fields[3]
 
+    - Build-Depens  Packages needed to build this package
+    - Suggests      Packages suggested by this package
+    - Recommends    Packages recommended by this package
     - Conflicts     Packages this one conflicts with
     - Replaces      Packages this one replaces
     - Tags          Arbitrary metadata about the package, 
                     like flickr and debtags
+    - Contains      List of modules (and scripts?) contained 
+                    in the package
 
-    [2] Steal more tags from debian policy
+    [3] Steal more tags from debian policy
 
 
 =head1 Alternatives
@@ -368,6 +374,76 @@ The rules in changing the alternatives are as follows:
 The uninstall rules are quite similar, except the installer has to check, when
 removing the links for this version, if the policy can point to a new default,
 and register those alternatives instead.
+
+=head1 Dependencies
+
+=head2 Dependency Notatation
+
+Dependency notation allows you to express the following concepts:
+
+=over
+
+=item OR
+
+Specifies alternatives
+
+=item AND
+
+Specifies cumulative requirements
+
+=item associate VERSION requirement
+
+Specifies a criteria for the version requirement
+
+=item grouping
+
+This allows nesting of the above expressions
+
+=head3 Basic notation:
+
+    a, b                        # a AND b
+    [a, b]                      # a OR b
+    { a => "> 2" }              # a greater than 2
+    { a => 1 }                  # shorthand for a greater or equal to 1
+    \[ ... ]                    # grouping
+    
+=head3 More complex examples:
+
+    a, [b,c]                    # a AND (b OR c)
+    { a => 1 }, { a => '< 2' }  # a greater or equal to 1 AND smaller than 2
+    [a, \[ b, c ] ]             # a OR (b AND c) [1]
+    
+    [1] This is possibly not portable to other languages. Options seem
+        thin as we dont have some /other/ grouping mechanism than [ ], { }
+        and \[ ]; ( ) gets flattened and \( ) == [ ].
+        We could abuse { } to create { OR => [ ] } and { AND => [ ] } 
+        groups, but it would not read very intuitively. It would also mean
+        that the version requirements would have to be in the package naming,
+        ie. 'a > 2' rather than a => '> 2'
+
+=head3 Serialization Examples 
+
+    # a, b
+    - a
+    - b
+
+    # [a, b] 
+    -
+      - a
+      - b
+
+    # { a => "> 2" }
+    a: > 2
+    
+    # { a => 1 }
+    a: 1
+    
+    
+    # \[ ... ]
+    - !perl/ref:
+      =:
+        - ...
+
 
 __END__
 
