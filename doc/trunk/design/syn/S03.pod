@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 22 Nov 2005
+  Last Modified: 23 Nov 2005
   Number: 3
-  Version: 9
+  Version: 10
 
 =head1 Operator renaming
 
@@ -164,7 +164,7 @@ When using a unary operator, only put it on the operand's side:
      @positions »++;            # Increment all positions
      
      @objects ».run();
-     ("f","oo","bar")».length;   # (1,2,3)
+     ("f","oo","bar")».chars;   # (1,2,3)
 
 Note that method calls are really postfix operators, not infix, so you
 shouldn't put a C<«> after the dot.
@@ -440,12 +440,12 @@ Perl 6 has 22 precedence levels (fewer than Perl 5):
     junctive and (all)	&
     junctive or (any)	| ^
     named unary		rand sleep abs etc.
-    nonchaining binary	=> but does cmp <=> .. ^.. ..^ ^..^ till
+    nonchaining binary	but does cmp <=> .. ^.. ..^ ^..^ till
     chaining binary	!= == < <= > >= ~~ !~ eq ne lt le gt ge =:= ===
     tight and		&&
     tight or		|| ^^ //
     ternary		?? !!
-    assignment		= := ::= += -= **= xx= etc.
+    assignment		= := ::= += -= **= xx= etc. (and also =>)
     list item separator	, ¥
     list op (rightward)	<== print push any all true not etc.
     pipe forward	==>
