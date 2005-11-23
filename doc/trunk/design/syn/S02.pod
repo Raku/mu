@@ -820,49 +820,72 @@ an explicit radix marker for that.  Pre-defined radix prefixes include:
 =item *
 
 The general radix form of a number involves prefixing with the radix
-followed by a colon:
+in adverbial form:
 
-    10:42		same as 0d42 or 42
-    16:dead_beef	same as 0xdeadbeef
-    8:177777		same as 0o177777 (65535)
-    2:1.1		same as 0b1.1 (0d1.5)
+    :10<42>		same as 0d42 or 42
+    :16<dead_beef>	same as 0xdeadbeef
+    :8<177777>		same as 0o177777 (65535)
+    :2<1.1>		same as 0b1.1 (0d1.5)
 
 Extra digits are assumed to be represented by 'a'..'z', so you can go up
-to base 36.  (Use 'a' and 'b' for base twelve, not 't' and 'e'.)
+to base 36.  (Use 'a' and 'b' for base twelve, not 't' and 'e'.)  Alternately
+you can use a list of digits in decimal:
 
-Any radix may include a fractional part.  A dot will always be
-interpreted as a radix point if possible by the longest-token rule,
-so to call a method on a literal with a base greater than 10, the
-safe thing is to put a space before the dot:
+    :60[12,34,56]	# 12 * 3600 + 34 * 60 + 56
+    :100[3,'.',14,16]	# pi
 
-    16:dead_beef.face	# fraction
-    16:dead_beef .face	# method call
+Any radix may include a fractional part.  A dot is never ambiguous
+because you have to tell it where the number ends:
+
+    :16<dead_beef.face>	# fraction
+    :16<dead_beef>.face	# method call
 
 =item *
 
 Only base 10 (in any form) allows an additional exponentiator starting
-with 'e' or 'E'.  All other radixes must rely on the constant folding
-properties of ordinary multiplication and exponentiation.
+with 'e' or 'E'.  All other radixes must either rely on the constant folding
+properties of ordinary multiplication and exponentiation, or supply the
+equivalent two numbers as part of the string, which will be interpreted
+as they would outside the string, that is, as decimal numbers by default:
 
-    16:dead_beef * 16**8
+    :16<dead_beef> * 16**8
+    :16<dead_beef*16**8>
 
 It's true that only radixes that define 'e' as a digit are ambiguous that
 way, but with any radix it's not clear whether the exponentiator should
 be 10 or the radix, and this makes it explicit:
 
-    0b1.1e10		illegal, could mean any of:
+    0b1.1e10			illegal, could be read as any of:
 
-    2:1.1 * 2**10	1536
-    2:1.1 * 10**10	15,000,000,000
-    2:1.1 * 2:10**2:10	6
+    :2<1.1> * 2 ** 10		1536
+    :2<1.1> * 10 ** 10		15,000,000,000
+    :2<1.1> * :2<10> ** :2<10>	6
+
+So we write those as
+
+    :2<1.1*2**10>		1536
+    :2<1.1*10**10>		15,000,000,000
+    :2«1.1*:2<10>**:2<10>»	6
 
 The generic string-to-number converter will recognize all of these
 forms (including the * form, since constant folding is not available
 to the run time).  Also allowed in strings are leading plus or minus,
-and maybe a trailing Units type for an implied scaling.  Note also that
-leading 0 by itself never implies octal in Perl 6.  Also, the hextonum
-converter function will interpret leading 0b or 0d as hex digits,
-not radix switchers.
+and maybe a trailing Units type for an implied scaling.  Leading and
+trailing whitespace is ignored.  Note also that leading C<0> by itself
+I<never> implies octal in Perl 6.
+
+Any of the adverbial forms may be used as a function:
+
+    :2($x)	# "bin2num"
+    :8($x)	# "oct2num"
+    :10($x)	# "dec2num"
+    :16($x)	# "hex2num"
+
+Think of these as setting the default radix, not forcing it.  Like Perl
+5's old C<oct()> function, any of these will recognize a number starting
+with a different radix marker and switch to the other radix.  However,
+note that the C<:16()> converter function will interpret leading C<0b>
+or C<0d> as hex digits, not radix switchers.
 
 =item *
 
@@ -896,18 +919,18 @@ Generalized quotes may now take adverbs:
     :w		:words		Split result on words (no quote protection)
     :ww		:quotewords	Split result on words (with quote protection)
     :t		:to		Interpret result as heredoc terminator
-    :0		:raw		No escapes at all (unless otherwise adverbed)
-    :1		:single		Interpolate \\, \q and \' (or whatever)
-    :2		:double		Interpolate all the following
+    :n		:none		No escapes at all (unless otherwise adverbed)
+    :q		:single		Interpolate \\, \q and \' (or whatever)
+    :qq		:double		Interpolate all the following
     :s		:scalar		Interpolate $ vars
     :a		:array		Interpolate @ vars
     :h		:hash		Interpolate % vars
     :f		:function	Interpolate & calls
     :c		:closure	Interpolate {...} expressions
-    :b		:backslash	Interpolate \n, \t, etc. (implies :m)
+    :b		:backslash	Interpolate \n, \t, etc. (implies :q at least)
 
-Any of these may omit the colon after an initial "C<q>", so we automatically
-get the forms:
+Any of the short forms that don't begin with C<q> may omit the colon
+after an initial "C<q>", so we automatically get the forms:
 
     Form	Same as
     ====	=======
@@ -915,9 +938,7 @@ get the forms:
     qw//	q:w//
     qww//	q:ww//
     qt//	q:t//
-    q0//	q:0//
-    q1//	q:1//	(same as q//)
-    q2//	q:2//	(same as qq//)
+    qr//	q:r//
     qs//	q:s//
     qa//	q:a//
     qh//	q:h//
