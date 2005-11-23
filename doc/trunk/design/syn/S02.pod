@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 22 Nov 2005
+  Last Modified: 23 Nov 2005
   Number: 2
-  Version: 12
+  Version: 13
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -802,10 +802,11 @@ Consent of the governed, and all that.
 
 =item *
 
-Underscores are allowed between any two digits in a literal number, where
-the definition of digit depends on the radix.  Underscores are not allowed
-anywhere else in any numeric literal, including next to the radix point
-or exponentiator.
+A single underscore is allowed only between any two digits in a
+literal number, where the definition of digit depends on the radix.
+Underscores are not allowed anywhere else in any numeric literal,
+including next to the radix point or exponentiator, or at the beginning
+or end.
 
 =item *
 
