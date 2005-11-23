@@ -1632,7 +1632,7 @@ ruleInvocationCommon mustHaveParens = do
     name        <- do { str <- ruleSubName; return $ colonify str }
     (invs,args) <- if mustHaveParens
         then parseHasParenParamList
-        else do  -- $obj.foo: arg1, arg2    # listop method call
+        else do  --  $obj.foo: arg1, arg2    # listop method call
                  -- we require whitespace after the colon (but not before)
                  -- so that @list.map:{...} doesn't get interpreted the
                  -- wrong way.
