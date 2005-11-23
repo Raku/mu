@@ -97,7 +97,7 @@ Returns the highest integer not greater than $x.
 =item ceiling
 
  multi  Num::ceiling (  Num  $x          --> Int )
- &Num::ceil ::= &Num::Ceiling;
+ &Num::ceil ::= &Num::ceiling;
 
 Returns the lowest integer not less than $x.
 
@@ -802,14 +802,14 @@ activitities, but I'm not sure. They likely need to be renamed, as well.
 
 =item list
 
- multi Conversions::List:list ( *@list --> List )
+ multi Conversions::List::list ( *@list --> List )
 
 Forces List Context on it's arguements, and returns them.
 
 
 =item item
 
- multi Conversions::Item:item ($item --> Item )
+ multi Conversions::Item::item ($item --> Item )
 
 Forces generic Item context on it's argument, and returns it.
 
