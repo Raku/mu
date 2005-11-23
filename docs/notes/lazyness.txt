@@ -4,39 +4,64 @@ A draft on the runtime view of how Lazy things (like Arrays) work.
 
 The text assumes a knowledge of terms like "Container", "Scalar", "Cell", "Role".
 
-== TODO
+References: 
+- S09 Data Structures
+- A bit of each of the other AES
 
-- include drawings
+TODO - include drawings
+TODO - detail the behaviour of "Str Range"
+TODO - compare with Ruby/Python should help explaining some concepts
 
 == Definitions
 
-- Native array / Native hash
+TODO:
+Native array / Native hash
+Scalar / Array / Hash Container
+Tuple / List / Generator / Iterator / Range
+Signature / Argument List
+Array / Hash slice
+enum
+tie / proxy / rw / env
+Constrained Types (eg: Int / Even / 0..100 where Even)
+Piddle
+
+- native array / native hash
 
 These are fast, in-memory structures provided by the virtual machine.
 These structures are assumed to be one-dimensional.
 
-- Array class
+- Array Container Class
 
 The Array class defines all objects that implement the array API.
 
 Array is a subclass of "Container"
 Array contains an ordered set of Cells.
+Array is multi-dimensional.
 
 The actual implementation depends on the "Eager" or the "Lazy" roles.
+Other implementations can be specified 
 
--- Eager role
+-- Eager Role
 
 An Array object that wraps a native array.
 
--- Lazy role
+-- Lazy Role
 
 An Array object that generates Cells on demand.
 This is the default implementation.
 
+-- Shape (Role or parameter? trait?)
+
+-- Compact Array Role
+
+TODO
+
 - Tuple ("List") class
 
 List is an anonymous set of things.
-List is a subclass of "Value"
+List is a subclass of "Value".
+List is one-dimensional.
+
 At runtime, you only access List elements through Containers.
 A List slice is an Array in which the Cells point to List elements.
 
@@ -59,6 +84,7 @@ The Hash class defines all objects that implement the hash API.
 Hash is like an Array, in which the Cell indexes can be of any type 
 (not just numbers).
 
+Hash is multi-dimensional.
 
 == Generator Internals
 
@@ -67,20 +93,18 @@ Hash is like an Array, in which the Cell indexes can be of any type
 
 == Generator API
 
-This API is only used by the runtime internals.
-Perl 6 programs should only "see" the Array and Hash classes.
+- match
 
-- head(n)
+This operator is used in a match statement:
 
-Takes "n" Values from the Generator, like "shift" does. 
-The result can be a Generator (when n is big), an Array (possibly Native), 
-a single Value (when n == 1), or Void (when n <= 0).
+    5 ~~ 1..10
 
-- tail(n)
+- shift / pop
 
-Takes "n" Values from the back of the Generator, like "pop" does. 
-The result can be a Generator (when n is big), an Array (possibly Native), 
-a single Value (when n == 1), or Void (when n <= 0).
+TODO - not sure if "Generator" is an iterator (read-only) or uses destructive 
+read (shift/pop)
+
+- sum / reverse / map / zip
 
 - flatten
 
@@ -90,22 +114,56 @@ Takes all Values from the Generator, and returns an Array (possibly Native).
 
 The number of elements
 
+=== This part of the Generator API is only used by the runtime internals.
+
+- head(n)
+
+This operator is used by the Array splice operator.
+
+Takes "n" Values from the Generator, like "shift" does. 
+The result can be a Generator (when n is big), an Array (possibly Native), 
+a single Value (when n == 1), or Void (when n <= 0).
+
+TODO - not sure if "Generator" is an iterator (read-only) or uses destructive 
+read (head/tail)
+
+- tail(n)
+
+This operator is used by the Array splice operator.
+
+Takes "n" Values from the back of the Generator, like "pop" does. 
+The result can be a Generator (when n is big), an Array (possibly Native), 
+a single Value (when n == 1), or Void (when n <= 0).
+
+TODO - check if "Generator" is an iterator (read-only) or uses destructive 
+read (head/tail)
+
 - is_contiguous
 
-True is the generated sequence is like "2 .. 10".
-This is useful when the sequence is used as a slice index.
+This is used for the optimization of Slice, when the sequence is used
+as a slice index.
 
-- sum / reverse / map / zip
+is_contiguous() is True is the generated sequence is like "2 .. 10".
 
 
 = Array internals
 
+== Array (base Class)
+
+TODO
+
+== Eager (Role)
+
 An Eager Array contains a Native Array.
+
+TODO - explain "Cell"
 
    Contents:  1 2 3
    Internals: [ 1, 2, 3 ] 
 
-A Lazy Array contains a Native Array, which contains Generators or Native Arrays.
+== Lazy (Role)
+
+A Lazy Array contains a Native Array, which contains Generators, or Native Arrays.
 This structure permits near O(1) complexity for most operations.
 
    Contents:  1 2 3
@@ -132,6 +190,8 @@ Array can be "bound" and "tied".
 = Hash internals
 
 A Hash contains a Native Hash.
+
+Hash keys can be objects, but the objects must be immutable
 
    Contents:  a:1 b:2 c:3
    Internals: { a:1 b:2 c:3 } 
@@ -165,6 +225,6 @@ This structure permits near O(1) complexity for most operations.
 
 = Slice Internals
 
-- TODO
+- TODO - hash slice / array slice
 
 ... ... more ...
