@@ -301,6 +301,7 @@ Note shortcomings are mostly mentioned in the code itself with 'XXX' markers.
     - Build-Depens  Packages needed to build this package
     - Suggests      Packages suggested by this package
     - Recommends    Packages recommended by this package
+	- Enhances      Packages that are enhanced by this package
     - Conflicts     Packages this one conflicts with
     - Replaces      Packages this one replaces
     - Tags          Arbitrary metadata about the package, 
