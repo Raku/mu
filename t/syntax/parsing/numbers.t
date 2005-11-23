@@ -7,50 +7,27 @@ use Test;
 
 _ should be allowed in numbers
 
+But according to L<S02/Literals>, only between two digits.
+
 =cut
 
-plan 18;
+plan 63;
 
-my $tot = 0;
+is 1_0, 10, "Single embedded underscore works";
 
-++$tot for 1 .. 1_0;
+isnt eval('1__0'), 10, "Multiple embedded underscores fail";
 
-is $tot, 10, "Single imbedded underscore works";
+isnt eval('10_'), 10, "Trailing underscore fails";
 
-++$tot for 1 .. 1_____0;
-is $tot, 20, "Multiple imbedded undscores works";
+isnt eval('10_.0'), 10, "Underscore before . fails";
 
-++$tot for 1 .. 10_;
-is $tot, 30, "Single Trailing underscore works";
+is 3.1_41, 3.141, "Underscores work with floating point after decimal";
 
-++$tot for 1 .. 10____;
-is $tot, 40, "Multiple Trailing underscore works";
+isnt 10_0.8, 100.8, "Underscores work with floating point before decimal";
 
-++$tot for 1 .. 1_0_;
+is 0xdead_beef, 0xdeadbeef, "Underscores work with hex";
 
-is $tot, 50, "Single imbedded and trailing underscores works together";
-
-++$tot for 1 .. 1___0___;
-
-is $tot, 60, "Multiple imbedded and trailing underscores works together";
-
-$tot += 3.1_41;
-
-is $tot, 63.141, "Underscores work with floating point after decimal";
-
-$tot += 10__0.8;
-
-is $tot, 163.941, "Underscores work with floating point before decimal";
-
-$tot += 0xdead__beef;
-
-is $tot, 3735928722.941, "Underscores work with hex";
-
-$tot -= 0b1101_1110_1010_1101____1011_1111_0110_1000;
-
-$tot = int $tot;
-
-is $tot, 42, "Underscores work with binary";
+is 0b1101_1110_1010_1101_1011_1111_0110_1000, 0xdeadbeef, "Underscores work with binary";
 
 is 2e0_1, 20, "Underscores work in the argument for e";
 
@@ -69,3 +46,25 @@ dies_ok { 2._e23 },    "2._23  parses as method call";
 dies_ok { 2.foo  },    "2.foo  parses as method call";
 
 is  +'00123', 123, "Leading zeroes stringify correctly";
+
+# (Note, when this works, go fix hex.t to use :16().)
+
+is eval(':16("ff")'), 255, "Adverbial function form of hex number works";
+is eval(':10("99")'), 99, "Adverbial function form of dec number works";
+is eval(':8("77")'), 63, "Adverbial function form of oct number works";
+is eval(':2("11")'), 3, "Adverbial function form of dec number works";
+
+is eval(':16<ff>'), 255, "Adverbial string form of hex number works";
+is eval(':10<99>'), 99, "Adverbial string form of dec number works";
+is eval(':8<77>'), 63, "Adverbial string form of oct number works";
+is eval(':2<11>'), 3, "Adverbial string form of dec number works";
+
+is eval(':10<99*10**2>'), 99e2, "Adverbial form of exponentiation works";
+is eval(':2<11*10**2>'), 300, "Adverbial exponent defaults to decimal";
+
+for 2..36 {
+    is eval(":{$_}<11>"), $_ + 1, "Adverbial form of base $_ works";
+}
+
+is eval(':100[10,10]'), 1010, "Adverbial form of base 100 integer works";
+is eval(":100[10,'.',10]"), 10.10, "Adverbial form of base 100 fraction works";
