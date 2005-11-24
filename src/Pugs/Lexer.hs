@@ -218,8 +218,7 @@ charNum = do
     where
     based ch num p = do
         char ch
-        let p' = number num p
-        choice [ verbatimBrackets p', p' ]
+        maybeVerbatimBrackets (number num p)
 
 number :: Integer -> GenParser tok st Char -> GenParser tok st Integer
 number base baseDigit
