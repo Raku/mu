@@ -1532,7 +1532,7 @@ doArray val f = do
 
 -- Haddock doesn't seem to like data/instance declarations with a where clause.
 #ifndef HADDOCK
-data (Typeable v) => IVar v where
+data IVar v where
     IScalar :: ScalarClass a => !a -> IVar VScalar
     IArray  :: ArrayClass  a => !a -> IVar VArray
     IHash   :: HashClass   a => !a -> IVar VHash
