@@ -2,6 +2,8 @@
 
 A draft on the runtime view of how Lazy things (like Arrays) work.
 
+# by fglock - still trying to sort some things out
+
 The text assumes a knowledge of terms like "Container", "Scalar", "Cell", "Role".
 
 References: 
@@ -9,37 +11,46 @@ References:
 - A bit of each of the other AES
 
 TODO - include drawings
-TODO - detail the behaviour of "Str Range"
 TODO - compare with Ruby/Python should help explaining some concepts
+
+== Notes
+
+Array/List are Lazy by default - but Hash and Scalar can be lazy too (just not by default).
 
 == Definitions
 
 TODO:
-Native array / Native hash
 Scalar / Array / Hash Container
 Tuple / List / Generator / Iterator / Range
+file iterator
 Signature / Argument List
 Array / Hash slice
 enum
 tie / proxy / rw / env
 Constrained Types (eg: Int / Even / 0..100 where Even)
 Piddle
+lazy string / int / num
 
 - native array / native hash
 
 These are fast, in-memory structures provided by the virtual machine.
 These structures are assumed to be one-dimensional.
 
+Native hash doesn't need to be indexable by Objects - this can be emulated 
+by the Hash class.
+
 - Array Container Class
 
-The Array class defines all objects that implement the array API.
+The Array class defines all objects that implement the Array API.
 
 Array is a subclass of "Container"
 Array contains an ordered set of Cells.
 Array is multi-dimensional.
 
+Array is not meant to be subclassed - use "roles" to make different implementations.
+
 The actual implementation depends on the "Eager" or the "Lazy" roles.
-Other implementations can be specified 
+Other implementations can be specified.
 
 -- Eager Role
 
@@ -52,30 +63,78 @@ This is the default implementation.
 
 -- Shape (Role or parameter? trait?)
 
--- Compact Array Role
+-- Compact Array Role (piddle)
 
-TODO
+TODO - piddle is different from Compact
 
 - Tuple ("List") class
 
-List is an anonymous set of things.
+List is implemented as a native Array, or as a contiguous Stack area if this
+is supported by the virtual machine.
+
+List is set of things.
 List is a subclass of "Value".
 List is one-dimensional.
 
-At runtime, you only access List elements through Containers.
-A List slice is an Array in which the Cells point to List elements.
+# At runtime, you only access List elements through Containers.
 
--- Generator
+A List may be built with a mix of Values and Containers.
+
+A List might exist in 3 "states":
+
+  @a = ( 7, $a, 20..30 );
+  # unflattened
+  ( 1, 5..10, @a ) - a List built from a Scalar, a Range, and an Array
+  # lazy flattened with "*" operator
+  ( 1, 5..10, 7, $a, 20..30 ) - @a was "flattened"; generators were not.
+  # non-lazy flattened (eager) with "**" operator
+  ( 1, 5, 6, 7, 8, 9, 10, 7, $a, 20, 21, 22, 23 ..... - everything is flattened
+
+List only implements a subset of the Array API.
+A List slice is a new List - elements are shallow copied.
+List don't support adding, removing or substituting elements.
+
+List has no Cells - thus you can't bind a Container to a List element or slice.
+  $a := (1,2,3)[2];  # compile error - can't bind to a value - TODO ???
+
+If a List is built with Generators, it is a Lazy List.
+
+- Generator / Range
 
 Generator is an object that creates Values on demand.
 Generator is "functional" rather than "physical memory"
-At runtime, you only access Generator elements through Containers.
-A Lazy slice is an Array in which the Cells point to Generator elements.
 
-- Slice
+Range is a special case, in which there is a start, an end, and a step.
 
-Slice is a specialized Array, in which all the elements are bound to objects 
-in other Containers (Array, Hash or Scalar).
+#At runtime, you only access Generator elements through Containers.
+
+Generator also implements "match":
+
+  5 ~~ 1..10
+
+TODO - detail the behaviour of "Str Range"
+
+- Iterator
+
+TODO
+
+  =<>
+
+- List Slice
+
+A List Slice is a shallow copy of a part of a List.
+
+A List Slice is just a List - there is not a separate Class for it.
+
+- Container Slice
+
+A Container Slice is a specialized Array/Hash, in which all the elements 
+are bound to objects inside other Containers (Array, Hash or Scalar).
+
+A Lazy Container Slice contains pointers to Generators that are inside other 
+Containers.
+
+Container Slice is multi-dimensional.
 
 - Hash
 
@@ -163,8 +222,7 @@ TODO - explain "Cell"
 
 == Lazy (Role)
 
-A Lazy Array contains a Native Array, which contains Generators, or Native Arrays.
-This structure permits near O(1) complexity for most operations.
+A Lazy Array contains a "specs" Array, which contains Generators, or Native Arrays.
 
    Contents:  1 2 3
    Internals: [ 
