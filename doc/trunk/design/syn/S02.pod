@@ -939,7 +939,7 @@ after an initial "C<q>", so we automatically get the forms:
     qw//	q:w//
     qww//	q:ww//
     qt//	q:t//
-    qr//	q:r//
+    qn//	q:n//
     qs//	q:s//
     qa//	q:a//
     qh//	q:h//
