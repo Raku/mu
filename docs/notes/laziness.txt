@@ -261,6 +261,40 @@ Array can do "map", "grep", splice, push, pop, store, fetch.
 Array can be "bound" and "tied".
 
 
+== splice
+
+This pseudo-code implements splice().
+It assumes that the internal representation of Array can do .head(n) and .tail(n) - 
+see "Generator" for details.
+
+    sub splice ( @array, $offset? = 0, $length? = Inf, @list? = () ) { 
+        my ( @head, @body, @tail );
+        if ( $offset >= 0 ) {
+            @head = @array.head( $offset );
+            if ( $length >= 0 ) {
+                @body = @array.head( $length );
+                @tail = @array;
+            }
+            else {
+                @tail = @array.tail( -$length );
+                @body = @array;
+            }
+        }
+        else {
+            @tail = @array.tail( -$offset );
+            @head = @array;
+            if ( $length >= 0 ) {
+                @body = $tail.head( $length );
+            }
+            else {
+                @body = @tail;
+                @tail = $body.tail( -$length );
+            }
+        };
+        @array = ( @head, @list, @tail );
+        return @body;
+    }
+
 = Hash internals
 
 A Hash contains a Native Hash.
