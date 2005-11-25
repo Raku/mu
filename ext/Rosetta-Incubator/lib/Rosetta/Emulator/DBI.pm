@@ -2,9 +2,9 @@
 use v6;
 
 # External packages used by packages in this file, that don't export symbols:
-use Rosetta-(0.49.0...);
-use SQL::Routine::SQLBuilder-(0.22.0...);
-use SQL::Routine::SQLParser-(0.3.0...);
+use Rosetta-(0.490.0...);
+use SQL::Routine::SQLBuilder-(0.220.0...);
+use SQL::Routine::SQLParser-(0.30.0...);
 
 ###########################################################################
 ###########################################################################
@@ -15,7 +15,7 @@ use SQL::Routine::SQLParser-(0.3.0...);
 ###########################################################################
 ###########################################################################
 
-class Rosetta::Emulator::DBI-0.1.0 {
+class Rosetta::Emulator::DBI-0.10.0 {
 
     # External packages used by the Rosetta::Emulator::DBI class, that do export symbols:
     # (None Yet)
@@ -43,7 +43,7 @@ A clone of DBI + DBD::* that is more portable
 
 =head1 VERSION
 
-This document describes Rosetta::Emulator::DBI version 0.1.0.
+This document describes Rosetta::Emulator::DBI version 0.10.0.
 
 =head1 SYNOPSIS
 
@@ -70,9 +70,9 @@ I<This documentation is pending.>
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 It also requires these Perl 6 classes that are on CPAN:
-L<Rosetta-(0.49.0...)|Rosetta>,
-L<SQL::Routine::SQLBuilder-(0.22.0...)|SQL::Routine::SQLBuilder>,
-L<SQL::Routine::SQLParser-(0.3.0...)|SQL::Routine::SQLParser>.
+L<Rosetta-(0.490.0...)|Rosetta>,
+L<SQL::Routine::SQLBuilder-(0.220.0...)|SQL::Routine::SQLBuilder>,
+L<SQL::Routine::SQLParser-(0.30.0...)|SQL::Routine::SQLParser>.
 
 =head1 INCOMPATIBILITIES
 

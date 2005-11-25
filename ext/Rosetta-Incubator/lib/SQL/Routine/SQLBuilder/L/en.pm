@@ -13,7 +13,7 @@ use v6;
 ###########################################################################
 ###########################################################################
 
-module SQL::Routine::SQLBuilder::L::en-0.3.0 {
+module SQL::Routine::SQLBuilder::L::en-0.30.0 {
 
     # External packages used by the SQL::Routine::SQLBuilder::L::en module, that do export symbols:
     # (None Yet)
@@ -41,7 +41,7 @@ Localization of SQL::Routine::SQLBuilder for English
 
 =head1 VERSION
 
-This document describes SQL::Routine::SQLBuilder::L::en version 0.3.0.
+This document describes SQL::Routine::SQLBuilder::L::en version 0.30.0.
 
 =head1 SYNOPSIS
 

@@ -13,7 +13,7 @@ use v6;
 ###########################################################################
 ###########################################################################
 
-module SQL::Routine::L::en-0.39.0 {
+module SQL::Routine::L::en-0.390.0 {
 
     # External packages used by the SQL::Routine::L::en module, that do export symbols:
     # (None Yet)
@@ -41,7 +41,7 @@ Localization of SQL::Routine for English
 
 =head1 VERSION
 
-This document describes SQL::Routine::L::en version 0.39.0.
+This document describes SQL::Routine::L::en version 0.390.0.
 
 =head1 SYNOPSIS
 

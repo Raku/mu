@@ -2,7 +2,7 @@
 use v6;
 
 # External packages used by packages in this file, that don't export symbols:
-use Locale::KeyedText-(1.7.0...);
+use Locale::KeyedText-(1.70.0...);
 
 ###########################################################################
 ###########################################################################
@@ -13,7 +13,7 @@ use Locale::KeyedText-(1.7.0...);
 ###########################################################################
 ###########################################################################
 
-class SQL::Routine-0.71.0 {
+class SQL::Routine-0.710.0 {
 
     # External packages used by the SQL::Routine class, that do export symbols:
     # (None Yet)
@@ -41,7 +41,7 @@ Specify all database tasks with SQL routines
 
 =head1 VERSION
 
-This document describes SQL::Routine version 0.71.0.
+This document describes SQL::Routine version 0.710.0.
 
 =head1 SYNOPSIS
 
@@ -68,7 +68,7 @@ I<This documentation is pending.>
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 It also requires these Perl 6 classes that are on CPAN:
-L<Locale::KeyedText-(1.7.0...)|Locale::KeyedText> (for error messages).
+L<Locale::KeyedText-(1.70.0...)|Locale::KeyedText> (for error messages).
 
 =head1 INCOMPATIBILITIES
 

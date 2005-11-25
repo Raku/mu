@@ -13,7 +13,7 @@ use v6;
 ###########################################################################
 ###########################################################################
 
-module Rosetta::Emulator::DBI::L::en-0.1.0 {
+module Rosetta::Emulator::DBI::L::en-0.10.0 {
 
     # External packages used by the Rosetta::Emulator::DBI::L::en module, that do export symbols:
     # (None Yet)
@@ -41,7 +41,7 @@ Localization of Rosetta::Emulator::DBI for English
 
 =head1 VERSION
 
-This document describes Rosetta::Emulator::DBI::L::en version 0.1.0.
+This document describes Rosetta::Emulator::DBI::L::en version 0.10.0.
 
 =head1 SYNOPSIS
 

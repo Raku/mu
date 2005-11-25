@@ -13,7 +13,7 @@ use v6;
 ###########################################################################
 ###########################################################################
 
-module Rosetta::Engine::Generic::L::en-0.14.0 {
+module Rosetta::Engine::Generic::L::en-0.140.0 {
 
     # External packages used by the Rosetta::Engine::Generic::L::en module, that do export symbols:
     # (None Yet)
@@ -41,7 +41,7 @@ Localization of Rosetta::Engine::Generic for English
 
 =head1 VERSION
 
-This document describes Rosetta::Engine::Generic::L::en version 0.14.0.
+This document describes Rosetta::Engine::Generic::L::en version 0.140.0.
 
 =head1 SYNOPSIS
 

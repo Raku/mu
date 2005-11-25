@@ -13,7 +13,7 @@ use v6;
 ###########################################################################
 ###########################################################################
 
-module Rosetta::Engine::Native::L::en-0.1.0 {
+module Rosetta::Engine::Native::L::en-0.10.0 {
 
     # External packages used by the Rosetta::Engine::Native::L::en module, that do export symbols:
     # (None Yet)
@@ -41,7 +41,7 @@ Localization of Rosetta::Engine::Native for English
 
 =head1 VERSION
 
-This document describes Rosetta::Engine::Native::L::en version 0.1.0.
+This document describes Rosetta::Engine::Native::L::en version 0.10.0.
 
 =head1 SYNOPSIS
 

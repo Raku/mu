@@ -2,7 +2,7 @@
 use v6;
 
 # External packages used by packages in this file, that don't export symbols:
-use Rosetta-(0.49.0...);
+use Rosetta-(0.490.0...);
 
 ###########################################################################
 ###########################################################################
@@ -13,7 +13,7 @@ use Rosetta-(0.49.0...);
 ###########################################################################
 ###########################################################################
 
-class Rosetta::Engine::Native-0.1.0 {
+class Rosetta::Engine::Native-0.10.0 {
 
     # External packages used by the Rosetta::Engine::Native class, that do export symbols:
     # (None Yet)
@@ -41,7 +41,7 @@ Self-contained reference implementation of a Rosetta Engine
 
 =head1 VERSION
 
-This document describes Rosetta::Engine::Native version 0.1.0.
+This document describes Rosetta::Engine::Native version 0.10.0.
 
 =head1 SYNOPSIS
 
@@ -68,7 +68,7 @@ I<This documentation is pending.>
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 It also requires these Perl 6 classes that are on CPAN:
-L<Rosetta-(0.49.0...)|Rosetta>.
+L<Rosetta-(0.490.0...)|Rosetta>.
 
 =head1 INCOMPATIBILITIES
 

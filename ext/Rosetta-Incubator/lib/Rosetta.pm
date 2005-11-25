@@ -2,8 +2,8 @@
 use v6;
 
 # External packages used by packages in this file, that don't export symbols:
-use Locale::KeyedText-(1.7.0...);
-use SQL::Routine-(0.71.0...);
+use Locale::KeyedText-(1.70.0...);
+use SQL::Routine-(0.710.0...);
 
 ###########################################################################
 ###########################################################################
@@ -14,7 +14,7 @@ use SQL::Routine-(0.71.0...);
 ###########################################################################
 ###########################################################################
 
-class Rosetta-0.49.0 {
+class Rosetta-0.490.0 {
 
     # External packages used by the Rosetta class, that do export symbols:
     # (None Yet)
@@ -42,7 +42,7 @@ Rigorous database portability
 
 =head1 VERSION
 
-This document describes Rosetta version 0.49.0.
+This document describes Rosetta version 0.490.0.
 
 =head1 SYNOPSIS
 
@@ -69,8 +69,8 @@ I<This documentation is pending.>
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 It also requires these Perl 6 classes that are on CPAN:
-L<Locale::KeyedText-(1.7.0...)|Locale::KeyedText> (for error messages),
-L<SQL::Routine-(0.71.0...)|SQL::Routine>.
+L<Locale::KeyedText-(1.70.0...)|Locale::KeyedText> (for error messages),
+L<SQL::Routine-(0.710.0...)|SQL::Routine>.
 
 =head1 INCOMPATIBILITIES
 

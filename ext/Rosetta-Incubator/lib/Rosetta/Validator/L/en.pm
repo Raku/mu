@@ -13,7 +13,7 @@ use v6;
 ###########################################################################
 ###########################################################################
 
-module Rosetta::Validator::L::en-0.15.0 {
+module Rosetta::Validator::L::en-0.150.0 {
 
     # External packages used by the Rosetta::Validator::L::en module, that do export symbols:
     # (None Yet)
@@ -41,7 +41,7 @@ Localization of Rosetta::Validator for English
 
 =head1 VERSION
 
-This document describes Rosetta::Validator::L::en version 0.15.0.
+This document describes Rosetta::Validator::L::en version 0.150.0.
 
 =head1 SYNOPSIS
 

@@ -13,7 +13,7 @@ use v6;
 ###########################################################################
 ###########################################################################
 
-module SQL::Routine::SQLParser::L::en-0.3.0 {
+module SQL::Routine::SQLParser::L::en-0.30.0 {
 
     # External packages used by the SQL::Routine::SQLParser::L::en module, that do export symbols:
     # (None Yet)
@@ -41,7 +41,7 @@ Localization of SQL::Routine::SQLParser for English
 
 =head1 VERSION
 
-This document describes SQL::Routine::SQLParser::L::en version 0.3.0.
+This document describes SQL::Routine::SQLParser::L::en version 0.30.0.
 
 =head1 SYNOPSIS
 

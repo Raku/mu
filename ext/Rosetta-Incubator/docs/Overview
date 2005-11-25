@@ -320,7 +320,7 @@ have just one of these in your application.  (It corresponds to DBI's
 collection of global variables in the DBI::* namespace, but it is lexical.)
 
 A "rosetta_engine" is a Rosetta Engine tree root object; you have one of
-these per loaded Rosetta Engine package per "rosetta_interface.  (It
+these per loaded Rosetta Engine package per "rosetta_interface".  (It
 corresponds to a DBI driver handle, or "drh", but is lexical.)
 
 A "sql_server" is the database management system software itself and

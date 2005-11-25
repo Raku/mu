@@ -13,7 +13,7 @@ use v6;
 ###########################################################################
 ###########################################################################
 
-module Rosetta::L::en-0.20.0 {
+module Rosetta::L::en-0.200.0 {
 
     # External packages used by the Rosetta::L::en module, that do export symbols:
     # (None Yet)
@@ -41,7 +41,7 @@ Localization of Rosetta for English
 
 =head1 VERSION
 
-This document describes Rosetta::L::en version 0.20.0.
+This document describes Rosetta::L::en version 0.200.0.
 
 =head1 SYNOPSIS
 
