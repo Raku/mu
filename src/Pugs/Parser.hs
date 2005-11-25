@@ -646,7 +646,14 @@ ruleVarDeclaration = rule "variable declaration" $ do
            lookAhead (satisfy (/= '='))
            return ()
         whiteSpace
-        exp <- ruleExpression
+        -- XXX handle 'my $a = my $b = ... my $z = foo'.
+        -- matching ruleVarDeclaration here results in nested pads,
+        -- i.e. Pad SMy _ (Syn "=", [Var _, (Pad SMy _ _)]),
+        -- which is NOT what we want. we re-arrange this below in unnestPad.
+        exp <- choice
+            [ ruleVarDeclaration
+            , ruleExpression
+            ]
         -- Slightly hacky. Here "my Foo $foo .= new(...)" is rewritten into
         -- "my Foo $foo = Foo.new(...)".
         -- And note that IIRC not the type object should be the invocant, but
@@ -676,7 +683,17 @@ ruleVarDeclaration = rule "variable declaration" $ do
         SState -> do
             implicit_first_block <- vcode2firstBlock $ VCode mkSub { subBody = rhs }
             return $ Pad scope lexDiff implicit_first_block
-        _      -> return $ Pad scope lexDiff rhs
+        _      -> return $ unwrapStmts $ unnestPad $ Pad scope lexDiff rhs
+    where
+    -- XXX here's the other half of the 'my $a = my $b = ... my $z = foo' fix.
+    -- see above. together, we turn 'my $a = my $b = 0' into
+    -- 'my $a; my $b; $a = $b = 0'. should we handle more scopes than 'SMy'?
+    -- more syntax than '(Syn "=" _)'?
+    unnestPad (Pad SMy lex (Syn "=" [v,Pad SMy lex' (Syn "=" [v',x])])) = Pad SMy lex (Stmts Noop (Pad SMy lex' (Syn "=" [v,(Syn "=" [v',unnestPad x])])))
+    unnestPad x@(Pad _ _ _) = Stmts Noop x
+    unnestPad x@_ = x
+    unwrapStmts (Stmts Noop x) = x
+    unwrapStmts x@_ = x
 
 {-|
 Match a @no@ declaration, i.e. the opposite of @use@ (see
