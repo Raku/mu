@@ -2,72 +2,86 @@
 
 A draft on the runtime view of how Lazy things (like Arrays) work.
 
-# by fglock - still trying to sort some things out
+# by fglock
 
-The text assumes a knowledge of terms like "Container", "Scalar", "Cell", "Role".
+The text currently has 2 main sections:
+- a review of the Perl 6 Bible, with some interpretation and guessing
+- implementation notes.
+
+Each section has 3 subsections:
+- Native data - about the internal representation of data types
+- Values - about the basic Perl 6 "OO" things
+- Containers - about the glue that hold things together in data structures
+
+== TODO
+- include drawings
+- comparing with Ruby/Python should help explaining some concepts
+- this text is supposed to talk about all these things:
+  Scalar / Array / Hash Container
+  Tuple / List / Generator / Iterator / Range
+  file iterator
+  Signature / Argument List
+  Array / Hash slice
+  enum
+  tie / proxy / rw / env
+  Constrained Types (eg: Int / Even / 0..100 where Even)
+  Piddle
+  lazy string / int / num
+
+
+= Part I - Perl 6 Bible Readings
 
 References: 
-- S09 Data Structures
+- S02 Bits and Pieces - for "native data"
+- S09 Data Structures - for Object types
 - A bit of each of the other AES
 
-TODO - include drawings
-TODO - compare with Ruby/Python should help explaining some concepts
+= Native data
 
-== Notes
+Native data is built with a thin, (possibly non-OO) library over the virtual 
+machine data types.
 
-Array/List are Lazy by default - but Hash and Scalar can be lazy too (just not by default).
+For example, you may need a wrapper to implement 1-bit values, if the 
+virtual machine only provides bytes.
 
-== Definitions
+- native "singular" value
 
-TODO:
-Scalar / Array / Hash Container
-Tuple / List / Generator / Iterator / Range
-file iterator
-Signature / Argument List
-Array / Hash slice
-enum
-tie / proxy / rw / env
-Constrained Types (eg: Int / Even / 0..100 where Even)
-Piddle
-lazy string / int / num
+Native values are: num, int, uint, bit, complex, ref.
+Native values can have a bit-size specification: int1, int16.
 
-- native array / native hash
+A "native container" is whatever a "ref" value points to.
+
+A "num" value must support IEEE floating point conventions - which means there
+are native "Inf" and "NaN".
+Native values don't need to be able to represent "undef".
+
+- native "plural" value
+
+Native plural values are: array, str, hash.
+
+A "str" is an array of "int".
+
+There may be separate implementations for fixed-size and for 
+auto-extending allocation.
 
 These are fast, in-memory structures provided by the virtual machine.
 These structures are assumed to be one-dimensional.
 
-Native hash doesn't need to be indexable by Objects - this can be emulated 
-by the Hash class.
+Native hash is mostly used internally, for holding "namespaces": Classes, variables, labels.
 
-- Array Container Class
+There may be separate implementations for string-indexed and for object-indexed hashes.
 
-The Array class defines all objects that implement the Array API.
+= Value Class
 
-Array is a subclass of "Container"
-Array contains an ordered set of Cells.
-Array is multi-dimensional.
+Values can be "singular" or "plural".
 
-Array is not meant to be subclassed - use "roles" to make different implementations.
+Singular Values are: Str, Int, Num, Pair, Ref, Junction, 
+Code, Block, Class, Grammar, Macro ...
 
-The actual implementation depends on the "Eager" or the "Lazy" roles.
-Other implementations can be specified.
+Plural Values are things that look like single-dimensional arrays: 
+List, Generator, Iterator.
 
--- Eager Role
-
-An Array object that wraps a native array.
-
--- Lazy Role
-
-An Array object that generates Cells on demand.
-This is the default implementation.
-
--- Shape (Role or parameter? trait?)
-
--- Compact Array Role (piddle)
-
-TODO - piddle is different from Compact
-
-- Tuple ("List") class
+-- List, Lazy List, Tuple classes
 
 List is implemented as a native Array, or as a contiguous Stack area if this
 is supported by the virtual machine.
@@ -76,11 +90,9 @@ List is set of things.
 List is a subclass of "Value".
 List is one-dimensional.
 
-# At runtime, you only access List elements through Containers.
-
 A List may be built with a mix of Values and Containers.
 
-A List might exist in 3 "states":
+A List might exist in 4 "states":
 
   @a = ( 7, 20..30 );
     - this is the Array that will be used in the examples
@@ -99,11 +111,16 @@ A List might exist in 3 "states":
 
   ( 1, 5..10, (Scalar := @a[0]), (Generator (Scalar := @a[1])..(Scalar := @a[10])) ) 
     - the Array was "flattened", but we still have generators.
-    
+
 - non-lazily flattened (eager) with "**" operator
 
-  ( 1, 5, 6, 7, 8, 9, 10, (Scalar := @a[0]), (Scalar := @a[1]), (Scalar := @a[1]),  ..... 
+  ( 1, 5, 6, 7, 8, 9, 10, (Scalar := @a[0]), (Scalar := @a[1]), (Scalar := @a[2]),  ..... )
     - everything is flattened
+
+- fully evaluated (Tuple)
+
+  ( 1, 5, 6, 7, 8, 9, 10, @a[0].value, @a[1].value, @a[2].value,  ..... )
+    - fully evaluated and immutable
 
 List only implements a subset of the Array API.
 A List slice is a new List - elements are shallow copied.
@@ -115,7 +132,7 @@ List has no Cells - thus you can't bind a Container to a List element or slice. 
 
 If a List is built with Generators, it is a Lazy List.
 
-- Generator / Range
+-- Generator / Range Classes
 
 Generator is an object that creates Values on demand.
 Generator is "functional" rather than "physical memory"
@@ -128,21 +145,74 @@ Generator also implements "match":
 
   5 ~~ 1..10
 
+The "*" operator flattens a Generator eagerly.
+
 TODO - detail the behaviour of "Str Range"
 
-- Iterator
+-- Iterator Class
 
 TODO
 
   =<>
 
-- List Slice
+The "*" operator flattens an Iterator eagerly.
+
+-- List Slice
 
 A List Slice is a shallow copy of a part of a List.
 
 A List Slice is just a List - there is not a separate Class for it.
 
-- Container Slice
+= Container Class
+
+Containers are the glue that hold Values together in data structures.
+
+The container classes are: Scalar, Array, Hash.
+
+Array, like List, is Lazy by default.
+Hash and Scalar can be lazy too, but they are not Lazy by default.
+
+== Scalar Container Class
+
+Scalar is a "singular Value" Container.
+
+One of the reasons to use a container is that you can easily change
+it's semantics by replacing what's inside it - that is, a Container implements
+a "variable":
+
+   value '1' - always means 'one'
+   
+   container ('1') - it means 'one' too, but you can increment it to mean 'two'
+
+== Array Container Class
+
+The Array class defines all objects that implement the Array API.
+
+Array is a subclass of "Container"
+Array contains an ordered set of Cells.
+Array is multi-dimensional.
+
+Array is not meant to be subclassed - use "roles" to make different implementations.
+
+The actual implementation depends on the "Eager" or the "Lazy" roles.
+Other implementations can be specified.
+
+--- Eager Role
+
+An Array object that wraps a native array.
+
+--- Lazy Role
+
+An Array object that generates Cells on demand.
+This is the default implementation.
+
+--- Shape (Role or parameter? trait?)
+
+--- Compact Array Role (piddle)
+
+TODO - piddle is different from Compact
+
+-- Container Slice
 
 A Container Slice is a specialized Array/Hash, in which all the elements 
 are bound to objects inside other Containers (Array, Hash or Scalar).
@@ -152,7 +222,7 @@ Containers.
 
 Container Slice is multi-dimensional.
 
-- Hash
+== Hash
 
 The Hash class defines all objects that implement the hash API.
 
@@ -160,6 +230,9 @@ Hash is like an Array, in which the Cell indexes can be of any type
 (not just numbers).
 
 Hash is multi-dimensional.
+
+
+= Part II - Internals
 
 == Generator Internals
 
@@ -335,4 +408,5 @@ This structure permits near O(1) complexity for most operations.
 
 - TODO - hash slice / array slice
 
-... ... more ...
+
+__END__
