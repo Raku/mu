@@ -44,11 +44,11 @@ skip( q{is( Rosetta::Validator::L::en.meta.identifier.version, 0.150.0,
 # Rosetta-Engine-Native:
 
 use_ok( 'Rosetta::Engine::Native' );
-skip( q{is( Rosetta::Engine::Native.meta.identifier.version, 0.10.0,
+skip( q{is( Rosetta::Engine::Native.meta.identifier.version, 0.1.0,
     'Rosetta::Engine::Native is the correct version' );} );
 
 use_ok( 'Rosetta::Engine::Native::L::en' );
-skip( q{is( Rosetta::Engine::Native::L::en.meta.identifier.version, 0.10.0,
+skip( q{is( Rosetta::Engine::Native::L::en.meta.identifier.version, 0.1.0,
     'Rosetta::Engine::Native::L::en is the correct version' );} );
 
 # SQL-Routine-SQLBuilder:
@@ -84,9 +84,9 @@ skip( q{is( Rosetta::Engine::Generic::L::en.meta.identifier.version, 0.140.0,
 # Rosetta-Emulator-DBI:
 
 use_ok( 'Rosetta::Emulator::DBI' );
-skip( q{is( Rosetta::Emulator::DBI.meta.identifier.version, 0.10.0,
+skip( q{is( Rosetta::Emulator::DBI.meta.identifier.version, 0.1.0,
     'Rosetta::Emulator::DBI is the correct version' );} );
 
 use_ok( 'Rosetta::Emulator::DBI::L::en' );
-skip( q{is( Rosetta::Emulator::DBI::L::en.meta.identifier.version, 0.10.0,
+skip( q{is( Rosetta::Emulator::DBI::L::en.meta.identifier.version, 0.1.0,
     'Rosetta::Emulator::DBI::L::en is the correct version' );} );
