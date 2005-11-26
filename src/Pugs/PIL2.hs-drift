@@ -34,6 +34,77 @@ import DrIFT.JSON
     The plan here is to first compile the environment (subroutines,
     statements, etc.) to an abstract syntax tree ('PIL' -- Pugs Intermediate
     Language) using the 'compile' function and 'Compile' class.
+
+- Unify the Apply and Bind forms into method calls.
+    Apply becomes .postcircumfix:<( )>
+    Bind becomes .infix:<:=>
+
+- Compile-time object initiation built with opaque object binders
+
+- A PIL tree is merely an (unordered!) set of static declarations;
+  the responsibility of calling the main function -- let's call it &{''}
+  just for fun -- resides on the runtime.
+
+- Anonymous closures -- should they be lambda-lifted and given ANON
+  names? If yes this gives us flexibility over CSE (common shared expression)
+  optimization, but this may be BDUF.  No λ lifting for now.
+
+- Okay, time to try a simple definition.
+
+   [SRC] say "Hello, World!"
+   [PIL] SigList.new('&').infix:<:=>(
+            Code.new(
+                body => [|
+                    ::?MY.postcircumfix<{ }>('&say')
+                        .postcircumfix<( )>(Str.new('Hello World'))
+                |]
+                ... # other misc attributes
+            )
+        )
+
+    -- Compile time analysis of &say is needed here.
+    -- We want to allow possibility of MMD (note _open_ pkgs by default)
+       so there needs to be a generic form.
+    -- Static binding performed as another optimization pass.
+
+    -- Predefined objects (_always_ bound to the same thing in compiler)
+        ::?MY       -- current lexical scope
+        ::?OUR      -- current package scope
+        Symbol resolution (static vs dynamic lookup) is to be done at
+        pass-1 for PIL2.  The "&say" below is _definitely_ dynamic.
+        Or is it?  Why?  Because @Larry mandates "multi &*say" instead
+        of a more restricted form of ::* as a default lexical scope
+        that closes over the toplevel program.  Maybe pursue a ruling
+        toward the more static definition, otherwise all builtins become
+        _slower_ to infer than userdefined code, which is Just Not Right.
+
+    -- String construction -- handled like perl5 using overload qq""?
+       Ask @Larry for ruling over constant creation and propagation rules.
+       (probably "use a macro if you'd like to change")
+       so, safe to assume a prim form in PIL level.
+
+    -- We _really_ need a quasiquoting notation for macro generation;
+       introduce moral equivalent of [|...|] in PIL form, probably just an
+       "AST" node.  (in CLR they call it System.Reflection.Expression)
+       -- problem with this is it's a closed set; if we are to extend AST
+          on the compiler level --
+          -- nah, we aren't bootstrapping yet. KISS.
+
+    -- This is a very imperative view; the runtime would be carrying
+       instructions of populating the ObjSpace (Smalltalk, Ruby-ish)
+       rather than fitting an AST into a lexical evaluator environment
+       (LISP, Scheme-ish)
+
+    -- Need better annotator for inferrence to work, esp. now it's
+       populated with redundant .postcircumfix calls.  OTOH, they
+       can be assumed to be closed under separate-compilation regime,
+       so we eventually regain the signature.  But it'd be much slower
+       than the current PIL1.  Oy vey.
+
+    -- OTOH, refactor into a Callable role and introduce .apply?
+       This is integral's (sensible) suggestion, but we don't have a
+       Role system working yet, so why bother.
+
 -}
 
 data PIL_Environment = PIL_Environment
