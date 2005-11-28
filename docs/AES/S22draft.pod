@@ -185,14 +185,36 @@ about that installation.
         - write basic create/install/uninstall scripts
         - go from there
 
+=head2 What NOT to do
+
+    - dpkg is too hard to port
+        - needs custom patches
+        - needs unix emulation layer
+        - needs to be compiled
+    - apt-get won't work on 'intermediate files'
+        - needs complete .debs
+        - gotten from standard archive meta-data
+
 =head2 What do we have so far?
 
 Prototyping code is in kane's p4 repo for now:
     http://p4.elixus.org:8181/@md=d&c=Ynk@//member/kane/pms/prototype2/
 
-Read the README file to see how to test the prototypes
+Read the README files to see how to test the prototypes
 
 Note shortcomings are mostly mentioned in the code itself with 'XXX' markers.
+
+=head3 Basic cleanup/setup script
+
+    - Got a basic cleanup script:
+        - Cleans out create's builddirectories
+        - Removes the 'root' directory for installs
+        - Creates a fresh structure of a 'root'
+        - Touches all relevant files
+
+=head3 Basic create/install/uninstall scripts
+
+See README for details on these scripts.
 
     - Got a basic create script:
         (Step 3 from general flow)
@@ -214,9 +236,9 @@ Note shortcomings are mostly mentioned in the code itself with 'XXX' markers.
             - extracts metadata to metadir/${package}
                 - doesn't write to tmpdir first, then moves at the end
             - writes a .packlist equiv file
-            - verifies (simplistically) if dependencies have been met
-                - no Depends: a|b yet
-                - no Depends: a >= version yet
+            - verifies if dependencies have been met
+                - uses dependency engine that can deal with AND, OR and
+                    grouping. See C<Dependencies>.
                 - aborts install if not
             - registers this archive in the 'available' file (a la dpkg)
             - runs preinst script if supplied
@@ -252,24 +274,47 @@ Note shortcomings are mostly mentioned in the code itself with 'XXX' markers.
         - updates 'available' file (a la dpkg)
         - removes meta data associated with this package
 
-    - Got a basic cleanup script:
-        - Cleans out create's builddirectories
-        - Removes the 'root' directory for installs
-        - Creates a fresh structure of a 'root'
-        - Touches all relevant files
+=head3 Repository create/search/install
 
+See README.repo for details on these scripts.
 
-=head2 What NOT to do
+    - Basic repository create script:
+        - takes one or more source directories and finds the .jib files
+        - extracts their meta files to a temp dir
+        - copies the archive and and the meta file (as $archive.info) to
+            the repository root
+        - aggregates all the meta files into one big index file
+    
+    - Basic repository search script:
+        - takes one or more key:value pairs
+            - key is key in the meta file
+            - value is compiled into a regex
+        - prints out every meta file where key matches value
 
-    - dpkg is too hard to port
-        - needs custom patches
-        - needs unix emulation layer
-        - needs to be compiled
-    - apt-get won't work on 'intermediate files'
-        - needs complete .debs
-        - gotten from standard archive meta-data
+    - Basic repository install script:
+        - a la apt-get
+        - takes one or more packages and scans it recursively for
+            dependencies using our dependency engine. See C<Dependencies>.
+        - the to be installed files are then given in the right order to
+            our basic install script, which installs them one by one.
 
+=head3 Dependency/installation pretty printers
 
+    - Basic installed script:
+        - a la dpkg -l
+        - lists all packages installed
+            - and all their files
+            - and all alternatives they own
+            - no manpages yet
+    
+    - Basic dependency printer
+        - takes one or more packages and pretty prints their
+            dependencies
+        - then prints out which files would be installed if you
+            were to install this package
+        - samples the usage of the dependency engine
+        - see C<Dependency Engine> for details.
+        - see README.deps for some samples
 
 =head1 Metadata Spec
 
@@ -301,7 +346,7 @@ Note shortcomings are mostly mentioned in the code itself with 'XXX' markers.
     - Build-Depens  Packages needed to build this package
     - Suggests      Packages suggested by this package
     - Recommends    Packages recommended by this package
-	- Enhances      Packages that are enhanced by this package
+    - Enhances      Packages that are enhanced by this package
     - Conflicts     Packages this one conflicts with
     - Replaces      Packages this one replaces
     - Tags          Arbitrary metadata about the package, 
@@ -424,27 +469,41 @@ This allows nesting of the above expressions
 
 =head3 Serialization Examples 
 
-    # a, b
+    # a, b -- AND
     - a
     - b
 
-    # [a, b] 
+    # [a, b] -- OR
     -
       - a
       - b
 
-    # { a => "> 2" }
+    # { a => "> 2" } -- VERSIONED
     a: > 2
     
-    # { a => 1 }
+    # { a => 1 } -- VERSIONED
     a: 1
     
     
-    # \[ ... ]
+    # \[ ... ]  -- GROUPING
     - !perl/ref:
       =:
         - ...
 
+=head2 Dependency Engine
+
+    - short circuits on OR (first named gets priority)
+    - favours higher versions over lower versions on draw
+        - this should be policy based
+    - checks if already installed packages satisfy the dependency
+        before checking the repository for options
+    - is completely recursive -- any combination of AND, OR and
+        GROUPING should work.
+    - returns a list of missing packages
+        - in installation order
+    - need a split out between the printer and the resolver
+        - so one can list all dependencies as they are resolved
+            and just the ones that need installing
 
 __END__
 
