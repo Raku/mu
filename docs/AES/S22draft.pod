@@ -14,7 +14,7 @@ Synopsis 22: CPAN [DRAFT]
 
     Maintainer: Jos Boumans <kane@cpan.org>
     Date: 3 Nov 2005
-    Last Modified: 11 Nov 2005
+    Last Modified: 28 Nov 2005
     Number: 0
     Version: 1
 
