@@ -13,26 +13,32 @@ perl 6, in the context of MMD and macros.
 
 =head1 PURPOSE
 
-An attempt at drafting a callback API that should allow useful and simple implementation of:
+An attempt at drafting a callback API that should allow useful and
+simple implementation of:
 
 =over 4
 
 =item *
 
-the perl 6 debugger
+The perl 6 debugger.
 
 =item *
 
-infectious traits, enabling the implementation of taint mode and more complex variations on the theme.
+Infectious traits, enabling the implementation of taint mode and more
+complex variations on the theme.
 
 =back
 
 =head1 EXAMPLE
 
-With taint mode generalized into a debugging system, this perl statement will
-yield:
+With taint mode generalized into a debugging system, this perl statement
+will yield:
 
 	$x = ($a ?? $b !! $c); # assuming $a is true
+        ----------Xs----------
+        ----------Xe---------
+             --------E-------
+              A-    B-    C- 
 
 Assuming:
 
@@ -103,6 +109,9 @@ Basically, you use the system to determine where it will be necessary. Isn't
 that cool?
 
 If it's unused it should be zero overhead.
+
+(Note: If I understand the above correctly, this hook system is
+exponential in the size of the expression.  Yikes.  -luqui)
 
 =head1 THEORETICAL USAGE
 
