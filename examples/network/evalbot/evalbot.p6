@@ -87,7 +87,7 @@ sub on_privmsg($event) {
 
     when rx:P5/^\?quit\s*(.*)$/ {
       if substr($reply_to, 0, 1) eq "#" {
-        $reply("?quit only available per private message so other bots don't quit as well.");
+        $reply("you should only do ?quit in a private message so other bots don't quit as well.");
       } else {
         # Don't reconnect.
         $reconnect = 0;
