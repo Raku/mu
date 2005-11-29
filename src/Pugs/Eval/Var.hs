@@ -3,7 +3,7 @@
 
 module Pugs.Eval.Var (
     findVar, findVarRef,
-    findSub, evalExpType,
+    findSub, evalExpType,  FindSubFailure(..),
     isQualified, packageOf, qualify,
     toPackage, toQualified,
 ) where
@@ -24,8 +24,9 @@ findVar name = do
     rv <- findVarRef name
     case rv of
         Nothing  -> case name of
-            ('&':_) -> maybeM (findSub name Nothing []) $ \sub -> do
-                return $ codeRef sub
+            ('&':_) -> do
+                sub <- findSub name Nothing []
+                return $ either (const Nothing) (Just . codeRef) sub
             _ -> return Nothing
         Just ref -> fmap Just $ liftSTM (readTVar ref)
 
@@ -83,10 +84,15 @@ findVarRef name
             when (isJust globSym) $ foundIt globSym
             return Nothing
 
+data FindSubFailure
+    = NoMatchingMulti
+    | NoSuchSub
+    | NoSuchMethod
+
 findSub :: String     -- ^ Name, with leading @\&@.
         -> Maybe Exp  -- ^ Invocant
         -> [Exp]      -- ^ Other arguments
-        -> Eval (Maybe VCode)
+        -> Eval (Either FindSubFailure VCode)
 findSub name' invs args = do
     let name = possiblyFixOperatorName name'
     case invs of
@@ -96,30 +102,34 @@ findSub name' invs args = do
             findSuperSub (mkType typ) (sig ++ name')
         Just exp | not (':' `elem` drop 2 name) -> do
             typ     <- evalInvType $ unwrap exp
-            if typ == mkType "Scalar::Perl5" then runPerl5Sub name else do
+            if typ == mkType "Scalar::Perl5" then fmap (err NoSuchMethod) (runPerl5Sub name) else do
             findTypedSub typ name
         _ | [exp] <- args -> do
             typ     <- evalInvType $ unwrap exp
             findTypedSub typ name
-        _ -> findBuiltinSub name
+        _ -> findBuiltinSub NoSuchSub name
     where
-    findSuperSub :: Type -> String -> Eval (Maybe VCode)
+    err :: b -> Maybe a -> Either b a
+    err x (Just j) = Right j
+    err x Nothing  = Left x
+
+    findSuperSub :: Type -> String -> Eval (Either FindSubFailure VCode)
     findSuperSub typ name = do
         let pkg = showType typ
             qualified = (head name:pkg) ++ "::" ++ tail name
         subs    <- findWithSuper pkg name
-        subs'   <- if isJust subs then return subs else findBuiltinSub name
+        subs'   <- either (flip findBuiltinSub name) (return . Right) subs
         case subs' of
-            Just sub | subName sub == qualified -> return Nothing
+            Right sub | subName sub == qualified -> return (Left NoSuchMethod)
             _   -> return subs'
-    findTypedSub :: Type -> String -> Eval (Maybe VCode)
+    findTypedSub :: Type -> String -> Eval (Either FindSubFailure VCode)
     findTypedSub typ name = do
         subs    <- findWithPkg (showType typ) name
-        if isJust subs then return subs else findBuiltinSub name
-    findBuiltinSub :: String -> Eval (Maybe VCode)
-    findBuiltinSub name = do
+        either (flip findBuiltinSub name) (return . Right) subs
+    findBuiltinSub :: FindSubFailure -> String -> Eval (Either FindSubFailure VCode)
+    findBuiltinSub failure name = do
         sub <- findSub' name
-        if isNothing sub then possiblyBuildMetaopVCode name else return sub
+        maybe (fmap (err failure) $ possiblyBuildMetaopVCode name) (return . Right) sub
     evalInvType :: Exp -> Eval Type
     evalInvType x@(Var (':':typ)) = do
         typ' <- evalExpType x
@@ -164,7 +174,7 @@ findSub name' invs args = do
         -- We try to find the userdefined sub.
         -- We use the first two elements of invs as invocants, as these are the
         -- types of the op.
-            rv = findSub ("&infix:" ++ op) Nothing (take 2 $ args ++ [Val undef, Val undef])
+            rv = fmap (either (const Nothing) Just) $ findSub ("&infix:" ++ op) Nothing (take 2 $ args ++ [Val undef, Val undef])
         maybeM rv $ \code -> return $ mkPrim
             { subName     = "&prefix:[" ++ op ++ "]"
             , subType     = SubPrim
@@ -184,7 +194,7 @@ findSub name' invs args = do
         possiblyBuildMetaopVCode ("&prefix:" ++ op ++ "<<")
     possiblyBuildMetaopVCode op' | "&prefix:" `isPrefixOf` op', "<<" `isSuffixOf` op' = do 
         let op = drop 8 (init (init op'))
-            rv = findSub ("&prefix:" ++ op) Nothing [head $ args ++ [Val undef]]
+            rv = fmap (either (const Nothing) Just) $ findSub ("&prefix:" ++ op) Nothing [head $ args ++ [Val undef]]
         maybeM rv $ \code -> return $ mkPrim
             { subName     = "&prefix:" ++ op ++ "<<"
             , subType     = SubPrim
@@ -199,7 +209,7 @@ findSub name' invs args = do
         possiblyBuildMetaopVCode ("&postfix:>>" ++ op)
     possiblyBuildMetaopVCode op' | "&postfix:>>" `isPrefixOf` op' = do
         let op = drop 11 op'
-            rv = findSub ("&postfix:" ++ op) Nothing [head $ args ++ [Val undef]]
+            rv = fmap (either (const Nothing) Just) $ findSub ("&postfix:" ++ op) Nothing [head $ args ++ [Val undef]]
         maybeM rv $ \code -> return $ mkPrim
             { subName     = "&postfix:>>" ++ op
             , subType     = SubPrim
@@ -214,7 +224,7 @@ findSub name' invs args = do
         possiblyBuildMetaopVCode ("&infix:>>" ++ op ++ "<<")
     possiblyBuildMetaopVCode op' | "&infix:>>" `isPrefixOf` op', "<<" `isSuffixOf` op' = do 
         let op = drop 9 (init (init op'))
-            rv = findSub ("&infix:" ++ op) Nothing (take 2 (args ++ [Val undef, Val undef]))
+            rv = fmap (either (const Nothing) Just) $ findSub ("&infix:" ++ op) Nothing (take 2 (args ++ [Val undef, Val undef]))
         maybeM rv $ \code -> return $ mkPrim
             { subName     = "&infix:>>" ++ op ++ "<<"
             , subType     = SubPrim
@@ -235,20 +245,19 @@ findSub name' invs args = do
             meta    <- readRef ref
             fetch   <- doHash meta hash_fetchVal
             fromVal =<< fetch "traits"
-    findWithPkg :: String -> String -> Eval (Maybe VCode)
+    findWithPkg :: String -> String -> Eval (Either FindSubFailure VCode)
     findWithPkg pkg name = do
         subs <- findSub' (('&':pkg) ++ "::" ++ tail name)
-        if isJust subs then return subs else do
-        findWithSuper pkg name
-    findWithSuper :: String -> String -> Eval (Maybe VCode)
+        maybe (findWithSuper pkg name) (return . Right) subs
+    findWithSuper :: String -> String -> Eval (Either FindSubFailure VCode)
     findWithSuper pkg name = do
         -- get superclasses
         attrs <- fmap (fmap (filter (/= pkg) . nub)) $ findAttrs pkg
-        if isNothing attrs || null (fromJust attrs) then findSub' name else do
+        if isNothing attrs || null (fromJust attrs) then fmap (err NoMatchingMulti) (findSub' name) else do
         (`fix` (fromJust attrs)) $ \run pkgs -> do
-            if null pkgs then return Nothing else do
+            if null pkgs then return (Left NoSuchMethod) else do
             subs <- findWithPkg (head pkgs) name
-            if isJust subs then return subs else run (tail pkgs)
+            either (const $ run (tail pkgs)) (return . Right) subs
     findSub' :: String -> Eval (Maybe VCode)
     findSub' name = do
         subSyms     <- findSyms name
@@ -317,8 +326,8 @@ evalExpType (App (Var "&new") (Just (Var (':':name))) _) = return $ mkType name
 evalExpType (App (Var name) invs args) = do
     sub <- findSub name invs args
     case sub of
-        Just sub    -> return $ subReturns sub
-        Nothing     -> return $ mkType "Any"
+        Right sub    -> return $ subReturns sub
+        Left _       -> return $ mkType "Any"
 evalExpType exp@(Syn syn _) | (syn ==) `any` words "{} []" = do
     val <- evalExp exp
     fromVal val

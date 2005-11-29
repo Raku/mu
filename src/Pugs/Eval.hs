@@ -811,14 +811,16 @@ reduceApp (Var "&infix:=>") invs args = do
 reduceApp (Var name@('&':_)) invs args = do
     sub     <- findSub name invs args
     case sub of
-        Just sub    -> applySub sub invs args
+        Right sub    -> applySub sub invs args
         _ | [Syn "," args'] <- unwrap args -> do
             sub <- findSub name invs args'
-            if isNothing sub then err else do
-            fail $ "Extra space found after " ++ name ++ " (...) -- did you mean " ++ name ++ "(...) instead?"
-        _ -> err
+            either err (fail errSpcMessage) sub
+        Left failure -> err failure
     where
-    err = retError "No compatible subroutine found" name
+    errSpcMessage = "Extra space found after " ++ name ++ " (...) -- did you mean " ++ name ++ "(...) instead?"
+    err NoMatchingMulti = retError "No compatible subrountine found" name
+    err NoSuchSub       = retError "No such sub" name
+    err NoSuchMethod    = retError "No such method" name
     applySub :: VCode -> (Maybe Exp) -> [Exp] -> Eval Val
     applySub sub invs args
         -- list-associativity
@@ -844,8 +846,8 @@ reduceApp (Var name@('&':_)) invs args = do
             (App (Var name') invs' args'):rest = args
         theSub   <- findSub name' invs' args'
         case theSub of
-            Just sub'    -> applyChainSub sub args sub' args' rest
-            Nothing      -> apply sub{ subParams = (length args) `replicate` p } Nothing args -- XXX Wrong
+            Right sub'    -> applyChainSub sub args sub' args' rest
+            Left _        -> apply sub{ subParams = (length args) `replicate` p } Nothing args -- XXX Wrong
     applyChainSub :: VCode -> [Exp] -> VCode -> [Exp] -> [Exp] -> Eval Val
     applyChainSub sub args sub' args' rest
         | MkCode{ subAssoc = "chain", subBody = fun, subParams = prm }   <- sub
@@ -891,7 +893,7 @@ cxtOfExp (App (Var name) invs args)   = do
     env <- ask
     sub <- findSub name invs args
     return $ case sub of
-        Just sub
+        Right sub
             | isaType (envClasses env) "Scalar" (subReturns sub)
             -> CxtItem (subReturns sub)
         _ -> cxtSlurpyAny
