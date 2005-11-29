@@ -1,0 +1,73 @@
+#!/usr/bin/perl
+
+use strict;
+
+my ($nick_base, @channels) = @ARGV;
+
+unless (`svn info` =~ /\/pugs$/m) {
+    die "This should be run from the root directory of a pugs svn (not svk) checkout\n";
+}
+
+chomp(my $PUGSHOME = `pwd`);
+
+$nick_base ||= "evalbot";
+@channels = ('#perl6') unless @channels;
+
+my $pid = 0;
+
+$ENV{PUGS_EMBED} = 'perl5';
+$ENV{PERL6LIB} = "$PUGSHOME/blib6/lib";
+
+my $pipe = "evalbot_nick";
+
+sub update_pugs {
+    print STDERR "*** Updating repository...\n";
+    system 'svn update';
+    my $rtext = `svn info`;
+    my ($rev) = $rtext =~ /^Revision: (\d+)/m;
+    print STDERR "*** Updated to revision $rev\n";
+    return $rev;
+}
+
+sub build_pugs {
+    print STDERR "*** Rebuilding pugs\n";
+    system 'perl Makefile.PL';
+    system 'make';
+}
+
+sub start_pugs {
+    my ($nick) = @_;
+    
+    print STDERR "*** Starting $nick\n";
+    set_nick($nick);
+
+    if ($pid = fork) {
+        return;
+    }
+    else {
+        exec "./pugs examples/network/evalbot/evalbot.p6 " .
+             "'=$pipe' irc.freenode.net 900 " . join(' ', map { "'$_'" } @channels)
+                or exit;
+    }
+}
+
+sub set_nick {
+    my ($nick) = @_;
+
+    print STDERR "*** Resetting $nick\n";
+    open my $fh, '>', $pipe;
+    print $fh $nick;
+}
+
+my $rev = update_pugs;
+build_pugs;
+start_pugs "$nick_base\_$rev";
+while (1) {
+    sleep 300;
+    my $newrev = update_pugs;
+    if ($newrev > $rev) {
+        build_pugs;
+        $rev = $newrev;
+        set_nick "$nick_base\_$rev";
+    }
+}
