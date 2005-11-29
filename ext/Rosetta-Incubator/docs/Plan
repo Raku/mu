@@ -1,0 +1,285 @@
+Subject: Rosetta
+Document Title: Plan
+Author: Darren Duncan <perl@DarrenDuncan.net>
+Maintainer: Darren Duncan <perl@DarrenDuncan.net>
+Date: 2005 November 28
+Last Modified: 2005 November 28
+
+PREFACE
+
+This document maps out a rough development plan the Rosetta database access
+framework, so you know in roughly what order I plan to implement various
+features.  When something is implemented, it will be removed from this list
+and instead be reflected elsewhere, such as the main documentation or the
+Changes files.  There are no specific time scales but you can assume that,
+at any given time, the handful of items at the top of the list should
+become available within a month's time.  Of course, the list is subject to
+be changed as I become better aware of circumstances, and that can be
+influenced by work done by other people.
+
+SHORTEST TERM
+
+* Add new documentation file /docs/Language (or equivalent) that defines
+the valid structures and contents of the SQL-equivalent AST that Rosetta
+takes as input and that SQL::Routine stores.  This document is to
+SQL::Routine and Rosetta what the published SQL:2003 standard documents are
+to SQL and conformant databases (or they are what the Perl 6 Synopsis are
+to the Perl 6 language and its implementations).
+
+* Add new documentation file /docs/Architecture (or equivalent) that
+defines what the Rosetta::Interface::* classes/roles conceptually
+represent, how they relate and work together.  Alternately, this
+information may be added to /docs/Overview instead.
+
+* Implement starter SQL::Routine module, which in its first post-rewrite
+incarnation will resemble a limited XML DOM, having typed nodes with
+attributes, but never having 'cdata' sections.  Input checking will be kept
+to a minimum initially, with SQL::Routine assuming its input is correct;
+eventually the input checking code will make up most of the mass of this
+module, and most of that will be done on demand rather than automatically.
+
+* Implement starter Rosetta module, which has few classes and little
+functionality per class.  Initial classes include: Rosetta::Interface, to
+represent 'globals'; Rosetta::Interface::Engine, to represent one loaded
+Engine class (like a 'drh'); Rosetta::Interface::Connection, to represent
+one database connection (like a 'dbh'); Rosetta::Interface::Routine (like a
+'sth'), to represent one compiled or prepared set of one or more
+instructions to run against a database; Rosetta::Engine::Cursor, a handle
+to an open cursor or a result set that is being buffered by the Engine;
+Rosetta::Engine::[RowArray|Row|ScalarArray|Scalar], which holds literal
+results or input; Rosetta::Engine::LOB, which is a handle to a scalar value
+being either fetched or input piecemeal.  There may also be an exception
+object that is thrown when something fails, if a Locale::KeyedText::Message
+object isn't used instead.  There may also be a Rosetta::Engine class which
+is strictly a role that all Rosetta Engines must subclass/implement.
+
+* Implement starter Rosetta::Engine::Native module, which is able to create
+and drop multiple databases that live fully in RAM and don't persist on
+disk; later versions will also let you make databases that can persist on
+disk.  The first version will only implement creation and dropping of base
+table schema objects as well as perform trivially simple selects, inserts,
+updates, deletes.  Selects will initially be limited to the form 'select
+<list> from <single-table> where <condition>', using simple expressions.
+Other data manipulation and more complex queries will come later, and other
+schema objects.  No table constraints will be supported yet, but later.
+
+* Rosetta::Engine::Native will work mainly by generating Perl closures that
+are a fairly literal translation of the SQL-like AST, doing some work
+themselves and invoke some utility functions for others.
+
+* Transactions may not initially be supported, but will soon afterwards.
+
+* No access restrictions initially, and all users are anonymous.
+
+* Explicit thread safety will not be implemented any time soon, though with
+care you may be able to use Rosetta in a multi-threaded environment.
+
+* All scalar data will be coerced into Perl strings but otherwise be left
+as is, and it will initially not be tested for correctness, such as for
+valid numbers or dates; everything will be treated as strings.  Also, the
+encoding of strings will be ignored, as Perl does whatever below scenes.
+
+* Implement starter Rosetta::Validator to test that the limited
+functionality which Native implements is working correctly.  Or it may not
+even do that much, as I start off validating largely with just manual spot
+checks instead.
+
+* No other database backends are supported at this time, and no code to
+either generate or parse string SQL is done.
+
+* There will not be any test suites yet aside from that the modules
+compile, and whatever Rosetta::Validator can test.
+
+* Upload first post-rewrite versions of SQL::Routine-0.710.0,
+Rosetta-0.490.0 (with Rosetta::Validator-0.490.0), and
+Rosetta::Engine::Native-0.1.0 to CPAN, and make a list announcement for
+"Rosetta/SQL::Routine Developer Release #4".
+
+* Note that only the Perl 5 versions need to be functional at this time,
+though the Perl 6 versions should be as close as possible; if they are,
+then they should be satisfactory to ship with Pugs 6.28.0.
+
+MEDIUM-SHORT TERM
+
+* Make a tutorial on how to write a Rosetta Engine.
+
+* Update Rosetta::Engine::Native (REN) so databases can persist on disk.
+
+* Update REN to fully support serialized-isolation transactions, such as
+SQLite does, with the exception that it probably won't yet make backups of
+on-disk versions to help avoid corruption.
+
+* Update REN to support more complicated queries, including multi-table
+joins, grouping, ordering, compound queries and subqueries, but otherwise
+support fairly few built-in expressions or functions.
+
+* Update REN to support basic table constraints; primary and other unique
+value constraints, not null, and foreign keys.  No support yet for
+non-constraining indexes.
+
+* Update REN to support create/drop and invocation of more schema object
+types, mainly read-only views, plus invokable procedures and functions,
+triggers on tables and views, and read-only cursors.  Not yet but later
+will be updateable views, and domain schema objects.  Very few built-in
+statement types will be supported initially.
+
+* No support yet of altering schema objects; only create/drop.
+
+* Update REN to support create/drop of named users, but there isn't yet any
+support for specifying access permissions or roles.
+
+* Still no distinction between data types, with all treated like strings.
+
+* Add support for basic reverse-engineering.
+
+* Implement a new starter Engine or three to work with some standard text
+file based databases, such as CSV.  Or work with someone like Jeff Zucker
+while he does this.  It would reuse some Native code and/or said code would
+be factored out into a separate utility module that both use.  All of this
+would be Pure Perl, and not involve any string SQL.  The initial Perl 5
+version might use Text::CSV::* or AnyData or such things.
+
+* Implement starter Rosetta::Engine::Genezzo or similar named module to
+provide an alternate front end for the Genezzo pure Perl database.  Or work
+with someone like Jeffrey Cohen while he does this.
+
+* Petition Stevan Little to make a Rosetta::Engine::Mock module, working
+with him as needed.
+
+* Start to create bindings for other Perl frameworks to invoke Rosetta as a
+storage back-end, such as Tangram, DBIx::Class, HDB, Alzabo, Catalyst,
+Maypole, Bricolage, Class::DBI, DBIx::SQLEngine, DBIx::SearchBuilder,
+DBIx::RecordSet, etc.  Or work with those frameworks' respective authors
+while they do that.
+
+* Add some basic AST validation to SQL::Routine.
+
+* Still no explicit thread safety.
+
+MEDIUM TERM
+
+* Update Rosetta::Engine::Native (REN) to make backups of on-disk databases
+and otherwise do like SQLite does to help avoid and/or recover from on-disk
+database corruption.
+
+* Update REN so it can auto-detect existing databases by scanning the file
+system; the scope of the search would be configurable.
+
+* Add support for writeable views.
+
+* Add support for multiple scalar data types that are actually
+distinguished and checked for validity, rather being treated as strings;
+also add support for enumerated data types.
+
+* Maybe distinguish multiple character encodings.
+
+* Add support for domain schema objects.
+
+* Add support for more substantial reverse-engineering.
+
+* Now we begin to talk to externally implemented database systems such as
+is what most users actually need.
+
+* Start to implement utility modules that generate string SQL.
+
+* Start to implement utility modules that parse string SQL.  The Perl 5
+version will likely use Parse::RecDescent to do the hard work, and Perl 6
+would use Perl 6's powerful Rules support (may require Parrot).
+
+* Implement starter Rosetta::Engine::SQLite module, which invokes the
+SQLite 3.x and 2.x libraries.  Most likely, the Perl 5 versions of DBI and
+DBD::SQLite will be used under the hood for the first version, unless some
+other native lower level binding to SQLite exists in Perl 6 by then.
+
+* Implement starter Rosetta::Engine::MySQL module, which invokes MySQL 5.x
+databases, and possibly earlier versions too.  Most likely, the Perl 5
+versions of DBI and DBD::mysql 3.x will be used under the hood for the
+first version, unless some other native lower level binding to MySQL exists
+in Perl 6 by then.
+
+* Implement starter Rosetta::Engine::PostgreSQL module, which invokes
+PostgreSQL 8.x databases, and possibly earlier versions too.  Most likely,
+the Perl 5 versions of DBI and DBD::pg will be used under the hood for the
+first version, unless some other native lower level binding to PostgreSQL
+exists in Perl 6 by then.
+
+* Implement starter Rosetta::Engine::United or similar named module which
+lets you use a single "connection" to access multiple remote databases at
+once, where their catalogs all look like they are parts of the same single
+database, such as for a database cloning utility or a multiplexer.  It
+implements a virtual database, all of whose catalogs are proxies for those
+accessed through separate connections that are implemented by one or more
+other Engine modules.  This would share a lot of Native code, such as when
+doing a query that joins from multiple actual connections.  This United
+Engine will try to be efficient and push work into the other Engines or
+their backends when it would be faster.
+
+* Support more built-in expression and statement types.
+
+* Add support for non-constraining indexes and full text search on tables.
+
+* Add support to specify access permissions, privileges and roles.
+
+* Add support for altering schema objects, rather than drop and create.
+
+* Implement starter Rosetta::Emulator::DBI module, or help someone else do
+it, so to help migration of older solutions.
+
+* OLAP extensions in queries, like rollup, cube, grouping sets, etc.
+
+* Consider some explicit performance hints such as tablespaces.
+
+* Add some improved AST validation to SQL::Routine.
+
+* Still no explicit thread safety.
+
+MEDIUM-LONG TERM
+
+* Add an Engine for newer Firebird databases, or help someone do it.
+
+* Add an Engine for newer Oracle databases, or help someone do it.
+
+* Add an Engine for newer Informix databases, or help someone do it.
+
+* Add an Engine for newer DB2 databases, or help someone do it.
+
+* Add an Engine for newer Sybase databases, or help someone do it.
+
+* Add an Engine for newer MS SQL Server databases, or help someone do it.
+
+* Handle other databases too.
+
+* If JDBC and/or ODBC have their own SQL flavor that can be used regardless
+of what database they are fronting, then make an Engine specifically to
+front a client of such.  If a database product's native SQL flavor is used
+when talking to it via ODBC, then build in ODBC protocol support into the
+other relevant database-specific Engines instead, as an alternative to
+their native protocols that users can choose from or that can auto-config.
+
+* Add an Engine and application combination that implement a native Rosetta
+proxy server.
+
+* Nested transaction support.
+
+* Pay explicit attention to thread safety, though it may be incomplete.
+
+LONG TERM
+
+* Full multi-threading support across the board.
+
+* Consider geographical data types and extensions.
+
+* Consider supporting object-relational databases, such as those that
+violate first normal forms by storing compound user-defined data types in
+record fields or 'references' or arrays or 'set' data types.
+
+* Consider supporting user-defined functions that aren't written in SQL.
+
+* Whatever reasonable things that people need.
+
+CONCLUSION
+
+Feedback is always appreciated, as is any type of contributions you wish to
+make towards the effort.  If you wish to create or adopt any particular
+types of extensions or other related modules, feel free to tell me.  Also, 
+this list is undoubtedly missing some items.
