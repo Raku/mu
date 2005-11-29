@@ -110,7 +110,7 @@ findSub name' invs args = do
         _ -> findBuiltinSub NoSuchSub name
     where
     err :: b -> Maybe a -> Either b a
-    err x (Just j) = Right j
+    err _ (Just j) = Right j
     err x Nothing  = Left x
 
     findSuperSub :: Type -> String -> Eval (Either FindSubFailure VCode)
