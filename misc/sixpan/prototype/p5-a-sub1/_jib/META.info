@@ -1,0 +1,10 @@
+--- #YAML:1.0
+author: KANE
+description: a-sub
+package: p5-a-sub-1-cpan+KANE
+name: A-sub
+version: 1
+authority: cpan+KANE
+provides: 
+    - p5-a-sub
+    - p5-a-sub-cpan+KANE

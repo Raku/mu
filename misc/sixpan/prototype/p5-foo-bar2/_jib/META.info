@@ -1,0 +1,17 @@
+--- #YAML:1.0
+author: KANE
+depends: 
+    - p5-Foo
+description: Implements Foo-Bar
+package: p5-Foo-Bar-1.3-cpan+KANE
+name: Foo::Bar
+version: 1.3
+authority: cpan+KANE
+provides: 
+    - p5-Foo-Bar
+    - p5-Foo-Bar-cpan+KANE
+contains:
+    modules:
+        - Foo::Bar
+    scripts:
+        - script.pl

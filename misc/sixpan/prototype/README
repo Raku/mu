@@ -1,0 +1,32 @@
+This is the 2nd generation PMS prototype. This version is completely free of
+dpkg, but quite inspired by it's functionality and policy. To test the
+prototype, type the following commands from the README directory:
+
+    # cleanup fakeroot and build directories, set up fresh root
+    $ perl bin/cleanup.pl
+    
+    # create an archive, will build into root-p5-foo-bar
+    $ perl bin/create.pl p5-foo
+    
+    # install that archive into our fakeroot
+    $ perl bin/install.pl root-p5-foo/p5-Foo-1.0-cpan+KANE.jib
+
+    # inspect the fakeroot:
+    $ find fakeroot | less
+    
+    # uninstall the package
+    $ perl bin/uninstall.pl p5-Foo-1.0-cpan+KANE
+    
+    # inspect the fakeroot:
+    $ find fakeroot | less
+    
+    # see what's been installed
+    $ perl bin/pp_install.pl
+    
+    # cleanup fakeroot and build directories, set up fresh root
+    $ perl bin/cleanup.pl
+
+Try building the files in p5-foo-bar and p5-foo-bar2 as well.
+
+Check README.repo for sample code on how to test installs using a fake
+repository.

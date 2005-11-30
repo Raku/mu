@@ -1,0 +1,13 @@
+--- #YAML:1.0
+author: KANE
+description: Implements Foo
+package: p5-Foo-1.0-cpan+KANE
+name: Foo
+version: 1.0
+authority: cpan+KANE
+provides: 
+    - p5-Foo
+    - p5-Foo-cpan+KANE
+contains:
+    modules:
+        - Foo

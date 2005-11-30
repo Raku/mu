@@ -1,0 +1,10 @@
+--- #YAML:1.0
+author: KANE
+description: b
+package: p5-b-2-cpan+KANE
+name: B
+version: 2
+authority: cpan+KANE
+provides: 
+    - p5-b
+    - p5-b-cpan+KANE

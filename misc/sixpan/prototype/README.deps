@@ -1,0 +1,19 @@
+This is the 2nd generation PMS prototype. This version is completely free of
+dpkg, but quite inspired by it's functionality and policy. To test the
+prototype, type the following commands from the README directory:
+
+To show how the dependencies get parsed, run the following commands:
+
+    $ perl bin/cleanup.pl
+    
+    $ perl bin/create.pl p5-[abcd]*
+
+    $ perl bin/repo_create.pl .
+    
+    $ perl bin/pp_deps.pl p5-Complicated-Deps
+    
+    ### install some of the dependencies
+    $ perl bin/repo_install.pl p5-b-1-cpan+KANE p5-d-1-cpan+KANE
+
+    ### note the change in deps
+    $ perl bin/pp_deps.pl p5-Complicated-Deps

@@ -1,0 +1,27 @@
+This is the 2nd generation PMS prototype. This version is completely free of
+dpkg, but quite inspired by it's functionality and policy. This readme shows
+how you can use the prototype with a fake repository.
+To test the prototype, type the following commands from the README.repo
+directory:
+
+    # create all archives
+    $ perl bin/create.pl p5-foo p5-foo-bar p5-foo-bar2
+    
+    # create a repository of those archives, under the fake root
+    $ perl bin/repo_create.pl .
+
+    # search the repo. trigger the usage message
+    $ perl bin/repo_search.pl
+    
+    # find a module to install from the repo
+    $ perl bin/repo_search.pl author:KANE
+    
+    # install a package with dependency:
+    $ perl bin/repo_install.pl p5-Foo-Bar-1.2-cpan+KANE
+    
+    # inspect the fakeroot:
+    $ find fakeroot | less
+    
+    # cleanup fakeroot and build directories
+    $ perl bin/cleanup.pl
+
