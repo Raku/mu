@@ -23,7 +23,31 @@ use vars qw(
 		$Postinst
 		$Prerm
 		$Postrm
+
+		@EXPORT_OK
 );
+
+@EXPORT_OK = qw(
+		$Meta
+		$Control
+		$Available
+		$RegisteredAlternatives
+		$Alternatives
+
+		$MetaExt
+		$MetaFile
+
+		$ArchiveData
+		$ArchiveControl
+		$ArchiveExt
+
+		$Preinst
+		$Postinst
+		$Prerm
+		$Postrm
+);
+
+$EXPORT_TAGS{all} = \@EXPORT_OK;
 
 $Meta = dir('meta');
 $Control = $Meta->dir('control');
