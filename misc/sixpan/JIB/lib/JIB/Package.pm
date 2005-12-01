@@ -23,7 +23,7 @@ Set the name of the full package package. For example:
 
 =head1 METHODS
 
-=head2 $pkg = JIB::Package->new({ key => val, ....})
+=head2 $pkg = JIB::Package->new( package => PACKAGE_NAME )
 
 =cut
 

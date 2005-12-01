@@ -27,6 +27,11 @@ my $Obj;
     }        
 }    
 
+### test bogus assign to package
+{   local $SIG{__WARN__} = sub {};
+    ok( !$Obj->package( [] ),   "Bogus 'package' value not allowed" );
+}
+
 ### test regexes
 {   ### build a method => value map
     my $i;
