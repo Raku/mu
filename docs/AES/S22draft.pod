@@ -110,7 +110,7 @@ C<compile> (for the lack of a better term so far) the code on the user side.
 
 The name of a C<.jib> file is determined as follows:
 
-    <prefix>-<package-name>-<version>-<authority>-<extension>
+    <prefix>-<package-name>-<version>-<authority>.<extension>
     
 In praxis, this will produce a name along these lines:
 
