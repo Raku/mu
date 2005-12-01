@@ -4,6 +4,15 @@ use strict;
 use warnings;
 use base 'Object::Accessor';
 
+use Params::Check           qw[check];
+use Log::Message::Simple    qw[:STD];
+
+my $Package_re = qr/^(\w+)     - # prefix
+                    ([\w-]+?)  - # package name
+                    ([\d.]+)   - # version
+                    (\w+\+\S+) $ # authority
+                /smx;
+
 =head1 ACCESSORS 
 
 =head2 package
@@ -18,31 +27,33 @@ Set the name of the full package package. For example:
 
 =cut
 
-{   my @Acc = qw[package];
+{   my %Acc = (
+        package => $Package_re,
+    );        
+
     sub new {
         my $class   = shift;
-        my $self    = $class->SUPER::new;
+        my %hash    = @_;
         
-        $self->mk_accessors( @Acc );
+        my $tmpl = {
+            package => { required => 1, allow => $Package_re },
+        };
         
-        return $self->_init(@_) ? $self : undef;
-    }
-}
+        my $args = check( $tmpl, \%hash ) 
+                    or error( Params::Check->last_error ), return;
 
-
-sub _init {
-    my ($self, $args) = @_;
-    if ($args && ref $args eq 'HASH') {
-        for my $arg (keys %{$args}) {
-            next unless $arg;
-            die __PACKAGE__ . " doesn't have an accessor method $arg" 
-                 unless $self->can($arg);
-            $self->$arg($args->{$arg});
+        ### set up the object + accessors        
+        my $self = $class->SUPER::new;
+        $self->mk_accessors( \%Acc );
+        
+        while( my($acc,$val) = each %$args ) {
+            $self->$acc( $val );
         }
+        
+        return $self;
     }
-
-    return 1;
 }
+
 
 =head2 prefix
 
@@ -55,26 +66,22 @@ sub _init {
 =cut
 
 ### XXX could autogenerate
-{   my $regex = qr/ ^(\w+)     - # prefix
-                    ([\w-]+?)  - # package name
-                    ([\d.]+)   - # version
-                    (\w+\+\S+) $ # authority
-                /smx;
+{   
 
     sub prefix {
-        return $1 if shift->package() =~ $regex;
+        return $1 if shift->package() =~ $Package_re;
     }
 
     sub name {
-        return $2 if shift->package() =~ $regex;
+        return $2 if shift->package() =~ $Package_re;
     }
 
     sub version {
-        return $3 if shift->package() =~ $regex;
+        return $3 if shift->package() =~ $Package_re;
     }
     
     sub authority {
-        return $4 if shift->package() =~ $regex;
+        return $4 if shift->package() =~ $Package_re;
     }
 }    
 

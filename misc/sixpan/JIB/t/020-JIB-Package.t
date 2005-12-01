@@ -14,16 +14,13 @@ use_ok( $Class );
 
 ### create an object 
 my $Obj;
-{   $Obj = $Class->new;
+{   $Obj = $Class->new( package => $Pkg );
     ok( $Obj,                   "Object created" );
     isa_ok( $Obj,               $Class );
     
     my @can = sort $Obj->ls_accessors;
     ok( scalar(@can),           "   Object has accessors" );
     is_deeply( \@can, \@Acc,    "   Object can do what it should" );
-
-    ### set a distribution name
-    ok( $Obj->package( $Pkg ),  "Set package to a sensible value" );
     
     for my $method ( @can ) {
         ok( $Obj->$method,      "   '$method' returns value" );
