@@ -11,6 +11,8 @@ my @post_tokens;
 my $tab_depth; 
 my $line_number;
 
+my $debug_tree = 0;   # show tree while it is built
+
 # ---
 
 sub tab {
@@ -56,8 +58,10 @@ sub optional_space {
 sub sentence {
     my @param = @_;  # not used
     #$tab_depth++;
-    print tab(), "sentence(\n";
+    print tab(), "sentence(\n" if $debug_tree;
     $tab_depth++;
+
+    my @ret;
     
     my $word;
     #$word = token;
@@ -66,6 +70,12 @@ sub sentence {
     while(1) {
         $word = token;
         # print "<$word> ";
+
+        if ( $word =~ /^(.*?\S)(\s.*?)$/ ) {
+            # split on inner space left from the simple tokenizer, like in ' = {'
+            $word = $1;
+            unshift @tokens, $2;
+        }
           
         if ( $word =~ /^\s*\;/ ) {
             #print "# End sentence [@param] [$word]\n";
@@ -73,15 +83,15 @@ sub sentence {
             unshift @tokens, $word if $word ne '';
             
             $tab_depth--;
-            print tab(), ")sentence,\n";
+            print tab(), ")sentence,\n" if $debug_tree;
             #$tab_depth--;
-            return;
+            return @ret;
         };
 
         if ( $word =~ /^\s*\(/ ) {
             # print "#  paren\n";
             unshift @tokens, $word;
-            parenthesis( 'bare paren' );
+            push @ret, [ parenthesis( 'bare paren' ) ];
             #print "# continue sentence: \n";
             next;
         };
@@ -89,7 +99,7 @@ sub sentence {
         if ( $word =~ /^\s*\{/ ) {
             # print "#  start block\n";
             unshift @tokens, $word;
-            block( 'bare block' );
+            push @ret, [ block( 'bare block' ) ];
             #print "# continue sentence: \n";
             next;
         };
@@ -98,21 +108,22 @@ sub sentence {
             # print "#  end paren\n";
             unshift @tokens, $word;
             $tab_depth--;
-            print tab(), ")sentence,\n";
+            print tab(), ")sentence,\n" if $debug_tree;
             #$tab_depth--;
-            return;
+            return @ret;
         };
         
         if ( $word =~ /^\s*\}/ ) {
             # print "#  end block\n";
             unshift @tokens, $word;
             $tab_depth--;
-            print tab(), ")sentence,\n";
+            print tab(), ")sentence,\n" if $debug_tree;
             #$tab_depth--;
-            return;
+            return @ret;
         };
         
-        print tab(), "'$word'\n";
+        push @ret, $word;
+        print tab(), "'$word'\n" if $debug_tree;
 
     }
       
@@ -121,8 +132,10 @@ sub sentence {
 sub parenthesis {
     my @param = @_;  # not used
     #$tab_depth++;
-    print tab(), "paren(\n";
+    print tab(), "paren(\n" if $debug_tree;
     $tab_depth++;
+
+    my @ret;
     
     my $word;
     $word = token;
@@ -139,19 +152,19 @@ sub parenthesis {
             unshift @tokens, $word if $word ne '';
             
             $tab_depth--;
-            print tab(), ")paren,\n";
+            print tab(), ")paren,\n" if $debug_tree;
             #$tab_depth--;
-            return;
+            return @ret;
         };
 
         if ( $word =~ /^\s*\(/ ) {
             # print "#  paren\n";
             unshift @tokens, $word;
-            parenthesis( 'bare paren' );
+            push @ret, [ parenthesis( 'bare paren' ) ];
         };
 
         unshift @tokens, $word;
-        sentence( $word );
+        push @ret, [ sentence( $word ) ];
         
     }
 }
@@ -162,17 +175,21 @@ sub block {
     my $word;
     $word = token;
     #print "# Start block $tab_depth [@param] [$word]\n";
-    print tab(), "block{\n";
+    print tab(), "block{\n" if $debug_tree;
     $tab_depth++;
     
+    my @ret;
+
     $word =~ s/^\s*{// or error "not a <{> [$word]\n";
     unshift @tokens, $word if $word ne '';
     while(1) {
         $word = token;
         # print " [ $word ] ";
-        if ( $word =~ /^(class|method|submethod|sub|multi)$/ ) {
-            print tab(), "define(\n";
+        if ( $word =~ /^(class|method|submethod|sub|multi|macro)$/ ) {
+            print tab(), "define(\n" if $debug_tree;
             $tab_depth++;
+
+            my %block;
            
             # multi sub|method
             if ( $word eq 'multi' ) {
@@ -185,38 +202,44 @@ sub block {
                     push @tokens, $word2;
                 }
             };
+            $block{thing} = $word;
               
-            print tab(), "thing = $word,\n";
+            print tab(), "thing = $word,\n" if $debug_tree;
             
             optional_space;
             $word = token;
             my $namespace;
             if ($word eq '*') { $namespace = $word } 
                 else { unshift @tokens, $word };
-            print tab(), "namespace_modifier = $namespace,\n";
-            
+            print tab(), "namespace_modifier = $namespace,\n" if $debug_tree;
+            $block{namespace_modifier} = $namespace;
+
             $word = token;
             my $name;
             if ($word =~ /(\(|\{)/) { unshift @tokens, $word } 
                 else { $name = $word };
-            print tab(), "name = $name,\n";
+            print tab(), "name = $name,\n" if $debug_tree;
+            $block{name} = $name;
             
             $word = token;
             unshift @tokens, $word;
             if ( $word =~ /^\s*\(/ ) {
-                print tab(), "param = \n";
+                print tab(), "param = \n" if $debug_tree;
                 $tab_depth++;
-                parenthesis( 'parameter paren' );
+                $block{param} = [ parenthesis( 'parameter paren' ) ];
                 $tab_depth--;
             }
         
-            print tab(), "block = \n";
+            print tab(), "block = \n" if $debug_tree;
             $tab_depth++;
-            block( $1, $name );
+            $block{block} = [ block( $1, $name ) ];
             $tab_depth--;
           
+
+            push @ret, \%block;
+
             $tab_depth--;
-            print tab(), "}define,\n";
+            print tab(), "}define,\n" if $debug_tree;
             next;
         }; # class
             
@@ -226,14 +249,14 @@ sub block {
             unshift @tokens, $word if $word ne '';
             
             $tab_depth--;
-            print tab(), "}block,\n";
-            return;
+            print tab(), "}block,\n" if $debug_tree;
+            return @ret;
         };
 
         if ( $word =~ /^\s*{/ ) {
             # print "#  bare block\n";
             unshift @tokens, $word;
-            block( 'bare block' );
+            push @ret, [ block( 'bare block' ) ];
             next;
         };
         
@@ -243,7 +266,7 @@ sub block {
         }
 
         unshift @tokens, $word;
-        sentence( $word );
+        push @ret, [ sentence( $word ) ];
 
     }
 }
@@ -255,4 +278,8 @@ $line = '';
 @post_tokens = ( '}' );
 $tab_depth = 0; 
 $line_number = -1;
-block( 'main block' );
+my @tree = block( 'main block' );
+
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
+print Dumper( \@tree );
