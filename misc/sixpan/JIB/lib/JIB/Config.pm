@@ -18,6 +18,11 @@ use vars qw(
 		$ArchiveData
 		$ArchiveControl
 		$ArchiveExt
+
+		$Preinst
+		$Postinst
+		$Prerm
+		$Postrm
 );
 
 $Meta = dir('meta');
