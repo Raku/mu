@@ -56,7 +56,7 @@ $RegisteredAlternatives = $Meta->file('registered-alternatives');
 $Alternatives = $Meta->dir('alternatives');
 
 $MetaExt = '.info';
-$MetaFile = 'INFO'.$MetaExt;
+$MetaFile = 'META'.$MetaExt;
 
 $ArchiveData = 'data.tar.gz';
 $ArchiveControl = 'control.tar.gz';
