@@ -6,23 +6,23 @@ use Path::Class;
 use base 'Exporter';
 
 use vars qw(
-		$Meta
-		$Control
-		$Available
-		$RegisteredAlternatives
-		$Alternatives
+        $Meta
+        $Control
+        $Available
+        $RegisteredAlternatives
+        $Alternatives
 
-		$MetaExt
-		$MetaFile
+        $MetaExt
+        $MetaFile
 
-		$ArchiveData
-		$ArchiveControl
-		$ArchiveExt
+        $ArchiveData
+        $ArchiveControl
+        $ArchiveExt
 
-		$Preinst
-		$Postinst
-		$Prerm
-		$Postrm
+        $Preinst
+        $Postinst
+        $Prerm
+        $Postrm
 
 		@EXPORT_OK
 );
@@ -68,3 +68,10 @@ $Prerm = 'PRERM.pl';
 $Postrm = 'POSTRM.pl';
 
 1;
+
+# Local variables:
+# c-indentation-style: bsd
+# c-basic-offset: 4
+# indent-tabs-mode: nil
+# End:
+# vim: expandtab shiftwidth=4:
