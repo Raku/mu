@@ -534,6 +534,12 @@ and then you do 'install parent'
 [4:25PM] vasi: The reason we can't just swap in a new dep engine to fink is that the current one is sufficiently useful and has enough side effects, that it would just be too much pain
 [4:26PM] vasi: so don't get yourself stuck in the same situation as we're in
 
+Vasi wrote a proof of concept for fink, that does this sort of detecting 
+(no resolving yet):
+    http://cvs.sf.net/viewcvs.py/fink/fink/perlmod/Fink/SysState.pm?view=markup
+
+Vasi points to a good dep engine written in python:
+    http://labix.org/smart
 
 =head1 Miscelaneous Open Issues
 
