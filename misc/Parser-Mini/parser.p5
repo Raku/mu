@@ -1,0 +1,258 @@
+# a simple p6 parser
+# by fglock
+
+use strict;
+
+# globals
+
+my $line;
+my @tokens;
+my @post_tokens;
+my $tab_depth; 
+my $line_number;
+
+# ---
+
+sub tab {
+    return '    ' x $tab_depth;
+}
+
+sub error {
+    printf "# %04d: %s\n", $line_number, $line;
+    print "# *** $_[0]\n";
+    die "\n";
+}
+
+sub token {
+  while(1) {
+    return shift @tokens if @tokens;
+
+    unless ( $line = <> ) {
+        return shift @post_tokens if @post_tokens;
+        error "end of file";
+    }
+
+    $line_number++;
+    chomp $line;
+    if ( $line =~ /^#/ || $line =~ /^$/ ) { 
+        next; 
+    };
+    # printf "# %04d: %s\n", $line_number, $line;
+    @tokens = split( /\b/, $line );
+  }
+}
+
+sub optional_space {
+    my $word;
+    while(1) {
+        $word = token;
+        $word =~ s/^\s+//;
+        next if $word eq '';
+        unshift @tokens, $word;
+        return;
+    }
+}
+
+sub sentence {
+    my @param = @_;  # not used
+    #$tab_depth++;
+    print tab(), "sentence(\n";
+    $tab_depth++;
+    
+    my $word;
+    #$word = token;
+    #print "# Start sentence [@param]\n";
+
+    while(1) {
+        $word = token;
+        # print "<$word> ";
+          
+        if ( $word =~ /^\s*\;/ ) {
+            #print "# End sentence [@param] [$word]\n";
+            $word =~ s/^\s*\;//;
+            unshift @tokens, $word if $word ne '';
+            
+            $tab_depth--;
+            print tab(), ")sentence,\n";
+            #$tab_depth--;
+            return;
+        };
+
+        if ( $word =~ /^\s*\(/ ) {
+            # print "#  paren\n";
+            unshift @tokens, $word;
+            parenthesis( 'bare paren' );
+            #print "# continue sentence: \n";
+            next;
+        };
+        
+        if ( $word =~ /^\s*\{/ ) {
+            # print "#  start block\n";
+            unshift @tokens, $word;
+            block( 'bare block' );
+            #print "# continue sentence: \n";
+            next;
+        };
+        
+        if ( $word =~ /^\s*\)/ ) {
+            # print "#  end paren\n";
+            unshift @tokens, $word;
+            $tab_depth--;
+            print tab(), ")sentence,\n";
+            #$tab_depth--;
+            return;
+        };
+        
+        if ( $word =~ /^\s*\}/ ) {
+            # print "#  end block\n";
+            unshift @tokens, $word;
+            $tab_depth--;
+            print tab(), ")sentence,\n";
+            #$tab_depth--;
+            return;
+        };
+        
+        print tab(), "'$word'\n";
+
+    }
+      
+}
+
+sub parenthesis {
+    my @param = @_;  # not used
+    #$tab_depth++;
+    print tab(), "paren(\n";
+    $tab_depth++;
+    
+    my $word;
+    $word = token;
+    #print "# Start paren $tab_depth [@param] [$word]\n";
+    $word =~ s/^\s*\(// or error "not a <(> [$word]\n";
+    unshift @tokens, $word if $word ne '';
+    while(1) {
+        $word = token;
+        # print " [ $word ] ";
+            
+        if ( $word =~ /^\s*\)/ ) {
+            #print "# End paren $tab_depth [@param] [$word]\n";
+            $word =~ s/^\s*\)//;
+            unshift @tokens, $word if $word ne '';
+            
+            $tab_depth--;
+            print tab(), ")paren,\n";
+            #$tab_depth--;
+            return;
+        };
+
+        if ( $word =~ /^\s*\(/ ) {
+            # print "#  paren\n";
+            unshift @tokens, $word;
+            parenthesis( 'bare paren' );
+        };
+
+        unshift @tokens, $word;
+        sentence( $word );
+        
+    }
+}
+
+sub block {
+    my @param = @_;  # not used
+    
+    my $word;
+    $word = token;
+    #print "# Start block $tab_depth [@param] [$word]\n";
+    print tab(), "block{\n";
+    $tab_depth++;
+    
+    $word =~ s/^\s*{// or error "not a <{> [$word]\n";
+    unshift @tokens, $word if $word ne '';
+    while(1) {
+        $word = token;
+        # print " [ $word ] ";
+        if ( $word =~ /^(class|method|submethod|sub|multi)$/ ) {
+            print tab(), "define(\n";
+            $tab_depth++;
+           
+            # multi sub|method
+            if ( $word eq 'multi' ) {
+                optional_space;
+                my $word2 = token;
+                if ( $word2 eq 'method' || $word2 eq 'sub' ) {
+                    $word .= ' ' . $word2;
+                }
+                else {
+                    push @tokens, $word2;
+                }
+            };
+              
+            print tab(), "thing = $word,\n";
+            
+            optional_space;
+            $word = token;
+            my $namespace;
+            if ($word eq '*') { $namespace = $word } 
+                else { unshift @tokens, $word };
+            print tab(), "namespace_modifier = $namespace,\n";
+            
+            $word = token;
+            my $name;
+            if ($word =~ /(\(|\{)/) { unshift @tokens, $word } 
+                else { $name = $word };
+            print tab(), "name = $name,\n";
+            
+            $word = token;
+            unshift @tokens, $word;
+            if ( $word =~ /^\s*\(/ ) {
+                print tab(), "param = \n";
+                $tab_depth++;
+                parenthesis( 'parameter paren' );
+                $tab_depth--;
+            }
+        
+            print tab(), "block = \n";
+            $tab_depth++;
+            block( $1, $name );
+            $tab_depth--;
+          
+            $tab_depth--;
+            print tab(), "}define,\n";
+            next;
+        }; # class
+            
+        if ( $word =~ /^\s*}/ ) {
+            #print "# End block $tab_depth [@param] [$word]\n";
+            $word =~ s/^\s*\}//;
+            unshift @tokens, $word if $word ne '';
+            
+            $tab_depth--;
+            print tab(), "}block,\n";
+            return;
+        };
+
+        if ( $word =~ /^\s*{/ ) {
+            # print "#  bare block\n";
+            unshift @tokens, $word;
+            block( 'bare block' );
+            next;
+        };
+        
+        if ( $word =~ /^\s+$/ ) {
+            # spaces
+            next;
+        }
+
+        unshift @tokens, $word;
+        sentence( $word );
+
+    }
+}
+
+# main
+
+$line = '';
+@tokens = ( '{' );
+@post_tokens = ( '}' );
+$tab_depth = 0; 
+$line_number = -1;
+block( 'main block' );
