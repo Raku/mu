@@ -3,69 +3,38 @@ package JIB::Config;
 use strict;
 use warnings;
 use Path::Class;
-use base 'Exporter';
+use base 'Class::Singleton';
 
-use vars qw(
-        $Meta
-        $Control
-        $Available
-        $RegisteredAlternatives
-        $Alternatives
+my %config;
 
-        $MetaExt
-        $MetaFile
+$config{'Meta'} = dir('meta');
+$config{'Control'} = $config{'Meta'}->subdir('control');
+$config{'Available'} = $config{'Meta'}->file('available');
+$config{'RegisteredAlternatives'} = $config{'Meta'}->file('registered-alternatives');
+$config{'Alternatives'} = $config{'Meta'}->subdir('alternatives');
 
-        $ArchiveData
-        $ArchiveControl
-        $ArchiveExt
+$config{'MetaExt'} = '.info';
+$config{'MetaFile'} = 'META'.$config{'MetaExt'};
 
-        $Preinst
-        $Postinst
-        $Prerm
-        $Postrm
+$config{'ArchiveData'} = 'data.tar.gz';
+$config{'ArchiveControl'} = 'control.tar.gz';
+$config{'ArchiveExt'} = '.jib';
 
-		@EXPORT_OK
-);
+$config{'Preinst'} = 'PREINST.pl';
+$config{'Postinst'} = 'POSTINST.pl';
+$config{'Prerm'} = 'PRERM.pl';
+$config{'Postrm'} = 'POSTRM.pl';
 
-@EXPORT_OK = qw(
-		$Meta
-		$Control
-		$Available
-		$RegisteredAlternatives
-		$Alternatives
+sub new { shift->instance };
 
-		$MetaExt
-		$MetaFile
-
-		$ArchiveData
-		$ArchiveControl
-		$ArchiveExt
-
-		$Preinst
-		$Postinst
-		$Prerm
-		$Postrm
-);
-
-$EXPORT_TAGS{all} = \@EXPORT_OK;
-
-$Meta = dir('meta');
-$Control = $Meta->dir('control');
-$Available = $Meta->file('available');
-$RegisteredAlternatives = $Meta->file('registered-alternatives');
-$Alternatives = $Meta->dir('alternatives');
-
-$MetaExt = '.info';
-$MetaFile = 'META'.$MetaExt;
-
-$ArchiveData = 'data.tar.gz';
-$ArchiveControl = 'control.tar.gz';
-$ArchiveExt = '.jib';
-
-$Preinst = 'PREINST.pl';
-$Postinst = 'POSTINST.pl';
-$Prerm = 'PRERM.pl';
-$Postrm = 'POSTRM.pl';
+for my $sym (keys %config) {
+    {
+        no strict 'refs';
+        *$sym = sub {
+            return $config{$sym}
+        };
+    }
+}
 
 1;
 
