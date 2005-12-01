@@ -415,7 +415,9 @@ The rules in changing the alternatives are as follows:
 
 
     [1] The alternative system doesn't support 2 different packages to
-        supply the same file.
+        supply the same file. This would be solved with with debian-style
+        alternatives. Since we recognize the condition, we can implement
+        deb-style behaviour later, without breaking anything
 
 The uninstall rules are quite similar, except the installer has to check, when
 removing the links for this version, if the policy can point to a new default,
@@ -504,6 +506,72 @@ This allows nesting of the above expressions
     - need a split out between the printer and the resolver
         - so one can list all dependencies as they are resolved
             and just the ones that need installing
+
+=head1 Miscelaneous Open Issues
+
+These are not implemented in the prototype, but should be well kept in 
+mind for a serious release.
+
+=head2 Binary packages
+
+Rather than letting the build tool generate a magic list of files which
+we are to move to their final destination, building a binary package will
+be much easier. We can adopt the debian strategy to let the builder install
+into a fake root directory, provided to it. 
+That way we can package up this directory and have a complete list of files
+and their destination on this machine.
+
+Another benefit to building these packages:
+
+    [3:25PM] vasi: basically some users are likely to want to uninstall
+    packages, and re-install without a whole compile
+    [3:25PM] vasi: or create packages on a fast machine, and then install 
+    them on a slow machine
+    [3:25PM] vasi: or create packages once, and then distribute them to 
+    their whole organization
+
+Of course, they're not as portable as debian binary packages, as the location
+depends on perl version, architecture and install prefix. So this is something
+to come back to later, but keep in mind.
+
+=head2 Upgrades causing deletes
+
+For perl6, there's no direct need to delete an older package when upgrading,
+but for quite a few architectures it is. Our current dependency engine doesn't
+keep this in mind yet, but it's something to add later on.
+
+=head2 Stacking available paths
+
+Most package managers assume control of /, which we don't. Following the perl
+installation style, we'll have several directories that can hold modules, that
+can be mixed and matched using dynamic assignments to @INC (by using say, 
+$ENV{PERL5LIB}). To facilitate this, we should have a meta dir below every
+@INC root dir, which tells us what modules are available in this root.
+The order of @INC will tell us in what order they come, when resolving
+dependencies.
+It's unclear how we will proceed with our alternatives scheme in this setup.
+
+=head2 Depth level to follow dependencies
+
+With more tags describing dependencies than just C<Depends:> we should have 
+a way to tell the package manager until what level you wish to follow these
+tags. For example '0' to not install dependencies ever, '1' to just do 
+C<Depends:>, '2' to also do C<Suggests:>, etc.
+
+=head2 Probing external files
+
+Since we do not rule all of /, there are going to be dependencies we are
+unaware of. Therefor we need probing classes that can tell us (and possibly
+somewhere in the future resolve) whether a certain non-perl dependency has
+been met. For example, we might have a dependency on:
+
+    c_header-pgsql
+    
+And a probing class for the type C<c_header> would be able to tell us
+whether or not we have this dependency satisfied. The same probing class
+should be able to tell us something about this dependency, like location and
+so on, so the build modules may use it.
+This also means our dependency engine should use these probing classes.
 
 __END__
 
