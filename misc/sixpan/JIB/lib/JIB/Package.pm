@@ -2,23 +2,35 @@ package JIB::Package;
 
 use strict;
 use warnings;
+use base 'Object::Accessor';
 
-my $package_re =qr/^(\w+)      - # prefix
-                    ([\w-]+?)  - # package name
-                    ([\d.]+)   - # version
-                    (\w+\+\S+) $ # authority
-                /smx;
+=head1 ACCESSORS 
 
-sub new {
-    my $class = shift;
-    my $self = {
-        changed_distname => 0
-    };
-    bless $self, $class;
-    return $self->init(@_) ? $self : undef;
+=head2 package
+
+Set the name of the full package package. For example:
+
+    p5-foo-1-cpan+kane
+
+=head1 METHODS
+
+=head2 $pkg = JIB::Package->new({ key => val, ....})
+
+=cut
+
+{   my @Acc = qw[package];
+    sub new {
+        my $class   = shift;
+        my $self    = $class->SUPER::new;
+        
+        $self->mk_accessors( @Acc );
+        
+        return $self->_init(@_) ? $self : undef;
+    }
 }
 
-sub init {
+
+sub _init {
     my ($self, $args) = @_;
     if ($args && ref $args eq 'HASH') {
         for my $arg (keys %{$args}) {
@@ -29,59 +41,42 @@ sub init {
         }
     }
 
-    $self->parse_name() if $self->{changed_distname};
-
     return 1;
 }
 
-sub distname {
-    my $self = shift;
+=head2 prefix
 
-    if (@_) {
-        $self->{distname} = shift;
-        $self->{changed_distname} = 1;
+=head2 name
+
+=head2 version
+
+=head2 authority
+
+=cut
+
+### XXX could autogenerate
+{   my $regex = qr/ ^(\w+)     - # prefix
+                    ([\w-]+?)  - # package name
+                    ([\d.]+)   - # version
+                    (\w+\+\S+) $ # authority
+                /smx;
+
+    sub prefix {
+        return $1 if shift->package() =~ $regex;
     }
 
-    return $self->{distname};
-}
+    sub name {
+        return $2 if shift->package() =~ $regex;
+    }
 
-sub prefix {
-    my $self = shift;
-
-    $self->parse_name() if $self->{changed_distname};
-    return $self->{prefix};
-}
-
-sub name {
-    my $self = shift;
-
-    $self->parse_name() if $self->{changed_distname};
-    return $self->{name};
-}
-
-sub version {
-    my $self = shift;
-
-    $self->parse_name() if $self->{changed_distname};
-    return $self->{version};
-}
-
-sub authority {
-    my $self = shift;
-    $self->parse_name() if $self->{changed_distname};
-    return $self->{authority};
-}
-
-sub parse_name {
-    my $self = shift;
-
-    ($self->{prefix},
-     $self->{name},
-     $self->{version},
-     $self->{authority}) = $self->{distname} =~ $package_re;
-
-    $self->{changed_distname} = 0;
-}
+    sub version {
+        return $3 if shift->package() =~ $regex;
+    }
+    
+    sub authority {
+        return $4 if shift->package() =~ $regex;
+    }
+}    
 
 1;
 
