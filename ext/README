@@ -1,0 +1,39 @@
+===============================================================================
+= Pugs Modules Directory
+===============================================================================
+
+- What is this directory?
+
+This directory is meant to be a temporary holding place for both perl6 module 
+ports of perl5 modules, and any new perl6 modules people might want to write.
+
+Eventually all that you see here will end up on 6PAN.
+
+- Do these modules work in Pugs?
+
+Yes. Each module must come with unit tests and compiles with Pugs.
+
+- What are those modules good for?
+
+It is our hope that having a number of modules, each with their own test suites, 
+will later serve as a kind of integration test for the more advanced features 
+of Pugs and Perl 6.
+
+Also the act of porting perl5 modules helps to raise questions about how certain
+things will be accomplished in Perl 6 and helps to expose some of the darker 
+corners of the Perl 6 spec; this has proven to be a good way to help the
+perl6-language group in the development of the specification.
+
+- How can I contribute?
+
+Pick a module, port it, ask for a commit bit on perl6-compiler or
+irc.freenode.net #perl6, and upload it. 
+
+- What modules should I port?
+
+Whatever you like. There are no restrictions nor expectations.
+
+- Is there a How-To document for porting to perl6?
+
+Yes, see docs/other/porting_howto for some ideas.
+
