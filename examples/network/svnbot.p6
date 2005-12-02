@@ -116,11 +116,14 @@ sub svn_check($event) {
         my @lines   = split("\n", $commits).grep:{ $_ };
 
         # We inform all channels we've joined of new commits.
-        my $chans = join ",", $bot<channels>();
-        return unless $chans;
+        my @chans = $bot<channels>();
 
         # Finally, send the announcement.
-        $bot<privmsg>($chans, $_) for @lines;
+        for @lines -> $line {
+            for @chans -> $chan { 
+                $bot<privmsg>($chan, $line);
+            }
+        }
     }
 }
 
