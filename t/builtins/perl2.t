@@ -95,10 +95,9 @@ sub desc_ref ($obj) {
         is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj), :todo<bug>;
     }
     for ([ { :a(1) }, { :b(2), :c(3) } ],) -> $obj {
-        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj), todo:<bug> ;
+        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj), :todo<bug> ;
         is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
     }
-
 
 }
 
