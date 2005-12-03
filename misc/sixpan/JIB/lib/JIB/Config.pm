@@ -28,7 +28,8 @@ $config{'postinst'}         = 'POSTINST.pl';
 $config{'prerm'}            = 'PRERM.pl';
 $config{'postrm'}           = 'POSTRM.pl';
 
-sub new { shift->instance };
+sub new         { shift->instance };
+sub accessors   { keys %config };
 
 for my $sym (keys %config) {
     {
