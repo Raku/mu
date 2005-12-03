@@ -5,7 +5,10 @@ use warnings;
 
 use JIB::Meta;
 use JIB::Config;
+use JIB::Utils;
 
+use File::Basename          qw[dirname];
+use File::Temp              qw[tempdir];
 use Params::Check           qw[check];
 use Log::Message::Simple    qw[:STD];
 
@@ -64,6 +67,34 @@ sub new {
 =head2 $file = $src->build( ... )
 
 =cut
+
+sub build {
+    my $self = shift;
+
+    my $builddir = File::Spec->catdir( $self->dir, $self->config->build_dir );
+    
+    ### XXX do this in one go
+    {   my $tmpdir  = tempdir( CLEANUP => 1 );
+        my $dirname = dirname( $self->dir );
+        my $tmpsrc  = File::Spec->catdir( $tmpdir, $dirname );
+
+        
+        ### copy over sources to a temp dir
+        JIB::Utils->_copy( file => $self->dir, to => $tmpdir ) 
+            or error( "Could not copy sources to '$tmpdir'" ), return;
+            
+        ### toss out the meta dir            
+        JIB::Utils->_rmdir( dir => File::Spec->catfile( $tmpsrc ) )
+            or error( "Could not remove metadir from '$tmpdir" ), return;
+        
+        ### copy these sources to a build dir
+        JIB::Utils->_copy( file => $tmpsrc, to => $builddir )
+            or error( "Could not copy sources to '$builddir'" ), return;
+    }
+
+    return $builddir;
+}
+
 
 1;
 

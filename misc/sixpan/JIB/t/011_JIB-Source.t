@@ -6,7 +6,13 @@ BEGIN { chdir 't' if -d 't' };
 BEGIN { use lib qw[../lib inc] };
 
 my $Class = 'JIB::Source';
-my @Acc   = sort qw[dir meta config];
+### XXX generate from somewhere
+my %Map   = (
+    dir     => sub { -d shift() },
+    meta    => sub { UNIVERSAL::isa( shift(), 'JIB::Meta' ) },
+    config  => sub { UNIVERSAL::isa( shift(), 'JIB::Config' ) },
+);
+my @Acc   = sort keys %Map;
 
 ### XXX config
 my $Dir   = File::Spec->catdir( qw[src p5-b] );
@@ -26,7 +32,19 @@ my $Obj;
     for my $method ( @can ) {
         ok( $Obj->$method,      "       '$method' returns value" );
     }        
+
+    while( my($meth, $check) = each %Map ) {
+        ok( $check->( $Obj->$meth ), 
+                                "       '$meth' of proper value" );
+    }
 }    
+    
+### build a package
+{   $Obj->build;
+
+
+
+}
     
     
 # Local variables:

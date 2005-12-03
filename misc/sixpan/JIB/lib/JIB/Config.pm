@@ -9,6 +9,7 @@ my %config;
 
 $config{'meta'}             = dir('meta');
 $config{'jib_dir'}          = dir('_jib');
+$config{'build_dir'}        = $config{'jib_dir'}->subdir('build');
 $config{'control'}          = $config{'meta'}->subdir('control');
 $config{'available'}        = $config{'meta'}->file('available');
 $config{'registered_alternatives'} 
