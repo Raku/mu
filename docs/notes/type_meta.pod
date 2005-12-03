@@ -4,7 +4,7 @@ Perl 6 Type Metatheory
 
 =head1 SYNOPSIS
 
-Perl 6 has no type system.
+Perl 6 has no single, canonical, static type system.
 
 =head1 DESCRIPTION
 
