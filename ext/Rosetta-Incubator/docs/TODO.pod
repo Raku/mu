@@ -86,11 +86,13 @@ themselves and invoke some utility functions for others.
 
 =item *
 
-Transactions may not initially be supported, but will soon afterwards.
+Basic transaction support will be available from the start.  In
+Rosetta::Engine::Native, these will be serialized-isolation mode only.
 
 =item *
 
-No access restrictions initially, and all users are anonymous.
+Named users can be created or dropped, and some basic access privileges can
+be defined, granted to or revoked from users, and enforced.
 
 =item *
 
@@ -110,6 +112,15 @@ Implement starter Rosetta::Validator to test that the limited functionality
 which Native implements is working correctly.  Or it may not even do that
 much, as I start off validating largely with just manual spot checks
 instead.
+
+Most of the test suite will be deferred partly because doing it thoroughly
+takes a lot of time and effort, and that having something "mostly working"
+is good enough for a first developer release, for people to play with. 
+Besides, feedback from early releases may lead to changes large enough to
+invalidate most of a test suite anyway.
+
+That said, I could use a lot of help with the test suite, and I need help
+with tests a lot more than with any other parts of Rosetta, I think.
 
 =item *
 
@@ -146,13 +157,10 @@ Make a tutorial on how to write a Rosetta Engine.
 
 =item *
 
-Update Rosetta::Engine::Native (REN) so databases can persist on disk.
-
-=item *
-
-Update REN to fully support serialized-isolation transactions, such as
-SQLite does, with the exception that it probably won't yet make backups of
-on-disk versions to help avoid corruption.
+Update Rosetta::Engine::Native (REN) so databases can persist on disk.  Its
+transaction support will be like that of SQLite, with the exception that it
+probably won't yet make backups of on-disk versions to help avoid
+corruption from process death or power outages; that will come soon after.
 
 =item *
 
@@ -426,9 +434,17 @@ Consider geographical data types and extensions.
 
 =item *
 
-Consider supporting object-relational databases, such as those that violate
-first normal forms by storing compound user-defined data types in record
-fields or 'references' or arrays or 'set' data types.
+Consider supporting object-relational database extensions, such as those
+that violate first normal forms by storing compound user-defined data types
+in record fields or 'references' or arrays or 'set' data types.
+
+By contrast, what Rosetta otherwise natively supports is proper relational
+databases where every intersection of a row and a column in a table (a
+table field) can hold just one scalar value, such as a number or character
+string, or a LOB, or null.
+
+These extensions would be something an order of magnitude more difficult to
+make portable than most other issues.
 
 =item *
 

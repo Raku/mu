@@ -204,6 +204,11 @@ info as hashes and arrays, and requires the application to encode SQL that
 requests the database send most other details in its native format, such as
 string SQL or information schema rows; the results are heterogeneous.
 
+=item *
+
+The DBI is mature and heavily battle tested, while Rosetta is a lot newer
+and will need more time before it can be considered as stable.
+
 =back
 
 Rosetta can be implemented as an alternate API over DBI (and the reverse is
@@ -214,17 +219,92 @@ the choice is up to the Rosetta Engine implementer.
 The choice between using DBI and using Rosetta seems to be analogous to the
 choice between the C and Ruby programming languages, respectively, where
 each database product is analogous to a hardware CPU architecture or wider
-hardware platform.  The DBI is great for people who like working as close
-to the metal as possible, with much closer access to each database
-product's native way of doing things, those who I<want> to talk to their
-database in its native SQL dialect, and those who want the absolute highest
-performance.  Rosetta is more high level, for those who want the write-once
-run-anywhere experience, less of a burden on their creativity, more
-development time saving features, and are willing to sacrifice a modicum of
-performance for the privilege.  Performance shouldn't differ too greatly
-for long running programs since most Rosetta ASTs can be generated at the
-start of a program and cached, and likewise a good Rosetta Engine will
-cache any generated string SQL for re-use.
+hardware platform.
+
+The DBI is great for people who like working as close to the metal as
+possible, with much closer access to (or less abstraction from) each
+database product's native way of doing things, those who I<want> to talk to
+their database in its native SQL dialect.  Rosetta is more high level, for
+those who want the write-once run-anywhere experience, less of a burden on
+their creativity, more development time saving features.
+
+Rosetta has several algorithmic differences from the DBI that can impact
+performance, so the net performance of your program depends on how you use
+each of them.  Assuming it is used properly (which shouldn't be too
+difficult), Rosetta can deliver a net performance that is similar to the
+DBI, so your programs should not become slower when using it, and they may
+even become faster.  For example:
+
+=over
+
+=item *
+
+Rosetta performs better (as does the DBI) with programs that reuse open
+database connections for multiple transactions, rather than closing and
+reopening separate connections for each one.  It likewise performs better
+when prepared statements are reused for multiple executions, rather than
+re-preparing for each execute.  Likewise, when queries are optimized to
+just return the data we actually need, and not extra that will just be
+ignored.  Likewise, when work is pushed onto the database server, such as
+by using stored procedures.
+
+=item *
+
+Rosetta performs better with longer running programs (including some
+mod_perl scripts) where its ASTs or data structures and generated string
+SQL or Perl closures can be produced once (often at the start of a program)
+and cached for re-use.  In this situation, most of the extra work that
+Rosetta does relative to DBI is factored out.  Also, a good Rosetta Engine
+usually does this caching work for you, so your program doesn't gain
+complexity from its use.
+
+=item *
+
+Rosetta performs worse than the DBI with briefer running programs that talk
+to non-Perl databases which take string SQL as their native input, and all
+of the SQL strings a program will issue are entirely pre-written and
+hard-coded (bind variables exempted) in the database's native dialect.  In
+this situation, DBI has essentially no overhead at all, strictly passing
+thru the SQL, whereas Rosetta has the SQL generation overhead, and caching
+statements that are only run once before a program quits is useless.
+
+=item *
+
+Rosetta performs better than the DBI with programs that talk to databases
+coded in Perl, which either do not take string SQL as their native input,
+or those that do but also provide an alternate API where you can directly
+supply the Perl data structures that it would parse SQL into.  In this
+situation, the round trip of both generating and then parsing string SQL by
+Perl code is avoided, saving a considerable amount of work.  These
+databases would either read the Rosetta AST natively, or the Rosetta Engine
+would simply copy between corresponding AST nodes.
+
+=item *
+
+Programs that already use some other database language abstraction tool in
+combination with DBI will almost certainly perform better by replacing the
+combination with Rosetta, since Rosetta is both more optimized towards
+pushing work to the database when possible, and better than making fast
+Perl emulations when pushing isn't possible.  Likewise,
+
+=item *
+
+Programs that do work themselves which should conceptually be pushed to a
+database, even when not for the purpose of abstraction, will perform better
+if they push such work onto Rosetta, which can in turn either push it onto
+a capable database, or perform better at emulation if it can't.
+
+=item *
+
+Rosetta performs better with programs that natively define or generate from
+data dictionaries Rosetta's AST for their database requests, rather than
+defining or generating any variant of string SQL which a Rosetta wrapper
+then has to parse before use.  Of course, the latter is what you would have
+if you want to take a DBI using program and move to Rosetta with the fewest
+material changes possible; this solution should still be very useable, just
+sub-optimal.
+
+=back
 
 =head1 HIGH LEVEL DATA STRUCTURES
 
