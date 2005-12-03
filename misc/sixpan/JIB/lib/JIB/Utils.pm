@@ -43,7 +43,7 @@ sub _mkdir {
 
     if($@) {
         chomp($@);
-        error( qq[Could not create directory '%1': %2], $args->{dir}, $@ );
+        error( qq[Could not create directory '$args->{dir}': $@"] );
         return;
     }
 
@@ -71,7 +71,7 @@ sub _chdir {
     my $args = check( $tmpl, \%hash ) or return;
 
     unless( chdir $args->{dir} ) {
-        error( q[Could not chdir into '%1'], $args->{dir} );
+        error( q[Could not chdir into '$args->{dir}'] );
         return;
     }
 
@@ -107,7 +107,7 @@ sub _rmdir {
 
     if($@) {
         chomp($@);
-        error(qq[Could not delete directory '%1': %2], $args->{dir}, $@ );
+        error(qq[Could not delete directory '$args->{dir}': $@] );
         return;
     }
 
@@ -235,7 +235,7 @@ sub _move {
     if( File::Copy::move( $from, $to ) ) {
         return 1;
     } else {
-        error("Failed to move '%1' to '%2': %3", $from, $to, $!);
+        error("Failed to move '$from' to '$to': $!");
         return;
     }
 }
@@ -264,7 +264,7 @@ sub _copy {
     if( File::Copy::copy( $from, $to ) ) {
         return 1;
     } else {
-        error("Failed to copy '%1' to '%2': %3", $from, $to, $!);
+        error("Failed to copy '$from' to '$to': $!");
         return;
     }
 }
@@ -298,7 +298,7 @@ sub _mode_plus_w {
         return 1;
 
     } else {        
-        error("Failed to '%1' '%2': '%3'", 'chmod +w', $file, $!);
+        error("Failed to 'chmod +w' '$file': $!");
         return;
     }
 }    
