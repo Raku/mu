@@ -4,6 +4,7 @@ use File::Spec;
 
 BEGIN { chdir 't' if -d 't' };
 BEGIN { use lib qw[../lib inc] };
+BEGIN { require 'conf.pl' }
 
 my $Class = 'JIB::Source';
 ### XXX generate from somewhere

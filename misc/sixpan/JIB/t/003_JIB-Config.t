@@ -8,7 +8,21 @@ BEGIN { use lib qw[../lib inc] };
 my $Class = 'JIB::Config';
 
 use_ok( $Class );
-can_ok( $Class, $Class->accessors );
+
+### create an object 
+my $Obj;
+{   $Obj = $Class->new;
+    ok( $Obj,                   "Object created" );
+    isa_ok( $Obj,               $Class );
+    
+    my @can = sort $Obj->ls_accessors;
+    for my $method ( @can ) {
+        ok( $Obj->$method,      "   '$method' returns value" );
+    }        
+    
+    is( $Obj, $Class->new,      "Same object returned on 2nd call" );
+}    
+
     
 # Local variables:
 # c-indentation-style: bsd

@@ -2,22 +2,43 @@ package JIB::Config;
 
 use strict;
 use warnings;
+use Cwd;
+use Config;
 use Path::Class;
-use base 'Class::Singleton';
+use base 'Object::Accessor';
+
+my $Cwd = dir(cwd());
 
 my %config;
 
-$config{'meta'}             = dir('meta');
+### XXX dirs should be configurable during run time, and all subdirs
+### should adjust
+
+### base dirs
+### XXX touch the 'root' entry and the tests will run somewhere quite different!
+$config{'root'}             = $Cwd->subdir('fakeroot');
+$config{'perl_site_dir'}    = $config{'root'}->subdir($Config{installsitelib});
+$config{'temp_dir'}         = $config{'root'}->subdir('tmp');
+$config{'bin_dir'}          = $config{'root'}->subdir( $Config{bin} );
+$config{'compile_dir'}      = $config{'temp_dir'}->subdir('_builddir');
+
+### XXX missing the /jibs and the /jibs/index dir for repos
+
+### meta dirs
+$config{'meta_dir'}         = $config{'perl_site_dir'}->subdir('_jib');
+$config{'control'}          = $config{'meta_dir'}->subdir('control');
+$config{'available'}        = $config{'meta_dir'}->file('available');
+$config{'registered_alternatives'} 
+                            = $config{'meta_dir'}->file('registered-alternatives');
+$config{'alternatives'}     = $config{'meta_dir'}->subdir('alternatives');
+
+### source package dirs
 $config{'jib_dir'}          = dir('_jib');
 ### XXX need cp -R functionality fixed proper to use this ;(
 #$config{'build_dir'}        = $config{'jib_dir'}->subdir('build');
-$config{'build_dir'}        = 'root-';
-$config{'control'}          = $config{'meta'}->subdir('control');
-$config{'available'}        = $config{'meta'}->file('available');
-$config{'registered_alternatives'} 
-                            = $config{'meta'}->file('registered-alternatives');
-$config{'alternatives'}     = $config{'meta'}->subdir('alternatives');
+$config{'build_dir'}        = dir('root-');
 
+### package files/extensions
 $config{'meta_ext'}         = '.info';
 $config{'meta_file'}        = 'META' . $config{'meta_ext'};
 
@@ -30,15 +51,18 @@ $config{'postinst'}         = 'POSTINST.pl';
 $config{'prerm'}            = 'PRERM.pl';
 $config{'postrm'}           = 'POSTRM.pl';
 
-sub new         { shift->instance };
-sub accessors   { keys %config };
-
-for my $sym (keys %config) {
-    {
-        no strict 'refs';
-        *$sym = sub {
-            return $config{$sym}
-        };
+{   my $obj;
+    sub new {
+        return $obj if $obj;
+        
+        my $self = shift;
+        $obj     = $self->SUPER::new();
+ 
+        ### XXX allow handlers
+        $obj->mk_accessors( keys %config );
+        $obj->$_( $config{$_} ) for keys %config;
+        
+        return $obj;
     }
 }
 
