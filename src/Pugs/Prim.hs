@@ -664,7 +664,7 @@ op1WalkAll f meth v hashval = do
         let sym = ('&':pkg) ++ "::" ++ meth
         maybeM (fmap (findSym sym) askGlobal) $ \_ -> do
             enterEvalContext CxtVoid (App (Var sym) (Just $ Val v)
-                [ App (Var "&infix:=>") Nothing [Val (VStr key), Val val]
+                [ Syn "named" [Val (VStr key), Val val]
                 | (key, val) <- Map.assocs named ])
     return undef
 
