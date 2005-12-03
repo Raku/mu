@@ -40,9 +40,9 @@ my $Obj;
 }    
     
 ### build a package
-{   $Obj->build;
-
-
+{   my $archive = $Obj->build;
+    ok( $archive,               "Archive '$archive' created" );
+    ok( -e $archive,            "   File exists" );
 
 }
     

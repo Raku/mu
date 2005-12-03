@@ -9,6 +9,11 @@ WriteMakefile (
                             'Test::More'            => 0,
                             'Params::Check'         => '0.23',
                             'Log::Message::Simple'  => 0,
+                            'File::Find'            => 0,
+                            'Path::Class'           => 0,
+                            'Class::Singleton'      => 0,
+                            'File::Find::Rule'      => 0,
+                            'File::chdir'           => 0,
                     },
     AUTHOR          => 'Jos Boumans <kane[at]cpan.org>',
 	ABSTRACT        => 'Perl6 Package Manager'

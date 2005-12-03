@@ -3,9 +3,13 @@ package JIB::Utils;
 use strict;
 use JIB::Constants;
 
-use File::Copy              ();
-use Params::Check           qw[check];
-use Log::Message::Simple    qw[:STD];
+use File::Find::Rule;
+use Cwd                         ();
+use File::Copy                  ();
+use Params::Check               qw[check];
+use Log::Message::Simple        qw[:STD];
+use Module::Load::Conditional   qw[can_load];
+use File::Basename              qw[dirname];
 
 =pod
 
@@ -32,7 +36,8 @@ sub _mkdir {
         dir     => { required => 1 },
     };
 
-    my $args = check( $tmpl, \%hash ) or return;
+    my $args = check( $tmpl, \%hash ) 
+        or error(Params::Check->last_error), return;
 
     unless( can_load( modules => { 'File::Path' => 0.0 } ) ) {
         error( "Could not use File::Path! This module should be core!" );
@@ -56,7 +61,7 @@ sub _mkdir {
 
 C<_chdir> changes directory to a dir.
 
-Returns true on success, false on failure.
+Returns old cwd on success, false on failure.
 
 =cut
 
@@ -68,14 +73,16 @@ sub _chdir {
         dir     => { required => 1, allow => DIR_EXISTS },
     };
 
-    my $args = check( $tmpl, \%hash ) or return;
+    my $args = check( $tmpl, \%hash ) 
+        or error(Params::Check->last_error), return;
 
+    my $cwd = Cwd::cwd();
     unless( chdir $args->{dir} ) {
         error( q[Could not chdir into '$args->{dir}'] );
         return;
     }
 
-    return 1;
+    return $cwd;
 }
 
 =pod
@@ -96,7 +103,8 @@ sub _rmdir {
         dir     => { required => 1, allow => IS_DIR },
     };
 
-    my $args = check( $tmpl, \%hash ) or return;
+    my $args = check( $tmpl, \%hash ) 
+        or error(Params::Check->last_error), return;
 
     unless( can_load( modules => { 'File::Path' => 0.0 } ) ) {
         error( "Could not use File::Path! This module should be core!" );
@@ -134,7 +142,7 @@ sub _perl_version {
         perl    => { required => 1, store => \$perl },
     };
 
-    check( $tmpl, \%hash ) or return;
+    check( $tmpl, \%hash ) or error(Params::Check->last_error), return;
     
     my $perl_version;
     ### special perl, or the one we are running under?
@@ -170,7 +178,7 @@ sub _version_to_number {
         version => { default => '0.0', store => \$version },
     };
 
-    check( $tmpl, \%hash ) or return;
+    check( $tmpl, \%hash ) or error(Params::Check->last_error), return;
 
     return $version if $version =~ /^\.?\d/;
     return '0.0';
@@ -203,7 +211,7 @@ sub _get_file_contents {
         file => { required => 1, store => \$file }
     };
 
-    check( $tmpl, \%hash ) or return;
+    check( $tmpl, \%hash ) or error(Params::Check->last_error), return;
 
     my $fh = OPEN_FILE->($file) or return;
     my $contents = do { local $/; <$fh> };
@@ -230,7 +238,7 @@ sub _move {
         to      => { required => 1, store => \$to }
     };
 
-    check( $tmpl, \%hash ) or return;
+    check( $tmpl, \%hash ) or error(Params::Check->last_error), return;
 
     if( File::Copy::move( $from, $to ) ) {
         return 1;
@@ -242,7 +250,7 @@ sub _move {
 
 =pod JIB::Utils->_copy( from => $file|$dir, to => $target );
 
-Moves a file or directory to the target.
+Copies a file or directory to the target, recursively
 
 Returns true on success, false on failure.
 
@@ -259,14 +267,46 @@ sub _copy {
         to      => { required => 1, store => \$to }
     };
 
-    check( $tmpl, \%hash ) or return;
+    check( $tmpl, \%hash ) or error(Params::Check->last_error), return;
 
-    if( File::Copy::copy( $from, $to ) ) {
-        return 1;
+    ### build a from => to mapping
+    ### note we have to create the directories first if it's a dir -> dir
+    ### move. Which means a bit more work, as file::copy doesn't do it for
+    ## us :(
+    my %from;
+    if( IS_DIR->( $from ) ) {
+        my $base = quotemeta dirname( $from );
+        
+        for my $dir ( File::Find::Rule->directory->in( $from ) ) {
+            ### strip the leading dirs from the target so we don't get a silly
+            ### deep dir structure
+            my $target = $dir;
+            $target =~ s/^$base//;
+
+            unless( $self->_mkdir( dir => File::Spec->catdir($to, $target) ) ) {
+                error( "Could not create subdir to copy to" );
+                return;
+            }                
+        }        
+        
+        ### strip the leading dirs from the target so we don't get a silly
+        ### deep dir structure
+        %from = map { my $target = $_; $target =~ s/^$base//;
+                      $_ => File::Spec->catfile( $to, $target ) 
+                } File::Find::Rule->file->in( $from );
     } else {
-        error("Failed to copy '$from' to '$to': $!");
-        return;
+        %from = ( $from => $to );
     }
+   
+    while( my($orig,$target) = each %from ) {
+        unless( File::Copy::copy( $orig, $target ) ) {
+            error("Failed to copy '$orig' to '$target': $!");
+            return;
+        }
+    }
+    
+    return 1;
+    
 }
 
 =head2 JIB::Utils->_mode_plus_w( file => '/path/to/file' );
@@ -288,7 +328,7 @@ sub _mode_plus_w {
         file    => { required => 1, allow => IS_FILE, store => \$file },
     };
     
-    check( $tmpl, \%hash ) or return;
+    check( $tmpl, \%hash ) or error(Params::Check->last_error), return;
     
     ### set the mode to +w for a file and +wx for a dir
     my $x       = File::stat::stat( $file );
