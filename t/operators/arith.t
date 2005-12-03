@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 196;
+plan 185;
 
 my $five = abs(-5);
 
@@ -310,6 +310,7 @@ is Inf-Inf, NaN;
 is Inf*Inf, Inf;
 is Inf/Inf, NaN;
 is Inf*Inf/Inf, NaN;
+is Inf**0, 1;
 is 0**Inf, 0;
 
 my $inf1 = 100**Inf;
@@ -322,23 +323,7 @@ is $inf2, Inf, "Inf**Inf";
 # for why these three values are defined like they are.
 is 0.9**Inf, 0,   "0.9**Inf converges towards 0";
 is 1.1**Inf, Inf, "1.1**Inf diverges towards Inf";
-# this next one is arguable
-is 1**Inf, NaN,   "1**Inf depends on the functions in the limit (unless 1 is considered an int)";
-# but this next one isn't
-is 1.0**Inf, NaN, "1.0**Inf depends on the functions in the limit";
-is (-1)**Inf, NaN, "(-1)**Inf is indeterminate for the same reason";
-is (-1.1)**Inf, NaN, "(-2)**Inf is indeterminate between -Inf and Inf";
-is (-0.9)**Inf, 0, "(-0.9)**Inf oscillates but always converges to 0";
-
-is 0.9**(-Inf), Inf, "0.9**-Inf diverges towards Inf";
-is 1.1**(-Inf), 0,   "1.1**-Inf converges to 0";
-is 1**(-Inf), NaN, "1**Inf depends on the functions in the limit";
-is 1.0**(-Inf), NaN, "1.0**Inf depends on the functions in the limit";
-is (-1)**(-Inf), NaN, "(-1)**-Inf is indeterminate";
-is (-1.1)**(-Inf), 0, "(-1.1)**-Inf converges to 0";
-is (-0.9)**(-Inf), NaN, "(0.9)**-Inf oscillates and diverges";
-
-is Inf**0, NaN;
+is 1**Inf, 1 , :todo("1**Inf == 1");
 
 #fail("1**Inf is platform-specific -- it's 1 on OSX and NaN elsewhere", :todo);
 

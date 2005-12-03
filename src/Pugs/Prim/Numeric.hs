@@ -60,17 +60,8 @@ op2Exp x y = do
             num1 <- fromVal =<< fromVal' x
             if isDigit . head $ show (num1 :: VNum)
                 then op2Rat ((^^) :: VRat -> VInt -> VRat) x y
-                else op2Num numExp x y
-        _ -> op2Num numExp x y
-    where
-    numExp :: VNum -> VNum -> VNum
-    -- Perl 6 differs from Haskell in the floating point spec wrt Infinity and NaN
-    numExp x y 
-        | x == 1/0 && y == 0                           = 0/0
-        | x == 0  && y < 0                             = 0/0
-        | y == 1/0 && (x == 1 || x <= -1)              = 0/0 
-        | y == -1/0 && (x == 1 || (x >= -1 && x <= 0)) = 0/0 
-        | otherwise                                    = x ** y
+                else op2Num ((**) :: VNum -> VNum -> VNum) x y
+        _ -> op2Num ((**) :: VNum -> VNum -> VNum) x y
 
 op2Divide :: Val -> Val -> Eval Val
 op2Divide x y
@@ -85,7 +76,7 @@ op2Divide x y
     | otherwise
     = op2Num (/) x y
     where
-    err = fail "Illegal division by zero"  -- XXX why not NaN?
+    err = fail "Illegal division by zero"
 
 op2Modulus :: Val -> Val -> Eval Val
 op2Modulus x y
