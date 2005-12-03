@@ -120,23 +120,33 @@ sub install {
         my $my_tmp_dir = File::Spec->catdir( $conf->temp_dir . "$$" );
         system( qq[mkdir -p $my_tmp_dir] )                  and die $?;
         
+        
         ### extract the archive to the temp dir
-        system( qq[tar -f $archive -C $my_tmp_dir -xz] )    and die $?;
-=pod    
-        my $meta_dir = File::Spec->catdir( $config->control . $self->package );
+        system( qq[tar -f ] . $self->file . qq[ -C $my_tmp_dir -xz]) and die $?;
+    
+        my $meta_dir = File::Spec->catdir( $conf->control . $self->package );
+        my $data     = $conf->archive_data;
+        my $control  = $conf->archive_control;
+
         ### extract the meta info
         ### XXX extract to $Builddir first, THEN copy later if all goes well
-        {   system( qq[mkdir -p $meta_dir] )                and die $?;
+        {   
+            my $packlist    = $conf->files_list;
+        
+            system( qq[mkdir -p $meta_dir] )                and die $?;
             ### XXX need status dir like dpkg
-            system( qq[tar -f $my_tmp_dir/$Control -C $meta_dir -xz] )
+            system( qq[tar -f $my_tmp_dir/$control -C $meta_dir -xz] )
                                                             and die $?;
             ### write a .packlist equiv
-            system( qq[tar -f $my_tmp_dir/$Data -C $meta_dir -tz |] .
-                    qq[xargs -I % echo $Site/% >> $meta_dir/$Fileslist] )   
+            system( qq[tar -f $my_tmp_dir/$data -C $meta_dir -tz |] .
+                    qq[xargs -I % echo ] . $conf->perl_site_dir . 
+                    qq[ >> $meta_dir/packlist] )   
                                                             and die $?;
-            
+
+=pod            
             ### dependencies satisfied?
-            {   my $info = LoadFile( $meta_dir .'/'. $Metafile );
+            {   my $info = LoadFile( 
+                    File::Spec->catdir( $meta_dir, $config->meta_file ) );
                 
                 my %avail = map { $_->{package} => $_ } LoadFile( $Available );
                 for my $depends ( list_dependencies( $info ) ) {
@@ -152,22 +162,26 @@ sub install {
                 push @list, $info;                
                 DumpFile( $Available, @list );
             }
+=cut
         }
+
+
     
         ### extract the code
         {   ### XXX we should *build* things here too
-            print "Unpacking code...\n";
-            system( qq[tar -f $my_tmp_dir/$Data -C $Builddir -xz] );
+            system( qq[tar -f $my_tmp_dir/$data -C ] . 
+                        $conf->compile_dir .q[ -xz] );
         
             ### preinst hook
-            my $preinst = $meta_dir . '/' . $Preinst;
+            my $preinst = File::Spec->catfile( $meta_dir, $conf->preinst );
             if( -e $preinst && -s _ ) {
-                system( qq[ $^X $preinst ] )                and die $?;
+                system( qq[ $^X $preinst ] )                    and die $?;
             }
         
-            print "Installing code...\n";
-            system( qq[cp -R $Builddir/$path $Site] )       and die $?;     
-            
+            my $src = File::Spec->catdir( $conf->compile_dir, $self->package );
+            system( qq[cp -R $src ]. $conf->perl_site_dir )     and die $?;     
+
+=pod            
             ### link files to $PATH/$MANPATH
             ### XXX symlink the manpages
             LINKING: {   
@@ -226,14 +240,15 @@ sub install {
                     system( qq[ $^X $postinst ] )               and die $?;
                 }    
             }
-        }
-        
-        ### clean up the temp dir
-        print "Cleaning up...\n";
-        system( qq[rm -rf $my_tmp_dir] )                    and die $?;
 =cut
+        }
 
 
+        ### clean up the temp dir
+        system( qq[rm -rf $my_tmp_dir] )                    and die $?;
+    }
+    
+    return 1;
 }
 
 

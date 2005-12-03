@@ -52,6 +52,14 @@ my $Obj;
     }
 }
  
+### installl the package
+{   my $rv = $Obj->install;
+    ok( $rv,                    "Package installed" );
+    
+    ### XXX add file tests
+}    
+
+ 
     
 # Local variables:
 # c-indentation-style: bsd
