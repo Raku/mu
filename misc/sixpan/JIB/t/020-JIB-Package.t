@@ -6,15 +6,21 @@ BEGIN { chdir 't' if -d 't' };
 BEGIN { use lib qw[../lib inc] };
 
 my $Class   = 'JIB::Package';
-my @Acc     = qw[package];
-my $Pkg     = 'p5-foo-1-cpan+KANE';
+my @Acc     = sort qw[package file config];
+
+### XXX config
+my $Pkg     = 'p5-b-1-cpan+KANE';
+my $File    = File::Spec->catfile( 'src', $Pkg.'.jib' );
 my @Parse   = qw[prefix name version authority];
 
 use_ok( $Class );
 
+### XXX package->new now takes a jib file as argument
+### need to fix tests for that
+
 ### create an object 
 my $Obj;
-{   $Obj = $Class->new( package => $Pkg );
+{   $Obj = $Class->new( file => $File );
     ok( $Obj,                   "Object created" );
     isa_ok( $Obj,               $Class );
     

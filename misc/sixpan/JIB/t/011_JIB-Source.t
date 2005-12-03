@@ -41,9 +41,10 @@ my $Obj;
 }    
     
 ### build a package
-{   my $archive = $Obj->build;
-    ok( $archive,               "Archive '$archive' created" );
-    ok( -e $archive,            "   File exists" );
+{   my $pkg = $Obj->build;
+    ok( $pkg,                   "Archive created" );
+    isa_ok( $pkg,               'JIB::Package' );
+    ok( -e $pkg->file,          "   File exists" );
 
 }
     

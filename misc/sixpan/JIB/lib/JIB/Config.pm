@@ -31,6 +31,7 @@ $config{'available'}        = $config{'meta_dir'}->file('available');
 $config{'registered_alternatives'} 
                             = $config{'meta_dir'}->file('registered-alternatives');
 $config{'alternatives'}     = $config{'meta_dir'}->subdir('alternatives');
+$config{'files_list'}       = $config{'meta_dir'}->file('files.list');
 
 ### source package dirs
 $config{'jib_dir'}          = dir('_jib');

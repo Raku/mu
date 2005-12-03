@@ -6,6 +6,7 @@ use warnings;
 use JIB::Meta;
 use JIB::Config;
 use JIB::Utils;
+use JIB::Package;
 
 use File::chdir;
 use File::Basename          qw[basename];
@@ -145,7 +146,11 @@ sub build {
         1 while unlink $control
     }
 
-    return File::Spec->catfile( $builddir, $archive );
+    return JIB::Package->new( 
+                file => File::Spec->rel2abs(
+                    File::Spec->catfile( $archive )
+                )
+            );                
 }
 
 

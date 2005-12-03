@@ -4,6 +4,7 @@ use strict;
 
 use Package::Constants;
 use File::Spec;
+use Log::Message::Simple        qw[:STD];
 
 use vars qw[@EXPORT];
 use base 'Exporter';

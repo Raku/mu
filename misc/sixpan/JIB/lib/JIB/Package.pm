@@ -4,6 +4,11 @@ use strict;
 use warnings;
 use base 'Object::Accessor';
 
+use JIB::Constants;
+use JIB::Config;
+
+use File::Spec;
+use File::Basename          qw[basename];
 use Params::Check           qw[check];
 use Log::Message::Simple    qw[:STD];
 
@@ -23,20 +28,26 @@ Set the name of the full package package. For example:
 
 =head1 METHODS
 
-=head2 $pkg = JIB::Package->new( package => PACKAGE_NAME )
+=head2 $pkg = JIB::Package->new( file => PACKAGE_NAME )
 
 =cut
 
-{   my %Acc = (
+{   my $config = JIB::Config->new;
+
+    my %acc = (
         package => $Package_re,
+        file    => FILE_EXISTS,
+        config  => sub { UNIVERSAL::isa( shift(), 'JIB::Config' ) },
     );        
 
     sub new {
         my $class   = shift;
         my %hash    = @_;
         
+        my $file;
         my $tmpl = {
-            package => { required => 1, allow => $Package_re },
+            file    => { required => 1, allow => $acc{file}, store => \$file },
+            config  => { no_override => 1, default => $config },
         };
         
         my $args = check( $tmpl, \%hash ) 
@@ -44,10 +55,18 @@ Set the name of the full package package. For example:
 
         ### set up the object + accessors        
         my $self = $class->SUPER::new;
-        $self->mk_accessors( \%Acc );
+        $self->mk_accessors( \%acc );
         
         while( my($acc,$val) = each %$args ) {
             $self->$acc( $val );
+        }
+        
+        ### XXX grab this from the meta.info, not the name!
+        {   my $name = basename( $file );
+            my $ext  = $config->archive_ext;
+            $name =~ s/$ext$//;
+        
+            $self->package( $name );
         }
         
         return $self;
@@ -84,6 +103,140 @@ Set the name of the full package package. For example:
         return $4 if shift->package() =~ $Package_re;
     }
 }    
+
+=head2 $pkg->install( ... )
+
+=cut
+
+### XXX perl-ify
+sub install {
+    my $self = shift;
+    my $conf = $self->config;
+    
+    ### XXX check if it's installed using JIB::Installation
+    
+    ### install the archive
+    {   ### extract to a temp dir
+        my $my_tmp_dir = File::Spec->catdir( $conf->temp_dir . "$$" );
+        system( qq[mkdir -p $my_tmp_dir] )                  and die $?;
+        
+        ### extract the archive to the temp dir
+        system( qq[tar -f $archive -C $my_tmp_dir -xz] )    and die $?;
+=pod    
+        my $meta_dir = File::Spec->catdir( $config->control . $self->package );
+        ### extract the meta info
+        ### XXX extract to $Builddir first, THEN copy later if all goes well
+        {   system( qq[mkdir -p $meta_dir] )                and die $?;
+            ### XXX need status dir like dpkg
+            system( qq[tar -f $my_tmp_dir/$Control -C $meta_dir -xz] )
+                                                            and die $?;
+            ### write a .packlist equiv
+            system( qq[tar -f $my_tmp_dir/$Data -C $meta_dir -tz |] .
+                    qq[xargs -I % echo $Site/% >> $meta_dir/$Fileslist] )   
+                                                            and die $?;
+            
+            ### dependencies satisfied?
+            {   my $info = LoadFile( $meta_dir .'/'. $Metafile );
+                
+                my %avail = map { $_->{package} => $_ } LoadFile( $Available );
+                for my $depends ( list_dependencies( $info ) ) {
+                    ### XXX split depends: lines and objectified dependencies
+                    ### for better diagnostics
+                    die "Dependency '$depends->{package}' not satisfied " .
+                        "for '$path'" unless $avail{ $depends->{package} };
+                }
+
+                ### write the data into the available list
+                ### XXX temp file, then mv
+                my @list = LoadFile( $Available );
+                push @list, $info;                
+                DumpFile( $Available, @list );
+            }
+        }
+    
+        ### extract the code
+        {   ### XXX we should *build* things here too
+            print "Unpacking code...\n";
+            system( qq[tar -f $my_tmp_dir/$Data -C $Builddir -xz] );
+        
+            ### preinst hook
+            my $preinst = $meta_dir . '/' . $Preinst;
+            if( -e $preinst && -s _ ) {
+                system( qq[ $^X $preinst ] )                and die $?;
+            }
+        
+            print "Installing code...\n";
+            system( qq[cp -R $Builddir/$path $Site] )       and die $?;     
+            
+            ### link files to $PATH/$MANPATH
+            ### XXX symlink the manpages
+            LINKING: {   
+                my $my_bindir = "$Site/$path/bin";
+                last LINKING unless -d $my_bindir;
+
+                ### load in the alternatives collection
+                my $href = LoadFile( $Altfile );
+                
+                ### check if we're the 'prefered' package
+                my $link_this   = 1;
+                my $unlink_this = '';
+                {   my $prefix  = package_prefix(   $path );
+                    my $package = package_name(     $path );
+                    my $version = package_version(  $path );
+    
+                    for my $test ( keys %$href ) {
+                        if( $prefix     eq package_prefix(  $test ) and
+                            $package    eq package_name(    $test ) and 
+                            ### XXX this should be a policy test!
+                            $version    <= package_version( $test )
+                        ) {
+                            $link_this      = 0;  
+                            $unlink_this    = delete $href->{$test};
+                            last;
+                        }
+                    }
+                    
+                    ### XXX clean up links from $unlink_this
+                }      
+
+                last LINKING unless $link_this;
+
+                my @bins;
+                print "Linking scripts/manpages...\n";
+                for ( qx[find $my_bindir -type f] ) {
+                    chomp; 
+                    
+                    ### link from altdir to install dir
+                    ### then from pathdir, to altdir
+                    my $script = basename($_);
+                    system( qq[ln -fs $_ $Alternatives/$script] )   and die $?;
+                    system( qq[ln -fs $Alternatives/$script $Bindir/$script ] )
+                                                                    and die $?;
+                    push @bins, $script;
+                }
+                
+                ### add this package as being authorative for these links ###
+                $href->{ $path } = { bin => \@bins, auto => 1 };
+                    
+                ### dump out alternatives again
+                DumpFile( $Altfile, $href );
+
+                my $postinst = $meta_dir . '/'. $Postinst;
+                if( -e $postinst && -s _ ) {
+                    system( qq[ $^X $postinst ] )               and die $?;
+                }    
+            }
+        }
+        
+        ### clean up the temp dir
+        print "Cleaning up...\n";
+        system( qq[rm -rf $my_tmp_dir] )                    and die $?;
+=cut
+
+
+}
+
+
 
 1;
 
