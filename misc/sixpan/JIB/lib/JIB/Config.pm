@@ -7,23 +7,24 @@ use base 'Class::Singleton';
 
 my %config;
 
-$config{'Meta'} = dir('meta');
-$config{'Control'} = $config{'Meta'}->subdir('control');
-$config{'Available'} = $config{'Meta'}->file('available');
-$config{'RegisteredAlternatives'} = $config{'Meta'}->file('registered-alternatives');
-$config{'Alternatives'} = $config{'Meta'}->subdir('alternatives');
+$config{'Meta'}             = dir('meta');
+$config{'Control'}          = $config{'Meta'}->subdir('control');
+$config{'Available'}        = $config{'Meta'}->file('available');
+$config{'RegisteredAlternatives'} 
+                            = $config{'Meta'}->file('registered-alternatives');
+$config{'Alternatives'}     = $config{'Meta'}->subdir('alternatives');
 
-$config{'MetaExt'} = '.info';
-$config{'MetaFile'} = 'META'.$config{'MetaExt'};
+$config{'MetaExt'}          = '.info';
+$config{'MetaFile'}         = 'META' . $config{'MetaExt'};
 
-$config{'ArchiveData'} = 'data.tar.gz';
-$config{'ArchiveControl'} = 'control.tar.gz';
-$config{'ArchiveExt'} = '.jib';
+$config{'ArchiveData'}      = 'data.tar.gz';
+$config{'ArchiveControl'}   = 'control.tar.gz';
+$config{'ArchiveExt'}       = '.jib';
 
-$config{'Preinst'} = 'PREINST.pl';
-$config{'Postinst'} = 'POSTINST.pl';
-$config{'Prerm'} = 'PRERM.pl';
-$config{'Postrm'} = 'POSTRM.pl';
+$config{'Preinst'}          = 'PREINST.pl';
+$config{'Postinst'}         = 'POSTINST.pl';
+$config{'Prerm'}            = 'PRERM.pl';
+$config{'Postrm'}           = 'POSTRM.pl';
 
 sub new { shift->instance };
 
