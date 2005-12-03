@@ -21,8 +21,7 @@ use constant FILE_EXISTS    => sub {
                                     return 1 if IS_FILE->($file);
                                     local $Carp::CarpLevel = 
                                             $Carp::CarpLevel+2;
-                                    error(loc(  q[File '%1' does not exist],
-                                                $file));
+                                    error(qq[File '$file' does not exist]);
                                     return;
                             };    
 
@@ -31,8 +30,8 @@ use constant FILE_READABLE  => sub {
                                     return 1 if -e $file && -r _;
                                     local $Carp::CarpLevel = 
                                             $Carp::CarpLevel+2;
-                                    error( loc( q[File '%1' is not readable ].
-                                                q[or does not exist], $file));
+                                    error(qq[File '$file' is not readable ].
+                                           q[or does not exist]);
                                     return;
                             };    
 use constant IS_DIR         => sub { return 1 if -d $_[-1] };
@@ -42,8 +41,7 @@ use constant DIR_EXISTS     => sub {
                                     return 1 if IS_DIR->($dir);
                                     local $Carp::CarpLevel = 
                                             $Carp::CarpLevel+2;                                    
-                                    error(loc(q[Dir '%1' does not exist],
-                                            $dir));
+                                    error(q[Dir '$dir' does not exist]);
                                     return;
                             };   
 
@@ -51,9 +49,8 @@ use constant OPEN_FILE      => sub {
                                     my($file, $mode) = (@_, '');
                                     my $fh;
                                     open $fh, "$mode" . $file
-                                        or error(loc(
-                                            "Could not open file '%1': %2",
-                                             $file, $!));
+                                        or error(
+                                            "Could not open file '$file': $!");
                                     return $fh if $fh;
                                     return;
                             };      
