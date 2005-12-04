@@ -6,11 +6,14 @@ use base 'Object::Accessor';
 
 use JIB::Constants;
 use JIB::Config;
+use JIB::Installation;
+
 
 use File::Spec;
 use File::Basename          qw[basename];
 use Params::Check           qw[check];
 use Log::Message::Simple    qw[:STD];
+use YAML                    qw[LoadFile];
 
 my $Package_re = qr/^(\w+)     - # prefix
                     ([\w-]+?)  - # package name
@@ -38,16 +41,18 @@ Set the name of the full package package. For example:
         package => $Package_re,
         file    => FILE_EXISTS,
         config  => sub { UNIVERSAL::isa( shift(), 'JIB::Config' ) },
+        meta    => sub { UNIVERSAL::isa( shift(), 'JIB::Meta' ) },
     );        
 
     sub new {
         my $class   = shift;
         my %hash    = @_;
         
-        my $file;
+        my $file; my $meta;
         my $tmpl = {
             file    => { required => 1, allow => $acc{file}, store => \$file },
             config  => { no_override => 1, default => $config },
+            meta    => { allow => $acc{meta}, store => \$meta },
         };
         
         my $args = check( $tmpl, \%hash ) 
@@ -60,14 +65,33 @@ Set the name of the full package package. For example:
         while( my($acc,$val) = each %$args ) {
             $self->$acc( $val );
         }
+
+        ### if we didn't get a meta object, we'll fetch it from the .jib
+        unless( $meta ) {
+            ### extract to a temp dir
+            my $my_tmp_dir = File::Spec->catdir( $config->temp_dir . "$$" );
+            system( qq[mkdir -p $my_tmp_dir] )                      and die $?;
+            
+            ### extract the archive to the temp dir
+            system( qq[tar -f ] . $self->file . qq[ -C $my_tmp_dir -xz]) 
+                                                                    and die $?;
+
+            ### extract the meta info
+            my $control  = $config->archive_control;
+            system( qq[tar -f $my_tmp_dir/$control -C $my_tmp_dir -xz] )
+                                                                    and die $?;
+                  
+            $meta = eval { LoadFile( File::Spec->catfile( 
+                                        $my_tmp_dir,
+                                        $config->meta_file )
+                    ) };
+            $@ and error( "Could not load meta file from archive: $@" ), return;
         
-        ### XXX grab this from the meta.info, not the name!
-        {   my $name = basename( $file );
-            my $ext  = $config->archive_ext;
-            $name =~ s/$ext$//;
-        
-            $self->package( $name );
+            $self->meta(JIB::Meta->new_from_struct(struct => $meta)) or return;
+            system( "rm -rf $my_tmp_dir" )                          and die $?;
         }
+        
+        $self->package( $self->meta->package );
         
         return $self;
     }
@@ -112,8 +136,13 @@ Set the name of the full package package. For example:
 sub install {
     my $self = shift;
     my $conf = $self->config;
-    
-    ### XXX check if it's installed using JIB::Installation
+    my $inst = JIB::Installation->new;
+
+    ### install check
+    if( $inst->is_installed( package => $self ) ) {
+        error("Package '". $self->package ."' is already installed --skipping");
+        return 1;
+    }        
     
     ### install the archive
     {   ### extract to a temp dir
@@ -142,10 +171,11 @@ sub install {
                     qq[xargs -I % echo ] . $conf->perl_site_dir . 
                     qq[ >> $meta_dir/packlist] )   
                                                             and die $?;
-
-=pod            
-            ### dependencies satisfied?
-            {   my $info = LoadFile( 
+            
+            {   
+=pod                            
+                ### dependencies satisfied?
+                my $info = LoadFile( 
                     File::Spec->catdir( $meta_dir, $config->meta_file ) );
                 
                 my %avail = map { $_->{package} => $_ } LoadFile( $Available );
@@ -155,14 +185,12 @@ sub install {
                     die "Dependency '$depends->{package}' not satisfied " .
                         "for '$path'" unless $avail{ $depends->{package} };
                 }
-
-                ### write the data into the available list
-                ### XXX temp file, then mv
-                my @list = LoadFile( $Available );
-                push @list, $info;                
-                DumpFile( $Available, @list );
-            }
 =cut
+
+                $inst->register( package => $self ) 
+                    or error("Could not register package"), return;
+            }
+
         }
 
 

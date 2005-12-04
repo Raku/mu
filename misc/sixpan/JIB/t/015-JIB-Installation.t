@@ -10,6 +10,8 @@ my $Class = 'JIB::Installation';
 
 use_ok( $Class );
 
+### XXX test accessors
+
 ### create an object 
 my $Obj;
 {   $Obj = $Class->new;

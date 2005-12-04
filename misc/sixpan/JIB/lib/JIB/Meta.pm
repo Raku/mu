@@ -27,7 +27,25 @@ sub new {
     check( $tmpl, \%hash ) or ( error( Params::Check->last_error), return );
 
     my $struct = eval { LoadFile( $file ) }  or error( $@ ), return; 
-        
+
+    return $class->new_from_struct( struct => $struct );        
+}
+
+=head2 $meta = JIB::Meta->new_from_struct( struct => $struct );
+
+=cut
+
+sub new_from_struct {
+    my $class   = shift;
+    my %hash    = @_;
+    
+    my $struct;
+    my $tmpl = {
+        struct => { required => 1, store => \$struct },
+    };
+    
+    check( $tmpl, \%hash ) or ( error( Params::Check->last_error), return );
+
     ### XXX check validity of the struct
     
     my $obj = $class->SUPER::new;
@@ -38,6 +56,18 @@ sub new {
     $obj->$_( $struct->{$_} ) for keys %$struct;
     
     return $obj;
+}
+
+=head2 $struct = $meta->to_struct;
+
+=cut
+
+sub to_struct {
+    my $self = shift;
+
+    my %struct = map { $_ => $self->$_ } $self->ls_accessors;
+
+    return \%struct;
 }
 
 1;

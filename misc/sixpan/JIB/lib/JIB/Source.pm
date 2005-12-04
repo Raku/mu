@@ -149,7 +149,8 @@ sub build {
     return JIB::Package->new( 
                 file => File::Spec->rel2abs(
                     File::Spec->catfile( $archive )
-                )
+                ),
+                meta => $self->meta,
             );                
 }
 

@@ -4,9 +4,10 @@ use File::Spec;
 
 BEGIN { chdir 't' if -d 't' };
 BEGIN { use lib qw[../lib inc] };
+BEGIN { require 'conf.pl' }
 
 my $Class   = 'JIB::Package';
-my @Acc     = sort qw[package file config];
+my @Acc     = sort qw[package file config meta];
 
 ### XXX config
 my $Pkg     = 'p5-b-1-cpan+KANE';
@@ -57,6 +58,17 @@ my $Obj;
     ok( $rv,                    "Package installed" );
     
     ### XXX add file tests
+
+    ### install again
+    diag( "XXX quell this warning" );
+    ok( $Obj->install,           "Second install returns true" );
+
+    ### XXX whitebox test -- switch to blackbox
+    {   my $stack = Log::Message::Simple->stack_as_string;
+        like( $stack, qr/is already installed/,
+                                "   Prior installation detected" );
+        Log::Message::Simple->flush;
+    }        
 }    
 
  
