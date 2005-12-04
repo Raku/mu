@@ -62,7 +62,8 @@ method get_msg_var (Str $var_name) returns Any {
 }
 
 method get_msg_vars () returns Hash of Any {
-    return hash(%!msg_vars);
+#    return hash(%!msg_vars); # gives 'odd number of elements' error
+    return %!msg_vars; # workaround, but I actually want to return a copy
 }
 
 ######################################################################
@@ -151,7 +152,7 @@ method translate_message (Locale::KeyedText::Message $message)
 
     my Str $text = undef;
 #    SET_MEMBER:
-    for .get_set_member_combinations() -> $module_name {
+    for @{.get_set_member_combinations()} -> $module_name {
         # Determine if requested template module is already loaded.
         # It may have been embedded in a core program file and hence
         # should never be loaded by translate_message().
@@ -162,15 +163,11 @@ method translate_message (Locale::KeyedText::Message $message)
         # and so skip to the next candidate module name.
         if (!$module_is_loaded) {
             try {
-                .load_template_module( $module_name );
-#                CATCH {
-##                    next SET_MEMBER;
-#                    next;
-#                }
+                $?SELF.load_template_module( $module_name );
             };
+#            next SET_MEMBER
             next
                 if $!;
-                # This 'if' used because Pugs not executing CATCH yet
         }
 
         # Try to fetch template text for the given message key from the
@@ -186,7 +183,7 @@ method translate_message (Locale::KeyedText::Message $message)
         # We successfully got template text for the message key, so
         # interpolate the message vars into it and return that.
         $text = .interpolate_vars_into_template_text(
-            $text, $message.get_msg_vars() );
+            $text, %{$message.get_msg_vars()} );
 #        last SET_MEMBER;
         last;
     }
@@ -199,7 +196,10 @@ method translate_message (Locale::KeyedText::Message $message)
 submethod template_module_is_loaded (Str $module_name) returns Bool {
     die 'invalid arg'
         if !$module_name.defined or $module_name eq '';
+    # BUG: this always returns 1, need to find correct solution
     return defined ::($module_name);
+#    return; # with this instead, external Templates work, internal ones fail
+#    return 1; # with this instead, internals work, externals fail
 }
 
 submethod load_template_module (Str $module_name) {
@@ -227,13 +227,9 @@ submethod get_template_text_from_loaded_module
     my Str $text = undef;
     try {
         $text = &::($module_name)::get_text_by_key( $msg_key );
-#        CATCH {
-#            die "can't invoke get_text_by_key() on '$module_name': $!";
-#        }
     };
     die "can't invoke get_text_by_key() on '$module_name': $!"
         if $!;
-        # This 'if' used because Pugs not executing CATCH yet
 
     return $text;
 }
@@ -304,7 +300,7 @@ your code; instead refer to other above-named packages in this file.>
                 'msg_key' => 'MYAPP_PROMPT' ) );
 
         # Read two numbers from the user.
-        my Num ($first, $second) = $*IN;
+        my Num ($first, $second) = =$*IN;
 
         # Print a statement giving the operands and their sum.
         MyLib::add_two( $first, $second, $translator );

@@ -9,7 +9,8 @@ use MyLib;
 
 sub main () {
     # user indicates language pref as command line argument
-    my Str @user_lang_prefs = grep { $_ ~~ m/^<[a-zA-Z]>+$/ } @*ARGS;
+#    my Str @user_lang_prefs = grep { $_ ~~ m/^<[a-zA-Z]>+$/ } @*ARGS;
+    my Str @user_lang_prefs = grep { $_ ~~ m:perl5/^[a-zA-Z]+$/ } @*ARGS; #:
     @user_lang_prefs = 'Eng'
         if @user_lang_prefs == 0;
 
@@ -22,7 +23,6 @@ sub main () {
         'msg_key' => 'MYAPP_HELLO' ) );
 
 #    INPUT_LINE:
-#    {
     while (1) {
         show_message( $translator, Locale::KeyedText::Message.new(
             'msg_key' => 'MYAPP_PROMPT' ) );
@@ -44,17 +44,9 @@ sub main () {
                     'INVERTED' => $result,
                 },
             ) );
-#            CATCH {
-#                # input error, detected by library
-#                show_message( $translator, $! );
-#            }
         };
         show_message( $translator, $! )
             if $!; # input error, detected by library
-            # This 'if' used because Pugs not executing CATCH yet
-
-#        redo INPUT_LINE;
-#        redo;
     }
 
     show_message( $translator, Locale::KeyedText::Message.new(
