@@ -1488,9 +1488,13 @@ initSyms = mapM primDecl syms
 \\n   Str       pre     uc      safe   (?Str=$_)\
 \\n   Str       pre     ucfirst safe   (?Str=$_)\
 \\n   Str       pre     capitalize safe   (?Str=$_)\
-\\n   Any       post    ++      safe   (rw!Num)\
+\\n   Str       post    ++      safe   (rw!Str)\
+\\n   Str       post    --      safe   (rw!Str)\
+\\n   Num       post    ++      safe   (rw!Num)\
 \\n   Num       post    --      safe   (rw!Num)\
-\\n   Any       spre    ++      safe   (rw!Num)\
+\\n   Str       spre    ++      safe   (rw!Str)\
+\\n   Str       spre    --      safe   (rw!Str)\
+\\n   Num       spre    ++      safe   (rw!Num)\
 \\n   Num       spre    --      safe   (rw!Num)\
 \\n   Bool      pre     not     safe   (List)\
 \\n   Bool      pre     true    safe   (Bool)\
