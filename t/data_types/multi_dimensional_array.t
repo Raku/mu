@@ -59,7 +59,6 @@ isa_ok($multi2[0], 'List');
 # slice
 
 is(eval('$multi2[0;0]'), 1, 'got the right value at multi2 index 0,0', :todo);
-#todo_fail('got the right value at multi2 index 0,0');
 is(eval('$multi2[0;1]'), 2, 'got the right value at multi2 index 0,1', :todo);
 is(eval('$multi2[0;2]'), 3, 'got the right value at multi2 index 0,2', :todo);
 

@@ -74,7 +74,7 @@ for @vectors -> $v {
     lives_ok { $cipher = Cipher::Arcfour.new(:key($v<key>)) }, "Created encipherer";
 
     # XXX - TODO - FIXME
-    fail("Arcfour not yet fully implemented", :todo<bug>);
+    flunk("Arcfour not yet fully implemented", :todo<bug>);
     skip_rest("Arcfour not yet fully implemented");
     exit;
 

@@ -325,7 +325,7 @@ is 0.9**Inf, 0,   "0.9**Inf converges towards 0";
 is 1.1**Inf, Inf, "1.1**Inf diverges towards Inf";
 is 1**Inf, 1 , :todo("1**Inf == 1");
 
-#fail("1**Inf is platform-specific -- it's 1 on OSX and NaN elsewhere", :todo);
+#flunk("1**Inf is platform-specific -- it's 1 on OSX and NaN elsewhere", :todo);
 
 # NaN
 is NaN, NaN;

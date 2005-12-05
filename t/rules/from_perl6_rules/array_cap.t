@@ -36,19 +36,19 @@ ok("abcd" ~~ m/a  @<foo>:=(.(.))  d/, 'Hypothetical array capture');
 is("{@{$/<foo>}}", "c", 'Hypothetical variable captured');
 
 our @GA;
-fail "Test hangs", :todo<bug>;
+flunk "Test hangs", :todo<bug>;
 # ok("abcxyd" ~~ m/a  @GA:=(.(.))+  d/, 'Global array capture');
 is("@GA[]", "c y", 'Global array captured');
 ok(%$/.keys == 0, 'No vestigal captures', :todo<bug> );
 
 my @foo;
-fail "Test hangs", :todo<bug>;
+flunk "Test hangs", :todo<bug>;
 # ok("abcxyd" ~~ m/a  @foo:=(.(.))+  d/, 'Package array capture');
 is("@foo[]", "c y", 'Package array captured');
 
 rule two {..}
 
-fail "Test hangs", :todo<bug>;
+flunk "Test hangs", :todo<bug>;
 # ok("abcd" ~~ m/a  @<foo>:=(<two>)  d/, 'Compound hypothetical capture');
 {
   my $ret;
@@ -57,7 +57,7 @@ fail "Test hangs", :todo<bug>;
 }
 ok(! @{$/<foo>}, 'Explicit hypothetical variable not captured', :todo<bug>);
 
-fail "Test hangs", :todo<bug>;
+flunk "Test hangs", :todo<bug>;
 # ok("  a b\tc" ~~ m/@<chars>:=( @<spaces>:=[\s+] (\S+))+/, 'Nested array capture');
 is("{@{$/<chars>}}", "a b c", 'Outer array capture');
 is(join("|",@{$/<spaces>}), "  | |\t", 'Inner array capture');

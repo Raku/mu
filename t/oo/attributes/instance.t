@@ -206,7 +206,7 @@ sub forty_two_supplier() { $was_in_supplier++; 42 }
 # XXX: Currently hard parsefail!
 #todo_eval_ok 'class Foo10 { has $.attr = { forty_two_supplier() } }',
 #  "class definition using '= {...}' worked";
-fail "hard parsefail", :todo<feature>;
+flunk "hard parsefail", :todo<feature>;
 eval_is 'Foo10.new.attr', 42, "default attribute value (4)", :todo<feature>;
 is      $was_in_supplier, 1,  "forty_two_supplier() was actually executed (1)", :todo<feature>;
 
@@ -214,7 +214,7 @@ is      $was_in_supplier, 1,  "forty_two_supplier() was actually executed (1)", 
 # XXX: Currently hard parsefail!
 #todo_eval_ok 'class Foo11 { has $.attr is build { forty_two_supplier() } }',
 #  "class definition using 'is build {...}' worked";
-fail "hard parsefail", :todo<feature>;
+flunk "hard parsefail", :todo<feature>;
 eval_is 'Foo11.new.attr', 42, "default attribute value (5)", :todo<feature>;
 is      $was_in_supplier, 2,  "forty_two_supplier() was actually executed (2)", :todo<feature>;
 
@@ -222,7 +222,7 @@ is      $was_in_supplier, 2,  "forty_two_supplier() was actually executed (2)", 
 # XXX: Currently hard parsefail!
 #todo_eval_ok 'class Foo12 { has $.attr will build { forty_two_supplier() } }',
 #  "class definition using 'will build {...}' worked";
-fail "hard parsefail", :todo<feature>;
+flunk "hard parsefail", :todo<feature>;
 eval_is 'Foo11.new.attr', 42, "default attribute value (6)", :todo<feature>;
 is      $was_in_supplier, 3,  "forty_two_supplier() was actually executed (3)", :todo<feature>;
 

@@ -18,6 +18,6 @@ END { pass("end block reached") }
 
 exit; # same as die() -- but Harness doesn't like a failed exit code
 
-fail("exit did not work");
+flunk("exit did not work");
 
 

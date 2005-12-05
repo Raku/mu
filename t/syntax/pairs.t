@@ -46,7 +46,7 @@ plan 35;
     is foo(:a(42)),      "[42]", "':a(42)' is a named";
     is foo(:a),          "[1]",  "':a' is a named";
     
-    fail("FIXME parsefail (in 'foo.(:a)', ':a' is a named)", :todo<bug>);
+    flunk("FIXME parsefail (in 'foo.(:a)', ':a' is a named)", :todo<bug>);
     #is foo.(:a),         "[1]",  "in 'foo.(:a)', ':a' is a named";
     
     is $foo(:a),         "[1]",  "in '\$foo(:a)', ':a' is a named";
@@ -57,7 +57,7 @@ plan 35;
     dies_ok { foo((:a(42)))    }, "'(:a(42))' is a pair";
     dies_ok { foo((:a))        }, "'(:a)' is a pair";
     
-    fail("FIXME parsefail (in 'foo.((:a))', '(:a)' is a pair)", :todo<bug>);
+    flunk("FIXME parsefail (in 'foo.((:a))', '(:a)' is a pair)", :todo<bug>);
     #dies_ok { foo.((:a))       }, "in 'foo.((:a))', '(:a)' is a pair";
     
     dies_ok { $foo((:a))       }, "in '\$foo((:a))', '(:a)' is a pair";

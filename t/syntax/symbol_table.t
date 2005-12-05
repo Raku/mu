@@ -19,7 +19,7 @@ Namespaces, symbol tables and symbolic references.
 
 #=cut
 
-# fail("%:: parse", :todo);
+# flunk("%:: parse", :todo);
 eval_ok('%::', '%:: parses', :todo);
 my $symhash   = eval '%::';
 
@@ -69,7 +69,7 @@ ok(try {!defined(%MY::<nosuch>)},              "unknown lexical lookup");
 ok(try {!defined(%MY::<nosuch>)},              "unknown lexical lookup doesn't autovivify");
 
 {
-    # fail("package keyword", :todo);
+    # flunk("package keyword", :todo);
     ok eval('package Other1;'), "package keyword parses", :todo;
 
     ok eval('%:: eq $symhash'), "package declaration changes current package", :todo;

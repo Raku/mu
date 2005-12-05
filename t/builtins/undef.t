@@ -19,7 +19,7 @@ perl6-specific tests.
 #   
 #   It is.  I think we decided to make the value undef, and the function
 #   undefine().  (But these days most values of undef really ought to
-#   be constructed and returned (or thrown) using fail().)
+#   be constructed and returned (or thrown) using flunk().)
 #   
 #   Larry
 
@@ -269,7 +269,7 @@ else {
 # autoloading
 # L<S10/Autoloading>
 
-fail("FIXME (autoload tests)", :todo<parsefail>);
+flunk("FIXME (autoload tests)", :todo<parsefail>);
 # Currently waiting on
 # - packages
 # - symtable hash

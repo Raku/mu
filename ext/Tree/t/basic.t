@@ -96,4 +96,4 @@ is($output,
 ', '... got the right output (iterator)');
 };
 
-fail "iterator/coroutine test", :todo<feature> if $!;
+flunk "iterator/coroutine test", :todo<feature> if $!;

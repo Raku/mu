@@ -54,7 +54,7 @@ sub params_ok {
   #diag "@commandline";
   if (system(@commandline) != 0) {
     diag "Starting >>@commandline<<";
-    return fail($name);
+    return flunk($name);
   };
 
   my @received_args = do {
@@ -62,7 +62,7 @@ sub params_ok {
     open FH, $tempfile
       or do {
          diag "Couldn't open tempfile '$tempfile' : $!";
-         return fail($name);
+         return flunk($name);
       };
     split /\Q$sep\E/, <FH>;
   };

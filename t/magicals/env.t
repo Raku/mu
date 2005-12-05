@@ -72,7 +72,7 @@ for %*ENV.kv -> $k,$v {
   next if $k eq any<SHLVL _ OLDPWD PS1>;
   if (%child_env{$k} !~ $v) {
     if (! $err) {
-      fail("Environment gets propagated to child.");
+      flunk("Environment gets propagated to child.");
       $err++;
     };
     diag "Expected: $k=$v";
@@ -104,7 +104,7 @@ for %*ENV.kv -> $k,$v {
   next if $k eq any<SHLVL _ OLDPWD PS1>;
   if (%child_env{$k} !~ $v) {
     if (! $err) {
-      fail("Environment gets propagated to child.");
+      flunk("Environment gets propagated to child.");
       $err++;
     };
     diag "Expected: $k=$v";

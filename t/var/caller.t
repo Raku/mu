@@ -176,7 +176,7 @@ Larry ruled that as erroneous.
     my $a = 3;
     is $sub(), 3, '$CALLER:: works now (accessing a declared var)';
   } else {
-    fail "Test loops infinitely";
-    fail "Test loops infinitely";
+    flunk "Test loops infinitely";
+    flunk "Test loops infinitely";
   }
 }

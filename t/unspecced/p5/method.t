@@ -120,7 +120,7 @@ my $obj;
 }
 
 # XXX Core dump
-fail("modify a scalar ref", :todo<feature>); exit;
+flunk("modify a scalar ref", :todo<feature>); exit;
 
 {
     my @rw = (1);

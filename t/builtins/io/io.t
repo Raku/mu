@@ -153,7 +153,7 @@ isa_ok($fh10, 'IO');
 # This test fails on win32; skip it for now.
 if($*OS eq any<MSWin32 mingw msys cygwin>) {
     unlink($filename);
-    fail('skip unlink() test - erratic behaviour on win32', :todo<bug>);
+    flunk('skip unlink() test - erratic behaviour on win32', :todo<bug>);
 }
 else {
     ok(unlink($filename), 'file has been removed');

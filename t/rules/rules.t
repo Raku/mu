@@ -1748,40 +1748,40 @@ ok((not ("bXXXa" ~~ /\NX(\N+)+XX/)), 're_tests 1124  (#1328)');
 # 811: .XX(.+)+X    bXXXa    n    -    -
 ok((not ("bXXXa" ~~ /\NXX(\N+)+X/)), 're_tests 1126  (#1330)');
 # 812: .X(.+)+[X]    bbbbXcXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa    y    -    -
-fail("PGE nonterminates", :todo<bug>);
+flunk("PGE nonterminates", :todo<bug>);
 #ok(("bbbbXcXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" ~~ /\NX(\N+)+<[X]>/), 're_tests 1128  (#1332)');
 # 813: .X(.+)+[X][X]    bbbbXcXXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa    y    -    -
-fail("PGE nonterminates", :todo<bug>);
+flunk("PGE nonterminates", :todo<bug>);
 #ok(("bbbbXcXXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" ~~ /\NX(\N+)+<[X]><[X]>/), 're_tests 1130  (#1334)');
 # 814: .XX(.+)+[X]    bXXcXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa    y    -    -
-fail("PGE nonterminates", :todo<bug>);
+flunk("PGE nonterminates", :todo<bug>);
 #ok(("bXXcXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" ~~ /\NXX(\N+)+<[X]>/), 're_tests 1132  (#1336)');
 # 815: .X(.+)+[X]    bXXa    n    -    -
-fail("PGE probably nonterminates", :todo<bug>);
+flunk("PGE probably nonterminates", :todo<bug>);
 #ok((not ("bXXa" ~~ /\NX(\N+)+<[X]>/)), 're_tests 1134  (#1338)');
 # 816: .X(.+)+[X][X]    bXXXa    n    -    -
-fail("PGE probably nonterminates", :todo<bug>);
+flunk("PGE probably nonterminates", :todo<bug>);
 #ok((not ("bXXXa" ~~ /\NX(\N+)+<[X]><[X]>/)), 're_tests 1136  (#1340)');
 # 817: .XX(.+)+[X]    bXXXa    n    -    -
-fail("PGE probably nonterminates", :todo<bug>);
+flunk("PGE probably nonterminates", :todo<bug>);
 #ok((not ("bXXXa" ~~ /\NXX(\N+)+<[X]>/)), 're_tests 1138  (#1342)');
 # 818: .[X](.+)+[X]    bbbbXcXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa    y    -    -
-fail("PGE probably nonterminates", :todo<bug>);
+flunk("PGE probably nonterminates", :todo<bug>);
 #ok(("bbbbXcXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" ~~ /\N<[X]>(\N+)+<[X]>/), 're_tests 1140  (#1344)');
 # 819: .[X](.+)+[X][X]    bbbbXcXXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa    y    -    -
-fail("PGE probably nonterminates", :todo<bug>);
+flunk("PGE probably nonterminates", :todo<bug>);
 #ok(("bbbbXcXXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" ~~ /\N<[X]>(\N+)+<[X]><[X]>/), 're_tests 1142  (#1346)');
 # 820: .[X][X](.+)+[X]    bXXcXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa    y    -    -
-fail("PGE probably nonterminates", :todo<bug>);
+flunk("PGE probably nonterminates", :todo<bug>);
 #ok(("bXXcXaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" ~~ /\N<[X]><[X]>(\N+)+<[X]>/), 're_tests 1144  (#1348)');
 # 821: .[X](.+)+[X]    bXXa    n    -    -
-fail("PGE probably nonterminates", :todo<bug>);
+flunk("PGE probably nonterminates", :todo<bug>);
 #ok((not ("bXXa" ~~ /\N<[X]>(\N+)+<[X]>/)), 're_tests 1146  (#1350)');
 # 822: .[X](.+)+[X][X]    bXXXa    n    -    -
-fail("PGE probably nonterminates", :todo<bug>);
+flunk("PGE probably nonterminates", :todo<bug>);
 #ok((not ("bXXXa" ~~ /\N<[X]>(\N+)+<[X]><[X]>/)), 're_tests 1148  (#1352)');
 # 823: .[X][X](.+)+[X]    bXXXa    n    -    -
-fail("PGE probably nonterminates", :todo<bug>);
+flunk("PGE probably nonterminates", :todo<bug>);
 #ok((not ("bXXXa" ~~ /\N<[X]><[X]>(\N+)+<[X]>/)), 're_tests 1150  (#1354)');
 # 824: tt+$    xxxtt    y    -    -
 ok(("xxxtt" ~~ /tt+$/), 're_tests 1152  (#1356)');
@@ -1853,7 +1853,7 @@ is(("aaa,b,c,d" ~~ /^(<-[,]>**{0..3},)**{3...}d/ && $0), "c,", 're_tests 1209/1 
 # 857: ^([^,]{0,3},){0,3}d    aaa,b,c,d    y    $0    c,
 is(("aaa,b,c,d" ~~ /^(<-[,]>**{0..3},)**{0..3}d/ && $0), "c,", 're_tests 1211/1 (#1415)');
 # 858: (?i)        y    -    -
-fail("PGE segfault", :todo<bug>);
+flunk("PGE segfault", :todo<bug>);
 #ok(("" ~~ /:i /), 're_tests 1213  (#1417)');
 # 859: '(?!\A)x'm    a\nxb\n    y    -    -
 # -- SKIPPED - p5re_to_p6rule doesn't support `'...'m' yet

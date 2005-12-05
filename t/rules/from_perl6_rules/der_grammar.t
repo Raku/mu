@@ -64,26 +64,26 @@ eval_is('$/<def><eh>', "e", '?def $/<def><eh>', :todo<feature>);
 
 # Test rederivation and polymorphism...
 
-fail("FIXME parsefail", :todo);
+flunk("FIXME parsefail", :todo);
 #ok(eval(q{'abc' ~~ m/^ (<Yet::Another.abc>) $/ }), '<Yet::Another.abc>', :todo<feature>);
 is($/, "abc", 'abc $/', :todo<feature>);
 is($0, "abc", 'abc $0', :todo<feature>);
 
-fail("FIXME parsefail", :todo);
+flunk("FIXME parsefail", :todo);
 #ok(eval(q{!( 'abc' ~~ m/ (<Yet::Another.bee>) / ) }), 'abc <Yet::Another.bee>');
-fail("FIXME parsefail", :todo);
+flunk("FIXME parsefail", :todo);
 #ok(eval(q{'aBc' ~~ m/ (<Yet::Another.bee>) / }), 'aBc <Yet::Another.bee>', :todo<feature>);
 is($/, "B", 'Yet::Another::bee $/', :todo<feature>);
 is($0, "B", 'Yet::Another::bee $0', :todo<feature>);
 
-fail("FIXME parsefail", :todo);
+flunk("FIXME parsefail", :todo);
 #ok(eval(q{!( 'def' ~~ m/^ (<Yet::Another.def>) $/ ) }), 'def (<Yet::Another.def>)');
-fail("FIXME parsefail", :todo);
+flunk("FIXME parsefail", :todo);
 #ok(eval(q{'DeF' ~~ m/^ (<Yet::Another.def>) $/ }), 'DeF (<Yet::Another.def>)', :todo<feature>);
 is($/, "DeF", 'DeF $/', :todo<feature>);
 is($0, "DeF", 'DeF $0', :todo<feature>);
 
-fail("FIXME parsefail", :todo);
+flunk("FIXME parsefail", :todo);
 #ok('DeF' ~~ m/^ <?Yet::Another.def> $/, '<?Yet::Another.def>', :todo<feature>);
 is($/, "DeF", '?Yet::Another.def $/', :todo<feature>);
 ok($0 ne "DeF", '?Yet::Another.def $0');
@@ -93,7 +93,7 @@ is(eval('$/<def><eh>'), "e", '?def $/<def><eh>', :todo<feature>);
 
 # Non-existent rules...
 
-fail("FIXME parsefail", :todo);
+flunk("FIXME parsefail", :todo);
 #ok(!eval(q{ 'abc' ~~ m/ (<Another.sea>) /  }), '<Another.sea>');
 is($!, 'Error', :todo<feature>);
 

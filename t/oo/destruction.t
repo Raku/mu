@@ -30,10 +30,10 @@ is( $foo.ref,      'Foo', 'basic instantiation of declared class' );
 ok( ! $in_destructor,    'destructor should not fire while object is active' );
 
 # -- erratic behaviour; fail+todo for now
-fail("destruction - 1", :todo<bug>);
-fail("destruction - 2", :todo<bug>);
-fail("destruction - 3", :todo<bug>);
-fail("destruction - 4", :todo<bug>);
+flunk("destruction - 1", :todo<bug>);
+flunk("destruction - 2", :todo<bug>);
+flunk("destruction - 3", :todo<bug>);
+flunk("destruction - 4", :todo<bug>);
 exit;
 
 my $child = Child.new();

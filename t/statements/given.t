@@ -224,7 +224,7 @@ eval '
 
     is(@got.join(","), "false,true", q!given { when true { } }!);
 ';
-fail("when true is parsefail", :todo<feature>) if $!;
+flunk("when true is parsefail", :todo<feature>) if $!;
 
 # given + hash deref
 {

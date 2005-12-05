@@ -118,16 +118,16 @@ plan 31;
   is advance(), 2, "TEMP{} block (3)", :todo<feature>;
   is $next,     3, "TEMP{} block (4)", :todo<feature>;
 
-  fail "TEMP{} block (5)", :todo<feature>;
-  fail "TEMP{} block (6)", :todo<feature>;
-  fail "TEMP{} block (7)", :todo<feature>;
-  fail "TEMP{} block (8)", :todo<feature>;
+  flunk "TEMP{} block (5)", :todo<feature>;
+  flunk "TEMP{} block (6)", :todo<feature>;
+  flunk "TEMP{} block (7)", :todo<feature>;
+  flunk "TEMP{} block (8)", :todo<feature>;
 
   # Following does parse, but isn't executed (don't know why).
   # If the "{" on the following line is changed to "if(1) {", it is executed,
   # too, but then it dies complaining about not finding a matching temp()
   # function.  So, for now, we just comment the following block and add
-  # unconditional fail()s.
+  # unconditional flunk()s.
   #{
   #  is temp(advance()), 3, "TEMP{} block (5)", :todo<feature>;
   #  is $next,           4, "TEMP{} block (6)", :todo<feature>;

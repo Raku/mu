@@ -37,7 +37,7 @@ for %tests.keys.sort -> $type {
         my $code = "{$type}($test[0])";
             my $res = eval($code);
         if ($!) {
-            fail("failed to parse $code ($!)", :todo<feature>);
+            flunk("failed to parse $code ($!)", :todo<feature>);
         } else {
             is($res, $test[1], "$code == $test[1]");
         }

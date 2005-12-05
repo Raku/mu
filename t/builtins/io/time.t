@@ -122,7 +122,7 @@ my ($xsec,$foo);
 
 my $localyday = $yday;
 
-fail("FIXME Time::Local should by numifiable", :todo<bug>);
+flunk("FIXME Time::Local should by numifiable", :todo<bug>);
 #ok($sec != $xsec && $mday && $year, 'localtime() list context', :todo);
 
 #-- 6 --
@@ -144,7 +144,7 @@ my ($xsec,$foo);
 ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = try { gmtime($beg) };
 ($xsec,$foo) = localtime($now);
 
-fail("FIXME Time::Local should by numifiable", :todo<bug>);
+flunk("FIXME Time::Local should by numifiable", :todo<bug>);
 #ok($sec != $xsec && $mday && $year, 'gmtime() list context', :todo);
 
 #-- 8 --

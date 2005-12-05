@@ -49,12 +49,12 @@ is eval('blub "bar":times(2)'), 'BLUBBLUBbar', 'user-defined prefix operator, :t
   $v = :foo«alice»;
   is ~$v, ~$e, ':foo«alice»';
 
-  fail("FIXME parsefail", :todo<bug>);
+  flunk("FIXME parsefail", :todo<bug>);
   #$e = (foo => { a => 1, b => 2 });
   $v = eval ':foo{ a => 1, b => 2 }';
   #is ~$v, ~$e, ':foo{ a => 1, b => 2 }', :todo;
 
-  fail("FIXME parsefail", :todo<bug>);
+  flunk("FIXME parsefail", :todo<bug>);
   #$e = (foo => { dostuff() });
   $v = eval ':foo{ dostuff() }';
   #is ~$v, ~$e, ':foo{ dostuff() }', :todo;

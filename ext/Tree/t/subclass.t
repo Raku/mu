@@ -6,7 +6,7 @@ plan 1;
 
 use Tree;
 
-fail("This test is totally foobarred (something about submethod BUILD MMD i think)", :todo<bug>);
+flunk("This test is totally foobarred (something about submethod BUILD MMD i think)", :todo<bug>);
 
 =pod
 

@@ -107,7 +107,7 @@ sub desc_ref ($obj) {
     is $foo[1][1][1][0], 42, "basic recursive arrayref";
 
     # XXX hangs
-    fail "skipping hanging test";
+    flunk "skipping hanging test";
     #is ~$foo.perl.eval, ~$foo,
     #    ".perl worked correctly on a recursive arrayref";
 }
@@ -117,7 +117,7 @@ sub desc_ref ($obj) {
     is $foo<b><b><b><a>, 42, "basic recursive hashref";
 
     # XXX hangs
-    fail "skipping hanging test";
+    flunk "skipping hanging test";
     #is ~$foo.perl.eval, ~$foo,
     #    ".perl worked correctly on a recursive hashref";
 }
@@ -131,7 +131,7 @@ sub desc_ref ($obj) {
     is $foo[1]<b>[1]<b>[0], 42, "mixed arrayref/hashref recursive structure";
 
     # XXX hangs
-    fail "skipping hanging test";
+    flunk "skipping hanging test";
     #is ~$foo.perl.eval, ~$foo,
     #    ".perl worked correctly on a mixed arrayref/hashref recursive structure";
 }

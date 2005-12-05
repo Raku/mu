@@ -183,11 +183,11 @@ diag('some misc comments and documentation');
 
 pass('This test passed');
 
-## fail
+## flunk
 
-fail('This test failed', 1);
-fail('This test failed', todo => 1);
-fail('This test failed', :todo(1));
+flunk('This test failed', 1);
+flunk('This test failed', todo => 1);
+flunk('This test failed', :todo(1));
 
 ## skip
 

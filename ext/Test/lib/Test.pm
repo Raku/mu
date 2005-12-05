@@ -198,7 +198,7 @@ sub pass (Str $desc?) returns Bool is export {
     Test::proclaim(1, $desc);
 }
 
-sub fail (Str $desc?, :$todo, :$depends) returns Bool is export {
+sub flunk (Str $desc?, :$todo, :$depends) returns Bool is export {
     Test::proclaim(0, $desc, $todo, :depends($depends));
 }
 
@@ -326,11 +326,11 @@ Test - Test support module for perl6
   use_ok('My::Module');
   
   pass('This test passed');
-  fail('This test failed');
+  flunk('This test failed');
   
   skip('skip this test for now');
   
-  fail('this fails, but might work soon', :todo(1));
+  flunk('this fails, but might work soon', :todo(1));
   
   diag('some misc comments and documentation');
 
@@ -444,9 +444,9 @@ function to do so.
 
 Sometimes what you need to test does not fit into one of the standard
 testing functions. In that case, you can use the rather blunt pass()
-functions and its compliment the fail() function.
+functions and its compliment the flunk() function.
 
-- `fail (Str $desc?, Bool :$todo) returns Bool`
+- `flunk (Str $desc?, Bool :$todo) returns Bool`
 
 This is the opposite of pass()
 

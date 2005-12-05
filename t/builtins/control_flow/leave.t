@@ -8,7 +8,7 @@ use Test;
 
 plan 5;
 
-fail "leave() not implemented in Pugs's interpreter core yet", :todo<feature>;
+flunk "leave() not implemented in Pugs's interpreter core yet", :todo<feature>;
 skip_rest; exit;
 
 {
