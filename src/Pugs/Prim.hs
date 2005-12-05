@@ -323,36 +323,35 @@ op1 "Pugs::Safe::safe_print" = \v -> do
     guardIO $ hPutStr stdout $ encodeUTF8 str
     return $ VBool True
 op1 "die" = \v -> do
-    strs <- fromVal v
-    fail (errmsg . concat $ strs)
-    -- To avoid the uncatchable error "Prelude.last: empty list" and to present
-    -- a nicer error message to the user.
+    pos <- asks envPos
+    shiftT . const . return $ VError (errmsg v) [pos]
     where
-    errmsg "" = "Died"
-    errmsg x  = x
+    errmsg VUndef      = VStr "Died"
+    errmsg (VStr "")   = VStr "Died"
+    errmsg (VList [])  = VStr "Died"
+    errmsg (VList [x]) = x
+    errmsg x           = x
 op1 "warn" = \v -> do
     strs <- fromVal v
     errh <- readVar "$*ERR"
     pos  <- asks envPos
     op2 "IO::say" errh $ VList [ VStr $ pretty (VError (errmsg strs) [pos]) ]
     where
-    errmsg "" = "Warning: something's wrong"
-    errmsg x  = x
+    errmsg "" = VStr "Warning: something's wrong"
+    errmsg x  = VStr x
 op1 "fail" = op1 "fail_" -- XXX - to be replaced by Prelude later
 op1 "fail_" = \v -> do
-    strs  <- fromVal v
     throw <- fromVal =<< readVar "$?FAIL_SHOULD_DIE"
+    if throw then op1 "die" (errmsg v) else do
     pos   <- asks envPos
-    let msg = pretty (VError (errmsg strs) [pos]) ++ "\n"
-    if throw
-        -- "use fatal" is in effect, so die.
-        then fail msg
-        -- We've to return a unthrown exception.
-        -- The error message to output
-        else shiftT . const . return . VRef . thunkRef $ MkThunk (fail msg) anyType
+    let die = shiftT . const . return $ VError (errmsg v) [pos]
+    shiftT . const . return . VRef . thunkRef $ MkThunk die anyType
     where
-    errmsg "" = "Failed"
-    errmsg x  = x
+    errmsg VUndef      = VStr "Failed"
+    errmsg (VStr "")   = VStr "Failed"
+    errmsg (VList [])  = VStr "Failed"
+    errmsg (VList [x]) = x
+    errmsg x           = x
 op1 "exit" = op1Exit
 op1 "readlink" = \v -> do
     str  <- fromVal v
