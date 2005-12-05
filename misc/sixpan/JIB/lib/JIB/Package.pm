@@ -206,6 +206,8 @@ sub install {
                 system( qq[ $^X $preinst ] )                    and die $?;
             }
         
+            ### XXX we should build a binary package here, instead of
+            ### just doing a cp -R
             my $src = File::Spec->catdir( $conf->compile_dir, $self->package );
             system( qq[cp -R $src ]. $conf->perl_site_dir )     and die $?;     
 
