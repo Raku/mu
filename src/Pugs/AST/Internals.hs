@@ -630,7 +630,7 @@ data Val
     | VList     !VList       -- ^ List value
     | VType     !VType       -- ^ Type value (e.g. @Int@ or @Type@)
     | VJunc     !VJunc       -- ^ Junction value
-    | VError    !VStr ![Pos] -- ^ Error
+    | VError    !Val ![Pos]  -- ^ Error
     | VControl  !VControl
 -------------------------------------------------------------------
 -- The following are runtime-only values (VRef is negotiable)
@@ -1242,7 +1242,7 @@ instance Monad Eval where
         runEvalT (k a)
     fail str = do
         pos <- asks envPos
-        shiftT . const . return $ VError str [pos]
+        shiftT . const . return $ VError (VStr str) [pos]
 
 instance MonadTrans EvalT where
     lift x = EvalT x

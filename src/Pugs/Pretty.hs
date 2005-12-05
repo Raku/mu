@@ -153,10 +153,13 @@ instance Pretty Val where
     format (VBlock _) = text "{...}"
     format (VError x posList)
         -- Is this correct? Does this work on win32, too?
-        | last x == '\n' = text . init $ x
+        | last s == '\n' = text . init $ s
         | otherwise      = text "***" <+>
-            (vcat (map text $ split "\n" x) $+$ (text "at" <+> vcat (map format $ reverse posList)))
+            (vcat (map text $ split "\n" s) $+$ (text "at" <+> vcat (map format $ reverse posList)))
         where
+        s = case x of
+              VStr s' -> s'
+              _       -> pretty x
 --  format (VArray x) = format (VList $ Array.elems x)
 --  format (VHash h) = braces $ (joinList $ text ", ") $
 --      [ format (VStr k, v) | (k, v) <- Map.toList h ]

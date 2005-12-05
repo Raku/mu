@@ -18,7 +18,7 @@ makeState env = MkRuleState env MkDynParsersEmpty
 runRule :: Env -> RuleParser Env -> FilePath -> String -> Env
 runRule env p name str =
     case ( runParser p (makeState env) name str ) of
-        Left err    -> env { envBody = Val $ VError msg [mkPos pos pos] }
+        Left err    -> env { envBody = Val $ VError (VStr msg) [mkPos pos pos] }
             where
             pos = errorPos err
             msg = showErr err

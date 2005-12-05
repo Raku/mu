@@ -98,8 +98,8 @@ retEvalResult style val = do
     glob <- askGlobal
     errSV <- findSymRef "$!" glob
     case val of
-        err@(VError str _) -> do
-            writeRef errSV (VStr str)
+        err@(VError e _) -> do
+            writeRef errSV e
             when (evalError style == EvalErrorFatal) $ do
                 liftIO $ fail $ pretty err
             retEmpty
