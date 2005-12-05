@@ -290,7 +290,7 @@ op1 "lazy" = \v -> do
             res <- evalExp exp
             liftSTM $ writeTVar result (Just res)
             return res
-    typ <- evalExpType exp
+    typ <- inferExpType exp
     return . VRef . thunkRef $ MkThunk thunk typ
 
 op1 "defined" = op1Cast (VBool . defined)
@@ -338,6 +338,7 @@ op1 "warn" = \v -> do
     where
     errmsg "" = "Warning: something's wrong"
     errmsg x  = x
+op1 "fail" = op1 "fail_" -- XXX - to be replaced by Prelude later
 op1 "fail_" = \v -> do
     strs  <- fromVal v
     throw <- fromVal =<< readVar "$?FAIL_SHOULD_DIE"
@@ -1582,6 +1583,7 @@ initSyms = mapM primDecl syms
 \\n   Bool      pre     die     safe   (List)\
 \\n   Bool      pre     warn    safe   (List)\
 \\n   Bool      pre     fail_   safe   (List)\
+\\n   Bool      pre     fail    safe   (List)\
 \\n   Socket    pre     listen  unsafe (Int)\
 \\n   Socket    pre     connect unsafe (Str, Int)\
 \\n   Any       pre     accept  unsafe (Any)\
