@@ -1579,10 +1579,10 @@ initSyms = mapM primDecl syms
 \\n   Bool      pre     close   unsafe (IO)\
 \\n   Bool      pre     flush   unsafe (IO)\
 \\n   Bool      pre     close   unsafe (Socket)\
-\\n   Bool      pre     die     safe   (List)\
+\\n   Bool      pre     die     safe   (Object)\
 \\n   Bool      pre     warn    safe   (List)\
-\\n   Bool      pre     fail_   safe   (List)\
-\\n   Bool      pre     fail    safe   (List)\
+\\n   Bool      pre     fail_   safe   (Object)\
+\\n   Bool      pre     fail    safe   (Object)\
 \\n   Socket    pre     listen  unsafe (Int)\
 \\n   Socket    pre     connect unsafe (Str, Int)\
 \\n   Any       pre     accept  unsafe (Any)\
