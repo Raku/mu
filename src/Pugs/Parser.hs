@@ -508,7 +508,7 @@ ruleSubParameters wantParens = rule "subroutine parameters" $ do
 ruleParamList :: ParensOption -> RuleParser a -> RuleParser (Maybe [[a]])
 ruleParamList wantParens parse = rule "parameter list" $ do
     (formal, hasParens) <- f $
-        (((try parse) `sepEndBy` symbol ",") `sepEndBy` invColon)
+        (((try parse) `sepEndBy` ruleComma) `sepEndBy` invColon)
     case formal of
         [[]]   -> return $ if hasParens then Just [[], []] else Nothing
         [args] -> return $ Just [[], args]
@@ -633,7 +633,7 @@ ruleVarDeclaration = rule "variable declaration" $ do
         [ do -- pos  <- getPosition
              name <- ruleVarName
              return ((Sym scope name), Var name)
-        , do names <- parens . (`sepEndBy` symbol ",") $
+        , do names <- parens . (`sepEndBy` ruleComma) $
                 ruleVarName <|> do { undefLiteral; return "" }
              let mkVar v = if null v then Val undef else Var v
              return (combine (map (Sym scope) names), Syn "," (map mkVar names))
@@ -1064,7 +1064,7 @@ ruleForConstruct :: RuleParser Exp
 ruleForConstruct = rule "for construct" $ do
     symbol "for"
     list  <- maybeParens ruleExpression
-    optional (symbol ",")
+    optional ruleComma
     block <- ruleBlockLiteral <|> parseExpWithItemOps
     retSyn "for" [list, block]
 
@@ -1853,11 +1853,11 @@ parseHasParenParamList = verbatimParens $ do
         rv <- option Nothing $ do
             fmap Just $ tryChoice
                 [ do x <- pairOrBlockAdverb
-                     lookAhead (satisfy (/= ','))   
-                     return ([x], return "")
+                     lookAhead (noneOf ",;")
+                     return ([x], return ())
                 , do x <- namedArgOr parseExpWithItemOps
                      a <- option [] $ try $ many pairOrBlockAdverb
-                     return (x:a, symbol ",")
+                     return (x:a, ruleCommaOrSemicolon)
                 ]
         case rv of
             Nothing           -> return []
@@ -1876,7 +1876,7 @@ parseHasParenParamList = (<?> "paren arg-list") $ try $ verbatimParens $ do
     leadingAdverbs  <- doParseAdverbs
     
     -- use 'sepEndBy', because `foo($bar, $baz,)` is legal
-    arguments       <- parseExpWithItemOps `sepEndBy` (symbol ",")
+    arguments       <- parseExpWithItemOps `sepEndBy` ruleComma
     
     trailingAdverbs <- doParseAdverbs
     
@@ -1926,24 +1926,34 @@ parseNoParenParamList = do
             Just (exp, trail) -> do
                 rest <- option [] $ do { trail; formalSegment dot }
                 return (exp ++ rest)
-    argBlockish :: (Char -> Bool) -> [RuleParser ([Exp], RuleParser String)]
+    argBlockish :: (Char -> Bool) -> [RuleParser ([Exp], RuleParser ())]
     argBlockish dot =
         [ argBlockWith ruleBlockLiteral dot
         , argBlockWith pairOrBlockAdverb dot
         , argVanilla
         ]
-    argBlockWith :: Monad m => RuleParser a -> (Char -> Bool) -> RuleParser ([a], m String)
+    argBlockWith :: RuleParser a -> (Char -> Bool) -> RuleParser ([a], RuleParser ())
     argBlockWith rule pred = do
         x <- rule
         lookAhead $ satisfy pred
-        return ([x], return "")
+        return ([x], return ())
     dotAllowed = (/= '.')
     dotForbidden = (not . (`elem` ".,"))
-    argVanilla :: RuleParser ([Exp], RuleParser String)
+    argVanilla :: RuleParser ([Exp], RuleParser ())
     argVanilla = do
         x <- namedArgOr parseExpWithTightOps
         a <- option [] $ try $ many pairOrBlockAdverb
-        return (x:a, symbol ",")
+        return (x:a, ruleComma)
+        
+ruleComma :: RuleParser ()
+ruleComma = do
+    lexeme (char ',')
+    return ()
+
+ruleCommaOrSemicolon :: RuleParser ()
+ruleCommaOrSemicolon = do
+    lexeme (oneOf ",;")
+    return ()
 
 processFormals :: Monad m => [[Exp]] -> m (Maybe Exp, [Exp])
 processFormals formal = case formal of
