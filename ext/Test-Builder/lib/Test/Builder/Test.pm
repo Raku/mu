@@ -2,11 +2,11 @@ class Test::Builder::Test-0.2.1
 {
     method new (
         $number,     
-        ?$passed      = 1,
-        ?$skip        = 0,
-        ?$todo        = 0,
-        ?$reason      = '', 
-        ?$description = '',
+        $passed      = 1,
+        $skip        = 0,
+        $todo        = 0,
+        $reason      = '', 
+        $description = '',
     )
     {
         return ::Test::Builder::Test::TODO.new(
@@ -47,8 +47,8 @@ role Test::Builder::Test::Base
     submethod BUILD (
         $.description,
         $.passed,
-        ?$.number     =     0,
-        ?$.diagnostic = '???',
+        $.number     =     0,
+        $.diagnostic = '???',
     ) {}
 
     method status returns Hash
