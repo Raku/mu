@@ -3,7 +3,7 @@
 
 module Pugs.Eval.Var (
     findVar, findVarRef,
-    findSub, evalExpType,  FindSubFailure(..),
+    findSub, inferExpType,  inferExpCxt, FindSubFailure(..),
     isQualified, packageOf, qualify,
     toPackage, toQualified,
 ) where
@@ -132,14 +132,14 @@ findSub name' invs args = do
         maybe (fmap (err failure) $ possiblyBuildMetaopVCode name) (return . Right) sub
     evalInvType :: Exp -> Eval Type
     evalInvType x@(Var (':':typ)) = do
-        typ' <- evalExpType x
+        typ' <- inferExpType x
         return $ if typ' == mkType "Scalar::Perl5" then typ' else mkType typ
     evalInvType (App (Var "&new") (Just inv) _) = do
         evalInvType $ unwrap inv
     evalInvType x@(App (Var _) (Just inv) _) = do
         typ <- evalInvType $ unwrap inv
-        if typ == mkType "Scalar::Perl5" then return typ else evalExpType x
-    evalInvType x = evalExpType $ unwrap x
+        if typ == mkType "Scalar::Perl5" then return typ else inferExpType x
+    evalInvType x = inferExpType $ unwrap x
     runPerl5Sub :: String -> Eval (Maybe VCode)
     runPerl5Sub name = do
         metaSub <- possiblyBuildMetaopVCode name
@@ -300,15 +300,15 @@ findSub name' invs args = do
         return $ deltaType cls (typeOfCxt cxt) x
     deltaFromPair (x, y) = do
         cls <- asks envClasses
-        typ <- evalExpType y
+        typ <- inferExpType y
         return $ deltaType cls x typ
 
 {-|
 Take an expression, and attempt to predict what type it will evaluate to
 /without/ actually evaluating it.
 -}
-evalExpType :: Exp -> Eval Type
-evalExpType (Var var) = do
+inferExpType :: Exp -> Eval Type
+inferExpType (Var var) = do
     rv  <- findVar var
     case rv of
         Nothing  -> return $ typeOfSigil (head var)
@@ -318,34 +318,69 @@ evalExpType (Var var) = do
             if isaType cls "List" typ
                 then return typ
                 else fromVal =<< readRef ref
-evalExpType (Val val) = fromVal val
-evalExpType (App (Val val) _ _) = do
+inferExpType (Val val) = fromVal val
+inferExpType (App (Val val) _ _) = do
     sub <- fromVal val
     return $ subReturns sub
-evalExpType (App (Var "&new") (Just (Var (':':name))) _) = return $ mkType name
-evalExpType (App (Var name) invs args) = do
+inferExpType (App (Var "&new") (Just (Var (':':name))) _) = return $ mkType name
+inferExpType (App (Var name) invs args) = do
     sub <- findSub name invs args
     case sub of
         Right sub    -> return $ subReturns sub
         Left _       -> return $ mkType "Any"
-evalExpType exp@(Syn syn _) | (syn ==) `any` words "{} []" = do
-    val <- evalExp exp
-    fromVal val
-evalExpType (Cxt cxt _) | typeOfCxt cxt /= (mkType "Any") = return $ typeOfCxt cxt
-evalExpType (Cxt _ exp) = evalExpType exp
-evalExpType (Pos _ exp) = evalExpType exp
-evalExpType (Pad _ _ exp) = evalExpType exp
-evalExpType (Sym _ _ exp) = evalExpType exp
-evalExpType (Stmts _ exp) = evalExpType exp
-evalExpType (Syn "sub" [exp]) = evalExpType exp
-evalExpType (Syn "," _)    = return $ mkType "List"
-evalExpType (Syn "\\[]" _) = return $ mkType "Array"
-evalExpType (Syn "\\{}" _) = return $ mkType "Hash"
-evalExpType (Syn "&{}" _)  = return $ mkType "Code"
-evalExpType (Syn "@{}" _)  = return $ mkType "Array"
-evalExpType (Syn "%{}" _)  = return $ mkType "Hash"
-evalExpType (Syn "=>" _)   = return $ mkType "Pair"
-evalExpType _ = return anyType
+inferExpType (Syn syn [_, idxExp]) | (syn ==) `any` words "{} []" = do
+    cxt <- inferExpCxt idxExp
+    return (typeOfCxt cxt)
+inferExpType (Cxt cxt _) | typeOfCxt cxt /= (mkType "Any") = return $ typeOfCxt cxt
+inferExpType (Cxt _ exp) = inferExpType exp
+inferExpType (Pos _ exp) = inferExpType exp
+inferExpType (Pad _ _ exp) = inferExpType exp
+inferExpType (Sym _ _ exp) = inferExpType exp
+inferExpType (Stmts _ exp) = inferExpType exp
+inferExpType (Syn "sub" [exp]) = inferExpType exp
+inferExpType (Syn "," _)    = return $ mkType "List"
+inferExpType (Syn "\\[]" _) = return $ mkType "Array"
+inferExpType (Syn "\\{}" _) = return $ mkType "Hash"
+inferExpType (Syn "&{}" _)  = return $ mkType "Code"
+inferExpType (Syn "@{}" _)  = return $ mkType "Array"
+inferExpType (Syn "%{}" _)  = return $ mkType "Hash"
+inferExpType (Syn "=>" _)   = return $ mkType "Pair"
+inferExpType _ = return anyType
+
+
+{-|
+Return the context that an expression bestows upon a hash or array
+subscript. See 'reduce' for @\{\}@ and @\[\]@.
+-}
+inferExpCxt :: Exp -- ^ Expression to find the context of
+         -> Eval Cxt
+inferExpCxt (Pos _ exp)            = inferExpCxt exp
+inferExpCxt (Cxt cxt _)            = return cxt
+inferExpCxt (Syn "," _)            = return cxtSlurpyAny
+inferExpCxt (Syn "[]" [_, exp])    = inferExpCxt exp
+inferExpCxt (Syn "{}" [_, exp])    = inferExpCxt exp
+inferExpCxt (Syn (sigil:"{}") _) = return $ cxtOfSigil sigil
+inferExpCxt (Val (VList _))        = return cxtSlurpyAny
+inferExpCxt (Val (VRef ref))       = do
+    cls <- asks envClasses
+    let typ = refType ref
+    return $ if isaType cls "List" typ
+        then cxtSlurpyAny
+        else CxtItem typ
+inferExpCxt (Val _)                 = return cxtItemAny
+inferExpCxt (Var (sigil:_))         = return $ cxtOfSigil sigil
+inferExpCxt (App (Var "&list") _ _) = return cxtSlurpyAny
+inferExpCxt (App (Var "&item") _ _) = return cxtSlurpyAny
+inferExpCxt (App (Var name) invs args)   = do
+    -- inspect the return type of the function here
+    env <- ask
+    sub <- findSub name invs args
+    return $ case sub of
+        Right sub
+            | isaType (envClasses env) "Scalar" (subReturns sub)
+            -> CxtItem (subReturns sub)
+        _ -> cxtSlurpyAny
+inferExpCxt _                      = return cxtSlurpyAny
 
 {-|
 Evaluate the \'magical\' variable associated with a given name. Returns 

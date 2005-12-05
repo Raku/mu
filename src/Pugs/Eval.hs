@@ -599,9 +599,9 @@ reduceSyn "[]" exps
     | otherwise = do
         let [listExp, indexExp] = exps
         varVal  <- enterLValue $ enterEvalContext (cxtItem "Array") listExp
-        idxCxt  <- cxtOfExp indexExp 
+        idxCxt  <- inferExpCxt indexExp 
         {- if envLValue env
-            then cxtOfExp indexExp else return (envContext env)
+            then inferExpCxt indexExp else return (envContext env)
         -}
         idxVal  <- enterRValue $ enterEvalContext idxCxt indexExp
         lv      <- asks envLValue
@@ -649,9 +649,9 @@ reduceSyn (sigil:"::()") exps = do
 
 reduceSyn "{}" [listExp, indexExp] = do
     varVal  <- enterLValue $ enterEvalContext (cxtItem "Hash") listExp
-    idxCxt  <- cxtOfExp indexExp 
+    idxCxt  <- inferExpCxt indexExp 
     {- if envLValue env
-        then cxtOfExp indexExp else return (envContext env)
+        then inferExpCxt indexExp else return (envContext env)
     -}
     idxVal  <- enterRValue $ enterEvalContext idxCxt indexExp
     lv      <- asks envLValue
@@ -865,40 +865,6 @@ reduceApp subExp invs args = do
         apply sub invs args
 
 
-{-|
-Return the context that an expression bestows upon a hash or array
-subscript. See 'reduce' for @\{\}@ and @\[\]@.
--}
-cxtOfExp :: Exp -- ^ Expression to find the context of
-         -> Eval Cxt
-cxtOfExp (Pos _ exp)            = cxtOfExp exp
-cxtOfExp (Cxt cxt _)            = return cxt
-cxtOfExp (Syn "," _)            = return cxtSlurpyAny
-cxtOfExp (Syn "[]" [_, exp])    = cxtOfExp exp
-cxtOfExp (Syn "{}" [_, exp])    = cxtOfExp exp
-cxtOfExp (Syn (sigil:"{}") _) = return $ cxtOfSigil sigil
-cxtOfExp (Val (VList _))        = return cxtSlurpyAny
-cxtOfExp (Val (VRef ref))       = do
-    cls <- asks envClasses
-    let typ = refType ref
-    return $ if isaType cls "List" typ
-        then cxtSlurpyAny
-        else CxtItem typ
-cxtOfExp (Val _)                 = return cxtItemAny
-cxtOfExp (Var (sigil:_))         = return $ cxtOfSigil sigil
-cxtOfExp (App (Var "&list") _ _) = return cxtSlurpyAny
-cxtOfExp (App (Var "&item") _ _) = return cxtSlurpyAny
-cxtOfExp (App (Var name) invs args)   = do
-    -- inspect the return type of the function here
-    env <- ask
-    sub <- findSub name invs args
-    return $ case sub of
-        Right sub
-            | isaType (envClasses env) "Scalar" (subReturns sub)
-            -> CxtItem (subReturns sub)
-        _ -> cxtSlurpyAny
-cxtOfExp _                      = return cxtSlurpyAny
-
 chainFun :: Params -> Exp -> Params -> Exp -> [Val] -> Eval Val
 chainFun p1 f1 p2 f2 (v1:v2:vs) = do
     val <- applyExp SubPrim (chainArgs p1 [v1, v2]) f1
@@ -918,7 +884,7 @@ applyExp styp bound body = do
     let (attrib, normal) = partition isAttrib bound
     sequence_ [ evalExp (Syn "=" [Syn "{}" [Val (argValue invocant), Val (VStr key)], Val val]) |
         ApplyArg{ argName = (_:_:key), argValue = val } <- attrib ]
-    -- typ <- evalExpType body
+    -- typ <- inferExpType body
     ret <- applyThunk styp normal $ MkThunk (evalExp body) anyType
     return ret
 
@@ -1040,7 +1006,7 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
         let eval = local (const env{ envLValue = lv }) $ do
                 enterEvalContext (cxtOfSigil $ head name) exp
             thunkify = do
-                -- typ <- evalExpType exp
+                -- typ <- inferExpType exp
                 return . VRef . thunkRef $ MkThunk eval (anyType)
         val <- if thunk then thunkify else do
             v   <- eval
