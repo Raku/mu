@@ -175,7 +175,6 @@ about that installation.
         when any up/downgrades or installs occur.
         See the section on C<Alternatives>
 
-
 =head1 Plan Of Attack
 
     - Take small steps first
@@ -606,6 +605,146 @@ whether or not we have this dependency satisfied. The same probing class
 should be able to tell us something about this dependency, like location and
 so on, so the build modules may use it.
 This also means our dependency engine should use these probing classes.
+
+
+=head1 Implications for module resolving from the compiler
+
+=head2 Facilitating muliple versions
+
+As outlined in the C<S11> synopsis on modules, it's quite possible
+to install multiple versions of a certain module. To facilitate this,
+the old directory structure, as used in C<perl 5> must be abondoned, in
+favor of a more layered structure as outlined in the "Installing a C<.jib>"
+section above.
+
+This of course has some implications for the compiler as it will no longer
+be able to use the old translation:
+    
+    $mod =~ s|::|/|g; $mod .= '.pm';
+    for ( @INC ) { $file = "$_/$mod" if -e "$_/$mod" }
+    
+Instead, a module must be found within one of the package subdirectories.
+The C<Policy> will describe which package is favored over the other. However,
+it does not (currently) describe which I<package> is preferred over the other;
+It is quite possible (under perl5, and presumably perl6) that the following
+scenario exists:
+
+=over 4
+
+=item A package C<p5-Foo-1-cpan+KANE> holds Foo.pm and Foo::Bar.pm
+=item A package C<p5-Foo-Bar-1-cpan+KANE> holds Foo::Bar.pm
+
+=back
+
+As the C<S11> draft only speaks of how to resolve the use of Foo::Bar.pm 
+which is I<assumed> to be in C<p5-Foo-Bar>, a possible ambiguity creeps in.
+
+In order to resolve this ambiguity, 2 options present themselves currently:
+
+=over 4
+
+=item 1
+
+Use the package manager information which holds metadata from every installed
+package, including what modules it provides. The compiler can find every
+package that provides a module, and use the policy to decide which is to be
+favoured.
+
+The downsides to this approach are:
+
+=over 8
+
+=item * 
+
+The package manager becomes a vital part of the compilation, which will both
+slow it down, and introduces a quite hefty single point of failure.
+
+=item * 
+
+Modules available outside the package manager (home-grown, source files, vcs,
+etc) will not be compilable this way
+
+=item *
+
+Requires an extension of the Policy definition to disambiguate in these cases
+
+=item *
+
+The modules included could unexpectedly change upon installation of a package
+that was not thought to have any influence
+
+=back
+
+=item 2
+
+Extend the current C<use> syntax to include an optional C<from> tag, much
+along the way pythons imports work. Where python uses C<from> to say:
+
+    from MODULE import FUNCTIONS
+    
+We propose to have perl6 use:
+
+    use MODULE from PACKAGE;
+
+This means that the C<use> syntax can be 'dummed down' to the current perl5 
+sytnax, and all the magic of the new syntax goes in the C<from> section.
+
+To keep the C<from> part optional, the C<from> defaults to:
+
+    MODULE =~ s/::/-/g;
+
+This means one would write the following thigs:
+
+=over 4
+
+=item use Foo;
+
+to use Foo.pm from p6-Foo-(ANY)-(ANY)
+
+=item use Foo::Bar;
+
+to use Foo::Bar.pm from p6-Foo-Bar-(ANY)-(ANY)
+
+=item use Foo::Bar from Foo;
+
+to use Foo::Bar.pm from p6-Foo-(ANY)-(ANY)
+
+=back
+
+The only noticable downsides to this approach are the extension of the
+language keywords, and the occasional requirement on the user to identify
+which package a certain module should come from. The latter may actually
+be argued a feature.
+
+=head2 Querying the compiler
+
+As the C<META.info> files describe the package in quite a bit of detail,
+it would be very nice if those could be (largely) generated from the 
+information the compiler can give us about chunks of code (now to be named
+C<compile units>).
+
+Many fields in the C<META.info> file are completely analogous to 
+declarations in the files packaged. It would therefor be handy to, rather 
+than scanning or parsing files under the package tree, have the compiler
+answer certain questions for us. These are along the lines of:
+
+=over 4
+
+=item What classes are declared in this package?
+
+=item What other libraries/packages/headers are being pulled in by this package?
+
+=back
+
+Even though perl is a dynamic language, it is possible to identify whether
+or not any 'dynamic' calls are unresolvable at compile time and could therefor
+change or add to what we have found already.
+So in any case, we can at least be certain whether or not we are certain about
+what the code does -- any ambiguities can be presented to the user and edited
+manually in the C<META.info>.
+
+
+
 
 __END__
 
