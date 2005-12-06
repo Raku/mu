@@ -211,10 +211,11 @@ sub install {
             my $src = File::Spec->catdir( $conf->compile_dir, $self->package );
             system( qq[cp -R $src ]. $conf->perl_site_dir )     and die $?;     
 
-=pod            
             ### link files to $PATH/$MANPATH
             ### XXX symlink the manpages
             LINKING: {   
+
+=pod            
                 my $my_bindir = "$Site/$path/bin";
                 last LINKING unless -d $my_bindir;
 
@@ -264,13 +265,14 @@ sub install {
                     
                 ### dump out alternatives again
                 DumpFile( $Altfile, $href );
+=cut
 
-                my $postinst = $meta_dir . '/'. $Postinst;
+                my $postinst = File::Spec->catfile($meta_dir, $conf->postinst);
                 if( -e $postinst && -s _ ) {
                     system( qq[ $^X $postinst ] )               and die $?;
                 }    
             }
-=cut
+
         }
 
 

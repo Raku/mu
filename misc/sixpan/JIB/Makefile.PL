@@ -11,7 +11,6 @@ WriteMakefile (
                             'Log::Message::Simple'  => 0,
                             'File::Find'            => 0,
                             'Path::Class'           => 0,
-                            'Class::Singleton'      => 0,
                             'File::Find::Rule'      => 0,
                             'File::chdir'           => 0,
                     },
