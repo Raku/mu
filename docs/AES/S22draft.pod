@@ -53,7 +53,7 @@ That will be covered in the advanced flow.
             * contains source code
             * contains metadata
     4.  Install package from '.jib' file
-            * Extract '.jib' to a temporary directoy
+            * Extract '.jib' to a temporary directory
                 * Verify dependencies based on metadata
             * Build the source code to installable code
             * Move the installable code to it's final destination
@@ -90,7 +90,7 @@ The files in the _jib dir are part of the package metadata. The most important
 file is the META.info file that holds all the collected metadata about the
 package, which ideally gets filled (mostly) by what is described in step 2 of
 the C<General Flow>. Any pre/posthook files should also go in this directory.
-This directory should be extendable, so new files can be added to extend
+This directory should be extensible, so new files can be added to extend
 functionality.
 See the section on C< Metadata Spec > for details.
 
@@ -123,7 +123,7 @@ The Internal layout is as follows:
     - data.tgz      
         * contains the following directories the other directories.
             This may be limited in the future, by say, a manifest.skip
-            like functioality, or by dictating a list of directories/
+            like functionality, or by dictating a list of directories/
             files that will be included
 
 There is room to ship more files alongside the 2 above mentioned archives.
@@ -167,7 +167,7 @@ about that installation.
 
     * In the case of multiple installs of the same package (where 'same'
         is determined by identical <prefix>-<package-name>), the perl6 
-        policy will determine which is the current active pacakge, just
+        policy will determine which is the current active package, just
         like it would for a C<use> statement in normal perl6 code.
         
     * These links will be maintained by a linking system managed by the
@@ -220,7 +220,7 @@ See README for details on these scripts.
         (Step 3 from general flow)
         - makes an archive (.jib file):
             - reads in the META.info file
-            - builds archive in a seperate builddir
+            - builds archive in a separate builddir
                 - takes all files, no MANIFEST/meta.info list yet for
                     files to be packaged
                 - splits out metadata and installable files into 2 
@@ -343,7 +343,7 @@ See README.repo for details on these scripts.
 
 =head2 Suggested fields[3]
 
-    - Build-Depens  Packages needed to build this package
+    - Build-Depends Packages needed to build this package
     - Suggests      Packages suggested by this package
     - Recommends    Packages recommended by this package
     - Enhances      Packages that are enhanced by this package
@@ -425,7 +425,7 @@ and register those alternatives instead.
 
 =head1 Dependencies
 
-=head2 Dependency Notatation
+=head2 Dependency Notation
 
 Dependency notation allows you to express the following concepts:
 
@@ -462,7 +462,7 @@ This allows nesting of the above expressions
     [a, \[ b, c ] ]             # a OR (b AND c) [1]
     
     [1] This is possibly not portable to other languages. Options seem
-        thin as we dont have some /other/ grouping mechanism than [ ], { }
+        thin as we don't have some /other/ grouping mechanism than [ ], { }
         and \[ ]; ( ) gets flattened and \( ) == [ ].
         We could abuse { } to create { OR => [ ] } and { AND => [ ] } 
         groups, but it would not read very intuitively. It would also mean
