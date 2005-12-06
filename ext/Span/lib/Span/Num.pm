@@ -17,8 +17,8 @@ has bool   $.end_is_open;
 submethod BUILD (
     $.start, 
     $.end, 
-    ?$.start_is_open = bool::false, 
-    ?$.end_is_open   = bool::false, 
+    $.start_is_open? = bool::false, 
+    $.end_is_open?   = bool::false, 
 ) 
 {}
 

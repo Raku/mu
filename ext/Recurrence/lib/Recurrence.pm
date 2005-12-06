@@ -65,10 +65,10 @@ class Recurrence-0.01
 submethod BUILD (
     $.closure_next, 
     $.closure_previous, 
-    ?$is_universe, 
-    ?$complement_next, 
-    ?$complement_previous, 
-    ?$.universe, 
+    $is_universe?, 
+    $complement_next?, 
+    $complement_previous?, 
+    $.universe?, 
 ) 
 {
     # TODO - get rid of "$!arbitrary_limit"

@@ -173,8 +173,8 @@ method flatten ( $self: ) {
 
 method splice ( 
     Perl6::Container::Array $array: 
-    ?$offset = 0, 
-    ?$length = Inf, 
+    $offset? = 0, 
+    $length? = Inf, 
     *@list 
 )
     returns Perl6::Container::Array 
