@@ -9,7 +9,7 @@ my $pil2 = @pil2.join('');
 my $tokens =
     m:g {
         (
-          \" [ \\" | . ]*? \" |   # quoted string
+          \" [ \\\\ | \\" | . ]*? \" |   # quoted string
           \, | \= | \{ | \( | \[ | \} | \) | \] | \w+
         )
     };
