@@ -15,13 +15,13 @@ class POE::Kernel {
   }
 
   # Internal method which pushes a given $callback to @:events.
-  method :enqueue (Code $callback) {
+  my method enqueue (Code $callback) {
     push @:events, $callback;
     nothing;
   }
 
   # Perform one step -- i.e. get an event from @:events and call it.
-  method :step () {
+  my method step () {
     return unless @:events;
 
     my $callback = shift @:events;

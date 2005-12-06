@@ -110,7 +110,7 @@ method remove_content_headers () {
 }
 
 # XXX Str where { .length > 0 }
-method :header (Str $field is copy, Str $val is copy, Str $op = "") {
+my method header (Str $field is copy, Str $val is copy, Str $op = "") {
   unless $field ~~ /^\:/ {
     $field ~~ s:g/_/-/ if $TRANSLATE_UNDERSCORE;
     my $old = $field;
@@ -140,7 +140,7 @@ method :header (Str $field is copy, Str $val is copy, Str $op = "") {
   return @old;
 }
 
-method :sorted_field_names () {
+my method sorted_field_names () {
   return %!headers.keys.sort:{
     (%header_order{$^a} || 999) <=> (%header_order{$^b} || 999) ||
     $^a cmp $^b
@@ -188,7 +188,7 @@ method as_string ($self: Str $ending = "\n") {
   return @result.join($ending);
 }
 
-method :date_header ($self: Str $header) is rw {
+my method date_header ($self: Str $header) is rw {
   return Proxy.new(
     FETCH => { HTTP::Date::str2time(%!headers{$header}) },
     STORE => -> $time {
@@ -277,7 +277,7 @@ method proxy_authorization ($self: )       is rw { $self.header("Proxy-Authoriza
 method authorization_basic ($self: )       is rw { $self!basic_auth("Authorization") }
 method proxy_authorization_basic ($self: ) is rw { $self!basic_auth("Proxy-Authorization") }
 
-method :basic_auth ($self: Str $h) is rw {
+my method basic_auth ($self: Str $h) is rw {
   return Proxy.new(
     FETCH => {
       my $cur = $self!header($h);

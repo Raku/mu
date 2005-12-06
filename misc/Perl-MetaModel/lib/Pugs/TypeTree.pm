@@ -22,7 +22,7 @@ method show_tree ($self:) returns Void {
     });
 }
 
-method :create_tree returns Void {
+my method create_tree returns Void {
     $:type_tree = Tree.new().add_children(
         Tree.new(:node<Any>).add_children(
             Tree.new(:node<Void>).add_children(

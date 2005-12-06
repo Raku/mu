@@ -340,7 +340,7 @@ class HTTP::Cookies-0.0.1 {
     ## Class methods
     # these may also be called on an instance, but they are not tied to a
     # particular instance
-    method :host (HTTP::Request $r, URI $uri) {
+    my method host (HTTP::Request $r, URI $uri) {
         if (my $h = $r.header('Host')) {
             $h ~~ s:P5/:\d+$//;
             return $h.lc;
@@ -349,7 +349,7 @@ class HTTP::Cookies-0.0.1 {
         return $uri.host.lc;
     }
     
-    method :uri_path (URI $uri) {
+    my method uri_path (URI $uri) {
         my $path;
         
         if ($uri.can('epath')) {
@@ -365,7 +365,7 @@ class HTTP::Cookies-0.0.1 {
     # XXX how should this binding be done?
     #our &!url_path ::= &!uri_path; # for backwards compatibility
     
-    method :normalize_path (Str $str is rw) {
+    my method normalize_path (Str $str is rw) {
         given ($str) {
             s:P5:g/%([0-9a-fA-F][0-9a-fA-F])/{
                 my $x = $0.uc;

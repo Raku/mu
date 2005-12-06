@@ -348,9 +348,9 @@ submethod DESTROY() {
 
 #utility methods
 
-method :byteify(Str $string) returns Array of Int {
+my method byteify(Str $string) returns Array of Int {
     return map {ord} $string.split('');
 }
-method :stringify(Array $array) returns Str {
+my method stringify(Array $array) returns Str {
     return [~] map {chr} *$array;
 }

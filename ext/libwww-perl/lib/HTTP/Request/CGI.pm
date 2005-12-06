@@ -52,7 +52,7 @@ class HTTP::Request::CGI-0.0.1[?::URI_CLASS = URI] {
         $self!load_params();
     }
     
-    method :load_params ($self: ) {
+    my method load_params ($self: ) {
         if ($.method.lc() eq 'get'|'head') {
             $.query_string = %*ENV<QUERY_STRING> // %*ENV<REDIRECT_QUERY_STRING>;
             

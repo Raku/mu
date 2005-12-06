@@ -77,18 +77,18 @@ class Net::IRC {
     $!queue = new Queue: floodcontrol => $floodcontrol;
   }
 
-  method :enqueue(Str $msg) {
+  my method enqueue(Str $msg) {
     $!queue.enqueue({ ./:send($msg) })
       if $.connected;
   }
 
-  method :send(Str $msg) {
+  my method send(Str $msg) {
     debug_sent $msg if $.debug_raw;
     $!socket.print("$msg\13\10");
     $!socket.flush();
   }
 
-  method :register_default_handlers() {
+  my method register_default_handlers() {
     # Default (passive) handlers
     # First event we get, indicating a successful login
     ./add_handler("001", -> $event {
@@ -368,7 +368,7 @@ class Net::IRC {
   }
 
   # Handle numeric commands (e.g. 001 -> welcome)
-  method :handle_numeric(Str $line, Str $server, Str $code, Str $to, Str $rest) {
+  my method handle_numeric(Str $line, Str $server, Str $code, Str $to, Str $rest) {
     my $event = {
       line   => $line,
       server => $server,
@@ -382,7 +382,7 @@ class Net::IRC {
   }
 
   # Handle word commands (e.g. JOIN, INVITE)
-  method :handle_command(Str $line, Str $from, Str $command, Str $object, Str $rest) {
+  my method handle_command(Str $line, Str $from, Str $command, Str $object, Str $rest) {
     my $from_nick; $from_nick = $0 if $from ~~ rx:P5/^([^!]+)!/; #/#--vim
     my $event = {
       line      => $line,
@@ -398,7 +398,7 @@ class Net::IRC {
   }
 
   # Handle pseudo events (runloop, loggedin)
-  method :handle_pseudo(Str $pseudo, *@args) {
+  my method handle_pseudo(Str $pseudo, *@args) {
     my $event = {
       pseudo => $pseudo,
       args   => @args,
@@ -410,7 +410,7 @@ class Net::IRC {
   }
 
   # Check that our connection is still alive.
-  method :livecheck() {
+  my method livecheck() {
     return unless $.connected;
 
     # We haven't seen any traffic for at least $autoping seconds, so we

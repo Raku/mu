@@ -108,7 +108,7 @@ method content ($self: Str $content?, Bool $keep?) is rw {
               });
 }
 
-method :set_content (Str $content, Bool $keep?) returns Void {
+my method set_content (Str $content, Bool $keep?) returns Void {
     $!content = $content;
     @!parts = () unless $keep;
 }
@@ -193,12 +193,12 @@ method add_part ($self: ::?CLASS $part) returns Void {
     return;
 }
 
-method :stale_content () {
+my method stale_content () {
     undefine($!content);
     undefine($!content_ref);
 }
 
-method :parts ($self: ) {
+my method parts ($self: ) {
     my $content_type = .content_type;
     
     if ($content_type ~~ m,^multipart/,) {
@@ -224,7 +224,7 @@ method :parts ($self: ) {
     @!parts //= ();
 }
 
-method :content ($self: ) {
+my method content ($self: ) {
     my $content_type = $self.content_type // "";
     
     if ($content_type ~~ m:i,^\s*message/,) {
@@ -268,7 +268,7 @@ method :content ($self: ) {
     $self!set_content("--$boundary$CRLF" ~ @parts.join("$CRLF--boundary$CRLF") ~ "$CRLF--$boundary$CRLF", 1);
 }
 
-method :boundary (Num ?$size) returns Str {
+my method boundary (Num ?$size) returns Str {
     if (!$size) { return "xYzZY"; }
     
     my $b;
