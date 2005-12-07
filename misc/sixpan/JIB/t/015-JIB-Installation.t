@@ -6,7 +6,10 @@ BEGIN { chdir 't' if -d 't' };
 BEGIN { use lib qw[../lib inc] };
 BEGIN { require 'conf.pl' }
 
+use JIB::Config;
 my $Class = 'JIB::Installation';
+my $Conf  = JIB::Config->new;
+
 
 use_ok( $Class );
 
@@ -14,7 +17,7 @@ use_ok( $Class );
 
 ### create an object 
 my $Obj;
-{   $Obj = $Class->new;
+{   $Obj = $Class->new( dir => $Conf->perl_site_dir );
     ok( $Obj,                   "Object created" );
     isa_ok( $Obj,               $Class );
 }    

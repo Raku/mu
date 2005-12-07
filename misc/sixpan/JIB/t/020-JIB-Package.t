@@ -7,10 +7,13 @@ BEGIN { use lib qw[../lib inc] };
 BEGIN { require 'conf.pl' }
 
 use JIB::Installation;
+use JIB::Config;
 
+my $Conf    = JIB::Config->new;
 my $Class   = 'JIB::Package';
 my @Acc     = sort qw[package file config meta];
-my $Inst    = JIB::Installation->new;
+my $Inst    = JIB::Installation->new( dir => $Conf->perl_site_dir );
+
 
 ### XXX config
 my $Pkg     = 'p5-Foo-Bar-1.2-cpan+KANE';
@@ -57,7 +60,7 @@ my $Obj;
 }
  
 ### installl the package
-{   my $rv = $Obj->install;
+{   my $rv = $Obj->install( installation => $Inst );
     ok( $rv,                    "Package installed" );
     ok( $Inst->is_installed( package => $Obj ),
                                 "   Package installation registered" );
@@ -67,7 +70,7 @@ my $Obj;
     ### check for module
     ### XXX get this from config/object
     {   my $pm = File::Spec->catfile( 
-                    $Obj->config->perl_site_dir,
+                    $Inst->dir,
                     $Obj->package,
                     qw[lib Foo Bar.pm]
                 );
@@ -82,7 +85,7 @@ my $Obj;
         my $conf   = $Obj->config;
         for my $dir ( $conf->alternatives, $conf->bin_dir,
                       File::Spec->catdir( 
-                        $conf->perl_site_dir, $Obj->package, 'bin' )
+                        $Inst->dir, $Obj->package, 'bin' )
         ) {
             my $path = File::Spec->catfile( $dir, $script );
             ok( -d $dir,        "   Bin dir '$dir' exists" );
@@ -100,7 +103,8 @@ my $Obj;
 
     ### install again
     diag( "XXX quell this warning" );
-    ok( $Obj->install,           "Second install returns true" );
+    ok( $Obj->install( installation => $Inst ),           
+                                "Second install returns true" );
 
     ### XXX whitebox test -- switch to blackbox
     {   my $stack = Log::Message::Simple->stack_as_string;

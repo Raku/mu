@@ -4,10 +4,10 @@ use strict;
 use warnings;
 use Cwd;
 use Config;
-use Path::Class;
+use Path::Class ();
 use base 'Object::Accessor';
 
-my $Cwd = dir(cwd());
+my $Cwd = Path::Class::dir(cwd());
 
 my %config;
 
@@ -35,10 +35,10 @@ $config{'alternatives'}     = $config{'meta_dir'}->subdir('alternatives');
 $config{'files_list'}       = $config{'meta_dir'}->file('files.list');
 
 ### source package dirs
-$config{'jib_dir'}          = dir('_jib');
+$config{'jib_dir'}          = Path::Class::dir('_jib');
 ### XXX need cp -R functionality fixed proper to use this ;(
 #$config{'build_dir'}        = $config{'jib_dir'}->subdir('build');
-$config{'build_dir'}        = dir('root-');
+$config{'build_dir'}        = Path::Class::dir('root-');
 
 ### package files/extensions
 $config{'meta_ext'}         = '.info';

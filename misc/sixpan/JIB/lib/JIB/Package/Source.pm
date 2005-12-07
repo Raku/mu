@@ -28,7 +28,7 @@ sub new {
     my $tmpl = {
         file    => { required => 1, allow => FILE_EXISTS, store => \$file },
         meta    => { store => \$meta, 
-                     allow => sub { UNIVERSAL::ISA(shift(), 'JIB::META') } },
+                     allow => sub { UNIVERSAL::isa(shift(), 'JIB::Meta') } },
     };
     my $args = check( $tmpl, \%hash ) 
                 or error( Params::Check->last_error ), return;
@@ -46,7 +46,7 @@ sub new {
     return $self;
 }
 
-=head2 $pkg->install( ... )
+=head2 $pkg->install( installation => INSTALLATION_OBJECT )
 
 =cut
 
@@ -54,10 +54,17 @@ sub new {
 sub install {
     my $self = shift;
     my $conf = $self->config;
+    my %hash = @_;
     
-    ### XXX this should depend on what path you're installing to
-    my $inst = JIB::Installation->new;
-
+    my $inst;
+    my $tmpl = {
+        installation => { 
+            required => 1, store => \$inst,
+            allow => sub { UNIVERSAL::isa( shift(), 'JIB::Installation' ) } },
+    };
+    
+    check( $tmpl, \%hash ) or error( Params::Check->last_error ), return;
+    
     ### install check
     if( $inst->is_installed( package => $self ) ) {
         error("Package '". $self->package ."' is already installed --skipping");
@@ -88,7 +95,7 @@ sub install {
                                                             and die $?;
             ### write a .packlist equiv
             system( qq[tar -f $my_tmp_dir/$data -C $meta_dir -tz |] .
-                    qq[xargs -I % echo ] . $conf->perl_site_dir . 
+                    qq[xargs -I % echo ] . $inst->dir . 
                     qq[ >> $meta_dir/packlist] )   
                                                             and die $?;
         }
@@ -123,7 +130,7 @@ sub install {
             ### XXX we should build a binary package here, instead of
             ### just doing a cp -R
             my $src = File::Spec->catdir( $conf->compile_dir, $self->package );
-            system( qq[cp -R $src ]. $conf->perl_site_dir )     and die $?;     
+            system( qq[cp -R $src ]. $inst->dir )     and die $?;     
             
             ### register the installation
             ### do this AFTER installing, duh!

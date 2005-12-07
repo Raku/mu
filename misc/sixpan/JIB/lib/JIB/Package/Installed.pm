@@ -26,7 +26,7 @@ sub new {
     my $meta;
     my $tmpl = {
         meta    => { required => 1, store => \$meta, 
-                     allow => sub { UNIVERSAL::ISA(shift(), 'JIB::META') } },
+                     allow => sub { UNIVERSAL::isa(shift(), 'JIB::Meta') } },
     };
     
     my $args = check( $tmpl, \%hash ) 

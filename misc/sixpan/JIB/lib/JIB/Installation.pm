@@ -3,6 +3,8 @@ package JIB::Installation;
 use strict;
 use warnings;
 
+use JIB::Constants;
+use JIB::Package;
 use JIB::Config;
 use JIB::Utils;
 use JIB::Meta;
@@ -28,22 +30,35 @@ use base 'Object::Accessor';
 ### due to stacked installations
 {   my $config  = JIB::Config->new;
 
+    my %cache = ();
+
     sub new { 
         my $class   = shift;
+        my %hash    = @_;
+    
+        my $dir;
+        my $tmpl    = {
+            dir => { required => 1, allow => DIR_EXISTS, store => \$dir },
+        };
+    
+        check( $tmpl, \%hash ) or error( Params::Check->last_error ), return;
+    
+        ### make the path absolute
+        $dir = File::Spec->rel2abs( $dir );
+
+        ### singleton
+        return $cache{$dir} if $cache{$dir};
+    
         my $obj     = $class->SUPER::new;
     
         ### XXX tidy up
-        {   $obj->mk_accessors( qw[available registered_alternatives config] );
+        {   $obj->mk_accessors( qw[available registered_alternatives config 
+                                   dir] 
+                            );
             
-            my @avail = eval { 
-#                map { JIB::Package::Installed->new( meta => $_ ) }
-                map { JIB::Meta->new_from_struct( struct => $_ ) }
-                    LoadFile( $config->available ) 
-            };
-            $@ and error( "Could not load available file: $@" ), return;
-            $obj->available( \@avail );
+            $obj->dir( $dir );
             
-            
+            ### do alts first, package;:installed uses them
             my @alts = eval { 
                 map { JIB::Alternative->new_from_struct( struct => $_ ) }
                     LoadFile( $config->registered_alternatives ) 
@@ -51,6 +66,15 @@ use base 'Object::Accessor';
             $@ and error( "Could not load registered alts file: $@" ), return;
 
             $obj->registered_alternatives( \@alts );
+
+            my @avail = eval { 
+                map { JIB::Package->new( meta => $_, installation => $obj) }
+                map { JIB::Meta->new_from_struct( struct => $_ ) }
+                    LoadFile( $config->available ) 
+            };
+            $@ and error( "Could not load available file: $@" ), return;
+            $obj->available( \@avail );
+
         
             $obj->config( $config );
         }
@@ -63,6 +87,7 @@ use base 'Object::Accessor';
 
 =cut
 
+### XXX package name?
 sub is_installed {
     my $self = shift;
     my %hash = @_;
@@ -75,8 +100,8 @@ sub is_installed {
     
     check( $tmpl, \%hash ) or error( Params::Check->last_error ), return;
 
-    for my $meta ( @{ $self->available } ) {
-        return 1 if $meta->package eq $pkg->package;
+    for my $inst ( @{ $self->available } ) {
+        return $inst if $inst->package eq $pkg->package;
     }
     
     return;
@@ -99,12 +124,12 @@ sub register {
     
     check( $tmpl, \%hash ) or error( Params::Check->last_error ), return;
 
-    push @{ $self->available }, $pkg->meta;
+    push @{ $self->available }, $pkg;
  
     LINKING: { 
         ### XXX config!
         my $my_bindir = File::Spec->catdir( 
-                            $conf->perl_site_dir, $pkg->package, 'bin' );
+                            $self->dir, $pkg->package, 'bin' );
 
         last LINKING unless -d $my_bindir;
 
@@ -175,7 +200,7 @@ sub write {
     
     ### XXX use tempfiles
 
-    my @avail = map { $_->to_struct } @{ $self->available };
+    my @avail = map { $_->meta->to_struct } @{ $self->available };
     eval { DumpFile( $conf->available, @avail ) };
     $@ and error( "Could not write available file: $@" ), return;
     
