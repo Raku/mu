@@ -8,7 +8,6 @@ use JIB::Utils;
 use JIB::Meta;
 use JIB::Alternative;
 
-
 use YAML                    qw[LoadFile DumpFile];
 use Params::Check           qw[check];
 use Log::Message::Simple    qw[:STD];
@@ -37,6 +36,7 @@ use base 'Object::Accessor';
         {   $obj->mk_accessors( qw[available registered_alternatives config] );
             
             my @avail = eval { 
+#                map { JIB::Package::Installed->new( meta => $_ ) }
                 map { JIB::Meta->new_from_struct( struct => $_ ) }
                     LoadFile( $config->available ) 
             };
@@ -185,7 +185,6 @@ sub write {
 
     return 1;
 }
-
 
 # Local variables:
 # c-indentation-style: bsd
