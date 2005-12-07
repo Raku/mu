@@ -119,7 +119,7 @@ In praxis, this will produce a name along these lines:
 The Internal layout is as follows:
 
     - control.tgz
-        * contains the data in the _pms directory
+        * contains the data in the _jib directory
     - data.tgz      
         * contains the following directories the other directories.
             This may be limited in the future, by say, a manifest.skip
@@ -196,8 +196,7 @@ about that installation.
 
 =head2 What do we have so far?
 
-Prototyping code is in kane's p4 repo for now:
-    http://p4.elixus.org:8181/@md=d&c=Ynk@//member/kane/pms/prototype2/
+Prototyping code is in the pugs repository under misc/sixpan
 
 Read the README files to see how to test the prototypes
 
@@ -606,6 +605,140 @@ should be able to tell us something about this dependency, like location and
 so on, so the build modules may use it.
 This also means our dependency engine should use these probing classes.
 
+=head1 Repositories
+
+My (rafl) ideas for the repository layout look like this. 
+It's modeled after the Debian archive structure.
+
+ /
+ |
+ |- pool/                                 The real modules are stored here. 
+ |  |
+ |  |                                     The index files in dist/ point here.
+ |  |- a/                                 Modules startihg with 'a'. The pool is
+ |  |  |                                  grouped alphabetically for performance
+ |  |  |                                  reasons.
+ |  |  |
+ |  |  |- acme-foo-0.1-cpan+RAFL.jib
+ |  |  |- acme-foo-0.2-cpan+RAFL.jib
+ |  |  `- acme-hello-1-cpan+AUTRIJUS.jib
+ |  |
+ |  |- b/
+ |  |- c/
+ |  |- ./
+ |  |- ./
+ |  |- ./
+ |  |- y/
+ |  `- z/
+ |
+ `- dists/                  This directory only contains so called index files
+    |                       files. They know some meta-information about the 
+    |                       packages (description, ...) and a path to the real
+    |                       package inside pool/. Using this index files
+    |                       modules can be categorized very well. There are
+    |                       more then the showed categories possible, of 
+    |                       course. It's only an example.
+    |
+    |- index.gz             Main index file with all modules
+    |
+    |- author/              The whole archive sorted by authors
+    |  |- stevan.gz         Stevan's modules
+    |  |- autrijus.gz       All of autrijus modules
+    |  |- autrijus/         ... and so on
+    |  |  |- language/
+    |  |  |  |- python.gz
+    |  |  |  |- perl.gz
+    |  |  |  `- perl/
+    |  |  |     `- module/
+    |  |  |        |- Perl6-Pugs.gz
+    |  |  |        `- Acme-Hello.gz
+    |  |  |
+    |  |  `- module/
+    |  |     |- Perl6-Pugs.gz
+    |  |     |- Acme-Hello.gz
+    |  |     `- Acme-Hello/
+    |  |        `- language/
+    |  |           |- perl.gz
+    |  |           `- js.gz
+    |  |
+    |  `- rafl.gz
+    |
+    |- language/
+    |  |- perl.gz
+    |  |- perl/
+    |  |  |- auhor/
+    |  |  |  |- kane.gz
+    |  |  |  |- rafl.gz
+    |  |  |  |- rafl/
+    |  |  |  |  `- module/
+    |  |  |  |     |- Audio-Moosic.gz
+    |  |  |  |     `- Audio-File.gz
+    |  |  |  |
+    |  |  |  `- gbarr.gz
+    |  |  |
+    |  |  `- module/
+    |  |     |- Audio-Moosic.gz
+    |  |     |- Audio-Moosic/
+    |  |     |  `- author/
+    |  |     |     |- rafl.gz
+    |  |     |     `- kane.gz
+    |  |     |
+    |  |     |- Audio-File.gz
+    |  |     `- Audio-File/ 
+    |  |
+    |  |- js.gz
+    |  |- js/
+    |  |- ruby.gz
+    |  `- ruby/
+    |
+    `- module/
+       |- DBI.gz
+       |- DBI/
+       |  |- author/
+       |  |  |- timb.gz
+       |  |  |- timb/
+       |  |  |  `- language/
+       |  |  |     |- perl.gz
+       |  |  |     `- js.gz
+       |  |  |
+       |  |  `- rafl.gz
+       |  |
+       |  `- language/
+       |     |- perl.gz
+       |     |- perl/
+       |     |  `- author/
+       |     |     |- timb.gz
+       |     |     `- rafl.gz
+       |     |
+       |     `- ruby.gz
+       |
+       |- Net-SMTP/
+       `- Net-IMCP/
+
+In this layout we have a pool directory, where all .jib's live, and a dists
+directory, which contains the needed meta informations for the .jib's in pool.
+The dists directory contains a index.gz file which is a gziped list of all
+modules plus their meta information. This file will get pretty as the number of
+modules on sixpan grows. Therefor the dists directory is split up.
+
+This can be done by all meta tags a .jib file can have. I've choosen the author
+name, the module name and the language a module is implemented in as the
+default.
+
+The dists directory contains a directory for each meta tag we're grouping after.
+This directory has the same name as the meta tag. This directory now contains
+gziped index files for all available values of the given meta tag. These index
+files are named after the value of the meta tag.
+
+Beside that index files we also have directories in the meta tag subdirectories
+of dists. These are named after the meta value as well and contain a similar
+structure as the subdirectories of dists. But grouped after all remaining meta
+tags. This continues recursively until no meta tags are left.
+
+So if we want to get a specifig index file which contains all modules with given
+meta tags we use a path like this:
+
+  dists/tag1/value1/tag2/value2/tag3/value3.gz
 
 =head1 Implications for module resolving from the compiler
 
@@ -844,61 +977,6 @@ upgrade to libz4
 
 
 =head2 Policies
-
-=head3 Repositories
-
-My (rafl) ideas for the repository layout look like this. 
-It's modeled after the Debian archive structure.
-
- /
- |- dists/                  This directory only contains so called Packages 
- |  |                       files. They know some meta-information about the 
- |  |                       packages (description, ...) and a path to the real
- |  |                       package inside pool/. Using this Packages files
- |  |                       modules can be categorized very well. There are
- |  |                       more then the showed categories possible, of 
- |  |                       course. It's only an example.
- |  |
- |  |- authors/             The whole archive sorted by authors
- |  |  |- stevan.gz         Stevan's modules
- |  |  |- autrijus.gz       All of autrijus modules
- |  |  |- autrijus/
- |  |  |  |- Perl6-Pugs.gz  Individual modules
- |  |  |  `- Acme-Hello.gz
- |  |  `- rafl.gz           rafl's modules.
- |  |
- |  |- languages/           The archive sorted by language
- |  |  |- perl.gz           All available perl modules
- |  |  |- perl/
- |  |  |  |- kane.gz        kane's modules
- |  |  |  `- gbarr.gz       gbarr's modules
- |  |  |- js.gz             All js modules
- |  |  |- js/
- |  |  |- ruby.gz
- |  |  `- ruby/             Ruby stuff
- |  |
- |  `- modules/             Categorized by modules
- |     |- DBI/
- |     |  |- timb.gz        Tim's DBI
- |     |  `- rafl.gz        My DBI
- |     |- Net-SMTP/
- |     `- Net-IMCP/
- |
- `- pool/                       The real modules are stored here. 
-    |                           The Packages files point here.
-    |- a/                       Modules startihg with 'a'
-    |  |- Acme-Foo/             All Acme-Foo versions
-    |  |  |- Acme-Foo-0.1.deb   Packages for specific Acme-Foo versions
-    |  |  `- Acme-Foo-0.2.deb
-    |  |- Acme-Bar/
-    |  `- Acme-Hello/
-    |- b/
-    |- c/
-    |- ./
-    |- ./
-    |- ./
-    |- y/
-    `- z/
 
 =head3 Probing
 
