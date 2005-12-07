@@ -108,6 +108,36 @@ encoding of strings will be ignored, as Perl does whatever below scenes.
 
 =item *
 
+All data types will initially be stored and returned as character strings,
+for simplicity, even if the underlying database engine has native support
+for other data types (incorrectly referred to as "object relational"
+features).  Where necessary, they will be encoded and/or serialized in a
+manner that is reversable.  All data types will in this way be supported
+for storing in a database like scalars, so it is possible to store complex
+things like dates and times, geographical data, arrays, and arbitrary
+objects.  However, this initial support will be naive and may not work for
+some arbitrarily complex Perl data structures, such as those implemented by
+Perl objects.  Any two such data type values that are considered equal
+should seialize into identical strings, so the usual database comparison
+and joining semantics should work correctly.  Operations with the data will
+be limited to fetching retrieving of the structure as a whole, and
+comparisons for equality or for binary sorting; the equality comparison
+allows for any data type to be used in a join or compound query.
+
+=item *
+
+There will never be support in the Rosetta AST for "reference" data types,
+such as when a field of one record contains a pointer to some other record.
+This very clearly breaks the set-oriented paradigm of relational databases,
+so it won't be supported.  Likewise, no data of an arbitrarily complex data
+type may contain a pointer to something outside of that same data.  Only
+data that is fully self-contained is supported for storage.  In contrast,
+the proper way to indicate that two pieces of data are to be linked is to
+store them in records that have a common field value which can be matched
+by an equality test, namely a typical foreign key relationship.
+
+=item *
+
 Implement starter Rosetta::Validator to test that the limited functionality
 which Native implements is working correctly.  Or it may not even do that
 much, as I start off validating largely with just manual spot checks
@@ -115,7 +145,7 @@ instead.
 
 Most of the test suite will be deferred partly because doing it thoroughly
 takes a lot of time and effort, and that having something "mostly working"
-is good enough for a first developer release, for people to play with. 
+is good enough for a first developer release, for people to play with.
 Besides, feedback from early releases may lead to changes large enough to
 invalidate most of a test suite anyway.
 
@@ -327,6 +357,16 @@ their backends when it would be faster.
 
 =item *
 
+Improve handling of arbitrarily complex data types, utilizing any database
+engine's native ability to recognize and process them as such, rather than
+as serialized strings.
+
+=item *
+
+Likewise, use explicit geographic data types when natively supported.
+
+=item *
+
 Support more built-in expression and statement types.
 
 =item *
@@ -427,24 +467,6 @@ Pay explicit attention to thread safety, though it may be incomplete.
 =item *
 
 Full multi-threading support across the board.
-
-=item *
-
-Consider geographical data types and extensions.
-
-=item *
-
-Consider supporting object-relational database extensions, such as those
-that violate first normal forms by storing compound user-defined data types
-in record fields or 'references' or arrays or 'set' data types.
-
-By contrast, what Rosetta otherwise natively supports is proper relational
-databases where every intersection of a row and a column in a table (a
-table field) can hold just one scalar value, such as a number or character
-string, or a LOB, or null.
-
-These extensions would be something an order of magnitude more difficult to
-make portable than most other issues.
 
 =item *
 
