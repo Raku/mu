@@ -6,11 +6,13 @@ use warnings;
 use JIB::Config;
 use JIB::Utils;
 use JIB::Meta;
+use JIB::Alternative;
 
 
 use YAML                    qw[LoadFile DumpFile];
 use Params::Check           qw[check];
 use Log::Message::Simple    qw[:STD];
+use File::Basename          qw[basename];
 use Data::Dumper;
 
 use base 'Object::Accessor';
@@ -41,10 +43,14 @@ use base 'Object::Accessor';
             $@ and error( "Could not load available file: $@" ), return;
             $obj->available( \@avail );
             
-            ### XXX objectify
-            my $href = eval { LoadFile( $config->registered_alternatives ) };
+            
+            my @alts = eval { 
+                map { JIB::Alternative->new_from_struct( struct => $_ ) }
+                    LoadFile( $config->registered_alternatives ) 
+            };
             $@ and error( "Could not load registered alts file: $@" ), return;
-            $obj->registered_alternatives( $href );
+
+            $obj->registered_alternatives( \@alts );
         
             $obj->config( $config );
         }
@@ -82,6 +88,7 @@ sub is_installed {
 
 sub register {
     my $self = shift;
+    my $conf = $self->config;
     my %hash = @_;
     
     my $pkg;
@@ -93,6 +100,66 @@ sub register {
     check( $tmpl, \%hash ) or error( Params::Check->last_error ), return;
 
     push @{ $self->available }, $pkg->meta;
+ 
+    LINKING: { 
+        ### XXX config!
+        my $my_bindir = File::Spec->catdir( 
+                            $conf->perl_site_dir, $pkg->package, 'bin' );
+
+        last LINKING unless -d $my_bindir;
+
+        ### load in the alternatives collection
+        my @alts = @{ $self->registered_alternatives };
+        
+        ### check if we're the 'prefered' package
+        my $link_this   = 1;
+        my $unlink_this = '';
+        
+        for my $test ( @alts ) {
+            ### XXX this should be a policy test!
+            if( $pkg->prefix    eq $test->prefix    and
+                $pkg->name      eq $test->name      and
+                $pkg->version   <= $test->version
+            ) {
+                $link_this      = 0;  
+                $unlink_this    = $test;
+                last;
+            }
+            
+            ### XXX clean up links from $unlink_this
+        }      
+
+        last LINKING unless $link_this;
+
+        my @bins;
+        
+        msg("Linking scripts/manpages...");
+        for ( qx[find $my_bindir -type f] ) {
+            chomp; 
+            
+            ### link from altdir to install dir
+            ### then from pathdir, to altdir
+            my $script = basename($_);
+        
+            my $alt = File::Spec->catfile( $conf->alternatives, $script );
+            my $bin = File::Spec->catfile( $conf->bin_dir, $script );
+            system( qq[ln -fs $_ $alt] )                    and die $?;
+            system( qq[ln -fs $alt $bin ] )                 and die $?;
+            push @bins, $script;
+        }
+        
+        ### XXX this can be done more efficiently i'm sure
+        ### remove the replaced object from the alts list
+        if( $unlink_this ) {
+            @alts = grep { $_ eq $unlink_this } @alts;
+        }
+        
+        push @alts, JIB::Alternative->new_from_struct( struct => 
+                    { bin => \@bins, auto => 1, package => $pkg->package } );
+            
+        ### dump out alternatives again
+        $self->registered_alternatives( \@alts );
+    }
 
     return $self->write;
 
@@ -112,8 +179,8 @@ sub write {
     eval { DumpFile( $conf->available, @avail ) };
     $@ and error( "Could not write available file: $@" ), return;
     
-    eval { DumpFile( $conf->registered_alternatives,
-                     $self->registered_alternatives ) };
+    my @alts = map { $_->to_struct } @{ $self->registered_alternatives };
+    eval { DumpFile( $conf->registered_alternatives, @alts ) };
     $@ and error( "Could not write alternatives file: $@" ), return;
 
     return 1;

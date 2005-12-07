@@ -153,7 +153,7 @@ sub install {
         ### extract the archive to the temp dir
         system( qq[tar -f ] . $self->file . qq[ -C $my_tmp_dir -xz]) and die $?;
     
-        my $meta_dir = File::Spec->catdir( $conf->control . $self->package );
+        my $meta_dir = File::Spec->catdir( $conf->control, $self->package );
         my $data     = $conf->archive_data;
         my $control  = $conf->archive_control;
 
@@ -171,113 +171,55 @@ sub install {
                     qq[xargs -I % echo ] . $conf->perl_site_dir . 
                     qq[ >> $meta_dir/packlist] )   
                                                             and die $?;
-            
-            {   
-=pod                            
-                ### dependencies satisfied?
-                my $info = LoadFile( 
-                    File::Spec->catdir( $meta_dir, $config->meta_file ) );
-                
-                my %avail = map { $_->{package} => $_ } LoadFile( $Available );
-                for my $depends ( list_dependencies( $info ) ) {
-                    ### XXX split depends: lines and objectified dependencies
-                    ### for better diagnostics
-                    die "Dependency '$depends->{package}' not satisfied " .
-                        "for '$path'" unless $avail{ $depends->{package} };
-                }
-=cut
-
-                $inst->register( package => $self ) 
-                    or error("Could not register package"), return;
-            }
-
         }
 
+=pod                            
+        {   
+            ### dependencies satisfied?
+            my $info = LoadFile( 
+                File::Spec->catdir( $meta_dir, $config->meta_file ) );
+            
+            my %avail = map { $_->{package} => $_ } LoadFile( $Available );
+            for my $depends ( list_dependencies( $info ) ) {
+                ### XXX split depends: lines and objectified dependencies
+                ### for better diagnostics
+                die "Dependency '$depends->{package}' not satisfied " .
+                    "for '$path'" unless $avail{ $depends->{package} };
+            }
+        }
+=cut
 
-    
         ### extract the code
         {   ### XXX we should *build* things here too
             system( qq[tar -f $my_tmp_dir/$data -C ] . 
-                        $conf->compile_dir .q[ -xz] );
+                        $conf->compile_dir . q[ -xz] );
         
             ### preinst hook
             my $preinst = File::Spec->catfile( $meta_dir, $conf->preinst );
             if( -e $preinst && -s _ ) {
                 system( qq[ $^X $preinst ] )                    and die $?;
             }
-        
+    
             ### XXX we should build a binary package here, instead of
             ### just doing a cp -R
             my $src = File::Spec->catdir( $conf->compile_dir, $self->package );
             system( qq[cp -R $src ]. $conf->perl_site_dir )     and die $?;     
 
-            ### link files to $PATH/$MANPATH
-            ### XXX symlink the manpages
-            LINKING: {   
+            ### register the installation
+            ### do this AFTER installing, duh!
+            $inst->register( package => $self ) 
+                or error("Could not register package"), return;
 
-=pod            
-                my $my_bindir = "$Site/$path/bin";
-                last LINKING unless -d $my_bindir;
 
-                ### load in the alternatives collection
-                my $href = LoadFile( $Altfile );
-                
-                ### check if we're the 'prefered' package
-                my $link_this   = 1;
-                my $unlink_this = '';
-                {   my $prefix  = package_prefix(   $path );
-                    my $package = package_name(     $path );
-                    my $version = package_version(  $path );
-    
-                    for my $test ( keys %$href ) {
-                        if( $prefix     eq package_prefix(  $test ) and
-                            $package    eq package_name(    $test ) and 
-                            ### XXX this should be a policy test!
-                            $version    <= package_version( $test )
-                        ) {
-                            $link_this      = 0;  
-                            $unlink_this    = delete $href->{$test};
-                            last;
-                        }
-                    }
-                    
-                    ### XXX clean up links from $unlink_this
-                }      
-
-                last LINKING unless $link_this;
-
-                my @bins;
-                print "Linking scripts/manpages...\n";
-                for ( qx[find $my_bindir -type f] ) {
-                    chomp; 
-                    
-                    ### link from altdir to install dir
-                    ### then from pathdir, to altdir
-                    my $script = basename($_);
-                    system( qq[ln -fs $_ $Alternatives/$script] )   and die $?;
-                    system( qq[ln -fs $Alternatives/$script $Bindir/$script ] )
-                                                                    and die $?;
-                    push @bins, $script;
-                }
-                
-                ### add this package as being authorative for these links ###
-                $href->{ $path } = { bin => \@bins, auto => 1 };
-                    
-                ### dump out alternatives again
-                DumpFile( $Altfile, $href );
-=cut
-
-                my $postinst = File::Spec->catfile($meta_dir, $conf->postinst);
-                if( -e $postinst && -s _ ) {
-                    system( qq[ $^X $postinst ] )               and die $?;
-                }    
-            }
-
+            my $postinst = File::Spec->catfile($meta_dir, $conf->postinst);
+            if( -e $postinst && -s _ ) {
+                system( qq[ $^X $postinst ] )                   and die $?;
+            }    
         }
 
 
         ### clean up the temp dir
-        system( qq[rm -rf $my_tmp_dir] )                    and die $?;
+        system( qq[rm -rf $my_tmp_dir] )                        and die $?;
     }
     
     return 1;

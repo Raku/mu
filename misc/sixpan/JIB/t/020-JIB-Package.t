@@ -6,11 +6,14 @@ BEGIN { chdir 't' if -d 't' };
 BEGIN { use lib qw[../lib inc] };
 BEGIN { require 'conf.pl' }
 
+use JIB::Installation;
+
 my $Class   = 'JIB::Package';
 my @Acc     = sort qw[package file config meta];
+my $Inst    = JIB::Installation->new;
 
 ### XXX config
-my $Pkg     = 'p5-b-1-cpan+KANE';
+my $Pkg     = 'p5-Foo-Bar-1.2-cpan+KANE';
 my $File    = File::Spec->catfile( 'src', $Pkg.'.jib' );
 my @Parse   = qw[prefix name version authority];
 
@@ -42,7 +45,7 @@ my $Obj;
 ### test regexes
 {   ### build a method => value map
     my $i;
-    my %map = map { $Parse[$i++] => $_ } split /-/, $Pkg;
+    my %map = map { $Parse[$i++] => $_ } map { $Obj->$_ } @Parse;
  
     for my $method ( keys %map ) {
         can_ok( $Obj,           $method );
@@ -56,8 +59,44 @@ my $Obj;
 ### installl the package
 {   my $rv = $Obj->install;
     ok( $rv,                    "Package installed" );
+    ok( $Inst->is_installed( package => $Obj ),
+                                "   Package installation registered" );
     
-    ### XXX add file tests
+    ### XXX add more file tests
+    
+    ### check for module
+    ### XXX get this from config/object
+    {   my $pm = File::Spec->catfile( 
+                    $Obj->config->perl_site_dir,
+                    $Obj->package,
+                    qw[lib Foo Bar.pm]
+                );
+                
+        ok( -e $pm,             "   Module '$pm' exists" );
+    
+    }
+    
+    ### check for scripts
+    ### XXX get this from config/object
+    {   my $script = 'script.pl';
+        my $conf   = $Obj->config;
+        for my $dir ( $conf->alternatives, $conf->bin_dir,
+                      File::Spec->catdir( 
+                        $conf->perl_site_dir, $Obj->package, 'bin' )
+        ) {
+            my $path = File::Spec->catfile( $dir, $script );
+            ok( -d $dir,        "   Bin dir '$dir' exists" );
+            ok( -e $path,       "       Script '$script' installed there" );
+        }
+    
+    }
+    
+    ### XXX check for manpages
+    {
+        1;
+    
+    }
+
 
     ### install again
     diag( "XXX quell this warning" );
@@ -71,8 +110,8 @@ my $Obj;
     }        
 }    
 
- 
-    
+
+
 # Local variables:
 # c-indentation-style: bsd
 # c-basic-offset: 4

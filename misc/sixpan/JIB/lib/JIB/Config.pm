@@ -29,7 +29,8 @@ $config{'meta_dir'}         = $config{'perl_site_dir'}->subdir('_jib');
 $config{'control'}          = $config{'meta_dir'}->subdir('control');
 $config{'available'}        = $config{'meta_dir'}->file('available');
 $config{'registered_alternatives'} 
-                            = $config{'meta_dir'}->file('registered-alternatives');
+                            = $config{'meta_dir'}->
+                                    file('registered-alternatives');
 $config{'alternatives'}     = $config{'meta_dir'}->subdir('alternatives');
 $config{'files_list'}       = $config{'meta_dir'}->file('files.list');
 
@@ -43,8 +44,8 @@ $config{'build_dir'}        = dir('root-');
 $config{'meta_ext'}         = '.info';
 $config{'meta_file'}        = 'META' . $config{'meta_ext'};
 
-$config{'archive_data'}     = 'data.tar.gz';
-$config{'archive_control'}  = 'control.tar.gz';
+$config{'archive_data'}     = 'data.tgz';
+$config{'archive_control'}  = 'control.tgz';
 $config{'archive_ext'}      = '.jib';
 
 $config{'preinst'}          = 'PREINST.pl';

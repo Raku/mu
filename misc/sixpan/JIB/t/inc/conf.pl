@@ -10,7 +10,9 @@ system( qw[rm -rf], $config->root, $config->build_dir .'*' )   and die $?;
 {   system( qw[rm -rf], $config->root )                         and die $?;
     
     ### XXX missing repodirs/files
-    for ( qw[root perl_site_dir temp_dir bin_dir compile_dir meta_dir] ) {
+    for ( qw[root perl_site_dir temp_dir bin_dir compile_dir meta_dir
+             alternatives] 
+    ) {
         system( qw[mkdir -p], $config->$_ )                     and die $?;
     }
     
