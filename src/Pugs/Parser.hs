@@ -600,12 +600,12 @@ ruleMemberDeclaration = do
     typ  <- option "" $ lexeme ruleQualifiedIdentifier
     attr <- ruleVarName
     (sigil:twigil:key) <- case attr of
-        (_:'.':_)      -> return attr
-        (_:'!':_)      -> return attr
-        (x:xs@('_':_)) -> return (x:'!':xs)
-        (_:twigil:_) | not (isAlpha twigil) ->
-            fail $ "Invalid twigil " ++ (twigil:(" in member variable " ++ attr))
-        (x:xs)         -> return (x:'!':xs)
+        (_:'.':_)   -> return attr
+        (_:'!':_)   -> return attr
+        (x:xs@(twigil:_))
+            | (isAlpha twigil) || twigil == '_'
+                    -> return (x:'!':xs)
+        _           -> fail $ "Invalid member variable name '" ++ attr ++ "'"
     traits  <- many $ ruleTrait
     optional $ do { symbol "handles"; ruleExpression }
     env     <- getRuleEnv
