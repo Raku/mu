@@ -22,7 +22,11 @@ $config{'temp_dir'}         = $config{'root'}->subdir('tmp');
 $config{'bin_dir'}          = $config{'root'}->subdir( $Config{bin} );
 $config{'compile_dir'}      = $config{'temp_dir'}->subdir('_builddir');
 
-### XXX missing the /jibs and the /jibs/index dir for repos
+### repository dirs/files
+$config{'repo_pool'}        = Path::Class::dir('jibs');
+$config{'repo_index'}       = Path::Class::dir('dists');
+$config{'repo_index_file'}  = Path::Class::file('index');
+$config{'repo_index_groups'}= [map { Path::Class::dir($_) } qw(author name)];
 
 ### meta dirs
 $config{'meta_dir'}         = $config{'perl_site_dir'}->subdir('_jib');
