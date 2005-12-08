@@ -26,7 +26,7 @@ $config{'compile_dir'}      = $config{'temp_dir'}->subdir('_builddir');
 $config{'repo_pool'}        = Path::Class::dir('jibs');
 $config{'repo_index'}       = Path::Class::dir('dists');
 $config{'repo_index_file'}  = Path::Class::file('index');
-$config{'repo_index_groups'}= [map { Path::Class::dir($_) } qw(author name)];
+$config{'repo_index_groups'}= [map { Path::Class::dir($_) } qw(author name prefix)];
 
 ### meta dirs
 $config{'meta_dir'}         = $config{'perl_site_dir'}->subdir('_jib');
