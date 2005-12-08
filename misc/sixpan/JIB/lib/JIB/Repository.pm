@@ -13,6 +13,39 @@ use Params::Check qw(check);
 use Log::Message::Simple qw(:STD);
 use Math::Combinatorics;
 
+=head1 METHODS
+
+=head2 $repo = JIB::Repository->new(...);
+
+Required arguments:
+
+=over 2
+
+=item root
+
+The root directory of the repository
+
+=item pool
+
+Path to the pool directory of the repository. $root/jibs if not specified.
+
+=item pool_rel
+
+The path to the pool directory that will be put into the index files. jibs/ if
+not specified.
+
+=item index
+
+Path to the index directory. default: $root/dists
+
+=item index_file
+
+Path to the main index file. default: $root/dists/index
+
+=back
+
+=cut
+
 {
     my $config = JIB::Config->new;
 
@@ -61,6 +94,15 @@ use Math::Combinatorics;
     }
 }
 
+=head2 $repo->create()
+
+Creates a new repository on the filesystem. Wipes out an existing one with the
+same root path if it exists.
+
+Returns a true value on success, otherwise something false.
+
+=cut
+
 sub create {
     my $self = shift;
     my $conf = $self->config;
@@ -76,7 +118,15 @@ sub create {
     for my $dir (@dirs) {
         $dir->mkpath() or error($!), return;
     }
+
+    return 1;
 }
+
+=head2 @ret = $repo->add_packages($pkg1, $pkg2, ...)
+
+Adds a list of JIB::Package instances to the repository.
+
+=cut
 
 sub add_packages {
     my $self = shift;
@@ -86,6 +136,10 @@ sub add_packages {
 
     return @ret;
 }
+
+=head2 $repo->add_package(package => $pkg
+
+=cut
 
 sub add_package {
     my $self = shift;
@@ -109,7 +163,15 @@ sub add_package {
 
     File::Copy::copy($pkg->file, $self->pool) or error($!), return;
     $self->add_package_to_index(package => $pkg);
+
+    return 1;
 }
+
+=head2 $repo->add_package_to_index(package => $pkg)
+
+Adds a package to all necessary index files.
+
+=cut
 
 sub add_package_to_index { #TODO: compression of index files.
     my $self = shift;
@@ -139,6 +201,12 @@ sub add_package_to_index { #TODO: compression of index files.
         YAML::DumpFile($index, @index_content);
     }
 }
+
+=head2 @index_files = $repo->index_files(package => $pkg)
+
+Returns a list of all index_files that a given package belongs to.
+
+=cut
 
 sub index_files { #TODO: When using two properties (A and B) to group the dists
                   #      tree A/A_val/B/B_val.gz and B/B_val/A/A_val.gz are
@@ -177,6 +245,12 @@ sub _index_files {
     return @index_files;
 }
 
+=head2 $repo->add_files($file1, $file2, ...)
+
+Adds a list of jib files to the repository.
+
+=cut
+
 sub add_files {
     my $self = shift;
     my @ret;
@@ -185,6 +259,12 @@ sub add_files {
 
     return @ret;
 }
+
+=head2 $repo->add_file(file => $file)
+
+Adds a given file to the repository.
+
+=cut
 
 sub add_file {
     my $self = shift;
