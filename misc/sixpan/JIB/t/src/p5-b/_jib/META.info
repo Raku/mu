@@ -2,6 +2,7 @@
 author: KANE
 description: b
 package: p5-b-1-cpan+KANE
+prefix: p5
 name: B
 version: 1
 authority: cpan+KANE
