@@ -1632,7 +1632,7 @@ ruleTypeLiteral = rule "type" $ do
 rulePostTerm :: RuleParser (Exp -> Exp)
 rulePostTerm = tryVerbatimRule "term postfix" $ do
     hasDot <- option False $ try $ do
-        whiteSpace; char '.'; notFollowedBy (char '.'); return True
+        whiteSpace; oneOf ".!"; notFollowedBy (onOf ".!"); return True
     choice $ (if hasDot then [ruleInvocation] else []) ++
         [ ruleArraySubscript
         , ruleHashSubscript
