@@ -1,8 +1,3 @@
-#
-# Lightning talk, Euro OSCON 2005,
-# to be performed by Allison and Autrijus
-#
-
 = Stanza 1: Origin of Perl
 
 Larry was a mariner
@@ -18,7 +13,7 @@ and "Perl" upon its banners laid.
 = Stanza 2: Perl grows in power
 
 In panoply of pumpkin kings,
-in virtues three it shone for him;
+in three virtues it shone for him;
 its regexes were scored with runes
 to match all \n+ and \w+ for him.
 
@@ -54,7 +49,7 @@ a thousand modules sprung to life.
 Then world-wide web came driving him,
 and wildly on the net Perl spread
 from west to east, a noisy mess;
-and comp.lang.perl was filled with dread. # pronounced "CLP"
+and comp.lang.perl was filled with dread.
 
 There flying CPAN came to him,
 and flame was in the darkness lit;
@@ -111,7 +106,7 @@ are mirrored through the Blogosphere.
 
 He tallied there the RFCs:
 and PDLs they brought to him,
-and lispers old him macros told,
+and Lispers old him macros told,
 and OO tricks were sought for him.
 
 They clothed him in Designer's Sleeves,
@@ -157,7 +152,7 @@ beyond the saintly Larry Wall.
 
 From realms of Perl they sailed around,
 and yearned again to find afar
-the Elephants, Rhinos, Snakes and Gems,   ## Elaphs?
+the Elephants, Rhinos, Snakes and Gems,
 and radiating as clouds of stars
 
 on high above the mists they came,
