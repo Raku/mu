@@ -279,5 +279,5 @@ my method boundary (Num ?$size) returns Str {
 }
 
 multi sub *coerce:<as> (::?CLASS $self, Str ::to) {
-    self.as_string("\n");
+    $self.as_string("\n");
 }
