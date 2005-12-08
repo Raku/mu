@@ -452,10 +452,10 @@ ghci ::
 	$ghc --interactive -idist/build -Ldist/build -idist/build/src -Ldist/build/src src/Main.hs
 
 pil :: src/cbits/fpstring.o $unicode @srcfiles
-	$ghc --make -H0 -L. -Lsrc -I. -Isrc -i. -isrc -static -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs $unicode src/cbits/fpstring.o
+	$ghc --make -H0 -L. -Lsrc -Lsrc/cbits -I. -Isrc -Isrc/cbits -i. -isrc -isrc/cbits -static -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs $unicode src/cbits/fpstring.o
 
 pili :: src/cbits/fpstring.o $unicode @srcfiles
-	$ghc --interactive -H0 -L. -Lsrc -I. -Isrc -i. -isrc -static -fno-warn-name-shadowing src/PIL.hs $unicode src/cbits/fpstring.o
+	$ghc --interactive -H0 -L. -Lsrc -Lsrc/cbits -I. -Isrc -Isrc/cbits -i. -isrc -isrc/cbits -static -fno-warn-name-shadowing src/PIL.hs $unicode src/cbits/fpstring.o
 
 tags : @srcfiles
 	$hasktags -c @srcfiles
