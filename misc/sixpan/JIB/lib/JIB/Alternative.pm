@@ -16,7 +16,7 @@ use base 'Object::Accessor';
 
 =head1 METHODS
 
-=head $alt = JIB::Alternative->new_from_struct( struct => $struct );
+=head2 $alt = JIB::Alternative->new_from_struct( struct => $struct );
 
 =cut
 
