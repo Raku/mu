@@ -599,28 +599,32 @@ ruleMemberDeclaration = do
     symbol "has"
     typ  <- option "" $ lexeme ruleQualifiedIdentifier
     attr <- ruleVarName
-    case attr of
-        (sigil:twigil:key) | twigil `elem` ".:" -> do
-            traits  <- many $ ruleTrait
-            optional $ do { symbol "handles"; ruleExpression }
-            env     <- getRuleEnv
-            -- manufacture an accessor
-            let sub = mkPrim
-                    { isMulti       = False
-                    , subName       = name
-                    , subEnv        = Nothing
-                    , subReturns    = if null typ then typeOfSigil sigil else mkType typ
-                    , subBody       = fun
-                    , subParams     = [selfParam $ envPackage env]
-                    , subLValue     = "rw" `elem` traits
-                    }
-                exp = Syn ":=" [Var name, Syn "sub" [Val $ VCode sub]]
-                name | twigil == '.' = '&':(envPackage env ++ "::" ++ key)
-                     | otherwise     = '&':(envPackage env ++ "::" ++ (twigil:key))
-                fun = Cxt (cxtOfSigil sigil) (Syn "{}" [Var "$?SELF", Val (VStr key)])
-            unsafeEvalExp (Sym SGlobal name exp)
-            return emptyExp
-        _ -> return emptyExp
+    (sigil:twigil:key) <- case attr of
+        (_:'.':_)      -> return attr
+        (_:'!':_)      -> return attr
+        (x:xs@('_':_)) -> return (x:'!':xs)
+        (_:twigil:_) | not (isAlpha twigil) ->
+            fail $ "Invalid twigil " ++ (twigil:(" in member variable " ++ attr))
+        (x:xs)         -> return (x:'!':xs)
+    traits  <- many $ ruleTrait
+    optional $ do { symbol "handles"; ruleExpression }
+    env     <- getRuleEnv
+    -- manufacture an accessor
+    let sub = mkPrim
+            { isMulti       = False
+            , subName       = name
+            , subEnv        = Nothing
+            , subReturns    = if null typ then typeOfSigil sigil else mkType typ
+            , subBody       = fun
+            , subParams     = [selfParam $ envPackage env]
+            , subLValue     = "rw" `elem` traits
+            }
+        exp = Syn ":=" [Var name, Syn "sub" [Val $ VCode sub]]
+        name | twigil == '.' = '&':(envPackage env ++ "::" ++ key)
+                | otherwise     = '&':(envPackage env ++ "::" ++ (twigil:key))
+        fun = Cxt (cxtOfSigil sigil) (Syn "{}" [Var "$?SELF", Val (VStr key)])
+    unsafeEvalExp (Sym SGlobal name exp)
+    return emptyExp
 
 ruleVarDeclaration :: RuleParser Exp
 ruleVarDeclaration = rule "variable declaration" $ do
@@ -1707,7 +1711,7 @@ ruleApply :: Bool -- ^ @True@ if we are parsing for the reduce-metaop
 ruleApply isFolded = tryVerbatimRule "apply" $ do
     {- (colon :: String -> String) is a function that will take a name
        like '&foo', and MIGHT convert it to '&:foo'.  This only happens if
-       you're using the '.:foo' implicit-invocant syntax, otherwise 'colon' will
+       you're using the '!foo' implicit-invocant syntax, otherwise 'colon' will
        just be 'id'.
     
        (inv :: Maybe Exp) might hold a 'Var' expression indicating the implicit
