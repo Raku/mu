@@ -84,10 +84,22 @@ Path to the main index file. default: $root/dists/index
         $obj->mk_accessors(qw( root config pool pool_rel index index_file ));
 
         $obj->root(dir($root));
-        $obj->pool( (defined $pool ? dir($pool) : $obj->root->subdir($config->repo_pool)) );
-        $obj->index( (defined $index ? dir($index) : $obj->root->subdir($config->repo_index)) );
-        $obj->index_file( (defined $index_file ? file($index_file) : $obj->index->file($config->repo_index_file)) );
-        $obj->pool_rel( (defined $pool_rel ? dir($pool_rel) : $config->repo_pool) );
+        $obj->pool((defined $pool
+                    ? dir($pool)
+                    : $obj->root->subdir($config->repo_pool)
+        ));
+        $obj->index((defined $index
+                    ? dir($index)
+                    : $obj->root->subdir($config->repo_index)
+        ));
+        $obj->index_file((defined $index_file
+                    ? file($index_file)
+                    : $obj->index->file($config->repo_index_file)
+        ));
+        $obj->pool_rel((defined $pool_rel
+                    ? dir($pool_rel)
+                    : $config->repo_pool
+        ));
         $obj->config($config);
 
         return $obj;
@@ -190,13 +202,14 @@ sub add_package_to_index { #TODO: compression of index files.
 
     for my $index ($self->index_file, $self->index_files(package => $pkg)) {
         unless (-e $index) {
-            # create the directory an index file lives in (ignore errors (file exists))
+            # create the directory an index file lives in (ignores errors)
             # and touch the index file.
             $index->dir->mkpath, $index->openw->close or error($!), return;
         }
         my @index_content = YAML::LoadFile($index);
         my $meta = $pkg->meta->to_struct;
-        $meta->{archive} = $self->pool_rel->file(file($pkg->file)->basename)->stringify();
+        $meta->{archive} =
+            $self->pool_rel->file(file($pkg->file)->basename)->stringify();
         push @index_content, $meta;
         YAML::DumpFile($index, @index_content);
     }
@@ -226,7 +239,9 @@ sub index_files { #TODO: When using two properties (A and B) to group the dists
 
     check($tmpl, \%args) or error(Params::Check->last_error), return;
 
-    return map { $self->index->file($_) } $self->_index_files($pkg, $self->config->repo_index_groups, '');
+    return
+        map { $self->index->file($_) }
+        $self->_index_files($pkg, $self->config->repo_index_groups, '');
 }
 
 sub _index_files {
@@ -237,9 +252,11 @@ sub _index_files {
     my %copy = map { $_ => $_ ne $cur } @$groups;
     my @copy = grep { $copy{$_} } keys %copy;
     for my $key (@copy) {
-        my $path = dir($key)->subdir($pkg->meta->$key); #maybe use another mechanism to call arbitrary stuff on the package obj?
+        my $path = dir($key)->subdir($pkg->meta->$key);
+        # maybe use another mechanism to call arbitrary stuff on the package obj?
         push @index_files, file($path.'.index');
-        push @index_files, map { $path->file($_) } $self->_index_files($pkg, \@copy, $key);
+        push @index_files, map { $path->file($_) }
+                $self->_index_files($pkg, \@copy, $key);
     }
 
     return @index_files;
