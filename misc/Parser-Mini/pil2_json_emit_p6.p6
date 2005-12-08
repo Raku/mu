@@ -119,7 +119,6 @@ sub traverse_stmts ( $tree ) {
         elsif $tree[0] eq '"PStmt"' {
             $ret = traverse_stmts ( $tree[1][0][1] );
             $ret ~= '; ';
-# XXX ??? Changes output completely - lazy evaluation related ???
         }	
         elsif $tree[0] eq '"PStmts"' {
             #dbg $tree[1].perl;
