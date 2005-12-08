@@ -78,6 +78,15 @@ sub create {
     }
 }
 
+sub add_packages {
+    my $self = shift;
+    my @ret;
+
+    push @ret, $self->add_package(package => $_) for @_;
+
+    return @ret;
+}
+
 sub add_package {
     my $self = shift;
     my %args = @_;
@@ -131,7 +140,10 @@ sub add_package_to_index { #TODO: compression of index files.
     }
 }
 
-sub index_files {
+sub index_files { #TODO: When using two properties (A and B) to group the dists
+                  #      tree A/A_val/B/B_val.gz and B/B_val/A/A_val.gz are
+                  #      equal. Use hard- or symlinks to minimize storage
+                  #      requirements
     my $self = shift;
     my %args = @_;
     my $pkg;
@@ -146,24 +158,32 @@ sub index_files {
 
     check($tmpl, \%args) or error(Params::Check->last_error), return;
 
-    return map { $self->index->file($_) } $self->_index_files($pkg, $self->config->repo_index_groups);
+    return map { $self->index->file($_) } $self->_index_files($pkg, $self->config->repo_index_groups, '');
 }
 
 sub _index_files {
-    my ($self, $pkg, $groups) = @_;
+    my ($self, $pkg, $groups, $cur) = @_;
     return unless $groups && @$groups;
 
     my @index_files;
-    my %copy = map { $_ => 1 } @$groups;
-    for my $key (@$groups) {
-        $copy{$key} = 0; #XXX
-        my $path = dir($key)->subdir($pkg->meta->$key);
+    my %copy = map { $_ => $_ ne $cur } @$groups;
+    my @copy = grep { $copy{$_} } keys %copy;
+    for my $key (@copy) {
+        my $path = dir($key)->subdir($pkg->meta->$key); #maybe use another mechanism to call arbitrary stuff on the package obj?
         push @index_files, file($path.'.index');
-        push @index_files, map { $path->file($_) } $self->_index_files($pkg, [grep { $copy{$_} } keys %copy]);
-        $copy{$key} = 1; #XXX These two statements look like they should be done using stack of the recursion
+        push @index_files, map { $path->file($_) } $self->_index_files($pkg, \@copy, $key);
     }
 
     return @index_files;
+}
+
+sub add_files {
+    my $self = shift;
+    my @ret;
+    
+    push @ret, $self->add_file(file => $_) for @_;
+
+    return @ret;
 }
 
 sub add_file {
