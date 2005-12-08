@@ -54,13 +54,13 @@ sub set_url_encoding(Str $encoding) is export {
 # utility functions
 
 sub header (
-    Str  $content_type = 'text/html',
-    Str  $status = '200 OK',
-    Str  $charset,
-    Str :$cookies,
-    Str :$target,
-    :$expires,
-    Bool :$nph,
+    Str  $content_type? = 'text/html',
+    Str  $status? = '200 OK',
+    Str  $charset? = undef,
+    Str :$cookies?,
+    Str :$target?,
+    :$expires?,
+    Bool :$nph?,
     *%extra
 ) returns Str is export {
     # construct our header
@@ -103,8 +103,8 @@ sub header (
 
 sub redirect (
     Str   $location,
-    Str   $target,
-    Str   $status = "302 Found",
+    Str   $target?,
+    Str   $status? = "302 Found",
     Str  :$cookie,
     Bool :$nph,
     *%extra
