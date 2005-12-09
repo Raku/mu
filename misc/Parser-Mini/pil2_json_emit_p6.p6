@@ -14,19 +14,16 @@ PIL2-JSON simple Perl 6 code emitter
 
 use v6;
 
+my $debug_traverse = 0;
+
 # tokenizer
 
-my $tokens =
-    m:g:perl5 {(\"(?:\\\\|\\"|.)*?\"|[\:\,\=\{\(\[\}\)\]]|\w+)};
+my $tokens = m:g:perl5 {(\"(?:\\\\|\\"|.)*?\"|[\:\,\=\{\(\[\}\)\]]|\w+)};
 
-# JSON parser 
-# outputs a p6 tree = Hash of Array|Hash|Scalar ...
+# JSON parser - creates an Array [of Array]* of Str
 
 sub parse (@start, $token, @end, @_ is rw) {
     state %tok = (
-        token => sub (@_ is rw) { 
-                ~ @_.shift;     # '~' stringifies "Match" object
-            },
         hash =>  sub (@_ is rw) {
                 my Array $a;
                 loop {
@@ -46,8 +43,8 @@ sub parse (@start, $token, @end, @_ is rw) {
                 }
             },
         pair =>  sub (@_ is rw) {
-                my $key = parse( <<>>, 'token', << : >>, @_ );
-                # say " Key $key";
+                my $key = ~@_.shift;
+                @_.shift eq ':' or die "Expected ':'";
                 my $value = parse( <<>>, 'item', <<>>, @_ );
                 [ $key, $value ];
             },
@@ -58,7 +55,7 @@ sub parse (@start, $token, @end, @_ is rw) {
                 if @_[0] eq '[' { 
                     return parse( << [ >>, 'list', << ] >>, @_ ) 
                 };
-                parse( <<>>, 'token', <<>>, @_ );
+                ~@_.shift;
             },
     );
     for @start { @_.shift eq $_ or die "Expected $_" }; 
@@ -67,168 +64,205 @@ sub parse (@start, $token, @end, @_ is rw) {
     $ret;
 }
 
+sub traverse_ast ( $tree ) {
+    state $depth = 0;
+    
+    sub dbg ( *@s ) { 
+        return unless $debug_traverse;
+        say '  ' x $depth, @s 
+    }
+    
+    if $tree.ref ne 'Array' {
+        dbg "  # -- unknown: <$tree>";
+        return; 
+    }
+    if $tree[0].ref eq 'Array' {
+        #dbg "# [";
+        my @ret;
+        push @ret, traverse_ast( $_ ) for $tree;
+        #dbg "# ]";
+        return ~@ret;
+    }
+
+    $depth++;
+    dbg "# $tree[0] start";
+    my $ret;
+
+    if $tree[0] eq '"PIL_Environment"' {
+        my %pad = $tree[1];  # keys: "pilGlob", "pilMain"
+        dbg "# keys: ",%pad.keys;
+        dbg "# pilGlob:    "; my $global = traverse_ast ( %pad<"pilGlob"> );
+        dbg "# pilMain:    "; my $main =   traverse_ast ( %pad<"pilMain"> );
+        $ret = emit_Main( $global, $main );
+    }	
+    elsif $tree[0] eq '"PExp"' | '"PExpr"' {
+        $ret = traverse_ast ( $tree[1][0][1] );
+    }	
+    elsif $tree[0] eq '"PVal"' | '"PInt"' | '"PLit"' {
+        $ret = traverse_ast ( $tree[1][0][1] );
+    }	
+    elsif $tree[0] eq '"PStmt"' {
+        $ret = emit_Stmt( traverse_ast ( $tree[1][0][1] ) );
+    }	
+    elsif $tree[0] eq '"PStmts"' {
+        my %pad = $tree[1];  # keys: 
+        dbg "# keys: ",%pad.keys;
+        $ret =  traverse_ast ( %pad<"pStmt"> );
+        $ret ~= traverse_ast ( %pad<"pStmts"> );
+    }	
+    elsif $tree[0] eq '"PNil"' {
+        $ret = '';
+    }	
+    elsif $tree[0] eq '"PVar"' {
+        $ret = emit_Variable( $tree[1][0][1] );
+    }
+    elsif $tree[0] eq '"VInt"' {
+        $ret = emit_Int( $tree[1][0] );
+    }	
+    elsif $tree[0] eq '"VStr"' {
+        $ret = emit_Str( $tree[1][0] );
+    }	
+    elsif $tree[0] eq '"VRat"' {
+        $ret = emit_Rat( 
+            $tree[1][0][0][1][0],
+            $tree[1][0][0][1][1] );
+    }	
+    elsif $tree[0] eq '"pLV"' | '"pLit"' {
+        # XXX
+        $ret = traverse_ast ( $tree[1][0] );
+    }	
+    elsif $tree[0] eq '"pExpr"' {
+        # XXX
+        $ret = traverse_ast ( $tree[1][0][1] );
+    }	
+    elsif $tree[0] eq '"PNoop"' {
+        $ret = '';
+    }
+    elsif $tree[0] eq '"PPos"' {
+        my %pad = $tree[1];  # keys: "pExp""pNode""pPos"
+        dbg "# keys: ",%pad.keys;
+        $ret = traverse_ast( %pad<"pNode"> );
+    }
+    elsif $tree[0] eq '"PAssign"' {
+        my %pad = $tree[1];  # keys: "pLHS""pRHS"
+        dbg "# keys: ",%pad.keys;
+        dbg "# Assign to:      "; my $to =      traverse_ast ( %pad<"pLHS"> );
+        dbg "# Assign from:    "; my $from =    traverse_ast ( %pad<"pRHS"> );
+        $ret = emit_Assign( $to, $from );
+    }
+    elsif $tree[0] eq '"PBind"' {
+        my %pad = $tree[1];  # keys: "pLHS""pRHS"
+        dbg "# keys: ",%pad.keys;
+        dbg "# Assign to:      "; my $to =      traverse_ast ( %pad<"pLHS"> );
+        dbg "# Assign from:    "; my $from =    traverse_ast ( %pad<"pRHS"> );
+        $ret = emit_Bind( $to, $from );
+    }
+    elsif $tree[0] eq '"PPad"' {
+        my %pad = $tree[1];  # keys: "pScope", "pSyms", "pStmts"
+        dbg "# keys: ",%pad.keys;
+
+        my $scope =      %pad<"pScope">[0][0];
+        dbg "# Scope:      $scope";  # "SMy"
+
+        #say %pad<"pSyms">.perl;
+        my @symbols = %pad<"pSyms">.map:{ $_[0] };
+        dbg "# Symbols:    @symbols[]";
+
+        dbg "# Statements: "; my $statements = traverse_ast ( %pad<"pStmts"> );
+        $ret = emit_Pad( $scope, @symbols, $statements );
+    }	
+    elsif $tree[0] eq '"PCode"' {
+        my %pad = $tree[1];  # keys: "pBody""pIsMulti""pLValue""pParams""pType"
+        dbg "# keys: ",%pad.keys;  
+        dbg "# Body:       "; my $body =     traverse_ast ( %pad<"pBody"> );
+        dbg "# IsMulti:    "; my $is_multi = %pad<"pIsMulti">;
+        dbg "# LValue:     "; my $lvalue =   %pad<"pLValue">;
+        dbg "# Parameters: "; my @params =   traverse_ast ( %pad<"pParams"> );
+        dbg "# Type:       "; my $type =     traverse_ast ( %pad<"pType"> );
+        $ret = emit_Code( $body, $is_multi, $lvalue, @params, $type );
+    }	
+    elsif $tree[0] eq '"PSub"' {
+        my %pad = $tree[1];  # keys: "pSubBody""pSubIsMulti""pSubLValue""pSubName""pSubParams""pSubType"
+        dbg "# keys: ",%pad.keys;
+        dbg "# Body:       "; my $body =     traverse_ast ( %pad<"pSubBody"> );
+        dbg "# IsMulti:    "; my $is_multi = %pad<"pSubIsMulti">;
+        dbg "# LValue:     "; my $lvalue =   %pad<"pSubLValue">;
+        dbg "# Parameters: "; my @params =   traverse_ast ( %pad<"pSubParams"> );
+        dbg "# Type:       "; my $type =     traverse_ast ( %pad<"pSubType"> );
+        dbg "# Name:       "; my $name =     emit_Variable( %pad<"pSubName"> );
+        $ret = emit_Sub( $name, $body, $is_multi, $lvalue, @params, $type );
+    }
+    elsif $tree[0] eq '"PApp"' {   
+        my %app = $tree[1];  # keys: "pArgs" "pCxt" "pFun" "pInv"
+        dbg "# keys: ",%app.keys;
+        #dbg "# App: ",%app.perl;
+        my @args;
+        for %app<"pArgs"> {
+            push @args, traverse_ast ( $_[0][1][0][1] );
+        }
+        dbg "# Arguments: ", @args.elems;
+        dbg "# Function:  "; my $function = traverse_ast ( %app<"pFun"> ); 
+        dbg "# Context:   "; my $context =  traverse_ast ( %app<"pCxt"> );
+        dbg "# Invocant:  "; my $invocant = traverse_ast ( %app<"pInv"> );
+        $ret = emit_App( $function, @args, $context, $invocant );
+    }
+    else {
+        dbg "# -- unknown node";
+        $ret = " # ??? $tree[0]\n";
+        $ret ~= traverse_ast( $_ ) for $tree;
+    }
+
+    dbg "# $tree[0] as_string: $ret";
+    dbg "# $tree[0] end";
+    $depth--;
+    $ret;
+}
+
+# -- Language specific
+
+sub emit_Main ( $global, $main ) {
+    "#! /usr/bin/pugs\n" ~
+    "use v6;\n" ~
+    $global ~ $main
+}
+sub emit_Stmt ( $s ) { $s ~ '; ' }
+sub emit_Code ( $body, $is_multi, $lvalue, @params, $type ) {
+    '{ ' ~ $body ~ ' }'
+}	
+sub emit_Assign( $to, $from ) { $to ~ ' = ' ~ $from }
+sub emit_Bind( $to, $from )   { $to ~ ' := ' ~ $from }
+sub emit_Sub ( $name, $body, $is_multi, $lvalue, @params, $type ) {
+    " $name (" ~ @params.join(", ") ~ ") { " ~ $body ~ " \}\n"
+}	
+sub emit_App ( $function, @args, $context, $invocant ) {   
+    "(" ~ $function ~ "(" ~  @args.join(", ") ~ ")" ~ ")"
+}
+sub emit_Pad ( $scope, @symbols, $statements ) {
+    "\{\n" ~ @symbols.map:{ "my " ~ emit_Variable($_) ~ ";\n" } ~ "$statements\n\}\n";
+}
+sub emit_Variable ( $s is copy ) {
+    # rewrite '"&infix:+"' to '&infix:<+>'
+    $s ~~ s:perl5/^"(.*)"$/$0/;
+    $s ~~ s:perl5{\&(.+?):(.+)}{&$0:<$1>};
+    $s
+}
+sub emit_Int ( $s ) { $s }
+sub emit_Str ( $s ) { $s }
+sub emit_Rat ( $a, $b ) { "($a / $b)" }
+
+# -- Main program
+
 # slurp stdin - xinming++ 
-my $pil2 = ~list(=$*IN);
+#my $pil2 = ~list(=$*IN);
+my $pil2 = ~$*IN.slurp;
 
 my @b = $pil2 ~~ $tokens;
 # say "Tokens: ", @b.join('><');
+
 my $ast = parse( << { >>, 'hash', << } >>, @b );
 # say $ast.perl;
 
-  # XXX pugs bug ??? - 'my $function' doesn't work recursively,
-  #    causing an infinite loop when compiling things like: ($x~"a")(); 
-  # We will use an array as a workaround:
-  my @function; 
-
-state $depth = 0;
-sub dbg ( *@s ) {
-    say '  ' x $depth, @s;
-}
-
-sub traverse_stmts ( $tree ) {
-
-        my $ret;
-
-        if $tree.ref ne 'Array' {
-            dbg "  # -- unknown: <$tree>";
-            return; 
-        }
-
-        if $tree[0].ref eq 'Array' {
-            #dbg "# [";
-            my @ret;
-            push @ret, traverse_stmts( $_ ) for $tree;
-            #dbg "# ]";
-            return ~@ret;
-        }
-
-        # $tree[0].ref is an identifier
-
-        #say $tree.perl;
-        $depth++;
-        dbg "# $tree[0] start";
-
-        if $tree[0] eq '"PExp"' | '"PExpr"' {
-            $ret = traverse_stmts ( $tree[1][0][1] );
-        }	
-        elsif $tree[0] eq '"PStmt"' {
-            $ret = traverse_stmts ( $tree[1][0][1] );
-            $ret ~= '; ';
-        }	
-        elsif $tree[0] eq '"PStmts"' {
-            #dbg $tree[1].perl;
-            $ret = traverse_stmts ( $tree[1] );
-        }	
-        elsif $tree[0] eq '"PNil"' {
-            $ret = '';
-        }	
-
-        elsif $tree[0] eq '"PVal"' | '"PInt"' {
-            $ret = traverse_stmts ( $tree[1][0][1] );
-        }	
-        elsif $tree[0] eq '"PVar"' {
-            dbg "#  <$tree[1][0][1]>";
-            $ret = unquote( $tree[1][0][1] );
-        }
-        elsif $tree[0] eq '"VInt"' {
-            dbg "#  <$tree[1][0]>";
-            $ret = $tree[1][0];
-        }	
-        elsif $tree[0] eq '"VStr"' {
-            dbg "#  <$tree[1][0]>";
-            $ret = $tree[1][0];
-        }	
-        elsif $tree[0] eq '"VRat"' {
-            my $a = $tree[1][0][0][1][0];
-            my $b = $tree[1][0][0][1][1];
-            dbg "#  <$a / $b>";
-            $ret = "($a / $b)";
-        }	
-
-        elsif $tree[0] eq '"pStmts"' | '"pStmt"' | '"pExpr"' | '"pLV"' {
-            $ret = traverse_stmts ( $tree[1][0][1] );
-        }	
-        elsif $tree[0] eq '"MkPos"' {
-            $ret = '';
-        }
-
-        elsif $tree[0] eq '"PPad"' {
-            my %pad = $tree[1];  # keys: "pScope", "pSyms", "pStmts"
-
-            dbg "# keys: ",%pad.keys;
-            dbg "# Scope:      ", traverse_stmts ( %pad<"pScope"> );
-            dbg "# Symbols:    ", traverse_stmts ( %pad<"pSyms"> );
-            dbg "# Statements: ", traverse_stmts ( %pad<"pStmts"> );
-            $ret = " ... pad";
-        }	
-
-        elsif $tree[0] eq '"PCode"' {
-            my %pad = $tree[1];  # keys: "pBody""pIsMulti""pLValue""pParams""pType"
-
-            dbg "# keys: ",%pad.keys;  #
-            dbg "# Body:       ";
-            my $body = traverse_stmts ( %pad<"pBody"> );
-
-            dbg "# IsMulti:    ", traverse_stmts ( %pad<"pIsMulti"> );
-            dbg "# LValue:     ", traverse_stmts ( %pad<"pLValue"> );
-            dbg "# Parameters: ", traverse_stmts ( %pad<"pParams"> );
-            dbg "# Type:       ", traverse_stmts ( %pad<"pType"> );
-
-            $ret = '{ ' ~ $body ~ ' }';
-            dbg "# Code as_string: $ret";
-        }	
-
-        elsif $tree[0] eq '"PApp"' {   
-            my %app = $tree[1];  # keys: "pArgs" "pCxt" "pFun" "pInv"
-            #dbg "# App: ",%app.perl;
-
-            @function[$depth] = %app<"pFun">; 
-            @function[$depth] = @function[$depth][0]; 
-
-            my @args;
-            for %app<"pArgs"> {
-                push @args, $_[0][1][0][1];
-            }
-
-            dbg "# App start ";
-            dbg "# keys: ",%app.keys;
-            #dbg "# raw:  ",$tree[1].perl;
-
-            dbg "# Function:  ";
-            my $str_function = traverse_stmts ( @function[$depth] );
-
-            my @str_args;
-            dbg "# Arguments: ", @args.elems;
-            for @args {
-                push @str_args, traverse_stmts ( $_ );
-            };
-
-            dbg "# Context:   ", traverse_stmts ( %app<"pCxt"> );
-            dbg "# Invocant:  ", traverse_stmts ( %app<"pInv"> );
-
-            #traverse_stmts( $tree[1] );
-            $ret = "(" ~ $str_function ~ "(" ~  @str_args.join(", ") ~ ")" ~ ")";
-            dbg "# App as_string: $ret";
-        }
-        else {
-            dbg "# -- unknown node";
-            $ret ~= traverse_stmts( $_ ) for $tree;
-        }
-
-        dbg "# $tree[0] end";
-        $depth--;
-
-        return $ret;
-}
-
-sub unquote ( $str ) {
-    my ($ret) = $str ~~ m:perl5/^"(.*)"$/;
-    #say "unquote $str = $ret";
-    $ret ~~ s:perl5{\&(.*):(.*)}{&$0:<$1>};
-    return ~$ret;
-}
-
-my $program = traverse_stmts( $ast );
+my $program = traverse_ast( $ast );
 
 say $program;
 
