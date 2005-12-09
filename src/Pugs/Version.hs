@@ -33,7 +33,7 @@ date       = PUGS_DATE
 version :: String
 version    = name ++ ", version " ++ versnum ++ ", " ++ date ++ revision
 copyright :: String
-copyright  = "Copyright 2005 by Autrijus Tang"
+copyright  = "Copyright 2005 by Audrey Tang"
 revnum :: String
 revnum     = show(PUGS_SVN_REVISION :: Integer)
 revision :: String

@@ -155,7 +155,7 @@ using the Pugs AUTHORS file as a word list.
 
 stevan little, E<lt>stevan@iinteractive.comE<gt>
 
-Autrijus Tang E<lt>autrijus@autrijus.orgE<gt>
+Audrey Tang E<lt>autrijus@autrijus.orgE<gt>
 
 Ingo Blechschmidt
 

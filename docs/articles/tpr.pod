@@ -58,7 +58,7 @@ no parameters. You'll get a welcome banner and a prompt.
       \ \__\  \ \____/\ \____ \/\_____\  (S)ystem
        \/__/   \/___/  \/___/\ \/____/
                          /\____/               Version: 6.2.10
-                         \/___/    Copyright 2005 by Autrijus Tang
+                         \/___/    Copyright 2005 by Audrey Tang
   --------------------------------------------------------------------
    Web: http://pugscode.org/           Email: perl6-compiler@perl.org
   

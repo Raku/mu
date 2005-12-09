@@ -70,7 +70,7 @@ Rob Kinyon L<http://www.perlmonks.org/index.pl?node_id=451302>
 
 Stevan Little, E<lt>stevan@iinteractive.comE<gt>
 
-Autrijus Tang
+Audrey Tang
 
 =cut
 

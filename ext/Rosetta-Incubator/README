@@ -14,7 +14,7 @@ All of these modules are Copyright (c) 2002-2005, Darren R. Duncan
 reserved.  See the individual modules themselves for their licensing terms;
 most of them are GPL v2+ with an exception.
 
-The Perl 6 version is currently included with Autrijus Tang's Pugs project,
+The Perl 6 version is currently included with Audrey Tang's Pugs project,
 and lives in its "/ext/Rosetta-Incubator" sub-directory during the short
 term, and its components may later be split up into other "/ext"
 sub-directories; Pugs' homepage is at "http://pugscode.org/", and it has an

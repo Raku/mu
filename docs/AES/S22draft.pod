@@ -7,7 +7,7 @@ Synopsis 22: CPAN [DRAFT]
 =head1 AUTHOR
 
     Jos Boumans <kane@cpan.org>
-    Autrijus Tang <autrijus@autrijus.org>
+    Audrey Tang <autrijus@autrijus.org>
     Florian Ragwitz <rafl@debian.org>
 
 =head1 VERSION

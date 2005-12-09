@@ -64,7 +64,7 @@
   \frametitle{Pugs}
   
   \begin{itemize}
-    \item Ursprünglich Haskell-Projekt von Autrijus Tang "`als Übung"'
+    \item Ursprünglich Haskell-Projekt von Audrey Tang "`als Übung"'
     \item Projektbeginn: 1. Februar 2005
     \item Nun 130 Entwickler
     \item Version 6.2.8: Beinahe Alles (!), mehrere Backends (direkte

@@ -7,7 +7,7 @@ Synopsis 17: Concurrency [DRAFT]
 =head1 AUTHOR
 
  Elizabeth Mattijsen <liz@dijkmat.nl>
- Autrijus Tang <autrijus@autrijus.org>
+ Audrey Tang <autrijus@autrijus.org>
 
 =head1 VERSION
 

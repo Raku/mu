@@ -16,6 +16,6 @@
 # for everything to compile.
 
 # The utility is modified by Darren Duncan 
-# from a one-liner supplied by Autrijus Tang on #perl6.
+# from a one-liner supplied by Audrey Tang on #perl6.
 
 find blib6/lib -name '*.pm' -exec ./pugs -e "@*INC.unshift('blib6/lib'); say 'require \'{}\';'; require '{}';" ';'

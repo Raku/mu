@@ -15,7 +15,7 @@ require 'Session.pl';
 
 #--
 my @whoswho = ('', 'A funny Perl 6 book cover page', 'A pug', 'Larry Wall', 'Leo Toetsch', 'Andras Barthazi', 
-               'Dan Sugalski', 'Autrijus Tang', 'Damian Conway', 'Randal Schwartz', 'A camel', 'A parrot', 'A Haskell symbol');
+               'Dan Sugalski', 'Audrey Tang', 'Damian Conway', 'Randal Schwartz', 'A camel', 'A parrot', 'A Haskell symbol');
 #--
 
 my $page;

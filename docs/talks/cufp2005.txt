@@ -1,6 +1,6 @@
 Pugs
 Perl 6 For Real
-Autrijus Tang
+Audrey Tang
 http://pugscode.org/
 
 Perl

@@ -11,7 +11,7 @@
 |                                                                   |
 =====================================================================
 
-Pugs is Copyright 2005 by Autrijus Tang.  All Rights Reserved.
+Pugs is Copyright 2005 by Audrey Tang.  All Rights Reserved.
 
 The "PGE" subsystem is derived from PGE by Patrick Michaud,
 under the Perl license.  See src/pge/README.
@@ -86,7 +86,7 @@ For Perl 6 related information, please see:
     http://dev.perl.org/perl6/
 
 Enjoy,
-/Autrijus/
+A.
 
 P.S. "Perl" stands for "Polymorphic Existential Recursive Lambdas", too!
 

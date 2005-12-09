@@ -1,7 +1,7 @@
 name: Perl6-Pugs
 version: 6.2.10
 abstract: A Perl 6 Implementation
-author: Autrijus Tang <autrijus@autrijus.org>
+author: Audrey Tang <autrijus@autrijus.org>
 license: perl
 distribution_type: module
 build_requires:

@@ -514,7 +514,7 @@ _________________________________________________________________
  Cc: perl6-language@perl.org
  Subject: S28ish [was: [Pugs] A couple of string interpolation edge cases]
  
- On Sat, Mar 26, 2005 at 02:11:29PM +0800, Autrijus Tang wrote:
+ On Sat, Mar 26, 2005 at 02:11:29PM +0800, Audrey Tang wrote:
  : On Fri, Mar 25, 2005 at 10:03:45PM -0800, Larry Wall wrote:
  : > Hmm, well, if it got that far.  Given strict being on by default,
  : > this particular example should probably just die on the fact that $"

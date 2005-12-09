@@ -3,7 +3,7 @@ Anatomie_eines_Compilers_am_Beispiel_von_Pugs.latex (German):
   PDF version: http://m19s28.vlinux.de/iblech/klasse11/Sonstiges/1337/LUGA/Anatomie_eines_Compilers_am_Beispiel_von_Pugs.latex.pdf
 
 Apocalypse_Now.spork: "Apocalypse Now" (English):
-  Talk by Autrijus Tang for YAPC::NA 2005
+  Talk by Audrey Tang for YAPC::NA 2005
   HTML version: http://pugscode.org/talks/yapc/slide1.html
 
 oscon-apocalypse.spork: "Apocalypse Now" (English):
@@ -11,7 +11,7 @@ oscon-apocalypse.spork: "Apocalypse Now" (English):
   HTML version: http://www.kwiki.org/apocalypse/start.html
 
 hw2005.tex: "Pugs: Bootstrapping Perl 6 with Haskell" (English):
-  Paper by Autrijus Tang for Haskell Workshop 2005 (rejected)
+  Paper by Audrey Tang for Haskell Workshop 2005 (rejected)
   PDF version: http://perlcabal.org/~autrijus/hw2005.pdf
 
 perl6-apw2005/: "Eine Einfuehrung in Perl 6" (German):
@@ -23,11 +23,11 @@ Perl6_genau_jetzt.latex: "Perl 6, genau jetzt!" (German):
   PDF version: http://m19s28.vlinux.de/iblech/klasse11/Sonstiges/1337/LUGA/Perl6.latex.pdf
 
 Perl6_the_Ultimate.spork: "Perl 6 The Ultimate" (Chinese):
-  Talk by Autrijus Tang for YAPC::Taipei 2005
+  Talk by Audrey Tang for YAPC::Taipei 2005
   HTML version: http://autrijus.org/p6tu/start.html
 
 cufp2005.txt: "Pugs: Perl 6 For Real" (English):
-  Talk by Autrijus Tang for Commercial Users of Functional Programming Workshop 2005
+  Talk by Audrey Tang for Commercial Users of Functional Programming Workshop 2005
   PDF version: http://no.perlcabal.org/~autrijus/cufp2005.pdf
 
 sources are elsewhere: "Introducing Perl - Version VI: A New Hope" (English)
