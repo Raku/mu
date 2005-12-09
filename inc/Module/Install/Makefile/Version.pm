@@ -1,4 +1,4 @@
-#line 1 "inc/Module/Install/Makefile/Version.pm - /Users/ingy/local/lib/perl5/site_perl/5.8.6/Module/Install/Makefile/Version.pm"
+#line 1 "inc/Module/Install/Makefile/Version.pm - /usr/local/lib/perl5/site_perl/5.8.7/Module/Install/Makefile/Version.pm"
 package Module::Install::Makefile::Version;
 use Module::Install::Base; @ISA = qw(Module::Install::Base);
 

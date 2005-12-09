@@ -1,4 +1,4 @@
-#line 1 "inc/Module/Install/WriteAll.pm - /Users/ingy/local/lib/perl5/site_perl/5.8.6/Module/Install/WriteAll.pm"
+#line 1 "inc/Module/Install/WriteAll.pm - /usr/local/lib/perl5/site_perl/5.8.7/Module/Install/WriteAll.pm"
 package Module::Install::WriteAll;
 use Module::Install::Base; @ISA = qw(Module::Install::Base);
 
@@ -17,10 +17,10 @@ sub WriteAll {
     $self->admin->WriteAll(%args) if $self->is_admin;
 
     if ($0 =~ /Build.PL$/i) {
-        $self->Build->write;
+	$self->Build->write;
     }
     else {
-        $self->check_nmake if $args{check_nmake};
+	$self->check_nmake if $args{check_nmake};
         $self->makemaker_args( PL_FILES => {} )
             unless $self->makemaker_args->{'PL_FILES'};
 
