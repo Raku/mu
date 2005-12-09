@@ -127,7 +127,7 @@ sub set_postamble {
         $heap = WIN32_GHC_HEAPSIZE;
     }
 
-    $heap = PugsBuild::Config->lookup('ghc_heap_size');
+    $heap = PugsBuild::Config->lookup('ghc_heap_size') || $heap;
     $ghc_flags .= " +RTS -M$heap -RTS" if $heap;
     # $ghc_flags .= ' -dcore-lint';
     # $ghc_flags .= " -keep-tmp-files";
