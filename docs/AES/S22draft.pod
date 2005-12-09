@@ -98,6 +98,13 @@ See the section on C< Metadata Spec > for details.
 
 These files are created in step 3 of the C<General Flow>
 
+# XXX - What does C<.jib> stand for?  Why not C<.p6d> or C<.p6z> or something 
+along that line?
+
+# XXX - Also C<package> is carrying double meaning in P6 as both namespace
+and source distribution.  Can we remove the former meaning and refer to them
+as C<module> and C<namespace> from now on?
+
 C<.jib> files are archives designed to distribute source packages, not
 installable packages. As we will need to compile things on the client side
 (things that have C bits or equivalent), and because we can not know the
@@ -164,6 +171,8 @@ about that installation.
             /our/metadir/alternatives/X
         ln -s /our/metadir/alternatives/X
             /usr/local/bin/X
+        # XXX - Question - in platforms without symlinks, do we emulate
+        #       using hardlinks and fallback to copying?  
 
     * In the case of multiple installs of the same package (where 'same'
         is determined by identical <prefix>-<package-name>), the perl6 
@@ -267,7 +276,7 @@ See README for details on these scripts.
             - unlinks all files listed
             - unlinks all bin/$script files that were linked
                 - relinks them if there's a suitable replacement available
-                - doesn't unlink manpages
+                - doesn't unlink manpages # XXX - Why?
                 - all up/downgrades considered 'auto' for now                
         - updates 'available' file (a la dpkg)
         - removes meta data associated with this package
@@ -739,6 +748,13 @@ So if we want to get a specifig index file which contains all modules with given
 meta tags we use a path like this:
 
   dists/tag1/value1/tag2/value2/tag3/value3.gz
+
+ # XXX - Alias suggests that we normalize our query syntax for selecting based
+ #       on languages, modules, tags etc, and take a digest hash of it as the
+ #       file name for the .gz file; that way a given repository can cache a
+ #       large amount of queries, and we can add more columns/axis after the
+ #       fact, without inventing whole directory structures to support them.
+ #       (it's essentially the git/monotone idea.)
 
 =head1 Implications for module resolving from the compiler
 
