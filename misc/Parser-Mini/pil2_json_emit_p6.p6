@@ -242,8 +242,10 @@ sub emit_Pad ( $scope, @symbols, $statements ) {
 }
 sub emit_Variable ( $s is copy ) {
     # rewrite '"&infix:+"' to '&infix:<+>'
+    # but don't re-quote '&main::zz'
     $s ~~ s:perl5/^"(.*)"$/$0/;
-    $s ~~ s:perl5{\&(.+?):(.+)}{&$0:<$1>};
+    $s ~~ s:perl5{\&(.+fix:)([^:].*)}{&$0:<$1>}; 
+    #$s ~~ s:perl5{(\&[^:]+fix:)((?!:).+)}{$0:<$1>};  # Khisanth
     $s
 }
 sub emit_Int ( $s ) { $s }
@@ -265,7 +267,4 @@ my $ast = parse( << { >>, 'hash', << } >>, @b );
 my $program = traverse_ast( $ast );
 
 say $program;
-
-# TODO 
-# - process END, ...
 
