@@ -107,6 +107,24 @@ sub pugs_fix_makefile {
     $full_pugs =~ s{'}{\\'}g;
     $full_blib =~ s{\\}{\\\\}g;
     $full_blib =~ s{'}{\\'}g;
+
+    # XXX - Pugs currently has issues under cygwin, and does not
+    # recognise cygwin absolute paths.  This kludge includes the
+    # win32ified path as well.
+
+    if ($Config{osname} eq q{cygwin}) {
+
+		# The world's ugliest cygwin variable gives us a hint to the
+		# cygwin root.  There is probably a better way to find this.
+		# (registry lookup?)
+
+		my $cygroot = $ENV{'!C:'};
+
+		$cygroot =~ s{\\bin$}{};
+
+        $full_blib .= join(q{}, q{:}, $cygroot, $full_blib)
+    }
+
     $makefile =~ s/\b(runtests \@ARGV|test_harness\(\$\(TEST_VERBOSE\), )/ENV->{HARNESS_PERL} = q{$full_pugs}; \@ARGV = map glob, \@ARGV; ENV->{PERL6LIB} = q{$full_blib}; $1/;
     $makefile =~ s!("-MExtUtils::Command::MM")!"-I../../inc" "-I../inc" "-Iinc" $1!g;
     $makefile =~ s/\$\(UNINST\)/0/g;
