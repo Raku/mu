@@ -10,6 +10,13 @@ use inc::Module::Install;
 use lib 'inc';
 use PugsBuild::Config;
 
+# Win32/CygWin GHC appears to be more memory hungry than its
+# *nix counterpart, causing it to bail part-way through builds.
+# This value will be used only if 'ghc_heap_size' in config.yml
+# is not defined.
+
+use constant WIN32_GHC_HEAPSIZE => "348m";
+
 my @warn;
 my $pugs = "pugs$Config{_exe}";
 my ($fs) = ($Config{sitelib} =~ /([\/\\])/)
@@ -111,7 +118,16 @@ sub set_postamble {
     unlink("Setup.hi");
     system($ghc, '--make', '-o' => $setup, 'Setup.lhs');
 
-    my $heap = PugsBuild::Config->lookup('ghc_heap_size');
+    my $heap;
+
+    # Win32 GHC is a memory hog.  We need to provide it with a memory sty.
+    # We still use the option from config.yml if available.
+
+    if ($Config{osname} eq 'cygwin' or $Config{osname} eq 'MSWin32') {
+        $heap = WIN32_GHC_HEAPSIZE;
+    }
+
+    $heap = PugsBuild::Config->lookup('ghc_heap_size');
     $ghc_flags .= " +RTS -M$heap -RTS" if $heap;
     # $ghc_flags .= ' -dcore-lint';
     # $ghc_flags .= " -keep-tmp-files";
