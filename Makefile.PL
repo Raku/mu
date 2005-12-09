@@ -336,6 +336,20 @@ EOD
     mkdir 'dist/build';
     mkdir 'dist/build/src';
 
+    # Using the Win32 Haskell compiler results in a setup program that
+    # doesn't grok cygwin paths.  This kludge takes any /cygdrive/
+    # style paths and rewrites them.  This really should be factored
+    # out to a common module.  Better still, we should make a Cygwin-native
+    # GHC.
+
+    if ($Config{osname} eq 'cygwin') {
+
+        # NB.  We're exploiting for's aliasing of variables.
+        foreach my $path ($ghc_pkg, $hsc2hs, $ghc) {
+            $path =~ s{^/cygdrive/(\w)/}{$1:/};
+        }
+    }
+
     my $setup_flags = "--prefix=\$(DESTDIR) --with-hc-pkg=$ghc_pkg --with-hsc2hs=$hsc2hs --ghc --with-compiler=$ghc";
 
     postamble(fixpaths(<< "."));
