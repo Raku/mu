@@ -246,6 +246,11 @@ sub emit_Variable ( $s is copy ) {
     $s ~~ s:perl5/^"(.*)"$/$0/;
     $s ~~ s:perl5{\&(.+fix:)([^:].*)}{&$0:<$1>}; 
     #$s ~~ s:perl5{(\&[^:]+fix:)((?!:).+)}{$0:<$1>};  # Khisanth
+
+    # XXX fix corner cases like infix:<:> &main::infix:<aaa>
+    $s ~~ s:perl5{(fix::<)(.*?)>$}{fix:<$1>};   
+    $s ~~ s:perl5{fix::$}{fix:<:>};   
+
     $s
 }
 sub emit_Int ( $s ) { $s }
