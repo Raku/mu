@@ -1,4 +1,4 @@
-#line 1 "inc/Module/Install/Win32.pm - /Users/ingy/local/lib/perl5/site_perl/5.8.6/Module/Install/Win32.pm"
+#line 1 "inc/Module/Install/Win32.pm - /usr/local/lib/perl5/site_perl/5.8.7/Module/Install/Win32.pm"
 package Module::Install::Win32;
 use Module::Install::Base; @ISA = qw(Module::Install::Base);
 
@@ -17,7 +17,7 @@ sub check_nmake {
         $Config::Config{make}                   and
         $Config::Config{make} =~ /^nmake\b/i    and
         $^O eq 'MSWin32'                        and
-        !$self->can_run('nmake.exe')
+        !$self->can_run('nmake')
     );
 
     print "The required 'nmake' executable not found, fetching it...\n";
