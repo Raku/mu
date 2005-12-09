@@ -11,7 +11,7 @@ synopsis: A Perl 6 Implementation
 description: A Perl 6 Implementation
 author: Autrijus Tang <autrijus@autrijus.org>
 tested-with: GHC -any
-exposed-modules: Pugs Pugs.AST Pugs.AST.Internals Pugs.AST.Pad Pugs.AST.Pos Pugs.AST.Prag Pugs.AST.SIO Pugs.AST.Scope Pugs.Bind Pugs.CodeGen Pugs.CodeGen.Binary Pugs.CodeGen.JSON Pugs.CodeGen.PIL1 Pugs.CodeGen.PIL2 Pugs.CodeGen.PIR Pugs.CodeGen.PIR.Prelude Pugs.CodeGen.Perl5 Pugs.Compat Pugs.Compile Pugs.Compile.PIL2 Pugs.Compile.Haskell Pugs.Compile.Pugs Pugs.Config Pugs.Cont Pugs.Embed Pugs.Embed.Haskell Pugs.Embed.Parrot Pugs.Embed.Perl5 Pugs.Embed.Pugs Pugs.Eval Pugs.Eval.Var Pugs.External Pugs.External.Haskell Pugs.Help Pugs.Internals Pugs.Junc Pugs.Lexer Pugs.Monads Pugs.PIL1 Pugs.PIL2 Pugs.Parser Pugs.Parser.Number Pugs.Parser.Program Pugs.Parser.Types Pugs.Parser.Unsafe Pugs.Pretty Pugs.Prim Pugs.Prim.Code Pugs.Prim.Eval Pugs.Prim.FileTest Pugs.Prim.Keyed Pugs.Prim.Lifts Pugs.Prim.List Pugs.Prim.Match Pugs.Prim.Numeric Pugs.Prim.Param Pugs.Prim.Yaml Pugs.Rule Pugs.Rule.Char Pugs.Rule.Combinator Pugs.Rule.Error Pugs.Rule.Expr Pugs.Rule.Language Pugs.Rule.Pos Pugs.Rule.Prim Pugs.Rule.Token Pugs.Run Pugs.Run.Args Pugs.Run.Perl5 Pugs.Shell Pugs.Types Pugs.Version Emit.Common Emit.PIR 
+exposed-modules: Pugs Pugs.AST Pugs.AST.Internals Pugs.AST.Pad Pugs.AST.Pos Pugs.AST.Prag Pugs.AST.SIO Pugs.AST.Scope Pugs.Bind Pugs.CodeGen Pugs.CodeGen.Binary Pugs.CodeGen.JSON Pugs.CodeGen.PIL1 Pugs.CodeGen.PIL2 Pugs.CodeGen.PIR Pugs.CodeGen.PIR.Prelude Pugs.CodeGen.Perl5 Pugs.Compat Pugs.Compile Pugs.Compile.PIL2 Pugs.Compile.Haskell Pugs.Compile.Pugs Pugs.Config Pugs.Cont Pugs.DeepSeq Pugs.Embed Pugs.Embed.Haskell Pugs.Embed.Parrot Pugs.Embed.Perl5 Pugs.Embed.Pugs Pugs.Eval Pugs.Eval.Var Pugs.External Pugs.External.Haskell Pugs.Help Pugs.Internals Pugs.Junc Pugs.Lexer Pugs.Monads Pugs.PIL1 Pugs.PIL2 Pugs.Parser Pugs.Parser.Number Pugs.Parser.Program Pugs.Parser.Types Pugs.Parser.Unsafe Pugs.Pretty Pugs.Prim Pugs.Prim.Code Pugs.Prim.Eval Pugs.Prim.FileTest Pugs.Prim.Keyed Pugs.Prim.Lifts Pugs.Prim.List Pugs.Prim.Match Pugs.Prim.Numeric Pugs.Prim.Param Pugs.Prim.Yaml Pugs.Rule Pugs.Rule.Char Pugs.Rule.Combinator Pugs.Rule.Error Pugs.Rule.Expr Pugs.Rule.Language Pugs.Rule.Pos Pugs.Rule.Prim Pugs.Rule.Token Pugs.Run Pugs.Run.Args Pugs.Run.Perl5 Pugs.Shell Pugs.Types Pugs.Version Emit.Common Emit.PIR 
 buildable: True
 c-sources: src/cbits/fpstring.c src/pcre/pcre.c __UNICODE_C__
            src/syck/bytecode.c src/syck/emitter.c src/syck/gram.c src/syck/handler.c
@@ -22,5 +22,5 @@ extra-lib-dirs: __LIB_DIRS__
 extensions: ForeignFunctionInterface
 include-dirs: __INCLUDE_DIRS__
 hs-source-dir: src
-other-modules: Data.Yaml.Syck DrIFT.Binary DrIFT.JSON DrIFT.Perl5 RRegex RRegex.PCRE RRegex.Syntax System.FilePath UTF8 Unicode
+other-modules: Data.DeepSeq Data.Yaml.Syck DrIFT.Binary DrIFT.JSON DrIFT.Perl5 RRegex RRegex.PCRE RRegex.Syntax System.FilePath UTF8 Unicode
 ghc-options: __OPTIONS__

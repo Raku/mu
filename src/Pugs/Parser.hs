@@ -1301,7 +1301,7 @@ tightOperators = do
     , rightOps " ** "                                   -- Exponentiation
     , preSyn "*"                                        -- Symbolic Unary
       ++ preOps (concatMap (\x -> " -" ++ [x]) "rwxoRWXOezsfdlpSbctugkTBMAC")
-      ++ preOps " = ! + - ~ ? +^ ~^ ?^ \\ "
+      ++ preOps " = ! + - ** ~ ? +^ ~^ ?^ \\ "
       ++ preSymOps preUnary
       ++ postOps postUnary
     , leftOps  " * / % x xx +& +< +> ~& ~< ~> "         -- Multiplicative

@@ -29,6 +29,7 @@ import Pugs.AST
 import Pugs.Types
 import Pugs.Monads
 import Pugs.Pretty
+import Pugs.DeepSeq
 import Text.Printf
 import Pugs.External
 import Pugs.Embed
@@ -626,6 +627,7 @@ op1 "Pugs::Internals::caller_pragma_value" = \v -> do
     case caller of
         Just env -> local (const env) (op1 "Pugs::Internals::current_pragma_value" v)
         _        -> return $ VUndef
+op1 "**"    = \v -> return $ deepSeq v v
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 op1IO :: Value a => (Handle -> IO a) -> Val -> Eval Val
@@ -1654,6 +1656,7 @@ initSyms = mapM primDecl syms
 \\n   Str       left    ~&      safe   (Str, Str)\
 \\n   Str       left    ~<      safe   (Str, Str)\
 \\n   Str       left    ~>      safe   (Str, Str)\
+\\n   Any       spre    **      safe   (Any)\
 \\n   Num       right   **      safe   (Num, Num)\
 \\n   Num       left    +       safe   (Num, Num)\
 \\n   Num       left    -       safe   (Num, Num)\
