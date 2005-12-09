@@ -61,16 +61,11 @@ sub parse (@start, $token, @end, @_ is rw) {
                 parse( <<>>, 'token', <<>>, @_ );
             },
     );
-    # say " parse: @start[] <$token> @end[]";
     for @start { @_.shift eq $_ or die "Expected $_" }; 
-    # say " Tail @_[]";
     my $ret = %tok{$token}( @_ );
     for @end   { @_.shift eq $_ or die "Expected $_" }; 
     $ret;
 }
-
-#my @pil2 = =<>;
-#my $pil2 = @pil2.join('');
 
 # slurp stdin - xinming++ 
 my $pil2 = ~list(=$*IN);
@@ -95,8 +90,8 @@ sub traverse_stmts ( $tree ) {
         my $ret;
 
         if $tree.ref ne 'Array' {
-            dbg "  # <$tree>";
-            return $tree;
+            dbg "  # -- unknown: <$tree>";
+            return; 
         }
 
         if $tree[0].ref eq 'Array' {
@@ -132,22 +127,21 @@ sub traverse_stmts ( $tree ) {
             $ret = traverse_stmts ( $tree[1][0][1] );
         }	
         elsif $tree[0] eq '"PVar"' {
-            $ret = unquote( traverse_stmts ( $tree[1][0][1] ) );
-        }	
-
+            dbg "#  <$tree[1][0][1]>";
+            $ret = unquote( $tree[1][0][1] );
+        }
         elsif $tree[0] eq '"VInt"' {
-            dbg "  <$tree[1][0]>";
+            dbg "#  <$tree[1][0]>";
             $ret = $tree[1][0];
         }	
         elsif $tree[0] eq '"VStr"' {
-            dbg "  <$tree[1][0]>";
+            dbg "#  <$tree[1][0]>";
             $ret = $tree[1][0];
         }	
         elsif $tree[0] eq '"VRat"' {
-            #dbg $tree.perl;
             my $a = $tree[1][0][0][1][0];
             my $b = $tree[1][0][0][1][1];
-            dbg "  <$a / $b>";
+            dbg "#  <$a / $b>";
             $ret = "($a / $b)";
         }	
 
@@ -162,9 +156,9 @@ sub traverse_stmts ( $tree ) {
             my %pad = $tree[1];  # keys: "pScope", "pSyms", "pStmts"
 
             dbg "# keys: ",%pad.keys;
-            dbg "Scope:      ", traverse_stmts ( %pad<"pScope"> );
-            dbg "Symbols:    ", traverse_stmts ( %pad<"pSyms"> );
-            dbg "Statements: ", traverse_stmts ( %pad<"pStmts"> );
+            dbg "# Scope:      ", traverse_stmts ( %pad<"pScope"> );
+            dbg "# Symbols:    ", traverse_stmts ( %pad<"pSyms"> );
+            dbg "# Statements: ", traverse_stmts ( %pad<"pStmts"> );
             $ret = " ... pad";
         }	
 
@@ -172,13 +166,13 @@ sub traverse_stmts ( $tree ) {
             my %pad = $tree[1];  # keys: "pBody""pIsMulti""pLValue""pParams""pType"
 
             dbg "# keys: ",%pad.keys;  #
-            dbg "Body:       ";
+            dbg "# Body:       ";
             my $body = traverse_stmts ( %pad<"pBody"> );
 
-            dbg "IsMulti:    ", traverse_stmts ( %pad<"pIsMulti"> );
-            dbg "LValue:     ", traverse_stmts ( %pad<"pLValue"> );
-            dbg "Parameters: ", traverse_stmts ( %pad<"pParams"> );
-            dbg "Type:       ", traverse_stmts ( %pad<"pType"> );
+            dbg "# IsMulti:    ", traverse_stmts ( %pad<"pIsMulti"> );
+            dbg "# LValue:     ", traverse_stmts ( %pad<"pLValue"> );
+            dbg "# Parameters: ", traverse_stmts ( %pad<"pParams"> );
+            dbg "# Type:       ", traverse_stmts ( %pad<"pType"> );
 
             $ret = '{ ' ~ $body ~ ' }';
             dbg "# Code as_string: $ret";
@@ -230,6 +224,7 @@ sub traverse_stmts ( $tree ) {
 sub unquote ( $str ) {
     my ($ret) = $str ~~ m:perl5/^"(.*)"$/;
     #say "unquote $str = $ret";
+    $ret ~~ s:perl5{\&(.*):(.*)}{&$0:<$1>};
     return ~$ret;
 }
 
