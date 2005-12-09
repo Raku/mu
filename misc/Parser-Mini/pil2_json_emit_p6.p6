@@ -5,10 +5,26 @@ PIL2-JSON simple Perl 6 code emitter
   ../../pugs -CPIL2-JSON -e ' say "hello" ' | \
     ../../pugs pil2_json_emit_p6.p6
 
+  #! /usr/bin/pugs
+  use v6;
+  &*END () {  }
   (&say("hello"));
+
+Other examples:
 
   ../../pugs -Cpil2-json -e ' my Int $x; ($x~"a")( "a",1,$x,$x+1); { say 1 } ' | \
     ../../pugs pil2_json_emit_p6.p6
+
+The code created by this example has syntax errors, but I'm not sure if these things are
+really forbidden in p6:
+
+  ../../pugs -Cpil2-json -e 'my ($x,$y)=(1,2); sub infix:<aaa>($a,$b){$a+1} 1 aaa 2;' | \
+    ../../pugs pil2_json_emit_p6.p6
+
+Not supported yet:
+
+  - parameter typing (half implemented, need some work)
+  - Classes (untested)
 
 =cut
 
@@ -138,6 +154,24 @@ sub traverse_ast ( $tree ) {
     elsif $tree[0] eq '"PNoop"' {
         $ret = '';
     }
+    elsif $tree[0] eq '"MkTParam"' {
+        my %pad = $tree[1];  # keys: "tpDefault""tpParam"
+        dbg "# keys: ",%pad.keys;
+        $ret = emit_parameter_with_default(
+            traverse_ast( %pad<"tpParam"> ), traverse_ast( %pad<"tpDefault"> ) 
+        );
+    }
+    elsif $tree[0] eq '"MkParam"' {
+        my %pad = $tree[1];  # keys: "isInvocant""isLValue""isLazy""isNamed""isOptional"
+                             #       "isWritable""paramContext""paramDefault""paramName"
+        dbg "# keys: ",%pad.keys;
+        $ret = emit_parameter( 
+            %pad<"paramName">,
+            %pad<<"isInvocant" "isLValue" "isLazy" "isNamed" "isOptional" "isWritable">>, 
+            %pad<"paramContext">,   # TODO
+            %pad<"paramDefault">,   # TODO
+        );
+    }
     elsif $tree[0] eq '"PPos"' {
         my %pad = $tree[1];  # keys: "pExp""pNode""pPos"
         dbg "# keys: ",%pad.keys;
@@ -162,7 +196,7 @@ sub traverse_ast ( $tree ) {
         dbg "# keys: ",%pad.keys;
 
         my $scope =      %pad<"pScope">[0][0];
-        dbg "# Scope:      $scope";  # "SMy"
+        dbg "# Scope:      $scope";  # "SMy"  TODO - what are the other scopes?
 
         #say %pad<"pSyms">.perl;
         my @symbols = %pad<"pSyms">.map:{ $_[0] };
@@ -187,7 +221,11 @@ sub traverse_ast ( $tree ) {
         dbg "# Body:       "; my $body =     traverse_ast ( %pad<"pSubBody"> );
         dbg "# IsMulti:    "; my $is_multi = %pad<"pSubIsMulti">;
         dbg "# LValue:     "; my $lvalue =   %pad<"pSubLValue">;
-        dbg "# Parameters: "; my @params =   traverse_ast ( %pad<"pSubParams"> );
+        dbg "# Parameters: "; 
+        my @params;
+        for %pad<"pSubParams"> {
+            push @params, traverse_ast ( $_ );
+        }
         dbg "# Type:       "; my $type =     traverse_ast ( %pad<"pSubType"> );
         dbg "# Name:       "; my $name =     emit_Variable( %pad<"pSubName"> );
         $ret = emit_Sub( $name, $body, $is_multi, $lvalue, @params, $type );
@@ -241,13 +279,12 @@ sub emit_Pad ( $scope, @symbols, $statements ) {
     "\{\n" ~ @symbols.map:{ "my " ~ emit_Variable($_) ~ ";\n" } ~ "$statements\n\}\n";
 }
 sub emit_Variable ( $s is copy ) {
-    # rewrite '"&infix:+"' to '&infix:<+>'
+    # rewrite PIL2 '"&infix:+"' to p6 '&infix:<+>'
     # but don't re-quote '&main::zz'
     $s ~~ s:perl5/^"(.*)"$/$0/;
     $s ~~ s:perl5{\&(.+fix:)([^:].*)}{&$0:<$1>}; 
-    #$s ~~ s:perl5{(\&[^:]+fix:)((?!:).+)}{$0:<$1>};  # Khisanth
 
-    # XXX fix corner cases like infix:<:> &main::infix:<aaa>
+    # XXX fix corner cases like 'infix:<:>' and '&main::infix:<aaa>'
     $s ~~ s:perl5{(fix::<)(.*?)>$}{fix:<$1>};   
     $s ~~ s:perl5{fix::$}{fix:<:>};   
 
@@ -256,11 +293,18 @@ sub emit_Variable ( $s is copy ) {
 sub emit_Int ( $s ) { $s }
 sub emit_Str ( $s ) { $s }
 sub emit_Rat ( $a, $b ) { "($a / $b)" }
+sub emit_parameter( $name, *@param ) {
+    return emit_Variable( $name ); # XXX incomplete!
+    return '"<<param_not_implemented_yet-' ~ @param.join('+') ~ '>>"';  # TODO
+}
+sub emit_parameter_with_default( $param, $default ) {
+    if $default eq '' { $param }
+    else { $param ~ ' = ' ~ $default }
+}
 
 # -- Main program
 
 # slurp stdin - xinming++ 
-#my $pil2 = ~list(=$*IN);
 my $pil2 = ~$*IN.slurp;
 
 my @b = $pil2 ~~ $tokens;
@@ -272,4 +316,3 @@ my $ast = parse( << { >>, 'hash', << } >>, @b );
 my $program = traverse_ast( $ast );
 
 say $program;
-
