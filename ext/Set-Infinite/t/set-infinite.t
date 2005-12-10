@@ -8,6 +8,13 @@ plan 48;
 use_ok( 'Set::Infinite' );
 use Set::Infinite;   # XXX should not need this
 
+# Practically all Set::Infinite operations cause infinite loops as
+# of 8140.  We're going to flunk everything for now.  ;(
+
+for (1..47) { flunk("Infinite loop"); }
+
+=begin infinite loop
+
 my $span1 = Span::Num.new( 
     start => 1, end => 3, start_is_open => bool::false, end_is_open => bool::false );
 my $set1 = Set::Infinite.new( spans => $span1 );
@@ -138,3 +145,7 @@ is( $set1.difference( $set2 ).stringify, '[1,2)', 'difference' );
     $set.remove( Span.new( :int, :start(9), :end(21) ) );
     is( $set.stringify, '[1,2],7,22', 'remove span' );
 }
+
+=end
+
+=cut
