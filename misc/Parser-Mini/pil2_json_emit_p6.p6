@@ -166,10 +166,11 @@ sub traverse_ast ( $tree ) {
                              #       "isWritable""paramContext""paramDefault""paramName"
         dbg "# keys: ",%pad.keys;
         $ret = emit_parameter( 
-            %pad<"paramName">,
-            %pad<<"isInvocant" "isLValue" "isLazy" "isNamed" "isOptional" "isWritable">>, 
-            %pad<"paramContext">,   # TODO
-            %pad<"paramDefault">,   # TODO
+            %pad<"paramName">,  %pad<"isInvocant">,
+            %pad<"isLValue">,   %pad<"isLazy">,
+            %pad<"isNamed">,    %pad<"isOptional">,
+            %pad<"isWritable">, %pad<"paramContext">,   
+            %pad<"paramDefault">,   # ???
         );
     }
     elsif $tree[0] eq '"PPos"' {
@@ -227,6 +228,7 @@ sub traverse_ast ( $tree ) {
             push @params, traverse_ast ( $_ );
         }
         dbg "# Type:       "; my $type =     traverse_ast ( %pad<"pSubType"> );
+            # types: SubMethod, ...
         dbg "# Name:       "; my $name =     emit_Variable( %pad<"pSubName"> );
         $ret = emit_Sub( $name, $body, $is_multi, $lvalue, @params, $type );
     }
@@ -270,7 +272,9 @@ sub emit_Code ( $body, $is_multi, $lvalue, @params, $type ) {
 sub emit_Assign( $to, $from ) { $to ~ ' = ' ~ $from }
 sub emit_Bind( $to, $from )   { $to ~ ' := ' ~ $from }
 sub emit_Sub ( $name, $body, $is_multi, $lvalue, @params, $type ) {
-    " $name (" ~ @params.join(", ") ~ ") { " ~ $body ~ " \}\n"
+    my $param_list = @params.join(" ");
+    $param_list ~~ s:perl5{.$}{};  # remove last ','
+    " $name (" ~ $param_list ~ ") { " ~ $body ~ " \}\n"
 }	
 sub emit_App ( $function, @args, $context, $invocant ) {   
     "(" ~ $function ~ "(" ~  @args.join(", ") ~ ")" ~ ")"
@@ -293,13 +297,38 @@ sub emit_Variable ( $s is copy ) {
 sub emit_Int ( $s ) { $s }
 sub emit_Str ( $s ) { $s }
 sub emit_Rat ( $a, $b ) { "($a / $b)" }
-sub emit_parameter( $name, *@param ) {
-    return emit_Variable( $name ); # XXX incomplete!
-    return '"<<param_not_implemented_yet-' ~ @param.join('+') ~ '>>"';  # TODO
+sub emit_parameter( 
+    $name, $is_invocant, $is_lvalue, $is_lazy, $is_named,
+    $is_optional, $is_writable, $context, $default )
+{
+    #say "(param=$name, $is_invocant, $is_lvalue, $is_lazy, $is_named, ",
+    #    "$is_optional, $is_writable, <", $context.perl, ">, <$default>)";
+        
+    # ??? - "paramDefault" 
+    # ??? - what is the syntax for $is_lvalue 
+
+    # $context = [["CxtSlurpy", [[["MkType", ["Int"] ]]] ]]
+    my $is_slurpy = $context[0][0] eq '"CxtSlurpy"';
+    my $type = emit_Variable( $context[0][1][0][0][1] );
+    
+    my $s;
+    $s ~= $type eq 'main' ?? '' !! ($type ~ ' ');
+    $s ~= $is_slurpy ?? '*' !! '';
+
+    $s ~= $is_named    eq 'true'        ?? ':' !! ''; 
+    $s ~= emit_Variable( $name );
+    $s ~= $is_optional eq 'true'        ?? '?' !! '!'; 
+    $s ~= ' is rw '   if $is_writable eq 'true';
+    $s ~= ' is lazy ' if $is_lazy     eq 'true';
+    # XXX - if there are 2 invocants, separate with comma
+    $s ~= $is_invocant eq 'true'        ?? ':' !! ',';   
+    return $s; 
 }
 sub emit_parameter_with_default( $param, $default ) {
-    if $default eq '' { $param }
-    else { $param ~ ' = ' ~ $default }
+    return $param if $default eq '';
+    # rewrite '$name,' to '$name = default,'
+    my ($name, $separator) = $param ~~ m:perl5{(.*)(.)};
+    $name ~ ' = ' ~ $default ~ $separator
 }
 
 # -- Main program
