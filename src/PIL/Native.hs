@@ -21,10 +21,24 @@ data Native
     | NStr      !NativeStr
     | NSeq      !NativeSeq
     | NMap      !NativeMap
---------------------------------- Containers
-    | NRef      !NativeRef
+--------------------------------- Code
+    | NCode     { params :: !(ArrayOf NativeCodeSym)
+                , body   :: !NativeCodeExpression
+                } 
     deriving (Show, Eq, Ord)
-    
+
+type NativeCodeSym = NativeStr
+type NativeCodeMsg = NativeStr
+
+data NativeCodeExpression
+    = NC_Lit  { val  :: Native }
+    | NC_Var  { sym  :: NativeCodeSym }
+    | NC_Send { obj  :: NativeCodeExpression
+              , msg  :: NativeCodeMsg
+              , args :: ArrayOf NativeCodeExpression
+              }
+    deriving (Show, Eq, Ord)
+
 -- Common API for plural types
 class (IsNative a, IsNative key, IsNative val) => IsPlural a key val | a -> key, a -> val where 
     isEmpty     :: a -> NativeBit
@@ -71,7 +85,6 @@ instance IsNative Native where
     toString (NStr x)     = toString x
     toString (NSeq x)     = toString x
     toString (NMap x)     = toString x
-    toString (NRef x)     = toString x
 
 instance IsNative NativeBit where
     toNative = NBit
@@ -86,7 +99,6 @@ instance IsNative NativeBit where
         _   -> 1
     fromNative (NSeq x)     = isEmpty x
     fromNative (NMap x)     = isEmpty x
-    fromNative (NRef _)     = 1
 
 instance IsNative NativeInt where
     toNative = NInt
@@ -98,7 +110,6 @@ instance IsNative NativeInt where
     fromNative (NStr x)     = read (toString x)
     fromNative (NSeq x)     = size x
     fromNative (NMap x)     = size x
-    fromNative (NRef _)     = error "Cannot cast ref to int"
 
 instance IsNative NativeStr where
     toNative = NStr
@@ -113,7 +124,6 @@ instance IsNative NativeStr where
     fromNative (NMap x)     = NStr.unlines $ map fromPair (assocs x)
         where
         fromPair (k, v) = NStr.append k (NStr.cons '\t' (fromNative v))
-    fromNative (NRef _)     = error "Cannot cast ref to str"
 
 instance IsNative NativeNum where
     toNative = NNum
@@ -125,7 +135,6 @@ instance IsNative NativeNum where
     fromNative (NStr x)     = read (toString x)
     fromNative (NSeq x)     = toEnum (size x)
     fromNative (NMap x)     = toEnum (size x)
-    fromNative (NRef _)     = error "Cannot cast ref to str"
 
 instance IsNative NativeComplex where
     toNative = NComplex
@@ -136,9 +145,6 @@ instance IsNative NativeMap where
 instance IsNative NativeSeq where
     toNative = NSeq
 
-instance IsNative NativeRef where
-    toNative = NRef
-
 instance IsNative NativeError where
     toNative = NError
 
@@ -148,10 +154,10 @@ type NativeNum = Float
 type NativeError = Exception
 type NativeComplex = Complex Float
 type NativeStr = NStr.FastString
-type NativeSeq = NSeq.DiffArray NativeInt Native
+type NativeSeq = ArrayOf Native
 type NativeMap = NMap.Map NativeStr Native
---------------------------------------
-type NativeRef = TVar Native
+
+type ArrayOf = NSeq.DiffArray NativeInt
 
 instance Num NativeBit where
     False + False = False
@@ -166,21 +172,15 @@ instance Num NativeBit where
     fromInteger 0 = False
     fromInteger _ = True
 
-instance Show NativeRef where
-    show _ = "<ref>"
-
-instance Ord NativeRef where
-    compare _ _ = EQ
-
 instance Ord NativeError where
     compare x y = compare (show x) (show y)
 
 instance Ord NativeComplex where
     compare (a :+ ai) (b :+ bi) = compare (a, ai) (b, bi)
 
-instance Eq NativeSeq where
+instance Eq a => Eq (ArrayOf a) where
     a == a'   =   NSeq.assocs a == NSeq.assocs a'
 
-instance Ord NativeSeq where
+instance Ord a => Ord (ArrayOf a) where
     a <= a'   =   NSeq.assocs a <= NSeq.assocs a'
 
