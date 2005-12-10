@@ -13,7 +13,9 @@
 module PIL where
 import PIL.Native
 import System.IO
+import System.IO.Error
 import Control.Monad.Error
+import Pugs.Shell
 
 parse :: String -> IO ()
 parse src = do
@@ -23,25 +25,31 @@ parse src = do
 
 main :: IO ()
 main = do
-    putStrLn "*** Welcome to PIL2 REPL, the Pugs Again Shell!"
-    putStrLn "*** Please enter expressions, or :q to exit."
-    fix $ \redo -> do
-        putStr "pugs> "
-        hFlush stdout
-        src <- getLine
-        hFlush stdout
-        if (src == ":q") then return () else do
-        case parseNativeLang src of
-            Left err   -> do
-                banner "Error"
-                putStrLn err
-            Right exps -> do
+    banner "Welcome to PIL2 REPL, the Pugs Again Shell!"
+    banner "Please enter expressions, or :q to exit"
+    prompt
+    where
+    prompt = do
+        cmd <- getCommand
+        case cmd of
+            CmdQuit -> return ()
+            CmdRun { runProg = src } -> (`catchError` parseErr) $ do
+                exps <- parseNativeLang src 
                 banner "Parsed"
-                print exps
-                banner "Pretty-Printed"
                 putStrLn $ pretty exps
-        redo
+                banner "Evaluated"
+                val  <- evalNativeLang exps
+                putStrLn $ pretty val
+                prompt
+            _ -> do
+                banner "Unknown Command"
+                prompt
+    parseErr err = do
+        banner "Error"
+        putStrLn $ ioeGetErrorString err
+        prompt
 
+banner :: String -> IO ()
 banner x = putStrLn ("\n*** " ++ x ++ " ***")
 {-
 

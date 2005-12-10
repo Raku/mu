@@ -10,6 +10,10 @@ import qualified Data.Map as NMap
 import qualified Data.Array.Diff as NSeq
 import qualified Data.FastPackedString as NStr
 
+nil :: Native
+nil = toNative mkNil
+
+mkNil :: NativeError
 mkNil = NonTermination
 
 mkErr :: (Typeable a) => a -> NativeError

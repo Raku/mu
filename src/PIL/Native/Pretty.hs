@@ -43,13 +43,16 @@ instance Pretty Native where
     format (NBit False) = text "false"
     format (NInt x)     = int x
     format (NNum x)     = float x
-    format (NStr x)     = ptext (show $ toString x)
+    format (NStr x)     = format (toString x)
     format (NSeq x)     = brackets (commaSep $ elems x)
-    format (NMap x)     = brackets (commaSep $ assocs x)
+    format (NMap x)     = braces (commaSep $ assocs x)
     format (NBlock x)   = format x
 
+instance Pretty String where
+    format = ptext . show
+
 instance Pretty (NativeStr, Native) where
-    format (x, y) = sep [format x, text "=>", format y]
+    format (x, y) = sep [format (toString x), text "=>", format y]
 
 sepBy :: (Pretty a) => Doc -> [a] -> Doc
 sepBy x = sep . punctuate x . map format

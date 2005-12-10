@@ -40,6 +40,7 @@ literal = choice
     , lit "true"    True
     , fmap toNative pointyBlock
     , fmap toNative stringLiteral
+    , fmap toNative singleQuoteStringLiteral
     , fmap toNative (brackets $ commaSep literal)
     , fmap toNative (braces $ commaSep pair)
     , try (fmap toNative naturalOrFloat)
@@ -52,14 +53,22 @@ literal = choice
         return (toNative n)
     pair = do
         key <- literal
+        symbol "=>"
         val <- literal
         return (key, val)
+
+singleQuoteStringLiteral :: Parser String
+singleQuoteStringLiteral = between (char '\'') (lexeme $ char '\'') $ do
+    many $ choice
+        [ try $ do { char '\\'; oneOf "\\'" }
+        , satisfy (/= '\'')
+        ]
 
 commaSep :: Parser a -> Parser [a]
 commaSep = (`sepEndBy` (symbol ","))
 
 semiColonSep :: Parser a -> Parser [a]
-semiColonSep = (`sepEndBy` (symbol ";"))
+semiColonSep = (`sepEndBy` (many1 $ symbol ";"))
 
 pointyBlock :: Parser NativeBlock
 pointyBlock = do
