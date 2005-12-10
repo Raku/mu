@@ -4,8 +4,7 @@ module PIL.Native where
 import qualified Data.Map as NMap
 import qualified Data.Array.Diff as NSeq
 import qualified Data.FastPackedString as NStr
-import Data.Complex
-import Control.Concurrent.STM
+import Data.Typeable
 import Control.Exception
 
 #define _(x) (NStr.pack(x))
@@ -16,7 +15,6 @@ data Native
     | NBit      !NativeBit
     | NInt      !NativeInt
     | NNum      !NativeNum
-    | NComplex  !NativeComplex
 --------------------------------- Aggregates
     | NStr      !NativeStr
     | NSeq      !NativeSeq
@@ -25,7 +23,7 @@ data Native
     | NCode     { params :: !(ArrayOf NativeCodeSym)
                 , body   :: !NativeCodeExpression
                 } 
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Typeable)
 
 type NativeCodeSym = NativeStr
 type NativeCodeMsg = NativeStr
@@ -37,7 +35,7 @@ data NativeCodeExpression
               , msg  :: NativeCodeMsg
               , args :: ArrayOf NativeCodeExpression
               }
-    deriving (Show, Eq, Ord)
+    deriving (Show, Eq, Ord, Typeable)
 
 -- Common API for plural types
 class (IsNative a, IsNative key, IsNative val) => IsPlural a key val | a -> key, a -> val where 
@@ -81,63 +79,63 @@ instance IsNative Native where
     toString (NBit x)     = toString x
     toString (NInt x)     = toString x
     toString (NNum x)     = toString x
-    toString (NComplex x) = toString x
     toString (NStr x)     = toString x
     toString (NSeq x)     = toString x
     toString (NMap x)     = toString x
+    toString (NCode {})   = castFail
+
+castFail :: (Typeable a) => a
+castFail = error "Cannot case code to anything (XXX This message needs work)"
 
 instance IsNative NativeBit where
     toNative = NBit
-    fromNative (NError _)   = 0         -- Errors are undefs are false
+    fromNative (NError {})  = 0         -- Errors are undefs are false
     fromNative (NBit x)     = x
     fromNative (NInt x)     = (x /= 0)
     fromNative (NNum x)     = (x /= 0)
-    fromNative (NComplex x) = (x /= (0 :+ 0))
     fromNative (NStr x)     = case size x of
         0   -> 0
         1   -> (NStr.head x /= '0')
         _   -> 1
     fromNative (NSeq x)     = isEmpty x
     fromNative (NMap x)     = isEmpty x
+    fromNative (NCode {})   = 1         -- Code are always true
 
 instance IsNative NativeInt where
     toNative = NInt
-    fromNative (NError _)   = 0
+    fromNative (NError {})  = 0
     fromNative (NBit x)     = fromEnum x
     fromNative (NInt x)     = x
     fromNative (NNum x)     = fromEnum x
-    fromNative (NComplex x) = fromEnum (realPart x)
     fromNative (NStr x)     = read (toString x)
     fromNative (NSeq x)     = size x
     fromNative (NMap x)     = size x
+    fromNative (NCode {})   = castFail
 
 instance IsNative NativeStr where
     toNative = NStr
     toString = NStr.unpackFromUTF8
-    fromNative (NError _)   = empty
+    fromNative (NError {})  = empty
     fromNative (NBit x)     = if x then _("1") else _("0")
     fromNative (NInt x)     = _(toString x)
     fromNative (NNum x)     = _(toString x)
-    fromNative (NComplex x) = _(toString x)
     fromNative (NStr x)     = x
     fromNative (NSeq x)     = NStr.unwords $ map fromNative (elems x)
     fromNative (NMap x)     = NStr.unlines $ map fromPair (assocs x)
         where
         fromPair (k, v) = NStr.append k (NStr.cons '\t' (fromNative v))
+    fromNative (NCode {})   = castFail
 
 instance IsNative NativeNum where
     toNative = NNum
-    fromNative (NError _)   = 0
+    fromNative (NError {})  = 0
     fromNative (NBit x)     = if x then 1 else 0
     fromNative (NInt x)     = toEnum x
     fromNative (NNum x)     = x
-    fromNative (NComplex x) = realPart x
     fromNative (NStr x)     = read (toString x)
     fromNative (NSeq x)     = toEnum (size x)
     fromNative (NMap x)     = toEnum (size x)
-
-instance IsNative NativeComplex where
-    toNative = NComplex
+    fromNative (NCode {})   = castFail
 
 instance IsNative NativeMap where
     toNative = NMap
@@ -152,7 +150,6 @@ type NativeBit = Bool
 type NativeInt = Int
 type NativeNum = Float
 type NativeError = Exception
-type NativeComplex = Complex Float
 type NativeStr = NStr.FastString
 type NativeSeq = ArrayOf Native
 type NativeMap = NMap.Map NativeStr Native
@@ -174,9 +171,6 @@ instance Num NativeBit where
 
 instance Ord NativeError where
     compare x y = compare (show x) (show y)
-
-instance Ord NativeComplex where
-    compare (a :+ ai) (b :+ bi) = compare (a, ai) (b, bi)
 
 instance Eq a => Eq (ArrayOf a) where
     a == a'   =   NSeq.assocs a == NSeq.assocs a'
