@@ -27,7 +27,7 @@ data Command
    | CmdQuit
    | CmdParse String
    | CmdParseRaw String
-   | CmdRun RunOptions String
+   | CmdRun { runOpt :: RunOptions, runProg :: String }
    | CmdHelp
    | CmdReset
 
