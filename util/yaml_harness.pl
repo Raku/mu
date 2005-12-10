@@ -193,7 +193,7 @@ sub get_tests {
 sub get_revision {
     my($self) = @_;
     my $rev_get_cmd = $Config{"pugs-path"}.' -V:pugs_revision';
-    do { $self->{_revision} = $1 if /pugs_revision: (\d+)$/ } for `@{[$rev_get_cmd]}`;
+    do { $self->{_revision} = $1 if /pugs_revision: (\d+)\r?$/ } for `@{[$rev_get_cmd]}`;
     $self->{_revision} ||= "unknown";
     print "$rev_get_cmd returns revision '@{[$self->{_revision}]}'\n";
 }
