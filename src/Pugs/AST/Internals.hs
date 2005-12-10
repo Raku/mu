@@ -64,7 +64,7 @@ module Pugs.AST.Internals (
     buildParam, defaultArrayParam, defaultHashParam, defaultScalarParam,
     emptyExp,
     isSlurpy, envWant,
-    extract, fromObject, createObject,
+    extractPlaceholderVars, fromObject, createObject,
     doPair, doHash, doArray,
     unwrap, -- Unwrap(..) -- not used in this file, suitable for factoring out
     
@@ -954,30 +954,30 @@ instance Eq VProcess
 instance Ord VProcess where
     compare _ _ = EQ
 
-extractExp :: Exp -> ([Exp], [String]) -> ([Exp], [String])
-extractExp ex (exps, vs) = (ex':exps, vs')
+extractPlaceholderVarsExp :: Exp -> ([Exp], [String]) -> ([Exp], [String])
+extractPlaceholderVarsExp ex (exps, vs) = (ex':exps, vs')
     where
-    (ex', vs') = extract ex vs
+    (ex', vs') = extractPlaceholderVars ex vs
 
--- | (Used by 'extractExp'...)
-extract :: Exp -> [String] -> (Exp, [String])
-extract (App n invs args) vs = (App n' invs' args', vs''')
+{-| Deduce the placeholder vars ($^a, $^x etc.) used by a block). -}
+extractPlaceholderVars :: Exp -> [String] -> (Exp, [String])
+extractPlaceholderVars (App n invs args) vs = (App n' invs' args', vs''')
     where
-    (n', vs')      = extract n vs
-    (invs', vs'')  = maybe (invs, vs') (\inv -> let (x, y) = extract inv vs' in (Just x, y)) invs
-    (args', vs''') = foldr extractExp ([], vs'') args
-extract (Stmts exp1 exp2) vs = (Stmts exp1' exp2', vs'')
+    (n', vs')      = extractPlaceholderVars n vs
+    (invs', vs'')  = maybe (invs, vs') (\inv -> let (x, y) = extractPlaceholderVars inv vs' in (Just x, y)) invs
+    (args', vs''') = foldr extractPlaceholderVarsExp ([], vs'') args
+extractPlaceholderVars (Stmts exp1 exp2) vs = (Stmts exp1' exp2', vs'')
     where
-    (exp1', vs')  = extract exp1 vs
-    (exp2', vs'') = extract exp2 vs'
-extract (Syn n exps) vs = (Syn n exps', vs'')
+    (exp1', vs')  = extractPlaceholderVars exp1 vs
+    (exp2', vs'') = extractPlaceholderVars exp2 vs'
+extractPlaceholderVars (Syn n exps) vs = (Syn n exps', vs'')
     where
-    (exps', vs') = foldr extractExp ([], vs) exps
+    (exps', vs') = foldr extractPlaceholderVarsExp ([], vs) exps
     vs'' = case n of
         "when"  -> nub $ vs' ++ ["$_"]
         "given" -> delete "$_" vs'
         _       -> vs'
-extract (Var name) vs
+extractPlaceholderVars (Var name) vs
     | (sigil:'^':identifer) <- name
     , name' <- (sigil : identifer)
     = (Var name', nub (name':vs))
@@ -985,10 +985,10 @@ extract (Var name) vs
     = (Var name, nub (name:vs))
     | otherwise
     = (Var name, vs)
-extract (Ann ann ex) vs = ((Ann ann ex'), vs')
+extractPlaceholderVars (Ann ann ex) vs = ((Ann ann ex'), vs')
     where
-    (ex', vs') = extract ex vs
-extract exp vs = (exp, vs)
+    (ex', vs') = extractPlaceholderVars ex vs
+extractPlaceholderVars exp vs = (exp, vs)
 
 
 -- can be factored

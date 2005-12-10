@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts #-}
 
 module PIL.Native.Pretty (Pretty(..), pretty) where
 import PIL.Native.Types
@@ -15,6 +15,7 @@ class (Show a) => Pretty a where
 instance Pretty [NativeLangExpression] where
     format = sepBy semi
 
+#ifndef HADDOCK
 instance Pretty NativeLangExpression where
     format (NL_Lit x) = format x
     format (NL_Var x) = format x
@@ -26,6 +27,7 @@ instance Pretty NativeLangExpression where
         where
         maybeParens (NL_Lit (NBlock {})) = parens (format obj)
         maybeParens obj = format obj
+#endif
 
 instance Pretty NativeLangSym where
     format = text . toString
