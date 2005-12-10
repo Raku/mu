@@ -481,10 +481,10 @@ smoke-perl5 : $pugs util/run-smoke.pl all
 ghci ::
 	$ghc --interactive -idist/build -Ldist/build -idist/build/src -Ldist/build/src src/Main.hs
 
-pil :: src/cbits/fpstring.o $unicode @srcfiles
+pil$Config{_exe} : src/cbits/fpstring.o $unicode @srcfiles
 	$ghc --make -H0 -L. -Lsrc -Lsrc/cbits -I. -Isrc -Isrc/cbits -i. -isrc -isrc/cbits -static -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs $unicode src/cbits/fpstring.o
 
-pili :: src/cbits/fpstring.o $unicode @srcfiles
+pili : pil$Config{_exe} src/cbits/fpstring.o $unicode @srcfiles
 	$ghc --interactive -H0 -L. -Lsrc -Lsrc/cbits -I. -Isrc -Isrc/cbits -i. -isrc -isrc/cbits -static -fno-warn-name-shadowing src/PIL.hs $unicode src/cbits/fpstring.o
 
 tags : @srcfiles
