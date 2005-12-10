@@ -22,27 +22,28 @@ expression = (<?> "expression") $ do
         , fmap NL_Lit literal
         , fmap (NL_Var . mkStr) identifier
         ]
-    option obj $ do
-        symbol "."
-        name    <- method
-        args    <- parens $ commaSep expression
-        return (mkCall obj name args)
+    maybeCall obj
     where
     method = (<?> "method") $ do
         x       <- noneOf " \n\t()0123456789"
-        xs      <- many (noneOf " \n\t()")
+        xs      <- many (noneOf " \n\t();,")
         return (x:xs)
+    maybeCall obj = option obj $ do
+        symbol "."
+        name    <- method
+        args    <- option [] (parens $ commaSep expression)
+        maybeCall (mkCall obj name args)
 
 literal :: Parser Native
 literal = choice 
     [ lit "nil"     mkNil
     , lit "true"    True
-    , try (fmap toNative naturalOrFloat)
-    , fmap toNative integer
     , fmap toNative pointyBlock
     , fmap toNative stringLiteral
     , fmap toNative (brackets $ commaSep literal)
     , fmap toNative (braces $ commaSep pair)
+    , try (fmap toNative naturalOrFloat)
+    , fmap toNative integer
     ]
     where
     lit :: IsNative a => String -> a -> Parser Native
@@ -74,7 +75,7 @@ nativeLangDef  = javaStyle
     , commentLine    = "#"
     , nestedComments = False
     , identStart     = oneOf "$@%&:"
-    , identLetter    = noneOf " \n\t.()[]{}<>#"
+    , identLetter    = noneOf " \n\t.,;()[]{}<>#"
     }
 
 nativeLangLexer :: P.TokenParser st

@@ -37,7 +37,7 @@ mkCall obj meth args = NL_Call
     , nl_args = mkSeq args
     }
 
-class (IsNative a, IsNative key, IsNative val) => IsPlural a key val | a -> key, a -> val where 
+class IsPlural a key val | a -> key, a -> val where 
     isEmpty     :: a -> NativeBit
     size        :: a -> NativeInt
     empty       :: a
@@ -58,7 +58,7 @@ instance IsPlural NativeMap NativeStr Native where
     elems   = NMap.elems
     assocs  = NMap.assocs
 
-instance IsPlural NativeSeq NativeInt Native where
+instance IsPlural (ArrayOf a) NativeInt a where
     isEmpty x = (size x == 0)
     size x    = snd (NSeq.bounds x)
     empty     = NSeq.array (0, -1) []

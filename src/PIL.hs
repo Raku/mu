@@ -15,8 +15,11 @@ import PIL.Native
 import System.IO
 import Control.Monad.Error
 
-parse :: String -> Either String [NativeLangExpression]
-parse = parseNativeLang
+parse :: String -> IO ()
+parse src = do
+    exps <- parseNativeLang src
+    putStrLn $ pretty exps
+    return ()
 
 main :: IO ()
 main = do
@@ -28,11 +31,18 @@ main = do
         src <- getLine
         hFlush stdout
         if (src == ":q") then return () else do
-        case parse src of
-            Left err   -> putStrLn ("*** " ++ err)
-            Right exps -> print exps
+        case parseNativeLang src of
+            Left err   -> do
+                banner "Error"
+                putStrLn err
+            Right exps -> do
+                banner "Parsed"
+                print exps
+                banner "Pretty-Printed"
+                putStrLn $ pretty exps
         redo
 
+banner x = putStrLn ("\n*** " ++ x ++ " ***")
 {-
 
 import PIL.Str (Str)
