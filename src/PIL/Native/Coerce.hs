@@ -2,12 +2,40 @@
 
 module PIL.Native.Coerce where
 import PIL.Native.Types
-import Data.Typeable
-import Data.Dynamic
+import Control.Arrow
 import Control.Exception
+import Data.Dynamic
+import Data.Typeable
 import qualified Data.Map as NMap
 import qualified Data.Array.Diff as NSeq
 import qualified Data.FastPackedString as NStr
+
+mkNil = NonTermination
+
+mkErr :: (Typeable a) => a -> NativeError
+mkErr = DynException . toDyn
+
+mkSeq :: (NSeq.IArray a b) => [b] -> a Int b
+mkSeq xs = NSeq.listArray (0, length xs - 1) xs
+
+mkMap :: (IsNative a) => [(String, a)] -> NativeMap
+mkMap = NMap.fromList . map (mkStr *** toNative) 
+
+mkStr :: String -> NativeStr
+mkStr = NStr.pack
+
+mkBlock :: [String] -> [NativeLangExpression] -> NativeBlock
+mkBlock params exps = MkBlock
+    { nb_params = mkSeq (map mkStr params)
+    , nb_body   = mkSeq exps
+    }
+
+mkCall :: NativeLangExpression -> String -> [NativeLangExpression] -> NativeLangExpression
+mkCall obj meth args = NL_Call
+    { nl_obj  = obj
+    , nl_meth = mkStr meth
+    , nl_args = mkSeq args
+    }
 
 class (IsNative a, IsNative key, IsNative val) => IsPlural a key val | a -> key, a -> val where 
     isEmpty     :: a -> NativeBit
@@ -33,7 +61,7 @@ instance IsPlural NativeMap NativeStr Native where
 instance IsPlural NativeSeq NativeInt Native where
     isEmpty x = (size x == 0)
     size x    = snd (NSeq.bounds x)
-    empty     = NSeq.array (0,0) []
+    empty     = NSeq.array (0, -1) []
     elems     = NSeq.elems
     assocs    = NSeq.assocs
 
@@ -84,9 +112,9 @@ instance IsNative NativeStr where
     toNative = NStr
     toString = NStr.unpackFromUTF8
     fromNative (NError {})  = empty
-    fromNative (NBit x)     = if x then NStr.pack "1" else NStr.pack "0"
-    fromNative (NInt x)     = NStr.pack $ toString x
-    fromNative (NNum x)     = NStr.pack $ toString x
+    fromNative (NBit x)     = if x then mkStr "1" else mkStr "0"
+    fromNative (NInt x)     = mkStr $ toString x
+    fromNative (NNum x)     = mkStr $ toString x
     fromNative (NStr x)     = x
     fromNative (NSeq x)     = NStr.unwords $ map fromNative (elems x)
     fromNative (NMap x)     = NStr.unlines $ map fromPair (assocs x)
@@ -117,13 +145,41 @@ instance IsNative NativeSeq where
     fromNative (NSeq x)     = x
     fromNative x            = castFail x
 
+instance IsNative NativeBlock where
+    toNative = NBlock
+    fromNative (NBlock x)   = x
+    fromNative x            = castFail x
+
 instance IsNative NativeError where
     toNative = NError
     fromNative (NError x)   = x
-    fromNative x            = err x
+    fromNative x            = mkErr x
+
+instance IsNative Integer where
+    toNative = toNative . fromEnum
+    fromNative = toEnum . fromNative
+
+instance IsNative Double where
+    toNative = (toNative :: NativeNum -> Native) . uncurry encodeFloat . decodeFloat
+    fromNative = uncurry encodeFloat . decodeFloat . (fromNative :: Native -> NativeNum)
+
+instance IsNative (Either Integer Double) where
+    toNative = either toNative toNative
+    fromNative (NNum x) = (Right . uncurry encodeFloat . decodeFloat) x
+    fromNative n        = (Left . fromNative) n
+
+instance IsNative String where
+    toNative = toNative . mkStr
+    fromNative = NStr.unpackFromUTF8 . fromNative
+
+instance IsNative [Native] where
+    toNative = NSeq . mkSeq
+    fromNative = NSeq.elems . (fromNative :: Native -> NativeSeq)
+
+instance IsNative [(Native, Native)] where
+    toNative = NMap . NMap.fromList . map ((fromNative :: Native -> NativeStr) *** id) 
+    fromNative = NMap.assocs . NMap.mapKeys (toNative :: NativeStr -> Native) . fromNative
 
 castFail :: a -> b
 castFail _ = error "cast fail"
 
-err :: (Typeable a) => a -> NativeError
-err = DynException . toDyn

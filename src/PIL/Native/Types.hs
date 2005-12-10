@@ -4,9 +4,7 @@ module PIL.Native.Types (
     Native(..),
     NativeBit, NativeInt, NativeNum, NativeError, NativeStr, NativeSeq, NativeMap,
 
-    NativeBlock(..), NativeBlockSym, NativeBlockMsg,
-
-    ArrayOf,
+    NativeBlock(..), NativeLangExpression(..), NativeLangSym, NativeLangMethod, ArrayOf,
 ) where
 import Data.Typeable
 import Control.Exception
@@ -29,20 +27,20 @@ data Native
     deriving (Show, Eq, Ord, Typeable)
 
 data NativeBlock = MkBlock
-    { params :: !(ArrayOf NativeBlockSym)
-    , body   :: !(ArrayOf NativeBlockExpression)
+    { nb_params :: !(ArrayOf NativeLangSym)
+    , nb_body   :: !(ArrayOf NativeLangExpression)
     } 
     deriving (Show, Eq, Ord, Typeable)
 
-type NativeBlockSym = NativeStr
-type NativeBlockMsg = NativeStr
+type NativeLangSym = NativeStr
+type NativeLangMethod = NativeStr
 
-data NativeBlockExpression
-    = NB_Lit  { val  :: Native }
-    | NB_Var  { sym  :: NativeBlockSym }
-    | NB_Send { obj  :: NativeBlockExpression
-              , msg  :: NativeBlockMsg
-              , args :: ArrayOf NativeBlockExpression
+data NativeLangExpression
+    = NL_Lit  !Native
+    | NL_Var  !NativeLangSym
+    | NL_Call { nl_obj  :: !NativeLangExpression
+              , nl_meth :: !NativeLangMethod
+              , nl_args :: !(ArrayOf NativeLangExpression)
               }
     deriving (Show, Eq, Ord, Typeable)
 

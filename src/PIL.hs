@@ -11,6 +11,30 @@
 -}
 
 module PIL where
+import PIL.Native
+import System.IO
+import Control.Monad.Error
+
+parse :: String -> Either String [NativeLangExpression]
+parse = parseNativeLang
+
+main :: IO ()
+main = do
+    putStrLn "*** Welcome to PIL2 REPL, the Pugs Again Shell!"
+    putStrLn "*** Please enter expressions, or :q to exit."
+    fix $ \redo -> do
+        putStr "pugs> "
+        hFlush stdout
+        src <- getLine
+        hFlush stdout
+        if (src == ":q") then return () else do
+        case parse src of
+            Left err   -> putStrLn ("*** " ++ err)
+            Right exps -> print exps
+        redo
+
+{-
+
 import PIL.Str (Str)
 import qualified PIL.Str as Str
 import PIL.Native
@@ -22,7 +46,6 @@ import PIL.Compile
 import PIL.Monads
 import PIL.Parser
 import PIL.Internals
-import System.IO
 import Data.PackedString
 
 -- Beginning of design of PIL2.
@@ -121,3 +144,4 @@ stringify (Str x) = return x
 stringify x = fail $ "Cannot stringify: " ++ show x
 
 
+-}
