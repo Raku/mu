@@ -13,6 +13,7 @@
 module PIL where
 import PIL.Str (Str)
 import qualified PIL.Str as Str
+import PIL.Native
 import PIL.Val
 import PIL.Pad
 import PIL.PIL
