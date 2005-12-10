@@ -141,9 +141,8 @@ without any parrot at all.  Pugs can be built to use parrot external
 (the default), or embedded.  External is recommended.
 
 Embedding parrot currently requires a parrot version later than 0.3.0.
-Parrot 0.3.0 is unfortunately, as of Oct 10 2005, the latest parrot
-release.  It had a bug which has since been fixed.  More recent but
-unreleased and unstable copies of parrot can be obtained from
+Parrot 0.3.0 is unfortunately had a bug which has since been fixed.
+More recent copies of parrot can be obtained from
 http://www.parrotcode.org/source.html .
 
 CAVEATS FOR Win32 USERS
