@@ -170,7 +170,7 @@ sub set_postamble {
     my $unicode = "src/UnicodeC.o";
     my $unicode_c = "src/UnicodeC.c";
 
-    my @prereqs = ($pcre, @cbits, $unicode);
+    my @prereqs = ($pcre, @cbits);
     #$ghc_output .= " $pcre @cbits $unicode";
 
     my $embed_flags = "";
@@ -216,6 +216,7 @@ sub set_postamble {
 
     if ($ghc_version =~ /^6.4(?:.0)?$/) {
         $ghc_flags .= " -DWITH_UNICODEC ";
+        push @prereqs, $unicode;
     }
     else {
         $unicode = $unicode_c = '';
@@ -378,10 +379,7 @@ $version_h : .svn/entries util/version_h.pl
 .svn/entries :
 	\$(NOOP)
 
-@{[join("\n", map {$emit->($_)} ($unicode_c, $pcre_c, @cbits_c))]}
-
-src/perl5/p5embed.o : src/perl5/p5embed.h src/perl5/perlxsi.c src/perl5/p5embed.c src/perl5/pugsembed.c src/perl5/pugsembed.h
-	$ghc $threaded $ghc_flags -no-link -no-hs-main -O -o src/perl5/p5embed.o src/perl5/p5embed.c
+@{[join("\n", map {$emit->($_)} grep { /c$/ } @prereqs)]}
 
 src/Pugs/Config.hs : util/PugsConfig.pm
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs
@@ -478,14 +476,16 @@ smoke-perl5 : $pugs util/run-smoke.pl all
 	\$(PERL) -e "ENV->{PUGS_RUNTIME}=q+PERL5+; exec qw+$^X util/run-smoke.pl . smoke-perl5.html -BPERL5+"
 
 
-ghci ::
-	$ghc --interactive -idist/build -Ldist/build -idist/build/src -Ldist/build/src src/Main.hs
+ghci : @srcfiles
+	$ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -L. -fno-warn-name-shadowing -no-hs-main -no-link src/Pugs/Compile.hs @prereqs
+	$ghc $ghc_flags -O --make -fglasgow-exts -H0 -isrc -L. -fno-warn-name-shadowing -no-hs-main -no-link src/Pugs.hs @prereqs
+	$ghc $ghc_flags --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
 
-pil$Config{_exe} : src/cbits/fpstring.o $unicode @srcfiles
-	$ghc --make -H0 -L. -Lsrc -Lsrc/cbits -I. -Isrc -Isrc/cbits -i. -isrc -isrc/cbits -static -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs $unicode src/cbits/fpstring.o
+pil$Config{_exe} : @prereqs @srcfiles
+	$ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -L. -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs @prereqs
 
-pili : pil$Config{_exe} src/cbits/fpstring.o $unicode @srcfiles
-	$ghc --interactive -H0 -L. -Lsrc -Lsrc/cbits -I. -Isrc -Isrc/cbits -i. -isrc -isrc/cbits -static -fno-warn-name-shadowing src/PIL.hs $unicode src/cbits/fpstring.o
+pili : pil$Config{_exe} @prereqs @srcfiles
+	$ghc $ghc_flags --interactive -fglasgow-exts -isrc -L. -static -fno-warn-name-shadowing src/PIL.hs @prereqs
 
 tags : @srcfiles
 	$hasktags -c @srcfiles
