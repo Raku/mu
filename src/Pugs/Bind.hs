@@ -103,7 +103,7 @@ bindArray :: [Exp]      -- ^ List of slurpable argument expressions
           -> SlurpLimit -- ^ The sub's current 'SlurpLimit'
           -> MaybeError (Bindings, SlurpLimit)
 bindArray vs ps oldLimit = do
-    let exp = Cxt cxtSlurpyAny (Syn "," vs)
+    let exp = Ann (Cxt cxtSlurpyAny) (Syn "," vs)
     case foldM (doBindArray exp) ([], 0) prms of
         Left errMsg      -> fail errMsg
         Right (bound, n) -> do

@@ -40,7 +40,7 @@ instance Pretty Exp where
     format (App sub invs args) = text "App" <+> parens (format sub) <+> parens (nest defaultIndent $ vcat (punctuate (text ", ") (map format $ maybeToList invs ++ args)))
     format (Sym scope name exp) = text "Sym" <+> text (show scope) <+> format name $+$ format exp
     format (Pad scope pad exp) = text "Pad" <+> text (show scope) <+> format pad $+$ format exp
-    format (Pos _ exp) = format exp
+    format (Ann _ exp) = format exp
     format x = text $ show x
 
 instance Pretty (TVar Bool, TVar VRef) where

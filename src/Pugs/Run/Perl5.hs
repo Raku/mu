@@ -76,7 +76,7 @@ pugs_apply subPtr invPtr argsPtr cxt = do
             VStr name           -> Var ('&':name)
             _                   -> Val sub
     val <- runEvalIO env $
-        evalExp (Cxt (cxtEnum cxt) $ App subExp (fmap Val inv) (map Val args))
+        evalExp (Ann (Cxt (cxtEnum cxt)) $ App subExp (fmap Val inv) (map Val args))
     newSVval val
 
 deVal :: PugsVal -> IO Val

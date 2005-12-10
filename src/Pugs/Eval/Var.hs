@@ -331,9 +331,9 @@ inferExpType (App (Var name) invs args) = do
 inferExpType (Syn syn [_, idxExp]) | (syn ==) `any` words "{} []" = do
     cxt <- inferExpCxt idxExp
     return (typeOfCxt cxt)
-inferExpType (Cxt cxt _) | typeOfCxt cxt /= (mkType "Any") = return $ typeOfCxt cxt
-inferExpType (Cxt _ exp) = inferExpType exp
-inferExpType (Pos _ exp) = inferExpType exp
+inferExpType (Ann (Cxt cxt) _) | typeOfCxt cxt /= (mkType "Any") = return $ typeOfCxt cxt
+inferExpType (Ann (Cxt _) exp) = inferExpType exp
+inferExpType (Ann (Pos _) exp) = inferExpType exp
 inferExpType (Pad _ _ exp) = inferExpType exp
 inferExpType (Sym _ _ exp) = inferExpType exp
 inferExpType (Stmts _ exp) = inferExpType exp
@@ -354,8 +354,8 @@ subscript. See 'reduce' for @\{\}@ and @\[\]@.
 -}
 inferExpCxt :: Exp -- ^ Expression to find the context of
          -> Eval Cxt
-inferExpCxt (Pos _ exp)            = inferExpCxt exp
-inferExpCxt (Cxt cxt _)            = return cxt
+inferExpCxt (Ann (Pos _) exp)            = inferExpCxt exp
+inferExpCxt (Ann (Cxt cxt) _)            = return cxt
 inferExpCxt (Syn "," _)            = return cxtSlurpyAny
 inferExpCxt (Syn "[]" [_, exp])    = inferExpCxt exp
 inferExpCxt (Syn "{}" [_, exp])    = inferExpCxt exp

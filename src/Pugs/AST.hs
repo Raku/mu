@@ -128,18 +128,18 @@ mergeStmts (Sym scope name x) y = Sym scope name (mergeStmts x y)
 mergeStmts (Pad scope lex x) y = Pad scope lex (mergeStmts x y)
 mergeStmts (Syn "package" [kind, pkg@(Val (VStr _))]) y =
     Syn "namespace" [kind, pkg, y]
-mergeStmts x@(Pos pos (Syn syn _)) y | (syn ==) `any` words "subst match //"  =
-    mergeStmts (Pos pos (App (Var "&infix:~~") Nothing [Var "$_", x])) y
-mergeStmts x y@(Pos pos (Syn syn _)) | (syn ==) `any` words "subst match //"  =
-    mergeStmts x (Pos pos (App (Var "&infix:~~") Nothing [Var "$_", y]))
-mergeStmts (Pos pos (Syn "sub" [Val (VCode sub)])) y
+mergeStmts x@(Ann ann (Syn syn _)) y | (syn ==) `any` words "subst match //"  =
+    mergeStmts (Ann ann (App (Var "&infix:~~") Nothing [Var "$_", x])) y
+mergeStmts x y@(Ann ann (Syn syn _)) | (syn ==) `any` words "subst match //"  =
+    mergeStmts x (Ann ann (App (Var "&infix:~~") Nothing [Var "$_", y]))
+mergeStmts (Ann ann (Syn "sub" [Val (VCode sub)])) y
     | subType sub >= SubBlock, isEmptyParams (subParams sub) =
     -- bare Block in statement level; annul all its parameters and run it!
-    mergeStmts (Pos pos $ App (Val $ VCode sub{ subParams = [] }) Nothing []) y
-mergeStmts x (Pos pos (Syn "sub" [Val (VCode sub)]))
+    mergeStmts (Ann ann $ App (Val $ VCode sub{ subParams = [] }) Nothing []) y
+mergeStmts x (Ann ann (Syn "sub" [Val (VCode sub)]))
     | subType sub >= SubBlock, isEmptyParams (subParams sub) =
     -- bare Block in statement level; annul all its parameters and run it!
-    mergeStmts x (Pos pos $ App (Val $ VCode sub{ subParams = [] }) Nothing [])
+    mergeStmts x (Ann ann $ App (Val $ VCode sub{ subParams = [] }) Nothing [])
 mergeStmts x (Stmts y Noop) = mergeStmts x y
 mergeStmts x (Stmts Noop y) = mergeStmts x y
 mergeStmts x y = Stmts x y

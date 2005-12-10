@@ -75,7 +75,7 @@ expRule rule = do
     pos1 <- getPosition
     exp  <- rule
     pos2 <- getPosition
-    return $ Pos (mkPos pos1 pos2) (unwrap exp)
+    return $ Ann (Pos (mkPos pos1 pos2)) (unwrap exp)
 
 {-|
 Create a Pugs 'Pugs.AST.Pos' (for storing in the AST) from two Parsec
@@ -622,7 +622,7 @@ ruleMemberDeclaration = do
         exp = Syn ":=" [Var name, Syn "sub" [Val $ VCode sub]]
         name | twigil == '.' = '&':(envPackage env ++ "::" ++ key)
                 | otherwise     = '&':(envPackage env ++ "::" ++ (twigil:key))
-        fun = Cxt (cxtOfSigil sigil) (Syn "{}" [Var "$?SELF", Val (VStr key)])
+        fun = Ann (Cxt (cxtOfSigil sigil)) (Syn "{}" [Var "$?SELF", Val (VStr key)])
     unsafeEvalExp (Sym SGlobal name exp)
     return emptyExp
 
@@ -662,7 +662,7 @@ ruleVarDeclaration = rule "variable declaration" $ do
         -- "my Foo $foo = Foo.new(...)".
         -- And note that IIRC not the type object should be the invocant, but
         -- an undef which knows to dispatch .new to the real class.
-        let exp' | Pos _ (App sub Nothing args) <- exp, sym == ".=" && typename /= ""
+        let exp' | Ann (Pos _) (App sub Nothing args) <- exp, sym == ".=" && typename /= "" -- XXX: App _ maybe?
                  = return $ App sub (Just . Var $ ':':typename) args
                  | sym == ".=" && typename /= ""
                  = fail "The .= operator expects a method application as RHS."
@@ -2069,9 +2069,9 @@ makeVar ('$':rest) | all (`elem` "1234567890") rest =
 makeVar ('$':'<':name) =
     Syn "{}" [Var "$/", doSplitStr (init name)]
 makeVar (sigil:'.':name) =
-    Cxt (cxtOfSigil sigil) (Syn "{}" [Var "$?SELF", Val (VStr name)])
+    Ann (Cxt (cxtOfSigil sigil)) (Syn "{}" [Var "$?SELF", Val (VStr name)])
 makeVar (sigil:'!':name) | not (null name) =
-    Cxt (cxtOfSigil sigil) (Syn "{}" [Var "$?SELF", Val (VStr name)])
+    Ann (Cxt (cxtOfSigil sigil)) (Syn "{}" [Var "$?SELF", Val (VStr name)])
 makeVar var = Var var
 
 ruleLit :: RuleParser Exp
@@ -2276,7 +2276,7 @@ qLiteral1 qStart qEnd flags = do
     where
     -- words() regards \xa0 as (breaking) whitespace. But \xa0 is
     -- a nonbreaking ws char.
-    doSplit (Cxt (CxtItem _) (Val (VStr str))) = return $ doSplitStr str
+    doSplit (Ann (Cxt (CxtItem _)) (Val (VStr str))) = return $ doSplitStr str -- XXX: generalize to Ann _?
     doSplit expr = doSplitRx expr
 
     doSplitRx expr = do

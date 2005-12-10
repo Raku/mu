@@ -345,11 +345,10 @@ doRunSingle menv opts prog = (`catch` handler) $ do
         _ | runOptSeparately opts -> return exp
         _ -> return $ makeDumpEnv exp
     -- XXX Generalize this into structural folding
-    makeDumpEnv (Stmts x exp)   = Stmts x   $ makeDumpEnv exp
-    makeDumpEnv (Cxt x exp)     = Cxt x     $ makeDumpEnv exp
-    makeDumpEnv (Pad x y exp)   = Pad x y   $ makeDumpEnv exp
-    makeDumpEnv (Sym x y exp)   = Sym x y   $ makeDumpEnv exp
-    makeDumpEnv (Pos x exp)     = Pos x     $ makeDumpEnv exp
+    makeDumpEnv (Stmts x exp)     = Stmts x   $ makeDumpEnv exp
+    makeDumpEnv (Ann ann exp)     = Ann ann   $ makeDumpEnv exp
+    makeDumpEnv (Pad x y exp)     = Pad x y   $ makeDumpEnv exp
+    makeDumpEnv (Sym x y exp)     = Sym x y   $ makeDumpEnv exp
     makeDumpEnv exp = Stmts exp (Syn "env" [])
     handler err = if not (isUserError err) then ioError err else do
         putStrLn "Internal error while running expression:"

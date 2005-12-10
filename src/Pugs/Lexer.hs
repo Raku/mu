@@ -162,7 +162,7 @@ interpolatingStringLiteral :: RuleParser String -- ^ Opening delimiter
                                                 --     (without delims)
 interpolatingStringLiteral startrule endrule interpolator = do
     list <- stringList 0
-    return . Cxt (CxtItem $ mkType "Str") $ homogenConcat list
+    return $ Ann (Cxt (CxtItem $ mkType "Str")) (homogenConcat list)
     where
     homogenConcat :: [Exp] -> Exp
     homogenConcat [] = Val (VStr "")

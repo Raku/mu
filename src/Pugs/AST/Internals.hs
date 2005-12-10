@@ -3,6 +3,7 @@
 
 module Pugs.AST.Internals (
     Eval,      -- uses Val, Env, SIO
+    Ann(..),   -- Cxt, Pos, Prag
     Exp(..),   -- uses Pad, Eval, Val
     Env(..),   -- uses Pad, TVar, Exp, Eval, Val
     Val(..),   -- uses V.* (which ones?)
@@ -861,6 +862,14 @@ instance Ord VComplex where
 instance (Typeable a) => Show (TVar a) where
     show _ = "<ref>"
 
+{- Expression annotation
+-}
+data Ann
+    = Cxt !Cxt                -- ^ Context
+    | Pos !Pos                -- ^ Position
+    | Prag ![Pragma]          -- ^ Lexical pragmas
+     deriving (Show, Eq, Ord, Typeable)
+
 {- Expressions
    "App" represents function application, e.g. myfun($invocant: $arg)
 
@@ -881,9 +890,7 @@ data Exp
                                         --     e.g. myfun($invocant: $arg)
     | Syn !String ![Exp]                -- ^ Syntactic construct that cannot
                                         --     be represented by 'App'.
-    | Cxt !Cxt !Exp                     -- ^ Context
-    | Pos !Pos !Exp                     -- ^ Position
-    | Prag ![Pragma] !Exp               -- ^ Lexical pragmas
+    | Ann !Ann !Exp                     -- ^ Annotation (see @Ann@)
     | Pad !Scope !Pad !Exp              -- ^ Lexical pad
     | Sym !Scope !Var !Exp              -- ^ Symbol declaration
     | Stmts !Exp !Exp                   -- ^ Multiple statements
@@ -924,9 +931,10 @@ instance Unwrap [Exp] where
     unwrap = map unwrap
 
 instance Unwrap Exp where
-    unwrap (Cxt _ exp)      = unwrap exp
-    unwrap (Pos _ exp)      = unwrap exp
-    unwrap (Prag _ exp)     = unwrap exp
+    ---gaal unwrap (Cxt _ exp)      = unwrap exp
+    ---gaal unwrap (Pos _ exp)      = unwrap exp
+    ---gaal unwrap (Prag _ exp)     = unwrap exp
+    unwrap (Ann _ exp)      = unwrap exp
     unwrap (Pad _ _ exp)    = unwrap exp
     unwrap (Sym _ _ exp)    = unwrap exp
     unwrap x                = x
@@ -977,16 +985,11 @@ extract (Var name) vs
     = (Var name, nub (name:vs))
     | otherwise
     = (Var name, vs)
-extract (Prag prag ex) vs = ((Prag prag ex'), vs')
-    where
-    (ex', vs') = extract ex vs
-extract (Pos pos ex) vs = ((Pos pos ex'), vs')
-    where
-    (ex', vs') = extract ex vs
-extract (Cxt cxt ex) vs = ((Cxt cxt ex'), vs')
+extract (Ann ann ex) vs = ((Ann ann ex'), vs')
     where
     (ex', vs') = extract ex vs
 extract exp vs = (exp, vs)
+
 
 -- can be factored
 {-|

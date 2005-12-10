@@ -229,15 +229,15 @@ reduce (Var name) = reduceVar name
 
 reduce (Stmts this rest) = reduceStmts this rest
 
-reduce (Prag prag exp) = reducePrag prag exp
+reduce (Ann (Prag prag) exp) = reducePrag prag exp
 
-reduce (Pos pos exp) = reducePos pos exp
+reduce (Ann (Pos pos) exp) = reducePos pos exp
 
 reduce (Pad scope lexEnv exp) = reducePad scope lexEnv exp
 
 reduce (Sym scope name exp) = reduceSym scope name exp
 
-reduce (Cxt cxt exp) = reduceCxt cxt exp
+reduce (Ann (Cxt cxt) exp) = reduceCxt cxt exp
 
 -- Reduction for no-operations
 reduce Noop = retEmpty
