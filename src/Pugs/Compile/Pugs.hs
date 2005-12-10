@@ -60,9 +60,7 @@ instance Compile Exp where
             [ prettyBind "exps" (text "sequence" `sep1` expsC)
             , text "return" <+> parens (text $ "Syn " ++ show syn ++ " exps")
             ]
-    compile (Ann (Cxt cxt) exp) = compileShow2 "Cxt" cxt exp
-    compile (Ann (Pos pos) exp) = compileShow2 "Pos" pos exp
-    compile (Ann (Prag prag) exp) = compileShow2 "Prag" prag exp
+    compile (Ann ann exp) = compileShow2 "Ann" ann exp
     compile (Pad scope pad exp) = do
         padC <- compile pad
         expC <- compile exp
