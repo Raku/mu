@@ -12,16 +12,16 @@ import Control.Exception
 -- | Natives are "unboxed" runtime-allocated values.
 data Native
     = NError    !NativeError
+--------------------------------- Singulars
     | NBit      !NativeBit
     | NInt      !NativeInt
     | NNum      !NativeNum
---------------------------------- Aggregates
+    | NBlock    !NativeBlock
+--------------------------------- Plurals
     | NStr      !NativeStr
     | NSeq      !NativeSeq
     | NMap      !NativeMap
---------------------------------- Block
-    | NBlock    !NativeBlock
-    | NOpaque   !NativeOpaque
+    | NObj      !NativeObj
     deriving (Show, Eq, Ord, Typeable)
 
 data NativeBlock = MkBlock
@@ -30,9 +30,9 @@ data NativeBlock = MkBlock
     } 
     deriving (Show, Eq, Ord, Typeable)
 
-data NativeOpaque = MkOpaque
+data NativeObj = MkObj
     { ident  :: !NativeInt
-    , klass  :: !NativeOpaque
+    , klass  :: !NativeObj
     , attrs  :: !NativeMap
     }
     deriving (Show, Eq, Ord, Typeable)
