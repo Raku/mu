@@ -1736,14 +1736,14 @@ ruleApply isFolded = tryVerbatimRule "apply" $ do
         fail "reserved word"
         
     -- True for `foo .($bar)`-style applications
-    hasDot  <- option False $ try $ do { whiteSpace; char '.'; return True }
-    (paramListInv, args) <- if hasDot
-        then parseNoParenParamList
-        else if isJust implicitInv
+    (paramListInv, args) <- tryChoice
+        [ do { whiteSpace; char '.'; parseHasParenParamList }
+        , if isJust implicitInv
             then parseParenParamListMaybe -- if we have an implicit invocant,
                                           -- then we need to follow method-call
                                           -- syntax rules
             else parseParenParamList <|> do { whiteSpace; parseNoParenParamList }
+        ]
     -- FAILED PARSER PATCH
     {-(paramListInv, args) <- tryChoice
         -- foo .()
