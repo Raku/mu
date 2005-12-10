@@ -19,21 +19,33 @@ data Native
     | NStr      !NativeStr
     | NSeq      !NativeSeq
     | NMap      !NativeMap
---------------------------------- Code
-    | NCode     { params :: !(ArrayOf NativeCodeSym)
-                , body   :: !NativeCodeExpression
-                } 
+--------------------------------- Block
+    | NBlock    !NativeBlock
+    | NOpaque   !NativeOpaque
     deriving (Show, Eq, Ord, Typeable)
 
-type NativeCodeSym = NativeStr
-type NativeCodeMsg = NativeStr
+data NativeBlock = MkBlock
+    { params :: !(ArrayOf NativeBlockSym)
+    , body   :: !(ArrayOf NativeBlockExpression)
+    } 
+    deriving (Show, Eq, Ord, Typeable)
 
-data NativeCodeExpression
-    = NC_Lit  { val  :: Native }
-    | NC_Var  { sym  :: NativeCodeSym }
-    | NC_Send { obj  :: NativeCodeExpression
-              , msg  :: NativeCodeMsg
-              , args :: ArrayOf NativeCodeExpression
+data NativeOpaque = MkOpaque
+    { ident  :: !NativeInt
+    , klass  :: !NativeOpaque
+    , attrs  :: !NativeMap
+    }
+    deriving (Show, Eq, Ord, Typeable)
+
+type NativeBlockSym = NativeStr
+type NativeBlockMsg = NativeStr
+
+data NativeBlockExpression
+    = NB_Lit  { val  :: Native }
+    | NB_Var  { sym  :: NativeBlockSym }
+    | NB_Send { obj  :: NativeBlockExpression
+              , msg  :: NativeBlockMsg
+              , args :: ArrayOf NativeBlockExpression
               }
     deriving (Show, Eq, Ord, Typeable)
 
@@ -82,7 +94,7 @@ instance IsNative Native where
     toString (NStr x)     = toString x
     toString (NSeq x)     = toString x
     toString (NMap x)     = toString x
-    toString (NCode {})   = castFail
+    toString (NBlock _)   = castFail
 
 castFail :: (Typeable a) => a
 castFail = error "Cannot case code to anything (XXX This message needs work)"
@@ -99,7 +111,7 @@ instance IsNative NativeBit where
         _   -> 1
     fromNative (NSeq x)     = isEmpty x
     fromNative (NMap x)     = isEmpty x
-    fromNative (NCode {})   = 1         -- Code are always true
+    fromNative (NBlock _)   = 1         -- Code are always true
 
 instance IsNative NativeInt where
     toNative = NInt
@@ -110,7 +122,7 @@ instance IsNative NativeInt where
     fromNative (NStr x)     = read (toString x)
     fromNative (NSeq x)     = size x
     fromNative (NMap x)     = size x
-    fromNative (NCode {})   = castFail
+    fromNative (NBlock _)   = castFail
 
 instance IsNative NativeStr where
     toNative = NStr
@@ -124,7 +136,7 @@ instance IsNative NativeStr where
     fromNative (NMap x)     = NStr.unlines $ map fromPair (assocs x)
         where
         fromPair (k, v) = NStr.append k (NStr.cons '\t' (fromNative v))
-    fromNative (NCode {})   = castFail
+    fromNative (NBlock _)   = castFail
 
 instance IsNative NativeNum where
     toNative = NNum
@@ -135,7 +147,7 @@ instance IsNative NativeNum where
     fromNative (NStr x)     = read (toString x)
     fromNative (NSeq x)     = toEnum (size x)
     fromNative (NMap x)     = toEnum (size x)
-    fromNative (NCode {})   = castFail
+    fromNative (NBlock _)   = castFail
 
 instance IsNative NativeMap where
     toNative = NMap
