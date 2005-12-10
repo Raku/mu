@@ -1,5 +1,4 @@
 {-# OPTIONS_GHC -cpp -O2 -fglasgow-exts -funbox-strict-fields #-}
-
 --
 -- Module      : FastPackedString
 -- Copyright   : (c) The University of Glasgow 2001,
@@ -29,12 +28,10 @@
 module Data.FastPackedString (
 
         -- * The @FastString@ type
-        FastString, -- abstract, instances: Eq, Ord, Show, Typeable
+        FastString(..), -- abstract, instances: Eq, Ord, Show, Typeable
 
         -- * Introducing and eliminating 'FastString's
         empty,        -- :: FastString
-        nil,          -- :: FastString -- DEPRECATED
-
         pack,         -- :: String -> FastString
         unpack,       -- :: FastString -> String
         packWords,    -- :: [Word8] -> FastString
@@ -53,6 +50,9 @@ module Data.FastPackedString (
 
         -- * List transformations
         map,          -- :: (Char -> Char) -> FastString -> FastString
+        mapIndexed,   -- :: (Int -> Char -> Char) -> FastString -> FastString
+        mapWords,     -- :: (Word8 -> Word8) -> FastString -> FastString
+        mapIndexedWords,-- :: (Int -> Word8 -> Word8) -> FastString -> FastString
         reverse,      -- :: FastString -> FastString
         intersperse,  -- :: Char -> FastString -> FastString
         transpose,    -- :: [FastString] -> [FastString]
@@ -79,7 +79,6 @@ module Data.FastPackedString (
         take,         -- :: Int -> FastString -> FastString
         drop,         -- :: Int -> FastString -> FastString
         splitAt,      -- :: Int -> FastString -> (FastString, FastString)
-        substr,       -- :: FastString -> Int -> Int -> FastString -- DEPRECATED
 
         takeWhile,    -- :: (Char -> Bool) -> FastString -> FastString
         dropWhile,    -- :: (Char -> Bool) -> FastString -> FastString
@@ -97,13 +96,18 @@ module Data.FastPackedString (
 
         -- * Indexing 'FastString's
         index,        -- :: FastString -> Int -> Char
+        indexWord8,   -- :: FastString -> Int -> Word8
         elemIndex,    -- :: Char -> FastString -> Maybe Int
+        elemIndexWord8, -- :: Word8 -> FastString -> Maybe Int
         elemIndices,  -- :: Char -> FastString -> [Int]
 
         findIndex,    -- :: (Char -> Bool) -> FastString -> Maybe Int
         findIndices,  -- :: (Char -> Bool) -> FastString -> [Int]
+        isPrefixOf,   -- :: FastString -> FastString -> Bool
+        isSuffixOf,   -- :: FastString -> FastString -> Bool
 
         -- * Special 'FastString's
+        elems,        -- :: FastString -> [FastString]
 
         -- ** Lines and words
         lines,        -- :: FastString -> [FastString]
@@ -124,12 +128,10 @@ module Data.FastPackedString (
         dropSpaceEnd, -- :: FastString -> FastString
         spanEnd,      -- :: (Char -> Bool) -> FastString -> (FastString, FastString)
         split,        -- :: Char -> FastString -> [FastString]
-
         tokens,       -- :: (Char -> Bool) -> FastString -> [FastString]
-        splitWith,    -- :: (Char -> Bool) -> FastString -> [FastString] -- DEPRECATED
-
         hash,         -- :: FastString -> Int32
         elemIndexLast,-- :: Char -> FastString -> Maybe Int
+        elemIndexLastWord8,-- :: Char -> FastString -> Maybe Int
         betweenLines, -- :: FastString -> FastString -> FastString -> Maybe (FastString)
         lines',       -- :: FastString -> [FastString]
         unlines',     -- :: [FastString] -> FastString
@@ -142,6 +144,7 @@ module Data.FastPackedString (
 
         -- * I\/O with @FastString@s
         hGet,                 -- :: Handle -> Int -> IO FastString
+        hGetNonBlocking,      -- :: Handle -> Int -> IO FastString
         hPut,                 -- :: Handle -> FastString -> IO ()
         hGetContents,         -- :: Handle -> IO FastString
         readFile,             -- :: FilePath -> IO FastString
@@ -164,6 +167,9 @@ module Data.FastPackedString (
         unsafeUseAsCStringLen,-- :: FastString -> (CStringLen -> IO a) -> IO a
         unpackFromUTF8,       -- :: FastString -> String
 
+        fromForeignPtr,       -- :: ForeignPtr Word8 -> Int -> FastString
+        toForeignPtr,         -- :: FastString -> (ForeignPtr Word8, Int, Int)
+
         -- * Extensions to the I\/O interface
         LazyFile(..),
         readFileLazily,         -- :: FilePath -> IO LazyFile
@@ -174,8 +180,6 @@ module Data.FastPackedString (
         gzWriteFilePSs,         -- :: FilePath -> [FastString] -> IO ()
 #endif
 
-	fromForeignPtr,         -- :: ForeignPtr Word8 -> Int -> FastString
-	toForeignPtr,           -- :: FastString -> (ForeignPtr Word8, Int, Int)
    ) where
 
 import qualified Prelude
@@ -223,7 +227,9 @@ import System.IO.Unsafe         (unsafeInterleaveIO)
 #endif
 
 #if defined(__GLASGOW_HASKELL__)
-import GHC.Base (unsafeChr)
+import Data.Typeable
+
+import GHC.Base (unsafeChr, unpackCString#)
 
 import GHC.Ptr  (Ptr(..))
 import GHC.ST
@@ -238,6 +244,9 @@ import Control.Monad.ST
 -- efficient operations.  A 'FastString' contains 8-bit characters only.
 --
 data FastString = PS {-# UNPACK #-} !(ForeignPtr Word8) !Int !Int
+#if defined(__GLASGOW_HASKELL__)
+    deriving Typeable
+#endif
 
 ------------------------------------------------------------------------
 
@@ -249,6 +258,9 @@ instance Ord FastString
 
 instance Show FastString where
     showsPrec p ps r = showsPrec p (unpack ps) r
+
+instance Read FastString where
+    readsPrec p str = [ (pack x, y) | (x, y) <- readsPrec p str ]
 
 ------------------------------------------------------------------------
 
@@ -278,11 +290,6 @@ empty :: FastString
 empty = unsafePerformIO $ mallocForeignPtr 1 >>= \fp -> return $ PS fp 0 0
 {-# NOINLINE empty #-}
 
--- | /O(1)/ Alias for 'empty' to agree with old PackedString interface
-{-# DEPRECATED nil "Use empty instead" #-}
-nil :: FastString
-nil = empty
-
 -- | /O(n)/ Convert a 'String' into a 'FastString'
 pack :: String -> FastString
 #if !defined(__GLASGOW_HASKELL__)
@@ -297,10 +304,18 @@ pack str = createPS (Prelude.length str) $ \p -> go p str
 pack str = createPS (Prelude.length str) $ \(Ptr p) -> stToIO (go p 0# str)
     where
         go _ _ []        = return ()
-        go p i (C# c:cs) = writeByte p i c >> go p (i +# 1#) cs
+        go p i (C# c:cs) 
+            | C# c > '\255' = error ("Data.FastPackedString.pack: "
+                                     ++ "character out of range")
+            | otherwise     = writeByte p i c >> go p (i +# 1#) cs
 
         writeByte p i c = ST $ \s# -> 
             case writeCharOffAddr# p i c s# of s2# -> (# s2#, () #)
+{-# RULES
+"pack/packAddress" forall s# .
+                   pack (unpackCString# s#) = packAddress s#
+ #-}
+
 #endif
 
 -- | /O(n)/ Convert a 'FastString' into a 'String'
@@ -391,14 +406,25 @@ append xs ys
 -- | /O(n)/ 'map' @f xs@ is the packed string obtained by applying @f@ to each
 -- element of @xs@, i.e.,
 map :: (Char -> Char) -> FastString -> FastString
-map k (PS ps s l) = createPS l $ \p -> withForeignPtr ps $ \f -> 
-        go (f `plusPtr` s) p (f `plusPtr` s `plusPtr` l)
+map k = mapWords (c2w . k . w2c)
+
+mapIndexed :: (Int -> Char -> Char) -> FastString -> FastString
+mapIndexed k = mapIndexedWords (\idx w -> c2w (k idx (w2c w)))
+
+mapWords :: (Word8 -> Word8) -> FastString -> FastString
+mapWords k
+    = mapIndexedWords (const k)
+
+mapIndexedWords :: (Int -> Word8 -> Word8) -> FastString -> FastString
+mapIndexedWords k (PS ps s l)
+    = createPS l $ \p -> withForeignPtr ps $ \f -> 
+      go 0 (f `plusPtr` s) p (f `plusPtr` s `plusPtr` l)
     where 
-        go :: Ptr Word8 -> Ptr Word8 -> Ptr Word8 -> IO ()
-        go f t p | f == p    = return ()
-                 | otherwise = do w <- peek f
-                                  ((poke t) . c2w . k . w2c) w
-                                  go (f `plusPtr` 1) (t `plusPtr` 1) p
+        go :: Int -> Ptr Word8 -> Ptr Word8 -> Ptr Word8 -> IO ()
+        go n f t p | f == p    = return ()
+                   | otherwise = do w <- peek f
+                                    ((poke t) . k n) w
+                                    go (n+1) (f `plusPtr` 1) (t `plusPtr` 1) p
 
 -- | /O(n)/ 'filter', applied to a predicate and a packed string,
 -- returns a packed string containing those characters that satisfy the
@@ -475,7 +501,8 @@ foldr1 f ps
 -- of the FastString as an argument. 'cons' can then be implemented in
 -- /O(1)/ (i.e.  a 'poke'), and the unfoldr itself has linear
 -- complexity. The depth of the recursion is limited to this size, but
--- may be less. For lazy, infinite unfoldr, use 'Data.List.unfoldr'.
+-- may be less. For lazy, infinite unfoldr, use 'Data.List.unfoldr'
+-- (from 'Data.List').
 --
 -- Examples:
 --
@@ -548,12 +575,6 @@ drop n ps@(PS x s l)
     | otherwise = PS x (s+n) (l-n)
 {-# INLINE drop #-}
 
--- | /O(1)/ 'substr' @begin end xs@ returns the substring of @xs@ between
--- (and including) the two indices.
-{-# DEPRECATED substr "Use take/drop instead" #-}
-substr :: FastString -> Int -> Int -> FastString
-substr str begin end = take (end - begin + 1) (drop begin str)
-
 -- | /O(1)/ 'splitAt' @n xs@ is equivalent to @('take' n xs, 'drop' n xs)@.
 splitAt :: Int -> FastString -> (FastString, FastString)
 splitAt  n ps  = (take n ps, drop n ps)
@@ -594,7 +615,8 @@ concat xs     = unsafePerformIO $ do
     f p 0 1024 xs
 
     where f ptr len _ [] = do 
-                ptr' <- reallocArray ptr len
+                ptr' <- reallocArray ptr (len+1)
+                poke (ptr' `plusPtr` len) (0::Word8)    -- XXX so CStrings work
                 fp   <- newForeignPtr c_free ptr'
                 return $ PS fp 0 len
 
@@ -616,6 +638,13 @@ index ps n
     | otherwise      = w2c $ ps ! n
 {-# INLINE index #-}
 
+indexWord8 :: FastString -> Int -> Word8
+indexWord8 ps n 
+    | n < 0          = error "FastFastString.indexWords: negative index"
+    | n >= length ps = error "FastFastString.indexWords: index too large"
+    | otherwise      = ps ! n
+{-# INLINE indexWord8 #-}
+
 -- | 'maximum' returns the maximum value from a 'FastString'
 maximum :: FastString -> Char
 maximum xs@(PS x s l)
@@ -629,6 +658,12 @@ minimum xs@(PS x s l)
     | null xs   = errorEmptyList "minimum"
     | otherwise = unsafePerformIO $ withForeignPtr x $ \p -> 
                     return $ w2c $ c_minimum (p `plusPtr` s) l
+
+-- | /o(n)/ breaks a packed string to a list of packed strings, one byte each.
+elems :: FastString -> [FastString]
+elems (PS _ _ 0) = []
+elems (PS x s l) = (PS x s 1:elems (PS x (s+1) (l-1)))
+{-# INLINE elems #-}
 
 -- | 'lines' breaks a packed string up into a list of packed strings
 -- at newline characters.  The resulting strings do not contain
@@ -716,6 +751,20 @@ findIndices p ps = loop 0 ps
        loop n ps' | p (unsafeHead ps') = n : loop (n + 1) (unsafeTail ps')
                   | otherwise     = loop (n + 1) (unsafeTail ps')
 
+-- | The 'isPrefixOf' function takes two strings and returns 'True'
+-- iff the first string is a prefix of the second.
+isPrefixOf :: FastString -> FastString -> Bool
+isPrefixOf x y
+    | null x    = True
+    | null y    = False
+    | otherwise = unsafeHead x == unsafeHead y && isPrefixOf (unsafeTail x) (unsafeTail y)
+
+-- | The 'isSuffixOf' function takes two lists and returns 'True'
+-- iff the first list is a suffix of the second.
+-- Both lists must be finite.
+isSuffixOf     :: FastString -> FastString -> Bool
+isSuffixOf x y = reverse x `isPrefixOf` reverse y
+
 ------------------------------------------------------------------------
 -- Extensions to the list interface
 
@@ -800,10 +849,6 @@ split c = splitWord8 (c2w c)
 --
 tokens :: (Char -> Bool) -> FastString -> [FastString]
 tokens p = Prelude.filter (not.null) . breakAll p
-
-{-# DEPRECATED splitWith "Use tokens instead" #-}
-splitWith :: (Char -> Bool) -> FastString -> [FastString]
-splitWith = tokens
 
 -- | Splits a 'FastString' into components delimited by separators,
 -- where the predicate returns True for a separator element.  The
@@ -974,7 +1019,7 @@ c2w = fromIntegral . ord
 
 ------------------------------------------------------------------------
 
--- | (Internal) /O(n)/ 'elemIndexWord8' is like 'elemIndex', except
+-- | /O(n)/ 'elemIndexWord8' is like 'elemIndex', except
 -- that it takes a 'Word8' as the element to search for.
 elemIndexWord8 :: Word8 -> FastString -> Maybe Int
 elemIndexWord8 c (PS x s l) = unsafePerformIO $ withForeignPtr x $ \p -> do
@@ -983,6 +1028,9 @@ elemIndexWord8 c (PS x s l) = unsafePerformIO $ withForeignPtr x $ \p -> do
     return $ if q == nullPtr then Nothing else Just (q `minusPtr` p')
 {-# INLINE elemIndexWord8 #-}
 
+-- | /O(n)/ The 'elemIndexLastWord8' function returns the last index of the
+-- element in the given 'FastString' which is equal to the query
+-- element, or 'Nothing' if there is no such element.
 elemIndexLastWord8 :: Word8 -> FastString -> Maybe Int
 elemIndexLastWord8 c (PS x s l) = unsafePerformIO $ withForeignPtr x $ \p -> 
         go (-1) (p `plusPtr` s) 0
@@ -1075,6 +1123,14 @@ unsafePackAddress len addr# = unsafePerformIO $ do
       cstr = Ptr addr# 
 #endif
 
+-- | Build a FastString from a ForeignPtr
+fromForeignPtr :: ForeignPtr Word8 -> Int -> FastString
+fromForeignPtr fp l = PS fp 0 l
+
+-- | Deconstruct a ForeignPtr from a FastString
+toForeignPtr :: FastString -> (ForeignPtr Word8, Int, Int)
+toForeignPtr (PS ps s l) = (ps, s, l)
+
 -- | Given the maximum size needed and a function to make the contents
 -- of a FastString, generate makes the 'FastString'. The
 -- generating function is required to return the actual size (<= the
@@ -1083,7 +1139,8 @@ generate :: Int -> (Ptr Word8 -> IO Int) -> IO FastString
 generate i f = do 
     p <- mallocArray i
     i' <- f p
-    p' <- reallocArray p i'
+    p' <- reallocArray p (i'+1)
+    poke (p' `plusPtr` i') (0::Word8)    -- XXX so CStrings work
     fp <- newForeignPtr c_free p'
     return $ PS fp 0 i'
 
@@ -1096,12 +1153,6 @@ construct p l f = do
     fp <- FC.newForeignPtr p f
     return $ PS fp 0 l
 #endif
-
-fromForeignPtr :: ForeignPtr Word8 -> Int -> FastString
-fromForeignPtr fp l = PS fp 0 l
-
-toForeignPtr :: FastString -> (ForeignPtr Word8, Int, Int)
-toForeignPtr (PS ps s l) = (ps, s, l)
 
 -- | /O(n)/ Build a @FastString@ from a malloced @CString@. This value will
 -- have a @free(3)@ finalizer associated to it.
@@ -1137,6 +1188,7 @@ useAsCString (PS ps s l) = bracket alloc free_cstring
 
 -- | Use a @FastString@ with a function requiring a @CString@.
 --   Warning: modifying the @CString@ will affect the @FastString@.
+-- It better be null terminated!
 unsafeUseAsCString :: FastString -> (CString -> IO a) -> IO a
 unsafeUseAsCString (PS ps s _) ac = withForeignPtr ps $ \p -> ac (castPtr p `plusPtr` s)
 
@@ -1149,7 +1201,7 @@ unsafeUseAsCStringLen (PS ps s l) ac = withForeignPtr ps $ \p -> ac (castPtr p `
 -- still isn't entirely "safe", but at least it's convenient.
 createPS :: Int -> (Ptr Word8 -> IO ()) -> FastString
 createPS l write_ptr = unsafePerformIO $ do 
-    fp <- mallocForeignPtr l
+    fp <- mallocForeignPtr (l+1)
     withForeignPtr fp $ \p -> write_ptr p
     return $ PS fp 0 l
 
@@ -1168,7 +1220,11 @@ unsafeFinalize (PS p _ _) = finalizeForeignPtr p
 
 -- (internal) GC wrapper of mallocForeignPtrArray
 mallocForeignPtr :: Int -> IO (ForeignPtr Word8)
-mallocForeignPtr l = when (l > 1000000) performGC >> mallocForeignPtrArray l
+mallocForeignPtr l = do 
+    when (l > 1000000) performGC
+    fp <- mallocForeignPtrArray (l+1)
+    withForeignPtr fp $ \p -> poke (p `plusPtr` l) (0::Word8)
+    return fp
 
 -- -----------------------------------------------------------------------------
 -- I\/O functions
@@ -1196,6 +1252,18 @@ hGet _ 0 = return empty
 hGet h i = do fp <- mallocForeignPtr i
               l  <- withForeignPtr fp $ \p-> hGetBuf h p i
               return $ PS fp 0 l
+
+
+-- | hGetNonBlocking is identical to 'hGet', except that it will never block
+-- waiting for data to become available, instead it returns only whatever data
+-- is available.
+--
+hGetNonBlocking :: Handle -> Int -> IO FastString
+hGetNonBlocking _ 0 = return empty
+hGetNonBlocking h i
+    = do fp <- mallocForeignPtr i
+         l  <- withForeignPtr fp $ \p -> hGetBufNonBlocking h p i
+         return $ PS fp 0 l
 
 -- | Read entire handle contents into a 'FastString'.
 --
@@ -1252,7 +1320,7 @@ writeFile f ps = do
 -- 'FastString', but it is even more efficient.  It involves directly
 -- mapping the file to memory.  This has the advantage that the contents
 -- of the file never need to be copied.  Also, under memory pressure the
--- page may simply be discarded, wile in the case of readFile it would
+-- page may simply be discarded, while in the case of readFile it would
 -- need to be written to swap.  If you read many small files, mmapFile
 -- will be less memory-efficient than readFile, since each mmapFile
 -- takes up a separate page of memory.  Also, you can run into bus
