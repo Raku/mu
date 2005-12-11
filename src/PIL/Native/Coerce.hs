@@ -49,8 +49,10 @@ class IsPlural a key val | a -> key, a -> val where
     elems       :: a -> [val]
     append      :: a -> a -> a
     assocs      :: a -> [(key, val)]
-    fetch       :: a -> key -> val
-    update      :: a -> key -> val -> a
+    fetch       :: a -> key -> Maybe val
+    insert      :: a -> key -> val -> a
+    (!)         :: a -> key -> val
+    (!) x k = maybe (error "index out of bounds") id $ fetch x k
 
 instance IsPlural NativeStr NativeInt NativeStr where
     isEmpty = NStr.null
@@ -60,8 +62,13 @@ instance IsPlural NativeStr NativeInt NativeStr where
     elems   = NStr.elems
     append  = NStr.append
     assocs  = zip [0..] . elems
+    fetch (NStr.PS p s l) n
+        | n < 0     = fail "negative index"
+        | n >= l    = fail "index out of bounds"
+        | otherwise = return $ NStr.PS p (s + n) 1
+    insert     = error "XXX str.insert"
 
-instance IsPlural NativeMap NativeStr Native where
+instance Ord k => IsPlural (NMap.Map k v) k v where
     isEmpty = NMap.null
     size    = NMap.size
     empty   = NMap.empty
@@ -69,15 +76,21 @@ instance IsPlural NativeMap NativeStr Native where
     elems   = NMap.elems
     append  = NMap.union
     assocs  = NMap.assocs
+    fetch   = flip NMap.lookup
+    insert  = \o k v -> NMap.insert k v o
+    (!)     = (NMap.!)
 
 instance IsPlural (SeqOf a) NativeInt a where
     isEmpty x  = (size x == 0)
-    size x     = snd (NSeq.bounds x)
+    size x     = 1 + snd (NSeq.bounds x)
     empty      = NSeq.array (0, -1) []
     indices    = NSeq.indices
     elems      = NSeq.elems
     append x y = NSeq.listArray (0, size x + size y - 1) (elems x ++ elems y)
     assocs     = NSeq.assocs
+    fetch      = error "XXX seq.fetch"
+    insert     = error "XXX seq.insert"
+    (!)        = (NSeq.!)
 
 class Show a => IsNative a where 
     toNative   :: a -> Native
@@ -198,6 +211,11 @@ instance IsNative [NativeStr] where
     toNative = (toNative :: NativeSeq -> Native) . mkSeq . map toNative
     fromNative = map fromNative . fromNative
 
+instance (IsNative a) => IsNative (Maybe a) where
+    toNative Nothing  = nil
+    toNative (Just x) = toNative x
+    fromNative (NError {}) = Nothing
+    fromNative x           = Just (fromNative x)
+
 castFail :: a -> b
 castFail _ = error "cast fail"
-

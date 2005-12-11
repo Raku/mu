@@ -25,8 +25,8 @@ expression = (<?> "expression") $ do
     maybeCall obj
     where
     method = (<?> "method") $ do
-        x       <- noneOf " \n\t()0123456789"
-        xs      <- many (noneOf " \n\t();,")
+        x       <- noneOf " \n\t()0123456789."
+        xs      <- many (noneOf " \n\t();,.")
         return (x:xs)
     maybeCall obj = option obj $ do
         symbol "."

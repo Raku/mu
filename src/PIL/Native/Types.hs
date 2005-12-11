@@ -10,6 +10,7 @@ module PIL.Native.Types (
 ) where
 import Data.Typeable
 import Control.Exception
+import Data.FunctorM
 import qualified Data.Map as NMap
 import qualified Data.Array.Diff as NSeq
 import qualified Data.FastPackedString as NStr
@@ -66,3 +67,9 @@ instance Eq a => Eq (SeqOf a) where
 
 instance Ord a => Ord (SeqOf a) where
     a <= a'   =   NSeq.assocs a <= NSeq.assocs a'
+
+instance FunctorM SeqOf where
+    fmapM f a = sequence [ f e >>= return . (,) i | (i,e) <- NSeq.assocs a] >>= return . NSeq.array b
+        where
+        b = NSeq.bounds a
+
