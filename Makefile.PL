@@ -9,6 +9,7 @@ BEGIN { chdir $FindBin::RealBin };
 use inc::Module::Install;
 use lib 'inc';
 use PugsBuild::Config;
+use Carp;
 
 # Win32/CygWin GHC appears to be more memory hungry than its
 # *nix counterpart, causing it to bail part-way through builds.
@@ -134,7 +135,7 @@ sub set_postamble {
     if (has_ghc_package('plugins')
         and  try_compile("import System.Eval\n"
                         ."main :: IO ()\n"
-                        .'main = (eval_ "return ()" [] [] [] [] :: IO (Either [String] (Maybe ()))) >> return ()', '-package', 'plugins')) {
+                        .'main = (eval_ "return ()" [] [] [] [] :: IO (Either [String] (Maybe ()))) >> return ()', '-package', 'plugins', $ghc)) {
         $ghc_flags .= ' -package plugins -DPUGS_HAVE_HSPLUGINS ';
     } else {
         push @warn, << '.';
@@ -149,7 +150,7 @@ sub set_postamble {
     if (has_ghc_package('readline') 
         and  try_compile("import System.Console.Readline\n"
                         ."main :: IO ()\n"
-                        .'main = readline "" >> return ()')) {
+                        .'main = readline "" >> return ()', $ghc)) {
       $ghc_flags .= ' -DPUGS_HAVE_READLINE '; # -package readline';
     }
     else {
@@ -315,7 +316,7 @@ EOD
 
     my $config = get_pugs_config();
     my $is_win32 = ($^O =~ /MSWin|mingw|cygwin/i);
-    my $threaded = (!$is_win32 and try_compile("main :: IO ()\nmain = return ()", "-threaded"))
+    my $threaded = (!$is_win32 and try_compile("main :: IO ()\nmain = return ()", "-threaded", $ghc))
         ? '-threaded' : '';
 
     if ($threaded and $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/ and !$Config{usethreads}) {
@@ -565,13 +566,14 @@ sub for_perl5 {
 sub try_compile {
     my $code = shift;
     my $temp = File::Spec->catfile(File::Spec->tmpdir, "pugs-tmp-$$");
+    my $ghc  = shift or croak "try_compile called without path to ghc";
 
     eval {
         open TMP, "> $temp.hs";
         print TMP $code;
         close TMP;
         system(
-            ($ENV{GHC} || 'ghc'), @_,
+            $ghc, @_,
             "--make", "-v0",
             -o => "$temp.exe",
             "$temp.hs"
