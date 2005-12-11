@@ -191,12 +191,11 @@ sub assert_ghc {
 
         if (-d $ghc_root) {
             # Looks like we've found a GHC directory.  Find the latest
-            # ghc inside that.  Sorted from lexically highest to lowest.
+            # ghc inside that.  Sort versions from highest to lowest.
 
-            # XXX - This will bite us should GHC contain a two-digit
-            #       revision.  Eg, 6.9.0 vs 6.10.0
-
-            my @ghc_choices = reverse glob(qq{$ghc_root/ghc-*});
+            my @ghc_choices = sort {
+                _normalize_version($b) cmp _normalize_version($a)
+            } glob(qq{$ghc_root/ghc-*});
 
             GHC_TEST:
             for my $ghc_dir (@ghc_choices) {
@@ -242,6 +241,14 @@ sub has_ghc_package {
     my ($self, $package) = @_;
     my $ghc_pkg = $self->assert_ghc_pkg;
     `$ghc_pkg describe $package` =~ /package-url/;
+}
+
+sub _normalize_version {
+    my $dir = shift;
+    $dir =~ /.*ghc-(.*)$/i or die "Invalid version: $dir";
+    my $ver = $1;
+    $ver =~ s{(\d+)}{sprintf('%09s', $1)}eg;
+    return $ver;
 }
 
 =head2 assert_ghc_pkg
