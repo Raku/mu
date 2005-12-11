@@ -22,8 +22,8 @@ mkErr = DynException . toDyn
 mkSeq :: (NSeq.IArray a b) => [b] -> a Int b
 mkSeq xs = NSeq.listArray (0, length xs - 1) xs
 
-mkMap :: (IsNative a) => [(String, a)] -> NativeMap
-mkMap = NMap.fromList . map (mkStr *** toNative) 
+mkMap :: [(String, a)] -> MapOf a
+mkMap = NMap.fromList . map (\(k, v) -> (mkStr k, v))
 
 mkStr :: String -> NativeStr
 mkStr = NStr.pack
@@ -45,29 +45,39 @@ class IsPlural a key val | a -> key, a -> val where
     isEmpty     :: a -> NativeBit
     size        :: a -> NativeInt
     empty       :: a
+    indices     :: a -> [key]
     elems       :: a -> [val]
+    append      :: a -> a -> a
     assocs      :: a -> [(key, val)]
+    fetch       :: a -> key -> val
+    update      :: a -> key -> val -> a
 
 instance IsPlural NativeStr NativeInt NativeStr where
     isEmpty = NStr.null
     size    = NStr.length
     empty   = NStr.empty
+    indices = \x -> [0 .. (NStr.length x - 1)]
     elems   = NStr.elems
+    append  = NStr.append
     assocs  = zip [0..] . elems
 
 instance IsPlural NativeMap NativeStr Native where
     isEmpty = NMap.null
     size    = NMap.size
     empty   = NMap.empty
+    indices = NMap.keys
     elems   = NMap.elems
+    append  = NMap.union
     assocs  = NMap.assocs
 
-instance IsPlural (ArrayOf a) NativeInt a where
-    isEmpty x = (size x == 0)
-    size x    = snd (NSeq.bounds x)
-    empty     = NSeq.array (0, -1) []
-    elems     = NSeq.elems
-    assocs    = NSeq.assocs
+instance IsPlural (SeqOf a) NativeInt a where
+    isEmpty x  = (size x == 0)
+    size x     = snd (NSeq.bounds x)
+    empty      = NSeq.array (0, -1) []
+    indices    = NSeq.indices
+    elems      = NSeq.elems
+    append x y = NSeq.listArray (0, size x + size y - 1) (elems x ++ elems y)
+    assocs     = NSeq.assocs
 
 class Show a => IsNative a where 
     toNative   :: a -> Native
@@ -183,6 +193,10 @@ instance IsNative [Native] where
 instance IsNative [(Native, Native)] where
     toNative = NMap . NMap.fromList . map ((fromNative :: Native -> NativeStr) *** id) 
     fromNative = NMap.assocs . NMap.mapKeys (toNative :: NativeStr -> Native) . fromNative
+
+instance IsNative [NativeStr] where
+    toNative = (toNative :: NativeSeq -> Native) . mkSeq . map toNative
+    fromNative = map fromNative . fromNative
 
 castFail :: a -> b
 castFail _ = error "cast fail"
