@@ -1,0 +1,304 @@
+=pod
+
+=head1 NAME
+
+Meta-User Bridge
+
+=head1 SYNOPSIS
+
+This is a proposal for how the Perl 6 runtime (meta-model/object-space) 
+will export it's meta-types to the user-space. It is still a rough idea
+at this point, so comments/questions/suggestions welcome.
+
+=head1 DESCRIPTION
+
+The core idea is that the exportation and importation of objects and types 
+between the user space and the object space needs to be as simple as possible 
+so that it becomes almost trivial to add new interpter level types for use 
+in the user space. This will not only allow for ease of language extension, 
+but it will allow the system to more easily cope with the multi-langauge 
+interoperability demands of the Perl 6/Parrot world.
+
+=head2 The User Space
+
+It makes sense to define this term early. The user space is essentailly the 
+language itself, it is where 90% of programmers will spend their time. 
+
+=head2 The Object Space
+
+The object space is made up of several layers, they are listed below going 
+from most-low-level to most-high-level.
+
+=over 4
+
+=item Core Native types
+
+These are the minimal core types needed to build all the other layers of the 
+object space. These could be thought of as "unboxed" types, however that is 
+not entirely accurate. 
+
+These correspond somewhat to the Perl 5 SV, AV, HV types. They are not directly 
+exposed to the user-space, and are implemented in the host language.
+
+=item Core MetaModel Types
+
+These are the core types which are needed by the metamodel (to come later). 
+These could easily be included in the L<Core Native Types> section, but I 
+seperate them here for clarity.
+
+The core metamodel types provide the base types needed to implement an object 
+model atop the L<Core Native Types>. In many cases, these will be either 
+subtypes of L<Core Native Types> or compound types created from the 
+L<Core Native Types>. 
+
+=item MetaModel
+
+This is the object model, it creates all that we need to have a working object 
+model for use in the user-space. 
+
+It is important to note that while this is the first point at which we are creating 
+something which is intended to be used in the user-space, at this stage it cannot 
+be used in user-space. This is because it's methods and functions still expect 
+L<Core Native Types> and/or L<Core MetaModel Types> as their arguments, and expect 
+to return those sames types as well. This is problematic since those Core types 
+are not usable in the user-space. 
+
+This is the core problem this document trys to solve.
+
+=item Container Types
+
+Perl has 3 core container types; Scalar, Array and Hash. These types should actually 
+be implemented using the metamodel. However, we still have the same issues that the
+metamodel itself has, which is that these types expect to get and return Core 
+types.
+
+=item Boxed Types
+
+These are; Int, Num, Rat, Complex, Str, List, Code, Block, etc. These are the core user
+types in the Perl 6 system. These are all implemented using the metamodel as well,
+and again, we have the same issue as above. However, these types present another 
+challange as well. These types will commonly be the "boxed" version of the 
+L<Core Native Types>. 
+
+It is at this stage that our bridge is the most useful :)
+
+=back
+
+So now, at this point, we have all the parts of our system in place, but none of it is 
+useable in the user-space because it deals so heavily with the core (unboxed) types.
+
+One solution to this would be create a layer which performs "autoboxing". In other words 
+if the interpreter finds itself with an item which is an "unboxed" type, it promptly 
+"autobooxes" that type. 
+
+This approach raises a lot of questions in my mind:
+
+ How does it know how to autobox each type? 
+ What if the conversion is a non-trivial one? 
+ Where does the control for this mechanism lie? 
+ Can it easily be extended? 
+ Can it be extended at runtime? 
+ Can it be extended without re-compiling the interpreter itself? 
+
+Implementation details I know, but important questions none-the-less. 
+
+B<DISCLAIMER:>
+
+At this point I would like to point out that I may not know what I am talking about. The 
+process of "autoboxing" may in fact be much simplier than I am portraying it. I am making
+assumptions, and they may be very wrong.
+
+Now, onto the guts of my idea.
+
+=head2 Type import/export
+
+This idea is based largely on my (probably niave) understanding of the Standard ML 
+module system. It also borrows from other more "module"-oriented languages such as 
+Ada 95. 
+
+This proposed system exists in two places at once, the user-space and the 
+object-space. 
+
+=over 4
+
+=item The Object Space side
+
+We have a lot of types running around the object space, and we need to somehow 
+get these types to the User space. In my mind, this requires as a first step 
+that the interfaces for each of these types be defined, this way there is no 
+question as to what operations these types can provide.
+
+Of course we don't always want our internal API to completely be exposed, and in
+some cases the user-space end needs more functionality, but these are all details
+I will resolve later. For now, I simple want to introduce a way to define an 
+interface, and attach it to an implementation. We will create the bridge to the 
+user space later. 
+
+First we need to define some new core types. These new "types" will exist in 
+the L<Core Runtime Type> level of our system described above.
+
+Let's start with a simple example of a minimal "bit" type.
+
+I propose an interface defintion in the form of a C<signature> type, which would 
+look something like this (in pseudo-Perl 6):
+
+  signature BIT {
+      to_bit  (BIT $self:) returns BIT;
+      to_str  (BIT $self:) returns STR;
+      to_num  (BIT $self:) returns NUM; 
+      compare (BIT $self:, BIT $other) returns NUM;           
+  }
+
+What this says is that we have a BIT type, which has the following methods; C<to_bit>, 
+C<to_str>, C<to_num> and C<compare> each of these methods takes a BIT as an invocant, 
+and returns something conforming to another signature (BIT, STR, NUM). We will later 
+define the STR and NUM signature as we did for the BIT signature. 
+
+This interface then needs to be attached to some kind of implementation to do any 
+real work with it. For this we have a C<functor> type. 
+
+A C<functor> is a function which both takes modules as a parameters and returns 
+modules for it's return value. 
+
+Here is a very simplistic example of a C<functor> which would wrap a Perl 5 package 
+with a given signature. 
+
+  functor Perl5::Wrap[$Sig, $P5impl] {
+      my $new_pkg = # ... generate some unique name here;
+      foreach my $method ($Sig.get_all_methods) {
+          # make sure we have the method
+          (defined &{$P5impl . '::' . $method.name})
+            || die "$P5impl does not contain " . $method.name . " needed for $Sig";
+          # install the p5 version in the 
+          # new package, but first wrap the
+          # method in the signature
+          &{$new_pkg . '::' . $method.name} = $Sig.wrap($method.name, \&{$P5impl . '::' . $method.name});
+      }
+      return $new_pkg;
+  }
+
+This C<functor> creates a new package which installs all the methods of the old 
+package, but wraps each method so that the signature is checked before the method
+is invoked. 
+
+This is both simplistic and inefficient, but I am only trying to keep the example 
+simple, so don't hold me to the implementation. A true Perl 5 implementation would 
+probably make use of L<PPI> to parse the Perl 5 and determine if the method does 
+in fact conform to the expected interface.
+
+So, how does one use this functor? Simple, like this:
+
+  my $Bit = Perl5::Wrap(BIT, Perl6::Core::Bit);
+
+Now, the generated C<$Bit> module can be used within our runtime system, knowing 
+it fully conforms to the BIT interface. In fact, it would likely be registered as 
+the canonical implementation for BIT. 
+
+Similar wrappers could be made for most any host language a particular runtime is 
+implemented in. For instance, if the runtime were implemented in Java, then signature
+types could be implemented as Java interfaces, and the Java wrapper would really 
+only have to create a new class, derived from the implementation class, and which 
+implements the signature's interface. From there, C<javac> would do all our type/signature
+checking for us.
+
+Now, we are still in the object space, and at the C<Core Runtime Type> level as well. 
+But we now have the nessecary meta-information to build our object-space to user-space
+bridge.
+
+=item The User-Space side
+
+The user-space side of things is handled by Roles. After the metamodel layer is complete, 
+the concept of a Role exists. Roles, at their most basic, can be simply interfaces, which 
+makes them ideal to serve as our bridge. 
+
+My proposal is that the runtime will generate a number of Roles in the post-metamodel-bootstrap
+phase. These Roles will provide the interfaces to runtime types in the user-space. Here is 
+an example of our Bit role.
+
+  role Bit {
+      method to_bit  (Bit $self:) returns Bit { ... }
+      method to_str  (Bit $self:) returns Str { ... }
+      method to_num  (Bit $self:) returns Num { ... }  
+      method compare (Bit $self: Bit $other) returns Num { ... }
+  }
+
+As you can see, this is not all that much different from the signature definition shown 
+above, expect that this roles methods will contain implementations. These autogenerated 
+implementations will handle all the import/export needs between the object-space and 
+user-space. It might be something as simple as this:
+
+  method to_num (Bit $self:) returns Num {
+      return NativeCall('BIT', 'to_num', $self);
+  }
+
+Where the C<NativeCall> handles locating the canonical 'BIT' implementation, and sending the
+'to_num' message to it with C<$self> as an argument.
+
+Now of course, the Bit role is not a complete implementation of all the things which a Bit 
+should be able to do. But this is fine, since we can add methods dynamically to a role using 
+the metamodel's reflection and introspection capabilities. Here is an example:
+
+  Bit.meta.add_method('infix:<gt>' => method (Bit $self: Bit $other) returns Bit {
+      $self.compare($other) == 1  ?? Bit.new(1) !! Bit.new(0) 
+  });
+  
+  Bit.meta.add_method('infix:<lt>' => method (Bit $self: Bit $other) returns Bit {
+      $self.compare($other) == -1 ?? Bit.new(1) !! Bit.new(0) 
+  });  
+  
+  # ... etc etc etc
+
+And really, thats all. It's pretty simple. 
+
+=back
+
+=head1 SUMMARY
+
+So in short, the system proposed would enforce that for each core runtime type which the user 
+might encounter, a proper signature would be defined. Then post-metamodel bootstrapping matching
+roles would be generated for each signature registered in the system. These roles would then 
+be available in the user-space.
+
+=head1 MISC IMPLEMENTATION DETAILS
+
+=head2 Roles are not Classes
+
+The fact that we are using roles is signifigant. If these types were implemented as classes, 
+all of which (we assume) would inherit from the base class Object, then we introduce the problem 
+where by adding or (even more dangerously) overriding a method to Object would affect core 
+elements of the system such as Scalar, Array, Hash, Bit, Num, etc. While this has interesting 
+possibilities, it is probably very unwise. This is not to say that you cannot override a method 
+in these base types, but it is better it is done explicitly, rather than through Object.
+
+Using roles solves this issue since a role does not have to inherit from Object. (Sure a class
+does not have to inherit from Object either, but not doing this breaks consistency).
+
+=head2 Adding new object-space level types
+
+Adding new interpreter level types should be a fairly simple process, the runtime should have the 
+ability to load the object-space level definition through it's host language/environment, and the 
+accompanying type's Role can simply be C<eval>ed into existence.
+
+=head1 SEE ALSO
+
+=over 4
+
+=item B<The Standard ML module system>
+
+Google it, I don't have any good links handy at the moment.
+
+=item B<ML Module Mania: A Type-Safe, Separately Compiled, Extensible Interpreter>
+
+http://www.eecs.harvard.edu/~nr/pubs/maniaws-abstract.html
+
+=item B<Embedding an Interpreted Language Using Higher-Order Functions and Types>
+
+http://www.eecs.harvard.edu/~nr/pubs/embed-abstract.html
+
+=back
+
+=head1 AUTHOR
+
+Stevan Little stevan@iinteractive.com
+
+=cut
