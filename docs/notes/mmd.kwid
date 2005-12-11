@@ -11,11 +11,14 @@ MMD, to result in a less confusing dispatch system, consistent semantics, and
 easier extendability.
 
 * All methods are MMD
-** It might be a good idea to warn if two methods are in the same declaration block (i.e., not under different `is extended` decls), but don't have the now weak `multi` keyword in front of them.
-* Every MMD method belongs to all the classes of it's invocants
+** It might be a good idea to warn if two methods are in the same declaration
+block (i.e., not under different `is extended` decls), but don't have the now
+weak `multi` keyword in front of them.
+* Every MMD method belongs to all the classes of its invocants
 * All MMDs can be dispatched with the following syntaxes:
 ** `multimethod($invocant)` - iff the $invocant's class is known at compile time
-*** If all methods are also put in a global namespace `method($invocant)` is ok, even without compile time knowlege
+*** If all methods are also put in a global namespace `method($invocant)` is
+ok, even without compile time knowledge
 ** `multimethod($invocant, $invocant)` - ditto, for at least one inv
 ** `multimethod $invocant, $invocant: $arg`
 ** `$invocant.multimethod`
@@ -89,7 +92,8 @@ super) of all the invocants, or from roles directly mixed in to the exact
 class, this method is preferred.
 
 This is to retain SMD like matching, and to allow users to override the rules
-by declaring a method in a specific place. To do this, one must do something like
+by declaring a method in a specific place. To do this, one must do something
+like
 
 	class Foo { method multifoobar (Foo $foo, Bar $bar:) { } }
 	class Bar { &multifoobar := Foo::multifoobar }
@@ -129,7 +133,7 @@ order, by exploding the junctive type of the param:
 
 * If a param does not match the arg's class directly but another candidate does
 ** Class::Subclass vs. Class when arg is Class::Subclass
-* If a param does not match one of the arg's roles directly, but another doesA
+* If a param does not match one of the arg's roles directly, but another does
 ** Class vs. Class & Role
 ** The param with the most direct roles wins
 * If a param matches a superclass of another param, it is eliminated

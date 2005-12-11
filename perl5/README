@@ -1,4 +1,4 @@
 = What is this Directory?
 
-This directory contains pugs specific code that shoud not be installed into
+This directory contains pugs specific code that should not be installed into
 the perl5 or perl6 sitelib.

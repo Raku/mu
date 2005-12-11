@@ -526,7 +526,7 @@ Let's look at a few of the things there.
   }
 
 This example is one of the oldest, added two months after the Pugs project
-started. It implments a very simple web client. The code is fairly
+started. It implements a very simple web client. The code is fairly
 straightforward, but it illustrates a few features of Perl 6 and of Pugs.
 First, you'll notice that C<connect> returns an object that's used in a
 totally OOPish way. At the time this was added, networking wasn't fully

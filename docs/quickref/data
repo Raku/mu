@@ -208,7 +208,7 @@ Pair (used via reference)
 References
 
     In Perl 6, references usually auto-dereference when treated
-    non-referencially. This auto-referenciation magic applies to references to
+    non-referentially. This auto-referentiation magic applies to references to
     arrays and hashes:
 
         my $arrayref = @array;     # sugar for
