@@ -309,7 +309,7 @@ ruleSubGlobal = rule "global subroutine" $ do
 doExtract :: SubType -> Maybe [Param] -> Exp -> (Exp, [String], [Param])
 doExtract SubBlock formal body = (fun, names', params)
     where
-    (fun, names) = extract body []
+    (fun, names) = extractPlaceholderVars body []
     names' | isJust formal
            = filter (/= "$_") names
            | otherwise
@@ -319,7 +319,7 @@ doExtract SubPointy formal body = (body, [], maybe [] id formal)
 doExtract SubMethod formal body = (body, [], maybe [] id formal)
 doExtract _ formal body = (body, names', params)
     where
-    (_, names) = extract body []
+    (_, names) = extractPlaceholderVars body []
     names' | isJust formal
            = filter (/= "$_") names
            | otherwise
@@ -618,6 +618,7 @@ ruleMemberDeclaration = do
             , subBody       = fun
             , subParams     = [selfParam $ envPackage env]
             , subLValue     = "rw" `elem` traits
+            , subType       = SubMethod
             }
         exp = Syn ":=" [Var name, Syn "sub" [Val $ VCode sub]]
         name | twigil == '.' = '&':(envPackage env ++ "::" ++ key)
@@ -932,7 +933,7 @@ ruleClosureTrait rhs = rule "closure trait" $ do
               | otherwise = " BEGIN CHECK INIT FIRST END "
     name    <- tryChoice $ map symbol $ words names
     block   <- ruleBlock
-    let (fun, names) = extract block []
+    let (fun, names) = extractPlaceholderVars block []
     -- Check for placeholder vs formal parameters
     when (not $ null names) $
         fail "Closure traits take no formal parameters"
@@ -1372,17 +1373,21 @@ currentFunctions = do
                     -- read from ref
                     return $ case ref of
                         MkRef (ICode cv)
-                            | code_assoc cv == "pre" || code_type cv /= SubPrim
+                            | relevantToParsing (code_assoc cv) (code_type cv)
                             -> Just (name', code_assoc cv, code_params cv)
                         MkRef (IScalar sv)
                             | Just (VCode cv) <- scalar_const sv
-                            , code_assoc cv == "pre" || code_type cv /= SubPrim
+                            , relevantToParsing (code_assoc cv) (code_type cv)
                             -> Just (name', code_assoc cv, code_params cv)
                         _ -> Nothing
     where
     inScope pkg name | Just (post, pre) <- breakOnGlue "::" (reverse name) =
         if pkg == reverse pre then Just (reverse post) else Nothing
     inScope _ name = Just name
+    relevantToParsing "pre" SubPrim      = True
+    relevantToParsing _     SubRoutine   = True
+    relevantToParsing _     SubCoroutine = True
+    relevantToParsing _     _            = False
 
 -- read just the current state
 currentTightFunctions :: RuleParser [String]
@@ -1595,6 +1600,7 @@ parseTerm = rule "term" $ do
     term <- choice
         [ ruleDereference
         , ruleVar
+        , ruleBarewordMethod
         , ruleApply True    -- Folded metaoperators
         , ruleLit
         , ruleClosureTrait True
@@ -1606,6 +1612,12 @@ parseTerm = rule "term" $ do
     -- rulePostTerm returns an (Exp -> Exp) that we apply to the original term
     fs <- many rulePostTerm
     return $ combine (reverse fs) term
+
+ruleBarewordMethod :: RuleParser Exp
+ruleBarewordMethod = try $ do
+    name <- identifier
+    lookAhead (char '.')
+    return $ Var (':':name)
 
 ruleTypeVar :: RuleParser Exp
 ruleTypeVar = rule "type" $ try $ do
