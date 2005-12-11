@@ -1,0 +1,49 @@
+<html>
+<body>
+<h1>This is feather.perl6.nl</h1>
+<p>
+A user 'foo' can publish files in his ~/public_html. They are accessible via
+http://feather.perl6.nl/~foo/.
+</p>
+<p>
+To find out what users are doing here and what they have to say, <a
+href="/cgi-bin/finger.pl">finger</a> them. They can hide their ~/.plan from the
+outside world by creating a ~/.nofinger file.
+</p>
+<p>
+Secure (enough) web services for authenticated users:
+</p>
+<ul>
+<li> <a href="https://feather.perl6.nl/irc/">IRC chat</a> (Freenode #perl6)
+<li> <a href="https://feather.perl6.nl/mail/">Mail</a>
+</ul>
+<hr>
+<h1>FAQ: Can I use CGI/mod_perl on feather?</h1>
+<p>
+Yes, but not via the default Apache. Every form of web development requires
+specific settings, and that makes maintenance hard. It is, however, very easy
+to run your own Apache. Here's how:
+</p>
+<blockquote>
+<pre>
+cp -rp ~juerd/apache ~
+perl -i -pe's/juerd/$ENV{USER}/g' ~/apache/httpd.conf
+perl -i -pe's/Listen 8000/"Listen " . (7000 + $&lt;)/e' ~/apache/httpd.conf
+</pre>
+</blockquote>
+<p>
+To start your web server, run <tt>/usr/sbin/apache -f ~/apache/httpd.conf</tt>.
+To stop it, run <tt>killall apache</tt> (ignore that it couldn't kill the
+system wide apaches).
+</p>
+<h1>FAQ: How do I redirect my feather email to my other mail address?</h1>
+<p>
+Use qmail's .qmail system. See <tt>man dot-qmail</tt> for details.
+</p>
+<blockquote>
+<pre>
+echo '&other-address@example.org' > ~/.qmail
+</pre>
+</blockquote>
+</body>
+</html>
