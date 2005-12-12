@@ -49,6 +49,12 @@ main = do
         putStrLn $ ioeGetErrorString err
         prompt
 
+eval :: String -> IO ()
+eval src = do
+    exps <- parseNativeLang src 
+    val  <- evalNativeLang exps
+    putStrLn $ pretty val
+
 banner :: String -> IO ()
 banner x = putStrLn ("\n*** " ++ x ++ " ***")
 {-
