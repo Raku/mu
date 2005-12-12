@@ -50,11 +50,12 @@ sub emit_Sub ( $name, $body, $is_multi, $lvalue, @params, $type ) {
     }
     my $param_list = @params.join(" ");
     $param_list ~~ s:perl5{,$}{};  # remove last ','
-    "    # TODO - $name (" ~ $param_list ~ ") { " ~ $body ~ " \}\n"
+    "function $name (" ~ $param_list ~ ") {\n" ~ $body ~ "\n\}\n"
 }	
 sub emit_App ( $function is rw, @args, $context, $invocant ) {   
-    if $function eq '&say' { return "echo @args.join(', '),\"\\n\"" }
-    if $function eq '&infix:+' { return "(" ~  @args.join(" + ") ~ ")" }
+    if $function eq '&print' { return "echo @args.join(', ')" }
+    if $function eq '&say'   { return "echo @args.join(', '),\"\\n\"" }
+    if $function ~~ m:perl5{^&infix:(.*)} { return "(" ~  @args.join( $0 ) ~ ")" }
     $function ~ "(" ~  @args.join(", ") ~ ")" 
 }
 sub emit_Pad ( $scope, @symbols, $statements ) {
