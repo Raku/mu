@@ -14,12 +14,19 @@ use SQL::Routine-(0.710.0...);
 ###########################################################################
 ###########################################################################
 
-class Rosetta-0.490.0 {
+package Rosetta-0.490.0 {
+    # Note: This given version applies to all of this file's packages.
+} # package Rosetta
 
-    # External packages used by the Rosetta class, that do export symbols:
+###########################################################################
+###########################################################################
+
+class Rosetta::Interface {
+
+    # External packages used by the Rosetta::Interface class, that do export symbols:
     # (None Yet)
 
-    # Attributes of every Rosetta object:
+    # Attributes of every Rosetta::Interface object:
     # (None Yet)
 
 ###########################################################################
@@ -28,7 +35,45 @@ class Rosetta-0.490.0 {
 
 ###########################################################################
 
-} # class Rosetta
+} # class Rosetta::Interface
+
+###########################################################################
+###########################################################################
+
+class Rosetta::Interface::fubar {
+
+    # External packages used by the Rosetta::Interface::fubar class, that do export symbols:
+    # (None Yet)
+
+    # Attributes of every Rosetta::Interface::fubar object:
+    # (None Yet)
+
+###########################################################################
+
+
+
+###########################################################################
+
+} # class Rosetta::Interface::fubar
+
+###########################################################################
+###########################################################################
+
+class Rosetta::Engine {
+
+    # External packages used by the Rosetta::Engine class, that do export symbols:
+    # (None Yet)
+
+    # Attributes of every Rosetta::Engine object:
+    # (None Yet)
+
+###########################################################################
+
+
+
+###########################################################################
+
+} # class Rosetta::Engine
 
 ###########################################################################
 ###########################################################################
@@ -44,6 +89,16 @@ Rigorous database portability
 
 This document describes Rosetta version 0.490.0.
 
+It also describes the same-number versions of Rosetta::Interface
+("Interface"), Rosetta::Interface::fubar ("fubar"), and Rosetta::Engine
+("Engine").
+
+I<Note that the "Rosetta" package serves only as the name-sake
+representative for this whole file, which can be referenced as a unit by
+documentation or 'use' statements or Perl archive indexes.  Aside from
+'use' statements, you should never refer directly to "Rosetta" in your
+code; instead refer to other above-named packages in this file.>
+
 =head1 SYNOPSIS
 
 I<This documentation is pending.>
@@ -54,7 +109,28 @@ I<This documentation is pending.>
 
 =head1 INTERFACE
 
-I<This documentation is pending; this section may also be split into several.>
+The interface of Rosetta is entirely object-oriented; you use it by
+creating objects from its member classes, usually invoking C<new()> on the
+appropriate class name, and then invoking methods on those objects.  All of
+their attributes are private, so you must use accessor methods.  Rosetta
+does not declare any subroutines or export such.
+
+The usual way that Rosetta indicates a failure is to throw an exception;
+most often this is due to invalid input.  If an invoked routine simply
+returns, you can assume that it has succeeded, even if the return value is
+undefined.
+
+=head2 The Rosetta::Interface Class
+
+I<This documentation is pending.>
+
+=head2 The Rosetta::Interface::fubar Class
+
+I<This documentation is pending.>
+
+=head2 The Rosetta::Engine Class
+
+I<This documentation is pending.>
 
 =head1 DIAGNOSTICS
 

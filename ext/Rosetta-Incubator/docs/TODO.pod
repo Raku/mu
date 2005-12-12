@@ -254,8 +254,8 @@ him as needed.
 Start to create bindings for other Perl frameworks to invoke Rosetta as a
 storage back-end, such as Tangram, DBIx::Class, HDB, Alzabo, Catalyst,
 Maypole, Bricolage, Class::DBI, DBIx::SQLEngine, DBIx::SearchBuilder,
-DBIx::RecordSet, etc.  Or work with those frameworks' respective authors
-while they do that.
+DBIx::RecordSet, Pixie, etc.  Or work with those frameworks' respective
+authors while they do that.
 
 =item *
 

@@ -13,12 +13,19 @@ use Locale::KeyedText-(1.71.0...);
 ###########################################################################
 ###########################################################################
 
-class SQL::Routine-0.710.0 {
+package SQL::Routine-0.710.0 {
+    # Note: This given version applies to all of this file's packages.
+} # package SQL::Routine
 
-    # External packages used by the SQL::Routine class, that do export symbols:
+###########################################################################
+###########################################################################
+
+class SQL::Routine::Document {
+
+    # External packages used by the SQL::Routine::Document class, that do export symbols:
     # (None Yet)
 
-    # Attributes of every SQL::Routine object:
+    # Attributes of every SQL::Routine::Document object:
     # (None Yet)
 
 ###########################################################################
@@ -27,7 +34,26 @@ class SQL::Routine-0.710.0 {
 
 ###########################################################################
 
-} # class SQL::Routine
+} # class SQL::Routine::Document
+
+###########################################################################
+###########################################################################
+
+class SQL::Routine::Node {
+
+    # External packages used by the SQL::Routine::Node class, that do export symbols:
+    # (None Yet)
+
+    # Attributes of every SQL::Routine::Node object:
+    # (None Yet)
+
+###########################################################################
+
+
+
+###########################################################################
+
+} # class SQL::Routine::Node
 
 ###########################################################################
 ###########################################################################
@@ -43,6 +69,15 @@ Specify all database tasks with SQL routines
 
 This document describes SQL::Routine version 0.710.0.
 
+It also describes the same-number versions of SQL::Routine::Document
+("Document") and SQL::Routine::Node ("Node").
+
+I<Note that the "SQL::Routine" package serves only as the name-sake
+representative for this whole file, which can be referenced as a unit by
+documentation or 'use' statements or Perl archive indexes.  Aside from
+'use' statements, you should never refer directly to "SQL::Routine" in your
+code; instead refer to other above-named packages in this file.>
+
 =head1 SYNOPSIS
 
 I<This documentation is pending.>
@@ -53,7 +88,24 @@ I<This documentation is pending.>
 
 =head1 INTERFACE
 
-I<This documentation is pending; this section may also be split into several.>
+The interface of SQL::Routine is entirely object-oriented; you use it by
+creating objects from its member classes, usually invoking C<new()> on the
+appropriate class name, and then invoking methods on those objects.  All of
+their attributes are private, so you must use accessor methods.
+SQL::Routine does not declare any subroutines or export such.
+
+The usual way that SQL::Routine indicates a failure is to throw an
+exception; most often this is due to invalid input.  If an invoked routine
+simply returns, you can assume that it has succeeded, even if the return
+value is undefined.
+
+=head2 The SQL::Routine::Document Class
+
+I<This documentation is pending.>
+
+=head2 The SQL::Routine::Node Class
+
+I<This documentation is pending.>
 
 =head1 DIAGNOSTICS
 
