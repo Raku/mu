@@ -28,7 +28,11 @@
 export PARROT_PATH=/usr/local/src/parrot
 
 # this is run after each smoke
-AFTER_CMD='DEST=pasta:.htdocs/pugs_test_status; rsync -avz html/ $DEST/; rsync -avz docs/haddock/ $DEST/haddock/'
+# upload it to smoke server
+AFTER_CMD='perl ./util/smokeserv/smokeserv-client.pl html/index.html'
+
+### Alternatively, rsync it to somewhere else
+# AFTER_CMD='DEST=pasta:.htdocs/pugs_test_status; rsync -avz html/ $DEST/; rsync -avz docs/haddock/ $DEST/haddock/'
 
 # this is the -j param to make and the PUGS_TEST_CONCURRENT value
 PARALLEL_PROCS=3
