@@ -3,6 +3,7 @@
 module PIL.Native.Prims where
 import PIL.Native.Types
 import PIL.Native.Coerce
+import qualified Data.Map as NMap
 
 type Prims = MapOf (Native -> Native)
 
@@ -65,6 +66,7 @@ seqPrims = mkMap
     , prim1 "concat"     (append)
     , prim1 "fetch"      (fetch)
     , prim2 "store"      (insert)
+    , primX "push"       (push)
     ]
 
 mapPrims :: MapOf (NativeMap -> SeqOf Native -> Native)
@@ -75,7 +77,14 @@ mapPrims = mkMap
     , prim1 "concat"     (append)
     , prim1 "fetch"      (fetch)
     , prim2 "store"      (insert)
+    , primX "push"       (pushHash)
     ]
+    where
+    pushHash :: NativeMap -> [Native] -> NativeMap
+    pushHash obj args = obj `NMap.union` (NMap.fromList $ listHash args)
+    listHash [] = []
+    listHash (k:v:xs) = (fromNative k, v):(listHash xs)
+    listHash _ = error "odd number of elements for hash"
 
 blockPrims :: MapOf (NativeBlock -> SeqOf Native -> Native)
 blockPrims = mkMap
@@ -112,6 +121,14 @@ prim2 str f = (str, f')
     f' obj args | size args == 2 =
         toNative $ f obj (fromNative $ args ! 0) (fromNative $ args ! 1)
     f' _   _    = errArgs
+
+primX :: (IsNative inv, IsNative ret)
+    => String
+    -> (inv -> [Native] -> ret)
+    -> (String, inv -> SeqOf Native -> Native)
+primX str f = (str, f')
+    where
+    f' obj args = toNative $ f obj (fmap toNative $ elems args)
 
 errArgs :: forall a. a
 errArgs = error "Invalid number of arguments"

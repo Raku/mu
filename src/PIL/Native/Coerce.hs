@@ -48,6 +48,7 @@ class IsPlural a key val | a -> key, a -> val where
     indices     :: a -> [key]
     elems       :: a -> [val]
     append      :: a -> a -> a
+    push        :: a -> [val] -> a
     assocs      :: a -> [(key, val)]
     fetch       :: a -> key -> Maybe val
     insert      :: a -> key -> val -> a
@@ -61,6 +62,7 @@ instance IsPlural NativeStr NativeInt NativeStr where
     indices = \x -> [0 .. (NStr.length x - 1)]
     elems   = NStr.elems
     append  = NStr.append
+    push    = \x xs -> NStr.concat (x:xs)
     assocs  = zip [0..] . elems
     fetch (NStr.PS p s l) n
         | n < 0     = fail "negative index"
@@ -75,6 +77,7 @@ instance Ord k => IsPlural (NMap.Map k v) k v where
     indices = NMap.keys
     elems   = NMap.elems
     append  = NMap.union
+    push    = error "It doesn't make sense to push into a hash"
     assocs  = NMap.assocs
     fetch   = flip NMap.lookup
     insert  = \o k v -> NMap.insert k v o
@@ -87,6 +90,7 @@ instance IsPlural (SeqOf a) NativeInt a where
     indices    = NSeq.indices
     elems      = NSeq.elems
     append x y = NSeq.listArray (0, size x + size y - 1) (elems x ++ elems y)
+    push x xs  = NSeq.listArray (0, size x + length xs - 1) (elems x ++ xs)
     assocs     = NSeq.assocs
     fetch      = error "XXX seq.fetch"
     insert     = error "XXX seq.insert"

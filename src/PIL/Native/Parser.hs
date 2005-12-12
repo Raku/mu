@@ -41,8 +41,8 @@ literal = choice
     , fmap toNative pointyBlock
     , fmap toNative stringLiteral
     , fmap toNative singleQuoteStringLiteral
-    , fmap toNative (brackets $ commaSep literal)
-    , fmap toNative (braces $ commaSep pair)
+    , arrayExpression
+    , hashExpression
     , try (fmap toNative naturalOrFloat)
     , fmap toNative integer
     ]
@@ -51,11 +51,33 @@ literal = choice
     lit s n = do
         symbol s
         return (toNative n)
-    pair = do
-        key <- literal
-        symbol "=>"
-        val <- literal
-        return (key, val)
+
+{-
+arrayExpression :: Parser Native
+arrayExpression = do
+    -- XXX - parse and analyze to see whether all the commaSep
+    --       arguments are without redexes; if so, make it a literal
+    --       -- otherwise desugar it as [].push form
+    exps <- brackets $ commaSep expression
+    if all (isLiteral exps)
+        then fmap toNative exps
+        else mkCall emptyArray "push" exps
+    where
+    emptyArray = toNative NSeq.empty
+-}
+
+arrayExpression :: Parser Native
+arrayExpression = fmap toNative (brackets $ commaSep literal)
+
+hashExpression :: Parser Native
+hashExpression = fmap toNative (braces $ commaSep pairExpression)
+
+pairExpression :: Parser (Native, Native)
+pairExpression = do
+    key <- literal
+    symbol "=>"
+    val <- literal
+    return (key, val)
 
 singleQuoteStringLiteral :: Parser String
 singleQuoteStringLiteral = between (char '\'') (lexeme $ char '\'') $ do
