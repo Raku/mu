@@ -55,8 +55,8 @@ These are the anticipated core components of the Rosetta framework:
 * Rosetta::Emulator::DBI
 
 For reference, the older pre-rebirth Perl 5 version has an open Subversion
-repository at "http://svn.utsl.gen.nz/trunk/Rosetta/" (holding the last 2
-months of its development, and it has been released on CPAN under
+repository at "http://svn.utsl.gen.nz/trunk/Rosetta-old/" (holding the last
+2 months of its development, and it has been released on CPAN under
 "http://search.cpan.org/~duncand/" in the form of 165 distribution releases
 dated between 2003.01.05 and 2005.09.28, all of which are on BACKPAN and on
 the author's web site.  An older pre-rebirth Perl 6 version of just the
