@@ -38,6 +38,7 @@ literal :: Parser Native
 literal = choice 
     [ lit "nil"     mkNil
     , lit "true"    True
+    , lit "false"   False
     , fmap toNative pointyBlock
     , fmap toNative stringLiteral
     , fmap toNative singleQuoteStringLiteral
