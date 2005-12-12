@@ -119,7 +119,13 @@ sub set_postamble {
     unlink("Setup$Config{_exe}");
     unlink("Setup.o");
     unlink("Setup.hi");
-    system($ghc, '--make', '-o' => $setup, 'Setup.lhs');
+    my $rv = system($ghc, '--make', '-o' => $setup, 'Setup.lhs');
+    unless (-s "Setup$Config{_exe}") {
+        die << ".";
+*** Building Setup$Config{_exe} failed (exit code $rv)
+    Please check your GHC and Cabal installation.
+.
+    }
 
     my $heap;
 
@@ -524,7 +530,6 @@ realclean ::
 
 pure_all :: build_perl5
 	\$(PERLRUN) util/src_to_blib.pl
-	\$(NOECHO) \$(ECHO) "*** Successfully built!  Type '\$(MAKE) install' to install."
 
 register ::
 	\$(PERLRUN) util/ghc_setup.pl register --prefix=\$(DESTDIR)

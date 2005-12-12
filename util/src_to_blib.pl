@@ -5,6 +5,7 @@
 # needed to be able to build Haskell based Perl6 extensions outside of
 # the pugs tree.
 #
+use Config;
 use File::Copy qw(copy);
 use File::Path qw(mkpath);
 
@@ -14,6 +15,12 @@ use File::Path qw(mkpath);
     copy_all("$_/blib6/", 'blib6/pugs/perl6') for <perl5/*>;
     copy_all("$_/blibjs/", 'blib6/pugs/js') for <perl5/*>;
 }
+
+print "*** Successfully built!  Type '$Config{make} install' to install.\n";
+
+# make an educated guess of whether we'll need root permission.
+print "    (You may need to do that as the 'root' user.)\n"
+    unless -w $Config{sitelib};
 
 sub copy_all {
     my ($src, $dest) = @_;
