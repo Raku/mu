@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+
+use 5.006;
 use strict;
 use warnings;
 use Config;
@@ -135,7 +137,7 @@ sub set_postamble {
     if (has_ghc_package('plugins')
         and  try_compile("import System.Eval\n"
                         ."main :: IO ()\n"
-                        .'main = (eval_ "return ()" [] [] [] [] :: IO (Either [String] (Maybe ()))) >> return ()', '-package', 'plugins', $ghc)) {
+                        .'main = (eval_ "return ()" [] [] [] [] :: IO (Either [String] (Maybe ()))) >> return ()', $ghc, '-package', 'plugins')) {
         $ghc_flags .= ' -package plugins -DPUGS_HAVE_HSPLUGINS ';
     } else {
         push @warn, << '.';
@@ -316,7 +318,7 @@ EOD
 
     my $config = get_pugs_config();
     my $is_win32 = ($^O =~ /MSWin|mingw|cygwin/i);
-    my $threaded = (!$is_win32 and try_compile("main :: IO ()\nmain = return ()", "-threaded", $ghc))
+    my $threaded = (!$is_win32 and try_compile("main :: IO ()\nmain = return ()", $ghc, "-threaded"))
         ? '-threaded' : '';
 
     if ($threaded and $ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bperl5\b/ and !$Config{usethreads}) {
@@ -581,7 +583,7 @@ sub try_compile {
 
     };
 
-    my $ok = -e "$temp.exe";
+    my $ok = -s "$temp.exe";
     unlink("$temp.exe");
     unlink("$temp.hs");
     unlink("$temp.hi");
