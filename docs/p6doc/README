@@ -1,0 +1,24 @@
+This directory is for perl 6 end-user docs, the equivalent of the
+perldoc distributed with perl 5.
+
+The contents of this directory are hierarchical rather than having a
+flat space.
+
+    Perl6::Doc::Intro          intro to perl 6 (equiv to perlintro)
+    Perl6::Doc::Reference::*   language reference
+    Perl6::Doc::Tutorial::*    tutorials 
+    Perl6::Doc::FAQ::*         FAQs
+
+All this is subject to change depending on what seems necessary, but for
+the moment, the general scheme is that the top level of the namespace is
+"type of documentation" and then under that is "topic of documentation".
+So you might have Perl6::Doc::Reference::Objects and
+Perl6::Doc::Tutorial::Objects
+
+There will be a p6doc command, equivalent to the perldoc command, such
+that 'p6doc Foo::Bar' is equivalent to 'perldoc Perl6::Doc::Foo::Bar'.
+
+The files in this directory here in the pugs code tree skip the
+Perl6::Doc prefix because it's unnecessary for our current purposes.
+We'll need a tool to bundle up the contents of this dir under Perl6::Doc
+and push them out to CPAN.
