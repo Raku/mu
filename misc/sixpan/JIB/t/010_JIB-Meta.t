@@ -11,7 +11,8 @@ my $Class = 'JIB::Meta';
 my $File  = File::Spec->catfile( qw[src p5-b _jib META.info] );
 
 ### XXX config
-my @Acc   = sort qw[author description package name version authority provides];
+my @Acc   = sort qw[author description package name version authority provides
+                    prefix];
 
 use_ok( $Class );
 
