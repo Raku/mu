@@ -1,0 +1,24 @@
+=head1 NAME
+
+Perl6::Doc::TOC -- Table of Contents for Perl 6 Documentation
+
+=head1 DESCRIPTION
+
+This table of contents briefly lists each of the documents available as
+part of the Perl 6 documentation system.
+
+=head2 Starting points
+
+    TOC                This table of contents
+    Intro              A brief introduction for new Perl users
+    Perl5Differences   Quick overview for Perl 5 programmers
+
+=head2 Language reference
+
+=head2 Tutorials
+
+=head2 FAQ
+
+=head1 AUTHOR
+
+Kirrily "Skud" Robert, <skud@cpan.org>

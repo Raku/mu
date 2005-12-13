@@ -1,0 +1,33 @@
+=begin maintainer_notes
+
+Since I *am* a Perl 5 programmer coming to Perl 6 for the first time, it
+seems appropriate to make notes on what I needed to get used to in Perl
+6.  I'm going to start out more or less making a running list of items,
+and then I guess they can be organised more neatly later on.  -- KR
+
+=end maintainer_notes
+
+=head1 NAME
+
+Perl6::Doc::Perl5Differences -- differences between Perl 5 and Perl 6
+
+=head1 DESCRIPTION
+
+This document is intended to be used by Perl 5 programmers who are new
+to Perl 6 and just want a quick overview of the main differences.  More
+detail on everything can be found in the language reference.
+
+=head2 say()
+
+This is a version of print() that auto-appends a newline:
+
+    say   "Hello, world!";
+    print "Hello, world!\n";
+
+Since you want to do that so often anyway, it seemed like a handy thing
+to make part of the language.
+
+=head1 AUTHOR
+
+Kirrily "Skud" Robert, <skud@cpan.org>
+

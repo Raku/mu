@@ -1,0 +1,120 @@
+=begin maintainer_notes
+
+For now I'm basing this on the perlintro manpage.  I expect that a
+somewhat different structure will emerge over time, but it seems like as
+good a place to start as any.  -- Skud
+
+=end maintainer_notes
+
+
+=head1 NAME
+
+Perl6::Doc::Intro -- a brief introduction and overview of Perl 6
+
+=head1 DESCRIPTION
+
+This introduction is aimed at the beginning Perl 6 programmer.  For the
+moment, it is assumed that such programmers are coming from a background
+of Perl 5.  However, this document tries to be simple and general enough
+for anyone with some programming experience to pick up Perl 6.  Those
+who want more information about the changes from Perl 5 should look
+elsewhere.
+
+=head2 What is Perl 6?
+
+Perl 6, like its predecessors, is a multi-purpose scripting language
+combining ease of use and powerful programming features.
+
+=head2 Running a Perl 6 program
+
+You will need to install PUGS, which can be found at
+http://pugscode.org/.
+
+Having done so, you can run your Perl 6 program from the command line as
+follows:
+
+    pugs myprogram.p6
+
+Alternatively, you may specify the pugs interpreter to use in the first
+line of your script, like this:
+
+    #!/usr/bin/env pugs
+
+... then run your program as:
+
+    ./myprogram.p6
+
+To run one-liners from the command-line, use the -e flag:
+
+    pugs -e 'say "Hello, world!"'
+
+You can also start up pugs without any arguments, then type Perl 6 commands at
+its command line.  To exit, type ctrl-D.
+
+=head2 Basic syntax overview
+
+A Perl 6 program consists of one or more statements.  These statements are simply 
+written in a plain text file, one after another.  There is no need to have a
+"main()" function or anything of that kind.
+
+Perl 6 statements end in a semi-colon:
+
+   say "Hello, world";
+
+Comments start with a hash symbol and run to the end of the line
+
+   # This is a comment
+
+Whitespace is irrelevant:
+
+   say 
+       "Hello, world"
+       ;
+
+... except inside quoted strings:
+
+   # this would print with a linebreak in the middle
+   say "Hello
+   world";
+
+Double quotes or single quotes may be used around literal strings:
+
+   say "Hello, world";
+   say 'Hello, world';
+
+However, only double quotes "interpolate" variables and special characters such 
+as newlines ("\n"):
+
+   say "Hello, $name";     # works fine
+   say 'Hello, $name';     # prints $name\n literally
+
+Numbers don't need quotes around them:
+
+   say 42;
+
+Most of the time, you can use parentheses for functions' arguments or omit them
+according to your personal taste.  
+
+   say("Hello, world");
+   say "Hello, world";
+
+=head2 Perl variable types
+
+=head2 Variable scoping
+
+=head2 Conditional and looping constructs
+
+=head2 Built-in operators and functions
+
+=head2 Regular expressions
+
+=head2 Writing subroutines
+
+=head2 Object oriented Perl 6
+
+=head2 Using third-party modules
+
+=head1 AUTHOR
+
+Kirrily "Skud" Robert <skud@cpan.org>
+
