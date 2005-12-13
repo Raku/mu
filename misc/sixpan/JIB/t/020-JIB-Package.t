@@ -60,10 +60,13 @@ my $Obj;
 }
  
 ### installl the package
-{   my $rv = $Obj->install( installation => $Inst );
-    ok( $rv,                    "Package installed" );
+{   my $inst_pkg = $Obj->install( installation => $Inst );
+    ok( $inst_pkg,              "Package installed" );
+    isa_ok( $inst_pkg,          "JIB::Package::Installed" );
     ok( $Inst->is_installed( package => $Obj ),
                                 "   Package installation registered" );
+    
+    
     
     ### XXX add more file tests
     
