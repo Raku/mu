@@ -100,7 +100,7 @@ of the same name. This is to allow for overloaded (i.e. multi) subs,
 where one sub name actually maps to /all/ the different multi subs.
 (Is this correct?)
 -}
-genMultiSym :: MonadSTM m => String -> VRef -> m (Pad -> Pad)
+genMultiSym :: MonadSTM m => String -> VRef -> m PadMutator
 genMultiSym name ref = do
     tvar    <- liftSTM $ newTVar ref
     fresh   <- liftSTM $ newTVar True
@@ -113,7 +113,7 @@ mapping from a name to a thing, in the 'Pad' it is applied to.
 Unlike 'genMultiSym', this version just installs a single definition
 (right?), shadowing any earlier or outer definition.
 -}
-genSym :: MonadSTM m => String -> VRef -> m (Pad -> Pad)
+genSym :: MonadSTM m => String -> VRef -> m PadMutator
 genSym name ref = do
     tvar    <- liftSTM $ newTVar ref
     fresh   <- liftSTM $ newTVar True

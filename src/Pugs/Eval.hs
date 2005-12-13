@@ -50,7 +50,7 @@ initially present in the global 'Pad'.
 -}
 emptyEnv :: (MonadIO m, MonadSTM m) 
          => String             -- ^ Name associated with the environment
-         -> [STM (Pad -> Pad)] -- ^ List of 'Pad'-mutating transactions used
+         -> [STM PadMutator]   -- ^ List of 'Pad'-mutating transactions used
                                --     to declare an initial set of global
                                --     variables
          -> m Env
@@ -157,8 +157,8 @@ Add a symbol to the global 'Pad'.
 
 Used by 'reduceSym'.
 -}
-addGlobalSym :: (Pad -> Pad) -- ^ 'Pad'-transformer that will insert the new
-                             --     symbol
+addGlobalSym :: PadMutator -- ^ 'Pad'-transformer that will insert the new
+                           --     symbol
              -> Eval ()
 addGlobalSym newSym = do
     glob <- asks envGlobal
@@ -985,7 +985,7 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
         | otherwise       = env
             { envCaller = Just env
             , envDepth = envDepth env + 1 }
-    doBind :: [Pad -> Pad] -> [(Param, Exp)] -> Eval ([Pad -> Pad], [ApplyArg])
+    doBind :: [PadMutator] -> [(Param, Exp)] -> Eval ([PadMutator], [ApplyArg])
     doBind syms [] = return (syms, [])
     doBind syms ((prm, exp):rest) = do
         -- trace ("<== " ++ (show (prm, exp))) $ return ()

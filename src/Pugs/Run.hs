@@ -164,7 +164,7 @@ prepareEnv name args = do
     where
     hideInSafemode x = if safeMode then MkRef $ constScalar undef else x
 
-initClassObjects :: [Type] -> ClassTree -> IO [STM (Pad -> Pad)]
+initClassObjects :: [Type] -> ClassTree -> IO [STM PadMutator]
 initClassObjects parent (Node typ children) = do
     obj     <- createObject (mkType "Class") $
         [ ("name",   castV $ showType typ)

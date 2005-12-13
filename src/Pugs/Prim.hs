@@ -1311,7 +1311,7 @@ op3Caller kind skip _ = do                                 -- figure out label
 -- the default is 'op0'.
 -- The Pad symbol name is prefixed with \"&*\" for functions and
 -- \"&*\" ~ fixity ~ \":\" for operators.
-primOp :: String -> String -> Params -> String -> Bool -> STM (Pad -> Pad)
+primOp :: String -> String -> Params -> String -> Bool -> STM (PadMutator)
 primOp sym assoc prms ret isSafe =
     -- In safemode, we filter all prims marked as "unsafe".
     if (not isSafe) && safeMode
@@ -1361,7 +1361,7 @@ primOp sym assoc prms ret isSafe =
         other       -> (0, other, True)
 
 -- |Produce a Pad update transaction with 'primOp' from a string description
-primDecl :: String -> STM (Pad -> Pad)
+primDecl :: String -> STM PadMutator
 primDecl str = primOp sym assoc params ret (safe == "safe")
     where
     (ret:assoc:sym:safe:prms) = words str
@@ -1427,7 +1427,7 @@ objectFinalizer env obj = do
 --  The source string format is:
 --
 -- >  ret_val   assoc   op_name [safe|unsafe] args
-initSyms :: STM [Pad -> Pad]
+initSyms :: STM [PadMutator]
 initSyms = mapM primDecl syms
     where
     syms = filter (not . null) . lines $ decodeUTF8 "\

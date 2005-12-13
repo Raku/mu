@@ -53,7 +53,7 @@ new scope.
 
 (Subsequent chained 'Eval's do /not/ see this new scope.)
 -}
-enterLex :: [Pad -> Pad] -- ^ Transformations on current 'Pad' to produce the
+enterLex :: [PadMutator] -- ^ Transformations on current 'Pad' to produce the
                          --     new 'Pad'.
          -> Eval a       -- ^ Evaluation to be performed in the new scope
          -> Eval a       -- ^ Resulting evaluation (lexical scope enter & exit
@@ -166,7 +166,7 @@ genSymPrim :: (MonadSTM m)
            => String                -- ^ Name installed in 'Pad'
                                     --     (must have leading @&@ sigil)
            -> ([Val] -> Eval Val)   -- ^ The actual primitive to wrap
-           -> ((Pad -> Pad) -> m t) -- ^ A (lambda) function that the 'Pad'
+           -> (PadMutator -> m t)   -- ^ A (lambda) function that the 'Pad'
                                     --     transformer is given to
            -> m t -- ^ Result of passing the pad-transformer to the \'action\'
 genSymPrim symName@('&':name) prim action = do
@@ -187,7 +187,7 @@ to an \'action\' function, which is expected to apply it (e.g. in a lexical
 scope), then perform some evaluation in that scope.
 -}
 genSymCC :: String -- ^ Name of the primitive in the symbol table ('Pad').
-         -> ((Pad -> Pad) -> Eval Val) -- ^ An \'action\' function that will
+         -> (PadMutator -> Eval Val)   -- ^ An \'action\' function that will
                                        --     take the pad-transformer and use
                                        --     it to perform some evaluation 
          -> Eval Val -- ^ Result of passing the pad-transformer to the 
@@ -262,7 +262,7 @@ enterSub sub action
         , subBody = Prim $ doCC cc
         }
 
-genSubs :: t -> Var -> (t -> VCode) -> Eval [Pad -> Pad]
+genSubs :: t -> Var -> (t -> VCode) -> Eval [PadMutator]
 genSubs env name gen = sequence
     [ genMultiSym name (codeRef $ gen env)
     , genMultiSym name (codeRef $ (gen env) { subParams = [] })

@@ -44,7 +44,7 @@ Apply a 'Pad'-transformer to the given sub's lexical pad, producing a 'VCode'
 with the new pad.
 -}
 updateSubPad :: VCode        -- ^ Initial sub
-             -> (Pad -> Pad) -- ^ 'Pad'-transforming function
+             -> PadMutator   -- ^ 'Pad'-transforming function
              -> VCode        -- ^ Sub with altered lexical pad
 updateSubPad sub f = sub
     { subEnv = fmap (\e -> e{ envLexical = f (subPad sub) }) (subEnv sub) 

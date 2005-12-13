@@ -12,7 +12,7 @@ module Pugs.AST.Internals (
 
     EvalT(..), ContT(..),
 
-    Pad(..), -- uses Var, TVar, VRef
+    Pad(..), PadMutator, -- uses Var, TVar, VRef
     Param(..), -- uses Cxt, Exp
     Params, -- uses Param
     Bindings, -- uses Param, Exp
@@ -1157,6 +1157,9 @@ padToList (MkPad map) = Map.assocs map
 
 listToPad :: [(Var, [(TVar Bool, TVar VRef)])] -> Pad
 listToPad = MkPad . Map.fromList
+
+-- | type for a function introducing a change to a Pad
+type PadMutator = (Pad -> Pad)
 
 {- Eval Monad -}
 -- type Eval x = EvalT (ContT Val (ReaderT Env SIO)) x
