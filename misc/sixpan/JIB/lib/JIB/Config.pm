@@ -39,8 +39,11 @@ $config{'repo_index_groups'}= [ [map {Path::Class::dir($_)}
 
 
 ### meta dirs/files
+### XXX this shouldn't be hardcoded to perl_site_dir, but installation
+### dependant!
+$config{'meta_dir'}         = [ Path::Class::dir('_jib') => 
+                                sub { $Obj->perl_site_dir->subdir(shift()) } ];
 $config{'files_list'}       = [ Path::Class::file('files.list') ];
-$config{'meta_dir'}         = [ Path::Class::dir('_jib')        ];
 $config{'control'}          = [ control         => SUBDIR_OF_META   ];
 $config{'alternatives'}     = [ alternatives    => SUBDIR_OF_META   ];
 $config{'available'}        = [ available       => SUBFILE_OF_META  ];
@@ -56,7 +59,7 @@ $config{'build_dir'}        = [ Path::Class::dir('root-') ];
 
 ### package files/extensions
 $config{'meta_ext'}         = [ '.info' ];
-$config{'meta_file'}        = [ META => sub { $Obj->meta_ext . shift() } ];
+$config{'meta_file'}        = [ META => sub { shift() . $Obj->meta_ext  } ];
 
 $config{'archive_data'}     = [ 'data.tgz'      ];
 $config{'archive_control'}  = [ 'control.tgz'   ];
