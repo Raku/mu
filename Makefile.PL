@@ -80,7 +80,7 @@ clean_files     (map fixpaths($_),
     src/Pugs/Run/Perl5_stub.* src/Data/Yaml/Syck_stub.* src/Data/Yaml/Syck.hs
     temp-ex* unlink-test* Prelude Pugs.cabal Setup.hi Setup.o
     .setup-config .installed-pkg-config
-    temp-test.*.*-out tempfile.*.*
+    temp-test.*.*-out tempfile.*.* create_this_file create_this_file2
     )
 );
 
