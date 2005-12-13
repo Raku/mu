@@ -31,6 +31,7 @@ expression :: Parser NativeLangExpression
 expression = (<?> "expression") $ do
     obj <- choice
         [ parens expression
+        , arrayExpression
         , fmap NL_Lit literal
         , fmap (NL_Var . mkStr) identifier
         ]
@@ -62,7 +63,6 @@ literal = choice
     , fmap toNative pointyBlock
     , fmap toNative stringLiteral
     , fmap toNative singleQuoteStringLiteral
-    , arrayExpression
     , hashExpression
     , try (fmap toNative naturalOrFloat)
     , fmap toNative integer
@@ -73,22 +73,20 @@ literal = choice
         symbol s
         return (toNative n)
 
-{-
-arrayExpression :: Parser Native
+arrayExpression :: Parser NativeLangExpression
 arrayExpression = do
-    -- XXX - parse and analyze to see whether all the commaSep
-    --       arguments are without redexes; if so, make it a literal
-    --       -- otherwise desugar it as [].push form
+    -- parse and analyze to see whether all the commaSep
+    -- arguments are without redexes; if so, make it a literal
+    -- otherwise desugar it as [].push form
     exps <- brackets $ commaSep expression
-    if all (isLiteral exps)
-        then fmap toNative exps
-        else mkCall emptyArray "push" exps
+    return $ maybe (mkCall emptyArray "push" exps)
+                   (NL_Lit . toNative)
+                   (allLiteral exps)
     where
-    emptyArray = toNative NSeq.empty
--}
-
-arrayExpression :: Parser Native
-arrayExpression = fmap toNative (brackets $ commaSep literal)
+    emptyArray = NL_Lit $ toNative (empty :: NativeSeq)
+    allLiteral [] = Just []
+    allLiteral (NL_Lit l:xs) = fmap (l:) (allLiteral xs)
+    allLiteral _ = Nothing
 
 hashExpression :: Parser Native
 hashExpression = fmap toNative (braces $ commaSep pairExpression)
