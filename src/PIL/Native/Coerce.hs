@@ -50,20 +50,22 @@ class IsPlural a key val | a -> key, a -> val where
     append      :: a -> a -> a
     push        :: a -> SeqOf val -> a
     assocs      :: a -> [(key, val)]
+    fromAssocs  :: [(key, val)] -> a
     fetch       :: a -> key -> Maybe val
     insert      :: a -> key -> val -> a
     (!)         :: a -> key -> val
     (!) x k = maybe (error "index out of bounds") id $ fetch x k
 
 instance IsPlural NativeStr NativeInt NativeStr where
-    isEmpty = NStr.null
-    size    = NStr.length
-    empty   = NStr.empty
-    indices = \x -> [0 .. (NStr.length x - 1)]
-    elems   = NStr.elems
-    append  = NStr.append
-    push    = \x xs -> NStr.concat (x:NSeq.elems xs)
-    assocs  = zip [0..] . elems
+    isEmpty    = NStr.null
+    size       = NStr.length
+    empty      = NStr.empty
+    indices    = \x -> [0 .. (NStr.length x - 1)]
+    elems      = NStr.elems
+    append     = NStr.append
+    push       = \x xs -> NStr.concat (x:NSeq.elems xs)
+    assocs     = zip [0..] . elems
+    fromAssocs = NStr.concat . map snd -- XXX wrong
     fetch (NStr.PS p s l) n
         | n < 0     = fail "negative index"
         | n >= l    = fail "index out of bounds"
@@ -71,17 +73,18 @@ instance IsPlural NativeStr NativeInt NativeStr where
     insert     = error "XXX str.insert"
 
 instance Ord k => IsPlural (NMap.Map k v) k v where
-    isEmpty = NMap.null
-    size    = NMap.size
-    empty   = NMap.empty
-    indices = NMap.keys
-    elems   = NMap.elems
-    append  = NMap.union
-    push    = error "It doesn't make sense to push into a hash"
-    assocs  = NMap.assocs
-    fetch   = flip NMap.lookup
-    insert  = \o k v -> NMap.insert k v o
-    (!)     = (NMap.!)
+    isEmpty    = NMap.null
+    size       = NMap.size
+    empty      = NMap.empty
+    indices    = NMap.keys
+    elems      = NMap.elems
+    append     = NMap.union
+    push       = error "It doesn't make sense to push into a hash"
+    assocs     = NMap.assocs
+    fromAssocs = NMap.fromList
+    fetch      = flip NMap.lookup
+    insert     = \o k v -> NMap.insert k v o
+    (!)        = (NMap.!)
 
 instance IsPlural (SeqOf a) NativeInt a where
     isEmpty x  = (size x == 0)
@@ -90,9 +93,11 @@ instance IsPlural (SeqOf a) NativeInt a where
     indices    = NSeq.indices
     elems      = NSeq.elems
     append x y | isEmpty x = y
+    append x y | isEmpty y = x
     append x y = NSeq.listArray (0, size x + size y - 1) (elems x ++ elems y)
     push       = append
     assocs     = NSeq.assocs
+    fromAssocs = \xs -> NSeq.array (0, length xs - 1) xs
     fetch      = error "XXX seq.fetch"
     insert     = error "XXX seq.insert"
     (!)        = (NSeq.!)

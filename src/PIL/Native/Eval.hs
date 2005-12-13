@@ -5,21 +5,28 @@ import PIL.Native.Prims
 import PIL.Native.Types
 import PIL.Native.Coerce
 import Data.FunctorM
-import Pugs.AST.SIO
+import Control.Monad.Reader
 
 -- unboxed types have fixed set of methods
 -- boxed types can dispatch a lot more
 
 type Pad = NativeMap
 
-evalNativeLang :: MonadSTM m => [NativeLangExpression] -> m Native
-evalNativeLang []       = return nil
-evalNativeLang [x]      = evalExp x
-evalNativeLang (_:xs)   = evalNativeLang xs
+evalNativeLang :: Monad m => [NativeLangExpression] -> m Native
+evalNativeLang = (`runReaderT` empty) . evalExps
 
-evalExp :: MonadSTM m => NativeLangExpression -> m Native
+evalExps :: MonadReader Pad m => [NativeLangExpression] -> m Native
+evalExps []       = return nil
+evalExps [x]      = evalExp x
+evalExps (_:xs)   = evalExps xs
+
+evalExp :: MonadReader Pad m => NativeLangExpression -> m Native
 evalExp (NL_Lit n) = return n
-evalExp (NL_Var s) = fail $ "No such variable " ++ toString s
+evalExp (NL_Var s) = do
+    pad <- ask
+    case pad `fetch` s of
+        Just v  -> return v
+        Nothing -> fail $ "No such variable " ++ toString s
 evalExp (NL_Call { nl_obj = objExp, nl_meth = meth, nl_args = argsExp }) = do
     obj  <- evalExp objExp
     args <- fmapM evalExp argsExp
@@ -43,8 +50,12 @@ evalExp (NL_Call { nl_obj = objExp, nl_meth = meth, nl_args = argsExp }) = do
     errMethodMissing :: Monad m => m a
     errMethodMissing = fail ("No such method: " ++ toString meth)
     callBlock block args = do
-        -- bind params to args
-        evalNativeLang (elems $ nb_body block)
---  { nb_params :: !(SeqOf NativeLangSym)
---  , nb_body   :: !(SeqOf NativeLangExpression)
+        when (size args /= size prms) $ do
+            fail $ "Invalid number of args " ++ show (elems args)
+                ++ " vs params " ++ show (elems prms)
+        local (append lex) $ do
+            evalExps (elems $ nb_body block)
+        where
+        prms = nb_params block
+        lex = fromAssocs $ elems prms `zip` elems args
 
