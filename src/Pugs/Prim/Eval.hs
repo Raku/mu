@@ -29,18 +29,22 @@ data EvalStyle = MkEvalStyle
 
 opRequire :: Bool -> Val -> Eval Val
 opRequire dumpEnv v = do
-    file        <- fromVal v
+    mod         <- fromVal v
     incs        <- fromVal =<< readVar "@*INC"
     glob        <- askGlobal
     seen        <- findSymRef "%*INC" glob
     loaded      <- existsFromRef seen v
+    let file    = (concat $ intersperse "/" $ split "::" mod) ++ ".pm"
     pathName    <- requireInc incs file (errMsg file incs)
     if loaded then opEval style pathName "" else do
-        -- %*INC{file} = pathname
+        -- %*INC{mod} = { relname => file, pathname => pathName }
         evalExp $ Syn "="
-            [ Syn "{}"
-                [ Var "%*INC", Val . VStr $ decodeUTF8 file ]
-                , Val . VStr $ decodeUTF8 pathName
+            [ Syn "{}"             -- subscript
+                [ Var "%*INC", Val . VStr $ decodeUTF8 mod ]
+                , Syn "\\{}"       -- hashref
+                    [ Syn "," [ mkStrPair "pathname" (decodeUTF8 pathName)
+                              , mkStrPair "relname"  (decodeUTF8 file) ]
+                    ]
             ]
         str         <- liftIO $ readFile pathName
         opEval style pathName (decodeUTF8 str)
@@ -50,6 +54,8 @@ opRequire dumpEnv v = do
         , evalResult = (if dumpEnv == True then EvalResultEnv
                                            else EvalResultLastValue)}
     errMsg file incs = "Can't locate " ++ file ++ " in @*INC (@*INC contains: " ++ unwords incs ++ ")."
+    mkStrPair :: String -> String -> Exp
+    mkStrPair key val = App (Var "&infix:=>") Nothing (map (Val . VStr) [key, val])
 
 requireInc :: (MonadIO m) => [FilePath] -> FilePath -> String -> m String 
 requireInc [] _ msg = fail msg

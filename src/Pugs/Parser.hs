@@ -806,7 +806,7 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
         val <- unsafeEvalExp $
             if lang == "perl5"
                 then Stmts (Sym SGlobal (':':'*':pkg) (Syn ":=" [ Var (':':'*':pkg), App (Var "&require_perl5") Nothing [Val $ VStr pkg] ])) (Syn "env" [])
-                else App (Var "&use") Nothing [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
+                else App (Var "&use") Nothing [Val . VStr $ concat (intersperse "::" names)]
         case val of
             Val (VControl (ControlEnv env')) -> putRuleEnv env
                 { envClasses = envClasses env' `addNode` mkType pkg
@@ -912,7 +912,7 @@ ruleRequireDeclaration :: RuleParser Exp
 ruleRequireDeclaration = tryRule "require declaration" $ do
     symbol "require"
     (names, _, _) <- rulePackageFullName
-    return $ App (Var "&require") Nothing [Val . VStr $ concat (intersperse "/" names) ++ ".pm"]
+    return $ App (Var "&require") Nothing [Val . VStr $ concat (intersperse "::" names)]
 
 ruleDoBlock :: RuleParser Exp
 ruleDoBlock = rule "do block" $ try $ do
