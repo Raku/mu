@@ -25,32 +25,34 @@ main = do
         then do
             banner "Welcome to PIL2 REPL, the Pugs Again Shell!"
             banner "Please enter expressions, or :q to exit"
-            prompt
+            prompt []
         else do
             src <- readFile (head args)
             eval src
     where
-    prompt = do
+    prompt hist = do
         cmd <- getCommand
         case cmd of
             CmdQuit -> return ()
-            CmdRun { runProg = src } -> (`catchError` parseErr) $ do
+            CmdRun { runProg = src } -> (`catchError` parseErr hist) $ do
                 exps <- parseNativeLang src 
                 banner "Parsed"
                 putStrLn =<< prettyM exps
                 banner "Evaluated"
-                (val, objs) <- evalNativeLang exps
+                -- Neat trick: replay all previous successful commands
+                let exps' = hist ++ exps
+                (val, objs) <- evalNativeLang exps'
                 putStrLn =<< prettyM val
                 banner "Object Space"
                 dumpObjSpace objs
-                prompt
+                prompt exps'
             _ -> do
                 banner "Unknown Command"
-                prompt
-    parseErr err = do
+                prompt hist
+    parseErr hist err = do
         banner "Error"
         putStrLn $ ioeGetErrorString err
-        prompt
+        prompt hist
 
 parse :: String -> IO ()
 parse src = do
