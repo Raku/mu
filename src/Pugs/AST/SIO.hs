@@ -29,8 +29,11 @@ instance Monad SIO where
     (MkSTM stm) >>= k = MkSTM $ do { a <- stm; runSTM (k a) }
     (MkSIO x)   >>= k = k x
 
+instance Functor SIO where
+    fmap = liftM
+
 -- | Typeclass of monadic types that an @STM@ monad can be lifted to.
-class (Monad m) => MonadSTM m where
+class (Monad m, Functor m) => MonadSTM m where
     runSIO :: SIO a -> m a
     runSIO = fail "runSIO not detailed for this monad"
     liftSTM :: STM a -> m a
