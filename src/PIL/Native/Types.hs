@@ -1,18 +1,23 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields #-}
 
 module PIL.Native.Types (
-    Native(..),
+    Native(..), NativeObj(..),
     NativeBit, NativeInt, NativeNum, NativeError, NativeStr, NativeSeq, NativeMap,
 
-    NativeBlock(..), NativeLangExpression(..), NativeLangSym, NativeLangMethod,
+    NativeSub(..), NativeLangExpression(..), NativeLangSym, NativeLangMethod,
+
+    ObjectId, ObjectAttrs,
     
     SeqOf, MapOf,
+
+    module Pugs.AST.SIO,
 ) where
+import Pugs.AST.SIO
 import Data.Typeable
 import Control.Exception
-import Data.FunctorM
+import Control.Concurrent.STM
 import qualified Data.Map as NMap
-import qualified Data.Array.Diff as NSeq
+import qualified Data.Seq as NSeq
 import qualified Data.FastPackedString as NStr
 
 {-| 
@@ -35,16 +40,34 @@ data Native
     | NBit      !NativeBit
     | NInt      !NativeInt
     | NNum      !NativeNum
-    | NBlock    !NativeBlock
+    | NSub      !NativeSub
 --------------------------------- Plurals
     | NStr      !NativeStr
     | NSeq      !NativeSeq
     | NMap      !NativeMap
+--------------------------------- Objects
+    | NObj      !NativeObj
     deriving (Show, Eq, Ord, Typeable)
 
-data NativeBlock = MkBlock
-    { nb_params :: !(SeqOf NativeLangSym)
-    , nb_body   :: !(SeqOf NativeLangExpression)
+type ObjectId    = NativeInt
+type ObjectAttrs = TVar NativeMap
+
+instance Show ObjectAttrs where
+    show _ = "<opaque>"
+
+instance Ord NativeObj where
+    compare x y = compare (o_id x) (o_id y)
+
+data NativeObj = MkObject
+    { o_class   :: NativeObj -- ::Class is self-recursive, so can't be strict here
+    , o_id      :: !ObjectId
+    , o_attrs   :: !ObjectAttrs
+    }
+    deriving (Show, Eq, Typeable)
+
+data NativeSub = MkSub
+    { s_params :: !(SeqOf NativeLangSym)
+    , s_exps   :: !(SeqOf NativeLangExpression)
     } 
     deriving (Show, Eq, Ord, Typeable)
 
@@ -52,14 +75,13 @@ type NativeLangSym = NativeStr
 type NativeLangMethod = NativeStr
 
 data NativeLangExpression
-    = NL_Lit  !Native
-    | NL_Var  !NativeLangSym
-    | NL_Call { nl_obj  :: !NativeLangExpression
-              , nl_meth :: !NativeLangMethod
-              , nl_args :: !(SeqOf NativeLangExpression)
-              }
+    = ELit  !Native
+    | EVar  !NativeLangSym
+    | ECall { c_obj  :: !NativeLangExpression
+            , c_meth :: !NativeLangMethod
+            , c_args :: !(SeqOf NativeLangExpression)
+            }
     deriving (Show, Eq, Ord, Typeable)
-
 
 type NativeBit = Bool
 type NativeInt = Int
@@ -70,19 +92,7 @@ type NativeSeq = SeqOf Native
 type NativeMap = NMap.Map NativeStr Native
 
 type MapOf = NMap.Map NativeStr
-type SeqOf = NSeq.DiffArray NativeInt
+type SeqOf = NSeq.Seq
 
 instance Ord NativeError where
     compare x y = compare (show x) (show y)
-
-instance Eq a => Eq (SeqOf a) where
-    a == a'   =   NSeq.assocs a == NSeq.assocs a'
-
-instance Ord a => Ord (SeqOf a) where
-    a <= a'   =   NSeq.assocs a <= NSeq.assocs a'
-
-instance FunctorM SeqOf where
-    fmapM f a = sequence [ f e >>= return . (,) i | (i,e) <- NSeq.assocs a] >>= return . NSeq.array b
-        where
-        b = NSeq.bounds a
-

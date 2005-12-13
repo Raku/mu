@@ -1,10 +1,12 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields #-}
 
 module PIL.Native.Eval where
 import PIL.Native.Prims
 import PIL.Native.Types
 import PIL.Native.Coerce
+import PIL.Native.Objects
 import Data.FunctorM
+import Control.Monad.State
 import Control.Monad.Reader
 
 {-| 
@@ -21,58 +23,76 @@ See Also:
 
 -}
 
--- unboxed types have fixed set of methods
--- boxed types can dispatch a lot more
-
+type Eval = StateT ObjectSpace (ReaderT Pad SIO)
 type Pad = NativeMap
 
-evalNativeLang :: Monad m => [NativeLangExpression] -> m Native
-evalNativeLang = (`runReaderT` empty) . evalExps
+instance MonadSTM Eval where
+    liftSTM = lift . lift . liftSTM
 
-evalExps :: MonadReader Pad m => [NativeLangExpression] -> m Native
+evalNativeLang :: MonadSTM m => [NativeLangExpression] -> m (Native, ObjectSpace)
+evalNativeLang = runSIO . (`runReaderT` empty) . (`runStateT` empty) . evalMain
+
+evalMain :: [NativeLangExpression] -> Eval Native
+evalMain exps = do
+    -- bootstrap
+    evalExps exps
+
+evalExps :: [NativeLangExpression] -> Eval Native
 evalExps []       = return nil
 evalExps [x]      = evalExp x
-evalExps (_:xs)   = evalExps xs
+evalExps (x:xs)   = evalExp x >> evalExps xs
 
-evalExp :: forall m. MonadReader Pad m => NativeLangExpression -> m Native
-evalExp (NL_Lit n) = return n
-evalExp (NL_Var s) = do
+evalExp :: NativeLangExpression -> Eval Native
+evalExp (ELit n) = return n
+evalExp (EVar s) = do
     pad <- ask
     case pad `fetch` s of
         Just v  -> return v
         Nothing -> fail $ "No such variable " ++ toString s
-evalExp (NL_Call { nl_obj = objExp, nl_meth = meth, nl_args = argsExp }) = do
+evalExp (ECall { c_obj = objExp, c_meth = meth, c_args = argsExp }) = do
     obj  <- evalExp objExp
     args <- fmapM evalExp argsExp
     case anyPrims `fetch` meth of
         Just f  -> return $ f obj args
         Nothing -> case obj of
-            NError {}-> errMethodMissing
-            NBit x   | meth == mkStr "cond" -> callConditional x args
-            NBit x   -> callMeth bitPrims x args
-            NInt x   -> callMeth intPrims x args
-            NNum x   -> callMeth numPrims x args
-            NStr x   -> callMeth strPrims x args
-            NSeq x   -> callMeth seqPrims x args
-            NMap x   -> callMeth mapPrims x args
-            NBlock x | isEmpty meth -> callBlock x args
-            NBlock x -> callMeth blockPrims x args
+            NError {}   -> errMethodMissing
+            NBit x | meth == mkStr "cond"
+                        -> callConditional x args
+            NBit x      -> callMethod bitPrims x args
+            NInt x      -> callMethod intPrims x args
+            NNum x      -> callMethod numPrims x args
+            NStr x      -> callMethod strPrims x args
+            NSeq x      -> callMethod seqPrims x args
+            NMap x      -> callMethod mapPrims x args
+            NSub x | isEmpty meth
+                        -> callSub x args
+            NSub x      -> callMethod blockPrims x args
+            NObj x      -> callObject x meth args
     where
-    errMethodMissing :: m a
+    errMethodMissing :: Eval a
     errMethodMissing = fail ("No such method: " ++ toString meth)
-    callMeth :: MapOf (a -> b -> Native) -> a -> b -> m Native
-    callMeth prims x args = case prims `fetch` meth of
-        Nothing -> errMethodMissing
+    callMethod :: MapOf (a -> b -> Native) -> a -> b -> Eval Native
+    callMethod prims x args = case prims `fetch` meth of
+        Nothing -> errMethodMissing -- XXX - autobox!
         Just f  -> return $ f x args
-    callBlock :: NativeBlock -> NativeSeq -> m Native
-    callBlock block args = do
-        when (size args /= size prms) $ do
-            fail $ "Invalid number of args " ++ show (elems args)
-                ++ " vs params " ++ show (elems prms)
-        local (append lex) $ do
-            evalExps (elems $ nb_body block)
-        where
-        prms = nb_params block
-        lex = fromAssocs $ elems prms `zip` elems args
-    callConditional x args = callBlock (fromNative $ args ! fromEnum (not x)) empty
 
+callSub :: NativeSub -> NativeSeq -> Eval Native
+callSub block args = do
+    when (size args /= size prms) $ do
+        fail $ "Invalid number of args " ++ show (elems args)
+            ++ " vs params " ++ show (elems prms)
+    local (append lex) $ do
+        evalExps (elems $ s_exps block)
+    where
+    prms = s_params block
+    lex = fromAssocs $ elems prms `zip` elems args
+
+callConditional :: NativeBit -> NativeSeq -> Eval Native
+callConditional x args = callSub (fromNative $ args ! fromEnum (not x)) empty
+
+callObject :: NativeObj -> NativeStr -> NativeSeq -> Eval Native
+callObject obj meth args = do
+    mro <- getAttr obj (mkStr "@:MRO")
+    return mro
+    where
+    cls = o_class obj

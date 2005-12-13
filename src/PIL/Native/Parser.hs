@@ -72,8 +72,8 @@ expression = (<?> "expression") $ do
     obj <- choice
         [ parens expression
         , arrayExpression
-        , fmap NL_Lit literal
-        , fmap (NL_Var . mkStr) identifier
+        , fmap ELit literal
+        , fmap (EVar . mkStr) identifier
         ]
     maybeCall obj
     where
@@ -100,7 +100,7 @@ literal = choice
     [ lit "nil"     mkNil
     , lit "true"    True
     , lit "false"   False
-    , fmap toNative pointyBlock
+    , fmap toNative pointySub
     , fmap toNative stringLiteral
     , fmap toNative singleQuoteStringLiteral
     , hashExpression
@@ -120,12 +120,12 @@ arrayExpression = do
     -- otherwise desugar it as [].push form
     exps <- brackets $ commaSep expression
     return $ maybe (mkCall emptyArray "push" exps)
-                   (NL_Lit . toNative)
+                   (ELit . toNative)
                    (allLiteral exps)
     where
-    emptyArray = NL_Lit $ toNative (empty :: NativeSeq)
+    emptyArray = ELit $ toNative (empty :: NativeSeq)
     allLiteral [] = Just []
-    allLiteral (NL_Lit l:xs) = fmap (l:) (allLiteral xs)
+    allLiteral (ELit l:xs) = fmap (l:) (allLiteral xs)
     allLiteral _ = Nothing
 
 hashExpression :: Parser Native
@@ -151,12 +151,12 @@ commaSep = (`sepEndBy` (symbol ","))
 semiColonSep :: Parser a -> Parser [a]
 semiColonSep = (`sepEndBy` (many1 $ symbol ";"))
 
-pointyBlock :: Parser NativeBlock
-pointyBlock = do
+pointySub :: Parser NativeSub
+pointySub = do
     symbol "->"
     params <- commaSep identifier
     body   <- braces (semiColonSep expression)
-    return (mkBlock params body)
+    return (mkSub params body)
 
 nativeLangDef  :: LanguageDef st
 nativeLangDef  = javaStyle

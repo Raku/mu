@@ -4,12 +4,14 @@ module PIL.Native (
     evalNativeLang,
     parseNativeLang,
     NativeLangExpression,
-    pretty
+    pretty,
+    dumpObjSpace,
 ) where
 import PIL.Native.Types
 import PIL.Native.Parser
 import PIL.Native.Eval
 import PIL.Native.Pretty
+import PIL.Native.Objects
 
 {-| 
 

@@ -7,7 +7,7 @@ import Control.Exception
 import Data.Dynamic
 import Data.Typeable
 import qualified Data.Map as NMap
-import qualified Data.Array.Diff as NSeq
+import qualified Data.Seq as NSeq
 import qualified Data.FastPackedString as NStr
 
 {-| 
@@ -33,8 +33,8 @@ mkNil = NonTermination
 mkErr :: (Typeable a) => a -> NativeError
 mkErr = DynException . toDyn
 
-mkSeq :: (NSeq.IArray a b) => [b] -> a Int b
-mkSeq xs = NSeq.listArray (0, length xs - 1) xs
+mkSeq :: [b] -> SeqOf b
+mkSeq = NSeq.fromList
 
 mkMap :: [(String, a)] -> MapOf a
 mkMap = NMap.fromList . map (\(k, v) -> (mkStr k, v))
@@ -42,17 +42,17 @@ mkMap = NMap.fromList . map (\(k, v) -> (mkStr k, v))
 mkStr :: String -> NativeStr
 mkStr = NStr.pack
 
-mkBlock :: [String] -> [NativeLangExpression] -> NativeBlock
-mkBlock params exps = MkBlock
-    { nb_params = mkSeq (map mkStr params)
-    , nb_body   = mkSeq exps
+mkSub :: [String] -> [NativeLangExpression] -> NativeSub
+mkSub params exps = MkSub
+    { s_params = mkSeq (map mkStr params)
+    , s_exps   = mkSeq exps
     }
 
 mkCall :: NativeLangExpression -> String -> [NativeLangExpression] -> NativeLangExpression
-mkCall obj meth args = NL_Call
-    { nl_obj  = obj
-    , nl_meth = mkStr meth
-    , nl_args = mkSeq args
+mkCall obj meth args = ECall
+    { c_obj  = obj
+    , c_meth = mkStr meth
+    , c_args = mkSeq args
     }
 
 class IsPlural a key val | a -> key, a -> val where 
@@ -77,7 +77,7 @@ instance IsPlural NativeStr NativeInt NativeStr where
     indices    = \x -> [0 .. (NStr.length x - 1)]
     elems      = NStr.elems
     append     = NStr.append
-    push       = \x xs -> NStr.concat (x:NSeq.elems xs)
+    push       = \x xs -> NStr.concat (x:NSeq.toList xs)
     assocs     = zip [0..] . elems
     fromAssocs = NStr.concat . map snd -- XXX wrong
     fetch (NStr.PS p s l) n
@@ -101,20 +101,18 @@ instance Ord k => IsPlural (NMap.Map k v) k v where
     (!)        = (NMap.!)
 
 instance IsPlural (SeqOf a) NativeInt a where
-    isEmpty x  = (size x == 0)
-    size x     = 1 + snd (NSeq.bounds x)
-    empty      = NSeq.array (0, -1) []
-    indices    = NSeq.indices
-    elems      = NSeq.elems
-    append x y | isEmpty x = y
-    append x y | isEmpty y = x
-    append x y = NSeq.listArray (0, size x + size y - 1) (elems x ++ elems y)
+    isEmpty    = NSeq.null
+    size       = NSeq.length
+    empty      = NSeq.empty
+    indices    = \x -> [0 .. size x - 1]
+    elems      = NSeq.toList
+    append     = (NSeq.><)
     push       = append
-    assocs     = NSeq.assocs
-    fromAssocs = \xs -> NSeq.array (0, length xs - 1) xs
-    fetch      = error "XXX seq.fetch"
-    insert     = error "XXX seq.insert"
-    (!)        = (NSeq.!)
+    assocs     = ([0..] `zip`) . elems
+    fromAssocs = NSeq.fromList . map snd -- XXX wrong
+    fetch x y  = Just (NSeq.index x y) -- XXX wrong
+    insert     = \x k v -> NSeq.update k v x
+    (!)        = NSeq.index
 
 class Show a => IsNative a where 
     toNative   :: a -> Native
@@ -146,7 +144,8 @@ instance IsNative NativeBit where
         _   -> True
     fromNative (NSeq x)     = isEmpty x
     fromNative (NMap x)     = isEmpty x
-    fromNative (NBlock _)   = True       -- Code are always true
+    fromNative (NSub _)     = True
+    fromNative (NObj _)     = True
 
 instance IsNative NativeInt where
     toNative = NInt
@@ -196,9 +195,9 @@ instance IsNative NativeSeq where
     fromNative (NSeq x)     = x
     fromNative x            = castFail x
 
-instance IsNative NativeBlock where
-    toNative = NBlock
-    fromNative (NBlock x)   = x
+instance IsNative NativeSub where
+    toNative = NSub
+    fromNative (NSub x)     = x
     fromNative x            = castFail x
 
 instance IsNative NativeError where
@@ -225,7 +224,7 @@ instance IsNative String where
 
 instance IsNative [Native] where
     toNative = NSeq . mkSeq
-    fromNative = NSeq.elems . (fromNative :: Native -> NativeSeq)
+    fromNative = NSeq.toList . (fromNative :: Native -> NativeSeq)
 
 instance IsNative [(Native, Native)] where
     toNative = NMap . NMap.fromList . map ((fromNative :: Native -> NativeStr) *** id) 

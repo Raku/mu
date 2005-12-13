@@ -18,35 +18,35 @@ See Also:
 
 -}
 
-pretty :: Pretty a => a -> String
-pretty a = render $ format a
+pretty :: (Functor m, MonadSTM m, Pretty a) => a -> m String
+pretty a = fmap render $ formatM a
 
 class (Show a) => Pretty a where
     format :: a -> Doc
-    format x = text $ show x
+    format = text . show
+    formatM :: MonadSTM m => a -> m Doc
+    formatM = return . format
 
 instance Pretty [NativeLangExpression] where
     format = sepBy semi
 
-#ifndef HADDOCK
 instance Pretty NativeLangExpression where
-    format (NL_Lit x) = format x
-    format (NL_Var x) = format x
-    format (NL_Call obj meth args) = hcat
-        [ maybeParens obj                   -- $obj
+    format (ELit x) = format x
+    format (EVar x) = format x
+    format (ECall obj meth args) = hcat
+        [ maybeParens obj                   -- obj
         , char '.', format meth             -- .method
-        , parens (commaSep $ elems args)    -- ($arg1, $arg2)
+        , parens (commaSep $ elems args)    -- (arg1, arg2)
         ]
         where
-        maybeParens (NL_Lit (NBlock {})) = parens (format obj)
+        maybeParens (ELit (NSub {})) = parens (format obj)
         maybeParens obj = format obj
-#endif
 
 instance Pretty NativeLangSym where
     format = text . toString
 
-instance Pretty NativeBlock where
-    format (MkBlock params body) = hang
+instance Pretty NativeSub where
+    format (MkSub params body) = hang
         (text "->" <+> commaSep (elems params)) 2
         (braces . format . elems $ body)
 
@@ -59,7 +59,10 @@ instance Pretty Native where
     format (NStr x)     = format (toString x)
     format (NSeq x)     = brackets (commaSep $ elems x)
     format (NMap x)     = braces (commaSep $ assocs x)
-    format (NBlock x)   = format x
+    format (NSub x)     = format x
+    format (NObj x)     = format x
+
+instance Pretty NativeObj where
 
 instance Pretty String where
     format = ptext . show
