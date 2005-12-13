@@ -1,11 +1,10 @@
 {-# OPTIONS_GHC -cpp -fglasgow-exts -fno-warn-orphans -funbox-strict-fields #-}
 
 module Pugs.AST.SIO (
-    MonadSTM,
+    MonadSTM(..),
 
     SIO,
-    runSTM, runIO,
-    liftSTM, liftIO,
+    runSTM, runIO, liftIO,
 
     module Control.Concurrent.STM
 ) where
@@ -32,16 +31,21 @@ instance Monad SIO where
 
 -- | Typeclass of monadic types that an @STM@ monad can be lifted to.
 class (Monad m) => MonadSTM m where
+    runSIO :: SIO a -> m a
+    runSIO = fail "runSIO not detailed for this monad"
     liftSTM :: STM a -> m a
 
 instance MonadSTM STM where
     liftSTM = id
+    runSIO = runSTM
 
 instance MonadSTM IO where
     liftSTM = atomically
-
-instance MonadIO SIO where
-    liftIO io = MkIO io
+    runSIO = runIO
 
 instance MonadSTM SIO where
     liftSTM stm = MkSTM stm
+    runSIO = id
+
+instance MonadIO SIO where
+    liftIO io = MkIO io
