@@ -142,7 +142,7 @@ traceObject obj args = liftIO $ do
     where
     doTrace x = do
         p <- prettyM x
-        putStrLn $ "#trace# " ++ unwords (lines p)
+        putStrLn $ "#trace# " ++ unwords (words (unwords (lines p)))
 
 callObject :: NativeObj -> NativeStr -> NativeSeq -> Eval Native
 callObject obj meth args = enterLex lex $ do
