@@ -52,9 +52,9 @@ instance Pretty NativeLangSym where
     format = text . toString
 
 instance Pretty NativeSub where
-    format (MkSub params body) = hang
+    format (MkSub { s_params = params, s_exps = exps }) = hang
         (text "->" <+> commaSep (elems params)) defaultIndent
-        (braces . format . elems $ body)
+        (braces . format . elems $ exps)
 
 instance Pretty Native where
     format (NError {})  = text "nil"

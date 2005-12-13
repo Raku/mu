@@ -25,7 +25,6 @@ See Also:
 -}
 
 type Eval = StateT ObjectSpace (ReaderT Pad IO)
-type Pad = NativeMap
 
 instance MonadSTM Eval where
     liftSTM = lift . lift . liftSTM
@@ -80,6 +79,9 @@ evalExps [x]      = evalExp x
 evalExps (x:xs)   = evalExp x >> evalExps xs
 
 evalExp :: NativeLangExpression -> Eval Native
+evalExp (ELit (NSub s)) = do
+    pad <- ask -- close over current scope
+    return $ NSub s{ s_pad = pad }
 evalExp (ELit n) = return n
 evalExp (EVar s) = do
     pad <- ask
@@ -114,15 +116,15 @@ evalExp (ECall { c_obj = objExp, c_meth = meth, c_args = argsExp }) = do
         Just f  -> return $ f x args
 
 callSub :: NativeSub -> NativeSeq -> Eval Native
-callSub block args = do
+callSub sub args = do
     when (size args /= size prms) $ do
         fail $ "Invalid number of args " ++ show (elems args)
             ++ " vs params " ++ show (elems prms)
-    local (append lex) $ do
-        evalExps (elems $ s_exps block)
+    local (append lex . append (s_pad sub)) $ do
+        evalExps (elems $ s_exps sub)
     where
-    prms = s_params block
-    lex = fromAssocs $ elems prms `zip` elems args
+    prms = s_params sub
+    lex = fromAssocs ((mkStr "&?SUB", toNative sub):elems prms `zip` elems args)
 
 callConditional :: NativeBit -> NativeSeq -> Eval Native
 callConditional x args = callSub (fromNative $ args ! fromEnum (not x)) empty

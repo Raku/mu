@@ -8,7 +8,7 @@ module PIL.Native.Types (
 
     ObjectId, ObjectAttrs,
     
-    SeqOf, MapOf,
+    SeqOf, MapOf, Pad,
 
     module Pugs.AST.SIO,
 ) where
@@ -65,9 +65,12 @@ data NativeObj = MkObject
     }
     deriving (Show, Eq, Typeable)
 
+type Pad = NativeMap
+
 data NativeSub = MkSub
     { s_params :: !(SeqOf NativeLangSym)
     , s_exps   :: !(SeqOf NativeLangExpression)
+    , s_pad    :: !Pad
     } 
     deriving (Show, Eq, Ord, Typeable)
 

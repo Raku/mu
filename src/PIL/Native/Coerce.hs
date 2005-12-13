@@ -52,6 +52,7 @@ mkSub :: [String] -> [NativeLangExpression] -> NativeSub
 mkSub params exps = MkSub
     { s_params = mkSeq (map mkStr params)
     , s_exps   = mkSeq exps
+    , s_pad    = empty
     }
 
 mkCall :: NativeLangExpression -> String -> [NativeLangExpression] -> NativeLangExpression
