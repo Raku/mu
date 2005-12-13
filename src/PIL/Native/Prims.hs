@@ -5,6 +5,77 @@ import PIL.Native.Types
 import PIL.Native.Coerce
 import qualified Data.Map as NMap
 
+{-| 
+
+PIL.Native.Prims
+
+This module defines the methods available for our Native types. 
+
+NOTE: All types respond to the methods of Any
+
+Any
+  as_bit  ()        -> Bit
+  as_int  ()        -> Int
+  as_num  ()        -> Num    
+  as_str  ()        -> Str
+  is_nil  ()        -> Bit  
+  not_nil ()        -> Bit
+  eq      ()        -> Bit
+  lt      ()        -> Bit      
+  le      ()        -> Bit  
+  gt      ()        -> Bit  
+  ge      ()        -> Bit  
+  
+Bit
+  not ()            -> Bit
+  and (Block)       -> Bit
+  or  (Block)       -> Bit
+
+Int 
+  increment ()      -> Int
+  decrement ()      -> Int   
+  add       (Int)   -> Int
+  subtract  (Int)   -> Int      
+  multiply  (Int)   -> Int         
+  divide    (Int)   -> Int    
+                    
+Num                 
+  increment ()      -> Num
+  decrement ()      -> Num   
+  add       (Num)   -> Num
+  subtract  (Num)   -> Num      
+  multiply  (Num)   -> Num         
+  divide    (Num)   -> Num         
+
+Str 
+  length ()         -> Num
+  concat (Str)      -> Str
+  fetch  ()         -> Str
+  store  (Str)      -> Nil
+  
+List 
+  length ()         -> Num
+  concat (Any)      -> Nil
+  fetch  (Num)      -> Any
+  store  (Num, Any) -> Nil 
+  push   (List)     -> Nil
+
+Hash 
+  length ()         -> Num
+  keys   ()         -> List
+  values ()         -> List
+  concat (Any)      -> Nil
+  fetch  (Any)      -> Any
+  store  (Any, Any) -> Nil
+  push   (Hash)     -> Nil  
+
+See Also:
+
+  PIL.Native.Types
+  PIL.Native.Coerce
+
+-}
+
 type Prims = MapOf (Native -> Native)
 
 anyPrims :: MapOf (Native -> SeqOf Native -> Native)

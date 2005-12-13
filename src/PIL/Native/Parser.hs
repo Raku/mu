@@ -7,15 +7,55 @@ import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Language
 import qualified Text.ParserCombinators.Parsec.Token as P
 
-{- Example code: Factorial of 10
+{- 
 
-    (-> $n { (-> &fact { &fact.(&fact, $n) })
-        .(-> &f, $x {
-            $x.eq(0).cond(
-                -> { 1 },
-                -> { $x.multiply( &f.(&f, $x.subtract(1)) ) })
-        });
-    }).(10);
+PIL.Native.Parser
+
+This module implements a parser for a mini-language which is embedded 
+inside the language runtime. It is used to "script" the interactions of
+the core runtime types. It's primary purpose is to describe the object 
+metamodel. 
+
+Here are some examples of the syntax:
+
+Numbers:
+
+  1.add(1);  # 1 + 1 = 2
+
+Strings:
+
+  "Hello".concat(", world"); # "Hello" ~ ", world" 
+
+Lists:
+  
+  [].push(1, 2, 3); # create a new array and push 1, 2, 3 to it
+  [1, 2, 3.add(1)]; # creates array with 1, 2 & 4 in it 
+  
+Hashes:
+
+  {}.store("key" => 2); # create a hash with one key ("key") and one value (2)
+  
+Blocks:  
+  
+  -> $x { $x }; # create a closure which returns it's own argument
+  (-> $x { $x.add(1) }).(3); # call a closure with .() 
+
+More complex examples: 
+
+  # Factorial of 10
+  
+  (-> $n { (-> &fact { &fact.(&fact, $n) })
+      .(-> &f, $x {
+          $x.eq(0).cond(
+              -> { 1 },
+              -> { $x.multiply( &f.(&f, $x.subtract(1)) ) })
+      });
+  }).(10);
+
+See Also:
+
+  PIL.Native.Pretty
+  PIL.Native.Eval
 
 -}
 

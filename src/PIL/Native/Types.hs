@@ -15,6 +15,19 @@ import qualified Data.Map as NMap
 import qualified Data.Array.Diff as NSeq
 import qualified Data.FastPackedString as NStr
 
+{-| 
+
+PIL.Native.Types
+
+This module defines the core runtime types in Haskell. 
+
+See Also: 
+
+  PIL.Native.Coerce
+  PIL.Native.Prims
+
+-}
+
 -- | Natives are "unboxed" runtime-allocated values.
 data Native
     = NError    !NativeError

@@ -7,6 +7,20 @@ import PIL.Native.Coerce
 import Data.FunctorM
 import Control.Monad.Reader
 
+{-| 
+
+PIL.Native.Eval
+
+This is an evaluator for the core runtime mini-language.
+
+See Also:
+
+  PIL.Native.Parser
+  PIL.Native.Prims  
+  PIL.Native.Pretty  
+
+-}
+
 -- unboxed types have fixed set of methods
 -- boxed types can dispatch a lot more
 

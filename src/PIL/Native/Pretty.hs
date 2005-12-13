@@ -5,6 +5,19 @@ import PIL.Native.Types
 import PIL.Native.Coerce
 import Text.PrettyPrint
 
+{-| 
+
+PIL.Native.Pretty
+
+This is a pretty printer for the core runtime mini-language.
+
+See Also:
+
+  PIL.Native.Parser
+  PIL.Native.Eval
+
+-}
+
 pretty :: Pretty a => a -> String
 pretty a = render $ format a
 

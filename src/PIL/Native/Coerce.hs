@@ -10,6 +10,20 @@ import qualified Data.Map as NMap
 import qualified Data.Array.Diff as NSeq
 import qualified Data.FastPackedString as NStr
 
+{-| 
+
+PIL.Native.Coerce
+
+This module defines the functions for use with the types defined 
+in PIL.Native.Types. 
+
+See Also: 
+
+  PIL.Native.Types
+  PIL.Native.Prims
+
+-}
+
 nil :: Native
 nil = toNative mkNil
 
