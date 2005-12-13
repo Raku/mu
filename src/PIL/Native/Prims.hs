@@ -30,8 +30,6 @@ bitPrims = mkMap
     [ prim0 "not"  not
     , prim1 "and"  (&&)
     , prim1 "or"   (||)
-    , prim1 "and_do"  (undefined :: NativeBit -> NativeBlock -> Native)
-    , prim1 "or_do"   (undefined :: NativeBit -> NativeBlock -> Native)
     ]
 
 intPrims :: MapOf (NativeInt -> SeqOf Native -> Native)
@@ -89,10 +87,7 @@ mapPrims = mkMap
     listHash _ = error "odd number of elements for hash"
 
 blockPrims :: MapOf (NativeBlock -> SeqOf Native -> Native)
-blockPrims = mkMap
-    [ prim1 "do_while"   (undefined :: NativeBlock -> NativeBlock -> Native)
-    , prim1 "do_until"   (undefined :: NativeBlock -> NativeBlock -> Native)
-    ]
+blockPrims = empty
 
 prim0 :: (IsNative inv, IsNative ret)
     => String

@@ -7,6 +7,18 @@ import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Language
 import qualified Text.ParserCombinators.Parsec.Token as P
 
+{- Example code: Factorial of 10
+
+    (-> $n { (-> &fact { &fact.(&fact, $n) })
+        .(-> &f, $x {
+            $x.eq(0).cond(
+                -> { 1 },
+                -> { $x.multiply( &f.(&f, $x.subtract(1)) ) })
+        });
+    }).(10);
+
+-}
+
 parseNativeLang :: Monad m => String -> m [NativeLangExpression]
 parseNativeLang src = case ( runParser program () "-" src ) of
     Left err    -> fail (show err)

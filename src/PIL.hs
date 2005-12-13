@@ -12,22 +12,23 @@
 
 module PIL where
 import PIL.Native
+import System (getArgs)
 import System.IO
 import System.IO.Error
 import Control.Monad.Error
 import Pugs.Shell
 
-parse :: String -> IO ()
-parse src = do
-    exps <- parseNativeLang src
-    putStrLn $ pretty exps
-    return ()
-
 main :: IO ()
 main = do
-    banner "Welcome to PIL2 REPL, the Pugs Again Shell!"
-    banner "Please enter expressions, or :q to exit"
-    prompt
+    args <- getArgs
+    if null args
+        then do
+            banner "Welcome to PIL2 REPL, the Pugs Again Shell!"
+            banner "Please enter expressions, or :q to exit"
+            prompt
+        else do
+            src <- readFile (head args)
+            eval src
     where
     prompt = do
         cmd <- getCommand
@@ -48,6 +49,12 @@ main = do
         banner "Error"
         putStrLn $ ioeGetErrorString err
         prompt
+
+parse :: String -> IO ()
+parse src = do
+    exps <- parseNativeLang src
+    putStrLn $ pretty exps
+    return ()
 
 eval :: String -> IO ()
 eval src = do

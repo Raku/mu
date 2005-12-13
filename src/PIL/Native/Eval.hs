@@ -20,7 +20,7 @@ evalExps []       = return nil
 evalExps [x]      = evalExp x
 evalExps (_:xs)   = evalExps xs
 
-evalExp :: MonadReader Pad m => NativeLangExpression -> m Native
+evalExp :: forall m. MonadReader Pad m => NativeLangExpression -> m Native
 evalExp (NL_Lit n) = return n
 evalExp (NL_Var s) = do
     pad <- ask
@@ -34,6 +34,7 @@ evalExp (NL_Call { nl_obj = objExp, nl_meth = meth, nl_args = argsExp }) = do
         Just f  -> return $ f obj args
         Nothing -> case obj of
             NError {}-> errMethodMissing
+            NBit x   | meth == mkStr "cond" -> callConditional x args
             NBit x   -> callMeth bitPrims x args
             NInt x   -> callMeth intPrims x args
             NNum x   -> callMeth numPrims x args
@@ -43,12 +44,13 @@ evalExp (NL_Call { nl_obj = objExp, nl_meth = meth, nl_args = argsExp }) = do
             NBlock x | isEmpty meth -> callBlock x args
             NBlock x -> callMeth blockPrims x args
     where
-    callMeth :: Monad m => MapOf (a -> b -> Native) -> a -> b -> m Native
+    errMethodMissing :: m a
+    errMethodMissing = fail ("No such method: " ++ toString meth)
+    callMeth :: MapOf (a -> b -> Native) -> a -> b -> m Native
     callMeth prims x args = case prims `fetch` meth of
         Nothing -> errMethodMissing
         Just f  -> return $ f x args
-    errMethodMissing :: Monad m => m a
-    errMethodMissing = fail ("No such method: " ++ toString meth)
+    callBlock :: NativeBlock -> NativeSeq -> m Native
     callBlock block args = do
         when (size args /= size prms) $ do
             fail $ "Invalid number of args " ++ show (elems args)
@@ -58,4 +60,5 @@ evalExp (NL_Call { nl_obj = objExp, nl_meth = meth, nl_args = argsExp }) = do
         where
         prms = nb_params block
         lex = fromAssocs $ elems prms `zip` elems args
+    callConditional x args = callBlock (fromNative $ args ! fromEnum (not x)) empty
 
