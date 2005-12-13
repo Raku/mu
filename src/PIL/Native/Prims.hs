@@ -30,6 +30,8 @@ bitPrims = mkMap
     [ prim0 "not"  not
     , prim1 "and"  (&&)
     , prim1 "or"   (||)
+    , prim1 "and_do"  (undefined :: NativeBit -> NativeBlock -> Native)
+    , prim1 "or_do"   (undefined :: NativeBit -> NativeBlock -> Native)
     ]
 
 intPrims :: MapOf (NativeInt -> SeqOf Native -> Native)
@@ -80,16 +82,15 @@ mapPrims = mkMap
     , primX "push"       (pushHash)
     ]
     where
-    pushHash :: NativeMap -> [Native] -> NativeMap
-    pushHash obj args = obj `NMap.union` (NMap.fromList $ listHash args)
+    pushHash :: NativeMap -> SeqOf Native -> NativeMap
+    pushHash obj args = obj `NMap.union` (NMap.fromList $ listHash $ elems args)
     listHash [] = []
     listHash (k:v:xs) = (fromNative k, v):(listHash xs)
     listHash _ = error "odd number of elements for hash"
 
 blockPrims :: MapOf (NativeBlock -> SeqOf Native -> Native)
 blockPrims = mkMap
-    [ prim0 "do"         (undefined :: NativeBlock -> Native)
-    , prim1 "do_while"   (undefined :: NativeBlock -> NativeBlock -> Native)
+    [ prim1 "do_while"   (undefined :: NativeBlock -> NativeBlock -> Native)
     , prim1 "do_until"   (undefined :: NativeBlock -> NativeBlock -> Native)
     ]
 
@@ -124,11 +125,11 @@ prim2 str f = (str, f')
 
 primX :: (IsNative inv, IsNative ret)
     => String
-    -> (inv -> [Native] -> ret)
+    -> (inv -> SeqOf Native -> ret)
     -> (String, inv -> SeqOf Native -> Native)
 primX str f = (str, f')
     where
-    f' obj args = toNative $ f obj (fmap toNative $ elems args)
+    f' obj args = toNative $ f obj args
 
 errArgs :: forall a. a
 errArgs = error "Invalid number of arguments"

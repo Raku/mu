@@ -33,6 +33,7 @@ evalExp (NL_Call { nl_obj = objExp, nl_meth = meth, nl_args = argsExp }) = do
             NStr x   -> callMeth strPrims x args
             NSeq x   -> callMeth seqPrims x args
             NMap x   -> callMeth mapPrims x args
+            NBlock x | isEmpty meth -> callBlock x args
             NBlock x -> callMeth blockPrims x args
     where
     callMeth :: Monad m => MapOf (a -> b -> Native) -> a -> b -> m Native
@@ -41,3 +42,9 @@ evalExp (NL_Call { nl_obj = objExp, nl_meth = meth, nl_args = argsExp }) = do
         Just f  -> return $ f x args
     errMethodMissing :: Monad m => m a
     errMethodMissing = fail ("No such method: " ++ toString meth)
+    callBlock block args = do
+        -- bind params to args
+        evalNativeLang (elems $ nb_body block)
+--  { nb_params :: !(SeqOf NativeLangSym)
+--  , nb_body   :: !(SeqOf NativeLangExpression)
+

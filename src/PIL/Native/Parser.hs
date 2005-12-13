@@ -30,9 +30,17 @@ expression = (<?> "expression") $ do
         return (x:xs)
     maybeCall obj = option obj $ do
         symbol "."
+        (name, args) <- functionCall <|> methodCall
+        maybeCall (mkCall obj name args)
+    -- $obj.(1,2,3)
+    functionCall = do
+        args    <- parens $ commaSep expression
+        return ("", args)
+    -- $obj.method(1,2,3)
+    methodCall = do
         name    <- method
         args    <- option [] (parens $ commaSep expression)
-        maybeCall (mkCall obj name args)
+        return (name, args)
 
 literal :: Parser Native
 literal = choice 
