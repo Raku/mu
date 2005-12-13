@@ -71,6 +71,8 @@ XXX needs binary package recognition
         my $class = shift;
         my %hash  = @_;
         
+        ### might get params for underlying classes
+        local $Params::Check::ALLOW_UNKNOWN = 1;
         my $args = check( $tmpl, \%hash ) 
                         or error( Params::Check->last_error ), return;
         
