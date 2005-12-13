@@ -359,8 +359,8 @@ EOD
     $profiled_flags =~ s{-package plugins}{};
 
     my $emit = sub {
-        my $c = shift;
-        my $o = substr($c, 0, -1) . 'o';
+        my $o = shift;
+        my $c = substr($o, 0, -1) . 'c';
         return "$o : $c\n\t$ghc $threaded $ghc_flags -no-link -no-hs-main -O -o $o $c\n";
     };
 
@@ -394,7 +394,7 @@ $version_h : .svn/entries util/version_h.pl
 .svn/entries :
 	\$(NOOP)
 
-@{[join("\n", map {$emit->($_)} grep { /c$/ } @prereqs)]}
+@{[join("\n", map {$emit->($_)} grep { /\.o$/ } @prereqs)]}
 
 src/Pugs/Config.hs : util/PugsConfig.pm
 	\$(PERL) -Iutil -MPugsConfig -e "PugsConfig->write_config_module" > src/Pugs/Config.hs
