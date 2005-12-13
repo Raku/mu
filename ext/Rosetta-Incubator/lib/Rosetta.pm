@@ -101,7 +101,258 @@ code; instead refer to other above-named packages in this file.>
 
 =head1 SYNOPSIS
 
-I<This documentation is pending.>
+    ### DURING INIT PHASE ###
+
+    use Rosetta; # also loads SQL::Routine and Locale::KeyedText
+
+    # Define how to talk to our database and where it is.
+    my %DB_CONFIG = (
+        'engine_name' => 'Rosetta::Engine::Native',
+        'depot_identity' => {
+            'file_name' => 'My Data',
+        },
+    );
+
+    # Create a Rosetta Interface root, whose attributes will hold all of
+    # the other data structures used by the Rosetta framework, as used by
+    # the current process/application.
+    my Rosetta::Interface $rosetta_root .= new();
+
+    # Load a Rosetta Engine which will implement database access requests.
+    my Rosetta::Interface::Engine $engine
+        = $rosetta_root.load_engine( %DB_CONFIG{'engine_name'} );
+
+    # Initialize (closed) database connection handle we will work with;
+    # this does not talk to the underlying dbms.
+    my Rosetta::Interface::Connection $conn
+        = $engine.new_depot_connection( %DB_CONFIG{'depot_identity'} );
+
+    # Create a SQL::Routine document in which we store some local
+    # command definitions and fragments thereof.
+    my SQL::Routine::Document $srt_doc.= new();
+
+    # Define some data types.
+    my SQL::Routine::Node $sdtd_person_id = $srt_doc.build_node_tree(
+        [ 'scalar_data_type', { 'base_type' => 'NUM_INT',
+            'num_precision' => 9 } ]
+    );
+    my SQL::Routine::Node $sdtd_person_name = $srt_doc.build_node_tree(
+        [ 'scalar_data_type', { 'base_type' => 'STR_CHAR',
+            'max_chars' => 100, 'char_set' => 'UNICODE' } ]
+    );
+    my SQL::Routine::Node $sdtd_person_sex = $srt_doc.build_node_tree(
+        [ 'scalar_data_type', { 'base_type' => 'STR_CHAR',
+                'max_chars' => 1, 'char_set' => 'UNICODE' }, [
+            [ 'scalar_data_type_value', { 'value' => 'M' } ],
+            [ 'scalar_data_type_value', { 'value' => 'F' } ],
+        ] ]
+    );
+    my SQL::Routine::Node $rdtd_person = $srt_doc.build_node_tree(
+        [ 'row_data_type', undef, [
+            [ 'row_data_type_field', { 'name' => 'id' }, [
+                $sdtd_person_id,
+            ] ],
+            [ 'row_data_type_field', { 'name' => 'name' }, [
+                $sdtd_person_name,
+            ] ],
+            [ 'row_data_type_field', { 'name' => 'sex' }, [
+                $sdtd_person_sex,
+            ] ],
+        ] ]
+    );
+
+    # Define the 'person' table.
+    my SQL::Routine::Node $tbd_person = $srt_doc.build_node_tree(
+        [ 'table', { 'name' => 'person' }, [
+            [ 'interface_row', undef, [
+                $rdtd_person,
+            ] ],
+            [ 'table_field_detail', { 'name' => 'id', 'mandatory' => 1 } ],
+            [ 'table_field_detail', { 'name' => 'name',
+                'mandatory' => 1 } ],
+            [ 'table_index', { 'name' => 'primary' ,
+                    'index_type' => 'UNIQUE' }, [
+                [ 'table_index_field', { 'name' => 'person_id' } ],
+            ] ],
+        ] ]
+    );
+
+    # Define and compile a routine that will validate whether the 'person'
+    # table exists (and is correct).
+    my SQL::Routine::Node $fnd_tb_person_exists = $srt_doc.build_node_tree(
+        [ 'function', { 'name' => 'tb_person_exists' }, [
+            [ 'routine_arg', { 'name' => 'result',
+                    'arg_type' => 'RETURN' }, [
+                [ 'scalar_data_type', { 'base_type' => 'BOOLEAN' } ],
+            ] ],
+            [ 'routine_body', undef, [
+                [ 'assignment_stmt', { 'into' => 'result' }, [
+                    [ 'expression', {
+                            'vf_call_sfunc' => 'DEPOT_OBJECT_EXISTS' }, [
+                        $tbd_person,
+                    ] ],
+                ] ],
+            ] ],
+        ] ]
+    );
+    my Rosetta::Interface::Routine $fnh_tb_person_exists
+        = $conn.compile_routine( $fnd_tb_person_exists );
+
+    # Define and compile a routine that will create the 'person' table.
+    # Like: CREATE TABLE person (
+    #           id INTEGER(9) NOT NULL,
+    #           name VARCHAR(100) NOT NULL,
+    #           sex ENUM('M','F'),
+    #           PRIMARY KEY (id)
+    #       );
+    #       COMMIT;
+    my SQL::Routine::Node $prd_create_tb_person = $srt_doc.build_node_tree(
+        [ 'procedure', { 'name' => 'create_tb_person' }, [
+            [ 'routine_body', undef, [
+                [ 'create_stmt', undef, [
+                    $tbd_person,
+                ] ],
+                [ 'statement', { 'call_sproc' => 'COMMIT' } ],
+            ] ],
+        ] ]
+    );
+    my Rosetta::Interface::Routine $prh_create_tb_person
+        = $conn.compile_routine( $prd_create_tb_person );
+
+    # Define and compile a procedure that will insert a record into the
+    # 'person' table, which is populated from its row argument.
+    # Like: INSERT INTO person
+    #       SET id = :new_person.id,
+    #           name = :new_person.name,
+    #           sex = :new_person.sex;
+    #       COMMIT;
+    my SQL::Routine::Node $prd_add_person = $srt_doc.build_node_tree(
+        [ 'procedure', { 'name' => 'add_person' }, [
+            [ 'routine_arg', { 'name' => 'new_person',
+                    'arg_type' => 'IN' }, [
+                $rdtd_person,
+            ] ],
+            [ 'routine_body', undef, [
+                [ 'insert_stmt', { 'into' => 'person' }, [
+                    [ 'expression', { 'vf_routine_arg' => 'new_person' } ],
+                ] ],
+                [ 'statement', { 'call_sproc' => 'COMMIT' } ],
+            ] ],
+        ] ]
+    );
+    my Rosetta::Interface::Routine $prh_add_person
+        = $conn.compile_routine( $prd_add_person );
+
+    # Define and compile a function that will select a record from the
+    # 'person' table, whose 'id' field matches the functions 'person_id'
+    # argument, and returns that as a row.
+    # Like: SELECT s.id AS id, s.name AS name, s.sex AS sex
+    #       FROM person AS s
+    #       WHERE s.id = :person_id;
+    my SQL::Routine::Node $fnd_get_person = $srt_doc.build_node_tree(
+        [ 'function', { 'name' => 'get_person' }, [
+            [ 'routine_arg', { 'name' => 'result',
+                    'arg_type' => 'RETURN' }, [
+                $rdtd_person,
+            ] ],
+            [ 'routine_arg', { 'name' => 'person_id',
+                    'arg_type' => 'IN' }, [
+                $sdtd_person_id,
+            ] ],
+            [ 'routine_body', undef, [
+                [ 'select_stmt', { 'into' => 'result' }, [
+                    [ 'query', undef, [
+                        [ 'interface_row', undef, [
+                            $rdtd_person,
+                        ] ],
+                        [ 'query_source', { 'name' => 's',
+                                'match' => 'person' }
+                            [ 'query_source_field', { 'name' => 'id' } ],
+                        ] ],
+                        [ 'query_clause', { 'type' => 'WHERE' }, [
+                            [ 'expression', {
+                                    'vf_call_sfunc' => 'EQ' }, [
+                                [ 'expression', {
+                                    'call_sroutine_arg' => 'LHS',
+                                    'vf_source_field' => 'id' } ],
+                                [ 'expression', {
+                                    'call_sroutine_arg' => 'RHS',
+                                    'vf_routine_arg' => 'person_id' } ],
+                            ] ],
+                        ] ],
+                    ] ],
+                ] ],
+            ] ],
+        ] ]
+    );
+    my Rosetta::Interface::Routine $fnh_get_person
+        = $conn.compile_routine( $fnd_get_person );
+
+    ### DURING WORK PHASE ###
+
+    # Actually connect to the database / talk to the underlying dbms;
+    # if database doesn't exist yet, try to create it.
+    try {
+        $conn.open();
+    };
+    if (my $e = $!) {
+        if ($e.does(Locale::KeyedText::Message)
+                and $e.get_msg_key eq 'DEPOT_NO_EXIST') {
+            $conn.create_target_depot();
+            $conn.open();
+        }
+        else {
+            die $!;
+        }
+    }
+
+    try {
+        # Check that the 'person' table exists and create it if not.
+        if (!$fnh_tb_person_exists.prepare_and_execute().get_payload()) {
+            $prh_create_tb_person.prepare_and_execute();
+        }
+
+        # Prompt user for details of 3 people and add them to the database.
+        $prh_add_person.prepare();
+        for 1..3 {
+            my Rosetta::Interface::Row $new_person .= new( 'payload' => {
+                'id' => ask_user_for_id(),
+                'name' => ask_user_for_name(),
+                'sex' => ask_user_for_sex(),
+            } );
+            $prh_add_person.bind_arg( 'new_person', $new_person );
+            try {
+                $prh_add_person.execute();
+            };
+            if (my $e = $!) {
+                show_error_likely_bad_input( $e );
+            }
+            else {
+                show_add_success_message();
+            }
+        }
+
+        # Prompt user for id of 3 people and fetch them from the database.
+        $fnh_get_person.prepare();
+        for 1..3 {
+            my Rosetta::Interface::Scalar $person_id
+                .= new( 'payload' => ask_user_for_id() );
+            $fnh_get_person.bind_arg( 'person_id', $person_id );
+            my Rosetta::Interface::Row $fetched_person = try {
+                $fnh_get_person.execute();
+            };
+            if (my $e = $!) {
+                show_error_likely_bad_input( $e );
+            }
+            else {
+                show_fetched_name( $fetched_person.get_field('name') );
+                show_fetched_sex( $fetched_person.get_field('sex') );
+            }
+        }
+    };
+
+    # Close the database connection (it can be reopened later).
+    $conn.close();
 
 =head1 DESCRIPTION
 
