@@ -94,8 +94,7 @@ sub is_installed {
     
     my $pkg;
     my $tmpl = {
-        package => { required => 1, store => \$pkg, 
-                     allow => sub { UNIVERSAL::isa(shift(), 'JIB::Package') } },
+        package => { required => 1, store => \$pkg, allow => ISA_JIB_PACKAGE },
     };
     
     check( $tmpl, \%hash ) or error( Params::Check->last_error ), return;
@@ -118,13 +117,10 @@ sub register {
     
     my $pkg;
     my $tmpl = {
-        package => { required => 1, store => \$pkg, 
-                     allow => sub { UNIVERSAL::isa(shift(), 'JIB::Package') } },
+        package => { required => 1, store => \$pkg, allow => ISA_JIB_PACKAGE },
     };
     
     check( $tmpl, \%hash ) or error( Params::Check->last_error ), return;
-
-    push @{ $self->available }, $pkg;
  
     LINKING: { 
         ### XXX config!
@@ -186,7 +182,15 @@ sub register {
         $self->registered_alternatives( \@alts );
     }
 
-    return $self->write;
+    my $inst_pkg = JIB::Package->new(meta => $pkg->meta, installation => $self)
+        or error("Could not create installed package"), return;
+
+    ### update the available files
+    $self->available( [ @{ $self->available }, $inst_pkg ] );
+        
+    $self->write or return;
+    
+    return $inst_pkg;
 
 }
 
