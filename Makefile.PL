@@ -71,7 +71,7 @@ if (my $prefix = PugsBuild::Config->lookup('install_dir')) {
 clean_files     (map fixpaths($_),
     $version_h, $config_h,
     (map {"$_/*.hpp"} @srcdirs),
-    "pugs$Config{_exe}",
+    "pugs$Config{_exe}", "pil$Config{_exe}",
     "src/gen_prelude$Config{_exe}",
     "Setup$Config{_exe}", qw(
     src/Pugs/pugs_config.h src/Pugs/Config.hs blib6 dist
@@ -173,14 +173,19 @@ sub set_postamble {
     my $ghc_output = ''; # "-o pugs$Config{_exe} src/Main.hs";
     my $hasktags = $ENV{HASKTAGS} || 'hasktags';
 
-    my $pcre_c = "src/pcre/pcre.c";
-    my @cbits_c = (glob("src/syck/*.c"), glob("src/cbits/*.c"));
-    my $pcre = "src/pcre/pcre.o";
-    my @cbits = map { substr($_, 0, -1) . 'o' } @cbits_c;
-    my $unicode = "src/UnicodeC.o";
-    my $unicode_c = "src/UnicodeC.c";
+    # map a bunch of .c files to a bunch of expected .o files
+    my $o = sub { map { substr($_, 0, -1) . 'o' } @_ };
 
-    my @prereqs = ($pcre, @cbits);
+    my $pcre_c    = "src/pcre/pcre.c";
+    my $unicode_c = "src/UnicodeC.c";
+    my @cbits_c   = glob("src/cbits/*.c");
+    my @syck_c    = glob("src/syck/*.c");
+    my ($pcre)    = $o->($pcre_c);
+    my ($unicode) = $o->($unicode_c);
+    my @cbits     = $o->(@cbits_c);
+    my @syck      = $o->(@syck_c);
+
+    my @prereqs = ($pcre, @syck, @cbits);
     #$ghc_output .= " $pcre @cbits $unicode";
 
     my $embed_flags = "";
@@ -491,11 +496,11 @@ ghci : @srcfiles
 	$ghc $ghc_flags -O --make -fglasgow-exts -H0 -isrc -L. -fno-warn-name-shadowing -no-hs-main -no-link src/Pugs.hs @prereqs
 	$ghc $ghc_flags --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
 
-pil$Config{_exe} : $unicode @cbits @srcfiles
-	$ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -L. -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs @prereqs
+pil$Config{_exe} : $config_h $unicode $pcre @cbits @srcfiles
+	$ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -L. -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs $unicode $pcre @cbits
 
-pili : pil$Config{_exe} $unicode @cbits @srcfiles
-	$ghc $ghc_flags --interactive -fglasgow-exts -isrc -L. -static -fno-warn-name-shadowing src/PIL.hs @prereqs
+pili : pil$Config{_exe}
+	$ghc $ghc_flags --interactive -fglasgow-exts -isrc -L. -static -fno-warn-name-shadowing src/PIL.hs $unicode $pcre @cbits
 
 tags : @srcfiles
 	$hasktags -c @srcfiles
