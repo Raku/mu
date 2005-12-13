@@ -72,6 +72,7 @@ sub install {
     }        
     
     ### install the archive
+    my $inst_pkg;
     {   ### extract to a temp dir
         my $my_tmp_dir = File::Spec->catdir( $conf->temp_dir . "$$" );
         system( qq[mkdir -p $my_tmp_dir] )                  and die $?;
@@ -96,7 +97,7 @@ sub install {
             ### write a .packlist equiv
             system( qq[tar -f $my_tmp_dir/$data -C $meta_dir -tz |] .
                     qq[xargs -I % echo ] . $inst->dir . 
-                    qq[ >> $meta_dir/packlist] )   
+                    qq[ >> $meta_dir/$packlist] )   
                                                             and die $?;
         }
 
@@ -134,7 +135,7 @@ sub install {
             
             ### register the installation
             ### do this AFTER installing, duh!
-            $inst->register( package => $self ) 
+            $inst_pkg = $inst->register( package => $self ) 
                 or error("Could not register package"), return;
             
             
@@ -148,7 +149,7 @@ sub install {
         system( qq[rm -rf $my_tmp_dir] )                        and die $?;
     }
     
-    return 1;
+    return $inst_pkg;
 }
 
 1;
