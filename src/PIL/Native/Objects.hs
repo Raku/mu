@@ -20,7 +20,7 @@ dumpObjSpace ptrs = mapM_ dumpObj (elems ptrs)
     dumpObj ptr = do
         rv <- deRefWeak ptr
         case rv of
-            Just obj -> putStrLn (pretty obj)
+            Just obj -> putStrLn $ "#obj# " ++ pretty obj
             Nothing  -> return ()
 
 getAttr :: MonadSTM m => NativeObj -> NativeStr -> m Native

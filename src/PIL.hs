@@ -21,14 +21,16 @@ import Pugs.Shell
 main :: IO ()
 main = do
     args <- getArgs
-    if null args
-        then do
+    case args of
+        [] -> do
             banner "Welcome to PIL2 REPL, the Pugs Again Shell!"
             banner "Please enter expressions, or :q to exit"
             prompt []
-        else do
-            src <- readFile (head args)
-            eval src
+        [file]      -> eval =<< readFile file
+        ["-e", src] -> eval src
+        _           -> do
+            putStrLn "Usage: ./pil file"
+            putStrLn "       ./pil -e source"
     where
     prompt hist = do
         cmd <- getCommand
@@ -69,4 +71,4 @@ eval src = do
     dumpObjSpace objs
 
 banner :: String -> IO ()
-banner x = putStrLn ("\n*** " ++ x ++ " ***")
+banner x = putStrLn ("\n### " ++ x ++ " ###")

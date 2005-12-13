@@ -3,6 +3,7 @@
 module PIL.Native.Eval (evalNativeLang) where
 import PIL.Native.Prims
 import PIL.Native.Types
+import PIL.Native.Pretty
 import PIL.Native.Coerce
 import PIL.Native.Objects
 import PIL.Native.Parser
@@ -91,6 +92,7 @@ evalExp (EVar s) = do
 evalExp (ECall { c_obj = objExp, c_meth = meth, c_args = argsExp }) = do
     obj  <- evalExp objExp
     args <- fmapM evalExp argsExp
+    if meth == mkStr "trace" then traceObject obj args else do
     case anyPrims `fetch` meth of
         Just f  -> return $ f obj args
         Nothing -> case obj of
@@ -132,6 +134,15 @@ callConditional x args = callSub (fromNative $ args ! fromEnum (not x)) empty
 infixl ...
 (...) :: IsNative a => NativeObj -> String -> Eval a
 obj ... str = fmap fromNative $ getAttr obj (mkStr str)
+
+traceObject :: Native -> NativeSeq -> Eval Native
+traceObject obj args = liftIO $ do
+    mapM_ doTrace (obj: elems args)
+    return obj
+    where
+    doTrace x = do
+        p <- prettyM x
+        putStrLn $ "#trace# " ++ p
 
 callObject :: NativeObj -> NativeStr -> NativeSeq -> Eval Native
 callObject obj meth args = enterLex lex $ do
