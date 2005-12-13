@@ -55,6 +55,24 @@ use constant OPEN_FILE      => sub {
                                     return $fh if $fh;
                                     return;
                             };      
+
+use constant ISA_JIB_META   => sub { UNIVERSAL::isa(shift(), 'JIB::Meta') }; 
+use constant ISA_JIB_CONFIG => sub { UNIVERSAL::isa(shift(), 'JIB::Config') };
+use constant ISA_JIB_INSTALLATION
+                            => sub { UNIVERSAL::isa( shift(),
+                                                    'JIB::Installation') }; 
+use constant ISA_JIB_PACKAGE
+                            => sub { UNIVERSAL::isa(shift(), 'JIB::Package') }; 
+use constant ISA_JIB_PACKAGE_SOURCE
+                            => sub { UNIVERSAL::isa(shift(), 
+                                                    'JIB::Package::Source') }; 
+use constant ISA_JIB_PACKAGE_BINARY
+                            => sub { UNIVERSAL::isa(shift(), 
+                                                    'JIB::Package::Binary') }; 
+use constant ISA_JIB_PACKAGE_INSTALLED
+                            => sub { UNIVERSAL::isa(shift(), 
+                                                    'JIB::Package::Installed')}; 
+
                             
 1;
 

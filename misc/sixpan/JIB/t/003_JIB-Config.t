@@ -17,7 +17,8 @@ my $Obj;
     
     my @can = sort $Obj->ls_accessors;
     for my $method ( @can ) {
-        ok( $Obj->$method,      "   '$method' returns value" );
+        my $rv = $Obj->$method;
+        ok( $rv,                "   '$method' returns value '$rv'" );
     }        
     
     is( $Obj, $Class->new,      "Same object returned on 2nd call" );

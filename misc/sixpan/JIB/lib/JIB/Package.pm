@@ -61,8 +61,8 @@ XXX needs binary package recognition
 
 {   my $tmpl = {
         file    => { allow => FILE_EXISTS },
-        meta    => { allow => sub { UNIVERSAL::isa(shift(), 'JIB::Meta') } },
-        config  => { allow => sub { UNIVERSAL::isa(shift(), 'JIB::Config') } },
+        meta    => { allow => ISA_JIB_META },
+        config  => { allow => ISA_JIB_CONFIG },
         package => { allow => $Package_re, no_override => 1 }
     };
 
