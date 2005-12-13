@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -cpp -fglasgow-exts #-}
 
-module PIL.Native.Pretty (Pretty(..), pretty) where
+module PIL.Native.Pretty (Pretty(..), pretty, prettyM) where
 import PIL.Native.Types
 import PIL.Native.Coerce
 import Text.PrettyPrint
@@ -18,8 +18,14 @@ See Also:
 
 -}
 
-pretty :: (Functor m, MonadSTM m, Pretty a) => a -> m String
-pretty a = fmap render $ formatM a
+pretty :: (Pretty a) => a -> String
+pretty = render . format
+
+prettyM :: (MonadSTM m, Pretty a) => a -> m String
+prettyM a = fmap render $ formatM a
+
+defaultIndent :: Int
+defaultIndent = 2
 
 class (Show a) => Pretty a where
     format :: a -> Doc
@@ -47,7 +53,7 @@ instance Pretty NativeLangSym where
 
 instance Pretty NativeSub where
     format (MkSub params body) = hang
-        (text "->" <+> commaSep (elems params)) 2
+        (text "->" <+> commaSep (elems params)) defaultIndent
         (braces . format . elems $ body)
 
 instance Pretty Native where
@@ -61,8 +67,31 @@ instance Pretty Native where
     format (NMap x)     = braces (commaSep $ assocs x)
     format (NSub x)     = format x
     format (NObj x)     = format x
+    formatM (NObj x)    = formatM x
+    formatM (NSeq x)    = formatM x
+    formatM (NMap x)    = formatM x
+    formatM x           = return (format x)
 
 instance Pretty NativeObj where
+    format o = text $ "<obj:#" ++ show (o_id o) ++ "|cls:#" ++ show (o_id (o_class o)) ++ ">"
+    formatM o = do
+        attrs <- liftSTM $ readTVar (o_attrs o)
+        formatM attrs
+
+instance Pretty NativeSeq where
+    format x = brackets (nest defaultIndent (commaSep $ elems x))
+    formatM x = do
+        items <- commaSepM $ elems x
+        return $ brackets (nest defaultIndent items)
+
+instance Pretty NativeMap where
+    format x = braces (nest defaultIndent (commaSep $ assocs x))
+    formatM x = do
+        pairs <- commaSepM $ assocs x
+        return $ braces (nest defaultIndent pairs)
+
+instance Pretty Doc where
+    format = id
 
 instance Pretty String where
     format = ptext . show
@@ -73,5 +102,12 @@ instance Pretty (NativeStr, Native) where
 sepBy :: (Pretty a) => Doc -> [a] -> Doc
 sepBy x = sep . punctuate x . map format
 
+sepByM :: (MonadSTM m, Pretty a) => Doc -> [a] -> m Doc
+sepByM x = fmap (sep . punctuate x) . mapM formatM
+
 commaSep :: Pretty a => [a] -> Doc
 commaSep = sepBy comma
+
+commaSepM :: (MonadSTM m, Pretty a) => [a] -> m Doc
+commaSepM = sepByM comma
+

@@ -37,10 +37,10 @@ main = do
             CmdRun { runProg = src } -> (`catchError` parseErr) $ do
                 exps <- parseNativeLang src 
                 banner "Parsed"
-                putStrLn =<< pretty exps
+                putStrLn =<< prettyM exps
                 banner "Evaluated"
                 (val, objs) <- evalNativeLang exps
-                putStrLn =<< pretty val
+                putStrLn =<< prettyM val
                 banner "Object Space"
                 dumpObjSpace objs
                 prompt
@@ -55,14 +55,15 @@ main = do
 parse :: String -> IO ()
 parse src = do
     exps <- parseNativeLang src
-    putStrLn =<< pretty exps
+    putStrLn =<< prettyM exps
     return ()
 
 eval :: String -> IO ()
 eval src = do
     exps <- parseNativeLang src 
     (val, objs) <- evalNativeLang exps
-    putStrLn =<< pretty val
+    putStrLn =<< prettyM val
+    banner "Object Space"
     dumpObjSpace objs
 
 banner :: String -> IO ()

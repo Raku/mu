@@ -66,6 +66,7 @@ Hash
   values ()         -> List
   concat (Any)      -> Nil
   fetch  (Any)      -> Any
+  exists (Any)      -> Any
   store  (Any, Any) -> Nil
   push   (Hash)     -> Nil  
 
@@ -147,6 +148,7 @@ mapPrims = mkMap
     , prim0 "values"     (elems)
     , prim1 "concat"     (append)
     , prim1 "fetch"      (fetch)
+    , prim1 "exists"     (exists)
     , prim2 "store"      (insert)
     , primX "push"       (pushHash)
     ]

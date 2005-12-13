@@ -59,8 +59,8 @@ instance Ord NativeObj where
     compare x y = compare (o_id x) (o_id y)
 
 data NativeObj = MkObject
-    { o_class   :: NativeObj -- ::Class is self-recursive, so can't be strict here
-    , o_id      :: !ObjectId
+    { o_id      :: !ObjectId
+    , o_class   :: NativeObj -- ::Class is self-recursive, so can't be strict here
     , o_attrs   :: !ObjectAttrs
     }
     deriving (Show, Eq, Typeable)
@@ -96,3 +96,4 @@ type SeqOf = NSeq.Seq
 
 instance Ord NativeError where
     compare x y = compare (show x) (show y)
+

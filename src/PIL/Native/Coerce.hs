@@ -27,6 +27,12 @@ See Also:
 nil :: Native
 nil = toNative mkNil
 
+emptySeq :: Native
+emptySeq = toNative (empty :: NativeSeq)
+
+emptyMap :: Native
+emptyMap = toNative (empty :: NativeMap)
+
 mkNil :: NativeError
 mkNil = NonTermination
 
@@ -58,6 +64,7 @@ mkCall obj meth args = ECall
 class IsPlural a key val | a -> key, a -> val where 
     isEmpty     :: a -> NativeBit
     size        :: a -> NativeInt
+    exists      :: a -> key -> Bool
     empty       :: a
     indices     :: a -> [key]
     elems       :: a -> [val]
@@ -74,6 +81,7 @@ instance IsPlural NativeStr NativeInt NativeStr where
     isEmpty    = NStr.null
     size       = NStr.length
     empty      = NStr.empty
+    exists (NStr.PS _ _ l) n = (n >= 0) && (n < l)
     indices    = \x -> [0 .. (NStr.length x - 1)]
     elems      = NStr.elems
     append     = NStr.append
@@ -92,6 +100,7 @@ instance Ord k => IsPlural (NMap.Map k v) k v where
     empty      = NMap.empty
     indices    = NMap.keys
     elems      = NMap.elems
+    exists     = flip NMap.member
     append     = NMap.union
     push       = error "It doesn't make sense to push into a hash"
     assocs     = NMap.assocs
@@ -101,18 +110,20 @@ instance Ord k => IsPlural (NMap.Map k v) k v where
     (!)        = (NMap.!)
 
 instance IsPlural (SeqOf a) NativeInt a where
-    isEmpty    = NSeq.null
-    size       = NSeq.length
-    empty      = NSeq.empty
-    indices    = \x -> [0 .. size x - 1]
-    elems      = NSeq.toList
-    append     = (NSeq.><)
-    push       = append
-    assocs     = ([0..] `zip`) . elems
-    fromAssocs = NSeq.fromList . map snd -- XXX wrong
-    fetch x y  = Just (NSeq.index x y) -- XXX wrong
-    insert     = \x k v -> NSeq.update k v x
-    (!)        = NSeq.index
+    isEmpty      = NSeq.null
+    size         = NSeq.length
+    empty        = NSeq.empty
+    exists x n   = (n >= 0) && (n < size x)
+    indices      = \x -> [0 .. size x - 1]
+    elems        = NSeq.toList
+    append       = (NSeq.><)
+    push         = append
+    assocs       = ([0..] `zip`) . elems
+    fromAssocs   = NSeq.fromList . map snd -- XXX wrong
+    fetch x y    = Just (NSeq.index x y) -- XXX wrong
+    insert x k v | k == size x = (NSeq.|>) x v
+    insert x k v = NSeq.update k v x
+    (!)          = NSeq.index
 
 class Show a => IsNative a where 
     toNative   :: a -> Native
@@ -200,6 +211,11 @@ instance IsNative NativeSub where
     fromNative (NSub x)     = x
     fromNative x            = castFail x
 
+instance IsNative NativeObj where
+    toNative = NObj
+    fromNative (NObj x)     = x
+    fromNative x            = castFail x
+
 instance IsNative NativeError where
     toNative = NError
     fromNative (NError x)   = x
@@ -242,3 +258,6 @@ instance (IsNative a) => IsNative (Maybe a) where
 
 castFail :: a -> b
 castFail _ = error "cast fail"
+
+failWith :: (Monad m, IsNative a) => String -> a -> m b
+failWith msg s = fail $ msg ++ ": " ++ toString s

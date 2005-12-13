@@ -60,17 +60,31 @@ See Also:
 -}
 
 parseNativeLang :: Monad m => String -> m [NativeLangExpression]
-parseNativeLang src = case ( runParser program () "-" src ) of
+parseNativeLang src = case parse program "-" src of
     Left err    -> fail (show err)
     Right exp   -> return exp
     where
     program = between bof eof (semiColonSep expression)
-    bof = return ()
+
+parseWith :: Parser a -> String -> a
+parseWith p src = case parse (between bof eof p) src src of
+    Left err    -> error (show err)
+    Right exp   -> exp
+
+bof :: Parser ()
+bof = whiteSpace
+
+parseSub :: String -> Native
+parseSub = toNative . parseWith pointySub
+
+parseExp :: String -> NativeLangExpression
+parseExp = parseWith expression
 
 expression :: Parser NativeLangExpression
 expression = (<?> "expression") $ do
     obj <- choice
         [ parens expression
+        , selfExpression
         , arrayExpression
         , fmap ELit literal
         , fmap (EVar . mkStr) identifier
@@ -94,6 +108,9 @@ expression = (<?> "expression") $ do
         name    <- method
         args    <- option [] (parens $ commaSep expression)
         return (name, args)
+    selfExpression = do
+        symbol "self"
+        return (EVar $ mkStr "$?SELF")
 
 literal :: Parser Native
 literal = choice 

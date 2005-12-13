@@ -1,10 +1,11 @@
 {-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields #-}
 
-module PIL.Native.Eval where
+module PIL.Native.Eval (evalNativeLang) where
 import PIL.Native.Prims
 import PIL.Native.Types
 import PIL.Native.Coerce
 import PIL.Native.Objects
+import PIL.Native.Parser
 import Data.FunctorM
 import Control.Monad.State
 import Control.Monad.Reader
@@ -23,19 +24,55 @@ See Also:
 
 -}
 
-type Eval = StateT ObjectSpace (ReaderT Pad SIO)
+type Eval = StateT ObjectSpace (ReaderT Pad IO)
 type Pad = NativeMap
 
 instance MonadSTM Eval where
     liftSTM = lift . lift . liftSTM
 
-evalNativeLang :: MonadSTM m => [NativeLangExpression] -> m (Native, ObjectSpace)
-evalNativeLang = runSIO . (`runReaderT` empty) . (`runStateT` empty) . evalMain
+-- evalNativeLang :: MonadSTM m => [NativeLangExpression] -> m (Native, ObjectSpace)
+evalNativeLang :: [NativeLangExpression] -> IO (Native, ObjectSpace)
+evalNativeLang = (`runReaderT` empty) . (`runStateT` empty) . evalMain
 
 evalMain :: [NativeLangExpression] -> Eval Native
-evalMain exps = do
-    -- bootstrap
+evalMain exps = bootstrapClass $ do
+    addClassMethods
     evalExps exps
+
+addClassMethods :: Eval Native
+addClassMethods = do
+    add "has_method"        "-> $name { self.get_attr('%methods').exists($name) }"
+    add "get_method"        "-> $name { self.get_attr('%methods').fetch($name) }"
+    add "get_method_list"   "-> $name { self.get_attr('%methods').keys() }"
+    add "new"               "-> %prms { self.bless(nil, %prms) }"
+    add "bless"           $ "-> $repr, %prms {                              \
+                          \     -> $obj { $obj.BUILDALL(%prms); $obj; }     \
+                          \         .(self.CREATE($repr, %prms))            \
+                          \  }"
+    add "CREATE"          $ "-> $repr, %prms {} " -- XXX - not finished yet
+    where
+    add name body = eval $ "::Class.add_method('" ++ name ++ "', " ++ body ++ ")"
+
+eval :: String -> Eval Native
+eval = evalExp . parseExp
+
+bootstrapClass :: Eval a -> Eval a
+bootstrapClass x = mdo
+    cls <- newObject cls
+        [ ("@MRO",              emptySeq)
+        , ("@subclasses",       emptySeq)
+        , ("@superclasses",     emptySeq)
+        , ("%private_methods",  emptyMap)
+        , ("%attributes",       emptyMap)
+        , ("%methods", toNative $ mkMap [("add_method", addMethod)])
+        ]
+    enterLex [("::Class", cls)] x
+    where
+    addMethod = parseSub
+        "-> $name, &method { self.set_attr_hash('%methods', $name, &method) }"
+
+enterLex :: IsNative a => [(String, a)] -> Eval b -> Eval b
+enterLex = local . append . mkMap . map (\(x, y) -> (x, toNative y))
 
 evalExps :: [NativeLangExpression] -> Eval Native
 evalExps []       = return nil
@@ -48,7 +85,7 @@ evalExp (EVar s) = do
     pad <- ask
     case pad `fetch` s of
         Just v  -> return v
-        Nothing -> fail $ "No such variable " ++ toString s
+        Nothing -> failWith "No such variable" s
 evalExp (ECall { c_obj = objExp, c_meth = meth, c_args = argsExp }) = do
     obj  <- evalExp objExp
     args <- fmapM evalExp argsExp
@@ -70,7 +107,7 @@ evalExp (ECall { c_obj = objExp, c_meth = meth, c_args = argsExp }) = do
             NObj x      -> callObject x meth args
     where
     errMethodMissing :: Eval a
-    errMethodMissing = fail ("No such method: " ++ toString meth)
+    errMethodMissing = failWith "No such method" meth
     callMethod :: MapOf (a -> b -> Native) -> a -> b -> Eval Native
     callMethod prims x args = case prims `fetch` meth of
         Nothing -> errMethodMissing -- XXX - autobox!
@@ -90,9 +127,35 @@ callSub block args = do
 callConditional :: NativeBit -> NativeSeq -> Eval Native
 callConditional x args = callSub (fromNative $ args ! fromEnum (not x)) empty
 
+infixl ...
+(...) :: IsNative a => NativeObj -> String -> Eval a
+obj ... str = fmap fromNative $ getAttr obj (mkStr str)
+
 callObject :: NativeObj -> NativeStr -> NativeSeq -> Eval Native
-callObject obj meth args = do
-    mro <- getAttr obj (mkStr "@:MRO")
-    return mro
+callObject obj meth args = enterLex lex $ do
+    meths <- cls ... "%methods" :: Eval NativeMap
+    case meths `fetch` meth of
+        Just x  -> callSub (fromNative x) args
+        _       -> tryMRO =<< getMRO
     where
+    lex = [("$?SELF", obj), ("$?CLASS", cls)]
     cls = o_class obj
+    getMRO = do
+        mro <- cls ... "@MRO" :: Eval NativeSeq
+        if isEmpty mro
+            then cls ... "@superclasses"
+            else return (elems mro)
+    tryMRO [] | meth == mkStr "get_attr" = do
+        obj ... fromNative (args ! 0)
+    tryMRO [] | meth == mkStr "set_attr_hash" = do
+        let [attrVal, keyVal, val] = elems args
+            key :: NativeStr = fromNative keyVal
+        hash <- obj ... fromNative attrVal :: Eval NativeMap
+        setAttr obj (fromNative attrVal) (toNative $ insert hash key val)
+        return nil
+    tryMRO [] = failWith "No such method" meth
+    tryMRO (c:cs) = do
+        meths <- fromNative c ... "%methods" :: Eval NativeMap
+        case meths `fetch` meth of
+            Just x  -> callSub (fromNative x) args
+            _       -> tryMRO cs

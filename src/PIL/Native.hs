@@ -4,7 +4,7 @@ module PIL.Native (
     evalNativeLang,
     parseNativeLang,
     NativeLangExpression,
-    pretty,
+    pretty, prettyM,
     dumpObjSpace,
 ) where
 import PIL.Native.Types
