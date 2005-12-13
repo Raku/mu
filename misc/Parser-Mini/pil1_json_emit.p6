@@ -62,7 +62,7 @@ sub parse (@start, $token, @end, @_ is rw) {
 #my $pil2 = @pil2.join('');
 
 # slurp stdin - xinming++ 
-my $pil2 = ~list(=$*IN);
+my $pil2 = ** $*IN.slurp;
 
 my @b = $pil2 ~~ $tokens;
 # say "Tokens: ", @b.join('><');

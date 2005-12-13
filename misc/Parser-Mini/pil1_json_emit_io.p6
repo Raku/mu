@@ -114,7 +114,7 @@ push @*INC, './';
 require 'pil2_json_emit.pm';
 
 # slurp stdin - xinming++ 
-my $pil2 = ~$*IN.slurp;
+my $pil2 = ** $*IN.slurp;
 
 my @b = tokenize( $pil2 );
 # say "Tokens: ", @b.join('><');
