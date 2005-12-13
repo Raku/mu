@@ -497,10 +497,10 @@ ghci : @srcfiles
 	$ghc $ghc_flags --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
 
 pil$Config{_exe} : $config_h $unicode $pcre @cbits @srcfiles
-	$ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -L. -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs $unicode $pcre @cbits
+	$ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -isrc/cbits -Isrc -Isrc/cbits -L. -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs $unicode $pcre @cbits
 
 pili : pil$Config{_exe}
-	$ghc $ghc_flags --interactive -fglasgow-exts -isrc -L. -static -fno-warn-name-shadowing src/PIL.hs $unicode $pcre @cbits
+	$ghc $ghc_flags --interactive -fglasgow-exts -isrc -isrc/cbits -Isrc -Isrc/cbits -L. -static -fno-warn-name-shadowing src/PIL.hs $unicode $pcre @cbits
 
 tags : @srcfiles
 	$hasktags -c @srcfiles
