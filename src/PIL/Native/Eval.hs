@@ -43,7 +43,7 @@ addClassMethods :: Eval Native
 addClassMethods = do
     add "has_method"        "-> $name { self.get_attr('%methods').exists($name) }"
     add "get_method"        "-> $name { self.get_attr('%methods').fetch($name) }"
-    add "get_method_list"   "-> $name { self.get_attr('%methods').keys() }"
+    add "get_method_list"   "-> { self.get_attr('%methods').keys() }"
     add "new"               "-> %prms { self.bless(nil, %prms) }"
     add "bless"           $ "-> $repr, %prms {                              \
                           \     -> $obj { $obj.BUILDALL(%prms); $obj; }     \
