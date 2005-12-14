@@ -126,6 +126,11 @@ function perl_call_method() {
 1
 EOC
 
+$ct->set_error_handler(sub {
+  my ($message, $lineno, $linebuff) = @_;
+  die "Error at line: $lineno\nMessage is: $message\nSource is: $linebuff\n";
+});
+
 $ct->eval($code) or die;
 
 local $/;

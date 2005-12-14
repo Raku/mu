@@ -44,3 +44,14 @@ sub JS::Root::print(Str *@text) is primitive {
   )')(@text.join(""));
   ?1;
 }
+
+sub JS::Root::slurp(Str $filename) is primitive {
+  JS::inline('(
+    function (filename) {
+        if (!Perl5) throw "Perl5 required.";
+        Perl5.perl_use("IO::File");
+        return Perl5.perl_eval("(sub { local $/; my $f = IO::File->new(\'<\'.$_[0]) or die $!; return <$f>})")(filename);
+    }
+  )')($filename)
+}
+
