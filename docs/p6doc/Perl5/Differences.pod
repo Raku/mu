@@ -43,12 +43,21 @@ You would now say:
     my @fruits = ("apple", "pear", "banana");
     say @fruit[0];
 
+Or even use the C<< <> >> operator, which replaces C<qw()>:
+
+    my @fruits = <apple pear banana>;
+
 Note that the sigil for fetching a single element has changed from C<$>
-to C<@>.
+to C<@>; perhaps a better way to think of it is that the sigil of a
+variable is now a part of its name, so it never changes in subscripting.
 
 The same applies to hashes:
 
     say "There are %days{'February'} days in February";
+
+Again, there is a shorter form:
+
+    say "There are %days<February> days in February";
 
 =head2 New ways of referring to array and hash elements
 
@@ -66,6 +75,7 @@ Therefore, last element in an array:
 
     Was:    $array[$#array]
     Now:    @array[@array.end]
+            @array[-1]              # also works
 
 Hash elements no longer auto-quote:
 
@@ -88,7 +98,7 @@ are in fact just quoting mechanisms (see below).
     Was:    qq(foo)
     Now:    <<foo>>
 
-=head2 Method annotation changes from -> to .
+=head2 Method invocation changes from -> to .
 
     Was:    $object->method
     Now:    $object.method
@@ -99,12 +109,13 @@ Most (all?) built-in functions are now methods of built-in classes such
 as String, Array, etc.
 
     Was:    my $len = length($string);
-    Now:    my $len = $string.length;
+    Now:    my $len = $string.chars;
 
     Was:    print sort(@array);
     Now:    print @array.sort;
+            @array.sort.print;
 
-You can still say C<sort(@array)> but it's no longer idiomatic.
+You can still say C<sort(@array)> if you prefer the non-OO idiom.
 
 =head2 You don't need parens on control structure conditions
 
@@ -123,10 +134,17 @@ Also, the way of assigning to something other than C<$_> has changed:
     Was:    foreach my $x (@whatever) { ... }
     Now:    for @whatever -> $x       { ... }
 
+This can be extended to take more than one element at a time:
+
+    Was:    while (my($age, $sex, $location) = splice @whatever, 0, 3) { ... }
+    Now:    for @whatever -> $age, $sex, $location { ... }
+
+(Only the C<for> version does not destroy the array.)
+
 =head2 for becomes loop
 
-    Was:    for  ($i=0;$i<10;$i++) { ... }
-    Now:    loop ($i=0;$i<10;$i++) { ... }
+    Was:    for  ($i=0; $i<10; $i++) { ... }
+    Now:    loop ($i=0; $i<10; $i++) { ... }
 
 =head1 AUTHOR
 

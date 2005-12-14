@@ -22,13 +22,13 @@ elsewhere.
 
 =head2 What is Perl 6?
 
-Perl 6, like its predecessors, is a multi-purpose scripting language
+Perl 6, like its predecessors, is a multi-purpose dynamic language
 combining ease of use and powerful programming features.
 
 =head2 Running a Perl 6 program
 
-You will need to install PUGS, which can be found at
-http://pugscode.org/.
+You will need to install Pugs, which can be found at
+L<http://pugscode.org/>.
 
 Having done so, you can run your Perl 6 program from the command line as
 follows:
@@ -124,9 +124,9 @@ Scalar values can be used in various ways:
 There are a number of "magic" scalars with names that look like
 punctuation or line noise.  These special variables are used for all
 kinds of purposes, and are documented in L<XXX>.  The only one you
-need to know about for now is C<$_> which is the "default variable".
-It's used as the default argument to a number of functions in Perl, and
-it's set implicitly by certain looping constructs.
+need to know about for now is C<$_> which is the "topic".  It's used
+as the default argument to a number of functions in Perl, and it's set
+implicitly by certain looping constructs.
 
     say;          # prints contents of $_ by default
 
@@ -164,16 +164,10 @@ You can do various useful things to lists:
     my @sorted    = @animals.sort;
     my @backwards = @numbers.reverse;
 
-=begin maintainer_notes
-
-I have no idea what the following is in p6... I'll deal with them when I get there.
-
-
-There are a couple of special arrays too, such as C<@ARGV> (the command
+There are a couple of special arrays too, such as C<@*ARGS> (the command
 line arguments to your script) and C<@_> (the arguments passed to a
-subroutine).  These are documented in L<perlvar>.
-
-=end maintainer_notes
+subroutine, if formal parameters are not declared).  These are documented
+in L<perlvar>.
 
 =item Hashes
 
@@ -207,7 +201,7 @@ and loop through them.
 Again, no idea here... will get to it eventually.
 
 Just like special scalars and arrays, there are also special hashes.
-The most well known of these is C<%ENV> which contains environment
+The most well known of these is C<%*ENV> which contains environment
 variables.  Read all about it (and other special variables) in
 L<perlvar>.
 
@@ -241,11 +235,10 @@ structure using anonymous hash references.
                     },
     };
 
-    print "Scalars begin with a $variables->{'scalar'}->{'sigil'}\n";
+    print "Scalars begin with a $variables{'scalar'}{'sigil'}\n";
 
 Exhaustive information on the topic of references can be found in
 L<perlreftut>, L<perllol>, L<perlref> and L<perldsc>.
-
 
 
 =head2 Variable scoping
