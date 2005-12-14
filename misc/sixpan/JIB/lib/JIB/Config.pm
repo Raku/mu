@@ -7,13 +7,12 @@ use Config;
 use Path::Class ();
 use base 'Object::Accessor';
 
-my $Obj;
 my %config;
 my $Cwd = Path::Class::dir(cwd());
 
-use constant SUBDIR_OF_ROOT     => sub { $Obj->root->subdir(    shift() ) };
-use constant SUBDIR_OF_META     => sub { $Obj->meta_dir->subdir(shift() ) };
-use constant SUBFILE_OF_META    => sub { $Obj->meta_dir->file(  shift() ) };
+use constant SUBDIR_OF_ROOT     => sub { shift()->root->subdir(    shift() ) };
+use constant SUBDIR_OF_META     => sub { shift()->meta_dir->subdir(shift() ) };
+use constant SUBFILE_OF_META    => sub { shift()->meta_dir->file(  shift() ) };
 
 ### %config is initialized with a [ default_value => return value ] pair
 ### the default_value is the value of initalization, the return value is
@@ -27,7 +26,7 @@ $config{'perl_site_dir'}    = [ $Config{installsitelib} => SUBDIR_OF_ROOT ];
 $config{'temp_dir'}         = [ tmp                     => SUBDIR_OF_ROOT ];
 $config{'bin_dir'}          = [ $Config{bin}            => SUBDIR_OF_ROOT ];
 $config{'compile_dir'}      = [ _builddir               => 
-                                sub { $Obj->temp_dir->subdir( shift() ) }
+                                sub { shift()->temp_dir->subdir( shift() ) }
                             ];
 
 ### repository dirs/files
@@ -42,7 +41,7 @@ $config{'repo_index_groups'}= [ [map {Path::Class::dir($_)}
 ### XXX this shouldn't be hardcoded to perl_site_dir, but installation
 ### dependant!
 $config{'meta_dir'}         = [ Path::Class::dir('_jib') => 
-                                sub { $Obj->perl_site_dir->subdir(shift()) } ];
+                                sub {shift()->perl_site_dir->subdir(shift())} ];
 $config{'files_list'}       = [ Path::Class::file('files.list') ];
 $config{'control'}          = [ control         => SUBDIR_OF_META   ];
 $config{'alternatives'}     = [ alternatives    => SUBDIR_OF_META   ];
@@ -59,7 +58,7 @@ $config{'build_dir'}        = [ Path::Class::dir('root-') ];
 
 ### package files/extensions
 $config{'meta_ext'}         = [ '.info' ];
-$config{'meta_file'}        = [ META => sub { shift() . $Obj->meta_ext  } ];
+$config{'meta_file'}        = [ META => sub { $_[1] . $_[0]->meta_ext  } ];
 
 $config{'archive_data'}     = [ 'data.tgz'      ];
 $config{'archive_control'}  = [ 'control.tgz'   ];
@@ -86,7 +85,7 @@ for my $func ( keys %config ) {
         
         my $sub = $config{$func}->[1];
         return $sub 
-            ? $sub->( $obj->$acc )
+            ? $sub->( $obj, $obj->$acc )
             : $obj->$acc;
     }
 }
@@ -97,23 +96,26 @@ XXX Singleton
 
 =cut
 
-sub new {
-    return $Obj if $Obj;
-    
-    my $self = shift;
-    $Obj     = $self->SUPER::new();
+{   my $Obj;
 
-
-    for my $key ( keys %config ) {
-        my $acc = '_'.$key;
-
-        ### XXX allow handlers?
-        $Obj->mk_accessors( $acc );
+    sub new {
+        return $Obj if $Obj;
         
-        ### set to a sane default value
-        $Obj->$acc( $config{$key}->[0] );
+        my $self = shift;
+        $Obj     = $self->SUPER::new();
+    
+    
+        for my $key ( keys %config ) {
+            my $acc = '_'.$key;
+    
+            ### XXX allow handlers?
+            $Obj->mk_accessors( $acc );
+            
+            ### set to a sane default value
+            $Obj->$acc( $config{$key}->[0] );
+        }
+        return $Obj;
     }
-    return $Obj;
 }
 
 ### add our own ls_accessors, so we don't give back the private accessors
