@@ -1,12 +1,49 @@
 
+# possible syntax for Signature DSL
+my $Bit = new signature q|
+
+role ANY {}
+
+role Coerceable [::T] {
+    to_bit (::T $self:) returns BIT;
+    to_str (::T $self:) returns STR;  
+    to_num (::T $self:) returns NUM;            
+}
+
+role BIT {        
+    does Coerceable[BIT];
+    
+    not    (BIT $self:)              returns BIT;      
+    
+    and    (BIT $self: BLOCK $block) returns BIT;      
+    or     (BIT $self: BLOCK $block) returns BIT;          
+}
+
+role OPAQUE {
+    does Coerceable[OPAQUE];
+    
+    id           (OPAQUE $self:)                          returns NUM;            
+    
+    class        (OPAQUE $self:)                          returns OPAQUE;
+    change_class (OPAQUE $self: OPAQUE $class)            returns NIL;
+    
+    get_attr     (OPAQUE $self: SYMBOL $name)             returns ANY;
+    set_attr     (OPAQUE $self: SYMBOL $name, ANY $value) returns NIL;
+    add_attr     (OPAQUE $self: SYMBOL $name)             returns NIL;    
+}
+
+class Bit does BIT { 
+    map_native "Perl6::Core::Bit";
+}
+
+class Opaque does OPAQUE {
+    map_native "Perl6::MM::Opaque";
+}
+
+|;
+
+# the raw p5 code which the DSL might generate
 my $Bit = module::signature->new(
-    symbol->new('new') => method::signature->new(
-        params => method::params->new(
-            symbol->new('$class:' => 'Class')
-            symbol->new('?$x'     => '<native>')
-        ),
-        returns => 'Bit'
-    ),
     symbol->new('to_bit') => method::signature->new(
         params => method::params->new(symbol->new('$self:' => 'Bit')),
         returns => 'Bit'
@@ -39,11 +76,24 @@ my $Bit = module::signature->new(
     ),                             
 );
 
-*Bit = module::functor->new('bit' => $BIT);
+# create a new module which 
+*Bit = module->new(
+            signature => $BIT, 
+            native => 'Perl6::Core::Bit'
+        );
 
+# now we have the Bit available
 Bit->new(1);
 
-sub module::functor::native::convert {
+
+# code sketch of how we can wrap a native
+# function with a signature
+my $wrapped_or = module::native::wrap(
+                     $Bit->get_signature(symbol->new('or'))
+                     \&bit::or
+                 );
+
+sub module::native::wrap {
     my ($sig, $body) = @_;
     closure->new(
         $e,
@@ -62,8 +112,3 @@ sub module::functor::native::convert {
         }
     );
 }
-
-my $wrapped_or = module::functor::native::convert(
-                            $Bit->get_signature(symbol->new('or'))
-                            \&bit::or
-                        );

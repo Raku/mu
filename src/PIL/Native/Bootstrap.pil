@@ -1,0 +1,259 @@
+#!pil
+
+## ------------------------------------------------------------------------- ##
+## Class
+## ------------------------------------------------------------------------- ##
+## We assume that ::Class and ::Class.add_method are already defined
+## ------------------------------------------------------------------------- ##
+
+## class construction methods
+
+::Class.add_method('new', -> %params { 
+    self.bless(nil, %params);
+});
+
+::Class.add_method('bless', -> $repr, %params { 
+    -> $obj { 
+        $obj.BUILDALL(%params); 
+        $obj; 
+    }.(self.CREATE($repr, %params));
+});
+
+::Class.add_method('CREATE', -> $repr, %params { });
+::Class.add_method('BUILDALL', -> %params { });
+::Class.add_method('BUILD', -> %params { });
+
+## class destruction
+
+::Class.add_method('DESTROYALL', -> { });
+
+## informational methods
+
+::Class.add_method('id', -> { });
+::Class.add_method('class', -> { });
+
+::Class.add_method('is_a', -> $class { });
+
+## (super|sub)classes
+
+::Class.add_method('superclasses', -> @superclasses { });
+::Class.add_method('MRO', -> { });
+::Class.add_method('subclasses', -> { });
+::Class.add_method('add_subclass', -> $class { });
+
+## dispatching
+
+::Class.add_method('dispatcher', -> $order { });
+
+# ... should the dispatcher be implemented here? or Haskell
+# I think it is easier in Haskell, but still extendable if 
+# we have this method here 
+
+## method related methods
+
+::Class.add_method('has_method', -> $name { 
+    self.get_attr('%:methods').exists($name);
+});
+
+::Class.add_method('get_method', -> $name { 
+    self.get_attr('%:methods').fetch($name); 
+});
+
+::Class.add_method('get_method_list', -> { 
+    self.get_attr('%:methods').keys(); 
+});
+
+## can we actually do remove_method??
+# ::Class.add_method('remove_method', -> $name { 
+#     self.get_attr('%:methods').delete($name); 
+# });
+
+## attribute related methods
+
+::Class.add_method('add_attribute', -> $name, $attr { 
+    self.set_attr_hash('%:attributes', $name, $attr);
+});
+
+::Class.add_method('has_attribute', -> $name { 
+    self.get_attr('%:attributes').exists($name);
+});
+
+::Class.add_method('get_attribute', -> $name { 
+    self.get_attr('%:attributes').fetch($name); 
+});
+
+::Class.add_method('get_attribute_list', -> { 
+    self.get_attr('%:attributes').keys(); 
+});
+
+::Class.add_method('get_attributes', -> { 
+    self.get_attr('%:attributes').values(); 
+});
+
+## NOTE:
+## we assume that when ::Class was defined, that it's attributes
+## were also defined, but only in the Instance type, and not in 
+## it's meta-self
+
+::Class.add_attribute('@:MRO', nil);
+::Class.add_attribute('@:superclasses', nil);
+::Class.add_attribute('@:subclasses', nil);
+::Class.add_attribute('%:private_methods', nil);
+::Class.add_attribute('%:methods', nil);
+::Class.add_attribute('%:attributes', nil);
+
+## ------------------------------------------------------------------------- ##
+## Object
+## ------------------------------------------------------------------------- ##
+
+::Object = ::Class.new();
+
+::Object.add_method('BUILD', -> %params { });
+::Object.add_method('BUILDALL', -> %params { });
+
+::Object.add_method('DESTORYALL', -> { });
+
+::Object.add_method('id', -> { });
+::Object.add_method('class', -> { });
+
+::Object.add_method('isa', -> { });
+::Object.add_method('can', -> { });
+
+## ------------------------------------------------------------------------- ##
+## Package
+## ------------------------------------------------------------------------- ##
+
+::Package = ::Class.new();
+::Package.superclasses([ ::Object ]);
+
+::Package.add_attribute('$:name', nil);
+::Package.add_attribute('%:namespace', nil);
+
+::Package.add_method('name' -> $name {
+    # NOTE: this is not ideal, I really 
+    # just need a lazy bit.and()
+    $name.is_nil.cond(
+        -> { nil },
+        -> { self.set_attr('$:name', $name) }
+    );
+    self.get_attr('$:name');    
+});
+
+::Package.add_method('FETCH' -> $name { });
+::Package.add_method('STORE' -> $name, $value { });
+
+## ------------------------------------------------------------------------- ##
+## Module
+## ------------------------------------------------------------------------- ##
+
+::Module = ::Class.new();
+::Module.superclasses([ ::Package ]);
+
+::Module.add_attribute('$:version', nil);
+::Module.add_attribute('$:authority', nil);
+
+::Module.add_method('version' -> $version {
+    # NOTE: this is not ideal, I really 
+    # just need a lazy bit.and()
+    $version.is_nil.cond(
+        -> { nil },
+        -> { self.set_attr('$:version', $version) }
+    );
+    self.get_attr('$:version');    
+});
+
+::Module.add_method('authority' -> $authority {
+    # NOTE: this is not ideal, I really 
+    # just need a lazy bit.and()
+    $authority.is_nil.cond(
+        -> { nil },
+        -> { self.set_attr('$:authority', $authority) }
+    );
+    self.get_attr('$:authority');    
+});
+
+::Module.add_method('identifier' -> {
+    # NOTE: this does not handle the condition
+    # when $:version or $:authority is nil
+    self.get_attr('$:name')
+        .concat('-')
+        .concat(
+            self.get_attr('$:version')
+                .concat('-')
+                .concat(
+                    self.get_attr('$:authority')                
+                )
+        )
+});
+
+## ------------------------------------------------------------------------- ##
+## Role
+## ------------------------------------------------------------------------- ##
+
+# ... coming eventually 
+
+## ------------------------------------------------------------------------- ##
+## Bootstrapping
+## ------------------------------------------------------------------------- ##
+
+::Class.set_attr('@:superclasses', [ ::Module ]);
+
+::Module.set_attr('@:subclasses', [ ::Class ]); 
+
+# NOTE:
+# not doing this made our prototype go into 
+# endless recursion
+::Class.set_attr('@:MRO', [ ::Class, ::Module, ::Package, ::Object ]);
+::Object.set_attr('@:MRO', [ ::Object ]);
+
+# NOTE:
+# these attributes need to be added manually since
+# ::Class would have inherited them, but couldn't 
+# since they had not yet been defined, 
+
+::Class.add_attr('$:name');
+::Class.add_attr('$:namespace');
+::Class.add_attr('$:version');
+::Class.add_attr('$:authority');
+
+::Object.add_attr('$:name');
+::Object.add_attr('$:namespace');
+::Object.add_attr('$:version');
+::Object.add_attr('$:authority');
+
+::Package.add_attr('$:name');
+::Package.add_attr('$:namespace');
+::Package.add_attr('$:version');
+::Package.add_attr('$:authority');
+
+::Module.add_attr('$:name');
+::Module.add_attr('$:namespace');
+::Module.add_attr('$:version');
+::Module.add_attr('$:authority');
+
+::Class.name('Class');
+::Object.name('Object');
+::Package.name('Package');
+::Module.name('Module');
+
+## end bootstrapping ...
+## ------------------------------------------------------------------------- ##
+
+=pod
+
+=head1 NAME
+
+Perl 6 Meta-Model 
+
+=head1 DESCRIPTION 
+
+This is the bootstrap code for the Perl 6 Meta-Model using the Perl 6 
+Object-Space mini-language. 
+
+=head1 AUTHORS
+
+Audrey Tang
+
+Stevan Little 
+
+=cut
