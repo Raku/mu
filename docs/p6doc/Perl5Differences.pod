@@ -17,15 +17,116 @@ This document is intended to be used by Perl 5 programmers who are new
 to Perl 6 and just want a quick overview of the main differences.  More
 detail on everything can be found in the language reference.
 
+The ordering of this document is more or less in order from basic stuff
+to complex stuff.  To put it another way, it's been written in the order
+that the topics came up while the author was learning Perl 6.
+
 =head2 say()
 
 This is a version of print() that auto-appends a newline:
 
-    say   "Hello, world!";
-    print "Hello, world!\n";
+    Was:    print "Hello, world!\n";
+    Now:    say   "Hello, world!";
 
 Since you want to do that so often anyway, it seemed like a handy thing
 to make part of the language.
+
+=head2 Sigils
+
+Where you used to say:
+
+    my @fruits = ("apple", "pear", "banana");
+    print $fruit[0], "\n";
+
+You would now say:
+
+    my @fruits = ("apple", "pear", "banana");
+    say @fruit[0];
+
+Note that the sigil for fetching a single element has changed from C<$>
+to C<@>.
+
+The same applies to hashes:
+
+    say "There are %days{'February'} days in February";
+
+=head2 New ways of referring to array and hash elements
+
+Number of elements in an array: 
+
+    Was:    $#array+1 or scalar(@array)
+    Now:    @array.elems
+
+Index of last element in an array:
+
+    Was:    $#array
+    Now:    @array.end
+
+Therefore, last element in an array:
+
+    Was:    $array[$#array]
+    Now:    @array[@array.end]
+
+Hash elements no longer auto-quote:
+
+    Was:    $days{February}
+    Now:    %days{'February'}
+    Or:     %days{"February"}
+    Or:     %days<February>
+    Or:     %days<<February>>
+
+The curly-bracket forms still work, but curly-brackets are more
+distinctly block-related now, so in fact what you've got there is a
+block that returns the value "February".  The C<<>> and C<<<>>> forms
+are in fact just quoting mechanisms (see below).
+
+=head2 q(), qq(), etc have changed
+
+    Was:    q(foo)
+    Now:    <foo>
+
+    Was:    qq(foo)
+    Now:    <<foo>>
+
+=head2 Method annotation changes from -> to .
+
+    Was:    $object->method
+    Now:    $object.method
+
+=head2 Built-in functions are now methods
+
+Most (all?) built-in functions are now methods of built-in classes such
+as String, Array, etc.
+
+    Was:    my $len = length($string);
+    Now:    my $len = $string.length;
+
+    Was:    print sort(@array);
+    Now:    print @array.sort;
+
+You can still say C<sort(@array)> but it's no longer idiomatic.
+
+=head2 You don't need parens on control structure conditions
+
+    Was:    if ($a < $b) { ... }
+    Now:    if  $a < $b  { ... }
+
+Likewise for C<while>, C<for>, etc.
+
+=head2 foreach becomes for
+
+    Was:    foreach (@whatever) { ... }
+    Now:    for @whatever       { ... }
+
+Also, the way of assigning to something other than C<$_> has changed:
+
+    Was:    foreach my $x (@whatever) { ... }
+    Now:    for @whatever -> $x       { ... }
+
+=head2 for becomes loop
+
+    Was:    for  ($i=0;$i<10;$i++) { ... }
+    Now:    loop ($i=0;$i<10;$i++) { ... }
 
 =head1 AUTHOR
 
