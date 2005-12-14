@@ -203,7 +203,7 @@ What was the revised bootstrapping plan?</h2>
 According to an early 2005 <a
  href="http://www.perlfoundation.org/gc/grants/2005-p6-proposal.html">proposal</a>,
 the plan is to first implement the Rule engine in C (i.e. <a
- href="http://cvs.perl.org/viewcvs/cvs-public/parrot/compilers/pge/">PGE</a>),
+ href="http://svn.perl.org/viewcvs/parrot/trunk/compilers/pge/">PGE</a>),
 use it to parse Perl 6 into Parrot as an <a
  href="http://en.wikipedia.org/wiki/Abstract_syntax_tree">abstract
 syntax tree</a>
@@ -259,7 +259,7 @@ the first working interpreter was released within the <a
 week</a>, and by the <a
  href="http://use.perl.org/%7Eautrijus/journal/23335">third
 week</a> we had a full-fledged <a
- href="http://svn.openfoundry.org/pugs/lib/Perl6/lib/Test.pm"><code>Test.pm</code></a>
+ href="http://svn.openfoundry.org/pugs/ext/Test/lib/Test.pm"><code>Test.pm</code></a>
 module for unit testing.</p>
 <h2>
 Is Pugs a compiler or an interpreter?</h2>
@@ -282,7 +282,7 @@ will likely generate Perl 6 code, similar to the <a
 module. The next one may generate
 Haskell code, which can then be
 compiled to C by GHC. At that point, it may make sense to target the <a
- href="http://cvs.perl.org/viewcvs/cvs-public/parrot/ast/">Parrot
+ href="http://svn.perl.org/viewcvs/parrot/trunk/compilers/ast/">Parrot
 AST</a>
 interface. We can also add other backends (such as Perl 5 bytecode) if
 people
@@ -369,7 +369,7 @@ href="http://www.cse.unsw.edu.au/%7Edons/hs-plugins/"><code>hs-plugins</code></a
  be evaluated using <code>eval('...', :lang&lt;haskell&gt;)</code>.</p>
 <p>In addition, at the basic level, you can statically link Haskell libraries
 into Pugs primitives, by modifying a few lines in <a
- href="http://svn.openfoundry.org/pugs/src/Prim.hs"><code>Prim.hs</code></a>.
+ href="http://svn.openfoundry.org/pugs/src/Pugs/Prim.hs"><code>Prim.hs</code></a>.
 </p>
 <h2>
 Can Pugs work with C libraries?</h2>

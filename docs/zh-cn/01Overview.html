@@ -115,7 +115,7 @@ Perl 5 上实现了 Rules 的雏型，但对于构建编译器而言仍显得不
  href="http://www.perlfoundation.org/gc/grants/2005-p6-proposal.html">建
 议
 书</a>，首先应采用 C 语言实现 Rules 引擎（即 <a
- href="http://cvs.perl.org/viewcvs/cvs-public/parrot/compilers/pge/">PGE</a>），
+ href="http://svn.perl.org/viewcvs/parrot/trunk/compilers/pge/">PGE</a>），
 用它将 Perl 6 剖析成 Parrot 的<a
  href="http://en.wikipedia.org/wiki/Abstract_syntax_tree">抽
 象语法树</a>（AST），
@@ -140,7 +140,7 @@ Perl 5 上实现了 Rules 的雏型，但对于构建编译器而言仍显得不
 星期</a>便放出了，在<a href="http://use.perl.org/%7Eautrijus/journal/23335">第
 三个星期</a>的时候，我们已经有了可以提
 供单元测试的全功能 <a style="font-family: monospace;"
- href="http://svn.openfoundry.org/pugs/lib/Perl6/lib/Test.pm">Test.pm</a>
+ href="http://svn.openfoundry.org/pugs/ext/Test/lib/Test.pm">Test.pm</a>
 模块。</p>
 <h2>Pugs 是编译器还是直译器？</h2>
 <p>和 Perl 5 相似，Pugs 先把 Perl 6
@@ -152,7 +152,7 @@ Perl 5 上实现了 Rules 的雏型，但对于构建编译器而言仍显得不
 程序码，类似 <a style="font-family: monospace;"
  href="http://search.cpan.org/dist/perl/ext/B/B/Deparse.pm">B::Deparse</a>
 模块的编译器后端。接下来则可能产出 Haskell 程序码，并交由 GHC 编译成 C 语言。到时，下一个目标很可能是 <a
- href="http://cvs.perl.org/viewcvs/cvs-public/parrot/ast/">Parrot
+ href="http://svn.perl.org/viewcvs/parrot/trunk/compilers/ast/">Parrot
 AST</a>
 介面。如果有人愿意协助的话，我们也可能再加入其它后端（譬如 Perl 5 bytecode）。</p>
 <h2>预定的 Pugs 开发计划为何？</h2>
@@ -203,7 +203,7 @@ Perl 5 与 Haskell 模块能相互沟通。如果成功的话，架一个 <span
 <h2>Pugs 能与 Haskell 程序库共用吗？</h2>
 <p>目前你可以把 Haskell 程序库静态链接到 Pugs
 的内建函数，只需修改 <a style="font-family: monospace;"
- href="http://svn.openfoundry.org/pugs/src/Prim.hs">Prim.hs</a>
+ href="http://svn.openfoundry.org/pugs/src/Pugs/Prim.hs">Prim.hs</a>
 内的几列程序码即
 可。我们正考虑编写 <a href="http://www.cse.unsw.edu.au/%7Edons/hs-plugins/">hs-plugins</a>
 的简易界面，让 Pugs 能动态载入 Hasekll 程序库，甚至在 Perl 6 中内嵌 Haskell 程序码。</p>

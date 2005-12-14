@@ -95,7 +95,7 @@ Perl 5 上實作了 Rules 的雛型，但對於建構編譯器而言仍顯得不
 <p>根據一份 2005 初的<a
  href="http://www.perlfoundation.org/gc/grants/2005-p6-proposal.html">建議
 書</a>，首先應採用 C 語言實作 Rules 引擎（即為 <a
- href="http://cvs.perl.org/viewcvs/cvs-public/parrot/compilers/pge/">PGE</a>），
+ href="http://svn.perl.org/viewcvs/parrot/trunk/compilers/pge/">PGE</a>），
 用它將 Perl 6 剖析成 Parrot 的<a
  href="http://en.wikipedia.org/wiki/Abstract_syntax_tree">抽象語法樹</a>（AST），
 接著在 Parrot 裡實作 AST 求值器。Ponie 和 p5-to-p6 仍在進行中，但已非啟動程序中的關鍵成份。</p>
@@ -115,7 +115,7 @@ Perl 5 上實作了 Rules 的雛型，但對於建構編譯器而言仍顯得不
  href="http://use.perl.org/%7Eautrijus/journal/23051">一星期</a>便釋出了，在<a
  href="http://use.perl.org/%7Eautrijus/journal/23335">第三個星期</a>時，我們已經有了可
 供單元測試的全功能 <a style="font-family: monospace;"
- href="http://svn.openfoundry.org/pugs/lib/Perl6/lib/Test.pm">Test.pm</a>
+ href="http://svn.openfoundry.org/pugs/ext/Test/lib/Test.pm">Test.pm</a>
 模組。</p>
 <h2>Pugs 是編譯器還是直譯器？</h2>
 <p>和 Perl 5 相似，Pugs 先把 Perl 6 程式編譯成 AST，然後再用內建的求值器加以執行。不過，未來 Pugs
@@ -126,7 +126,7 @@ Perl 5 上實作了 Rules 的雛型，但對於建構編譯器而言仍顯得不
  style="font-family: monospace;"
  href="http://search.cpan.org/dist/perl/ext/B/B/Deparse.pm">B::Deparse</a>
 模組的編譯器後端。接下來則可能產出 Haskell 程式碼，並交由 GHC 編譯成 C 語言。屆時，下一個目標很可能是 <a
- href="http://cvs.perl.org/viewcvs/cvs-public/parrot/ast/">Parrot
+ href="http://svn.perl.org/viewcvs/parrot/trunk/compilers/ast/">Parrot
 AST</a> 介面。如果有人願意協助的話，我們也可能再加入其它後端（譬如 Perl 5 bytecode）。</p>
 <h2>預定的 Pugs 開發計劃為何？</h2>
 <p>Pugs 之主要/次要版本號將逼近 2*&pi;；次版本號中的各小數位皆代表一項里程碑。版本號的第三位數會在每次釋出時遞增。目前的里程碑
@@ -164,7 +164,7 @@ Perl 5 與 Haskell 模組能相互溝通。如果成功的話，架一個 <span
 <h2>Pugs 能與 Haskell 程式庫共用嗎？</h2>
 <p>目前你可以把 Haskell 程式庫靜態鏈接至 Pugs 的內建函式，祗需修改 <a
  style="font-family: monospace;"
- href="http://svn.openfoundry.org/pugs/src/Prim.hs">Prim.hs</a>
+ href="http://svn.openfoundry.org/pugs/src/Pugs/Prim.hs">Prim.hs</a>
 內的幾列程式碼即
 可。我們正考慮撰寫 <a href="http://www.cse.unsw.edu.au/%7Edons/hs-plugins/">hs-plugins</a>
 的簡易界面，讓 Pugs 能動態載入 Hasekll 程式庫，甚至在 Perl 6 中內嵌 Haskell 程式碼。</p>
