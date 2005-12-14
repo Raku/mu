@@ -1,7 +1,7 @@
 #!/usr/bin/pugs
 
 use v6;
-use TestPil;
+use Test::Pil;
 
 #pil_is_eq(q:to/CODE/
 #true.not()
@@ -9,7 +9,7 @@ use TestPil;
 #false
 #RESULT);
 
-pil_is_eq("true.not()", "false");
+pil_is_eq("true.not()", "false", "True not test");
 pil_is_eq("false.not()", "true");
 
 pil_is_eq("true.and(true)", "true");

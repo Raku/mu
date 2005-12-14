@@ -14,8 +14,8 @@ sub pil_output( Str $code ) returns Str {
   return $pilresult;
 }
 
-sub pil_is_eq( Str $code, Str $expected ) returns Bool {
+sub pil_is_eq( Str $code, Str $expected, Str $description? ) returns Bool {
   my $pilresult = pil_output( $code );
-  is( chomp($pilresult), chomp($expected) );
+  is( chomp($pilresult), chomp($expected), $description );
 }
 
