@@ -10,9 +10,9 @@ use base 'Object::Accessor';
 my %config;
 my $Cwd = Path::Class::dir(cwd());
 
-use constant SUBDIR_OF_ROOT     => sub { shift()->root->subdir(    shift() ) };
-use constant SUBDIR_OF_META     => sub { shift()->meta_dir->subdir(shift() ) };
-use constant SUBFILE_OF_META    => sub { shift()->meta_dir->file(  shift() ) };
+use constant SUBDIR_OF_ROOT     => sub { shift()->root->subdir(    shift() )  };
+use constant SUBDIR_OF_META     => sub { shift()->_meta_dir->subdir(shift() ) };
+use constant SUBFILE_OF_META    => sub { shift()->_meta_dir->file(  shift() ) };
 
 ### %config is initialized with a [ default_value => return value ] pair
 ### the default_value is the value of initalization, the return value is
@@ -21,7 +21,7 @@ use constant SUBFILE_OF_META    => sub { shift()->meta_dir->file(  shift() ) };
 
 ### base dirs
 ### XXX touch the 'root' entry and the tests will run somewhere quite different!
-$config{'root'}             = [ $Cwd->subdir('fakeroot') ];
+$config{'root'}             = [ $Cwd->subdir('fr') ];
 $config{'perl_site_dir'}    = [ $Config{installsitelib} => SUBDIR_OF_ROOT ];
 $config{'temp_dir'}         = [ tmp                     => SUBDIR_OF_ROOT ];
 $config{'bin_dir'}          = [ $Config{bin}            => SUBDIR_OF_ROOT ];
@@ -38,15 +38,14 @@ $config{'repo_index_groups'}= [ [map {Path::Class::dir($_)}
 
 
 ### meta dirs/files
-### XXX this shouldn't be hardcoded to perl_site_dir, but installation
-### dependant!
-$config{'meta_dir'}         = [ Path::Class::dir('_jib') => 
-                                sub {shift()->perl_site_dir->subdir(shift())} ];
-$config{'files_list'}       = [ Path::Class::file('files.list') ];
-$config{'control'}          = [ control         => SUBDIR_OF_META   ];
-$config{'alternatives'}     = [ alternatives    => SUBDIR_OF_META   ];
-$config{'available'}        = [ available       => SUBFILE_OF_META  ];
-$config{'registered_alternatives'} 
+### These are dependant on the installation, so they are 
+### marked privata.. their public equivalents live in Installation.pm
+$config{'_meta_dir'}        = [ Path::Class::dir('_jib')            ];
+$config{'_files_list'}      = [ Path::Class::file('files.list')     ];
+$config{'_control'}         = [ control         => SUBDIR_OF_META   ];
+$config{'_alternatives'}    = [ alternatives    => SUBDIR_OF_META   ];
+$config{'_available'}       = [ available       => SUBFILE_OF_META  ];
+$config{'_registered_alternatives'} 
                             = [ 'registered-alternatives' 
                                                 => SUBFILE_OF_META  ];
 
@@ -119,7 +118,8 @@ XXX Singleton
 }
 
 ### add our own ls_accessors, so we don't give back the private accessors
-sub ls_accessors { keys %config }
+sub ls_all_accessors { sort keys %config }
+sub ls_accessors { grep { $_ !~ /^_/ } __PACKAGE__->ls_all_accessors }
 
 
 1;

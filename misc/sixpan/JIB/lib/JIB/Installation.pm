@@ -14,11 +14,82 @@ use YAML                    qw[LoadFile DumpFile];
 use Params::Check           qw[check];
 use Log::Message::Simple    qw[:STD];
 use File::Basename          qw[basename];
+use Path::Class             ();
 use Data::Dumper;
 
 use base 'Object::Accessor';
 
 =head1 ACCESSORS
+
+=head2 $dir = $inst->meta_dir
+
+=cut
+
+sub meta_dir {
+    my $self = shift;
+    my $dir  = $self->dir or return;
+
+    return $dir->subdir( $self->config->_meta_dir);
+}
+
+=head2 $dir = $inst->control_dir
+
+=cut
+
+sub control_dir {
+    my $self = shift;
+    my $pkg  = shift        or return;
+    my $dir  = $self->dir or return;
+
+    return $dir->subdir( $self->config->_control )->subdir( $pkg );
+}
+
+
+=head2 $dir = $inst->alternatives_dir
+
+=cut
+
+sub alternatives_dir {
+    my $self = shift;
+    my $dir  = $self->dir or return;
+
+    return $dir->subdir( $self->config->_alternatives );
+}
+
+=head2 $file = $inst->registered_alternatives_file
+
+=cut
+
+sub registered_alternatives_file {
+    my $self = shift;
+    my $dir  = $self->dir or return;
+
+    return $dir->file( $self->config->_registered_alternatives );
+}
+
+=head2 $file = $inst->available_file
+
+=cut
+
+sub available_file {
+    my $self = shift;
+    my $dir  = $self->dir or return;
+
+    return $dir->file( $self->config->_available );
+}
+
+=head2 $file = $inst->files_list( $pkg_name )
+
+=cut
+
+sub files_list {
+    my $self = shift;
+    my $pkg  = shift        or return;
+    my $dir  = $self->dir   or return;
+
+    return $self->control_dir( $pkg )
+                ->file( $self->config->_files_list );
+}
 
 =head1 METHODS
 
@@ -44,7 +115,8 @@ use base 'Object::Accessor';
         check( $tmpl, \%hash ) or error( Params::Check->last_error ), return;
     
         ### make the path absolute
-        $dir = File::Spec->rel2abs( $dir );
+        ### XXX path::class doesn't seem to have a rel2abs
+        $dir = Path::Class::dir( File::Spec->rel2abs( $dir ) );
 
         ### singleton
         return $cache{$dir} if $cache{$dir};
@@ -56,12 +128,14 @@ use base 'Object::Accessor';
                                    dir] 
                             );
             
+            ### set these 2 first, the other methods rely on it
             $obj->dir( $dir );
+            $obj->config( $config );
             
             ### do alts first, package;:installed uses them
             my @alts = eval { 
                 map { JIB::Alternative->new_from_struct( struct => $_ ) }
-                    LoadFile( $config->registered_alternatives ) 
+                    LoadFile( $obj->registered_alternatives_file ) 
             };
             $@ and error( "Could not load registered alts file: $@" ), return;
 
@@ -70,13 +144,11 @@ use base 'Object::Accessor';
             my @avail = eval { 
                 map { JIB::Package->new( meta => $_, installation => $obj) }
                 map { JIB::Meta->new_from_struct( struct => $_ ) }
-                    LoadFile( $config->available ) 
+                    LoadFile( $obj->available_file ) 
             };
             $@ and error( "Could not load available file: $@" ), return;
             $obj->available( \@avail );
 
-        
-            $obj->config( $config );
         }
   
         return $obj;
@@ -162,8 +234,8 @@ sub register {
             ### then from pathdir, to altdir
             my $script = basename($_);
         
-            my $alt = File::Spec->catfile( $conf->alternatives, $script );
-            my $bin = File::Spec->catfile( $conf->bin_dir, $script );
+            my $alt = $self->alternatives_dir->file( $script );
+            my $bin = $conf->bin_dir->file( $script );
             system( qq[ln -fs $_ $alt] )                    and die $?;
             system( qq[ln -fs $alt $bin ] )                 and die $?;
             push @bins, $script;
@@ -205,11 +277,11 @@ sub write {
     ### XXX use tempfiles
 
     my @avail = map { $_->meta->to_struct } @{ $self->available };
-    eval { DumpFile( $conf->available, @avail ) };
+    eval { DumpFile( $self->available_file, @avail ) };
     $@ and error( "Could not write available file: $@" ), return;
     
     my @alts = map { $_->to_struct } @{ $self->registered_alternatives };
-    eval { DumpFile( $conf->registered_alternatives, @alts ) };
+    eval { DumpFile( $self->registered_alternatives_file, @alts ) };
     $@ and error( "Could not write alternatives file: $@" ), return;
 
     return 1;

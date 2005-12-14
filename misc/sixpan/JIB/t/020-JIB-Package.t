@@ -86,9 +86,8 @@ my $Obj;
     ### XXX get this from config/object
     {   my $script = 'script.pl';
         my $conf   = $Obj->config;
-        for my $dir ( $conf->alternatives, $conf->bin_dir,
-                      File::Spec->catdir( 
-                        $Inst->dir, $Obj->package, 'bin' )
+        for my $dir ( $Inst->alternatives_dir, $conf->bin_dir,
+                      File::Spec->catdir( $Inst->dir, $Obj->package, 'bin' )
         ) {
             my $path = File::Spec->catfile( $dir, $script );
             ok( -d $dir,        "   Bin dir '$dir' exists" );

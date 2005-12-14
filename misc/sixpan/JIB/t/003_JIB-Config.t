@@ -15,7 +15,7 @@ my $Obj;
     ok( $Obj,                   "Object created" );
     isa_ok( $Obj,               $Class );
     
-    my @can = sort $Obj->ls_accessors;
+    my @can = sort $Obj->ls_all_accessors;
     for my $method ( @can ) {
         my $rv = $Obj->$method;
         ok( $rv,                "   '$method' returns value '$rv'" );

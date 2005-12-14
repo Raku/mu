@@ -7,13 +7,14 @@ BEGIN { use lib qw[../lib inc] };
 BEGIN { require 'conf.pl' }
 
 use JIB::Config;
-my $Class = 'JIB::Installation';
-my $Conf  = JIB::Config->new;
+my $Class   = 'JIB::Installation';
+my $Conf    = JIB::Config->new;
+my @Acc     = qw[ meta_dir files_list control alternatives available 
+                  registered_alternatives ];
 
 
 use_ok( $Class );
 
-### XXX test accessors
 
 ### create an object 
 my $Obj;

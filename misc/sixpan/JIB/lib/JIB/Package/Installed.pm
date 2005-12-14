@@ -47,9 +47,7 @@ sub new {
     {   my @files = eval {
             ### XXX CONFIG!!!!
             ### XXX this should be INSTALLATION SPECIFIC!!!
-            my $file = File::Spec->catfile( 
-                        $conf->control, 
-                        $meta->package, $conf->files_list );
+            my $file = $inst->files_list( $meta->package );
             open my $fh, $file or die "Could not open '$file': $!";
             do { local $/; <$fh> }
         };

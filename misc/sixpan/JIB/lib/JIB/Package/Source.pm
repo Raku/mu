@@ -81,14 +81,14 @@ sub install {
         ### extract the archive to the temp dir
         system( qq[tar -f ] . $self->file . qq[ -C $my_tmp_dir -xz]) and die $?;
     
-        my $meta_dir = File::Spec->catdir( $conf->control, $self->package );
+        my $meta_dir = $inst->control_dir( $self->package );
         my $data     = $conf->archive_data;
         my $control  = $conf->archive_control;
 
         ### extract the meta info
         ### XXX extract to $Builddir first, THEN copy later if all goes well
         {   
-            my $packlist    = $conf->files_list;
+            my $packlist    = $inst->files_list( $self->package );
         
             system( qq[mkdir -p $meta_dir] )                and die $?;
             ### XXX need status dir like dpkg
@@ -97,7 +97,7 @@ sub install {
             ### write a .packlist equiv
             system( qq[tar -f $my_tmp_dir/$data -C $meta_dir -tz |] .
                     qq[xargs -I % echo ] . $inst->dir . 
-                    qq[ >> $meta_dir/$packlist] )   
+                    qq[ >> $packlist] )   
                                                             and die $?;
         }
 
