@@ -20,7 +20,7 @@ our @EXPORT    = qw<
   compile_perl6_to_pil
   precomp_module_to_mini_js
   jsbin_hack
-  run_pugs run_pil2js run_js run_js_on_jssm
+  run_pugs run_pil2js run_js run_js_on_jssm run_js_on_jspm
 >;
 our @EXPORT_OK = qw< pwd >;
 
@@ -187,6 +187,27 @@ sub run_js_on_jssm {
   my $rc = $jssm->eval($js);
   warn "JavaScript::SpiderMonkey: $@" if $@;
   $jssm->destroy();
+}
+
+sub run_js_on_jspm {
+  my $js = shift;
+  diag $cfg{js};
+
+  require JavaScript;
+  require PIL2JS::JSPM;
+  my $rt = JavaScript::Runtime->new;
+  my $ct = $rt->create_context;
+
+  PIL2JS::JSPM::init_js_for_perl5($ct)
+    if $cfg{perl5};
+  $ct->bind_function( name => 'print',
+		      func => sub { print "@_\n" });
+  $ct->bind_function( name => 'printWithoutNewline',
+		      func => sub { print "@_" });
+
+  my $rc = $ct->eval($js);
+  warn "JavaScript: $@" if $@;
+  $ct->destroy;
 }
 
 sub jsbin_hack {

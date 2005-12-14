@@ -527,7 +527,7 @@ for SpiderMonkey.
 =head2 SpiderMonkey
 
 PIL2JS supports Mozilla's
-L<SpiderMonkey|http://www.mozilla.org/js/spidermonkey/> (written in C) in two
+L<SpiderMonkey|http://www.mozilla.org/js/spidermonkey/> (written in C) in three
 ways:
 
 =over
@@ -545,6 +545,15 @@ which embeds allows embedding of JavaScript code in Perl 5 applications. It
 does not suffer from F<bin/js>'s buffering problems and it seems that,
 curiously, it doesn't need as much RAM as F<bin/js>, but the installation of
 C<JSSM> is a bit tricky.
+
+=item *
+
+There's the C<JavaScript> Perl 5 module (also named C<JSPM>) which also
+exports perl5 functions that implements some primitives.  use
+
+  runjs.pl --run=jspm --perl5
+
+to enable it.
 
 =back
 

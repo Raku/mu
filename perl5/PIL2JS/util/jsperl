@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 use JavaScript;
+use PIL2JS::JSPM;
 use UNIVERSAL::require;
 
 my $rt = JavaScript::Runtime->new;
@@ -34,58 +35,7 @@ L<http://home.clkao.org/~clkao/tmp/JavaScript-0.55.tar.gz>.
 
 =cut
 
-# XXX: not yet
-sub _map_method {
-    my $class = shift;
-
-    require Devel::Symdump;
-    my $obj = Devel::Symdump->new($class);
-
-    for ($obj->functions) {
-#	warn "==> to export $_";
-    }
-    return {};
-}
-
-sub perl_use_class {
-    my $class = shift;
-    $class->require;
-
-    my $jsclass = $class;
-    $jsclass =~ s/_/__/g;
-    $jsclass =~ s/::/_/g;
-
-    $ct->bind_class
-	( name => $jsclass,
-	  constructor => sub {},
-	  flags => JS_CLASS_NO_INSTANCE,
-	  method => _map_method($class),
-	  package => $class );
-
-    $class->import(@_);
-}
-
-
-$ct->bind_class(
-        name => 'Perl5',
-		constructor => sub {},
-		flags => JS_CLASS_NO_INSTANCE,
-        methods => {
-		    perl_eval => sub { shift; eval($_[0]) },
-		    perl_use => sub { shift; perl_use_class(@_) },
-		    perl_can => sub { shift; my $func = $_[0]->can($_[1]); },
-        },
-        package => 'Perl5',
-);
-
-
-my $perl5 = bless {}, 'Perl5';
-$ct->bind_object('Perl5', $perl5);
-
-use Data::Dumper;
-$ct->bind_function(
-		   name => 'alert',
-		   func => sub { warn Dumper(@_) });
+PIL2JS::JSPM::init_js_for_perl5($ct);
 
 our $MAGIC_NOLF = "#PIL2JS // IGNORE NEXT LINEFEED#";
 
@@ -96,65 +46,10 @@ $ct->bind_function(
 				 print $line;
 			     });
 
-my $code = <<EOC;
-
-function perl_apply() {
-    var args = new Array();
-    for (var i = 0; i < arguments.length; i++) {
-        args.push(arguments[i]);
-    }
-
-    var func = args.shift();
-    return func.apply(func,args);
-}
-
-function perl_get_method(obj, func) {
-    return Perl5.perl_can(obj, func);
-}
-
-function perl_call_method() {
-    var args = new Array();
-    for (var i = 0; i < arguments.length; i++) {
-        args.push(arguments[i]);
-    }
-    var obj = args[0];
-    var method = perl_get_method(obj, args.splice(1,1)[0] );
-
-    return method.apply(method, args)
-}
-
-1
-EOC
-
-$ct->set_error_handler(sub {
-  my ($message, $lineno, $linebuff) = @_;
-  die "Error at line: $lineno\nMessage is: $message\nSource is: $linebuff\n";
-});
-
-$ct->eval($code) or die;
-
 local $/;
 my $foo = <>;
 
 $ct->eval($foo);
-
-=begin comment
-
-exit;
-if (my $file = shift) {
-    require FindBin;
-    require File::Find::Rule;
-    my @files = File::Find::Rule->file()
-	->name( '*.js' )
-	->in( $FindBin::Bin.'../libjs');
-    for (@files) {
-	warn $_;
-	$ct->eval_file($_);
-    }
-    $ct->eval_file($file);
-}
-
-=cut
 
 
 END {
