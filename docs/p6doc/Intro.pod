@@ -100,6 +100,154 @@ according to your personal taste.
 
 =head2 Perl variable types
 
+Perl has three main variable types: scalars, arrays, and hashes.
+
+=over 4
+
+=item Scalars
+
+A scalar represents a single value:
+
+    my $animal = "camel";
+    my $answer = 42;
+
+Scalar values can be strings, integers or floating point numbers, and Perl
+will automatically convert between them as required.  There is no need
+to pre-declare your variable types (though you can if you want -- see L<XXX>).
+
+Scalar values can be used in various ways:
+
+    say $animal;
+    say "The animal is $animal";
+    say "The square of $answer is ", $answer * $answer;
+
+There are a number of "magic" scalars with names that look like
+punctuation or line noise.  These special variables are used for all
+kinds of purposes, and are documented in L<XXX>.  The only one you
+need to know about for now is C<$_> which is the "default variable".
+It's used as the default argument to a number of functions in Perl, and
+it's set implicitly by certain looping constructs.
+
+    say;          # prints contents of $_ by default
+
+=item Arrays
+
+An array represents a list of values:
+
+    my @animals = ("camel", "llama", "owl");
+    my @numbers = (23, 42, 69);
+    my @mixed   = ("camel", 42, 1.23);
+
+Arrays are zero-indexed.  Here's how you get at elements in an array:
+
+    say @animals[0];              # prints "camel"
+    say @animals[1];              # prints "llama"
+
+The numeric index of the last element of an array can by found with C<@array.end>:
+
+    say @animals[@animals.end];   # prints "owl"
+
+To find the number of elements in an array, use the C<elems> method:
+
+    say @mixed.elems;       # last element, prints 1.23
+
+To get multiple values from an array:
+
+    @animals[0,1];                  # gives ("camel", "llama");
+    @animals[0..2];                 # gives ("camel", "llama", "owl");
+    @animals[1..@animals.end];      # gives all except the first element
+
+This is called an "array slice".
+
+You can do various useful things to lists:
+
+    my @sorted    = @animals.sort;
+    my @backwards = @numbers.reverse;
+
+=begin maintainer_notes
+
+I have no idea what the following is in p6... I'll deal with them when I get there.
+
+
+There are a couple of special arrays too, such as C<@ARGV> (the command
+line arguments to your script) and C<@_> (the arguments passed to a
+subroutine).  These are documented in L<perlvar>.
+
+=end maintainer_notes
+
+=item Hashes
+
+A hash represents a set of key/value pairs:
+
+    my %fruit_color = ("apple", "red", "banana", "yellow");
+
+You can use whitespace and the C<< => >> operator to lay them out more
+nicely:
+
+    my %fruit_color = (
+        apple  => "red",
+        banana => "yellow",
+    );
+
+To get at hash elements:
+
+    %fruit_color{"apple"};           # gives "red"
+
+You can get at lists of keys and values with C<keys()> and
+C<values()>.
+
+    my @fruits = %fruit_colors.keys;
+    my @colors = %fruit_colors.values;
+
+Hashes have no particular internal order, though you can sort the keys
+and loop through them.
+
+=begin maintainer_notes
+
+Again, no idea here... will get to it eventually.
+
+Just like special scalars and arrays, there are also special hashes.
+The most well known of these is C<%ENV> which contains environment
+variables.  Read all about it (and other special variables) in
+L<perlvar>.
+
+=end maintainer_notes
+
+=back
+
+Scalars, arrays and hashes are documented more fully in L<perldata>.
+
+More complex data types can be constructed using references, which allow
+you to build lists and hashes within lists and hashes.
+
+A reference is a scalar value and can refer to any other Perl data
+type. So by storing a reference as the value of an array or hash
+element, you can easily create lists and hashes within lists and
+hashes. The following example shows a 2 level hash of hash
+structure using anonymous hash references.
+
+    my $variables = {
+        scalar  =>  {
+                     description => "single item",
+                     sigil => '$',
+                    },
+        array   =>  {
+                     description => "ordered list of items",
+                     sigil => '@',
+                    },
+        hash    =>  {
+                     description => "key/value pairs",
+                     sigil => '%',
+                    },
+    };
+
+    print "Scalars begin with a $variables->{'scalar'}->{'sigil'}\n";
+
+Exhaustive information on the topic of references can be found in
+L<perlreftut>, L<perllol>, L<perlref> and L<perldsc>.
+
+
+
 =head2 Variable scoping
 
 =head2 Conditional and looping constructs

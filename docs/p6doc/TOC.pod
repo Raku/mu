@@ -11,9 +11,17 @@ part of the Perl 6 documentation system.
 
     TOC                This table of contents
     Intro              A brief introduction for new Perl users
-    Perl5Differences   Quick overview for Perl 5 programmers
+
+=head2 Perl 5 topics
+
+    Perl5::Docfinder        Table of equivalences between Perl 5 and 6 docs
+    Perl5::Differences      Differences between Perl 5 and 6
 
 =head2 Language reference
+
+    Reference::Syntax       General syntax
+    Reference::Functions    Built-in functions
+    Reference::Operators    Built-in operators
 
 =head2 Tutorials
 

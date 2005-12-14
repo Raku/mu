@@ -1,0 +1,13 @@
+=head1 NAME
+
+Perl6::Doc::Tutorial -- Perl 6 tutorials
+
+=head1 DESCRIPTION
+
+This section of the Perl 6 documentation contains tutorials for those
+learning the language.  For details of available documents within this area, 
+see L<Perl6::Doc::TOC>.
+
+=head1 AUTHOR
+
+Kirrily "Skud" Robert, <skud@cpan.org>

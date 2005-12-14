@@ -22,3 +22,17 @@ The files in this directory here in the pugs code tree skip the
 Perl6::Doc prefix because it's unnecessary for our current purposes.
 We'll need a tool to bundle up the contents of this dir under Perl6::Doc
 and push them out to CPAN.
+
+THE PLAN
+
+Here's my plan of attack.
+
+1. Go through perlintro (from perl 5) and rewrite it for Perl 6
+
+2. As I go along, take notes for perl5-to-6 transition docs
+
+3. Go through the general language reference perl 5 docs (eg perlsyn,
+perlop, perlfunc, perldata), rewriting for perl 6.  
+
+4. Deal with stuff like tutorials and FAQs last, unless they happen to
+come up as I go along.
