@@ -105,9 +105,7 @@ evalExp (ECall { c_obj = objExp, c_meth = meth, c_args = argsExp }) = do
             NStr x      -> callMethod strPrims x args
             NSeq x      -> callMethod seqPrims x args
             NMap x      -> callMethod mapPrims x args
-            NSub x | isEmpty meth
-                        -> callSub x args
-            NSub x      -> callMethod blockPrims x args
+            NSub x      -> callSubWith (toString meth) x args
             NObj x      -> callObject x meth args
     where
     errMethodMissing :: Eval a
@@ -127,6 +125,13 @@ callSub sub args = do
     where
     prms = s_params sub
     lex = fromAssocs ((mkStr "&?SUB", toNative sub):elems prms `zip` elems args)
+
+callSubWith :: String -> NativeSub -> NativeSeq -> Eval Native
+callSubWith ""          sub args = callSub sub args
+callSubWith "do_if"     sub args = if fromNative (args ! 0) then callSub sub empty else return nil
+callSubWith "do_unless" sub args = if fromNative (args ! 0) then return nil else callSub sub empty
+callSubWith "do_for"    sub args = fmap toNative $ fmapM (callSub sub . mkSeq . (:[])) args
+callSubWith meth _ _ = failWith "No such method" meth
 
 callConditional :: NativeBit -> NativeSeq -> Eval Native
 callConditional x args = callSub (fromNative $ args ! fromEnum (not x)) empty

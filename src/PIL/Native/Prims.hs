@@ -159,9 +159,6 @@ mapPrims = mkMap
     listHash (k:v:xs) = (fromNative k, v):(listHash xs)
     listHash _ = error "odd number of elements for hash"
 
-blockPrims :: MapOf (NativeSub -> SeqOf Native -> Native)
-blockPrims = empty
-
 prim0 :: (IsNative inv, IsNative ret)
     => String
     -> (inv -> ret)
