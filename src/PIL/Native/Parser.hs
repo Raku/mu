@@ -64,7 +64,7 @@ parseNativeLang src = case parse program "-" src of
     Left err    -> fail (show err)
     Right exp   -> return exp
     where
-    program = between bof eof (semiColonSep expression)
+    program = between bof eof expressionList
 
 parseWith :: Parser a -> String -> a
 parseWith p src = case parse (between bof eof p) src src of
@@ -80,6 +80,22 @@ parseSub = toNative . parseWith pointySub
 parseExp :: String -> NativeLangExpression
 parseExp = parseWith expression
 
+expressionList :: Parser [NativeLangExpression]
+expressionList = do
+    exps <- semiColonSep (fmap Left assignment <|> fmap Right expression)
+    return $ unroll exps
+    where
+    assignment = try $ do
+        lhs <- identifier
+        symbol ":="
+        rhs <- expression
+        return (lhs, rhs)
+    unroll [] = []
+    unroll (Right exp:xs) = (exp:unroll xs)
+    unroll (Left (lhs, rhs):xs) = [mkCall sub "" [rhs]]
+        where
+        sub = ELit . toNative $ mkSub [lhs] (unroll xs)
+
 expression :: Parser NativeLangExpression
 expression = (<?> "expression") $ do
     obj <- choice
@@ -87,7 +103,7 @@ expression = (<?> "expression") $ do
         , selfExpression
         , arrayExpression
         , fmap ELit literal
-        , fmap (EVar . mkStr) identifier
+        , variableExpression
         ]
     maybeCall obj
     where
@@ -111,6 +127,9 @@ expression = (<?> "expression") $ do
     selfExpression = do
         symbol "self"
         return (EVar $ mkStr "$?SELF")
+
+variableExpression :: Parser NativeLangExpression
+variableExpression = fmap (EVar . mkStr) identifier
 
 literal :: Parser Native
 literal = choice 
@@ -172,7 +191,7 @@ pointySub :: Parser NativeSub
 pointySub = do
     symbol "->"
     params <- commaSep identifier
-    body   <- braces (semiColonSep expression)
+    body   <- braces expressionList
     return (mkSub params body)
 
 nativeLangDef  :: LanguageDef st

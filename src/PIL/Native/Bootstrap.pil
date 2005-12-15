@@ -106,7 +106,7 @@
 ## Object
 ## ------------------------------------------------------------------------- ##
 
-::Object = ::Class.new();
+::Object := ::Class.new();
 
 ::Object.add_method('BUILD', -> %params { });
 ::Object.add_method('BUILDALL', -> %params { });
@@ -123,7 +123,7 @@
 ## Package
 ## ------------------------------------------------------------------------- ##
 
-::Package = ::Class.new();
+::Package := ::Class.new();
 ::Package.superclasses([ ::Object ]);
 
 ::Package.add_attribute('$!name', nil);
@@ -146,7 +146,7 @@
 ## Module
 ## ------------------------------------------------------------------------- ##
 
-::Module = ::Class.new();
+::Module := ::Class.new();
 ::Module.superclasses([ ::Package ]);
 
 ::Module.add_attribute('$!version', nil);
