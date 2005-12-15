@@ -45,7 +45,10 @@ if($ARGV[1] eq "-w" and $ARGV[2]) {
   #                                    # emitted as "our &foo := sub {...}".
   $src =~ s/^(\s*)sub(\s+)(\w+)/$1our sub$2$3/gm;
 
-  exec pwd("runjs.pl"), "-e", $src;
+  my @args = ();
+  @args = qw(--run=jspm --perl5)
+    if $ENV{PUGS_RUNTIME} and $ENV{PUGS_RUNTIME} eq 'JSPERL5';
+  exec pwd("runjs.pl"), @args, "-e", $src;
 } else {
   exec pwd("..", "..", "pugs"), @ARGV[1..$#ARGV];
 }

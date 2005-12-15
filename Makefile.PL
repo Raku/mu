@@ -484,6 +484,9 @@ smoke-pugs : $pugs util/run-smoke.pl all
 smoke-pir : $pugs util/run-smoke.pl all
 	\$(PERL) util/run-smoke.pl . smoke-pir.html -BPIR
 
+smoke-jsperl5 : $pugs util/run-smoke.pl all
+	\$(PERL) -e "ENV->{PUGS_RUNTIME}=q+JSPERL5+; exec qw+$^X util/run-smoke.pl . smoke-jsperl5.html+"
+
 smoke-js : $pugs util/run-smoke.pl all
 	\$(PERL) -e "ENV->{PUGS_RUNTIME}=q+JS+; exec qw+$^X util/run-smoke.pl . smoke-js.html+"
 

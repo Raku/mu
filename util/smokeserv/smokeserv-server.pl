@@ -248,6 +248,7 @@ sub unpack_smoke {
 sub pugspath2runcore {
   local $_ = shift;
 
+  /JSPERL5/i and return "jsperl5";
   /PIL2JS/i  and return "pil2js";
   /PIL-RUN/i and return "pilrun";
   /PIR/i     and return "pir";
@@ -257,6 +258,7 @@ sub pugspath2runcore {
 sub runcore2human {
   local $_ = shift;
 
+  $_ eq "jsperl5"and return "JSPERL5 (Perl 6 on JavaScript with Perl 5)";
   $_ eq "pil2js" and return "PIL2JS (Perl 6 on JavaScript)";
   $_ eq "pilrun" and return "PIL-Run (Perl 6 on Perl 5)";
   $_ eq "pir"    and return "PIR (Perl 6 on Parrot)";
