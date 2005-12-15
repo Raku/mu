@@ -1106,9 +1106,24 @@ ruleCondConstruct = rule "conditional construct" $ do
 ruleCondBody :: String -> RuleParser Exp
 ruleCondBody csym = rule "conditional expression" $ do
     cond <- ruleCondPart
-    body <- ruleBlock
+    body <- option emptyExp ruleBlock
     bodyElse <- option emptyExp ruleElseConstruct
-    retSyn csym [cond, body, bodyElse]
+    retCond csym (unwrap cond) body bodyElse
+    where
+    -- XXX evil hack: as a result of whitespace-hungry parsing, 'foo {bar}',
+    -- 'foo{bar}', and 'foo .{bar}' are often indistinguishable to ruleExpression
+    -- and its brethren.
+    -- so if we're missing the body of a conditional, there's a good chance
+    -- that it got parsed as a hash subscript to the condition.
+    -- we take the hash subscript and treat it as the body.
+    -- note that this WRONG, and 'if {foo}{bar}' and even
+    -- 'if {foo}{bar} elsif {baz}.{qux} else {quux}' will parse -- INCORRECTLY.
+    retCond csym (Syn "{}" [cond@_, body@_]) Noop bodyElse = retCond' csym (unwrap cond) (unwrap body) bodyElse
+    retCond _ _ Noop _ = fail "conditional missing body"
+    retCond csym cond body bodyElse = retSyn csym [cond, body, bodyElse]
+    retCond' csym cond@(Syn "sub" _) body bodyElse = retSyn csym [cond, body, bodyElse]
+    retCond' csym cond@(App _ _ _) body bodyElse = retSyn csym [cond, body, bodyElse]
+    retCond' _ _ _ _ = fail "conditional missing body"
 
 ruleCondPart :: RuleParser Exp
 ruleCondPart = maybeParens $ do
