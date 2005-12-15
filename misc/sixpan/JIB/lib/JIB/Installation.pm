@@ -266,6 +266,237 @@ sub register {
 
 }
 
+=head2 $bool = $inst->unregister( package => $inst_pkg );
+
+=cut
+
+sub unregister {
+    my $self = shift;
+    my $conf = $self->config;
+    my %hash = @_;
+    
+    
+    my $inst_pkg;
+    my $tmpl = {
+        package => { required => 1, store => \$inst_pkg, 
+                        allow => ISA_JIB_PACKAGE_INSTALLED },
+    };
+    
+    check( $tmpl, \%hash ) or error( Params::Check->last_error ), return;
+
+=pod
+    
+    my @list        = LoadFile( $Available ); 
+    my @uninstalled = grep { $_->{package} ne $pkg } @list;
+    
+    ### check if we're even allowed to delete this, due to depends
+    {   my $info = LoadFile( $meta .'/'. $Metafile );
+
+        my $delete_ok = 1;
+
+        for my $entry ( @list ) {
+            for my $depends ( list_dependencies( $entry ) ) {
+                
+                ### check if this entry depends on /any/ of the items
+                ### we provide
+                if( dependency_satisfied_by( $depends, $info ) ) {
+
+                    ### if the dependency is also sastisfied by /another/
+                    ### package, it's still safe to delete us, otherwise not
+                    if( !dependency_satisfied( $depends, \@uninstalled ) ) {
+
+                        warn "\t*** $entry->{package} depends on $pkg ***\n";
+                        $delete_ok = 0;
+                    }
+                }
+            }      
+        }
+        
+        die "Not allowed to delete '$pkg'\n" unless $delete_ok;
+    }
+=cut
+    
+    ### uninstall the files
+    ### XXX check dependencies
+    {   open my $fh, $self->files_list( $inst_pkg->package )        or die $!;
+    
+        my $prerm = $self->control_dir( $inst_pkg->package )
+                         ->file( $conf->prerm );
+        if( -e $prerm && -s _ ) {
+            system( qq[ $^X $prerm ] )                              and die $?;
+        }
+        
+        while( <$fh> ) {
+            chomp;
+            msg("Removing file '$_'", 1);
+            -e $_ && system(qq[rm -rf $_])                          and die $?;
+            
+            die "File '$_' not removed" if -e $_;
+        }
+        close $fh;
+    
+        ### XXX need status dir like dpkg
+        my $postrm = $self->control_dir( $inst_pkg->package )
+                          ->file( $conf->postrm );
+        if( -e $postrm && -s _ ) {
+            system( qq[ $^X $postrm ] )                             and die $?;
+        }
+    }
+
+
+    ### remove alternatives and relink if needed
+    ### XXX doesn't do manpages yet
+    ### XXX doens't check the AUTO flag yet for link management
+    LINKING: {   
+        my $alt = $self->remove_registered_alternative( package => $inst_pkg );
+
+        ### this package didn't provide any alternatives
+        last LINKING unless $alt;
+        
+        ### XXX this should probably be done in one go, so we don't
+        ### have a situation where no 'script' is available
+        
+        ### unlink all the script files
+        for my $script ( @{ $alt->bin || [] } ) {
+            1 while unlink $conf->bin_dir->file( $script );
+            1 while unlink $self->alternatives_dir->file( $script ); 
+        }      
+        
+        ### see if there's any other package that's now the default
+        ### for this module
+        ### make sure we dont see ourselves again, so grep that out
+        my $new_alt;
+        {   my $wanted = join '-',  $inst_pkg->prefix, $inst_pkg->name;
+
+            ### find all packages that provide: a <prefix>-<name>
+            ### implementation;
+            my @list = @{ $self->available };
+            
+            my @maybe;
+            for my $test ( grep { $_->package ne $inst_pkg->package } @list ) {
+                push @maybe, $test if grep {
+                        $_ eq $wanted
+                    } @{ $test->provides || [] };
+            }
+        
+            ### find the alternative with the highest version
+            ### XXX this should be policy based!
+            ($new_alt) = sort { $b->version <=> $a->version } @maybe;
+        }
+
+        ### no alt? bail!
+        last LINKING unless $new_alt;
+    
+        ### XXX code duplication from installation->register
+        my $my_bindir =  $self->dir->subdir( $new_alt->package )->file('bin');
+
+        last LINKING unless -d $my_bindir;
+
+        my @bins;
+        msg( "Relinking scripts/manpages to " . $new_alt->package, 1 );
+        for ( qx[find $my_bindir -type f] ) {
+            
+            ### link from altdir to install dir
+            ### then from pathdir, to altdir
+            my $script = basename($_);
+        
+            my $alt = $self->alternatives_dir->file( $script );
+            my $bin = $conf->bin_dir->file( $script );
+            system( qq[ln -fs $_ $alt] )                    and die $?;
+            system( qq[ln -fs $alt $bin ] )                 and die $?;
+            push @bins, $script;
+        }
+        
+        ### dump out alternatives again
+        ### XXX pretty method?
+        $self->registered_alternatives(
+            [   @{ $self->registered_alternatives }, 
+                JIB::Alternative->new_from_struct( struct => 
+                    {bin => \@bins, auto => 1, package => $inst_pkg->package} ),
+            ] );
+    }
+
+    ### remove this package from the available list
+    $self->remove_available( package => $inst_pkg );
+    
+    ### move this all to Installation.pm
+    $self->write or return;
+    
+    ### unisntall metadata
+    system( qq[rm -rf ] . $self->control_dir( $inst_pkg->package ) ) and die $?;
+
+    msg( "Package '".$inst_pkg->package."' and associated metadata removed");
+
+    return 1;
+}
+
+=head2 $alt = $inst->remove_registered_alternative( package => $inst_pkg )
+
+=cut
+
+sub remove_registered_alternative {
+    my $self = shift;
+    my %hash = @_;
+    
+    my $inst_pkg;
+    my $tmpl = {
+        package => { required => 1, store => \$inst_pkg, 
+                        allow => ISA_JIB_PACKAGE_INSTALLED },
+    };
+    
+    check( $tmpl, \%hash ) or error( Params::Check->last_error ), return;
+
+    my $alt; 
+    my @alts = map  { $_->[0] } # return the object
+               grep { $_->[1] } # flag toggled?
+               map  { $_->package eq $inst_pkg->package
+                        ? do { $alt = $_; [ $_, 0 ] }
+                        : [ $_, 1 ]
+                } @{ $self->registered_alternatives }; 
+
+    $self->registered_alternatives( \@alts ) if $alt;
+
+    return $alt if $alt;
+    return;
+}    
+
+=head2 $bool = $inst->remove_available( package => $inst_pkg );
+
+=cut
+
+sub remove_available {
+    my $self = shift;
+    my %hash = @_;
+    
+    my $inst_pkg;
+    my $tmpl = {
+        package => { required => 1, store => \$inst_pkg, 
+                        allow => ISA_JIB_PACKAGE_INSTALLED },
+    };
+    
+    check( $tmpl, \%hash ) or error( Params::Check->last_error ), return;
+
+    ### remove this package from the available list
+    ### XXX temp file, then mv
+    my @prev  = @{ $self->available };
+    my @avail = grep { $_->package ne $inst_pkg->package } @prev;
+    
+    ### no change!
+    return if @avail == @prev;
+    
+    $self->available( \@avail );
+    return 1;
+}
+
+=head2 $bool = $inst->link_files( package => $inst_pkg );
+
+=cut
+
+sub link_files {
+
+
+}
+
 =head2 $bool = $inst->write;
 
 =cut

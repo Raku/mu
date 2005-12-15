@@ -152,6 +152,17 @@ sub install {
     return $inst_pkg;
 }
 
+=head2 $bool = $inst_pkg->uninstall
+
+=cut
+
+sub uninstall {
+    my $self = shift;
+    my $inst = $self->installation;
+    
+    return $inst->unregister( package => $self );
+}
+
 1;
 
 # Local variables:
