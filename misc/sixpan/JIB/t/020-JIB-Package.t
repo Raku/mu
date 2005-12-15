@@ -121,6 +121,7 @@ my $Obj;
     isa_ok( $inst_pkg,          "JIB::Package::Installed" );
     ok( $inst_pkg->uninstall,   "   Package uninstalled" );
 
+    ### XXX more file tests
 }
 
 
