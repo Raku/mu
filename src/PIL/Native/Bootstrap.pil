@@ -52,42 +52,42 @@
 ## method related methods
 
 ::Class.add_method('has_method', -> $name { 
-    self.get_attr('%:methods').exists($name);
+    self.get_attr('%!methods').exists($name);
 });
 
 ::Class.add_method('get_method', -> $name { 
-    self.get_attr('%:methods').fetch($name); 
+    self.get_attr('%!methods').fetch($name); 
 });
 
 ::Class.add_method('get_method_list', -> { 
-    self.get_attr('%:methods').keys(); 
+    self.get_attr('%!methods').keys(); 
 });
 
 ## can we actually do remove_method??
 # ::Class.add_method('remove_method', -> $name { 
-#     self.get_attr('%:methods').delete($name); 
+#     self.get_attr('%!methods').delete($name); 
 # });
 
 ## attribute related methods
 
 ::Class.add_method('add_attribute', -> $name, $attr { 
-    self.set_attr_hash('%:attributes', $name, $attr);
+    self.set_attr_hash('%!attributes', $name, $attr);
 });
 
 ::Class.add_method('has_attribute', -> $name { 
-    self.get_attr('%:attributes').exists($name);
+    self.get_attr('%!attributes').exists($name);
 });
 
 ::Class.add_method('get_attribute', -> $name { 
-    self.get_attr('%:attributes').fetch($name); 
+    self.get_attr('%!attributes').fetch($name); 
 });
 
 ::Class.add_method('get_attribute_list', -> { 
-    self.get_attr('%:attributes').keys(); 
+    self.get_attr('%!attributes').keys(); 
 });
 
 ::Class.add_method('get_attributes', -> { 
-    self.get_attr('%:attributes').values(); 
+    self.get_attr('%!attributes').values(); 
 });
 
 ## NOTE:
@@ -95,12 +95,12 @@
 ## were also defined, but only in the Instance type, and not in 
 ## it's meta-self
 
-::Class.add_attribute('@:MRO', nil);
-::Class.add_attribute('@:superclasses', nil);
-::Class.add_attribute('@:subclasses', nil);
-::Class.add_attribute('%:private_methods', nil);
-::Class.add_attribute('%:methods', nil);
-::Class.add_attribute('%:attributes', nil);
+::Class.add_attribute('@!MRO', nil);
+::Class.add_attribute('@!superclasses', nil);
+::Class.add_attribute('@!subclasses', nil);
+::Class.add_attribute('%!private_methods', nil);
+::Class.add_attribute('%!methods', nil);
+::Class.add_attribute('%!attributes', nil);
 
 ## ------------------------------------------------------------------------- ##
 ## Object
@@ -126,17 +126,17 @@
 ::Package = ::Class.new();
 ::Package.superclasses([ ::Object ]);
 
-::Package.add_attribute('$:name', nil);
-::Package.add_attribute('%:namespace', nil);
+::Package.add_attribute('$!name', nil);
+::Package.add_attribute('%!namespace', nil);
 
 ::Package.add_method('name' -> $name {
     # NOTE: this is not ideal, I really 
     # just need a lazy bit.and()
     $name.is_nil.cond(
         -> { nil },
-        -> { self.set_attr('$:name', $name) }
+        -> { self.set_attr('$!name', $name) }
     );
-    self.get_attr('$:name');    
+    self.get_attr('$!name');    
 });
 
 ::Package.add_method('FETCH' -> $name { });
@@ -149,17 +149,17 @@
 ::Module = ::Class.new();
 ::Module.superclasses([ ::Package ]);
 
-::Module.add_attribute('$:version', nil);
-::Module.add_attribute('$:authority', nil);
+::Module.add_attribute('$!version', nil);
+::Module.add_attribute('$!authority', nil);
 
 ::Module.add_method('version' -> $version {
     # NOTE: this is not ideal, I really 
     # just need a lazy bit.and()
     $version.is_nil.cond(
         -> { nil },
-        -> { self.set_attr('$:version', $version) }
+        -> { self.set_attr('$!version', $version) }
     );
-    self.get_attr('$:version');    
+    self.get_attr('$!version');    
 });
 
 ::Module.add_method('authority' -> $authority {
@@ -167,21 +167,21 @@
     # just need a lazy bit.and()
     $authority.is_nil.cond(
         -> { nil },
-        -> { self.set_attr('$:authority', $authority) }
+        -> { self.set_attr('$!authority', $authority) }
     );
-    self.get_attr('$:authority');    
+    self.get_attr('$!authority');    
 });
 
 ::Module.add_method('identifier' -> {
     # NOTE: this does not handle the condition
-    # when $:version or $:authority is nil
-    self.get_attr('$:name')
+    # when $!version or $!authority is nil
+    self.get_attr('$!name')
         .concat('-')
         .concat(
-            self.get_attr('$:version')
+            self.get_attr('$!version')
                 .concat('-')
                 .concat(
-                    self.get_attr('$:authority')                
+                    self.get_attr('$!authority')                
                 )
         )
 });
@@ -196,40 +196,40 @@
 ## Bootstrapping
 ## ------------------------------------------------------------------------- ##
 
-::Class.set_attr('@:superclasses', [ ::Module ]);
+::Class.set_attr('@!superclasses', [ ::Module ]);
 
-::Module.set_attr('@:subclasses', [ ::Class ]); 
+::Module.set_attr('@!subclasses', [ ::Class ]); 
 
 # NOTE:
 # not doing this made our prototype go into 
 # endless recursion
-::Class.set_attr('@:MRO', [ ::Class, ::Module, ::Package, ::Object ]);
-::Object.set_attr('@:MRO', [ ::Object ]);
+::Class.set_attr('@!MRO', [ ::Class, ::Module, ::Package, ::Object ]);
+::Object.set_attr('@!MRO', [ ::Object ]);
 
 # NOTE:
 # these attributes need to be added manually since
 # ::Class would have inherited them, but couldn't 
 # since they had not yet been defined, 
 
-::Class.add_attr('$:name');
-::Class.add_attr('$:namespace');
-::Class.add_attr('$:version');
-::Class.add_attr('$:authority');
+::Class.add_attr('$!name');
+::Class.add_attr('$!namespace');
+::Class.add_attr('$!version');
+::Class.add_attr('$!authority');
 
-::Object.add_attr('$:name');
-::Object.add_attr('$:namespace');
-::Object.add_attr('$:version');
-::Object.add_attr('$:authority');
+::Object.add_attr('$!name');
+::Object.add_attr('$!namespace');
+::Object.add_attr('$!version');
+::Object.add_attr('$!authority');
 
-::Package.add_attr('$:name');
-::Package.add_attr('$:namespace');
-::Package.add_attr('$:version');
-::Package.add_attr('$:authority');
+::Package.add_attr('$!name');
+::Package.add_attr('$!namespace');
+::Package.add_attr('$!version');
+::Package.add_attr('$!authority');
 
-::Module.add_attr('$:name');
-::Module.add_attr('$:namespace');
-::Module.add_attr('$:version');
-::Module.add_attr('$:authority');
+::Module.add_attr('$!name');
+::Module.add_attr('$!namespace');
+::Module.add_attr('$!version');
+::Module.add_attr('$!authority');
 
 ::Class.name('Class');
 ::Object.name('Object');

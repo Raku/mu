@@ -41,9 +41,9 @@ evalMain exps = bootstrapClass $ do
 
 addClassMethods :: Eval Native
 addClassMethods = do
-    add "has_method"        "-> $name { self.get_attr('%:methods').exists($name) }"
-    add "get_method"        "-> $name { self.get_attr('%:methods').fetch($name) }"
-    add "get_method_list"   "-> { self.get_attr('%:methods').keys() }"
+    add "has_method"        "-> $name { self.get_attr('%!methods').exists($name) }"
+    add "get_method"        "-> $name { self.get_attr('%!methods').fetch($name) }"
+    add "get_method_list"   "-> { self.get_attr('%!methods').keys() }"
     add "new"               "-> %prms { self.bless(nil, %prms) }"
     add "bless"           $ "-> $repr, %prms {                              \
                           \     -> $obj { $obj.BUILDALL(%prms); $obj; }     \
@@ -59,17 +59,17 @@ eval = evalExp . parseExp
 bootstrapClass :: Eval a -> Eval a
 bootstrapClass x = mdo
     cls <- newObject cls
-        [ ("@:MRO",              emptySeq)
-        , ("@:subclasses",       emptySeq)
-        , ("@:superclasses",     emptySeq)
-        , ("%:private_methods",  emptyMap)
-        , ("%:attributes",       emptyMap)
-        , ("%:methods", toNative $ mkMap [("add_method", addMethod)])
+        [ ("@!MRO",              emptySeq)
+        , ("@!subclasses",       emptySeq)
+        , ("@!superclasses",     emptySeq)
+        , ("%!private_methods",  emptyMap)
+        , ("%!attributes",       emptyMap)
+        , ("%!methods", toNative $ mkMap [("add_method", addMethod)])
         ]
     enterLex [("::Class", cls)] x
     where
     addMethod = parseSub
-        "-> $name, &method { self.set_attr_hash('%:methods', $name, &method) }"
+        "-> $name, &method { self.set_attr_hash('%!methods', $name, &method) }"
 
 enterLex :: IsNative a => [(String, a)] -> Eval b -> Eval b
 enterLex = local . append . mkMap . map (\(x, y) -> (x, toNative y))
@@ -146,7 +146,7 @@ traceObject obj args = liftIO $ do
 
 callObject :: NativeObj -> NativeStr -> NativeSeq -> Eval Native
 callObject obj meth args = enterLex lex $ do
-    meths <- cls ... "%:methods" :: Eval NativeMap
+    meths <- cls ... "%!methods" :: Eval NativeMap
     case meths `fetch` meth of
         Just x  -> callSub (fromNative x) args
         _       -> tryMRO =<< getMRO
@@ -154,9 +154,9 @@ callObject obj meth args = enterLex lex $ do
     lex = [("$?SELF", obj), ("$?CLASS", cls)]
     cls = o_class obj
     getMRO = do
-        mro <- cls ... "@:MRO" :: Eval NativeSeq
+        mro <- cls ... "@!MRO" :: Eval NativeSeq
         if isEmpty mro
-            then cls ... "@:superclasses"
+            then cls ... "@!superclasses"
             else return (elems mro)
     tryMRO [] | meth == mkStr "get_attr" = do
         obj ... fromNative (args ! 0)
@@ -168,7 +168,7 @@ callObject obj meth args = enterLex lex $ do
         return nil
     tryMRO [] = failWith "No such method" meth
     tryMRO (c:cs) = do
-        meths <- fromNative c ... "%:methods" :: Eval NativeMap
+        meths <- fromNative c ... "%!methods" :: Eval NativeMap
         case meths `fetch` meth of
             Just x  -> callSub (fromNative x) args
             _       -> tryMRO cs
