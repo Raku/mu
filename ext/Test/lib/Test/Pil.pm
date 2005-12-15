@@ -14,13 +14,23 @@ sub pil_output( Str $code, Str $optional_args? ) returns Str {
   return $pilresult;
 }
 
+$Test::Pil::Description = undef;
+
+sub find_description ( Str $description ) returns Str {
+  if ( $description ) {
+    $description;
+  }
+  else {
+    $Test::Pil::Description;
+  }
+}
 sub pil_is_eq( Str $code, Str $expected, Str $description? ) returns Bool {
   my $pilresult = pil_output( $code );
-  is( chomp($pilresult), chomp($expected), $description );
+  is( chomp($pilresult), chomp($expected), find_description( $description ) );
 }
 
 sub pil_parsed_is_eq( Str $code, Str $expected, Str $description? ) returns Bool {
   my $pilresult = pil_output( $code, "-P");
-  is( chomp($pilresult), chomp($expected), $description );
+  is( chomp($pilresult), chomp($expected), find_description( $description ) );
 }
 
