@@ -28,6 +28,8 @@ main = do
             prompt []
         [file]      -> eval =<< readFile file
         ["-e", src] -> eval src
+        ["-p", src] -> parse src
+        ["-P", file] -> parse =<< readFile file
         _           -> do
             putStrLn "Usage: ./pil file"
             putStrLn "       ./pil -e source"
