@@ -67,7 +67,6 @@ my $Obj;
                                 "   Package installation registered" );
     
     
-    
     ### XXX add more file tests
     
     ### check for module
@@ -116,6 +115,13 @@ my $Obj;
     }        
 }    
 
+### Uninstall tests
+{   my $inst_pkg = $Inst->is_installed( package => $Obj );
+    ok( $inst_pkg,              "Retrieved installed package" );
+    isa_ok( $inst_pkg,          "JIB::Package::Installed" );
+    ok( $inst_pkg->uninstall,   "   Package uninstalled" );
+
+}
 
 
 # Local variables:

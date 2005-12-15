@@ -32,7 +32,7 @@ sub meta_dir {
     return $dir->subdir( $self->config->_meta_dir);
 }
 
-=head2 $dir = $inst->control_dir
+=head2 $dir = $inst->control_dir( $pkg_name )
 
 =cut
 
@@ -155,7 +155,7 @@ sub files_list {
     }
 }
 
-=head2 .... = $inst->is_installed( package => $package )
+=head2 $inst_pkg = $inst->is_installed( package => $package )
 
 =cut
 
@@ -178,7 +178,7 @@ sub is_installed {
     return;
 }    
 
-=head2 .... = $inst->register( package => $package )
+=head2 $inst_pkg = $inst->register( package => $package )
 
 =cut
 
@@ -266,7 +266,7 @@ sub register {
 
 }
 
-=head2 .... = $inst->write;
+=head2 $bool = $inst->write;
 
 =cut
 

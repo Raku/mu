@@ -96,7 +96,7 @@ sub install {
                                                             and die $?;
             ### write a .packlist equiv
             system( qq[tar -f $my_tmp_dir/$data -C $meta_dir -tz |] .
-                    qq[xargs -I % echo ] . $inst->dir . 
+                    qq[xargs -I % echo ] . $inst->dir . qq[/%] . 
                     qq[ >> $packlist] )   
                                                             and die $?;
         }

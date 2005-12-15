@@ -67,17 +67,17 @@ sub new {
 =cut
 
 sub install {
+    my $self = shift;
     msg("Package already installed");
-    return 1;
+    return $self;
 }    
 
 sub uninstall {
+    my $self = shift;
+    my $inst = $self->installation;
+    my $conf = $self->config;
 
 =pod
-
-    my $meta = $Metactrl .'/'. $pkg;
-    
-    die "$pkg not installed -- dir '$meta' does not exist\n" unless -d $meta;
     
     my @list        = LoadFile( $Available ); 
     my @uninstalled = grep { $_->{package} ne $pkg } @list;
@@ -107,109 +107,131 @@ sub uninstall {
         
         die "Not allowed to delete '$pkg'\n" unless $delete_ok;
     }
+=cut
     
     ### uninstall the files
     ### XXX check dependencies
-    open my $fh, $meta .'/'. $Fileslist                         or die $!;
+    {   open my $fh, $inst->files_list( $self->package )            or die $!;
     
-    my $prerm = $meta . '/' . $Prerm;
-    if( -e $prerm && -s _ ) {
-        system( qq[ $^X $prerm ] )                              and die $?;
-    }
-    
-    while( <$fh> ) {
-        chomp;
-        -e $_ && system(qq[rm -rf $_])                          and die $?;
+        my $prerm = $inst->control_dir( $self->package )
+                         ->file( $conf->prerm );
+        if( -e $prerm && -s _ ) {
+            system( qq[ $^X $prerm ] )                              and die $?;
+        }
         
-        die "File '$_' not removed" if -e $_;
+        while( <$fh> ) {
+            chomp;
+            msg("Removing file '$_'", 1);
+            -e $_ && system(qq[rm -rf $_])                          and die $?;
+            
+            die "File '$_' not removed" if -e $_;
+        }
+        close $fh;
+    
+        ### XXX need status dir like dpkg
+        my $postrm = $inst->control_dir( $self->package )
+                          ->file( $conf->postrm );
+        if( -e $postrm && -s _ ) {
+            system( qq[ $^X $postrm ] )                             and die $?;
+        }
     }
-    close $fh;
 
-
-    ### XXX need status dir like dpkg
-    my $postrm = $meta . '/' . $Postrm;
-    if( -e $postrm && -s _ ) {
-        system( qq[ $^X $postrm ] )                             and die $?;
-    }
 
     ### remove alternatives and relink if needed
     ### XXX doesn't do manpages yet
     ### XXX doens't check the AUTO flag yet for link management
     LINKING: {   
-        ### load in the alternatives collection
-        my $href = LoadFile( $Altfile );
+    
+        ### XXX make simple Installation-> method
+        my $alt; 
+        my @alts = map  { $_->[0] } # return the object
+                   grep { $_->[1] } # flag toggled?
+                   map  { $_->package eq $self->package
+                            ? do { $alt = $_; [ $_, 0 ] }
+                            : [ $_, 1 ]
+                    } @{ $inst->registered_alternatives }; 
+        $inst->registered_alternatives( \@alts );
 
         ### this package didn't provide any alternatives
-        last LINKING unless $href->{$pkg};
+        last LINKING unless $alt;
         
         ### XXX this should probably be done in one go, so we don't
         ### have a situation where no 'script' is available
         
         ### unlink all the script files
-        for my $script ( @{ $href->{$pkg}->{bin} || [] } ) {
-            1 while unlink "$Bindir/$script";
-            1 while unlink "$Alternatives/$script";
+        for my $script ( @{ $alt->bin || [] } ) {
+            1 while unlink $conf->bin_dir->file( $script );
+            1 while unlink $inst->alternatives_dir->file( $script ); 
         }      
         
         ### see if there's any other package that's now the default
         ### for this module
         ### make sure we dont see ourselves again, so grep that out
         my $new_alt;
-        {   my $wanted = join '-',  package_prefix(   $pkg ),
-                                    package_name(     $pkg );
+        {   my $wanted = join '-',  $self->prefix, $self->name;
 
             ### find all packages that provide: a <prefix>-<name>
             ### implementation;
-            my @list = LoadFile( $Available );
+            my @list = @{ $inst->available };
             
             my @maybe;
-            for my $test ( grep { $_->{package} ne $pkg } @list ) {
+            for my $test ( grep { $_->package ne $self->package } @list ) {
                 push @maybe, $test if grep {
                         $_ eq $wanted
-                    } @{ $test->{provides} || [] };
+                    } @{ $test->provides || [] };
             }
         
             ### find the alternative with the highest version
             ### XXX this should be policy based!
-            ($new_alt) = sort { $b->{version} <=> $a->{version } } @maybe;
+            ($new_alt) = sort { $b->version <=> $a->version } @maybe;
         }
 
         ### no alt? bail!
         last LINKING unless $new_alt;
     
-        my $my_bindir = "$Site/$new_alt->{package}/bin";
-    
+        ### XXX code duplication from installation->register
+        my $my_bindir =  $inst->dir->subdir( $new_alt->package )->file('bin');
+
+        last LINKING unless -d $my_bindir;
+
         my @bins;
-        print "\nRelinking scripts/manpages to $new_alt->{package}...\n";
+        msg( "Relinking scripts/manpages to " . $new_alt->package, 1 );
         for ( qx[find $my_bindir -type f] ) {
-            chomp; 
             
             ### link from altdir to install dir
             ### then from pathdir, to altdir
             my $script = basename($_);
-            system( qq[ln -fs $_ $Alternatives/$script] )       and die $?;
-            system( qq[ln -fs $Alternatives/$script $Bindir/$script ] )
-                                                                and die $?;
+        
+            my $alt = $inst->alternatives_dir->file( $script );
+            my $bin = $conf->bin_dir->file( $script );
+            system( qq[ln -fs $_ $alt] )                    and die $?;
+            system( qq[ln -fs $alt $bin ] )                 and die $?;
             push @bins, $script;
         }
         
-        ### add this package as being authorative for these links ###
-        $href->{ $pkg } = { bin => \@bins };
+        
+        push @alts, JIB::Alternative->new_from_struct( struct => 
+                    { bin => \@bins, auto => 1, package => $self->package } );
             
         ### dump out alternatives again
-        DumpFile( $Altfile, $href );
+        $inst->registered_alternatives( \@alts );
     }
 
     ### remove this package from the available list
     ### XXX temp file, then mv
-    DumpFile( $Available, @uninstalled );
+    my @avail = grep { $_->package ne $self->package } @{ $inst->available };
+    $inst->available( \@avail );
+    
+    ### move this all to Installation.pm
+    $inst->write or return;
+    
     
     ### unisntall metadata
-    system(qq[rm -rf $meta])                                    and die $?;
+    system( qq[rm -rf ] . $inst->control_dir( $self->package ) )    and die $?;
 
-    print "\n\tPackage '$pkg' and associated metadata removed\n";
-=cut
+    msg( "Package '".$self->package."' and associated metadata removed");
 
+    return 1;
 }
 
 1;
