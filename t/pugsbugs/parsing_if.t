@@ -35,7 +35,7 @@ plan 3;
 {
     my $foo = 1;
     eval 'if { 0 } { $foo = 2 } else { $foo = 3 }';
-    is $foo, 2, 'if with no parens, and closure as cond', :todo<bug>;
+    is $foo, 2, 'if with no parens, and closure as cond';
     ### This test is copied from t/statements/if.t
 };
 # but curiously it parses and works if semicolons are added...
@@ -52,6 +52,6 @@ plan 3;
 	my $var = 9;
 	my sub func( $a, $b, $c ) { $var };
 	eval 'if func 1, 2, 3 { $var = 4 } else { $var = 5 }';
-	is $var, 4, 'if with no parens, and call a function without parenthesis',:todo<bug>;
+	is $var, 4, 'if with no parens, and call a function without parenthesis';
 }
 
