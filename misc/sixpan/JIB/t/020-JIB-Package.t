@@ -86,9 +86,9 @@ my $Obj;
     {   my $script = 'script.pl';
         my $conf   = $Obj->config;
         for my $dir ( $Inst->alternatives_dir, $conf->bin_dir,
-                      File::Spec->catdir( $Inst->dir, $Obj->package, 'bin' )
+                      $Inst->dir->subdir( $Obj->package )->subdir( 'bin' )
         ) {
-            my $path = File::Spec->catfile( $dir, $script );
+            my $path = $dir->file( $script );
             ok( -d $dir,        "   Bin dir '$dir' exists" );
             ok( -e $path,       "       Script '$script' installed there" );
         }

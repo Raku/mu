@@ -111,7 +111,7 @@ sub build {
 
     ### XXX move to builddir under pkg_dir/_jib/build
     my $path     = $self->meta->package;
-    my $builddir = $conf->build_dir . $path;
+    my $builddir = $conf->build_dir->subdir( $path );
     my $srcdir   = $self->dir;
 
     {   ### copy all the stuff over to another dir
@@ -145,6 +145,9 @@ sub build {
         1 while unlink $data;
         1 while unlink $control
     }
+
+    ### XXX clean up the builddir?
+    #system( qq[rm -rf $builddir] )                      and error($?), return;
 
     return JIB::Package->new( 
                 file => File::Spec->rel2abs(

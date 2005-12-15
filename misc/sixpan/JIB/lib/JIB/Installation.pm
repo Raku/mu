@@ -193,6 +193,9 @@ sub register {
     };
     
     check( $tmpl, \%hash ) or error( Params::Check->last_error ), return;
+
+    my $inst_pkg = JIB::Package->new(meta => $pkg->meta, installation => $self)
+        or error("Could not create installed package"), return;
  
     LINKING: { 
         ### XXX config!
@@ -224,38 +227,14 @@ sub register {
 
         last LINKING unless $link_this;
 
-        my @bins;
-        
-        msg("Linking scripts/manpages...");
-        for ( qx[find $my_bindir -type f] ) {
-            chomp; 
-            
-            ### link from altdir to install dir
-            ### then from pathdir, to altdir
-            my $script = basename($_);
-        
-            my $alt = $self->alternatives_dir->file( $script );
-            my $bin = $conf->bin_dir->file( $script );
-            system( qq[ln -fs $_ $alt] )                    and die $?;
-            system( qq[ln -fs $alt $bin ] )                 and die $?;
-            push @bins, $script;
-        }
-        
-        ### XXX this can be done more efficiently i'm sure
-        ### remove the replaced object from the alts list
-        if( $unlink_this ) {
-            @alts = grep { $_ eq $unlink_this } @alts;
-        }
-        
-        push @alts, JIB::Alternative->new_from_struct( struct => 
-                    { bin => \@bins, auto => 1, package => $pkg->package } );
-            
-        ### dump out alternatives again
-        $self->registered_alternatives( \@alts );
-    }
+        ### remove the registered alternative
+        $self->remove_registered_alternative( package => $unlink_this )
+            if $unlink_this;
 
-    my $inst_pkg = JIB::Package->new(meta => $pkg->meta, installation => $self)
-        or error("Could not create installed package"), return;
+        ### link the files
+        return unless $self->link_files( package => $inst_pkg );
+
+    }
 
     ### update the available files
     $self->available( [ @{ $self->available }, $inst_pkg ] );
@@ -387,33 +366,8 @@ sub unregister {
         ### no alt? bail!
         last LINKING unless $new_alt;
     
-        ### XXX code duplication from installation->register
-        my $my_bindir =  $self->dir->subdir( $new_alt->package )->file('bin');
-
-        last LINKING unless -d $my_bindir;
-
-        my @bins;
-        msg( "Relinking scripts/manpages to " . $new_alt->package, 1 );
-        for ( qx[find $my_bindir -type f] ) {
-            
-            ### link from altdir to install dir
-            ### then from pathdir, to altdir
-            my $script = basename($_);
-        
-            my $alt = $self->alternatives_dir->file( $script );
-            my $bin = $conf->bin_dir->file( $script );
-            system( qq[ln -fs $_ $alt] )                    and die $?;
-            system( qq[ln -fs $alt $bin ] )                 and die $?;
-            push @bins, $script;
-        }
-        
-        ### dump out alternatives again
-        ### XXX pretty method?
-        $self->registered_alternatives(
-            [   @{ $self->registered_alternatives }, 
-                JIB::Alternative->new_from_struct( struct => 
-                    {bin => \@bins, auto => 1, package => $inst_pkg->package} ),
-            ] );
+        ### link the files
+        return unless $self->link_files( package => $new_alt );
     }
 
     ### remove this package from the available list
@@ -488,13 +442,54 @@ sub remove_available {
     return 1;
 }
 
-=head2 $bool = $inst->link_files( package => $inst_pkg );
+=head2 $bool|$alt = $inst->link_files( package => $inst_pkg );
 
 =cut
 
+### XXX no manpages yet
 sub link_files {
+    my $self = shift;
+    my $conf = $self->config;
+    my %hash = @_;
+    
+    my $inst_pkg;
+    my $tmpl = {
+        package => { required => 1, store => \$inst_pkg, 
+                        allow => ISA_JIB_PACKAGE_INSTALLED },
+    };
+    
+    check( $tmpl, \%hash ) or error( Params::Check->last_error ), return;
 
+    my $my_bindir =  $self->dir->subdir( $inst_pkg->package )->subdir('bin');
 
+    ### XXX doesn't return an object...
+    return 1 unless -d $my_bindir;
+
+    my @bins;
+    msg( "Linking scripts/manpages to " . $inst_pkg->package, 1 );
+    for ( qx[find $my_bindir -type f] ) {
+        chomp;
+        
+        ### link from altdir to install dir
+        ### then from pathdir, to altdir
+        my $script = basename($_);
+    
+        my $alt = $self->alternatives_dir->file( $script );
+        my $bin = $conf->bin_dir->file( $script );
+        system( qq[ln -fs $_ $alt] )                    and die $?;
+        system( qq[ln -fs $alt $bin ] )                 and die $?;
+        push @bins, $script;
+    }
+
+    my $alt = JIB::Alternative->new_from_struct( struct => 
+                    { bin => \@bins, auto => 1, package => $inst_pkg->package } 
+                ) or return;
+
+    ### dump out alternatives again
+    ### XXX pretty method?
+    $self->registered_alternatives([ @{$self->registered_alternatives}, $alt ]);
+
+    return $alt;
 }
 
 =head2 $bool = $inst->write;

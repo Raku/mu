@@ -123,14 +123,14 @@ sub install {
                         $conf->compile_dir . q[ -xz] );
 
             ### preinst hook
-            my $preinst = File::Spec->catfile( $meta_dir, $conf->preinst );
+            my $preinst = $meta_dir->file( $conf->preinst );
             if( -e $preinst && -s _ ) {
                 system( qq[ $^X $preinst ] )                    and die $?;
             }
             
             ### XXX we should build a binary package here, instead of
             ### just doing a cp -R
-            my $src = File::Spec->catdir( $conf->compile_dir, $self->package );
+            my $src = $conf->compile_dir->subdir( $self->package );
             system( qq[cp -R $src ]. $inst->dir )     and die $?;     
             
             ### register the installation
@@ -139,28 +139,21 @@ sub install {
                 or error("Could not register package"), return;
             
             
-            my $postinst = File::Spec->catfile($meta_dir, $conf->postinst);
+            my $postinst = $meta_dir->file( $conf->postinst );
             if( -e $postinst && -s _ ) {
                 system( qq[ $^X $postinst ] )                   and die $?;
             }    
+
+            ### clean up the builddir
+            system( qq[rm -rf $src] )                           and die $?;
+
         }
 
-        ### clean up the temp dir
+        ### clean up the temp dir 
         system( qq[rm -rf $my_tmp_dir] )                        and die $?;
     }
     
     return $inst_pkg;
-}
-
-=head2 $bool = $inst_pkg->uninstall
-
-=cut
-
-sub uninstall {
-    my $self = shift;
-    my $inst = $self->installation;
-    
-    return $inst->unregister( package => $self );
 }
 
 1;
