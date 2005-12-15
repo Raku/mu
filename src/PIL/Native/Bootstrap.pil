@@ -129,7 +129,7 @@
 ::Package.add_attribute('$!name', nil);
 ::Package.add_attribute('%!namespace', nil);
 
-::Package.add_method('name' -> $name {
+::Package.add_method('name', -> $name {
     # NOTE: this is not ideal, I really 
     # just need a lazy bit.and()
     $name.is_nil.cond(
@@ -139,8 +139,8 @@
     self.get_attr('$!name');    
 });
 
-::Package.add_method('FETCH' -> $name { });
-::Package.add_method('STORE' -> $name, $value { });
+::Package.add_method('FETCH', -> $name { });
+::Package.add_method('STORE', -> $name, $value { });
 
 ## ------------------------------------------------------------------------- ##
 ## Module
@@ -152,7 +152,7 @@
 ::Module.add_attribute('$!version', nil);
 ::Module.add_attribute('$!authority', nil);
 
-::Module.add_method('version' -> $version {
+::Module.add_method('version', -> $version {
     # NOTE: this is not ideal, I really 
     # just need a lazy bit.and()
     $version.is_nil.cond(
@@ -162,7 +162,7 @@
     self.get_attr('$!version');    
 });
 
-::Module.add_method('authority' -> $authority {
+::Module.add_method('authority', -> $authority {
     # NOTE: this is not ideal, I really 
     # just need a lazy bit.and()
     $authority.is_nil.cond(
@@ -172,7 +172,7 @@
     self.get_attr('$!authority');    
 });
 
-::Module.add_method('identifier' -> {
+::Module.add_method('identifier', -> {
     # NOTE: this does not handle the condition
     # when $!version or $!authority is nil
     self.get_attr('$!name')
