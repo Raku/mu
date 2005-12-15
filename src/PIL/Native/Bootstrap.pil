@@ -13,10 +13,9 @@
 });
 
 ::Class.add_method('bless', -> $repr, %params { 
-    -> $obj { 
-        $obj.BUILDALL(%params); 
-        $obj; 
-    }.(self.CREATE($repr, %params));
+    $obj := self.CREATE($repr, %params);
+    $obj.BUILDALL(%params); 
+    $obj;     
 });
 
 ::Class.add_method('CREATE', -> $repr, %params { });
