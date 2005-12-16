@@ -36,7 +36,7 @@ evalNativeLang = (`runReaderT` empty) . (`runStateT` empty) . evalMain
 
 evalMain :: [NativeLangExpression] -> Eval Native
 evalMain exps = bootstrapClass $ do
-    addClassMethods
+    -- addClassMethods
     evalExps exps
 
 addClassMethods :: Eval Native
@@ -58,7 +58,7 @@ eval = evalExp . parseExp
 
 bootstrapClass :: Eval a -> Eval a
 bootstrapClass x = mdo
-    cls <- newObject cls
+    cls <- newObject cls $ mkMap
         [ ("@!MRO",              emptySeq)
         , ("@!subclasses",       emptySeq)
         , ("@!superclasses",     emptySeq)
@@ -120,6 +120,8 @@ callSub sub args = do
     when (size args /= size prms) $ do
         fail $ "Invalid number of args " ++ show (elems args)
             ++ " vs params " ++ show (elems prms)
+            ++ " in subroutine:\n"
+            ++ (pretty $ s_exps sub)
     local (append lex . append (s_pad sub)) $ do
         evalExps (elems $ s_exps sub)
     where
@@ -130,7 +132,7 @@ callSubWith :: String -> NativeSub -> NativeSeq -> Eval Native
 callSubWith ""          sub args = callSub sub args
 callSubWith "do_if"     sub args = if fromNative (args ! 0) then callSub sub empty else return nil
 callSubWith "do_unless" sub args = if fromNative (args ! 0) then return nil else callSub sub empty
-callSubWith "do_for"    sub args = fmap toNative $ fmapM (callSub sub . mkSeq . (:[])) args
+callSubWith "do_for"    sub args = fmap toNative $ fmapM (callSub sub . mkSeq . (:[])) (fromNative (args ! 0) :: NativeSeq)
 callSubWith meth _ _ = failWith "No such method" meth
 
 callConditional :: NativeBit -> NativeSeq -> Eval Native
@@ -163,17 +165,31 @@ callObject obj meth args = enterLex lex $ do
         if isEmpty mro
             then cls ... "@!superclasses"
             else return (elems mro)
-    tryMRO [] | meth == mkStr "get_attr" = do
-        obj ... fromNative (args ! 0)
-    tryMRO [] | meth == mkStr "set_attr_hash" = do
-        let [attrVal, keyVal, val] = elems args
-            key :: NativeStr = fromNative keyVal
-        hash <- obj ... fromNative attrVal :: Eval NativeMap
-        setAttr obj (fromNative attrVal) (toNative $ insert hash key val)
-        return nil
-    tryMRO [] = failWith "No such method" meth
     tryMRO (c:cs) = do
         meths <- fromNative c ... "%!methods" :: Eval NativeMap
         case meths `fetch` meth of
             Just x  -> callSub (fromNative x) args
             _       -> tryMRO cs
+    tryMRO [] = case toString meth of
+        "get_attr" -> do
+            obj ... fromNative (args ! 0)
+        "set_attr" -> do
+            setAttr obj (fromNative (args ! 0)) (args ! 1)
+            return (args ! 1)
+        "set_attr_hash" -> do
+            let [attrVal, keyVal, val] = elems args
+                key :: NativeStr = fromNative keyVal
+            hash <- obj ... fromNative attrVal :: Eval NativeMap
+            setAttr obj (fromNative attrVal) (toNative $ insert hash key val)
+            return nil
+        "new_opaque" -> do
+            fmap toNative $ newObject cls (fromNative $ args ! 0)
+        "mro_merge" -> do
+            supers <- fmap fromNative $ callObject (o_class obj) (mkStr "superclasses") empty
+            {-
+            mros   <- fmapM (\NObj c -> fmap fromNative $ callObject c (mkStr "MRO") empty) supers
+                :: Eval (SeqOf NativeObj)
+            return $ toNative (fmap toNative (mros `append` supers))
+            -}
+            return $ toNative (toNative (o_class obj):supers)
+        _ -> failWith "No such method" meth

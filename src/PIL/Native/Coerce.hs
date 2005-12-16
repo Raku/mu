@@ -65,6 +65,7 @@ mkCall obj meth args = ECall
 class IsPlural a key val | a -> key, a -> val where 
     isEmpty     :: a -> NativeBit
     size        :: a -> NativeInt
+    reversed    :: a -> a
     exists      :: a -> key -> Bool
     empty       :: a
     indices     :: a -> [key]
@@ -73,6 +74,7 @@ class IsPlural a key val | a -> key, a -> val where
     push        :: a -> SeqOf val -> a
     assocs      :: a -> [(key, val)]
     fromAssocs  :: [(key, val)] -> a
+    splice      :: a -> Int -> a
     fetch       :: a -> key -> Maybe val
     insert      :: a -> key -> val -> a
     (!)         :: a -> key -> val
@@ -86,9 +88,11 @@ instance IsPlural NativeStr NativeInt NativeStr where
     indices    = \x -> [0 .. (NStr.length x - 1)]
     elems      = NStr.elems
     append     = NStr.append
+    reversed   = NStr.reverse
     push       = \x xs -> NStr.concat (x:NSeq.toList xs)
     assocs     = zip [0..] . elems
     fromAssocs = NStr.concat . map snd -- XXX wrong
+    splice     = flip NStr.drop
     fetch (NStr.PS p s l) n
         | n < 0     = fail "negative index"
         | n >= l    = fail "index out of bounds"
@@ -104,6 +108,8 @@ instance Ord k => IsPlural (NMap.Map k v) k v where
     exists     = flip NMap.member
     append     = NMap.union
     push       = error "It doesn't make sense to push into a hash"
+    splice     = error "It doesn't make sense to splice from a hash"
+    reversed   = error "It doesn't make sense to reverse from a hash"
     assocs     = NMap.assocs
     fromAssocs = NMap.fromList
     fetch      = flip NMap.lookup
@@ -119,6 +125,8 @@ instance IsPlural (SeqOf a) NativeInt a where
     elems        = NSeq.toList
     append       = (NSeq.><)
     push         = append
+    reversed     = NSeq.reverse
+    splice       = flip NSeq.drop
     assocs       = ([0..] `zip`) . elems
     fromAssocs   = NSeq.fromList . map snd -- XXX wrong
     fetch x y    = Just (NSeq.index x y) -- XXX wrong

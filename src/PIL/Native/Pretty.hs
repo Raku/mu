@@ -33,6 +33,9 @@ class (Show a) => Pretty a where
     formatM :: MonadSTM m => a -> m Doc
     formatM = return . format
 
+instance Pretty (SeqOf NativeLangExpression) where
+    format = format . elems
+
 instance Pretty [NativeLangExpression] where
     format = sepBy semi
 

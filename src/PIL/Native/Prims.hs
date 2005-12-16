@@ -127,16 +127,22 @@ numPrims = mkMap
 strPrims :: MapOf (NativeStr -> SeqOf Native -> Native)
 strPrims = mkMap
     [ prim0 "length"     (size)
+    , prim0 "reverse"    (reversed)
+    , prim0 "is_empty"   (isEmpty)
     , prim1 "concat"     (append)
     , prim1 "fetch"      (fetch)
+    , prim1 "splice"     (splice)
     , prim2 "store"      (insert)
     ]
 
 seqPrims :: MapOf (NativeSeq -> SeqOf Native -> Native)
 seqPrims = mkMap
     [ prim0 "length"     (size)
+    , prim0 "reverse"    (reversed)
+    , prim0 "is_empty"   (isEmpty)
     , prim1 "concat"     (append)
     , prim1 "fetch"      (fetch)
+    , prim1 "splice"     (splice)
     , prim2 "store"      (insert)
     , primX "push"       (push)
     ]
@@ -145,6 +151,7 @@ mapPrims :: MapOf (NativeMap -> SeqOf Native -> Native)
 mapPrims = mkMap
     [ prim0 "length"     (size)
     , prim0 "keys"       (indices)
+    , prim0 "is_empty"   (isEmpty)
     , prim0 "values"     (elems)
     , prim1 "concat"     (append)
     , prim1 "fetch"      (fetch)

@@ -18,7 +18,32 @@
     $obj;     
 });
 
-::Class.add_method('CREATE', -> $repr, %params { });
+::Class.add_method('CREATE', -> $repr, %params {
+    -> @mro, %attrs {
+        &next_dispatch := &?SUB;
+        @mro.is_empty.cond(
+            # done iterating - let's make something
+            ->{ self.new_opaque(%attrs) },
+            # not done yet - add stuff to it
+            ->{
+                -> @attrs, %new_attrs {
+                    &redo := &?SUB;
+                    @attrs.is_empty.cond(
+                        -> { &next_dispatch.( @mro.splice(1), %new_attrs ) },
+                        -> {
+                            $attr := @attrs.fetch(0);
+                            &redo.(
+                                @attrs.splice(1),
+                                %new_attrs.store($attr, nil), #$attr.instantiate_container),
+                            );
+                        },
+                    );
+                }.(@mro.fetch(0).get_attribute_list, %attrs);
+            },
+        )
+    }.( $?CLASS.dispatcher('descendant'), {} );
+});
+
 ::Class.add_method('BUILDALL', -> %params { });
 ::Class.add_method('BUILD', -> %params { });
 
@@ -35,18 +60,44 @@
 
 ## (super|sub)classes
 
-::Class.add_method('superclasses', -> @superclasses { });
-::Class.add_method('MRO', -> { });
+::Class.add_method('superclasses', ->{ self.get_attr('@!superclasses') });
+::Class.add_method('set_superclasses', -> @classes {
+    -> $super { $super.add_subclass($?CLASS) }.do_for(@classes);
+    self.set_attr('@!superclasses', @classes);
+    self.set_attr('@!MRO', self.mro_merge);
+});
+::Class.add_method('MRO', -> {
+    @mro := self.get_attr('@!MRO');
+    @mro.is_empty.cond(
+        ->{self.set_attr('@!MRO', self.mro_merge)},
+        ->{@mro}
+    );
+});
 ::Class.add_method('subclasses', -> { });
 ::Class.add_method('add_subclass', -> $class { });
 
 ## dispatching
 
-::Class.add_method('dispatcher', -> $order { });
+::Class.add_method('dispatcher', -> $order {
+    $order := $order.is_nil.or($order.eq('canonical')).cond(
+        ->{ 'ascendant' }, ->{ $order },
+    );
+    $order.eq('descendant').cond(
+        ->{ self._make_descendant_dispatcher; },
+        ->{ $order.eq('ascendant').cond(
+            ->{ self._make_ascent_dispatcher; },
+            ->{ self._unsupported_dispatch_order($order); },
+        ) }
+    );
+});
 
 # ... should the dispatcher be implemented here? or Haskell
 # I think it is easier in Haskell, but still extendable if 
 # we have this method here 
+
+::Class.add_method('_make_ascent_dispatcher', -> { self.MRO; });
+::Class.add_method('_make_descendant_dispatcher', -> { self.MRO.reverse; });
+
 
 ## method related methods
 
@@ -105,7 +156,7 @@
 ## Object
 ## ------------------------------------------------------------------------- ##
 
-::Object := ::Class.new();
+::Object := ::Class.new({});
 
 ::Object.add_method('BUILD', -> %params { });
 ::Object.add_method('BUILDALL', -> %params { });
@@ -122,19 +173,14 @@
 ## Package
 ## ------------------------------------------------------------------------- ##
 
-::Package := ::Class.new();
-::Package.superclasses([ ::Object ]);
+::Package := ::Class.new({});
+::Package.set_superclasses([ ::Object ]);
 
 ::Package.add_attribute('$!name', nil);
 ::Package.add_attribute('%!namespace', nil);
 
 ::Package.add_method('name', -> $name {
-    # NOTE: this is not ideal, I really 
-    # just need a lazy bit.and()
-    $name.is_nil.cond(
-        -> { nil },
-        -> { self.set_attr('$!name', $name) }
-    );
+    -> { self.set_attr('$!name', $name) }.do_if($name.not_nil);
     self.get_attr('$!name');    
 });
 
@@ -145,8 +191,8 @@
 ## Module
 ## ------------------------------------------------------------------------- ##
 
-::Module := ::Class.new();
-::Module.superclasses([ ::Package ]);
+::Module := ::Class.new({});
+::Module.set_superclasses([ ::Package ]);
 
 ::Module.add_attribute('$!version', nil);
 ::Module.add_attribute('$!authority', nil);
@@ -210,25 +256,25 @@
 # ::Class would have inherited them, but couldn't 
 # since they had not yet been defined, 
 
-::Class.add_attr('$!name');
-::Class.add_attr('$!namespace');
-::Class.add_attr('$!version');
-::Class.add_attr('$!authority');
+::Class.add_attribute('$!name', nil);
+::Class.add_attribute('$!namespace', nil);
+::Class.add_attribute('$!version', nil);
+::Class.add_attribute('$!authority', nil);
 
-::Object.add_attr('$!name');
-::Object.add_attr('$!namespace');
-::Object.add_attr('$!version');
-::Object.add_attr('$!authority');
+::Object.add_attribute('$!name', nil);
+::Object.add_attribute('$!namespace', nil);
+::Object.add_attribute('$!version', nil);
+::Object.add_attribute('$!authority', nil);
 
-::Package.add_attr('$!name');
-::Package.add_attr('$!namespace');
-::Package.add_attr('$!version');
-::Package.add_attr('$!authority');
+::Package.add_attribute('$!name', nil);
+::Package.add_attribute('$!namespace', nil);
+::Package.add_attribute('$!version', nil);
+::Package.add_attribute('$!authority', nil);
 
-::Module.add_attr('$!name');
-::Module.add_attr('$!namespace');
-::Module.add_attr('$!version');
-::Module.add_attr('$!authority');
+::Module.add_attribute('$!name', nil);
+::Module.add_attribute('$!namespace', nil);
+::Module.add_attribute('$!version', nil);
+::Module.add_attribute('$!authority', nil);
 
 ::Class.name('Class');
 ::Object.name('Object');
@@ -237,6 +283,8 @@
 
 ## end bootstrapping ...
 ## ------------------------------------------------------------------------- ##
+
+::Module;
 
 =pod
 
