@@ -2042,10 +2042,10 @@ its match hash. For example:
 
 =item *
 
-Note again that, outside a rule, C<@1> is simply a shorthand for
+Note again that, outside a rule, C<@0> is simply a shorthand for
 C<@{$0}>, so the first assignment above could also have been written:
 
-         @from = @1;
+         @from = @0;
 
 
 =back
