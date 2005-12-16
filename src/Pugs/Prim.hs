@@ -98,13 +98,6 @@ op1 "id" = \x -> do
     case val of
         VObject o   -> return . castV . hashUnique $ objId o
         _           -> return undef
-op1 "clone" = \x -> do
-    (VObject o) <- fromVal x
-    attrs   <- readIVar (IHash $ objAttrs o)
-    attrs'  <- liftSTM $ newTVar Map.empty
-    uniq    <- liftIO $ newUnique
-    writeIVar (IHash attrs') attrs
-    return $ VObject o{ objAttrs = attrs', objId = uniq }
 op1 "chop" = \x -> do
     str <- fromVal x
     if null str
@@ -1079,6 +1072,15 @@ op3 "Object::new" = \t n p -> do
         objRef <- mkWeakPtr obj (Just $ objectFinalizer env obj)
         modifyIORef _GlobalFinalizer (>> finalize objRef)
     return obj
+op3 "Object::clone" = \t n p -> do
+    named <- fromVal n
+    (VObject o) <- fromVal t
+    attrs   <- readIVar (IHash $ objAttrs o)
+    attrs'  <- liftSTM $ newTVar Map.empty
+    uniq    <- liftIO $ newUnique
+    writeIVar (IHash attrs') (named `Map.union` attrs)
+    return $ VObject o{ objAttrs = attrs', objId = uniq }
+
 op3 "Pugs::Internals::localtime"  = \x y z -> do
     wantString <- fromVal x
     sec <- fromVal y
@@ -1723,7 +1725,7 @@ initSyms = mapM primDecl syms
 \\n   Object    pre     BUILDALL   safe   (Object)\
 \\n   Object    pre     DESTROYALL safe   (Object)\
 \\n   Code      pre     TEMP    safe   (rw!Any)\
-\\n   Object    pre     clone   safe   (Any)\
+\\n   Object    pre     Object::clone   safe   (Object: Named)\
 \\n   Object    pre     id      safe   (Any)\
 \\n   Bool      pre     Thread::yield   safe   (Thread)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand  unsafe (Str)\
