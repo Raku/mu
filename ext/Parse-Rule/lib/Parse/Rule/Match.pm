@@ -6,66 +6,61 @@ class Match {
     has $.pos;
     has $.marks;
 
-    method with(:$backtrack, :$input, :$pos, :$marks) {
-        Match.new(
-            backtrack => $backtrack // $.backtrack,
-            input     => $input // $.input,
-            pos       => $pos // $.pos,
-            marks     => $marks // $.marks,
-        );
-    }
-
     submethod BUILD() {
         $.marks = [];
     }
 }
 
-sub fmatch($r, $m, $c) {
-    match($r: $m, $c);
-}
-
-multi match(Literal $rule: $match, $continue) {
-    if $match.input.substr($match.pos, $rule.string.chars) eq $rule.string {
-        $continue($match.with(
-            pos       => $match.pos + $rule.string.chars,
-        ));
-    }
-    else {
-        $match.backtrack()();
-    }
-}
-
-multi match(Union $rule: $match, $continue) {
-    fmatch($rule.left, $match.with(
-        backtrack => { fmatch($rule.right, $match, $continue) },
-    ), $continue);
-}
-
-multi match(Concat $rule: $match, $continue) {
-    fmatch($rule.left, $match, -> $m {
-        fmatch($rule.right, $m, $continue);
-    });
-}
-
-multi match(Mark $rule: $match, $continue) {
-    fmatch($rule.exp, $match.with(
-        marks => [ [ $rule, $match.backtrack ], *$match.marks ],
-    ), $continue);
-}
-
-multi match(Cut $rule: $match, $continue) {
-    my $back;
-    for *$match.marks -> $mark {
-        if $rule.mark === $mark[0] {
-            $back = $mark[1];
-            last;
+# multis are too flaky in pugs to handle
+sub match($rule, $match, $continue) {
+  given $rule {
+    when Literal {
+        if $match.input.substr($match.pos, $rule.string.chars) eq $rule.string {
+            $continue.goto($match.clone(
+                pos => $match.pos + $rule.string.chars,
+            ));
+        }
+        else {
+            $match.backtrack.goto();
         }
     }
-    die "No mark to cut to" unless $back.defined;
-    
-    $continue($match.with(
-        backtrack => $back,
-    ));
+
+    when Union {
+        &match.goto($rule.left, $match.clone(
+            backtrack => { &match.goto($rule.right, $match, $continue) },
+        ), $continue);
+    }
+
+    when Concat {
+        &match.goto($rule.left, $match, -> $m {
+            &match.goto($rule.right, $m, $continue);
+        });
+    }
+
+    when Mark {
+        my $nmatch = $match.clone(marks => [ [ $rule, $match.backtrack ] ]);
+        my $marks = $nmatch.marks;
+        &match.goto($rule.exp, $match.clone(
+            marks => [ [ $rule, $match.backtrack ] ],
+        ), $continue);
+    }
+
+    when Cut {
+        my $back;
+        my $marks = $match.marks;
+        for $match.marks -> $mark {
+            if $rule.mark === $mark[0] {
+                $back = $mark[1];
+                last;
+            }
+        }
+        die "No mark to cut to" unless $back.defined;
+        
+        $continue.goto($match.clone(
+            backtrack => $back,
+        ));
+    }
+  }
 }
 
 # vim: ft=perl6 :
