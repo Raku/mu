@@ -57,11 +57,11 @@ sub JS::Root::slurp(Str $filename) is primitive {
 
 sub JS::Root::system(Str *@command) is primitive {
   JS::inline('(
-    function () {
+    function (arguments) {
         if (!Perl5) throw "Perl5 required.";
         var system = Perl5.perl_eval("sub {system(@_)}");
         return system.apply(system, arguments);
     }
-  )')(*@command)
+  )')(@command)
 }
 
