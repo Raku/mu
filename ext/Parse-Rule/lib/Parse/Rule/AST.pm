@@ -12,12 +12,12 @@ class Literal is rw {
     has $.string;
 }
 class Union is rw {
-    has $.left;
-    has $.right;
+    has $.either;
+    has $.or;
 }
 class Concat is rw {
-    has $.left;
-    has $.right;
+    has $.first;
+    has $.then;
 }
 
 # === Backtracking controls ===

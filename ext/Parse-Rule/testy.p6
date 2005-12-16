@@ -3,27 +3,27 @@ use lib::Parse::Rule::Match;
 
 my $ast = 
     Union.new(
-        left => Concat.new(
-            left => Literal.new(string => 'a'),
-            right => undef,
+        either => Concat.new(
+            first => Literal.new(string => 'a'),
+            then  => undef,
         ),
-        right => Literal.new(string => ''),
+        or     => Literal.new(string => ''),
     );
 
-my $x = $ast.left;
-$x.right = $ast;
+my $x = $ast.either;
+$x.then = $ast;
 
 my $mark = Mark.new(exp => $ast);
 
 my $astprime = 
     Concat.new(
-        left => Concat.new(
-            left => $mark,
-            right => Cut.new(
+        first => Concat.new(
+            first => $mark,
+            then => Cut.new(
                 mark => $mark,
             ),
         ),
-        right => Literal.new(string => 'a'),
+        then => Literal.new(string => 'a'),
     );
                 
 

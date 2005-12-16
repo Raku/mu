@@ -26,14 +26,14 @@ sub match($rule, $match, $continue) {
     }
 
     when Union {
-        &match.goto($rule.left, $match.clone(
-            backtrack => { &match.goto($rule.right, $match, $continue) },
+        &match.goto($rule.either, $match.clone(
+            backtrack => { &match.goto($rule.or, $match, $continue) },
         ), $continue);
     }
 
     when Concat {
-        &match.goto($rule.left, $match, -> $m {
-            &match.goto($rule.right, $m, $continue);
+        &match.goto($rule.first, $match, -> $m {
+            &match.goto($rule.then, $m, $continue);
         });
     }
 
