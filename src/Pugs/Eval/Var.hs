@@ -87,7 +87,7 @@ findVarRef name
 data FindSubFailure
     = NoMatchingMulti
     | NoSuchSub
-    | NoSuchMethod
+    | NoSuchMethod String
 
 findSub :: String     -- ^ Name, with leading @\&@.
         -> Maybe Exp  -- ^ Invocant
@@ -102,7 +102,7 @@ findSub name' invs args = do
             findSuperSub (mkType typ) (sig ++ name')
         Just exp | not (':' `elem` drop 2 name) -> do
             typ     <- evalInvType $ unwrap exp
-            if typ == mkType "Scalar::Perl5" then fmap (err NoSuchMethod) (runPerl5Sub name) else do
+            if typ == mkType "Scalar::Perl5" then fmap (err $ NoSuchMethod $ show typ) (runPerl5Sub name) else do
             findTypedSub typ name
         _ | [exp] <- args -> do
             typ     <- evalInvType $ unwrap exp
@@ -120,7 +120,7 @@ findSub name' invs args = do
         subs    <- findWithSuper pkg name
         subs'   <- either (flip findBuiltinSub name) (return . Right) subs
         case subs' of
-            Right sub | subName sub == qualified -> return (Left NoSuchMethod)
+            Right sub | subName sub == qualified -> return (Left $ NoSuchMethod $ show typ)
             _   -> return subs'
     findTypedSub :: Type -> String -> Eval (Either FindSubFailure VCode)
     findTypedSub typ name = do
@@ -255,7 +255,7 @@ findSub name' invs args = do
         attrs <- fmap (fmap (filter (/= pkg) . nub)) $ findAttrs pkg
         if isNothing attrs || null (fromJust attrs) then fmap (err NoMatchingMulti) (findSub' name) else do
         (`fix` (fromJust attrs)) $ \run pkgs -> do
-            if null pkgs then return (Left NoSuchMethod) else do
+            if null pkgs then return (Left $ NoSuchMethod $ pkg) else do
             subs <- findWithPkg (head pkgs) name
             either (const $ run (tail pkgs)) (return . Right) subs
     findSub' :: String -> Eval (Maybe VCode)
