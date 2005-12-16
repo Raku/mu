@@ -31,7 +31,7 @@ closures, and exports three functions: C<perl_apply>,
 C<perl_get_method>, C<perl_call_method>
 
 You need a modified version of L<JavaScript> perl module,
-L<http://home.clkao.org/~clkao/tmp/JavaScript-0.55.tar.gz>.
+L<http://home.clkao.org/~clkao/jspm>.
 
 =cut
 

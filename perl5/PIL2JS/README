@@ -555,6 +555,11 @@ exports perl5 functions that implements some primitives.  use
 
 to enable it.
 
+There is also a script C<util/jsperl> then can be used directly.
+
+You probably need snapshot releases of C<JavaScript> modules for this to work.
+L<http://home.clkao.org/~clkao/jspm>
+
 =back
 
 =head2 Opera's JavaScript engine
