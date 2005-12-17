@@ -201,9 +201,9 @@ sub run_js_on_jspm {
   PIL2JS::JSPM::init_js_for_perl5($ct)
     if $cfg{perl5};
   $ct->bind_function( name => 'print',
-		      func => sub { print "@_\n" });
+		      func => sub { print encode "utf-8", "@_\n" });
   $ct->bind_function( name => 'printWithoutNewline',
-		      func => sub { print "@_" });
+		      func => sub { print encode "utf-8", "@_" });
 
   my $rc = $ct->eval($js);
   warn "JavaScript: $@" if $@;
