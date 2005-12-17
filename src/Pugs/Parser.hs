@@ -399,7 +399,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     when (isJust formal && (not.null) names) $
         fail "Cannot mix placeholder variables with formal parameters"
     env <- getRuleEnv
-    let subExp = Val . VCode $ MkCode
+    let sub = VCode $ MkCode
             { isMulti       = isMulti
             , subName       = nameQualified
             , subEnv        = Just env
@@ -424,7 +424,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         self | styp > SubMethod = []
              | (prm:_) <- params, isInvocant prm = []
              | otherwise = [selfParam $ envPackage env]
-        mkExp n = Syn ":=" [Var n, Syn "sub" [subExp]]
+        mkExp n = Syn ":=" [Var n, Syn "sub" [Val sub]]
         mkSym n = Sym scope (mkMulti n) (mkExp n)
         -- Horrible hack! Sym "&&" is the multi form.
         mkMulti | isMulti   = ('&':)
@@ -449,10 +449,16 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
     -- Don't add the sub if it's unsafe and we're in safemode.
     if "unsafe" `elem` traits && safeMode then return emptyExp else case scope of
         SGlobal | isExported -> do
-            let caller  = maybe "main" envPackage (envCaller env)
-                nameExported = (head name:caller) ++ "::" ++ tail name
-            unsafeEvalExp $ mkSym nameExported
+            -- we mustn't perform the export immediately upon parse, because
+            -- then only the first consumer of a module will see it. Instead,
+            -- make a note of this symbol being exportable, and defer the
+            -- actual symbol table manipulation to opEval.
             unsafeEvalExp $ mkSym nameQualified
+            -- %*INC<This::Package><exports><&this_sub> = expression-binding-&this_sub
+            unsafeEvalExp $
+                Syn "=" [Syn "{}" [Syn "{}" [Syn "{}"
+                        [Var "%*INC", Val $ VStr pkg], Val (VStr "exports")], Val $ VStr name]
+                    , Val sub]
             return emptyExp
         SGlobal -> do
             unsafeEvalExp $ mkSym nameQualified
@@ -460,6 +466,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         _ -> do
             lexDiff <- unsafeEvalLexDiff $ mkSym nameQualified
             return $ Pad scope lexDiff $ mkExp name
+
 
 -- | A Param representing the default (unnamed) invocant of a method on the given type.
 selfParam :: String -> Param
@@ -808,15 +815,18 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
     when use $ do   -- for &no, don't load code
         val <- unsafeEvalExp $
             if lang == "perl5"
-                then Stmts (Sym SGlobal (':':'*':pkg) (Syn ":=" [ Var (':':'*':pkg), App (Var "&require_perl5") Nothing [Val $ VStr pkg] ])) (Syn "env" [])
-                else App (Var "&use") Nothing [Val . VStr $ concat (intersperse "::" names)]
+                then Stmts (Sym SGlobal (':':'*':pkg)
+                        (Syn ":=" [ Var (':':'*':pkg)
+                                  , App (Var "&require_perl5") Nothing [Val $ VStr pkg] ]))
+                        (Syn "env" [])
+                else App (Var "&use") Nothing [Val $ VStr pkg]
         case val of
             Val (VControl (ControlEnv env')) -> putRuleEnv env
                 { envClasses = envClasses env' `addNode` mkType pkg
                 , envGlobal  = envGlobal env'
                 }
             _  -> error $ pretty val
-    try (verbatimParens whiteSpace) <|> do
+    try (do { verbatimParens whiteSpace ; return emptyExp}) <|> do
         imp <- option emptyExp ruleExpression
         let sub = Var $ ('&':pkg) ++ if use then "::import" else "::unimport"
         unsafeEvalExp $ Syn "if"
@@ -824,8 +834,24 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
             , App sub (Just $ Val $ VStr $ pkg) [imp]
             , emptyExp
             ]
-        return ()
-    return emptyExp
+        -- for now, export everthing to the package.
+        -- TODO: lexdiff stuff, and import protocol.
+        (Val exports) <- unsafeEvalExp $ Syn "{}" [Syn "{}"
+                        [Var "%*INC", Val $ VStr pkg], Val (VStr "exports")]
+        if (not $ defined exports) then return emptyExp else do
+            (Val (VList names)) <- unsafeEvalExp $ App (Var "&keys") Nothing [Val exports]
+
+            let hardcodedScopeFixme = SGlobal
+                rebind scope (VStr name) = do
+                    (Val (obj)) <- unsafeEvalExp $ Syn "{}" [Val exports, Val $ VStr name]
+                    case scope of
+                        SGlobal -> unsafeEvalExp $ Sym scope (name) (Syn ":=" [Var name, Syn "sub" [Val obj]])
+                        SMy     -> fail "notyet" -- XXX writeme
+                        _       -> fail "notyet" -- XXX writeme. but do they all make sense at all?
+                rebind _ x = fail ("can't rebind: " ++ show x)
+
+            mapM_ (rebind hardcodedScopeFixme) names -- evil use of map in void context!
+            return emptyExp
 
 {-|
 Match a JSAN module name, returning an appropriate

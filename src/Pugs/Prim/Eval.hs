@@ -42,11 +42,11 @@ opRequire dumpEnv v = do
             [ Syn "{}"             -- subscript
                 [ Var "%*INC", Val . VStr $ decodeUTF8 mod ]
                 , Syn "\\{}"       -- hashref
-                    [ Syn "," [ mkStrPair "pathname" (decodeUTF8 pathName)
-                              , mkStrPair "relname"  (decodeUTF8 file) ]
+                    [ Syn "," [ mkStrPair "fullpath" (decodeUTF8 pathName)
+                              , mkStrPair "relpath"  (decodeUTF8 file) ]
                     ]
             ]
-        str         <- liftIO $ readFile pathName
+        str      <- liftIO $ readFile pathName
         opEval style pathName (decodeUTF8 str)
     where
     style = MkEvalStyle
