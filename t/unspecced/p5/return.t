@@ -3,27 +3,21 @@
 use v6;
 use Test;
 
-BEGIN {
-    plan(1);
+plan(2);
 
-    unless eval 'eval("1", :lang<perl5>)' {
-        skip_rest;
-        exit;
-    }
-}
-
-use perl5:Digest::MD5;
-
-unless eval 'eval_perl5("1")' {
-    skip_rest;
+# XXX: can't catch exception from try { use perl5: }
+unless try { use jsperl5:Digest::MD5 <md5_hex>; 1 } {
+    skip_rest $!;
     exit;
 }
-
-use perl5:Digest::MD5;
 
 sub get_dmd5() {
     my $ctx = Digest::MD5.new;
     return($ctx);
+}
+
+{
+    is( md5_hex('test'), '098f6bcd4621d373cade4e832627b4f6', 'perl5 function exported' );
 }
 
 {

@@ -5,7 +5,7 @@ use Test;
 
 plan(11);
 
-unless eval 'eval("1", :lang<perl5>)' {
+unless try { eval("1", :lang<perl5>) } {
     skip_rest;
     exit;
 }
@@ -13,7 +13,7 @@ unless eval 'eval("1", :lang<perl5>)' {
 die unless
 eval(q/
 package My::Array;
-use strict;
+ use strict; # XXX - if 'use' is in first column it got used by pugs!
 print ''; # XXX - voodoo!
 
 sub new {

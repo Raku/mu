@@ -773,6 +773,9 @@ ruleUsePackage use = rule "use package" $ do
         "jsan" -> if use
                       then ruleUseJSANModule
                       else fail "can't 'no' a JSAN module"
+        "jsperl5"-> if use
+                      then ruleUseJSPerl5Module
+                      else fail "can't 'no' a Perl5 module"
         _      -> ruleUsePerlPackage use lang
     where
     ruleUsePackageLang = option "pugs" $ try $ do
@@ -854,6 +857,35 @@ ruleUseJSANModule = do
             let exp' | exp == emptyExp = []
                      | otherwise       = [exp]
             return $ App (Var "&PIL2JS::Internals::use_jsan_module_imp") Nothing $ name:exp'
+        ] 
+
+{-|
+Match a perl5 module for js backend, returning an appropriate
+sub call 'Pugs.AST.Exp' that will load the module using subs defined in
+@PIL2JS::Internals@.
+
+-}
+ruleUseJSPerl5Module :: RuleParser Exp
+ruleUseJSPerl5Module = do
+    (names, _, _) <- tryChoice
+        [ rulePackageFullName
+        -- leave this in as a hack, until we decide
+        -- whether to allow it or not
+        , do
+            name <- ruleDelimitedIdentifier "::"
+            return (name, Nothing, Nothing)
+        ]
+    
+    let name = Val . VStr . concat $ intersperse "::" names
+    choice
+        [ try $ do
+            verbatimParens whiteSpace
+            return $ App (Var "&PIL2JS::Internals::use_perl5_module_noimp") Nothing [name]
+        , do
+            exp <- option emptyExp ruleExpression
+            let exp' | exp == emptyExp = []
+                     | otherwise       = [exp]
+            return $ App (Var "&PIL2JS::Internals::use_perl5_module_imp") Nothing $ name:exp'
         ] 
         
 {-|

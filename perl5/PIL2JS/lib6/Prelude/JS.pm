@@ -28,6 +28,7 @@ use Prelude::JS::Array;
 use Prelude::JS::Context;
 use Prelude::JS::Math;
 use Prelude::JS::JSAN;
+use Prelude::JS::Perl5;
 use Prelude::JS::Rules;
 use Prelude::JS::Smartmatch;
 use Prelude::JS::OO;
