@@ -63,7 +63,7 @@
 ::Class.add_method('superclasses', -> { self.get_attr('@!superclasses') });
 ::Class.add_method('set_superclasses', -> @superclasses { 
     -> $super { 
-        $super.add_subclass($?CLASS) 
+        $super.add_subclass(self) 
     }.do_for(@superclasses);
     self.set_attr('@!superclasses', @superclasses);
     self.set_attr('@!MRO', self.mro_merge);    
@@ -188,9 +188,9 @@
 ::Package.add_attribute('$!name', nil);
 ::Package.add_attribute('%!namespace', nil);
 
-::Package.add_method('name', -> { self.get_attr('$!name'); });
+::Package.add_method('name',     ->       { self.get_attr('$!name') });
 ::Package.add_method('set_name', -> $name {
-    self.set_attr('$!name', $name);
+    -> { self.set_attr('$!name', $name) }.do_if($name.not_nil);    
 });
 
 ::Package.add_method('FETCH', -> $name { });
@@ -206,14 +206,14 @@
 ::Module.add_attribute('$!version',   nil);
 ::Module.add_attribute('$!authority', nil);
 
-::Module.add_method('version', -> { self.get_attr('$!version'); } );
+::Module.add_method('version',     ->          { self.get_attr('$!version') });
 ::Module.add_method('set_version', -> $version {
-    self.set_attr('$!version', $version);
+    -> { self.set_attr('$!version', $version) }.do_if($version.not_nil);
 });
 
-::Module.add_method('authority', -> $authority { self.get_attr('$!authority'); } );
+::Module.add_method('authority',     ->            { self.get_attr('$!authority') });
 ::Module.add_method('set_authority', -> $authority {
-    self.set_attr('$!authority', $authority);
+    -> { self.set_attr('$!authority', $authority) }.do_if($authority.not_nil);
 });
 
 ::Module.add_method('identifier', -> {
@@ -258,17 +258,17 @@
 
 ::Class.add_attribute('$!name', nil);         ::Class.set_attr('$!name', nil);
 ::Class.add_attribute('$!namespace', nil);    ::Class.set_attr('$!namespace', {});
-::Class.add_attribute('$!version', nil);      ::Class.set_attr('$!version', '0.0.1');
+::Class.add_attribute('$!version', nil);      ::Class.set_attr('$!version', nil);
 ::Class.add_attribute('$!authority', nil);    ::Class.set_attr('$!authority', nil);
                                               
 ::Object.add_attribute('$!name', nil);        ::Object.set_attr('$!name', nil);
 ::Object.add_attribute('$!namespace', nil);   ::Object.set_attr('$!namespace', {});
-::Object.add_attribute('$!version', nil);     ::Object.set_attr('$!version', '0.0.1');
+::Object.add_attribute('$!version', nil);     ::Object.set_attr('$!version', nil);
 ::Object.add_attribute('$!authority', nil);   ::Object.set_attr('$!authority', nil);
                                               
 ::Package.add_attribute('$!name', nil);       ::Package.set_attr('$!name', nil);
 ::Package.add_attribute('$!namespace', nil);  ::Package.set_attr('$!namespace', {});
-::Package.add_attribute('$!version', nil);    ::Package.set_attr('$!version', '0.0.1');
+::Package.add_attribute('$!version', nil);    ::Package.set_attr('$!version', nil);
 ::Package.add_attribute('$!authority', nil);  ::Package.set_attr('$!authority', nil);
                                               
 ::Module.add_attribute('$!name', nil);        ::Module.set_attr('$!name', nil);
@@ -276,12 +276,12 @@
 ::Module.add_attribute('$!version', nil);     ::Module.set_attr('$!version', nil);
 ::Module.add_attribute('$!authority', nil);   ::Module.set_attr('$!authority', nil);
 
-# ... now we can name all out objects
+# ... now we can name and version all our objects
 
-::Class.set_name('Class');
-::Object.set_name('Object');
-::Package.set_name('Package');
-::Module.set_name('Module');
+::Class.set_name('Class');     ::Class.set_version('0.0.1');   ::Class.set_authority('url:pugscode.org');
+::Object.set_name('Object');   ::Object.set_version('0.0.1');  ::Object.set_authority('url:pugscode.org');
+::Package.set_name('Package'); ::Package.set_version('0.0.1'); ::Package.set_authority('url:pugscode.org');
+::Module.set_name('Module');   ::Module.set_version('0.0.1');  ::Module.set_authority('url:pugscode.org');
 
 ## end bootstrapping ...
 ## ------------------------------------------------------------------------- ##
@@ -304,3 +304,4 @@ Audrey Tang
 Stevan Little 
 
 =cut
+
