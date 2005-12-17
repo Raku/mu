@@ -570,7 +570,7 @@ this line becomes:
 
 Regardless of which pattern engine is used, the capture, if successful,
 goes to C<$0> and not C<$1> as it would in Perl 5. The other difference
-is that instead of using C<~=>, we now use C<~~> to match. The change
+is that instead of using C<=~>, we now use C<~~> to match. The change
 is not just one of spelling: C<~~> is the shiny new I<smart match>
 operator, which has very well-defined semantics for matching anything
 against anything else. That is, you know in advance what it'd do if you
