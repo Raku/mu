@@ -54,18 +54,21 @@
 ## informational methods
 
 ::Class.add_method('id', -> { });
-::Class.add_method('class', -> { });
+::Class.add_method('class', -> { $?CLASS });
 
 ::Class.add_method('is_a', -> $class { });
 
 ## (super|sub)classes
 
-::Class.add_method('superclasses', ->{ self.get_attr('@!superclasses') });
-::Class.add_method('set_superclasses', -> @classes {
-    -> $super { $super.add_subclass($?CLASS) }.do_for(@classes);
-    self.set_attr('@!superclasses', @classes);
-    self.set_attr('@!MRO', self.mro_merge);
+::Class.add_method('superclasses', -> { self.get_attr('@!superclasses') });
+::Class.add_method('set_superclasses', -> @superclasses { 
+    -> $super { 
+        $super.add_subclass($?CLASS) 
+    }.do_for(@superclasses);
+    self.set_attr('@!superclasses', @superclasses);
+    self.set_attr('@!MRO', self.mro_merge);    
 });
+
 ::Class.add_method('MRO', -> {
     @mro := self.get_attr('@!MRO');
     @mro.is_empty.cond(
@@ -73,8 +76,14 @@
         ->{@mro}
     );
 });
-::Class.add_method('subclasses', -> { });
-::Class.add_method('add_subclass', -> $class { });
+::Class.add_method('subclasses',   ->        { self.get_attr('@!subclasses') });
+::Class.add_method('add_subclass', -> $class { 
+    @subclasses := self.get_attr('@!subclasses').is_nil.cond(
+        -> { [] },
+        -> { self.get_attr('@!subclasses').push($class) }
+    );
+    self.set_attr('@!subclasses', @subclasses);
+});
 
 ## dispatching
 
@@ -194,41 +203,30 @@
 ::Module := ::Class.new({});
 ::Module.set_superclasses([ ::Package ]);
 
-::Module.add_attribute('$!version', nil);
+::Module.add_attribute('$!version',   nil);
 ::Module.add_attribute('$!authority', nil);
 
 ::Module.add_method('version', -> $version {
-    # NOTE: this is not ideal, I really 
-    # just need a lazy bit.and()
-    $version.is_nil.cond(
-        -> { nil },
-        -> { self.set_attr('$!version', $version) }
-    );
-    self.get_attr('$!version');    
+    -> { self.set_attr('$!version', $version) }.do_if($version.not_nil);
+    self.get_attr('$!version');       
 });
 
 ::Module.add_method('authority', -> $authority {
-    # NOTE: this is not ideal, I really 
-    # just need a lazy bit.and()
-    $authority.is_nil.cond(
-        -> { nil },
-        -> { self.set_attr('$!authority', $authority) }
-    );
-    self.get_attr('$!authority');    
+    -> { self.set_attr('$!authority', $authority) }.do_if($authority.not_nil);
+    self.get_attr('$!authority');       
 });
 
 ::Module.add_method('identifier', -> {
-    # NOTE: this does not handle the condition
-    # when $!version or $!authority is nil
-    self.get_attr('$!name')
-        .concat('-')
-        .concat(
-            self.get_attr('$!version')
-                .concat('-')
-                .concat(
-                    self.get_attr('$!authority')                
-                )
-        )
+    $output := self.get_attr('$!name');
+    $output := self.get_attr('$!version').not_nil.cond(
+                     -> { $output.concat('-').concat(self.get_attr('$!version')) },
+                     -> { $output }
+               );
+    $output := self.get_attr('$!authority').not_nil.cond(
+                     -> { $output.concat('-').concat(self.get_attr('$!authority')) },
+                     -> { $output }
+               ); 
+    $output;
 });
 
 ## ------------------------------------------------------------------------- ##
@@ -243,7 +241,7 @@
 
 ::Class.set_attr('@!superclasses', [ ::Module ]);
 
-::Module.set_attr('@!subclasses', [ ::Class ]); 
+::Module.set_attr('@!subclasses',  [ ::Class ]); 
 
 # NOTE:
 # not doing this made our prototype go into 
@@ -254,27 +252,31 @@
 # NOTE:
 # these attributes need to be added manually since
 # ::Class would have inherited them, but couldn't 
-# since they had not yet been defined, 
+# since they had not yet been defined. We also need
+# to be sure we add them to the instance types as 
+# well (no auto-vivification in the mini-lang ;)
 
-::Class.add_attribute('$!name', nil);
-::Class.add_attribute('$!namespace', nil);
-::Class.add_attribute('$!version', nil);
-::Class.add_attribute('$!authority', nil);
+::Class.add_attribute('$!name', nil);         ::Class.set_attr('$!name', nil);
+::Class.add_attribute('$!namespace', nil);    ::Class.set_attr('$!namespace', {});
+::Class.add_attribute('$!version', nil);      ::Class.set_attr('$!version', '0.0.1');
+::Class.add_attribute('$!authority', nil);    ::Class.set_attr('$!authority', nil);
+                                              
+::Object.add_attribute('$!name', nil);        ::Object.set_attr('$!name', nil);
+::Object.add_attribute('$!namespace', nil);   ::Object.set_attr('$!namespace', {});
+::Object.add_attribute('$!version', nil);     ::Object.set_attr('$!version', '0.0.1');
+::Object.add_attribute('$!authority', nil);   ::Object.set_attr('$!authority', nil);
+                                              
+::Package.add_attribute('$!name', nil);       ::Package.set_attr('$!name', nil);
+::Package.add_attribute('$!namespace', nil);  ::Package.set_attr('$!namespace', {});
+::Package.add_attribute('$!version', nil);    ::Package.set_attr('$!version', '0.0.1');
+::Package.add_attribute('$!authority', nil);  ::Package.set_attr('$!authority', nil);
+                                              
+::Module.add_attribute('$!name', nil);        ::Module.set_attr('$!name', nil);
+::Module.add_attribute('$!namespace', nil);   ::Module.set_attr('$!namespace', {});
+::Module.add_attribute('$!version', nil);     ::Module.set_attr('$!version', nil);
+::Module.add_attribute('$!authority', nil);   ::Module.set_attr('$!authority', nil);
 
-::Object.add_attribute('$!name', nil);
-::Object.add_attribute('$!namespace', nil);
-::Object.add_attribute('$!version', nil);
-::Object.add_attribute('$!authority', nil);
-
-::Package.add_attribute('$!name', nil);
-::Package.add_attribute('$!namespace', nil);
-::Package.add_attribute('$!version', nil);
-::Package.add_attribute('$!authority', nil);
-
-::Module.add_attribute('$!name', nil);
-::Module.add_attribute('$!namespace', nil);
-::Module.add_attribute('$!version', nil);
-::Module.add_attribute('$!authority', nil);
+# ... now we can name all out objects
 
 ::Class.name('Class');
 ::Object.name('Object');
