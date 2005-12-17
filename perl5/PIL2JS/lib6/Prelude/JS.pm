@@ -101,9 +101,18 @@ sub prefix:<*>(Array|Pair|Hash $thing) {
 }
 
 sub JS::Root::eval(Str $code?, Str :$lang = 'Perl6') {
+  if (lc($lang) eq 'perl5') {
+    # TODO: do try here and handle $!
+    return JS::inline('(
+  function (str) {
+    if (!Perl5) throw "Perl5 required.";
+    return Perl5.perl_eval(str);
+  })')($code);
+  }
   $! = "&eval does not work under PIL2JS.";
   undef;
 }
+
 # Stub.
 method perl(Any $self:) { ".perl not yet implemented in PIL2JS" }
 
