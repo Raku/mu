@@ -1,5 +1,5 @@
-multi sub sum ()          returns Int { 0             }
-multi sub sum (*$x, *@xs) returns Int { $x + sum(@xs) }
+multi sub sum ()          returns Int { 0      }
+multi sub sum (Array *@x) returns Int { [+] @x }
 
 say "... sum";
 say sum(1 .. 10);
