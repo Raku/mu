@@ -84,7 +84,26 @@ I<This documentation is pending.>
 
 =head1 DESCRIPTION
 
-I<This documentation is pending.>
+SQL::Routine provides an effective language for defining relational data
+models, both the means to create them and the means to interact with them.
+The language loosely resembles the ANSI/ISO SQL:2003 standard in purpose
+and structure, but its details are different.  This is partly so that it
+can more elegantly support the specific relational model that E. F. Codd
+proposed in his 1970 publication titled "A Relational Model of Data for
+Large Shared Data Banks", but that SQL diverged from in some ways.
+Regardless, it should be easy to translate database definitions and queries
+between SQL and the language SQL::Routine provides.
+
+SQL::Routine is implemented as abstract syntax trees, and you use it by
+creating, manipulating, and reading nodes in these trees.  Each tree node
+is atomic, so you can just build the trees by copying scalar values from a
+data dictionary; no stitching or parsing more complicated command strings
+is necessary like with SQL.
+
+L<Rosetta> (distributed separately) is a relational database access
+solution that uses SQL::Routine objects as its native instruction set
+rather than SQL strings.  But SQL::Routine can also be used independently
+of Rosetta, such as when translating SQL from one dialect to another.
 
 =head1 INTERFACE
 
