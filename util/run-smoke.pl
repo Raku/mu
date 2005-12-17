@@ -47,7 +47,7 @@ $ENV{HARNESS_PERL}  = "$^X $FindBin::Bin/../perl5/PIL-Run/pugs-p5.pl"
     if $ENV{PUGS_RUNTIME} and $ENV{PUGS_RUNTIME} eq 'PERL5';
 
 $ENV{PERL6LIB}      = join $Config{path_sep},
-        qw<ext/Test/lib blib6/lib>, $ENV{PERL6LIB};
+        qw<ext/Test/lib blib6/lib>, $ENV{PERL6LIB}||"";
 
 my @yaml_harness_args;
 push(@yaml_harness_args,'--exclude','Disabled,^ext\b')
