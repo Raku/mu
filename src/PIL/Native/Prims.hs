@@ -93,9 +93,6 @@ anyPrims = mkMap
     , prim1 "gt"        (>)
     , prim1 "ge"        (>=)
     ]
-    where
-    is_nil (NError {})  = True
-    is_nil _            = False
 
 bitPrims :: MapOf (NativeBit -> SeqOf Native -> Native)
 bitPrims = mkMap

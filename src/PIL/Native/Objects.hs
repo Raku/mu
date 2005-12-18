@@ -10,6 +10,7 @@ import PIL.Native.Coerce
 import PIL.Native.Types
 import PIL.Native.Pretty
 import System.Mem.Weak
+import Control.Exception
 import Control.Monad.State
 
 type ObjectSpace = SeqOf (Weak NativeObj)
@@ -20,37 +21,35 @@ dumpObjSpace ptrs = mapM_ dumpObj (elems ptrs)
     dumpObj ptr = do
         rv <- deRefWeak ptr
         case rv of
-            Just obj -> putStrLn $ "#obj# " ++ pretty obj
+            Just obj -> do
+                putStr $ "#obj# " ++ pretty obj
+                (handle (const $ putStrLn "")) $ do
+                    val <- getAttr obj (mkStr "$!name")
+                    print $! toString val
             Nothing  -> return ()
 
 getAttr :: MonadSTM m => NativeObj -> NativeStr -> m Native
-getAttr obj att = do
-    attrs <- liftSTM $ readTVar (o_attrs obj)
-    case attrs `fetch` att of
-        Just val -> return val
-        Nothing  -> failWith "no such attribute" att
+getAttr obj att = liftSTM $ o_fetch obj att
 
 setAttr :: MonadSTM m => NativeObj -> NativeStr -> Native -> m ()
-setAttr obj att val = do
-    let tvar = o_attrs obj
-    attrs <- liftSTM $ readTVar tvar
-    -- unless (exists attrs att) $ failWith "no such attribute" att
-    liftSTM $ writeTVar tvar (insert attrs att val)
+setAttr obj att val = liftSTM $ o_store obj att val
 
 addAttr :: MonadSTM m => NativeObj -> NativeStr -> m ()
-addAttr obj att = do
-    let tvar = o_attrs obj
-    attrs <- liftSTM $ readTVar tvar
-    when (exists attrs att) $ failWith "already got attribute" att
-    liftSTM $ writeTVar tvar (insert attrs att nil)
+addAttr obj att = liftSTM $ o_store obj att nil
 
 newObject :: (MonadState ObjectSpace m, MonadIO m, MonadSTM m) =>
     NativeObj -> NativeMap -> m NativeObj
 newObject cls attrs = do
     tvar  <- liftSTM $ newTVar attrs
     objs  <- get
-    let obj = MkObject oid cls tvar
+    let obj = MkObject oid cls fetch store freeze thaw
         oid = size objs
+        fetch key = fmap (! key) $ readTVar tvar
+        store key val = do
+            attrs <- readTVar tvar
+            writeTVar tvar (insert attrs key val)
+        freeze = error "freeze"
+        thaw = error "thaw"
     ptr <- liftIO $ mkWeak tvar obj Nothing
     put (insert objs oid ptr)
     return obj

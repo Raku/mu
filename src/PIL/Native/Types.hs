@@ -52,18 +52,22 @@ data Native
 type ObjectId    = NativeInt
 type ObjectAttrs = TVar NativeMap
 
-instance Show ObjectAttrs where
-    show _ = "<opaque>"
-
+instance Show NativeObj where
+    show o = "<obj:#" ++ show (o_id o) ++ "|cls:#" ++ show (o_id (o_class o)) ++ ">"
+instance Eq NativeObj where
+    x == y = (o_id x) == (o_id y)
 instance Ord NativeObj where
     compare x y = compare (o_id x) (o_id y)
 
 data NativeObj = MkObject
     { o_id      :: !ObjectId
     , o_class   :: NativeObj -- ::Class is self-recursive, so can't be strict here
-    , o_attrs   :: !ObjectAttrs
+    , o_fetch   :: NativeStr -> STM Native
+    , o_store   :: NativeStr -> Native -> STM ()
+    , o_freeze  :: STM NativeStr
+    , o_thaw    :: NativeStr -> STM ()
     }
-    deriving (Show, Eq, Typeable)
+    deriving (Typeable)
 
 type Pad = NativeMap
 

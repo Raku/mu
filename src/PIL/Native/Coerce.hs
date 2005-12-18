@@ -27,6 +27,10 @@ See Also:
 nil :: Native
 nil = toNative mkNil
 
+is_nil :: Native -> Bool
+is_nil (NError {})  = True
+is_nil _            = False
+
 emptySeq :: Native
 emptySeq = toNative (empty :: NativeSeq)
 
@@ -209,11 +213,13 @@ instance IsNative NativeMap where
     fromNative (NMap x)     = x
     fromNative x            = castFail x
 
+{-
 instance IsNative NativeSeq where
     toNative = NSeq
     fromNative (NError {})  = empty
     fromNative (NSeq x)     = x
     fromNative x            = castFail x
+-}
 
 instance IsNative NativeSub where
     toNative = NSub
@@ -264,6 +270,18 @@ instance (IsNative a) => IsNative (Maybe a) where
     toNative (Just x) = toNative x
     fromNative (NError {}) = Nothing
     fromNative x           = Just (fromNative x)
+
+instance (IsNative a) => IsNative (SeqOf a) where
+    toNative = NSeq . fmap toNative
+    fromNative (NError {})  = empty
+    fromNative (NSeq x)     = fmap fromNative x
+    fromNative x            = castFail x
+
+instance IsNative [NativeObj] where
+    toNative = NSeq . mkSeq . map toNative
+    fromNative (NError {})  = []
+    fromNative (NSeq x)     = elems $ fmap fromNative x
+    fromNative x            = castFail x
 
 castFail :: a -> b
 castFail _ = error "cast fail"

@@ -77,9 +77,13 @@ instance Pretty Native where
 
 instance Pretty NativeObj where
     format o = text $ "<obj:#" ++ show (o_id o) ++ "|cls:#" ++ show (o_id (o_class o)) ++ ">"
+    {-
     formatM o = do
-        attrs <- liftSTM $ readTVar (o_attrs o)
-        formatM attrs
+        keys <- liftSTM (o_keys o)
+        -- $ readTVar (o_attrs o)
+        --formatM attrs
+        formatM (NNum 1)
+    -}
 
 instance Pretty NativeSeq where
     format x = brackets (nest defaultIndent (commaSep $ elems x))
