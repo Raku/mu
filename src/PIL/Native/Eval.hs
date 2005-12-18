@@ -39,6 +39,7 @@ evalMain exps = bootstrapClass $ do
     -- addClassMethods
     evalExps exps
 
+{-
 addClassMethods :: Eval Native
 addClassMethods = do
     add "has_method"        "-> $name { self.get_attr('%!methods').exists($name) }"
@@ -55,6 +56,7 @@ addClassMethods = do
 
 eval :: String -> Eval Native
 eval = evalExp . parseExp
+-}
 
 bootstrapClass :: Eval a -> Eval a
 bootstrapClass x = mdo
@@ -181,15 +183,29 @@ callObject obj meth args = enterLex lex $ do
                 key :: NativeStr = fromNative keyVal
             hash <- obj ... fromNative attrVal :: Eval NativeMap
             setAttr obj (fromNative attrVal) (toNative $ insert hash key val)
-            return nil
+            return val
         "new_opaque" -> do
             fmap toNative $ newObject cls (fromNative $ args ! 0)
         "mro_merge" -> do
-            supers <- fmap fromNative $ callObject (o_class obj) (mkStr "superclasses") empty
-            {-
-            mros   <- fmapM (\NObj c -> fmap fromNative $ callObject c (mkStr "MRO") empty) supers
-                :: Eval (SeqOf NativeObj)
-            return $ toNative (fmap toNative (mros `append` supers))
-            -}
-            return $ toNative (toNative (o_class obj):supers)
+            let cls = o_class obj
+            supers <- fmap fromNative $ callObject cls __superclasses empty
+                :: Eval [NativeObj]
+            mros   <- fmapM (\c -> fmap fromNative $ callObject c __MRO empty) supers
+                :: Eval [[NativeObj]]
+            let seqs = filter (not . null) $ ([cls]:mros) ++ [supers]
+            return . toNative $ mkSeq (mroMerge seqs)
         _ -> failWith "No such method" meth
+
+mroMerge :: Eq a => [[a]] -> [a]
+mroMerge = reverse . doMerge []
+    where
+    doMerge res seqs
+        | seqs'@(_:_) <- filter (not . null) seqs
+        , (cand:_) <- [ s | (s:_) <- seqs', all (not . elem s . tail) seqs']
+        = doMerge (cand:res) [ if s == cand then rest else full | full@(s:rest) <- seqs' ]
+    doMerge res _ = res
+
+__superclasses :: NativeLangMethod
+__superclasses = mkStr "superclasses"
+__MRO          :: NativeLangMethod
+__MRO          = mkStr "MRO"
