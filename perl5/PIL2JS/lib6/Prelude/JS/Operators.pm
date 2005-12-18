@@ -152,6 +152,14 @@ sub infix:{">>+<<"} (Array @a, Array @b) {
   __hyper(&infix:<+>, @a, @b);
 }
 
+our &infix:{"»+«"} := &infix:{">>+<<"};
+
+sub infix:{">>~<<"} (Array @a, Array @b) {
+  __hyper(&infix:<~>, @a, @b);
+}
+
+our &infix:{"»~«"} := &infix:{">>~<<"};
+
 sub __hyper (Code $op, Array @a, Array @b) {
   my Array @ret;
   for 0..(@a.end, @b.end).max -> $i {
