@@ -150,11 +150,13 @@ doBindArray v (xs, n)  (p, _) = case v of
 
 isNamedArg :: Exp -> Bool
 isNamedArg (Syn "named" [(Val (VStr _)), _]) = True
+isNamedArg (Syn "named" [Ann _ (Val (VStr _)), _]) = True -- should the Ann reach here?
 isNamedArg arg@(Syn "named" _)               = error $ "malformed named arg: " ++ show arg
 isNamedArg _                                 = False
 
 unwrapNamedArg :: Exp -> (String, Exp)
 unwrapNamedArg (Syn "named" [(Val (VStr key)), val]) = (key, val)
+unwrapNamedArg (Syn "named" [Ann _ (Val (VStr key)), val]) = (key, val) -- (see comment in isNamedArg)
 unwrapNamedArg x = error $ "not a well-formed named arg: " ++ show x
 
 {-|
