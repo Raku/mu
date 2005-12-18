@@ -34,7 +34,7 @@
                             $attr := @attrs.fetch(0);
                             &redo.(
                                 @attrs.splice(1),
-                                %new_attrs.store($attr, nil), #$attr.instantiate_container),
+                                %new_attrs.store($attr, nil), # $attr.instantiate_container),
                             );
                         },
                     );
@@ -63,23 +63,28 @@
 ::Class.add_method('superclasses', -> { self.get_attr('@!superclasses') });
 ::Class.add_method('set_superclasses', -> @superclasses { 
     -> $super { 
-        $super.add_subclass(self) 
+        $super.add_subclass(self); 
     }.do_for(@superclasses);
     self.set_attr('@!superclasses', @superclasses);
     self.set_attr('@!MRO', self.mro_merge);    
 });
 
 ::Class.add_method('MRO', -> {
-    @mro := self.get_attr('@!MRO');
-    @mro.is_empty.cond(
-        ->{self.set_attr('@!MRO', self.mro_merge)},
-        ->{@mro}
-    );
+    self.mro_merge();
+# NOTE:
+# we don't cache it for now, not sure why
+# but this just wasn't working ...
+#    @mro := self.get_attr('@!MRO');
+#    @mro.is_empty.cond(
+#        ->{ self.set_attr('@!MRO', self.mro_merge) },
+#        ->{ @mro }
+#    );
 });
+
 ::Class.add_method('subclasses',   ->        { self.get_attr('@!subclasses') });
 ::Class.add_method('add_subclass', -> $class { 
     @subclasses := self.get_attr('@!subclasses').is_nil.cond(
-        -> { [] },
+        -> { [ $class ] },
         -> { self.get_attr('@!subclasses').push($class) }
     );
     self.set_attr('@!subclasses', @subclasses);
@@ -304,4 +309,3 @@ Audrey Tang
 Stevan Little 
 
 =cut
-

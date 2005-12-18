@@ -187,7 +187,13 @@ callObject obj meth args = enterLex lex $ do
         "new_opaque" -> do
             fmap toNative $ newObject cls (fromNative $ args ! 0)
         "mro_merge" -> do
-            let cls = o_class obj
+            -- NOTE:
+            -- we get the MRO of the object itself
+            -- not it's class. In fact, this 
+            -- this method should only available
+            -- for instances of ::Class. How do we 
+            -- handle that??   - stevan
+            let cls = obj
             supers <- fmap fromNative $ callObject cls __superclasses empty
                 :: Eval [NativeObj]
             mros   <- fmapM (\c -> fmap fromNative $ callObject c __MRO empty) supers
