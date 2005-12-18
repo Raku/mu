@@ -141,12 +141,38 @@ for «
       \}
     \}
   ";
+#  XXX: currying doesn't work properly
+#  $eval ~= "
+#    our &infix:\{\"»$op«\"\} := &__hyper.assuming( 'op' => &infix«$op» );
+#    our &infix:\{\">>$op<<\"\} := &__hyper.assuming( 'op' => &infix«$op» );
+#  ";
+}
+
+sub infix:{">>+<<"} (Array @a, Array @b) {
+  __hyper(&infix:<+>, @a, @b);
+}
+
+sub __hyper (Code $op, Array @a, Array @b) {
+  my Array @ret;
+  for 0..(@a.end, @b.end).max -> $i {
+    if $i > @a.end {
+      push @ret, @b[$i];
+    }
+    elsif $i > @b.end {
+      push @ret, @a[$i];
+    }
+    else {
+      push @ret, $op(@a[$i], @b[$i]);
+    }
+  }
+  return @ret;
 }
 
 # From here on, most normal things won't work any longer, as all the standard
 # operators are overloaded with calls to JS::inline.
 Pugs::Internals::eval $eval;
 die $! if $!;
+
 
 sub prefix:<++>  ($a is rw)    is primitive { $a = $a + 1 }
 sub postfix:<++> ($a is rw)    is primitive { my $cur = $a; $a = $a + 1; $cur }
