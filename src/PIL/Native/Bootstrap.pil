@@ -1,5 +1,30 @@
 #!pil
 
+=pod
+
+=head1 NEXT STEPS
+
+=head2 dispatcher
+
+We need to figure out the dispatcher next. In the p5 version it is a closure
+based iterator, it could also be a coroutine/continuation too. It needs to
+be easily resumable to support "next METHOD". 
+
+This will allow us to define WALKCLASS and WALKMETH, and then we can write
+BUILDALL and DESTROYALL, then BUILD will work. WALKCLASS will also help to
+simplify CREATE as well.
+
+=head2 attr.instantiate_container()
+
+We need to get this working as well so that we don't need to check for nils
+in situations which we should be just checking is_empty.
+
+=head2 obj.id
+
+We need to expose the id for instances to the mini-lang.
+
+=cut
+
 ## ------------------------------------------------------------------------- ##
 ## Class
 ## ------------------------------------------------------------------------- ##
