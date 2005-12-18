@@ -160,8 +160,14 @@ sub infix:{">>~<<"} (Array @a, Array @b) {
 
 our &infix:{"»~«"} := &infix:{">>~<<"};
 
-sub __hyper (Code $op, Array @a, Array @b) {
+sub __hyper (Code $op, Array @a is copy, Array @b is copy) {
   my Array @ret;
+  if (@a.elems == 1) {
+      @a = @a[0] xx @b.elems;
+  }
+  if (@b.elems == 1) {
+      @b = @b[0] xx @a.elems;
+  }
   for 0..(@a.end, @b.end).max -> $i {
     if $i > @a.end {
       push @ret, @b[$i];
