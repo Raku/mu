@@ -13,7 +13,9 @@ Tests curried subs as defined by L<S06/Currying>
 
 =cut
 
-plan 8;
+plan 9;
+
+package main; # XXX PIL2JS namespace bug
 
 sub foo ($x?, $y?, $z = 'd') {
     "x=$x y=$y z=$z";
@@ -36,3 +38,23 @@ ok(!(try { &foo.assuming("f" => 3) }), "can't curry nonexistent named param",:to
 (eval('use t::packages::Test') // {}).assuming(arg1 => "foo");
 is try { dummy_sub_with_params(arg2 => "bar") }, "[foo] [bar]",
   "(use ...).assuming works", :todo<feature>;
+
+sub __hyper ($op?, Array @a, Array @b) {
+  my Array @ret;
+  for 0..(@a.end, @b.end).max -> $i {
+    if $i > @a.end {
+      push @ret, @b[$i];
+    }
+    elsif $i > @b.end {
+      push @ret, @a[$i];
+    }
+    else {
+      push @ret, $op(@a[$i], @b[$i]);
+    }
+  }
+  return @ret;
+}
+
+my @x = (1,2,23);
+is( try { &__hyper.assuming("op" => &infix:<+>)(@x, @x) },
+    (2,4,46) );
