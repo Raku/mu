@@ -2,7 +2,7 @@ sub PIL2JS::Internals::use_perl5_module_imp(Str $mod, *@imports) {
   JS::inline('(
   function (mod, imports) {
     Perl5.perl_use(mod);
-    for (sym in imports) {
+    for (var sym in imports) {
       var f = Perl5.perl_can(mod, imports[sym]);
       // XXX: should be caller space, not main!
       // &main::<name> 
