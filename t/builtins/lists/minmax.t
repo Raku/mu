@@ -3,7 +3,7 @@
 use Test;
 use v6;
 
-plan 12;
+plan 16;
 
 =head1 DESCRIPTION
 
@@ -32,8 +32,14 @@ is @array.max:{ abs $^a <=> abs $^b }, -9,
 is max({ abs $^a <=> abs $^b }, @array), -9,
   "subroutine form of max taking a comparision block works";
 
-# Error cases
+# Error cases:
 dies_ok { 42.max }, ".max should not work on scalars", :todo<bug>;
 dies_ok { 42.min }, ".min should not work on scalars", :todo<bug>;
 is (42,).max, 42, ".max should work on one-elem arrays";
 is (42,).max, 42, ".max should work on one-elem arrays";
+
+# Tests with literals:
+is (1,2,3).max, 3, "method form of max with literals works";
+is (1,2,3).min, 1, "method form of min with literals works";
+is max(1,2,3),  3, "subroutine form of max with literals works";
+is min(1,2,3),  1, "subroutine form of min with literals works";
