@@ -434,6 +434,16 @@ Add an Engine for newer MS SQL Server databases, or help someone do it.
 
 =item *
 
+Add an Engine for Dave Voorhis' L<Rel|http://dbappbuilder.sourceforge.net/>
+non-SQL-but-"Tutorial D" relational databases, or help someone do it.
+
+=item *
+
+Add an Engine for newer L<Alphora|http://alphora.com/> Dataphor
+non-SQL relational databases, or help someone do it.
+
+=item *
+
 Handle other databases too.
 
 =item *

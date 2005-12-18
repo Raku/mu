@@ -1,0 +1,93 @@
+=encoding utf8
+
+=head1 NAME
+
+SQL::Routine::Language -
+Authoritative human readable design document
+
+=head1 DESCRIPTION
+
+SQL::Routine provides an effective language for defining relational data
+models, both the means to create them and the means to interact with them;
+see the documentation of L<SQL::Routine> itself (in the current
+distribution) for a further introduction.
+
+This document, SQL::Routine::Language ("Language"), is the human readable
+authoritative design document for that language.  The file SQL::Routine
+itself contains the machine readable language specification, which is
+derived from the human readable version.  If there's a conflict between the
+two, then either SQL::Routine is in error, or the developers were negligent
+in updating it before Language, so you can yell at them.  Likewise, believe
+Language before any other conflicting documents, unless the other documents
+are emails from SQL::Routine developers, in which case they can be yelled
+at again for not keeping Language up to date.
+
+Since the SQL::Routine language is largely derived from pre-existing
+language specifications such as the ANSI/ISO SQL:2003 standard, it may be
+tempting to just assume everything you know from them is also true here.
+While that will work in some cases (and in fact I intentionally don't
+repeat many details here for brevity), it won't in others, so you should
+always check here for any possible conflicts.
+
+=head1 SEE ALSO
+
+During my work on this project, I found the following resources to be
+particularly useful:
+
+=over
+
+=item L<http://www.acm.org/classics/nov95/toc.html>
+
+Edgar F. Codd - "A Relational Model of Data for Large Shared Data Banks"
+
+Reprinted from I<Communications of the ACM>, Vol. 13, No. 6, June 1970, pp.
+377-387. Copyright © 1970, Association for Computing Machinery, Inc.
+
+This is the famous 1970 publication that first presented a relational model
+of data to the world, which is the basis for the modern database industry.
+
+=item L<http://www.wiscorp.com/SQLStandards.html>
+
+This web page of Whitemarsh Information Systems Corporation, run by one of
+the people on the SQL standard drafting community, has copies of the
+official SQL:2003 and SQL:1999 specification documents, and other related
+helpful documents about SQL, in PDF format.  For example, "an almost
+indistinguishable delta on the actual SQL 2003 database standard" is at
+L<http://www.wiscorp.com/sql/sql_2003_standard.zip> (warning, large file).
+
+=item L<http://www.oreilly.com/catalog/databaseid/>
+
+Chris J. Date - "Database in Depth: Relational Theory for Practitioners"
+
+First Edition, May 2005.  Published by O'reilly.  ISBN: 0-596-10012-4
+
+This book lays out what the relational data model really is, in partial
+contrast to how SQL does it, from the man that was closer to and more
+directly involved with Edgar F. Codd in this work work than anyone.
+
+=item L<http://en.wikipedia.org/wiki/Relational_model>
+
+The Wikipedia article on the relational data model, and related topics.
+
+=back
+
+Also, the vendor documentation for various relational and/or SQL databases
+such as MySQL and SQLite were regularly consulted, and various other sites.
+
+=head1 AUTHOR
+
+Darren R. Duncan (C<perl@DarrenDuncan.net>)
+
+=head1 LICENCE AND COPYRIGHT
+
+This file is part of the SQL::Routine database portability library.
+
+SQL::Routine is Copyright (c) 2002-2005, Darren R. Duncan.
+
+See the LICENCE AND COPYRIGHT of L<SQL::Routine> for details.
+
+=head1 ACKNOWLEDGEMENTS
+
+The ACKNOWLEDGEMENTS in L<SQL::Routine> apply to this file too.
+
+=cut

@@ -94,6 +94,12 @@ Large Shared Data Banks", but that SQL diverged from in some ways.
 Regardless, it should be easy to translate database definitions and queries
 between SQL and the language SQL::Routine provides.
 
+Please see the pod-only file L<SQL::Routine::Language> ("Language"), which
+is the human readable authoritative design document for SQL::Routine's
+language; the file SQL::Routine itself is a machine readable language
+specification that is derived from the human readable version, and in the
+case of a conflict, Language takes precedence.
+
 SQL::Routine is implemented as abstract syntax trees, and you use it by
 creating, manipulating, and reading nodes in these trees.  Each tree node
 is atomic, so you can just build the trees by copying scalar values from a
@@ -146,6 +152,9 @@ L<Locale::KeyedText-(1.71.0...)|Locale::KeyedText> (for error messages).
 None reported.
 
 =head1 SEE ALSO
+
+These documentation files are included in the SQL::Routine distribution:
+L<SQL::Routine::Language>.
 
 These Perl 6 packages are the initial main dependents of SQL::Routine:
 L<Rosetta>, L<SQL::Routine::SQLBuilder>, L<SQL::Routine::SQLParser>.
