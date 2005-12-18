@@ -57,4 +57,4 @@ sub __hyper ($op?, Array @a, Array @b) {
 
 my @x = (1,2,23);
 is( try { &__hyper.assuming("op" => &infix:<+>)(@x, @x) },
-    (2,4,46) );
+    (2,4,46), 'currying functions with array arguments' );
