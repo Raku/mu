@@ -14,12 +14,33 @@ This will allow us to define WALKCLASS and WALKMETH, and then we can write
 BUILDALL and DESTROYALL, then BUILD will work. WALKCLASS will also help to
 simplify CREATE as well.
 
+In fact, we need to the dispatcher for just about everything :)
+
 =head2 attr.instantiate_container()
 
 We need to get this working as well so that we don't need to check for nils
 in situations which we should be just checking is_empty.
 
 =cut
+
+## ------------------------------------------------------------------------- ##
+## Class and Method iterators
+## ------------------------------------------------------------------------- ##
+
+&WALKCLASS := -> &dispatcher         { &dispatcher.() };
+&WALKMETH  := -> &dispatcher, $label {
+    -> { 
+        &redo  := &?SUB;
+        $class := WALKCLASS.(&dispatcher);
+        -> { 
+            $method := $class.get_method($label);
+            $method.is_nil.cond(
+                -> { &redo.() },
+                -> { $method  } 
+            );
+        }.do_if($class.not_nil);
+    }.();
+};
 
 ## ------------------------------------------------------------------------- ##
 ## Class
