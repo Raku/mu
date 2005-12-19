@@ -16,11 +16,6 @@ simplify CREATE as well.
 
 In fact, we need to the dispatcher for just about everything :)
 
-=head2 attr.instantiate_container()
-
-We need to get this working as well so that we don't need to check for nils
-in situations which we should be just checking is_empty.
-
 =cut
 
 ## ------------------------------------------------------------------------- ##
@@ -109,7 +104,13 @@ in situations which we should be just checking is_empty.
     -> $key {
         -> {
             self.set_attr($key, %params.fetch($key));
-        }.do_if(%params.fetch($key).not_nil)
+        # NOTE:
+        # this is not ideal, we should actually
+        # be testing if the $key exists in self.
+        # This case will skip $keys which are left
+        # nil, which is very possibly not the right
+        # thing to do
+        }.do_if(self.get_attr($key).not_nil)
     }.do_for(%params.keys);
 });
 
@@ -156,9 +157,7 @@ in situations which we should be just checking is_empty.
         $super.add_subclass(self); 
     }.do_for(@superclasses);
     self.set_attr('@!superclasses', @superclasses);
-    # NOTE: 
-    # we don't check this anyway (see below)
-    # self.set_attr('@!MRO', self.mro_merge);    
+    self.set_attr('@!MRO', self.mro_merge);    
 });
 
 ::Class.add_method('MRO', -> {
@@ -171,8 +170,7 @@ in situations which we should be just checking is_empty.
 
 ::Class.add_method('subclasses',   ->        { self.get_attr('@!subclasses') });
 ::Class.add_method('add_subclass', -> $class { 
-    @subclasses := self.get_attr('@!subclasses').push($class);
-    self.set_attr('@!subclasses', @subclasses);
+    self.set_attr('@!subclasses', self.get_attr('@!subclasses').push($class));
 });
 
 ## dispatching
@@ -347,27 +345,28 @@ in situations which we should be just checking is_empty.
 # ::Class would have inherited them, but couldn't 
 # since they had not yet been defined. We also need
 # to be sure we add them to the instance types as 
-# well (no auto-vivification in the mini-lang ;)
+# well, since the instance themselves have already
+# been created
 
-::Class.add_attribute('$!name', nil);         ::Class.set_attr('$!name', nil);
-::Class.add_attribute('$!namespace', nil);    ::Class.set_attr('$!namespace', {});
-::Class.add_attribute('$!version', nil);      ::Class.set_attr('$!version', nil);
-::Class.add_attribute('$!authority', nil);    ::Class.set_attr('$!authority', nil);
+::Class.add_attribute('$!name',      '');    ::Class.set_attr('$!name',      '');
+::Class.add_attribute('$!namespace', {});    ::Class.set_attr('$!namespace', {});
+::Class.add_attribute('$!version',   '');    ::Class.set_attr('$!version',   '');
+::Class.add_attribute('$!authority', '');    ::Class.set_attr('$!authority', '');
                                               
-::Object.add_attribute('$!name', nil);        ::Object.set_attr('$!name', nil);
-::Object.add_attribute('$!namespace', nil);   ::Object.set_attr('$!namespace', {});
-::Object.add_attribute('$!version', nil);     ::Object.set_attr('$!version', nil);
-::Object.add_attribute('$!authority', nil);   ::Object.set_attr('$!authority', nil);
+::Object.add_attribute('$!name',      '');   ::Object.set_attr('$!name',      '');
+::Object.add_attribute('$!namespace', {});   ::Object.set_attr('$!namespace', {});
+::Object.add_attribute('$!version',   '');   ::Object.set_attr('$!version',   '');
+::Object.add_attribute('$!authority', '');   ::Object.set_attr('$!authority', '');
                                               
-::Package.add_attribute('$!name', nil);       ::Package.set_attr('$!name', nil);
-::Package.add_attribute('$!namespace', nil);  ::Package.set_attr('$!namespace', {});
-::Package.add_attribute('$!version', nil);    ::Package.set_attr('$!version', nil);
-::Package.add_attribute('$!authority', nil);  ::Package.set_attr('$!authority', nil);
+::Package.add_attribute('$!name',      '');  ::Package.set_attr('$!name',      '');
+::Package.add_attribute('$!namespace', {});  ::Package.set_attr('$!namespace', {});
+::Package.add_attribute('$!version',   '');  ::Package.set_attr('$!version',   '');
+::Package.add_attribute('$!authority', '');  ::Package.set_attr('$!authority', '');
                                               
-::Module.add_attribute('$!name', nil);        ::Module.set_attr('$!name', nil);
-::Module.add_attribute('$!namespace', nil);   ::Module.set_attr('$!namespace', {});
-::Module.add_attribute('$!version', nil);     ::Module.set_attr('$!version', nil);
-::Module.add_attribute('$!authority', nil);   ::Module.set_attr('$!authority', nil);
+::Module.add_attribute('$!name',      '');   ::Module.set_attr('$!name',      '');
+::Module.add_attribute('$!namespace', {});   ::Module.set_attr('$!namespace', {});
+::Module.add_attribute('$!version',   '');   ::Module.set_attr('$!version',   '');
+::Module.add_attribute('$!authority', '');   ::Module.set_attr('$!authority', '');
 
 # ... now we can name and version all our objects
 
