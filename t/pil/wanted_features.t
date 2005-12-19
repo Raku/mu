@@ -22,6 +22,7 @@ RESULT);
 pil_is_eq(q:to/CODE/
 [3, 4, 5, 6].apply( -> $x { $x.sub(1) } )
 CODE,
+q:to/RESULT/
 [2, 3, 4, 5]
 RESULT);
 
@@ -34,5 +35,6 @@ do
 }
 while $x
 CODE,
+q:to/RESULT/
 10 9 8 7 6 5 4 3 2 1
 RESULT);
