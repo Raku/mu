@@ -51,43 +51,53 @@ In fact, we need to the dispatcher for just about everything :)
 
 ::Class.add_method('bless', -> $repr, %params { 
     $obj := self.CREATE($repr, %params);
-    # NOTE:
-    # this should not be called until ::Class.dispatcher
-    # is working properly, otherwise bad things happen
-    # $obj.BUILDALL(%params); 
+    $obj.BUILDALL(%params); 
     $obj;     
 });
 
 ::Class.add_method('CREATE', -> $repr, %params {
-    -> @mro, %attrs {
-        &next_dispatch := &?SUB;
-        @mro.is_empty.cond(
-            # done iterating - let's make something
-            ->{ self.new_opaque(%attrs) },
-            # not done yet - add stuff to it
-            ->{
-                -> @keys, @vals, %new_attrs {
-                    &redo := &?SUB;
-                    @keys.is_empty.cond(
-                        -> { &next_dispatch.( @mro.splice(1), %new_attrs ) },
-                        -> {
-                            &redo.(
-                                @keys.splice(1),
-                                @vals.splice(1),
-                                %new_attrs.store(@keys.fetch(0), @vals.fetch(0)),
-                            );
-                        },
-                    );
-                }.(
-                    @mro.fetch(0).get_attribute_list,
-                    @mro.fetch(0).get_attributes,
-                    %attrs,
-                );
-            },
-        )
-    }.( $?CLASS.dispatcher('descendant'), {} );
+    $obj := self.new_opaque({});
+    -> $class {
+        -> $key {
+            $obj.set_attr($key, $class.get_attribute($key));
+        }.do_for($class.get_attribute_list);
+    }.do_for(self.dispatcher('descendant'));
+    $obj;
 });
 
+# NOTE: 
+# we can convert CREATE to use this  
+# &WALKCLASS once that is working 
+=pod
+::Class.add_method('CREATE', -> $repr, %params {
+    $obj := self.new_opaque({});
+    &dispatcher := $?CLASS.dispatcher('descendant');
+    -> {
+        &redo  := &?SUB;
+        $class := &WALKCLASS.(&dispatcher);
+        -> {
+            -> $key {
+                $obj.set_attr($key, $class.get_attribute($key));
+            }.do_for($class.get_attribute_list);
+        }.do_if($class.not_nil);
+    }.();
+    $obj;
+});
+=cut
+
+::Class.add_method('BUILDALL', -> %params {
+    -> $class {
+        -> {
+            $method := $class.get_method('BUILD');        
+            $method.(%params);
+        }.do_if($class.has_method('BUILD'))
+    }.do_for($?CLASS.dispatcher('descendant'));
+});
+
+# NOTE: 
+# we can convert BUILDALL to use this  
+# &WALKMETH once that is working 
+=pod
 ::Class.add_method('BUILDALL', -> %params {
     &dispatcher := $?CLASS.dispatcher('descendant');
     -> {
@@ -99,23 +109,25 @@ In fact, we need to the dispatcher for just about everything :)
         }.do_if($method.not_nil);
     }.();
 });
+=cut
 
 ::Class.add_method('BUILD', -> %params {
     -> $key {
-        -> {
+        #-> {
             self.set_attr($key, %params.fetch($key));
         # NOTE:
-        # this is not ideal, we should actually
-        # be testing if the $key exists in self.
-        # This case will skip $keys which are left
-        # nil, which is very possibly not the right
-        # thing to do
-        }.do_if(self.get_attr($key).not_nil)
+        # we need a has_attr function to test
+        # if the opaque has had this $key 
+        # initialized yet. 
+        #}.do_if(self.has_attr($key))
     }.do_for(%params.keys);
 });
 
 ## class destruction
 
+# NOTE:
+# since nothing is getting destroyed yet
+# this can wait until WALKMETH is working
 ::Class.add_method('DESTROYALL', -> { 
     &dispatcher := $?CLASS.dispatcher('ascendant');
     -> {
@@ -276,8 +288,8 @@ In fact, we need to the dispatcher for just about everything :)
 ::Package := ::Class.new({});
 ::Package.set_superclasses([ ::Object ]);
 
-::Package.add_attribute('$!name', nil);
-::Package.add_attribute('%!namespace', nil);
+::Package.add_attribute('$!name',      '');
+::Package.add_attribute('%!namespace', {});
 
 ::Package.add_method('name',     ->       { self.get_attr('$!name') });
 ::Package.add_method('set_name', -> $name {
@@ -294,8 +306,8 @@ In fact, we need to the dispatcher for just about everything :)
 ::Module := ::Class.new({});
 ::Module.set_superclasses([ ::Package ]);
 
-::Module.add_attribute('$!version',   nil);
-::Module.add_attribute('$!authority', nil);
+::Module.add_attribute('$!version',   '');
+::Module.add_attribute('$!authority', '');
 
 ::Module.add_method('version',     ->          { self.get_attr('$!version') });
 ::Module.add_method('set_version', -> $version {
@@ -331,42 +343,28 @@ In fact, we need to the dispatcher for just about everything :)
 ## ------------------------------------------------------------------------- ##
 
 ::Class.set_attr('@!superclasses', [ ::Module ]);
-
 ::Module.set_attr('@!subclasses',  [ ::Class ]); 
 
 # NOTE:
 # not doing this made our prototype go into 
-# endless recursion
+# endless recursion, I am not sure if this
+# will suffer from the same issue, it should
+# be tested, but I want to make we have a 
+# sizable test suite first.
 ::Class.set_attr('@!MRO', [ ::Class, ::Module, ::Package, ::Object ]);
 ::Object.set_attr('@!MRO', [ ::Object ]);
 
 # NOTE:
-# these attributes need to be added manually since
-# ::Class would have inherited them, but couldn't 
-# since they had not yet been defined. We also need
-# to be sure we add them to the instance types as 
-# well, since the instance themselves have already
-# been created
+# these attributes need to be added manually to the
+# class instances since ::Class would have inherited 
+# them, but couldn't since they had not yet been defined. 
 
-::Class.add_attribute('$!name',      '');    ::Class.set_attr('$!name',      '');
-::Class.add_attribute('$!namespace', {});    ::Class.set_attr('$!namespace', {});
-::Class.add_attribute('$!version',   '');    ::Class.set_attr('$!version',   '');
-::Class.add_attribute('$!authority', '');    ::Class.set_attr('$!authority', '');
-                                              
-::Object.add_attribute('$!name',      '');   ::Object.set_attr('$!name',      '');
-::Object.add_attribute('$!namespace', {});   ::Object.set_attr('$!namespace', {});
-::Object.add_attribute('$!version',   '');   ::Object.set_attr('$!version',   '');
-::Object.add_attribute('$!authority', '');   ::Object.set_attr('$!authority', '');
-                                              
-::Package.add_attribute('$!name',      '');  ::Package.set_attr('$!name',      '');
-::Package.add_attribute('$!namespace', {});  ::Package.set_attr('$!namespace', {});
-::Package.add_attribute('$!version',   '');  ::Package.set_attr('$!version',   '');
-::Package.add_attribute('$!authority', '');  ::Package.set_attr('$!authority', '');
-                                              
-::Module.add_attribute('$!name',      '');   ::Module.set_attr('$!name',      '');
-::Module.add_attribute('$!namespace', {});   ::Module.set_attr('$!namespace', {});
-::Module.add_attribute('$!version',   '');   ::Module.set_attr('$!version',   '');
-::Module.add_attribute('$!authority', '');   ::Module.set_attr('$!authority', '');
+-> $class {
+    $class.set_attr('$!name',      '');
+    $class.set_attr('$!namespace', {});
+    $class.set_attr('$!version',   '');
+    $class.set_attr('$!authority', '');
+}.do_for([ ::Class, ::Object, ::Module, ::Package ]);
 
 # ... now we can name and version all our objects
 
@@ -388,6 +386,26 @@ Perl 6 Object Model Bootstrap
 
 This is the bootstrap code for the Perl 6 Object Model using the Perl 6 
 Object-Space mini-language. 
+
+=head1 SEE ALSO
+
+NOTE: all paths from the root of the Pugs source tree.
+
+=over 4
+
+=item Perl 5 prototype of the Perl 6 Object Model
+
+/perl5/Perl6-MetaModel/
+
+In particular see the /perl5/Perl6-MetaModel/docs/*.jpg.
+
+=item Perl 5 prototype of the Perl 6 Object Space 
+
+/perl5/Perl6-ObjectSpace/
+
+In particular see the /perl5/Perl6-MetaModel/docs/Object_Space.jpg
+
+=back
 
 =head1 AUTHORS
 
