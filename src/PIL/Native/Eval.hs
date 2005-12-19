@@ -172,35 +172,9 @@ callObject obj meth args = enterLex lex $ do
         case meths `fetch` meth of
             Just x  -> callSub (fromNative x) args
             _       -> tryMRO cs
-    tryMRO [] = case toString meth of
-        "get_attr" -> do
-            obj ... fromNative (args ! 0)
-        "set_attr" -> do
-            setAttr obj (fromNative (args ! 0)) (args ! 1)
-            return (args ! 1)
-        "set_attr_hash" -> do
-            let [attrVal, keyVal, val] = elems args
-                key :: NativeStr = fromNative keyVal
-            hash <- obj ... fromNative attrVal :: Eval NativeMap
-            setAttr obj (fromNative attrVal) (toNative $ insert hash key val)
-            return val
-        "new_opaque" -> do
-            fmap toNative $ newObject cls (fromNative $ args ! 0)
-        "mro_merge" -> do
-            -- NOTE:
-            -- we get the MRO of the object itself
-            -- not it's class. In fact, this 
-            -- this method should only available
-            -- for instances of ::Class. How do we 
-            -- handle that??   - stevan
-            let cls = obj
-            supers <- fmap fromNative $ callObject cls __superclasses empty
-                :: Eval [NativeObj]
-            mros   <- fmapM (\c -> fmap fromNative $ callObject c __MRO empty) supers
-                :: Eval [[NativeObj]]
-            let seqs = filter (not . null) $ ([cls]:mros) ++ [supers]
-            return . toNative $ mkSeq (mroMerge seqs)
-        _ -> failWith "No such method" meth
+    tryMRO [] = case objPrims `fetch` meth of
+        Just f  -> f obj args
+        Nothing -> failWith "no such method" meth
 
 mroMerge :: Eq a => [[a]] -> [a]
 mroMerge = reverse . doMerge []
@@ -211,7 +185,39 @@ mroMerge = reverse . doMerge []
         = doMerge (cand:res) [ if s == cand then rest else full | full@(s:rest) <- seqs' ]
     doMerge res _ = res
 
-__superclasses :: NativeLangMethod
-__superclasses = mkStr "superclasses"
-__MRO          :: NativeLangMethod
-__MRO          = mkStr "MRO"
+__superclasses, __MRO :: NativeLangMethod
+__superclasses  = mkStr "superclasses"
+__MRO           = mkStr "MRO"
+
+objPrims :: MapOf (NativeObj -> NativeSeq -> Eval Native)
+objPrims = mkMap
+    [ ("id", \obj _ -> return (toNative $ o_id obj))
+    , ("class", \obj _ -> return (toNative $ o_class obj))
+    , ("get_attr", \obj args -> obj ... fromNative (args ! 0))
+    , ("set_attr", \obj args -> do
+        setAttr obj (fromNative (args ! 0)) (args ! 1)
+        return (args ! 1)
+      )
+    , ("set_attr_hash", \obj args -> do
+        let [attrVal, keyVal, val] = elems args
+            key :: NativeStr = fromNative keyVal
+        hash <- obj ... fromNative attrVal :: Eval NativeMap
+        setAttr obj (fromNative attrVal) (toNative $ insert hash key val)
+        return val
+      )
+    , ("new_opaque", \cls args -> fmap toNative $ newObject cls (fromNative $ args ! 0))
+    , ("mro_merge", \cls _ -> do
+        -- NOTE:
+        -- we get the MRO of the object itself
+        -- not it's class. In fact, this 
+        -- this method should only available
+        -- for instances of ::Class. How do we 
+        -- handle that??   - stevan
+        supers <- fmap fromNative $ callObject cls __superclasses empty
+            :: Eval [NativeObj]
+        mros   <- fmapM (\c -> fmap fromNative $ callObject c __MRO empty) supers
+            :: Eval [[NativeObj]]
+        let seqs = filter (not . null) $ ([cls]:mros) ++ [supers]
+        return . toNative $ mkSeq (mroMerge seqs)
+      )
+    ]

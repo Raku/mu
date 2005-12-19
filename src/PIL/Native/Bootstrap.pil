@@ -19,10 +19,6 @@ simplify CREATE as well.
 We need to get this working as well so that we don't need to check for nils
 in situations which we should be just checking is_empty.
 
-=head2 obj.id
-
-We need to expose the id for instances to the mini-lang.
-
 =cut
 
 ## ------------------------------------------------------------------------- ##
@@ -78,9 +74,6 @@ We need to expose the id for instances to the mini-lang.
 
 ## informational methods
 
-::Class.add_method('id', -> { });
-::Class.add_method('class', -> { $?CLASS });
-
 ::Class.add_method('is_a', -> $class { });
 
 ## (super|sub)classes
@@ -95,15 +88,15 @@ We need to expose the id for instances to the mini-lang.
 });
 
 ::Class.add_method('MRO', -> {
-    self.mro_merge();
-# NOTE:
-# we don't cache it for now, not sure why
-# but this just wasn't working ...
-#    @mro := self.get_attr('@!MRO');
-#    @mro.is_empty.cond(
-#        ->{ self.set_attr('@!MRO', self.mro_merge) },
-#        ->{ @mro }
-#    );
+    self.mro_merge;
+    # NOTES:
+    # we don't cache it for now, not sure why
+    # but this just wasn't working ...
+    #    @mro := self.get_attr('@!MRO');
+    #    @mro.is_empty.cond(
+    #        ->{ self.set_attr('@!MRO', self.mro_merge) },
+    #        ->{ @mro }
+    #    );
 });
 
 ::Class.add_method('subclasses',   ->        { self.get_attr('@!subclasses') });
@@ -201,9 +194,6 @@ We need to expose the id for instances to the mini-lang.
 ::Object.add_method('BUILDALL', -> %params { });
 
 ::Object.add_method('DESTORYALL', -> { });
-
-::Object.add_method('id', -> { });
-::Object.add_method('class', -> { });
 
 ::Object.add_method('isa', -> { });
 ::Object.add_method('can', -> { });
