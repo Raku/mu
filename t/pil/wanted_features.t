@@ -20,7 +20,7 @@ q:to/RESULT/
 RESULT);
 
 pil_is_eq(q:to/CODE/
-[3, 4, 5, 6].apply( -> $x { $x.sub(1) } )
+( -> $x { $x.sub(1) } ).do_for([3, 4, 5, 6])
 CODE,
 q:to/RESULT/
 [2, 3, 4, 5]

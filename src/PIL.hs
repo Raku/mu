@@ -16,6 +16,7 @@ import System (getArgs)
 import System.IO
 import System.IO.Error
 import Control.Monad.Error
+import Control.Monad.Reader
 import Pugs.Shell
 
 main :: IO ()
@@ -25,7 +26,7 @@ main = do
         [] -> do
             banner "Welcome to PIL2 REPL, the Pugs Again Shell!"
             banner "Please enter expressions, or :q to exit"
-            prompt []
+            (`runReaderT` Nothing) prompt
         [file]      -> eval =<< readFile file
         ["-e", src] -> eval src
         ["-p", src] -> parse src
@@ -34,43 +35,51 @@ main = do
             putStrLn "Usage: ./pil file"
             putStrLn "       ./pil -e source"
     where
-    prompt hist = do
-        cmd <- getCommand
+    prompt = do
+        cmd <- liftIO $ getCommand
         case cmd of
             CmdQuit -> return ()
-            CmdRun { runProg = src } -> (`catchError` parseErr hist) $ do
-                exps <- parseNativeLang src 
-                banner "Parsed"
-                putStrLn =<< prettyM exps
-                banner "Evaluated"
-                -- Neat trick: replay all previous successful commands
-                let exps' = hist ++ exps
-                (val, objs) <- evalNativeLang exps'
-                putStrLn =<< prettyM val
-                banner "Object Space"
-                dumpObjSpace objs
-                prompt exps'
+            CmdRun { runProg = src } -> runProgram src
+            CmdLoad file -> do
+                src <- liftIO $ readFile file
+                runProgram src
             _ -> do
                 banner "Unknown Command"
-                prompt hist
-    parseErr hist err = do
+                prompt
+    parseErr err = liftIO $ do
         banner "Error"
         putStrLn $ ioeGetErrorString err
-        prompt hist
+    runProgram src = (`catchError` parseErr) $ do
+        exps <- liftIO $ do
+            exps <- parseNativeLang src 
+            banner "Parsed"
+            putStrLn =<< prettyM exps
+            banner "Evaluated"
+            return exps
+        cur  <- ask
+        res' <- liftIO $ do
+            res' <- case cur of
+                Just res -> resumeNativeLang res exps
+                _        -> evalNativeLang exps
+            putStrLn =<< prettyM (result_value res')
+            banner "Object Space"
+            dumpObjSpace (result_objs res')
+            return res'
+        local (const $ Just res') prompt
 
-parse :: String -> IO ()
-parse src = do
+parse :: MonadIO m => String -> m ()
+parse src = liftIO $ do
     exps <- parseNativeLang src
     putStrLn =<< prettyM exps
     return ()
 
-eval :: String -> IO ()
-eval src = do
+eval :: MonadIO m => String -> m ()
+eval src = liftIO $ do
     exps <- parseNativeLang src 
-    (val, objs) <- evalNativeLang exps
-    putStrLn =<< prettyM val
+    res <- evalNativeLang exps
+    putStrLn =<< prettyM (result_value res)
     banner "Object Space"
-    dumpObjSpace objs
+    dumpObjSpace (result_objs res)
 
-banner :: String -> IO ()
-banner x = putStrLn ("\n### " ++ x ++ " ###")
+banner :: MonadIO m => String -> m ()
+banner x = liftIO $ putStrLn ("\n### " ++ x ++ " ###")

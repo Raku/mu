@@ -37,9 +37,10 @@ instance Pretty (SeqOf NativeLangExpression) where
     format = format . elems
 
 instance Pretty [NativeLangExpression] where
-    format = sepBy semi
+    format = sepBy semi . filter (/= ESaveContinuation)
 
 instance Pretty NativeLangExpression where
+    format ESaveContinuation = Text.PrettyPrint.empty --  "<save-cc>"
     format (ELit x) = format x
     format (EVar x) = format x
     format (ECall obj meth args) = hcat

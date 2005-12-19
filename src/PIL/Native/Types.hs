@@ -88,6 +88,7 @@ data NativeLangExpression
             , c_meth :: !NativeLangMethod
             , c_args :: !(SeqOf NativeLangExpression)
             }
+    | ESaveContinuation -- XXX - save current continuation
     deriving (Show, Eq, Ord, Typeable)
 
 type NativeBit = Bool

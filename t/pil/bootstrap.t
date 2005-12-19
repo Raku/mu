@@ -58,7 +58,7 @@ pil_is_eq('::Package.superclasses().fetch(0).eq(::Object)', 'true', '... ::Packa
 pil_is_eq('::Package.subclasses().length()', '1', '... ::Package.subclasses().length() == 1');
 pil_is_eq('::Package.subclasses().fetch(0).eq(::Module)', 'true', '... ::Package.subclasses()[0].eq(Module)');
 
-pil_is_eq('::Object.superclasses()', 'nil', '... ::Object.superclasses() == nil');
+pil_is_eq('::Object.superclasses()', '[]', '... ::Object.superclasses() == []');
 
 pil_is_eq('::Object.subclasses().length()', '1', '... ::Object.subclasses().length() == 1');
 pil_is_eq('::Object.subclasses().fetch(0).eq(::Package)', 'true', '... ::Object.subclasses()[0].eq(Package)');

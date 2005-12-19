@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields #-}
 
-module PIL.Native.Eval (evalNativeLang) where
+module PIL.Native.Eval (evalNativeLang, resumeNativeLang, EvalResult(..)) where
 import PIL.Native.Prims
 import PIL.Native.Types
 import PIL.Native.Pretty
@@ -8,8 +8,11 @@ import PIL.Native.Coerce
 import PIL.Native.Objects
 import PIL.Native.Parser
 import Data.FunctorM
+import Data.Dynamic
+import Data.Maybe
 import Control.Monad.State
 import Control.Monad.Reader
+import Control.Exception
 
 {-| 
 
@@ -26,13 +29,29 @@ See Also:
 -}
 
 type Eval = StateT ObjectSpace (ReaderT Pad IO)
+data EvalResult = MkEvalResult
+    { result_value  :: !Native
+    , result_pad    :: !Pad
+    , result_objs   :: !ObjectSpace
+    }
+    deriving (Typeable)
 
 instance MonadSTM Eval where
     liftSTM = lift . lift . liftSTM
 
--- evalNativeLang :: MonadSTM m => [NativeLangExpression] -> m (Native, ObjectSpace)
-evalNativeLang :: [NativeLangExpression] -> IO (Native, ObjectSpace)
-evalNativeLang = (`runReaderT` empty) . (`runStateT` empty) . evalMain
+evalNativeLang :: [NativeLangExpression] -> IO EvalResult
+evalNativeLang = handleResult .  (`runReaderT` empty) . (`runStateT` empty) . evalMain
+
+resumeNativeLang :: EvalResult -> [NativeLangExpression] -> IO EvalResult
+resumeNativeLang res exps = do
+    handleResult . (`runReaderT` result_pad res) .
+                   (`runStateT` result_objs res) . evalExps $ exps
+
+handleResult :: IO (Native, ObjectSpace) -> IO EvalResult
+handleResult f = do
+    (NError err, objs) <- f
+    let (val, pad) = fromJust . fromDynamic . fromJust . dynExceptions $ err
+    return $ MkEvalResult val pad objs
 
 evalMain :: [NativeLangExpression] -> Eval Native
 evalMain exps = bootstrapClass $ do
@@ -79,9 +98,16 @@ enterLex = local . append . mkMap . map (\(x, y) -> (x, toNative y))
 evalExps :: [NativeLangExpression] -> Eval Native
 evalExps []       = return nil
 evalExps [x]      = evalExp x
+evalExps (x:ESaveContinuation:_) = do
+    pad <- ask
+    val <- evalExp x
+    return . toNative $ mkErr (val, pad)
 evalExps (x:xs)   = evalExp x >> evalExps xs
 
 evalExp :: NativeLangExpression -> Eval Native
+evalExp ESaveContinuation = do
+    pad <- ask
+    return . toNative $ mkErr (nil, pad)
 evalExp (ELit (NSub s)) = do
     pad <- ask -- close over current scope
     return $ NSub s{ s_pad = pad }

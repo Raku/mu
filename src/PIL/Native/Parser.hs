@@ -82,7 +82,8 @@ parseExp = parseWith expression
 
 expressionList :: Parser [NativeLangExpression]
 expressionList = do
-    exps <- semiColonSep (fmap Left assignment <|> fmap Right expression)
+    many $ symbol ";"
+    exps <- maybeEof $ semiColonSep (fmap Left assignment <|> fmap Right expression)
     return $ unroll exps
     where
     assignment = try $ do
@@ -95,6 +96,9 @@ expressionList = do
     unroll (Left (lhs, rhs):xs) = [mkCall sub "" [rhs]]
         where
         sub = ELit . toNative $ mkSub [lhs] (unroll xs)
+    maybeEof p = do
+        exps <- p
+        do { eof; return (exps ++ [Right ESaveContinuation]) } <|> return exps
 
 expression :: Parser NativeLangExpression
 expression = (<?> "expression") $ do

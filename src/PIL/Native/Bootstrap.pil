@@ -71,19 +71,23 @@ in situations which we should be just checking is_empty.
             ->{ self.new_opaque(%attrs) },
             # not done yet - add stuff to it
             ->{
-                -> @attrs, %new_attrs {
+                -> @keys, @vals, %new_attrs {
                     &redo := &?SUB;
-                    @attrs.is_empty.cond(
+                    @keys.is_empty.cond(
                         -> { &next_dispatch.( @mro.splice(1), %new_attrs ) },
                         -> {
-                            $attr := @attrs.fetch(0);
                             &redo.(
-                                @attrs.splice(1),
-                                %new_attrs.store($attr, nil), # $attr.instantiate_container),
+                                @keys.splice(1),
+                                @vals.splice(1),
+                                %new_attrs.store(@keys.fetch(0), @vals.fetch(0)),
                             );
                         },
                     );
-                }.(@mro.fetch(0).get_attribute_list, %attrs);
+                }.(
+                    @mro.fetch(0).get_attribute_list,
+                    @mro.fetch(0).get_attributes,
+                    %attrs,
+                );
             },
         )
     }.( $?CLASS.dispatcher('descendant'), {} );
@@ -158,23 +162,16 @@ in situations which we should be just checking is_empty.
 });
 
 ::Class.add_method('MRO', -> {
-    self.mro_merge;
-    # NOTES:
-    # we don't cache it for now, not sure why
-    # but this just wasn't working ...
-    #    @mro := self.get_attr('@!MRO');
-    #    @mro.is_empty.cond(
-    #        ->{ self.set_attr('@!MRO', self.mro_merge) },
-    #        ->{ @mro }
-    #    );
+    @mro := self.get_attr('@!MRO');
+    @mro.is_empty.cond(
+        ->{ self.set_attr('@!MRO', self.mro_merge) },
+        ->{ @mro }
+    );
 });
 
 ::Class.add_method('subclasses',   ->        { self.get_attr('@!subclasses') });
 ::Class.add_method('add_subclass', -> $class { 
-    @subclasses := self.get_attr('@!subclasses').is_nil.cond(
-        -> { [ $class ] },
-        -> { self.get_attr('@!subclasses').push($class) }
-    );
+    @subclasses := self.get_attr('@!subclasses').push($class);
     self.set_attr('@!subclasses', @subclasses);
 });
 
@@ -247,12 +244,12 @@ in situations which we should be just checking is_empty.
 ## were also defined, but only in the Instance type, and not in 
 ## it's meta-self
 
-::Class.add_attribute('@!MRO', nil);
-::Class.add_attribute('@!superclasses', nil);
-::Class.add_attribute('@!subclasses', nil);
-::Class.add_attribute('%!private_methods', nil);
-::Class.add_attribute('%!methods', nil);
-::Class.add_attribute('%!attributes', nil);
+::Class.add_attribute('@!MRO', []);
+::Class.add_attribute('@!superclasses', []);
+::Class.add_attribute('@!subclasses', []);
+::Class.add_attribute('%!private_methods', {});
+::Class.add_attribute('%!methods', {});
+::Class.add_attribute('%!attributes', {});
 
 ## ------------------------------------------------------------------------- ##
 ## Object

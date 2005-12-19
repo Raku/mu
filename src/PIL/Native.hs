@@ -1,11 +1,11 @@
 {-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans #-}
 
 module PIL.Native (
-    evalNativeLang,
     parseNativeLang,
     NativeLangExpression,
     pretty, prettyM,
     dumpObjSpace,
+    module PIL.Native.Eval,
 ) where
 import PIL.Native.Types
 import PIL.Native.Parser
