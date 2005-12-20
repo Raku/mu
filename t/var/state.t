@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 10;
+plan 12;
 
 # L<S04/"The Relationship of Blocks and Declarations" /There is a new state declarator that introduces/>
 
@@ -127,4 +127,17 @@ plan 10;
     $re();
     $re();
     is +$str, 3, "state() inside regular expressions works";
+}
+
+# state() inside subs, chained declaration
+{
+    sub step () {
+        state $svar = state $svar2 = 42;
+        $svar++;
+        $svar2--;
+        return ($svar, $svar2);
+    };
+
+    is(step().perl, "(43, 41)", "chained state (#1)");
+    is(step().perl, "(44, 40)", "chained state (#2)");
 }

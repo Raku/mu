@@ -649,7 +649,8 @@ ruleVarDeclaration = rule "variable declaration" $ do
              let mkVar v = if null v then Val undef else Var v
              return (combine (map (Sym scope) names), Syn "," (map mkVar names))
         ]
-    many ruleTrait -- XXX
+    traits <- many ruleTrait
+    let isExport = ("export" `elem` traits)
     -- pos <- getPosition
     (sym, expMaybe) <- option ("=", Nothing) $ do
         sym <- tryChoice $ map string $ words " = .= := ::= "
@@ -693,14 +694,15 @@ ruleVarDeclaration = rule "variable declaration" $ do
     case scope of
         SState -> do
             implicit_first_block <- vcode2firstBlock $ VCode mkSub { subBody = rhs }
-            return $ Pad scope lexDiff implicit_first_block
+            return $ unnestPad $ Pad scope lexDiff implicit_first_block
         _      -> return $ unwrapStmts $ unnestPad $ Pad scope lexDiff rhs
     where
     -- XXX here's the other half of the 'my $a = my $b = ... my $z = foo' fix.
     -- see above. together, we turn 'my $a = my $b = 0' into
     -- 'my $a; my $b; $a = $b = 0'. should we handle more scopes than 'SMy'?
     -- more syntax than '(Syn "=" _)'?
-    unnestPad (Pad SMy lex (Syn "=" [v,Pad SMy lex' (Syn "=" [v',x])])) = Pad SMy lex (Stmts Noop (Pad SMy lex' (Syn "=" [v,(Syn "=" [v',unnestPad x])])))
+    --unnestPad (Pad SMy lex (Syn "=" [v,Pad SMy lex' (Syn "=" [v',x])])) = Pad SMy lex (Stmts Noop (Pad SMy lex' (Syn "=" [v,(Syn "=" [v',unnestPad x])])))
+    unnestPad (Pad scope1 lex (Syn "=" [v,Pad scope2 lex' (Syn "=" [v',x])])) = Pad scope1 lex (Stmts Noop (Pad scope2 lex' (Syn "=" [v,(Syn "=" [v',unnestPad x])])))
     unnestPad x@(Pad _ _ _) = Stmts Noop x
     unnestPad x@_ = x
     unwrapStmts (Stmts Noop x) = x
@@ -851,7 +853,7 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
                     
                     case scope of
                         SGlobal -> do
-                            unsafeEvalExp $ mkSym
+                            unsafeEvalExp mkSym
                             return emptyExp
                         SMy     -> do
                             lexDiff <- unsafeEvalLexDiff $ mkSym
