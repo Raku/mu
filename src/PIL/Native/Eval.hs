@@ -142,7 +142,7 @@ evalExp (ECall { c_obj = objExp, c_meth = meth, c_args = argsExp }) = do
     errMethodMissing = failWith "No such method" meth
     callMethod :: Boxable a => MapOf (a -> NativeSeq -> Native) -> a -> NativeSeq -> Eval Native
     callMethod prims x args = case prims `fetch` meth of
-        Nothing -> mdo   
+        Nothing -> do   
             cls <- fmap fromNative $ evalExp (EVar $ boxType x)
             obj <- autobox x cls
             callObject obj meth args
