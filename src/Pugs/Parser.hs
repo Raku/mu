@@ -784,7 +784,7 @@ ruleUsePackage use = rule "use package" $ do
         "jsan" -> if use
                       then ruleUseJSANModule
                       else fail "can't 'no' a JSAN module"
-        "perl5" | -> if use
+        "jsperl5" -> if use
                       then ruleUseJSPerl5Module
                       else fail "can't 'no' a Perl5 module"
         _      -> ruleUsePerlPackage use lang
