@@ -44,9 +44,9 @@ sub build {
     
     print "Build configuration:\n" . PugsBuild::Config->pretty_print;
 
-    my ($version, $ghc, $ghc_version, $runghc, @args) = @{$opts->{GHC}};
+    my ($version, $ghc, $ghc_version, $setup, @args) = @{$opts->{GHC}};
     write_buildinfo($version, $ghc_version, @args);
-    $run_setup = sub { system($runghc, "Setup.lhs", @_) };
+    $run_setup = sub { system($setup, @_) };
     $run_setup->('configure', grep !/^--.*=$/, @{$opts->{SETUP}});
 
     # if Prelude.pm wasn't changed, don't bother to recompile Run.hs.

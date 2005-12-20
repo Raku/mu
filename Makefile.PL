@@ -73,7 +73,7 @@ clean_files     (map fixpaths($_),
     (map {"$_/*.hpp"} @srcdirs),
     "pugs$Config{_exe}", "pil$Config{_exe}",
     "src/gen_prelude$Config{_exe}",
-    qw(
+    "Setup$Config{_exe}", qw(
     src/Pugs/pugs_config.h src/Pugs/Config.hs blib6 dist
     src/Pugs/PreludePC.hs src/Pugs/CodeGen/PIR/Prelude.hs test.log
     src/Pugs/Embed/Parrot.hs src/Pugs/Embed/Parrot_hsc.*
@@ -110,16 +110,22 @@ sub set_postamble {
 
     my ($ghc, $ghc_version, $ghc_flags, $ghc_pkg) = assert_ghc();
     my $hsc2hs = $ENV{HSC2HS};
-    my $runghc = $ENV{RUNGHC};
+    my $setup = File::Spec->catfile(".", "Setup$Config{_exe}");
 
     if (!$hsc2hs) {
         $hsc2hs = $ghc;
         $hsc2hs =~ s{(.*)ghc}{$1hsc2hs};
     }
 
-    if (!$runghc) {
-        $runghc = $ghc;
-        $runghc =~ s{(.*)ghc}{$1runghc};
+    unlink("Setup$Config{_exe}");
+    unlink("Setup.o");
+    unlink("Setup.hi");
+    my $rv = system($ghc, '--make', '-o' => $setup, 'Setup.lhs');
+    unless (-s "Setup$Config{_exe}") {
+        die << ".";
+*** Building Setup$Config{_exe} failed (exit code $rv)
+    Please check your GHC and Cabal installation.
+.
     }
 
     my $heap;
@@ -429,7 +435,7 @@ dist/doc/html :
 	\@\$(PERL) -MFile::Path -e "mkpath q-dist/doc/html-"
 
 profiled :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_version $runghc $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_version $setup $threaded -O -auto-all -prof --make $profiled_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 pugs.prof :: profiled
 	find t -type f | grep -v D | grep -v R | grep -v pugsrun | ./pugs +RTS -p -RTS -e 'my sub exit {}; for =\$\$*IN -> \$\$t is copy { \$\$t .= chomp; require \$\$t }'
@@ -437,15 +443,15 @@ pugs.prof :: profiled
 optimised :: optimized
 
 optimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_version $runghc $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_version $setup $threaded -O --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 unoptimised :: unoptimized
 
 unoptimized :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_version $runghc $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_version $setup $threaded -O0 --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 $pugs : src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm
-	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_version $runghc $threaded __optimization__ --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
+	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_version $setup $threaded __optimization__ --make $ghc_flags $embed_flags $ccdlflags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 
 pirtest : test-pir
