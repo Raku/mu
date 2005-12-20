@@ -838,19 +838,29 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
         (Val exports) <- unsafeEvalExp $ Syn "{}" [Syn "{}"
                         [Var "%*INC", Val $ VStr pkg], Val (VStr "exports")]
         if (not $ defined exports) then return emptyExp else do
+            -- this is the exporter. It should probably be moved to a function of its own.
             (Val (VList names)) <- unsafeEvalExp $ App (Var "&keys") Nothing [Val exports]
 
-            let hardcodedScopeFixme = SGlobal
+            let hardcodedScopeFixme = SMy
                 rebind scope (VStr name) = do
-                    (Val (obj)) <- unsafeEvalExp $ Syn "{}" [Val exports, Val $ VStr name]
+                    sub <- unsafeEvalExp $ Syn "{}" [Val exports, Val $ VStr name]
+                    
+                    -- lifted from useSubDeclaration, but w/o need for multis (right?)
+                    let mkExp = Syn ":=" [Var name, Syn "sub" [sub]]
+                    let mkSym = Sym scope name mkExp
+                    
                     case scope of
-                        SGlobal -> unsafeEvalExp $ Sym scope (name) (Syn ":=" [Var name, Syn "sub" [Val obj]])
-                        SMy     -> fail "notyet" -- XXX writeme
+                        SGlobal -> do
+                            unsafeEvalExp $ mkSym
+                            return emptyExp
+                        SMy     -> do
+                            lexDiff <- unsafeEvalLexDiff $ mkSym
+                            return $ Pad scope lexDiff $ mkExp
                         _       -> fail "notyet" -- XXX writeme. but do they all make sense at all?
                 rebind _ x = fail ("can't rebind: " ++ show x)
 
-            mapM_ (rebind hardcodedScopeFixme) names -- evil use of map in void context!
-            return emptyExp
+            syms <- (mapM (rebind hardcodedScopeFixme) names)
+            return $ foldl mergeStmts Noop syms
 
 {-|
 Match a JSAN module name, returning an appropriate
