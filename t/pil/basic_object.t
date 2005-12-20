@@ -88,7 +88,7 @@ CODE,
 
 pil_is_eq($prelude ~ q:to/CODE/
 ::Foo.add_attribute('$foo', '$Foo::foo');
-$iFoo := ::Foo.new({}.store('$foo', 'Hello, world'));
+$iFoo := ::Foo.new({ '$foo' => 'Hello, world' });
 $iFoo.get_attr('$foo').eq('Hello, world');
 CODE,
 'true',
@@ -96,7 +96,7 @@ CODE,
 
 pil_is_eq($prelude ~ q:to/CODE/
 ::Foo.add_attribute('$foo', '$Foo::foo');
-$iFoo := ::Foo.new({}.store('$bar', 'Hello, world'));
+$iFoo := ::Foo.new({ '$bar' => 'Hello, world' });
 $iFoo.has_attr('$bar');
 CODE,
 'false',

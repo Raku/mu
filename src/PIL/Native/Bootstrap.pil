@@ -93,10 +93,10 @@
     self.eq($class).cond(
         -> { true },
         -> {
-            &dispatcher := $?CLASS.dispatcher('descendant');
+            &dispatcher := self.dispatcher('descendant');
             -> {
                 &redo     := &?SUB;
-                $ancestor := &WALKCLASS.(&dispatcher);
+                $ancestor := &WALKCLASS.(&dispatcher);      
                 -> {
                     $ancestor.eq($class).cond(
                         -> { true     },
@@ -106,6 +106,25 @@
             }.();
         }
     );
+});
+
+::Class.add_method('isa', -> $class {
+    self.name.eq($class).cond(
+        -> { true },
+        -> {
+            &dispatcher := self.dispatcher('descendant');            
+            -> {
+                &redo     := &?SUB;
+                $ancestor := &WALKCLASS.(&dispatcher);                        
+                -> {
+                    $ancestor.name.eq($class).cond(
+                        -> { true     },
+                        -> { &redo.() }
+                    );
+                }.do_if($ancestor.not_nil)
+            }.();
+        }
+    );    
 });
 
 ## (super|sub)classes
@@ -239,10 +258,10 @@
     $?CLASS.name.eq($class).cond(
         -> { true },
         -> {
-            &dispatcher := $?CLASS.dispatcher('descendant');
+            &dispatcher := $?CLASS.dispatcher('descendant');            
             -> {
                 &redo     := &?SUB;
-                $ancestor := &WALKCLASS.(&dispatcher);
+                $ancestor := &WALKCLASS.(&dispatcher);                        
                 -> {
                     $ancestor.name.eq($class).cond(
                         -> { true     },
