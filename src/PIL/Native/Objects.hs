@@ -50,7 +50,7 @@ newObject cls attrs = do
         fetch key = fmap (! key) $ readTVar tvar
         exists key = do
             attrs <- readTVar tvar
-            return (PIL.Native.Coerce.exists attrs key)
+            return (attrs `exists` key)
         store key val = do
             attrs <- readTVar tvar
             writeTVar tvar (insert attrs key val)
