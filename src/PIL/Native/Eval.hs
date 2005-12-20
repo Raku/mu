@@ -79,18 +79,20 @@ eval = evalExp . parseExp
 
 bootstrapClass :: Eval a -> Eval a
 bootstrapClass x = mdo
-    cls <- newObject cls $ mkMap
-        [ ("@!MRO",              emptySeq)
-        , ("@!subclasses",       emptySeq)
-        , ("@!superclasses",     emptySeq)
-        , ("%!private_methods",  emptyMap)
-        , ("%!attributes",       emptyMap)
-        , ("%!methods", toNative $ mkMap [("add_method", addMethod)])
-        ]
-    enterLex [("::Class", cls)] x
+    cls <- newObject cls $ mkClassMethods [("add_method", addMethod)]
+    bit <- newObject cls $ mkClassMethods [("unbox", parseSub "->{ self.get_attr('') }")]
+    enterLex [("::Class", cls), ("::Bit", bit)] x
     where
     addMethod = parseSub
         "-> $name, &method { self.set_attr_hash('%!methods', $name, &method) }"
+    mkClassMethods meths = mkMap
+        [ ("@!MRO",             emptySeq)
+        , ("@!subclasses",      emptySeq)
+        , ("@!superclasses",    emptySeq)
+        , ("%!private_methods", emptyMap)
+        , ("%!attributes",      emptyMap)
+        , ("%!methods", toNative $ mkMap meths)
+        ]
 
 enterLex :: IsNative a => [(String, a)] -> Eval b -> Eval b
 enterLex = local . append . mkMap . map (\(x, y) -> (x, toNative y))
@@ -138,9 +140,12 @@ evalExp (ECall { c_obj = objExp, c_meth = meth, c_args = argsExp }) = do
     where
     errMethodMissing :: Eval a
     errMethodMissing = failWith "No such method" meth
-    callMethod :: MapOf (a -> b -> Native) -> a -> b -> Eval Native
+    callMethod :: Boxable a => MapOf (a -> NativeSeq -> Native) -> a -> NativeSeq -> Eval Native
     callMethod prims x args = case prims `fetch` meth of
-        Nothing -> errMethodMissing -- XXX - autobox!
+        Nothing -> mdo   
+            cls <- fmap fromNative $ evalExp (EVar $ boxType x)
+            obj <- autobox x cls
+            callObject obj meth args
         Just f  -> return $ f x args
 
 callSub :: NativeSub -> NativeSeq -> Eval Native

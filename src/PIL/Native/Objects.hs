@@ -1,6 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
 module PIL.Native.Objects (
+    Boxable(..),
     ObjectSpace,
     dumpObjSpace,
     newObject,
@@ -12,6 +13,34 @@ import PIL.Native.Pretty
 import System.Mem.Weak
 import Control.Exception
 import Control.Monad.State
+
+class IsNative a => Boxable a where
+    boxType :: a -> NativeStr
+    boxType _ = error "Cannot autobox"
+    autobox :: (MonadState ObjectSpace m, MonadIO m) => a -> NativeObj -> m NativeObj
+    autobox _ = failWith "Cannot autobox"
+
+instance Boxable NativeBit where
+    boxType _ = mkStr "::Bit"
+    autobox v cls = do
+        objs <- get
+        let obj = MkObject oid cls fetch exists store freeze thaw
+            oid = size objs
+            fetch _ = return (toNative v)
+            exists _ = return True
+            store _ _ = fail "Cannot store into autoboxed Bit"
+            freeze = fail "freeze"
+            thaw = fail "thaw"
+        ptr <- liftIO $ mkWeak obj obj Nothing
+        put (insert objs oid ptr)
+        return obj
+
+instance Boxable NativeInt
+instance Boxable NativeNum
+instance Boxable NativeStr
+instance Boxable NativeSeq
+instance Boxable NativeMap
+instance Boxable NativeSub
 
 type ObjectSpace = SeqOf (Weak NativeObj)
 
@@ -54,8 +83,8 @@ newObject cls attrs = do
         store key val = do
             attrs <- readTVar tvar
             writeTVar tvar (insert attrs key val)
-        freeze = error "freeze"
-        thaw = error "thaw"
+        freeze = fail "freeze"
+        thaw = fail "thaw"
     ptr <- liftIO $ mkWeak tvar obj Nothing
     put (insert objs oid ptr)
     return obj
