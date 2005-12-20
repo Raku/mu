@@ -95,9 +95,8 @@ mkPos pos1 pos2 = MkPos
 
 ruleBlockBody :: RuleParser Exp
 ruleBlockBody = do
-    whiteSpace
-    -- pos     <- getPosition
     env     <- getRuleEnv
+    whiteSpace
     pre     <- many ruleEmptyExp
     body    <- option emptyExp ruleStatementList
     post    <- many ruleEmptyExp
