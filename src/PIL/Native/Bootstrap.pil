@@ -1,23 +1,5 @@
 #!pil
 
-=pod
-
-=head1 NEXT STEPS
-
-=head2 dispatcher
-
-We need to figure out the dispatcher next. In the p5 version it is a closure
-based iterator, it could also be a coroutine/continuation too. It needs to
-be easily resumable to support "next METHOD". 
-
-This will allow us to define WALKCLASS and WALKMETH, and then we can write
-BUILDALL and DESTROYALL, then BUILD will work. WALKCLASS will also help to
-simplify CREATE as well.
-
-In fact, we need to the dispatcher for just about everything :)
-
-=cut
-
 ## ------------------------------------------------------------------------- ##
 ## Class and Method iterators
 ## ------------------------------------------------------------------------- ##
@@ -57,20 +39,6 @@ In fact, we need to the dispatcher for just about everything :)
 
 ::Class.add_method('CREATE', -> $repr, %params {
     $obj := self.new_opaque({});
-    -> $class {
-        -> $key {
-            $obj.set_attr($key, $class.get_attribute($key));
-        }.do_for($class.get_attribute_list);
-    }.do_for(self.dispatcher('descendant'));
-    $obj;
-});
-
-# NOTE: 
-# we can convert CREATE to use this  
-# &WALKCLASS once that is working 
-=pod
-::Class.add_method('CREATE', -> $repr, %params {
-    $obj := self.new_opaque({});
     &dispatcher := $?CLASS.dispatcher('descendant');
     -> {
         &redo  := &?SUB;
@@ -83,33 +51,18 @@ In fact, we need to the dispatcher for just about everything :)
     }.();
     $obj;
 });
-=cut
 
-::Class.add_method('BUILDALL', -> %params {
-    -> $class {
-        -> {
-            $method := $class.get_method('BUILD');        
-            $method.(%params);
-        }.do_if($class.has_method('BUILD'))
-    }.do_for($?CLASS.dispatcher('descendant'));
-});
-
-# NOTE: 
-# we can convert BUILDALL to use this  
-# &WALKMETH once that is working 
-=pod
 ::Class.add_method('BUILDALL', -> %params {
     &dispatcher := $?CLASS.dispatcher('descendant');
     -> {
         &redo   := &?SUB;
         $method := &WALKMETH.(&dispatcher, 'BUILD');
         -> {
-            $method.($self, %params);
+            $method.(%params);
             &redo.();
         }.do_if($method.not_nil);
     }.();
 });
-=cut
 
 ::Class.add_method('BUILD', -> %params {
     -> $key {
@@ -183,6 +136,15 @@ In fact, we need to the dispatcher for just about everything :)
 
 ## dispatching
 
+::Class.add_method('_make_dispatcher_iterator', -> @values {
+    $counter := self.new_opaque({'' => 0});
+    -> {
+        $idx := $counter.get_attr('');
+        $counter.set_attr('', $idx.add(1));
+        @values.fetch($idx);
+    };
+});
+
 ::Class.add_method('dispatcher', -> $order {
     $order := $order.is_nil.or($order.eq('canonical')).cond(
         ->{ 'ascendant' }, ->{ $order },
@@ -200,8 +162,12 @@ In fact, we need to the dispatcher for just about everything :)
 # I think it is easier in Haskell, but still extendable if 
 # we have this method here 
 
-::Class.add_method('_make_ascent_dispatcher', -> { self.MRO; });
-::Class.add_method('_make_descendant_dispatcher', -> { self.MRO.reverse; });
+::Class.add_method('_make_ascent_dispatcher', -> {
+    self._make_dispatcher_iterator(self.MRO);
+});
+::Class.add_method('_make_descendant_dispatcher', -> {
+    self._make_dispatcher_iterator(self.MRO.reverse);
+});
 
 
 ## method related methods
