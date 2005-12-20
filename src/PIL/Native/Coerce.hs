@@ -133,9 +133,10 @@ instance IsPlural (SeqOf a) NativeInt a where
     splice       = flip NSeq.drop
     assocs       = ([0..] `zip`) . elems
     fromAssocs   = NSeq.fromList . map snd -- XXX wrong
-    fetch x y    = Just (NSeq.index x y) -- XXX wrong
+    fetch x k    | k >= size x = Nothing
+                 | otherwise   = Just (NSeq.index x k)
     insert x k v | k == size x = (NSeq.|>) x v
-    insert x k v = NSeq.update k v x
+                 | otherwise   = NSeq.update k v x
     (!)          = NSeq.index
 
 class Show a => IsNative a where 
