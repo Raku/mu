@@ -111,6 +111,7 @@ class Sized a where
 
 -- | General-purpose finite sequences.
 newtype Seq a = Seq (FingerTree (Elem a))
+    deriving (Typeable)
 
 instance Functor Seq where
 	fmap f (Seq xs) = Seq (fmap (fmap f) xs)
@@ -166,8 +167,6 @@ instance Monoid (Seq a) where
 	mempty = empty
 	mappend = (><)
 
-#include "Typeable.h"
-INSTANCE_TYPEABLE1(Seq,seqTc,"Seq")
 
 #if __GLASGOW_HASKELL__
 instance Data a => Data (Seq a) where
@@ -199,9 +198,7 @@ data FingerTree a
 	= Empty
 	| Single a
 	| Deep {-# UNPACK #-} !Int !(Digit a) (FingerTree (Node a)) !(Digit a)
-#if TESTING
-	deriving Show
-#endif
+        deriving (Data, Typeable)
 
 instance Sized a => Sized (FingerTree a) where
 	{-# SPECIALIZE instance Sized (FingerTree (Elem a)) #-}
@@ -229,9 +226,7 @@ data Digit a
 	| Two a a
 	| Three a a a
 	| Four a a a a
-#if TESTING
-	deriving Show
-#endif
+        deriving (Data, Typeable)
 
 instance Functor Digit where
 	fmap f (One a) = One (f a)
@@ -257,9 +252,7 @@ digitToTree (Four a b c d) = deep (Two a b) Empty (Two c d)
 data Node a
 	= Node2 {-# UNPACK #-} !Int a a
 	| Node3 {-# UNPACK #-} !Int a a a
-#if TESTING
-	deriving Show
-#endif
+	deriving (Data, Typeable)
 
 instance Functor (Node) where
 	fmap f (Node2 v a b) = Node2 v (f a) (f b)
@@ -602,6 +595,7 @@ length (Seq xs) =  size xs
 -- Views
 
 data Maybe2 a b = Nothing2 | Just2 a b
+    deriving (Data, Typeable)
 
 -- | View of the left end of a sequence.
 data ViewL a
@@ -609,7 +603,7 @@ data ViewL a
 	| a :< Seq a	-- ^ leftmost element and the rest of the sequence
 #ifndef __HADDOCK__
 # if __GLASGOW_HASKELL__
-	deriving (Eq, Ord, Show, Read, Data)
+	deriving (Eq, Ord, Show, Read, Data, Typeable)
 # else
 	deriving (Eq, Ord, Show, Read)
 # endif
@@ -620,8 +614,6 @@ instance Show a => Show (ViewL a)
 instance Read a => Read (ViewL a)
 instance Data a => Data (ViewL a)
 #endif
-
-INSTANCE_TYPEABLE1(ViewL,viewLTc,"ViewL")
 
 instance Functor ViewL where
 	fmap _ EmptyL		= EmptyL
@@ -661,7 +653,7 @@ data ViewR a
 			-- and the rightmost element
 #ifndef __HADDOCK__
 # if __GLASGOW_HASKELL__
-	deriving (Eq, Ord, Show, Read, Data)
+	deriving (Eq, Ord, Show, Read, Data, Typeable)
 # else
 	deriving (Eq, Ord, Show, Read)
 # endif
@@ -672,8 +664,6 @@ instance Show a => Show (ViewR a)
 instance Read a => Read (ViewR a)
 instance Data a => Data (ViewR a)
 #endif
-
-INSTANCE_TYPEABLE1(ViewR,viewRTc,"ViewR")
 
 instance Functor ViewR where
 	fmap _ EmptyR		= EmptyR
@@ -716,9 +706,7 @@ index (Seq xs) i
   | otherwise	= error "index out of bounds"
 
 data Place a = Place {-# UNPACK #-} !Int a
-#if TESTING
-	deriving Show
-#endif
+	deriving (Data, Typeable)
 
 {-# SPECIALIZE lookupTree :: Int -> FingerTree (Elem a) -> Place (Elem a) #-}
 {-# SPECIALIZE lookupTree :: Int -> FingerTree (Node a) -> Place (Node a) #-}
@@ -854,9 +842,7 @@ split i xs
   where Split l x r = splitTree (-i) xs
 
 data Split t a = Split t a t
-#if TESTING
-	deriving Show
-#endif
+	deriving (Data, Typeable)
 
 {-# SPECIALIZE splitTree :: Int -> FingerTree (Elem a) -> Split (FingerTree (Elem a)) (Elem a) #-}
 {-# SPECIALIZE splitTree :: Int -> FingerTree (Node a) -> Split (FingerTree (Node a)) (Node a) #-}
