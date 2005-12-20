@@ -1,0 +1,47 @@
+### Gnomes welcome!
+
+=head1 NAME
+
+    JIB::HOWTO -- short howto on using JIBs
+
+=head1 Building a JIB
+
+    ### create a directory with the following lay out:
+    ### XXX explain meta.info
+        _jib/
+            META.info
+            [ PREINST.pl    ]
+            [ POSTINST.pl   ]
+            [ PRERM.pl      ]
+            [ POSTRM.pl     ]
+        lib/
+            Your/
+                Module.pm
+        bin/
+            script.pl
+
+    ### build a source package the source directory
+    $src = JIB::Source->new( dir => /path/to/source );
+
+    ### build a package from these sources. This will create
+    ### a .jib file ready to be installed. It returns a 
+    ### JIB::Package::Source object
+    $src_pkg = $src->build( ... );
+
+    ### create an installation object. this represents the directory
+    ### you wish to install this package into
+    ### XXX this needs to be a _jib-enabled dir for now
+    $inst = JIB::Installation->new( dir => /path/to/install );
+    
+    ### install the package into this installation
+    ### returns a JIB::Package::Installed
+    $inst_pkg = $src_pkg->install( installation => $inst );
+    
+=cut
+
+# Local variables:
+# c-indentation-style: bsd
+# c-basic-offset: 4
+# indent-tabs-mode: nil
+# End:
+# vim: expandtab shiftwidth=4:

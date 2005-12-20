@@ -39,7 +39,7 @@ sub meta_dir {
 sub control_dir {
     my $self = shift;
     my $pkg  = shift        or return;
-    my $dir  = $self->dir or return;
+    my $dir  = $self->dir   or return;
 
     return $dir->subdir( $self->config->_control )->subdir( $pkg );
 }

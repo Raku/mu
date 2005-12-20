@@ -46,10 +46,9 @@ sub new {
     ### XXX flesh out this format better
     {   my @files = eval {
             ### XXX CONFIG!!!!
-            ### XXX this should be INSTALLATION SPECIFIC!!!
             my $file = $inst->files_list( $meta->package );
             open my $fh, $file or die "Could not open '$file': $!";
-            do { local $/; <$fh> }
+            map { chomp; $_ } <$fh>;
         };
         $@ and error( "Could not load files list: $@" ), return;
         $self->files( \@files );

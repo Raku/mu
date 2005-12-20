@@ -66,7 +66,7 @@ sub new {
     return $obj;
 }
 
-=head2 $file = $src->build( ... )
+=head2 $pkg = $src->build( ... )
 
 =cut
 

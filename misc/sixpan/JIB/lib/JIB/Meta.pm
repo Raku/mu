@@ -21,12 +21,12 @@ sub new {
     
     my $file;
     my $tmpl = {
-        file => { required => 1, allow => sub { -e shift() }, store => \$file },
+        file => { required => 1, allow => FILE_EXISTS, store => \$file },
     };
     
     check( $tmpl, \%hash ) or ( error( Params::Check->last_error), return );
 
-    my $struct = eval { LoadFile( $file ) }  or error( $@ ), return; 
+    my $struct = eval { LoadFile( $file ) } or error( $@ ), return; 
 
     return $class->new_from_struct( struct => $struct );        
 }
