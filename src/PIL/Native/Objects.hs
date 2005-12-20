@@ -31,6 +31,9 @@ dumpObjSpace ptrs = mapM_ dumpObj (elems ptrs)
 getAttr :: MonadSTM m => NativeObj -> NativeStr -> m Native
 getAttr obj att = liftSTM $ o_fetch obj att
 
+hasAttr :: MonadSTM m => NativeObj -> NativeStr -> m Native
+hasAttr obj att = liftSTM $ o_exists obj att
+
 setAttr :: MonadSTM m => NativeObj -> NativeStr -> Native -> m ()
 setAttr obj att val = liftSTM $ o_store obj att val
 
@@ -42,9 +45,12 @@ newObject :: (MonadState ObjectSpace m, MonadIO m, MonadSTM m) =>
 newObject cls attrs = do
     tvar  <- liftSTM $ newTVar attrs
     objs  <- get
-    let obj = MkObject oid cls fetch store freeze thaw
+    let obj = MkObject oid cls fetch exists store freeze thaw
         oid = size objs
         fetch key = fmap (! key) $ readTVar tvar
+        exists key = do
+            attrs <- readTVar tvar
+            lookup attrs key
         store key val = do
             attrs <- readTVar tvar
             writeTVar tvar (insert attrs key val)
