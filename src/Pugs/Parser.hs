@@ -102,7 +102,10 @@ ruleBlockBody = do
     post    <- many ruleEmptyExp
     let body' = foldl mergeStmts (foldl (flip mergeStmts) body pre) post
     env'    <- getRuleEnv
-    putRuleEnv env'{ envLexical = envLexical env }
+    putRuleEnv env'
+        { envPackage = envPackage env
+        , envLexical = envLexical env
+        }
     return $ case unwrap body' of
         (Syn "sub" _)   -> mergeStmts emptyExp body'
         _               -> body'
@@ -781,7 +784,7 @@ ruleUsePackage use = rule "use package" $ do
         "jsan" -> if use
                       then ruleUseJSANModule
                       else fail "can't 'no' a JSAN module"
-        "jsperl5"-> if use
+        "perl5" | -> if use
                       then ruleUseJSPerl5Module
                       else fail "can't 'no' a Perl5 module"
         _      -> ruleUsePerlPackage use lang
