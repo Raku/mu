@@ -78,18 +78,18 @@ run ("-c":"-e":prog:_)          = doCheck "-e" prog
 run ("-c":file:_)               = readFile file >>= doCheck file
 
 -- -CPIL1.Perl5 outputs PIL formatted as Perl 5.
-run ("-C":backend:args) | map toUpper backend == "JS" = do
+run ("-C":backend:args) | map toLower backend == "js" = do
     exec <- getArg0
     doHelperRun "JS" ("--compile-only":("--pugs="++exec):args)
-run ("-C":backend:"-e":prog:_)           = doCompileDump backend "-e" prog
-run ("-C":backend:file:_)                = slurpFile file >>= doCompileDump backend file
+run ("-C":backend:"-e":prog:_)           = withInlinedIncludes prog >>= doCompileDump backend "-e"
+run ("-C":backend:file:_)                = readFile file >>= withInlinedIncludes >>= doCompileDump backend file
 
 run ("-B":backend:_) | (== map toLower backend) `any` ["js","perl5"] = do
     exec <- getArg0
     args <- getArgs
     doHelperRun backend (("--pugs="++exec):args)
-run ("-B":backend:"-e":prog:_)           = doCompileRun backend "-e" prog
-run ("-B":backend:file:_)                = slurpFile file >>= doCompileRun backend file
+run ("-B":backend:"-e":prog:_)           = withInlinedIncludes prog >>= doCompileRun backend "-e"
+run ("-B":backend:file:_)                = readFile file >>= withInlinedIncludes >>= doCompileRun backend file
 
 run ("--external":mod:"-e":prog:_)    = doExternal mod "-e" prog
 run ("--external":mod:file:_)         = readFile file >>= doExternal mod file
@@ -416,15 +416,14 @@ runPIR prog = do
     writeFile "a.pir" pir
     evalParrotFile "a.pir"
 
-slurpFile :: FilePath -> IO String
-slurpFile file = do
-    prog <- readFile file
+withInlinedIncludes :: String -> IO String
+withInlinedIncludes prog = do
     libs <- getLibs
     expandInc libs prog
     where
     expandInc :: [FilePath] -> String -> IO String
-    expandInc incs str = case breakOnGlue "\nuse " str of
-        Nothing -> case breakOnGlue "\nrequire " str of
+    expandInc incs str = case breakOnGlue "\nuse " ('\n':str) of
+        Nothing -> case breakOnGlue "\nrequire " ('\n':str) of
             Nothing -> return str
             Just (pre, post) -> do
                 let (mod, (_:rest)) = span (/= ';') (dropWhile isSpace post)
@@ -435,7 +434,7 @@ slurpFile file = do
             let (mod, (_:rest)) = span isAlphaNum (dropWhile isSpace post)
             mod'    <- includeInc incs mod
             rest'   <- expandInc incs rest
-            return $ pre ++ mod' ++ rest'
+            return $ pre ++ "\n{" ++ mod' ++ "\n}\n" ++ rest'
     includeInc :: [FilePath] -> String -> IO String
     includeInc _ ('v':_) = return []
     includeInc incs name = do
