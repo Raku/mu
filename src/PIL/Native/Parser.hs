@@ -193,7 +193,7 @@ semiColonSep = (`sepEndBy` (many1 $ symbol ";"))
 
 pointySub :: Parser NativeSub
 pointySub = do
-    symbol "->"
+    try $ symbol "->"
     params <- commaSep identifier
     body   <- braces expressionList
     return (mkSub params body)
