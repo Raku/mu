@@ -1285,6 +1285,7 @@ extractHash exp@(App (Var "&pair") _ _) = Just exp
 extractHash exp@(App (Var "&infix:=>") _ _) = Just exp
 extractHash exp@(Syn "," (App (Var "&pair") _ _:_)) = Just exp
 extractHash exp@(Syn "," (App (Var "&infix:=>") _ _:_)) = Just exp
+extractHash exp@Noop = Just exp
 extractHash _ = Nothing
 
 retBlock :: SubType -> Maybe [Param] -> Bool -> Exp -> RuleParser Exp
