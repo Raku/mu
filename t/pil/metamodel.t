@@ -57,5 +57,17 @@ q:to/RESULT/
 true
 RESULT, '... we can create an instance of ::Foo with attributes set using BUILD');
 
+pil_is_eq(q:to/CODE/
+::Foo := ::Class.new({});
+::Foo.set_name("Foo");
+::Foo.set_superclasses([ ::Object ]);
+::Foo.add_attribute('$foo', '$Foo::foo');
+$iFoo := ::Foo.new({}.store('$bar', 'Hello, world'));
+$iFoo.has_attr('$bar');
+CODE,
+q:to/RESULT/
+false
+RESULT, '... un-recognized attrs are ignored by BUILD');
+
 
 

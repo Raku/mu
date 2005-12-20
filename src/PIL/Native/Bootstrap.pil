@@ -113,13 +113,9 @@ In fact, we need to the dispatcher for just about everything :)
 
 ::Class.add_method('BUILD', -> %params {
     -> $key {
-        #-> {
+        -> {
             self.set_attr($key, %params.fetch($key));
-        # NOTE:
-        # we need a has_attr function to test
-        # if the opaque has had this $key 
-        # initialized yet. 
-        #}.do_if(self.has_attr($key))
+        }.do_if(self.has_attr($key))
     }.do_for(%params.keys);
 });
 
