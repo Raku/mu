@@ -41,10 +41,23 @@ pil_is_eq('::Module.class().eq(::Class)',  'true', '... ::Module.class.eq(Class)
 
 # check some of our is-a relationships
 
+# Class
+
+pil_is_eq('::Class.is_a(::Class)',   'true', '... ::Class.is_a(::Class)');
+pil_is_eq('::Class.is_a(::Object)',  'true', '... ::Class.is_a(::Object)');
+pil_is_eq('::Class.is_a(::Package)', 'true', '... ::Class.is_a(::Package)');
+pil_is_eq('::Class.is_a(::Module)',  'true', '... ::Class.is_a(::Module)');
+
 pil_is_eq('::Class.superclasses().length()', '1', '... ::Class.superclasses().length() == 1');
 pil_is_eq('::Class.superclasses().fetch(0).eq(::Module)', 'true', '... ::Class.superclasses().eq(Module)');
 
 pil_is_eq('::Class.subclasses()', '[]', '... ::Class.subclasses() == nil');
+
+# Module
+
+pil_is_eq('::Module.is_a(::Module)',  'true', '... ::Module.is_a(::Module)');
+pil_is_eq('::Module.is_a(::Package)', 'true', '... ::Module.is_a(::Package)');
+pil_is_eq('::Module.is_a(::Object)',  'true', '... ::Module.is_a(::Object)');
 
 pil_is_eq('::Module.superclasses().length()', '1', '... ::Module.superclasses().length() == 1');
 pil_is_eq('::Module.superclasses().fetch(0).eq(::Package)', 'true', '... ::Module.superclasses().eq(Package)');
@@ -52,11 +65,20 @@ pil_is_eq('::Module.superclasses().fetch(0).eq(::Package)', 'true', '... ::Modul
 pil_is_eq('::Module.subclasses().length()', '1', '... ::Module.subclasses().length() == 1');
 pil_is_eq('::Module.subclasses().fetch(0).eq(::Class)', 'true', '... ::Module.subclasses()[0].eq(Class)');
 
+# Package
+
+pil_is_eq('::Package.is_a(::Package)', 'true', '... ::Package.is_a(::Package)');
+pil_is_eq('::Package.is_a(::Object)',  'true', '... ::Package.is_a(::Object)');
+
 pil_is_eq('::Package.superclasses().length()', '1', '... ::Package.superclasses().length() == 1');
 pil_is_eq('::Package.superclasses().fetch(0).eq(::Object)', 'true', '... ::Package.superclasses()[0].eq(Object)');
 
 pil_is_eq('::Package.subclasses().length()', '1', '... ::Package.subclasses().length() == 1');
 pil_is_eq('::Package.subclasses().fetch(0).eq(::Module)', 'true', '... ::Package.subclasses()[0].eq(Module)');
+
+# Object
+
+pil_is_eq('::Object.is_a(::Object)',  'true', '... ::Object.is_a(::Object)');
 
 pil_is_eq('::Object.superclasses()', '[]', '... ::Object.superclasses() == []');
 

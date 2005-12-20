@@ -3,71 +3,102 @@
 use v6;
 use Test::PIL::Bootstrap;
 
-pil_is_eq(q:to/CODE/
+my $prelude = q:to/PRELUDE/
 ::Foo := ::Class.new({});
 ::Foo.set_name("Foo");
+::Foo.set_version("0.0.1");
+::Foo.set_superclasses([ ::Object ]);
+PRELUDE;
+
+# check the Foo class
+
+pil_is_eq($prelude ~ '::Foo.not_nil()', 'true', '... ::Foo is defined');
+
+pil_is_eq($prelude ~ '::Foo.isa("Object")', 'true', '... ::Foo.isa(Object)');
+
+for (qw(
+    new bless CREATE BUILDALL BUILD DESTROYALL
+    add_method has_method get_method get_method_list
+    add_attribute has_attribute get_attribute get_attribute_list get_attributes
+    superclasses set_superclasses subclasses add_subclass MRO
+    dispatcher is_a isa can 
+    name set_name version set_version authority set_authority identifier   
+    )) -> $method_name {
+    pil_is_eq($prelude ~ '::Foo.can("' ~ $method_name ~ '")', 'true', '... ::Foo.can(' ~ $method_name ~ ')');
+}
+
+pil_is_eq($prelude ~ q:to/CODE/
 ::Foo.name();
 CODE,
-q:to/RESULT/
-"Foo"
-RESULT, '... created ::Foo class ok');
+'"Foo"', 
+'... ::Foo.name eq Foo');
 
-pil_is_eq(q:to/CODE/
-::Foo := ::Class.new({});
-::Foo.set_name("Foo");
-::Foo.set_superclasses([ ::Object ]);
+pil_is_eq($prelude ~ q:to/CODE/
+::Foo.version();
+CODE,
+'"0.0.1"', 
+'... ::Foo.version eq 0.0.1');
+
+pil_is_eq($prelude ~ q:to/CODE/
+::Foo.is_a(::Object);
+CODE,
+'true', 
+'... ::Foo.is_a(::Object)');
+
+pil_is_eq($prelude ~ q:to/CODE/
 -> $c { $c.name() }.do_for(::Foo.MRO());
 CODE,
-q:to/RESULT/
-["Foo", "Object"]
-RESULT, '... got the right MRO for ::Foo');
+'["Foo", "Object"]', 
+'... got the right MRO for ::Foo');
 
-pil_is_eq(q:to/CODE/
-::Foo := ::Class.new({});
-::Foo.set_name("Foo");
-::Foo.set_superclasses([ ::Object ]);
+## check instances
+
+pil_is_eq($prelude ~ q:to/CODE/
 $iFoo := ::Foo.new({});
 $iFoo.class.eq(::Foo);
 CODE,
-q:to/RESULT/
-true
-RESULT, '... we can create an instance of ::Foo');
+'true',
+'... we can create an instance of ::Foo');
 
-pil_is_eq(q:to/CODE/
-::Foo := ::Class.new({});
-::Foo.set_name("Foo");
-::Foo.set_superclasses([ ::Object ]);
+for (qw/BUILDALL BUILD DESTROYALL isa can/) -> $method_name {
+    pil_is_eq(
+    (
+        $prelude ~
+        '$iFoo := ::Foo.new({});' ~ 
+        '$iFoo.can("' ~ $method_name ~ '")'
+    ),
+    'true',
+    '... $iFoo.can(' ~ $method_name ~ ')');
+}
+
+pil_is_eq($prelude ~ q:to/CODE/
+$iFoo := ::Foo.new({});
+$iFoo.isa("Foo");
+CODE,
+'true',
+'... $iFoo.isa(Foo)');
+
+pil_is_eq($prelude ~ q:to/CODE/
 ::Foo.add_attribute('$foo', '$Foo::foo');
 $iFoo := ::Foo.new({});
 $iFoo.get_attr('$foo').eq('$Foo::foo');
 CODE,
-q:to/RESULT/
-true
-RESULT, '... we can create an instance of ::Foo with attributes');
+'true',
+'... we can create an instance of ::Foo with attributes (with default values)');
 
-pil_is_eq(q:to/CODE/
-::Foo := ::Class.new({});
-::Foo.set_name("Foo");
-::Foo.set_superclasses([ ::Object ]);
+pil_is_eq($prelude ~ q:to/CODE/
 ::Foo.add_attribute('$foo', '$Foo::foo');
 $iFoo := ::Foo.new({}.store('$foo', 'Hello, world'));
 $iFoo.get_attr('$foo').eq('Hello, world');
 CODE,
-q:to/RESULT/
-true
-RESULT, '... we can create an instance of ::Foo with attributes set using BUILD');
+'true',
+'... we can create an instance of ::Foo with attributes set using BUILD');
 
-pil_is_eq(q:to/CODE/
-::Foo := ::Class.new({});
-::Foo.set_name("Foo");
-::Foo.set_superclasses([ ::Object ]);
+pil_is_eq($prelude ~ q:to/CODE/
 ::Foo.add_attribute('$foo', '$Foo::foo');
 $iFoo := ::Foo.new({}.store('$bar', 'Hello, world'));
 $iFoo.has_attr('$bar');
 CODE,
-q:to/RESULT/
-false
-RESULT, '... un-recognized attrs are ignored by BUILD');
-
-
+'false',
+'... un-recognized attrs are ignored by BUILD');
 

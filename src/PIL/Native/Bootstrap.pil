@@ -39,7 +39,7 @@
 
 ::Class.add_method('CREATE', -> $repr, %params {
     $obj := self.new_opaque({});
-    &dispatcher := $?CLASS.dispatcher('descendant');
+    &dispatcher := self.dispatcher('descendant');
     -> {
         &redo  := &?SUB;
         $class := &WALKCLASS.(&dispatcher);
@@ -47,6 +47,7 @@
             -> $key {
                 $obj.set_attr($key, $class.get_attribute($key));
             }.do_for($class.get_attribute_list);
+            &redo.();
         }.do_if($class.not_nil);
     }.();
     $obj;
@@ -74,9 +75,6 @@
 
 ## class destruction
 
-# NOTE:
-# since nothing is getting destroyed yet
-# this can wait until WALKMETH is working
 ::Class.add_method('DESTROYALL', -> { 
     &dispatcher := $?CLASS.dispatcher('ascendant');
     -> {
@@ -147,20 +145,17 @@
 
 ::Class.add_method('dispatcher', -> $order {
     $order := $order.is_nil.or($order.eq('canonical')).cond(
-        ->{ 'ascendant' }, ->{ $order },
+        ->{ 'ascendant' }, 
+        ->{ $order      }
     );
     $order.eq('descendant').cond(
         ->{ self._make_descendant_dispatcher; },
         ->{ $order.eq('ascendant').cond(
-            ->{ self._make_ascent_dispatcher; },
-            ->{ self._unsupported_dispatch_order($order); },
+            ->{ self._make_ascent_dispatcher;             },
+            ->{ self._unsupported_dispatch_order($order); }
         ) }
     );
 });
-
-# ... should the dispatcher be implemented here? or Haskell
-# I think it is easier in Haskell, but still extendable if 
-# we have this method here 
 
 ::Class.add_method('_make_ascent_dispatcher', -> {
     self._make_dispatcher_iterator(self.MRO);
@@ -216,12 +211,12 @@
 ## were also defined, but only in the Instance type, and not in 
 ## it's meta-self
 
-::Class.add_attribute('@!MRO', []);
-::Class.add_attribute('@!superclasses', []);
-::Class.add_attribute('@!subclasses', []);
-::Class.add_attribute('%!private_methods', {});
-::Class.add_attribute('%!methods', {});
-::Class.add_attribute('%!attributes', {});
+::Class.add_attribute('@!MRO',             []);
+::Class.add_attribute('@!superclasses',    []);
+::Class.add_attribute('@!subclasses',      []);
+::Class.add_attribute('%!private_methods', {}); # << these are not handled yet
+::Class.add_attribute('%!methods',         {});
+::Class.add_attribute('%!attributes',      {});
 
 ## ------------------------------------------------------------------------- ##
 ## Object
@@ -238,10 +233,33 @@
 
 ::Object.add_method('BUILD',      ::Class.get_method('BUILD'));
 ::Object.add_method('BUILDALL',   ::Class.get_method('BUILDALL'));
-::Object.add_method('DESTORYALL', ::Class.get_method('DESTROYALL'));
+::Object.add_method('DESTROYALL', ::Class.get_method('DESTROYALL'));
 
-::Object.add_method('isa', -> { });
-::Object.add_method('can', -> { });
+::Object.add_method('isa', -> $class {
+    $?CLASS.name.eq($class).cond(
+        -> { true },
+        -> {
+            &dispatcher := $?CLASS.dispatcher('descendant');
+            -> {
+                &redo     := &?SUB;
+                $ancestor := &WALKCLASS.(&dispatcher);
+                -> {
+                    $ancestor.name.eq($class).cond(
+                        -> { true     },
+                        -> { &redo.() }
+                    );
+                }.do_if($ancestor.not_nil)
+            }.();
+        }
+    );    
+});
+
+::Object.add_method('can', -> $label {
+    &WALKMETH.($?CLASS.dispatcher('descendant'), $label).not_nil.cond(
+        -> { true  },
+        -> { false }
+    );
+});
 
 ## ------------------------------------------------------------------------- ##
 ## Package
@@ -253,7 +271,7 @@
 ::Package.add_attribute('$!name',      '');
 ::Package.add_attribute('%!namespace', {});
 
-::Package.add_method('name',     ->       { self.get_attr('$!name') });
+::Package.add_method('name',     -> { self.get_attr('$!name') });
 ::Package.add_method('set_name', -> $name {
     -> { self.set_attr('$!name', $name) }.do_if($name.not_nil);    
 });
@@ -271,12 +289,12 @@
 ::Module.add_attribute('$!version',   '');
 ::Module.add_attribute('$!authority', '');
 
-::Module.add_method('version',     ->          { self.get_attr('$!version') });
+::Module.add_method('version',     -> { self.get_attr('$!version') });
 ::Module.add_method('set_version', -> $version {
     -> { self.set_attr('$!version', $version) }.do_if($version.not_nil);
 });
 
-::Module.add_method('authority',     ->            { self.get_attr('$!authority') });
+::Module.add_method('authority',     -> { self.get_attr('$!authority') });
 ::Module.add_method('set_authority', -> $authority {
     -> { self.set_attr('$!authority', $authority) }.do_if($authority.not_nil);
 });
@@ -284,13 +302,13 @@
 ::Module.add_method('identifier', -> {
     $output := self.get_attr('$!name');
     $output := self.get_attr('$!version').not_nil.cond(
-                     -> { $output.concat('-').concat(self.get_attr('$!version')) },
-                     -> { $output }
-               );
+        -> { $output.concat('-').concat(self.get_attr('$!version')) },
+        -> { $output }
+    );
     $output := self.get_attr('$!authority').not_nil.cond(
-                     -> { $output.concat('-').concat(self.get_attr('$!authority')) },
-                     -> { $output }
-               ); 
+        -> { $output.concat('-').concat(self.get_attr('$!authority')) },
+        -> { $output }
+    ); 
     $output;
 });
 
@@ -304,31 +322,22 @@
 ## Bootstrapping
 ## ------------------------------------------------------------------------- ##
 
-::Class.set_attr('@!superclasses', [ ::Module ]);
-::Module.set_attr('@!subclasses',  [ ::Class ]); 
+::Class.set_superclasses([ ::Module ]);
 
 # NOTE:
-# not doing this made our prototype go into 
-# endless recursion, I am not sure if this
-# will suffer from the same issue, it should
-# be tested, but I want to make we have a 
-# sizable test suite first.
-::Class.set_attr('@!MRO', [ ::Class, ::Module, ::Package, ::Object ]);
-::Object.set_attr('@!MRO', [ ::Object ]);
-
-# NOTE:
-# these attributes need to be added manually to the
+# this attribute needs to be added manually to the
 # class instances since ::Class would have inherited 
-# them, but couldn't since they had not yet been defined. 
+# it, but couldn't since they had not yet been defined. 
 
 -> $class {
-    $class.set_attr('$!name',      '');
-    $class.set_attr('$!namespace', {});
-    $class.set_attr('$!version',   '');
-    $class.set_attr('$!authority', '');
+    $class.set_attr('%!namespace', {});
 }.do_for([ ::Class, ::Object, ::Module, ::Package ]);
 
-# ... now we can name and version all our objects
+# ... now we can name and version all our objects 
+# which has the side effect of creating the name, 
+# version and authority slots in our classes, if we
+# do not do this, then we need to add $!name, $!version
+# and $!authority to the list above along with %!namespace
 
 ::Class.set_name('Class');     ::Class.set_version('0.0.1');   ::Class.set_authority('url:pugscode.org');
 ::Object.set_name('Object');   ::Object.set_version('0.0.1');  ::Object.set_authority('url:pugscode.org');
