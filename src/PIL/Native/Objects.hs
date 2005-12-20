@@ -4,7 +4,7 @@ module PIL.Native.Objects (
     ObjectSpace,
     dumpObjSpace,
     newObject,
-    getAttr, setAttr, addAttr,
+    getAttr, setAttr, addAttr, hasAttr
 ) where
 import PIL.Native.Coerce
 import PIL.Native.Types
@@ -31,7 +31,7 @@ dumpObjSpace ptrs = mapM_ dumpObj (elems ptrs)
 getAttr :: MonadSTM m => NativeObj -> NativeStr -> m Native
 getAttr obj att = liftSTM $ o_fetch obj att
 
-hasAttr :: MonadSTM m => NativeObj -> NativeStr -> m Native
+hasAttr :: MonadSTM m => NativeObj -> NativeStr -> m Bool
 hasAttr obj att = liftSTM $ o_exists obj att
 
 setAttr :: MonadSTM m => NativeObj -> NativeStr -> Native -> m ()
@@ -50,7 +50,7 @@ newObject cls attrs = do
         fetch key = fmap (! key) $ readTVar tvar
         exists key = do
             attrs <- readTVar tvar
-            lookup attrs key
+            return (PIL.Native.Coerce.exists attrs key)
         store key val = do
             attrs <- readTVar tvar
             writeTVar tvar (insert attrs key val)

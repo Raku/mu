@@ -63,7 +63,7 @@ data NativeObj = MkObject
     { o_id      :: !ObjectId
     , o_class   :: NativeObj -- ::Class is self-recursive, so can't be strict here
     , o_fetch   :: NativeStr -> STM Native
-    , o_exists  :: NativeStr -> STM Native    
+    , o_exists  :: NativeStr -> STM Bool    
     , o_store   :: NativeStr -> Native -> STM ()
     , o_freeze  :: STM NativeStr
     , o_thaw    :: NativeStr -> STM ()

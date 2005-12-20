@@ -225,8 +225,8 @@ objPrims = mkMap
         return (args ! 1)
       )
     , ("has_attr", \obj args -> do
-        val <- obj ... fromNative (args ! 0))
-        return val
+        val <- hasAttr obj (fromNative (args ! 0))
+        return (toNative val)
       )      
     , ("set_attr_hash", \obj args -> do
         let [attrVal, keyVal, val] = elems args
