@@ -103,7 +103,7 @@ instance IsPlural NativeStr NativeInt NativeStr where
         | otherwise = return $ NStr.PS p (s + n) 1
     insert     = error "XXX str.insert"
 
-instance Ord k => IsPlural (NMap.Map k v) k v where
+instance (Ord k, Show k) => IsPlural (NMap.Map k v) k v where
     isEmpty    = NMap.null
     size       = NMap.size
     empty      = NMap.empty
@@ -118,7 +118,9 @@ instance Ord k => IsPlural (NMap.Map k v) k v where
     fromAssocs = NMap.fromList
     fetch      = flip NMap.lookup
     insert     = \o k v -> NMap.insert k v o
-    (!)        = (NMap.!)
+    (!) x k    = case NMap.lookup k x of
+        Just v  -> v
+        Nothing -> error $ "Cannot find " ++ show k ++ " in map: " ++ show (indices x)
 
 instance IsPlural (SeqOf a) NativeInt a where
     isEmpty      = NSeq.null
