@@ -29,6 +29,183 @@ While that will work in some cases (and in fact I intentionally don't
 repeat many details here for brevity), it won't in others, so you should
 always check here for any possible conflicts.
 
+=head1 DATA TYPES OVERVIEW
+
+The SQL::Routine language is strongly typed, following the relational
+model's ideals of stored data integrity, and the actual practice of SQL and
+many database products, and SQL::Routine's own ideals of being rigorously
+defined.  However, its predefined set of data types also includes
+ones that have the range of typical weak types such as some database
+products and languages like Perl use.
+
+All data types are based on the concept of domains; any variable or literal
+that is of a particular data type may only hold a value that is part of the
+domain that defines the data type.  SQL::Routine has some native data types
+that it implicitly understands (eg, booleans, integers, rational numbers,
+character strings, bit strings), and you can define custom ones too that
+are based on these (eg, counting numbers, character strings that are
+limited to 10 characters in length).
+
+All SQL::Routine "domain" Nodes (and schema objects) are user defined,
+having a name that you pick, regardless of whether the domain corresponds
+directly to a built-in data type, or to one you customized; this is so
+there won't be any name conflicts regardless of any same named data types
+that a particular database implementation used in conjunction with
+SQL::Routine may have.
+
+=head2 Generalities
+
+It is the general case that every data type defines a domain of values that
+is mutually exclusive from every other data type; 2 artifacts having a
+common data type (eg, 2 character strings) can always be compared for
+equality or inequality, and 2 artifacts of different data types (eg, 1
+character string and 1 bit string) can not be compared and hence are always
+considered inequal.  Following this, it is mandatory that every built-in
+and custom data type define the 'eq' (equal) and 'ne' (not equal) operators
+for comparing 2 artifacts that are of that same data type.  Moreover, it is
+mandatory that no data type defines for themselves any 'eq' or 'ne'
+operators for comparing 2 artifacts of different data types.
+
+In order to compare 2 artifacts of different data types for equality or
+inequality, either one must be cast into the other's data type, or they
+must both be cast into a common third data type.  How exactly this is done
+depends on the situation at hand.
+
+The simplest casting scenario is when there is a common domain that both
+artifacts belong to, such as happens when either one artifact's data type
+is a sub-domain of the other (eg, an integer and a rational number), or the
+data types of both are sub-domains of a common third data type (eg, even
+numbers and square whole numbers).  Then both artifacts are cast as the
+common parent type (eg, rationals and integers respectively).
+
+A more difficult but still common casting scenario is when the data types
+of two artifacts do not have a common actual domain, but yet there is one
+or more commonly known or explicitly defined way of mapping members of one
+type's domain to members of the other type's domain.  Then both artifacts
+can be cast according to one of the candidate mappings.  A common example
+of this is numbers and character strings, since numbers are often expressed
+as characters, such as when they come from user input or will be displayed
+to the user; sometimes characters are expressed as numbers too, as an
+encoding.  One reason the number/character scenario is said to be more
+difficult is due to there being multiple ways to express numbers in
+character strings, such as octal vs decimal vs hexadecimal, so you have to
+explicitly choose between multiple casting methods or formats for the
+version you want; in other words, there are multiple members of one domain
+that map to the same member of another domain, so you have to choose; a
+cast method can not be picked simply on the data type of the operands.
+
+A different casting scenario occurs when one or both of the data types are
+composite types, such as 2 tuples that are either of different degrees or
+that have different attribute names or value types.  Dealing with these
+involves mapping all the attributes of each tuple against the other, with
+or without casting of the individual attributes, possibly into a third data
+type having attributes to represent all of those from the two.
+
+Most data types support the extraction of part of an artifact to form a new
+artifact, which is either of the same data type or a different one.  In
+some cases, even if 2 artifacts can't be compared as wholes, it is possible
+to compare an extract from one with the other, or extractions from both
+with each other.  Commonly this is done with composite data types like
+tuples, where some attributes are extracted for comparison, such when
+joining the tuples, or filtering a tuple from a relation.
+
+Aside from the 'eq' and 'ne' comparison operators, there are no other
+mandatory operators that must be defined for a given custom data type,
+though the built-in ones will include others.  However, it is strongly
+recommended that each data type implement the 'cmp' (comparison) operator
+so that linearly sorting 2 artifacts of that common data type is a
+deterministic activity.
+
+SQL::Routine requires that all data types are actually self-contained,
+regardless of their complexity or size.  So nothing analagous to a
+"reference" or "pointer" in the Perl or C or SQL:2003 sense may be stored;
+the only valid way to say that two artifacts are related is for them to be
+equal, or have attributes that are equal, or be stored in common or
+adjoining locations.
+
+=head2 Native Primitive Types
+
+These are the simplest data types, from which all others are derived:
+
+=over
+
+=item C<NULL>
+
+This special data type represents situations where a value of an arbitrary
+data type is desired but none is yet known; it sits in place of the absent
+value to indicate that fact.  NULL artifacts will always explicitly compare
+as being unequal to each other; since they all represent unknowns, we can
+not logically say any are equal, so they are all treated as distinct.  This
+data type corresponds to SQL's concept of NULL, and is similar to Perl's
+concept of "undef".  A NULL does not natively cast between any data types.
+
+=item C<BOOLEAN>
+
+This data type is a logical boolean, whose only possible values are FALSE
+and TRUE.  This data type is not nullable and defaults to FALSE.
+
+=item C<INTEGER>
+
+This data type is a rational integer of unlimited (but not infinite)
+precision.  It is a sub-domain of RATIONAL and will natively cast to (and
+sometimes from) that.  This data type is not nullable and defaults to zero.
+
+=item C<RATIONAL>
+
+This data type is a rational number of unlimited (but not infinite)
+precision and scale.  This data type is not nullable and defaults to zero.
+
+=item C<CHAR_STR>
+
+This data type is a character string of unlimited (but not infinite)
+length.  Its abstract character repertoire is that of the current newest
+Unicode Standard.  This data type is not nullable and defaults to the empty
+string.
+
+=item C<BIT_STR>
+
+This data type is a bit string of unlimited (but not infinite)
+length.  This data type is not nullable and defaults to the empty string.
+
+=item C<SCALAR>
+
+This data type is a union of the domains of the BOOLEAN, RATIONAL (includes
+INTEGER), CHAR_STR, and BIT_STR data types.  It is a weakly typed scalar
+like Perl's default variables, or SQLite's default table columns.  This
+data type is not nullable and defaults to the empty string.
+
+=item C<NULL_BOOLEAN>
+
+This data type is a union of the domains of the NULL and BOOLEAN data
+types; it is a nullable logical boolean and defaults to NULL.
+
+=item C<NULL_INTEGER>
+
+This data type is a union of the domains of the NULL and INTEGER data
+types; it is a nullable rational integer and defaults to NULL.
+
+=item C<NULL_RATIONAL>
+
+This data type is a union of the domains of the NULL and RATIONAL data
+types; it is a nullable rational number and defaults to NULL.
+
+=item C<NULL_CHAR_STR>
+
+This data type is a union of the domains of the NULL and CHAR_STR data
+types; it is a nullable character string and defaults to NULL.
+
+=item C<NULL_BIT_STR>
+
+This data type is a union of the domains of the NULL and BIT_STR data
+types; it is a nullable bit string and defaults to NULL.
+
+=item C<NULL_SCALAR>
+
+This data type is a union of the domains of the NULL and SCALAR data
+types; it is a nullable weakly typed scalar and defaults to NULL.
+
+=back
+
 =head1 SEE ALSO
 
 During my work on this project, I found the following resources to be
@@ -64,6 +241,10 @@ First Edition, May 2005.  Published by O'reilly.  ISBN: 0-596-10012-4
 This book lays out what the relational data model really is, in partial
 contrast to how SQL does it, from the man that was closer to and more
 directly involved with Edgar F. Codd in this work work than anyone.
+
+=item L<http://www.unicode.org/standard/standard.html>
+
+Unicode Standard official documentation.
 
 =item L<http://en.wikipedia.org/wiki/Relational_model>
 
