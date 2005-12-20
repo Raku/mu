@@ -1810,9 +1810,9 @@ of one or more of its invocants:
 
 =head2 Anonymous hashes vs blocks
 
-C<{...}> is always a block.  However, if it consists of a single list, the
-first element of which is either a hash or a pair, it is executed immediately
-to compose a hash reference.
+C<{...}> is always a block.  However, if it is completely empty or
+consists of a single list, the first element of which is either a hash
+or a pair, it is executed immediately to compose a hash reference.  
 
 The standard C<pair> list operator is equivalent to:
 
