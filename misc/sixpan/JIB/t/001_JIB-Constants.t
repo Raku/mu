@@ -1,6 +1,5 @@
 use Test::More 'no_plan';
 use strict;
-use File::Spec;
 
 BEGIN { chdir 't' if -d 't' };
 BEGIN { use lib qw[../lib inc] };

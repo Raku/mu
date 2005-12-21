@@ -1,6 +1,6 @@
 use Test::More 'no_plan';
 use strict;
-use File::Spec;
+use Path::Class;
 
 BEGIN { chdir 't' if -d 't' };
 BEGIN { use lib qw[../lib inc] };
@@ -17,7 +17,7 @@ my $Inst    = JIB::Installation->new( dir => $Conf->perl_site_dir );
 
 ### XXX config
 my $Pkg     = 'p5-Foo-Bar-1.2-cpan+KANE';
-my $File    = File::Spec->catfile( 'src', $Pkg.'.jib' );
+my $File    = file( 'src', $Pkg.'.jib' );
 my @Parse   = qw[prefix name version authority];
 
 use_ok( $Class );
@@ -71,7 +71,7 @@ my $Obj;
     
     ### check for module
     ### XXX get this from config/object
-    {   my $pm = File::Spec->catfile( 
+    {   my $pm = file( 
                     $Inst->dir,
                     $Obj->package,
                     qw[lib Foo Bar.pm]

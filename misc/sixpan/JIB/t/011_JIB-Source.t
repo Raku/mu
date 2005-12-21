@@ -1,6 +1,6 @@
 use Test::More 'no_plan';
 use strict;
-use File::Spec;
+use Path::Class;
 
 BEGIN { chdir 't' if -d 't' };
 BEGIN { use lib qw[../lib inc] };
@@ -16,7 +16,7 @@ my %Map   = (
 my @Acc   = sort keys %Map;
 
 ### XXX config
-my $Dir   = File::Spec->catdir( qw[src p5-b] );
+my $Dir   = dir( qw[src p5-b] );
 
 use_ok( $Class );
 
