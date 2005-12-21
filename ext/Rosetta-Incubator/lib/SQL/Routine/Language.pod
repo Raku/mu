@@ -123,88 +123,86 @@ the only valid way to say that two artifacts are related is for them to be
 equal, or have attributes that are equal, or be stored in common or
 adjoining locations.
 
+=head2 Native Null Type
+
+SQL::Routine natively supports the special NULL data type, whose value
+domain is by definition mutually exclusive of the domains of all other data
+types; in practice, a NULL is distinct from all possible values that the
+other SQL::Routine native primitive types can have.  But some built-in
+complex types and user customized types could be defined where their
+domains are a super-set of NULL; those latter types are described as
+"nullable", while types whose domains are not a super-set of NULL are
+described as "not nullable".
+
+The NULL data type represents situations where a value of an arbitrary data
+type is desired but none is yet known; it sits in place of the absent value
+to indicate that fact.  NULL artifacts will always explicitly compare as
+being unequal to each other; since they all represent unknowns, we can not
+logically say any are equal, so they are all treated as distinct.  This
+data type corresponds to SQL's concept of NULL, and is similar to Perl's
+concept of "undef".  A NULL does not natively cast between any data types.
+
+SQL::Routine does not allow you to declare "domain" Nodes that are simply
+of or based on the data type NULL; rather, to use NULL you must declare
+"domain" Nodes that are either based on a not-nullable data type unioned
+with the NULL type, or are based on a nullable data type.  The "domain"
+Node type provides a short-hand to indicate the union of its base type with
+NULL, in the form of the boolean "is_nullable" attribute; if the attribute
+is undefined, then the nullability status of the base data type is
+inherited; if it is defined, then it overrides the parent's status.
+
+All not-nullable built-in data types default to their concept of empty or
+nothingness, such as zero or the empty string.  All nullable built-in
+types, and all not-nullable built-in types that you customize with a true
+is_nullable, will default to NULL.  In either case, you can define an
+explicit default value for your custom data type, which will override those
+behaviours; details are given further below.
+
 =head2 Native Primitive Types
 
 These are the simplest data types, from which all others are derived:
 
 =over
 
-=item C<NULL>
-
-This special data type represents situations where a value of an arbitrary
-data type is desired but none is yet known; it sits in place of the absent
-value to indicate that fact.  NULL artifacts will always explicitly compare
-as being unequal to each other; since they all represent unknowns, we can
-not logically say any are equal, so they are all treated as distinct.  This
-data type corresponds to SQL's concept of NULL, and is similar to Perl's
-concept of "undef".  A NULL does not natively cast between any data types.
-
 =item C<BOOLEAN>
 
-This data type is a logical boolean, whose only possible values are FALSE
-and TRUE.  This data type is not nullable and defaults to FALSE.
+This not-nullable data type is a logical boolean, whose only possible
+values are FALSE and TRUE.  Its concept of nothingness is FALSE.
 
 =item C<INTEGER>
 
-This data type is a rational integer of unlimited (but not infinite)
-precision.  It is a sub-domain of RATIONAL and will natively cast to (and
-sometimes from) that.  This data type is not nullable and defaults to zero.
+This not-nullable data type is a rational integer of unlimited (but not
+infinite) precision.  Its concept of nothingness is zero.  It is
+conceptually a full sub-domain of RATIONAL, such that all INTEGER values
+have one-on-one RATIONAL equivalents, but for widely pervasive matters of
+efficiency, SQL::Routine will treat the two types as exclusive, so you need
+to do explicit conversions between them.
 
 =item C<RATIONAL>
 
-This data type is a rational number of unlimited (but not infinite)
-precision and scale.  This data type is not nullable and defaults to zero.
+This not-nullable data type is a rational number of unlimited (but not
+infinite) precision and scale.  Its concept of nothingness is zero.
 
 =item C<CHAR_STR>
 
-This data type is a character string of unlimited (but not infinite)
-length.  Its abstract character repertoire is that of the current newest
-Unicode Standard.  This data type is not nullable and defaults to the empty
-string.
+This not-nullable data type is a character string of unlimited (but not
+infinite) length.  Its abstract character repertoire is that of the current
+newest Unicode Standard.  Its concept of nothingness is the empty string.
 
 =item C<BIT_STR>
 
-This data type is a bit string of unlimited (but not infinite)
-length.  This data type is not nullable and defaults to the empty string.
-
-=item C<SCALAR>
-
-This data type is a union of the domains of the BOOLEAN, RATIONAL (includes
-INTEGER), CHAR_STR, and BIT_STR data types.  It is a weakly typed scalar
-like Perl's default variables, or SQLite's default table columns.  This
-data type is not nullable and defaults to the empty string.
-
-=item C<NULL_BOOLEAN>
-
-This data type is a union of the domains of the NULL and BOOLEAN data
-types; it is a nullable logical boolean and defaults to NULL.
-
-=item C<NULL_INTEGER>
-
-This data type is a union of the domains of the NULL and INTEGER data
-types; it is a nullable rational integer and defaults to NULL.
-
-=item C<NULL_RATIONAL>
-
-This data type is a union of the domains of the NULL and RATIONAL data
-types; it is a nullable rational number and defaults to NULL.
-
-=item C<NULL_CHAR_STR>
-
-This data type is a union of the domains of the NULL and CHAR_STR data
-types; it is a nullable character string and defaults to NULL.
-
-=item C<NULL_BIT_STR>
-
-This data type is a union of the domains of the NULL and BIT_STR data
-types; it is a nullable bit string and defaults to NULL.
-
-=item C<NULL_SCALAR>
-
-This data type is a union of the domains of the NULL and SCALAR data
-types; it is a nullable weakly typed scalar and defaults to NULL.
+This not-nullable data type is a bit string of unlimited (but not infinite)
+length.  Its concept of nothingness is the empty string.
 
 =back
+
+=head2 Native Scalar Type
+
+SQL::Routine has native support for a special SCALAR data type, which is
+akin to SQLite's weakly typed table columns, or to Perl's weakly typed
+default scalar variables.  This not-nullable data type is a union of the
+domains of the BOOLEAN, INTEGER, RATIONAL, CHAR_STR, and BIT_STR
+data types.  Its concept of nothingness is the empty string.
 
 =head1 SEE ALSO
 
