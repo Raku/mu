@@ -30,8 +30,8 @@ my $Obj;
         ok( $Obj->$method,      "       '$method' returns value" );
     }        
 }    
-    
-    
+
+
 # Local variables:
 # c-indentation-style: bsd
 # c-basic-offset: 4
