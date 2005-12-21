@@ -89,6 +89,8 @@
 
 ## informational methods
 
+# NOTE:
+# is_a is meant to check against class instances 
 ::Class.add_method('is_a', -> $class { 
     self.eq($class).cond(
         -> { true },
@@ -108,6 +110,8 @@
     );
 });
 
+# NOTE:
+# isa is meant to check against class names
 ::Class.add_method('isa', -> $class {
     self.name.eq($class).cond(
         -> { true },
