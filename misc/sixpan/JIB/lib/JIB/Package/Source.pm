@@ -101,7 +101,8 @@ sub install {
                                                             and die $?;
         }
 
-=pod                            
+=begin comment
+
         {   
             ### dependencies satisfied?
             my $info = LoadFile( 
@@ -115,6 +116,7 @@ sub install {
                     "for '$path'" unless $avail{ $depends->{package} };
             }
         }
+
 =cut
 
         ### extract the code
