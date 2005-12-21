@@ -4,6 +4,9 @@ use strict;
 use warnings;
 use JIB::Constants;
 
+use JIB::Constants;
+use JIB::Dependency;
+
 use YAML                    qw[LoadFile];
 use Params::Check           qw[check];
 use Log::Message::Simple    qw[:STD];
@@ -55,6 +58,13 @@ sub new_from_struct {
     ### so we can have other accessors for other meta data?
     $obj->mk_accessors( keys %$struct );
     $obj->$_( $struct->{$_} ) for keys %$struct;
+    
+    ### if it has a dependency list, transform it into an object
+    if( $obj->can('depends') ) {
+        $obj->depends( 
+            JIB::Dependency->new_from_struct( struct => $obj->depends )
+        ) or return;
+    }
     
     return $obj;
 }

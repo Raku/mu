@@ -1,6 +1,6 @@
 use Test::More 'no_plan';
 use strict;
-use Path::Class;
+use File::Spec;
 
 BEGIN { chdir 't' if -d 't' };
 BEGIN { use lib qw[../lib inc] };
@@ -8,7 +8,7 @@ BEGIN { use lib qw[../lib inc] };
 my $Class = 'JIB::Meta';
 
 ### XXX Config
-my $File  = file( qw[src p5-b _jib META.info] );
+my $File  = File::Spec->catfile( qw[src p5-b _jib META.info] );
 
 ### XXX config
 my @Acc   = sort qw[author description package name version authority provides
