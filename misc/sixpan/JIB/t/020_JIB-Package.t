@@ -119,15 +119,8 @@ my $Obj;
 {   my $inst_pkg = $Inst->is_installed( package => $Obj );
     ok( $inst_pkg,              "Retrieved installed package" );
     isa_ok( $inst_pkg,          "JIB::Package::Installed" );
-    for my $file ( @{ $inst_pkg->files } ) {
-        ok( -e $file,           "   File '$file' exists" );
-    }
-    
     ok( $inst_pkg->uninstall,   "   Package uninstalled" );
-    for my $file ( @{ $inst_pkg->files } ) {
-        ok( !-e $file,          "       File '$file' removed" );
-    }
-    
+
     ### XXX more file tests
 }
 
