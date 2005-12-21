@@ -661,9 +661,9 @@ ruleVarDeclaration = rule "variable declaration" $ do
            lookAhead (satisfy (/= '='))
            return ()
         whiteSpace
-        -- XXX handle 'my $a = my $b = ... my $z = foo'.
+        -- XXX handle 'my $a = my $b = foo'.
         -- matching ruleVarDeclaration here results in nested pads,
-        -- i.e. Pad SMy _ (Syn "=", [Var _, (Pad SMy _ _)]),
+        -- i.e. Pad SMy _ (Syn "=",[Var _,Stmts Noop (Pad SMy _ _)]),
         -- which is NOT what we want. we re-arrange this below in unnestPad.
         exp <- choice
             [ ruleVarDeclaration
@@ -694,22 +694,20 @@ ruleVarDeclaration = rule "variable declaration" $ do
     let rhs | sym == "::=" = emptyExp
             | otherwise = maybe emptyExp (\exp -> Syn sym [lhs, exp]) expMaybe
     -- state $x = 42 is really syntax sugar for state $x; FIRST { $x = 42 }
+    -- XXX always wrap the Pad in a Stmts so that expRule has something to unwrap
     case scope of
         SState -> do
             implicit_first_block <- vcode2firstBlock $ VCode mkSub { subBody = rhs }
-            return $ unnestPad $ Pad scope lexDiff implicit_first_block
-        _      -> return $ unwrapStmts $ unnestPad $ Pad scope lexDiff rhs
+            return $ Stmts Noop $ unnestPad $ Pad scope lexDiff implicit_first_block
+        _      -> return $ Stmts Noop $ unnestPad $ Pad scope lexDiff rhs
     where
-    -- XXX here's the other half of the 'my $a = my $b = ... my $z = foo' fix.
-    -- see above. together, we turn 'my $a = my $b = 0' into
-    -- 'my $a; my $b; $a = $b = 0'. should we handle more scopes than 'SMy'?
+    -- XXX here's the other half of the squinting fix.
+    -- see above. together, we turn 'my $a = my $b = foo' into
+    -- 'my $a; my $b; $a = $b = foo'. should we handle more scopes than 'SMy'?
     -- more syntax than '(Syn "=" _)'?
     --unnestPad (Pad SMy lex (Syn "=" [v,Pad SMy lex' (Syn "=" [v',x])])) = Pad SMy lex (Stmts Noop (Pad SMy lex' (Syn "=" [v,(Syn "=" [v',unnestPad x])])))
-    unnestPad (Pad scope1 lex (Syn "=" [v,Pad scope2 lex' (Syn "=" [v',x])])) = Pad scope1 lex (Stmts Noop (Pad scope2 lex' (Syn "=" [v,(Syn "=" [v',unnestPad x])])))
-    unnestPad x@(Pad _ _ _) = Stmts Noop x
+    unnestPad (Pad scope1 lex (Syn "=" [v,Stmts Noop (Pad scope2 lex' (Syn "=" [v',x]))])) = Pad scope1 lex (Stmts Noop (Pad scope2 lex' (Syn "=" [v,(Syn "=" [v',unnestPad x])])))
     unnestPad x@_ = x
-    unwrapStmts (Stmts Noop x) = x
-    unwrapStmts x@_ = x
 
 {-|
 Match a @no@ declaration, i.e. the opposite of @use@ (see
