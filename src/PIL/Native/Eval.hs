@@ -210,11 +210,12 @@ callObject obj meth args = enterLex lex $ do
             Nothing -> return Nothing
             Just (next, mros') -> do
                 rv' <- genNext mros'
-                let pad = s_pad next `append` mkPad lex
-                    pad' = case rv' of
-                        Just next' -> pad `append` mkPad [("&?NEXT", next')]
-                        Nothing -> pad
-                return $ Just next{ s_pad = pad' }
+                let next' = maybe nil toNative rv'
+                return $ Just next
+                    { s_pad = s_pad next
+                                `append` mkPad lex
+                                `append` mkPad [("&?NEXT", next')]
+                    }
     getMRO = do
         mro <- cls ... "@!MRO" :: Eval NativeSeq
         if isEmpty mro
