@@ -4,6 +4,7 @@ use strict;
 WriteMakefile (
     NAME            => 'JIB',
     VERSION_FROM    => 'lib/JIB.pm', # finds $VERSION
+    ABSTRACT_FROM   => 'lib/JIB.pm',
     dist            => { COMPRESS => 'gzip -9f', SUFFIX => 'gz' },
     PREREQ_PM       => {    'Object::Accessor'      => 0,
                             'Test::More'            => 0,
@@ -15,7 +16,6 @@ WriteMakefile (
                             'File::chdir'           => 0,
                     },
     AUTHOR          => 'Jos Boumans <kane[at]cpan.org>',
-	ABSTRACT        => 'Perl6 Package Manager'
 );             
 
 

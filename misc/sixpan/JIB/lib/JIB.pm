@@ -9,12 +9,12 @@ __END__
 
 =head1 NAME
 
-JIB - JIB Is Brilliant
+JIB - Perl6 Package Manager
 
 =head1 DESCRIPTION
 
-JIB is a suite of modules that will be used as the base for Perl6's CPAN, also
-known as sixpan.
+JIB stands for 'JIB Is Brilliant' and is a suite of modules that will be used
+as the base for Perl6's CPAN, also known as sixpan.
 
 Please refer the documentation of the other Modules in the JIB namespace for
 details.
