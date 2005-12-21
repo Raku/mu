@@ -106,6 +106,7 @@ expression = (<?> "expression") $ do
         [ parens expression
         , selfExpression
         , arrayExpression
+        , hashExpression
         , fmap ELit literal
         , variableExpression
         ]
@@ -143,7 +144,6 @@ literal = choice
     , fmap toNative pointySub
     , fmap toNative stringLiteral
     , fmap toNative singleQuoteStringLiteral
-    , hashExpression
     , try (fmap toNative naturalOrFloat)
     , fmap toNative integer
     ]
@@ -168,14 +168,25 @@ arrayExpression = do
     allLiteral (ELit l:xs) = fmap (l:) (allLiteral xs)
     allLiteral _ = Nothing
 
-hashExpression :: Parser Native
-hashExpression = fmap toNative (braces $ commaSep pairExpression)
+hashExpression :: Parser NativeLangExpression
+hashExpression = do
+    exps <- braces $ commaSep pairExpression
+    return $ maybe (mkCall emptyHash "push" $ unroll exps)
+                   (ELit . toNative)
+                   (allLiteral exps)
+    where
+    emptyHash = ELit $ toNative (empty :: NativeMap)
+    unroll [] = []
+    unroll ((k, v):xs) = (k:v:unroll xs)
+    allLiteral [] = Just []
+    allLiteral ((ELit k, ELit l):xs) = fmap ((k, l):) (allLiteral xs)
+    allLiteral _ = Nothing
 
-pairExpression :: Parser (Native, Native)
+pairExpression :: Parser (NativeLangExpression, NativeLangExpression)
 pairExpression = do
-    key <- literal
+    key <- expression
     symbol "=>"
-    val <- literal
+    val <- expression
     return (key, val)
 
 singleQuoteStringLiteral :: Parser String
