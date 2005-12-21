@@ -95,7 +95,10 @@ bootstrapClass x = mdo
         ]
 
 enterLex :: IsNative a => [(String, a)] -> Eval b -> Eval b
-enterLex = local . append . mkMap . map (\(x, y) -> (x, toNative y))
+enterLex = local . append . mkPad
+
+mkPad :: IsNative a => [(String, a)] -> Pad
+mkPad = mkMap . map (\(x, y) -> (x, toNative y))
 
 evalExps :: [NativeLangExpression] -> Eval Native
 evalExps []       = return nil
@@ -193,15 +196,25 @@ callObject obj meth args = enterLex lex $ do
             Just f  -> f obj args
             Nothing -> failWith "No such method" meth
         Just (this, mros') -> do
-            rv' <- findMRO mros'
+            rv' <- genNext mros'
             case rv' of
-                Nothing -> callSub (fromNative this) args
-                Just (next, _) -> do
-                    enterLex [("&?NEXT", toNative next)] $
-                        callSub (fromNative this) args
+                Just next -> enterLex [("&?NEXT", toNative next)] $
+                    callSub this args
+                Nothing -> callSub this args
     where
     lex = [("$?SELF", obj), ("$?CLASS", cls)]
     cls = o_class obj
+    genNext mros = do
+        rv <- findMRO mros
+        case rv of
+            Nothing -> return Nothing
+            Just (next, mros') -> do
+                rv' <- genNext mros'
+                let pad = s_pad next `append` mkPad lex
+                    pad' = case rv' of
+                        Just next' -> pad `append` mkPad [("&?NEXT", next')]
+                        Nothing -> pad
+                return $ Just next{ s_pad = pad' }
     getMRO = do
         mro <- cls ... "@!MRO" :: Eval NativeSeq
         if isEmpty mro
@@ -213,7 +226,7 @@ callObject obj meth args = enterLex lex $ do
     findMRO (c:cs) = do
         meths <- c ... "%!methods" :: Eval NativeMap
         case meths `fetch` meth of
-            Just x  -> return $ Just (x, cs)
+            Just x  -> return $ Just (fromNative x, cs)
             _       -> findMRO cs
 
 mroMerge :: Eq a => [[a]] -> [a]
