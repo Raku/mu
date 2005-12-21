@@ -164,7 +164,8 @@ sub add_package {
             allow       => sub { UNIVERSAL::isa(shift, 'JIB::Package') }
         },
         force => {
-            store => \$force
+            store   => \$force,
+            default => undef
         }
     };
     
@@ -176,7 +177,7 @@ sub add_package {
     }
 
     File::Copy::copy($pkg->file, $self->pool) or error($!), return;
-    $self->add_package_to_index(package => $pkg);
+    $self->add_package_to_index(package => $pkg);#XXX error handling
 
     return 1;
 }
@@ -294,13 +295,17 @@ Adds a given file to the repository.
 sub add_file {
     my $self = shift;
     my %args = @_;
-    my $file;
+    my ($file, $force);
 
     my $tmpl = {
         file => {
             required    => 1,
             store       => \$file,
             allow       => FILE_EXISTS
+        },
+        force => {
+            store   => \$force,
+            deault  => undef
         }
     };
 
@@ -308,7 +313,7 @@ sub add_file {
 
     my $pkg = JIB::Package->new(file => $file);
 
-    return $self->add_package(package => $pkg);
+    return $self->add_package(package => $pkg, force => $force);
 }
 
 1;
