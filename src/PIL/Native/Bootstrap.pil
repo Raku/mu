@@ -336,12 +336,6 @@
 });
 
 ## ------------------------------------------------------------------------- ##
-## Role
-## ------------------------------------------------------------------------- ##
-
-# ... coming eventually 
-
-## ------------------------------------------------------------------------- ##
 ## Bootstrapping
 ## ------------------------------------------------------------------------- ##
 
@@ -353,7 +347,7 @@
 # it, but couldn't since they had not yet been defined. 
 
 -> $class {
-    $class.set_attr('%!namespace', {});
+    $class.set_attr('%!namespace', {}); 
 }.do_for([ ::Class, ::Object, ::Module, ::Package ]);
 
 # ... now we can name and version all our objects 
@@ -368,6 +362,75 @@
 ::Module.set_name('Module');   ::Module.set_version('0.0.1');  ::Module.set_authority('url:pugscode.org');
 
 ## end bootstrapping ...
+## ------------------------------------------------------------------------- ##
+
+## ------------------------------------------------------------------------- ##
+## Roles
+## ------------------------------------------------------------------------- ##
+
+::Role := ::Class.new({});
+
+::Role.set_name('Role');       
+::Role.set_version('0.0.1');    
+::Role.set_authority('url:pugscode.org');
+
+::Role.set_superclasses([ ::Module ]);
+
+::Role.add_attribute('@!roles',      []);
+::Role.add_attribute('%!methods',    {});
+::Role.add_attribute('%!attributes', {});
+
+# NOTE:
+# These methods are pretty much duplicates of the 
+# ones in ::Class, so we can just copy them here.
+
+::Role.add_method('add_method',      ::Class.get_method('add_method'));
+::Role.add_method('has_method',      ::Class.get_method('has_method'));
+::Role.add_method('get_method',      ::Class.get_method('get_method'));
+::Role.add_method('get_method_list', ::Class.get_method('get_method_list'));
+
+::Role.add_method('add_attribute',      ::Class.get_method('add_attribute'));
+::Role.add_method('has_attribute',      ::Class.get_method('has_attribute'));
+::Role.add_method('get_attribute',      ::Class.get_method('get_attribute'));
+::Role.add_method('get_attribute_list', ::Class.get_method('get_attribute_list'));
+::Role.add_method('get_attributes',     ::Class.get_method('get_attributes'));
+
+::Role.add_method('roles',     -> { self.get_attr('@!roles') });
+::Role.add_method('set_roles', -> @roles { 
+    self.set_attr('@!roles', @roles); 
+});
+
+::Role.add_method('does',              -> {});
+::Role.add_method('collect_all_roles', -> {});
+::Role.add_method('resolve',           -> {});
+
+## ------------------------------------------------------------------------- ##
+## Role Bootstrapping
+## ------------------------------------------------------------------------- ##
+
+# NOTE:
+# we have to manually resolve ::Class's roles (::Role)
+# this means we take all the attributes and methods
+# from ::Role, which ::Class does not already have 
+# and insert them into ::Class
+
+# attributes ...
+::Class.add_attribute('@!roles', []);
+
+# methods ...
+::Class.add_method('roles',             ::Role.get_method('roles'));
+::Class.add_method('set_roles',         ::Role.get_method('set_roles'));
+::Class.add_method('does',              ::Role.get_method('does'));
+::Class.add_method('collect_all_roles', ::Role.get_method('collect_all_roles'));
+::Class.add_method('resolve',           ::Role.get_method('resolve'));
+
+# Class does Role
+::Class.set_attr('@!roles', [ ::Role ]);
+
+# Role does Role
+::Role.set_attr('@!roles',  [ ::Role ]);
+
+## end Role bootstrapping ...
 ## ------------------------------------------------------------------------- ##
 
 =pod
