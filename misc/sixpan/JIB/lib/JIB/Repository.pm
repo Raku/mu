@@ -155,19 +155,22 @@ sub add_packages {
 sub add_package {
     my $self = shift;
     my %args = @_;
-    my $pkg;
+    my ($pkg, $force);
 
     my $tmpl = {
         package => {
             required    => 1,
             store       => \$pkg,
             allow       => sub { UNIVERSAL::isa(shift, 'JIB::Package') }
+        },
+        force => {
+            store => \$force
         }
     };
     
     check($tmpl, \%args) or error(Params::Check->last_error), return;
 
-    if (-e $self->pool->file(file($pkg->file)->basename)) {
+    if (-e $self->pool->file(file($pkg->file)->basename) && !$force) {
         error($pkg->package. " already exists in this repository");
         return;
     }
@@ -205,12 +208,16 @@ sub add_package_to_index { #TODO: compression of index files.
             # and touch the index file.
             $index->dir->mkpath, $index->openw->close or error($!), return;
         }
-        my @index_content = YAML::LoadFile($index);
+        # load the existing index file
+        my $index_content = YAML::LoadFile($index);
         my $meta = $pkg->meta->to_struct;
+        # add the archive path to the package's meta info
         $meta->{archive} =
             $self->pool_rel->file(file($pkg->file)->basename)->stringify();
-        push @index_content, $meta;
-        YAML::DumpFile($index, @index_content);
+        # append it to the existing content of the index
+        push @$index_content, $meta;
+        # and write it to disk again
+        YAML::DumpFile($index, $index_content);
     }
 }
 
