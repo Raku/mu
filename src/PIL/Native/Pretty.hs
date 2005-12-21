@@ -19,10 +19,17 @@ See Also:
 -}
 
 pretty :: (Pretty a) => a -> String
-pretty = render . format
+pretty = render' . format
 
 prettyM :: (MonadSTM m, Pretty a) => a -> m String
-prettyM a = fmap render $ formatM a
+prettyM a = fmap render' $ formatM a
+
+render' :: Doc -> String
+render' = renderStyle Style
+    { mode           = OneLineMode 
+    , lineLength     = 0
+    , ribbonsPerLine = 0
+    }
 
 defaultIndent :: Int
 defaultIndent = 2
