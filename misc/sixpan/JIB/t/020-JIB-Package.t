@@ -1,4 +1,5 @@
 use Test::More 'no_plan';
+use Test::NoWarnings;
 use strict;
 use Path::Class;
 
