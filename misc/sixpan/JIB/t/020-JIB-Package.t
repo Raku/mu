@@ -103,16 +103,15 @@ my $Obj;
 
 
     ### install again
-    diag( "XXX quell this warning" );
-    ok( $Obj->install( installation => $Inst ),           
+    {
+        my $log = file('error_log');
+        local $Log::Message::Simple::ERROR_FH = $log->openw;
+        ok( $Obj->install( installation => $Inst ),           
                                 "Second install returns true" );
 
-    ### XXX whitebox test -- switch to blackbox
-    {   my $stack = Log::Message::Simple->stack_as_string;
-        like( $stack, qr/is already installed/,
-                                "   Prior installation detected" );
-        Log::Message::Simple->flush;
-    }        
+        like( scalar $log->slurp, qr/is already installed/,
+                '   Prior installation detected' );
+    }
 }    
 
 ### Uninstall tests
