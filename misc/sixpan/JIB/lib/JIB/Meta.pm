@@ -2,6 +2,7 @@ package JIB::Meta;
 
 use strict;
 use warnings;
+use JIB::Constants;
 
 use YAML                    qw[LoadFile];
 use Params::Check           qw[check];
