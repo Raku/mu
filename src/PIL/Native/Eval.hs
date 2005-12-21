@@ -186,26 +186,35 @@ traceObject obj args = liftIO $ do
 
 callObject :: NativeObj -> NativeStr -> NativeSeq -> Eval Native
 callObject obj meth args = enterLex lex $ do
-    meths <- cls ... "%!methods" :: Eval NativeMap
-    case meths `fetch` meth of
-        Just x  -> callSub (fromNative x) args
-        _       -> tryMRO =<< getMRO
+    mros    <- getMRO
+    rv      <- findMRO mros
+    case rv of
+        Nothing -> case objPrims `fetch` meth of
+            Just f  -> f obj args
+            Nothing -> failWith "No such method" meth
+        Just (this, mros') -> do
+            rv' <- findMRO mros'
+            case rv' of
+                Nothing -> callSub (fromNative this) args
+                Just (next, _) -> do
+                    enterLex [("&?NEXT", toNative next)] $
+                        callSub (fromNative this) args
     where
     lex = [("$?SELF", obj), ("$?CLASS", cls)]
     cls = o_class obj
     getMRO = do
         mro <- cls ... "@!MRO" :: Eval NativeSeq
         if isEmpty mro
-            then cls ... "@!superclasses"
-            else return (elems mro)
-    tryMRO (c:cs) = do
-        meths <- fromNative c ... "%!methods" :: Eval NativeMap
+            then do
+                sups <- cls ... "@!superclasses"
+                return (cls:map fromNative sups)
+            else return (map fromNative $ elems mro)
+    findMRO [] = return Nothing
+    findMRO (c:cs) = do
+        meths <- c ... "%!methods" :: Eval NativeMap
         case meths `fetch` meth of
-            Just x  -> callSub (fromNative x) args
-            _       -> tryMRO cs
-    tryMRO [] = case objPrims `fetch` meth of
-        Just f  -> f obj args
-        Nothing -> failWith "no such method" meth
+            Just x  -> return $ Just (x, cs)
+            _       -> findMRO cs
 
 mroMerge :: Eq a => [[a]] -> [a]
 mroMerge = reverse . doMerge []
