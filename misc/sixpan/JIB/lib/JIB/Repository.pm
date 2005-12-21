@@ -11,7 +11,6 @@ use YAML;
 use Path::Class;
 use Params::Check qw(check);
 use Log::Message::Simple qw(:STD);
-use Math::Combinatorics;
 
 =head1 METHODS
 
@@ -149,7 +148,7 @@ sub add_packages {
     return @ret;
 }
 
-=head2 $repo->add_package(package => $pkg
+=head2 $repo->add_package(package => $pkg)
 
 =cut
 
