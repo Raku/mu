@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 2;
+plan 5;
 
 # Undeterminate Math results
 # see L<"http://mathworld.wolfram.com/Indeterminate.html">
