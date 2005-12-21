@@ -249,10 +249,12 @@ sub _index_files {
 
     my @index_files;
     my %copy = map { $_ => $_ ne $cur } @$groups;
-    my @copy = grep { $copy{$_} } keys %copy;
+    my @copy = grep { $copy{$_} } keys %copy; #all groups minus the current one
     for my $key (@copy) {
         my $path = dir($key)->subdir($pkg->meta->$key);
-        # maybe use another mechanism to call arbitrary stuff on the package obj?
+        # maybe use another mechanism to call arbitrary stuff on the package
+        # obj? otherwise all data we index after must be a toplevel element of
+        # the meta file
         push @index_files, file($path.'.index');
         push @index_files, map { $path->file($_) }
                 $self->_index_files($pkg, \@copy, $key);
