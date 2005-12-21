@@ -14,6 +14,8 @@ WriteMakefile (
                             'Path::Class'           => 0,
                             'File::Find::Rule'      => 0,
                             'File::chdir'           => 0,
+                            'Package::Constants'    => 0,
+                            'Module::Load::Conditional' => 0,
                     },
     AUTHOR          => 'Jos Boumans <kane[at]cpan.org>',
 );             
