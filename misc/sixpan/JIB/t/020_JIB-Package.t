@@ -112,6 +112,8 @@ my $Obj;
 
         like( scalar $log->slurp, qr/is already installed/,
                 '   Prior installation detected' );
+
+        $log->remove;
     }
 }    
 
