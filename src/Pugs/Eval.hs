@@ -416,7 +416,11 @@ reduceSyn "for" [list, body] = do
     sz    <- join $ doArray av array_fetchSize
     fetch <- doArray av array_fetchElem
     elms  <- mapM fetch [0..sz-1]
-    VCode sub <- fromVal vsub
+    sub' <- fromVal vsub
+    sub  <- case sub' of
+        VCode s -> return s
+        VList [] -> fail $ "Invalid codeblock for 'for': did you mean {;}?"
+        x -> fail $ "Invalid codeblock for 'for'"
     -- XXX: need clarification -- this makes
     --      for @x { ... } into for @x -> $_ {...}
     let arity = max 1 $ length (subParams sub)

@@ -2,7 +2,7 @@
 # Run this on a screen at least 72 wide by 30 deep.
 # Enjoy! -- asavige aka mad golfer
 
-sub sleepy{for(1..5500){}}
+sub sleepy{for(1..5500){;}}
 sub C{system($?OS eq 'MSWin32'??'ClS'!!'clear')}
 my$u;my$g='#';my$U;my$s='.';
 for(71,0,71,0,2,13,56,0,2,16,53,0,4,5,3,7,52,0,4,5,5
@@ -25,5 +25,5 @@ for(-28..0)->$i{
     @x=(@y.pop(),@x[0..-$i-3],@v.pop(),@x[-$i...]);
     sleepy();
 }
-for(1..9){C();say$U;for(1..500){};C();say$u;for(1..500){}}
+for(1..9){C();say$U;for(1..500){;};C();say$u;for(1..500){;}}
 say"Woot!";
