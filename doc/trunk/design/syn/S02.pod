@@ -584,14 +584,14 @@ surrounding that one.
     say $::foo;		# prints 41, :: is no-op
     {
 	my $foo = 42;
-	say MY<$foo>;		# prints "42"
+	say MY::<$foo>;		# prints "42"
 	say $MY::foo;		# same thing
 	say $::foo;		# same thing, :: is no-op here
 
-	say OUR<$foo>;		# prints "41"
+	say OUR::<$foo>;	# prints "41"
 	say $OUR::foo;		# same thing
 
-	say OUTER<$foo>;	# prints "41" (our $foo is also lexical)
+	say OUTER::<$foo>;	# prints "41" (our $foo is also lexical)
 	say $OUTER::foo;	# same thing
     }
 
@@ -693,7 +693,7 @@ is the case with C<$?SELF>).
 
 C<$?FILE> and C<$?LINE> are your current file and line number, for
 instance.  C<?> is not a shortcut for a package name like C<*> is.
-Instead of C<$?OUTER::SUB> you probably want to write C<< OUTER<$?SUB>
+Instead of C<$?OUTER::SUB> you probably want to write C<< OUTER::<$?SUB>
 >>.
 
 Here are some possibilities:
@@ -763,7 +763,7 @@ the context is being compiled, an exception is thrown.
     $?FOO = 45;			# always an error
     COMPILING::<$?FOO> = 45;	# an error unless we are compiling something
 
-Note that C<< CALLER<$?FOO> >> might discover the same variable
+Note that C<< CALLER::<$?FOO> >> might discover the same variable
 as C<COMPILING::<$?FOO>>, but only if the compiling context is the
 immediate caller.  Likewise C<< OUTER::<$?FOO> >> might or might not
 get you to the right place.  In the abstract, C<COMPILING::<$?FOO>>
