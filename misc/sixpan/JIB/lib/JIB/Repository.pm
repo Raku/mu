@@ -105,7 +105,7 @@ Path to the main index file. default: $root/dists/index
     }
 }
 
-=head2 $repo->create()
+=head2 $bool = $repo->create()
 
 Creates a new repository on the filesystem. Wipes out an existing one with the
 same root path if it exists.
@@ -133,7 +133,8 @@ sub create {
     return 1;
 }
 
-=head2 @ret = $repo->add_packages($pkg1, $pkg2, ...)
+### XXX @bools? how is this useful?
+=head2 @bools = $repo->add_packages($pkg1, $pkg2, ...)
 
 Adds a list of JIB::Package instances to the repository.
 
@@ -148,7 +149,7 @@ sub add_packages {
     return @ret;
 }
 
-=head2 $repo->add_package(package => $pkg)
+=head2 $bool = $repo->add_package(package => $pkg)
 
 =cut
 
@@ -182,7 +183,7 @@ sub add_package {
     return 1;
 }
 
-=head2 $repo->add_package_to_index(package => $pkg)
+=head2 $bool = $repo->add_package_to_index(package => $pkg)
 
 Adds a package to all necessary index files.
 
@@ -209,17 +210,23 @@ sub add_package_to_index { #TODO: compression of index files.
             # and touch the index file.
             $index->dir->mkpath, $index->openw->close or error($!), return;
         }
+        
         # load the existing index file
         my $index_content = YAML::LoadFile($index);
         my $meta = $pkg->meta->to_struct;
+        
         # add the archive path to the package's meta info
         $meta->{archive} =
             $self->pool_rel->file(file($pkg->file)->basename)->stringify();
+        
         # append it to the existing content of the index
         push @$index_content, $meta;
+        
         # and write it to disk again
         YAML::DumpFile($index, $index_content);
     }
+    
+    return 1;
 }
 
 =head2 @index_files = $repo->index_files(package => $pkg)
@@ -260,6 +267,7 @@ sub _index_files {
     my @copy = grep { $copy{$_} } keys %copy; #all groups minus the current one
     for my $key (@copy) {
         my $path = dir($key)->subdir($pkg->meta->$key);
+        
         # maybe use another mechanism to call arbitrary stuff on the package
         # obj? otherwise all data we index after must be a toplevel element of
         # the meta file
@@ -271,7 +279,8 @@ sub _index_files {
     return @index_files;
 }
 
-=head2 $repo->add_files($file1, $file2, ...)
+### XXX @bools? how is this useful?
+=head2 @bools = $repo->add_files($file1, $file2, ...)
 
 Adds a list of jib files to the repository.
 
@@ -286,7 +295,7 @@ sub add_files {
     return @ret;
 }
 
-=head2 $repo->add_file(file => $file)
+=head2 $bool = $repo->add_file(file => $file)
 
 Adds a given file to the repository.
 
