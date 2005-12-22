@@ -16,6 +16,7 @@ WriteMakefile (
                             'File::chdir'           => 0,
                             'Package::Constants'    => 0,
                             'Module::Load::Conditional' => 0,
+                            'Test::NoWarnings'      => 0,
                     },
     AUTHOR          => 'Jos Boumans <kane[at]cpan.org>',
 );             

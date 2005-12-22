@@ -10,58 +10,69 @@ BEGIN {
     require 'conf.pl';
 }
 
-my $class = 'JIB::Repository';
-my $root = 'repo';
-my @acc = sort qw(root config pool pool_rel index index_file);
-use_ok($class);
+my $Class = 'JIB::Repository';
+my $Root = 'repo';
+my @Acc = sort qw(root config pool pool_rel index index_file);
+use_ok($Class);
 
-# create object
-my $repo;
+### create object
+my $Repo;
 {
-    $repo = $class->new(root => $root);
-    isa_ok($repo, $class, 'Object created');
+    $Repo = $Class->new(root => $Root);
+    isa_ok($Repo, $Class,       'Object created');
 
-    my @can = sort $repo->ls_accessors;
-    ok(scalar @can, '  Object has accessors');
-    is_deeply(\@can, \@acc, '  Object can do what it should');
+    my @can = sort $Repo->ls_accessors;
+    ok(scalar @can,             '  Object has accessors');
+    is_deeply(\@can, \@Acc,     '  Object can do what it should');
 
     for my $method (@can) {
-        ok(defined $repo->$method, "  '$method' returns value");
+        ok( defined $Repo->$method, 
+                                "  '$method' returns value");
     }
 }
 
-# create repo
+### create repo
 {
-    ok($repo->create(), 'Creating repository');
+    ok($Repo->create(),         'Creating repository');
 
     for my $file (qw(jibs dists)) {
-        ok(-e dir($root)->subdir($file), "  '$file' exists");
+        ok(-e dir($Root)->subdir($file), 
+                                "  '$file' exists");
     }
 }
 
-# adding packages
-{
+### adding packages
+{   ### XXX config
     my $file1 = 'p5-Foo-Bar-1.2-cpan+KANE.jib';
     my $jib1 = dir('src')->file($file1);
     my $pkg1 = JIB::Package->new(file => $jib1);
 
-    ok($repo->add_package(package => $pkg1), 'Adding a package');
+    ok($Repo->add_package(package => $pkg1), 
+                                'Adding a package');
 
-    ok(-e $repo->pool->file($file1), '  package exists in the pool afterwards');
+    ok(-e $Repo->pool->file($file1), 
+                                '  package exists in the pool afterwards');
 
-    {
-        for my $index ($repo->index_file, $repo->index_files(package => $pkg1)) {
-            ok(my $index_data = YAML::Load(scalar $index->slurp), "  index '$index' looks ok");
-            is($index_data->[0]->{package}, $pkg1->package, '    and contains the right package as the first item');
-        }
+    
+    for my $index ( $Repo->index_file, $Repo->index_files(package => $pkg1) ) {
+        ok(my $index_data = YAML::Load(scalar $index->slurp), 
+                                "  index '$index' looks ok");
+        is($index_data->[0]->{package}, $pkg1->package, 
+                                '    and contains right package as 1st item');
     }
+    
 
     my $log = file('error_log');
-    {
-        local $Log::Message::Simple::ERROR_FH = $log->openw;
+    {   my $fh = $log->openw;
+        local $Log::Message::Simple::ERROR_FH = $fh;
 
-        ok(!$repo->add_package(package => $pkg1), '  Adding the same package again does\'t work');
-        like(scalar $log->slurp, qr/already exists in this repository/, '    and yields an error');
+        ok(!$Repo->add_package(package => $pkg1), 
+                                '  Adding the same package again does\'t work');
+
+        ### must close file before being able to slurp it, at least on OSX
+        close $fh;
+        like(scalar $log->slurp, qr/already exists in this repository/, 
+                                '    and yields an error');
 
         $log->remove;
     }
@@ -69,15 +80,16 @@ my $repo;
     {
         local $Log::Message::Simple::ERROR_FH = $log->openw;
 
-        ok($repo->add_package(package => $pkg1, force => 1), '  But it does if we force it');
-        ok(-z $log, '    and doesn\'t give an error message');
+        ok($Repo->add_package(package => $pkg1, force => 1), 
+                                '  But it does if we force it');
+        ok(-z $log,             '    and doesn\'t give an error message');
 
         $log->remove;
     }
 }
 
 END {
-    dir($root)->rmtree;
+    dir($Root)->rmtree;
 }
 
 # Local variables:
