@@ -67,7 +67,7 @@ my $Repo;
         local $Log::Message::Simple::ERROR_FH = $fh;
 
         ok(!$Repo->add_package(package => $pkg1), 
-                                '  Adding the same package again does\'t work');
+                                "  Adding the same package again doesn't work");
 
         ### must close file before being able to slurp it, at least on OSX
         close $fh;
@@ -82,7 +82,7 @@ my $Repo;
 
         ok($Repo->add_package(package => $pkg1, force => 1), 
                                 '  But it does if we force it');
-        ok(-z $log,             '    and doesn\'t give an error message');
+        ok(-z $log,             "    and doesn't give an error message");
 
         $log->remove;
     }

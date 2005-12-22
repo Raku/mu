@@ -80,7 +80,7 @@ Path to the main index file. default: $root/dists/index
         check($tmpl, \%args) or error(Params::Check->last_error), return;
         
         my $obj = $class->SUPER::new;
-        $obj->mk_accessors(qw( root config pool pool_rel index index_file ));
+        $obj->mk_accessors( keys %$tmpl );
 
         $obj->root(dir($root));
         $obj->pool((defined $pool
@@ -133,21 +133,23 @@ sub create {
     return 1;
 }
 
-### XXX @bools? how is this useful?
-=head2 @bools = $repo->add_packages($pkg1, $pkg2, ...)
-
-Adds a list of JIB::Package instances to the repository.
-
-=cut
-
-sub add_packages {
-    my $self = shift;
-    my @ret;
-
-    push @ret, $self->add_package(package => $_) for @_;
-
-    return @ret;
-}
+### these plural functions seem more confusion than helpful currently
+# 
+# ### XXX @bools? how is this useful?
+# =head2 @bools = $repo->add_packages($pkg1, $pkg2, ...)
+# 
+# Adds a list of JIB::Package instances to the repository.
+# 
+# =cut
+# 
+# sub add_packages {
+#     my $self = shift;
+#     my @ret;
+# 
+#     push @ret, $self->add_package(package => $_) for @_;
+# 
+#     return @ret;
+# }
 
 =head2 $bool = $repo->add_package(package => $pkg)
 
@@ -162,7 +164,7 @@ sub add_package {
         package => {
             required    => 1,
             store       => \$pkg,
-            allow       => sub { UNIVERSAL::isa(shift, 'JIB::Package') }
+            allow       => ISA_JIB_PACKAGE,
         },
         force => {
             store   => \$force,
@@ -198,7 +200,7 @@ sub add_package_to_index { #TODO: compression of index files.
         package => {
             required    => 1,
             store       => \$pkg,
-            allow       => sub { UNIVERSAL::isa(shift, 'JIB::Package') }
+            allow       => ISA_JIB_PACKAGE,
         }
     };
 
@@ -247,7 +249,7 @@ sub index_files { #TODO: When using two properties (A and B) to group the dists
         package => {
             required    => 1,
             store       => \$pkg,
-            allow       => sub { UNIVERSAL::isa(shift, 'JIB::Package') }
+            allow       => ISA_JIB_PACKAGE,
         }
     };
 
@@ -279,23 +281,25 @@ sub _index_files {
     return @index_files;
 }
 
-### XXX @bools? how is this useful?
-=head2 @bools = $repo->add_files($file1, $file2, ...)
+### these plural functions seem more confusion than helpful currently
+# 
+# ## XXX @bools? how is this useful?
+# =head2 @bools = $repo->add_files($file1, $file2, ...)
+# 
+# Adds a list of jib files to the repository.
+# 
+# =cut
+# 
+# sub add_files {
+#     my $self = shift;
+#     my @ret;
+#     
+#     push @ret, $self->add_file(file => $_) for @_;
+# 
+#     return @ret;
+# }
 
-Adds a list of jib files to the repository.
-
-=cut
-
-sub add_files {
-    my $self = shift;
-    my @ret;
-    
-    push @ret, $self->add_file(file => $_) for @_;
-
-    return @ret;
-}
-
-=head2 $bool = $repo->add_file(file => $file)
+=head2 $bool = $repo->add_file(file => $file, [force => BOOL])
 
 Adds a given file to the repository.
 
