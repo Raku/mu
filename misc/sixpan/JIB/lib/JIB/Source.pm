@@ -111,7 +111,7 @@ sub build {
 
     ### XXX move to builddir under pkg_dir/_jib/build
     my $path     = $self->meta->package;
-    my $builddir = $conf->build_dir->subdir( $path );
+    my $builddir = Path::Class::dir( $conf->build_dir . $path );
     my $srcdir   = $self->dir;
 
     {   ### copy all the stuff over to another dir
@@ -136,9 +136,10 @@ sub build {
         my $control = $conf->archive_control;
         my $jibdir  = $conf->jib_dir;
     
-        system( qq[tar --exclude $jibdir -czf $data $path] )
+        ### XXX hardcoded .svn exclusion! we should fix this proper!
+        system( qq[tar --exclude $jibdir --exclude .svn -czf $data $path] )
                                                         and error($?), return;
-        system( qq[tar -f $control -C $path/$jibdir -cz .] )
+        system( qq[tar -f $control --exclude .svn -C $path/$jibdir -cz .] )
                                                         and error($?), return;
         system( qq[tar -czf $archive $control $data] )  and error($?), return;
         

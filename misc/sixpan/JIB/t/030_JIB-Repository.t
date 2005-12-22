@@ -8,11 +8,12 @@ BEGIN {
     chdir 't' if -d 't';
     use lib qw[../lib inc];
     require 'conf.pl';
+    require 'pkg.pl';
 }
 
 my $Class = 'JIB::Repository';
-my $Root = 'repo';
-my @Acc = sort qw(root config pool pool_rel index index_file);
+my $Root  = $REPOSITORY_ROOT;
+my @Acc   = sort qw(root config pool pool_rel index index_file);
 use_ok($Class);
 
 ### create object
@@ -43,9 +44,8 @@ my $Repo;
 
 ### adding packages
 {   ### XXX config
-    my $file1 = 'p5-Foo-Bar-1.2-cpan+KANE.jib';
-    my $jib1 = dir('src')->file($file1);
-    my $pkg1 = JIB::Package->new(file => $jib1);
+    my $pkg1  = $PKGS{'p5-Foo-Bar-1.2-cpan+KANE'};
+    my $file1 = $pkg1->file->basename;
 
     ok($Repo->add_package(package => $pkg1), 
                                 'Adding a package');

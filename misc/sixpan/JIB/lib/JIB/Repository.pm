@@ -18,7 +18,7 @@ use Log::Message::Simple qw(:STD);
 
 Required arguments:
 
-=over 2
+=over 4
 
 =item root
 
@@ -167,20 +167,20 @@ sub add_package {
             allow       => ISA_JIB_PACKAGE,
         },
         force => {
-            store   => \$force,
-            default => undef
+            store       => \$force,
+            default     => undef
         }
     };
     
     check($tmpl, \%args) or error(Params::Check->last_error), return;
 
     if (-e $self->pool->file(file($pkg->file)->basename) && !$force) {
-        error($pkg->package. " already exists in this repository");
+        error($pkg->package . " already exists in this repository");
         return;
     }
 
-    File::Copy::copy($pkg->file, $self->pool) or error($!), return;
-    $self->add_package_to_index(package => $pkg);#XXX error handling
+    File::Copy::copy( $pkg->file, $self->pool )     or error($!), return;
+    $self->add_package_to_index( package => $pkg )  or return;
 
     return 1;
 }
@@ -206,7 +206,7 @@ sub add_package_to_index { #TODO: compression of index files.
 
     check($tmpl, \%args) or error(Params::Check->last_error), return;
 
-    for my $index ($self->index_file, $self->index_files(package => $pkg)) {
+    for my $index ( $self->index_file, $self->index_files(package => $pkg) ) {
         unless (-e $index) {
             # create the directory an index file lives in (ignores errors)
             # and touch the index file.
@@ -219,7 +219,7 @@ sub add_package_to_index { #TODO: compression of index files.
         
         # add the archive path to the package's meta info
         $meta->{archive} =
-            $self->pool_rel->file(file($pkg->file)->basename)->stringify();
+            $self->pool_rel->file( file($pkg->file)->basename )->stringify();
         
         # append it to the existing content of the index
         push @$index_content, $meta;
@@ -318,7 +318,7 @@ sub add_file {
         },
         force => {
             store   => \$force,
-            deault  => undef
+            default => undef
         }
     };
 

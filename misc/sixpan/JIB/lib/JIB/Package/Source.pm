@@ -15,6 +15,7 @@ use File::Basename          qw[basename];
 use Params::Check           qw[check];
 use Log::Message::Simple    qw[:STD];
 use YAML                    qw[LoadFile];
+use Path::Class             ();
 
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
@@ -27,11 +28,13 @@ sub new {
     my $file; my $meta;
     my $tmpl = {
         file    => { required => 1, allow => FILE_EXISTS, store => \$file },
-        meta    => { store => \$meta, 
-                     allow => sub { UNIVERSAL::isa(shift(), 'JIB::Meta') } },
+        meta    => { store => \$meta, allow => ISA_JIB_META },
     };
     my $args = check( $tmpl, \%hash ) 
                 or error( Params::Check->last_error ), return;
+
+    ### make it a P::C item
+    $args->{file} = Path::Class::file( $file );
 
     while( my($acc,$val) = each %$args ) {
         $self->$acc( $val );
@@ -45,6 +48,14 @@ sub new {
     
     return $self;
 }
+
+=head2 $path = $pkg->file
+
+Location of the source package
+
+=head2 $meta = $pkg->meta
+
+The JIB::Meta object associated with this package
 
 =head2 $pkg->install( installation => INSTALLATION_OBJECT )
 

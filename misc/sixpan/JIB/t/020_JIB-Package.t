@@ -6,6 +6,7 @@ use Path::Class;
 BEGIN { chdir 't' if -d 't' };
 BEGIN { use lib qw[../lib inc] };
 BEGIN { require 'conf.pl' }
+BEGIN { require 'pkg.pl' }
 
 use JIB::Installation;
 use JIB::Config;
@@ -17,8 +18,8 @@ my $Inst    = JIB::Installation->new( dir => $INSTALLATION_DIR );
 
 
 ### XXX config
-my $Pkg     = 'p5-Foo-Bar-1.2-cpan+KANE';
-my $File    = file( 'src', $Pkg.'.jib' );
+my $Pkg     = $PKGS{'p5-Foo-Bar-1.2-cpan+KANE'};
+my $File    = $Pkg->file;
 my @Parse   = qw[prefix name version authority];
 
 use_ok( $Class );

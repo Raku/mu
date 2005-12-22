@@ -5,13 +5,14 @@ use Path::Class ();
 use Cwd;
 use Config;
 
-use vars qw[$INSTALLATION_DIR];
+use vars qw[$INSTALLATION_DIR $REPOSITORY_ROOT];
 
 my $config  = JIB::Config->new;
 ### new fakeroot dir
 $config->root( Path::Class::dir( cwd() )->subdir( 'fakeroot' ) );
 
 $INSTALLATION_DIR = $config->root->subdir( $Config{installsitelib} );
+$REPOSITORY_ROOT  = $config->root->subdir( 'repo' );
 
 system( qw[rm -rf], $config->root, $config->build_dir .'*' )   and die $?;
 
