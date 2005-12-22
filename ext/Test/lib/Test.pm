@@ -8,7 +8,7 @@ $Test::ALWAYS_CALLER = %ENV<TEST_ALWAYS_CALLER>;
 ### GLOBALS
 
 # globals to keep track of our tests
-$Test::num_of_tests_run    = 0; 
+$Test::num_of_tests_run    = 0;
 $Test::num_of_tests_failed = 0;
 $Test::num_of_tests_badpass = 0;
 $Test::num_of_tests_planned;
@@ -47,12 +47,12 @@ sub is (Str $got, Str $expected, Str $desc?, :$todo, :$depends) returns Bool is 
 }
 
 ## is_deeply
-sub is_deeply(Any $wanted, Any $got, Str $desc?, :$todo, :$depends) returns Bool is export {
+sub is_deeply(Any $got, Any $expected, Str $desc?, :$todo, :$depends) returns Bool is export {
     # hack for now
     my $got_perl = $got.perl;
-    my $wanted_perl = $wanted.perl;
-    my $test := ($got_perl eq $wanted_perl);
-    Test::proclaim($test, $desc, $todo, $got_perl, $wanted_perl, $depends);
+    my $expected_perl = $expected.perl;
+    my $test := ($got_perl eq $expected_perl);
+    Test::proclaim($test, $desc, $todo, $got_perl, $expected_perl, $depends);
 }
 
 
@@ -122,13 +122,13 @@ sub isa_ok (Any|Junction|Pair $ref is rw, Str $expected_type, Str $desc?, :$todo
 
 sub use_ok (Str $module, :$todo, :$depends) is export {
     my $caller = caller().package;
-    
+
     eval "package $caller; require $module";
-    
+
     #try {
     #    &::($module)::import.goto();
     #};
-    
+
     if ($!) {
         Test::proclaim(undef, "require $module;", $todo, "Import error when loading $module: $!", :depends($depends));
     }
@@ -217,14 +217,14 @@ sub proclaim (Bool $cond, Str $desc? is copy, $todo?, Str $got?, Str $expected?,
     # $context is now the raw TODO, so we have to check it
     my $context;
 
-    # Check if we have to forcetodo this test 
+    # Check if we have to forcetodo this test
     # because we're preparing for a release.
     $context = "TODO for release"
         if $Test::num_of_tests_run == $Test::force_todo_test_junction;
 
     if $todo {
         if (substr($todo, 0, 4) eq 'skip') {
-            $context = $todo;        
+            $context = $todo;
         }
         else {
             $context =  "TODO" ~ ($todo.isa('Str') ?? " $todo" !! '');
@@ -308,30 +308,30 @@ Test - Test support module for perl6
 
   use v6;
   require Test;
-  
+
   plan 10;
   force_todo(1, 3 .. 5, 9);
-  
+
   use_ok('Some::Module');
   use_ok('Some::Other::Module', todo => 1);
-  
+
   ok(2 + 2 == 4, '2 and 2 make 4');
   is(2 + 2, 4, '2 and 2 make 4');
   isa_ok([1, 2, 3], 'List');
-  
+
   ok(2 + 2 == 5, '2 and 2 make 5', :todo(1));
   is(2 + 2, 5, desc => '2 and 2 make 5', todo => 1);
   isa_ok({'one' => 1}, 'Hash', :todo(1));
-  
+
   use_ok('My::Module');
-  
+
   pass('This test passed');
   flunk('This test failed');
-  
+
   skip('skip this test for now');
-  
+
   flunk('this fails, but might work soon', :todo(1));
-  
+
   diag('some misc comments and documentation');
 
 = DESCRIPTION
@@ -358,7 +358,7 @@ expected to run. This should be specified at the very top of your tests.
 
 If you have some tests which you would like to force into being TODO tests
 then you can pass them through this function. This is primarily a release
-tool, but can be useful in other contexts as well. 
+tool, but can be useful in other contexts as well.
 
 == Testing Functions
 
@@ -407,7 +407,7 @@ on success, or report that the eval was not successful on failure.
 
 - `throws_ok (Code &code, Any $expected, Str $desc?, Bool :$todo, Str :$depends) returns Bool`
 
-This function takes a block of code and runs it. It then smart-matches (`~~`) any `$!` 
+This function takes a block of code and runs it. It then smart-matches (`~~`) any `$!`
 value with the `$expected` value.
 
 - `dies_ok (Code &code, Str $desc?, Bool :$todo, Str :$depends) returns Bool`
@@ -429,7 +429,7 @@ could be started).  This is most useful when writing modules and you
 find there is some language feature missing, or core bug that needs to
 be sorted out before you can continue.
 
-It is also possible to use the `force_todo()` function to do large scale 
+It is also possible to use the `force_todo()` function to do large scale
 TODO-ing of tests.
 
 == Misc. Functions
