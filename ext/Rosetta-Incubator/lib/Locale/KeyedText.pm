@@ -13,7 +13,7 @@ my Str $EMPTY_STR is readonly = q{};
 ###########################################################################
 ###########################################################################
 
-package Locale::KeyedText-1.71.0 {
+package Locale::KeyedText-1.72.0 {
     # Note: This given version applies to all of this file's packages.
 } # package Locale::KeyedText
 
@@ -38,10 +38,10 @@ class Locale::KeyedText::Message {
 submethod BUILD (Str :$msg_key!, Any :%msg_vars? = hash()) {
 
     die 'invalid arg'
-        if !$msg_key.defined or $msg_key eq '';
+        if !$msg_key.defined or $msg_key eq $EMPTY_STR;
 
     die 'invalid arg'
-        if !%msg_vars.defined or %msg_vars.exists('');
+        if !%msg_vars.defined or %msg_vars.exists($EMPTY_STR);
 
     $!msg_key  = $msg_key;
     %!msg_vars = %msg_vars;
@@ -55,9 +55,9 @@ method get_msg_key () returns Str {
     return $!msg_key;
 }
 
-method get_msg_var (Str $var_name) returns Any {
+method get_msg_var (Str $var_name!) returns Any {
     die 'invalid arg'
-        if !$var_name.defined or $var_name eq '';
+        if !$var_name.defined or $var_name eq $EMPTY_STR;
     return %!msg_vars{$var_name};
 }
 
@@ -103,14 +103,14 @@ submethod BUILD (Str :@set_names!, Str :@member_names!) {
         if !@set_names.defined or +@set_names == 0;
     for @set_names -> $set_name {
         die 'invalid arg'
-            if !$set_name.defined or $set_name eq '';
+            if !$set_name.defined or $set_name eq $EMPTY_STR;
     }
 
     die 'invalid arg'
         if !@member_names.defined or +@member_names == 0;
     for @member_names -> $member_name {
         die 'invalid arg'
-            if !$member_name.defined or $member_name eq '';
+            if !$member_name.defined or $member_name eq $EMPTY_STR;
     }
 
     @!set_names    = @set_names;
@@ -144,7 +144,7 @@ method get_set_member_combinations () returns Array of Str {
 
 ###########################################################################
 
-method translate_message (Locale::KeyedText::Message $message)
+method translate_message (Locale::KeyedText::Message $message!)
         returns Str {
 
     die 'invalid arg'
@@ -193,18 +193,18 @@ method translate_message (Locale::KeyedText::Message $message)
 
 ###########################################################################
 
-submethod template_module_is_loaded (Str $module_name) returns Bool {
+submethod template_module_is_loaded (Str $module_name!) returns Bool {
     die 'invalid arg'
-        if !$module_name.defined or $module_name eq '';
+        if !$module_name.defined or $module_name eq $EMPTY_STR;
     # BUG: this always returns 1, need to find correct solution
     return defined ::($module_name);
 #    return; # with this instead, external Templates work, internal ones fail
 #    return 1; # with this instead, internals work, externals fail
 }
 
-submethod load_template_module (Str $module_name) {
+submethod load_template_module (Str $module_name!) {
     die 'invalid arg'
-        if !$module_name.defined or $module_name eq '';
+        if !$module_name.defined or $module_name eq $EMPTY_STR;
 
     # Note: We have to invoke this 'require' in an eval string
     # because we need the bareword semantics, where 'require'
@@ -217,12 +217,12 @@ submethod load_template_module (Str $module_name) {
 }
 
 submethod get_template_text_from_loaded_module
-        (Str $module_name, Str $msg_key) returns Str {
+        (Str $module_name!, Str $msg_key!) returns Str {
 
     die 'invalid arg'
-        if !$module_name.defined or $module_name eq '';
+        if !$module_name.defined or $module_name eq $EMPTY_STR;
     die 'invalid arg'
-        if !$msg_key.defined or $msg_key eq '';
+        if !$msg_key.defined or $msg_key eq $EMPTY_STR;
 
     my Str $text = undef;
     try {
@@ -235,12 +235,12 @@ submethod get_template_text_from_loaded_module
 }
 
 submethod interpolate_vars_into_template_text
-        (Str $text is copy, Any %msg_vars) returns Str {
+        (Str $text! is copy, Any %msg_vars!) returns Str {
 
     die 'invalid arg'
         if !$text.defined;
     die 'invalid arg'
-        if !%msg_vars.defined or %msg_vars.exists('');
+        if !%msg_vars.defined or %msg_vars.exists($EMPTY_STR);
 
     for %msg_vars.kv -> $var_name, $var_value {
         my Str $var_value_as_str = $var_value // $EMPTY_STR; #/
@@ -267,7 +267,7 @@ Refer to user messages in programs by keys
 
 =head1 VERSION
 
-This document describes Locale::KeyedText version 1.71.0.
+This document describes Locale::KeyedText version 1.72.0.
 
 It also describes the same-number versions of Locale::KeyedText::Message
 ("Message") and Locale::KeyedText::Translator ("Translator").
@@ -308,8 +308,8 @@ your code; instead refer to other above-named packages in this file.>
 
     module MyLib;
 
-    sub add_two (Num $first, Num $second,
-            Locale::KeyedText::Translator $translator) {
+    sub add_two (Num $first!, Num $second!,
+            Locale::KeyedText::Translator $translator!) {
         my Num $sum = $first + $second;
 
         # This will print '<FIRST> plus <SECOND> equals <RESULT>' in
@@ -537,7 +537,7 @@ This is the main Message constructor submethod:
 
 =over
 
-=item C<new( { $msg_key, %msg_vars? } )>
+=item C<new( :$msg_key!, :%msg_vars? )>
 
 This submethod creates and returns a new Locale::KeyedText::Message object.
 The Message Key attribute of the new object is set from the named argument
@@ -571,7 +571,7 @@ A Message object has these methods:
 
 This method returns the Message Key attribute of its object.
 
-=item C<get_msg_var( $var_name )>
+=item C<get_msg_var( $var_name! )>
 
 This method returns the Message Variable value (a string) associated with
 the variable name specified in the positional argument $var_name (a
@@ -607,7 +607,7 @@ For example, inside the text Template file "MyApp/L/Eng.pm" you can have:
     );
 
     module MyApp::L::Eng {
-        sub get_text_by_key (Str $msg_key) returns Str {
+        sub get_text_by_key (Str $msg_key!) returns Str {
             return %text_strings{$msg_key};
         }
     } # module MyApp::L::Eng
@@ -624,7 +624,7 @@ And inside the text Template file "MyApp/L/Fre.pm" you can have:
     );
 
     module MyApp::L::Fre {
-        sub get_text_by_key (Str $msg_key) returns Str {
+        sub get_text_by_key (Str $msg_key!) returns Str {
             return %text_strings{$msg_key};
         }
     } # module MyApp::L::Fre
@@ -713,7 +713,7 @@ This is the main Translator constructor submethod:
 
 =over
 
-=item C<new( { @set_names, @member_names } )>
+=item C<new( :@set_names!, :@member_names! )>
 
 This submethod creates and returns a new Locale::KeyedText::Translator
 object.  The Set Names property of the new object is set from the named
@@ -766,7 +766,7 @@ and Members of ['Eng','Fre'], the resulting list is
 internally by translate_message() to produce the list of Template module
 names that it will search.
 
-=item C<translate_message( $message )>
+=item C<translate_message( $message! )>
 
 This method takes a (machine-readable) Message object as its positional
 argument $message and returns an equivalent human readable text message
@@ -786,18 +786,18 @@ by translate_message() to handle the trickier parts of its work:
 
 =over
 
-=item C<template_module_is_loaded( $module_name )>
+=item C<template_module_is_loaded( $module_name! )>
 
 This submethod takes the name of a Perl package in its positional argument
 $module_name (a string) and checks whether or not it has already been
 loaded, returning true if so and false if not.
 
-=item C<load_template_module( $module_name )>
+=item C<load_template_module( $module_name! )>
 
 This submethod takes the name of a Perl package in its positional argument
 $module_name (a string) and tries to load it using 'require'.
 
-=item C<get_template_text_from_loaded_module( $module_name, $msg_key )>
+=item C<get_template_text_from_loaded_module( $module_name!, $msg_key! )>
 
 This submethod takes the name of a Perl package in its positional argument
 $module_name (a string), and a Message Key in its positional argument
@@ -806,7 +806,7 @@ is already loaded, it tries to invoke $module_name.get_text_by_key(
 $msg_key ) and return that subroutine's result, which is a Template text
 string if the module recognizes $msg_key, and the undefined value if not.
 
-=item C<interpolate_vars_into_template_text( $text, %msg_vars )>
+=item C<interpolate_vars_into_template_text( $text!, %msg_vars! )>
 
 This submethod takes a defined (but possibly empty) Template text string in
 its positional argument $text (a string), and a Message Variables hash ref

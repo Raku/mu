@@ -55,8 +55,8 @@ sub main () {
     return;
 }
 
-sub show_message (Locale::KeyedText::Translator $translator,
-        Locale::KeyedText::Message $message) {
+sub show_message (Locale::KeyedText::Translator $translator!,
+        Locale::KeyedText::Message $message!) {
     my Str $user_text = $translator.translate_message( $message );
     if (!$user_text) {
         $*ERR.print( "internal error: can't find user text for a message:\n"
@@ -80,7 +80,7 @@ my Str %text_stringsE is readonly = (
 );
 
 module MyApp::L::Eng {
-    sub get_text_by_key (Str $msg_key) returns Str {
+    sub get_text_by_key (Str $msg_key!) returns Str {
         return %text_stringsE{$msg_key};
     }
 } # module MyApp::L::Eng
@@ -98,7 +98,7 @@ my Str %text_stringsF is readonly = (
 );
 
 module MyApp::L::Fre {
-    sub get_text_by_key (Str $msg_key) returns Str {
+    sub get_text_by_key (Str $msg_key!) returns Str {
         return %text_stringsF{$msg_key};
     }
 } # module MyApp::L::Fre

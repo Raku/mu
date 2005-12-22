@@ -10,7 +10,7 @@ plan( 34 );
 # Locale-KeyedText:
 
 use_ok( 'Locale::KeyedText' );
-skip( 1, q{is( Locale::KeyedText.meta.identifier.version, 1.71.0,
+skip( 1, q{is( Locale::KeyedText.meta.identifier.version, 1.72.0,
     'Locale::KeyedText is the correct version' );} );
 
 # SQL-Routine:

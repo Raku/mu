@@ -7,7 +7,7 @@ use Locale::KeyedText;
 ###########################################################################
 
 module MyLib {
-    sub my_invert (Str $number) returns Num {
+    sub my_invert (Str $number!) returns Num {
         die Locale::KeyedText::Message.new(
                 'msg_key' => 'MYLIB_MYINV_NO_ARG' )
             if !$number.defined;
