@@ -25,10 +25,15 @@ sub new {
     
     my $meta; my $inst;
     my $tmpl = {
-        meta    => { required => 1, store => \$meta, allow => ISA_JIB_META },
-        installation
-                => { required => 1, store => \$inst,
-                    allow => ISA_JIB_INSTALLATION 
+        meta => { 
+            required    => 1, 
+            store       => \$meta, 
+            allow       => ISA_JIB_META, 
+        },
+        installation => { 
+            required    => 1, 
+            store       => \$inst,
+            allow       => ISA_JIB_INSTALLATION ,
         },
     };
     
@@ -61,6 +66,16 @@ sub new {
     return $self;
 }
 
+=head2 $files = $pkg->files
+
+Returns an arrayref of files installed by this package
+
+=head2 $alt = $pkg->alternative
+
+Returns the JIB::Alternative object, if this package is a registered alternative
+
+=cut
+    
 =head2 $pkg->install( ... )
 
 =cut

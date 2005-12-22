@@ -38,7 +38,7 @@ sub meta_dir {
 
 sub control_dir {
     my $self = shift;
-    my $pkg  = shift        or return;
+    my $pkg  = shift;       return unless defined $pkg;
     my $dir  = $self->dir   or return;
 
     return $dir->subdir( $self->config->_control )->subdir( $pkg );
@@ -131,6 +131,23 @@ sub files_list {
             ### set these 2 first, the other methods rely on it
             $obj->dir( $dir );
             $obj->config( $config );
+            
+            ### if the metadir doesn't exist yet, this is a 'clean' dir,
+            ### and we need to set it up for holding meta-data
+            unless ( -d $obj->meta_dir ) {
+                
+                ### set up the dirs
+                for my $subdir ($obj->meta_dir, $obj->alternatives_dir,
+                                $obj->control_dir(''), 
+                ) {
+                    system( qw[mkdir -p], $subdir )     and error($?), return;
+                }
+        
+                ### set up the files
+                for my $meth (qw[registered_alternatives_file available_file]) {
+                    system( qw[touch], $obj->$meth )    and error($?), return;
+                }
+            }
             
             ### do alts first, package;:installed uses them
             my @alts = eval { 

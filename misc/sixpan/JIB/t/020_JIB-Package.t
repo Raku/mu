@@ -13,7 +13,7 @@ use JIB::Config;
 my $Conf    = JIB::Config->new;
 my $Class   = 'JIB::Package';
 my @Acc     = sort qw[package file config meta];
-my $Inst    = JIB::Installation->new( dir => $Conf->perl_site_dir );
+my $Inst    = JIB::Installation->new( dir => $INSTALLATION_DIR );
 
 
 ### XXX config
@@ -69,6 +69,9 @@ my $Obj;
     
     
     ### XXX add more file tests
+    for my $file ( @{ $inst_pkg->files } ) {
+        ok( -e $file,           "   File '$file' exists" );
+    }
     
     ### check for module
     ### XXX get this from config/object
@@ -106,12 +109,15 @@ my $Obj;
     ### install again
     {
         my $log = file('error_log');
-        local $Log::Message::Simple::ERROR_FH = $log->openw;
+        my $fh  = $log->openw;
+        local $Log::Message::Simple::ERROR_FH = $fh;
+        
         ok( $Obj->install( installation => $Inst ),           
                                 "Second install returns true" );
 
+        close $fh;
         like( scalar $log->slurp, qr/is already installed/,
-                '   Prior installation detected' );
+                                '   Prior installation detected' );
 
         $log->remove;
     }
@@ -124,6 +130,9 @@ my $Obj;
     ok( $inst_pkg->uninstall,   "   Package uninstalled" );
 
     ### XXX more file tests
+    for my $file ( @{ $inst_pkg->files } ) {
+        ok( !-e $file,          "       File '$file' no longer exists" );
+    }    
 }
 
 

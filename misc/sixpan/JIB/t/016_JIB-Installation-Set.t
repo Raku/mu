@@ -17,7 +17,7 @@ use_ok( $Class );
 
 ### create an object 
 my $Obj;
-{   $Obj = $Class->new( dirs => [$Conf->perl_site_dir] );
+{   $Obj = $Class->new( dirs => [$INSTALLATION_DIR] );
     ok( $Obj,                   "Object created" );
     isa_ok( $Obj,               $Class );
     can_ok( $Obj,               @Acc );

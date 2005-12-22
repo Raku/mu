@@ -6,12 +6,14 @@ BEGIN { chdir 't' if -d 't' };
 BEGIN { use lib qw[../lib inc] };
 BEGIN { require 'conf.pl' }
 
+use JIB::Constants;
+
 my $Class = 'JIB::Source';
 ### XXX generate from somewhere
 my %Map   = (
-    dir     => sub { -d shift() },
-    meta    => sub { UNIVERSAL::isa( shift(), 'JIB::Meta' ) },
-    config  => sub { UNIVERSAL::isa( shift(), 'JIB::Config' ) },
+    dir     => DIR_EXISTS,
+    meta    => ISA_JIB_META,
+    config  => ISA_JIB_CONFIG,
 );
 my @Acc   = sort keys %Map;
 

@@ -72,7 +72,12 @@ use constant ISA_JIB_PACKAGE_BINARY
 use constant ISA_JIB_PACKAGE_INSTALLED
                             => sub { UNIVERSAL::isa(shift(), 
                                                     'JIB::Package::Installed')}; 
-
+use constant ISA_JIB_REPOSITORY_SET
+                            => sub { UNIVERSAL::isa(shift(), 
+                                                    'JIB::Repository::Set') };
+use constant ISA_JIB_INSTALLATION_SET
+                            => sub { UNIVERSAL::isa(shift(), 
+                                                    'JIB::Installation::Set') };
                             
 1;
 

@@ -22,7 +22,6 @@ use constant SUBFILE_OF_META    => sub { shift()->_meta_dir->file(  shift() ) };
 ### base dirs
 ### XXX touch the 'root' entry and the tests will run somewhere quite different!
 $config{'root'}             = [ $Cwd->subdir('fr') ];
-$config{'perl_site_dir'}    = [ $Config{installsitelib} => SUBDIR_OF_ROOT ];
 $config{'temp_dir'}         = [ tmp                     => SUBDIR_OF_ROOT ];
 $config{'bin_dir'}          = [ $Config{bin}            => SUBDIR_OF_ROOT ];
 $config{'compile_dir'}      = [ _builddir               => 

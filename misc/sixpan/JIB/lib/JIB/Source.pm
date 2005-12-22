@@ -150,9 +150,7 @@ sub build {
     #system( qq[rm -rf $builddir] )                      and error($?), return;
 
     return JIB::Package->new( 
-                file => File::Spec->rel2abs(
-                    File::Spec->catfile( $archive )
-                ),
+                file => File::Spec->rel2abs( $archive ),
                 meta => $self->meta,
             );                
 }

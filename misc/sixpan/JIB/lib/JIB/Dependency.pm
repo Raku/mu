@@ -100,6 +100,31 @@ sub _pp_from_struct {
     return $str;
 }    
 
+sub list_missing_dependencies {
+    my $self = shift;
+    my %hash = @_;
+    
+    my($repo_set, $inst_set);
+    my $tmpl = {
+        repository_set => { 
+            required    => 1, 
+            store       => \$repo_set,
+            allow       => ISA_JIB_REPOSITORY_SET,
+        },
+        installation_set => { 
+            required    => 1, 
+            store       => \$inst_set,
+            allow       => ISA_JIB_INSTALLATION_SET, 
+        },
+    };                             
+
+    check( $tmpl, \%hash ) or error( Params::Check->last_error ), return;
+
+    
+
+
+}
+
 1;
 
 __END__
