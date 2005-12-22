@@ -1729,13 +1729,28 @@ ruleTypeLiteral = rule "type" $ do
 
 rulePostTerm :: RuleParser (Exp -> Exp)
 rulePostTerm = tryVerbatimRule "term postfix" $ do
-    hasDot <- option False $ try $ do
-        whiteSpace; oneOf ".!"; notFollowedBy (oneOf ".!"); return True
-    choice $ (if hasDot then [ruleInvocation] else []) ++
+    hasDot <- option Nothing $ try $ do
+        whiteSpace
+        dot <- oneOf ".!"
+        notFollowedBy (char dot)
+        return (Just dot)
+    let maybeInvocation = case hasDot of
+            Just '.' -> (ruleInvocation:)
+            Just '!' -> (bangKludged ruleInvocation:)
+            _        -> id
+    choice $ maybeInvocation
         [ ruleArraySubscript
         , ruleHashSubscript
         , ruleCodeSubscript
         ]
+    where
+    -- XXX - this should happen only in a "trusts" class!
+    bangKludged p = do
+        f <- p
+        return $ \x -> case f x of
+            App (Var ('&':name)) (Just inv) [] ->
+                Syn "{}" [inv, Val (VStr name)]
+            e -> e
 
 ruleInvocation :: RuleParser (Exp -> Exp)
 ruleInvocation = ruleInvocationCommon False
