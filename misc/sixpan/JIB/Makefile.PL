@@ -15,12 +15,20 @@ WriteMakefile (
                             'File::Find::Rule'      => 0,
                             'File::chdir'           => 0,
                             'Package::Constants'    => 0,
-                            'Module::Load::Conditional' => 0,
                             'Test::NoWarnings'      => 0,
+                            'Module::Load::Conditional'         => 0,
+                            'ExtUtils::MakeMaker::Coverage'     => '0.05',
                     },
     AUTHOR          => 'Jos Boumans <kane[at]cpan.org>',
 );             
 
+if( eval { require ExtUtils::MakeMaker::Coverage; 1 } ) {
+    sub MY::postamble {
+        my $config = ExtUtils::MakeMaker::Coverage->config;
+        $config->ignore(['.svn']);
+        ExtUtils::MakeMaker::Coverage->testcover();
+    }
+}    
 
 # Local variables:
 # c-indentation-style: bsd
