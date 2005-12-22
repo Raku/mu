@@ -79,9 +79,9 @@ eval = evalExp . parseExp
 
 bootstrapClass :: Eval a -> Eval a
 bootstrapClass x = mdo
-    cls <- newObject cls $ mkClassMethods [("add_method", addMethod)]
-    bit <- newObject cls $ mkClassMethods [("unbox", parseSub "->{ self.get_attr('') }")]
-    enterLex [("::Class", cls), ("::Bit", bit)] x
+    clsClass <- newObject clsClass $ mkClassMethods [("add_method", addMethod)]
+    clsBoxes <- mapM (newBoxedClass clsClass) unboxedTypes
+    enterLex (("::Class", clsClass) : (unboxedTypes `zip` clsBoxes)) x
     where
     addMethod = parseSub
         "-> $name, &method { self.set_attr_hash('%!methods', $name, &method) }"
@@ -93,6 +93,8 @@ bootstrapClass x = mdo
         , ("%!attributes",      emptyMap)
         , ("%!methods", toNative $ mkMap meths)
         ]
+    newBoxedClass cls _ = newObject cls $ mkClassMethods [("unbox", parseSub "->{ self.get_attr('') }")]
+    unboxedTypes = map ("::" ++) $ words "Bit Int Num Str Seq Map Sub"
 
 enterLex :: IsNative a => [(String, a)] -> Eval b -> Eval b
 enterLex = local . append . mkPad
@@ -145,11 +147,12 @@ evalExp (ECall { c_obj = objExp, c_meth = meth, c_args = argsExp }) = do
     errMethodMissing = failWith "No such method" meth
     callMethod :: Boxable a => MapOf (a -> NativeSeq -> Native) -> a -> NativeSeq -> Eval Native
     callMethod prims x args = case prims `fetch` meth of
-        Nothing -> do   
-            cls <- fmap fromNative $ evalExp (EVar $ boxType x)
-            obj <- autobox x cls
-            callObject obj meth args
+        Nothing -> callAutoboxed x meth args
         Just f  -> return $ f x args
+    callAutoboxed x meth args = do
+        cls <- fmap fromNative $ evalExp (EVar $ boxType x)
+        obj <- autobox x cls
+        callObject obj meth args
 
 callSub :: NativeSub -> NativeSeq -> Eval Native
 callSub sub args = do
@@ -169,7 +172,10 @@ callSubWith ""          sub args = callSub sub args
 callSubWith "do_if"     sub args = if fromNative (args ! 0) then callSub sub empty else return nil
 callSubWith "do_unless" sub args = if fromNative (args ! 0) then return nil else callSub sub empty
 callSubWith "do_for"    sub args = fmap toNative $ fmapM (callSub sub . mkSeq . (:[])) (fromNative (args ! 0) :: NativeSeq)
-callSubWith meth _ _ = failWith "No such method" meth
+callSubWith str x args = do
+    cls <- fmap fromNative $ evalExp (EVar $ boxType x)
+    obj <- autobox x cls
+    callObject obj (mkStr str) args
 
 callConditional :: NativeBit -> NativeSeq -> Eval Native
 callConditional x args = callSub (fromNative $ args ! fromEnum (not x)) empty

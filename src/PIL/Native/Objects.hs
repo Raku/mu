@@ -18,29 +18,26 @@ class IsNative a => Boxable a where
     boxType :: a -> NativeStr
     boxType _ = error "Cannot autobox"
     autobox :: (MonadState ObjectSpace m, MonadIO m) => a -> NativeObj -> m NativeObj
-    autobox _ = failWith "Cannot autobox"
-
-instance Boxable NativeBit where
-    boxType _ = mkStr "::Bit"
     autobox v cls = do
         objs <- get
         let obj = MkObject oid cls fetch exists store freeze thaw
             oid = size objs
             fetch _ = return (toNative v)
             exists _ = return True
-            store _ _ = fail "Cannot store into autoboxed Bit"
+            store _ _ = failWith "Cannot store into autoboxed" (boxType v)
             freeze = fail "freeze"
             thaw = fail "thaw"
         ptr <- liftIO $ mkWeak obj obj Nothing
         put (insert objs oid ptr)
         return obj
 
-instance Boxable NativeInt
-instance Boxable NativeNum
-instance Boxable NativeStr
-instance Boxable NativeSeq
-instance Boxable NativeMap
-instance Boxable NativeSub
+instance Boxable NativeBit where boxType _ = mkStr "::Bit"
+instance Boxable NativeInt where boxType _ = mkStr "::Int"
+instance Boxable NativeNum where boxType _ = mkStr "::Num"
+instance Boxable NativeStr where boxType _ = mkStr "::Str"
+instance Boxable NativeSeq where boxType _ = mkStr "::Seq"
+instance Boxable NativeMap where boxType _ = mkStr "::Map"
+instance Boxable NativeSub where boxType _ = mkStr "::Sub"
 
 type ObjectSpace = SeqOf (Weak NativeObj)
 
