@@ -1,0 +1,22 @@
+--- #YAML:1.0
+author: KANE
+prefix: p5
+description: Gives Complicated Dependencies
+package: p5-Complicated-Deps-1.0-cpan+KANE
+name: Complicated::Deps
+version: 1.0
+authority: cpan+KANE
+provides:
+  - p5-Complicated-Deps
+  - p5-Complicated-Deps-cpan+KANE
+depends:
+  - p5-a
+  -
+    - p5-b: 3
+    - p5-b: < 2
+  - !perl/ref:
+    =:
+      - p5-c
+      -
+        - p5-e
+        - p5-d
