@@ -1,12 +1,12 @@
 --- #YAML:1.0
 author: KANE
+prefix: p5
 depends: 
     - p5-Foo
 description: Implements Foo-Bar
-package: p5-Foo-Bar-1.2-cpan+KANE
-prefix: p5
+package: p5-Foo-Bar-1.3-cpan+KANE
 name: Foo::Bar
-version: 1.2
+version: 1.3
 authority: cpan+KANE
 provides: 
     - p5-Foo-Bar
