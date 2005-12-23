@@ -40,6 +40,12 @@ Blocks:
   -> $x { $x }; # create a closure which returns it's own argument
   (-> $x { $x.add(1) }).(3); # call a closure with .() 
 
+Method Invocation:
+
+  $x.foo(1, 2);   # native method call
+  $x`foo(1, 2);   # desugars into $x.send('foo', 1, 2)
+  $x!foo(1, 2);   # desugars into $x.send_private('foo', 1, 2)
+
 More complex examples: 
 
   # Factorial of 10
@@ -113,13 +119,17 @@ expression = (<?> "expression") $ do
     maybeCall obj
     where
     method = (<?> "method") $ do
-        x       <- noneOf " \n\t()0123456789."
-        xs      <- many (noneOf " \n\t();,.")
+        x       <- noneOf " \n\t()0123456789.`!"
+        xs      <- many (noneOf " \n\t();,.`!")
         return (x:xs)
-    maybeCall obj = option obj $ do
-        symbol "."
+    maybeCall obj = option obj . try $ do
+        dot <- lexeme (oneOf ".`!")
         (name, args) <- functionCall <|> methodCall
-        maybeCall (mkCall obj name args)
+        maybeCall $ case dot of
+            '.' -> mkCall obj name args
+            '`' -> mkCall obj "send" (ELit (toNative name):args)
+            '!' -> mkCall obj "send_private" (ELit (toNative name):args)
+            _   -> error "impossible"
     -- $obj.(1,2,3)
     functionCall = do
         args    <- parens $ commaSep expression
@@ -216,7 +226,7 @@ nativeLangDef  = javaStyle
     , commentLine    = "#"
     , nestedComments = False
     , identStart     = oneOf "$@%&:"
-    , identLetter    = noneOf " \n\t.,;()[]{}<>#"
+    , identLetter    = noneOf " \n\t.`!,;()[]{}<>#"
     }
 
 nativeLangLexer :: P.TokenParser st
