@@ -6,7 +6,7 @@ use v6;
 BEGIN { print $*ERR: "Net::IRC... " }
 use Net::IRC;
 BEGIN { print $*ERR: "File::Spec... " }
-use File::Spec;
+use File::Spec::Unix;
 
 # Parse @*ARGS
 my $nick;
