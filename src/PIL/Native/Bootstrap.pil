@@ -176,7 +176,7 @@
 ## dispatching
 
 ::Class.add_method('_make_dispatcher_iterator', -> @values {
-    $counter := ::Class.new_opaque({'' => 0});
+    $counter := ::.new_opaque({'' => 0});
     -> {
         $idx := $counter.get_attr('');
         $counter.set_attr('', $idx.add(1));
@@ -462,21 +462,26 @@
            }.do_unless($c.get_attr('%seen').exists($r.name()))
         }.do_for($role.roles());
         $c.get_attr('@roles');
-    # NOTE:
-    # Yuk! having to use self.new_opaque causes many 
-    # issues in this particular instance, it basically
-    # is becuase the "self" part gets interpreted as
-    # the class (so this anon-opaque seems to have
-    # a given role instance as it's class which is
-    # bad). This is somewhat compounded by the fact
-    # that the prim methods are in the same dispatch
-    # as the user-created methods, which I am not sure
-    # they should be. But this is something to debate
-    # with audrey later on. For now, we kludge/punt to 
-    # get Roles working :)
-    }.(::Class.new_opaque({ '@roles' => [], '%seen' => {} }), self);
+    }.(::.new_opaque({ '@roles' => [], '%seen' => {} }), self);
 });
 
+# NOTE:
+# This is broken! Let me explain why ...
+# 1) we cannot die in the mini-language, so it cannot fail
+#    when role composition fails. This is somewhat trivial 
+#    at the moment since this method does not detect the
+#    failing case anyway :)
+# 2) There exists no concept of a "required" method/attr. 
+#    (this is when a conflict between roles occurs, and 
+#    the item in conflict then is required for the class
+#    to implement). It is also possible to manually require
+#    a method by using a stub in the role (-> { ... })
+# 3) Because we do not properly detect these conflicts, the
+#    result is that the first method/attr encountered in the 
+#    linearized role list is used, and further ones are ignored.
+# Of course, these are known problems with this, so they 
+# will be fixed, but first I want to re-read some of the original
+# traits papers to get some ideas. -- stevan
 ::Role.add_method('resolve', -> {
     -> $role {
         -> $method_name {
