@@ -13,7 +13,7 @@ BEGIN {
 
 my $Class = 'JIB::Repository';
 my $Root  = $REPOSITORY_ROOT;
-my @Acc   = sort qw(root config pool pool_rel index index_file);
+my @Acc   = sort qw(root config pool pool_rel index index_file packages);
 use_ok($Class);
 
 ### create object

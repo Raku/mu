@@ -10,6 +10,7 @@ use JIB::Config;
 use JIB::Package::Source;
 use JIB::Package::Binary;
 use JIB::Package::Installed;
+use JIB::Package::Installable;
 
 use File::Spec;
 use File::Basename          qw[basename];
@@ -59,13 +60,20 @@ XXX needs binary package recognition
 
 =cut
 
-{   my $tmpl = {
-        file    => { allow => FILE_EXISTS },
-        meta    => { allow => ISA_JIB_META },
-        config  => { allow => ISA_JIB_CONFIG },
-        package => { allow => $Package_re, no_override => 1 }
+{   my $acc = {
+        file            => { allow => FILE_EXISTS },
+        meta            => { allow => ISA_JIB_META },
+        config          => { allow => ISA_JIB_CONFIG },
+        package         => { allow => $Package_re, no_override => 1 },
     };
 
+    ### acc is just for accessors, the others get added for our 
+    ### param checking too
+    my $tmpl = {
+        %$acc,
+        installation    => { allow => ISA_JIB_INSTALLATION },
+        repository      => { allow => ISA_JIB_REPOSITORY },
+    };
 
     sub new {
         my $class = shift;
@@ -79,14 +87,19 @@ XXX needs binary package recognition
         ### XXX need better checks
         
         ### XXX create an object::accessor object, blessed in the right class
-        my $obj = $args->{file}
-            ? JIB::Package::Source->Object::Accessor::new
-            : JIB::Package::Installed->Object::Accessor::new;
+        my $obj = 
+            $args->{repository} && $args->{file}
+                ? JIB::Package::Installable->Object::Accessor::new      :
+            $args->{file}           
+                ? JIB::Package::Source->Object::Accessor::new           :
+            $args->{installation}   
+                ? JIB::Package::Installed->Object::Accessor::new        :
+            JIB::Package::Binary->Object::Accessor::new;
     
         return unless $obj;
 
         ### create accessors
-        my %acc = map { $_ => $tmpl->{$_}->{allow} } keys %$tmpl;
+        my %acc = map { $_ => $acc->{$_}->{allow} } keys %$acc;
         $obj->mk_accessors( \%acc );
         
         ### set the config

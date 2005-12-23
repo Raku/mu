@@ -52,7 +52,7 @@ Path to the main index file. default: $root/dists/index
         my $class = shift;
         my %args = @_;
 
-        my ($root, $pool, $pool_rel, $index, $index_file);
+        my ($root, $pool, $pool_rel, $index, $index_file, $pkgs);
         my $tmpl = {
             root => {
                 required    => 1,
@@ -60,7 +60,7 @@ Path to the main index file. default: $root/dists/index
             },
             config => {
                 no_override => 1,
-                default => $config
+                default     => $config
             },
             pool => {
                 store => \$pool,
@@ -74,7 +74,12 @@ Path to the main index file. default: $root/dists/index
             },
             index_file => {
                 store => \$index_file
-            }
+            },
+            packages => {
+                default     => [ ],
+                no_override => 1,
+                store       => \$pkgs,
+            },
         };
 
         check($tmpl, \%args) or error(Params::Check->last_error), return;
@@ -100,6 +105,7 @@ Path to the main index file. default: $root/dists/index
                     : $config->repo_pool
         ));
         $obj->config($config);
+        $obj->packages( $pkgs );
 
         return $obj;
     }
@@ -179,8 +185,14 @@ sub add_package {
         return;
     }
 
+    my $inst = JIB::Package->new( 
+                    meta        => $pkg->meta,
+                    file        => $pkg->file,
+                    repository  => $self,
+                ) or return;              
+
     File::Copy::copy( $pkg->file, $self->pool )     or error($!), return;
-    $self->add_package_to_index( package => $pkg )  or return;
+    $self->add_package_to_index( package => $inst ) or return;
 
     return 1;
 }
@@ -200,7 +212,7 @@ sub add_package_to_index { #TODO: compression of index files.
         package => {
             required    => 1,
             store       => \$pkg,
-            allow       => ISA_JIB_PACKAGE,
+            allow       => ISA_JIB_PACKAGE_INSTALLABLE,
         }
     };
 
@@ -224,6 +236,8 @@ sub add_package_to_index { #TODO: compression of index files.
         # append it to the existing content of the index
         push @$index_content, $meta;
         
+        ### XXX do delayed writes, as an explicit ->write() call on the
+        ### object, like in JIB::Installation
         # and write it to disk again
         YAML::DumpFile($index, $index_content);
     }
@@ -324,7 +338,7 @@ sub add_file {
 
     check($tmpl, \%args) or error(Params::Check->last_error), return;
 
-    my $pkg = JIB::Package->new(file => $file);
+    my $pkg = JIB::Package->new( file => $file );
 
     return $self->add_package(package => $pkg, force => $force);
 }

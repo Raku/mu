@@ -2,6 +2,7 @@ use strict;
 
 ### fixes the config for us
 BEGIN { require 'conf.pl' }
+BEGIN { require 'pkg.pl' }
 
 use JIB::Config;
 use JIB::Repository;
@@ -15,9 +16,8 @@ $REPO = JIB::Repository->new( root => $REPOSITORY_ROOT )
 
 $REPO->create   or die "Creation failed";
 
-for my $jib ( qx[find src -type f | grep '.jib\$'] ) {
-    chomp $jib;
-    $REPO->add_file( file => $jib ) or die "Could not add $jib";
+for my $jib ( values %PKGS ) {
+    $REPO->add_file( file => $jib->file ) or die "Could not add $jib";
 }    
 
 1;

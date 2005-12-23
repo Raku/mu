@@ -58,26 +58,36 @@ use constant OPEN_FILE      => sub {
 
 use constant ISA_JIB_META   => sub { UNIVERSAL::isa(shift(), 'JIB::Meta') }; 
 use constant ISA_JIB_CONFIG => sub { UNIVERSAL::isa(shift(), 'JIB::Config') };
+
+use constant ISA_JIB_REPOSITORY
+                            => sub { UNIVERSAL::isa(shift(), 
+                                                'JIB::Repository') };
 use constant ISA_JIB_INSTALLATION
-                            => sub { UNIVERSAL::isa( shift(),
-                                                    'JIB::Installation') }; 
+                            => sub { UNIVERSAL::isa(shift(), 
+                                                'JIB::Installation') };
+use constant ISA_JIB_REPOSITORY_SET
+                            => sub { UNIVERSAL::isa(shift(), 
+                                                'JIB::Repository::Set') };
+use constant ISA_JIB_INSTALLATION_SET
+                            => sub { UNIVERSAL::isa(shift(), 
+                                                'JIB::Installation::Set') };
+
+### package constants
 use constant ISA_JIB_PACKAGE
                             => sub { UNIVERSAL::isa(shift(), 'JIB::Package') }; 
 use constant ISA_JIB_PACKAGE_SOURCE
                             => sub { UNIVERSAL::isa(shift(), 
-                                                    'JIB::Package::Source') }; 
+                                                'JIB::Package::Source') }; 
 use constant ISA_JIB_PACKAGE_BINARY
                             => sub { UNIVERSAL::isa(shift(), 
-                                                    'JIB::Package::Binary') }; 
+                                                'JIB::Package::Binary') }; 
 use constant ISA_JIB_PACKAGE_INSTALLED
                             => sub { UNIVERSAL::isa(shift(), 
-                                                    'JIB::Package::Installed')}; 
-use constant ISA_JIB_REPOSITORY_SET
+                                                'JIB::Package::Installed')}; 
+use constant ISA_JIB_PACKAGE_INSTALLABLE
                             => sub { UNIVERSAL::isa(shift(), 
-                                                    'JIB::Repository::Set') };
-use constant ISA_JIB_INSTALLATION_SET
-                            => sub { UNIVERSAL::isa(shift(), 
-                                                    'JIB::Installation::Set') };
+                                                'JIB::Package::Installable')}; 
+
                             
 1;
 
