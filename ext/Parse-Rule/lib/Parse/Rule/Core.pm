@@ -9,7 +9,7 @@ class Match {
     has Match $.match_num;
     has Match $.match_name;
 
-    submethod BUILD {
+    submethod BUILD () {
         $.match_num //= [];
         $.match_name //= {};
     }
