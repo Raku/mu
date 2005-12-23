@@ -1,24 +1,25 @@
 module Parse::Rule::Combinators;
 
 sub empty() {
-    Parser.new: parser => sub ($match, &continue) {
+    Parser.new: parse => sub ($match, &continue) {
         &continue($match);
     }
 }
 
 sub concat (Parser $a, Parser $b) {
-    Parser.new: parser => sub ($match, &continue) {
-        $a.parse()($match, -> $m { $b.parse($m, &continue) });
+    Parser.new: parse => sub ($match, &continue) {
+        $a.parse()($match, -> $m { $b.parse()($m, &continue) });
     }
 }
 
 sub alternate (Parser $a, Parser $b) {
-    Parser.new: parser => sub ($match, &continue) {
+    Parser.new: parse => sub ($match, &continue) {
         $a.parse()($match.clone(
             backtrack => -> {
                 $b.parse()($match, &continue);
             }
-        ));
+        ),
+        &continue);
     }
 }
 
