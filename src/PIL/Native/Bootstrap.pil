@@ -176,7 +176,7 @@
 ## dispatching
 
 ::Class.add_method('_make_dispatcher_iterator', -> @values {
-    $counter := self.new_opaque({'' => 0});
+    $counter := ::Class.new_opaque({'' => 0});
     -> {
         $idx := $counter.get_attr('');
         $counter.set_attr('', $idx.add(1));
@@ -477,7 +477,27 @@
     }.(::Class.new_opaque({ '@roles' => [], '%seen' => {} }), self);
 });
 
-::Role.add_method('resolve', -> {});
+::Role.add_method('resolve', -> {
+    -> $role {
+        -> $method_name {
+            self.has_method($method_name).cond(
+                -> { nil },
+                -> { self.add_method($method_name, $role.get_method($method_name)) }
+            );
+        }.do_for($role.get_method_list);
+        -> $attribute_name {
+            self.has_attribute($attribute_name).cond(
+                -> { nil },
+                -> { self.add_attribute($attribute_name, $role.get_attribute($attribute_name)) }
+            );
+        }.do_for($role.get_attribute_list);        
+    }.do_for(self.collect_all_roles());
+    -> {
+        self.add_method('does', -> $role { 
+            self.does($role) 
+        });
+    }.do_unless(self.isa('Role'));
+});
 
 ## ------------------------------------------------------------------------- ##
 ## Role Bootstrapping
