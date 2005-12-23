@@ -19,13 +19,23 @@ findExecutable' cmd = do
     rv  <- findExecutable cmd
     if isJust rv then return rv else do
     cwd <- getCurrentDirectory
+    rv  <- findExecutableInDirectory cwd cmd
+    if isJust rv then return rv else do
+    dir <- getEnv "PARROT_PATH"
+    if isNothing dir then return Nothing else do
+    rv  <- findExecutableInDirectory (fromJust dir) cmd
+    if isJust rv then return rv else do
+    return Nothing
+
+findExecutableInDirectory dir cmd = do
 ##ifdef PUGS_HAVE_POSIX
-    let parrot = cwd ++ ('/':cmd)
+    let file = dir ++ ('/':cmd)
 ##else
-    let parrot = cwd ++ ('\\':cmd) ++ ".exe"
+    let file = dir ++ ('\\':cmd) ++ ".exe"
 ##endif
-    ok  <- doesFileExist parrot
-    return $ if ok then Just parrot else Nothing
+    print ("Exisitng", file)
+    ok  <- doesFileExist file
+    return $ if ok then Just file else Nothing
 
 findParrot :: IO FilePath
 findParrot = do
