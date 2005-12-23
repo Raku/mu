@@ -12,11 +12,11 @@ my ($code, $tmpfile, $pugs) = @ENV{qw<EVALBOT_CODE EVALBOT_TMPFILE EVALBOT_PUGS>
 die "This program should only be run from evalbot.p6.\n" unless
   defined $code and defined $tmpfile and defined $pugs;
 
-# 5s-7s CPU time, 30 MiB RAM, maximum of 500 bytes output.
-setrlimit RLIMIT_CPU,   15, 20                 or die "Couldn't setrlimit: $!\n";
-setrlimit RLIMIT_VMEM,  30 * 2**20, 30 * 2**20 or die "Couldn't setrlimit: $!\n";
+# 5s-7s CPU time, 100 MiB RAM, maximum of 500 bytes output.
+setrlimit RLIMIT_CPU,   15, 20                  or die "Couldn't setrlimit: $!\n";
+setrlimit RLIMIT_VMEM,  80 * 2**20, 100 * 2**20 or die "Couldn't setrlimit: $!\n";
 # PIL2JS writes to a tempfile.
-setrlimit RLIMIT_FSIZE, 50000, 50000,          or die "Couldn't setrlimit: $!\n";
+setrlimit RLIMIT_FSIZE, 50000, 50000,           or die "Couldn't setrlimit: $!\n";
 
 unlink $tmpfile or die "Couldn't unlink \"$tmpfile\": $!\n" if -e $tmpfile;
 close STDOUT or die "Couldn't close STDOUT: $!\n";
