@@ -82,10 +82,11 @@ bootstrapClass x = mdo
     clsNull  <- newObject clsNull  $ mkClassMethods []
     clsClass <- newObject clsClass $ mkClassMethods [("add_method", addMethod)]
     clsBoxes <- mapM (newBoxedClass clsClass) unboxedTypes
-    enterLex (("::", clsNull), ("::Class", clsClass) : (unboxedTypes `zip` clsBoxes)) x
+    enterLex (("::", clsNull) : ("::Class", clsClass) : (unboxedTypes `zip` clsBoxes)) x
     where
     addMethod = parseSub
         "-> $name, &method { self.set_attr_hash('%!methods', $name, &method) }"
+    mkClassMethods :: [(String, Native)] -> NativeMap
     mkClassMethods meths = mkMap
         [ ("@!MRO",             emptySeq)
         , ("@!subclasses",      emptySeq)
