@@ -849,7 +849,7 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
                     sub <- unsafeEvalExp $ Syn "{}" [Val exports, Val $ VStr name]
                     
                     -- lifted from useSubDeclaration, but w/o need for multis (right?)
-                    let mkExp = Syn ":=" [Var name, Syn "sub" [sub]]
+                    let mkExp = Syn ":=" [Var name, sub]
                     let mkSym = Sym scope name mkExp
                     
                     case scope of
