@@ -129,8 +129,14 @@ evalExp (EVar s) = do
 evalExp (ECall { c_obj = objExp, c_meth = meth, c_args = argsExp }) = do
     obj  <- evalExp objExp
     args <- fmapM evalExp argsExp
-    if meth == mkStr "trace" then traceObject obj args else do
-    case anyPrims `fetch` meth of
+    sendCall obj meth args
+
+sendCall :: Native -> NativeLangMethod -> NativeSeq -> Eval Native
+sendCall obj meth args
+    | meth == mkStr "trace"         = traceObject obj args
+    | meth == mkStr "send"          = sendCall obj (fromNative $ args ! 0) (splice args 1)
+    | meth == mkStr "send_private"  = sendCall obj (fromNative $ args ! 0) (splice args 1)
+    | otherwise = case anyPrims `fetch` meth of
         Just f  -> return $ f obj args
         Nothing -> case obj of
             NError {}   -> errMethodMissing

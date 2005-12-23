@@ -1,6 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
 module PIL.Native.Parser where
+import Control.Arrow (first)
 import PIL.Native.Types
 import PIL.Native.Coerce
 import Text.ParserCombinators.Parsec
@@ -42,8 +43,8 @@ Blocks:
 
 Method Invocation:
 
-  $x.foo(1, 2);   # native method call
-  $x`foo(1, 2);   # desugars into $x.send('foo', 1, 2)
+  $x`foo(1, 2);   # native method call
+  $x.foo(1, 2);   # desugars into $x.send('foo', 1, 2)
   $x!foo(1, 2);   # desugars into $x.send_private('foo', 1, 2)
 
 More complex examples: 
@@ -122,13 +123,17 @@ expression = (<?> "expression") $ do
         x       <- noneOf " \n\t()0123456789.`!"
         xs      <- many (noneOf " \n\t();,.`!")
         return (x:xs)
-    maybeCall obj = option obj . try $ do
-        dot <- lexeme (oneOf ".`!")
+    maybeCall obj = option obj (primCall obj <|> sugarCall obj)
+    primCall obj = do
+        symbol "`"
         (name, args) <- functionCall <|> methodCall
+        return $ mkCall obj name args
+    sugarCall obj = do
+        dot <- lexeme (oneOf ".!")
+        (exp, args) <- fmap (first (ELit . toNative)) (functionCall <|> methodCall) <|> dynCall
         maybeCall $ case dot of
-            '.' -> mkCall obj name args
-            '`' -> mkCall obj "send" (ELit (toNative name):args)
-            '!' -> mkCall obj "send_private" (ELit (toNative name):args)
+            '.' -> mkCall obj "send" (exp:args)
+            '!' -> mkCall obj "send_private" (exp:args)
             _   -> error "impossible"
     -- $obj.(1,2,3)
     functionCall = do
@@ -139,6 +144,11 @@ expression = (<?> "expression") $ do
         name    <- method
         args    <- option [] (parens $ commaSep expression)
         return (name, args)
+    -- $obj`$method(1,2,3)
+    dynCall = do
+        exp     <- variableExpression
+        args    <- option [] (parens $ commaSep expression)
+        return (exp, args)
     selfExpression = do
         symbol "self"
         return (EVar $ mkStr "$?SELF")
