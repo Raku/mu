@@ -9,39 +9,21 @@ class Match {
     has Match $.match_num;
     has Match $.match_name;
 
+    has $.multidex;  # Match doesn't seem the right place to store this
+                     # but neither does Result
+                     # maybe there's a level of indirection in between
+
     submethod BUILD () {
         $.match_num //= [];
         $.match_name //= {};
-    }
-
-    sub combine($matches, Medium $pos) {
-        my ($start, $end) = $matches 
-                                ?? ($matches[0].start, $matches[-1].end)
-                                !! ($pos, $pos);
-        my $num_tr = [];
-        my $name_tr = hash();
-        
-        for $matches.keys -> $matchno {
-            my $m = $matches[$matchno];
-            my $n = $m.match_num;
-            $num_tr[$_][$matchno]  = $m.match_num[$_]  for $m.match_num.keys;
-            $name_tr{$_}[$matchno] = $m.match_name{$_} for $m.match_name.keys;
-        }
-        
-        return Match.new(
-            start      => $start,
-            end        => $end,
-            match_num  => $num_tr,
-            match_name => $name_tr,
-        );
+        $.multidex // [];
     }
 }
 
 class Result {
-    has Medium $.pos;
     has Code $.backtrack;
-
-    has Match $.value;
+    has Medium $.pos;
+    has Match $.match;
 }
 
 class Parser {
