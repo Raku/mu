@@ -1,4 +1,4 @@
-#!/usr/bin/pugs
+#!./pugs
 
 use v6;
 use Test::PIL::Bootstrap;
@@ -100,4 +100,16 @@ pil_is_eq('::Role.superclasses().length()', '1', '... ::Role.superclasses().leng
 pil_is_eq('::Role.superclasses().fetch(0).eq(::Module)', 'true', '... ::Role.superclasses()[0].eq(Module)');
 
 pil_is_eq('::Role.subclasses().length()', '0', '... ::Role.subclasses().length() == o');
+
+# check that our Role model bootstrapped properly
+
+pil_is_eq('::Class.does("Role")', 'true', '... ::Class.does(Role)');
+pil_is_eq('::Role.does("Role")', 'true', '... ::Role.does(Role)');
+
+pil_is_eq('::Object.does("Role")', 'false', '... ! ::Object.does(Role)');
+pil_is_eq('::Package.does("Role")', 'false', '... ! ::Package.does(Role)');
+pil_is_eq('::Module.does("Role")', 'false', '... ! ::Module.does(Role)');
+
+
+
 

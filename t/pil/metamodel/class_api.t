@@ -1,4 +1,4 @@
-#!/usr/bin/pugs
+#!./pugs
 
 use v6;
 use Test::PIL::Bootstrap;

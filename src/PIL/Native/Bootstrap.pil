@@ -419,18 +419,62 @@
 });
 
 ::Role.add_method('does', -> $role {
-    
-
+    self.name.eq($role).cond(
+        -> { true },
+        -> {
+            @roles := self.collect_all_roles(); 
+            @roles.is_empty.cond(
+                -> { false },
+                -> {
+                    -> @r {
+                        &redo := &?SUB;
+                        @r.is_empty.cond(
+                            -> { false },
+                            -> {
+                                @r.fetch(0).name.eq($role).cond(
+                                    -> { true },
+                                    -> { &redo.(@r.splice(1)) }
+                                )                            
+                            }
+                        )
+                    }.(@roles);                
+                }
+            );       
+        }
+    );     
 });
 
 ::Role.add_method('collect_all_roles', -> {
-    -> @roles, @acc {
+    -> $c, $role {
         &recurse := &?SUB;
-        @acc     := @roles;
-        @acc.concat(-> $r { 
-            &recurse.($r.roles(), @acc) 
-        }.do_for(@roles));
-    }.(self.roles(), []);
+        -> $r {
+           -> {
+               $c.set_attr_hash('%seen', $r.name(), 1);
+               $c.set_attr('@roles', $c.get_attr('@roles').push($r));
+               -> {
+                   -> $subrole {
+                       -> {
+                           $c.set_attr_hash('%seen', $subrole.name(), 1);
+                           $c.set_attr('@roles', $c.get_attr('@roles').concat($subrole));
+                       }.do_unless($c.get_attr('%seen').exists($subrole.name()))
+                   }.do_for(&recurse.($c, $r));
+               }.do_unless($r.roles.is_empty());
+           }.do_unless($c.get_attr('%seen').exists($r.name()))
+        }.do_for($role.roles());
+        $c.get_attr('@roles');
+    # NOTE:
+    # Yuk! having to use self.new_opaque causes many 
+    # issues in this particular instance, it basically
+    # is becuase the "self" part gets interpreted as
+    # the class (so this anon-opaque seems to have
+    # a given role instance as it's class which is
+    # bad). This is somewhat compounded by the fact
+    # that the prim methods are in the same dispatch
+    # as the user-created methods, which I am not sure
+    # they should be. But this is something to debate
+    # with audrey later on. For now, we kludge/punt to 
+    # get Roles working :)
+    }.(::Class.new_opaque({ '@roles' => [], '%seen' => {} }), self);
 });
 
 ::Role.add_method('resolve', -> {});
@@ -460,6 +504,13 @@
 
 # Role does Role
 ::Role.set_attr('@!roles',  [ ::Role ]);
+
+# make sure to add the @!roles attribute to these
+# since they should have inherited from ::Class
+-> $class {
+    $class.set_attr('@!roles', []); 
+    $class.add_attribute('@!roles', []);     
+}.do_for([ ::Object, ::Module, ::Package ]);
 
 ## end Role bootstrapping ...
 ## ------------------------------------------------------------------------- ##
@@ -502,18 +553,3 @@ Audrey Tang <autrijus@autrijus.org>
 Stevan Little <stevan@iinteractive.com>
 
 =cut
-
-#::Foo := ::Role.new({ '$!name' => 'Foo' });
-##::Foo.collect_all_roles();
-#
-#::Bar := ::Role.new({ '$!name' => 'Bar' });
-#::Bar.set_roles([ ::Foo ]);
-#
-##::Bar.collect_all_roles();
-#
-#::Baz := ::Role.new({ '$!name' => 'Baz' });
-#::Baz.set_roles([ ::Bar ]);
-#
-#::Baz.collect_all_roles();
-
-
