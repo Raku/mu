@@ -262,9 +262,12 @@ reduceVal v = retVal v
 -- Reduction for variables
 reduceVar :: Var -> Eval Val
 reduceVar name = do
+    let cxt = case name of
+            ('$':_) -> enterContext (CxtItem $ MkType "Scalar")
+            _       -> id
     v <- findVar name
     case v of
-        Just var -> evalRef var
+        Just var -> cxt $ evalRef var
         _ -> case name of
             (':':rest)  -> return $ VType (mkType rest)
             (_:'*':_)   -> evalExp (Sym SGlobal name (Var name))
@@ -557,15 +560,12 @@ reduceSyn ":=" [var, vexp] = do
         expand e = Syn "," [e]
     reduce (Syn ":=" [expand var, expand vexp])
 
-reduceSyn "*" exps
-    | [Syn syn [exp]] <- unwrap exps --  * cancels out [] and {}
-    , syn == "\\{}" || syn == "\\[]"
-    = enterEvalContext cxtSlurpyAny exp
-    | otherwise = do -- first stab at an implementation
-        let [exp] = exps
-        val     <- enterRValue $ enterEvalContext cxtSlurpyAny exp
-        vals    <- fromVals val
-        retVal $ VList $ concat vals
+reduceSyn "*" exps = do
+    let [exp] = exps
+    val <- enterRValue $ enterEvalContext cxtSlurpyAny exp
+    return . VList =<< fromVal val
+    -- vals <- fromVals val
+    -- return $ VList $ concat vals
 
 reduceSyn "," exps = do
     vals <- mapM (enterEvalContext cxtSlurpyAny) exps
@@ -750,8 +750,6 @@ reduceSyn name exps =
 reduceApp :: Exp -> (Maybe Exp) -> [Exp] -> Eval Val
 -- XXX absolutely evil bloody hack for context hinters
 reduceApp (Var "&hash") invs args = do
-    when (length (maybeToList invs ++ args) `mod` 2 == 1) $ 
-        runWarn "Odd number of elements in hash constructor"
     enterEvalContext cxtItemAny $ Syn "\\{}" [Syn "," $ maybeToList invs ++ args]
 
 reduceApp (Var "&list") invs args =

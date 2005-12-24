@@ -628,10 +628,15 @@ op1IO = \fun v -> do
     val <- fromVal v
     fmap castV (guardIO $ fun val)
 
+{-
 returnList :: [Val] -> Eval Val
 returnList vals = ifListContext
     (return . VRef $ arrayRef vals)
     (return . VList $ vals)
+-}
+
+returnList :: [Val] -> Eval Val
+returnList = return . VList
 
 op1Convert :: VStr -> VStr -> Val -> Eval Val
 op1Convert prefix desc v = do

@@ -1407,13 +1407,20 @@ readRef (MkRef (IThunk tv)) = readRef =<< fromVal =<< thunk_force tv
 retIVar :: (Typeable a) => IVar a -> Eval Val
 retIVar = return . VRef . MkRef
 
+fromVList :: Val -> Eval VArray
+fromVList (VList v) = return v
+fromVList x = return [x]
+
+fromVHash :: Val -> Eval VHash
+fromVHash = fromVal
+
 writeRef :: VRef -> Val -> Eval ()
 writeRef (MkRef (IScalar s)) (VList vals) = do
     av <- newArray vals
     scalar_store s (VRef $ MkRef av)
 writeRef (MkRef (IScalar s)) val = scalar_store s val
-writeRef (MkRef (IArray s)) val  = array_store s =<< fromVal val
-writeRef (MkRef (IHash s)) val   = hash_store s =<< fromVal val
+writeRef (MkRef (IArray s)) val  = array_store s =<< fromVList val
+writeRef (MkRef (IHash s)) val   = hash_store s =<< fromVHash val
 writeRef (MkRef (ICode s)) val   = code_store s =<< fromVal val
 writeRef (MkRef (IPair s)) val   = pair_storeVal s val
 writeRef (MkRef (IThunk tv)) val = (`writeRef` val) =<< fromVal =<< thunk_force tv
