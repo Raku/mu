@@ -14,11 +14,18 @@ data Op
     | Prefix        { str :: !Str }
     | Postfix       { str :: !Str }
     | Term          { str :: !Str }
-    | Close         { str :: !Str }
+    | DynTerm       { str :: !Str, dynStr  :: !DynStr }
     | Ternary       { str :: !Str, str2 :: !Str }
     | Circumfix     { str :: !Str, str2 :: !Str }
     | PostCircumfix { str :: !Str, str2 :: !Str }
+    | Close         { str :: !Str }
     deriving (Eq, Show, Ord)
+
+type DynStr = Str -> Maybe (Str, Op -> Seq Match)
+
+instance Eq DynStr where _ == _ = False
+instance Ord DynStr where compare _ _ = LT
+instance Show DynStr where show _ = "<dyn>"
 
 type Precedence = Ratio Int
 type Arity = Int
@@ -110,6 +117,7 @@ arityOf _               = 1
 
 insertBy :: Op -> Token -> Whitespace -> OpTable -> OpTable
 insertBy Term{}           = insertTerm
+insertBy DynTerm{}        = insertTerm
 insertBy Prefix{}         = insertTerm
 insertBy Circumfix{}      = insertTerm
 insertBy _                = insertOp
