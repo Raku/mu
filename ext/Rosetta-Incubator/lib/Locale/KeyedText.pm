@@ -64,6 +64,8 @@ method get_msg_var (Str $var_name!) returns Any {
 method get_msg_vars () returns Hash of Any {
 #    return hash(%!msg_vars); # gives 'odd number of elements' error
     return %!msg_vars; # workaround, but I actually want to return a copy
+#    return {%!msg_vars}; # try this, perhaps?
+#    return {*%!msg_vars}; # or this?
 }
 
 ######################################################################
@@ -123,10 +125,12 @@ submethod BUILD (Str :@set_names!, Str :@member_names!) {
 
 method get_set_names () returns Array of Str {
     return [@!set_names];
+#    return [*@!set_names]; # see if should be this?
 }
 
 method get_member_names () returns Array of Str {
     return [@!member_names];
+#    return [*@!member_names]; # see if should be this?
 }
 
 ######################################################################
@@ -543,7 +547,7 @@ This submethod creates and returns a new Locale::KeyedText::Message object.
 The Message Key attribute of the new object is set from the named argument
 $msg_key (a string); the optional named argument %msg_vars (a hash ref)
 sets the "Message Variables" attribute if provided (it defaults to empty if
-the argument is undefined).
+the argument is not provided).
 
 Some example usage:
 

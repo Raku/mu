@@ -8,7 +8,7 @@ use Locale::KeyedText-(1.72.0...);
 ###########################################################################
 
 # Constant values used by packages in this file:
-# (None Yet)
+my Str $EMPTY_STR is readonly = q{};
 
 ###########################################################################
 ###########################################################################
@@ -26,11 +26,44 @@ class SQL::Routine::Document {
     # (None Yet)
 
     # Attributes of every SQL::Routine::Document object:
-    # (None Yet)
+    has SQL::Routine::Node @!all_nodes;
+    # Array of SQL::Routine::Node
+    # The set of all Nodes that this Document contains.
+    has SQL::Routine::Node @!root_nodes;
+    # Array of SQL::Routine::Node
+    # List of all Nodes that have no parent Nodes; a sub-set of all_nodes.
+
+    # Entrust the SQL::Routine::Node class to see our private attributes.
+    trusts SQL::Routine::Node;
 
 ###########################################################################
 
+submethod BUILD (Hash :@root_nodes? = []) {
 
+    die 'invalid arg'
+        if !@root_nodes.defined;
+
+    @!all_nodes  = [];
+    @!root_nodes = [];
+
+    for @root_nodes -> $root_node {
+        die 'invalid arg'
+            if !$root_node.defined or !$root_node.does(Hash)
+                or $root_node.exists('document')
+                or $root_node.exists('parent_node');
+        SQL::Routine::Node.new( 'document' => $?SELF, *%{$root_node} );
+    }
+
+    return;
+}
+
+###########################################################################
+
+method export_as_hash () returns Hash {
+    return {
+        'root_nodes' => [@!root_nodes.map:{ .export_as_hash() }],
+    };
+}
 
 ###########################################################################
 
@@ -45,11 +78,86 @@ class SQL::Routine::Node {
     # (None Yet)
 
     # Attributes of every SQL::Routine::Node object:
-    # (None Yet)
+    has SQL::Routine::Document $!document;
+    # SQL::Routine::Document
+    # The Document that this Node lives in.
+    has SQL::Routine::Node     $!parent_node;
+    # SQL::Routine::Node
+    # The parent Node of this Node, if there is one.
+    has Str                    $!node_type;
+    # Str
+    # What type of Node this is.
+    has Any                    %!attributes;
+    # Hash(Str) of Any
+    # Named attribute values that this Node has, if any.
+    has SQL::Routine::Node     @!child_nodes;
+    # Array of SQL::Routine::Node
+    # List of this Node's child Nodes, if there are any.
 
 ###########################################################################
 
+submethod BUILD (
+            SQL::Routine::Document :$document!,
+            SQL::Routine::Node     :$parent_node? = undef,
+            Str                    :$node_type!,
+            Any                    :%attributes?  = hash(),
+            Hash                   :@child_nodes? = [],
+        ) {
 
+    die 'invalid arg'
+        if !$document.defined or !$document.does(SQL::Routine::Document);
+
+    if ($parent_node.defined) {
+        die 'invalid arg'
+            if !$parent_node.does(SQL::Routine::Node);
+    }
+
+    die 'invalid arg'
+        if !$node_type.defined or $node_type eq $EMPTY_STR;
+    die 'invalid arg'
+        if !%attributes.defined or %attributes.exists($EMPTY_STR);
+    die 'invalid arg'
+        if !@child_nodes.defined;
+
+    $!document = $document;
+    $document!all_nodes.push( $?SELF );
+
+    if ($parent_node.defined) {
+        $!parent_node = $parent_node;
+        $parent_node!child_nodes.push( $?SELF );
+    }
+    else {
+        $document!root_nodes.push( $?SELF );
+    }
+
+    $!node_type   = $node_type;
+    %!attributes  = %attributes;
+    @!child_nodes = [];
+
+    for @child_nodes -> $child_node {
+        die 'invalid arg'
+            if !$child_node.defined or !$child_node.does(Hash)
+                or $child_node.exists('document')
+                or $child_node.exists('parent_node');
+        $?CLASS.new(
+            'document'    => $document,
+            'parent_node' => $?SELF,
+            *%{$child_node},
+        );
+    }
+
+    return;
+}
+
+###########################################################################
+
+method export_as_hash () returns Hash {
+    return {
+        'node_type'   => $!node_type,
+        'attributes'  => {%!attributes}, # or needs splatty * ?
+        'child_nodes' => [@!child_nodes.map:{ .export_as_hash() }],
+    };
+}
 
 ###########################################################################
 
@@ -124,13 +232,251 @@ exception; most often this is due to invalid input.  If an invoked routine
 simply returns, you can assume that it has succeeded, even if the return
 value is undefined.
 
+SQL::Routine's input validation is performed over 2 main phases, which are
+referred to as "immediate" and "deferred".  The immediate validations are
+performed at the moment the user tries to set the input, and input that
+fails immediate evaluation will not be set at all.  The scope of immediate
+validation is kept to the minimum possible, and is essentially just
+concerned with the well-formedness of the input, such as that mandatory
+constructor arguments are provided and that they are of the correct
+container type (eg, hash vs array).  The deferred validations are performed
+on demand at some time after the input has been set, and could potentially
+never be performed at all.  They validate everything except
+well-formedness, such as that SQL::Routine Nodes are arranged correctly
+depending on their types, that their attributes have reasonable values, and
+that attributes or Nodes are not missing.  The deferred validations, which
+can be arbitrarily complex, make up the bulk of the SQL::Routine code, and
+these could potentially be extended by third party add-ons.
+
 =head2 The SQL::Routine::Document Class
 
-I<This documentation is pending.>
+A Document object is a simple container which stores data to be used or
+displayed by your program.  It is analagous to a simplified version of the
+"Document" interface defined in the XML DOM spec; it exists as a container
+in which Node objects live.  The Document class is pure and deterministic,
+such that all of its submethods and object methods will each return the
+same result and/or make the same change to an object when the permutation
+of its arguments and any invocant object's attributes is identical; they do
+not interact with the outside environment at all.
+
+A Document object has 2 main attributes:
+
+=over
+
+=item C<@!all_nodes> - B<All Nodes>
+
+Array of SQL::Routine::Node - This stores a collection of Node objects,
+which are all of the Nodes that live in this Document.
+
+=item C<@!root_nodes> - B<Root Nodes>
+
+Array of SQL::Routine::Node - This stores an ordered list of all this
+Document's Node objects that do not have parent Nodes of their own; it is a
+sub-set of All Nodes.
+
+=back
+
+This is the main Document constructor submethod:
+
+=over
+
+=item C<new( :@root_nodes? )>
+
+This submethod creates and returns a new SQL::Routine::Document object.  If
+the optional named argument @root_nodes (an array ref) is set, then each
+element in it is used to initialize a new Node object (plus an optional
+hierarchy of new child Nodes of that new Node) that gets stored in the Root
+Nodes attribute (that attribute defaults to empty if the argument is
+undefined).  The new Document object's All Nodes attribute starts out
+empty, but gains one element for each Node in the Node hierarchies created
+from a defined @root_nodes.
+
+Some sample usage:
+
+    my SQL::Routine::Document $document .= new();
+
+    my SQL::Routine::Document $document2 .= new(
+        'root_nodes' => [
+            {
+                'node_type'  => 'data_sub_type',
+                'attributes' => { 'predef_base_type' => 'BOOLEAN' },
+            },
+        ],
+    );
+
+=back
+
+A Document object has these methods:
+
+=over
+
+=item C<export_as_hash()>
+
+This method returns a deep copy of all of this Document's member Nodes as a
+tree of primitive Perl data structures (hash refs, array refs, scalars),
+which is suitable as a generic data interchange format between SQL::Routine
+and other Perl code such as persistence solutions.  Moreover, these data
+structures are in exactly the right input format for Document.new(), by
+which you can create an identical Document (with member Nodes) to the one
+you first invoked export_as_hash() on.
+
+Specifically, export_as_hash() returns a Perl hash ref whose key list
+('root_nodes') corresponds exactly to the named arguments of
+Document.new(); you can produce a direct clone like this:
+
+    my $cloned_doc = SQL::Routine::Document.new(
+        *%{$original_doc.export_as_hash()} );
+
+Or, to demonstrate the use of a persistence solution:
+
+    # When saving.
+    my $hash_to_save = $original_doc.export_as_hash();
+    MyPersist.put( $hash_to_save );
+
+    # When restoring.
+    my $hash_was_saved = MyPersist.get();
+    my $cloned_doc = SQL::Routine::Document.new( *%{$hash_was_saved} );
+
+=back
 
 =head2 The SQL::Routine::Node Class
 
-I<This documentation is pending.>
+A Node object is a simple container which stores data to be used or
+displayed by your program.  It is analagous to a simplified version of the
+"Node" interface defined in the XML DOM spec; it has a type (what the XML
+spec calls 'name') and attributes, and is arranged in a hierarchy with
+other Nodes (it does not support any analogy of CDATA sections, though).
+The Node class is pure and deterministic, such that all of its submethods
+and object methods will each return the same result and/or make the same
+change to an object when the permutation of its arguments and any invocant
+object's attributes is identical; they do not interact with the outside
+environment at all.
+
+A Node object has 5 main attributes:
+
+=over
+
+=item C<$!document> - B<Document>
+
+SQL::Routine::Document - This stores a reference to the Document that this
+Node and all of its relative Nodes live in.
+
+=item C<$!parent_node> - B<Parent Node>
+
+SQL::Routine::Node - This stores a reference to this Node's parent Node, if
+it has one.  Nodes that do not have this attribute set are considered "root
+Nodes" and are listed in their Document's Root Nodes property; in a manner
+of speaking, the Document itself is the parent of such Nodes.
+
+=item C<$!node_type> - B<Node Type>
+
+Str - This string identifies what kind of Node this is, and by extension
+what kinds of attributes or relative Nodes it can have, as well as where
+and how the Node can be used.
+
+=item C<%!attributes> - B<Attributes>
+
+Hash(Str) of Any - This contains zero or more attribute names and values
+that help to define this Node.
+
+=item C<@!child_nodes> - B<Child Nodes>
+
+Array of SQL::Routine::Node - This stores an ordered list of all this
+Node's child Nodes, if it has any.
+
+=back
+
+This is the main Node constructor submethod:
+
+=over
+
+=item C<new( :$document!, :$parent_node?, :$node_type!, :%attributes?,
+:@child_nodes? )>
+
+This submethod creates and returns a new SQL::Routine::Node object, that
+lives in the Document object given in the named argument $document, and
+whose Node Type attribute is set from the named argument $node_type (a
+string); the optional named argument %attributes (a hash ref) sets the
+"Attributes" attribute if provided (it defaults to empty if the argument is
+not provided).  If the optional argument $parent_node (a Node) is set, then
+the new Node's "Parent Node" attribute is set to it, and the new Node is
+also stored in $parent_node's Child Nodes attribute; if $parent_node is not
+set, then the new Node is instead stored in its Document's "Root Nodes"
+attribute.  If the optional named argument @child_nodes (an array ref) is
+set, then each element in it is used to initialize a new Node object (plus
+an optional hierarchy of new child Nodes of that new Node) that gets stored
+in the Child Nodes attribute (that attribute defaults to empty if the
+argument is undefined).
+
+Some sample usage:
+
+    # Declare a unsigned 32-bit integer data type.
+    my SQL::Routine::Node $dt_uint32 .= new(
+        'node_type'  => 'data_sub_type',
+        'attributes' => {
+            'predef_base_type' => 'NUMERIC',
+            'num_precision'    => 2**32,
+            'num_scale'        => 1,
+            'num_min_value'    => 0,
+        },
+    );
+
+    # Declare an enumerated ('F','M') character value data type.
+    my SQL::Routine::Node $dt_sex .= new(
+        'node_type'   => 'data_sub_type',
+        'attributes'  => {
+            'predef_base_type' => 'CHAR_STR',
+            'char_max_length'  => 1,
+            'char_repertoire'  => 'UNICODE',
+        },
+        'child_nodes' => [
+            {
+                'node_type'  => 'data_sub_type_value',
+                'attributes' => { 'value' => 'F' },
+            },
+            {
+                'node_type'  => 'data_sub_type_value',
+                'attributes' => { 'value' => 'M' },
+            },
+        ],
+    );
+
+=back
+
+A Node object has these methods:
+
+=over
+
+=item C<export_as_hash()>
+
+This method returns a deep copy of this Node plus all of its descendent
+Nodes (if any) as a tree of primitive Perl data structures (hash refs,
+array refs, scalars), which is suitable as a generic data interchange
+format between SQL::Routine and other Perl code such as persistence
+solutions.  Moreover, these data structures are in exactly the right input
+format for Node.new(), by which you can create an identical Node (with
+child Nodes) to the one you first invoked export_as_hash() on.
+
+Specifically, export_as_hash() returns a Perl hash ref whose key list
+('node_type', 'attributes', 'child_nodes') corresponds exactly to the named
+arguments of Node.new(); you need to supply its $document and optional
+$parent_node though; you can produce a direct clone like this:
+
+    my $cloned_node = SQL::Routine::Document.new(
+        'document' => $document, *%{$original_node.export_as_hash()} );
+
+Or, to demonstrate the use of a persistence solution:
+
+    # When saving.
+    my $hash_to_save = $original_node.export_as_hash();
+    MyPersist.put( $hash_to_save );
+
+    # When restoring.
+    my $hash_was_saved = MyPersist.get();
+    my $cloned_node = SQL::Routine::Document.new(
+        'document' => $document, *%{$hash_was_saved} );
+
+=back
 
 =head1 DIAGNOSTICS
 
