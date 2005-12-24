@@ -3,7 +3,7 @@ use Parse::Rule::Core;
 use Parse::Rule::Media;
 use Parse::Rule::Combinators;
 
-plan 69;
+plan 70;
 
 sub do_match ($text, $parser) {
     $parser.parse()(
@@ -15,6 +15,8 @@ sub do_match ($text, $parser) {
         -> $m { $m },
     );
 }
+
+say mark(undef, ':');
 
 my ($pat, $desc);
 
@@ -150,5 +152,9 @@ my $match;
 ($desc, $pat) = ('/[ [ x ]* ]*/', quantify(quantify(Text::literal("x"))));
     matches "x";
     matches_not "xy";
+
+($desc, $pat) = ('/ x*:x /', 
+                    concat(mark(:name(':'), concat(quantify(Text::literal("x")), cut(':'))), Text::literal("x")));
+    matches_not "xxx";
 
 # vim: ft=perl6 :

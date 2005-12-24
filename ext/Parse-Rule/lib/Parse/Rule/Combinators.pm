@@ -1,6 +1,6 @@
 module Parse::Rule::Combinators;
 
-my sub multidex($container, $multidex, $value) {
+my sub multidex ($container, $multidex, $value) {
     if +$multidex == 0 {
         $value;
     }
@@ -12,7 +12,7 @@ my sub multidex($container, $multidex, $value) {
     }
 }
 
-sub empty() is export {
+sub empty () is export {
     Parser.new: parse => sub ($match, &continue) {
         &continue($match);
     }
@@ -90,14 +90,14 @@ sub capture (Parser $p, :$num, :$name) is export {
                             my $newnum = defined $num
                                             ?? multidex($mmat.match_num[$num], $match.match.multidex, $subobj) 
                                             !! $mmat.match_num[$num];
-                            $newnump = [ *$newnump ];
+                            $newnump = [ @$newnump ];
                             $newnump[$num] = $newnum;
                         }
                         if defined $name {
                             my $newname = defined $name
                                             ?? multidex($mmat.match_name{$name}, $match.match.multidex, $subobj)
                                             !! $mmat.match_name{$name};
-                            $newnamep = hash(*$newnamep);
+                            $newnamep = { %$newnamep };
                             $newnamep{$name} = $newname;
                         }
                         my $obj = $mmat.clone(
@@ -107,6 +107,25 @@ sub capture (Parser $p, :$num, :$name) is export {
 
                         &continue($m.clone(match => $obj));
                     });          
+    }
+}
+
+sub mark (Parser $p, Str $name) is export {
+    Parser.new: parse => sub ($match, &continue) {
+        my $marks = $match.marks;
+        my $nmarks = { %$marks, $name => $match.backtrack };
+        $p.parse()($match.clone( 
+                       marks => { %$marks, $name => $match.backtrack }),
+                    -> $m { &continue($m.clone(marks => $marks)) });
+    }
+}
+
+sub cut (Str $name) is export {
+    Parser.new: parse => sub ($match, &continue) {
+        my $marks = $match.marks;
+        $match.marks{$name} // die "No mark with name '$name' in soope";
+        &continue($match.clone(
+                    backtrack => $match.marks(){$name}));
     }
 }
 

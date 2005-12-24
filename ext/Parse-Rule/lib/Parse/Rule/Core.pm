@@ -22,8 +22,13 @@ class Match {
 
 class Result {
     has Code $.backtrack;
+    has Code $.marks;
     has Medium $.pos;
     has Match $.match;
+
+    submethod BUILD () {
+        $.marks //= {};
+    }
 }
 
 class Parser {
