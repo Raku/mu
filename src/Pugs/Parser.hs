@@ -1293,13 +1293,22 @@ ruleBlockLiteral = rule "block construct" $ do
     retBlock typ formal lvalue body
 
 extractHash :: Exp -> Maybe Exp
-extractHash (Syn "block" [exp]) = extractHash (unwrap exp)
-extractHash exp@(App (Var "&pair") _ _) = Just exp
-extractHash exp@(App (Var "&infix:=>") _ _) = Just exp
-extractHash exp@(Syn "," (App (Var "&pair") _ _:_)) = Just exp
-extractHash exp@(Syn "," (App (Var "&infix:=>") _ _:_)) = Just exp
-extractHash exp@Noop = Just exp
-extractHash _ = Nothing
+extractHash exp = extractHash' (possiblyUnwrap exp)
+    where
+    possiblyUnwrap (Syn "block" [exp]) = exp
+    possiblyUnwrap x = x
+    
+    isHashOrPair (App (Var "&pair") _ _) = True
+    isHashOrPair (App (Var "&infix:=>") _ _) = True
+    isHashOrPair (Var ('%':_)) = True
+    isHashOrPair (Syn "%{}" _) = True
+    isHashOrPair _ = False
+    
+    extractHash' (Ann _ exp) = extractHash' exp
+    extractHash' exp                      | isHashOrPair exp    = Just exp
+    extractHash' exp@(Syn "," (subexp:_)) | isHashOrPair subexp = Just exp
+    extractHash' exp@Noop = Just exp
+    extractHash' _ = Nothing
 
 retBlock :: SubType -> Maybe [Param] -> Bool -> Exp -> RuleParser Exp
 retBlock SubBlock Nothing _ exp | Just hashExp <- extractHash (unwrap exp) = return $ Syn "\\{}" [hashExp]

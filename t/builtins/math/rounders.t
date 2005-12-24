@@ -32,7 +32,7 @@ if $?PUGS_BACKEND ne "BACKEND_PUGS" {
 }
 
 for %tests.keys.sort -> $type {
-    my @subtests = %tests{$type};
+    my @subtests = *%tests{$type};
     for @subtests -> $test {
         my $code = "{$type}($test[0])";
             my $res = eval($code);
