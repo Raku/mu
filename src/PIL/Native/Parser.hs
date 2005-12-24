@@ -127,7 +127,7 @@ expression = (<?> "expression") $ do
     primCall obj = do
         symbol "`"
         (name, args) <- functionCall <|> methodCall
-        return $ mkCall obj name args
+        maybeCall $ mkCall obj name args
     sugarCall obj = do
         dot <- lexeme (oneOf ".!")
         (exp, args) <- fmap (first (ELit . toNative)) (functionCall <|> methodCall) <|> dynCall
