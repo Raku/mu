@@ -41,7 +41,15 @@ sub quantify (Parser $p, $low? = 0, $high? = Inf) is export {
         # what I would give for a native linked list
         $multidex[-1]++;
         my $new_continue = -> $m { 
-            match_n($n+1, $m.clone(match => $m.match.clone(multidex => $multidex)), &continue);
+            my $mp = $m.pos;  my $map = $match.pos;
+            if $mp.pos == $map.pos {   # XXX Not medium-independent!
+                # inside a quantifier, making no progress is the same as failing
+                #  (to avoid infinite loops)
+                $m.backtrack()();
+            }
+            else {
+                match_n($n+1, $m.clone(match => $m.match.clone(multidex => $multidex)), &continue);
+            }
         };
         if $n < $low {
             $p.parse()($match, $new_continue);

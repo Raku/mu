@@ -3,7 +3,7 @@ use Parse::Rule::Core;
 use Parse::Rule::Media;
 use Parse::Rule::Combinators;
 
-plan 67;
+plan 69;
 
 sub do_match ($text, $parser) {
     $parser.parse()(
@@ -146,5 +146,9 @@ my $match;
     is_range($match.match_name<bq>[0], 3,6);
     is_range($match.match_name<bq>[1], 9,13);
     is_range($match.match_name<bq>[2], 16,19);
+
+($desc, $pat) = ('/[ [ x ]* ]*/', quantify(quantify(Text::literal("x"))));
+    matches "x";
+    matches_not "xy";
 
 # vim: ft=perl6 :
