@@ -154,7 +154,9 @@ my $match;
     matches_not "xy";
 
 ($desc, $pat) = ('/ x*:x /', 
-                    concat(mark(:name(':'), concat(quantify(Text::literal("x")), cut(':'))), Text::literal("x")));
+                 concat(
+                    mark(:name(':'), concat(quantify(Text::literal("x")), commit(':'))), 
+                    Text::literal("x")));
     matches_not "xxx";
 
 # vim: ft=perl6 :

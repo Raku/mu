@@ -120,7 +120,7 @@ sub mark (Parser $p, Str $name) is export {
     }
 }
 
-sub cut (Str $name) is export {
+sub commit (Str $name) is export {
     Parser.new: parse => sub ($match, &continue) {
         my $marks = $match.marks;
         $match.marks{$name} // die "No mark with name '$name' in soope";
