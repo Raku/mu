@@ -81,7 +81,7 @@ match of the inner group).
 
 =cut
 
-sub quantify (Parser $p, $low? = 0, $high? = Inf) is export {
+sub quantify (Parser $p, $low? = 0, $high? = Inf, :$minimal = 0) is export {
     my sub match_n ($n, $match, &continue) {
         my $new_continue = -> $m { 
             my $mp = $m.pos;  my $map = $match.pos;
@@ -104,10 +104,15 @@ sub quantify (Parser $p, $low? = 0, $high? = Inf) is export {
             $match.backtrack()();
         }
         else {
-            # In here, we are in the specified number of times.  Try to match
-            # $p, because we're greedy, but if it fails, we can succeed.
-            $p.parse()($match.clone(backtrack => -> { &continue($match) }),
-                       $new_continue);
+            # In here, we are in the specified number of times.  
+            if $minimal {
+                &continue($match.clone(backtrack => -> { 
+                                         $p.parse()($match, $new_continue) }))
+            }
+            else {  # greedy
+                $p.parse()($match.clone(backtrack => -> { &continue($match) }),
+                           $new_continue);
+            }
         }
     }
 

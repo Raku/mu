@@ -3,7 +3,7 @@ use Parse::Rule::Core;
 use Parse::Rule::Media;
 use Parse::Rule::Combinators;
 
-plan 70;
+plan 72;
 
 sub do_match ($text, $parser) {
     $parser.parse()(
@@ -152,6 +152,18 @@ my $match;
 ($desc, $pat) = ('/[ [ x ]* ]*/', quantify(quantify(Text::literal("x"))));
     matches "x";
     matches_not "xy";
+
+($desc, $pat) = ('/"(.*?)".*/', 
+                    concat(
+                        concat(
+                            concat(
+                                Text::literal('"'),
+                                capture(:num(0),
+                                    quantify(:minimal, Text::any_char()))),
+                            Text::literal('"')),
+                        quantify(Text::any_char())));
+    $match = matches q{"foobar"baz"quux"ziph};
+    is_range($match.match_num[0], 1, 7);
 
 ($desc, $pat) = ('/ x*:x /', 
                  concat(
