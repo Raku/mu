@@ -36,7 +36,7 @@ data Match = MkMatch
     }
 
 data Assoc
-    = Non | Left | Right | Chain | List
+    = AssocNon | AssocLeft | AssocRight | AssocChain | AssocList
     deriving (Eq, Show, Ord)
 
 data Whitespace
@@ -58,6 +58,9 @@ data OpTable = MkOpTable
     , tableWsTerms   :: !TokenMap
     , tableWsOps     :: !TokenMap
     }
+
+emptyTable :: OpTable
+emptyTable = MkOpTable NMap.empty NMap.empty NMap.empty NMap.empty NMap.empty
 
 type Str = NStr.FastString
 type EntryMap = Map Op Token
@@ -148,3 +151,21 @@ calculatePrec rel toks = case rel of
 
 parse :: OpTable -> Str -> Match
 parse = undefined
+
+mkOpTable :: [(Op, Whitespace)] -> OpTable
+mkOpTable = undefined
+
+testTable :: OpTable
+testTable = mkOpTable
+    [ mk Circumfix       "( )"
+    , mk Term            "0 1 2 3 4 5 6 7 8 9"
+    , mk Infix           "* /"
+    , mk Infix AssocLeft "+ -"
+    ]
+
+class MkClass a where mk :: a
+
+instance MkClass ((Str -> Str -> Op) -> [Char]   -> (Op, Whitespace)) where
+instance MkClass ((Str -> Op) -> [Char]          -> (Op, Whitespace)) where
+instance MkClass ((Str -> Assoc -> Op) -> [Char] -> (Op, Whitespace)) where
+instance MkClass ((Str -> Assoc -> Op) -> Assoc -> [Char] -> (Op, Whitespace)) where
