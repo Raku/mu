@@ -34,21 +34,22 @@ always check here for any possible conflicts.
 The SQL::Routine language is strongly typed, following the relational
 model's ideals of stored data integrity, and the actual practice of SQL and
 many database products, and SQL::Routine's own ideals of being rigorously
-defined.  However, its predefined set of data types also includes
+defined.  However, its native set of data types also includes
 ones that have the range of typical weak types such as some database
 products and languages like Perl use.
 
-All data types are based on the concept of domains; any variable or literal
-that is of a particular data type may only hold a value that is part of the
-domain that defines the data type.  SQL::Routine has some native data types
-that it implicitly understands (eg, booleans, integers, rational numbers,
-character strings, bit strings), and you can define custom ones too that
+A data type is a set of representable values.  All data types are based on
+the concept of domains; any variable or literal that is of a particular
+data type may only hold a value that is part of the domain that defines the
+data type.  SQL::Routine has some native data types that it implicitly
+understands (eg, booleans, integers, rational numbers, character strings,
+bit strings, arrays, rows, tables), and you can define custom ones too that
 are based on these (eg, counting numbers, character strings that are
-limited to 10 characters in length).
+limited to 10 characters in length, rows having 3 specific fields).
 
 All SQL::Routine "domain" Nodes (and schema objects) are user defined,
 having a name that you pick, regardless of whether the domain corresponds
-directly to a built-in data type, or to one you customized; this is so
+directly to a native data type, or to one you customized; this is so
 there won't be any name conflicts regardless of any same named data types
 that a particular database implementation used in conjunction with
 SQL::Routine may have.
@@ -60,7 +61,7 @@ is mutually exclusive from every other data type; 2 artifacts having a
 common data type (eg, 2 character strings) can always be compared for
 equality or inequality, and 2 artifacts of different data types (eg, 1
 character string and 1 bit string) can not be compared and hence are always
-considered inequal.  Following this, it is mandatory that every built-in
+considered inequal.  Following this, it is mandatory that every native
 and custom data type define the 'eq' (equal) and 'ne' (not equal) operators
 for comparing 2 artifacts that are of that same data type.  Moreover, it is
 mandatory that no data type defines for themselves any 'eq' or 'ne'
@@ -111,7 +112,7 @@ joining the tuples, or filtering a tuple from a relation.
 
 Aside from the 'eq' and 'ne' comparison operators, there are no other
 mandatory operators that must be defined for a given custom data type,
-though the built-in ones will include others.  However, it is strongly
+though the native ones will include others.  However, it is strongly
 recommended that each data type implement the 'cmp' (comparison) operator
 so that linearly sorting 2 artifacts of that common data type is a
 deterministic activity.
@@ -128,7 +129,7 @@ adjoining locations.
 SQL::Routine natively supports the special NULL data type, whose value
 domain is by definition mutually exclusive of the domains of all other data
 types; in practice, a NULL is distinct from all possible values that the
-other SQL::Routine native primitive types can have.  But some built-in
+other SQL::Routine native primitive types can have.  But some native
 complex types and user customized types could be defined where their
 domains are a super-set of NULL; those latter types are described as
 "nullable", while types whose domains are not a super-set of NULL are
@@ -151,9 +152,9 @@ NULL, in the form of the boolean "is_nullable" attribute; if the attribute
 is undefined, then the nullability status of the base data type is
 inherited; if it is defined, then it overrides the parent's status.
 
-All not-nullable built-in data types default to their concept of empty or
-nothingness, such as zero or the empty string.  All nullable built-in
-types, and all not-nullable built-in types that you customize with a true
+All not-nullable native data types default to their concept of empty or
+nothingness, such as zero or the empty string.  All nullable native
+types, and all not-nullable native types that you customize with a true
 is_nullable, will default to NULL.  In either case, you can define an
 explicit default value for your custom data type, which will override those
 behaviours; details are given further below.
@@ -166,43 +167,110 @@ These are the simplest data types, from which all others are derived:
 
 =item C<BOOLEAN>
 
-This not-nullable data type is a logical boolean, whose only possible
-values are FALSE and TRUE.  Its concept of nothingness is FALSE.
+This data type is a single logical boolean, whose only possible values are
+FALSE and TRUE.  Its concept of nothingness is FALSE.
 
-=item C<INTEGER>
+=item C<NUMERIC>
 
-This not-nullable data type is a rational integer of unlimited (but not
-infinite) precision.  Its concept of nothingness is zero.  It is
-conceptually a full sub-domain of RATIONAL, such that all INTEGER values
-have one-on-one RATIONAL equivalents, but for widely pervasive matters of
-efficiency, SQL::Routine will treat the two types as exclusive, so you need
-to do explicit conversions between them.
+This data type is a single rational number.  Its concept of nothingness is
+zero.  A subtype of NUMERIC must specify the radix-agnostic "num_precision"
+and "num_scale" attributes, which determine the maximum valid range of the
+subtype's values, and the subtype's storage representation can often be
+derived from it too.
 
-=item C<RATIONAL>
+The "num_precision" attribute is an integer >= 1; it specifies the maximum
+number of significant values that the subtype can represent.  The
+"num_scale" attribute is an integer >= 0 and <= "num_precision"; if it is
+>= 1, the subtype is a fixed radix point rational number, such that 1 /
+"num_scale" defines the increment size between adjacent possible values;
+the trivial case of "num_scale" = 1 means the increment size is 1, and the
+number is an integer; if "num_scale" = 0, the subtype is a floating radix
+point rational number where "num_precision" represents the product of the
+maximum number of significant values that the subtype's mantissa and
+exponent can represent.  SQL::Routine does not currently specify how much
+of a floating point number's "num_precision" is for the mantissa and how
+much for the exponent, but commonly the exponent takes a quarter.
 
-This not-nullable data type is a rational number of unlimited (but not
-infinite) precision and scale.  Its concept of nothingness is zero.
+The meanings of "precision" and "scale" are more generic for SQL::Routine
+than they are in the SQL:2003 standard; in SQL, "precision" (P) means the
+maximum number of significant figures, and the "scale" (S) says how many of
+those are on the right side of the radix point.  Translating from base-R
+(eg, R being 10 or 2) to the SQL::Routine meanings are as follows (assuming
+negative numbers are allowed and zero is always in the middle of a range).
+For fixed-point numerics, a (P,S) becomes (2*R^P,R^S), meaning an integer
+(P,0) becomes (2*R^P,1).  For floating-point numerics, a (P) sort-of
+becomes (2*R^P,0); I say sort-of because SQL:2003 says that the P shows
+significant figures in just the mantissa, but SQL::Routine currently says
+that the size of the exponent eats away from that, commonly a quarter.
+
+As examples, a base-10 fixed in SQL defined as [p=10,s=0] (an integer in
+-10^10..10^10-1) becomes [p=20_000_000_000,s=1] in SQL::Routine; the
+base-10 [p=5,s=2] (a fixed in -1_000.00..999.99) becomes [p=200_000,s=100];
+the base-2 [p=15,s=0] (a 16-bit int in -32_768..32_767) becomes
+[p=65_536,s=1]; the base-2 float defined as [p=31] (a 32-bit float in
++/-8_388_608*2^+/-128) becomes [p=4_294_967_296,s=0].
+
+A subtype of NUMERIC may specify the "num_min_value" and/or "num_max_value"
+attributes, which further reduces the subtype's valid range.  For example,
+a minimum of 1 and maximum of 10 specifies that only numbers in the range
+1..10 (inclusive) are allowed.  Simply setting the minimum to zero and
+leaving the maximum unset is the recommended way in SQL::Routine to specify
+that you want to allow any non-negative number.  Setting the minimum >= 0
+also causes the maximum value range allowable by "num_precision" to shift
+into the positive, rather than it being half there and half in the
+negative.  Eg, an (P,S) of (256,1) becomes 0..255 when the minimum = 0,
+whereas it would be -128..127 if the min/max are unset.
 
 =item C<CHAR_STR>
 
-This not-nullable data type is a character string of unlimited (but not
-infinite) length.  Its abstract character repertoire is that of the current
-newest Unicode Standard.  Its concept of nothingness is the empty string.
+This data type is a string of characters.  Its concept of nothingness is
+the empty string.  A subtype of CHAR_STR must specify the "char_max_length"
+and "char_repertoire" attributes, which determine the maximum valid range
+of the subtype's values, and the subtype's storage representation can often
+be derived from it too.
 
-=item C<BIT_STR>
+The "char_max_length" attribute is an integer >= 0; it specifies the
+maximum length of the string in characters (eg, a 100 means a string of
+0..100 characters can be stored).  The "char_repertoire" enumerated
+attribute specifies what individual characters there are to choose from
+(eg, Unicode 4.1, Ascii 7-bit, Ansel; Unicode is the recommended choice).
 
-This not-nullable data type is a bit string of unlimited (but not infinite)
-length.  Its concept of nothingness is the empty string.
+A subtype of CHAR_STR may specify the "char_min_length" attribute, which
+means the length of the character string must be at least that long (eg, to
+say strings of length 6..10 are required, set min to 6 and max to 10).
+
+=item C<STR_BIT>
+
+This data type is a string of bits.  Its concept of nothingness is the
+empty string.  A subtype of BIT_STR must specify the "bit_max_length"
+attribute, which determines the maximum valid range of the subtype's
+values, and the subtype's storage representation can often be derived from
+it too.
+
+The "bit_max_length" attribute is an integer >= 0; it specifies the maximum
+length of the string in characters (eg, an 8000 means a string of 0..8000
+bits can be stored).
+
+A subtype of BIT_STR may specify the "bit_min_length" attribute, which
+means the length of the bit string must be at least that long (eg, to say
+strings of length 24..32 are required, set min to 24 and max to 32).
 
 =back
+
+A subtype of any of these native primitive types can define a default value
+for the subtype, it can define whether the subtype is nullable or not (they
+are all not-nullable by default), and it can enumerate an explicit list of
+allowed values (eg, [4, 8, 15, 16, 23, 42], or ['foo', 'bar', 'baz'], or
+[B'1100', B'1001']), one each in a child Node (these must fall within the
+specified range/size limits otherwise defined for the subtype).
 
 =head2 Native Scalar Type
 
 SQL::Routine has native support for a special SCALAR data type, which is
 akin to SQLite's weakly typed table columns, or to Perl's weakly typed
-default scalar variables.  This not-nullable data type is a union of the
-domains of the BOOLEAN, INTEGER, RATIONAL, CHAR_STR, and BIT_STR
-data types.  Its concept of nothingness is the empty string.
+default scalar variables.  This data type is a union of the domains of the
+BOOLEAN, NUMERIC, CHAR_STR, and BIT_STR data types; it is not-nullable by
+default.  Its concept of nothingness is the empty string.
 
 =head1 SEE ALSO
 
