@@ -5,7 +5,7 @@ use Test;
 
 # XXX - this needs to be updated when Str.split(Str) works again
 # this test really wants is_deeply()
-plan 70;
+plan 75;
 
 # split on an empty string
 
@@ -97,3 +97,19 @@ split_test  "Hello World    Goodbye   Mars".split(" ", 3),
 split_test  "Word".split("", 3), qw(W o rd),
            q/Str.split("", limit)/;
 
+# XXX: S29 split is not specified. :-(
+
+# XXX: Here Pugs emulates p5 default awk field splitting behaviour.
+split_test  "  abc  def  ".split(), qw/abc def/,
+           q/Str.split()/;
+# ... yet how do you do this with p6 function form of split?
+# Note that split(' ', $x) special casing of ' ' pattern (a la p5)
+# is not implemented in Pugs. Should it be?
+
+# This one returns an empty list
+split_test  "".split(), (),
+           q/"".split()/;
+
+# ... yet this one does not (different to p5).
+split_test  "".split(':'), (),
+           q/"".split(':')/;
