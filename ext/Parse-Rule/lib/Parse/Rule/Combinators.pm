@@ -83,9 +83,6 @@ match of the inner group).
 
 sub quantify (Parser $p, $low? = 0, $high? = Inf) is export {
     my sub match_n ($n, $match, &continue) {
-        my $multidex = [ *$match.match.multidex ];
-        # what I would give for a native linked list
-        $multidex[-1]++;
         my $new_continue = -> $m { 
             my $mp = $m.pos;  my $map = $match.pos;
             if $mp.pos == $map.pos {   # XXX Not medium-independent!
@@ -94,6 +91,9 @@ sub quantify (Parser $p, $low? = 0, $high? = Inf) is export {
                 $m.backtrack()();
             }
             else {
+                # Each time around the match, we increment the inner multidex index.
+                my $multidex = [ *$match.match.multidex ];
+                $multidex[-1]++;
                 match_n($n+1, $m.clone(match => $m.match.clone(multidex => $multidex)), &continue);
             }
         };
@@ -104,6 +104,8 @@ sub quantify (Parser $p, $low? = 0, $high? = Inf) is export {
             $match.backtrack()();
         }
         else {
+            # In here, we are in the specified number of times.  Try to match
+            # $p, because we're greedy, but if it fails, we can succeed.
             $p.parse()($match.clone(backtrack => -> { &continue($match) }),
                        $new_continue);
         }
@@ -111,6 +113,8 @@ sub quantify (Parser $p, $low? = 0, $high? = Inf) is export {
 
     Parser.new: parse => sub ($match, &continue) {
         my $mdex = $match.match.multidex;
+        # Put another dimension on the multidex and match the recursive match_n
+        # combinator.
         match_n(0, $match.clone(
                       match => $match.match.clone(multidex => [ *$mdex, 0 ])),
                 -> $m { 
@@ -133,7 +137,7 @@ sub capture (Parser $p, :$num, :$name) is export {
     Parser.new: parse => sub ($match, &continue) {
         $p.parse()($match.clone(match => Match.new),
                    -> $m {
-                        # Eeeeeeyuck!  This is totally awkward.
+                        # XXX. Eeeeeeyuck!  This is totally awkward.
                         my $subobj = $m.match.clone(
                             start => $match.pos,
                             end => $m.pos,
