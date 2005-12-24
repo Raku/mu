@@ -3,7 +3,7 @@ use Parse::Rule::Core;
 use Parse::Rule::Media;
 use Parse::Rule::Combinators;
 
-plan 74;
+plan 77;
 
 sub do_match ($text, $parser) {
     $parser.parse()(
@@ -182,5 +182,13 @@ my $match;
                     mark(:name(':'), concat(quantify(Text::literal("x")), commit(':'))), 
                     Text::literal("x")));
     matches_not "xxx";
+
+($desc, $pat) = ('/ yx?y /', 
+                concat(
+                    concat(Text::literal('y'), optional(Text::literal('x'))),
+                    Text::literal('y')));
+    matches 'yxy';
+    matches 'yy';
+    matches_not 'y';
 
 # vim: ft=perl6 :

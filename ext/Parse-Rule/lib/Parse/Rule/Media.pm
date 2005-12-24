@@ -1,6 +1,7 @@
 module Parse::Rule::Media;
 
 use Parse::Rule::Core;
+use Parse::Rule::Combinators;
 
 =pod
 
@@ -46,6 +47,35 @@ class Text {
             else {
                 $match.backtrack()();
             }
+        }
+    }
+
+    sub beginning_of_string () {
+        assertion -> $m {
+            my $pos = $m.pos;
+            $pos.pos == 0;
+        }
+    }
+
+    sub end_of_string () {
+        assertion -> $m {
+            my $pos = $m.pos;
+            $pos.pos == $pos.text.chars;
+        }
+    }
+
+    sub beginning_of_line () {
+        assertion -> $m {
+            my $pos = $m.pos;
+            $pos.pos == 0 || $pos.text.substr($pos.pos-1, 1) eq "\n";
+        }
+    }
+
+    sub end_of_line () {
+        assertion -> $m {
+            my $pos = $m.pos;
+            $pos.pos == $pos.text.chars 
+                || $pos.text.substr($pos.pos, 1) eq "\n";
         }
     }
 }

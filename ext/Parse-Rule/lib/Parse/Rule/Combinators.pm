@@ -1,5 +1,7 @@
 module Parse::Rule::Combinators;
 
+use Parse::Rule::Core;
+
 =pod
 
 C<multidex> performs a multidimensional index and copy into a
@@ -17,6 +19,24 @@ my sub multidex ($container, $multidex, $value) {
         my $idx = $multidex[0];
         $ret[$idx] = multidex($ret[$idx], $multidex[1..^$multidex], $value);
         $ret;
+    }
+}
+
+=pod
+
+C<assertion(&assert)> runs C<&assert>. If the result is true, is continues. If
+it is false, it backtracks.
+
+=cut
+
+sub assertion ($assert) is export {
+    Parser.new: parse => sub ($match, &continue) {
+        if $assert($match) {
+            &continue($match);
+        }
+        else {
+            $match.backtrack()();
+        }
     }
 }
 
@@ -79,6 +99,10 @@ C<[3]> (on the fourth match of the group).  In the latter, it will be,
 say, C<[2,4]> (on the third match of the outer group, and the fifth
 match of the inner group).
 
+C<quantify> also takes a C<:minimal> argument, which, if present, tells
+the combinator to succeed as soon as it has matched C<$low> times, and
+backtrack by matching more.
+
 =cut
 
 sub quantify (Parser $p, $low? = 0, $high? = Inf, :$minimal = 0) is export {
@@ -125,6 +149,34 @@ sub quantify (Parser $p, $low? = 0, $high? = Inf, :$minimal = 0) is export {
                 -> $m { 
                     &continue($m.clone(match => $m.match.clone(multidex => $mdex)));
                 });
+    }
+}
+
+=pod
+
+C<optional($p)> is pretty much the same as C<quantify($p,0,1)>,  but it
+has its own combinator because it stores captures differently.  Instead
+of creating another level of arrays in the captures, it simply doesn't
+put anything there if it didn't match.
+
+C<optional> also takes a C<:minimal> argument, which does the same thing
+as it does above in C<quantify>.
+
+=cut
+
+sub optional ($p, :$minimal = 0) is export {
+    if $minimal {
+        Parser.new: parse => sub ($match, &continue) {
+            &continue($match.clone(
+                backtrack => -> { $p.parse()($match, &continue) }));
+        }
+    }
+    else {
+        Parser.new: parse => sub ($match, &continue) {
+            $p.parse()($match.clone(
+                backtrack => -> { &continue($match) }),
+                &continue);
+        }
     }
 }
 
