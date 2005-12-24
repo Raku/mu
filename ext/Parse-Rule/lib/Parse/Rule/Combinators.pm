@@ -1,11 +1,14 @@
 module Parse::Rule::Combinators;
 
-my sub multidex($container is rw, $multidex) is rw {
+my sub multidex($container, $multidex, $value) {
     if +$multidex == 0 {
-        $container;
+        $value;
     }
     else {
-        multidex($container[$multidex[0]], $multidex[1..^$multidex]);
+        my $ret = $container ?? [ *$container ] !! [ ];
+        my $idx = $multidex[0];
+        $ret[$idx] = multidex($ret[$idx], $multidex[1..^$multidex], $value);
+        $ret;
     }
 }
 
@@ -34,32 +37,29 @@ sub alternate (Parser $a, Parser $b) is export {
 
 sub quantify (Parser $p, $low? = 0, $high? = Inf) is export {
     my sub match_n ($n, $match, &continue) {
-        my $multidex = $match.match.multidex.clone;
+        my $multidex = [ *$match.match.multidex ];
         # what I would give for a native linked list
         $multidex[-1]++;
+        my $new_continue = -> $m { 
+            match_n($n+1, $m.clone(match => $m.match.clone(multidex => $multidex)), &continue);
+        };
         if $n < $low {
-            $p.parse()($match, -> $m { 
-                match_n($n+1, 
-                        $match.clone(match => $match.match.clone(multidex => $multidex)), 
-                        &continue);
-            });
+            $p.parse()($match, $new_continue);
         }
         elsif $n > $high {
             $match.backtrack()();
         }
         else {
-            $p.parse()($match.clone(backtrack => &continue),
-                       -> $m { match_n($n+1, $m, &continue) });
+            $p.parse()($match.clone(backtrack => -> { &continue($match) }),
+                       $new_continue);
         }
     }
 
     Parser.new: parse => sub ($match, &continue) {
         my $mdex = $match.match.multidex;
-        match_n(0, [], 
-                $match.clone(
-                    match => $match.match.clone(multidex => [ *$mdex, 0 ])),
+        match_n(0, $match.clone(
+                      match => $match.match.clone(multidex => [ *$mdex, 0 ])),
                 -> $m { 
-                    my $mdex = $m.value.multidex;
                     &continue($m.clone(match => $m.match.clone(multidex => $mdex)));
                 });
     }
@@ -70,13 +70,33 @@ sub capture (Parser $p, :$num, :$name) is export {
     Parser.new: parse => sub ($match, &continue) {
         $p.parse()($match.clone(match => Match.new),
                    -> $m {
-                        my $obj = $match.match.clone;
-                        multidex($obj.match_num, $obj.multidex) = 
-                            $m.match.clone(
-                                start => $match.pos,
-                                end   => $m.pos,
-                            );
-                            
+                        # Eeeeeeyuck!  This is totally awkward.
+                        my $subobj = $m.match.clone(
+                            start => $match.pos,
+                            end => $m.pos,
+                        );
+                        my $mmat = $match.match;
+                        my $newnump = $mmat.match_num;
+                        my $newnamep = $mmat.match_name;
+                        if defined $num {
+                            my $newnum = defined $num
+                                            ?? multidex($mmat.match_num[$num], $match.match.multidex, $subobj) 
+                                            !! $mmat.match_num[$num];
+                            $newnump = [ *$newnump ];
+                            $newnump[$num] = $newnum;
+                        }
+                        if defined $name {
+                            my $newname = defined $name
+                                            ?? multidex($mmat.match_name{$name}, $match.match.multidex, $subobj)
+                                            !! $mmat.match_name{$name};
+                            $newnamep = hash(*$newnamep);
+                            $newnamep{$name} = $newname;
+                        }
+                        my $obj = $mmat.clone(
+                            match_num => $newnump,
+                            match_name => $newnamep,
+                        );
+
                         &continue($m.clone(match => $obj));
                     });          
     }

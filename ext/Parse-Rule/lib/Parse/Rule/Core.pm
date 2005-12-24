@@ -16,7 +16,7 @@ class Match {
     submethod BUILD () {
         $.match_num //= [];
         $.match_name //= {};
-        $.multidex // [];
+        $.multidex //= [];
     }
 }
 
