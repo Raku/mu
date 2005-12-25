@@ -154,7 +154,7 @@ submethod BUILD (
 method export_as_hash () returns Hash {
     return {
         'node_type'   => $!node_type,
-        'attributes'  => {%!attributes}, # or needs splatty * ?
+        'attributes'  => {%!attributes},
         'child_nodes' => [@!child_nodes.map:{ .export_as_hash() }],
     };
 }

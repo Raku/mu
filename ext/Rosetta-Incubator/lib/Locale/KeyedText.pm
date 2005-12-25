@@ -62,10 +62,7 @@ method get_msg_var (Str $var_name!) returns Any {
 }
 
 method get_msg_vars () returns Hash of Any {
-#    return hash(%!msg_vars); # gives 'odd number of elements' error
-    return %!msg_vars; # workaround, but I actually want to return a copy
-#    return {%!msg_vars}; # try this, perhaps?
-#    return {*%!msg_vars}; # or this?
+    return {%!msg_vars};
 }
 
 ######################################################################
@@ -125,12 +122,10 @@ submethod BUILD (Str :@set_names!, Str :@member_names!) {
 
 method get_set_names () returns Array of Str {
     return [@!set_names];
-#    return [*@!set_names]; # see if should be this?
 }
 
 method get_member_names () returns Array of Str {
     return [@!member_names];
-#    return [*@!member_names]; # see if should be this?
 }
 
 ######################################################################
@@ -187,7 +182,7 @@ method translate_message (Locale::KeyedText::Message $message!)
         # We successfully got template text for the message key, so
         # interpolate the message vars into it and return that.
         $text = .interpolate_vars_into_template_text(
-            $text, %{$message.get_msg_vars()} );
+            $text, $message.get_msg_vars() );
 #        last SET_MEMBER;
         last;
     }
