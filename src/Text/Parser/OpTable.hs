@@ -183,16 +183,17 @@ parse tbl str = let ?termStack  = []
                     ?str    = str in expectTerm
 
 expectTerm :: Parse Match
-expectTerm | null ?str = nullTerm
-           | otherwise = let ?str = str' in matchTerm terms
+expectTerm
+    | null ?str = nullTerm
+    | otherwise = let ?str = str' in matchWith foundTerm (error "no match") terms
     where
     str'  = dropSpace ?str
     terms = (if length str' == length ?str then tableTerms else tableWsTerms) ?tbl
 
-matchTerm :: TokenMap -> Parse Match
-matchTerm tmap = case find ((`isPrefixOf` ?str) . termToStr . fst) (toAscList tmap) of
-    Just (term, token) -> let ?str = drop (termLength term) ?str in foundTerm token
-    _                  -> error "no match"
+matchWith :: (Token -> Parse a) -> Parse a -> TokenMap -> Parse a
+matchWith ok nok tmap = case find ((`isPrefixOf` ?str) . termToStr . fst) (toAscList tmap) of
+    Just (term, token) -> let ?str = drop (termLength term) ?str in ok token
+    _                  -> nok
 
 isTerm :: Op -> Bool
 isTerm Term{}    = True
@@ -200,8 +201,9 @@ isTerm DynTerm{} = True
 isTerm _         = False
 
 foundTerm :: Token -> Parse Match
-foundTerm token | isTerm (tokOp token) = let ?termStack = (match: ?termStack) in expectOper
-                | otherwise            = operShift token match
+foundTerm token
+    | isTerm (tokOp token) = let ?termStack = (match: ?termStack) in expectOper
+    | otherwise            = operShift token match
     where
     match = (MkMatch (tokOp token) empty)
 
@@ -209,14 +211,12 @@ operShift :: Token -> Match -> Parse Match
 operShift = undefined
 
 expectOper :: Parse Match
-expectOper | null str' = endParse
-           | otherwise = let ?str = str' in matchOper opers
+expectOper
+    | null str' = endParse
+    | otherwise = let ?str = str' in matchWith foundTerm (error "no match") opers
     where
     str'  = dropSpace ?str
     opers = (if length str' == length ?str then tableOpers else tableWsOpers) ?tbl
-
-matchOper :: TokenMap -> Parse Match
-matchOper omap = undefined
 
 nullTerm :: Parse Match
 nullTerm = undefined
