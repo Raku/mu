@@ -779,14 +779,13 @@ ruleUsePackage :: Bool -- ^ @True@ for @use@; @False@ for @no@
 ruleUsePackage use = rule "use package" $ do
     lang <- ruleUsePackageLang
     case lang of
-        "jsan" -> if not use then fail "can't 'no' a JSAN module" else do
-            ruleUseJSANModule
-        "perl5" -> if not use then fail "can't 'no' a Perl5 module" else do
-            rv <- unsafeEvalExp $ Var "$?PUGS_BACKEND"
-            case rv of
-                Val (VStr "BACKEND_JAVASCRIPT") -> ruleUseJSPerl5Module
-                _ -> ruleUsePerlPackage use lang
-        _ -> ruleUsePerlPackage use lang
+        "jsan" -> if use
+                      then ruleUseJSANModule
+                      else fail "can't 'no' a JSAN module"
+        "jsperl5" -> if use
+                      then ruleUseJSPerl5Module
+                      else fail "can't 'no' a Perl5 module"
+        _      -> ruleUsePerlPackage use lang
     where
     ruleUsePackageLang = option "pugs" $ try $ do
         lang <- identifier
