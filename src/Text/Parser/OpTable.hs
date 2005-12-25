@@ -36,11 +36,13 @@ data Token = MkToken
     , tokArity :: !Arity
     , tokClose :: !(Maybe Op)
     }
+    deriving (Eq, Show, Ord)
 
 data Match = MkMatch
     { matchOp   :: !Op
     , matchSubs :: !(Seq Match)
     }
+    deriving (Eq, Show, Ord)
 
 data Assoc
     = AssocNon | AssocLeft | AssocRight | AssocChain | AssocList
@@ -65,6 +67,7 @@ data OpTable = MkOpTable
     , tableWsTerms   :: !TokenMap
     , tableWsOps     :: !TokenMap
     }
+    deriving (Eq, Show, Ord)
 
 emptyTable :: OpTable
 emptyTable = MkOpTable NMap.empty NMap.empty NMap.empty NMap.empty NMap.empty
