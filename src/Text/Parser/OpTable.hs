@@ -3,11 +3,15 @@
 -- A Haskell port of PGE::OPTable.
 
 module Text.Parser.OpTable where
-import Prelude hiding (length, lookup)
+import Prelude hiding (length, lookup, null, drop)
+import qualified Data.Map as NMap
+import qualified Data.Seq as NSeq
+import qualified Data.FastPackedString as NStr
 import Data.Ratio
-import Data.Map as NMap
-import Data.Seq as NSeq
-import Data.FastPackedString as NStr
+import Data.List (find)
+import Data.Seq (Seq, empty)
+import Data.Map (Map, insert, lookup, toAscList, (!))
+import Data.FastPackedString (pack, null, drop, dropSpace, length, isPrefixOf)
 
 data Op
     = Infix         { str :: !Str, assoc :: !Assoc }
@@ -21,6 +25,7 @@ data Op
     | Close         { str :: !Str }
     deriving (Eq, Show, Ord)
 
+-- newtype DynStr = MkDynStr (forall m. Monad m => Str -> m (Str, Op -> Seq Match))
 type DynStr = Str -> Maybe (Str, Op -> Seq Match)
 
 instance Eq DynStr where _ == _ = False
@@ -63,9 +68,9 @@ data PrecRelation
 data OpTable = MkOpTable
     { tableEntries   :: !EntryMap
     , tableTerms     :: !TokenMap
-    , tableOps       :: !TokenMap
+    , tableOpers     :: !TokenMap
     , tableWsTerms   :: !TokenMap
-    , tableWsOps     :: !TokenMap
+    , tableWsOpers   :: !TokenMap
     }
     deriving (Eq, Show, Ord)
 
@@ -77,7 +82,10 @@ type EntryMap = Map Op Token
 type TokenMap = Map Term Token
 
 -- | Terms are ordered by descending length first.
-newtype Term = MkTerm Str deriving (Eq, Show)
+newtype Term = MkTerm { termToStr :: Str } deriving (Eq, Show)
+
+termLength :: Term -> Int
+termLength = length . termToStr
 
 instance Ord Term where
     compare (MkTerm x) (MkTerm y) = case compare (NStr.length y) (NStr.length x) of
@@ -138,10 +146,10 @@ insertTerm tok AllowWhitespace table = table
     { tableTerms   = insertTok tok (tableTerms table)
     , tableWsTerms = insertTok tok (tableWsTerms table) }
 insertOp   tok NoWhitespace    table = table
-    { tableOps     = insertTok tok (tableOps table)     }
+    { tableOpers     = insertTok tok (tableOpers table)     }
 insertOp   tok AllowWhitespace table = table
-    { tableOps     = insertTok tok (tableOps table)
-    , tableWsOps   = insertTok tok (tableWsOps table) }
+    { tableOpers     = insertTok tok (tableOpers table)
+    , tableWsOpers   = insertTok tok (tableWsOpers table) }
 
 insertTok :: Token -> TokenMap -> TokenMap
 insertTok tok tmap = insert key tok tmap
@@ -160,8 +168,65 @@ calculatePrec rel toks = case rel of
     where
     prec = tokPrec (toks ! (relOp rel))
 
+type TokenStack = [Token]
+type TermStack  = [Match]
+type OperStack  = [Match]
+
+type Parse a = ( ?termStack :: TermStack, ?tokenStack :: TokenStack, ?operStack :: OperStack
+               , ?tbl :: OpTable, ?str :: Str) => a
+
 parse :: OpTable -> Str -> Match
-parse = undefined
+parse tbl str = let ?termStack  = []
+                    ?tokenStack = []
+                    ?operStack  = []
+                    ?tbl    = tbl 
+                    ?str    = str in expectTerm
+
+expectTerm :: Parse Match
+expectTerm | null ?str = nullTerm
+           | otherwise = let ?str = str' in matchTerm terms
+    where
+    str'  = dropSpace ?str
+    terms = (if length str' == length ?str then tableTerms else tableWsTerms) ?tbl
+
+matchTerm :: TokenMap -> Parse Match
+matchTerm tmap = case find ((`isPrefixOf` ?str) . termToStr . fst) (toAscList tmap) of
+    Just (term, token) -> let ?str = drop (termLength term) ?str in foundTerm token
+    _                  -> error "no match"
+
+isTerm :: Op -> Bool
+isTerm Term{}    = True
+isTerm DynTerm{} = True
+isTerm _         = False
+
+foundTerm :: Token -> Parse Match
+foundTerm token | isTerm (tokOp token) = let ?termStack = (match: ?termStack) in expectOper
+                | otherwise            = operShift token match
+    where
+    match = (MkMatch (tokOp token) empty)
+
+operShift :: Token -> Match -> Parse Match
+operShift = undefined
+
+expectOper :: Parse Match
+expectOper | null str' = endParse
+           | otherwise = let ?str = str' in matchOper opers
+    where
+    str'  = dropSpace ?str
+    opers = (if length str' == length ?str then tableOpers else tableWsOpers) ?tbl
+
+matchOper :: TokenMap -> Parse Match
+matchOper omap = undefined
+
+nullTerm :: Parse Match
+nullTerm = undefined
+
+endParse :: Parse Match
+endParse | [] <- ?tokenStack = head ?termStack
+         | otherwise         = reduce endParse
+
+reduce :: Parse a -> Parse a
+reduce = undefined
 
 mkOpTable :: [[(Whitespace, Op)]] -> OpTable
 mkOpTable = fst . Prelude.foldl mkOps (emptyTable, DefaultPrec)

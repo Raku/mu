@@ -754,10 +754,13 @@ findIndices p ps = loop 0 ps
 -- | The 'isPrefixOf' function takes two strings and returns 'True'
 -- iff the first string is a prefix of the second.
 isPrefixOf :: FastString -> FastString -> Bool
-isPrefixOf x y
-    | null x    = True
-    | null y    = False
-    | otherwise = unsafeHead x == unsafeHead y && isPrefixOf (unsafeTail x) (unsafeTail y)
+isPrefixOf (PS x1 s1 l1) (PS x2 s2 l2)
+    | l1 == 0   = True
+    | l2 < l1   = False
+    | otherwise = unsafePerformIO $ withForeignPtr x1 $ \p1 -> 
+        withForeignPtr x2 $ \p2 -> do 
+            i <- c_memcmp (p1 `plusPtr` s1) (p2 `plusPtr` s2) l1
+            return (i == 0)
 
 -- | The 'isSuffixOf' function takes two lists and returns 'True'
 -- iff the first list is a suffix of the second.
