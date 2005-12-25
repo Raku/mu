@@ -427,7 +427,7 @@ reduceSyn "for" [list, body] = do
     sub  <- case sub' of
         VCode s -> return s
         VList [] -> fail $ "Invalid codeblock for 'for': did you mean {;}?"
-        x -> fail $ "Invalid codeblock for 'for'"
+        _ -> fail $ "Invalid codeblock for 'for'"
     -- XXX: need clarification -- this makes
     --      for @x { ... } into for @x -> $_ {...}
     let arity = max 1 $ length (subParams sub)
