@@ -886,7 +886,7 @@ version.
 =item Jason Martin (C<jhmartin@toger.us>)
 
 On 2004.07.26, suggested a feature, and provided sample usage and patch
-code, that supports embedding of Template modules into the same files as
+code, which supports embedding of Template modules into the same files as
 program code, rather than requiring separate files.
 
 =item Stevan Little (C<stevan@iinteractive.com>)
