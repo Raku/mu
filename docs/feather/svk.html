@@ -1,4 +1,10 @@
-<html><body>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>SVK on Feather</title>
+    <link rel="stylesheet" href="http://pugs.blogs.com/pugs/styles.css" type="text/css" />
+</head>
+<body>
 Fellow users:
 <p>
 In order to save bandwidth and speed up development, please set up
@@ -17,19 +23,21 @@ Afterwards, whenever you want to update your pugs copy:
    svk pull
 </pre>
 
+The same applies to Parrot as well:
+
+<pre>
+   svk co /parrot/mirror/trunk ~/parrot
+</pre>
+
 <p>
 Note the command is "svk", not "svn", although all svn commands
 are supported by svk as well, except svk runs them faster.
 
 
 <p>
-The //mirror/p6 directory contains the svn.perl.org Perl 6 repository, which
+The <code>//mirror/p6</code> directory contains the svn.perl.org Perl 6 repository, which
 contains the design documents, and a fallback mirror of Pugs
 
 <p>
-A separate depot is made for Parrot; you can use /parrot/mirror/trunk
-to access it from SVK.
-
-<p>
 Thanks!<br>
-/<a href="http://en.wikipedia.org/wiki/Autrijus_Tang">Autrijus</a></body></html>/
+/<a href="http://pugs.blogs.com/">Audrey</a></body></html>/
