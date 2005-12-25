@@ -163,8 +163,12 @@ calculatePrec rel toks = case rel of
 parse :: OpTable -> Str -> Match
 parse = undefined
 
-mkOpTable :: [(Op, Whitespace)] -> OpTable
-mkOpTable = undefined
+mkOpTable :: [[(Whitespace, Op)]] -> OpTable
+mkOpTable = fst . Prelude.foldl mkOps (emptyTable, DefaultPrec)
+    where
+    mkOps x [] = x
+    mkOps (tbl, rel) [(ws, op)] = (addToken tbl op rel ws, LooserThan op)
+    mkOps (tbl, rel) ((ws, op):xs) = mkOps (addToken tbl op rel ws, rel) xs
 
 testTable :: OpTable
 testTable = mkOpTable
@@ -176,7 +180,18 @@ testTable = mkOpTable
 
 class MkClass a where mk :: a
 
-instance MkClass ((Str -> Str -> Op) -> [Char]   -> (Op, Whitespace)) where
-instance MkClass ((Str -> Op) -> [Char]          -> (Op, Whitespace)) where
-instance MkClass ((Str -> Assoc -> Op) -> [Char] -> (Op, Whitespace)) where
-instance MkClass ((Str -> Assoc -> Op) -> Assoc -> [Char] -> (Op, Whitespace)) where
+instance MkClass ((Str -> Op) -> [Char]          -> [(Whitespace, Op)]) where
+    mk op1 = Prelude.map (((,) AllowWhitespace) . op1 . pack) . Prelude.words
+
+instance MkClass ((Str -> Str -> Op) -> [Char]   -> [(Whitespace, Op)]) where
+    mk op2 = Prelude.map (((,) AllowWhitespace) . uncurry op2) . pack2 . Prelude.words
+        where
+        pack2 (x:y:zs)  = ((pack x, pack y):pack2 zs)
+        pack2 _         = []
+
+instance MkClass ((Str -> Assoc -> Op) -> [Char] -> [(Whitespace, Op)]) where
+    mk op1 = mk op1 AssocLeft
+
+instance MkClass ((Str -> Assoc -> Op) -> Assoc -> [Char] -> [(Whitespace, Op)]) where
+    mk op1 assoc = Prelude.map (((,) AllowWhitespace) . (`op1` assoc) . pack) . Prelude.words
+
