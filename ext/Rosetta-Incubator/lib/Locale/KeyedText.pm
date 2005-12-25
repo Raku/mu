@@ -151,7 +151,7 @@ method translate_message (Locale::KeyedText::Message $message!)
 
     my Str $text = undef;
 #    SET_MEMBER:
-    for .get_set_member_combinations() -> $module_name {
+    for @{.get_set_member_combinations()} -> $module_name {
         # Determine if requested template module is already loaded.
         # It may have been embedded in a core program file and hence
         # should never be loaded by translate_message().
