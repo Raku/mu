@@ -43,6 +43,8 @@ the implementation *was* the specification). Like Python
 today, it is hoped there will be multiple p6 implementations
 (of which Pugs is but one). To achieve that, the specification
 *must* be nailed down precisely for the implementor.
+Update: see Larry's response on this issue at:
+http://www.nntp.perl.org/group/perl.perl6.language/24396
 
 Perhaps the best way to organize the Perl Standard Library
 is to model it on the reference section of the PickAxe (see
@@ -123,22 +125,94 @@ area have not met with sparkling success:
   only the Synopses are being kept up to date (in
   http://svn.perl.org/perl6/doc/trunk/design/syn/).
 
+* Rod Adams S29 at http://www.rodadams.net/Perl/S29.html
+  seems to have stalled ... well, the last update was made
+  on 16 March 2005.
+
+Language specifications (e.g. Guido for Python, Bjarne
+for C++, ...) are traditionally written by the language
+designer/s for the sound reason that they alone understand
+the subject matter intimately enough to perform this exacting
+task. Realistically, there appears little that non-Perl 6
+design team folks can contribute in the area of documenting
+the p6 Specification; that seems to be a job for @Larry.
+
+However, the overall structure, tools (and some of the content)
+of the documentation that will eventually ship with Perl 6
+(i.e. docs/p6doc) does seem a realistic goal. Since this is
+a big job, it seems sensible to offer committer bits to
+participants in the old "Perl 6 Documentation Project".
+Perhaps send a message to perl6-documentation@perl.org
+asking for contributors (though I wasn't involved in
+this project, it seems to have been focussed more on
+the p6 specification rather than on the documentation
+that will eventually ship with p6).
+
 There is much (perhaps too much;-) prior art on how to document
 a computer language (e.g. study how Ruby, Python, Java, Haskell,
 ... do it and steal the best ideas from each) ... or just convert
 p5 perldoc to p6.
 
-Some other references that may prove useful:
+Some references that may prove useful:
 
-* p5 'perldoc perl' (for overall organisation)
+* http://perldoc.perl.org/ (I prefer this to 'perldoc perl')
+  Organised as follows:
+    -- Overview
+    -- Tutorials
+    -- FAQs
+    -- History/Changes
+    -- License
+    -- Reference
+    --   Language
+    --   Functions
+    --   Operators
+    --   Special variables
+    --   Pragmas
+    --   Core modules
+    --   Utilities
+    --   Internals
+    --   Platform specific
+    -- Links
+    --   CPAN
+    --   perl.com
+    --   perl.org
+    --   Perl Mongers
+    --   Perl Monks
+    --   Planet Perl
+    --   Use Perl
 
-* The camel book (for overall organisation)
+* p5 'perldoc perl'
+  Organised as follows:
+    -- Overview
+    -- Tutorials
+    -- Reference Manual
+    -- Internals and C Language Interface
+    -- Miscellaneous
+    -- Language-Specific
+    -- Platform-Specific
+
+* The camel book
+
+* Python documentation http://www.python.org/
+  Organised as follows:
+    -- Tutorial
+    -- Global Module Index
+    -- Library Reference
+    -- Language Reference
+    -- Extending and Embedding
+    -- Python C/API
+    -- Documenting Python
+    -- Installing Python Modules
+    -- Distributing Python Modules
+
+* Ruby http://www.ruby-lang.org/
+    This looks a mess to me.
+
+* PickAxe Reference section (for Perl Library Reference)
 
 * dev.perl.org
 
 * Perl6::Bible
-
-* PickAxe Reference section (for Perl Library Reference)
 
 * gaal's TPR article
 
