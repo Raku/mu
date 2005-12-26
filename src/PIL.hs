@@ -46,9 +46,11 @@ main = do
             _ -> do
                 banner "Unknown Command"
                 prompt
-    parseErr err = liftIO $ do
-        banner "Error"
-        putStrLn $ ioeGetErrorString err
+    parseErr err = do
+            liftIO $ do
+                banner "Error"
+                putStrLn $ ioeGetErrorString err
+            prompt
     runProgram src = (`catchError` parseErr) $ do
         exps <- liftIO $ do
             exps <- parseNativeLang src 
