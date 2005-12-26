@@ -1762,13 +1762,13 @@ rulePostTerm = tryVerbatimRule "term postfix" $ do
             e -> e
 
 ruleInvocation :: RuleParser (Exp -> Exp)
-ruleInvocation = ruleInvocationCommon False
+ruleInvocation = fmap ($ id) $ ruleInvocationCommon False
 
 -- used only by 'qInterpolatorPostTerm'?
 ruleInvocationParens :: RuleParser (Exp -> Exp)
-ruleInvocationParens = ruleInvocationCommon True
+ruleInvocationParens = fmap ($ id) $ ruleInvocationCommon True
         
-ruleInvocationCommon :: Bool -> RuleParser (Exp -> Exp)
+ruleInvocationCommon :: Bool -> RuleParser ((String -> String) -> Exp -> Exp)
 ruleInvocationCommon mustHaveParens = do
     colonify    <- maybeColon
     hasEqual    <- option False $ do { char '='; whiteSpace; return True }
@@ -1784,9 +1784,9 @@ ruleInvocationCommon mustHaveParens = do
                 then parseNoParenParamList
                 else option (Nothing,[]) $ parseParenParamList
     when (isJust invs) $ fail "Only one invocant allowed"
-    return $ \x -> if hasEqual
-        then Syn "=" [x, App (Var name) (Just x) args]
-        else App (Var name) (Just x) args
+    return $ \f x -> if hasEqual
+        then Syn "=" [x, App (Var (f name)) (Just x) args]
+        else App (Var (f name)) (Just x) args
 
 ruleArraySubscript :: RuleParser (Exp -> Exp)
 ruleArraySubscript = tryVerbatimRule "array subscript" $ do
@@ -1830,8 +1830,14 @@ forms get parsed, so if they need to be changed\/killed, this is the place./
 -}
 ruleApply :: Bool -- ^ @True@ if we are parsing for the reduce-metaop
           -> RuleParser Exp
-ruleApply isFolded = tryVerbatimRule "apply" $ do
-    {- (colon :: String -> String) is a function that will take a name
+ruleApply isFolded = tryVerbatimRule "apply" $ 
+    if isFolded
+        then ruleApplySub isFolded
+        else ruleApplyImplicitMethod <|> ruleApplySub isFolded
+
+ruleApplyImplicitMethod :: RuleParser Exp
+ruleApplyImplicitMethod = do
+    {- (colonify :: String -> String) is a function that will take a name
        like '&foo', and MIGHT convert it to '&:foo'.  This only happens if
        you're using the '!foo' implicit-invocant syntax, otherwise 'colon' will
        just be 'id'.
@@ -1839,20 +1845,24 @@ ruleApply isFolded = tryVerbatimRule "apply" $ do
        (inv :: Maybe Exp) might hold a 'Var' expression indicating the implicit
        invocant.  Of course, if you're not using implicit-invocant syntax, this
        will be 'Nothing'. -}
-    (colonify, implicitInv) <- option (id, Nothing) $ do
-        when isFolded $ fail "" -- can't have implicit-invocant for [+]
+    (colonify, implicitInv) <- do
         char '.'                -- implicit-invocant forms all begin with '.'
-        option (id, Just $ Var "$_") $ choice
-            [ do { char '/'; return (id, (Just $ Var "$?SELF")) }
+        option (id, Var "$_") $ choice
+            [ do { char '/'; return (id, (Var "$?SELF")) }
             , do char ':'
                  return ( \(sigil:name) -> (sigil:':':name)
-                        , Just $ Var "$?SELF"
+                        , Var "$?SELF"
                         )
             ]
+            
+    fmap (($ implicitInv) . ($ colonify)) $ ruleInvocationCommon False
 
+
+ruleApplySub :: Bool -> RuleParser Exp
+ruleApplySub isFolded = do
     name    <- if isFolded
         then ruleFoldOp
-        else fmap colonify ruleSubName
+        else ruleSubName
                    
     when ((name ==) `any` words " &if &unless &while &until &for ") $
         fail "reserved word"
@@ -1860,33 +1870,10 @@ ruleApply isFolded = tryVerbatimRule "apply" $ do
     -- True for `foo .($bar)`-style applications
     (paramListInv, args) <- tryChoice
         [ do { whiteSpace; char '.'; parseHasParenParamList }
-        , if isJust implicitInv
-            then parseParenParamListMaybe -- if we have an implicit invocant,
-                                          -- then we need to follow method-call
-                                          -- syntax rules
-            else parseParenParamList <|> do { whiteSpace; parseNoParenParamList }
+        , parseParenParamList <|> do { whiteSpace; parseNoParenParamList }
         ]
-    -- FAILED PARSER PATCH
-    {-(paramListInv, args) <- tryChoice
-        -- foo .()
-        [ whiteSpace >> char '.' >> parseHasParenParamList
-        , if isJust implicitInv
-            -- .foo()
-            then parseParenParamListMaybe
-            else tryChoice
-                -- foo $bar, $baz
-                -- (turns out we really need whiteSpace, not skipMany1 space)
-                [ skipMany1 space >> parseNoParenParamList
-                -- foo($bar, $baz):goo
-                , parseParenParamListMaybe
-                ]
-        ] -}
-    inv     <- mergeMaybes implicitInv paramListInv
-    possiblyApplyMacro $ App (Var name) inv args
-    where
-    mergeMaybes :: Monad m => Maybe a -> Maybe a -> m (Maybe a)
-    mergeMaybes (Just _) (Just _) = fail "can't have more than one invocant"
-    mergeMaybes x y               = return $ x `mplus` y -- like $x // $y in P6
+
+    possiblyApplyMacro $ App (Var name) paramListInv args
 
 ruleFoldOp :: RuleParser String
 ruleFoldOp = verbatimRule "reduce metaoperator" $ do
