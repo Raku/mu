@@ -85,7 +85,7 @@ bootstrapClass x = mdo
     enterLex (("::", clsNull) : ("::Class", clsClass) : (unboxedTypes `zip` clsBoxes)) x
     where
     addMethod = parseSub
-        "-> $name, &method { self.set_attr_hash('%!methods', $name, &method) }"
+        "-> $name, &method { self`set_attr_hash('%!methods', $name, &method) }"
     mkClassMethods :: [(String, Native)] -> NativeMap
     mkClassMethods meths = mkMap
         [ ("@!MRO",             emptySeq)
@@ -95,7 +95,7 @@ bootstrapClass x = mdo
         , ("%!attributes",      emptyMap)
         , ("%!methods", toNative $ mkMap meths)
         ]
-    newBoxedClass cls _ = newObject cls $ mkClassMethods [("unbox", parseSub "->{ self.get_attr('') }")]
+    newBoxedClass cls _ = newObject cls $ mkClassMethods [("unbox", parseSub "->{ self`get_attr('') }")]
     unboxedTypes = map ("::" ++) $ words "Bit Int Num Str Seq Map Sub"
 
 enterLex :: IsNative a => [(String, a)] -> Eval b -> Eval b
@@ -129,35 +129,66 @@ evalExp (EVar s) = do
 evalExp (ECall { c_obj = objExp, c_meth = meth, c_args = argsExp }) = do
     obj  <- evalExp objExp
     args <- fmapM evalExp argsExp
-    sendCall obj meth args
+    primCall obj meth args
 
-sendCall :: Native -> NativeLangMethod -> NativeSeq -> Eval Native
-sendCall obj meth args
-    | meth == mkStr "trace"         = traceObject obj args
-    | meth == mkStr "send"          = sendCall obj (fromNative $ args ! 0) (splice args 1)
-    | meth == mkStr "send_private"  = sendCall obj (fromNative $ args ! 0) (splice args 1)
+primCall :: Native -> NativeLangMethod -> NativeSeq -> Eval Native
+primCall inv meth args
+    | meth == mkStr "trace"         = traceObject inv args
+    | meth == mkStr "send"          = sendCall inv (fromNative $ args ! 0) (splice args 1)
+    | meth == mkStr "send_private"  = privCall inv (fromNative $ args ! 0) (splice args 1)
     | otherwise = case anyPrims `fetch` meth of
-        Just f  -> return $ f obj args
-        Nothing -> case obj of
+        Just f  -> return $ f inv args
+        Nothing -> case inv of
             NError {}   -> errMethodMissing
             NBit x | meth == mkStr "cond"
                         -> callConditional x args
-            NBit x      -> callMethod bitPrims x args
-            NInt x      -> callMethod intPrims x args
-            NNum x      -> callMethod numPrims x args
-            NStr x      -> callMethod strPrims x args
-            NSeq x      -> callMethod seqPrims x args
-            NMap x      -> callMethod mapPrims x args
+            NBit x      -> callPrim bitPrims x args
+            NInt x      -> callPrim intPrims x args
+            NNum x      -> callPrim numPrims x args
+            NStr x      -> callPrim strPrims x args
+            NSeq x      -> callPrim seqPrims x args
+            NMap x      -> callPrim mapPrims x args
             NSub x      -> callSubWith (toString meth) x args
-            NObj x      -> callObject x meth args
+            NObj obj    -> case objPrims `fetch` meth of
+                Just f  -> f obj args
+                Nothing -> errMethodMissing
     where
-    errMethodMissing :: Eval a
     errMethodMissing = failWith "No such method" meth
-    callMethod :: Boxable a => MapOf (a -> NativeSeq -> Native) -> a -> NativeSeq -> Eval Native
-    callMethod prims x args = case prims `fetch` meth of
-        Nothing -> callAutoboxed x meth args
+    callPrim :: Boxable a => MapOf (a -> NativeSeq -> Native) -> a -> NativeSeq -> Eval Native
+    callPrim prims x args = case prims `fetch` meth of
+        Nothing -> errMethodMissing
         Just f  -> return $ f x args
-    callAutoboxed x meth args = do
+
+enterObj :: NativeObj -> (NativeObj -> Eval a) -> Eval a
+enterObj obj f = enterLex [("$?SELF", obj), ("$?CLASS", cls)] (f cls)
+    where
+    cls = o_class obj
+
+privCall :: Native -> NativeLangMethod -> NativeSeq -> Eval Native
+privCall inv meth args = case inv of
+    NObj obj    -> enterObj obj $ \cls -> do
+        meths <- cls ... "%!private_methods" :: Eval NativeMap
+        case meths `fetch` meth of
+            Just x  -> callSub (fromNative x) args
+            Nothing -> errMethodMissing
+    _           -> errMethodMissing
+    where
+    errMethodMissing = failWith "No such method" meth
+
+sendCall :: Native -> NativeLangMethod -> NativeSeq -> Eval Native
+sendCall inv meth args = case inv of
+    NObj obj    -> callObject obj meth args
+    NError{}    -> errMethodMissing
+    NBit x      -> callAutoboxed x
+    NInt x      -> callAutoboxed x
+    NNum x      -> callAutoboxed x
+    NStr x      -> callAutoboxed x
+    NSeq x      -> callAutoboxed x
+    NMap x      -> callAutoboxed x
+    NSub x      -> callAutoboxed x
+    where
+    errMethodMissing = failWith "No such method" meth
+    callAutoboxed x = do
         cls <- fmap fromNative $ evalExp (EVar $ boxType x)
         obj <- autobox x cls
         callObject obj meth args
@@ -203,23 +234,16 @@ traceObject obj args = liftIO $ do
 
 callObject :: NativeObj -> NativeStr -> NativeSeq -> Eval Native
 callObject obj meth args = enterLex lex $ do
-    -- XXX Kluge - should split up based on the send_ variety
-    meths <- cls ... "%!private_methods" :: Eval NativeMap
-    case meths `fetch` meth of
-        Just x  -> callSub (fromNative x) args
-        _       -> do
-            mros    <- getMRO
-            rv      <- findMRO mros
-            case rv of
-                Nothing -> case objPrims `fetch` meth of
-                    Just f  -> f obj args
-                    Nothing -> failWith "No such method" meth
-                Just (this, mros') -> do
-                    rv' <- genNext mros'
-                    case rv' of
-                        Just next -> enterLex [("&?NEXT", toNative next)] $
-                            callSub this args
-                        Nothing -> callSub this args
+    mros    <- getMRO
+    rv      <- findMRO mros
+    case rv of
+        Nothing -> failWith "No such method" meth
+        Just (this, mros') -> do
+            rv' <- genNext mros'
+            case rv' of
+                Just next -> enterLex [("&?NEXT", toNative next)] $
+                    callSub this args
+                Nothing -> callSub this args
     where
     lex = [("$?SELF", obj), ("$?CLASS", cls)]
     cls = o_class obj
