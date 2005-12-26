@@ -77,8 +77,8 @@ syn cluster p6Interp contains=p6VarPlain,p6InterpExpression,p6VarPunct,p6VarExce
 syn region p6InterpExpression contained matchgroup=p6Variable start=+{+ skip=+\\}+ end=+}+ contains=TOP
 
 " FIXME: This ugly hack will show up later on. Once again, don't try to fix it.
-" syn region p6ParenExpression start="\(<\s*\)\@<!(" end=")" matchgroup=p6Error end="[\]}]" transparent
-" syn region p6BracketExpression start="\[" end="]" matchgroup=p6Error end="[})]" transparent
+syn region p6ParenExpression start="\(<\s*\)\@<!(" end=")" transparent
+syn region p6BracketExpression start="\[" end="]" transparent
 
 " Double-quoted, qq, qw, qx, `` strings
 syn region p6InterpString start=+"+ skip=+\\"+ end=+"+ contains=@p6Interp
