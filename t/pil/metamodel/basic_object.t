@@ -46,7 +46,7 @@ CODE,
 '... ::Foo.is_a(::Object)');
 
 pil_is_eq($prelude ~ q:to/CODE/
--> $c { $c.name() }.do_for(::Foo.MRO());
+-> $c { $c.name() }`do_for(::Foo.MRO());
 CODE,
 '["Foo", "Object"]', 
 '... got the right MRO for ::Foo');
@@ -55,7 +55,7 @@ CODE,
 
 pil_is_eq($prelude ~ q:to/CODE/
 $iFoo := ::Foo.new({});
-$iFoo.class`eq(::Foo);
+$iFoo.class()`eq(::Foo);
 CODE,
 'true',
 '... we can create an instance of ::Foo');

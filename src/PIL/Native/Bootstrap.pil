@@ -122,7 +122,7 @@
                         -> { true     },
                         -> { &redo`() }
                     );
-                }`do_if($ancestor.not_nil)
+                }`do_if($ancestor`not_nil)
             }`();
         }
     );
@@ -301,6 +301,9 @@
 ::Object.add_method('BUILD',      ::Class.get_method('BUILD'));
 ::Object.add_method('BUILDALL',   ::Class.get_method('BUILDALL'));
 ::Object.add_method('DESTROYALL', ::Class.get_method('DESTROYALL'));
+
+::Object.add_method('class', -> { self`class(); });
+::Object.add_method('id',    -> { self`id();    });
 
 ::Object.add_method('isa', -> $class {
     $?CLASS.name`eq($class)`cond(

@@ -20,26 +20,26 @@ my $prelude = q:to/PRELUDE/
 PRELUDE;
 
 pil_is_eq($prelude ~
-'-> $r { $r.name; }.do_for(::rFoo.collect_all_roles());', 
+'-> $r { $r.name; }`do_for(::rFoo.collect_all_roles());', 
 '[]',
 '... got the correct set of roles from ::rFoo');
 
 pil_is_eq($prelude ~
-'-> $r { $r.name; }.do_for(::rBar.collect_all_roles());', 
+'-> $r { $r.name; }`do_for(::rBar.collect_all_roles());', 
 '["rFoo"]',
 '... got the correct set of roles from ::rBar');
 
 pil_is_eq($prelude ~
-'-> $r { $r.name; }.do_for(::rFooBar.collect_all_roles());', 
+'-> $r { $r.name; }`do_for(::rFooBar.collect_all_roles());', 
 '["rFoo", "rBar"]',
 '... got the correct set of roles from ::rFooBar');
 
 pil_is_eq($prelude ~
-'-> $r { $r.name; }.do_for(::rBaz.collect_all_roles());', 
+'-> $r { $r.name; }`do_for(::rBaz.collect_all_roles());', 
 '["rBar", "rFoo"]',
 '... got the correct set of roles from ::rBaz');
 
 pil_is_eq($prelude ~
-'-> $r { $r.name; }.do_for(::Bling.collect_all_roles());', 
+'-> $r { $r.name; }`do_for(::Bling.collect_all_roles());', 
 '["rFooBar", "rFoo", "rBar", "rBaz"]',
 '... got the correct set of roles from ::Bling');

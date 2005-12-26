@@ -83,7 +83,7 @@ my $point3d = $point ~ q:to/POINT3D/
 ::Point3D.add_method('get_z',     -> { self`get_attr('$!z') });
 ::Point3D.add_method('clear', -> { 
     self`set_attr('$!z', 0);
-    &?NEXT.();
+    &?NEXT`();
 });
 
 $point3d := ::Point3D.new({ '$x' => 2, '$y' => 3, '$!z' => 4 });

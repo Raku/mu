@@ -14,13 +14,13 @@ my $classes = q:to/CLASSES/
 ::Bar := ::Class.new({});
 ::Bar.set_superclasses([ ::Foo ]);
 ::Bar.add_method('foo', -> $x { 
-    'Bar::foo('`concat($x)`concat(') -> ')`concat(&?NEXT.($x)) 
+    'Bar::foo('`concat($x)`concat(') -> ')`concat(&?NEXT`($x)) 
 });
 
 ::Baz := ::Class.new({});
 ::Baz.set_superclasses([ ::Bar ]);
 ::Baz.add_method('foo', -> $x { 
-    'Baz::foo('`concat($x)`concat(') -> ')`concat(&?NEXT.($x)) 
+    'Baz::foo('`concat($x)`concat(') -> ')`concat(&?NEXT`($x)) 
 });
 
 CLASSES;
@@ -46,19 +46,19 @@ my $classes2 = q:to/CLASSES2/
 ::Foo := ::Class.new({});
 ::Foo.set_superclasses([ ::Object ]);
 ::Foo.add_method('foo', -> $x { 
-    'Foo::foo('.concat($x).concat(')') 
+    'Foo::foo('`concat($x)`concat(')') 
 });
 
 ::Bar := ::Class.new({});
 ::Bar.set_superclasses([ ::Foo ]);
 ::Bar.add_method('foo', -> $x { 
-    'Bar::foo('`concat($x)`concat(') -> ')`concat(&?NEXT.($x`increment())) 
+    'Bar::foo('`concat($x)`concat(') -> ')`concat(&?NEXT`($x`increment())) 
 });
 
 ::Baz := ::Class.new({});
 ::Baz.set_superclasses([ ::Bar ]);
 ::Baz.add_method('foo', -> $x { 
-    'Baz::foo('`concat($x)`concat(') -> ')`concat(&?NEXT.($x`increment())) 
+    'Baz::foo('`concat($x)`concat(') -> ')`concat(&?NEXT`($x`increment())) 
 });
 
 CLASSES2;

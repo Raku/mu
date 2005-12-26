@@ -73,7 +73,7 @@ pil_is_eq(q:to/EXAMPLE/
 ::C := ::Class.new({ '$!name' => 'C', '@!superclasses' => [ ::D, ::F ] });
 ::B := ::Class.new({ '$!name' => 'B', '@!superclasses' => [ ::D, ::E ] });
 ::A := ::Class.new({ '$!name' => 'A', '@!superclasses' => [ ::B, ::C ] });
--> $c { $c.name() }.do_for(::A.MRO());
+-> $c { $c.name() }`do_for(::A.MRO());
 EXAMPLE,
 '["A", "B", "C", "D", "E", "F", "Object"]',
 '... got the right MRO');
@@ -120,7 +120,7 @@ pil_is_eq(q:to/EXAMPLE/
 ::C := ::Class.new({ '$!name' => 'C', '@!superclasses' => [ ::D, ::F ] });
 ::B := ::Class.new({ '$!name' => 'B', '@!superclasses' => [ ::E, ::D ] });
 ::A := ::Class.new({ '$!name' => 'A', '@!superclasses' => [ ::B, ::C ] });
--> $c { $c.name() }.do_for(::A.MRO());
+-> $c { $c.name() }`do_for(::A.MRO());
 EXAMPLE,
 '["A", "B", "E", "C", "D", "F", "Object"]',
 '... got the right MRO');
@@ -142,7 +142,7 @@ pil_is_eq(q:to/EXAMPLE/
 ::C := ::Class.new({ '$!name' => 'C', '@!superclasses' => [ ::D ] });
 ::B := ::Class.new({ '$!name' => 'B', '@!superclasses' => [ ::D ] });
 ::A := ::Class.new({ '$!name' => 'A', '@!superclasses' => [ ::B, ::C ] });
--> $c { $c.name() }.do_for(::A.MRO());
+-> $c { $c.name() }`do_for(::A.MRO());
 EXAMPLE,
 '["A", "B", "C", "D", "Object"]',
 '... got the right MRO');
@@ -180,7 +180,7 @@ pil_is_eq(q:to/EXAMPLE/
 ::Intelligent := ::Class.new({ '$!name' => 'Intelligent', '@!superclasses' => [ ::Sentient ] });
 ::Humanoid    := ::Class.new({ '$!name' => 'Humanoid',    '@!superclasses' => [ ::BiPedal ] });
 ::Vulcan      := ::Class.new({ '$!name' => 'Vulcan',      '@!superclasses' => [ ::Intelligent, ::Humanoid ] });
--> $c { $c.name() }.do_for(::Vulcan.MRO());
+-> $c { $c.name() }`do_for(::Vulcan.MRO());
 EXAMPLE,
 '["Vulcan", "Intelligent", "Sentient", "Humanoid", "BiPedal", "LifeForm", "Object"]',
 '... got the right MRO');
