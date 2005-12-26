@@ -9,9 +9,9 @@ import qualified Data.Seq as NSeq
 import qualified Data.FastPackedString as NStr
 import Data.Ratio
 import Data.List (find)
-import Data.Seq (Seq, empty)
+import Data.Seq (Seq, fromList)
 import Data.Map (Map, insert, lookup, toAscList, (!))
-import Data.FastPackedString (pack, null, drop, dropSpace, length, isPrefixOf)
+import Data.FastPackedString (empty, pack, null, drop, dropSpace, length, isPrefixOf)
 
 data Op
     = Infix         { str :: !Str, assoc :: !Assoc }
@@ -40,12 +40,16 @@ data Token = MkToken
     , tokPrec  :: !Precedence
     , tokArity :: !Arity
     , tokClose :: !(Maybe Op)
+    , tokNull  :: !Bool -- null-width assertion
     }
-    deriving (Eq, Show, Ord)
+    deriving (Eq, Show)
+
+instance Ord Token where
+    compare x y = compare (tokPrec x) (tokPrec y)
 
 data Match = MkMatch
     { matchOp   :: !Op
-    , matchSubs :: !(Seq Match)
+    , matchArgs :: !(Seq Match)
     }
     deriving (Eq, Show, Ord)
 
@@ -102,6 +106,7 @@ addToken table op rel ws = doCloseOp . doInsert $ table{ tableEntries = ents' }
         , tokPrec  = calculatePrec rel ents
         , tokArity = arityOf op
         , tokClose = maybeOpClose
+        , tokNull  = False
         }
     doInsert = insertBy op tok ws
     (doCloseOp, doCloseEntry, maybeOpClose)
@@ -117,6 +122,7 @@ addToken table op rel ws = doCloseOp . doInsert $ table{ tableEntries = ents' }
         , tokPrec   = tokPrec tok
         , tokArity  = 0
         , tokClose  = Nothing
+        , tokNull   = False
         }
 
 arityOf :: Op -> Arity
@@ -163,8 +169,8 @@ calculatePrec :: PrecRelation -> EntryMap -> Precedence
 calculatePrec DefaultPrec _ = defaultPrec
 calculatePrec rel toks = case rel of
     SameAs {}       -> prec
-    TighterThan {}  -> prec / 2
-    LooserThan {}   -> prec / 2 * 3
+    LooserThan {}   -> prec / 2
+    TighterThan {}  -> prec / 2 * 3
     where
     prec = tokPrec (toks ! (relOp rel))
 
@@ -185,12 +191,12 @@ parse tbl str = let ?termStack  = []
 expectTerm :: Parse Match
 expectTerm
     | null ?str = nullTerm
-    | otherwise = let ?str = str' in matchWith foundTerm (error "no match") terms
+    | otherwise = let ?str = str' in matchWith foundTerm emptyTerm terms
     where
     str'  = dropSpace ?str
     terms = (if length str' == length ?str then tableTerms else tableWsTerms) ?tbl
 
-matchWith :: (Token -> Parse a) -> Parse a -> TokenMap -> Parse a
+matchWith :: Parse (Parse (Token -> a) -> Parse a -> TokenMap -> a)
 matchWith ok nok tmap = case find ((`isPrefixOf` ?str) . termToStr . fst) (toAscList tmap) of
     Just (term, token) -> let ?str = drop (termLength term) ?str in ok token
     _                  -> nok
@@ -200,33 +206,104 @@ isTerm Term{}    = True
 isTerm DynTerm{} = True
 isTerm _         = False
 
-foundTerm :: Token -> Parse Match
+foundTerm :: Parse (Token -> Match)
 foundTerm token
-    | isTerm (tokOp token) = let ?termStack = (match: ?termStack) in expectOper
-    | otherwise            = operShift token match
-    where
-    match = (MkMatch (tokOp token) empty)
+    | isTerm (tokOp token) = pushTermStack token expectOper
+    | otherwise            = operShift token
 
-operShift :: Token -> Match -> Parse Match
-operShift = undefined
+pushTermStack :: Parse (Token -> Parse a -> Parse a)
+pushTermStack token p = let ?termStack = (mkMatch token: ?termStack) in p
+
+pushOperStack :: Parse (Token -> Parse a -> Parse a)
+pushOperStack token p = let ?operStack = (mkMatch token: ?operStack) in p
+
+pushTokenStack :: Parse (Token -> Parse a -> Parse a)
+pushTokenStack token p = let ?tokenStack = (token: ?tokenStack) in p
+
+mkMatch :: Token -> Match
+mkMatch token = (MkMatch (tokOp token) NSeq.empty)
 
 expectOper :: Parse Match
 expectOper
     | null str' = endParse
-    | otherwise = let ?str = str' in matchWith foundTerm (error "no match") opers
+    | otherwise = let ?str = str' in matchWith foundOper emptyOper opers
     where
     str'  = dropSpace ?str
     opers = (if length str' == length ?str then tableOpers else tableWsOpers) ?tbl
 
 nullTerm :: Parse Match
-nullTerm = undefined
+nullTerm | (t@MkToken{ tokNull = True }:_) <- ?tokenStack = pushTermStack t expectOper
+         | otherwise = error "Missing term"
+
+emptyTerm :: Parse Match
+emptyTerm = case lookup (MkTerm empty) (tableTerms ?tbl) of
+    Just term -> foundTerm term
+    Nothing   -> nullTerm
+
+emptyOper :: Parse Match
+emptyOper = case lookup (MkTerm empty) (tableOpers ?tbl) of
+    Just oper -> foundOper oper
+    Nothing   -> endParse
+
+foundOper :: Parse (Token -> Parse Match)
+foundOper oper
+    | (top:_) <- ?tokenStack = case tokOp top of
+        Postfix{}                   -> operReduce oper
+        topOp       | Close{} <- op -> if isClosing topOp
+            then if str op == str2 topOp
+                then operShift oper
+                else endParse
+            else operReduce oper
+        Circumfix{}                 -> operShift oper
+        PostCircumfix{}             -> operShift oper
+        _           | oper > top    -> operShift oper
+        Ternary{}                   -> case op of
+            Ternary{}   -> error "Missing ternary close"
+            _           -> operShift oper
+        _           | oper < top    -> operReduce oper
+        Infix{ assoc = AssocRight } -> operShift oper
+        _                           -> operReduce oper
+    | Close{} <- op          = endParse
+    | otherwise              = operShift oper
+    where
+    op = tokOp oper
+
+operShift :: Parse (Token -> Parse Match)
+operShift token = pushTokenStack token (pushOperStack token (case tokOp token of
+        Prefix{}        -> expectTerm
+        Infix{}         -> expectTerm
+        Ternary{}       -> expectTerm
+        PostCircumfix{} -> expectTerm
+        Circumfix{}     -> expectTerm
+        Postfix{}       -> expectOper
+        _ | (_:MkToken{tokOp=Ternary{}}:_) <- ?tokenStack
+                        -> expectTerm
+        _               -> expectOper
+    ))
+
+operReduce :: Token -> Parse Match 
+operReduce oper = reduce (foundOper oper)
 
 endParse :: Parse Match
-endParse | [] <- ?tokenStack = head ?termStack
-         | otherwise         = reduce endParse
+endParse
+    | [] <- ?tokenStack = head ?termStack
+    | otherwise         = reduce endParse
 
-reduce :: Parse a -> Parse a
-reduce = undefined
+reduce :: Parse (Parse Match -> Match)
+reduce p = case ?tokenStack of
+    (MkToken{tokOp=Close{}}:t:ts) ->
+        let ?operStack  = tail ?operStack
+            ?tokenStack = ts
+         in reduce1 (tokArity t) p
+    (t:ts)  -> let ?tokenStack = ts in reduce1 (tokArity t) p
+    _       -> error "reducing an empty token stack"
+
+reduce1 :: Parse (Arity -> Parse Match -> Match)
+reduce1 arity p =
+    let (op:opers)    = ?operStack
+        (args, terms) = splitAt arity ?termStack
+     in let ?operStack = opers
+            ?termStack = (op{matchArgs = fromList (reverse args)}:terms) in p
 
 mkOpTable :: [[(Whitespace, Op)]] -> OpTable
 mkOpTable = fst . Prelude.foldl mkOps (emptyTable, DefaultPrec)
