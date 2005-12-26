@@ -21,29 +21,29 @@ Here are some examples of the syntax:
 
 Numbers:
 
-  1.add(1);  # 1 + 1 = 2
+  1`add(1);  # 1 + 1 = 2
 
 Strings:
 
-  "Hello".concat(", world"); # "Hello" ~ ", world" 
+  "Hello"`concat(", world"); # "Hello" ~ ", world" 
 
 Lists:
   
-  [].push(1, 2, 3); # create a new array and push 1, 2, 3 to it
-  [1, 2, 3.add(1)]; # creates array with 1, 2 & 4 in it 
+  []`push(1, 2, 3); # create a new array and push 1, 2, 3 to it
+  [1, 2, 3`add(1)]; # creates array with 1, 2 & 4 in it 
   
 Hashes:
 
-  {}.store("key" => 2); # create a hash with one key ("key") and one value (2)
+  {}`store("key" => 2); # create a hash with one key ("key") and one value (2)
   
 Blocks:  
   
   -> $x { $x }; # create a closure which returns it's own argument
-  (-> $x { $x.add(1) }).(3); # call a closure with .() 
+  (-> $x { $x`add(1) })`(3); # call a closure with `() 
 
 Method Invocation:
 
-  $x`foo(1, 2);   # native method call
+  $x`foo(1, 2);   # primitive method call
   $x.foo(1, 2);   # desugars into $x.send('foo', 1, 2)
   $x!foo(1, 2);   # desugars into $x.send_private('foo', 1, 2)
 
@@ -51,13 +51,13 @@ More complex examples:
 
   # Factorial of 10
   
-  (-> $n { (-> &fact { &fact.(&fact, $n) })
-      .(-> &f, $x {
-          $x.eq(0).cond(
+  (-> $n { (-> &fact { &fact`(&fact, $n) })
+      `(-> &f, $x {
+          $x`eq(0)`cond(
               -> { 1 },
-              -> { $x.multiply( &f.(&f, $x.subtract(1)) ) })
+              -> { $x`multiply( &f`(&f, $x`subtract(1)) ) })
       });
-  }).(10);
+  })`(10);
 
 See Also:
 
