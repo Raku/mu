@@ -239,10 +239,15 @@ callObject obj meth args = enterLex lex $ do
             else return (map fromNative $ elems mro)
     findMRO [] = return Nothing
     findMRO (c:cs) = do
-        meths <- c ... "%!methods" :: Eval NativeMap
+        -- XXX Kluge - should split up based on the send_ variety
+        meths <- c ... "%!private_methods" :: Eval NativeMap
         case meths `fetch` meth of
             Just x  -> return $ Just (fromNative x, cs)
-            _       -> findMRO cs
+            _       -> do
+                meths <- c ... "%!methods" :: Eval NativeMap
+                case meths `fetch` meth of
+                    Just x  -> return $ Just (fromNative x, cs)
+                    _       -> findMRO cs
 
 mroMerge :: Eq a => [[a]] -> [a]
 mroMerge = reverse . doMerge []
