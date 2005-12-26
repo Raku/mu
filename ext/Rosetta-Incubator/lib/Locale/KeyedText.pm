@@ -195,10 +195,11 @@ method translate_message (Locale::KeyedText::Message $message!)
 submethod template_module_is_loaded (Str $module_name!) returns Bool {
     die 'invalid arg'
         if !$module_name.defined or $module_name eq $EMPTY_STR;
-    # BUG: this always returns 1, need to find correct solution
-    return defined ::($module_name);
-#    return; # with this instead, external Templates work, internal ones fail
-#    return 1; # with this instead, internals work, externals fail
+    # Note: It is yet unknown whether this is working because the language
+    # spec says it is supposed to, or whether is due a fluke or unspecced.
+    # Currently, "::($m).ref" returns 'Type' if the package name in $m is
+    # not loaded, and it returns one of ['Class','Module', etc] if it is.
+    return ::($module_name).does(Module);
 }
 
 submethod load_template_module (Str $module_name!) {
