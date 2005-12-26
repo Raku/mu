@@ -182,10 +182,9 @@ sub optional ($p, :$minimal = 0) is export {
 
 =pod
 
-C<capture($p, :num($num), :name($name))> will capture whatever C<$p>
-matched into C<$match.match_num[$num]> and C<$match.match_name{$name}>.
-C<$p> will be given a fresh, empty C<$match.match> to fill (this
-introduces a new scope).
+C<capture($p, :num($num), :name($name))> will capture whatever C<$p> matched
+into C<$match.capture_num[$num]> and C<$match.capture_name{$name}>.  C<$p> will
+be given a fresh, empty C<$match.match> to fill (this introduces a new scope).
 
 =cut
 
@@ -200,25 +199,25 @@ sub capture (Parser $p, :$num, :$name) is export {
                             end => $m.pos,
                         );
                         my $mmat = $match.match;
-                        my $newnump = $mmat.match_num;
-                        my $newnamep = $mmat.match_name;
+                        my $newnump = $mmat.capture_num;
+                        my $newnamep = $mmat.capture_name;
                         if defined $num {
                             my $newnum = defined $num
-                                            ?? multidex($mmat.match_num[$num], $match.match.multidex, $subobj) 
-                                            !! $mmat.match_num[$num];
+                                            ?? multidex($mmat.capture_num[$num], $match.match.multidex, $subobj) 
+                                            !! $mmat.capture_num[$num];
                             $newnump = [ @$newnump ];
                             $newnump[$num] = $newnum;
                         }
                         if defined $name {
                             my $newname = defined $name
-                                            ?? multidex($mmat.match_name{$name}, $match.match.multidex, $subobj)
-                                            !! $mmat.match_name{$name};
+                                            ?? multidex($mmat.capture_name{$name}, $match.match.multidex, $subobj)
+                                            !! $mmat.capture_name{$name};
                             $newnamep = { %$newnamep };
                             $newnamep{$name} = $newname;
                         }
                         my $obj = $mmat.clone(
-                            match_num => $newnump,
-                            match_name => $newnamep,
+                            capture_num => $newnump,
+                            capture_name => $newnamep,
                         );
 
                         &continue($m.clone(match => $obj));

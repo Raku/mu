@@ -110,27 +110,27 @@ my $match;
 
 ($desc, $pat) = ('/(x)/', capture(Text::literal("x"), :num(0)));
     $match = matches "x";
-    is_range($match.match_num[0], 0, 1);
+    is_range($match.capture_num[0], 0, 1);
     matches_not "";
     matches_not "xx";
 
 ($desc, $pat) = ('/xy(zz)/', concat(Text::literal("xy"), capture(Text::literal("zz"), :num(0))));
     $match = matches "xyzz";
-    is_range($match.match_num[0], 2, 4);
+    is_range($match.capture_num[0], 2, 4);
 
 ($desc, $pat) = ('/(xy) $zs := (zz)/', concat(capture(Text::literal("xy"), :num(0)), 
                                               capture(Text::literal("zz"), :num(1), :name<zs>)));
     $match = matches "xyzz";
-    is_range($match.match_num[0], 0, 2);
-    is_range($match.match_num[1], 2, 4);
-    is_range($match.match_name<zs>, 2, 4);
+    is_range($match.capture_num[0], 0, 2);
+    is_range($match.capture_num[1], 2, 4);
+    is_range($match.capture_name<zs>, 2, 4);
 
 ($desc, $pat) = ('/(x|y)*/', quantify(capture(alternate(Text::literal("x"), Text::literal("y")), :num(0))));
     $match = matches "xyyx";
-    is_range($match.match_num[0][0], 0, 1);
-    is_range($match.match_num[0][1], 1, 2);
-    is_range($match.match_num[0][2], 2, 3);
-    is_range($match.match_num[0][3], 3, 4);
+    is_range($match.capture_num[0][0], 0, 1);
+    is_range($match.capture_num[0][1], 1, 2);
+    is_range($match.capture_num[0][2], 2, 3);
+    is_range($match.capture_num[0][3], 3, 4);
 
 ($desc, $pat) = ('/[ (foo|bar) $bq:=(baz|quux) ]+/', 
                     quantify( :low(1),
@@ -139,15 +139,15 @@ my $match;
     matches_not "";
     matches_not "foobazbar";
     $match = matches "foobazbarquuxbarbaz";
-    is_range($match.match_num[0][0], 0,3);
-    is_range($match.match_num[0][1], 6,9);
-    is_range($match.match_num[0][2], 13,16);
-    is_range($match.match_num[1][0], 3,6);
-    is_range($match.match_num[1][1], 9,13);
-    is_range($match.match_num[1][2], 16,19);
-    is_range($match.match_name<bq>[0], 3,6);
-    is_range($match.match_name<bq>[1], 9,13);
-    is_range($match.match_name<bq>[2], 16,19);
+    is_range($match.capture_num[0][0], 0,3);
+    is_range($match.capture_num[0][1], 6,9);
+    is_range($match.capture_num[0][2], 13,16);
+    is_range($match.capture_num[1][0], 3,6);
+    is_range($match.capture_num[1][1], 9,13);
+    is_range($match.capture_num[1][2], 16,19);
+    is_range($match.capture_name<bq>[0], 3,6);
+    is_range($match.capture_name<bq>[1], 9,13);
+    is_range($match.capture_name<bq>[2], 16,19);
 
 ($desc, $pat) = ('/[ [ x ]* ]*/', quantify(quantify(Text::literal("x"))));
     matches "x";
@@ -163,7 +163,7 @@ my $match;
                             Text::literal('"')),
                         quantify(Text::any_char())));
     $match = matches q{"foobar"baz"quux"ziph};
-    is_range($match.match_num[0], 1, 16);
+    is_range($match.capture_num[0], 1, 16);
 
 ($desc, $pat) = ('/"(.*?)".*/', 
                     concat(
@@ -175,7 +175,7 @@ my $match;
                             Text::literal('"')),
                         quantify(Text::any_char())));
     $match = matches q{"foobar"baz"quux"ziph};
-    is_range($match.match_num[0], 1, 7);
+    is_range($match.capture_num[0], 1, 7);
 
 ($desc, $pat) = ('/ x*:x /', 
                  concat(

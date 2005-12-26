@@ -37,16 +37,16 @@ class Match {
     has Medium $.start;
     has Medium $.end;
     
-    has Match $.match_num;
-    has Match $.match_name;
+    has Match $.capture_num;
+    has Match $.capture_name;
 
     has $.multidex;  # Match doesn't seem the right place to store this
                      # but neither does Result
                      # maybe there's a level of indirection in between
 
     submethod BUILD () {
-        $.match_num //= [];
-        $.match_name //= {};
+        $.capture_num //= [];
+        $.capture_name //= {};
         $.multidex //= [];
     }
 }
