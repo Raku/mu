@@ -203,18 +203,23 @@ traceObject obj args = liftIO $ do
 
 callObject :: NativeObj -> NativeStr -> NativeSeq -> Eval Native
 callObject obj meth args = enterLex lex $ do
-    mros    <- getMRO
-    rv      <- findMRO mros
-    case rv of
-        Nothing -> case objPrims `fetch` meth of
-            Just f  -> f obj args
-            Nothing -> failWith "No such method" meth
-        Just (this, mros') -> do
-            rv' <- genNext mros'
-            case rv' of
-                Just next -> enterLex [("&?NEXT", toNative next)] $
-                    callSub this args
-                Nothing -> callSub this args
+    -- XXX Kluge - should split up based on the send_ variety
+    meths <- cls ... "%!private_methods" :: Eval NativeMap
+    case meths `fetch` meth of
+        Just x  -> callSub (fromNative x) args
+        _       -> do
+            mros    <- getMRO
+            rv      <- findMRO mros
+            case rv of
+                Nothing -> case objPrims `fetch` meth of
+                    Just f  -> f obj args
+                    Nothing -> failWith "No such method" meth
+                Just (this, mros') -> do
+                    rv' <- genNext mros'
+                    case rv' of
+                        Just next -> enterLex [("&?NEXT", toNative next)] $
+                            callSub this args
+                        Nothing -> callSub this args
     where
     lex = [("$?SELF", obj), ("$?CLASS", cls)]
     cls = o_class obj
@@ -239,15 +244,10 @@ callObject obj meth args = enterLex lex $ do
             else return (map fromNative $ elems mro)
     findMRO [] = return Nothing
     findMRO (c:cs) = do
-        -- XXX Kluge - should split up based on the send_ variety
-        meths <- c ... "%!private_methods" :: Eval NativeMap
+        meths <- c ... "%!methods" :: Eval NativeMap
         case meths `fetch` meth of
             Just x  -> return $ Just (fromNative x, cs)
-            _       -> do
-                meths <- c ... "%!methods" :: Eval NativeMap
-                case meths `fetch` meth of
-                    Just x  -> return $ Just (fromNative x, cs)
-                    _       -> findMRO cs
+            _       -> findMRO cs
 
 mroMerge :: Eq a => [[a]] -> [a]
 mroMerge = reverse . doMerge []
