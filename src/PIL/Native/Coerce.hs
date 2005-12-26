@@ -81,6 +81,7 @@ class IsPlural a key val | a -> key, a -> val where
     splice      :: a -> Int -> a
     fetch       :: a -> key -> Maybe val
     insert      :: a -> key -> val -> a
+    delete      :: a -> key -> a
     (!)         :: a -> key -> val
     (!) x k = maybe (error "index out of bounds") id $ fetch x k
 
@@ -101,6 +102,7 @@ instance IsPlural NativeStr NativeInt NativeStr where
         | n < 0     = fail "negative index"
         | n >= l    = fail "index out of bounds"
         | otherwise = return $ NStr.PS p (s + n) 1
+    delete     = error "It doesn't make sense to delete from a string"
     insert     = error "XXX str.insert"
 
 instance (Ord k, Show k) => IsPlural (NMap.Map k v) k v where
@@ -117,6 +119,7 @@ instance (Ord k, Show k) => IsPlural (NMap.Map k v) k v where
     assocs     = NMap.assocs
     fromAssocs = NMap.fromList
     fetch      = flip NMap.lookup
+    delete     = flip NMap.delete    
     insert     = \o k v -> NMap.insert k v o
     (!) x k    = case NMap.lookup k x of
         Just v  -> v
@@ -139,6 +142,7 @@ instance IsPlural (SeqOf a) NativeInt a where
                  | otherwise   = Just (NSeq.index x k)
     insert x k v | k == size x = (NSeq.|>) x v
                  | otherwise   = NSeq.update k v x
+    delete       = error "It doesn't make sense to delete from an array"                 
     (!)          = NSeq.index
 
 class Show a => IsNative a where 

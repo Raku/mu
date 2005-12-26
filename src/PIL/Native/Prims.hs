@@ -153,6 +153,7 @@ mapPrims = mkMap
     , prim1 "concat"     (append)
     , prim1 "fetch"      (fetch)
     , prim1 "exists"     (exists)
+    , prim1 "delete"     (delete)    
     , prim2 "store"      (insert)
     , primX "push"       (pushHash)
     ]

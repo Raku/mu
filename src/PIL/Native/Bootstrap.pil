@@ -187,38 +187,31 @@
     self`get_attr('%!methods')`keys(); 
 });
 
-## can we actually do remove_method??
-# ::Class.add_method('remove_method', -> $name { 
-#     self`get_attr('%!methods')`delete($name); 
-# });
+::Class.add_method('remove_method', -> $name { 
+    self`set_attr('%!methods', self`get_attr('%!methods')`delete($name));
+});
 
 ## private-method related methods
 
-# NOTE:
-# these all should be accessing %!private_methods and
-# not %!methods, but private method dispatch is not 
-# currently correct.
-
 ::Class.add_method('add_private_method', -> $name, $method { 
-    self`set_attr_hash('%!methods', $name, $method);
+    self`set_attr_hash('%!private_methods', $name, $method);
 });
 
 ::Class.add_method('has_private_method', -> $name { 
-    self`get_attr('%!methods')`exists($name);
+    self`get_attr('%!private_methods')`exists($name);
 });
 
 ::Class.add_method('get_private_method', -> $name { 
-    self`get_attr('%!methods')`fetch($name); 
+    self`get_attr('%!private_methods')`fetch($name); 
 });
 
 ::Class.add_method('get_private_method_list', -> { 
-    self`get_attr('%!methods')`keys(); 
+    self`get_attr('%!private_methods')`keys(); 
 });
 
-## can we actually do remove_method??
-# ::Class.add_method('remove_private_method', -> $name { 
-#     self`get_attr('%!methods')`delete($name); 
-# });
+::Class.add_method('remove_private_method', -> $name { 
+    self`set_attr('%!private_methods', self`get_attr('%!private_methods')`delete($name)); 
+});
 
 ## Method dispatching
 
@@ -248,6 +241,7 @@
 ::Class.add_private_method('make_ascent_dispatcher', -> {
     self!make_dispatcher_iterator(self.MRO);
 });
+
 ::Class.add_private_method('make_descendant_dispatcher', -> {
     self!make_dispatcher_iterator(self.MRO`reverse);
 });
@@ -267,6 +261,10 @@
     self`get_attr('%!attributes')`fetch($name); 
 });
 
+::Class.add_method('remove_attribute', -> $name { 
+    self`set_attr('%!attributes', self`get_attr('%!attributes')`delete($name)); 
+});
+
 ::Class.add_method('get_attribute_list', -> { 
     self`get_attr('%!attributes')`keys(); 
 });
@@ -283,7 +281,7 @@
 ::Class.add_attribute('@!MRO',             []);
 ::Class.add_attribute('@!superclasses',    []);
 ::Class.add_attribute('@!subclasses',      []);
-::Class.add_attribute('%!private_methods', {}); # << these are not handled yet
+::Class.add_attribute('%!private_methods', {});
 ::Class.add_attribute('%!methods',         {});
 ::Class.add_attribute('%!attributes',      {});
 
@@ -493,37 +491,34 @@
     }.(::`new_opaque({ '@roles' => [], '%seen' => {} }), self);
 });
 
-# NOTE:
-# This is broken! Let me explain why ...
-# 1) we cannot die in the mini-language, so it cannot fail
-#    when role composition fails. This is somewhat trivial 
-#    at the moment since this method does not detect the
-#    failing case anyway :)
-# 2) There exists no concept of a "required" method/attr. 
-#    (this is when a conflict between roles occurs, and 
-#    the item in conflict then is required for the class
-#    to implement). It is also possible to manually require
-#    a method by using a stub in the role (-> { ... })
-# 3) Because we do not properly detect these conflicts, the
-#    result is that the first method/attr encountered in the 
-#    linearized role list is used, and further ones are ignored.
-# Of course, these are known problems with this, so they 
-# will be fixed, but first I want to re-read some of the original
-# traits papers to get some ideas. -- stevan
 ::Role.add_method('resolve', -> {
+    $conflicts := ::`new_opaque({ 'methods' => {}, 'attrs' => {} });
     -> $role {
         -> $method_name {
-            self.has_method($method_name)`cond(
-                -> { nil },
-                -> { self.add_method($method_name, $role.get_method($method_name)) }
+            $conflicts`get_attr('methods')`exists($method_name)`cond(
+                -> { self.remove_method($method_name) },
+                -> {
+                    $conflicts`set_attr_hash('methods', $method_name, 1);
+                    self.has_method($method_name)`cond(
+                        -> { nil },
+                        -> { self.add_method($method_name, $role.get_method($method_name)) }
+                    );                        
+                }
             );
         }.do_for($role.get_method_list);
+        
         -> $attribute_name {
-            self.has_attribute($attribute_name)`cond(
-                -> { nil },
-                -> { self.add_attribute($attribute_name, $role.get_attribute($attribute_name)) }
+            $conflicts`get_attr('attrs')`exists($attribute_name)`cond(
+                -> { self.remove_attribute($attribute_name) },
+                -> {
+                    $conflicts`set_attr_hash('attrs', $attribute_name, 1);
+                    self.has_attribute($attribute_name)`cond(
+                        -> { nil },
+                        -> { self.add_attribute($attribute_name, $role.get_attribute($attribute_name)) }
+                    );                        
+                }
             );
-        }.do_for($role.get_attribute_list);        
+        }.do_for($role.get_attribute_list);    
     }.do_for(self.collect_all_roles());
     -> {
         self.add_method('does', -> $role { 
