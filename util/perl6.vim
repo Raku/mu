@@ -53,7 +53,7 @@ syn region p6CommentPara start="^=for [a-zA-Z]\+$" end="^$" contains=p6Attn
 syn match  p6Shebang "^#!.*"
 
 " POD
-syn region p6POD start="^=\w\+.\+$" end="^=cut" contains=p6Attn,p6PODVerbatim,p6PODHead,p6PODHeadKwid,p6PODSec,p6PODSecKwid
+syn region p6POD start="^=\(cut\)\@!\w\+.\+$" end="^=cut" contains=p6Attn,p6PODVerbatim,p6PODHead,p6PODHeadKwid,p6PODSec,p6PODSecKwid
 
 syn match p6PODVerbatim  "^\s.*"      contained 
 syn match p6PODHeadKwid  "^=\{1,2\} " nextgroup=p6PODTitle contained 
@@ -77,8 +77,8 @@ syn cluster p6Interp contains=p6VarPlain,p6InterpExpression,p6VarPunct,p6VarExce
 syn region p6InterpExpression contained matchgroup=p6Variable start=+{+ skip=+\\}+ end=+}+ contains=TOP
 
 " FIXME: This ugly hack will show up later on. Once again, don't try to fix it.
-syn region p6ParenExpression start="\(<\s*\)\@<!(" end=")" matchgroup=p6Error end="[\]}]" transparent
-syn region p6BracketExpression start="\[" end="]" matchgroup=p6Error end="[})]" transparent
+" syn region p6ParenExpression start="\(<\s*\)\@<!(" end=")" matchgroup=p6Error end="[\]}]" transparent
+" syn region p6BracketExpression start="\[" end="]" matchgroup=p6Error end="[})]" transparent
 
 " Double-quoted, qq, qw, qx, `` strings
 syn region p6InterpString start=+"+ skip=+\\"+ end=+"+ contains=@p6Interp
