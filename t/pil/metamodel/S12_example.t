@@ -36,12 +36,12 @@ my $point = q:to/POINT/
 ::Point.add_attribute('$x', 0);
 ::Point.add_attribute('$y', 0);
 
-::Point.add_method('x',     ->    { self.get_attr('$x')     });
-::Point.add_method('y',     ->    { self.get_attr('$y')     });
-::Point.add_method('set_y', -> $y { self.set_attr('$y', $y) });
+::Point.add_method('x',     ->    { self`get_attr('$x')     });
+::Point.add_method('y',     ->    { self`get_attr('$y')     });
+::Point.add_method('set_y', -> $y { self`set_attr('$y', $y) });
 ::Point.add_method('clear', -> { 
-    self.set_attr('$x', 0);
-    self.set_attr('$y', 0);     
+    self`set_attr('$x', 0);
+    self`set_attr('$y', 0);     
 });
 
 $point := ::Point.new({ '$x' => 1, '$y' => 3 });
@@ -80,9 +80,9 @@ my $point3d = $point ~ q:to/POINT3D/
 
 ::Point3D.add_attribute('$!z', 0);
 
-::Point3D.add_method('get_z',     -> { self.get_attr('$!z') });
+::Point3D.add_method('get_z',     -> { self`get_attr('$!z') });
 ::Point3D.add_method('clear', -> { 
-    self.set_attr('$!z', 0);
+    self`set_attr('$!z', 0);
     &?NEXT.();
 });
 

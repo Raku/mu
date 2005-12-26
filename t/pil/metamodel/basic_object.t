@@ -12,7 +12,7 @@ PRELUDE;
 
 # check the Foo class
 
-pil_is_eq($prelude ~ '::Foo.not_nil()', 'true', '... ::Foo is defined');
+pil_is_eq($prelude ~ '::Foo`not_nil()', 'true', '... ::Foo is defined');
 
 pil_is_eq($prelude ~ '::Foo.isa("Object")', 'true', '... ::Foo.isa(Object)');
 
@@ -55,7 +55,7 @@ CODE,
 
 pil_is_eq($prelude ~ q:to/CODE/
 $iFoo := ::Foo.new({});
-$iFoo.class.eq(::Foo);
+$iFoo.class`eq(::Foo);
 CODE,
 'true',
 '... we can create an instance of ::Foo');
@@ -81,7 +81,7 @@ CODE,
 pil_is_eq($prelude ~ q:to/CODE/
 ::Foo.add_attribute('$foo', '$Foo::foo');
 $iFoo := ::Foo.new({});
-$iFoo.get_attr('$foo').eq('$Foo::foo');
+$iFoo`get_attr('$foo')`eq('$Foo::foo');
 CODE,
 'true',
 '... we can create an instance of ::Foo with attributes (with default values)');
@@ -89,7 +89,7 @@ CODE,
 pil_is_eq($prelude ~ q:to/CODE/
 ::Foo.add_attribute('$foo', '$Foo::foo');
 $iFoo := ::Foo.new({ '$foo' => 'Hello, world' });
-$iFoo.get_attr('$foo').eq('Hello, world');
+$iFoo`get_attr('$foo')`eq('Hello, world');
 CODE,
 'true',
 '... we can create an instance of ::Foo with attributes set using BUILD');
@@ -97,7 +97,7 @@ CODE,
 pil_is_eq($prelude ~ q:to/CODE/
 ::Foo.add_attribute('$foo', '$Foo::foo');
 $iFoo := ::Foo.new({ '$bar' => 'Hello, world' });
-$iFoo.has_attr('$bar');
+$iFoo`has_attr('$bar');
 CODE,
 'false',
 '... un-recognized attrs are ignored by BUILD');

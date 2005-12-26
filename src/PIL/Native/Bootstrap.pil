@@ -11,11 +11,11 @@
         $class := &WALKCLASS.(&dispatcher);
         -> { 
             $method := $class.get_method($label);
-            $method.is_nil.cond(
+            $method`is_nil`cond(
                 -> { &redo.() },
                 -> { $method  } 
             );
-        }.do_if($class.not_nil);
+        }.do_if($class`not_nil);
     }.();
 };
 
@@ -56,17 +56,17 @@
 # kept simple. 
 
 ::Class.add_method('CREATE', -> $repr, %params {
-    $obj := self.new_opaque({});
+    $obj := self`new_opaque({});
     &dispatcher := self.dispatcher('descendant');
     -> {
         &redo  := &?SUB;
         $class := &WALKCLASS.(&dispatcher);
         -> {
             -> $key {
-                $obj.set_attr($key, $class.get_attribute($key));
+                $obj`set_attr($key, $class.get_attribute($key));
             }.do_for($class.get_attribute_list);
             &redo.();
-        }.do_if($class.not_nil);
+        }.do_if($class`not_nil);
     }.();
     $obj;
 });
@@ -79,16 +79,16 @@
         -> {
             $method.(%params);
             &redo.();
-        }.do_if($method.not_nil);
+        }.do_if($method`not_nil);
     }.();
 });
 
 ::Class.add_method('BUILD', -> %params {
     -> $key {
         -> {
-            self.set_attr($key, %params.fetch($key));
-        }.do_if(self.has_attr($key))
-    }.do_for(%params.keys);
+            self`set_attr($key, %params`fetch($key));
+        }.do_if(self`has_attr($key))
+    }.do_for(%params`keys);
 });
 
 ## class destruction
@@ -101,7 +101,7 @@
         -> {
             $method.($self);
             &redo.();
-        }.do_if($method.not_nil);
+        }.do_if($method`not_nil);
     }.();
 });
 
@@ -110,7 +110,7 @@
 # NOTE:
 # is_a is meant to check against class instances 
 ::Class.add_method('is_a', -> $class { 
-    self.eq($class).cond(
+    self`eq($class)`cond(
         -> { true },
         -> {
             &dispatcher := self.dispatcher('descendant');
@@ -118,7 +118,7 @@
                 &redo     := &?SUB;
                 $ancestor := &WALKCLASS.(&dispatcher);      
                 -> {
-                    $ancestor.eq($class).cond(
+                    $ancestor`eq($class)`cond(
                         -> { true     },
                         -> { &redo.() }
                     );
@@ -131,7 +131,7 @@
 # NOTE:
 # isa is meant to check against class names
 ::Class.add_method('isa', -> $class {
-    self.name.eq($class).cond(
+    self.name`eq($class)`cond(
         -> { true },
         -> {
             &dispatcher := self.dispatcher('descendant');            
@@ -139,11 +139,11 @@
                 &redo     := &?SUB;
                 $ancestor := &WALKCLASS.(&dispatcher);                        
                 -> {
-                    $ancestor.name.eq($class).cond(
+                    $ancestor.name`eq($class)`cond(
                         -> { true     },
                         -> { &redo.() }
                     );
-                }.do_if($ancestor.not_nil)
+                }.do_if($ancestor`not_nil)
             }.();
         }
     );    
@@ -151,100 +151,128 @@
 
 ## (super|sub)classes
 
-::Class.add_method('superclasses', -> { self.get_attr('@!superclasses') });
+::Class.add_method('superclasses', -> { self`get_attr('@!superclasses') });
 ::Class.add_method('set_superclasses', -> @superclasses { 
     -> $super { 
         $super.add_subclass(self); 
     }.do_for(@superclasses);
-    self.set_attr('@!superclasses', @superclasses);
-    self.set_attr('@!MRO', self.mro_merge);    
+    self`set_attr('@!superclasses', @superclasses);
+    self`set_attr('@!MRO', self`mro_merge);    
 });
 
 ::Class.add_method('MRO', -> {
-    @mro := self.get_attr('@!MRO');
-    @mro.is_empty.cond(
-        ->{ self.set_attr('@!MRO', self.mro_merge) },
+    @mro := self`get_attr('@!MRO');
+    @mro`is_empty`cond(
+        ->{ self`set_attr('@!MRO', self`mro_merge) },
         ->{ @mro }
     );
 });
 
-::Class.add_method('subclasses',   ->        { self.get_attr('@!subclasses') });
+::Class.add_method('subclasses',   ->        { self`get_attr('@!subclasses') });
 ::Class.add_method('add_subclass', -> $class { 
-    self.set_attr('@!subclasses', self.get_attr('@!subclasses').push($class));
+    self`set_attr('@!subclasses', self`get_attr('@!subclasses')`push($class));
 });
-
-## dispatching
-
-::Class.add_method('_make_dispatcher_iterator', -> @values {
-    $counter := ::.new_opaque({'' => 0});
-    -> {
-        $idx := $counter.get_attr('');
-        $counter.set_attr('', $idx.add(1));
-        @values.fetch($idx);
-    };
-});
-
-::Class.add_method('dispatcher', -> $order {
-    $order := $order.is_nil.or($order.eq('canonical')).cond(
-        ->{ 'ascendant' }, 
-        ->{ $order      }
-    );
-    $order.eq('descendant').cond(
-        ->{ self._make_descendant_dispatcher; },
-        ->{ $order.eq('ascendant').cond(
-            ->{ self._make_ascent_dispatcher;             },
-            ->{ self._unsupported_dispatch_order($order); }
-        ) }
-    );
-});
-
-::Class.add_method('_make_ascent_dispatcher', -> {
-    self._make_dispatcher_iterator(self.MRO);
-});
-::Class.add_method('_make_descendant_dispatcher', -> {
-    self._make_dispatcher_iterator(self.MRO.reverse);
-});
-
 
 ## method related methods
 
 ::Class.add_method('has_method', -> $name { 
-    self.get_attr('%!methods').exists($name);
+    self`get_attr('%!methods')`exists($name);
 });
 
 ::Class.add_method('get_method', -> $name { 
-    self.get_attr('%!methods').fetch($name); 
+    self`get_attr('%!methods')`fetch($name); 
 });
 
 ::Class.add_method('get_method_list', -> { 
-    self.get_attr('%!methods').keys(); 
+    self`get_attr('%!methods')`keys(); 
 });
 
 ## can we actually do remove_method??
 # ::Class.add_method('remove_method', -> $name { 
-#     self.get_attr('%!methods').delete($name); 
+#     self`get_attr('%!methods')`delete($name); 
 # });
+
+## private-method related methods
+
+# NOTE:
+# these all should be accessing %!private_methods and
+# not %!methods, but private method dispatch is not 
+# currently correct.
+
+::Class.add_method('add_private_method', -> $name, $method { 
+    self`set_attr_hash('%!methods', $name, $method);
+});
+
+::Class.add_method('has_private_method', -> $name { 
+    self`get_attr('%!methods')`exists($name);
+});
+
+::Class.add_method('get_private_method', -> $name { 
+    self`get_attr('%!methods')`fetch($name); 
+});
+
+::Class.add_method('get_private_method_list', -> { 
+    self`get_attr('%!methods')`keys(); 
+});
+
+## can we actually do remove_method??
+# ::Class.add_method('remove_private_method', -> $name { 
+#     self`get_attr('%!methods')`delete($name); 
+# });
+
+## Method dispatching
+
+::Class.add_method('dispatcher', -> $order {
+    $order := $order`is_nil`or($order`eq('canonical'))`cond(
+        ->{ 'ascendant' }, 
+        ->{ $order      }
+    );
+    $order`eq('descendant')`cond(
+        ->{ self!make_descendant_dispatcher; },
+        ->{ $order`eq('ascendant')`cond(
+            ->{ self!make_ascent_dispatcher;             },
+            ->{ self!unsupported_dispatch_order($order); }
+        ) }
+    );
+});
+
+::Class.add_private_method('make_dispatcher_iterator', -> @values {
+    $counter := ::`new_opaque({'' => 0});
+    -> {
+        $idx := $counter`get_attr('');
+        $counter`set_attr('', $idx`add(1));
+        @values`fetch($idx);
+    };
+});
+
+::Class.add_private_method('make_ascent_dispatcher', -> {
+    self!make_dispatcher_iterator(self.MRO);
+});
+::Class.add_private_method('make_descendant_dispatcher', -> {
+    self!make_dispatcher_iterator(self.MRO`reverse);
+});
+
 
 ## attribute related methods
 
 ::Class.add_method('add_attribute', -> $name, $attr { 
-    self.set_attr_hash('%!attributes', $name, $attr);
+    self`set_attr_hash('%!attributes', $name, $attr);
 });
 
 ::Class.add_method('has_attribute', -> $name { 
-    self.get_attr('%!attributes').exists($name);
+    self`get_attr('%!attributes')`exists($name);
 });
 
 ::Class.add_method('get_attribute', -> $name { 
-    self.get_attr('%!attributes').fetch($name); 
+    self`get_attr('%!attributes')`fetch($name); 
 });
 
 ::Class.add_method('get_attribute_list', -> { 
-    self.get_attr('%!attributes').keys(); 
+    self`get_attr('%!attributes')`keys(); 
 });
 
 ::Class.add_method('get_attributes', -> { 
-    self.get_attr('%!attributes').values(); 
+    self`get_attr('%!attributes')`values(); 
 });
 
 ## NOTE:
@@ -277,7 +305,7 @@
 ::Object.add_method('DESTROYALL', ::Class.get_method('DESTROYALL'));
 
 ::Object.add_method('isa', -> $class {
-    $?CLASS.name.eq($class).cond(
+    $?CLASS.name`eq($class)`cond(
         -> { true },
         -> {
             &dispatcher := $?CLASS.dispatcher('descendant');            
@@ -285,18 +313,18 @@
                 &redo     := &?SUB;
                 $ancestor := &WALKCLASS.(&dispatcher);                        
                 -> {
-                    $ancestor.name.eq($class).cond(
+                    $ancestor.name`eq($class)`cond(
                         -> { true     },
                         -> { &redo.() }
                     );
-                }.do_if($ancestor.not_nil)
+                }.do_if($ancestor`not_nil)
             }.();
         }
     );    
 });
 
 ::Object.add_method('can', -> $label {
-    &WALKMETH.($?CLASS.dispatcher('descendant'), $label).not_nil.cond(
+    &WALKMETH.($?CLASS.dispatcher('descendant'), $label)`not_nil`cond(
         -> { true  },
         -> { false }
     );
@@ -312,9 +340,9 @@
 ::Package.add_attribute('$!name',      '');
 ::Package.add_attribute('%!namespace', {});
 
-::Package.add_method('name',     -> { self.get_attr('$!name') });
+::Package.add_method('name',     -> { self`get_attr('$!name') });
 ::Package.add_method('set_name', -> $name {
-    -> { self.set_attr('$!name', $name) }.do_if($name.not_nil);    
+    -> { self`set_attr('$!name', $name) }.do_if($name`not_nil);    
 });
 
 ::Package.add_method('FETCH', -> $name { });
@@ -330,24 +358,24 @@
 ::Module.add_attribute('$!version',   '');
 ::Module.add_attribute('$!authority', '');
 
-::Module.add_method('version',     -> { self.get_attr('$!version') });
+::Module.add_method('version',     -> { self`get_attr('$!version') });
 ::Module.add_method('set_version', -> $version {
-    -> { self.set_attr('$!version', $version) }.do_if($version.not_nil);
+    -> { self`set_attr('$!version', $version) }.do_if($version`not_nil);
 });
 
-::Module.add_method('authority',     -> { self.get_attr('$!authority') });
+::Module.add_method('authority',     -> { self`get_attr('$!authority') });
 ::Module.add_method('set_authority', -> $authority {
-    -> { self.set_attr('$!authority', $authority) }.do_if($authority.not_nil);
+    -> { self`set_attr('$!authority', $authority) }.do_if($authority`not_nil);
 });
 
 ::Module.add_method('identifier', -> {
-    $output := self.get_attr('$!name');
-    $output := self.get_attr('$!version').not_nil.cond(
-        -> { $output.concat('-').concat(self.get_attr('$!version')) },
+    $output := self`get_attr('$!name');
+    $output := self`get_attr('$!version')`not_nil`cond(
+        -> { $output`concat('-')`concat(self`get_attr('$!version')) },
         -> { $output }
     );
-    $output := self.get_attr('$!authority').not_nil.cond(
-        -> { $output.concat('-').concat(self.get_attr('$!authority')) },
+    $output := self`get_attr('$!authority')`not_nil`cond(
+        -> { $output`concat('-')`concat(self`get_attr('$!authority')) },
         -> { $output }
     ); 
     $output;
@@ -365,7 +393,7 @@
 # it, but couldn't since they had not yet been defined. 
 
 -> $class {
-    $class.set_attr('%!namespace', {}); 
+    $class`set_attr('%!namespace', {}); 
 }.do_for([ ::Class, ::Object, ::Module, ::Package ]);
 
 # ... now we can name and version all our objects 
@@ -413,27 +441,27 @@
 ::Role.add_method('get_attribute_list', ::Class.get_method('get_attribute_list'));
 ::Role.add_method('get_attributes',     ::Class.get_method('get_attributes'));
 
-::Role.add_method('roles',     -> { self.get_attr('@!roles') });
+::Role.add_method('roles',     -> { self`get_attr('@!roles') });
 ::Role.add_method('set_roles', -> @roles { 
-    self.set_attr('@!roles', @roles); 
+    self`set_attr('@!roles', @roles); 
 });
 
 ::Role.add_method('does', -> $role {
-    self.name.eq($role).cond(
+    self.name`eq($role)`cond(
         -> { true },
         -> {
             @roles := self.collect_all_roles(); 
-            @roles.is_empty.cond(
+            @roles`is_empty`cond(
                 -> { false },
                 -> {
                     -> @r {
                         &redo := &?SUB;
-                        @r.is_empty.cond(
+                        @r`is_empty`cond(
                             -> { false },
                             -> {
-                                @r.fetch(0).name.eq($role).cond(
+                                @r`fetch(0).name`eq($role)`cond(
                                     -> { true },
-                                    -> { &redo.(@r.splice(1)) }
+                                    -> { &redo.(@r`splice(1)) }
                                 )                            
                             }
                         )
@@ -449,20 +477,20 @@
         &recurse := &?SUB;
         -> $r {
            -> {
-               $c.set_attr_hash('%seen', $r.name(), 1);
-               $c.set_attr('@roles', $c.get_attr('@roles').push($r));
+               $c`set_attr_hash('%seen', $r.name(), 1);
+               $c`set_attr('@roles', $c`get_attr('@roles')`push($r));
                -> {
                    -> $subrole {
                        -> {
-                           $c.set_attr_hash('%seen', $subrole.name(), 1);
-                           $c.set_attr('@roles', $c.get_attr('@roles').concat($subrole));
-                       }.do_unless($c.get_attr('%seen').exists($subrole.name()))
+                           $c`set_attr_hash('%seen', $subrole.name(), 1);
+                           $c`set_attr('@roles', $c`get_attr('@roles')`concat($subrole));
+                       }.do_unless($c`get_attr('%seen')`exists($subrole.name()))
                    }.do_for(&recurse.($c, $r));
-               }.do_unless($r.roles.is_empty());
-           }.do_unless($c.get_attr('%seen').exists($r.name()))
+               }.do_unless($r.roles`is_empty());
+           }.do_unless($c`get_attr('%seen')`exists($r.name()))
         }.do_for($role.roles());
-        $c.get_attr('@roles');
-    }.(::.new_opaque({ '@roles' => [], '%seen' => {} }), self);
+        $c`get_attr('@roles');
+    }.(::`new_opaque({ '@roles' => [], '%seen' => {} }), self);
 });
 
 # NOTE:
@@ -485,13 +513,13 @@
 ::Role.add_method('resolve', -> {
     -> $role {
         -> $method_name {
-            self.has_method($method_name).cond(
+            self.has_method($method_name)`cond(
                 -> { nil },
                 -> { self.add_method($method_name, $role.get_method($method_name)) }
             );
         }.do_for($role.get_method_list);
         -> $attribute_name {
-            self.has_attribute($attribute_name).cond(
+            self.has_attribute($attribute_name)`cond(
                 -> { nil },
                 -> { self.add_attribute($attribute_name, $role.get_attribute($attribute_name)) }
             );
@@ -503,6 +531,7 @@
         });
     }.do_unless(self.isa('Role'));
 });
+
 
 ## ------------------------------------------------------------------------- ##
 ## Role Bootstrapping
@@ -525,15 +554,15 @@
 ::Class.add_method('resolve',           ::Role.get_method('resolve'));
 
 # Class does Role
-::Class.set_attr('@!roles', [ ::Role ]);
+::Class`set_attr('@!roles', [ ::Role ]);
 
 # Role does Role
-::Role.set_attr('@!roles',  [ ::Role ]);
+::Role`set_attr('@!roles',  [ ::Role ]);
 
 # make sure to add the @!roles attribute to these
 # since they should have inherited from ::Class
 -> $class {
-    $class.set_attr('@!roles', []); 
+    $class`set_attr('@!roles', []); 
     $class.add_attribute('@!roles', []);     
 }.do_for([ ::Object, ::Module, ::Package ]);
 

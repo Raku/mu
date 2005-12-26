@@ -18,8 +18,8 @@ my $prelude = q:to/PRELUDE/
 ::Bar.add_method('bar', -> { 'Bar::bar' });
 PRELUDE;
 
-pil_is_eq($prelude ~ '::Foo.not_nil()', 'true', '... ::Foo is defined');
-pil_is_eq($prelude ~ '::Bar.not_nil()', 'true', '... ::Bar is defined');
+pil_is_eq($prelude ~ '::Foo`not_nil()', 'true', '... ::Foo is defined');
+pil_is_eq($prelude ~ '::Bar`not_nil()', 'true', '... ::Bar is defined');
 
 # check the classes
 
@@ -57,30 +57,30 @@ pil_is_eq($prelude ~ '::Foo.new({}).foo()', '"Foo::foo"', '... ::Foo.new.foo() i
 pil_is_eq($prelude ~ '::Bar.new({}).foo()', '"Foo::foo"', '... ::Bar.new.foo() is Foo::foo');
 pil_is_eq($prelude ~ '::Bar.new({}).bar()', '"Bar::bar"', '... ::Bar.new.bar() is Bar::bar');
 
-pil_is_eq($prelude ~ '::Foo.new({}).has_attr("$foo")', 'true', '... ::Foo.new.has_attr($foo)');
-pil_is_eq($prelude ~ '::Bar.new({}).has_attr("$foo")', 'true', '... ::Bar.new.has_attr($foo)');
-pil_is_eq($prelude ~ '::Bar.new({}).has_attr("$bar")', 'true', '... ::Bar.new.has_attr($bar)');
+pil_is_eq($prelude ~ '::Foo.new({})`has_attr("$foo")', 'true', '... ::Foo.new.has_attr($foo)');
+pil_is_eq($prelude ~ '::Bar.new({})`has_attr("$foo")', 'true', '... ::Bar.new.has_attr($foo)');
+pil_is_eq($prelude ~ '::Bar.new({})`has_attr("$bar")', 'true', '... ::Bar.new.has_attr($bar)');
 
-pil_is_eq($prelude ~ '::Foo.new({}).has_attr("$bar")', 'false', '... ::Foo.new.has_attr($bar) == false');
+pil_is_eq($prelude ~ '::Foo.new({})`has_attr("$bar")', 'false', '... ::Foo.new.has_attr($bar) == false');
 
 pil_is_eq(
-$prelude ~ '::Foo.new({ "$foo" => "testing $foo" }).get_attr("$foo")', 
+$prelude ~ '::Foo.new({ "$foo" => "testing $foo" })`get_attr("$foo")', 
 '"testing $foo"', 
-'... ::Foo.new.get_attr($foo) == "testing $foo"');
+'... ::Foo.new`get_attr($foo) == "testing $foo"');
 
 pil_is_eq(
-$prelude ~ '::Bar.new({ "$foo" => "testing $foo" }).get_attr("$foo")', 
+$prelude ~ '::Bar.new({ "$foo" => "testing $foo" })`get_attr("$foo")', 
 '"testing $foo"', 
-'... ::Bar.new.get_attr($foo) == "testing $foo"');
+'... ::Bar.new`get_attr($foo) == "testing $foo"');
 
 pil_is_eq(
-$prelude ~ '::Bar.new({ "$bar" => "testing $bar" }).get_attr("$bar")', 
+$prelude ~ '::Bar.new({ "$bar" => "testing $bar" })`get_attr("$bar")', 
 '"testing $bar"', 
-'... ::Bar.new.get_attr($bar) == "testing $bar"');
+'... ::Bar.new`get_attr($bar) == "testing $bar"');
 
 pil_is_eq($prelude ~ q:to/CODE/
 $bar := ::Bar.new({ "$foo" => "testing $foo", "$bar" => "testing $bar" });
-[ $bar.get_attr("$foo"), $bar.get_attr("$bar") ]
+[ $bar`get_attr("$foo"), $bar`get_attr("$bar") ]
 CODE,
 '["testing $foo", "testing $bar"]', 
 '... ::Bar.new.get_attr($bar) & .get_attr($foo)');
