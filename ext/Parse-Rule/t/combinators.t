@@ -1,22 +1,20 @@
 use Test;
-use Parse::Rule::Core;
-use Parse::Rule::Media;
-use Parse::Rule::Combinators;
+use Parse::Rule::Strategies::CPS::Text;
 
 plan 77;
 
+my $c = Parse::Rule::Strategies::CPS::Text.new;
+
 sub do_match ($text, $parser) {
     $parser.parse()(
-        Result.new(
+        $c.Result.new(
             backtrack => -> { undef },
-            pos       => Text.new(text => $text, pos => 0),
-            match     => Match.new,
+            pos       => $c.Pos.new(text => $text, pos => 0),
+            match     => Parse::Rule::Core::Match.new,
         ),
         -> $m { $m },
     );
 }
-
-say mark(undef, ':');
 
 my ($pat, $desc);
 
@@ -45,37 +43,37 @@ sub is_range ($match, $start, $end) {
 }
 
 
-($desc, $pat) = ('/<null>/', empty());
+($desc, $pat) = ('/<null>/', $c.empty());
     matches "";
     matches_not "x";
 
-($desc, $pat) = ('/hello/', Text::literal("hello"));
+($desc, $pat) = ('/hello/', $c.literal("hello"));
     matches "hello";
     matches_not "goodbye";
     matches_not "hell";
     matches_not "helloes";
 
-($desc, $pat) = ('/./', Text::any_char());
+($desc, $pat) = ('/./', $c.any_char());
     matches "x";
     matches_not "";
     matches_not "xx";
 
-($desc, $pat) = ('/foo bar/', concat(Text::literal("foo"), Text::literal("bar")));
+($desc, $pat) = ('/foo bar/', $c.concat($c.literal("foo"), $c.literal("bar")));
     matches "foobar";
     matches_not "foo";
     matches_not "bar";
     matches_not "";
 
-($desc, $pat) = ('/foo|bar/', alternate(Text::literal("foo"), Text::literal("bar")));
+($desc, $pat) = ('/foo|bar/', $c.alternate($c.literal("foo"), $c.literal("bar")));
     matches "foo";
     matches "bar";
     matches_not "foobar";
     matches_not "";
 
 ($desc, $pat) = ('/[foo|bar] [baz|quux]/',
-                    concat(
-                        alternate(Text::literal("foo"), Text::literal("bar")),
-                        alternate(Text::literal("baz"), Text::literal("quux"))));
+                    $c.concat(
+                        $c.alternate($c.literal("foo"), $c.literal("bar")),
+                        $c.alternate($c.literal("baz"), $c.literal("quux"))));
     matches "foobaz";
     matches "fooquux";
     matches "barbaz";
@@ -85,20 +83,20 @@ sub is_range ($match, $start, $end) {
     matches_not "quux";
     matches_not "foobarbaz";
 
-($desc, $pat) = ('/x*/', quantify(Text::literal("x")));
+($desc, $pat) = ('/x*/', $c.quantify($c.literal("x")));
     matches "";
     matches "x";
     matches "xxxxxx";
     matches_not "xxxxxxy";
     matches_not "yxxxxxx";
 
-($desc, $pat) = ('/x+/', quantify(Text::literal("x"), 1));
+($desc, $pat) = ('/x+/', $c.quantify($c.literal("x"), 1));
     matches "x";
     matches "xxxxxx";
     matches_not "";
     matches_not "y";
 
-($desc, $pat) = ('/[x|y]*/', quantify(alternate(Text::literal("x"), Text::literal("y"))));
+($desc, $pat) = ('/[x|y]*/', $c.quantify($c.alternate($c.literal("x"), $c.literal("y"))));
     matches "";
     matches "x";
     matches "y";
@@ -108,24 +106,24 @@ sub is_range ($match, $start, $end) {
 
 my $match;
 
-($desc, $pat) = ('/(x)/', capture(Text::literal("x"), :num(0)));
+($desc, $pat) = ('/(x)/', $c.capture($c.literal("x"), :num(0)));
     $match = matches "x";
     is_range($match.capture_num[0], 0, 1);
     matches_not "";
     matches_not "xx";
 
-($desc, $pat) = ('/xy(zz)/', concat(Text::literal("xy"), capture(Text::literal("zz"), :num(0))));
+($desc, $pat) = ('/xy(zz)/', $c.concat($c.literal("xy"), $c.capture($c.literal("zz"), :num(0))));
     $match = matches "xyzz";
     is_range($match.capture_num[0], 2, 4);
 
-($desc, $pat) = ('/(xy) $zs := (zz)/', concat(capture(Text::literal("xy"), :num(0)), 
-                                              capture(Text::literal("zz"), :num(1), :name<zs>)));
+($desc, $pat) = ('/(xy) $zs := (zz)/', $c.concat($c.capture($c.literal("xy"), :num(0)), 
+                                              $c.capture($c.literal("zz"), :num(1), :name<zs>)));
     $match = matches "xyzz";
     is_range($match.capture_num[0], 0, 2);
     is_range($match.capture_num[1], 2, 4);
     is_range($match.capture_name<zs>, 2, 4);
 
-($desc, $pat) = ('/(x|y)*/', quantify(capture(alternate(Text::literal("x"), Text::literal("y")), :num(0))));
+($desc, $pat) = ('/(x|y)*/', $c.quantify($c.capture($c.alternate($c.literal("x"), $c.literal("y")), :num(0))));
     $match = matches "xyyx";
     is_range($match.capture_num[0][0], 0, 1);
     is_range($match.capture_num[0][1], 1, 2);
@@ -133,9 +131,9 @@ my $match;
     is_range($match.capture_num[0][3], 3, 4);
 
 ($desc, $pat) = ('/[ (foo|bar) $bq:=(baz|quux) ]+/', 
-                    quantify( :low(1),
-                        concat(capture(alternate(Text::literal("foo"), Text::literal("bar")), :num(0)),
-                               capture(alternate(Text::literal("baz"), Text::literal("quux")), :num(1), :name<bq>))));
+                    $c.quantify( :low(1),
+                        $c.concat($c.capture($c.alternate($c.literal("foo"), $c.literal("bar")), :num(0)),
+                               $c.capture($c.alternate($c.literal("baz"), $c.literal("quux")), :num(1), :name<bq>))));
     matches_not "";
     matches_not "foobazbar";
     $match = matches "foobazbarquuxbarbaz";
@@ -149,44 +147,44 @@ my $match;
     is_range($match.capture_name<bq>[1], 9,13);
     is_range($match.capture_name<bq>[2], 16,19);
 
-($desc, $pat) = ('/[ [ x ]* ]*/', quantify(quantify(Text::literal("x"))));
+($desc, $pat) = ('/[ [ x ]* ]*/', $c.quantify($c.quantify($c.literal("x"))));
     matches "x";
     matches_not "xy";
 
 ($desc, $pat) = ('/"(.*)".*/', 
-                    concat(
-                        concat(
-                            concat(
-                                Text::literal('"'),
-                                capture(:num(0),
-                                    quantify(Text::any_char()))),
-                            Text::literal('"')),
-                        quantify(Text::any_char())));
+                    $c.concat(
+                        $c.concat(
+                            $c.concat(
+                                $c.literal('"'),
+                                $c.capture(:num(0),
+                                    $c.quantify($c.any_char()))),
+                            $c.literal('"')),
+                        $c.quantify($c.any_char())));
     $match = matches q{"foobar"baz"quux"ziph};
     is_range($match.capture_num[0], 1, 16);
 
 ($desc, $pat) = ('/"(.*?)".*/', 
-                    concat(
-                        concat(
-                            concat(
-                                Text::literal('"'),
-                                capture(:num(0),
-                                    quantify(:minimal, Text::any_char()))),
-                            Text::literal('"')),
-                        quantify(Text::any_char())));
+                    $c.concat(
+                        $c.concat(
+                            $c.concat(
+                                $c.literal('"'),
+                                $c.capture(:num(0),
+                                    $c.quantify(:minimal, $c.any_char()))),
+                            $c.literal('"')),
+                        $c.quantify($c.any_char())));
     $match = matches q{"foobar"baz"quux"ziph};
     is_range($match.capture_num[0], 1, 7);
 
 ($desc, $pat) = ('/ x*:x /', 
-                 concat(
-                    mark(:name(':'), concat(quantify(Text::literal("x")), commit(':'))), 
-                    Text::literal("x")));
+                 $c.concat(
+                    $c.mark(:name(':'), $c.concat($c.quantify($c.literal("x")), $c.commit(':'))), 
+                    $c.literal("x")));
     matches_not "xxx";
 
 ($desc, $pat) = ('/ yx?y /', 
-                concat(
-                    concat(Text::literal('y'), optional(Text::literal('x'))),
-                    Text::literal('y')));
+                $c.concat(
+                    $c.concat($c.literal('y'), $c.optional($c.literal('x'))),
+                    $c.literal('y')));
     matches 'yxy';
     matches 'yy';
     matches_not 'y';
