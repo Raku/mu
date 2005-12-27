@@ -3,15 +3,16 @@
 -- A Haskell port of PGE::OPTable.
 
 module Text.Parser.OpTable where
-import Prelude hiding (length, lookup, null, drop)
+import Prelude hiding (length, lookup, null, drop, span)
 import qualified Data.Map as NMap
 import qualified Data.Seq as NSeq
 import qualified Data.FastPackedString as NStr
 import Data.Ratio
+import Data.Char (isDigit)
 import Data.List (find)
 import Data.Seq (Seq, fromList)
 import Data.Map (Map, insert, lookup, toAscList, (!))
-import Data.FastPackedString (empty, pack, null, drop, dropSpace, length, isPrefixOf)
+import Data.FastPackedString (empty, pack, null, drop, dropSpace, length, isPrefixOf, span, append)
 
 data Op
     = Infix         { str :: !Str, assoc :: !Assoc }
@@ -26,10 +27,10 @@ data Op
     deriving (Eq, Show, Ord)
 
 -- newtype DynStr = MkDynStr (forall m. Monad m => Str -> m (Str, Op -> Seq Match))
-type DynStr = Str -> Maybe (Str, Op -> Seq Match)
+type DynStr = Str -> Maybe (Str, Str)
 
 instance Eq DynStr where _ == _ = False
-instance Ord DynStr where compare _ _ = LT
+instance Ord DynStr where compare _ _ = EQ
 instance Show DynStr where show _ = "<dyn>"
 
 type Precedence = Ratio Int
@@ -191,13 +192,19 @@ parse tbl str = let ?termStack  = []
 expectTerm :: Parse Match
 expectTerm
     | null ?str = nullTerm
-    | otherwise = let ?str = str' in matchWith foundTerm emptyTerm terms
+    | otherwise = let ?str = str' in matchWith foundTerm nullTerm terms
     where
     str'  = dropSpace ?str
     terms = (if length str' == length ?str then tableTerms else tableWsTerms) ?tbl
 
 matchWith :: Parse (Parse (Token -> a) -> Parse a -> TokenMap -> a)
 matchWith ok nok tmap = case find ((`isPrefixOf` ?str) . termToStr . fst) (toAscList tmap) of
+    Just (term, token@MkToken{ tokOp = DynTerm{dynStr = dyn} }) ->
+        let str' = drop (termLength term) ?str in
+            case dyn str' of
+                Just (pre, post) -> let ?str = post in ok token
+                    { tokOp = Term (termToStr term `append` pre) }
+                _                -> nok
     Just (term, token) -> let ?str = drop (termLength term) ?str in ok token
     _                  -> nok
 
@@ -226,7 +233,7 @@ mkMatch token = (MkMatch (tokOp token) NSeq.empty)
 expectOper :: Parse Match
 expectOper
     | null str' = endParse
-    | otherwise = let ?str = str' in matchWith foundOper emptyOper opers
+    | otherwise = let ?str = str' in matchWith foundOper endParse opers
     where
     str'  = dropSpace ?str
     opers = (if length str' == length ?str then tableOpers else tableWsOpers) ?tbl
@@ -235,6 +242,7 @@ nullTerm :: Parse Match
 nullTerm | (t@MkToken{ tokNull = True }:_) <- ?tokenStack = pushTermStack t expectOper
          | otherwise = error "Missing term"
 
+{-
 emptyTerm :: Parse Match
 emptyTerm = case lookup (MkTerm empty) (tableTerms ?tbl) of
     Just term -> foundTerm term
@@ -244,6 +252,7 @@ emptyOper :: Parse Match
 emptyOper = case lookup (MkTerm empty) (tableOpers ?tbl) of
     Just oper -> foundOper oper
     Nothing   -> endParse
+-}
 
 foundOper :: Parse (Token -> Parse Match)
 foundOper oper
@@ -315,7 +324,7 @@ mkOpTable = fst . Prelude.foldl mkOps (emptyTable, DefaultPrec)
 testTable :: OpTable
 testTable = mkOpTable
     [ mk Circumfix       "( )"
-    , mk Term            "0 1 2 3 4 5 6 7 8 9"
+    , mk Term            (span isDigit)
     , mk Infix           "* /"
     , mk Infix AssocLeft "+ -"
     ]
@@ -336,4 +345,10 @@ instance MkClass ((Str -> Assoc -> Op) -> [Char] -> [(Whitespace, Op)]) where
 
 instance MkClass ((Str -> Assoc -> Op) -> Assoc -> [Char] -> [(Whitespace, Op)]) where
     mk op1 assoc = Prelude.map (((,) AllowWhitespace) . (`op1` assoc) . pack) . Prelude.words
+
+instance (MkClass ((Str -> Op) -> (Str -> (Str, Str)) -> [(Whitespace, Op)])) where
+    mk op1 f = [(AllowWhitespace, DynTerm empty dyn)]
+        where
+        dyn str = let match@(pre, _) = f str in
+            if null pre then Nothing else Just match
 
