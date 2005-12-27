@@ -361,11 +361,17 @@ rulePackageDeclaration = rule "package declaration" $ try $ do
 
 rulePackageHead :: RuleParser (String, Exp, Exp, Env)
 rulePackageHead = do
+    scope <- option Nothing $ fmap Just ruleScope
     sym <- choice $ map symbol (words "package module class role grammar")
     name    <- ruleQualifiedIdentifier
     _       <- option "" $ ruleVersionPart -- v
     _       <- option "" $ ruleAuthorPart  -- a
     whiteSpace
+    env <- getRuleEnv
+    newName <- case scope of
+        Just SOur -> return $ envPackage env ++ "::" ++ name
+        Nothing   -> return name
+        _         -> fail "I only know about package- and global-scoped classes. Sorry."
     traits  <- many $ ruleTrait
     let pkgClass = case sym of
                        "package" -> "Package"
@@ -374,13 +380,13 @@ rulePackageHead = do
                        "role"    -> "Class" -- XXX - Wrong - need metamodel
                        "grammar" -> "Grammar"
                        _ -> fail "bug"
-    unsafeEvalExp (newPackage pkgClass name $ nub ("Object":traits))
+    unsafeEvalExp (newPackage pkgClass newName $ nub ("Object":traits))
     env <- getRuleEnv
-    putRuleEnv env{ envPackage = name,
-                    envClasses = envClasses env `addNode` mkType name }
-    let pkgVal = Val . VStr $ name -- ++ v ++ a
+    putRuleEnv env{ envPackage = newName,
+                    envClasses = envClasses env `addNode` mkType newName }
+    let pkgVal = Val . VStr $ newName
         kind   = Val . VStr $ sym
-    return (name, kind, pkgVal, env)
+    return (newName, kind, pkgVal, env)
 
 ruleSubDeclaration :: RuleParser Exp
 ruleSubDeclaration = rule "subroutine declaration" $ do
@@ -1729,12 +1735,21 @@ ruleTypeVar = rule "type" $ try $ do
         _                 -> Syn (":::()") nameExps
 
 ruleTypeLiteral :: RuleParser Exp
-ruleTypeLiteral = rule "type" $ do
-    env     <- getRuleEnv
-    name    <- tryChoice [
-        do { symbol n; notFollowedBy (alphaNum <|> char ':'); return n }
-        | (MkType n) <- flatten (envClasses env) ]
-    return $ Var (':':name)
+ruleTypeLiteral = rule "type" $ try $ do
+    name <- fmap (concat . intersperse "::") $ ruleDelimitedIdentifier "::"
+    env  <- getRuleEnv
+    let prefix = envPackage env ++ "::"
+        classes = [ c | MkType c <- flatten $ envClasses env ]
+        packageClasses = concatMap (maybeToList . removePrefix prefix) classes
+    case () of
+        () | name `elem` packageClasses -> return . Var $ ':':(prefix ++ name)
+           | name `elem` classes        -> return . Var $ ':':name
+           | otherwise                  -> fail "not a class name"
+    where
+    removePrefix :: (Eq a) => [a] -> [a] -> Maybe [a]
+    removePrefix pre str
+        | pre `isPrefixOf` str = Just (drop (length pre) str)
+        | otherwise            = Nothing
 
 rulePostTerm :: RuleParser (Exp -> Exp)
 rulePostTerm = tryVerbatimRule "term postfix" $ do
