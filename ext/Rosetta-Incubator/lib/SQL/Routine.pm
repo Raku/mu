@@ -100,7 +100,7 @@ submethod BUILD (
             SQL::Routine::Document :$document!,
             SQL::Routine::Node     :$parent_node? = undef,
             Str                    :$node_type!,
-            Any                    :%attributes?  = hash(),
+            Any                    :%attributes?  = {},
             Hash                   :@child_nodes? = [],
         ) {
 
@@ -254,10 +254,10 @@ A Document object is a simple container which stores data to be used or
 displayed by your program.  It is analagous to a simplified version of the
 "Document" interface defined in the XML DOM spec; it exists as a container
 in which Node objects live.  The Document class is pure and deterministic,
-such that all of its submethods and object methods will each return the
-same result and/or make the same change to an object when the permutation
-of its arguments and any invocant object's attributes is identical; they do
-not interact with the outside environment at all.
+such that all of its class and object methods will each return the same
+result and/or make the same change to an object when the permutation of its
+arguments and any invocant object's attributes is identical; they do not
+interact with the outside environment at all.
 
 A Document object has 2 main attributes:
 
@@ -276,13 +276,13 @@ sub-set of All Nodes.
 
 =back
 
-This is the main Document constructor submethod:
+This is the main Document constructor method:
 
 =over
 
 =item C<new( :@root_nodes? )>
 
-This submethod creates and returns a new SQL::Routine::Document object.  If
+This method creates and returns a new SQL::Routine::Document object.  If
 the optional named argument @root_nodes (an array ref) is set, then each
 element in it is used to initialize a new Node object (plus an optional
 hierarchy of new child Nodes of that new Node) that gets stored in the Root
@@ -346,9 +346,9 @@ displayed by your program.  It is analagous to a simplified version of the
 "Node" interface defined in the XML DOM spec; it has a type (what the XML
 spec calls 'name') and attributes, and is arranged in a hierarchy with
 other Nodes (it does not support any analogy of CDATA sections, though).
-The Node class is pure and deterministic, such that all of its submethods
-and object methods will each return the same result and/or make the same
-change to an object when the permutation of its arguments and any invocant
+The Node class is pure and deterministic, such that all of its class and
+object methods will each return the same result and/or make the same change
+to an object when the permutation of its arguments and any invocant
 object's attributes is identical; they do not interact with the outside
 environment at all.
 
@@ -386,22 +386,22 @@ Node's child Nodes, if it has any.
 
 =back
 
-This is the main Node constructor submethod:
+This is the main Node constructor method:
 
 =over
 
 =item C<new( :$document!, :$parent_node?, :$node_type!, :%attributes?,
 :@child_nodes? )>
 
-This submethod creates and returns a new SQL::Routine::Node object, that
-lives in the Document object given in the named argument $document, and
-whose Node Type attribute is set from the named argument $node_type (a
-string); the optional named argument %attributes (a hash ref) sets the
-"Attributes" attribute if provided (it defaults to empty if the argument is
-not provided).  If the optional argument $parent_node (a Node) is set, then
-the new Node's "Parent Node" attribute is set to it, and the new Node is
-also stored in $parent_node's Child Nodes attribute; if $parent_node is not
-set, then the new Node is instead stored in its Document's "Root Nodes"
+This method creates and returns a new SQL::Routine::Node object, that lives
+in the Document object given in the named argument $document, and whose
+Node Type attribute is set from the named argument $node_type (a string);
+the optional named argument %attributes (a hash ref) sets the "Attributes"
+attribute if provided (it defaults to empty if the argument is not
+provided).  If the optional argument $parent_node (a Node) is set, then the
+new Node's "Parent Node" attribute is set to it, and the new Node is also
+stored in $parent_node's Child Nodes attribute; if $parent_node is not set,
+then the new Node is instead stored in its Document's "Root Nodes"
 attribute.  If the optional named argument @child_nodes (an array ref) is
 set, then each element in it is used to initialize a new Node object (plus
 an optional hierarchy of new child Nodes of that new Node) that gets stored

@@ -35,7 +35,7 @@ class Locale::KeyedText::Message {
 
 ###########################################################################
 
-submethod BUILD (Str :$msg_key!, Any :%msg_vars? = hash()) {
+submethod BUILD (Str :$msg_key!, Any :%msg_vars? = {}) {
 
     die 'invalid arg'
         if !$msg_key.defined or $msg_key eq $EMPTY_STR;
@@ -199,7 +199,7 @@ method translate_message (Locale::KeyedText::Message $message!)
 
 ###########################################################################
 
-submethod template_module_is_loaded (Str $module_name!) returns Bool {
+method template_module_is_loaded (Str $module_name!) returns Bool {
     die 'invalid arg'
         if !$module_name.defined or $module_name eq $EMPTY_STR;
     # Note: It is yet unknown whether this is working because the language
@@ -211,7 +211,7 @@ submethod template_module_is_loaded (Str $module_name!) returns Bool {
     return ::($module_name).does(Package);
 }
 
-submethod load_template_module (Str $module_name!) {
+method load_template_module (Str $module_name!) {
     die 'invalid arg'
         if !$module_name.defined or $module_name eq $EMPTY_STR;
 
@@ -225,7 +225,7 @@ submethod load_template_module (Str $module_name!) {
     return;
 }
 
-submethod get_template_text_from_loaded_module
+method get_template_text_from_loaded_module
         (Str $module_name!, Str $msg_key!) returns Str {
 
     die 'invalid arg'
@@ -243,7 +243,7 @@ submethod get_template_text_from_loaded_module
     return $text;
 }
 
-submethod interpolate_vars_into_template_text
+method interpolate_vars_into_template_text
         (Str $text! is copy, Any %msg_vars!) returns Str {
 
     die 'invalid arg'
@@ -510,10 +510,10 @@ value is undefined.
 
 A Message object is a simple container which stores data to be used or
 displayed by your program.  The Message class is pure and deterministic,
-such that all of its submethods and object methods will each return the
-same result and/or make the same change to an object when the permutation
-of its arguments and any invocant object's attributes is identical; they do
-not interact with the outside environment at all.
+such that all of its class and object methods will each return the same
+result and/or make the same change to an object when the permutation of its
+arguments and any invocant object's attributes is identical; they do not
+interact with the outside environment at all.
 
 A Message object has two main attributes:
 
@@ -542,13 +542,13 @@ may store references to other objects in them if you wish.
 
 =back
 
-This is the main Message constructor submethod:
+This is the main Message constructor method:
 
 =over
 
 =item C<new( :$msg_key!, :%msg_vars? )>
 
-This submethod creates and returns a new Locale::KeyedText::Message object.
+This method creates and returns a new Locale::KeyedText::Message object.
 The Message Key attribute of the new object is set from the named argument
 $msg_key (a string); the optional named argument %msg_vars (a hash ref)
 sets the "Message Variables" attribute if provided (it defaults to empty if
@@ -718,16 +718,16 @@ is used.  Each Set Name can be any defined and non-empty string.
 
 =back
 
-This is the main Translator constructor submethod:
+This is the main Translator constructor method:
 
 =over
 
 =item C<new( :@set_names!, :@member_names! )>
 
-This submethod creates and returns a new Locale::KeyedText::Translator
-object.  The Set Names property of the new object is set from the named
-argument @set_names (an array ref), and Member Names is set from the named
-argument @member_names (an array ref).
+This method creates and returns a new Locale::KeyedText::Translator object.
+The Set Names property of the new object is set from the named argument
+@set_names (an array ref), and Member Names is set from the named argument
+@member_names (an array ref).
 
 Some example usage:
 
@@ -790,25 +790,25 @@ Some example usage:
 
 =back
 
-The Translator class also has these utility submethods, which are all used
-by translate_message() to handle the trickier parts of its work:
+The Translator class also has these utility methods, which are all used by
+translate_message() to handle the trickier parts of its work:
 
 =over
 
 =item C<template_module_is_loaded( $module_name! )>
 
-This submethod takes the name of a Perl package in its positional argument
+This method takes the name of a Perl package in its positional argument
 $module_name (a string) and checks whether or not it has already been
 loaded, returning true if so and false if not.
 
 =item C<load_template_module( $module_name! )>
 
-This submethod takes the name of a Perl package in its positional argument
+This method takes the name of a Perl package in its positional argument
 $module_name (a string) and tries to load it using 'require'.
 
 =item C<get_template_text_from_loaded_module( $module_name!, $msg_key! )>
 
-This submethod takes the name of a Perl package in its positional argument
+This method takes the name of a Perl package in its positional argument
 $module_name (a string), and a Message Key in its positional argument
 $msg_key (a string).  Assuming that a Perl module by the given module name
 is already loaded, it tries to invoke $module_name.get_text_by_key(
@@ -817,7 +817,7 @@ string if the module recognizes $msg_key, and the undefined value if not.
 
 =item C<interpolate_vars_into_template_text( $text!, %msg_vars! )>
 
-This submethod takes a defined (but possibly empty) Template text string in
+This method takes a defined (but possibly empty) Template text string in
 its positional argument $text (a string), and a Message Variables hash ref
 in its positional argument %msg_vars.  It returns a copy of $text modified
 by interpolating the %msg_vars into it, where each variable value is
