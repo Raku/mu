@@ -189,8 +189,8 @@ calculatePrec :: PrecRelation -> EntryMap r -> Precedence
 calculatePrec DefaultPrec _ = defaultPrec
 calculatePrec rel toks = case rel of
     SameAs {}       -> prec
-    LooserThan {}   -> prec / 2
-    TighterThan {}  -> prec / 2 * 3
+    LooserThan {}   -> prec - 1 % (denominator prec * 2)
+    TighterThan {}  -> prec + 1 % (denominator prec * 2)
     where
     prec = tokPrec (toks ! (relOp rel))
 
