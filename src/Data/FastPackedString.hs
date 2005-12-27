@@ -33,6 +33,7 @@ module Data.FastPackedString (
         -- * Introducing and eliminating 'FastString's
         empty,        -- :: FastString
         pack,         -- :: String -> FastString
+        packChar,     -- :: String -> FastString
         unpack,       -- :: FastString -> String
         packWords,    -- :: [Word8] -> FastString
         unpackWords,  -- :: FastString -> [Word8]
@@ -289,6 +290,13 @@ comparePS (PS x1 s1 l1) (PS x2 s2 l2) = unsafePerformIO $
 empty :: FastString
 empty = unsafePerformIO $ mallocForeignPtr 1 >>= \fp -> return $ PS fp 0 0
 {-# NOINLINE empty #-}
+
+-- | /O(n)/ Convert a 'Char' into a 'FastString'
+packChar :: Char -> FastString
+packChar c = unsafePerformIO $ mallocForeignPtr 2 >>= \fp -> do
+    withForeignPtr fp $ \p -> poke p (toEnum (ord c))
+    return $ PS fp 0 1
+{-# NOINLINE packChar #-}
 
 -- | /O(n)/ Convert a 'String' into a 'FastString'
 pack :: String -> FastString
