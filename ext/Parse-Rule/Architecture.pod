@@ -1,0 +1,78 @@
+=head1 NAME
+
+Architecture - the Parse::Rule OO architecture
+
+=head1 DESCRIPTION
+
+This architecture guide was written largely for the purpose of me, the
+implementor, because as I convert to the new architecture, I'm having
+trouble navigating and understanding what I still need to do.  But it
+will probably serve as a useful guide to the hacker/extender.
+
+Here are the goals:
+
+=over
+
+=item * Not to commit to a particular evaluation strategy.  
+
+PGE uses coroutines, and my version uses continuation passing style.  We
+don't know which will be better or faster yet.  We'd also like to
+eventually support local DFA optimization.  Being noncommital is the
+best choice.
+
+=item * Not to commit to particular media.
+
+In Perl 6, rules can match against strings and they can match against
+arrays.  That's only two, and we could support each explicitly.  But
+what about matching against parameter lists, against trees and data
+structures?  Those are possibilities that we would like to give the
+module writer, if not the language designer  (actually, I would rather
+give those choices to module writers than language designers).
+
+=back
+
+However, being noncommittal to these two things at once is a bit of a
+challenge.  They are not orthogonal.  For example, the CPS runtime would
+like the Text medium to take a match object and return an updated match
+object upon matching a literal and fail if it couldn't.  However, the
+optimized DFA runtime would like to query the Text medium for each of
+its characters and then compile a match itself.
+
+So I designed it as a combinator library, much like Haskell's Parsec.
+However, instead of providing one library of combinators, I make a
+"combinator library" an object.  Then to build a match, you call
+combinators as methods from that object:
+
+    my $c = Parse::Rule::CPS::Text.new;
+    # / [foo]+ /
+    $c.quantify(:min(1), $c.literal("foo"));
+
+This combinator library object is composed out of roles to achieve
+almost independent modularity.  There is a base role called C<Strategy>
+that has things like C<quantify>, C<concat>, C<capture>, etc.  Every
+runtime must implement all of these combinators (except those
+combinators -- currently none -- that can be built out of other
+combinators).
+
+There is also a base role for each medium.  For example, for C<Text>,
+the base role requires the C<literal> and C<any_char> combinators to be
+implemented.  On top of those, together with the combinators from a
+C<Stragety> role, it builds things like C<beginning_of_line>,
+C<word_boundary>, etc.  Since these use the combinators in a role, they
+are not specific to any particular strategy.
+
+Then to build the final library object, create a class that combines a
+C<Strategy> role and a medium role, and override those methods required
+by the medium role in terms of that strategy.  There will therefore be
+one class for every strategy/medium combination, but it should be very
+small.
+
+Here is the module tree layout:
+
+    Core         - absolutely global stuff, like the structure of the
+                   match object
+    Strategy     - the strategy base role
+    Medium       - the medium and pos base roles
+    Media::      - the base roles and pos objects for each medium
+    Strategies:: - one module for each strategy, with a submodule for
+                   each medium
