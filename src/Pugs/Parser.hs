@@ -601,7 +601,7 @@ ruleTraitDeclaration = try $ do
     --   is eval(...), ...    # sub call
     lookAhead $ try eof <|> (oneOf ";}" >> return ())
     let pkg = Var (':':envPackage env)
-    return $ Syn "=" [Syn "{}" [pkg, Val (VStr "traits")], Syn "," [Syn "{}" [pkg, Val (VStr "traits")], Val (VStr trait)]]
+    return $ Syn "=" [Syn "{}" [pkg, Val (VStr "traits")], Syn "," [Syn "@{}" [Syn "{}" [pkg, Val (VStr "traits")]], Val (VStr trait)]]
 
 ruleMemberDeclaration :: RuleParser Exp
 ruleMemberDeclaration = do
