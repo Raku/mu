@@ -579,6 +579,8 @@ op1 "IO::tell"    = \v -> do
     h <- fromVal v
     res <- guardIO $ hTell h
     return $ VInt res
+op1 "Rat::numerator" = \(VRat t) -> return . VInt $ numerator t
+op1 "Rat::denominator" = \(VRat t) -> return . VInt $ denominator t
 op1 "TEMP" = \v -> do
     ref <- fromVal v
     val <- readRef ref
@@ -1732,6 +1734,8 @@ initSyms = mapM primDecl syms
 \\n   Code      pre     TEMP    safe   (rw!Any)\
 \\n   Object    pre     Object::clone   safe   (Object: Named)\
 \\n   Object    pre     id      safe   (Any)\
+\\n   Int       pre     Rat::numerator   safe   (Rat:)\
+\\n   Int       pre     Rat::denominator safe   (Rat:)\
 \\n   Bool      pre     Thread::yield   safe   (Thread)\
 \\n   List      pre     Pugs::Internals::runInteractiveCommand  unsafe (Str)\
 \\n   Bool      pre     Pugs::Internals::hSetBinaryMode         unsafe (IO, Str)\
