@@ -70,6 +70,8 @@ method optional ($p, :$minimal = 0) {...}
 C<capture($p, :num($num), :name($name))> will capture whatever C<$p> matched
 into C<$match.capture_num[$num]> and C<$match.capture_name{$name}>.  C<$p> will
 be given a fresh, empty C<$match.match> to fill (this introduces a new scope).
+If no $num or $name is given, a new scope is introduced but the resulting object
+is discarded (used for eg. <?ws>).
 
 =cut
 

@@ -208,7 +208,6 @@ method optional ($p, :$minimal = 0) {
 }
 
 method capture ($p, Int :$num, Str :$name) is export {
-    $num // $name // die 'capture must be given either a :num or :name argument';
     $.Parser.new(parse => sub ($match, &continue) {
         $p.parse()($match.clone(match => Parse::Rule::Core::Match.new),
                    -> $m {
