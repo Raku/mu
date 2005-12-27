@@ -324,7 +324,8 @@ doRunSingle menv opts prog = (`catch` handler) $ do
     parse = do
         env <- liftSTM $ readTVar menv
         return $ envBody $ parseProgram env "<interactive>" $
-          (decodeUTF8 prog)
+          (dropTrailingSemi $ decodeUTF8 prog)
+    dropTrailingSemi = reverse . dropWhile (`elem` " \t\r\n;") . reverse
     theEnv = do
         ref <- if runOptSeparately opts
                 then (liftSTM . newTVar) =<< tabulaRasa "<interactive>"
