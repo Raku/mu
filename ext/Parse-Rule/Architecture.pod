@@ -57,7 +57,7 @@ combinators).
 There is also a base role for each medium.  For example, for C<Text>,
 the base role requires the C<literal> and C<any_char> combinators to be
 implemented.  On top of those, together with the combinators from a
-C<Stragety> role, it builds things like C<beginning_of_line>,
+C<Strategy> role, it builds things like C<beginning_of_line>,
 C<word_boundary>, etc.  Since these use the combinators in a role, they
 are not specific to any particular strategy.
 
