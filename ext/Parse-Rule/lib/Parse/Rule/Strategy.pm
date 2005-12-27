@@ -97,4 +97,15 @@ non-backtracking engines.
 
 method commit (Str $name) {...}
 
+=pod
+
+C<subrule($code)> executes $code, passing the match object as a parameter, and
+it should return a I<compiled> rule (i.e.  a C<Rule> object, not a C<Parser>
+object).  This rule is then incorporated into the match.  XXX it is not clear
+that this is the optimal interface for this combinator.
+
+=cut
+
+method subrule (Code $code) {...}
+
 # vim: ft=perl6 :

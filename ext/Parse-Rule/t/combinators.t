@@ -1,7 +1,7 @@
 use Test;
 use Parse::Rule::Strategies::CPS::Text;
 
-plan 77;
+plan 82;
 
 my $c = Parse::Rule::Strategies::CPS::Text.new;
 
@@ -186,5 +186,26 @@ my $match;
     matches 'yxy';
     matches 'yy';
     matches_not 'y';
+
+{
+    my sub balanced () { 
+        # XXX this is slightly wrong, but it doesn't make a difference
+        # with the CPS runtime.  This should be compiled in all calls
+        # but the one in $pat.
+        $c.alternate(
+            $c.concat(
+                $c.concat(
+                    $c.literal('('),
+                    $c.subrule(-> $m { balanced() })),
+                $c.literal(')')),
+            $c.empty()); 
+    }
+    ($desc, $pat) = ('rule balanced() { \( <balanced> \) | <null> } /<balanced>/', balanced());
+    matches('');
+    matches('()');
+    matches('((()))');
+    matches_not('((())');
+    matches_not('(()))');
+}
 
 # vim: ft=perl6 :

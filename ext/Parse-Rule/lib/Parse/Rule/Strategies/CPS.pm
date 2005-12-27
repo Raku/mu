@@ -262,4 +262,11 @@ method commit (Str $name) {
     });
 }
 
+method subrule (Code $code) {
+    $.Parser.new(parse => sub ($match, &continue) {
+        my $parser = $code($match);
+        $parser.parse()($match, &continue);
+    });
+}
+
 # vim: ft=perl6 :
