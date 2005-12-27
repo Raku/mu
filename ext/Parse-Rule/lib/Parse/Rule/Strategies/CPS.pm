@@ -136,7 +136,8 @@ method quantify ($p, $low? = 0, $high? = Inf, :$minimal = 0) {
             }
             else {
                 # Each time around the match, we increment the inner multidex index.
-                my $multidex = [ *$match.match.multidex ];
+                my $matchy = $match.match;
+                my $multidex = [ *$matchy.multidex ];
                 $multidex[-1]++;
                 match_n($n+1, $m.clone(match => $m.match.clone(multidex => $multidex)), &continue);
             }
@@ -161,7 +162,8 @@ method quantify ($p, $low? = 0, $high? = Inf, :$minimal = 0) {
     }
 
     $.Parser.new(parse => sub ($match, &continue) {
-        my $mdex = $match.match.multidex;
+        my $matchy = $match.match;    # pugs pisses me off
+        my $mdex = $matchy.multidex;
         # Put another dimension on the multidex and match the recursive match_n
         # combinator.
         match_n(0, $match.clone(
@@ -191,7 +193,7 @@ method optional ($p, :$minimal = 0) {
 method capture ($p, Int :$num, Str :$name) is export {
     $num // $name // die 'capture must be given either a :num or :name argument';
     $.Parser.new(parse => sub ($match, &continue) {
-        $p.parse()($match.clone(match => Match.new),
+        $p.parse()($match.clone(match => Parse::Rule::Core::Match.new),
                    -> $m {
                         # XXX. Eeeeeeyuck!  This is totally awkward.
                         my $subobj = $m.match.clone(
@@ -203,15 +205,15 @@ method capture ($p, Int :$num, Str :$name) is export {
                         my $newnamep = $mmat.capture_name;
                         if defined $num {
                             my $newnum = defined $num
-                                            ?? multidex($mmat.match_num[$num], $match.match.multidex, $subobj) 
-                                            !! $mmat.match_num[$num];
+                                            ?? multidex($mmat.capture_num[$num], $mmat.multidex, $subobj) 
+                                            !! $mmat.capture_num[$num];
                             $newnump = [ @$newnump ];
                             $newnump[$num] = $newnum;
                         }
                         if defined $name {
                             my $newname = defined $name
-                                            ?? multidex($mmat.match_name{$name}, $match.match.multidex, $subobj)
-                                            !! $mmat.match_name{$name};
+                                            ?? multidex($mmat.capture_name{$name}, $mmat.multidex, $subobj)
+                                            !! $mmat.capture_name{$name};
                             $newnamep = { %$newnamep };
                             $newnamep{$name} = $newname;
                         }

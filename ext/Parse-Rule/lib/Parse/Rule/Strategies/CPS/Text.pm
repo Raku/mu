@@ -1,10 +1,12 @@
 class Parse::Rule::Strategies::CPS::Text;
 
+use Parse::Rule::Strategies::CPS;
+does Parse::Rule::Strategies::CPS;
+
 use Parse::Rule::Media::Text;
 does Parse::Rule::Media::Text;
 
-use Parse::Rule::Strategies::CPS;
-does Parse::Rule::Strategies::CPS;
+has $.Pos;
 
 method literal (Str $text) {
     $.Parser.new(parse => sub ($match, &continue) {

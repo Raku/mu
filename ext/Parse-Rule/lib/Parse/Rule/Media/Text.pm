@@ -21,6 +21,8 @@ role Parse::Rule::Media::Text::Pos {
     has Int $.pos;
 }
 
+has $.Pos;
+
 submethod BUILD () {
     $.Pos = Parse::Rule::Media::Text::Pos;
 }
