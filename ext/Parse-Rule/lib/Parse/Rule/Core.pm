@@ -37,4 +37,12 @@ class Parse::Rule::Core::Match {
     }
 }
 
+role Parse::Rule::Core::Parser {
+    method compile() {...}
+}
+
+role Parse::Rule::Core::Rule {
+    method run($input, $match) {...}
+}
+
 # vim: ft=perl6 :

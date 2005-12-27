@@ -5,23 +5,6 @@ does Parse::Rule::Strategy;
 
 =pod
 
-A C<Parser> is simply an object wrapper around a closure.  The closure,
-C<$.parse>, takes two parameters:  a C<Result> object and a continuation
-(which takes in turn a C<Result> object as a parameter).  If the parser
-succeeds, it tail-calls the continuation (i.e. returns whatever the
-continuation returns) with an updated C<Result> object.  If the parser
-fails, it tail-calls $result.backtrack()().  Backtracking parsers such
-as quantifiers are implemented by passing a C<Result> object that has a
-$.backtrack closure that calls back into the parser.
-
-=cut
-
-class Parse::Rule::Strategies::CPS::Parser {
-    has $.parse;
-}
-
-=pod
-
 C<Result> is the match state that is passed around.  It essentially
 forms a linked list through the rule as it is executed, but the linked
 list is done in code (i.e. with closures).  It has the following
@@ -52,6 +35,40 @@ class Parse::Rule::Strategies::CPS::Result {
 
 =pod
 
+A C<Parser> is simply an object wrapper around a closure.  The closure,
+C<$.parse>, takes two parameters:  a C<Result> object and a continuation
+(which takes in turn a C<Result> object as a parameter).  If the parser
+succeeds, it tail-calls the continuation (i.e. returns whatever the
+continuation returns) with an updated C<Result> object.  If the parser
+fails, it tail-calls $result.backtrack()().  Backtracking parsers such
+as quantifiers are implemented by passing a C<Result> object that has a
+$.backtrack closure that calls back into the parser.
+
+=cut
+
+class Parse::Rule::Strategies::CPS::Parser {
+    does Parse::Rule::Core::Parser;
+    does Parse::Rule::Core::Rule;
+
+    method compile() { $?SELF }   # no compilation phase
+    method run($input, $match) {
+        $.parse(
+            # XXX this class should be virtual
+            Parse::Rule::Strategies::CPS::Result.new(
+                backtrack => -> { return },
+                pos       => $input,
+                match     => $match),
+            -> $m { ($m.match.clone(
+                        start => $input,
+                        end   => $m.pos), 
+                     $m.backtrack) });
+    }
+
+    has $.parse;
+}
+
+=pod
+
 C<$.Parser> and C<$.Result> are virtual classes within the strategy.  They're
 done like this until pugs gets support for virtual classes.
 
@@ -61,8 +78,8 @@ has $.Parser;
 has $.Result;
 
 submethod BUILD () {
-    $.Parser = Parse::Rule::Strategies::CPS::Parser;
     $.Result = Parse::Rule::Strategies::CPS::Result;
+    $.Parser = Parse::Rule::Strategies::CPS::Parser;
 }
 
 
@@ -239,7 +256,7 @@ method mark ($p, Str $name) {
 method commit (Str $name) {
     $.Parser.new(parse => sub ($match, &continue) {
         my $marks = $match.marks;
-        $marks{$name} // die "No mark with name '$name' in soope";
+        $marks{$name} // die "No mark with name '$name' in scope";
         &continue($match.clone(
                     backtrack => $marks{$name}));
     });

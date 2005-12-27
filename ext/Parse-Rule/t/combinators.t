@@ -6,32 +6,30 @@ plan 77;
 my $c = Parse::Rule::Strategies::CPS::Text.new;
 
 sub do_match ($text, $parser) {
-    $parser.parse()(
-        $c.Result.new(
-            backtrack => -> { undef },
-            pos       => $c.Pos.new(text => $text, pos => 0),
-            match     => Parse::Rule::Core::Match.new,
-        ),
-        -> $m { $m },
+    my $rule = $parser.compile;
+    my ($match, $backtrack) = $rule.run(
+        input => $c.Pos.new(text => $text, pos => 0),
+        match => Parse::Rule::Core::Match.new,
     );
+    $match;
 }
 
 my ($pat, $desc);
 
 sub matches ($text) {
     my $m = do_match($text, $pat);
-    my $pos;
+    my $end;
     my $matches = defined $m and 
-                    do { $pos = $m.pos; $pos.pos == $text.chars };
+                    do { $end = $m.end; $end.pos == $text.chars };
     ok($matches, "'$text' matches $desc");
-    return $m.match;
+    return $m;
 }
 
 sub matches_not ($text) {
     my $m = do_match($text, $pat);
-    my $pos;
+    my $end;
     my $matches = defined $m and 
-                    do { $pos = $m.pos; $pos.pos == $text.chars };
+                    do { $end = $m.end; $end.pos == $text.chars };
     ok(!$matches, "'$text' doesn't match $desc");
 }
 
