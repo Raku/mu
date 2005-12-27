@@ -49,7 +49,7 @@ instance Ord (DynMkMatch r) where compare _ _ = EQ
 instance Show (DynMkMatch r) where show _ = "<mkMatch>"
 
 type DynMkMatch r = (Token r -> [r] -> r)
-type Precedence = Ratio Int
+type Precedence = Ratio Integer
 type Arity = Int
 
 data Token r = MkToken
