@@ -28,6 +28,7 @@ matcher (MChoice l)      i = let mm []     = PErr (psIndex i) ["no choice matche
                                               POk s t -> POk s t
                                               _       -> mm cs
                              in mm l
+matcher (MEqual{})      (PS s _ l) | l >= Str.length s = PErr l ["eof"]
 matcher (MEqual c)      (PS s u l) = if (Str.index s l) == c then POk (PS s u (succ l)) c else PErr l ["expected "++[c]]
 matcher (MSeq a b)       i = case optM a i of
                               POk s t -> case b of
@@ -41,6 +42,7 @@ matcher (MStar x)        i = let p = optM x
                              in sm i []
 matcher (MEmpty)        i = POk i (error "result for empty")
 matcher (MPure _ _)     i = POk i (error "result for pure")
+matcher (MCSet{})      (PS s _ l) | l >= Str.length s = PErr l ["eof"]
 matcher (MCSet cs)     (PS s u l) = let x = (Str.index s l) in if x `elem` csetValue cs then POk (PS s u (succ l)) x else PErr l ["Expected "++show cs]
 matcher (MParWire _ _)  _ = error "matcher on ParWire"
 matcher (MJoin a b)     i = case optM a i of
@@ -48,9 +50,7 @@ matcher (MJoin a b)     i = case optM a i of
                                           POk s' t' -> POk s' (t,t')
                                           PErr l e -> PErr l e
                               PErr l e -> PErr l e
-
--- matcher _              (PS s _ _) | Str.null s = PErr ["eof"]
--- matcher _              _ = PErr ["unknown"]
+-- matcher _              (PS _ _ l) = PErr l ["unknown"]
 
 
 -- | Run a parser producing either a list of error messages or output.

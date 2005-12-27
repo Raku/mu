@@ -180,7 +180,10 @@ insertOp   tok AllowWhitespace table = table
 insertTok :: Token r -> TokenMap r -> TokenMap r
 insertTok tok tmap = insert key tok tmap
     where
-    key = MkTerm $ str (tokOp tok)
+    key = MkTerm (tokStr tok)
+
+tokStr :: Token r -> Str
+tokStr = str . tokOp
 
 defaultPrec :: Precedence
 defaultPrec = 1%1
@@ -205,12 +208,14 @@ type Parse r a = ( ?termStack  :: TermStack r
                  , ?str        :: Str
                  ) => a
 
-parse :: OpTable r -> Str -> r
-parse tbl str = let ?termStack  = []
-                    ?tokenStack = []
-                    ?operStack  = []
-                    ?tbl    = tbl 
-                    ?str    = str in expectTerm
+opParse :: OpTable r -> Str -> r
+opParse tbl str =
+    let ?termStack  = []
+        ?tokenStack = []
+        ?operStack  = []
+        ?tbl        = tbl 
+        ?str        = str
+     in expectTerm
 
 expectTerm :: Parse r r
 expectTerm
@@ -347,10 +352,10 @@ testTable = mkOpTable
 class MkClass a where op :: a
 
 instance MkClass (a -> (Str -> Op) -> [Char] -> [(Whitespace, a, Op)]) where
-    op mk op1 = Prelude.map (((,,) AllowWhitespace mk) . op1 . pack) . Prelude.words
+    op mk op1 = Prelude.map (((,,) AllowWhitespace mk) . op1 . pack) . splitWords
 
 instance MkClass (a -> (Str -> Str -> Op) -> [Char] -> [(Whitespace, a, Op)]) where
-    op mk op2 = Prelude.map (((,,) AllowWhitespace mk) . uncurry op2) . pack2 . Prelude.words
+    op mk op2 = Prelude.map (((,,) AllowWhitespace mk) . uncurry op2) . pack2 . splitWords
         where
         pack2 (x:y:zs)  = ((pack x, pack y):pack2 zs)
         pack2 _         = []
@@ -359,7 +364,7 @@ instance MkClass (a -> (Str -> Assoc -> Op) -> [Char] -> [(Whitespace, a, Op)]) 
     op mk op1 = op mk op1 AssocLeft
 
 instance MkClass (a -> (Str -> Assoc -> Op) -> Assoc -> [Char] -> [(Whitespace, a, Op)]) where
-    op mk op1 assoc = Prelude.map (((,,) AllowWhitespace mk) . (`op1` assoc) . pack) . Prelude.words
+    op mk op1 assoc = Prelude.map (((,,) AllowWhitespace mk) . (`op1` assoc) . pack) . splitWords
 
 instance (MkClass (a -> (Str -> Op) -> (Str -> (Str, Str)) -> [(Whitespace, a, Op)])) where
     op mk op1 f = [(AllowWhitespace, mk, DynTerm empty dyn)]
@@ -367,3 +372,6 @@ instance (MkClass (a -> (Str -> Op) -> (Str -> (Str, Str)) -> [(Whitespace, a, O
         dyn str = let (pre, post) = f str in
             if null pre then Nothing else Just (DynResultMatch pre post)
 
+splitWords :: String -> [String]
+splitWords [] = [""]
+splitWords x  = Prelude.words x

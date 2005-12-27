@@ -8,6 +8,10 @@ import Text.Parser.PArrow.MD
 empty :: MD i o
 empty = MEmpty
 
+-- | Match the empty string.
+choice :: [MD i o] -> MD i o
+choice = MChoice
+
 -- | Match zero or more occurences of the given parser.
 many :: MD i o -> MD i [o]
 many = MStar
