@@ -27,7 +27,18 @@ data Op
     deriving (Eq, Show, Ord)
 
 -- newtype DynStr = MkDynStr (forall m. Monad m => Str -> m (Str, Op -> Seq Match))
-type DynStr = Str -> Maybe (Str, Str)
+type DynStr = Str -> Maybe DynResult
+
+data DynResult
+    = DynResultMatch
+        { dynMatched    :: !Str
+        , dynRemainder  :: !Str
+        }
+    | DynResultTrans
+        { dynMatched    :: !Str
+        , dynRemainder  :: !Str
+        , dynOpTrans    :: !(OpTable -> OpTable)
+        }
 
 instance Eq DynStr where _ == _ = False
 instance Ord DynStr where compare _ _ = EQ
@@ -199,11 +210,15 @@ expectTerm
 
 matchWith :: Parse (Parse (Token -> a) -> Parse a -> TokenMap -> a)
 matchWith ok nok tmap = case find ((`isPrefixOf` ?str) . termToStr . fst) (toAscList tmap) of
-    Just (term, token@MkToken{ tokOp = DynTerm{dynStr = dyn} }) ->
+    Just (term, token@MkToken{ tokOp = DynTerm{ dynStr = dyn } }) ->
         let str' = drop (termLength term) ?str in
             case dyn str' of
-                Just (pre, post) -> let ?str = post in ok token
-                    { tokOp = Term (termToStr term `append` pre) }
+                Just res ->
+                    let ok' = let ?str = dynRemainder res
+                               in ok token{ tokOp = Term (termToStr term `append` dynMatched res) }
+                     in case res of
+                        DynResultTrans{} -> let ?tbl = dynOpTrans res ?tbl in ok'
+                        _                -> ok'
                 _                -> nok
     Just (term, token) -> let ?str = drop (termLength term) ?str in ok token
     _                  -> nok
@@ -241,18 +256,6 @@ expectOper
 nullTerm :: Parse Match
 nullTerm | (t@MkToken{ tokNull = True }:_) <- ?tokenStack = pushTermStack t expectOper
          | otherwise = error "Missing term"
-
-{-
-emptyTerm :: Parse Match
-emptyTerm = case lookup (MkTerm empty) (tableTerms ?tbl) of
-    Just term -> foundTerm term
-    Nothing   -> nullTerm
-
-emptyOper :: Parse Match
-emptyOper = case lookup (MkTerm empty) (tableOpers ?tbl) of
-    Just oper -> foundOper oper
-    Nothing   -> endParse
--}
 
 foundOper :: Parse (Token -> Parse Match)
 foundOper oper
@@ -349,6 +352,6 @@ instance MkClass ((Str -> Assoc -> Op) -> Assoc -> [Char] -> [(Whitespace, Op)])
 instance (MkClass ((Str -> Op) -> (Str -> (Str, Str)) -> [(Whitespace, Op)])) where
     mk op1 f = [(AllowWhitespace, DynTerm empty dyn)]
         where
-        dyn str = let match@(pre, _) = f str in
-            if null pre then Nothing else Just match
+        dyn str = let (pre, post) = f str in
+            if null pre then Nothing else Just (DynResultMatch pre post)
 
