@@ -83,7 +83,7 @@ run ("-C":backend:args) | map toLower backend == "js" = do
 run ("-C":backend:"-e":prog:_)           = doCompileDump backend "-e" prog
 run ("-C":backend:file:_)                = readFile file >>= doCompileDump backend file
 
-run ("-B":backend:_) | (== map toLower backend) `any` ["js","perl5"] = do
+run ("-B":backend:_) | (== map toLower backend) `any` ["js","perl5","js-perl5"] = do
     exec <- getArg0
     args <- getArgs
     doHelperRun backend (("--pugs="++exec):args)
@@ -231,12 +231,14 @@ doHelperRun backend args =
                    then (doExecuteHelper "jspugs.pl"  args)
                    else (doExecuteHelper "runjs.pl"   args)
         "perl5" ->       doExecuteHelper "pugs-p5.pl" args
+        "js-perl5" -> doExecuteHelper "runjs.pl" (jsPerl5Args ++ args)
         _       ->       fail ("unknown backend: " ++ backend)
     where
     args' = f args
+    jsPerl5Args = words "--run=jspm --perl5"
     f [] = []
-    f (bjs:rest)      | map toUpper bjs == "-BJS"       = f rest
-    f ("-B":js:rest)  | map toUpper  js == "JS"         = f rest
+    f (bjs:rest)      | "-BJS" `isPrefixOf` map toUpper bjs = f rest
+    f ("-B":js:rest)  | "JS" `isPrefixOf` map toUpper  js = f rest
     f (pugspath:rest) | "--pugs=" `isPrefixOf` pugspath = f rest
     f (x:xs) = x:f xs
 
