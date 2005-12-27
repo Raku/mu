@@ -40,7 +40,7 @@ data DynResult
         , dynOpTrans    :: !(OpTable -> OpTable)
         }
 
-instance Eq DynStr where _ == _ = False
+instance Eq DynStr where _ == _ = True
 instance Ord DynStr where compare _ _ = EQ
 instance Show DynStr where show _ = "<dyn>"
 
