@@ -5,13 +5,17 @@ use lib <t/lib ext/Rosetta-Incubator/t/lib>;
 
 use Test;
 
-plan( 34 );
+plan( 36 );
 
 # Locale-KeyedText:
 
 use_ok( 'Locale::KeyedText' );
 skip( 1, q{is( Locale::KeyedText.meta.identifier.version, 1.72.0,
     'Locale::KeyedText is the correct version' );} );
+
+use_ok( 'Locale::KeyedText::L::en' );
+skip( 1, q{is( Locale::KeyedText::L::en.meta.identifier.version, 1.0.0,
+    'Locale::KeyedText::L::en is the correct version' );} );
 
 # SQL-Routine:
 

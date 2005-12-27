@@ -500,7 +500,7 @@ None reported.
 =head1 SEE ALSO
 
 These documentation files are included in the SQL::Routine distribution:
-L<SQL::Routine::Language>.
+L<SQL::Routine::Language>, L<SQL::Routine::Migration>.
 
 These Perl 6 packages are the initial main dependents of SQL::Routine:
 L<Rosetta>, L<SQL::Routine::SQLBuilder>, L<SQL::Routine::SQLParser>.

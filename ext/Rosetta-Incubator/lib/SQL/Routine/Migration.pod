@@ -1,0 +1,49 @@
+=encoding utf8
+
+=head1 NAME
+
+SQL::Routine::Migration -
+Assist translating between various languages
+
+=head1 DESCRIPTION
+
+SQL::Routine provides an effective language for defining relational data
+models, both the means to create them and the means to interact with them;
+see the documentation of L<SQL::Routine> itself (in the current
+distribution) for a further introduction.
+
+This document, SQL::Routine::Migration ("Migration"), is intended to help
+users of SQL::Routine to map the concepts and syntax of their existing
+database schemas and access specifications, between SQL::Routine's native
+language and their current forms, such as SQL:2003 and other SQL dialects,
+and the "Tutorial D" relational data language, and various general purpose
+programming languages like C and Perl.
+
+This document should be helpful when converting applications to use
+SQL::Routine to define their relational database concerning structures and
+tasks.  This document should also be helpful when creating a
+SQL::Routine-based API layer on top of an existing database manager, so you
+know how to go about translating input and output to and from that database
+manager, or when creating something like a SQL translating tool.
+
+=head1 SEE ALSO
+
+I<This documentation is pending.>
+
+=head1 AUTHOR
+
+Darren R. Duncan (C<perl@DarrenDuncan.net>)
+
+=head1 LICENCE AND COPYRIGHT
+
+This file is part of the SQL::Routine database portability library.
+
+SQL::Routine is Copyright (c) 2002-2005, Darren R. Duncan.
+
+See the LICENCE AND COPYRIGHT of L<SQL::Routine> for details.
+
+=head1 ACKNOWLEDGEMENTS
+
+The ACKNOWLEDGEMENTS in L<SQL::Routine> apply to this file too.
+
+=cut

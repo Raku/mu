@@ -199,7 +199,9 @@ submethod template_module_is_loaded (Str $module_name!) returns Bool {
     # spec says it is supposed to, or whether is due a fluke or unspecced.
     # Currently, "::($m).ref" returns 'Type' if the package name in $m is
     # not loaded, and it returns one of ['Class','Module', etc] if it is.
-    return ::($module_name).does(Module);
+    # Note: 'Package' is checked for instead of 'Module' since all types of
+    # packages share the same namespace; any incompat will be caught later.
+    return ::($module_name).does(Package);
 }
 
 submethod load_template_module (Str $module_name!) {
