@@ -14,7 +14,7 @@ combinators.
 
 =cut
 
-role Parse::Rule::Media::Text::Pos { 
+our role Pos { 
     does Parse::Rule::Medium::Pos;
 
     has Str $.text;
@@ -24,7 +24,7 @@ role Parse::Rule::Media::Text::Pos {
 has $.Pos;
 
 submethod BUILD () {
-    $.Pos = Parse::Rule::Media::Text::Pos;
+    $.Pos = Pos;
 }
 
 method literal(Str $text) {...}

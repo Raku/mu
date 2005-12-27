@@ -22,7 +22,7 @@ members:
 
 =cut
 
-class Parse::Rule::Strategies::CPS::Result {
+our class Result {
     has $.backtrack;
     has $.marks;
     has $.pos;
@@ -46,7 +46,7 @@ $.backtrack closure that calls back into the parser.
 
 =cut
 
-class Parse::Rule::Strategies::CPS::Parser {
+our class Parser {
     does Parse::Rule::Core::Parser;
     does Parse::Rule::Core::Rule;
 
@@ -78,8 +78,8 @@ has $.Parser;
 has $.Result;
 
 submethod BUILD () {
-    $.Result = Parse::Rule::Strategies::CPS::Result;
-    $.Parser = Parse::Rule::Strategies::CPS::Parser;
+    $.Result = Result;
+    $.Parser = Parser;
 }
 
 

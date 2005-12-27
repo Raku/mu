@@ -21,7 +21,7 @@ see, but it has some other clutter because of unclear design.
 
 =cut
 
-class Parse::Rule::Core::Match {
+our class Match {
     has $.from;
     has $.to;
     
@@ -37,11 +37,11 @@ class Parse::Rule::Core::Match {
     }
 }
 
-role Parse::Rule::Core::Parser {
+our role Parser {
     method compile() {...}
 }
 
-role Parse::Rule::Core::Rule {
+our role Rule {
     method run($input, $match) {...}
 }
 
