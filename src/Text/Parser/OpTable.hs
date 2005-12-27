@@ -1,4 +1,4 @@
-{-# OpTIONS_GHC -fglasgow-exts -funbox-strict-fields #-}
+{-# OPTIONS_GHC -O2 -fglasgow-exts -funbox-strict-fields #-}
 
 -- A Haskell port of PGE::OPTable.
 
@@ -37,26 +37,32 @@ data DynResult
     | DynResultTrans
         { dynMatched    :: !Str
         , dynRemainder  :: !Str
-        , dynOpTrans    :: !(OpTable -> OpTable)
+        , dynOpTrans    :: !(forall r. OpTable r -> OpTable r)
         }
 
 instance Eq DynStr where _ == _ = True
 instance Ord DynStr where compare _ _ = EQ
 instance Show DynStr where show _ = "<dyn>"
 
+instance Eq (DynMkMatch r) where _ == _ = True
+instance Ord (DynMkMatch r) where compare _ _ = EQ
+instance Show (DynMkMatch r) where show _ = "<mkMatch>"
+
+type DynMkMatch r = (Token r -> [r] -> r)
 type Precedence = Ratio Int
 type Arity = Int
 
-data Token = MkToken
-    { tokOp    :: !Op
-    , tokPrec  :: !Precedence
-    , tokArity :: !Arity
-    , tokClose :: !(Maybe Op)
-    , tokNull  :: !Bool -- null-width assertion
+data Token r = MkToken
+    { tokOp      :: !Op
+    , tokPrec    :: !Precedence
+    , tokArity   :: !Arity
+    , tokClose   :: !(Maybe Op)
+    , tokNull    :: !Bool -- null-width assertion
+    , tokMkMatch :: !(DynMkMatch r)
     }
     deriving (Eq, Show)
 
-instance Ord Token where
+instance Ord (Token r) where
     compare x y = compare (tokPrec x) (tokPrec y)
 
 data Match = MkMatch
@@ -81,21 +87,21 @@ data PrecRelation
     | LooserThan    { relOp :: !Op }
     deriving (Eq, Show, Ord)
 
-data OpTable = MkOpTable
-    { tableEntries   :: !EntryMap
-    , tableTerms     :: !TokenMap
-    , tableOpers     :: !TokenMap
-    , tableWsTerms   :: !TokenMap
-    , tableWsOpers   :: !TokenMap
+data OpTable r = MkOpTable
+    { tableEntries   :: !(EntryMap r)
+    , tableTerms     :: !(TokenMap r)
+    , tableOpers     :: !(TokenMap r)
+    , tableWsTerms   :: !(TokenMap r)
+    , tableWsOpers   :: !(TokenMap r)
     }
     deriving (Eq, Show, Ord)
 
-emptyTable :: OpTable
+emptyTable :: OpTable r
 emptyTable = MkOpTable NMap.empty NMap.empty NMap.empty NMap.empty NMap.empty
 
 type Str = NStr.FastString
-type EntryMap = Map Op Token
-type TokenMap = Map Term Token
+type EntryMap a = Map Op (Token a)
+type TokenMap a = Map Term (Token a)
 
 -- | Terms are ordered by descending length first.
 newtype Term = MkTerm { termToStr :: Str } deriving (Eq, Show)
@@ -108,17 +114,18 @@ instance Ord Term where
         EQ -> compare x y
         o  -> o
 
-addToken :: OpTable -> Op -> PrecRelation -> Whitespace -> OpTable
-addToken table op rel ws = doCloseOp . doInsert $ table{ tableEntries = ents' }
+addToken :: OpTable r -> Op -> DynMkMatch r -> PrecRelation -> Whitespace -> OpTable r
+addToken table op mk rel ws = doCloseOp . doInsert $ table{ tableEntries = ents' }
     where
     ents  = tableEntries table
     ents' = doCloseEntry $ insert op tok ents
     tok   = MkToken
-        { tokOp    = op
-        , tokPrec  = calculatePrec rel ents
-        , tokArity = arityOf op
-        , tokClose = maybeOpClose
-        , tokNull  = False
+        { tokOp      = op
+        , tokPrec    = calculatePrec rel ents
+        , tokArity   = arityOf op
+        , tokClose   = maybeOpClose
+        , tokNull    = False
+        , tokMkMatch = mk
         }
     doInsert = insertBy op tok ws
     (doCloseOp, doCloseEntry, maybeOpClose)
@@ -130,11 +137,12 @@ addToken table op rel ws = doCloseOp . doInsert $ table{ tableEntries = ents' }
         | otherwise    = (id, id, Nothing)
     opClose = Close (str2 op)
     mkTokClose = MkToken
-        { tokOp     = opClose
-        , tokPrec   = tokPrec tok
-        , tokArity  = 0
-        , tokClose  = Nothing
-        , tokNull   = False
+        { tokOp      = opClose
+        , tokPrec    = tokPrec tok
+        , tokArity   = 0
+        , tokClose   = Nothing
+        , tokNull    = False
+        , tokMkMatch = mk
         }
 
 arityOf :: Op -> Arity
@@ -144,7 +152,7 @@ arityOf Infix{}         = 2
 arityOf PostCircumfix{} = 2
 arityOf _               = 1
 
-insertBy :: Op -> Token -> Whitespace -> OpTable -> OpTable
+insertBy :: Op -> Token r -> Whitespace -> OpTable r -> OpTable r
 insertBy Term{}           = insertTerm
 insertBy DynTerm{}        = insertTerm
 insertBy Prefix{}         = insertTerm
@@ -157,7 +165,7 @@ isClosing Circumfix{}       = True
 isClosing PostCircumfix{}   = True
 isClosing _                 = False
 
-insertTerm, insertOp :: Token -> Whitespace -> OpTable -> OpTable
+insertTerm, insertOp :: Token r -> Whitespace -> OpTable r -> OpTable r
 insertTerm tok NoWhitespace    table = table
     { tableTerms   = insertTok tok (tableTerms table)   }
 insertTerm tok AllowWhitespace table = table
@@ -169,7 +177,7 @@ insertOp   tok AllowWhitespace table = table
     { tableOpers     = insertTok tok (tableOpers table)
     , tableWsOpers   = insertTok tok (tableWsOpers table) }
 
-insertTok :: Token -> TokenMap -> TokenMap
+insertTok :: Token r -> TokenMap r -> TokenMap r
 insertTok tok tmap = insert key tok tmap
     where
     key = MkTerm $ str (tokOp tok)
@@ -177,7 +185,7 @@ insertTok tok tmap = insert key tok tmap
 defaultPrec :: Precedence
 defaultPrec = 1%1
 
-calculatePrec :: PrecRelation -> EntryMap -> Precedence
+calculatePrec :: PrecRelation -> EntryMap r -> Precedence
 calculatePrec DefaultPrec _ = defaultPrec
 calculatePrec rel toks = case rel of
     SameAs {}       -> prec
@@ -186,21 +194,25 @@ calculatePrec rel toks = case rel of
     where
     prec = tokPrec (toks ! (relOp rel))
 
-type TokenStack = [Token]
-type TermStack  = [Match]
-type OperStack  = [Match]
+type TokenStack r = [Token r]
+type TermStack r  = [r]
+type OperStack r  = [r]
 
-type Parse a = ( ?termStack :: TermStack, ?tokenStack :: TokenStack, ?operStack :: OperStack
-               , ?tbl :: OpTable, ?str :: Str) => a
+type Parse r a = ( ?termStack  :: TermStack r
+                 , ?tokenStack :: TokenStack r
+                 , ?operStack  :: OperStack ([r] -> r)
+                 , ?tbl        :: OpTable r
+                 , ?str        :: Str
+                 ) => a
 
-parse :: OpTable -> Str -> Match
+parse :: OpTable r -> Str -> r
 parse tbl str = let ?termStack  = []
                     ?tokenStack = []
                     ?operStack  = []
                     ?tbl    = tbl 
                     ?str    = str in expectTerm
 
-expectTerm :: Parse Match
+expectTerm :: Parse r r
 expectTerm
     | null ?str = nullTerm
     | otherwise = let ?str = str' in matchWith foundTerm nullTerm terms
@@ -208,7 +220,7 @@ expectTerm
     str'  = dropSpace ?str
     terms = (if length str' == length ?str then tableTerms else tableWsTerms) ?tbl
 
-matchWith :: Parse (Parse (Token -> a) -> Parse a -> TokenMap -> a)
+matchWith :: Parse r (Parse r (Token r -> a) -> Parse r a -> TokenMap r -> a)
 matchWith ok nok tmap = case find ((`isPrefixOf` ?str) . termToStr . fst) (toAscList tmap) of
     Just (term, token@MkToken{ tokOp = DynTerm{ dynStr = dyn } }) ->
         let str' = drop (termLength term) ?str in
@@ -228,24 +240,24 @@ isTerm Term{}    = True
 isTerm DynTerm{} = True
 isTerm _         = False
 
-foundTerm :: Parse (Token -> Match)
+foundTerm :: Parse r (Token r -> r)
 foundTerm token
     | isTerm (tokOp token) = pushTermStack token expectOper
     | otherwise            = operShift token
 
-pushTermStack :: Parse (Token -> Parse a -> Parse a)
-pushTermStack token p = let ?termStack = (mkMatch token: ?termStack) in p
+pushTermStack :: Parse r (Token r -> Parse r a -> Parse r a)
+pushTermStack token p = let ?termStack = (tokMkMatch token token []: ?termStack) in p
 
-pushOperStack :: Parse (Token -> Parse a -> Parse a)
-pushOperStack token p = let ?operStack = (mkMatch token: ?operStack) in p
+pushOperStack :: Parse r (Token r -> Parse r a -> Parse r a)
+pushOperStack token p = let ?operStack = (tokMkMatch token token: ?operStack) in p
 
-pushTokenStack :: Parse (Token -> Parse a -> Parse a)
+pushTokenStack :: Parse r (Token r -> Parse r a -> Parse r a)
 pushTokenStack token p = let ?tokenStack = (token: ?tokenStack) in p
 
-mkMatch :: Token -> Match
-mkMatch token = (MkMatch (tokOp token) NSeq.empty)
+mkMatch :: DynMkMatch Match
+mkMatch token = MkMatch (tokOp token) . fromList
 
-expectOper :: Parse Match
+expectOper :: Parse r r
 expectOper
     | null str' = endParse
     | otherwise = let ?str = str' in matchWith foundOper endParse opers
@@ -253,11 +265,11 @@ expectOper
     str'  = dropSpace ?str
     opers = (if length str' == length ?str then tableOpers else tableWsOpers) ?tbl
 
-nullTerm :: Parse Match
+nullTerm :: Parse r r
 nullTerm | (t@MkToken{ tokNull = True }:_) <- ?tokenStack = pushTermStack t expectOper
          | otherwise = error "Missing term"
 
-foundOper :: Parse (Token -> Parse Match)
+foundOper :: Parse r (Token r -> Parse r r)
 foundOper oper
     | (top:_) <- ?tokenStack = case tokOp top of
         Postfix{}                   -> operReduce oper
@@ -280,7 +292,7 @@ foundOper oper
     where
     op = tokOp oper
 
-operShift :: Parse (Token -> Parse Match)
+operShift :: Parse r (Token r -> Parse r r)
 operShift token = pushTokenStack token (pushOperStack token (case tokOp token of
         Prefix{}        -> expectTerm
         Infix{}         -> expectTerm
@@ -293,15 +305,15 @@ operShift token = pushTokenStack token (pushOperStack token (case tokOp token of
         _               -> expectOper
     ))
 
-operReduce :: Token -> Parse Match 
+operReduce :: Parse r (Token r -> r)
 operReduce oper = reduce (foundOper oper)
 
-endParse :: Parse Match
+endParse :: Parse r r
 endParse
     | [] <- ?tokenStack = head ?termStack
     | otherwise         = reduce endParse
 
-reduce :: Parse (Parse Match -> Match)
+reduce :: Parse r (Parse r r -> r)
 reduce p = case ?tokenStack of
     (MkToken{tokOp=Close{}}:t:ts) ->
         let ?operStack  = tail ?operStack
@@ -310,47 +322,47 @@ reduce p = case ?tokenStack of
     (t:ts)  -> let ?tokenStack = ts in reduce1 (tokArity t) p
     _       -> error "reducing an empty token stack"
 
-reduce1 :: Parse (Arity -> Parse Match -> Match)
+reduce1 :: Parse r (Arity -> Parse r r -> r)
 reduce1 arity p =
     let (op:opers)    = ?operStack
         (args, terms) = splitAt arity ?termStack
      in let ?operStack = opers
-            ?termStack = (op{matchArgs = fromList (reverse args)}:terms) in p
+            ?termStack = (op (reverse args):terms) in p
 
-mkOpTable :: [[(Whitespace, Op)]] -> OpTable
+mkOpTable :: [[(Whitespace, DynMkMatch r, Op)]] -> OpTable r
 mkOpTable = fst . Prelude.foldl mkOps (emptyTable, DefaultPrec)
     where
     mkOps x [] = x
-    mkOps (tbl, rel) [(ws, op)] = (addToken tbl op rel ws, LooserThan op)
-    mkOps (tbl, rel) ((ws, op):xs) = mkOps (addToken tbl op rel ws, rel) xs
+    mkOps (tbl, rel) [(ws, mk, op)] = (addToken tbl op mk rel ws, LooserThan op)
+    mkOps (tbl, rel) ((ws, mk, op):xs) = mkOps (addToken tbl op mk rel ws, rel) xs
 
-testTable :: OpTable
+testTable :: OpTable Match
 testTable = mkOpTable
-    [ mk Circumfix       "( )"
-    , mk Term            (span isDigit)
-    , mk Infix           "* /"
-    , mk Infix AssocLeft "+ -"
+    [ op mkMatch Circumfix       "( )"
+    , op mkMatch Term            (span isDigit)
+    , op mkMatch Infix           "* /"
+    , op mkMatch Infix AssocLeft "+ -"
     ]
 
-class MkClass a where mk :: a
+class MkClass a where op :: a
 
-instance MkClass ((Str -> Op) -> [Char]          -> [(Whitespace, Op)]) where
-    mk op1 = Prelude.map (((,) AllowWhitespace) . op1 . pack) . Prelude.words
+instance MkClass (a -> (Str -> Op) -> [Char] -> [(Whitespace, a, Op)]) where
+    op mk op1 = Prelude.map (((,,) AllowWhitespace mk) . op1 . pack) . Prelude.words
 
-instance MkClass ((Str -> Str -> Op) -> [Char]   -> [(Whitespace, Op)]) where
-    mk op2 = Prelude.map (((,) AllowWhitespace) . uncurry op2) . pack2 . Prelude.words
+instance MkClass (a -> (Str -> Str -> Op) -> [Char] -> [(Whitespace, a, Op)]) where
+    op mk op2 = Prelude.map (((,,) AllowWhitespace mk) . uncurry op2) . pack2 . Prelude.words
         where
         pack2 (x:y:zs)  = ((pack x, pack y):pack2 zs)
         pack2 _         = []
 
-instance MkClass ((Str -> Assoc -> Op) -> [Char] -> [(Whitespace, Op)]) where
-    mk op1 = mk op1 AssocLeft
+instance MkClass (a -> (Str -> Assoc -> Op) -> [Char] -> [(Whitespace, a, Op)]) where
+    op mk op1 = op mk op1 AssocLeft
 
-instance MkClass ((Str -> Assoc -> Op) -> Assoc -> [Char] -> [(Whitespace, Op)]) where
-    mk op1 assoc = Prelude.map (((,) AllowWhitespace) . (`op1` assoc) . pack) . Prelude.words
+instance MkClass (a -> (Str -> Assoc -> Op) -> Assoc -> [Char] -> [(Whitespace, a, Op)]) where
+    op mk op1 assoc = Prelude.map (((,,) AllowWhitespace mk) . (`op1` assoc) . pack) . Prelude.words
 
-instance (MkClass ((Str -> Op) -> (Str -> (Str, Str)) -> [(Whitespace, Op)])) where
-    mk op1 f = [(AllowWhitespace, DynTerm empty dyn)]
+instance (MkClass (a -> (Str -> Op) -> (Str -> (Str, Str)) -> [(Whitespace, a, Op)])) where
+    op mk op1 f = [(AllowWhitespace, mk, DynTerm empty dyn)]
         where
         dyn str = let (pre, post) = f str in
             if null pre then Nothing else Just (DynResultMatch pre post)
