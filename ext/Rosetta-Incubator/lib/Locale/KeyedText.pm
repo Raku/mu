@@ -149,6 +149,13 @@ method translate_message (Locale::KeyedText::Message $message!)
     die 'invalid arg'
         if !$message.defined or !$message.does(Locale::KeyedText::Message);
 
+    # This Perl-6 specific workaround is done since $message arg can often
+    # be set from a caught exception (aliased to $!), and the Perl-6 spec
+    # currently declares $! as global, so the subsequent try{} block wipes
+    # it out, causing Pugs to die when we call get_msg_key() on undef.
+    # The workaround is not necessary if $! is respecced to ENV scope.
+    my $message_cpy = $message;
+
     my Str $text = undef;
 #    SET_MEMBER:
     for @{.get_set_member_combinations()} -> $module_name {
@@ -174,7 +181,7 @@ method translate_message (Locale::KeyedText::Message $message!)
         # death, assume module is damaged and say so; an undefined
         # ret val means module doesn't define key, skip to next module.
         $text = .get_template_text_from_loaded_module( $module_name,
-            $message.get_msg_key() ); # let escape any thrown exception
+            $message_cpy.get_msg_key() ); # let escape any thrown exception
 #        next SET_MEMBER
         next
             if !$text.defined;
@@ -182,7 +189,7 @@ method translate_message (Locale::KeyedText::Message $message!)
         # We successfully got template text for the message key, so
         # interpolate the message vars into it and return that.
         $text = .interpolate_vars_into_template_text(
-            $text, $message.get_msg_vars() );
+            $text, $message_cpy.get_msg_vars() );
 #        last SET_MEMBER;
         last;
     }
