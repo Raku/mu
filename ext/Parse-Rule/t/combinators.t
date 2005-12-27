@@ -20,7 +20,7 @@ sub matches ($text) {
     my $m = do_match($text, $pat);
     my $end;
     my $matches = defined $m and 
-                    do { $end = $m.end; $end.pos == $text.chars };
+                    do { $end = $m.to; $end.pos == $text.chars };
     ok($matches, "'$text' matches $desc");
     return $m;
 }
@@ -29,12 +29,12 @@ sub matches_not ($text) {
     my $m = do_match($text, $pat);
     my $end;
     my $matches = defined $m and 
-                    do { $end = $m.end; $end.pos == $text.chars };
+                    do { $end = $m.to; $end.pos == $text.chars };
     ok(!$matches, "'$text' doesn't match $desc");
 }
 
 sub is_range ($match, $start, $end) {
-    my ($ms, $me) = ($match.start, $match.end);
+    my ($ms, $me) = ($match.from, $match.to);
     my ($msp, $mep) = ($ms.pos, $me.pos);
     
     ok($msp == $start && $mep == $end, "capture ($msp, $mep) is ($start, $end)");

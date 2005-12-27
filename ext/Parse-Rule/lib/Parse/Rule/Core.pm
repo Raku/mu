@@ -7,8 +7,8 @@ gets allocated anew whenever you enter a new rule or parenthesized
 group.  This is approximately the Match object that userland folks will
 see, but it has some other clutter because of unclear design.
 
-    $.start      - The place where this subrule/group started.
-    $.end        - The place where this subrule/group ended.  C<Medium>
+    $.from       - The place where this subrule/group started.
+    $.to         - The place where this subrule/group ended.  C<Medium>
                    represents positions I<between> elements, so if you're
                    thinking of these as numbers, this will be one past the
                    last character matched.
@@ -22,8 +22,8 @@ see, but it has some other clutter because of unclear design.
 =cut
 
 class Parse::Rule::Core::Match {
-    has $.start;
-    has $.end;
+    has $.from;
+    has $.to;
     
     has $.capture_num;
     has $.capture_name;

@@ -59,8 +59,8 @@ class Parse::Rule::Strategies::CPS::Parser {
                 pos       => $input,
                 match     => $match),
             -> $m { ($m.match.clone(
-                        start => $input,
-                        end   => $m.pos), 
+                        from => $input,
+                        to   => $m.pos), 
                      $m.backtrack) });
     }
 
@@ -214,8 +214,8 @@ method capture ($p, Int :$num, Str :$name) is export {
                    -> $m {
                         # XXX. Eeeeeeyuck!  This is totally awkward.
                         my $subobj = $m.match.clone(
-                            start => $match.pos,
-                            end => $m.pos,
+                            from => $match.pos,
+                            to => $m.pos,
                         );
                         my $mmat = $match.match;
                         my $newnump = $mmat.capture_num;
