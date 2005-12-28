@@ -7,6 +7,7 @@ import Prelude hiding (length, lookup, null, drop, span)
 import qualified Data.Map as NMap
 import qualified Data.Seq as NSeq
 import qualified Data.FastPackedString as NStr
+import qualified Data.List as List
 import Data.Ratio
 import Data.Char (isDigit)
 import Data.List (find)
@@ -146,11 +147,12 @@ addToken table op mk rel ws = doCloseOp . doInsert $ table{ tableEntries = ents'
         }
 
 arityOf :: Op -> Arity
-arityOf Close{}         = 0
-arityOf Ternary{}       = 3
-arityOf Infix{}         = 2
-arityOf PostCircumfix{} = 2
-arityOf _               = 1
+arityOf Close{}                 = 0
+arityOf Ternary{}               = 3
+arityOf Infix{assoc=AssocList}  = -1 -- infinity
+arityOf Infix{}                 = 2
+arityOf PostCircumfix{}         = 2
+arityOf _                       = 1
 
 insertBy :: Op -> Token r -> Whitespace -> OpTable r -> OpTable r
 insertBy Term{}           = insertTerm
@@ -233,8 +235,10 @@ opParseAll = opParse $ \res str -> if null str
 expectTerm :: Parse r r
 expectTerm
     | null ?str = emptyTerm
-    | otherwise = let ?str = str' in matchWith foundTerm emptyTerm terms
+    | otherwise = let ?str = str' in
+        matchWith foundTerm (let ?str = orig in emptyTerm) terms
     where
+    orig  = ?str
     str'  = dropSpace ?str
     terms = (if length str' == length ?str then tableTerms else tableWsTerms) ?tbl
 
@@ -249,7 +253,7 @@ matched ok nok (term, token@MkToken{ tokOp = DynTerm{ dynStr = dyn } }) =
         case dyn str' of
             Just res ->
                 let ok' = let ?str = dynRemainder res
-                            in ok token{ tokOp = Term (termToStr term `append` dynMatched res) }
+                           in ok token{ tokOp = Term (termToStr term `append` dynMatched res) }
                     in case res of
                     DynResultTrans{} -> let ?tbl = dynOpTrans res ?tbl in ok'
                     _                -> ok'
@@ -281,8 +285,10 @@ mkMatch token = MkMatch (tokOp token) . fromList
 expectOper :: Parse r r
 expectOper
     | null str' = endParse
-    | otherwise = let ?str = str' in matchWith foundOper endParse opers
+    | otherwise = let ?str = str' in
+        matchWith foundOper (let ?str = orig in emptyOper) opers
     where
+    orig  = ?str
     str'  = dropSpace ?str
     opers = (if length str' == length ?str then tableOpers else tableWsOpers) ?tbl
 
@@ -292,6 +298,13 @@ emptyTerm = case lookup termEmpty (tableTerms ?tbl) of
     Nothing  -> nullTerm
     where
     termEmpty = (MkTerm empty)
+
+emptyOper :: Parse r r
+emptyOper = case lookup operEmpty (tableOpers ?tbl) of
+    Just tok -> matched foundOper endParse (operEmpty, tok)
+    Nothing  -> endParse
+    where
+    operEmpty = (MkTerm empty)
 
 nullTerm :: Parse r r
 nullTerm | (t@MkToken{ tokNull = True }:_) <- ?tokenStack = pushTermStack t expectOper
@@ -314,6 +327,7 @@ foundOper oper
             _           -> operShift oper
         _           | oper < top    -> operReduce oper
         Infix{ assoc = AssocRight } -> operShift oper
+        Infix{ assoc = AssocList  } -> operShift oper
         _                           -> operReduce oper
     | Close{} <- op          = endParse
     | otherwise              = operShift oper
@@ -347,6 +361,12 @@ reduce p = case ?tokenStack of
         let ?operStack  = tail ?operStack
             ?tokenStack = ts
          in reduce1 (tokArity t) p
+    (t:ts) | tokArity t == (-1) ->
+        let (same, rest) = List.span (== t) ts
+            len          = List.length same in
+        let ?operStack   = List.drop len ?operStack
+            ?tokenStack  = rest
+         in reduce1 (2 + len) p
     (t:ts)  -> let ?tokenStack = ts in reduce1 (tokArity t) p
     _       -> error "reducing an empty token stack"
 
