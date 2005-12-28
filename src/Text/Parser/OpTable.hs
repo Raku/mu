@@ -12,7 +12,7 @@ import Data.Char (isDigit)
 import Data.List (find)
 import Data.Seq (Seq, fromList)
 import Data.Map (Map, insert, lookup, toAscList, (!))
-import Data.FastPackedString (empty, pack, null, drop, dropSpace, length, isPrefixOf, span, append)
+import Data.FastPackedString (empty, unpack, pack, null, drop, dropSpace, length, isPrefixOf, span, append, FastString(..))
 
 data Op
     = Infix         { str :: !Str, assoc :: !Assoc }
@@ -206,39 +206,55 @@ type Parse r a = ( ?termStack  :: TermStack r
                  , ?operStack  :: OperStack ([r] -> r)
                  , ?tbl        :: OpTable r
                  , ?str        :: Str
+                 , ?final      :: r -> Str -> r
                  ) => a
 
-opParse :: OpTable r -> Str -> r
-opParse tbl str =
+opParse :: (r -> Str -> r) -> OpTable r -> Str -> r
+opParse f tbl str =
     let ?termStack  = []
         ?tokenStack = []
         ?operStack  = []
         ?tbl        = tbl 
         ?str        = str
+        ?final      = f
      in expectTerm
+
+strPos :: Str -> String
+strPos (PS _ s _) = "column " ++ show (succ s)
+
+opParsePartial :: OpTable r -> Str -> r
+opParsePartial = opParse const
+
+opParseAll :: OpTable r -> Str -> r
+opParseAll = opParse $ \res str -> if null str
+    then res
+    else error ("incomplete parse at " ++ strPos str)
 
 expectTerm :: Parse r r
 expectTerm
-    | null ?str = nullTerm
-    | otherwise = let ?str = str' in matchWith foundTerm nullTerm terms
+    | null ?str = emptyTerm
+    | otherwise = let ?str = str' in matchWith foundTerm emptyTerm terms
     where
     str'  = dropSpace ?str
     terms = (if length str' == length ?str then tableTerms else tableWsTerms) ?tbl
 
 matchWith :: Parse r (Parse r (Token r -> a) -> Parse r a -> TokenMap r -> a)
 matchWith ok nok tmap = case find ((`isPrefixOf` ?str) . termToStr . fst) (toAscList tmap) of
-    Just (term, token@MkToken{ tokOp = DynTerm{ dynStr = dyn } }) ->
-        let str' = drop (termLength term) ?str in
-            case dyn str' of
-                Just res ->
-                    let ok' = let ?str = dynRemainder res
-                               in ok token{ tokOp = Term (termToStr term `append` dynMatched res) }
-                     in case res of
-                        DynResultTrans{} -> let ?tbl = dynOpTrans res ?tbl in ok'
-                        _                -> ok'
-                _                -> nok
-    Just (term, token) -> let ?str = drop (termLength term) ?str in ok token
-    _                  -> nok
+    Just res -> matched ok nok res
+    Nothing  -> nok
+
+matched :: Parse r (Parse r (Token r -> a) -> Parse r a -> (Term, Token r) -> a)
+matched ok nok (term, token@MkToken{ tokOp = DynTerm{ dynStr = dyn } }) =
+    let str' = drop (termLength term) ?str in
+        case dyn str' of
+            Just res ->
+                let ok' = let ?str = dynRemainder res
+                            in ok token{ tokOp = Term (termToStr term `append` dynMatched res) }
+                    in case res of
+                    DynResultTrans{} -> let ?tbl = dynOpTrans res ?tbl in ok'
+                    _                -> ok'
+            _                -> nok
+matched ok _ (term, token) = let ?str = drop (termLength term) ?str in ok token
 
 isTerm :: Op -> Bool
 isTerm Term{}    = True
@@ -270,9 +286,16 @@ expectOper
     str'  = dropSpace ?str
     opers = (if length str' == length ?str then tableOpers else tableWsOpers) ?tbl
 
+emptyTerm :: Parse r r
+emptyTerm = case lookup termEmpty (tableTerms ?tbl) of
+    Just tok -> matched foundTerm nullTerm (termEmpty, tok)
+    Nothing  -> nullTerm
+    where
+    termEmpty = (MkTerm empty)
+
 nullTerm :: Parse r r
 nullTerm | (t@MkToken{ tokNull = True }:_) <- ?tokenStack = pushTermStack t expectOper
-         | otherwise = error "Missing term"
+         | otherwise = error ("missing term at " ++ strPos ?str)
 
 foundOper :: Parse r (Token r -> Parse r r)
 foundOper oper
@@ -315,7 +338,7 @@ operReduce oper = reduce (foundOper oper)
 
 endParse :: Parse r r
 endParse
-    | [] <- ?tokenStack = head ?termStack
+    | [] <- ?tokenStack = ?final (head ?termStack) ?str
     | otherwise         = reduce endParse
 
 reduce :: Parse r (Parse r r -> r)
@@ -349,28 +372,39 @@ testTable = mkOpTable
     , op mkMatch Infix AssocLeft "+ -"
     ]
 
-class MkClass a where op :: a
+noWs :: [(Whitespace, a, Op)] -> [(Whitespace, a, Op)]
+noWs = map (\(_, x, y) -> (NoWhitespace, x, y))
 
-instance MkClass (a -> (Str -> Op) -> [Char] -> [(Whitespace, a, Op)]) where
+class OpClass a where op :: a
+
+instance OpClass (a -> (Str -> Op) -> [Char] -> [(Whitespace, a, Op)]) where
     op mk op1 = Prelude.map (((,,) AllowWhitespace mk) . op1 . pack) . splitWords
 
-instance MkClass (a -> (Str -> Str -> Op) -> [Char] -> [(Whitespace, a, Op)]) where
+instance OpClass (a -> (Str -> Str -> Op) -> [Char] -> [(Whitespace, a, Op)]) where
     op mk op2 = Prelude.map (((,,) AllowWhitespace mk) . uncurry op2) . pack2 . splitWords
         where
         pack2 (x:y:zs)  = ((pack x, pack y):pack2 zs)
         pack2 _         = []
 
-instance MkClass (a -> (Str -> Assoc -> Op) -> [Char] -> [(Whitespace, a, Op)]) where
+instance OpClass (a -> (Str -> Assoc -> Op) -> [Char] -> [(Whitespace, a, Op)]) where
     op mk op1 = op mk op1 AssocLeft
 
-instance MkClass (a -> (Str -> Assoc -> Op) -> Assoc -> [Char] -> [(Whitespace, a, Op)]) where
+instance OpClass (a -> (Str -> Assoc -> Op) -> Assoc -> [Char] -> [(Whitespace, a, Op)]) where
     op mk op1 assoc = Prelude.map (((,,) AllowWhitespace mk) . (`op1` assoc) . pack) . splitWords
 
-instance (MkClass (a -> (Str -> Op) -> (Str -> (Str, Str)) -> [(Whitespace, a, Op)])) where
+instance (OpClass (a -> (Str -> Op) -> (Str -> Maybe (Str, Str)) -> [(Whitespace, a, Op)])) where
+    op mk op1 f = [(AllowWhitespace, mk, DynTerm empty dyn)]
+        where
+        dyn str = fmap (uncurry DynResultMatch) (f str)
+
+instance (OpClass (a -> (Str -> Op) -> (Str -> (Str, Str)) -> [(Whitespace, a, Op)])) where
     op mk op1 f = [(AllowWhitespace, mk, DynTerm empty dyn)]
         where
         dyn str = let (pre, post) = f str in
             if null pre then Nothing else Just (DynResultMatch pre post)
+
+instance (OpClass ((String -> Token r -> [r] -> r) -> (Str -> Op) -> String -> [(Whitespace, DynMkMatch r, Op)])) where
+    op mk op1 = concatMap (\x -> op (mk x) op1 x) . splitWords
 
 splitWords :: String -> [String]
 splitWords [] = [""]
