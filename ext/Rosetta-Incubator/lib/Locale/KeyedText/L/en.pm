@@ -1,32 +1,52 @@
 #!/usr/bin/pugs
 use v6;
 
-# External packages used by packages in this file, that don't export symbols:
-# (None Yet)
-
 ###########################################################################
 ###########################################################################
 
 # Constant values used by packages in this file:
-# (None Yet)
+my Str %text_strings is readonly = (
+    'LKT_ARG_UNDEF'
+        => q[<CLASS>.<METH>(): argument <ARG> is undefined (or missing).],
+
+    'LKT_ARG_EMP_STR'
+        => q[<CLASS>.<METH>(): argument <ARG> is an empty string.],
+
+    'LKT_ARG_NO_ARY'
+        => q[<CLASS>.<METH>(): argument <ARG> is not an Array ref,]
+           ~ q[ but rather contains '<VAL>'.],
+    'LKT_ARG_ARY_ELEM_UNDEF'
+        => q[<CLASS>.<METH>(): argument <ARG> is an Array ref as expected,]
+           ~ q[ but one of its elements is undefined.],
+    'LKT_ARG_ARY_ELEM_EMP_STR'
+        => q[<CLASS>.<METH>(): argument <ARG> is an Array ref as expected,]
+           ~ q[ but one of its elements is an empty string.],
+
+    'LKT_ARG_NO_HASH'
+        => q[<CLASS>.<METH>(): argument <ARG> is not a Hash ref,]
+           ~ q[ but rather contains '<VAL>'.],
+    'LKT_ARG_HASH_KEY_EMP_STR'
+        => q[<CLASS>.<METH>(): argument <ARG> is a Hash ref as expected,]
+           ~ q[ but one of its keys is an empty string.],
+    'LKT_ARG_HASH_VAL_UNDEF'
+        => q[<CLASS>.<METH>(): argument <ARG> is a Hash ref as expected,]
+           ~ q[ but the value for its '<KEY>' key is undefined.],
+    'LKT_ARG_HASH_VAL_EMP_STR'
+        => q[<CLASS>.<METH>(): argument <ARG> is a Hash ref as expected,]
+           ~ q[ but the value for its '<KEY>' key is an empty string.],
+
+    'LKT_ARG_NO_EXP_TYPE'
+        => q[<CLASS>.<METH>(): argument <ARG> is not a <EXP_TYPE>,]
+           ~ q[ but rather contains '<VAL>'.],
+);
 
 ###########################################################################
 ###########################################################################
 
 module Locale::KeyedText::L::en-1.0.0 {
-
-    # External packages used by the Locale::KeyedText::L::en module, that do export symbols:
-    # (None Yet)
-
-    # Attributes of every Locale::KeyedText::L::en object:
-    # (None Yet)
-
-###########################################################################
-
-
-
-###########################################################################
-
+    sub get_text_by_key (Str $msg_key!) returns Str {
+        return %text_strings{$msg_key};
+    }
 } # module Locale::KeyedText::L::en
 
 ###########################################################################

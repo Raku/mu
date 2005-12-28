@@ -37,11 +37,8 @@ class Locale::KeyedText::Message {
 
 submethod BUILD (Str :$msg_key!, Any :%msg_vars? = {}) {
 
-    die 'invalid arg'
-        if !$msg_key.defined or $msg_key eq $EMPTY_STR;
-
-    die 'invalid arg'
-        if !%msg_vars.defined or %msg_vars.exists($EMPTY_STR);
+    !_assert_arg_str( 'new', ':$msg_key!', $msg_key );
+    !_assert_arg_hash( 'new', ':%msg_vars?', %msg_vars );
 
     $!msg_key  = $msg_key;
     %!msg_vars = %msg_vars;
@@ -56,8 +53,7 @@ method get_msg_key () returns Str {
 }
 
 method get_msg_var (Str $var_name!) returns Any {
-    die 'invalid arg'
-        if !$var_name.defined or $var_name eq $EMPTY_STR;
+    !_assert_arg_str( 'get_msg_var', '$var_name!', $var_name );
     return %!msg_vars{$var_name};
 }
 
@@ -72,6 +68,29 @@ method as_debug_string () returns Str {
          ~ '%msg_vars: {' ~ %!msg_vars.pairs.sort.map:{
                '"' ~ .key ~ '"="' ~ (.value // $EMPTY_STR) ~ '"' #/
            }.join( q{, } ) ~ '}';
+}
+
+###########################################################################
+
+my method _die_with_msg (Str $msg_key!, Any %msg_vars? is ref = {}) {
+    %msg_vars{'CLASS'} = 'Locale::KeyedText::Message';
+    die Locale::KeyedText::Message.new(
+        'msg_key' => $msg_key, 'msg_vars' => %msg_vars );
+}
+
+my method _assert_arg_str (Str $meth!, Str $arg!, Str $val!) {
+    !_die_with_msg( 'LKT_ARG_UNDEF', { 'METH' => $meth, 'ARG' => $arg } )
+        if !$val.defined;
+    !_die_with_msg( 'LKT_ARG_EMP_STR', { 'METH' => $meth, 'ARG' => $arg } )
+        if $val eq $EMPTY_STR;
+}
+
+my method _assert_arg_hash (Str $meth!, Str $arg!, Any %val!) {
+    !_die_with_msg( 'LKT_ARG_UNDEF', { 'METH' => $meth, 'ARG' => $arg } )
+        if !%val.defined;
+    !_die_with_msg( 'LKT_ARG_HASH_KEY_EMP_STR',
+            { 'METH' => $meth, 'ARG' => $arg } )
+        if %val.exists($EMPTY_STR);
 }
 
 ###########################################################################
