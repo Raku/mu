@@ -13,13 +13,18 @@ import Text.Parser.PArrow.CharSet
 import Data.Set (Set, isSubsetOf)
 import Data.Seq (Seq, fromList)
 import Data.Map (Map)
-import Data.IntMap (IntMap, insertWith, lookup, toAscList, elems)
+import Data.IntMap (IntMap, insertWith, lookup, toAscList, elems, union)
 import Data.Char (isAlphaNum, isSpace)
 import Control.Arrow
 import System.IO (stdout)
+import System.Environment (getArgs)
 
 main :: IO ()
-main = match "1+|2*" "2"
+main = do
+    args <- getArgs
+    case args of
+        [x, y]  -> match x y
+        _       -> putStrLn "*** This program takes two arguments: 'rule' and 'string'"
 
 type NoMatch = IntMap Label
 
@@ -53,18 +58,20 @@ prettyErrs _ (s, prev) (idx, this)
 runMatch :: MD i o -> FastString -> NoMatch -> Either NoMatch o
 runMatch p s errs | null s = Left errs
 runMatch p s errs = case runParser p s of
-    Left (idx, err) -> runMatch p (tail s) (insertErr idx err errs)
-    Right ok        -> Right ok
+    PErr err    -> runMatch p (tail s) (errs `union` err)
+    POk _ ok    -> Right ok
 
 insertErr :: Int -> Label -> NoMatch -> NoMatch
 insertErr = insertWith mappend
 
+{-
 runOverlapMatch :: MD i o -> FastString -> Either NoMatch [o] -> Either NoMatch [o]
 runOverlapMatch p s res | null s = res
 runOverlapMatch p s (Left errs) = runOverlapMatch p (tail s)
     (either (Left . (\(idx, err) -> insertErr idx err errs)) (Right . (:[])) (runParser p s))
 runOverlapMatch p s ok@(Right oks) = runOverlapMatch p (tail s)
     (either (const ok) (Right . (:oks)) (runParser p s))
+-}
 
 parseOptimized :: String -> Rule
 parseOptimized = optimize . parse
