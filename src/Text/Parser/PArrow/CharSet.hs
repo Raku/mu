@@ -2,18 +2,21 @@
 module Text.Parser.PArrow.CharSet where
 
 import Data.Char
+import Data.Set hiding (map)
 
 -- | Character sets
 data CharSet = CS_Any        -- ^ All characters
              | CS_Word       -- ^ alphanum and \'_\'
              | CS_Whitespace -- ^ whitespace
+             | CS_Newline    -- ^ newline
              | CS_Digit      -- ^ digits
              | CS_Alpha      -- ^ Alphabetical
              | CS_Alnum      -- ^ alpha or digit
              | CS_Ascii      -- ^ <=127
              | CS_Lower      -- ^ Lower
              | CS_Upper      -- ^ Upper
-               deriving(Eq)
+             | CS_Negated !CharSet
+               deriving(Eq, Ord)
 
 instance Show CharSet where
     show CS_Any        = "."
@@ -25,17 +28,18 @@ instance Show CharSet where
     show CS_Ascii      = "{ascii}"
     show CS_Lower      = "{lower}"
     show CS_Upper      = "{upper}"
+    show (CS_Negated x)= map toUpper (show x)
 
-
--- | List of the Chars contained in a CharSet.
-csetValue :: CharSet -> [Char]
-csetValue CS_Any = fmap chr [0..255]
-csetValue CS_Word       = ('_':csetValue CS_Alnum)
-csetValue CS_Whitespace = " \t\r\n"
-csetValue CS_Digit      = "0123456789"
-csetValue CS_Ascii      = fmap chr [0..127]
-csetValue CS_Alpha      = filter isAlpha $ csetValue CS_Any
-csetValue CS_Alnum      = csetValue CS_Digit ++ csetValue CS_Alpha
-csetValue CS_Lower      = filter isLower $ csetValue CS_Alpha
-csetValue CS_Upper      = filter isUpper $ csetValue CS_Alpha
-
+containsChar :: CharSet -> Char -> Bool
+containsChar CS_Any = const True
+containsChar CS_Word = \x -> case x of
+    '_' -> True
+    _   -> isAlphaNum x
+containsChar CS_Whitespace = isSpace
+containsChar CS_Newline    = (== '\n')
+containsChar CS_Digit      = isDigit
+containsChar CS_Ascii      = (< 128) . ord
+containsChar CS_Alpha      = isAlpha
+containsChar CS_Alnum      = isAlphaNum
+containsChar CS_Lower      = isLower
+containsChar CS_Upper      = isUpper

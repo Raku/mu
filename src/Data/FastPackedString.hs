@@ -48,6 +48,7 @@ module Data.FastPackedString (
         init,         -- :: FastString -> FastString
         null,         -- :: FastString -> Bool
         length,       -- :: FastString -> Int
+        idx,          -- :: FastString -> Int
 
         -- * List transformations
         map,          -- :: (Char -> Char) -> FastString -> FastString
@@ -105,6 +106,7 @@ module Data.FastPackedString (
         findIndex,    -- :: (Char -> Bool) -> FastString -> Maybe Int
         findIndices,  -- :: (Char -> Bool) -> FastString -> [Int]
         isPrefixOf,   -- :: FastString -> FastString -> Bool
+        isPrefixOf',   -- :: FastString -> FastString -> Maybe Bool
         isSuffixOf,   -- :: FastString -> FastString -> Bool
 
         -- * Special 'FastString's
@@ -402,6 +404,11 @@ null (PS _ _ l) = l == 0
 length :: FastString -> Int
 length (PS _ _ l) = l
 {-# INLINE length #-}
+
+-- | /O(1)/ 'idx' returns the skipped index as an 'Int'.
+idx :: FastString -> Int
+idx (PS _ s _) = s
+{-# INLINE idx #-}
 
 -- | /O(n)/ Append two packed strings
 append :: FastString -> FastString -> FastString
@@ -769,6 +776,17 @@ isPrefixOf (PS x1 s1 l1) (PS x2 s2 l2)
         withForeignPtr x2 $ \p2 -> do 
             i <- c_memcmp (p1 `plusPtr` s1) (p2 `plusPtr` s2) l1
             return (i == 0)
+
+-- | The 'isPrefixOf' function takes two strings and returns 'True'
+-- iff the first string is a prefix of the second.
+isPrefixOf' :: FastString -> FastString -> Maybe Bool
+isPrefixOf' (PS x1 s1 l1) (PS x2 s2 l2)
+    | l1 == 0   = Just True
+    | l2 < l1   = Nothing
+    | otherwise = unsafePerformIO $ withForeignPtr x1 $ \p1 -> 
+        withForeignPtr x2 $ \p2 -> do 
+            i <- c_memcmp (p1 `plusPtr` s1) (p2 `plusPtr` s2) l1
+            return (Just (i == 0))
 
 -- | The 'isSuffixOf' function takes two lists and returns 'True'
 -- iff the first list is a suffix of the second.

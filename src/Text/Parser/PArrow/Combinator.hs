@@ -39,7 +39,7 @@ between open close real = open >>> (real &&& close) >>^ fst
 
 -- | Match optionally.
 optional :: MD i o -> MD i (Maybe o)
-optional iarr = MChoice [iarr >>> MPure "Just" Just, MPure "const Nothing" (const Nothing)]
+optional iarr = MChoice [iarr >>> MPure mempty Just, MPure mempty (const Nothing)]
 
 -- | Sequence two parsers and return the result of the first one.
 (>>!) :: (Arrow a) => a b c -> a b c' -> a b c
