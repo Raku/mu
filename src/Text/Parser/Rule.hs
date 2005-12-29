@@ -49,7 +49,7 @@ prettyErrs _ (s, prev) (idx, this)
     = (s `append` pack "       or: " `append` formatted, this)
     where
     formatted = formWith expects `append` pack column
-    column = " at column " ++ show (succ idx) ++ "\n"
+    column = " at line 1, column " ++ show (succ idx) ++ "\n"
     formWith f = formList (Set.toAscList (f this))
     formList [x] = x
     formList [x, y] = x `append` pack " or " `append` y
