@@ -432,6 +432,11 @@ ${() = '%.hpp : %.hs @prereqs $version_h
 .hsc.hs :
 	\$(PERL) -MFile::Spec -e "sub p () { File::Spec->splitpath(ARGV->[0]) }; chdir((p)[1]); system(q($hsc2hs), qw($hsc2hs_flags), (p)[2]);" \$<
 
+.SUFFIXES: .pil .hs
+
+.pil.hs :
+	\$(PERL) util/file_to_hs.pl \$< \$@
+
 .SUFFIXES: .hs-drift .hs
 
 .hs-drift.hs :
@@ -510,7 +515,7 @@ ghci : @srcfiles
 	$ghc $ghc_flags -O --make -fglasgow-exts -H0 -isrc -L. -fno-warn-name-shadowing -no-hs-main -no-link src/Pugs.hs @prereqs
 	$ghc $ghc_flags --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
 
-pil$Config{_exe} : $config_h $unicode $pcre @cbits @srcfiles
+pil$Config{_exe} : $config_h $unicode $pcre @cbits @srcfiles src/PIL/Native/Bootstrap.hs
 	$ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -isrc/cbits -Isrc -Isrc/cbits -L. -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs $unicode $pcre @cbits
 
 pili : pil$Config{_exe}

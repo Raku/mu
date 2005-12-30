@@ -532,6 +532,18 @@
 
 
 ## ------------------------------------------------------------------------- ##
+## Autoboxing
+## ------------------------------------------------------------------------- ##
+
+::Bit.set_superclasses([ ::Object ]);
+::Int.set_superclasses([ ::Object ]);
+::Num.set_superclasses([ ::Object ]);
+::Str.set_superclasses([ ::Object ]);
+::Seq.set_superclasses([ ::Object ]);
+::Map.set_superclasses([ ::Object ]);
+::Sub.set_superclasses([ ::Object ]);
+
+## ------------------------------------------------------------------------- ##
 ## Role Bootstrapping
 ## ------------------------------------------------------------------------- ##
 
@@ -566,6 +578,14 @@
 
 ## end Role bootstrapping ...
 ## ------------------------------------------------------------------------- ##
+
+## ------------------------------------------------------------------------- ##
+## Container Types
+## ------------------------------------------------------------------------- ##
+
+::Scalar.set_superclasses([ ::Object ]);
+::Scalar.add_method('FETCH', -> { self`get_attr('') } );
+::Scalar.add_method('STORE', -> $x { self`set_attr('', $x) } );
 
 =pod
 
