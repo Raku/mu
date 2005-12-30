@@ -309,7 +309,7 @@ EOD
         my $ldflags = parrot_config($base, $parrot_config, 'ldflags');
         my $libs = parrot_config($base, $parrot_config, 'libs');
         my $icuflags = parrot_config($base, $parrot_config, 'icu_shared');
-		    my $include_path = parrot_config($base, $parrot_config, 'prefix') . parrot_config($base, '$parrot_config, inc');
+		    my $include_path = parrot_config($base, $parrot_config, 'prefix') . parrot_config($base, $parrot_config, 'inc');
 
         # strip non-GHC flags
         $ldflags =~ s/-[^IlL]\S*//g;
