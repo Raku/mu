@@ -6,10 +6,6 @@ import Text.Parser.PArrow.MD
 import Data.Seq (Seq, (<|), singleton)
 
 -- | Match the empty string.
-empty :: MD i o
-empty = MEmpty
-
--- | Match the empty string.
 choice :: [MD i o] -> MD i o
 choice = MChoice
 

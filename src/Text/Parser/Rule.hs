@@ -4,25 +4,24 @@ module Text.Parser.Rule (
     module Text.Parser.PArrow,
 ) where
 import Prelude hiding (lookup, null, drop, span, break, head, tail, splitAt)
-import Debug.Trace
 import Text.Parser.OpTable
 import Text.Parser.PArrow
 import Text.Parser.PArrow.MD (MD(..), Label(..), label, Monoid(..))
 import Data.FastPackedString hiding (concatMap, concat, elem, foldl, foldl1, map, foldr, foldr1, elems)
-import qualified Data.FastPackedString as Str
-import qualified Data.Seq as Seq
-import qualified Data.Map as Map
-import qualified Data.Set as Set
 import Text.Parser.PArrow.CharSet
 import Data.Set (Set, isSubsetOf)
 import Data.Seq (Seq, toList, fromList, (<|), (|>), (><))
 import Data.Map (Map)
 import Data.Generics hiding (Infix)
-import Data.IntMap (IntMap, insertWith, lookup, toAscList, elems, union)
-import Data.Char (isAlphaNum, isSpace)
+import Data.IntMap (IntMap, insertWith, toAscList, union)
+import Data.Char (isSpace)
 import Control.Arrow
 import System.IO (stdout)
 import System.Environment (getArgs)
+import qualified Data.FastPackedString as Str
+import qualified Data.Seq as Seq
+import qualified Data.Map as Map
+import qualified Data.Set as Set
 
 main :: IO ()
 main = do
@@ -47,14 +46,13 @@ grammar .<> name = (Map.!) grammar (pack name)
 name ~:~ rule = (pack name, parseOptimized rule)
 
 grammar :: [(Str, Rule)] -> Grammar
-grammar rules = compMap
+grammar rules = Map.map comp normMap
     where
     ruleMap = Map.fromList rules
     normMap = Map.map replaceAll ruleMap
-    compMap = Map.map comp normMap
     replaceAll = everywhere (mkT replaceNode)
     replaceNode (TermSubrule c name) = TermGroup c ((Map.!) normMap name)
-    replaceNode x             = x
+    replaceNode x = x
 
 match :: String -> String -> IO ()
 match r i = either (hPut stdout) print (matchRule r i)
@@ -92,6 +90,7 @@ prettyErrs idxs (s, idx, prev) (idx', this)
     formatted = formWith expects `append` pack column
     column = " at line " ++ show lineNum ++ ", column " ++ show colNum ++ "\n"
     formWith f = formList (Set.toAscList (f this))
+    formList [] = empty
     formList [x] = x
     formList [x, y] = x `append` pack " or " `append` y
     formList (x:xs) = x `append` pack ", " `append` formList xs
@@ -108,7 +107,7 @@ lineIdxs ps
              Just n  -> (n + idx ps:lineIdxs (drop (n+1) ps))
 
 runMatch :: Show o => MD i o -> Str -> NoMatch -> Either NoMatch o
-runMatch p s errs | null s = Left errs
+runMatch _ s errs | null s = Left errs
 runMatch p s errs = case runParser p s of
     PErr err    -> runMatch p (tail s) (errs `union` err)
     POk _ ok    -> Right ok
@@ -133,7 +132,7 @@ class Optimizable a where
     optimize = id
     
 instance Optimizable Rule where
-    optimize (RQuant (QuantNone x))     = REmpty
+    optimize (RQuant (QuantNone _))     = REmpty
     optimize (RQuant (QuantOne x))      = optimize $ mk x
     optimize (RConcat (Concat [x]))     = optimize $ mk x
     optimize (RConcat x)                = mk $ optimize x
@@ -207,7 +206,7 @@ matchStr (MatchPos m)   = matchStr m
 matchStr (MatchNam _ m) = matchStr m
 
 mergeStr :: Str -> Str -> Str
-mergeStr (PS _ s l) (PS p s' l') = (PS p s (s'+l'-s))
+mergeStr (PS _ s _) (PS p s' l') = (PS p s (s'+l'-s))
 
 instance Monoid MatchRule where
     mempty = error "empty match"
@@ -255,7 +254,7 @@ instance Compilable RuleTerm where
     comp x = error (show x)
 
 instance Compilable RuleQuant where
-    comp (QuantNone x) = error "none"
+    comp (QuantNone _) = error "none"
     comp (QuantOne x) = comp x
     comp (Quant x min max Greedy) = MGreedy min max (comp x) >>^
         either MatchNil (mconcat . toList)
@@ -432,6 +431,7 @@ ruleTable = mkOpTable
     _Concat _ xs = mk $ Concat (mk xs)
     _Group, _Subrule :: RuleCapturing -> DynMkMatch Rule
     _Group c _ [x] = mk $ TermGroup c x
+    _Group _ _ _   = error "impossible: multigroup"
     _Subrule c tok _
         | CapturePos <- c   = mk $ TermSubrule (CaptureNam nam) nam
         | otherwise         = mk $ TermSubrule c nam
@@ -455,23 +455,26 @@ instance MkClass (RuleTerm -> RuleQuant) where
 instance MkClass (Rule -> RuleTerm) where
     mk (RTerm x) = x
     mk (RQuant (QuantOne x)) = x
+    mk x = error ("downcast to term" ++ show x)
 
 instance MkClass (Rule -> RuleQuant) where
     mk (RTerm x) = QuantOne x
     mk (RQuant x) = x
     mk (RConj (Conj [Concat [x]])) = x
-    mk x = error (show x)
+    mk x = error ("downcast to quant" ++ show x)
 
 instance MkClass (Rule -> RuleConcat) where
     mk (RTerm x) = Concat [QuantOne x]
     mk (RQuant x) = Concat [x]
     mk (RConj (Conj [x])) = x
+    mk x = error ("downcast to concat" ++ show x)
 
 instance MkClass (Rule -> RuleConj) where
     mk (RTerm x) = Conj [Concat [QuantOne x]]
     mk (RQuant x) = Conj [Concat [x]]
     mk (RConcat x) = Conj [x]
     mk (RConj x) = x
+    mk x = error ("downcast to conj" ++ show x)
 
 instance MkClass (a -> c) => MkClass ((b -> a) -> b -> c) where
     mk f x = mk (f x)
