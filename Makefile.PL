@@ -279,7 +279,7 @@ EOD
 
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bparrot\b/i) {
         my $base = $ENV{PARROT_PATH};
-        my $parrot_config = which('parrot-config.imc') || '';
+        my $parrot_config = which('parrot-config.imc') || which('[parrot-config.pir') || '';
         if (!$base && -e $parrot_config) {
             $base = (File::Spec->splitpath($parrot_config))[1];
         }
@@ -293,12 +293,23 @@ EOD
         if (!$base and -d File::Spec->catdir(File::Spec->updir, 'parrot-trunk')) {
             $base = abs_path(File::Spec->catdir(File::Spec->updir, 'parrot-trunk'));
         }
-        (-d $base and -e File::Spec->catfile($base, 'parrot-config.imc'))
+
+        my $temp = File::Spec->catfile($base, 'parrot-config.imc');
+        if (!$parrot_config && -e $temp) {
+          $parrot_config = $temp;
+        }
+        
+        $temp = File::Spec->catfile($base, 'parrot-config.pir');
+        if (!$parrot_config && -e $temp) {
+          $parrot_config = $temp;
+        }
+        
+        (-d $base and -e $parrot_config)
             or die "*** Please set \$ENV{PARROT_PATH} to the base path with a built parrot tree.\n";
-        my $ldflags = parrot_config($base, 'ldflags');
-        my $libs = parrot_config($base, 'libs');
-        my $icuflags = parrot_config($base, 'icu_shared');
-		my $include_path = parrot_config($base, 'prefix') . parrot_config($base, 'inc');
+        my $ldflags = parrot_config($base, $parrot_config, 'ldflags');
+        my $libs = parrot_config($base, $parrot_config, 'libs');
+        my $icuflags = parrot_config($base, $parrot_config, 'icu_shared');
+		    my $include_path = parrot_config($base, $parrot_config, 'prefix') . parrot_config($base, '$parrot_config, inc');
 
         # strip non-GHC flags
         $ldflags =~ s/-[^IlL]\S*//g;
@@ -606,14 +617,14 @@ sub try_compile {
 }
 
 sub parrot_config {
-    my ($base, $config) = @_;
+    my ($base, $parrot_config, $config) = @_;
     my $ac_path = abs_path();
     my $sp_base = $base;
     $sp_base =~ s{\\}{\/}g;
     chdir( $sp_base ) or die "Can't change dir to '$sp_base'";
     my $parrot = "parrot$Config{_exe}";
     $parrot = "bin/$parrot" if not -e $parrot;
-    my $value = `./$parrot parrot-config.imc $config`;
+    my $value = `./$parrot $parrot_config $config`;
     chomp($value);
     chdir( $ac_path ) or die "Can't change dir to '$ac_path'";
     return $value;
