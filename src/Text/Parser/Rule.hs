@@ -50,9 +50,10 @@ grammar :: [(Str, Rule)] -> Grammar
 grammar rules = compMap
     where
     ruleMap = Map.fromList rules
-    compMap = Map.map (comp . replaceAll) ruleMap
+    normMap = Map.map replaceAll ruleMap
+    compMap = Map.map comp normMap
     replaceAll = everywhere (mkT replaceNode)
-    replaceNode (TermSubrule c name) = TermGroup c ((Map.!) ruleMap name)
+    replaceNode (TermSubrule c name) = TermGroup c ((Map.!) normMap name)
     replaceNode x             = x
 
 match :: String -> String -> IO ()
@@ -251,6 +252,7 @@ instance Compilable RuleTerm where
     comp (TermGroup Negated r) = MNot (comp r)
     comp (TermGroup CapturePos r) = comp r >>^ MatchPos
     comp (TermGroup (CaptureNam n) r) = comp r >>^ MatchNam n
+    comp x = error (show x)
 
 instance Compilable RuleQuant where
     comp (QuantNone x) = error "none"
