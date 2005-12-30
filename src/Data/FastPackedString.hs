@@ -230,7 +230,7 @@ import System.IO.Unsafe         (unsafeInterleaveIO)
 #endif
 
 #if defined(__GLASGOW_HASKELL__)
-import Data.Typeable
+import Data.Generics
 
 import GHC.Base (unsafeChr, unpackCString#)
 
@@ -248,7 +248,7 @@ import Control.Monad.ST
 --
 data FastString = PS {-# UNPACK #-} !(ForeignPtr Word8) !Int !Int
 #if defined(__GLASGOW_HASKELL__)
-    deriving Typeable
+    deriving (Data, Typeable)
 #endif
 
 ------------------------------------------------------------------------

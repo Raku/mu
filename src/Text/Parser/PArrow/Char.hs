@@ -1,10 +1,8 @@
 {-# OPTIONS_GHC -O2 -fglasgow-exts #-}
 module Text.Parser.PArrow.Char where
 
-import Control.Arrow
 import Text.Parser.PArrow.CharSet
 import Text.Parser.PArrow.MD
-import Text.Parser.PArrow.Combinator
 import Data.FastPackedString (FastString, pack)
 
 -- | Match a single given character and return it.

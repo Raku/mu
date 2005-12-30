@@ -7,5 +7,5 @@ module Text.Parser.PArrow
 
 import Text.Parser.PArrow.Char
 import Text.Parser.PArrow.Combinator
-import Text.Parser.PArrow.MD(MD)
+import Text.Parser.PArrow.MD
 import Text.Parser.PArrow.Prim

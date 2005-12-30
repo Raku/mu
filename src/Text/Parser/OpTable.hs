@@ -28,7 +28,7 @@ data Op
     deriving (Eq, Show, Ord)
 
 -- newtype DynStr = MkDynStr (forall m. Monad m => Str -> m (Str, Op -> Seq Match))
-type DynStr = Str -> Maybe DynResult
+type DynStr = Str -> Str -> Maybe DynResult
 
 data DynResult
     = DynResultMatch
@@ -228,7 +228,7 @@ opParsePartial :: OpTable r -> Str -> r
 opParsePartial = opParse const
 
 opParseAll :: OpTable r -> Str -> r
-opParseAll = opParse $ \res str -> if null str
+opParseAll = opParse $ \res str -> if null (dropSpace str)
     then res
     else error ("incomplete parse at " ++ strPos str)
 
@@ -236,24 +236,24 @@ expectTerm :: Parse r r
 expectTerm
     | null ?str = emptyTerm
     | otherwise = let ?str = str' in
-        matchWith foundTerm (let ?str = orig in emptyTerm) terms
+        tryMatch foundTerm (let ?str = orig in emptyTerm) terms
     where
     orig  = ?str
     str'  = dropSpace ?str
     terms = (if length str' == length ?str then tableTerms else tableWsTerms) ?tbl
 
-matchWith :: Parse r (Parse r (Token r -> a) -> Parse r a -> TokenMap r -> a)
-matchWith ok nok tmap = case find ((`isPrefixOf` ?str) . termToStr . fst) (toAscList tmap) of
+tryMatch :: Parse r (Parse r (Token r -> a) -> Parse r a -> TokenMap r -> a)
+tryMatch ok nok tmap = case find ((`isPrefixOf` ?str) . termToStr . fst) (toAscList tmap) of
     Just res -> matched ok nok res
     Nothing  -> nok
 
 matched :: Parse r (Parse r (Token r -> a) -> Parse r a -> (Term, Token r) -> a)
 matched ok nok (term, token@MkToken{ tokOp = DynTerm{ dynStr = dyn } }) =
     let str' = drop (termLength term) ?str in
-        case dyn str' of
+        case dyn (termToStr term) str' of
             Just res ->
                 let ok' = let ?str = dynRemainder res
-                           in ok token{ tokOp = Term (termToStr term `append` dynMatched res) }
+                           in ok token{ tokOp = Term (dynMatched res) }
                     in case res of
                     DynResultTrans{} -> let ?tbl = dynOpTrans res ?tbl in ok'
                     _                -> ok'
@@ -286,7 +286,7 @@ expectOper :: Parse r r
 expectOper
     | null str' = endParse
     | otherwise = let ?str = str' in
-        matchWith foundOper (let ?str = orig in emptyOper) opers
+        tryMatch foundOper (let ?str = orig in emptyOper) opers
     where
     orig  = ?str
     str'  = dropSpace ?str
@@ -412,16 +412,30 @@ instance OpClass (a -> (Str -> Assoc -> Op) -> [Char] -> [(Whitespace, a, Op)]) 
 instance OpClass (a -> (Str -> Assoc -> Op) -> Assoc -> [Char] -> [(Whitespace, a, Op)]) where
     op mk op1 assoc = Prelude.map (((,,) AllowWhitespace mk) . (`op1` assoc) . pack) . splitWords
 
-instance (OpClass (a -> (Str -> Op) -> (Str -> Maybe (Str, Str)) -> [(Whitespace, a, Op)])) where
+instance (OpClass (a -> (Str -> Op) -> (Str -> Str -> Maybe (Str, Str)) -> [(Whitespace, a, Op)])) where
     op mk op1 f = [(AllowWhitespace, mk, DynTerm empty dyn)]
         where
-        dyn str = fmap (uncurry DynResultMatch) (f str)
+        dyn pre post = fmap (uncurry DynResultMatch) (f pre post)
+
+instance (OpClass (a -> (Str -> Op) -> String -> (Str -> Str -> Maybe (Str, Str)) -> [(Whitespace, a, Op)])) where
+    op mk op1 s f = [(AllowWhitespace, mk, DynTerm (pack s) dyn)]
+        where
+        dyn pre post = fmap (uncurry DynResultMatch) (f pre post)
+
+instance (OpClass (a -> (Str -> Op) -> String -> (Str -> Maybe (Str, Str)) -> [(Whitespace, a, Op)])) where
+    op mk op1 s f = op mk op1 s (\(_ :: Str) x -> f x)
+
+instance (OpClass (a -> (Str -> Op) -> (Str -> Maybe (Str, Str)) -> [(Whitespace, a, Op)])) where
+    op mk op1 f = op mk op1 (\(_ :: Str) x -> f x)
 
 instance (OpClass (a -> (Str -> Op) -> (Str -> (Str, Str)) -> [(Whitespace, a, Op)])) where
+    op mk op1 f = op mk op1 (\(_ :: Str) x -> f x)
+
+instance (OpClass (a -> (Str -> Op) -> (Str -> Str -> (Str, Str)) -> [(Whitespace, a, Op)])) where
     op mk op1 f = [(AllowWhitespace, mk, DynTerm empty dyn)]
         where
-        dyn str = let (pre, post) = f str in
-            if null pre then Nothing else Just (DynResultMatch pre post)
+        dyn pre post = let (pre', post') = f pre post in
+            if null pre then Nothing else Just (DynResultMatch pre' post')
 
 instance (OpClass ((String -> Token r -> [r] -> r) -> (Str -> Op) -> String -> [(Whitespace, DynMkMatch r, Op)])) where
     op mk op1 = concatMap (\x -> op (mk x) op1 x) . splitWords

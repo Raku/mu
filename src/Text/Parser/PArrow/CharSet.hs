@@ -3,6 +3,7 @@ module Text.Parser.PArrow.CharSet where
 
 import Data.Char
 import Data.Set hiding (map)
+import Data.Generics
 
 -- | Character sets
 data CharSet = CS_Any        -- ^ All characters
@@ -16,7 +17,7 @@ data CharSet = CS_Any        -- ^ All characters
              | CS_Lower      -- ^ Lower
              | CS_Upper      -- ^ Upper
              | CS_Negated !CharSet
-               deriving(Eq, Ord)
+            deriving (Eq, Ord, Data, Typeable)
 
 instance Show CharSet where
     show CS_Any        = "."

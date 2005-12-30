@@ -1,6 +1,10 @@
 {-# OPTIONS_GHC -O2 -fglasgow-exts -funbox-strict-fields -fallow-undecidable-instances #-}
-module Text.Parser.Rule where
-import Prelude hiding (lookup, null, drop, span, break, head, tail)
+module Text.Parser.Rule (
+    module Text.Parser.Rule,
+    module Text.Parser.PArrow,
+) where
+import Prelude hiding (lookup, null, drop, span, break, head, tail, splitAt)
+import Debug.Trace
 import Text.Parser.OpTable
 import Text.Parser.PArrow
 import Text.Parser.PArrow.MD (MD(..), Label(..), label, Monoid(..))
@@ -11,8 +15,9 @@ import qualified Data.Map as Map
 import qualified Data.Set as Set
 import Text.Parser.PArrow.CharSet
 import Data.Set (Set, isSubsetOf)
-import Data.Seq (Seq, fromList)
+import Data.Seq (Seq, toList, fromList, (<|), (|>), (><))
 import Data.Map (Map)
+import Data.Generics hiding (Infix)
 import Data.IntMap (IntMap, insertWith, lookup, toAscList, elems, union)
 import Data.Char (isAlphaNum, isSpace)
 import Control.Arrow
@@ -26,28 +31,62 @@ main = do
         [x, y]  -> match x y
         _       -> putStrLn "*** This program takes two arguments: 'rule' and 'string'"
 
+type Parser = MD Str
 type NoMatch = IntMap Label
+type CompiledRule = MD Str MatchRule
+type Grammar = Map Str CompiledRule
+
+infixl 1 ~~
+infixl ~:~
+infixl .<>
+
+(.<>) :: Grammar -> String -> CompiledRule
+grammar .<> name = (Map.!) grammar (pack name)
+
+(~:~) :: String -> String -> (Str, Rule)
+name ~:~ rule = (pack name, parseOptimized rule)
+
+grammar :: [(Str, Rule)] -> Grammar
+grammar rules = compMap
+    where
+    ruleMap = Map.fromList rules
+    compMap = Map.map (comp . replaceAll) ruleMap
+    replaceAll = everywhere (mkT replaceNode)
+    replaceNode (TermSubrule c name) = TermGroup c ((Map.!) ruleMap name)
+    replaceNode x             = x
 
 match :: String -> String -> IO ()
 match r i = either (hPut stdout) print (matchRule r i)
 
-matchRule :: String -> String -> Either FastString MatchRule
-matchRule rule input = case runMatch (comp (parseOptimized rule)) str mempty of
-    Left errs   -> Left (fst $ foldl (prettyErrs idxs) (Str.empty, mempty) (toAscList errs))
-    Right ok    -> Right ok
+rule :: String -> (MatchRule -> a) -> MD Str a
+rule r f = mkRule r >>^ f
+
+mkRule :: String -> CompiledRule
+mkRule = comp . parseOptimized
+
+matchRule :: String -> String -> Either Str MatchRule
+matchRule r = (~~ rule r id)
+
+(~~) :: String -> MD Str MatchRule -> Either Str MatchRule
+(~~) input p = case runMatch p str mempty of
+    Left errs   -> Left msg
+        where
+        (msg, _, _) = foldl (prettyErrs idxs) (Str.empty, -1, mempty) (toAscList errs)
+    Right ok    -> Right (mkMatchObj ok)
     where
     str = pack input
     idxs = lineIdxs str
 
-prettyErrs :: [Int] -> (FastString, Label) -> (Int, Label) -> (FastString, Label)
-prettyErrs idxs (s, prev) (idx, this)
-    | expects this `isSubsetOf` expects prev
+prettyErrs :: [Int] -> (Str, Int, Label) -> (Int, Label) -> (Str, Int, Label)
+prettyErrs idxs (s, idx, prev) (idx', this)
+    | succ idx == idx'
+    , expects this `isSubsetOf` expects prev
     , unexpects this `isSubsetOf` unexpects prev
-    = (s, prev)
+    = (s, idx', prev)
     | Str.null s
-    = (pack "Expecting: " `append` formatted, this)
+    = (pack "Expecting: " `append` formatted, idx', this)
     | otherwise
-    = (s `append` pack "       or: " `append` formatted, this)
+    = (s `append` pack "       Or: " `append` formatted, idx', this)
     where
     formatted = formWith expects `append` pack column
     column = " at line " ++ show lineNum ++ ", column " ++ show colNum ++ "\n"
@@ -55,19 +94,19 @@ prettyErrs idxs (s, prev) (idx, this)
     formList [x] = x
     formList [x, y] = x `append` pack " or " `append` y
     formList (x:xs) = x `append` pack ", " `append` formList xs
-    lns = (-1:Prelude.filter (< idx) idxs)
-    colNum  = idx - Prelude.last lns
+    lns = (-1:Prelude.filter (< idx') idxs)
+    colNum  = idx' - Prelude.last lns
     lineNum = Prelude.length lns
 
 -- a set of positions where newline occurs
-lineIdxs :: FastString -> [Int]
+lineIdxs :: Str -> [Int]
 lineIdxs ps 
     | null ps = []
     | otherwise = case elemIndexWord8 0x0A ps of
              Nothing -> []
              Just n  -> (n + idx ps:lineIdxs (drop (n+1) ps))
 
-runMatch :: MD i o -> FastString -> NoMatch -> Either NoMatch o
+runMatch :: Show o => MD i o -> Str -> NoMatch -> Either NoMatch o
 runMatch p s errs | null s = Left errs
 runMatch p s errs = case runParser p s of
     PErr err    -> runMatch p (tail s) (errs `union` err)
@@ -77,7 +116,7 @@ insertErr :: Int -> Label -> NoMatch -> NoMatch
 insertErr = insertWith mappend
 
 {-
-runOverlapMatch :: MD i o -> FastString -> Either NoMatch [o] -> Either NoMatch [o]
+runOverlapMatch :: MD i o -> Str -> Either NoMatch [o] -> Either NoMatch [o]
 runOverlapMatch p s res | null s = res
 runOverlapMatch p s (Left errs) = runOverlapMatch p (tail s)
     (either (Left . (\(idx, err) -> insertErr idx err errs)) (Right . (:[])) (runParser p s))
@@ -86,54 +125,109 @@ runOverlapMatch p s ok@(Right oks) = runOverlapMatch p (tail s)
 -}
 
 parseOptimized :: String -> Rule
-parseOptimized = optimize . parse
+parseOptimized = optimize . parseRule
 
-optimize :: Rule -> Rule
-optimize (RQuant (QuantNone x))     = REmpty
-optimize (RQuant (QuantOne x))      = optimize $ mk x
-optimize (RConcat (Concat xs))      = mk Concat (foldr joinConcat [] xs)
-    where
-    joinConcat (QuantNone _) ys = ys
-    joinConcat x [] = [x]
-    joinConcat x@(QuantOne tx) (y@(QuantOne ty):ys) = case joinTerm tx ty of
-        Nothing -> (x:y:ys)
-        Just x' -> (mk x':ys)
-    joinConcat x (y:ys) = (x:y:ys)
-    joinTerm (TermLit x) (TermLit y) = Just (TermLit (append x y))
-    joinTerm _ _ = Nothing
-optimize (RAltern (Altern [x]))     = optimize $ mk x
-optimize (RConj (Conj [x]))         = optimize $ mk x
-optimize x = x
+class Optimizable a where
+    optimize :: a -> a
+    optimize = id
+    
+instance Optimizable Rule where
+    optimize (RQuant (QuantNone x))     = REmpty
+    optimize (RQuant (QuantOne x))      = optimize $ mk x
+    optimize (RConcat (Concat [x]))     = optimize $ mk x
+    optimize (RConcat x)                = mk $ optimize x
+    optimize (RConj (Conj [x]))         = optimize $ mk x
+    optimize (RConj x)                  = mk $ optimize x
+    optimize (RAltern (Altern [x]))     = optimize $ mk x
+    optimize (RAltern x)                = mk $ optimize x
+    optimize x = x
+
+instance Optimizable RuleQuant where
+    optimize x = x
+
+instance Optimizable RuleAltern where
+    optimize (Altern xs) = Altern (map optimize xs)
+
+instance Optimizable RuleConcat where
+    optimize (Concat xs) = Concat (foldr joinConcat [] (map optimize xs))
+        where
+        joinConcat (QuantNone _) ys = ys
+        joinConcat x [] = [x]
+        joinConcat x@(QuantOne tx) (y@(QuantOne ty):ys) = case joinTerm tx ty of
+            Nothing -> (x:y:ys)
+            Just x' -> (mk x':ys)
+        joinConcat x (y:ys) = (x:y:ys)
+        joinTerm (TermLit x) (TermLit y) = Just (TermLit (append x y))
+        joinTerm _ _ = Nothing
+
+instance Optimizable RuleConj where
+    optimize (Conj xs) = Conj (map optimize xs)
+
+type EmptyStr = Str
 
 -- | Rule Match object from PGE
 data MatchRule
     = MatchObj
-        { matBegin  :: !Int
-        , matEnd    :: !Int
-        , matSubPos :: !(Seq MatchRule)
-        , matSubNam :: !(Map Str MatchRule)
+        { matchString :: !Str
+        , matchSubPos :: !(Seq MatchRule)
+        , matchSubNam :: !(Map Str MatchRule)
         }
-    | MatchSeq   !(Seq MatchRule)
-    | MatchStr   !Str
-    | MatchFail
-    deriving (Eq, Show, Ord)
+    | MatchStr !Str
+    | MatchNil !EmptyStr 
+    | MatchSeq !(Seq MatchRule)
+    -- below are intermediate forms
+    | MatchPos !MatchRule
+    | MatchNam !Str !MatchRule
+    deriving (Show, Eq, Ord, Data, Typeable)
+
+fin :: Str -> Int
+fin (PS _ s l) = s + l
+
+mkMatchObj :: MatchRule -> MatchRule
+mkMatchObj x@MatchObj{} = x
+mkMatchObj (MatchPos m) = MatchObj (matchStr m) (Seq.singleton m) Map.empty
+mkMatchObj (MatchNam s m) = MatchObj (matchStr m) Seq.empty (Map.singleton s m)
+mkMatchObj x@(MatchSeq l) = Seq.foldl doSeq (MatchObj (matchStr x) Seq.empty Map.empty) l
+    where
+    doSeq o (MatchPos m) = o{ matchSubPos = matchSubPos o |> m }
+    doSeq o (MatchNam s m) = o{ matchSubNam = Map.insert s m (matchSubNam o) }
+    doSeq o (MatchSeq l) = Seq.foldl doSeq o l
+    doSeq o _ = o
+mkMatchObj x = MatchObj (matchStr x) Seq.empty Map.empty
+
+matchStr :: MatchRule -> Str
+matchStr o@MatchObj{} = matchString o
+matchStr (MatchStr s)   = s
+matchStr (MatchNil s)   = s
+matchStr (MatchSeq l)   = mergeStr
+    (matchStr (Seq.index l 0))
+    (matchStr (Seq.index l (pred (Seq.length l))))
+matchStr (MatchPos m)   = matchStr m
+matchStr (MatchNam _ m) = matchStr m
+
+mergeStr :: Str -> Str -> Str
+mergeStr (PS _ s l) (PS p s' l') = (PS p s (s'+l'-s))
 
 instance Monoid MatchRule where
-    mempty = MatchFail
-    mappend x@(MatchObj{}) MatchObj{matEnd=end} = x{matEnd=end}
-    mappend x MatchFail = x
-    mappend MatchFail y = y
-    mappend x y = error (show (x, y))
+    mempty = error "empty match"
+    mappend (MatchStr x) (MatchStr y) = MatchStr (mergeStr x y)
+    mappend (MatchSeq x) (MatchSeq y) = MatchSeq (x >< y)
+    mappend (MatchSeq x) y = MatchSeq (x |> y)
+    mappend x (MatchSeq y) = MatchSeq (x <| y)
+    mappend x y = MatchSeq (fromList [x, y])
+    mconcat [] = error "empty concat"
+    mconcat xs = foldl1 mappend xs
 
 nullMatch :: Str -> MatchRule
-nullMatch s = MatchObj (idx s) (idx s) Seq.empty Map.empty
+nullMatch (PS p s _) = MatchStr (PS p s 0)
 
 class Compilable a where
-    comp :: a -> MD Str MatchRule
-    compMany :: [a] -> MD Str MatchRule
+    comp :: a -> CompiledRule
+    compMany :: [a] -> CompiledRule
     compMany = foldl1 (\a b -> a &&& b >>^ uncurry mappend) . map comp
 
 instance Compilable Rule where
+    comp REmpty               = MEmpty
     comp (RTerm x)            = comp x
     comp (RQuant x)           = comp x
     comp (RConj (Conj x))     = comp x
@@ -146,23 +240,25 @@ instance Compilable a => Compilable [a] where
     comp xs  = compMany xs
     compMany = comp . concat
 
-strMatch :: Str -> MatchRule
-strMatch (PS _ s l) = MatchObj s (s+l) Seq.empty Map.empty
-
 instance Compilable Str where
-    comp x = string x >>^ strMatch
+    comp x = string x >>^ MatchStr
     compMany = comp . Str.concat
 
 instance Compilable RuleTerm where
     comp (TermLit x) = comp x
-    comp (TermShortcut x) = MCSet x >>^ strMatch
+    comp (TermShortcut x) = MCSet x >>^ MatchStr
     comp (TermGroup NonCapture r) = comp r
+    comp (TermGroup Negated r) = MNot (comp r)
+    comp (TermGroup CapturePos r) = comp r >>^ MatchPos
+    comp (TermGroup (CaptureNam n) r) = comp r >>^ MatchNam n
 
 instance Compilable RuleQuant where
     comp (QuantNone x) = error "none"
     comp (QuantOne x) = comp x
-    comp (Quant x 0 QuantInf Eager) = many (comp x) >>^ mconcat
-    comp (Quant x 1 QuantInf Eager) = many1 (comp x) >>^ mconcat
+    comp (Quant x min max Greedy) = MGreedy min max (comp x) >>^
+        either MatchNil (mconcat . toList)
+    comp (Quant x min max Lazy) = MLazy min max (comp x) >>^
+        either MatchNil (mconcat . toList)
 
 instance Compilable RuleConcat where
     comp (Concat x) = comp x
@@ -176,14 +272,14 @@ instance Compilable RuleAltern where
     comp (Altern x) = comp x
     compMany = error "impossible"
 
-parse :: String -> Rule
-parse = opParseAll ruleTable . pack
+parseRule :: String -> Rule
+parseRule = opParseAll ruleTable . pack
 
 data RuleCut
     = CutThis   -- :
     | CutGroup  -- ::
     | CutAll    -- :::
-    deriving (Eq, Show, Ord)
+    deriving (Show, Eq, Ord, Data, Typeable)
 
 data RuleAnchor
     = AnchorBoundary    -- \b
@@ -192,21 +288,8 @@ data RuleAnchor
     | AnchorEnd         -- $
     | AnchorBeginLine   -- ^^
     | AnchorEndLine     -- $$
-    deriving (Eq, Show, Ord)
+    deriving (Show, Eq, Ord, Data, Typeable)
 
-{-
-data RuleShortcut
-    = ShortcutAny       -- .
-    | ShortcutDigit     -- \d
-    | ShortcutDigitNot  -- \D
-    | ShortcutSpace     -- \s
-    | ShortcutSpaceNot  -- \S
-    | ShortcutWord      -- \w
-    | ShortcutWordNot   -- \W
-    | ShortcutNewline   -- \n
-    | ShortcutNewlineNot-- \N
-    deriving (Eq, Show, Ord)
--}
 type RuleShortcut = CharSet
 
 data RuleEnum
@@ -215,34 +298,34 @@ data RuleEnum
     | EnumPlus !RuleEnum !RuleEnum  -- <[]+[]>
     | EnumMinus !RuleEnum !RuleEnum -- <[]-[]>
     | EnumComplement !RuleEnum      -- <-[]>
-    deriving (Eq, Show, Ord)
+    deriving (Show, Eq, Ord, Data, Typeable)
 
-type Name = FastString
+type Name = Str
 
 data RuleQuant
     = QuantOne !RuleTerm
     | QuantNone !Str                        -- #comment
     | Quant -- **{2} ? + *
-        { quantTerm :: !RuleTerm
-        , quantMin  :: !RuleQuantMin
-        , quantMax  :: !RuleQuantMax
-        , quantLazy :: !RuleLaziness
+        { quantTerm     :: !RuleTerm
+        , quantMin      :: !MinQuant
+        , quantMax      :: !MaxQuant
+        , quantLaziness :: !RuleLaziness
         }
-    deriving (Eq, Show, Ord)
+    deriving (Show, Eq, Ord, Data, Typeable)
 
 newtype RuleConcat = Concat [RuleQuant]
-    deriving (Eq, Show, Ord)
+    deriving (Show, Eq, Ord, Data, Typeable)
 newtype RuleConj   = Conj   [RuleConcat]    -- a & b & c
-    deriving (Eq, Show, Ord)
+    deriving (Show, Eq, Ord, Data, Typeable)
 newtype RuleAltern = Altern [RuleConj]      -- a | b | c
-    deriving (Eq, Show, Ord)
+    deriving (Show, Eq, Ord, Data, Typeable)
 
 type Flag = ()
 data RulePattern = MkPattern
     { patFlags   :: Set Flag
     , patAlterns :: RuleAltern
     }
-    deriving (Eq, Show, Ord)
+    deriving (Show, Eq, Ord, Data, Typeable)
 
 data Rule
     = REmpty
@@ -251,47 +334,45 @@ data Rule
     | RConcat !RuleConcat
     | RConj   !RuleConj
     | RAltern !RuleAltern
-    deriving (Eq, Show, Ord)
+    deriving (Show, Eq, Ord, Data, Typeable)
 
 data RuleTerm
     = TermCommit                            -- <commit>
     | TermCut !RuleCut                      -- <cut> : :: :::
     | TermAnchor !RuleAnchor                -- ^ $ \b
-    | TermLit !FastString                   -- a b c d
+    | TermLit !Str                          -- a b c d
     | TermShortcut !RuleShortcut            -- . \d \w
-    | TermSubrule !RuleCapturing !Rule      -- <?...> <...> 
     | TermGroup !RuleCapturing !Rule        -- [...] (...)
     | TermEnum !RuleEnum                    -- <[a-z]>
     | TermClosure !RuleClosure              -- {...}
     | TermBind !RuleVar !RuleTerm           -- $1 := ...
-    deriving (Eq, Show, Ord)
+    | TermSubrule !RuleCapturing !Name      -- <name>
+    deriving (Show, Eq, Ord, Data, Typeable)
 
-data Negation = Positive | Negated
-    deriving (Eq, Show, Ord)
 
 type RuleClosure = () -- not supported yet
-type RuleQuantMin = Int
-data RuleQuantMax = QuantInt !Int | QuantInf
-    deriving (Eq, Show, Ord)
-data RuleCapturing = Capture | NonCapture
-    deriving (Eq, Show, Ord)
-data RuleLaziness = Eager | Lazy
-    deriving (Eq, Show, Ord)
+data RuleCapturing = CapturePos | CaptureNam !Name | NonCapture | Negated
+    deriving (Show, Eq, Ord, Data, Typeable)
+data RuleLaziness = Greedy | Lazy
+    deriving (Show, Eq, Ord, Data, Typeable)
 data RuleVar = VarPos !Int | VarNamed !Str
-    deriving (Eq, Show, Ord)
+    deriving (Show, Eq, Ord, Data, Typeable)
 data RuleModifier
     = ModifierIgnorecase
     | ModifierGlobal
     | ModifierPos !Int
     | ModifierOnce
-    deriving (Eq, Show, Ord)
+    deriving (Show, Eq, Ord, Data, Typeable)
 
 ruleTable :: OpTable Rule
 ruleTable = mkOpTable
     [ noWs (op _Lit  Term wsLiteral)
    ++ noWs (op _Term Term ": :: ::: \\b \\B ^ ^^ $$ . \\d \\D \\s \\S \\w \\W \\n <commit>")
-   ++ noWs (op (_Group Capture)    Circumfix "( )")
-   ++ noWs (op (_Group NonCapture) Circumfix "[ ]")
+   ++ noWs (op (_Group CapturePos)   Circumfix "( )")
+   ++ noWs (op (_Group NonCapture)   Circumfix "[ ]")
+   ++ noWs (op (_Subrule CapturePos) Term "<"  wsSubrule)
+   ++ noWs (op (_Subrule NonCapture) Term "<?" wsSubrule)
+   ++ noWs (op (_Subrule Negated)    Term "<!" wsSubrule)
     , op _Quant Postfix "* + ?"
     , noWs $ op _Concat Infix AssocList ""
     , op _Conj   Infix AssocList "&" 
@@ -300,11 +381,15 @@ ruleTable = mkOpTable
     where
     isMetaChar x = isSpace x || (x `elem` "\\%*+?:|.^$@[]()<>{}#")
     isNewline = (`elem` "\x0a\x0d\x0c\x85\x2028\x2029")
+    wsSubrule str
+        | (pre, post) <- break (== '>') str = Just (pre, tail post)
+        | otherwise = Nothing
     wsLiteral str
         | null str = Just (str, str)
         | head str == '#', res <- break isNewline str = Just res
-        | res@(pre, _) <- span isSpace str,     not (null pre) = Just res
-        | res@(pre, _) <- break isMetaChar str, not (null pre) = Just res
+        | head str == '\\', ch <- index str 1, isMetaChar ch = Just (splitAt 1 (tail str))
+        | res@(pre, _) <- span isSpace str, not (null pre) = Just res
+        | res@(pre, _) <- splitAt 1 str, not (isMetaChar (head pre)) = Just res
         | otherwise = Nothing
     _Lit :: DynMkMatch Rule
     _Lit tok _ | null str           = mk QuantNone str
@@ -334,16 +419,22 @@ ruleTable = mkOpTable
     _Term "<commit>" _ _ = mk TermCommit
     _Term x     _ _  = error x
     _Quant :: String -> DynMkMatch Rule
-    _Quant "*" _ [x] = mk $ Quant (mk x) 0 QuantInf     Eager
-    _Quant "+" _ [x] = mk $ Quant (mk x) 1 QuantInf     Eager
-    _Quant "?" _ [x] = mk $ Quant (mk x) 0 (QuantInt 1) Eager -- XXX Lazify
+    _Quant "*" _ [x] = mk $ Quant (mk x) 0 QuantInf     Greedy
+    _Quant "+" _ [x] = mk $ Quant (mk x) 1 QuantInf     Greedy
+    _Quant "?" _ [RQuant q@(Quant{})] = mk q{ quantLaziness = Lazy }
+    _Quant "?" _ [x] = mk $ Quant (mk x) 0 (QuantInt 1) Greedy -- XXX Lazify
     _Quant _   _ _   = error "unknown quant"
-    _Group :: RuleCapturing -> DynMkMatch Rule
-    _Group c _ [x] = mk $ TermGroup c x
     _Altern, _Concat, _Conj :: DynMkMatch Rule
     _Altern _ xs = mk $ Altern (mk xs)
     _Conj   _ xs = mk $ Conj (mk xs)
     _Concat _ xs = mk $ Concat (mk xs)
+    _Group, _Subrule :: RuleCapturing -> DynMkMatch Rule
+    _Group c _ [x] = mk $ TermGroup c x
+    _Subrule c tok _
+        | CapturePos <- c   = mk $ TermSubrule (CaptureNam nam) nam
+        | otherwise         = mk $ TermSubrule c nam
+        where
+        nam = (tokStr tok)
 
 class MkClass a where mk :: a
 
