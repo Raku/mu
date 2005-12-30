@@ -7,6 +7,7 @@ import PIL.Native.Pretty
 import PIL.Native.Coerce
 import PIL.Native.Objects
 import PIL.Native.Parser
+import PIL.Native.Bootstrap
 import Data.FunctorM
 import Data.Dynamic
 import Data.Maybe
@@ -40,7 +41,12 @@ instance MonadSTM Eval where
     liftSTM = lift . lift . liftSTM
 
 evalNativeLang :: [NativeLangExpression] -> IO EvalResult
-evalNativeLang = handleResult .  (`runReaderT` empty) . (`runStateT` empty) . evalMain
+evalNativeLang exps = do
+    res <- handleResult .  (`runReaderT` empty) . (`runStateT` empty) $ bootstrap
+    resumeNativeLang res exps
+
+bootstrap :: Eval Native
+bootstrap = bootstrapClass $ evalExps (fromJust $ parseNativeLang __BOOTSTRAP__)
 
 resumeNativeLang :: EvalResult -> [NativeLangExpression] -> IO EvalResult
 resumeNativeLang res exps = do
@@ -53,49 +59,31 @@ handleResult f = do
     let (val, pad) = fromJust . fromDynamic . fromJust . dynExceptions $ err
     return $ MkEvalResult val pad objs
 
-evalMain :: [NativeLangExpression] -> Eval Native
-evalMain exps = bootstrapClass $ do
-    -- addClassMethods
-    evalExps exps
-
-{-
-addClassMethods :: Eval Native
-addClassMethods = do
-    add "has_method"        "-> $name { self.get_attr('%!methods').exists($name) }"
-    add "get_method"        "-> $name { self.get_attr('%!methods').fetch($name) }"
-    add "get_method_list"   "-> { self.get_attr('%!methods').keys() }"
-    add "new"               "-> %prms { self.bless(nil, %prms) }"
-    add "bless"           $ "-> $repr, %prms {                              \
-                          \     -> $obj { $obj.BUILDALL(%prms); $obj; }     \
-                          \         .(self.CREATE($repr, %prms))            \
-                          \  }"
-    add "CREATE"          $ "-> $repr, %prms {} " -- XXX - not finished yet
-    where
-    add name body = eval $ "::Class.add_method('" ++ name ++ "', " ++ body ++ ")"
-
-eval :: String -> Eval Native
-eval = evalExp . parseExp
--}
-
 bootstrapClass :: Eval a -> Eval a
 bootstrapClass x = mdo
-    clsNull  <- newObject clsNull  $ mkClassMethods []
-    clsClass <- newObject clsClass $ mkClassMethods [("add_method", addMethod)]
-    clsBoxes <- mapM (newBoxedClass clsClass) unboxedTypes
-    enterLex (("::", clsNull) : ("::Class", clsClass) : (unboxedTypes `zip` clsBoxes)) x
+    clsNull   <- newObject clsNull  $ mkClassMethods "" []
+    clsClass  <- newObject clsClass $ mkClassMethods "Class" [("add_method", addMethod)]
+    clsBoxes  <- mapM (newBoxedClass clsClass) unboxedTypes
+    clsScalar <- registerObject $ do
+        scalar  <- genObject clsClass $ mkClassMethods "Scalar" []
+        return scalar{ o_create = newScalarObj clsScalar }
+    enterLex ( ("::", clsNull) : ("::Class", clsClass) : ("::Scalar", clsScalar)
+             : (unboxedTypes `zip` clsBoxes)) x
     where
     addMethod = parseSub
         "-> $name, &method { self`set_attr_hash('%!methods', $name, &method) }"
-    mkClassMethods :: [(String, Native)] -> NativeMap
-    mkClassMethods meths = mkMap
-        [ ("@!MRO",             emptySeq)
+    mkClassMethods :: String -> [(String, Native)] -> NativeMap
+    mkClassMethods name meths = mkMap
+        [ ("$!name",            toNative name)
+        , ("@!MRO",             emptySeq)
         , ("@!subclasses",      emptySeq)
         , ("@!superclasses",    emptySeq)
         , ("%!private_methods", emptyMap)
         , ("%!attributes",      emptyMap)
         , ("%!methods", toNative $ mkMap meths)
         ]
-    newBoxedClass cls _ = newObject cls $ mkClassMethods [("unbox", parseSub "->{ self`get_attr('') }")]
+    newBoxedClass cls name = newObject cls $
+        mkClassMethods (drop 2 name) [("unbox", parseSub "->{ self`get_attr('') }")]
     unboxedTypes = map ("::" ++) $ words "Bit Int Num Str Seq Map Sub"
 
 enterLex :: IsNative a => [(String, a)] -> Eval b -> Eval b
@@ -306,7 +294,7 @@ objPrims = mkMap
         setAttr obj (fromNative attrVal) (toNative $ insert hash key val)
         return val
       )
-    , ("new_opaque", \cls args -> fmap toNative $ newObject cls (fromNative $ args ! 0))
+    , ("new_opaque", \cls args -> fmap toNative (registerObject ((o_create cls) args)))
     , ("mro_merge", \cls _ -> do
         -- NOTE:
         -- we get the MRO of the object itself

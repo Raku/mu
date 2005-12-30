@@ -56,16 +56,16 @@ main = do
             exps <- parseNativeLang src 
             banner "Parsed"
             putStrLn =<< prettyM exps
-            banner "Evaluated"
             return exps
         cur  <- ask
         res' <- liftIO $ do
             res' <- case cur of
                 Just res -> resumeNativeLang res exps
                 _        -> evalNativeLang exps
-            putStrLn =<< prettyM (result_value res')
             banner "Object Space"
             dumpObjSpace (result_objs res')
+            banner "Evaluated"
+            putStrLn =<< prettyM (result_value res')
             return res'
         local (const $ Just res') prompt
 
@@ -79,9 +79,10 @@ eval :: MonadIO m => String -> m ()
 eval src = liftIO $ do
     exps <- parseNativeLang src 
     res <- evalNativeLang exps
-    putStrLn =<< prettyM (result_value res)
     banner "Object Space"
     dumpObjSpace (result_objs res)
+    banner "Evaluated"
+    putStrLn =<< prettyM (result_value res)
 
 banner :: MonadIO m => String -> m ()
 banner x = liftIO $ putStrLn ("\n### " ++ x ++ " ###")

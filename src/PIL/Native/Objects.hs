@@ -4,7 +4,8 @@ module PIL.Native.Objects (
     Boxable(..),
     ObjectSpace,
     dumpObjSpace,
-    newObject,
+    newObject, registerObject, genObject,
+    newScalarObj,
     getAttr, setAttr, addAttr, hasAttr
 ) where
 import PIL.Native.Coerce
@@ -14,30 +15,47 @@ import System.Mem.Weak
 import Control.Exception
 import Control.Monad.State
 
+newScalarObj :: NativeObj -> NativeSeq -> STM NativeObj
+newScalarObj cls args = do
+    tvar <- newTVar (args ! 0)
+    mkPrimObject cls
+        (const $ readTVar tvar)   -- fetch
+        (const $ return True)     -- exists
+        (const $ writeTVar tvar)  -- store
+
 class IsNative a => Boxable a where
     boxType :: a -> NativeStr
     boxType _ = error "Cannot autobox"
-    autobox :: (MonadState ObjectSpace m, MonadIO m) => a -> NativeObj -> m NativeObj
-    autobox v cls = do
-        objs <- get
-        let obj = MkObject oid cls fetch exists store freeze thaw
-            oid = size objs
-            fetch _ = return (toNative v)
-            exists _ = return True
-            store _ _ = failWith "Cannot store into autoboxed" (boxType v)
-            freeze = fail "freeze"
-            thaw = fail "thaw"
-        ptr <- liftIO $ mkWeak obj obj Nothing
-        put (insert objs oid ptr)
-        return obj
+    autobox :: (MonadState ObjectSpace m, MonadSTM m, MonadIO m) => a -> NativeObj -> m NativeObj
+    autobox v cls = registerObject $ mkPrimObject cls
+        (const $ return (toNative v))   -- fetch
+        (const $ return True)           -- exists
+        (const . const $ failWith "Cannot store into autoboxed" (boxType v)) -- store
+
+defaultCreate :: NativeObj -> NativeSeq -> STM NativeObj
+defaultCreate cls args = genObject cls (fromNative $ args ! 0)
+
+mkPrimObject :: NativeObj -> (NativeStr -> STM Native) -> (NativeStr -> STM Bool) -> (NativeStr -> Native -> STM ()) -> STM NativeObj 
+mkPrimObject cls _fetch _exists _store = do
+    let freeze = fail "freeze"
+        thaw   = fail "thaw"
+        create = const (fail "create")
+    return (MkObject 0 cls _fetch _exists _store freeze thaw create)
+
+-- Int becomes Haskell Integer when autoboxed
+instance Boxable NativeInt where
+    boxType _ = mkStr "::Int"
+    autobox v = autobox (toInteger v)
 
 instance Boxable NativeBit where boxType _ = mkStr "::Bit"
-instance Boxable NativeInt where boxType _ = mkStr "::Int"
 instance Boxable NativeNum where boxType _ = mkStr "::Num"
 instance Boxable NativeStr where boxType _ = mkStr "::Str"
 instance Boxable NativeSeq where boxType _ = mkStr "::Seq"
 instance Boxable NativeMap where boxType _ = mkStr "::Map"
 instance Boxable NativeSub where boxType _ = mkStr "::Sub"
+
+instance Boxable Integer where
+    boxType _ = mkStr "::Int"
 
 type ObjectSpace = SeqOf (Weak NativeObj)
 
@@ -66,14 +84,10 @@ setAttr obj att val = liftSTM $ o_store obj att val
 addAttr :: MonadSTM m => NativeObj -> NativeStr -> m ()
 addAttr obj att = liftSTM $ o_store obj att nil
 
-newObject :: (MonadState ObjectSpace m, MonadIO m, MonadSTM m) =>
-    NativeObj -> NativeMap -> m NativeObj
-newObject cls attrs = do
+genObject :: NativeObj -> NativeMap -> STM NativeObj
+genObject cls attrs = do
     tvar  <- liftSTM $ newTVar attrs
-    objs  <- get
-    let obj = MkObject oid cls fetch exists store freeze thaw
-        oid = size objs
-        fetch key = fmap (! key) $ readTVar tvar
+    let fetch key = fmap (! key) $ readTVar tvar
         exists key = do
             attrs <- readTVar tvar
             return (PIL.Native.Coerce.exists attrs key)
@@ -82,6 +96,20 @@ newObject cls attrs = do
             writeTVar tvar (insert attrs key val)
         freeze = fail "freeze"
         thaw = fail "thaw"
-    ptr <- liftIO $ mkWeak tvar obj Nothing
+        create = defaultCreate cls
+    return (MkObject (-1) cls fetch exists store freeze thaw create)
+
+newObject :: (MonadState ObjectSpace m, MonadIO m, MonadSTM m) =>
+    NativeObj -> NativeMap -> m NativeObj
+newObject cls attrs = registerObject (genObject cls attrs)
+
+registerObject :: (MonadState ObjectSpace m, MonadIO m, MonadSTM m) => STM NativeObj -> m NativeObj
+registerObject gen = do
+    obj  <- liftSTM gen
+    objs <- get
+    let obj' = obj{ o_id = oid }
+        oid = size objs
+    ptr <- liftIO $ mkWeakPtr obj' Nothing
     put (insert objs oid ptr)
-    return obj
+    return obj'
+
