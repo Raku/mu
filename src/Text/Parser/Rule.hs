@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -O2 -fglasgow-exts -funbox-strict-fields -fallow-undecidable-instances #-}
 module Text.Parser.Rule where
-import Prelude hiding (length, lookup, null, drop, span, break, head, tail)
+import Prelude hiding (lookup, null, drop, span, break, head, tail)
 import Text.Parser.OpTable
 import Text.Parser.PArrow
 import Text.Parser.PArrow.MD (MD(..), Label(..), label, Monoid(..))
@@ -33,13 +33,14 @@ match r i = either (hPut stdout) print (matchRule r i)
 
 matchRule :: String -> String -> Either FastString MatchRule
 matchRule rule input = case runMatch (comp (parseOptimized rule)) str mempty of
-    Left errs   -> Left (fst $ foldl (prettyErrs str) (Str.empty, mempty) (toAscList errs))
+    Left errs   -> Left (fst $ foldl (prettyErrs idxs) (Str.empty, mempty) (toAscList errs))
     Right ok    -> Right ok
     where
     str = pack input
+    idxs = lineIdxs str
 
-prettyErrs :: FastString -> (FastString, Label) -> (Int, Label) -> (FastString, Label)
-prettyErrs _ (s, prev) (idx, this)
+prettyErrs :: [Int] -> (FastString, Label) -> (Int, Label) -> (FastString, Label)
+prettyErrs idxs (s, prev) (idx, this)
     | expects this `isSubsetOf` expects prev
     , unexpects this `isSubsetOf` unexpects prev
     = (s, prev)
@@ -49,11 +50,22 @@ prettyErrs _ (s, prev) (idx, this)
     = (s `append` pack "       or: " `append` formatted, this)
     where
     formatted = formWith expects `append` pack column
-    column = " at line 1, column " ++ show (succ idx) ++ "\n"
+    column = " at line " ++ show lineNum ++ ", column " ++ show colNum ++ "\n"
     formWith f = formList (Set.toAscList (f this))
     formList [x] = x
     formList [x, y] = x `append` pack " or " `append` y
     formList (x:xs) = x `append` pack ", " `append` formList xs
+    lns = (-1:Prelude.filter (< idx) idxs)
+    colNum  = idx - Prelude.last lns
+    lineNum = Prelude.length lns
+
+-- a set of positions where newline occurs
+lineIdxs :: FastString -> [Int]
+lineIdxs ps 
+    | null ps = []
+    | otherwise = case elemIndexWord8 0x0A ps of
+             Nothing -> []
+             Just n  -> (n + idx ps:lineIdxs (drop (n+1) ps))
 
 runMatch :: MD i o -> FastString -> NoMatch -> Either NoMatch o
 runMatch p s errs | null s = Left errs
