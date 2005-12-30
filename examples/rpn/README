@@ -1,0 +1,33 @@
+This started as a little exercise for asavige to
+learn Haskell.
+
+I started by writing a simple RPN (Reverse Polish Notation)
+evaluator in a "natural"/"clear" (non-golf;-) style in Perl 5.
+Then converted it to both Perl 6 and Haskell.
+
+Being a TDD Fascist, I naturally wrote a unit test for the
+little evaluator function in each of the languages.
+
+I hope to eventually write up my conclusions in a PM node.
+As you might expect, Perl 6 is winning so far. ;-)
+
+Meanwhile, feedback on the code is most welcome, especially
+the Haskell code, because I have been programming in Haskell
+for only one week and would like to improve.
+
+Some references:
+
+http://perlgolf.sourceforge.net/TPR/0/5a/
+(in particular, the test cases in the test program)
+
+http://en.wikipedia.org/wiki/Haskell_programming_language
+(example of simple Haskell RPN there)
+
+http://www.cse.unsw.edu.au/~dons/code/h4sh/
+(in particular, his drop in replacement for HUnit)
+
+On CPAN: Math::RPN, Parse::RPN, Affix::Infix2Postfix
+(any others, please let me know).
+
+Cheers,
+asavige aka mad golfer (30 Dec 2005)
