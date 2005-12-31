@@ -59,9 +59,8 @@ sub show_message (Locale::KeyedText::Translator $translator!,
         Locale::KeyedText::Message $message!) {
     my Str $user_text = $translator.translate_message( $message );
     if (!$user_text) {
-        $*ERR.print( "internal error: can't find user text for a message:\n"
-            ~ '   ' ~ $message.as_debug_string() ~ "\n"
-            ~ '   ' ~ $translator.as_debug_string() ~ "\n" );
+        $*ERR.print( "internal error: can't find user text for a message:"
+            ~ "\n$message$translator" ); # note: the objects will stringify
         return;
     }
     $*OUT.say( $user_text );

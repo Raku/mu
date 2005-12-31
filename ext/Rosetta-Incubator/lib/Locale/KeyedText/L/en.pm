@@ -6,6 +6,8 @@ use v6;
 
 # Constant values used by packages in this file:
 my Str %text_strings is readonly = (
+    # This group of strings is generic and can be used by any package:
+
     'LKT_ARG_UNDEF'
         => q[<CLASS>.<METH>(): argument <ARG> is undefined (or missing).],
 
@@ -15,6 +17,9 @@ my Str %text_strings is readonly = (
     'LKT_ARG_NO_ARY'
         => q[<CLASS>.<METH>(): argument <ARG> is not an Array ref,]
            ~ q[ but rather contains '<VAL>'.],
+    'LKT_ARG_ARY_NO_ELEMS'
+        => q[<CLASS>.<METH>(): argument <ARG> is an Array ref as expected,]
+           ~ q[ but it has no elements.],
     'LKT_ARG_ARY_ELEM_UNDEF'
         => q[<CLASS>.<METH>(): argument <ARG> is an Array ref as expected,]
            ~ q[ but one of its elements is undefined.],
@@ -25,6 +30,9 @@ my Str %text_strings is readonly = (
     'LKT_ARG_NO_HASH'
         => q[<CLASS>.<METH>(): argument <ARG> is not a Hash ref,]
            ~ q[ but rather contains '<VAL>'.],
+    'LKT_ARG_HASH_NO_ELEMS'
+        => q[<CLASS>.<METH>(): argument <ARG> is a Hash ref as expected,]
+           ~ q[ but it has no elements.],
     'LKT_ARG_HASH_KEY_EMP_STR'
         => q[<CLASS>.<METH>(): argument <ARG> is a Hash ref as expected,]
            ~ q[ but one of its keys is an empty string.],
@@ -38,6 +46,16 @@ my Str %text_strings is readonly = (
     'LKT_ARG_NO_EXP_TYPE'
         => q[<CLASS>.<METH>(): argument <ARG> is not a <EXP_TYPE>,]
            ~ q[ but rather contains '<VAL>'.],
+
+    # This group of strings is specific to Locale::KeyedText itself:
+
+    'LKT_T_FAIL_LOAD_TMPL_MOD'
+        => q[<CLASS>.<METH>(): can't load Locale::KeyedText Template]
+           ~ q[ module '<TMPL_MOD_NAME>': <REASON>],
+    'LKT_T_FAIL_GET_TMPL_TEXT'
+        => q[<CLASS>.<METH>(): can't invoke get_text_by_key() on]
+           ~ q[ Locale::KeyedText Template module '<TMPL_MOD_NAME>':]
+           ~ q[ <REASON>],
 );
 
 ###########################################################################

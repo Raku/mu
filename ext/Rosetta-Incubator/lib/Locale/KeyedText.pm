@@ -37,8 +37,8 @@ class Locale::KeyedText::Message {
 
 submethod BUILD (Str :$msg_key!, Any :%msg_vars? = {}) {
 
-    !_assert_arg_str( 'new', ':$msg_key!', $msg_key );
-    !_assert_arg_hash( 'new', ':%msg_vars?', %msg_vars );
+    $?SELF!_assert_arg_str( 'new', ':$msg_key!', $msg_key );
+    $?SELF!_assert_arg_hash( 'new', ':%msg_vars?', %msg_vars );
 
     $!msg_key  = $msg_key;
     %!msg_vars = %msg_vars;
@@ -53,7 +53,7 @@ method get_msg_key () returns Str {
 }
 
 method get_msg_var (Str $var_name!) returns Any {
-    !_assert_arg_str( 'get_msg_var', '$var_name!', $var_name );
+    $?SELF!_assert_arg_str( 'get_msg_var', '$var_name!', $var_name );
     return %!msg_vars{$var_name};
 }
 
@@ -64,11 +64,18 @@ method get_msg_vars () returns Hash of Any {
 ######################################################################
 
 method as_debug_string () returns Str {
-    return '$msg_key: "' ~ $!msg_key ~ '"; '
-         ~ '%msg_vars: {' ~ %!msg_vars.pairs.sort.map:{
+    return '  Debug String of a Locale::KeyedText::Message object:'
+         ~ "\n"
+         ~ '    $msg_key: "' ~ $!msg_key ~ '"'
+         ~ "\n"
+         ~ '    %msg_vars: {' ~ %!msg_vars.pairs.sort.map:{
                '"' ~ .key ~ '"="' ~ (.value // $EMPTY_STR) ~ '"' #/
-           }.join( q{, } ) ~ '}';
+           }.join( q{, } ) ~ '}'
+         ~ "\n";
 }
+
+#&coerce:as(Str) ::= &as_debug_string;
+# &circumfix:<""> ::= &as_debug_string;
 
 ###########################################################################
 
@@ -79,16 +86,19 @@ my method _die_with_msg (Str $msg_key!, Any %msg_vars? is ref = {}) {
 }
 
 my method _assert_arg_str (Str $meth!, Str $arg!, Str $val!) {
-    !_die_with_msg( 'LKT_ARG_UNDEF', { 'METH' => $meth, 'ARG' => $arg } )
+    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+            { 'METH' => $meth, 'ARG' => $arg } )
         if !$val.defined;
-    !_die_with_msg( 'LKT_ARG_EMP_STR', { 'METH' => $meth, 'ARG' => $arg } )
+    $?SELF!_die_with_msg( 'LKT_ARG_EMP_STR',
+            { 'METH' => $meth, 'ARG' => $arg } )
         if $val eq $EMPTY_STR;
 }
 
 my method _assert_arg_hash (Str $meth!, Str $arg!, Any %val!) {
-    !_die_with_msg( 'LKT_ARG_UNDEF', { 'METH' => $meth, 'ARG' => $arg } )
+    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+            { 'METH' => $meth, 'ARG' => $arg } )
         if !%val.defined;
-    !_die_with_msg( 'LKT_ARG_HASH_KEY_EMP_STR',
+    $?SELF!_die_with_msg( 'LKT_ARG_HASH_KEY_EMP_STR',
             { 'METH' => $meth, 'ARG' => $arg } )
         if %val.exists($EMPTY_STR);
 }
@@ -117,19 +127,8 @@ class Locale::KeyedText::Translator {
 
 submethod BUILD (Str :@set_names!, Str :@member_names!) {
 
-    die 'invalid arg'
-        if !@set_names.defined or +@set_names == 0;
-    for @set_names -> $set_name {
-        die 'invalid arg'
-            if !$set_name.defined or $set_name eq $EMPTY_STR;
-    }
-
-    die 'invalid arg'
-        if !@member_names.defined or +@member_names == 0;
-    for @member_names -> $member_name {
-        die 'invalid arg'
-            if !$member_name.defined or $member_name eq $EMPTY_STR;
-    }
+    $?SELF!_assert_arg_ary( 'new', ':@set_names!', @set_names );
+    $?SELF!_assert_arg_ary( 'new', ':@member_names!', @member_names );
 
     @!set_names    = @set_names;
     @!member_names = @member_names;
@@ -150,9 +149,16 @@ method get_member_names () returns Array of Str {
 ######################################################################
 
 method as_debug_string () returns Str {
-    return '@set_names: ["' ~ @!set_names.join( q{", "} ) ~ '"]; '
-         ~ '@member_names: ["' ~ @!member_names.join( q{", "} ) ~ '"]';
+    return '  Debug String of a Locale::KeyedText::Translator object:'
+         ~ "\n"
+         ~ '    @set_names: ["' ~ @!set_names.join( q{", "} ) ~ '"]'
+         ~ "\n"
+         ~ '    @member_names: ["' ~ @!member_names.join( q{", "} ) ~ '"]'
+         ~ "\n";
 }
+
+#&coerce:as(Str) ::= &as_debug_string;
+# &circumfix:<""> ::= &as_debug_string;
 
 ###########################################################################
 
@@ -165,8 +171,7 @@ method get_set_member_combinations () returns Array of Str {
 method translate_message (Locale::KeyedText::Message $message!)
         returns Str {
 
-    die 'invalid arg'
-        if !$message.defined or !$message.does(Locale::KeyedText::Message);
+    $?SELF!_assert_arg_msg( 'translate_message', '$message!', $message );
 
     # This Perl-6 specific workaround is done since $message arg can often
     # be set from a caught exception (aliased to $!), and the Perl-6 spec
@@ -219,8 +224,8 @@ method translate_message (Locale::KeyedText::Message $message!)
 ###########################################################################
 
 method template_module_is_loaded (Str $module_name!) returns Bool {
-    die 'invalid arg'
-        if !$module_name.defined or $module_name eq $EMPTY_STR;
+    $?SELF!_assert_arg_str( 'template_module_is_loaded',
+        '$module_name!', $module_name );
     # Note: It is yet unknown whether this is working because the language
     # spec says it is supposed to, or whether is due a fluke or unspecced.
     # Currently, "::($m).ref" returns 'Type' if the package name in $m is
@@ -231,14 +236,17 @@ method template_module_is_loaded (Str $module_name!) returns Bool {
 }
 
 method load_template_module (Str $module_name!) {
-    die 'invalid arg'
-        if !$module_name.defined or $module_name eq $EMPTY_STR;
+
+    $?SELF!_assert_arg_str( 'load_template_module',
+        '$module_name!', $module_name );
 
     # Note: We have to invoke this 'require' in an eval string
     # because we need the bareword semantics, where 'require'
     # will munge the package name into file system paths.
     eval "require $module_name;";
-    die "can't load template module '$module_name': $!"
+    $?SELF!_die_with_msg( 'LKT_T_FAIL_LOAD_TMPL_MOD',
+            { 'METH' => 'load_template_module',
+            'TMPL_MOD_NAME' => $module_name, 'REASON' => $! } )
         if $!;
 
     return;
@@ -247,16 +255,18 @@ method load_template_module (Str $module_name!) {
 method get_template_text_from_loaded_module
         (Str $module_name!, Str $msg_key!) returns Str {
 
-    die 'invalid arg'
-        if !$module_name.defined or $module_name eq $EMPTY_STR;
-    die 'invalid arg'
-        if !$msg_key.defined or $msg_key eq $EMPTY_STR;
+    $?SELF!_assert_arg_str( 'get_template_text_from_loaded_module',
+        '$module_name!', $module_name );
+    $?SELF!_assert_arg_str( 'get_template_text_from_loaded_module',
+        '$msg_key!', $msg_key );
 
     my Str $text = undef;
     try {
         $text = &::($module_name)::get_text_by_key( $msg_key );
     };
-    die "can't invoke get_text_by_key() on '$module_name': $!"
+    $?SELF!_die_with_msg( 'LKT_T_FAIL_GET_TMPL_TEXT',
+            { 'METH' => 'get_template_text_from_loaded_module',
+            'TMPL_MOD_NAME' => $module_name, 'REASON' => $! } )
         if $!;
 
     return $text;
@@ -265,10 +275,12 @@ method get_template_text_from_loaded_module
 method interpolate_vars_into_template_text
         (Str $text! is copy, Any %msg_vars!) returns Str {
 
-    die 'invalid arg'
+    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+            { 'METH' => 'interpolate_vars_into_template_text',
+            'ARG' => '$text!' } )
         if !$text.defined;
-    die 'invalid arg'
-        if !%msg_vars.defined or %msg_vars.exists($EMPTY_STR);
+    $?SELF!_assert_arg_hash( 'interpolate_vars_into_template_text',
+        '%msg_vars!', %msg_vars );
 
     for %msg_vars.kv -> $var_name, $var_value {
         my Str $var_value_as_str = $var_value // $EMPTY_STR; #/
@@ -277,6 +289,59 @@ method interpolate_vars_into_template_text
     }
 
     return $text;
+}
+
+###########################################################################
+
+my method _die_with_msg (Str $msg_key!, Any %msg_vars? is ref = {}) {
+    %msg_vars{'CLASS'} = 'Locale::KeyedText::Translator';
+    die Locale::KeyedText::Message.new(
+        'msg_key' => $msg_key, 'msg_vars' => %msg_vars );
+}
+
+my method _assert_arg_str (Str $meth!, Str $arg!, Str $val!) {
+    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+            { 'METH' => $meth, 'ARG' => $arg } )
+        if !$val.defined;
+    $?SELF!_die_with_msg( 'LKT_ARG_EMP_STR',
+            { 'METH' => $meth, 'ARG' => $arg } )
+        if $val eq $EMPTY_STR;
+}
+
+my method _assert_arg_ary (Str $meth!, Str $arg!, Str @val!) {
+    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+            { 'METH' => $meth, 'ARG' => $arg } )
+        if !@val.defined;
+    $?SELF!_die_with_msg( 'LKT_ARG_ARY_NO_ELEMS',
+            { 'METH' => $meth, 'ARG' => $arg } )
+        if +@val == 0;
+    for @val -> $val_elem {
+        $?SELF!_die_with_msg( 'LKT_ARG_ARY_ELEM_UNDEF',
+                { 'METH' => $meth, 'ARG' => $arg } )
+            if !$val_elem.defined;
+        $?SELF!_die_with_msg( 'LKT_ARG_ARY_ELEM_EMP_STR',
+                { 'METH' => $meth, 'ARG' => $arg } )
+            if $val_elem eq $EMPTY_STR;
+    }
+}
+
+my method _assert_arg_hash (Str $meth!, Str $arg!, Any %val!) {
+    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+            { 'METH' => $meth, 'ARG' => $arg } )
+        if !%val.defined;
+    $?SELF!_die_with_msg( 'LKT_ARG_HASH_KEY_EMP_STR',
+            { 'METH' => $meth, 'ARG' => $arg } )
+        if %val.exists($EMPTY_STR);
+}
+
+my method _assert_arg_msg (Str $meth!, Str $arg!, $val!) {
+    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+            { 'METH' => $meth, 'ARG' => $arg } )
+        if !$val.defined;
+    $?SELF!_die_with_msg( 'LKT_ARG_NO_EXP_TYPE', { 'METH' => $meth,
+            'ARG' => $arg, 'EXP_TYPE' => 'Locale::KeyedText::Message',
+            'VAL' => $val } )
+        if !$val.does(Locale::KeyedText::Message);
 }
 
 ###########################################################################
@@ -615,7 +680,8 @@ a hash ref.
 This method returns a stringified version of this object which is suitable
 for debugging purposes (such as to test that the object's contents look
 good at a glance); no attribute values are escaped and you shouldn't try to
-extract them.
+extract them.  This method is also defined as the implicit handler when
+coercing this object to a string.
 
 =back
 
@@ -781,7 +847,8 @@ ref.
 This method returns a stringified version of this object which is suitable
 for debugging purposes (such as to test that the object's contents look
 good at a glance); no attribute values are escaped and you shouldn't try to
-extract them.
+extract them.  This method is also defined as the implicit handler when
+coercing this object to a string.
 
 =item C<get_set_member_combinations()>
 
@@ -915,7 +982,7 @@ version.
 =item Jason Martin (C<jhmartin@toger.us>)
 
 On 2004.07.26, suggested a feature, and provided sample usage and patch
-code, which supports embedding of Template modules into the same files as
+code, that supports embedding of Template modules into the same files as
 program code, rather than requiring separate files.
 
 =item Stevan Little (C<stevan@iinteractive.com>)
