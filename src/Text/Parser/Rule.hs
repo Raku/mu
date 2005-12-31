@@ -61,7 +61,7 @@ printMatch :: String -> String -> IO ()
 printMatch r i = either (hPut stdout) printMatchResult (matchRule r i)
 
 printMatchResult :: MatchRule -> IO ()
-printMatchResult mo = (hPut stdout) (matchString mo)
+printMatchResult mo@MatchObj{} = (hPut stdout) (matchString mo)
 printMatchResult mr = print mr
 
 mkRule :: String -> (MatchRule -> a) -> MD Str a
