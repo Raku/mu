@@ -4,12 +4,14 @@ use v6;
 use Test;
 use Test::Pil;
 
-my $BOOTSTRAP = slurp('src/PIL/Native/Bootstrap.pil');
+# Bootstrap.pil is already loaded now
+#my $BOOTSTRAP = slurp('src/PIL/Native/Bootstrap.pil');
 
 sub pil_output( Str $code, Str $optional_args? ) returns Str {
   my $tempfilename = "pil_test_" ~ $Test::num_of_tests_run;
   my $codefh = open( $tempfilename , :w);
-  $codefh.print($BOOTSTRAP ~ "\n\n" ~ $code);
+  $codefh.print($code);
+#  $codefh.print($BOOTSTRAP ~ "\n\n" ~ $code);
   $codefh.close();
   my $pilfh = Pipe::open("./pil $optional_args $tempfilename", :r);
   my $pilresult = $pilfh.readline();

@@ -346,8 +346,19 @@
     -> { self`set_attr('$!name', $name) }`do_if($name`not_nil);    
 });
 
-::Package.add_method('FETCH', -> $name { });
-::Package.add_method('STORE', -> $name, $value { });
+# See http://article.gmane.org/gmane.comp.lang.perl.perl6.language/4956 for
+# disucssion on how Packages work, in particular the FETCH('{}') part.
+
+::Package.add_method('FETCH', -> $label { 
+    $label`eq('{}')`cond(
+        -> { self`get_attr('%!namespace')                },
+        -> { self`get_attr('%!namespace').fetch($label); }
+    );
+});
+
+::Package.add_method('STORE', -> $label, $value { 
+    self`set_attr_hash('%!namespace', $label, $value);
+});
 
 ## ------------------------------------------------------------------------- ##
 ## Module
@@ -407,6 +418,84 @@
 ::Object.set_name('Object');   ::Object.set_version('0.0.1');  ::Object.set_authority('url:pugscode.org');
 ::Package.set_name('Package'); ::Package.set_version('0.0.1'); ::Package.set_authority('url:pugscode.org');
 ::Module.set_name('Module');   ::Module.set_version('0.0.1');  ::Module.set_authority('url:pugscode.org');
+
+# Class now needs to implement the FETCH and STORE of Packages
+
+# NOTE:
+# With FETCH, we first look in the class's method and attribute
+# namespaces, if we don't find anything there, we then just
+# search the normal ::Package namespace. If nothing is found
+# this will just return nil. I think that this is probably 
+# sufficient for our needs, but it may need improvement as we 
+# discover how and when this is really used.
+
+# NOTE:
+# it is expected that methods are FETCH-ed using a & prefix 
+
+::Class.add_method('FETCH', -> $label {
+    $label`fetch(0)`eq('&')`cond(
+        # fetching possible method ...
+        -> {
+            # we splice off the & to get the method name
+            self.has_method($label`splice(1))`cond(
+                -> { self.get_method($label`splice(1)) },
+                -> { 
+                    # make sure it's not also in the private method
+                    # namespace either ...
+                    self.has_private_method($label`splice(1))`cond(
+                        -> { self.get_private_method($label`splice(1))  },
+                        -> { self`get_attr('%!namespace')`fetch($label) }
+                    );
+                }
+            );
+        },
+        # fetching attribute
+        -> { 
+            self.has_attribute($label)`cond(
+                # if we have the attribute, return it
+                -> { self.get_attribute($label) },
+                -> { self`get_attr('%!namespace')`fetch($label) }
+            );
+        }
+    );
+});
+
+# NOTE:
+# With STORE we first see if the class has a method or attribute
+# of the same name as the one we are storing, if so, then we 
+# overwrite it. If there is not, then we STORE into the Package
+# namespace normally. This is surely not an ideal situation, and
+# will probably need to be fixed once we have a proper ::Method
+# and ::Sub types, at which point we can make a more intelligent
+# descision as to what to do with the value being stored. But for
+# now, this is sufficient.
+
+::Class.add_method('STORE', -> $label, $value {
+    $label`fetch(0)`eq('&')`cond(
+        # fetching possible method
+        -> {
+            # we splice off the & to get the method name
+            self.has_method($label`splice(1))`cond(
+                -> { self.add_method($label`splice(1), $value) },
+                -> { 
+                    # check the private methods too ... 
+                    self.has_private_method($label`splice(1))`cond(                
+                        -> { self.add_private_method($label`splice(1), $value) },
+                        -> { self`set_attr_hash('%!namespace', $label, $value) }
+                    );
+                }
+            );
+        },
+        # fetching attribute
+        -> { 
+            self.has_attribute($label)`cond(
+                # if we have the attribute, return it
+                -> { self.set_attribute($label, $value) },
+                -> { self`set_attr_hash('%!namespace', $label, $value) }
+            );
+        }
+    );    
+});
 
 ## end bootstrapping ...
 ## ------------------------------------------------------------------------- ##
@@ -530,19 +619,6 @@
     }`do_unless(self.isa('Role'));
 });
 
-
-## ------------------------------------------------------------------------- ##
-## Autoboxing
-## ------------------------------------------------------------------------- ##
-
-::Bit.set_superclasses([ ::Object ]);
-::Int.set_superclasses([ ::Object ]);
-::Num.set_superclasses([ ::Object ]);
-::Str.set_superclasses([ ::Object ]);
-::Seq.set_superclasses([ ::Object ]);
-::Map.set_superclasses([ ::Object ]);
-::Sub.set_superclasses([ ::Object ]);
-
 ## ------------------------------------------------------------------------- ##
 ## Role Bootstrapping
 ## ------------------------------------------------------------------------- ##
@@ -578,6 +654,19 @@
 
 ## end Role bootstrapping ...
 ## ------------------------------------------------------------------------- ##
+
+## ------------------------------------------------------------------------- ##
+## Autoboxing
+## ------------------------------------------------------------------------- ##
+
+::Int.set_superclasses([ ::Object ]);  # this uses Haskell Integer now ...
+
+::Bit.set_superclasses([ ::Object ]);
+::Num.set_superclasses([ ::Object ]);
+::Str.set_superclasses([ ::Object ]);
+::Seq.set_superclasses([ ::Object ]);
+::Map.set_superclasses([ ::Object ]);
+::Sub.set_superclasses([ ::Object ]);
 
 ## ------------------------------------------------------------------------- ##
 ## Container Types
