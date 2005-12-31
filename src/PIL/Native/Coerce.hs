@@ -277,6 +277,11 @@ instance (IsNative a) => IsNative (SeqOf a) where
     fromNative (NSeq x)     = fmap fromNative x
     fromNative x            = castFail x
 
+instance IsNative () where
+    toNative () = nil
+    fromNative (NError {}) = ()
+    fromNative x = castFail x
+
 instance IsNative [NativeObj] where
     toNative = NSeq . mkSeq . map toNative
     fromNative (NError {})  = []

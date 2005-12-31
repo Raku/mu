@@ -5,7 +5,7 @@ module PIL.Native.Objects (
     ObjectSpace,
     dumpObjSpace,
     newClass, newObject, registerObject, genObject,
-    newScalarObj,
+    newScalarObj, newArrayObj, newHashObj,
     callRepr, addRepr,
 ) where
 import PIL.Native.Coerce
@@ -15,14 +15,61 @@ import System.Mem.Weak
 import Control.Exception
 import Control.Monad.State
 import qualified Data.Map as Map
+import qualified Data.Seq as Seq
+
+_0 :: Seq.Seq a -> a
+_0 = (`Seq.index` 0)
+
+_1 :: Seq.Seq a -> a
+_1 = (`Seq.index` 1)
+
+withArgs :: (NativeSeq -> STM a) -> ObjectPrim 
+withArgs f args = f args >> return nil
+
+withArg0 :: (IsNative a, IsNative b) => (a -> STM b) -> ObjectPrim 
+withArg0 f args = fmap toNative (f (fromNative (_0 args)))
 
 newScalarObj :: NativeObj -> NativeSeq -> STM Native
 newScalarObj cls args = do
-    tvar <- newTVar (args ! 0)
+    tvar <- newTVar (_0 args)
     fmap toNative $ mkPrimObject cls
         [ ("fetch", const $ readTVar tvar)
-        , ("store", \args -> let arg = (args ! 0) in writeTVar tvar arg >> return arg)
+        , ("store", withArg0 (writeTVar tvar))
         ]
+
+newArrayObj :: NativeObj -> NativeSeq -> STM Native
+newArrayObj cls args = do
+    tvar <- newTVar args
+    fmap toNative $ mkPrimObject cls
+        [ ("fetch_list", const $ fmap toNative (readTVar tvar))
+        , ("store_list", withArgs (writeTVar tvar))
+        , ("fetch_elem", withArg0 (\x -> fmap (`Seq.index` x) (readTVar tvar)))
+        , ("store_elem", withArgs $ \args -> do
+            -- XXX - dynamic extension
+            av <- readTVar tvar
+            writeTVar tvar (Seq.update (fromNative (_0 args)) (_1 args) av)
+          )
+        ]
+
+newHashObj :: NativeObj -> NativeSeq -> STM Native
+newHashObj cls args = do
+    tvar <- newTVar (seqToMap args)
+    fmap toNative $ mkPrimObject cls
+        [ ("fetch_list", const $ fmap (toNative . mapToList) (readTVar tvar))
+        , ("store_list", withArgs (writeTVar tvar . seqToMap))
+        , ("fetch_elem", withArg0 (\x -> fmap (\hv -> (Map.!) hv x) (readTVar tvar)))
+        , ("store_elem", withArgs $ \args -> do
+            -- XXX - dynamic extension
+            av <- readTVar tvar
+            writeTVar tvar (Map.insert (fromNative (_0 args)) (_1 args) av)
+          )
+        ]
+    where
+    mapToList = foldr (\(x,y) z -> (x:y:z)) [] . Map.toAscList
+    seqToMap = Map.fromList . roll . Seq.toList
+    roll [] = []
+    roll [_] = error "odd number of hash elements"
+    roll (k:v:xs) = ((k, v):roll xs)
 
 class IsNative a => Boxable a where
     boxType :: a -> NativeStr
@@ -103,7 +150,7 @@ registerObject gen = do
     obj  <- liftSTM gen
     objs <- get
     let obj' = addRepr (addRepr obj{ o_id = oid } "id" (const (return (toNative oid))))
-                       "new_opaque" (defaultCreate obj')
+                       "create" (defaultCreate obj')
         oid = size objs
     ptr <- liftIO $ mkWeakPtr obj' Nothing
     put (insert objs oid ptr)

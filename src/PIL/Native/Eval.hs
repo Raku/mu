@@ -65,10 +65,11 @@ bootstrapClass x = mdo
     clsNull   <- newClass clsNull  $ mkClassMethods "" []
     clsClass  <- newClass clsClass $ mkClassMethods "Class" [("add_method", addMethod)]
     clsBoxes  <- mapM (newBoxedClass clsClass) unboxedTypes
-    clsScalar <- registerObject $ do
-        scalar  <- genObject clsClass $ mkClassMethods "Scalar" []
-        return (addRepr scalar "new_opaque" (newScalarObj clsScalar))
-    enterLex ( ("::", clsNull) : ("::Class", clsClass) : ("::Scalar", clsScalar)
+    clsScalar <- newContainerClass clsClass "Scalar" (newScalarObj clsScalar)
+    clsArray  <- newContainerClass clsClass "Array" (newArrayObj clsArray)
+    clsHash   <- newContainerClass clsClass "Hash" (newHashObj clsHash)
+    enterLex ( ("::", clsNull) : ("::Class", clsClass)
+             : ("::Scalar", clsScalar) : ("::Array", clsArray) : ("::Hash", clsHash)
              : (unboxedTypes `zip` clsBoxes)) x
     where
     addMethod = parseSub
@@ -86,6 +87,9 @@ bootstrapClass x = mdo
     newBoxedClass cls name = newObject cls $
         mkClassMethods (drop 2 name) [("unbox", parseSub "->{ self`get_attr('') }")]
     unboxedTypes = map ("::" ++) $ words "Bit Int Num Str Seq Map Sub"
+    newContainerClass cls name gen = registerObject $ do
+        obj <- genObject cls $ mkClassMethods name []
+        return (addRepr obj "create" gen)
 
 enterLex :: IsNative a => [(String, a)] -> Eval b -> Eval b
 enterLex = local . append . mkPad
@@ -287,8 +291,8 @@ objPrims = mkMap
         callRepr obj "set_attr" (mkSeq [attrVal, toNative (insert hash key val)])
         return val
       )
-    , ("new_opaque", \cls args -> do
-        obj <- callRepr cls "new_opaque" args
+    , ("create", \cls args -> do
+        obj <- callRepr cls "create" args
         fmap toNative (registerObject (return (fromNative obj)))
       )
     , ("mro_merge", \cls _ -> do

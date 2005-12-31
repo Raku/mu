@@ -32,7 +32,7 @@
 });
 
 # S12 NOTE:
-# According to the new S12, I think that new_opaque should not
+# According to the new S12, I think that "create" should not
 # assign anything to the class slot. Instead &bless should handle
 # this. In addition, &bless should only call &CREATE if $repr is
 # an undefined value, otherwise it should call &BUILDALL on the 
@@ -56,7 +56,7 @@
 # kept simple. 
 
 ::Class.add_method('CREATE', -> $repr, %params {
-    $obj := self`new_opaque({});
+    $obj := self`create({});
     &dispatcher := self.dispatcher('descendant');
     -> {
         &redo  := &?SUB;
@@ -230,7 +230,7 @@
 });
 
 ::Class.add_private_method('make_dispatcher_iterator', -> @values {
-    $counter := ::`new_opaque({'' => 0});
+    $counter := ::`create({'' => 0});
     -> {
         $idx := $counter`get_attr('');
         $counter`set_attr('', $idx`add(1));
@@ -581,11 +581,11 @@
            }`do_unless($c`get_attr('%seen')`exists($r.name()))
         }`do_for($role.roles());
         $c`get_attr('@roles');
-    }`(::`new_opaque({ '@roles' => [], '%seen' => {} }), self);
+    }`(::`create({ '@roles' => [], '%seen' => {} }), self);
 });
 
 ::Role.add_method('resolve', -> {
-    $conflicts := ::`new_opaque({ 'methods' => {}, 'attrs' => {} });
+    $conflicts := ::`create({ 'methods' => {}, 'attrs' => {} });
     -> $role {
         -> $method_name {
             $conflicts`get_attr('methods')`exists($method_name)`cond(
@@ -677,13 +677,15 @@
 ::Scalar.add_method('FETCH', -> { self`fetch() } );
 ::Scalar.add_method('STORE', -> $x { self`store($x); self } );
 
-#::Array.set_superclasses([ ::Object ]);
-#::Array.add_method('FETCH', -> { self`get_attr('') } );
-#::Array.add_method('STORE', -> $x { self`set_attr('', $x); self } );
-#::Array.add_method('FETCH_ELEM', -> { self`get_attr('') } );
-#::Array.add_method('STORE_ELEM', -> $x { self`set_attr('', $x); self } );
-#
-#::Hash.set_superclasses([ ::Object ]);
+# XXX - these should become roles.  Help! :-)
+
+::Array.set_superclasses([ ::Object ]);
+::Array.add_method('FETCH', -> $i { self`fetch_elem($i) } );
+::Array.add_method('STORE', -> $i, $x { self`store_elem($i, $x); self } );
+
+::Hash.set_superclasses([ ::Object ]);
+::Hash.add_method('FETCH', -> $i { self`fetch_elem($i) } );
+::Hash.add_method('STORE', -> $i, $x { self`store_elem($i, $x); self } );
 
 =pod
 
