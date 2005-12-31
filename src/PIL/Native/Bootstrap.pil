@@ -414,6 +414,7 @@
 # do not do this, then we need to add $!name, $!version
 # and $!authority to the list above along with %!namespace
 
+
 ::Class.set_name('Class');     ::Class.set_version('0.0.1');   ::Class.set_authority('url:pugscode.org');
 ::Object.set_name('Object');   ::Object.set_version('0.0.1');  ::Object.set_authority('url:pugscode.org');
 ::Package.set_name('Package'); ::Package.set_version('0.0.1'); ::Package.set_authority('url:pugscode.org');
@@ -673,8 +674,16 @@
 ## ------------------------------------------------------------------------- ##
 
 ::Scalar.set_superclasses([ ::Object ]);
-::Scalar.add_method('FETCH', -> { self`get_attr('') } );
-::Scalar.add_method('STORE', -> $x { self`set_attr('', $x); self } );
+::Scalar.add_method('FETCH', -> { self`fetch() } );
+::Scalar.add_method('STORE', -> $x { self`store($x); self } );
+
+#::Array.set_superclasses([ ::Object ]);
+#::Array.add_method('FETCH', -> { self`get_attr('') } );
+#::Array.add_method('STORE', -> $x { self`set_attr('', $x); self } );
+#::Array.add_method('FETCH_ELEM', -> { self`get_attr('') } );
+#::Array.add_method('STORE_ELEM', -> $x { self`set_attr('', $x); self } );
+#
+#::Hash.set_superclasses([ ::Object ]);
 
 =pod
 

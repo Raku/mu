@@ -14,6 +14,7 @@ import PIL.Native.Pretty
 import System.Mem.Weak
 import Control.Exception
 import Control.Monad.State
+import qualified Data.Map as Map
 
 newScalarObj :: NativeObj -> NativeSeq -> STM Native
 newScalarObj cls args = do
@@ -111,4 +112,4 @@ registerObject gen = do
 addRepr :: NativeObj -> String -> ObjectPrim -> NativeObj
 addRepr obj name prim = obj{ o_repr = repr' }
     where
-    repr' = insert (o_repr obj) (mkStr name) prim
+    repr' = Map.insertWith (flip const) (mkStr name) prim (o_repr obj)
