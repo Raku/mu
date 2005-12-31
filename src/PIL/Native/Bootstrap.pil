@@ -674,7 +674,7 @@
 
 ::Scalar.set_superclasses([ ::Object ]);
 ::Scalar.add_method('FETCH', -> { self`get_attr('') } );
-::Scalar.add_method('STORE', -> $x { self`set_attr('', $x) } );
+::Scalar.add_method('STORE', -> $x { self`set_attr('', $x); self } );
 
 =pod
 
