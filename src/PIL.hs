@@ -79,9 +79,9 @@ eval :: MonadIO m => String -> m ()
 eval src = liftIO $ do
     exps <- parseNativeLang src 
     res <- evalNativeLang exps
-    banner "Object Space"
-    dumpObjSpace (result_objs res)
-    banner "Evaluated"
+    -- banner "Object Space"
+    -- dumpObjSpace (result_objs res)
+    -- banner "Evaluated"
     putStrLn =<< prettyM (result_value res)
 
 banner :: MonadIO m => String -> m ()
