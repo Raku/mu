@@ -214,6 +214,7 @@ op1 "\\"   = \v -> do
         (VRef _)    -> v
         (VList vs)  -> VRef . arrayRef $ vs
         _           -> VRef . scalarRef $ v
+op1 "^" = op2RangeExclRight (VNum 0)
 op1 "post:..."  = op1Range
 op1 "true" = op1 "?"
 op1 "any"  = op1Cast opJuncAny
@@ -1484,6 +1485,7 @@ initSyms = mapM primDecl syms
 \\n   Int       spre    ~^      safe   (Str)\
 \\n   Bool      spre    ?^      safe   (Bool)\
 \\n   Ref       spre    \\      safe   (rw!Any)\
+\\n   List      spre    ^       safe   (Scalar)\
 \\n   List      post    ...     safe   (Str)\
 \\n   List      post    ...     safe   (Scalar)\
 \\n   Any       pre     undef     safe   ()\

@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 20;
+plan 23;
 
 # 3..2 must *not* produce "3 2".  Use reverse to get a reversed range. -lwall
 
@@ -39,4 +39,7 @@ is ["a"..^"z"], ["a".."y"], "top-exclusive string range (..^) works";
 is ["a"^..^"z"], ["b".."y"], "double-exclusive string range (^..^) works";
 is ['a'^..^'b'], [], "double-exclusive string range (^..^) can produce null range";
 
-
+# Test the unary ^ operator
+is ~(^5), "0 1 2 3 4", "unary ^num produces the range 0..^num";
+is [^1], [0], "unary ^ on the boundary ^1 works";
+is [^0], [], "unary ^0 produces null range"
