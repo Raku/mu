@@ -17,18 +17,10 @@ import Data.IntMap (IntMap, insertWith, toAscList, union)
 import Data.Char (isSpace)
 import Control.Arrow
 import System.IO (stdout)
-import System.Environment (getArgs)
 import qualified Data.FastPackedString as Str
 import qualified Data.Seq as Seq
 import qualified Data.Map as Map
 import qualified Data.Set as Set
-
-main :: IO ()
-main = do
-    args <- getArgs
-    case args of
-        [x, y]  -> match x y
-        _       -> putStrLn "*** This program takes two arguments: 'rule' and 'string'"
 
 type Parser = MD Str
 type NoMatch = IntMap Label
@@ -54,8 +46,8 @@ grammar rules = Map.map comp normMap
     replaceNode (TermSubrule c name) = TermGroup c ((Map.!) normMap name)
     replaceNode x = x
 
-match :: String -> String -> IO ()
-match r i = either (hPut stdout) print (matchRule r i)
+printMatch :: String -> String -> IO ()
+printMatch r i = either (hPut stdout) print (matchRule r i)
 
 rule :: String -> (MatchRule -> a) -> MD Str a
 rule r f = mkRule r >>^ f

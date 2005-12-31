@@ -17,6 +17,7 @@ import System.IO
 import System.IO.Error
 import Control.Monad.Error
 import Control.Monad.Reader
+import Text.Parser.Rule
 import Pugs.Shell
 
 main :: IO ()
@@ -27,13 +28,20 @@ main = do
             banner "Welcome to PIL2 REPL, the Pugs Again Shell!"
             banner "Please enter expressions, or :q to exit"
             (`runReaderT` Nothing) prompt
-        [file]      -> eval =<< readFile file
-        ["-e", src] -> eval src
-        ["-p", src] -> parse src
-        ["-P", file] -> parse =<< readFile file
-        _           -> do
-            putStrLn "Usage: ./pil file"
-            putStrLn "       ./pil -e source"
+        [file]              -> eval =<< readFile file
+        ["-e", src]         -> eval src
+        ["-p", src]         -> parse src
+        ["-P", file]        -> parse =<< readFile file
+        ["-r", rule, input] -> printMatch rule input
+        ["-g", g, r, i]     -> do
+            -- printMatch rule input
+            fail "not yet supported"
+        _                   -> do
+            putStrLn "     Run: ./pil file"
+            putStrLn "          ./pil -e source"
+            putStrLn "   Match: ./pil -r rule input"
+            putStrLn "          ./pil -g grammar_file rule_name input_file"
+            putStrLn "   Parse: ./pil -p source"
     where
     prompt = do
         cmd <- liftIO $ getCommand
