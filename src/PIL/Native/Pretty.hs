@@ -50,22 +50,15 @@ instance Pretty NativeLangExpression where
     format ESaveContinuation = Text.PrettyPrint.empty --  "<save-cc>"
     format (ELit x) = format x
     format (EVar x) = format x
-    format (ECall obj meth args)
-        | meth == mkStr "send" = sugarDot '.'
-        | meth == mkStr "send_private" = sugarDot '!'
-        | otherwise = hcat
-            [ maybeParens obj                   -- obj
-            , char '`', format meth             -- `method
-            , parens (commaSep $ elems args)    -- (arg1, arg2)
-            ]
+    format (ECall ctyp obj meth args) = hcat
+        [ maybeParens obj                   -- obj
+        , char (sugarDot ctyp), format meth        -- `method
+        , parens (commaSep $ elems args)    -- (arg1, arg2)
+        ]
         where
-        sugarDot ch = hcat
-            [ maybeParens obj                   -- obj
-            , char ch, sugarInv (args ! 0)
-            , parens (commaSep . tail $ elems args)    -- (arg1, arg2)
-            ]
-        sugarInv (ELit (NStr str)) = format str
-        sugarInv inv = format inv
+        sugarDot CPrim    = '`'
+        sugarDot CPublic  = '.'
+        sugarDot CPrivate = '!'
         maybeParens (ELit (NSub {})) = parens (format obj)
         maybeParens obj = format obj
 

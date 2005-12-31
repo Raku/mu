@@ -1,7 +1,6 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
 module PIL.Native.Parser where
-import Control.Arrow (first)
 import PIL.Native.Types
 import PIL.Native.Coerce
 import Text.ParserCombinators.Parsec
@@ -143,7 +142,7 @@ expressionList = do
         return (lhs, rhs)
     unroll [] = []
     unroll (Right exp:xs) = (exp:unroll xs)
-    unroll (Left (lhs, rhs):xs) = [mkCall sub "" [rhs]]
+    unroll (Left (lhs, rhs):xs) = [mkCall CPrim sub "" [rhs]]
         where
         sub = ELit . toNative $ mkSub [lhs] (unroll xs)
     maybeEof p = do
@@ -166,18 +165,15 @@ expression = (<?> "expression") $ do
         x       <- noneOf " \n\t()0123456789.`!"
         xs      <- many (noneOf " \n\t();,.`!")
         return (x:xs)
-    maybeCall obj = option obj (primCall obj <|> sugarCall obj)
-    primCall obj = do
-        symbol "`"
+    maybeCall obj = option obj (doCall obj)
+    doCall obj = do
+        dot <- lexeme (oneOf "`.!")
         (name, args) <- functionCall <|> methodCall
-        maybeCall $ mkCall obj name args
-    sugarCall obj = do
-        dot <- lexeme (oneOf ".!")
-        (exp, args) <- fmap (first (ELit . toNative)) (functionCall <|> methodCall) <|> dynCall
-        maybeCall $ case dot of
-            '.' -> mkCall obj "send" (exp:args)
-            '!' -> mkCall obj "send_private" (exp:args)
-            _   -> error "impossible"
+        maybeCall $ mkCall (callType dot) obj name args
+    callType '`' = CPrim
+    callType '.' = CPublic
+    callType '!' = CPrivate
+    callType _   = error "impossible"
     -- $obj.(1,2,3)
     functionCall = do
         args    <- parens $ commaSep expression
@@ -188,10 +184,6 @@ expression = (<?> "expression") $ do
         args    <- option [] (parens $ commaSep expression)
         return (name, args)
     -- $obj`$method(1,2,3)
-    dynCall = do
-        exp     <- variableExpression
-        args    <- option [] (parens $ commaSep expression)
-        return (exp, args)
     selfExpression = do
         symbol "self"
         return (EVar $ mkStr "$?SELF")
@@ -222,7 +214,7 @@ arrayExpression = do
     -- arguments are without redexes; if so, make it a literal
     -- otherwise desugar it as [].push form
     exps <- brackets $ commaSep expression
-    return $ maybe (mkCall emptyArray "push" exps)
+    return $ maybe (mkCall CPrim emptyArray "push" exps)
                    (ELit . toNative)
                    (allLiteral exps)
     where
@@ -234,7 +226,7 @@ arrayExpression = do
 hashExpression :: Parser NativeLangExpression
 hashExpression = do
     exps <- braces $ commaSep pairExpression
-    return $ maybe (mkCall emptyHash "push" $ unroll exps)
+    return $ maybe (mkCall CPrim emptyHash "push" $ unroll exps)
                    (ELit . toNative)
                    (allLiteral exps)
     where
@@ -309,3 +301,13 @@ stringLiteral    :: CharParser st String
 stringLiteral    = P.stringLiteral    nativeLangLexer
 naturalOrFloat  :: CharParser st (Either Integer Double)
 naturalOrFloat  = P.naturalOrFloat nativeLangLexer
+
+mkCall :: NativeLangCallType -> NativeLangExpression -> String -> [NativeLangExpression]
+    -> NativeLangExpression
+mkCall ctyp obj meth args = ECall
+    { c_type = ctyp
+    , c_obj  = obj
+    , c_meth = mkStr meth
+    , c_args = mkSeq args
+    }
+

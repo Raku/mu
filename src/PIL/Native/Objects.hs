@@ -4,9 +4,9 @@ module PIL.Native.Objects (
     Boxable(..),
     ObjectSpace,
     dumpObjSpace,
-    newObject, registerObject, genObject,
+    newClass, newObject, registerObject, genObject,
     newScalarObj,
-    getAttr, setAttr, addAttr, hasAttr
+    callRepr, addRepr,
 ) where
 import PIL.Native.Coerce
 import PIL.Native.Types
@@ -15,32 +15,28 @@ import System.Mem.Weak
 import Control.Exception
 import Control.Monad.State
 
-newScalarObj :: NativeObj -> NativeSeq -> STM NativeObj
+newScalarObj :: NativeObj -> NativeSeq -> STM Native
 newScalarObj cls args = do
     tvar <- newTVar (args ! 0)
-    mkPrimObject cls
-        (const $ readTVar tvar)   -- fetch
-        (const $ return True)     -- exists
-        (const $ writeTVar tvar)  -- store
+    fmap toNative $ mkPrimObject cls
+        [ ("fetch", const $ readTVar tvar)
+        , ("store", \args -> let arg = (args ! 0) in writeTVar tvar arg >> return arg)
+        ]
 
 class IsNative a => Boxable a where
     boxType :: a -> NativeStr
     boxType _ = error "Cannot autobox"
     autobox :: (MonadState ObjectSpace m, MonadSTM m, MonadIO m) => a -> NativeObj -> m NativeObj
     autobox v cls = registerObject $ mkPrimObject cls
-        (const $ return (toNative v))   -- fetch
-        (const $ return True)           -- exists
-        (const . const $ failWith "Cannot store into autoboxed" (boxType v)) -- store
+        [ ("unbox", const $ return (toNative v)) ]
 
-defaultCreate :: NativeObj -> NativeSeq -> STM NativeObj
-defaultCreate cls args = genObject cls (fromNative $ args ! 0)
+defaultCreate :: NativeObj -> NativeSeq -> STM Native
+defaultCreate cls args = fmap toNative (genObject cls (fromNative $ args ! 0))
 
-mkPrimObject :: NativeObj -> (NativeStr -> STM Native) -> (NativeStr -> STM Bool) -> (NativeStr -> Native -> STM ()) -> STM NativeObj 
-mkPrimObject cls _fetch _exists _store = do
-    let freeze = fail "freeze"
-        thaw   = fail "thaw"
-        create = const (fail "create")
-    return (MkObject 0 cls _fetch _exists _store freeze thaw create)
+mkPrimObject :: Monad m => NativeObj -> [(String, ObjectPrim)] -> m NativeObj
+mkPrimObject cls repr = return (MkObject 0 cls (mkMap (clsPrim:repr)))
+    where
+    clsPrim = ("class", const (return (toNative cls)))
 
 -- Int becomes Haskell Integer when autoboxed
 instance Boxable NativeInt where
@@ -68,36 +64,34 @@ dumpObjSpace ptrs = mapM_ dumpObj (elems ptrs)
             Just obj -> do
                 putStr $ "#obj# " ++ pretty obj
                 (handle (const $ putStrLn "")) $ do
-                    val <- getAttr obj (mkStr "$!name")
+                    val <- callRepr obj "get_attr" (mkSeq [toNative "$!name"])
                     print $! toString val
             Nothing  -> return ()
 
-getAttr :: MonadSTM m => NativeObj -> NativeStr -> m Native
-getAttr obj att = liftSTM $ o_fetch obj att
-
-hasAttr :: MonadSTM m => NativeObj -> NativeStr -> m Bool
-hasAttr obj att = liftSTM $ o_exists obj att
-
-setAttr :: MonadSTM m => NativeObj -> NativeStr -> Native -> m ()
-setAttr obj att val = liftSTM $ o_store obj att val
-
-addAttr :: MonadSTM m => NativeObj -> NativeStr -> m ()
-addAttr obj att = liftSTM $ o_store obj att nil
+callRepr :: MonadSTM m => NativeObj -> String -> NativeSeq -> m Native
+callRepr obj meth args = liftSTM $ (o_repr obj ! mkStr meth) args
 
 genObject :: NativeObj -> NativeMap -> STM NativeObj
 genObject cls attrs = do
     tvar  <- liftSTM $ newTVar attrs
-    let fetch key = fmap (! key) $ readTVar tvar
-        exists key = do
+    let getAttr args = fmap (! (fromNative (args ! 0))) $ readTVar tvar
+        hasAttr args = fmap (toNative . (`PIL.Native.Coerce.exists` (fromNative (args ! 0))))
+            $ readTVar tvar
+        setAttr args = do
             attrs <- readTVar tvar
-            return (PIL.Native.Coerce.exists attrs key)
-        store key val = do
-            attrs <- readTVar tvar
-            writeTVar tvar (insert attrs key val)
-        freeze = fail "freeze"
-        thaw = fail "thaw"
-        create = defaultCreate cls
-    return (MkObject (-1) cls fetch exists store freeze thaw create)
+            writeTVar tvar (insert attrs (fromNative (args ! 0)) (args ! 1))
+            return (args ! 1)
+    mkPrimObject cls
+        [ ("get_attr", getAttr)
+        , ("set_attr", setAttr)
+        , ("has_attr", hasAttr)
+        ]
+
+newClass :: (MonadState ObjectSpace m, MonadIO m, MonadSTM m) =>
+    NativeObj -> NativeMap -> m NativeObj
+newClass cls attrs = registerObject $ do
+    obj <- genObject cls attrs
+    return (addRepr obj "mro_merge" $ defaultCreate cls)
 
 newObject :: (MonadState ObjectSpace m, MonadIO m, MonadSTM m) =>
     NativeObj -> NativeMap -> m NativeObj
@@ -107,9 +101,14 @@ registerObject :: (MonadState ObjectSpace m, MonadIO m, MonadSTM m) => STM Nativ
 registerObject gen = do
     obj  <- liftSTM gen
     objs <- get
-    let obj' = obj{ o_id = oid }
+    let obj' = addRepr (addRepr obj{ o_id = oid } "id" (const (return (toNative oid))))
+                       "new_opaque" (defaultCreate obj')
         oid = size objs
     ptr <- liftIO $ mkWeakPtr obj' Nothing
     put (insert objs oid ptr)
     return obj'
 
+addRepr :: NativeObj -> String -> ObjectPrim -> NativeObj
+addRepr obj name prim = obj{ o_repr = repr' }
+    where
+    repr' = insert (o_repr obj) (mkStr name) prim

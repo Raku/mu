@@ -14,6 +14,7 @@ import Data.Maybe
 import Control.Monad.State
 import Control.Monad.Reader
 import Control.Exception
+import qualified Data.Map as Map
 
 {-| 
 
@@ -61,12 +62,12 @@ handleResult f = do
 
 bootstrapClass :: Eval a -> Eval a
 bootstrapClass x = mdo
-    clsNull   <- newObject clsNull  $ mkClassMethods "" []
-    clsClass  <- newObject clsClass $ mkClassMethods "Class" [("add_method", addMethod)]
+    clsNull   <- newClass clsNull  $ mkClassMethods "" []
+    clsClass  <- newClass clsClass $ mkClassMethods "Class" [("add_method", addMethod)]
     clsBoxes  <- mapM (newBoxedClass clsClass) unboxedTypes
     clsScalar <- registerObject $ do
         scalar  <- genObject clsClass $ mkClassMethods "Scalar" []
-        return scalar{ o_create = newScalarObj clsScalar }
+        return (addRepr scalar "new_opaque" (newScalarObj clsScalar))
     enterLex ( ("::", clsNull) : ("::Class", clsClass) : ("::Scalar", clsScalar)
              : (unboxedTypes `zip` clsBoxes)) x
     where
@@ -114,16 +115,17 @@ evalExp (EVar s) = do
     case pad `fetch` s of
         Just v  -> return v
         Nothing -> failWith "No such variable" s
-evalExp (ECall { c_obj = objExp, c_meth = meth, c_args = argsExp }) = do
+evalExp (ECall { c_type = ctyp, c_obj = objExp, c_meth = meth, c_args = argsExp }) = do
     obj  <- evalExp objExp
     args <- fmapM evalExp argsExp
-    primCall obj meth args
+    case ctyp of
+        CPrim    -> primCall obj meth args
+        CPublic  -> sendCall obj meth args
+        CPrivate -> privCall obj meth args
 
 primCall :: Native -> NativeLangMethod -> NativeSeq -> Eval Native
 primCall inv meth args
     | meth == mkStr "trace"         = traceObject inv args
-    | meth == mkStr "send"          = sendCall inv (fromNative $ args ! 0) (splice args 1)
-    | meth == mkStr "send_private"  = privCall inv (fromNative $ args ! 0) (splice args 1)
     | otherwise = case anyPrims `fetch` meth of
         Just f  -> return $ f inv args
         Nothing -> case inv of
@@ -139,7 +141,9 @@ primCall inv meth args
             NSub x      -> callSubWith (toString meth) x args
             NObj obj    -> case objPrims `fetch` meth of
                 Just f  -> f obj args
-                Nothing -> errMethodMissing
+                Nothing -> case Map.lookup meth (o_repr obj) of
+                    Just f  -> liftSTM (f args)
+                    Nothing -> errMethodMissing
     where
     errMethodMissing = failWith "No such method" meth
     callPrim :: Boxable a => MapOf (a -> NativeSeq -> Native) -> a -> NativeSeq -> Eval Native
@@ -209,7 +213,7 @@ callConditional x args = callSub (fromNative $ args ! fromEnum (not x)) empty
 
 infixl ...
 (...) :: IsNative a => NativeObj -> String -> Eval a
-obj ... str = fmap fromNative $ getAttr obj (mkStr str)
+obj ... str = fmap fromNative $ callRepr obj "get_attr" (mkSeq [toNative str])
 
 traceObject :: Native -> NativeSeq -> Eval Native
 traceObject obj args = liftIO $ do
@@ -276,25 +280,17 @@ __MRO           = mkStr "MRO"
 
 objPrims :: MapOf (NativeObj -> NativeSeq -> Eval Native)
 objPrims = mkMap
-    [ ("id", \obj _ -> return (toNative $ o_id obj))
-    , ("class", \obj _ -> return (toNative $ o_class obj))
-    , ("get_attr", \obj args -> obj ... fromNative (args ! 0))
-    , ("set_attr", \obj args -> do
-        setAttr obj (fromNative (args ! 0)) (args ! 1)
-        return (args ! 1)
-      )
-    , ("has_attr", \obj args -> do
-        val <- hasAttr obj (fromNative (args ! 0))
-        return (toNative val)
-      )      
-    , ("set_attr_hash", \obj args -> do
+    [ ("set_attr_hash", \obj args -> do
         let [attrVal, keyVal, val] = elems args
             key :: NativeStr = fromNative keyVal
-        hash <- obj ... fromNative attrVal :: Eval NativeMap
-        setAttr obj (fromNative attrVal) (toNative $ insert hash key val)
+        hash <- fmap fromNative (callRepr obj "get_attr" (mkSeq [attrVal])) :: Eval NativeMap
+        callRepr obj "set_attr" (mkSeq [attrVal, toNative (insert hash key val)])
         return val
       )
-    , ("new_opaque", \cls args -> fmap toNative (registerObject ((o_create cls) args)))
+    , ("new_opaque", \cls args -> do
+        obj <- callRepr cls "new_opaque" args
+        fmap toNative (registerObject (return (fromNative obj)))
+      )
     , ("mro_merge", \cls _ -> do
         -- NOTE:
         -- we get the MRO of the object itself

@@ -5,8 +5,9 @@ module PIL.Native.Types (
     NativeBit, NativeInt, NativeNum, NativeError, NativeStr, NativeSeq, NativeMap,
 
     NativeSub(..), NativeLangExpression(..), NativeLangSym, NativeLangMethod,
+    NativeLangCallType(..),
 
-    ObjectId, ObjectAttrs,
+    ObjectId, ObjectRepr, ObjectPrim,
     
     SeqOf, MapOf, Pad,
 
@@ -16,9 +17,9 @@ import Pugs.AST.SIO
 import Data.Typeable
 import Control.Exception
 import Control.Concurrent.STM
-import qualified Data.Map as NMap
-import qualified Data.Seq as NSeq
-import qualified Data.FastPackedString as NStr
+import qualified Data.Map as Map
+import qualified Data.Seq as Seq
+import qualified Data.FastPackedString as Str
 
 {-| 
 
@@ -50,7 +51,6 @@ data Native
     deriving (Show, Eq, Ord, Typeable)
 
 type ObjectId    = NativeInt
-type ObjectAttrs = TVar NativeMap
 
 instance Show NativeObj where
     show o = "<obj:#" ++ show (o_id o) ++ "|cls:#" ++ show (o_id (o_class o)) ++ ">"
@@ -59,15 +59,13 @@ instance Eq NativeObj where
 instance Ord NativeObj where
     compare x y = compare (o_id x) (o_id y)
 
+type ObjectRepr = Map.Map NativeStr ObjectPrim
+type ObjectPrim = (NativeSeq -> STM Native)
+
 data NativeObj = MkObject
     { o_id      :: ObjectId
-    , o_class   :: NativeObj -- ::Class is self-recursive, so can't be strict here
-    , o_fetch   :: NativeStr -> STM Native
-    , o_exists  :: NativeStr -> STM Bool    
-    , o_store   :: NativeStr -> Native -> STM ()
-    , o_freeze  :: STM NativeStr
-    , o_thaw    :: NativeStr -> STM ()
-    , o_create  :: NativeSeq -> STM NativeObj
+    , o_class   :: NativeObj
+    , o_repr    :: ObjectRepr
     }
     deriving (Typeable)
 
@@ -83,10 +81,15 @@ data NativeSub = MkSub
 type NativeLangSym = NativeStr
 type NativeLangMethod = NativeStr
 
+data NativeLangCallType
+    = CPrim | CPublic | CPrivate
+    deriving (Show, Eq, Ord, Typeable)
+
 data NativeLangExpression
     = ELit  !Native
     | EVar  !NativeLangSym
-    | ECall { c_obj  :: !NativeLangExpression
+    | ECall { c_type :: !NativeLangCallType
+            , c_obj  :: !NativeLangExpression
             , c_meth :: !NativeLangMethod
             , c_args :: !(SeqOf NativeLangExpression)
             }
@@ -97,12 +100,12 @@ type NativeBit = Bool
 type NativeInt = Int
 type NativeNum = Float
 type NativeError = Exception
-type NativeStr = NStr.FastString
+type NativeStr = Str.FastString
 type NativeSeq = SeqOf Native
-type NativeMap = NMap.Map NativeStr Native
+type NativeMap = Map.Map NativeStr Native
 
-type MapOf = NMap.Map NativeStr
-type SeqOf = NSeq.Seq
+type MapOf = Map.Map NativeStr
+type SeqOf = Seq.Seq
 
 instance Ord NativeError where
     compare x y = compare (show x) (show y)

@@ -6,9 +6,9 @@ import Control.Arrow
 import Control.Exception
 import Data.Dynamic
 import Data.Typeable
-import qualified Data.Map as NMap
-import qualified Data.Seq as NSeq
-import qualified Data.FastPackedString as NStr
+import qualified Data.Map as Map
+import qualified Data.Seq as Seq
+import qualified Data.FastPackedString as Str
 
 {-| 
 
@@ -44,26 +44,19 @@ mkErr :: (Typeable a) => a -> NativeError
 mkErr = DynException . toDyn
 
 mkSeq :: [b] -> SeqOf b
-mkSeq = NSeq.fromList
+mkSeq = Seq.fromList
 
 mkMap :: [(String, a)] -> MapOf a
-mkMap = NMap.fromList . map (\(k, v) -> (mkStr k, v))
+mkMap = Map.fromList . map (\(k, v) -> (mkStr k, v))
 
 mkStr :: String -> NativeStr
-mkStr = NStr.pack
+mkStr = Str.pack
 
 mkSub :: [String] -> [NativeLangExpression] -> NativeSub
 mkSub params exps = MkSub
     { s_params = mkSeq (map mkStr params)
     , s_exps   = mkSeq exps
     , s_pad    = empty
-    }
-
-mkCall :: NativeLangExpression -> String -> [NativeLangExpression] -> NativeLangExpression
-mkCall obj meth args = ECall
-    { c_obj  = obj
-    , c_meth = mkStr meth
-    , c_args = mkSeq args
     }
 
 class IsPlural a key val | a -> key, a -> val where 
@@ -86,64 +79,64 @@ class IsPlural a key val | a -> key, a -> val where
     (!) x k = maybe (error "index out of bounds") id $ fetch x k
 
 instance IsPlural NativeStr NativeInt NativeStr where
-    isEmpty    = NStr.null
-    size       = NStr.length
-    empty      = NStr.empty
-    exists (NStr.PS _ _ l) n = (n >= 0) && (n < l)
-    indices    = \x -> [0 .. (NStr.length x - 1)]
-    elems      = NStr.elems
-    append     = NStr.append
-    reversed   = NStr.reverse
-    push       = \x xs -> NStr.concat (x:NSeq.toList xs)
+    isEmpty    = Str.null
+    size       = Str.length
+    empty      = Str.empty
+    exists (Str.PS _ _ l) n = (n >= 0) && (n < l)
+    indices    = \x -> [0 .. (Str.length x - 1)]
+    elems      = Str.elems
+    append     = Str.append
+    reversed   = Str.reverse
+    push       = \x xs -> Str.concat (x:Seq.toList xs)
     assocs     = zip [0..] . elems
-    fromAssocs = NStr.concat . map snd -- XXX wrong
-    splice     = flip NStr.drop
-    fetch (NStr.PS p s l) n
+    fromAssocs = Str.concat . map snd -- XXX wrong
+    splice     = flip Str.drop
+    fetch (Str.PS p s l) n
         | n < 0     = fail "negative index"
         | n >= l    = fail "index out of bounds"
-        | otherwise = return $ NStr.PS p (s + n) 1
+        | otherwise = return $ Str.PS p (s + n) 1
     delete     = error "It doesn't make sense to delete from a string"
     insert     = error "XXX str.insert"
 
-instance (Ord k, Show k) => IsPlural (NMap.Map k v) k v where
-    isEmpty    = NMap.null
-    size       = NMap.size
-    empty      = NMap.empty
-    indices    = NMap.keys
-    elems      = NMap.elems
-    exists     = flip NMap.member
-    append     = NMap.union
+instance (Ord k, Show k) => IsPlural (Map.Map k v) k v where
+    isEmpty    = Map.null
+    size       = Map.size
+    empty      = Map.empty
+    indices    = Map.keys
+    elems      = Map.elems
+    exists     = flip Map.member
+    append     = Map.union
     push       = error "It doesn't make sense to push into a hash"
     splice     = error "It doesn't make sense to splice from a hash"
     reversed   = error "It doesn't make sense to reverse from a hash"
-    assocs     = NMap.assocs
-    fromAssocs = NMap.fromList
-    fetch      = flip NMap.lookup
-    delete     = flip NMap.delete    
-    insert     = \o k v -> NMap.insert k v o
-    (!) x k    = case NMap.lookup k x of
+    assocs     = Map.assocs
+    fromAssocs = Map.fromList
+    fetch      = flip Map.lookup
+    delete     = flip Map.delete    
+    insert     = \o k v -> Map.insert k v o
+    (!) x k    = case Map.lookup k x of
         Just v  -> v
         Nothing -> error $ "Cannot find " ++ show k ++ " in map: " ++ show (indices x)
 
 instance IsPlural (SeqOf a) NativeInt a where
-    isEmpty      = NSeq.null
-    size         = NSeq.length
-    empty        = NSeq.empty
+    isEmpty      = Seq.null
+    size         = Seq.length
+    empty        = Seq.empty
     exists x n   = (n >= 0) && (n < size x)
     indices      = \x -> [0 .. size x - 1]
-    elems        = NSeq.toList
-    append       = (NSeq.><)
+    elems        = Seq.toList
+    append       = (Seq.><)
     push         = append
-    reversed     = NSeq.reverse
-    splice       = flip NSeq.drop
+    reversed     = Seq.reverse
+    splice       = flip Seq.drop
     assocs       = ([0..] `zip`) . elems
-    fromAssocs   = NSeq.fromList . map snd -- XXX wrong
+    fromAssocs   = Seq.fromList . map snd -- XXX wrong
     fetch x k    | k >= size x = Nothing
-                 | otherwise   = Just (NSeq.index x k)
-    insert x k v | k == size x = (NSeq.|>) x v
-                 | otherwise   = NSeq.update k v x
+                 | otherwise   = Just (Seq.index x k)
+    insert x k v | k == size x = (Seq.|>) x v
+                 | otherwise   = Seq.update k v x
     delete       = error "It doesn't make sense to delete from an array"                 
-    (!)          = NSeq.index
+    (!)          = Seq.index
 
 class Show a => IsNative a where 
     toNative   :: a -> Native
@@ -171,7 +164,7 @@ instance IsNative NativeBit where
     fromNative (NNum x)     = (x /= 0)
     fromNative (NStr x)     = case size x of
         0   -> False
-        1   -> (NStr.head x /= '0')
+        1   -> (Str.head x /= '0')
         _   -> True
     fromNative (NSeq x)     = isEmpty x
     fromNative (NMap x)     = isEmpty x
@@ -191,16 +184,16 @@ instance IsNative NativeInt where
 
 instance IsNative NativeStr where
     toNative = NStr
-    toString = NStr.unpackFromUTF8
+    toString = Str.unpackFromUTF8
     fromNative (NError {})  = empty
     fromNative (NBit x)     = if x then mkStr "1" else mkStr "0"
     fromNative (NInt x)     = mkStr $ toString x
     fromNative (NNum x)     = mkStr $ toString x
     fromNative (NStr x)     = x
-    fromNative (NSeq x)     = NStr.unwords $ map fromNative (elems x)
-    fromNative (NMap x)     = NStr.unlines $ map fromPair (assocs x)
+    fromNative (NSeq x)     = Str.unwords $ map fromNative (elems x)
+    fromNative (NMap x)     = Str.unlines $ map fromPair (assocs x)
         where
-        fromPair (k, v) = NStr.append k (NStr.cons '\t' (fromNative v))
+        fromPair (k, v) = Str.append k (Str.cons '\t' (fromNative v))
     fromNative x            = castFail x
 
 instance IsNative NativeNum where
@@ -222,7 +215,7 @@ instance IsNative NativeMap where
 
 {-
 instance IsNative NativeSeq where
-    toNative = NSeq
+    toNative = Seq
     fromNative (NError {})  = empty
     fromNative (NSeq x)     = x
     fromNative x            = castFail x
@@ -258,15 +251,15 @@ instance IsNative (Either Integer Double) where
 
 instance IsNative String where
     toNative = toNative . mkStr
-    fromNative = NStr.unpackFromUTF8 . fromNative
+    fromNative = Str.unpackFromUTF8 . fromNative
 
 instance IsNative [Native] where
     toNative = NSeq . mkSeq
-    fromNative = NSeq.toList . (fromNative :: Native -> NativeSeq)
+    fromNative = Seq.toList . (fromNative :: Native -> NativeSeq)
 
 instance IsNative [(Native, Native)] where
-    toNative = NMap . NMap.fromList . map ((fromNative :: Native -> NativeStr) *** id) 
-    fromNative = NMap.assocs . NMap.mapKeys (toNative :: NativeStr -> Native) . fromNative
+    toNative = NMap . Map.fromList . map ((fromNative :: Native -> NativeStr) *** id) 
+    fromNative = Map.assocs . Map.mapKeys (toNative :: NativeStr -> Native) . fromNative
 
 instance IsNative [NativeStr] where
     toNative = (toNative :: NativeSeq -> Native) . mkSeq . map toNative
