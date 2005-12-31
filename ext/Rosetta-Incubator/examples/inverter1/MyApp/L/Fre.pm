@@ -4,7 +4,7 @@ use v6;
 ###########################################################################
 ###########################################################################
 
-my Str %text_strings is readonly = (
+my Str %TEXT_STRINGS is readonly = (
     'MYAPP_HELLO' => q[Bienvenue allé MyApp.],
     'MYAPP_GOODBYE' => q[Salut!],
     'MYAPP_PROMPT'
@@ -15,7 +15,7 @@ my Str %text_strings is readonly = (
 
 module MyApp::L::Fre {
     sub get_text_by_key (Str $msg_key!) returns Str {
-        return %text_strings{$msg_key};
+        return %TEXT_STRINGS{$msg_key};
     }
 } # module MyApp::L::Fre
 

@@ -70,7 +70,7 @@ sub show_message (Locale::KeyedText::Translator $translator!,
 ###########################################################################
 ###########################################################################
 
-my Str %text_stringsE is readonly = (
+my Str %TEXT_STRINGS_E is readonly = (
     'MYAPP_HELLO' => q[Welcome to MyApp.],
     'MYAPP_GOODBYE' => q[Goodbye!],
     'MYAPP_PROMPT'
@@ -80,14 +80,14 @@ my Str %text_stringsE is readonly = (
 
 module MyApp::L::Eng {
     sub get_text_by_key (Str $msg_key!) returns Str {
-        return %text_stringsE{$msg_key};
+        return %TEXT_STRINGS_E{$msg_key};
     }
 } # module MyApp::L::Eng
 
 ###########################################################################
 ###########################################################################
 
-my Str %text_stringsF is readonly = (
+my Str %TEXT_STRINGS_F is readonly = (
     'MYAPP_HELLO' => q[Bienvenue allé MyApp.],
     'MYAPP_GOODBYE' => q[Salut!],
     'MYAPP_PROMPT'
@@ -98,7 +98,7 @@ my Str %text_stringsF is readonly = (
 
 module MyApp::L::Fre {
     sub get_text_by_key (Str $msg_key!) returns Str {
-        return %text_stringsF{$msg_key};
+        return %TEXT_STRINGS_F{$msg_key};
     }
 } # module MyApp::L::Fre
 

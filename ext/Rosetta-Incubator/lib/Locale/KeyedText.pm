@@ -692,7 +692,7 @@ to make modules having a specific simple API that will serve their role.
 
 For example, inside the text Template file "MyApp/L/Eng.pm" you can have:
 
-    my Str %text_strings is readonly = (
+    my Str %TEXT_STRINGS is readonly = (
         'MYAPP_HELLO' => q[Welcome to MyApp.],
         'MYAPP_GOODBYE' => q[Goodbye!],
         'MYAPP_PROMPT'
@@ -702,13 +702,13 @@ For example, inside the text Template file "MyApp/L/Eng.pm" you can have:
 
     module MyApp::L::Eng {
         sub get_text_by_key (Str $msg_key!) returns Str {
-            return %text_strings{$msg_key};
+            return %TEXT_STRINGS{$msg_key};
         }
     } # module MyApp::L::Eng
 
 And inside the text Template file "MyApp/L/Fre.pm" you can have:
 
-    my Str %text_strings is readonly = (
+    my Str %TEXT_STRINGS is readonly = (
         'MYAPP_HELLO' => q[Bienvenue allé MyApp.],
         'MYAPP_GOODBYE' => q[Salut!],
         'MYAPP_PROMPT'
@@ -719,7 +719,7 @@ And inside the text Template file "MyApp/L/Fre.pm" you can have:
 
     module MyApp::L::Fre {
         sub get_text_by_key (Str $msg_key!) returns Str {
-            return %text_strings{$msg_key};
+            return %TEXT_STRINGS{$msg_key};
         }
     } # module MyApp::L::Fre
 

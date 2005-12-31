@@ -4,7 +4,7 @@ use v6;
 ###########################################################################
 ###########################################################################
 
-my Str %text_strings is readonly = (
+my Str %TEXT_STRINGS is readonly = (
     'MYLIB_MYINV_NO_ARG' => q[my_invert(): argument $number is missing],
     'MYLIB_MYINV_BAD_ARG'
         => q[my_invert(): argument $number is not a number,]
@@ -16,7 +16,7 @@ my Str %text_strings is readonly = (
 
 module MyLib::L::Eng {
     sub get_text_by_key (Str $msg_key!) returns Str {
-        return %text_strings{$msg_key};
+        return %TEXT_STRINGS{$msg_key};
     }
 } # module MyLib::L::Eng
 

@@ -5,7 +5,7 @@ use v6;
 ###########################################################################
 
 # Constant values used by packages in this file:
-my Str %text_strings is readonly = (
+my Str %TEXT_STRINGS is readonly = (
     # This group of strings is generic and can be used by any package:
 
     'LKT_ARG_UNDEF'
@@ -63,7 +63,7 @@ my Str %text_strings is readonly = (
 
 module Locale::KeyedText::L::en-1.0.0 {
     sub get_text_by_key (Str $msg_key!) returns Str {
-        return %text_strings{$msg_key};
+        return %TEXT_STRINGS{$msg_key};
     }
 } # module Locale::KeyedText::L::en
 

@@ -27,7 +27,7 @@ module MyLib {
 ###########################################################################
 ###########################################################################
 
-my Str %text_stringsE is readonly = (
+my Str %TEXT_STRINGS_E is readonly = (
     'MYLIB_MYINV_NO_ARG' => q[my_invert(): argument $number is missing],
     'MYLIB_MYINV_BAD_ARG'
         => q[my_invert(): argument $number is not a number,]
@@ -39,14 +39,14 @@ my Str %text_stringsE is readonly = (
 
 module MyLib::L::Eng {
     sub get_text_by_key (Str $msg_key!) returns Str {
-        return %text_stringsE{$msg_key};
+        return %TEXT_STRINGS_E{$msg_key};
     }
 } # module MyLib::L::Eng
 
 ###########################################################################
 ###########################################################################
 
-my Str %text_stringsF is readonly = (
+my Str %TEXT_STRINGS_F is readonly = (
     'MYLIB_MYINV_NO_ARG' => q[my_invert(): paramètre $number est manquant],
     'MYLIB_MYINV_BAD_ARG'
         => q[my_invert(): paramètre $number est ne nombre,]
@@ -58,7 +58,7 @@ my Str %text_stringsF is readonly = (
 
 module MyLib::L::Fre {
     sub get_text_by_key (Str $msg_key!) returns Str {
-        return %text_stringsF{$msg_key};
+        return %TEXT_STRINGS_F{$msg_key};
     }
 } # module MyLib::L::Fre
 

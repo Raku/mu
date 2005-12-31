@@ -1,32 +1,20 @@
 #!/usr/bin/pugs
 use v6;
 
-# External packages used by packages in this file, that don't export symbols:
-# (None Yet)
-
 ###########################################################################
 ###########################################################################
 
 # Constant values used by packages in this file:
-# (None Yet)
+my Str %TEXT_STRINGS is readonly = (
+);
 
 ###########################################################################
 ###########################################################################
 
 module Rosetta::Engine::Native::L::en-0.1.0 {
-
-    # External packages used by the Rosetta::Engine::Native::L::en module, that do export symbols:
-    # (None Yet)
-
-    # Attributes of every Rosetta::Engine::Native::L::en object:
-    # (None Yet)
-
-###########################################################################
-
-
-
-###########################################################################
-
+    sub get_text_by_key (Str $msg_key!) returns Str {
+        return %TEXT_STRINGS{$msg_key};
+    }
 } # module Rosetta::Engine::Native::L::en
 
 ###########################################################################

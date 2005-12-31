@@ -4,7 +4,7 @@ use v6;
 ###########################################################################
 ###########################################################################
 
-my Str %text_strings is readonly = (
+my Str %TEXT_STRINGS is readonly = (
     'MYAPP_HELLO' => q[Light goes on!],
     'MYAPP_GOODBYE' => q[Light goes off!],
     'MYAPP_PROMPT'
@@ -19,7 +19,7 @@ my Str %text_strings is readonly = (
 
 module MyApp::L::Homer {
     sub get_text_by_key (Str $msg_key!) returns Str {
-        return %text_strings{$msg_key};
+        return %TEXT_STRINGS{$msg_key};
     }
 } # module MyApp::L::Homer
 
