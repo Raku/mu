@@ -58,7 +58,11 @@ grammar rules = Map.map comp normMap
     replaceNode x = x
 
 printMatch :: String -> String -> IO ()
-printMatch r i = either (hPut stdout) print (matchRule r i)
+printMatch r i = either (hPut stdout) printMatchResult (matchRule r i)
+
+printMatchResult :: MatchRule -> IO ()
+printMatchResult mo = (hPut stdout) (matchString mo)
+printMatchResult mr = print mr
 
 mkRule :: String -> (MatchRule -> a) -> MD Str a
 mkRule r f = rule r >>^ f
@@ -448,6 +452,8 @@ ruleTable = mkOpTable
     _Term "\\n" _ _  = mk TermShortcut CS_Newline
     _Term "\\N" _ _  = mk TermShortcut (CS_Negated CS_Newline)
     _Term "<commit>" _ _ = mk TermCommit
+    -- _Term "<["  _ _  = mk TermEnum EnumChars
+    -- _Term "<-["  _ _  = mk TermEnum EnumComplement
     _Term x     _ _  = error x
     _Quant :: String -> DynMkMatch Rule
     _Quant "*" _ [x] = mk $ Quant (mk x) 0 QuantInf     Greedy
