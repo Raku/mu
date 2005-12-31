@@ -89,7 +89,7 @@ pil_is_eq('::Object.is_a(::Object)',  'true', '... ::Object.is_a(::Object)');
 
 pil_is_eq('::Object.superclasses()', '[]', '... ::Object.superclasses() == []');
 
-pil_is_eq('::Object.subclasses()`length()', '1', '... ::Object.subclasses().length() == 1');
+pil_is_eq('::Object.subclasses()`gt(1)', 'true', '... ::Object.subclasses().length() == 9');
 pil_is_eq('::Object.subclasses()`fetch(0)`eq(::Package)', 'true', '... ::Object.subclasses()[0].eq(Package)');
 
 # Role

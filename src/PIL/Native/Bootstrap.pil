@@ -674,18 +674,78 @@
 ## ------------------------------------------------------------------------- ##
 
 ::Scalar.set_superclasses([ ::Object ]);
-::Scalar.add_method('FETCH', -> { self`fetch() } );
+::Scalar.add_method('FETCH', ->    { self`fetch()         } );
 ::Scalar.add_method('STORE', -> $x { self`store($x); self } );
 
 # XXX - these should become roles.  Help! :-)
 
 ::Array.set_superclasses([ ::Object ]);
-::Array.add_method('FETCH', -> $i { self`fetch_elem($i) } );
+::Array.add_method('FETCH', -> $i     { self`fetch_elem($i)           } );
 ::Array.add_method('STORE', -> $i, $x { self`store_elem($i, $x); self } );
 
+=pod
+
+stolen from docs/quickref/data # probably incomplete
+
+.elems          # Number of elements
+.join($sep)
+.map:{ ... }
+.grep:{ ... }
+.pop
+.push($elem)
+.shift
+.unshift($elem)
+.reverse
+.sort( { cond }, { cond }, ... )
+.kv            # return index,value pairs
+
+=cut
+
+::rArray := ::Role.new({ '$!name' => 'Array' });
+
+::rArray.add_method('elems', -> { 
+    self`fetch_list()`length() 
+});
+
+::rArray.add_method('join',    -> $sep {});
+::rArray.add_method('map',     -> $func {});
+::rArray.add_method('grep',    -> $func {});
+::rArray.add_method('pop',     -> {});
+::rArray.add_method('push',    -> $elem {});
+::rArray.add_method('shift',   -> {});
+::rArray.add_method('unshift', -> $elem {});
+::rArray.add_method('reverse', -> {});
+::rArray.add_method('sort',    -> {});
+::rArray.add_method('kv',      -> {});
+
+::Array.set_roles([ ::rArray ]);
+::Array.resolve();
+
 ::Hash.set_superclasses([ ::Object ]);
-::Hash.add_method('FETCH', -> $i { self`fetch_elem($i) } );
+::Hash.add_method('FETCH', -> $i     { self`fetch_elem($i)           } );
 ::Hash.add_method('STORE', -> $i, $x { self`store_elem($i, $x); self } );
+
+=pod
+
+stolen from docs/quickref/data # probably incomplete
+
+.delete($key)
+.exists($key)
+.keys
+.values
+.kv                # List of key, value, key, value, ...
+
+=cut
+
+::rHash := ::Role.new({ '$!name' => 'Hash' });
+::rHash.add_method('delete', -> $key {});
+::rHash.add_method('exists', -> $key {});
+::rHash.add_method('keys',   -> {});
+::rHash.add_method('values', -> {});
+::rHash.add_method('kv',     -> {});
+
+::Hash.set_roles([ ::rHash ]);
+::Hash.resolve();
 
 =pod
 
