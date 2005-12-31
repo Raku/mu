@@ -46,6 +46,10 @@ matcher (MChoice l) i =
 matcher p@(MEqual x)     i@MkParseState{psInput = s} = if Str.isPrefixOf x s
     then let (pre, post) = Str.splitAt (Str.length x) s in POk i{psInput = post} pre
     else err i p
+matcher p@(MDyn _ f)     i@MkParseState{psInput = s} = case f s of
+    Just (ok, post) -> let pre = Str.take (Str.length s - Str.length post) s in
+        POk i{psInput = post} (pre, ok)
+    _               -> err i p
 matcher (MSeq a b)       i = case optM a i of
     POk s t -> case b of
         (MPure _ f) -> POk s (f t)

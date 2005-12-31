@@ -9,11 +9,13 @@ import qualified Data.Seq as NSeq
 import qualified Data.FastPackedString as NStr
 import qualified Data.List as List
 import Data.Ratio
+import Data.Generics hiding (Prefix, Infix)
 import Data.Char (isDigit)
 import Data.List (find)
 import Data.Seq (Seq, fromList)
 import Data.Map (Map, insert, lookup, toAscList, (!))
 import Data.FastPackedString (empty, unpack, pack, null, drop, dropSpace, length, isPrefixOf, span, append, FastString(..))
+import GHC.Prim(unsafeCoerce#)
 
 data Op
     = Infix         { str :: !Str, assoc :: !Assoc }
@@ -25,7 +27,7 @@ data Op
     | Circumfix     { str :: !Str, str2 :: !Str }
     | PostCircumfix { str :: !Str, str2 :: !Str }
     | Close         { str :: !Str }
-    deriving (Eq, Show, Ord)
+    deriving (Eq, Show, Ord, Typeable, Data)
 
 -- newtype DynStr = MkDynStr (forall m. Monad m => Str -> m (Str, Op -> Seq Match))
 type DynStr = Str -> Str -> Maybe DynResult
@@ -40,6 +42,13 @@ data DynResult
         , dynRemainder  :: !Str
         , dynOpTrans    :: !(forall r. OpTable r -> OpTable r)
         }
+    deriving (Typeable)
+
+instance Data DynResult where
+    gunfold = error "gunfold"
+        :: (forall r. c (Str -> r) -> c r) -> (forall r . r -> c r) -> Constr -> c DynResult
+    toConstr = error "gfoldl"
+    dataTypeOf = error "dataTypeOf"
 
 instance Eq DynStr where _ == _ = True
 instance Ord DynStr where compare _ _ = EQ
@@ -61,7 +70,7 @@ data Token r = MkToken
     , tokNull    :: !Bool -- null-width assertion
     , tokMkMatch :: !(DynMkMatch r)
     }
-    deriving (Eq, Show)
+    deriving (Eq, Show, Typeable, Data)
 
 instance Ord (Token r) where
     compare x y = compare (tokPrec x) (tokPrec y)
@@ -70,23 +79,23 @@ data Match = MkMatch
     { matchOp   :: !Op
     , matchArgs :: !(Seq Match)
     }
-    deriving (Eq, Show, Ord)
+    deriving (Eq, Show, Ord, Typeable, Data)
 
 data Assoc
     = AssocNon | AssocLeft | AssocRight | AssocChain | AssocList
-    deriving (Eq, Show, Ord)
+    deriving (Eq, Show, Ord, Typeable, Data)
 
 data Whitespace
     = AllowWhitespace
     | NoWhitespace
-    deriving (Eq, Show, Ord)
+    deriving (Eq, Show, Ord, Typeable, Data)
 
 data PrecRelation
     = DefaultPrec
     | SameAs        { relOp :: !Op }
     | TighterThan   { relOp :: !Op }
     | LooserThan    { relOp :: !Op }
-    deriving (Eq, Show, Ord)
+    deriving (Eq, Show, Ord, Typeable, Data)
 
 data OpTable r = MkOpTable
     { tableEntries   :: !(EntryMap r)
@@ -95,7 +104,7 @@ data OpTable r = MkOpTable
     , tableWsTerms   :: !(TokenMap r)
     , tableWsOpers   :: !(TokenMap r)
     }
-    deriving (Eq, Show, Ord)
+    deriving (Eq, Show, Ord, Typeable, Data)
 
 emptyTable :: OpTable r
 emptyTable = MkOpTable NMap.empty NMap.empty NMap.empty NMap.empty NMap.empty
@@ -105,7 +114,8 @@ type EntryMap a = Map Op (Token a)
 type TokenMap a = Map Term (Token a)
 
 -- | Terms are ordered by descending length first.
-newtype Term = MkTerm { termToStr :: Str } deriving (Eq, Show)
+newtype Term = MkTerm { termToStr :: Str }
+    deriving (Eq, Show, Typeable, Data)
 
 termLength :: Term -> Int
 termLength = length . termToStr
@@ -224,8 +234,13 @@ opParse f tbl str =
 strPos :: Str -> String
 strPos (PS _ s _) = "column " ++ show (succ s)
 
-opParsePartial :: OpTable r -> Str -> r
-opParsePartial = opParse const
+opParsePartial :: forall r. OpTable r -> Str -> (r, Str)
+opParsePartial tbl input = forceOut (opParse forceIn tbl input)
+    where
+    forceIn :: r -> Str -> r
+    forceIn res str = unsafeCoerce# (res, str)
+    forceOut :: r -> (r, Str)
+    forceOut = unsafeCoerce#
 
 opParseAll :: OpTable r -> Str -> r
 opParseAll = opParse $ \res str -> if null (dropSpace str)

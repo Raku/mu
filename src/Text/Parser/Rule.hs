@@ -15,6 +15,7 @@ import Data.Map (Map)
 import Data.Generics hiding (Infix)
 import Data.IntMap (IntMap, insertWith, toAscList, union)
 import Data.Char (isSpace)
+import Data.Dynamic
 import Control.Arrow
 import System.IO (stdout)
 import qualified Data.FastPackedString as Str
@@ -29,6 +30,7 @@ type Grammar = Map Str CompiledRule
 
 infixl 1 ~~
 infixl ~:~
+infixl ~&~
 infixl .<>
 
 (.<>) :: Grammar -> String -> CompiledRule
@@ -36,6 +38,15 @@ grammar .<> name = (Map.!) grammar (pack name)
 
 (~:~) :: String -> String -> (Str, Rule)
 name ~:~ rule = (pack name, parseOptimized rule)
+
+(~&~) :: Typeable a => String -> OpTable a -> (Str, Rule)
+name ~&~ tbl = (pack name, dynOpRule name tbl)
+
+ruleGrammar :: Grammar
+ruleGrammar = grammar
+    [ "ruleDecl" ~:~ "rule \\s* \\{ <ruleBody> \\}"
+    , "ruleBody" ~&~ ruleTable
+    ]
 
 grammar :: [(Str, Rule)] -> Grammar
 grammar rules = Map.map comp normMap
@@ -49,14 +60,19 @@ grammar rules = Map.map comp normMap
 printMatch :: String -> String -> IO ()
 printMatch r i = either (hPut stdout) print (matchRule r i)
 
-rule :: String -> (MatchRule -> a) -> MD Str a
-rule r f = mkRule r >>^ f
+mkRule :: String -> (MatchRule -> a) -> MD Str a
+mkRule r f = rule r >>^ f
 
-mkRule :: String -> CompiledRule
-mkRule = comp . parseOptimized
+rule :: String -> CompiledRule
+rule = comp . parseOptimized
+
+dynOpRule :: Typeable a => String -> OpTable a -> Rule
+dynOpRule label table = RTerm (TermDynamic (MkDynamicTerm (pack label) fun))
+    where
+    fun str = let (r, post) = opParsePartial table str in Just (toDyn r, post)
 
 matchRule :: String -> String -> Either Str MatchRule
-matchRule r = (~~ rule r id)
+matchRule r = (~~ rule r)
 
 (~~) :: String -> MD Str MatchRule -> Either Str MatchRule
 (~~) input p = case runMatch p str mempty of
@@ -170,7 +186,11 @@ data MatchRule
     -- below are intermediate forms
     | MatchPos !MatchRule
     | MatchNam !Str !MatchRule
-    deriving (Show, Eq, Ord, Data, Typeable)
+    | MatchDyn !Str !Dynamic
+    deriving (Show, Eq, Ord, Typeable)
+
+instance Eq Dynamic where a == b = True
+instance Ord Dynamic where compare a b = EQ
 
 fin :: Str -> Int
 fin (PS _ s l) = s + l
@@ -178,6 +198,7 @@ fin (PS _ s l) = s + l
 mkMatchObj :: MatchRule -> MatchRule
 mkMatchObj x@MatchObj{} = x
 mkMatchObj (MatchPos m) = MatchObj (matchStr m) (Seq.singleton m) Map.empty
+mkMatchObj x@(MatchDyn s _) = MatchObj s (Seq.singleton x) Map.empty
 mkMatchObj (MatchNam s m) = MatchObj (matchStr m) Seq.empty (Map.singleton s m)
 mkMatchObj x@(MatchSeq l) = Seq.foldl doSeq (MatchObj (matchStr x) Seq.empty Map.empty) l
     where
@@ -196,6 +217,7 @@ matchStr (MatchSeq l)   = mergeStr
     (matchStr (Seq.index l (pred (Seq.length l))))
 matchStr (MatchPos m)   = matchStr m
 matchStr (MatchNam _ m) = matchStr m
+matchStr (MatchDyn s _)   = s
 
 mergeStr :: Str -> Str -> Str
 mergeStr (PS _ s _) (PS p s' l') = (PS p s (s'+l'-s))
@@ -238,12 +260,13 @@ instance Compilable Str where
 
 instance Compilable RuleTerm where
     comp (TermLit x) = comp x
+    comp (TermDynamic x) = MDyn (mkLabel $ dynLabel x) (dynTerm x) >>^ uncurry MatchDyn
     comp (TermShortcut x) = MCSet x >>^ MatchStr
     comp (TermGroup NonCapture r) = comp r
     comp (TermGroup Negated r) = MNot (comp r)
     comp (TermGroup CapturePos r) = comp r >>^ MatchPos
     comp (TermGroup (CaptureNam n) r) = comp r >>^ MatchNam n
-    comp x = error (show x)
+    comp x = error ("can't compile: " ++ show x)
 
 instance Compilable RuleQuant where
     comp (QuantNone _) = error "none"
@@ -340,8 +363,23 @@ data RuleTerm
     | TermClosure !RuleClosure              -- {...}
     | TermBind !RuleVar !RuleTerm           -- $1 := ...
     | TermSubrule !RuleCapturing !Name      -- <name>
+    | TermDynamic !DynamicTerm
     deriving (Show, Eq, Ord, Data, Typeable)
 
+data DynamicTerm = MkDynamicTerm 
+    { dynLabel :: Str
+    , dynTerm  :: Str -> Maybe (Dynamic, Str)
+    }
+    deriving (Data, Typeable)
+
+instance Show DynamicTerm where show = show . dynLabel
+instance Eq DynamicTerm where x == y = dynLabel x == dynLabel y
+instance Ord DynamicTerm where compare x y = dynLabel x `compare` dynLabel y
+instance Data Dynamic where
+    gunfold = error "gunfold"
+        :: (forall r. c (Str -> r) -> c r) -> (forall r . r -> c r) -> Constr -> c Dynamic
+    toConstr = error "gfoldl"
+    dataTypeOf = error "dataTypeOf"
 
 type RuleClosure = () -- not supported yet
 data RuleCapturing = CapturePos | CaptureNam !Name | NonCapture | Negated

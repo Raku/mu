@@ -47,6 +47,7 @@ label (MEqual s)      = mkLabel ('\'' `cons` s `snoc` '\'')
 label (MSeq x _)      = label x -- XXX (label y) 
 label (MEmpty)        = mempty
 label (MPure l _)     = l
+label (MDyn l _)      = l
 label (MCSet c)       = MkLabel (singleton (pack (show c))) Set.empty
 label (MParWire x y)  = mappend (label x) (label y) 
 label (MJoin x y)     = mappend (label x) (label y) 
@@ -61,6 +62,7 @@ data MD i o where
     MEqual  :: FastString -> MD i FastString
     MSeq    :: MD i t -> MD t o -> MD i o
     MEmpty  :: MD i o
+    MDyn    :: Label -> (FastString -> Maybe (o, FastString)) -> MD i (FastString, o)
     MPure   :: Label -> (i->o) -> MD i o
     MCSet   :: CharSet -> MD i FastString
     MParWire:: MD i1 o1 -> MD i2 o2 -> MD (i1,i2) (o1,o2)
@@ -109,7 +111,7 @@ instance ArrowPlus MD where
 instance Show (MD i o) where 
     show (MEqual c)    = show c -- if c `elem` ".[]{}|" then ['\\',c] else [c]
     show (MPure s _)   = "{" ++ show s ++ "}"
---    show (MPure s _)   = ""
+    show (MDyn s _)    = "({{" ++ show s ++ "}})"
     show (MCSet s)     = show s
     show (MNot p)      = "[^"++show p++"]"
     show (MChoice m)   = if all simple m 
@@ -128,6 +130,7 @@ instance Show (MD i o) where
 -- for formatting
 simple :: MD i o -> Bool
 simple (MPure _ _) = True
+simple (MDyn _ _)  = True
 simple (MCSet _)   = True
 simple (MEqual _)  = True
 simple (MChoice m) = all simple m
