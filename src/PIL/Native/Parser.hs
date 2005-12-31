@@ -12,8 +12,43 @@ import Text.Parser.Rule (Grammar, grammar, (~:~))
 -- Beginning of a Rule-based parser for minilang.
 miniLang :: Grammar
 miniLang = grammar
-    [ "literal" ~:~ "nil | true | false"
-    , "twoLits" ~:~ "<literal> <literal>"
+    [ "literal" ~:~ "nil | true | false | <pointSub> | <stringLiteral> | <singleQuoteStringLiteral> | <naturalOrFloat> | <integer>"
+
+    , "stringLiteral" ~:~ "\"<-['\"]>+\""
+    , "singleQuoteStringLiteral " ~:~ "' <-[']> '"
+    , "naturalOrFloat" ~:~ "<integer> | <integer>.<integer>"
+    , "integer" ~:~ "<:digit:>+"
+
+    , "identifier" ~:~ "<[$@%&:]> <-[ \n\t.`!,;()[]{}<>#]>*"
+    , "method" ~:~ "<-[ \n\t()0123456789.`!]> <-[ \n\t();,.`!]>*"
+    
+    --, "" ~:~ ""
+    
+    , "pointySub" ~:~ "-> <pointySubParams> <pointySubBody>"
+    , "pointySubParams" ~:~ "<identifierCommaList>?"
+    , "pointySubBody" ~:~ "{ <expressionList> }"
+    
+   
+    , "expressionList" ~:~ "<expression>+"
+    , "expression" ~:~ "<expressionStmt> | <expressionStmt> <call>"
+    , "expressionStmt" ~:~ "( <expression> ) | <selfExpression> | <arrayExpression> | <hashExpression> | <literal> | <variableExpression>"
+    
+    , "call" ~:~ "` <functionCall> | <[.!]> <methodCall> | <[.!]> <argList>"
+    , "functionCall" ~:~ "<argList>"
+    , "methodCall" ~:~ "<method> | <method> <argList>"
+    , "dynCall" ~:~ "<variableExpression> | <variableExpression> <argList>"
+    , "argList" ~:~ "( <expressionCommaList> ) | ( )"
+
+    , "selfExpression" ~:~ "self"
+    , "variableExpression" ~:~ "<identifier>"
+    , "arrayExpression" ~:~ "[ <expressionCommaList> ]"
+    , "hashExpression" ~:~ "{ <pairExpressionCommaList> }"
+    , "pairExpression" ~:~ "<expression> => <expression>"
+   
+    , "expressionCommaList" ~:~ "<expression> | <expression> , <expressionCommaList>"
+    , "identifierCommaList" ~:~ "<identifier> | <identifier> , <identifierCommaList>"
+    , "pairExpressionCommaList" ~:~ "<pairExpression> | <paurExpression> , <pairExpressionCommaList>"
+   
     ]
 
 {- 
