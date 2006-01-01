@@ -122,7 +122,7 @@ prettyErrs idxs (s, idx, prev) (idx', this)
     | Str.null s
     = (pack "Expecting: " `append` formatted, idx', this)
     | otherwise
-    = (s `append` pack "       Or: " `append` formatted, idx', this)
+    = (s `append` pack "       or: " `append` formatted, idx', this)
     where
     formatted = formWith "" expects `append` formWith "(Not) " unexpects `append` pack column
     column = " at line " ++ show lineNum ++ ", column " ++ show colNum ++ "\n"
