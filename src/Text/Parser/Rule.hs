@@ -406,14 +406,14 @@ ruleTable :: OpTable Rule
 ruleTable = mkOpTable
     [ noWs (op _Lit  Term wsLiteral)
    ++ noWs (op _Term Term ": :: ::: \\b \\B ^ ^^ $$ . \\d \\D \\s \\S \\w \\W \\n <commit>")
-   ++ noWs (op (_Group CapturePos)   Circumfix "( )")
-   ++ noWs (op (_Group NonCapture)   Circumfix "[ ]")
-   ++ noWs (op (_Subrule CapturePos) Term "<"  wsSubrule)
-   ++ noWs (op (_Subrule NonCapture) Term "<?" wsSubrule)
-   ++ noWs (op (_Subrule Negated)    Term "<!" wsSubrule)
-   -- ++ noWs (op (_Enum CapturePos)    Term "<[" wsEnum)
-   -- ++ noWs (op (_Enum Negated)       Term "<-[" wsEnum)
-   -- ++ noWs (op (_Enum CapturePos)    Term "<+[" wsEnum)
+   ++ noWs (op (_Group CapturePos)                  Circumfix "( )")
+   ++ noWs (op (_Group NonCapture)                  Circumfix "[ ]")
+   ++ noWs (op (_Subrule CapturePos)                Term "<"  wsSubrule)
+   ++ noWs (op (_Subrule NonCapture)                Term "<?" wsSubrule)
+   ++ noWs (op (_Subrule Negated)                   Term "<!" wsSubrule)
+   ++ noWs (op (_Enum EnumChars)                    Term "<[" wsEnum)
+   ++ noWs (op (_Enum EnumChars)                    Term "<+[" wsEnum)
+   ++ noWs (op (_Enum (EnumComplement . EnumChars)) Term "<-[" wsEnum)
     , op _Quant Postfix "* + ?"
     , noWs $ op _Concat Infix AssocList ""
     , op _Conj   Infix AssocList "&" 
@@ -433,17 +433,18 @@ ruleTable = mkOpTable
         | res@(pre, _) <- splitAt 1 str, not (isMetaChar (head pre)) = Just res
         | otherwise = Nothing
     wsEnum str 
-        | not (null str) = scan (unpack str)
-        -- | otherwise = Nothing
+        | null str = Nothing
+        | otherwise = let (pre, post) = scan (unpack str) [] in
+            Just (pack pre, pack post)
         where
             -- scan :: Input -> enumList -> enumList
             -- scan :: Str -> [Char] -> ( [Char], Str )
             -- endClass
-            scan (']':'>':xs)  lst   = ( lst , xs )
+            scan (']':'>':xs) lst = ( lst , xs )
             -- errBracket
-            scan (']':xs)  _    = error "Unescaped ']' in charlist"
+            scan (']':xs)  _      = error "Unescaped ']' in charlist"
             -- errHyphen
-            scan ('-':xs)  _   = error "Unescaped '-' in charlist"
+            scan ('-':xs)  _      = error "Unescaped '-' in charlist"
             -- backslash 
             scan ('\\':'n':xs) lst = scan xs (lst ++ [ '\n' ])
             scan ('\\':'r':xs) lst = scan xs (lst ++ [ '\r' ])
@@ -459,7 +460,7 @@ ruleTable = mkOpTable
             scan ('.':'.':xs)  lst = ( (Prelude.init lst) ++ [ (Prelude.last lst) .. (Prelude.head lst2) ] ++ (Prelude.tail lst2), rest ) 
                 where (lst2, rest) = scan xs []
             -- errClose
-            scan empty        _   = error "No closing ']>' for charlist"
+            scan ""         _   = error "No closing ']>' for charlist"
             -- addChar
             scan (x:xs)     lst = scan xs (lst ++ [x]) 
 
@@ -502,6 +503,8 @@ ruleTable = mkOpTable
     _Altern _ xs = mk $ Altern (mk xs)
     _Conj   _ xs = mk $ Conj (mk xs)
     _Concat _ xs = mk $ Concat (mk xs)
+    _Enum :: (Str -> RuleEnum) -> DynMkMatch Rule
+    _Enum f tok _ = mk $ TermEnum (f (tokStr tok))
     _Group, _Subrule :: RuleCapturing -> DynMkMatch Rule
     _Group c _ [x] = mk $ TermGroup c x
     _Group _ _ _   = error "impossible: multigroup"
