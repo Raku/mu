@@ -3,49 +3,14 @@
 module PIL.Native.Parser where
 import PIL.Native.Types
 import PIL.Native.Coerce
+import PIL.Native.Syntax
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Language
 import qualified Text.ParserCombinators.Parsec.Token as P
-import Text.Parser.Rule (Grammar, grammar, (~:~), (.<>), (~~), parseRule)
+import Text.Parser.Rule (Grammar, grammar, (~:~), (.<>), (~~), parseRule, parseGrammar)
 
--- Beginning of a Rule-based parser for minilang.
 miniLang :: Grammar
-miniLang = grammar
-    [ "foo" ~:~ "foo [, <foo>]?"
-    , "literal" ~:~ "nil | true | false | <pointySub> | <stringLiteral> | <singleQuoteStringLiteral> | <naturalOrFloat> | <integer>"
-
-    , "stringLiteral" ~:~ "\"<-['\"]>+\""
-    , "singleQuoteStringLiteral" ~:~ "' <-[']> '"
-    , "naturalOrFloat" ~:~ "<integer> | <integer>.<integer>"
-    , "integer" ~:~ "\\d+"
-
-    , "identifier" ~:~ "<[$@%&:]> <-[ \\n\\t.`!,;()[\\]{}<>#]>*"
-    , "method" ~:~ "<-[ \\n\\t()0123456789.`!]> <-[ \\n\\t();,.`!]>*"
-    
-    , "pointySub" ~:~ "-> <pointySubParams> <pointySubBody>"
-    , "pointySubParams" ~:~ "<identifierCommaList>?"
-    , "pointySubBody" ~:~ "\\{ <expressionList> \\}"
-    
-    , "expressionList" ~:~ "<expression> [; <expressionList> | ;? ]"
-    , "expression" ~:~ "<expressionStmt> <call>?"
-    , "expressionStmt" ~:~ "\\( <expression> \\) | <selfExpression> | <arrayExpression> | <hashExpression> | <literal> | <variableExpression>"
-    
-    , "call" ~:~ "<[`.!]> <methodCall>"
-    , "functionCall" ~:~ "<argList>"
-    , "methodCall" ~:~ "<method> <argList>?"
-    , "argList" ~:~ "\\( <expressionCommaList>? \\)"
-
-    , "selfExpression" ~:~ "self"
-    , "variableExpression" ~:~ "<identifier>"
-    , "arrayExpression" ~:~ "\\[ <expressionCommaList> \\]"
-    , "hashExpression" ~:~ "\\{ <pairExpressionCommaList> \\}"
-    , "pairExpression" ~:~ "<expression> => <expression>"
-   
-    , "expressionCommaList" ~:~ "<expression> [ , <expressionCommaList> ]?"
-    , "identifierCommaList" ~:~ "<identifier> [ , <identifierCommaList> ]?"
-    , "pairExpressionCommaList" ~:~ "<pairExpression> [ , <pairExpressionCommaList> ]?"
-   
-    ]
+miniLang = parseGrammar __SYNTAX__
 
 {- 
 

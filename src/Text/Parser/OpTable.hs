@@ -14,7 +14,7 @@ import Data.Char (isDigit)
 import Data.List (find)
 import Data.Seq (Seq, fromList)
 import Data.Map (Map, insert, lookup, toAscList, (!))
-import Data.FastPackedString (empty, pack, null, drop, dropSpace, length, isPrefixOf, span, FastString(..))
+import Data.FastPackedString (empty, pack, null, drop, dropSpace, length, isPrefixOf, span, FastString(..), idx, lineIdxs)
 import GHC.Prim(unsafeCoerce#)
 
 data Op
@@ -232,7 +232,12 @@ opParse f tbl str =
      in expectTerm
 
 strPos :: Str -> String
-strPos (PS _ s _) = "column " ++ show (succ s)
+strPos str@(PS p s l) = "line " ++ show lineNum ++ ", column " ++ show colNum
+    where
+    idxs = lineIdxs (PS p 0 l)
+    lns  = (-1:List.filter (< s) idxs)
+    colNum  = s - List.last lns
+    lineNum = List.length lns
 
 opParsePartial :: forall r. OpTable r -> Str -> (r, Str)
 opParsePartial tbl input = forceOut (opParse forceIn tbl input)
@@ -323,6 +328,7 @@ emptyOper = case lookup operEmpty (tableOpers ?tbl) of
 
 nullTerm :: Parse r r
 nullTerm | (t@MkToken{ tokNull = True }:_) <- ?tokenStack = pushTermStack t expectOper
+         | (t@MkToken{ tokOp = op }:_) <- ?tokenStack, null (str op ) = endParse
          | otherwise = error ("missing term at " ++ strPos ?str)
 
 foundOper :: Parse r (Token r -> Parse r r)
@@ -393,7 +399,7 @@ reduce1 arity p =
             ?termStack = (op (reverse args):terms) in p
 
 mkOpTable :: [[(Whitespace, DynMkMatch r, Op)]] -> OpTable r
-mkOpTable = fst . Prelude.foldl mkOps (emptyTable, DefaultPrec)
+mkOpTable = fst . List.foldl mkOps (emptyTable, DefaultPrec)
     where
     mkOps x [] = x
     mkOps (tbl, rel) [(ws, mk, op)] = (addToken tbl op mk rel ws, LooserThan op)
@@ -413,10 +419,10 @@ noWs = map (\(_, x, y) -> (NoWhitespace, x, y))
 class OpClass a where op :: a
 
 instance OpClass (a -> (Str -> Op) -> [Char] -> [(Whitespace, a, Op)]) where
-    op mk op1 = Prelude.map (((,,) AllowWhitespace mk) . op1 . pack) . splitWords
+    op mk op1 = List.map (((,,) AllowWhitespace mk) . op1 . pack) . splitWords
 
 instance OpClass (a -> (Str -> Str -> Op) -> [Char] -> [(Whitespace, a, Op)]) where
-    op mk op2 = Prelude.map (((,,) AllowWhitespace mk) . uncurry op2) . pack2 . splitWords
+    op mk op2 = List.map (((,,) AllowWhitespace mk) . uncurry op2) . pack2 . splitWords
         where
         pack2 (x:y:zs)  = ((pack x, pack y):pack2 zs)
         pack2 _         = []
@@ -425,7 +431,7 @@ instance OpClass (a -> (Str -> Assoc -> Op) -> [Char] -> [(Whitespace, a, Op)]) 
     op mk op1 = op mk op1 AssocLeft
 
 instance OpClass (a -> (Str -> Assoc -> Op) -> Assoc -> [Char] -> [(Whitespace, a, Op)]) where
-    op mk op1 assoc = Prelude.map (((,,) AllowWhitespace mk) . (`op1` assoc) . pack) . splitWords
+    op mk op1 assoc = List.map (((,,) AllowWhitespace mk) . (`op1` assoc) . pack) . splitWords
 
 instance (OpClass (a -> (Str -> Op) -> (Str -> Str -> Maybe (Str, Str)) -> [(Whitespace, a, Op)])) where
     op mk _ f = [(AllowWhitespace, mk, DynTerm empty dyn)]
@@ -457,4 +463,4 @@ instance (OpClass ((String -> Token r -> [r] -> r) -> (Str -> Op) -> String -> [
 
 splitWords :: String -> [String]
 splitWords [] = [""]
-splitWords x  = Prelude.words x
+splitWords x  = List.words x

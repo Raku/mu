@@ -48,7 +48,9 @@ module Data.FastPackedString (
         init,         -- :: FastString -> FastString
         null,         -- :: FastString -> Bool
         length,       -- :: FastString -> Int
+
         idx,          -- :: FastString -> Int
+        lineIdxs,     -- :: FastString -> [Int]
 
         -- * List transformations
         map,          -- :: (Char -> Char) -> FastString -> FastString
@@ -409,6 +411,14 @@ length (PS _ _ l) = l
 idx :: FastString -> Int
 idx (PS _ s _) = s
 {-# INLINE idx #-}
+
+-- a set of positions where newline occurs
+lineIdxs :: FastString -> [Int]
+lineIdxs ps 
+    | null ps = []
+    | otherwise = case elemIndexWord8 0x0A ps of
+             Nothing -> []
+             Just n  -> (n + idx ps:lineIdxs (drop (n+1) ps))
 
 -- | /O(n)/ Append two packed strings
 append :: FastString -> FastString -> FastString

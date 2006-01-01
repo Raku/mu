@@ -27,17 +27,25 @@ import qualified Data.Set as Set
 type Parser = MD Str
 type NoMatch = IntMap Label
 type CompiledRule = MD Str MatchRule
-type Grammar = Map Str CompiledRule
+data Grammar = MkGrammar
+    { grammarName  :: !Str
+    , grammarRules :: !(Map Str CompiledRule)
+    }
+    deriving (Show, Eq, Typeable)
 
 infixl 1 ~~
 infixl ~:~
 infixl ~&~
 infixl .<>
+infixl !
+
+(!) :: (Show a, Ord a) => Map a b -> a -> b
+m ! k = case Map.lookup k m  of
+    Just v -> v
+    _      -> error $ "Cannot find key in grammar: " ++ show k
 
 (.<>) :: Grammar -> String -> CompiledRule
-grammar .<> name = case Map.lookup (pack name) grammar of
-    Just rule   -> rule
-    _           -> error $ "Cannot find rule in grammar: " ++ name
+grammar .<> name = grammarRules grammar ! pack name
 
 (~:~) :: String -> String -> (Str, Rule)
 name ~:~ rule = (pack name, parseOptimized rule)
@@ -45,14 +53,28 @@ name ~:~ rule = (pack name, parseOptimized rule)
 (~&~) :: Typeable a => String -> OpTable a -> (Str, Rule)
 name ~&~ tbl = (pack name, dynOpRule name tbl)
 
-ruleGrammar :: Grammar
-ruleGrammar = grammar
-    [ "ruleDecl" ~:~ "rule \\s* \\{ <ruleBody> \\}"
-    , "ruleBody" ~&~ ruleTable
+defaultGrammar :: Grammar
+defaultGrammar = grammar
+    [ "p6rule"      ~&~ ruleTable
+    , "p6namedrule" ~:~ "rule \\s+ ([\\w|<'::'>]+) \\s* \\{ <p6rule> \\} ;? \\s*"
+    , "p6grammar"   ~:~ "^ grammar \\s+ ([\\w|<'::'>]+); \\s* <p6namedrule>* $"
     ]
 
+parseGrammar :: String -> Grammar
+parseGrammar text = case text ~~ defaultGrammar .<> "p6grammar" of
+    Left err -> error (unpack err)
+    Right m  -> (grammar (parseRules m)) { grammarName = (matchStr $ Seq.index (matchSubPos m) 0) }
+
+parseRules :: MatchRule -> [(Str, Rule)]
+parseRules m = map parseRule (Seq.toList nameds)
+    where
+    MatchSeq nameds = matchSubNam m ! pack "p6namedrule"
+    parseRule mr = (parseRuleName mr, parseRuleBody mr)
+    parseRuleName mr = (matchStr $ Seq.index (matchSubPos mr) 0)
+    parseRuleBody mr = fromDyn (matchDynamic (matchSubNam mr ! pack "p6rule")) (error "no parse")
+
 grammar :: [(Str, Rule)] -> Grammar
-grammar rules = Map.map comp normMap
+grammar rules = MkGrammar empty (Map.map comp normMap)
     where
     ruleMap = Map.fromList rules
     normMap = Map.map replaceAll ruleMap
@@ -64,7 +86,7 @@ printMatch :: String -> String -> IO ()
 printMatch i r = either (hPut stdout) printMatchResult (matchRule r i)
 
 printMatchResult :: MatchRule -> IO ()
-printMatchResult mo@MatchObj{} = (hPut stdout) (matchString mo)
+printMatchResult mo@MatchObj{} = hPut stdout (matchString mo)
 printMatchResult mr = print mr
 
 mkRule :: String -> (MatchRule -> a) -> MD Str a
@@ -116,14 +138,6 @@ prettyErrs idxs (s, idx, prev) (idx', this)
     lns = (-1:Prelude.filter (< idx') idxs)
     colNum  = idx' - Prelude.last lns
     lineNum = Prelude.length lns
-
--- a set of positions where newline occurs
-lineIdxs :: Str -> [Int]
-lineIdxs ps 
-    | null ps = []
-    | otherwise = case elemIndexWord8 0x0A ps of
-             Nothing -> []
-             Just n  -> (n + idx ps:lineIdxs (drop (n+1) ps))
 
 runMatch :: Show o => MD i o -> Str -> NoMatch -> Either NoMatch o
 runMatch _ s errs | null s = Left errs
@@ -197,7 +211,10 @@ data MatchRule
     -- below are intermediate forms
     | MatchPos !MatchRule
     | MatchNam !Str !MatchRule
-    | MatchDyn !Str !Dynamic
+    | MatchDyn
+        { matchString  :: !Str
+        , matchDynamic :: !Dynamic
+        }
     deriving (Show, Eq, Ord, Typeable)
 
 instance Eq Dynamic where _ == _ = True
@@ -209,12 +226,12 @@ fin (PS _ s l) = s + l
 mkMatchObj :: MatchRule -> MatchRule
 mkMatchObj x@MatchObj{} = x
 mkMatchObj (MatchPos m) = MatchObj (matchStr m) (Seq.singleton m) Map.empty
-mkMatchObj x@(MatchDyn s _) = MatchObj s (Seq.singleton x) Map.empty
+mkMatchObj x@MatchDyn{} = x --  s _) = MatchObj s (Seq.singleton x) Map.empty
 mkMatchObj (MatchNam s m) = MatchObj (matchStr m) Seq.empty (Map.singleton s m)
 mkMatchObj x@(MatchSeq l) = Seq.foldl doSeq (MatchObj (matchStr x) Seq.empty Map.empty) l
     where
     doSeq o (MatchPos m) = o{ matchSubPos = matchSubPos o |> m }
-    doSeq o (MatchNam s m) = o{ matchSubNam = Map.insert s m (matchSubNam o) }
+    doSeq o (MatchNam s m) = o{ matchSubNam = Map.insertWith mappend s m (matchSubNam o) }
     doSeq o (MatchSeq l) = Seq.foldl doSeq o l
     doSeq o _ = o
 mkMatchObj x = MatchObj (matchStr x) Seq.empty Map.empty
@@ -277,8 +294,23 @@ instance Compilable RuleTerm where
     comp (TermGroup Negated r) = MNot (comp r)
     comp (TermGroup CapturePos r) = comp r >>^ MatchPos
     comp (TermGroup (CaptureNam n) r) = comp r >>^ MatchNam n
+    comp (TermGroup (CaptureSubrule n) r) = comp r >>^ mkMatchObj >>^ MatchNam n
     comp (TermEnum x) = comp x
+    comp (TermAnchor AnchorBegin) = comp ("beginning of input", (==0) . idx)
+    comp (TermAnchor AnchorBeginLine) = comp ("beginning of line", bol)
+        where
+        bol (PS p s l) = (s == 0) || head (PS p (pred s) l) == '\n'
+    comp (TermAnchor AnchorEnd) = comp ("end of input", null)
+    comp (TermAnchor AnchorEndLine) = comp ("end of line", eol)
+        where
+        eol (PS p s l) = (l == 0) || head (PS p (succ s) l) == '\n'
     comp x = error ("can't compile: " ++ show x)
+
+instance Compilable ([Char], FastString -> Bool) where
+    comp (name, f) = (MDyn (mkLabel $ pack name) $ \s -> if f s
+        then Just (take 0 s, s)
+        else Nothing) >>^ (MatchStr . fst)
+
 
 instance Compilable RuleShortcut where
     comp x = MCSet x >>^ MatchStr
@@ -405,6 +437,7 @@ instance Data Dynamic where
 
 type RuleClosure = () -- not supported yet
 data RuleCapturing = CapturePos | CaptureNam !Name | NonCapture | Negated
+    | CaptureSubrule !Name
     deriving (Show, Eq, Ord, Data, Typeable)
 data RuleLaziness = Greedy | Lazy
     deriving (Show, Eq, Ord, Data, Typeable)
@@ -418,19 +451,18 @@ data RuleModifier
     deriving (Show, Eq, Ord, Data, Typeable)
 
 ruleTable :: OpTable Rule
--- mkOpTable :: [[(Whitespace, DynMkMatch r, Op)]] -> OpTable r
--- noWs :: [(Whitespace, a, Op)] -> [(Whitespace, a, Op)]
 ruleTable = mkOpTable
-    [ noWs (op _Lit  Term wsLiteral)
-   ++ noWs (op _Term Term ": :: ::: \\b \\B ^ ^^ $$ . \\d \\D \\s \\S \\w \\W \\n <commit>")
+    [ noWs (op _Lit  Term scanLiteral)
+   ++ noWs (op _Term Term ": :: ::: \\b \\B ^ ^^ $ $$ . \\d \\D \\s \\S \\w \\W \\n <commit>")
    ++ noWs (op (_Group CapturePos)                  Circumfix "( )")
    ++ noWs (op (_Group NonCapture)                  Circumfix "[ ]")
-   ++ noWs (op (_Subrule CapturePos)                Term "<"  wsSubrule)
-   ++ noWs (op (_Subrule NonCapture)                Term "<?" wsSubrule)
-   ++ noWs (op (_Subrule Negated)                   Term "<!" wsSubrule)
-   ++ noWs (op (_Enum EnumChars)                    Term "<[" wsEnum)
-   ++ noWs (op (_Enum EnumChars)                    Term "<+[" wsEnum)
-   ++ noWs (op (_Enum (EnumComplement . EnumChars)) Term "<-[" wsEnum)
+   ++ noWs (op (_Subrule CapturePos)                Term "<"   scanSubrule)
+   ++ noWs (op (_Subrule NonCapture)                Term "<?"  scanSubrule)
+   ++ noWs (op (_Subrule Negated)                   Term "<!"  scanSubrule)
+   ++ noWs (op (_Enum EnumChars)                    Term "<["  (scanWith doScanEnum))
+   ++ noWs (op (_Enum EnumChars)                    Term "<+[" (scanWith doScanEnum))
+   ++ noWs (op (_Enum (EnumComplement . EnumChars)) Term "<-[" (scanWith doScanEnum))
+   ++ noWs (op _TermVerbatim                        Term "<'"  (scanWith doScanVerbatim))
     , op _Quant Postfix "* + ?"
     , noWs $ op _Concat Infix AssocList ""
     , op _Conj   Infix AssocList "&" 
@@ -438,35 +470,42 @@ ruleTable = mkOpTable
     ]
     where
     isMetaChar x = isSpace x || (x `elem` "\\%*+?:|.^$@[]()<>{}#")
-    isEscChar x = isSpace x || (x `elem` "\\%*+?:|.^$@[(<{}#")
     isNewline = (`elem` "\x0a\x0d\x0c\x85\x2028\x2029")
-    wsSubrule str
+    scanSubrule, scanLiteral :: Str -> Maybe (Str, Str)
+    scanSubrule str
         | (pre, post) <- break (== '>') str = Just (pre, tail post)
         | otherwise = Nothing
-    wsLiteral str
+    scanLiteral str
         | null str = Just (str, str)
         | head str == '#' = Just (break isNewline str)
         | head str == '\\', ch <- index str 1, isMetaChar ch = Just (splitAt 1 (tail str))
         | res@(pre, _) <- span isSpace str, not (null pre) = Just res
-        | res@(pre, _) <- splitAt 1 str, not (isEscChar (head pre)) = Just res
+        | res@(pre, _) <- splitAt 1 str, not (isMetaChar (head pre)) = Just res
         | otherwise = Nothing
-    wsEnum str 
+    scanWith f str 
         | null str = Nothing
         | otherwise = do
-            post <- doScan str
+            post <- f str
             -- The "- 2" below is to subtract the "]>" part.
             let cur = idx post
                 pre = take (cur - idx str - 2) str
             return (pre, post)
-    doScan str
+    doScanEnum str
         | null str = fail "No closing ']>' for charlist"
-        | head str == '\\' = doScan (drop 2 str)
+        | head str == '\\' = doScanEnum (drop 2 str)
         | head str == ']'  = let rest = tail str in case head rest of
             '>' -> return (tail rest)
-            '+' -> doScan (tail rest)
-            '-' -> doScan (tail rest)
+            '+' -> doScanEnum (tail rest)
+            '-' -> doScanEnum (tail rest)
             _   -> fail "Unescaped ']' in charlist"
-        | otherwise = doScan (tail str)
+        | otherwise = doScanEnum (tail str)
+    doScanVerbatim str
+        | null str = fail "No closing \"'>\" for verbatim"
+        | head str == '\\' = doScanVerbatim (drop 2 str)
+        | head str == '\'' = let rest = tail str in case head rest of
+            '>' -> return (tail rest)
+            _   -> fail "Unescaped \"'\" in charlist"
+        | otherwise = doScanVerbatim (tail str)
 {-
             -- scan :: Input -> enumList -> enumList
             -- scan :: Str -> [Char] -> ( [Char], Str )
@@ -510,6 +549,7 @@ ruleTable = mkOpTable
     _Term "\\B" _ _  = mk TermAnchor AnchorBoundaryNot
     _Term "^"   _ _  = mk TermAnchor AnchorBegin
     _Term "^^"  _ _  = mk TermAnchor AnchorBeginLine
+    _Term "$"   _ _  = mk TermAnchor AnchorEnd
     _Term "$$"  _ _  = mk TermAnchor AnchorEndLine
     _Term "."   _ _  = mk TermShortcut CS_Any
     _Term "\\d" _ _  = mk TermShortcut CS_Digit
@@ -530,17 +570,18 @@ ruleTable = mkOpTable
     _Quant "?" _ [RQuant q@(Quant{})] = mk q{ quantLaziness = Lazy }
     _Quant "?" _ [x] = mk $ Quant (mk x) 0 (QuantInt 1) Greedy -- XXX Lazify
     _Quant _   _ _   = error "unknown quant"
-    _Altern, _Concat, _Conj :: DynMkMatch Rule
+    _Altern, _Concat, _Conj, _TermVerbatim :: DynMkMatch Rule
     _Altern _ xs = mk $ Altern (mk xs)
     _Conj   _ xs = mk $ Conj (mk xs)
     _Concat _ xs = mk $ Concat (mk xs)
+    _TermVerbatim tok _ = mk $ TermLit (tokStr tok)
     _Enum :: (Str -> RuleEnum) -> DynMkMatch Rule
     _Enum f tok _ = mk $ TermEnum (f (tokStr tok))
     _Group, _Subrule :: RuleCapturing -> DynMkMatch Rule
     _Group c _ [x] = mk $ TermGroup c x
     _Group _ _ _   = error "impossible: multigroup"
     _Subrule c tok _
-        | CapturePos <- c   = mk $ TermSubrule (CaptureNam nam) nam
+        | CapturePos <- c   = mk $ TermSubrule (CaptureSubrule nam) nam
         | otherwise         = mk $ TermSubrule c nam
         where
         nam = (tokStr tok)

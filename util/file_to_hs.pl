@@ -7,7 +7,8 @@ use FindBin qw<$Bin>;
 
 my ($in, $out) = @ARGV;
 
-my ($name, $path) = fileparse($in, '.pil');
+my ($name, $path) = fileparse($in);
+$name =~ s/\..*$//;
 my @path = grep {!/^src$|^$/} File::Spec->splitdir( $path );
 my $fullname = join '.', @path, $name;
 my $data = uc("__${name}__");
@@ -18,7 +19,7 @@ print OUT "module $fullname ($data) where\n\n";
 print OUT "$data :: String\n";
 print OUT "$data = \"";
 while (<IN>) {
-    s/\\/\\\\/g; s/\n/\\n/g; s/\t/\\t/g; s/\r/\\r/g; s/\"/\\"/g;
+    s/\\/\\\\/g; s/\n/\\n\\\n\\/g; s/\t/\\t/g; s/\r/\\r/g; s/\"/\\"/g;
     print OUT $_;
 }
 print OUT "\"\n";

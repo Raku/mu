@@ -2,7 +2,6 @@
 module Text.Parser.PArrow.CharSet where
 
 import Data.Char
-import Data.Set hiding (map)
 import Data.Generics
 import qualified Data.FastPackedString as Str
 
@@ -26,11 +25,15 @@ instance Show CharSet where
     show CS_Word       = "\\w"
     show CS_Whitespace = "\\s"
     show CS_Digit      = "\\d"
+    show CS_Newline    = "\\n"
     show CS_Alpha      = "{alpha}"
     show CS_Alnum      = "{alnum}"
     show CS_Ascii      = "{ascii}"
     show CS_Lower      = "{lower}"
     show CS_Upper      = "{upper}"
+    show (CS_Enum s)   = "<[" ++ Str.unpack s ++ "]>"
+    show (CS_Negated (CS_Enum s)) = "<-[" ++ Str.unpack s ++ "]>"
+    show (CS_Negated (CS_Negated x)) = show x
     show (CS_Negated x)= map toUpper (show x)
 
 containsChar :: CharSet -> Char -> Bool

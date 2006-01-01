@@ -520,7 +520,7 @@ ghci : @srcfiles
 	$ghc $ghc_flags -O --make -fglasgow-exts -H0 -isrc -L. -fno-warn-name-shadowing -no-hs-main -no-link src/Pugs.hs @prereqs
 	$ghc $ghc_flags --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
 
-pil$Config{_exe} : $config_h $unicode $pcre @cbits @srcfiles src/PIL/Native/Bootstrap.hs
+pil$Config{_exe} : $config_h $unicode $pcre @cbits @srcfiles src/PIL/Native/Bootstrap.hs src/PIL/Native/Syntax.hs
 	$ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -isrc/cbits -Isrc -Isrc/cbits -L. -fno-warn-name-shadowing -o pil$Config{_exe} -main-is PIL.main src/PIL.hs $unicode $pcre @cbits
 
 pili : pil$Config{_exe}

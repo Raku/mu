@@ -14,7 +14,7 @@ rule integer                    { \d+ }
 rule identifier         { <[$@%&:]> <-[ \n\t.`!,;()[\]{}<>#]>* }
 rule method             { <-[ \n\t()0123456789.`!]> <-[ \n\t();,.`!]>* }
     
-rule pointySub          { -> <pointySubParams> <pointySubBody> }
+rule pointySub          { -\> <pointySubParams> <pointySubBody> }
 rule pointySubParams    { <identifierCommaList>? }
 rule pointySubBody      { \{ <expressionList> \} }
     
@@ -23,7 +23,7 @@ rule expression         { <expressionStmt> <call>? }
 rule expressionStmt     {
     \( <expression> \)
     | <selfExpression> | <arrayExpression> | <hashExpression>
-    | <literal> | <variableExpression> }
+    | <literal> | <variableExpression>
 }
     
 rule call           { <[`.!]> <methodCall> }
@@ -34,7 +34,7 @@ rule selfExpression     { self }
 rule variableExpression { <identifier> }
 rule arrayExpression    { \[ <expressionCommaList> \] }
 rule hashExpression     { \{ <pairExpressionCommaList> \} }
-rule pairExpression     { <expression> => <expression> }
+rule pairExpression     { <expression> =\> <expression> }
    
 rule expressionCommaList        { <expression> [ , <expressionCommaList> ]? }
 rule identifierCommaList        { <identifier> [ , <identifierCommaList> ]? }
