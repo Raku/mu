@@ -14,7 +14,7 @@ import Data.Char (isDigit)
 import Data.List (find)
 import Data.Seq (Seq, fromList)
 import Data.Map (Map, insert, lookup, toAscList, (!))
-import Data.FastPackedString (empty, unpack, pack, null, drop, dropSpace, length, isPrefixOf, span, append, FastString(..))
+import Data.FastPackedString (empty, pack, null, drop, dropSpace, length, isPrefixOf, span, FastString(..))
 import GHC.Prim(unsafeCoerce#)
 
 data Op
@@ -111,17 +111,17 @@ emptyTable = MkOpTable Map.empty Map.empty Map.empty Map.empty Map.empty
 
 type Str = Str.FastString
 type EntryMap a = Map Op (Token a)
-type TokenMap a = Map Term (Token a)
+type TokenMap a = Map TokenName (Token a)
 
 -- | Terms are ordered by descending length first.
-newtype Term = MkTerm { termToStr :: Str }
+newtype TokenName = MkTokenName { nameToStr :: Str }
     deriving (Eq, Show, Typeable, Data)
 
-termLength :: Term -> Int
-termLength = length . termToStr
+nameLength :: TokenName -> Int
+nameLength = length . nameToStr
 
-instance Ord Term where
-    compare (MkTerm x) (MkTerm y) = case compare (Str.length y) (Str.length x) of
+instance Ord TokenName where
+    compare (MkTokenName x) (MkTokenName y) = case compare (Str.length y) (Str.length x) of
         EQ -> compare x y
         o  -> o
 
@@ -192,7 +192,7 @@ insertOp   tok AllowWhitespace table = table
 insertTok :: Token r -> TokenMap r -> TokenMap r
 insertTok tok tmap = insert key tok tmap
     where
-    key = MkTerm (tokStr tok)
+    key = MkTokenName (tokStr tok)
 
 tokStr :: Token r -> Str
 tokStr = str . tokOp
@@ -258,14 +258,14 @@ expectTerm
     terms = (if length str' == length ?str then tableTerms else tableWsTerms) ?tbl
 
 tryMatch :: Parse r (Parse r (Token r -> a) -> Parse r a -> TokenMap r -> a)
-tryMatch ok nok tmap = case find ((`isPrefixOf` ?str) . termToStr . fst) (toAscList tmap) of
+tryMatch ok nok tmap = case find ((`isPrefixOf` ?str) . nameToStr . fst) (toAscList tmap) of
     Just res -> matched ok nok res
     Nothing  -> nok
 
-matched :: Parse r (Parse r (Token r -> a) -> Parse r a -> (Term, Token r) -> a)
-matched ok nok (term, token@MkToken{ tokOp = DynTerm{ dynStr = dyn } }) =
-    let str' = drop (termLength term) ?str in
-        case dyn (termToStr term) str' of
+matched :: Parse r (Parse r (Token r -> a) -> Parse r a -> (TokenName, Token r) -> a)
+matched ok nok (name, token@MkToken{ tokOp = DynTerm{ dynStr = dyn } }) =
+    let str' = drop (nameLength name) ?str in
+        case dyn (nameToStr name) str' of
             Just res ->
                 let ok' = let ?str = dynRemainder res
                            in ok token{ tokOp = Term (dynMatched res) }
@@ -273,7 +273,7 @@ matched ok nok (term, token@MkToken{ tokOp = DynTerm{ dynStr = dyn } }) =
                     DynResultTrans{} -> let ?tbl = dynOpTrans res ?tbl in ok'
                     _                -> ok'
             _                -> nok
-matched ok _ (term, token) = let ?str = drop (termLength term) ?str in ok token
+matched ok _ (name, token) = let ?str = drop (nameLength name) ?str in ok token
 
 isTerm :: Op -> Bool
 isTerm Term{}    = True
@@ -308,18 +308,18 @@ expectOper
     opers = (if length str' == length ?str then tableOpers else tableWsOpers) ?tbl
 
 emptyTerm :: Parse r r
-emptyTerm = case lookup termEmpty (tableTerms ?tbl) of
-    Just tok -> matched foundTerm nullTerm (termEmpty, tok)
+emptyTerm = case lookup nameEmpty (tableTerms ?tbl) of
+    Just tok -> matched foundTerm nullTerm (nameEmpty, tok)
     Nothing  -> nullTerm
     where
-    termEmpty = (MkTerm empty)
+    nameEmpty = (MkTokenName empty)
 
 emptyOper :: Parse r r
 emptyOper = case lookup operEmpty (tableOpers ?tbl) of
     Just tok -> matched foundOper endParse (operEmpty, tok)
     Nothing  -> endParse
     where
-    operEmpty = (MkTerm empty)
+    operEmpty = (MkTokenName empty)
 
 nullTerm :: Parse r r
 nullTerm | (t@MkToken{ tokNull = True }:_) <- ?tokenStack = pushTermStack t expectOper
@@ -428,12 +428,12 @@ instance OpClass (a -> (Str -> Assoc -> Op) -> Assoc -> [Char] -> [(Whitespace, 
     op mk op1 assoc = Prelude.map (((,,) AllowWhitespace mk) . (`op1` assoc) . pack) . splitWords
 
 instance (OpClass (a -> (Str -> Op) -> (Str -> Str -> Maybe (Str, Str)) -> [(Whitespace, a, Op)])) where
-    op mk op1 f = [(AllowWhitespace, mk, DynTerm empty dyn)]
+    op mk _ f = [(AllowWhitespace, mk, DynTerm empty dyn)]
         where
         dyn pre post = fmap (uncurry DynResultMatch) (f pre post)
 
 instance (OpClass (a -> (Str -> Op) -> String -> (Str -> Str -> Maybe (Str, Str)) -> [(Whitespace, a, Op)])) where
-    op mk op1 s f = [(AllowWhitespace, mk, DynTerm (pack s) dyn)]
+    op mk _ s f = [(AllowWhitespace, mk, DynTerm (pack s) dyn)]
         where
         dyn pre post = fmap (uncurry DynResultMatch) (f pre post)
 
