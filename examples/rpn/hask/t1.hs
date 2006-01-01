@@ -102,10 +102,9 @@ makeExceptionTestList :: [ExceptionExpected] -> [Test]
 makeExceptionTestList = map makeExceptionTest
 
 exceptionTests = TestList ( makeExceptionTestList [
---  These two do damage (GHC/HUnit bug?)
---    ( "5 4 %",     "Invalid stack:[t1: Invalid token:\"%\"" ),
---    ( "5 +",       "Invalid stack:[t1: Invalid token:\"+\"" ),
-    ( "+",         "Invalid token:\"+\"" ),
+    ( "5 4 %",     "Invalid token:\"%\"" ),
+    ( "5 +",       "Stack underflow" ),
+    ( "+",         "Stack underflow" ),
     ( "5 4 + 42",  "Invalid stack:[42,9]" ),
     ( "",          "Invalid stack:[]" )
   ])
