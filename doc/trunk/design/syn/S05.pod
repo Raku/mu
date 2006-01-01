@@ -1394,7 +1394,7 @@ of the inner parens for I<every> iteration (as described above). That is:
                # |                        |
                # | $0[0]    $0[1]---      |
                # | |   |    |       |     |
-     $text ~~ m/ ( (\w+) \: (\w+ \h+)* \n )**{2...} /;
+     $text ~~ m/ ( (\w+) \: (\w+ \h*)* \n )**{2...} /;
 
      # Because it's in a quantified capturing block,
      # $0 contains the equivalent of:
