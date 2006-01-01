@@ -11,7 +11,7 @@
 |                                                                   |
 =====================================================================
 
-Pugs is Copyright 2005 by Audrey Tang.  All Rights Reserved.
+Pugs is Copyright 2005, 2006 by Audrey Tang.  All Rights Reserved.
 
 The "PGE" subsystem is derived from PGE by Patrick Michaud,
 under the Perl license.  See src/pge/README.
@@ -39,6 +39,9 @@ under a BSD-style license.  See src/Data/FastPackedString.hs.
 
 The "Unicode" subsystem is derived from Dimitry Golubovsky's work,
 under the same license as GHC.  See LICENSES/GHC.
+
+The "PArrows" subsystem is derived from Einar Karttunen's work,
+under a BSD-style license.  See src/Text/Parser/PArrows.cabal.
 
 LICENSE INFORMATION
 -------------------
@@ -86,7 +89,7 @@ For Perl 6 related information, please see:
     http://dev.perl.org/perl6/
 
 Enjoy,
-A.
+Audrey
 
 P.S. "Perl" stands for "Polymorphic Existential Recursive Lambdas", too!
 

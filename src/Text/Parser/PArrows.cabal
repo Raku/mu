@@ -1,0 +1,17 @@
+Name:            PArrows
+Version:         0.1
+License:         BSD3
+Author:          Einar Karttunen
+Description:     Arrow parser combinators similar to Parsec.
+Homepage:        http://www.cs.helsinki.fi/u/ekarttun/PArrows/
+Build-Depends:   base
+Extensions:      FunctionalDependencies
+Ghc-Options:     -O2
+Hs-Source-Dir:   src
+Exposed-Modules: Text.ParserCombinators.PArrow,
+                 Text.ParserCombinators.PArrow.Char,
+                 Text.ParserCombinators.PArrow.Combinator,
+                 Text.ParserCombinators.PArrow.MD,
+                 Text.ParserCombinators.PArrow.Prim,
+                 Text.ParserCombinators.PArrow.ToJavaScript
+Other-Modules:   Text.ParserCombinators.PArrow.CharSet
