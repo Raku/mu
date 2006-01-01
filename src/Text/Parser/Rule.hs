@@ -35,7 +35,9 @@ infixl ~&~
 infixl .<>
 
 (.<>) :: Grammar -> String -> CompiledRule
-grammar .<> name = (Map.!) grammar (pack name)
+grammar .<> name = case Map.lookup (pack name) grammar of
+    Just rule   -> rule
+    _           -> error $ "Cannot find rule in grammar: " ++ name
 
 (~:~) :: String -> String -> (Str, Rule)
 name ~:~ rule = (pack name, parseOptimized rule)
@@ -282,12 +284,13 @@ instance Compilable RuleShortcut where
     comp x = MCSet x >>^ MatchStr
 
 instance Compilable RuleEnum where
-    comp (EnumChars s) = MChoice (map comp (elems s))
+    comp (EnumChars s) = MCSet (CS_Enum s) >>^ MatchStr
     comp (EnumShortcut x) = comp x
-    comp (EnumComplement x) = MNot (comp x)
+    comp (EnumComplement (EnumChars s)) = MCSet (CS_Negated (CS_Enum s)) >>^ MatchStr
+    comp x = error ("can't compile: " ++ show x)
 
 instance Compilable RuleQuant where
-    comp (QuantNone _) = error "none"
+    comp (QuantNone _) = comp empty -- error "none"
     comp (QuantOne x) = comp x
     comp (Quant x min max Greedy) = MGreedy min max (comp x) >>^
         either MatchNil (mconcat . toList)
@@ -434,7 +437,8 @@ ruleTable = mkOpTable
     , op _Altern Infix AssocList "|" 
     ]
     where
-    isMetaChar x = isSpace x || (x `elem` "\\%*+?:|.^$@[(<{#")
+    isMetaChar x = isSpace x || (x `elem` "\\%*+?:|.^$@[]()<>{}#")
+    isEscChar x = isSpace x || (x `elem` "\\%*+?:|.^$@[(<{}#")
     isNewline = (`elem` "\x0a\x0d\x0c\x85\x2028\x2029")
     wsSubrule str
         | (pre, post) <- break (== '>') str = Just (pre, tail post)
@@ -444,7 +448,7 @@ ruleTable = mkOpTable
         | head str == '#' = Just (break isNewline str)
         | head str == '\\', ch <- index str 1, isMetaChar ch = Just (splitAt 1 (tail str))
         | res@(pre, _) <- span isSpace str, not (null pre) = Just res
-        | res@(pre, _) <- splitAt 1 str, not (isMetaChar (head pre)) = Just res
+        | res@(pre, _) <- splitAt 1 str, not (isEscChar (head pre)) = Just res
         | otherwise = Nothing
     wsEnum str 
         | null str = Nothing

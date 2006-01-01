@@ -6,37 +6,34 @@ import PIL.Native.Coerce
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Language
 import qualified Text.ParserCombinators.Parsec.Token as P
-import Text.Parser.Rule (Grammar, grammar, (~:~), (.<>))
+import Text.Parser.Rule (Grammar, grammar, (~:~), (.<>), (~~), parseRule)
 
 -- Beginning of a Rule-based parser for minilang.
 miniLang :: Grammar
 miniLang = grammar
-    [ "literal" ~:~ "nil | true | false | <pointySub> | <stringLiteral> | <singleQuoteStringLiteral> | <naturalOrFloat> | <integer>"
+    [ "foo" ~:~ "foo [, <foo>]?"
+    , "literal" ~:~ "nil | true | false | <pointySub> | <stringLiteral> | <singleQuoteStringLiteral> | <naturalOrFloat> | <integer>"
 
     , "stringLiteral" ~:~ "\"<-['\"]>+\""
-    , "singleQuoteStringLiteral " ~:~ "' <-[']> '"
+    , "singleQuoteStringLiteral" ~:~ "' <-[']> '"
     , "naturalOrFloat" ~:~ "<integer> | <integer>.<integer>"
-    , "integer" ~:~ "<:digit:>+"
+    , "integer" ~:~ "\\d+"
 
     , "identifier" ~:~ "<[$@%&:]> <-[ \\n\\t.`!,;()[\\]{}<>#]>*"
     , "method" ~:~ "<-[ \\n\\t()0123456789.`!]> <-[ \\n\\t();,.`!]>*"
-    
-    --, "" ~:~ ""
     
     , "pointySub" ~:~ "-> <pointySubParams> <pointySubBody>"
     , "pointySubParams" ~:~ "<identifierCommaList>?"
     , "pointySubBody" ~:~ "\\{ <expressionList> \\}"
     
-   
-    , "expressionList" ~:~ "<expression>+"
-    , "expression" ~:~ "<expressionStmt> | <expressionStmt> <call>"
+    , "expressionList" ~:~ "<expression> [; <expressionList> | ;? ]"
+    , "expression" ~:~ "<expressionStmt> <call>?"
     , "expressionStmt" ~:~ "\\( <expression> \\) | <selfExpression> | <arrayExpression> | <hashExpression> | <literal> | <variableExpression>"
     
-    , "call" ~:~ "` <functionCall> | <[.!]> <methodCall> | <[.!]> <argList>"
+    , "call" ~:~ "<[`.!]> <methodCall>"
     , "functionCall" ~:~ "<argList>"
-    , "methodCall" ~:~ "<method> | <method> <argList>"
-    , "dynCall" ~:~ "<variableExpression> | <variableExpression> <argList>"
-    , "argList" ~:~ "\\( <expressionCommaList> \\) | \\( \\)"
+    , "methodCall" ~:~ "<method> <argList>?"
+    , "argList" ~:~ "\\( <expressionCommaList>? \\)"
 
     , "selfExpression" ~:~ "self"
     , "variableExpression" ~:~ "<identifier>"
@@ -44,9 +41,9 @@ miniLang = grammar
     , "hashExpression" ~:~ "\\{ <pairExpressionCommaList> \\}"
     , "pairExpression" ~:~ "<expression> => <expression>"
    
-    , "expressionCommaList" ~:~ "<expression> | <expression> , <expressionCommaList>"
-    , "identifierCommaList" ~:~ "<identifier> | <identifier> , <identifierCommaList>"
-    , "pairExpressionCommaList" ~:~ "<pairExpression> | <paurExpression> , <pairExpressionCommaList>"
+    , "expressionCommaList" ~:~ "<expression> [ , <expressionCommaList> ]?"
+    , "identifierCommaList" ~:~ "<identifier> [ , <identifierCommaList> ]?"
+    , "pairExpressionCommaList" ~:~ "<pairExpression> [ , <pairExpressionCommaList> ]?"
    
     ]
 

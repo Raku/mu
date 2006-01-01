@@ -4,6 +4,7 @@ module Text.Parser.PArrow.CharSet where
 import Data.Char
 import Data.Set hiding (map)
 import Data.Generics
+import qualified Data.FastPackedString as Str
 
 -- | Character sets
 data CharSet = CS_Any        -- ^ All characters
@@ -16,6 +17,7 @@ data CharSet = CS_Any        -- ^ All characters
              | CS_Ascii      -- ^ <=127
              | CS_Lower      -- ^ Lower
              | CS_Upper      -- ^ Upper
+             | CS_Enum !Str.FastString -- ^ Enumeration
              | CS_Negated !CharSet
             deriving (Eq, Ord, Data, Typeable)
 
@@ -44,3 +46,5 @@ containsChar CS_Alpha      = isAlpha
 containsChar CS_Alnum      = isAlphaNum
 containsChar CS_Lower      = isLower
 containsChar CS_Upper      = isUpper
+containsChar (CS_Enum x)   = (`Str.elem` x)
+containsChar (CS_Negated x)= not . containsChar x

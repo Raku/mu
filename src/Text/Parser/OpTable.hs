@@ -4,9 +4,9 @@
 
 module Text.Parser.OpTable where
 import Prelude hiding (length, lookup, null, drop, span)
-import qualified Data.Map as NMap
-import qualified Data.Seq as NSeq
-import qualified Data.FastPackedString as NStr
+import qualified Data.Map as Map
+import qualified Data.Seq as Seq
+import qualified Data.FastPackedString as Str
 import qualified Data.List as List
 import Data.Ratio
 import Data.Generics hiding (Prefix, Infix)
@@ -107,9 +107,9 @@ data OpTable r = MkOpTable
     deriving (Eq, Show, Ord, Typeable, Data)
 
 emptyTable :: OpTable r
-emptyTable = MkOpTable NMap.empty NMap.empty NMap.empty NMap.empty NMap.empty
+emptyTable = MkOpTable Map.empty Map.empty Map.empty Map.empty Map.empty
 
-type Str = NStr.FastString
+type Str = Str.FastString
 type EntryMap a = Map Op (Token a)
 type TokenMap a = Map Term (Token a)
 
@@ -121,7 +121,7 @@ termLength :: Term -> Int
 termLength = length . termToStr
 
 instance Ord Term where
-    compare (MkTerm x) (MkTerm y) = case compare (NStr.length y) (NStr.length x) of
+    compare (MkTerm x) (MkTerm y) = case compare (Str.length y) (Str.length x) of
         EQ -> compare x y
         o  -> o
 
