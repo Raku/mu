@@ -672,18 +672,38 @@
 ## ------------------------------------------------------------------------- ##
 ## Container Types
 ## ------------------------------------------------------------------------- ##
+# currently these are based largely on the quickref/data stuff in pugs, but
+# our plans actually lean more towards something like this:
+#   http://scala.epfl.ch/docu/files/api/index.html
+# however, we need to make sure all our assumptions work, and quickref/data 
+# is simple and quick :)
+## ------------------------------------------------------------------------- ##
+
+
+# --------------------------------------------------------------------------- #
+# Scalar Container
+# --------------------------------------------------------------------------- #
 
 ::Scalar.set_superclasses([ ::Object ]);
 ::Scalar.add_method('FETCH', ->    { self`fetch()         } );
 ::Scalar.add_method('STORE', -> $x { self`store($x); self } );
 
-# XXX - these should become roles.  Help! :-)
+::rScalar := ::Role.new({ '$!name' => 'Scalar' });
+
+::Scalar.set_roles([ ::rScalar ]);
+::Scalar.resolve();
+
+# --------------------------------------------------------------------------- #
+# Array Container
+# --------------------------------------------------------------------------- #
 
 ::Array.set_superclasses([ ::Object ]);
 ::Array.add_method('FETCH', -> $i     { self`fetch_elem($i)           } );
 ::Array.add_method('STORE', -> $i, $x { self`store_elem($i, $x); self } );
 
 =pod
+
+Array Role
 
 stolen from docs/quickref/data # probably incomplete
 
@@ -699,6 +719,11 @@ stolen from docs/quickref/data # probably incomplete
 .sort( { cond }, { cond }, ... )
 .kv            # return index,value pairs
 
+NOTE:
+Currently this is an immutable array interface, I will be 
+spliting this up and createing a mutable interface too which 
+will be more Haskell-ish. 
+
 =cut
 
 ::rArray := ::Role.new({ '$!name' => 'Array' });
@@ -707,19 +732,77 @@ stolen from docs/quickref/data # probably incomplete
     self`fetch_list()`length() 
 });
 
-::rArray.add_method('join',    -> $sep {});
-::rArray.add_method('map',     -> $func {});
-::rArray.add_method('grep',    -> $func {});
-::rArray.add_method('pop',     -> {});
-::rArray.add_method('push',    -> $elem {});
-::rArray.add_method('shift',   -> {});
-::rArray.add_method('unshift', -> $elem {});
-::rArray.add_method('reverse', -> {});
-::rArray.add_method('sort',    -> {});
-::rArray.add_method('kv',      -> {});
+::rArray.add_method('join', -> $sep {
+    # NOTE:
+    # we need to force string context upon
+    # all the elements of the list here, which 
+    # it problematic on this level of the 
+    # runtime since we don't have a notion
+    # of contexts :) 
+});
+
+::rArray.add_method('map', -> $func {
+    $?CLASS`create(
+        -> $elem {
+            $func`($elem)
+        }`do_for(self`fetch_list())
+    );
+});
+
+::rArray.add_method('grep', -> $func {
+    @new :=  $?CLASS`create([]);
+    -> $elem {
+        $func`($elem)`as_bit`cond(
+            -> { @new.push($elem) }, 
+            -> {                  }
+        );
+    }`do_for(self`fetch_list());
+    @new;
+});
+
+::rArray.add_method('pop', -> {
+    $elem := self`fetch_elem(self.elems()`decrement());
+    # this is a ugly kludge for now :-/
+    self`store_list(self`fetch_list()`reverse()`splice(1)`reverse());
+    $elem;    
+});
+
+::rArray.add_method('push', -> $elem {
+    self`store_list(self`fetch_list()`concat([ $elem ]));
+    self;
+});
+
+::rArray.add_method('shift', -> {
+    $elem := self`fetch_elem(0);
+    self`store_list(self`fetch_list()`splice(1));
+    $elem;
+});
+
+::rArray.add_method('unshift', -> $elem {
+    self`store_list([ $elem ]`concat(self`fetch_list()));
+    self;    
+});
+
+::rArray.add_method('reverse', -> {
+    self`store_list(self`fetch_list()`reverse());
+});
+
+# NOTE:
+# I think sort is a more complex beast, 
+# we will deal with this later
+::rArray.add_method('sort', -> {});
+
+# NOTE:
+# kv should return a list of Pair objects
+# in which case we will need some Pair objects
+::rArray.add_method('kv', -> {});
 
 ::Array.set_roles([ ::rArray ]);
 ::Array.resolve();
+
+# --------------------------------------------------------------------------- #
+# Hash Container
+# --------------------------------------------------------------------------- #
 
 ::Hash.set_superclasses([ ::Object ]);
 ::Hash.add_method('FETCH', -> $i     { self`fetch_elem($i)           } );
