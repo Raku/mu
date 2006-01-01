@@ -1,8 +1,8 @@
-grammar PIL::Native;
+grammar PIL::Native::Syntax;
 
 rule literal {
     nil | true | false | <pointySub>
-    | <stringLiteral> | <singleQuoteStringLiteral>
+    | <stringLiteral>  | <singleQuoteStringLiteral>
     | <naturalOrFloat> | <integer>
 }
 
@@ -11,8 +11,8 @@ rule singleQuoteStringLiteral   { ' <-[']> ' }
 rule naturalOrFloat             { <integer> | <integer>.<integer> }
 rule integer                    { \d+ }
 
-rule identifier { <[$@%&:]> <-[ \n\t.`!,;()[\]{}<>#]>* }
-rule method     { <-[ \n\t()0123456789.`!]> <-[ \n\t();,.`!]>* }
+rule identifier         { <[$@%&:]> <-[ \n\t.`!,;()[\]{}<>#]>* }
+rule method             { <-[ \n\t()0123456789.`!]> <-[ \n\t();,.`!]>* }
     
 rule pointySub          { -> <pointySubParams> <pointySubBody> }
 rule pointySubParams    { <identifierCommaList>? }
