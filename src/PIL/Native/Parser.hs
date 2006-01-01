@@ -6,7 +6,7 @@ import PIL.Native.Coerce
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Language
 import qualified Text.ParserCombinators.Parsec.Token as P
-import Text.Parser.Rule (Grammar, grammar, (~:~), (.<>), parseRule)
+import Text.Parser.Rule (Grammar, grammar, (~:~), (.<>))
 
 -- Beginning of a Rule-based parser for minilang.
 miniLang :: Grammar

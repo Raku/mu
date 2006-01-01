@@ -8,7 +8,7 @@ import qualified Prelude (length)
 import Text.Parser.OpTable
 import Text.Parser.PArrow
 import Text.Parser.PArrow.MD (MD(..), Label(..), label, Monoid(..))
-import Data.FastPackedString hiding (concatMap, concat, elem, foldl, foldl1, map, foldr, foldr1, elems)
+import Data.FastPackedString hiding (concatMap, concat, elem, foldl, foldl1, map, foldr, foldr1)
 import Text.Parser.PArrow.CharSet
 import Data.Set (Set, isSubsetOf)
 import Data.Seq (Seq, toList, fromList, (<|), (|>), (><))
@@ -59,7 +59,7 @@ grammar rules = Map.map comp normMap
     replaceNode x = x
 
 printMatch :: String -> String -> IO ()
-printMatch r i = either (hPut stdout) printMatchResult (matchRule r i)
+printMatch i r = either (hPut stdout) printMatchResult (matchRule r i)
 
 printMatchResult :: MatchRule -> IO ()
 printMatchResult mo@MatchObj{} = (hPut stdout) (matchString mo)
@@ -266,7 +266,7 @@ instance Compilable Str where
 instance Compilable RuleTerm where
     comp (TermLit x) = comp x
     comp (TermDynamic x) = MDyn (mkLabel $ dynLabel x) (dynTerm x) >>^ uncurry MatchDyn
-    comp (TermShortcut x) = MCSet x >>^ MatchStr
+    comp (TermShortcut x) = comp x
     comp (TermGroup NonCapture r) = comp r
     comp (TermGroup Negated r) = MNot (comp r)
     comp (TermGroup CapturePos r) = comp r >>^ MatchPos
@@ -274,8 +274,13 @@ instance Compilable RuleTerm where
     comp (TermEnum x) = comp x
     comp x = error ("can't compile: " ++ show x)
 
+instance Compilable RuleShortcut where
+    comp x = MCSet x >>^ MatchStr
+
 instance Compilable RuleEnum where
-    comp = const MEmpty -- XXX
+    comp (EnumChars s) = MChoice (map comp (elems s))
+    comp (EnumShortcut x) = comp x
+    comp (EnumComplement x) = MNot (comp x)
 
 instance Compilable RuleQuant where
     comp (QuantNone _) = error "none"

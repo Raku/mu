@@ -32,9 +32,8 @@ main = do
         ["-e", src]         -> eval src
         ["-p", src]         -> parse src
         ["-P", file]        -> parse =<< readFile file
-        ["-r", rule, input] -> printMatch rule input
+        ["-r", rule, input] -> printMatch input rule
         ["-g", g, r, i]     -> do
-            -- printMatch rule input
             fail "not yet supported"
         _                   -> do
             putStrLn "     Run: ./pil file"
