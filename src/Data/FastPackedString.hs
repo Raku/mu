@@ -375,7 +375,7 @@ head ps@(PS x s _)        -- ps ! 0 is inlined manually to eliminate a (+0)
 tail :: FastString -> FastString
 tail (PS p s l) 
     | l <= 0    = errorEmptyList "tail"
-    | l == 1    = empty                                                                    
+--  | l == 1    = empty                                                                    
     | otherwise = PS p (s+1) (l-1)
 {-# INLINE tail #-}
 
@@ -576,7 +576,7 @@ dropWhile f ps = seq f $ drop (findIndexOrEndPS (not . f) ps) ps
 -- of @xs@ of length @n@, or @xs@ itself if @n > 'length' xs@.
 take :: Int -> FastString -> FastString
 take n ps@(PS x s l)
-    | n <= 0    = empty
+    | n < 0     = empty
     | n >= l    = ps
     | otherwise = PS x s n
 {-# INLINE take #-}
@@ -1026,9 +1026,9 @@ unsafeHead (PS x s _) = w2c $ unsafePerformIO $
 -- check for the empty case. As with 'unsafeHead', the programmer must
 -- provide a separate proof that the FastString is non-empty.
 unsafeTail :: FastString -> FastString
-unsafeTail (PS ps s l)
-    | l == 1    = empty
-    | otherwise = PS ps (s+1) (l-1)
+unsafeTail (PS ps s l) = PS ps (s+1) (l-1)
+--  | l == 1    = empty
+--  | otherwise = PS ps (s+1) (l-1)
 {-# INLINE unsafeTail #-}
 
 ------------------------------------------------------------------------

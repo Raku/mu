@@ -1,10 +1,10 @@
-{-# OPTIONS_GHC -O2 -fglasgow-exts -funbox-strict-fields -fallow-undecidable-instances #-}
+{-# OPTIONS_GHC -O2 -fglasgow-exts -funbox-strict-fields -fallow-undecidable-instances -fno-warn-orphans #-}
 module Text.Parser.Rule (
     module Text.Parser.Rule,
     module Text.Parser.PArrow,
 ) where
 import Prelude hiding (lookup, null, drop, span, break, head, tail, splitAt, take, length)
-import qualified Prelude (head, last, init, tail, length)
+import qualified Prelude (length)
 import Text.Parser.OpTable
 import Text.Parser.PArrow
 import Text.Parser.PArrow.MD (MD(..), Label(..), label, Monoid(..))
@@ -194,8 +194,8 @@ data MatchRule
     | MatchDyn !Str !Dynamic
     deriving (Show, Eq, Ord, Typeable)
 
-instance Eq Dynamic where a == b = True
-instance Ord Dynamic where compare a b = EQ
+instance Eq Dynamic where _ == _ = True
+instance Ord Dynamic where compare _ _ = EQ
 
 fin :: Str -> Int
 fin (PS _ s l) = s + l
@@ -428,7 +428,7 @@ ruleTable = mkOpTable
         | otherwise = Nothing
     wsLiteral str
         | null str = Just (str, str)
-        | head str == '#', res <- break isNewline str = Just res
+        | head str == '#' = Just (break isNewline str)
         | head str == '\\', ch <- index str 1, isMetaChar ch = Just (splitAt 1 (tail str))
         | res@(pre, _) <- span isSpace str, not (null pre) = Just res
         | res@(pre, _) <- splitAt 1 str, not (isMetaChar (head pre)) = Just res
@@ -439,8 +439,7 @@ ruleTable = mkOpTable
             post <- doScan str
             -- The "- 2" below is to subtract the "]>" part.
             let cur = idx post
-                pre | cur == 0  = take (length str - 2) str
-                    | otherwise = take (cur - idx str - 2) str
+                pre = take (cur - idx str - 2) str
             return (pre, post)
     doScan str
         | null str = fail "No closing ']>' for charlist"
