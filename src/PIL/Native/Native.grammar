@@ -1,0 +1,42 @@
+grammar PIL::Native;
+
+rule literal {
+    nil | true | false | <pointySub>
+    | <stringLiteral> | <singleQuoteStringLiteral>
+    | <naturalOrFloat> | <integer>
+}
+
+rule stringLiteral              { " <-['"]>+ " }
+rule singleQuoteStringLiteral   { ' <-[']> ' }
+rule naturalOrFloat             { <integer> | <integer>.<integer> }
+rule integer                    { \d+ }
+
+rule identifier { <[$@%&:]> <-[ \n\t.`!,;()[\]{}<>#]>* }
+rule method     { <-[ \n\t()0123456789.`!]> <-[ \n\t();,.`!]>* }
+    
+rule pointySub          { -> <pointySubParams> <pointySubBody> }
+rule pointySubParams    { <identifierCommaList>? }
+rule pointySubBody      { \{ <expressionList> \} }
+    
+rule expressionList     { <expression> [; <expressionList> | ;? ] }
+rule expression         { <expressionStmt> <call>? }
+rule expressionStmt     {
+    \( <expression> \)
+    | <selfExpression> | <arrayExpression> | <hashExpression>
+    | <literal> | <variableExpression> }
+}
+    
+rule call           { <[`.!]> <methodCall> }
+rule methodCall     { <method> <argList>? }
+rule argList        { \( <expressionCommaList>? \) }
+
+rule selfExpression     { self }
+rule variableExpression { <identifier> }
+rule arrayExpression    { \[ <expressionCommaList> \] }
+rule hashExpression     { \{ <pairExpressionCommaList> \} }
+rule pairExpression     { <expression> => <expression> }
+   
+rule expressionCommaList        { <expression> [ , <expressionCommaList> ]? }
+rule identifierCommaList        { <identifier> [ , <identifierCommaList> ]? }
+rule pairExpressionCommaList    { <pairExpression> [ , <pairExpressionCommaList> ]? }
+
