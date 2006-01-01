@@ -299,7 +299,7 @@ instance Compilable RuleTerm where
     comp (TermAnchor AnchorBegin) = comp ("beginning of input", (==0) . idx)
     comp (TermAnchor AnchorBeginLine) = comp ("beginning of line", bol)
         where
-        bol (PS p s l) = (s == 0) || head (PS p (pred s) l) == '\n'
+        bol (PS p s l) = (s == 0) || (l == 0) || head (PS p (pred s) l) == '\n'
     comp (TermAnchor AnchorEnd) = comp ("end of input", null)
     comp (TermAnchor AnchorEndLine) = comp ("end of line", eol)
         where
