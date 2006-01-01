@@ -39,10 +39,10 @@ newScalarObj cls args = do
 
 newArrayObj :: NativeObj -> NativeSeq -> STM Native
 newArrayObj cls args = do
-    tvar <- newTVar args
+    tvar <- newTVar (fromNative $ _0 args)
     fmap toNative $ mkPrimObject cls
         [ ("fetch_list", const $ fmap toNative (readTVar tvar))
-        , ("store_list", withArgs (writeTVar tvar))
+        , ("store_list", withArg0 (writeTVar tvar . fromNative))
         , ("fetch_elem", withArg0 (\x -> fmap (`Seq.index` x) (readTVar tvar)))
         , ("store_elem", withArgs $ \args -> do
             -- XXX - dynamic extension
@@ -53,10 +53,10 @@ newArrayObj cls args = do
 
 newHashObj :: NativeObj -> NativeSeq -> STM Native
 newHashObj cls args = do
-    tvar <- newTVar (seqToMap args)
+    tvar <- newTVar (seqToMap (_0 args))
     fmap toNative $ mkPrimObject cls
         [ ("fetch_list", const $ fmap (toNative . mapToList) (readTVar tvar))
-        , ("store_list", withArgs (writeTVar tvar . seqToMap))
+        , ("store_list", withArg0 (writeTVar tvar . seqToMap))
         , ("fetch_elem", withArg0 (\x -> fmap (\hv -> (Map.!) hv x) (readTVar tvar)))
         , ("store_elem", withArgs $ \args -> do
             -- XXX - dynamic extension
@@ -66,7 +66,7 @@ newHashObj cls args = do
         ]
     where
     mapToList = foldr (\(x,y) z -> (x:y:z)) [] . Map.toAscList
-    seqToMap = Map.fromList . roll . Seq.toList
+    seqToMap = Map.fromList . roll . fromNative
     roll [] = []
     roll [_] = error "odd number of hash elements"
     roll (k:v:xs) = ((k, v):roll xs)

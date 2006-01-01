@@ -211,15 +211,12 @@ instance IsNative NativeMap where
     toNative = NMap
     fromNative (NError {})  = empty
     fromNative (NMap x)     = x
+    fromNative (NSeq x)     = Map.fromList (roll (Seq.toList x))
+        where
+        roll [] = []
+        roll [_] = error "odd number of hash elements"
+        roll (k:v:xs) = ((fromNative k, v):roll xs)
     fromNative x            = castFail x
-
-{-
-instance IsNative NativeSeq where
-    toNative = Seq
-    fromNative (NError {})  = empty
-    fromNative (NSeq x)     = x
-    fromNative x            = castFail x
--}
 
 instance IsNative NativeSub where
     toNative = NSub
@@ -275,6 +272,10 @@ instance (IsNative a) => IsNative (SeqOf a) where
     toNative = NSeq . fmap toNative
     fromNative (NError {})  = empty
     fromNative (NSeq x)     = fmap fromNative x
+    fromNative (NMap x)     = mkSeq (fmap fromNative (unroll (Map.toAscList x)))
+        where
+        unroll [] = []
+        unroll ((k, v):xs) = (toNative k:v:unroll xs)
     fromNative x            = castFail x
 
 instance IsNative () where
