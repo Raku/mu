@@ -6,42 +6,42 @@ import PIL.Native.Coerce
 import Text.ParserCombinators.Parsec
 import Text.ParserCombinators.Parsec.Language
 import qualified Text.ParserCombinators.Parsec.Token as P
-import Text.Parser.Rule (Grammar, grammar, (~:~))
+import Text.Parser.Rule (Grammar, grammar, (~:~), (.<>), parseRule)
 
 -- Beginning of a Rule-based parser for minilang.
 miniLang :: Grammar
 miniLang = grammar
-    [ "literal" ~:~ "nil | true | false | <pointSub> | <stringLiteral> | <singleQuoteStringLiteral> | <naturalOrFloat> | <integer>"
+    [ "literal" ~:~ "nil | true | false | <pointySub> | <stringLiteral> | <singleQuoteStringLiteral> | <naturalOrFloat> | <integer>"
 
     , "stringLiteral" ~:~ "\"<-['\"]>+\""
     , "singleQuoteStringLiteral " ~:~ "' <-[']> '"
     , "naturalOrFloat" ~:~ "<integer> | <integer>.<integer>"
     , "integer" ~:~ "<:digit:>+"
 
-    , "identifier" ~:~ "<[$@%&:]> <-[ \n\t.`!,;()[]{}<>#]>*"
-    , "method" ~:~ "<-[ \n\t()0123456789.`!]> <-[ \n\t();,.`!]>*"
+    , "identifier" ~:~ "<[$@%&:]> <-[ \\n\\t.`!,;()[\\]{}<>#]>*"
+    , "method" ~:~ "<-[ \\n\\t()0123456789.`!]> <-[ \\n\\t();,.`!]>*"
     
     --, "" ~:~ ""
     
     , "pointySub" ~:~ "-> <pointySubParams> <pointySubBody>"
     , "pointySubParams" ~:~ "<identifierCommaList>?"
-    , "pointySubBody" ~:~ "{ <expressionList> }"
+    , "pointySubBody" ~:~ "\\{ <expressionList> \\}"
     
    
     , "expressionList" ~:~ "<expression>+"
     , "expression" ~:~ "<expressionStmt> | <expressionStmt> <call>"
-    , "expressionStmt" ~:~ "( <expression> ) | <selfExpression> | <arrayExpression> | <hashExpression> | <literal> | <variableExpression>"
+    , "expressionStmt" ~:~ "\\( <expression> \\) | <selfExpression> | <arrayExpression> | <hashExpression> | <literal> | <variableExpression>"
     
     , "call" ~:~ "` <functionCall> | <[.!]> <methodCall> | <[.!]> <argList>"
     , "functionCall" ~:~ "<argList>"
     , "methodCall" ~:~ "<method> | <method> <argList>"
     , "dynCall" ~:~ "<variableExpression> | <variableExpression> <argList>"
-    , "argList" ~:~ "( <expressionCommaList> ) | ( )"
+    , "argList" ~:~ "\\( <expressionCommaList> \\) | \\( \\)"
 
     , "selfExpression" ~:~ "self"
     , "variableExpression" ~:~ "<identifier>"
-    , "arrayExpression" ~:~ "[ <expressionCommaList> ]"
-    , "hashExpression" ~:~ "{ <pairExpressionCommaList> }"
+    , "arrayExpression" ~:~ "\\[ <expressionCommaList> \\]"
+    , "hashExpression" ~:~ "\\{ <pairExpressionCommaList> \\}"
     , "pairExpression" ~:~ "<expression> => <expression>"
    
     , "expressionCommaList" ~:~ "<expression> | <expression> , <expressionCommaList>"

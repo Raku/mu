@@ -271,7 +271,11 @@ instance Compilable RuleTerm where
     comp (TermGroup Negated r) = MNot (comp r)
     comp (TermGroup CapturePos r) = comp r >>^ MatchPos
     comp (TermGroup (CaptureNam n) r) = comp r >>^ MatchNam n
+    comp (TermEnum x) = comp x
     comp x = error ("can't compile: " ++ show x)
+
+instance Compilable RuleEnum where
+    comp = const MEmpty -- XXX
 
 instance Compilable RuleQuant where
     comp (QuantNone _) = error "none"
@@ -421,7 +425,7 @@ ruleTable = mkOpTable
     , op _Altern Infix AssocList "|" 
     ]
     where
-    isMetaChar x = isSpace x || (x `elem` "\\%*+?:|.^$@[]()<>{}#")
+    isMetaChar x = isSpace x || (x `elem` "\\%*+?:|.^$@[(<{#")
     isNewline = (`elem` "\x0a\x0d\x0c\x85\x2028\x2029")
     wsSubrule str
         | (pre, post) <- break (== '>') str = Just (pre, tail post)
