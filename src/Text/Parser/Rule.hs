@@ -100,9 +100,13 @@ prettyErrs idxs (s, idx, prev) (idx', this)
     | otherwise
     = (s `append` pack "       Or: " `append` formatted, idx', this)
     where
-    formatted = formWith expects `append` pack column
+    formatted = formWith "" expects `append` formWith "(Not) " unexpects `append` pack column
     column = " at line " ++ show lineNum ++ ", column " ++ show colNum ++ "\n"
-    formWith f = formList (Set.toAscList (f this))
+    formWith s f
+        | set <- f this
+        , not (Set.null set)
+        = pack s `append` formList (Set.toAscList set)
+        | otherwise = empty
     formList [] = empty
     formList [x] = x
     formList [x, y] = x `append` pack " or " `append` y
