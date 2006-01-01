@@ -209,6 +209,9 @@ sub write_buildinfo {
         $perl5_c = 'src/perl5/p5embed.c';
     }
 
+    # Remove -Wl flags in Perl5 embedding.
+    @_ = grep { !/^-W/ } @_;
+
     my @include_dirs = map substr($_, 2), grep /^-I/, @_;
     my @lib_dirs = map substr($_, 2), grep /^-L/, @_;
     my @libs = map substr($_, 2), grep /^-l/, @_;
