@@ -201,8 +201,8 @@ defaultPrec :: Precedence
 defaultPrec = 1%1
 
 calculatePrec :: PrecRelation -> EntryMap r -> Precedence
-calculatePrec DefaultPrec _ = defaultPrec
 calculatePrec rel toks = case rel of
+    DefaultPrec     -> defaultPrec
     SameAs {}       -> prec
     LooserThan {}   -> prec - 1 % (denominator prec * 2)
     TighterThan {}  -> prec + 1 % (denominator prec * 2)
@@ -447,7 +447,7 @@ instance (OpClass (a -> (Str -> Op) -> (Str -> (Str, Str)) -> [(Whitespace, a, O
     op mk op1 f = op mk op1 (\(_ :: Str) x -> f x)
 
 instance (OpClass (a -> (Str -> Op) -> (Str -> Str -> (Str, Str)) -> [(Whitespace, a, Op)])) where
-    op mk op1 f = [(AllowWhitespace, mk, DynTerm empty dyn)]
+    op mk _ f = [(AllowWhitespace, mk, DynTerm empty dyn)]
         where
         dyn pre post = let (pre', post') = f pre post in
             if null pre then Nothing else Just (DynResultMatch pre' post')
