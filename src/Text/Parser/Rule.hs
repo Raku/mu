@@ -3,8 +3,8 @@ module Text.Parser.Rule (
     module Text.Parser.Rule,
     module Text.Parser.PArrow,
 ) where
-import Prelude hiding (lookup, null, drop, span, break, head, tail, splitAt)
-import qualified Prelude (head, last, init, tail )
+import Prelude hiding (lookup, null, drop, span, break, head, tail, splitAt, take, length)
+import qualified Prelude (head, last, init, tail, length)
 import Text.Parser.OpTable
 import Text.Parser.PArrow
 import Text.Parser.PArrow.MD (MD(..), Label(..), label, Monoid(..))
@@ -318,6 +318,7 @@ data RuleEnum
     | EnumRange !Char !Char         -- <[a..z]>
     | EnumPlus !RuleEnum !RuleEnum  -- <[]+[]>
     | EnumMinus !RuleEnum !RuleEnum -- <[]-[]>
+    | EnumShortcut !RuleShortcut    -- <[\w]>
     | EnumComplement !RuleEnum      -- <-[]>
     deriving (Show, Eq, Ord, Data, Typeable)
 
@@ -434,9 +435,23 @@ ruleTable = mkOpTable
         | otherwise = Nothing
     wsEnum str 
         | null str = Nothing
-        | otherwise = let (pre, post) = scan (unpack str) [] in
-            Just (pack pre, pack post)
-        where
+        | otherwise = do
+            post <- doScan str
+            -- The "- 2" below is to subtract the "]>" part.
+            let cur = idx post
+                pre | cur == 0  = take (length str - 2) str
+                    | otherwise = take (cur - idx str - 2) str
+            return (pre, post)
+    doScan str
+        | null str = fail "No closing ']>' for charlist"
+        | head str == '\\' = doScan (drop 2 str)
+        | head str == ']'  = let rest = tail str in case head rest of
+            '>' -> return (tail rest)
+            '+' -> doScan (tail rest)
+            '-' -> doScan (tail rest)
+            _   -> fail "Unescaped ']' in charlist"
+        | otherwise = doScan (tail str)
+{-
             -- scan :: Input -> enumList -> enumList
             -- scan :: Str -> [Char] -> ( [Char], Str )
             -- endClass
@@ -463,7 +478,7 @@ ruleTable = mkOpTable
             scan ""         _   = error "No closing ']>' for charlist"
             -- addChar
             scan (x:xs)     lst = scan xs (lst ++ [x]) 
-
+-}
     _Lit :: DynMkMatch Rule
     _Lit tok _ | null str           = mk QuantNone str
                | head str == '#'    = mk QuantNone str
