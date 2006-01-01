@@ -100,7 +100,12 @@ sub on_privmsg($event) {
     }
 
     when rx:P5/^\?join\s+(.+)$/ {
-      $bot<join>($0);
+      if substr($reply_to, 0, 1) eq "#" {
+        $reply("you should only do ?join in a private message so other bots don't accidentally come.");
+      }
+      else {
+        $bot<join>($0);
+      }
     }
 
     when rx:P5/^\?uptime$/ {
