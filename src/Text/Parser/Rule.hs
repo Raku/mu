@@ -4,6 +4,7 @@ module Text.Parser.Rule (
     module Text.Parser.PArrow,
 ) where
 import Prelude hiding (lookup, null, drop, span, break, head, tail, splitAt)
+import qualified Prelude (head, last, init, tail )
 import Text.Parser.OpTable
 import Text.Parser.PArrow
 import Text.Parser.PArrow.MD (MD(..), Label(..), label, Monoid(..))
@@ -400,6 +401,8 @@ data RuleModifier
     deriving (Show, Eq, Ord, Data, Typeable)
 
 ruleTable :: OpTable Rule
+-- mkOpTable :: [[(Whitespace, DynMkMatch r, Op)]] -> OpTable r
+-- noWs :: [(Whitespace, a, Op)] -> [(Whitespace, a, Op)]
 ruleTable = mkOpTable
     [ noWs (op _Lit  Term wsLiteral)
    ++ noWs (op _Term Term ": :: ::: \\b \\B ^ ^^ $$ . \\d \\D \\s \\S \\w \\W \\n <commit>")
@@ -408,6 +411,9 @@ ruleTable = mkOpTable
    ++ noWs (op (_Subrule CapturePos) Term "<"  wsSubrule)
    ++ noWs (op (_Subrule NonCapture) Term "<?" wsSubrule)
    ++ noWs (op (_Subrule Negated)    Term "<!" wsSubrule)
+   -- ++ noWs (op (_Enum CapturePos)    Term "<[" wsEnum)
+   -- ++ noWs (op (_Enum Negated)       Term "<-[" wsEnum)
+   -- ++ noWs (op (_Enum CapturePos)    Term "<+[" wsEnum)
     , op _Quant Postfix "* + ?"
     , noWs $ op _Concat Infix AssocList ""
     , op _Conj   Infix AssocList "&" 
@@ -426,6 +432,37 @@ ruleTable = mkOpTable
         | res@(pre, _) <- span isSpace str, not (null pre) = Just res
         | res@(pre, _) <- splitAt 1 str, not (isMetaChar (head pre)) = Just res
         | otherwise = Nothing
+    wsEnum str 
+        | not (null str) = scan (unpack str)
+        -- | otherwise = Nothing
+        where
+            -- scan :: Input -> enumList -> enumList
+            -- scan :: Str -> [Char] -> ( [Char], Str )
+            -- endClass
+            scan (']':'>':xs)  lst   = ( lst , xs )
+            -- errBracket
+            scan (']':xs)  _    = error "Unescaped ']' in charlist"
+            -- errHyphen
+            scan ('-':xs)  _   = error "Unescaped '-' in charlist"
+            -- backslash 
+            scan ('\\':'n':xs) lst = scan xs (lst ++ [ '\n' ])
+            scan ('\\':'r':xs) lst = scan xs (lst ++ [ '\r' ])
+            scan ('\\':'t':xs) lst = scan xs (lst ++ [ '\t' ])
+            scan ('\\':'f':xs) lst = scan xs (lst ++ [ '\f' ])
+            scan ('\\':'a':xs) lst = scan xs (lst ++ [ '\a' ])
+            -- \e is not a valid escape char in haskell
+            scan ('\\':'e':xs) lst = scan xs (lst ++ [ '\a' ])
+            scan ('\\':'0':xs) lst = scan xs (lst ++ [ '\0' ])
+            -- user escaped a character that doesn't need escaping
+            scan ('\\':xs)  lst = scan xs lst
+            -- dotRange
+            scan ('.':'.':xs)  lst = ( (Prelude.init lst) ++ [ (Prelude.last lst) .. (Prelude.head lst2) ] ++ (Prelude.tail lst2), rest ) 
+                where (lst2, rest) = scan xs []
+            -- errClose
+            scan empty        _   = error "No closing ']>' for charlist"
+            -- addChar
+            scan (x:xs)     lst = scan xs (lst ++ [x]) 
+
     _Lit :: DynMkMatch Rule
     _Lit tok _ | null str           = mk QuantNone str
                | head str == '#'    = mk QuantNone str
