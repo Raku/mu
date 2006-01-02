@@ -948,7 +948,7 @@ Darren R. Duncan (C<perl@DarrenDuncan.net>)
 
 This file is part of the Locale::KeyedText library.
 
-Locale::KeyedText is Copyright (c) 2003-2005, Darren R. Duncan.  All rights
+Locale::KeyedText is Copyright (c) 2003-2006, Darren R. Duncan.  All rights
 reserved.  Address comments, suggestions, and bug reports to
 C<perl@DarrenDuncan.net>, or visit L<http://www.DarrenDuncan.net/> for more
 information.

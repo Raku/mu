@@ -75,7 +75,7 @@ Darren R. Duncan (C<perl@DarrenDuncan.net>)
 
 This file is part of the Rosetta database portability library.
 
-Rosetta is Copyright (c) 2002-2005, Darren R. Duncan.
+Rosetta is Copyright (c) 2002-2006, Darren R. Duncan.
 
 See the LICENCE AND COPYRIGHT of L<Rosetta> for details.
 

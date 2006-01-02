@@ -149,7 +149,7 @@ Darren R. Duncan (C<perl@DarrenDuncan.net>)
 
 This file is part of the Locale::KeyedText library.
 
-Locale::KeyedText is Copyright (c) 2002-2005, Darren R. Duncan.
+Locale::KeyedText is Copyright (c) 2003-2006, Darren R. Duncan.
 
 See the LICENCE AND COPYRIGHT of L<Locale::KeyedText> for details.
 

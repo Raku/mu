@@ -9,7 +9,7 @@ developed concurrently, which are coded natively in Perl 6 and Perl 5
 respectively, and which will frequently maintain parity with each other;
 both versions have a copy of this same README file.
 
-All of these modules are Copyright (c) 2002-2005, Darren R. Duncan
+All of these modules are Copyright (c) 2002-2006, Darren R. Duncan
 (perl@DarrenDuncan.net, "http://www.DarrenDuncan.net/").  All rights
 reserved.  See the individual modules themselves for their licensing terms;
 most of them are GPL v2+ with an exception.

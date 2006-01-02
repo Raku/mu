@@ -77,7 +77,7 @@ This file is part of the SQL::Routine::SQLBuilder reference implementation
 of a SQL:2003 string builder that uses the SQL::Routine database
 portability library.
 
-SQL::Routine::SQLBuilder is Copyright (c) 2002-2005, Darren R. Duncan.
+SQL::Routine::SQLBuilder is Copyright (c) 2002-2006, Darren R. Duncan.
 
 See the LICENCE AND COPYRIGHT of L<SQL::Routine::SQLBuilder> for details.
 

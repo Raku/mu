@@ -583,7 +583,7 @@ Darren R. Duncan (C<perl@DarrenDuncan.net>)
 
 This file is part of the SQL::Routine database portability library.
 
-SQL::Routine is Copyright (c) 2002-2005, Darren R. Duncan.  All rights
+SQL::Routine is Copyright (c) 2002-2006, Darren R. Duncan.  All rights
 reserved. Address comments, suggestions, and bug reports to
 C<perl@DarrenDuncan.net>, or visit L<http://www.DarrenDuncan.net/> for more
 information.

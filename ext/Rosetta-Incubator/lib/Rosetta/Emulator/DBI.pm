@@ -95,7 +95,7 @@ Darren R. Duncan (C<perl@DarrenDuncan.net>)
 This file is part of the Rosetta::Emulator::DBI portability enhanced clone
 of the DBI class.
 
-Rosetta::Emulator::DBI is Copyright (c) 2002-2005, Darren R. Duncan.  All
+Rosetta::Emulator::DBI is Copyright (c) 2002-2006, Darren R. Duncan.  All
 rights reserved.  Address comments, suggestions, and bug reports to
 C<perl@DarrenDuncan.net>, or visit L<http://www.DarrenDuncan.net/> for more
 information.

@@ -76,7 +76,7 @@ Darren R. Duncan (C<perl@DarrenDuncan.net>)
 This file is part of the Rosetta::Engine::Native self-contained reference
 implementation of an Engine for the Rosetta database portability library.
 
-Rosetta::Engine::Native is Copyright (c) 2002-2005, Darren R. Duncan.
+Rosetta::Engine::Native is Copyright (c) 2002-2006, Darren R. Duncan.
 
 See the LICENCE AND COPYRIGHT of L<Rosetta::Engine::Native> for details.
 
