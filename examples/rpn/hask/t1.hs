@@ -18,15 +18,10 @@ import Rpn
 -- fst String is rpn expression, snd Int is result of evaluating it.
 type NormalExpected = (String, Int)
 
--- Convert a NormalExpected into a TestCase.
 makeNormalTest :: NormalExpected -> Test
 makeNormalTest e = TestCase ( assertEqual "" (snd e) (Rpn.evaluate (fst e)) )
 
--- Take a list of NormalExpected and return a list of TestCases.
-makeNormalTestList :: [NormalExpected] -> [Test]
-makeNormalTestList = map makeNormalTest
-
-normalTests = TestList ( makeNormalTestList [
+normalTests = TestList ( map makeNormalTest [
     ( "1 -2 -", 3 ),
     ( "1 2 +", 3 ),
     ( "-1 2 +", 1 ),
@@ -73,35 +68,24 @@ normalTests = TestList ( makeNormalTestList [
     ( "42", 42 )
   ])
 
--- Exception wrappers for Rpn.evaluate
--- The idea is that I want to catch calls to the error function
--- and verify that the expected error string was indeed written.
--- (These wrappers are incredibly fragile because I don't have
--- a clue what I'm doing;-).
+-- Exception wrapper for Rpn.evaluate
+-- The idea is to catch calls to the error function and verify
+-- that the expected error string was indeed written.
 evaluateWrap :: String -> IO String
-evaluateWrap x = do let r = Rpn.evaluate x
-                    putStr (show r)       -- fails without this!! why?
-                    return (show r)
-
-evaluateWrap2 :: String -> IO String
-evaluateWrap2 x = do res <- tryJust errorCalls (evaluateWrap x)
-                     case res of
-                       Right r  -> return (show r)
-                       Left  r  -> return r
+evaluateWrap x = do res <- tryJust errorCalls
+                             (Control.Exception.evaluate (Rpn.evaluate x))
+                    case res of
+                      Right r  -> return (show r)
+                      Left  r  -> return r
 
 -- fst is rpn expression, snd is error string produced when evaluating it.
 type ExceptionExpected = (String, String)
 
--- Convert an ExceptionExpected into a TestCase.
 makeExceptionTest :: ExceptionExpected -> Test
-makeExceptionTest e = TestCase ( do x <- evaluateWrap2 (fst e)
+makeExceptionTest e = TestCase ( do x <- evaluateWrap (fst e)
                                     assertEqual "" (snd e) x )
 
--- Take a list of ExceptionExpected and return a list of TestCases.
-makeExceptionTestList :: [ExceptionExpected] -> [Test]
-makeExceptionTestList = map makeExceptionTest
-
-exceptionTests = TestList ( makeExceptionTestList [
+exceptionTests = TestList ( map makeExceptionTest [
     ( "5 4 %",     "Invalid token:\"%\"" ),
     ( "5 +",       "Stack underflow" ),
     ( "+",         "Stack underflow" ),

@@ -32,10 +32,9 @@ calc x ['+'] y   = x+y
 calc x ['-'] y   = x-y
 calc x ['*'] y   = x*y
 calc x ['/'] y   = x`div`y
-calc _ _ _       = error "Internal error: should never happen"
 
-pusher :: [Int] -> String -> [Int]
-pusher xs y
+evalStack :: [Int] -> String -> [Int]
+evalStack xs y
   | isSNum y     = ((read y) :: Int):xs
   | elem y [ "+", "-", "*", "/" ]
                  = case xs of
@@ -43,14 +42,11 @@ pusher xs y
                      otherwise -> error "Stack underflow"
   | otherwise    = error ("Invalid token:" ++ show y)
 
-evalList :: String -> [Int]
-evalList = foldl pusher [] . words
-
 evaluate :: String -> Int
 evaluate expr
   | length el == 1  = head el
   | otherwise       = error ("Invalid stack:" ++ show el)
-    where el = evalList expr
+    where el = foldl evalStack [] (words expr)
 
 -- Example trace line
 --   f (x:y:zs) "+" = trace ("k+" ++ show x ++ ":" ++ show y ++ ":" ++ show zs) (y+x:zs)
