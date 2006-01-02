@@ -733,12 +733,21 @@ will be more Haskell-ish.
 });
 
 ::rArray.add_method('join', -> $sep {
-    # NOTE:
-    # we need to force string context upon
-    # all the elements of the list here, which 
-    # it problematic on this level of the 
-    # runtime since we don't have a notion
-    # of contexts :) 
+    -> @elems, $acc {
+        $redo := &?SUB;
+        @elems`is_empty()`cond(
+            -> { $acc },
+            -> { 
+                $redo`(
+                    @elems`splice(1), 
+                    @elems`length()`eq(1)`cond(
+                        -> { $acc`concat(@elems`fetch(0))              },
+                        -> { $acc`concat(@elems`fetch(0))`concat($sep) }
+                    )
+                );
+            }
+        );
+    }`(self`fetch_list(), '');
 });
 
 ::rArray.add_method('map', -> $func {
@@ -785,6 +794,7 @@ will be more Haskell-ish.
 
 ::rArray.add_method('reverse', -> {
     self`store_list(self`fetch_list()`reverse());
+    self;
 });
 
 # NOTE:
@@ -829,6 +839,22 @@ stolen from docs/quickref/data # probably incomplete
 
 ::Hash.set_roles([ ::rHash ]);
 ::Hash.resolve();
+
+# --------------------------------------------------------------------------- #
+# Pair Container
+# --------------------------------------------------------------------------- #
+# Pair is an immutable object, you must pass in the $!key and $!value 
+# arguments to the constructor, otherwise they will be nil.
+
+::Pair := ::Class.new({});
+::Pair.set_superclasses([ ::Object ]);
+
+::Pair.add_attribute('$!key',   nil);
+::Pair.add_attribute('$!value', nil);
+
+::Pair.add_method('key',   -> { self`get_attr('$!key')   });
+::Pair.add_method('value', -> { self`get_attr('$!value') });
+::Pair.add_method('kv',    -> { self                     });
 
 =pod
 
