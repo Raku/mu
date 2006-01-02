@@ -18,18 +18,18 @@ sub evaluate (Str $expr) returns Int {
         }
         my $x = @stack.pop() err die "Stack underflow\n";
         my $y = @stack.pop() err die "Stack underflow\n";
-        if ($tok eq '+') {
-            @stack.push($y + $x);
-        } elsif ($tok eq '-') {
-            @stack.push($y - $x);
-        } elsif ($tok eq '*') {
-            @stack.push($y * $x);
-        } elsif ($tok eq '/') {
-            @stack.push(int($y / $x));
-        } else {
-            die "Invalid token:\"$tok\"\n";
+
+        # given/when is a sexy new P6 construct that can avoid
+        # long if/elsif/else chains
+        given $tok {
+            when '+' { @stack.push($y + $x) }
+            when '-' { @stack.push($y - $x) }
+            when '*' { @stack.push($y * $x) }
+            when '/' { @stack.push($y / $x) }
+            default { die "Invalid token: \"$tok\"\n" }
         }
     }
+
     @stack.elems == 1 or die "Invalid stack:[@stack[]]\n";
     return @stack[0];
 }
