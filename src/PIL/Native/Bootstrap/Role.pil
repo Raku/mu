@@ -60,6 +60,15 @@
     );     
 });
 
+
+# NOTE:
+# We need to collect conflicts as we collect all the roles,
+# this will allow a role to resolve a conflict in it's subroles.
+# This means we probably should create some kind of "required"
+# list so that we can make sure our consuming class fufills all
+# these requirements. In other words,.. Roles are still pretty 
+# broken :)
+
 ::Role.add_method('collect_all_roles', -> {
     -> $c, $role {
         &recurse := &?SUB;

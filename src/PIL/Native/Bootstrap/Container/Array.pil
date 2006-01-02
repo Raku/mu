@@ -1,0 +1,120 @@
+# --------------------------------------------------------------------------- #
+# Array Container
+# --------------------------------------------------------------------------- #
+
+::Array.set_name('Array');
+::Array.set_version('0.0.1');
+::Array.set_authority('url:pugscode.org');
+
+::Array.set_superclasses([ ::Object ]);
+
+::Array.add_method('FETCH', -> $i     { self`fetch_elem($i)           } );
+::Array.add_method('STORE', -> $i, $x { self`store_elem($i, $x); self } );
+
+# --------------------------------------------------------------------------- #
+# Array Role
+# --------------------------------------------------------------------------- #
+
+::rArray := ::Role.new({});
+::rArray.set_name('Array');
+::rArray.set_version('0.0.1');
+::rArray.set_authority('url:pugscode.org');
+
+::rArray.add_method('elems', -> { 
+    self`fetch_list()`length() 
+});
+
+# List interface (as speced in S29) 
+# NOTE: break this out into List.pil and List role maybe ...
+
+::rArray.add_method('join', -> $sep {
+    -> @elems, $acc {
+        &redo := &?SUB;
+        @elems`is_empty()`cond(
+            -> { $acc },
+            -> { 
+                &redo`(
+                    @elems`splice(1), 
+                    @elems`length()`eq(1)`cond(
+                        -> { $acc`concat(@elems`fetch(0)`as_str()) },
+                        -> { $acc`concat(@elems`fetch(0)`as_str())`concat($sep`as_str()) }
+                    )
+                );
+            }
+        );
+    }`(self`fetch_list(), '');
+});
+
+::rArray.add_method('map', -> &func {
+    $?CLASS`create(
+        -> $elem {
+            &func`($elem)
+        }`do_for(self`fetch_list())
+    );
+});
+
+::rArray.add_method('grep', -> &func {
+    -> @list, @acc {
+        &redo := &?SUB;
+        @list`is_empty()`cond(
+            -> { $?CLASS`create(@acc) },
+            -> {
+                $elem := @list`fetch(0);
+                &func`($elem)`as_bit()`cond(
+                    -> { &redo`(@list`splice(1), @acc`push($elem)) },
+                    -> { &redo`(@list`splice(1), @acc)             }            
+                );
+            }
+        );
+    }`(self`fetch_list(), []);
+});
+
+::rArray.add_method('reverse', -> {
+    self`store_list(self`fetch_list()`reverse());
+    self;
+});
+
+::rArray.add_method('reduce', -> &func {});
+::rArray.add_method('zip',    -> @values {});
+::rArray.add_method('sort',   -> &criterion {});
+
+# Array method (as speced in S29)
+
+::rArray.add_method('pop', -> {
+    $elem := self`fetch_elem(self.elems()`decrement());
+    # this is a ugly kludge for now :-/
+    self`store_list(self`fetch_list()`reverse()`splice(1)`reverse());
+    $elem;    
+});
+
+::rArray.add_method('push', -> $elem {
+    self`store_list(self`fetch_list()`concat([ $elem ]));
+    self;
+});
+
+::rArray.add_method('shift', -> {
+    $elem := self`fetch_elem(0);
+    self`store_list(self`fetch_list()`splice(1));
+    $elem;
+});
+
+::rArray.add_method('unshift', -> $elem {
+    self`store_list([ $elem ]`concat(self`fetch_list()));
+    self;    
+});
+
+::rArray.add_method('delete', -> @indices {});
+::rArray.add_method('exists', -> @indices {});
+::rArray.add_method('splice', -> $offset, $length, @values {});
+
+::rArray.add_method('keys',   -> {});
+::rArray.add_method('values', -> {});
+::rArray.add_method('pairs',  -> {});
+::rArray.add_method('kv',     -> {});
+
+# --------------------------------------------------------------------------- #
+# Bootstrap Array Container to Array Role
+# --------------------------------------------------------------------------- #
+
+::Array.set_roles([ ::rArray ]);
+::Array.resolve();

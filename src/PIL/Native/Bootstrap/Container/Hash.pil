@@ -1,0 +1,36 @@
+# --------------------------------------------------------------------------- #
+# Hash Container
+# --------------------------------------------------------------------------- #
+
+::Hash.set_name('Hash');
+::Hash.set_version('0.0.1');
+::Hash.set_authority('url:pugscode.org');
+
+::Hash.set_superclasses([ ::Object ]);
+
+::Hash.add_method('FETCH', -> $i     { self`fetch_elem($i)           } );
+::Hash.add_method('STORE', -> $i, $x { self`store_elem($i, $x); self } );
+
+# --------------------------------------------------------------------------- #
+# Hash Role
+# --------------------------------------------------------------------------- #
+
+::rHash := ::Role.new({});
+::rHash.set_name('Hash');
+::rHash.set_version('0.0.1');
+::rHash.set_authority('url:pugscode.org');
+
+::rHash.add_method('delete', -> $key {});
+::rHash.add_method('exists', -> $key {});
+
+::rHash.add_method('keys',   -> {});
+::rHash.add_method('values', -> {});
+::rHash.add_method('pairs',  -> {});
+::rHash.add_method('kv',     -> {});
+
+# --------------------------------------------------------------------------- #
+# Bootstrap Hash Container & Hash Role
+# --------------------------------------------------------------------------- #
+
+::Hash.set_roles([ ::rHash ]);
+::Hash.resolve();

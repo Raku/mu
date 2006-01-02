@@ -30,7 +30,7 @@ sub dump_file {
             dump_file(dirname($file) . "/$1");
             next;
         }
-        s/\\/\\\\/g; s/\n/\\n\\\n\\/g; s/\t/\\t/g; s/\r/\\r/g; s/\"/\\"/g;
+        s/\\/\\\\/g; s/\n/\\n/g; s/\t/\\t/g; s/\r/\\r/g; s/\"/\\"/g;
         print OUT $_;
     }
 }

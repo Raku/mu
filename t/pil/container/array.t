@@ -3,6 +3,11 @@
 use v6;
 use Test::PIL::Bootstrap;
 
+pil_is_eq(
+    '::Array.identifier()', 
+    '"Array-0.0.1-url:pugscode.org"', 
+    '... Array has the correct identifier');
+
 pil_is_eq('::Array.has_method("FETCH")', 'true', '... ::Array.has_method(FETCH)');
 pil_is_eq('::Array.has_method("STORE")', 'true', '... ::Array.has_method(STORE)');
 
