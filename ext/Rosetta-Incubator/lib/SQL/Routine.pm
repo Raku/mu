@@ -40,17 +40,11 @@ class SQL::Routine::Document {
 
 submethod BUILD (Hash :@root_nodes? = []) {
 
-    die 'invalid arg'
-        if !@root_nodes.defined;
+    $?SELF!_assert_arg_rt_nd_aoh( 'new', ':@root_nodes?', @root_nodes );
 
     @!all_nodes  = [];
     @!root_nodes = [];
-
     for @root_nodes -> $root_node {
-        die 'invalid arg'
-            if !$root_node.defined or !$root_node.does(Hash)
-                or $root_node.exists('document')
-                or $root_node.exists('parent_node');
         SQL::Routine::Node.new( 'document' => $?SELF, *%{$root_node} );
     }
 
@@ -63,6 +57,28 @@ method export_as_hash () returns Hash {
     return {
         'root_nodes' => [@!root_nodes.map:{ .export_as_hash() }],
     };
+}
+
+###########################################################################
+
+my method _assert_arg_rt_nd_aoh (Str $meth!, Str $arg!, Str @val!) {
+    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+            { 'METH' => $meth, 'ARG' => $arg } )
+        if !@val.defined;
+    for @val -> $val_elem {
+        $?SELF!_die_with_msg( 'LKT_ARG_ARY_ELEM_UNDEF',
+                { 'METH' => $meth, 'ARG' => $arg } )
+            if !$val_elem.defined;
+        $?SELF!_die_with_msg( 'LKT_ARG_ARY_ELEM_NO_HASH',
+                { 'METH' => $meth, 'ARG' => $arg, 'VAL' => $val_elem } )
+            if !$val_elem.does(Hash);
+        for ('document', 'parent_node') -> $k {
+            $?SELF!_die_with_msg(
+                    'SRT_D_ARG_AOH_TO_CONSTR_CH_ND_HAS_KEY_CONFL',
+                    { 'METH' => $meth, 'ARG' => $arg, 'KEY' => $k } )
+                if $val_elem.exists($k);
+        }
+    }
 }
 
 ###########################################################################
@@ -104,24 +120,17 @@ submethod BUILD (
             Hash                   :@child_nodes? = [],
         ) {
 
-    die 'invalid arg'
-        if !$document.defined or !$document.does(SQL::Routine::Document);
-
+    $?SELF!_assert_arg_doc( 'new', ':$document!', $document );
     if ($parent_node.defined) {
-        die 'invalid arg'
-            if !$parent_node.does(SQL::Routine::Node);
+        $?SELF!_assert_arg_node_assume_def(
+            'new', ':$parent_node?', $parent_node );
     }
-
-    die 'invalid arg'
-        if !$node_type.defined or $node_type eq $EMPTY_STR;
-    die 'invalid arg'
-        if !%attributes.defined or %attributes.exists($EMPTY_STR);
-    die 'invalid arg'
-        if !@child_nodes.defined;
+    $?SELF!_assert_arg_str( 'new', ':$node_type!', $node_type );
+    $?SELF!_assert_arg_hash( 'new', ':%attributes?', %attributes );
+    $?SELF!_assert_arg_ch_nd_aoh( 'new', ':@child_nodes?', @child_nodes );
 
     $!document = $document;
     $document!all_nodes.push( $?SELF );
-
     if ($parent_node.defined) {
         $!parent_node = $parent_node;
         $parent_node!child_nodes.push( $?SELF );
@@ -129,16 +138,10 @@ submethod BUILD (
     else {
         $document!root_nodes.push( $?SELF );
     }
-
     $!node_type   = $node_type;
     %!attributes  = %attributes;
     @!child_nodes = [];
-
     for @child_nodes -> $child_node {
-        die 'invalid arg'
-            if !$child_node.defined or !$child_node.does(Hash)
-                or $child_node.exists('document')
-                or $child_node.exists('parent_node');
         $?CLASS.new(
             'document'    => $document,
             'parent_node' => $?SELF,
@@ -157,6 +160,69 @@ method export_as_hash () returns Hash {
         'attributes'  => {%!attributes},
         'child_nodes' => [@!child_nodes.map:{ .export_as_hash() }],
     };
+}
+
+###########################################################################
+
+my method _die_with_msg (Str $msg_key!, Any %msg_vars? is ref = {}) {
+    %msg_vars{'CLASS'} = 'SQL::Routine::Node';
+    die Locale::KeyedText::Message.new(
+        'msg_key' => $msg_key, 'msg_vars' => %msg_vars );
+}
+
+my method _assert_arg_str (Str $meth!, Str $arg!, Str $val!) {
+    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+            { 'METH' => $meth, 'ARG' => $arg } )
+        if !$val.defined;
+    $?SELF!_die_with_msg( 'LKT_ARG_EMP_STR',
+            { 'METH' => $meth, 'ARG' => $arg } )
+        if $val eq $EMPTY_STR;
+}
+
+my method _assert_arg_hash (Str $meth!, Str $arg!, Any %val!) {
+    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+            { 'METH' => $meth, 'ARG' => $arg } )
+        if !%val.defined;
+    $?SELF!_die_with_msg( 'LKT_ARG_HASH_KEY_EMP_STR',
+            { 'METH' => $meth, 'ARG' => $arg } )
+        if %val.exists($EMPTY_STR);
+}
+
+my method _assert_arg_doc (Str $meth!, Str $arg!, $val!) {
+    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+            { 'METH' => $meth, 'ARG' => $arg } )
+        if !$val.defined;
+    $?SELF!_die_with_msg( 'LKT_ARG_NO_EXP_TYPE', { 'METH' => $meth,
+            'ARG' => $arg, 'EXP_TYPE' => 'SQL::Routine::Document',
+            'VAL' => $val } )
+        if !$val.does(SQL::Routine::Document);
+}
+
+my method _assert_arg_node_assume_def (Str $meth!, Str $arg!, $val!) {
+    $?SELF!_die_with_msg( 'LKT_ARG_NO_EXP_TYPE', { 'METH' => $meth,
+            'ARG' => $arg, 'EXP_TYPE' => 'SQL::Routine::Node',
+            'VAL' => $val } )
+        if !$val.does(SQL::Routine::Node);
+}
+
+my method _assert_arg_ch_nd_aoh (Str $meth!, Str $arg!, Str @val!) {
+    $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
+            { 'METH' => $meth, 'ARG' => $arg } )
+        if !@val.defined;
+    for @val -> $val_elem {
+        $?SELF!_die_with_msg( 'LKT_ARG_ARY_ELEM_UNDEF',
+                { 'METH' => $meth, 'ARG' => $arg } )
+            if !$val_elem.defined;
+        $?SELF!_die_with_msg( 'LKT_ARG_ARY_ELEM_NO_HASH',
+                { 'METH' => $meth, 'ARG' => $arg, 'VAL' => $val_elem } )
+            if !$val_elem.does(Hash);
+        for ('document', 'parent_node') -> $k {
+            $?SELF!_die_with_msg(
+                    'SRT_N_ARG_AOH_TO_CONSTR_CH_ND_HAS_KEY_CONFL',
+                    { 'METH' => $meth, 'ARG' => $arg, 'KEY' => $k } )
+                if $val_elem.exists($k);
+        }
+    }
 }
 
 ###########################################################################

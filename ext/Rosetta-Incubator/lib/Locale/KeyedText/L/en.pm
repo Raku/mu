@@ -10,42 +10,66 @@ my Str %TEXT_STRINGS is readonly = (
 
     'LKT_ARG_UNDEF'
         => q[<CLASS>.<METH>(): argument <ARG> is undefined (or missing).],
-
-    'LKT_ARG_EMP_STR'
-        => q[<CLASS>.<METH>(): argument <ARG> is an empty string.],
-
     'LKT_ARG_NO_ARY'
         => q[<CLASS>.<METH>(): argument <ARG> is not an Array ref,]
            ~ q[ but rather contains '<VAL>'.],
-    'LKT_ARG_ARY_NO_ELEMS'
-        => q[<CLASS>.<METH>(): argument <ARG> is an Array ref as expected,]
-           ~ q[ but it has no elements.],
-    'LKT_ARG_ARY_ELEM_UNDEF'
-        => q[<CLASS>.<METH>(): argument <ARG> is an Array ref as expected,]
-           ~ q[ but one of its elements is undefined.],
-    'LKT_ARG_ARY_ELEM_EMP_STR'
-        => q[<CLASS>.<METH>(): argument <ARG> is an Array ref as expected,]
-           ~ q[ but one of its elements is an empty string.],
-
     'LKT_ARG_NO_HASH'
         => q[<CLASS>.<METH>(): argument <ARG> is not a Hash ref,]
            ~ q[ but rather contains '<VAL>'.],
-    'LKT_ARG_HASH_NO_ELEMS'
-        => q[<CLASS>.<METH>(): argument <ARG> is a Hash ref as expected,]
-           ~ q[ but it has no elements.],
-    'LKT_ARG_HASH_KEY_EMP_STR'
-        => q[<CLASS>.<METH>(): argument <ARG> is a Hash ref as expected,]
-           ~ q[ but one of its keys is an empty string.],
-    'LKT_ARG_HASH_VAL_UNDEF'
-        => q[<CLASS>.<METH>(): argument <ARG> is a Hash ref as expected,]
-           ~ q[ but the value for its '<KEY>' key is undefined.],
-    'LKT_ARG_HASH_VAL_EMP_STR'
-        => q[<CLASS>.<METH>(): argument <ARG> is a Hash ref as expected,]
-           ~ q[ but the value for its '<KEY>' key is an empty string.],
-
     'LKT_ARG_NO_EXP_TYPE'
         => q[<CLASS>.<METH>(): argument <ARG> is not a <EXP_TYPE>,]
            ~ q[ but rather contains '<VAL>'.],
+
+    'LKT_ARG_ARY_ELEM_UNDEF'
+        => q[<CLASS>.<METH>(): argument <ARG> is an Array ref as expected,]
+           ~ q[ but one of its elements is undefined.],
+    'LKT_ARG_ARY_ELEM_NO_ARY'
+        => q[<CLASS>.<METH>(): argument <ARG> is an Array ref as expected,]
+           ~ q[ but one of its elements is not an Array ref,]
+           ~ q[ but rather contains '<VAL>'.],
+    'LKT_ARG_ARY_ELEM_NO_HASH'
+        => q[<CLASS>.<METH>(): argument <ARG> is an Array ref as expected,]
+           ~ q[ but one of its elements is not a Hash ref,]
+           ~ q[ but rather contains '<VAL>'.],
+    'LKT_ARG_ARY_ELEM_NO_EXP_TYPE'
+        => q[<CLASS>.<METH>(): argument <ARG> is an Array ref as expected,]
+           ~ q[ but one of its elements is not a <EXP_TYPE>,]
+           ~ q[ but rather contains '<VAL>'.],
+
+    'LKT_ARG_HASH_VAL_UNDEF'
+        => q[<CLASS>.<METH>(): argument <ARG> is a Hash ref as expected,]
+           ~ q[ but the value for its '<KEY>' key is undefined.],
+    'LKT_ARG_HASH_VAL_NO_ARY'
+        => q[<CLASS>.<METH>(): argument <ARG> is a Hash ref as expected,]
+           ~ q[ but the value for its '<KEY>' key is not an Array ref,]
+           ~ q[ but rather contains '<VAL>'.],
+    'LKT_ARG_HASH_VAL_NO_HASH'
+        => q[<CLASS>.<METH>(): argument <ARG> is a Hash ref as expected,]
+           ~ q[ but the value for its '<KEY>' key is not a Hash ref,]
+           ~ q[ but rather contains '<VAL>'.],
+    'LKT_ARG_HASH_VAL_NO_EXP_TYPE'
+        => q[<CLASS>.<METH>(): argument <ARG> is a Hash ref as expected,]
+           ~ q[ but the value for its '<KEY>' key is not a <EXP_TYPE>,]
+           ~ q[ but rather contains '<VAL>'.],
+
+    'LKT_ARG_ARY_NO_ELEMS'
+        => q[<CLASS>.<METH>(): argument <ARG> is an Array ref as expected,]
+           ~ q[ but it has no elements.],
+    'LKT_ARG_HASH_NO_ELEMS'
+        => q[<CLASS>.<METH>(): argument <ARG> is a Hash ref as expected,]
+           ~ q[ but it has no elements.],
+
+    'LKT_ARG_EMP_STR'
+        => q[<CLASS>.<METH>(): argument <ARG> is an empty string.],
+    'LKT_ARG_ARY_ELEM_EMP_STR'
+        => q[<CLASS>.<METH>(): argument <ARG> is an Array ref as expected,]
+           ~ q[ but one of its elements is an empty string.],
+    'LKT_ARG_HASH_KEY_EMP_STR'
+        => q[<CLASS>.<METH>(): argument <ARG> is a Hash ref as expected,]
+           ~ q[ but one of its keys is an empty string.],
+    'LKT_ARG_HASH_VAL_EMP_STR'
+        => q[<CLASS>.<METH>(): argument <ARG> is a Hash ref as expected,]
+           ~ q[ but the value for its '<KEY>' key is an empty string.],
 
     # This group of strings is specific to Locale::KeyedText itself:
 
