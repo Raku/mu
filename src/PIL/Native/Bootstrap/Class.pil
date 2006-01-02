@@ -1,0 +1,266 @@
+## ------------------------------------------------------------------------- ##
+## Class
+## ------------------------------------------------------------------------- ##
+## We assume that ::Class and ::Class.add_method are already defined
+## ------------------------------------------------------------------------- ##
+
+## class construction methods
+
+::Class.add_method('new', -> %params { 
+    self.bless(nil, %params);
+});
+
+# S12 NOTE:
+# According to the new S12, I think that "create" should not
+# assign anything to the class slot. Instead &bless should handle
+# this. In addition, &bless should only call &CREATE if $repr is
+# an undefined value, otherwise it should call &BUILDALL on the 
+# value assigned to $repr (after setting it's class slot that is)
+# Of course this means that we need to be able to store the class
+# value into other possible $reprs. I will need to give this some
+# more thought.
+
+::Class.add_method('bless', -> $repr, %params { 
+    $obj := self.CREATE($repr, %params);
+    $obj.BUILDALL(%params); 
+    $obj;     
+});
+
+# S12 NOTE:
+# It is said that CREATE should be able to take a number of 
+# different $repr types. It is unclear /why/ this is a good
+# idea (I should ask on p6l). In general any $repr type will 
+# need to be able to respond to some kind of keyed attribute 
+# accessing method so that attribute access code can be
+# kept simple. 
+
+::Class.add_method('CREATE', -> $repr, %params {
+    $obj := self`create({});
+    &dispatcher := self.dispatcher('descendant');
+    -> {
+        &redo  := &?SUB;
+        $class := &WALKCLASS`(&dispatcher);
+        -> {
+            -> $key {
+                $obj`set_attr($key, $class.get_attribute($key));
+            }`do_for($class.get_attribute_list);
+            &redo`();
+        }`do_if($class`not_nil);
+    }`();
+    $obj;
+});
+
+::Class.add_method('BUILDALL', -> %params {
+    &dispatcher := $?CLASS.dispatcher('descendant');
+    -> {
+        &redo   := &?SUB;
+        $method := &WALKMETH`(&dispatcher, 'BUILD');
+        -> {
+            $method`(%params);
+            &redo`();
+        }`do_if($method`not_nil);
+    }`();
+});
+
+::Class.add_method('BUILD', -> %params {
+    -> $key {
+        -> {
+            self`set_attr($key, %params`fetch($key));
+        }`do_if(self`has_attr($key))
+    }`do_for(%params`keys);
+});
+
+## class destruction
+
+::Class.add_method('DESTROYALL', -> { 
+    &dispatcher := $?CLASS.dispatcher('ascendant');
+    -> {
+        &redo   := &?SUB;
+        $method := &WALKMETH`(&dispatcher, 'DESTROY');
+        -> {
+            $method`($self);
+            &redo`();
+        }`do_if($method`not_nil);
+    }`();
+});
+
+## informational methods
+
+# NOTE:
+# is_a is meant to check against class instances 
+::Class.add_method('is_a', -> $class { 
+    self`eq($class)`cond(
+        -> { true },
+        -> {
+            &dispatcher := self.dispatcher('descendant');
+            -> {
+                &redo     := &?SUB;
+                $ancestor := &WALKCLASS`(&dispatcher);      
+                -> {
+                    $ancestor`eq($class)`cond(
+                        -> { true     },
+                        -> { &redo`() }
+                    );
+                }`do_if($ancestor`not_nil)
+            }`();
+        }
+    );
+});
+
+# NOTE:
+# isa is meant to check against class names
+::Class.add_method('isa', -> $class {
+    self.name`eq($class)`cond(
+        -> { true },
+        -> {
+            &dispatcher := self.dispatcher('descendant');            
+            -> {
+                &redo     := &?SUB;
+                $ancestor := &WALKCLASS`(&dispatcher);                        
+                -> {
+                    $ancestor.name`eq($class)`cond(
+                        -> { true     },
+                        -> { &redo`() }
+                    );
+                }`do_if($ancestor`not_nil)
+            }`();
+        }
+    );    
+});
+
+## (super|sub)classes
+
+::Class.add_method('superclasses', -> { self`get_attr('@!superclasses') });
+::Class.add_method('set_superclasses', -> @superclasses { 
+    -> $super { 
+        $super.add_subclass(self); 
+    }`do_for(@superclasses);
+    self`set_attr('@!superclasses', @superclasses);
+    self`set_attr('@!MRO', self`mro_merge);    
+});
+
+::Class.add_method('MRO', -> {
+    @mro := self`get_attr('@!MRO');
+    @mro`is_empty`cond(
+        ->{ self`set_attr('@!MRO', self`mro_merge) },
+        ->{ @mro }
+    );
+});
+
+::Class.add_method('subclasses',   ->        { self`get_attr('@!subclasses') });
+::Class.add_method('add_subclass', -> $class { 
+    self`set_attr('@!subclasses', self`get_attr('@!subclasses')`push($class));
+});
+
+## method related methods
+
+::Class.add_method('has_method', -> $name { 
+    self`get_attr('%!methods')`exists($name);
+});
+
+::Class.add_method('get_method', -> $name { 
+    self`get_attr('%!methods')`fetch($name); 
+});
+
+::Class.add_method('get_method_list', -> { 
+    self`get_attr('%!methods')`keys(); 
+});
+
+::Class.add_method('remove_method', -> $name { 
+    self`set_attr('%!methods', self`get_attr('%!methods')`delete($name));
+});
+
+## private-method related methods
+
+::Class.add_method('add_private_method', -> $name, $method { 
+    self`set_attr_hash('%!private_methods', $name, $method);
+});
+
+::Class.add_method('has_private_method', -> $name { 
+    self`get_attr('%!private_methods')`exists($name);
+});
+
+::Class.add_method('get_private_method', -> $name { 
+    self`get_attr('%!private_methods')`fetch($name); 
+});
+
+::Class.add_method('get_private_method_list', -> { 
+    self`get_attr('%!private_methods')`keys(); 
+});
+
+::Class.add_method('remove_private_method', -> $name { 
+    self`set_attr('%!private_methods', self`get_attr('%!private_methods')`delete($name)); 
+});
+
+## Method dispatching
+
+::Class.add_method('dispatcher', -> $order {
+    $order := $order`is_nil`or($order`eq('canonical'))`cond(
+        ->{ 'ascendant' }, 
+        ->{ $order      }
+    );
+    $order`eq('descendant')`cond(
+        ->{ self!make_descendant_dispatcher; },
+        ->{ $order`eq('ascendant')`cond(
+            ->{ self!make_ascent_dispatcher;             },
+            ->{ self!unsupported_dispatch_order($order); }
+        ) }
+    );
+});
+
+::Class.add_private_method('make_dispatcher_iterator', -> @values {
+    $counter := ::`create({'' => 0});
+    -> {
+        $idx := $counter`get_attr('');
+        $counter`set_attr('', $idx`add(1));
+        @values`fetch($idx);
+    };
+});
+
+::Class.add_private_method('make_ascent_dispatcher', -> {
+    self!make_dispatcher_iterator(self.MRO);
+});
+
+::Class.add_private_method('make_descendant_dispatcher', -> {
+    self!make_dispatcher_iterator(self.MRO`reverse);
+});
+
+
+## attribute related methods
+
+::Class.add_method('add_attribute', -> $name, $attr { 
+    self`set_attr_hash('%!attributes', $name, $attr);
+});
+
+::Class.add_method('has_attribute', -> $name { 
+    self`get_attr('%!attributes')`exists($name);
+});
+
+::Class.add_method('get_attribute', -> $name { 
+    self`get_attr('%!attributes')`fetch($name); 
+});
+
+::Class.add_method('remove_attribute', -> $name { 
+    self`set_attr('%!attributes', self`get_attr('%!attributes')`delete($name)); 
+});
+
+::Class.add_method('get_attribute_list', -> { 
+    self`get_attr('%!attributes')`keys(); 
+});
+
+::Class.add_method('get_attributes', -> { 
+    self`get_attr('%!attributes')`values(); 
+});
+
+## NOTE:
+## we assume that when ::Class was defined, that it's attributes
+## were also defined, but only in the Instance type, and not in 
+## it's meta-self
+
+::Class.add_attribute('@!MRO',             []);
+::Class.add_attribute('@!superclasses',    []);
+::Class.add_attribute('@!subclasses',      []);
+::Class.add_attribute('%!private_methods', {});
+::Class.add_attribute('%!methods',         {});
+::Class.add_attribute('%!attributes',      {});
+

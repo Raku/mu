@@ -1,0 +1,19 @@
+## ------------------------------------------------------------------------- ##
+## Class and Method iterators
+## ------------------------------------------------------------------------- ##
+
+&WALKCLASS := -> &dispatcher         { &dispatcher`() };
+&WALKMETH  := -> &dispatcher, $label {
+    -> { 
+        &redo  := &?SUB;
+        $class := &WALKCLASS`(&dispatcher);
+        -> { 
+            $method := $class.get_method($label);
+            $method`is_nil`cond(
+                -> { &redo`() },
+                -> { $method  } 
+            );
+        }`do_if($class`not_nil);
+    }`();
+};
+

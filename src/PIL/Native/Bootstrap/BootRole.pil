@@ -1,0 +1,36 @@
+## ------------------------------------------------------------------------- ##
+## Role Bootstrapping
+## ------------------------------------------------------------------------- ##
+
+# NOTE:
+# we have to manually resolve ::Class's roles (::Role)
+# this means we take all the attributes and methods
+# from ::Role, which ::Class does not already have 
+# and insert them into ::Class
+
+# attributes ...
+::Class.add_attribute('@!roles', []);
+
+# methods ...
+::Class.add_method('roles',             ::Role.get_method('roles'));
+::Class.add_method('set_roles',         ::Role.get_method('set_roles'));
+::Class.add_method('does',              ::Role.get_method('does'));
+::Class.add_method('collect_all_roles', ::Role.get_method('collect_all_roles'));
+::Class.add_method('resolve',           ::Role.get_method('resolve'));
+
+# Class does Role
+::Class`set_attr('@!roles', [ ::Role ]);
+
+# Role does Role
+::Role`set_attr('@!roles',  [ ::Role ]);
+
+# make sure to add the @!roles attribute to these
+# since they should have inherited from ::Class
+-> $class {
+    $class`set_attr('@!roles', []); 
+    $class.add_attribute('@!roles', []);     
+}`do_for([ ::Object, ::Module, ::Package ]);
+
+## end Role bootstrapping ...
+## ------------------------------------------------------------------------- ##
+

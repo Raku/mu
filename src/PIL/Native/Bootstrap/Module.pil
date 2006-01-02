@@ -1,0 +1,32 @@
+## ------------------------------------------------------------------------- ##
+## Module
+## ------------------------------------------------------------------------- ##
+
+::Module := ::Class.new({});
+::Module.set_superclasses([ ::Package ]);
+
+::Module.add_attribute('$!version',   '');
+::Module.add_attribute('$!authority', '');
+
+::Module.add_method('version',     -> { self`get_attr('$!version') });
+::Module.add_method('set_version', -> $version {
+    -> { self`set_attr('$!version', $version) }`do_if($version`not_nil);
+});
+
+::Module.add_method('authority',     -> { self`get_attr('$!authority') });
+::Module.add_method('set_authority', -> $authority {
+    -> { self`set_attr('$!authority', $authority) }`do_if($authority`not_nil);
+});
+
+::Module.add_method('identifier', -> {
+    $output := self`get_attr('$!name');
+    $output := self`get_attr('$!version')`not_nil`cond(
+        -> { $output`concat('-')`concat(self`get_attr('$!version')) },
+        -> { $output }
+    );
+    $output := self`get_attr('$!authority')`not_nil`cond(
+        -> { $output`concat('-')`concat(self`get_attr('$!authority')) },
+        -> { $output }
+    ); 
+    $output;
+});

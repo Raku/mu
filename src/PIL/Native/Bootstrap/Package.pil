@@ -1,0 +1,28 @@
+## ------------------------------------------------------------------------- ##
+## Package
+## ------------------------------------------------------------------------- ##
+
+::Package := ::Class.new({});
+::Package.set_superclasses([ ::Object ]);
+
+::Package.add_attribute('$!name',      '');
+::Package.add_attribute('%!namespace', {});
+
+::Package.add_method('name',     -> { self`get_attr('$!name') });
+::Package.add_method('set_name', -> $name {
+    -> { self`set_attr('$!name', $name) }`do_if($name`not_nil);    
+});
+
+# See http://article.gmane.org/gmane.comp.lang.perl.perl6.language/4956 for
+# disucssion on how Packages work, in particular the FETCH('{}') part.
+
+::Package.add_method('FETCH', -> $label { 
+    $label`eq('{}')`cond(
+        -> { self`get_attr('%!namespace')                },
+        -> { self`get_attr('%!namespace').fetch($label); }
+    );
+});
+
+::Package.add_method('STORE', -> $label, $value { 
+    self`set_attr_hash('%!namespace', $label, $value);
+});

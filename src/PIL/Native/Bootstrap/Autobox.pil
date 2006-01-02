@@ -1,0 +1,13 @@
+## ------------------------------------------------------------------------- ##
+## Autoboxing
+## ------------------------------------------------------------------------- ##
+
+::Int.set_superclasses([ ::Object ]);  # this uses Haskell Integer now ...
+
+::Bit.set_superclasses([ ::Object ]);
+::Num.set_superclasses([ ::Object ]);
+::Str.set_superclasses([ ::Object ]);
+::Seq.set_superclasses([ ::Object ]);
+::Map.set_superclasses([ ::Object ]);
+::Sub.set_superclasses([ ::Object ]);
+
