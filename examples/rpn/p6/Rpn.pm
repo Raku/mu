@@ -25,8 +25,8 @@ sub evaluate (Str $expr) returns Int {
             when '+' { @stack.push($y + $x) }
             when '-' { @stack.push($y - $x) }
             when '*' { @stack.push($y * $x) }
-            when '/' { @stack.push($y / $x) }
-            default { die "Invalid token: \"$tok\"\n" }
+            when '/' { @stack.push(int($y / $x)) }
+            default  { die "Invalid token:\"$tok\"\n" }
         }
     }
 
