@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts -Wall #-}
 
 -- t1.hs
 -- build with: ghc --make -o t1 t1.hs Rpn.hs
@@ -21,6 +21,7 @@ type NormalExpected = (String, Int)
 makeNormalTest :: NormalExpected -> Test
 makeNormalTest e = TestCase ( assertEqual "" (snd e) (Rpn.evaluate (fst e)) )
 
+normalTests :: Test
 normalTests = TestList ( map makeNormalTest [
     ( "1 -2 -", 3 ),
     ( "1 2 +", 3 ),
@@ -85,6 +86,7 @@ makeExceptionTest :: ExceptionExpected -> Test
 makeExceptionTest e = TestCase ( do x <- evaluateWrap (fst e)
                                     assertEqual "" (snd e) x )
 
+exceptionTests :: Test
 exceptionTests = TestList ( map makeExceptionTest [
     ( "5 4 %",     "Invalid token:\"%\"" ),
     ( "5 +",       "Stack underflow" ),
@@ -93,5 +95,6 @@ exceptionTests = TestList ( map makeExceptionTest [
     ( "",          "Invalid stack:[]" )
   ])
 
+main :: IO Counts
 main = do runTestTT normalTests
           runTestTT exceptionTests
