@@ -81,4 +81,24 @@ pil_is_eq($prelude ~
     '[1, "a", 2, "b", 3, "c"]',
     '... @a.zip(::Array`create([ "a", "b", "c" ])) == [1, "a", 2, "b", 3, "c"]');     
  
+pil_is_eq($prelude ~
+    '@a.keys()`fetch_list()',
+    '[0, 1, 2]',
+    '... @a.keys() == [0, 1, 2]'); 
+    
+pil_is_eq($prelude ~
+    '@a.values()`fetch_list()',
+    '[1, 2, 3]',
+    '... @a.keys() == [1, 2, 3]'); 
+    
+pil_is_eq($prelude ~
+    '@a.kv().map(-> $x { $x`fetch_list() })`fetch_list()',
+    '[[0, 1], [1, 2], [2, 3]]',
+    '... @a.kv() == [[0, 1], [1, 2], [2, 3]]');    
+    
+pil_is_eq($prelude ~
+    '@a.pairs().map(-> $x { [ $x.key(), $x.value() ] })`fetch_list()',
+    '[[0, 1], [1, 2], [2, 3]]',
+    '... @a.pairs() == [(0 => 1), (1 => 2), (2 => 3)]');          
+          
             

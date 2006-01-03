@@ -125,10 +125,54 @@
 ::rArray.add_method('exists', -> @indices {});
 ::rArray.add_method('splice', -> $offset, $length, @values {});
 
-::rArray.add_method('keys',   -> {});
-::rArray.add_method('values', -> {});
-::rArray.add_method('pairs',  -> {});
-::rArray.add_method('kv',     -> {});
+::rArray.add_method('keys', -> {
+    -> @list, @acc {
+        &redo := &?SUB;
+        @list`is_empty()`cond(
+            -> { $?CLASS`create(@acc) },
+            -> { &redo`(@list`splice(1), @acc`push(@acc`length())) }
+        );
+    }`(self`fetch_list(), []);
+});
+
+::rArray.add_method('values', -> { self });
+
+::rArray.add_method('pairs', -> {
+    -> @list, @acc {
+        &redo := &?SUB;
+        @list`is_empty()`cond(
+            -> { $?CLASS`create(@acc) },
+            -> { 
+                &redo`(
+                    @list`splice(1), 
+                    @acc`push(::Pair.new({ 
+                            'k' => @acc`length(), 
+                            'v' => @list`fetch(0) 
+                        })
+                    )
+                ) 
+            }
+        );
+    }`(self`fetch_list(), []);
+});
+
+::rArray.add_method('kv', -> {
+    -> @list, @acc {
+        &redo := &?SUB;
+        @list`is_empty()`cond(
+            -> { $?CLASS`create(@acc) },
+            -> { 
+                &redo`(
+                    @list`splice(1), 
+                    @acc`push(::Array`create([ 
+                        @acc`length(), 
+                        @list`fetch(0) 
+                    ]))
+                ) 
+            }
+        );
+    }`(self`fetch_list(), []);
+});
 
 # --------------------------------------------------------------------------- #
 # Bootstrap Array Container to Array Role
