@@ -14,7 +14,7 @@ pil_is_eq('::Array.has_method("STORE")', 'true', '... ::Array.has_method(STORE)'
 pil_is_eq('::Array.does("Array")', 'true', '... ::Array.does(Array)');
 
 for (qw(
-    elems join map grep pop push shift unshift reverse sort kv
+    elems join map grep reduce zip pop push shift unshift reverse sort keys values kv
     )) -> $method_name {
     pil_is_eq(
         '::Array.has_method("' ~ $method_name ~ '")', 
@@ -69,4 +69,16 @@ pil_is_eq($prelude ~
 pil_is_eq($prelude ~
     '@a.grep(-> $x { $x`le(2) })`fetch_list()',
     '[1, 2]',
-    '... @a.grep(-> $x { $x <= 2 }) == [1, 2]');          
+    '... @a.grep(-> $x { $x <= 2 }) == [1, 2]');  
+    
+pil_is_eq($prelude ~
+    '@a.reduce(-> $x, $y { $x`add($y) })',
+    '6',
+    '... @a.reduce(-> $x, $y { $x`add($y) }) == 6');     
+    
+pil_is_eq($prelude ~
+    '@a.zip(::Array`create([ "a", "b", "c" ]))`fetch_list()',
+    '[1, "a", 2, "b", 3, "c"]',
+    '... @a.zip(::Array`create([ "a", "b", "c" ])) == [1, "a", 2, "b", 3, "c"]');     
+ 
+            

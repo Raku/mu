@@ -74,8 +74,26 @@
     self;
 });
 
-::rArray.add_method('reduce', -> &func {});
-::rArray.add_method('zip',    -> @values {});
+::rArray.add_method('reduce', -> &func {
+    -> @list, $acc {
+        &redo := &?SUB;
+        @list`is_empty()`cond(
+            -> { $acc },
+            -> { &redo`(@list`splice(1), &func`($acc, @list`fetch(0))) }
+        );        
+    }`(self`fetch_list()`splice(1), self`fetch_elem(0));
+});
+
+::rArray.add_method('zip', -> @values {
+    -> @l, @r, @acc {
+        &redo := &?SUB;
+        @l`is_empty()`cond(
+            -> { $?CLASS`create(@acc) },
+            -> { &redo`(@l`splice(1), @r`splice(1), @acc`concat([ @l`fetch(0), @r`fetch(0) ])) }
+        );
+    }`(self`fetch_list(), @values`fetch_list(), []);
+});
+
 ::rArray.add_method('sort',   -> &criterion {});
 
 # Array method (as speced in S29)
