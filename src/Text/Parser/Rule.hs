@@ -3,8 +3,8 @@ module Text.Parser.Rule (
     module Text.Parser.Rule,
     module Text.Parser.PArrow,
 ) where
-import Prelude hiding (lookup, null, drop, span, break, head, tail, splitAt, take, length)
-import qualified Prelude (length)
+import Prelude hiding (lookup, null, drop, span, break, head, tail, init, last, splitAt, take, length)
+import qualified Prelude (head, tail, init, last, length)
 import Text.Parser.OpTable
 import Text.Parser.PArrow
 import Text.Parser.PArrow.MD (MD(..), Label(..), label, Monoid(..))
@@ -490,6 +490,7 @@ ruleTable = mkOpTable
             let cur = idx post
                 pre = take (cur - idx str - 2) str
             return (pre, post)
+    doScanEnum, doScanVerbatim:: Str -> Maybe (Str)
     doScanEnum str
         | null str = fail "No closing ']>' for charlist"
         | head str == '\\' = doScanEnum (drop 2 str)
@@ -507,8 +508,8 @@ ruleTable = mkOpTable
             _   -> fail "Unescaped \"'\" in charlist"
         | otherwise = doScanVerbatim (tail str)
 {-
-            -- scan :: Input -> enumList -> enumList
-            -- scan :: Str -> [Char] -> ( [Char], Str )
+            -- scan :: inputString -> enumList -> ( enumList, remainingInput )
+            scan :: [Char] -> [Char] -> ( [Char], [Char] )
             -- endClass
             scan (']':'>':xs) lst = ( lst , xs )
             -- errBracket
@@ -516,21 +517,21 @@ ruleTable = mkOpTable
             -- errHyphen
             scan ('-':xs)  _      = error "Unescaped '-' in charlist"
             -- backslash 
-            scan ('\\':'n':xs) lst = scan xs (lst ++ [ '\n' ])
-            scan ('\\':'r':xs) lst = scan xs (lst ++ [ '\r' ])
-            scan ('\\':'t':xs) lst = scan xs (lst ++ [ '\t' ])
-            scan ('\\':'f':xs) lst = scan xs (lst ++ [ '\f' ])
-            scan ('\\':'a':xs) lst = scan xs (lst ++ [ '\a' ])
+            scan ('\\':'n':xs) lst = scan xs (lst ++ "\n")
+            scan ('\\':'r':xs) lst = scan xs (lst ++ "\r")
+            scan ('\\':'t':xs) lst = scan xs (lst ++ "\t")
+            scan ('\\':'f':xs) lst = scan xs (lst ++ "\f")
+            scan ('\\':'a':xs) lst = scan xs (lst ++ "\a")
             -- \e is not a valid escape char in haskell
-            scan ('\\':'e':xs) lst = scan xs (lst ++ [ '\a' ])
-            scan ('\\':'0':xs) lst = scan xs (lst ++ [ '\0' ])
+            scan ('\\':'e':xs) lst = scan xs (lst ++ "\a")
+            scan ('\\':'0':xs) lst = scan xs (lst ++ "\0")
             -- user escaped a character that doesn't need escaping
-            scan ('\\':xs)  lst = scan xs lst
+            scan ('\\':xs)     lst = scan xs lst
             -- dotRange
             scan ('.':'.':xs)  lst = ( (Prelude.init lst) ++ [ (Prelude.last lst) .. (Prelude.head lst2) ] ++ (Prelude.tail lst2), rest ) 
                 where (lst2, rest) = scan xs []
             -- errClose
-            scan ""         _   = error "No closing ']>' for charlist"
+            scan ""            _   = error "No closing ']>' for charlist"
             -- addChar
             scan (x:xs)     lst = scan xs (lst ++ [x]) 
 -}
@@ -561,8 +562,6 @@ ruleTable = mkOpTable
     _Term "\\n" _ _  = mk TermShortcut CS_Newline
     _Term "\\N" _ _  = mk TermShortcut (CS_Negated CS_Newline)
     _Term "<commit>" _ _ = mk TermCommit
-    -- _Term "<["  _ _  = mk TermEnum EnumChars
-    -- _Term "<-["  _ _  = mk TermEnum EnumComplement
     _Term x     _ _  = error x
     _Quant :: String -> DynMkMatch Rule
     _Quant "*" _ [x] = mk $ Quant (mk x) 0 QuantInf     Greedy

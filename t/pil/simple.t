@@ -23,7 +23,23 @@ pil_is_eq(q:to/CODE/
 CODE,
 q:to/RESULT/
 3628800
-RESULT);
+RESULT, "Audrey's Factorial");
+
+pil_is_eq(q:to/CODE/
+(-> $n {
+    (-> &fact {
+        &fact`(&fact, $n)
+    })`(-> &f, $x {
+            $x`eq(0)`cond(
+                -> { 1 },
+                -> { $x`multiply( &f`(&f, $x`subtract(1)) ) }
+            )
+       });
+})`(10);
+CODE,
+q:to/RESULT/
+3628800
+RESULT, "Stevan's Factorial" );
 
 pil_is_eq(q:to/CODE/
 1`add(1);
