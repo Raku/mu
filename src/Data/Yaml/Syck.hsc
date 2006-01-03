@@ -1,25 +1,33 @@
 {-# OPTIONS_GHC -fglasgow-exts -fvia-C #-}
 #include "../../syck/syck.h"
+#include "../../cbits/fpstring.h"
 
 module Data.Yaml.Syck (
-    parseYaml,
+    parseYaml, emitYaml,
     YamlNode(..),
 ) where
 
 import Control.Exception (bracket)
 import Data.IORef
+import Data.Word                (Word8)
+import qualified Data.FastPackedString as P
 import Foreign.Ptr
 import Foreign.StablePtr
+import Foreign.ForeignPtr
 import Foreign.C.Types
 import Foreign.C.String
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Utils
 import Foreign.Storable
 
+import Debug.Trace
+import Control.Monad.Trans
+
 data YamlNode
     = YamlMap [(YamlNode, YamlNode)]
     | YamlSeq [YamlNode]
     | YamlStr String
+    | YamlNil
     deriving (Show, Ord, Eq)
 
 type SYMID = CULong
@@ -28,8 +36,71 @@ type SyckParser = Ptr ()
 type SyckNodeHandler = SyckParser -> SyckNode -> IO SYMID
 type SyckErrorHandler = SyckParser -> CString -> IO ()
 type SyckNodePtr = Ptr CString
-data SyckKind = SyckMap | SyckSeq | SyckStr
+type FSPtr = Ptr CString
+type SyckEmitter = Ptr ()  
+type SyckEmitterHandler = SyckEmitter -> Ptr () -> IO ()
+type SyckOutputHandler = SyckEmitter -> CString -> CLong -> IO ()
+data SyckKind = SyckMap | SyckSeq | SyckStr | SyckNil
     deriving (Show, Ord, Eq, Enum)
+
+-- the extra comma here is not a bug
+#enum CInt, , scalar_none, scalar_1quote, scalar_2quote, scalar_fold, scalar_literal, scalar_plain
+
+#def typedef struct _EmitterExtras { char * ps; int l; } EmitterExtras;
+type EmitterExtras = Ptr ()
+
+emitYaml :: YamlNode -> IO (Either String String)
+emitYaml node = do
+    alloca $ \(emitterExtras :: Ptr EmitterExtras) -> do
+        bracket syck_new_emitter syck_free_emitter $ \emitter -> do
+            -- set up output port
+            let out = P.empty
+                (outps, _, l) = P.toForeignPtr out
+            outpsF <- freezeFS outps
+            #{poke EmitterExtras, ps}  emitterExtras outpsF
+            #{poke EmitterExtras, l}   emitterExtras l
+            #{poke SyckEmitter, bonus} emitter       emitterExtras
+            syck_output_handler emitter =<< mkOutputCallback outputCallback
+            syck_emitter_handler emitter =<< mkEmitterCallback emitterCallback
+            nodePtr <- freezeNode node
+            let nodePtr' = fromIntegral $ nodePtr `minusPtr` nullPtr
+            trace ("node: " ++ (show node) ++ " nodePtr': " ++ (show nodePtr')) $ return ()
+            syck_emit emitter nodePtr'
+            syck_emitter_flush emitter 0
+            return . Right $ P.unpack out -- TODO: handle Left
+
+outputCallback :: SyckEmitter -> CString -> CLong -> IO ()
+outputCallback emitter buf len = do
+    bonus <- #{peek SyckEmitter, bonus} emitter
+    fp    <- readFS =<< #{peek EmitterExtras, ps}  bonus
+    l     <- #{peek EmitterExtras, l}   bonus
+    let fps = P.fromForeignPtr fp l
+    let new = P.packCStringLen (buf, fromIntegral len)
+    let (catPS, _, catL) = P.toForeignPtr $ P.append fps new
+    catPSF <- freezeFS catPS
+    #{poke EmitterExtras, ps} bonus catPSF
+    #{poke EmitterExtras, l}  bonus catL
+    return ()
+
+freezeFS :: ForeignPtr Word8 -> IO FSPtr
+freezeFS ps = do
+    ptr     <- newStablePtr ps
+    new (castPtr $ castStablePtrToPtr ptr)
+
+readFS :: FSPtr -> IO (ForeignPtr Word8)
+readFS fs = do
+    ptr     <- peek . castPtr =<< peek fs
+    deRefStablePtr (castPtrToStablePtr ptr)
+
+emitterCallback :: SyckEmitter -> Ptr () -> IO ()
+emitterCallback e vp = do 
+    node <- thawNode vp
+    case node of
+        (YamlStr str) -> do
+            -- return syck_emit_scalar(e, "string", scalar_none, 0, 0, 0, SvPVX(sv), SvCUR(sv));
+            withCString "string" $ \string_literal ->       
+                withCString str $ \cs ->       
+                    syck_emit_scalar e string_literal scalarNone 0 0 0 cs (toEnum $ length str)
 
 parseYaml :: String -> IO (Either String (Maybe YamlNode))
 parseYaml str = withCString str $ \cstr -> do
@@ -68,10 +139,22 @@ errorCallback err parser cstr = do
         , ", column ", show (cursor - lineptr)
         ]
 
-freezeNode :: YamlNode -> IO SyckNodePtr
+--freezeNode :: YamlNode -> IO SyckNodePtr
 freezeNode node = do
     ptr     <- newStablePtr node
     new (castPtr $ castStablePtrToPtr ptr)
+
+thawNode :: Ptr () -> IO YamlNode
+thawNode nodePtr = do
+    trace ("thawNode: nodePtr=" ++ show nodePtr) $ return ()
+    --let ptr = castPtr nodePtr
+    --trace ("thawNode: ptr=" ++ show ptr) $ return ()
+    -- deRefStablePtr (castPtrToStablePtr ptr)
+    rv <- deRefStablePtr (castPtrToStablePtr nodePtr)
+    rv' <- rv
+    trace ("thawNode: rv=" ++ show rv') $ return ()
+    rv
+    
 
 readNode :: SyckParser -> SYMID -> IO YamlNode
 readNode parser symId = alloca $ \nodePtr -> do
@@ -114,6 +197,12 @@ foreign import ccall "wrapper"
 foreign import ccall "wrapper"  
     mkErrorCallback :: SyckErrorHandler -> IO (FunPtr SyckErrorHandler)
 
+foreign import ccall "wrapper"
+    mkOutputCallback :: SyckOutputHandler -> IO (FunPtr SyckOutputHandler)
+
+foreign import ccall "wrapper"
+    mkEmitterCallback :: SyckEmitterHandler -> IO (FunPtr SyckEmitterHandler)
+
 foreign import ccall
     syck_new_parser :: IO SyckParser
 
@@ -152,3 +241,25 @@ foreign import ccall
 
 foreign import ccall
     syck_map_read :: SyckNode -> CInt -> CLong -> IO SYMID
+
+foreign import ccall
+    syck_new_emitter :: IO SyckEmitter
+
+foreign import ccall
+    syck_free_emitter :: SyckEmitter -> IO ()
+
+foreign import ccall
+    syck_emitter_handler :: SyckEmitter -> FunPtr SyckEmitterHandler -> IO ()
+
+foreign import ccall
+    syck_output_handler :: SyckEmitter -> FunPtr SyckOutputHandler -> IO ()
+
+foreign import ccall
+    syck_emit :: SyckEmitter -> CLong -> IO ()
+
+foreign import ccall
+    syck_emitter_flush :: SyckEmitter -> CLong -> IO ()
+
+foreign import ccall
+    syck_emit_scalar :: SyckEmitter -> CString -> CInt -> CInt -> CInt -> CInt -> CString -> CInt -> IO ()
+

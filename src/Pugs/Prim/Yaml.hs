@@ -2,7 +2,7 @@
 {-# OPTIONS_GHC -#include "../../UnicodeC.h" #-}
 
 module Pugs.Prim.Yaml (
-  evalYaml
+  evalYaml, dumpYaml
 ) where
 import Pugs.Internals
 import Pugs.AST
@@ -33,3 +33,22 @@ fromYaml (YamlMap nodes) = do
         return (key, val)
     hv      <- liftSTM $ (newTVar (Map.fromList vals) :: STM IHash)
     return $ VRef (hashRef hv)
+
+dumpYaml :: Val -> Eval Val
+dumpYaml v = do
+    obj  <- toYaml =<< fromVal v
+    rv   <- liftIO (emitYaml obj)
+    case rv of
+        Left err  -> fail $ "YAML Emit Error: " ++ err
+        Right str -> return $ VStr str
+
+toYaml :: Val -> Eval YamlNode
+toYaml VUndef = return YamlNil
+toYaml (VStr str) = return $ YamlStr (encodeUTF8 str)
+toYaml (VList nodes) = do
+    fmap YamlSeq $ mapM toYaml nodes
+--toYaml (VHash hash) = do
+--    fmap YamlMap $ Map.toList hash
+
+
+    

@@ -222,6 +222,7 @@ op1 "all"  = op1Cast opJuncAll
 op1 "one"  = op1Cast opJuncOne
 op1 "none" = op1Cast opJuncNone
 op1 "perl" = fmap VStr . prettyVal 0
+op1 "yaml" = dumpYaml
 op1 "require_haskell" = \v -> do
     name    <- fromVal v
     externRequire "Haskell" name
@@ -1558,6 +1559,7 @@ initSyms = mapM primDecl syms
 \\n   Any       pre     Pugs::Internals::eval_perl5   unsafe (Str)\
 \\n   Any       pre     Pugs::Internals::eval_haskell unsafe (Str)\
 \\n   Any       pre     Pugs::Internals::eval_yaml    safe   (Str)\
+\\n   Any       pre     yaml    safe   (Any)\
 \\n   Any       pre     require unsafe (?Str=$_)\
 \\n   Any       pre     use     unsafe (?Str=$_)\
 \\n   Any       pre     require_haskell unsafe (Str)\
