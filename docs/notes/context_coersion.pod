@@ -175,23 +175,24 @@ the compiler can assume a more general type.
 =head2 What's in a Context?
 
 At the beginning of the proposal, I said that type and context are not
-the same thing.  But exactly how are they different?  The context tree
-is a subtree of the type tree.  However, the context tree has a
-constraint:  No multiple inheritance[3].  We need this so we can do
-well-defined multi dispatch on contexts[4].
+the same thing.  But exactly how are they different?  Every context is a
+type, and they share the same subtype relations.  However, the context
+tree has a constraint:  No multiple inheritance[3].  We need this so we
+can do well-defined multi dispatch on contexts[4].
 
 Recall that we also required that there be no common supercontext of
-C<Singular> and C<Plural>.  This means that operators need only decide
-what to do in those two contexts and the dispatch is completely
+C<Singular> and C<Plural> (and there are no contexts that are not
+subtypes of one of these two).  This means that operators need only
+decide what to do in those two contexts and the dispatch is completely
 well-defined.  Subs by default do the same thing in both contexts and
 propagate the decision to their return value, which will eventually
 propagate to something that will make the decision. 
 
-In order to define a type to be a context, derive from some other
-context.  
+In order to define a type to be a context, declare it with C<is context>
+and derive from some other context (both of these things are necessary):
 
-    class Foo does Int {...}
-    class Bar does Plural {...}
+    class Foo does Int is context {...}
+    class Bar does Plural is context {...}
 
 When you introduce a new context, you must be sure that you don't derive
 from two other contexts (if you do, the compiler will reject your
@@ -201,15 +202,14 @@ other when doing context calculations:
 
     class IntStr does Int does Str is context(Str) {...}
 
-The reason that a type being a context is simply based on derivation
-instead of marking it in some way (like C<is context>) is that if a
-"regular type" derived from two contexts, you wouldn't be able to use
-that type in explicit typing.  The way we can keep this from imposing a
-"no multiple inheritance" law on the whole language is to only have
-almost-leaves of the standard hierarchy be contexts.   Perhaps the only
-contexts by default are:  C<Singular>, C<Plural>, C<List>, C<Num>,
-C<Str>, C<Ref>.  You wouldn't be able to derive from more than one of
-those at once, but all other multiple inheritance would be okay.
+The reason that explicit marking of C<is context> is required is so that
+we don't kill multiple inheritance altogether.  You're allowed to
+multiply inherit, as long as all contexts you inherit from form a chain
+of subtypes (A <: B <: C <: ...).  Basically, you can't be an C<Int> and
+a C<Str> at once; you can't be a C<Ref> and a C<Plural> at once, etc.
+Classes and roles by default are C<Singular>.  It is unclear how to
+create a C<Plural> type, but there should be a way (C<Plural> might
+have some mandatory interface).
 
 [3] Formally, if A <: B and A <: C then B <: C or C <: B.
 
