@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 29 Aug 2005
+  Last Modified: 04 Jan 2006
   Number: 4
-  Version: 6
+  Version: 7
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -171,17 +171,14 @@ more than one element at a time:
 
     for %hash.kv -> $key, $value { print "$key => $value\n" }
 
-To process two arrays in parallel, use either the C<zip> function:
+To process two arrays in parallel, use the C<each> function:
 
-    for zip(@a;@b) -> $a, $b { print "[$a, $b]\n" }
+    for each(@a;@b) -> $a, $b { print "[$a, $b]\n" }
 
-or the "zipper" operator to interleave them:
+or use the C<zip> function to generate a list of tuples that each can be bound
+to multiple arguments enclosed in square brackets:
 
-    for @a ¥ @b ¥ @c -> $a, $b, $c { print "[$a, $b, $c]\n" }
-
-That's equivalent to
-
-    for zip(@a;@b;@c) -> $a, $b, $c { print "[$a, $b, $c]\n" }
+    for zip(@a;@b) -> [$a, $b] { print "[$a, $b]\n" }
 
 The list is evaluated lazily by default, so instead of using a C<while>
 to read a file a line at a time:
