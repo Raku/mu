@@ -94,7 +94,18 @@
     }`(self`fetch_list(), @values`fetch_list(), []);
 });
 
-::rArray.add_method('sort',   -> &criterion {});
+::rArray.add_method('sort', -> &criterion {
+    self.elems()`le(1)`cond(
+        -> { self },
+        -> {
+            &c := &criterion`is_nil()`cond(
+                -> { -> $a, $b { $a`eq($b)`cond(-> { 0 }, -> { $a`lt($b)`cond(-> { -1 }, -> { 1 }) }) } },
+                -> { &criterion }
+            );
+            # ... someone else do this one,.. I hate sorting algorithms
+        }
+    );
+});
 
 # Array method (as speced in S29)
 
@@ -146,10 +157,9 @@
                 &redo`(
                     @list`splice(1), 
                     @acc`push(::Pair.new({ 
-                            'k' => @acc`length(), 
-                            'v' => @list`fetch(0) 
-                        })
-                    )
+                        'k' => @acc`length(), 
+                        'v' => @list`fetch(0) 
+                    }))
                 ) 
             }
         );
