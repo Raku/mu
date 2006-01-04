@@ -94,15 +94,40 @@
     }`(self`fetch_list(), @values`fetch_list(), []);
 });
 
+# bottom up merge sort
 ::rArray.add_method('sort', -> &criterion {
     self.elems()`le(1)`cond(
-        -> { self },
-        -> {
-            &c := &criterion`is_nil()`cond(
-                -> { -> $a, $b { $a`eq($b)`cond(-> { 0 }, -> { $a`lt($b)`cond(-> { -1 }, -> { 1 }) }) } },
-                -> { &criterion }
-            );
-            # ... someone else do this one,.. I hate sorting algorithms
+        #-> { self },
+        #-> { merge := -> l1 l2 { l1`elms()`eq(0)`cond(
+        #                          -> { l2 }
+        #                          -> { l2.elms()`eq(0)`cond(
+        #                                -> { l1 }
+        #                                -> { hl1 := l1`splice(0,1) ;
+        #                                     hl2 := l2`splice(0,1) ;
+        #                                     &criterion`(hl1, hl2)`eq(True)`cond(
+        #                                       ->{ hl1`concat( merge( l1`splice(1)`concat(l2) ) ) }
+        #                                       ->{ hl2`concat( merge( l1`concat(l2`splice(1)) ) ) } ) } ) } ) } ;
+        #     mergepairs := -> lst { lst`elms()`le(1)`cond(
+        #                             -> { [] }
+        #                             -> { merge( lst`splice(0,1), lst`splice(1,1) )`concat( mergepairs( lst`splice(2) ))} ) } ;
+        #      
+        #     split := -> lst { lst`elems()`eq(0)`cond(
+        #                       -> { [] }
+        #                       -> { lst`splice(0, 1)`concat( split`( lst`splice(1) ) ) } ) } ;
+        #
+        #     mergesort := -> lst { lst`elms()`eq(1)`cond(
+        #                            -> { lst`unshift() }
+        #                            -> { mergsort( mergepairs( lst ) ) } ) } ;
+        #
+        #     mergesort( split( self ) );
+        #                       
+        #                       
+        #                       
+        #    #&c := &criterion`is_nil()`cond(
+        #    #    -> { -> $a, $b { $a`eq($b)`cond(-> { 0 }, -> { $a`lt($b)`cond(-> { -1 }, -> { 1 }) }) } },
+        #    #    -> { &criterion }
+        #    #);
+        #    # ... someone else do this one,.. I hate sorting algorithms
         }
     );
 });
