@@ -331,7 +331,7 @@ shown here and child data structures that are shown as child nodes:
 
     <rosetta_interface>
         <rosetta_engine count="0..N">
-            <sql_server count="0..N"><!-- ... if cli-serv; c=1 if embedded -->
+            <depot_manager count="0..N"><!-- ... if cli-serv; c=1 if embedded -->
                 <depot count="0..N">
                     <user type="ROOT|NAMED|ANONYMOUS" count="1..N">
                         <privilege_grant count="0..N" />
@@ -354,7 +354,7 @@ shown here and child data structures that are shown as child nodes:
                         </schema>
                     </catalog><!-- any SYSTEM catalog/schema is not exposed -->
                 </depot>
-            </sql_server>
+            </depot_manager>
             <sql_client count="0..N">
                 <procedure count="0..N" />
                 <function count="0..N" />
@@ -445,48 +445,50 @@ shown here and child data structures that are shown as child nodes:
         </statement>
     </routine_body>
 
-A B<rosetta_interface> is a Rosetta::Interface tree root object; you usually
-have just one of these in your application.  (It corresponds to DBI's
-collection of global variables in the DBI::* namespace, but it is lexical.)
+A B<rosetta_interface> is a Rosetta::Interface tree root object; you
+usually have just one of these in your application.  (It corresponds to
+DBI's collection of global variables in the DBI::* namespace, but it is
+lexical.)
 
 A B<rosetta_engine> is a Rosetta Engine tree root object; you have one of
 these per loaded Rosetta Engine package per "rosetta_interface".  (It
 corresponds to a DBI driver handle, or "drh", but is lexical.)
 
-A B<sql_server> is the database management system software itself and
+A B<depot_manager> is the database management system software itself and
 corresponds to either a library embedded in the current application process
 or one instance of a separate server process that is running somewhere.  In
 a typical embedded case (such as SQLite), there is usually exactly one per
 "rosetta_engine", unless multiple versions are embedded at once (such as
 SQLite v3 and v2), and even then the Engine can choose to abstract those
-into a single "sql_server".  In the case of Rosetta::Engine::Native, there
-is exactly one "sql_server", since the Engine I<is> it.  In the case of any
-typical client-server database (such as MySQL), there is a separate
-"sql_server" for each server process being accessed.  A server process is
-often qualified with an IP address and port, or local socket name.
+into a single "depot_manager".  In the case of Rosetta::Engine::Native,
+there is exactly one "depot_manager", since the Engine I<is> it.  In the
+case of any typical client-server database (such as MySQL), there is a
+separate "depot_manager" for each server process being accessed.  A server
+process is often qualified with an IP address and port, or local socket
+name.
 
 A B<depot> is a completely self-contained data collection with its own name
 (usually), its own catalog and its own users (if applicable); one "depot"
 by definition never shares ownership of catalogs or users with another
-depot, even another managed by the same "sql_server".  When an application
-opens a connection to a database, a "depot" I<is> what it is connecting to,
-and everything it sees within that connection is from within the context of
-the depot.  In other terms, when you hold a "data source name" / DSN, a
-single "depot" (qualified with a sql_server and/or rosetta_engine) is what
-it points to.  With a typical file-based database like SQLite or MS Access
-or a CSV file, one file equals one "depot", and you often invoke it using
-the filesystem file name.  With a typical client-server database, one
-"depot" is often one "database name" at the server.  With Oracle, it seems
-that one "sql_server" equals one "depot".
+depot, even another managed by the same "depot_manager".  When an
+application opens a connection to a database, a "depot" I<is> what it is
+connecting to, and everything it sees within that connection is from within
+the context of the depot.  In other terms, when you hold a "data source
+name" / DSN, a single "depot" (qualified with a depot_manager and/or
+rosetta_engine) is what it points to.  With a typical file-based database
+like SQLite or MS Access or a CSV file, one file equals one "depot", and
+you often invoke it using the filesystem file name.  With a typical
+client-server database, one "depot" is often one "database name" at the
+server.  With Oracle, it seems that one "depot_manager" equals one "depot".
 
 A B<user> is whom the application or its user authenticates themselves as
-against a depot connection, if the sql_server has a concept of users
+against a depot connection, if the depot_manager has a concept of users
 (SQLite does not, Oracle does, etc).  Note that some database managers will
 display a different view of the database depending on what user logged in,
 but Rosetta will abstract away this per-user difference where possible,
-mainly by using fully qualified identifiers for all database objects.
-There is 1 ROOT user that owns the depot and was created with it, and NAMED
-users are what a typical person connects as, unless they are ANONYMOUS.
+mainly by using fully qualified identifiers for all database objects. There
+is 1 ROOT user that owns the depot and was created with it, and NAMED users
+are what a typical person connects as, unless they are ANONYMOUS.
 
 A B<catalog> is the typical root of a database's contents, and often each
 depot will have exactly one catalog.  The LOCAL catalog type is the normal
@@ -495,26 +497,27 @@ catalog type is where schema objects go that are declared with C<CREATE
 TEMPORARY ...>; each database connection has its own private one that
 disappears when the connection closes; there is always one TEMPORARY
 catalog, even if the Rosetta Engine has to implement it.  The REMOTE
-catalog type is used when you cause the depot/sql_server you are connected
-with to turn around and connect to another depot (whether under the same
-sql_server doesn't matter), so its contents also become visible to you like
-they were an extension of the current depot; by default all catalogs in the
-other depo are "mounted" as remote catalogs in the current one.  In SQLite
-terms, when you "attach" one or more database files to the "main" one you
-have open, then a new "remote" catalog appears that represents each one. In
-terms of MySQL, I would guess that tables of its "federated" table type
-qualify to conceptually live in a remote catalog.  Any other database,
-presumably such as Oracle, that lets you "connect to" a remote sql_server
-is implementing the REMOTE catalog feature.  In terms of a hypothetical
-Rosetta Engine that lets you use a single "connection" to access multiple
-remote databases at once, such as for a database cloning utility or a
-multiplexer, I<all> of the visible catalogs would be the REMOTE type, and
-there wouldn't be any of the LOCAL type; also in that case, the TEMPORARY
-catalog would commonly be implemented by the Rosetta Engine.  Technically
-speaking, there is also a "system" or "INFORMATION_SCHEMA" catalog that
-displays meta-data in the form of normal tables and views, but Rosetta does
-not expose it for your direct access; you should use Rosetta's native
-reverse-engineering functionality instead (which use them on your behalf).
+catalog type is used when you cause the depot/depot_manager you are
+connected with to turn around and connect to another depot (whether under
+the same depot_manager doesn't matter), so its contents also become visible
+to you like they were an extension of the current depot; by default all
+catalogs in the other depo are "mounted" as remote catalogs in the current
+one.  In SQLite terms, when you "attach" one or more database files to the
+"main" one you have open, then a new "remote" catalog appears that
+represents each one. In terms of MySQL, I would guess that tables of its
+"federated" table type qualify to conceptually live in a remote catalog.
+Any other database, presumably such as Oracle, that lets you "connect to" a
+remote depot_manager is implementing the REMOTE catalog feature.  In terms
+of a hypothetical Rosetta Engine that lets you use a single "connection" to
+access multiple remote databases at once, such as for a database cloning
+utility or a multiplexer, I<all> of the visible catalogs would be the
+REMOTE type, and there wouldn't be any of the LOCAL type; also in that
+case, the TEMPORARY catalog would commonly be implemented by the Rosetta
+Engine.  Technically speaking, there is also a "system" or
+"INFORMATION_SCHEMA" catalog that displays meta-data in the form of normal
+tables and views, but Rosetta does not expose it for your direct access;
+you should use Rosetta's native reverse-engineering functionality instead
+(which use them on your behalf).
 
 A B<schema> is a namespace within a catalog where your tables and other
 database objects go.  Each one is owned by a user, though users don't have

@@ -29,6 +29,130 @@ While that will work in some cases (and in fact I intentionally don't
 repeat many details here for brevity), it won't in others, so you should
 always check here for any possible conflicts.
 
+=head1 OPERATIONAL CONTEXT
+
+The SQL::Routine language is designed for a specific virtual environment,
+that provides usually-persistent repositories (or "depots") in which can
+live user defined data structures and routines to operate on them, as is
+the case with a typical computer programming language.  Broadly speaking,
+the SQL::Routine language provides the means to create, read, modify, and
+delete both entire depots and other items that live in them.  An
+implementation (or instance thereof) of the SQL::Routine language is a
+"depot management system" (or "depot manager"); it is the job of the depot
+manager to facilitate access to depots implemented with it.
+
+A B<depot> is is a fully self-contained and fully addressable database.  It
+is what your application opens a connection to when it wants to use a
+database.  A depot has its own set of user accounts, and its own catalogs
+(containing schemas, which in turn contain tables and other data structures
+plus stored routines), which are owned by and operated on by said users.  A
+depot by definition never shares ownership of catalogs or users with
+another depot, even another managed by the same depot manager.  When an
+application opens a connection to a database, a "depot" I<is> what it is
+connecting to, and everything it sees within that connection is from within
+the context of the depot.  In other terms, when you hold a "data source
+name" / DSN, a single "depot" is what it points to.
+
+A B<depot manager> is software that takes the form of either a library
+embedded in the current application process or one instance of a separate
+server process that is running somewhere.  When an application wants to
+invoke a depot from an application, the invocation must be qualified with
+what depot manager is going to be used, plus any necessary manager
+implementation specific details to locate the depot itself.
+
+With a "file based" implementation, such as one using the SQLite database
+manager, there is a one-to-one mapping between a depot and a file system
+file, the SQLite database file in this case; to use this depot, it is
+identified simply using the manager name and the file name.  Likewise with
+MS Access, or standalone CSV or tabular database files.  One such database
+manager can typically manage several depots/files at once, each accessed
+with a separate connection.  Rosetta::Engine::Native is also "file based".
+
+With a "client-server" implementation, such as Oracle or PostgreSQL, a
+depot is identified (directly or under abstraction) by both the network
+address of the server itself (qualified with such as an IP address and
+port, or a socket name), and a "database name".  Or that is the case with
+many client-server databases like PostgreSQL, so for those each "database
+at a server" corresponds one-to-one with a depot, assuming that these
+databases do not share a common set of users.  Oracle is different in that
+"the server equals the database", so therefore one Oracle server equals one
+depot.  MySQL muddies the waters, where it seems that all "databases"
+managed by a MySQL server process share a common set of users.  By
+definition, a depot contains everything that a single database manager
+provided user account is privileged to own, so perhaps everything under a
+MySQL server process is a single depot.
+
+Of course, the exact mapping of concepts for a federated implementation of
+a depot manager (and most depot managers are anticipated to be federated)
+are left to its creator, but the above are my recommendations.
+
+A B<user> is whom the application or its user authenticates themselves as
+against a depot connection, if the depot manager has a concept of users
+(SQLite natively does not, Oracle natively does, etc).  SQL::Routine
+defines 3 types of users, called ROOT, NAMED, ANONYMOUS; there is 1 ROOT
+user that owns the depot and was created with it, and NAMED users are what
+a typical person connects as, unless they are ANONYMOUS.  Note that some
+database managers underlying a depot manager will display a different view
+of the database depending on what user logged in, but the depot manager
+should abstract away this per-user difference where possible, mainly by
+using fully qualified identifiers for all depot contents.  A user can have
+privileges that authorize what it can do in the depot.
+
+A depot provides 2 levels of namespace in which its main contents are
+organized; the higher level namespace is B<catalog> and the lower level
+namespace is B<schema>.  The main contents themselves (data structures and
+routines) are collectively referred to as B<schema objects>.  Schema
+objects are like the package qualified global variables of Perl;
+authorization permitting, you can directly invoke any of them at any time,
+either from within another schema object or within a client side routine
+operating over an open connection to the depot containing them.  The fully
+qualified name of a schema object is "<catalog>.<schema>.<object>", which
+is fully unambiguous and works anywhere.  Partially qualified
+("<schema>.<object>") or unqualified ("<object>") names can also be used to
+invoke a schema object, but they only work within the same namespace
+(catalog or schema respectively) as the invocant.
+
+As with typical programming languages, the SQL::Routine language also
+provides lexically scoped data structures (and sometimes routines).  Mainly
+it is data structures declared within a routine that are lexical, and these
+are only visible within that routine.
+
+Unlike typical SQL databases, but like typical programming languages, you
+can define instances of all the same data structure types at both the
+global and lexical level.  So for example you can define a table or view
+that only exists within a routine (and has the life of its execution), and
+you can also declare a standalone scalar container that is a schema object.
+(The latter would be implemented as a table with a single column and row
+in a typical SQL database back-end.)
+
+SQL::Routine defines 4 types of catalogs, called LOCAL, SYSTEM, TEMPORARY,
+and REMOTE; a depot can potentially have all of these kinds at once, but
+typically it has exactly 1 each of the first 3 types.  The LOCAL catalog
+type is the normal one, and contains all the typical persistent schema
+objects.  The TEMPORARY catalog type is for schema objects whose fates are
+tied to open connections; each connection has its own private instance of
+one TEMPORARY catalog, and its contents disappear when the connection is
+closed.  The SYSTEM catalog type provides read-only schema objects that are
+views into that depot's meta-data; they are analagous to an "information
+schema", but that all the meta-data is atomic like the SQL::Routine
+language itself.
+
+The REMOTE catalog type is used when you cause the depot / depot manager
+you are connected with to turn around and connect to another depot (whether
+under the same depot manager doesn't matter), so its contents also become
+visible to you like they were an extension of the current depot; by default
+all catalogs in the other depo are "mounted" as remote catalogs in the
+current one.  In SQLite terms, when you "attach" one or more database files
+to the "main" one you have open, then a new "remote" catalog appears that
+represents each one. In terms of MySQL, I would guess that tables of its
+"federated" table type qualify to conceptually live in a remote catalog.
+Any other database, presumably such as Oracle, that lets you "connect to" a
+remote depot_manager is implementing the REMOTE catalog feature.  In terms
+of a hypothetical federated depot manager that lets you use a single
+"connection" to access multiple remote depots at once, such as for a
+database cloning utility or a multiplexer, I<all> of the visible catalogs
+would be the REMOTE type, and there wouldn't be any of the LOCAL type.
+
 =head1 DATA TYPES OVERVIEW
 
 The SQL::Routine language is strongly typed, following the relational
