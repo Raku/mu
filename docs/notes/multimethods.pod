@@ -120,3 +120,48 @@ applied a stringification operator (it should choose item :-).
 See L<context_coersion.pod>, "What's in a Context?", for a proof that if
 there is no multiple inheritance in the context hierarchy, that this
 rule will never be ambiguous.  
+
+=head2 Static inference of multimethods
+
+Multimethod variants can be defined in multiple modules and even at
+runtime.  We have a proto form to tell us the overall signature of a
+multimethod, but that doesn't help us infer C<< infix:<=> >>, when it
+can take on many different forms.
+
+If we require one condition of multimethods, then it becomes possible to
+do partial inference on the variants:
+
+    If a variant A <<= a variant B, then all non-invocants of A are :>
+    to the corresponding non-invocants of B.
+
+So to make a proto where the multimethods are free to decide what kinds
+of parameters they will take:
+
+    proto foo(Any $invocant: None $param) {...}
+
+And this call will never typecheck (because C<None> never accepts any
+values); however if there is a variant in scope:
+
+    multi foo(Str $invocant: Int $param) {...}
+
+Then if the compiler can prove that the invocant is a subtype of Str, it
+is guaranteed that the param is a supertype of Int, and it is thus safe
+to pass an Int.
+
+We get to infer C<< infix:<=> >> now, but we have to assume the
+existence of a Sink reference that accepts writes but not reads.  Since
+you're assigning, you only need a Sink.
+
+    multi infix:<=> (Sink[Num] $dest: Num $src) {...}
+    multi infix:<=> (Sink[Int] $dest: Int $src) {...}
+
+Note that Sink[a] <: Sink[b] exactly when b <: a.  In order for this to
+be well behaved, the following has to be true:
+
+    If Sink[Int] <: Sink[Num] then Int :> Num
+    If Sink[Num] <: Sink[Int] then Num :> Int
+
+Taking the contravariant Sink type, we see that they are both true!
+
+The only thing that remains is how to get Plural context on the right
+side of C<=>.
