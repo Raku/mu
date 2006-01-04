@@ -4,26 +4,26 @@ use v6;
 use Test::PIL::Bootstrap;
 
 pil_is_eq(
-    '::Array.identifier()', 
+    '^Array.identifier()', 
     '"Array-0.0.1-url:pugscode.org"', 
     '... Array has the correct identifier');
 
-pil_is_eq('::Array.has_method("FETCH")', 'true', '... ::Array.has_method(FETCH)');
-pil_is_eq('::Array.has_method("STORE")', 'true', '... ::Array.has_method(STORE)');
+pil_is_eq('^Array.has_method("FETCH")', 'true', '... ^Array.has_method(FETCH)');
+pil_is_eq('^Array.has_method("STORE")', 'true', '... ^Array.has_method(STORE)');
 
-pil_is_eq('::Array.does("Array")', 'true', '... ::Array.does(Array)');
+pil_is_eq('^Array.does("Array")', 'true', '... ^Array.does(Array)');
 
 for (qw(
     elems join map grep reduce zip pop push shift unshift reverse sort keys values kv
     )) -> $method_name {
     pil_is_eq(
-        '::Array.has_method("' ~ $method_name ~ '")', 
+        '^Array.has_method("' ~ $method_name ~ '")', 
         'true', 
-        '... ::Array.has_method(' ~ $method_name ~ ')');
+        '... ^Array.has_method(' ~ $method_name ~ ')');
 }
 
 my $prelude = q:to/PRELUDE/
-@a := ::Array`create([ 1, 2, 3 ]);
+@a := ^Array`create([ 1, 2, 3 ]);
 PRELUDE;
 
 pil_is_eq($prelude ~
@@ -77,9 +77,9 @@ pil_is_eq($prelude ~
     '... @a.reduce(-> $x, $y { $x`add($y) }) == 6');     
     
 pil_is_eq($prelude ~
-    '@a.zip(::Array`create([ "a", "b", "c" ]))`fetch_list()',
+    '@a.zip(^Array`create([ "a", "b", "c" ]))`fetch_list()',
     '[1, "a", 2, "b", 3, "c"]',
-    '... @a.zip(::Array`create([ "a", "b", "c" ])) == [1, "a", 2, "b", 3, "c"]');     
+    '... @a.zip(^Array`create([ "a", "b", "c" ])) == [1, "a", 2, "b", 3, "c"]');     
  
 pil_is_eq($prelude ~
     '@a.keys()`fetch_list()',
@@ -102,6 +102,6 @@ pil_is_eq($prelude ~
     '... @a.pairs() == [(0 => 1), (1 => 2), (2 => 3)]');          
           
 pil_is_eq(
-    '::Array`create([5, 9, 20, 222, 102, 3, 44, 8, 17, 10101]).sort()`fetch_list()',
+    '^Array`create([5, 9, 20, 222, 102, 3, 44, 8, 17, 10101]).sort()`fetch_list()',
     '[3, 5, 8, 9, 17, 20, 44, 102, 222, 10101]',
     '... array sort works now too');

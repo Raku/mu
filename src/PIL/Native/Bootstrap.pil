@@ -15,11 +15,7 @@
 #include "Bootstrap/BootRole.pil"
 
 #include "Bootstrap/Autobox.pil"
-
-#include "Bootstrap/Container/Scalar.pil"
-#include "Bootstrap/Container/Array.pil"
-#include "Bootstrap/Container/Hash.pil"
-#include "Bootstrap/Container/Pair.pil"
+#include "Bootstrap/Container.pil"
 
 =pod
 
@@ -31,6 +27,9 @@ Perl 6 Object Model Bootstrap
 
 This is the bootstrap code for the Perl 6 Object Model using the Perl 6 
 Object-Space mini-language. 
+
+At the end of bootstrap, all visible bindings prefixed with C<::> is
+exported to compiler space.
 
 =head1 SEE ALSO
 

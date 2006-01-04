@@ -29,22 +29,22 @@ above the Perl6::MetaModel equivalents
 =cut
 
 my $point = q:to/POINT/
-::Point := ::Class.new({});
-::Point.set_name("Point");
-::Point.set_superclasses([ ::Object ]);
+^Point := ^Class.new({});
+^Point.set_name("Point");
+^Point.set_superclasses([ ^Object ]);
 
-::Point.add_attribute('$x', 0);
-::Point.add_attribute('$y', 0);
+^Point.add_attribute('$x', 0);
+^Point.add_attribute('$y', 0);
 
-::Point.add_method('x',     ->    { self`get_attr('$x')     });
-::Point.add_method('y',     ->    { self`get_attr('$y')     });
-::Point.add_method('set_y', -> $y { self`set_attr('$y', $y) });
-::Point.add_method('clear', -> { 
+^Point.add_method('x',     ->    { self`get_attr('$x')     });
+^Point.add_method('y',     ->    { self`get_attr('$y')     });
+^Point.add_method('set_y', -> $y { self`set_attr('$y', $y) });
+^Point.add_method('clear', -> { 
     self`set_attr('$x', 0);
     self`set_attr('$y', 0);     
 });
 
-$point := ::Point.new({ '$x' => 1, '$y' => 3 });
+$point := ^Point.new({ '$x' => 1, '$y' => 3 });
 POINT;
 
 pil_is_eq($point ~ '$point.isa("Point")', 'true', '... $point.isa(Point)');
@@ -74,19 +74,19 @@ CODE,
 =cut
 
 my $point3d = $point ~ q:to/POINT3D/
-::Point3D := ::Class.new({});
-::Point3D.set_name("Point3D");
-::Point3D.set_superclasses([ ::Point ]);
+^Point3D := ^Class.new({});
+^Point3D.set_name("Point3D");
+^Point3D.set_superclasses([ ^Point ]);
 
-::Point3D.add_attribute('$!z', 0);
+^Point3D.add_attribute('$!z', 0);
 
-::Point3D.add_method('get_z',     -> { self`get_attr('$!z') });
-::Point3D.add_method('clear', -> { 
+^Point3D.add_method('get_z',     -> { self`get_attr('$!z') });
+^Point3D.add_method('clear', -> { 
     self`set_attr('$!z', 0);
     &?NEXT`();
 });
 
-$point3d := ::Point3D.new({ '$x' => 2, '$y' => 3, '$!z' => 4 });
+$point3d := ^Point3D.new({ '$x' => 2, '$y' => 3, '$!z' => 4 });
 POINT3D;
 
 pil_is_eq($point3d ~ '$point3d.isa("Point")', 'true', '... $point3d.isa(Point)');

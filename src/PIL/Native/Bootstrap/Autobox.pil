@@ -2,12 +2,18 @@
 ## Autoboxing
 ## ------------------------------------------------------------------------- ##
 
-::Int.set_superclasses([ ::Object ]);  # this uses Haskell Integer now ...
+^Int.set_superclasses([ ^Object ]);  # this uses Haskell Integer now ...
+^Bit.set_superclasses([ ^Object ]);
+^Num.set_superclasses([ ^Object ]);
+^Str.set_superclasses([ ^Object ]);
+^Seq.set_superclasses([ ^Object ]);
+^Map.set_superclasses([ ^Object ]);
+^Sub.set_superclasses([ ^Object ]);
 
-::Bit.set_superclasses([ ::Object ]);
-::Num.set_superclasses([ ::Object ]);
-::Str.set_superclasses([ ::Object ]);
-::Seq.set_superclasses([ ::Object ]);
-::Map.set_superclasses([ ::Object ]);
-::Sub.set_superclasses([ ::Object ]);
-
+::Int := ^Int`make_class;
+::Bit := ^Bit`make_class;
+::Num := ^Num`make_class;
+::Str := ^Str`make_class;
+::Seq := ^Seq`make_class;
+::Map := ^Map`make_class;
+::Sub := ^Sub`make_class;

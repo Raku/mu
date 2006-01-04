@@ -2,16 +2,16 @@
 ## Bootstrapping
 ## ------------------------------------------------------------------------- ##
 
-::Class.set_superclasses([ ::Module ]);
+^Class.set_superclasses([ ^Module ]);
 
 # NOTE:
 # this attribute needs to be added manually to the
-# class instances since ::Class would have inherited 
+# class instances since ^Class would have inherited 
 # it, but couldn't since they had not yet been defined. 
 
 -> $class {
     $class`set_attr('%!namespace', {}); 
-}`do_for([ ::Class, ::Object, ::Module, ::Package ]);
+}`do_for([ ^Class, ^Object, ^Module, ^Package ]);
 
 # ... now we can name and version all our objects 
 # which has the side effect of creating the name, 
@@ -20,17 +20,17 @@
 # and $!authority to the list above along with %!namespace
 
 
-::Class.set_name('Class');     ::Class.set_version('0.0.1');   ::Class.set_authority('url:pugscode.org');
-::Object.set_name('Object');   ::Object.set_version('0.0.1');  ::Object.set_authority('url:pugscode.org');
-::Package.set_name('Package'); ::Package.set_version('0.0.1'); ::Package.set_authority('url:pugscode.org');
-::Module.set_name('Module');   ::Module.set_version('0.0.1');  ::Module.set_authority('url:pugscode.org');
+^Class.set_name('Class');     ^Class.set_version('0.0.1');   ^Class.set_authority('url:pugscode.org');
+^Object.set_name('Object');   ^Object.set_version('0.0.1');  ^Object.set_authority('url:pugscode.org');
+^Package.set_name('Package'); ^Package.set_version('0.0.1'); ^Package.set_authority('url:pugscode.org');
+^Module.set_name('Module');   ^Module.set_version('0.0.1');  ^Module.set_authority('url:pugscode.org');
 
 # Class now needs to implement the FETCH and STORE of Packages
 
 # NOTE:
 # With FETCH, we first look in the class's method and attribute
 # namespaces, if we don't find anything there, we then just
-# search the normal ::Package namespace. If nothing is found
+# search the normal ^Package namespace. If nothing is found
 # this will just return nil. I think that this is probably 
 # sufficient for our needs, but it may need improvement as we 
 # discover how and when this is really used.
@@ -38,7 +38,7 @@
 # NOTE:
 # it is expected that methods are FETCH-ed using a & prefix 
 
-::Class.add_method('FETCH', -> $label {
+^Class.add_method('FETCH', -> $label {
     $label`fetch(0)`eq('&')`cond(
         # fetching possible method ...
         -> {
@@ -71,12 +71,12 @@
 # of the same name as the one we are storing, if so, then we 
 # overwrite it. If there is not, then we STORE into the Package
 # namespace normally. This is surely not an ideal situation, and
-# will probably need to be fixed once we have a proper ::Method
-# and ::Sub types, at which point we can make a more intelligent
+# will probably need to be fixed once we have a proper ^Method
+# and ^Sub types, at which point we can make a more intelligent
 # descision as to what to do with the value being stored. But for
 # now, this is sufficient.
 
-::Class.add_method('STORE', -> $label, $value {
+^Class.add_method('STORE', -> $label, $value {
     $label`fetch(0)`eq('&')`cond(
         # fetching possible method
         -> {

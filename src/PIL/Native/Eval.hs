@@ -68,8 +68,8 @@ bootstrapClass x = mdo
     clsScalar <- newContainerClass clsClass "Scalar" (newScalarObj clsScalar)
     clsArray  <- newContainerClass clsClass "Array" (newArrayObj clsArray)
     clsHash   <- newContainerClass clsClass "Hash" (newHashObj clsHash)
-    enterLex ( ("::", clsNull) : ("::Class", clsClass)
-             : ("::Scalar", clsScalar) : ("::Array", clsArray) : ("::Hash", clsHash)
+    enterLex ( ("^", clsNull) : ("^Class", clsClass)
+             : ("^Scalar", clsScalar) : ("^Array", clsArray) : ("^Hash", clsHash)
              : (unboxedTypes `zip` clsBoxes)) x
     where
     addMethod = parseSub
@@ -85,9 +85,9 @@ bootstrapClass x = mdo
         , ("%!methods", toNative $ mkMap meths)
         ]
     newBoxedClass cls name = newObject cls $
-        mkClassMethods (drop 2 name) [("unbox", parseSub "->{ self`get_attr('') }")]
-    unboxedTypes = map ("::" ++) $ words "Bit Int Num Str Seq Map Sub"
-    newContainerClass cls name gen = registerObject $ do
+        mkClassMethods (tail name) [("unbox", parseSub "->{ self`get_attr('') }")]
+    unboxedTypes = map ('^':) $ words "Bit Int Num Str Seq Map Sub"
+    newContainerClass cls name gen = registerClass $ do
         obj <- genObject cls $ mkClassMethods name []
         return (addRepr obj "create" gen)
 
@@ -293,15 +293,16 @@ objPrims = mkMap
       )
     , ("create", \cls args -> do
         obj <- callRepr cls "create" args
+        -- call registerClass if we .isa(Class)?
+        fmap toNative (registerClass (return (fromNative obj)))
+      )
+    , ("make_class", \cls args -> do
+        obj <- callRepr cls "make_class" args
         fmap toNative (registerObject (return (fromNative obj)))
       )
     , ("mro_merge", \cls _ -> do
-        -- NOTE:
-        -- we get the MRO of the object itself
-        -- not it's class. In fact, this 
-        -- this method should only available
-        -- for instances of ::Class. How do we 
-        -- handle that??   - stevan
+        -- ensure this method is a prim
+        callRepr cls "mro_merge" empty
         supers <- fmap fromNative $ callObject cls __superclasses empty
             :: Eval [NativeObj]
         mros   <- fmapM (\c -> fmap fromNative $ callObject c __MRO empty) supers

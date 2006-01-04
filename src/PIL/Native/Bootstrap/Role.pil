@@ -2,39 +2,39 @@
 ## Roles
 ## ------------------------------------------------------------------------- ##
 
-::Role := ::Class.new({});
+^Role := ^Class.new({});
 
-::Role.set_name('Role');       
-::Role.set_version('0.0.1');    
-::Role.set_authority('url:pugscode.org');
+^Role.set_name('Role');       
+^Role.set_version('0.0.1');    
+^Role.set_authority('url:pugscode.org');
 
-::Role.set_superclasses([ ::Module ]);
+^Role.set_superclasses([ ^Module ]);
 
-::Role.add_attribute('@!roles',      []);
-::Role.add_attribute('%!methods',    {});
-::Role.add_attribute('%!attributes', {});
+^Role.add_attribute('@!roles',      []);
+^Role.add_attribute('%!methods',    {});
+^Role.add_attribute('%!attributes', {});
 
 # NOTE:
 # These methods are pretty much duplicates of the 
-# ones in ::Class, so we can just copy them here.
+# ones in ^Class, so we can just copy them here.
 
-::Role.add_method('add_method',      ::Class.get_method('add_method'));
-::Role.add_method('has_method',      ::Class.get_method('has_method'));
-::Role.add_method('get_method',      ::Class.get_method('get_method'));
-::Role.add_method('get_method_list', ::Class.get_method('get_method_list'));
+^Role.add_method('add_method',      ^Class.get_method('add_method'));
+^Role.add_method('has_method',      ^Class.get_method('has_method'));
+^Role.add_method('get_method',      ^Class.get_method('get_method'));
+^Role.add_method('get_method_list', ^Class.get_method('get_method_list'));
 
-::Role.add_method('add_attribute',      ::Class.get_method('add_attribute'));
-::Role.add_method('has_attribute',      ::Class.get_method('has_attribute'));
-::Role.add_method('get_attribute',      ::Class.get_method('get_attribute'));
-::Role.add_method('get_attribute_list', ::Class.get_method('get_attribute_list'));
-::Role.add_method('get_attributes',     ::Class.get_method('get_attributes'));
+^Role.add_method('add_attribute',      ^Class.get_method('add_attribute'));
+^Role.add_method('has_attribute',      ^Class.get_method('has_attribute'));
+^Role.add_method('get_attribute',      ^Class.get_method('get_attribute'));
+^Role.add_method('get_attribute_list', ^Class.get_method('get_attribute_list'));
+^Role.add_method('get_attributes',     ^Class.get_method('get_attributes'));
 
-::Role.add_method('roles',     -> { self`get_attr('@!roles') });
-::Role.add_method('set_roles', -> @roles { 
+^Role.add_method('roles',     -> { self`get_attr('@!roles') });
+^Role.add_method('set_roles', -> @roles { 
     self`set_attr('@!roles', @roles); 
 });
 
-::Role.add_method('does', -> $role {
+^Role.add_method('does', -> $role {
     self.name`eq($role)`cond(
         -> { true },
         -> {
@@ -69,7 +69,7 @@
 # these requirements. In other words,.. Roles are still pretty 
 # broken :)
 
-::Role.add_method('collect_all_roles', -> {
+^Role.add_method('collect_all_roles', -> {
     -> $c, $role {
         &recurse := &?SUB;
         -> $r {
@@ -87,11 +87,11 @@
            }`do_unless($c`get_attr('%seen')`exists($r.name()))
         }`do_for($role.roles());
         $c`get_attr('@roles');
-    }`(::`create({ '@roles' => [], '%seen' => {} }), self);
+    }`(^`create({ '@roles' => [], '%seen' => {} }), self);
 });
 
-::Role.add_method('resolve', -> {
-    $conflicts := ::`create({ 'methods' => {}, 'attrs' => {} });
+^Role.add_method('resolve', -> {
+    $conflicts := ^`create({ 'methods' => {}, 'attrs' => {} });
     -> $role {
         -> $method_name {
             $conflicts`get_attr('methods')`exists($method_name)`cond(

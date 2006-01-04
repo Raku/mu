@@ -232,7 +232,7 @@ nativeLangDef  = javaStyle
     , commentEnd     = "=cut"
     , commentLine    = "#"
     , nestedComments = False
-    , identStart     = oneOf "$@%&:"
+    , identStart     = oneOf "$@%&:^"
     , identLetter    = noneOf " \n\t.`!,;()[]{}<>#"
     }
 

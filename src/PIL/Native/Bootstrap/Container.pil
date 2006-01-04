@@ -8,5 +8,12 @@
 # is simple and quick :)
 ## ------------------------------------------------------------------------- ##
 
+#include "Container/Scalar.pil"
+#include "Container/Array.pil"
+#include "Container/Hash.pil"
+#include "Container/Pair.pil"
 
-
+::Scalar := ^Scalar`make_class;
+::Array := ^Array`make_class;
+::Hash := ^Hash`make_class;
+::Pair := ^Hash`make_class;

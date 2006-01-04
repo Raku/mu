@@ -2,21 +2,21 @@
 # Scalar Container
 # --------------------------------------------------------------------------- #
 
-::Scalar.set_name('Scalar');
-::Scalar.set_version('0.0.1');
-::Scalar.set_authority('url:pugscode.org');
+^Scalar.set_name('Scalar');
+^Scalar.set_version('0.0.1');
+^Scalar.set_authority('url:pugscode.org');
 
-::Scalar.set_superclasses([ ::Object ]);
+^Scalar.set_superclasses([ ^Object ]);
 
-::Scalar.add_method('FETCH', ->    { self`fetch()         } );
-::Scalar.add_method('STORE', -> $x { self`store($x); self } );
+^Scalar.add_method('FETCH', ->    { self`fetch()         } );
+^Scalar.add_method('STORE', -> $x { self`store($x); self } );
 
 # define Scalar Role
 
-::rScalar := ::Role.new({});
-::rScalar.set_name('Scalar');
-::rScalar.set_version('0.0.1');
-::rScalar.set_authority('url:pugscode.org');
+^rScalar := ^Role.new({});
+^rScalar.set_name('Scalar');
+^rScalar.set_version('0.0.1');
+^rScalar.set_authority('url:pugscode.org');
 
-::Scalar.set_roles([ ::rScalar ]);
-::Scalar.resolve();
+^Scalar.set_roles([ ^rScalar ]);
+^Scalar.resolve();

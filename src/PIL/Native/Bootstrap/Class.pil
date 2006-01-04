@@ -1,12 +1,12 @@
 ## ------------------------------------------------------------------------- ##
 ## Class
 ## ------------------------------------------------------------------------- ##
-## We assume that ::Class and ::Class.add_method are already defined
+## We assume that ^Class and ^Class.add_method are already defined
 ## ------------------------------------------------------------------------- ##
 
 ## class construction methods
 
-::Class.add_method('new', -> %params { 
+^Class.add_method('new', -> %params { 
     self.bless(nil, %params);
 });
 
@@ -20,7 +20,7 @@
 # value into other possible $reprs. I will need to give this some
 # more thought.
 
-::Class.add_method('bless', -> $repr, %params { 
+^Class.add_method('bless', -> $repr, %params { 
     $obj := self.CREATE($repr, %params);
     $obj.BUILDALL(%params); 
     $obj;     
@@ -34,7 +34,7 @@
 # accessing method so that attribute access code can be
 # kept simple. 
 
-::Class.add_method('CREATE', -> $repr, %params {
+^Class.add_method('CREATE', -> $repr, %params {
     $obj := self`create({});
     &dispatcher := self.dispatcher('descendant');
     -> {
@@ -50,7 +50,7 @@
     $obj;
 });
 
-::Class.add_method('BUILDALL', -> %params {
+^Class.add_method('BUILDALL', -> %params {
     &dispatcher := $?CLASS.dispatcher('descendant');
     -> {
         &redo   := &?SUB;
@@ -62,7 +62,7 @@
     }`();
 });
 
-::Class.add_method('BUILD', -> %params {
+^Class.add_method('BUILD', -> %params {
     -> $key {
         -> {
             self`set_attr($key, %params`fetch($key));
@@ -72,7 +72,7 @@
 
 ## class destruction
 
-::Class.add_method('DESTROYALL', -> { 
+^Class.add_method('DESTROYALL', -> { 
     &dispatcher := $?CLASS.dispatcher('ascendant');
     -> {
         &redo   := &?SUB;
@@ -88,7 +88,7 @@
 
 # NOTE:
 # is_a is meant to check against class instances 
-::Class.add_method('is_a', -> $class { 
+^Class.add_method('is_a', -> $class { 
     self`eq($class)`cond(
         -> { true },
         -> {
@@ -109,7 +109,7 @@
 
 # NOTE:
 # isa is meant to check against class names
-::Class.add_method('isa', -> $class {
+^Class.add_method('isa', -> $class {
     self.name`eq($class)`cond(
         -> { true },
         -> {
@@ -130,8 +130,8 @@
 
 ## (super|sub)classes
 
-::Class.add_method('superclasses', -> { self`get_attr('@!superclasses') });
-::Class.add_method('set_superclasses', -> @superclasses { 
+^Class.add_method('superclasses', -> { self`get_attr('@!superclasses') });
+^Class.add_method('set_superclasses', -> @superclasses { 
     -> $super { 
         $super.add_subclass(self); 
     }`do_for(@superclasses);
@@ -139,7 +139,7 @@
     self`set_attr('@!MRO', self`mro_merge);    
 });
 
-::Class.add_method('MRO', -> {
+^Class.add_method('MRO', -> {
     @mro := self`get_attr('@!MRO');
     @mro`is_empty`cond(
         ->{ self`set_attr('@!MRO', self`mro_merge) },
@@ -147,54 +147,54 @@
     );
 });
 
-::Class.add_method('subclasses',   ->        { self`get_attr('@!subclasses') });
-::Class.add_method('add_subclass', -> $class { 
+^Class.add_method('subclasses',   ->        { self`get_attr('@!subclasses') });
+^Class.add_method('add_subclass', -> $class { 
     self`set_attr('@!subclasses', self`get_attr('@!subclasses')`push($class));
 });
 
 ## method related methods
 
-::Class.add_method('has_method', -> $name { 
+^Class.add_method('has_method', -> $name { 
     self`get_attr('%!methods')`exists($name);
 });
 
-::Class.add_method('get_method', -> $name { 
+^Class.add_method('get_method', -> $name { 
     self`get_attr('%!methods')`fetch($name); 
 });
 
-::Class.add_method('get_method_list', -> { 
+^Class.add_method('get_method_list', -> { 
     self`get_attr('%!methods')`keys(); 
 });
 
-::Class.add_method('remove_method', -> $name { 
+^Class.add_method('remove_method', -> $name { 
     self`set_attr('%!methods', self`get_attr('%!methods')`delete($name));
 });
 
 ## private-method related methods
 
-::Class.add_method('add_private_method', -> $name, $method { 
+^Class.add_method('add_private_method', -> $name, $method { 
     self`set_attr_hash('%!private_methods', $name, $method);
 });
 
-::Class.add_method('has_private_method', -> $name { 
+^Class.add_method('has_private_method', -> $name { 
     self`get_attr('%!private_methods')`exists($name);
 });
 
-::Class.add_method('get_private_method', -> $name { 
+^Class.add_method('get_private_method', -> $name { 
     self`get_attr('%!private_methods')`fetch($name); 
 });
 
-::Class.add_method('get_private_method_list', -> { 
+^Class.add_method('get_private_method_list', -> { 
     self`get_attr('%!private_methods')`keys(); 
 });
 
-::Class.add_method('remove_private_method', -> $name { 
+^Class.add_method('remove_private_method', -> $name { 
     self`set_attr('%!private_methods', self`get_attr('%!private_methods')`delete($name)); 
 });
 
 ## Method dispatching
 
-::Class.add_method('dispatcher', -> $order {
+^Class.add_method('dispatcher', -> $order {
     $order := $order`is_nil`or($order`eq('canonical'))`cond(
         ->{ 'ascendant' }, 
         ->{ $order      }
@@ -208,8 +208,8 @@
     );
 });
 
-::Class.add_private_method('make_dispatcher_iterator', -> @values {
-    $counter := ::`create({'' => 0});
+^Class.add_private_method('make_dispatcher_iterator', -> @values {
+    $counter := ^`create({'' => 0});
     -> {
         $idx := $counter`get_attr('');
         $counter`set_attr('', $idx`add(1));
@@ -217,50 +217,51 @@
     };
 });
 
-::Class.add_private_method('make_ascent_dispatcher', -> {
+^Class.add_private_method('make_ascent_dispatcher', -> {
     self!make_dispatcher_iterator(self.MRO);
 });
 
-::Class.add_private_method('make_descendant_dispatcher', -> {
+^Class.add_private_method('make_descendant_dispatcher', -> {
     self!make_dispatcher_iterator(self.MRO`reverse);
 });
 
 
 ## attribute related methods
 
-::Class.add_method('add_attribute', -> $name, $attr { 
+^Class.add_method('add_attribute', -> $name, $attr { 
     self`set_attr_hash('%!attributes', $name, $attr);
 });
 
-::Class.add_method('has_attribute', -> $name { 
+^Class.add_method('has_attribute', -> $name { 
     self`get_attr('%!attributes')`exists($name);
 });
 
-::Class.add_method('get_attribute', -> $name { 
+^Class.add_method('get_attribute', -> $name { 
     self`get_attr('%!attributes')`fetch($name); 
 });
 
-::Class.add_method('remove_attribute', -> $name { 
+^Class.add_method('remove_attribute', -> $name { 
     self`set_attr('%!attributes', self`get_attr('%!attributes')`delete($name)); 
 });
 
-::Class.add_method('get_attribute_list', -> { 
+^Class.add_method('get_attribute_list', -> { 
     self`get_attr('%!attributes')`keys(); 
 });
 
-::Class.add_method('get_attributes', -> { 
+^Class.add_method('get_attributes', -> { 
     self`get_attr('%!attributes')`values(); 
 });
 
 ## NOTE:
-## we assume that when ::Class was defined, that it's attributes
+## we assume that when ^Class was defined, that it's attributes
 ## were also defined, but only in the Instance type, and not in 
 ## it's meta-self
 
-::Class.add_attribute('@!MRO',             []);
-::Class.add_attribute('@!superclasses',    []);
-::Class.add_attribute('@!subclasses',      []);
-::Class.add_attribute('%!private_methods', {});
-::Class.add_attribute('%!methods',         {});
-::Class.add_attribute('%!attributes',      {});
+^Class.add_attribute('@!MRO',             []);
+^Class.add_attribute('@!superclasses',    []);
+^Class.add_attribute('@!subclasses',      []);
+^Class.add_attribute('%!private_methods', {});
+^Class.add_attribute('%!methods',         {});
+^Class.add_attribute('%!attributes',      {});
 
+::Class := ^Class`make_class;

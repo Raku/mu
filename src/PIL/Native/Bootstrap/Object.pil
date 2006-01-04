@@ -2,23 +2,23 @@
 ## Object
 ## ------------------------------------------------------------------------- ##
 
-::Object := ::Class.new({});
+^Object := ^Class.new({});
 
 # NOTE:
-# these three methods need to also live as ::Object instance
-# methods too. They would normally be inherited from ::Object
-# by ::Class, but becuase they need to exist prior to the 
-# creation of ::Object, we have to duplicate them. Better 
+# these three methods need to also live as ^Object instance
+# methods too. They would normally be inherited from ^Object
+# by ^Class, but becuase they need to exist prior to the 
+# creation of ^Object, we have to duplicate them. Better 
 # suggestions welcome :)
 
-::Object.add_method('BUILD',      ::Class.get_method('BUILD'));
-::Object.add_method('BUILDALL',   ::Class.get_method('BUILDALL'));
-::Object.add_method('DESTROYALL', ::Class.get_method('DESTROYALL'));
+^Object.add_method('BUILD',      ^Class.get_method('BUILD'));
+^Object.add_method('BUILDALL',   ^Class.get_method('BUILDALL'));
+^Object.add_method('DESTROYALL', ^Class.get_method('DESTROYALL'));
 
-::Object.add_method('class', -> { self`class(); });
-::Object.add_method('id',    -> { self`id();    });
+^Object.add_method('meta',  -> { self`meta(); });
+^Object.add_method('id',    -> { self`id();   });
 
-::Object.add_method('isa', -> $class {
+^Object.add_method('isa', -> $class {
     $?CLASS.name`eq($class)`cond(
         -> { true },
         -> {
@@ -37,9 +37,11 @@
     );    
 });
 
-::Object.add_method('can', -> $label {
+^Object.add_method('can', -> $label {
     &WALKMETH`($?CLASS.dispatcher('descendant'), $label)`not_nil`cond(
         -> { true  },
         -> { false }
     );
 });
+
+::Object := ^Object`make_class;

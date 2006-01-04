@@ -4,17 +4,17 @@
 # Pair is an immutable object, you must pass in the $!key and $!value 
 # arguments to the constructor, otherwise they will be nil.
 
-::Pair := ::Class.new({});
-::Pair.set_name('Pair');
-::Pair.set_version('0.0.1');
-::Pair.set_authority('url:pugscode.org');
+^Pair := ^Class.new({});
+^Pair.set_name('Pair');
+^Pair.set_version('0.0.1');
+^Pair.set_authority('url:pugscode.org');
 
-::Pair.set_superclasses([ ::Object ]);
+^Pair.set_superclasses([ ^Object ]);
 
-::Pair.add_attribute('$!key',   nil);
-::Pair.add_attribute('$!value', nil);
+^Pair.add_attribute('$!key',   nil);
+^Pair.add_attribute('$!value', nil);
 
-::Pair.add_method('BUILD', -> %params {
+^Pair.add_method('BUILD', -> %params {
     -> {
         self`set_attr('$!key', %params`fetch("k"))
     }`do_if(%params`exists("k"));
@@ -23,9 +23,9 @@
     }`do_if(%params`exists("v"));
 });
 
-::Pair.add_method('key',   -> { self`get_attr('$!key')   });
-::Pair.add_method('value', -> { self`get_attr('$!value') });
+^Pair.add_method('key',   -> { self`get_attr('$!key')   });
+^Pair.add_method('value', -> { self`get_attr('$!value') });
 
-::Pair.add_method('kv', -> { 
-    ::Array`create([ self.key(), self.value() ]) 
+^Pair.add_method('kv', -> { 
+    ^Array`create([ self.key(), self.value() ]) 
 });
