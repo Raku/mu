@@ -86,6 +86,11 @@ emitterCallback :: SyckEmitter -> Ptr () -> IO ()
 emitterCallback e vp = do 
     node <- thawNode vp
     case node of
+        YamlNil -> do
+            -- return syck_emit_scalar(e, "string", scalar_none, 0, 0, 0, "~", 1);
+            withCString "string" $ \string_literal ->       
+                withCString "~" $ \cs ->       
+                    syck_emit_scalar e string_literal scalarNone 0 0 0 cs 1
         (YamlStr str) -> do
             -- return syck_emit_scalar(e, "string", scalar_none, 0, 0, 0, SvPVX(sv), SvCUR(sv));
             withCString "string" $ \string_literal ->       

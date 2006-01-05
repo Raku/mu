@@ -6,6 +6,7 @@ module Pugs.Prim.Yaml (
 ) where
 import Pugs.Internals
 import Pugs.AST
+import Pugs.Pretty
 import Data.Yaml.Syck
 import qualified Data.Map as Map
 import qualified Data.IntMap as IntMap
@@ -44,9 +45,11 @@ dumpYaml v = do
 
 toYaml :: Val -> Eval YamlNode
 toYaml VUndef = return YamlNil
+--toYaml (VNum num) = return $ YamlStr -- better handled by pretty
 toYaml (VStr str) = return $ YamlStr (encodeUTF8 str)
 toYaml (VList nodes) = do
     fmap YamlSeq $ mapM toYaml nodes
+toYaml x = return $ YamlStr $ encodeUTF8 $ pretty x
 --toYaml (VHash hash) = do
 --    fmap YamlMap $ Map.toList hash
 
