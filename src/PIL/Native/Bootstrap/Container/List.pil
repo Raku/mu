@@ -1,0 +1,217 @@
+# --------------------------------------------------------------------------- #
+# List Container
+# --------------------------------------------------------------------------- #
+
+^List := ^Class.new({});
+
+^List.set_name('List');
+^List.set_version('0.0.1');
+^List.set_authority('url:pugscode.org');
+
+^List.set_superclasses([ ^Object ]);
+
+^List.add_attribute('@!list', []);
+
+^List.add_method('FETCH',      -> $i { self`get_attr('@!list')`fetch($i) });
+^List.add_method('FETCH_LIST', ->    { self`get_attr('@!list')           });
+
+# NOTE: 
+# I am cheating below, since i know that %params 
+# can easily have a @list in it (they are only names)
+# however, this might be a problem later on.
+# Ideally I would also override new, bless and maybe CREATE too
+# I think the new (as yet unimplemented) approach (ala the new S12) 
+# might fix this though.
+
+^List.add_method('BUILDALL', -> %params { self.BUILD(%params) });
+^List.add_method('BUILD',    -> %params {
+    self`set_attr('@!list', %params);
+});
+
+# --------------------------------------------------------------------------- #
+# List Role
+# --------------------------------------------------------------------------- #
+
+^rList := ^Role.new({});
+
+^rList.set_name('List');
+^rList.set_version('0.0.1');
+^rList.set_authority('url:pugscode.org');
+
+^rList.add_method('elems', -> { 
+    self.FETCH_LIST()`length() 
+});
+
+^rList.add_method('join', -> $sep {
+    -> @elems, $acc {
+        &redo := &?SUB;
+        @elems`is_empty()`cond(
+            -> { $acc },
+            -> { 
+                &redo`(
+                    @elems`splice(1), 
+                    @elems`length()`eq(1)`cond(
+                        -> { $acc`concat(@elems`fetch(0)`as_str()) },
+                        -> { $acc`concat(@elems`fetch(0)`as_str())`concat($sep`as_str()) }
+                    )
+                );
+            }
+        );
+    }`(self.FETCH_LIST(), '');
+});
+
+^rList.add_method('map', -> &func {
+    $?CLASS.new(
+        -> $elem {
+            &func`($elem)
+        }`do_for(self.FETCH_LIST())
+    );
+});
+
+^rList.add_method('grep', -> &func {
+    -> @list, @acc {
+        &redo := &?SUB;
+        @list`is_empty()`cond(
+            -> { $?CLASS.new(@acc) },
+            -> {
+                $elem := @list`fetch(0);
+                &func`($elem)`as_bit()`cond(
+                    -> { &redo`(@list`splice(1), @acc`push($elem)) },
+                    -> { &redo`(@list`splice(1), @acc)             }            
+                );
+            }
+        );
+    }`(self.FETCH_LIST(), []);
+});
+
+^rList.add_method('reverse', -> {
+    $?CLASS.new(self.FETCH_LIST()`reverse());
+});
+
+^rList.add_method('reduce', -> &func {
+    -> @list, $acc {
+        &redo := &?SUB;
+        @list`is_empty()`cond(
+            -> { $acc },
+            -> { &redo`(@list`splice(1), &func`($acc, @list`fetch(0))) }
+        );        
+    }`(self.FETCH_LIST()`splice(1), self.FETCH(0));
+});
+
+^rList.add_method('zip', -> @values {
+    -> @l, @r, @acc {
+        &redo := &?SUB;
+        @l`is_empty()`cond(
+            -> { $?CLASS.new(@acc) },
+            -> { &redo`(@l`splice(1), @r`splice(1), @acc`concat([ @l`fetch(0), @r`fetch(0) ])) }
+        );
+    }`(self.FETCH_LIST(), @values.FETCH_LIST(), []);
+});
+
+# bottom up merge sort
+^rList.add_method('sort', -> {
+    self.elems()`le(1)`cond(
+        -> { self },
+        -> {         
+            &compare := -> $a, $b { 
+                $a`eq($b)`cond(
+                    -> { 0 }, 
+                    -> { 
+                        $a`lt($b)`cond(
+                            -> { -1 }, 
+                            -> { 1 }
+                        );
+                    }
+                ); 
+            };
+
+            &split := -> @lst, @acc { 
+                &redo := &?SUB;            
+                @lst`length()`eq(0)`cond(
+                    -> { @acc },
+                    -> { &redo`(@lst`splice(1), @acc`push([ @lst`fetch(0) ])) } 
+                ); 
+            };   
+
+            &merge := -> @l1, @l2 { 
+                &redo := &?SUB;
+                @l1`is_nil()`cond(
+                    -> { @l2 },
+                    -> {
+                        @l1`is_empty()`cond(
+                            -> { @l2 },
+                            -> { 
+                                @l2`is_nil()`cond(
+                                    -> { @l1 },
+                                    -> {
+                                        @l2`is_empty()`cond(
+                                            -> { @l1 },
+                                            -> { 
+                                                $hl1 := @l1`fetch(0);
+                                                $hl2 := @l2`fetch(0);
+                                                &compare`($hl1, $hl2)`lt(0)`cond(
+                                                    ->{ 
+                                                        [ $hl1 ]`concat( &redo`( @l1`splice(1), @l2 ) ) 
+                                                    },
+                                                    ->{ 
+                                                        [ $hl2 ]`concat( &redo`( @l1, @l2`splice(1) ) ) 
+                                                    }
+                                                ); 
+                                            } 
+                                        );
+                                    }
+                                ); 
+                            } 
+                        );
+                    }
+                ); 
+            };                           
+
+            &mergepairs := -> @lst { 
+                &redo := &?SUB;
+                @lst`length()`le(1)`cond(
+                    -> { @lst`fetch(0) },
+                    -> { 
+                        &merge`(
+                            &merge`(@lst`fetch(0), @lst`fetch(1)), 
+                            &redo`(@lst`splice(2))
+                        );
+                    } 
+                );
+            };           
+
+            &mergesort := -> @lst { 
+                &redo := &?SUB;            
+                @lst`length()`eq(1)`cond(
+                    -> { @lst`fetch(0) },
+                    -> { &mergepairs`(@lst) } 
+                ) 
+            };
+
+            $?CLASS.new(&mergesort`(&split`(self.FETCH_LIST(), [])));
+        }
+    );
+});
+
+^rList.add_method('pop', -> {
+    self.FETCH(self.elems()`decrement());
+});
+
+^rList.add_method('push', -> $elem {
+    $?CLASS.new(self.FETCH_LIST()`concat([ $elem ]));
+});
+
+^rList.add_method('shift', -> {
+    self.FETCH(0);
+});
+
+^rList.add_method('unshift', -> $elem {
+    $?CLASS.new([ $elem ]`concat(self.FETCH_LIST()));
+});
+
+# --------------------------------------------------------------------------- #
+# Bootstrap List Container to List Role
+# --------------------------------------------------------------------------- #
+
+^List.set_roles([ ^rList ]);
+^List.resolve();

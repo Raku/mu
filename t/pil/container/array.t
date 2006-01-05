@@ -10,11 +10,30 @@ pil_is_eq(
 
 pil_is_eq('^Array.has_method("FETCH")', 'true', '... ^Array.has_method(FETCH)');
 pil_is_eq('^Array.has_method("STORE")', 'true', '... ^Array.has_method(STORE)');
+pil_is_eq('^Array.has_method("FETCH_LIST")', 'true', '... ^Array.has_method(FETCH_LIST)');
+pil_is_eq('^Array.has_method("STORE_LIST")', 'true', '... ^Array.has_method(STORE_LIST)');
+
+pil_is_eq('^Array.is_a(^Object)', 'true', '... ^Array.is_a(^Object)');
+pil_is_eq('^Array.isa("Object")', 'true', '... ^Array.isa(Object)');
+
+pil_is_eq('^Array.is_a(^List)', 'true', '... ^Array.is_a(^List)');
+pil_is_eq('^Array.isa("List")', 'true', '... ^Array.isa(List)');
 
 pil_is_eq('^Array.does("Array")', 'true', '... ^Array.does(Array)');
 
+# the inherited List interface
 for (qw(
-    elems join map grep reduce zip pop push shift unshift reverse sort keys values kv
+    elems join map grep reduce zip reverse sort
+    )) -> $method_name {
+    pil_is_eq(
+        '^Array`create([]).can("' ~ $method_name ~ '")', 
+        'true', 
+        '... ^Array`create().can(' ~ $method_name ~ ')');
+}
+
+# the Array interface
+for (qw(
+    pop push shift unshift reverse keys values kv pairs
     )) -> $method_name {
     pil_is_eq(
         '^Array.has_method("' ~ $method_name ~ '")', 
@@ -89,7 +108,7 @@ pil_is_eq($prelude ~
 pil_is_eq($prelude ~
     '@a.values()`fetch_list()',
     '[1, 2, 3]',
-    '... @a.keys() == [1, 2, 3]'); 
+    '... @a.values() == [1, 2, 3]'); 
     
 pil_is_eq($prelude ~
     '@a.kv().map(-> $x { $x`fetch_list() })`fetch_list()',
