@@ -5,7 +5,7 @@ use Test;
 
 # XXX - this needs to be updated when Str.split(Str) works again
 # this test really wants is_deeply()
-plan 75;
+plan 76;
 
 # split on an empty string
 
