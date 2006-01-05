@@ -46,46 +46,36 @@ data SyckKind = SyckMap | SyckSeq | SyckStr | SyckNil
 -- the extra comma here is not a bug
 #enum CInt, , scalar_none, scalar_1quote, scalar_2quote, scalar_fold, scalar_literal, scalar_plain
 
-#def typedef struct _EmitterExtras { char * ps; int l; } EmitterExtras;
+#def typedef void* EmitterExtras;
 type EmitterExtras = Ptr ()
 
 emitYaml :: YamlNode -> IO (Either String String)
 emitYaml node = do
-    alloca $ \(emitterExtras :: Ptr EmitterExtras) -> do
-        bracket syck_new_emitter syck_free_emitter $ \emitter -> do
-            -- set up output port
-            let out = P.empty
-                (outps, _, l) = P.toForeignPtr out
-            outpsF <- freezeFS outps
-            #{poke EmitterExtras, ps}  emitterExtras outpsF
-            #{poke EmitterExtras, l}   emitterExtras l
-            #{poke SyckEmitter, bonus} emitter       emitterExtras
-            syck_output_handler emitter =<< mkOutputCallback outputCallback
-            syck_emitter_handler emitter =<< mkEmitterCallback emitterCallback
-            nodePtr <- freezeNode node
-            let nodePtr' = fromIntegral $ nodePtr `minusPtr` nullPtr
-            trace ("node: " ++ (show node) ++ " nodePtr': " ++ (show nodePtr')) $ return ()
-            syck_emit emitter nodePtr'
-            syck_emitter_flush emitter 0
-            return . Right $ P.unpack out -- TODO: handle Left
+    bracket syck_new_emitter syck_free_emitter $ \emitter -> do
+        -- set up output port
+        out    <- newIORef ""
+        outPtr <- fmap castStablePtrToPtr (newStablePtr out)
+        #{poke SyckEmitter, bonus} emitter outPtr
+        syck_output_handler emitter =<< mkOutputCallback outputCallback
+        syck_emitter_handler emitter =<< mkEmitterCallback emitterCallback
+        nodePtr <- freezeNode node
+        let nodePtr' = fromIntegral $ nodePtr `minusPtr` nullPtr
+        -- trace ("node: " ++ (show node) ++ " nodePtr': " ++ (show nodePtr')) $ return ()
+        syck_emit emitter nodePtr'
+        syck_emitter_flush emitter 0
+        fmap Right $ readIORef out
 
 outputCallback :: SyckEmitter -> CString -> CLong -> IO ()
 outputCallback emitter buf len = do
-    bonus <- #{peek SyckEmitter, bonus} emitter
-    fp    <- readFS =<< #{peek EmitterExtras, ps}  bonus
-    l     <- #{peek EmitterExtras, l}   bonus
-    let fps = P.fromForeignPtr fp l
-    let new = P.packCStringLen (buf, fromIntegral len)
-    let (catPS, _, catL) = P.toForeignPtr $ P.append fps new
-    catPSF <- freezeFS catPS
-    #{poke EmitterExtras, ps} bonus catPSF
-    #{poke EmitterExtras, l}  bonus catL
-    return ()
+    outPtr  <- #{peek SyckEmitter, bonus} emitter
+    out     <- deRefStablePtr (castPtrToStablePtr outPtr)
+    str     <- peekCStringLen (buf, fromIntegral len)
+    modifyIORef out (++ str)
 
 freezeFS :: ForeignPtr Word8 -> IO FSPtr
 freezeFS ps = do
     ptr     <- newStablePtr ps
-    new (castPtr $ castStablePtrToPtr ptr)
+    return (castPtr $ castStablePtrToPtr ptr)
 
 readFS :: FSPtr -> IO (ForeignPtr Word8)
 readFS fs = do
@@ -142,19 +132,10 @@ errorCallback err parser cstr = do
 --freezeNode :: YamlNode -> IO SyckNodePtr
 freezeNode node = do
     ptr     <- newStablePtr node
-    new (castPtr $ castStablePtrToPtr ptr)
+    return (castPtr $ castStablePtrToPtr ptr)
 
 thawNode :: Ptr () -> IO YamlNode
-thawNode nodePtr = do
-    trace ("thawNode: nodePtr=" ++ show nodePtr) $ return ()
-    --let ptr = castPtr nodePtr
-    --trace ("thawNode: ptr=" ++ show ptr) $ return ()
-    -- deRefStablePtr (castPtrToStablePtr ptr)
-    rv <- deRefStablePtr (castPtrToStablePtr nodePtr)
-    rv' <- rv
-    trace ("thawNode: rv=" ++ show rv') $ return ()
-    rv
-    
+thawNode nodePtr = deRefStablePtr (castPtrToStablePtr nodePtr)
 
 readNode :: SyckParser -> SYMID -> IO YamlNode
 readNode parser symId = alloca $ \nodePtr -> do
