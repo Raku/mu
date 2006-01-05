@@ -35,23 +35,40 @@ fromYaml (YamlMap nodes) = do
     hv      <- liftSTM $ (newTVar (Map.fromList vals) :: STM IHash)
     return $ VRef (hashRef hv)
 
-dumpYaml :: Val -> Eval Val
-dumpYaml v = do
-    obj  <- toYaml =<< fromVal v
+dumpYaml :: Int -> Val -> Eval Val
+dumpYaml limit v = do
+    obj  <- toYaml limit =<< fromVal v
     rv   <- liftIO (emitYaml obj)
     case rv of
         Left err  -> fail $ "YAML Emit Error: " ++ err
         Right str -> return $ VStr str
 
-toYaml :: Val -> Eval YamlNode
-toYaml VUndef = return YamlNil
---toYaml (VNum num) = return $ YamlStr -- better handled by pretty
-toYaml (VStr str) = return $ YamlStr (encodeUTF8 str)
-toYaml (VList nodes) = do
-    fmap YamlSeq $ mapM toYaml nodes
-toYaml x = return $ YamlStr $ encodeUTF8 $ pretty x
---toYaml (VHash hash) = do
---    fmap YamlMap $ Map.toList hash
+toYaml :: Int -> Val -> Eval YamlNode
+toYaml 0 _ = return $ YamlStr "<deep recursion>" -- fail? make this configurable?
+toYaml _ VUndef = return YamlNil
+--toYaml (VNum num) = return $ YamlStr -- better handled by pretty?
+toYaml _ (VStr str) = return $ YamlStr (encodeUTF8 str)
+toYaml (d+1) (VList nodes) = do
+    fmap YamlSeq $ mapM (toYaml d) nodes
+toYaml (d+1) v@(VRef r) = do  -- stolen from Pugs.Prim prettyVal. Can these be refactored together?
+    v'  <- readRef r
+    ifValTypeIsa v "Pair"
+        (case v' of
+            VList [ks, vs] -> do
+                kStr <- toYaml d ks
+                vStr <- toYaml d vs
+                return $ YamlMap [(kStr, vStr)] -- assume a pair is a one-element hash
+            _ -> toYaml d v'                    -- XXX: probably broken to blithingly ignore ref levels here
+        )
+        (do nodes <- toYaml d v'
+            ifValTypeIsa v "Array"
+                (return $ nodes)
+                (ifValTypeIsa v "Hash"
+                    --(return $ YamlMap('{':(init (tail str))) ++ "}")
+                    (return nodes)
+                    (return $ YamlMap [(YamlStr "<ref>", nodes)])) -- XXX
+        )
+toYaml _ v = return $ YamlStr $ encodeUTF8 $ pretty v
 
 
     

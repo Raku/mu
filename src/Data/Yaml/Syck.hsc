@@ -45,6 +45,8 @@ data SyckKind = SyckMap | SyckSeq | SyckStr | SyckNil
 
 -- the extra comma here is not a bug
 #enum CInt, , scalar_none, scalar_1quote, scalar_2quote, scalar_fold, scalar_literal, scalar_plain
+#enum CInt, , seq_none, seq_inline
+#enum CInt, , map_none, map_inline
 
 #def typedef void* EmitterExtras;
 type EmitterExtras = Ptr ()
@@ -87,7 +89,7 @@ emitterCallback e vp = do
     node <- thawNode vp
     case node of
         YamlNil -> do
-            -- return syck_emit_scalar(e, "string", scalar_none, 0, 0, 0, "~", 1);
+            -- syck_emit_scalar(e, "string", scalar_none, 0, 0, 0, "~", 1);
             withCString "string" $ \string_literal ->       
                 withCString "~" $ \cs ->       
                     syck_emit_scalar e string_literal scalarNone 0 0 0 cs 1
@@ -96,6 +98,18 @@ emitterCallback e vp = do
             withCString "string" $ \string_literal ->       
                 withCString str $ \cs ->       
                     syck_emit_scalar e string_literal scalarNone 0 0 0 cs (toEnum $ length str)
+        (YamlSeq seq) -> do
+            -- syck_emit_seq(e, "array", seq_none);
+            withCString "array" $ \array_literal ->
+                syck_emit_seq e array_literal seqNone
+            mapM_ (syck_emit_item e) =<< (mapM freezeNode seq)
+            syck_emit_end e
+        (YamlMap m) -> do
+            error "not yet"
+            -- syck_emit_map(e, "hash", map_none);
+            withCString "hash" $ \hash_literal ->
+                syck_emit_map e hash_literal mapNone
+
 
 parseYaml :: String -> IO (Either String (Maybe YamlNode))
 parseYaml str = withCString str $ \cstr -> do
@@ -118,7 +132,7 @@ nodeCallback parser syckNode = do
     kind    <- syckNodeKind syckNode
     len     <- syckNodeLength kind syckNode
     node    <- parseNode kind parser syckNode len
-    nodePtr <- freezeNode node
+    nodePtr <- writeNode node
     symId   <- syck_add_sym parser nodePtr
     return (toEnum . fromEnum $ symId)
 
@@ -134,13 +148,18 @@ errorCallback err parser cstr = do
         , ", column ", show (cursor - lineptr)
         ]
 
---freezeNode :: YamlNode -> IO SyckNodePtr
+freezeNode :: YamlNode -> IO (Ptr a)
 freezeNode node = do
     ptr     <- newStablePtr node
     return (castPtr $ castStablePtrToPtr ptr)
 
 thawNode :: Ptr () -> IO YamlNode
 thawNode nodePtr = deRefStablePtr (castPtrToStablePtr nodePtr)
+
+writeNode :: YamlNode -> IO SyckNodePtr
+writeNode node = do
+    ptr     <- newStablePtr node
+    new (castPtr $ castStablePtrToPtr ptr)
 
 readNode :: SyckParser -> SYMID -> IO YamlNode
 readNode parser symId = alloca $ \nodePtr -> do
@@ -248,4 +267,16 @@ foreign import ccall
 
 foreign import ccall
     syck_emit_scalar :: SyckEmitter -> CString -> CInt -> CInt -> CInt -> CInt -> CString -> CInt -> IO ()
+
+foreign import ccall
+    syck_emit_seq :: SyckEmitter -> CString -> CInt -> IO ()
+
+foreign import ccall
+    syck_emit_item :: SyckEmitter -> SyckNodePtr -> IO ()
+
+foreign import ccall
+    syck_emit_end :: SyckEmitter -> IO ()
+
+foreign import ccall
+    syck_emit_map :: SyckEmitter -> CString -> CInt -> IO ()
 

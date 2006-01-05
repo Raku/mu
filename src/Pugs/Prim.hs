@@ -222,7 +222,7 @@ op1 "all"  = op1Cast opJuncAll
 op1 "one"  = op1Cast opJuncOne
 op1 "none" = op1Cast opJuncNone
 op1 "perl" = fmap VStr . prettyVal 0
-op1 "yaml" = dumpYaml
+op1 "yaml" = dumpYaml 1024 -- number == max recursion depth
 op1 "require_haskell" = \v -> do
     name    <- fromVal v
     externRequire "Haskell" name
