@@ -48,27 +48,61 @@ toYaml 0 _ = return $ YamlStr "<deep recursion>" -- fail? make this configurable
 toYaml _ VUndef = return YamlNil
 --toYaml (VNum num) = return $ YamlStr -- better handled by pretty?
 toYaml _ (VStr str) = return $ YamlStr (encodeUTF8 str)
-toYaml (d+1) (VList nodes) = do
-    fmap YamlSeq $ mapM (toYaml d) nodes
 toYaml (d+1) v@(VRef r) = do  -- stolen from Pugs.Prim prettyVal. Can these be refactored together?
     v'  <- readRef r
-    ifValTypeIsa v "Pair"
-        (case v' of
-            VList [ks, vs] -> do
-                kStr <- toYaml d ks
-                vStr <- toYaml d vs
-                return $ YamlMap [(kStr, vStr)] -- assume a pair is a one-element hash
-            _ -> toYaml d v'                    -- XXX: probably broken to blithingly ignore ref levels here
+    t <- evalValType v
+    trace ("toYaml VRef: " ++ (show v) ++ " type=" ++ (show t)) $ return ()
+    (ifValTypeIsa v "Hash"
+        (do 
+            case r of
+                MkRef (IHash hv) -> do
+                    h <- hash_fetch hv
+                    let assocs = Map.toList h
+                    yamlmap <- mapM ( \(k, v) -> do
+                        k' <- toYaml d (VStr k)
+                        v' <- toYaml d v
+                        return (k', v')) assocs
+                    return $ YamlMap yamlmap
+                _ -> error ("can't process hash: " ++ show v') -- XXX
         )
         (do nodes <- toYaml d v'
             ifValTypeIsa v "Array"
                 (return $ nodes)
-                (ifValTypeIsa v "Hash"
-                    --(return $ YamlMap('{':(init (tail str))) ++ "}")
-                    (return nodes)
-                    (return $ YamlMap [(YamlStr "<ref>", nodes)])) -- XXX
+                (return $ YamlMap [(YamlStr "<ref>", nodes)])) -- XXX
         )
+toYaml (d+1) (VList nodes) = do
+    trace ("toYaml VList: " ++ (show nodes)) $ return ()
+    fmap YamlSeq $ mapM (toYaml d) nodes
 toYaml _ v = return $ YamlStr $ encodeUTF8 $ pretty v
 
 
-    
+   
+{-
+ifValTypeIsa v "Pair"
+    (case v' of
+        VList [ks, vs] -> do
+            kStr <- toYaml d ks
+            vStr <- toYaml d vs
+            return $ YamlMap [(kStr, vStr)] -- assume a pair is a one-element hash
+        _ -> toYaml d v'                    -- XXX: probably broken to blithingly ignore ref levels here
+    )
+    (ifValTypeIsa v "Hash"
+        --fmap YamlMap $ mapM (\(k, v) -> do {k' <- toYaml k; v' <- toYaml v; return (k', v')}) Map.toList =<< hash_fetch v')
+        (do 
+            case r of
+                MkRef (IHash hv) -> do
+                    h <- hash_fetch hv
+                    let assocs = Map.toList h
+                    yamlmap <- mapM (\(k, v) -> do
+                        k' <- toYaml d (VStr k)
+                        v' <- toYaml d v
+                        return (k', v')) assocs
+                    return $ YamlMap yamlmap
+                _ -> error ("can't process hash: " ++ show v') -- XXX
+        )
+        (do nodes <- toYaml d v'
+            ifValTypeIsa v "Array"
+                (return $ nodes)
+                (return $ YamlMap [(YamlStr "<ref>", nodes)])) -- XXX
+    )
+-}

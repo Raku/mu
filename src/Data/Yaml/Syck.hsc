@@ -102,13 +102,16 @@ emitterCallback e vp = do
             -- syck_emit_seq(e, "array", seq_none);
             withCString "array" $ \array_literal ->
                 syck_emit_seq e array_literal seqNone
+            -- TODO: fix pesky warning about "integer from pointer without a cast" here
             mapM_ (syck_emit_item e) =<< (mapM freezeNode seq)
             syck_emit_end e
         (YamlMap m) -> do
-            error "not yet"
             -- syck_emit_map(e, "hash", map_none);
+            trace ("a hash: " ++ (show m)) $ return ()
             withCString "hash" $ \hash_literal ->
                 syck_emit_map e hash_literal mapNone
+            mapM_ (\(k,v) -> (syck_emit_item e =<< freezeNode k) >> (syck_emit_item e =<< freezeNode v)) m
+            syck_emit_end e
 
 
 parseYaml :: String -> IO (Either String (Maybe YamlNode))
