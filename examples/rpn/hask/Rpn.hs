@@ -13,7 +13,7 @@
 
 module Rpn (evaluate) where
 
-import Char
+import Data.Char
 -- import Debug.Trace
 
 -- Check that a string consists of just digits.
