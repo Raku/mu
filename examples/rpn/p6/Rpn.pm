@@ -12,7 +12,7 @@ module Rpn-0.0.1-cpan:ASAVIGE;
 sub evaluate (Str $expr) returns Int {
     my @stack;
     for ($expr.split()) -> $tok {
-        if $tok ~~ rx:Perl5/-?\d+/ {
+        if $tok ~~ rx:Perl5/^-?\d+$/ {
             @stack.push($tok);
             next;
         }

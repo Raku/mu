@@ -14,7 +14,7 @@ sub evaluate {
     my ($expr) = @_;
     my @stack;
     for my $tok (split ' ', $expr) {
-        if ($tok =~ /-?\d+/) {
+        if ($tok =~ /^-?\d+$/) {
             push @stack, $tok;
             next;
         }

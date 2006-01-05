@@ -92,7 +92,15 @@ exceptionTests = TestList ( map makeExceptionTest [
     ( "5 +",       "Stack underflow" ),
     ( "+",         "Stack underflow" ),
     ( "5 4 + 42",  "Invalid stack:[42,9]" ),
-    ( "",          "Invalid stack:[]" )
+    ( "",          "Invalid stack:[]" ),
+    ( "1 2 z9",    "Invalid token:\"z9\"" ),
+    ( "1 2 9z",    "Invalid token:\"9z\"" ),
+    ( "1 2 z-9",   "Invalid token:\"z-9\"" ),
+    ( "1 2 -9z",   "Invalid token:\"-9z\"" ),
+    ( "z9 42 +",   "Stack underflow" ),
+    ( "9z 42 +",   "Stack underflow" ),
+    ( "z-9 42 +",  "Stack underflow" ),
+    ( "-9z 42 +",  "Stack underflow" )
   ])
 
 main :: IO Counts

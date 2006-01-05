@@ -57,6 +57,14 @@ my @exception_tests = (
     [ '+',         "Stack underflow\n"        ],
     [ '5 4 + 42',  "Invalid stack:[9 42]\n"   ],
     [ '',          "Invalid stack:[]\n"       ],
+    [ '1 2 z9',    "Invalid token:\"z9\"\n"   ],
+    [ '1 2 9z',    "Invalid token:\"9z\"\n"   ],
+    [ '1 2 z-9',   "Invalid token:\"z-9\"\n"  ],
+    [ '1 2 -9z',   "Invalid token:\"-9z\"\n"  ],
+    [ 'z9 42 +',   "Stack underflow\n"        ],
+    [ '9z 42 +',   "Stack underflow\n"        ],
+    [ 'z-9 42 +',  "Stack underflow\n"        ],
+    [ '-9z 42 +',  "Stack underflow\n"        ],
 );
 
 plan @normal_tests.elems + @exception_tests.elems;

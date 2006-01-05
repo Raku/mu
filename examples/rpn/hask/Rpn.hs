@@ -20,7 +20,7 @@ import Char
 isStrDigit :: String -> Bool
 isStrDigit = all isDigit
 
--- Check that a string matches regex /-?\d+/.
+-- Check that a string matches regex /^-?\d+$/.
 isSNum :: String -> Bool
 isSNum []        = False
 isSNum "-"       = False
