@@ -1,0 +1,101 @@
+
+=pod
+
+=head1 NAME
+
+PIL^N object repr types
+
+=head1 DESCRIPTION
+
+I propose that *all* the objects in the PIL^N runtime be able to
+support the creation of the different kinds of $repr types. Each 
+different $repr type will have an accompanying vtable which will 
+contain the methods available to manipulate that $repr type. 
+There will be a few common methods available, they will be:
+
+   `meta() # returns the class of the instance
+   `id()   # returns the id of the instance
+   `repr() # returns the string name of the $repr type used
+
+The layout of these types will all be pretty similar, and look 
+something like this:
+               
+    +-------------+
+    | id          |
+    +-------------+
+    | meta-ptr    |
+    +-------------+
+    | <repr_type> |
+    +-------------+
+
+(With maybe a space for the $repr string as well, unless the host 
+language can easily infer this when needed.)
+
+Here is a description of each of the different $repr types:
+
+=head2 `create_opaque()
+
+The opaque type takes nothing in it's constructor, all items
+must be added to it using the methods in it's vtable. Those methods
+are as follows:
+
+	`get_attr($key)         # returns the value stored at $key
+	`has_attr($key)         # returns a bit type
+	`set_attr($key, $value) # returns nothing (void or nil)
+
+
+=head2 `create_array([])
+
+The array type should be passed a PIL^N list type, any values 
+found in that list will be added into the resulting object. It is
+also possible to add more elements as well, or even to replace the
+list entirely using the following vtable of methods:
+
+	`fetch_elem($index)         # fetches the value at $index
+	`store_elem($index, $value) # stores the $value at $index
+	`fetch_list()               # fetchs the list (returning a PIL^N list)
+	`store_list($list)			 # stores the list (expects a PIL^N list)
+
+=head2 `create_hash({})
+
+The hash type should be passed a PIL^N hash type, and any values 
+found with it will be transferred into the resulting object. As with
+the array and opaque types, it is possible to manipulate the elements
+further with the vtable of methods:
+
+	`fetch_elem($key)         # fetches the value at $key
+	`store_elem($key, $value) # stores the $value at $key
+	`fetch_hash()             # fetchs the hash (returning a PIL^N hash)
+	`store_hash($hash)		  # stores the hash (expects a PIL^N hash)
+	
+=head2 `create_scalar($value)
+
+As with the array and hash $repr types, this should be passed a PIL^N type. 
+(This could include list and hash types too, but it probably wouldn't make 
+sense really). The value passed can be stored and fetched with the following
+vtable of methods:
+
+	`fetch()       # returns the value stored
+	`store($value) # stored the $value passed in
+
+This repr type has some interesting qualities to it. It could be used to 
+not only implement the ^Scalar container type, but it can also be used for 
+the autoboxing of ^Int, ^Num, ^Str, etc. with no real specialization. 
+
+=head2 A few notes now on the meta-model implementation side:
+
+If ^Class.CREATE($repr, ...) can support different $repr types, each which 
+have their own fixed vtable of methods to act upon, then we need to make 
+sure to deal with the BUILD and BUILDALL methods appropriately. Assuming  
+of course that everything, at some point, will inherit from ^Object. 
+
+For example, if ^Array inherits from ^Object, but uses the array $repr 
+type, then it will need to override ^Object.BUILD (which uses `set_attr), 
+and it needs to override ^Object.BUILDALL as well since (by default) it 
+would attempt to call ^Object.BUILD.
+
+=head1 AUTHOR
+
+Stevan Little <stevan@iinteractive.com>
+
+=cut
