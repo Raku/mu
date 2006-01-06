@@ -37,7 +37,7 @@ fromYaml (YamlMap nodes) = do
 
 dumpYaml :: Int -> Val -> Eval Val
 dumpYaml limit v = do
-    obj  <- toYaml limit =<< fromVal v
+    obj  <- toYaml limit v
     rv   <- liftIO (emitYaml obj)
     case rv of
         Left err  -> fail $ "YAML Emit Error: " ++ err

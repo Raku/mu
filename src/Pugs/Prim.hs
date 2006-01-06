@@ -1559,7 +1559,7 @@ initSyms = mapM primDecl syms
 \\n   Any       pre     Pugs::Internals::eval_perl5   unsafe (Str)\
 \\n   Any       pre     Pugs::Internals::eval_haskell unsafe (Str)\
 \\n   Any       pre     Pugs::Internals::eval_yaml    safe   (Str)\
-\\n   Any       pre     yaml    safe   (rw!Any|Junction|Pair)\
+\\n   Str       pre     yaml    safe   (rw!Any|Junction|Pair)\
 \\n   Any       pre     require unsafe (?Str=$_)\
 \\n   Any       pre     use     unsafe (?Str=$_)\
 \\n   Any       pre     require_haskell unsafe (Str)\
