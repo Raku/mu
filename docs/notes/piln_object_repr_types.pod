@@ -82,6 +82,26 @@ This repr type has some interesting qualities to it. It could be used to
 not only implement the ^Scalar container type, but it can also be used for 
 the autoboxing of ^Int, ^Num, ^Str, etc. with no real specialization. 
 
+=head2 `create_nil()
+
+This is a very specialized repr type, which is used to implement the 
+"class but undef" part of the Perl 6 object model as spec-ed by @Larry. 
+This has no additional methods in it's vtable other than the core ones 
+(`meta, `id and `repr).
+
+The way this will be used is to create undefined instances of a class which 
+will act like any other instance of a the class, but evaluate to undef. It 
+will provide a means of dispatching to the meta-class as well through the
+`meta method. This nil instance serves as a "prototypical" instance through
+which you can inspect the behaviors of "real" instances.
+  
+  [13:53] stevan  so ::Int will have repr of nil, and ::Int.meta will be 
+                  ^Int,.. which means we will have a nil instance of ^Int
+  [13:53] stevan  I like that
+  [13:53] stevan  it works
+  [13:53] stevan  so ::Int's cls is ^Int
+  [13:53] audreyt yes.
+
 =head2 A few notes now on the meta-model implementation side:
 
 If ^Class.CREATE($repr, ...) can support different $repr types, each which 
