@@ -29,6 +29,11 @@ While that will work in some cases (and in fact I intentionally don't
 repeat many details here for brevity), it won't in others, so you should
 always check here for any possible conflicts.
 
+The SQL::Routine language is primarily declarative, in that it defines how
+implementations should appear and behave from a user's point of view, and
+it does not typically make any demands as to how implementations accomplish
+this behind the scenes.
+
 =head1 OPERATIONAL CONTEXT
 
 The SQL::Routine language is designed for a specific virtual environment,
@@ -153,7 +158,124 @@ of a hypothetical federated depot manager that lets you use a single
 database cloning utility or a multiplexer, I<all> of the visible catalogs
 would be the REMOTE type, and there wouldn't be any of the LOCAL type.
 
-=head1 DATA TYPES OVERVIEW
+=head1 DATA TYPES AND VALUES
+
+The SQL::Routine language is natively built around strong data types and
+values, which is part of its rigor and simplicity.  Every B<data value> is
+considered to have a specific B<data type>, and a data type is considered
+to be a domain of one or more representable values.  Examples of data types
+are booleans, numerics, character strings, bit strings, temporals,
+spatials, sets, relations, tuples, arrays, and nulls.  A B<data container>
+is a named and/or addressable site, considered to be of a specific data
+type, that always holds exactly one data value of the same data type.
+Generally speaking, any two data types are considered to be mutually
+exclusive, such that a data value can only be in the domain of one of the
+types, and not the other.  (The exception is if type A is declared to be a
+restriction of type B, or both are restrictions of type C.)
+
+If you want to compare two values that have different data types, you must
+explicitly cast one or both values into the same data type.  Likewise, if
+you want to use a value of one type in an operation that requires a value
+of a different type, such as when assigning to a container, the value must
+be cast into the needed type.  The details of casting depend on the two
+types involved, but often you must choose from several possible methods of
+casting; for example, when casting between a numeric and a character
+string, you must choose what numeric radix to use.  However, no casting
+choice is necessary if the data type of the value in hand is a restriction
+of the needed data type.
+
+The SQL::Routine language gains rigor from this requirement for strong
+typing and explicit casting methods because you have to be very explicit as
+to what behaviour is expected; as a result, there should be no ambiguity in
+the system and the depot manager should perform exactly as you intended.
+This reduces troublesome subtle bugs in your programs, making development
+faster, and making your programs more reliable.  Your data integrity is
+greatly improved, with certain causes of corruption removed, which is an
+important goal of any data management system, and supports the ideals of
+the relational data model.
+
+The SQL::Routine language gains simplicity from this same requirement,
+because your depot-centric routines can neatly avoid the combinatorial
+complexity that comes from being given a range of data types as values when
+you conceptually just want one type, and your code doesn't have to deal
+with all the possible cases.  The simpler routines are easier for
+developers to write, as they don't have to worry about several classes of
+error detection and handling (due to improper data formats), and the
+routines would also execute faster since they do less actual work.  Any
+necessary work to move less strict data from the outside to within the
+depot manager environment is handled by the depot manager itself and/or
+your external application components (the latter is where any user
+interaction takes place), so that work is un-necessary to do once the data
+is inside the depot manager environment.
+
+=head2 Classifications
+
+The SQL::Routine language has 2 main classes of data types, which are
+opaque data types and transparent data types.
+
+An opaque data type is like a black box whose internal representation is
+completely unknown to the user (and is determined by the depot manager),
+though its external interace and behaviour are clearly defined.  Or, an
+opaque data type is like an object in a typical programming language whose
+attributes are all private.  Conceptually speaking, all opaque data values
+are atomic and no sub-components are externally addressable for reading and
+changing, although the data type can provide its own specific methods or
+operators to extract or modify sub-components of an opaque data value.  An
+example is extracting a sub-string of a character string to produce a new
+character string, or extracting a calendar-specific month-day from a
+temporal type.
+
+A transparent data type is like a partitioned open box, such that each
+partition is a visibly distinct container or value that can be directly
+addressed for reading or writing.  Or, an opaque data type is like an
+object in a typical programming language whose attributes are all public.
+Conceptually speaking, all transparent data types are named collections of
+zero or more other data types, as if the transparent data value or
+container was an extra level of namespace.  Accessing these sub-component
+partitions individually is unambiguous and can be done without an accessor
+method.  An example is a single element in an array, or a single member of
+a set, or a single field in a tuple, or a single tuple in a relation.
+
+Opaque data types are further classified into unrestricted opaque data
+types and restricted opaque data types.  An unrestricted opaque type has
+the full natural domain of possible values, and that domain is infinite in
+size for most of them; eg, the unrestricted numerical type can accomodate
+any number from negative to positive infinity, though the unrestricted
+boolean type still only has 2 values, false and true.  A restricted opaque
+type is defined as a sub-type of another opaque type (restricted or not)
+which excludes part of the parent type's domain; eg a new type of numerical
+type can be defined that can only represent integers between 1 and 100.  A
+trivial case of a restricted type is one declared to be identical in range
+to the parent type, such as if it simply served as an alias; that is also
+how you always declare a boolean type.  A restricted type can implicitly be
+used as input to all operations that its parent type could be, though it
+can only be used conditionally as output.
+
+Note that, for considerations of practicality, as computers are not
+infinite, the SQL::Routine language requires you to explicitly declare a
+container (but not a value) to be of a restricted opaque type, having a
+defined finite range in its domain, though that domain can still be very
+large.  This allows depot manager implementations to know whether or not
+they need to do something very inefficient in order to store extremely
+large possible values (such as implement a numeric using a LOB), or whether
+a more efficient but more limited solution will work (using an
+implementation-native numeric type); stating your intentions by defining a
+finite range helps everything work better.
+
+Transparent data types are further classified into collective and
+disjunctive transparent data types.  A collective transparent data type is
+what you normally think of with transparent types, and includes arrays,
+sets, relations, and tuples; each one can contain zero or more distinct
+sub-values at once.  A disjunctive transparent data type is the means that
+the SQL::Routine language provides to simulate both weak data types and
+normal-but-nullable data types.  It looks like a tuple where only one field
+is allowed to contain a non-empty value at once, and it has a distinct
+field for each possible strong data type that the weak type can encompass
+(one being of the null type when simulating nullability); it actually has
+one more field than that, always valued, which says which of the other
+fields contains the important value.
+
+=head1 OLDER DOCUMENTATION TO REWRITE/REMOVE: DATA TYPES OVERVIEW
 
 The SQL::Routine language is strongly typed, following the relational
 model's ideals of stored data integrity, and the actual practice of SQL and
