@@ -1,0 +1,99 @@
+#!pil
+
+=pod
+
+=head1 DESCRIPTION
+
+This is a bottom-up mergesort from the Algorithms 
+book (see READTHEM file). It was first translated 
+from Haskell to PIL^N by tewk, and then finished 
+off by myself.
+
+=head1 AUTHOR
+
+Stevan Little <stevan@iinteractive.com>
+
+=cut
+
+&compare := -> $a, $b { 
+    $a`eq($b)`cond(
+        -> { 0 }, 
+        -> { 
+            $a`lt($b)`cond(
+                -> { -1 }, 
+                -> { 1 }
+            );
+        }
+    ); 
+};
+
+&split := -> @lst, @acc { 
+    &redo := &?SUB;            
+    @lst`length()`eq(0)`cond(
+        -> { @acc },
+        -> { &redo`(@lst`splice(1), @acc`push([ @lst`fetch(0) ])) } 
+    ); 
+};   
+
+&merge := -> @l1, @l2 { 
+    &redo := &?SUB;
+    @l1`is_nil()`cond(
+        -> { @l2 },
+        -> {
+            @l1`is_empty()`cond(
+                -> { @l2 },
+                -> { 
+                    @l2`is_nil()`cond(
+                        -> { @l1 },
+                        -> {
+                            @l2`is_empty()`cond(
+                                -> { @l1 },
+                                -> { 
+                                    $hl1 := @l1`fetch(0);
+                                    $hl2 := @l2`fetch(0);
+                                    &compare`($hl1, $hl2)`lt(0)`cond(
+                                        ->{ 
+                                            [ $hl1 ]`concat( &redo`( @l1`splice(1), @l2 ) ) 
+                                        },
+                                        ->{ 
+                                            [ $hl2 ]`concat( &redo`( @l1, @l2`splice(1) ) ) 
+                                        }
+                                    ); 
+                                } 
+                            );
+                        }
+                    ); 
+                } 
+            );
+        }
+    ); 
+};                           
+
+&mergepairs := -> @lst { 
+    &redo := &?SUB;
+    @lst`length()`le(1)`cond(
+        -> { @lst`fetch(0) },
+        -> { 
+            &merge`(
+                &merge`(@lst`fetch(0), @lst`fetch(1)), 
+                &redo`(@lst`splice(2))
+            );
+        } 
+    );
+};           
+
+&mergesort := -> @lst { 
+	-> @lst {
+	    &redo := &?SUB;            
+	    @lst`length()`eq(1)`cond(
+	        -> { @lst`fetch(0) },
+	        -> { &mergepairs`(@lst) } 
+	    ) 
+	}`(&split`(@lst, []))
+};
+
+
+#&mergesort`(['h', 'e', 'l', 'l', 'o', ' ', 'w', 'o', 'r', 'l', 'd']);
+
+&mergesort`([33, 1212, 9, 1, 3433, 2, 3, 7, 9, 9, 45, 35, 27, 44, 10101, 0, -50]);
+
