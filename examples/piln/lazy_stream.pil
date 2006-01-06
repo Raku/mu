@@ -1,0 +1,54 @@
+#!pil
+
+=pod
+
+=head1 DESCRIPTION
+
+This is a very simple numeric range implemeted as 
+a functional lazy stream. The head of the stream 
+is a value, and the tail is another lazy stream 
+which will return the next element in the stream 
+until the stream is exhausted, at which point it
+will return nil.
+
+This also supports infinite streams as well, if 
+you pass in nil as the $end parameter, it will
+go on forever. 
+
+=head1 AUTHOR
+
+Stevan Little <stevan@iinteractive.com>
+
+=cut
+
+&num_range := -> $start, $end {
+	-> {
+		[ $start, 
+		  $start`eq($end)`cond(
+		  	  -> { nil },
+			  -> { &num_range`($start`increment(), $end) }
+		)]
+	};
+};
+
+&head := -> &range { &range`()`fetch(0) };
+&tail := -> &range { &range`()`fetch(1) };
+
+&show := -> &r {
+	&redo := &?SUB;
+	&head`(&r)`trace();
+	&tail`(&r)`is_nil()`cond(
+		-> { nil },
+		-> { &redo`(&tail`(&r)) }
+	)
+};
+
+&show`(&num_range`(0, 10));
+
+# Uncomment below for an infinite stream.
+# By passing nil in as the $end parameter,
+# then we get an infinite range since $start
+# will never match nil :)
+# &show`(&num_range`(1, nil));
+
+
