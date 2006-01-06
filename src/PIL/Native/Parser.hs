@@ -233,7 +233,7 @@ nativeLangDef  = javaStyle
     , commentLine    = "#"
     , nestedComments = False
     , identStart     = oneOf "$@%&:^"
-    , identLetter    = noneOf " \n\t.`!,;()[]{}<>#"
+    , identLetter    = noneOf " \n\t.`!,;()[]{}#"
     }
 
 nativeLangLexer :: P.TokenParser st
