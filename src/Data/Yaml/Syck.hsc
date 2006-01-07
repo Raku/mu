@@ -19,12 +19,17 @@ import Foreign.C.String
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Utils
 import Foreign.Storable
+import Data.Maybe (isJust)
+import Control.Monad (when)
 
 import Debug.Trace
 import Control.Monad.Trans
 
+type YamlTag = Maybe String
+
+-- XXX: add tags for other types except maps?
 data YamlNode
-    = YamlMap [(YamlNode, YamlNode)]
+    = YamlMap YamlTag [(YamlNode, YamlNode)]
     | YamlSeq [YamlNode]
     | YamlStr String
     | YamlNil
@@ -62,7 +67,6 @@ emitYaml node = do
         syck_emitter_handler emitter =<< mkEmitterCallback emitterCallback
         nodePtr <- freezeNode node
         let nodePtr' = fromIntegral $ nodePtr `minusPtr` nullPtr
-        -- trace ("node: " ++ (show node) ++ " nodePtr': " ++ (show nodePtr')) $ return ()
         syck_emit emitter nodePtr'
         syck_emitter_flush emitter 0
         fmap Right $ readIORef out
@@ -85,33 +89,39 @@ readFS fs = do
     deRefStablePtr (castPtrToStablePtr ptr)
 
 emitterCallback :: SyckEmitter -> Ptr () -> IO ()
-emitterCallback e vp = do 
-    node <- thawNode vp
-    case node of
-        YamlNil -> do
-            -- syck_emit_scalar(e, "string", scalar_none, 0, 0, 0, "~", 1);
-            withCString "string" $ \string_literal ->       
-                withCString "~" $ \cs ->       
-                    syck_emit_scalar e string_literal scalarNone 0 0 0 cs 1
-        (YamlStr str) -> do
-            -- return syck_emit_scalar(e, "string", scalar_none, 0, 0, 0, SvPVX(sv), SvCUR(sv));
-            withCString "string" $ \string_literal ->       
-                withCString str $ \cs ->       
-                    syck_emit_scalar e string_literal scalarNone 0 0 0 cs (toEnum $ length str)
-        (YamlSeq seq) -> do
-            -- syck_emit_seq(e, "array", seq_none);
-            withCString "array" $ \array_literal ->
-                syck_emit_seq e array_literal seqNone
-            -- TODO: fix pesky warning about "integer from pointer without a cast" here
-            mapM_ (syck_emit_item e) =<< (mapM freezeNode seq)
-            syck_emit_end e
-        (YamlMap m) -> do
-            -- syck_emit_map(e, "hash", map_none);
-            trace ("a hash: " ++ (show m)) $ return ()
-            withCString "hash" $ \hash_literal ->
-                syck_emit_map e hash_literal mapNone
-            mapM_ (\(k,v) -> (syck_emit_item e =<< freezeNode k) >> (syck_emit_item e =<< freezeNode v)) m
-            syck_emit_end e
+emitterCallback e vp = emitNode e =<< thawNode vp
+    
+emitNode :: SyckEmitter -> YamlNode -> IO ()
+emitNode e YamlNil = do
+    -- syck_emit_scalar(e, "string", scalar_none, 0, 0, 0, "~", 1);
+    withCString "string" $ \string_literal ->       
+        withCString "~" $ \cs ->       
+            syck_emit_scalar e string_literal scalarNone 0 0 0 cs 1
+
+emitNode e (YamlStr str) = do
+    -- return syck_emit_scalar(e, "string", scalar_none, 0, 0, 0, SvPVX(sv), SvCUR(sv));
+    withCString "string" $ \string_literal ->       
+        withCString str $ \cs ->       
+            syck_emit_scalar e string_literal scalarNone 0 0 0 cs (toEnum $ length str)
+
+emitNode e (YamlSeq seq) = do
+    -- syck_emit_seq(e, "array", seq_none);
+    withCString "array" $ \array_literal ->
+        syck_emit_seq e array_literal seqNone
+    -- TODO: fix pesky warning about "integer from pointer without a cast" here
+    mapM_ (syck_emit_item e) =<< (mapM freezeNode seq)
+    syck_emit_end e
+
+emitNode e (YamlMap tag m) = do
+    -- syck_emit_map(e, "hash", map_none);
+    trace ("hash<" ++ maybe "" id tag ++">: " ++ (show m)) $ return ()
+    withCString (maybe "hash" id tag) $ \hash_literal -> do
+        syck_emit_map e hash_literal mapNone
+        when (isJust tag) (do {syck_emit_tag e hash_literal nullPtr ; return ()})
+    flip mapM_ m (\(k,v) -> do
+        syck_emit_item e =<< freezeNode k
+        syck_emit_item e =<< freezeNode v)
+    syck_emit_end e
 
 
 parseYaml :: String -> IO (Either String (Maybe YamlNode))
@@ -186,7 +196,7 @@ parseNode SyckMap parser syckNode len = do
         valId   <- syck_map_read syckNode 1 idx
         val     <- readNode parser valId
         return (key, val)
-    return $ YamlMap pairs
+    return $ YamlMap Nothing pairs
 
 parseNode SyckSeq parser syckNode len = do
     nodes <- (`mapM` [0..len-1]) $ \idx -> do
@@ -282,4 +292,7 @@ foreign import ccall
 
 foreign import ccall
     syck_emit_map :: SyckEmitter -> CString -> CInt -> IO ()
+
+foreign import ccall
+    syck_emit_tag :: SyckEmitter -> CString -> CString -> IO ()
 
