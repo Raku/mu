@@ -42,9 +42,8 @@ dumpYaml :: Int -> Val -> Eval Val
 dumpYaml limit v = do
     obj  <- toYaml limit v
     rv   <- liftIO (emitYaml obj)
-    case rv of
-        Left err  -> fail $ "YAML Emit Error: " ++ err
-        Right str -> return $ VStr str
+    either (fail . ("YAML Emit Error: "++))
+           (return . VStr) rv
 
 toYaml :: Int -> Val -> Eval YamlNode
 toYaml 0     _          = return $ YamlStr "<deep recursion>" -- fail? make this configurable?
@@ -66,21 +65,21 @@ toYaml (d+1) v@(VObject obj) = do
     -- currently, this'll return Foo.new((attr => "value)), with the inner
     -- parens, which is, of course, wrong.
     hash    <- fromVal v :: Eval VHash
-    attrs   <- toYaml d (VRef (hashRef hash))
+    attrs   <- toYaml d $ VRef (hashRef hash)
     return $ addTag (Just $ "!pugs:object/" ++ showType (objType obj)) attrs
     where
-    addTag _ (YamlMap (Just x) _) = error ("can't add tag: already tagged with" ++ x)
-    addTag tag (YamlMap _ m) = YamlMap tag m
-toYaml _ v = return $ YamlStr $ encodeUTF8 $ pretty v
+    addTag _   (YamlMap (Just x) _) = error ("can't add tag: already tagged with" ++ x)
+    addTag tag (YamlMap _        m) = YamlMap tag m
+toYaml _ v = (return . YamlStr . encodeUTF8 . pretty) v
 
 hashToYaml :: Int -> VRef -> Eval YamlNode
 hashToYaml d (MkRef (IHash hv)) = do
     h <- hash_fetch hv
     let assocs = Map.toList h
-    yamlmap <- flip mapM assocs (\(ka, va) -> do
-        ka' <- toYaml d (VStr ka)
+    yamlmap <- flip mapM assocs $ \(ka, va) -> do
+        ka' <- toYaml d $ VStr ka
         va' <- toYaml d va
-        return (ka', va'))
+        return (ka', va')
     return $ YamlMap Nothing yamlmap
 hashToYaml _ r = error ("unexpected node: " ++ show r)
    
