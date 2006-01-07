@@ -947,7 +947,6 @@ rule QuantifierPrefix {  # see 15.10.1
 rule Atom {  # see 15.10.1
       <PatternCharacter>
     | <'.'>
-}
     | <'\\'> <AtomEscape>
     | <CharacterClass>
     | <'('> <Disjunction> <')'>
