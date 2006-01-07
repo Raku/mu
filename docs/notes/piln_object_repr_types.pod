@@ -35,8 +35,8 @@ Here is a description of each of the different $repr types:
 
 =head2 `create_opaque()
 
-The opaque type takes nothing in it's constructor, all items
-must be added to it using the methods in it's vtable. Those methods
+The opaque type takes nothing in its constructor, all items
+must be added to it using the methods in its vtable. Those methods
 are as follows:
 
 	`get_attr($key)         # returns the value stored at $key
@@ -86,7 +86,7 @@ the autoboxing of ^Int, ^Num, ^Str, etc. with no real specialization.
 
 This is a very specialized repr type, which is used to implement the 
 "class but undef" part of the Perl 6 object model as spec-ed by @Larry. 
-This has no additional methods in it's vtable other than the core ones 
+This has no additional methods in its vtable other than the core ones 
 (`meta, `id and `repr).
 
 The way this will be used is to create undefined instances of a class which 

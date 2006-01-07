@@ -18,7 +18,7 @@ PIL.Native.Parser
 
 This module implements a parser for a mini-language which is embedded 
 inside the language runtime. It is used to "script" the interactions of
-the core runtime types. It's primary purpose is to describe the object 
+the core runtime types. Its primary purpose is to describe the object 
 metamodel. 
 
 Here are some examples of the syntax:
@@ -42,7 +42,7 @@ Hashes:
   
 Blocks:  
   
-  -> $x { $x }; # create a closure which returns it's own argument
+  -> $x { $x }; # create a closure which returns its own argument
   (-> $x { $x`add(1) })`(3); # call a closure with `() 
 
 Method Invocation:
