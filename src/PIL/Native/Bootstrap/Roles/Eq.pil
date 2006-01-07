@@ -1,0 +1,21 @@
+# --------------------------------------------------------------------------- #
+# Eq Role
+# --------------------------------------------------------------------------- #
+# - based on the Haskell class Eq
+# - circularly defined, implementer will need to define something
+#   this may not be a good idea, but it's damn cool :P
+# --------------------------------------------------------------------------- #
+
+^Eq := ^Role.new({});
+
+^Eq.set_name('Eq');
+^Eq.set_version('0.0.1');
+^Eq.set_authority('url:pugscode.org');
+
+^Eq.add_method('infix:<==>',  -> $other {
+	self.infix:<!=>($other)`not()
+});
+
+^Eq.add_method('infix:<!=>',  -> $other {
+	self.infix:<==>($other)`not()
+});

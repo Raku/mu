@@ -1,0 +1,57 @@
+# --------------------------------------------------------------------------- #
+# Ord Role
+# --------------------------------------------------------------------------- #
+# - based on Haskell's Ord class
+# - like Eq is circularly defined, again, maybe a bad idea, but we will see.
+# --------------------------------------------------------------------------- #
+
+^Ord := ^Role.new({});
+
+^Ord.set_name('Ord');
+^Ord.set_version('0.0.1');
+^Ord.set_authority('url:pugscode.org');
+
+^Ord.set_roles(^Eq);
+
+^Ord.add_method('infix:<<>',  -> $other {
+	self.infix:<<=>>($other)`eq(-1);
+}); 
+
+^Ord.add_method('infix:<<=>', -> $other {
+	self.infix:<<=>>($other)`le(0);
+});
+
+^Ord.add_method('infix:<>=>', -> $other {
+	self.infix:<<=>>($other)`ge(0);
+});
+
+^Ord.add_method('infix:<>>',  -> $other {
+	self.infix:<<=>>($other)`eq(1);
+});
+
+^Ord.add_method('infix:<<=>>', -> $other {
+	self.infix:<==>($other)`cond(
+		-> { 0 },
+		-> {
+			self.infix:<<=>($other)`cond(
+				-> { -1 },
+				-> {  1 }
+			)
+		}
+	);
+});
+
+^Ord.add_method('min', -> $other {
+	self.infix:<<>($other)`cond(
+		-> { self   },
+		-> { $other }
+	);
+});
+
+^Ord.add_method('max', -> $other {
+	self.infix:<>=>($other)`cond(
+		-> { self   },
+		-> { $other }
+	);
+});
+

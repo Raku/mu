@@ -1,0 +1,54 @@
+# --------------------------------------------------------------------------- #
+# Num Role
+# --------------------------------------------------------------------------- #
+# - based partially on Haskell's Num class
+# --------------------------------------------------------------------------- #
+
+^Num := ^Role.new({});
+
+^Num.set_name('Ord');
+^Num.set_version('0.0.1');
+^Num.set_authority('url:pugscode.org');
+
+^Num.set_roles(^Ord);
+
+^Num.add_method('infix:<+>', -> $other {
+	# ... addition
+});
+
+^Num.add_method('infix:<*>', -> $other {
+	# ... multiplication
+});
+
+^Num.add_method('infix:</>', -> $other {
+	# ... division
+});
+
+^Num.add_method('infix:<^>', -> $other {
+	# ... exponent
+});
+
+^Num.add_method('infix:<%>', -> $other {
+	# ... modulus
+});
+
+^Num.add_method('infix:<->', -> $other {
+	# ... subtraction
+	self.infix:<+>($other.prefix:<->())
+});
+
+^Num.add_method('prefix:<->', -> {
+	# ... negation
+	# 0 - x
+	$?CLASS.new(0).infix:<->(self); 
+});
+
+# NOTE:
+# This may not be right, and oversimplified
+^Num.add_method('abs', -> {
+	# (x < 0) ?? (x * -1) !! x
+	self.infix:<<>($?CLASS.new(0))`cond(
+		-> { self },
+		-> { self.infix:<*>($?CLASS.new(-1)) }
+	);
+});
