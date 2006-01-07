@@ -89,39 +89,35 @@ readFS fs = do
     deRefStablePtr (castPtrToStablePtr ptr)
 
 emitterCallback :: SyckEmitter -> Ptr () -> IO ()
-emitterCallback e vp = emitNode e =<< thawNode vp
+emitterCallback e vp = let ?e = e in emitNode =<< thawNode vp
     
-emitNode :: SyckEmitter -> YamlNode -> IO ()
-emitNode e YamlNil = do
-    -- syck_emit_scalar(e, "string", scalar_none, 0, 0, 0, "~", 1);
+emitNode :: (?e :: SyckEmitter) -> YamlNode -> IO ()
+emitNode YamlNil = do
     withCString "string" $ \string_literal ->       
         withCString "~" $ \cs ->       
-            syck_emit_scalar e string_literal scalarNone 0 0 0 cs 1
+            syck_emit_scalar ?e string_literal scalarNone 0 0 0 cs 1
 
-emitNode e (YamlStr str) = do
-    -- return syck_emit_scalar(e, "string", scalar_none, 0, 0, 0, SvPVX(sv), SvCUR(sv));
+emitNode (YamlStr str) = do
     withCString "string" $ \string_literal ->       
         withCString str $ \cs ->       
-            syck_emit_scalar e string_literal scalarNone 0 0 0 cs (toEnum $ length str)
+            syck_emit_scalar ?e string_literal scalarNone 0 0 0 cs (toEnum $ length str)
 
-emitNode e (YamlSeq seq) = do
-    -- syck_emit_seq(e, "array", seq_none);
+emitNode (YamlSeq seq) = do
     withCString "array" $ \array_literal ->
-        syck_emit_seq e array_literal seqNone
+        syck_emit_seq ?e array_literal seqNone
     -- TODO: fix pesky warning about "integer from pointer without a cast" here
-    mapM_ (syck_emit_item e) =<< (mapM freezeNode seq)
-    syck_emit_end e
+    mapM_ (syck_emit_item ?e) =<< (mapM freezeNode seq)
+    syck_emit_end ?e
 
-emitNode e (YamlMap tag m) = do
-    -- syck_emit_map(e, "hash", map_none);
-    trace ("hash<" ++ maybe "" id tag ++">: " ++ (show m)) $ return ()
+emitNode (YamlMap tag m) = do
+    -- trace ("hash<" ++ maybe "" id tag ++">: " ++ (show m)) $ return ()
     withCString (maybe "hash" id tag) $ \hash_literal -> do
-        syck_emit_map e hash_literal mapNone
-        when (isJust tag) (do {syck_emit_tag e hash_literal nullPtr ; return ()})
+        syck_emit_map ?e hash_literal mapNone
+        when (isJust tag) (do {syck_emit_tag ?e hash_literal nullPtr ; return ()})
     flip mapM_ m (\(k,v) -> do
-        syck_emit_item e =<< freezeNode k
-        syck_emit_item e =<< freezeNode v)
-    syck_emit_end e
+        syck_emit_item ?e =<< freezeNode k
+        syck_emit_item ?e =<< freezeNode v)
+    syck_emit_end ?e
 
 
 parseYaml :: String -> IO (Either String (Maybe YamlNode))

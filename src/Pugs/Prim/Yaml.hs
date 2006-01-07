@@ -39,49 +39,49 @@ fromYaml (YamlMap _ nodes) = do
     return $ VRef (hashRef hv)
 
 dumpYaml :: Int -> Val -> Eval Val
-dumpYaml limit v = do
-    obj  <- toYaml limit v
+dumpYaml limit v = let ?d = limit in do
+    obj  <- toYaml v
     rv   <- liftIO (emitYaml obj)
     either (fail . ("YAML Emit Error: "++))
            (return . VStr) rv
 
-toYaml :: Int -> Val -> Eval YamlNode
-toYaml 0     _          = return $ YamlStr "<deep recursion>" -- fail? make this configurable?
-toYaml _     VUndef     = return YamlNil
-toYaml _     (VStr str) = return $ YamlStr (encodeUTF8 str)
-toYaml (d+1) v@(VRef r) = do
+toYaml :: (?d :: Int) => Val -> Eval YamlNode
+toYaml _ | ?d == 0  = return $ YamlStr "<deep recursion>" -- fail? make this configurable?
+toYaml VUndef       = return YamlNil
+toYaml (VStr str)   = return $ YamlStr (encodeUTF8 str)
+toYaml v@(VRef r)   = let ?d = pred ?d in do
     t  <- evalValType v
-    ifValTypeIsa v "Hash" (hashToYaml d r) $ do
+    ifValTypeIsa v "Hash" (hashToYaml r) $ do
         v'      <- readRef r
-        nodes   <- toYaml d v'
+        nodes   <- toYaml v'
         ifValTypeIsa v "Array" (return nodes) $ case v' of
             VObject _   -> return nodes
             _           -> return (YamlMap Nothing [(YamlStr "<ref>", nodes)])
-toYaml (d+1) (VList nodes) = do
-    fmap YamlSeq $ mapM (toYaml d) nodes
-toYaml (d+1) v@(VObject obj) = do
+toYaml (VList nodes) = let ?d = pred ?d in do
+    fmap YamlSeq $ mapM toYaml nodes
+toYaml v@(VObject obj) = let ?d = pred ?d in do
     -- ... dump the objAttrs
     -- XXX this needs fixing WRT demagicalized pairs:
     -- currently, this'll return Foo.new((attr => "value)), with the inner
     -- parens, which is, of course, wrong.
     hash    <- fromVal v :: Eval VHash
-    attrs   <- toYaml d $ VRef (hashRef hash)
+    attrs   <- toYaml $ VRef (hashRef hash)
     return $ addTag (Just $ "!pugs:object/" ++ showType (objType obj)) attrs
     where
     addTag _   (YamlMap (Just x) _) = error ("can't add tag: already tagged with" ++ x)
     addTag tag (YamlMap _        m) = YamlMap tag m
-toYaml _ v = (return . YamlStr . encodeUTF8 . pretty) v
+toYaml v = (return . YamlStr . encodeUTF8 . pretty) v
 
-hashToYaml :: Int -> VRef -> Eval YamlNode
-hashToYaml d (MkRef (IHash hv)) = do
+hashToYaml :: (?d :: Int) => VRef -> Eval YamlNode
+hashToYaml (MkRef (IHash hv)) = do
     h <- hash_fetch hv
     let assocs = Map.toList h
     yamlmap <- flip mapM assocs $ \(ka, va) -> do
-        ka' <- toYaml d $ VStr ka
-        va' <- toYaml d va
+        ka' <- toYaml $ VStr ka
+        va' <- toYaml va
         return (ka', va')
     return $ YamlMap Nothing yamlmap
-hashToYaml _ r = error ("unexpected node: " ++ show r)
+hashToYaml r = error ("unexpected node: " ++ show r)
    
 {-
 ifValTypeIsa v "Pair"
