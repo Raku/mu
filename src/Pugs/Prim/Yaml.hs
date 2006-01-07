@@ -47,38 +47,18 @@ dumpYaml limit v = do
         Right str -> return $ VStr str
 
 toYaml :: Int -> Val -> Eval YamlNode
-toYaml 0 _ = return $ YamlStr "<deep recursion>" -- fail? make this configurable?
-toYaml _ VUndef = return YamlNil
---toYaml (VNum num) = return $ YamlStr -- better handled by pretty?
-toYaml _ (VStr str) = return $ YamlStr (encodeUTF8 str)
-toYaml (d+1) v@(VRef r) = do  -- stolen from Pugs.Prim prettyVal. Can these be refactored together?
-    v'  <- readRef r
-    t <- evalValType v
-    trace ("toYaml VRef: " ++ (show v) ++ " type=" ++ (show t)) $ return ()
-    (ifValTypeIsa v "Hash"
-        (case r of
-            -- "My brain just exploded. I can't handle pattern bindings for existentially-quantified constructors."
-            -- let (MkRef (IHash hv)) = r
-            -- XXX golfme for readability!
-            MkRef (IHash hv) -> do
-                h <- hash_fetch hv
-                let assocs = Map.toList h
-                yamlmap <- flip mapM assocs (\(ka, va) -> do
-                   ka' <- toYaml d (VStr ka)
-                   va' <- toYaml d va
-                   return (ka', va'))
-                return $ YamlMap Nothing yamlmap
-            _ -> error ("unexpected node: " ++ show v)
-        )
-        (do nodes <- toYaml d v'
-            (ifValTypeIsa v "Array"
-                (return $ nodes) --(return $ YamlMap Nothing [(YamlStr "<ref>", nodes)])) -- XXX
-                (return $ case v' of
-                    VObject _ -> nodes
-                    _ -> YamlMap Nothing [(YamlStr "<ref>", nodes)] -- XXX
-                ))))
+toYaml 0     _          = return $ YamlStr "<deep recursion>" -- fail? make this configurable?
+toYaml _     VUndef     = return YamlNil
+toYaml _     (VStr str) = return $ YamlStr (encodeUTF8 str)
+toYaml (d+1) v@(VRef r) = do
+    t  <- evalValType v
+    ifValTypeIsa v "Hash" (hashToYaml d r) $ do
+        v'      <- readRef r
+        nodes   <- toYaml d v'
+        ifValTypeIsa v "Array" (return nodes) $ case v' of
+            VObject _   -> return nodes
+            _           -> return (YamlMap Nothing [(YamlStr "<ref>", nodes)])
 toYaml (d+1) (VList nodes) = do
-    trace ("toYaml VList: " ++ (show nodes)) $ return ()
     fmap YamlSeq $ mapM (toYaml d) nodes
 toYaml (d+1) v@(VObject obj) = do
     -- ... dump the objAttrs
@@ -89,11 +69,20 @@ toYaml (d+1) v@(VObject obj) = do
     attrs   <- toYaml d (VRef (hashRef hash))
     return $ addTag (Just $ "!pugs:object/" ++ showType (objType obj)) attrs
     where
-        addTag _ (YamlMap (Just x) _) = error ("can't add tag: already tagged with" ++ x)
-        addTag tag (YamlMap _ m) = YamlMap tag m
+    addTag _ (YamlMap (Just x) _) = error ("can't add tag: already tagged with" ++ x)
+    addTag tag (YamlMap _ m) = YamlMap tag m
 toYaml _ v = return $ YamlStr $ encodeUTF8 $ pretty v
 
-
+hashToYaml :: Int -> VRef -> Eval YamlNode
+hashToYaml d (MkRef (IHash hv)) = do
+    h <- hash_fetch hv
+    let assocs = Map.toList h
+    yamlmap <- flip mapM assocs (\(ka, va) -> do
+        ka' <- toYaml d (VStr ka)
+        va' <- toYaml d va
+        return (ka', va'))
+    return $ YamlMap Nothing yamlmap
+hashToYaml _ r = error ("unexpected node: " ++ show r)
    
 {-
 ifValTypeIsa v "Pair"
