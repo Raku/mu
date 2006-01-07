@@ -66,7 +66,7 @@ toYaml v@(VObject obj) = let ?d = pred ?d in do
     -- parens, which is, of course, wrong.
     hash    <- fromVal v :: Eval VHash
     attrs   <- toYaml $ VRef (hashRef hash)
-    return $ addTag (Just $ "!pugs:object/" ++ showType (objType obj)) attrs
+    return $ addTag (Just $ "tag:pugs:object:" ++ showType (objType obj)) attrs
     where
     addTag _   (YamlMap (Just x) _) = error ("can't add tag: already tagged with" ++ x)
     addTag tag (YamlMap _        m) = YamlMap tag m

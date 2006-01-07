@@ -93,27 +93,26 @@ emitterCallback e vp = let ?e = e in emitNode =<< thawNode vp
     
 emitNode :: (?e :: SyckEmitter) -> YamlNode -> IO ()
 emitNode YamlNil = do
-    withCString "string" $ \string_literal ->       
+    withCString "string" $ \stringLiteral ->       
         withCString "~" $ \cs ->       
-            syck_emit_scalar ?e string_literal scalarNone 0 0 0 cs 1
+            syck_emit_scalar ?e stringLiteral scalarNone 0 0 0 cs 1
 
 emitNode (YamlStr str) = do
-    withCString "string" $ \string_literal ->       
+    withCString "string" $ \stringLiteral ->       
         withCString str $ \cs ->       
-            syck_emit_scalar ?e string_literal scalarNone 0 0 0 cs (toEnum $ length str)
+            syck_emit_scalar ?e stringLiteral scalarNone 0 0 0 cs (toEnum $ length str)
 
 emitNode (YamlSeq seq) = do
-    withCString "array" $ \array_literal ->
-        syck_emit_seq ?e array_literal seqNone
+    withCString "array" $ \arrayLiteral ->
+        syck_emit_seq ?e arrayLiteral seqNone
     -- TODO: fix pesky warning about "integer from pointer without a cast" here
     mapM_ (syck_emit_item ?e) =<< (mapM freezeNode seq)
     syck_emit_end ?e
 
 emitNode (YamlMap tag m) = do
-    -- trace ("hash<" ++ maybe "" id tag ++">: " ++ (show m)) $ return ()
-    withCString (maybe "hash" id tag) $ \hash_literal -> do
-        syck_emit_map ?e hash_literal mapNone
-        when (isJust tag) (do {syck_emit_tag ?e hash_literal nullPtr ; return ()})
+    --trace ("hash<" ++ maybe "" id tag ++">: " ++ (show m)) $ return ()
+    withCString (maybe "hash" id tag) $ \hashLiteral -> do
+        syck_emit_map ?e hashLiteral mapNone
     flip mapM_ m (\(k,v) -> do
         syck_emit_item ?e =<< freezeNode k
         syck_emit_item ?e =<< freezeNode v)
