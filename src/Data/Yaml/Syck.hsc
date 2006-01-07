@@ -4,7 +4,7 @@
 
 module Data.Yaml.Syck (
     parseYaml, emitYaml,
-    YamlNode(..),
+    YamlNode(..), YamlElem(..), emptyYamlNode, tagNode
 ) where
 
 import Control.Exception (bracket)
@@ -25,17 +25,25 @@ import Control.Monad (when)
 import Debug.Trace
 import Control.Monad.Trans
 
-type YamlTag = Maybe String
+type YamlTag    = Maybe String
+type YamlAnchor = Maybe String
+type SYMID = CULong
 
--- XXX: add tags for other types except maps?
-data YamlNode
-    = YamlMap YamlTag [(YamlNode, YamlNode)]
+data YamlNode = MkYamlNode
+    { nid    :: SYMID
+    , tag    :: YamlTag
+    , anchor :: YamlAnchor
+    , el     :: YamlElem
+    }
+    deriving (Show, Ord, Eq)
+
+data YamlElem
+    = YamlMap [(YamlNode, YamlNode)]
     | YamlSeq [YamlNode]
     | YamlStr String
     | YamlNil
     deriving (Show, Ord, Eq)
 
-type SYMID = CULong
 type SyckNode = Ptr ()
 type SyckParser = Ptr ()
 type SyckNodeHandler = SyckParser -> SyckNode -> IO SYMID
@@ -47,6 +55,13 @@ type SyckEmitterHandler = SyckEmitter -> Ptr () -> IO ()
 type SyckOutputHandler = SyckEmitter -> CString -> CLong -> IO ()
 data SyckKind = SyckMap | SyckSeq | SyckStr | SyckNil
     deriving (Show, Ord, Eq, Enum)
+
+emptyYamlNode :: YamlNode
+emptyYamlNode = MkYamlNode 0 Nothing Nothing YamlNil
+
+tagNode :: YamlTag -> YamlNode -> YamlNode
+tagNode _   MkYamlNode{tag=Just x} = error ("can't add tag: already tagged with" ++ x)
+tagNode tag node                   = node{tag = tag}
 
 -- the extra comma here is not a bug
 #enum CInt, , scalar_none, scalar_1quote, scalar_2quote, scalar_fold, scalar_literal, scalar_plain
@@ -92,32 +107,34 @@ emitterCallback :: SyckEmitter -> Ptr () -> IO ()
 emitterCallback e vp = let ?e = e in emitNode =<< thawNode vp
     
 emitNode :: (?e :: SyckEmitter) -> YamlNode -> IO ()
-emitNode YamlNil = do
-    withCString "string" $ \stringLiteral ->       
+emitNode n@(MkYamlNode{el = YamlNil}) = do
+    withTag n "string" $ \tag ->
         withCString "~" $ \cs ->       
-            syck_emit_scalar ?e stringLiteral scalarNone 0 0 0 cs 1
+            syck_emit_scalar ?e tag scalarNone 0 0 0 cs 1
 
-emitNode (YamlStr str) = do
-    withCString "string" $ \stringLiteral ->       
+emitNode n@(MkYamlNode{el = YamlStr str}) = do
+    withTag n "string" $ \tag ->       
         withCString str $ \cs ->       
-            syck_emit_scalar ?e stringLiteral scalarNone 0 0 0 cs (toEnum $ length str)
+            syck_emit_scalar ?e tag scalarNone 0 0 0 cs (toEnum $ length str)
 
-emitNode (YamlSeq seq) = do
-    withCString "array" $ \arrayLiteral ->
-        syck_emit_seq ?e arrayLiteral seqNone
+emitNode n@(MkYamlNode{el = YamlSeq seq}) = do
+    withTag n "array" $ \tag ->
+        syck_emit_seq ?e tag seqNone
     -- TODO: fix pesky warning about "integer from pointer without a cast" here
     mapM_ (syck_emit_item ?e) =<< (mapM freezeNode seq)
     syck_emit_end ?e
 
-emitNode (YamlMap tag m) = do
+emitNode n@(MkYamlNode{el = YamlMap m}) = do
     --trace ("hash<" ++ maybe "" id tag ++">: " ++ (show m)) $ return ()
-    withCString (maybe "hash" id tag) $ \hashLiteral -> do
-        syck_emit_map ?e hashLiteral mapNone
+    withTag n "hash" $ \tag -> 
+        syck_emit_map ?e tag mapNone
     flip mapM_ m (\(k,v) -> do
         syck_emit_item ?e =<< freezeNode k
         syck_emit_item ?e =<< freezeNode v)
     syck_emit_end ?e
 
+withTag :: YamlNode -> String -> (CString -> IO a) -> IO a
+withTag node def f = withCString (maybe def id (tag node)) f
 
 parseYaml :: String -> IO (Either String (Maybe YamlNode))
 parseYaml str = withCString str $ \cstr -> do
@@ -191,18 +208,18 @@ parseNode SyckMap parser syckNode len = do
         valId   <- syck_map_read syckNode 1 idx
         val     <- readNode parser valId
         return (key, val)
-    return $ YamlMap Nothing pairs
+    return $ emptyYamlNode{ el = YamlMap pairs }
 
 parseNode SyckSeq parser syckNode len = do
     nodes <- (`mapM` [0..len-1]) $ \idx -> do
         symId   <- syck_seq_read syckNode idx
         readNode parser symId
-    return $ YamlSeq nodes
+    return $ emptyYamlNode{ el = YamlSeq nodes }
 
 parseNode SyckStr _ syckNode len = do
     cstr    <- syck_str_read syckNode
     str     <- peekCStringLen (cstr, fromEnum len)
-    return $ YamlStr str
+    return $ emptyYamlNode{ el = YamlStr str }
 
 foreign import ccall "wrapper"  
     mkNodeCallback :: SyckNodeHandler -> IO (FunPtr SyckNodeHandler)

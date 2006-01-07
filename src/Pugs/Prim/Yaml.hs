@@ -22,14 +22,14 @@ evalYaml cv = do
         Right (Just node)   -> fromYaml node
 
 fromYaml :: YamlNode -> Eval Val
-fromYaml YamlNil = return VUndef
-fromYaml (YamlStr str) = return $ VStr (decodeUTF8 str)
-fromYaml (YamlSeq nodes) = do
+fromYaml MkYamlNode{el=YamlNil}       = return VUndef
+fromYaml MkYamlNode{el=YamlStr str}   = return $ VStr (decodeUTF8 str)
+fromYaml MkYamlNode{el=YamlSeq nodes} = do
     vals    <- mapM fromYaml nodes
     av      <- liftSTM $ newTVar $
         IntMap.fromAscList ([0..] `zip` map lazyScalar vals)
     return $ VRef (arrayRef av)
-fromYaml (YamlMap _ nodes) = do
+fromYaml MkYamlNode{el=YamlMap nodes} = do
     vals    <- forM nodes $ \(keyNode, valNode) -> do
         key <- fromVal =<< fromYaml keyNode
         val <- newScalar =<< fromYaml valNode
@@ -46,9 +46,9 @@ dumpYaml limit v = let ?d = limit in do
            (return . VStr) rv
 
 toYaml :: (?d :: Int) => Val -> Eval YamlNode
-toYaml _ | ?d == 0  = return $ YamlStr "<deep recursion>" -- fail? make this configurable?
-toYaml VUndef       = return YamlNil
-toYaml (VStr str)   = return $ YamlStr (encodeUTF8 str)
+toYaml _ | ?d == 0  = return $ emptyYamlNode{el = YamlStr "<deep recursion>"} -- fail? make this configurable?
+toYaml VUndef       = return emptyYamlNode
+toYaml (VStr str)   = return $ emptyYamlNode{el = YamlStr (encodeUTF8 str)}
 toYaml v@(VRef r)   = let ?d = pred ?d in do
     t  <- evalValType v
     ifValTypeIsa v "Hash" (hashToYaml r) $ do
@@ -56,9 +56,11 @@ toYaml v@(VRef r)   = let ?d = pred ?d in do
         nodes   <- toYaml v'
         ifValTypeIsa v "Array" (return nodes) $ case v' of
             VObject _   -> return nodes
-            _           -> return (YamlMap Nothing [(YamlStr "<ref>", nodes)])
+            _           -> return emptyYamlNode{el = YamlMap [(emptyYamlNode{el=YamlStr "<ref>"}, nodes)]}
 toYaml (VList nodes) = let ?d = pred ?d in do
-    fmap YamlSeq $ mapM toYaml nodes
+    n <- mapM toYaml nodes
+    return $ emptyYamlNode{el=YamlSeq n} -- golfme!
+    -- fmap YamlSeq$ mapM toYaml nodes
 toYaml v@(VObject obj) = let ?d = pred ?d in do
     -- ... dump the objAttrs
     -- XXX this needs fixing WRT demagicalized pairs:
@@ -66,11 +68,10 @@ toYaml v@(VObject obj) = let ?d = pred ?d in do
     -- parens, which is, of course, wrong.
     hash    <- fromVal v :: Eval VHash
     attrs   <- toYaml $ VRef (hashRef hash)
-    return $ addTag (Just $ "tag:pugs:object:" ++ showType (objType obj)) attrs
-    where
-    addTag _   (YamlMap (Just x) _) = error ("can't add tag: already tagged with" ++ x)
-    addTag tag (YamlMap _        m) = YamlMap tag m
-toYaml v = (return . YamlStr . encodeUTF8 . pretty) v
+    return $ tagNode (Just $ "tag:pugs:object:" ++ showType (objType obj)) attrs
+toYaml v = return $ emptyYamlNode{el=YamlStr p}
+    where p = (encodeUTF8 . pretty) v
+
 
 hashToYaml :: (?d :: Int) => VRef -> Eval YamlNode
 hashToYaml (MkRef (IHash hv)) = do
@@ -80,35 +81,6 @@ hashToYaml (MkRef (IHash hv)) = do
         ka' <- toYaml $ VStr ka
         va' <- toYaml va
         return (ka', va')
-    return $ YamlMap Nothing yamlmap
+    return $ emptyYamlNode{el=YamlMap yamlmap}
 hashToYaml r = error ("unexpected node: " ++ show r)
-   
-{-
-ifValTypeIsa v "Pair"
-    (case v' of
-        VList [ks, vs] -> do
-            kStr <- toYaml d ks
-            vStr <- toYaml d vs
-            return $ YamlMap [(kStr, vStr)] -- assume a pair is a one-element hash
-        _ -> toYaml d v'                    -- XXX: probably broken to blithingly ignore ref levels here
-    )
-    (ifValTypeIsa v "Hash"
-        --fmap YamlMap $ mapM (\(k, v) -> do {k' <- toYaml k; v' <- toYaml v; return (k', v')}) Map.toList =<< hash_fetch v')
-        (do 
-            case r of
-                MkRef (IHash hv) -> do
-                    h <- hash_fetch hv
-                    let assocs = Map.toList h
-                    yamlmap <- mapM (\(k, v) -> do
-                        k' <- toYaml d (VStr k)
-                        v' <- toYaml d v
-                        return (k', v')) assocs
-                    return $ YamlMap yamlmap
-                _ -> error ("can't process hash: " ++ show v') -- XXX
-        )
-        (do nodes <- toYaml d v'
-            ifValTypeIsa v "Array"
-                (return $ nodes)
-                (return $ YamlMap [(YamlStr "<ref>", nodes)])) -- XXX
-    )
--}
+
