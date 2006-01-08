@@ -53,10 +53,14 @@ dumpYaml limit v = let ?d = limit in do
     either (fail . ("YAML Emit Error: "++))
            (return . VStr) rv
 
+strNode :: String -> YamlNode
+strNode str = emptyYamlNode{el = YamlStr str }
+
 toYaml :: (?d :: Int) => Val -> Eval YamlNode
-toYaml _ | ?d == 0  = return $ emptyYamlNode{el = YamlStr "<deep recursion>"} -- fail? make this configurable?
+toYaml _ | ?d == 0  = return $ strNode "<deep recursion>" -- fail? make this configurable?
 toYaml VUndef       = return emptyYamlNode
-toYaml (VStr str)   = return $ emptyYamlNode{el = YamlStr (encodeUTF8 str)}
+toYaml (VBool x)    = return $ boolToYaml x
+toYaml (VStr str)   = return $ strNode (encodeUTF8 str)
 toYaml v@(VRef r)   = let ?d = pred ?d in do
     t  <- evalValType v
     ifValTypeIsa v "Hash" (hashToYaml r) $ do
@@ -64,7 +68,7 @@ toYaml v@(VRef r)   = let ?d = pred ?d in do
         nodes   <- toYaml v'
         ifValTypeIsa v "Array" (return nodes) $ case v' of
             VObject _   -> return nodes
-            _           -> return emptyYamlNode{el = YamlMap [(emptyYamlNode{el=YamlStr "<ref>"}, nodes)]}
+            _           -> return emptyYamlNode{el = YamlMap [(strNode "<ref>", nodes)]}
 toYaml (VList nodes) = let ?d = pred ?d in do
     n <- mapM toYaml nodes
     return $ emptyYamlNode{el=YamlSeq n} -- golfme!
@@ -77,8 +81,15 @@ toYaml v@(VObject obj) = let ?d = pred ?d in do
     hash    <- fromVal v :: Eval VHash
     attrs   <- toYaml $ VRef (hashRef hash)
     return $ tagNode (Just $ "tag:pugs:object:" ++ showType (objType obj)) attrs
-toYaml v = return $ emptyYamlNode{el=YamlStr p}
-    where p = (encodeUTF8 . pretty) v
+toYaml (VRule MkRulePGE{rxRule=rule, rxGlobal=global, rxStringify=stringify, rxAdverbs=adverbs}) = let ?d = pred ?d in do
+    adverbs' <- toYaml adverbs
+    return emptyYamlNode{el = YamlMap
+                            [ (strNode "rule", strNode rule)
+                            , (strNode "global", boolToYaml global)
+                            , (strNode "stringify", boolToYaml stringify)
+                            , (strNode "adverbs", adverbs')
+                            ] , tag = Just "tag:pugs:Rule"}
+toYaml v = return $ strNode $ (encodeUTF8 . pretty) v
 
 
 hashToYaml :: (?d :: Int) => VRef -> Eval YamlNode
@@ -92,3 +103,6 @@ hashToYaml (MkRef (IHash hv)) = do
     return $ emptyYamlNode{el=YamlMap yamlmap}
 hashToYaml r = error ("unexpected node: " ++ show r)
 
+boolToYaml :: VBool -> YamlNode
+boolToYaml True  = strNode "true"
+boolToYaml False = strNode "false"

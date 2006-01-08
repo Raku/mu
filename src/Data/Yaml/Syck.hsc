@@ -30,10 +30,11 @@ type YamlAnchor = Maybe String
 type SYMID = CULong
 
 data YamlNode = MkYamlNode
-    { nid    :: SYMID
-    , tag    :: YamlTag
-    , anchor :: YamlAnchor
-    , el     :: YamlElem
+    { nid      :: SYMID
+    , el       :: YamlElem
+    , tag      :: YamlTag
+    , anchor   :: YamlAnchor
+    , shortcut :: (Maybe YamlNode)
     }
     deriving (Show, Ord, Eq)
 
@@ -57,13 +58,13 @@ data SyckKind = SyckMap | SyckSeq | SyckStr | SyckNil
     deriving (Show, Ord, Eq, Enum)
 
 emptyYamlNode :: YamlNode
-emptyYamlNode = MkYamlNode 0 Nothing Nothing YamlNil
+emptyYamlNode = MkYamlNode 0 YamlNil Nothing Nothing Nothing
 
 tagNode :: YamlTag -> YamlNode -> YamlNode
 tagNode _   MkYamlNode{tag=Just x} = error ("can't add tag: already tagged with" ++ x)
 tagNode tag node                   = node{tag = tag}
 
--- the extra comma here is not a bug
+-- the extra commas here are not a bug
 #enum CInt, , scalar_none, scalar_1quote, scalar_2quote, scalar_fold, scalar_literal, scalar_plain
 #enum CInt, , seq_none, seq_inline
 #enum CInt, , map_none, map_inline
@@ -104,34 +105,33 @@ readFS fs = do
     deRefStablePtr (castPtrToStablePtr ptr)
 
 emitterCallback :: SyckEmitter -> Ptr () -> IO ()
-emitterCallback e vp = let ?e = e in emitNode =<< thawNode vp
+emitterCallback e vp = emitNode e =<< thawNode vp
     
-emitNode :: (?e :: SyckEmitter) -> YamlNode -> IO ()
-emitNode n@(MkYamlNode{el = YamlNil}) = do
+emitNode :: SyckEmitter -> YamlNode -> IO ()
+emitNode e n@(MkYamlNode{el = YamlNil}) = do
     withTag n "string" $ \tag ->
         withCString "~" $ \cs ->       
-            syck_emit_scalar ?e tag scalarNone 0 0 0 cs 1
+            syck_emit_scalar e tag scalarNone 0 0 0 cs 1
 
-emitNode n@(MkYamlNode{el = YamlStr str}) = do
+emitNode e n@(MkYamlNode{el = YamlStr str}) = do
     withTag n "string" $ \tag ->       
         withCString str $ \cs ->       
-            syck_emit_scalar ?e tag scalarNone 0 0 0 cs (toEnum $ length str)
+            syck_emit_scalar e tag scalarNone 0 0 0 cs (toEnum $ length str)
 
-emitNode n@(MkYamlNode{el = YamlSeq seq}) = do
+emitNode e n@(MkYamlNode{el = YamlSeq seq}) = do
     withTag n "array" $ \tag ->
-        syck_emit_seq ?e tag seqNone
+        syck_emit_seq e tag seqNone
     -- TODO: fix pesky warning about "integer from pointer without a cast" here
-    mapM_ (syck_emit_item ?e) =<< (mapM freezeNode seq)
-    syck_emit_end ?e
+    mapM_ (syck_emit_item e) =<< (mapM freezeNode seq)
+    syck_emit_end e
 
-emitNode n@(MkYamlNode{el = YamlMap m}) = do
-    --trace ("hash<" ++ maybe "" id tag ++">: " ++ (show m)) $ return ()
+emitNode e n@(MkYamlNode{el = YamlMap m}) = do
     withTag n "hash" $ \tag -> 
-        syck_emit_map ?e tag mapNone
+        syck_emit_map e tag mapNone
     flip mapM_ m (\(k,v) -> do
-        syck_emit_item ?e =<< freezeNode k
-        syck_emit_item ?e =<< freezeNode v)
-    syck_emit_end ?e
+        syck_emit_item e =<< freezeNode k
+        syck_emit_item e =<< freezeNode v)
+    syck_emit_end e
 
 withTag :: YamlNode -> String -> (CString -> IO a) -> IO a
 withTag node def f = withCString (maybe def id (tag node)) f
@@ -145,7 +145,7 @@ parseYaml str = withCString str $ \cstr -> do
         syck_parser_error_handler parser =<< mkErrorCallback (errorCallback err)
         syck_parser_implicit_typing parser 1
         syck_parser_taguri_expansion parser 0
-        symId   <- syck_parse parser
+        symId <- syck_parse parser
         if symId /= 0 then fmap (Right . Just) (readNode parser symId) else do
         rv <- readIORef err
         return $ case rv of
