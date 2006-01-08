@@ -29,14 +29,22 @@ fromYaml MkYamlNode{el=YamlSeq nodes} = do
     av      <- liftSTM $ newTVar $
         IntMap.fromAscList ([0..] `zip` map lazyScalar vals)
     return $ VRef (arrayRef av)
-fromYaml MkYamlNode{el=YamlMap nodes} = do
-    vals    <- forM nodes $ \(keyNode, valNode) -> do
-        key <- fromVal =<< fromYaml keyNode
-        val <- newScalar =<< fromYaml valNode
-        return (key, val)
-    hv      <- liftSTM $ (newTVar (Map.fromList vals) :: STM IHash)
-    -- XXX: if YamlMap (Just "!perl/":type) nodes then mkObject etc.
-    return $ VRef (hashRef hv)
+fromYaml MkYamlNode{el=YamlMap nodes,tag=tag} = do
+    case tag of
+        Nothing  -> do
+            vals    <- forM nodes $ \(keyNode, valNode) -> do
+                key <- fromVal =<< fromYaml keyNode
+                val <- newScalar =<< fromYaml valNode
+                return (key, val)
+            hv      <- liftSTM $ (newTVar (Map.fromList vals) :: STM IHash)
+            return $ VRef (hashRef hv)
+        Just ('p':'u':'g':'s':'/':'o':'b':'j':'e':'c':'t':':':typ) -> do
+            vals    <- forM nodes $ \(keyNode, valNode) -> do
+                key <- fromVal =<< fromYaml keyNode
+                val <- fromYaml valNode
+                return (key, val)
+            return . VObject =<< createObject (mkType typ) vals
+        Just x   -> error ("can't deserialize: " ++ x)
 
 dumpYaml :: Int -> Val -> Eval Val
 dumpYaml limit v = let ?d = limit in do

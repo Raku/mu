@@ -192,6 +192,13 @@ readNode parser symId = alloca $ \nodePtr -> do
     ptr     <- peek . castPtr =<< peek nodePtr
     deRefStablePtr (castPtrToStablePtr ptr)
 
+syckNodeTag :: SyckNode -> IO (Maybe String)
+syckNodeTag syckNode = do
+    tag <- #{peek SyckNode, type_id} syckNode
+    if (tag == nullPtr) then (return Nothing) else do
+        tag' <- peekCString tag
+        return $ Just tag'
+
 syckNodeKind :: SyckNode -> IO SyckKind
 syckNodeKind syckNode = fmap toEnum $ #{peek SyckNode, kind} syckNode
 
@@ -202,24 +209,27 @@ syckNodeLength SyckStr = (#{peek struct SyckStr, len} =<<) . #{peek SyckNode, da
 
 parseNode :: SyckKind -> SyckParser -> SyckNode -> CLong -> IO YamlNode
 parseNode SyckMap parser syckNode len = do
+    tag   <- syckNodeTag syckNode
     pairs <- (`mapM` [0..len-1]) $ \idx -> do
         keyId   <- syck_map_read syckNode 0 idx
         key     <- readNode parser keyId
         valId   <- syck_map_read syckNode 1 idx
         val     <- readNode parser valId
         return (key, val)
-    return $ emptyYamlNode{ el = YamlMap pairs }
+    return $ emptyYamlNode{ el = YamlMap pairs, tag = tag}
 
 parseNode SyckSeq parser syckNode len = do
+    tag   <- syckNodeTag syckNode
     nodes <- (`mapM` [0..len-1]) $ \idx -> do
         symId   <- syck_seq_read syckNode idx
         readNode parser symId
-    return $ emptyYamlNode{ el = YamlSeq nodes }
+    return $ emptyYamlNode{ el = YamlSeq nodes, tag = tag }
 
 parseNode SyckStr _ syckNode len = do
-    cstr    <- syck_str_read syckNode
-    str     <- peekCStringLen (cstr, fromEnum len)
-    return $ emptyYamlNode{ el = YamlStr str }
+    tag   <- syckNodeTag syckNode
+    cstr  <- syck_str_read syckNode
+    str   <- peekCStringLen (cstr, fromEnum len)
+    return $ emptyYamlNode{ el = YamlStr str, tag = tag }
 
 foreign import ccall "wrapper"  
     mkNodeCallback :: SyckNodeHandler -> IO (FunPtr SyckNodeHandler)
