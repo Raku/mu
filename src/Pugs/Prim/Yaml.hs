@@ -44,6 +44,17 @@ fromYaml MkYamlNode{el=YamlMap nodes,tag=tag} = do
                 val <- fromYaml valNode
                 return (key, val)
             return . VObject =<< createObject (mkType typ) vals
+        Just "pugs/Rule" -> do
+            vals    <- forM nodes $ \(keyNode, valNode) -> do
+                key <- fromVal =<< fromYaml keyNode
+                val <- fromYaml valNode
+                return (key, val)
+            let spec    = Map.fromList (vals :: [(String, Val)])
+            rule    <- fromVal =<< Map.lookup "rule" spec
+            global  <- fromVal =<< Map.lookup "global" spec
+            stringify <- fromVal =<< Map.lookup "stringify" spec
+            adverbs <- Map.lookup "adverbs" spec
+            return $ VRule MkRulePGE{rxRule=rule, rxGlobal=global, rxStringify=stringify, rxAdverbs=adverbs}
         Just x   -> error ("can't deserialize: " ++ x)
 
 dumpYaml :: Int -> Val -> Eval Val
