@@ -1,0 +1,29 @@
+# --------------------------------------------------------------------------- #
+# Sequence Class
+# --------------------------------------------------------------------------- #
+# - An Immutable Sequence class
+# --------------------------------------------------------------------------- #
+
+^Sequence := ^Class.new({});
+^Sequence.set_name('Sequence');
+^Sequence.set_version('0.0.1');
+^Sequence.set_authority('url:pugscode.org');
+
+^Sequence.set_roles([ ^Seq ]);
+
+^Sequence.set_superclasses([ ^Object ]);
+
+^Sequence.add_method('new', -> @sequence {
+	self.bless('array', @sequence);
+});
+
+# this needs to be null for this class
+^Sequence.add_method('BUILDALL', -> %params {});
+
+# --------------------------------------------------------------------------- #
+# ^Seq requires that these roles be implemented
+
+^Sequence.add_method('head', -> { self`fetch_elem(0) });
+^Sequence.add_method('tail', -> { 
+	$?CLASS.new(self`fetch_list()`splice(1)) 
+});

@@ -1,0 +1,78 @@
+# --------------------------------------------------------------------------- #
+# Seq Role
+# --------------------------------------------------------------------------- #
+# - An Immutable Sequence role
+# --------------------------------------------------------------------------- #
+
+^Seq := ^Role.new({});
+^Seq.set_name('Sequence');
+^Seq.set_version('0.0.1');
+^Seq.set_authority('url:pugscode.org');
+
+# --------------------------------------------------------------------------- #
+# Methods dependent upon the repr type, and so need to be defined
+
+^Seq.add_method('head', -> { nil });
+^Seq.add_method('tail', -> { nil });
+
+# --------------------------------------------------------------------------- #
+# methods not dependent upon the repr type, so we can implement in the role
+
+^Seq.add_method('is_empty', -> { 
+	self.head()`is_nil();
+});
+
+^Seq.add_method('length', -> { 
+	-> $list, $acc {
+		&redo := &?SUB;
+		$list.is_empty()`cond(
+			-> { $acc },
+			-> { &redo`($list.tail(), $acc`increment()) }
+		);
+	}`(self, 0);
+});
+
+^Seq.add_method('reverse', -> { 
+	-> $list, @acc {
+		&redo := &?SUB;
+		$list.is_empty()`cond(
+			-> { $?CLASS.new(@acc) },
+			-> { &redo`($list.tail(), [ $list.head() ]`concat(@acc)) }
+		);
+	}`(self.tail(), [ self.head() ]);
+});
+
+^Seq.add_method('apply', -> &code { 
+	-> $list, @acc {
+	    &redo := &?SUB;
+	    $list.is_empty()`cond(
+	        -> { $?CLASS.new(@acc) },
+	        -> { &redo`($list.tail(), @acc`push(&func`($list.head()))) }
+	    );
+	}`(self, []);
+});
+
+^Seq.add_method('filter', -> &code {
+	-> $list, @acc {
+	    &redo := &?SUB;
+	    $list.is_empty()`cond(
+	        -> { $?CLASS.new(@acc) },
+	        -> {
+	            &func`($list.head())`as_bit()`cond(
+	                -> { &redo`($list.tail(), @acc`push($elem)) },
+	                -> { &redo`($list.tail(), @acc)             }            
+	            );
+	        }
+	    );
+	}`(self, []);
+});
+
+^Seq.add_method('reduce', -> &func {
+    -> $list, $acc {
+        &redo := &?SUB;
+        $list.is_empty()`cond(
+            -> { $acc },
+            -> { &redo`($list.tail(), &func`($acc, $list.head())) }
+        );        
+    }`(self.tail(), self.head());
+});

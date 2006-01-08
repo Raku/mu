@@ -1,0 +1,76 @@
+# --------------------------------------------------------------------------- #
+# LazySequence Class
+# --------------------------------------------------------------------------- #
+# - An Lazy Immutable Sequence class
+# --------------------------------------------------------------------------- #
+
+^LazySequence := ^Class.new({});
+^LazySequence.set_name('LazySequence');
+^LazySequence.set_version('0.0.1');
+^LazySequence.set_authority('url:pugscode.org');
+
+^LazySequence.set_roles([ ^Seq ]);
+
+^LazySequence.set_superclasses([ ^Object ]);
+
+^LazySequence.add_attribute('$!start_value', nil);
+^LazySequence.add_attribute('&next_value', nil); 
+
+# default to returning false to support lazy infinite sequences
+^LazySequence.add_attribute('&end_predicate', -> $val { false });
+
+# --------------------------------------------------------------------------- #
+# Methods dependent upon the repr type
+
+^LazySequence.add_method('head', -> {  
+	self`get_attr('$!start_value');
+});
+
+^LazySequence.add_method('tail', -> { 
+	$next := self`get_attr('&!next_value')`(self`get_attr('$!start_value'));
+	self`get_attr('&!end_predicate')`($next)`cond(
+		-> { 
+			$?CLASS.new({ 
+				'$!start_value' => nil,
+				'&!next_value'  => -> { nil },
+			});
+		},
+		-> { 
+			$?CLASS.new({
+				'$!start_value'   => $next,
+				'&!next_value'    => self`get_attr('&!next_value'),
+				'&!end_predicate' => self`get_attr('&!end_predicate')
+			})		
+		}
+	)
+});
+
+=pod
+
+A Lazy sequence is composed of the following:
+
+  - An initial value.
+
+  - A function which given the initial value will 
+    return the next value in the sequence.
+
+  - A predicate function which will detect the
+    end of the sequence. It will return true, if
+    we have reached the end, and false otherwise.
+    The default value returns false, to support
+    infinite sequences by default.
+
+=head1 IMPLEMENTATION NOTES
+
+This does the ^Seq role, which tests the value returned from 
+.head to implement the .is_empty method. So when this sequence
+reaches the end, it's .tail method will return a new LazySequence 
+object whose $intial_value is nil and whose &next_value will 
+always return nil (and leaves the default infinite &end_predicate
+value).  
+
+=head1 SEE ALSO 
+
+http://wiki.opendylan.org/wiki/view.dsp?title=BitsAndPieces
+
+=cut
