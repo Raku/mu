@@ -1482,6 +1482,7 @@ currentFunctions = do
                             -> Just (name', code_assoc cv, code_params cv)
                         _ -> Nothing
     where
+    inScope _ ('L':'i':'s':'t':':':':':name) = Just name
     inScope pkg name | Just (post, pre) <- breakOnGlue "::" (reverse name) =
         if pkg == reverse pre then Just (reverse post) else Nothing
     inScope _ name = Just name
