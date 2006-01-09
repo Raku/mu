@@ -44,7 +44,7 @@
     $?CLASS.new({ '&generator' => -> { 
             &redo := &?SUB;
             my $value = &old_generator`();
-            &code`($value)`as_bit()`cond(
+            &code`($value)`as_bit()`if_else(
                 -> { $value   },
                 -> { &redo`() }
             ); 
@@ -59,7 +59,7 @@
 ^LazySequence.add_method('reverse', -> { 
 	-> $list, @acc {
 		&redo := &?SUB;
-		$list.is_empty()`cond(
+		$list.is_empty()`if_else(
 			-> { ^Sequence.new(@acc) }, # << Must return a regular Sequcene type
 			-> { &redo`($list.tail(), [ $list.head() ]`concat(@acc)) }
 		);

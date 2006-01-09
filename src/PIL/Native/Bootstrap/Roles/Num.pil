@@ -47,7 +47,7 @@
 # This may not be right, and oversimplified
 ^Num.add_method('abs', -> {
 	# (x < 0) ?? (x * -1) !! x
-	self.infix:<<>($?CLASS.new(0))`cond(
+	self.infix:<<>($?CLASS.new(0))`if_else(
 		-> { self },
 		-> { self.infix:<*>($?CLASS.new(-1)) }
 	);

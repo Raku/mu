@@ -45,12 +45,12 @@
 ^rList.add_method('join', -> $sep {
     -> @elems, $acc {
         &redo := &?SUB;
-        @elems`is_empty()`cond(
+        @elems`is_empty()`if_else(
             -> { $acc },
             -> { 
                 &redo`(
                     @elems`splice(1), 
-                    @elems`length()`eq(1)`cond(
+                    @elems`length()`eq(1)`if_else(
                         -> { $acc`concat(@elems`fetch(0)`as_str()) },
                         -> { $acc`concat(@elems`fetch(0)`as_str())`concat($sep`as_str()) }
                     )
@@ -71,11 +71,11 @@
 ^rList.add_method('grep', -> &func {
     -> @list, @acc {
         &redo := &?SUB;
-        @list`is_empty()`cond(
+        @list`is_empty()`if_else(
             -> { $?CLASS.new(@acc) },
             -> {
                 $elem := @list`fetch(0);
-                &func`($elem)`as_bit()`cond(
+                &func`($elem)`as_bit()`if_else(
                     -> { &redo`(@list`splice(1), @acc`push($elem)) },
                     -> { &redo`(@list`splice(1), @acc)             }            
                 );
@@ -91,7 +91,7 @@
 ^rList.add_method('reduce', -> &func {
     -> @list, $acc {
         &redo := &?SUB;
-        @list`is_empty()`cond(
+        @list`is_empty()`if_else(
             -> { $acc },
             -> { &redo`(@list`splice(1), &func`($acc, @list`fetch(0))) }
         );        
@@ -101,7 +101,7 @@
 ^rList.add_method('zip', -> @values {
     -> @l, @r, @acc {
         &redo := &?SUB;
-        @l`is_empty()`cond(
+        @l`is_empty()`if_else(
             -> { $?CLASS.new(@acc) },
             -> { &redo`(@l`splice(1), @r`splice(1), @acc`concat([ @l`fetch(0), @r`fetch(0) ])) }
         );
@@ -110,14 +110,14 @@
 
 # bottom up merge sort
 ^rList.add_method('sort', -> {
-    self.elems()`le(1)`cond(
+    self.elems()`le(1)`if_else(
         -> { self },
         -> {         
             &compare := -> $a, $b { 
-                $a`eq($b)`cond(
+                $a`eq($b)`if_else(
                     -> { 0 }, 
                     -> { 
-                        $a`lt($b)`cond(
+                        $a`lt($b)`if_else(
                             -> { -1 }, 
                             -> { 1 }
                         );
@@ -127,7 +127,7 @@
 
             &split := -> @lst, @acc { 
                 &redo := &?SUB;            
-                @lst`length()`eq(0)`cond(
+                @lst`length()`eq(0)`if_else(
                     -> { @acc },
                     -> { &redo`(@lst`splice(1), @acc`push([ @lst`fetch(0) ])) } 
                 ); 
@@ -135,21 +135,21 @@
 
             &merge := -> @l1, @l2 { 
                 &redo := &?SUB;
-                @l1`is_nil()`cond(
+                @l1`is_nil()`if_else(
                     -> { @l2 },
                     -> {
-                        @l1`is_empty()`cond(
+                        @l1`is_empty()`if_else(
                             -> { @l2 },
                             -> { 
-                                @l2`is_nil()`cond(
+                                @l2`is_nil()`if_else(
                                     -> { @l1 },
                                     -> {
-                                        @l2`is_empty()`cond(
+                                        @l2`is_empty()`if_else(
                                             -> { @l1 },
                                             -> { 
                                                 $hl1 := @l1`fetch(0);
                                                 $hl2 := @l2`fetch(0);
-                                                &compare`($hl1, $hl2)`lt(0)`cond(
+                                                &compare`($hl1, $hl2)`lt(0)`if_else(
                                                     ->{ 
                                                         [ $hl1 ]`concat( &redo`( @l1`splice(1), @l2 ) ) 
                                                     },
@@ -169,7 +169,7 @@
 
             &mergepairs := -> @lst { 
                 &redo := &?SUB;
-                @lst`length()`le(1)`cond(
+                @lst`length()`le(1)`if_else(
                     -> { @lst`fetch(0) },
                     -> { 
                         &merge`(
@@ -182,7 +182,7 @@
 
             &mergesort := -> @lst { 
                 &redo := &?SUB;            
-                @lst`length()`eq(1)`cond(
+                @lst`length()`eq(1)`if_else(
                     -> { @lst`fetch(0) },
                     -> { &mergepairs`(@lst) } 
                 ) 

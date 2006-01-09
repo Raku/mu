@@ -39,16 +39,16 @@
 # it is expected that methods are FETCH-ed using a & prefix 
 
 ^Class.add_method('FETCH', -> $label {
-    $label`fetch(0)`eq('&')`cond(
+    $label`fetch(0)`eq('&')`if_else(
         # fetching possible method ...
         -> {
             # we splice off the & to get the method name
-            self.has_method($label`splice(1))`cond(
+            self.has_method($label`splice(1))`if_else(
                 -> { self.get_method($label`splice(1)) },
                 -> { 
                     # make sure it's not also in the private method
                     # namespace either ...
-                    self.has_private_method($label`splice(1))`cond(
+                    self.has_private_method($label`splice(1))`if_else(
                         -> { self.get_private_method($label`splice(1))  },
                         -> { self`get_attr('%!namespace')`fetch($label) }
                     );
@@ -57,7 +57,7 @@
         },
         # fetching attribute
         -> { 
-            self.has_attribute($label)`cond(
+            self.has_attribute($label)`if_else(
                 # if we have the attribute, return it
                 -> { self.get_attribute($label) },
                 -> { self`get_attr('%!namespace')`fetch($label) }
@@ -77,15 +77,15 @@
 # now, this is sufficient.
 
 ^Class.add_method('STORE', -> $label, $value {
-    $label`fetch(0)`eq('&')`cond(
+    $label`fetch(0)`eq('&')`if_else(
         # fetching possible method
         -> {
             # we splice off the & to get the method name
-            self.has_method($label`splice(1))`cond(
+            self.has_method($label`splice(1))`if_else(
                 -> { self.add_method($label`splice(1), $value) },
                 -> { 
                     # check the private methods too ... 
-                    self.has_private_method($label`splice(1))`cond(                
+                    self.has_private_method($label`splice(1))`if_else(                
                         -> { self.add_private_method($label`splice(1), $value) },
                         -> { self`set_attr_hash('%!namespace', $label, $value) }
                     );
@@ -94,7 +94,7 @@
         },
         # fetching attribute
         -> { 
-            self.has_attribute($label)`cond(
+            self.has_attribute($label)`if_else(
                 # if we have the attribute, return it
                 -> { self.set_attribute($label, $value) },
                 -> { self`set_attr_hash('%!namespace', $label, $value) }

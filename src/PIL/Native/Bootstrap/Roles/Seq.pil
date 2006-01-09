@@ -25,7 +25,7 @@
 ^Seq.add_method('length', -> { 
 	-> $list, $acc {
 		&redo := &?SUB;
-		$list.is_empty()`cond(
+		$list.is_empty()`if_else(
 			-> { $acc },
 			-> { &redo`($list.tail(), $acc`increment()) }
 		);
@@ -35,7 +35,7 @@
 ^Seq.add_method('reverse', -> { 
 	-> $list, @acc {
 		&redo := &?SUB;
-		$list.is_empty()`cond(
+		$list.is_empty()`if_else(
 			-> { $?CLASS.new(@acc) },
 			-> { &redo`($list.tail(), [ $list.head() ]`concat(@acc)) }
 		);
@@ -45,7 +45,7 @@
 ^Seq.add_method('apply', -> &code { 
 	-> $list, @acc {
 	    &redo := &?SUB;
-	    $list.is_empty()`cond(
+	    $list.is_empty()`if_else(
 	        -> { $?CLASS.new(@acc) },
 	        -> { &redo`($list.tail(), @acc`push(&func`($list.head()))) }
 	    );
@@ -55,10 +55,10 @@
 ^Seq.add_method('filter', -> &code {
 	-> $list, @acc {
 	    &redo := &?SUB;
-	    $list.is_empty()`cond(
+	    $list.is_empty()`if_else(
 	        -> { $?CLASS.new(@acc) },
 	        -> {
-	            &func`($list.head())`as_bit()`cond(
+	            &func`($list.head())`as_bit()`if_else(
 	                -> { &redo`($list.tail(), @acc`push($elem)) },
 	                -> { &redo`($list.tail(), @acc)             }            
 	            );
@@ -70,7 +70,7 @@
 ^Seq.add_method('reduce', -> &func {
     -> $list, $acc {
         &redo := &?SUB;
-        $list.is_empty()`cond(
+        $list.is_empty()`if_else(
             -> { $acc },
             -> { &redo`($list.tail(), &func`($acc, $list.head())) }
         );        

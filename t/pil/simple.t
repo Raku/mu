@@ -19,7 +19,7 @@ q:to/RESULT/
 RESULT);
 
 pil_is_eq(q:to/CODE/
-(-> $n {-> &f { $n`eq(0)`cond( ->{1}, ->{$n`multiply(&f`($n`subtract(1)))}) }`(&?SUB)})`(10)
+(-> $n {-> &f { $n`eq(0)`if_else( ->{1}, ->{$n`multiply(&f`($n`subtract(1)))}) }`(&?SUB)})`(10)
 CODE,
 q:to/RESULT/
 3628800
@@ -30,7 +30,7 @@ pil_is_eq(q:to/CODE/
     (-> &fact {
         &fact`(&fact, $n)
     })`(-> &f, $x {
-            $x`eq(0)`cond(
+            $x`eq(0)`if_else(
                 -> { 1 },
                 -> { $x`multiply( &f`(&f, $x`subtract(1)) ) }
             )

@@ -35,19 +35,19 @@
 });
 
 ^Role.add_method('does', -> $role {
-    self.name`eq($role)`cond(
+    self.name`eq($role)`if_else(
         -> { true },
         -> {
             @roles := self.collect_all_roles(); 
-            @roles`is_empty`cond(
+            @roles`is_empty`if_else(
                 -> { false },
                 -> {
                     -> @r {
                         &redo := &?SUB;
-                        @r`is_empty`cond(
+                        @r`is_empty`if_else(
                             -> { false },
                             -> {
-                                @r`fetch(0).name`eq($role)`cond(
+                                @r`fetch(0).name`eq($role)`if_else(
                                     -> { true },
                                     -> { &redo`(@r`splice(1)) }
                                 )                            
@@ -94,11 +94,11 @@
     $conflicts := ^`create('p6opaque', { 'methods' => {}, 'attrs' => {} });
     -> $role {
         -> $method_name {
-            $conflicts`get_attr('methods')`exists($method_name)`cond(
+            $conflicts`get_attr('methods')`exists($method_name)`if_else(
                 -> { self.remove_method($method_name) },
                 -> {
                     $conflicts`set_attr_hash('methods', $method_name, 1);
-                    self.has_method($method_name)`cond(
+                    self.has_method($method_name)`if_else(
                         -> { nil },
                         -> { self.add_method($method_name, $role.get_method($method_name)) }
                     );                        
@@ -107,11 +107,11 @@
         }`do_for($role.get_method_list);
         
         -> $attribute_name {
-            $conflicts`get_attr('attrs')`exists($attribute_name)`cond(
+            $conflicts`get_attr('attrs')`exists($attribute_name)`if_else(
                 -> { self.remove_attribute($attribute_name) },
                 -> {
                     $conflicts`set_attr_hash('attrs', $attribute_name, 1);
-                    self.has_attribute($attribute_name)`cond(
+                    self.has_attribute($attribute_name)`if_else(
                         -> { nil },
                         -> { self.add_attribute($attribute_name, $role.get_attribute($attribute_name)) }
                     );                        

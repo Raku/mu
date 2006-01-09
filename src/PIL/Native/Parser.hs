@@ -57,7 +57,7 @@ More complex examples:
   
   (-> $n { (-> &fact { &fact`(&fact, $n) })
       `(-> &f, $x {
-          $x`eq(0)`cond(
+          $x`eq(0)`if_else(
               -> { 1 },
               -> { $x`multiply( &f`(&f, $x`subtract(1)) ) })
       });

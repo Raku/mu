@@ -24,7 +24,7 @@ Stevan Little <stevan@iinteractive.com>
 &num_range := -> $start, $end {
 	-> {
 		[ $start, 
-		  $start`eq($end)`cond(
+		  $start`eq($end)`if_else(
 		  	  -> { nil },
 			  -> { &num_range`($start`increment(), $end) }
 		)]
@@ -37,7 +37,7 @@ Stevan Little <stevan@iinteractive.com>
 &show := -> &r {
 	&redo := &?SUB;
 	&head`(&r)`trace();
-	&tail`(&r)`is_nil()`cond(
+	&tail`(&r)`is_nil()`if_else(
 		-> { nil },
 		-> { &redo`(&tail`(&r)) }
 	)

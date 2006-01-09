@@ -16,10 +16,10 @@ Stevan Little <stevan@iinteractive.com>
 =cut
 
 &compare := -> $a, $b { 
-    $a`eq($b)`cond(
+    $a`eq($b)`if_else(
         -> { 0 }, 
         -> { 
-            $a`lt($b)`cond(
+            $a`lt($b)`if_else(
                 -> { -1 }, 
                 -> { 1 }
             );
@@ -29,7 +29,7 @@ Stevan Little <stevan@iinteractive.com>
 
 &split := -> @lst, @acc { 
     &redo := &?SUB;            
-    @lst`length()`eq(0)`cond(
+    @lst`length()`eq(0)`if_else(
         -> { @acc },
         -> { &redo`(@lst`splice(1), @acc`push([ @lst`fetch(0) ])) } 
     ); 
@@ -37,21 +37,21 @@ Stevan Little <stevan@iinteractive.com>
 
 &merge := -> @l1, @l2 { 
     &redo := &?SUB;
-    @l1`is_nil()`cond(
+    @l1`is_nil()`if_else(
         -> { @l2 },
         -> {
-            @l1`is_empty()`cond(
+            @l1`is_empty()`if_else(
                 -> { @l2 },
                 -> { 
-                    @l2`is_nil()`cond(
+                    @l2`is_nil()`if_else(
                         -> { @l1 },
                         -> {
-                            @l2`is_empty()`cond(
+                            @l2`is_empty()`if_else(
                                 -> { @l1 },
                                 -> { 
                                     $hl1 := @l1`fetch(0);
                                     $hl2 := @l2`fetch(0);
-                                    &compare`($hl1, $hl2)`lt(0)`cond(
+                                    &compare`($hl1, $hl2)`lt(0)`if_else(
                                         ->{ 
                                             [ $hl1 ]`concat( &redo`( @l1`splice(1), @l2 ) ) 
                                         },
@@ -71,7 +71,7 @@ Stevan Little <stevan@iinteractive.com>
 
 &mergepairs := -> @lst { 
     &redo := &?SUB;
-    @lst`length()`le(1)`cond(
+    @lst`length()`le(1)`if_else(
         -> { @lst`fetch(0) },
         -> { 
             &merge`(
@@ -85,7 +85,7 @@ Stevan Little <stevan@iinteractive.com>
 &mergesort := -> @lst { 
 	-> @lst {
 	    &redo := &?SUB;            
-	    @lst`length()`eq(1)`cond(
+	    @lst`length()`eq(1)`if_else(
 	        -> { @lst`fetch(0) },
 	        -> { &mergepairs`(@lst) } 
 	    ) 

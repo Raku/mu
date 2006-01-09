@@ -70,7 +70,7 @@
 ^rArray.add_method('keys', -> {
     -> @list, @acc {
         &redo := &?SUB;
-        @list`is_empty()`cond(
+        @list`is_empty()`if_else(
             -> { $?CLASS`create('p6array', @acc) },
             -> { &redo`(@list`splice(1), @acc`push(@acc`length())) }
         );
@@ -82,7 +82,7 @@
 ^rArray.add_method('pairs', -> {
     -> @list, @acc {
         &redo := &?SUB;
-        @list`is_empty()`cond(
+        @list`is_empty()`if_else(
             -> { $?CLASS`create('p6array', @acc) },
             -> { 
                 &redo`(
@@ -100,7 +100,7 @@
 ^rArray.add_method('kv', -> {
     -> @list, @acc {
         &redo := &?SUB;
-        @list`is_empty()`cond(
+        @list`is_empty()`if_else(
             -> { $?CLASS`create('p6array', @acc) },
             -> { 
                 &redo`(

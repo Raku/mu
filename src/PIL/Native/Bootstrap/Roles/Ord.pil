@@ -30,10 +30,10 @@
 });
 
 ^Ord.add_method('infix:<<=>>', -> $other {
-	self.infix:<==>($other)`cond(
+	self.infix:<==>($other)`if_else(
 		-> { 0 },
 		-> {
-			self.infix:<<=>($other)`cond(
+			self.infix:<<=>($other)`if_else(
 				-> { -1 },
 				-> {  1 }
 			)
@@ -42,14 +42,14 @@
 });
 
 ^Ord.add_method('min', -> $other {
-	self.infix:<<>($other)`cond(
+	self.infix:<<>($other)`if_else(
 		-> { self   },
 		-> { $other }
 	);
 });
 
 ^Ord.add_method('max', -> $other {
-	self.infix:<>=>($other)`cond(
+	self.infix:<>=>($other)`if_else(
 		-> { self   },
 		-> { $other }
 	);

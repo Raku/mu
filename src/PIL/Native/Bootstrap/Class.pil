@@ -89,7 +89,7 @@
 # NOTE:
 # is_a is meant to check against class instances 
 ^Class.add_method('is_a', -> $class { 
-    self`eq($class)`cond(
+    self`eq($class)`if_else(
         -> { true },
         -> {
             &dispatcher := self.dispatcher('descendant');
@@ -97,7 +97,7 @@
                 &redo     := &?SUB;
                 $ancestor := &WALKCLASS`(&dispatcher);      
                 -> {
-                    $ancestor`eq($class)`cond(
+                    $ancestor`eq($class)`if_else(
                         -> { true     },
                         -> { &redo`() }
                     );
@@ -110,7 +110,7 @@
 # NOTE:
 # isa is meant to check against class names
 ^Class.add_method('isa', -> $class {
-    self.name`eq($class)`cond(
+    self.name`eq($class)`if_else(
         -> { true },
         -> {
             &dispatcher := self.dispatcher('descendant');            
@@ -118,7 +118,7 @@
                 &redo     := &?SUB;
                 $ancestor := &WALKCLASS`(&dispatcher);                        
                 -> {
-                    $ancestor.name`eq($class)`cond(
+                    $ancestor.name`eq($class)`if_else(
                         -> { true     },
                         -> { &redo`() }
                     );
@@ -141,7 +141,7 @@
 
 ^Class.add_method('MRO', -> {
     @mro := self`get_attr('@!MRO');
-    @mro`is_empty`cond(
+    @mro`is_empty`if_else(
         ->{ self`set_attr('@!MRO', self`mro_merge) },
         ->{ @mro }
     );
@@ -195,13 +195,13 @@
 ## Method dispatching
 
 ^Class.add_method('dispatcher', -> $order {
-    $order := $order`is_nil`or($order`eq('canonical'))`cond(
+    $order := $order`is_nil`or($order`eq('canonical'))`if_else(
         ->{ 'ascendant' }, 
         ->{ $order      }
     );
-    $order`eq('descendant')`cond(
+    $order`eq('descendant')`if_else(
         ->{ self!make_descendant_dispatcher; },
-        ->{ $order`eq('ascendant')`cond(
+        ->{ $order`eq('ascendant')`if_else(
             ->{ self!make_ascent_dispatcher;             },
             ->{ self!unsupported_dispatch_order($order); }
         ) }

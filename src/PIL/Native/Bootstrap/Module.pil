@@ -20,11 +20,11 @@
 
 ^Module.add_method('identifier', -> {
     $output := self`get_attr('$!name');
-    $output := self`get_attr('$!version')`not_nil`cond(
+    $output := self`get_attr('$!version')`not_nil`if_else(
         -> { $output`concat('-')`concat(self`get_attr('$!version')) },
         -> { $output }
     );
-    $output := self`get_attr('$!authority')`not_nil`cond(
+    $output := self`get_attr('$!authority')`not_nil`if_else(
         -> { $output`concat('-')`concat(self`get_attr('$!authority')) },
         -> { $output }
     ); 

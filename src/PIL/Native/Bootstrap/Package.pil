@@ -17,7 +17,7 @@
 # disucssion on how Packages work, in particular the FETCH('{}') part.
 
 ^Package.add_method('FETCH', -> $label { 
-    $label`eq('{}')`cond(
+    $label`eq('{}')`if_else(
         -> { self`get_attr('%!namespace')                },
         -> { self`get_attr('%!namespace').fetch($label); }
     );

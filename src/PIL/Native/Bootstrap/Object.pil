@@ -19,7 +19,7 @@
 ^Object.add_method('id',    -> { self`id();   });
 
 ^Object.add_method('isa', -> $class {
-    $?CLASS.name`eq($class)`cond(
+    $?CLASS.name`eq($class)`if_else(
         -> { true },
         -> {
             &dispatcher := $?CLASS.dispatcher('descendant');            
@@ -27,7 +27,7 @@
                 &redo     := &?SUB;
                 $ancestor := &WALKCLASS`(&dispatcher);                        
                 -> {
-                    $ancestor.name`eq($class)`cond(
+                    $ancestor.name`eq($class)`if_else(
                         -> { true     },
                         -> { &redo`() }
                     );
@@ -38,7 +38,7 @@
 });
 
 ^Object.add_method('can', -> $label {
-    &WALKMETH`($?CLASS.dispatcher('descendant'), $label)`not_nil`cond(
+    &WALKMETH`($?CLASS.dispatcher('descendant'), $label)`not_nil`if_else(
         -> { true  },
         -> { false }
     );

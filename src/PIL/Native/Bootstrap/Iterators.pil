@@ -9,7 +9,7 @@
         $class := &WALKCLASS`(&dispatcher);
         -> { 
             $method := $class.get_method($label);
-            $method`is_nil`cond(
+            $method`is_nil`if_else(
                 -> { &redo`() },
                 -> { $method  } 
             );

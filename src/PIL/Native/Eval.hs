@@ -138,7 +138,7 @@ primCall inv meth args
         Just f  -> return $ f inv args
         Nothing -> case inv of
             NError {}   -> errMethodMissing
-            NBit x | meth == mkStr "cond"
+            NBit x | meth == mkStr "if_else"
                         -> callConditional x args
             NBit x      -> callPrim bitPrims x args
             NInt x      -> callPrim intPrims x args

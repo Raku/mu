@@ -16,7 +16,7 @@ Stevan Little <stevan@iinteractive.com>
 &split := -> $str, $delim {
 
     &stash_acc := -> $acc, @acc {
-        $acc`is_empty()`cond( 
+        $acc`is_empty()`if_else( 
             -> { @acc }, 
             -> { @acc`push($acc) } 
         );    
@@ -24,10 +24,10 @@ Stevan Little <stevan@iinteractive.com>
 
     -> $h, $t, $acc, @acc {
         &redo := &?SUB;
-        $h`is_nil()`cond(
+        $h`is_nil()`if_else(
             -> { &stash_acc`($acc, @acc) },
             -> {  
-                $h`eq($delim)`cond(
+                $h`eq($delim)`if_else(
                     -> { &redo`($t`fetch(0), $t`splice(1), '', &stash_acc`($acc, @acc)) },
                     -> { &redo`($t`fetch(0), $t`splice(1), $acc`concat($h), @acc)       }
                 );
@@ -41,25 +41,25 @@ Stevan Little <stevan@iinteractive.com>
         @tokens`trace(); @stack`trace();        
         &redo  := &?SUB; 
         $token := @tokens`fetch(0);    
-        @tokens`is_empty()`cond(
+        @tokens`is_empty()`if_else(
             -> { @stack`fetch(0) },
             -> { 
                 $x := @stack`fetch(@stack`length()`subtract(1))`as_int();
                 $y := @stack`fetch(@stack`length()`subtract(2))`as_int();               
                 @r := @stack`splice(2);                    
-                $token`eq('+')`cond(
+                $token`eq('+')`if_else(
                     -> { &redo`(@tokens`splice(1), @r`push($y`add($x)`as_int())) },
                     -> {
-                        $token`eq('-')`cond(
+                        $token`eq('-')`if_else(
                             -> { &redo`(@tokens`splice(1), @r`push($y`subtract($x)`as_int())) },
                             -> {                
-                                $token`eq('*')`cond(                
+                                $token`eq('*')`if_else(                
                                     -> { &redo`(@tokens`splice(1), @r`push($y`multiply($x)`as_int())) },
                                     -> {                        
-                                        $token`eq('/')`cond(                
+                                        $token`eq('/')`if_else(                
                                             -> { &redo`(@tokens`splice(1), @r`push($y`divide($x)`as_int())) },
                                             -> {
-                                                $token`eq(' ')`cond( 
+                                                $token`eq(' ')`if_else( 
                                                     -> { &redo`(@tokens`splice(1), @stack) },
                                                     -> { &redo`(@tokens`splice(1), @stack`push($token)) }
                                                 );
