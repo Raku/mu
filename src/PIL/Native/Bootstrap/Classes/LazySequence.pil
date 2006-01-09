@@ -13,64 +13,55 @@
 
 ^LazySequence.set_superclasses([ ^Object ]);
 
-^LazySequence.add_attribute('$!start_value', nil);
-^LazySequence.add_attribute('&next_value', nil); 
+^LazySequence.add_attribute('$!current',   nil); 
+^LazySequence.add_attribute('&generator', nil); 
 
-# default to returning false to support lazy infinite sequences
-^LazySequence.add_attribute('&end_predicate', -> $val { false });
+^LazySequence.add_method('BUILD', -> %params {  
+    # cache the current (head) element 
+    # at instance creation time :)
+	self`set_attr('$!current', self`get_attr('&generator')`());
+});
 
 # --------------------------------------------------------------------------- #
 # Methods dependent upon the repr type
 
-^LazySequence.add_method('head', -> {  
-	self`get_attr('$!start_value');
-});
-
+^LazySequence.add_method('head', -> {  self`get_attr('$!current') });
 ^LazySequence.add_method('tail', -> { 
-	$next := self`get_attr('&!next_value')`(self`get_attr('$!start_value'));
-	self`get_attr('&!end_predicate')`($next)`cond(
-		-> { 
-			$?CLASS.new({ 
-				'$!start_value' => nil,
-				'&!next_value'  => -> { nil },
-			});
-		},
-		-> { 
-			$?CLASS.new({
-				'$!start_value'   => $next,
-				'&!next_value'    => self`get_attr('&!next_value'),
-				'&!end_predicate' => self`get_attr('&!end_predicate')
-			})		
-		}
-	)
+    # create a new instance, which then forces the 
+    # current element to be generated (see BUILD above)
+    $?CLASS.new({ '&generator' => self`get_attr('&generator') });
 });
 
-=pod
+# these two need to be re-implemented to return LazySequences
 
-A Lazy sequence is composed of the following:
+^LazySequence.add_method('apply', -> &code {
+	&old_generator := self`get_attr('&generator');
+	$?CLASS.new({ '&generator' => -> { &code`(&old_generator`()) } });	
+});
 
-  - An initial value.
+^LazySequence.add_method('filter', -> &code {
+    &old_generator := self`get_attr('&generator');
+    $?CLASS.new({ '&generator' => -> { 
+            &redo := &?SUB;
+            my $value = &old_generator`();
+            &code`($value)`as_bit()`cond(
+                -> { $value   },
+                -> { &redo`() }
+            ); 
+        } 
+    });
+});
 
-  - A function which given the initial value will 
-    return the next value in the sequence.
-
-  - A predicate function which will detect the
-    end of the sequence. It will return true, if
-    we have reached the end, and false otherwise.
-    The default value returns false, to support
-    infinite sequences by default.
-
-=head1 IMPLEMENTATION NOTES
-
-This does the ^Seq role, which tests the value returned from 
-.head to implement the .is_empty method. So when this sequence
-reaches the end, it's .tail method will return a new LazySequence 
-object whose $intial_value is nil and whose &next_value will 
-always return nil (and leaves the default infinite &end_predicate
-value).  
-
-=head1 SEE ALSO 
-
-http://wiki.opendylan.org/wiki/view.dsp?title=BitsAndPieces
-
-=cut
+# NOTE:
+# ideally this would not need to be re-implemented
+# here just so that I could return a non-lazy Sequence
+# but I see no other way currently.
+^LazySequence.add_method('reverse', -> { 
+	-> $list, @acc {
+		&redo := &?SUB;
+		$list.is_empty()`cond(
+			-> { ^Sequence.new(@acc) }, # << Must return a regular Sequcene type
+			-> { &redo`($list.tail(), [ $list.head() ]`concat(@acc)) }
+		);
+	}`(self.tail(), [ self.head() ]);
+});
