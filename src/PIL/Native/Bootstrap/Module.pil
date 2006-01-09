@@ -30,5 +30,3 @@
     ); 
     $output;
 });
-
-::Module := ^Module`create('');

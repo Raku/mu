@@ -26,5 +26,3 @@
 ^Package.add_method('STORE', -> $label, $value { 
     self`set_attr_hash('%!namespace', $label, $value);
 });
-
-::Package := ^Package`create('');

@@ -263,5 +263,3 @@
 ^Class.add_attribute('%!private_methods', {});
 ^Class.add_attribute('%!methods',         {});
 ^Class.add_attribute('%!attributes',      {});
-
-::Class := ^Class`create('');

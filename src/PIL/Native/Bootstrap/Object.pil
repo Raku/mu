@@ -43,5 +43,3 @@
         -> { false }
     );
 });
-
-::Object := ^Object`create('');
