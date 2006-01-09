@@ -13,9 +13,13 @@ different $repr type will have an accompanying vtable which will
 contain the methods available to manipulate that $repr type. 
 There will be a few common methods available, they will be:
 
-   `meta() # returns the class of the instance
-   `id()   # returns the id of the instance
-   `repr() # returns the string name of the $repr type used
+   `id()     # returns the id of the instance
+   `meta()   # returns the class of the instance
+   `repr()   # returns the name of the $repr type used
+   `as_bit() # returns whether a representation holds zero elements
+   `as_int() # returns the number of elements as int
+   `as_num() # returns the number of elements as num
+   `as_str() # returns a stringified reprensentation
 
 The layout of these types will all be pretty similar, and look 
 something like this:
@@ -28,61 +32,71 @@ something like this:
     | <repr_type> |
     +-------------+
 
-(With maybe a space for the $repr string as well, unless the host 
-language can easily infer this when needed.)
-
 Here is a description of each of the different $repr types:
 
-=head2 `create_opaque()
+=head2 "p6opaque"`create()
 
-The opaque type takes nothing in its constructor, all items
-must be added to it using the methods in its vtable. Those methods
-are as follows:
+The opaque type takes nothing in its constructor, all items must be added to it
+using the methods in its vtable.  Those methods are as follows:
 
-	`get_attr($key)         # returns the value stored at $key
-	`has_attr($key)         # returns a bit type
-	`set_attr($key, $value) # returns nothing (void or nil)
+        `has_attr($key)             # returns a bit type
+        `get_attr($key)             # returns the value stored at $key
+        `set_attr($key, $value)     # returns nil
 
+The C<$key> is constrained to be a PIL^N string.
 
-=head2 `create_array([])
+=head2 "p6array"`create([])
 
 The array type should be passed a PIL^N list type, any values 
 found in that list will be added into the resulting object. It is
 also possible to add more elements as well, or even to replace the
 list entirely using the following vtable of methods:
 
-	`fetch_elem($index)         # fetches the value at $index
-	`store_elem($index, $value) # stores the $value at $index
-	`fetch_list()               # fetchs the list (returning a PIL^N list)
-	`store_list($list)			 # stores the list (expects a PIL^N list)
+        `exists($idx)               # returns a bit type
+        `fetch($idx)                # fetches the value at $idx
+        `store($idx, $val)          # sets the $val at $idx
+        `splice($idx, $len, $vals)  # removes and stores a list of values
+        `push($val)                 # adds a value from the end
+        `unshift($val)              # adds a value from the front
+        `pop()                      # removes and returns a value from the end
+        `shift()                    # removes and returns a value from the front
+        `replace($vals)             # replaces the array
+        `as_map()                   # returning a PIL^N hash
+        `as_seq()                   # returning a PIL^N list
 
-=head2 `create_hash({})
+=head2 "p6hash"`create({})
 
-The hash type should be passed a PIL^N hash type, and any values 
-found with it will be transferred into the resulting object. As with
-the array and opaque types, it is possible to manipulate the elements
-further with the vtable of methods:
+The hash type should be passed a PIL^N hash or list type, and
+any values found with it will be transferred into the resulting object.
+As with the array and opaque types, it is possible to manipulate the
+elements further with the vtable of methods:
 
-	`fetch_elem($key)         # fetches the value at $key
-	`store_elem($key, $value) # stores the $value at $key
-	`fetch_hash()             # fetchs the hash (returning a PIL^N hash)
-	`store_hash($hash)		  # stores the hash (expects a PIL^N hash)
-	
-=head2 `create_scalar($value)
+        `exists($key)               # returns a bit type
+        `fetch($key)                # fetches the value at $key
+        `delete($key)               # removes the $key
+        `store($key, $val)          # sets the $val at $key
+        `replace($vals)             # replaces the hash
+        `union($vals)               # adds into the hash
+        `keys()                     # fetchs keys (returning a PIL^N list)
+        `vals()                     # fetchs vals (returning a PIL^N list)
+        `as_map()                   # returning a PIL^N hash
+        `as_seq()                   # returning a PIL^N list
+        
+=head2 "p6scalar"`create($value)
 
 As with the array and hash $repr types, this should be passed a PIL^N type. 
 (This could include list and hash types too, but it probably wouldn't make 
 sense really). The value passed can be stored and fetched with the following
 vtable of methods:
 
-	`fetch()       # returns the value stored
-	`store($value) # stored the $value passed in
+        `fetch()                    # returns the value stored
+        `store($value)              # stored the $value passed in
 
 This repr type has some interesting qualities to it. It could be used to 
 not only implement the ^Scalar container type, but it can also be used for 
 the autoboxing of ^Int, ^Num, ^Str, etc. with no real specialization. 
 
-=head2 `create_nil()
+=head2 nil`create()
 
 This is a very specialized repr type, which is used to implement the 
 "class but undef" part of the Perl 6 object model as spec-ed by @Larry. 
