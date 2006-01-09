@@ -53,12 +53,12 @@ list entirely using the following vtable of methods:
     `exists($idx)               # returns a bit type
     `fetch($idx)                # fetches the value at $idx
     `store($idx, $val)          # sets the $val at $idx
-    `splice($idx, $len, $vals)  # removes and stores a list of values
+    `splice($idx, $len, @vals)  # removes and stores a list of values
     `push($val)                 # adds a value from the end
     `unshift($val)              # adds a value from the front
     `pop()                      # removes and returns a value from the end
     `shift()                    # removes and returns a value from the front
-    `replace($vals)             # replaces the array
+    `replace(@vals)             # replaces the array
     `as_map()                   # returning a PIL^N hash
     `as_seq()                   # returning a PIL^N list
     `as_int()                   # returns the number of elements as int
@@ -75,8 +75,8 @@ elements further with the vtable of methods:
     `fetch($key)                # fetches the value at $key
     `delete($key)               # removes the $key
     `store($key, $val)          # sets the $val at $key
-    `replace($vals)             # replaces the hash
-    `union($vals)               # adds into the hash
+    `replace(%vals)             # replaces the hash
+    `union(%vals)               # adds into the hash
     `keys()                     # fetchs keys (returning a PIL^N list)
     `vals()                     # fetchs vals (returning a PIL^N list)
     `as_map()                   # returning a PIL^N hash
@@ -133,5 +133,7 @@ would attempt to call ^Object.BUILD.
 =head1 AUTHOR
 
 Stevan Little <stevan@iinteractive.com>
+
+Audrey Tang <autrijus@autrijus.org>
 
 =cut
