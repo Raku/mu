@@ -17,15 +17,15 @@ use_ok( 'Locale::KeyedText::L::en' );
 skip( 1, q{is( Locale::KeyedText::L::en.meta.identifier.version, 1.1.0,
     'Locale::KeyedText::L::en is the correct version' );} );
 
-# SQL-Routine:
+# Rosetta-Model:
 
-use_ok( 'SQL::Routine' );
-skip( 1, q{is( SQL::Routine.meta.identifier.version, 0.710.0,
-    'SQL::Routine is the correct version' );} );
+use_ok( 'Rosetta::Model' );
+skip( 1, q{is( Rosetta::Model.meta.identifier.version, 0.710.0,
+    'Rosetta::Model is the correct version' );} );
 
-use_ok( 'SQL::Routine::L::en' );
-skip( 1, q{is( SQL::Routine::L::en.meta.identifier.version, 0.390.0,
-    'SQL::Routine::L::en is the correct version' );} );
+use_ok( 'Rosetta::Model::L::en' );
+skip( 1, q{is( Rosetta::Model::L::en.meta.identifier.version, 0.390.0,
+    'Rosetta::Model::L::en is the correct version' );} );
 
 # Rosetta:
 
@@ -55,25 +55,25 @@ use_ok( 'Rosetta::Engine::Native::L::en' );
 skip( 1, q{is( Rosetta::Engine::Native::L::en.meta.identifier.version, 0.1.0,
     'Rosetta::Engine::Native::L::en is the correct version' );} );
 
-# SQL-Routine-SQLBuilder:
+# Rosetta-Utility-SQLBuilder:
 
-use_ok( 'SQL::Routine::SQLBuilder' );
-skip( 1, q{is( SQL::Routine::SQLBuilder.meta.identifier.version, 0.220.0,
-    'SQL::Routine::SQLBuilder is the correct version' );} );
+use_ok( 'Rosetta::Utility::SQLBuilder' );
+skip( 1, q{is( Rosetta::Utility::SQLBuilder.meta.identifier.version, 0.220.0,
+    'Rosetta::Utility::SQLBuilder is the correct version' );} );
 
-use_ok( 'SQL::Routine::SQLBuilder::L::en' );
-skip( 1, q{is( SQL::Routine::SQLBuilder::L::en.meta.identifier.version, 0.30.0,
-    'SQL::Routine::SQLBuilder::L::en is the correct version' );} );
+use_ok( 'Rosetta::Utility::SQLBuilder::L::en' );
+skip( 1, q{is( Rosetta::Utility::SQLBuilder::L::en.meta.identifier.version, 0.30.0,
+    'Rosetta::Utility::SQLBuilder::L::en is the correct version' );} );
 
-# SQL-Routine-SQLParser:
+# Rosetta-Utility-SQLParser:
 
-use_ok( 'SQL::Routine::SQLParser' );
-skip( 1, q{is( SQL::Routine::SQLParser.meta.identifier.version, 0.30.0,
-    'SQL::Routine::SQLParser is the correct version' );} );
+use_ok( 'Rosetta::Utility::SQLParser' );
+skip( 1, q{is( Rosetta::Utility::SQLParser.meta.identifier.version, 0.30.0,
+    'Rosetta::Utility::SQLParser is the correct version' );} );
 
-use_ok( 'SQL::Routine::SQLParser::L::en' );
-skip( 1, q{is( SQL::Routine::SQLParser::L::en.meta.identifier.version, 0.30.0,
-    'SQL::Routine::SQLParser::L::en is the correct version' );} );
+use_ok( 'Rosetta::Utility::SQLParser::L::en' );
+skip( 1, q{is( Rosetta::Utility::SQLParser::L::en.meta.identifier.version, 0.30.0,
+    'Rosetta::Utility::SQLParser::L::en is the correct version' );} );
 
 # Rosetta-Engine-Generic:
 

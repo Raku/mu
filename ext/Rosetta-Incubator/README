@@ -46,11 +46,11 @@ target.
 These are the anticipated core components of the Rosetta framework:
 
 * Locale::KeyedText
-* SQL::Routine
+* Rosetta::Model
 * Rosetta (and Rosetta::Validator)
 * Rosetta::Engine::Native
-* SQL::Routine::SQLBuilder
-* SQL::Routine::SQLParser
+* Rosetta::Utility::SQLBuilder
+* Rosetta::Utility::SQLParser
 * Rosetta::Engine::Generic
 * Rosetta::Emulator::DBI
 

@@ -28,10 +28,10 @@ influenced by work done by other people.
 
 Add new documentation file /docs/Language (or equivalent) that defines the
 valid structures and contents of the SQL-equivalent AST that Rosetta takes
-as input and that SQL::Routine stores.  This document is to SQL::Routine
-and Rosetta what the published SQL:2003 standard documents are to SQL and
-conformant databases (or they are what the Perl 6 Synopsis are to the Perl
-6 language and its implementations).
+as input and that Rosetta::Model stores.  This document is to
+Rosetta::Model and Rosetta what the published SQL:2003 standard documents
+are to SQL and conformant databases (or they are what the Perl 6 Synopsis
+are to the Perl 6 language and its implementations).
 
 =item *
 
@@ -42,10 +42,10 @@ to /docs/Overview instead.
 
 =item *
 
-Implement starter SQL::Routine module, which in its first post-rewrite
+Implement starter Rosetta::Model module, which in its first post-rewrite
 incarnation will resemble a limited XML DOM, having typed nodes with
 attributes, but never having 'cdata' sections.  Input checking will be kept
-to a minimum initially, with SQL::Routine assuming its input is correct;
+to a minimum initially, with Rosetta::Model assuming its input is correct;
 eventually the input checking code will make up most of the mass of this
 module, and most of that will be done on demand rather than automatically.
 
@@ -164,10 +164,10 @@ and whatever Rosetta::Validator can test.
 
 =item *
 
-Upload first post-rewrite versions of SQL::Routine-0.710.0, Rosetta-0.490.0
-(with Rosetta::Validator-0.490.0), and Rosetta::Engine::Native-0.1.0 to
-CPAN, and make a list announcement for "Rosetta/SQL::Routine Developer
-Release #4".
+Upload first post-rewrite versions of Rosetta::Model-0.710.0,
+Rosetta-0.490.0 (with Rosetta::Validator-0.490.0), and
+Rosetta::Engine::Native-0.1.0 to CPAN, and make a list announcement for
+"Rosetta/Rosetta::Model Developer Release #4".
 
 =item *
 
@@ -259,7 +259,7 @@ authors while they do that.
 
 =item *
 
-Add some basic AST validation to SQL::Routine.
+Add some basic AST validation to Rosetta::Model.
 
 =item *
 
@@ -396,7 +396,7 @@ Consider some explicit performance hints such as tablespaces.
 
 =item *
 
-Add some improved AST validation to SQL::Routine.
+Add some improved AST validation to Rosetta::Model.
 
 =item *
 

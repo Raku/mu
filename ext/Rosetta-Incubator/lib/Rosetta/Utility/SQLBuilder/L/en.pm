@@ -11,11 +11,11 @@ my Str %TEXT_STRINGS is readonly = (
 ###########################################################################
 ###########################################################################
 
-module SQL::Routine::SQLBuilder::L::en-0.30.0 {
+module Rosetta::Utility::SQLBuilder::L::en-0.30.0 {
     sub get_text_by_key (Str $msg_key!) returns Str {
         return %TEXT_STRINGS{$msg_key};
     }
-} # module SQL::Routine::SQLBuilder::L::en
+} # module Rosetta::Utility::SQLBuilder::L::en
 
 ###########################################################################
 ###########################################################################
@@ -24,12 +24,12 @@ module SQL::Routine::SQLBuilder::L::en-0.30.0 {
 
 =head1 NAME
 
-SQL::Routine::SQLBuilder::L::en -
-Localization of SQL::Routine::SQLBuilder for English
+Rosetta::Utility::SQLBuilder::L::en -
+Localization of Rosetta::Utility::SQLBuilder for English
 
 =head1 VERSION
 
-This document describes SQL::Routine::SQLBuilder::L::en version 0.30.0.
+This document describes Rosetta::Utility::SQLBuilder::L::en version 0.30.0.
 
 =head1 SYNOPSIS
 
@@ -73,16 +73,18 @@ Darren R. Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENCE AND COPYRIGHT
 
-This file is part of the SQL::Routine::SQLBuilder reference implementation
-of a SQL:2003 string builder that uses the SQL::Routine database
-portability library.
+This file is part of the Rosetta::Utility::SQLBuilder reference
+implementation of a SQL:2003 string builder that uses the Rosetta::Model
+database portability library.
 
-SQL::Routine::SQLBuilder is Copyright (c) 2002-2006, Darren R. Duncan.
+Rosetta::Utility::SQLBuilder is Copyright (c) 2002-2006, Darren R. Duncan.
 
-See the LICENCE AND COPYRIGHT of L<SQL::Routine::SQLBuilder> for details.
+See the LICENCE AND COPYRIGHT of L<Rosetta::Utility::SQLBuilder> for
+details.
 
 =head1 ACKNOWLEDGEMENTS
 
-The ACKNOWLEDGEMENTS in L<SQL::Routine::SQLBuilder> apply to this file too.
+The ACKNOWLEDGEMENTS in L<Rosetta::Utility::SQLBuilder> apply to this file
+too.
 
 =cut

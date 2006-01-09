@@ -530,8 +530,8 @@ behave differently in some of these aspects, though (to be decided).
 
 A B<role> is a named collection of privileges that a user has.
 
-Details of individual schema objects and SQL statements are covered in other
-documents rather than in this one.
+Details of individual schema objects and SQL statements are covered in
+other documents rather than in this one.
 
 =head1 HIGH LEVEL ROSETTA INTERFACE CLASSES/ROLES
 

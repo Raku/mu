@@ -2,47 +2,47 @@
 
 =head1 NAME
 
-SQL::Routine::Language -
+Rosetta::Language -
 Authoritative human readable design document
 
 =head1 DESCRIPTION
 
-SQL::Routine provides an effective language for defining relational data
+Rosetta::Model provides an effective language for defining relational data
 models, both the means to create them and the means to interact with them;
-see the documentation of L<SQL::Routine> itself (in the current
+see the documentation of L<Rosetta::Model> itself (in the current
 distribution) for a further introduction.
 
-This document, SQL::Routine::Language ("Language"), is the human readable
-authoritative design document for that language.  The file SQL::Routine
+This document, Rosetta::Language ("Language"), is the human readable
+authoritative design document for that language.  The file Rosetta::Model
 itself contains the machine readable language specification, which is
 derived from the human readable version.  If there's a conflict between the
-two, then either SQL::Routine is in error, or the developers were negligent
-in updating it before Language, so you can yell at them.  Likewise, believe
-Language before any other conflicting documents, unless the other documents
-are emails from SQL::Routine developers, in which case they can be yelled
-at again for not keeping Language up to date.
+two, then either Rosetta::Model is in error, or the developers were
+negligent in updating it before Language, so you can yell at them.
+Likewise, believe Language before any other conflicting documents, unless
+the other documents are emails from Rosetta::Model developers, in which
+case they can be yelled at again for not keeping Language up to date.
 
-Since the SQL::Routine language is largely derived from pre-existing
+Since the Rosetta::Model language is largely derived from pre-existing
 language specifications such as the ANSI/ISO SQL:2003 standard, it may be
 tempting to just assume everything you know from them is also true here.
 While that will work in some cases (and in fact I intentionally don't
 repeat many details here for brevity), it won't in others, so you should
 always check here for any possible conflicts.
 
-The SQL::Routine language is primarily declarative, in that it defines how
-implementations should appear and behave from a user's point of view, and
-it does not typically make any demands as to how implementations accomplish
-this behind the scenes.
+The Rosetta::Model language is primarily declarative, in that it defines
+how implementations should appear and behave from a user's point of view,
+and it does not typically make any demands as to how implementations
+accomplish this behind the scenes.
 
 =head1 OPERATIONAL CONTEXT
 
-The SQL::Routine language is designed for a specific virtual environment,
+The Rosetta::Model language is designed for a specific virtual environment,
 that provides usually-persistent repositories (or "depots") in which can
 live user defined data structures and routines to operate on them, as is
 the case with a typical computer programming language.  Broadly speaking,
-the SQL::Routine language provides the means to create, read, modify, and
+the Rosetta::Model language provides the means to create, read, modify, and
 delete both entire depots and other items that live in them.  An
-implementation (or instance thereof) of the SQL::Routine language is a
+implementation (or instance thereof) of the Rosetta::Model language is a
 "depot management system" (or "depot manager"); it is the job of the depot
 manager to facilitate access to depots implemented with it.
 
@@ -93,7 +93,7 @@ are left to its creator, but the above are my recommendations.
 
 A B<user> is whom the application or its user authenticates themselves as
 against a depot connection, if the depot manager has a concept of users
-(SQLite natively does not, Oracle natively does, etc).  SQL::Routine
+(SQLite natively does not, Oracle natively does, etc).  Rosetta::Model
 defines 3 types of users, called ROOT, NAMED, ANONYMOUS; there is 1 ROOT
 user that owns the depot and was created with it, and NAMED users are what
 a typical person connects as, unless they are ANONYMOUS.  Note that some
@@ -117,7 +117,7 @@ is fully unambiguous and works anywhere.  Partially qualified
 invoke a schema object, but they only work within the same namespace
 (catalog or schema respectively) as the invocant.
 
-As with typical programming languages, the SQL::Routine language also
+As with typical programming languages, the Rosetta::Model language also
 provides lexically scoped data structures (and sometimes routines).  Mainly
 it is data structures declared within a routine that are lexical, and these
 are only visible within that routine.
@@ -130,17 +130,17 @@ you can also declare a standalone scalar container that is a schema object.
 (The latter would be implemented as a table with a single column and row
 in a typical SQL database back-end.)
 
-SQL::Routine defines 4 types of catalogs, called LOCAL, SYSTEM, TEMPORARY,
-and REMOTE; a depot can potentially have all of these kinds at once, but
-typically it has exactly 1 each of the first 3 types.  The LOCAL catalog
-type is the normal one, and contains all the typical persistent schema
-objects.  The TEMPORARY catalog type is for schema objects whose fates are
-tied to open connections; each connection has its own private instance of
-one TEMPORARY catalog, and its contents disappear when the connection is
-closed.  The SYSTEM catalog type provides read-only schema objects that are
-views into that depot's meta-data; they are analagous to an "information
-schema", but that all the meta-data is atomic like the SQL::Routine
-language itself.
+Rosetta::Model defines 4 types of catalogs, called LOCAL, SYSTEM,
+TEMPORARY, and REMOTE; a depot can potentially have all of these kinds at
+once, but typically it has exactly 1 each of the first 3 types.  The LOCAL
+catalog type is the normal one, and contains all the typical persistent
+schema objects.  The TEMPORARY catalog type is for schema objects whose
+fates are tied to open connections; each connection has its own private
+instance of one TEMPORARY catalog, and its contents disappear when the
+connection is closed.  The SYSTEM catalog type provides read-only schema
+objects that are views into that depot's meta-data; they are analagous to
+an "information schema", but that all the meta-data is atomic like the
+Rosetta::Model language itself.
 
 The REMOTE catalog type is used when you cause the depot / depot manager
 you are connected with to turn around and connect to another depot (whether
@@ -160,7 +160,7 @@ would be the REMOTE type, and there wouldn't be any of the LOCAL type.
 
 =head1 DATA TYPES AND VALUES
 
-The SQL::Routine language is natively built around strong data types and
+The Rosetta::Model language is natively built around strong data types and
 values, which is part of its rigor and simplicity.  Every B<data value> is
 considered to have a specific B<data type>, and a data type is considered
 to be a domain of one or more representable values.  Examples of data types
@@ -184,7 +184,7 @@ string, you must choose what numeric radix to use.  However, no casting
 choice is necessary if the data type of the value in hand is a restriction
 of the needed data type.
 
-The SQL::Routine language gains rigor from this requirement for strong
+The Rosetta::Model language gains rigor from this requirement for strong
 typing and explicit casting methods because you have to be very explicit as
 to what behaviour is expected; as a result, there should be no ambiguity in
 the system and the depot manager should perform exactly as you intended.
@@ -194,7 +194,7 @@ greatly improved, with certain causes of corruption removed, which is an
 important goal of any data management system, and supports the ideals of
 the relational data model.
 
-The SQL::Routine language gains simplicity from this same requirement,
+The Rosetta::Model language gains simplicity from this same requirement,
 because your depot-centric routines can neatly avoid the combinatorial
 complexity that comes from being given a range of data types as values when
 you conceptually just want one type, and your code doesn't have to deal
@@ -210,7 +210,7 @@ is inside the depot manager environment.
 
 =head2 Classifications
 
-The SQL::Routine language has 2 main classes of data types, which are
+The Rosetta::Model language has 2 main classes of data types, which are
 opaque data types and transparent data types.
 
 An opaque data type is like a black box whose internal representation is
@@ -252,7 +252,7 @@ used as input to all operations that its parent type could be, though it
 can only be used conditionally as output.
 
 Note that, for considerations of practicality, as computers are not
-infinite, the SQL::Routine language requires you to explicitly declare a
+infinite, the Rosetta::Model language requires you to explicitly declare a
 container (but not a value) to be of a restricted opaque type, having a
 defined finite range in its domain, though that domain can still be very
 large.  This allows depot manager implementations to know whether or not
@@ -267,7 +267,7 @@ disjunctive transparent data types.  A collective transparent data type is
 what you normally think of with transparent types, and includes arrays,
 sets, relations, and tuples; each one can contain zero or more distinct
 sub-values at once.  A disjunctive transparent data type is the means that
-the SQL::Routine language provides to simulate both weak data types and
+the Rosetta::Model language provides to simulate both weak data types and
 normal-but-nullable data types.  It looks like a tuple where only one field
 is allowed to contain a non-empty value at once, and it has a distinct
 field for each possible strong data type that the weak type can encompass
@@ -277,9 +277,9 @@ fields contains the important value.
 
 =head1 OLDER DOCUMENTATION TO REWRITE/REMOVE: DATA TYPES OVERVIEW
 
-The SQL::Routine language is strongly typed, following the relational
+The Rosetta::Model language is strongly typed, following the relational
 model's ideals of stored data integrity, and the actual practice of SQL and
-many database products, and SQL::Routine's own ideals of being rigorously
+many database products, and Rosetta::Model's own ideals of being rigorously
 defined.  However, its native set of data types also includes
 ones that have the range of typical weak types such as some database
 products and languages like Perl use.
@@ -287,18 +287,18 @@ products and languages like Perl use.
 A data type is a set of representable values.  All data types are based on
 the concept of domains; any variable or literal that is of a particular
 data type may only hold a value that is part of the domain that defines the
-data type.  SQL::Routine has some native data types that it implicitly
+data type.  Rosetta::Model has some native data types that it implicitly
 understands (eg, booleans, integers, rational numbers, character strings,
 bit strings, arrays, rows, tables), and you can define custom ones too that
 are based on these (eg, counting numbers, character strings that are
 limited to 10 characters in length, rows having 3 specific fields).
 
-All SQL::Routine "domain" Nodes (and schema objects) are user defined,
+All Rosetta::Model "domain" Nodes (and schema objects) are user defined,
 having a name that you pick, regardless of whether the domain corresponds
 directly to a native data type, or to one you customized; this is so
 there won't be any name conflicts regardless of any same named data types
 that a particular database implementation used in conjunction with
-SQL::Routine may have.
+Rosetta::Model may have.
 
 =head2 Generalities
 
@@ -363,7 +363,7 @@ recommended that each data type implement the 'cmp' (comparison) operator
 so that linearly sorting 2 artifacts of that common data type is a
 deterministic activity.
 
-SQL::Routine requires that all data types are actually self-contained,
+Rosetta::Model requires that all data types are actually self-contained,
 regardless of their complexity or size.  So nothing analagous to a
 "reference" or "pointer" in the Perl or C or SQL:2003 sense may be stored;
 the only valid way to say that two artifacts are related is for them to be
@@ -372,10 +372,10 @@ adjoining locations.
 
 =head2 Native Null Type
 
-SQL::Routine natively supports the special NULL data type, whose value
+Rosetta::Model natively supports the special NULL data type, whose value
 domain is by definition mutually exclusive of the domains of all other data
 types; in practice, a NULL is distinct from all possible values that the
-other SQL::Routine native primitive types can have.  But some native
+other Rosetta::Model native primitive types can have.  But some native
 complex types and user customized types could be defined where their
 domains are a super-set of NULL; those latter types are described as
 "nullable", while types whose domains are not a super-set of NULL are
@@ -389,7 +389,7 @@ logically say any are equal, so they are all treated as distinct.  This
 data type corresponds to SQL's concept of NULL, and is similar to Perl's
 concept of "undef".  A NULL does not natively cast between any data types.
 
-SQL::Routine does not allow you to declare "domain" Nodes that are simply
+Rosetta::Model does not allow you to declare "domain" Nodes that are simply
 of or based on the data type NULL; rather, to use NULL you must declare
 "domain" Nodes that are either based on a not-nullable data type unioned
 with the NULL type, or are based on a nullable data type.  The "domain"
@@ -433,24 +433,25 @@ the trivial case of "num_scale" = 1 means the increment size is 1, and the
 number is an integer; if "num_scale" = 0, the subtype is a floating radix
 point rational number where "num_precision" represents the product of the
 maximum number of significant values that the subtype's mantissa and
-exponent can represent.  SQL::Routine does not currently specify how much
+exponent can represent.  Rosetta::Model does not currently specify how much
 of a floating point number's "num_precision" is for the mantissa and how
 much for the exponent, but commonly the exponent takes a quarter.
 
-The meanings of "precision" and "scale" are more generic for SQL::Routine
+The meanings of "precision" and "scale" are more generic for Rosetta::Model
 than they are in the SQL:2003 standard; in SQL, "precision" (P) means the
 maximum number of significant figures, and the "scale" (S) says how many of
 those are on the right side of the radix point.  Translating from base-R
-(eg, R being 10 or 2) to the SQL::Routine meanings are as follows (assuming
-negative numbers are allowed and zero is always in the middle of a range).
-For fixed-point numerics, a (P,S) becomes (2*R^P,R^S), meaning an integer
-(P,0) becomes (2*R^P,1).  For floating-point numerics, a (P) sort-of
-becomes (2*R^P,0); I say sort-of because SQL:2003 says that the P shows
-significant figures in just the mantissa, but SQL::Routine currently says
-that the size of the exponent eats away from that, commonly a quarter.
+(eg, R being 10 or 2) to the Rosetta::Model meanings are as follows
+(assuming negative numbers are allowed and zero is always in the middle of
+a range). For fixed-point numerics, a (P,S) becomes (2*R^P,R^S), meaning an
+integer (P,0) becomes (2*R^P,1).  For floating-point numerics, a (P)
+sort-of becomes (2*R^P,0); I say sort-of because SQL:2003 says that the P
+shows significant figures in just the mantissa, but Rosetta::Model
+currently says that the size of the exponent eats away from that, commonly
+a quarter.
 
 As examples, a base-10 fixed in SQL defined as [p=10,s=0] (an integer in
--10^10..10^10-1) becomes [p=20_000_000_000,s=1] in SQL::Routine; the
+-10^10..10^10-1) becomes [p=20_000_000_000,s=1] in Rosetta::Model; the
 base-10 [p=5,s=2] (a fixed in -1_000.00..999.99) becomes [p=200_000,s=100];
 the base-2 [p=15,s=0] (a 16-bit int in -32_768..32_767) becomes
 [p=65_536,s=1]; the base-2 float defined as [p=31] (a 32-bit float in
@@ -460,12 +461,12 @@ A subtype of NUMERIC may specify the "num_min_value" and/or "num_max_value"
 attributes, which further reduces the subtype's valid range.  For example,
 a minimum of 1 and maximum of 10 specifies that only numbers in the range
 1..10 (inclusive) are allowed.  Simply setting the minimum to zero and
-leaving the maximum unset is the recommended way in SQL::Routine to specify
-that you want to allow any non-negative number.  Setting the minimum >= 0
-also causes the maximum value range allowable by "num_precision" to shift
-into the positive, rather than it being half there and half in the
-negative.  Eg, an (P,S) of (256,1) becomes 0..255 when the minimum = 0,
-whereas it would be -128..127 if the min/max are unset.
+leaving the maximum unset is the recommended way in Rosetta::Model to
+specify that you want to allow any non-negative number.  Setting the
+minimum >= 0 also causes the maximum value range allowable by
+"num_precision" to shift into the positive, rather than it being half there
+and half in the negative.  Eg, an (P,S) of (256,1) becomes 0..255 when the
+minimum = 0, whereas it would be -128..127 if the min/max are unset.
 
 =item C<CHAR_STR>
 
@@ -512,7 +513,7 @@ specified range/size limits otherwise defined for the subtype).
 
 =head2 Native Scalar Type
 
-SQL::Routine has native support for a special SCALAR data type, which is
+Rosetta::Model has native support for a special SCALAR data type, which is
 akin to SQLite's weakly typed table columns, or to Perl's weakly typed
 default scalar variables.  This data type is a union of the domains of the
 BOOLEAN, NUMERIC, CHAR_STR, and BIT_STR data types; it is not-nullable by
@@ -573,14 +574,14 @@ Darren R. Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENCE AND COPYRIGHT
 
-This file is part of the SQL::Routine database portability library.
+This file is part of the Rosetta::Model database portability library.
 
-SQL::Routine is Copyright (c) 2002-2006, Darren R. Duncan.
+Rosetta::Model is Copyright (c) 2002-2006, Darren R. Duncan.
 
-See the LICENCE AND COPYRIGHT of L<SQL::Routine> for details.
+See the LICENCE AND COPYRIGHT of L<Rosetta::Model> for details.
 
 =head1 ACKNOWLEDGEMENTS
 
-The ACKNOWLEDGEMENTS in L<SQL::Routine> apply to this file too.
+The ACKNOWLEDGEMENTS in L<Rosetta::Model> apply to this file too.
 
 =cut

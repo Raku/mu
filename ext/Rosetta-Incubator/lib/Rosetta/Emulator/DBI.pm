@@ -3,8 +3,8 @@ use v6;
 
 # External packages used by packages in this file, that don't export symbols:
 use Rosetta-(0.490.0...);
-use SQL::Routine::SQLBuilder-(0.220.0...);
-use SQL::Routine::SQLParser-(0.30.0...);
+use Rosetta::Utility::SQLBuilder-(0.220.0...);
+use Rosetta::Utility::SQLParser-(0.30.0...);
 
 ###########################################################################
 ###########################################################################
@@ -71,8 +71,8 @@ This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 It also requires these Perl 6 classes that are on CPAN:
 L<Rosetta-(0.490.0...)|Rosetta>,
-L<SQL::Routine::SQLBuilder-(0.220.0...)|SQL::Routine::SQLBuilder>,
-L<SQL::Routine::SQLParser-(0.30.0...)|SQL::Routine::SQLParser>.
+L<Rosetta::Utility::SQLBuilder-(0.220.0...)|Rosetta::Utility::SQLBuilder>,
+L<Rosetta::Utility::SQLParser-(0.30.0...)|Rosetta::Utility::SQLParser>.
 
 =head1 INCOMPATIBILITIES
 

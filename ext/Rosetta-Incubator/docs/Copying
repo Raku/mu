@@ -20,7 +20,7 @@ components that all users of Rosetta require, are these Perl files; each
 one depends on all of the others listed above it:
 
 * /lib/Locale/KeyedText.pm
-* /lib/SQL/Routine.pm
+* /lib/Rosetta/Model.pm
 * /lib/Rosetta.pm
 
 Note that at least one additional file, whether from myself or a third
@@ -55,15 +55,15 @@ The outer core of the Rosetta framework, defined as additional components
 which I maintain and anticipate being frequently used but also being
 readily substituted for by third party components, are these Perl files:
 
-* /lib/SQL/Routine/SQLBuilder.pm
-* /lib/SQL/Routine/SQLParser.pm
+* /lib/Rosetta/Utility/SQLBuilder.pm
+* /lib/Rosetta/Utility/SQLParser.pm
 * /lib/Rosetta/Engine/Generic.pm
 * /lib/Rosetta/Engine/*.pm (for specific databases)
 * /lib/Rosetta/Emulator/DBI.pm
 
 As with the inner core list, normally, each of these outer core files is
 available as a separate distribution on CPAN.  The 'SQL' files only depend
-on Routine.pm, while the 'Engine' and 'Emulator' files depend on both the
+on Model.pm, while the 'Engine' and 'Emulator' files depend on both the
 'SQL' files and Rosetta.pm.
 
 Any other independent distributions that exist and use Rosetta, whether
@@ -102,7 +102,7 @@ Specifically, I wish to retain full ownership and control of the inner and
 middle cores of Rosetta, namely:
 
 * /lib/Locale/KeyedText.pm
-* /lib/SQL/Routine.pm
+* /lib/Rosetta/Model.pm
 * /lib/Rosetta.pm
 * /lib/Rosetta/Validator.pm
 * /lib/Rosetta/Engine/Native.pm
