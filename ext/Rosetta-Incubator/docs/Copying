@@ -3,7 +3,7 @@ Document Title: Copying
 Author: Darren Duncan <perl@DarrenDuncan.net>
 Maintainer: Darren Duncan <perl@DarrenDuncan.net>
 Date: 2005 November 9
-Last Modified: 2005 November 21
+Last Modified: 2006 January 8
 
 PREFACE
 
@@ -28,12 +28,13 @@ party, is required to fulfil the role of an "Engine", in order to use
 lib/Rosetta.pm at all, meaning the actual minimal count is 4.
 
 Normally, each of these files is available as a separate distribution on
-CPAN, because it can be useful independently of the files below it in the
-list.  Each distribution may have additional files that are tied to the
-named file, because they serve as documentation or examples or tests or
-localization data for it, and the whole collection in the distribution is
-considered a single unit as far as ownership and licensing goes, unless
-explicitly stated otherwise therein.
+CPAN (but that Model.pm is bundled with Rosetta.pm), because it can be
+useful independently of the files below it in the list.  Each distribution
+may have additional files that are tied to the named file, because they
+serve as documentation or examples or tests or localization data for it,
+and the whole collection in the distribution is considered a single unit as
+far as ownership and licensing goes, unless explicitly stated otherwise
+therein.
 
 The Rosetta framework includes a comprehensive shared test suite to ensure
 the correctness of itself and of any Engine components, its middle core,
@@ -62,9 +63,9 @@ readily substituted for by third party components, are these Perl files:
 * /lib/Rosetta/Emulator/DBI.pm
 
 As with the inner core list, normally, each of these outer core files is
-available as a separate distribution on CPAN.  The 'SQL' files only depend
-on Model.pm, while the 'Engine' and 'Emulator' files depend on both the
-'SQL' files and Rosetta.pm.
+available as a separate distribution on CPAN.  The 'Utility' files only
+depend on Model.pm, while the 'Engine' and 'Emulator' files depend on both
+the 'Utility' files and Rosetta.pm.
 
 Any other independent distributions that exist and use Rosetta, whether
 made by myself or third parties, are not part of the Rosetta framework

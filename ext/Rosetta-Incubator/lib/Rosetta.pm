@@ -14,7 +14,7 @@ use Rosetta::Model-(0.710.0...);
 ###########################################################################
 ###########################################################################
 
-package Rosetta-0.490.0 {
+package Rosetta-0.710.0 {
     # Note: This given version applies to all of this file's packages.
 } # package Rosetta
 
@@ -87,7 +87,7 @@ Rigorous database portability
 
 =head1 VERSION
 
-This document describes Rosetta version 0.490.0.
+This document describes Rosetta version 0.710.0.
 
 It also describes the same-number versions of Rosetta::Interface
 ("Interface"), Rosetta::Interface::fubar ("fubar"), and Rosetta::Engine

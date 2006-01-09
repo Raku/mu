@@ -2,7 +2,7 @@
 use v6;
 
 # External packages used by packages in this file, that don't export symbols:
-use Rosetta-0.490.0;
+use Rosetta-0.710.0;
 
 ###########################################################################
 ###########################################################################
@@ -13,7 +13,7 @@ use Rosetta-0.490.0;
 ###########################################################################
 ###########################################################################
 
-module Rosetta::Validator-0.490.0 {
+module Rosetta::Validator-0.710.0 {
 
     # External packages used by the Rosetta::Validator module, that do export symbols:
     # (None Yet)
@@ -41,7 +41,7 @@ A common comprehensive test suite to run against all Engines
 
 =head1 VERSION
 
-This document describes Rosetta::Validator version 0.490.0.
+This document describes Rosetta::Validator version 0.710.0.
 
 =head1 SYNOPSIS
 
@@ -68,7 +68,7 @@ I<This documentation is pending.>
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 It also requires these Perl 6 classes that are in the current distribution:
-L<Rosetta-0.490.0|Rosetta>.
+L<Rosetta-0.710.0|Rosetta>.
 
 =head1 INCOMPATIBILITIES
 
