@@ -44,4 +44,4 @@
     );
 });
 
-::Object := ^Object`make_class;
+::Object := ^Object`create('');

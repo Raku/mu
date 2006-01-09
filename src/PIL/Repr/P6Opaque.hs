@@ -14,6 +14,7 @@ prims = mkMap
     [ ("has_attr", hasAttr)
     , ("get_attr", getAttr)
     , ("set_attr", setAttr)
+    , ("set_attr_hash", setAttrHash)
     , ("as_bit", const (const (return (toNative True))))
     ]
 
@@ -25,3 +26,12 @@ setAttr tvar args = do
     attrs <- readTVar tvar
     writeTVar tvar (insert attrs (fromNative (args ! 0)) (args ! 1))
     return (args ! 1)
+
+setAttrHash tvar args = do
+    let [attVal, keyVal, val] = elems args
+        att :: NativeStr = fromNative attVal
+        key :: NativeStr = fromNative keyVal
+    attrs  <- readTVar tvar
+    let submap :: NativeMap = fromNative (attrs ! att)
+    writeTVar tvar (insert attrs att (toNative (insert submap key val)))
+    return val

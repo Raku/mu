@@ -27,5 +27,5 @@
 ^Pair.add_method('value', -> { self`get_attr('$!value') });
 
 ^Pair.add_method('kv', -> { 
-    ^Array`create([ self.key(), self.value() ]) 
+    ^Array`create('p6array', [ self.key(), self.value() ]) 
 });

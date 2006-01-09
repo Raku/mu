@@ -35,7 +35,7 @@
 # kept simple. 
 
 ^Class.add_method('CREATE', -> $repr, %params {
-    $obj := self`create({});
+    $obj := self`create('p6opaque', {});
     &dispatcher := self.dispatcher('descendant');
     -> {
         &redo  := &?SUB;
@@ -209,10 +209,10 @@
 });
 
 ^Class.add_private_method('make_dispatcher_iterator', -> @values {
-    $counter := ^`create({'' => 0});
+    $counter := ^`create('p6scalar', 0);
     -> {
-        $idx := $counter`get_attr('');
-        $counter`set_attr('', $idx`add(1));
+        $idx := $counter`fetch;
+        $counter`store($idx`add(1));
         @values`fetch($idx);
     };
 });
@@ -264,4 +264,4 @@
 ^Class.add_attribute('%!methods',         {});
 ^Class.add_attribute('%!attributes',      {});
 
-::Class := ^Class`make_class;
+::Class := ^Class`create('');

@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
-module PIL.Repr (Repr, createRepr, callRepr) where
+module PIL.Repr (Repr, createRepr, callRepr, reprName) where
 import PIL.Repr.P6Array as P6Array
 import PIL.Repr.P6Hash as P6Hash
 import PIL.Repr.P6Scalar as P6Scalar
@@ -30,6 +30,19 @@ createRepr :: NativeStr -> Native -> STM Repr
 createRepr = (reprTypes !)
 
 _as_bit = Str.pack "as_bit"
+
+_p6nil = Str.pack ""
+_p6hash = Str.pack "p6hash"
+_p6array = Str.pack "p6array"
+_p6scalar = Str.pack "p6scalar"
+_p6opaque = Str.pack "p6opaque"
+
+reprName :: Repr -> NativeStr
+reprName P6Nil = _p6nil
+reprName P6Hash{} = _p6hash
+reprName P6Array{} = _p6array
+reprName P6Scalar{} = _p6scalar
+reprName P6Opaque{} = _p6opaque
 
 callRepr :: Repr -> NativeStr -> ObjectPrim
 callRepr P6Nil s | s == _as_bit = const (return (NBit True))

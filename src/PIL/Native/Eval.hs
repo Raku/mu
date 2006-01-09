@@ -62,15 +62,13 @@ handleResult f = do
 
 bootstrapClass :: Eval a -> Eval a
 bootstrapClass x = mdo
-    clsNull   <- newClass clsNull  $ mkClassMethods "" []
-    clsClass  <- newClass clsClass $ mkClassMethods "Class" [("add_method", addMethod)]
-    clsBoxes  <- mapM (newBoxedClass clsClass) unboxedTypes
-    clsScalar <- newContainerClass clsClass "Scalar" (newScalarObj clsScalar)
-    clsArray  <- newContainerClass clsClass "Array" (newArrayObj clsArray)
-    clsHash   <- newContainerClass clsClass "Hash" (newHashObj clsHash)
+    clsNull   <- createOpaque clsNull  $ mkClassMethods "" []
+    clsClass  <- createOpaque clsClass $ mkClassMethods "Class" [("add_method", addMethod)]
+    -- clsBoxes  <- mapM (newBoxedClass clsClass) unboxedTypes
     enterLex ( ("^", clsNull) : ("^Class", clsClass)
-             : ("^Scalar", clsScalar) : ("^Array", clsArray) : ("^Hash", clsHash)
-             : (unboxedTypes `zip` clsBoxes)) x
+    --          : (unboxedTypes `zip` clsBoxes)
+                :[]
+             ) x
     where
     addMethod = parseSub
         "-> $name, &method { self`set_attr_hash('%!methods', $name, &method) }"
@@ -84,12 +82,18 @@ bootstrapClass x = mdo
         , ("%!attributes",      emptyMap)
         , ("%!methods", toNative $ mkMap meths)
         ]
+{-
     newBoxedClass cls name = newObject cls $
         mkClassMethods (tail name) [("unbox", parseSub "->{ self`get_attr('') }")]
     unboxedTypes = map ('^':) $ words "Bit Int Num Str Seq Map Sub"
     newContainerClass cls name gen = registerClass $ do
         obj <- genObject cls $ mkClassMethods name []
         return (addRepr obj "create" gen)
+-}
+
+infixl ...
+(...) :: IsNative a => NativeObj -> String -> Eval a
+obj ... str = liftSTM (fmap fromNative $ callRepr (o_repr obj) _get_attr (mkSeq [toNative str]))
 
 enterLex :: IsNative a => [(String, a)] -> Eval b -> Eval b
 enterLex = local . append . mkPad
@@ -145,12 +149,15 @@ primCall inv meth args
             NSub x      -> callSubWith (toString meth) x args
             NObj obj    -> case objPrims `fetch` meth of
                 Just f  -> f obj args
-                Nothing -> case Map.lookup meth (o_repr obj) of
+                Nothing -> liftSTM $ callRepr (o_repr obj) meth args
+                {-
+                case Map.lookup meth (o_repr obj) of
                     Just f  -> liftSTM (f args)
                     Nothing -> errMethodMissing
+                -}
     where
     errMethodMissing = failWith "No such method" meth
-    callPrim :: Boxable a => MapOf (a -> NativeSeq -> Native) -> a -> NativeSeq -> Eval Native
+    callPrim :: MapOf (a -> NativeSeq -> Native) -> a -> NativeSeq -> Eval Native
     callPrim prims x args = case prims `fetch` meth of
         Nothing -> errMethodMissing
         Just f  -> return $ f x args
@@ -184,10 +191,13 @@ sendCall inv meth args = case inv of
     NSub x      -> callAutoboxed x
     where
     errMethodMissing = failWith "No such method" meth
+    callAutoboxed _ = errMethodMissing
+    {-
     callAutoboxed x = do
         cls <- fmap fromNative $ evalExp (EVar $ boxType x)
         obj <- autobox x cls
         callObject obj meth args
+    -}
 
 callSub :: NativeSub -> NativeSeq -> Eval Native
 callSub sub args = do
@@ -207,17 +217,15 @@ callSubWith ""          sub args = callSub sub args
 callSubWith "do_if"     sub args = if fromNative (args ! 0) then callSub sub empty else return nil
 callSubWith "do_unless" sub args = if fromNative (args ! 0) then return nil else callSub sub empty
 callSubWith "do_for"    sub args = fmap toNative $ fmapM (callSub sub . mkSeq . (:[])) (fromNative (args ! 0) :: NativeSeq)
+{-
 callSubWith str x args = do
     cls <- fmap fromNative $ evalExp (EVar $ boxType x)
     obj <- autobox x cls
     callObject obj (mkStr str) args
+-}
 
 callConditional :: NativeBit -> NativeSeq -> Eval Native
 callConditional x args = callSub (fromNative $ args ! fromEnum (not x)) empty
-
-infixl ...
-(...) :: IsNative a => NativeObj -> String -> Eval a
-obj ... str = fmap fromNative $ callRepr obj "get_attr" (mkSeq [toNative str])
 
 traceObject :: Native -> NativeSeq -> Eval Native
 traceObject obj args = liftIO $ do
@@ -284,25 +292,15 @@ __MRO           = mkStr "MRO"
 
 objPrims :: MapOf (NativeObj -> NativeSeq -> Eval Native)
 objPrims = mkMap
-    [ ("set_attr_hash", \obj args -> do
-        let [attrVal, keyVal, val] = elems args
-            key :: NativeStr = fromNative keyVal
-        hash <- fmap fromNative (callRepr obj "get_attr" (mkSeq [attrVal])) :: Eval NativeMap
-        callRepr obj "set_attr" (mkSeq [attrVal, toNative (insert hash key val)])
-        return val
-      )
+    [ ("id", \obj _ -> return (toNative $ o_id obj))
+    , ("meta", \obj _ -> return (toNative $ o_class obj))
+    , ("repr", \obj _ -> return (toNative $ objectReprName obj))
     , ("create", \cls args -> do
-        obj <- callRepr cls "create" args
-        -- call registerClass if we .isa(Class)?
-        fmap toNative (registerClass (return (fromNative obj)))
-      )
-    , ("make_class", \cls args -> do
-        obj <- callRepr cls "make_class" args
-        fmap toNative (registerObject (return (fromNative obj)))
-      )
+        let repr = fromNative (args ! 0)
+            init = (args ! 1)
+        fmap toNative (createObject cls repr init))
+    -- XXX - move away the two prims below!
     , ("mro_merge", \cls _ -> do
-        -- ensure this method is a prim
-        callRepr cls "mro_merge" empty
         supers <- fmap fromNative $ callObject cls __superclasses empty
             :: Eval [NativeObj]
         mros   <- fmapM (\c -> fmap fromNative $ callObject c __MRO empty) supers

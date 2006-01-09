@@ -2,6 +2,7 @@
 # Array Container
 # --------------------------------------------------------------------------- #
 
+^Array := ^Class.new({});
 ^Array.set_name('Array');
 ^Array.set_version('0.0.1');
 ^Array.set_authority('url:pugscode.org');
@@ -10,7 +11,7 @@
 
 ^Array.add_method('new',      -> %params { 
     "inside Array.new ..."`trace();
-    ^Array`create(%params) 
+    ^Array`create('p6array', %params) 
 });
 ^Array.add_method('BUILDALL', -> %params { 
     "inside Array.BUILDALL ..."`trace();
@@ -70,7 +71,7 @@
     -> @list, @acc {
         &redo := &?SUB;
         @list`is_empty()`cond(
-            -> { $?CLASS`create(@acc) },
+            -> { $?CLASS`create('p6array', @acc) },
             -> { &redo`(@list`splice(1), @acc`push(@acc`length())) }
         );
     }`(self.FETCH_LIST(), []);
@@ -82,7 +83,7 @@
     -> @list, @acc {
         &redo := &?SUB;
         @list`is_empty()`cond(
-            -> { $?CLASS`create(@acc) },
+            -> { $?CLASS`create('p6array', @acc) },
             -> { 
                 &redo`(
                     @list`splice(1), 
@@ -100,11 +101,11 @@
     -> @list, @acc {
         &redo := &?SUB;
         @list`is_empty()`cond(
-            -> { $?CLASS`create(@acc) },
+            -> { $?CLASS`create('p6array', @acc) },
             -> { 
                 &redo`(
                     @list`splice(1), 
-                    @acc`push(^Array`create([ 
+                    @acc`push(^Array`create('p6array', [ 
                         @acc`length(), 
                         @list`fetch(0) 
                     ]))

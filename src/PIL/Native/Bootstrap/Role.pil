@@ -87,11 +87,11 @@
            }`do_unless($c`get_attr('%seen')`exists($r.name()))
         }`do_for($role.roles());
         $c`get_attr('@roles');
-    }`(^`create({ '@roles' => [], '%seen' => {} }), self);
+    }`(^`create('p6opaque', { '@roles' => [], '%seen' => {} }), self);
 });
 
 ^Role.add_method('resolve', -> {
-    $conflicts := ^`create({ 'methods' => {}, 'attrs' => {} });
+    $conflicts := ^`create('p6opaque', { 'methods' => {}, 'attrs' => {} });
     -> $role {
         -> $method_name {
             $conflicts`get_attr('methods')`exists($method_name)`cond(

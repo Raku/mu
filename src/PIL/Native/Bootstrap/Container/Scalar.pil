@@ -2,6 +2,7 @@
 # Scalar Container
 # --------------------------------------------------------------------------- #
 
+^Scalar := ^Class.new({});
 ^Scalar.set_name('Scalar');
 ^Scalar.set_version('0.0.1');
 ^Scalar.set_authority('url:pugscode.org');

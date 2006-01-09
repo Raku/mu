@@ -31,4 +31,4 @@
     $output;
 });
 
-::Module := ^Module`make_class;
+::Module := ^Module`create('');

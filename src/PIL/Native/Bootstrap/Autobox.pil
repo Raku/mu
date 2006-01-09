@@ -10,10 +10,10 @@
 ^Map.set_superclasses([ ^Object ]);
 ^Sub.set_superclasses([ ^Object ]);
 
-::Int := ^Int`make_class;
-::Bit := ^Bit`make_class;
-::Num := ^Num`make_class;
-::Str := ^Str`make_class;
-::Seq := ^Seq`make_class;
-::Map := ^Map`make_class;
-::Sub := ^Sub`make_class;
+::Int := ^Int`create('');
+::Bit := ^Bit`create('');
+::Num := ^Num`create('');
+::Str := ^Str`create('');
+::Seq := ^Seq`create('');
+::Map := ^Map`create('');
+::Sub := ^Sub`create('');

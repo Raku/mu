@@ -2,6 +2,7 @@
 # Hash Container
 # --------------------------------------------------------------------------- #
 
+^Hash := ^Class.new({});
 ^Hash.set_name('Hash');
 ^Hash.set_version('0.0.1');
 ^Hash.set_authority('url:pugscode.org');

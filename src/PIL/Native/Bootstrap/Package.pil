@@ -27,4 +27,4 @@
     self`set_attr_hash('%!namespace', $label, $value);
 });
 
-::Package := ^Package`make_class;
+::Package := ^Package`create('');

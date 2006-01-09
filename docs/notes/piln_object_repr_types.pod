@@ -32,7 +32,7 @@ something like this:
 
 Here is a description of each of the different $repr types:
 
-=head2 "p6opaque"`create()
+=head2 $meta`create("p6opaque")
 
 The opaque type takes nothing in its constructor, all items must be added to it
 using the methods in its vtable.  Those methods are as follows:
@@ -43,7 +43,7 @@ using the methods in its vtable.  Those methods are as follows:
 
 The C<$key> is constrained to be a PIL^N string.
 
-=head2 "p6array"`create([])
+=head2 $meta`create("p6array")
 
 The array type should be passed a PIL^N list type, any values 
 found in that list will be added into the resulting object. It is
@@ -64,7 +64,7 @@ list entirely using the following vtable of methods:
     `as_int()                   # returns the number of elements as int
     `as_num()                   # returns the number of elements as num
 
-=head2 "p6hash"`create({})
+=head2 $meta`create("p6hash")
 
 The hash type should be passed a PIL^N hash or list type, and
 any values found with it will be transferred into the resulting object.
@@ -84,7 +84,7 @@ elements further with the vtable of methods:
     `as_int()                   # returns the number of elements as int
     `as_num()                   # returns the number of elements as num
         
-=head2 "p6scalar"`create($value)
+=head2 $meta`create("p6scalar")
 
 As with the array and hash $repr types, this should be passed a PIL^N type. 
 (This could include list and hash types too, but it probably wouldn't make 
@@ -98,7 +98,7 @@ This repr type has some interesting qualities to it. It could be used to
 not only implement the ^Scalar container type, but it can also be used for 
 the autoboxing of ^Int, ^Num, ^Str, etc. with no real specialization. 
 
-=head2 ""`create()
+=head2 $meta`create("")
 
 This is a very specialized repr type, which is used to implement the 
 "class but undef" part of the Perl 6 object model as spec-ed by @Larry. 

@@ -1,77 +1,64 @@
 {-# OPTIONS_GHC -fglasgow-exts #-}
 
 module PIL.Native.Objects (
-    Boxable(..),
+    -- Boxable(..),
     ObjectSpace,
     dumpObjSpace,
-    newClass, newObject,
-    registerObject, registerClass, genObject,
-    newScalarObj, newArrayObj, newHashObj,
-    callRepr, addRepr,
+    createObject, createOpaque, objectReprName, callRepr,
+    _get_attr,
 ) where
 import PIL.Native.Coerce
 import PIL.Native.Types
 import PIL.Native.Pretty
+import PIL.Repr
 import System.Mem.Weak
 import Control.Exception
 import Control.Monad.State
 import qualified Data.Map as Map
 import qualified Data.Seq as Seq
 
-_0 :: Seq.Seq a -> a
-_0 = (`Seq.index` 0)
+type ObjectSpace = SeqOf (Weak NativeObj)
 
-_1 :: Seq.Seq a -> a
-_1 = (`Seq.index` 1)
+_p6opaque = mkStr "p6opaque"
+_get_attr = mkStr "get_attr"
 
-withArgs :: (NativeSeq -> STM a) -> ObjectPrim 
-withArgs f args = f args >> return nil
+createOpaque :: (MonadState ObjectSpace m, MonadIO m, MonadSTM m) =>
+    NativeObj -> NativeMap -> m NativeObj
+createOpaque cls attrs = createObject cls _p6opaque (toNative attrs)
 
-withArg0 :: (IsNative a, IsNative b) => (a -> STM b) -> ObjectPrim 
-withArg0 f args = fmap toNative (f (fromNative (_0 args)))
+createObject :: (MonadState ObjectSpace m, MonadIO m, MonadSTM m) =>
+    NativeObj -> NativeStr -> Native -> m NativeObj
+createObject cls name init = registerObject $ do
+    repr <- liftSTM $ createRepr name init
+    return (MkObject 0 cls repr)
 
-newScalarObj :: NativeObj -> NativeSeq -> STM Native
-newScalarObj cls args = do
-    tvar <- newTVar (_0 args)
-    fmap toNative $ mkPrimObject cls
-        [ ("fetch", const $ readTVar tvar)
-        , ("store", withArg0 (writeTVar tvar))
-        ]
+objectReprName :: NativeObj -> NativeStr
+objectReprName = reprName . o_repr
 
-newArrayObj :: NativeObj -> NativeSeq -> STM Native
-newArrayObj cls args = do
-    tvar <- newTVar (fromNative $ _0 args)
-    fmap toNative $ mkPrimObject cls
-        [ ("fetch_list", const $ fmap toNative (readTVar tvar))
-        , ("store_list", withArg0 (writeTVar tvar . fromNative))
-        , ("fetch_elem", withArg0 (\x -> fmap (`Seq.index` x) (readTVar tvar)))
-        , ("store_elem", withArgs $ \args -> do
-            -- XXX - dynamic extension
-            av <- readTVar tvar
-            writeTVar tvar (Seq.update (fromNative (_0 args)) (_1 args) av)
-          )
-        ]
+registerObject :: (MonadState ObjectSpace m, MonadIO m, MonadSTM m) => STM NativeObj -> m NativeObj
+registerObject gen = do
+    obj  <- liftSTM gen
+    objs <- get
+    let obj' = obj{ o_id = oid }
+        oid  = size objs
+    ptr <- liftIO $ mkWeakPtr obj' Nothing
+    put (insert objs oid ptr)
+    return obj'
 
-newHashObj :: NativeObj -> NativeSeq -> STM Native
-newHashObj cls args = do
-    tvar <- newTVar (seqToMap (_0 args))
-    fmap toNative $ mkPrimObject cls
-        [ ("fetch_list", const $ fmap (toNative . mapToList) (readTVar tvar))
-        , ("store_list", withArg0 (writeTVar tvar . seqToMap))
-        , ("fetch_elem", withArg0 (\x -> fmap (\hv -> (Map.!) hv x) (readTVar tvar)))
-        , ("store_elem", withArgs $ \args -> do
-            -- XXX - dynamic extension
-            av <- readTVar tvar
-            writeTVar tvar (Map.insert (fromNative (_0 args)) (_1 args) av)
-          )
-        ]
+dumpObjSpace :: ObjectSpace -> IO ()
+dumpObjSpace ptrs = mapM_ dumpObj (elems ptrs)
     where
-    mapToList = foldr (\(x,y) z -> (x:y:z)) [] . Map.toAscList
-    seqToMap = Map.fromList . roll . fromNative
-    roll [] = []
-    roll [_] = error "odd number of hash elements"
-    roll (k:v:xs) = ((k, v):roll xs)
+    dumpObj ptr = do
+        rv <- deRefWeak ptr
+        maybe (return ()) doDumpObj rv
+    doDumpObj obj = do
+        putStr $ "#obj# " ++ pretty obj
+        (handle (const $ putStrLn "")) $ do
+            val <- liftSTM $ callRepr (o_repr obj) _get_attr (mkSeq [toNative "$!name"])
+            print $! toString val
 
+
+{-
 class IsNative a => Boxable a where
     boxType :: a -> NativeStr
     boxType _ = error "Cannot autobox"
@@ -101,78 +88,4 @@ instance Boxable NativeSub where boxType _ = mkStr "^Sub"
 
 instance Boxable Integer where
     boxType _ = mkStr "^Int"
-
-type ObjectSpace = SeqOf (Weak NativeObj)
-
-dumpObjSpace :: ObjectSpace -> IO ()
-dumpObjSpace ptrs = mapM_ dumpObj (elems ptrs)
-    where
-    dumpObj ptr = do
-        rv <- deRefWeak ptr
-        case rv of
-            Just obj -> do
-                putStr $ "#obj# " ++ pretty obj
-                (handle (const $ putStrLn "")) $ do
-                    val <- callRepr obj "get_attr" (mkSeq [toNative "$!name"])
-                    print $! toString val
-            Nothing  -> return ()
-
-callRepr :: MonadSTM m => NativeObj -> String -> NativeSeq -> m Native
-callRepr obj meth args = liftSTM $ (o_repr obj ! mkStr meth) args
-
-genObject :: NativeObj -> NativeMap -> STM NativeObj
-genObject cls attrs = do
-    tvar  <- liftSTM $ newTVar attrs
-    let getAttr args = fmap (! (fromNative (args ! 0))) $ readTVar tvar
-        hasAttr args = fmap (toNative . (`PIL.Native.Coerce.exists` (fromNative (args ! 0))))
-            $ readTVar tvar
-        setAttr args = do
-            attrs <- readTVar tvar
-            writeTVar tvar (insert attrs (fromNative (args ! 0)) (args ! 1))
-            return (args ! 1)
-    mkPrimObject cls
-        [ ("get_attr", getAttr)
-        , ("set_attr", setAttr)
-        , ("has_attr", hasAttr)
-        ]
-
-newClass :: (MonadState ObjectSpace m, MonadIO m, MonadSTM m) =>
-    NativeObj -> NativeMap -> m NativeObj
-newClass cls attrs = registerClass $ genObject cls attrs
-
-registerClass :: (MonadState ObjectSpace m, MonadIO m, MonadSTM m) => STM NativeObj -> m NativeObj
-registerClass gen = do
-    obj  <- liftSTM gen
-    objs <- get
-    let obj'final = addRepr obj'merge "make_class" $ classCreate obj'final
-        obj'merge = addRepr obj'create "mro_merge" (return (return nil))
-        obj'create= addRepr obj'id "create" $ defaultCreate obj'final
-        obj'id    = addRepr obj{ o_id = oid } "id" (const $ return (toNative oid))
-        oid       = size objs
-    ptr <- liftIO $ mkWeakPtr obj'final Nothing
-    put (insert objs oid ptr)
-    return obj'final
-
-classCreate :: NativeObj -> NativeSeq -> STM Native
-classCreate cls _ = fmap toNative $ mkPrimObject cls []
-
-newObject :: (MonadState ObjectSpace m, MonadIO m, MonadSTM m) =>
-    NativeObj -> NativeMap -> m NativeObj
--- newObject cls attrs = registerObject (genObject cls attrs)
-newObject cls attrs = registerClass (genObject cls attrs)
-
-registerObject :: (MonadState ObjectSpace m, MonadIO m, MonadSTM m) => STM NativeObj -> m NativeObj
-registerObject gen = do
-    obj  <- liftSTM gen
-    objs <- get
-    let obj'final = addRepr obj'id "create" $ defaultCreate obj'final
-        obj'id    = addRepr obj{ o_id = oid } "id" (const $ return (toNative oid))
-        oid       = size objs
-    ptr <- liftIO $ mkWeakPtr obj'final Nothing
-    put (insert objs oid ptr)
-    return obj'final
-
-addRepr :: NativeObj -> String -> ObjectPrim -> NativeObj
-addRepr obj name prim = obj{ o_repr = repr' }
-    where
-    repr' = Map.insertWith (flip const) (mkStr name) prim (o_repr obj)
+-}

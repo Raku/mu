@@ -7,7 +7,7 @@ module PIL.Native.Types (
     NativeSub(..), NativeLangExpression(..), NativeLangSym, NativeLangMethod,
     NativeLangCallType(..),
 
-    ObjectId, ObjectRepr, ObjectPrim,
+    ObjectId, ObjectPrim,
     
     SeqOf, MapOf, Pad,
 
@@ -17,6 +17,7 @@ import Pugs.AST.SIO
 import Data.Typeable
 import Control.Exception
 import Control.Concurrent.STM
+import {-# SOURCE #-} PIL.Repr
 import qualified Data.Map as Map
 import qualified Data.Seq as Seq
 import qualified Data.FastPackedString as Str
@@ -59,13 +60,12 @@ instance Eq NativeObj where
 instance Ord NativeObj where
     compare x y = compare (o_id x) (o_id y)
 
-type ObjectRepr = Map.Map NativeStr ObjectPrim
 type ObjectPrim = (NativeSeq -> STM Native)
 
 data NativeObj = MkObject
     { o_id      :: ObjectId
     , o_class   :: NativeObj
-    , o_repr    :: ObjectRepr
+    , o_repr    :: Repr
     }
     deriving (Typeable)
 
