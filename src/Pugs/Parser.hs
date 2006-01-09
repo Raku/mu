@@ -437,9 +437,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         -- Horrible hack! Sym "&&" is the multi form.
         mkMulti | isMulti   = ('&':)
                 | otherwise = id
-        isGlobal = case name of
-            (_:'*':_)   -> True
-            _           -> False
+        isGlobal = '*' `elem` name
         isBuiltin = ("builtin" `elem` traits)
         isExported = ("export" `elem` traits)
         
@@ -464,7 +462,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             unsafeEvalExp $ mkSym nameQualified
             -- %*INC<This::Package><exports><&this_sub> = expression-binding-&this_sub
             unsafeEvalExp $
-                Syn "=" [Syn "{}" [Syn "{}" [Syn "{}"
+                App (Var "&*push") Nothing [Syn "{}" [Syn "{}" [Syn "{}"
                         [Var "%*INC", Val $ VStr pkg], Val (VStr "exports")], Val $ VStr name]
                     , Val sub]
             return emptyExp
@@ -852,20 +850,24 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
 
             let hardcodedScopeFixme = SMy
                 rebind scope (VStr name) = do
-                    sub <- unsafeEvalExp $ Syn "{}" [Val exports, Val $ VStr name]
-                    
-                    -- lifted from useSubDeclaration, but w/o need for multis (right?)
-                    let mkExp = Syn ":=" [Var name, sub]
-                    let mkSym = Sym scope name mkExp
-                    
-                    case scope of
-                        SGlobal -> do
-                            unsafeEvalExp mkSym
-                            return emptyExp
-                        SMy     -> do
-                            lexDiff <- unsafeEvalLexDiff $ mkSym
-                            return $ Pad scope lexDiff $ mkExp
-                        _       -> fail "notyet" -- XXX writeme. but do they all make sense at all?
+                    (Val ex) <- unsafeEvalExp $ Syn "@{}" [Syn "{}" [Val exports, Val $ VStr name]]
+                    case ex of
+                        VList subs -> do
+                            exps <- forM subs (\(VCode sub) -> do
+                                let mkMulti = if isMulti sub then ('&':) else id
+                                let mkExp = Syn ":=" [Var name, Val $ VCode sub]
+                                let mkSym = Sym scope (mkMulti name) mkExp
+                                --trace ("export: " ++ (mkMulti name)) $ return ()
+                                case scope of
+                                    SGlobal -> do
+                                        unsafeEvalExp mkSym
+                                        return emptyExp
+                                    SMy     -> do
+                                        lexDiff <- unsafeEvalLexDiff $ mkSym
+                                        return $ Pad scope lexDiff $ mkExp
+                                    _       -> fail "notyet") -- XXX writeme. but do they all make sense at all?
+                            return $ foldl mergeStmts Noop exps
+                        x -> fail ("weird export: " ++ show x)
                 rebind _ x = fail ("can't rebind: " ++ show x)
 
             syms <- (mapM (rebind hardcodedScopeFixme) names)
