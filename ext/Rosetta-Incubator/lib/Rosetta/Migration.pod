@@ -36,14 +36,14 @@ Darren R. Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENCE AND COPYRIGHT
 
-This file is part of the Rosetta::Model database portability library.
+This file is part of the Rosetta database portability library.
 
-Rosetta::Model is Copyright (c) 2002-2006, Darren R. Duncan.
+Rosetta is Copyright (c) 2002-2006, Darren R. Duncan.
 
-See the LICENCE AND COPYRIGHT of L<Rosetta::Model> for details.
+See the LICENCE AND COPYRIGHT of L<Rosetta> for details.
 
 =head1 ACKNOWLEDGEMENTS
 
-The ACKNOWLEDGEMENTS in L<Rosetta::Model> apply to this file too.
+The ACKNOWLEDGEMENTS in L<Rosetta> apply to this file too.
 
 =cut

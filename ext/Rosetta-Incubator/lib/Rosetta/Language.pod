@@ -3,14 +3,15 @@
 =head1 NAME
 
 Rosetta::Language -
-Authoritative human readable design document
+Design document of the Intermediate Relational Language
 
 =head1 DESCRIPTION
 
 Rosetta::Model provides an effective language for defining relational data
-models, both the means to create them and the means to interact with them;
-see the documentation of L<Rosetta::Model> itself (in the current
-distribution) for a further introduction.
+models, both the means to create them and the means to interact with them.
+The language is IRL (Intermediate Relational Language); see the
+documentation of L<Rosetta::Model> itself (in the current distribution) for
+a further introduction.
 
 This document, Rosetta::Language ("Language"), is the human readable
 authoritative design document for that language.  The file Rosetta::Model
@@ -22,29 +23,28 @@ Likewise, believe Language before any other conflicting documents, unless
 the other documents are emails from Rosetta::Model developers, in which
 case they can be yelled at again for not keeping Language up to date.
 
-Since the Rosetta::Model language is largely derived from pre-existing
-language specifications such as the ANSI/ISO SQL:2003 standard, it may be
-tempting to just assume everything you know from them is also true here.
-While that will work in some cases (and in fact I intentionally don't
-repeat many details here for brevity), it won't in others, so you should
-always check here for any possible conflicts.
+Since IRL is largely derived from pre-existing language specifications such
+as the ANSI/ISO SQL:2003 standard, it may be tempting to just assume
+everything you know from them is also true here.  While that will work in
+some cases (and in fact I intentionally don't repeat many details here for
+brevity), it won't in others, so you should always check here for any
+possible conflicts.
 
-The Rosetta::Model language is primarily declarative, in that it defines
-how implementations should appear and behave from a user's point of view,
-and it does not typically make any demands as to how implementations
-accomplish this behind the scenes.
+IRL is primarily declarative, in that it defines how implementations should
+appear and behave from a user's point of view, and it does not typically
+make any demands as to how implementations accomplish this behind the
+scenes.
 
 =head1 OPERATIONAL CONTEXT
 
-The Rosetta::Model language is designed for a specific virtual environment,
-that provides usually-persistent repositories (or "depots") in which can
-live user defined data structures and routines to operate on them, as is
-the case with a typical computer programming language.  Broadly speaking,
-the Rosetta::Model language provides the means to create, read, modify, and
-delete both entire depots and other items that live in them.  An
-implementation (or instance thereof) of the Rosetta::Model language is a
-"depot management system" (or "depot manager"); it is the job of the depot
-manager to facilitate access to depots implemented with it.
+IRL is designed for a specific virtual environment, that provides
+usually-persistent repositories (or "depots") in which can live user
+defined data structures and routines to operate on them, as is the case
+with a typical computer programming language.  Broadly speaking, IRL
+provides the means to create, read, modify, and delete both entire depots
+and other items that live in them.  An implementation (or instance thereof)
+of IRL is a "depot management system" (or "depot manager"); it is the job
+of the depot manager to facilitate access to depots implemented with it.
 
 A B<depot> is is a fully self-contained and fully addressable database.  It
 is what your application opens a connection to when it wants to use a
@@ -93,15 +93,15 @@ are left to its creator, but the above are my recommendations.
 
 A B<user> is whom the application or its user authenticates themselves as
 against a depot connection, if the depot manager has a concept of users
-(SQLite natively does not, Oracle natively does, etc).  Rosetta::Model
-defines 3 types of users, called ROOT, NAMED, ANONYMOUS; there is 1 ROOT
-user that owns the depot and was created with it, and NAMED users are what
-a typical person connects as, unless they are ANONYMOUS.  Note that some
-database managers underlying a depot manager will display a different view
-of the database depending on what user logged in, but the depot manager
-should abstract away this per-user difference where possible, mainly by
-using fully qualified identifiers for all depot contents.  A user can have
-privileges that authorize what it can do in the depot.
+(SQLite natively does not, Oracle natively does, etc).  IRL defines 3 types
+of users, called ROOT, NAMED, ANONYMOUS; there is 1 ROOT user that owns the
+depot and was created with it, and NAMED users are what a typical person
+connects as, unless they are ANONYMOUS.  Note that some database managers
+underlying a depot manager will display a different view of the database
+depending on what user logged in, but the depot manager should abstract
+away this per-user difference where possible, mainly by using fully
+qualified identifiers for all depot contents.  A user can have privileges
+that authorize what it can do in the depot.
 
 A depot provides 2 levels of namespace in which its main contents are
 organized; the higher level namespace is B<catalog> and the lower level
@@ -117,10 +117,10 @@ is fully unambiguous and works anywhere.  Partially qualified
 invoke a schema object, but they only work within the same namespace
 (catalog or schema respectively) as the invocant.
 
-As with typical programming languages, the Rosetta::Model language also
-provides lexically scoped data structures (and sometimes routines).  Mainly
-it is data structures declared within a routine that are lexical, and these
-are only visible within that routine.
+As with typical programming languages, IRL also provides lexically scoped
+data structures (and sometimes routines).  Mainly it is data structures
+declared within a routine that are lexical, and these are only visible
+within that routine.
 
 Unlike typical SQL databases, but like typical programming languages, you
 can define instances of all the same data structure types at both the
@@ -130,17 +130,16 @@ you can also declare a standalone scalar container that is a schema object.
 (The latter would be implemented as a table with a single column and row
 in a typical SQL database back-end.)
 
-Rosetta::Model defines 4 types of catalogs, called LOCAL, SYSTEM,
-TEMPORARY, and REMOTE; a depot can potentially have all of these kinds at
-once, but typically it has exactly 1 each of the first 3 types.  The LOCAL
-catalog type is the normal one, and contains all the typical persistent
-schema objects.  The TEMPORARY catalog type is for schema objects whose
-fates are tied to open connections; each connection has its own private
-instance of one TEMPORARY catalog, and its contents disappear when the
-connection is closed.  The SYSTEM catalog type provides read-only schema
-objects that are views into that depot's meta-data; they are analagous to
-an "information schema", but that all the meta-data is atomic like the
-Rosetta::Model language itself.
+IRL defines 4 types of catalogs, called LOCAL, SYSTEM, TEMPORARY, and
+REMOTE; a depot can potentially have all of these kinds at once, but
+typically it has exactly 1 each of the first 3 types.  The LOCAL catalog
+type is the normal one, and contains all the typical persistent schema
+objects.  The TEMPORARY catalog type is for schema objects whose fates are
+tied to open connections; each connection has its own private instance of
+one TEMPORARY catalog, and its contents disappear when the connection is
+closed.  The SYSTEM catalog type provides read-only schema objects that are
+views into that depot's meta-data; they are analagous to an "information
+schema", but that all the meta-data is atomic like IRL itself.
 
 The REMOTE catalog type is used when you cause the depot / depot manager
 you are connected with to turn around and connect to another depot (whether
@@ -160,7 +159,7 @@ would be the REMOTE type, and there wouldn't be any of the LOCAL type.
 
 =head1 DATA TYPES AND VALUES
 
-The Rosetta::Model language is natively built around strong data types and
+IRL is natively built around strong data types and
 values, which is part of its rigor and simplicity.  Every B<data value> is
 considered to have a specific B<data type>, and a data type is considered
 to be a domain of one or more representable values.  Examples of data types
@@ -184,34 +183,33 @@ string, you must choose what numeric radix to use.  However, no casting
 choice is necessary if the data type of the value in hand is a restriction
 of the needed data type.
 
-The Rosetta::Model language gains rigor from this requirement for strong
-typing and explicit casting methods because you have to be very explicit as
-to what behaviour is expected; as a result, there should be no ambiguity in
-the system and the depot manager should perform exactly as you intended.
-This reduces troublesome subtle bugs in your programs, making development
-faster, and making your programs more reliable.  Your data integrity is
-greatly improved, with certain causes of corruption removed, which is an
-important goal of any data management system, and supports the ideals of
-the relational data model.
+IRL gains rigor from this requirement for strong typing and explicit
+casting methods because you have to be very explicit as to what behaviour
+is expected; as a result, there should be no ambiguity in the system and
+the depot manager should perform exactly as you intended. This reduces
+troublesome subtle bugs in your programs, making development faster, and
+making your programs more reliable.  Your data integrity is greatly
+improved, with certain causes of corruption removed, which is an important
+goal of any data management system, and supports the ideals of the
+relational data model.
 
-The Rosetta::Model language gains simplicity from this same requirement,
-because your depot-centric routines can neatly avoid the combinatorial
-complexity that comes from being given a range of data types as values when
-you conceptually just want one type, and your code doesn't have to deal
-with all the possible cases.  The simpler routines are easier for
-developers to write, as they don't have to worry about several classes of
-error detection and handling (due to improper data formats), and the
-routines would also execute faster since they do less actual work.  Any
-necessary work to move less strict data from the outside to within the
-depot manager environment is handled by the depot manager itself and/or
-your external application components (the latter is where any user
-interaction takes place), so that work is un-necessary to do once the data
-is inside the depot manager environment.
+IRL gains simplicity from this same requirement, because your depot-centric
+routines can neatly avoid the combinatorial complexity that comes from
+being given a range of data types as values when you conceptually just want
+one type, and your code doesn't have to deal with all the possible cases. 
+The simpler routines are easier for developers to write, as they don't have
+to worry about several classes of error detection and handling (due to
+improper data formats), and the routines would also execute faster since
+they do less actual work.  Any necessary work to move less strict data from
+the outside to within the depot manager environment is handled by the depot
+manager itself and/or your external application components (the latter is
+where any user interaction takes place), so that work is un-necessary to do
+once the data is inside the depot manager environment.
 
 =head2 Classifications
 
-The Rosetta::Model language has 2 main classes of data types, which are
-opaque data types and transparent data types.
+IRL has 2 main classes of data types, which are opaque data types and
+transparent data types.
 
 An opaque data type is like a black box whose internal representation is
 completely unknown to the user (and is determined by the depot manager),
@@ -252,46 +250,45 @@ used as input to all operations that its parent type could be, though it
 can only be used conditionally as output.
 
 Note that, for considerations of practicality, as computers are not
-infinite, the Rosetta::Model language requires you to explicitly declare a
-container (but not a value) to be of a restricted opaque type, having a
-defined finite range in its domain, though that domain can still be very
-large.  This allows depot manager implementations to know whether or not
-they need to do something very inefficient in order to store extremely
-large possible values (such as implement a numeric using a LOB), or whether
-a more efficient but more limited solution will work (using an
-implementation-native numeric type); stating your intentions by defining a
-finite range helps everything work better.
+infinite, IRL requires you to explicitly declare a container (but not a
+value) to be of a restricted opaque type, having a defined finite range in
+its domain, though that domain can still be very large.  This allows depot
+manager implementations to know whether or not they need to do something
+very inefficient in order to store extremely large possible values (such as
+implement a numeric using a LOB), or whether a more efficient but more
+limited solution will work (using an implementation-native numeric type);
+stating your intentions by defining a finite range helps everything work
+better.
 
 Transparent data types are further classified into collective and
 disjunctive transparent data types.  A collective transparent data type is
 what you normally think of with transparent types, and includes arrays,
 sets, relations, and tuples; each one can contain zero or more distinct
 sub-values at once.  A disjunctive transparent data type is the means that
-the Rosetta::Model language provides to simulate both weak data types and
-normal-but-nullable data types.  It looks like a tuple where only one field
-is allowed to contain a non-empty value at once, and it has a distinct
-field for each possible strong data type that the weak type can encompass
-(one being of the null type when simulating nullability); it actually has
-one more field than that, always valued, which says which of the other
-fields contains the important value.
+IRL provides to simulate both weak data types and normal-but-nullable data
+types.  It looks like a tuple where only one field is allowed to contain a
+non-empty value at once, and it has a distinct field for each possible
+strong data type that the weak type can encompass (one being of the null
+type when simulating nullability); it actually has one more field than
+that, always valued, which says which of the other fields contains the
+important value.
 
 =head1 OLDER DOCUMENTATION TO REWRITE/REMOVE: DATA TYPES OVERVIEW
 
-The Rosetta::Model language is strongly typed, following the relational
-model's ideals of stored data integrity, and the actual practice of SQL and
-many database products, and Rosetta::Model's own ideals of being rigorously
-defined.  However, its native set of data types also includes
-ones that have the range of typical weak types such as some database
-products and languages like Perl use.
+IRL is strongly typed, following the relational model's ideals of stored
+data integrity, and the actual practice of SQL and many database products,
+and Rosetta's own ideals of being rigorously defined.  However, its
+native set of data types also includes ones that have the range of typical
+weak types such as some database products and languages like Perl use.
 
 A data type is a set of representable values.  All data types are based on
 the concept of domains; any variable or literal that is of a particular
 data type may only hold a value that is part of the domain that defines the
-data type.  Rosetta::Model has some native data types that it implicitly
-understands (eg, booleans, integers, rational numbers, character strings,
-bit strings, arrays, rows, tables), and you can define custom ones too that
-are based on these (eg, counting numbers, character strings that are
-limited to 10 characters in length, rows having 3 specific fields).
+data type.  IRL has some native data types that it implicitly understands
+(eg, booleans, integers, rational numbers, character strings, bit strings,
+arrays, rows, tables), and you can define custom ones too that are based on
+these (eg, counting numbers, character strings that are limited to 10
+characters in length, rows having 3 specific fields).
 
 All Rosetta::Model "domain" Nodes (and schema objects) are user defined,
 having a name that you pick, regardless of whether the domain corresponds
@@ -363,23 +360,21 @@ recommended that each data type implement the 'cmp' (comparison) operator
 so that linearly sorting 2 artifacts of that common data type is a
 deterministic activity.
 
-Rosetta::Model requires that all data types are actually self-contained,
-regardless of their complexity or size.  So nothing analagous to a
-"reference" or "pointer" in the Perl or C or SQL:2003 sense may be stored;
-the only valid way to say that two artifacts are related is for them to be
-equal, or have attributes that are equal, or be stored in common or
-adjoining locations.
+IRL requires that all data types are actually self-contained, regardless of
+their complexity or size.  So nothing analagous to a "reference" or
+"pointer" in the Perl or C or SQL:2003 sense may be stored; the only valid
+way to say that two artifacts are related is for them to be equal, or have
+attributes that are equal, or be stored in common or adjoining locations.
 
 =head2 Native Null Type
 
-Rosetta::Model natively supports the special NULL data type, whose value
-domain is by definition mutually exclusive of the domains of all other data
-types; in practice, a NULL is distinct from all possible values that the
-other Rosetta::Model native primitive types can have.  But some native
-complex types and user customized types could be defined where their
-domains are a super-set of NULL; those latter types are described as
-"nullable", while types whose domains are not a super-set of NULL are
-described as "not nullable".
+IRL natively supports the special NULL data type, whose value domain is by
+definition mutually exclusive of the domains of all other data types; in
+practice, a NULL is distinct from all possible values that the other IRL
+native primitive types can have.  But some native complex types and user
+customized types could be defined where their domains are a super-set of
+NULL; those latter types are described as "nullable", while types whose
+domains are not a super-set of NULL are described as "not nullable".
 
 The NULL data type represents situations where a value of an arbitrary data
 type is desired but none is yet known; it sits in place of the absent value
@@ -433,40 +428,39 @@ the trivial case of "num_scale" = 1 means the increment size is 1, and the
 number is an integer; if "num_scale" = 0, the subtype is a floating radix
 point rational number where "num_precision" represents the product of the
 maximum number of significant values that the subtype's mantissa and
-exponent can represent.  Rosetta::Model does not currently specify how much
+exponent can represent.  IRL does not currently specify how much
 of a floating point number's "num_precision" is for the mantissa and how
 much for the exponent, but commonly the exponent takes a quarter.
 
-The meanings of "precision" and "scale" are more generic for Rosetta::Model
-than they are in the SQL:2003 standard; in SQL, "precision" (P) means the
-maximum number of significant figures, and the "scale" (S) says how many of
-those are on the right side of the radix point.  Translating from base-R
-(eg, R being 10 or 2) to the Rosetta::Model meanings are as follows
-(assuming negative numbers are allowed and zero is always in the middle of
-a range). For fixed-point numerics, a (P,S) becomes (2*R^P,R^S), meaning an
-integer (P,0) becomes (2*R^P,1).  For floating-point numerics, a (P)
-sort-of becomes (2*R^P,0); I say sort-of because SQL:2003 says that the P
-shows significant figures in just the mantissa, but Rosetta::Model
-currently says that the size of the exponent eats away from that, commonly
-a quarter.
+The meanings of "precision" and "scale" are more generic for IRL than they
+are in the SQL:2003 standard; in SQL, "precision" (P) means the maximum
+number of significant figures, and the "scale" (S) says how many of those
+are on the right side of the radix point.  Translating from base-R (eg, R
+being 10 or 2) to the IRL meanings are as follows (assuming negative
+numbers are allowed and zero is always in the middle of a range). For
+fixed-point numerics, a (P,S) becomes (2*R^P,R^S), meaning an integer (P,0)
+becomes (2*R^P,1).  For floating-point numerics, a (P) sort-of becomes
+(2*R^P,0); I say sort-of because SQL:2003 says that the P shows significant
+figures in just the mantissa, but IRL currently says that the size of the
+exponent eats away from that, commonly a quarter.
 
 As examples, a base-10 fixed in SQL defined as [p=10,s=0] (an integer in
--10^10..10^10-1) becomes [p=20_000_000_000,s=1] in Rosetta::Model; the
-base-10 [p=5,s=2] (a fixed in -1_000.00..999.99) becomes [p=200_000,s=100];
-the base-2 [p=15,s=0] (a 16-bit int in -32_768..32_767) becomes
-[p=65_536,s=1]; the base-2 float defined as [p=31] (a 32-bit float in
+-10^10..10^10-1) becomes [p=20_000_000_000,s=1] in IRL; the base-10
+[p=5,s=2] (a fixed in -1_000.00..999.99) becomes [p=200_000,s=100]; the
+base-2 [p=15,s=0] (a 16-bit int in -32_768..32_767) becomes [p=65_536,s=1];
+the base-2 float defined as [p=31] (a 32-bit float in
 +/-8_388_608*2^+/-128) becomes [p=4_294_967_296,s=0].
 
 A subtype of NUMERIC may specify the "num_min_value" and/or "num_max_value"
 attributes, which further reduces the subtype's valid range.  For example,
 a minimum of 1 and maximum of 10 specifies that only numbers in the range
 1..10 (inclusive) are allowed.  Simply setting the minimum to zero and
-leaving the maximum unset is the recommended way in Rosetta::Model to
-specify that you want to allow any non-negative number.  Setting the
-minimum >= 0 also causes the maximum value range allowable by
-"num_precision" to shift into the positive, rather than it being half there
-and half in the negative.  Eg, an (P,S) of (256,1) becomes 0..255 when the
-minimum = 0, whereas it would be -128..127 if the min/max are unset.
+leaving the maximum unset is the recommended way in IRL to specify that you
+want to allow any non-negative number.  Setting the minimum >= 0 also
+causes the maximum value range allowable by "num_precision" to shift into
+the positive, rather than it being half there and half in the negative. 
+Eg, an (P,S) of (256,1) becomes 0..255 when the minimum = 0, whereas it
+would be -128..127 if the min/max are unset.
 
 =item C<CHAR_STR>
 
@@ -513,11 +507,11 @@ specified range/size limits otherwise defined for the subtype).
 
 =head2 Native Scalar Type
 
-Rosetta::Model has native support for a special SCALAR data type, which is
-akin to SQLite's weakly typed table columns, or to Perl's weakly typed
-default scalar variables.  This data type is a union of the domains of the
-BOOLEAN, NUMERIC, CHAR_STR, and BIT_STR data types; it is not-nullable by
-default.  Its concept of nothingness is the empty string.
+IRL has native support for a special SCALAR data type, which is akin to
+SQLite's weakly typed table columns, or to Perl's weakly typed default
+scalar variables.  This data type is a union of the domains of the BOOLEAN,
+NUMERIC, CHAR_STR, and BIT_STR data types; it is not-nullable by default. 
+Its concept of nothingness is the empty string.
 
 =head1 SEE ALSO
 
@@ -574,14 +568,14 @@ Darren R. Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENCE AND COPYRIGHT
 
-This file is part of the Rosetta::Model database portability library.
+This file is part of the Rosetta database portability library.
 
-Rosetta::Model is Copyright (c) 2002-2006, Darren R. Duncan.
+Rosetta is Copyright (c) 2002-2006, Darren R. Duncan.
 
-See the LICENCE AND COPYRIGHT of L<Rosetta::Model> for details.
+See the LICENCE AND COPYRIGHT of L<Rosetta> for details.
 
 =head1 ACKNOWLEDGEMENTS
 
-The ACKNOWLEDGEMENTS in L<Rosetta::Model> apply to this file too.
+The ACKNOWLEDGEMENTS in L<Rosetta> apply to this file too.
 
 =cut

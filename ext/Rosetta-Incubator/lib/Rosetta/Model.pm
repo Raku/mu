@@ -237,7 +237,7 @@ my method _assert_arg_ch_nd_aoh (Str $meth!, Str $arg!, Str @val!) {
 =head1 NAME
 
 Rosetta::Model -
-Specify all database tasks with SQL routines
+Intermediate Relational Language
 
 =head1 VERSION
 
@@ -260,19 +260,19 @@ I<This documentation is pending.>
 
 Rosetta::Model provides an effective language for defining relational data
 models, both the means to create them and the means to interact with them.
-The language loosely resembles the ANSI/ISO SQL:2003 standard in purpose
-and structure, but its details are different.  This is partly so that it
-can more elegantly support the specific relational model that E. F. Codd
-proposed in his 1970 publication titled "A Relational Model of Data for
-Large Shared Data Banks", but that SQL diverged from in some ways.
-Regardless, it should be easy to translate database definitions and queries
-between SQL and the language Rosetta::Model provides.
+The language is IRL (Intermediate Relational Language), and it loosely
+resembles the ANSI/ISO SQL:2003 standard in purpose and structure, but its
+details are different.  This is partly so that it can more elegantly
+support the specific relational model that E. F. Codd proposed in his 1970
+publication titled "A Relational Model of Data for Large Shared Data
+Banks", but that SQL diverged from in some ways.  Regardless, it should be
+easy to translate database definitions and queries between SQL and IRL.
 
-Please see the pod-only file L<Rosetta::Language> ("Language"), which
-is the human readable authoritative design document for Rosetta::Model's
-language; the file Rosetta::Model itself is a machine readable language
-specification that is derived from the human readable version, and in the
-case of a conflict, Language takes precedence.
+Please see the pod-only file L<Rosetta::Language> ("Language"), which is
+the human readable authoritative design document for IRL; the file
+Rosetta::Model itself is a machine readable language specification that is
+derived from the human readable version, and in the case of a conflict,
+Language takes precedence.
 
 Rosetta::Model is implemented as abstract syntax trees, and you use it by
 creating, manipulating, and reading nodes in these trees.  Each tree node
@@ -280,7 +280,7 @@ is atomic, so you can just build the trees by copying scalar values from a
 data dictionary; no stitching or parsing more complicated command strings
 is necessary like with SQL.
 
-L<Rosetta> (distributed separately) is a relational database access
+L<Rosetta> (in the current distribution) is a relational database access
 solution that uses Rosetta::Model objects as its native instruction set
 rather than SQL strings.  But Rosetta::Model can also be used independently
 of Rosetta, such as when translating SQL from one dialect to another.
@@ -565,12 +565,11 @@ None reported.
 
 =head1 SEE ALSO
 
-These documentation files are included in the Rosetta::Model distribution:
-L<Rosetta::Language>, L<Rosetta::Migration>.
+The Perl 6 package L<Rosetta> is bundled with Rosetta::Model and is its
+primary dependent.
 
-These Perl 6 packages are the initial main dependents of Rosetta::Model:
-L<Rosetta>, L<Rosetta::Utility::SQLBuilder>,
-L<Rosetta::Utility::SQLParser>.
+These Perl 6 packages are also early dependents of Rosetta::Model:
+L<Rosetta::Utility::SQLBuilder>, L<Rosetta::Utility::SQLParser>.
 
 =head1 BUGS AND LIMITATIONS
 
@@ -582,48 +581,14 @@ Darren R. Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENCE AND COPYRIGHT
 
-This file is part of the Rosetta::Model database portability library.
+This file is part of the Rosetta database portability library.
 
-Rosetta::Model is Copyright (c) 2002-2006, Darren R. Duncan.  All rights
-reserved. Address comments, suggestions, and bug reports to
-C<perl@DarrenDuncan.net>, or visit L<http://www.DarrenDuncan.net/> for more
-information.
+Rosetta is Copyright (c) 2002-2006, Darren R. Duncan.
 
-Rosetta::Model is free software; you can redistribute it and/or modify it
-under the terms of the GNU General Public License (GPL) as published by the
-Free Software Foundation (L<http://www.fsf.org/>); either version 2 of the
-License, or (at your option) any later version.  You should have received a
-copy of the GPL as part of the Rosetta::Model distribution, in the file
-named "GPL"; if not, write to the Free Software Foundation, Inc., 51
-Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
-
-Linking Rosetta::Model statically or dynamically with other files is making
-a combined work based on Rosetta::Model.  Thus, the terms and conditions of
-the GPL cover the whole combination.  As a special exception, the copyright
-holders of Rosetta::Model give you permission to link Rosetta::Model with
-independent files, regardless of the license terms of these independent
-files, and to copy and distribute the resulting combined work under terms
-of your choice, provided that every copy of the combined work is
-accompanied by a complete copy of the source code of Rosetta::Model (the
-version of Rosetta::Model used to produce the combined work), being
-distributed under the terms of the GPL plus this exception.  An independent
-file is a file which is not derived from or based on Rosetta::Model, and
-which is fully useable when not linked to Rosetta::Model in any form.
-
-Any versions of Rosetta::Model that you modify and distribute must carry
-prominent notices stating that you changed the files and the date of any
-changes, in addition to preserving this original copyright notice and other
-credits. Rosetta::Model is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-While it is by no means required, the copyright holders of Rosetta::Model
-would appreciate being informed any time you create a modified version of
-Rosetta::Model that you are willing to distribute, because that is a
-practical way of suggesting improvements to the standard version.
+See the LICENCE AND COPYRIGHT of L<Rosetta> for details.
 
 =head1 ACKNOWLEDGEMENTS
 
-None yet.
+The ACKNOWLEDGEMENTS in L<Rosetta> apply to this file too.
 
 =cut

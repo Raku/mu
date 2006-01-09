@@ -367,7 +367,7 @@ various third party relational database managers.
 Rosetta is highly modular, this being one of its fundamental features, with
 the core 'Rosetta' file defining a common API which multiple interchangable
 back-ends implement (each of which is usually made by a third party); the
-former is called the Rosetta Native Interface (RNI), and the latter are
+former is called the RNI (Rosetta Native Interface), and the latter are
 called Rosetta Engines.  Usually, each Engine implements a persistent data
 store for long term use, but some can be RAM-based for use as a short-term
 cache.  L<Rosetta::Engine::Native> is the reference implementation of an
@@ -375,13 +375,12 @@ Engine and provides both kinds of storage; it is distributed separately
 from 'Rosetta' since it isn't needed if you use an alternate Engine.
 
 The RNI is defined collectively by both 'Rosetta' itself and
-L<Rosetta::Model>; Rosetta::Model defines the SQL-like language in which
-applications write instructions for the virtual machine to execute,
-including to create the data models, query them, and manipulate them;
-'Rosetta' provides the handles on the virtual machine by which the
-applications give it input and take its output.  Rosetta::Model is
-distributed separately from 'Rosetta' because it can be independently
-useful, such as when translating SQL from one dialect to another.
+L<Rosetta::Model>; Rosetta::Model defines IRL (Intermediate Relational
+Language), a language loosely resembling SQL, in which applications write
+instructions for the virtual machine to execute, including to create the
+data models, query them, and manipulate them; 'Rosetta' provides the
+handles on the virtual machine by which the applications give it input and
+take its output.
 
 Given that the most Rosetta Engine implementations simply map Rosetta's
 rigorously defined API onto a pre-existing relational database manager
@@ -436,15 +435,20 @@ I<This documentation is pending.>
 
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
-It also requires these Perl 6 classes that are on CPAN:
-L<Locale::KeyedText-(1.73.0...)|Locale::KeyedText> (for error messages),
+It also requires these Perl 6 classes that are in the current distribution:
 L<Rosetta::Model-(0.710.0...)|Rosetta::Model>.
+
+It also requires these Perl 6 classes that are on CPAN:
+L<Locale::KeyedText-(1.73.0...)|Locale::KeyedText> (for error messages).
 
 =head1 INCOMPATIBILITIES
 
 None reported.
 
 =head1 SEE ALSO
+
+These documentation files are included in the Rosetta distribution:
+L<Rosetta::Language>, L<Rosetta::Migration>.
 
 The Perl 6 module L<Rosetta::Validator> is bundled with Rosetta and can be
 used to test Rosetta Engine classes.
