@@ -35,7 +35,9 @@ ok(!(try { &foo.assuming(1) }), "can't curry without named params",:todo); # L<S
 ok(!(try { &foo.assuming("f" => 3) }), "can't curry nonexistent named param",:todo); # L<S06/Currying /whose names must match parameters of the subroutine itself/> 
 
 # L<S06/"Currying" /The result of a use statement/>
+try {
 (eval('use t::packages::Test') // {}).assuming(arg1 => "foo");
+}
 is try { dummy_sub_with_params(arg2 => "bar") }, "[foo] [bar]",
   "(use ...).assuming works", :todo<feature>;
 
@@ -58,3 +60,5 @@ sub __hyper ($op?, Array @a, Array @b) {
 my @x = (1,2,23);
 is( try { &__hyper.assuming("op" => &infix:<+>)(@x, @x) },
     (2,4,46), 'currying functions with array arguments' );
+is( try { &__hyper.assuming("op" => &infix:<+>)('a' => @x, 'b' => @x) },
+    (2,4,46), 'currying functions with named array arguments' );
