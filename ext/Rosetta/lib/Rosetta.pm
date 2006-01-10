@@ -435,11 +435,11 @@ I<This documentation is pending.>
 
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
-It also requires these Perl 6 classes that are in the current distribution:
-L<Rosetta::Model-(0.710.0...)|Rosetta::Model>.
-
 It also requires these Perl 6 classes that are on CPAN:
 L<Locale::KeyedText-(1.73.0...)|Locale::KeyedText> (for error messages).
+
+It also requires these Perl 6 classes that are in the current distribution:
+L<Rosetta::Model-(0.710.0...)|Rosetta::Model>.
 
 =head1 INCOMPATIBILITIES
 

@@ -2,6 +2,7 @@
 use v6;
 
 # External packages used by packages in this file, that don't export symbols:
+use Locale::KeyedText-(1.73.0...);
 use Rosetta-(0.710.0...);
 use Rosetta::Utility::SQLBuilder-(0.220.0...);
 use Rosetta::Utility::SQLParser-(0.30.0...);
@@ -70,6 +71,7 @@ I<This documentation is pending.>
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 It also requires these Perl 6 classes that are on CPAN:
+L<Locale::KeyedText-(1.73.0...)|Locale::KeyedText> (for error messages),
 L<Rosetta-(0.710.0...)|Rosetta>,
 L<Rosetta::Utility::SQLBuilder-(0.220.0...)|Rosetta::Utility::SQLBuilder>,
 L<Rosetta::Utility::SQLParser-(0.30.0...)|Rosetta::Utility::SQLParser>.

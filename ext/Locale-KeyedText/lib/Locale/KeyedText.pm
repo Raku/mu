@@ -934,7 +934,8 @@ None reported.
 =head1 SEE ALSO
 
 These Perl 6 packages are the initial main dependents of Locale::KeyedText:
-L<Rosetta::Model>, L<Rosetta>.
+L<Rosetta::Model>, L<Rosetta>, L<Rosetta::Validator>,
+L<Rosetta::Engine::Native>.
 
 =head1 BUGS AND LIMITATIONS
 
