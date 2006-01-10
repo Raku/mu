@@ -1,4 +1,4 @@
-= Changes for 6.28.0 (rXXXX) - Nov XX, 2005
+= Changes for 6.2.11 (rXXXX) - Jan XX, 2006
 
 == Feature Changes
 
@@ -28,12 +28,23 @@
 
 === Updated modules
 
-* Moved Rosetta-Incubator to ext/ from misc/, as it is expected to be 
-  installable by the 6.28.0 release.
-** Also deleted the older ext/Locale-KeyedText, which the above supersedes.
+* Added /ext/Rosetta (incomplete) - A federated relational database.
+* Added /ext/Rosetta-Engine-Native (incomplete) - A back-end for testing.
+* Rewrote /ext/Locale-KeyedText, with a strong resemblence to the original.
+** Split up translate_message() for more granular Translator usage.
+** Objects now become something useful when coerced into a string.
+** Added Locale::KeyedText::L::en, LKT now throws Message exceptions.
+** Template Modules now have a different variable interpolation format.
+** Created 2 running /examples from pod that was removed from KeyedText.pm.
+** Deleted old test suite (yet to be replaced); now only tests compiling.
+
 
 === Experimental modules (in misc/, not installed)
 
+* Split 2 portions off from /misc/Rosetta-Incubator:
+** Locale::KeyedText was merged into the rewritten one in /ext.
+** SQL::Routine and Rosetta were merged together, became Rosetta in /ext.
+** Remainder (SQLBuilder, SQLParser, Eng/Generic, Emu/DBI) edited, renamed.
 
 
 == Test, Examples and Documentations
