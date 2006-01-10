@@ -1,57 +1,11 @@
 #!/usr/bin/pugs
 use v6;
 
-use lib <t/lib ext/Rosetta-Incubator/t/lib>;
+use lib <t/lib misc/Rosetta-Incubator/t/lib>;
 
 use Test;
 
-plan( 36 );
-
-# Locale-KeyedText:
-
-use_ok( 'Locale::KeyedText' );
-skip( 1, q{is( Locale::KeyedText.meta.identifier.version, 1.73.0,
-    'Locale::KeyedText is the correct version' );} );
-
-use_ok( 'Locale::KeyedText::L::en' );
-skip( 1, q{is( Locale::KeyedText::L::en.meta.identifier.version, 1.1.0,
-    'Locale::KeyedText::L::en is the correct version' );} );
-
-# Rosetta:
-
-use_ok( 'Rosetta' );
-skip( 1, q{is( Rosetta.meta.identifier.version, 0.710.0,
-    'Rosetta is the correct version' );} );
-
-use_ok( 'Rosetta::L::en' );
-skip( 1, q{is( Rosetta::L::en.meta.identifier.version, 0.200.0,
-    'Rosetta::L::en is the correct version' );} );
-
-use_ok( 'Rosetta::Model' );
-skip( 1, q{is( Rosetta::Model.meta.identifier.version, 0.710.0,
-    'Rosetta::Model is the correct version' );} );
-
-use_ok( 'Rosetta::Model::L::en' );
-skip( 1, q{is( Rosetta::Model::L::en.meta.identifier.version, 0.390.0,
-    'Rosetta::Model::L::en is the correct version' );} );
-
-use_ok( 'Rosetta::Validator' );
-skip( 1, q{is( Rosetta::Validator.meta.identifier.version, 0.710.0,
-    'Rosetta::Validator is the correct version' );} );
-
-use_ok( 'Rosetta::Validator::L::en' );
-skip( 1, q{is( Rosetta::Validator::L::en.meta.identifier.version, 0.150.0,
-    'Rosetta::Validator::L::en is the correct version' );} );
-
-# Rosetta-Engine-Native:
-
-use_ok( 'Rosetta::Engine::Native' );
-skip( 1, q{is( Rosetta::Engine::Native.meta.identifier.version, 0.1.0,
-    'Rosetta::Engine::Native is the correct version' );} );
-
-use_ok( 'Rosetta::Engine::Native::L::en' );
-skip( 1, q{is( Rosetta::Engine::Native::L::en.meta.identifier.version, 0.1.0,
-    'Rosetta::Engine::Native::L::en is the correct version' );} );
+plan( 16 );
 
 # Rosetta-Utility-SQLBuilder:
 

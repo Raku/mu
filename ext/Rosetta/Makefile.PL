@@ -4,9 +4,9 @@ use warnings;
 use lib '../..', '../../inc';
 use inc::Module::Install prefix => '../../inc';
 
-name       ('Rosetta-Incubator');
-version    ('6.0.0');
-abstract   ('Stage for rebirth of the Rosetta Framework');
+name       ('Rosetta');
+version    ('0.710.0'); # 'VERSION_FROM' => 'lib/Rosetta.pm'
+abstract   ('Rigorous database portability');
 author     ('Darren R. Duncan <perl@DarrenDuncan.net>');
 license    ('gpl');
 

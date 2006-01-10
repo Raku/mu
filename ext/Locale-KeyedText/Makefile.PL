@@ -4,10 +4,10 @@ use warnings;
 use lib '../..', '../../inc';
 use inc::Module::Install prefix => '../../inc';
 
-name       ('Rosetta-Incubator');
-version    ('6.0.0');
-abstract   ('Stage for rebirth of the Rosetta Framework');
+name       ('Locale::KeyedText');
+version    ('1.73.0'); # 'VERSION_FROM' => 'lib/Locale/KeyedText.pm'
+abstract   ('Refer to user messages in programs by keys');
 author     ('Darren R. Duncan <perl@DarrenDuncan.net>');
-license    ('gpl');
+license    ('lgpl');
 
 WritePugs  (6);
