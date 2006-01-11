@@ -129,25 +129,25 @@ code; instead refer to other above-named packages in this file.>
 
     # Create a Rosetta::Model document in which we store some local
     # command definitions and fragments thereof.
-    my Rosetta::Model::Document $srt_doc.= new();
+    my Rosetta::Model::Document $irl_doc.= new();
 
     # Define some data types.
-    my Rosetta::Model::Node $sdtd_person_id = $srt_doc.build_node_tree(
+    my Rosetta::Model::Node $sdtd_person_id = $irl_doc.build_node_tree(
         [ 'scalar_data_type', { 'base_type' => 'NUM_INT',
             'num_precision' => 9 } ]
     );
-    my Rosetta::Model::Node $sdtd_person_name = $srt_doc.build_node_tree(
+    my Rosetta::Model::Node $sdtd_person_name = $irl_doc.build_node_tree(
         [ 'scalar_data_type', { 'base_type' => 'STR_CHAR',
             'max_chars' => 100, 'char_set' => 'UNICODE' } ]
     );
-    my Rosetta::Model::Node $sdtd_person_sex = $srt_doc.build_node_tree(
+    my Rosetta::Model::Node $sdtd_person_sex = $irl_doc.build_node_tree(
         [ 'scalar_data_type', { 'base_type' => 'STR_CHAR',
                 'max_chars' => 1, 'char_set' => 'UNICODE' }, [
             [ 'scalar_data_type_value', { 'value' => 'M' } ],
             [ 'scalar_data_type_value', { 'value' => 'F' } ],
         ] ]
     );
-    my Rosetta::Model::Node $rdtd_person = $srt_doc.build_node_tree(
+    my Rosetta::Model::Node $rdtd_person = $irl_doc.build_node_tree(
         [ 'row_data_type', undef, [
             [ 'row_data_type_field', { 'name' => 'id' }, [
                 $sdtd_person_id,
@@ -162,7 +162,7 @@ code; instead refer to other above-named packages in this file.>
     );
 
     # Define the 'person' table.
-    my Rosetta::Model::Node $tbd_person = $srt_doc.build_node_tree(
+    my Rosetta::Model::Node $tbd_person = $irl_doc.build_node_tree(
         [ 'table', { 'name' => 'person' }, [
             [ 'interface_row', undef, [
                 $rdtd_person,
@@ -179,7 +179,7 @@ code; instead refer to other above-named packages in this file.>
 
     # Define and compile a routine that will validate whether the 'person'
     # table exists (and is correct).
-    my Rosetta::Model::Node $fnd_tb_person_exists = $srt_doc.build_node_tree(
+    my Rosetta::Model::Node $fnd_tb_person_exists = $irl_doc.build_node_tree(
         [ 'function', { 'name' => 'tb_person_exists' }, [
             [ 'routine_arg', { 'name' => 'result',
                     'arg_type' => 'RETURN' }, [
@@ -206,7 +206,7 @@ code; instead refer to other above-named packages in this file.>
     #           PRIMARY KEY (id)
     #       );
     #       COMMIT;
-    my Rosetta::Model::Node $prd_create_tb_person = $srt_doc.build_node_tree(
+    my Rosetta::Model::Node $prd_create_tb_person = $irl_doc.build_node_tree(
         [ 'procedure', { 'name' => 'create_tb_person' }, [
             [ 'routine_body', undef, [
                 [ 'create_stmt', undef, [
@@ -226,7 +226,7 @@ code; instead refer to other above-named packages in this file.>
     #           name = :new_person.name,
     #           sex = :new_person.sex;
     #       COMMIT;
-    my Rosetta::Model::Node $prd_add_person = $srt_doc.build_node_tree(
+    my Rosetta::Model::Node $prd_add_person = $irl_doc.build_node_tree(
         [ 'procedure', { 'name' => 'add_person' }, [
             [ 'routine_arg', { 'name' => 'new_person',
                     'arg_type' => 'IN' }, [
@@ -249,7 +249,7 @@ code; instead refer to other above-named packages in this file.>
     # Like: SELECT s.id AS id, s.name AS name, s.sex AS sex
     #       FROM person AS s
     #       WHERE s.id = :person_id;
-    my Rosetta::Model::Node $fnd_get_person = $srt_doc.build_node_tree(
+    my Rosetta::Model::Node $fnd_get_person = $irl_doc.build_node_tree(
         [ 'function', { 'name' => 'get_person' }, [
             [ 'routine_arg', { 'name' => 'result',
                     'arg_type' => 'RETURN' }, [

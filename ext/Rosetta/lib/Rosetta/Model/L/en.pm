@@ -6,7 +6,7 @@ use v6;
 
 # Constant values used by packages in this file:
 my Str %TEXT_STRINGS is readonly = (
-    'SRT_D_ARG_AOH_TO_CONSTR_RT_ND_HAS_KEY_CONFL'
+    'ROS_M_D_ARG_AOH_TO_CONSTR_RT_ND_HAS_KEY_CONFL'
         => q[<CLASS>.<METH>(): as expected, argument <ARG> is an Array ref]
            ~ q[ of Hash refs, where each Hash ref specifies the values for]
            ~ q[ attributes of a new Node object to be created as a Root]
@@ -14,7 +14,7 @@ my Str %TEXT_STRINGS is readonly = (
            ~ q[ the given Hash refs defines an explicit '<KEY>' key,]
            ~ q[ which isn't allowed when creating Nodes from <ARG>.],
 
-    'SRT_N_ARG_AOH_TO_CONSTR_CH_ND_HAS_KEY_CONFL'
+    'ROS_M_N_ARG_AOH_TO_CONSTR_CH_ND_HAS_KEY_CONFL'
         => q[<CLASS>.<METH>(): as expected, argument <ARG> is an Array ref]
            ~ q[ of Hash refs, where each Hash ref specifies the values for]
            ~ q[ attributes of a new Node object to be created as a Child]

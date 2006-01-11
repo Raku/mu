@@ -74,7 +74,7 @@ my method _assert_arg_rt_nd_aoh (Str $meth!, Str $arg!, Str @val!) {
             if !$val_elem.does(Hash);
         for ('document', 'parent_node') -> $k {
             $?SELF!_die_with_msg(
-                    'SRT_D_ARG_AOH_TO_CONSTR_CH_ND_HAS_KEY_CONFL',
+                    'ROS_M_D_ARG_AOH_TO_CONSTR_CH_ND_HAS_KEY_CONFL',
                     { 'METH' => $meth, 'ARG' => $arg, 'KEY' => $k } )
                 if $val_elem.exists($k);
         }
@@ -218,7 +218,7 @@ my method _assert_arg_ch_nd_aoh (Str $meth!, Str $arg!, Str @val!) {
             if !$val_elem.does(Hash);
         for ('document', 'parent_node') -> $k {
             $?SELF!_die_with_msg(
-                    'SRT_N_ARG_AOH_TO_CONSTR_CH_ND_HAS_KEY_CONFL',
+                    'ROS_M_N_ARG_AOH_TO_CONSTR_CH_ND_HAS_KEY_CONFL',
                     { 'METH' => $meth, 'ARG' => $arg, 'KEY' => $k } )
                 if $val_elem.exists($k);
         }
