@@ -1,3 +1,5 @@
+=pod
+
 =encoding utf8
 
 =head1 NAME
@@ -196,7 +198,7 @@ relational data model.
 IRL gains simplicity from this same requirement, because your depot-centric
 routines can neatly avoid the combinatorial complexity that comes from
 being given a range of data types as values when you conceptually just want
-one type, and your code doesn't have to deal with all the possible cases. 
+one type, and your code doesn't have to deal with all the possible cases.
 The simpler routines are easier for developers to write, as they don't have
 to worry about several classes of error detection and handling (due to
 improper data formats), and the routines would also execute faster since
@@ -458,7 +460,7 @@ a minimum of 1 and maximum of 10 specifies that only numbers in the range
 leaving the maximum unset is the recommended way in IRL to specify that you
 want to allow any non-negative number.  Setting the minimum >= 0 also
 causes the maximum value range allowable by "num_precision" to shift into
-the positive, rather than it being half there and half in the negative. 
+the positive, rather than it being half there and half in the negative.
 Eg, an (P,S) of (256,1) becomes 0..255 when the minimum = 0, whereas it
 would be -128..127 if the min/max are unset.
 
@@ -510,7 +512,7 @@ specified range/size limits otherwise defined for the subtype).
 IRL has native support for a special SCALAR data type, which is akin to
 SQLite's weakly typed table columns, or to Perl's weakly typed default
 scalar variables.  This data type is a union of the domains of the BOOLEAN,
-NUMERIC, CHAR_STR, and BIT_STR data types; it is not-nullable by default. 
+NUMERIC, CHAR_STR, and BIT_STR data types; it is not-nullable by default.
 Its concept of nothingness is the empty string.
 
 =head1 SEE ALSO

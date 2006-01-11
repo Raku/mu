@@ -1,3 +1,5 @@
+=pod
+
 =encoding utf8
 
 =head1 NAME
@@ -8,9 +10,10 @@ Assist translating between various languages
 =head1 DESCRIPTION
 
 Rosetta::Model provides an effective language for defining relational data
-models, both the means to create them and the means to interact with them;
-see the documentation of L<Rosetta::Model> itself (in the current
-distribution) for a further introduction.
+models, both the means to create them and the means to interact with them.
+The language is IRL (Intermediate Relational Language); see the
+documentation of L<Rosetta::Model> itself (in the current distribution) for
+a further introduction.
 
 This document, Rosetta::Migration ("Migration"), is intended to help
 users of Rosetta::Model to map the concepts and syntax of their existing

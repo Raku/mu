@@ -1,11 +1,13 @@
-Subject: Rosetta
-Document Title: FAQ
-Author: Darren Duncan <perl@DarrenDuncan.net>
-Maintainer: Darren Duncan <perl@DarrenDuncan.net>
-Date: 2005 November 21
-Last Modified: 2005 November 21
+=pod
 
-PREFACE
+=encoding utf8
+
+=head1 NAME
+
+Rosetta::FAQ -
+Answers to your questions
+
+=head1 DESCRIPTION
 
 This document is a place for you to write in questions you have about the
 Rosetta database access framework, such as when you don't understand a
@@ -17,7 +19,7 @@ Alternately, you can write in both questions and answers that you think are
 correct, where you think they would be commonly asked.  Feel free to create
 multiple sections below, rather than just QUESTIONS AND ANSWERS.
 
-QUESTIONS AND ANSWERS
+=head1 QUESTIONS AND ANSWERS
 
 Q.
 
@@ -28,3 +30,25 @@ Q.
 A.
 
 ...
+
+=head1 SEE ALSO
+
+I<This documentation is pending.>
+
+=head1 AUTHOR
+
+Darren R. Duncan (C<perl@DarrenDuncan.net>)
+
+=head1 LICENCE AND COPYRIGHT
+
+This file is part of the Rosetta database portability library.
+
+Rosetta is Copyright (c) 2002-2006, Darren R. Duncan.
+
+See the LICENCE AND COPYRIGHT of L<Rosetta> for details.
+
+=head1 ACKNOWLEDGEMENTS
+
+The ACKNOWLEDGEMENTS in L<Rosetta> apply to this file too.
+
+=cut

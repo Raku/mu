@@ -35,6 +35,8 @@ class Rosetta::Utility::SQLBuilder-0.220.0 {
 
 =pod
 
+=encoding utf8
+
 =head1 NAME
 
 Rosetta::Utility::SQLBuilder -

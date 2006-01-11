@@ -4,9 +4,10 @@
 
 =head1 NAME
 
-Rosetta::TODO - TODO list for Rosetta
+Rosetta::TODO -
+TODO list for Rosetta
 
-=head1 PREFACE
+=head1 DESCRIPTION
 
 This document maps out a rough development plan the Rosetta database access
 framework, so you know in roughly what order I plan to implement various
@@ -19,6 +20,9 @@ be changed as I become better aware of circumstances, and that can be
 influenced by work done by other people.
 
 =head1 THE LIST
+
+Some list items will be fulfilled within the "Rosetta" distribution, while
+others will be fulfilled within external distributions that use it.
 
 =head2 SHORT TERM GOALS
 
@@ -462,17 +466,33 @@ Pay explicit attention to thread safety, though it may be incomplete.
 
 Full multi-threading support across the board.
 
-=item *
-
-Consider supporting user-defined functions that aren't written in SQL.
-
 =back
 
-=head1 CONCLUSION
+=head2 CONCLUSION
 
 Feedback is always appreciated, as is any type of contributions you wish to
 make towards the effort.  If you wish to create or adopt any particular
 types of extensions or other related modules, feel free to tell me.  Also,
 this list is undoubtedly missing some items.
+
+=head1 SEE ALSO
+
+I<This documentation is pending.>
+
+=head1 AUTHOR
+
+Darren R. Duncan (C<perl@DarrenDuncan.net>)
+
+=head1 LICENCE AND COPYRIGHT
+
+This file is part of the Rosetta database portability library.
+
+Rosetta is Copyright (c) 2002-2006, Darren R. Duncan.
+
+See the LICENCE AND COPYRIGHT of L<Rosetta> for details.
+
+=head1 ACKNOWLEDGEMENTS
+
+The ACKNOWLEDGEMENTS in L<Rosetta> apply to this file too.
 
 =cut

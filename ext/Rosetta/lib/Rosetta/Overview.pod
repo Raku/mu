@@ -4,18 +4,17 @@
 
 =head1 NAME
 
-Rosetta::Overview - 10,000 mile view of Rosetta
+Rosetta::Overview -
+10,000 mile view of Rosetta
 
-=head1 PREFACE
+=head1 DESCRIPTION
 
 This document is an overview of Rosetta database access framework, covering
 its purpose and high level architecture such that you should know how to
 begin to use it and why.
 
 Details of the architecture, such as data structures, allowed inputs, and
-functional APIs, are discussed in other documents.  See L</SEE ALSO>.
-
-=head1 DESCRIPTION
+functional APIs, are discussed in other documents.
 
 Rosetta provides a common API for access to relational databases of all
 shapes and sizes, including those implemented with libraries embedded in
@@ -306,7 +305,7 @@ sub-optimal.
 
 =back
 
-=head1 HIGH LEVEL DATA STRUCTURES
+=head1 OLDER DOCUMENTATION TO REWRITE/REMOVE: HIGH LEVEL DATA STRUCTURES
 
 Applications interact with Rosetta, for the most part, as if it was a
 dynamically linked library which implements a self-contained embedded
@@ -537,11 +536,11 @@ other documents rather than in this one.
 
 ... TODO ...
 
-OTHER ...
+... OTHER ...
 
 =head1 SEE ALSO
 
-(just a few placeholders for now)
+(just a few placeholders for now, that don't work)
 
 =over
 
@@ -561,8 +560,20 @@ OTHER ...
 
 =head1 AUTHOR
 
-Darren Duncan <perl@DarrenDuncan.net>.
+Darren R. Duncan (C<perl@DarrenDuncan.net>)
 
 Some editorial assistance from Sam Vilain <samv@cpan.org>.
+
+=head1 LICENCE AND COPYRIGHT
+
+This file is part of the Rosetta database portability library.
+
+Rosetta is Copyright (c) 2002-2006, Darren R. Duncan.
+
+See the LICENCE AND COPYRIGHT of L<Rosetta> for details.
+
+=head1 ACKNOWLEDGEMENTS
+
+The ACKNOWLEDGEMENTS in L<Rosetta> apply to this file too.
 
 =cut

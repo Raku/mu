@@ -35,6 +35,8 @@ class Rosetta::Utility::SQLParser-0.30.0 {
 
 =pod
 
+=encoding utf8
+
 =head1 NAME
 
 Rosetta::Utility::SQLParser -

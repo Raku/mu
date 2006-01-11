@@ -234,6 +234,8 @@ my method _assert_arg_ch_nd_aoh (Str $meth!, Str $arg!, Str @val!) {
 
 =pod
 
+=encoding utf8
+
 =head1 NAME
 
 Rosetta::Model -

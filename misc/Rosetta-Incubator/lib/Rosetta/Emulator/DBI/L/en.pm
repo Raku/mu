@@ -22,6 +22,8 @@ module Rosetta::Emulator::DBI::L::en-0.1.0 {
 
 =pod
 
+=encoding utf8
+
 =head1 NAME
 
 Rosetta::Emulator::DBI::L::en -

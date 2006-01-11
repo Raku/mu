@@ -80,6 +80,8 @@ class Rosetta::Engine {
 
 =pod
 
+=encoding utf8
+
 =head1 NAME
 
 Rosetta -

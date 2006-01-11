@@ -1,11 +1,13 @@
-Subject: Rosetta
-Document Title: Copying
-Author: Darren Duncan <perl@DarrenDuncan.net>
-Maintainer: Darren Duncan <perl@DarrenDuncan.net>
-Date: 2005 November 9
-Last Modified: 2006 January 8
+=pod
 
-PREFACE
+=encoding utf8
+
+=head1 NAME
+
+Rosetta::Copying -
+Matters of ownership, licensing, contributions
+
+=head1 DESCRIPTION
 
 This document is about copyright issues concerning the Rosetta database
 access framework, both as they are now, and how I anticipate them being in
@@ -13,35 +15,39 @@ the future.  These may very well be intuitive, but I'll follow the
 principle of least surprise and spell them out anyway, so that no one is
 surprised later on.
 
-COMPOSITION
+=head1 COMPOSITION
 
 The inner core of the Rosetta framework, defined as the smallest number of
 components that all users of Rosetta require, are these Perl files; each
 one depends on all of the others listed above it:
 
-* /lib/Locale/KeyedText.pm
-* /lib/Rosetta/Model.pm
-* /lib/Rosetta.pm
+    * /lib/Rosetta/Model.pm
+    * /lib/Rosetta.pm
 
 Note that at least one additional file, whether from myself or a third
 party, is required to fulfil the role of an "Engine", in order to use
-lib/Rosetta.pm at all, meaning the actual minimal count is 4.
+lib/Rosetta.pm at all, meaning the actual minimal count is 3.
 
-Normally, each of these files is available as a separate distribution on
-CPAN (but that Model.pm is bundled with Rosetta.pm), because it can be
-useful independently of the files below it in the list.  Each distribution
-may have additional files that are tied to the named file, because they
-serve as documentation or examples or tests or localization data for it,
-and the whole collection in the distribution is considered a single unit as
-far as ownership and licensing goes, unless explicitly stated otherwise
-therein.
+(The inner core also has an external dependency on my LGPL-licensed
+Locale::KeyedText, that is also required to use it, but that is not
+actually part of the Rosetta framework itself.)
+
+Both Model.pm and Rosetta.pm are part of a common 'Rosetta' distribution on
+CPAN, but Model.pm can actually be used independently from Rosetta.pm; they
+are bundled mainly for easier co-development, and that using them together
+is the most common case.  Engines are distributed separately.  Each
+distribution may have additional files that are tied to the named file,
+because they serve as documentation or examples or tests or localization
+data for it, and the whole collection in the distribution is considered a
+single unit as far as ownership and licensing goes, unless explicitly
+stated otherwise therein.
 
 The Rosetta framework includes a comprehensive shared test suite to ensure
 the correctness of itself and of any Engine components, its middle core,
 which is comprised of these Perl files:
 
-* /lib/Rosetta/Validator.pm
-* /lib/Rosetta/Engine/Native.pm
+    * /lib/Rosetta/Validator.pm
+    * /lib/Rosetta/Engine/Native.pm
 
 While not essential to the daily use of Rosetta, they are very important to
 the framework at large and are strongly recommended to be used at
@@ -56,11 +62,11 @@ The outer core of the Rosetta framework, defined as additional components
 which I maintain and anticipate being frequently used but also being
 readily substituted for by third party components, are these Perl files:
 
-* /lib/Rosetta/Utility/SQLBuilder.pm
-* /lib/Rosetta/Utility/SQLParser.pm
-* /lib/Rosetta/Engine/Generic.pm
-* /lib/Rosetta/Engine/*.pm (for specific databases)
-* /lib/Rosetta/Emulator/DBI.pm
+    * /lib/Rosetta/Utility/SQLBuilder.pm
+    * /lib/Rosetta/Utility/SQLParser.pm
+    * /lib/Rosetta/Engine/Generic.pm
+    * /lib/Rosetta/Engine/*.pm (for specific databases)
+    * /lib/Rosetta/Emulator/DBI.pm
 
 As with the inner core list, normally, each of these outer core files is
 available as a separate distribution on CPAN.  The 'Utility' files only
@@ -71,7 +77,7 @@ Any other independent distributions that exist and use Rosetta, whether
 made by myself or third parties, are not part of the Rosetta framework
 core, but constitute extensions.
 
-OWNERSHIP
+=head1 OWNERSHIP
 
 Presently, all of the Rosetta framework core files are owned entirely by
 myself, and I have complete freedom to use and license them under any terms
@@ -102,17 +108,16 @@ or relinquish full ownership of some other components at all.
 Specifically, I wish to retain full ownership and control of the inner and
 middle cores of Rosetta, namely:
 
-* /lib/Locale/KeyedText.pm
-* /lib/Rosetta/Model.pm
-* /lib/Rosetta.pm
-* /lib/Rosetta/Validator.pm
-* /lib/Rosetta/Engine/Native.pm
+    * /lib/Rosetta/Model.pm
+    * /lib/Rosetta.pm
+    * /lib/Rosetta/Validator.pm
+    * /lib/Rosetta/Engine/Native.pm
 
 Whereas, I am willing to share or transfer ownership over any or all of the
 outer core or various Rosetta extensions, if other people contribute a lot
 to them and/or are willing and able to become their primary maintainers.
 
-LICENSING
+=head1 LICENSING
 
 All components of the Rosetta framework that I own, particularly the core,
 are now and forever available under at least one free and open source
@@ -124,12 +129,9 @@ are specified in that component's documentation.
 This is a summary of their licensing terms, but what is written in the
 components themselves takes precedence.
 
-The distribution of lib/Locale/KeyedText.pm is licensed under the vanilla
-LGPL version 2.1 or later.
-
-Each other core distribution is licensed under the GPL version 2.0 or
-later, with an exception granted to linked but independent components that
-are fully useable when not linked to said distribution.
+Each core distribution is licensed under the GPL version 2.0 or later, with
+an exception granted to linked but independent components that are fully
+useable when not linked to said distribution.
 
 That is, any third party component that links to Rosetta is required to be
 distributed under the GPL unless at least one of the following conditions
@@ -176,7 +178,7 @@ choose to refactor itself by moving code from my glue module to itself,
 without impacting its licensing implications.  It also makes conceptual
 sense, since the glue is more part of the enabled component than Rosetta.
 
-CONTRIBUTIONS
+=head1 CONTRIBUTIONS
 
 I welcome and encourage contributions towards improving Rosetta from anyone
 and at any time, big or small, and for any part of the system.
@@ -211,7 +213,7 @@ In a worst case scenario, you are always allowed to fork Rosetta, and have
 shared ownership in your alternate version, though I would hope that a fork
 would never happen.
 
-CONCLUSION
+=head1 CONCLUSION
 
 I created Rosetta in the hope that it would be greatly useful to and be
 used by a lot of people, and lead to positive change in society.  Releasing
@@ -219,3 +221,25 @@ it free should take care that it serves this purpose over the long term.
 But I also strive that it can contribute to my ability to earn a living
 over the long term.  Hopefully the policies I have laid out are fair and
 acceptable to everyone.
+
+=head1 SEE ALSO
+
+I<This documentation is pending.>
+
+=head1 AUTHOR
+
+Darren R. Duncan (C<perl@DarrenDuncan.net>)
+
+=head1 LICENCE AND COPYRIGHT
+
+This file is part of the Rosetta database portability library.
+
+Rosetta is Copyright (c) 2002-2006, Darren R. Duncan.
+
+See the LICENCE AND COPYRIGHT of L<Rosetta> for details.
+
+=head1 ACKNOWLEDGEMENTS
+
+The ACKNOWLEDGEMENTS in L<Rosetta> apply to this file too.
+
+=cut

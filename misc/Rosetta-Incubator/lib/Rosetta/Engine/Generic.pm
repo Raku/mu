@@ -37,6 +37,8 @@ class Rosetta::Engine::Generic-0.220.0 {
 
 =pod
 
+=encoding utf8
+
 =head1 NAME
 
 Rosetta::Engine::Generic -

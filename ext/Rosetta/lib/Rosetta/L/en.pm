@@ -22,6 +22,8 @@ module Rosetta::L::en-0.200.0 {
 
 =pod
 
+=encoding utf8
+
 =head1 NAME
 
 Rosetta::L::en -

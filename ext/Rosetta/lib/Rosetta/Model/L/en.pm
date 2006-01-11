@@ -37,6 +37,8 @@ module Rosetta::Model::L::en-0.390.0 {
 
 =pod
 
+=encoding utf8
+
 =head1 NAME
 
 Rosetta::Model::L::en -

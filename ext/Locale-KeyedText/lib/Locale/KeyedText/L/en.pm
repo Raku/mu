@@ -96,6 +96,8 @@ module Locale::KeyedText::L::en-1.1.0 {
 
 =pod
 
+=encoding utf8
+
 =head1 NAME
 
 Locale::KeyedText::L::en -

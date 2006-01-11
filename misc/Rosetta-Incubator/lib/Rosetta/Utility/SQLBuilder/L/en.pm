@@ -22,6 +22,8 @@ module Rosetta::Utility::SQLBuilder::L::en-0.30.0 {
 
 =pod
 
+=encoding utf8
+
 =head1 NAME
 
 Rosetta::Utility::SQLBuilder::L::en -

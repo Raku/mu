@@ -353,6 +353,8 @@ my method _assert_arg_msg (Str $meth!, Str $arg!, $val!) {
 
 =pod
 
+=encoding utf8
+
 =head1 NAME
 
 Locale::KeyedText -

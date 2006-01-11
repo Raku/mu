@@ -35,6 +35,8 @@ module Rosetta::Validator-0.710.0 {
 
 =pod
 
+=encoding utf8
+
 =head1 NAME
 
 Rosetta::Validator -
