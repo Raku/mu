@@ -552,7 +552,7 @@ reduceSyn ":=" exps
             rv   <- findVarRef name
             case rv of
                 Just ioRef -> return (ioRef, ref)
-                _ -> retError "Undeclared variable" name
+                _ -> retError "Bind to undeclared variable" name
         forM_ bindings $ \(ioRef, ref) -> do
             liftSTM $ writeTVar ioRef ref
         return $ case map (VRef . snd) bindings of
