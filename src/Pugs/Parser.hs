@@ -460,7 +460,8 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             -- make a note of this symbol being exportable, and defer the
             -- actual symbol table manipulation to opEval.
             unsafeEvalExp $ mkSym nameQualified
-            -- %*INC<This::Package><exports><&this_sub> = expression-binding-&this_sub
+            -- push %*INC<This::Package><exports><&this_sub>, expression-binding-&this_sub
+            -- (a singleton list for subs, a full list of subs for multis)
             unsafeEvalExp $
                 App (Var "&*push") Nothing [Syn "{}" [Syn "{}" [Syn "{}"
                         [Var "%*INC", Val $ VStr pkg], Val (VStr "exports")], Val $ VStr name]
@@ -851,16 +852,33 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
             let hardcodedScopeFixme = SMy
                 rebind scope (VStr name) = do
                     (Val ex) <- unsafeEvalExp $ Syn "@{}" [Syn "{}" [Val exports, Val $ VStr name]]
+                    --trace ("exports of " ++ name ++ ": " ++ (show ex)) $ return ()
                     case ex of
                         VList subs -> do
                             exps <- forM subs (\(VCode sub) -> do
+                                let qName = '&':(envPackage env)++"::"++(tail name)
                                 let mkMulti = if isMulti sub then ('&':) else id
-                                let mkExp = Syn ":=" [Var name, Val $ VCode sub]
-                                let mkSym = Sym scope (mkMulti name) mkExp
-                                --trace ("export: " ++ (mkMulti name)) $ return ()
+                                {- notes on the various takes at fixing export to work with multi subs.
+                                   - replacing VCode's subName field doesn't seem to have much effect.
+                                   - the variations seem to be what to put on the lhs of the := expression
+                                     (unqualified/qualified to old package/qualified to new package) and
+                                     what name to give the symbol.
+                                   - it's helpful when debugging this to uncomment the trace prints in
+                                     genSym and genMultiSym (Pugs.AST).
+                                   - the exporter is getting big, and it doesn't even support variables
+                                     yet. we need to refactor this out to another file+more functions.
+                                -}
+                                --let mkExp = Syn ":=" [Var (if isMulti sub then qName else name), Syn "sub" [Val $ VCode sub{ subName=qName }]]
+                                --let mkExp = Syn ":=" [Var (if isMulti sub then qName else name), Syn "sub" [Val $ VCode sub]]
+                                --trace ((if (isMulti sub) then qName else name) ++ ":=") $ return ()
+                                let mkExp = Syn ":=" [Var (if (isMulti sub) then qName else name), Syn "sub" [Val $ VCode sub]]
+                                --let mkExp = Syn ":=" [Var name, Syn "sub" [Val $ VCode sub]]
+                                --let mkSym = Sym scope (mkMulti qName) mkExp
+                                let mkSym = Sym scope (if (isMulti sub) then (mkMulti qName) else name) mkExp
+                                --trace ("export: " ++ (show mkSym)) $ return ()
                                 case scope of
                                     SGlobal -> do
-                                        unsafeEvalExp mkSym
+                                        trace ("Exporting: " ++ show mkSym) $ unsafeEvalExp mkSym
                                         return emptyExp
                                     SMy     -> do
                                         lexDiff <- unsafeEvalLexDiff $ mkSym

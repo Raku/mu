@@ -103,6 +103,7 @@ where one sub name actually maps to /all/ the different multi subs.
 -}
 genMultiSym :: MonadSTM m => String -> VRef -> m PadMutator
 genMultiSym name ref = do
+    --trace ("installing multi: " ++ name) $ return ()
     tvar    <- liftSTM $ newTVar ref
     fresh   <- liftSTM $ newTVar True
     return $ \(MkPad map) -> MkPad $
@@ -116,6 +117,7 @@ Unlike 'genMultiSym', this version just installs a single definition
 -}
 genSym :: MonadSTM m => String -> VRef -> m PadMutator
 genSym name ref = do
+    --trace ("installing: " ++ name) $ return ()
     tvar    <- liftSTM $ newTVar ref
     fresh   <- liftSTM $ newTVar True
     return $ \(MkPad map) -> MkPad $ Map.insert name [(fresh, tvar)] map
