@@ -2,7 +2,7 @@
 
 use v6;
 
-say "1..2";
+say "1..3";
 
 {
     my $string = "Pugs";
@@ -11,5 +11,10 @@ say "1..2";
 
 {
     my $bool = ?1;
+    if $bool.ref eq "Bool" { say "ok 2" } else { say "not ok 2" }
+}
+
+{
+    my $bool = bool::true;
     if $bool.ref eq "Bool" { say "ok 2" } else { say "not ok 2" }
 }
