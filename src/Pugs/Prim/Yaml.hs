@@ -49,7 +49,10 @@ fromYaml MkYamlNode{el=YamlMap nodes,tag=tag} = do
                 key <- fromVal =<< fromYaml keyNode
                 val <- fromYaml valNode
                 return (key, val)
-            let spec    = Map.fromList (vals :: [(String, Val)])
+            --let spec    = Map.fromList (vals :: [(String, Val)])
+            --spec    <- liftSTM . newTVar . Map.map lazyScalar $ Map.fromList (vals :: [(String, Val)])
+            spec'   <- liftSTM . newTVar $ Map.fromList (vals :: [(String, Val)])
+            spec    <- liftSTM . readTVar $ spec'
             rule    <- fromVal =<< Map.lookup "rule" spec
             global  <- fromVal =<< Map.lookup "global" spec
             stringify <- fromVal =<< Map.lookup "stringify" spec
@@ -107,7 +110,7 @@ hashToYaml :: (?d :: Int) => VRef -> Eval YamlNode
 hashToYaml (MkRef (IHash hv)) = do
     h <- hash_fetch hv
     let assocs = Map.toList h
-    yamlmap <- flip mapM assocs $ \(ka, va) -> do
+    yamlmap <- forM assocs $ \(ka, va) -> do
         ka' <- toYaml $ VStr ka
         va' <- toYaml va
         return (ka', va')
