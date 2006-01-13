@@ -152,8 +152,8 @@ and whatever Rosetta::Validator can test.
 
 =item *
 
-Upload first post-rewrite versions of Rosetta::Model-0.710.0,
-Rosetta-0.710.0 (with Rosetta::Validator-0.710.0), and
+Upload first post-rewrite versions of Rosetta::Model-0.720.0,
+Rosetta-0.720.0 (with Rosetta::Validator-0.720.0), and
 Rosetta::Engine::Native-0.1.0 to CPAN, and make a list announcement for
 "Rosetta/Rosetta::Model Developer Release #4".
 

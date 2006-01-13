@@ -11,7 +11,7 @@ my Str %TEXT_STRINGS is readonly = (
 ###########################################################################
 ###########################################################################
 
-module Rosetta::Engine::Generic::L::en-0.140.0 {
+module Rosetta::Engine::Generic::L::en-0.150.0 {
     sub get_text_by_key (Str $msg_key!) returns Str {
         return %TEXT_STRINGS{$msg_key};
     }
@@ -31,7 +31,7 @@ Localization of Rosetta::Engine::Generic for English
 
 =head1 VERSION
 
-This document describes Rosetta::Engine::Generic::L::en version 0.140.0.
+This document describes Rosetta::Engine::Generic::L::en version 0.150.0.
 
 =head1 SYNOPSIS
 

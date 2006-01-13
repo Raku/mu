@@ -8,25 +8,25 @@ use Test;
 plan( 12 );
 
 use_ok( 'Rosetta' );
-skip( 1, q{is( Rosetta.meta.identifier.version, 0.710.0,
+skip( 1, q{is( Rosetta.meta.identifier.version, 0.720.0,
     'Rosetta is the correct version' );} );
 
 use_ok( 'Rosetta::L::en' );
-skip( 1, q{is( Rosetta::L::en.meta.identifier.version, 0.200.0,
+skip( 1, q{is( Rosetta::L::en.meta.identifier.version, 0.210.0,
     'Rosetta::L::en is the correct version' );} );
 
 use_ok( 'Rosetta::Model' );
-skip( 1, q{is( Rosetta::Model.meta.identifier.version, 0.710.0,
+skip( 1, q{is( Rosetta::Model.meta.identifier.version, 0.720.0,
     'Rosetta::Model is the correct version' );} );
 
 use_ok( 'Rosetta::Model::L::en' );
-skip( 1, q{is( Rosetta::Model::L::en.meta.identifier.version, 0.390.0,
+skip( 1, q{is( Rosetta::Model::L::en.meta.identifier.version, 0.400.0,
     'Rosetta::Model::L::en is the correct version' );} );
 
 use_ok( 'Rosetta::Validator' );
-skip( 1, q{is( Rosetta::Validator.meta.identifier.version, 0.710.0,
+skip( 1, q{is( Rosetta::Validator.meta.identifier.version, 0.720.0,
     'Rosetta::Validator is the correct version' );} );
 
 use_ok( 'Rosetta::Validator::L::en' );
-skip( 1, q{is( Rosetta::Validator::L::en.meta.identifier.version, 0.150.0,
+skip( 1, q{is( Rosetta::Validator::L::en.meta.identifier.version, 0.160.0,
     'Rosetta::Validator::L::en is the correct version' );} );

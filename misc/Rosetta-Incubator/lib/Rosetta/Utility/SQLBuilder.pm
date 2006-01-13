@@ -3,7 +3,7 @@ use v6;
 
 # External packages used by packages in this file, that don't export symbols:
 use Locale::KeyedText-(1.73.0...);
-use Rosetta::Model-(0.710.0...);
+use Rosetta::Model-(0.720.0...);
 
 ###########################################################################
 ###########################################################################
@@ -14,7 +14,7 @@ use Rosetta::Model-(0.710.0...);
 ###########################################################################
 ###########################################################################
 
-class Rosetta::Utility::SQLBuilder-0.220.0 {
+class Rosetta::Utility::SQLBuilder-0.230.0 {
 
     # External packages used by the Rosetta::Utility::SQLBuilder class, that do export symbols:
     # (None Yet)
@@ -44,7 +44,7 @@ Generate ANSI/ISO SQL:2003 and other SQL variants
 
 =head1 VERSION
 
-This document describes Rosetta::Utility::SQLBuilder version 0.220.0.
+This document describes Rosetta::Utility::SQLBuilder version 0.230.0.
 
 =head1 SYNOPSIS
 
@@ -72,7 +72,7 @@ This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 It also requires these Perl 6 classes that are on CPAN:
 L<Locale::KeyedText-(1.73.0...)|Locale::KeyedText> (for error messages),
-L<Rosetta::Model-(0.710.0...)|Rosetta::Model>.
+L<Rosetta::Model-(0.720.0...)|Rosetta::Model>.
 
 =head1 INCOMPATIBILITIES
 

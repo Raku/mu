@@ -26,7 +26,7 @@ my Str %TEXT_STRINGS is readonly = (
 ###########################################################################
 ###########################################################################
 
-module Rosetta::Model::L::en-0.390.0 {
+module Rosetta::Model::L::en-0.400.0 {
     sub get_text_by_key (Str $msg_key!) returns Str {
         return %TEXT_STRINGS{$msg_key};
     }
@@ -46,7 +46,7 @@ Localization of Rosetta::Model for English
 
 =head1 VERSION
 
-This document describes Rosetta::Model::L::en version 0.390.0.
+This document describes Rosetta::Model::L::en version 0.400.0.
 
 =head1 SYNOPSIS
 
