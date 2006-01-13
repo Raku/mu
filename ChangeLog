@@ -41,10 +41,10 @@
 
 === Experimental modules (in misc/, not installed)
 
-* Split 2 portions off from /misc/Rosetta-Incubator:
+* Broke up /misc/Rosetta-Incubator:
 ** Locale::KeyedText was merged into the rewritten one in /ext.
 ** SQL::Routine and Rosetta were merged together, became Rosetta in /ext.
-** Remainder (SQLBuilder, SQLParser, Eng/Generic, Emu/DBI) edited, renamed.
+** Remainder (SQLBuilder, SQLParser, Eng/Generic, Emu/DBI) was deleted.
 
 
 == Test, Examples and Documentations
