@@ -367,12 +367,12 @@ been iterated.
    }
    $str;
  }
- &join<> := &join<Str>.assuming:delimiter(' ');
+ &join := &join.assuming:delimiter(' ');
 
 
 =item map 
 
- multi Array::map (@values,   Code $expression --> Lazy ) 
+ multi Array::map (@values,   Code *&expression --> Lazy ) 
  multi  List::map (Code $expression : *@values --> Lazy ) {
    gather {
      while @values {
@@ -494,7 +494,7 @@ details and examples.
 
 =item zip
 
- multi Lists::zip ( Array *@lists, Bit :$shortest --> Lazy ) {
+ multi List::zip ( Array *@lists, Bit :$shortest --> Lazy ) {
    gather {
      while $shortest ?? all(@lists) !! any(@lists) {
        for @lists -> @list {
