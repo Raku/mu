@@ -84,7 +84,7 @@ Used to supply a test to match against. Assume C<~~> will be used against it.
 =item abs
 
  multi  Num::abs (  Num  $x              --> Num )
- multi Math::Basic::abs ( Num $x = CALLER::<$_> --> Num )
+ multi Math::Basic::abs ( Num $x? = $+_  --> Num )
 
 Absolute Value.
 
@@ -119,8 +119,8 @@ reasons.
 
 =item exp
 
- multi  Num::exp (  Num  $exponent             : Num :$base --> Num )
- multi Math::Basic::exp ( Num $exponent = CALLER::<$_>, Num :$base --> Num )
+ multi  Num::exp (  Num  $exponent            : Num :$base --> Num )
+ multi Math::Basic::exp ( Num $exponent? = $+_, Num :$base --> Num )
 
 Performs similar to C<$base ** $exponent>. C<$base> defaults to the
 constant I<e>.
@@ -129,7 +129,7 @@ constant I<e>.
 =item log
 
  multi  Num::log (  Num  $x             : Num :$base --> Num )
- multi Math::Basic::log ( Num $x = CALLER::<$_>, Num :$base --> Num )
+ multi Math::Basic::log ( Num $x? = $+_,  Num :$base --> Num )
 
 Logarithm of base C<$base>, default Natural. Calling with C<$x == 0> is an
 error.
@@ -137,12 +137,12 @@ error.
 
 =item log10
 
- &log10<> := &log<>.assuming:base(10);
+ &log10 := &log.assuming:base(10);
 
 
 =item rand
 
- multi Math::Basic::rand ( Num $x = 1 --> Num )
+ multi Math::Basic::rand ( Num $x? = 1 --> Num )
 
 Psuedo random number between C<0> and C<$x>.
 
@@ -150,7 +150,7 @@ Psuedo random number between C<0> and C<$x>.
 =item sign
 
  multi  Num::sign (  Num  $x             --> Int )
- multi Math::Basic::sign ( Num $x = CALLER::<$_> --> Int ) {
+ multi Math::Basic::sign ( Num $x? = $+_ --> Int ) {
    if !defined($x) { return undef };
    if $x < 0       { return -1    };
    if $x > 0       { return  1    };
@@ -170,8 +170,8 @@ deterministic seed.
 
 =item sqrt
 
- multi  Num::sqrt (  Num  $x             --> Num )
- multi Math::Basic::sqrt ( Num $x = CALLER::<$_> --> Num )
+ multi  Num::sqrt (  Num  $x              --> Num )
+ multi Math::Basic::sqrt ( Num $x? = $+_  --> Num )
 
 C<$x ** 0.5>
 
@@ -185,8 +185,8 @@ C<$x ** 0.5>
 
 =item I<Standard Trig Functions>
 
- multi Num::func (  Num  $x             : :$base --> Num )
- multi Math::Trig::func ( Num $x = CALLER::<$_>, :$base --> Num )
+ multi Num::func (  Num  $x            : :$base --> Num )
+ multi Math::Trig::func ( Num $x? = $+_, :$base --> Num )
 
 where I<func> is one of:
 sin, cos, tan, asin, acos, atan, sec, cosec, cotan, asec, acosec,
@@ -208,7 +208,7 @@ Given the value of an arc representing a single full revolution.
 
 =item atan
 
- multi Math::Trig::atan (Num $y, Num $x : Num :$base --> Num )
+ multi Math::Trig::atan (Num $y, Num $x? = 1 : Num :$base --> Num )
 
 This second form of C<atan> computes the arctangent of $y/$x, and takes
 the quadrant into account. Otherwise behaves as other trigonometric functions.
@@ -259,10 +259,10 @@ An unary form is expected. See C<Hash::delete>.
 
 =item pop
 
- &Array::pop<Array> := &Array::splice<Array>.assuming(:offset(-1) :length(1));
+ &Array::pop := &Array::splice.assuming(:offset(-1) :length(1));
 
  multi Array::pop ( --> Scalar ) {
-   pop CALLER::<@_>;
+   Array::pop @+_;
  }
 
 
@@ -276,10 +276,10 @@ An unary form is expected. See C<Hash::delete>.
 
 =item shift
 
- &Array::shift<Array> := &Array::splice<Array>.assuming(:offset(0) :length(1));
+ &Array::shift := &Array::splice.assuming(:offset(0) :length(1));
 
  multi Array::shift ( --> Scalar ) {
-   Array::shift CALLER::<@_>;
+   Array::shift @+_;
  }
 
 
@@ -317,6 +317,8 @@ dimension, and works with Array References.
  multi Array::kv     (@array : MatchTest *@indextests --> Int|List )
  multi Array::pairs  (@array : MatchTest *@indextests --> Int|(List of Pair) )
  multi Array::values (@array : MatchTest *@indextests --> Int|List )
+
+(XXX these signatures are wrong. -luqui)
 
 Iterates the elements of C<@array>, in order. 
 
@@ -397,10 +399,7 @@ been iterated.
 =item reverse
 
  multi Hash::reverse (%hash --> Hash ) is default {
-   my %result;
-   for %hash.kv -> $k, $v {
-     %result{$v} = $k;
-   }
+   (my %result){%hash.values} = %hash.keys;
    %result;
  }
 
