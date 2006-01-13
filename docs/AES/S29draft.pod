@@ -259,7 +259,7 @@ An unary form is expected. See C<Hash::delete>.
 
 =item pop
 
- &Array::pop<Array> := &Array::splice<Array>.assuming(offset(-1) :length(1));
+ &Array::pop<Array> := &Array::splice<Array>.assuming(:offset(-1) :length(1));
 
  multi Array::pop ( --> Scalar ) {
    pop CALLER::<@_>;
@@ -276,7 +276,7 @@ An unary form is expected. See C<Hash::delete>.
 
 =item shift
 
- &Array::shift<Array> := &Array::splice<Array>.assuming(offset(0) :length(1));
+ &Array::shift<Array> := &Array::splice<Array>.assuming(:offset(0) :length(1));
 
  multi Array::shift ( --> Scalar ) {
    Array::shift CALLER::<@_>;
