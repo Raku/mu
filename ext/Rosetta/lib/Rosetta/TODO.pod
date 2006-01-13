@@ -152,13 +152,6 @@ and whatever Rosetta::Validator can test.
 
 =item *
 
-Upload first post-rewrite versions of Rosetta::Model-0.720.0,
-Rosetta-0.720.0 (with Rosetta::Validator-0.720.0), and
-Rosetta::Engine::Native-0.1.0 to CPAN, and make a list announcement for
-"Rosetta/Rosetta::Model Developer Release #4".
-
-=item *
-
 Note that only the Perl 5 versions need to be functional at this time,
 though the Perl 6 versions should be as close as possible; if they are,
 then they should be satisfactory to ship with Pugs 6.28.0.

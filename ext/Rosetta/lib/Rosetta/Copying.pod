@@ -43,7 +43,7 @@ single unit as far as ownership and licensing goes, unless explicitly
 stated otherwise therein.
 
 The Rosetta framework includes a comprehensive shared test suite to ensure
-the correctness of itself and of any Engine components, its middle core,
+the correctness of itself and of any Engine components, its outer core,
 which is comprised of these Perl files:
 
     * /lib/Rosetta/Validator.pm
@@ -57,21 +57,6 @@ will be a third party substitution for it.  The Native.pm is in its own
 CPAN distribution and implements a standalone Engine for testing
 Validator.pm in the first place, so it has a working example of expected
 behaviour.  Neither depends on anything specific but the inner core.
-
-The outer core of the Rosetta framework, defined as additional components
-which I maintain and anticipate being frequently used but also being
-readily substituted for by third party components, are these Perl files:
-
-    * /lib/Rosetta/Utility/SQLBuilder.pm
-    * /lib/Rosetta/Utility/SQLParser.pm
-    * /lib/Rosetta/Engine/Generic.pm
-    * /lib/Rosetta/Engine/*.pm (for specific databases)
-    * /lib/Rosetta/Emulator/DBI.pm
-
-As with the inner core list, normally, each of these outer core files is
-available as a separate distribution on CPAN.  The 'Utility' files only
-depend on Model.pm, while the 'Engine' and 'Emulator' files depend on both
-the 'Utility' files and Rosetta.pm.
 
 Any other independent distributions that exist and use Rosetta, whether
 made by myself or third parties, are not part of the Rosetta framework
@@ -100,13 +85,13 @@ projects for whom my contribution was minor and casual, and even with more
 major contributions, I disclaim any ownership interest in them, unless
 explicitly stated otherwise.
 
-In the future, I am willing that the ownership of some of Rosetta's core
-components and extensions that I create can be shared with or transferred
-to other people for various reasons, but I am also not willing to share
-or relinquish full ownership of some other components at all.
+In the future, I am willing that the ownership of some of Rosetta's
+extensions that I create can be shared with or transferred to other people
+for various reasons, but I am also not willing to share or relinquish full
+ownership of some other components at all.
 
 Specifically, I wish to retain full ownership and control of the inner and
-middle cores of Rosetta, namely:
+outer cores of Rosetta, namely:
 
     * /lib/Rosetta/Model.pm
     * /lib/Rosetta.pm
@@ -114,8 +99,8 @@ middle cores of Rosetta, namely:
     * /lib/Rosetta/Engine/Native.pm
 
 Whereas, I am willing to share or transfer ownership over any or all of the
-outer core or various Rosetta extensions, if other people contribute a lot
-to them and/or are willing and able to become their primary maintainers.
+various Rosetta extensions, if other people contribute a lot to them and/or
+are willing and able to become their primary maintainers.
 
 =head1 LICENSING
 
@@ -196,7 +181,7 @@ If your contribution fits best inside one of my modules and is non-trivial,
 then you would normally retain ownership of that contribution unless you
 grant said ownership to me.
 
-In the case of inner or middle core modules, I will require the transfer of
+In the case of inner or outer core modules, I will require the transfer of
 ownership for your contribution, so I can maintain full ownership of said
 core modules.  Alternately, I would expect a perpetual grant over the
 contribution to use and sublicense it in any way I choose, so that it is as
