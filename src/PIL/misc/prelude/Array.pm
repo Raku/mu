@@ -10,7 +10,6 @@ role rArray {}
 
 class Array is List does rArray;
 
-# XXX - should these all be *@ret?
 # signature from S29draft.pod r8593.
 # XXX Prim.hs has this as (rw!Array).  Why rw?
 # \\n   List      pre     keys    safe   (rw!Array)\
@@ -20,7 +19,7 @@ multi Array::keys   (@array : MatchTest *@indextests --> Int|List )
     for @array.kv -> ($k, $v) {
 	push(@ret, $k ) if $k ~~ any(@indextests);
     }
-    @ret; # want Item ?? +@ret !! @ret;
+    *@ret; # want Item ?? +@ret !! *@ret;
 }
 # signature from S29draft.pod r8593.
 # Prim.hs defines this as List::kv.  And with rw!Array.
@@ -30,7 +29,7 @@ multi Array::kv     (@array : MatchTest *@indextests --> Int|List )
     for @array.keys -> $k {
 	push(@ret, ($k,@array[$k]) ) if $k ~~ any(@indextests);
     }
-    @ret; # want Item ?? +@ret !! @ret;
+    *@ret; # want Item ?? +@ret !! *@ret;
 }
 # signature from S29draft.pod r8593.
 # XXX Prim.hs has this as (rw!Array).  Why rw?
@@ -41,7 +40,7 @@ multi Array::pairs  (@array : MatchTest *@indextests --> Int|(List of Pair) )
     for @array.keys -> $k {
 	push(@ret, Pair($k,@array[$k]) ) if $k ~~ any(@indextests);
     }
-    @ret; # want Item ?? +@ret !! @ret;
+    *@ret; # want Item ?? +@ret !! *@ret;
 }
 # signature from S29draft.pod r8593.
 # XXX Prim.hs has this as (rw!Array).  Why rw?
@@ -52,7 +51,7 @@ multi Array::values (@array : MatchTest *@indextests --> Int|List )
     for @array.keys -> $k {
 	push(@ret, @array[$k] ) if $k ~~ any(@indextests);
     }
-    @ret; # want Item ?? +@ret !! @ret;
+    *@ret; # want Item ?? +@ret !! *@ret;
 }
 
 
