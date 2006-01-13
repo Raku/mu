@@ -819,7 +819,7 @@ Forces generic Item context on it's argument, and returns it.
  multi prefix:<:16> ( Str $hexstr = CALLER::<$_> --> Num )
  multi prefix:<:8> ( Str $octstr = CALLER::<$_> --> Num )
  multi prefix:<:2> ( Str $binstr = CALLER::<$_> --> Num )
- multi prefix:<:10> ( Str $binstr = CALLER::<$_> --> Num )
+ multi prefix:<:10> ( Str $decstr = CALLER::<$_> --> Num )
  etc.
 
 Interprets string as a number, with a default
