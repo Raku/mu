@@ -32,6 +32,7 @@ import qualified Data.Set as Set
 import Pugs.Parser.Types
 import Pugs.Parser.Number
 import Pugs.Parser.Unsafe
+import Pugs.Parser.Export
 
 fixities :: [String]
 fixities = words $ " prefix: postfix: infix: circumfix: coerce: self: term: "
@@ -846,49 +847,15 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
         (Val exports) <- unsafeEvalExp $ Syn "{}" [Syn "{}"
                         [Var "%*INC", Val $ VStr pkg], Val (VStr "exports")]
         if (not $ defined exports) then return emptyExp else do
-            -- this is the exporter. It should probably be moved to a function of its own.
             (Val (VList names)) <- unsafeEvalExp $ App (Var "&keys") Nothing [Val exports]
 
             let hardcodedScopeFixme = SMy
-                rebind scope (VStr name) = do
-                    (Val ex) <- unsafeEvalExp $ Syn "@{}" [Syn "{}" [Val exports, Val $ VStr name]]
-                    --trace ("exports of " ++ name ++ ": " ++ (show ex)) $ return ()
-                    case ex of
-                        VList subs -> do
-                            exps <- forM subs (\(VCode sub) -> do
-                                let qName = '&':(envPackage env)++"::"++(tail name)
-                                let mkMulti = if isMulti sub then ('&':) else id
-                                {- notes on the various takes at fixing export to work with multi subs.
-                                   - replacing VCode's subName field doesn't seem to have much effect.
-                                   - the variations seem to be what to put on the lhs of the := expression
-                                     (unqualified/qualified to old package/qualified to new package) and
-                                     what name to give the symbol.
-                                   - it's helpful when debugging this to uncomment the trace prints in
-                                     genSym and genMultiSym (Pugs.AST).
-                                   - the exporter is getting big, and it doesn't even support variables
-                                     yet. we need to refactor this out to another file+more functions.
-                                -}
-                                --let mkExp = Syn ":=" [Var (if isMulti sub then qName else name), Syn "sub" [Val $ VCode sub{ subName=qName }]]
-                                --let mkExp = Syn ":=" [Var (if isMulti sub then qName else name), Syn "sub" [Val $ VCode sub]]
-                                --trace ((if (isMulti sub) then qName else name) ++ ":=") $ return ()
-                                let mkExp = Syn ":=" [Var (if (isMulti sub) then qName else name), Syn "sub" [Val $ VCode sub]]
-                                --let mkExp = Syn ":=" [Var name, Syn "sub" [Val $ VCode sub]]
-                                --let mkSym = Sym scope (mkMulti qName) mkExp
-                                let mkSym = Sym scope (if (isMulti sub) then (mkMulti qName) else name) mkExp
-                                --trace ("export: " ++ (show mkSym)) $ return ()
-                                case scope of
-                                    SGlobal -> do
-                                        trace ("Exporting: " ++ show mkSym) $ unsafeEvalExp mkSym
-                                        return emptyExp
-                                    SMy     -> do
-                                        lexDiff <- unsafeEvalLexDiff $ mkSym
-                                        return $ Pad scope lexDiff $ mkExp
-                                    _       -> fail "notyet") -- XXX writeme. but do they all make sense at all?
-                            return $ foldl mergeStmts Noop exps
-                        x -> fail ("weird export: " ++ show x)
-                rebind _ x = fail ("can't rebind: " ++ show x)
 
-            syms <- (mapM (rebind hardcodedScopeFixme) names)
+            syms <- forM names (\name -> do
+                --trace ("name: " ++ show name) $ return ()
+                (Val ex) <- unsafeEvalExp $ Syn "{}" [Val exports, Val name]
+                let (VStr name') = name
+                exportSym hardcodedScopeFixme name' ex)
             return $ foldl mergeStmts Noop syms
 
 {-|
