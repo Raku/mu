@@ -64,12 +64,12 @@
 
 === New Perl 6 modules
 
+* Added /ext/Rosetta (incomplete) - A federated relational database.
+* Added /ext/Rosetta-Engine-Native (incomplete) - A back-end for testing.
 
 
 === Updated modules
 
-* Added /ext/Rosetta (incomplete) - A federated relational database.
-* Added /ext/Rosetta-Engine-Native (incomplete) - A back-end for testing.
 * Rewrote /ext/Locale-KeyedText, with a strong resemblence to the original.
 ** Split up translate_message() for more granular Translator usage.
 ** Objects now become something useful when coerced into a string.
