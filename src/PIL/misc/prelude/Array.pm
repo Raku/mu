@@ -34,7 +34,9 @@ multi Array::kv     (@array : MatchTest *@indextests --> Int|List )
 # signature from S29draft.pod r8593.
 # XXX Prim.hs has this as (rw!Array).  Why rw?
 # \\n   List      pre     pairs   safe   (rw!Array)\
-multi Array::pairs  (@array : MatchTest *@indextests --> Int|(List of Pair) )
+# signature doesnt parse. using simplified one.
+#multi Array::pairs  (@array : MatchTest *@indextests --> Int|(List of Pair) )
+multi Array::pairs  (@array : MatchTest *@indextests )
 {
     my @ret;
     for @array.keys -> $k {
@@ -88,7 +90,9 @@ multi method Array::exists (@array : Int *@indices --> Bool )
 #}
 
 # copied from S29draft.pod r8649.
-multi Array::pop ( --> Scalar ) {
+# signature doesnt parse. using simplified one.
+#multi Array::pop ( --> Scalar ) {
+multi Array::pop (  ) {
     Array::pop @+_;
 }
 
@@ -106,7 +110,9 @@ multi Array::push (@array is rw : *@values --> Int ) {
 #}
 
 # copied from S29draft.pod r8649.
-multi Array::shift ( --> Scalar ) {
+# signature doesnt parse. using simplified one.
+#multi Array::shift ( --> Scalar ) {
+multi Array::shift (  ) {
     Array::shift @+_;
 }
 
@@ -119,6 +125,7 @@ multi Array::splice (       @array is rw
 			    Int $length,
 			    *@values
 			    --> List ) is rw
+{
     my $off = +$offset;
     my $len = $length;
     my $size = +@array;
@@ -200,31 +207,34 @@ multi Array::unshift (@array is rw : *@values --> Int ) {
 }
 
 # name from docs/notes/piln_object_repr_types.pod r8593.
-multi method Array::as_seq (@array: --> List) {
+# while (@array: --> List) { seems a preferable phrasing, it doesnt parse.
+multi method Array::as_seq (@array:) returns List {
     *@array
 }
 # name from docs/notes/piln_object_repr_types.pod r8593.
-multi method Array::as_map (@array: --> Hash) {
+multi method Array::as_map (@array:) returns Hash {
     hash(@array.pairs);
 }
 # name from docs/notes/piln_object_repr_types.pod r8593.
-multi method Array::as_int (@array: --> Int) {
+multi method Array::as_int (@array:) returns Int {
     +@array;
 }
 # name from docs/notes/piln_object_repr_types.pod r8593.
-multi method Array::as_num (@array: --> Num) {
+multi method Array::as_num (@array:) returns Num {
     +@array;
 }
 
 # speculative?
 # behavior based on pugs r8593.
-multi method Array::as_str (@array: --> Str) {
+# while (@array: --> List) { seems a preferable phrasing, it doesnt parse.
+multi method Array::as_str (@array:) returns Str {
     join(" ",@array.values);
 }
 
 # speculative?
 # behavior based on pugs r8593.
-multi method Array::perl (@array: --> Str) {
+# while (@array: --> List) { seems a preferable phrasing, it doesnt parse.
+multi method Array::perl (@array:) returns Str {
     "["~ join(", ", @array.values.map:{$_.perl} ) ~"]";
 }
 
@@ -237,18 +247,59 @@ sub prefix:<[.[]]> (*$head is copy, *@rest is copy) {
   $head;
 }
 
-# signature from Prim.hs, and PIL2JS Array.pm, r8593.
-multi infix:«Y» (Array *@arrays --> List) { zip *@arrays }
-# signature from Prim.hs, and PIL2JS Array.pm, r8593.
-multi infix:«¥» (Array *@arrays --> List) { zip *@arrays }
-# tweaked from PIL2JS Array.pm r8593.
-multi zip (Array *@arrays --> List) {
-  my $maxlen = max map { +$_ } @arrays;
-  map {
-    my $i := $_;
-    map { @arrays[$_][$i] } 0..@arrays.end;
-  } 0..$maxlen-1;
+
+# signature from S29draft.pod 8651.  In the List section.
+multi Array::grep (@values :      Code *&test   --> Lazy )
+{
+    gather {
+	for @values -> $x {
+	    take $x if &test($x);
+	}
+    }
 }
+# signature from S29draft.pod 8655.  In the List section.
+multi Array::grep (@values :  MatchTest $test   --> Lazy )
+{
+    List::grep $test, *@values;
+}
+
+# signature from S29draft.pod 8655.  In the List section.
+multi Array::join (@values :  Str $delimiter --> Str )
+{
+    List::join $delimiter, *@values;
+}
+
+# signature from S29draft.pod 8655.  In the List section.
+multi Array::map (@values :  Code $expression --> Lazy ) 
+{
+    List::map $expression, *@values;
+}
+
+# signature from S29draft.pod 8651.  In the List section.
+# Prim.hs has a different return type.  List instead of Scalar.
+# \\n   List      pre     reduce  safe   (Array: Code)\
+multi Array::reduce (@values : Code *&expression --> Scalar )
+{
+    List::reduce *&expression, *@values;
+}
+
+# signature from S29draft.pod 8651.  In the List section.
+multi Array::reverse (   @values --> Lazy|Str) {
+    List::reverse *@values;
+}
+
+
+# derived from PIL2JS Array.pm r8593.
+# not in S29draft, but test cases exist.
+multi Array::min(@self: Code $cmp = &infix:«<=>» --> Scalar) {
+    List::min $cmp, *@self;
+}
+# derived from PIL2JS Array.pm r8593.
+# not in S29draft, but test cases exist.
+multi Array::max(@self: Code $cmp = &infix:«<=>» --> Scalar) {
+    List::max $cmp, *@self;
+}
+
 
 # XXX - TODO
 # postcircumfix:<[ ]>  circumfix:<[ ]>
