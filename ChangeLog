@@ -1,6 +1,11 @@
 = Changes for 6.2.11 (rXXXX) - Jan XX, 2006
 
-[ got to r8131; doesn't include objectspace stuff - gaal ]
+** to r8657 - needs editing **
+XXX big things not mentioned here:
+- objectspace / metamodel
+- PILN
+- sixpan / JIB
+- PIL2JS
 
 == Feature Changes
 
@@ -20,6 +25,14 @@
 * &die and &fail take objects which are stored in $!
 * parse self!method
 * Implement deep-eager-sequential-evalutation as &prefix:<**>
+* change %*INC structure to contain more useful information about loaded
+  modules; in particular, don't couple their names to filesystem paths.
+* $obj.clone
+* Importation of symbols happens at the consumer's use time, not the module's
+  compile time; and is now lexical.
+* src/Text/Parser/OpTable.hs - Haskell port of PGE::OPTable
+* src/Text/Parser/Rule.hs - Fast, pure Haskell Perl6 Rules implementation,
+  based on PArrows.
 
 
 === JavaScript backend
@@ -48,6 +61,10 @@
 * Lazy {} executes its closure at most once
 * given { when &CODE { ... } } works (as does smartmatching against code)
 * revive Cygwin port
+* parse "foo.bar" as "::foo.bar" when ::foo in scope, "&foo(.bar)" otherwise
+* remove temporary test files on "make clean"
+* added unary ^ (^num a shortcut for 0..^num).
+
 
 === JavaScript backend
 
@@ -77,7 +94,7 @@
 ** Template Modules now have a different variable interpolation format.
 ** Created 2 running /examples from pod that was removed from KeyedText.pm.
 ** Deleted old test suite (yet to be replaced); now only tests compiling.
-
+* Added ext/Parse-Rule - a PGE port in perl 6.
 
 === Experimental modules (in misc/, not installed)
 
@@ -95,12 +112,19 @@
 ** docs/quickref/fears - assorted fears about Perl 6
 * examples/cookbook/ - new recipes
 * examples/network/wiki/ - demo wiki
+* examples/rpn/ - RPN calculator in Perl 6, Perl 6, and Haskell
 * util/catalog_tests.pl - tool to connect smoke reports with annotated,
   color-coded test sources and specs.
 * docs/AES/S17draft.pod - concurrency
 * docs/AES/S22draft.pod - CPAN
 * docs/articles/tpr.pod - draft intro to Pugs article
 * &Test::fail renamed to &Test::flunk to avoid conflict with &fail builtin.
+* feather.perl6.nl site now tracked in pugs source control
+* docs/p6doc/ - Perl 6 language tutorials and documentation
+* docs/notes/docs_evil_plan.txt - a plan for p6 documentation
+* docs/notes/multimethods.pod - description of the now-blessed Perl 6
+  multimethod system.
+* docs/notes/context_coercion.pod - parallel proposal to MMD proposal
 
 = Changes for 6.2.10 (r7520) - Oct 10, 2005
 
