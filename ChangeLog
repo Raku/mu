@@ -1,10 +1,33 @@
 = Changes for 6.2.11 (rXXXX) - Jan XX, 2006
 
+[ got to r8131; doesn't include objectspace stuff - gaal ]
+
 == Feature Changes
 
 === Shared components
 
+* pugs now requires GHC 6.4.1 or a recent development snapshot.
+* "self" is an alias for "$?SELF"
+* pairs are demagicalized [XXX: explain]
+* Prelude.pm: $str.trans
+* "env" variables
+* Typed Thunks (unspecced)
+* names args changed syntax: +$arg -> :$arg! and ?$var -> $var?
+* Round-trip data serialization with .yaml and eval :lang<yaml> builtins
+* siglists :() and arglists \() [XXX: correct? how well are they supported?]
+* eqv is now spelled ===
+* ^till operators
+* &die and &fail take objects which are stored in $!
+* parse self!method
+* Implement deep-eager-sequential-evalutation as &prefix:<**>
 
+
+=== JavaScript backend
+
+* .assuming
+* new operators implemented: +| +& +^ +< +> ~& ~| ~^ +^ ~^
+* state vars
+* FIRST blocks
 
 === XXX backend
 
@@ -14,13 +37,30 @@
 
 === Shared components
 
+* .perl stringification escapes unprintable characters
+* improved detection of null patterns; this fixes some endless loops
+* finalize parrot and perl5 embedding correctly
+* &splice destroys possible bindings of arrays
+* 3..2 and 'z' .. 'a' return empty lists
+* zip(@a; @b; @c) now works as specced.
+* Fixed splice on scalar
+* Fixed evaluation order in array and hash access
+* Lazy {} executes its closure at most once
+* given { when &CODE { ... } } works (as does smartmatching against code)
+* revive Cygwin port
 
+=== JavaScript backend
+
+* division by zero raises an error, not return NaN like JS does
+* fix problems with [=>] and related operators
 
 === XXX backend
 
 
 
 == Bundled Modules
+
+* evalbot can run code with alternative backends, e.g. ?eval:js 5 + 3
 
 === New Perl 6 modules
 
@@ -45,11 +85,22 @@
 ** Locale::KeyedText was merged into the rewritten one in /ext.
 ** SQL::Routine and Rosetta were merged together, became Rosetta in /ext.
 ** Remainder (SQLBuilder, SQLParser, Eng/Generic, Emu/DBI) was deleted.
+* misc/sixpan/ - prototype new CPAN tools [XXX: beef me up]
+* misc/Parser-Mini/ - experimental 'thin' p6 parser
 
 
 == Test, Examples and Documentations
 
-
+* docs/quickref/ - updates and improvements. Hilights:
+** docs/quickref/fears - assorted fears about Perl 6
+* examples/cookbook/ - new recipes
+* examples/network/wiki/ - demo wiki
+* util/catalog_tests.pl - tool to connect smoke reports with annotated,
+  color-coded test sources and specs.
+* docs/AES/S17draft.pod - concurrency
+* docs/AES/S22draft.pod - CPAN
+* docs/articles/tpr.pod - draft intro to Pugs article
+* &Test::fail renamed to &Test::flunk to avoid conflict with &fail builtin.
 
 = Changes for 6.2.10 (r7520) - Oct 10, 2005
 
