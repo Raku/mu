@@ -48,7 +48,7 @@ sub run_pugs ($c) {
 }
 
 push @*INC, $dir;
-use_ok('Dummy');
+use Dummy; pass "(dummy instead of broken use_ok)";
 
 for @tests -> $test {
   my $output = run_pugs($test);

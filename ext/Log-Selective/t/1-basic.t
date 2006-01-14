@@ -3,7 +3,7 @@
 use Test;
 
 plan 4;
-use_ok ::Log::Selective;
+require '::Log::Selective'; pass "(dummy instead of broken use_ok)";
 lives_ok { Log::Selective::select(:foo) }, "Selected tag ':foo'";
 
 skip_rest("looping tests"); exit;

@@ -4,7 +4,7 @@ use Test;
 
 plan 4;
 lives_ok { %ENV<SELECT_LOGS>='foo' }, "Selected tag 'foo' via environment";
-use_ok ::Log::Selective;
+require '::Log::Selective'; pass "(dummy instead of broken use_ok)";
 
 skip_rest("looping tests"); exit;
 

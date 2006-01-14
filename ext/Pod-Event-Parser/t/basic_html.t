@@ -6,8 +6,8 @@ use File::Spec;
 
 plan 3;
 
-use_ok('Pod::Event::Parser');
-use_ok('Pod::Event::Handler::HTML');
+use Pod::Event::Parser; pass "(dummy instead of broken use_ok)";
+use Pod::Event::Handler::HTML; pass "(dummy instead of broken use_ok)";
 try { chdir "ext/Pod-Event-Parser" }; # Hack if we're run from make smoke
 
 my $test_output = "";

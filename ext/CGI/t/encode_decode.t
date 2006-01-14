@@ -11,7 +11,7 @@ basic tests for url_encode/decode
 
 =cut
 
-use_ok('CGI');
+use CGI; pass "(dummy instead of broken use_ok)";
 
 is(url_decode('with%20space'), 'with space', 'got the right decoded string');
 is(url_decode('with%20more%20than%20one%20space'), 'with more than one space', 'got the right decoded string');

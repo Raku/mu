@@ -5,7 +5,7 @@ use Test;
 
 plan 26;
 
-use_ok( 'Set::Infinite::Functional' );
+use Set::Infinite::Functional; pass "(dummy instead of broken use_ok)";
 use Set::Infinite::Functional;   # XXX should not need this
 
 my $span1 = Span::Num.new( 

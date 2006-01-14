@@ -5,7 +5,7 @@ use Test;
 
 plan 20;
 
-use_ok( 'Span::Code' );
+use Span::Code; pass "(dummy instead of broken use_ok)";
 use Span::Code;   # XXX should not need this
 use Recurrence;
 use Span::Num;

@@ -11,7 +11,7 @@ Tests for the &CGI::redirect function.
 
 =cut
 
-use_ok('CGI');
+use CGI; pass "(dummy instead of broken use_ok)";
 
 is redirect('http://www.example.com/'),
     "Status: 302 Found

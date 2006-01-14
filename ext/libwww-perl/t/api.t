@@ -13,7 +13,7 @@ Perl 5 version of the module.
 my @api = < get getstore getprint mirror head >;
 plan 1+@api;
 
-use_ok('LWP::Simple');
+use LWP::Simple; pass "(dummy instead of broken use_ok)";
 
 for @api -> $function {
   ok( eval( "defined &$function" ), "$function is exported" );

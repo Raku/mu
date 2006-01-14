@@ -5,4 +5,4 @@ use Test;
 
 plan 1;
 
-use_ok 'FindBin';
+use FindBin; pass "(dummy instead of broken use_ok)";

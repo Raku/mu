@@ -5,7 +5,7 @@ use Test;
 
 plan 1;
 
-use_ok( 'DateTime::Span' );
+use DateTime::Span; pass "(dummy instead of broken use_ok)";
 
 use DateTime::Span;
 

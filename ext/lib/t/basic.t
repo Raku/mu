@@ -5,7 +5,7 @@ use Test;
 
 plan 10;
 
-use_ok('lib');
+use lib; pass "(dummy instead of broken use_ok)";
 
 my $inc_count = +@*INC;
 

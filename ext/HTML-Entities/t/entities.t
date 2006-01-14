@@ -5,7 +5,7 @@ use Test;
 
 plan 10;
 
-use_ok('HTML::Entities');
+use HTML::Entities; pass "(dummy instead of broken use_ok)";
 
 my $a = "V&aring;re norske tegn b&oslash;r &#230;res";
 $a = decode_entities($a);

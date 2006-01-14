@@ -5,7 +5,7 @@ use Test;
 
 plan 12;
 
-use_ok( 'Span::Num' );
+use Span::Num; pass "(dummy instead of broken use_ok)";
 use Span::Num;   # XXX should not need this
 
 my $span = Span::Num.new( 

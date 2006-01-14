@@ -5,7 +5,7 @@ use Test;
 
 plan 41;
 
-use_ok( 'Recurrence' );
+use Recurrence; pass "(dummy instead of broken use_ok)";
 use Recurrence;   # XXX should not need this
 
 my $universe = Recurrence.new( 

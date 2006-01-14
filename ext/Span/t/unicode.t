@@ -5,7 +5,7 @@ use Test;
 
 plan 13;
 
-use_ok( 'Span' );
+use Span; pass "(dummy instead of broken use_ok)";
 use Span;   # XXX should not need this
 
 my $span = Span.new( :start(1), :end(3) );

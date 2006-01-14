@@ -6,7 +6,7 @@ use File::Spec;
 
 plan 17;
 
-use_ok('Config::Tiny');
+use Config::Tiny; pass "(dummy instead of broken use_ok)";
 try { chdir "ext/Config-Tiny" }; # Hack if we're run from `make smoke`
 
 # Create a config

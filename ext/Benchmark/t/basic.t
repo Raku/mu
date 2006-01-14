@@ -5,7 +5,7 @@ use Test;
 
 plan 4;
 
-use_ok('Benchmark');
+use Benchmark; pass "(dummy instead of broken use_ok)";
 
 
 {

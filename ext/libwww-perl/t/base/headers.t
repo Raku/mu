@@ -4,7 +4,7 @@ use v6;
 use Test;
 plan 4;
 
-use_ok('HTTP::Headers');
+use HTTP::Headers; pass "(dummy instead of broken use_ok)";
 
 {
     my $h;

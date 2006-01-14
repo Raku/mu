@@ -11,7 +11,7 @@ This is a test of the FileSpecWin32 module.
 
 =cut
 
-use_ok('File::Spec::Win32');
+use File::Spec::Win32; pass "(dummy instead of broken use_ok)";
 
 is(curdir(),  '.',         '... got the right curdir');
 is(updir(),   '..',        '... got the right updir');

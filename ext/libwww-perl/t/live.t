@@ -24,7 +24,7 @@ if (%*ENV{"PUGS_TESTS_ALLOW_NETWORK"}) {
 };
 plan 2+@urls*9+@live_urls*8;
 
-use_ok('LWP::Simple');
+use LWP::Simple; pass "(dummy instead of broken use_ok)";
 
 my $expected = "Hello from Pugs";
 

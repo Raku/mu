@@ -5,7 +5,7 @@ use Test;
 
 plan 48;
 
-use_ok( 'Set::Infinite' );
+use Set::Infinite; pass "(dummy instead of broken use_ok)";
 use Set::Infinite;   # XXX should not need this
 
 # Practically all Set::Infinite operations cause infinite loops as

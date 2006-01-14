@@ -5,7 +5,7 @@ use Test;
 
 plan 6;
 
-use_ok('Perl::Compiler::CodeGen::NameGen');
+use Perl::Compiler::CodeGen::NameGen; pass "(dummy instead of broken use_ok)";
 
 my $gen = ::Perl::Compiler::CodeGen::NameGen.new(template => { "REG$_" });
 my $gen_foo = $gen.r('foo');

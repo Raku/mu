@@ -13,7 +13,7 @@ file.
 
 =cut
 
-use_ok('File::Spec::Unix');
+use File::Spec::Unix; pass "(dummy instead of broken use_ok)";
 
 is(curdir(),  '.',         '... got the right curdir');
 is(updir(),   '..',        '... got the right updir');

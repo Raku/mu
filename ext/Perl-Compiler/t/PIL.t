@@ -5,7 +5,7 @@ use Test;
 
 plan 2;
 
-use_ok('Perl::Compiler::PIL');
+use Perl::Compiler::PIL; pass "(dummy instead of broken use_ok)";
 
 {   # 1 = 2 breaks
 my $literal_1 = ::Perl::Compiler::PIL::PILVal.new(value => 1);

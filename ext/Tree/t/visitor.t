@@ -5,5 +5,5 @@ use v6;
 use Test;
 plan 2;
 
-use_ok('Tree::Visitor');
-use_ok('Tree::Visitor::FindByPath');
+use Tree::Visitor; pass "(dummy instead of broken use_ok)";
+use Tree::Visitor::FindByPath; pass "(dummy instead of broken use_ok)";

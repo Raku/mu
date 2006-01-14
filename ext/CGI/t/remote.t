@@ -11,7 +11,7 @@ Tests for CGI::Remote
 
 =cut
 
-use_ok('CGI::Remote');
+use CGI::Remote; pass "(dummy instead of broken use_ok)";
 
 is(remote_host(), 'localhost', 'got the right default value');
 is(remote_address(), '127.0.0.1', 'got the right default value');

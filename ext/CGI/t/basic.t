@@ -11,7 +11,7 @@ Very basic tests for CGI
 
 =cut
 
-use_ok('CGI');
+use CGI; pass "(dummy instead of broken use_ok)";
 
 is(header(),
     "Status: 200 OK

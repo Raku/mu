@@ -6,8 +6,8 @@ use File::Spec;
 
 plan 3;
 
-use_ok('Pod::Event::Parser');
-use_ok('Pod::Event::Handler::POD');
+use Pod::Event::Parser; pass "(dummy instead of broken use_ok)";
+use Pod::Event::Handler::POD; pass "(dummy instead of broken use_ok)";
 try { chdir "ext/Pod-Event-Parser" }; # Hack if we're run from make smoke
 
 my $file_path = catfile('lib', 'Pod', 'Event', 'Parser.pm');

@@ -11,7 +11,7 @@ Tests for CGI::Server module
 
 =cut
 
-use_ok('CGI::Server');
+use CGI::Server; pass "(dummy instead of broken use_ok)";
 
 is(server_name(), 'localhost', 'got the right default value');
 is(server_software(), 'cmdline', 'got the right default value');

@@ -32,7 +32,7 @@ my $extra_tests = 1;
 
 plan(@s_tests + $extra_tests);
 
-use_ok('HTTP::Headers::Util');
+use HTTP::Headers::Util; pass "(dummy instead of broken use_ok)";
 
 my $test_num = 0;
 

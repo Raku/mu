@@ -5,4 +5,4 @@ use Test;
 
 plan 1;
 
-use_ok 'Module::Pluggable::Fast';
+use Module::Pluggable::Fast; pass "(dummy instead of broken use_ok)";

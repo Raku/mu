@@ -5,7 +5,7 @@ use Test;
 
 plan 27;
 
-use_ok( 'Set::Infinite' );
+use Set::Infinite; pass "(dummy instead of broken use_ok)";
 use Set::Infinite;   # XXX should not need this
 use Recurrence;
 

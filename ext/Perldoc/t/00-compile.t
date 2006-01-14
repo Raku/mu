@@ -8,9 +8,9 @@ use Test;
 
 plan 6;
 
-use_ok("Perldoc::DOM::Node");
-use_ok("Perldoc::DOM::Element");
-use_ok("Perldoc::DOM::Text");
-use_ok("Perldoc::DOM::WS");
-use_ok("Perldoc::DOM::PI");
-use_ok("Perldoc::DOM");
+use Perldoc::DOM::Node; pass "(dummy instead of broken use_ok)";
+use Perldoc::DOM::Element; pass "(dummy instead of broken use_ok)";
+use Perldoc::DOM::Text; pass "(dummy instead of broken use_ok)";
+use Perldoc::DOM::WS; pass "(dummy instead of broken use_ok)";
+use Perldoc::DOM::PI; pass "(dummy instead of broken use_ok)";
+use Perldoc::DOM; pass "(dummy instead of broken use_ok)";

@@ -5,7 +5,7 @@ use Test;
 
 plan 12;
 
-use_ok('CGI::Util');
+use CGI::Util; pass "(dummy instead of broken use_ok)";
 
 is make_attribute({ foo => "bar" }), <foo="bar">, 'single attribute';
 is make_attribute({ baz => "quux", foo => "bar" }), <baz="quux" foo="bar">, 'two attributes';

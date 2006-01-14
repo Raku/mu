@@ -7,10 +7,10 @@ use Test;
 
 plan( 4 );
 
-use_ok( 'Rosetta::Engine::Native' );
+use Rosetta::Engine::Native; pass "(dummy instead of broken use_ok)";
 skip( 1, q{is( Rosetta::Engine::Native.meta.identifier.version, 0.1.0,
     'Rosetta::Engine::Native is the correct version' );} );
 
-use_ok( 'Rosetta::Engine::Native::L::en' );
+use Rosetta::Engine::Native::L::en; pass "(dummy instead of broken use_ok)";
 skip( 1, q{is( Rosetta::Engine::Native::L::en.meta.identifier.version, 0.1.0,
     'Rosetta::Engine::Native::L::en is the correct version' );} );
