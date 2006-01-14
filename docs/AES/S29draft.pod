@@ -347,7 +347,7 @@ been iterated.
 =item grep
 
  multi Array::grep (@values :      Code *&test   --> Lazy )
- multi Array::grep (@values,   MatchTest $test   --> Lazy )
+ multi Array::grep (@values :  MatchTest $test   --> Lazy )
  multi  List::grep (MatchTest $test :   *@values --> Lazy ) {
    gather {
      for @values -> $x {
@@ -359,7 +359,7 @@ been iterated.
 
 =item join
 
- multi Array::join (@values,   Str $delimiter --> Str )
+ multi Array::join (@values :  Str $delimiter --> Str )
  multi  List::join (Str $delimiter : *@values --> Str ) {
    my $str = ~@values[0];
    for 1..@values.end {
@@ -372,7 +372,7 @@ been iterated.
 
 =item map 
 
- multi Array::map (@values,   Code *&expression --> Lazy ) 
+ multi Array::map (@values : Code *&expression --> Lazy ) 
  multi  List::map (Code $expression : *@values --> Lazy ) {
    gather {
      while @values {
@@ -403,7 +403,7 @@ been iterated.
    %result;
  }
 
- multi Array::reverse (   @values --> Lazy|Str) {
+ multi Array::reverse (  @values --> Lazy|Str) {
  multi  List::reverse ( *@values --> Lazy|Str) {
    given want {
      when List {
@@ -614,8 +614,8 @@ will support the same levels as the input, unless specified otherwise.
 
 =item chop
 
- multi Str::chop (  Str  $string is rw                 --> Char )
- multi Str::chop ( Str *@strings = (CALLER::<$_>) is rw --> Char )
+ multi Str::chop ( Str  $string is rw          --> Char )
+ multi Str::chop ( Str *@strings = ($+_) is rw --> Char )
 
 Trims the last character from C<$string>, and returns it. Called with a
 list, it chops each item in turn, and returns the last character
@@ -624,8 +624,8 @@ chopped.
 
 =item chomp
 
- multi Str::chomp (  Str  $string is rw                 --> Int )
- multi Str::chomp ( Str *@strings = (CALLER::<$_>) is rw --> Int )
+ multi Str::chomp ( Str  $string is rw          --> Int )
+ multi Str::chomp ( Str *@strings = ($+_) is rw --> Int )
 
 Related to C<chop>, only removes trailing chars that match C</\n/>. In
 either case, it returns the number of chars removed.
@@ -636,8 +636,8 @@ instead of this step.
 
 =item lc
 
- multi Str::lc         (  Str $string              --> Str )
- multi Str::lc         ( Str $string = CALLER::<$_> --> Str )
+ multi Str::lc         ( Str $string       --> Str )
+ multi Str::lc         ( Str $string = $+_ --> Str )
 
 Returns the input string after converting each character to it's lowercase
 form, if uppercase.
@@ -645,16 +645,16 @@ form, if uppercase.
 
 =item lcfirst
 
- multi Str::lcfirst    (  Str $string              --> Str )
- multi Str::lcfirst    ( Str $string = CALLER::<$_> --> Str )
+ multi Str::lcfirst    ( Str $string       --> Str )
+ multi Str::lcfirst    ( Str $string = $+_ --> Str )
 
 Like C<lc>, but only affects the first character.
 
 
 =item uc
 
- multi Str::uc         (  Str $string              --> Str )
- multi Str::uc         ( Str $string = CALLER::<$_> --> Str )
+ multi Str::uc         ( Str $string       --> Str )
+ multi Str::uc         ( Str $string = $+_ --> Str )
 
 Returns the input string after converting each character to it's uppercase
 form, if lowercase. This is not a Unicode "titlecase" operation, but a
@@ -663,16 +663,16 @@ full "uppercase".
 
 =item ucfirst
 
- multi Str::ucfirst    (  Str $string              --> Str )
- multi Str::ucfirst    ( Str $string = CALLER::<$_> --> Str )
+ multi Str::ucfirst    ( Str $string       --> Str )
+ multi Str::ucfirst    ( Str $string = $+_ --> Str )
 
 Performs a Unicode "titlecase" operation on the first character of the string.
 
 
 =item capitalize
 
- multi Str::capitalize (  Str $string              --> Str )
- multi Str::capitalize ( Str $string = CALLER::<$_> --> Str )
+ multi Str::capitalize ( Str $string       --> Str )
+ multi Str::capitalize ( Str $string = $+_ --> Str )
 
 Has the effect of first doing an C<lc> on the entire string, then performing a
 C<s:g/(\w+)/{ucfirst $1}/> on it.
@@ -698,8 +698,8 @@ Needs to be in terms of StrPos, not Int.
 
 =item split
 
- multi Str::split (  Str $delimiter ,  Str $input = CALLER::<$_>, Int $limit = inf --> List )
- multi Str::split ( Rule $delimiter ,  Str $input = CALLER::<$_>, Int $limit = inf --> List )
+ multi Str::split (  Str $delimiter ,  Str $input = $+_, Int $limit = inf --> List )
+ multi Str::split ( Rule $delimiter ,  Str $input = $+_, Int $limit = inf --> List )
  multi Str::split (      Str $input :  Str $delimiter          , Int $limit = inf --> List )
  multi Str::split (      Str $input : Rule $delimiter          , Int $limit = inf --> List )
  &split<> := &split<Str>.assuming:delimiter(' ');
@@ -732,7 +732,7 @@ Should replace vec with declared arrays of bit, uint2, uint4, etc.
 
 =item eval 
  
- multi Control::Basic::eval ( Str $code = CALLER::<$_>, Grammar :$lang = CALLER::<$?PARSER>)
+ multi Control::Basic::eval ( Str $code = $+_, Grammar :$lang = CALLER::<$?PARSER>)
 
 Execute C<$code> as if it were code written in C<$lang>.  The default
 is the language in effect at the exact location of the eval call.
@@ -815,10 +815,10 @@ Forces generic Item context on it's argument, and returns it.
 
 =item :16, :8, :2, :10
  
- multi prefix:<:16> ( Str $hexstr = CALLER::<$_> --> Num )
- multi prefix:<:8> ( Str $octstr = CALLER::<$_> --> Num )
- multi prefix:<:2> ( Str $binstr = CALLER::<$_> --> Num )
- multi prefix:<:10> ( Str $decstr = CALLER::<$_> --> Num )
+ multi prefix:<:16> ( Str $hexstr = $+_ --> Num )
+ multi prefix:<:8>  ( Str $octstr = $+_ --> Num )
+ multi prefix:<:2>  ( Str $binstr = $+_ --> Num )
+ multi prefix:<:10> ( Str $decstr = $+_ --> Num )
  etc.
 
 Interprets string as a number, with a default
