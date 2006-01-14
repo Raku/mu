@@ -55,7 +55,7 @@ its command line.  To exit, type C<ctrl-D> or C<:q>.
 
 A Perl 6 program consists of one or more statements.  These statements are simply 
 written in a plain text file, one after another.  There is no need to have a
-"main()" function or anything of that kind.
+C<main()> function or anything of that kind.
 
 Perl 6 statements end in a semi-colon:
 
@@ -83,7 +83,7 @@ Double quotes or single quotes may be used around literal strings:
    say 'Hello, world';
 
 However, only double quotes "interpolate" variables and special characters such 
-as newlines ("\n"):
+as newlines (C<\n>):
 
    my $name = 'Johnny';
    print "Hello, $name\n";     # prints: Hello, Johnny  (followed by a newline)
