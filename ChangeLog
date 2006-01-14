@@ -11,7 +11,8 @@ XXX big things not mentioned here:
 
 === Shared components
 
-* pugs now requires GHC 6.4.1 or a recent development snapshot.
+* pugs now recommends GHC 6.4.1 or a recent development snapshot,
+  6.4.0 works on some platforms.
 * "self" is an alias for "$?SELF"
 * pairs are demagicalized [XXX: explain]
 * Prelude.pm: $str.trans
