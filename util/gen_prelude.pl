@@ -65,7 +65,7 @@ sub null {
 
     strip_comments($program);
     $program =~ s{(["\\])}{\\$1}g;
-    $program =~ s{\n}{\\n\\\n}g;
+    $program =~ s{\r?\n}{\\n\\\n}g;
     print OUT qq<preludeStr = "$program"\n>;
     close OUT;
 
