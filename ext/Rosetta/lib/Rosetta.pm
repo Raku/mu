@@ -40,25 +40,6 @@ class Rosetta::Interface {
 ###########################################################################
 ###########################################################################
 
-class Rosetta::Interface::fubar {
-
-    # External packages used by the Rosetta::Interface::fubar class, that do export symbols:
-    # (None Yet)
-
-    # Attributes of every Rosetta::Interface::fubar object:
-    # (None Yet)
-
-###########################################################################
-
-
-
-###########################################################################
-
-} # class Rosetta::Interface::fubar
-
-###########################################################################
-###########################################################################
-
 class Rosetta::Engine {
 
     # External packages used by the Rosetta::Engine class, that do export symbols:
@@ -92,8 +73,7 @@ Rigorous database portability
 This document describes Rosetta version 0.720.0.
 
 It also describes the same-number versions of Rosetta::Interface
-("Interface"), Rosetta::Interface::fubar ("fubar"), and Rosetta::Engine
-("Engine").
+("Interface"), and Rosetta::Engine ("Engine").
 
 I<Note that the "Rosetta" package serves only as the name-sake
 representative for this whole file, which can be referenced as a unit by
@@ -414,10 +394,6 @@ returns, you can assume that it has succeeded, even if the return value is
 undefined.
 
 =head2 The Rosetta::Interface Class
-
-I<This documentation is pending.>
-
-=head2 The Rosetta::Interface::fubar Class
 
 I<This documentation is pending.>
 
