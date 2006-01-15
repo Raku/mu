@@ -3,7 +3,7 @@
 
 module Pugs.CodeGen.PIL2 (
     genPIL2,
-    genPIL2Perl5, genPIL2Binary, genPIL2JSON
+    genPIL2Perl5, genPIL2Binary, genPIL2JSON, genPIL2YAML
 ) where
 import Pugs.Internals
 import Pugs.AST
@@ -14,6 +14,7 @@ import System.Directory
 import DrIFT.Perl5
 import DrIFT.Binary
 import DrIFT.JSON
+import DrIFT.YAML
 
 genPIL2 :: Eval Val
 genPIL2 = do
@@ -45,3 +46,9 @@ genPIL2JSON :: Eval Val
 genPIL2JSON = do
     penv <- compile () :: Eval PIL_Environment
     return . VStr . unlines $ [showJSON penv]
+
+genPIL2YAML :: Eval Val
+genPIL2YAML = do
+    penv <- compile () :: Eval PIL_Environment
+    yaml <- liftIO (showYaml penv)
+    return . VStr . unlines $ [yaml]

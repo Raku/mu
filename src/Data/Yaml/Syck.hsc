@@ -4,7 +4,7 @@
 
 module Data.Yaml.Syck (
     parseYaml, emitYaml,
-    YamlNode(..), YamlElem(..), emptyYamlNode, tagNode
+    YamlNode(..), YamlElem(..), tagNode, nilNode, mkNode, mkTagNode,
 ) where
 
 import Control.Exception (bracket)
@@ -57,12 +57,18 @@ type SyckOutputHandler = SyckEmitter -> CString -> CLong -> IO ()
 data SyckKind = SyckMap | SyckSeq | SyckStr | SyckNil
     deriving (Show, Ord, Eq, Enum)
 
-emptyYamlNode :: YamlNode
-emptyYamlNode = MkYamlNode 0 YamlNil Nothing Nothing Nothing
+nilNode :: YamlNode
+nilNode = MkYamlNode 0 YamlNil Nothing Nothing Nothing
 
 tagNode :: YamlTag -> YamlNode -> YamlNode
 tagNode _   MkYamlNode{tag=Just x} = error ("can't add tag: already tagged with" ++ x)
 tagNode tag node                   = node{tag = tag}
+
+mkNode :: YamlElem -> YamlNode
+mkNode x = MkYamlNode 0 x Nothing Nothing Nothing
+
+mkTagNode :: String -> YamlElem -> YamlNode
+mkTagNode s x = MkYamlNode 0 x (Just s) Nothing Nothing
 
 -- the extra commas here are not a bug
 #enum CInt, , scalar_none, scalar_1quote, scalar_2quote, scalar_fold, scalar_literal, scalar_plain
@@ -216,20 +222,20 @@ parseNode SyckMap parser syckNode len = do
         valId   <- syck_map_read syckNode 1 idx
         val     <- readNode parser valId
         return (key, val)
-    return $ emptyYamlNode{ el = YamlMap pairs, tag = tag}
+    return $ nilNode{ el = YamlMap pairs, tag = tag}
 
 parseNode SyckSeq parser syckNode len = do
     tag   <- syckNodeTag syckNode
     nodes <- (`mapM` [0..len-1]) $ \idx -> do
         symId   <- syck_seq_read syckNode idx
         readNode parser symId
-    return $ emptyYamlNode{ el = YamlSeq nodes, tag = tag }
+    return $ nilNode{ el = YamlSeq nodes, tag = tag }
 
 parseNode SyckStr _ syckNode len = do
     tag   <- syckNodeTag syckNode
     cstr  <- syck_str_read syckNode
     str   <- peekCStringLen (cstr, fromEnum len)
-    return $ emptyYamlNode{ el = YamlStr str, tag = tag }
+    return $ nilNode{ el = YamlStr str, tag = tag }
 
 foreign import ccall "wrapper"  
     mkNodeCallback :: SyckNodeHandler -> IO (FunPtr SyckNodeHandler)

@@ -22,13 +22,14 @@ import Pugs.Internals hiding (get, put)
 import Pugs.Types
 import Emit.PIR
 import DrIFT.Perl5
+import DrIFT.YAML
 import DrIFT.Binary
 import DrIFT.JSON
 
 -- import DrIFT.XML
 -- {-! global : Haskell2Xml !-}
 
-{-! global : GhcBinary, Perl5, JSON !-}
+{-! global : GhcBinary, Perl5, JSON, YAML !-}
 
 {-|
     The plan here is to first compile the environment (subroutines,
@@ -130,12 +131,16 @@ data TEnv = MkTEnv
 instance Binary Exp where
     put_ _ _ = return ()
     get  _   = return Noop
+instance YAML Exp where
+    asYAML _ = asYAML ()
 instance Perl5 Exp where
     showPerl5 _ = "(undef)"
 instance JSON Exp where
     showJSON _ = "null"
 
 -- Non-canonical serialization... needs work
+instance (Show (TVar a)) => YAML (TVar a) where
+    asYAML _ = asYAML ()
 instance (Show (TVar a)) => Perl5 (TVar a) where
     showPerl5 _ = "(warn '<ref>')"
 instance (Show (TVar a)) => JSON (TVar a) where

@@ -13,9 +13,10 @@ module Pugs.CodeGen (codeGen, backends) where
 import Pugs.AST
 import Pugs.Internals
 import Pugs.CodeGen.PIL1 (genPIL1)
-import Pugs.CodeGen.PIL2 (genPIL2, genPIL2Perl5, genPIL2Binary, genPIL2JSON)
+import Pugs.CodeGen.PIL2 (genPIL2, genPIL2Perl5, genPIL2Binary, genPIL2JSON, genPIL2YAML)
 import Pugs.CodeGen.PIR (genPIR)
 import Pugs.CodeGen.Perl5 (genPerl5)
+import Pugs.CodeGen.YAML (genYAML)
 import Pugs.CodeGen.JSON (genJSON)
 import Pugs.CodeGen.Binary (genBinary)
 import Pugs.Compile.Pugs (genPugs)
@@ -33,9 +34,11 @@ generators = Map.fromList $
     , ("PIL1-Perl5",  genPerl5)
     , ("PIL1-Binary", genBinary)
     , ("PIL1-JSON",   genJSON)
+    , ("PIL1-YAML",   genYAML)
     , ("PIL2",        genPIL2)
     , ("PIL2-Perl5",  genPIL2Perl5)
     , ("PIL2-JSON",   genPIL2JSON)
+    , ("PIL2-YAML",   genPIL2YAML)
     , ("PIL2-Binary", genPIL2Binary)
     , ("Pugs",        genPugs)
 --  , ("XML",         genXML)
@@ -56,11 +59,14 @@ norm = norm' . map toLower . filter isAlphaNum
     norm' "perl5"  = "!PIL1-Perl5"
     norm' "binary" = "!PIL1-Binary"
     norm' "json"   = "!PIL1-JSON"
+    norm' "yaml"   = "!PIL1-YAML"
     norm' "pil1perl5"  = "PIL1-Perl5"
     norm' "pil1json"   = "PIL1-JSON"
+    norm' "pil1yaml"   = "PIL1-YAML"
     norm' "pil1binary" = "PIL1-Binary"
     norm' "pil2perl5"  = "PIL2-Perl5"
     norm' "pil2json"   = "PIL2-JSON"
+    norm' "pil2yaml"   = "PIL2-YAML"
     norm' "pil2binary" = "PIL2-Binary"
     norm' "pugs"   = "Pugs"
     -- norm' "xml"    = "XML"
