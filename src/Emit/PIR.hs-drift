@@ -647,6 +647,7 @@ escaped = concatMap esc
 preludePIR :: Doc
 preludePIR = emit $
     [ include "iglobals.pasm"
+    , include "errors.pasm"
     -- Control flowy
     , sub "&return" [slurpy arg0]
         [ InsNew tempPMC PerlArray

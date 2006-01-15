@@ -14,7 +14,7 @@ import Pugs.AST
 import Pugs.Internals
 import Pugs.CodeGen.PIL1 (genPIL1)
 import Pugs.CodeGen.PIL2 (genPIL2, genPIL2Perl5, genPIL2Binary, genPIL2JSON, genPIL2YAML)
-import Pugs.CodeGen.PIR (genPIR)
+import Pugs.CodeGen.PIR (genPIR, genPIR_YAML)
 import Pugs.CodeGen.Perl5 (genPerl5)
 import Pugs.CodeGen.YAML (genYAML)
 import Pugs.CodeGen.JSON (genJSON)
@@ -30,6 +30,7 @@ generators :: Map String Generator
 generators = Map.fromList $
     [ ("GHC",         genGHC)
     , ("PIR",         genPIR)
+    , ("PIR-YAML",    genPIR_YAML)
     , ("PIL1",        genPIL1)
     , ("PIL1-Perl5",  genPerl5)
     , ("PIL1-Binary", genBinary)
@@ -53,6 +54,7 @@ norm = norm' . map toLower . filter isAlphaNum
     norm' "ghc"    = "GHC"
     norm' "parrot" = "!PIR"
     norm' "pir"    = "PIR"
+    norm' "piryaml"= "PIR-YAML"
     norm' "pil"    = "!PIL1"
     norm' "pil1"   = "PIL1"
     norm' "pil2"   = "PIL2"

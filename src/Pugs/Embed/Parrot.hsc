@@ -27,13 +27,13 @@ findExecutable' cmd = do
     if isJust rv then return rv else do
     return Nothing
 
+findExecutableInDirectory :: FilePath -> FilePath -> IO (Maybe FilePath)
 findExecutableInDirectory dir cmd = do
 ##ifdef PUGS_HAVE_POSIX
     let file = dir ++ ('/':cmd)
 ##else
     let file = dir ++ ('\\':cmd) ++ ".exe"
 ##endif
-    print ("Exisitng", file)
     ok  <- doesFileExist file
     return $ if ok then Just file else Nothing
 
