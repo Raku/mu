@@ -162,6 +162,7 @@ instance Translate PIL_LValue LValue where
         pmc     <- genScalar "glob"
         tell [StmtRaw (text "errorsoff .PARROT_ERRORS_GLOBALS_FLAG")]
         tellIns $ pmc       <-- "find_global" $ [lit pkg, lit name']
+        -- XXX - change this to an unless_null call on parrot 0.4.2!
         tellIns $ tempINT   <-- "defined" $ [reg pmc]
         tellIns $ "if" .- [tempINT, bare globL]
         tellIns $ InsNew pmc PerlScalar
