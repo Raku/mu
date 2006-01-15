@@ -12,7 +12,7 @@ module Pugs.AST.Internals (
 
     EvalT(..), ContT(..),
 
-    Pad(..), PadMutator, -- uses Var, TVar, VRef
+    Pad(..), PadEntry(..), PadMutator, -- uses Var, TVar, VRef
     Param(..), -- uses Cxt, Exp
     Params, -- uses Param
     Bindings, -- uses Param, Exp
@@ -1117,15 +1117,14 @@ are re-generated each time we enter their scope; see the
 
 The current global and lexical pads are stored in the current 'Env', which
 is stored in the @Reader@-monad component of the current 'Eval' monad.
-
->[11:56] <autrijus> scook0: I'm been thinking to split a Pad entry into single and multiple variants
->[11:57] <autrijus> MkPad !(Map Var ([(TVar Bool, TVar VRef)]))
->[11:57] <autrijus> becomes
->[11:58] <autrijus> data Pad = MkPad !(Map Var PadEntry)
->[11:58] <autrijus> data PadEntry = MkEntry (TVar Bool, TVar VRef) | MkEntryMulti [(TVar Bool, TVar VRef)]
->[11:58] <autrijus> yeah. but it's not critical, so is low priority
 -}
-data Pad = MkPad !(Map Var ([(TVar Bool, TVar VRef)]))
+
+data Pad = MkPad !(Map Var PadEntry)
+    deriving (Eq, Ord, Typeable)
+
+data PadEntry
+    = MkEntry !(TVar Bool, TVar VRef)           -- single entry
+    | MkEntryMulti ![(TVar Bool, TVar VRef)]    -- multi subs
     deriving (Eq, Ord, Typeable)
 
 instance Show Pad where
@@ -1144,7 +1143,8 @@ lookupPad :: Var -- ^ Symbol to look for
 -}
 
 lookupPad key (MkPad map) = case Map.lookup (possiblyFixOperatorName key) map of
-        Just xs -> Just [tvar | (_, tvar) <- xs]
+        Just (MkEntryMulti xs)   -> Just [tvar | (_, tvar) <- xs]
+        Just (MkEntry (_, tvar)) -> Just [tvar]
         Nothing -> Nothing
 
 {-|
@@ -1153,10 +1153,16 @@ Transform a pad into a flat list of bindings. The inverse of 'mkPad'.
 Note that @Data.Map.assocs@ returns a list of mappings in ascending key order.
 -}
 padToList :: Pad -> [(Var, [(TVar Bool, TVar VRef)])]
-padToList (MkPad map) = Map.assocs map
+padToList (MkPad map) = (Map.assocs . Map.map entryToList) map
+    where
+    entryToList (MkEntry x)         = [x]
+    entryToList (MkEntryMulti xs)   = xs
 
 listToPad :: [(Var, [(TVar Bool, TVar VRef)])] -> Pad
-listToPad = MkPad . Map.fromList
+listToPad = MkPad . Map.map listToEntry . Map.fromList
+    where
+    listToEntry [x] = MkEntry x
+    listToEntry xs  = MkEntryMulti xs
 
 -- | type for a function introducing a change to a Pad
 type PadMutator = (Pad -> Pad)

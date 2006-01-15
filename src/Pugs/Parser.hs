@@ -852,7 +852,6 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
             let hardcodedScopeFixme = SMy
 
             syms <- forM names (\name -> do
-                --trace ("name: " ++ show name) $ return ()
                 (Val ex) <- unsafeEvalExp $ Syn "{}" [Val exports, Val name]
                 let (VStr name') = name
                 exportSym hardcodedScopeFixme name' ex)

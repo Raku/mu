@@ -107,7 +107,7 @@ genMultiSym name ref = do
     tvar    <- liftSTM $ newTVar ref
     fresh   <- liftSTM $ newTVar True
     return $ \(MkPad map) -> MkPad $
-        Map.insertWith (++) name [(fresh, tvar)] map
+        Map.insertWith mergePadEntry name (MkEntryMulti [(fresh, tvar)]) map
 
 {-|
 Create a 'Pad'-transforming transaction that will install a symbol
@@ -120,7 +120,7 @@ genSym name ref = do
     --trace ("installing: " ++ name) $ return ()
     tvar    <- liftSTM $ newTVar ref
     fresh   <- liftSTM $ newTVar True
-    return $ \(MkPad map) -> MkPad $ Map.insert name [(fresh, tvar)] map
+    return $ \(MkPad map) -> MkPad $ Map.insert name (MkEntry (fresh, tvar)) map
 
 -- Stmt is essentially a cons cell
 -- Stmt (Stmt ...) is illegal
