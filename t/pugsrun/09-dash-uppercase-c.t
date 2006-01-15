@@ -27,7 +27,7 @@ my @t_good = map &flatten, (
   algorithms/quicksort
 >),
   any('-C')
-    ~ any('Parrot', 'paRRot')
+    ~ any('PIR', 'pir')
     ~ ' '
     ~ any('-e1', map {"examples/$_.p6"} <
   junctions/1
