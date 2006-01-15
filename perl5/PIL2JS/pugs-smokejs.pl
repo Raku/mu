@@ -33,7 +33,9 @@ if($ARGV[1] eq "-w" and $ARGV[2]) {
   # If we did not s/^use Test//gm, things will still work but performance will
   # suffer, as Test.pm would be re-parsed, re-compiled-to-PIL1 and
   # re-compiled-to-JS on every invocation.
-  $src =~ s/^use Test//gm; # hack
+  #   $src =~ s/^use Test//gm; # hack
+  # As of r8689, this hack b0rks PIL2JS, so I removed the hack (temporarily?).
+  # --iblech
 
   # XXX ABSOLUTELY EVIL BLOODY HACK
   # XXX ABSOLUTELY EVIL BLOODY HACK
