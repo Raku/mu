@@ -65,7 +65,7 @@ dumpYaml limit v = let ?d = limit in do
     obj  <- toYaml v
     rv   <- liftIO (emitYaml obj)
     either (fail . ("YAML Emit Error: "++))
-           (return . VStr) rv
+           (return . VStr . decodeUTF8) rv
 
 strNode :: String -> YamlNode
 strNode = mkNode . YamlStr

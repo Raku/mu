@@ -10,7 +10,7 @@ module Data.Yaml.Syck (
 import Control.Exception (bracket)
 import Data.IORef
 import Data.Word                (Word8)
-import qualified Data.FastPackedString as P
+-- import qualified Data.FastPackedString as P
 import Foreign.Ptr
 import Foreign.StablePtr
 import Foreign.ForeignPtr
@@ -85,6 +85,7 @@ emitYaml node = do
         out    <- newIORef ""
         outPtr <- fmap castStablePtrToPtr (newStablePtr out)
         #{poke SyckEmitter, bonus} emitter outPtr
+        #{poke SyckEmitter, style} emitter scalarFold
         syck_output_handler emitter =<< mkOutputCallback outputCallback
         syck_emitter_handler emitter =<< mkEmitterCallback emitterCallback
         nodePtr <- freezeNode node
@@ -98,6 +99,7 @@ outputCallback emitter buf len = do
     outPtr  <- #{peek SyckEmitter, bonus} emitter
     out     <- deRefStablePtr (castPtrToStablePtr outPtr)
     str     <- peekCStringLen (buf, fromIntegral len)
+    #{poke SyckEmitter, headless} emitter (1 :: CInt)
     modifyIORef out (++ str)
 
 freezeFS :: ForeignPtr Word8 -> IO FSPtr

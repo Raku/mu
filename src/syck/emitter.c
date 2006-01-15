@@ -411,9 +411,17 @@ syck_emit( SyckEmitter *e, st_data_t n )
         }
         else
         {
-            char *an = S_ALLOC_N( char, strlen( anchor_name ) + 2 );
-            sprintf( an, "*%s", anchor_name );
-            syck_emitter_write( e, an, strlen( anchor_name ) + 1 );
+            char *an;
+            if (anchor_name == NULL) {
+                an = S_ALLOC_N( char, x+2 );
+                sprintf(an, "*%d", x);
+            }
+            else {
+                an = S_ALLOC_N( char, strlen( anchor_name ) + 2 );
+                sprintf( an, "*%s", anchor_name );
+            }
+
+            syck_emitter_write( e, an, strlen( an ) );
             free( an );
 
             goto end_emit;
@@ -758,7 +766,9 @@ syck_emitter_escape( SyckEmitter *e, char *src, long len )
     int i;
     for( i = 0; i < len; i++ )
     {
-        if( (src[i] < 0x20) || (0x7E < src[i]) )
+        if( (e->style == scalar_fold)
+                ? ((src[i] < 0x20) && (0 < src[i]))
+                : ((src[i] < 0x20) || (0x7E < src[i])) )
         {
             syck_emitter_write( e, "\\", 1 );
             if( '\0' == src[i] )
@@ -1217,6 +1227,9 @@ syck_emitter_mark_node( SyckEmitter *e, st_data_t n )
              * Insert into anchors table
              */
             st_insert( e->anchors, (st_data_t)oid, (st_data_t)anchor_name );
+
+            /* XXX - Added by Audrey Tang to handle self-recursive structures - XXX */
+            return 0;
         }
     }
     return oid;

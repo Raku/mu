@@ -76,8 +76,8 @@ doLookup :: String -> IO Generator
 doLookup s = do
     case norm s of
         ('!':key) -> do
-            putStrLn $ "*** The backend '" ++ s ++ "' is deprecated."
-            putStrLn $ "    Please use '" ++ key ++ "' instead."
+            hPutStrLn stderr $ "*** The backend '" ++ s ++ "' is deprecated."
+            hPutStrLn stderr $ "    Please use '" ++ key ++ "' instead."
             Map.lookup key generators
         key -> Map.lookup key generators
 
