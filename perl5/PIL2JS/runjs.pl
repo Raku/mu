@@ -25,8 +25,9 @@ INIT {
   if($ENV{PIL2JS_RESOURCE_GUARD}) {
     require BSD::Resource;
     import BSD::Resource;
-    setrlimit(RLIMIT_CPU(), 63, 67) or die "Couldn't setrlimit: $!\n";
-    warn "*** Limited CPU resources.\n";
+    setrlimit(RLIMIT_CPU(), 120, 140) or die "Couldn't setrlimit: $!\n";
+    setrlimit(RLIMIT_RSS(), 1048000, 1196000) or die "Couldn't setrlimit: $!\n";
+    warn "*** Limited CPU and memory resources.\n";
   }
 }
 
