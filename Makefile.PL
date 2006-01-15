@@ -308,6 +308,8 @@ EOD
         if (!$parrot_config && -e $temp) {
           $parrot_config = $temp;
         }
+
+        $base =~ s/bin\/*$//;
         
         (-d $base and -e $parrot_config)
             or die "*** Please set \$ENV{PARROT_PATH} to the base path with a built parrot tree.\n";
