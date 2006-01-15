@@ -139,10 +139,10 @@ emitStmts stmts = vcat (emitLex:emitBody stmts)
         $+$ emit ".lex" <+> commaSep [emit (lit var), emit exp]
     emitVar _ = empty
 
-{-| Emits PIR code for a 'SubFlag' (e.g. @\@MAIN@, @\@ANON@, etc.). -}
+{-| Emits PIR code for a 'SubFlag' (e.g. @:main@, @:anon@, etc.). -}
 instance Emit SubFlag where
     emit (SubOUTER x) = colon <> text "outer" <> parens (doubleQuotes $ emit x)
-    emit x = (emit . ('@':) . drop 3 . show) x
+    emit x = (emit . (':':) . map toLower . drop 3 . show) x
 
 curPad :: Int
 curPad = -1
@@ -872,7 +872,7 @@ preludePIR = emit $
         , rv        <:= lit ""
         , InsLabel "eval_pir_read_pre_next"
         , tempSTR   <-- "readline" $ [tempPMC]
-        , "ne"      .- [tempSTR, lit ".sub \"main\" @ANON\n", bare "eval_pir_read_pre_next"]
+        , "ne"      .- [tempSTR, lit ".sub \"init\" :main :anon\n", bare "eval_pir_read_pre_next"]
         , InsLabel "eval_pir_read_next"
         , tempSTR   <-- "readline" $ [tempPMC]
         , "eq"      .- [tempSTR, lit ".end\n", bare "eval_pir_done"]
@@ -966,5 +966,7 @@ preludePIR = emit $
 
 instance YAML Doc where
     asYAML = asYAML . render
+instance Typeable Doc where
+    typeOf = undefined
 
 ------------------------------------------------------------------------
