@@ -747,6 +747,8 @@ var _26main_3a_3a_3fSUB      = new PIL2JS.Box(undefined);
 var _24main_3a_3a_3fOS       = new PIL2JS.Box.Constant("unknown");  // XXX
 var _24main_3a_3a_2aOS       = new PIL2JS.Box.Constant(Perl5 ? Perl5.perl_eval('$^O') : "browser");
 var _24main_3a_3aOS          = _24main_3a_3a_2aOS;
+var _24main_3a_3a_2aPID      = new PIL2JS.Box.Constant(Perl5 ? Perl5.perl_eval('$$') : "unknown");
+var _24main_3a_3aPID          = _24main_3a_3a_2aPID;
 var _24main_3a_3a_3fPUGS_BACKEND = new PIL2JS.Box.Constant("BACKEND_JAVASCRIPT");
 var _24main_3a_3a_           = new PIL2JS.Box(undefined);
 // $/ -- XXX WRONG needs to be lexical

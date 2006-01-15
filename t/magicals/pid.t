@@ -21,6 +21,10 @@ if $*OS eq "browser" {
 
 my ($pugs,$redir,$squo) = ("./pugs", ">", "'");
 
+# if it's non-perl5 js backend the test would have been skipped already
+$pugs = './runjs.pl --run=jspm --perl5'
+    if $?PUGS_BACKEND eq 'BACKEND_JAVASCRIPT';
+
 if($*OS eq any<MSWin32 mingw msys cygwin>) {
     $pugs = 'pugs.exe';
 };
@@ -28,7 +32,7 @@ if($*OS eq any<MSWin32 mingw msys cygwin>) {
 sub nonce () { return (".$*PID." ~ int rand 1000) }
 my $tempfile = "temp-ex-output" ~ nonce;
 
-my $command = qq!$pugs -e "say eval chr(36)~'PID'" $redir $tempfile!;
+my $command = $pugs ~ q! -e 'say $PID'! ~ qq!$redir $tempfile!;
 diag $command;
 system $command;
 

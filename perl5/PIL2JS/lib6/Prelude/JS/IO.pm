@@ -55,6 +55,15 @@ sub JS::Root::slurp(Str $filename) is primitive {
   )')($filename)
 }
 
+sub JS::Root::unlink(Str $filename) is primitive {
+  JS::inline('(
+    function (filename) {
+        if (!Perl5) throw "Perl5 required.";
+        return Perl5.perl_eval("(sub { unlink($_[0]) or die $! })")(filename);
+    }
+  )')($filename)
+}
+
 sub JS::Root::system(Str *@command) is primitive {
   JS::inline('(
     function (arguments) {
