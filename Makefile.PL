@@ -279,7 +279,7 @@ EOD
 
     if ($ENV{PUGS_EMBED} and $ENV{PUGS_EMBED} =~ /\bparrot\b/i) {
         my $base = $ENV{PARROT_PATH};
-        my $parrot_config = which('parrot-config.imc') || which('[parrot-config.pir') || which('parrot-config') || '';
+        my $parrot_config = which('parrot-config.imc') || which('parrot-config.pir') || which('parrot-config') || '';
         if (!$base && -e $parrot_config) {
             $base = (File::Spec->splitpath($parrot_config))[1];
         }
