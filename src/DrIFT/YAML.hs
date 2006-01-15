@@ -19,8 +19,9 @@ showYaml x = do
         Left e  -> error e
         Right s -> return s
 
-class (Show a) => YAML a where
+class YAML a where
     asYAML :: a -> IO YamlNode
+    asYAML _ = return $ nilNode
 
 asYAMLseq :: YAMLClass -> [IO YAMLVal] -> IO YamlNode
 asYAMLseq c ps = do
@@ -43,9 +44,7 @@ asYAMLcls c = return $ mkTagNode (tagHs c) (YamlStr c)
 tagHs :: YAMLClass -> String
 tagHs = ("tag:hs:" ++)
 
--- XXX - overlapping instances?
-instance YAML () where
-    asYAML _ = return $ nilNode
+instance YAML ()
 
 instance YAML Int where
     asYAML x = return $ mkTagNode "int" (YamlStr $ show x)

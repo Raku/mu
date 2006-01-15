@@ -23,13 +23,12 @@ import Pugs.Types
 import Emit.PIR
 import DrIFT.Perl5
 import DrIFT.YAML
-import DrIFT.Binary
 import DrIFT.JSON
 
 -- import DrIFT.XML
 -- {-! global : Haskell2Xml !-}
 
-{-! global : GhcBinary, Perl5, JSON, YAML !-}
+{-! global : Perl5, JSON, YAML !-}
 
 {-|
     The plan here is to first compile the environment (subroutines,
@@ -127,83 +126,3 @@ data TEnv = MkTEnv
     deriving (Show, Eq, Ord, Typeable)
 
 ------------------------------------------------------------------------
-
-instance Binary Exp where
-    put_ _ _ = return ()
-    get  _   = return Noop
-instance YAML Exp where
-    asYAML _ = asYAML ()
-instance Perl5 Exp where
-    showPerl5 _ = "(undef)"
-instance JSON Exp where
-    showJSON _ = "null"
-
--- Non-canonical serialization... needs work
-instance (Typeable a, YAML a) => YAML (TVar a) where
-    asYAML tv = do
-        v <- liftSTM (readTVar tv)
-        asYAML v
-instance (Show (TVar a)) => Perl5 (TVar a) where
-    showPerl5 _ = "(warn '<ref>')"
-instance (Show (TVar a)) => JSON (TVar a) where
-    showJSON _ = "null"
-
-=begin DRIFT
-
-data Scope = SState  -- ^ Persistent across calls
-           | SMy     -- ^ Lexical
-           | SOur    -- ^ Package
-           | SLet    -- ^ Hypotheticalised (reverted upon failure)
-           | STemp   -- ^ Temporary (reverted at scope exit)
-           | SGlobal -- ^ Global
-
-data SubType = SubMethod    -- ^ Method
-             | SubCoroutine -- ^ Coroutine
-             | SubMacro     -- ^ Macro
-             | SubRoutine   -- ^ Regular subroutine
-             | SubBlock     -- ^ Bare block
-             | SubPointy    -- ^ Pointy sub
-             | SubPrim      -- ^ Built-in primitive operator (see "Pugs.Prim")
-
-
-data Val
-    = VUndef                 -- ^ Undefined value
-    | VBool     !VBool       -- ^ Boolean value
-    | VInt      !VInt        -- ^ Integer value
-    | VRat      !VRat        -- ^ Rational number value
-    | VNum      !VNum        -- ^ Number (i.e. a double)
-    | VStr      !VStr        -- ^ String value
-    | VList     !VList       -- ^ List value
-    | VType     !VType       -- ^ Type value (e.g. @Int@ or @Type@)
-
-data Cxt = CxtVoid         -- ^ Context that isn't expecting any values
-         | CxtItem !Type   -- ^ Context expecting a value of the specified type
-         | CxtSlurpy !Type -- ^ Context expecting multiple values of the
-                           --     specified type
-data Type
-    = MkType !String      -- ^ A regular type
-    | TypeOr  !Type !Type -- ^ The disjunction (|) of two types
-    | TypeAnd !Type !Type -- ^ The conjunction (&) of two types
-
-data Param = MkParam
-    { isInvocant    :: !Bool        -- ^ Is it in invocant slot?
-    , isOptional    :: !Bool        -- ^ Is it optional?
-    , isNamed       :: !Bool        -- ^ Is it named-only?
-    , isLValue      :: !Bool        -- ^ Is it lvalue (i.e. not `is copy`)?
-    , isWritable    :: !Bool        -- ^ Is it writable (i.e. `is rw`)?
-    , isLazy        :: !Bool        -- ^ Is it call-by-name (short-circuit)?
-    , paramName     :: !String      -- ^ Parameter name
-    , paramContext  :: !Cxt         -- ^ Parameter context: slurpiness and type
-    , paramDefault  :: !Exp         -- ^ Default expression (to evaluate to)
-    }
-
-data Pos = MkPos
-    { posName           :: !String
-    , posBeginLine      :: !Int
-    , posBeginColumn    :: !Int
-    , posEndLine        :: !Int
-    , posEndColumn      :: !Int
-    }
-
-
-=cut

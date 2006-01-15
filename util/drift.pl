@@ -4,11 +4,14 @@ use FindBin qw<$Bin>;
 
 # XXX - This is not at all portable.
 
+$ENV{DERIVEPATH} = "$Bin/../src";
+
 my ($in, $out) = @ARGV;
 my ($rh, $wh);
 my $pid = open2(
     $rh, $wh,
     'runhugs',
+    "-h1048576",
     "-P.:/usr/local/lib/hugs/libraries/:/usr/lib/hugs/libraries/:$Bin/../src/DrIFT:$Bin/../../DrIFT/src",
     "$Bin/../../DrIFT/src/DrIFT.hs",
     $in
