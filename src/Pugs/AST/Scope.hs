@@ -3,6 +3,7 @@
 module Pugs.AST.Scope (
     Scope(..),
 ) where
+import Data.Typeable
 
 -- | The scope of a variable declaration.
 data Scope = SState  -- ^ Persistent across calls
@@ -12,4 +13,4 @@ data Scope = SState  -- ^ Persistent across calls
            | SMy     -- ^ Lexical
            | SOur    -- ^ Package
            | SGlobal -- ^ Global
-    deriving (Show, Eq, Ord, Enum)
+    deriving (Show, Eq, Ord, Enum, Typeable)

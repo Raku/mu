@@ -7,6 +7,7 @@ import Data.List (intersperse)
 import Data.Char (chr)
 import GHC.Exts
 import UTF8
+import Data.Typeable
 
 type YAMLClass = String
 type YAMLKey = String
@@ -19,9 +20,12 @@ showYaml x = do
         Left e  -> error e
         Right s -> return s
 
-class YAML a where
+class Typeable a => YAML a where
     asYAML :: a -> IO YamlNode
-    asYAML _ = return $ nilNode
+    asYAML x | ty == "()" = return nilNode
+             | otherwise  = return $ mkTagNode (tagHs ty) YamlNil
+        where
+        ty = (reverse (takeWhile (/= '.') (reverse (show (typeOf x)))))
 
 asYAMLseq :: YAMLClass -> [IO YAMLVal] -> IO YamlNode
 asYAMLseq c ps = do
@@ -43,8 +47,6 @@ asYAMLcls c = return $ mkTagNode (tagHs c) (YamlStr c)
 
 tagHs :: YAMLClass -> String
 tagHs = ("tag:hs:" ++)
-
-instance YAML ()
 
 instance YAML Int where
     asYAML x = return $ mkTagNode "int" (YamlStr $ show x)

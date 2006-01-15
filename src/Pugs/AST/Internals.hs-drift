@@ -752,7 +752,7 @@ data VControl
     = ControlLeave !(Env -> Eval Bool) !Val
     | ControlExit  !ExitCode
     | ControlEnv   !Env
-    deriving (Show, Eq, Ord) {-!derive: YAML!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
 
 {-|
 Represents a junction value.
@@ -771,14 +771,14 @@ data VJunc = MkJunc
     -- ^ Set of values that make up the junction. In @one()@
     --     junctions, contains the set of values that appear exactly
     --     /once/.
-    } deriving (Eq, Ord) {-!derive: YAML!-}
+    } deriving (Eq, Ord, Typeable) {-!derive: YAML!-}
 
 -- | The combining semantics of a junction. See 'VJunc' for more info.
 data JuncType = JAny  -- ^ Matches if /at least one/ member matches
               | JAll  -- ^ Matches only if /all/ members match
               | JNone -- ^ Matches only if /no/ members match
               | JOne  -- ^ Matches if /exactly one/ member matches
-    deriving (Eq, Ord) {-!derive: YAML!-}
+    deriving (Eq, Ord, Typeable) {-!derive: YAML!-}
 
 instance Show JuncType where
     show JAny  = "any"
@@ -809,7 +809,7 @@ data SubType = SubMethod    -- ^ Method
              | SubBlock     -- ^ Bare block
              | SubPointy    -- ^ Pointy sub
              | SubPrim      -- ^ Built-in primitive operator (see "Pugs.Prim")
-    deriving (Show, Eq, Ord) {-!derive: YAML, JSON, Perl5!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML, JSON, Perl5!-}
 
 isSlurpy :: Param -> Bool
 isSlurpy param = isSlurpyCxt $ paramContext param
@@ -832,7 +832,7 @@ data Param = MkParam
     , paramDefault  :: !Exp         -- ^ Default expression (to evaluate to)
                                     --     when omitted
     }
-    deriving (Show, Eq, Ord) {-!derive: YAML, Perl5, JSON!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML, Perl5, JSON!-}
 
 instance (Typeable a, YAML a) => YAML (TVar a) where
     asYAML tv = do
@@ -1804,8 +1804,8 @@ instance Typeable1 IVar where
 #endif
 
 -- Move them to Pugs.AST.Instances later?
-instance YAML (a -> Eval b)
-instance YAML (Eval a)
+instance (Typeable a, Typeable b) => YAML (a -> Eval b)
+instance (Typeable a) => YAML (Eval a)
 instance YAML a => YAML (Map String a) where
     asYAML x = asYAMLmap "Map" $ Map.toList (Map.map asYAML x)
 instance Typeable a => YAML (IVar a) where
@@ -1825,6 +1825,12 @@ instance YAML VHandle
 instance YAML VHash
 instance YAML VOpaque
 instance YAML VSocket
+instance YAML PerlSV
+instance Typeable Unique where typeOf _ = typeOf ()
+instance Typeable ProcessHandle where typeOf _ = typeOf ()
+instance Typeable ExitCode where typeOf _ = typeOf ()
+instance Typeable Regex where typeOf _ = typeOf ()
+instance Typeable1 Tree where typeOf1 _ = typeOf ()
 
 instance Perl5 Exp where
     showPerl5 _ = "(undef)"
