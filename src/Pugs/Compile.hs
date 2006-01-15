@@ -151,7 +151,7 @@ instance Compile Exp PIL_Stmts where
     compile (Stmts (Pad scope pad exp) rest) = do
         padC    <- compile $ padToList pad
         let symC = (map fst $ padToList pad) `zip` padC
-            exps = [ Syn ":=" [Var name, Var from] | (name, PRawName from) <- symC ]
+            exps = [ Syn ":=" [Var name, Var from] | (name, PRawName from) <- symC, name /= from ]
         expC    <- compile $ mergeStmts (foldl1 mergeStmts (exps ++ [exp])) rest
         return $ PPad scope symC expC
     compile exp = compileStmts exp
