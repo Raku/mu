@@ -1774,9 +1774,11 @@ instance Typeable1 IVar where
 -- Move them to Pugs.AST.Instances later?
 instance YAML (a -> Eval b)
 instance YAML (Eval a)
-instance YAML (Map String String)
-instance YAML (Map VStr (IVar VScalar))
-instance YAML (Map Var PadEntry)
+instance YAML a => YAML (Map String a) where
+    asYAML x = asYAMLmap "Map" $ Map.toList (Map.map asYAML x)
+instance Typeable a => YAML (IVar a) where
+    asYAML x = asYAML (MkRef x)
+instance YAML VRef where
 instance YAML (Set Val)
 instance YAML (VThread Val)
 instance YAML ClassTree
@@ -1790,7 +1792,6 @@ instance YAML VComplex
 instance YAML VHandle
 instance YAML VHash
 instance YAML VOpaque
-instance YAML VRef
 instance YAML VSocket
 
 instance Perl5 Exp where
