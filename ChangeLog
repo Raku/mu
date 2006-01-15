@@ -35,7 +35,6 @@ XXX big things not mentioned here:
 * src/Text/Parser/Rule.hs - Fast, pure Haskell Perl6 Rules implementation,
   based on PArrows.
 
-
 === JavaScript backend
 
 * .assuming
@@ -44,8 +43,6 @@ XXX big things not mentioned here:
 * FIRST blocks
 
 === XXX backend
-
-
 
 == Bug Fixes
 
@@ -66,7 +63,6 @@ XXX big things not mentioned here:
 * remove temporary test files on "make clean"
 * added unary ^ (^num a shortcut for 0..^num).
 
-
 === JavaScript backend
 
 * division by zero raises an error, not return NaN like JS does
@@ -74,38 +70,34 @@ XXX big things not mentioned here:
 
 === XXX backend
 
-
-
 == Bundled Modules
 
 * evalbot can run code with alternative backends, e.g. ?eval:js 5 + 3
 
 === New Perl 6 modules
 
-* Added /ext/Rosetta (incomplete) - A federated relational database.
-* Added /ext/Rosetta-Engine-Native (incomplete) - A back-end for testing.
-
+* Added ext/Parse-Rule/ - A PGE port in perl 6.
+* Added ext/Rosetta/ (incomplete) - A federated relational database.
+* Added ext/Rosetta-Engine-Native/ (incomplete) - A back-end for testing.
 
 === Updated modules
 
-* Rewrote /ext/Locale-KeyedText, with a strong resemblence to the original.
+* Rewrote ext/Locale-KeyedText/, with a strong resemblence to the original.
 ** Split up translate_message() for more granular Translator usage.
 ** Objects now become something useful when coerced into a string.
 ** Added Locale::KeyedText::L::en, LKT now throws Message exceptions.
 ** Template Modules now have a different variable interpolation format.
-** Created 2 running /examples from pod that was removed from KeyedText.pm.
+** Created 2 running examples/ from pod that was removed from KeyedText.pm.
 ** Deleted old test suite (yet to be replaced); now only tests compiling.
-* Added ext/Parse-Rule - a PGE port in perl 6.
 
 === Experimental modules (in misc/, not installed)
 
-* Broke up /misc/Rosetta-Incubator:
-** Locale::KeyedText was merged into the rewritten one in /ext.
-** SQL::Routine and Rosetta were merged together, became Rosetta in /ext.
+* Added misc/Parser-Mini/ - experimental 'thin' p6 parser
+* Broke up misc/Rosetta-Incubator/:
+** Locale::KeyedText was merged into the rewritten one in ext/.
+** SQL::Routine and Rosetta were merged together, became Rosetta in ext/.
 ** Remainder (SQLBuilder, SQLParser, Eng/Generic, Emu/DBI) was deleted.
-* misc/sixpan/ - prototype new CPAN tools [XXX: beef me up]
-* misc/Parser-Mini/ - experimental 'thin' p6 parser
-
+* Added misc/sixpan/ - prototype new CPAN tools [XXX: beef me up]
 
 == Test, Examples and Documentations
 
