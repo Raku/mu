@@ -120,11 +120,13 @@ instance Compile (SubName, [PIL_Decl]) [PIL_Decl] where
         return (PSub name SubPrim [] False False (combine bodyC PNil):decls)
 
 instance Compile (SubName, VCode) [PIL_Decl] where
+{-
     compile (name, vsub) | packageOf name /= packageOf (subName vsub) = do
         let storeC  = PBind [PVar $ qualify name] (PExp . PVar . qualify $ subName vsub)
             bodyC   = PStmts (PStmt . PExp $ storeC) PNil
             exportL = "__export_" ++ (render $ varText name)
         return [PSub exportL SubPrim [] False False bodyC]
+-}
     compile (name, vsub) = do
         bodyC   <- enter cxtItemAny . compile $ case subBody vsub of
             Syn "block" [body]  -> body
@@ -133,6 +135,11 @@ instance Compile (SubName, VCode) [PIL_Decl] where
         return [PSub name (subType vsub) paramsC (subLValue vsub) (isMulti vsub) bodyC]
 
 instance Compile (String, [(TVar Bool, TVar VRef)]) PIL_Expr where
+    compile (name, ((_, ref):_)) = do
+        rv <- readRef =<< liftSTM (readTVar ref)
+        case rv of
+            VCode sub   -> return $ PRawName (subName sub)
+            _           -> return $ PRawName name
     compile (name, _) = return $ PRawName name
 
 instance Compile Exp PIL_Stmts where
@@ -142,9 +149,11 @@ instance Compile Exp PIL_Stmts where
     compile (Stmts (Pad SOur _ exp) rest) = do
         compile $ mergeStmts exp rest
     compile (Stmts (Pad scope pad exp) rest) = do
-        expC    <- compile $ mergeStmts exp rest
         padC    <- compile $ padToList pad
-        return $ PPad scope ((map fst $ padToList pad) `zip` padC) expC
+        let symC = (map fst $ padToList pad) `zip` padC
+            exps = [ Syn ":=" [Var name, Var from] | (name, PRawName from) <- symC ]
+        expC    <- compile $ mergeStmts (foldl1 mergeStmts (exps ++ [exp])) rest
+        return $ PPad scope symC expC
     compile exp = compileStmts exp
 
 class EnterClass m a where

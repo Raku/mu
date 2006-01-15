@@ -20,10 +20,10 @@ exportSym scope ('&':subname) ref = do
     env <- getRuleEnv
     let newPkg = envPackage env
     exps <- forM subs $ \(VCode sub) -> do
-        let qName = '&':newPkg ++ "::" ++ subname
-        let mkMulti = if isMulti sub then ('&':) else id
-        let mkExp = Syn ":=" [Var ('&':subname), Syn "sub" [Val $ VCode sub]]
-        let mkSym = Sym scope (mkMulti ('&':subname)) mkExp
+        let name = ('&':subname)
+            mkMulti = if isMulti sub then ('&':) else id
+            mkExp = Syn ":=" [Var name, Syn "sub" [Val $ VCode sub]]
+            mkSym = Sym scope (mkMulti name) mkExp
         doExport scope mkSym
     return $ case scope of
         SMy -> Pad SMy (foldl unionPads (mkPad []) [ pad | Pad SMy pad _ <- exps ]) emptyExp
