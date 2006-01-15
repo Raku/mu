@@ -20,14 +20,14 @@ plan 18;
   my $arrayref = [<a b c>];
   my @array    = ($arrayref);
 
-  is +@array, 1, '@array = ($arrayref) does not flatten the arrayref', :todo<bug>;
+  is +@array, 1, '@array = ($arrayref) does not flatten the arrayref';
 }
 
 {
   my $arrayref = [<a b c>];
   my @array    = $arrayref;
 
-  is +@array, 1, '@array = $arrayref does not flatten the arrayref', :todo<bug>;
+  is +@array, 1, '@array = $arrayref does not flatten the arrayref';
 }
 
 # %hash = $hashref

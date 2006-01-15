@@ -11,4 +11,4 @@ eval '
   foo 42;
 ';
 
-is $was_in_sub, 42, 'calling a lexically defined my()-code var worked', :todo<bug>;
+is $was_in_sub, 42, 'calling a lexically defined my()-code var worked';

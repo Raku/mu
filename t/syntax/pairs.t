@@ -89,7 +89,7 @@ plan 35;
     is foo(@array_of_pairs), "[a\t42]",
         'an array of pairs is not treated magically...';
     is foo(*@array_of_pairs), "[a\t42]",
-        '...and *@array isn\'t either', :todo<unspecced>;
+        '...and *@array isn\'t either';
 }
 
 {

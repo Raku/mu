@@ -19,7 +19,7 @@ emulation.
     sub uhuh { 1 }
     sub nuhuh { undef }
 
-    ok((undef ~~ &uhuh), "scalar sub truth", :todo);
+    ok((undef ~~ &uhuh), "scalar sub truth");
     ok(!(undef ~~ &nuhuh), "negated scalar sub false");
 };
 
@@ -116,8 +116,8 @@ my %hash5 = ( "foo", 1, "bar", 1, "gorch", undef, "baz", undef );
 #Str     StrRange  in string range          match if $min le $_ le $max
 
 { #L<<S04/"Smart matching" /match if \$x\(\) \(ignoring \$_\)/>>
-    ok((1 ~~ { 1 }), "closure truth", :todo);
-    ok((undef ~~ { 1 }), 'ignores $_', :todo);
+    ok((1 ~~ { 1 }), "closure truth");
+    ok((undef ~~ { 1 }), 'ignores $_');
 };
 
 { #L<<S04/"Smart matching" /match if \$_\.does\(\$x\)/>>

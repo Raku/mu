@@ -154,12 +154,12 @@ plan 31;
   ';
 
   my $a = eval 'WierdTemp.new()';
-  ok defined($a), "instantiating a WierdTemp worked", :todo<feature>;
+  ok defined($a), "instantiating a WierdTemp worked";
   is $was_in_own_temp_handler, 0, ".TEMP method wasn't yet executed";
 
   {
     temp $a;
-    is $was_in_own_temp_handler, 1, ".TEMP method was executed on temporization", :todo<feature>;
+    is $was_in_own_temp_handler, 1, ".TEMP method was executed on temporization";
   }
-  is $was_in_own_temp_handler, 2, ".TEMP method was executed on restoration", :todo<feature>;
+  is $was_in_own_temp_handler, 2, ".TEMP method was executed on restoration";
 }

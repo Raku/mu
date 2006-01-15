@@ -20,4 +20,4 @@ dies_ok { exported_foo() },
     use t::packages::Export_PackC;
     lives_ok { foo_packc() } "lexical export works";
 }
-dies_ok { foo_packc() } "lexical export is indeed lexical", :todo<bug>;
+dies_ok { foo_packc() } "lexical export is indeed lexical";

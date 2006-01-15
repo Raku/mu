@@ -5,6 +5,7 @@ use Test;
 
 # L<S02/Names and Variables /To get a Perlish representation of any data value/>
 
+plan 97;
 
 unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
   skip_rest "eval() not yet implemented in $?PUGS_BACKEND.";
@@ -75,7 +76,7 @@ sub desc_ref ($obj) {
     }
 
     for ({ a => 42, },  { :a(1), :b(2), :c(3) },) -> $obj {
-        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj), :todo<bug>;
+        is ~$obj.perl.eval    , ~$obj    , desc_perl($obj);
         is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
     }
 
@@ -90,10 +91,13 @@ sub desc_ref ($obj) {
         is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);
     }
 
+    # tests 85-88
     for ({ a => [1,2,3], b => [4,5,6] }) -> $obj {
         is ~$obj.perl.eval    , ~$obj    , desc_perl($obj);
         is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj), :todo<bug>;
     }
+
+    # tests 89-92
     for ([ { :a(1) }, { :b(2), :c(3) } ],) -> $obj {
         is ~$obj.perl.eval    , ~$obj    , desc_perl($obj), :todo<bug> ;
         is  $obj.perl.eval.ref,  $obj.ref, desc_ref($obj);

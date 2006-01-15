@@ -25,7 +25,7 @@ sub take(Int $n, Code &f) { (1..$n).map:{ f() } }
 {
   my $coro  = coro { yield 42; yield 23; return 13; yield 19 };
   my @elems = take 7, $coro;
-  is ~@elems, "42 23 13 42 23 13 42", "return() resets the entrypoint", :todo<bug>;
+  is ~@elems, "42 23 13 42 23 13 42", "return() resets the entrypoint";
 }
 
 # Coroutines stored in an array

@@ -8,7 +8,7 @@ BEGIN { @*INC.unshift('t/oo/class/TestFiles'); }
 
 lives_ok {
     require ::Bar; # Should be equivalent to "require Bar"
-}, "We can generally require class literals", :todo<bug>;
+}, "We can generally require class literals";
 
 my $test1;
 lives_ok {

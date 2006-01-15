@@ -87,8 +87,7 @@ is $foo, 1, "die should stop execution immediately.";
 {
     my $foo = 1;
     eval 'if { 1 > 0 } { $foo = 2 } else { $foo = 3 }';
-    is $foo, 2, 'if with no parens, and closure as cond',:todo<bug>;
-    ### This is a parser problem.  This test has been copied to perlbugs.
+    is $foo, 2, 'if with no parens, and closure as cond';
 };
 
 # I'm not sure where this should go
