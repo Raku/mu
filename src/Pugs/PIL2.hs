@@ -212,8 +212,10 @@ instance JSON Exp where
     showJSON _ = "null"
 
 -- Non-canonical serialization... needs work
-instance (Show (TVar a)) => YAML (TVar a) where
-    asYAML _ = asYAML ()
+instance (Typeable a, YAML a) => YAML (TVar a) where
+    asYAML tv = do
+        v <- liftSTM (readTVar tv)
+        asYAML v
 instance (Show (TVar a)) => Perl5 (TVar a) where
     showPerl5 _ = "(warn '<ref>')"
 instance (Show (TVar a)) => JSON (TVar a) where
