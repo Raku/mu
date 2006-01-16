@@ -629,7 +629,7 @@ data Val
     | VType     !VType       -- ^ Type value (e.g. @Int@ or @Type@)
     {-!derive: Perl5, JSON!-}
 
-data Scope = SState | SMy | SOur | SLet | STemp | SGlobal -- ^ Global
+data Scope = SState | SLet | STemp | SEnv | SMy | SOur | SGlobal
     {-!derive: YAML, JSON, Perl5!-}
 
 data Pos = MkPos
@@ -1131,11 +1131,12 @@ data Env = MkEnv
                                          -- ('CxtVoid', 'CxtItem' or 'CxtSlurpy')
     , envLValue  :: !Bool                -- ^ Are we in an LValue context?
     , envLexical :: !Pad                 -- ^ Lexical pad for variable lookup
+    , envImplicit:: !(Map Var ())        -- ^ Set of implicit variables
     , envGlobal  :: !(TVar Pad)          -- ^ Global pad for variable lookup
     , envPackage :: !String              -- ^ Current package
     , envClasses :: !ClassTree           -- ^ Current class tree
     , envEval    :: !(Exp -> Eval Val)   -- ^ Active evaluator
-    , envCaller  :: !(Maybe Env)         -- ^ Caller's env
+    , envCaller  :: !(Maybe Env)         -- ^ Caller's "env" pad
     , envOuter   :: !(Maybe Env)         -- ^ Outer block's env
     , envBody    :: !Exp                 -- ^ Current AST expression
     , envDepth   :: !Int                 -- ^ Recursion depth

@@ -12,8 +12,8 @@ is((try {              my $a1 = my    $b1 = 42; $b1++; ($a1, $b1) }).perl, '(\\4
 is((try {              my $a2 = our   $b2 = 42; $b2++; ($a2, $b2) }).perl, '(\\42, \\43)', "chained my, our");
 is((try {              my $a3 = let   $b3 = 42; $b3++; ($a3, $b3) }).perl, '(\\42, \\43)', "chained my, let");
 is((try {              my $a4 = env   $b4 = 42; $b4++; ($a4, $b4) }).perl, '(\\42, \\43)', "chained my, env");
-is((try {              my $a5 = state $b5 = 42; $b5++; ($a5, $b5) }).perl, '(\\42, \\43)', "chained my, state");
-is((try { my $b6 = 10; my $a6 = temp  $b6 = 42; $b6++; ($a6, $b6) }).perl, '(\\42, \\43)', "chained my, temp");
+is((try {              my $a5 = state $b5 = 42; $b5++; ($a5, $b5) }).perl, '(\\42, \\43)', "chained my, state", :todo<bug>);
+is((try { my $b6 = 10; my $a6 = temp  $b6 = 42; $b6++; ($a6, $b6) }).perl, '(\\42, \\43)', "chained my, temp", :todo<bug>);
 
 # scoping
 

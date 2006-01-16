@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 17;
+plan 18;
 
 {
   env $a = 9;
@@ -72,7 +72,7 @@ plan 17;
   }
 
   $_ = 23;
-  is bar(), 42, '$_ is implicitly declared "env" (2)';
+  is bar(), 42, '$_ is implicitly declared "env" (2)', :todo<bug>;
 }
 
 {
@@ -119,14 +119,10 @@ plan 17;
   my sub modify { $CALLER::foo++ }
   env $foo is rw = 42;
   lives_ok { modify() },
-      'env() vars declared "is rw" are rw when accessed with $CALLER:: (1)';
+      'env() vars declared "is rw" are rw when accessed with $CALLER:: (1)', :todo<bug>;
   is $foo, 43,
-      'env() vars declared "is rw" are rw when accessed with $CALLER:: (2)';
+      'env() vars declared "is rw" are rw when accessed with $CALLER:: (2)', :todo<bug>;
 }
-
-=begin underspecced
-
-# Is $+foo really short for $CALLER::foo? S02 doesn't make this 100% clear.
 
 {
   my sub get_foo { try { $+foo } }
@@ -135,20 +131,16 @@ plan 17;
   is get_foo(), 42, '$+ is short for $CALLER::';
 }
 
-=end underspecced
-
-=cut
-
 # Rebinding caller's variables -- legal?
 {
   my $other_var = 23;
   my sub rebind_foo { $CALLER::foo := $other_var }
   env $foo = 42;
 
-  lives_ok { rebind_foo() }, 'rebinding $CALLER:: variables works (1)';
-  is $foo, 23,               'rebinding $CALLER:: variables works (2)';
+  lives_ok { rebind_foo() }, 'rebinding $CALLER:: variables works (1)', :todo<bug>;
+  is $foo, 23,               'rebinding $CALLER:: variables works (2)', :todo<bug>;
   $other_var++;
-  is $foo, 24,               'rebinding $CALLER:: variables works (3)';
+  is $foo, 24,               'rebinding $CALLER:: variables works (3)', :todo<bug>;
 }
 
 =pod

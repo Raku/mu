@@ -63,6 +63,7 @@ emptyEnv name genPad = liftSTM $ do
     return $ MkEnv
         { envContext = CxtVoid
         , envLexical = mkPad []
+        , envImplicit= Map.empty
         , envLValue  = False
         , envGlobal  = glob
         , envPackage = "main"
@@ -308,6 +309,9 @@ reducePos pos exp = do
         evalExp exp
 
 reducePad :: Scope -> Pad -> Exp -> Eval Val
+reducePad SEnv lex@(MkPad lex') exp = do
+    local (\e -> e{ envImplicit = Map.map (const ()) lex' `Map.union` envImplicit e }) $
+        reducePad SMy lex exp
 reducePad SMy lex exp = do
     -- heuristics: if we are repeating ourselves, generate a new TVar.
     lex' <- fmap mkPad $ liftSTM $ forM (padToList lex) $ \(name, tvars) -> do
@@ -986,11 +990,8 @@ doApply env sub@MkCode{ subCont = cont, subBody = fun, subType = typ } invs args
         , envOuter   = maybe Nothing envOuter (subEnv sub)
         }
     fixEnv :: Env -> Env
-    fixEnv env
-        | typ >= SubBlock = env
-        | otherwise       = env
-            { envCaller = Just env
-            , envDepth = envDepth env + 1 }
+    fixEnv | typ >= SubBlock = id
+           | otherwise       = envEnterCaller
     doBind :: [PadMutator] -> [(Param, Exp)] -> Eval ([PadMutator], [ApplyArg])
     doBind syms [] = return (syms, [])
     doBind syms ((prm, exp):rest) = do

@@ -15,7 +15,7 @@
 module Pugs.Monads (
     enterLex, enterContext, enterEvalContext, enterPackage, enterCaller,
     enterGiven, enterWhen, enterWhile, genSymPrim, genSymCC,
-    enterBlock, enterSub,
+    enterBlock, enterSub, envEnterCaller,
     evalVal, tempVar,
     
     MaybeT, runMaybeT,
@@ -26,6 +26,7 @@ import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
 import Control.Monad.RWS
+import qualified Data.Map as Map
 
 
 newtype MaybeT m a = MaybeT { runMaybeT :: m (Maybe a) }
@@ -88,9 +89,18 @@ enterPackage pkg = local (\e -> e{ envPackage = pkg })
 Enter a new environment and mark the previous one as 'Caller'.
 -}
 enterCaller :: Eval a -> Eval a
-enterCaller = local (\env -> env
+enterCaller = local envEnterCaller
+
+envEnterCaller :: Env -> Env
+envEnterCaller env = env
     { envCaller = Just env
-    , envDepth = envDepth env + 1 })
+        { envLexical = MkPad (lex `Map.intersection` envImplicit env)
+        }
+    , envDepth = envDepth env + 1
+    , envImplicit = Map.fromList [("$_", ())]
+    }
+    where
+    MkPad lex = envLexical env
 
 {-|
 Bind @\$_@ to the given topic value in a new lexical scope, then perform
@@ -243,7 +253,10 @@ enterSub sub action
                 { envOuter = Just env
                 , envPackage = maybe (envPackage e) envPackage (subEnv sub)
                 , envLexical = combine [blockRec]
-                    (subPad sub `unionPads` envLexical env) }
+                    (subPad sub `unionPads` envLexical env)
+                , envImplicit= envImplicit e `Map.union` Map.fromList
+                    [ ("&?BLOCK", ()) ]
+                }
         | otherwise = do
             subRec <- sequence
                 [ genSym "&?SUB" (codeRef (orig sub))
@@ -254,6 +267,8 @@ enterSub sub action
                 { envLexical = combine (concat [subRec, callerRec]) (subPad sub)
                 , envPackage = maybe (envPackage e) envPackage (subEnv sub)
                 , envOuter   = maybe Nothing envOuter (subEnv sub)
+                , envImplicit= envImplicit e `Map.union` Map.fromList
+                    [ ("&?SUB", ()), ("$?SUBNAME", ()), ("&?CALLER_CONTINUATION", ()) ]
                 }
     ccSub :: (Val -> Eval Val) -> Env -> VCode
     ccSub cc env = mkPrim

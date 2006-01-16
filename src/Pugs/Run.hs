@@ -157,10 +157,17 @@ prepareEnv name args = do
         , genSym "$*_" $ MkRef defSV
         , genSym "$*AUTOLOAD" $ MkRef autoSV
         ] ++ classes
+    -- defSVcell <- (genSym "$_" . MkRef) =<< newScalar undef
+    let env' = env
+    {-
+            { envLexical  = defSVcell (envLexical env)
+            , envImplicit = Map.singleton "$_" ()
+            }
+    -}
     unless safeMode $ do
-        initPerl5 "" (Just . VControl $ ControlEnv env{ envDebug = Nothing })
+        initPerl5 "" (Just . VControl $ ControlEnv env'{ envDebug = Nothing })
         return ()
-    initPreludePC env              -- null in first pass
+    initPreludePC env'             -- null in first pass
     where
     hideInSafemode x = if safeMode then MkRef $ constScalar undef else x
 

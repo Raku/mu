@@ -37,7 +37,8 @@ findVarRef name
         maybeCaller <- asks envCaller
         case maybeCaller of
             Just env -> local (const env) $ do
-                findVarRef (sig ++ name')
+                rv <- findVarRef (sig ++ name')
+                return rv
             Nothing -> retError "cannot access CALLER:: in top level" name
     | Just (package, name') <- breakOnGlue "::" name
     , Just (sig, "") <- breakOnGlue "OUTER" package = do
@@ -46,6 +47,7 @@ findVarRef name
             Just env -> local (const env) $ do
                 findVarRef (sig ++ name')
             Nothing -> retError "cannot access OUTER:: in top level" name
+    | (sig:'+':name') <- name = findVarRef (sig:("CALLER::"++name'))
     | (_:'?':_) <- name = do
         rv  <- getMagical name
         case rv of
@@ -488,17 +490,22 @@ qualify name = case isQualified name of
         in sigil ++ "main::" ++ name'
 
 isQualified :: String -> Maybe (String, String)
-isQualified name | Just (post, pre) <- breakOnGlue "::" (reverse name) =
+isQualified name
+    | Just (post, pre) <- breakOnGlue "::" (reverse name) =
     let (sigil, pkg) = span (not . isAlphaNum) preName
         name'       = possiblyFixOperatorName (sigil ++ postName)
         preName     = reverse pre
         postName    = reverse post
-    in Just (pkg, name')
+    in case takeWhile isAlphaNum pkg of
+        "OUTER"     -> Nothing
+        "CALLER"    -> Nothing
+        _           -> Just (pkg, name')
 isQualified _ = Nothing
 
 toQualified :: String -> Eval String
 toQualified name@(_:'*':_) = return name
 toQualified name@(_:'?':_) = return name
+toQualified name@(_:'+':_) = return name
 toQualified name@(_:"!") = return name
 toQualified name@(_:"/") = return name
 toQualified name = do

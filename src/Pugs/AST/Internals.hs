@@ -1099,11 +1099,12 @@ data Env = MkEnv
                                          -- ('CxtVoid', 'CxtItem' or 'CxtSlurpy')
     , envLValue  :: !Bool                -- ^ Are we in an LValue context?
     , envLexical :: !Pad                 -- ^ Lexical pad for variable lookup
+    , envImplicit:: !(Map Var ())        -- ^ Set of implicit variables
     , envGlobal  :: !(TVar Pad)          -- ^ Global pad for variable lookup
     , envPackage :: !String              -- ^ Current package
     , envClasses :: !ClassTree           -- ^ Current class tree
     , envEval    :: !(Exp -> Eval Val)   -- ^ Active evaluator
-    , envCaller  :: !(Maybe Env)         -- ^ Caller's env
+    , envCaller  :: !(Maybe Env)         -- ^ Caller's "env" pad
     , envOuter   :: !(Maybe Env)         -- ^ Outer block's env
     , envBody    :: !Exp                 -- ^ Current AST expression
     , envDepth   :: !Int                 -- ^ Recursion depth
@@ -1842,26 +1843,29 @@ instance JSON Val where
 
 instance YAML Scope where
     asYAML (SState) = asYAMLcls "SState"
-    asYAML (SMy) = asYAMLcls "SMy"
-    asYAML (SOur) = asYAMLcls "SOur"
     asYAML (SLet) = asYAMLcls "SLet"
     asYAML (STemp) = asYAMLcls "STemp"
+    asYAML (SEnv) = asYAMLcls "SEnv"
+    asYAML (SMy) = asYAMLcls "SMy"
+    asYAML (SOur) = asYAMLcls "SOur"
     asYAML (SGlobal) = asYAMLcls "SGlobal"
 
 instance JSON Scope where
     showJSON (SState) = showJSScalar "SState"
-    showJSON (SMy) = showJSScalar "SMy"
-    showJSON (SOur) = showJSScalar "SOur"
     showJSON (SLet) = showJSScalar "SLet"
     showJSON (STemp) = showJSScalar "STemp"
+    showJSON (SEnv) = showJSScalar "SEnv"
+    showJSON (SMy) = showJSScalar "SMy"
+    showJSON (SOur) = showJSScalar "SOur"
     showJSON (SGlobal) = showJSScalar "SGlobal"
 
 instance Perl5 Scope where
     showPerl5 (SState) = showP5Class "SState"
-    showPerl5 (SMy) = showP5Class "SMy"
-    showPerl5 (SOur) = showP5Class "SOur"
     showPerl5 (SLet) = showP5Class "SLet"
     showPerl5 (STemp) = showP5Class "STemp"
+    showPerl5 (SEnv) = showP5Class "SEnv"
+    showPerl5 (SMy) = showP5Class "SMy"
+    showPerl5 (SOur) = showP5Class "SOur"
     showPerl5 (SGlobal) = showP5Class "SGlobal"
 
 instance YAML Pos where
@@ -2056,16 +2060,16 @@ instance YAML Exp where
     asYAML (NonTerm aa) = asYAMLseq "NonTerm" [asYAML aa]
 
 instance YAML Env where
-    asYAML (MkEnv aa ab ac ad ae af ag ah ai aj ak al am an ao) =
+    asYAML (MkEnv aa ab ac ad ae af ag ah ai aj ak al am an ao ap) =
 	   asYAMLmap "MkEnv"
 	   [("envContext", asYAML aa) , ("envLValue", asYAML ab) ,
-	    ("envLexical", asYAML ac) , ("envGlobal", asYAML ad) ,
-	    ("envPackage", asYAML ae) , ("envClasses", asYAML af) ,
-	    ("envEval", asYAML ag) , ("envCaller", asYAML ah) ,
-	    ("envOuter", asYAML ai) , ("envBody", asYAML aj) ,
-	    ("envDepth", asYAML ak) , ("envDebug", asYAML al) ,
-	    ("envPos", asYAML am) , ("envPragmas", asYAML an) ,
-	    ("envInitDat", asYAML ao)]
+	    ("envLexical", asYAML ac) , ("envImplicit", asYAML ad) ,
+	    ("envGlobal", asYAML ae) , ("envPackage", asYAML af) ,
+	    ("envClasses", asYAML ag) , ("envEval", asYAML ah) ,
+	    ("envCaller", asYAML ai) , ("envOuter", asYAML aj) ,
+	    ("envBody", asYAML ak) , ("envDepth", asYAML al) ,
+	    ("envDebug", asYAML am) , ("envPos", asYAML an) ,
+	    ("envPragmas", asYAML ao) , ("envInitDat", asYAML ap)]
 
 instance YAML InitDat where
     asYAML (MkInitDat aa) = asYAMLmap "MkInitDat"
