@@ -8,6 +8,7 @@ import Data.Char (chr)
 import GHC.Exts
 import UTF8
 import Data.Typeable
+import Control.Exception
 
 type YAMLClass = String
 type YAMLKey = String
@@ -15,17 +16,20 @@ type YAMLVal = YamlNode
 
 showYaml :: YAML a => a -> IO String
 showYaml x = do
-    rv <- emitYaml =<< asYAML x
+    node    <- asYAML x
+    rv      <- emitYaml node
     case rv of
         Left e  -> error e
         Right s -> return s
 
 class Typeable a => YAML a where
     asYAML :: a -> IO YamlNode
-    asYAML x | ty == "()" = return nilNode
-             | otherwise  = return $ mkTagNode (tagHs ty) YamlNil
-        where
-        ty = (reverse (takeWhile (/= '.') (reverse (show (typeOf x)))))
+    asYAML x = do
+        ty <- Control.Exception.handle (const $ return "()") $
+            evaluate (reverse (takeWhile (/= '.') (reverse (show (typeOf x)))))
+        return $ case ty of
+            "()" -> nilNode
+            _    -> mkTagNode (tagHs ty) YamlNil
 
 asYAMLseq :: YAMLClass -> [IO YAMLVal] -> IO YamlNode
 asYAMLseq c ps = do
@@ -47,6 +51,8 @@ asYAMLcls c = return $ mkTagNode (tagHs c) (YamlStr c)
 
 tagHs :: YAMLClass -> String
 tagHs = ("tag:hs:" ++)
+
+instance YAML () where
 
 instance YAML Int where
     asYAML x = return $ mkTagNode "int" (YamlStr $ show x)

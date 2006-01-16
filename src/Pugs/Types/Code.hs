@@ -16,7 +16,7 @@ instance CodeClass ICode where
     code_fetch    = liftSTM . readTVar
     code_store    = (liftSTM .) . writeTVar
     code_assuming c [] [] = code_fetch c
-    code_assuming _ _ _   = undefined
+    code_assuming _ _ _   = error "assuming"
     code_apply    = error "apply"
     code_assoc c  = code_assoc . unsafePerformSTM $ readTVar c
     code_params c = code_params . unsafePerformSTM $ readTVar c

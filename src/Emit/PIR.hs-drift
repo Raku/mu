@@ -967,6 +967,6 @@ preludePIR = emit $
 instance YAML Doc where
     asYAML = asYAML . render
 instance Typeable Doc where
-    typeOf = undefined
+    typeOf _ = typeOf ()
 
 ------------------------------------------------------------------------

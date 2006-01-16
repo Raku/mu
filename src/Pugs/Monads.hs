@@ -223,7 +223,7 @@ enterSub sub action
         env <- ask
         if typ >= SubBlock
             then do
-                doFix <- fixEnv undefined env
+                doFix <- fixEnv return env
                 local doFix action
             else resetT $ callCC $ \cc -> do
                 doFix <- fixEnv cc env

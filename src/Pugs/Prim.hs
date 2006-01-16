@@ -14,7 +14,6 @@ module Pugs.Prim (
     primOp,
     primDecl,
     initSyms,
-    op2DefinedOr,
     op2ChainedList,
     op1Exit,
     op1Return,
@@ -1240,9 +1239,6 @@ op2Logical f x y = do
     if ok then return x else do
     ref <- fromVal y
     forceRef ref
-
-op2DefinedOr :: Val
-op2DefinedOr = undefined
 
 op2Identity :: Val -> Val -> Eval Val
 op2Identity (VObject x) (VObject y) = return $ VBool (objId x == objId y)

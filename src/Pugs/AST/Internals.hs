@@ -1793,7 +1793,6 @@ instance YAML VHandle
 instance YAML VHash
 instance YAML VOpaque
 instance YAML VSocket
-instance YAML PerlSV
 instance Typeable Unique where typeOf _ = typeOf ()
 instance Typeable ProcessHandle where typeOf _ = typeOf ()
 instance Typeable ExitCode where typeOf _ = typeOf ()

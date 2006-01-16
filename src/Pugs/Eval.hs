@@ -389,7 +389,7 @@ reduceSyn "sub" [exp] = do
     (VCode sub) <- enterEvalContext (cxtItem "Code") exp
     env  <- ask
     cont <- if subType sub /= SubCoroutine then return Nothing else liftSTM $ do
-        tvar <- newTVar undefined
+        tvar <- newTVar (error "empty sub")
         let thunk = (`MkThunk` anyType) . fix $ \redo -> do
             evalExp $ subBody sub
             liftSTM $ writeTVar tvar thunk
