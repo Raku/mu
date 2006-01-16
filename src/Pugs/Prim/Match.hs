@@ -52,7 +52,7 @@ doMatch csChars MkRulePCRE{ rxRegex = re } = do
     let ((fromBytes, lenBytes):subs) = Array.elems (fromJust rv)
         substr str from len = take len (drop from str)
         subsMatch = [
-            VMatch $ mkMatchOk
+            VMatch $ if fBytes == -1 then mkMatchFail else mkMatchOk
                 fChars (fChars + lChars)
                 (substr csChars fChars lChars)
                 [] Map.empty
