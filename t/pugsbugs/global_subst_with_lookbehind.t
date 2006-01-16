@@ -15,5 +15,5 @@ plan 1;
 
 my $s="Foo Hee";
 $s ~~ s:perl5:g/(?<!\:)\b(?=[A-Z])/X::/;
-is($s,"X::Foo X::Hee");
+is($s,"X::Foo X::Hee", :todo<bug>);
 # The current result of "X::Foo X::X::Hee" is obviously not correct.
