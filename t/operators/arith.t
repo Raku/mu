@@ -323,7 +323,7 @@ is $inf2, Inf, "Inf**Inf";
 # for why these three values are defined like they are.
 is 0.9**Inf, 0,   "0.9**Inf converges towards 0";
 is 1.1**Inf, Inf, "1.1**Inf diverges towards Inf";
-is 1**Inf, 1 , :todo("1**Inf == 1");
+is 1**Inf, 1;
 
 #flunk("1**Inf is platform-specific -- it's 1 on OSX and NaN elsewhere", :todo);
 

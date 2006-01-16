@@ -54,6 +54,8 @@ op1Numeric f x          = fmap (VNum . f) (fromVal x)
 
 op2Exp :: Val -> Val -> Eval Val
 op2Exp x y = do
+    num1 <- fromVal =<< fromVal' x
+    if num1 == (1 :: VNum) then return (VInt 1) else do
     num2 <- fromVal =<< fromVal' y
     case reverse $ show (num2 :: VNum) of
         ('0':'.':_) -> do
