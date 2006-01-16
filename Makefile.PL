@@ -316,7 +316,8 @@ EOD
         my $ldflags = parrot_config($base, $parrot_config, 'ldflags');
         my $libs = parrot_config($base, $parrot_config, 'libs');
         my $icuflags = parrot_config($base, $parrot_config, 'icu_shared');
-		    my $include_path = parrot_config($base, $parrot_config, 'prefix') . parrot_config($base, $parrot_config, 'inc');
+        my $include_path = parrot_config($base, $parrot_config, 'prefix') . parrot_config($base, $parrot_config, 'inc');
+        my $rpath_blib = parrot_config($base, $parrot_config, 'rpath_blib');
 
         # Convert flags to -optc-*
         $ldflags =~ s/-/-optl-/g;
@@ -324,11 +325,13 @@ EOD
         $icuflags =~ s/-/-optl-/g;
         $include_path =~ s/-/-optc-/g;
         $embed_flags .= " -I$include_path" if $include_path =~ /\S/;
+        $rpath_blib =~ s/(^| )-/$1-optl-/g;
 
         $embed_flags .= " -I$base/include -L$base/blib/lib -L$base/lib/blib/lib -DPUGS_HAVE_PARROT -L/usr/local/lib $ldflags ";
         $ghc_output .= " -lparrot $libs $icuflags ";
         my $config = "$base/src/parrot_config$Config{_o}";
         $ghc_output .= " $config " if -e $config;
+        $ccdlflags .= " $rpath_blib ";
 
         # parrot include paths for hsc2hs
         $hsc2hs_flags .= " -DPUGS_HAVE_PARROT -I$base/include ";
