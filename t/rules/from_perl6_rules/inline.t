@@ -19,7 +19,7 @@ if(!eval('("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
-ok("abcDEFghi" ~~ m/abc (:i def) ghi/, 'Match', :todo<feature>);
+ok("abcDEFghi" ~~ m/abc (:i def) ghi/, 'Match');
 ok(!( "abcDEFGHI" ~~ m/abc (:i def) ghi/ ), 'Mismatch');
 
 }

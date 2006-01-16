@@ -25,7 +25,7 @@ ok("abc1_2" ~~ m/^ <?ident> $/, '<?ident>');
 ok(!defined($/<ident>), 'Uncaptured <?ident>');
 ok(!( "7abc1_2" ~~ m/^ <?ident> $/ ), 'not <?ident>');
 
-ok("\t \n\t" ~~ m/^ <?ws> $/, '<?ws>', :todo<bug>);
+ok("\t \n\t" ~~ m/^ <?ws> $/, '<?ws>');
 ok(!defined($/<ws>), 'Uncaptured <?ws>');
 ok(!( "7abc1_2" ~~ m/^ <?ws> $/ ), 'not <?ws>');
 
@@ -33,12 +33,12 @@ ok(" " ~~ m/^ <?sp> $/, '<?sp>');
 ok(!defined($/<sp>), 'Uncaptured <?sp>');
 ok(!( "7abc1_2" ~~ m/<?sp>/ ), 'not <?sp>');
 
-ok(" \t\t \t" ~~ m/^ (\h+) $/, '\h', :todo<bug>);
-is($/, " \t\t \t", 'captured \h', :todo<bug>);
+ok(" \t\t \t" ~~ m/^ (\h+) $/, '\h');
+is($/, " \t\t \t", 'captured \h');
 ok(!( " \t\n " ~~ m/^ (\h+) $/ ), 'not \h');
 
-ok("\n\n" ~~ m/^ (\v+) $/, '\v', :todo<bug>);
-is($/, "\n\n", 'captured \v', :todo<bug>);
+ok("\n\n" ~~ m/^ (\v+) $/, '\v');
+is($/, "\n\n", 'captured \v');
 ok(!( " \t\n " ~~ m/^ (\v+) $/ ), 'not \v');
 
 

@@ -25,7 +25,7 @@ ok(   "abc  def" ~~ m:w/abc  def/, 'Word space match' );
 ok(   "abc\ndef" ~~ m:words/abc  def/, 'Word newline match' );
 ok(!( "abcdef"   ~~ m:words/abc  def/ ), 'Word nonspace nonmatch' );
 ok(!( "abc  def" ~~ m:words/abc <?sp> def/ ), 'Word explicit space non-match', :todo<bug> );
-ok(   "abc  def" ~~ m:words/abc <?ws> def/, 'Word explicit space match', :todo<bug> );
+ok(   "abc  def" ~~ m:words/abc <?ws> def/, 'Word explicit space match');
 
 }
 
