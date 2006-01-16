@@ -19,7 +19,7 @@ if(!eval('("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
 } else {
 
-force_todo 7, 11..12, 14, 15, 17, 18, 21, 22, 24, 25, 27, 28, 35..45;
+force_todo 1..12, 14..45;
 
 ok("  a b\tc" ~~ m/@<chars>:=[ \s+ \S+ ]+/, 'Named simple array capture');
 is(join("|",@{$/<chars>}), "  a| b|\tc", 'Captured strings');
@@ -39,7 +39,7 @@ our @GA;
 flunk "Test hangs", :todo<bug>;
 # ok("abcxyd" ~~ m/a  @GA:=(.(.))+  d/, 'Global array capture');
 is("@GA[]", "c y", 'Global array captured');
-ok(%$/.keys == 0, 'No vestigal captures', :todo<bug> );
+ok(%$/.keys == 0, 'No vestigal captures');
 
 my @foo;
 flunk "Test hangs", :todo<bug>;
