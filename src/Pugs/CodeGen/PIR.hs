@@ -392,6 +392,7 @@ genPIR = genPIRWith $ \globPIR mainPIR penv -> do
         , DeclSub "main" [SubANON] (concatMap vivifySub globPIR ++ mainPIR) ]
         , emit globPIR ] ]
 
+-- XXX - This is TOTALLY UNNECCESSARY for Parrot 0.4.2 and later.
 vivifySub :: Decl -> [Stmt]
 vivifySub (DeclNS "main" decls) = concatMap vivifySub decls
 vivifySub (DeclSub name@('&':c:_') [SubOUTER "main"] _)
