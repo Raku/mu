@@ -25,6 +25,8 @@ To install Pugs on your system, simply type this in the command line:
     make test
     make install
 
+Both make and make test can take a long time (perhaps hours).
+
 To change the installation location, pass PREFIX=/opt/wherever to 
 Makefile.PL like so:
 
