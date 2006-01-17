@@ -11,6 +11,7 @@
 
 module Pugs.CodeGen (codeGen, backends) where
 import Pugs.AST
+import Pugs.Pretty
 import Pugs.Internals
 import Pugs.CodeGen.PIL1 (genPIL1)
 import Pugs.CodeGen.PIL2 (genPIL2, genPIL2Perl5, genPIL2JSON, genPIL2YAML)
@@ -40,6 +41,7 @@ generators = Map.fromList $
     , ("PIL2-YAML",   genPIL2YAML)
     , ("Pugs",        genPugs)
     , ("Parse-YAML",  genParseYAML)
+    , ("Parse-Pretty",fmap (VStr . (++"\n") . pretty) (asks envBody))
 --  , ("XML",         genXML)
     ]
 
@@ -66,6 +68,7 @@ norm = norm' . map toLower . filter isAlphaNum
     norm' "pil2json"   = "PIL2-JSON"
     norm' "pil2yaml"   = "PIL2-YAML"
     norm' "parseyaml"  = "Parse-YAML"
+    norm' "parsepretty"= "Parse-Pretty"
     norm' "pugs"   = "Pugs"
     -- norm' "xml"    = "XML"
     norm' x        = x
