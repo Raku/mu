@@ -3,7 +3,6 @@
 module DrIFT.YAML where
 import Data.Yaml.Syck
 import Data.Ratio
-import Data.List (intersperse)
 import Data.Char (chr)
 import GHC.Exts
 import UTF8
