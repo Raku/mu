@@ -461,25 +461,26 @@ copy of the GPL as part of the Rosetta distribution, in the file named
 "GPL"; if not, write to the Free Software Foundation, Inc., 51 Franklin St,
 Fifth Floor, Boston, MA  02110-1301, USA.
 
-Linking Rosetta statically or dynamically with other files is making a
+Linking Rosetta statically or dynamically with other components is making a
 combined work based on Rosetta.  Thus, the terms and conditions of the GPL
 cover the whole combination.  As a special exception, the copyright holders
-of Rosetta give you permission to link Rosetta with independent files,
-regardless of the license terms of these independent files, and to copy
-and distribute the resulting combined work under terms of your choice,
-provided that every copy of the combined work is accompanied by a complete
-copy of the source code of Rosetta (the version of Rosetta used to produce
-the combined work), being distributed under the terms of the GPL plus this
-exception.  An independent file is a file which is not derived from or
-based on Rosetta, and which is fully useable when not linked to Rosetta in
-any form.
+of Rosetta give you permission to link Rosetta with other free software
+components, as defined by the Free Software Foundation at
+L<http://www.gnu.org/philosophy/free-sw.html>.  You may copy and distribute
+such a system following the terms of the GPL for Rosetta and the licenses
+of the other components concerned, provided that you include the source
+code of the other components when and as the GPL requires distribution of
+source code.  However, for an additional fee, the copyright holders of
+Rosetta can sell you an alternate, limited license that allows you to link
+Rosetta with non-free software components.
 
 Any versions of Rosetta that you modify and distribute must carry prominent
 notices stating that you changed the files and the date of any changes, in
 addition to preserving this original copyright notice and other credits.
 Rosetta is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE.
+FOR A PARTICULAR PURPOSE.  However, for an additional fee, the copyright
+holders of Rosetta can sell you a warranty for it.
 
 While it is by no means required, the copyright holders of Rosetta would
 appreciate being informed any time you create a modified version of Rosetta

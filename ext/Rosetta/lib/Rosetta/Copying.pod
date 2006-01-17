@@ -115,8 +115,12 @@ This is a summary of their licensing terms, but what is written in the
 components themselves takes precedence.
 
 Each core distribution is licensed under the GPL version 2.0 or later, with
-an exception granted to linked but independent components that are fully
-useable when not linked to said distribution.
+a linking exception granted for other software components whose own
+licenses qualify as free software according to
+L<http://www.gnu.org/philosophy/free-sw.html>; a system incorporating such
+components and any core Rosetta components can be distributed where the
+Rosetta components are subject to the GPL and the other such components to
+their licenses.
 
 That is, any third party component that links to Rosetta is required to be
 distributed under the GPL unless at least one of the following conditions
@@ -126,16 +130,11 @@ is met:
 *external* dependency, and the end user installs the third party component
 and Rosetta separately.  This is what the plain GPL allows.
 
-2. The third party component can bundle Rosetta with it, but that it's use
-of Rosetta is fully optional, and said component can still fulfil its
-purpose without Rosetta being present on the system.  This is what my
-exception permits but vanilla GPL does not.
+2. The third party component can bundle Rosetta with it, but that it's own
+license qualifies it as free software.  This is what my exception permits
+but vanilla GPL does not.
 
-I expect that any older database access modules for CPAN which are upgraded
-to use Rosetta under the hood will qualify for #2, assuming their users
-will be able to choose between using Rosetta and its pre-existing engine,
-which will be available in parallel.  So they can continue to use their own
-choice of licenses.
+3. I have sold them a proprietary license allowing it.
 
 All components of the Rosetta framework that I own are also available for
 sale under a proprietary license, for those people that want to extricate
@@ -144,6 +143,12 @@ Rosetta framework that I will have exclusive to myself, in addition to the
 methods that GPL licensing provides to everyone, such as support contracts
 and sponsored improvements.  The same dual-license business practice is
 also used effectively by MySQL AB and others.
+
+Note that I plan to relicense these same components explicitly under the
+GPL version 3 (or later) when that GPL version is finalized, barring any
+unexpected difficulties.  The first GPL v3 draft, published 2006.01.16 at
+L<http://gplv3.fsf.org/>, already looks good.  And it natively includes
+terms like my linking exception to v2 for other free software.
 
 I have no intention of broadly releasing Rosetta under any open source
 license but the GPL, such as the Perl or Artistic or BSD licenses, because
