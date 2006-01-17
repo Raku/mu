@@ -1688,9 +1688,9 @@ parseTerm = rule "term" $ do
     term <- choice
         [ ruleDereference
         , ruleVar
-        , ruleBarewordMethod
         , ruleApply True    -- Folded metaoperators
         , ruleLit
+        , ruleBarewordMethod
         , ruleClosureTrait True
         , ruleTypeVar
         , ruleTypeLiteral
