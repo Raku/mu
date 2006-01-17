@@ -57,6 +57,7 @@ op2Exp x y = do
     num1 <- fromVal =<< fromVal' x
     if num1 == (1 :: VNum) then return (VInt 1) else do
     num2 <- fromVal =<< fromVal' y
+    if num2 == (0 :: VNum) then return (VInt 1) else do
     case reverse $ show (num2 :: VNum) of
         ('0':'.':_) -> do
             num1 <- fromVal =<< fromVal' x

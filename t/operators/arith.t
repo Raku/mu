@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 185;
+plan 186;
 
 my $five = abs(-5);
 
@@ -311,6 +311,7 @@ is Inf*Inf, Inf;
 is Inf/Inf, NaN;
 is Inf*Inf/Inf, NaN;
 is Inf**0, 1;
+is 0**0, 1;
 is 0**Inf, 0;
 
 my $inf1 = 100**Inf;
