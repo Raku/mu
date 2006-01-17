@@ -21,7 +21,7 @@ module Pugs.Lexer (
 
     rule, verbatimRule, literalRule,
     tryRule, tryVerbatimRule,
-    tryChoice,
+    tryChoice, ruleComma,
 
     ruleScope, ruleTrait, ruleTraitName, ruleBareTrait, ruleType,
     verbatimParens, verbatimBrackets, verbatimBraces,
@@ -60,9 +60,6 @@ perl6Lexer = P.makeTokenParser perl6Def
 
 maybeParens :: CharParser st a -> CharParser st a
 maybeParens p = choice [ parens p, p ]
-
-maybeVerbatimBrackets :: CharParser st a -> CharParser st a
-maybeVerbatimBrackets p = choice [ verbatimBrackets p, p ]
 
 parens     :: CharParser st a -> CharParser st a
 parens     = P.parens     perl6Lexer
@@ -196,9 +193,11 @@ interpolatingStringLiteral startrule endrule interpolator = do
         ]
 
 -- | Backslashed non-alphanumerics (except for @\^@) translate into themselves.
-escapeCode      :: GenParser Char st Char
-escapeCode      = charEsc <|> charNum <|> charAscii <|> charControl <|> anyChar
+escapeCode      :: GenParser Char st String
+escapeCode      = ch charEsc <|> charNum <|> ch charAscii <|> ch charControl <|> ch anyChar
                 <?> "escape code"
+    where
+    ch = fmap (:[])
 
 charControl :: GenParser Char st Char
 charControl     = do{ char 'c'
@@ -206,19 +205,27 @@ charControl     = do{ char 'c'
                     ; return (toEnum (fromEnum code - fromEnum '@'))
                     }
 
-charNum :: GenParser Char st Char                    
+-- This is currently the only escape that can return multiples.
+charNum :: GenParser Char st String
 charNum = do
-    code <- choice
-        [ decimal 
+    codes <- choice
+        [ fmap (:[]) decimal 
         , based 'o'  8 octDigit
         , based 'x' 16 hexDigit
         , based 'd' 10 digit
         ]
-    return . toEnum $ fromInteger code
+    return $ map (toEnum . fromInteger) codes
     where
     based ch num p = do
         char ch
-        maybeVerbatimBrackets (number num p)
+        choice [ verbatimBrackets (number num p `sepEndBy1` ruleComma)
+               , fmap (:[]) (number num p)
+               ]
+
+ruleComma :: GenParser Char st ()
+ruleComma = do
+    lexeme (char ',')
+    return ()
 
 number :: Integer -> GenParser tok st Char -> GenParser tok st Integer
 number base baseDigit

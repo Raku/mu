@@ -2060,11 +2060,6 @@ parseNoParenParamList = do
         a <- option [] $ try $ many pairOrBlockAdverb
         return (x:a, ruleComma)
         
-ruleComma :: RuleParser ()
-ruleComma = do
-    lexeme (char ',')
-    return ()
-
 ruleCommaOrSemicolon :: RuleParser ()
 ruleCommaOrSemicolon = do
     lexeme (oneOf ",;")
@@ -2285,7 +2280,7 @@ qInterpolatorChar :: RuleParser Exp
 qInterpolatorChar = do
     char '\\'
     nextchar <- escapeCode -- see Lexer.hs
-    return (Val $ VStr [nextchar])
+    return (Val $ VStr nextchar)
 
 qInterpolateDelimiter :: Char -> RuleParser Exp
 qInterpolateDelimiter protectedChar = do

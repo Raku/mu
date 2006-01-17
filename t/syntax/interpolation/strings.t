@@ -11,7 +11,7 @@ These tests derived from comments in L<"http://use.perl.org/~autrijus/journal/23
 
 =cut
 
-plan 32;
+plan 30;
 
 my $world = "World";
 my @list  = (1,2);
@@ -67,5 +67,5 @@ is("x  \x[41,42,00043]  x",  "x  ABC  x",  "\\x[] allows multiple chars (2)");
 is("x  \d[65,66,67]  x",     "x  ABC  x",  "\\d[] allows multiple chars (1)");
 is("x  \d[65,66,000067]  x", "x  ABC  x",  "\\d[] allows multiple chars (2)");
 
-is("x  \x[41,42,43]]  x",    "x  ABC]  x", "\\d[] should not eat following ]s");
-is("x  \d[65,66,67]]  x",    "x  ABC]  x", "\\x[] should not eat following ]s");
+is("x  \x[41,42,43]]  x",    "x  ABC]  x", "\\x[] should not eat following ]s");
+is("x  \d[65,66,67]]  x",    "x  ABC]  x", "\\d[] should not eat following ]s");
