@@ -43,7 +43,7 @@ Tests the given block, as defined in L<S04/"Switch statements">
     my $foo;
     try { given "foo" { when "bar", /foo/ { $foo = 1 } } };
 
-    ok($foo, "foo was found in OR when");
+    ok($foo, "foo was found in OR when", :todo<feature>);
 };
 
 
