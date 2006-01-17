@@ -23,23 +23,6 @@ following places:
 
 WRITEME
 
-=head2 Flags separation
-
-Pugs uses C<--> to separate flags of Pugs itself and arguments to the program.
-For example, this will print C<--help>:
-
-    $ pugs -e 'say @ARGS' -- --help
-
-But this will show the help message of Pugs:
-
-    $ pugs -e 'say @ARGS' --help
-
-For the same reason, to use Pugs in the Unix C<#!> line, add an extra C<-->
-after it:
-
-    #!/usr/bin/pugs --
-    say 'Hello, ', @ARGS, '!';
-
 =head2 Command line options
 
 You can pass various command line options to Pugs.

@@ -18,12 +18,11 @@
 -}
 
 -- | Command line argument parser for pugs.
-module Pugs.Run.Args (canonicalArgs
-, gatherArgs
-, unpackOptions
-
-)
-where
+module Pugs.Run.Args (
+    canonicalArgs,
+    gatherArgs,
+    unpackOptions,
+) where
 import Pugs.Internals
 
 {- | 
@@ -52,11 +51,19 @@ procArg (File name)     = [name]
 procArg (Switch name)   = ['-':name:[]]
 
 unpackOptions :: [String] -> [String]
-unpackOptions [] = []
-unpackOptions (('-':[]):rest)  = ["-"] ++ unpackOptions rest
-unpackOptions ("--":opts) = ["--"] ++ opts
-unpackOptions (('-':opt):rest) = unpackOption opt ++ unpackOptions rest
-unpackOptions (filename:rest) = filename : unpackOptions rest
+unpackOptions []                = []
+unpackOptions (("-"):rest)      = ("-":unpackOptions rest)
+unpackOptions opts@("--":_)     = opts
+unpackOptions (('-':opt):arg:rest)
+    | takesArg opt              = unpackOption opt ++ (arg:unpackOptions rest)
+unpackOptions (('-':opt):rest)  = unpackOption opt ++ unpackOptions rest
+unpackOptions opts@[filename]   = opts
+unpackOptions (filename:rest)   = filename : "--" : unpackOptions rest
+
+takesArg :: String -> Bool
+takesArg xs     | xs `elem` withParam   = True
+takesArg (x:xs) | x `elem` composable   = takesArg xs
+takesArg _                              = False
 
 unpackOption :: String -> [String]
 unpackOption "" = [] -- base case for composing
