@@ -13,6 +13,9 @@ Learning Perl 6
   
   * Quickref
   
+  Concise summaries of how to do various common things in Perl 6.  Probably
+  too terse to serve as a tutorial, but useful nonetheless.
+  
   http://svn.openfoundry.org/pugs/docs/quickref/
   (or docs/quickref/ in your local copy)
   
@@ -21,7 +24,11 @@ Learning Perl 6
   http://svn.openfoundry.org/examples/
   (or examples/ in your local copy)
   
-  * The Synopses
+  * Synopses
+  
+  The official Perl 6 design documents, as maintained by @Larry.  Can be a
+  little hard to follow sometimes, particularly for newcomers, but you may
+  want to give them a try anyway.
   
   http://svn.perl.org/perl6/doc/trunk/design/syn/  (official repo)
   http://dev.perl.org/perl6/doc/synopsis.html      (HTML versions)
@@ -35,9 +42,24 @@ Installing Pugs
 
   * Windows
   
+  Windows users who don't want the hassle of building Pugs themselves should
+  try the binaries in PXPerl.
+  
   http://pxperl.com/
   
   * Other Platforms
   
+  Use your favourite Subversion client to grab the latest revision from the
+  official Pugs repository.
+  
   http://svn.openfoundry.org/pugs/
+
+  You can also try getting one of the releases from CPAN, but if you're going
+  to build it yourself anyway, you might as well try the latest SVN revision.
+  
   http://search.cpan.org/~autrijus/Perl6-Pugs/
+  
+  Pugs is written in Haskell, so you'll need a recent version of GHC to build
+  it.  (As of writing, 6.4.1 is recommended; 6.4 works on some platforms.)
+  
+  http://haskell.org/ghc/download.html
