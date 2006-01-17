@@ -22,7 +22,7 @@ exportSym scope ('&':subname) ref = do
     exps <- forM subs $ \(VCode sub) -> do
         let name = ('&':subname)
             mkMulti = if isMulti sub then ('&':) else id
-            mkExp = Syn ":=" [Var name, Syn "sub" [Val $ VCode sub]]
+            mkExp = Syn ":=" [Var name, Val $ VCode sub]
             mkSym = Sym scope (mkMulti name) mkExp
         doExport scope mkSym
     return $ case scope of
