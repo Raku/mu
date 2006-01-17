@@ -1,7 +1,6 @@
+package t::packages::Test;
 
-package Our::Test;
-
-sub ns  { "Our::Test" }
+sub ns  { "t::packages::Test" }
 
 sub pkg { $?PACKAGE }
 
@@ -11,20 +10,16 @@ sub get_our_pkg {
     Our::Package::pkg();
 }
 
-# these are currently parsefail - hence the eval
-eval '
 our package Our::Package {
 
     sub pkg { $?PACKAGE }
 
 }
-';
 
 sub cant_see_pkg {
     return My::Package::pkg();
 }
 
-eval '
 {
     sub my_pkg {
         return My::Package::pkg();
@@ -35,6 +30,5 @@ eval '
     }
 
 }
-';
 
 sub dummy_sub_with_params($arg1, $arg2) is export { "[$arg1] [$arg2]" }
