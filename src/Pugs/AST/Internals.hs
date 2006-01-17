@@ -2063,7 +2063,7 @@ instance YAML Env where
     asYAML (MkEnv aa ab ac ad ae af ag ah ai aj ak al am an ao ap) =
 	   asYAMLmap "MkEnv"
 	   [("envContext", asYAML aa) , ("envLValue", asYAML ab) ,
-	    ("envLexical", asYAML ac) , ("envImplicit", asYAML ad) ,
+	    ("envLexical", asYAML ac) , -- ("envImplicit", asYAML ad) , -- XXX
 	    ("envGlobal", asYAML ae) , ("envPackage", asYAML af) ,
 	    ("envClasses", asYAML ag) , ("envEval", asYAML ah) ,
 	    ("envCaller", asYAML ai) , ("envOuter", asYAML aj) ,
