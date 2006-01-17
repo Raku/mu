@@ -1,0 +1,43 @@
+Getting Started with Perl 6
+
+(This is mostly just a skeleton with a few key URLs; feel free to flesh it out,
+improve the formatting etc.)
+
+
+Learning Perl 6
+
+  Unfortunately, there doesn't yet seem to be much in the way of tutorials for
+  people new to Perl 6.
+  
+  These are a few resources you may want to try reading:
+  
+  * Quickref
+  
+  http://svn.openfoundry.org/pugs/docs/quickref/
+  (or docs/quickref/ in your local copy)
+  
+  * Examples
+  
+  http://svn.openfoundry.org/examples/
+  (or examples/ in your local copy)
+  
+  * The Synopses
+  
+  http://svn.perl.org/perl6/doc/trunk/design/syn/  (official repo)
+  http://dev.perl.org/perl6/doc/synopsis.html      (HTML versions)
+  
+  * perl6-language
+  
+  http://www.nntp.perl.org/group/perl.perl6.language
+
+
+Installing Pugs
+
+  * Windows
+  
+  http://pxperl.com/
+  
+  * Other Platforms
+  
+  http://svn.openfoundry.org/pugs/
+  http://search.cpan.org/~autrijus/Perl6-Pugs/
