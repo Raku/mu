@@ -71,7 +71,7 @@ unpackOptions (('-':opt):arg:rest)
     | takesArg opt              = unpackOption opt ++ (arg:unpackOptions rest)
 unpackOptions (('-':opt):rest)  = unpackOption opt ++ unpackOptions rest
 unpackOptions opts@[filename]   = opts
-unpackOptions (filename:rest)   = filename : "--" : unpackOptions rest
+unpackOptions (filename:rest)   = filename : "--" : rest
 
 takesArg :: String -> Bool
 takesArg xs     | xs `elem` withParam   = True
