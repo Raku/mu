@@ -948,12 +948,12 @@ op2 "chmod" = \x y -> do
     files <- fromVals y
     rets  <- mapM (doBoolIO . flip setFileMode $ toEnum mode) files
     return . VInt . sum $ map bool2n rets
-op2 "List::splice" = \x y -> do
+op2 "splice" = \x y -> do
     fetchSize   <- doArray x array_fetchSize
     len'        <- fromVal y
     sz          <- fetchSize
     let len = if len' < 0 then if sz > 0 then (len' `mod` sz) else 0 else len'
-    op4 "List::splice" x y (castV (sz - len)) (VList [])
+    op4 "splice" x y (castV (sz - len)) (VList [])
 op2 "sort" = \x y -> do
     xs <- fromVals x
     ys <- fromVals y
@@ -1053,8 +1053,8 @@ op3 "rindex" = \x y z -> do
         | null a           = -1
         | otherwise        = doRindex (init a) b 0
 
-op3 "List::splice" = \x y z -> do
-    op4 "List::splice" x y z (VList [])
+op3 "splice" = \x y z -> do
+    op4 "splice" x y z (VList [])
 op3 "split" = op3Split
 op3 "Str::split" = \x y z -> do
     op3 "split" y x z
@@ -1169,7 +1169,7 @@ op4 "substr" = \x y z w -> do
         | otherwise = ((take pos str), VStr (take len $ drop pos str), (drop (pos + len) str))
 
 -- op4 "splice" = \x y z w-> do
-op4 "List::splice" = \x y z w -> do
+op4 "splice" = \x y z w -> do
     splice  <- doArray x array_splice
     start   <- fromVal y
     count   <- fromVal z
@@ -1518,9 +1518,9 @@ initSyms = mapM primDecl syms
 \\n   List      pre     grep    safe   (Array: Code)\
 \\n   List      pre     sort    safe   (Array: Code)\
 \\n   List      pre     reduce  safe   (Array: Code)\
-\\n   Any       pre     List::splice  safe   (rw!Array, ?Int=0)\
-\\n   Any       pre     List::splice  safe   (rw!Array, Int, Int)\
-\\n   Any       pre     List::splice  safe   (rw!Array, Int, Int, List)\
+\\n   Any       pre     splice  safe   (rw!Array, ?Int=0)\
+\\n   Any       pre     splice  safe   (rw!Array, Int, Int)\
+\\n   Any       pre     splice  safe   (rw!Array, Int, Int, List)\
 \\n   Int       pre     push    safe   (rw!Array, List)\
 \\n   Int       pre     unshift safe   (rw!Array, List)\
 \\n   Scalar    pre     List::pop     safe   (rw!Array)\
