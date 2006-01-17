@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fvia-C -optc-w #-}
+{-# OPTIONS_GHC -fglasgow-exts -fvia-C -optc-w -fno-warn-unused-binds #-}
 #include "../../syck/syck.h"
 #include "../../cbits/fpstring.h"
 
