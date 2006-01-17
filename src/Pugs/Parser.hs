@@ -1704,7 +1704,7 @@ parseTerm = rule "term" $ do
 ruleBarewordMethod :: RuleParser Exp
 ruleBarewordMethod = try $ do
     name <- identifier
-    lookAhead (char '.')
+    lookAhead (char '.' >> ruleSubName)
     return $ Var (':':name)
 
 ruleTypeVar :: RuleParser Exp
@@ -1775,7 +1775,7 @@ ruleInvocationCommon mustHaveParens = do
     colonify    <- maybeColon
     hasEqual    <- option False $ do { char '='; whiteSpace; return True }
     name        <- do { str <- ruleSubName; return $ colonify str }
-    (invs,args) <- if mustHaveParens
+    (invs, args) <- if mustHaveParens
         then parseHasParenParamList
         else do  --  $obj.foo: arg1, arg2    # listop method call
                  -- we require whitespace after the colon (but not before)
