@@ -346,7 +346,9 @@ ruleRuleDeclaration = rule "rule declaration" $ try $ do
 
 rulePackageBlockDeclaration :: RuleParser Exp
 rulePackageBlockDeclaration = rule "package block declaration" $ do
+    -- scope <- option Nothing $ fmap Just ruleScope
     (_, kind, pkgVal, env) <- try $ do
+        optional ruleScope -- XXX - not handled yet
         rv <- rulePackageHead
         lookAhead (char '{')
         return rv
@@ -357,6 +359,8 @@ rulePackageBlockDeclaration = rule "package block declaration" $ do
 
 rulePackageDeclaration :: RuleParser Exp
 rulePackageDeclaration = rule "package declaration" $ try $ do
+    -- scope <- option Nothing $ fmap Just ruleScope
+    optional ruleScope -- XXX - not handled yet
     (_, kind, pkgVal, _) <- rulePackageHead
     return $ Syn "package" [kind, pkgVal]
 
