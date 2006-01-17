@@ -23,11 +23,11 @@ isnt eval('10_.0'), 10, "Underscore before . fails";
 
 is 3.1_41, 3.141, "Underscores work with floating point after decimal";
 
-isnt 10_0.8, 100.8, "Underscores work with floating point before decimal";
+is 10_0.8, 100.8, "Underscores work with floating point before decimal";
 
 is 0xdead_beef, 0xdeadbeef, "Underscores work with hex";
 
-is 0b1101_1110_1010_1101_1011_1111_0110_1000, 0xdeadbeef, "Underscores work with binary";
+is 0b1101_1110_1010_1101_1011_1110_1110_1111, 0xdeadbeef, "Underscores work with binary";
 
 is 2e0_1, 20, "Underscores work in the argument for e";
 

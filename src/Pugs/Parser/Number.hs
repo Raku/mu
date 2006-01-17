@@ -90,7 +90,7 @@ naturalOrRat  = (<?> "number") $ do
 
     number base baseDigit = do
         d   <- baseDigit
-        ds  <- many (baseDigit <|> char '_')
+        ds  <- many (baseDigit <|> do { char '_'; lookAhead baseDigit; return '_' })
         let n = foldl (\x d -> base*x + toInteger (digitToInt d)) 0 digits
             digits = (d : filter (/= '_') ds)
         seq n (return n)

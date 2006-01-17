@@ -9,6 +9,8 @@ XXX big things not mentioned here:
 
 == Feature Changes
 
+* 1__0 is now a parsefail.
+
 === Shared components
 
 * pugs now recommends GHC 6.4.1 or a recent development snapshot,
