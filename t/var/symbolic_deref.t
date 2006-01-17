@@ -49,7 +49,7 @@ plan 22;
   my $result;
 
   try {
-    my $a_var = 42;
+    env $a_var = 42;
     my $sub   = sub { $::("CALLER")::("a_var") };
     $result = $sub();
   };
