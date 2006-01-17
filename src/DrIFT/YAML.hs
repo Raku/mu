@@ -52,6 +52,9 @@ asYAMLcls c = return $ mkTagNode (tagHs c) (YamlStr c)
 tagHs :: YAMLClass -> String
 tagHs = ("tag:hs:" ++)
 
+instance YAML () where
+    asYAML _ = return nilNode
+
 instance YAML Int where
     asYAML x = return $ mkTagNode "int" (YamlStr $ show x)
 

@@ -3,10 +3,12 @@
 #ifndef PUGS_HAVE_PERL5
 module Pugs.Embed.Perl5 where
 import Foreign.C.Types
+import Data.Typeable
 
 type PerlInterpreter = ()
-type PerlSV = ()
-type PugsVal = ()
+data PerlSV = MkPerlSV -- phantom type
+    deriving (Show, Eq, Ord, Typeable)
+type PugsVal = PerlSV
 
 constFail :: a -> IO b
 constFail = const $ fail "perl5 not embedded"
@@ -36,10 +38,10 @@ svToVal :: PerlSV -> IO a
 svToVal = constFail
 
 mkVal :: (Show a) => a -> IO PugsVal
-mkVal = const $ return ()
+mkVal = constFail
 
 mkValRef :: a -> IO PerlSV
-mkValRef = const $ return ()
+mkValRef = constFail
 
 vstrToSV :: String -> IO PerlSV
 vstrToSV = constFail
