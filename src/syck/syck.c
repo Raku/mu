@@ -482,6 +482,12 @@ syck_parser_readlen( SyckParser *p, long max_size )
     return len;
 }
 
+#ifdef YYPARSE_PARAM
+extern int syckparse (void *YYPARSE_PARAM);
+#else
+extern int syckparse (void *parser);
+#endif
+
 SYMID
 syck_parse( SyckParser *p )
 {
