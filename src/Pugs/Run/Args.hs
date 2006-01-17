@@ -32,18 +32,31 @@ import Pugs.Internals
 
   > (-h -v -V) (-I) (-d) (-w) (-c) (-C) (--external) (-M) (-n -p) (-l -0 -e other)
 
-  Args -M, -n and -p are converted to -e scripts by joinDashE.
+  Args -M, -n and -p are converted to -e scripts by desugarDashE.
 -}
 canonicalArgs :: [String] -> [String]
 canonicalArgs x = concatMap procArg
-                . joinDashE
+                . concatDashE
+                . desugarDashE
                 . sortBy compareArgs
                 . gatherArgs
                 . unpackOptions
                 $ x
 
-data Arg = File String | Switch Char | Opt String String
-  deriving Show
+concatDashE :: [Arg] -> [Arg]
+concatDashE (Opt "-e" e:xs) = (Opt "-e" $ concat (intersperse "\n" (e:map optArg es))) : rest
+    where
+    (es, rest)          = partition isOptE xs
+    isOptE (Opt "-e" _) = True
+    isOptE _            = False
+concatDashE (x:xs) = (x:concatDashE xs)
+concatDashE xs = xs
+
+data Arg
+    = File !String
+    | Switch !Char
+    | Opt { optFlag :: !String, optArg :: !String }
+    deriving Show
 
 procArg :: Arg -> [String]
 procArg (Opt name arg)  = [name, arg]
@@ -69,7 +82,7 @@ unpackOption :: String -> [String]
 unpackOption "" = [] -- base case for composing
 unpackOption opt
     | Just short <- lookup ('-':opt) longOptions = [short]
-    | head opt `elem` composable = ('-':head opt:[]) : unpackOption (tail opt)
+    | head opt `elem` composable = ['-', head opt] : unpackOption (tail opt)
     | Just (prefix, param) <- prefixOpt opt = ['-':prefix, param]
     | otherwise = ['-':opt]
 
@@ -150,14 +163,14 @@ gatherArgs(x:xs)                  = [File x] ++ gatherArgs(xs)
    handle transformation of "-M", "-n"
    and "-p" into "-e" fragments
 -}
-joinDashE :: [Arg] -> [Arg]
-joinDashE [] = []
-joinDashE ((Switch 'p'):args) = joinDashE ((Opt "-e" "while ($_ = =<>) { $_ .= chomp;"):script++[(Opt "-e" "; say $_; }")]++rest)
+desugarDashE :: [Arg] -> [Arg]
+desugarDashE [] = []
+desugarDashE ((Switch 'p'):args) = desugarDashE ((Opt "-e" "while ($_ = =<>) { $_ .= chomp;"):script++[(Opt "-e" "; say $_; }")]++rest)
                                  where
                                    (script,rest) = partition isDashE args
                                    isDashE (Opt "-e" _) = True
                                    isDashE (_) = False
-joinDashE ((Switch 'n'):args) = joinDashE ((Opt "-e" "while ($_ = =<>) { $_ .= chomp;"):script++[(Opt "-e" "}")]++rest)
+desugarDashE ((Switch 'n'):args) = desugarDashE ((Opt "-e" "while ($_ = =<>) { $_ .= chomp;"):script++[(Opt "-e" "}")]++rest)
                                  where
                                    (script,rest) = partition isDashE args
                                    isDashE (Opt "-e" _) = True
@@ -167,16 +180,11 @@ joinDashE ((Switch 'n'):args) = joinDashE ((Opt "-e" "while ($_ = =<>) { $_ .= c
 -- internally:
 --   "-e foo bar.p6" executes "foo" with @*ARGS[0] eq "bar.p6",
 --   "-E foo bar.p6" executes "foo" and then bar.p6.
-joinDashE ((Opt "-M" mod):args) = joinDashE ((Opt "-E" (";use " ++ mod ++ ";\n")):args)
+desugarDashE ((Opt "-M" mod):args) = desugarDashE ((Opt "-E" (";use " ++ mod ++ ";\n")):args)
 
 -- Preserve the curious Perl5 behaviour:
 --   perl -e 'print CGI->VERSION' -MCGI     # works
 --   perl print_cgi.pl -MCGI                # fails
-joinDashE (x@(Opt "-e" _):y@(Opt "-E" _):args) = joinDashE (y:x:args)
-joinDashE ((Opt "-E" a):y@(Opt "-e" _):args) = joinDashE ((Opt "-e" a):y:args)
-
-joinDashE ((Opt "-e" a):(Opt "-e" b):args) =
-    joinDashE (Opt "-e" combined:args)
-    where
-    combined = a++"\n"++b
-joinDashE (x:xs) =  [ x ] ++ joinDashE xs
+desugarDashE (x@(Opt "-e" _):y@(Opt "-E" _):args) = desugarDashE (y:x:args)
+desugarDashE ((Opt "-E" a):y@(Opt "-e" _):args) = desugarDashE ((Opt "-e" a):y:args)
+desugarDashE (x:xs) = (x:desugarDashE xs)
