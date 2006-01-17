@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fvia-C #-}
+{-# OPTIONS_GHC -fglasgow-exts -fvia-C -optc-w #-}
 #include "../../syck/syck.h"
 #include "../../cbits/fpstring.h"
 
@@ -19,11 +19,6 @@ import Foreign.C.String
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Utils
 import Foreign.Storable
-import Data.Maybe (isJust)
-import Control.Monad (when)
-
-import Debug.Trace
-import Control.Monad.Trans
 
 type YamlTag    = Maybe String
 type YamlAnchor = Maybe String
@@ -54,7 +49,7 @@ type FSPtr = Ptr CString
 type SyckEmitter = Ptr ()  
 type SyckEmitterHandler = SyckEmitter -> Ptr () -> IO ()
 type SyckOutputHandler = SyckEmitter -> CString -> CLong -> IO ()
-data SyckKind = SyckMap | SyckSeq | SyckStr | SyckNil
+data SyckKind = SyckMap | SyckSeq | SyckStr
     deriving (Show, Ord, Eq, Enum)
 
 nilNode :: YamlNode
@@ -75,8 +70,8 @@ mkTagNode s x = MkYamlNode 0 x (Just s) Nothing Nothing
 #enum CInt, , seq_none, seq_inline
 #enum CInt, , map_none, map_inline
 
-#def typedef void* EmitterExtras;
-type EmitterExtras = Ptr ()
+-- #def typedef void* EmitterExtras;
+-- type EmitterExtras = Ptr ()
 
 emitYaml :: YamlNode -> IO (Either String String)
 emitYaml node = do
