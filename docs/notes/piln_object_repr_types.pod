@@ -118,17 +118,26 @@ which you can inspect the behaviors of "real" instances.
   [13:53] stevan  so ::Int's cls is ^Int
   [13:53] audreyt yes.
 
-=head2 A few notes now on the meta-model implementation side:
+=head1 CLARIFICATION OF CONCERNS/MEANING
 
-If C<^Class.CREATE($repr, ...)> can support different $repr types, each which 
-have their own fixed vtable of methods to act upon, then we need to make 
-sure to deal with the BUILD and BUILDALL methods appropriately. Assuming  
-of course that everything, at some point, will inherit from ^Object. 
+The issue has been raised on #perl6 that if the repr type 'p6array' uses
+a Perl 6 Array as it's repr, then what does a Perl 6 Array use? It was also
+brought up that to use a Perl 6 Array as a repr would be quite silly.
 
-For example, if ^Array inherits from ^Object, but uses the array $repr 
-type, then it will need to override ^Object.BUILD (which uses `set_attr), 
-and it needs to override ^Object.BUILDALL as well since (by default) it 
-would attempt to call ^Object.BUILD.
+So I will clarify what repr is in the I<context of the PIL^N metamodel only>.
+
+The 'p6array' repr type does not mean "use a Perl 6 Array as my repr type", 
+instead it should be understood to mean "use the same repr type that a 
+Perl 6 Array would use". The same is also true for 'p6hash', 'p6scalar' and
+all other repr types which seem like the don't make sense as repr types.
+
+=head1 SEE ALSO
+
+docs/notes/object_space.txt
+
+docs/notes/PILN_core_classes.pod
+
+docs/notes/range_implementation_notes.pod
 
 =head1 AUTHOR
 
