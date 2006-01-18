@@ -293,11 +293,16 @@ multi sub decode_entities($string is rw) is export
     return $result;
 }
 
+multi sub decode_entities(@strings is rw) is export
+{
+    decode_entities(*@strings);
+}
+
 multi sub decode_entities(*@strings is rw) is export
 {
     @strings;
     
-    my @results = @strings.map:-> $string is rw { decode_entities($string); };
+    my @results = @strings.map:-> $string is copy { decode_entities($string); };
     
     return @results;
 }

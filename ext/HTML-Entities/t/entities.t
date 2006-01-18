@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 10;
+plan 11;
 
 use HTML::Entities; pass "(dummy instead of broken use_ok)";
 
@@ -44,7 +44,8 @@ is encode_entities($a, 'a-c'), "&#97;&#98;&#99;def",
     'We should be able to include the range of characters to encode.';
 
 my $b = "&lt;&amp;&gt;";
-is(try {decode_entities([ $a, $b ]) }, [ 'abcdef', '<&>' ], "Decoding a list should work.", :todo<bug>);
+is(decode_entities([$a, $b]), [ 'abcdef', '<&>' ], "Decoding an array ref should work.");
+is(decode_entities($a, $b), [ 'abcdef', '<&>' ], "Decoding a list should work too.");
 
 =head
 
