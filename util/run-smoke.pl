@@ -51,8 +51,9 @@ $ENV{PERL6LIB}      = join $Config{path_sep},
 
 my @yaml_harness_args;
 push(@yaml_harness_args,'--exclude','Disabled,^ext\b')
-    if $ENV{PUGS_RUNTIME} and ($ENV{PUGS_RUNTIME} eq 'JS' or
-                   $ENV{PUGS_RUNTIME} eq 'PERL5' or $ENV{PUGS_RUNTIME} eq 'JSPERL5');
+    if $ENV{PUGS_SMOKE_EXCLUDE_EXT}
+        or ($ENV{PUGS_RUNTIME} and ($ENV{PUGS_RUNTIME} eq 'JS' or
+                   $ENV{PUGS_RUNTIME} eq 'PERL5' or $ENV{PUGS_RUNTIME} eq 'JSPERL5'));
 
 sub make { return `$Config{make} @_` };
 my $dev_null = File::Spec->devnull;
