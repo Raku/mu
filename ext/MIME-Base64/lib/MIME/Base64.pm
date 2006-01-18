@@ -151,8 +151,8 @@ MIME::Base64 - base64 encoding and decoding for Pugs
 C<MIME::Base64> is a base64 encoder/decoder for pugs it is I<not> a port
 of Perl5's MIME::Base64.
 
-=head1 FUNCTIONS.
+=head1 FUNCTIONS
 
-=head2 C<MIME::Base64::encode(Str 
+XXX
 
 =cut
