@@ -97,6 +97,6 @@ is(42_127_000, 42127000, 'multiple underscores ok');
 is(42.0_1,     42.01,    'underscores in fraction ok');
 is(4_2.01,     42.01,    'underscores in whole part ok');
 
-dies_ok({ 4_2__.__0_1___ }, 'lots of underscores are not ok directly after the dot');
-is(4_2__.0__1___, 42.01,    'lots of underscores are ok');
+ok(!eval('4_2__.__0_1___') && $!, 'lots of underscores are not ok directly after the dot');
+is(eval('4_2__.0__1___'), 42.01,  'lots of underscores are ok');
 
