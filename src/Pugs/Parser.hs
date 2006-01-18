@@ -1292,8 +1292,10 @@ extractHash :: Exp -> Maybe Exp
 extractHash exp = extractHash' (possiblyUnwrap exp)
     where
     possiblyUnwrap (Syn "block" [exp]) = exp
+    possiblyUnwrap (App (Val (VCode (MkCode { subType = SubBlock, subBody = fun }))) Nothing []) = fun
     possiblyUnwrap x = x
     
+    isHashOrPair (Ann _ exp) = isHashOrPair exp
     isHashOrPair (App (Var "&pair") _ _) = True
     isHashOrPair (App (Var "&infix:=>") _ _) = True
     isHashOrPair (Var ('%':_)) = True
