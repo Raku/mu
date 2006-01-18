@@ -43,7 +43,7 @@ my @tests = (
 );
 
 plan 7 + 2*@tests;
-force_todo 8, 45..48, 89, 94, 96;
+force_todo 8, 45..50, 89, 94, 96;
 
 unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
   skip_rest "eval() not yet implemented in $?PUGS_BACKEND.";
@@ -72,7 +72,7 @@ unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
     is $foo[1][1][1][0], 42, "basic recursive arrayref";
 
     # XXX hangs
-    flunk "skipping hanging test";
+    flunk "skipping hanging test", :todo<feature>;
     #is ~$foo.perl.eval, ~$foo,
     #    ".perl worked correctly on a recursive arrayref";
 }
@@ -82,7 +82,7 @@ unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
     is $foo<b><b><b><a>, 42, "basic recursive hashref";
 
     # XXX hangs
-    flunk "skipping hanging test";
+    flunk "skipping hanging test", :todo<feature>;
     #is ~$foo.perl.eval, ~$foo,
     #    ".perl worked correctly on a recursive hashref";
 }
@@ -96,7 +96,7 @@ unless $?PUGS_BACKEND eq "BACKEND_PUGS" {
     is $foo[1]<b>[1]<b>[0], 42, "mixed arrayref/hashref recursive structure";
 
     # XXX hangs
-    flunk "skipping hanging test";
+    flunk "skipping hanging test", :todo<feature>;
     #is ~$foo.perl.eval, ~$foo,
     #    ".perl worked correctly on a mixed arrayref/hashref recursive structure";
 }
