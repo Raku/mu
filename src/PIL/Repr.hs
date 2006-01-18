@@ -19,7 +19,7 @@ data Repr
     
 reprTypes :: MapOf (Native -> STM Repr)
 reprTypes = mkMap
-    [ ("",         (const (return P6Nil)))
+    [ ("p6nil",    (const (return P6Nil)))
     , ("p6hash",   (fmap P6Hash . P6Hash.create))
     , ("p6array",  (fmap P6Array . P6Array.create))
     , ("p6scalar", (fmap P6Scalar . P6Scalar.create))
@@ -31,7 +31,7 @@ createRepr = (reprTypes !)
 
 _as_bit = Str.pack "as_bit"
 
-_p6nil = Str.pack ""
+_p6nil = Str.pack "p6nil"
 _p6hash = Str.pack "p6hash"
 _p6array = Str.pack "p6array"
 _p6scalar = Str.pack "p6scalar"

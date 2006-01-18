@@ -98,7 +98,7 @@ This repr type has some interesting qualities to it. It could be used to
 not only implement the ^Scalar container type, but it can also be used for 
 the autoboxing of ^Int, ^Num, ^Str, etc. with no real specialization. 
 
-=head2 $meta`create("")
+=head2 $meta`create("p6nil")
 
 This is a very specialized repr type, which is used to implement the 
 "class but undef" part of the Perl 6 object model as spec-ed by @Larry. 

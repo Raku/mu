@@ -14,7 +14,7 @@
 #include "Container/Hash.pil"
 #include "Container/Pair.pil"
 
-::Scalar := ^Scalar`create('');
-::Array := ^Array`create('');
-::Hash := ^Hash`create('');
-::Pair := ^Hash`create('');
+::Scalar := ^Scalar`create('p6nil');
+::Array := ^Array`create('p6nil');
+::Hash := ^Hash`create('p6nil');
+::Pair := ^Hash`create('p6nil');
