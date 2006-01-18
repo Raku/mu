@@ -14,7 +14,6 @@ import Data.Maybe
 import Control.Monad.State
 import Control.Monad.Reader
 import Control.Exception
-import qualified Data.Map as Map
 
 {-| 
 
@@ -217,6 +216,7 @@ callSubWith ""          sub args = callSub sub args
 callSubWith "do_if"     sub args = if fromNative (args ! 0) then callSub sub empty else return nil
 callSubWith "do_unless" sub args = if fromNative (args ! 0) then return nil else callSub sub empty
 callSubWith "do_for"    sub args = fmap toNative $ fmapM (callSub sub . mkSeq . (:[])) (fromNative (args ! 0) :: NativeSeq)
+callSubWith _ _ _ = fail "autoboxing for Sub not yet implemented"
 {-
 callSubWith str x args = do
     cls <- fmap fromNative $ evalExp (EVar $ boxType x)

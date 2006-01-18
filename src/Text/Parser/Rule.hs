@@ -4,7 +4,7 @@ module Text.Parser.Rule (
     module Text.Parser.PArrow,
 ) where
 import Prelude hiding (lookup, null, drop, span, break, head, tail, init, last, splitAt, take, length)
-import qualified Prelude (head, tail, init, last, length)
+import qualified Prelude (last, length)
 import Text.Parser.OpTable
 import Text.Parser.PArrow
 import Text.Parser.PArrow.MD (MD(..), Label(..), label, Monoid(..))

@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -O2 -fglasgow-exts -funbox-strict-fields #-}
+{-# OPTIONS_GHC -O2 -fglasgow-exts -funbox-strict-fields -fno-warn-orphans #-}
 
 -- A Haskell port of PGE::OPTable.
 
@@ -14,7 +14,7 @@ import Data.Char (isDigit)
 import Data.List (find)
 import Data.Seq (Seq, fromList)
 import Data.Map (Map, insert, lookup, toAscList, (!))
-import Data.FastPackedString (empty, pack, null, drop, dropSpace, length, isPrefixOf, span, FastString(..), idx, lineIdxs)
+import Data.FastPackedString (empty, pack, null, drop, dropSpace, length, isPrefixOf, span, FastString(..), lineIdxs)
 import GHC.Prim(unsafeCoerce#)
 
 data Op
@@ -232,7 +232,7 @@ opParse f tbl str =
      in expectTerm
 
 strPos :: Str -> String
-strPos str@(PS p s l) = "line " ++ show lineNum ++ ", column " ++ show colNum
+strPos (PS p s l) = "line " ++ show lineNum ++ ", column " ++ show colNum
     where
     idxs = lineIdxs (PS p 0 l)
     lns  = (-1:List.filter (< s) idxs)
@@ -328,7 +328,7 @@ emptyOper = case lookup operEmpty (tableOpers ?tbl) of
 
 nullTerm :: Parse r r
 nullTerm | (t@MkToken{ tokNull = True }:_) <- ?tokenStack = pushTermStack t expectOper
-         | (t@MkToken{ tokOp = op }:_) <- ?tokenStack, null (str op ) = endParse
+         | (MkToken{ tokOp = op }:_) <- ?tokenStack, null (str op) = endParse
          | otherwise = error ("missing term at " ++ strPos ?str)
 
 foundOper :: Parse r (Token r -> Parse r r)
