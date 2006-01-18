@@ -21,6 +21,7 @@ use YAML;
 use Test::Harness;
 use Test::TAP::Model;
 use File::Spec;
+use Benchmark;
 our @ISA = qw(Test::TAP::Model);
 our $SMOKERFILE = ".smoker.yml";
 
@@ -243,7 +244,11 @@ sub gather_results {
 sub run_test {
     my $self = shift;
     my $test = shift;
+    my @rest = @_;
     my $kid  = $self->{_child_num} ? "[$self->{_child_num}] " : "";
     warn "$kid$test\n";
-    $self->SUPER::run_test($test, @_);
+    my $t = timeit( 1, sub {
+        $self->SUPER::run_test($test, @rest);
+    } );
+    warn "    ".timestr($t)."\n";
 }
