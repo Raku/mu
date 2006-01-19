@@ -327,7 +327,7 @@ EOD
         $embed_flags .= " -I$include_path" if $include_path =~ /\S/;
         $rpath_blib =~ s/(^| )-/$1-optl-/g;
 
-        $embed_flags .= " -I$base/include -L$base/blib/lib -L$base/lib/blib/lib -DPUGS_HAVE_PARROT -L/usr/local/lib $ldflags ";
+        $embed_flags .= " -I$base/include -L$base/lib -L$base/blib/lib -DPUGS_HAVE_PARROT -L/usr/local/lib $ldflags ";
         $ghc_output .= " -lparrot $libs $icuflags ";
         my $config = "$base/src/parrot_config$Config{_o}";
         $ghc_output .= " $config " if -e $config;
