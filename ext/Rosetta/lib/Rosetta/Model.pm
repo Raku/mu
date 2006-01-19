@@ -263,12 +263,14 @@ I<This documentation is pending.>
 Rosetta::Model provides an effective language for defining relational data
 models, both the means to create them and the means to interact with them.
 The language is IRL (Intermediate Relational Language), and it loosely
-resembles the ANSI/ISO SQL:2003 standard in purpose and structure, but its
+resembles both Christopher J. Date's and Hugh Darwen's Tutorial D language
+and the ANSI/ISO SQL:2003 standard in purpose and structure, but its
 details are different.  This is partly so that it can more elegantly
 support the specific relational model that E. F. Codd proposed in his 1970
 publication titled "A Relational Model of Data for Large Shared Data
 Banks", but that SQL diverged from in some ways.  Regardless, it should be
-easy to translate database definitions and queries between SQL and IRL.
+easy to translate database definitions and queries between IRL and both
+Tutorial D and SQL.
 
 Please see the pod-only file L<Rosetta::Language> ("Language"), which is
 the human readable authoritative design document for IRL; the file
@@ -280,12 +282,13 @@ Rosetta::Model is implemented as abstract syntax trees, and you use it by
 creating, manipulating, and reading nodes in these trees.  Each tree node
 is atomic, so you can just build the trees by copying scalar values from a
 data dictionary; no stitching or parsing more complicated command strings
-is necessary like with SQL.
+is necessary like with Tutorial D and SQL.
 
 L<Rosetta> (in the current distribution) is a relational database access
 solution that uses Rosetta::Model objects as its native instruction set
 rather than SQL strings.  But Rosetta::Model can also be used independently
-of Rosetta, such as when translating SQL from one dialect to another.
+of Rosetta, such as when translating SQL from one dialect to another, or
+between Tutorial D and SQL.
 
 =head1 INTERFACE
 

@@ -26,11 +26,11 @@ the other documents are emails from Rosetta::Model developers, in which
 case they can be yelled at again for not keeping Language up to date.
 
 Since IRL is largely derived from pre-existing language specifications such
-as the ANSI/ISO SQL:2003 standard, it may be tempting to just assume
-everything you know from them is also true here.  While that will work in
-some cases (and in fact I intentionally don't repeat many details here for
-brevity), it won't in others, so you should always check here for any
-possible conflicts.
+as Christopher J. Date's and Hugh Darwen's Tutorial D and the ANSI/ISO
+SQL:2003 standard, it may be tempting to just assume everything you know
+from them is also true here.  While that will work in some cases (and in
+fact I intentionally don't repeat many details here for brevity), it won't
+in others, so you should always check here for any possible conflicts.
 
 IRL is primarily declarative, in that it defines how implementations should
 appear and behave from a user's point of view, and it does not typically

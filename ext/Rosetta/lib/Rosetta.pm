@@ -343,7 +343,8 @@ relational model of data, and provides a rigorous API by which applications
 can interact with it.  This relational model is like the one that E. F.
 Codd proposed in his 1970 publication titled "A Relational Model of Data
 for Large Shared Data Banks", but with additions either created for Rosetta
-or drawn from multiple sources, mainly the ANSI/ISO SQL:2003 standard, and
+or drawn from multiple sources, mainly Christopher J. Date's and Hugh
+Darwen's Tutorial D language and the ANSI/ISO SQL:2003 standard, and
 various third party relational database managers.
 
 Rosetta is highly modular, this being one of its fundamental features, with
@@ -358,13 +359,13 @@ from 'Rosetta' since it isn't needed if you use an alternate Engine.
 
 The RNI is defined collectively by both 'Rosetta' itself and
 L<Rosetta::Model>; Rosetta::Model defines IRL (Intermediate Relational
-Language), a language loosely resembling SQL, in which applications write
-instructions for the virtual machine to execute, including to create the
-data models, query them, and manipulate them; 'Rosetta' provides the
-handles on the virtual machine by which the applications give it input and
-take its output.
+Language), a language loosely resembling both Tutorial D and SQL, in which
+applications write instructions for the virtual machine to execute,
+including to create the data models, query them, and manipulate them;
+'Rosetta' provides the handles on the virtual machine by which the
+applications give it input and take its output.
 
-Given that the most Rosetta Engine implementations simply map Rosetta's
+Given that most Rosetta Engine implementations simply map Rosetta's
 rigorously defined API onto a pre-existing relational database manager
 (such as Genezzo, SQLite, PostgreSQL, MySQL, Firebird, Oracle, Sybase, SQL
 Server, Informix, DB2, etc), Rosetta's most prominant feature is that it
