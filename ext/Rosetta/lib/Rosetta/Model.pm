@@ -354,13 +354,13 @@ This is the main Document constructor method:
 =item C<new( :@root_nodes? )>
 
 This method creates and returns a new Rosetta::Model::Document object.  If
-the optional named argument @root_nodes (an array ref) is set, then each
+the optional named parameter @root_nodes (an array ref) is set, then each
 element in it is used to initialize a new Node object (plus an optional
 hierarchy of new child Nodes of that new Node) that gets stored in the Root
-Nodes attribute (that attribute defaults to empty if the argument is
-undefined).  The new Document object's All Nodes attribute starts out
-empty, but gains one element for each Node in the Node hierarchies created
-from a defined @root_nodes.
+Nodes attribute (that attribute defaults to empty if the parameter's
+corresponding argument is undefined).  The new Document object's All Nodes
+attribute starts out empty, but gains one element for each Node in the Node
+hierarchies created from a defined @root_nodes.
 
 Some sample usage:
 
@@ -392,7 +392,7 @@ Document.new(), by which you can create an identical Document (with member
 Nodes) to the one you first invoked export_as_hash() on.
 
 Specifically, export_as_hash() returns a Perl hash ref whose key list
-('root_nodes') corresponds exactly to the named arguments of
+('root_nodes') corresponds exactly to the named parameters of
 Document.new(); you can produce a direct clone like this:
 
     my $cloned_doc = Rosetta::Model::Document.new(
@@ -465,19 +465,19 @@ This is the main Node constructor method:
 :@child_nodes? )>
 
 This method creates and returns a new Rosetta::Model::Node object, that
-lives in the Document object given in the named argument $document, and
-whose Node Type attribute is set from the named argument $node_type (a
-string); the optional named argument %attributes (a hash ref) sets the
-"Attributes" attribute if provided (it defaults to empty if the argument is
-not provided).  If the optional argument $parent_node (a Node) is set, then
-the new Node's "Parent Node" attribute is set to it, and the new Node is
-also stored in $parent_node's Child Nodes attribute; if $parent_node is not
-set, then the new Node is instead stored in its Document's "Root Nodes"
-attribute.  If the optional named argument @child_nodes (an array ref) is
-set, then each element in it is used to initialize a new Node object (plus
-an optional hierarchy of new child Nodes of that new Node) that gets stored
-in the Child Nodes attribute (that attribute defaults to empty if the
-argument is undefined).
+lives in the Document object given in the named parameter $document, and
+whose Node Type attribute is set from the named parameter $node_type (a
+string); the optional named parameter %attributes (a hash ref) sets the
+"Attributes" attribute if provided (it defaults to empty if the parameter's
+corresponding argument is not provided).  If the optional named parameter
+$parent_node (a Node) is set, then the new Node's "Parent Node" attribute
+is set to it, and the new Node is also stored in $parent_node's Child Nodes
+attribute; if $parent_node is not set, then the new Node is instead stored
+in its Document's "Root Nodes" attribute.  If the optional named parameter
+@child_nodes (an array ref) is set, then each element in it is used to
+initialize a new Node object (plus an optional hierarchy of new child Nodes
+of that new Node) that gets stored in the Child Nodes attribute (that
+attribute defaults to empty if the corresponding argument is undefined).
 
 Some sample usage:
 
@@ -530,7 +530,7 @@ child Nodes) to the one you first invoked export_as_hash() on.
 
 Specifically, export_as_hash() returns a Perl hash ref whose key list
 ('node_type', 'attributes', 'child_nodes') corresponds exactly to the named
-arguments of Node.new(); you need to supply its $document and optional
+parameters of Node.new(); you need to supply its $document and optional
 $parent_node though; you can produce a direct clone like this:
 
     my $cloned_node = Rosetta::Model::Document.new(

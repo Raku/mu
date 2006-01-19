@@ -148,7 +148,7 @@ That being the summary difference, other differences follow.  Rosetta:
 
 =item *
 
-Represents all host parameters, query columns, stored procedure arguments,
+Represents all host parameters, query columns, stored procedure parameters,
 built-in function calls, and other such things in named format (such as
 ":foo") rather than positional format (?), so that the right thing will
 happen despite generated SQL using them in a different order than
