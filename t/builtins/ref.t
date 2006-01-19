@@ -41,9 +41,9 @@ isa_ok($s1, 'Sub', 'it is a Sub type');
 #      |     |       |       |    |     |
 #     Sub Method Submethod Multi Rule Macro
 
-# L<S06/"Types" /Bare\s*Basic Perl block/>
+# L<S06/Other matters/Anonymous hashes vs blocks/>
 my $s2 = {};
-isa_ok($s2, 'Block', 'it is a Sub type (bare block)');
+isa_ok($s2, 'Hash', 'it is a Hash type (bare block)');
 
 # L<S06/"Types" /Parametric\s+Basic Perl block with placeholder parameters/>
 my $s2a = { $^a };
