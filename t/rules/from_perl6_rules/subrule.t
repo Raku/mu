@@ -57,10 +57,10 @@ ok("abcabcabcabcd" ~~ m/<repcap>/, 'Repcap match');
 ok($/, 'Repcap matched');
 is($/, "abcabcabcabc", 'Repcap matched');
 is($/<repcap>, "abcabcabcabc", 'Repcap captured');
-is(eval('$/<repcap><abc>[0]'), "abc", 'Repcap abc zero captured', :todo<bug>);
-is(eval('$/<repcap><abc>[1]'), "abc", 'Repcap abc one captured', :todo<bug>);
-is(eval('$/<repcap><abc>[2]'), "abc", 'Repcap abc two captured', :todo<bug>);
-is(eval('$/<repcap><abc>[3]'), "abc", 'Repcap abc three captured', :todo<bug>);
+is(eval('$/<repcap><abc>[0]'), "abc", 'Repcap abc zero captured');
+is(eval('$/<repcap><abc>[1]'), "abc", 'Repcap abc one captured');
+is(eval('$/<repcap><abc>[2]'), "abc", 'Repcap abc two captured');
+is(eval('$/<repcap><abc>[3]'), "abc", 'Repcap abc three captured');
 ok(@$/ == 0, 'Repcap no array capture');
 
 
