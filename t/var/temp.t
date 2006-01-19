@@ -59,24 +59,31 @@ plan 31;
   is $a, 42, "temp() restored the variable, the block was exited using an exception";
 }
 
+eval('
 {
   my @array = (0, 1, 2);
   {
-    eval 'temp @array[1] = 42';
-    is @array[1], 42, "temp() changed our array element", :todo<feature>;
+    temp @array[1] = 42;
+    is @array[1], 42, "temp() changed our array element";
   }
   is @array[1], 1, "temp() restored our array element";
 }
+"1 - delete this line when the parsefail eval() is removed";
+') or skip(2, "parsefail: temp \@array[1]");
 
+eval('
 {
   my %hash = (:a(1), :b(2), :c(3));
   {
-    eval 'temp %hash<b> = 42';
-    is %hash<b>, 42, "temp() changed our hash element", :todo<feature>;
+    temp %hash<b> = 42;
+    is %hash<b>, 42, "temp() changed our hash element";
   }
   is %hash<b>, 2, "temp() restored our array element";
 }
+"1 - delete this line when the parsefail eval() is removed";
+') or skip(2, "parsefail: temp \%hash<b>");
 
+eval('
 {
   my $struct = [
     "doesnt_matter",
@@ -90,11 +97,13 @@ plan 31;
   ];
 
   {
-    eval 'temp $struct[1]<key>[1] = 23';
+    temp $struct[1]<key>[1] = 23;
     is $struct[1]<key>[1], 23, "temp() changed our nested arrayref/hashref element", :todo<feature>;
   }
   is $struct[1]<key>[1], 1, "temp() restored our nested arrayref/hashref element", :todo<feature>;
 }
+"1 - delete this line when the parsefail eval() is removed";
+') or skip(2, "parsefail: temp \$struct[1]<key>[1]");
 
 # Block TEMP{}
 # L<S06/"Temporization" /You can also modify the behaviour of temporized code structures/>
@@ -163,3 +172,4 @@ plan 31;
   }
   is $was_in_own_temp_handler, 2, ".TEMP method was executed on restoration";
 }
+

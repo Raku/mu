@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 9;
+plan 11;
 
 # L<S04/"The Relationship of Blocks and Declarations" /There is also a let function/>
 # L<S04/"Definition of Success">
@@ -57,10 +57,7 @@ plan 9;
   is $a, 42, "let() restored the variable, the block was exited using an exception";
 }
 
-=pod
-
-Should these work? (They don't even parse currently.)
-
+eval('
 {
   my @array = (0, 1, 2);
   {
@@ -70,5 +67,5 @@ Should these work? (They don't even parse currently.)
   }
   is @array[1], 1, "let() restored our array element";
 }
-
-=cut
+"1 - delete this line when the parsefail eval() is removed";
+') or skip(2, "parsefail: let \@array[1]");
