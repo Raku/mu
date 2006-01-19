@@ -319,13 +319,13 @@ EOD
         my $include_path = parrot_config($base, $parrot_config, 'prefix') . parrot_config($base, $parrot_config, 'inc');
         my $rpath_blib = parrot_config($base, $parrot_config, 'rpath_blib');
 
-        # Convert flags to -optc-*
-        $ldflags =~ s/-/-optl-/g;
-        $libs =~ s/-/-optl-/g;
-        $icuflags =~ s/-/-optl-/g;
-        $include_path =~ s/-/-optc-/g;
+        # Convert flags to -optc-*,etc, to pass through ghc. c/ompiler l/inker
+        $ldflags =~ s/(^|\s)-/$1-optl-/g;
+        $libs =~ s/(^|\s)-/$1-optl-/g;
+        $icuflags =~ s/(^|\s)-/$1-optl-/g;
+        $include_path =~ s/(^|\s)-/$1-optc-/g;
         $embed_flags .= " -I$include_path" if $include_path =~ /\S/;
-        $rpath_blib =~ s/(^| )-/$1-optl-/g;
+        $rpath_blib =~ s/(^|\s)-/$1-optl-/g;
 
         $embed_flags .= " -I$base/include -L$base/lib -L$base/blib/lib -DPUGS_HAVE_PARROT -L/usr/local/lib $ldflags ";
         $ghc_output .= " -lparrot $libs $icuflags ";
