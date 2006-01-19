@@ -40,7 +40,9 @@ flunk("stringify causes infinite loop");
 isa_ok( Span.new( object => 10 ), 'Span', 'created a Span with a single element' );
 
 # is( Span.new( object => 10 ).stringify, '10', 'stringify a single element' );
-flunk("stringify causes infinite loop");
+flunk("XXX - stringify causes infinite loop");
+
+exit;
 
 is( Span.new( object => 1 .. 10 ).stringify, '[1,10]', 'created a Span from a range' );
 
