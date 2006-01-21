@@ -11,7 +11,7 @@ But according to L<S02/Literals>, only between two digits.
 
 =cut
 
-plan 63;
+plan 65;
 
 is 1_0, 10, "Single embedded underscore works";
 
@@ -58,9 +58,11 @@ is eval(':16<ff>'), 255, "Adverbial string form of hex number works";
 is eval(':10<99>'), 99, "Adverbial string form of dec number works";
 is eval(':8<77>'), 63, "Adverbial string form of oct number works";
 is eval(':2<11>'), 3, "Adverbial string form of dec number works";
+is eval(':2<1_0.1>'), 2.5, "Adverbial string form can include . and _";
 
 is eval(':10<99*10**2>'), 99e2, "Adverbial form of exponentiation works";
 is eval(':2<11*10**2>'), 300, "Adverbial exponent defaults to decimal";
+is eval(':2«1.1*:2<10>**:2<10>»'), 6, "Adverbial form in french quotes";
 
 for 2..36 {
     is eval(":{$_}<11>"), $_ + 1, "Adverbial form of base $_ works";

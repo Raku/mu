@@ -81,16 +81,31 @@ naturalOrRat  = (<?> "number") $ do
                     <|> (char '+' >> return True)
                     <|> return True
 
-    decimalLiteral         = number 10 digit
-    hexadecimal     = do{ char 'x'; number 16 hexDigit }
-    decimal         = do{ char 'd'; number 10 digit }
-    octal           = do{ char 'o'; number 8 octDigit }
+    decimalLiteral         = number 10
+    hexadecimal     = do{ char 'x'; number 16  }
+    decimal         = do{ char 'd'; number 10  }
+    octal           = do{ char 'o'; number 8 }
     octalBad        = do{ many1 octDigit ; fail "0100 is not octal in perl6 any more, use 0o100 instead." }
-    binary          = do{ char 'b'; number 2 (oneOf "01")  }
+    binary          = do{ char 'b'; number 2  }
 
-    number base baseDigit = do
-        d   <- baseDigit
-        ds  <- many (baseDigit <|> do { char '_'; lookAhead baseDigit; return '_' })
-        let n = foldl (\x d -> base*x + toInteger (digitToInt d)) 0 digits
+    number base = do
+        d   <- baseDigit base
+        ds  <- many (baseDigit base <|> 
+                do { char '_'; lookAhead (baseDigit base); return '_' })
+        let n = foldl (\x d -> base*x + b36DigitToInteger d) 0 digits
             digits = (d : filter (/= '_') ds)
         seq n (return n)
+        where
+        baseDigit                   = baseDigitInt . fromIntegral
+        baseDigitInt b 
+            | b <= 10               = oneOf $ take b ['0'..'9']
+            | b >  10 && b <= 36    = oneOf $ ['0'..'9'] 
+                                    ++ take (b - 10) ['a'..'z'] 
+                                    ++ take (b - 10) ['A'..'Z']
+        b36DigitToInteger           = toInteger . b36DigitToInt
+        b36DigitToInt c
+            | isDigit c             = fromEnum c - fromEnum '0'
+            | c >= 'a' && c <= 'z'  = fromEnum c - fromEnum 'a' + 10
+            | c >= 'A' && c <= 'Z'  = fromEnum c - fromEnum 'A' + 10
+            | otherwise             = error "b36DigitToInt: not a base 36 digit"
+
