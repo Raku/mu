@@ -971,7 +971,37 @@ op2 "Pugs::Internals::install_pragma_value" = \x y -> do
     liftSTM $ writeTVar idat idatval{initPragmas = 
         MkPrag{ pragName=name, pragDat=val } : prag }
     return (VBool True)
+op2 "Pugs::Internals::base" = \x y -> do
+    base <- fromVal x
+    case y of
+        VRef{}  -> op2BasedDigits base =<< fromVal y
+        VList xs-> op2BasedDigits base =<< fromVal y
+        _       -> do
+            str <- fromVal y
+            op2BasedDigits base [ s | Just s <- map baseDigit str ]
 op2 other = \_ _ -> fail ("Unimplemented binaryOp: " ++ other)
+
+baseDigit :: Char -> Maybe Val
+baseDigit '.'       = return (VStr ".")
+baseDigit ch | ch >= '0' && ch <= '9' = return (castV (ord ch - ord '0'))
+baseDigit ch | ch >= 'a' && ch <= 'z' = return (castV (ord ch - ord 'a' + 10))
+baseDigit ch | ch >= 'A' && ch <= 'Z' = return (castV (ord ch - ord 'A' + 10))
+baseDigit _         = Nothing
+
+op2BasedDigits :: VInt -> [Val] -> Eval Val
+op2BasedDigits base vs
+    | null post = do
+        pre' <- mapM fromVal pre
+        return $ VInt (asIntegral pre')
+    | otherwise = do
+        pre'  <- mapM fromVal pre
+        post' <- mapM fromVal $ tail post
+        return $ VRat (asFractional (0:post') + (asIntegral pre' % 1))
+    where
+    (pre, post) = break (== VStr ".") $ filter (/= VStr "_") vs
+    asIntegral = foldl (\x d -> base * x + d) 0
+    asFractional :: [VInt] -> VRat
+    asFractional = foldr (\d x -> (x / (base % 1)) + (d % 1)) (0 % 1)
 
 op2Print :: (Handle -> String -> IO ()) -> Val -> Val -> Eval Val
 op2Print f h v = do
@@ -1768,4 +1798,5 @@ initSyms = mapM primDecl syms
 \\n   Int       pre     Pugs::Internals::install_pragma_value safe (Str, Int)\
 \\n   Bool      pre     Pugs::Internals::current_pragma_value safe (Str)\
 \\n   Bool      pre     Pugs::Internals::caller_pragma_value safe (Str)\
+\\n   Num       pre     Pugs::Internals::base      safe (Int, Any)\
 \\n"

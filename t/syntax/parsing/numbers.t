@@ -49,24 +49,24 @@ is  +'00123', 123, "Leading zeroes stringify correctly";
 
 # (Note, when this works, go fix hex.t to use :16().)
 
-is eval(':16("ff")'), 255, "Adverbial function form of hex number works";
-is eval(':10("99")'), 99, "Adverbial function form of dec number works";
-is eval(':8("77")'), 63, "Adverbial function form of oct number works";
-is eval(':2("11")'), 3, "Adverbial function form of dec number works";
+is :16("ff"), 255, "Adverbial function form of hex number works";
+is :10("99"), 99, "Adverbial function form of dec number works";
+is :8("77"), 63, "Adverbial function form of oct number works";
+is :2("11"), 3, "Adverbial function form of dec number works";
 
-is eval(':16<ff>'), 255, "Adverbial string form of hex number works";
-is eval(':10<99>'), 99, "Adverbial string form of dec number works";
-is eval(':8<77>'), 63, "Adverbial string form of oct number works";
-is eval(':2<11>'), 3, "Adverbial string form of dec number works";
-is eval(':2<1_0.1>'), 2.5, "Adverbial string form can include . and _";
+is :16<ff>, 255, "Adverbial string form of hex number works";
+is :10<99>, 99, "Adverbial string form of dec number works";
+is :8<77>, 63, "Adverbial string form of oct number works";
+is :2<11>, 3, "Adverbial string form of dec number works";
+is :2<1_0.1>, 2.5, "Adverbial string form can include . and _";
 
-is eval(':10<99*10**2>'), 99e2, "Adverbial form of exponentiation works";
-is eval(':2<11*10**2>'), 300, "Adverbial exponent defaults to decimal";
-is eval(':2«1.1*:2<10>**:2<10>»'), 6, "Adverbial form in french quotes";
+is :10<99*10**2>, 99e2, "Adverbial form of exponentiation works", :todo<feature>;
+is :2<11*10**2>, 300, "Adverbial exponent defaults to decimal", :todo<feature>;
+is :2«1.1*:2<10>**:2<10>», 6, "Adverbial form in french quotes", :todo<feature>;
 
 for 2..36 {
     is eval(":{$_}<11>"), $_ + 1, "Adverbial form of base $_ works";
 }
 
-is eval(':100[10,10]'), 1010, "Adverbial form of base 100 integer works";
-is eval(":100[10,'.',10]"), 10.10, "Adverbial form of base 100 fraction works";
+is :100[10,10], 1010, "Adverbial form of base 100 integer works";
+is :100[10,'.',10], 10.10, "Adverbial form of base 100 fraction works";

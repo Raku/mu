@@ -2266,7 +2266,9 @@ pairAdverb = do
     string ":"
     key <- many1 wordAny
     val <- option (Val $ VInt 1) $ tryChoice [ valueDot, noValue, valueExp ]
-    return $ App (Var "&infix:=>") Nothing [Val (VStr key), val]
+    return $ if (all isDigit key)
+        then App (Var "&Pugs::Internals::base") Nothing [Val (VStr key), val]
+        else App (Var "&infix:=>") Nothing [Val (VStr key), val]
     where
     valueDot = do
         skipMany1 (satisfy isSpace)
