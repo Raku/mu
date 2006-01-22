@@ -9,8 +9,6 @@ import Pugs.Internals
 import Pugs.AST
 import Pugs.PIL2
 import Pugs.Compile.PIL2
-import System.IO
-import System.Directory
 import DrIFT.Perl5
 import DrIFT.JSON
 import DrIFT.YAML
