@@ -555,8 +555,8 @@ op1 "max"   = op1Max
 op1 "uniq"  = op1Uniq
 op1 "chr"   = op1Cast (VStr . (:[]) . chr)
 op1 "ord"   = op1Cast $ \str -> if null str then undef else (castV . ord . head) str
-op1 "hex"   = op1Convert "0x" "hexadecimal"
-op1 "oct"   = op1Convert "0o" "octal"
+op1 "hex"   = fail "hex() is not part of Perl 6 - use :16() instead."
+op1 "oct"   = fail "oct() is not part of Perl 6 - use :8() instead."
 op1 "log"   = op1Cast (VNum . log)
 op1 "log10" = op1Cast (VNum . logBase 10)
 op1 "from"  = op1Cast (castV . matchFrom)
@@ -640,15 +640,6 @@ returnList vals = ifListContext
 
 returnList :: [Val] -> Eval Val
 returnList = return . VList
-
-op1Convert :: VStr -> VStr -> Val -> Eval Val
-op1Convert prefix desc v = do
-    s <- fromVal v
-    res <- tryIO VUndef $ fmap VInt (readIO $ prefix ++ s)
-    when (res == VUndef) $
-        -- throw exception (?)
-        fail $ "Cannot parse " ++ desc ++ " string: " ++ s
-    return res
 
 op1WalkAllNoArgs :: ([VStr] -> [VStr]) -> VStr -> Val -> Eval Val
 op1WalkAllNoArgs f meth v = do
@@ -1744,12 +1735,10 @@ initSyms = mapM primDecl syms
 \\n   Scalar    left    err     safe   (Bool, ~Bool)\
 \\n   Str       pre     chr     safe   (?Int=$_)\
 \\n   Int       pre     ord     safe   (?Str=$_)\
-\\n   Str       pre     hex     safe   (?Str=$_)\
 \\n   Str       pre     oct     safe   (?Str=$_)\
 \\n   Int       pre     from    safe   (Match)\
 \\n   Int       pre     to      safe   (Match)\
 \\n   List      pre     matches safe   (Match)\
-\\n   Str       pre     hex     safe   (Int)\
 \\n   Str       pre     oct     safe   (Int)\
 \\n   Num       pre     log     safe   (Int)\
 \\n   Num       pre     log     safe   (Num)\

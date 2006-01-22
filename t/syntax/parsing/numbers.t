@@ -47,8 +47,6 @@ dies_ok { 2.foo  },    "2.foo  parses as method call";
 
 is  +'00123', 123, "Leading zeroes stringify correctly";
 
-# (Note, when this works, go fix hex.t to use :16().)
-
 is :16("ff"), 255, "Adverbial function form of hex number works";
 is :10("99"), 99, "Adverbial function form of dec number works";
 is :8("77"), 63, "Adverbial function form of oct number works";
