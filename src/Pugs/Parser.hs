@@ -2367,6 +2367,7 @@ qInterpolator flags = choice [
 
 qLiteral :: RuleParser Exp
 qLiteral = do -- This should include q:anything// as well as '' "" <>
+    (try qLiteralToEof) <|> do
     (qStart, qEnd, flags) <- getQDelim
     if not (qfHereDoc flags) then
         qLiteral1 qStart qEnd flags
@@ -2374,6 +2375,12 @@ qLiteral = do -- This should include q:anything// as well as '' "" <>
         endMarker <- (fmap string $ many1 wordAny)
         qEnd; ruleWhiteSpaceLine
         qLiteral1 (fail "never match") endMarker flags
+
+qLiteralToEof :: RuleParser Exp
+qLiteralToEof = do
+    string "q_to_eof()"
+    source <- many anyChar
+    return $ Val $ VStr $ source
 
 qLiteral1 :: RuleParser String    -- Opening delimiter
              -> RuleParser String -- Closing delimiter
