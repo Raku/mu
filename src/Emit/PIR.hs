@@ -28,18 +28,18 @@ import Text.PrettyPrint
 type PIR = [Decl]
 
 data Decl
-    = DeclSub                           -- ^ Subroutine declaration
+    = DeclSub
         { dsName    :: !SubName
         , dsFlags   :: ![SubFlag]
         , dsBody    :: ![Stmt]
-        } 
-    | DeclNS                            -- ^ Namespace declaration
+        } -- ^ Subroutine declaration
+    | DeclNS
         { dnPackage :: !PkgName
         , dnBody    :: ![Decl]
-        }
-    | DeclInc                           -- ^ @.include@ directive
+        } -- ^ Namespace declaration
+    | DeclInc
         { diFile    :: !FilePath
-        }
+        } -- ^ @.include@ directive
     deriving (Show, Eq, Typeable)
 
 data Stmt

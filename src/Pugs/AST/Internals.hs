@@ -1177,7 +1177,7 @@ data VObject = MkObject
     }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
 
--- | A $/ object, the return of a rx match operation.
+-- | A '$/' object, the return of a rx match operation.
 data VMatch = MkMatch
     { matchOk           :: !VBool   -- success?
     , matchFrom         :: !Int     -- .from
@@ -1779,7 +1779,7 @@ instance YAML a => YAML (Map String a) where
     asYAML x = asYAMLmap "Map" $ Map.toList (Map.map asYAML x)
 instance Typeable a => YAML (IVar a) where
     asYAML x = asYAML (MkRef x)
-instance YAML VRef where
+instance YAML VRef
 instance YAML (Set Val)
 instance YAML (VThread Val)
 instance YAML ClassTree
