@@ -32,7 +32,7 @@ import DrIFT.JSON
 
 {-! global : Perl5, JSON, YAML !-}
 
-{-|
+{-
     The plan here is to first compile the environment (subroutines,
     statements, etc.) to an abstract syntax tree ('PIL' -- Pugs Intermediate
     Language) using the 'compile' function and 'Compile' class.

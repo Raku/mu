@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -funbox-strict-fields -cpp #-}
 
 module PIL.Native.Types (
     Native(..), NativeObj(..),
@@ -17,7 +17,11 @@ import Pugs.AST.SIO
 import Data.Typeable
 import Control.Exception
 import Control.Concurrent.STM
+
+#ifndef HADDOCK
 import {-# SOURCE #-} PIL.Repr
+#endif
+
 import qualified Data.Map as Map
 import qualified Data.Seq as Seq
 import qualified Data.FastPackedString as Str

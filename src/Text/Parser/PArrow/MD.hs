@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -O2 -fglasgow-exts #-}
+{-# OPTIONS_GHC -O2 -fglasgow-exts -cpp #-}
 module Text.Parser.PArrow.MD (
     MD(..), Label(..), label, mkLabel, Monoid(..),
     MStarRes, MinQuant, MaxQuant(..),
@@ -56,6 +56,7 @@ label (MLazy _ _ x)   = label x
 
 type MStarRes o = Either FastString (Seq o)
 
+#ifndef HADDOCK
 data MD i o where 
     MNot    :: MD i o -> MD i o
     MChoice :: [MD i o] -> MD i o
@@ -70,6 +71,7 @@ data MD i o where
     -- Quantifiers
     MGreedy :: MinQuant -> MaxQuant -> MD i o -> MD i (MStarRes o)
     MLazy   :: MinQuant -> MaxQuant -> MD i o -> MD i (MStarRes o)
+#endif
 
 type MinQuant = Int
 data MaxQuant = QuantInt !Int | QuantInf

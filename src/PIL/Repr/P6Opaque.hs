@@ -29,9 +29,9 @@ setAttr tvar args = do
 
 setAttrHash tvar args = do
     let [attVal, keyVal, val] = elems args
-        att :: NativeStr = fromNative attVal
-        key :: NativeStr = fromNative keyVal
+        att = fromNative attVal :: NativeStr
+        key = fromNative keyVal :: NativeStr
     attrs  <- readTVar tvar
-    let submap :: NativeMap = fromNative (attrs ! att)
+    let submap = fromNative (attrs ! att) :: NativeMap
     writeTVar tvar (insert attrs att (toNative (insert submap key val)))
     return val

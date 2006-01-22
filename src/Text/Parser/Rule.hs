@@ -351,12 +351,12 @@ data RuleCut
     deriving (Show, Eq, Ord, Data, Typeable)
 
 data RuleAnchor
-    = AnchorBoundary    -- \b
-    | AnchorBoundaryNot -- \B
-    | AnchorBegin       -- ^
-    | AnchorEnd         -- $
-    | AnchorBeginLine   -- ^^
-    | AnchorEndLine     -- $$
+    = AnchorBoundary    -- @\b@
+    | AnchorBoundaryNot -- @\B@
+    | AnchorBegin       -- @^@
+    | AnchorEnd         -- @$@
+    | AnchorBeginLine   -- @^^@
+    | AnchorEndLine     -- @$$@
     deriving (Show, Eq, Ord, Data, Typeable)
 
 type RuleShortcut = CharSet
@@ -374,8 +374,8 @@ type Name = Str
 
 data RuleQuant
     = QuantOne !RuleTerm
-    | QuantNone !Str                        -- #comment
-    | Quant -- **{2} ? + *
+    | QuantNone !Str                        -- @#comment@
+    | Quant                                 -- @**{2} ? + *@
         { quantTerm     :: !RuleTerm
         , quantMin      :: !MinQuant
         , quantMax      :: !MaxQuant
@@ -385,9 +385,9 @@ data RuleQuant
 
 newtype RuleConcat = Concat [RuleQuant]
     deriving (Show, Eq, Ord, Data, Typeable)
-newtype RuleConj   = Conj   [RuleConcat]    -- a & b & c
+newtype RuleConj   = Conj   [RuleConcat]    -- @a & b & c@
     deriving (Show, Eq, Ord, Data, Typeable)
-newtype RuleAltern = Altern [RuleConj]      -- a | b | c
+newtype RuleAltern = Altern [RuleConj]      -- @a | b | c@
     deriving (Show, Eq, Ord, Data, Typeable)
 
 type Flag = ()
@@ -415,7 +415,7 @@ data RuleTerm
     | TermGroup !RuleCapturing !Rule        -- [...] (...)
     | TermEnum !RuleEnum                    -- <[a-z]>
     | TermClosure !RuleClosure              -- {...}
-    | TermBind !RuleVar !RuleTerm           -- $1 := ...
+    | TermBind !RuleVar !RuleTerm           -- @$1 := ...@
     | TermSubrule !RuleCapturing !Name      -- <name>
     | TermDynamic !DynamicTerm
     deriving (Show, Eq, Ord, Data, Typeable)

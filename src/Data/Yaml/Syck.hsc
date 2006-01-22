@@ -70,8 +70,10 @@ mkTagNode s x = MkYamlNode 0 x (Just s) Nothing Nothing
 #enum CInt, , seq_none, seq_inline
 #enum CInt, , map_none, map_inline
 
--- #def typedef void* EmitterExtras;
--- type EmitterExtras = Ptr ()
+{-
+#def typedef void* EmitterExtras;
+type EmitterExtras = Ptr ()
+-}
 
 emitYaml :: YamlNode -> IO (Either String String)
 emitYaml node = do
