@@ -44,6 +44,9 @@ Perl 6 Bible (Perl6::Bible)                                - Various Authors
 
 = Non-Haskell books
 
+Database in Depth: Relational Theory for Practitioners       - Chris J. Date
+    http://www.oreilly.com/catalog/databaseid/
+    (shows what the relational data model *really is*; very easy to read)
 Types and Programming Languages                         - Benjamin C. Pierce
 Advanced Topics in Types and Programming Languages      - Benjamin C. Pierce
 Higher Order Perl                                       - Mark Jason Dominus 
