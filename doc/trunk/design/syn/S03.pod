@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 23 Nov 2005
+  Last Modified: 25 Nov 2006
   Number: 3
-  Version: 10
+  Version: 11
 
 =head1 Operator renaming
 
@@ -64,9 +64,10 @@ instead of a list of refs.  (According to the previous item, in scalar
 context the backslash is redundant, but is good documentation anyway.)
 
 =item * The old scalar C<..> flipflop operator is now done with
-C<till> operator.  (C<..> now always produces a Range object
-even in scalar context.)  The C<till> operator may take a caret on
-either end to exclude either the beginning or ending.
+C<ff> operator.  (C<..> now always produces a Range object
+even in scalar context.)  The C<ff> operator may take a caret on
+either end to exclude either the beginning or ending.  There is
+also a corresponding C<fff> operator with Perl 5's C<...> semantics.
 
 =back
 
@@ -440,7 +441,7 @@ Perl 6 has 22 precedence levels (fewer than Perl 5):
     junctive and (all)	&
     junctive or (any)	| ^
     named unary		rand sleep abs etc.
-    nonchaining binary	but does cmp <=> .. ^.. ..^ ^..^ till
+    nonchaining binary	but does cmp <=> .. ^.. ..^ ^..^ ff ^ff ff^ ^ff^ fff ^fff etc.
     chaining binary	!= == < <= > >= ~~ !~ eq ne lt le gt ge =:= ===
     tight and		&&
     tight or		|| ^^ //
