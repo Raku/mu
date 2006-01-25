@@ -1,0 +1,13 @@
+
+* BROADCAST TASK - Check ./STATUS and see if systems with which you
+  are familiar are correctly described.  Skills: be famaliar with some
+  system. ;)
+
+* Scan docs directory for files which say "I am out of date" and list
+  them below.  Skills: none.
+
+* Reoccuring task: Syncronize docs/ with current language spec.
+Skills: understand p6 well enough to read p6l and Synopses.
+You can check your understanding of changes on #perl6.
+Things specifically known to need updating:
+ * docs/quickref/namespace
