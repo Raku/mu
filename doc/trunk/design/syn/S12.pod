@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 22 Nov 2005
+  Last Modified: 25 Jan 2006
   Number: 12
-  Version: 7
+  Version: 8
 
 =head1 Overview
 
@@ -115,14 +115,23 @@ You may put these inside as well:
 	...
     }
 
-Every object (including any class object) delegates to an instance
-of its metaclass.  You can get at the metaclass of any object via
-the C<.meta> method.  A class object is just considered an "empty"
-instance in Perl 6.  It differs from an instance object not by having
-a different type rather in the extent to which it is defined.
-Some class objects may tell you that they are defined, while others
-may tell you that they are undefined.  That's up to the object, and
-depends on how the metaclass chooses to dispatch the .defined method.
+Every object (including any class object) delegates to an instance of
+its metaclass.  You can get at the metaclass of any object via the
+C<.meta> method.  A "class" object is just considered an "empty"
+instance in Perl 6, more properly called a "prototype" object.
+The actual class object is the metaclass object pointed to by the
+C<.meta> syntax.  So when you say "Dog", you're referring to both a
+package and a prototype object, that latter of which points to the
+actual object representing the class via C<.meta>.  The prototype
+object differs from an instance object not by having a different
+type but rather in the extent to which it is defined.  Some objects
+may tell you that they are defined, while others may tell you that
+they are undefined.  That's up to the object, and depends on how the
+metaclass chooses to dispatch the .defined method.
+
+The notation C<^Dog> is syntactic sugar for C<Dog.meta>, so C<^> can be
+considered the "class" sigil when you want to talk about the current
+eigenclass instance.
 
 Classes are open and non-final by default, but may easily be closed
 or finalized not by themselves but by the entire application, provided
@@ -282,7 +291,29 @@ You can also get at the container through the appropriate symbol table:
 
     if MY::<$scalar>.constant {...}
 
-Class methods are just methods that can take a class as their invocant.
+=head1 Class methods
+
+Other OO languages give you the ability to declare "class" methods that either don't
+need or actively prohibit calls on instances.  In Perl 6 gives you a choice.
+If you declare an ordinary method, it can function as a "class" method when you
+pass it a prototype object such as "Dog" regardless of how defined the prototype
+object is, as long as the method body doesn't try to access any information that
+is undefined in the current instance.
+
+Alternately, you can associate a class method with the current eigenclass instance,
+which as a singleton object knows your package, and can function as a more traditional
+"class" method:
+
+    our $count;
+    method ^count { return $count }
+
+Such an "eigenmethod" is delegated to C<.meta> just as method like .does are,
+so it's possible to call this as C<Dog.count> or C<$dog.count>.  However,
+best practice is probably to call such a class method as C<Dog.^count>
+or C<$dog.^count> to make it clear that it's in its own namespace separate
+from ordinary methods, and so that your class method cannot be accidentally
+overridden by an ordinary method in a subclass--presuming you don't want to
+allow for that possibility.
 
 =head1 Submethods
 
@@ -298,6 +329,9 @@ identical to method syntax.  You may mix methods and submethods of
 the same name within the class hierarchy, but only the methods are
 visible to derived classes via inheritance.  A submethod is called
 only when a method call is dispatched directly to the current class.
+
+[Conjecture: there is some relationship between "submethod BUILD" and
+"method ^BUILD" that possibly rises to the level of a unifiable identity...]
 
 =head1 Attributes
 
@@ -1370,9 +1404,16 @@ properties for the class:
     MyClass.getmethods()	# call MyClass's .getmethods method (error?)
     MyClass.meta.getmethods()	# get the method list of MyClass
 
-Each object of the class also has a C<.meta> method:
+The C<^> metasyntax is equivalent to .meta:
+
+    MyClass.meta.getmethods()	# get the method list of MyClass
+    ^MyClass.getmethods()	# get the method list of MyClass
+    MyClass.^getmethods()	# get the method list of MyClass
+
+Each object of the class also has a C<.meta> or C<.^> method:
 
     $obj.meta.getmethods();
+    $obj.^getmethods();
 
 Class traits may include:
 

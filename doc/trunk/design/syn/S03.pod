@@ -12,7 +12,7 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 25 Nov 2006
+  Last Modified: 25 Jan 2006
   Number: 3
   Version: 11
 
