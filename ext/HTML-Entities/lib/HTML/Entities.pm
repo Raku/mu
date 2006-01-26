@@ -285,7 +285,7 @@ multi sub decode_entities($string is rw) is export
     my $result = $string;
     
     $result ~~ s:perl5:g/&\#(\d+);?/{chr($0)}/;
-    $result ~~ s:perl5:g/(&\#[xX]([0-9a-fA-F]+);?)/{my $c = hex($1); $c < 256 ?? chr($c) !! $0}/;
+    $result ~~ s:perl5:g/(&\#[xX]([0-9a-fA-F]+);?)/{my $c = :16($1); $c < 256 ?? chr($c) !! $0}/;
     $result ~~ s:perl5:g/(&(\w+);?)/{%entity_to_char{$1} // $0}/;
     
     $string = $result;

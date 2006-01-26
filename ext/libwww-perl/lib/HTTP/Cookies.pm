@@ -369,7 +369,7 @@ class HTTP::Cookies-0.0.1 {
         given ($str) {
             s:P5:g/%([0-9a-fA-F][0-9a-fA-F])/{
                 my $x = $0.uc;
-                $x eq "2F"|"25" ?? "%$x" !! pack("C", hex($x));
+                $x eq "2F"|"25" ?? "%$x" !! pack("C", :16($x));
             }/;
             s:P5:g/([\0-\x20\x7f-\xff])/{ ord($0).as('%%%02X') }/;
         }
