@@ -47,6 +47,7 @@ my @normal_tests = (
     [ '9998999 1000 / 67 * 56 80 * 8000 * - 6666 6969 * + 4657 250 / 780 * 890 * -', -1210380 ],
     [ '2 3 *', 6 ],
     [ '5 4 +', 9 ],
+    [ '  5 4 +  ', 9 ],
     [ '42', 42 ],
 );
 
@@ -64,6 +65,8 @@ my @exception_tests = (
     [ '9z 42 +',   "Stack underflow\n"        ],
     [ 'z-9 42 +',  "Stack underflow\n"        ],
     [ '-9z 42 +',  "Stack underflow\n"        ],
+    [ '-',         "Stack underflow\n"        ],
+    [ '5 - +',     "Stack underflow\n"        ],
 );
 
 plan tests => @normal_tests + @exception_tests;

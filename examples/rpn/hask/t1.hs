@@ -66,6 +66,7 @@ normalTests = TestList ( map makeNormalTest [
     ( "9998999 1000 / 67 * 56 80 * 8000 * - 6666 6969 * + 4657 250 / 780 * 890 * -", -1210380 ),
     ( "2 3 *", 6 ),
     ( "5 4 +", 9 ),
+    ( "  5 4 +  ", 9 ),
     ( "42", 42 )
   ])
 
@@ -100,7 +101,9 @@ exceptionTests = TestList ( map makeExceptionTest [
     ( "z9 42 +",   "Stack underflow" ),
     ( "9z 42 +",   "Stack underflow" ),
     ( "z-9 42 +",  "Stack underflow" ),
-    ( "-9z 42 +",  "Stack underflow" )
+    ( "-9z 42 +",  "Stack underflow" ),
+    ( "-",         "Stack underflow" ),
+    ( "5 - +",     "Stack underflow" )
   ])
 
 main :: IO Counts

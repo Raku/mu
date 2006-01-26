@@ -1,10 +1,9 @@
-#!/usr/bin/pugs
+require 'rpn'
+require 'test/unit'
 
-use v6;
-use Test;
-use Rpn;
+class TestRpn < Test::Unit::TestCase
 
-my @normal_tests = (
+  NORMAL_TESTS = [
     [ '1 -2 -', 3 ],
     [ '1 2 +', 3 ],
     [ '-1 2 +', 1 ],
@@ -50,33 +49,40 @@ my @normal_tests = (
     [ '5 4 +', 9 ],
     [ '  5 4 +  ', 9 ],
     [ '42', 42 ],
-);
+  ]
 
-my @exception_tests = (
-    [ '5 4 %',     "Invalid token:\"%\"\n"    ],
-    [ '5 +',       "Stack underflow\n"        ],
-    [ '+',         "Stack underflow\n"        ],
-    [ '5 4 + 42',  "Invalid stack:[9 42]\n"   ],
-    [ '',          "Invalid stack:[]\n"       ],
-    [ '1 2 z9',    "Invalid token:\"z9\"\n"   ],
-    [ '1 2 9z',    "Invalid token:\"9z\"\n"   ],
-    [ '1 2 z-9',   "Invalid token:\"z-9\"\n"  ],
-    [ '1 2 -9z',   "Invalid token:\"-9z\"\n"  ],
-    [ 'z9 42 +',   "Stack underflow\n"        ],
-    [ '9z 42 +',   "Stack underflow\n"        ],
-    [ 'z-9 42 +',  "Stack underflow\n"        ],
-    [ '-9z 42 +',  "Stack underflow\n"        ],
-    [ '-',         "Stack underflow\n"        ],
-    [ '5 - +',     "Stack underflow\n"        ],
-);
+  EXCEPTION_TESTS = [
+    [ '5 4 %',     "Invalid token:\"%\""    ],
+    [ '5 +',       "Stack underflow"        ],
+    [ '+',         "Stack underflow"        ],
+    [ '5 4 + 42',  "Invalid stack:[9 42]"   ],
+    [ '',          "Invalid stack:[]"       ],
+    [ '1 2 z9',    "Invalid token:\"z9\""   ],
+    [ '1 2 9z',    "Invalid token:\"9z\""   ],
+    [ '1 2 z-9',   "Invalid token:\"z-9\""  ],
+    [ '1 2 -9z',   "Invalid token:\"-9z\""  ],
+    [ 'z9 42 +',   "Invalid token:\"z9\""   ],
+    [ '9z 42 +',   "Invalid token:\"9z\""   ],
+    [ 'z-9 42 +',  "Invalid token:\"z-9\""  ],
+    [ '-9z 42 +',  "Invalid token:\"-9z\""  ],
+    [ '-',         "Stack underflow"        ],
+    [ '5 - +',     "Stack underflow"        ],
+  ]
 
-plan @normal_tests.elems + @exception_tests.elems;
+  def test_normal
+    NORMAL_TESTS.each do |expr, val|
+      assert_equal( val, Rpn.evaluate(expr) )
+    end
+  end
 
-for @normal_tests -> $t {
-    cmp_ok(Rpn::evaluate($t[0]), &infix:<==>, $t[1]);
-}
+  def test_exception
+    EXCEPTION_TESTS.each do |expr, estr|
+      begin
+        v = Rpn.evaluate(expr)
+      rescue RuntimeError
+        assert_equal( estr, $!.message )
+      end
+    end
+  end
 
-for @exception_tests -> $t {
-    try { Rpn::evaluate($t[0]) };
-    is($!, $t[1]);
-}
+end
