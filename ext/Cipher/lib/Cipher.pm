@@ -302,7 +302,7 @@ method finish(Cipher $self:) returns Array {
     return @tail;
 }
 method finishstr(Cipher $self:) returns Str {
-    return $self!stringify($self.finish());
+    return stringify($self.finish());
 }
 
 multi method cipher(Cipher $self: Array $data) returns Array {
@@ -315,7 +315,7 @@ multi method cipher(Cipher $self: Array $data) returns Array {
     };
 }
 multi method cipher(Cipher $self: Str $data) {
-    return $self!stringify($self.cipher($self!byteify($data)));
+    return stringify($self.cipher(byteify($data)));
 }
 
 method encipher(Class $class: Str $plaintext, *%options) {
@@ -346,11 +346,11 @@ submethod DESTROY() {
     .zeroize();
 }
 
-#utility methods
+# utility subroutines
 
-my method byteify(Str $string) returns Array of Int {
+sub byteify(Str $string) returns Array of Int {
     return map {ord} $string.split('');
 }
-my method stringify(Array $array) returns Str {
+sub stringify(Array $array) returns Str {
     return [~] map {chr} *$array;
 }
