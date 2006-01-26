@@ -4,6 +4,7 @@ would like current details, please ask on irc.freenode.net #perl6.
 
 
 = Backends
+[last updated: 2005-10-24]
 
 - Haskell-Old  Working (delta general pugs bugs)
 - Haskell-PIL  Restarted 2005-10-03
@@ -16,6 +17,7 @@ would like current details, please ask on irc.freenode.net #perl6.
 
 
 = PIL Transition
+[last updated: 2005-10-05]
 
 * autrijus redesigned PIL format (now 'PIL2') in late 2005-07 through 2005-08,
   but has decided on further improvements after ICFP (beginning of 2005-10)
@@ -26,6 +28,7 @@ would like current details, please ask on irc.freenode.net #perl6.
 
 
 = Perl 6 Object Metamodel
+[last updated: 2005-10-05]
 
 * stevan working on MetalModel 2.0, based on MiniMetaModel, as of 2005-08-22
 * MM2 designed to be cleaner, and as minimalist as possible internally,
@@ -42,7 +45,9 @@ would like current details, please ask on irc.freenode.net #perl6.
 
 = Embedding
 
+[last updated: 2005-10-05]
 - Parrot   Works with Parrot 0.3.0
+[last updated: 2005-08-10]
 - Perl 5   Works, except that it leaks heavily (refcounts inc but never dec),
            and exports don't happen -- workaround for latter is to use
            our &method1 := Perl5::Module::Name.can('method1')
@@ -51,6 +56,7 @@ would like current details, please ask on irc.freenode.net #perl6.
 
 
 = Laziness
+[last updated: 2005-10-05]
 
 * Laziness doesn't currently work for some (most?) backends
 * Some lazy functions do exist (e.g. gather/take), but are actually non-lazy
@@ -60,11 +66,13 @@ would like current details, please ask on irc.freenode.net #perl6.
 = Rules
 
 - Perl 5 regexen
+[last updated: 2005-09-05]
 ** Work well in default backend, handled by PCRE
 ** Mostly working in JS
 ** Specified via perl5 modifier, as in rx:perl5/\Afoo/
 
 - Perl 6 rules
+[last updated: 2005-10-24]
 ** Current handled by parrot's PGE, under development; much works, but:
 *** Rule names are global
 *** No support for aliases
@@ -80,6 +88,7 @@ would like current details, please ask on irc.freenode.net #perl6.
 
 
 = Test Suite
+[last updated: 2005-10-05]
 
 * Currently about 10200 tests, including module tests
 * This is known to be only a small percentage of the total needed to cover
