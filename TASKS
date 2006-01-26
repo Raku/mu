@@ -3,6 +3,12 @@
   are familiar are correctly described.  Skills: be famaliar with some
   system. ;)
 
+* Add a note to lib/pugs/hack.pod mentioning that under
+http://rt.openfoundry.org/Foundry/Project/Source/index.html/pugs/browse/
+the "(history of this directory)" lists the revisions which affected
+the directory you are currently looking at (all the subdirs to of course).
+Skills: understand this paragraph. can say it more clearly.
+
 * Scan docs directory for files which say "I am out of date" and list
   them below.  Skills: none.
 
@@ -11,3 +17,8 @@ Skills: understand p6 well enough to read p6l and Synopses.
 You can check your understanding of changes on #perl6.
 Things specifically known to need updating:
  * docs/quickref/namespace
+
+* Reoccuring task: Check the [date] timestamps in STATUS.  They show
+the last time that section was verified as still correct.  If one is
+old, check with someone to see if it has changed.  What someone?  Ask
+on #perl6.  Skills: polite nagging.
