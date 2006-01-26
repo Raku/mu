@@ -2,7 +2,7 @@
 use v6;
 
 # External packages used by packages in this file, that don't export symbols:
-use Locale::KeyedText-(1.73.0...);
+use Locale::KeyedText-(1.72.0...);
 use Rosetta-0.720.0;
 
 ###########################################################################
@@ -71,7 +71,7 @@ I<This documentation is pending.>
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
 It also requires these Perl 6 classes that are on CPAN:
-L<Locale::KeyedText-(1.73.0...)|Locale::KeyedText> (for error messages).
+L<Locale::KeyedText-(1.72.0...)|Locale::KeyedText> (for error messages).
 
 It also requires these Perl 6 classes that are in the current distribution:
 L<Rosetta-0.720.0|Rosetta>.

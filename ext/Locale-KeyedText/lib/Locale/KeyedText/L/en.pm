@@ -85,7 +85,7 @@ my Str %TEXT_STRINGS is readonly = (
 ###########################################################################
 ###########################################################################
 
-module Locale::KeyedText::L::en-1.1.0 {
+module Locale::KeyedText::L::en-1.0.0 {
     sub get_text_by_key (Str $msg_key!) returns Str {
         return %TEXT_STRINGS{$msg_key};
     }
@@ -105,7 +105,7 @@ Localization of Locale::KeyedText for English
 
 =head1 VERSION
 
-This document describes Locale::KeyedText::L::en version 1.1.0.
+This document describes Locale::KeyedText::L::en version 1.0.0.
 
 =head1 SYNOPSIS
 
