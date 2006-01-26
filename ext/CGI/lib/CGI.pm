@@ -142,15 +142,15 @@ sub url_decode (Str $to_decode) returns Str is export {
     $decoded ~~ s:perl5:g/\+/ /;
     given $URL_ENCODING {
         when 'iso-8859-1' {
-            $decoded ~~ s:perl5:g/%([\da-fA-F][\da-fA-F])/{chr(hex($0))}/;
+            $decoded ~~ s:perl5:g/%([\da-fA-F][\da-fA-F])/{chr(:16($0))}/;
         }
         when 'utf-8' {
-            $decoded ~~ s:perl5:g:i/%(F[CD])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((hex($0)+&1)*1073741824+(hex($1)+&63)*16777216+(hex($2)+&63)*262144+(hex($3)+&63)*4096+(hex($4)+&63)*64+(hex($5)+&63))}/;
-            $decoded ~~ s:perl5:g:i/%(F[8-B])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((hex($0)+&3)*16777216+(hex($1)+&63)*262144+(hex($2)+&63)*4096+(hex($3)+&63)*64+(hex($4)+&63))}/;
-            $decoded ~~ s:perl5:g:i/%(F[0-7])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((hex($0)+&7)*262144+(hex($1)+&63)*4096+(hex($2)+&63)*64+(hex($3)+&63))}/;
-            $decoded ~~ s:perl5:g:i/%(E[\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((hex($0)+&15)*4096+(hex($1)+&63)*64+(hex($2)+&63))}/;
-            $decoded ~~ s:perl5:g:i/%([CD][\dA-F])%([8-9AB][\dA-F])/{chr((hex($0)+&31)*64+(hex($1)+&63))}/;
-            $decoded ~~ s:perl5:g:i/%([0-7][\dA-F])/{chr(hex($0))}/;
+            $decoded ~~ s:perl5:g:i/%(F[CD])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&1)*1073741824+(:16($1)+&63)*16777216+(:16($2)+&63)*262144+(:16($3)+&63)*4096+(:16($4)+&63)*64+(:16($5)+&63))}/;
+            $decoded ~~ s:perl5:g:i/%(F[8-B])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&3)*16777216+(:16($1)+&63)*262144+(:16($2)+&63)*4096+(:16($3)+&63)*64+(:16($4)+&63))}/;
+            $decoded ~~ s:perl5:g:i/%(F[0-7])%([8-9AB][\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&7)*262144+(:16($1)+&63)*4096+(:16($2)+&63)*64+(:16($3)+&63))}/;
+            $decoded ~~ s:perl5:g:i/%(E[\dA-F])%([8-9AB][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&15)*4096+(:16($1)+&63)*64+(:16($2)+&63))}/;
+            $decoded ~~ s:perl5:g:i/%([CD][\dA-F])%([8-9AB][\dA-F])/{chr((:16($0)+&31)*64+(:16($1)+&63))}/;
+            $decoded ~~ s:perl5:g:i/%([0-7][\dA-F])/{chr(:16($0))}/;
         }
     }
     return $decoded;
@@ -293,7 +293,7 @@ sub unescapeHTML (Str $string) returns Str is export {
             
             if ($latin) {
                 when /^#(\d+)$/     { chr($1) }
-                when /^#x(\d+)$/    { chr(hex($1)) }
+                when /^#x(\d+)$/    { chr(:16($1)) }
             }
         }
     }/;
