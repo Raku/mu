@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 28;
+plan 31;
 
 =kwid
 
@@ -113,4 +113,16 @@ is($moo, 0, "var was not touched");
 
   is(++@array[+foo()], 43, "++ evaluates the expression to increment only once (1)");
   is($was_in_foo,       1, "++ evaluates the expression to increment only once (2)");
+}
+
+# Test case courtesy of Limbic_Region
+
+{
+    my $curr  = 4;
+    my @array = 1..5;
+    is @array[$curr], 5, "postincrements in array subscripts work";
+    @array[ --$curr ]++;
+
+    is $curr, 3, "postincrements in array subscripts work";
+    is @array[$curr], 5, "postincrements in array subscripts work";
 }
