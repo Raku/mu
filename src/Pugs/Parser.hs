@@ -1939,13 +1939,12 @@ namedArg = named (pairLiteral <|> complexNamed)
     -- "a" => 5 or @array => 5.
     complexNamed = try $ do
         -- ("a" => 5), with the parens, is not a named arg.
-        pos1 <- lookAhead $ do
-            optional (parens doComplexNamed)
-            getPosition
-        rv   <- doComplexNamed
-        pos2 <- getPosition
-        guard (pos1 /= pos2)
-        return rv
+        ok <- option True . try $ do
+            symbol "("
+            doComplexNamed
+            return False
+        guard ok
+        doComplexNamed
     doComplexNamed = do
         exp <- parseExpWithTightOps
         case unwrap exp of
