@@ -140,6 +140,6 @@ plan 12;
         }
     };
 
-    is(step().perl, "(43, 41)", "chained state (no. 1)", :todo<bug>);
-    is(step().perl, "(44, 40)", "chained state (no. 2)", :todo<bug>);
+    is(step().perl, "(43, 41)", "chained state (#1)", :todo<bug>);
+    is(step().perl, "(44, 40)", "chained state (#2)", :todo<bug>);
 }

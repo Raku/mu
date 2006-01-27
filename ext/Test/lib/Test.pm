@@ -240,6 +240,8 @@ sub proclaim (Bool $cond, Str $desc? is copy, $todo?, Str $got?, Str $expected?,
 
     my $out = $desc.defined ?? " - $desc" !! "";
     $out = "$out <pos:$?CALLER::CALLER::POSITION>" if $Test::ALWAYS_CALLER;
+    # message like "test #1 # TODO" confuse the harness. Escape desc #s.
+    $out ~~ s:P5:g/#/\\#/;
 
     my $context_out = $context.defined ?? " # $context" !! "";
 
