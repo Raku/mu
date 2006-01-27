@@ -22,9 +22,6 @@ message (@Left@).
 -}
 type MaybeError a = Either String a
 
-isRequired :: Param -> Bool
-isRequired prm = not $ isOptional prm
-
 {-|
 Match up named arguments with named parameters, producing a list of new
 bindings, and lists of remaining unbound args and params.
@@ -207,14 +204,13 @@ finalizeBindings sub = do
             ++ (show $ act + cnt) ++ " expected in "
             ++ (show $ subName sub)
             
-    let (boundReq, boundOpt) = partition (isRequired . fst) bindings -- bound params which are required
-        (reqPrms, optPrms)   = span isRequired params -- all params which are required, and all params which are opt
+    let (boundOpt, boundReq) = partition (isOptional . fst) bindings -- bound params which are required
+        (optPrms, reqPrms)   = partition isOptional params -- all params which are required, and all params which are opt
 
     -- Check length of required parameters
     when (length boundReq < length reqPrms) $ do
-        fail $ "Insufficient number of required parameters: "
-            ++ (show $ length boundReq) ++ " actual, "
-            ++ (show $ length reqPrms) ++ " expected"
+        fail $ "Missing required parameters: "
+            ++ unwords (map paramName $ reqPrms \\ map fst boundReq)
 
     let unboundOptPrms = optPrms \\ (map fst boundOpt) -- unbound optParams are allPrms - boundPrms
         optPrmsDefaults = [
@@ -249,7 +245,8 @@ bindSomeParams sub invExp argsExp = do
     let boundInv                = invPrms `zip` givenInvs -- invocants are just bound, params to given
         (namedArgs, posArgs)    = partition isNamedArg givenArgs
         (boundNamed, namedForSlurp, allPosPrms) = bindNames namedArgs argPrms -- bind pair args to params. namedForSlup = leftover pair args
-        (posPrms, slurpyPrms)   = break isSlurpy allPosPrms -- split any prms not yet bound, into regular and slurpy. allPosPrms = not bound by named
+        (itemPrms, slurpyPrms)  = break isSlurpy allPosPrms -- split any prms not yet bound, into regular and slurpy. allPosPrms = not bound by named
+        posPrms                 = filter (not . isNamed) itemPrms
         boundPos                = posPrms `zip` posArgs -- bind all the unbound params in positional order
         posForSlurp             = drop (length posPrms) posArgs -- and whatever's left will be slurped
 
