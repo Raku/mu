@@ -45,19 +45,19 @@ for =$*IN -> $line {
         $row++;
     }
     #say $line;
-    my @data = split(/,/, $line.chomp);
+    my @data = split(',', $line.chomp);
     #say @data;
     say square($column*$width*1.5, $row*$width*1.5, @data[0], @data[1]);
 }
 
 say $svg_end;
 
-# TODO had to put $hint in quotes, otherwise got a pugs error: Can't modify constant item: VUndef
+# TODO had to put space after $hint, otherwise '</hint>' became part of the variable name
 sub square (Int $x, Int $y, Str $hex, Str $hint) {
-    return q:t:s/END/
+    return q:scalar:to/END/
 <rect x="$x" y="$y" width="$width" height="$width"
 style="fill:#$hex;stroke-width:0; stroke:#$hex">
-  <hint>"$hint"</hint>
+  <hint>$hint </hint>
 </rect>
 END
 }
