@@ -9,6 +9,12 @@ the "(history of this directory)" lists the revisions which affected
 the directory you are currently looking at (all the subdirs to of course).
 Skills: understand this paragraph. can say it more clearly.
 
+* Gather ideas for our t/ testing and validation suite.
+t/ is getting to be a maintenance headache.  It's not going to scale
+another 2x, 3x, 4x, whatever.  Look at new modern languages (eg,
+scala, slate, pypy), at big languages (ghc, mono), and elsewhere (where?).
+Bring us ideas.  Skills: as described.
+
 * Scan docs directory for files which say "I am out of date" and list
   them below.  Skills: none.
 
