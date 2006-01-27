@@ -43,8 +43,8 @@ plan 28;
   }
 
   sub foo {
-    my $a = "foo";
-    my $b := $a;
+    env $a = "foo";
+    env $b := $a;
     return bar(); # && bar2();
   }
 
