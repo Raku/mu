@@ -3,6 +3,8 @@
 use v6;
 use Test::Pil;
 
+check_pil();
+
 pil_is_eq(q:to/CODE/
 []`push(3, 4, 5)
 CODE,

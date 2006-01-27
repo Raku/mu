@@ -3,6 +3,8 @@
 use v6;
 use Test::PIL::Bootstrap;
 
+check_pil();
+
 =pod
 
 The purpose of this test is to show how much of the default model 

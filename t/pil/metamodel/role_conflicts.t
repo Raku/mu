@@ -3,6 +3,8 @@
 use v6;
 use Test::PIL::Bootstrap;
 
+check_pil();
+
 my $prelude = q:to/PRELUDE/
 ^rFoo := ^Role.new({ '$!name' => 'rFoo' });
 

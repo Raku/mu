@@ -3,6 +3,8 @@
 use v6;
 use Test::PIL::Bootstrap;
 
+check_pil();
+
 pil_is_eq(
     '^List.identifier()', 
     '"List-0.0.1-url:pugscode.org"', 

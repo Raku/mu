@@ -3,6 +3,8 @@
 use v6;
 use Test::PIL::Bootstrap;
 
+check_pil();
+
 # check that we have our components
 
 pil_is_ok('^Class',   '... ^Class is defined');

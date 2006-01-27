@@ -3,6 +3,8 @@
 use v6;
 use Test::Pil;
 
+check_pil();
+
 pil_is_eq("true`not()", "false", "True not test");
 pil_is_eq("false`not()", "true");
 

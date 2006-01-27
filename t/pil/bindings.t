@@ -3,6 +3,8 @@
 use v6;
 use Test::Pil;
 
+check_pil();
+
 $Test::Pil::Description = "Binding tests";
 pil_is_eq( q/$a := 1; $a`add(2)/, "3");
 pil_parsed_is_eq( q/$a := 1; $a`add(2)/, q/(-> $a {$a`add(2)})`(1)/);

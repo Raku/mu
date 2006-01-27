@@ -3,6 +3,8 @@
 use v6;
 use Test::PIL::Bootstrap;
 
+check_pil();
+
 my $classes = q:to/CLASSES/
 
 ^Foo := ^Class.new({});

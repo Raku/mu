@@ -3,6 +3,8 @@
 use v6;
 use Test::PIL::Bootstrap;
 
+check_pil();
+
 pil_is_eq('^Pair.identifier()', '"Pair-0.0.1-url:pugscode.org"', '... Pair has the correct identifier');
 
 pil_is_eq('^Pair.has_method("key")', 'true', '... ^Pair.has_method(key)');

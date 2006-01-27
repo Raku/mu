@@ -3,6 +3,8 @@
 use v6;
 use Test::PIL::Bootstrap;
 
+check_pil();
+
 # check some of the MROs for the base classes
 
 pil_is_eq('^Class.MRO()`length()', '4', '... ^Class.MRO().length() == 4');
