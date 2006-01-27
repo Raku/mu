@@ -7,7 +7,7 @@ use Test;
 # my() declarations scopes lexically to the rest of the block; using $MY::x or
 # $::("x") in the block before the actual declaration is erroneous.
 
-plan 7;
+plan 8;
 
 {
   is(eval('my $x; my $x; 1'), undef, "test declare my() variable twice in same scope", :todo<bug>);
@@ -31,4 +31,11 @@ plan 7;
   my $ret = 42;
   lives_ok { $ret = my($x) ~ $x }, 'my() variable is visible (1)', :todo<bug>;
   is $ret, "",                     'my() variable is visible (2)', :todo<bug>;
+}
+
+{
+  my $was_in_sub;
+  my &foo = -> $arg { $was_in_sub = $arg };
+  foo 42;
+  is $was_in_sub, 42, 'calling a lexically defined my()-code var worked';
 }
