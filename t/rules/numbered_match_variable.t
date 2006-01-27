@@ -5,10 +5,6 @@ use Test;
 
 =pod
 
-pugs> "asdfg/" ~~ rx:perl5{^(\w+)?/(\w+)?}; $1 ?? "true" !! "false"
-"true"
-
-$1 didn't match anything, But the in boolean context, It is treated as true.
 
 =cut
 
