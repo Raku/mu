@@ -126,7 +126,6 @@ emitNode e n@(MkYamlNode{el = YamlStr str}) = do
 emitNode e n@(MkYamlNode{el = YamlSeq seq}) = do
     withTag n "array" $ \tag ->
         syck_emit_seq e tag seqNone
-    -- TODO: fix pesky warning about "integer from pointer without a cast" here
     mapM_ (syck_emit_item e) =<< (mapM freezeNode seq)
     syck_emit_end e
 
