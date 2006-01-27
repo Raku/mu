@@ -1,6 +1,6 @@
 = Changes for 6.2.11 (rXXXX) - Jan XX, 2006
 
-** to r8657 - needs editing **
+** to r8670 - needs editing **
 XXX big things not mentioned here:
 - objectspace / metamodel
 - PILN
@@ -36,15 +36,18 @@ XXX big things not mentioned here:
 * src/Text/Parser/OpTable.hs - Haskell port of PGE::OPTable
 * src/Text/Parser/Rule.hs - Fast, pure Haskell Perl6 Rules implementation,
   based on PArrows.
+* FastPackedString
+* Multisubs now exports properly.
+* In a pad, multi entries and non-multi entries are now cleanly
+  separated.  We can hack in "proto" support as another entry type later.
 
+	
 === JavaScript backend
 
 * .assuming
 * new operators implemented: +| +& +^ +< +> ~& ~| ~^ +^ ~^
 * state vars
 * FIRST blocks
-
-=== XXX backend
 
 == Bug Fixes
 
@@ -64,13 +67,13 @@ XXX big things not mentioned here:
 * parse "foo.bar" as "::foo.bar" when ::foo in scope, "&foo(.bar)" otherwise
 * remove temporary test files on "make clean"
 * added unary ^ (^num a shortcut for 0..^num).
+* cygwin build fix
+* fixed embedding of threaded parrot
 
 === JavaScript backend
 
 * division by zero raises an error, not return NaN like JS does
 * fix problems with [=>] and related operators
-
-=== XXX backend
 
 == Bundled Modules
 
@@ -121,6 +124,7 @@ XXX big things not mentioned here:
   multimethod system.
 * docs/notes/context_coercion.pod - parallel proposal to MMD proposal
 
+* tests in ext/ and t/ - workaround the breaking of 'use_ok' r8660
 
 
 
