@@ -1,6 +1,6 @@
 = Changes for 6.2.11 (rXXXX) - Jan XX, 2006
 
-** to r8670 - needs editing **
+** to r8700 - needs editing **
 XXX big things not mentioned here:
 - objectspace / metamodel
 - PILN
@@ -40,7 +40,11 @@ XXX big things not mentioned here:
 * Multisubs now exports properly.
 * In a pad, multi entries and non-multi entries are now cleanly
   separated.  We can hack in "proto" support as another entry type later.
-
+* Dumping Haskell structures as YAML.  ./pugs -CPIL1-YAML etc works.
+* Unescaped UTF8 literal support for YAML dump/load.
+* should use -CPIR instead of the deprecated -CParrot.
+* -C PIR-YAML
+* dump parse tree as YAML ./pugs -C Parse-YAML -e '...'
 	
 === JavaScript backend
 
@@ -48,7 +52,9 @@ XXX big things not mentioned here:
 * new operators implemented: +| +& +^ +< +> ~& ~| ~^ +^ ~^
 * state vars
 * FIRST blocks
-
+* PIL/JS compilation now works with exported multisubs.
+* Implement unlink()  $*PID
+	
 == Bug Fixes
 
 === Shared components
@@ -69,7 +75,8 @@ XXX big things not mentioned here:
 * added unary ^ (^num a shortcut for 0..^num).
 * cygwin build fix
 * fixed embedding of threaded parrot
-
+* t/operators/inc.t: all passes. r8700
+	
 === JavaScript backend
 
 * division by zero raises an error, not return NaN like JS does
@@ -123,7 +130,6 @@ XXX big things not mentioned here:
 * docs/notes/multimethods.pod - description of the now-blessed Perl 6
   multimethod system.
 * docs/notes/context_coercion.pod - parallel proposal to MMD proposal
-
 * tests in ext/ and t/ - workaround the breaking of 'use_ok' r8660
 
 
