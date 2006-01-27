@@ -9,6 +9,8 @@ plan 5;
 
 <S02/"Characters indexed by hex, octal, and decimal">
 
+=cut
+
 is("\x20", ' ', '\x20 normal space');
 is("\xa0", ' ', '\xa0 non-breaking space');
 is("\x[20]", ' ', '\x[20] normal space');
