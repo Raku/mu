@@ -663,7 +663,6 @@ ruleVarDeclaration = rule "variable declaration" $ do
              return (combine (map (Sym scope) names), Syn "," (map mkVar names))
         ]
     traits <- many ruleTrait
-    let isExport = ("export" `elem` traits)
     -- pos <- getPosition
     (sym, expMaybe) <- option ("=", Nothing) $ do
         sym <- tryChoice $ map string $ words " = .= := ::= "
@@ -1913,9 +1912,6 @@ parseParamList = parseParenParamList <|> parseNoParenParamList
 parseParenParamList :: RuleParser (Maybe Exp, [Exp])
 parseParenParamList = parseParenParamListCommon True
 
-parseParenParamListMaybe :: RuleParser (Maybe Exp, [Exp])
-parseParenParamListMaybe = parseParenParamListCommon False
-    
 parseParenParamListCommon :: Bool -> RuleParser (Maybe Exp, [Exp])
 parseParenParamListCommon mustHaveParens = do
     leading     <- option [] $ try $ many namedAdverb
@@ -1941,10 +1937,16 @@ namedArg = named (pairLiteral <|> complexNamed)
     -- complexNamed parses a pair literal which has a complex expression (as
     -- opposed to a simply identifier) as its LHS, e.g.
     -- "a" => 5 or @array => 5.
-    -- XXX should this be merged with pairLiteral?
-    complexNamed = do
+    complexNamed = try $ do
         -- ("a" => 5), with the parens, is not a named arg.
-        notFollowedBy $ char '('
+        pos1 <- lookAhead $ do
+            optional (parens doComplexNamed)
+            getPosition
+        rv   <- doComplexNamed
+        pos2 <- getPosition
+        guard (pos1 /= pos2)
+        return rv
+    doComplexNamed = do
         exp <- parseExpWithTightOps
         case unwrap exp of
             (App (Var "&infix:=>") Nothing [_, _]) -> return exp
