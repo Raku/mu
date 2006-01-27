@@ -55,8 +55,10 @@ op1Numeric f x          = fmap (VNum . f) (fromVal x)
 op2Exp :: Val -> Val -> Eval Val
 op2Exp x y = do
     num1 <- fromVal =<< fromVal' x
+    if isNaN num1 then return (VNum (0/0)) else do
     if num1 == (1 :: VNum) then return (VInt 1) else do
     num2 <- fromVal =<< fromVal' y
+    if isNaN num2 then return (VNum (0/0)) else do
     if num2 == (0 :: VNum) then return (VInt 1) else do
     case reverse $ show (num2 :: VNum) of
         ('0':'.':_) -> do
@@ -65,6 +67,8 @@ op2Exp x y = do
                 then op2Rat ((^^) :: VRat -> VInt -> VRat) x y
                 else op2Num ((**) :: VNum -> VNum -> VNum) x y
         _ -> op2Num ((**) :: VNum -> VNum -> VNum) x y
+    where
+    _NaN = 0/0
 
 op2Divide :: Val -> Val -> Eval Val
 op2Divide x y
