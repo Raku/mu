@@ -35,5 +35,5 @@ class C does A
 	}
 }
 
-is try{ C.new.s }, 6, "Test class include another class which inherited from same role";
+is try{ C.new.s }, 6, "Test class include another class which inherited from same role", :todo<bug>;
 

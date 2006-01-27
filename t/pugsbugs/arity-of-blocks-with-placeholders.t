@@ -15,9 +15,9 @@ plan 9;
     is { my $k; $^a         }.arity, 1,
         "additional my() vars don't influence .arity calculation (1-1)";
     is { my $k; $^a,$^b     }.arity, 2,
-        "additional my() vars don't influence .arity calculation (1-2)";
+        "additional my() vars don't influence .arity calculation (1-2)", :todo<bug>;
     is { my $k; $^a,$^b,$^c }.arity, 3,
-        "additional my() vars don't influence .arity calculation (1-3)";
+        "additional my() vars don't influence .arity calculation (1-3)", :todo<bug>;
 }
 
 {

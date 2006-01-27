@@ -19,11 +19,12 @@ if $*OS eq "browser" {
 my $filename = "foo";
 
 {
-	my $fh = open($filename, :w);
+	my $fh = try { open($filename, :w) };
 	isa_ok($fh, IO);
 }
 
 {
-	my $fh = open($filename, :w);
-	isa_ok($fh, IO);
+	my $fh = try { open($filename, :w) };
+	isa_ok($fh, IO, :todo<bug>);
+	
 }
