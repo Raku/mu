@@ -19,7 +19,7 @@ use Test;
 #   foo($pair);      # pair passed positionally
 #   foo(*$pair);     # named
 
-plan 35;
+plan 37;
 
 sub f1 ($a, $b) { ref($a) ~ ref($b) }
 {
@@ -59,8 +59,10 @@ sub f2 (:$a!) { ~ref($a) }
     flunk("FIXME parsefail (in 'foo.((:a))', '(:a)' is a pair)", :todo<bug>);
     # dies_ok { f2.((:a))       }, "in 'f2.((:a))', '(:a)' is a pair";
     
-    dies_ok { $f2((:a))       }, "in '\$f2((:a))', '(:a)' is a pair";
-    dies_ok { $f2.((:a))      }, "in '\$f2.((:a))', '(:a)' is a pair";
+    dies_ok { $f2((:a))       }, "in '\$f2((:a))', '(:a)' is a pair", :todo<bug>;
+    dies_ok { $f2.((:a))      }, "in '\$f2.((:a))', '(:a)' is a pair", :todo<bug>;
+    dies_ok { $f2(((:a)))     }, "in '\$f2(((:a)))', '(:a)' is a pair";
+    dies_ok { $f2.(((:a)))    }, "in '\$f2.(((:a)))', '(:a)' is a pair";
 }
 
 sub f3 ($a) { ~ref($a) }
