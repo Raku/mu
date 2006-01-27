@@ -121,6 +121,9 @@ XXX big things not mentioned here:
   multimethod system.
 * docs/notes/context_coercion.pod - parallel proposal to MMD proposal
 
+
+
+
 = Changes for 6.2.10 (r7520) - Oct 10, 2005
 
 == Feature Changes
