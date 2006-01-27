@@ -1,12 +1,14 @@
 = Changes for 6.2.11 (rXXXX) - Jan XX, 2006
 
-** to r8700 - needs editing **
+** to r8750 - needs editing **
 XXX big things not mentioned here:
 - objectspace / metamodel
 - PILN
 - sixpan / JIB
 - PIL2JS
-
+- export/scope
+- Rosetta
+	
 == Feature Changes
 
 * 1__0 is now a parsefail.
@@ -45,7 +47,18 @@ XXX big things not mentioned here:
 * should use -CPIR instead of the deprecated -CParrot.
 * -C PIR-YAML
 * dump parse tree as YAML ./pugs -C Parse-YAML -e '...'
-	
+* new backend: -CParse-Pretty, to show a pretty parse tree.
+* Support for $+var as shorthand for $CALLER::var.
+* CALLER now only sees lexical variables in the outer dynamic
+  scope declared with the "env" scope specifier.
+* numbers.t: all underscore-related subtests now pass.
+* implemented \x[1,2,3,].
+* Pugs.Run.Args: When the arg list parser encounters the script
+  file name, treat everything after it (even -options) as arguments.
+* the very-cutely-named "" repr type is now known as "p6nil" instead
+* add PUGS_SMOKE_EXCLUDE_EXT env to run-smoke.pl
+* remove the redundant "--" in multiarg options.
+
 === JavaScript backend
 
 * .assuming
@@ -76,7 +89,19 @@ XXX big things not mentioned here:
 * cygwin build fix
 * fixed embedding of threaded parrot
 * t/operators/inc.t: all passes. r8700
-	
+* Prim.Match: When rx:P5/(...)?/ captures nothing, do not set
+  the submatch variable into something that has a true boolean value.
+* 1**Inf, 0**0 and Inf**0 is regularted to 1 in this release. Pending p6l.
+* Remove not (yet) used modules from Pugs.cabal: FPS, DrIFT.Binary.
+* Improved hash parsing. {("a"=>3),}.ref is again ::Hash, not ::Block.
+* remove the %*INC<fatal> hack from Prelude.pm. It broke and was
+  causing difficulties.
+* .elems: work correcly on listrefs
+* parse (but no implementation) for scoped packages.
+* t/pugsrun/01-multiple-e.t now happily passes.
+* qq.method:1.  # always parses as quoter, never method
+
+
 === JavaScript backend
 
 * division by zero raises an error, not return NaN like JS does
@@ -101,7 +126,10 @@ XXX big things not mentioned here:
 ** Template Modules now have a different variable interpolation format.
 ** Created 2 running examples/ from pod that was removed from KeyedText.pm.
 ** Deleted old test suite (yet to be replaced); now only tests compiling.
-
+* Fix the HTML::Entity infinite loop
+* changed the license of the Rosetta framework, mainly the nature of
+  my GPL linking exception
+	
 === Experimental modules (in misc/, not installed)
 
 * Added misc/Parser-Mini/ - experimental 'thin' p6 parser
@@ -131,6 +159,8 @@ XXX big things not mentioned here:
   multimethod system.
 * docs/notes/context_coercion.pod - parallel proposal to MMD proposal
 * tests in ext/ and t/ - workaround the breaking of 'use_ok' r8660
+* Beginnings of docs/getting_started; inspired by the lack of any
+  document to point newbies at.
 
 
 
