@@ -7,7 +7,7 @@ use Test;
 # my() declarations scopes lexically to the rest of the block; using $MY::x or
 # $::("x") in the block before the actual declaration is erroneous.
 
-plan 10;
+plan 11;
 
 {
   is(eval('my $x; my $x; 1'), undef, "test declare my() variable twice in same scope", :todo<bug>);
@@ -44,3 +44,5 @@ plan 10;
   is(do{my $a = 3; $a}, 3, 'do{my $a = 3; $a} works');
   is(do{1; my $a = 3; $a}, 3, 'do{1; my $a = 3; $a} works');
 }
+
+eval_ok('my $x = my $y = 0; 1', '"my $x = my $y = 0" parses');
