@@ -12,5 +12,7 @@ plan 5;
 is 0 * Inf  , NaN, "0 * Inf";
 is Inf / Inf, NaN, "Inf / Inf";
 is Inf - Inf, NaN, "Inf - Inf";
-is 0**0     , NaN ,"0**0";
-is Inf**0   , NaN, "Inf**0";
+
+# XXX - the semantics below are unspecified.
+is 0**0     , 1, "0**0 is 1, _not_ NaN";
+is Inf**0   , 1, "Inf**0 is 1, _not_ NaN";
