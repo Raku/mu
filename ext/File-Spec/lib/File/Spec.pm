@@ -167,6 +167,8 @@ Stevan Little <stevan@iinteractive.com>
 
 Max Maischein <corion@cpan.org>
 
+Darren R. Duncan (C<perl@DarrenDuncan.net>)
+
 = ACKNOWLEDGEMENTS
 
 This is a port of the Perl 5 File::Spec module which is currently 
