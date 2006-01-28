@@ -166,11 +166,11 @@ sub file_name_is_absolute (Str $file) returns Bool is export {
 #    return $cwd;
 #}
 sub cwd returns Str is export {
-  return File::Spec::cwd();
+  return '\\';
 }
 
 sub tmpdir returns Str is export {
-  return File::Spec::tmpdir();
+  return '';
 }
 
 sub rel2abs (Str $_path, Str $_base?) returns Str is export {

@@ -162,11 +162,11 @@ sub path returns Array is export {
 # the File::Spec platform hack
 #sub cwd returns Str { system("pwd") }
 sub cwd returns Str is export {
-  return File::Spec::cwd();
+  return '/';
 }
 
 sub tmpdir returns Str is export {
-  return File::Spec::tmpdir();
+  return '';
 }
 
 #

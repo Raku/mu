@@ -1,18 +1,87 @@
 use v6;
 
-if ($?OS eq 'MSWin32') {
-    require File::Spec::Win32;
-}
-else {
-    require File::Spec::Unix;
-}
-
-# The "require" lines above is deliberately
-# not part of the File::Spec package, because
-# we'd like to import on behalf of the caller.
-# Again, a horrible hack.
-
 module File::Spec-0.0.1;
+
+my $worker_pkg
+    =  $?OS eq 'MSWin32' ?? 'File::Spec::Win32'
+    !!                      'File::Spec::Unix'
+    ;
+
+eval "require $worker_pkg;";
+die $!
+    if $!;
+
+sub curdir returns Str is export {
+    return &::($worker_pkg)::curdir();
+}
+
+sub updir returns Str is export {
+    return &::($worker_pkg)::updir();
+}
+
+sub rootdir returns Str is export {
+    return &::($worker_pkg)::rootdir();
+}
+
+sub devnull returns Str is export {
+    return &::($worker_pkg)::devnull();
+}
+
+sub case_tolerant returns Bool is export {
+    return &::($worker_pkg)::case_tolerant();
+}
+
+sub splitdir (Str $dir) returns Array is export {
+    return &::($worker_pkg)::splitdir( $dir );
+}
+
+sub splitpath (Str $path, Bool $nofile?) returns Array is export {
+    return &::($worker_pkg)::splitpath( $path, $nofile );
+}
+
+sub catdir (*@path) returns Str is export {
+    return &::($worker_pkg)::catdir( *@path );
+}
+
+sub catfile (*@_path) returns Str is export {
+    return &::($worker_pkg)::catfile( *@_path );
+}
+
+sub catpath (Str $volume, Str $directory, Str $file) returns Str is export {
+    return &::($worker_pkg)::catpath( $volume, $directory, $file );
+}
+
+sub rel2abs (Str $_path, Str $_base?) returns Str is export {
+    return &::($worker_pkg)::rel2abs( $_path, $_base );
+}
+
+sub abs2rel (Str $_path, Str $_base?) returns Str is export {
+    return &::($worker_pkg)::abs2rel( $_path, $_base );
+}
+
+sub canonpath (Str $_path) returns Str is export {
+    return &::($worker_pkg)::canonpath( $_path );
+}
+
+sub no_upwards (*@filenames) returns Array is export {
+    return &::($worker_pkg)::no_upwards( *@filenames );
+}
+
+sub file_name_is_absolute (Str $file) returns Bool is export {
+    return &::($worker_pkg)::file_name_is_absolute( $file );
+}
+
+sub path returns Array is export {
+    return &::($worker_pkg)::path();
+}
+
+sub cwd returns Str is export {
+    return &::($worker_pkg)::cwd();
+}
+
+sub tmpdir returns Str is export {
+    return &::($worker_pkg)::tmpdir();
+}
 
 =kwid
 

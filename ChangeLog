@@ -113,31 +113,36 @@ XXX big things not mentioned here:
 
 === New Perl 6 modules
 
-* Added ext/Parse-Rule/ - A PGE port in perl 6.
-* Added ext/Rosetta/ (incomplete) - A federated relational database.
-* Added ext/Rosetta-Engine-Native/ (incomplete) - A back-end for testing.
+* ext/Parse-Rule/ added - A PGE port in perl 6.
+* ext/Rosetta/ added (incomplete) - A federated relational database.
+* ext/Rosetta-Engine-Native/ added (incomplete) - A back-end for testing.
 
 === Updated modules
 
-* Rewrote ext/Locale-KeyedText/, with a strong resemblence to the original.
+* ext/File-Spec/:
+** Rewrote code of lib/File/Spec.pm to define its own exported wrapper subs 
+   that invoke the platform-specific ones, rather than falsely assuming its 
+   own 'require' call to p-s will result in an export into its own caller.
+** Updated lib/File/Spec/[Unix|Win32].pm to remove some infinite recursion.
+** These fixes also enable many other ext/ to work, which depend on F-S.
+* ext/HTML-Entities/: Fix the HTML::Entities infinite loop.
+* ext/Locale-KeyedText/: Rewrote with a strong resemblence to the original.
 ** Split up translate_message() for more granular Translator usage.
 ** Objects now become something useful when coerced into a string.
 ** Added Locale::KeyedText::L::en, LKT now throws Message exceptions.
 ** Template Modules now have a different variable interpolation format.
 ** Created 2 running examples/ from pod that was removed from KeyedText.pm.
 ** Deleted old test suite (yet to be replaced); now only tests compiling.
-* Fix the HTML::Entity infinite loop
-* changed the license of the Rosetta framework, mainly the nature of
-  my GPL linking exception
 	
 === Experimental modules (in misc/, not installed)
 
-* Added misc/Parser-Mini/ - experimental 'thin' p6 parser
-* Broke up misc/Rosetta-Incubator/:
+* misc/Parser-Mini/ added - experimental 'thin' p6 parser
+* misc/Rosetta-Incubator/ broken up:
 ** Locale::KeyedText was merged into the rewritten one in ext/.
-** SQL::Routine and Rosetta were merged together, became Rosetta in ext/.
+** SQL::Routine and Rosetta were merged together, became Rosetta in ext/, 
+   and that also now has a different license.
 ** Remainder (SQLBuilder, SQLParser, Eng/Generic, Emu/DBI) was deleted.
-* Added misc/sixpan/ - prototype new CPAN tools [XXX: beef me up]
+* misc/sixpan/ added - prototype new CPAN tools [XXX: beef me up]
 
 == Test, Examples and Documentations
 
