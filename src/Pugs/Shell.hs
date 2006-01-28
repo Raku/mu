@@ -15,6 +15,7 @@ module Pugs.Shell (
     RunOptions(..),
     initializeShell,
     getCommand,
+    readline,
 ) where
 import Pugs.Internals
 

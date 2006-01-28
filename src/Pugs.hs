@@ -312,6 +312,7 @@ doLoad env fn = do
 doRunSingle :: TVar Env -> RunOptions -> String -> IO ()
 doRunSingle menv opts prog = (`catch` handler) $ do
     exp     <- makeProper =<< parse
+    if exp == Noop then return () else do
     env     <- theEnv
     rv      <- runImperatively env (evaluate exp)
     result  <- case rv of
@@ -343,7 +344,16 @@ doRunSingle menv opts prog = (`catch` handler) $ do
             putStrLn $ pretty final
         else print
     makeProper exp = case exp of
-        Val err@(VError _ _) -> fail $ pretty err
+        Val err@(VError (VStr msg) _)
+            | runOptShowPretty opts -> do
+--          , "\nunexpected end of input" `isPrefixOf` msg -> do
+            cont <- readline "....> "
+            case cont of
+                Just line   -> do
+                    doRunSingle menv opts (prog ++ ('\n':line))
+                    return Noop
+                _           -> fail $ pretty err
+        Val err@VError{} -> fail $ pretty err
         _ | runOptSeparately opts -> return exp
         _ -> return $ makeDumpEnv exp
     -- XXX Generalize this into structural folding
@@ -352,9 +362,10 @@ doRunSingle menv opts prog = (`catch` handler) $ do
     makeDumpEnv (Pad x y exp)     = Pad x y   $ makeDumpEnv exp
     makeDumpEnv (Sym x y exp)     = Sym x y   $ makeDumpEnv exp
     makeDumpEnv exp = Stmts exp (Syn "env" [])
-    handler err = if not (isUserError err) then ioError err else do
+    handler err | isUserError err = do
         putStrLn "Internal error while running expression:"
         putStrLn $ ioeGetErrorString err
+                | otherwise = ioError err
 
 runImperatively :: TVar Env -> Eval Val -> IO Val
 runImperatively menv eval = do
