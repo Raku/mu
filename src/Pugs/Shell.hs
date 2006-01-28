@@ -73,13 +73,16 @@ initializeShell
 #endif
 
 readline :: String -> IO (Maybe String)
-readline prompt
+readline prompt = do
 #ifdef PUGS_HAVE_READLINE
-   = Readline.readline prompt
+    Readline.setCatchSignals False
+    Readline.setCatchSigwinch False
+    rv <- Readline.readline prompt
+    return rv
 #else
-   = do putStr prompt
-        input <- getLine
-        return $ Just input
+    putStr prompt
+    input <- getLine
+    return $ Just input
 #endif
 
 addHistory :: String -> IO ()
