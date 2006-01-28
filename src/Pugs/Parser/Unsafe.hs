@@ -63,17 +63,18 @@ possiblyApplyMacro app@(App (Var name) _ _) = do
     env <- getRuleEnv
     -- Note that we don't have to clearDynParsers, as we just do a variable
     -- lookup here.
-    let subCode = unsafePerformIO $ runEvalIO (env{ envDebug = Nothing }) $ do
-        res <- findVar $ (name :: Var)
+    subCode <- return (unsafePerformIO (runEvalIO (env{ envDebug = Nothing }) (do
+        res <- findVar name
         if isJust res
-            then readRef $ fromJust res
-            else return undef
+            then readRef (fromJust res)
+            else return undef)))
     case subCode of
         -- If we found a Code var, possibly process it further.
         VCode vcode -> possiblyApplyMacro' vcode app
         -- Else, return the original expression.
         _ -> return app
     where
+    {-# NOINLINE possiblyApplyMacro' #-}
     possiblyApplyMacro' :: VCode -> Exp -> RuleParser Exp
     possiblyApplyMacro' vcode app
         | subType vcode == SubMacro
@@ -83,14 +84,14 @@ possiblyApplyMacro app@(App (Var name) _ _) = do
             substMacroResult ret
         | otherwise
         = return app
+    {-# NOINLINE substMacroResult #-}
     substMacroResult :: Exp -> RuleParser Exp
     -- A Str should be parsed.
     substMacroResult (Val (VStr code)) = do
         -- This is a hack. We should better parse the code now, instead of
         -- using eval() at compile-time. But we can't import
         -- Pugs.Parser.Program...
-        evaled <- unsafeEvalExp $
-            App (Var "&eval") Nothing [Val $ VStr $ "({" ++ code ++ "})[0]"]
+        evaled <- unsafeEvalExp (App (Var "&eval") Nothing [Val $ VStr $ "({" ++ code ++ "})[0]"])
         return $ App evaled Nothing []
     -- A Code does not need to be parsed, so simply return the equivalent of
     --  $code().

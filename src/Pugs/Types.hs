@@ -433,7 +433,9 @@ initTree = fmap MkType $ Node "Object"
                                 ] ] ] ]
                 ]
             ]
-        , Node "Pair" []
+        , Node "Pair"
+            [ Node "Pair::HashSlice" []
+            ]
         ]
     , Node "Junction" [] ]
 

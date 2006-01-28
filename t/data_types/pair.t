@@ -111,18 +111,18 @@ test1 $var;
 
 my %hash  = ('foo' => 'bar');
 for  %hash.pairs -> $pair {
-    isa_ok($pair,'Pair',:todo<bug>) ; 
+    isa_ok($pair,'Pair') ; 
     my $testpair = $pair;
-    isa_ok($testpair,'Pair',:todo<bug>); # new lvalue variable is also a Pair
+    isa_ok($testpair, 'Pair', :todo<bug>); # new lvalue variable is also a Pair
     my $boundpair := $pair;
-    isa_ok($boundpair,'Pair',:todo<bug>); # bound variable is also a Pair
+    isa_ok($boundpair,'Pair'); # bound variable is also a Pair
     is($pair.key, 'foo', 'in for loop got the right $pair.key');
     is($pair.value, 'bar', 'in for loop got the right $pair.value');
 }
 
 sub test2 (Hash %h){
     for %h.pairs -> $pair {
-        isa_ok($pair,'Pair',:todo<bug>) ; 
+        isa_ok($pair,'Pair') ; 
         is($pair.key, 'foo', 'in sub test2 got the right $pair.key');
         is($pair.value, 'bar', 'in sub test2 got the right $pair.value');
     }
@@ -134,7 +134,7 @@ test2 %hash;
 
 sub test3 (Hash %h){
     for %h.pairs -> $pair {
-        isa_ok($pair,'Pair',:todo<bug>) ; 
+        isa_ok($pair,'Pair');
         dies_ok({$pair[0]}, 'sub test3: access by $pair[0] should not work', :todo<bug>);
         dies_ok({$pair[1]}, 'sub test3: access by $pair[1] should not work', :todo<bug>);
     }
@@ -250,12 +250,12 @@ L<"http://www.nntp.perl.org/group/perl.perl6.language/20122">
   my ($key, $val) = <key val>;
   my $pair        = ($key => $val);
 
-  lives_ok { $pair.key = "KEY" }, "setting .key does not die";
-  is $pair.key,          "KEY",   "setting .key actually changes the key";
+  lives_ok { $pair.key = "KEY" }, "setting .key does not die", :todo<bug>;
+  is $pair.key,          "KEY",   "setting .key actually changes the key", :todo<bug>;
   is $key,               "key",   "setting .key does not change the original var";
 
-  lives_ok { $pair.value = "VAL" }, "setting .value does not die";
-  is $pair.value,          "VAL",   "setting .value actually changes the value";
+  lives_ok { $pair.value = "VAL" }, "setting .value does not die", :todo<bug>;
+  is $pair.value,          "VAL",   "setting .value actually changes the value", :todo<bug>;
   is $val,                 "val",   "setting .value does not change the original var";
 }
 
@@ -263,13 +263,13 @@ L<"http://www.nntp.perl.org/group/perl.perl6.language/20122">
   my ($key, $val) = <key val>;
   my $pair        = ($key => $val);
 
-  lives_ok { $pair.key := "KEY" }, "binding .key does not die";
-  is $pair.key,           "KEY",   "binding .key actually changes the key";
+  lives_ok { $pair.key := "KEY" }, "binding .key does not die", :todo<bug>;
+  is $pair.key,           "KEY",   "binding .key actually changes the key", :todo<bug>;
   is $key,                "key",   "binding .key does not change the original var";
   dies_ok { $pair.key = 42 },      "the .key was really bound";  # (can't modify constant)
 
-  lives_ok { $pair.value := "VAL" }, "binding .value does not die";
-  is $pair.value,           "VAL",   "binding .value actually changes the value";
+  lives_ok { $pair.value := "VAL" }, "binding .value does not die", :todo<bug>;
+  is $pair.value,           "VAL",   "binding .value actually changes the value", :todo<bug>;
   is $val,                  "val",   "binding .value does not change the original var";
   dies_ok { $pair.value = 42 },      "the .value was really bound";  # (can't modify constant)
 }
@@ -278,21 +278,21 @@ L<"http://www.nntp.perl.org/group/perl.perl6.language/20122">
   my ($key, $val) = <key val>;
   my $pair        = (abc => "def");
 
-  lives_ok { $pair.key := $key }, "binding .key does not die";
-  is $pair.key,           "key",  "binding .key actually changes the key";
+  lives_ok { $pair.key := $key }, "binding .key does not die", :todo<bug>;
+  is $pair.key,           "key",  "binding .key actually changes the key", :todo<bug>;
   $key = "KEY";
   is $key,                "KEY",  "binding .key to a var works (1)";
-  is $pair.key,           "KEY",  "binding .key to a var works (2)";
+  is $pair.key,           "KEY",  "binding .key to a var works (2)", :todo<bug>;
   try { $pair.key = "new" };
-  is $key,                "new",  "binding .key to a var works (3)";
-  is $pair.key,           "new",  "binding .key to a var works (4)";
+  is $key,                "new",  "binding .key to a var works (3)", :todo<bug>;
+  is $pair.key,           "new",  "binding .key to a var works (4)", :todo<bug>;
 
-  lives_ok { $pair.value := $val }, "binding .value does not die";
-  is $pair.value,           "val",  "binding .value actually changes the value";
+  lives_ok { $pair.value := $val }, "binding .value does not die", :todo<bug>;
+  is $pair.value,           "val",  "binding .value actually changes the value", :todo<bug>;
   $val = "VAL";
   is $val,                  "VAL",  "binding .value to a var works (1)";
-  is $pair.value,           "VAL",  "binding .value to a var works (2)";
+  is $pair.value,           "VAL",  "binding .value to a var works (2)", :todo<bug>;
   try { $pair.value = "new" };
-  is $val,                  "new",  "binding .value to a var works (3)";
-  is $pair.value,           "new",  "binding .value to a var works (4)";
+  is $val,                  "new",  "binding .value to a var works (3)", :todo<bug>;
+  is $pair.value,           "new",  "binding .value to a var works (4)", :todo<bug>;
 }

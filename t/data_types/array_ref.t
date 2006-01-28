@@ -73,7 +73,7 @@ is($array_ref6[2], 'bar', 'got the right value at array_ref6 index 2');
 
 # create an array_ref slice with an array_ref constructed with []
 
-my $array_ref7 = [ $array_ref1[*[2, 1, 0]] ];
+my $array_ref7 = [ $array_ref1[**[2, 1, 0]] ];
 isa_ok($array_ref7, 'Array');
 
 is(+$array_ref7, 3, 'the array_ref7 has 3 elements');

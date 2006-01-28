@@ -9,6 +9,8 @@ Test miscellaneous golfish examples.
 
 =cut
 
+force_todo 8;
+
 # See L<"http://www.nntp.perl.org/group/perl.perl6.compiler/1135">
 # for discussion of:
 #    (=<>).reverse.print

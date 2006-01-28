@@ -19,7 +19,7 @@ plan 4;
   my $in_macro_clos;
   macro returns_a_closure {
     my $x = 42;
-    $in_macro++;
+    $in_macro = 1;
     return { $in_macro_clos++; 100 + $x + $z };
   }
 

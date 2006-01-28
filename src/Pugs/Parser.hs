@@ -1745,11 +1745,7 @@ ruleTypeLiteral = rule "type" $ try $ do
 
 rulePostTerm :: RuleParser (Exp -> Exp)
 rulePostTerm = tryVerbatimRule "term postfix" $ do
-    hasDot <- option Nothing $ try $ do
-        whiteSpace
-        dot <- oneOf ".!"
-        notFollowedBy (char dot)
-        return (Just dot)
+    hasDot <- option Nothing . try $ lexeme (dotChar <|> bangChar)
     let maybeInvocation = case hasDot of
             Just '.' -> (ruleInvocation:)
             Just '!' -> (bangKludged ruleInvocation:)
@@ -1760,6 +1756,8 @@ rulePostTerm = tryVerbatimRule "term postfix" $ do
         , ruleCodeSubscript
         ]
     where
+    dotChar = do { char '.'; notFollowedBy (char '.'); return $ Just '.' }
+    bangChar = do { char '!'; lookAhead ruleSubName; return $ Just '!' }
     -- XXX - this should happen only in a "trusts" class!
     bangKludged p = do
         f <- p

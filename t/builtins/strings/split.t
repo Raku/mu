@@ -111,5 +111,6 @@ split_test  "".split(), (),
            q/"".split()/;
 
 # ... yet this one does not (different to p5).
-split_test  "".split(':'), (),
+# blessed by $Larry at Message-ID: <20060118191046.GB32562@wall.org>
+split_test  "".split(':'), (""),
            q/"".split(':')/;

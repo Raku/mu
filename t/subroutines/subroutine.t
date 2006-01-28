@@ -32,7 +32,8 @@ ok(twice(5) == 10);
 #if (&twice(5 - 3) == 4) { say "ok 4" } else { say "not ok 4" }
 ok(twice(5 - 3) == 4);
 
-my $_;
+# XXX - This should be the default, but here we are testing CALLER, not $_
+env $_;
 
 sub callerunderscore ($foo = $CALLER::_) {
     return "-" ~ $foo ~ "-"
