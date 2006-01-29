@@ -45,20 +45,20 @@ class B {
         try {
             $foo = $an_A!foo;
         };
-        is( $!.defined ?? 1 !! 0, 0, 'A trusts B, B can get an A scalar attr; '~($!//'') );
-        is( $foo, 'hello', 'value read by B from an A scalar var is correct' );
+        is( $!.defined ?? 1 !! 0, 0, 'A trusts B, B can get an A scalar attr; '~($!//''), :todo<feature> );
+        is( $foo, 'hello', 'value read by B from an A scalar var is correct', :todo<feature> );
 
         try {
             @bar = $an_A!bar;
         };
-        is( $!.defined ?? 1 !! 0, 0, 'A trusts B, B can get an A array attr; '~($!//'') );
-        is_deeply( @bar, [1,2,3], 'value read by B from an A scalar var is correct' );
+        is( $!.defined ?? 1 !! 0, 0, 'A trusts B, B can get an A array attr; '~($!//''), :todo<feature> );
+        is_deeply( @bar, [1,2,3], 'value read by B from an A scalar var is correct', :todo<feature> );
 
         try {
             %baz = $an_A!baz;
         };
-        is( $!.defined ?? 1 !! 0, 0, 'A trusts B, B can get an A hash attr; '~($!//'') );
-        is_deeply( %baz, {'m'=>'v'}, 'value read by B from an A scalar var is correct' );
+        is( $!.defined ?? 1 !! 0, 0, 'A trusts B, B can get an A hash attr; '~($!//''), :todo<feature> );
+        is_deeply( %baz, {'m'=>'v'}, 'value read by B from an A scalar var is correct', :todo<feature> );
     }
 }
 
@@ -71,17 +71,17 @@ class C {
         try {
             $an_A!foo = 'hello';
         };
-        is( $!.defined ?? 1 !! 0, 1, 'A does not trust C, C can not set an A scalar attr; '~($!//'') );
+        is( $!.defined ?? 1 !! 0, 1, 'A does not trust C, C can not set an A scalar attr; '~($!//''), :todo<feature> );
 
         try {
             $an_A!bar = [1,2,3];
         };
-        is( $!.defined ?? 1 !! 0, 1, 'A does not trust C, C can not set an A array attr; '~($!//'') );
+        is( $!.defined ?? 1 !! 0, 1, 'A does not trust C, C can not set an A array attr; '~($!//''), :todo<feature> );
 
         try {
             $an_A!baz = {'m'=>'v'};
         };
-        is( $!.defined ?? 1 !! 0, 1, 'A does not trust C, C can not set an A hash attr; '~($!//'') );
+        is( $!.defined ?? 1 !! 0, 1, 'A does not trust C, C can not set an A hash attr; '~($!//''), :todo<feature> );
 
         $!my_A = $an_A;
     }

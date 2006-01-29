@@ -16,7 +16,7 @@ class Foo {
 
 {
     my Foo $foo .= new;
-    dies_ok { $foo.no_topic() }, '$_ is not set in methods...';
+    dies_ok { $foo.no_topic() }, '$_ is not set in methods...', :todo<bug>;
 }
 
 {
