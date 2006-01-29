@@ -1508,7 +1508,7 @@ initSyms = mapM primDecl syms
 \\n   List      post    ...     safe   (Scalar)\
 \\n   Any       pre     undef     safe   ()\
 \\n   Any       pre     undefine  safe   (?rw!Any)\
-\\n   Str       pre     chop    safe   (?rw!Str=$_)\
+\\n   Str       pre     chop    safe   (?Str=$_)\
 \\n   Str       pre     chomp   safe   (?Str=$_)\
 \\n   Any       right   =       safe   (rw!Any, Any)\
 \\n   Int       pre     index   safe   (Str, Str, ?Int=0)\
