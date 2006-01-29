@@ -125,39 +125,40 @@ compareArgs :: Arg -> Arg -> Ordering
 compareArgs a b = compare (argRank a) (argRank b)
 
 argRank :: Arg -> Int
-argRank(Switch 'h')         = -1
-argRank(Switch 'v')         = -1
-argRank(Opt "-V:" _)        = -1
-argRank(Switch 'V')         = -1
-argRank(Opt "-I" _)         = 0
-argRank(Switch 'd')         = 1
-argRank(Switch 'w')         = 2
-argRank(Switch 'c')         = 3
-argRank(Opt "-C" _)         = 4
-argRank(Opt "-B" _)         = 4
-argRank(Opt "--external" _) = 5
-argRank(Opt "-M" _)         = 98
-argRank(Switch 'n')         = 99   -- translated into Perl code (later)
-argRank(Switch 'p')         = 99   -- translated into Perl code (later)
-argRank(Switch 'l')         = 100  -- translated into Perl code (later)
-argRank(Switch '0')         = 100  -- translated into Perl code (later)
-argRank(Opt "-e" _)         = 100  -- translated into Perl code
-argRank(_)                  = 100  -- filename or @ARGS or whatever
+argRank (Switch 'h')         = -1
+argRank (Switch 'v')         = -1
+argRank (Opt "-V:" _)        = -1
+argRank (Switch 'V')         = -1
+argRank (Opt "-I" _)         = 0
+argRank (Switch 'd')         = 1
+argRank (Switch 'w')         = 2
+argRank (Switch 'c')         = 3
+argRank (Opt "-C" _)         = 4
+argRank (Opt "-B" _)         = 4
+argRank (Opt "--external" _) = 5
+argRank (Opt "-M" _)         = 98
+argRank (Switch 'n')         = 99   -- translated into Perl code (later)
+argRank (Switch 'p')         = 99   -- translated into Perl code (later)
+argRank (Switch 'l')         = 100  -- translated into Perl code (later)
+argRank (Switch '0')         = 100  -- translated into Perl code (later)
+argRank (Opt "-e" _)         = 100  -- translated into Perl code
+argRank _                    = 100  -- filename or @ARGS or whatever
 
 gatherArgs :: [String] -> [Arg]
-gatherArgs([]) = []
-gatherArgs("-l":rest)             = gatherArgs("-e":"# BEGIN { ... } # to be done":rest) -- XXX implement BEGIN block later
-gatherArgs("-e":frag:rest)        = [Opt "-e" frag] ++ gatherArgs(rest)
-gatherArgs("--external":mod:rest) = [Opt "--external" mod] ++ gatherArgs(rest)
-gatherArgs("-I":dir:rest)         = [Opt "-I" dir] ++ gatherArgs(rest)
-gatherArgs("-M":mod:rest)         = [Opt "-M" mod] ++ gatherArgs(rest)
-gatherArgs("-C":backend:rest)     = [Opt "-C" backend] ++ gatherArgs(rest)
-gatherArgs("-B":backend:rest)     = [Opt "-B" backend] ++ gatherArgs(rest)
-gatherArgs("-V:":item:rest)       = [Opt "-V:" item] ++ gatherArgs(rest)
-gatherArgs(('-':[]):xs)           = [File "-"] ++ gatherArgs(xs)
-gatherArgs(("--"):rest)           = [File x | x <- rest]
-gatherArgs(('-':x:[]):xs)         = [Switch x] ++ gatherArgs(xs)
-gatherArgs(x:xs)                  = [File x] ++ gatherArgs(xs)
+gatherArgs [] = []
+-- XXX implement BEGIN block later
+gatherArgs ("-l":rest)             = gatherArgs("-e":"# BEGIN { ... } # to be done":rest)
+gatherArgs ("-e":frag:rest)        = [Opt "-e" frag] ++ gatherArgs(rest)
+gatherArgs ("--external":mod:rest) = [Opt "--external" mod] ++ gatherArgs(rest)
+gatherArgs ("-I":dir:rest)         = [Opt "-I" dir] ++ gatherArgs(rest)
+gatherArgs ("-M":mod:rest)         = [Opt "-M" mod] ++ gatherArgs(rest)
+gatherArgs ("-C":backend:rest)     = [Opt "-C" backend] ++ gatherArgs(rest)
+gatherArgs ("-B":backend:rest)     = [Opt "-B" backend] ++ gatherArgs(rest)
+gatherArgs ("-V:":item:rest)       = [Opt "-V:" item] ++ gatherArgs(rest)
+gatherArgs (('-':[]):xs)           = [File "-"] ++ gatherArgs(xs)
+gatherArgs (("--"):rest)           = [File x | x <- rest]
+gatherArgs (('-':x:[]):xs)         = [Switch x] ++ gatherArgs(xs)
+gatherArgs (x:xs)                  = [File x] ++ gatherArgs(xs)
 
 {- collect "-e" switches together,
    handle transformation of "-M", "-n"
@@ -165,16 +166,10 @@ gatherArgs(x:xs)                  = [File x] ++ gatherArgs(xs)
 -}
 desugarDashE :: [Arg] -> [Arg]
 desugarDashE [] = []
-desugarDashE ((Switch 'p'):args) = desugarDashE ((Opt "-e" "while ($_ = =<>) { $_ .= chomp;"):script++[(Opt "-e" "; say $_; }")]++rest)
-                                 where
-                                   (script,rest) = partition isDashE args
-                                   isDashE (Opt "-e" _) = True
-                                   isDashE (_) = False
-desugarDashE ((Switch 'n'):args) = desugarDashE ((Opt "-e" "while ($_ = =<>) { $_ .= chomp;"):script++[(Opt "-e" "}")]++rest)
-                                 where
-                                   (script,rest) = partition isDashE args
-                                   isDashE (Opt "-e" _) = True
-                                   isDashE (_) = False
+desugarDashE ((Switch 'p'):args) = desugarDashE $
+    (Opt "-e" "env $_; while ($_ = =<>) { $_ = chomp($_);" : args) ++ [Opt "-e" "; say $_; }"]
+desugarDashE ((Switch 'n'):args) = desugarDashE $
+    (Opt "-e" "env $_; while ($_ = =<>) { $_ = chomp($_);" : args) ++ [Opt "-e" "}"]
 
 -- -E is like -e, but not accessible as a normal parameter and used only
 -- internally:
