@@ -10,5 +10,5 @@ if $?PUGS_BACKEND eq "BACKEND_JAVASCRIPT" {
   exit;
 }
 
-ok( !defined eval(undef, :lang<yaml>) );
-ok( eval('test', :lang<yaml>) eq 'test' );
+ok( !defined(eval(undef, :lang<yaml>)), '"undef" roundtrips' );
+is( eval('test', :lang<yaml>), 'test', '"test" roundtrips' );

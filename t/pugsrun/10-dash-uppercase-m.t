@@ -11,10 +11,7 @@ Test handling of C<-Mmodule>.
 
 =cut
 
-BEGIN { push @INC, < blib6/lib > } # ext/File-Spec/lib
-require File::Spec;
-
-my $dir = catdir( <t pugsrun> );
+my $dir = "t/pugsrun";
 
 my @tests = (
   "-I$dir -MDummy -e load_test",
@@ -48,7 +45,7 @@ sub run_pugs ($c) {
 }
 
 push @*INC, $dir;
-use Dummy; pass "(dummy instead of broken use_ok)";
+require Dummy; pass "(dummy instead of broken use_ok)";
 
 for @tests -> $test {
   my $output = run_pugs($test);

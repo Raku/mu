@@ -4,7 +4,7 @@ use v6;
 use Test;
 
 plan 18;
-force_todo 1..2, 4..12;
+force_todo 1..12;
 
 if $?PUGS_BACKEND ne "BACKEND_PUGS" {
   skip_rest "PIL2JS and PIL-Run do not support eval() yet.";
