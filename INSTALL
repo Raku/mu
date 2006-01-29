@@ -155,30 +155,9 @@ is usually built with VC++, they cannot embed one another.
 CAVEATS FOR GCC 4.0 USERS
 -------------------------
 
-Mac OS X 10.4 "Tiger" users may see this error message when compiling Pugs:
+GHC 6.4.1 or later is required.
 
-    ___DISCARD__
-    collect2: ld returned 1 exit status
-
-Until GHC 6.4.1 is released, you need to need to issue this command first:
-
-    sudo gcc_select 3.3
-
-Then recompile Pugs using a clean tree.  Other users of GCC 4.0 systems
-may also need to switch to GCC 3.3 to compile Pugs for now.
-
-Note that objects compiled with GCC 4.0 can't be linked with GCC 3.3 objects.
-This means that if you're embedding a Parrot you've built with GCC 4.0, Pugs
-will fail during linking with errors like:
-
-    ld: Undefined symbols:
-    _fprintf$LDBLStub
-    _sprintf$LDBLStub
-    _vfprintf$LDBLStub
-    _snprintf$LDBLStub
-    _printf$LDBLStub
-
-Try building a new Parrot with gcc 3.3, then compile Pugs again.
+This applies to Mac OS X 10.4 "Tiger", and all other GCC 4.0 systems.
 
 CAVEATS FOR x86_64 MACHINES
 ---------------------------
