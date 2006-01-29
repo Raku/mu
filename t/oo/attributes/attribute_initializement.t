@@ -23,18 +23,17 @@ diag('Test for class attribute initializement');
 		:todo<unspecced>;
 
 
-skip_rest "Not implemented...";
 	my T1 $o1;
 	my T2 $o2;
 
 	$o1 = T1.new();
 	$o2 = T2.new();
 	is $o1.t, 1,
-		"Testing value for initialized public attribute.";
+		"Testing value for initialized public attribute.", :todo<feature>;
 	dies_ok { $o2.t },
 		"Try to access the initialized private attribute.";
-	is $o2.get,2,
-		"Testing value for initialized private attribue.";
+	is try { $o2.get }, 2,
+		"Testing value for initialized private attribue.", :todo<feature>;
 
 	$o1 = T1.new( t => 3 );
 	$o2 = T2.new( t => 4 );
@@ -42,6 +41,6 @@ skip_rest "Not implemented...";
 		"Testing value for attributes which is initialized by constructor.";
 	dies_ok { $o2.t },
 		"Try to access the private attribute which is initialized by constructor.";
-	is $o2.get,4,
-		"Testing value for private attribue which is initialized by constructor.";
+	is try { $o2.get }, 4,
+		"Testing value for private attribue which is initialized by constructor.", :todo<feature>;
 }

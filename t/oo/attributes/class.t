@@ -13,7 +13,7 @@ Class Attributes
 
 plan 8;
 
-eval_ok 'class Foo { our $.bar = 23; our $.yada is rw = 13; }; 1', 'class attributes are parsed';
+eval_ok 'class Foo { our $.bar = 23; our $.yada is rw = 13; }; 1', 'class attributes are parsed', :todo<feature>;
 
 my $test = 0;
 ok eval('$test = Foo.bar'), 'accessors for class attributes work', :todo<feature>;

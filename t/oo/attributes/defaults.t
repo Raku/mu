@@ -40,11 +40,11 @@ eval 'class Foo {
 }';
 
 {
-    is $got_a_num, 1, "default should be called at compile-time";
+    is $got_a_num, 1, "default should be called at compile-time", :todo<feature>;
     my Foo $foo .= new;
-    is $got_a_num, 1, "default should be called only once, at compile-time (1)";
-    is $foo.num,  42, "attribute default worked";
-    is $got_a_num, 1, "default should be called only once, at compile-time (2)";
+    is $got_a_num, 1, "default should be called only once, at compile-time (1)", :todo<feature>;
+    is $foo.num,  42, "attribute default worked", :todo<feature>;
+    is $got_a_num, 1, "default should be called only once, at compile-time (2)", :todo<feature>;
 }
 
 {
@@ -52,14 +52,14 @@ eval 'class Foo {
 
     {
         my Foo $foo .= new;
-        is $got_a_str,            1, "using a coderef as a default value delays execution";
-        is try { $foo.str }, "Pugs", "attribute default worked";
+        is $got_a_str,            1, "using a coderef as a default value delays execution", :todo<feature>;
+        is try { $foo.str }, "Pugs", "attribute default worked", :todo<feature>;
     }
 
     {
         my Foo $foo .= new;
-        is $got_a_str,            2, "using a coderef as a default value delays execution";
-        is try { $foo.str }, "Pugs", "attribute default worked";
+        is $got_a_str,            2, "using a coderef as a default value delays execution", :todo<feature>;
+        is try { $foo.str }, "Pugs", "attribute default worked", :todo<feature>;
     }
 }
 
@@ -68,36 +68,36 @@ eval 'class Foo {
 
     {
         my Foo $foo .= new;
-        is $got_a_code,     1, "using a coderef as a default value delays execution";
-        is $was_in_closure, 0, "sub-coderef not yet executed";
+        is $got_a_code,     1, "using a coderef as a default value delays execution", :todo<feature>;
+        is $was_in_closure, 0, "sub-coderef not yet executed", :todo<feature>;
         try { $foo.code };
-        is $was_in_closure, 0, "sub-coderef still not executed";
+        is $was_in_closure, 0, "sub-coderef still not executed", :todo<feature>;
     }
 
     {
         my Foo $foo .= new;
-        is $got_a_code,          2, "using a coderef as a default value delays execution";
-        is $was_in_closure,      0, "sub-coderef not yet executed";
-        is try { $foo.code() }, 42, "sub-coderef execution works";
-        is $was_in_closure,      1, "sub-coderef still not executed";
+        is $got_a_code,          2, "using a coderef as a default value delays execution", :todo<feature>;
+        is $was_in_closure,      0, "sub-coderef not yet executed", :todo<feature>;
+        is try { $foo.code() }, 42, "sub-coderef execution works", :todo<feature>;
+        is $was_in_closure,      1, "sub-coderef still not executed", :todo<feature>;
     }
 }
 
 {
     my Foo $foo .= new;
 
-    is try { $foo.set_by_code }, 42, '$_ is the attribute being initialized (1)';
-    is $set_by_code_attr,        42, '$_ is the attribute being initialized (2)';
+    is try { $foo.set_by_code }, 42, '$_ is the attribute being initialized (1)', :todo<feature>;
+    is $set_by_code_attr,        42, '$_ is the attribute being initialized (2)', :todo<feature>;
 
     lives_ok { $set_by_code_attr++ },
         '$_ is the attribute being initialized (3)';
 
-    is try { $foo.set_by_code }, 43, '$_ is the attribute being initialized (4)';
-    is $set_by_code_attr,        43, '$_ is the attribute being initialized (5)';
+    is try { $foo.set_by_code }, 43, '$_ is the attribute being initialized (4)', :todo<feature>;
+    is $set_by_code_attr,        43, '$_ is the attribute being initialized (5)', :todo<feature>;
 }
 
 {
     my Foo $foo .= new;
 
-    is try { $foo.self_in_code }, "echo", "self is the object being initialized";
+    is try { $foo.self_in_code }, "echo", "self is the object being initialized", :todo<feature>;
 }
