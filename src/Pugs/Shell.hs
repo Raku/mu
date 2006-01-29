@@ -21,6 +21,8 @@ import Pugs.Internals
 
 #ifdef PUGS_HAVE_READLINE
 import qualified System.Console.Readline as Readline
+#else
+import qualified System.Console.SimpleLineEditor as Readline
 #endif
 
 data Command
@@ -69,7 +71,7 @@ initializeShell
 #ifdef PUGS_HAVE_READLINE
    = Readline.initialize
 #else
-   = return ()
+   = Readline.initialise
 #endif
 
 readline :: String -> IO (Maybe String)
@@ -77,12 +79,9 @@ readline prompt = do
 #ifdef PUGS_HAVE_READLINE
     Readline.setCatchSignals False
     Readline.setCatchSigwinch False
-    rv <- Readline.readline prompt
-    return rv
+    Readline.readline prompt
 #else
-    putStr prompt
-    input <- getLine
-    return $ Just input
+    Readline.getLineEdited prompt
 #endif
 
 addHistory :: String -> IO ()
