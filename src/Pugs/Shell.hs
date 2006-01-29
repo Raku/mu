@@ -65,14 +65,13 @@ parseCommandLine (':':'l':str)  = CmdLoad $ unwords (words str)
 parseCommandLine str            = CmdRun (RunOpts False False True) str
 
 initializeShell :: IO ()
-initializeShell
+initializeShell = do
 #ifdef PUGS_HAVE_READLINE
-    = do hSetBuffering stdout NoBuffering
-         hSetBuffering stdin  NoBuffering
-         return Readline.initialize
-#else
-    = return ()
+    hSetBuffering stdout NoBuffering
+    hSetBuffering stdin  NoBuffering
+    Readline.initialize
 #endif
+    return ()
 
 readline :: String -> IO (Maybe String)
 readline prompt = do
