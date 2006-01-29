@@ -21,8 +21,6 @@ import Pugs.Internals
 
 #ifdef PUGS_HAVE_READLINE
 import qualified System.Console.Readline as Readline
-#else
-import qualified System.Console.SimpleLineEditor as Readline
 #endif
 
 data Command
@@ -67,11 +65,11 @@ parseCommandLine (':':'l':str)  = CmdLoad $ unwords (words str)
 parseCommandLine str            = CmdRun (RunOpts False False True) str
 
 initializeShell :: IO ()
-initializeShell
+initializeShell = do
+    hSetBuffering stdout NoBuffering
+    hSetBuffering stdin  NoBuffering
 #ifdef PUGS_HAVE_READLINE
-   = Readline.initialize
-#else
-   = Readline.initialise
+    Readline.initialize
 #endif
 
 readline :: String -> IO (Maybe String)
@@ -81,7 +79,9 @@ readline prompt = do
     Readline.setCatchSigwinch False
     Readline.readline prompt
 #else
-    Readline.getLineEdited prompt
+    putStr prompt
+    input <- getLine
+    return $ Just input
 #endif
 
 addHistory :: String -> IO ()
