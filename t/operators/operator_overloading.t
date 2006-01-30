@@ -1,9 +1,9 @@
-﻿#!/usr/bin/pugs
+#!/usr/bin/pugs
 
 use v6;
 use Test;
 
-plan 25;
+plan 24;
 
 =pod
 
@@ -63,7 +63,7 @@ eval_ok('macro circumfix:<!--...-->   ($text) { "" }; <!-- $var = 1; -->; $var =
 
 # demonstrate sum prefix
 
-sub prefix:<Σ> (@x) { [+] *@x }
+sub prefix:<Σ> ($x) { [+] *$x }
 is(Σ [1..10], 55, "sum prefix operator");
 
 # check that the correct overloaded method is called
@@ -77,7 +77,7 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
 {
   my &infix:<plus>;
   BEGIN {
-    &infix:<plus> = { $^a + $^b };
+    &infix:<plus> := { $^a + $^b };
   }
 
   is 3 plus 5, 8, 'overloading an operator using "my &infix:<...>" worked';
@@ -88,7 +88,7 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
 {
   my &infix:<times>;
   BEGIN {
-    try { &::("infix:<times>") = { $^a * $^b } };
+    &::("infix:<times>") := { $^a * $^b };
   }
 
   is 3 times 5, 15, 'operator overloading using symbolic dereferentiation';
@@ -98,7 +98,7 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
 {
   is &infix:<+>(2, 3), 5, "accessing a builtin operator using its subroutine name";
 
-  my &infix:<z> = { $^a + $^b };
+  my &infix:<z> := { $^a + $^b };
   is &infix:<z>(2, 3), 5, "accessing a userdefined operator using its subroutine name";
 
   is ~(&infix:<»+«>([1,2,3],[4,5,6])), "5 7 9", "accessing a hyperoperator using its subroutine name";
@@ -114,7 +114,6 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
 # here is one that co-erces a MyClass into a Str and a Num.
 # L<A12/"Overloading" /Coercions to other classes can also be defined:/>
 {
-  eval_ok '
     class MyClass {
       method prefix:<~> { "hi" }
       method prefix:<+> { 42   }
@@ -128,13 +127,12 @@ is("boobies"!, "BOOBIES!!!", "correct overloaded method called");
     class OtherClass {
       has $.x is rw;
     }
-  ', "definition of a prefix:<...> and coerce:<as> overloading class worked", :todo<feature>;
 
   my $obj;
-  lives_ok { $obj = MyClass.new }, "instantiation of a prefix:<...> and coerce:<as> overloading class worked", :todo<feature>;
+  lives_ok { $obj = MyClass.new }, "instantiation of a prefix:<...> and coerce:<as> overloading class worked";
   my $try = lives_ok { ~$obj }, "our object was stringified correctly";
   if ($try) {
-   is ~$obj, "hi", "our object was stringified correctly", :todo<feature>;
+   is ~$obj, "hi", "our object was stringified correctly";
   } else {
     skip 1, "Stringification failed";
   };

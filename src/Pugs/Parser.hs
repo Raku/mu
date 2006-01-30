@@ -748,7 +748,7 @@ ruleUseDeclaration = rule "use declaration" $ do
 
 rulePerlVersion :: RuleParser String
 rulePerlVersion = rule "perl version" $ do
-    option ' ' $ char 'v'
+    optional (string "v" <|> string "Perl-")
     many1 (choice [ digit, char '.' ])
 
 {-|
@@ -1478,6 +1478,7 @@ currentFunctions = do
         if pkg == reverse pre then Just (reverse post) else Nothing
     inScope _ name = Just name
     relevantToParsing "pre" SubPrim      = True
+    relevantToParsing _     SubBlock     = True
     relevantToParsing _     SubRoutine   = True
     relevantToParsing _     SubCoroutine = True
     relevantToParsing _     _            = False
@@ -2160,7 +2161,7 @@ ruleVar = ruleSigiledVar
 ruleSymbolicDeref :: RuleParser Exp
 ruleSymbolicDeref = do
     sigil    <- oneOf "$@%&"
-    nameExps <- many1 $ do
+    nameExps <- many1 $ try $ do
         string "::"
         -- nameExp is the expression which will yield the varname.
         -- We've to include ruleTwigil here to make $::?SELF parse.
