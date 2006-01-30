@@ -76,8 +76,6 @@ initializeShell = do
 readline :: String -> IO (Maybe String)
 readline prompt = do
 #ifdef PUGS_HAVE_READLINE
-    Readline.setCatchSignals False
-    Readline.setCatchSigwinch False
     Readline.readline prompt
 #else
     putStr prompt
