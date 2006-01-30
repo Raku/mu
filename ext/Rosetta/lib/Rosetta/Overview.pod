@@ -354,10 +354,10 @@ shown here and child data structures that are shown as child nodes:
                     </catalog><!-- any SYSTEM catalog/schema is not exposed -->
                 </depot>
             </depot_manager>
-            <sql_client count="0..N">
+            <depot_client count="0..N">
                 <procedure count="0..N" />
                 <function count="0..N" />
-            </sql_client>
+            </depot_client>
         </rosetta_engine>
     </rosetta_interface>
 

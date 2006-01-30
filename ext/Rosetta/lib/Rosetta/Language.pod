@@ -532,15 +532,6 @@ Reprinted from I<Communications of the ACM>, Vol. 13, No. 6, June 1970, pp.
 This is the famous 1970 publication that first presented a relational model
 of data to the world, which is the basis for the modern database industry.
 
-=item L<http://www.wiscorp.com/SQLStandards.html>
-
-This web page of Whitemarsh Information Systems Corporation, run by one of
-the people on the SQL standard drafting community, has copies of the
-official SQL:2003 and SQL:1999 specification documents, and other related
-helpful documents about SQL, in PDF format.  For example, "an almost
-indistinguishable delta on the actual SQL 2003 database standard" is at
-L<http://www.wiscorp.com/sql/sql_2003_standard.zip> (warning, large file).
-
 =item L<http://www.oreilly.com/catalog/databaseid/>
 
 Chris J. Date - "Database in Depth: Relational Theory for Practitioners"
@@ -550,6 +541,15 @@ First Edition, May 2005.  Published by O'reilly.  ISBN: 0-596-10012-4
 This book lays out what the relational data model really is, in partial
 contrast to how SQL does it, from the man that was closer to and more
 directly involved with Edgar F. Codd in this work work than anyone.
+
+=item L<http://www.wiscorp.com/SQLStandards.html>
+
+This web page of Whitemarsh Information Systems Corporation, run by one of
+the people on the SQL standard drafting community, has copies of the
+official SQL:2003 and SQL:1999 specification documents, and other related
+helpful documents about SQL, in PDF format.  For example, "an almost
+indistinguishable delta on the actual SQL 2003 database standard" is at
+L<http://www.wiscorp.com/sql/sql_2003_standard.zip> (warning, large file).
 
 =item L<http://www.unicode.org/standard/standard.html>
 
