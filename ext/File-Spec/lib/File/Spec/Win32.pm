@@ -50,11 +50,11 @@ sub catdir (*@_path) returns Str is export {
     my $i = 0;
     loop ($i = 0; $i < @path; $i++) {
         @path[$i] ~~ s:perl5:g{/}{\\};
-        unless (@path[$i] eq "\\" || @path[$i] ~~ rx:perl5{\\$}) {
-            push(@new_path, @path[$i] ~ "\\");
+        if (@path[$i] ~~ m:perl5{\\$}) {
+            push(@new_path, @path[$i]);
         }
         else {
-            push(@new_path, @path[$i]);
+            push(@new_path, @path[$i] ~ "\\");
         }
     }
     return canonpath(join('', @new_path));
@@ -177,10 +177,11 @@ sub rel2abs (Str $_path, Str $_base?) returns Str is export {
     # take a copy of our args here, maybe
     # replace this with 'is copy' parameter
     # trait at some point
+    return cwd() if $_path eq '';
     my $path = $_path;
     if (!file_name_is_absolute($path)) {
         my $base;
-        if (!$_base.defined || $_base eq '') {
+        if ((!$_base.defined) or ($_base eq '')) {
             $base = cwd();
         }
         elsif (!file_name_is_absolute($_base)) {
@@ -212,6 +213,7 @@ sub abs2rel (Str $_path, Str $_base?) returns Str is export {
 
     my ($path_volume) = splitpath($path, 1);
     my ($base_volume) = splitpath($base, 1);
+
     # Can't relativize across volumes
     return $path unless $path_volume eq $base_volume;
 

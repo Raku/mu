@@ -203,15 +203,15 @@ is(catdir("A:/d1","B:/d2",'d3',''), "A:\\d1\\B:\\d2\\d3" ,'checking catdir');
 is(catdir("A:/"),                   "A:\\"               ,'checking catdir');
 is(catdir("\\", 'foo'),             "\\foo"              ,'checking catdir');
 
-is(rel2abs('temp', "C:/"),                       "C:\\temp"                     ,'checking real2abs');
-is(rel2abs('temp', "C:/a"),                      "C:\\a\\temp"                  ,'checking real2abs');
-is(rel2abs('temp', "C:/a/"),                     "C:\\a\\temp"                  ,'checking real2abs');
-is(rel2abs("../",  "C:/"),                       "C:\\"                         ,'checking real2abs');
-is(rel2abs("../", "C:/a"),                       "C:\\"                         ,'checking real2abs');
-is(rel2abs('temp', "//prague_main/work/"),       "\\\\prague_main\\work\\temp" ,'checking real2abs');
-is(rel2abs("../temp", "//prague_main/work/"),    "\\\\prague_main\\work\\temp" ,'checking real2abs');
-is(rel2abs('temp', "//prague_main/work"),        "\\\\prague_main\\work\\temp" ,'checking real2abs');
-is(rel2abs("../", "//prague_main/work"),         "\\\\prague_main\\work"       ,'checking real2abs');
+is(rel2abs('temp', "C:/"),                       "C:\\temp"                     ,'checking rel2abs');
+is(rel2abs('temp', "C:/a"),                      "C:\\a\\temp"                  ,'checking rel2abs');
+is(rel2abs('temp', "C:/a/"),                     "C:\\a\\temp"                  ,'checking rel2abs');
+is(rel2abs("../",  "C:/"),                       "C:\\"                         ,'checking rel2abs');
+is(rel2abs("../", "C:/a"),                       "C:\\"                         ,'checking rel2abs');
+is(rel2abs('temp', "//prague_main/work/"),       "\\\\prague_main\\work\\temp" ,'checking rel2abs');
+is(rel2abs("../temp", "//prague_main/work/"),    "\\\\prague_main\\work\\temp" ,'checking rel2abs');
+is(rel2abs('temp', "//prague_main/work"),        "\\\\prague_main\\work\\temp" ,'checking rel2abs');
+is(rel2abs("../", "//prague_main/work"),         "\\\\prague_main\\work"       ,'checking rel2abs');
 
 is(abs2rel("/t1/t2/t3", "/t1/t2/t3"),         ''                       ,'checking abs2rel', :todo<bug>);
 is(abs2rel("/t1/t2/t4", "/t1/t2/t3"),         "..\\t4"                 ,'checking abs2rel', :todo<bug>);
