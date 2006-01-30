@@ -45,7 +45,7 @@ ok(!( " \t\n " ~~ m/^ (\v+) $/ ), 'not \v');
 
 # alpha
 
-ok("A" ~~ m/^<?alpha>$/, q{Match alpha as subrule};
+ok("A" ~~ m/^<?alpha>$/, q{Match alpha as subrule});
 ok(!( "A" ~~ m/^<!alpha>.$/ ), q{Don't match negated alpha as subrule} );
 ok(!( "A" ~~ m/^<-alpha>$/ ), q{Don't match inverted alpha as subrule} );
 ok(!( "\x07"  ~~ m/^<?alpha>$/ ), q{Don't match unrelated alpha as subrule} );
@@ -83,11 +83,11 @@ ok("(\x[9]" ~~ m/<+<?space>>/, q{Match unanchored space as charset} , :todo<bug>
 
 # digit
 
-ok("0" ~~ m/^<?digit>$/, q{Match digit as subrule} , :todo<bug>);
+ok("0" ~~ m/^<?digit>$/, q{Match digit as subrule});
 ok(!( "0" ~~ m/^<!digit>.$/ ), q{Don't match negated digit as subrule} );
 ok(!( "0" ~~ m/^<-digit>$/ ), q{Don't match inverted digit as subrule} );
 ok(!( "\x[C]"  ~~ m/^<?digit>$/ ), q{Don't match unrelated digit as subrule} );
-ok("\x[C]"  ~~ m/^<!digit>.$/, q{Match unrelated negated digit as subrule} , :todo<bug>);
+ok("\x[C]"  ~~ m/^<!digit>.$/, q{Match unrelated negated digit as subrule});
 ok("\x[C]"  ~~ m/^<-digit>$/, q{Match unrelated inverted digit as subrule} , :todo<bug>);
 
 ok("0" ~~ m/^<+<?digit>>$/, q{Match digit as charset} , :todo<bug>);
