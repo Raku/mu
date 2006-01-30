@@ -24,27 +24,33 @@ method is_infinite ($self: ) returns bool {
 
 method start () returns Object {
     return unless @.spans;
-    return @.spans[0].start;
+    my $head = @.spans[0];
+    return $head.start;
 }
 method end () returns Object {
     return unless @.spans;
-    return @.spans[-1].end;
+    my $last = @.spans[-1];
+    return $last.end;
 }
 method start_is_open () returns bool {
     return bool::false unless @.spans;
-    return @.spans[0].start_is_open;
+    my $head = @.spans[0];
+    return $head.start_is_open;
 }
 method start_is_closed () returns bool {
     return bool::false unless @.spans;
-    return @.spans[0].start_is_closed;
+    my $head = @.spans[0];
+    return $head.start_is_closed;
 }
 method end_is_open () returns bool {
     return bool::false unless @.spans;
-    return @.spans[-1].end_is_open;
+    my $last = @.spans[-1];
+    return $last.end_is_open;
 }
 method end_is_closed () returns bool {
     return bool::false unless @.spans;
-    return @.spans[-1].end_is_closed;
+    my $last = @.spans[-1];
+    return $last.end_is_closed;
 }
 method stringify () returns String {
     return '' unless @.spans;

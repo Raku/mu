@@ -15,7 +15,8 @@ my $set1 = Set::Infinite::Functional.new( spans => $span1 );
 isa_ok( $set1, 'Set::Infinite::Functional', 
     'created a Set::Infinite::Functional' );
 
-is( $set1.spans.[0].stringify, '[1,3]', 'spans' );
+my $s = $set1.spans.[0];
+is( $s.stringify, '[1,3]', 'spans' );
 
 # XXX - this should be a syntax error
 # $set1.spans = ();
