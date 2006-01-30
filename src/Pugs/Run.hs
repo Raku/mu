@@ -30,9 +30,9 @@ import Data.IORef
 import System.FilePath
 import qualified Data.Map as Map
 
-
+#ifndef HADDOCK
 #include "PreludePC.hs"
-
+#endif
 
 {-|
 Run 'Main.run' with command line args. 

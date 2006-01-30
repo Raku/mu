@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -cpp #-}
 import Data.Char
 import Data.List
 import GHC.Exts
@@ -76,6 +77,7 @@ data Chunk
     | Italic [Chunk]
     deriving (Show, Ord, Eq)
 
+#ifndef HADDOCK
 data Token
     = Star          -- *
     | Slash         -- /
@@ -90,7 +92,9 @@ deToken Slash = "/"
 deToken Blank = "\n\n"
 deToken Head1 = "="
 deToken (Plain x) = x
+#endif
 
+#ifndef HADDOCK
 data Parser a where
     MkPlain
         :: Id           -- id
@@ -105,6 +109,7 @@ data Parser a where
         -> ([b] -> a)   -- handler
         -> Bool         -- reentrant
         -> Parser a
+#endif
 
 data Id = I_Kwid | I_Para | I_Italic | I_Bold | I_Plain | I_Head
     deriving (Eq, Ord, Show, Enum)
