@@ -1479,10 +1479,8 @@ currentFunctions = do
         if pkg == reverse pre then Just (reverse post) else Nothing
     inScope _ name = Just name
     relevantToParsing "pre" SubPrim      = True
-    relevantToParsing _     SubBlock     = True
-    relevantToParsing _     SubRoutine   = True
-    relevantToParsing _     SubCoroutine = True
-    relevantToParsing _     _            = False
+    relevantToParsing _     SubMethod    = False
+    relevantToParsing _     _            = True
 
 -- read just the current state
 currentTightFunctions :: RuleParser [String]
