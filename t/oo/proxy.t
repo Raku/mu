@@ -21,12 +21,12 @@ plan 18;
 my $foo        = 42;
 my $was_inside = 0;
 
-eval 'sub lvalue_test1() is rw {
+sub lvalue_test1() is rw {
   $was_inside++;
   return new Proxy:
     FETCH => { 100 + $foo },
     STORE => { $foo = $^new - 100 };
-}';
+};
 
 {
     is $foo, 42,       "basic sanity (1)";
@@ -34,25 +34,25 @@ eval 'sub lvalue_test1() is rw {
 
     eval_is 'lvalue_test1()',       142, "getting var through Proxy (1)", :todo<feature>;
     # No todo_is here to avoid unexpected succeeds (? - elaborate?)
-    is      $was_inside,              1, "lvalue_test1() was called (1)";
+    is      $was_inside,              1, "lvalue_test1() was called (1)", :todo<feature>;
 
     eval_is 'lvalue_test1() = 123', 123, "setting var through Proxy",     :todo<feature>;
-    is      $was_inside,              2, "lvalue_test1() was called (2)";
+    is      $was_inside,              2, "lvalue_test1() was called (2)", :todo<feature>;
     is      $foo,                    23, "var was correctly set (1)",     :todo<feature>;
 
     eval_is 'lvalue_test1()',       123, "getting var through Proxy (2)", :todo<feature>;
-    is      $was_inside,              3, "lvalue_test1() was called (3)";
+    is      $was_inside,              3, "lvalue_test1() was called (3)", :todo<feature>;
 }
 
 $foo        = 4;
 $was_inside = 0;
 
-eval 'sub lvalue_test2() is rw {
+sub lvalue_test2() is rw {
   $was_inside++;
   return new Proxy:
     FETCH => { 10 + $foo },
     STORE => { $foo = $^new - 100 };
-}';
+};
 
 {
     is $foo, 4,        "basic sanity (3)";
@@ -60,12 +60,12 @@ eval 'sub lvalue_test2() is rw {
 
     eval_is 'lvalue_test2()',        14, "getting var through Proxy (4)", :todo<feature>;
     # No todo_is here to avoid unexpected succeeds
-    is      $was_inside,              1, "lvalue_test2() was called (4)";
+    is      $was_inside,              1, "lvalue_test2() was called (4)", :todo<feature>;
 
     eval_is 'lvalue_test2() = 106', 166, "setting var through Proxy returns new value of the var", :todo<feature>;
-    is      $was_inside,              2, "lvalue_test2() was called (5)";
+    is      $was_inside,              2, "lvalue_test2() was called (5)", :todo<feature>;
     is      $foo,                     6, "var was correctly set (2)",     :todo<feature>;
 
     eval_is 'lvalue_test2()',        16, "getting var through Proxy (5)", :todo<feature>;
-    is      $was_inside,              3, "lvalue_test2() was called (5)";
+    is      $was_inside,              3, "lvalue_test2() was called (5)", :todo<feature>;
 }

@@ -13,11 +13,12 @@ be valid perl6.
 
 =cut
 
-plan 31;
+plan 18;
 
 if(!eval('("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
-} else {
+  exit;
+}
 
 rule abc {abc}
 
@@ -46,10 +47,14 @@ ok("abcabcabcabcd" ~~ m/<cap>/, 'Cap match');
 ok($/, 'Cap matched');
 is($/, "abc", 'Cap zero matched');
 is($/<cap>, "abc", 'Cap captured');
+
 is($/<cap><abc>, "abc", 'Cap abc captured');
 ok(@$/ == 0, 'Cap no array capture');
 ok(%$/.keys == 1, 'Cap hash capture');
 
+flunk('repetitive capture subrules is not yet supported', :todo<bug>);
+
+=begin END
 
 rule repcap {<abc>**{4}}
 
@@ -71,6 +76,3 @@ ok($/, 'Caprep matched');
 is($/, "abcabcabcabc", 'Caprep matched');
 is($/<caprep>, "abcabcabcabc", 'Caprep captured');
 is(eval('$/<caprep>[0]'), "abcabcabcabc", 'Caprep abc one captured');
-
-}
-
