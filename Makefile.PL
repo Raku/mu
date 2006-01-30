@@ -1,5 +1,23 @@
 #!/usr/bin/perl
 
+=pod
+
+Build System Overview
+
+ - Makefile.PL calls GHC to compile Setup.hs to ./Setup.exe.
+ - Makefile.PL writes a Makefile that will call util/build_pugs.pl
+   upon "make".
+ - build_pugs.pl writes a Pugs.cabal file based on the flags given in
+   the Makefile.
+ - build_pugs.pl calls ./Setup.exe.
+ - Setup.exe builds dist/build/libHSPugs-6.XXX.YYY.a and returns to
+   build_pugs.pl.
+ - build_pugs.pl calls GHC to build ./pugs.exe
+   (by simply linking the freshly built libHSPugs package with src/Main.hs).
+
+=cut
+
+
 use 5.006;
 use strict;
 use warnings;
