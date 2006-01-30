@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 79;
+plan 71;
 
 =kwid
 
@@ -22,7 +22,6 @@ ok(2 + 2 == 4, '2 and 2 make 4');
 ok(2 + 2 == 4, desc => '2 and 2 make 4');
 ok(2 + 2 == 4, :desc('2 and 2 make 4'));
 
-ok(2 + 2 == 5, '2 and 2 doesnt make 5', 1);
 ok(2 + 2 == 5, desc => '2 and 2 doesnt make 5', todo => <bug>);
 ok(2 + 2 == 5, :desc('2 and 2 doesnt make 5'), :todo(1));
 
@@ -32,7 +31,6 @@ is(2 + 2, 4, '2 and 2 make 4');
 is(2 + 2, 4, desc => '2 and 2 make 4');
 is(2 + 2, 4, :desc('2 and 2 make 4'));
 
-is(2 + 2, 5, '2 and 2 doesnt make 5', 1);
 is(2 + 2, 5, todo => 1, desc => '2 and 2 doesnt make 5');
 is(2 + 2, 5, :todo<feature>, :desc('2 and 2 doesnt make 5'));
 
@@ -84,7 +82,6 @@ like("Hello World", rx:perl5{\s}, '... testing like()');
 like("Hello World", rx:perl5{\s}, desc => '... testing like()');
 like("Hello World", rx:perl5{\s}, :desc('... testing like()'));
 
-like("HelloWorld", rx:perl5{\s}, '... testing like()', 'feature');
 like("HelloWorld", rx:perl5{\s}, desc => '... testing like()', todo => 1);
 like("HelloWorld", rx:perl5{\s}, :todo(1), :desc('... testing like()'));
 
@@ -94,7 +91,6 @@ unlike("HelloWorld", rx:perl5{\s}, '... testing unlike()');
 unlike("HelloWorld", rx:perl5{\s}, desc => '... testing unlike()');
 unlike("HelloWorld", rx:perl5{\s}, :desc('... testing unlike()'));
 
-unlike("Hello World", rx:perl5{\s}, '... testing unlike()', 1);
 unlike("Hello World", rx:perl5{\s}, todo => 1, desc => '... testing unlike()');
 unlike("Hello World", rx:perl5{\s}, :desc('... testing unlike()'), :todo(1));
 
@@ -104,7 +100,6 @@ cmp_ok('test', sub ($a, $b) { ?($a gt $b) }, 'me', '... testing gt on two string
 cmp_ok('test', sub ($a, $b) { ?($a gt $b) }, 'me', desc => '... testing gt on two strings');
 cmp_ok('test', sub ($a, $b) { ?($a gt $b) }, 'me', :desc('... testing gt on two strings'));
 
-cmp_ok('test', sub ($a, $b) { ?($a gt $b) }, 'you', '... testing gt on two strings', 1);
 cmp_ok('test', sub ($a, $b) { ?($a gt $b) }, 'you', :todo(1), desc => '... testing gt on two strings');
 cmp_ok('test', sub ($a, $b) { ?($a gt $b) }, 'you', :desc('... testing gt on two strings'), todo => 1);
 
@@ -117,8 +112,6 @@ $! = undef; # clear $!
 eval_ok('my $a = 1; $a', :desc("eval_ok"));
 $! = undef; # clear $!
 
-eval_ok('my my my $a = 1; $a', "eval_ok", 1);
-$! = undef; # clear $!
 eval_ok('my my my $a = 1; $a', desc => "eval_ok", :todo(1));
 $! = undef; # clear $!
 eval_ok('my my my $a = 1; $a', :desc("eval_ok"), todo => 1);
@@ -155,7 +148,6 @@ dies_ok -> { die "Testing dies_ok" }, '... it dies_ok';
 dies_ok -> { die "Testing dies_ok" }, desc => '... it dies_ok';
 dies_ok -> { die "Testing dies_ok" }, :desc('... it dies_ok');
 
-dies_ok -> { "Testing dies_ok" }, '... it dies_ok', 1;
 dies_ok -> { "Testing dies_ok" }, desc => '... it dies_ok', todo => 1;
 dies_ok -> { "Testing dies_ok" }, :desc('... it dies_ok'), :todo(1);
 
@@ -165,7 +157,6 @@ lives_ok -> { return "test" }, '... it lives_ok';
 lives_ok -> { return "test" }, desc => '... it lives_ok';
 lives_ok -> { return "test" }, :desc('... it lives_ok');
 
-lives_ok -> { die "test" }, '... it lives_ok', 1;
 lives_ok -> { die "test" }, desc => '... it lives_ok', todo => 1;
 lives_ok -> { die "test" }, :desc('... it lives_ok'), :todo(1);
 
@@ -185,7 +176,6 @@ pass('This test passed');
 
 ## flunk
 
-flunk('This test failed', 1);
 flunk('This test failed', todo => 1);
 flunk('This test failed', :todo(1));
 
