@@ -547,9 +547,7 @@ smoke-perl5 : $pugs util/run-smoke.pl all
 	\$(PERL) -e "ENV->{PUGS_RUNTIME}=q+PERL5+; exec qw+$^X util/run-smoke.pl . smoke-perl5.html -BPERL5+"
 
 
-ghci : @srcfiles
-	$ghc $ghc_flags --make -fglasgow-exts -H0 -isrc -L. -fno-warn-name-shadowing -no-hs-main -no-link src/Pugs/Compile.hs @prereqs
-	$ghc $ghc_flags -O --make -fglasgow-exts -H0 -isrc -L. -fno-warn-name-shadowing -no-hs-main -no-link src/Pugs.hs @prereqs
+ghci : pugs
 	$ghc $ghc_flags --interactive -fglasgow-exts -L. -idist/build -Ldist/build -idist/build/src -Ldist/build/src -isrc src/Main.hs @prereqs
 
 pil$Config{_exe} : $config_h $unicode $pcre @cbits @srcfiles src/PIL/Native/Bootstrap.hs src/PIL/Native/Syntax.hs
