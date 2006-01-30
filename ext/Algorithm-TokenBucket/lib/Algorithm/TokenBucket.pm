@@ -85,7 +85,7 @@ sub new_bucket(Num $rate, Int $burst_size) is export {
       my $time = time;
 
       $tokens += ($time - $last_check_time) * $rate;
-      $tokens > $burst_size and $tokens = $burst_size;
+      $tokens = $burst_size if $tokens > $burst_size;
 
       $last_check_time = $time;
     },
