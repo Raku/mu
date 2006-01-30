@@ -1169,19 +1169,20 @@ Use curlies with the appropriate function instead: C<"{ucfirst $word}">.
 
 =item *
 
-You may interpolate any Unicode codepoint by name using C<\c> and square brackets:
+You may interpolate any Unicode codepoint by name using C<\c> and
+square brackets:
 
     "\c[NEGATED DOUBLE VERTICAL BAR DOUBLE RIGHT TURNSTILE]"
 
-Multiple codepoints constituting a single may be interpolated with
-a single C<\c> by separating the names with comma:
+Multiple codepoints constituting a single character may be interpolated
+with a single C<\c> by separating the names with comma:
 
     "\c[LATIN CAPITAL LETTER A, COMBINING RING ABOVE]"
 
 Whether that is regarded as one character or two depends on the
-Unicode support level of the current lexical scope.  It is also possible to
-interpolate multiple codepoints that do not resolve to a single
-character:
+Unicode support level of the current lexical scope.  It is also
+possible to interpolate multiple codepoints that do not resolve to
+a single character:
 
     "\c[LATIN CAPITAL LETTER A, LATIN CAPITAL LETTER B]"
 
