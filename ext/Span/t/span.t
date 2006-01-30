@@ -15,13 +15,9 @@ isa_ok( $span, 'Span', 'created a Span' );
 # XXX 'can()' is broken
 # $span.can('start');
 
-# This test causes pugs to hang as of 8156.
-# is( $span.is_empty, bool::false, 'is not empty' );
-flunk("boolean comparison causes infinite loop");
+is( $span.is_empty, bool::false, 'is not empty' );
 
-# Another hang...
-# is( $span.stringify, '[1,3]', 'stringify' );
-flunk("stringify causes infinite loop");
+is( $span.stringify, '[1,3]', 'stringify' );
 
 # is( $span.span.density, undef, 'get density continuous is undef' );
 
@@ -30,19 +26,14 @@ flunk("stringify causes infinite loop");
     isa_ok( $a, 'Span', 'created an empty Span' );
 
     # Testing span truth and stringification appears to hang pugs.
-    # is( $a.is_empty, bool::true, 'created an empty Span is_empty' );
-    flunk("boolean comparison causes infinite loop");
+    is( $a.is_empty, bool::true, 'created an empty Span is_empty' );
 
-    # is( $a.stringify, '', 'created an empty Span stringify' );
-    flunk("stringify causes infinite loop");
+    is( $a.stringify, '', 'created an empty Span stringify' );
 }
 
 isa_ok( Span.new( object => 10 ), 'Span', 'created a Span with a single element' );
 
 # is( Span.new( object => 10 ).stringify, '10', 'stringify a single element' );
-flunk("XXX - stringify causes infinite loop");
-
-exit;
 
 is( Span.new( object => 1 .. 10 ).stringify, '[1,10]', 'created a Span from a range' );
 

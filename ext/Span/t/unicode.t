@@ -28,16 +28,12 @@ my $span3 = Span.new( start => 4, end => 6 );
 # is( $span <=> 10 , -1, 'compare' );
 
 
-for (1..3) { flunk("intersections causes infinite loop"); }
+is( $span.intersects( 2 ), bool::true, 'intersects object' );
+is( $span.intersects( $span2 ), bool::true, 'intersects span' );
+is( $span.intersects( $span3 ), bool::false, 'doesn\'t intersect span' );
 
-# is( $span.intersects( 2 ), bool::true, 'intersects object' );
-# is( $span.intersects( $span2 ), bool::true, 'intersects span' );
-# is( $span.intersects( $span3 ), bool::false, 'doesn\'t intersect span' );
-
-for (1..2) { flunk("contains causes infinite loop"); }
-
-# is( $span.contains( 2 ), bool::true, 'contains object' );
-# is( $span.contains( 9 ), bool::false, 'doesn\'t contain object' );
+is( $span.contains( 2 ), bool::true, 'contains object' );
+is( $span.contains( 9 ), bool::false, 'doesn\'t contain object' );
 
 {
     my @a = $span ∩ $span2;
