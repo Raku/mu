@@ -1479,6 +1479,7 @@ currentFunctions = do
         if pkg == reverse pre then Just (reverse post) else Nothing
     inScope _ name = Just name
     relevantToParsing "pre" SubPrim      = True
+    relevantToParsing _     SubPrim      = False
     relevantToParsing _     SubMethod    = False
     relevantToParsing _     _            = True
 
