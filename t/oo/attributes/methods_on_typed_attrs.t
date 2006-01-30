@@ -32,8 +32,8 @@ isa_ok($foo, 'Foo');
 is($bar.baz(), 'Baz', '... sanity test, this works as we expect');
 
 my $val;
-lives_ok { $val = $foo.call_bar() }, '... this should work', :todo<bug>;
-is $val, 'Baz', '... this should be "Baz"', :todo<bug>;
+lives_ok { $val = $foo.call_bar() }, '... this should work';
+is $val, 'Baz', '... this should be "Baz"';
 
 my $val2;
 lives_ok { $val2 = $foo.call_bar_indirectly() }, '... this should work';
