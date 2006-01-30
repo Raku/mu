@@ -32,7 +32,31 @@ method parent ($self:) returns Tree {
     return $!parent;
 }
 
-my method _set_parent ($self: Tree $parent) returns Void {
+## ----------------------------------------------------------------------------
+## private methods
+
+my method set_height ($self: Tree $child) returns Void {
+    my $child_height = $child.height();
+    return if $.height >= $child_height + 1;
+    $.height = $child_height + 1;
+    # and now bubble up to the parent (unless we are the root)
+    $self.parent()!set_height($self) unless $self.is_root();
+}
+
+my method set_width ($self: Tree $child) returns Void {
+    return if $.width > $self.child_count();    
+    my $child_width = $child.width();
+    $.width += $child_width;
+    # and now bubble up to the parent (unless we are the root)
+    $self.parent()!set_width($self) unless $self.is_root();            
+}
+
+my method set_depth ($self: Int $depth) returns Void { $.depth = $depth }
+
+my method remove_parent returns Void { $!parent = undef }
+
+
+my method set_parent ($self: Tree $parent) returns Void {
     $!parent = $parent;
     $.depth  = $parent.depth() + 1;
 }
@@ -313,30 +337,6 @@ method get_index ($self:) returns Int {
         $index++;
     }
 }
-
-## ----------------------------------------------------------------------------
-## private methods
-
-my method set_height ($self: Tree $child) returns Void {
-    my $child_height = $child.height();
-    return if $.height >= $child_height + 1;
-    $.height = $child_height + 1;
-    # and now bubble up to the parent (unless we are the root)
-    $self.parent()!set_height($self) unless $self.is_root();
-}
-
-my method set_width ($self: Tree $child) returns Void {
-    return if $.width > $self.child_count();    
-    my $child_width = $child.width();
-    $.width += $child_width;
-    # and now bubble up to the parent (unless we are the root)
-    $self.parent()!set_width($self) unless $self.is_root();            
-}
-
-my method set_depth ($self: Int $depth) returns Void { $.depth = $depth }
-
-my method remove_parent returns Void { $!parent = undef }
-
 =pod
 
 =head1 NAME
