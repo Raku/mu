@@ -4,20 +4,20 @@ would like current details, please ask on irc.freenode.net #perl6.
 
 
 = Backends
-[last updated: 2005-10-24]
+[correct as of: 2005-10-24]
 
 - Haskell-Old  Working (delta general pugs bugs)
 - Haskell-PIL  Restarted 2005-10-03
 - Java         Nonexistant; partial metamodel implementation nonetheless
 - JavaScript   Passes >90% of main tests (no ext/); missing P6 rules, some
                builtins, state (needs PIL1 fixes), full OO (needs PIL2)
-- Perl 5       Passes <50% of main tests (no ext/); currently implementing
-               standard types; run core development is inactive.
+- Perl 5       Broken; once passed <50% of main tests (no ext/); inactive;
+               will probably be rewritten around PIL2. [2006-01-30]
 - PIR          Restarted 2005-10-04
 
 
 = PIL Transition
-[last updated: 2005-10-05]
+[correct as of: 2005-10-05]
 
 * autrijus redesigned PIL format (now 'PIL2') in late 2005-07 through 2005-08,
   but has decided on further improvements after ICFP (beginning of 2005-10)
@@ -28,7 +28,7 @@ would like current details, please ask on irc.freenode.net #perl6.
 
 
 = Perl 6 Object Metamodel
-[last updated: 2005-10-05]
+[correct as of: 2005-10-05]
 
 * stevan working on MetalModel 2.0, based on MiniMetaModel, as of 2005-08-22
 * MM2 designed to be cleaner, and as minimalist as possible internally,
@@ -45,9 +45,9 @@ would like current details, please ask on irc.freenode.net #perl6.
 
 = Embedding
 
-[last updated: 2005-10-05]
+[correct as of: 2005-10-05]
 - Parrot   Works with Parrot 0.3.0
-[last updated: 2005-08-10]
+[correct as of: 2005-08-10]
 - Perl 5   Works, except that it leaks heavily (refcounts inc but never dec),
            and exports don't happen -- workaround for latter is to use
            our &method1 := Perl5::Module::Name.can('method1')
@@ -56,7 +56,7 @@ would like current details, please ask on irc.freenode.net #perl6.
 
 
 = Laziness
-[last updated: 2005-10-05]
+[correct as of: 2005-10-05]
 
 * Laziness doesn't currently work for some (most?) backends
 * Some lazy functions do exist (e.g. gather/take), but are actually non-lazy
@@ -66,33 +66,24 @@ would like current details, please ask on irc.freenode.net #perl6.
 = Rules
 
 - Perl 5 regexen
-[last updated: 2005-09-05]
+[correct as of: 2006-01-30]
 ** Work well in default backend, handled by PCRE
 ** Mostly working in JS
 ** Specified via perl5 modifier, as in rx:perl5/\Afoo/
 
 - Perl 6 rules
-[last updated: 2005-10-24]
+[correct as of: 2006-01-30]
 ** Current handled by parrot's PGE, under development; much works, but:
 *** Rule names are global
 *** No support for aliases
 *** No support for embedded closures
 *** Rules do not always behave correctly
 ** Other implementations have been started, but are currently inactive.
-** Preparing to move all Pugs-hosted Perl 6 rule tests to Parrot repository
-   as of 2005-10-04
-
-- Modifiers
-** Most are unimplemented; the working ones are:
-  :g (mostly), :i :m :s :x (yes? p5-only), :w (p6-only)
-
 
 = Test Suite
-[last updated: 2005-10-05]
+[correct as of: 2006-01-30]
 
-* Currently about 10200 tests, including module tests
+* Currently about 11000 tests, including module tests
 * This is known to be only a small percentage of the total needed to cover
   the currently available Perl 6 design
-* putter merged make targets for various testing methods on different backends
-  (test-perl5, test-js, smoke-perl5, etc.)
 * Automated posting to smoke server (http://smoke.pugscode.org/) now possible
