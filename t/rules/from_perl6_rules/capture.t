@@ -32,27 +32,27 @@ ok(!defined($/[2]), 'no $/[2]');
 ok(!defined($2), 'no $2');
 ok(!defined($/<dotdot>), 'no $/<dotdot>');
 
-ok("zzzabcdefzzz" ~~ m/(a.)<dotdot>(..)/, 'Match', :todo<bug>);
-ok($/, 'Matched', :todo<bug>);
-is($/, "abcdef", 'Captured', :todo<bug>);
-is($/[0], 'ab', '$/[0]', :todo<bug>);
-is($0, 'ab', '$0', :todo<bug>);
-is($/[1], 'ef', '$/[1]', :todo<bug>);
-is($1, 'ef', '$1', :todo<bug>);
+ok("zzzabcdefzzz" ~~ m/(a.)<dotdot>(..)/, 'Match');
+ok($/, 'Matched');
+is($/, "abcdef", 'Captured');
+is($/[0], 'ab', '$/[0]');
+is($0, 'ab', '$0');
+is($/[1], 'ef', '$/[1]');
+is($1, 'ef', '$1');
 ok(!defined($/[2]), '$/[2]');
 ok(!defined($2), '$2');
-is($/<dotdot>, 'cd', '$/<dotdot>', :todo<bug>);
-is(try { $/<dotdot>[0] }, 'c', '$/<dotdot>[0]', :todo<bug>);
+is($/<dotdot>, 'cd', '$/<dotdot>');
+is(try { $/<dotdot>[0] }, 'c', '$/<dotdot>[0]');
 
-is(try { $/<dotdot>[1] }, 'd', '$/<dotdot>[1]', :todo<bug>);
+is(try { $/<dotdot>[1] }, 'd', '$/<dotdot>[1]');
 
 ok(!defined(try { $/<dotdot>[2] }), '$/<dotdot>[2]');
 
-ok("abcd" ~~ m/(a(b(c))(d))/, 'Nested captured', :todo<bug>);
-is($0, "abcd", 'Nested $0', :todo<bug>);
-is(try { $0[0] }, "bc", 'Nested $1', :todo<bug>);
-is(try { $0[0][0] }, "c", 'Nested $2', :todo<bug>);
-is(try { $0[1] }, "d", 'Nested $3', :todo<bug>);
+ok("abcd" ~~ m/(a(b(c))(d))/, 'Nested captured');
+is($0, "abcd", 'Nested $0');
+is(try { $0[0] }, "bc", 'Nested $1');
+is(try { $0[0][0] }, "c", 'Nested $2');
+is(try { $0[1] }, "d", 'Nested $3');
 
 ok("bookkeeper" ~~ m/(((\w)$0[0][0])+)/, 'Backreference', :todo<feature>);
 is($0, 'ookkee', 'Captured', :todo<feature>);
