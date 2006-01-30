@@ -43,35 +43,30 @@ sub split_header_words (*@values) is export {
 }
 
 multi sub join_header_words(*@words) is export {
-    my @return;
-    
-    for @words -> $cur is copy {
-        my @attr;
-        
-        if ($cur !~ Ref) {
-            $cur = [$cur];
-        }
-        
-        for $cur -> $k is rw, $v is rw {
-            if ($v.defined) {
-                # XXX add / to character class in regex below
-                # currently results in parsefail
-                if ($v ~~ m:P5/[\x00-\x20()<>@,;:\\\"\[\]?={}\x7F-\xFF]/ || !$v.chars) {
-                    $v ~~ s:P5:g/([\"\\])/\\$0/; # escape " and \
-                    $k ~= qq(="$v");
-                } else {
-                    # token
-                    $k ~= "=$v";
+    join ', ', gather {
+        for @words -> $cur {
+            take join '; ', gather {
+                for $cur -> $k, $v {
+                    if $v.defined {
+                        # XXX add / to character class in regex below
+                        # currently results in parsefail
+                        if $v ~~ m:P5/[\x00-\x20()<>@,;:\\\"\[\]?={}\x7F-\xFF]/ || !$v.chars {
+                            my $esc = $v;
+                            $esc ~~ s:P5:g/([\"\\])/\\$0/; # escape " and \
+                            take qq($k="$esc");
+                        }
+                        else {
+                            # token
+                            take "$k=$v";
+                        }
+                    }
+                    else {
+                        take $k;
+                    }
                 }
             }
-            
-            push @attr, $k;
         }
-        
-        push @return, @attr.join("; ") if @attr;
     }
-    
-    return @return.join(", ");
 }
 
 1;
