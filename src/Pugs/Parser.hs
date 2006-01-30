@@ -401,6 +401,7 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
         , ruleSubScoped
         , ruleSubGlobal
         ]
+    optional $ do { symbol "handles"; ruleExpression }
     typ'    <- option typ $ try $ ruleBareTrait "returns"
     formal  <- option Nothing $ ruleSubParameters ParensMandatory
     typ''   <- option typ' $ try $ ruleBareTrait "returns"
