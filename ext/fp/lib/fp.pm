@@ -19,8 +19,8 @@ multi *infix:<≣> ($a, $b) { $a === $b }
 multi *infix:<≡> ($a, $b) { $a === $b }
 
 # Misc. mathematical chars
-multi *prefix:<∑>  (@nums) { [+] *@nums }
-multi *prefix:<∏>  (@nums) { [*] *@nums }
+multi *prefix:<∑>  ($nums) { [+] @$nums }
+multi *prefix:<∏>  ($nums) { [*] @$nums }
 multi *postfix:<!> ($x) { [*] 1..$x }
 # multi ∞()       { Inf } -- doesn't work
 multi *infix:<÷>   ($a, $b) { $a / $b }

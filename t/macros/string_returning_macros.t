@@ -47,7 +47,7 @@ plan 8;
   my $was_in_macro;
   macro prefix_2000 (Int $x) { $was_in_macro = 1; "2000$x" }
   is $was_in_macro, 1,
-    "simple string returning macro without argparens is parsed correctly (1)";
+    "simple string returning macro without argparens is parsed correctly (1)", :todo<feature>;
   is (prefix_2000 42), 200042,
     "simple string returning macro without argparens is parsed correctly (2)";
 }

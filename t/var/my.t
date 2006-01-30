@@ -35,8 +35,8 @@ plan 11;
 
 {
   my $was_in_sub;
-  my &foo = -> $arg { $was_in_sub = $arg };
-  foo 42;
+  my &foo := -> $arg { $was_in_sub = $arg };
+  foo(42);
   is $was_in_sub, 42, 'calling a lexically defined my()-code var worked';
 }
 
