@@ -310,6 +310,8 @@ Take an expression, and attempt to predict what type it will evaluate to
 /without/ actually evaluating it.
 -}
 inferExpType :: Exp -> Eval Type
+inferExpType exp@(Var (_:'.':_)) = fromVal =<< evalExp exp
+inferExpType exp@(Var (_:'!':_:_)) = fromVal =<< evalExp exp
 inferExpType (Var var) = do
     rv  <- findVar var
     case rv of
