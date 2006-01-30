@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 20 Jan 2006
+  Last Modified: 30 Jan 2006
   Number: 6
-  Version: 13
+  Version: 14
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -356,13 +356,16 @@ are short for
     doit :a(%hash<a>),1,2,3;
     doit :b(%hash{'b'}),1,2,3;
 
-To pass pairs out of hash without their being interpreted as named
-parameters, use
+Ordinary hash notation will just pass the value of the hash entry as a
+positional argument regardless of whether it is a pair or not.
+To pass both key and value out of hash as a positional pair, use C<:p>.
 
     doit %hash<a>:p,1,2,3;
     doit %hash{'b'}:p,1,2,3;
 
-instead.
+instead..  (The C<:p> stands for "pairs", not "positional"--the
+C<:p> adverb may be placed on any hash reference to make it mean
+"pairs" instead of "values".)
 
 Pairs are recognized syntactically at the call level and mystically
 transformed into special C<Named> objects that may be bound to
