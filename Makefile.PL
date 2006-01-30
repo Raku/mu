@@ -248,9 +248,9 @@ sub set_postamble {
       if ($ghc_version =~ /^6.4(?:.0)?$/ and $gcc_version =~ /\b4.0.0\b/ && $os_version =~ /^8./) {
          die <<EOD;
 *** GHC 6.4.0 cannot work with GCC 4.0 on Mac OS X.
-    Please upgrade to GHC 6.4.1, or use "sudo gcc_select 3.3" to pick an
-    earlier version of gcc, or set the CC environment variable to
-    "/usr/bin/gcc-3.3".
+    Please download the GHC 6.4.1 installer from http://haskell.org/ghc/.
+    (Alternatively, use "sudo gcc_select 3.3" to pick an earlier version
+     of GCC, or set the CC environment variable to "/usr/bin/gcc-3.3".)
 EOD
       }
     }
