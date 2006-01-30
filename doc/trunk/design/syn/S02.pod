@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 23 Nov 2005
+  Last Modified: 30 Jan 2006
   Number: 2
-  Version: 13
+  Version: 14
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -1166,6 +1166,26 @@ whitespace in a rule.)
 
 There's also no longer any C<\L>, C<\U>, C<\l>, C<\u>, or C<\Q>.
 Use curlies with the appropriate function instead: C<"{ucfirst $word}">.
+
+=item *
+
+You may interpolate any Unicode codepoint by name using C<\c> and square brackets:
+
+    "\c[NEGATED DOUBLE VERTICAL BAR DOUBLE RIGHT TURNSTILE]"
+
+Multiple codepoints constituting a single may be interpolated with
+a single C<\c> by separating the names with comma:
+
+    "\c[LATIN CAPITAL LETTER A, COMBINING RING ABOVE]"
+
+Whether that is regarded as one character or two depends on the
+Unicode support level of the current lexical scope.  It is also possible to
+interpolate multiple codepoints that do not resolve to a single
+character:
+
+    "\c[LATIN CAPITAL LETTER A, LATIN CAPITAL LETTER B]"
+
+[Note: none of the official Unicode character names contains comma.]
 
 =item *
 
