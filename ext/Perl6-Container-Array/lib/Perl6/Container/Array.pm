@@ -138,37 +138,31 @@ method _pop_n ($array: Int $length ) returns List {
     return @ret;
 }
 
-method elems ( $array: ) {
-    my $count = 0;
-    for $.items {
-        $count += $_.isa( 'Perl6::Value::List' )  ?? 
-                  $_.Perl6::Value::List::elems  !! 
-                  1;
-    }
-    $count;
+method elems () {
+    [+] @.items.map:{
+        $_.isa( 'Perl6::Value::List' )
+            ?? $_.Perl6::Value::List::elems
+            !! 1;
+    };
 }  
 
-method is_infinite ( $array: ) {
-    for $.items {
-        return bool::true if $_.isa( 'Perl6::Value::List' ) && $_.is_infinite;
-    }
-    bool::false;
-}  
+method is_infinite () {
+    [||] @.items.map:{
+        ($_.isa( 'Perl6::Value::List' ) && $_.is_infinite);
+    }, bool::false;
+}
 
-method is_lazy ( $array: ) {
-    for $.items {
-        return bool::true if $_.isa( 'Perl6::Value::List' ) && $_.is_lazy;
-    }
-    bool::false;
-}  
+method is_lazy () {
+    [||] @.items.map:{
+        ($_.isa( 'Perl6::Value::List' ) && $_.is_lazy);
+    }, bool::false;
+}
 
-method flatten ( $self: ) { 
+method flatten () { 
     # this needs optimization
-    my $ret = $array;
-    for $ret.items {
-        $_ = $_.flatten() if $_.isa( 'Perl6::Value::List' ) && $_.is_lazy;
+    for @.items {
+        $_ .= flatten if (.isa( 'Perl6::Value::List' ) && .is_lazy);
     }
-    $ret;
 }
 
 method splice ( 
