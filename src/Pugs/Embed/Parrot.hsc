@@ -168,12 +168,14 @@ initParrot = do
     if interp /= nullPtr then return interp else do
     interp <- parrot_new nullPtr
     writeIORef _ParrotInterp interp
-#if PARROT_JIT_CAPABLE && defined(PARROT_JIT_CORE) && XXX_PARROT_JIT_IS_NOT_BROKEN
+#ifdef XXX_ENABLE_PARROT_RUNCORES
+#if PARROT_JIT_CAPABLE && defined(PARROT_JIT_CORE)
     parrot_set_run_core interp PARROT_JIT_CORE
 #elsif defined(PARROT_CGOTO_CORE)
     parrot_set_run_core interp PARROT_CGOTO_CORE
 #elsif defined(PARROT_CGP_CORE)
     parrot_set_run_core interp PARROT_CGP_CORE
+#endif
 #endif
     -- parrot_set_debug interp 0x20
     parrot_imcc_init interp
