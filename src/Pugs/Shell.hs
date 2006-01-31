@@ -67,8 +67,8 @@ parseCommandLine str            = CmdRun (RunOpts False False True) str
 initializeShell :: IO ()
 initializeShell = do
 #ifdef PUGS_HAVE_READLINE
-    hSetBuffering stdout NoBuffering
     hSetBuffering stdin  NoBuffering
+    Readline.setCatchSignals False
     Readline.initialize
 #endif
     return ()
