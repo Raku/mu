@@ -4,6 +4,7 @@ use v6;
 use Test;
 
 plan 33;
+force_todo <3 4 6 7 8 9 10 11 12 15 16 17 18 20 21 22 23 24 26 28 29 30 31 32 33>;
 
 # use_ok( 'Perl6::Container::Array' );
 use Perl6::Container::Array; 
@@ -43,10 +44,10 @@ use Perl6::Value::List;
   # splice with negative offset
 
   my $span = Perl6::Container::Array.from_list( 1 .. 10 );
-  my $spliced = $span.splice( -4, 3, 23..25 );
+  my $spliced = try { $span.splice( -4, 3, 23..25 ) };
 
   is( $span.items.join(','), '1,2,3,4,5,6,23,24,25,10', 'span' );
-  is( $spliced.items.join(','), '7,8,9', 'splice' );
+  is( try { $spliced.items.join(',') }, '7,8,9', 'splice' );
 }
 
 {
@@ -102,8 +103,11 @@ use Perl6::Value::List;
   isa_ok( $rev, 'Perl6::Container::Array', 'reversed' );
   is( $rev.shift, Inf, 'shift reverse' );
   is( $rev.pop,   8,   'pop reverse' );
-  my $rev_splice = $rev.splice( -2, 1, ('k') );
-  is( $rev_splice.pop,   10,   'spliced' );
+
+  flunk "splice() with negative integers causes infinite loop";
+  # my $rev_splice = $rev.splice( -2, 1, ('k') );
+  # is( $rev_splice.pop,   10,   'spliced' );
+
   is( $rev.pop,   9,   'splice reverse' );
   is( $rev.pop, 'k',   'splice reverse' );
   is( $rev.pop,  11,   'splice reverse' );

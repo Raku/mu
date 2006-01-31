@@ -81,7 +81,7 @@ class Perl6::Value::List {
         #     if $ret.is_infinite;
 
         my @list;
-        while $ret.elems { *push @list, $ret.shift; }
+        while $ret.elems { &*push(@list, $ret.shift); }
         $self.from_single( @list ); 
     }
 
@@ -113,8 +113,8 @@ class Perl6::Value::List {
     }
 
     method from_single ( $class: @list is copy ) {
-        $class.new( cstart => sub{ shift @list },
-                    cend =>   sub{ pop @list },
+        $class.new( cstart => sub{ &*shift(@list) },
+                    cend =>   sub{ &*pop(@list) },
                     celems => sub{ +@list },
                     is_lazy => bool::false );
     }
@@ -153,11 +153,13 @@ class Perl6::Value::List {
         Perl6::Value::List.new(
                 cstart => coro {
                         my $x = $ret.shift // yield;
-                        yield $x if &$code($x) 
+                        yield $x if &$code($x);
+                        return;
                 },
                 cend => coro { 
                         my $x = $ret.pop // yield;
-                        yield $x if &$code($x) 
+                        yield $x if &$code($x);
+                        return;
                 },
                 # TODO - signal end of data using 'elems()'
         );
@@ -169,14 +171,14 @@ class Perl6::Value::List {
                 cstart => coro {
                         my @ret;
                         my $x = $ret.shift // yield;
-                        unshift(@ret, &$code($x)); 
-                        yield shift(@ret) while @ret
+                        &*unshift(@ret, &$code($x)); 
+                        yield &*shift(@ret) while @ret
                 },
                 cend => coro {
                         my @ret; 
                         my $x = $ret.pop // yield;
-                        push(@ret, &$code($x));
-                        yield pop(@ret) while @ret  
+                        &*push(@ret, &$code($x));
+                        yield &*pop(@ret) while @ret  
                 },
                 # TODO - signal end of data using 'elems()'
         )
@@ -258,11 +260,11 @@ class Perl6::Value::List {
                         # TODO - rewrite this checking 'elems()'
                         # XXX - the list would normally stop after the first 'undef'
                         for @lists -> $xx {
-                            push(@x, [$xx.shift]);
+                            &*push(@x, [$xx.shift]);
                         }
                         if defined any(@x) {
                             for @lists -> $xx {
-                                yield shift(@x);
+                                yield &*shift(@x);
                             }
                         }
                         else {
