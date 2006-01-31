@@ -28,10 +28,6 @@ my $universe_recurr = Recurrence.new(
 # Creating the infinite set $u below appears to send pugs into
 # an infinite loop.  We'll flunk instead for now.
 
-for (1..9) { flunk "Infinite loop"; }
-
-=begin infinite loop
-
 my $u = Set::Infinite.new( 
     recurrence => $universe_recurr,
 );
@@ -72,10 +68,6 @@ my $even_recurr = Recurrence.new(
 # More infinite loops ahead!  Creating $even_numbers sends pugs into
 # another spin.
 
-for (1..2) { flunk("Infinite loop"); }
-
-=begin infinite loop
-
 my $even_numbers = Set::Infinite.new( 
     recurrence => $even_recurr,
 );
@@ -83,16 +75,8 @@ my $even_numbers = Set::Infinite.new(
 is( $even_numbers.next( 10 ), 12, 'next even' );
 is( $even_numbers.previous( 10 ), 8, 'previous even' );
 
-=end
-
-=cut
-
 # Unfortunately, the rest of this also creates infinite loops.
 # So we'll skip the rest. ;(
-
-for (1..15) { flunk("Infinite loop"); }
-
-=begin infinite loops
 
 {
     # union
@@ -171,8 +155,6 @@ for (1..15) { flunk("Infinite loop"); }
 my $odd_numbers = $even_numbers.complement;
 is( $odd_numbers.next( 10 ),    11, 'odd recurrence' );
 is( $odd_numbers.previous( 10 ), 9, 'odd recurrence' );
-
-=end
 
 =for later
 
