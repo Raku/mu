@@ -2,7 +2,7 @@ name: Pugs
 version: 6.2.11
 license: GPL
 license-file: LICENSE
-copyright: 2005, Audrey Tang
+copyright: 2005-2006, Audrey Tang
 maintainer: Audrey Tang <autrijus@autrijus.org>
 build-depends: QuickCheck -any, base -any, mtl -any, stm -any, haskell98 -any, network -any, template-haskell -any__DEPENDS__
 stability: experimental
