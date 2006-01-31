@@ -68,7 +68,6 @@ initializeShell :: IO ()
 initializeShell = do
 #ifdef PUGS_HAVE_READLINE
     Readline.setCatchSignals False
-    Readline.setCatchSigwinch False
     Readline.initialize
 #endif
     return ()
