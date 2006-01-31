@@ -175,10 +175,13 @@ sub set_postamble {
     }
 
     if (has_ghc_package('readline') 
-        and try_compile_and_run("import System.Console.Readline\n"
+        and  try_compile("import System.Console.Readline\n"
                         ."main :: IO ()\n"
-                        ."main = setCatchSignals False\n"
-                        , $ghc)) {
+                        ."main = do\n"
+                        ."  setCatchSignals False\n"
+                        ."  setCatchSigwinch False\n"
+                        .'  _ <- readline "" '."\n"
+                        .'  return ()', $ghc)) {
       $ghc_flags .= ' -DPUGS_HAVE_READLINE '; # -package readline';
     }
     else {
