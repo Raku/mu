@@ -636,7 +636,6 @@ sub try_compile {
     my $code = shift;
     my $temp = File::Spec->catfile(File::Spec->tmpdir, "pugs-tmp-$$");
     my $ghc  = shift or croak "try_compile called without path to ghc";
-    my $run  = shift;
 
     eval {
         open TMP, "> $temp.hs";
@@ -652,10 +651,6 @@ sub try_compile {
     };
 
     my $ok = -s "$temp.exe";
-
-    if ($ok and $run) {
-        $ok = ((system {"$temp.exe"} "$temp.exe") == 0);
-    }
 
     unlink("$temp.exe");
     unlink("$temp.hs");
