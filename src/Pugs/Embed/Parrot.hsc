@@ -16,16 +16,19 @@ import Pugs.Compat (getEnv)
 
 findExecutable' :: String -> IO (Maybe FilePath)
 findExecutable' cmd = do
-    rv  <- findExecutable cmd
-    if isJust rv then return rv else do
-    cwd <- getCurrentDirectory
-    rv  <- findExecutableInDirectory cwd cmd
-    if isJust rv then return rv else do
     dir <- getEnv "PARROT_PATH"
-    if isNothing dir then return Nothing else do
-    rv  <- findExecutableInDirectory (fromJust dir) cmd
-    if isJust rv then return rv else do
-    return Nothing
+    if isJust dir then (do
+        rv  <- findExecutableInDirectory (fromJust dir) cmd
+        if isJust rv then return rv else findExecutable'') else do
+    findExecutable''
+    where
+    findExecutable'' = do
+        rv  <- findExecutable cmd
+        if isJust rv then return rv else do
+        cwd <- getCurrentDirectory
+        rv  <- findExecutableInDirectory cwd cmd
+        if isJust rv then return rv else do
+        return Nothing
 
 findExecutableInDirectory :: FilePath -> FilePath -> IO (Maybe FilePath)
 findExecutableInDirectory dir cmd = do
