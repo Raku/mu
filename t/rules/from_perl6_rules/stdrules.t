@@ -13,7 +13,7 @@ be valid perl6.
 
 =cut
 
-plan 221;
+plan 222;
 
 if(!eval('("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
@@ -42,6 +42,10 @@ ok("\n\n" ~~ m/^ (\v+) $/, '\v');
 is($/, "\n\n", 'captured \v');
 ok(!( " \t\n " ~~ m/^ (\v+) $/ ), 'not \v');
 
+flunk "skipped tests - exteral PGE appears to be erratic", :todo<bug>;
+skip_rest "skipped tests - exteral PGE appears to be erratic";
+
+=begin END
 
 # alpha
 
