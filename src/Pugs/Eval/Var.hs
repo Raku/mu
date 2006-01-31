@@ -86,6 +86,35 @@ findVarRef name
             when (isJust globSym) $ foundIt globSym
             return Nothing
 
+
+{-|
+  The findSub dispatch system:
+
+  The Eval.Var findSub dispatch system was written before S12's
+  dispatch order was specced clearly.  Back then there were no clear
+  distinction between single and multiple dispatch, and so both were
+  lumped in a single findSub loop.  So "$x.foo.bar" is no different
+  from bar(foo($x)), rather, bar(foo($x:):).  But MMD dictates that
+  you have to find which of the candidate &bar to be dispatched to
+  before you fully evaluate its argument foo($x:) under its specified
+  context.  But you can't find out which candidates of &bar to
+  dispatch to, unless you know the type of foo($x).  That's a
+  chicken-egg problem.  So I wrote a tiny type inferencer to guess a
+  type of an Exp without actually evaluating its side effects.  The
+  idea is that foo($x) is first inferred, then uses that inferred type
+  to decide which bar() to call, and finally evaluate foo($x) in full.
+  Using the argument type expected by bar().  But the infer engine
+  didn't handle indexed expressions well.  $x[0] etc.  In any case,
+  that tiny inferencer is obsolete under the new (November 2005) S12
+  and docs/notes/multimethods.pod.  Which would be implemented at PIL
+  layer.  The inferencer fix I just committed (r8874) for indexed
+  expressions, just checks if both the indice and indexee are simple
+  expressions (i.e. things that can be evaluated without side
+  effects), and if so, it just evaluates them to find out their actual
+  type.
+
+|-}
+
 data FindSubFailure
     = NoMatchingMulti
     | NoSuchSub
