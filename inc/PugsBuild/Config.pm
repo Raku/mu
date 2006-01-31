@@ -46,7 +46,8 @@ sub read {
         File::Copy::copy ($config_template, $filename) or
             die "copy: $!";
         print <<".";
-*** Default build config file created. Edit your settings in $filename.
+*** Default build config file created.
+    You can edit some settings in $filename (then rerun Makefile.PL).
 
 .
     }       
