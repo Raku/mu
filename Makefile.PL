@@ -175,9 +175,9 @@ sub set_postamble {
     }
 
     if (has_ghc_package('readline') 
-        and  try_compile("import System.Console.Readline\n"
+        and try_compile_and_run("import System.Console.Readline\n"
                         ."main :: IO ()\n"
-                        ."main = do { setCatchSignals False; readline []; return () }\n"
+                        ."main = setCatchSignals False\n"
                         , $ghc)) {
       $ghc_flags .= ' -DPUGS_HAVE_READLINE '; # -package readline';
     }
@@ -627,10 +627,13 @@ sub for_perl5 {
     return join("\n", @cmds);
 }
 
+sub try_compile_and_run { try_compile(@_, 'run') }
+
 sub try_compile {
     my $code = shift;
     my $temp = File::Spec->catfile(File::Spec->tmpdir, "pugs-tmp-$$");
     my $ghc  = shift or croak "try_compile called without path to ghc";
+    my $run  = shift;
 
     eval {
         open TMP, "> $temp.hs";
@@ -646,10 +649,16 @@ sub try_compile {
     };
 
     my $ok = -s "$temp.exe";
+
+    if ($ok and $run) {
+        $ok = ((system {"$temp.exe"} "$temp.exe") == 0);
+    }
+
     unlink("$temp.exe");
     unlink("$temp.hs");
     unlink("$temp.hi");
     unlink("$temp.o");
+
     return $ok;
 }
 
