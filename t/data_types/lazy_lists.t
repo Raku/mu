@@ -17,7 +17,7 @@ use Test;
 plan( 30 );
 
 unless $?PUGS_BACKEND eq "BACKEND_PERL5" {
-    skip_rest ("$?PUGS_BACKEND does not support lazy lists yet", :depends("lazy lists") );
+    skip_rest ("$?PUGS_BACKEND does not support lazy lists yet.", :depends("lazy lists") );
     exit;
 }
 
