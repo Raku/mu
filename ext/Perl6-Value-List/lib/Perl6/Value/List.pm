@@ -35,15 +35,6 @@ use v6;
 # - lists of junctions --> junctions of lists
 # - list concatenation --> array concatenation
 
-# XXX - this is temporary - this namespace is from 'S29'
-# TODO - change these to *pop, *push, ...
-    our &Perl6::Array::pop     := &pop;
-    our &Perl6::Array::push    := &push;
-    our &Perl6::Array::shift   := &shift;
-    our &Perl6::Array::unshift := &unshift;
-    our &Perl6::Array::reverse := &reverse;
-    our &Perl6::Array::map     := &map;
-    our &Perl6::Array::grep    := &grep;
 # ---------
 
 class Perl6::Value::List {
@@ -122,9 +113,9 @@ class Perl6::Value::List {
     }
 
     method from_single ( $class: @list is copy ) {
-        $class.new( cstart => sub{ Perl6::Array::shift  @list },
-                    cend =>   sub{ Perl6::Array::pop    @list },
-                    celems => sub{ @list.elems  },
+        $class.new( cstart => sub{ shift @list },
+                    cend =>   sub{ pop @list },
+                    celems => sub{ +@list },
                     is_lazy => bool::false );
     }
 
@@ -178,14 +169,14 @@ class Perl6::Value::List {
                 cstart => coro {
                         my @ret;
                         my $x = $ret.shift // yield;
-                        Perl6::Array::unshift @ret,&$code($x); 
-                        yield Perl6::Array::shift @ret while @ret 
+                        unshift(@ret, &$code($x)); 
+                        yield shift(@ret) while @ret
                 },
                 cend => coro {
                         my @ret; 
                         my $x = $ret.pop // yield;
-                        Perl6::Array::push @ret, &$code($x); 
-                        yield Perl6::Array::pop @ret while @ret  
+                        push(@ret, &$code($x));
+                        yield pop(@ret) while @ret  
                 },
                 # TODO - signal end of data using 'elems()'
         )
@@ -267,11 +258,11 @@ class Perl6::Value::List {
                         # TODO - rewrite this checking 'elems()'
                         # XXX - the list would normally stop after the first 'undef'
                         for @lists -> $xx {
-                            Perl6::Array::push @x, [$xx.shift];
+                            push(@x, [$xx.shift]);
                         }
                         if defined any(@x) {
                             for @lists -> $xx {
-                                yield Perl6::Array::shift @x;
+                                yield shift(@x);
                             }
                         }
                         else {
@@ -283,8 +274,8 @@ class Perl6::Value::List {
 
 }  # end class Perl6::Value::List
 
-multi shift ( Perl6::Value::List $l ) { $l.start if $l.elems }
-multi pop   ( Perl6::Value::List $l ) { $l.end   if $l.elems }  
+multi *shift ( Perl6::Value::List $l ) is export { $l.start if $l.elems }
+multi *pop   ( Perl6::Value::List $l ) is export { $l.end   if $l.elems }  
 
 =kwid
 
