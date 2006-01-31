@@ -1,6 +1,6 @@
 = Changes for 6.2.11 (rXXXX) - Jan XX, 2006
 
-** to r8750 - needs editing **
+** to r8884 - needs editing **
 XXX big things not mentioned here:
 - objectspace / metamodel
 - PILN
@@ -11,10 +11,12 @@ XXX big things not mentioned here:
 	
 == Feature Changes
 
-* 1__0 is now a parsefail.
-
 === Shared components
 
+* Adverbial number forms eg. :16<deadbeef> and :16[14,15]
+** This change obsoletes hex() and oct()
+* new \x[abcd] form instead of \x{abcd}
+* 1__0 is now a parsefail.
 * pugs now recommends GHC 6.4.1 or a recent development snapshot,
   6.4.0 works on some platforms.
 * "self" is an alias for "$?SELF"
@@ -56,8 +58,11 @@ XXX big things not mentioned here:
 * Pugs.Run.Args: When the arg list parser encounters the script
   file name, treat everything after it (even -options) as arguments.
 * the very-cutely-named "" repr type is now known as "p6nil" instead
-* add PUGS_SMOKE_EXCLUDE_EXT env to run-smoke.pl
 * remove the redundant "--" in multiarg options.
+
+=== Pugs shell
+
+* irb-style line continuation
 
 === JavaScript backend
 
@@ -72,6 +77,19 @@ XXX big things not mentioned here:
 
 === Shared components
 
+* when looking for an external parrot, look in PARROT_PATH before all else
+* method calls on simple index lookups now gets dispatched
+  to the correct multisub/method
+* infix macros no longer parsefail
+* "use Perl-6" parses correcly now
+* BEGIN-time binding a block to &infix:<operator> works
+* $.foo.bar() now correctly dispatches on the runtime type of $.foo
+* "$foo .method" now parses again; "$foo. method" now parsefails again
+* -n and -p now always surrounds the remaining flags with
+  while () {...} blocks, instead of only the -e parts.
+* In the Prelude, always use the "sub foo is builtin" trait instead
+  of "sub *foo"
+* In this release, 0**0 and Inf**0 are both 1, not NaN
 * .perl stringification escapes unprintable characters
 * improved detection of null patterns; this fixes some endless loops
 * finalize parrot and perl5 embedding correctly
@@ -110,6 +128,8 @@ XXX big things not mentioned here:
 == Bundled Modules
 
 * evalbot can run code with alternative backends, e.g. ?eval:js 5 + 3
+* HTTP::Headers::Util: rewrote algorithm with clearer and more correct
+  gather/take
 
 === New Perl 6 modules
 
@@ -146,6 +166,10 @@ XXX big things not mentioned here:
 
 == Test, Examples and Documentations
 
+* add overiew POD text on the build system to Makefile.PL
+* add ./TASKS file tracking current things to do
+* add timing data prints to smoke harness, to help spot hanging/slow tests
+* add PUGS_SMOKE_EXCLUDE_EXT env to run-smoke.pl
 * docs/quickref/ - updates and improvements. Hilights:
 ** docs/quickref/fears - assorted fears about Perl 6
 * examples/cookbook/ - new recipes
