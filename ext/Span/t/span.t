@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 64;
+plan 63;
 
 use Span; pass "(dummy instead of broken use_ok)";
 use Span;   # XXX should not need this

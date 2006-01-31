@@ -332,16 +332,12 @@ inferExpType (App (Var name) invs args) = do
     case sub of
         Right sub    -> return $ subReturns sub
         Left _       -> return $ mkType "Any"
-inferExpType (Syn syn [_, idxExp]) | (syn ==) `any` words "{} []" = do
-    cxt <- inferExpCxt idxExp
-    return (typeOfCxt cxt)
 inferExpType (Ann (Cxt cxt) _) | typeOfCxt cxt /= (mkType "Any") = return $ typeOfCxt cxt
 inferExpType (Ann (Cxt _) exp) = inferExpType exp
 inferExpType (Ann (Pos _) exp) = inferExpType exp
 inferExpType (Pad _ _ exp) = inferExpType exp
 inferExpType (Sym _ _ exp) = inferExpType exp
 inferExpType (Stmts _ exp) = inferExpType exp
-inferExpType (Syn "sub" [exp]) = inferExpType exp
 inferExpType (Syn "," _)    = return $ mkType "List"
 inferExpType (Syn "\\[]" _) = return $ mkType "Array"
 inferExpType (Syn "\\{}" _) = return $ mkType "Hash"
@@ -349,7 +345,21 @@ inferExpType (Syn "&{}" _)  = return $ mkType "Code"
 inferExpType (Syn "@{}" _)  = return $ mkType "Array"
 inferExpType (Syn "%{}" _)  = return $ mkType "Hash"
 inferExpType (Syn "=>" _)   = return $ mkType "Pair"
+inferExpType exp@(Syn "{}" [_, idxExp]) = if isSimpleExp exp
+    then fromVal =<< evalExp exp
+    else fmap typeOfCxt (inferExpCxt idxExp)
+inferExpType exp@(Syn "[]" [_, idxExp]) = if isSimpleExp exp
+    then fromVal =<< evalExp exp
+    else fmap typeOfCxt (inferExpCxt idxExp)
+inferExpType (Syn "sub" [exp]) = inferExpType exp
 inferExpType _ = return anyType
+
+isSimpleExp :: Exp -> Bool
+isSimpleExp Var{}           = True
+isSimpleExp Val{}           = True
+isSimpleExp (Ann _ x)       = isSimpleExp x
+isSimpleExp (Syn _ xs)      = all isSimpleExp xs
+isSimpleExp _               = False
 
 
 {-|
