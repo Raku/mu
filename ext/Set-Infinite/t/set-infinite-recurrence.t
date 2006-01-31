@@ -43,11 +43,7 @@ is( $u.start_is_closed, bool::true, "start_is_closed" );
 is( $u.end_is_closed,   bool::true, "end_is_closed" );
 
 is( $u.next( 10 ), 11, 'next' );
-is( $u.previous( 10 ), 9, 'previous' );
-
-=end
-
-=cut
+is( try { $u.previous( 10 ) }, 9, 'previous', :todo<bug> );
 
 my $even_recurr = Recurrence.new( 
     closure_next =>     
@@ -73,10 +69,14 @@ my $even_numbers = Set::Infinite.new(
 );
 
 is( $even_numbers.next( 10 ), 12, 'next even' );
-is( $even_numbers.previous( 10 ), 8, 'previous even' );
+is( try { $even_numbers.previous( 10 ) }, 8, 'previous even', :todo<bug> );
 
 # Unfortunately, the rest of this also creates infinite loops.
 # So we'll skip the rest. ;(
+
+flunk "intersection() not yet implemented correctly", :todo<bug>;
+skip_rest;
+exit;
 
 {
     # union
