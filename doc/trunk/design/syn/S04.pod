@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 04 Jan 2006
+  Last Modified: 31 Jan 2006
   Number: 4
-  Version: 7
+  Version: 8
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -403,6 +403,26 @@ control structures, hence the sub's lexical scope was I<always>
 the innermost dynamic scope, so the preference to the lexical scope
 in the current sub was implicit.  For Perl 6 we have to make this
 preference explicit.)
+
+=head1 The goto statement
+
+In addition to C<next>, C<last>, and C<redo>, Perl 6 also supports
+C<goto>.  As with ordinary loop controls, the label is searched for
+first lexically within the current subroutine, then dynamically outside
+of it.  Unlike with loop controls, however, scanning a scope includes
+a scan of any lexical scopes included within the current candidate
+scope.  As in Perl 5, it is possible to C<goto> into a lexical scope,
+but only for lexical scopes that require no special initialization
+of parameters.  (Initialization of ordinary variables does not
+count--presumably the presence of a label will prevent code-movement
+optimizations past the label.)  So, for instance, it's always possible
+to goto into the next case of a C<when> or into either the "then"
+or "else" branch of a conditional.  You may not go into a C<given>
+or a C<for>, though, because that would bypass a formal parameter
+binding (not to mention list generation in the case of C<for>).
+(Note: the implicit default binding of an outer $_ to an inner $_
+can be emulated for a bare block, so that doesn't fall under the
+prohibition on bypassing formal binding.)
 
 =head1 Exceptions
 
