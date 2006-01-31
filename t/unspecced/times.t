@@ -5,12 +5,14 @@ use Test;
 
 plan 5;
 
+my $FUDGE = 5000;      # will need to be updated as pugs get faster
 my @start = times();
-for (1..1000) {
+for (1..$FUDGE) {
     1+1;
 }
 my @end = times();
 ok(@end[0] > @start[0], 'something changed in times()');
+diag "end: {@end} start: {@start}";
 
 cmp_ok(@end[0] - @start[0], &infix:«<=», 10, 'sensible time spent')
   or do {
