@@ -365,6 +365,7 @@ EOD
     your PATH.  If you want to link against Parrot, set the PUGS_EMBED
     environment variable to contain 'parrot', the PARROT_PATH environment
     variable to the path of a built parrot tree, then run Makefile.PL again.
+    Linking against Parrot is NOT recommended with this release 6.2.11.
 
 .
     }
