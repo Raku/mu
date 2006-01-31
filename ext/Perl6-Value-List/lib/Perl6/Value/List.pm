@@ -172,13 +172,15 @@ class Perl6::Value::List {
                         my @ret;
                         my $x = $ret.shift // yield;
                         &*unshift(@ret, &$code($x)); 
-                        yield &*shift(@ret) while @ret
+                        yield &*shift(@ret) while @ret;
+                        return;
                 },
                 cend => coro {
                         my @ret; 
                         my $x = $ret.pop // yield;
                         &*push(@ret, &$code($x));
-                        yield &*pop(@ret) while @ret  
+                        yield &*pop(@ret) while @ret;
+                        return;
                 },
                 # TODO - signal end of data using 'elems()'
         )
@@ -192,15 +194,17 @@ class Perl6::Value::List {
                         my $x = $ret.shift // yield;
                         unless %seen{$x} { 
                             %seen{$x} = bool::true; 
-                            yield $x 
+                            yield $x;
                         }                       
+                        return;
                 },
                 cend => coro {
                         my $x = $ret.pop // yield;
                         unless %seen{$x} { 
                             %seen{$x} = bool::true; 
-                            yield $x 
-                        }  
+                            yield $x;
+                        }
+                        return;
                 },
                 # TODO - signal end of data using 'elems()'
         )
@@ -214,6 +218,7 @@ class Perl6::Value::List {
                         my $x = $ret.shift // yield;
                         yield $count++;
                         yield $x;
+                        return;
                 },
                 celems => sub { $ret.elems + $ret.elems },
         )
@@ -273,6 +278,9 @@ class Perl6::Value::List {
                 }
         )
     }
+
+    method shift () { self.start if self.elems }
+    method pop   () { self.end   if self.elems }  
 
 }  # end class Perl6::Value::List
 
