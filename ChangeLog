@@ -1,5 +1,60 @@
 = Changes for 6.2.11 (r8920) - Feb 1, 2006
 
+== Bundled Modules
+
+=== New Perl 6 modules
+
+* [ext/Parse-Rule/] - A Rules engine port in perl 6
+* [ext/Rosetta/] - A federated relational database (incomplete)
+* [ext/Rosetta-Engine-Native/] - A back-end for Rosetta testing (incomplete)
+
+=== Updated modules
+
+* [ext/File-Spec/] - Rewritten to define its own exported wrapper subs
+* [ext/Locale-KeyedText/] - Rewrote with a strong resemblence to the original
+** Split up `translate_message()` for more granular Translator usage
+** Objects now become something useful when coerced into a string
+** Added `Locale::KeyedText::L::en`, LKT now throws Message exceptions
+** Template Modules now have a different variable interpolation format
+** Created 2 running [examples/] from pod that was removed from KeyedText.pm
+** Deleted old test suite (yet to be replaced); now only tests compilation
+* [ext/libwww-perl] - Rewrote `HTTP::Header::Util` with gather/take syntax
+* [ext/Test] - `&fail` renamed to `&flunk` to avoid conflict with builtin
+
+=== Experimental modules (in misc/, not installed)
+
+* [misc/Parser-Mini/] - Experimental *thin* p6 parser
+* [misc/Rosetta-Incubator/] broken up:
+** Locale::KeyedText was merged into the rewritten one in ext/
+** SQL::Routine and Rosetta were merged together, became Rosetta in ext/
+** The license of Rosetta is now GPL (with extra linking provision)
+** Remainder (SQLBuilder, SQLParser, Eng/Generic, Emu/DBI) was deleted
+* [misc/sixpan/] - Prototype of new CPAN tools in Perl 5
+
+== Test, Examples and Documentations
+
+* Add timing data prints to smoke harness, to help spot hanging/slow tests
+* Tests in [ext/] and [t/] - Temporary workaround the breaking of `use_ok`
+* [Makefile.PL] - Begins with an overview POD section on the build system
+* [TASKS] - Tracking current things to do
+* [docs/AES/S17draft.pod] - Draft synopsis for Perl 6's concurrency
+* [docs/AES/S22draft.pod] - Draft synopsis for Perl 6's CPAN
+* [docs/articles/tpr.pod] - An introduction article to Pugs
+* [docs/feature] - Feather.perl6.nl web site
+* [docs/getting_started] - Pointers for people new to Pugs
+* [docs/notes/context_coercion.pod] - Notes on implementing contexts
+* [docs/notes/context_coersion.pod] - Notes on implementing contexts
+* [docs/notes/docs_evil_plan.txt] - Plan for Perl 6 documentation
+* [docs/notes/multimethods.pod] - Description of the canonical MMD algorithm
+* [docs/p6doc/] - Perl 6 language tutorials and documentation
+* [docs/quickref/] - Various updates and improvements from new Synopses
+* [docs/quickref/fears] - assorted fears about Perl 6
+* [examples/cookbook/] - New recipes
+* [examples/network/wiki/] - demo wiki
+* [examples/rpn/] - RPN calculator in Perl 6, Perl 6, and Haskell
+* [run-smoke.pl] - Support for `PUGS_SMOKE_EXCLUDE_EXT` environment variable
+* [util/catalog_tests.pl] - Annotate smoke reports with colored sources/specs
+
 == Feature Changes
 
 * Adverbial number forms: `:16<deadbeef>` and `:16[14,15]`
@@ -100,61 +155,6 @@
 ** Class Meta-Model bootstrapped using only the native types
 ** Role Meta-Model and Container types not yet supported
 * Based on work from the [perl5/Perl6-MetaModel/]
-
-== Bundled Modules
-
-=== New Perl 6 modules
-
-* [ext/Parse-Rule/] - A Rules engine port in perl 6
-* [ext/Rosetta/] - A federated relational database (incomplete)
-* [ext/Rosetta-Engine-Native/] - A back-end for Rosetta testing (incomplete)
-
-=== Updated modules
-
-* [ext/File-Spec/] - Rewritten to define its own exported wrapper subs
-* [ext/Locale-KeyedText/] - Rewrote with a strong resemblence to the original
-** Split up `translate_message()` for more granular Translator usage
-** Objects now become something useful when coerced into a string
-** Added `Locale::KeyedText::L::en`, LKT now throws Message exceptions
-** Template Modules now have a different variable interpolation format
-** Created 2 running [examples/] from pod that was removed from KeyedText.pm
-** Deleted old test suite (yet to be replaced); now only tests compilation
-* [ext/libwww-perl] - Rewrote `HTTP::Header::Util` with gather/take syntax
-* [ext/Test] - `&fail` renamed to `&flunk` to avoid conflict with builtin
-
-=== Experimental modules (in misc/, not installed)
-
-* [misc/Parser-Mini/] - Experimental *thin* p6 parser
-* [misc/Rosetta-Incubator/] broken up:
-** Locale::KeyedText was merged into the rewritten one in ext/
-** SQL::Routine and Rosetta were merged together, became Rosetta in ext/
-** The license of Rosetta is now GPL (with extra linking provision)
-** Remainder (SQLBuilder, SQLParser, Eng/Generic, Emu/DBI) was deleted
-* [misc/sixpan/] - Prototype of new CPAN tools in Perl 5
-
-== Test, Examples and Documentations
-
-* Add timing data prints to smoke harness, to help spot hanging/slow tests
-* Tests in [ext/] and [t/] - Temporary workaround the breaking of `use_ok`
-* [Makefile.PL] - Begins with an overview POD section on the build system
-* [TASKS] - Tracking current things to do
-* [docs/AES/S17draft.pod] - Draft synopsis for Perl 6's concurrency
-* [docs/AES/S22draft.pod] - Draft synopsis for Perl 6's CPAN
-* [docs/articles/tpr.pod] - An introduction article to Pugs
-* [docs/feature] - Feather.perl6.nl web site
-* [docs/getting_started] - Pointers for people new to Pugs
-* [docs/notes/context_coercion.pod] - Notes on implementing contexts
-* [docs/notes/context_coersion.pod] - Notes on implementing contexts
-* [docs/notes/docs_evil_plan.txt] - Plan for Perl 6 documentation
-* [docs/notes/multimethods.pod] - Description of the canonical MMD algorithm
-* [docs/p6doc/] - Perl 6 language tutorials and documentation
-* [docs/quickref/] - Various updates and improvements from new Synopses
-* [docs/quickref/fears] - assorted fears about Perl 6
-* [examples/cookbook/] - New recipes
-* [examples/network/wiki/] - demo wiki
-* [examples/rpn/] - RPN calculator in Perl 6, Perl 6, and Haskell
-* [run-smoke.pl] - Support for `PUGS_SMOKE_EXCLUDE_EXT` environment variable
-* [util/catalog_tests.pl] - Annotate smoke reports with colored sources/specs
 
 = Changes for 6.2.10 (r7520) - Oct 10, 2005
 
