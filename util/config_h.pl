@@ -86,7 +86,6 @@ close OUT;
 sub try_compile {
     my $code = shift;
     my $temp = "pugs-tmp-$$";
-    my $ghc  = shift or croak "try_compile called without path to ghc";
 
     eval {
         open TMP, "> $temp.hs";
