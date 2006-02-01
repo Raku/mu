@@ -20,10 +20,12 @@ This file seems to determine some configuration.
 
 =cut
 
-my ($ghc,$base) = @ARGV;
+my ($ghc_line, $base) = @ARGV or exit;
 
-$ghc ||= $ENV{GHC} || 'ghc';
+$ghc_line ||= $ENV{GHC} || 'ghc';
 $base ||= Cwd::cwd();
+
+my ($ghc, @ghc_args) = split /\s+/, $ghc_line;
 
 open IN, "< $base/lib/Perl6/Pugs.pm" or die $!;
 open OUT, "> $base/src/Pugs/pugs_config.h" or die $!;
@@ -92,7 +94,7 @@ sub try_compile {
         print TMP $code;
         close TMP;
         system(
-            $ghc, @_,
+            $ghc, @ghc_args,
             "--make", "-v0",
             -o => "$temp.exe",
             "$temp.hs"
