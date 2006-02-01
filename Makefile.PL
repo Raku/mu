@@ -638,7 +638,7 @@ sub try_compile_and_run { try_compile(@_, 'run') }
 
 sub try_compile {
     my $code = shift;
-    my $temp = File::Spec->catfile(File::Spec->tmpdir, "pugs-tmp-$$");
+    my $temp = "pugs-tmp-$$";
     my $ghc  = shift or croak "try_compile called without path to ghc";
 
     eval {
