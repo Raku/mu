@@ -24,7 +24,7 @@
 === Experimental modules (in misc/, not installed)
 
 * [misc/Parser-Mini/] - Experimental *thin* p6 parser
-* [misc/Rosetta-Incubator/] broken up:
+* misc/Rosetta-Incubator/ broken up:
 ** Locale::KeyedText was merged into the rewritten one in ext/
 ** SQL::Routine and Rosetta were merged together, became Rosetta in ext/
 ** The license of Rosetta is now GPL (with extra linking provision)
@@ -40,10 +40,9 @@
 * [docs/AES/S17draft.pod] - Draft synopsis for Perl 6's concurrency
 * [docs/AES/S22draft.pod] - Draft synopsis for Perl 6's CPAN
 * [docs/articles/tpr.pod] - An introduction article to Pugs
-* [docs/feature] - Feather.perl6.nl web site
+* [docs/feather] - Feather.perl6.nl web site
 * [docs/getting_started] - Pointers for people new to Pugs
 * [docs/notes/context_coercion.pod] - Notes on implementing contexts
-* [docs/notes/context_coersion.pod] - Notes on implementing contexts
 * [docs/notes/docs_evil_plan.txt] - Plan for Perl 6 documentation
 * [docs/notes/multimethods.pod] - Description of the canonical MMD algorithm
 * [docs/p6doc/] - Perl 6 language tutorials and documentation
@@ -52,7 +51,7 @@
 * [examples/cookbook/] - New recipes
 * [examples/network/wiki/] - demo wiki
 * [examples/rpn/] - RPN calculator in Perl 6, Perl 6, and Haskell
-* [run-smoke.pl] - Support for `PUGS_SMOKE_EXCLUDE_EXT` environment variable
+* [util/run-smoke.pl] - Support for `PUGS_SMOKE_EXCLUDE_EXT` environment variable
 * [util/catalog_tests.pl] - Annotate smoke reports with colored sources/specs
 
 == Feature Changes
