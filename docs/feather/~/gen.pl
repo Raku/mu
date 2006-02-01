@@ -29,7 +29,7 @@ END
 my @dir = glob "/home/*/public_html/*";
 my @users = keys %{ { map { (split m[/])[2] => undef } @dir } };
 
-print { $fh } qq[<li><a href="/~$_/">$_</a></li>\n] for @users;
+print { $fh } qq[<li><a href="/~$_/">$_</a></li>\n] for sort @users;
 
 print { $fh } <<'END';
 </ul>
