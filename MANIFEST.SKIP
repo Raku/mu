@@ -32,3 +32,4 @@ svn-commit\.tmp$
 ^t/builtins/system/
 ^Setup(?!\.lhs)
 ^throw_away/
+.hs-drift$

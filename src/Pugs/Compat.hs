@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fno-warn-orphans -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -fvia-C -optc-w -fno-warn-orphans -cpp #-}
 
 {-|
     POSIX calls and emulations.
