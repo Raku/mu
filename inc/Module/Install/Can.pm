@@ -25,13 +25,17 @@ sub can_use {
 # check if we can run some command
 sub can_run {
     my ($self, $cmd) = @_;
+    # XXX: what to do in native win32?
+    my $mx = $^O eq 'cygwin' ?
+        sub { -x $_[0] || (-f _ && $_[0] =~ /\.(exe|com|bat)$/) } :
+        sub { -x $_[0] };
 
     my $_cmd = $cmd;
-    return $_cmd if (-x $_cmd or $_cmd = MM->maybe_command($_cmd));
+    return $_cmd if ($mx->($_cmd) or $_cmd = MM->maybe_command($_cmd));
 
     for my $dir ((split /$Config::Config{path_sep}/, $ENV{PATH}), '.') {
         my $abs = File::Spec->catfile($dir, $_[1]);
-        return $abs if (-x $abs or $abs = MM->maybe_command($abs));
+        return $abs if ($mx->($abs) or $abs = MM->maybe_command($abs));
     }
 
     return;
