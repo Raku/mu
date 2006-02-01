@@ -345,7 +345,7 @@ sub name_mangle($) {
     return sprintf "PIL2JS.resolve_callervar($delta, %s)",
       doublequote($name);
   # No qualification? Use "main" as package name. XXX! Lexical variables?
-  } elsif($str !~ /::/) {
+  } elsif(length($str) and $str !~ /::/) {
     $str = 
       substr($str, 0, 1) .
       "main::" .
