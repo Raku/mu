@@ -169,6 +169,7 @@ initParrot :: IO ParrotInterp
 initParrot = do
     interp <- readIORef _ParrotInterp 
     if interp /= nullPtr then return interp else do
+    parrot_set_config_hash
     interp <- parrot_new nullPtr
     writeIORef _ParrotInterp interp
 #ifdef XXX_ENABLE_PARROT_RUNCORES
@@ -182,16 +183,18 @@ initParrot = do
 #endif
     -- parrot_set_debug interp 0x20
     parrot_imcc_init interp
+
+    pf      <- parrot_packfile_new interp 0
+    parrot_loadbc interp pf
+    seg     <- withCString "pugs" $ \p -> do
+        parrot_pf_create_default_segs interp p 1
+    set_pf_cur_cs pf seg
+    parrot_loadbc interp pf
+
     callback    <- mkCompileCallback compileToParrot
     pugsStr     <- withCString "Pugs" (const_string interp)
     parrot_compreg interp pugsStr callback
 
-    pf      <- parrot_packfile_new interp 0
-    pf_dir  <- get_pf_directory pf
-    seg     <- withCString "pugs" $ \p -> do
-        parrot_packfile_segment_new_seg interp pf_dir 4 p 1
-    set_pf_cur_cs pf seg
-    parrot_loadbc interp pf
     modifyIORef _GlobalFinalizer (>> parrot_exit 0)
     return interp
 
@@ -205,8 +208,10 @@ loadPGE interp path = do
     if match /= nullPtr then return (match, add) else do
     cwd     <- getCurrentDirectory
     setCurrentDirectory path
-    withCString "PGE.pbc" $ parrot_load_bytecode interp
-    withCString "PGE/Hs.pir" $ parrot_load_bytecode interp
+    pge_pbc <- withCString "PGE.pbc" $ const_string interp
+    pge_hs  <- withCString "PGE/Hs.pir" $ const_string interp
+    parrot_load_bytecode interp pge_pbc
+    parrot_load_bytecode interp pge_hs
     setCurrentDirectory cwd
     loadPGE interp path
 
@@ -251,6 +256,9 @@ compileToParrot interp cstr = do
 foreign import ccall "wrapper"  
     mkCompileCallback :: ParrotCompilerFunc -> IO (FunPtr ParrotCompilerFunc)
 
+foreign import ccall "Parrot_set_config_hash"
+    parrot_set_config_hash :: IO ()
+
 foreign import ccall "Parrot_new"
     parrot_new :: ParrotInterp -> IO ParrotInterp
 
@@ -275,6 +283,9 @@ foreign import ccall "PackFile_new"
 foreign import ccall "PackFile_Segment_new_seg"
     parrot_packfile_segment_new_seg :: ParrotInterp -> ParrotPackFileDirectory -> CInt -> CString-> CInt -> IO ParrotPackFileByteCode
 
+foreign import ccall "PF_create_default_segs"
+    parrot_pf_create_default_segs :: ParrotInterp -> CString -> CInt -> IO ParrotPackFileByteCode
+
 foreign import ccall "dod_register_pmc"
     parrot_dod_register_pmc :: ParrotInterp -> ParrotPMC -> IO ()
 
@@ -285,7 +296,7 @@ foreign import ccall "Parrot_compreg"
     parrot_compreg :: ParrotInterp -> ParrotString -> FunPtr ParrotCompilerFunc -> IO ()
 
 foreign import ccall "Parrot_load_bytecode"
-    parrot_load_bytecode :: ParrotInterp -> CString -> IO ()
+    parrot_load_bytecode :: ParrotInterp -> ParrotString -> IO ()
 
 foreign import ccall "Parrot_call_sub"
     parrot_call_sub_vv :: ParrotInterp -> ParrotPMC -> CString -> IO ()
