@@ -13,6 +13,7 @@ import Foreign
 import Foreign.C.Types
 import Foreign.C.String
 import Foreign.Marshal.Array
+import Foreign.StablePtr
 
 foreign export ccall "pugs_Eval"
     pugs_eval :: CString -> IO PugsVal
