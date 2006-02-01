@@ -113,7 +113,7 @@ findVarRef name
   effects), and if so, it just evaluates them to find out their actual
   type.
 
-|-}
+-}
 
 data FindSubFailure
     = NoMatchingMulti
