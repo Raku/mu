@@ -15,7 +15,7 @@
 module Pugs.AST (
     evalExp,
     genMultiSym, genSym,
-    strRangeInf, strRange, strInc, charInc,
+    strRangeInf, strRange, strInc,
     mergeStmts, isEmptyParams,
     newPackage,
 
@@ -65,7 +65,7 @@ strRange s1 s2
 Find the successor of a string (i.e. the next string \'after\' it).
 Special rules are used to handle wraparound for strings ending in an
 alphanumeric character; otherwise the last character is simply incremented 
-using 'charInc'.
+using 'succ'.
 -}
 strInc :: String -> String
 strInc []       = "1"
@@ -76,14 +76,10 @@ strInc str
     | x == 'z'  = strInc xs ++ "a"
     | x == 'Z'  = strInc xs ++ "A"
     | x == '9'  = strInc xs ++ "0"
-    | otherwise = xs ++ [charInc x]
+    | otherwise = xs ++ [succ x]
     where
     x   = last str
     xs  = init str
-
--- | Return the code-point-wise successor of a given character.
-charInc :: Char -> Char
-charInc x   = chr $ 1 + ord x
 
 {-|
 Evaluate the given expression, using the currently active evaluator
