@@ -12,22 +12,22 @@
 # --------------------------------------------------------------------------- #
 # Methods dependent upon the repr type, and so need to be defined
 
-^Seq.add_method('head', -> { nil });
-^Seq.add_method('tail', -> { nil });
+^Seq.add_private_method('head', -> { nil });
+^Seq.add_private_method('tail', -> { nil });
 
 # --------------------------------------------------------------------------- #
 # methods not dependent upon the repr type, so we can implement in the role
 
 ^Seq.add_method('is_empty', -> { 
-	self.head()`is_nil();
+	self!head()`is_nil();
 });
 
-^Seq.add_method('length', -> { 
+^Seq.add_method('elems', -> { 
 	-> $list, $acc {
 		&redo := &?SUB;
 		$list.is_empty()`if_else(
 			-> { $acc },
-			-> { &redo`($list.tail(), $acc`increment()) }
+			-> { &redo`($list!tail(), $acc`increment()) }
 		);
 	}`(self, 0);
 });
@@ -37,30 +37,30 @@
 		&redo := &?SUB;
 		$list.is_empty()`if_else(
 			-> { $?CLASS.new(@acc) },
-			-> { &redo`($list.tail(), [ $list.head() ]`concat(@acc)) }
+			-> { &redo`($list!tail(), [ $list!head() ]`concat(@acc)) }
 		);
-	}`(self.tail(), [ self.head() ]);
+	}`(self!tail(), [ self!head() ]);
 });
 
-^Seq.add_method('apply', -> &code { 
+^Seq.add_method('map', -> &code { 
 	-> $list, @acc {
 	    &redo := &?SUB;
 	    $list.is_empty()`if_else(
 	        -> { $?CLASS.new(@acc) },
-	        -> { &redo`($list.tail(), @acc`push(&func`($list.head()))) }
+	        -> { &redo`($list!tail(), @acc`push(&func`($list!head()))) }
 	    );
 	}`(self, []);
 });
 
-^Seq.add_method('filter', -> &code {
+^Seq.add_method('grep', -> &code {
 	-> $list, @acc {
 	    &redo := &?SUB;
 	    $list.is_empty()`if_else(
 	        -> { $?CLASS.new(@acc) },
 	        -> {
 	            &func`($list.head())`as_bit()`if_else(
-	                -> { &redo`($list.tail(), @acc`push($elem)) },
-	                -> { &redo`($list.tail(), @acc)             }            
+	                -> { &redo`($list!tail(), @acc`push($elem)) },
+	                -> { &redo`($list!tail(), @acc)             }            
 	            );
 	        }
 	    );
@@ -72,7 +72,17 @@
         &redo := &?SUB;
         $list.is_empty()`if_else(
             -> { $acc },
-            -> { &redo`($list.tail(), &func`($acc, $list.head())) }
+            -> { &redo`($list!tail(), &func`($acc, $list!head())) }
         );        
-    }`(self.tail(), self.head());
+    }`(self!tail(), self!head());
+});
+
+^Seq.add_method('zip', -> @other {
+    -> @l, @r, @acc {
+        &redo := &?SUB;
+        @l.is_empty()`if_else(
+            -> { $?CLASS.new(@acc) },
+            -> { &redo`(@l!tail(), @r!tail(), @acc`push([ @l!head(), @r!head() ])) }
+        );
+    }`(self!tail(), @other!tail(), [ self!head(), @other!head() ]);
 });

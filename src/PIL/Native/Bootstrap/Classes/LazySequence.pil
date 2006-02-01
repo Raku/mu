@@ -25,8 +25,8 @@
 # --------------------------------------------------------------------------- #
 # Methods dependent upon the repr type
 
-^LazySequence.add_method('head', -> {  self`get_attr('$!current') });
-^LazySequence.add_method('tail', -> { 
+^LazySequence.add_private_method('head', -> {  self`get_attr('$!current') });
+^LazySequence.add_private_method('tail', -> { 
     # create a new instance, which then forces the 
     # current element to be generated (see BUILD above)
     $?CLASS.new({ '&generator' => self`get_attr('&generator') });
@@ -41,15 +41,21 @@
 
 ^LazySequence.add_method('filter', -> &code {
     &old_generator := self`get_attr('&generator');
-    $?CLASS.new({ '&generator' => -> { 
-            &redo := &?SUB;
-            my $value = &old_generator`();
-            &code`($value)`as_bit()`if_else(
-                -> { $value   },
-                -> { &redo`() }
-            ); 
-        } 
-    });
+    &new_generator := -> { 
+        &redo  := &?SUB;
+        $value := &old_generator`();
+        &code`($value)`as_bit()`if_else(
+            -> { $value   },
+            -> { &redo`() }
+        ); 
+    };
+    $?CLASS.new({ '&generator' => &new_generator });
+});
+
+^Seq.add_method('zip', -> @other {
+    &my_generator    := self`get_attr('&generator');
+    &other_generator := @other`get_attr('&generator');    
+    $?CLASS.new({ '&generator' => -> { [ &my_generator`(), &other_generator`() ] } });    
 });
 
 # NOTE:
@@ -61,7 +67,8 @@
 		&redo := &?SUB;
 		$list.is_empty()`if_else(
 			-> { ^Sequence.new(@acc) }, # << Must return a regular Sequcene type
-			-> { &redo`($list.tail(), [ $list.head() ]`concat(@acc)) }
+			-> { &redo`($list!tail(), [ $list!head() ]`concat(@acc)) }
 		);
-	}`(self.tail(), [ self.head() ]);
+	}`(self!tail(), [ self!head() ]);
 });
+

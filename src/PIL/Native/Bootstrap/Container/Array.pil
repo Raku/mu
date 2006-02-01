@@ -13,18 +13,10 @@
     "inside Array.new ..."`trace();
     ^Array`create('p6array', %params) 
 });
-^Array.add_method('BUILDALL', -> %params { 
-    "inside Array.BUILDALL ..."`trace();
-    nil 
-});
-^Array.add_method('BUILD',    -> %params { 
-    "inside Array.BUILD ..."`trace();
-    nil 
-});
 
-^Array.add_method('FETCH',  -> $i     { self`fetch_elem($i)           } );
+^Array.add_method('FETCH',  -> $i     { self`fetch($i)           } );
 ^Array.add_method('STORE',  -> $i, $x { self`store_elem($i, $x); self } );
-^Array.add_method('FETCH_LIST', ->    { self`fetch_list()             } );
+^Array.add_method('FETCH_LIST', ->    { self`as_seq()             } );
 ^Array.add_method('STORE_LIST', -> @x { self`store_list(@x); self     } );
 
 # override the immutable List.reverse

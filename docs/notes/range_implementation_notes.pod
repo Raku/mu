@@ -52,6 +52,17 @@ the end condition, but we will see.
 
 =back
 
+=head1 LARRY SAYS
+
+If you say
+
+    $r = 1..10;
+
+you are intentionally putting the range object in a place where you
+have to explicitly iterate it, so in list context you'd have to say
+
+    for =$r { say }
+
 =head1 SEE ALSO 
 
 docs/notes/laziness.txt 

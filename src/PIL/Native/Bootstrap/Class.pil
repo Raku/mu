@@ -7,35 +7,23 @@
 ## class construction methods
 
 ^Class.add_method('new', -> %params { 
-    self.bless(nil, %params);
+    self.bless('p6opaque', %params);
 });
 
-# S12 NOTE:
-# According to the new S12, I think that "create" should not
-# assign anything to the class slot. Instead &bless should handle
-# this. In addition, &bless should only call &CREATE if $repr is
-# an undefined value, otherwise it should call &BUILDALL on the 
-# value assigned to $repr (after setting it's class slot that is)
-# Of course this means that we need to be able to store the class
-# value into other possible $reprs. I will need to give this some
-# more thought.
-
 ^Class.add_method('bless', -> $repr, %params { 
-    $obj := self.CREATE($repr, %params);
-    $obj.BUILDALL(%params); 
+    $obj := $repr`eq('p6opaque')`cond(
+        -> {
+            $obj := self`create($repr, {});
+            self.CREATE($obj, %params); 
+            $obj;           
+        },
+        -> { self`create($repr, %params) }
+    );
+    $obj.BUILDALL(%params);         
     $obj;     
 });
 
-# S12 NOTE:
-# It is said that CREATE should be able to take a number of 
-# different $repr types. It is unclear /why/ this is a good
-# idea (I should ask on p6l). In general any $repr type will 
-# need to be able to respond to some kind of keyed attribute 
-# accessing method so that attribute access code can be
-# kept simple. 
-
-^Class.add_method('CREATE', -> $repr, %params {
-    $obj := self`create('p6opaque', {});
+^Class.add_method('CREATE', -> $obj, %params {
     &dispatcher := self.dispatcher('descendant');
     -> {
         &redo  := &?SUB;
@@ -47,7 +35,6 @@
             &redo`();
         }`do_if($class`not_nil);
     }`();
-    $obj;
 });
 
 ^Class.add_method('BUILDALL', -> %params {

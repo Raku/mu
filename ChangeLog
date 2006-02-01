@@ -39,9 +39,11 @@
 * `env` variables
 * `eqv` is now spelled `===`
 * `self` is an alias for `$?SELF`
-* numbers.t: all underscore-related subtests now pass
-* src/Text/Parser/OpTable.hs - Haskell port of PGE::OPTable
-* src/Text/Parser/Rule.hs - Fast, pure Haskell Perl6 Rules implementation, based on PArrows
+* numbers.t: all underscore-related subtests now pass.hs - Haskell port of PGE::OPTable
+* src/Text/Parser/Rule.hs - Fast, pure Haskell Perl6 Rules implementation,
+  based on PArrows.
+
+===  based on PArrows
 
 === Interactive shell
 
@@ -61,7 +63,25 @@
 
 === PIL^N backend
 
-XXX
+* New VM written in Haskell which uses the domain specific language PIL^N
+  (based on the Perl6-ObjectSpace work)
+** is optionally built with "make pil" and "make pili"
+** see src/PIL/Native/* for the source
+* Class Meta-Model written and bootstrapped in PIL^N
+** Basic tests for Meta-Model in t/pil/*
+* Role Meta-Model partially complete in PIL^N
+* Some basic Container types written in PIL^N
+** see docs/notes/piln_object_repr_types.pod for implementation notes
+
+=== Perl6-ObjectSpace
+
+* Prototype Perl 5 backend, served as the inspiration for the PIL^N 
+  backend, but is currently someone out of sync with PIL^N
+** see perl5/Perl6-ObjectSpace/* for the source
+* Core set of "native types" written in Perl 5
+** Class Meta-Model bootstrapped using only the "native types"
+** Role Meta-Model and Container types not yet supported
+* based on work from the perl5/Perl6-MetaModel/*
 
 == Bug Fixes
 
@@ -96,9 +116,12 @@ XXX
 * Revive Cygwin port
 * When looking for an external parrot, look in PARROT_PATH before all else
 * `$foo .method` now parses again; `$foo. method` now parsefails again
-* `use Perl-6` parses correcly now
-* given { when &CODE { ... } } works (as does smartmatching against code)
-* qq.method:1.  # always parses as quoter, never method
+* `use Perl-6` parses correcly nowupported
+* based on work from the perl5/Perl6-MetaModel/*
+
+=== XXX backend
+
+=qq.method:1.  # always parses as quoter, never method
 * t/operators/inc.t: all passes. r8700
 * t/pugsrun/01-multiple-e.t now happily passes
 * zip(@a; @b; @c) now works as specced
@@ -129,8 +152,11 @@ XXX
 * ext/Locale-KeyedText/: Rewrote with a strong resemblence to the original
 ** Split up translate_message() for more granular Translator usage
 ** Objects now become something useful when coerced into a string
-** Added Locale::KeyedText::L::en, LKT now throws Message exceptions
-** Template Modules now have a different variable interpolation format
+** Added Locale::KeyedText::L::en, LKT now throws Message exceptionsval:js 5 + 3
+
+=== New Perl 6 modules
+
+* Added ext/Parse-Rule/ - A PGE p
 ** Created 2 running examples/ from pod that was removed from KeyedText.pm
 ** Deleted old test suite (yet to be replaced); now only tests compiling
 
@@ -139,8 +165,8 @@ XXX
 * misc/Parser-Mini/ added - experimental 'thin' p6 parser
 * misc/Rosetta-Incubator/ broken up:
 ** Locale::KeyedText was merged into the rewritten one in ext/
-** SQL::Routine and Rosetta were merged together, became Rosetta in ext/, and that also now has a different license
-** Remainder (SQLBuilder, SQLParser, Eng/Generic, Emu/DBI) was deleted
+** SQL::Routine and Rosetta were merged together, became Rosetta in ext/, and that also now has a different licenserows Message exceptions.
+** Template Modules now have a different varia
 * misc/sixpan/ added - prototype new CPAN tools [XXX: beef me up]
 
 == Test, Examples and Documentations
@@ -152,18 +178,17 @@ XXX
 * Beginnings of docs/getting_started; inspired by the lack of any document to point newbies at
 * Tests in ext/ and t/ - workaround the breaking of 'use_ok' in r8660
 * `&Test::fail` renamed to `&Test::flunk` to avoid conflict with &fail builtin
-* docs/AES/S17draft.pod - concurrency
-* docs/AES/S22draft.pod - CPAN
-* docs/articles/tpr.pod - draft intro to Pugs article
-* docs/notes/context_coercion.pod - parallel proposal to MMD proposal
-* docs/notes/docs_evil_plan.txt - a plan for p6 documentation
-* docs/notes/multimethods.pod - description of the now-blessed Perl 6 multimethod system
-* docs/p6doc/ - Perl 6 language tutorials and documentation
-* docs/quickref/ - updates and improvements. Hilights:
-* examples/cookbook/ - new recipes
+** Remainder (SQLBuilder, SQLParser, Eng/Generic, Emu/DBI) was deleted.
+* Added misc/sixpan/ - prototype new CPAN tools [XXX:docs/notes/context_coercion.pod - parallel proposal to MMD proposales
 * examples/network/wiki/ - demo wiki
-* examples/rpn/ - RPN calculator in Perl 6, Perl 6, and Haskell
-* feather.perl6.nl site now tracked in pugs source control
+* examples/rpn/ - RPN calculator in Perl 6, Perl 6, Haskell and PIL^N
+* util/catalog_tests.pl - to multimethod system
+* docs/p6doc/ - Perl 6 language tutorials and documentation
+* docs/quickref/ - updates and improvements. Hilights:ot installed)
+
+* Added misc/Parser-Mini/ - experimental 'thin' p6 parser
+* Broke up misc/Rosetta-Incubator/:
+** Locale::KeyedText was mergefeather.perl6.nl site now tracked in pugs source control
 * util/catalog_tests.pl - tool to connect smoke reports with annotated, color-coded test sources and specs
 ** docs/quickref/fears - assorted fears about Perl 6
 

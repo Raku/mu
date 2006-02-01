@@ -10,23 +10,12 @@
 
 ^List.set_superclasses([ ^Object ]);
 
-^List.add_attribute('@!list', []);
-
-^List.add_method('FETCH',      -> $i { self`get_attr('@!list')`fetch($i) });
-^List.add_method('FETCH_LIST', ->    { self`get_attr('@!list')           });
-
-# NOTE: 
-# I am cheating below, since i know that %params 
-# can easily have a @list in it (they are only names)
-# however, this might be a problem later on.
-# Ideally I would also override new, bless and maybe CREATE too
-# I think the new (as yet unimplemented) approach (ala the new S12) 
-# might fix this though.
-
-^List.add_method('BUILDALL', -> %params { self.BUILD(%params) });
-^List.add_method('BUILD',    -> %params {
-    self`set_attr('@!list', %params);
+^List.add_method('new', -> @seq {
+    self.bless('p6array', @seq);
 });
+
+^List.add_method('FETCH',      -> $i { self`fetch($i) });
+^List.add_method('FETCH_LIST', ->    { self`as_seq()  });
 
 # --------------------------------------------------------------------------- #
 # List Role
@@ -103,7 +92,7 @@
         &redo := &?SUB;
         @l`is_empty()`if_else(
             -> { $?CLASS.new(@acc) },
-            -> { &redo`(@l`splice(1), @r`splice(1), @acc`concat([ @l`fetch(0), @r`fetch(0) ])) }
+            -> { &redo`(@l`splice(1), @r`splice(1), @acc`push($?CLASS.new([ @l`fetch(0), @r`fetch(0) ]))) }
         );
     }`(self.FETCH_LIST(), @values.FETCH_LIST(), []);
 });
