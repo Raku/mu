@@ -9,7 +9,7 @@
 * Multisub declarations in the same scope can now be exported selectively
 * Named arguments are now decided at parse time, not as runtime Pair objects
 * New YAML tree-dump backends: `-C Parse-YAML`, `-C PIR-YAML`, `-C PIL1-YAML`
-* New `\x[abcd]` and `\x[1,2,3,]` forms instead of `\x{abcd}`
+* New `\x[abcd]` and `\x[1,2,3,]` forms instead of `\x{abcd}` in qq-strings
 * New backend: `-CParse-Pretty`, to show a pretty parse tree
 * Parameter syntax changes:
 ** `+$arg` becomes `:$arg`
