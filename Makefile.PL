@@ -355,7 +355,15 @@ EOD
         my $config = "$build_dir/src/install_config$Config{_o}";
         $config = "$build_dir/src/parrot_config$Config{_o}" unless -e $config;
         $config = "$build_dir/src/null_config$Config{_o}" unless -e $config;
-        $ghc_output .= " $config " if -e $config;
+
+        die <<"EOD" unless -e $config;
+*** Could not find src/null_config.o in $build_dir.
+    Solutions include:
+        * Remove parrot from PUGS_EMBED
+        * Place a built Parrot source tree under $build_dir.
+EOD
+
+        $ghc_output .= " $config ";
         $ccdlflags .= " $rpath_blib ";
 
         # parrot include paths for hsc2hs
