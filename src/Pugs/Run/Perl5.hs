@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp -fno-warn-unused-binds -fno-warn-unused-imports #-}
+{-# OPTIONS_GHC -fglasgow-exts -cpp -fvia-C -optc-w -fno-warn-unused-binds -fno-warn-unused-imports #-}
 
 module Pugs.Run.Perl5 () where
 
@@ -13,7 +13,6 @@ import Foreign
 import Foreign.C.Types
 import Foreign.C.String
 import Foreign.Marshal.Array
-import Foreign.StablePtr
 
 foreign export ccall "pugs_Eval"
     pugs_eval :: CString -> IO PugsVal

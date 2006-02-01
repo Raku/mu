@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts #-}
+{-# OPTIONS_GHC -fglasgow-exts -fvia-C -optc-w #-}
 {-# OPTIONS_GHC -#include "../UnicodeC.h" #-}
 
 {-|
