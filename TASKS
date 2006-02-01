@@ -28,3 +28,7 @@ Things specifically known to need updating:
 the last time that section was verified as still correct.  If one is
 old, check with someone to see if it has changed.  What someone?  Ask
 on #perl6.  Skills: polite nagging.
+
+* When building with external parrot, Makefile.PL says parrot must be
+in PATH, but doesn't check.  It would be nice if it checked.  You can
+check if parrot is there with can_run('parrot').  Skills: basic perl5.
