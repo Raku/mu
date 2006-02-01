@@ -32,3 +32,8 @@ on #perl6.  Skills: polite nagging.
 * When building with external parrot, Makefile.PL says parrot must be
 in PATH, but doesn't check.  It would be nice if it checked.  You can
 check if parrot is there with can_run('parrot').  Skills: basic perl5.
+
+* Remove the "embedding parrot is NOT recommended on" lines from
+Makefile.PL and INSTALL.  They were just there for the 6.2.11 release.
+Skills: none.
+
