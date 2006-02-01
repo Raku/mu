@@ -1,3 +1,42 @@
+= Changes for 6.28.0 (rXXXX) - Feb XX, 2006
+
+== Bundled Modules
+
+=== New Perl 6 modules
+
+
+=== Updated modules
+
+
+=== Experimental modules (in misc/, not installed)
+
+
+== Test, Examples and Documentations
+
+* Restored this ChangeLog's entries for v6.0.0 thru v6.0.8, which were
+truncated in r8916, apparently from gnome's copy-paste buffer limit.
+
+== Feature Changes
+
+
+== Bug Fixes
+
+
+== Backends
+
+=== JavaScript backend
+
+
+=== Parrot backend
+
+
+=== PIL^N backend
+
+
+=== Perl6-ObjectSpace
+
+
+
 = Changes for 6.2.11 (r8934) - Feb 1, 2006
 
 == Bundled Modules
