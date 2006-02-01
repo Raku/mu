@@ -60,9 +60,6 @@ To build with an embedded parrot interpreter, make sure the PUGS_EMBED
 variable contains "parrot", and set the PARROT_PATH variable to point to 
 the directory in which you checked out the parrot source tree. For example:
  
-XXX NOTE!!!!!!!!
-Using embedded parrot is NOT recommended with this release (6.2.11).
-
     export PARROT_PATH=${HOME}/src/parrot (bash)
     setenv PARROT_PATH ${HOME}/src/parrot (csh)
 
