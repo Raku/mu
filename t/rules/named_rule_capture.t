@@ -16,7 +16,7 @@ L<S05/"Rule-scoped variables">
 # At the time of writing, these fail under Win32 so they are marked as bugs
 # I haven't yet run them under UNIX but I believe they will work
 
-unless "a" ~~ /a/ {
+if(!eval('("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
   exit;
 }

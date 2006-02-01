@@ -196,7 +196,10 @@ Perl6-specific tests
 # TODO. refer to S05
 # L<S05/"Hypothetical variables" /backtracks past the closure/>
 
-{
+if(!eval('("a" ~~ /a/)')) {
+  skip 8, "skipped tests - rules support appears to be missing";
+}
+else {
     # - unmatched alternative should bind to undef
     my($num, $alpha);
     my($rx1, $rx2);
@@ -226,7 +229,7 @@ Perl6-specific tests
 }
 
 
-if(eval('!("a" ~~ /a/)')) {
+unless eval '"a" ~~ /a/' {
   skip 2, "skipped tests - rules support appears to be missing";
 }
 else {
