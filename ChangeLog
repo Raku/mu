@@ -1,4 +1,4 @@
-= Changes for 6.2.11 (r8915) - Feb 1, 2006
+= Changes for 6.2.11 (r8920) - Feb 1, 2006
 
 == Feature Changes
 
@@ -19,7 +19,7 @@
 * Support for multiline inputs in interactive shell
 * The build system now supports Cygwin again
 * Two or more underscores in numbers (eg. `1__0`) is no longer accepted
-* Unary `^` support (`^10` is a shorthand for `0..^10`)
+* Unary `^` support: `^10` is a shorthand for `0..^10`
 * `$+x` is now accepted as a shorthand for `$CALLER::x`
 * `$CALLER::x` now only sees `env $x` in outer dynamic scopes, not `my $x`
 * `$obj.clone` support
@@ -120,7 +120,7 @@
 ** Created 2 running [examples/] from pod that was removed from KeyedText.pm
 ** Deleted old test suite (yet to be replaced); now only tests compilation
 * [ext/libwww-perl] - Rewrote `HTTP::Header::Util` with gather/take syntax
-* [ext/Test] - * `&fail` renamed to `&flunk` to avoid conflict with builtin
+* [ext/Test] - `&fail` renamed to `&flunk` to avoid conflict with builtin
 
 === Experimental modules (in misc/, not installed)
 
@@ -134,26 +134,26 @@
 
 == Test, Examples and Documentations
 
-* Add [TASKS] file tracking current things to do
-* Add PUGS_SMOKE_EXCLUDE_EXT environment variable support to [run-smoke.pl]
-* Add overiew POD text on the build system to [Makefile.PL]
 * Add timing data prints to smoke harness, to help spot hanging/slow tests
-* Beginnings of [docs/getting_started] to point newcomers at
-* Tests in [ext/] and [t/] - temporary workaround the breaking of `use_ok`
+* Tests in [ext/] and [t/] - Temporary workaround the breaking of `use_ok`
+* [Makefile.PL] - Add overiew POD text on the build system to 
+* [TASKS] - Tracking current things to do
 * [docs/AES/S17draft.pod] - Draft synopsis for Perl 6's concurrency
 * [docs/AES/S22draft.pod] - Draft synopsis for Perl 6's CPAN
 * [docs/articles/tpr.pod] - An introduction article to Pugs
 * [docs/feature] - Feather.perl6.nl web site
+* [docs/getting_started] - Pointers for people new to Pugs
 * [docs/notes/context_coercion.pod] - Notes on implementing contexts
 * [docs/notes/context_coersion.pod] - Notes on implementing contexts
 * [docs/notes/docs_evil_plan.txt] - Plan for Perl 6 documentation
-* [docs/notes/multimethods.pod] - Description of the canonical Perl 6 MMD system
+* [docs/notes/multimethods.pod] - Description of the canonical MMD algorithm
 * [docs/p6doc/] - Perl 6 language tutorials and documentation
 * [docs/quickref/] - Various updates and improvements from new Synopses
 * [docs/quickref/fears] - assorted fears about Perl 6
 * [examples/cookbook/] - New recipes
 * [examples/network/wiki/] - demo wiki
 * [examples/rpn/] - RPN calculator in Perl 6, Perl 6, and Haskell
+* [run-smoke.pl] - Support for `PUGS_SMOKE_EXCLUDE_EXT` environment variable
 * [util/catalog_tests.pl] - annotate smoke reports with colored sources/specs
 
 = Changes for 6.2.10 (r7520) - Oct 10, 2005
@@ -1201,92 +1201,4 @@
 * Hashes, Pairs and their access methods
 * Much more robust casting between arrays, lists and hashes
 * Fixed harness output problem on older perls
-* Many Posix-based IO primitives
-* Precedence for builtin unary/list functions are parsed correctly
-* `unless` construct
-* New primitives: `join`, `split`, prefix `++` and `--`
-* `+>>` etc changed to `+>` etc
-* Stacking multiple prefix and postfix operators now works
-* `@*INC`, `&?SUB`, `CALLER::`
-* Tests for the /perlego/ dialect
-* User-defined function applications now takes arbitary expressions
-* Deep recursion detection
-
-= Changes for 6.0.7 - February 18, 2005
-
-* Beginning of synopses-based unit tests
-* Two code snippets that runs: `examples/life.p6` and `examples/mandel.p6`
-* Code literals -- /sub/, /pointy/ and /bare/ variants all works
-* Lexical subroutine declarations via `my sub`
-* The `say`, `exit`, `die`, `time`, `open`, `close` primitives
-* `Bool.perl` now prints correct literals
-* Blocks under void contexts now evaluates automatically
-* The `...` (dotdotdot) literal
-* Errors are propagated upward using shiftT
-* Postfix `++` and `--`
-* Ternary `?? ::`
-* Assignment to mutable variables and to array slices
-* `loop`, `for` and `if` constructs
-
-= Changes for 6.0.5 - February 15, 2005
-
-* The `rand` primitive
-* Taking references of junctions no longer create a junction of references
-* Illegal divisions are caught
-* Chained comparison for four or more terms now works
-* Collapsing for /JuncOne/ into two sets: the `none` set and the `one` set
-* The evaluator now prints some helpful debugging messages
-* New parser logic merged from Michaud and Palmer's `Perl6.grammar`
-* Extra semicolon and whitespace in blocks are dealt with
-* Space around punctiation operators is now optional
-* The /Eval/ monad now supports `shift`/`reset`/`callcc`, lexical and dynamic scopes
-* Improved pretty-printing code for syntactic constructs
-
-= Changes for 6.0.4 - February 12, 2005
-
-* The `eval` primitive
-* Refactor junctive logic into `Junc.hs`
-* /JuncAny/ and /JuncAll/ now collapses operands of the same type correctly
-* /JuncOne/ now collapses into an empty set when operands contains duplicates
-
-= Changes for 6.0.3 - February 12, 2005
-
-* Formal parameters declaration and binding
-* Invocant-based multimethod dispatch
-* Optional(`?`), named(`+` and `++`), slurpy(`*`) parameters with defaulting
-* Extraction of higher-order placeholder variables
-* Proper semantics and extraction of `@_`, `%_` and `$_`
-* Global variables and subroutines: `&*foo`, `$*bar`
-* Context propagation from types of formal parameters
-* The `returns` / `is returns` trait
-* Trailing comma and semicolons are now allowed
-* Better handling of exponential primitives
-* &prefix: is now consistently added for user-defined subroutines
-* Junctions are now proper sets, instead of lists masqueraded as sets
-* New operators: `!!` and `nor`
-* The `all` junction builder now collapses nested junctions under it
-
-= Changes for 6.0.2 - February 9, 2005
-
-* User-defined subroutine with `$_` and `@_` as parameters
-* Variable binding
-* Context propagation
-* Multimethod dispatch
-* Subtype distancing and casting
-* Autothreading over chained comparison and multiarg functions
-* List associativity
-* Array references as literals
-* Flattening (slurpy) star
-
-= Changes for 6.0.1 - February 7, 2005
-
-* Fix building on Mac OS X
-* Characters in single quotes should not be escaped
-* Add one very basic test in `t/`
-
-= Changes for 6.0.0 - February 7, 2005
-
-* Initial CPAN release
-* Evaluation of most simple expressions
-* Junctions and chained comparisons
-* Interactive shell and `#!/usr/bin/pugs` support
+* Many Posix
