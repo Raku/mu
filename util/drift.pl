@@ -2,11 +2,13 @@
 use IPC::Open2;
 use FindBin qw<$Bin>;
 
+-e "$Bin/../../DrIFT/src/DrIFT.hs" or exit;
+
 # XXX - This is not at all portable.
 
 $ENV{DERIVEPATH} = "$Bin/../src";
 
-my ($in, $out) = @ARGV;
+my ($in, $out) = @ARGV or exit;
 my ($rh, $wh);
 my $pid = open2(
     $rh, $wh,
