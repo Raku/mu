@@ -5,7 +5,7 @@
 * Adverbial number forms: `:16<deadbeef>` and `:16[14,15]`
 ** This change obsoletes `hex()` and `oct()`
 * Calling private methods with `self!method`
-* Deep eager sequential evalutation (aka /steamroll/) operator `&prefix:<**>`
+* Deep eager sequential evaluation (aka /steamroll/) operator `&prefix:<**>`
 * Multisub declarations in the same scope can now be exported selectively
 * Named arguments are now decided at parse time, not as runtime Pair objects
 * New YAML tree-dump backends: `-C Parse-YAML`, `-C PIR-YAML`, `-C PIL1-YAML`
@@ -28,8 +28,8 @@
 * `eqv` is now spelled `===`
 * `pugs file.p6 --options` now passes options to the program, not to Pugs
 * `self` is an alias for `$?SELF`
-* `use Module` now imports its symbols lexically at the comsumer's use time
-* `use Perl-6` parses correcly now
+* `use Module` now imports its symbols lexically at the consumer's use time
+* `use Perl-6` parses correctly now
 
 == Bug Fixes
 
@@ -72,8 +72,8 @@
 
 * Parrot 0.4.1+ is now required for Parrot targeting and embedding
 * Closure creation no longer triggers segfaults
-* Finalize Parrot and Perl5 embedding correctly
 * Lexical variables are now truly lexical instead of emulated by temps
+* Upon program exit, embedded Parrot/Perl5 objects are finalized correctly
 * Support for modules with lexical imports
 * When looking for an external parrot, look in `%ENV<PARROT_PATH>` first
 
@@ -136,7 +136,7 @@
 
 * Add timing data prints to smoke harness, to help spot hanging/slow tests
 * Tests in [ext/] and [t/] - Temporary workaround the breaking of `use_ok`
-* [Makefile.PL] - Add overiew POD text on the build system to 
+* [Makefile.PL] - Begins with an overview POD section on the build system
 * [TASKS] - Tracking current things to do
 * [docs/AES/S17draft.pod] - Draft synopsis for Perl 6's concurrency
 * [docs/AES/S22draft.pod] - Draft synopsis for Perl 6's CPAN
@@ -154,7 +154,7 @@
 * [examples/network/wiki/] - demo wiki
 * [examples/rpn/] - RPN calculator in Perl 6, Perl 6, and Haskell
 * [run-smoke.pl] - Support for `PUGS_SMOKE_EXCLUDE_EXT` environment variable
-* [util/catalog_tests.pl] - annotate smoke reports with colored sources/specs
+* [util/catalog_tests.pl] - Annotate smoke reports with colored sources/specs
 
 = Changes for 6.2.10 (r7520) - Oct 10, 2005
 
