@@ -3,14 +3,14 @@
 {-|
     The Main REPL loop.
 
->   Un nuevo barco para él construyeron
->   de sándalo. y de vidrio élfico,
->   de proa brillante; ningún remo desnudo,
->   ninguna vela en el mástil de plata:
->   el Silmaril como linterna
->   y en la bandera un fuego vivo
->   puesto allí mismo por Elbereth,
->   y otorgándole alas inmortales...
+>   エルフが新しい船を作ってくれたが
+>   その船はミスリルとエルフのガラスから成り
+>   輝く船首はあるが  こぐ櫓はなく
+>   銀のマストには帆もはらず
+>   舷燈がわりにシルマリルを取りつけた
+>   これらはみなエルベレス自ら取りつけたもので
+>   さらにかれのためにかの女は
+>   不滅の翼を作って備え...
 
 -}
 
