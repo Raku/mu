@@ -213,8 +213,12 @@ sub write_buildinfo {
     # Remove -Wl flags in Perl5 embedding.
     @_ = grep { !/^-W/ } @_;
 
-    my @include_dirs = map substr($_, 2), grep /^-I/, @_;
-    my @lib_dirs = map substr($_, 2), grep /^-L/, @_;
+    my @include_dirs = grep { -d $_ }
+            map File::Spec->canonpath(substr($_, 2)),
+            grep /^-I/, @_;
+    my @lib_dirs = grep { -d $_ }
+            map File::Spec->canonpath(substr($_, 2)),
+            grep /^-L/, @_;
     my @libs = map substr($_, 2), grep /^-l/, @_;
     #push @libs, grep /\.(?:a|o(?:bj)?)$/, @_;
 
