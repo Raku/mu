@@ -27,11 +27,9 @@ rule abc {abc}
 
 rule once {<?abc>}
 
-ok("abcabcabcabcd" ~~ m/<?once>/, 'Once match');
-
 rule mumble {<notabc>}
 
-rule cap {<abcnot>}
+ok("abcabcabcabcd" ~~ m/<?once>/, 'Once match');
 
 
 }

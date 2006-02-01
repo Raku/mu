@@ -54,7 +54,7 @@ evalParrotFile file = do
     -- so we use the next fastest CGP core.
     args <- getEnv "PUGS_PARROT_OPTS"
     let args' | isJust args && fromJust args /= "" = fromJust args
-              | otherwise                          = "-C"
+              | otherwise                          = "-f"
     rawSystem cmd [args', file]
     return ()
 
@@ -144,6 +144,7 @@ import Foreign.Ptr
 import Foreign.C.Types
 import Foreign.C.String
 import Foreign.Storable
+-- import Foreign.StablePtr
 import System.IO.Unsafe
 import System.Directory
 import Pugs.Internals (_GlobalFinalizer)
@@ -172,16 +173,19 @@ initParrot = do
     parrot_set_config_hash
     interp <- parrot_new nullPtr
     writeIORef _ParrotInterp interp
-#ifdef XXX_ENABLE_PARROT_RUNCORES
-#if PARROT_JIT_CAPABLE && defined(PARROT_JIT_CORE)
+#if XXX_ENABLE_PARROT_JIT && PARROT_JIT_CAPABLE && defined(PARROT_JIT_CORE)
     parrot_set_run_core interp PARROT_JIT_CORE
-#elsif defined(PARROT_CGOTO_CORE)
-    parrot_set_run_core interp PARROT_CGOTO_CORE
+#elsif defined(PARROT_FAST_CORE)
+    parrot_set_run_core interp PARROT_FAST_CORE
 #elsif defined(PARROT_CGP_CORE)
     parrot_set_run_core interp PARROT_CGP_CORE
-#endif
+#elsif defined(PARROT_CGOTO_CORE)
+    parrot_set_run_core interp PARROT_CGOTO_CORE
 #endif
     -- parrot_set_debug interp 0x20
+    -- ptr <- newStablePtr _ParrotInterp
+    -- parrot_init_stacktop interp (castStablePtrToPtr ptr)
+    parrot_init interp
     parrot_imcc_init interp
 
     pf      <- parrot_packfile_new interp 0
@@ -264,6 +268,9 @@ foreign import ccall "Parrot_new"
 
 foreign import ccall "Parrot_init"
     parrot_init :: ParrotInterp -> IO ()
+
+foreign import ccall "Parrot_init_stacktop"
+    parrot_init_stacktop :: ParrotInterp -> Ptr () -> IO ()
 
 foreign import ccall "Parrot_readbc"
     parrot_readbc :: ParrotInterp -> CString -> IO ParrotPackFile
