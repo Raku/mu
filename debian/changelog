@@ -1,3 +1,26 @@
+pugs (6.2.11-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Florian Ragwitz <rafl@debian.org>  Tue, 31 Jan 2006 08:32:01 +0100
+
+pugs (6.2.10-5) unstable; urgency=low
+
+  * Added libghc6-plugins-dev build dependency to enable haskell eval support.
+  * Added libparrot-dev build dependency to enable runtime evaluation of
+    parrot code as well as the parrot backend for running Perl 6 code
+    (-BParrot)
+  * Removed dependency to pugs from pugs-modules to remove a circular
+    dependnecy (Closes: #340022).
+  * Use (= ${Source-Version}) instead of (>= ${Source-Version}) in the
+    dependency from pugs to pugs-modules.
+  * Backported some recent changes for Makefile.PL from svn to the last
+    release so that pugs will work well with parrot. This involved removing
+    Makefile.PL changes from the 30cabal patch.
+  * Changed my Maintainer address.
+
+ -- Florian Ragwitz <rafl@debian.org>  Sun, 20 Nov 2005 15:00:55 +0100
+
 pugs (6.2.10-4) unstable; urgency=low
 
   * Renamed 30includedirs.dpatch to 30cabal.dpatch and added some more changes

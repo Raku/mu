@@ -65,7 +65,7 @@ install-indep: install-stamp
 install-arch: install-stamp
 	dh_testdir
 	dh_testroot
-	cp .installed-pkg-config $(CURDIR)/debian/libghc6-pugs-dev/usr/lib/haskell-packages/ghc6/lib/Pugs-6.2.10/installed-pkg-config
+	cp .installed-pkg-config $(CURDIR)/debian/libghc6-pugs-dev/usr/lib/haskell-packages/ghc6/lib/Pugs-6.2.11/installed-pkg-config
 	rm -f $(CURDIR)/debian/pugs/usr/lib/perl6/5.8/CORE/pugs/gen_prelude \
 	$(CURDIR)/debian/pugs/usr/lib/perl6/5.8/CORE/pugs/Pugs/Rule/LICENSE \
 	$(CURDIR)/debian/pugs/usr/lib/perl6/5.8/CORE/pugs/RRegex/LICENSE \

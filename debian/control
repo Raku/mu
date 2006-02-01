@@ -7,7 +7,7 @@ Standards-Version: 3.6.2
 
 Package: pugs
 Architecture: any
-Depends: ${shlibs:Depends}, pugs-modules (>= ${Source-Version})
+Depends: ${shlibs:Depends}, pugs-modules (= ${Source-Version})
 Suggests: pugs-doc, perl, spidermonkey-bin
 Description: Perl 6 Implementation
  Pugs is an implementation of Perl 6, written in Haskell. It aims to implement
@@ -29,7 +29,6 @@ Description: Pugs documentation
 
 Package: pugs-modules
 Architecture: all
-Depends: pugs (>= ${Source-Version})
 Description: Pugs core modules
  Pugs is an implementation of Perl 6, written in Haskell. It aims to implement
  the full Perl 6 specification, as detailed in the Synopses at
