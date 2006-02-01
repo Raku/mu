@@ -1,19 +1,14 @@
-﻿= Changes for 6.2.11 (rXXXX) - Feb 1, 2006
-
-(to r8884 - needs editing)
+= Changes for 6.2.11 (r8915) - Feb 1, 2006
 
 == Feature Changes
 
 * Adverbial number forms: `:16<deadbeef>` and `:16[14,15]`
 ** This change obsoletes `hex()` and `oct()`
-* `$CALLER::x` now only sees `env $x` in outer dynamic scopes, not `my $x`
 * Calling private methods with `self!method`
-* `%*INC` now contains module interface structures, not file system pathnames
-* New YAML tree-dump backends: `-C Parse-YAML`, `-C PIR-YAML`, `-C PIL1-YAML`
 * Deep eager sequential evalutation (aka /steamroll/) operator `&prefix:<**>`
-* `use Module` now imports its symbols lexically at the comsumer's use time
 * Multisub declarations in the same scope can now be exported selectively
 * Named arguments are now decided at parse time, not as runtime Pair objects
+* New YAML tree-dump backends: `-C Parse-YAML`, `-C PIR-YAML`, `-C PIL1-YAML`
 * New `\x[abcd]` and `\x[1,2,3,]` forms instead of `\x{abcd}`
 * New backend: `-CParse-Pretty`, to show a pretty parse tree
 * Parameter syntax changes:
@@ -21,26 +16,24 @@
 ** `++$arg` and `+$arg is required` becomes `:$arg!`
 ** `?$arg` becomes `$arg?`
 * Round-trip data serialization with `.yaml` and `eval(..., :lang<yaml>)`
-* `$+x` is now accepted as a shorthand for `$CALLER::x`
+* Support for multiline inputs in interactive shell
+* The build system now supports Cygwin again
 * Two or more underscores in numbers (eg. `1__0`) is no longer accepted
+* Unary `^` support (`^10` is a shorthand for `0..^10`)
+* `$+x` is now accepted as a shorthand for `$CALLER::x`
+* `$CALLER::x` now only sees `env $x` in outer dynamic scopes, not `my $x`
 * `$obj.clone` support
+* `%*INC` now contains module interface structures, not file system pathnames
 * `&die` and `&fail` can take an object argument without stringifying it
 * `eqv` is now spelled `===`
-* `self` is an alias for `$?SELF`
 * `pugs file.p6 --options` now passes options to the program, not to Pugs
-* Support for multiline inputs in interactive shell
-* Unary `^` support (`^10` is a shorthand for `0..^10`)
-* The build system now supports Cygwin again
-* `use Perl-6` parses correcly nowupported
+* `self` is an alias for `$?SELF`
+* `use Module` now imports its symbols lexically at the comsumer's use time
+* `use Perl-6` parses correcly now
 
 == Bug Fixes
 
-* `$.foo.bar()` correctly dispatches on the runtime type of `$.foo`
-* `&splice` was destroying existing bindings on the array
-* `\(1,2,3,4).elems` no longer throws an exception
-* `.perl` stringification now escapes unprintable characters
-* `1**Inf`, `0**0` and `Inf**0` are defined to 1 regardless of architecture
-* `3..2` and `'z'..'a'` return empty lists
+* Bareword `foo.bar` now always parses as `::foo.bar`, never `foo(.bar)`
 * Binding a block to `&infix:<operator>` in BEGIN time now affects parsing
 * Fixed embedding of threaded parrot
 * Fixed evaluation order in array and hash access
@@ -50,40 +43,45 @@
 * Infix macros no longer cause parsefail
 * Lazy `{...}` executes its closure at most once
 * Method calls on simple index lookups now gets dispatched correctly
-* Bareword `foo.bar` now always parses as `::foo.bar`, never `foo(.bar)`
 * Parse (but no implementation) for scoped packages
 * When `m:P5/(...)?/` captures nothing, $0 no longer evaluates to true
-* zip(@a; @b; @c) no longer flattens the arrays together
+* `$.foo.bar()` correctly dispatches on the runtime type of `$.foo`
+* `&splice` was destroying existing bindings on the array
+* `.perl` stringification now escapes unprintable characters
+* `1**Inf`, `0**0` and `Inf**0` are defined to 1 regardless of architecture
+* `3..2` and `'z'..'a'` return empty lists
+* `\(1,2,3,4).elems` no longer throws an exception
+* `zip(@a; @b; @c)` no longer flattens the arrays together
 
 == Backends
 
 === JavaScript backend
 
-* `unlink()`
-* `$*PID`
+* Division by zero raises an error, not return NaN like JS does
+* Fix problems with `[=>]` and related operators
 * New operators implemented: `+| +& +^ +< +> ~& ~| ~^ +^ ~^`
 * PIL/JS compilation now works with exported multisubs
+* Support for using Perl 5 modules in JavaScript backend via `-B JS-Perl5`
+* `$*PID`
 * `.assuming`
 * `FIRST {...}` blocks
 * `state $variable`
-* Support for using Perl 5 modules in JavaScript backend via `-B JS-Perl5`
-* Division by zero raises an error, not return NaN like JS does
-* Fix problems with [=>] and related operators
+* `unlink()`
 
 === Parrot backend
 
-* Upgrade to Parrot 0.4.1+
-* Lexical variables are now truly lexical instead of emulated by temps
+* Parrot 0.4.1+ is now required for Parrot targeting and embedding
 * Closure creation no longer triggers segfaults
-* Support for modules with lexical imports
 * Finalize Parrot and Perl5 embedding correctly
+* Lexical variables are now truly lexical instead of emulated by temps
+* Support for modules with lexical imports
 * When looking for an external parrot, look in `%ENV<PARROT_PATH>` first
 
 === PIL^N backend
 
 * New VM written in Haskell which uses the domain specific language PIL^N
-** Optionally built with `make pil` (and interactively as `make pili`)
 ** Based on the Perl6-ObjectSpace prototype
+** Optionally built with `make pil` (and interactively as `make pili`)
 ** See [src/PIL/Native/] for the source code
 * Class Meta-Model written and bootstrapped in PIL^N
 ** Basic tests for Meta-Model in [t/pil/]
@@ -107,59 +105,56 @@
 
 === New Perl 6 modules
 
-* ext/Parse-Rule/ added - A PGE port in perl 6
-* ext/Rosetta/ added (incomplete) - A federated relational database
-* ext/Rosetta-Engine-Native/ added (incomplete) - A back-end for testing
+* [ext/Parse-Rule/] - A Rules engine port in perl 6
+* [ext/Rosetta/] - A federated relational database (incomplete)
+* [ext/Rosetta-Engine-Native/] - A back-end for Rosetta testing (incomplete)
 
 === Updated modules
 
-* ext/File-Spec/:
-** Rewrote code of lib/File/Spec.pm to define its own exported wrapper subs
-** Updated lib/File/Spec/[Unix|Win32].pm to remove some infinite recursion
-** These fixes also enable many other ext/ to work, which depend on F-S
-* ext/HTML-Entities/: Fix the HTML::Entities infinite loop
-* ext/Locale-KeyedText/: Rewrote with a strong resemblence to the original
-** Split up translate_message() for more granular Translator usage
+* [ext/File-Spec/] - Rewritten to define its own exported wrapper subs
+* [ext/Locale-KeyedText/] - Rewrote with a strong resemblence to the original
+** Split up `translate_message()` for more granular Translator usage
 ** Objects now become something useful when coerced into a string
-** Added Locale::KeyedText::L::en, LKT now throws Message exceptions
+** Added `Locale::KeyedText::L::en`, LKT now throws Message exceptions
 ** Template Modules now have a different variable interpolation format
-** Created 2 running examples/ from pod that was removed from KeyedText.pm
-** Deleted old test suite (yet to be replaced); now only tests compiling
-* ext/libwww-perl: Rewrote HTTP::Header::Util with clearer gather/take syntax
+** Created 2 running [examples/] from pod that was removed from KeyedText.pm
+** Deleted old test suite (yet to be replaced); now only tests compilation
+* [ext/libwww-perl] - Rewrote `HTTP::Header::Util` with gather/take syntax
+* [ext/Test] - * `&fail` renamed to `&flunk` to avoid conflict with builtin
 
 === Experimental modules (in misc/, not installed)
 
-* misc/Parser-Mini/ added - experimental 'thin' p6 parser
-* misc/Rosetta-Incubator/ broken up:
+* [misc/Parser-Mini/] - Experimental *thin* p6 parser
+* [misc/Rosetta-Incubator/] broken up:
 ** Locale::KeyedText was merged into the rewritten one in ext/
 ** SQL::Routine and Rosetta were merged together, became Rosetta in ext/
 ** The license of Rosetta is now GPL (with extra linking provision)
 ** Remainder (SQLBuilder, SQLParser, Eng/Generic, Emu/DBI) was deleted
-* misc/sixpan/ added - prototype of new CPAN tools
+* [misc/sixpan/] - Prototype of new CPAN tools in Perl 5
 
 == Test, Examples and Documentations
 
-* Add ./TASKS file tracking current things to do
-* Add PUGS_SMOKE_EXCLUDE_EXT env to run-smoke.pl
-* Add overiew POD text on the build system to Makefile.PL
+* Add [TASKS] file tracking current things to do
+* Add PUGS_SMOKE_EXCLUDE_EXT environment variable support to [run-smoke.pl]
+* Add overiew POD text on the build system to [Makefile.PL]
 * Add timing data prints to smoke harness, to help spot hanging/slow tests
-* Beginnings of docs/getting_started to point newcomers at
-* Tests in ext/ and t/ - workaround the breaking of 'use_ok' in r8660
-* `&Test::fail` renamed to `&Test::flunk` to avoid conflict with &fail builtin
-* docs/AES/S17draft.pod - concurrency
-* docs/AES/S22draft.pod - CPAN
-* docs/articles/tpr.pod - draft intro to Pugs article
-* docs/notes/context_coercion.pod - parallel proposal to MMD proposal
-* docs/notes/docs_evil_plan.txt - a plan for p6 documentation
-* docs/notes/multimethods.pod - description of the canonical Perl 6 MMD system
-* docs/p6doc/ - Perl 6 language tutorials and documentation
-* docs/quickref/ - updates and improvements
-* examples/cookbook/ - new recipes
-* examples/network/wiki/ - demo wiki
-* examples/rpn/ - RPN calculator in Perl 6, Perl 6, and Haskell
-* feather.perl6.nl site now tracked in pugs source control
-* util/catalog_tests.pl - annotate smoke reports color-coded sources and specs
-** docs/quickref/fears - assorted fears about Perl 6
+* Beginnings of [docs/getting_started] to point newcomers at
+* Tests in [ext/] and [t/] - temporary workaround the breaking of `use_ok`
+* [docs/AES/S17draft.pod] - Draft synopsis for Perl 6's concurrency
+* [docs/AES/S22draft.pod] - Draft synopsis for Perl 6's CPAN
+* [docs/articles/tpr.pod] - An introduction article to Pugs
+* [docs/feature] - Feather.perl6.nl web site
+* [docs/notes/context_coercion.pod] - Notes on implementing contexts
+* [docs/notes/context_coersion.pod] - Notes on implementing contexts
+* [docs/notes/docs_evil_plan.txt] - Plan for Perl 6 documentation
+* [docs/notes/multimethods.pod] - Description of the canonical Perl 6 MMD system
+* [docs/p6doc/] - Perl 6 language tutorials and documentation
+* [docs/quickref/] - Various updates and improvements from new Synopses
+* [docs/quickref/fears] - assorted fears about Perl 6
+* [examples/cookbook/] - New recipes
+* [examples/network/wiki/] - demo wiki
+* [examples/rpn/] - RPN calculator in Perl 6, Perl 6, and Haskell
+* [util/catalog_tests.pl] - annotate smoke reports with colored sources/specs
 
 = Changes for 6.2.10 (r7520) - Oct 10, 2005
 
