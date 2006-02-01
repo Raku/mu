@@ -188,6 +188,11 @@ initParrot = do
     parrot_init interp
     parrot_imcc_init interp
 
+{-
+    parrot_block_DOD interp
+    parrot_block_GC interp
+-}
+
     pf      <- parrot_packfile_new interp 0
     parrot_loadbc interp pf
     seg     <- withCString "pugs" $ \p -> do
@@ -328,6 +333,14 @@ foreign import ccall "Parrot_exit"
 
 foreign import ccall "string_to_cstring"
     parrot_string_to_cstring :: ParrotInterp -> ParrotString -> IO CString
+
+{-
+foreign import ccall "Parrot_block_DOD"
+    parrot_block_DOD :: ParrotInterp -> IO ()
+
+foreign import ccall "Parrot_block_GC"
+    parrot_block_GC :: ParrotInterp -> IO ()
+-}
 
 foreign import ccall "imcc_init"
     parrot_imcc_init :: ParrotInterp -> IO ()
