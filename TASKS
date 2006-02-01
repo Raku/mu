@@ -37,3 +37,6 @@ check if parrot is there with can_run('parrot').  Skills: basic perl5.
 Makefile.PL and INSTALL.  They were just there for the 6.2.11 release.
 Skills: none.
 
+* docs/notes contains context_coercion.pod (audreyt's) and
+context_coersion.pod [sic] (luqui's).  Name (one of?) them something
+more reasonable.  Skills: taste.

@@ -43,6 +43,7 @@
 * [docs/feather] - Feather.perl6.nl web site
 * [docs/getting_started] - Pointers for people new to Pugs
 * [docs/notes/context_coercion.pod] - Notes on implementing contexts
+* [docs/notes/context_coersion.pod] - Notes on implementing contexts
 * [docs/notes/docs_evil_plan.txt] - Plan for Perl 6 documentation
 * [docs/notes/multimethods.pod] - Description of the canonical MMD algorithm
 * [docs/p6doc/] - Perl 6 language tutorials and documentation
