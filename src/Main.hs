@@ -3,14 +3,14 @@
 {-|
     The Main REPL loop.
 
->   エルフが新しい船を作ってくれたが
->   その船はミスリルとエルフのガラスから成り
->   輝く船首はあるが  こぐ櫓はなく
->   銀のマストには帆もはらず
->   舷燈がわりにシルマリルを取りつけた
->   これらはみなエルベレス自ら取りつけたもので
->   さらにかれのためにかの女は
->   不滅の翼を作って備え...
+>   Tünde-üvegből új hajót
+>   kapott, s mithrilből; ragyogott
+>   orra, nem hordott evezőt,
+>   vitorlát s ezüstárbocot:
+>   lámpása lett a Szilmaril,
+>   lánglobogója, lenghetett,
+>   s hogy ékesítse mind velük,
+>   eljött ő maga, Elbereth...
 
 -}
 
