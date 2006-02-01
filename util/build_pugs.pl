@@ -110,7 +110,8 @@ sub build_lib {
         find $wanted, "dist";
 
         if (@candidates > 1) {
-            warn "*** Found more than one '$basename' -- using the first one. \n";
+            # This is harmless -- so we don't do anything.
+            # warn "*** Found more than one '$basename' -- using the first one. \n";
         }
         elsif (@candidates == 0) {
             die "*** Wasn't able to find '$basename', aborting...\n";
