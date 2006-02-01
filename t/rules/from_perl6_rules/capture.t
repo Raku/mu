@@ -17,6 +17,7 @@ plan 65;
 
 if(!eval('("a" ~~ /a/)')) {
   skip_rest "skipped tests - rules support appears to be missing";
+  exit;
 }
 
 rule dotdot { (.)(.) };
