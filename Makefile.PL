@@ -341,6 +341,7 @@ EOD
         my $include_path = parrot_config($base, $parrot_config, 'prefix') . parrot_config($base, $parrot_config, 'inc');
         my $rpath_blib = parrot_config($base, $parrot_config, 'rpath_blib');
         my $build_dir = parrot_config($base, $parrot_config, 'build_dir');
+        my $is_shared = parrot_config($base, $parrot_config, 'parrot_is_shared');
 
         # Convert flags to -optc-*,etc, to pass through ghc. c/ompiler l/inker
         $ldflags =~ s/(^|\s)-/$1-optl-/g;
@@ -356,7 +357,7 @@ EOD
         $config = "$build_dir/src/parrot_config$Config{_o}" unless -e $config;
         $config = "$build_dir/src/null_config$Config{_o}" unless -e $config;
 
-        die <<"EOD" unless -e $config;
+        die <<"EOD" unless -e $config or $is_shared; 
 *** Could not find src/null_config.o in $build_dir.
     Solutions include:
         * Remove parrot from PUGS_EMBED
