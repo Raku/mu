@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
    Maintainer: Patrick Michaud <pmichaud@pobox.com>
    Date: 24 Jun 2002
-   Last Modified: 16 Nov 2005
+   Last Modified: 2 Feb 2006
    Number: 5
-   Version: 8
+   Version: 9
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them "rules" because they haven't been
@@ -1957,7 +1957,7 @@ subpattern captures within the aliased subpattern. For example:
          # of Match objects, each of which has its own array
          # of two subcaptures...
 
-         for @{$<pairs>} => $pair {
+         for @{$<pairs>} -> $pair {
              say "Key: $pair[0]";
              say "Val: $pair[1]";
          }
@@ -1969,7 +1969,7 @@ subpattern captures within the aliased subpattern. For example:
          # of Match objects, each of which is flattened out of
          # the two subcaptures within the subpattern
 
-         for @{$<pairs>} => $key, $val {
+         for @{$<pairs>} -> $key, $val {
              say "Key: $key";
              say "Val: $val";
          }
@@ -1989,7 +1989,7 @@ repetition of the subrule, all flattened into a single array:
          # Match objects, each of which is the result of the
          # <pair> subrule call...
 
-         for @{$<pairs>} => $pair {
+         for @{$<pairs>} -> $pair {
              say "Key: $pair[0]";
              say "Val: $pair[1]";
          }
@@ -2002,7 +2002,7 @@ repetition of the subrule, all flattened into a single array:
          # nested arrays inside the Match objects returned
          # by each match of the <pair> subrule...
 
-         for @{$<pairs>} => $key, $val {
+         for @{$<pairs>} -> $key, $val {
              say "Key: $key";
              say "Val: $val";
          }
@@ -2097,7 +2097,7 @@ C<Match> object is stored:
 
 Outside the rule, C<%0> is a shortcut for C<%{$0}>:
 
-         for %0 => $pair {
+         for %0 -> $pair {
              say "One:  $pair.key";
              say "Many: { @{$pair.value} }";
          }
