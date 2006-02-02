@@ -1,0 +1,33 @@
+
+Here are papers which are currently coming up in converstation.
+
+This list is intended to be more transient and speculative than
+READTHEM, but less transient, and perhaps more curated, than #perl6.
+It was prompted by my having to grovel over several weeks of irc log
+to dig up the name of a paper I wanted to read.
+
+Adding comments about the papers is welcome/encouraged.
+
+Papers which stick around for a while, or are highly thought of, or
+relevant could be moved to READTHEM.
+
+Last updated 2006-02-01.
+
+== Current
+
+Hybrid Type Checking
+http://www.soe.ucsc.edu/~cormac/papers/popl06-hybrid.ps
+http://obfusco.com/tmp/popl06-hybrid.pdf
+[mentioned by audreyt, 2006-Jan]
+
+Haskell is not not ML
+http://research.microsoft.com/%7Esimonpj/papers/not-not-ml/index.htm
+http://lambda-the-ultimate.org/node/1248
+[mentioned by audreyt, 2006-Jan]
+
+Types for Modules
+http://www.dcs.ed.ac.uk/home/cvr/ECS-LFCS-98-389.html
+[mentioned by stevan, 2006-Jan]
+
+== Older
+
