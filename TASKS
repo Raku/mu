@@ -38,6 +38,7 @@ context_coersion.pod [sic] (luqui's).  Name (one of?) them something
 more reasonable.  Skills: taste.
 
 * ./pugs -V doesn't mention / is sloppy about a lot of stuff:
+  Note also  say %?CONFIG.perl;
   Skills: p5, build system.
 ** Notably, whether parrot and or p6 have been embedded. It should.
    May be hard? - the build system is a bit messy.
