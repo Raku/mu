@@ -40,3 +40,7 @@ Skills: none.
 * docs/notes contains context_coercion.pod (audreyt's) and
 context_coersion.pod [sic] (luqui's).  Name (one of?) them something
 more reasonable.  Skills: taste.
+
+* ./pugs -V doesn't mention a lot of stuff.  Notably, whether parrot
+and or p6 have been embedded.  It should.  May be hard? - the build
+system is a bit messy.  Skills: p5, build system.
