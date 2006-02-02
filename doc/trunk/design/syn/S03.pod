@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 25 Jan 2006
+  Last Modified: 1 Feb 2006
   Number: 3
-  Version: 11
+  Version: 12
 
 =head1 Operator renaming
 
@@ -103,9 +103,12 @@ Its precedence is now equivalent to assignment, and it is right associative.
 
 =item * C<^^> is the high-precedence version of C<xor>.
 
-=item * C<=~> becomes the "smart match" operator C<~~>, with a whole new
-set of semantics.  Anywhere you used C<=~> before you now use C<~~>, but 
-C<~~> is much more general now.  See L<Synopsis 4> for details.
+=item * C<=~> becomes the "smart match" operator C<~~>, with a whole new set
+of semantics.  Anywhere you used C<=~> before you now use C<~~>, but C<~~> is
+much more general now.  See L<Synopsis 4> for details.  (To catch "brainos",
+the Perl 6 parser defines an C<< infix:<=~> >> macro which always fails at
+compile time with a message directing the user either to use C<~~> instead,
+or to put a space between if they really wanted to assign a stringified value.)
 
 =item * Unary C<.> calls its single argument (which must be a method, or an
 dereferencer for a hash or array) on C<$_>.
@@ -136,7 +139,7 @@ C<???> calls C<warn>, and C<!!!> calls C<die>.
 =item * In addition, to the ordinary C<.> method invocation, there are
 variants C<.*>, C<.?>, and C<.+> to control how multiple parent methods
 of the same name are handled.  The C<.=> operator does inplace modification
-of the object on the left.
+of the object on the left.  The C<.^> operator calls a class metamethod.
 
 =item * Unary C<=> reads lines from a filehandle or filename, or in general
 iterates an iterator.
