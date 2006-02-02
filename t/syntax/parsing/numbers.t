@@ -11,7 +11,7 @@ But according to L<S02/Literals>, only between two digits.
 
 =cut
 
-plan 65;
+plan 67;
 
 is 1_0, 10, "Single embedded underscore works";
 
@@ -68,3 +68,6 @@ for 2..36 {
 
 is :100[10,10], 1010, "Adverbial form of base 100 integer works";
 is :100[10,'.',10], 10.10, "Adverbial form of base 100 fraction works";
+
+is eval(":2<2>"), undef, ":2<2> recognized as illegal", :todo<bug>;
+is eval(":10<3a>"), undef, ":10<3a> recognized as illegal", :todo<bug>;
