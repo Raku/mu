@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 30 Jan 2006
+  Last Modified: 2 Feb 2006
   Number: 6
-  Version: 14
+  Version: 15
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1811,6 +1811,69 @@ of one or more of its invocants:
     &woof ::= &bark:(Dog).assuming :pitch<low>;
     &pine ::= &bark:(Tree).assuming :pitch<yes>;
 
+=head2 Macros
+
+Macros are functions or operators that are called by the compiler as
+soon as their arguments are parsed (if not sooner).  The syntactic
+effect of a macro declaration or importation is always lexically scoped,
+even if the name of the macro is visible elsewhere.  As with ordinary operators,
+macros may be classified by their grammatical category.  For a given grammatical
+category, a default parsing rule or set of rules is used, but those rules
+that have not yet been "used" by the time the macro keyword or token is seen
+can be replaced by use of "is parsed" trait.  (This means, for instance, that
+an infix operator can change the parse rules for its right operand but not its
+left operand.)
+
+A macro is called as if it were a method on the current match object returned
+from the grammar rule being reduced.
+
+Macros may return either a string to be reparsed, or a syntax tree
+that needs no further parsing.  The textual form is handy, but the
+syntax tree form is generally preferred because it allows the parser
+and debugger to give better error messages.  Textual substitution
+on the other hand tends to yield error messages that are opaque to
+the user.  Syntax trees are also better in general because they are
+reversible, so things like syntax highlighters can get back to the
+original language and know which parts of the derived program come
+from which parts of the user's view of the program.
+
+In aid of returning syntax tree, Perl provides a "quasiquoting" mechanism
+using the keyword "code", followed by a block intended to represent an AST:
+
+    return code { say $a };
+
+[Conjecture: Other keywords are possible if we have more than one AST type.]
+
+Within a quasiquote, variable and function names resolve first of all
+according to the lexical scope of the macro definition, and if unrecognized in
+that scope, are assumed to be bound from the scope of the macro call
+each time it is called.  If they cannot be bound from the scope of
+the macro call, a compile-time exception is thrown.
+
+Variables that resolve from the lexical scope of the macro definition
+will be inserted appropriately depending on the type of the variable,
+which may be either a syntax tree or a string.  (Again, syntax tree
+is preferred.)  The case is similar to that of a macro called from
+within the quasiquote, insofar as reparsing only happens with the
+string version of interpolation, except that such a reparse happens at
+macro call time rather than macro definition time, so its result cannot
+change the parsers expections about what follows the interpolated variable.
+
+Hence, while the quasiquote itself is being parsed, the syntactic
+interpolation of a variable into the quasiquote always results in
+the expectation of an operator following the variable.  (You must
+use a call to a submacro if you want to expect something else.)
+Of course, the macro definition as a whole can expect whatever it
+likes afterwards, according to its syntactic category.  (Generally,
+a term expects a following postfix or infix operator, and an operator
+expects a following term or prefix operator.)
+
+In case of name ambiguity, prefix with C<COMPILING::> to indicate a name in
+the compiling scope, and C<OUTER::> to indicate a name in the macro definition's
+scope.
+
+[Conjecture: Due to these dwimmy scoping rules, there is no need of
+a special "unquote" construct as in Scheme et al.]
 
 =head1 Other matters
 
