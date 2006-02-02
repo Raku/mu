@@ -43,4 +43,7 @@ more reasonable.  Skills: taste.
 
 * ./pugs -V doesn't mention a lot of stuff.  Notably, whether parrot
 and or p6 have been embedded.  It should.  May be hard? - the build
-system is a bit messy.  Skills: p5, build system.
+system is a bit messy.  It should perhaps also answer the "usual
+questions for someone with a problem" - what os, cpu (64 bit?), ghc
+version, gcc version. But that could be a separate task. Skills: p5,
+build system.
