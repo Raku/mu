@@ -56,9 +56,6 @@ PUGS_EMBED variable. For example:
     export PUGS_EMBED="perl5 parrot" (bash)
     setenv PUGS_EMBED "perl5 parrot" (csh)
 
-XXX Note!
-Using embedded parrot is currently NOT recommended on win32 and x86_64.
-
 To build with an embedded parrot interpreter, make sure the PUGS_EMBED 
 variable contains "parrot", and set the PARROT_PATH variable to point to 
 the directory in which you checked out the parrot source tree. For example:
