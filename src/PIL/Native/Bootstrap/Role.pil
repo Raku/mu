@@ -14,10 +14,6 @@
 ^Role.add_attribute('%!methods',    {});
 ^Role.add_attribute('%!attributes', {});
 
-# for detcting conflicts in-statis
-^Role.add_attribute('%!method_conflicts',     {});
-^Role.add_attribute('%!attribute_conflicts',  {});
-
 # NOTE:
 # These methods are pretty much duplicates of the 
 # ones in ^Class, so we can just copy them here.
@@ -37,69 +33,6 @@
 ^Role.add_method('set_roles', -> @roles { 
     self`set_attr('@!roles', @roles); 
 });
-
-^Role.add_method('get_method_conflicts', -> { 
-    # first clear it ...
-    self`set_attr('%!method_conflicts', {});
-    # now re-check it ...
-    self!find_method_conflicts(self.roles());
-    # and return it ...
-    self`get_attr('%!method_conflicts');
-    # NOTE: 
-    # we need to clear and regenerate the cache here
-    # since calls to set_roles, add_method, add_attribute, etc
-    # could have changed the results for this. We store this
-    # internally because it is easier than using some foreign
-    # null object or something, although it might (at some point)
-    # make sense to switch to that approach for efficiency/space
-    # considerations, but for now, this works :P
-});
-
-^Role.add_private_method('find_method_conflicts', -> @roles {
-    -> $role {   
-        self`set_attr('%!method_conflicts', self`get_attr('%!method_conflicts')`concat($role.get_method_conflicts()));
-        -> $method_name {
-            # see if we have this method in
-            # the parent role, if so, we can
-            # just skip it, there is no conflict
-            -> {
-                # however, if we don't have one, then
-                # we need to check ...
-                self`get_attr('%!method_conflicts')`exists($method_name)`if_else(
-                    -> {
-                        # increment the number of times seen 
-                        self`set_attr_hash('%!method_conflicts', $method_name, self`get_attr('%!method_conflicts')`fetch($method_name)`increment());                    
-                    },
-                    -> {
-                        # mark it as seen first ...
-                        self`set_attr_hash('%!method_conflicts', $method_name, 1);
-                    }
-                );
-            }`do_unless(self.has_method($method_name));
-        }`do_for($role.get_method_list);  
-    }`do_for(@roles);
-    
-    # loop through the methods and remove 
-    # any ones with only one key or who
-    # are in this role itself
-    -> $method_name {
-        -> {
-            self`set_attr('%!method_conflicts', self`get_attr('%!method_conflicts')`delete($method_name));
-        }`do_if(self`get_attr('%!method_conflicts')`fetch($method_name)`eq(1));
-        # this will resolve any from "inherited" conflicts ...
-        -> {
-            self`set_attr('%!method_conflicts', self`get_attr('%!method_conflicts')`delete($method_name));
-        }`do_if(self.has_method($method_name));        
-    }`do_for(self`get_attr('%!method_conflicts')`keys());
-});
-
-
-^Role.add_method('get_attribute_conflicts', -> { 
-    self!find_attribute_conflicts(self.roles());
-    self`get_attr('%!attribute_conflicts');
-});
-
-# -----------------------------------------------------------------------------
 
 ^Role.add_method('does', -> $role {
     self.name`eq($role)`if_else(
