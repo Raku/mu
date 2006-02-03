@@ -9,7 +9,7 @@ Learning Perl 6
   Unfortunately, there doesn't yet seem to be much in the way of tutorials for
   people new to Perl 6.
   
-  These are a few resources you may want to try reading:
+  These are a few resources you may want to try:
   
   * Quickref
   
@@ -23,6 +23,13 @@ Learning Perl 6
   
   http://svn.openfoundry.org/examples/
   (or examples/ in your local copy)
+  
+  * #perl6 (irc.freenode.net)
+  
+  Logs are also available.
+  
+  http://colabti.de/irclogger//irclogger_logs/perl6
+  http://irc.pugscode.org/  (redirects to today's log)
   
   * Synopses
   
