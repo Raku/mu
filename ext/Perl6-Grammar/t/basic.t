@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-use Perl6;
+use Perl6::Grammar;
 
 =kwid
 
