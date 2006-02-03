@@ -53,7 +53,7 @@ rule pointysub :w { # from A06
 # From A06
 
 rule sigil { <[$@%&]> <[*.?^]>? }   # "What is that, swearing?"
-rule variable { <sigil> <name> [ \( <siglet> \) ]? }
+rule variable { <sigil> <nameZZ> [ \( <siglet> \) ]? }
 
 # Bare subs
 # from A06
@@ -66,7 +66,7 @@ rule variable { <sigil> <name> [ \( <siglet> \) ]? }
 
 rule name_sec { <-[0..9:.]> <-[:]>* };
 
-rule name {  <name_sec>
+rule nameZZ {  <name_sec>
              | [\:\: <name_sec> ]+
              | <name_sec> [\:\: <name_sec> ]+};
 
@@ -74,9 +74,9 @@ rule name {  <name_sec>
 ## A06 doesn't tell me even though it uses them.  These are guesses
 ## until we are enlightened.
 
-rule subname { \*? <name> };
+rule subname { \*? <nameZZ> };
 
-rule ident { <name> };
+rule identZZ { <nameZZ> };
 
 # Numbers
 
@@ -138,7 +138,7 @@ rule defval :w { \= <item> }
 
 # Placeholders
 
-rule placeholder { <sigil> \^ <ident> }
+rule placeholder { <sigil> \^ <identZZ> }
 
 # Formal parameter syntax
 
@@ -183,8 +183,8 @@ rule unscopedsubvar :w {
 }
 
 rule trait :w {
-          is <ident>[\( <traitparam> \)]?
-        | will <ident> <closure>
+          is <identZZ>[\( <traitparam> \)]?
+        | will <identZZ> <closure>
         | of <type>
         | returns <type>
 }

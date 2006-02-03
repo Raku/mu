@@ -43,9 +43,9 @@ is(?("0x100" ~~ /^<hex>$/),bool::true,"0x100 (hex) is parsed as a hex");
 
 is(?("0o100" ~~ /^<oct>$/),bool::true,"0o100 (oct) is parsed as a oct");
 
-is(?("Perl6" ~~ /^<ident>$/),bool::true,"ids are parsed");
-is(?("Perl6::rule" ~~ /^<ident>$/),bool::true,"ids are parsed as fullid");
-is(?("::rule" ~~ /^<ident>$/),bool::true,"global ids are parsed as fullid");
+is(?("Perl6" ~~ /^<identZZ>$/),bool::true,"ids are parsed");
+is(?("Perl6::rule" ~~ /^<identZZ>$/),bool::true,"ids are parsed as fullid");
+is(?("::rule" ~~ /^<identZZ>$/),bool::true,"global ids are parsed as fullid");
 is(?('$foo' ~~ /^<variable>$/),bool::true,"scalars are parsed as variables");
 is(?('@foo' ~~ /^<variable>$/),bool::true,"arrays are parsed as variables");
 is(?('%foo' ~~ /^<variable>$/),bool::true,"hashes are parsed as variables");
