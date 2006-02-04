@@ -25,8 +25,7 @@ while $_ = =<> {
 
     $_ ~~ s:P5:g{\t}{^I} if %opts<t>;
 
-    # XXX: s:e/// doesn't work?
-    $_ ~~ s:P5:ge{(.)}{backwhack($0)} if %opts<v>;
+    $_ ~~ s:P5:g/(.)/{backwhack($0)}/ if %opts<v>;
     
     $_ ~= "$" if %opts<e>;
 
@@ -45,8 +44,8 @@ while $_ = =<> {
 
 sub backwhack ($ch) {
     given ord $ch {
-        when 0x00 .. 0x1f  { "^" ~ chr 0x40 + $_ } # the spec used octal
-        when ({$_ > 0x7f}) { "U+$_" }      # but this is the unicode era
+        when 0x00 .. 0x1f  { "^" ~ chr 0x40 + $_ }  # the spec used octal
+        when ({$_ > 0x7f}) { "U+" ~ "$_".as("%x") } # but this is the unicode era
         default { $ch }
     }
 }
