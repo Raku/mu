@@ -3,6 +3,7 @@ use v6;
 class Getopt::Std-0.01;
 
 sub getopts (Str $spec, @args? is rw = @*ARGS) is export {
+    my @skipped;
     my %spec = hashify($spec);
     my %opts;
     my $cur;
@@ -25,8 +26,10 @@ sub getopts (Str $spec, @args? is rw = @*ARGS) is export {
                     }
                 }
             }
+            default { @skipped.push($_) }
         }
     }
+    unshift @args, @skipped;
     return %opts;
 }
 
