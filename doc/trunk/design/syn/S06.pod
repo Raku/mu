@@ -399,7 +399,7 @@ will then think you said:
 and treat :a<b> as a named argument to print, which is not what you want.
 
 In any event, the named parameters need to be kept in the list until
-bound.  an implementation that pulls named parameters out of the list
+bound.  An implementation that pulls named parameters out of the list
 into a hash prematurely will lose the ordering of the push above,
 for instance.
 
@@ -1301,7 +1301,7 @@ specifiable as if it were an "or" junction:
 
     my Int|Str $error = $val;              # can assign if $val~~Int or $val~~Str
 
-Fancier type constrains may be expressed through a subtype:
+Fancier type constraints may be expressed through a subtype:
 
     subset Shinola of Any where {.does(DessertWax) and .does(FloorTopping)};
     if $shimmer ~~ Shinola {...}  # $shimmer must do both interfaces
@@ -1327,8 +1327,8 @@ Parameters may be given types, just like any other variable:
 Within a declaration, a class variable (either by itself or
 following an existing type name) declares a new type name and takes
 its parametric value from the actual type of the parameter it is
-associated with.  It declares the new type name in whatever scope
-the surrounding declaration is associated lexical scope.
+associated with.  It declares the new type name in the same scope
+as the associated declaration.
 
     sub max (Num ::X @array ) {
 	push @array, X.new();
@@ -1373,7 +1373,7 @@ signature.  This doesn't mean exactly the same thing as C<returns>.  The
 arrow form is an "official" return type, and may be used to do type
 inferencing outside the sub.  The C<returns> form only makes the return
 type available to the internals of the sub so that the C<return> statement
-can know its context, but outside the sub it just we don't know anything
+can know its context, but outside the sub we don't know anything
 about the return value, as if no return type had been declared.  The prefix
 form actually corresponds to the C<< --> >> semantics rather than the
 C<returns> semantics, so the return type of
@@ -1947,7 +1947,7 @@ the assignment:
     (key => $var) = "value";
 
 When binding pairs, names can be used to "match up" lvalues and rvalues,
-provided you write hte left side as a signature using C<:(...)> notation:
+provided you write the left side as a signature using C<:(...)> notation:
 
     :(:who($name), :why($reason)) := (why => $because, who => "me");
 

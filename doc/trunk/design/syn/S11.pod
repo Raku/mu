@@ -211,7 +211,7 @@ The use statement actually allows a language on the front of a module name,
 so that you can use modules from other languages.  The language is separated
 by a colon.  For instance:
 
-    use perl5:ACME::Bleach-1.0-DCONWAY;
+    use perl5:Acme::Bleach-1.12-DCONWAY;
     use ruby:Rails <PR_MACHINE>;
 
 =head1 Forcing Perl 6

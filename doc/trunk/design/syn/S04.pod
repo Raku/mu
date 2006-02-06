@@ -246,7 +246,7 @@ This construct only allows you to prefix a statement.  If you want to
 continue the expression after the statement you must use the curly form.
 
 Since C<do> is defined as going in front of a statement, it follows
-that it can always be followed by a statment label.  This is particularly
+that it can always be followed by a statement label.  This is particularly
 useful for the do-once block, since it is offically a loop and can take
 therefore loop control statements.
 
@@ -366,7 +366,7 @@ with the C<sub>, C<method>, or C<submethod> keywords).  Pointy subs
 and bare closures are transparent to C<return>.  If you pass a reference
 to a closure outside of its official "sub" scope, it is illegal to
 return from it.  You may only leave the closure block itself with C<leave>
-or by falling of the end of it.
+or by falling off the end of it.
 
 To return a value from a pointy sub or bare closure, you either
 just let the block return the value of its final expression, or you can
@@ -396,7 +396,7 @@ scope of that loop, and if that call mentions the outer loop's label,
 then that outer loop is the one that must be controlled. (This search
 of lexical scopes is limited to the current "official" subroutine.)
 If there is no such lexically scoped outer loop in current subroutine.
-then a fallback search is made outward through the dynamic scopes in
+Then a fallback search is made outward through the dynamic scopes in
 the same way Perl 5 does.  (The difference between Perl 5 and Perl 6
 in this respect arises only because Perl 5 didn't have user-defined
 control structures, hence the sub's lexical scope was I<always>

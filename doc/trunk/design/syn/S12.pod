@@ -215,7 +215,7 @@ use the dot form of parentheses:
     .doit.()	# okay, no arguments, same as .doit()
     .doit .()	# okay, no arguments, same as .doit()
 
-However, you can turn extend any of the legal forms above into a list
+However, you can turn any of the legal forms above into a list
 operator by appending a colon:
 
     .doit: 1,2,3	# okay, three arguments
@@ -1144,7 +1144,7 @@ the right.  Our example is roughly equivalent to this closure:
 except that a subtype knows when to call itself.
 
 A subtype is not a subclass.  Subclasses add capabilities, whereas
-a subtype adds constraints (takes away capabiliites).  A subtype is
+a subtype adds constraints (takes away capabilites).  A subtype is
 primarily a handy way of sneaking smartmatching into multiple dispatch.
 Just as a role allows you to specify something more general than a
 class, a subtype allows you to specify something more specific than

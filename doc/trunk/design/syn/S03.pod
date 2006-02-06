@@ -316,7 +316,7 @@ explicitly flatten it in any of these ways:
     push @foo, @$bar;
     push @foo, $bar[];
 
-(The C<*> in list context doesn't change the call semantics as is
+(The C<*> in list context doesn't change the call semantics as it
 does in scalar context.)  Note that these three forms also allow you
 to specify list context on assignment:
 

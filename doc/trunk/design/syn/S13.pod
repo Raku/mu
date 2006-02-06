@@ -115,7 +115,7 @@ declarations are taken at face value and do not specify any underlying
 semantics.  As such, they're a "shallow" interpretation.
 
 However, sometimes you want to specify a "deep" interpretation of
-your operators.  That is, you're specify the abstract operation,
+your operators.  That is, you're specifying the abstract operation,
 which may be used by various shallow operators.  Any deep multi
 declarations will be "amplified" into all the shallow operators that
 can be logically based on it.  If you say:
