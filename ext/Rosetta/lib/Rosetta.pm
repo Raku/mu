@@ -3,7 +3,7 @@ use v6;
 
 # External packages used by packages in this file, that don't export symbols:
 use Locale::KeyedText-(1.72.0...);
-use Rosetta::Model-(0.720.0...);
+use Rosetta::Model-(0.721.0);
 
 ###########################################################################
 ###########################################################################
@@ -14,7 +14,7 @@ use Rosetta::Model-(0.720.0...);
 ###########################################################################
 ###########################################################################
 
-package Rosetta-0.720.0 {
+package Rosetta-0.721.0 {
     # Note: This given version applies to all of this file's packages.
 } # package Rosetta
 
@@ -70,7 +70,7 @@ Rigorous database portability
 
 =head1 VERSION
 
-This document describes Rosetta version 0.720.0.
+This document describes Rosetta version 0.721.0.
 
 It also describes the same-number versions of Rosetta::Interface
 ("Interface"), and Rosetta::Engine ("Engine").
@@ -418,7 +418,7 @@ It also requires these Perl 6 classes that are on CPAN:
 L<Locale::KeyedText-(1.72.0...)|Locale::KeyedText> (for error messages).
 
 It also requires these Perl 6 classes that are in the current distribution:
-L<Rosetta::Model-(0.720.0...)|Rosetta::Model>.
+L<Rosetta::Model-(0.721.0)|Rosetta::Model>.
 
 =head1 INCOMPATIBILITIES
 

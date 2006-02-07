@@ -3,7 +3,7 @@ use v6;
 
 # External packages used by packages in this file, that don't export symbols:
 use Locale::KeyedText-(1.72.0...);
-use Rosetta-0.720.0;
+use Rosetta-0.721.0;
 
 ###########################################################################
 ###########################################################################
@@ -14,7 +14,7 @@ use Rosetta-0.720.0;
 ###########################################################################
 ###########################################################################
 
-module Rosetta::Validator-0.720.0 {
+module Rosetta::Validator-0.721.0 {
 
     # External packages used by the Rosetta::Validator module, that do export symbols:
     # (None Yet)
@@ -44,7 +44,7 @@ A common comprehensive test suite to run against all Engines
 
 =head1 VERSION
 
-This document describes Rosetta::Validator version 0.720.0.
+This document describes Rosetta::Validator version 0.721.0.
 
 =head1 SYNOPSIS
 
@@ -74,7 +74,7 @@ It also requires these Perl 6 classes that are on CPAN:
 L<Locale::KeyedText-(1.72.0...)|Locale::KeyedText> (for error messages).
 
 It also requires these Perl 6 classes that are in the current distribution:
-L<Rosetta-0.720.0|Rosetta>.
+L<Rosetta-0.721.0|Rosetta>.
 
 =head1 INCOMPATIBILITIES
 

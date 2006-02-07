@@ -5,15 +5,48 @@
 =head1 NAME
 
 Rosetta::Language -
-Design document of the Intermediate Relational Language
+Design document of the Rosetta D language
 
 =head1 DESCRIPTION
+
+Rosetta is a virtual machine that implements a relational model of data,
+and the native language of this virtual machine is called B<Rosetta D>;
+this document, Rosetta::Language ("Language"), is the human readable
+authoritative design document for that language.  If there's a conflict
+between any other document and this one, then either the other document is
+in error, or the developers were negligent in updating it before Language,
+so you can yell at them.
+
+Rosetta D is intended to qualify as a "D" language as defined by "The Third
+Manifesto", a proposal for a foundation for data and database management
+systems, written by Christopher J. Date's and Hugh Darwen.  See
+L<http://www.thethirdmanifesto.com/> for some references.  The initial main
+reference concerning this that I used was the book "Database in Depth"
+(2005), written by Date and published by Oreilly; see
+L<http://www.oreilly.com/catalog/databaseid/> for a publisher link of that.
+
+Rosetta D contains multiple levels of abstraction, in that some of its
+operators are convenient short-hand for larger expressions composed of
+other operators; some of those short-hands are emulations of SQL operators
+over D, which should make it easier for users to use applications written
+in SQL over Rosetta, and have a Rosetta engine that is implemented over a
+SQL database.
+
+This document, Language, will mainly focus on defining the specifics of the
+Rosetta D language and of the Rosetta virtual machine that it runs in;
+explanations of why things are being done a certain way will mainly be left
+to external documents, including those about The Third Manifesto.
+
+=head1 HERE AND BELOW IS OLD DOCUMENTATION, TO BE REWRITTEN
 
 Rosetta::Model provides an effective language for defining relational data
 models, both the means to create them and the means to interact with them.
 The language is IRL (Intermediate Relational Language); see the
 documentation of L<Rosetta::Model> itself (in the current distribution) for
 a further introduction.
+
+IRL is a "relationally complete" language; a language is relationally
+complete if it is at least as powerful as the relational algebra.
 
 This document, Rosetta::Language ("Language"), is the human readable
 authoritative design document for that language.  The file Rosetta::Model
@@ -410,8 +443,8 @@ These are the simplest data types, from which all others are derived:
 
 =item C<BOOLEAN>
 
-This data type is a single logical boolean, whose only possible values are
-FALSE and TRUE.  Its concept of nothingness is FALSE.
+This data type is a single logical truth value, and can only be FALSE or
+TRUE.  Its concept of nothingness is FALSE.
 
 =item C<NUMERIC>
 
