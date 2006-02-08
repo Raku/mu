@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 30 Jan 2006
+  Last Modified: 7 Feb 2006
   Number: 2
-  Version: 14
+  Version: 15
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -568,9 +568,26 @@ the package name as a hash:
     Foo::<::Bar><::Baz>	# same as Foo::Bar::Baz
 
 Unlike C<::()> symbolic references, this does not parse the argument
-for C<::>, nor does it initiate a namespace scan from that initial point.
-In addition, for constant subscripts, it resolves the symbol at compile time.
-(Symbolic refs always delay lookup till run-time.)
+for C<::>, nor does it initiate a namespace scan from that initial
+point.  In addition, for constant subscripts, it is guaranteed to
+resolve the symbol at compile time.
+
+The null pseudo-package is reserved to mean the same search list as an ordinary
+name search.  That is, the following are all identical in meaning:
+
+    $foo
+    $::{'foo'}
+    ::{'$foo'}
+    $::<foo>
+    ::<$foo>
+
+That is, each of them scans lexical scopes outward, and then the current package scope
+(though the latter is then disallowed when "strict" is in effect).
+
+As a result of these rules, you can write any arbitrary variable name as either of:
+
+    $::<!@#$#@>
+    ::<$!@#$#@>
 
 =item *
 
