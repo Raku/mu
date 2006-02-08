@@ -582,12 +582,14 @@ name search.  That is, the following are all identical in meaning:
     ::<$foo>
 
 That is, each of them scans lexical scopes outward, and then the current package scope
-(though the latter is then disallowed when "strict" is in effect).
+(though the package scope is then disallowed when "strict" is in effect).
 
 As a result of these rules, you can write any arbitrary variable name as either of:
 
-    $::<!@#$#@>
-    ::<$!@#$#@>
+    $::{'!@#$#@'}
+    ::{'$!@#$#@'}
+
+You can also use the C<< ::<> >> form as long as there are no spaces in the name.
 
 =item *
 
