@@ -25,6 +25,9 @@ reference concerning this that I used was the book "Database in Depth"
 (2005), written by Date and published by Oreilly; see
 L<http://www.oreilly.com/catalog/databaseid/> for a publisher link of that.
 
+Rosetta D also has influences from various SQL dialects, and the Perl 6
+language-in-development, and Tutorial D.
+
 Rosetta D contains multiple levels of abstraction, in that some of its
 operators are convenient short-hand for larger expressions composed of
 other operators; some of those short-hands are emulations of SQL operators
@@ -36,6 +39,40 @@ This document, Language, will mainly focus on defining the specifics of the
 Rosetta D language and of the Rosetta virtual machine that it runs in;
 explanations of why things are being done a certain way will mainly be left
 to external documents, including those about The Third Manifesto.
+
+=head1 10,000 MILE VIEW OF ROSETTA D
+
+Rosetta D is a high-level language for defining, querying, and updating
+relational databases.  It is mainly declarative because it focuses on what
+needs to be accomplished rather than how to accomplish that.  This permits
+a lot of flexability on the part of implementers of the language (usually
+Rosetta Engine classes) to be adaptive to changing constraints of their
+environment and deliver efficient solutions.  This also makes things a lot
+easier for users of the language because they can focus on the meaning of
+their data rather than worrying about implementation details, which
+relieves burdens on their creativity, and saves them time.  In short, this
+system improves everyone's lives.
+
+Rosetta D is used within the context of a B<depot> (repository), which is a
+usually-persistent virtual environment that contains both system-defined
+(built-in) and user-defined B<data types>, and B<variables> (containers) of
+those types, and B<operators> to act on variables and values of those
+types.  Rosetta D is implemented by a B<DBMS> (database management system)
+which can typically manage (create, read, write, delete) multiple distinct
+depots at once, and which provides access to those depots for external
+applications, and the access method is called a B<connection>.  From an
+application's point of view, a depot is a storage facility, akin to a file,
+but more flexible, and a DBMS provides the API for using it; an application
+can use more than one distinct DBMS and/or depot at a time.
+
+I<Note that I do not use the word "database" when referring to any specific
+concept, because that term has too broad a range of meanings in general
+use; if I use the word "database", then I am being inspecific.>
+
+
+
+
+
 
 =head1 HERE AND BELOW IS OLD DOCUMENTATION, TO BE REWRITTEN
 
