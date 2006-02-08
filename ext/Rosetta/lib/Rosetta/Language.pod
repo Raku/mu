@@ -18,12 +18,18 @@ in error, or the developers were negligent in updating it before Language,
 so you can yell at them.
 
 Rosetta D is intended to qualify as a "D" language as defined by "The Third
-Manifesto", a proposal for a foundation for data and database management
-systems, written by Christopher J. Date's and Hugh Darwen.  See
+Manifesto" (TTM), a proposal for a foundation for data and database
+management systems, written by Christopher J. Date's and Hugh Darwen.  See
 L<http://www.thethirdmanifesto.com/> for some references.  The initial main
 reference concerning this that I used was the book "Database in Depth"
 (2005), written by Date and published by Oreilly; see
 L<http://www.oreilly.com/catalog/databaseid/> for a publisher link of that.
+
+I<While Rosetta D is intended to be a completely conformant TTM
+implementation, its current definition probably fails in some respects as I
+have only been introduced to TTM recently; however, I believe I have
+covered the fundamentals, and I do aim to correct any shortcomings over
+time so it becomes fully conformant; feedback is, of course, appreciated.>
 
 Rosetta D also has influences from various SQL dialects, and the Perl 6
 language-in-development, and Tutorial D.
