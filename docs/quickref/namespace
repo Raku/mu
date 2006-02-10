@@ -43,10 +43,11 @@ Names
 
 Special namespaces
 
-    ::*        global (root)
+    ::*        global (root) also called ::GLOBAL
     ::MY       current lexical
     ::CALLER   a view of the caller's namespace
     ::*::Main  the user default
+    ::OUR ::OUTER ::ENV ::SUPER ::COMPILING
 
 A name N can be used:
 
@@ -104,9 +105,11 @@ Declarators [what is a real name for these things?]
     let
     state                  Initialization (see also FIRST {}
                            in quickref/control)
+    env                    Lexical visible to called subs via 
+                           the CALLER or ENV packages, or $+ twigil
 
- [ my $x = 20; { let $x = 3; 0 }; # $x restored to 20
-   my $x = 20; { let $x = 3; 1 }; # $x stays 3
+ [ my $x = 20; { let $x = 3; undef }; # $x restored to 20
+   my $x = 20; { let $x = 3; 1     }; # $x stays 3
    sub foo { state $x; say ++$x }; foo(); foo(); foo(); # 1,2,3
   ?]
 
@@ -130,6 +133,9 @@ Names and symbol tables
     state $x     no     yes
     state $.x
     state $!x
+    env  $x      no     YES     %::CALLER and %::ENV also affected
+    env  $.x
+    env  $!x
     package
     sub
     method
@@ -137,7 +143,7 @@ Names and symbol tables
 
     Blank entries means I don't know.
 
-   state() will create a new lexical var, exactly like my.
+   state() and env() create a new lexical vars, exactly like my.
    temp() and let() only work with already declared vars.
    [ binding? ]
 
