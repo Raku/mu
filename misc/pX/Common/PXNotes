@@ -1,0 +1,208 @@
+[Feel free to add questions/comments with an XXX flag]
+
+() What is this file?
+
+A strawman proposal sketch for a "pX" project.
+
+() What is the project?
+
+Quickly create a running, self-hosting, perl6-like language pX,
+capable of evolving into p6.  Quickly meaning weeks.
+
+() What is "pX"?
+
+Basically "perl6 as currently speced".
+
+Just as "p6 is to be a self-hosting langauge flexible enough to evolve
+into a hypotethical ideal language p7", pX is intended to be a
+self-hosting p6-like language capable of evolving into the not yet
+fully designed p6.
+
+() Plan?
+
+Write a pX implementation in pX, including a compiler from pX to some
+easy target language.  Then bootstrap the implementation, by hand
+transcoding a small part of it from pX to something similar (pugs's
+p6, ruby, common-lisp, or p5).  Compile the implementation to the easy
+target language.  Resulting in a self-hosting pX.  End of pX project.
+pX can then evolve with the p6 spec, eventually becoming p6.
+
+() Key ideas?
+
+ - Use full p6.  No constraints based on what current implementations
+do or don't support.  p6 is an awesome language for writing language
+implementations.  so let's use it.
+
+ - Non-monolithic code base.  If the same thing can be done multiple
+ways, and it's easier just to write them rather than to decide, then
+feel free.
+
+ - pX is premised on "it's easier to bootstrap early, than to fight
+an incremental development battle".
+
+ - More collaborative development model.  Finer grain ownership
+tagging, on a big pile of code.
+
+() Bootstrap early?
+
+pX is premised on "it's easier to bootstrap early, than to fight an
+incremental development battle, always using some buggy sub-dialect of
+p6".  Easier to separate figuring out what needs to be done, and
+spec'ing that clearly (in p6), from constantly striving to keep things
+working.  Basically, the pX implementation will be the first clear,
+detailed, full coverage _spec_ of p6.  Then we'll simply take advantage
+of the spec being so clear, and bootstrap it. ;)
+
+The counter argument is this violates the important guideline "develop
+incrementally - always keep the code working".  The pX counter is that
+this is currently clearly burdensome, a bottleneck on pugs/p6
+development, and is costing us momentum and people resources.
+
+() Wait!  No TDD?  No running tests until the end?  That's scary.
+   Without running tests won't it be impossible to maintain quality control?
+
+  It is scary.
+
+  But that's the pX idea.  Sacrifice having running tests, to get the
+use of full p6 (in which it is soooo much easier to write a language
+implementation than in the currently implemented subdialects of p6),
+and to get not having to keep an implementation working along the way.
+Use the resulting lower barrier to entry to get more people.  Use
+that, and the effort freed up, to be more disciplined about code
+reviews and such.
+
+  Writing tests in parallel with the development would of course be
+encouraged.  But yes, they will mostly be failing tests until the end.
+
+  (There are of course ways to unit test some of it.  But that isn't
+the main idea, and isn't in general plausible, so I'm only going to
+mention it in parentheses:).
+
+() Isn't this a lot of work?
+
+Yes.
+
+  The hope is to structure the project so lots of people can easily
+contribute.  And lots of people are assumed to be interested in
+writing p6 code.
+
+  Some of this we have to be done anyway, even without pX.  For PIL^N.
+The "standard library", most of the Scalar/Array/Hash class methods,
+perhaps some of dispatch.
+  However, if PIL^N support was the immediate objective, there would
+be an emphasis on using the dialect of p6 which pugs currently
+supports.  Which is here intentionally forsworn.  Never the less, much
+of this code will likely run on pugs without much change.
+
+  Work includes:
+ - parser
+ - ast
+ - environment
+ - subs, types, and dispatch system (some of which PIL^N would need anyway)
+ - object system core
+ - objects (including most of Array, etc)(PIL^N needs this too)
+ - compiler to "easy target language".
+
+  The vision for Perl6 is to have it self-hosting (though not
+necessarily for P6.0?).  With pX, we just reach that milestone
+earlier, because that seems easiest.
+
+() How closely will pX track changes in the p6 spec?
+
+  Unclear.
+
+  Hopefully pX will happen so fast, the spec won't have time to change
+much? :)
+
+  One possible threshold is, if it makes the pX bootstrap easier,
+great, if not, it's not a critical path activity.  But that of course
+doesn't mean someone won't do it, or that it won't be included if done.
+
+() Development model?
+
+  We currently have a development problem of zones-of-ownership being
+entagled with subparts-of-p6-development.  So person foo is working on
+Bar::Hee with is intended to be the wizget implentation for pugs/p6.
+And there isn't much code discussion or collaboration.  The objective
+is (necessarily given the time target) to change this.
+
+  Strawman proposal: (ie, feel free to comment and mutate)
+ - Create misc/pX/
+ - Therein people can create personal directores, eg, misc/pX/putter/.
+ - Therein there is a Common/ and an Aside/.
+ - Be on #perl6
+ - Commit early and often. Do as close to continuous public coding as
+folks can manage.
+ - Keep things as flat and simple as possible.  Perl6::Foo::Bar.pm can
+just be Perl6-Foo-Bar.pm, rather than Perl6/Foo/Bar.pm.  Ie, the way
+you would do it given full p6.  And if you're working Bar, don't worry
+whether it's a Perl6::Foo.  Think "I'm writing spec".
+ - The objective of Common is to have someplace where people can
+collaboratively hack, with just enough social convention that people
+aren't afraid to hack, for fear of damaging others' work.
+ - Example: someone creates some tiny bit of code.  they commit it as
+Common/foo.pm.  It's open season on files like foo.  If you want to
+fork one, copy it to foo-2.pm.  If you want to fork (or post, or
+explore an alternative) and emphasize you are retaining editorial
+control, foo-putter.pm. Not open season on -owner tagged stuff.
+Sortof like the current practice.  Old Common/ stuff without a -editor
+suffix can be moved by anyone to Aside.
+ - More than code is welcome.  Transcribe spec to pseudocode for
+example.  A bare list of all the n flavors of mumble we need to
+implement.  Adding #XXX questions to files.
+
+  Basically, avoid pervasive code ownership, while maintaining the
+ability of individuals to pursue their own vision, by providing both
+explicit private playpens, and a collaborative space with just a bit
+of ownership.
+
+  Maybe this would help.  Maybe this can work.  Maybe not.  Thoughts
+welcome.
+
+#XXX - what is the connection with ext/?  When should development take
+place there instead?
+
+() But, how can one have multiple conflicting implementations of stuff?
+
+  It's much easier to assemble something out of existing fragments
+than to implement everything from scratch.  This on a purely pX as
+textual spec level.
+
+  It is often easier when faced with a non-local design choice, to
+locally implement both possibilities, and leave the choice for others,
+later.  That, even when one can be confident in making the right
+choice.  For example, given a choice between writing Array method foo
+assuming the existance of a primitive splice(), vs assuming just
+push() and pop(), it's quite easy to write both, but hard to know
+which will be needed.
+
+()  But, how?
+
+  sub foo_en {
+    multi sub *bar () redefined { "Hello, how are you?" }
+  }
+  sub foo_es {
+    multi sub *bar () redefined { "Hola, como estas?" }
+  }
+  sub lets_do_spanish_pugs () { ... foo_es; ... }
+  BEGIN {
+    lets_do_spanish_pugs;
+    foo_en; # but we will say hi in english
+  }
+
+() Why spend resources here?
+
+  At least some of this is on the current pugs critical PIL^N path.
+
+  Hopefully the choice of language, perl6, will make this accessible
+to people who would not otherwise be contributing to pugs/parrot.
+
+() What's with April 1st?
+
+  Tying a project to some "motivation" deadline is often a bad idea.
+So pX isn't.
+
+  The original thought was "April first would be a neat day to email
+some knock-your-socks-off announcement about Perl6".  No one will
+believe it.  An April Fools' Day joke, where the joke is that it isn't
+one.

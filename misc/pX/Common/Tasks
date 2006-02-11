@@ -1,0 +1,22 @@
+
+* See what people think of the pX project idea (tomorrow, Feb 11 utc)
+  This misc/pX/ may all go away.
+* See what people think of this misc/pX/ social concept (tomorrow, Feb 11 utc)
+  This misc/pX/ may all go away. ;)
+
+* audreyt: I'd like a problem statement; a requirement statement; an
+overview of the spike's architecture (i.e. plan of attack). [for pX]
+
+* PerlJam suggests "pX" needs a better name.  Candidates?
+
+* Scavange existing p6 prelude code.
+From:
+ - src/perl6/Prelude.pm
+ - src/PIL/misc
+ - Where else?
+
+* Look for things marked XXX. And QQQ.  Some of them are hard, but
+some are quite easy. (Maybe we should have different markers for
+different flavors?)  Do one.
+
+* So very many possibilities...
