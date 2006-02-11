@@ -84,7 +84,7 @@ None reported.
 
 These Perl 6 packages implement Rosetta Engine classes and their test
 suites are the initial main dependents of Rosetta::Validator:
-L<Rosetta::Engine::Native>, L<Rosetta::Engine::Generic>.
+L<Rosetta::Engine::Native>.
 
 =head1 BUGS AND LIMITATIONS
 

@@ -573,9 +573,6 @@ None reported.
 The Perl 6 package L<Rosetta> is bundled with Rosetta::Model and is its
 primary dependent.
 
-These Perl 6 packages are also early dependents of Rosetta::Model:
-L<Rosetta::Utility::SQLBuilder>, L<Rosetta::Utility::SQLParser>.
-
 =head1 BUGS AND LIMITATIONS
 
 I<This documentation is pending.>
