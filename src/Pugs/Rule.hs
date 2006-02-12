@@ -7,10 +7,14 @@
 >   A light from the shadows shall spring
 >   Renewed shall be blade that was broken
 >   The crownless again shall be king.
+
+Based on the Parsec library, Copyright 1999-2000, Daan Leijen.
+Parsec may be found at <http://www.cs.uu.nl/~daan/parsec.html>
+
+> See src/Pugs/Rule/LICENSE for the full license text.
+
 -}
 
--- Based on the Parsec library, Copyright 1999-2000, Daan Leijen.
--- See src/Rule/LICENSE for the full license text.
 
 module Pugs.Rule
                ( -- complete modules
