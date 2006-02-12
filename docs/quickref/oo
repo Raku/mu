@@ -1,19 +1,19 @@
 Basic class definition
 
     class ClassName {
-	has $.public_instance_var;
-	# Untyped instance variable, a readonly accessor is automatically
-	# generated. Methods have readwrite access to $.instance_var.
+        has $.public_instance_var;
+        # Untyped instance variable, a readonly accessor is automatically
+        # generated. Methods have readwrite access to $.instance_var.
 
-	has $.public_instance_var is rw;
-	# Untyped instance variable, a readwrite accessor is automatically
-	# generated.
+        has $.public_instance_var is rw;
+        # Untyped instance variable, a readwrite accessor is automatically
+        # generated.
 
-	has Type $.public_instance_var;
-	# Typed instance variable.
+        has Type $.public_instance_var;
+        # Typed instance variable.
 
-	has $!private_instance_var;
-	# Private instance variable, no accessor is automatically generated.
+        has $!private_instance_var;
+        # Private instance variable, no accessor is automatically generated.
     }
 
 Inheritance
@@ -23,8 +23,8 @@ Inheritance
     class SubClass is ParentClass {...}
     # or
     class SubClass {
-	is ParentClass;
-	...;
+        is ParentClass;
+        ...;
     }
 
 Methods
@@ -45,13 +45,13 @@ Methods
 Roles
 
     role RoleName {
-	method methodname(...) {...}
+        method methodname(...) {...}
     }
 
     class SomeClass does RoleName {...}
     # or
     class SomeClass {
-	does RoleName;
+        does RoleName;
     }
 
 Magical variables
