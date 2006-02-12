@@ -9,7 +9,7 @@ Design document of the Rosetta D language
 
 =head1 DESCRIPTION
 
-Rosetta is a virtual machine that implements a relational model of data,
+L<Rosetta> is a virtual machine that implements a relational model of data,
 and the native language of this virtual machine is called B<Rosetta D>;
 this document, Rosetta::Language ("Language"), is the human readable
 authoritative design document for that language.  If there's a conflict
@@ -17,29 +17,34 @@ between any other document and this one, then either the other document is
 in error, or the developers were negligent in updating it before Language,
 so you can yell at them.
 
-Rosetta D is intended to qualify as a "D" language as defined by "The Third
-Manifesto" (TTM), a proposal for a foundation for data and database
-management systems, written by Christopher J. Date's and Hugh Darwen.  See
-L<http://www.thethirdmanifesto.com/> for some references.  The initial main
-reference concerning this that I used was the book "Database in Depth"
-(2005), written by Date and published by Oreilly; see
-L<http://www.oreilly.com/catalog/databaseid/> for a publisher link of that.
+Rosetta D is intended to qualify as a "D" language as defined by L<The
+Third Manifesto
+|http://www.aw-bc.com/catalog/academic/product/0,1144,0321399420,00.html>
+(TTM), a proposal for a foundation for data and database management
+systems, written by Christopher J. Date and Hugh Darwen.  See
+L<http://www.thethirdmanifesto.com/> for some references to what TTM is,
+and also copies of some documents I used in writing Rosetta D.  The initial
+main reference I used when creating Rosetta D was the book L<Database in
+Depth|http://www.oreilly.com/catalog/databaseid/> (2005), written by Date
+and published by Oreilly.
 
-I<While Rosetta D is intended to be a completely conformant TTM
-implementation, its current definition probably fails in some respects as I
-have only been introduced to TTM recently; however, I believe I have
-covered the fundamentals, and I do aim to correct any shortcomings over
-time so it becomes fully conformant; feedback is, of course, appreciated.>
+It should be noted that Rosetta D, being quite new, may omit some features
+that are mandatory for a "D" language initially, to speed the way to a
+useable partial solution, but you can be comforted in knowing that they
+will be added as soon as possible.  Also, it contains some features that go
+beyond the scope of a "D" language, so Rosetta D is technically a "D plus
+extra"; examples of this are constructs for creating the databases
+themselves and managing connections to them.  However, Rosetta D should
+never directly contradict The Third Manifesto; for example, its relations
+never contain duplicates, and it does not allow nulls anywhere.  That's not
+to say you can't emulate all the SQL features over Rosetta D; you can, at
+least once its complete.
 
-Rosetta D also has influences from various SQL dialects, and the Perl 6
-language-in-development, and Tutorial D.
-
-Rosetta D contains multiple levels of abstraction, in that some of its
-operators are convenient short-hand for larger expressions composed of
-other operators; some of those short-hands are emulations of SQL operators
-over D, which should make it easier for users to use applications written
-in SQL over Rosetta, and have a Rosetta engine that is implemented over a
-SQL database.
+Rosetta D also has design aspects and constructs that are taken from or
+influenced by Perl 6, and various SQL dialects and implementations, and
+other TTM implementations like Dave Voorhis'
+L<Rel|http://dbappbuilder.sourceforge.net/>, but none of the adaptions from
+these are incompatible with TTM.
 
 This document, Language, will mainly focus on defining the specifics of the
 Rosetta D language and of the Rosetta virtual machine that it runs in;
@@ -48,192 +53,171 @@ to external documents, including those about The Third Manifesto.
 
 =head1 10,000 MILE VIEW OF ROSETTA D
 
+=head2 Operational Context
+
 Rosetta D is a high-level language for defining, querying, and updating
-relational databases.  It is mainly declarative because it focuses on what
-needs to be accomplished rather than how to accomplish that.  This permits
-a lot of flexability on the part of implementers of the language (usually
-Rosetta Engine classes) to be adaptive to changing constraints of their
-environment and deliver efficient solutions.  This also makes things a lot
-easier for users of the language because they can focus on the meaning of
-their data rather than worrying about implementation details, which
-relieves burdens on their creativity, and saves them time.  In short, this
-system improves everyone's lives.
+relational databases.  It is primarily declarative because it focuses on
+what needs to be accomplished rather than how to accomplish that.  This
+permits a lot of flexability on the part of implementers of the language
+(usually Rosetta Engine classes) to be adaptive to changing constraints of
+their environment and deliver efficient solutions.  This also makes things
+a lot easier for users of the language because they can focus on the
+meaning of their data rather than worrying about implementation details,
+which relieves burdens on their creativity, and saves them time.  In short,
+this system improves everyone's lives.
 
-Rosetta D is used within the context of a B<depot> (repository), which is a
-usually-persistent virtual environment that contains both system-defined
-(built-in) and user-defined B<data types>, and B<variables> (containers) of
-those types, and B<operators> to act on variables and values of those
-types.  Rosetta D is implemented by a B<DBMS> (database management system)
-which can typically manage (create, read, write, delete) multiple distinct
-depots at once, and which provides access to those depots for external
-applications, and the access method is called a B<connection>.  From an
-application's point of view, a depot is a storage facility, akin to a file,
-but more flexible, and a DBMS provides the API for using it; an application
-can use more than one distinct DBMS and/or depot at a time.
+Rosetta D is designed for a specific virtual environment that is
+implemented by a B<DBMS> (database management system).  This environment is
+home to zero or more databases, each of which users may create, have a
+dialog with (over a B<connection>), and delete; the components of the
+dialog, including queries and updates of the database, are the scope of the
+"D proper" language, and the other actions framing the dialog are the "D
+plus extra".
 
-I<Note that I do not use the word "database" when referring to any specific
-concept, because that term has too broad a range of meanings in general
-use; if I use the word "database", then I am being inspecific.>
+From an application's point of view, a DBMS is a library that provides
+services for storing data "some where" (which may be in memory, or the file
+system, or a network service, depending on implementation), like using
+files but more abstract and flexible; its API provides functions or methods
+for reading data from and writing data to the store.  This API takes richly
+structured commands which are written in Rosetta D, either AST (abstract
+syntax tree) form or string form.  Considering the distribution that
+contains the Language document you are reading now, L<Rosetta> is the main
+API that uses Rosetta D, and L<Rosetta::Model> provides the AST
+representation of Rosetta D.
 
+A <database> is a fully self-contained and fully addressable entity.  Fully
+self-contained means that nothing in the database depends on anything that
+is external to the database (such as in type or constraint definitions),
+save the DBMS implementing that database.  Fully addressable means that the
+database I<is> what an application opens a "data source" connection to, and
+its address can include such things as a file name or network server
+location or abstract DSN, depending on the implementation.
 
+A database is a usually-persistent container for B<relvars> (relation
+variables), in which all kinds of data are stored, and it provides
+relational operators for querying, updating, creating, and deleting those
+relvars.  A database also stores user-defined data types and operators for
+working with them, and relvars can be defined in terms of those
+user-defined types (as well as built-in types).  A database also defines
+various kinds of logical constraints that must be satisfied at all times,
+some system defined and some user defined, which complete the picture such
+that relvars are capable on their own of modelling anything in the real
+world.  A database also defines users that are authorized to access it,
+mediated by the DBMS.
 
+=head2 Language Grammar
 
+Rosetta D is a low-sugar language, such that its string form, which will be
+used for illustrative purposes in this documentation, has a very simple
+grammar and visually corresponds one-to-one with its abstract syntax tree.
 
+All Rosetta D B<types> and B<operators> are grouped into a hierarchical
+name space for simplicity and ease of use; the fully-qualified name of any
+type and operator includes its namespace hierarchy, with the highest level
+namespace appearing first (left to right).  You are recommended to use the
+fully-qualified names at all times (eg: C<root.branch.leaf>), although you
+may also use partially qualified (eg: C<branch.leaf>) or unqualified
+versions (eg: C<leaf>) if they are unambiguous.  For that matter, all
+standard relvars are likewise in that namespace hierarchy, as are database
+constraints.
+
+All Rosetta D entity identifiers, built-in and user-defined, including
+names of types, operators, relvars, and constraints, are all case-sensitive
+and may contain characters from the entire Unicode 4+ character repertoire
+(even whitespace), in each level of their namespace.  But fully or
+partially qualified identifiers always use the radix point character (.) to
+delimit each level.  Each namespace level may be formatted either with or
+without double-quote (") delimiters, if said name only contains
+non-punctuation and non-whitespace characters; if it does contain either of
+those, then it must always appear in delimited format.  All built-in
+entities only use characters that don't require delimiters (the upper and
+lowercase letters A-Z, and the underscore, and sometimes are partially
+composed of the digits 0-9), and your code will be simpler if you do
+likewise.  All built-in type and possrep names conform to best practices
+for Perl package names (eg: C<CharStr>), and all built-in names for
+operators, constraints, and relvars, conform to best practices for Perl
+routine and variable names (eg: C<the_x>), and certain pre-defined constant
+value names conform to best practices (eg: C<TRUE>).
+
+All Rosetta D expressions are formatted in prefix notation, where the
+operator appears before (left to right) all of its arguments, and the
+argument list is delimited by parenthesis and delimited by commas (eg: C<<
+<op>( <arg>, <arg> ) >>).  This is like most programming languages but
+unlike most logical or mathematical expressions, which use infix notation
+(eg: C<< <arg> <op> <arg> >>).
+
+In addition, all arguments are named (formatted in name/value pairs),
+rather than positional, so they can be passed in any order (eg: C<< <op>(
+<arg-name> => <arg-val> ) >>), and so the expressions are more
+self-documenting about what the arguments mean (eg: source vs target).  As
+an extension to this, if an operator takes a variable number of arguments
+that are all being used for the same purpose (eg: a list of numbers to add,
+or a list of relations to join), then those are collected into a single
+named argument whose value is a parenthesized and comma-delimited but
+un-ordered list (eg: C<< <op>( <arg-name> => (<arg-val>, <arg-val>) ) >>).
+
+=head2 High Level Database Organization
+
+The root level of a database's name hierarchy contains these 4 name-spaces,
+which are searched in top-down order when trying to resolve unqualified
+entity identifiers:
+
+=over
+
+=item C<system>
+
+All system-defined entities go here, including built-in data types and
+operators, and the catalog relvars that allow user introspection of the
+database using just relational operators (analagous to SQL's "information
+schema", but the provided meta-data is always fully decomposed).
+
+The standard way to create, alter, or drop user-defined entities is to
+update the catalog relvars concerning them (although some short-hand
+"create", etc, operators are provided to simplify those tasks).
+
+For uniformity, the system-defined entities are also listed in the catalog
+relvars (or, for the types, at least their interfaces are), but constraints
+on the catalog relvars forbid users from updating or removing the
+built-ins, or adding entities that say they are built-ins.
+
+=item C<local>
+
+All persistent user-defined entities go here, including real and virtual
+relvars, types, operators, and non-type-defining constraints.  This is the
+"normal" or "home" namespace for users.  All entities here may only be
+defined in terms of either C<system> entities or other entities here.
+
+=item C<temporary>
+
+All user-defined entities go here whose fates are tied to open connections;
+each connection to a database has its own private instance of this
+name-space, and its contents disappear when the connection is closed.
+These entities can be all of the same kinds as those that go in C<local>.
+They can be defined in terms of C<local> entities, but the reverse isn't
+true.  Generally, C<temporary> is the name-space for entities that are
+specific to the current application, but that it makes sense for them to
+exist within the Tutorial D virtual environment for efficiency.
+
+=item C<remote>
+
+If the current DBMS has support for federating access to external
+databases, effectively by "mounting" their contents within the current
+database as an extension to it, so users with a connection to the current
+database can access those other databases through the same connection, then
+those contents appear under C<remote>.
+
+In terms of a hypothetical federated DBMS that lets you use a single
+"connection" to access multiple remote databases at once, such as for a
+database cloning utility or a multiplexer, I<all> of the interesting
+contents would be C<remote>, and the C<local> name space would be empty.
+
+I<This feature is more experimental and has yet to be fleshed out.>
+
+=back
 
 =head1 HERE AND BELOW IS OLD DOCUMENTATION, TO BE REWRITTEN
 
-Rosetta::Model provides an effective language for defining relational data
-models, both the means to create them and the means to interact with them.
-The language is IRL (Intermediate Relational Language); see the
-documentation of L<Rosetta::Model> itself (in the current distribution) for
-a further introduction.
-
-IRL is a "relationally complete" language; a language is relationally
-complete if it is at least as powerful as the relational algebra.
-
-This document, Rosetta::Language ("Language"), is the human readable
-authoritative design document for that language.  The file Rosetta::Model
-itself contains the machine readable language specification, which is
-derived from the human readable version.  If there's a conflict between the
-two, then either Rosetta::Model is in error, or the developers were
-negligent in updating it before Language, so you can yell at them.
-Likewise, believe Language before any other conflicting documents, unless
-the other documents are emails from Rosetta::Model developers, in which
-case they can be yelled at again for not keeping Language up to date.
-
-Since IRL is largely derived from pre-existing language specifications such
-as Christopher J. Date's and Hugh Darwen's Tutorial D and the ANSI/ISO
-SQL:2003 standard, it may be tempting to just assume everything you know
-from them is also true here.  While that will work in some cases (and in
-fact I intentionally don't repeat many details here for brevity), it won't
-in others, so you should always check here for any possible conflicts.
-
-IRL is primarily declarative, in that it defines how implementations should
-appear and behave from a user's point of view, and it does not typically
-make any demands as to how implementations accomplish this behind the
-scenes.
-
-=head1 OPERATIONAL CONTEXT
-
-IRL is designed for a specific virtual environment, that provides
-usually-persistent repositories (or "depots") in which can live user
-defined data structures and routines to operate on them, as is the case
-with a typical computer programming language.  Broadly speaking, IRL
-provides the means to create, read, modify, and delete both entire depots
-and other items that live in them.  An implementation (or instance thereof)
-of IRL is a "depot management system" (or "depot manager"); it is the job
-of the depot manager to facilitate access to depots implemented with it.
-
-A B<depot> is is a fully self-contained and fully addressable database.  It
-is what your application opens a connection to when it wants to use a
-database.  A depot has its own set of user accounts, and its own catalogs
-(containing schemas, which in turn contain tables and other data structures
-plus stored routines), which are owned by and operated on by said users.  A
-depot by definition never shares ownership of catalogs or users with
-another depot, even another managed by the same depot manager.  When an
-application opens a connection to a database, a "depot" I<is> what it is
-connecting to, and everything it sees within that connection is from within
-the context of the depot.  In other terms, when you hold a "data source
-name" / DSN, a single "depot" is what it points to.
-
-A B<depot manager> is software that takes the form of either a library
-embedded in the current application process or one instance of a separate
-server process that is running somewhere.  When an application wants to
-invoke a depot from an application, the invocation must be qualified with
-what depot manager is going to be used, plus any necessary manager
-implementation specific details to locate the depot itself.
-
-With a "file based" implementation, such as one using the SQLite database
-manager, there is a one-to-one mapping between a depot and a file system
-file, the SQLite database file in this case; to use this depot, it is
-identified simply using the manager name and the file name.  Likewise with
-MS Access, or standalone CSV or tabular database files.  One such database
-manager can typically manage several depots/files at once, each accessed
-with a separate connection.  Rosetta::Engine::Native is also "file based".
-
-With a "client-server" implementation, such as Oracle or PostgreSQL, a
-depot is identified (directly or under abstraction) by both the network
-address of the server itself (qualified with such as an IP address and
-port, or a socket name), and a "database name".  Or that is the case with
-many client-server databases like PostgreSQL, so for those each "database
-at a server" corresponds one-to-one with a depot, assuming that these
-databases do not share a common set of users.  Oracle is different in that
-"the server equals the database", so therefore one Oracle server equals one
-depot.  MySQL muddies the waters, where it seems that all "databases"
-managed by a MySQL server process share a common set of users.  By
-definition, a depot contains everything that a single database manager
-provided user account is privileged to own, so perhaps everything under a
-MySQL server process is a single depot.
-
-Of course, the exact mapping of concepts for a federated implementation of
-a depot manager (and most depot managers are anticipated to be federated)
-are left to its creator, but the above are my recommendations.
-
-A B<user> is whom the application or its user authenticates themselves as
-against a depot connection, if the depot manager has a concept of users
-(SQLite natively does not, Oracle natively does, etc).  IRL defines 3 types
-of users, called ROOT, NAMED, ANONYMOUS; there is 1 ROOT user that owns the
-depot and was created with it, and NAMED users are what a typical person
-connects as, unless they are ANONYMOUS.  Note that some database managers
-underlying a depot manager will display a different view of the database
-depending on what user logged in, but the depot manager should abstract
-away this per-user difference where possible, mainly by using fully
-qualified identifiers for all depot contents.  A user can have privileges
-that authorize what it can do in the depot.
-
-A depot provides 2 levels of namespace in which its main contents are
-organized; the higher level namespace is B<catalog> and the lower level
-namespace is B<schema>.  The main contents themselves (data structures and
-routines) are collectively referred to as B<schema objects>.  Schema
-objects are like the package qualified global variables of Perl;
-authorization permitting, you can directly invoke any of them at any time,
-either from within another schema object or within a client side routine
-operating over an open connection to the depot containing them.  The fully
-qualified name of a schema object is "<catalog>.<schema>.<object>", which
-is fully unambiguous and works anywhere.  Partially qualified
-("<schema>.<object>") or unqualified ("<object>") names can also be used to
-invoke a schema object, but they only work within the same namespace
-(catalog or schema respectively) as the invocant.
-
-As with typical programming languages, IRL also provides lexically scoped
-data structures (and sometimes routines).  Mainly it is data structures
-declared within a routine that are lexical, and these are only visible
-within that routine.
-
-Unlike typical SQL databases, but like typical programming languages, you
-can define instances of all the same data structure types at both the
-global and lexical level.  So for example you can define a table or view
-that only exists within a routine (and has the life of its execution), and
-you can also declare a standalone scalar container that is a schema object.
-(The latter would be implemented as a table with a single column and row
-in a typical SQL database back-end.)
-
-IRL defines 4 types of catalogs, called LOCAL, SYSTEM, TEMPORARY, and
-REMOTE; a depot can potentially have all of these kinds at once, but
-typically it has exactly 1 each of the first 3 types.  The LOCAL catalog
-type is the normal one, and contains all the typical persistent schema
-objects.  The TEMPORARY catalog type is for schema objects whose fates are
-tied to open connections; each connection has its own private instance of
-one TEMPORARY catalog, and its contents disappear when the connection is
-closed.  The SYSTEM catalog type provides read-only schema objects that are
-views into that depot's meta-data; they are analagous to an "information
-schema", but that all the meta-data is atomic like IRL itself.
-
-The REMOTE catalog type is used when you cause the depot / depot manager
-you are connected with to turn around and connect to another depot (whether
-under the same depot manager doesn't matter), so its contents also become
-visible to you like they were an extension of the current depot; by default
-all catalogs in the other depo are "mounted" as remote catalogs in the
-current one.  In SQLite terms, when you "attach" one or more database files
-to the "main" one you have open, then a new "remote" catalog appears that
-represents each one. In terms of MySQL, I would guess that tables of its
-"federated" table type qualify to conceptually live in a remote catalog.
-Any other database, presumably such as Oracle, that lets you "connect to" a
-remote depot_manager is implementing the REMOTE catalog feature.  In terms
-of a hypothetical federated depot manager that lets you use a single
-"connection" to access multiple remote depots at once, such as for a
-database cloning utility or a multiplexer, I<all> of the visible catalogs
-would be the REMOTE type, and there wouldn't be any of the LOCAL type.
+Fubar.
 
 =head1 DATA TYPES AND VALUES
 
