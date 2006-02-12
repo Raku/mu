@@ -1,0 +1,179 @@
+Where do we go from here? - A strawman walk through design space.
+
+What is the objective?  For THIS NOTE, it is "create a system that can
+closely track the Snn spec".  It is NOT clear this is the right objective.
+
+Does this require self-hosting?  No.
+
+Does this require a flexible parser?  Yes.
+
+But, an interesting alternate objective is "system with working oo,
+with pugs(current)-level parser flexibility".  Or perhaps even lower
+flexibility.  I'd simplify this note by choosing that as the
+objective, but there is a choice point below which flexibility bares
+on, so we'll carry it along.
+
+
+What are the system components and what is working?
+
+ runtime core - yes  (pugs, pil2js, p5)
+ objects - not quite (pugs, pil2js, p5)
+ compiler - yes? (pugs)
+ parser - not quite* (pugs)  [yes? if inflexible is ok]
+
+
+Are capabilities worth breaking down?
+
+I'm not sure.  The key ones seem to follow the components.
+
+
+* Compiler:
+
+Existing systems:  Only pugs.
+ input: pugs parser (currently no alternates)
+ output: pil, pugs ast (pil is currently partial)
+ status: not sure.  I've a fuzzy impression of "causing problems" and
+   "needs rewrite".  yes?
+ 
+If that's the state, then the key question is how difficult would it
+be to fix/reimplement?  In
+ hs
+ p6
+ some language (js, p5)
+
+Fix/reimplementation on hs I'll leave for others to outline.
+
+Reimplementation on non-hs:
+ p6
+  requires working objects
+  could run on pugs, pil2js, or p5
+ p5
+  either running a compiler written in p6, or written directly in p5
+  if the p5 is p6-ish enough to make it feasible complexity wise.
+ js
+  probably only option is run a "written in p6".
+  (every time I say "js" in this note, I mean the "js liked with perl5" hybrid)
+
+What would a compiler in p6 look like?
+Takes a parse tree.
+Output options:
+  Drop in replacement: PIL-like but with class info.
+  Direct emit: AST->native, no PIL stage.
+p5: could do either.  no currently working PIL->native stage.
+js: could do either.  but the existing PIL->native state works, and
+    removing might be non-trivial.
+
+Key question: How hard would it be to write a compiler in p6?
+
+Don't know.  
+
+Issues:
+  pugs compiler buggy? or not?
+    Options: fix, reimplement.
+  pugs compiler->PIL is lossy.  no class info.
+    Options: fix, might work around, reimplement.
+
+
+* Parser
+
+Existing systems: Only pugs.
+output: pugs ast, -CParse-YAML
+status: is key. I have no idea.
+
+Key questions:
+ - Does yaml non-lossily reflect the parse?
+ - How well is the parser working now?  Causing any bugs?
+ - Does it seem ok going forward?  Sort-term?  All the way to a
+   dynamic parser sandwich?
+
+Flavors of parser support:
+ - static p6 prelude
+ - operators can be added (current pugs)
+ - full Snn spec dynamism
+
+Implementation options:
+  Use pugs parser.  Via yaml if compiler is non-pugs.
+  Build on pge.
+  Write a parser in p6. (requires working objects. probably)
+  There may be other options, depending on exactly what is needed.
+
+Building on PGE:
+  Can it handle a p6-sized grammar?  unclear. but it would likely be
+    fixed if it didn't.
+  Could do static with just a grammar.
+  Would need wrapping (dynamic grammar creation), or callbacks (dynamic
+    nodes - may or may not be tractable) to add operators or be spec.
+  p5 could call pge.  a js_p5 hybrid could call pge.
+
+Write a parser in p6:
+  Mostly just a rule engine (ie, PGE in p6).
+  Not that hard, I think, with exceptions and hypothetical variables.
+    Gets cruftier without, but still doable.
+  Performance may be an issue.
+    One possibility is to write in p6, and then transcode to js or p5.
+
+* Notes
+
+We currently have a number of almost-but-not-quite systems and components.
+
+What are possible objectives?
+  Find a series of actions which give us:
+    any one system to have working objects?
+    a min cost (or min risk?) path to a Snn tracking implementation?
+  What other possible objectives?
+  What cross-cutting constraints?
+    performance?
+
+Performance wasn't discussed above.  Perhaps it should have been.
+Key question - just how much do we not care about the performance of
+our possible implementations.  Note that with multi-step bootstraps,
+the performance of the initial stage may not matter.
+
+Some scenarios:
+ - fix pugs
+   add: almost working, and is being tested.
+   disadd: developer accessibility/availability limitations
+   add: may be minimum cost path to "basically working objects".
+        but high risk?
+ - js core (in a js-p5 hybrid)
+     add: already works and being tested.
+     disadd: development is in js.  iblech has been only major developer.
+     - fix PIL to contain class info. teach js to understand it.
+       add: may be minimum cost/risk path to "basically working objects".
+     - get class info direct from source, bypassing compiler
+        - via custom regexs
+          disadd: very hackish and fragile.
+        - via -CParser-YAML
+          ques: plausible?
+ - p5 core
+    add: could build on exiting p6-ish modules.
+    ques: how robust are they?  how bad is the performance?
+    add: development process could look like normal cpan growth.
+    disadd: object zoo has to be built from scratch.
+            perl5/Perl6-Value and Container is _not_ a usable foundation.
+     - fix PIL to contain class info, and write PIL->native compiler.
+       add: re compiler - has been done, can be done again.
+     - write -CParser-YAML -> native compiler
+       add: might be simplest p5 core approach.
+       disadd: -CParser-YAML is an untried component.
+     - parse and compile on p5.  independent of pugs.
+       - p5 parse
+         disadd: slow, doesn't exist
+       - pge parse
+         add: faster, almost maybe exists
+         disadd: wrapping and system complexity issues.
+ - parrot bootstrap
+    add: pge is there, and thus interoperation with it is cleaner.
+    add: is a possible long-term right thing.
+    disadd: developer accessibility/availability limitations
+    disadd: very flakey platform
+    disadd: not a high-leverage environment - good developers can take
+            a long time to do something small.
+
+Some non-existent components:
+  - a parser written in p6.  perhaps a transcoding of same to p5.
+  - a -CParser-YAML based compiler.
+    written in p6 or p5 or js.
+    to pil or native.
+
+Ok. That just hit my self-imposed 1hr timeout. First draft.

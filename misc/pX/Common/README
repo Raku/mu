@@ -1,0 +1,48 @@
+What is this?
+
+"pX" was the name of a now discarded strawman proposal for a project.
+This directory was created to sketch how development for it might occur.
+
+It's now (2006-Feb-12) morphing into something else. :) Perhaps an
+experiment in a different collaboration style than we usually use.
+Perhaps a p6 on p5 implementation.
+
+From the original proposal: (now modified - feel free to morph)
+
+  We currently have a development problem of zones-of-ownership being
+entagled with subparts-of-p6-development.  So person foo is working on
+Bar::Hee with is intended to be the wizget implentation for pugs/p6.
+And there isn't much code discussion or collaboration.  The objective
+is to change this.
+
+ - Be on #perl6
+ - Commit early and often. Do as close to continuous public coding as
+folks can manage.
+ - Keep things as flat and simple as possible.  Perl6::Foo::Bar.pm can
+just be Perl6-Foo-Bar.pm, rather than Perl6/Foo/Bar.pm.  Ie, the way
+you would do it given full p6.  And if you're working Bar, don't worry
+whether it's a Perl6::Foo.  Think "I'm writing spec".
+ - The objective of Common is to have someplace where people can
+collaboratively hack, with just enough social convention that people
+aren't afraid to hack, for fear of damaging others' work.
+ - Example: someone creates some tiny bit of code.  they commit it as
+Common/foo.pm.  It's open season on files like foo.  If you want to
+fork one, copy it to foo-2.pm.  If you want to fork (or post, or
+explore an alternative) and emphasize you are retaining editorial
+control, foo-putter.pm. Not open season on -owner tagged stuff.
+Sortof like the current practice.  Old Common/ stuff without a -editor
+suffix can be moved by anyone to Aside.
+ - More than code is welcome.  Psuedocode.  Lists of stuff.  Adding
+#XXX questions to files.
+
+  Basically, avoid pervasive code ownership, while maintaining the
+ability of individuals to pursue their own vision, by providing both
+explicit private playpens, and a collaborative space with just a bit
+of ownership.
+
+  Maybe this would help.  Maybe this can work.  Maybe not.  Thoughts
+welcome.
+
+#XXX - what is the connection with ext/?  When should development take
+place there instead?
+
