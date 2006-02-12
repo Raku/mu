@@ -14,9 +14,22 @@
 # Currently "implemented", and perhaps even working, are literals "a",
 # alternation "|", concatentation "ab", and some anchors "\A\z^$".
 
-#XXX - feel free to flesh things out.
-
 # This is day, almost hour, one.
+
+#XXX - feel free to flesh things out.
+# Most of it is simple (concat is anomalous).
+
+#XXX:
+# - write an accompanying .t file to dump tests into.
+# - play with Regexp::Parser's Perl6::Rules to establish it's state.
+#   Summarize that here.
+# - Create a subrule node for it, and teach it to parse it.
+
+#XXX - Set up a full p5 re_test suite.  Either using our own
+#t/rules/perl5_N.t tests, or the re_test file (originally from the p5
+#distribution) and accompanying driver from the parrot distribution.
+#Our own might be best, so we can use same for mechanism for the p6
+#tests. The suite could also be a nice mechanism to benchmark with.
 
 use Regexp::Parser;
 use Data::Dumper;
