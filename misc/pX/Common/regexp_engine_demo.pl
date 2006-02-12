@@ -64,6 +64,12 @@ use strict;
     #print $code;
     eval($code) || die "$@";
   }   
+  my %warned_about;
+  sub emit {
+    my $cls = ref($_[0]);
+    warn "$cls emit() unimplemented\n" if !defined $warned_about{$cls}++;
+    sub{return undef};
+  }
 }
 {
   package Regexp::Parser::__object__;
@@ -92,7 +98,8 @@ use strict;
     return sub{return undef if !($X::pos == (length($X::str)-1));
                my $c = $_[0]; @_=$noop; goto &$c
     } if $re eq '\z';
-    die "didn't implement $re"
+    #die "didn't implement $re"
+    sub{return undef};
   }
 }
 {
@@ -137,18 +144,24 @@ use strict;
   package Regexp::Parser::branch;
   sub emit {
     my($o)=@_;
-    my($f0,$f1) = map { $o->concat($_) } @{$o->data};
+    my(@fs) = map { $o->concat($_) } @{$o->data};
+    my $f_last = pop(@fs);
     sub{
-      my($str,$pos); my $v;
-      { local($X::str,$X::pos)=($X::str,$X::pos);
-        $v = $f0->($_[0]);
-        ($str,$pos)=($X::str,$X::pos) if defined $v;
+      my $c = $_[0];
+      for my $f (@fs) {
+        my($str,$pos); my $v;
+        { local($X::str,$X::pos)=($X::str,$X::pos);
+          $v = $f->($c);
+          ($str,$pos)=($X::str,$X::pos) if defined $v;
+        }
+        if(defined $v) {
+          ($X::str,$X::pos)=($str,$pos);
+          return $v;
+        }
       }
-      if(defined $v) {
-        ($X::str,$X::pos)=($str,$pos);
-        return $v;
-      }
-      goto &$f1};
+      # @_= $c; # Hasn't changed.
+      goto &$f_last;
+    };
   }
 }
 {
@@ -226,7 +239,8 @@ my $noop = Hacks->noop;
 sub compile {
   my($re)=@_;
   my $parser = Regexp::Parser->new($re);
-  my $n = $parser->root;
+  my $n = eval{ $parser->root };
+  return sub{return undef} if !defined $n;
   #print Dumper $n;
   my $r = Hacks->concat($n);
   return $r;
@@ -245,10 +259,15 @@ sub match_re {
   return $m;
 }
 
+if(@ARGV && $ARGV[0] eq '--test') {
+  require './re_tests_match.t';
+  Pkg_re_tests::test(sub{my($mods,$re)=@_;my $r = compile($re); sub{my($s)=@_;match($r,$s)}});
+  exit;
+}
 print Dumper match_re('\z','abc');
 print Dumper match_re('\z\z\z\z','abc');
 print Dumper match_re('\z|\A','abc');
 print Dumper match_re('\A|\z','abc');
 print Dumper match_re('ab','abc');
 print Dumper match_re('x','abc');
-print Dumper match_re('x|a','abc');
+print Dumper match_re('x|y|a','abc');
