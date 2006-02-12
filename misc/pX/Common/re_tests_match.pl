@@ -35,7 +35,7 @@ sub test {
 	    $re =~ s/\'([^\']*)$//;
 	    $mods = $1;
 	}
-        my $qr = $f->($mods,$re);
+        my $qr = eval{ $f->($mods,$re) };
 	if (!defined $qr) {
 	    if($ok =~ /c/) { print "ok\n"; }
 	    else { print "not ok \# Error\n"; print "not ok\n"; }
