@@ -11,6 +11,13 @@
 # their status.  The nodes are basically the same, so it's not a big
 # deal.
 
+# Test suite:
+#  re_tests - tests from p5 HEAD 2006-02-12
+#  re_tests_perl5.t - driver from same.
+#  re_tests_parrot.t - parrot's driver, same date.
+#  re_tests_match.el - an old driver putter wrote, adapted to call a Match obj.
+# Just  prove regexp_engine_demo.t   or somesuch.
+
 # Currently "implemented", and perhaps even working, are literals "a",
 # alternation "|", concatentation "ab", and some anchors "\A\z^$".
 
@@ -23,13 +30,6 @@
 #   Summarize that here.
 # - Create a subrule node for it, and teach it to parse it.
 
-#XXX - Set up a full p5 re_test suite.  For TDD and benchmarking.
-# re_tests - tests from p5 HEAD 2006-02-12
-# re_tests_perl5.t - driver from same.
-# re_tests_parrot.t - parrot's driver, same date.
-# re_tests_match.t - an old driver putter wrote, adapted to call a Match obj.
-# One of these drivers needs to be gotten working.
-# Maybe re_tests_match.t since it knows about Match objects?
 
 #XXX - create a p5->p6 regexp syntax converter! :)
 # create methods (in_p6_syntax?) which return the p6 version of the regexp.
