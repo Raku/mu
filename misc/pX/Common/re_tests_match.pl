@@ -37,12 +37,13 @@ sub test {
 	}
         my $qr = eval{ $f->($mods,$re) };
 	if (!defined $qr) {
+            my $err = $@; $err =~ s/^/\# /m;
 	    if($ok =~ /c/) { print "ok\n"; }
-	    else { print "not ok \# Error\n"; print "not ok\n"; }
+	    else { print "not ok \# Unexpected compilation failure.\n$err\n" }
 	    next;
 	}
 	if($ok =~ /c/) {
-	    print "not ok  \# Expected error message.\n";
+	    print "not ok  \# Expected compile to fail.\n";
 	    next;
 	}
 

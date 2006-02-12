@@ -38,6 +38,7 @@
 
 use Regexp::Parser;
 use Data::Dumper;
+use Match;
 use strict;
 {
   package Hacks;
@@ -64,11 +65,31 @@ use strict;
     #print $code;
     eval($code) || die "$@";
   }   
-  my %warned_about;
+  sub mk_eater_for_re {
+    my($o,$re)=@_;
+    my $noop = $o->noop;
+    my $qr = qr/\G$re/;
+    sub {
+      my $c = $_[0];
+      my($s) = $X::str;
+      pos($s) = $X::pos;
+      my $x = $s =~ $qr;
+      return undef if !$x;
+      $X::pos += length($x);
+      @_=$noop;
+      goto &$c;
+    };
+  }
+
+  #my %warned_about;
   sub emit {
     my $cls = ref($_[0]);
-    warn "$cls emit() unimplemented\n" if !defined $warned_about{$cls}++;
-    sub{return undef};
+    die "$cls emit() unimplemented\n";
+    #warn "$cls emit() unimplemented\n" if !defined $warned_about{$cls}++;
+    #sub{return undef};
+  }
+  sub inf {
+    1000**1000**1000 #XXX there has to be a better way. :(
   }
 }
 {
@@ -91,11 +112,11 @@ use strict;
     # \B
     # \b
     # \G
-    return sub{return undef if !($X::pos == (length($X::str)-1) || substr($X::str,$X::pos,1) eq "\n");
+    return sub{return undef if !($X::pos == (length($X::str)) || substr($X::str,$X::pos,1) eq "\n");
                my $c = $_[0]; @_=$noop; goto &$c
     } if $re eq '$';
     # \Z
-    return sub{return undef if !($X::pos == (length($X::str)-1));
+    return sub{return undef if !($X::pos == (length($X::str)));
                my $c = $_[0]; @_=$noop; goto &$c
     } if $re eq '\z';
     #die "didn't implement $re"
@@ -105,18 +126,50 @@ use strict;
 {
   # . \C
   package Regexp::Parser::reg_any;
+  sub emit {
+    my($o)=@_;
+    my $noop = $o->noop;
+    my $re = $o->raw();
+    return sub{return undef if $X::pos == (length($X::str)-1);
+               $X::pos++; 
+               my $c = $_[0]; @_=$noop; goto &$c
+    } if $re eq '.';
+    #die "didn't implement $re"
+    sub{return undef};
+  }
 }
 {
   # \w \W
   package Regexp::Parser::alnum;
+  sub emit {
+    my($o)=@_;
+    my $re = $o->raw();
+    return $o->mk_eater_for_re('\w') if $re eq '\w';
+    return $o->mk_eater_for_re('\W') if $re eq '\W';
+    die "Regexp compilation bug";
+  }
 }
 {
   # \s \S
   package Regexp::Parser::space;
+  sub emit {
+    my($o)=@_;
+    my $re = $o->raw();
+    return $o->mk_eater_for_re('\s') if $re eq '\s';
+    return $o->mk_eater_for_re('\S') if $re eq '\S';
+    die "Regexp compilation bug";
+  }
 }
 {
   # \d \D
   package Regexp::Parser::digit;
+  sub emit {
+    my($o)=@_;
+    my $re = $o->raw();
+    return $o->mk_eater_for_re('\d') if $re eq '\d';
+    return $o->mk_eater_for_re('\D') if $re eq '\D';
+    die "Regexp compilation bug";
+  }
 }
 {
   package Regexp::Parser::anyof;
@@ -149,9 +202,10 @@ use strict;
     sub{
       my $c = $_[0];
       for my $f (@fs) {
+        my $c_down = $c;
         my($str,$pos); my $v;
         { local($X::str,$X::pos)=($X::str,$X::pos);
-          $v = $f->($c);
+          $v = $f->($c_down);
           ($str,$pos)=($X::str,$X::pos) if defined $v;
         }
         if(defined $v) {
@@ -176,6 +230,42 @@ use strict;
 }
 {
   package Regexp::Parser::quant;
+  sub emit {
+    my($o)=@_;
+    my $noop = $o->noop;
+    my($min,$max)= (@$o{'min','max'});
+    $min = 0 if $min eq "";
+    $max = $o->inf if $max eq "";
+    $min += 0; $max += 0; 
+    my $f = $o->data->emit;
+    sub{
+      my $c = $_[0];
+      my $i = 0;
+      my($fmin,$fmax);
+      $fmin = sub{ goto &$fmax if $i >= $min; @_=$fmin; $i++; goto &$f};
+      $fmax = sub{
+        if($i >= $max) {
+          @_=$noop;
+          goto &$c;
+        }
+        $i++;
+        my $c_down = $fmax;
+        my($str,$pos); my $v;
+        { local($X::str,$X::pos)=($X::str,$X::pos);
+          $v = $f->($c_down);
+          ($str,$pos)=($X::str,$X::pos) if defined $v;
+        }
+        if(defined $v) { 
+         ($X::str,$X::pos)=($str,$pos);
+          return $v;
+        } else {
+          @_=$noop;
+          goto &$c;
+        }
+      };
+      goto &$fmin;
+    };        
+  }
 }
 {
   # ( non-capturing
@@ -223,6 +313,12 @@ use strict;
 {
   # (?{ ... })
   package Regexp::Parser::eval;
+  sub emit {
+    my($o)=@_;
+    my $embedded_code = join("",$o->data);
+    my $code = 'sub{my $__c__ = $_[0]; '.$embedded_code.'; goto &$__c__}';
+    eval($code) || die "Error compiling (?{$embedded_code}) :\n$@\n";
+  }
 }
 {
   # (??{ ... })
@@ -240,7 +336,7 @@ sub compile {
   my($re)=@_;
   my $parser = Regexp::Parser->new($re);
   my $n = eval{ $parser->root };
-  return sub{return undef} if !defined $n;
+  die "$@" if !defined $n;
   #print Dumper $n;
   my $r = Hacks->concat($n);
   return $r;
@@ -249,8 +345,16 @@ sub match {
   my($r,$s)=@_;
   local $X::str = $s;
   local $X::pos = 0;
+  local $X::match = MatchX->new();
   my $m = $r->($noop);
-  return $m;
+  if(defined($m)) {
+    $X::match->set_str(substr($X::str,0,$X::pos));
+    ${$X::match}->{'from'}=0; #EEEP
+    ${$X::match}->{'to'}=$X::pos; #EEEP
+  } else {
+    $X::match->set_as_failed;
+  }
+  return $X::match;
 }
 sub match_re {
   my($re,$s)=@_;
@@ -260,14 +364,8 @@ sub match_re {
 }
 
 if(@ARGV && $ARGV[0] eq '--test') {
-  require './re_tests_match.t';
+  require './re_tests_match.pl';
   Pkg_re_tests::test(sub{my($mods,$re)=@_;my $r = compile($re); sub{my($s)=@_;match($r,$s)}});
   exit;
 }
-print Dumper match_re('\z','abc');
-print Dumper match_re('\z\z\z\z','abc');
-print Dumper match_re('\z|\A','abc');
-print Dumper match_re('\A|\z','abc');
-print Dumper match_re('ab','abc');
-print Dumper match_re('x','abc');
-print Dumper match_re('x|y|a','abc');
+print Dumper match_re('a','abc');
