@@ -14,8 +14,6 @@
 # Currently "implemented", and perhaps even working, are literals "a",
 # alternation "|", concatentation "ab", and some anchors "\A\z^$".
 
-# This is day, almost hour, one.
-
 #XXX - feel free to flesh things out.
 # Most of it is simple (concat is anomalous).
 
@@ -25,11 +23,18 @@
 #   Summarize that here.
 # - Create a subrule node for it, and teach it to parse it.
 
-#XXX - Set up a full p5 re_test suite.  Either using our own
-#t/rules/perl5_N.t tests, or the re_test file (originally from the p5
-#distribution) and accompanying driver from the parrot distribution.
-#Our own might be best, so we can use same for mechanism for the p6
-#tests. The suite could also be a nice mechanism to benchmark with.
+#XXX - Set up a full p5 re_test suite.  For TDD and benchmarking.
+# re_tests - tests from p5 HEAD 2006-02-12
+# re_tests_perl5.t - driver from same.
+# re_tests_parrot.t - parrot's driver, same date.
+# re_tests_match.t - an old driver putter wrote, adapted to call a Match obj.
+# One of these drivers needs to be gotten working.
+# Maybe re_tests_match.t since it knows about Match objects?
+
+#XXX - create a p5->p6 regexp syntax converter! :)
+# create methods (in_p6_syntax?) which return the p6 version of the regexp.
+# We will then pour the re_test suite through it, yielding a more complete
+# version of t/rules/rules.t.
 
 use Regexp::Parser;
 use Data::Dumper;
