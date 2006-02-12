@@ -105,7 +105,7 @@ that relvars are capable on their own of modelling anything in the real
 world.  A database also defines users that are authorized to access it,
 mediated by the DBMS.
 
-=head2 Language Grammar
+=head2 Grammar and Name Spaces
 
 Rosetta D is a low-sugar language, such that its string form, which will be
 used for illustrative purposes in this documentation, has a very simple
@@ -118,26 +118,27 @@ namespace appearing first (left to right).  You are recommended to use the
 fully-qualified names at all times (eg: C<root.branch.leaf>), although you
 may also use partially qualified (eg: C<branch.leaf>) or unqualified
 versions (eg: C<leaf>) if they are unambiguous.  For that matter, all
-standard relvars are likewise in that namespace hierarchy, as are database
-constraints.
+standard relvars and constraints are likewise in that namespace hierarchy.
 
 All Rosetta D entity identifiers, built-in and user-defined, including
-names of types, operators, relvars, and constraints, are all case-sensitive
-and may contain characters from the entire Unicode 4+ character repertoire
-(even whitespace), in each level of their namespace.  But fully or
-partially qualified identifiers always use the radix point character (.) to
-delimit each level.  Each namespace level may be formatted either with or
-without double-quote (") delimiters, if said name only contains
-non-punctuation and non-whitespace characters; if it does contain either of
-those, then it must always appear in delimited format.  All built-in
-entities only use characters that don't require delimiters (the upper and
-lowercase letters A-Z, and the underscore, and sometimes are partially
-composed of the digits 0-9), and your code will be simpler if you do
-likewise.  All built-in type and possrep names conform to best practices
+names of types, operators, relvars, constraints, and users, are all
+case-sensitive and may contain characters from the entire Unicode 4+
+character repertoire (even whitespace), in each level of their namespace.
+But fully or partially qualified identifiers always use the radix point
+character (.) to delimit each level.  Each namespace level may be formatted
+either with or without double-quote (") delimiters, if said name only
+contains non-punctuation and non-whitespace characters; if it does contain
+either of those, then it must always appear in delimited format.  All
+built-in entities only use characters that don't require delimiters (the
+upper and lowercase letters A-Z, and the underscore, and sometimes are
+partially composed of the digits 0-9), and your code will be simpler if you
+do likewise.  All built-in type and possrep names conform to best practices
 for Perl package names (eg: C<CharStr>), and all built-in names for
-operators, constraints, and relvars, conform to best practices for Perl
-routine and variable names (eg: C<the_x>), and certain pre-defined constant
-value names conform to best practices (eg: C<TRUE>).
+operators, constraints, relvars, and users, conform to best practices for
+Perl routine and variable names (eg: C<the_x>), and certain pre-defined
+constant value names conform to best practices (eg: C<TRUE>).  No built-in
+operators have symbols like "+" or "=" as names, but rather use letters,
+"add" and "eq" in this case.
 
 All Rosetta D expressions are formatted in prefix notation, where the
 operator appears before (left to right) all of its arguments, and the
@@ -156,8 +157,6 @@ or a list of relations to join), then those are collected into a single
 named argument whose value is a parenthesized and comma-delimited but
 un-ordered list (eg: C<< <op>( <arg-name> => (<arg-val>, <arg-val>) ) >>).
 
-=head2 High Level Database Organization
-
 The root level of a database's name hierarchy contains these 4 name-spaces,
 which are searched in top-down order when trying to resolve unqualified
 entity identifiers:
@@ -169,7 +168,8 @@ entity identifiers:
 All system-defined entities go here, including built-in data types and
 operators, and the catalog relvars that allow user introspection of the
 database using just relational operators (analagous to SQL's "information
-schema", but the provided meta-data is always fully decomposed).
+schema", but the provided meta-data is always fully decomposed), and
+constraints on the above.
 
 The standard way to create, alter, or drop user-defined entities is to
 update the catalog relvars concerning them (although some short-hand
@@ -183,9 +183,22 @@ built-ins, or adding entities that say they are built-ins.
 =item C<local>
 
 All persistent user-defined entities go here, including real and virtual
-relvars, types, operators, and non-type-defining constraints.  This is the
-"normal" or "home" namespace for users.  All entities here may only be
-defined in terms of either C<system> entities or other entities here.
+relvars, types, operators, and constraints.  This is the "normal" or "home"
+namespace for users.  All entities here may only be defined in terms of
+either C<system> entities or other entities here.
+
+Typically, the next name space level down under C<local> would be
+functionally similar to a list of schemata as larger SQL databases
+typically provide so that each of a database's users can have a separate
+place for the types, relvars, etc, that they create.  In fact, to best be
+able to represent various existing DBMSs that have anywhere from zero to 2
+or 3 such name spaces, Rosetta D allows you to have an arbitrary number of
+such intermediate name space levels, or use none at all.  In fact, unless
+you actually need these intermediate levels, it is highly recommended that
+you don't use them at all, to reduce complexity.  But as I mentioned
+earlier, unless the database has more than one entity with the same
+unqualified or semi-qualified name, you can just use those shorter names
+everywhere, which results in the optional hierarchy being abstracted away.
 
 =item C<temporary>
 
@@ -206,14 +219,96 @@ database as an extension to it, so users with a connection to the current
 database can access those other databases through the same connection, then
 those contents appear under C<remote>.
 
+This may or may not count as the current DBMS being a proxy.
+
 In terms of a hypothetical federated DBMS that lets you use a single
 "connection" to access multiple remote databases at once, such as for a
 database cloning utility or a multiplexer, I<all> of the interesting
 contents would be C<remote>, and the C<local> name space would be empty.
 
+Typically, the next name space level down under C<remote> will contain a
+single name per distinct mounted external database, and then below each of
+those may be that database's C<local> items, or alternately and more likely
+we would see literal C<system>, C<local>, etc folders like our own root.
+
 I<This feature is more experimental and has yet to be fleshed out.>
 
 =back
+
+Types and relvars would then have their unqualified names sitting just
+below the above name spaces, per root space; so, for example, we would have
+fully qualified names like C<system.CharStr> or C<local.suppliers>; simple.
+
+However, operators have mandatory "package" name-spaces under which their
+otherwise unqualified names would go, and these are usually identical to
+the data type name that they are primarily associated with.  So, for
+example, we would have fully qualified names like C<system.NumInt.add> or
+C<system.CharStr.substr> or C<system.Relation.join>.  Note that type
+selector operators and such would be named in exactly the same way.
+
+Constraints on data types, that are specifically part of the definitions of
+the data types, have their names package-qualified like operators, while
+constraints on relvars don't have to be, or aren't.
+
+=head2 Overview of Data Types
+
+Rosetta D is a strongly typed language, where every value and variable is
+of a specific B<data type>, and every operator and expression is defined in
+terms of specific data types.  A variable can only store a value which is
+of its type, and every operator can only take argument values or
+expressions that are the same types as its parameters.
+
+Values can only be explicitly converted from one data type to another (such
+as when comparing two values for equality) using explicitly defined
+operators for that purpose (this includes selectors, which typically
+convert from character strings to something else), and value type
+conversions can not happen implicitly; the sole exception to this is if one
+of the two involved types is defined as a constraint-restricted sub-type of
+the other, or if both are similarly restricted from a common third type.
+
+All data types in Rosetta D fit into 3 main categories, which are B<scalar
+types>, B<tuple types>, and B<relation types>.  For our purposes, every
+data type that is not a tuple type or relation type is a scalar type.
+
+A scalar type is a named set of scalar values; its sub-types mainly include
+booleans, numerics, character strings, bit strings, temporals, spacials,
+and any custom / user-defined data types.
+
+A custom data type can be defined as a sub-type of a system-defined or
+user-defined scalar type that has extra constraints, which are named; for
+example, to restrict its set of scalar values to a sub-set of its parent
+type's set of scalar values (eg: restrict from an integer to an integer
+that has to be in the range 1 to 100).
+
+Alternately, a custom data type can be defined to have one or more named
+B<possreps> (possible representations), each of being different from the
+others in appearance but being identical in meaning; every possible value
+of that type should be renderable in each of its possible representations.
+For example, we could represent a point in space using either cartesian
+coordinates or polar coordinates.  Each possrep is defined in terms of a
+list of components, where each component has a name and a type, and that
+type is some other system-defined or user-defined type.  Such a custom data
+type can also have named constraints as part of its definition (eg: the
+point may not be more than a certain distance from the origin).
+
+You can not declare named custom tuple types or relation types, as you can
+with scalar types, but rather all values and variables of these types carry
+with them a definition provided by a tuple or relation generator operator.
+
+A tuple value or variable consists of an unordered set of zero or more
+attributes, where each attribute consists of a name (that is distinct
+within the tuple) and a type (that type is some other system-defined or
+user-defined type); it also has exactly one value per attribute which is of
+the same type as the attribute.
+
+A relation value or variable consists of an unordered set of zero or more
+attributes, where each attribute consists of a name (that is distinct
+within the relation) and a type (that type is some other system-defined or
+user-defined type); it also has an unordered set of zero or more tuples
+whose set of attributes are all identical to those of the relation, and
+where every tuple value is distinct within the relation.
+
+
 
 =head1 HERE AND BELOW IS OLD DOCUMENTATION, TO BE REWRITTEN
 
@@ -221,14 +316,6 @@ Fubar.
 
 =head1 DATA TYPES AND VALUES
 
-IRL is natively built around strong data types and
-values, which is part of its rigor and simplicity.  Every B<data value> is
-considered to have a specific B<data type>, and a data type is considered
-to be a domain of one or more representable values.  Examples of data types
-are booleans, numerics, character strings, bit strings, temporals,
-spatials, sets, relations, tuples, arrays, and nulls.  A B<data container>
-is a named and/or addressable site, considered to be of a specific data
-type, that always holds exactly one data value of the same data type.
 Generally speaking, any two data types are considered to be mutually
 exclusive, such that a data value can only be in the domain of one of the
 types, and not the other.  (The exception is if type A is declared to be a
