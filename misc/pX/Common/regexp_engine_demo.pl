@@ -11,6 +11,19 @@
 # their status.  The nodes are basically the same, so it's not a big
 # deal.
 
+#########
+# Limited testing suggest performance is quite plausible.
+# So the quick spike to see if this (a) works, and (b) isn't glacial,
+# seems to have concluded successfully.
+# Next steps:
+#  Do look-behind, which is worrying me just a bit.
+#  Overhaul this file, not that the spike is done, into something maintainable.
+#  Create a p5 to p6 converter.  This is an easy task for someone.
+#    A cpan module even.
+#  Generate a p6 version of re_tests.
+#  Try to spin up Regexp::Parser's Perl6::Rule::Parser.
+########
+
 # Test suite:
 #  re_tests - tests from p5 HEAD 2006-02-12
 #  re_tests_perl5.t - driver from same.
@@ -18,14 +31,10 @@
 #  re_tests_match.el - an old driver putter wrote, adapted to call a Match obj.
 # Just  prove regexp_engine_demo.t   or somesuch.
 
-# Currently "implemented", and perhaps even working, are literals "a",
-# alternation "|", concatentation "ab", and some anchors "\A\z^$".
-
-#XXX - feel free to flesh things out.
-# Most of it is simple (concat is anomalous).
+# Test status:
+# Currently at 92% pass. 3sec run on my machine.
 
 #XXX:
-# - write an accompanying .t file to dump tests into.
 # - play with Regexp::Parser's Perl6::Rules to establish it's state.
 #   Summarize that here.
 # - Create a subrule node for it, and teach it to parse it.
@@ -36,10 +45,31 @@
 # We will then pour the re_test suite through it, yielding a more complete
 # version of t/rules/rules.t.
 
+#XXX - bugs
+# Flag handling is currently an utter kludge. not even trying with m and s.
+# Match objects arent being created for capture groups which are never reached.
+# No lookbehind as been implemented at all, at all.
+
 use Regexp::Parser;
 use Data::Dumper;
 use Match;
 use strict;
+{
+  # Regexp::Parser bug fix/workaround
+  package Regexp::Parser::anyof_class;
+  sub visual {
+    my $self = shift;
+    if (ref $self->{data}) {
+      $self->{data}->visual;
+    }
+    else {
+      #join "", "[", $self->{how}, ($self->{neg} ? '^' : ''),
+      #     $self->{type}, $self->{how}, "]";
+      join "", "[", ${$self->{how}}, ($self->{neg} ? '^' : ''),
+           $self->{type}, ${$self->{how}}, "]";
+    }
+  }
+}
 {
   package Hacks;
 
@@ -183,6 +213,9 @@ use strict;
   sub emit {
     my($o)=@_;
     my $re = $o->visual();
+    if($o->{'flags'} & $o->flag_val_i) {
+       $re = "(?i)(?:$re)";
+    }
     return $o->mk_eater_for_re($re);
   }
 }
@@ -431,30 +464,115 @@ use strict;
 {
   # (?=) (?<=)
   package Regexp::Parser::ifmatch;
+  sub emit {
+    my($o)=@_;
+    my $noop = $o->noop;
+    my $f = $o->concat( $o->data );
+    my $dir = $o->{'dir'};
+    die "(?<=) is not yet implemented" if $dir < 0;
+    sub {
+      my $c = $_[0];
+      my $v;
+      { local($X::str,$X::pos,$X::cap)=($X::str,$X::pos,$X::cap);
+        $v = $f->($noop);
+        return undef if !$v;
+      }
+      @_=$noop;
+      goto &$c;
+    };
+  }
 }
 {
   # (?!) (?<!)
   package Regexp::Parser::unlessm;
+  sub emit {
+    my($o)=@_;
+    my $noop = $o->noop;
+    my $f = $o->concat( $o->data );
+    my $dir = $o->{'dir'};
+    die "(?<!) is not yet implemented" if $dir < 0;
+    sub {
+      my $c = $_[0];
+      my $v;
+      { local($X::str,$X::pos,$X::cap)=($X::str,$X::pos,$X::cap);
+        $v = $f->($noop);
+        return undef if $v;
+      }
+      @_=$noop;
+      goto &$c;
+    };
+  }
 }
 {
   # (?>)
   package Regexp::Parser::suspend;
+  sub emit {
+    my($o)=@_;
+    my $noop = $o->noop;
+    my $f = $o->concat( $o->data );
+    sub {
+      my $c = $_[0];
+      my $v = $f->($noop);
+      return undef if !defined $v;
+      @_=$noop;
+      goto &$c;
+    };
+  }
 }
 {
   # (?(n)t|f)
   package Regexp::Parser::ifthen;
+  sub emit {
+    my($o)=@_;
+    my $noop = $o->noop;
+#    die Data::Dumper::Dumper $o;
+
+    my $f_test = $o->data->[0]->emit;
+    my $f_then = $o->data->[1]->data->[0][0]->emit;
+    my $crufty = $o->data->[1]->data;
+    my $f_else = sub{my $c = $_[0]; @_=$noop; goto &$c};
+    $f_else = $o->data->[1]->data->[1][0]->emit if @{$o->data->[1]->data} > 1;
+    sub {
+      my $c = $_[0];
+      my $v;
+      { local($X::str,$X::pos,$X::cap)=($X::str,$X::pos,$X::cap);
+        $v = $f_test->($noop);
+      }
+      if(defined($v)) {
+        @_=$c;
+        goto &$f_then;
+      } else {
+        @_=$c;
+        goto &$f_else;
+      }
+    };
+  }
 }
 {
   # the N in (?(N)t|f) when N is a number
   package Regexp::Parser::groupp;
+  sub emit {
+    my($o)=@_;
+    my $noop = $o->noop;
+    my $idx = $o->{'nparen'} -1;
+    sub {
+      my $c = $_[0];
+      return undef if $idx >= @$X::cap;
+      my $m = $X::cap->[$idx];
+      return undef if !$m;
+      @_=$noop;
+      goto &$c;
+    };
+  }
 }
 {
   # (?{ ... })
   package Regexp::Parser::eval;
   sub emit {
     my($o)=@_;
+    my $noop = $o->noop;
     my $embedded_code = join("",$o->data);
-    my $code = 'sub{my $__c__ = $_[0]; '.$embedded_code.'; goto &$__c__}';
+    my $code = 'sub{my $__c__ = $_[0]; '.$embedded_code.'; @_=$noop; goto &$__c__}';
     eval($code) || die "Error compiling (?{$embedded_code}) :\n$@\n";
   }
 }
@@ -490,8 +608,9 @@ sub match {
     my $ok = $r->($noop);
     if(defined($ok)) {
       my $m = MatchX->new();
+      my $a = $X::cap;
       $m->set(1,substr($X::str,$start,$X::pos-$start),
-              $X::cap,{},$start,$X::pos);
+              $a,{},$start,$X::pos);
       return $m;
     }
   }
@@ -516,4 +635,10 @@ if(@ARGV && $ARGV[0] eq '--test') {
 #print Dumper match_re('ab*c','abc');
 #print Dumper match_re('(?ix)a','ab');
 #print Dumper match_re('a*?','ab');
-print Dumper match_re('^(a)\1','aa');
+#print Dumper match_re('^(a)\1','aa');
+#print Dumper match_re('(?{$a=2})(?{$a=2})','yaaxxaaaacd');
+#print Dumper match_re('(?{$a=2})a*aa(?{local$a=$a+1})k*c(?{$b=$a})','yaaxxaaaacd');
+#print Dumper match_re('(?(?=n).|f)','fa');
+#print Dumper match_re('()(?(1).|f)','fa');
+#print Dumper match_re('[[:digit:]]','0a');
+#print Dumper match_re('(?:(?:a)*)*x','0a');
