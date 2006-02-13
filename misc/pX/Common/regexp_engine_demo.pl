@@ -306,6 +306,60 @@ use strict;
   }
 }
 {
+  # *? +? {,}? - sort of: have to reach down into quant.
+  package Regexp::Parser::minmod;
+  sub emit {
+    my($o)=@_;
+    my $noop = $o->noop;
+    my($min,$max)= (@{$o->data}{'min','max'});
+    $min = 0 if $min eq "";
+    $max = $o->inf if $max eq "";
+    $min += 0; $max += 0; 
+    my $f = $o->data->data->emit; # reach down into quant below.
+    sub{
+      my $c = $_[0];
+      my $pos_old = -1;
+      my $i = 0;
+      my($fmin,$fagain,$frest);
+      $fmin = sub{
+        if($i >= $min) {
+          goto &$fagain;
+        }
+        @_=$fmin; $i++; goto &$f;
+      };
+      $fagain = sub{
+        if($pos_old >= $X::pos){
+          @_=$noop;
+          goto &$c;
+        }
+        $pos_old = $X::pos;
+        goto &$frest;
+      };
+      $frest = sub{
+        if($i >= $max) {
+          @_=$noop;
+          goto &$c;
+        }
+        $i++;
+        my $c_down = $fagain;
+        my($str,$pos,$cap); my $v;
+        { local($X::str,$X::pos,$X::cap)=($X::str,$X::pos,$X::cap);
+          #$v = $f->($c_down);
+          $v = $c->($noop);
+          ($str,$pos,$cap)=($X::str,$X::pos,$X::cap) if defined $v;
+        }
+        if(defined $v) { 
+          ($X::str,$X::pos,$X::cap)=($str,$pos,$cap);
+          return $v;
+        }
+        # @_=$noop; goto &$c;
+        @_=$c_down; goto &$f;
+      };
+      goto &$fmin;
+    };        
+  }
+}
+{
   # ( non-capturing
   package Regexp::Parser::group;
   sub emit {
@@ -320,11 +374,12 @@ use strict;
   sub emit {
     my($o)=@_;
     my $f = $o->concat( $o->data );
+    my $idx = $o->{'nparen'} -1;
     sub{
       my $c = $_[0];
       my $m = MatchX->new();
       $X::cap = [@$X::cap];
-      push(@$X::cap,$m);
+      $X::cap->[$idx] = $m;
       my $from = $X::pos;
       my $close = sub {
         my $c0 = $_[0];
@@ -350,6 +405,25 @@ use strict;
 {
   # \1 (backrefs)
   package Regexp::Parser::ref;
+  sub emit {
+    my($o)=@_;
+    my $noop = $o->noop;
+    my $idx = $o->{'nparen'} -1;
+    sub {
+      my $c = $_[0];
+      return undef if $idx >= @$X::cap;
+      my $m = $X::cap->[$idx];
+      my $s = "$m";
+      my $pat = $s;
+      $pat =~ s/(\W)/\\$1/g;
+      $pat = "(?:(?i)(?:$pat))" if($o->{'flags'} & $o->flag_val_i);
+      my $ok = substr($X::str,$X::pos) =~ /\A($pat)/;
+      return undef if !$ok;
+      $X::pos += length($1);
+      @_=$noop;
+      goto &$c;
+    };
+  }
 }
 {
   package Regexp::Parser::assertion;
@@ -395,9 +469,6 @@ use strict;
     $o->mk_ignore_this_node();
   }
 }
-{
-  package Regexp::Parser::minmod;
-}
 
 my $noop = Hacks->noop;
 sub compile {
@@ -405,7 +476,7 @@ sub compile {
   my $parser = Regexp::Parser->new($re);
   my $n = eval{ $parser->root };
   die "$@" if !defined $n;
-  print Dumper $n;
+  #print Dumper $n;
   my $r = Hacks->concat($n);
   return $r;
 }
@@ -435,12 +506,14 @@ sub match_re {
 
 if(@ARGV && $ARGV[0] eq '--test') {
   require './re_tests_match.pl';
-  Pkg_re_tests::test(sub{my($mods,$re)=@_;my $r = compile($re); sub{my($s)=@_;match($r,$s)}});
+  Pkg_re_tests::test(sub{my($mods,$re)=@_;
+    $re = "(?$mods)(?:$re)" if $mods;
+    my $r = compile($re); sub{my($s)=@_;match($r,$s)}});
   exit;
 }
 #print Dumper match_re('a','abc');
 #print Dumper match_re('^(a?)*$','a--');
 #print Dumper match_re('ab*c','abc');
-#print Dumper match_re('(a+|b)*','ab');
 #print Dumper match_re('(?ix)a','ab');
 #print Dumper match_re('a*?','ab');
+print Dumper match_re('^(a)\1','aa');
