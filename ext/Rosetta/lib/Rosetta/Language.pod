@@ -53,18 +53,20 @@ to external documents, including those about The Third Manifesto.
 
 =head1 10,000 MILE VIEW OF ROSETTA D
 
-=head2 Operational Context
-
 Rosetta D is a high-level language for defining, querying, and updating
 relational databases.  It is primarily declarative because it focuses on
-what needs to be accomplished rather than how to accomplish that.  This
-permits a lot of flexability on the part of implementers of the language
-(usually Rosetta Engine classes) to be adaptive to changing constraints of
-their environment and deliver efficient solutions.  This also makes things
-a lot easier for users of the language because they can focus on the
-meaning of their data rather than worrying about implementation details,
-which relieves burdens on their creativity, and saves them time.  In short,
-this system improves everyone's lives.
+what needs to be accomplished rather than how to accomplish that; but, its
+appearance is also imperative in style, since users still provide
+sequential instructions at a higher level.  This permits a lot of
+flexability on the part of implementers of the language (usually Rosetta
+Engine classes) to be adaptive to changing constraints of their environment
+and deliver efficient solutions.  This also makes things a lot easier for
+users of the language because they can focus on the meaning of their data
+rather than worrying about implementation details, which relieves burdens
+on their creativity, and saves them time.  In short, this system improves
+everyone's lives.
+
+=head2 Operational Context
 
 Rosetta D is designed for a specific virtual environment that is
 implemented by a B<DBMS> (database management system).  This environment is
@@ -669,6 +671,31 @@ particularly useful:
 
 =over
 
+=item B<The Third Manifesto>
+
+L<http://www.thethirdmanifesto.com/> is the main home on the web for
+Christopher J. Date's and Hugh Darwen's proposal for a foundation for data
+and database management systems, which Rosetta is officially an
+implementation of.  It contains various useful documents and links on the
+subject, especially
+L<http://web.onetel.com/~hughdarwen/TheThirdManifesto/CHAP03.pdf>.  See
+also the brand new release of their book containing the full proposal,
+"Databases, Types, and The Relational Model: The Third Manifesto, 3rd
+edition, Addison-Wesley, 2006 (ISBN: 0-321-44281-4)", at
+L<http://www.aw-bc.com/catalog/academic/product/0,1144,0321399420,00.html>.
+
+=item B<Database in Depth>
+
+See Christopher J. Date's "Database in Depth: Relational Theory for
+Practitioners, 1st edition, Oreilly, 2006 (ISBN: 0-596-10012-4)" at
+L<http://www.oreilly.com/catalog/databaseid/>.  This is the first printed
+book that I read fully, which is related to The Third Manifesto, and it was
+my main introduction.  It explains in an easy to follow matter just what
+the relational data model really is, a solid and provable logical system,
+and partially contrasts with SQL's distorted view of it.  While being easy
+to follow, the book is written towards people that are already database
+professionals, and doesn't go into the basics that we should already know.
+
 =item L<http://www.acm.org/classics/nov95/toc.html>
 
 Edgar F. Codd - "A Relational Model of Data for Large Shared Data Banks"
@@ -676,18 +703,9 @@ Edgar F. Codd - "A Relational Model of Data for Large Shared Data Banks"
 Reprinted from I<Communications of the ACM>, Vol. 13, No. 6, June 1970, pp.
 377-387. Copyright © 1970, Association for Computing Machinery, Inc.
 
-This is the famous 1970 publication that first presented a relational model
-of data to the world, which is the basis for the modern database industry.
-
-=item L<http://www.oreilly.com/catalog/databaseid/>
-
-Chris J. Date - "Database in Depth: Relational Theory for Practitioners"
-
-First Edition, May 2005.  Published by O'reilly.  ISBN: 0-596-10012-4
-
-This book lays out what the relational data model really is, in partial
-contrast to how SQL does it, from the man that was closer to and more
-directly involved with Edgar F. Codd in this work work than anyone.
+This is the second famous 1969/1970 publication that first presented a
+relational model of data to the world, which is the basis for the modern
+database industry.
 
 =item L<http://www.wiscorp.com/SQLStandards.html>
 

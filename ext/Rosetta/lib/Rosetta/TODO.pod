@@ -69,7 +69,7 @@ schema objects.  No table constraints will be supported yet, but later.
 =item *
 
 Rosetta::Engine::Native will work mainly by generating Perl closures that
-are a fairly literal translation of the SQL-like AST, doing some work
+are a fairly literal translation of the Rosetta D AST, doing some work
 themselves and invoke some utility functions for others.
 
 =item *
@@ -123,6 +123,10 @@ data that is fully self-contained is supported for storage.  In contrast,
 the proper way to indicate that two pieces of data are to be linked is to
 store them in records that have a common field value which can be matched
 by an equality test, namely a typical foreign key relationship.
+
+=item *
+
+Nested transaction support.
 
 =item *
 
@@ -429,21 +433,18 @@ Handle other databases too.
 
 =item *
 
-If JDBC and/or ODBC have their own SQL flavor that can be used regardless
-of what database they are fronting, then make an Engine specifically to
-front a client of such.  If a database product's native SQL flavor is used
-when talking to it via ODBC, then build in ODBC protocol support into the
-other relevant database-specific Engines instead, as an alternative to
-their native protocols that users can choose from or that can auto-config.
+If JDBC and/or ODBC have their own distinct query language that can be used
+regardless of what database they are fronting, then make an Engine
+specifically to front a client of such.  If a database product's native
+query language is used when talking to it via ODBC, then build in ODBC
+protocol support into the other relevant database-specific Engines instead,
+as an alternative to their native protocols that users can choose from or
+that can auto-config.
 
 =item *
 
 Add an Engine and application combination that implement a native Rosetta
 proxy server.
-
-=item *
-
-Nested transaction support.
 
 =item *
 

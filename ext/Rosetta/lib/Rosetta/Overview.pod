@@ -5,13 +5,16 @@
 =head1 NAME
 
 Rosetta::Overview -
-10,000 mile view of Rosetta
+Rosetta compared to DBI
 
 =head1 DESCRIPTION
 
-This document is an overview of Rosetta database access framework, covering
-its purpose and high level architecture such that you should know how to
-begin to use it and why.
+I<CAVEAT: This document's contents are old, and some details out of date or
+even woefully incorrect, but it will only be replaced in the indetermined
+future; meanwhile, many parts and details are still just fine.>
+
+This document is an overview of Rosetta database access framework, mainly
+done in terms of comparing and contrasting it with the Perl DBI.
 
 Details of the architecture, such as data structures, allowed inputs, and
 functional APIs, are discussed in other documents.
@@ -305,264 +308,15 @@ sub-optimal.
 
 =back
 
-=head1 OLDER DOCUMENTATION TO REWRITE/REMOVE: HIGH LEVEL DATA STRUCTURES
-
-Applications interact with Rosetta, for the most part, as if it was a
-dynamically linked library which implements a self-contained embedded
-relational database management system.  This RDBMS has a rigorously defined
-feature set, API, and behaviour, which collectively are referred to as the
-Rosetta Native Interface (RNI), but that some features can be disabled
-and/or customized to an extent.
-
-The Rosetta Engine reference implementation whose Perl package name is
-Rosetta::Engine::Native is expressly coded to work internally according to
-the RNI definition, and so when using it Rosetta isn't actually abstracting
-the database manager.  Most likely, all other Rosetta Engines are
-abstracting some pre-defined feature-set/API/behaviour, and the entire RNI
-may not necessarily be implementable for some of them.  For behaviours that
-are implemented, the work of the implementation will be done wherever it is
-most efficient, which is usually by the database manager itself.
-
-Here is a broad view of the Rosetta DBMS' data structure hierarchy,
-expressed visually like an XML document; each XML node is the name of a
-data structure, and it is composed of both scalar attributes that are not
-shown here and child data structures that are shown as child nodes:
-
-    <rosetta_interface>
-        <rosetta_engine count="0..N">
-            <depot_manager count="0..N"><!-- ... if cli-serv; c=1 if embedded -->
-                <depot count="0..N">
-                    <user type="ROOT|NAMED|ANONYMOUS" count="1..N">
-                        <privilege_grant count="0..N" />
-                        <role_grant count="0..N" />
-                    </user>
-                    <role count="0..N">
-                        <privilege_grant count="0..N" />
-                    </role>
-                    <catalog type="TEMPORARY|LOCAL|REMOTE" count="1..N">
-                        <schema count="0..N">
-                            <character_set count="0..N" />
-                            <scalar_domain count="0..N" />
-                            <row_domain count="0..N" />
-                            <sequence count="0..N" />
-                            <table count="0..N" />
-                            <view count="0..N" />
-                            <trigger count="0..N" />
-                            <procedure count="0..N" />
-                            <function count="0..N" />
-                        </schema>
-                    </catalog><!-- any SYSTEM catalog/schema is not exposed -->
-                </depot>
-            </depot_manager>
-            <depot_client count="0..N">
-                <procedure count="0..N" />
-                <function count="0..N" />
-            </depot_client>
-        </rosetta_engine>
-    </rosetta_interface>
-
-    <scalar_domain>
-        <scalar_data_type count="1">
-            <scalar_data_type_value count="0..N" />
-        </scalar_data_type>
-    </scalar_domain>
-
-    <row_domain>
-        <row_data_type count="1">
-            <row_data_type_field count="1..N" /><!-- ref impl scalar_domain -->
-        </row_data_type>
-    </row_domain>
-
-    <table>
-        <interface_row count="1" /><!-- ref impl row_domain -->
-        <table_field_detail count="0..N" />
-        <table_index count="0..N">
-            <table_index_field count="1..N" />
-        </table_index>
-    </table>
-
-    <view>
-        <query count="1" />
-    </view>
-
-    <query>
-        <interface_row count="1" /><!-- ref impl row_domain -->
-        <subquery count="0..N"><!-- named, to support 'with' syntax -->
-            <subquery_arg count="0..N"><!-- ref impl scalar_domain -->
-            <query count="1" />
-        </subquery>
-        <query_source "0..N">
-            <query_source_arg count="0..N" />
-            <query_source_field count="1..N" />
-        </query_source>
-        <query_field_detail count="0..N" />
-        <query_join count="0..N">
-            <query_join_field count="1..N" />
-        </query_join>
-        <compound_query_element count="0..N" />
-        <query_clause type="RESULT|WHERE|GROUP|HAVING|ORDER|LIMIT"
-                count="0..N">
-            <expression count="1" /><!-- expression is n-recursive -->
-        </query_clause>
-    </query>
-
-    <trigger>
-        <trigger_arg count="1..2"><!-- ref impl row_domain -->
-        <routine_body count="1" />
-    </trigger>
-
-    <procedure>
-        <routine_arg count="0..N" /><!-- ref impl scalar|row_domain|other -->
-        <routine_body count="1" />
-    </procedure>
-
-    <function>
-        <routine_arg count="1..N" /><!-- ref impl ... the 1 is for 'RETURN' -->
-        <routine_body count="1" />
-    </function>
-
-    <routine_body>
-        <routine_var count="0..N" /><!-- ref impl scalar|row_domain|other -->
-            <cursor count="0..1">
-                <query count="1" />
-            </cursor>
-        </routine_var>
-        <select_stmt count="0..N">
-            <subquery count="1">
-            <query_clause type="INTO" count="1" /><!-- ref target arg|var -->
-        </select_stmt>
-        <insert_stmt count="0..N" />
-        <update_stmt count="0..N" />
-        <delete_stmt count="0..N" />
-        <merge_stmt count="0..N" />
-        <create_stmt count="0..N" />
-        <drop_stmt count="0..N" />
-        <alter_stmt count="0..N" />
-            ... TODO ...
-        <statement count="0..N">
-            <expression count="0..N" /><!-- expression is n-recursive -->
-        </statement>
-    </routine_body>
-
-A B<rosetta_interface> is a Rosetta::Interface tree root object; you
-usually have just one of these in your application.  (It corresponds to
-DBI's collection of global variables in the DBI::* namespace, but it is
-lexical.)
-
-A B<rosetta_engine> is a Rosetta Engine tree root object; you have one of
-these per loaded Rosetta Engine package per "rosetta_interface".  (It
-corresponds to a DBI driver handle, or "drh", but is lexical.)
-
-A B<depot_manager> is the database management system software itself and
-corresponds to either a library embedded in the current application process
-or one instance of a separate server process that is running somewhere.  In
-a typical embedded case (such as SQLite), there is usually exactly one per
-"rosetta_engine", unless multiple versions are embedded at once (such as
-SQLite v3 and v2), and even then the Engine can choose to abstract those
-into a single "depot_manager".  In the case of Rosetta::Engine::Native,
-there is exactly one "depot_manager", since the Engine I<is> it.  In the
-case of any typical client-server database (such as MySQL), there is a
-separate "depot_manager" for each server process being accessed.  A server
-process is often qualified with an IP address and port, or local socket
-name.
-
-A B<depot> is a completely self-contained data collection with its own name
-(usually), its own catalog and its own users (if applicable); one "depot"
-by definition never shares ownership of catalogs or users with another
-depot, even another managed by the same "depot_manager".  When an
-application opens a connection to a database, a "depot" I<is> what it is
-connecting to, and everything it sees within that connection is from within
-the context of the depot.  In other terms, when you hold a "data source
-name" / DSN, a single "depot" (qualified with a depot_manager and/or
-rosetta_engine) is what it points to.  With a typical file-based database
-like SQLite or MS Access or a CSV file, one file equals one "depot", and
-you often invoke it using the filesystem file name.  With a typical
-client-server database, one "depot" is often one "database name" at the
-server.  With Oracle, it seems that one "depot_manager" equals one "depot".
-
-A B<user> is whom the application or its user authenticates themselves as
-against a depot connection, if the depot_manager has a concept of users
-(SQLite does not, Oracle does, etc).  Note that some database managers will
-display a different view of the database depending on what user logged in,
-but Rosetta will abstract away this per-user difference where possible,
-mainly by using fully qualified identifiers for all database objects. There
-is 1 ROOT user that owns the depot and was created with it, and NAMED users
-are what a typical person connects as, unless they are ANONYMOUS.
-
-A B<catalog> is the typical root of a database's contents, and often each
-depot will have exactly one catalog.  The LOCAL catalog type is the normal
-one, and contains all the typical persistent schema objects.  The TEMPORARY
-catalog type is where schema objects go that are declared with C<CREATE
-TEMPORARY ...>; each database connection has its own private one that
-disappears when the connection closes; there is always one TEMPORARY
-catalog, even if the Rosetta Engine has to implement it.  The REMOTE
-catalog type is used when you cause the depot/depot_manager you are
-connected with to turn around and connect to another depot (whether under
-the same depot_manager doesn't matter), so its contents also become visible
-to you like they were an extension of the current depot; by default all
-catalogs in the other depo are "mounted" as remote catalogs in the current
-one.  In SQLite terms, when you "attach" one or more database files to the
-"main" one you have open, then a new "remote" catalog appears that
-represents each one. In terms of MySQL, I would guess that tables of its
-"federated" table type qualify to conceptually live in a remote catalog.
-Any other database, presumably such as Oracle, that lets you "connect to" a
-remote depot_manager is implementing the REMOTE catalog feature.  In terms
-of a hypothetical Rosetta Engine that lets you use a single "connection" to
-access multiple remote databases at once, such as for a database cloning
-utility or a multiplexer, I<all> of the visible catalogs would be the
-REMOTE type, and there wouldn't be any of the LOCAL type; also in that
-case, the TEMPORARY catalog would commonly be implemented by the Rosetta
-Engine.  Technically speaking, there is also a "system" or
-"INFORMATION_SCHEMA" catalog that displays meta-data in the form of normal
-tables and views, but Rosetta does not expose it for your direct access;
-you should use Rosetta's native reverse-engineering functionality instead
-(which use them on your behalf).
-
-A B<schema> is a namespace within a catalog where your tables and other
-database objects go.  Each one is owned by a user, though users don't have
-to own any (though Oracle happens to create a schema for every user
-automatically, whether or not they store anything in it).  Often each
-database user is assigned a specific schema as their home, and they are
-only allowed to make changes to objects inside it; also, any unqualified
-SQL identifier usage defaults to objects in this one.  Rosetta natively may
-behave differently in some of these aspects, though (to be decided).
-
-A B<role> is a named collection of privileges that a user has.
-
-Details of individual schema objects and SQL statements are covered in
-other documents rather than in this one.
-
-=head1 HIGH LEVEL ROSETTA INTERFACE CLASSES/ROLES
-
-... TODO ...
-
-... OTHER ...
-
 =head1 SEE ALSO
 
-(just a few placeholders for now, that don't work)
-
-=over
-
-=item L<Rosetta>
-
-...
-
-=item L<Rosetta::Tutorial>
-
-...
-
-=item L<Rosetta::Internals>
-
-...
-
-=back
+I<This documentation is pending.>
 
 =head1 AUTHOR
 
 Darren R. Duncan (C<perl@DarrenDuncan.net>)
 
-Some editorial assistance from Sam Vilain <samv@cpan.org>.
+Some editorial assistance from Sam Vilain (C<samv@cpan.org>).
 
 =head1 LICENCE AND COPYRIGHT
 
