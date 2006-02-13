@@ -42,8 +42,15 @@ use Match;
 use strict;
 {
   package Hacks;
+
+  #XXX - surely this is part of the Regexp::Parser api... somewhere?
+  sub flag_val_m { 0x1 }
+  sub flag_val_s { 0x2 }
+  sub flag_val_i { 0x4 }
+  sub flag_val_x { 0x8 }
+
   my $noop;
-  $noop = sub{return 1 if $_[0] eq $noop; goto $_[0]($noop);};
+  $noop = sub{my $c = $_[0]; return 1 if $c eq $noop; @_=$noop; goto &$c};
   sub noop {
     $noop;
   }
@@ -65,17 +72,22 @@ use strict;
     #print $code;
     eval($code) || die "$@";
   }   
+  sub mk_ignore_this_node {
+    my($o)=@_;
+    my $noop = $o->noop;
+    sub{my $c = $_[0]; @_=$noop; goto &$c};
+  }
   sub mk_eater_for_re {
     my($o,$re)=@_;
     my $noop = $o->noop;
-    my $qr = qr/\G$re/;
+    my $qr = qr/\G($re)/;
     sub {
       my $c = $_[0];
       my($s) = $X::str;
       pos($s) = $X::pos;
       my $x = $s =~ $qr;
       return undef if !$x;
-      $X::pos += length($x);
+      $X::pos += length($1);
       @_=$noop;
       goto &$c;
     };
@@ -109,18 +121,17 @@ use strict;
     return sub{return undef if !($X::pos == 0 || substr($X::str,$X::pos-1,1) eq "\n");
                my $c = $_[0]; @_=$noop; goto &$c
     } if $re eq '^';
-    # \B
-    # \b
+    return $o->mk_eater_for_re('\B') if $re eq '\B';
+    return $o->mk_eater_for_re('\b') if $re eq '\b';
     # \G
-    return sub{return undef if !($X::pos == (length($X::str)) || substr($X::str,$X::pos,1) eq "\n");
-               my $c = $_[0]; @_=$noop; goto &$c
-    } if $re eq '$';
-    # \Z
+    return $o->mk_eater_for_re('\Z') if $re eq '\Z';
     return sub{return undef if !($X::pos == (length($X::str)));
                my $c = $_[0]; @_=$noop; goto &$c
     } if $re eq '\z';
-    #die "didn't implement $re"
-    sub{return undef};
+    return sub{return undef if !($X::pos == (length($X::str)) || substr($X::str,$X::pos,1) eq "\n");
+               my $c = $_[0]; @_=$noop; goto &$c
+    } if $re eq '$';
+    die "didn't implement $re"
   }
 }
 {
@@ -130,12 +141,8 @@ use strict;
     my($o)=@_;
     my $noop = $o->noop;
     my $re = $o->raw();
-    return sub{return undef if $X::pos == (length($X::str)-1);
-               $X::pos++; 
-               my $c = $_[0]; @_=$noop; goto &$c
-    } if $re eq '.';
-    #die "didn't implement $re"
-    sub{return undef};
+    return $o->mk_eater_for_re('.') if $re eq '.';
+    die "didn't implement $re"
   }
 }
 {
@@ -173,6 +180,11 @@ use strict;
 }
 {
   package Regexp::Parser::anyof;
+  sub emit {
+    my($o)=@_;
+    my $re = $o->visual();
+    return $o->mk_eater_for_re($re);
+  }
 }
 {
   package Regexp::Parser::anyof_char;
@@ -203,17 +215,17 @@ use strict;
       my $c = $_[0];
       for my $f (@fs) {
         my $c_down = $c;
-        my($str,$pos); my $v;
-        { local($X::str,$X::pos)=($X::str,$X::pos);
+        my($str,$pos,$cap); my $v;
+        { local($X::str,$X::pos,$X::cap)=($X::str,$X::pos,$X::cap);
           $v = $f->($c_down);
-          ($str,$pos)=($X::str,$X::pos) if defined $v;
+          ($str,$pos,$cap)=($X::str,$X::pos,$X::cap) if defined $v;
         }
         if(defined $v) {
-          ($X::str,$X::pos)=($str,$pos);
+          ($X::str,$X::pos,$X::cap)=($str,$pos,$cap);
           return $v;
         }
       }
-      # @_= $c; # Hasn't changed.
+      @_= $c;
       goto &$f_last;
     };
   }
@@ -225,7 +237,20 @@ use strict;
     my $noop = $o->noop;
     my $s = join("",$o->data);
     my $len = length($s);
-    sub{ my $c = $_[0]; return undef if !(substr($X::str,$X::pos,$len) eq $s); $X::pos += $len; @_=$noop; goto &$c};
+    if($o->{'flags'} & $o->flag_val_i) {
+      my $pat = $s;
+      $pat =~ s/(\W)/\\$1/g;
+      $pat = "(?:(?i)(?:$pat))";
+      $o->mk_eater_for_re($pat);
+    }
+    else {
+      sub {
+        my $c = $_[0];
+        return undef if !(substr($X::str,$X::pos,$len) eq $s);
+        $X::pos += $len;
+        @_=$noop; goto &$c;
+      };
+    }
   }
 }
 {
@@ -240,28 +265,41 @@ use strict;
     my $f = $o->data->emit;
     sub{
       my $c = $_[0];
+      my $pos_old = -1;
       my $i = 0;
-      my($fmin,$fmax);
-      $fmin = sub{ goto &$fmax if $i >= $min; @_=$fmin; $i++; goto &$f};
-      $fmax = sub{
+      my($fmin,$fagain,$frest);
+      $fmin = sub{
+        if($i >= $min) {
+          goto &$fagain;
+        }
+        @_=$fmin; $i++; goto &$f;
+      };
+      $fagain = sub{
+        if($pos_old >= $X::pos){
+          @_=$noop;
+          goto &$c;
+        }
+        $pos_old = $X::pos;
+        goto &$frest;
+      };
+      $frest = sub{
         if($i >= $max) {
           @_=$noop;
           goto &$c;
         }
         $i++;
-        my $c_down = $fmax;
-        my($str,$pos); my $v;
-        { local($X::str,$X::pos)=($X::str,$X::pos);
+        my $c_down = $fagain;
+        my($str,$pos,$cap); my $v;
+        { local($X::str,$X::pos,$X::cap)=($X::str,$X::pos,$X::cap);
           $v = $f->($c_down);
-          ($str,$pos)=($X::str,$X::pos) if defined $v;
+          ($str,$pos,$cap)=($X::str,$X::pos,$X::cap) if defined $v;
         }
         if(defined $v) { 
-         ($X::str,$X::pos)=($str,$pos);
+          ($X::str,$X::pos,$X::cap)=($str,$pos,$cap);
           return $v;
-        } else {
-          @_=$noop;
-          goto &$c;
         }
+        @_=$noop;
+        goto &$c;
       };
       goto &$fmin;
     };        
@@ -270,10 +308,36 @@ use strict;
 {
   # ( non-capturing
   package Regexp::Parser::group;
+  sub emit {
+    my($o)=@_;
+    my $f = $o->concat( $o->data );
+    return $f;
+  }
 }
 {
   # ( capturing
   package Regexp::Parser::open;
+  sub emit {
+    my($o)=@_;
+    my $f = $o->concat( $o->data );
+    sub{
+      my $c = $_[0];
+      my $m = MatchX->new();
+      $X::cap = [@$X::cap];
+      push(@$X::cap,$m);
+      my $from = $X::pos;
+      my $close = sub {
+        my $c0 = $_[0];
+        my $to = $X::pos;
+        $m->set(1,substr($X::str,$from,$to-$from),[],{},$from,$to);
+        @_=$c;
+        goto &$c0;
+      };
+      my $v = $f->($close);
+      $m->set_as_failed if !defined($v);
+      return $v;
+    }
+  }
 }
 {
   # ) closing
@@ -326,6 +390,10 @@ use strict;
 }
 {
   package Regexp::Parser::flags;
+  sub emit {
+    my($o)=@_;
+    $o->mk_ignore_this_node();
+  }
 }
 {
   package Regexp::Parser::minmod;
@@ -337,24 +405,26 @@ sub compile {
   my $parser = Regexp::Parser->new($re);
   my $n = eval{ $parser->root };
   die "$@" if !defined $n;
-  #print Dumper $n;
+  print Dumper $n;
   my $r = Hacks->concat($n);
   return $r;
 }
 sub match {
   my($r,$s)=@_;
-  local $X::str = $s;
-  local $X::pos = 0;
-  local $X::match = MatchX->new();
-  my $m = $r->($noop);
-  if(defined($m)) {
-    $X::match->set_str(substr($X::str,0,$X::pos));
-    ${$X::match}->{'from'}=0; #EEEP
-    ${$X::match}->{'to'}=$X::pos; #EEEP
-  } else {
-    $X::match->set_as_failed;
+  my $len = length($s);
+  for my $start (0..$len) {
+    local $X::str = $s;
+    local $X::pos = $start;
+    local $X::cap = [];
+    my $ok = $r->($noop);
+    if(defined($ok)) {
+      my $m = MatchX->new();
+      $m->set(1,substr($X::str,$start,$X::pos-$start),
+              $X::cap,{},$start,$X::pos);
+      return $m;
+    }
   }
-  return $X::match;
+  return MatchX->new()->set_as_failed;
 }
 sub match_re {
   my($re,$s)=@_;
@@ -368,4 +438,9 @@ if(@ARGV && $ARGV[0] eq '--test') {
   Pkg_re_tests::test(sub{my($mods,$re)=@_;my $r = compile($re); sub{my($s)=@_;match($r,$s)}});
   exit;
 }
-print Dumper match_re('a','abc');
+#print Dumper match_re('a','abc');
+#print Dumper match_re('^(a?)*$','a--');
+#print Dumper match_re('ab*c','abc');
+#print Dumper match_re('(a+|b)*','ab');
+#print Dumper match_re('(?ix)a','ab');
+#print Dumper match_re('a*?','ab');
