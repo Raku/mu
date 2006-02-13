@@ -467,9 +467,7 @@ elements, then the second elements, etc.  For more on C<sort> see S29.
 Many of the special variables of Perl 5 are going away.  Those that
 apply to some object such as a filehandle will instead be attributes
 of the appropriate object.  Those that are truly global will have
-global alphabetic names, such as C<$*PID> or C<@*ARGS>.  Certain of
-these global values may retain punctuational shortcuts, such as C<$!>
-for C<$*ERROR>.
+global alphabetic names, such as C<$*PID> or C<@*ARGS>. 
 
 =item *
 
@@ -623,9 +621,10 @@ by reference, to add symbols to a lexical scope that is done compiling.
 The C<CALLER> package refers to the lexical scope of the (dynamically
 scoped) caller.  The caller's lexical scope is allowed to hide any
 variable except C<$_> from you.  In fact, that's the default, and a
-lexical variable must be declared using "C<env>" rather than C<my> to be visible via C<CALLER>.
-(C<$_> is always environmental. [Conjectural: so are C<$!> and C<$/>.])
-If the variable is not visible in the caller, it returns failure.
+lexical variable must be declared using "C<env>" rather than C<my> to be
+visible via C<CALLER>.  (C<$_>, C<$!> and C<$/> are always
+environmental.) If the variable is not visible in the caller, it returns
+failure.
 
 An explicit C<env> declaration is implicitly readonly.  You may add
 C<is rw> to allow subroutines from modifying your value.  C<$_> is

@@ -1346,7 +1346,7 @@ structure:
       # |   $0         $1        ||      |
       # |  _^_      ___^___      ||      |
       # | |   |    |       |     ||      |
-     m/ [ (\w+) \: (\w+ \h+)* \n ]**{2...} /
+     m/ [ (\w+) \: (\w+ \h*)* \n ]**{2...} /
 
 Non-capturing brackets I<don't> create a separate nested lexical scope,
 so the two subpatterns inside them are actually still in the rule's
@@ -1364,7 +1364,7 @@ parentheses. For example:
 
                #   $0--     $1------
                #   |   |    |       |
-     $text ~~ m/ [ (\w+) \: (\w+ \h+)* \n ]**{2...} /;
+     $text ~~ m/ [ (\w+) \: (\w+ \h*)* \n ]**{2...} /;
 
      # Because they're in a quantified non-capturing block...
      # $0 contains the equivalent of:
