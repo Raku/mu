@@ -85,11 +85,23 @@ emitYaml node = do
         #{poke SyckEmitter, style} emitter scalarFold
         syck_output_handler emitter =<< mkOutputCallback outputCallback
         syck_emitter_handler emitter =<< mkEmitterCallback emitterCallback
+        markYamlNode emitter node
         nodePtr <- freezeNode node
         let nodePtr' = fromIntegral $ nodePtr `minusPtr` nullPtr
         syck_emit emitter nodePtr'
         syck_emitter_flush emitter 0
         fmap Right $ readIORef out
+
+markYamlNode :: SyckEmitter -> YamlNode -> IO ()
+markYamlNode emitter node = do
+    nodePtr <- writeNode node
+    rv      <- syck_emitter_mark_node emitter nodePtr
+    if rv == 0 then return () else case el node of
+        YamlMap xs  -> sequence_ [ mark x >> mark y | (x, y) <- xs ]
+        YamlSeq xs  -> mapM_ mark xs
+        _           -> return ()
+    where
+    mark = markYamlNode emitter
 
 outputCallback :: SyckEmitter -> CString -> CLong -> IO ()
 outputCallback emitter buf len = do
@@ -308,6 +320,9 @@ foreign import ccall
 
 foreign import ccall
     syck_emitter_flush :: SyckEmitter -> CLong -> IO ()
+
+foreign import ccall
+    syck_emitter_mark_node :: SyckEmitter -> SyckNodePtr -> IO SYMID
 
 foreign import ccall
     syck_emit_scalar :: SyckEmitter -> CString -> CInt -> CInt -> CInt -> CInt -> CString -> CInt -> IO ()
