@@ -651,6 +651,46 @@ use strict;
   }
 }
 
+{
+package Y;
+our %rules;
+sub dorule {
+  my($c,$name,$args)=@_;
+  my $noop = Hacks->noop;
+
+  my $ru = $rules{$name};
+  die "Unknown rule '$name'" if !defined $ru;
+
+  my $from = $X::pos;
+  my $m0 = $X::current_match;
+  my $m1 = MatchX->new;
+  $m1->{'RULE'} = $name;
+  $m1->set(1,"",[],{},$from,undef);
+  my $close = sub{
+    my $cn = $_[0];
+    $$m1->{'to'} = $X::pos; #EEEP
+    $m1->set_str(substr($X::str,$from,$X::pos-$from));
+    @_=$c; goto &$cn;
+  };
+
+  local $X::current_match = $m1;
+  @_=$close;
+  my $v = $ru->($close);
+
+  return undef if !defined $v;
+  my $m2 = $X::current_match;
+  push(@{$m0->{$name}},$m2);
+  return $v;
+}
+}
+sub def_rule {
+  my($name,$re)=@_;
+  my $r = compile($re);
+  die if !defined $r;
+  $Y::rules{$name} = $r;
+}
+
+
 my $noop = Hacks->noop;
 sub compile {
   my($re)=@_;
@@ -668,12 +708,13 @@ sub match {
     local $X::str = $s;
     local $X::pos = $start;
     local $X::cap = [];
+    my $m = MatchX->new();
+    local $X::current_match = $m;
     my $ok = $r->($noop);
     if(defined($ok)) {
-      my $m = MatchX->new();
       my $a = $X::cap;
       $m->set(1,substr($X::str,$start,$X::pos-$start),
-              $a,{},$start,$X::pos);
+              $a,\%{$m},$start,$X::pos);
       return $m;
     }
   }
@@ -681,6 +722,7 @@ sub match {
 }
 sub match_re {
   my($re,$s)=@_;
+  $re =~ s/<(\w+)([^\>]*)>/(?{\@_=(\$__c__,'$1','$2');goto \&Y::dorule;})/g;
   my $r = compile($re);
   my $m = match($r,$s);
   return $m;
@@ -705,3 +747,5 @@ if(@ARGV && $ARGV[0] eq '--test') {
 #print Dumper match_re('()(?(1).|f)','fa');
 #print Dumper match_re('[[:digit:]]','0a');
 #print Dumper match_re('(?:(?:a)*)*x','0a');
+def_rule('foo','f');
+print Dumper match_re('a<foo>b','afb');
