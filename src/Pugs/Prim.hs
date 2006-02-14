@@ -47,9 +47,7 @@ import Pugs.Prim.Lifts
 import Pugs.Prim.Eval
 import Pugs.Prim.Code
 import Pugs.Prim.Param
-import qualified Data.Set as Set
-import Foreign.StablePtr
-import Foreign.Ptr
+import qualified Data.IntSet as IntSet
 
 -- |Implementation of 0-ary and variadic primitive operators and functions
 -- (including list ops).
@@ -225,7 +223,7 @@ op1 "one"  = op1Cast opJuncOne
 op1 "none" = op1Cast opJuncNone
 op1 "perl" = \v -> do
     recur   <- liftSTM (newTVar False)
-    let ?seen  = Set.empty
+    let ?seen  = IntSet.empty
         ?recur = recur
     rv      <- prettyVal v
     isRecur <- liftSTM (readTVar recur)
@@ -1412,17 +1410,17 @@ primDecl str = primOp sym assoc params ret (safe == "safe")
 
 
 -- op1 "perl"
-prettyVal :: (?seen :: Set (Ptr ()), ?recur :: TVar Bool) => Val -> Eval VStr
+prettyVal :: (?seen :: IntSet.IntSet, ?recur :: TVar Bool) => Val -> Eval VStr
 prettyVal v@(VRef r) = do
-    ptr <- liftIO (fmap castStablePtrToPtr (newStablePtr r))
-    if Set.member ptr ?seen
+    ptr <- liftIO (addressOf r)
+    if IntSet.member ptr ?seen
         then do
             liftSTM $ writeTVar ?recur True
             return "\\$_"
-        else let ?seen = Set.insert ptr ?seen in doPrettyVal v
+        else let ?seen = IntSet.insert ptr ?seen in doPrettyVal v
 prettyVal v = doPrettyVal v
 
-doPrettyVal :: (?seen :: Set (Ptr ()), ?recur :: TVar Bool) => Val -> Eval VStr
+doPrettyVal :: (?seen :: IntSet.IntSet, ?recur :: TVar Bool) => Val -> Eval VStr
 doPrettyVal v@(VRef r) = do
     v'  <- readRef r
     ifValTypeIsa v "Pair"

@@ -4,7 +4,7 @@
 
 module Data.Yaml.Syck (
     parseYaml, emitYaml,
-    YamlNode(..), YamlElem(..), tagNode, nilNode, mkNode, mkTagNode,
+    YamlNode(..), YamlElem(..), tagNode, nilNode, mkNode, mkTagNode, SYMID,
 ) where
 
 import Control.Exception (bracket)
@@ -19,10 +19,20 @@ import Foreign.C.String
 import Foreign.Marshal.Alloc
 import Foreign.Marshal.Utils
 import Foreign.Storable
+import Data.Generics
 
 type YamlTag    = Maybe String
 type YamlAnchor = Maybe String
 type SYMID = CULong
+
+cuLongType = mkIntType "Foreign.C.Types.CULong"
+
+instance Data SYMID where
+  toConstr x = mkIntConstr cuLongType (fromIntegral x)
+  gunfold k z c = case constrRep c of
+                    (IntConstr x) -> z (fromIntegral x)
+                    _ -> error "gunfold"
+  dataTypeOf _ = cuLongType
 
 data YamlNode = MkYamlNode
     { nid      :: SYMID
@@ -31,14 +41,14 @@ data YamlNode = MkYamlNode
     , anchor   :: YamlAnchor
     , shortcut :: (Maybe YamlNode)
     }
-    deriving (Show, Ord, Eq)
+    deriving (Show, Ord, Eq, Typeable, Data)
 
 data YamlElem
     = YamlMap [(YamlNode, YamlNode)]
     | YamlSeq [YamlNode]
     | YamlStr String
     | YamlNil
-    deriving (Show, Ord, Eq)
+    deriving (Show, Ord, Eq, Typeable, Data)
 
 type SyckNode = Ptr ()
 type SyckParser = Ptr ()

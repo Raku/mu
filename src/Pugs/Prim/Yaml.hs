@@ -2,7 +2,7 @@
 {-# OPTIONS_GHC -#include "../../UnicodeC.h" #-}
 
 module Pugs.Prim.Yaml (
-  evalYaml, dumpYaml
+  evalYaml, dumpYaml, addressOf,
 ) where
 import Pugs.Internals
 import Pugs.AST
@@ -10,9 +10,11 @@ import Pugs.Pretty
 import Pugs.Types
 import Data.Yaml.Syck
 import qualified Data.Map as Map
+import qualified Data.IntSet as IntSet
 import qualified Data.IntMap as IntMap
 import Foreign.StablePtr
 import Foreign.Ptr
+import Data.Generics
 
 evalYaml :: Val -> Eval Val
 evalYaml cv = do
@@ -64,8 +66,15 @@ fromYaml MkYamlNode{el=YamlMap nodes,tag=tag} = do
 
 dumpYaml :: Int -> Val -> Eval Val
 dumpYaml limit v = do
-    obj  <- toYaml IntMap.empty v
-    rv   <- liftIO (emitYaml obj)
+    done        <- liftSTM $ newTVar IntMap.empty
+    let ?seen = IntSet.empty
+        ?done = done
+    obj         <- toYaml v
+    nodeMap     <- liftSTM . readTVar $ done
+    let replaceNode node@MkYamlNode{ nid = n }
+            | n == 0    = node
+            | otherwise = (IntMap.!) nodeMap (fromEnum n)
+    rv   <- liftIO . emitYaml $ everywhere (mkT replaceNode) obj
     either (fail . ("YAML Emit Error: "++))
            (return . VStr . decodeUTF8) rv
 
@@ -77,54 +86,54 @@ addressOf x = do
     ptr <- newStablePtr x
     return (castStablePtrToPtr ptr `minusPtr` (nullPtr :: Ptr ()))
 
-toYaml :: IntMap YamlNode -> Val -> Eval YamlNode
-toYaml _ VUndef       = return $ mkNode YamlNil
-toYaml _ (VBool x)    = return $ boolToYaml x
-toYaml _ (VStr str)   = return $ strNode (encodeUTF8 str)
-toYaml seen v@(VRef r)   = do
+toYaml :: (?seen :: IntSet.IntSet, ?done :: TVar (IntMap.IntMap YamlNode)) => Val -> Eval YamlNode
+toYaml VUndef       = return $ mkNode YamlNil
+toYaml (VBool x)    = return $ boolToYaml x
+toYaml (VStr str)   = return $ strNode (encodeUTF8 str)
+toYaml v@(VRef r)   = do
     ptr <- liftIO $ addressOf r
-    case IntMap.lookup ptr seen of
-        Just node   -> return node
-        Nothing     -> do
-            rv <- ifValTypeIsa v "Hash" (hashToYaml seen r) $ do
-                v'      <- readRef r
-                nodes   <- toYaml seen v' -- XXX -- (IntMap.insert ptr rv seen) v'
-                ifValTypeIsa v "Array" (return nodes) . return $ case v' of
-                    VObject _   -> nodes
-                    _           -> mkNode $ YamlMap [(strNode "<ref>", nodes)]
-            return rv
-toYaml seen (VList nodes) = do
-    n <- mapM (toYaml seen) nodes
+    if IntSet.member ptr ?seen then return nilNode{ nid = toEnum ptr } else do
+        let ?seen = IntSet.insert ptr ?seen
+        node <- ifValTypeIsa v "Hash" (hashToYaml r) $ do
+            v'      <- readRef r
+            nodes   <- toYaml v'
+            ifValTypeIsa v "Array" (return nodes) . return $ case v' of
+                VObject _   -> nodes
+                _           -> mkNode $ YamlMap [(strNode "<ref>", nodes)]
+        liftSTM $ modifyTVar ?done (IntMap.insert ptr node)
+        return node
+toYaml (VList nodes) = do
+    n <- mapM toYaml nodes
     return $ mkNode (YamlSeq n)
     -- fmap YamlSeq$ mapM toYaml nodes
-toYaml seen v@(VObject obj) = do
+toYaml v@(VObject obj) = do
     -- ... dump the objAttrs
     -- XXX this needs fixing WRT demagicalized pairs:
     -- currently, this'll return Foo.new((attr => "value)), with the inner
     -- parens, which is, of course, wrong.
     hash    <- fromVal v :: Eval VHash
-    attrs   <- toYaml seen $ VRef (hashRef hash)
+    attrs   <- toYaml $ VRef (hashRef hash)
     return $ tagNode (Just $ "tag:pugs:object:" ++ showType (objType obj)) attrs
-toYaml seen (VRule MkRulePGE{rxRule=rule, rxGlobal=global, rxStringify=stringify, rxAdverbs=adverbs}) =do
-    adverbs' <- toYaml seen adverbs
+toYaml (VRule MkRulePGE{rxRule=rule, rxGlobal=global, rxStringify=stringify, rxAdverbs=adverbs}) =do
+    adverbs' <- toYaml adverbs
     return . mkTagNode "tag:pugs:Rule" $ YamlMap
         [ (strNode "rule", strNode rule)
         , (strNode "global", boolToYaml global)
         , (strNode "stringify", boolToYaml stringify)
         , (strNode "adverbs", adverbs')
         ]
-toYaml _ v = return $ strNode $ (encodeUTF8 . pretty) v
+toYaml v = return $ strNode $ (encodeUTF8 . pretty) v
 
-hashToYaml :: IntMap YamlNode -> VRef -> Eval YamlNode
-hashToYaml seen (MkRef (IHash hv)) = do
+hashToYaml :: (?seen :: IntSet.IntSet, ?done :: TVar (IntMap.IntMap YamlNode)) => VRef -> Eval YamlNode
+hashToYaml (MkRef (IHash hv)) = do
     h <- hash_fetch hv
     let assocs = Map.toList h
     yamlmap <- forM assocs $ \(ka, va) -> do
-        ka' <- toYaml seen $ VStr ka
-        va' <- toYaml seen va
+        ka' <- toYaml $ VStr ka
+        va' <- toYaml va
         return (ka', va')
     return $ mkNode (YamlMap yamlmap)
-hashToYaml _ r = error ("unexpected node: " ++ show r)
+hashToYaml r = error ("unexpected node: " ++ show r)
 
 boolToYaml :: VBool -> YamlNode
 boolToYaml True  = strNode "true"
