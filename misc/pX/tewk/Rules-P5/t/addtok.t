@@ -2,14 +2,14 @@
 
 use Test;
 BEGIN { plan tests => 5 };
-use Rule::Parser::OpTable;
+use P6RulesInP5::OpTable;
 
 sub say {
 print @_ . "\n";
 }
 
 {
-  $optable = new Rule::Parser::OpTable;
+  $optable = new P6RulesInP5::OpTable;
   $optable->addToken("term:", "", "nows", "");
   $optable->addToken("term:::", "term:", "nows", "PGE::Exp::Cut");
   $optable->addToken("term::::", "term:", "nows", "PGE::Exp::Cut");
@@ -18,23 +18,22 @@ print @_ . "\n";
   $optable->addToken("term:^", "term:", "nows", "PGE::Exp::Anchor");
   $optable->addToken("term:^^", "term:", "nows", "PGE::Exp::Anchor");
   $optable->addToken("term:$$", "term:", "nows", "PGE::Exp::Anchor");
+  $optable->addToken("term:.", "term:", "nows", "PGE::Exp::CCShortcut");
+  $optable->addToken("term:\\d", "term:", "nows", "PGE::Exp::CCShortcut");
+  $optable->addToken("term:\\D", "term:", "nows", "PGE::Exp::CCShortcut");
+  $optable->addToken("term:\\s", "term:", "nows", "PGE::Exp::CCShortcut");
+  $optable->addToken("term:\\S", "term:", "nows", "PGE::Exp::CCShortcut");
+  $optable->addToken("term:\\w", "term:", "nows", "PGE::Exp::CCShortcut");
+  $optable->addToken("term:\\W", "term:", "nows", "PGE::Exp::CCShortcut");
+  $optable->addToken("term:\\n", "term:", "nows", "PGE::Exp::CCShortcut");
+  $optable->addToken("circumfix:[ ]", "term:", "nows", "PGE::Exp::Group");
+  $optable->addToken("circumfix:( )", "term:", "nows", "PGE::Exp::Group");
+  $optable->addToken("<commit>", "term:", "nows", "PGE::Exp::Commit");
+
 =pod
 
     #$P0 = find_global "PGE::P6Rule", "parse_dollar"
     #optable.addtok("term:$", "term:", "nows", $P0)
-
-    optable.addtok("term:.", "term:", "nows", "PGE::Exp::CCShortcut")
-    optable.addtok("term:\\d", "term:", "nows", "PGE::Exp::CCShortcut")
-    optable.addtok("term:\\D", "term:", "nows", "PGE::Exp::CCShortcut")
-    optable.addtok("term:\\s", "term:", "nows", "PGE::Exp::CCShortcut")
-    optable.addtok("term:\\S", "term:", "nows", "PGE::Exp::CCShortcut")
-    optable.addtok("term:\\w", "term:", "nows", "PGE::Exp::CCShortcut")
-    optable.addtok("term:\\W", "term:", "nows", "PGE::Exp::CCShortcut")
-    optable.addtok("term:\\n", "term:", "nows", "PGE::Exp::CCShortcut")
-    optable.addtok("circumfix:[ ]", "term:", "nows", "PGE::Exp::Group")
-    optable.addtok("circumfix:( )", "term:", "nows", "PGE::Exp::Group")
-
-    optable.addtok("<commit>", "term:", "nows", "PGE::Exp::Commit")
 
     $P0 = find_global "PGE::P6Rule", "parse_subrule"
     optable.addtok("term:<", "term:", "nows", $P0)

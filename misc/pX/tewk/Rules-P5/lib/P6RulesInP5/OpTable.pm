@@ -1,6 +1,6 @@
 #~/usr/bin/perl
 
-package Rule::Parser::OpTable;
+package P6RulesInP5::OpTable;
 use base qw/Class::Accessor/;
 
 use strict;
@@ -52,7 +52,7 @@ sub addToken {
   #print "name: $name - rp: $relativePrecedence - options: $options - match: $match\n" ;
   my $equivalence = "=";
 
-  $match = "Rule::Parser:Match" if ! defined $match; 
+  $match = "P6RulesInP5::Match" if ! defined $match; 
   $options = "left" if not $options;
   if ( $relativePrecedence and $relativePrecedence ne "" )
   {
@@ -344,11 +344,6 @@ sub parse
   die "Missing ternary close at offset $whitespacePosition \n";
   return ( $matchObj );
 
-}
-
-
-sub to_string {
-  my $self = shift;
 }
 
 __PACKAGE__;
