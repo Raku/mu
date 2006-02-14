@@ -118,6 +118,11 @@ emitNode e n@(MkYamlNode{el = YamlNil}) = do
         withCString "~" $ \cs ->       
             syck_emit_scalar e tag scalarNone 0 0 0 cs 1
 
+emitNode e n@(MkYamlNode{el = YamlStr "~"}) = do
+    withTag n "string" $ \tag ->       
+        withCString "~" $ \cs ->       
+            syck_emit_scalar e tag scalar1quote 0 0 0 cs 1
+
 emitNode e n@(MkYamlNode{el = YamlStr str}) = do
     withTag n "string" $ \tag ->       
         withCString str $ \cs ->       
