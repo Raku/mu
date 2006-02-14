@@ -2,22 +2,37 @@
  * syck.h
  *
  * $Author: why $
- * $Date: 2005/04/13 06:27:54 $
+ * $Date: 2005-11-14 07:43:56 +0800 (一, 14 11 2005) $
  *
  * Copyright (C) 2003 why the lucky stiff
  */
 
 #ifndef SYCK_H
 #define SYCK_H
+#define HAVE_STDLIB_H
+#define HAVE_STRING_H
 
 #define SYCK_YAML_MAJOR 1
 #define SYCK_YAML_MINOR 0
 
-#define SYCK_VERSION    "0.55"
+#define SYCK_VERSION    "0.61"
 #define YAML_DOMAIN     "yaml.org,2002"
 
-#include <stdlib.h>
-#include <string.h>
+#ifdef HAVE_STDLIB_H
+# include <stdlib.h>
+#endif
+
+#ifdef HAVE_STRING_H
+# include <string.h>
+#else
+# include <strings.h>
+#endif
+
+#ifdef HAVE_INTRINSICS_H
+# include <intrinsics.h>
+#endif
+
+#include <stddef.h>
 #include <stdio.h>
 #include <ctype.h>
 #ifdef HAVE_ST_H
@@ -280,7 +295,6 @@ typedef void (*SyckEmitterHandler)(SyckEmitter *, st_data_t);
 
 enum doc_stage {
     doc_open,
-    doc_need_header,
     doc_processing
 };
 
@@ -452,6 +466,9 @@ long syck_seq_count( SyckNode * );
  * Lexer prototypes
  */
 void syckerror( char * );
+int syckparse( void * );
+union YYSTYPE;
+int sycklex( union YYSTYPE *, SyckParser * );
 
 #if defined(__cplusplus)
 }  /* extern "C" { */

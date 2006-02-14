@@ -658,8 +658,6 @@ while (0)
 # define YYLEX yylex (&yylval)
 #endif
 
-extern int sycklex( YYSTYPE *sycklval, SyckParser *parser );
-
 /* Enable debugging if requested.  */
 #if YYDEBUG
 

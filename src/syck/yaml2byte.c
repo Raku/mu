@@ -2,14 +2,14 @@
  * yaml2byte.c
  *
  * $Author: why $
- * $Date: 2004/08/02 17:32:35 $
+ * $Date: 2005-09-19 14:12:54 +0800 (一, 19  9 2005) $
  *
  * Copyright (C) 2003 why the lucky stiff, clark evans
  *
  *   WARNING WARNING WARNING  --- THIS IS *NOT JUST* PLAYING
  *   ANYMORE! -- WHY HAS EMBRACED THIS AS THE REAL THING!
  */ 
-#include "syck.h"
+#include <syck.h>
 #include <assert.h>
 #define YAMLBYTE_UTF8
 #include "yamlbyte.h"
@@ -225,12 +225,17 @@ syck_yaml2byte(char *yamlstr)
     syck_parser_implicit_typing( parser, 1 );
     syck_parser_taguri_expansion( parser, 1 );
     oid = syck_parse( parser );
-    syck_lookup_sym( parser, oid, (char **)&sav );
 
-    ret = S_ALLOC_N( char, strlen( sav->buffer ) + 3 );
-    ret[0] = '\0';
-    strcat( ret, "D\n" );
-    strcat( ret, sav->buffer );
+    if ( syck_lookup_sym( parser, oid, (char **)&sav ) == 1 ) {
+        ret = S_ALLOC_N( char, strlen( sav->buffer ) + 3 );
+        ret[0] = '\0';
+        strcat( ret, "D\n" );
+        strcat( ret, sav->buffer );
+    }
+    else
+    {
+        ret = NULL;
+    }
 
     syck_free_parser( parser );
     return ret;

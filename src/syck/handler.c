@@ -2,7 +2,7 @@
  * handler.c
  *
  * $Author: why $
- * $Date: 2005/01/08 21:44:00 $
+ * $Date: 2005-09-20 13:21:06 +0800 (二, 20  9 2005) $
  *
  * Copyright (C) 2003 why the lucky stiff
  */
@@ -30,7 +30,6 @@ syck_hdlr_add_node( SyckParser *p, SyckNode *n )
 SyckNode *
 syck_hdlr_add_anchor( SyckParser *p, char *a, SyckNode *n )
 {
-    char *atmp = NULL;
     SyckNode *ntmp = NULL;
 
     n->anchor = a;

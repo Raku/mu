@@ -2,7 +2,7 @@
  * node.c
  *
  * $Author: why $
- * $Date: 2005/04/13 06:27:54 $
+ * $Date: 2005-09-17 02:59:53 +0800 (六, 17  9 2005) $
  *
  * Copyright (C) 2003 why the lucky stiff
  */
@@ -122,7 +122,7 @@ syck_new_str2( char *str, long len, enum scalar_style style )
 void
 syck_replace_str( SyckNode *n, char *str, enum scalar_style style )
 {
-    return syck_replace_str2( n, str, strlen( str ), style );
+    syck_replace_str2( n, str, strlen( str ), style );
 }
 
 void
