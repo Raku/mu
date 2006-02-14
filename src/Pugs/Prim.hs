@@ -47,6 +47,9 @@ import Pugs.Prim.Lifts
 import Pugs.Prim.Eval
 import Pugs.Prim.Code
 import Pugs.Prim.Param
+import qualified Data.Set as Set
+import Foreign.StablePtr
+import Foreign.Ptr
 
 -- |Implementation of 0-ary and variadic primitive operators and functions
 -- (including list ops).
@@ -220,7 +223,9 @@ op1 "any"  = op1Cast opJuncAny
 op1 "all"  = op1Cast opJuncAll
 op1 "one"  = op1Cast opJuncOne
 op1 "none" = op1Cast opJuncNone
-op1 "perl" = fmap VStr . prettyVal 0
+op1 "perl" = \v ->
+    let ?seen = Set.empty in
+        fmap (VStr . ("$_ := " ++)) (prettyVal v)
 op1 "yaml" = dumpYaml 1024 -- number == max recursion depth
 op1 "require_haskell" = \v -> do
     name    <- fromVal v
@@ -1401,42 +1406,49 @@ primDecl str = primOp sym assoc params ret (safe == "safe")
 
 
 -- op1 "perl"
-prettyVal :: Int -> Val -> Eval VStr
-prettyVal 1024 _ = return " ... "
-prettyVal d v@(VRef r) = do
+prettyVal :: (?seen :: Set (Ptr ())) => Val -> Eval VStr
+prettyVal v@(VRef r) = do
+    ptr <- liftIO (fmap castStablePtrToPtr (newStablePtr r))
+    if Set.member ptr ?seen
+        then return "\\$_"
+        else let ?seen = Set.insert ptr ?seen in doPrettyVal v
+prettyVal v = doPrettyVal v
+
+doPrettyVal :: (?seen :: Set (Ptr ())) => Val -> Eval VStr
+doPrettyVal v@(VRef r) = do
     v'  <- readRef r
     ifValTypeIsa v "Pair"
         (case v' of
             VList [ks, vs] -> do
-                kStr <- prettyVal (d+1) ks
-                vStr <- prettyVal (d+1) vs
+                kStr <- prettyVal ks
+                vStr <- prettyVal vs
                 return $ "(" ++ kStr ++ " => " ++ vStr ++ ")"
-            _ -> prettyVal (d+1) v'
+            _ -> prettyVal v'
         )
-        (do str <- prettyVal (d+1) v'
+        (do str <- prettyVal v'
             ifValTypeIsa v "Array"
                 (return $ ('[':(init (tail str))) ++ "]")
                 (ifValTypeIsa v "Hash"
                     (return $ ('{':(init (tail str))) ++ "}")
                     (return ('\\':str)))
         )
-prettyVal d (VList vs) = do
-    vs' <- mapM (prettyVal (d+1)) vs
+doPrettyVal (VList vs) = do
+    vs' <- mapM prettyVal vs
     -- (3,) should dump as (3,), not a (3), which would be the same as 3.
     return $ case vs' of
         []  -> "()"
         [x] -> "(" ++ x ++ ",)"
         _   -> "(" ++ concat (intersperse ", " vs') ++ ")"
-prettyVal d v@(VObject obj) = do
+doPrettyVal v@(VObject obj) = do
     -- ... dump the objAttrs
     -- XXX this needs fixing WRT demagicalized pairs:
     -- currently, this'll return Foo.new((attr => "value)), with the inner
     -- parens, which is, of course, wrong.
     hash    <- fromVal v :: Eval VHash
-    str     <- prettyVal d (VRef (hashRef hash))
+    str     <- prettyVal (VRef (hashRef hash))
     return $ showType (objType obj)
         ++ ".new(" ++ init (tail str) ++ ")"
-prettyVal _ v = return $ pretty v
+doPrettyVal v = return (pretty v)
 
 -- | Call object destructors when GC takes them away
 objectFinalizer :: Env -> Val -> IO ()
