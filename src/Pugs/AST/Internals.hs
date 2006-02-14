@@ -828,11 +828,6 @@ data Param = MkParam
     }
     deriving (Show, Eq, Ord, Typeable) {-!derive: YAML, Perl5, JSON!-}
 
-instance (Typeable a, YAML a) => YAML (TVar a) where
-    asYAML tv = do
-        v <- liftSTM (readTVar tv)
-        asYAML v
-
 -- | A list of formal parameters.
 type Params     = [Param]
 {-|

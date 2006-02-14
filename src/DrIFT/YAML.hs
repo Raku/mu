@@ -9,20 +9,34 @@ import UTF8
 import Data.Typeable
 import Control.Exception
 import Control.Monad
+import Control.Concurrent.STM
+import Data.IORef
+import qualified Data.IntMap as IntMap
+import Foreign.StablePtr
+import Foreign.Ptr
+import System.IO.Unsafe
+import Control.Monad.Reader
 
 type YAMLClass = String
 type YAMLKey = String
 type YAMLVal = YamlNode
+type SeenCache = IntMap.IntMap YamlNode
+
+{-# NOINLINE _SeenCache #-}
+_SeenCache :: IORef (IntMap.IntMap YamlNode)
+_SeenCache = unsafePerformIO $ newIORef IntMap.empty
 
 showYaml :: YAML a => a -> IO String
 showYaml x = do
-    node    <- asYAML x
+    node    <- (`runReaderT` IntMap.empty) (asYAMLrec x)
     rv      <- emitYaml node
     case rv of
         Left e  -> error e
         Right s -> return s
 
 class Typeable a => YAML a where
+    asYAMLrec :: a -> ReaderT SeenCache IO YamlNode
+    asYAMLrec = lift . asYAML
     asYAML :: a -> IO YamlNode
     asYAML x = do
         ty <- Control.Exception.handle (const $ return "()") $
@@ -30,7 +44,7 @@ class Typeable a => YAML a where
         return $ case ty of
             "()" -> nilNode
             _    -> mkTagNode (tagHs ty) YamlNil
-    fromYAML:: YamlNode -> IO a
+    fromYAML :: YamlNode -> IO a
     fromYAML (MkYamlNode{el=x}) = fromYAMLElem x
     fromYAMLElem :: YamlElem -> IO a
 
@@ -124,3 +138,19 @@ instance (YAML a, YAML b, YAML c) => YAML (a, b, c) where
         return $ mkNode (YamlSeq [x', y', z'])
     fromYAML ~(MkYamlNode{el=YamlSeq [x, y, z]}) = liftM3 (,,) (fromYAML x) (fromYAML y) (fromYAML z)
 
+instance (Typeable a, YAML a) => YAML (TVar a) where
+    asYAMLrec tv = do
+        ptr  <- liftIO $ addressOf tv
+        seen <- liftIO $ readIORef _SeenCache
+        case IntMap.lookup ptr seen of
+            Just node   -> return node
+            _           -> mdo
+                rv   <- local (IntMap.insert ptr rv) $ mdo
+                    v   <- lift (atomically (readTVar tv))
+                    asYAMLrec v
+                return rv
+
+addressOf :: a -> IO Int
+addressOf x = do
+    ptr <- newStablePtr x
+    return (castStablePtrToPtr ptr `minusPtr` (nullPtr :: Ptr ()))
