@@ -412,7 +412,7 @@ op1 "slurp" = \v -> do
     slurpList file = op1 "=" (VList [VStr file])
     slurpScalar file = do
         content <- guardIO $ readFile file
-        return $ VStr content
+        return $ VStr $ decodeUTF8 $ content
 op1 "opendir" = \v -> do
     str <- fromVal v
     dir <- guardIO $ openDirStream str
