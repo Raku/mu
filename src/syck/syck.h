@@ -9,8 +9,14 @@
 
 #ifndef SYCK_H
 #define SYCK_H
+
+#ifndef HAVE_STDLIB_H
 #define HAVE_STDLIB_H
+#endif
+
+#ifndef HAVE_STRING_H
 #define HAVE_STRING_H
+#endif
 
 #define SYCK_YAML_MAJOR 1
 #define SYCK_YAML_MINOR 0
