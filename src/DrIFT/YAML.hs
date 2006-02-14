@@ -28,17 +28,17 @@ _SeenCache = unsafePerformIO $ newIORef IntMap.empty
 
 showYaml :: YAML a => a -> IO String
 showYaml x = do
-    node    <- (`runReaderT` IntMap.empty) (asYAMLrec x)
+    node    <- (`runReaderT` IntMap.empty) (asYAML x)
     rv      <- emitYaml node
     case rv of
         Left e  -> error e
         Right s -> return s
 
+type EmitAs = ReaderT SeenCache IO
+
 class Typeable a => YAML a where
-    asYAMLrec :: a -> ReaderT SeenCache IO YamlNode
-    asYAMLrec = lift . asYAML
-    asYAML :: a -> IO YamlNode
-    asYAML x = do
+    asYAML :: a -> EmitAs YamlNode
+    asYAML x = lift $ do
         ty <- Control.Exception.handle (const $ return "()") $
             evaluate (reverse (takeWhile (/= '.') (reverse (show (typeOf x)))))
         return $ case ty of
@@ -48,12 +48,12 @@ class Typeable a => YAML a where
     fromYAML (MkYamlNode{el=x}) = fromYAMLElem x
     fromYAMLElem :: YamlElem -> IO a
 
-asYAMLseq :: YAMLClass -> [IO YAMLVal] -> IO YamlNode
+asYAMLseq :: YAMLClass -> [EmitAs YAMLVal] -> EmitAs YamlNode
 asYAMLseq c ps = do
     ps' <- sequence ps
     return $ mkTagNode (tagHs c) (YamlSeq ps')
 
-asYAMLmap :: YAMLClass -> [(YAMLKey, IO YAMLVal)] -> IO YamlNode
+asYAMLmap :: YAMLClass -> [(YAMLKey, EmitAs YAMLVal)] -> EmitAs YamlNode
 asYAMLmap c ps = do
     ps' <- mapM asYAMLpair ps
     return $ mkTagNode (tagHs c) (YamlMap ps')
@@ -63,7 +63,7 @@ asYAMLmap c ps = do
         v' <- v
         return (k', v')
 
-asYAMLcls :: YAMLClass -> IO YamlNode
+asYAMLcls :: YAMLClass -> EmitAs YamlNode
 asYAMLcls c = return $ mkTagNode (tagHs c) (YamlStr c)
 
 tagHs :: YAMLClass -> String
@@ -139,15 +139,14 @@ instance (YAML a, YAML b, YAML c) => YAML (a, b, c) where
     fromYAML ~(MkYamlNode{el=YamlSeq [x, y, z]}) = liftM3 (,,) (fromYAML x) (fromYAML y) (fromYAML z)
 
 instance (Typeable a, YAML a) => YAML (TVar a) where
-    asYAMLrec tv = do
+    asYAML tv = do
         ptr  <- liftIO $ addressOf tv
         seen <- liftIO $ readIORef _SeenCache
         case IntMap.lookup ptr seen of
             Just node   -> return node
             _           -> mdo
-                rv   <- local (IntMap.insert ptr rv) $ mdo
-                    v   <- lift (atomically (readTVar tv))
-                    asYAMLrec v
+                rv   <- local (IntMap.insert ptr rv) $ 
+                    asYAML =<< lift (atomically $ readTVar tv)
                 return rv
 
 addressOf :: a -> IO Int
