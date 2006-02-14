@@ -22,10 +22,6 @@ type YAMLKey = String
 type YAMLVal = YamlNode
 type SeenCache = IntMap.IntMap YamlNode
 
-{-# NOINLINE _SeenCache #-}
-_SeenCache :: IORef (IntMap.IntMap YamlNode)
-_SeenCache = unsafePerformIO $ newIORef IntMap.empty
-
 showYaml :: YAML a => a -> IO String
 showYaml x = do
     node    <- (`runReaderT` IntMap.empty) (asYAML x)
@@ -139,15 +135,17 @@ instance (YAML a, YAML b, YAML c) => YAML (a, b, c) where
     fromYAML ~(MkYamlNode{el=YamlSeq [x, y, z]}) = liftM3 (,,) (fromYAML x) (fromYAML y) (fromYAML z)
 
 instance (Typeable a, YAML a) => YAML (TVar a) where
-    asYAML tv = do
-        ptr  <- liftIO $ addressOf tv
-        seen <- liftIO $ readIORef _SeenCache
-        case IntMap.lookup ptr seen of
-            Just node   -> return node
-            _           -> mdo
-                rv   <- local (IntMap.insert ptr rv) $ 
-                    asYAML =<< lift (atomically $ readTVar tv)
-                return rv
+    asYAML = asYAMLwith (lift . atomically . readTVar)
+
+asYAMLwith :: (YAML a, YAML b) => (a -> EmitAs b) -> a -> EmitAs YamlNode
+asYAMLwith f x = do
+    ptr  <- liftIO $ addressOf x
+    seen <- ask
+    case IntMap.lookup ptr seen of
+        Just node   -> return node
+        _           -> mdo
+            rv   <- local (IntMap.insert ptr rv) (asYAML =<< f x)
+            return rv
 
 addressOf :: a -> IO Int
 addressOf x = do
