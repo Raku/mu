@@ -175,7 +175,10 @@ constraints on the above.
 
 The standard way to create, alter, or drop user-defined entities is to
 update the catalog relvars concerning them (although some short-hand
-"create", etc, operators are provided to simplify those tasks).
+"create", etc, operators are provided to simplify those tasks).  It is like
+the user-defined entities are views defined in terms of the catalog
+relvars, and so explicitly changing the former results in implicitly
+changing the latter.
 
 For uniformity, the system-defined entities are also listed in the catalog
 relvars (or, for the types, at least their interfaces are), but constraints
