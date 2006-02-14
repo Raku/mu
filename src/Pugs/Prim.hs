@@ -223,9 +223,15 @@ op1 "any"  = op1Cast opJuncAny
 op1 "all"  = op1Cast opJuncAll
 op1 "one"  = op1Cast opJuncOne
 op1 "none" = op1Cast opJuncNone
-op1 "perl" = \v ->
-    let ?seen = Set.empty in
-        fmap (VStr . ("$_ := " ++)) (prettyVal v)
+op1 "perl" = \v -> do
+    recur   <- liftSTM (newTVar False)
+    let ?seen  = Set.empty
+        ?recur = recur
+    rv      <- prettyVal v
+    isRecur <- liftSTM (readTVar recur)
+    if isRecur
+        then return (VStr $ "$_ := " ++ rv)
+        else return (VStr rv)
 op1 "yaml" = dumpYaml 1024 -- number == max recursion depth
 op1 "require_haskell" = \v -> do
     name    <- fromVal v
@@ -1406,15 +1412,17 @@ primDecl str = primOp sym assoc params ret (safe == "safe")
 
 
 -- op1 "perl"
-prettyVal :: (?seen :: Set (Ptr ())) => Val -> Eval VStr
+prettyVal :: (?seen :: Set (Ptr ()), ?recur :: TVar Bool) => Val -> Eval VStr
 prettyVal v@(VRef r) = do
     ptr <- liftIO (fmap castStablePtrToPtr (newStablePtr r))
     if Set.member ptr ?seen
-        then return "\\$_"
+        then do
+            liftSTM $ writeTVar ?recur True
+            return "\\$_"
         else let ?seen = Set.insert ptr ?seen in doPrettyVal v
 prettyVal v = doPrettyVal v
 
-doPrettyVal :: (?seen :: Set (Ptr ())) => Val -> Eval VStr
+doPrettyVal :: (?seen :: Set (Ptr ()), ?recur :: TVar Bool) => Val -> Eval VStr
 doPrettyVal v@(VRef r) = do
     v'  <- readRef r
     ifValTypeIsa v "Pair"
