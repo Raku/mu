@@ -66,15 +66,9 @@ fromYaml MkYamlNode{el=YamlMap nodes,tag=tag} = do
 
 dumpYaml :: Int -> Val -> Eval Val
 dumpYaml limit v = do
-    done        <- liftSTM $ newTVar IntMap.empty
     let ?seen = IntSet.empty
-        ?done = done
-    obj         <- toYaml v
-    nodeMap     <- liftSTM . readTVar $ done
-    let replaceNode node@MkYamlNode{ nid = n }
-            | n == 0    = node
-            | otherwise = (IntMap.!) nodeMap (fromEnum n)
-    rv   <- liftIO . emitYaml $ everywhere (mkT replaceNode) obj
+    obj     <- toYaml v
+    rv      <- liftIO . emitYaml $ obj
     either (fail . ("YAML Emit Error: "++))
            (return . VStr . decodeUTF8) rv
 
@@ -86,13 +80,13 @@ addressOf x = do
     ptr <- newStablePtr x
     return (castStablePtrToPtr ptr `minusPtr` (nullPtr :: Ptr ()))
 
-toYaml :: (?seen :: IntSet.IntSet, ?done :: TVar (IntMap.IntMap YamlNode)) => Val -> Eval YamlNode
+toYaml :: (?seen :: IntSet.IntSet) => Val -> Eval YamlNode
 toYaml VUndef       = return $ mkNode YamlNil
 toYaml (VBool x)    = return $ boolToYaml x
 toYaml (VStr str)   = return $ strNode (encodeUTF8 str)
 toYaml v@(VRef r)   = do
     ptr <- liftIO $ addressOf r
-    if IntSet.member ptr ?seen then return nilNode{ nid = toEnum ptr } else do
+    if IntSet.member ptr ?seen then return nilNode{ anchor = Just (MkYamlReference ptr) } else do
         let ?seen = IntSet.insert ptr ?seen
         node <- ifValTypeIsa v "Hash" (hashToYaml r) $ do
             v'      <- readRef r
@@ -100,8 +94,7 @@ toYaml v@(VRef r)   = do
             ifValTypeIsa v "Array" (return nodes) . return $ case v' of
                 VObject _   -> nodes
                 _           -> mkNode $ YamlMap [(strNode "<ref>", nodes)]
-        liftSTM $ modifyTVar ?done (IntMap.insert ptr node)
-        return node
+        return node{ anchor = Just (MkYamlAnchor ptr) }
 toYaml (VList nodes) = do
     n <- mapM toYaml nodes
     return $ mkNode (YamlSeq n)
@@ -124,7 +117,7 @@ toYaml (VRule MkRulePGE{rxRule=rule, rxGlobal=global, rxStringify=stringify, rxA
         ]
 toYaml v = return $ strNode $ (encodeUTF8 . pretty) v
 
-hashToYaml :: (?seen :: IntSet.IntSet, ?done :: TVar (IntMap.IntMap YamlNode)) => VRef -> Eval YamlNode
+hashToYaml :: (?seen :: IntSet.IntSet) => VRef -> Eval YamlNode
 hashToYaml (MkRef (IHash hv)) = do
     h <- hash_fetch hv
     let assocs = Map.toList h
