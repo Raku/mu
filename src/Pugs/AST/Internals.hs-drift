@@ -1862,6 +1862,14 @@ instance YAML VRef where
         VList vals <- fakeEval $ fmap VList (array_fetch av)
         avC <- asYAML vals
         return $ mkTagNode (tagHs "Array") (el avC)
+    asYAML (MkRef (IHash hv)) = do
+        VMatch MkMatch{ matchSubNamed = hv } <- fakeEval $ fmap (VMatch . MkMatch False 0 0 "" []) (hash_fetch hv)
+        hvC <- asYAML hv
+        return $ mkTagNode (tagHs "Hash") (el hvC)
+    asYAML (MkRef (IPair pv)) = do
+        VList [k, v] <- fakeEval $ fmap (\(k, v) -> VList [k, v]) (pair_fetch pv)
+        avC <- asYAML (k, v)
+        return $ mkTagNode (tagHs "Pair") (el avC)
     asYAML ref = do
         val <- fakeEval $ readRef ref
         svC <- asYAML val
@@ -1876,6 +1884,10 @@ instance YAML VRef where
         fmap MkRef (newScalar =<< fromYAML node)
     fromYAML node@MkYamlNode{tag=Just "tag:hs:Array"} =
         fmap MkRef (newArray =<< fromYAML node)
+    fromYAML node@MkYamlNode{tag=Just "tag:hs:Hash"} = do
+        fmap MkRef (newHash =<< fromYAML node)
+    fromYAML node@MkYamlNode{tag=Just "tag:hs:Pair"} = do
+        fmap pairRef (fromYAML node :: IO VPair)
 
 instance YAML VControl
 instance YAML (Set Val)
