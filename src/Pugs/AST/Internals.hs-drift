@@ -78,6 +78,8 @@ import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 import qualified Data.IntMap    as IntMap
 
+import Data.Yaml.Syck
+
 import Pugs.Parser.Number
 import Pugs.AST.Prag
 import Pugs.AST.Pos
@@ -1800,13 +1802,53 @@ instance Typeable1 IVar where
 #endif
 
 -- Move them to Pugs.AST.Instances later?
+
+{-# NOINLINE _FakeEnv #-}
+_FakeEnv :: Env
+_FakeEnv = unsafePerformIO $ liftSTM $ do
+    ref  <- newTVar Map.empty
+    syms <- nullPad
+    glob <- newTVar (combine (syms) $ nullPad)
+    init <- newTVar $ MkInitDat { initPragmas=[] }
+    return $ MkEnv
+        { envContext = CxtVoid
+        , envLexical = nullPad
+        , envImplicit= Map.empty
+        , envLValue  = False
+        , envGlobal  = glob
+        , envPackage = "main"
+        , envClasses = initTree
+        , envEval    = const . return VUndef
+        , envCaller  = Nothing
+        , envOuter   = Nothing
+        , envDepth   = 0
+        -- XXX see AST/Internals.hs
+        --, envID      = uniq
+        , envBody    = Val undef
+        , envDebug   = Just ref -- Set to "Nothing" to disable debugging
+        , envPos     = MkPos "<null>" 1 1 1 1
+        , envPragmas = []
+        , envInitDat = init
+        }
+    where nullPad = MkPad Map.empty
+
 instance (Typeable a, Typeable b) => YAML (a -> Eval b)
 instance (Typeable a) => YAML (Eval a)
 instance YAML a => YAML (Map String a) where
     asYAML x = asYAMLmap "Map" $ Map.toList (Map.map asYAML x)
 instance Typeable a => YAML (IVar a) where
     asYAML x = asYAML (MkRef x)
-instance YAML VRef
+instance YAML VRef where
+    asYAML (MkRef (ICode cv)) = do
+        vsub    <- liftIO $ runEvalIO _FakeEnv $ code_fetch cv
+        vsubC   <- asYAML vsub
+        return $ mkTagNode (tagHs "ICode") vsubC
+    asYAML (MkRef (IScalar sv)) | scalar_iType sv == mkType "Scalar::Const" = do
+        sv  <- scalar_fetch sv
+        svC <- asYAML sv
+        return $ mkTagNode (tagHs "IScalar") sv
+    asYAML ref = error ("not implemented: asYAML \"" ++ showType (refType ref) ++ "\")")
+
 instance YAML (Set Val)
 instance YAML (VThread Val)
 instance YAML ClassTree
