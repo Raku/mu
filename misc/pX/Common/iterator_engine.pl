@@ -1,7 +1,37 @@
 use strict;
 
 my %rules;
+
+# internal functions
+
+sub _greedy { 
+    my $node_name = shift;
+    my @matches;
+    my @tail = @_;
+    my $match;
+    while (1) {
+        my @last_tail = @tail;
+        ($match, @tail) = $rules{ $node_name }(@tail);
+        return ( { $node_name . '_greedy' => [ @matches ] }, @last_tail ) if ! $match;
+        push @matches, $match;
+    }
+}
+
+
+# Prelude - precompiled rules, such as <word>, \x, etc.
+
 %rules = (
+  'slashed_char' => sub {
+      return ( { 'slashed_char' => [ $_[0], $_[1] ] }, @_[2..$#_] ) if $_[0] eq '\\';
+      return undef;
+  },
+  'word_char' => sub { 
+      return ( { 'char'=>[ $_[0] ] }, @_[1..$#_] ) if $_[0] =~ m/[a-zA-Z0-9\_]/;  
+      return undef;
+  },
+
+# more definitions
+
   'a' => sub { 
       return ( { 'a'=>[ $_[0] ] }, @_[1..$#_] ) if $_[0] eq 'a';
       return undef;
@@ -32,15 +62,17 @@ my %rules;
       return undef;
   },
   'a*' => sub { 
-      my @matches;
-      my @tail = @_;
-      my $match;
-      while (1) {
-          my @last_tail = @tail;
-          ($match, @tail) = $rules{'a'}(@tail);
-          return ( { 'a*' => [ @matches ] }, @last_tail ) if ! $match;
-          push @matches, $match;
-      }
+      _greedy( 'a', @_ );
+      
+      #my @matches;
+      #my @tail = @_;
+      #my $match;
+      #while (1) {
+      #    my @last_tail = @tail;
+      #    ($match, @tail) = $rules{'a'}(@tail);
+      #    return ( { 'a*' => [ @matches ] }, @last_tail ) if ! $match;
+      #    push @matches, $match;
+      #}
   },
   'a*.' => sub { 
       my @matches;
@@ -49,9 +81,10 @@ my %rules;
       
       ($match, @tail) = $rules{'a*'}(@_);
       # return undef unless $match;   # '*' always matches
+      print Dumper [ $match, @tail ];
       
       while (1) {
-          my $iterations = @{ $match->{'a*'} };
+          my $iterations = @{ $match->{'a_greedy'} };
           warn "iterations to go: $iterations";
       
           @matches = ();
@@ -63,9 +96,9 @@ my %rules;
       
           return ( { 'a*.'=>[ @matches ] }, @tail) if $match2;
           
-          return undef unless @{ $match->{'a*'} };
+          return undef unless @{ $match->{'a_greedy'} };
           
-          my $last = pop @{ $match->{'a*'} };
+          my $last = pop @{ $match->{'a_greedy'} };
           unshift @tail, $last;
       }
   },
