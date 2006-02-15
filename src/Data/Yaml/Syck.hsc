@@ -88,25 +88,19 @@ type EmitterExtras = Ptr ()
 -}
 
 emitYamlFS :: YamlNode -> IO (Either Str.FastString Str.FastString)
-emitYamlFS = error "moose"
-
-emitYaml :: YamlNode -> IO (Either String String)
-emitYaml node = do
+emitYamlFS node = do
     bracket syck_new_emitter syck_free_emitter $ \emitter -> do
         -- set up output port
-        out    <- newIORef ""
-        outPtr <- fmap castStablePtrToPtr (newStablePtr out)
-        #{poke SyckEmitter, bonus} emitter outPtr
+        out    <- newIORef Str.empty
         #{poke SyckEmitter, style} emitter scalarFold
         -- #{poke SyckEmitter, sort_keys} emitter (1 :: CInt)
         withCString "%d" $ #{poke SyckEmitter, anchor_format} emitter
 
-        -- nodes <- Hash.new (==) (Hash.hashInt)
         marks <- Hash.new (==) (Hash.hashInt)
 
         let freeze = freezeNode marks
         syck_emitter_handler emitter =<< mkEmitterCallback (emitterCallback freeze)
-        syck_output_handler emitter =<< mkOutputCallback outputCallback
+        syck_output_handler emitter =<< mkOutputCallback (outputCallbackPS out)
 
         markYamlNode marks emitter node
 
@@ -115,6 +109,9 @@ emitYaml node = do
         syck_emit emitter nodePtr'
         syck_emitter_flush emitter 0
         fmap Right $ readIORef out
+
+emitYaml :: YamlNode -> IO (Either String String)
+emitYaml node = fmap (either (Left . Str.unpack) (Right . Str.unpack)) (emitYamlFS node)
 
 markYamlNode :: Hash.HashTable Int SyckNodePtr -> SyckEmitter -> YamlNode -> IO ()
 markYamlNode marks emitter MkYamlNode{ anchor = Just (MkYamlReference n) } = do
@@ -134,6 +131,11 @@ markYamlNode marks emitter node = do
         _           -> return ()
     where
     mark = markYamlNode marks emitter
+
+outputCallbackPS :: IORef Str.FastString -> SyckEmitter -> CString -> CLong -> IO ()
+outputCallbackPS out emitter buf len = do
+    let str =  Str.packCStringLen (buf, fromEnum len)
+    modifyIORef out (`Str.append` str)
 
 outputCallback :: SyckEmitter -> CString -> CLong -> IO ()
 outputCallback emitter buf len = do
