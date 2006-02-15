@@ -51,12 +51,23 @@ sub set_as_failed {
 sub set_str {my($o,$s)=@_;$$o->{'val_string'}=$s;}
 sub describe {
     my($o)=@_;
-    my $s = overload::StrVal($o)."<".($o?"1":"0").",\"$o\",[";
+    my $os = "$o";
+    $os = $o->_indent_except_top($os) if $os =~ /\n/;
+    my $s = overload::StrVal($o);
+    $s .= "[".$$o->{'RULE'}."]" if exists $$o->{'RULE'}; # REMOVE THIS NOW
+    $s .= "<".($o?"1":"0").",\"$os\",[";
     for (@{$o}) { $s .= "\n".$o->_indent($_->describe())."," }
     $s .= "\n " if @{$o};
     $s .= "],{";
-    for (keys(%{$o})) {
-        $s .= "\n$_ => " .$o->_indent_except_top($o->describe())."," }
+    for my $k (keys(%{$o})) {
+        my $v = $o->{$k};
+        my $vs = "";
+        if(ref($v) eq 'ARRAY') {
+            $vs = "[\n".$o->_indent(join(",\n",map{$_->describe}@$v))."\n]";
+        } else {
+            $vs = $v->describe;
+        }
+        $s .= "\n  $k => " .$o->_indent_except_top($vs)."," }
     $s .= "\n " if %{$o};
     $s .= "},";
     my($from,$to)=($o->from,$o->to);

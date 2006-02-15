@@ -659,33 +659,44 @@ sub dorule {
   my $noop = Hacks->noop;
 
   my $ru = $rules{$name};
-  die "Unknown rule '$name'" if !defined $ru;
+  if(!defined $ru) {
+    warn "Unknown rule '$name'";
+    return undef;
+  }
 
-  my $from = $X::pos;
+  my $pos = $X::pos;
+  my $cap = $X::cap;
   my $m0 = $X::current_match;
   my $m1 = MatchX->new;
-  $m1->{'RULE'} = $name;
-  $m1->set(1,"",[],{},$from,undef);
-  my $close = sub{
+  $$m1->{'RULE'} ||= $name; #EEEP
+  $m1->set(1,"",[],{},$pos,undef);
+
+  my $rest = sub{
     my $cn = $_[0];
+    $$m1->{'val_array'} = $X::cap; #EEEP
     $$m1->{'to'} = $X::pos; #EEEP
-    $m1->set_str(substr($X::str,$from,$X::pos-$from));
+    $m1->set_str(substr($X::str,$pos,$X::pos-$pos));
+    local $m0->{$name} = [@{$m0->{$name}||[]}];
+    push(@{$m0->{$name}},$m1); #see below
+    $X::cap = $cap;
+    $X::current_match = $m0;
     @_=$c; goto &$cn;
   };
 
-  local $X::current_match = $m1;
-  @_=$close;
-  my $v = $ru->($close);
-
+  my $v;
+  { local $X::current_match = $m1;
+    local $X::cap = [];
+    $v = $ru->($rest);
+  }
   return undef if !defined $v;
-  my $m2 = $X::current_match;
-  push(@{$m0->{$name}},$m2);
+  unshift(@{$m0->{$name}},$m1);# sigh,
+  #  twice: once for inline code, once for the final Match tree.
   return $v;
 }
 }
 sub def_rule {
   my($name,$re)=@_;
-  my $r = compile($re);
+  my $r = ref($re) ? $re : compile($re);
   die if !defined $r;
   $Y::rules{$name} = $r;
 }
@@ -694,6 +705,7 @@ sub def_rule {
 my $noop = Hacks->noop;
 sub compile {
   my($re)=@_;
+  $re =~ s/<(\w+)([^\>]*)>/(?{\@_=(\$__c__,'$1','$2');goto \&Y::dorule;})/g;
   my $parser = Regexp::Parser->new($re);
   my $n = eval{ $parser->root };
   die "$@" if !defined $n;
@@ -722,7 +734,6 @@ sub match {
 }
 sub match_re {
   my($re,$s)=@_;
-  $re =~ s/<(\w+)([^\>]*)>/(?{\@_=(\$__c__,'$1','$2');goto \&Y::dorule;})/g;
   my $r = compile($re);
   my $m = match($r,$s);
   return $m;
@@ -735,17 +746,6 @@ if(@ARGV && $ARGV[0] eq '--test') {
     my $r = compile($re); sub{my($s)=@_;match($r,$s)}});
   exit;
 }
+1;
+__END__
 #print Dumper match_re('a','abc');
-#print Dumper match_re('^(a?)*$','a--');
-#print Dumper match_re('ab*c','abc');
-#print Dumper match_re('(?ix)a','ab');
-#print Dumper match_re('a*?','ab');
-#print Dumper match_re('^(a)\1','aa');
-#print Dumper match_re('(?{$a=2})(?{$a=2})','yaaxxaaaacd');
-#print Dumper match_re('(?{$a=2})a*aa(?{local$a=$a+1})k*c(?{$b=$a})','yaaxxaaaacd');
-#print Dumper match_re('(?(?=n).|f)','fa');
-#print Dumper match_re('()(?(1).|f)','fa');
-#print Dumper match_re('[[:digit:]]','0a');
-#print Dumper match_re('(?:(?:a)*)*x','0a');
-def_rule('foo','f');
-print Dumper match_re('a<foo>b','afb');
