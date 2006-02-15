@@ -1835,14 +1835,24 @@ instance YAML VRef where
     asYAML (MkRef (ICode cv)) = do
         VCode vsub  <- liftIO $ runEvalIO _FakeEnv $ fmap VCode (code_fetch cv)
         vsubC       <- asYAML vsub
-        return $ mkTagNode (tagHs "ICode") (el vsubC)
-    asYAML (MkRef (IScalar sv)) | scalar_iType sv == mkType "Scalar::Const" = do
+        return $ mkTagNode (tagHs "VCode") (el vsubC)
+    asYAML (MkRef (IScalar sv)) = do
         val <- liftIO $ runEvalIO _FakeEnv $ scalar_fetch sv
         svC <- asYAML val
-        return $ mkTagNode (tagHs "IScalar") (el svC)
-    asYAML ref = error ("not implemented: asYAML \"" ++ showType (refType ref) ++ "\")")
-    fromYAML node@MkYamlNode{tag=Just "tag:hs:ICode"} = fmap (MkRef . ICode) (fromYAML node :: IO VCode)
-    fromYAML node@MkYamlNode{tag=Just "tag:hs:Scalar::Const"} = fmap (MkRef . ICode) (fromYAML node :: IO VCode)
+        let tag = if scalar_iType sv == mkType "Scalar::Const"
+                    then "VScalar" else "IScalar"
+        return $ mkTagNode (tagHs tag) (el svC)
+    asYAML ref = do
+        val <- liftIO $ runEvalIO _FakeEnv $ readRef ref
+        svC <- asYAML val
+        liftIO $ print svC
+        fail ("not implemented: asYAML \"" ++ showType (refType ref) ++ "\"")
+    fromYAML node@MkYamlNode{tag=Just "tag:hs:VCode"} =
+        fmap (MkRef . ICode) (fromYAML node :: IO VCode)
+    fromYAML node@MkYamlNode{tag=Just "tag:hs:VScalar"} =
+        fmap (MkRef . IScalar) (fromYAML node :: IO VScalar)
+    fromYAML node@MkYamlNode{tag=Just "tag:hs:IScalar"} =
+        fmap MkRef (newScalar =<< fromYAML node)
 
 instance YAML (Set Val)
 instance YAML (VThread Val)
