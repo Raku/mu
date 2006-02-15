@@ -1,8 +1,9 @@
-{-# OPTIONS_GHC -fglasgow-exts -fvia-C -optc-w -fno-warn-unused-binds #-}
+{-# OPTIONS_GHC -fglasgow-exts -O2 -optc-O3 -fvia-C -optc-w -fno-warn-unused-binds #-}
 #include "../../syck/syck.h"
 #include "../../cbits/fpstring.h"
 
 module Data.Yaml.Syck (
+    parseYamlFS, emitYamlFS,
     parseYaml, emitYaml,
     YamlNode(..), YamlElem(..), YamlAnchor(..), tagNode, nilNode, mkNode, mkTagNode, SYMID,
 ) where
@@ -10,7 +11,7 @@ module Data.Yaml.Syck (
 import Control.Exception (bracket)
 import Data.IORef
 import Data.Word                (Word8)
--- import qualified Data.FastPackedString as P
+import qualified Data.FastPackedString as Str
 import Foreign.Ptr
 import Foreign.StablePtr
 import Foreign.ForeignPtr
@@ -86,6 +87,9 @@ mkTagNode s x = MkYamlNode 0 x (Just s) Nothing
 type EmitterExtras = Ptr ()
 -}
 
+emitYamlFS :: YamlNode -> IO (Either Str.FastString Str.FastString)
+emitYamlFS = error "moose"
+
 emitYaml :: YamlNode -> IO (Either String String)
 emitYaml node = do
     bracket syck_new_emitter syck_free_emitter $ \emitter -> do
@@ -94,7 +98,7 @@ emitYaml node = do
         outPtr <- fmap castStablePtrToPtr (newStablePtr out)
         #{poke SyckEmitter, bonus} emitter outPtr
         #{poke SyckEmitter, style} emitter scalarFold
-        #{poke SyckEmitter, sort_keys} emitter (1 :: CInt)
+        -- #{poke SyckEmitter, sort_keys} emitter (1 :: CInt)
         withCString "%d" $ #{poke SyckEmitter, anchor_format} emitter
 
         -- nodes <- Hash.new (==) (Hash.hashInt)
@@ -186,7 +190,13 @@ withTag :: YamlNode -> String -> (CString -> IO a) -> IO a
 withTag node def f = withCString (maybe def id (tag node)) f
 
 parseYaml :: String -> IO (Either String (Maybe YamlNode))
-parseYaml str = withCString str $ \cstr -> do
+parseYaml = (`withCString` parseYamlCStr)
+
+parseYamlFS :: Str.FastString -> IO (Either String (Maybe YamlNode))
+parseYamlFS = (`Str.useAsCString` parseYamlCStr)
+
+parseYamlCStr :: CString -> IO (Either String (Maybe YamlNode))
+parseYamlCStr cstr = do
     bracket syck_new_parser syck_free_parser $ \parser -> do
         err <- newIORef Nothing
         syck_parser_str_auto parser cstr nullFunPtr
