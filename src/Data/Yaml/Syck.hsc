@@ -113,7 +113,7 @@ emitYaml node = do
         fmap Right $ readIORef out
 
 markYamlNode :: Hash.HashTable Int SyckNodePtr -> SyckEmitter -> YamlNode -> IO ()
-markYamlNode marks emitter node@MkYamlNode{ anchor = Just (MkYamlReference n) } = do
+markYamlNode marks emitter MkYamlNode{ anchor = Just (MkYamlReference n) } = do
     Just nodePtr <- Hash.lookup marks n
     syck_emitter_mark_node emitter nodePtr
     return ()
@@ -372,7 +372,3 @@ foreign import ccall
 
 foreign import ccall
     syck_emit_map :: SyckEmitter -> CString -> CInt -> IO ()
-
-foreign import ccall
-    syck_emit_tag :: SyckEmitter -> CString -> CString -> IO ()
-
