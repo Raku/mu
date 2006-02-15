@@ -265,7 +265,7 @@ syckNodeTag :: SyckNode -> IO (Maybe Str)
 syckNodeTag syckNode = do
     tag <- #{peek SyckNode, type_id} syckNode
     if (tag == nullPtr) then (return Nothing) else do
-        return $ Just $ Str.packMallocCString tag
+        fmap Just (Str.copyCStringLen (tag, (-1)))
 
 syckNodeKind :: SyckNode -> IO SyckKind
 syckNodeKind syckNode = fmap toEnum $ #{peek SyckNode, kind} syckNode
@@ -296,7 +296,7 @@ parseNode SyckSeq parser syckNode len = do
 parseNode SyckStr _ syckNode len = do
     tag   <- syckNodeTag syckNode
     cstr  <- syck_str_read syckNode
-    let str = Str.packCStringLen (cstr, fromEnum len)
+    str   <- Str.copyCStringLen (cstr, fromEnum len)
     return $ nilNode{ el = YamlStr str, tag = tag }
 
 foreign import ccall "wrapper"  

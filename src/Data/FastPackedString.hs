@@ -163,6 +163,7 @@ module Data.FastPackedString (
         unsafePackAddress,    -- :: Int -> Addr# -> FastString
         unsafeFinalize,       -- :: FastString -> IO ()
 #endif
+        copyCStringLen,       -- :: CStringLen -> IO FastString
         packMallocCString,    -- :: CString -> FastString
         packCString,          -- :: CString -> FastString
         packCStringLen,       -- :: CString -> FastString
@@ -1180,6 +1181,16 @@ construct p l f = do
     fp <- FC.newForeignPtr p f
     return $ PS fp 0 l
 #endif
+
+-- | /O(n)/ Build a @FastString@ from a malloced @CString@. This value will
+-- have a @free(3)@ finalizer associated to it.
+copyCStringLen :: CStringLen -> IO FastString
+copyCStringLen (cstr, -1) = copyCStringLen (cstr, (fromEnum $ c_strlen cstr))
+copyCStringLen (cstr, len) = do 
+    buf <- c_malloc (fromIntegral len+1)
+    c_memcpy (castPtr buf) (castPtr cstr) (fromIntegral len)
+    fp <- newForeignPtr c_free buf
+    return $ PS fp 0 (fromIntegral len)
 
 -- | /O(n)/ Build a @FastString@ from a malloced @CString@. This value will
 -- have a @free(3)@ finalizer associated to it.
