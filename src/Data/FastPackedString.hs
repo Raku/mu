@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -cpp -O2 -optc-O3 -fglasgow-exts -funbox-strict-fields #-}
+{-# OPTIONS_GHC -cpp -fglasgow-exts -funbox-strict-fields #-}
 --
 -- Module      : FastPackedString
 -- Copyright   : (c) The University of Glasgow 2001,
