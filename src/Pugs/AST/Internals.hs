@@ -1828,6 +1828,7 @@ instance (Typeable a, Typeable b) => YAML (a -> Eval b)
 instance (Typeable a) => YAML (Eval a)
 instance YAML a => YAML (Map String a) where
     asYAML x = asYAMLmap "Map" $ Map.toList (Map.map asYAML x)
+    fromYAML node@MkYamlNode{tag=Just "tag:hs:Map"} = fmap Map.fromList (fromYAMLmap node)
 instance Typeable a => YAML (IVar a) where
     asYAML x = asYAML (MkRef x)
 instance YAML VRef where
@@ -1840,6 +1841,8 @@ instance YAML VRef where
         svC <- asYAML val
         return $ mkTagNode (tagHs "IScalar") (el svC)
     asYAML ref = error ("not implemented: asYAML \"" ++ showType (refType ref) ++ "\")")
+    fromYAML node@MkYamlNode{tag=Just "tag:hs:ICode"} = fmap (MkRef . ICode) (fromYAML node :: IO VCode)
+    fromYAML node@MkYamlNode{tag=Just "tag:hs:Scalar::Const"} = fmap (MkRef . ICode) (fromYAML node :: IO VCode)
 
 instance YAML (Set Val)
 instance YAML (VThread Val)

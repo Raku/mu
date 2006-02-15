@@ -59,6 +59,15 @@ asYAMLmap c ps = do
         v' <- v
         return (k', v')
 
+fromYAMLmap :: YAML a => YamlNode -> IO [(String, a)]
+fromYAMLmap MkYamlNode{el=YamlMap m} = do
+    mapM fromYAMLpair m
+    where
+    fromYAMLpair ~(MkYamlNode{el=YamlStr k}, v) = do
+        v' <- fromYAML v
+        return (k, v')
+    
+
 asYAMLcls :: YAMLClass -> EmitAs YamlNode
 asYAMLcls c = return $ mkTagNode (tagHs c) (YamlStr c)
 
