@@ -745,10 +745,10 @@ valType (PerlSV   _)    = mkType "Scalar::Perl5"
 
 type VBlock = Exp
 data VControl
-    = ControlLeave !(Env -> Eval Bool) !Val
-    | ControlExit  !ExitCode
+    = ControlExit  !ExitCode
     | ControlEnv   !Env
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+ -- | ControlLeave !(Env -> Eval Bool) !Val
+    deriving (Show, Eq, Ord, Typeable)
 
 {-|
 Represents a junction value.
@@ -1136,7 +1136,7 @@ data Env = MkEnv
     , envPragmas :: ![Pragma]            -- ^ List of pragmas in effect
     , envInitDat :: !(TVar InitDat)      -- ^ BEGIN result information
     } 
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Show, Eq, Ord, Typeable)
 
 {-|
 Module initialization information.
@@ -1824,8 +1824,18 @@ _FakeEnv = unsafePerformIO $ liftSTM $ do
         , envInitDat = init
         }
 
-instance (Typeable a, Typeable b) => YAML (a -> Eval b)
-instance (Typeable a) => YAML (Eval a)
+fakeEval :: MonadIO m => Eval Val -> m Val
+fakeEval = liftIO . runEvalIO _FakeEnv
+
+instance YAML ([Val] -> Eval Val) where
+    asYAML _ = return nilNode
+    fromYAML _ = return (const $ return VUndef)
+instance YAML (Maybe Env) where
+    asYAML _ = return nilNode
+    fromYAML _ = return Nothing
+instance YAML (Eval Val) where
+    asYAML x = asYAML =<< fakeEval x
+    fromYAML x = return =<< fromYAML x
 instance YAML a => YAML (Map String a) where
     asYAML x = asYAMLmap "Map" $ Map.toList (Map.map asYAML x)
     fromYAML node@MkYamlNode{tag=Just "tag:hs:Map"} = fmap Map.fromList (fromYAMLmap node)
@@ -1833,18 +1843,23 @@ instance Typeable a => YAML (IVar a) where
     asYAML x = asYAML (MkRef x)
 instance YAML VRef where
     asYAML (MkRef (ICode cv)) = do
-        VCode vsub  <- liftIO $ runEvalIO _FakeEnv $ fmap VCode (code_fetch cv)
+        VCode vsub  <- fakeEval $ fmap VCode (code_fetch cv)
         vsubC       <- asYAML vsub
         return $ mkTagNode (tagHs "VCode") (el vsubC)
     asYAML (MkRef (IScalar sv)) = do
-        val <- liftIO $ runEvalIO _FakeEnv $ scalar_fetch sv
+        val <- fakeEval $ scalar_fetch sv
         svC <- asYAML val
         let tag = if scalar_iType sv == mkType "Scalar::Const"
                     then "VScalar" else "IScalar"
         return $ mkTagNode (tagHs tag) (el svC)
+    asYAML (MkRef (IArray av)) = do
+        VList vals <- fakeEval $ fmap VList (array_fetch av)
+        avC <- asYAML vals
+        return $ mkTagNode (tagHs "Array") (el avC)
     asYAML ref = do
-        val <- liftIO $ runEvalIO _FakeEnv $ readRef ref
+        val <- fakeEval $ readRef ref
         svC <- asYAML val
+        liftIO $ print "====>"
         liftIO $ print svC
         fail ("not implemented: asYAML \"" ++ showType (refType ref) ++ "\"")
     fromYAML node@MkYamlNode{tag=Just "tag:hs:VCode"} =
@@ -1853,12 +1868,14 @@ instance YAML VRef where
         fmap (MkRef . IScalar) (fromYAML node :: IO VScalar)
     fromYAML node@MkYamlNode{tag=Just "tag:hs:IScalar"} =
         fmap MkRef (newScalar =<< fromYAML node)
+    fromYAML node@MkYamlNode{tag=Just "tag:hs:Array"} =
+        fmap MkRef (newArray =<< fromYAML node)
 
+instance YAML VControl
 instance YAML (Set Val)
 instance YAML (VThread Val)
 instance YAML ClassTree
 instance YAML Dynamic
-instance YAML ExitCode
 instance YAML Pragma
 instance YAML ProcessHandle
 instance YAML Regex
@@ -1871,7 +1888,6 @@ instance YAML VSocket
 instance YAML PerlSV
 instance Typeable Unique where typeOf _ = typeOf ()
 instance Typeable ProcessHandle where typeOf _ = typeOf ()
-instance Typeable ExitCode where typeOf _ = typeOf ()
 instance Typeable Regex where typeOf _ = typeOf ()
 instance Typeable1 Tree where typeOf1 _ = typeOf ()
 
@@ -2032,12 +2048,6 @@ instance YAML Val where
     asYAML (VOpaque aa) = asYAMLseq "VOpaque" [asYAML aa]
     asYAML (PerlSV aa) = asYAMLseq "PerlSV" [asYAML aa]
 
-instance YAML VControl where
-    asYAML (ControlLeave aa ab) = asYAMLseq "ControlLeave"
-	   [asYAML aa , asYAML ab]
-    asYAML (ControlExit aa) = asYAMLseq "ControlExit" [asYAML aa]
-    asYAML (ControlEnv aa) = asYAMLseq "ControlEnv" [asYAML aa]
-
 instance YAML VJunc where
     asYAML (MkJunc aa ab ac) = asYAMLmap "MkJunc"
 	   [("juncType", asYAML aa) , ("juncDup", asYAML ab) ,
@@ -2132,18 +2142,6 @@ instance YAML Exp where
     asYAML (Val aa) = asYAMLseq "Val" [asYAML aa]
     asYAML (Var aa) = asYAMLseq "Var" [asYAML aa]
     asYAML (NonTerm aa) = asYAMLseq "NonTerm" [asYAML aa]
-
-instance YAML Env where
-    asYAML (MkEnv aa ab ac ad ae af ag ah ai aj ak al am an ao ap) =
-	   asYAMLmap "MkEnv"
-	   [("envContext", asYAML aa) , ("envLValue", asYAML ab) ,
-	    ("envLexical", asYAML ac) , ("envImplicit", asYAML ad) ,
-	    ("envGlobal", asYAML ae) , ("envPackage", asYAML af) ,
-	    ("envClasses", asYAML ag) , ("envEval", asYAML ah) ,
-	    ("envCaller", asYAML ai) , ("envOuter", asYAML aj) ,
-	    ("envBody", asYAML ak) , ("envDepth", asYAML al) ,
-	    ("envDebug", asYAML am) , ("envPos", asYAML an) ,
-	    ("envPragmas", asYAML ao) , ("envInitDat", asYAML ap)]
 
 instance YAML InitDat where
     asYAML (MkInitDat aa) = asYAMLmap "MkInitDat"

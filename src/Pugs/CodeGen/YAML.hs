@@ -10,9 +10,9 @@ import DrIFT.YAML
 
 genParseYAML :: Eval Val
 genParseYAML = do
-    -- glob    <- asks envGlobal
+    glob    <- asks envGlobal
     main    <- asks envBody
-    yaml    <- liftIO (showYaml main)
+    yaml    <- liftIO (showYaml (glob, main))
     return (VStr yaml)
 
 genYAML :: Eval Val
