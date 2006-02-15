@@ -136,7 +136,7 @@ markYamlNode marks emitter node = do
 
 outputCallbackPS :: IORef Str.FastString -> SyckEmitter -> CString -> CLong -> IO ()
 outputCallbackPS out emitter buf len = do
-    let str =  Str.packCStringLen (buf, fromEnum len)
+    str <- Str.copyCStringLen (buf, fromEnum len)
     modifyIORef out (`Str.append` str)
 
 outputCallback :: SyckEmitter -> CString -> CLong -> IO ()
