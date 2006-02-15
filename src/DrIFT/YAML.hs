@@ -16,6 +16,9 @@ import Foreign.StablePtr
 import Foreign.Ptr
 import System.IO.Unsafe
 import Control.Monad.Reader
+import qualified Data.FastPackedString as Str
+
+type Str = Str.FastString
 
 type YAMLClass = String
 type YAMLKey = String
@@ -65,36 +68,42 @@ fromYAMLmap MkYamlNode{el=YamlMap m} = do
     where
     fromYAMLpair ~(MkYamlNode{el=YamlStr k}, v) = do
         v' <- fromYAML v
-        return (k, v')
+        return (Str.unpack k, v')
     
 
 asYAMLcls :: YAMLClass -> EmitAs YamlNode
-asYAMLcls c = return $ mkTagNode (tagHs c) (YamlStr c)
+asYAMLcls c = return $ mkTagNode (tagHs c) (YamlStr $ Str.pack c)
 
 tagHs :: YAMLClass -> String
 tagHs = ("tag:hs:" ++)
+
+deTag :: YamlNode -> YAMLClass
+deTag MkYamlNode{tag=Just s} =
+    let 't':'a':'g':':':'h':'s':':':tag = s' in tag
+    where s' = Str.unpack s
+deTag _ = error "not a Haskell tag"
 
 instance YAML () where
     asYAML _ = return nilNode
     fromYAML _ = return ()
 
 instance YAML Int where
-    asYAML x = return $ mkTagNode "int" (YamlStr $ show x)
-    fromYAMLElem ~(YamlStr x) = return $ read x
+    asYAML x = return $ mkTagNode "int" (YamlStr $ Str.pack $ show x)
+    fromYAMLElem ~(YamlStr x) = return $ read $ Str.unpack x
 
 instance YAML String where
-    asYAML str = return $ mkTagNode "str" (YamlStr str)
-    fromYAMLElem ~(YamlStr str) = return $ read str
+    asYAML str = return $ mkTagNode "str" (YamlStr $ Str.pack str)
+    fromYAMLElem ~(YamlStr str) = return $ read $ Str.unpack str
 
 instance YAML Bool where
-    asYAML True = return $ mkTagNode "bool#yes" (YamlStr "1")
-    asYAML False = return $ mkTagNode "bool#no" (YamlStr "0")
-    fromYAML MkYamlNode{tag=Just "bool#yes"} = return True
-    fromYAML MkYamlNode{tag=Just "bool#no"}  = return False
+    asYAML True = return $ mkTagNode "bool#yes" (YamlStr $ Str.pack "1")
+    asYAML False = return $ mkTagNode "bool#no" (YamlStr $ Str.pack "0")
+    fromYAML MkYamlNode{tag=Just s} | s == Str.pack "bool#yes" = return True
+    fromYAML MkYamlNode{tag=Just s} | s == Str.pack "bool#no"  = return False
 
 instance YAML Integer where 
-    asYAML x = return $ mkTagNode "int" (YamlStr $ show x)
-    fromYAMLElem ~(YamlStr x) = return $ read x
+    asYAML x = return $ mkTagNode "int" (YamlStr $ Str.pack $ show x)
+    fromYAMLElem ~(YamlStr x) = return $ read $ Str.unpack x
 
 instance YAML Rational where 
     asYAML r = asYAML (x, y)
@@ -103,17 +112,17 @@ instance YAML Rational where
         y = denominator r
     fromYAMLElem ~(YamlStr str) = return $ (read x) / (read y)
         where
-        (x,y) = break (== '/') str
+        (x,y) = break (== '/') (Str.unpack str)
     
 instance YAML Double where 
-    asYAML num | show num == "Infinity"  = return $ mkTagNode "float#inf"    (YamlStr ".Inf")
-               | show num == "-Infinity" = return $ mkTagNode "float#neginf" (YamlStr "-.Inf")
-               | show num == "NaN"       = return $ mkTagNode "float#nan"    (YamlStr "-.NaN")
-               | otherwise               = return $ mkTagNode "float"        (YamlStr $ show num)
-    fromYAML MkYamlNode{tag=Just "float#inf"}    = return $  1/0 -- "Infinity" 
-    fromYAML MkYamlNode{tag=Just "float#neginf"} = return $ -1/0 -- "-Infinity" 
-    fromYAML MkYamlNode{tag=Just "float#nan"}    = return $  0/0 -- "NaN" 
-    fromYAML ~MkYamlNode{el=YamlStr x}           = return $ read x
+    asYAML num | show num == "Infinity"  = return $ mkTagNode "float#inf"    (YamlStr $ Str.pack ".Inf")
+               | show num == "-Infinity" = return $ mkTagNode "float#neginf" (YamlStr $ Str.pack "-.Inf")
+               | show num == "NaN"       = return $ mkTagNode "float#nan"    (YamlStr $ Str.pack "-.NaN")
+               | otherwise               = return $ mkTagNode "float"        (YamlStr $ Str.pack $ show num)
+    fromYAML MkYamlNode{tag=Just s} | s == Str.pack "float#inf"    = return $  1/0 -- "Infinity" 
+    fromYAML MkYamlNode{tag=Just s} | s == Str.pack "float#neginf" = return $ -1/0 -- "-Infinity" 
+    fromYAML MkYamlNode{tag=Just s} | s == Str.pack "float#nan"    = return $  0/0 -- "NaN" 
+    fromYAML ~MkYamlNode{el=YamlStr x}                             = return $ read $ Str.unpack x
 
 instance (YAML a) => YAML (Maybe a) where
     asYAML (Just x) = asYAML x

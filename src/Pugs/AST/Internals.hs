@@ -105,6 +105,7 @@ import System.IO.Error (try)
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 import qualified Data.IntMap    as IntMap
+import qualified Data.FastPackedString as Str
 
 import Data.Yaml.Syck
 
@@ -127,6 +128,8 @@ import DrIFT.JSON
 #include "../Types/Rule.hs"
 #include "../Types/Pair.hs"
 #include "../Types/Object.hs"
+
+type Str = Str.FastString
 
 errIndex :: Show a => Maybe b -> a -> Eval b
 errIndex (Just v) _ = return v
@@ -767,7 +770,17 @@ data VJunc = MkJunc
     -- ^ Set of values that make up the junction. In @one()@
     --     junctions, contains the set of values that appear exactly
     --     /once/.
-    } deriving (Eq, Ord, Typeable) {-!derive: YAML!-}
+    } deriving (Eq, Ord, Typeable)
+
+instance YAML VJunc where
+    asYAML (MkJunc aa ab ac) = asYAMLmap "MkJunc"
+	   [("juncType", asYAML aa) , ("juncDup", asYAML ab) ,
+	    ("juncSet", asYAML ac)]
+    fromYAML node = do
+        let YamlMap assocs = el node
+        let [aa, ab, ac] = map snd assocs
+        liftM3 MkJunc (fromYAML aa) (fromYAML ab) (fromYAML ac)
+
 
 -- | The combining semantics of a junction. See 'VJunc' for more info.
 data JuncType = JAny  -- ^ Matches if /at least one/ member matches
@@ -928,7 +941,22 @@ data Ann
     = Cxt !Cxt                -- ^ Context
     | Pos !Pos                -- ^ Position
     | Prag ![Pragma]          -- ^ Lexical pragmas
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Show, Eq, Ord, Typeable)
+
+instance YAML Ann where
+    asYAML (Cxt aa) = asYAMLseq "Cxt" [asYAML aa]
+    asYAML (Pos aa) = asYAMLseq "Pos" [asYAML aa]
+    asYAML (Prag aa) = asYAMLseq "Prag" [asYAML aa]
+    fromYAML node = case deTag node of
+        "Cxt" -> do
+            let YamlSeq [aa] = el node
+            fmap Cxt $ fromYAML aa
+        "Pos" -> do
+            let YamlSeq [aa] = el node
+            fmap Pos $ fromYAML aa
+        "Prag" -> do
+            let YamlSeq [aa] = el node
+            fmap Prag $ fromYAML aa
 
 {- Expressions
    "App" represents function application, e.g. myfun($invocant: $arg)
@@ -1838,7 +1866,7 @@ instance YAML (Eval Val) where
     fromYAML x = return =<< fromYAML x
 instance YAML a => YAML (Map String a) where
     asYAML x = asYAMLmap "Map" $ Map.toList (Map.map asYAML x)
-    fromYAML node@MkYamlNode{tag=Just "tag:hs:Map"} = fmap Map.fromList (fromYAMLmap node)
+    fromYAML node = fmap Map.fromList (fromYAMLmap node)
 instance Typeable a => YAML (IVar a) where
     asYAML x = asYAML (MkRef x)
 instance YAML VRef where
@@ -1870,17 +1898,17 @@ instance YAML VRef where
         liftIO $ print "====>"
         liftIO $ print svC
         fail ("not implemented: asYAML \"" ++ showType (refType ref) ++ "\"")
-    fromYAML node@MkYamlNode{tag=Just "tag:hs:VCode"} =
+    fromYAML node@MkYamlNode{tag=Just s} | s == Str.pack "tag:hs:VCode" =
         fmap (MkRef . ICode) (fromYAML node :: IO VCode)
-    fromYAML node@MkYamlNode{tag=Just "tag:hs:VScalar"} =
+    fromYAML node@MkYamlNode{tag=Just s} | s == Str.pack "tag:hs:VScalar" =
         fmap (MkRef . IScalar) (fromYAML node :: IO VScalar)
-    fromYAML node@MkYamlNode{tag=Just "tag:hs:IScalar"} =
+    fromYAML node@MkYamlNode{tag=Just s} | s == Str.pack "tag:hs:IScalar" =
         fmap MkRef (newScalar =<< fromYAML node)
-    fromYAML node@MkYamlNode{tag=Just "tag:hs:Array"} =
+    fromYAML node@MkYamlNode{tag=Just s} | s == Str.pack "tag:hs:Array" =
         fmap MkRef (newArray =<< fromYAML node)
-    fromYAML node@MkYamlNode{tag=Just "tag:hs:Hash"} = do
+    fromYAML node@MkYamlNode{tag=Just s} | s == Str.pack "tag:hs:Hash" = do
         fmap MkRef (newHash =<< fromYAML node)
-    fromYAML node@MkYamlNode{tag=Just "tag:hs:Pair"} = do
+    fromYAML node@MkYamlNode{tag=Just s} | s == Str.pack "tag:hs:Pair" = do
         fmap pairRef (fromYAML node :: IO VPair)
 
 instance YAML VControl
@@ -2060,11 +2088,6 @@ instance YAML Val where
     asYAML (VOpaque aa) = asYAMLseq "VOpaque" [asYAML aa]
     asYAML (PerlSV aa) = asYAMLseq "PerlSV" [asYAML aa]
 
-instance YAML VJunc where
-    asYAML (MkJunc aa ab ac) = asYAMLmap "MkJunc"
-	   [("juncType", asYAML aa) , ("juncDup", asYAML ab) ,
-	    ("juncSet", asYAML ac)]
-
 instance YAML JuncType where
     asYAML (JAny) = asYAMLcls "JAny"
     asYAML (JAll) = asYAMLcls "JAll"
@@ -2133,11 +2156,6 @@ instance YAML VCode where
 	    ("subBindings", asYAML ag) , ("subSlurpLimit", asYAML ah) ,
 	    ("subReturns", asYAML ai) , ("subLValue", asYAML aj) ,
 	    ("subBody", asYAML ak) , ("subCont", asYAML al)]
-
-instance YAML Ann where
-    asYAML (Cxt aa) = asYAMLseq "Cxt" [asYAML aa]
-    asYAML (Pos aa) = asYAMLseq "Pos" [asYAML aa]
-    asYAML (Prag aa) = asYAMLseq "Prag" [asYAML aa]
 
 instance YAML Exp where
     asYAML (Noop) = asYAMLcls "Noop"

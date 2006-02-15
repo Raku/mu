@@ -22,8 +22,10 @@ import Foreign.Marshal.Utils
 import Foreign.Storable
 import Data.Generics
 import qualified Data.HashTable as Hash
+import qualified Data.FastPackedString as Str
 
-type YamlTag    = Maybe String
+type Str        = Str.FastString
+type YamlTag    = Maybe Str
 data YamlAnchor
     = MkYamlAnchor    Int
     | MkYamlReference Int
@@ -48,7 +50,7 @@ data YamlNode = MkYamlNode
 data YamlElem
     = YamlMap [(YamlNode, YamlNode)]
     | YamlSeq [YamlNode]
-    | YamlStr String
+    | YamlStr Str
     | YamlNil
     deriving (Show, Ord, Eq, Typeable, Data)
 
@@ -68,14 +70,14 @@ nilNode :: YamlNode
 nilNode = MkYamlNode 0 YamlNil Nothing Nothing
 
 tagNode :: YamlTag -> YamlNode -> YamlNode
-tagNode _ MkYamlNode{tag=Just x} = error ("can't add tag: already tagged with" ++ x)
+tagNode _ MkYamlNode{tag=Just x} = error ("can't add tag: already tagged with" ++ (Str.unpack x))
 tagNode tag node                 = node{tag = tag}
 
 mkNode :: YamlElem -> YamlNode
 mkNode x = MkYamlNode 0 x Nothing Nothing
 
 mkTagNode :: String -> YamlElem -> YamlNode
-mkTagNode s x = MkYamlNode 0 x (Just s) Nothing
+mkTagNode s x = MkYamlNode 0 x (Just $ Str.pack s) Nothing
 
 -- the extra commas here are not a bug
 #enum CInt, , scalar_none, scalar_1quote, scalar_2quote, scalar_fold, scalar_literal, scalar_plain
@@ -164,15 +166,15 @@ emitNode _ e n@(MkYamlNode{el = YamlNil}) = do
         withCString "~" $ \cs ->       
             syck_emit_scalar e tag scalarNone 0 0 0 cs 1
 
-emitNode _ e n@(MkYamlNode{el = YamlStr "~"}) = do
-    withTag n "string" $ \tag ->       
-        withCString "~" $ \cs ->       
+emitNode _ e n@(MkYamlNode{el = YamlStr s}) | s == Str.pack "~" = do
+    withTag n "string" $ \tag ->
+        withCString "~" $ \cs ->
             syck_emit_scalar e tag scalar1quote 0 0 0 cs 1
 
 emitNode _ e n@(MkYamlNode{el = YamlStr str}) = do
     withTag n "string" $ \tag ->       
-        withCString str $ \cs ->       
-            syck_emit_scalar e tag scalarNone 0 0 0 cs (toEnum $ length str)
+        Str.unsafeUseAsCStringLen str $ \(cs, l) ->       
+            syck_emit_scalar e tag scalarNone 0 0 0 cs (toEnum l)
 
 emitNode freeze e n@(MkYamlNode{el = YamlSeq seq}) = do
     withTag n "array" $ \tag ->
@@ -189,7 +191,7 @@ emitNode freeze e n@(MkYamlNode{el = YamlMap m}) = do
     syck_emit_end e
 
 withTag :: YamlNode -> String -> (CString -> IO a) -> IO a
-withTag node def f = withCString (maybe def id (tag node)) f
+withTag node def f = Str.useAsCString (maybe (Str.pack def) id (tag node)) f
 
 parseYaml :: String -> IO (Either String (Maybe YamlNode))
 parseYaml = (`withCString` parseYamlCStr)
@@ -259,12 +261,11 @@ readNode parser symId = alloca $ \nodePtr -> do
     ptr     <- peek . castPtr =<< peek nodePtr
     deRefStablePtr (castPtrToStablePtr ptr)
 
-syckNodeTag :: SyckNode -> IO (Maybe String)
+syckNodeTag :: SyckNode -> IO (Maybe Str)
 syckNodeTag syckNode = do
     tag <- #{peek SyckNode, type_id} syckNode
     if (tag == nullPtr) then (return Nothing) else do
-        tag' <- peekCString tag
-        return $ Just tag'
+        return $ Just $ Str.packMallocCString tag
 
 syckNodeKind :: SyckNode -> IO SyckKind
 syckNodeKind syckNode = fmap toEnum $ #{peek SyckNode, kind} syckNode
@@ -295,7 +296,7 @@ parseNode SyckSeq parser syckNode len = do
 parseNode SyckStr _ syckNode len = do
     tag   <- syckNodeTag syckNode
     cstr  <- syck_str_read syckNode
-    str   <- peekCStringLen (cstr, fromEnum len)
+    let str = Str.packCStringLen (cstr, fromEnum len)
     return $ nilNode{ el = YamlStr str, tag = tag }
 
 foreign import ccall "wrapper"  
