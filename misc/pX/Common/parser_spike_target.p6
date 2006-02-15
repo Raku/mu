@@ -10,3 +10,4 @@ multi infix:<*> ($a,$b) {...}
 multi infix:<+> ($a,$b) is looser(infix:<*>) {...}
 
 say 3;
+say 3+4 * 5;

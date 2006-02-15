@@ -351,7 +351,10 @@ use strict;
 }
 {
   package Regexp::Parser::quant;
+
+  # Needed for regexp_try.pl, but... bad idea for development.
   no warnings "recursion";
+
   sub emit {
     my($o)=@_;
     my $noop = $o->noop;
@@ -702,6 +705,39 @@ sub def_rule {
   $Y::rules{$name} = $r;
 }
 
+sub mk_Match_appender {
+  my($f,$name)=@_;
+  sub {
+    my $c = $_[0];
+    my $pos = $X::pos;
+    my $cap = $X::cap;
+    my $m0 = $X::current_match;
+    my $m1 = MatchX->new;
+    $$m1->{'RULE'} ||= $name; #EEEP
+    $m1->set(1,"",[],{},$pos,undef);
+
+    my $rest = sub{
+      my $cn = $_[0];
+      $$m1->{'val_array'} = $X::cap; #EEEP
+      $$m1->{'to'} = $X::pos; #EEEP
+      $m1->set_str(substr($X::str,$pos,$X::pos-$pos));
+      $X::cap = $cap;
+      $X::current_match = $m0;
+      push(@{$X::cap},$m1);
+      @_=$c; goto &$cn;
+    };
+
+    my $v;
+    { local $X::current_match = $m1;
+      local $X::cap = [];
+      $v = $f->($rest);
+    }
+    return undef if !defined $v;
+    unshift(@{$m0},$m1);# sigh, prevents mutation.
+    # why twice: once for inline code, once for the final Match tree.
+    return $v;
+  }
+}
 
 my $noop = Hacks->noop;
 sub compile {
