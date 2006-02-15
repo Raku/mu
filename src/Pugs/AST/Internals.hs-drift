@@ -1807,18 +1807,17 @@ instance Typeable1 IVar where
 _FakeEnv :: Env
 _FakeEnv = unsafePerformIO $ liftSTM $ do
     ref  <- newTVar Map.empty
-    syms <- nullPad
-    glob <- newTVar (combine (syms) $ nullPad)
+    glob <- newTVar $ MkPad Map.empty
     init <- newTVar $ MkInitDat { initPragmas=[] }
     return $ MkEnv
         { envContext = CxtVoid
-        , envLexical = nullPad
+        , envLexical = MkPad Map.empty
         , envImplicit= Map.empty
         , envLValue  = False
         , envGlobal  = glob
         , envPackage = "main"
         , envClasses = initTree
-        , envEval    = const . return VUndef
+        , envEval    = const (return VUndef)
         , envCaller  = Nothing
         , envOuter   = Nothing
         , envDepth   = 0
@@ -1830,7 +1829,6 @@ _FakeEnv = unsafePerformIO $ liftSTM $ do
         , envPragmas = []
         , envInitDat = init
         }
-    where nullPad = MkPad Map.empty
 
 instance (Typeable a, Typeable b) => YAML (a -> Eval b)
 instance (Typeable a) => YAML (Eval a)
@@ -1840,13 +1838,13 @@ instance Typeable a => YAML (IVar a) where
     asYAML x = asYAML (MkRef x)
 instance YAML VRef where
     asYAML (MkRef (ICode cv)) = do
-        vsub    <- liftIO $ runEvalIO _FakeEnv $ code_fetch cv
-        vsubC   <- asYAML vsub
-        return $ mkTagNode (tagHs "ICode") vsubC
+        VCode vsub  <- liftIO $ runEvalIO _FakeEnv $ fmap VCode (code_fetch cv)
+        vsubC       <- asYAML vsub
+        return $ mkTagNode (tagHs "ICode") (el vsubC)
     asYAML (MkRef (IScalar sv)) | scalar_iType sv == mkType "Scalar::Const" = do
-        sv  <- scalar_fetch sv
-        svC <- asYAML sv
-        return $ mkTagNode (tagHs "IScalar") sv
+        val <- liftIO $ runEvalIO _FakeEnv $ scalar_fetch sv
+        svC <- asYAML val
+        return $ mkTagNode (tagHs "IScalar") (el svC)
     asYAML ref = error ("not implemented: asYAML \"" ++ showType (refType ref) ++ "\")")
 
 instance YAML (Set Val)
