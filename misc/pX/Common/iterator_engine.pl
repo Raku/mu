@@ -36,19 +36,19 @@ my %rules;
       my @tail = @_;
       my $match;
       while (1) {
+          my @last_tail = @tail;
           ($match, @tail) = $rules{'a'}(@tail);
-          return ( { 'a*' => [ @matches ] }, @tail ) if ! $match;
+          return ( { 'a*' => [ @matches ] }, @last_tail ) if ! $match;
           push @matches, $match;
       }
   },
   'a*.' => sub { 
-      # XXX - a* should return an iterator
       my @matches;
       my @tail;
       my $match;
       
       ($match, @tail) = $rules{'a*'}(@_);
-      return undef unless $match;   # it always matches
+      # return undef unless $match;   # '*' always matches
       
       while (1) {
           my $iterations = @{ $match->{'a*'} };
@@ -63,10 +63,10 @@ my %rules;
       
           return ( { 'a*.'=>[ @matches ] }, @tail) if $match2;
           
+          return undef unless @{ $match->{'a*'} };
+          
           my $last = pop @{ $match->{'a*'} };
           unshift @tail, $last;
-          
-          # XXX return undef ; - loop forever !!!
       }
   },
 );
@@ -78,3 +78,4 @@ print Dumper( $rules{'abb'}(@in) );
 print Dumper( $rules{'ab|cd'}( qw(a b c) ) );
 print Dumper( $rules{'a*'}( qw(a a a b c) ) );
 print Dumper( $rules{'a*.'}( qw(a a a a) ) );
+print Dumper( $rules{'a*.'}( qw(b a a a a) ) );
