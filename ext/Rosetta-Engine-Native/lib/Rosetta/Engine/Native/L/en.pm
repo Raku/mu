@@ -75,7 +75,7 @@ Darren R. Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENCE AND COPYRIGHT
 
-This file is part of the Rosetta database portability library, though it is
+This file is part of the Rosetta DBMS framework, though it is
 distributed separately from L<Rosetta> itself.
 
 Rosetta is Copyright (c) 2002-2006, Darren R. Duncan.

@@ -448,7 +448,7 @@ Darren R. Duncan (C<perl@DarrenDuncan.net>)
 
 =head1 LICENCE AND COPYRIGHT
 
-This file is part of the Rosetta database portability library.
+This file is part of the Rosetta DBMS framework.
 
 Rosetta is Copyright (c) 2002-2006, Darren R. Duncan.  All rights reserved.
 Address comments, suggestions, and bug reports to C<perl@DarrenDuncan.net>,
