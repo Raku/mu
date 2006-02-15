@@ -351,6 +351,7 @@ use strict;
 }
 {
   package Regexp::Parser::quant;
+  no warnings "recursion";
   sub emit {
     my($o)=@_;
     my $noop = $o->noop;
