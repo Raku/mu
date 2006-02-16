@@ -13,10 +13,11 @@ no strict "refs";
 
 # internal composition functions
 
-# XXX - TODO: <rule>+ can be compiled as <rule><rule>*
+# TODO: <rule>+ can be compiled as <rule><rule>*
 
-sub _greedy { 
-    my $node = shift;
+sub rule::greedy { 
+  my $node = shift;
+  return sub {
     my @tail = @_;
     my @matches;
     while (1) {
@@ -25,33 +26,39 @@ sub _greedy {
         @tail = @new_tail;
         push @matches, $match;
     }
+  }
 }
 
-sub _non_greedy { 
-    my $node = shift;
+sub rule::non_greedy { 
+  my $node = shift;
+  return sub {
     my ($match, @tail) = $node->(@_);
     return ( { '_non_greedy' => [ $match ] }, @tail ) if $match;
     return undef;
+  }
 }
 
-sub _alternation {
-    # XXX - this needs to be able to backtrack 
-    # XXX   when it is inside a greedy match, for example
-    my $alternates = shift;
+sub rule::alternation {
+  # XXX - this needs to be able to backtrack 
+  # XXX   when it is inside a greedy match, for example
+  my $alternates = shift;
+  return sub {
     for ( @$alternates ) {
         my ($match, @tail) = $_->(@_);
         return ( { '_alternation' =>$match }, @tail) if $match;
     }
     return undef;
+  }
 }
 
-sub _concat {
-    my $concat = shift;
+sub rule::concat {
+  my @concat = @_;
+  return sub {
     my @matches;
     my @tail;
     my $match;
     
-    ($match, @tail) = $concat->[0]->(@_);
+    ($match, @tail) = $concat[0]->(@_);
     return undef unless $match;  
     #print Dumper [ $match, @tail ];
 
@@ -64,7 +71,7 @@ sub _concat {
         push @matches, $match;
         
         my $match2;
-        ($match2, @tail) = $concat->[1]->(@tail);
+        ($match2, @tail) = $concat[1]->(@tail);
         push @matches, $match2 if $match2;
     
         return ( { '_concat'=>[ @matches ] }, @tail) if $match2;
@@ -74,6 +81,7 @@ sub _concat {
         my $last = pop @{ $match->{'_greedy'} };
         unshift @tail, $last;
     }
+  }
 }
 
 # Prelude - precompiled rules, such as <word>, \x, etc.
@@ -90,11 +98,7 @@ sub _concat {
         return ( { '<word_char>'=>[ $_[0] ] }, @_[1..$#_] ) if $_[0] =~ m/[a-zA-Z0-9\_]/;  
         return;
     };
-*{'rule::<word>'} = sub {
-        my ($match, @tail) = _greedy( \&{'rule::<word_char>'}, @_ );
-        return { '<word>'=>$match }, @tail if $match;
-        return;
-    };
+*{'rule::<word>'} = rule::greedy( \&{'rule::<word_char>'} );
   
   # more definitions, just for testing
  
@@ -118,16 +122,12 @@ my %rules;
         return ( { 'abb'=>[ $match, 'b' ] }, @tail[1..$#tail] ) if $tail[0] eq 'b'; 
         return;
     },
-    'ab|cd' => sub {
-        _alternation( [ $rules{'ab'}, $rules{'cd'} ], @_ );
-    },
-    'a*' => sub { 
-        _greedy( $rules{'a'}, @_ );
-    },
-    'a*.' => sub { 
-        _concat( [ $rules{'a*'}, \&{'rule::.'} ], @_ );
-    },
 );
+$rules{'ab|cd'} = rule::alternation( [ $rules{'ab'}, $rules{'cd'} ] );
+$rules{'a*'} =    rule::greedy( $rules{'a'} );
+$rules{'a*.'} =   rule::concat( $rules{'a*'}, \&{'rule::.'} );
+
+package main;
 
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
