@@ -12,7 +12,7 @@ no strict "refs";
 
 # internal composition functions
 
-# TODO: <rule>+ can be compiled as <rule><rule>*
+# NOTE: <rule>+ can be compiled as <rule><rule>*
 
 sub rule::greedy { 
   my $node = shift;
@@ -25,6 +25,7 @@ sub rule::greedy {
         $start = 0;
         while (1) {
             my ($match, @new_tail) = $node->(@tail);
+            print "  greedy match: ", Dumper( [ $match, @new_tail ] );
             return ( { '_greedy' => [ @matches ] }, @tail ) if ! $match;
             @tail = @new_tail;
             push @matches, $match;
@@ -32,8 +33,10 @@ sub rule::greedy {
         }
     }
     # XXX - removed 'cache' optimization until this whole thing works
+    # TODO - when is it _not_ possible to cache?
     for (1 .. --$n) {
             my ($match, @new_tail) = $node->(@tail);
+            return unless $match;  
             @tail = @new_tail;
             push @matches, $match;
     }
@@ -43,19 +46,25 @@ sub rule::greedy {
 
 sub rule::non_greedy { 
   my $node = shift;
+  my $n = 0;      # XXX - iterator initialization don't belong here
   return sub {
-    my ($match, @tail) = $node->(@_);
-    return ( { '_non_greedy' => [ $match ] }, @tail ) if $match;
-    return undef;
+    my @tail = @_;
+    my @matches;
+    for (1 .. ++$n) {
+            my ($match, @new_tail) = $node->(@tail);
+            return unless $match;
+            @tail = @new_tail;
+            push @matches, $match;
+    }
+    return ( { '_non_greedy' => [ @matches ] }, @tail );
   }
 }
 
 sub rule::alternation {
-  # XXX - this needs to be able to backtrack 
-  # XXX   when it is inside a greedy match, for example
-  my @alternates = @_;
+  my @nodes = @_;
+  my $n = 0;      # XXX - iterator initialization don't belong here
   return sub {
-    for ( @alternates ) {
+    for ( @nodes[ $n++ .. $#nodes ] ) {
         my ($match, @tail) = $_->(@_);
         return ( { '_alternation' =>$match }, @tail) if $match;
     }
@@ -70,9 +79,10 @@ sub rule::concat {
     my @tail;
     while (1) {
         ($matches[0], @tail) = $concat[0]->(@_);
+        print "  1st match: ", Dumper( [ $matches[0], @tail ] );
         return undef unless $matches[0];  
-        #print Dumper [ $matches[0], @tail ];
         ($matches[1], @tail) = $concat[1]->(@tail);
+        print "  2nd match: ", Dumper( [ $matches[1], @tail ] );
         if ( $matches[1] ) {
             return ( { '_concat'=>[ @matches ] }, @tail);
         }
@@ -132,6 +142,8 @@ my %rules;
 
 package main;
 
+# TODO: use Test::More
+
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -164,4 +176,27 @@ print Dumper(
 );
 print Dumper( 
   rule::concat( \&{'rule::<word>'}, \&{'rule::<ws>'} )->( qw(b a ),' ' ) 
-); 
+);
+warn "non_greedy + backtracking"; 
+print Dumper( 
+  rule::concat(
+    rule::non_greedy( $rules{'a'} ),
+    $rules{'ab'}
+  )->( qw(a a a a b) ) 
+);
+warn "alternation + backtracking";
+print Dumper( 
+  rule::concat(
+    rule::alternation( $rules{'a'}, $rules{'ab'} ),
+    $rules{'ab'}
+  )->( qw(a b a b) ) 
+);
+warn "alternation + greedy + backtracking -- (ab,a,ab)(ab)";
+print Dumper( 
+  rule::concat(
+    rule::greedy(
+      rule::alternation( $rules{'a'}, $rules{'ab'} )
+    ),
+    $rules{'ab'}
+  )->( qw(a b a a b a b) ) 
+);
