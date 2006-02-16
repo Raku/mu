@@ -96,7 +96,7 @@ emitYamlFS :: YamlNode -> IO (Either Str.FastString Str.FastString)
 emitYamlFS node = do
     bracket syck_new_emitter syck_free_emitter $ \emitter -> do
         -- set up output port
-        out    <- newIORef Str.empty
+        out    <- newIORef []
         #{poke SyckEmitter, style} emitter scalarFold
         -- #{poke SyckEmitter, sort_keys} emitter (1 :: CInt)
         Str.useAsCString _decLiteralFS $ #{poke SyckEmitter, anchor_format} emitter
@@ -113,7 +113,7 @@ emitYamlFS node = do
         let nodePtr' = fromIntegral $ nodePtr `minusPtr` nullPtr
         syck_emit emitter nodePtr'
         syck_emitter_flush emitter 0
-        fmap Right $ readIORef out
+        fmap (Right . Str.concat . reverse) (readIORef out)
 
 emitYaml :: YamlNode -> IO (Either String String)
 emitYaml node = fmap (either (Left . Str.unpack) (Right . Str.unpack)) (emitYamlFS node)
@@ -137,10 +137,10 @@ markYamlNode marks emitter node = do
     where
     mark = markYamlNode marks emitter
 
-outputCallbackPS :: IORef Str.FastString -> SyckEmitter -> CString -> CLong -> IO ()
+outputCallbackPS :: IORef [Str.FastString] -> SyckEmitter -> CString -> CLong -> IO ()
 outputCallbackPS out emitter buf len = do
     str <- Str.copyCStringLen (buf, fromEnum len)
-    modifyIORef out (`Str.append` str)
+    modifyIORef out (str:)
 
 outputCallback :: SyckEmitter -> CString -> CLong -> IO ()
 outputCallback emitter buf len = do
