@@ -310,9 +310,14 @@ parseNode SyckStr _ syckNode len = do
     tag   <- syckNodeTag syckNode
     cstr  <- syck_str_read syckNode
     str   <- Str.copyCStringLen (cstr, fromEnum len)
+    let node = nilNode{ el = YamlStr str, tag = tag }
     if str == Str.pack "~" && tag == Nothing
-        then return nilNode
-        else return nilNode{ el = YamlStr str, tag = tag }
+        then do
+            style <- syck_str_style syckNode
+            if style == scalarPlain
+                then return nilNode
+                else return node
+        else return node
 
 foreign import ccall "wrapper"  
     mkNodeCallback :: SyckNodeHandler -> IO (FunPtr SyckNodeHandler)
@@ -358,6 +363,9 @@ foreign import ccall
 
 foreign import ccall
     syck_str_read :: SyckNode -> IO CString
+
+foreign import ccall
+    syck_str_style :: SyckNode -> IO CInt
 
 foreign import ccall
     syck_seq_read :: SyckNode -> CLong -> IO SYMID

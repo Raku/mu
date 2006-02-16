@@ -166,6 +166,13 @@ syck_str_read( SyckNode *n )
     return n->data.str->ptr;
 }
 
+int
+syck_str_style( SyckNode *n )
+{
+    ASSERT( n != NULL );
+    return n->data.str->style;
+}
+
 SyckNode *
 syck_new_map( SYMID key, SYMID value )
 {
