@@ -39,10 +39,10 @@ class Typeable a => YAML a where
     asYAML :: a -> EmitAs YamlNode
     asYAML x = lift $ do
         ty <- Control.Exception.handle (const $ return "()") $
-            evaluate (reverse (takeWhile (/= '.') (reverse (show (typeOf x)))))
-        return $ case ty of
-            "()" -> nilNode
-            _    -> mkTagNode (tagHs ty) YamlNil
+            evaluate (show (typeOf x))
+        case ty of
+            "()" -> return nilNode
+            _    -> return $ mkTagNode (tagHs ty) YamlNil
     fromYAML :: YamlNode -> IO a
     fromYAML MkYamlNode{el=x} = fromYAMLElem x
     fromYAMLElem :: YamlElem -> IO a

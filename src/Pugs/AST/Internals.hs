@@ -1922,7 +1922,6 @@ instance YAML Regex
 instance YAML Unique
 instance YAML VComplex
 instance YAML VHandle
-instance YAML VHash
 instance YAML VOpaque
 instance YAML VSocket
 instance YAML PerlSV
