@@ -206,7 +206,7 @@ parseYamlCStr cstr = do
         syck_parser_str_auto parser cstr nullFunPtr
         syck_parser_handler parser =<< mkNodeCallback nodeCallback
         syck_parser_error_handler parser =<< mkErrorCallback (errorCallback err)
-        syck_parser_implicit_typing parser 1
+        syck_parser_implicit_typing parser 0
         syck_parser_taguri_expansion parser 0
         symId <- syck_parse parser
         if symId /= 0 then fmap (Right . Just) (readNode parser symId) else do
@@ -301,7 +301,9 @@ parseNode SyckStr _ syckNode len = do
     tag   <- syckNodeTag syckNode
     cstr  <- syck_str_read syckNode
     str   <- Str.copyCStringLen (cstr, fromEnum len)
-    return $ nilNode{ el = YamlStr str, tag = tag }
+    if str == Str.pack "~" && tag == Nothing
+        then return nilNode
+        else return nilNode{ el = YamlStr str, tag = tag }
 
 foreign import ccall "wrapper"  
     mkNodeCallback :: SyckNodeHandler -> IO (FunPtr SyckNodeHandler)

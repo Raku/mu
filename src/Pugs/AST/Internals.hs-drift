@@ -1871,7 +1871,7 @@ instance YAML (Eval Val) where
     asYAML x = asYAML =<< fakeEval x
     fromYAML x = return =<< fromYAML x
 instance YAML a => YAML (Map String a) where
-    asYAML x = asYAMLmap "Map" $ Map.toList (Map.map asYAML x)
+    asYAML x = asYAMLmap "Map" $ Map.toAscList (Map.map asYAML x)
     fromYAML node = fmap Map.fromList (fromYAMLmap node)
 instance Typeable a => YAML (IVar a) where
     asYAML x = asYAML (MkRef x)
