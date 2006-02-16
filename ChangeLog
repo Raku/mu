@@ -7,6 +7,10 @@
 
 === Updated modules
 
+* [ext/Rosetta/]: Multiple additions and rewrites.
+** Merged ext/Rosetta-Engine-Native/ in, renamed to ::Example.
+** Now officially implements "The Third Manifesto".
+** Rewrote Language.pod, large updates to some other files.
 
 === Experimental modules (in misc/, not installed)
 

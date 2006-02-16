@@ -56,7 +56,7 @@ is strictly a role that all Rosetta Engines must subclass/implement.
 
 =item *
 
-Implement starter Rosetta::Engine::Native module, which is able to create
+Implement starter Rosetta::Engine::Example module, which is able to create
 and drop multiple databases that live fully in RAM and don't persist on
 disk; later versions will also let you make databases that can persist on
 disk.  The first version will only implement creation and dropping of base
@@ -68,14 +68,14 @@ schema objects.  No table constraints will be supported yet, but later.
 
 =item *
 
-Rosetta::Engine::Native will work mainly by generating Perl closures that
+Rosetta::Engine::Example will work mainly by generating Perl closures that
 are a fairly literal translation of the Rosetta D AST, doing some work
 themselves and invoke some utility functions for others.
 
 =item *
 
 Basic transaction support will be available from the start.  In
-Rosetta::Engine::Native, these will be serialized-isolation mode only.
+Rosetta::Engine::Example, these will be serialized-isolation mode only.
 
 =item *
 
@@ -131,7 +131,7 @@ Nested transaction support.
 =item *
 
 Implement starter Rosetta::Validator to test that the limited functionality
-which Native implements is working correctly.  Or it may not even do that
+which Example implements is working correctly.  Or it may not even do that
 much, as I start off validating largely with just manual spot checks
 instead.
 
@@ -172,26 +172,26 @@ Make a tutorial on how to write a Rosetta Engine.
 
 =item *
 
-Update Rosetta::Engine::Native (REN) so databases can persist on disk.  Its
+Update Rosetta::Engine::Example (REE) so databases can persist on disk.  Its
 transaction support will be like that of SQLite, with the exception that it
 probably won't yet make backups of on-disk versions to help avoid
 corruption from process death or power outages; that will come soon after.
 
 =item *
 
-Update REN to support more complicated queries, including multi-table
+Update REE to support more complicated queries, including multi-table
 joins, grouping, ordering, compound queries and subqueries, but otherwise
 support fairly few built-in expressions or functions.
 
 =item *
 
-Update REN to support basic table constraints; primary and other unique
+Update REE to support basic table constraints; primary and other unique
 value constraints, not null, and foreign keys.  No support yet for
 non-constraining indexes.
 
 =item *
 
-Update REN to support create/drop and invocation of more schema object
+Update REE to support create/drop and invocation of more schema object
 types, mainly read-only views, plus invokable procedures and functions,
 triggers on tables and views, and read-only cursors.  Not yet but later
 will be updateable views, and domain schema objects.  Very few built-in
@@ -203,7 +203,7 @@ No support yet of altering schema objects; only create/drop.
 
 =item *
 
-Update REN to support create/drop of named users, but there isn't yet any
+Update REE to support create/drop of named users, but there isn't yet any
 support for specifying access permissions or roles.
 
 =item *
@@ -218,7 +218,7 @@ Add support for basic reverse-engineering.
 
 Implement a new starter Engine or three to work with some standard text
 file based databases, such as CSV.  Or work with someone like Jeff Zucker
-while he does this.  It would reuse some Native code and/or said code would
+while he does this.  It would reuse some Example code and/or said code would
 be factored out into a separate utility module that both use.  All of this
 would be Pure Perl, and not involve any string SQL.  The initial Perl 5
 version might use Text::CSV::* or AnyData or such things.
@@ -258,13 +258,13 @@ Still no explicit thread safety.
 
 =item *
 
-Update Rosetta::Engine::Native (REN) to make backups of on-disk databases
+Update Rosetta::Engine::Example (REE) to make backups of on-disk databases
 and otherwise do like SQLite does to help avoid and/or recover from on-disk
 database corruption.
 
 =item *
 
-Update REN so it can auto-detect existing databases by scanning the file
+Update REE so it can auto-detect existing databases by scanning the file
 system; the scope of the search would be configurable.
 
 =item *
@@ -335,7 +335,7 @@ once, where their catalogs all look like they are parts of the same single
 database, such as for a database cloning utility or a multiplexer.  It
 implements a virtual database, all of whose catalogs are proxies for those
 accessed through separate connections that are implemented by one or more
-other Engine modules.  This would share a lot of Native code, such as when
+other Engine modules.  This would share a lot of Example code, such as when
 doing a query that joins from multiple actual connections.  This United
 Engine will try to be efficient and push work into the other Engines or
 their backends when it would be faster.

@@ -1,34 +1,21 @@
 #!/usr/bin/pugs
 use v6;
 
-# External packages used by packages in this file, that don't export symbols:
-use Locale::KeyedText-(1.72.0...);
-use Rosetta-0.721.0;
-
 ###########################################################################
 ###########################################################################
 
 # Constant values used by packages in this file:
-# (None Yet)
+my Str %TEXT_STRINGS is readonly = (
+);
 
 ###########################################################################
 ###########################################################################
 
-module Rosetta::Validator-0.721.0 {
-
-    # External packages used by the Rosetta::Validator module, that do export symbols:
-    # (None Yet)
-
-    # Attributes of every Rosetta::Validator object:
-    # (None Yet)
-
-###########################################################################
-
-
-
-###########################################################################
-
-} # module Rosetta::Validator
+module Rosetta::Engine::Example::L::en-0.2.0 {
+    sub get_text_by_key (Str $msg_key!) returns Str {
+        return %TEXT_STRINGS{$msg_key};
+    }
+} # module Rosetta::Engine::Example::L::en
 
 ###########################################################################
 ###########################################################################
@@ -39,12 +26,12 @@ module Rosetta::Validator-0.721.0 {
 
 =head1 NAME
 
-Rosetta::Validator -
-A common comprehensive test suite to run against all Engines
+Rosetta::Engine::Example::L::en -
+Localization of Rosetta::Engine::Example for English
 
 =head1 VERSION
 
-This document describes Rosetta::Validator version 0.721.0.
+This document describes Rosetta::Engine::Example::L::en version 0.2.0.
 
 =head1 SYNOPSIS
 
@@ -70,21 +57,13 @@ I<This documentation is pending.>
 
 This file requires any version of Perl 6.x.y that is at least 6.0.0.
 
-It also requires these Perl 6 classes that are on CPAN:
-L<Locale::KeyedText-(1.72.0...)|Locale::KeyedText> (for error messages).
-
-It also requires these Perl 6 classes that are in the current distribution:
-L<Rosetta-0.721.0|Rosetta>.
-
 =head1 INCOMPATIBILITIES
 
 None reported.
 
 =head1 SEE ALSO
 
-These Perl 6 packages implement Rosetta Engine classes and their test
-suites are the initial main dependents of Rosetta::Validator:
-L<Rosetta::Engine::Example>.
+I<This documentation is pending.>
 
 =head1 BUGS AND LIMITATIONS
 

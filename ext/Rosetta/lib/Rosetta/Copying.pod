@@ -35,28 +35,30 @@ actually part of the Rosetta framework itself.)
 Both Model.pm and Rosetta.pm are part of a common 'Rosetta' distribution on
 CPAN, but Model.pm can actually be used independently from Rosetta.pm; they
 are bundled mainly for easier co-development, and that using them together
-is the most common case.  Engines are distributed separately.  Each
-distribution may have additional files that are tied to the named file,
-because they serve as documentation or examples or tests or localization
-data for it, and the whole collection in the distribution is considered a
-single unit as far as ownership and licensing goes, unless explicitly
-stated otherwise therein.
+is the most common case.  Engines are distributed separately, except for a
+fully functional "Example".  Each distribution may have additional files
+that are tied to the named file, because they serve as documentation or
+examples or tests or localization data for it, and the whole collection in
+the distribution is considered a single unit as far as ownership and
+licensing goes, unless explicitly stated otherwise therein.
 
 The Rosetta framework includes a comprehensive shared test suite to ensure
 the correctness of itself and of any Engine components, its outer core,
 which is comprised of these Perl files:
 
     * /lib/Rosetta/Validator.pm
-    * /lib/Rosetta/Engine/Native.pm
+    * /lib/Rosetta/Engine/Example.pm
 
 While not essential to the daily use of Rosetta, they are very important to
 the framework at large and are strongly recommended to be used at
 installation time.  The Validator.pm can be used to test any Engine, and is
 included in the Rosetta.pm distribution; it is expected that there never
-will be a third party substitution for it.  The Native.pm is in its own
-CPAN distribution and implements a standalone Engine for testing
-Validator.pm in the first place, so it has a working example of expected
-behaviour.  Neither depends on anything specific but the inner core.
+will be a third party substitution for it.  The Example.pm is also included
+in the Rosetta.pm distribution and implements a standalone Engine for
+testing Validator.pm in the first place, so it has a working example of
+expected behaviour; it is anticipated that you will substitute another
+Engine (typically third party) for Example by production time.  Neither
+depends on anything specific but the inner core.
 
 Any other independent distributions that exist and use Rosetta, whether
 made by myself or third parties, are not part of the Rosetta framework
@@ -96,7 +98,7 @@ outer cores of Rosetta, namely:
     * /lib/Rosetta/Model.pm
     * /lib/Rosetta.pm
     * /lib/Rosetta/Validator.pm
-    * /lib/Rosetta/Engine/Native.pm
+    * /lib/Rosetta/Engine/Example.pm
 
 Whereas, I am willing to share or transfer ownership over any or all of the
 various Rosetta extensions, if other people contribute a lot to them and/or

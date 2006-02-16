@@ -5,7 +5,7 @@ use lib <t/lib ext/Rosetta/t/lib>;
 
 use Test;
 
-plan( 12 );
+plan( 16 );
 
 use Rosetta; pass "(dummy instead of broken use_ok)";
 skip( 1, q{is( Rosetta.meta.identifier.version, 0.721.0,
@@ -30,3 +30,11 @@ skip( 1, q{is( Rosetta::Validator.meta.identifier.version, 0.721.0,
 use Rosetta::Validator::L::en; pass "(dummy instead of broken use_ok)";
 skip( 1, q{is( Rosetta::Validator::L::en.meta.identifier.version, 0.160.0,
     'Rosetta::Validator::L::en is the correct version' );} );
+
+use Rosetta::Engine::Example; pass "(dummy instead of broken use_ok)";
+skip( 1, q{is( Rosetta::Engine::Example.meta.identifier.version, 0.721.0,
+    'Rosetta::Engine::Example is the correct version' );} );
+
+use Rosetta::Engine::Example::L::en; pass "(dummy instead of broken use_ok)";
+skip( 1, q{is( Rosetta::Engine::Example::L::en.meta.identifier.version, 0.2.0,
+    'Rosetta::Engine::Example::L::en is the correct version' );} );

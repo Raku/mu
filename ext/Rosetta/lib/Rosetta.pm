@@ -89,7 +89,7 @@ code; instead refer to other above-named packages in this file.>
 
     # Define how to talk to our database and where it is.
     my %DB_CONFIG = (
-        'engine_name' => 'Rosetta::Engine::Native',
+        'engine_name' => 'Rosetta::Engine::Example',
         'depot_identity' => {
             'file_name' => 'My Data',
         },
@@ -353,7 +353,7 @@ back-ends implement (each of which is usually made by a third party); the
 former is called the RNI (Rosetta Native Interface), and the latter are
 called Rosetta Engines.  Usually, each Engine implements a persistent data
 store for long term use, but some can be RAM-based for use as a short-term
-cache.  L<Rosetta::Engine::Native> is the reference implementation of an
+cache.  L<Rosetta::Engine::Example> is the reference implementation of an
 Engine and provides both kinds of storage; it is distributed separately
 from 'Rosetta' since it isn't needed if you use an alternate Engine.
 
@@ -433,7 +433,7 @@ The Perl 6 module L<Rosetta::Validator> is bundled with Rosetta and can be
 used to test Rosetta Engine classes.
 
 These Perl 6 packages implement Rosetta Engine classes:
-L<Rosetta::Engine::Native>.
+L<Rosetta::Engine::Example>.
 
 These Perl 6 packages are the initial main dependents of Rosetta:
 L<Rosetta::Emulator::DBI>.
