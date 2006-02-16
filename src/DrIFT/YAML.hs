@@ -11,7 +11,7 @@ import Control.Exception
 import Control.Monad
 import Control.Concurrent.STM
 import Data.IORef
-import qualified Data.IntMap as IntMap
+import qualified Data.IntSet as IntSet
 import Foreign.StablePtr
 import Foreign.Ptr
 import System.IO.Unsafe
@@ -23,11 +23,11 @@ type Str = Str.FastString
 type YAMLClass = String
 type YAMLKey = String
 type YAMLVal = YamlNode
-type SeenCache = IntMap.IntMap YamlNode
+type SeenCache = IntSet.IntSet
 
 showYaml :: YAML a => a -> IO String
 showYaml x = do
-    node    <- (`runReaderT` IntMap.empty) (asYAML x)
+    node    <- (`runReaderT` IntSet.empty) (asYAML x)
     rv      <- emitYaml node
     case rv of
         Left e  -> error e
@@ -85,7 +85,7 @@ deTag _ = error "not a Haskell tag"
 
 instance YAML () where
     asYAML _ = return nilNode
-    fromYAML _ = return ()
+    fromYAMLElem _ = return ()
 
 instance YAML Int where
     asYAML x = return $ mkTagNode "int" (YamlStr $ Str.pack $ show x)
@@ -100,6 +100,8 @@ instance YAML Bool where
     asYAML False = return $ mkTagNode "bool#no" (YamlStr $ Str.pack "0")
     fromYAML MkYamlNode{tag=Just s} | s == Str.pack "bool#yes" = return True
     fromYAML MkYamlNode{tag=Just s} | s == Str.pack "bool#no"  = return False
+    fromYAML MkYamlNode{el=x} = fromYAMLElem x
+    fromYAMLElem ~(YamlStr x) = return (x == Str.pack "0")
 
 instance YAML Integer where 
     asYAML x = return $ mkTagNode "int" (YamlStr $ Str.pack $ show x)
@@ -122,26 +124,29 @@ instance YAML Double where
     fromYAML MkYamlNode{tag=Just s} | s == Str.pack "float#inf"    = return $  1/0 -- "Infinity" 
     fromYAML MkYamlNode{tag=Just s} | s == Str.pack "float#neginf" = return $ -1/0 -- "-Infinity" 
     fromYAML MkYamlNode{tag=Just s} | s == Str.pack "float#nan"    = return $  0/0 -- "NaN" 
-    fromYAML ~MkYamlNode{el=YamlStr x}                             = return $ read $ Str.unpack x
+    fromYAML MkYamlNode{el=x} = fromYAMLElem x
+    fromYAMLElem ~(YamlStr x) = return $ read $ Str.unpack x
 
 instance (YAML a) => YAML (Maybe a) where
     asYAML (Just x) = asYAML x
     asYAML Nothing = return $ nilNode
     fromYAML MkYamlNode{el=YamlNil} = return Nothing
     fromYAML x = return . Just =<< fromYAML x
+    fromYAMLElem YamlNil = return Nothing
+    fromYAMLElem x = return . Just =<< fromYAMLElem x
 
 instance (YAML a) => YAML [a] where
     asYAML xs = do
         xs' <- mapM asYAML xs
         (return . mkNode . YamlSeq) xs'
-    fromYAML ~MkYamlNode{el=YamlSeq s} = mapM fromYAML s
+    fromYAMLElem ~(YamlSeq s) = mapM fromYAML s
 
 instance (YAML a, YAML b) => YAML (a, b) where
     asYAML (x, y) = do
         x' <- asYAML x
         y' <- asYAML y
         return $ mkNode (YamlSeq [x', y'])
-    fromYAML ~MkYamlNode{el=YamlSeq [x, y]} = do
+    fromYAMLElem ~(YamlSeq [x, y]) = do
         x' <- fromYAML x
         y' <- fromYAML y
         return (x', y')
@@ -152,7 +157,7 @@ instance (YAML a, YAML b, YAML c) => YAML (a, b, c) where
         y' <- asYAML y
         z' <- asYAML z
         return $ mkNode (YamlSeq [x', y', z'])
-    fromYAML ~MkYamlNode{el=YamlSeq [x, y, z]} = do
+    fromYAMLElem ~(YamlSeq [x, y, z]) = do
         x' <- fromYAML x
         y' <- fromYAML y
         z' <- fromYAML z
@@ -160,16 +165,18 @@ instance (YAML a, YAML b, YAML c) => YAML (a, b, c) where
 
 instance (Typeable a, YAML a) => YAML (TVar a) where
     asYAML = asYAMLwith (lift . atomically . readTVar)
+    fromYAML = (atomically . newTVar =<<) . fromYAML
+    fromYAMLElem = (atomically . newTVar =<<) . fromYAMLElem
 
 asYAMLwith :: (YAML a, YAML b) => (a -> EmitAs b) -> a -> EmitAs YamlNode
 asYAMLwith f x = do
     ptr  <- liftIO $ addressOf x
     seen <- ask
-    case IntMap.lookup ptr seen of
-        Just node   -> return node
-        _           -> mdo
-            rv   <- local (IntMap.insert ptr rv) (asYAML =<< f x)
-            return rv
+    if IntSet.member ptr seen
+        then return nilNode{ anchor = MkYamlReference ptr } 
+        else do
+            rv   <- local (IntSet.insert ptr) (asYAML =<< f x)
+            return rv{ anchor = MkYamlAnchor ptr }
 
 addressOf :: a -> IO Int
 addressOf x = do

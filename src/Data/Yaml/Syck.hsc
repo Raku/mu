@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -fvia-C -optc-w -fno-warn-unused-binds #-}
+{-# OPTIONS_GHC -fglasgow-exts -fvia-C -optc-w -funbox-strict-fields #-}
 #include "../../syck/syck.h"
 #include "../../cbits/fpstring.h"
 
@@ -23,12 +23,14 @@ import Foreign.Storable
 import Data.Generics
 import qualified Data.HashTable as Hash
 import qualified Data.FastPackedString as Str
+import GHC.Ptr  (Ptr(..))
 
 type Str        = Str.FastString
 type YamlTag    = Maybe Str
 data YamlAnchor
-    = MkYamlAnchor    Int
-    | MkYamlReference Int
+    = MkYamlAnchor    !Int
+    | MkYamlReference !Int
+    | MkYamlSingleton
     deriving (Show, Ord, Eq, Typeable, Data)
 type SYMID = CULong
 
@@ -40,17 +42,17 @@ instance Data SYMID where
   dataTypeOf _ = mkIntType "Foreign.C.Types.CULong"
 
 data YamlNode = MkYamlNode
-    { nid      :: SYMID
-    , el       :: YamlElem
-    , tag      :: YamlTag
-    , anchor   :: Maybe YamlAnchor
+    { nid      :: !SYMID
+    , el       :: !YamlElem
+    , tag      :: !YamlTag
+    , anchor   :: !YamlAnchor
     }
     deriving (Show, Ord, Eq, Typeable, Data)
 
 data YamlElem
     = YamlMap [(YamlNode, YamlNode)]
     | YamlSeq [YamlNode]
-    | YamlStr Str
+    | YamlStr !Str
     | YamlNil
     deriving (Show, Ord, Eq, Typeable, Data)
 
@@ -67,17 +69,17 @@ data SyckKind = SyckMap | SyckSeq | SyckStr
     deriving (Show, Ord, Eq, Enum)
 
 nilNode :: YamlNode
-nilNode = MkYamlNode 0 YamlNil Nothing Nothing
+nilNode = MkYamlNode 0 YamlNil Nothing MkYamlSingleton
 
 tagNode :: YamlTag -> YamlNode -> YamlNode
 tagNode _ MkYamlNode{tag=Just x} = error ("can't add tag: already tagged with" ++ (Str.unpack x))
 tagNode tag node                 = node{tag = tag}
 
 mkNode :: YamlElem -> YamlNode
-mkNode x = MkYamlNode 0 x Nothing Nothing
+mkNode x = MkYamlNode 0 x Nothing MkYamlSingleton
 
 mkTagNode :: String -> YamlElem -> YamlNode
-mkTagNode s x = MkYamlNode 0 x (Just $ Str.pack s) Nothing
+mkTagNode s x = MkYamlNode 0 x (Just $ Str.pack s) MkYamlSingleton
 
 -- the extra commas here are not a bug
 #enum CInt, , scalar_none, scalar_1quote, scalar_2quote, scalar_fold, scalar_literal, scalar_plain
@@ -89,9 +91,6 @@ mkTagNode s x = MkYamlNode 0 x (Just $ Str.pack s) Nothing
 type EmitterExtras = Ptr ()
 -}
 
-{-# NOINLINE _decLiteralFS #-}
-_decLiteralFS = Str.unsafePackAddress 3 "%d"##
-
 emitYamlFS :: YamlNode -> IO (Either Str.FastString Str.FastString)
 emitYamlFS node = do
     bracket syck_new_emitter syck_free_emitter $ \emitter -> do
@@ -99,7 +98,7 @@ emitYamlFS node = do
         out    <- newIORef []
         #{poke SyckEmitter, style} emitter scalarFold
         -- #{poke SyckEmitter, sort_keys} emitter (1 :: CInt)
-        Str.useAsCString _decLiteralFS $ #{poke SyckEmitter, anchor_format} emitter
+        #{poke SyckEmitter, anchor_format} emitter (Ptr "%d"## :: CString)
 
         marks <- Hash.new (==) (Hash.hashInt)
 
@@ -107,7 +106,7 @@ emitYamlFS node = do
         syck_emitter_handler emitter =<< mkEmitterCallback (emitterCallback freeze)
         syck_output_handler emitter =<< mkOutputCallback (outputCallbackPS out)
 
-        markYamlNode marks emitter node
+        markYamlNode freeze emitter node
 
         nodePtr <- freeze node
         let nodePtr' = fromIntegral $ nodePtr `minusPtr` nullPtr
@@ -118,24 +117,23 @@ emitYamlFS node = do
 emitYaml :: YamlNode -> IO (Either String String)
 emitYaml node = fmap (either (Left . Str.unpack) (Right . Str.unpack)) (emitYamlFS node)
 
-markYamlNode :: Hash.HashTable Int SyckNodePtr -> SyckEmitter -> YamlNode -> IO ()
-markYamlNode marks emitter MkYamlNode{ anchor = Just (MkYamlReference n) } = do
+markYamlNode :: (YamlNode -> IO SyckNodePtr) -> SyckEmitter -> YamlNode -> IO ()
+{-
+markYamlNode marks emitter MkYamlNode{ anchor = MkYamlReference n } = do
     Just nodePtr <- Hash.lookup marks n
     syck_emitter_mark_node emitter nodePtr
     return ()
-markYamlNode marks emitter node = do
-    nodePtr <- freezeNode marks node
+-}
+markYamlNode freeze emitter node = do
+    nodePtr <- freeze node
     rv      <- syck_emitter_mark_node emitter nodePtr
     if rv == 0 then return () else do
-    case anchor node of
-        Just (MkYamlAnchor n) -> Hash.insert marks n nodePtr
-        _                     -> return ()
     case el node of
         YamlMap xs  -> sequence_ [ mark x >> mark y | (x, y) <- xs ]
         YamlSeq xs  -> mapM_ mark xs
         _           -> return ()
     where
-    mark = markYamlNode marks emitter
+    mark = markYamlNode freeze emitter
 
 outputCallbackPS :: IORef [Str.FastString] -> SyckEmitter -> CString -> CLong -> IO ()
 outputCallbackPS out emitter buf len = do
@@ -149,60 +147,42 @@ outputCallback emitter buf len = do
     str     <- peekCStringLen (buf, fromIntegral len)
     modifyIORef out (++ str)
 
-freezeFS :: ForeignPtr Word8 -> IO FSPtr
-freezeFS ps = do
-    ptr     <- newStablePtr ps
-    return (castPtr $ castStablePtrToPtr ptr)
-
-readFS :: FSPtr -> IO (ForeignPtr Word8)
-readFS fs = do
-    ptr     <- peek . castPtr =<< peek fs
-    deRefStablePtr (castPtrToStablePtr ptr)
-
-{-# NOINLINE _stringLiteralFS #-}
-{-# NOINLINE _tildeLiteralFS #-}
-{-# NOINLINE _arrayLiteralFS #-}
-{-# NOINLINE _hashLiteralFS #-}
-_stringLiteralFS = Str.unsafePackAddress 7 "string"##
-_tildeLiteralFS  = Str.unsafePackAddress 2 "~"##
-_arrayLiteralFS  = Str.unsafePackAddress 6 "array"##
-_hashLiteralFS   = Str.unsafePackAddress 5 "hash"##
-
 emitterCallback :: (YamlNode -> IO SyckNodePtr) -> SyckEmitter -> Ptr () -> IO ()
 emitterCallback f e vp = emitNode f e =<< thawNode vp
 
+{-# NOINLINE _tildeLiteralFS #-}
+_tildeLiteralFS = Str.pack "~"
+
 emitNode :: (YamlNode -> IO SyckNodePtr) -> SyckEmitter -> YamlNode -> IO ()
 emitNode _ e n@(MkYamlNode{el = YamlNil}) = do
-    withTag n _stringLiteralFS $ \tag ->
-        Str.useAsCString _tildeLiteralFS $ \cs ->       
-            syck_emit_scalar e tag scalarNone 0 0 0 cs 1
+    withTag n (Ptr "string"##) $ \tag ->
+        syck_emit_scalar e tag scalarNone 0 0 0 (Ptr "~"##) 1
 
-emitNode _ e n@(MkYamlNode{el = YamlStr s}) | s == _tildeLiteralFS = do
-    withTag n _stringLiteralFS $ \tag ->
-        Str.useAsCString _tildeLiteralFS $ \cs ->
-            syck_emit_scalar e tag scalar1quote 0 0 0 cs 1
+emitNode _ e n@(MkYamlNode{el = YamlStr s}) | Str.length s == 1, Str.head s == '~' = do
+    withTag n (Ptr "string"##) $ \tag ->
+        syck_emit_scalar e tag scalar1quote 0 0 0 (Ptr "~"##) 1
 
 emitNode _ e n@(MkYamlNode{el = YamlStr str}) = do
-    withTag n _stringLiteralFS $ \tag ->       
+    withTag n (Ptr "string"##) $ \tag ->
         Str.unsafeUseAsCStringLen str $ \(cs, l) ->       
-            syck_emit_scalar e tag scalarNone 0 0 0 cs (toEnum l)
+        syck_emit_scalar e tag scalarNone 0 0 0 cs (toEnum l)
 
 emitNode freeze e n@(MkYamlNode{el = YamlSeq seq}) = do
-    withTag n _arrayLiteralFS $ \tag ->
+    withTag n (Ptr "array"##) $ \tag ->
         syck_emit_seq e tag seqNone
     mapM_ (syck_emit_item e) =<< mapM freeze seq
     syck_emit_end e
 
 emitNode freeze e n@(MkYamlNode{el = YamlMap m}) = do
-    withTag n _hashLiteralFS $ \tag -> 
+    withTag n (Ptr "map"##) $ \tag ->
         syck_emit_map e tag mapNone
     flip mapM_ m (\(k,v) -> do
         syck_emit_item e =<< freeze k
         syck_emit_item e =<< freeze v)
     syck_emit_end e
 
-withTag :: YamlNode -> Str -> (CString -> IO a) -> IO a
-withTag node def f = Str.useAsCString (maybe def id (tag node)) f
+withTag :: YamlNode -> CString -> (CString -> IO a) -> IO a
+withTag node def f = maybe (f def) (`Str.useAsCString` f) (tag node)
 
 parseYaml :: String -> IO (Either String (Maybe YamlNode))
 parseYaml = (`withCString` parseYamlCStr)
@@ -248,15 +228,17 @@ errorCallback err parser cstr = do
         ]
 
 freezeNode :: Hash.HashTable Int (Ptr a) -> YamlNode -> IO (Ptr a)
-freezeNode nodes node@MkYamlNode{ anchor = Just (MkYamlReference n) } = do
+freezeNode nodes node@MkYamlNode{ anchor = MkYamlReference n } = do
     Just ptr <- Hash.lookup nodes n
     return ptr
 freezeNode nodes node = do
     ptr     <- newStablePtr node
     let ptr' = castPtr $ castStablePtrToPtr ptr
     case anchor node of
-        Just (MkYamlAnchor n) -> Hash.insert nodes n ptr' >> return ptr'
-        _                     -> return ptr'
+        MkYamlAnchor n -> do
+            Hash.insert nodes n ptr'
+            return ptr'
+        _              -> return ptr'
 
 thawNode :: Ptr () -> IO YamlNode
 thawNode nodePtr = deRefStablePtr (castPtrToStablePtr nodePtr)
@@ -274,8 +256,8 @@ readNode parser symId = alloca $ \nodePtr -> do
 
 {-# NOINLINE _tagLiteralFS #-}
 {-# NOINLINE  _colonLiteralFS #-}
-_tagLiteralFS   = Str.unsafePackAddress 4 "tag:"##
-_colonLiteralFS = Str.unsafePackAddress 1 ":"##
+_tagLiteralFS   = Str.pack "tag:"
+_colonLiteralFS = Str.pack ":"
 
 syckNodeTag :: SyckNode -> IO (Maybe Str)
 syckNodeTag syckNode = do

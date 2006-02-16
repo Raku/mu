@@ -91,7 +91,7 @@ toYaml (VBool x)    = return $ boolToYaml x
 toYaml (VStr str)   = return $ strNode (encodeUTF8 str)
 toYaml v@(VRef r)   = do
     ptr <- liftIO $ addressOf r
-    if IntSet.member ptr ?seen then return nilNode{ anchor = Just (MkYamlReference ptr) } else do
+    if IntSet.member ptr ?seen then return nilNode{ anchor = MkYamlReference ptr } else do
         let ?seen = IntSet.insert ptr ?seen
         node <- ifValTypeIsa v "Hash" (hashToYaml r) $ do
             v'      <- readRef r
@@ -99,7 +99,7 @@ toYaml v@(VRef r)   = do
             ifValTypeIsa v "Array" (return nodes) . return $ case v' of
                 VObject _   -> nodes
                 _           -> mkNode $ YamlMap [(strNode "<ref>", nodes)]
-        return node{ anchor = Just (MkYamlAnchor ptr) }
+        return node{ anchor = MkYamlAnchor ptr }
 toYaml (VList nodes) = do
     n <- mapM toYaml nodes
     return $ mkNode (YamlSeq n)
