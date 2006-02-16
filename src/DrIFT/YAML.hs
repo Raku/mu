@@ -93,7 +93,7 @@ instance YAML Int where
 
 instance YAML String where
     asYAML str = return $ mkTagNode "str" (YamlStr $ Str.pack str)
-    fromYAMLElem ~(YamlStr str) = return $ read $ Str.unpack str
+    fromYAMLElem ~(YamlStr str) = return $ Str.unpack str
 
 instance YAML Bool where
     asYAML True = return $ mkTagNode "bool#yes" (YamlStr $ Str.pack "1")

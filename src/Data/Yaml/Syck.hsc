@@ -274,8 +274,8 @@ readNode parser symId = alloca $ \nodePtr -> do
 
 {-# NOINLINE _tagLiteralFS #-}
 {-# NOINLINE  _colonLiteralFS #-}
-_tagLiteralFS   = Str.unsafePackAddress 5 "tag:"##
-_colonLiteralFS = Str.unsafePackAddress 2 ":"##
+_tagLiteralFS   = Str.unsafePackAddress 4 "tag:"##
+_colonLiteralFS = Str.unsafePackAddress 1 ":"##
 
 syckNodeTag :: SyckNode -> IO (Maybe Str)
 syckNodeTag syckNode = do
@@ -318,7 +318,7 @@ parseNode SyckStr _ syckNode len = do
     cstr  <- syck_str_read syckNode
     str   <- Str.copyCStringLen (cstr, fromEnum len)
     let node = nilNode{ el = YamlStr str, tag = tag }
-    if str == Str.pack "~" && tag == Nothing
+    if str == _tildeLiteralFS && tag == Nothing
         then do
             style <- syck_str_style syckNode
             if style == scalarPlain
