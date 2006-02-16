@@ -265,7 +265,11 @@ syckNodeTag :: SyckNode -> IO (Maybe Str)
 syckNodeTag syckNode = do
     tag <- #{peek SyckNode, type_id} syckNode
     if (tag == nullPtr) then (return Nothing) else do
-        fmap Just (Str.copyCStringLen (tag, (-1)))
+        str <- Str.copyCStringLen (tag, -1)
+        return $ case Str.breakFirst '/' str of
+            Just (pre, post) -> Just $
+                Str.concat [Str.pack "tag:", pre, Str.pack ":", post]
+            Nothing -> Nothing
 
 syckNodeKind :: SyckNode -> IO SyckKind
 syckNodeKind syckNode = fmap toEnum $ #{peek SyckNode, kind} syckNode
