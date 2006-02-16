@@ -89,6 +89,8 @@ mkTagNode s x = MkYamlNode 0 x (Just $ Str.pack s) Nothing
 type EmitterExtras = Ptr ()
 -}
 
+_decLiteralFS = Str.unsafePackAddress 3 "%d"##
+
 emitYamlFS :: YamlNode -> IO (Either Str.FastString Str.FastString)
 emitYamlFS node = do
     bracket syck_new_emitter syck_free_emitter $ \emitter -> do
@@ -96,7 +98,7 @@ emitYamlFS node = do
         out    <- newIORef Str.empty
         #{poke SyckEmitter, style} emitter scalarFold
         -- #{poke SyckEmitter, sort_keys} emitter (1 :: CInt)
-        withCString "%d" $ #{poke SyckEmitter, anchor_format} emitter
+        Str.useAsCString _decLiteralFS $ #{poke SyckEmitter, anchor_format} emitter
 
         marks <- Hash.new (==) (Hash.hashInt)
 
@@ -156,42 +158,46 @@ readFS fs = do
     ptr     <- peek . castPtr =<< peek fs
     deRefStablePtr (castPtrToStablePtr ptr)
 
+_stringLiteralFS = Str.unsafePackAddress 7 "string"##
+_tildeLiteralFS  = Str.unsafePackAddress 2 "~"##
+_arrayLiteralFS  = Str.unsafePackAddress 6 "array"##
+_hashLiteralFS   = Str.unsafePackAddress 5 "hash"##
 
 emitterCallback :: (YamlNode -> IO SyckNodePtr) -> SyckEmitter -> Ptr () -> IO ()
 emitterCallback f e vp = emitNode f e =<< thawNode vp
-    
+
 emitNode :: (YamlNode -> IO SyckNodePtr) -> SyckEmitter -> YamlNode -> IO ()
 emitNode _ e n@(MkYamlNode{el = YamlNil}) = do
-    withTag n "string" $ \tag ->
-        withCString "~" $ \cs ->       
+    withTag n _stringLiteralFS $ \tag ->
+        Str.useAsCString _tildeLiteralFS $ \cs ->       
             syck_emit_scalar e tag scalarNone 0 0 0 cs 1
 
-emitNode _ e n@(MkYamlNode{el = YamlStr s}) | s == Str.pack "~" = do
-    withTag n "string" $ \tag ->
-        withCString "~" $ \cs ->
+emitNode _ e n@(MkYamlNode{el = YamlStr s}) | s == _tildeLiteralFS = do
+    withTag n _stringLiteralFS $ \tag ->
+        Str.useAsCString _tildeLiteralFS $ \cs ->
             syck_emit_scalar e tag scalar1quote 0 0 0 cs 1
 
 emitNode _ e n@(MkYamlNode{el = YamlStr str}) = do
-    withTag n "string" $ \tag ->       
+    withTag n _stringLiteralFS $ \tag ->       
         Str.unsafeUseAsCStringLen str $ \(cs, l) ->       
             syck_emit_scalar e tag scalarNone 0 0 0 cs (toEnum l)
 
 emitNode freeze e n@(MkYamlNode{el = YamlSeq seq}) = do
-    withTag n "array" $ \tag ->
+    withTag n _arrayLiteralFS $ \tag ->
         syck_emit_seq e tag seqNone
     mapM_ (syck_emit_item e) =<< mapM freeze seq
     syck_emit_end e
 
 emitNode freeze e n@(MkYamlNode{el = YamlMap m}) = do
-    withTag n "hash" $ \tag -> 
+    withTag n _hashLiteralFS $ \tag -> 
         syck_emit_map e tag mapNone
     flip mapM_ m (\(k,v) -> do
         syck_emit_item e =<< freeze k
         syck_emit_item e =<< freeze v)
     syck_emit_end e
 
-withTag :: YamlNode -> String -> (CString -> IO a) -> IO a
-withTag node def f = Str.useAsCString (maybe (Str.pack def) id (tag node)) f
+withTag :: YamlNode -> Str -> (CString -> IO a) -> IO a
+withTag node def f = Str.useAsCString (maybe def id (tag node)) f
 
 parseYaml :: String -> IO (Either String (Maybe YamlNode))
 parseYaml = (`withCString` parseYamlCStr)
@@ -261,6 +267,9 @@ readNode parser symId = alloca $ \nodePtr -> do
     ptr     <- peek . castPtr =<< peek nodePtr
     deRefStablePtr (castPtrToStablePtr ptr)
 
+_tagLiteralFS   = Str.unsafePackAddress 5 "tag:"##
+_colonLiteralFS = Str.unsafePackAddress 2 ":"##
+
 syckNodeTag :: SyckNode -> IO (Maybe Str)
 syckNodeTag syckNode = do
     tag <- #{peek SyckNode, type_id} syckNode
@@ -268,7 +277,7 @@ syckNodeTag syckNode = do
         str <- Str.copyCStringLen (tag, -1)
         return $ case Str.breakFirst '/' str of
             Just (pre, post) -> Just $
-                Str.concat [Str.pack "tag:", pre, Str.pack ":", post]
+                Str.concat [_tagLiteralFS, pre, _colonLiteralFS, post]
             Nothing -> Nothing
 
 syckNodeKind :: SyckNode -> IO SyckKind
