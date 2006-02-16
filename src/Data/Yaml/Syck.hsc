@@ -89,6 +89,7 @@ mkTagNode s x = MkYamlNode 0 x (Just $ Str.pack s) Nothing
 type EmitterExtras = Ptr ()
 -}
 
+{-# NOINLINE _decLiteralFS #-}
 _decLiteralFS = Str.unsafePackAddress 3 "%d"##
 
 emitYamlFS :: YamlNode -> IO (Either Str.FastString Str.FastString)
@@ -158,6 +159,10 @@ readFS fs = do
     ptr     <- peek . castPtr =<< peek fs
     deRefStablePtr (castPtrToStablePtr ptr)
 
+{-# NOINLINE _stringLiteralFS #-}
+{-# NOINLINE _tildeLiteralFS #-}
+{-# NOINLINE _arrayLiteralFS #-}
+{-# NOINLINE _hashLiteralFS #-}
 _stringLiteralFS = Str.unsafePackAddress 7 "string"##
 _tildeLiteralFS  = Str.unsafePackAddress 2 "~"##
 _arrayLiteralFS  = Str.unsafePackAddress 6 "array"##
@@ -267,6 +272,8 @@ readNode parser symId = alloca $ \nodePtr -> do
     ptr     <- peek . castPtr =<< peek nodePtr
     deRefStablePtr (castPtrToStablePtr ptr)
 
+{-# NOINLINE _tagLiteralFS #-}
+{-# NOINLINE  _colonLiteralFS #-}
 _tagLiteralFS   = Str.unsafePackAddress 5 "tag:"##
 _colonLiteralFS = Str.unsafePackAddress 2 ":"##
 
