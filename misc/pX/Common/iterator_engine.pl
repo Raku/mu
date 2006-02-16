@@ -9,19 +9,18 @@
 # problem: this may be too slow, or difficult to maintain
 
 use strict;
-
-my %rules;  # this is our "global namespace" for rules
+no strict "refs";
 
 # internal composition functions
 
 # XXX - TODO: <rule>+ can be compiled as <rule><rule>*
 
 sub _greedy { 
-    my $node_name = shift;
+    my $node = shift;
     my @tail = @_;
     my @matches;
     while (1) {
-        my ($match, @new_tail) = $rules{ $node_name }(@tail);
+        my ($match, @new_tail) = $node->(@tail);
         return ( { '_greedy' => [ @matches ] }, @tail ) if ! $match;
         @tail = @new_tail;
         push @matches, $match;
@@ -29,8 +28,8 @@ sub _greedy {
 }
 
 sub _non_greedy { 
-    my $node_name = shift;
-    my ($match, @tail) = $rules{ $node_name }(@_);
+    my $node = shift;
+    my ($match, @tail) = $node->(@_);
     return ( { '_non_greedy' => [ $match ] }, @tail ) if $match;
     return undef;
 }
@@ -40,7 +39,7 @@ sub _alternation {
     # XXX   when it is inside a greedy match, for example
     my $alternates = shift;
     for ( @$alternates ) {
-        my ($match, @tail) = $rules{ $_ }(@_);
+        my ($match, @tail) = $_->(@_);
         return ( { '_alternation' =>$match }, @tail) if $match;
     }
     return undef;
@@ -52,7 +51,7 @@ sub _concat {
     my @tail;
     my $match;
     
-    ($match, @tail) = $rules{ $concat->[0] }(@_);
+    ($match, @tail) = $concat->[0]->(@_);
     return undef unless $match;  
     #print Dumper [ $match, @tail ];
 
@@ -65,7 +64,7 @@ sub _concat {
         push @matches, $match;
         
         my $match2;
-        ($match2, @tail) = $rules{ $concat->[1] }(@tail);
+        ($match2, @tail) = $concat->[1]->(@tail);
         push @matches, $match2 if $match2;
     
         return ( { '_concat'=>[ @matches ] }, @tail) if $match2;
@@ -79,27 +78,28 @@ sub _concat {
 
 # Prelude - precompiled rules, such as <word>, \x, etc.
 
-%rules = (
-    '.' => sub { 
+*{'rule::.'} = sub { 
         return ( { '.'=>[ $_[0] ] }, @_[1..$#_] ) if @_;
         return;
-    },
-    '<slashed_char>' => sub {
+    };
+*{'rule::<slashed_char>'} = sub {
         return ( { '<slashed_char>' => [ $_[0], $_[1] ] }, @_[2..$#_] ) if $_[0] eq '\\';
         return;
-    },
-    '<word_char>' => sub { 
+    };
+*{'rule::<word_char>'} = sub { 
         return ( { '<word_char>'=>[ $_[0] ] }, @_[1..$#_] ) if $_[0] =~ m/[a-zA-Z0-9\_]/;  
         return;
-    },
-    '<word>' => sub {
-        my ($match, @tail) = _greedy( '<word_char>', @_ );
+    };
+*{'rule::<word>'} = sub {
+        my ($match, @tail) = _greedy( \&{'rule::<word_char>'}, @_ );
         return { '<word>'=>$match }, @tail if $match;
         return;
-    },
+    };
   
   # more definitions, just for testing
-  
+ 
+my %rules;
+%rules = (
     'a' => sub { 
         return ( { 'a'=>[ $_[0] ] }, @_[1..$#_] ) if $_[0] eq 'a';
         return;
@@ -119,23 +119,23 @@ sub _concat {
         return;
     },
     'ab|cd' => sub {
-        _alternation( [ 'ab', 'cd' ], @_ );
+        _alternation( [ $rules{'ab'}, $rules{'cd'} ], @_ );
     },
     'a*' => sub { 
-        _greedy( 'a', @_ );
+        _greedy( $rules{'a'}, @_ );
     },
     'a*.' => sub { 
-        _concat( [ 'a*', '.' ], @_ );
+        _concat( [ $rules{'a*'}, \&{'rule::.'} ], @_ );
     },
 );
 
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 my @in = qw( a b b a b c c d );
-print Dumper( $rules{'.'}(@in) );
+print Dumper( &{'rule::.'}(@in) );
 print Dumper( $rules{'abb'}(@in) );
 print Dumper( $rules{'ab|cd'}( qw(a b c) ) );
 print Dumper( $rules{'a*'}( qw(a a a b c) ) );
 print Dumper( $rules{'a*.'}( qw(a a a a) ) );
 print Dumper( $rules{'a*.'}( qw(b a a a a) ) );
-print Dumper( $rules{'<word>'}( qw(b a a ! !) ) );
+print Dumper( &{'rule::<word>'}( qw(b a a ! !) ) );
