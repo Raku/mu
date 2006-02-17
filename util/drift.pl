@@ -9,14 +9,31 @@ use FindBin qw<$Bin>;
 $ENV{DERIVEPATH} = "$Bin/../src";
 
 my ($in, $out) = @ARGV or exit;
+
+open TMP, "> $in.tmp" or die "Cannot open $out: $!";
+
+open IN, $in or die $!;
+while (<IN>) {
+    if (/\{-!\s*global/) {
+        print TMP $_;
+        next;
+    }
+    /^(?:data|newtype|type)\b(?!.*\bwhere)/ .. /^$/ or next;
+    s/--.*$//;
+    /\S/ or next;
+    print TMP $_;
+}
+close IN;
+close TMP;
+
 my ($rh, $wh);
 my $pid = open2(
     $rh, $wh,
-    'runhugs',
-    "-h1048576",
-    "-P.:/usr/local/lib/hugs/libraries/:/usr/lib/hugs/libraries/:$Bin/../src/DrIFT:$Bin/../../DrIFT/src",
+    'runghc',
+    "-i$Bin/../src/DrIFT",
+    "-i$Bin/../../DrIFT/src",
     "$Bin/../../DrIFT/src/DrIFT.hs",
-    $in
+    "$in.tmp"
 );
 
 my @program = do { <$rh> };
@@ -54,11 +71,21 @@ All changes made here will be lost!
 
 SCARY
 
-splice(@program, 2, 0, @scary_header);
+# splice(@program, 2, 0, @scary_header);
 
-open OUT, "> $out" or die "Cannot open $out: $!";
-
-for (@program) {
-    next if /=begin DRIFT/ .. /=cut/;
-    print OUT;
+open IN, $in or die $!;
+open OUT, "> $out" or die $!;
+while (<IN>) {
+    /OPTION/ or last;
+    print OUT $_;
 }
+print OUT @scary_header;
+while (<IN>) { print OUT; }
+close IN;
+
+shift(@program) until $program[0] =~ /Look, but Don't Touch/;
+
+print OUT @program;
+close OUT;
+
+unlink "$in.tmp";

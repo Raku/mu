@@ -621,41 +621,6 @@ newtype VProcess = MkProcess (ProcessHandle)
 type VPair = (Val, Val)
 type VType = Type
 
-=begin DRIFT
-
-data Val
-    = VUndef                 -- ^ Undefined value
-    | VBool     !VBool       -- ^ Boolean value
-    | VInt      !VInt        -- ^ Integer value
-    | VRat      !VRat        -- ^ Rational number value
-    | VNum      !VNum        -- ^ Number (i.e. a double)
-    | VStr      !VStr        -- ^ String value
-    | VList     !VList       -- ^ List value
-    | VType     !VType       -- ^ Type value (e.g. @Int@ or @Type@)
-    {-!derive: Perl5, JSON!-}
-
-data Scope = SState | SLet | STemp | SEnv | SMy | SOur | SGlobal
-    {-!derive: YAML, JSON, Perl5!-}
-
-data Pos = MkPos
-    { posName           :: !String, posBeginLine      :: !Int
-    , posBeginColumn    :: !Int
-    , posEndLine        :: !Int
-    , posEndColumn      :: !Int
-    }
-    {-!derive: YAML, JSON, Perl5!-}
-
-data Type
-    = MkType !String      -- ^ A regular type
-    | TypeOr  !Type !Type -- ^ The disjunction (|) of two types
-    | TypeAnd !Type !Type -- ^ The conjunction (&) of two types
-    {-!derive: YAML, JSON, Perl5!-}
-
-data Cxt = CxtVoid | CxtItem !Type | CxtSlurpy !Type
-    {-!derive: YAML, JSON, Perl5!-}
-
-=cut
-
 {-|
 Representation for rules (i.e. regexes).
 
@@ -757,7 +722,7 @@ data VControl
     = ControlExit  !ExitCode
     | ControlEnv   !Env
  -- | ControlLeave !(Env -> Eval Bool) !Val
-    deriving (Show, Eq, Ord, Typeable)
+    deriving (Show, Eq, Ord, Typeable) -- don't derive YAML for now
 
 {-|
 Represents a junction value.
@@ -776,17 +741,7 @@ data VJunc = MkJunc
     -- ^ Set of values that make up the junction. In @one()@
     --     junctions, contains the set of values that appear exactly
     --     /once/.
-    } deriving (Eq, Ord, Typeable)
-
-instance YAML VJunc where
-    asYAML (MkJunc aa ab ac) = asYAMLmap "MkJunc"
-	   [("juncType", asYAML aa) , ("juncDup", asYAML ab) ,
-	    ("juncSet", asYAML ac)]
-    fromYAML node = do
-        let YamlMap assocs = el node
-        let [aa, ab, ac] = map snd assocs
-        liftM3 MkJunc (fromYAML aa) (fromYAML ab) (fromYAML ac)
-
+    } deriving (Eq, Ord, Typeable) {-!derive: YAML!-}
 
 -- | The combining semantics of a junction. See 'VJunc' for more info.
 data JuncType = JAny  -- ^ Matches if /at least one/ member matches
@@ -947,22 +902,7 @@ data Ann
     = Cxt !Cxt                -- ^ Context
     | Pos !Pos                -- ^ Position
     | Prag ![Pragma]          -- ^ Lexical pragmas
-    deriving (Show, Eq, Ord, Typeable)
-
-instance YAML Ann where
-    asYAML (Cxt aa) = asYAMLseq "Cxt" [asYAML aa]
-    asYAML (Pos aa) = asYAMLseq "Pos" [asYAML aa]
-    asYAML (Prag aa) = asYAMLseq "Prag" [asYAML aa]
-    fromYAML node = case deTag node of
-        "Cxt" -> do
-            let YamlSeq [aa] = el node
-            fmap Cxt $ fromYAML aa
-        "Pos" -> do
-            let YamlSeq [aa] = el node
-            fmap Pos $ fromYAML aa
-        "Prag" -> do
-            let YamlSeq [aa] = el node
-            fmap Prag $ fromYAML aa
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
 
 {- Expressions
    "App" represents function application, e.g. myfun($invocant: $arg)
@@ -1170,7 +1110,7 @@ data Env = MkEnv
     , envPragmas :: ![Pragma]            -- ^ List of pragmas in effect
     , envInitDat :: !(TVar InitDat)      -- ^ BEGIN result information
     } 
-    deriving (Show, Eq, Ord, Typeable)
+    deriving (Show, Eq, Ord, Typeable) -- don't derive YAML for now
 
 {-|
 Module initialization information.
@@ -1946,5 +1886,40 @@ instance (Show (TVar a)) => Perl5 (TVar a) where
     showPerl5 _ = "(warn '<ref>')"
 instance (Show (TVar a)) => JSON (TVar a) where
     showJSON _ = "null"
+
+{- !!! For DrIFT -- Don't delete !!!
+
+data Scope = SState | SLet | STemp | SEnv | SMy | SOur | SGlobal
+    {-!derive: YAML, JSON, Perl5!-}
+
+data Pos = MkPos
+    { posName           :: !String, posBeginLine      :: !Int
+    , posBeginColumn    :: !Int
+    , posEndLine        :: !Int
+    , posEndColumn      :: !Int
+    }
+    {-!derive: YAML, JSON, Perl5!-}
+
+data Type
+    = MkType !String      -- ^ A regular type
+    | TypeOr  !Type !Type -- ^ The disjunction (|) of two types
+    | TypeAnd !Type !Type -- ^ The conjunction (&) of two types
+    {-!derive: YAML, JSON, Perl5!-}
+
+data Cxt = CxtVoid | CxtItem !Type | CxtSlurpy !Type
+    {-!derive: YAML, JSON, Perl5!-}
+
+data Val
+    = VUndef                 -- ^ Undefined value
+    | VBool     !VBool       -- ^ Boolean value
+    | VInt      !VInt        -- ^ Integer value
+    | VRat      !VRat        -- ^ Rational number value
+    | VNum      !VNum        -- ^ Number (i.e. a double)
+    | VStr      !VStr        -- ^ String value
+    | VList     !VList       -- ^ List value
+    | VType     !VType       -- ^ Type value (e.g. @Int@ or @Type@)
+    {-!derive: Perl5, JSON!-}
+
+-}
 
 ------------------------------------------------------------------------
