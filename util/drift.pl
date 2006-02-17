@@ -18,7 +18,7 @@ while (<IN>) {
         print TMP $_;
         next;
     }
-    /^(?:data|newtype|type)\b(?!.*\bwhere)/ .. /^$/ or next;
+    /^(?:data)\b(?!.*\bwhere)/ .. /^$/ or next;
     s/--.*$//;
     /\S/ or next;
     print TMP $_;
