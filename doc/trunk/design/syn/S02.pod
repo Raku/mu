@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 7 Feb 2006
+  Last Modified: 16 Feb 2006
   Number: 2
-  Version: 15
+  Version: 16
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -948,22 +948,17 @@ Generalized quotes may now take adverbs:
     :c		:closure	Interpolate {...} expressions
     :b		:backslash	Interpolate \n, \t, etc. (implies :q at least)
 
-Any of the short forms that don't begin with C<q> may omit the colon
-after an initial "C<q>", so we automatically get the forms:
+[Conjectural: Ordinarily the colon is required on adverbs, but the
+"quote" declarator allows you to combine any of the existing adverbial
+forms above without an intervening colon:
 
-    Form	Same as
-    ====	=======
-    qx//	q:x//
-    qw//	q:w//
-    qww//	q:ww//
-    qt//	q:t//
-    qn//	q:n//
-    qs//	q:s//
-    qa//	q:a//
-    qh//	q:h//
-    qf//	q:f//
-    qc//	q:c//
-    qb//	q:b//
+    quote qw;		# declare a P5-esque qw//
+    quote qqx;		# equivalent to P5's qx//
+    quote qn;		# completely raw quote qn//
+    quote qnc;		# interpolate only closures
+    quote qqxwto;	# qq:x:w:to//
+
+]
 
 If this is all too much of a hardship, you can define your own quote
 adverbs and operators.  All the uppercase adverbs are reserved for
