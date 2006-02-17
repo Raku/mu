@@ -1,0 +1,100 @@
+HISTORY
+  0.20  -- xxx
+
+  0.10  -- xxx
+
+  0.021 -- July 3, 2004
+    *anyof_class* Changed
+        If an *anyof_class* element is a Unicode property or a Perl class
+        (like "\w" or "\S"), the object's "data" field points to the
+        underlying object type (*prop*, *alnum*, etc.). If the element is a
+        POSIX class, the "data" field is the string "POSIX". POSIX classes
+        don't exist in a regex outside of a character class, so I'm a little
+        wary of making them objects in their own right, even if it would
+        create a better sense of uniformity.
+
+    Documentation
+        Fixed some poor wording, and documented the problem with using
+        SUPER:: inside MyClass::__object__.
+
+    Bug Fixes
+        Character classes weren't closing properly in the tree. Fixed.
+
+        Standard escapes ("\a", "\e", etc.) were being returned as *exact*
+        nodes instead of *anyof_char* nodes when inside character classes.
+        Fixed. (Mike Lambert)
+
+        Non-grouping parentheses weren't being parsed properly. Fixed. (Mike
+        Lambert)
+
+        Flags weren't being turned off. Fixed.
+
+  0.02 -- July 1, 2004
+    Better Abstracting
+        The object() method calls force_object(). force_object() creates an
+        object no matter what pass the parser is making; object() will
+        return immediately if it's just the first pass. This means that
+        force_object() should be used to create stand-alone objects.
+
+        Each object now has an insert() method that defines how it gets
+        placed into the regex tree. Most objects inherit theirs from the
+        base object class.
+
+        The walker() method is also now abstracted -- each node it comes
+        across will have its walk() method called. And the ending node for
+        stack-type nodes has been abstracted to the ender() method of the
+        node.
+
+        The init() method has been moved to another file to help keep *this*
+        file as abstract as possible. Regexp::Parser installs its handlers
+        in Regexp/Parser/Handlers.pm. That file might end up being where
+        documentation on writing handlers goes.
+
+        The documentation on sub-classing includes an ordered list of what
+        packages a method is looked up in for a given object of type 'OBJ':
+        YourMod::OBJ, YourMod::__object__, Regexp::Parser::OBJ,
+        Regexp::Parser::__object__.
+
+    Cleaner Grammar Flow
+        Now the only places 'atom' gets pushed to the queue are after an
+        opening parenthesis or after 'atom' matches. This makes things flow
+        more cleanly.
+
+    Flag Handlers
+        Flag handlers now receive an additional argument that says whether
+        they're being turned on or off. Also, if the flag handler returns 0,
+        that flag is removed from the resulting object's visual flag set.
+        That means "(?gi-o)" becomes "(?i)".
+
+    Diagnostics and Bug Fixes
+        More tests added (specifically, making sure "(?(N)T|F)" works
+        right). In doing so, found that the "too many branches" error wasn't
+        being raised until the second pass. Figured out how to improve the
+        grammar to get it to work properly. Also added tests for the new
+        captures() method.
+
+        I changed the field 'class' to 'family' in objects. I was getting
+        confused by it, so I figured it was a sign that I'd chosen an awful
+        name for the field. There will still be a class() method in
+        __object__, but it will throw a "use of class() is deprecated"
+        warning.
+
+        Quantifiers of the form "{n}" were being misrepresented as "{n,}".
+        It's been corrected. (Mike Lambert)
+
+        "\b" was being turned into "b" inside a character class, instead of
+        a backspace. (Mike Lambert)
+
+        Fixed errant "Quantifier unexpected" warning raised by a zero-width
+        assertion followed by "?", which doesn't warrant the warning.
+
+        Added "Unrecognized escape" warnings to *all* escape sequence
+        handlers.
+
+        The 'g', 'c', and 'o' flags now evoke "Useless ..." warnings when
+        used in flag and non-capturing group constructs.
+
+  0.01 -- June 29, 2004
+    First Release
+        Documentation not complete, etc.
+

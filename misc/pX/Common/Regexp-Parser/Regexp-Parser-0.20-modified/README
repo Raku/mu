@@ -1,0 +1,487 @@
+NAME
+    Regexp::Parser - base class for parsing regexes
+
+SYNOPSIS
+    See examples in "USAGE".
+
+WARNING
+    This is version 0.021. The documentation is (still) incomplete. It may
+    be a little jumbled or hard to understand. If you find a problem, please
+    let me know.
+
+    Documentation has been added and moved around. See
+    Regexp::Parser::Objects for documentation about nodes and the objects
+    that represent them. See Regexp::Parser::Handlers for information about
+    sub-classing this module.
+
+DESCRIPTION
+    This module parses regular expressions (regexes). Its default "grammar"
+    is Perl 5.8.4's regex set. Grammar is quoted because the module does not
+    so much define a grammar as let each matched node state what it expects
+    to match next, but there is not currently a way of extracting a complete
+    grammar. This may change in future versions.
+
+    This module is designed as a replacement (though not drop-in) for my old
+    YAPE::Regex modules.
+
+USAGE
+  Creating an Instance
+    To use this module as is, load it, and create an instance:
+
+      use Regexp::Parser;
+      my $parser = Regexp::Parser->new;
+
+  Setting a Regex
+    To have the parser work on a specific regex, you can do use any of the
+    following methods:
+
+    $parser = Regexp::Parser->new($regex)
+        You can send the regex to be parsed as the argument to the
+        constructor.
+
+    $parser->regex($regex)
+        Clears the parser's memory and sets $regex as the regex to be
+        parsed.
+
+    These two approaches do an initial pass over the regex to make sure it
+    is well-formed -- any warnings or errors will be determined during this
+    initial pass.
+
+   Fatal Errors
+    If there is a compilation-stopping error, $parser->errmsg will return
+    that error message, and $parser->errnum will return the numerical value
+    of the message. If you use new() the Regexp::Parser object will still be
+    returned, but if you use regex() then it will return false.
+
+      if (! $parser->regex($rx)) {
+        my $errmsg = $parser->errmsg;
+        my $errnum = $parser->errnum;
+        # ...
+      }
+
+    If you want to see if an error is a particular error, see "ERROR
+    HANDLING".
+
+  Inspecting the Parsing
+    To intercept each node as it is parsed, use the next() method:
+
+      while (my $node = $parser->next) {
+        # $node is a Regexp::Parser::* object
+      }
+
+    When the regex is finished being parsed, next() returns false, and will
+    return false if called again.
+
+  Building the Tree
+    If you don't care to intercept the building of the tree, you can use the
+    parse() method to explicitly build it:
+
+      $parser->parse;
+
+    This is not necessary, though, because the following methods will invoke
+    parse() if the tree has not been made yet.
+
+  Setting and Parsing Together
+    You can also use parse() instead of regex() to set the regex and create
+    the tree in one step:
+
+      my $ok = $parser->parse($new_regex);
+
+    Again, $ok will be false if a fatal error was raised in the inital scan
+    of the regex.
+
+  Getting the Tree
+    You can access the root of the tree with the root() method:
+
+      my $root = $parser->root;
+
+    It will be an array reference of objects.
+
+  Getting the OPEN Count
+    You can access the number capture groups with the nparen() method:
+
+      my $captgroups = $parser->nparen;
+
+  Getting All Captures
+    You can access all the capture groups with the captures() method:
+
+      my $all_captures = $parser->captures();
+
+    If you want to access a specific capture group, pass its numerical
+    value:
+
+      my $capture_2 = $parser->captures(2);
+
+  Walking the Tree
+    To walk over the created tree, create an iterator with walker():
+
+      my $iter = $parser->walker;
+
+    This will produce an iterator that will traverse the entire parse tree,
+    to any depth. To restrict the depth to which it reaches, pass walker()
+    an argument:
+
+      my $iter = $parser->walker(0);  # top-level
+      my $iter = $parser->walker(1);  # top- and second-level
+      my $iter = $parser->walker(2);  # top- through third-level
+
+    The iterator returned is a function reference. When called in scalar
+    context, it returns the next node:
+
+      while (my $node = $iter->()) {
+        # $node is a Regexp::Parser::* object
+      }
+
+    In list context, it returns the next node and its depth:
+
+      while (my ($node, $depth) = $iter->()) {
+        # $node is a Regexp::Parser::* object
+        # $depth = 0, 1, 2...
+      }
+
+    If passed the argument "-depth", it returns the depth to which it will
+    look:
+
+      while (my ($node, $depth) = $iter->()) {
+        if ($depth == $iter->(-depth)) {
+          # this is as deep as it will look
+        }
+      }
+
+    If passed any other argument, it will warn that it is ignoring it.
+
+    The iterator will return undef when it has reached the end of the tree;
+    it will then reset itself, and will start from the beginning the next
+    time it is called.
+
+  Viewing the Regex
+    You can get the regex back from the parser with the visual() method:
+
+      my $rx = $parser->visual;
+
+    This will not return a Regexp object, but the regex; it might be
+    slightly different from the regex you passed it, but it will not operate
+    differently.
+
+    The string representation is built by calling the visual() method of
+    each node in the tree.
+
+  Using the Regex
+    You can use the qr() method to get back a Regexp object:
+
+      my $real_rx = $parser->qr;
+
+    The regex is formed by calling the qr() method of each node in the tree,
+    which may be different from the visual() method; specifically, in the
+    case of a sub-class that adds a handler, the qr() method is used to
+    produce the Perl regex implementation of the new node.
+
+  Named Character Support
+    Perl's regex engine doesn't see \N{NAME} escapes -- they get
+    interpolated by Perl first. In fact, if one slipped through:
+
+      my $rx = '\N{LATIN CAPITAL LETTER R}';
+      my $qr = qr/$rx/;
+
+    Perl's regex interprets the '\N' as a needlessly backslashed 'N'. My
+    module parses them and handles them properly. The nchar() method takes a
+    named character's name, and returns the actual character:
+
+      my $R = $parser->nchar("LATIN CAPITAL LETTER R");
+
+    This means you must have the charnames pragma installed, but since this
+    module requires Perl 5.6 or better, I don't expect that to be a problem.
+
+  Using the Tree
+    If you want to work with the parse tree independently, use the root()
+    method to get it. From there, you're on your own. You'll probably want
+    to make a recursive function that takes an object (or a reference to an
+    array of them) and does something to them (and their children).
+
+ERROR HANDLING
+  Determining Error
+    Use the errmsg() and errnum() methods to get the error information.
+
+    To see if an error is a particular one, use the error_is() method:
+
+      if ($parser->error_is($parser->RPe_BCURLY)) {
+        # there was a {n,m} quantifier with n > m
+      }
+
+  Standard Warnings and Errors
+    Here are the standard warning and error messages. Their values are all
+    negative; positive values are left available for extensions. Please
+    refer to perldiag for the explanations of the messages.
+
+    These are all constants in the Regexp::Parser package, which means you
+    can access them as though they were methods. They return two values,
+    their numeric value, and a format string for use with sprintf().
+
+      # for when you have a zero-width chunk
+      # with a boundless quantifier on it
+      my ($num, $fmt) = $parser->RPe_NULNUL;
+
+    RPe_ZQUANT (-1)
+        Quantifier unexpected on zero-length expression
+
+    RPe_NOTIMP (-2)
+        Sequence (?%.*s...) not implemented
+
+    RPe_NOTERM (-3)
+        Sequence (?#... not terminated
+
+    RPe_LOGDEP (-4)
+        (?p{}) is deprecated -- use (??{})
+
+    RPe_NOTBAL (-5)
+        Sequence (?{...}) not terminated or not {}-balanced
+
+    RPe_SWNREC (-6)
+        Switch condition not recognized
+
+    RPe_SWBRAN (-7)
+        Switch (?(condition)... contains too many branches
+
+    RPe_SWUNKN (-8)
+        Unknown switch condition (?(%.2s
+
+    RPe_SEQINC (-9)
+        Sequence (? incomplete
+
+    RPe_UQUANT (-10)
+        Useless (%s%s) -- %suse /%s modifier
+
+    RPe_NOTREC (-11)
+        Sequence (?%.*s...) not recognized
+
+    RPe_LPAREN (-12)
+        Unmatched (
+
+    RPe_RPAREN (-13)
+        Unmatched )
+
+    RPe_BCURLY (-14)
+        Can't do {n,m} with n > m
+
+    RPe_NULNUL (-15)
+        %s matches null string many times
+
+    RPe_NESTED (-16)
+        Nested quantifiers
+
+    RPe_LBRACK (-17)
+        Unmatched [
+
+    RPe_EQUANT (-18)
+        Quantifier follows nothing
+
+    RPe_BRACES (-19)
+        Missing braces on \%s{}
+
+    RPe_RBRACE (-20)
+        Missing right brace on \%s{}
+
+    RPe_BGROUP (-21)
+        Reference to nonexistent group
+
+    RPe_ESLASH (-22)
+        Trailing \
+
+    RPe_BADESC (-23)
+        Unrecognized escape %s%s passed through
+
+    RPe_BADPOS (-24)
+        POSIX class [:%s:] unknown
+
+    RPe_OUTPOS (-25)
+        POSIX syntax [%s %s] belongs inside character classes
+
+    RPe_EMPTYB (-26)
+        Empty \%s{}
+
+    RPe_FRANGE (-27)
+        False [] range "%s-%s"
+
+    RPe_IRANGE (-28)
+        Invalid [] range "%s-%s"
+
+EXTENSIONS
+    Here are some ideas for extensions (sub-classes) for this module. Some
+    of them may be absorbed into the core functionality of Regexp::Parser in
+    the future. Module names are merely the author's suggestions.
+
+    Regexp::WordBounds
+        Adds handlers for "<" and ">" anchors, which match at the beginning
+        and end of a "word", respectively. "/</" is equivalent to
+        "/(?!\w)(?=\w)/", and "/>/" is equivalent to "/(?<=\w)(?!\w)/". (So
+        that's the object's qr() method for you right there!)
+
+    Regexp::MinLength
+        Implements a min_length() method for all objects that determines the
+        minimum length of a string that would be matched by the regex;
+        provides a front-end method for the parser.
+
+    Regexp::QuantAttr
+        Removes quantifiers as objects, and makes 'min' and 'max' attributes
+        of other objects themselves.
+
+    Regexp::Explain (pending, Jeff Pinyan)
+        Produces a human-readable explanation of the execution of a regex.
+        Will be able to produce HTML output that color-codes the elements of
+        the regex according to a style-sheet (syntax highlighting).
+
+    Regexp::Reverse (difficulty rating: ****)
+        Reverses a regex so it matches backwards. Ex.: "/\s+$/" becomes
+        "/^\n?\s+/", which perhaps gets optimized to "/^\s+/". The
+        difficulty rating is so high because of cases like "/(\d+)(\w+)/"
+        which, when reversed, *can* match differently.
+
+          "100years" =~ /(\d+)(\w+)/;  # $1 = 100, $2 = years
+          "sraey001" =~ /(\w+)(\d+)/;  # $1 = sraey00, $2 = 1
+
+        This means character classes should store a hash of what characters
+        they represent, as well as the macros "\w", "\d", etc. Then this
+        example would be reversed into something like "/(\w+(?<!\d))(\d+)/".
+        The other difficulty is complex regexes with if-then assertions. I
+        don't want to think about that. This module is more of a theoretical
+        exercise, a jump-start to built-in reversing capability in Perl.
+
+    Regexp::CharClassOps
+        Implements character class operations like union, intersection, and
+        subtraction.
+
+    Regexp::Optimize
+        Eliminates redundancy from a regex. It should have various options,
+        such as whether to do optimize...
+
+          # strings
+          /foo|father|fort/  => /f(?:o(?:o|rt)|ather)/
+
+          # char classes
+          /[\w\d][a-zaeiou]/ => /[\w][a-z]/
+
+          # redundancy
+          /^\n?\s+/          => /^\s+/
+          /[\w]/             => /\w/
+
+        There are other possibilities as well.
+
+HISTORY
+  0.021 -- July 3, 2004
+    *anyof_class* Changed
+        If an *anyof_class* element is a Unicode property or a Perl class
+        (like "\w" or "\S"), the object's "data" field points to the
+        underlying object type (*prop*, *alnum*, etc.). If the element is a
+        POSIX class, the "data" field is the string "POSIX". POSIX classes
+        don't exist in a regex outside of a character class, so I'm a little
+        wary of making them objects in their own right, even if it would
+        create a better sense of uniformity.
+
+    Documentation
+        Fixed some poor wording, and documented the problem with using
+        SUPER:: inside MyClass::__object__.
+
+    Bug Fixes
+        Character classes weren't closing properly in the tree. Fixed.
+
+        Standard escapes ("\a", "\e", etc.) were being returned as *exact*
+        nodes instead of *anyof_char* nodes when inside character classes.
+        Fixed. (Mike Lambert)
+
+        Non-grouping parentheses weren't being parsed properly. Fixed. (Mike
+        Lambert)
+
+        Flags weren't being turned off. Fixed.
+
+  0.02 -- July 1, 2004
+    Better Abstracting
+        The object() method calls force_object(). force_object() creates an
+        object no matter what pass the parser is making; object() will
+        return immediately if it's just the first pass. This means that
+        force_object() should be used to create stand-alone objects.
+
+        Each object now has an insert() method that defines how it gets
+        placed into the regex tree. Most objects inherit theirs from the
+        base object class.
+
+        The walker() method is also now abstracted -- each node it comes
+        across will have its walk() method called. And the ending node for
+        stack-type nodes has been abstracted to the ender() method of the
+        node.
+
+        The init() method has been moved to another file to help keep *this*
+        file as abstract as possible. Regexp::Parser installs its handlers
+        in Regexp/Parser/Handlers.pm. That file might end up being where
+        documentation on writing handlers goes.
+
+        The documentation on sub-classing includes an ordered list of what
+        packages a method is looked up in for a given object of type 'OBJ':
+        YourMod::OBJ, YourMod::__object__, Regexp::Parser::OBJ,
+        Regexp::Parser::__object__.
+
+    Cleaner Grammar Flow
+        Now the only places 'atom' gets pushed to the queue are after an
+        opening parenthesis or after 'atom' matches. This makes things flow
+        more cleanly.
+
+    Flag Handlers
+        Flag handlers now receive an additional argument that says whether
+        they're being turned on or off. Also, if the flag handler returns 0,
+        that flag is removed from the resulting object's visual flag set.
+        That means "(?gi-o)" becomes "(?i)".
+
+    Diagnostics and Bug Fixes
+        More tests added (specifically, making sure "(?(N)T|F)" works
+        right). In doing so, found that the "too many branches" error wasn't
+        being raised until the second pass. Figured out how to improve the
+        grammar to get it to work properly. Also added tests for the new
+        captures() method.
+
+        I changed the field 'class' to 'family' in objects. I was getting
+        confused by it, so I figured it was a sign that I'd chosen an awful
+        name for the field. There will still be a class() method in
+        __object__, but it will throw a "use of class() is deprecated"
+        warning.
+
+        Quantifiers of the form "{n}" were being misrepresented as "{n,}".
+        It's been corrected. (Mike Lambert)
+
+        "\b" was being turned into "b" inside a character class, instead of
+        a backspace. (Mike Lambert)
+
+        Fixed errant "Quantifier unexpected" warning raised by a zero-width
+        assertion followed by "?", which doesn't warrant the warning.
+
+        Added "Unrecognized escape" warnings to *all* escape sequence
+        handlers.
+
+        The 'g', 'c', and 'o' flags now evoke "Useless ..." warnings when
+        used in flag and non-capturing group constructs.
+
+  0.01 -- June 29, 2004
+    First Release
+        Documentation not complete, etc.
+
+CAVEATS
+    * Bugs...?
+        I'd like to say this module doesn't have bugs. I don't know of any
+        in this current version, because I've tried to fix those I've
+        already found. Those who find bugs should email me. Messages should
+        include the code you ran that contains the bug, and your opinion on
+        what's wrong with it.
+
+    * Variable interpolation
+        This module parses *regexes*, not Perl. If you send a single-quoted
+        string as a regex with a variable in it, that '$' will be
+        interpreted as an anchor. If you want to include variables, use
+        "qr//", or mix single- and double-quoted strings in building your
+        regex.
+
+AUTHOR
+    Jeff "japhy" Pinyan, japhy@perlmonk.org
+
+COPYRIGHT
+    Copyright (c) 2004 Jeff Pinyan japhy@perlmonk.org. All rights reserved.
+    This program is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+

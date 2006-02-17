@@ -1,0 +1,18 @@
+Changes
+Makefile.PL
+MANIFEST
+README
+t/01simple.t
+t/02subclass.t
+t/03walker.t
+t/04cond.t
+t/05opens.t
+t/06cclass.t
+t/07flags.t
+t/99misc.t
+lib/Regexp/Parser.pm
+lib/Regexp/Parser/Diagnostics.pm
+lib/Regexp/Parser/Handlers.pm
+lib/Regexp/Parser/Objects.pm
+lib/Perl6/Rule/Parser.pm
+META.yml                                 Module meta-data (added by MakeMaker)
