@@ -6,76 +6,25 @@
 # It's a backtracking, recursive-decent engine, generated from the
 # regexp ast nodes created by Regexp::Parser.
 
-# We're using the normal Regexp::Parser nodes, rather than it's p6
-# ones, because the latter currently lack tests, so I am uncertain of
-# their status.  The nodes are basically the same, so it's not a big
-# deal.
-
-
-# Development plan as of Mon, 13 Feb 2006 16:30 utc:
-
 # It looks like the ("A feasibility and performance reality check")
-# spike has succeeded.  The re_tests are passing.  While the spike
-# "coded to the tests", and thus is far from being a complete p5
-# compatible regex engine, that establishes feasiblity.  Limited
-# testing suggest performance is quite plausible. Perhaps, maybe, even
-# wizzy.
+# spike has succeeded.  The most of the re_tests are passing.  While
+# the spike "coded to the tests", and thus is far from being a
+# complete p5 compatible regex engine, that establishes feasiblity.
+# Limited testing suggest performance is quite plausible.
 
-# So here is the current plan.  This file forks.
+# Next steps:
 
-# One fork continues tests-are-passing incremental development.  It's
-# objective is to create a clean backtracking library (basically a set
-# of simple macros) to make writing this kind of application easy(er).
+# Create a clean backtracking library (basically a set of simple
+# macros) to make writing this kind of application easy(er).
 
-# As long as no-one turns up any "putter, haven't you thought about X"
-# bugs, the backtracking protocol is the "solid place we keep to
-# stand".
-
-# Subs taking a single "continuation" argument, and using return value
-# to report success/failure, with part of the return value space left
-# over for users (likely just ref's).  undef for failure, negative
-# integers also (for propagating).  Probably also a short-cutting
-# success.  It's not entirely clear how to handle an extensible set of
-# things which get localized at choice points.  Perhaps a small set of
-# vars, plus one which if defined, is a hash which gets shallow
-# copied.  Perhaps one more level.  So the cost-over-current looks
-# like a single local()ly scoped variable defined() check.  Hmm, I
-# wonder if we relaxed the single-argument restriction, what would be
-# the performance hit.  So, there is basically an api and p5 opcode
-# profiling exercise here.  But in spike mode, we may just do a simple
-# api, and worry about the rest later.
-
-# The other fork is a bootstrap to a new, simpler, ast.
-# Regexp::Parser's Perl6::Rule::Parser does NOT look like it's mature
-# enough to bear our weight, to be a next step. And the current
-# Regexp::Parser Object ast isnt really what we want long-term.  If
-# Perl6::Rule::Parser was working and robust, it would make sense to
-# continue for a while on Regexp::Parser.  But it's not worth working
-# to finish.  So, we bootstrap to something cleaner and simpler.
-
-# We add rules support and capture returns a :parsetree('Pkg_stem').
-# We add a <foo args> rule construct to the existing p5 engine.  Using
-# a trivial regex prefilter.  <foo a> ==> (?{ return
-# $Somewhere::callrule($c,'foo','a') }). Poof - Instant rules support.
-# :parsetree('Foo::') means a 'a <bar> b' regexp results in a Foo::bar
-# blessed object, indexed by 'bar' in the node of the hash.  The
-# objective is _not_ to get this exactly right, but just to fudge it
-# enought to generate an ast for p5 regexps, sufficient to shift this
-# show from Regexp::Parser::Object's to the new ast.
-
-# Once we are migrated to a new ast and a clean backtracking api, the
-# question is what next.  One approach would be to do p6 nodes and
-# flesh out the p5 implementation.  Which probably isn't going to
-# happen first.  Because... at the same point, we just small step away
-# from a real p6 parser with full adjustable syntax.  Albeit one which
-# only understands rx:perl5//'s, and only a subset of them at that.
-# But oh, the temptation. :)
-
-# So, that's the current plan.  Backtracking api, clean and simple
-# ast, and rules in p5 regexp.  Then spike a real p6 parser.
-
-# Actually, the api and ast may be more spike-ish than polished, so we
-# have some experience with them before polishing.
+# Bootstrap to a new, simpler, ast.  Regexp::Parser's
+# Perl6::Rule::Parser does NOT look like it's mature enough to bear
+# our weight, to be a next step. And the current Regexp::Parser Object
+# ast isnt really what we want long-term.  If Perl6::Rule::Parser was
+# working and robust, it would make sense to continue for a while on
+# Regexp::Parser.  But it's not worth working to finish.  So, we
+# bootstrap to something cleaner and simpler.  Even though it will
+# likely lack R:P's nice error messages.
 
 
 # Test suite:
@@ -88,16 +37,15 @@
 # Test status:
 # Currently at 92% pass. 3sec run on my machine.
 
-# Re:
-# - play with Regexp::Parser's Perl6::Rules to establish it's state.
-#   Summarize that here.
-# Summary: it looks like early phase development.  There's a "return"
-# halfway down the file to cut off construction.  Oh well.
+# Sidebar: State of Regexp::Parser's Perl6::Rules: it looks like early
+# phase development.  There's a "return" halfway down the file to cut
+# off construction.  Oh well.
 
-#XXX - create a p5->p6 regexp syntax converter! :)
-# create methods (in_p6_syntax?) which return the p6 version of the regexp.
-# We will then pour the re_test suite through it, yielding a more complete
-# version of t/rules/rules.t. TASK DEFERRED.
+#XXX - a possible task: Create a p5->p6 regexp syntax converter!  A
+#cpan module even. Write methods which return the p6 version of the
+#regexp.  We can then pour the re_test suite through it, yielding a
+#more complete version of t/rules/rules.t.  This could either be done
+#using Regexp::Parser Objects, or wait for the hypotetical new ast.
 
 #XXX - bugs
 # Flag handling is currently an utter kludge. not even trying with m and s.
@@ -105,34 +53,32 @@
 # No lookbehind as been implemented at all, at all.
 # A couple of others I don't remember at the moment but should be mentioned...
 
-# Cleanup tasks:
-#  Do look-behind.  Or not, we don't really need it for now.
-# Deferred to the new ast:
-#  Create a p5 to p6 converter.  This is an easy task for someone.
-#    A cpan module even.
-#  Generate a p6 version of re_tests.
-
 
 use Regexp::Parser;
 use Data::Dumper;
 use Match;
 use strict;
-{
-  # Regexp::Parser bug fix/workaround
-  package Regexp::Parser::anyof_class;
-  sub visual {
-    my $self = shift;
-    if (ref $self->{data}) {
-      $self->{data}->visual;
+
+if($Regexp::Parser::VERSION <= 0.20) {
+  eval <<'END';
+    # Regexp::Parser bug fix/workaround
+    package Regexp::Parser::anyof_class;
+    sub visual {
+      my $self = shift;
+      if (ref $self->{data}) {
+	$self->{data}->visual;
+      }
+      else {
+	# The actual bug is in Handlers.pm init() - the \$how 's.
+	#join "", "[", $self->{how}, ($self->{neg} ? '^' : ''),
+	#     $self->{type}, $self->{how}, "]";
+	join "", "[", ${$self->{how}}, ($self->{neg} ? '^' : ''),
+	     $self->{type}, ${$self->{how}}, "]";
+      }
     }
-    else {
-      #join "", "[", $self->{how}, ($self->{neg} ? '^' : ''),
-      #     $self->{type}, $self->{how}, "]";
-      join "", "[", ${$self->{how}}, ($self->{neg} ? '^' : ''),
-           $self->{type}, ${$self->{how}}, "]";
-    }
-  }
+END
 }
+
 {
   package Hacks;
 
