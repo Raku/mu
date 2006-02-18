@@ -79,9 +79,11 @@ tagHs = ("tag:hs:" ++)
 
 deTag :: YamlNode -> YAMLClass
 deTag MkYamlNode{tag=Just s} =
-    let 't':'a':'g':':':'h':'s':':':tag = s' in tag
+    case s' of
+        't':'a':'g':':':'h':'s':':':tag -> tag
+        tag                             -> error $ "not a Haskell tag: " ++ tag
     where s' = Str.unpack s
-deTag _ = error "not a Haskell tag"
+deTag n = error $ "missing tag" ++ show n
 
 instance YAML () where
     asYAML _ = return nilNode

@@ -1009,6 +1009,7 @@ instance YAML Decl where
 	    "DeclInc" -> do  let YamlMap assocs = e
 			     let [aa] = map snd assocs
 			     liftM DeclInc (fromYAML aa)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (DeclSub aa ab ac) = asYAMLmap "DeclSub"
 	   [("dsName", asYAML aa) , ("dsFlags", asYAML ab) ,
 	    ("dsBody", asYAML ac)]
@@ -1030,6 +1031,7 @@ instance YAML Stmt where
 			     liftM StmtIns (fromYAML aa)
 	    "StmtSub" -> do  let YamlSeq [aa , ab] = e
 			     liftM2 StmtSub (fromYAML aa) (fromYAML ab)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (StmtComment aa) = asYAMLseq "StmtComment" [asYAML aa]
     asYAML (StmtLine aa ab) = asYAMLseq "StmtLine"
 	   [asYAML aa , asYAML ab]
@@ -1064,6 +1066,7 @@ instance YAML Ins where
 			    liftM InsExp (fromYAML aa)
 	    "InsConst" -> do  let YamlSeq [aa , ab , ac] = e
 			      liftM3 InsConst (fromYAML aa) (fromYAML ab) (fromYAML ac)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (InsLocal aa ab) = asYAMLseq "InsLocal"
 	   [asYAML aa , asYAML ab]
     asYAML (InsNew aa ab) = asYAMLseq "InsNew" [asYAML aa , asYAML ab]
@@ -1090,6 +1093,7 @@ instance YAML Expression where
 			   liftM ExpLV (fromYAML aa)
 	    "ExpLit" -> do  let YamlSeq [aa] = e
 			    liftM ExpLit (fromYAML aa)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (ExpLV aa) = asYAMLseq "ExpLV" [asYAML aa]
     asYAML (ExpLit aa) = asYAMLseq "ExpLit" [asYAML aa]
 
@@ -1107,6 +1111,7 @@ instance YAML LValue where
 			 liftM NUM (fromYAML aa)
 	    "KEYED" -> do  let YamlSeq [aa , ab] = e
 			   liftM2 KEYED (fromYAML aa) (fromYAML ab)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (VAR aa) = asYAMLseq "VAR" [asYAML aa]
     asYAML (PMC aa) = asYAMLseq "PMC" [asYAML aa]
     asYAML (STR aa) = asYAMLseq "STR" [asYAML aa]
@@ -1122,6 +1127,7 @@ instance YAML Literal where
 			    liftM LitInt (fromYAML aa)
 	    "LitNum" -> do  let YamlSeq [aa] = e
 			    liftM LitNum (fromYAML aa)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (LitStr aa) = asYAMLseq "LitStr" [asYAML aa]
     asYAML (LitInt aa) = asYAMLseq "LitInt" [asYAML aa]
     asYAML (LitNum aa) = asYAMLseq "LitNum" [asYAML aa]
@@ -1136,6 +1142,7 @@ instance YAML SubFlag where
 			      liftM SubMULTI (fromYAML aa)
 	    "SubOUTER" -> do  let YamlSeq [aa] = e
 			      liftM SubOUTER (fromYAML aa)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (SubMAIN) = asYAMLcls "SubMAIN"
     asYAML (SubLOAD) = asYAMLcls "SubLOAD"
     asYAML (SubANON) = asYAMLcls "SubANON"
@@ -1149,6 +1156,7 @@ instance YAML RegType where
 	    "RegNum" -> return RegNum
 	    "RegStr" -> return RegStr
 	    "RegPMC" -> return RegPMC
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (RegInt) = asYAMLcls "RegInt"
     asYAML (RegNum) = asYAMLcls "RegNum"
     asYAML (RegStr) = asYAMLcls "RegStr"
@@ -1168,6 +1176,7 @@ instance YAML ObjType where
 	    "Continuation" -> return Continuation
 	    "BareType" -> do  let YamlSeq [aa] = e
 			      liftM BareType (fromYAML aa)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (PerlScalar) = asYAMLcls "PerlScalar"
     asYAML (PerlArray) = asYAMLcls "PerlArray"
     asYAML (PerlHash) = asYAMLcls "PerlHash"
@@ -1185,6 +1194,7 @@ instance YAML Sig where
 	    "MkSig" -> do  let YamlMap assocs = e
 			   let [aa , ab] = map snd assocs
 			   liftM2 MkSig (fromYAML aa) (fromYAML ab)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (MkSig aa ab) = asYAMLmap "MkSig"
 	   [("sigFlags", asYAML aa) , ("sigIdent", asYAML ab)]
 
@@ -1194,6 +1204,7 @@ instance YAML ArgFlag where
 	    "MkArgSlurpyArray" -> return MkArgSlurpyArray
 	    "MkArgMaybeFlatten" -> return MkArgMaybeFlatten
 	    "MkArgOptional" -> return MkArgOptional
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (MkArgFlatten) = asYAMLcls "MkArgFlatten"
     asYAML (MkArgSlurpyArray) = asYAMLcls "MkArgSlurpyArray"
     asYAML (MkArgMaybeFlatten) = asYAMLcls "MkArgMaybeFlatten"

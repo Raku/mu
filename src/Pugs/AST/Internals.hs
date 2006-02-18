@@ -1954,6 +1954,7 @@ instance YAML VThunk where
 	    "MkThunk" -> do  let YamlMap assocs = e
 			     let [aa , ab] = map snd assocs
 			     liftM2 MkThunk (fromYAML aa) (fromYAML ab)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (MkThunk aa ab) = asYAMLmap "MkThunk"
 	   [("thunkExp", asYAML aa) , ("thunkType", asYAML ab)]
 
@@ -1961,6 +1962,7 @@ instance YAML VProcess where
     fromYAML n@MkYamlNode{tag=t, el=e} = case deTag n of
 	    "MkProcess" -> do  let YamlSeq [aa] = e
 			       liftM MkProcess (fromYAML aa)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (MkProcess aa) = asYAMLseq "MkProcess" [asYAML aa]
 
 instance YAML VRule where
@@ -1973,6 +1975,7 @@ instance YAML VRule where
 	    "MkRulePGE" -> do  let YamlMap assocs = e
 			       let [aa , ab , ac , ad] = map snd assocs
 			       liftM4 MkRulePGE (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (MkRulePCRE aa ab ac ad ae af) = asYAMLmap "MkRulePCRE"
 	   [("rxRegex", asYAML aa) , ("rxGlobal", asYAML ab) ,
 	    ("rxNumSubs", asYAML ac) , ("rxStringify", asYAML ad) ,
@@ -2032,6 +2035,7 @@ instance YAML Val where
 			     liftM VOpaque (fromYAML aa)
 	    "PerlSV" -> do  let YamlSeq [aa] = e
 			    liftM PerlSV (fromYAML aa)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (VUndef) = asYAMLcls "VUndef"
     asYAML (VBool aa) = asYAMLseq "VBool" [asYAML aa]
     asYAML (VInt aa) = asYAMLseq "VInt" [asYAML aa]
@@ -2063,6 +2067,7 @@ instance YAML VJunc where
 	    "MkJunc" -> do  let YamlMap assocs = e
 			    let [aa , ab , ac] = map snd assocs
 			    liftM3 MkJunc (fromYAML aa) (fromYAML ab) (fromYAML ac)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (MkJunc aa ab ac) = asYAMLmap "MkJunc"
 	   [("juncType", asYAML aa) , ("juncDup", asYAML ab) ,
 	    ("juncSet", asYAML ac)]
@@ -2073,6 +2078,7 @@ instance YAML JuncType where
 	    "JAll" -> return JAll
 	    "JNone" -> return JNone
 	    "JOne" -> return JOne
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (JAny) = asYAMLcls "JAny"
     asYAML (JAll) = asYAMLcls "JAll"
     asYAML (JNone) = asYAMLcls "JNone"
@@ -2087,6 +2093,7 @@ instance YAML SubType where
 	    "SubBlock" -> return SubBlock
 	    "SubPointy" -> return SubPointy
 	    "SubPrim" -> return SubPrim
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (SubMethod) = asYAMLcls "SubMethod"
     asYAML (SubCoroutine) = asYAMLcls "SubCoroutine"
     asYAML (SubMacro) = asYAMLcls "SubMacro"
@@ -2120,6 +2127,7 @@ instance YAML Param where
 			     liftM9 MkParam (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af) (fromYAML ag) (fromYAML ah) (fromYAML ai)
 			    where
 			    liftM9 f m1 m2 m3 m4 m5 m6 m7 m8 m9 = do { x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; x7 <- m7; x8 <- m8; x9 <- m9; return (f x1 x2 x3 x4 x5 x6 x7 x8 x9) }
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (MkParam aa ab ac ad ae af ag ah ai) = asYAMLmap "MkParam"
 	   [("isInvocant", asYAML aa) , ("isOptional", asYAML ab) ,
 	    ("isNamed", asYAML ac) , ("isLValue", asYAML ad) ,
@@ -2152,6 +2160,7 @@ instance YAML VCode where
 			    liftM12 MkCode (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af) (fromYAML ag) (fromYAML ah) (fromYAML ai) (fromYAML aj) (fromYAML ak) (fromYAML al)
 			    where
 			    liftM12 f m1 m2 m3 m4 m5 m6 m7 m8 m9 m10 m11 m12 = do { x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; x7 <- m7; x8 <- m8; x9 <- m9; x10 <- m10; x11 <- m11; x12 <- m12; return (f x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12) }
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (MkCode aa ab ac ad ae af ag ah ai aj ak al) =
 	   asYAMLmap "MkCode"
 	   [("isMulti", asYAML aa) , ("subName", asYAML ab) ,
@@ -2169,6 +2178,7 @@ instance YAML Ann where
 			 liftM Pos (fromYAML aa)
 	    "Prag" -> do  let YamlSeq [aa] = e
 			  liftM Prag (fromYAML aa)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (Cxt aa) = asYAMLseq "Cxt" [asYAML aa]
     asYAML (Pos aa) = asYAMLseq "Pos" [asYAML aa]
     asYAML (Prag aa) = asYAMLseq "Prag" [asYAML aa]
@@ -2196,6 +2206,7 @@ instance YAML Exp where
 			 liftM Var (fromYAML aa)
 	    "NonTerm" -> do  let YamlSeq [aa] = e
 			     liftM NonTerm (fromYAML aa)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (Noop) = asYAMLcls "Noop"
     asYAML (App aa ab ac) = asYAMLseq "App"
 	   [asYAML aa , asYAML ab , asYAML ac]
@@ -2216,6 +2227,7 @@ instance YAML InitDat where
 	    "MkInitDat" -> do  let YamlMap assocs = e
 			       let [aa] = map snd assocs
 			       liftM MkInitDat (fromYAML aa)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (MkInitDat aa) = asYAMLmap "MkInitDat"
 	   [("initPragmas", asYAML aa)]
 
@@ -2223,6 +2235,7 @@ instance YAML Pad where
     fromYAML n@MkYamlNode{tag=t, el=e} = case deTag n of
 	    "MkPad" -> do  let YamlSeq [aa] = e
 			   liftM MkPad (fromYAML aa)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (MkPad aa) = asYAMLseq "MkPad" [asYAML aa]
 
 instance YAML PadEntry where
@@ -2231,17 +2244,20 @@ instance YAML PadEntry where
 			     liftM MkEntry (fromYAML aa)
 	    "MkEntryMulti" -> do  let YamlSeq [aa] = e
 				  liftM MkEntryMulti (fromYAML aa)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (MkEntry aa) = asYAMLseq "MkEntry" [asYAML aa]
     asYAML (MkEntryMulti aa) = asYAMLseq "MkEntryMulti" [asYAML aa]
 
 instance YAML IHashEnv where
     fromYAML n@MkYamlNode{tag=t, el=e} = case deTag n of
 	    "MkHashEnv" -> return MkHashEnv
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (MkHashEnv) = asYAMLcls "MkHashEnv"
 
 instance YAML IScalarCwd where
     fromYAML n@MkYamlNode{tag=t, el=e} = case deTag n of
 	    "MkScalarCwd" -> return MkScalarCwd
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (MkScalarCwd) = asYAMLcls "MkScalarCwd"
 
 instance YAML VObject where
@@ -2249,6 +2265,7 @@ instance YAML VObject where
 	    "MkObject" -> do  let YamlMap assocs = e
 			      let [aa , ab , ac , ad] = map snd assocs
 			      liftM4 MkObject (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (MkObject aa ab ac ad) = asYAMLmap "MkObject"
 	   [("objType", asYAML aa) , ("objAttrs", asYAML ab) ,
 	    ("objOpaque", asYAML ac) , ("objId", asYAML ad)]
@@ -2260,6 +2277,7 @@ instance YAML VMatch where
 			     liftM6 MkMatch (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af)
 			    where
 			    liftM6 f m1 m2 m3 m4 m5 m6 = do { x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; return (f x1 x2 x3 x4 x5 x6) }
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (MkMatch aa ab ac ad ae af) = asYAMLmap "MkMatch"
 	   [("matchOk", asYAML aa) , ("matchFrom", asYAML ab) ,
 	    ("matchTo", asYAML ac) , ("matchStr", asYAML ad) ,
@@ -2274,6 +2292,7 @@ instance YAML Scope where
 	    "SMy" -> return SMy
 	    "SOur" -> return SOur
 	    "SGlobal" -> return SGlobal
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (SState) = asYAMLcls "SState"
     asYAML (SLet) = asYAMLcls "SLet"
     asYAML (STemp) = asYAMLcls "STemp"
@@ -2305,6 +2324,7 @@ instance YAML Pos where
 	    "MkPos" -> do  let YamlMap assocs = e
 			   let [aa , ab , ac , ad , ae] = map snd assocs
 			   liftM5 MkPos (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (MkPos aa ab ac ad ae) = asYAMLmap "MkPos"
 	   [("posName", asYAML aa) , ("posBeginLine", asYAML ab) ,
 	    ("posBeginColumn", asYAML ac) , ("posEndLine", asYAML ad) ,
@@ -2330,6 +2350,7 @@ instance YAML Type where
 			    liftM2 TypeOr (fromYAML aa) (fromYAML ab)
 	    "TypeAnd" -> do  let YamlSeq [aa , ab] = e
 			     liftM2 TypeAnd (fromYAML aa) (fromYAML ab)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (MkType aa) = asYAMLseq "MkType" [asYAML aa]
     asYAML (TypeOr aa ab) = asYAMLseq "TypeOr" [asYAML aa , asYAML ab]
     asYAML (TypeAnd aa ab) = asYAMLseq "TypeAnd"
@@ -2356,6 +2377,7 @@ instance YAML Cxt where
 			     liftM CxtItem (fromYAML aa)
 	    "CxtSlurpy" -> do  let YamlSeq [aa] = e
 			       liftM CxtSlurpy (fromYAML aa)
+	    _ -> fail $ "unhandled tag: " ++ (show t)
     asYAML (CxtVoid) = asYAMLcls "CxtVoid"
     asYAML (CxtItem aa) = asYAMLseq "CxtItem" [asYAML aa]
     asYAML (CxtSlurpy aa) = asYAMLseq "CxtSlurpy" [asYAML aa]

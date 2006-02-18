@@ -12,7 +12,7 @@ userRuleYAML = instanceSkeleton "YAML" [(const empty, caseHead), (makeFromYAML, 
 
 caseHead, caseTail :: Doc
 caseHead = text "fromYAML n@MkYamlNode{tag=t, el=e} = case deTag n of"
-caseTail = empty
+caseTail = nest 8 $ text "_ -> fail $ \"unhandled tag: \" ++ (show t)"
 
 makeFromYAML, makeAsYAML :: IFunction
 
@@ -56,9 +56,6 @@ makeFromYAML Body{constructor=constructor,labels=labels,types=types} =
             , rbrace
             ])
     arity = length types
-
---liftM9 :: (Monad m) => (a1 -> a2 -> a3 -> a4 -> a5 -> a6 -> a7 -> a8 -> a9 -> r) -> m a1 -> m a2 -> m a3 -> m a4 -> m a5 -> m a6 -> m a7 -> m a8 -> m a9 -> m r
---liftM9 f m1 m2 m3 m4 m5 m6 m7 m8 m9 = do { x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; x7 <- m7; x8 <- m8; x9 <- m9; return (f x1 x2 x3 x4 x5 x6 x7 x8 x9) }
 
 makeAsYAML (Body{constructor=constructor,labels=labels,types=types})
     | null types = fnName <+> fsep [headfn, clsName constructor]
