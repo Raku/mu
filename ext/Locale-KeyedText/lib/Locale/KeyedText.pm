@@ -13,7 +13,7 @@ my Str $EMPTY_STR is readonly = q{};
 ###########################################################################
 ###########################################################################
 
-package Locale::KeyedText-1.72.1 {
+package Locale::KeyedText-1.72.2 {
     # Note: This given version applies to all of this file's packages.
 } # package Locale::KeyedText
 
@@ -362,7 +362,7 @@ Refer to user messages in programs by keys
 
 =head1 VERSION
 
-This document describes Locale::KeyedText version 1.72.1.
+This document describes Locale::KeyedText version 1.72.2.
 
 It also describes the same-number versions of Locale::KeyedText::Message
 ("Message") and Locale::KeyedText::Translator ("Translator").
