@@ -25,13 +25,20 @@ type YAMLKey = String
 type YAMLVal = YamlNode
 type SeenCache = IntSet.IntSet
 
+packFS :: String -> Str.FastString
+packFS = Str.pack
+
+unpackFS :: Str.FastString -> String
+unpackFS = Str.unpack
+
+toYamlNode :: YAML a => a -> IO YamlNode
+toYamlNode x = runReaderT (asYAML x) IntSet.empty 
+
 showYaml :: YAML a => a -> IO String
 showYaml x = do
-    node    <- (`runReaderT` IntSet.empty) (asYAML x)
+    node    <- toYamlNode x
     rv      <- emitYaml node
-    case rv of
-        Left e  -> error e
-        Right s -> return s
+    either fail return rv
 
 type EmitAs = ReaderT SeenCache IO
 
@@ -66,9 +73,10 @@ fromYAMLmap :: YAML a => YamlNode -> IO [(String, a)]
 fromYAMLmap MkYamlNode{el=YamlMap m} = do
     mapM fromYAMLpair m
     where
-    fromYAMLpair ~(MkYamlNode{el=YamlStr k}, v) = do
+    fromYAMLpair (MkYamlNode{el=YamlStr k}, v) = do
         v' <- fromYAML v
         return (Str.unpack k, v')
+    fromYAMLpair _ = fail "no parse"
     
 
 asYAMLcls :: YAMLClass -> EmitAs YamlNode
@@ -91,11 +99,13 @@ instance YAML () where
 
 instance YAML Int where
     asYAML x = return $ mkTagNode "int" (YamlStr $ Str.pack $ show x)
-    fromYAMLElem ~(YamlStr x) = return $ read $ Str.unpack x
+    fromYAMLElem (YamlStr x) = return $ read $ Str.unpack x
+    fromYAMLElem _ = fail "no parse"
 
 instance YAML String where
     asYAML str = return $ mkTagNode "str" (YamlStr $ Str.pack str)
-    fromYAMLElem ~(YamlStr str) = return $ Str.unpack str
+    fromYAMLElem (YamlStr str) = return $ Str.unpack str
+    fromYAMLElem _ = fail "no parse"
 
 instance YAML Bool where
     asYAML True = return $ mkTagNode "bool#yes" (YamlStr $ Str.pack "1")
@@ -103,20 +113,23 @@ instance YAML Bool where
     fromYAML MkYamlNode{tag=Just s} | s == Str.pack "bool#yes" = return True
     fromYAML MkYamlNode{tag=Just s} | s == Str.pack "bool#no"  = return False
     fromYAML MkYamlNode{el=x} = fromYAMLElem x
-    fromYAMLElem ~(YamlStr x) = return (x == Str.pack "0")
+    fromYAMLElem (YamlStr x) = return (x == Str.pack "0")
+    fromYAMLElem _ = fail "no parse"
 
 instance YAML Integer where 
     asYAML x = return $ mkTagNode "int" (YamlStr $ Str.pack $ show x)
-    fromYAMLElem ~(YamlStr x) = return $ read $ Str.unpack x
+    fromYAMLElem (YamlStr x) = return $ read $ Str.unpack x
+    fromYAMLElem _ = fail "no parse"
 
 instance YAML Rational where 
     asYAML r = asYAML (x, y)
         where
         x = numerator r
         y = denominator r
-    fromYAMLElem ~(YamlStr str) = return $ (read x) / (read y)
-        where
-        (x,y) = break (== '/') (Str.unpack str)
+    fromYAMLElem (YamlStr str) = do
+        let (x,y) = break (== '/') (Str.unpack str)
+        return $ (read x) / (read y)
+    fromYAMLElem _ = fail "no parse"
     
 instance YAML Double where 
     asYAML num | show num == "Infinity"  = return $ mkTagNode "float#inf"    (YamlStr $ Str.pack ".Inf")
@@ -127,7 +140,8 @@ instance YAML Double where
     fromYAML MkYamlNode{tag=Just s} | s == Str.pack "float#neginf" = return $ -1/0 -- "-Infinity" 
     fromYAML MkYamlNode{tag=Just s} | s == Str.pack "float#nan"    = return $  0/0 -- "NaN" 
     fromYAML MkYamlNode{el=x} = fromYAMLElem x
-    fromYAMLElem ~(YamlStr x) = return $ read $ Str.unpack x
+    fromYAMLElem (YamlStr x) = return $ read $ Str.unpack x
+    fromYAMLElem _ = fail "no parse"
 
 instance (YAML a) => YAML (Maybe a) where
     asYAML (Just x) = asYAML x
@@ -141,17 +155,19 @@ instance (YAML a) => YAML [a] where
     asYAML xs = do
         xs' <- mapM asYAML xs
         (return . mkNode . YamlSeq) xs'
-    fromYAMLElem ~(YamlSeq s) = mapM fromYAML s
+    fromYAMLElem (YamlSeq s) = mapM fromYAML s
+    fromYAMLElem _ = fail "no parse"
 
 instance (YAML a, YAML b) => YAML (a, b) where
     asYAML (x, y) = do
         x' <- asYAML x
         y' <- asYAML y
         return $ mkNode (YamlSeq [x', y'])
-    fromYAMLElem ~(YamlSeq [x, y]) = do
+    fromYAMLElem (YamlSeq [x, y]) = do
         x' <- fromYAML x
         y' <- fromYAML y
         return (x', y')
+    fromYAMLElem _ = fail "no parse"
 
 instance (YAML a, YAML b, YAML c) => YAML (a, b, c) where
     asYAML (x, y, z) = do
@@ -159,11 +175,12 @@ instance (YAML a, YAML b, YAML c) => YAML (a, b, c) where
         y' <- asYAML y
         z' <- asYAML z
         return $ mkNode (YamlSeq [x', y', z'])
-    fromYAMLElem ~(YamlSeq [x, y, z]) = do
+    fromYAMLElem (YamlSeq [x, y, z]) = do
         x' <- fromYAML x
         y' <- fromYAML y
         z' <- fromYAML z
         return (x', y', z')
+    fromYAMLElem _ = fail "no parse"
 
 instance (Typeable a, YAML a) => YAML (TVar a) where
     asYAML = asYAMLwith (lift . atomically . readTVar)

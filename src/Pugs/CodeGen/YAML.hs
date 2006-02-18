@@ -1,13 +1,23 @@
 {-# OPTIONS_GHC -fglasgow-exts -fallow-undecidable-instances -fno-warn-orphans -funbox-strict-fields -cpp #-}
 {-# OPTIONS_GHC -#include "../../UnicodeC.h" #-}
 
-module Pugs.CodeGen.YAML (genYAML, genParseYAML) where
+module Pugs.CodeGen.YAML (genYAML, genParseYAML, genParseHsYAML) where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Compile
 import Pugs.PIL1
 import DrIFT.YAML
 import qualified Data.Map as Map
+
+genParseHsYAML :: Eval Val
+genParseHsYAML = do
+    glob        <- asks envGlobal
+    MkPad pad   <- liftSTM $ readTVar glob
+    pad'        <- fmap (MkPad . Map.fromAscList . catMaybes) . mapM checkPrim $ Map.toAscList pad
+    -- munge the glob to filter out prim stuff in it
+    main    <- asks envBody
+    yaml    <- liftIO $ toYamlNode (pad', main)
+    return (VStr $ show yaml)
 
 genParseYAML :: Eval Val
 genParseYAML = do

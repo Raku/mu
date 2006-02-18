@@ -11,27 +11,28 @@ rules = [
 userRuleYAML = instanceSkeleton "YAML" [(const empty, caseHead), (makeFromYAML, empty), (const empty, caseTail), (makeAsYAML, empty)] 
 
 caseHead, caseTail :: Doc
-caseHead = text "fromYAML n@MkYamlNode{tag=t, el=e} = case deTag n of"
-caseTail = nest 8 $ text "_ -> fail $ \"unhandled tag: \" ++ (show t)"
+caseHead = text "fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of"
+caseTail = nest 4 (text "_ -> fail $ \"unhandled tag: \" ++ show t")
+       $+$ text "fromYAML _ = fail \"no tag found\""
 
 makeFromYAML, makeAsYAML :: IFunction
 
 makeFromYAML Body{constructor=constructor,labels=labels,types=types} =
-    nest 8 $ dqt constructor <+> match <+> makeFromYAML' $+$ extraLifts
+    nest 4 $ eqv <+> match <+> dot $+$ extraLifts $+$ makeFromYAML'
     where
     dqt   = doubleQuotes . text
     match = text "->"
     dot   = text "do"
+--  eqv   = text "| t == packFS" <+> dqt ("tag:hs:" ++ constructor)
+    eqv   = dqt constructor
     makeFromYAML'
-        | null types = text "return" <+> text constructor
+        | null types = nest 4 $ text "return" <+> text constructor
         | null labels = vcat
-            [ dot
-            , nest 4 $ text "let YamlSeq" <+> (list $ varNames types) <+> equals <+> text "e"
+            [ nest 4 $ text "let YamlSeq" <+> (list $ varNames types) <+> equals <+> text "e"
             , nest 4 $ liftNfy
             ]
         | otherwise = vcat
-            [ dot
-            , nest 4 $ text "let YamlMap assocs = e"
+            [ nest 4 $ text "let YamlMap assocs = e"
             , nest 4 $ text "let" <+> (list $ varNames types) <+> equals <+> text "map snd assocs"
             , nest 4 $ liftNfy
             ]
@@ -41,7 +42,7 @@ makeFromYAML Body{constructor=constructor,labels=labels,types=types} =
     liftNfy = liftN <+> text constructor <+> (hsep $ map fy (varNames types))
     extraLifts
         | length types < 6 = empty
-        | otherwise = nest 16 $ (text "where") $+$ (hsep $ -- XXX: pull me to the level of the case?
+        | otherwise = nest 4 $ (text "let") <+> (hsep $ -- XXX: pull me to the level of the case?
             [ (text $ "liftM" ++ (show arity))
             , text "f"
             ] ++ (map (\x -> text $ "m" ++ show x) [1 .. arity]) ++

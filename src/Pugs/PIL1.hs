@@ -163,11 +163,13 @@ instance JSON PIL_Environment where
 	     [("pilGlob", showJSON aa) , ("pilMain", showJSON ab)]
 
 instance YAML PIL_Environment where
-    fromYAML n@MkYamlNode{tag=t, el=e} = case deTag n of
-	    "PIL_Environment" -> do  let YamlMap assocs = e
-				     let [aa , ab] = map snd assocs
-				     liftM2 PIL_Environment (fromYAML aa) (fromYAML ab)
-	    _ -> fail $ "unhandled tag: " ++ (show t)
+    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
+	"PIL_Environment" -> do
+	    let YamlMap assocs = e
+	    let [aa , ab] = map snd assocs
+	    liftM2 PIL_Environment (fromYAML aa) (fromYAML ab)
+	_ -> fail $ "unhandled tag: " ++ show t
+    fromYAML _ = fail "no tag found"
     asYAML (PIL_Environment aa ab) = asYAMLmap "PIL_Environment"
 	   [("pilGlob", asYAML aa) , ("pilMain", asYAML ab)]
 
@@ -188,15 +190,19 @@ instance JSON PIL_Stmts where
 	      ("pStmts", showJSON ac)]
 
 instance YAML PIL_Stmts where
-    fromYAML n@MkYamlNode{tag=t, el=e} = case deTag n of
-	    "PNil" -> return PNil
-	    "PStmts" -> do  let YamlMap assocs = e
-			    let [aa , ab] = map snd assocs
-			    liftM2 PStmts (fromYAML aa) (fromYAML ab)
-	    "PPad" -> do  let YamlMap assocs = e
-			  let [aa , ab , ac] = map snd assocs
-			  liftM3 PPad (fromYAML aa) (fromYAML ab) (fromYAML ac)
-	    _ -> fail $ "unhandled tag: " ++ (show t)
+    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
+	"PNil" -> do
+	    return PNil
+	"PStmts" -> do
+	    let YamlMap assocs = e
+	    let [aa , ab] = map snd assocs
+	    liftM2 PStmts (fromYAML aa) (fromYAML ab)
+	"PPad" -> do
+	    let YamlMap assocs = e
+	    let [aa , ab , ac] = map snd assocs
+	    liftM3 PPad (fromYAML aa) (fromYAML ab) (fromYAML ac)
+	_ -> fail $ "unhandled tag: " ++ show t
+    fromYAML _ = fail "no tag found"
     asYAML (PNil) = asYAMLcls "PNil"
     asYAML (PStmts aa ab) = asYAMLmap "PStmts"
 	   [("pStmt", asYAML aa) , ("pStmts", asYAML ab)]
@@ -221,15 +227,19 @@ instance JSON PIL_Stmt where
 	      ("pNode", showJSON ac)]
 
 instance YAML PIL_Stmt where
-    fromYAML n@MkYamlNode{tag=t, el=e} = case deTag n of
-	    "PNoop" -> return PNoop
-	    "PStmt" -> do  let YamlMap assocs = e
-			   let [aa] = map snd assocs
-			   liftM PStmt (fromYAML aa)
-	    "PPos" -> do  let YamlMap assocs = e
-			  let [aa , ab , ac] = map snd assocs
-			  liftM3 PPos (fromYAML aa) (fromYAML ab) (fromYAML ac)
-	    _ -> fail $ "unhandled tag: " ++ (show t)
+    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
+	"PNoop" -> do
+	    return PNoop
+	"PStmt" -> do
+	    let YamlMap assocs = e
+	    let [aa] = map snd assocs
+	    liftM PStmt (fromYAML aa)
+	"PPos" -> do
+	    let YamlMap assocs = e
+	    let [aa , ab , ac] = map snd assocs
+	    liftM3 PPos (fromYAML aa) (fromYAML ab) (fromYAML ac)
+	_ -> fail $ "unhandled tag: " ++ show t
+    fromYAML _ = fail "no tag found"
     asYAML (PNoop) = asYAMLcls "PNoop"
     asYAML (PStmt aa) = asYAMLmap "PStmt" [("pExpr", asYAML aa)]
     asYAML (PPos aa ab ac) = asYAMLmap "PPos"
@@ -260,23 +270,29 @@ instance JSON PIL_Expr where
 	      ("pBody", showJSON ae)]
 
 instance YAML PIL_Expr where
-    fromYAML n@MkYamlNode{tag=t, el=e} = case deTag n of
-	    "PRawName" -> do  let YamlMap assocs = e
-			      let [aa] = map snd assocs
-			      liftM PRawName (fromYAML aa)
-	    "PExp" -> do  let YamlMap assocs = e
-			  let [aa] = map snd assocs
-			  liftM PExp (fromYAML aa)
-	    "PLit" -> do  let YamlMap assocs = e
-			  let [aa] = map snd assocs
-			  liftM PLit (fromYAML aa)
-	    "PThunk" -> do  let YamlMap assocs = e
-			    let [aa] = map snd assocs
-			    liftM PThunk (fromYAML aa)
-	    "PCode" -> do  let YamlMap assocs = e
-			   let [aa , ab , ac , ad , ae] = map snd assocs
-			   liftM5 PCode (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae)
-	    _ -> fail $ "unhandled tag: " ++ (show t)
+    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
+	"PRawName" -> do
+	    let YamlMap assocs = e
+	    let [aa] = map snd assocs
+	    liftM PRawName (fromYAML aa)
+	"PExp" -> do
+	    let YamlMap assocs = e
+	    let [aa] = map snd assocs
+	    liftM PExp (fromYAML aa)
+	"PLit" -> do
+	    let YamlMap assocs = e
+	    let [aa] = map snd assocs
+	    liftM PLit (fromYAML aa)
+	"PThunk" -> do
+	    let YamlMap assocs = e
+	    let [aa] = map snd assocs
+	    liftM PThunk (fromYAML aa)
+	"PCode" -> do
+	    let YamlMap assocs = e
+	    let [aa , ab , ac , ad , ae] = map snd assocs
+	    liftM5 PCode (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae)
+	_ -> fail $ "unhandled tag: " ++ show t
+    fromYAML _ = fail "no tag found"
     asYAML (PRawName aa) = asYAMLmap "PRawName"
 	   [("pRawName", asYAML aa)]
     asYAML (PExp aa) = asYAMLmap "PExp" [("pLV", asYAML aa)]
@@ -300,13 +316,14 @@ instance JSON PIL_Decl where
 	      ("pSubIsMulti", showJSON ae) , ("pSubBody", showJSON af)]
 
 instance YAML PIL_Decl where
-    fromYAML n@MkYamlNode{tag=t, el=e} = case deTag n of
-	    "PSub" -> do  let YamlMap assocs = e
-			  let [aa , ab , ac , ad , ae , af] = map snd assocs
-			  liftM6 PSub (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af)
-			    where
-			    liftM6 f m1 m2 m3 m4 m5 m6 = do { x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; return (f x1 x2 x3 x4 x5 x6) }
-	    _ -> fail $ "unhandled tag: " ++ (show t)
+    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
+	"PSub" -> do
+	    let liftM6 f m1 m2 m3 m4 m5 m6 = do { x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; return (f x1 x2 x3 x4 x5 x6) }
+	    let YamlMap assocs = e
+	    let [aa , ab , ac , ad , ae , af] = map snd assocs
+	    liftM6 PSub (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af)
+	_ -> fail $ "unhandled tag: " ++ show t
+    fromYAML _ = fail "no tag found"
     asYAML (PSub aa ab ac ad ae af) = asYAMLmap "PSub"
 	   [("pSubName", asYAML aa) , ("pSubType", asYAML ab) ,
 	    ("pSubParams", asYAML ac) , ("pSubLValue", asYAML ad) ,
@@ -319,11 +336,13 @@ instance JSON PIL_Literal where
     showJSON (PVal aa) = showJSHashObj "PVal" [("pVal", showJSON aa)]
 
 instance YAML PIL_Literal where
-    fromYAML n@MkYamlNode{tag=t, el=e} = case deTag n of
-	    "PVal" -> do  let YamlMap assocs = e
-			  let [aa] = map snd assocs
-			  liftM PVal (fromYAML aa)
-	    _ -> fail $ "unhandled tag: " ++ (show t)
+    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
+	"PVal" -> do
+	    let YamlMap assocs = e
+	    let [aa] = map snd assocs
+	    liftM PVal (fromYAML aa)
+	_ -> fail $ "unhandled tag: " ++ show t
+    fromYAML _ = fail "no tag found"
     asYAML (PVal aa) = asYAMLmap "PVal" [("pVal", asYAML aa)]
 
 instance Perl5 PIL_LValue where
@@ -349,20 +368,25 @@ instance JSON PIL_LValue where
 	     [("pLHS", showJSON aa) , ("pRHS", showJSON ab)]
 
 instance YAML PIL_LValue where
-    fromYAML n@MkYamlNode{tag=t, el=e} = case deTag n of
-	    "PVar" -> do  let YamlMap assocs = e
-			  let [aa] = map snd assocs
-			  liftM PVar (fromYAML aa)
-	    "PApp" -> do  let YamlMap assocs = e
-			  let [aa , ab , ac , ad] = map snd assocs
-			  liftM4 PApp (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
-	    "PAssign" -> do  let YamlMap assocs = e
-			     let [aa , ab] = map snd assocs
-			     liftM2 PAssign (fromYAML aa) (fromYAML ab)
-	    "PBind" -> do  let YamlMap assocs = e
-			   let [aa , ab] = map snd assocs
-			   liftM2 PBind (fromYAML aa) (fromYAML ab)
-	    _ -> fail $ "unhandled tag: " ++ (show t)
+    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
+	"PVar" -> do
+	    let YamlMap assocs = e
+	    let [aa] = map snd assocs
+	    liftM PVar (fromYAML aa)
+	"PApp" -> do
+	    let YamlMap assocs = e
+	    let [aa , ab , ac , ad] = map snd assocs
+	    liftM4 PApp (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
+	"PAssign" -> do
+	    let YamlMap assocs = e
+	    let [aa , ab] = map snd assocs
+	    liftM2 PAssign (fromYAML aa) (fromYAML ab)
+	"PBind" -> do
+	    let YamlMap assocs = e
+	    let [aa , ab] = map snd assocs
+	    liftM2 PBind (fromYAML aa) (fromYAML ab)
+	_ -> fail $ "unhandled tag: " ++ show t
+    fromYAML _ = fail "no tag found"
     asYAML (PVar aa) = asYAMLmap "PVar" [("pVarName", asYAML aa)]
     asYAML (PApp aa ab ac ad) = asYAMLmap "PApp"
 	   [("pCxt", asYAML aa) , ("pFun", asYAML ab) , ("pInv", asYAML ac) ,
@@ -381,11 +405,13 @@ instance JSON TParam where
 	     [("tpParam", showJSON aa) , ("tpDefault", showJSON ab)]
 
 instance YAML TParam where
-    fromYAML n@MkYamlNode{tag=t, el=e} = case deTag n of
-	    "MkTParam" -> do  let YamlMap assocs = e
-			      let [aa , ab] = map snd assocs
-			      liftM2 MkTParam (fromYAML aa) (fromYAML ab)
-	    _ -> fail $ "unhandled tag: " ++ (show t)
+    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
+	"MkTParam" -> do
+	    let YamlMap assocs = e
+	    let [aa , ab] = map snd assocs
+	    liftM2 MkTParam (fromYAML aa) (fromYAML ab)
+	_ -> fail $ "unhandled tag: " ++ show t
+    fromYAML _ = fail "no tag found"
     asYAML (MkTParam aa ab) = asYAMLmap "MkTParam"
 	   [("tpParam", asYAML aa) , ("tpDefault", asYAML ab)]
 
@@ -409,17 +435,23 @@ instance JSON TCxt where
     showJSON (TTailCall aa) = showJSArrayObj "TTailCall" [showJSON aa]
 
 instance YAML TCxt where
-    fromYAML n@MkYamlNode{tag=t, el=e} = case deTag n of
-	    "TCxtVoid" -> return TCxtVoid
-	    "TCxtLValue" -> do  let YamlSeq [aa] = e
-				liftM TCxtLValue (fromYAML aa)
-	    "TCxtItem" -> do  let YamlSeq [aa] = e
-			      liftM TCxtItem (fromYAML aa)
-	    "TCxtSlurpy" -> do  let YamlSeq [aa] = e
-				liftM TCxtSlurpy (fromYAML aa)
-	    "TTailCall" -> do  let YamlSeq [aa] = e
-			       liftM TTailCall (fromYAML aa)
-	    _ -> fail $ "unhandled tag: " ++ (show t)
+    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
+	"TCxtVoid" -> do
+	    return TCxtVoid
+	"TCxtLValue" -> do
+	    let YamlSeq [aa] = e
+	    liftM TCxtLValue (fromYAML aa)
+	"TCxtItem" -> do
+	    let YamlSeq [aa] = e
+	    liftM TCxtItem (fromYAML aa)
+	"TCxtSlurpy" -> do
+	    let YamlSeq [aa] = e
+	    liftM TCxtSlurpy (fromYAML aa)
+	"TTailCall" -> do
+	    let YamlSeq [aa] = e
+	    liftM TTailCall (fromYAML aa)
+	_ -> fail $ "unhandled tag: " ++ show t
+    fromYAML _ = fail "no tag found"
     asYAML (TCxtVoid) = asYAMLcls "TCxtVoid"
     asYAML (TCxtLValue aa) = asYAMLseq "TCxtLValue" [asYAML aa]
     asYAML (TCxtItem aa) = asYAMLseq "TCxtItem" [asYAML aa]
@@ -439,11 +471,13 @@ instance JSON TEnv where
 	      ("tLabel", showJSON ae)]
 
 instance YAML TEnv where
-    fromYAML n@MkYamlNode{tag=t, el=e} = case deTag n of
-	    "MkTEnv" -> do  let YamlMap assocs = e
-			    let [aa , ab , ac , ad , ae] = map snd assocs
-			    liftM5 MkTEnv (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae)
-	    _ -> fail $ "unhandled tag: " ++ (show t)
+    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
+	"MkTEnv" -> do
+	    let YamlMap assocs = e
+	    let [aa , ab , ac , ad , ae] = map snd assocs
+	    liftM5 MkTEnv (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae)
+	_ -> fail $ "unhandled tag: " ++ show t
+    fromYAML _ = fail "no tag found"
     asYAML (MkTEnv aa ab ac ad ae) = asYAMLmap "MkTEnv"
 	   [("tLexDepth", asYAML aa) , ("tTokDepth", asYAML ab) ,
 	    ("tCxt", asYAML ac) , ("tReg", asYAML ad) , ("tLabel", asYAML ae)]
