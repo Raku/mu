@@ -274,6 +274,7 @@ op1 "Pugs::Internals::eval_perl5" = \v -> do
         envSV <- mkVal (VControl $ ControlEnv env)
         sv <- evalPerl5 str envSV $ enumCxt (envContext env)
         return $ PerlSV sv
+op1 "Pugs::Internals::eval_p6y" = op1EvalP6Y
 op1 "Pugs::Internals::eval_haskell" = op1EvalHaskell
 op1 "Pugs::Internals::eval_yaml" = evalYaml
 op1 "try" = \v -> do
@@ -1593,6 +1594,7 @@ initSyms = mapM primDecl syms
 \\n   Any       pre     Pugs::Internals::eval_parrot  unsafe (Str)\
 \\n   Any       pre     Pugs::Internals::eval_perl5   unsafe (Str)\
 \\n   Any       pre     Pugs::Internals::eval_haskell unsafe (Str)\
+\\n   Any       pre     Pugs::Internals::eval_p6y unsafe (Str)\
 \\n   Any       pre     Pugs::Internals::eval_yaml    safe   (Str)\
 \\n   Str       pre     yaml    safe   (rw!Any|Junction|Pair)\
 \\n   Any       pre     require unsafe (?Str=$_)\

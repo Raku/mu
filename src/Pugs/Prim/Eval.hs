@@ -1,6 +1,7 @@
+{-# OPTIONS_GHC -fglasgow-exts #-}
 module Pugs.Prim.Eval (
     -- used by Pugs.Prim
-    op1EvalHaskell,
+    op1EvalHaskell, op1EvalP6Y,
     opEval, opEvalFile,
     opRequire, requireInc,
     EvalError(..), EvalResult(..), EvalStyle(..),
@@ -14,6 +15,12 @@ import Pugs.Monads
 import Pugs.Internals
 import Pugs.Pretty
 import Pugs.Prim.Keyed
+import qualified Data.FastPackedString as Str
+import DrIFT.YAML
+import Data.Yaml.Syck
+
+type Str = Str.FastString
+
 
 data EvalError = EvalErrorFatal
                | EvalErrorUndef
@@ -86,6 +93,23 @@ op1EvalHaskell cv = do
     where
     style = MkEvalStyle{ evalError=EvalErrorUndef
                        , evalResult=EvalResultLastValue}
+
+op1EvalP6Y :: Val -> Eval Val
+op1EvalP6Y f = do
+    fn <- fromVal f
+    str <- liftIO $ Str.readFile fn
+    yml <- liftIO $ parseYamlFS str
+    case yml of
+        Right (Just yml') -> do
+            (glob, ast) <- liftIO $ fromYAML yml'
+            env <- ask
+            -- xxx high bogosity warning
+            globRef <- liftSTM $ do
+                glob' <- readTVar $ envGlobal env
+                newTVar (glob `unionPads` glob')
+            --runEnv env{ envBody = ast, envGlobal = globRef, envDebug = Nothing }
+            (envEval env) ast
+        _ -> fail "failed"
 
 opEval :: EvalStyle -> FilePath -> String -> Eval Val
 opEval style path str = enterCaller $ do
