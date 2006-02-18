@@ -53,10 +53,42 @@
 # No lookbehind as been implemented at all, at all.
 # A couple of others I don't remember at the moment but should be mentioned...
 
-
+package BacktrackDev;
+=pod
+Design notes:
+ Why not call "TAILCALL" "GOTO"?  So you can easily search on both.
+ Why LET but not TEMP?  LET is non-trivial, TEMP isn't.  Minimalism wins.
+=cut
+my @let_stack;
+sub let_gen {
+  my($vars)=@_;
+  my $nvars = 1+($vars =~ tr/,//);
+  my $tmpvars = join(",",map{"\$__tmp${_}__"}(0..($nvars-1)));
+  push(@let_stack,[$vars,$tmpvars]);
+  "(do{my \$__v__ ; my($tmpvars); { local($vars)=($vars); \$__v__ = do{ ";
+}
+sub let_end {
+  my $e = shift(@let_stack) || die "LET(){ }LET pairs didn't match up";
+  my($vars,$tmpvars) = @$e;
+  "}; if(!FAILED(\$__v__)){ ($tmpvars)=($vars); }}; if(!FAILED(\$__v__)){ ($vars)=($tmpvars) }; \$__v__ })"
+}
+use Filter::Simple sub {
+  s/\bLET\(([^\)]+)\)\{/let_gen($1)/eg;
+  s/\}LET;/let_end().";"/eg;
+  s/\bFAIL_IF_FAILED\(([^\)]+)\);/FAIL() if FAILED($1);/g;
+  s/\bFAIL\(([^\)]{0,0})\)/return undef/g;
+  s/\bFAILED\(([^\)]+)\)/(!defined($1))/g;
+  s/\bTAILCALL\(([^,\)]+)\);/\@_=(Hacks->noop);goto $1;/g; #no
+  s/\bTAILCALL\(([^,\)]+),?([^\)]*)\);/\@_=($2);goto $1;/g;
+  #print STDERR $_;
+  $_;
+};
+1;
+package main;
 use Regexp::Parser;
 use Data::Dumper;
 use Match;
+BEGIN { BacktrackDev->import; };
 use strict;
 
 if($Regexp::Parser::VERSION <= 0.20) {
@@ -89,7 +121,7 @@ END
   sub flag_val_x { 0x8 }
 
   my $noop;
-  $noop = sub{my $c = $_[0]; return 1 if $c eq $noop; @_=$noop; goto &$c};
+  $noop = sub{my $c = $_[0]; return 1 if $c eq $noop; TAILCALL(&$c,$noop);};
   sub noop {
     $noop;
   }
@@ -114,7 +146,7 @@ END
   sub mk_ignore_this_node {
     my($o)=@_;
     my $noop = $o->noop;
-    sub{my $c = $_[0]; @_=$noop; goto &$c};
+    sub{my $c = $_[0]; TAILCALL(&$c,$noop);};
   }
   sub mk_eater_for_re {
     my($o,$re)=@_;
@@ -125,19 +157,15 @@ END
       my($s) = $X::str;
       pos($s) = $X::pos;
       my $x = $s =~ $qr;
-      return undef if !$x;
+      FAIL() if !$x;
       $X::pos += length($1);
-      @_=$noop;
-      goto &$c;
+      TAILCALL(&$c,$noop);
     };
   }
 
-  #my %warned_about;
   sub emit {
     my $cls = ref($_[0]);
     die "$cls emit() unimplemented\n";
-    #warn "$cls emit() unimplemented\n" if !defined $warned_about{$cls}++;
-    #sub{return undef};
   }
   sub inf {
     1000**1000**1000 #XXX there has to be a better way. :(
@@ -154,21 +182,25 @@ END
     my($o)=@_;
     my $noop = $o->noop;
     my $re = $o->raw();
-    return sub{return undef if !($X::pos == 0);
-               my $c = $_[0]; @_=$noop; goto &$c
+    return sub{
+      FAIL() if !($X::pos == 0);
+      my $c = $_[0]; TAILCALL(&$c,$noop);
     } if $re eq '\A';
-    return sub{return undef if !($X::pos == 0 || substr($X::str,$X::pos-1,1) eq "\n");
-               my $c = $_[0]; @_=$noop; goto &$c
+    return sub{
+      FAIL() if !($X::pos == 0 || substr($X::str,$X::pos-1,1) eq "\n");
+      my $c = $_[0]; TAILCALL(&$c,$noop);
     } if $re eq '^';
     return $o->mk_eater_for_re('\B') if $re eq '\B';
     return $o->mk_eater_for_re('\b') if $re eq '\b';
     # \G
     return $o->mk_eater_for_re('\Z') if $re eq '\Z';
-    return sub{return undef if !($X::pos == (length($X::str)));
-               my $c = $_[0]; @_=$noop; goto &$c
+    return sub{
+      FAIL() if !($X::pos == (length($X::str)));
+      my $c = $_[0]; TAILCALL(&$c,$noop);
     } if $re eq '\z';
-    return sub{return undef if !($X::pos == (length($X::str)) || substr($X::str,$X::pos,1) eq "\n");
-               my $c = $_[0]; @_=$noop; goto &$c
+    return sub{
+      FAIL() if !($X::pos == (length($X::str)) || substr($X::str,$X::pos,1) eq "\n");
+      my $c = $_[0]; TAILCALL(&$c,$noop);
     } if $re eq '$';
     die "didn't implement $re"
   }
@@ -256,19 +288,10 @@ END
     sub{
       my $c = $_[0];
       for my $f (@fs) {
-        my $c_down = $c;
-        my($str,$pos,$cap); my $v;
-        { local($X::str,$X::pos,$X::cap)=($X::str,$X::pos,$X::cap);
-          $v = $f->($c_down);
-          ($str,$pos,$cap)=($X::str,$X::pos,$X::cap) if defined $v;
-        }
-        if(defined $v) {
-          ($X::str,$X::pos,$X::cap)=($str,$pos,$cap);
-          return $v;
-        }
+        my $v = LET($X::pos){ $f->($c) }LET;
+        return $v if not FAILED($v);
       }
-      @_= $c;
-      goto &$f_last;
+      TAILCALL(&$f_last,$c);
     };
   }
 }
@@ -288,9 +311,9 @@ END
     else {
       sub {
         my $c = $_[0];
-        return undef if !(substr($X::str,$X::pos,$len) eq $s);
+        FAIL() if !(substr($X::str,$X::pos,$len) eq $s);
         $X::pos += $len;
-        @_=$noop; goto &$c;
+        TAILCALL(&$c,$noop);
       };
     }
   }
@@ -322,30 +345,19 @@ END
       };
       $fagain = sub{
         if($pos_old >= $X::pos){
-          @_=$noop;
-          goto &$c;
+          TAILCALL(&$c,$noop);
         }
         $pos_old = $X::pos;
         goto &$frest;
       };
       $frest = sub{
         if($i >= $max) {
-          @_=$noop;
-          goto &$c;
+          TAILCALL(&$c,$noop);
         }
         $i++;
-        my $c_down = $fagain;
-        my($str,$pos,$cap); my $v;
-        { local($X::str,$X::pos,$X::cap)=($X::str,$X::pos,$X::cap);
-          $v = $f->($c_down);
-          ($str,$pos,$cap)=($X::str,$X::pos,$X::cap) if defined $v;
-        }
-        if(defined $v) { 
-          ($X::str,$X::pos,$X::cap)=($str,$pos,$cap);
-          return $v;
-        }
-        @_=$noop;
-        goto &$c;
+        my $v = LET($X::pos){ $f->($fagain) }LET;
+        return $v if not FAILED($v);
+        TAILCALL(&$c,$noop);
       };
       goto &$fmin;
     };        
@@ -375,31 +387,19 @@ END
       };
       $fagain = sub{
         if($pos_old >= $X::pos){
-          @_=$noop;
-          goto &$c;
+          TAILCALL(&$c,$noop);
         }
         $pos_old = $X::pos;
         goto &$frest;
       };
       $frest = sub{
         if($i >= $max) {
-          @_=$noop;
-          goto &$c;
+          TAILCALL(&$c,$noop);
         }
         $i++;
-        my $c_down = $fagain;
-        my($str,$pos,$cap); my $v;
-        { local($X::str,$X::pos,$X::cap)=($X::str,$X::pos,$X::cap);
-          #$v = $f->($c_down);
-          $v = $c->($noop);
-          ($str,$pos,$cap)=($X::str,$X::pos,$X::cap) if defined $v;
-        }
-        if(defined $v) { 
-          ($X::str,$X::pos,$X::cap)=($str,$pos,$cap);
-          return $v;
-        }
-        # @_=$noop; goto &$c;
-        @_=$c_down; goto &$f;
+        my $v = LET($X::pos){ $c->($noop) }LET;
+        return $v if not FAILED($v);
+        TAILCALL(&$f,$fagain);
       };
       goto &$fmin;
     };        
@@ -424,19 +424,20 @@ END
     sub{
       my $c = $_[0];
       my $m = MatchX->new();
-      $X::cap = [@$X::cap];
-      $X::cap->[$idx] = $m;
       my $from = $X::pos;
       my $close = sub {
         my $c0 = $_[0];
         my $to = $X::pos;
         $m->set(1,substr($X::str,$from,$to-$from),[],{},$from,$to);
-        @_=$c;
-        goto &$c0;
+        TAILCALL(&$c0,$c);
       };
-      my $v = $f->($close);
-      $m->set_as_failed if !defined($v);
-      return $v;
+      return LET($X::cap){
+        $X::cap = [@$X::cap];
+        $X::cap->[$idx] = $m;
+        my $v = $f->($close);
+        $m->set_as_failed if FAILED($v);
+        $v;
+      }LET;
     }
   }
 }
@@ -457,17 +458,16 @@ END
     my $idx = $o->{'nparen'} -1;
     sub {
       my $c = $_[0];
-      return undef if $idx >= @$X::cap;
+      FAIL() if $idx >= @$X::cap;
       my $m = $X::cap->[$idx];
       my $s = "$m";
       my $pat = $s;
       $pat =~ s/(\W)/\\$1/g;
       $pat = "(?:(?i)(?:$pat))" if($o->{'flags'} & $o->flag_val_i);
       my $ok = substr($X::str,$X::pos) =~ /\A($pat)/;
-      return undef if !$ok;
+      FAIL() if !$ok;
       $X::pos += length($1);
-      @_=$noop;
-      goto &$c;
+      TAILCALL(&$c,$noop);
     };
   }
 }
@@ -482,17 +482,34 @@ END
     my $noop = $o->noop;
     my $f = $o->concat( $o->data );
     my $dir = $o->{'dir'};
-    die "(?<=) is not yet implemented" if $dir < 0;
-    sub {
-      my $c = $_[0];
-      my $v;
-      { local($X::str,$X::pos,$X::cap)=($X::str,$X::pos,$X::cap);
-        $v = $f->($noop);
-        return undef if !$v;
+    if($dir>0) {
+      sub {
+        my $c = $_[0];
+        { local($X::pos)=($X::pos);
+          my $v = $f->($noop);
+          FAIL_IF_FAILED($v);
+        }
+        TAILCALL(&$c,$noop);
       }
-      @_=$noop;
-      goto &$c;
-    };
+    } else {
+      sub {
+        my $c = $_[0];
+        FAIL() if not &_is_found_backwards($f);
+        TAILCALL(&$c,$noop);
+      }
+    }
+  }
+  sub _is_found_backwards {
+    my($f)=@_;
+    my $pos = $X::pos;
+    local $X::pos = $X::pos;
+    my $at_pos = sub{ FAIL() if $X::pos != $pos; return 1;};
+    for(my $i = $X::pos;$i>=0;$i--) {
+      $X::pos = $i;
+      my $v = $f->($at_pos);
+      return 1 if not FAILED($v);
+    }
+    return 0;
   }
 }
 {
@@ -503,17 +520,23 @@ END
     my $noop = $o->noop;
     my $f = $o->concat( $o->data );
     my $dir = $o->{'dir'};
-    die "(?<!) is not yet implemented" if $dir < 0;
-    sub {
-      my $c = $_[0];
-      my $v;
-      { local($X::str,$X::pos,$X::cap)=($X::str,$X::pos,$X::cap);
-        $v = $f->($noop);
-        return undef if $v;
-      }
-      @_=$noop;
-      goto &$c;
-    };
+    if($dir>0) {
+      sub {
+        my $c = $_[0];
+        my $v;
+        { local($X::pos)=($X::pos);
+          $v = $f->($noop);
+          FAIL() if not FAILED($v);
+        }
+        TAILCALL(&$c,$noop);
+      };
+    } else {
+      sub {
+        my $c = $_[0];
+        FAIL() if &Regexp::Parser::ifmatch::_is_found_backwards($f);
+        TAILCALL(&$c,$noop);
+      };
+    }
   }
 }
 {
@@ -526,9 +549,8 @@ END
     sub {
       my $c = $_[0];
       my $v = $f->($noop);
-      return undef if !defined $v;
-      @_=$noop;
-      goto &$c;
+      FAIL_IF_FAILED($v);
+      TAILCALL(&$c,$noop);
     };
   }
 }
@@ -543,20 +565,18 @@ END
     my $f_test = $o->data->[0]->emit;
     my $f_then = $o->data->[1]->data->[0][0]->emit;
     my $crufty = $o->data->[1]->data;
-    my $f_else = sub{my $c = $_[0]; @_=$noop; goto &$c};
+    my $f_else = sub{my $c = $_[0]; TAILCALL(&$c,$noop);};
     $f_else = $o->data->[1]->data->[1][0]->emit if @{$o->data->[1]->data} > 1;
     sub {
       my $c = $_[0];
       my $v;
-      { local($X::str,$X::pos,$X::cap)=($X::str,$X::pos,$X::cap);
+      { local($X::pos)=($X::pos);
         $v = $f_test->($noop);
       }
-      if(defined($v)) {
-        @_=$c;
-        goto &$f_then;
+      if(not FAILED($v)) {
+        TAILCALL(&$f_then,$c);
       } else {
-        @_=$c;
-        goto &$f_else;
+        TAILCALL(&$f_else,$c);
       }
     };
   }
@@ -570,11 +590,10 @@ END
     my $idx = $o->{'nparen'} -1;
     sub {
       my $c = $_[0];
-      return undef if $idx >= @$X::cap;
+      FAIL() if $idx >= @$X::cap;
       my $m = $X::cap->[$idx];
-      return undef if !$m;
-      @_=$noop;
-      goto &$c;
+      FAIL() if !$m;
+      TAILCALL(&$c,$noop);
     };
   }
 }
@@ -611,7 +630,7 @@ sub dorule {
   my $ru = $rules{$name};
   if(!defined $ru) {
     warn "Unknown rule '$name'";
-    return undef;
+    FAIL();
   }
 
   my $pos = $X::pos;
@@ -630,7 +649,7 @@ sub dorule {
     push(@{$m0->{$name}},$m1); #see below
     $X::cap = $cap;
     $X::current_match = $m0;
-    @_=$c; goto &$cn;
+    TAILCALL(&$cn,$c);
   };
 
   my $v;
@@ -638,7 +657,7 @@ sub dorule {
     local $X::cap = [];
     $v = $ru->($rest);
   }
-  return undef if !defined $v;
+  FAIL_IF_FAILED($v);
   unshift(@{$m0->{$name}},$m1);# sigh,
   #  twice: once for inline code, once for the final Match tree.
   return $v;
@@ -670,7 +689,7 @@ sub mk_Match_appender {
       $X::cap = $cap;
       $X::current_match = $m0;
       push(@{$X::cap},$m1);
-      @_=$c; goto &$cn;
+      TAILCALL(&$cn,$c);
     };
 
     my $v;
@@ -678,7 +697,7 @@ sub mk_Match_appender {
       local $X::cap = [];
       $v = $f->($rest);
     }
-    return undef if !defined $v;
+    FAIL_IF_FAILED($v);
     unshift(@{$m0},$m1);# sigh, prevents mutation.
     # why twice: once for inline code, once for the final Match tree.
     return $v;
@@ -706,7 +725,7 @@ sub match {
     my $m = MatchX->new();
     local $X::current_match = $m;
     my $ok = $r->($noop);
-    if(defined($ok)) {
+    if(not FAILED($ok)) {
       my $a = $X::cap;
       $m->set(1,substr($X::str,$start,$X::pos-$start),
               $a,\%{$m},$start,$X::pos);
