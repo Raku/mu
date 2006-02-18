@@ -1,12 +1,18 @@
 {-# OPTIONS_GHC -fglasgow-exts -fno-full-laziness -fno-cse #-}
 
+import qualified Data.FastPackedString as Str
+import DrIFT.YAML
+import Data.Yaml.Syck
 import Pugs.Prim.Eval
+import Data.Generics.Schemes
+
+type Str = Str.FastString
 
 {-
 
-Null Prelude bootstap. A placeholder used in first phase of the
-compiler build; later replaced with the real inlined Prelude and code
-to initialize it.
+Prelude bootstap. Contains a loader that attempts to fetch a precompiled
+version of the Prelude from a file; if one isn't found, it evaluates
+an inlined Perl 6 source version.
 
 -}
 
@@ -20,7 +26,7 @@ initPreludePC env = do
     if bypass then return env else do
         let dispProgress = (posName . envPos $ env) == "<interactive>"
         when dispProgress $ putStr "Loading Prelude... "
-        runEvalIO env{ envDebug = Nothing } $ opEval style "<prelude>" preludeStr
+        loadPreludePC `catch` const evalPrelude
         when dispProgress $ putStrLn "done."
         return env
     where
@@ -28,6 +34,18 @@ initPreludePC env = do
         { evalResult = EvalResultModule
         , evalError  = EvalErrorFatal
         }
+    evalPrelude = runEvalIO env{ envDebug = Nothing } $ opEval style "<prelude>" preludeStr
+    loadPreludePC = do -- XXX: search path
+        p <- parseYamlFS =<< Str.readFile "src/Pugs/PreludePC.yml"
+        --putTraceMsg $ "parsing done ok, size " ++ show (gsize p)
+        case p of
+            Right (Just yml) -> do
+                (glob, ast) <- fromYAML yml
+                globRef <- liftSTM $ do
+                    glob' <- readTVar $ envGlobal env
+                    newTVar (glob `unionPads` glob')
+                runEnv env{ envBody = ast, envGlobal = globRef, envDebug = Nothing }
+            _                -> fail "error loading precompiled Prelude"
 
 -- This is filled in by the null() procedure in util/gen_prelude.pl
 preludeStr :: String

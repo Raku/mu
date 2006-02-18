@@ -15,9 +15,10 @@ our $TEMP_PRELUDE = "Prelude.pm"; # XXX: move this to config.yml?
 END { unlink $TEMP_PRELUDE unless $Config{keep} };
 
 GetOptions \%Config, qw(--null --pugs|p=s --inline|i=s@ --verbose|v --touch --output|o=s --keep|k);
-setup_output();
 
 touch() if $Config{touch};
+
+setup_output();
 
 null(), exit 0 if $Config{null};
 precomp(), exit 0 if $Config{inline};
@@ -33,18 +34,21 @@ sub setup_output {
     }
 }
 
+# XXX: with yaml precompilation, this may be bogus.
 sub touch {
     # XXX: *ugly* hack! ghc doesn't spot that the include file was changed,
     #      so we need to mark as stale some obj files to trigger a rebuild.
     #      The alternative seems to be to delete them *and* the pugs
     #      executable.
     print STDERR "Triggering rebuild... " if $Config{verbose};
-    unlink "src/Pugs/Run.hi";
-    unlink "src/Pugs/Run.o";
-    unlink "dist/build/Pugs/Run.hi";
-    unlink "dist/build/Pugs/Run.o";
-    unlink "dist/build/src/Pugs/Run.hi";
-    unlink "dist/build/src/Pugs/Run.o";
+    unlink "src/Pugs/PreludePC.yml";
+    unlink "src/Pugs/PreludePC.hs";
+    #unlink "src/Pugs/Run.hi";
+    #unlink "src/Pugs/Run.o";
+    #unlink "dist/build/Pugs/Run.hi";
+    #unlink "dist/build/Pugs/Run.o";
+    #unlink "dist/build/src/Pugs/Run.hi";
+    #unlink "dist/build/src/Pugs/Run.o";
     #unlink "pugs$Config::Config{_exe}";
     print STDERR "done.\n" if $Config{verbose};
 }
@@ -127,13 +131,15 @@ sub precomp {
     gen_source($TEMP_PRELUDE);
     $ENV{PUGS_COMPILE_PRELUDE} = 1;
 
-    my ($rh, $wh);
-    my $pid = open2($rh, $wh, $Config{pugs}, -C => 'Pugs', $TEMP_PRELUDE);
-    my $program = do { local $/; <$rh> };
+    my ($rh, $wh, $lines);
+    my $pid = open2($rh, $wh, $Config{pugs}, -C => 'Parse-YAML', $TEMP_PRELUDE);
+    $lines += print OUT while <$rh>;
+    #my $program = do { local $/; <$rh> };
     waitpid($pid, 0);
 
-    exit 1 unless length $program;
+    exit 1 unless length $lines;
 
+=pod
     print OUT <<'.';
 {-# OPTIONS_GHC -fglasgow-exts -fno-full-laziness -fno-cse #-}
 {-
@@ -188,7 +194,7 @@ initPreludePC env = do
     $program =~ s/.*^globC/globPCP :: IO Pad\nglobPCP/ms;
     $program =~ s/^expC/astPCP :: IO Exp\nastPCP/ms;
     print OUT $program;
-
+=cut
     die "Pugs ".(($?&255)?"killed by signal $?"
          :"exited with error code ".($?>>8)) if $?;
     print STDERR "done.\n" if $Config{verbose};
@@ -199,11 +205,14 @@ sub usage {
 usage: $0 --null src/perl6/Prelude.pm [options]
        $0 --inline src/perl6/Prelude.pm --pugs ./pugs.exe [options]
 
-Creates a PreludePC.hs file (written to stdout), to be included by Run.hs.
+Creates a PreludePC.hs stub or a PreludePC.yml file (written to stdout),
+to be loaded by Run.hs.
 
-In the first build phase, a "null" Prelude that only "eval"s the prelude
-module is used. In the second phase, the Standard Prelude is precompiled and
-inlined into the resulting pugs executable.
+When pugs is built, a "null" Prelude that only "eval"s the prelude
+module is inlined into the executable. After the executable is ready,
+the Standard Prelude is precompiled and stored in YAML format in a
+(conjecturally) well-defined location for latter runs of pugs to pick
+up and load quickly.
 
 Additional options:
     --verbose, -v     print progress to stderr

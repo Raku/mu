@@ -68,9 +68,9 @@ sub build {
     if (PugsBuild::Config->lookup('precompile_prelude')) {
         run($^X, qw<util/gen_prelude.pl -v -i src/perl6/Prelude.pm>,
                 (map { ('-i' => $_) } @{ PugsBuild::Config->lookup('precompile_modules') }),
-                '-p', $thispugs, qw<--touch --output src/Pugs/PreludePC.hs>);
-        build_lib($version, $ghc, @args);
-        build_exe($version, $ghc, $ghc_version, @args);
+                '-p', $thispugs, qw<--output src/Pugs/PreludePC.yml>);
+        #build_lib($version, $ghc, @args);
+        #build_exe($version, $ghc, $ghc_version, @args);
     }
 }
 
