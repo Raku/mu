@@ -53,6 +53,7 @@ class Typeable a => YAML a where
     fromYAML :: YamlNode -> IO a
     fromYAML MkYamlNode{el=x} = fromYAMLElem x
     fromYAMLElem :: YamlElem -> IO a
+    fromYAMLElem e = fail $ "unhandled element" ++ (show e)
 
 asYAMLseq :: YAMLClass -> [EmitAs YAMLVal] -> EmitAs YamlNode
 asYAMLseq c ps = do
