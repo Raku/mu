@@ -1819,43 +1819,43 @@ instance YAML VRef where
     asYAML (MkRef (ICode cv)) = do
         VCode vsub  <- fakeEval $ fmap VCode (code_fetch cv)
         vsubC       <- asYAML vsub
-        return $ mkTagNode (tagHs "VCode") (el vsubC)
+        return $ mkTagNode (tagHs "VCode") $ YamlSeq [vsubC]
     asYAML (MkRef (IScalar sv)) = do
         val <- fakeEval $ scalar_fetch sv
         svC <- asYAML val
         let tag = if scalar_iType sv == mkType "Scalar::Const"
                     then "VScalar" else "IScalar"
-        return $ mkTagNode (tagHs tag) (el svC)
+        return $ mkTagNode (tagHs tag) $ YamlSeq [svC]
     asYAML (MkRef (IArray av)) = do
         VList vals <- fakeEval $ fmap VList (array_fetch av)
         avC <- asYAML vals
-        return $ mkTagNode (tagHs "Array") (el avC)
+        return $ mkTagNode (tagHs "Array") $ YamlSeq [avC]
     asYAML (MkRef (IHash hv)) = do
         VMatch MkMatch{ matchSubNamed = hv } <- fakeEval $ fmap (VMatch . MkMatch False 0 0 "" []) (hash_fetch hv)
         hvC <- asYAML hv
-        return $ mkTagNode (tagHs "Hash") (el hvC)
+        return $ mkTagNode (tagHs "Hash") $ YamlSeq [hvC]
     asYAML (MkRef (IPair pv)) = do
         VList [k, v] <- fakeEval $ fmap (\(k, v) -> VList [k, v]) (pair_fetch pv)
         avC <- asYAML (k, v)
-        return $ mkTagNode (tagHs "Pair") (el avC)
+        return $ mkTagNode (tagHs "Pair") $ YamlSeq [avC]
     asYAML ref = do
         val <- fakeEval $ readRef ref
         svC <- asYAML val
         liftIO $ print "====>"
         liftIO $ print svC
         fail ("not implemented: asYAML \"" ++ showType (refType ref) ++ "\"")
-    fromYAML node@MkYamlNode{tag=Just s} | s == Str.pack "tag:hs:VCode" =
-        fmap (MkRef . ICode) (fromYAML node :: IO VCode)
-    fromYAML node@MkYamlNode{tag=Just s} | s == Str.pack "tag:hs:VScalar" =
-        fmap (MkRef . IScalar) (fromYAML node :: IO VScalar)
-    fromYAML node@MkYamlNode{tag=Just s} | s == Str.pack "tag:hs:IScalar" =
-        fmap MkRef (newScalar =<< fromYAML node)
-    fromYAML node@MkYamlNode{tag=Just s} | s == Str.pack "tag:hs:Array" =
-        fmap MkRef (newArray =<< fromYAML node)
-    fromYAML node@MkYamlNode{tag=Just s} | s == Str.pack "tag:hs:Hash" = do
-        fmap MkRef (newHash =<< fromYAML node)
-    fromYAML node@MkYamlNode{tag=Just s} | s == Str.pack "tag:hs:Pair" = do
-        fmap pairRef (fromYAML node :: IO VPair)
+    fromYAML MkYamlNode{tag=Just s, el=YamlSeq [node]}
+        | s == Str.pack "tag:hs:VCode"   =
+            fmap (MkRef . ICode) (fromYAML node :: IO VCode)
+        | s == Str.pack "tag:hs:VScalar" =
+            fmap (MkRef . IScalar) (fromYAML node :: IO VScalar)
+        | s == Str.pack "tag:hs:Pair"    =
+            fmap pairRef (fromYAML node :: IO VPair)
+        | s == Str.pack "tag:hs:IScalar" = newV newScalar
+        | s == Str.pack "tag:hs:Array"   = newV newArray
+        | s == Str.pack "tag:hs:Hash"    = newV newHash
+        where newV f = fmap MkRef (f =<< fromYAML node)
+    fromYAML node = fail $ "unhandled node: " ++ show node
 
 instance YAML VControl
 instance YAML (Set Val)

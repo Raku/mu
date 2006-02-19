@@ -27,8 +27,8 @@ initPreludePC env = do
         let dispProgress = (posName . envPos $ env) == "<interactive>"
         when dispProgress $ putStr "Loading Prelude... "
         catch loadPreludePC $ \e -> do
-            print "moose"
-            print e
+            --print "moose"
+            --print e
             evalPrelude
         when dispProgress $ putStrLn "done."
         return env

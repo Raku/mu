@@ -77,7 +77,7 @@ fromYAMLmap MkYamlNode{el=YamlMap m} = do
     fromYAMLpair (MkYamlNode{el=YamlStr k}, v) = do
         v' <- fromYAML v
         return (Str.unpack k, v')
-    fromYAMLpair _ = fail "no parse"
+    fromYAMLElem e = fail $ "no parse: " ++ show e
     
 
 asYAMLcls :: YAMLClass -> EmitAs YamlNode
@@ -101,12 +101,12 @@ instance YAML () where
 instance YAML Int where
     asYAML x = return $ mkTagNode "int" (YamlStr $ Str.pack $ show x)
     fromYAMLElem (YamlStr x) = return $ read $ Str.unpack x
-    fromYAMLElem _ = fail "no parse"
+    fromYAMLElem e = failWith e
 
 instance YAML String where
     asYAML str = return $ mkTagNode "str" (YamlStr $ Str.pack str)
     fromYAMLElem (YamlStr str) = return $ Str.unpack str
-    fromYAMLElem _ = fail "no parse"
+    fromYAMLElem e = failWith e
 
 instance YAML Bool where
     asYAML True = return $ mkTagNode "bool#yes" (YamlStr $ Str.pack "1")
@@ -115,22 +115,21 @@ instance YAML Bool where
     fromYAML MkYamlNode{tag=Just s} | s == Str.pack "bool#no"  = return False
     fromYAML MkYamlNode{el=x} = fromYAMLElem x
     fromYAMLElem (YamlStr x) = return (x == Str.pack "0")
-    fromYAMLElem _ = fail "no parse"
+    fromYAMLElem e = failWith e
 
 instance YAML Integer where 
     asYAML x = return $ mkTagNode "int" (YamlStr $ Str.pack $ show x)
     fromYAMLElem (YamlStr x) = return $ read $ Str.unpack x
-    fromYAMLElem _ = fail "no parse"
+    fromYAMLElem e = failWith e
 
 instance YAML Rational where 
     asYAML r = asYAML (x, y)
         where
         x = numerator r
         y = denominator r
-    fromYAMLElem (YamlStr str) = do
-        let (x,y) = break (== '/') (Str.unpack str)
-        return $ (read x) / (read y)
-    fromYAMLElem _ = fail "no parse"
+    fromYAMLElem (YamlSeq [MkYamlNode{el=YamlStr x}, MkYamlNode{el=YamlStr y}]) =
+        return $ (read $ Str.unpack x) % (read $ Str.unpack y)
+    fromYAMLElem e = failWith e
     
 instance YAML Double where 
     asYAML num | show num == "Infinity"  = return $ mkTagNode "float#inf"    (YamlStr $ Str.pack ".Inf")
@@ -142,7 +141,7 @@ instance YAML Double where
     fromYAML MkYamlNode{tag=Just s} | s == Str.pack "float#nan"    = return $  0/0 -- "NaN" 
     fromYAML MkYamlNode{el=x} = fromYAMLElem x
     fromYAMLElem (YamlStr x) = return $ read $ Str.unpack x
-    fromYAMLElem _ = fail "no parse"
+    fromYAMLElem e = failWith e
 
 instance (YAML a) => YAML (Maybe a) where
     asYAML (Just x) = asYAML x
@@ -157,7 +156,7 @@ instance (YAML a) => YAML [a] where
         xs' <- mapM asYAML xs
         (return . mkNode . YamlSeq) xs'
     fromYAMLElem (YamlSeq s) = mapM fromYAML s
-    fromYAMLElem _ = fail "no parse"
+    fromYAMLElem e = fail $ "no parse: " ++ show e
 
 instance (YAML a, YAML b) => YAML (a, b) where
     asYAML (x, y) = do
@@ -168,7 +167,7 @@ instance (YAML a, YAML b) => YAML (a, b) where
         x' <- fromYAML x
         y' <- fromYAML y
         return (x', y')
-    fromYAMLElem _ = fail "no parse"
+    fromYAMLElem e = fail $ "no parse: " ++ show e
 
 instance (YAML a, YAML b, YAML c) => YAML (a, b, c) where
     asYAML (x, y, z) = do
@@ -181,7 +180,7 @@ instance (YAML a, YAML b, YAML c) => YAML (a, b, c) where
         y' <- fromYAML y
         z' <- fromYAML z
         return (x', y', z')
-    fromYAMLElem _ = fail "no parse"
+    fromYAMLElem e = fail $ "no parse: " ++ show e
 
 instance (Typeable a, YAML a) => YAML (TVar a) where
     asYAML = asYAMLwith (lift . atomically . readTVar)
@@ -202,3 +201,7 @@ addressOf :: a -> IO Int
 addressOf x = do
     ptr <- newStablePtr x
     return (castStablePtrToPtr ptr `minusPtr` (nullPtr :: Ptr ()))
+
+failWith :: forall a. YAML a => YamlElem -> IO a
+failWith e = fail $ "no parse: " ++ show e ++ " as " ++ show (typeOf (undefined :: a))
+
