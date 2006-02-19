@@ -5,6 +5,7 @@ import DrIFT.YAML
 import Data.Yaml.Syck
 import Pugs.Prim.Eval
 import Data.Generics.Schemes
+import System.IO
 
 type Str = Str.FastString
 
@@ -27,8 +28,9 @@ initPreludePC env = do
         let dispProgress = (posName . envPos $ env) == "<interactive>"
         when dispProgress $ putStr "Loading Prelude... "
         catch loadPreludePC $ \e -> do
-            --print "moose"
-            --print e
+            when (isUserError e) $ do
+                hPrint stderr e
+                hPrint stderr "Reloading Prelude from source..."
             evalPrelude
         when dispProgress $ putStrLn "done."
         return env
@@ -51,7 +53,7 @@ initPreludePC env = do
                     glob' <- readTVar $ envGlobal env
                     newTVar (glob `unionPads` glob')
                 runEnv env{ envBody = ast, envGlobal = globRef, envDebug = Nothing }
-            x                -> fail $ "error loading precompiled Prelude" ++ show x
+            x                -> fail $ "error loading precompiled Prelude: " ++ show x
 
 -- This is filled in by the null() procedure in util/gen_prelude.pl
 preludeStr :: String
