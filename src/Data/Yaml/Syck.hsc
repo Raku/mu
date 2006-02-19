@@ -213,7 +213,7 @@ nodeCallback parser syckNode = do
     node    <- parseNode kind parser syckNode len
     nodePtr <- writeNode node
     symId   <- syck_add_sym parser nodePtr
-    return (toEnum . fromEnum $ symId)
+    return (fromIntegral symId)
 
 errorCallback :: IORef (Maybe String) -> SyckParser -> CString -> IO ()
 errorCallback err parser cstr = do
