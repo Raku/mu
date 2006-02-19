@@ -49,10 +49,10 @@ initPreludePC env = do
                 -- print "Loading yaml..."
                 (glob, ast) <- fromYAML yml
                 -- print "Loading done!"
-                globRef <- liftSTM $ do
+                liftSTM $ do
                     glob' <- readTVar $ envGlobal env
-                    newTVar (glob `unionPads` glob')
-                runEnv env{ envBody = ast, envGlobal = globRef, envDebug = Nothing }
+                    writeTVar (envGlobal env) (glob `unionPads` glob')
+                runEnv env{ envBody = ast, envDebug = Nothing }
             x                -> fail $ "error loading precompiled Prelude: " ++ show x
 
 -- This is filled in by the null() procedure in util/gen_prelude.pl

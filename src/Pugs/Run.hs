@@ -31,6 +31,7 @@ import System.FilePath
 import qualified Data.Map as Map
 
 #ifndef HADDOCK
+-- XXX - This needs to be factored out into a separate module
 #include "PreludePC.hs"
 #endif
 
