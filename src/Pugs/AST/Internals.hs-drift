@@ -614,9 +614,9 @@ data VThunk = MkThunk
     { thunkExp  :: Eval Val
     , thunkType :: VType
     }
-    deriving (Typeable) {-!derive: YAML!-}
+    deriving (Typeable) {-!derive: YAML_Pos!-}
 newtype VProcess = MkProcess (ProcessHandle)
-    deriving (Typeable) {-!derive: YAML!-}
+    deriving (Typeable) {-!derive: YAML_Pos!-}
 
 type VPair = (Val, Val)
 type VType = Type
@@ -645,7 +645,7 @@ data VRule
         , rxStringify :: !Bool
         , rxAdverbs   :: !Val
         }
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 {-|
 Represents a value.
@@ -682,7 +682,7 @@ data Val
     | VObject   !VObject     -- ^ Object
     | VOpaque   !VOpaque
     | PerlSV    !PerlSV
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 {-|
 Find the 'Type' of the value contained by a 'Val'.
@@ -741,14 +741,14 @@ data VJunc = MkJunc
     -- ^ Set of values that make up the junction. In @one()@
     --     junctions, contains the set of values that appear exactly
     --     /once/.
-    } deriving (Eq, Ord, Typeable) {-!derive: YAML!-}
+    } deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 -- | The combining semantics of a junction. See 'VJunc' for more info.
 data JuncType = JAny  -- ^ Matches if /at least one/ member matches
               | JAll  -- ^ Matches only if /all/ members match
               | JNone -- ^ Matches only if /no/ members match
               | JOne  -- ^ Matches if /exactly one/ member matches
-    deriving (Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 instance Show JuncType where
     show JAny  = "any"
@@ -779,7 +779,7 @@ data SubType = SubMethod    -- ^ Method
              | SubBlock     -- ^ Bare block
              | SubPointy    -- ^ Pointy sub
              | SubPrim      -- ^ Built-in primitive operator (see "Pugs.Prim")
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML, JSON, Perl5!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, JSON, Perl5!-}
 
 isSlurpy :: Param -> Bool
 isSlurpy param = isSlurpyCxt $ paramContext param
@@ -802,7 +802,7 @@ data Param = MkParam
     , paramDefault  :: !Exp         -- ^ Default expression (to evaluate to)
                                     --     when omitted
     }
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML, Perl5, JSON!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
 -- | A list of formal parameters.
 type Params     = [Param]
@@ -851,7 +851,7 @@ data VCode = MkCode
     , subBody       :: !Exp         -- ^ Body of the closure
     , subCont       :: !(Maybe (TVar VThunk)) -- ^ Coroutine re-entry point
     }
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 {-|
 Construct a 'VCode' representing a built-in primitive operator.
@@ -902,7 +902,7 @@ data Ann
     = Cxt !Cxt                -- ^ Context
     | Pos !Pos                -- ^ Position
     | Prag ![Pragma]          -- ^ Lexical pragmas
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 {- Expressions
    "App" represents function application, e.g. myfun($invocant: $arg)
@@ -932,7 +932,7 @@ data Exp
     | Val !Val                          -- ^ Value
     | Var !Var                          -- ^ Variable
     | NonTerm !Pos                      -- ^ Parse error
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 instance Value Exp where
     {- Val -> Eval Exp -}
@@ -1124,7 +1124,7 @@ this as well.
 -}
 data InitDat = MkInitDat
     { initPragmas :: [Pragma]            -- ^ Pragma values being installed
-    } deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    } deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 envWant :: Env -> String
 envWant env =
@@ -1156,15 +1156,15 @@ is stored in the @Reader@-monad component of the current 'Eval' monad.
 -}
 
 data Pad = MkPad !(Map Var PadEntry)
-    deriving (Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 data PadEntry
     = MkEntry !(TVar Bool, TVar VRef)           -- single entry
     | MkEntryMulti ![(TVar Bool, TVar VRef)]    -- multi subs
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
-data IHashEnv = MkHashEnv deriving (Show, Typeable) {-!derive: YAML!-}
-data IScalarCwd = MkScalarCwd deriving (Show, Typeable) {-!derive: YAML!-}
+data IHashEnv = MkHashEnv deriving (Show, Typeable) {-!derive: YAML_Pos!-}
+data IScalarCwd = MkScalarCwd deriving (Show, Typeable) {-!derive: YAML_Pos!-}
 
 data VObject = MkObject
     { objType   :: !VType
@@ -1172,7 +1172,7 @@ data VObject = MkObject
     , objOpaque :: !(Maybe Dynamic)
     , objId     :: !Unique
     }
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 -- | A '$/' object, the return of a rx match operation.
 data VMatch = MkMatch
@@ -1183,7 +1183,7 @@ data VMatch = MkMatch
     , matchSubPos       :: !VList   -- positional submatches
     , matchSubNamed     :: !VHash   -- named submatches
     }
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 
 instance Show Pad where
@@ -1890,7 +1890,7 @@ instance (Show (TVar a)) => JSON (TVar a) where
 {- !!! For DrIFT -- Don't delete !!!
 
 data Scope = SState | SLet | STemp | SEnv | SMy | SOur | SGlobal
-    {-!derive: YAML, JSON, Perl5!-}
+    {-!derive: YAML_Pos, JSON, Perl5!-}
 
 data Pos = MkPos
     { posName           :: !String, posBeginLine      :: !Int
@@ -1898,16 +1898,16 @@ data Pos = MkPos
     , posEndLine        :: !Int
     , posEndColumn      :: !Int
     }
-    {-!derive: YAML, JSON, Perl5!-}
+    {-!derive: YAML_Pos, JSON, Perl5!-}
 
 data Type
     = MkType !String      -- ^ A regular type
     | TypeOr  !Type !Type -- ^ The disjunction (|) of two types
     | TypeAnd !Type !Type -- ^ The conjunction (&) of two types
-    {-!derive: YAML, JSON, Perl5!-}
+    {-!derive: YAML_Pos, JSON, Perl5!-}
 
 data Cxt = CxtVoid | CxtItem !Type | CxtSlurpy !Type
-    {-!derive: YAML, JSON, Perl5!-}
+    {-!derive: YAML_Pos, JSON, Perl5!-}
 
 data Val
     = VUndef                 -- ^ Undefined value

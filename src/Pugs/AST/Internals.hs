@@ -639,9 +639,9 @@ data VThunk = MkThunk
     { thunkExp  :: Eval Val
     , thunkType :: VType
     }
-    deriving (Typeable) {-!derive: YAML!-}
+    deriving (Typeable) {-!derive: YAML_Pos!-}
 newtype VProcess = MkProcess (ProcessHandle)
-    deriving (Typeable) {-!derive: YAML!-}
+    deriving (Typeable) {-!derive: YAML_Pos!-}
 
 type VPair = (Val, Val)
 type VType = Type
@@ -670,7 +670,7 @@ data VRule
         , rxStringify :: !Bool
         , rxAdverbs   :: !Val
         }
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 {-|
 Represents a value.
@@ -707,7 +707,7 @@ data Val
     | VObject   !VObject     -- ^ Object
     | VOpaque   !VOpaque
     | PerlSV    !PerlSV
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 {-|
 Find the 'Type' of the value contained by a 'Val'.
@@ -766,14 +766,14 @@ data VJunc = MkJunc
     -- ^ Set of values that make up the junction. In @one()@
     --     junctions, contains the set of values that appear exactly
     --     /once/.
-    } deriving (Eq, Ord, Typeable) {-!derive: YAML!-}
+    } deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 -- | The combining semantics of a junction. See 'VJunc' for more info.
 data JuncType = JAny  -- ^ Matches if /at least one/ member matches
               | JAll  -- ^ Matches only if /all/ members match
               | JNone -- ^ Matches only if /no/ members match
               | JOne  -- ^ Matches if /exactly one/ member matches
-    deriving (Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 instance Show JuncType where
     show JAny  = "any"
@@ -804,7 +804,7 @@ data SubType = SubMethod    -- ^ Method
              | SubBlock     -- ^ Bare block
              | SubPointy    -- ^ Pointy sub
              | SubPrim      -- ^ Built-in primitive operator (see "Pugs.Prim")
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML, JSON, Perl5!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, JSON, Perl5!-}
 
 isSlurpy :: Param -> Bool
 isSlurpy param = isSlurpyCxt $ paramContext param
@@ -827,7 +827,7 @@ data Param = MkParam
     , paramDefault  :: !Exp         -- ^ Default expression (to evaluate to)
                                     --     when omitted
     }
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML, Perl5, JSON!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos, Perl5, JSON!-}
 
 -- | A list of formal parameters.
 type Params     = [Param]
@@ -876,7 +876,7 @@ data VCode = MkCode
     , subBody       :: !Exp         -- ^ Body of the closure
     , subCont       :: !(Maybe (TVar VThunk)) -- ^ Coroutine re-entry point
     }
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 {-|
 Construct a 'VCode' representing a built-in primitive operator.
@@ -927,7 +927,7 @@ data Ann
     = Cxt !Cxt                -- ^ Context
     | Pos !Pos                -- ^ Position
     | Prag ![Pragma]          -- ^ Lexical pragmas
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 {- Expressions
    "App" represents function application, e.g. myfun($invocant: $arg)
@@ -957,7 +957,7 @@ data Exp
     | Val !Val                          -- ^ Value
     | Var !Var                          -- ^ Variable
     | NonTerm !Pos                      -- ^ Parse error
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 instance Value Exp where
     {- Val -> Eval Exp -}
@@ -1149,7 +1149,7 @@ this as well.
 -}
 data InitDat = MkInitDat
     { initPragmas :: [Pragma]            -- ^ Pragma values being installed
-    } deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    } deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 envWant :: Env -> String
 envWant env =
@@ -1181,15 +1181,15 @@ is stored in the @Reader@-monad component of the current 'Eval' monad.
 -}
 
 data Pad = MkPad !(Map Var PadEntry)
-    deriving (Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 data PadEntry
     = MkEntry !(TVar Bool, TVar VRef)           -- single entry
     | MkEntryMulti ![(TVar Bool, TVar VRef)]    -- multi subs
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
-data IHashEnv = MkHashEnv deriving (Show, Typeable) {-!derive: YAML!-}
-data IScalarCwd = MkScalarCwd deriving (Show, Typeable) {-!derive: YAML!-}
+data IHashEnv = MkHashEnv deriving (Show, Typeable) {-!derive: YAML_Pos!-}
+data IScalarCwd = MkScalarCwd deriving (Show, Typeable) {-!derive: YAML_Pos!-}
 
 data VObject = MkObject
     { objType   :: !VType
@@ -1197,7 +1197,7 @@ data VObject = MkObject
     , objOpaque :: !(Maybe Dynamic)
     , objId     :: !Unique
     }
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 -- | A '$/' object, the return of a rx match operation.
 data VMatch = MkMatch
@@ -1208,7 +1208,7 @@ data VMatch = MkMatch
     , matchSubPos       :: !VList   -- positional submatches
     , matchSubNamed     :: !VHash   -- named submatches
     }
-    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML!-}
+    deriving (Show, Eq, Ord, Typeable) {-!derive: YAML_Pos!-}
 
 
 instance Show Pad where
@@ -1915,7 +1915,7 @@ instance (Show (TVar a)) => JSON (TVar a) where
 {- !!! For DrIFT -- Don't delete !!!
 
 data Scope = SState | SLet | STemp | SEnv | SMy | SOur | SGlobal
-    {-!derive: YAML, JSON, Perl5!-}
+    {-!derive: YAML_Pos, JSON, Perl5!-}
 
 data Pos = MkPos
     { posName           :: !String, posBeginLine      :: !Int
@@ -1923,16 +1923,16 @@ data Pos = MkPos
     , posEndLine        :: !Int
     , posEndColumn      :: !Int
     }
-    {-!derive: YAML, JSON, Perl5!-}
+    {-!derive: YAML_Pos, JSON, Perl5!-}
 
 data Type
     = MkType !String      -- ^ A regular type
     | TypeOr  !Type !Type -- ^ The disjunction (|) of two types
     | TypeAnd !Type !Type -- ^ The conjunction (&) of two types
-    {-!derive: YAML, JSON, Perl5!-}
+    {-!derive: YAML_Pos, JSON, Perl5!-}
 
 data Cxt = CxtVoid | CxtItem !Type | CxtSlurpy !Type
-    {-!derive: YAML, JSON, Perl5!-}
+    {-!derive: YAML_Pos, JSON, Perl5!-}
 
 data Val
     = VUndef                 -- ^ Undefined value
@@ -1952,13 +1952,12 @@ data Val
 instance YAML VThunk where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkThunk" -> do
-	    let YamlMap assocs = e
-	    let [aa , ab] = map snd assocs
+	    let YamlSeq [aa , ab] = e
 	    liftM2 MkThunk (fromYAML aa) (fromYAML ab)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkThunk"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML (MkThunk aa ab) = asYAMLmap "MkThunk"
-	   [("thunkExp", asYAML aa) , ("thunkType", asYAML ab)]
+    asYAML (MkThunk aa ab) = asYAMLseq "MkThunk"
+	   [asYAML aa , asYAML ab]
 
 instance YAML VProcess where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
@@ -1973,22 +1972,18 @@ instance YAML VRule where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkRulePCRE" -> do
 	    let liftM6 f m1 m2 m3 m4 m5 m6 = do { x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; return (f x1 x2 x3 x4 x5 x6) }
-	    let YamlMap assocs = e
-	    let [aa , ab , ac , ad , ae , af] = map snd assocs
+	    let YamlSeq [aa , ab , ac , ad , ae , af] = e
 	    liftM6 MkRulePCRE (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af)
 	"MkRulePGE" -> do
-	    let YamlMap assocs = e
-	    let [aa , ab , ac , ad] = map snd assocs
+	    let YamlSeq [aa , ab , ac , ad] = e
 	    liftM4 MkRulePGE (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkRulePCRE","MkRulePGE"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML (MkRulePCRE aa ab ac ad ae af) = asYAMLmap "MkRulePCRE"
-	   [("rxRegex", asYAML aa) , ("rxGlobal", asYAML ab) ,
-	    ("rxNumSubs", asYAML ac) , ("rxStringify", asYAML ad) ,
-	    ("rxRuleStr", asYAML ae) , ("rxAdverbs", asYAML af)]
-    asYAML (MkRulePGE aa ab ac ad) = asYAMLmap "MkRulePGE"
-	   [("rxRule", asYAML aa) , ("rxGlobal", asYAML ab) ,
-	    ("rxStringify", asYAML ac) , ("rxAdverbs", asYAML ad)]
+    asYAML (MkRulePCRE aa ab ac ad ae af) = asYAMLseq "MkRulePCRE"
+	   [asYAML aa , asYAML ab , asYAML ac , asYAML ad , asYAML ae ,
+	    asYAML af]
+    asYAML (MkRulePGE aa ab ac ad) = asYAMLseq "MkRulePGE"
+	   [asYAML aa , asYAML ab , asYAML ac , asYAML ad]
 
 instance YAML Val where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
@@ -2097,14 +2092,12 @@ instance YAML Val where
 instance YAML VJunc where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkJunc" -> do
-	    let YamlMap assocs = e
-	    let [aa , ab , ac] = map snd assocs
+	    let YamlSeq [aa , ab , ac] = e
 	    liftM3 MkJunc (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkJunc"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML (MkJunc aa ab ac) = asYAMLmap "MkJunc"
-	   [("juncType", asYAML aa) , ("juncDup", asYAML ab) ,
-	    ("juncSet", asYAML ac)]
+    asYAML (MkJunc aa ab ac) = asYAMLseq "MkJunc"
+	   [asYAML aa , asYAML ab , asYAML ac]
 
 instance YAML JuncType where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
@@ -2171,17 +2164,13 @@ instance YAML Param where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkParam" -> do
 	    let liftM9 f m1 m2 m3 m4 m5 m6 m7 m8 m9 = do { x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; x7 <- m7; x8 <- m8; x9 <- m9; return (f x1 x2 x3 x4 x5 x6 x7 x8 x9) }
-	    let YamlMap assocs = e
-	    let [aa , ab , ac , ad , ae , af , ag , ah , ai] = map snd assocs
+	    let YamlSeq [aa , ab , ac , ad , ae , af , ag , ah , ai] = e
 	    liftM9 MkParam (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af) (fromYAML ag) (fromYAML ah) (fromYAML ai)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkParam"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML (MkParam aa ab ac ad ae af ag ah ai) = asYAMLmap "MkParam"
-	   [("isInvocant", asYAML aa) , ("isOptional", asYAML ab) ,
-	    ("isNamed", asYAML ac) , ("isLValue", asYAML ad) ,
-	    ("isWritable", asYAML ae) , ("isLazy", asYAML af) ,
-	    ("paramName", asYAML ag) , ("paramContext", asYAML ah) ,
-	    ("paramDefault", asYAML ai)]
+    asYAML (MkParam aa ab ac ad ae af ag ah ai) = asYAMLseq "MkParam"
+	   [asYAML aa , asYAML ab , asYAML ac , asYAML ad , asYAML ae ,
+	    asYAML af , asYAML ag , asYAML ah , asYAML ai]
 
 instance Perl5 Param where
     showPerl5 (MkParam aa ab ac ad ae af ag ah ai) =
@@ -2205,19 +2194,15 @@ instance YAML VCode where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkCode" -> do
 	    let liftM12 f m1 m2 m3 m4 m5 m6 m7 m8 m9 m10 m11 m12 = do { x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; x7 <- m7; x8 <- m8; x9 <- m9; x10 <- m10; x11 <- m11; x12 <- m12; return (f x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12) }
-	    let YamlMap assocs = e
-	    let [aa , ab , ac , ad , ae , af , ag , ah , ai , aj , ak , al] = map snd assocs
+	    let YamlSeq [aa , ab , ac , ad , ae , af , ag , ah , ai , aj , ak , al] = e
 	    liftM12 MkCode (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af) (fromYAML ag) (fromYAML ah) (fromYAML ai) (fromYAML aj) (fromYAML ak) (fromYAML al)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkCode"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (MkCode aa ab ac ad ae af ag ah ai aj ak al) =
-	   asYAMLmap "MkCode"
-	   [("isMulti", asYAML aa) , ("subName", asYAML ab) ,
-	    ("subType", asYAML ac) , ("subEnv", asYAML ad) ,
-	    ("subAssoc", asYAML ae) , ("subParams", asYAML af) ,
-	    ("subBindings", asYAML ag) , ("subSlurpLimit", asYAML ah) ,
-	    ("subReturns", asYAML ai) , ("subLValue", asYAML aj) ,
-	    ("subBody", asYAML ak) , ("subCont", asYAML al)]
+	   asYAMLseq "MkCode"
+	   [asYAML aa , asYAML ab , asYAML ac , asYAML ad , asYAML ae ,
+	    asYAML af , asYAML ag , asYAML ah , asYAML ai , asYAML aj ,
+	    asYAML ak , asYAML al]
 
 instance YAML Ann where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
@@ -2290,13 +2275,11 @@ instance YAML Exp where
 instance YAML InitDat where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkInitDat" -> do
-	    let YamlMap assocs = e
-	    let [aa] = map snd assocs
+	    let YamlSeq [aa] = e
 	    liftM MkInitDat (fromYAML aa)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkInitDat"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML (MkInitDat aa) = asYAMLmap "MkInitDat"
-	   [("initPragmas", asYAML aa)]
+    asYAML (MkInitDat aa) = asYAMLseq "MkInitDat" [asYAML aa]
 
 instance YAML Pad where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
@@ -2339,28 +2322,24 @@ instance YAML IScalarCwd where
 instance YAML VObject where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkObject" -> do
-	    let YamlMap assocs = e
-	    let [aa , ab , ac , ad] = map snd assocs
+	    let YamlSeq [aa , ab , ac , ad] = e
 	    liftM4 MkObject (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkObject"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML (MkObject aa ab ac ad) = asYAMLmap "MkObject"
-	   [("objType", asYAML aa) , ("objAttrs", asYAML ab) ,
-	    ("objOpaque", asYAML ac) , ("objId", asYAML ad)]
+    asYAML (MkObject aa ab ac ad) = asYAMLseq "MkObject"
+	   [asYAML aa , asYAML ab , asYAML ac , asYAML ad]
 
 instance YAML VMatch where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkMatch" -> do
 	    let liftM6 f m1 m2 m3 m4 m5 m6 = do { x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; return (f x1 x2 x3 x4 x5 x6) }
-	    let YamlMap assocs = e
-	    let [aa , ab , ac , ad , ae , af] = map snd assocs
+	    let YamlSeq [aa , ab , ac , ad , ae , af] = e
 	    liftM6 MkMatch (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkMatch"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML (MkMatch aa ab ac ad ae af) = asYAMLmap "MkMatch"
-	   [("matchOk", asYAML aa) , ("matchFrom", asYAML ab) ,
-	    ("matchTo", asYAML ac) , ("matchStr", asYAML ad) ,
-	    ("matchSubPos", asYAML ae) , ("matchSubNamed", asYAML af)]
+    asYAML (MkMatch aa ab ac ad ae af) = asYAMLseq "MkMatch"
+	   [asYAML aa , asYAML ab , asYAML ac , asYAML ad , asYAML ae ,
+	    asYAML af]
 
 instance YAML Scope where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
@@ -2409,15 +2388,12 @@ instance Perl5 Scope where
 instance YAML Pos where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkPos" -> do
-	    let YamlMap assocs = e
-	    let [aa , ab , ac , ad , ae] = map snd assocs
+	    let YamlSeq [aa , ab , ac , ad , ae] = e
 	    liftM5 MkPos (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkPos"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML (MkPos aa ab ac ad ae) = asYAMLmap "MkPos"
-	   [("posName", asYAML aa) , ("posBeginLine", asYAML ab) ,
-	    ("posBeginColumn", asYAML ac) , ("posEndLine", asYAML ad) ,
-	    ("posEndColumn", asYAML ae)]
+    asYAML (MkPos aa ab ac ad ae) = asYAMLseq "MkPos"
+	   [asYAML aa , asYAML ab , asYAML ac , asYAML ad , asYAML ae]
 
 instance JSON Pos where
     showJSON (MkPos aa ab ac ad ae) = showJSHashObj "MkPos"

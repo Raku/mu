@@ -4,11 +4,19 @@ import RuleUtils
 import List 
 import GenUtil
 
-rules = [
-    ("YAML", userRuleYAML, "Representation", "serialize into YAML nodes", Nothing)
+type AlwaysPositional = Bool
+
+rules =
+    [ ("YAML", userRuleYAML False, "Representation", "serialize into YAML nodes", Nothing)
+    , ("YAML_Pos", userRuleYAML True, "Representation", "serialize into YAML nodes (ignore record labels)", Nothing)
     ]
 
-userRuleYAML = instanceSkeleton' "YAML" [(const empty, caseHead), (makeFromYAML, const empty), (const empty, caseTail), (makeAsYAML, const empty)] 
+userRuleYAML alwaysPos = instanceSkeleton' "YAML"
+    [ (const empty, caseHead)
+    , (makeFromYAML alwaysPos, const empty)
+    , (const empty, caseTail)
+    , (makeAsYAML alwaysPos, const empty)
+    ]
 
 instanceSkeleton' :: Class -> [(IFunction,[Body] -> Doc)] -> Data -> Doc
 instanceSkeleton' s ii  d = (simpleInstance s d <+> text "where") 
@@ -22,9 +30,9 @@ caseHead _ = text "fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'
 caseTail bodies = nest 4 (text $ "_ -> fail $ \"unhandled tag: \" ++ show t ++ \", expecting \" ++ show " ++ show (map constructor bodies) ++ " ++ \" in node \" ++ show e")
        $+$ text "fromYAML _ = fail \"no tag found\""
 
-makeFromYAML, makeAsYAML :: IFunction
+makeFromYAML, makeAsYAML :: AlwaysPositional -> IFunction
 
-makeFromYAML Body{constructor=constructor,labels=labels,types=types} =
+makeFromYAML alwaysPos Body{constructor=constructor,labels=labels,types=types} =
     nest 4 $ eqv <+> match <+> dot $+$ extraLifts $+$ makeFromYAML'
     where
     dqt   = doubleQuotes . text
@@ -34,7 +42,7 @@ makeFromYAML Body{constructor=constructor,labels=labels,types=types} =
     eqv   = dqt constructor
     makeFromYAML'
         | null types = nest 4 $ text "return" <+> text constructor
-        | null labels = vcat
+        | (alwaysPos || null labels) = vcat
             [ nest 4 $ text "let YamlSeq" <+> (list $ varNames types) <+> equals <+> text "e"
             , nest 4 $ liftNfy
             ]
@@ -65,9 +73,9 @@ makeFromYAML Body{constructor=constructor,labels=labels,types=types} =
             ])
     arity = length types
 
-makeAsYAML (Body{constructor=constructor,labels=labels,types=types})
+makeAsYAML alwaysPos (Body{constructor=constructor,labels=labels,types=types})
     | null types = fnName <+> fsep [headfn, clsName constructor]
-    | null labels = fnName <+> fsep
+    | (alwaysPos || null labels) = fnName <+> fsep
         [headfn, bodyStartArray, bodyArray]
     | otherwise = fnName <+> fsep
         [headfn, bodyStartHash, bodyHash]
