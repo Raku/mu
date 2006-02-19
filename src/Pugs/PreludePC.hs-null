@@ -26,7 +26,10 @@ initPreludePC env = do
     if bypass then return env else do
         let dispProgress = (posName . envPos $ env) == "<interactive>"
         when dispProgress $ putStr "Loading Prelude... "
-        loadPreludePC `catch` const evalPrelude
+        catch loadPreludePC $ \e -> do
+            print "moose"
+            print e
+            evalPrelude
         when dispProgress $ putStrLn "done."
         return env
     where
@@ -36,16 +39,19 @@ initPreludePC env = do
         }
     evalPrelude = runEvalIO env{ envDebug = Nothing } $ opEval style "<prelude>" preludeStr
     loadPreludePC = do -- XXX: search path
+        -- print "Parsing yaml..."
         p <- parseYamlFS =<< Str.readFile "src/Pugs/PreludePC.yml"
-        --putTraceMsg $ "parsing done ok, size " ++ show (gsize p)
+        -- print "Parsing done!"
         case p of
             Right (Just yml) -> do
+                -- print "Loading yaml..."
                 (glob, ast) <- fromYAML yml
+                -- print "Loading done!"
                 globRef <- liftSTM $ do
                     glob' <- readTVar $ envGlobal env
                     newTVar (glob `unionPads` glob')
                 runEnv env{ envBody = ast, envGlobal = globRef, envDebug = Nothing }
-            _                -> fail "error loading precompiled Prelude"
+            x                -> fail $ "error loading precompiled Prelude" ++ show x
 
 -- This is filled in by the null() procedure in util/gen_prelude.pl
 preludeStr :: String

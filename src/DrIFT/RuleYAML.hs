@@ -8,11 +8,18 @@ rules = [
     ("YAML", userRuleYAML, "Representation", "serialize into YAML nodes", Nothing)
     ]
 
-userRuleYAML = instanceSkeleton "YAML" [(const empty, caseHead), (makeFromYAML, empty), (const empty, caseTail), (makeAsYAML, empty)] 
+userRuleYAML = instanceSkeleton' "YAML" [(const empty, caseHead), (makeFromYAML, const empty), (const empty, caseTail), (makeAsYAML, const empty)] 
 
-caseHead, caseTail :: Doc
-caseHead = text "fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of"
-caseTail = nest 4 (text "_ -> fail $ \"unhandled tag: \" ++ show t")
+instanceSkeleton' :: Class -> [(IFunction,[Body] -> Doc)] -> Data -> Doc
+instanceSkeleton' s ii  d = (simpleInstance s d <+> text "where") 
+				$$ block functions
+	where
+	functions = concatMap f ii
+	f (i,dflt) = map i (body d) ++ [dflt $ body d]      
+
+caseHead, caseTail :: [Body] -> Doc
+caseHead _ = text "fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of"
+caseTail bodies = nest 4 (text $ "_ -> fail $ \"unhandled tag: \" ++ show t ++ \", expecting \" ++ show " ++ show (map constructor bodies) ++ " ++ \" in node \" ++ show e")
        $+$ text "fromYAML _ = fail \"no tag found\""
 
 makeFromYAML, makeAsYAML :: IFunction
