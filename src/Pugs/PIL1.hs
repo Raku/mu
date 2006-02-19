@@ -168,7 +168,7 @@ instance YAML PIL_Environment where
 	    let YamlMap assocs = e
 	    let [aa , ab] = map snd assocs
 	    liftM2 PIL_Environment (fromYAML aa) (fromYAML ab)
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PIL_Environment"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (PIL_Environment aa ab) = asYAMLmap "PIL_Environment"
 	   [("pilGlob", asYAML aa) , ("pilMain", asYAML ab)]
@@ -201,7 +201,7 @@ instance YAML PIL_Stmts where
 	    let YamlMap assocs = e
 	    let [aa , ab , ac] = map snd assocs
 	    liftM3 PPad (fromYAML aa) (fromYAML ab) (fromYAML ac)
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PNil","PStmts","PPad"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (PNil) = asYAMLcls "PNil"
     asYAML (PStmts aa ab) = asYAMLmap "PStmts"
@@ -238,7 +238,7 @@ instance YAML PIL_Stmt where
 	    let YamlMap assocs = e
 	    let [aa , ab , ac] = map snd assocs
 	    liftM3 PPos (fromYAML aa) (fromYAML ab) (fromYAML ac)
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PNoop","PStmt","PPos"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (PNoop) = asYAMLcls "PNoop"
     asYAML (PStmt aa) = asYAMLmap "PStmt" [("pExpr", asYAML aa)]
@@ -291,7 +291,7 @@ instance YAML PIL_Expr where
 	    let YamlMap assocs = e
 	    let [aa , ab , ac , ad , ae] = map snd assocs
 	    liftM5 PCode (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae)
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PRawName","PExp","PLit","PThunk","PCode"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (PRawName aa) = asYAMLmap "PRawName"
 	   [("pRawName", asYAML aa)]
@@ -322,7 +322,7 @@ instance YAML PIL_Decl where
 	    let YamlMap assocs = e
 	    let [aa , ab , ac , ad , ae , af] = map snd assocs
 	    liftM6 PSub (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af)
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PSub"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (PSub aa ab ac ad ae af) = asYAMLmap "PSub"
 	   [("pSubName", asYAML aa) , ("pSubType", asYAML ab) ,
@@ -341,7 +341,7 @@ instance YAML PIL_Literal where
 	    let YamlMap assocs = e
 	    let [aa] = map snd assocs
 	    liftM PVal (fromYAML aa)
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PVal"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (PVal aa) = asYAMLmap "PVal" [("pVal", asYAML aa)]
 
@@ -385,7 +385,7 @@ instance YAML PIL_LValue where
 	    let YamlMap assocs = e
 	    let [aa , ab] = map snd assocs
 	    liftM2 PBind (fromYAML aa) (fromYAML ab)
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PVar","PApp","PAssign","PBind"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (PVar aa) = asYAMLmap "PVar" [("pVarName", asYAML aa)]
     asYAML (PApp aa ab ac ad) = asYAMLmap "PApp"
@@ -410,7 +410,7 @@ instance YAML TParam where
 	    let YamlMap assocs = e
 	    let [aa , ab] = map snd assocs
 	    liftM2 MkTParam (fromYAML aa) (fromYAML ab)
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkTParam"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (MkTParam aa ab) = asYAMLmap "MkTParam"
 	   [("tpParam", asYAML aa) , ("tpDefault", asYAML ab)]
@@ -450,7 +450,7 @@ instance YAML TCxt where
 	"TTailCall" -> do
 	    let YamlSeq [aa] = e
 	    liftM TTailCall (fromYAML aa)
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["TCxtVoid","TCxtLValue","TCxtItem","TCxtSlurpy","TTailCall"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (TCxtVoid) = asYAMLcls "TCxtVoid"
     asYAML (TCxtLValue aa) = asYAMLseq "TCxtLValue" [asYAML aa]
@@ -476,7 +476,7 @@ instance YAML TEnv where
 	    let YamlMap assocs = e
 	    let [aa , ab , ac , ad , ae] = map snd assocs
 	    liftM5 MkTEnv (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae)
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkTEnv"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (MkTEnv aa ab ac ad ae) = asYAMLmap "MkTEnv"
 	   [("tLexDepth", asYAML aa) , ("tTokDepth", asYAML ab) ,

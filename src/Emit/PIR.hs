@@ -1012,7 +1012,7 @@ instance YAML Decl where
 	    let YamlMap assocs = e
 	    let [aa] = map snd assocs
 	    liftM DeclInc (fromYAML aa)
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["DeclSub","DeclNS","DeclInc"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (DeclSub aa ab ac) = asYAMLmap "DeclSub"
 	   [("dsName", asYAML aa) , ("dsFlags", asYAML ab) ,
@@ -1041,7 +1041,7 @@ instance YAML Stmt where
 	"StmtSub" -> do
 	    let YamlSeq [aa , ab] = e
 	    liftM2 StmtSub (fromYAML aa) (fromYAML ab)
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["StmtComment","StmtLine","StmtPad","StmtRaw","StmtIns","StmtSub"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (StmtComment aa) = asYAMLseq "StmtComment" [asYAML aa]
     asYAML (StmtLine aa ab) = asYAMLseq "StmtLine"
@@ -1088,7 +1088,7 @@ instance YAML Ins where
 	"InsConst" -> do
 	    let YamlSeq [aa , ab , ac] = e
 	    liftM3 InsConst (fromYAML aa) (fromYAML ab) (fromYAML ac)
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["InsLocal","InsNew","InsBind","InsAssign","InsPrim","InsFun","InsTailFun","InsLabel","InsComment","InsExp","InsConst"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (InsLocal aa ab) = asYAMLseq "InsLocal"
 	   [asYAML aa , asYAML ab]
@@ -1118,7 +1118,7 @@ instance YAML Expression where
 	"ExpLit" -> do
 	    let YamlSeq [aa] = e
 	    liftM ExpLit (fromYAML aa)
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["ExpLV","ExpLit"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (ExpLV aa) = asYAMLseq "ExpLV" [asYAML aa]
     asYAML (ExpLit aa) = asYAMLseq "ExpLit" [asYAML aa]
@@ -1143,7 +1143,7 @@ instance YAML LValue where
 	"KEYED" -> do
 	    let YamlSeq [aa , ab] = e
 	    liftM2 KEYED (fromYAML aa) (fromYAML ab)
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["VAR","PMC","STR","INT","NUM","KEYED"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (VAR aa) = asYAMLseq "VAR" [asYAML aa]
     asYAML (PMC aa) = asYAMLseq "PMC" [asYAML aa]
@@ -1163,7 +1163,7 @@ instance YAML Literal where
 	"LitNum" -> do
 	    let YamlSeq [aa] = e
 	    liftM LitNum (fromYAML aa)
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["LitStr","LitInt","LitNum"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (LitStr aa) = asYAMLseq "LitStr" [asYAML aa]
     asYAML (LitInt aa) = asYAMLseq "LitInt" [asYAML aa]
@@ -1185,7 +1185,7 @@ instance YAML SubFlag where
 	"SubOUTER" -> do
 	    let YamlSeq [aa] = e
 	    liftM SubOUTER (fromYAML aa)
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["SubMAIN","SubLOAD","SubANON","SubMETHOD","SubMULTI","SubOUTER"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (SubMAIN) = asYAMLcls "SubMAIN"
     asYAML (SubLOAD) = asYAMLcls "SubLOAD"
@@ -1204,7 +1204,7 @@ instance YAML RegType where
 	    return RegStr
 	"RegPMC" -> do
 	    return RegPMC
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["RegInt","RegNum","RegStr","RegPMC"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (RegInt) = asYAMLcls "RegInt"
     asYAML (RegNum) = asYAMLcls "RegNum"
@@ -1236,7 +1236,7 @@ instance YAML ObjType where
 	"BareType" -> do
 	    let YamlSeq [aa] = e
 	    liftM BareType (fromYAML aa)
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PerlScalar","PerlArray","PerlHash","PerlInt","PerlPair","PerlRef","PerlEnv","Sub","Closure","Continuation","BareType"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (PerlScalar) = asYAMLcls "PerlScalar"
     asYAML (PerlArray) = asYAMLcls "PerlArray"
@@ -1256,7 +1256,7 @@ instance YAML Sig where
 	    let YamlMap assocs = e
 	    let [aa , ab] = map snd assocs
 	    liftM2 MkSig (fromYAML aa) (fromYAML ab)
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkSig"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (MkSig aa ab) = asYAMLmap "MkSig"
 	   [("sigFlags", asYAML aa) , ("sigIdent", asYAML ab)]
@@ -1271,7 +1271,7 @@ instance YAML ArgFlag where
 	    return MkArgMaybeFlatten
 	"MkArgOptional" -> do
 	    return MkArgOptional
-	_ -> fail $ "unhandled tag: " ++ show t
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkArgFlatten","MkArgSlurpyArray","MkArgMaybeFlatten","MkArgOptional"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (MkArgFlatten) = asYAMLcls "MkArgFlatten"
     asYAML (MkArgSlurpyArray) = asYAMLcls "MkArgSlurpyArray"
