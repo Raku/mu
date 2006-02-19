@@ -101,15 +101,16 @@ op1EvalP6Y f = do
     yml <- liftIO $ parseYamlFS str
     case yml of
         Right (Just yml') -> do
+            globTVar    <- asks envGlobal
             (glob, ast) <- liftIO $ fromYAML yml'
-            env <- ask
-            -- xxx high bogosity warning
-            globRef <- liftSTM $ do
-                glob' <- readTVar $ envGlobal env
-                newTVar (glob `unionPads` glob')
-            --runEnv env{ envBody = ast, envGlobal = globRef, envDebug = Nothing }
-            (envEval env) ast
-        _ -> fail "failed"
+            resetT $ do
+                -- Inject the global bindings
+                liftSTM $ do
+                    glob' <- readTVar globTVar
+                    writeTVar globTVar (glob' `unionPads` glob)
+                evl <- asks envEval
+                evl ast
+        x -> fail $ "failed loading Yaml: " ++ show x
 
 opEval :: EvalStyle -> FilePath -> String -> Eval Val
 opEval style path str = enterCaller $ do
