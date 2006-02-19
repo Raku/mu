@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 4;
+plan 7;
 
 # (Automatic s:g/::/$PATH_SEPARATOR_OF_CUR_OS/)++
 use t::packages::Export_PackB;
@@ -21,3 +21,13 @@ dies_ok { exported_foo() },
     lives_ok { foo_packc() } "lexical export works";
 }
 dies_ok { foo_packc() } "lexical export is indeed lexical";
+
+
+sub moose {
+    use t::packages::Export_PackD;
+    is(this_gets_exported_lexically(), 'moose!', "lexical import survives pad regeneration")
+}
+
+moose();
+moose();
+moose();
