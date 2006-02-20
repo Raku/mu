@@ -234,12 +234,32 @@ sub rule::closure {
     return ( undef, { closure => $result }, @_ );
 }
 
+sub rule::subrule {
+    return if +shift;
+    return if !@_;
+    return if $_[0] ne '<';
+    shift;
+    my $code;
+    while ( @_ ) {
+        last if $_[0] eq '>';
+        $code .= +shift;
+    }
+    return if $_[0] ne '>';
+    shift;
+    print "subrule $code\n";
+    {
+    no strict "refs";
+    return &{ 'rule::' . $code }( @_ );
+    }
+}
+
 sub rule::rule {
     rule::alternation(
         \&rule::ws,
         \&rule::closure,
+        \&rule::subrule,
         \&rule::word,
-    )->( @_ );
+    );
 }
 
 package main;
@@ -252,9 +272,14 @@ $Data::Dumper::Indent = 1;
 my $state;
 my $tmp;
 
-print Dumper rule::rule( 0, split //, ' ' );
-print Dumper rule::rule( 0, split //, 'abc' );
-print Dumper rule::rule( 0, split //, '{1+1}' );
+print Dumper rule::rule( 0, split //, ' ' )
+                     ->( 0, ' ' );
+print Dumper rule::rule( 0, split //, 'abc' )
+                     ->( 0, split //, 'abc' );
+print Dumper rule::rule( 0, split //, '{ print 1+1 }' )
+                     ->( 0, '' );
+print Dumper rule::rule( 0, split //, '<word>' )
+                     ->( 0, split //, 'abc' );
 
 =for tested
 
