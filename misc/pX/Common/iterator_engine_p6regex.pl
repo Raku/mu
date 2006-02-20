@@ -43,8 +43,7 @@ sub rule::word_char {
 
 # rule compiler
 
-sub ruleop::closure {
-    return sub {
+sub rule::closure {
         return if +shift;
         return if !@_;
         return if $_[0] ne '{';
@@ -59,11 +58,9 @@ sub ruleop::closure {
         #print "compiling $code - @_\n";
         my $result = eval $code;
         return ( undef, { code => $result }, @_ );
-    }
 }
 
-sub ruleop::subrule {
-    return sub {
+sub rule::subrule {
         return if +shift;
         return if !@_;
         return if $_[0] ne '<';
@@ -77,20 +74,18 @@ sub ruleop::subrule {
         shift;
         #print "subrule $code\n";
         return ( undef, { rule => $code }, @_ );
-    }
 }
 
-sub ruleop::rule {
+*rule::rule = 
     ruleop::greedy_star(
       ruleop::alternation(
         \&rule::ws,
-        ruleop::closure,
-        ruleop::subrule,
-        ruleop::constant( 'if' ),
+        \&rule::closure,
+        \&rule::subrule,
+        ruleop::constant( 'if' ),  # XXX - just an example
         \&rule::word,
       )
     );
-}
 
 package main;
 
@@ -102,11 +97,13 @@ $Data::Dumper::Indent = 1;
 my $state;
 my $tmp;
 
-print "compile rule\n";
+#print "compile rule\n";
 my ( $stat, $match, $tail ) = 
-    ruleop::rule()->( 0, split //, 
-        '{ print 1+1, "\n"; 3 } <word> if xyz' );
-print "run rule \n", Dumper( $stat, $match, $tail );
+    rule::rule( 0, split //, 
+        '{ 1+1 } <word> if xyz' );
+#print "run rule \n", Dumper( $stat, $match, $tail );
+#print "run rule \n", 
+print Dumper( $match );
 #$match->( 0, split //, '' );
 
 __END__

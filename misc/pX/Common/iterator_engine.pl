@@ -1,11 +1,5 @@
 # pX/Common/iterator_engine.pl - fglock
 #
-# status: the implementation uses fast ARRAY operations, 
-# but this makes it difficult to write regex compositions
-# such as alternations, and so it doesn't scale easily to complex regexes
-#
-# plan: rewrite using generators instead of ARRAY
-# problem: this may be too slow, or difficult to maintain
 
 use strict;
 use warnings;
