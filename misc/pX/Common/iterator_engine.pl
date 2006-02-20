@@ -214,7 +214,10 @@ sub rule::word_char {
         if $_[0] =~ m/[a-zA-Z0-9\_]/;  
     return;
 };
-*rule::word = rule::greedy( \&rule::word_char );
+*rule::word = rule::concat(
+        \&rule::word_char,
+        rule::greedy( \&rule::word_char )
+    );
 
 # rule compiler
 
@@ -272,6 +275,8 @@ $Data::Dumper::Indent = 1;
 my $state;
 my $tmp;
 
+=for later
+
 print Dumper rule::rule( 0, split //, ' ' )
                      ->( 0, ' ' );
 print Dumper rule::rule( 0, split //, 'abc' )
@@ -280,6 +285,23 @@ print Dumper rule::rule( 0, split //, '{ print 1+1 }' )
                      ->( 0, '' );
 print Dumper rule::rule( 0, split //, '<word>' )
                      ->( 0, split //, 'abc' );
+
+=cut
+
+$state = 0;
+{
+    my $alt;
+    $alt = rule::concat( 
+        rule::constant('ab'), 
+        rule::optional(sub{$alt->(@_)})
+     );
+    while ( defined $state ) {
+        ($state, $tmp, undef) = $alt->( $state, qw(a b a b a b) );
+        print "recursive\n", Dumper( $tmp );
+    }
+}
+
+__END__
 
 =for tested
 
