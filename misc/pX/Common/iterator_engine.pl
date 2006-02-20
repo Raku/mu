@@ -25,30 +25,32 @@ it returns (or "yields"):
 
 Continuations are used for backtracking.
 
-=cut
+A "ruleop" function gets some arguments and returns a "rule".
 
-# internal functions that perform rule composition
+=cut
 
 # XXX - optimization - pass the string index around, 
 # XXX   instead of copying the whole string to @tail every time
 
-sub rule::greedy_plus { 
+sub ruleop::greedy_plus { 
     my $node = shift;
     my $alt;
-    $alt = rule::concat( 
+    $alt = ruleop::concat( 
         $node, 
-        rule::optional( sub{$alt->(@_)} )
+        ruleop::optional( sub{$alt->(@_)} )
     );
     return $alt;
 }
-sub rule::greedy_star { 
+sub ruleop::greedy_star { 
     my $node = shift;
-    return rule::optional( rule::greedy_plus( $node ) );
+    return ruleop::optional( ruleop::greedy_plus( $node ) );
 }
 
-sub rule::non_greedy { 
+sub ruleop::non_greedy { 
     my $node = shift;
-    # TODO
+
+    # TODO - this sub is not completely implemented / tested
+
     # XXX - possible implementation strategy - reuse rule::concat ?
     return sub {
         my $n = shift;
@@ -68,7 +70,7 @@ sub rule::non_greedy {
     }
 }
 
-sub rule::alternation {
+sub ruleop::alternation {
     # XXX - is this supposed to return the longest match first?
     # XXX   in which case it would have to test all possibilities before returning
     my @nodes = @_;
@@ -94,7 +96,7 @@ sub rule::alternation {
     }
 }
 
-sub rule::concat {
+sub ruleop::concat {
     my @concat = @_;
     # TODO: generalize for @concat > 2
     return sub {
@@ -136,7 +138,7 @@ sub rule::concat {
     }
 }
 
-sub rule::constant { 
+sub ruleop::constant { 
     my $const = shift;
     my @const = split //, $const;
     return sub {
@@ -145,219 +147,29 @@ sub rule::constant {
         for ( 0 .. $#const ) {
             return if $const[$_] ne $_[$_];
         }
-        return ( undef, $const, @_[@const..$#_] );
+        return ( undef, { constant => $const }, @_[@const..$#_] );
         return;
     }
 }
-sub rule::optional {
-    return rule::alternation( $_[0], \&rule::null );
+
+sub ruleop::optional {
+    return ruleop::alternation( $_[0], ruleop::null() );
 }
 
-# Prelude - precompiled rules, such as <word>, \x, etc.
-
-sub rule::null {
-    return if +shift;  # no continuation
-    ( undef, [], @_ );
-};
-
-{
-no strict "refs";
-*{'rule::.'} = sub { 
+sub ruleop::null {
+    return sub {
         return if +shift;  # no continuation
-        @_ ? ( undef, { '.'=> $_[0] }, @_[1..$#_] ) : undef
-    };
-}
-
-sub rule::ws {
-    return if +shift;  # no continuation
-    return unless @_;
-    return ( undef, { 'ws' => $_[0] }, @_[1..$#_] )
-        if $_[0] =~ /\s/;
-    return;
+        ( undef, [], @_ );
+    }
 };
-sub rule::slashed_char {
-    return if +shift;  # no continuation
-    return if @_ < 2;
-    return ( undef, { 'slashed_char' => [ $_[0], $_[1] ] }, @_[2..$#_] ) 
-        if $_[0] eq '\\';
-    return;
-};
-sub rule::word_char { 
-    return if +shift;  # no continuation
-    return unless @_;
-    return ( undef, { 'word_char'=> $_[0] }, @_[1..$#_] ) 
-        if $_[0] =~ m/[a-zA-Z0-9\_]/;  
-    return;
-};
-*rule::word = rule::concat(
-        \&rule::word_char,
-        rule::greedy_star( \&rule::word_char )
-    );
 
-# rule compiler
 
-sub rule::closure {
-    return sub {
-        return if +shift;
-        return if !@_;
-        return if $_[0] ne '{';
-        shift;
-        my $code;
-        while ( @_ ) {
-            last if $_[0] eq '}';
-            $code .= +shift;
-        }
-        return if $_[0] ne '}';
-        shift;
-        #print "compiling $code - @_\n";
-        my $result = eval $code;
-        return ( undef, { code => $result }, @_ );
-    }
-}
-
-sub rule::subrule {
-    return sub {
-        return if +shift;
-        return if !@_;
-        return if $_[0] ne '<';
-        shift;
-        my $code;
-        while ( @_ ) {
-            last if $_[0] eq '>';
-            $code .= +shift;
-        }
-        return if $_[0] ne '>';
-        shift;
-        #print "subrule $code\n";
-        return ( undef, { rule => $code }, @_ );
-    }
-}
-
-sub rule::rule {
-    rule::greedy_star(
-      rule::alternation(
-        \&rule::ws,
-        rule::closure,
-        rule::subrule,
-        \&rule::word,
-      )
-    );
-}
-
-package main;
-
-# TODO: use Test::More
-
-use Data::Dumper;
-$Data::Dumper::Indent = 1;
-
-my $state;
-my $tmp;
-
-print "compile rule\n";
-my ( $stat, $match, $tail ) = 
-    rule::rule()->( 0, split //, 
-        '{ print 1+1, "\n"; 3 } <word> const' );
-print "run rule \n", Dumper( $stat, $match, $tail );
-#$match->( 0, split //, '' );
+1;
 
 __END__
 
-print Dumper rule::rule()->( 0, split //, '{ print 1+1, "\n" }' )
-                     ->( 0, split //, '' );
 
-__END__
-
-print Dumper rule::rule( 0, split //, ' ' )
-                     ->( 0, split //, 'x' );
-
-print Dumper rule::rule( 0, split //, '<word>' )
-                     ->( 0, split //, ' abc def' );
-
-print Dumper rule::rule( 0, split //, 'abc' )
-                     ->( 0, split //, 'abc' );
-print Dumper rule::rule( 0, split //, '<word>' )
-                     ->( 0, split //, 'abc' );
-
-__END__
-
-=for later
-
-$state = 0;
-{
-    while ( defined $state ) {
-        ($state, $tmp, undef) = 
-            rule::greedy_plus( rule::constant( 'ab' ) )
-            ->( $state, qw(a b a b a b) );
-        print "recursive\n", Dumper( $tmp );
-    }
-}
-
-__END__
-
-=for tested
-
-$state = 0;
-{
-    my $alt = rule::alternation( 
-        rule::constant('ab'), rule::constant('ba'), rule::constant('a') );
-    while ( defined $state ) {
-        ($state, $tmp, undef) = rule::concat( 
-                $alt, rule::optional( $alt ) 
-            )->( $state, qw(a b a)
-        );
-        print "concat\n", Dumper( $tmp );
-    }
-}
-
-$state = 0;
-while ( defined $state ) {
-    print "alternation\n", Dumper( 
-        ($state, $tmp, undef) = rule::alternation( 
-            rule::constant('ab'), rule::constant('a') 
-        )->( $state, qw(a b c) ) 
-    );
-}
-
-$state = 0;
-while ( defined $state ) {
-    print "greedy\n", Dumper( 
-        ($state, $tmp, undef) = rule::greedy( rule::constant('a') )->( $state, qw(a a b c) ) 
-    );
-}
-
-$state = 0;
-while ( defined $state ) {
-    print "greedy + alternation state\n", Dumper( 
-        ($state, $tmp, undef) = rule::greedy( 
-            rule::alternation( 
-                rule::constant('ab'), rule::constant('a'), 
-                rule::constant('cd'), rule::constant('ba'), 
-                rule::constant('bc'), )
-        )->( $state, qw(a b a b c) ) 
-    );
-}
-
-=cut
-
-__END__
-
-$state = 0;
-for ( 0 .. 3 ) {
-    print "greedy + alternation state $_\n", Dumper( 
-        ($state, undef, undef) = rule::greedy( 
-            rule::alternation( 
-                rule::constant('cd'), rule::constant('ab'), 
-                rule::constant('a'),  rule::constant('cd') )
-        )->( $state, qw(a b a b c) ) 
-    );
-}
-
-__END__
-
-print "any-char\n", Dumper( 
-  &{'rule::.'}( 0, qw( a b ) ) 
-);
+# old tests
 
 print "greedy\n", Dumper( 
   rule::greedy( rule::constant('a') )->( 0, qw(a a a b c) ) 
