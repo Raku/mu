@@ -76,13 +76,23 @@ sub rule::subrule {
         return ( undef, { rule => $code }, @_ );
 }
 
+*rule::parenthesis = 
+    ruleop::concat(
+        ruleop::constant( '(' ),
+        ruleop::concat(
+            \&rule::rule,
+            ruleop::constant( ')' )
+        )
+    );
+
 *rule::rule = 
     ruleop::greedy_star(
       ruleop::alternation(
         \&rule::ws,
         \&rule::closure,
         \&rule::subrule,
-        ruleop::constant( 'if' ),  # XXX - just an example
+        \&rule::parenthesis,
+        # ruleop::constant( 'if' ),  # XXX - just an example
         \&rule::word,
       )
     );
@@ -100,7 +110,7 @@ my $tmp;
 #print "compile rule\n";
 my ( $stat, $match, $tail ) = 
     rule::rule( 0, split //, 
-        '{ 1+1 } <word> if xyz' );
+        '{ 1+1 } <word> ( <word> ) xyz' );
 #print "run rule \n", Dumper( $stat, $match, $tail );
 #print "run rule \n", 
 print Dumper( $match );
