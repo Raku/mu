@@ -29,54 +29,26 @@ Continuations are used for backtracking.
 
 # internal functions that perform rule composition
 
-# NOTE: <rule>+ can be compiled as <rule><rule>*
-
 # XXX - optimization - pass the string index around, 
 # XXX   instead of copying the whole string to @tail every time
 
-sub rule::greedy { 
+sub rule::greedy_plus { 
     my $node = shift;
-    
-    # XXX - remove this after the actual sub is finished
-    return rule::concat( 
-        rule::concat( 
-            rule::optional( $node ), 
-            rule::optional( $node ) 
-        ), 
-        rule::optional( $node ) 
+    my $alt;
+    $alt = rule::concat( 
+        $node, 
+        rule::optional( sub{$alt->(@_)} )
     );
-    
-    # XXX - disabled - this sub needs a rewrite
-    return sub {
-        my $n = shift;
-        my @tail;
-        my @matches;
-        my $cont;
-        $n = [ 0 ] if $n == 0;
-        # XXX - removed 'cache' optimization until this sub works
-        my ($state, $new_match, @new_tail);
-        @tail = @_;
-        @matches = ();  # no-cache
-        if ( $n->[-1] eq '*' ) { $n->[-1] = 0; push @$n, (0) x 3; }
-        for (0 .. $#$n) {
-            ($state, $new_match, @new_tail) = $node->( $n->[$_], @tail );
-            @tail = @new_tail;
-            last unless $new_match;
-            push @matches, $new_match;
-        }
-        if ( defined $state ) {
-            $n = @matches ? [ $n->[0 .. $#matches], $state, '*' ] : [ $state, '*' ];
-        }
-        else
-        {
-            $n = @matches ? [ $n->[0 .. $#matches], '*' ] : undef;
-        }
-        return ( $n, { 'greedy' => [ @matches ] }, @tail );
-    }
+    return $alt;
+}
+sub rule::greedy_star { 
+    my $node = shift;
+    return rule::optional( rule::greedy_plus( $node ) );
 }
 
 sub rule::non_greedy { 
     my $node = shift;
+    # TODO
     # XXX - possible implementation strategy - reuse rule::concat ?
     return sub {
         my $n = shift;
@@ -102,6 +74,7 @@ sub rule::alternation {
     my @nodes = @_;
     return sub {
         my $n = shift;
+        #print "testing alternations on @_\n";
         return unless @nodes;
         my $match;
         my @tail;
@@ -216,52 +189,60 @@ sub rule::word_char {
 };
 *rule::word = rule::concat(
         \&rule::word_char,
-        rule::greedy( \&rule::word_char )
+        rule::greedy_star( \&rule::word_char )
     );
 
 # rule compiler
 
 sub rule::closure {
-    return if +shift;
-    return if !@_;
-    return if $_[0] ne '{';
-    shift;
-    my $code;
-    while ( @_ ) {
-        last if $_[0] eq '}';
-        $code .= +shift;
+    return sub {
+        return if +shift;
+        return if !@_;
+        return if $_[0] ne '{';
+        shift;
+        my $code;
+        while ( @_ ) {
+            last if $_[0] eq '}';
+            $code .= +shift;
+        }
+        return if $_[0] ne '}';
+        shift;
+        #print "compiling $code - @_\n";
+        my $result = eval $code;
+        return ( undef, { code => $result }, @_ );
     }
-    return if $_[0] ne '}';
-    shift;
-    my $result = eval $code;
-    return ( undef, { closure => $result }, @_ );
 }
 
 sub rule::subrule {
-    return if +shift;
-    return if !@_;
-    return if $_[0] ne '<';
-    shift;
-    my $code;
-    while ( @_ ) {
-        last if $_[0] eq '>';
-        $code .= +shift;
-    }
-    return if $_[0] ne '>';
-    shift;
-    print "subrule $code\n";
-    {
-    no strict "refs";
-    return &{ 'rule::' . $code }( @_ );
+    return sub {
+        return if +shift;
+        return if !@_;
+        return if $_[0] ne '<';
+        shift;
+        my $code;
+        while ( @_ ) {
+            last if $_[0] eq '>';
+            $code .= +shift;
+        }
+        return if $_[0] ne '>';
+        shift;
+        #print "subrule $code\n";
+        return ( undef, { rule => $code }, @_ );
+        #{
+        #    no strict "refs";
+        #    return &{ 'rule::' . $code }( @_ );
+        #}
     }
 }
 
 sub rule::rule {
-    rule::alternation(
+    rule::greedy_star(
+      rule::alternation(
         \&rule::ws,
-        \&rule::closure,
-        \&rule::subrule,
+        rule::closure,
+        rule::subrule,
         \&rule::word,
+      )
     );
 }
 
@@ -275,28 +256,40 @@ $Data::Dumper::Indent = 1;
 my $state;
 my $tmp;
 
-=for later
+print "compile rule\n";
+my ( $stat, $match, $tail ) = 
+    rule::rule()->( 0, split //, '{ print 1+1, "\n"; 3 } <word>' );
+print "run rule \n", Dumper( $stat, $match, $tail );
+#$match->( 0, split //, '' );
+
+__END__
+
+print Dumper rule::rule()->( 0, split //, '{ print 1+1, "\n" }' )
+                     ->( 0, split //, '' );
+
+__END__
 
 print Dumper rule::rule( 0, split //, ' ' )
-                     ->( 0, ' ' );
+                     ->( 0, split //, 'x' );
+
+print Dumper rule::rule( 0, split //, '<word>' )
+                     ->( 0, split //, ' abc def' );
+
 print Dumper rule::rule( 0, split //, 'abc' )
                      ->( 0, split //, 'abc' );
-print Dumper rule::rule( 0, split //, '{ print 1+1 }' )
-                     ->( 0, '' );
 print Dumper rule::rule( 0, split //, '<word>' )
                      ->( 0, split //, 'abc' );
 
-=cut
+__END__
+
+=for later
 
 $state = 0;
 {
-    my $alt;
-    $alt = rule::concat( 
-        rule::constant('ab'), 
-        rule::optional(sub{$alt->(@_)})
-     );
     while ( defined $state ) {
-        ($state, $tmp, undef) = $alt->( $state, qw(a b a b a b) );
+        ($state, $tmp, undef) = 
+            rule::greedy_plus( rule::constant( 'ab' ) )
+            ->( $state, qw(a b a b a b) );
         print "recursive\n", Dumper( $tmp );
     }
 }
