@@ -13,9 +13,7 @@ import qualified Data.Map as Map
 import qualified Data.IntSet as IntSet
 import qualified Data.IntMap as IntMap
 import qualified Data.FastPackedString as Str
-import Foreign.StablePtr
-import Foreign.Ptr
-import Data.Generics
+import DrIFT.YAML
 
 type Str = Str.FastString
 
@@ -80,10 +78,12 @@ dumpYaml limit v = do
 strNode :: String -> YamlNode
 strNode = mkNode . YamlStr . Str.pack
 
+{-
 addressOf :: a -> IO Int
 addressOf x = do
     ptr <- newStablePtr x
     return (castStablePtrToPtr ptr `minusPtr` (nullPtr :: Ptr ()))
+-}
 
 toYaml :: (?seen :: IntSet.IntSet) => Val -> Eval YamlNode
 toYaml VUndef       = return $ mkNode YamlNil
@@ -96,9 +96,9 @@ toYaml v@(VRef r)   = do
         node <- ifValTypeIsa v "Hash" (hashToYaml r) $ do
             v'      <- readRef r
             nodes   <- toYaml v'
-            ifValTypeIsa v "Array" (return nodes) . return $ case v' of
-                VObject _   -> nodes
-                _           -> mkNode $ YamlMap [(strNode "<ref>", nodes)]
+            ifValTypeIsa v "Array" (return nodes) $ case v' of
+                VObject _   -> return nodes
+                _           -> liftIO $ toYamlNode r
         return node{ anchor = MkYamlAnchor ptr }
 toYaml (VList nodes) = do
     n <- mapM toYaml nodes
