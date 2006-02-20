@@ -114,7 +114,7 @@ instance YAML Bool where
     fromYAML MkYamlNode{tag=Just s} | s == Str.pack "bool#yes" = return True
     fromYAML MkYamlNode{tag=Just s} | s == Str.pack "bool#no"  = return False
     fromYAML MkYamlNode{el=x} = fromYAMLElem x
-    fromYAMLElem (YamlStr x) = return (x == Str.pack "0")
+    fromYAMLElem (YamlStr x) = return (x /= Str.pack "0")
     fromYAMLElem e = failWith e
 
 instance YAML Integer where 
