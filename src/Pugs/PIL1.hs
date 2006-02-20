@@ -166,7 +166,7 @@ instance YAML PIL_Environment where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"PIL_Environment" -> do
 	    let YamlMap assocs = e
-	    let [aa , ab] = map snd assocs
+	    let [aa, ab] = map snd assocs
 	    liftM2 PIL_Environment (fromYAML aa) (fromYAML ab)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PIL_Environment"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
@@ -195,11 +195,11 @@ instance YAML PIL_Stmts where
 	    return PNil
 	"PStmts" -> do
 	    let YamlMap assocs = e
-	    let [aa , ab] = map snd assocs
+	    let [aa, ab] = map snd assocs
 	    liftM2 PStmts (fromYAML aa) (fromYAML ab)
 	"PPad" -> do
 	    let YamlMap assocs = e
-	    let [aa , ab , ac] = map snd assocs
+	    let [aa, ab, ac] = map snd assocs
 	    liftM3 PPad (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PNil","PStmts","PPad"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
@@ -236,7 +236,7 @@ instance YAML PIL_Stmt where
 	    liftM PStmt (fromYAML aa)
 	"PPos" -> do
 	    let YamlMap assocs = e
-	    let [aa , ab , ac] = map snd assocs
+	    let [aa, ab, ac] = map snd assocs
 	    liftM3 PPos (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PNoop","PStmt","PPos"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
@@ -289,7 +289,7 @@ instance YAML PIL_Expr where
 	    liftM PThunk (fromYAML aa)
 	"PCode" -> do
 	    let YamlMap assocs = e
-	    let [aa , ab , ac , ad , ae] = map snd assocs
+	    let [aa, ab, ac, ad, ae] = map snd assocs
 	    liftM5 PCode (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PRawName","PExp","PLit","PThunk","PCode"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
@@ -320,7 +320,7 @@ instance YAML PIL_Decl where
 	"PSub" -> do
 	    let liftM6 f m1 m2 m3 m4 m5 m6 = do { x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; return (f x1 x2 x3 x4 x5 x6) }
 	    let YamlMap assocs = e
-	    let [aa , ab , ac , ad , ae , af] = map snd assocs
+	    let [aa, ab, ac, ad, ae, af] = map snd assocs
 	    liftM6 PSub (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PSub"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
@@ -375,15 +375,15 @@ instance YAML PIL_LValue where
 	    liftM PVar (fromYAML aa)
 	"PApp" -> do
 	    let YamlMap assocs = e
-	    let [aa , ab , ac , ad] = map snd assocs
+	    let [aa, ab, ac, ad] = map snd assocs
 	    liftM4 PApp (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
 	"PAssign" -> do
 	    let YamlMap assocs = e
-	    let [aa , ab] = map snd assocs
+	    let [aa, ab] = map snd assocs
 	    liftM2 PAssign (fromYAML aa) (fromYAML ab)
 	"PBind" -> do
 	    let YamlMap assocs = e
-	    let [aa , ab] = map snd assocs
+	    let [aa, ab] = map snd assocs
 	    liftM2 PBind (fromYAML aa) (fromYAML ab)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PVar","PApp","PAssign","PBind"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
@@ -408,7 +408,7 @@ instance YAML TParam where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkTParam" -> do
 	    let YamlMap assocs = e
-	    let [aa , ab] = map snd assocs
+	    let [aa, ab] = map snd assocs
 	    liftM2 MkTParam (fromYAML aa) (fromYAML ab)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkTParam"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
@@ -474,7 +474,7 @@ instance YAML TEnv where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkTEnv" -> do
 	    let YamlMap assocs = e
-	    let [aa , ab , ac , ad , ae] = map snd assocs
+	    let [aa, ab, ac, ad, ae] = map snd assocs
 	    liftM5 MkTEnv (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkTEnv"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"

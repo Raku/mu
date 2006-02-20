@@ -1002,11 +1002,11 @@ instance YAML Decl where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"DeclSub" -> do
 	    let YamlMap assocs = e
-	    let [aa , ab , ac] = map snd assocs
+	    let [aa, ab, ac] = map snd assocs
 	    liftM3 DeclSub (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	"DeclNS" -> do
 	    let YamlMap assocs = e
-	    let [aa , ab] = map snd assocs
+	    let [aa, ab] = map snd assocs
 	    liftM2 DeclNS (fromYAML aa) (fromYAML ab)
 	"DeclInc" -> do
 	    let YamlMap assocs = e
@@ -1027,10 +1027,10 @@ instance YAML Stmt where
 	    let YamlSeq [aa] = e
 	    liftM StmtComment (fromYAML aa)
 	"StmtLine" -> do
-	    let YamlSeq [aa , ab] = e
+	    let YamlSeq [aa, ab] = e
 	    liftM2 StmtLine (fromYAML aa) (fromYAML ab)
 	"StmtPad" -> do
-	    let YamlSeq [aa , ab] = e
+	    let YamlSeq [aa, ab] = e
 	    liftM2 StmtPad (fromYAML aa) (fromYAML ab)
 	"StmtRaw" -> do
 	    let YamlSeq [aa] = e
@@ -1039,7 +1039,7 @@ instance YAML Stmt where
 	    let YamlSeq [aa] = e
 	    liftM StmtIns (fromYAML aa)
 	"StmtSub" -> do
-	    let YamlSeq [aa , ab] = e
+	    let YamlSeq [aa, ab] = e
 	    liftM2 StmtSub (fromYAML aa) (fromYAML ab)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["StmtComment","StmtLine","StmtPad","StmtRaw","StmtIns","StmtSub"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
@@ -1056,37 +1056,37 @@ instance YAML Stmt where
 instance YAML Ins where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"InsLocal" -> do
-	    let YamlSeq [aa , ab] = e
+	    let YamlSeq [aa, ab] = e
 	    liftM2 InsLocal (fromYAML aa) (fromYAML ab)
 	"InsNew" -> do
-	    let YamlSeq [aa , ab] = e
+	    let YamlSeq [aa, ab] = e
 	    liftM2 InsNew (fromYAML aa) (fromYAML ab)
 	"InsBind" -> do
-	    let YamlSeq [aa , ab] = e
+	    let YamlSeq [aa, ab] = e
 	    liftM2 InsBind (fromYAML aa) (fromYAML ab)
 	"InsAssign" -> do
-	    let YamlSeq [aa , ab] = e
+	    let YamlSeq [aa, ab] = e
 	    liftM2 InsAssign (fromYAML aa) (fromYAML ab)
 	"InsPrim" -> do
-	    let YamlSeq [aa , ab , ac] = e
+	    let YamlSeq [aa, ab, ac] = e
 	    liftM3 InsPrim (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	"InsFun" -> do
-	    let YamlSeq [aa , ab , ac] = e
+	    let YamlSeq [aa, ab, ac] = e
 	    liftM3 InsFun (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	"InsTailFun" -> do
-	    let YamlSeq [aa , ab] = e
+	    let YamlSeq [aa, ab] = e
 	    liftM2 InsTailFun (fromYAML aa) (fromYAML ab)
 	"InsLabel" -> do
 	    let YamlSeq [aa] = e
 	    liftM InsLabel (fromYAML aa)
 	"InsComment" -> do
-	    let YamlSeq [aa , ab] = e
+	    let YamlSeq [aa, ab] = e
 	    liftM2 InsComment (fromYAML aa) (fromYAML ab)
 	"InsExp" -> do
 	    let YamlSeq [aa] = e
 	    liftM InsExp (fromYAML aa)
 	"InsConst" -> do
-	    let YamlSeq [aa , ab , ac] = e
+	    let YamlSeq [aa, ab, ac] = e
 	    liftM3 InsConst (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["InsLocal","InsNew","InsBind","InsAssign","InsPrim","InsFun","InsTailFun","InsLabel","InsComment","InsExp","InsConst"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
@@ -1141,7 +1141,7 @@ instance YAML LValue where
 	    let YamlSeq [aa] = e
 	    liftM NUM (fromYAML aa)
 	"KEYED" -> do
-	    let YamlSeq [aa , ab] = e
+	    let YamlSeq [aa, ab] = e
 	    liftM2 KEYED (fromYAML aa) (fromYAML ab)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["VAR","PMC","STR","INT","NUM","KEYED"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
@@ -1254,7 +1254,7 @@ instance YAML Sig where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkSig" -> do
 	    let YamlMap assocs = e
-	    let [aa , ab] = map snd assocs
+	    let [aa, ab] = map snd assocs
 	    liftM2 MkSig (fromYAML aa) (fromYAML ab)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkSig"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"

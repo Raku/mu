@@ -42,33 +42,31 @@ makeFromYAML alwaysPos Body{constructor=constructor,labels=labels,types=types} =
     eqv   = dqt constructor
     makeFromYAML'
         | null types = nest 4 $ text "return" <+> text constructor
-        | (alwaysPos || null labels) = vcat
-            [ nest 4 $ text "let YamlSeq" <+> (list $ varNames types) <+> equals <+> text "e"
-            , nest 4 $ liftNfy
+        | (alwaysPos || null labels) = vcat $ map (nest 4)
+            [ text "let YamlSeq" <+> (list $ varNames types) <+> equals <+> text "e"
+            , liftNfy
             ]
-        | otherwise = vcat
-            [ nest 4 $ text "let YamlMap assocs = e"
-            , nest 4 $ text "let" <+> (list $ varNames types) <+> equals <+> text "map snd assocs"
-            , nest 4 $ liftNfy
+        | otherwise = vcat $ map (nest 4)
+            [ text "let YamlMap assocs = e"
+            , text "let" <+> (list $ varNames types) <+> equals <+> text "map snd assocs"
+            , liftNfy
             ]
     fy v = parens (text "fromYAML" <+> v)
-    list = brackets . hsep . intersperse comma
+    list = brackets . hsep . punctuate comma
     liftN = text "liftM" <> (if (arity == 1) then empty else text $ show arity)
     liftNfy = liftN <+> text constructor <+> (hsep $ map fy (varNames types))
-    extraLifts
-        | length types < 6 = empty
-        | otherwise = nest 4 $ (text "let") <+> (hsep $ -- XXX: pull me to the level of the case?
-            [ (text $ "liftM" ++ (show arity))
+    extraLifts {- in some cases, we need to say e.g. "liftM12". -}
+        | length types < 6 = empty -- Control.Monad provides liftM .. liftM5 already
+        | otherwise = nest 4 $ text "let" <+> (hsep $ -- XXX: pull me to the level of the case?
+            [ text $ "liftM" ++ show arity
             , text "f"
             ] ++ (map (\x -> text $ "m" ++ show x) [1 .. arity]) ++
             [ equals, dot, lbrace ] ++ 
-                map (\(i, v) -> text $ "x" ++ i ++ " <- m" ++ i ++ ";") (zip (map show [1..]) (varNames types))
+                map (\n -> text $ "x" ++ n ++ " <- m" ++ n ++ ";") (map show [1..arity])
             ++
             [ text "return"
-            , parens $ hsep
-                [ (text "f")
-                , (hsep $ map (\(x, n) -> (text x) <> (text n)) $ zip (repeat "x") (map show [1..arity]))
-                ]
+            , parens $ text "f" <+>
+                (hsep $ map text $ zipWith (++) (repeat "x") (map show [1..arity]))
             , rbrace
             ])
     arity = length types

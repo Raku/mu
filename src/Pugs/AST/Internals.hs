@@ -1952,7 +1952,7 @@ data Val
 instance YAML VThunk where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkThunk" -> do
-	    let YamlSeq [aa , ab] = e
+	    let YamlSeq [aa, ab] = e
 	    liftM2 MkThunk (fromYAML aa) (fromYAML ab)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkThunk"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
@@ -1972,10 +1972,10 @@ instance YAML VRule where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkRulePCRE" -> do
 	    let liftM6 f m1 m2 m3 m4 m5 m6 = do { x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; return (f x1 x2 x3 x4 x5 x6) }
-	    let YamlSeq [aa , ab , ac , ad , ae , af] = e
+	    let YamlSeq [aa, ab, ac, ad, ae, af] = e
 	    liftM6 MkRulePCRE (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af)
 	"MkRulePGE" -> do
-	    let YamlSeq [aa , ab , ac , ad] = e
+	    let YamlSeq [aa, ab, ac, ad] = e
 	    liftM4 MkRulePGE (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkRulePCRE","MkRulePGE"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
@@ -2017,7 +2017,7 @@ instance YAML Val where
 	    let YamlSeq [aa] = e
 	    liftM VJunc (fromYAML aa)
 	"VError" -> do
-	    let YamlSeq [aa , ab] = e
+	    let YamlSeq [aa, ab] = e
 	    liftM2 VError (fromYAML aa) (fromYAML ab)
 	"VControl" -> do
 	    let YamlSeq [aa] = e
@@ -2092,7 +2092,7 @@ instance YAML Val where
 instance YAML VJunc where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkJunc" -> do
-	    let YamlSeq [aa , ab , ac] = e
+	    let YamlSeq [aa, ab, ac] = e
 	    liftM3 MkJunc (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkJunc"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
@@ -2164,7 +2164,7 @@ instance YAML Param where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkParam" -> do
 	    let liftM9 f m1 m2 m3 m4 m5 m6 m7 m8 m9 = do { x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; x7 <- m7; x8 <- m8; x9 <- m9; return (f x1 x2 x3 x4 x5 x6 x7 x8 x9) }
-	    let YamlSeq [aa , ab , ac , ad , ae , af , ag , ah , ai] = e
+	    let YamlSeq [aa, ab, ac, ad, ae, af, ag, ah, ai] = e
 	    liftM9 MkParam (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af) (fromYAML ag) (fromYAML ah) (fromYAML ai)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkParam"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
@@ -2194,7 +2194,7 @@ instance YAML VCode where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkCode" -> do
 	    let liftM12 f m1 m2 m3 m4 m5 m6 m7 m8 m9 m10 m11 m12 = do { x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; x7 <- m7; x8 <- m8; x9 <- m9; x10 <- m10; x11 <- m11; x12 <- m12; return (f x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12) }
-	    let YamlSeq [aa , ab , ac , ad , ae , af , ag , ah , ai , aj , ak , al] = e
+	    let YamlSeq [aa, ab, ac, ad, ae, af, ag, ah, ai, aj, ak, al] = e
 	    liftM12 MkCode (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af) (fromYAML ag) (fromYAML ah) (fromYAML ai) (fromYAML aj) (fromYAML ak) (fromYAML al)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkCode"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
@@ -2226,22 +2226,22 @@ instance YAML Exp where
 	"Noop" -> do
 	    return Noop
 	"App" -> do
-	    let YamlSeq [aa , ab , ac] = e
+	    let YamlSeq [aa, ab, ac] = e
 	    liftM3 App (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	"Syn" -> do
-	    let YamlSeq [aa , ab] = e
+	    let YamlSeq [aa, ab] = e
 	    liftM2 Syn (fromYAML aa) (fromYAML ab)
 	"Ann" -> do
-	    let YamlSeq [aa , ab] = e
+	    let YamlSeq [aa, ab] = e
 	    liftM2 Ann (fromYAML aa) (fromYAML ab)
 	"Pad" -> do
-	    let YamlSeq [aa , ab , ac] = e
+	    let YamlSeq [aa, ab, ac] = e
 	    liftM3 Pad (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	"Sym" -> do
-	    let YamlSeq [aa , ab , ac] = e
+	    let YamlSeq [aa, ab, ac] = e
 	    liftM3 Sym (fromYAML aa) (fromYAML ab) (fromYAML ac)
 	"Stmts" -> do
-	    let YamlSeq [aa , ab] = e
+	    let YamlSeq [aa, ab] = e
 	    liftM2 Stmts (fromYAML aa) (fromYAML ab)
 	"Prim" -> do
 	    let YamlSeq [aa] = e
@@ -2322,7 +2322,7 @@ instance YAML IScalarCwd where
 instance YAML VObject where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkObject" -> do
-	    let YamlSeq [aa , ab , ac , ad] = e
+	    let YamlSeq [aa, ab, ac, ad] = e
 	    liftM4 MkObject (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkObject"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
@@ -2333,7 +2333,7 @@ instance YAML VMatch where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkMatch" -> do
 	    let liftM6 f m1 m2 m3 m4 m5 m6 = do { x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; return (f x1 x2 x3 x4 x5 x6) }
-	    let YamlSeq [aa , ab , ac , ad , ae , af] = e
+	    let YamlSeq [aa, ab, ac, ad, ae, af] = e
 	    liftM6 MkMatch (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkMatch"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
@@ -2388,7 +2388,7 @@ instance Perl5 Scope where
 instance YAML Pos where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"MkPos" -> do
-	    let YamlSeq [aa , ab , ac , ad , ae] = e
+	    let YamlSeq [aa, ab, ac, ad, ae] = e
 	    liftM5 MkPos (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkPos"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
@@ -2413,10 +2413,10 @@ instance YAML Type where
 	    let YamlSeq [aa] = e
 	    liftM MkType (fromYAML aa)
 	"TypeOr" -> do
-	    let YamlSeq [aa , ab] = e
+	    let YamlSeq [aa, ab] = e
 	    liftM2 TypeOr (fromYAML aa) (fromYAML ab)
 	"TypeAnd" -> do
-	    let YamlSeq [aa , ab] = e
+	    let YamlSeq [aa, ab] = e
 	    liftM2 TypeAnd (fromYAML aa) (fromYAML ab)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkType","TypeOr","TypeAnd"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
