@@ -140,6 +140,10 @@ sub get_pugs_config {
     my $base = $self->is_extension_build
     ? '../..'
     : $self->{_top}{base};
+
+    # Escape ' and \ in $base pathname 
+    $base =~ s{(['\\])}{\\$1}g;
+
     eval "use lib '$base/util'; 1" or die $@;
     eval "use PugsConfig; 1" or die $@;
     PugsConfig->get_config;
