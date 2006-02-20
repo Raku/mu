@@ -87,7 +87,8 @@ sub rule::alternation {
                 $state->[1] = 0;
                 $state = undef if $state->[0] > $#nodes;
             }
-            return ( $state, { 'alternation' =>$match }, @tail) if $match;
+            #return ( $state, { 'alternation' =>$match }, @tail) if $match;
+            return ( $state, $match, @tail) if $match;
         }
         return;
     }
@@ -122,7 +123,8 @@ sub rule::concat {
                 else {
                     $succ = [ $state0, $state1 ];
                 }
-                return ( $succ, { 'concat'=>[ @matches ] }, @tail);
+                #return ( $succ, { 'concat'=>[ @matches ] }, @tail);
+                return ( $succ, \@matches, @tail);
             }
             if ( !defined( $state1 ) ) {
                 return unless defined $state;
@@ -228,10 +230,6 @@ sub rule::subrule {
         shift;
         #print "subrule $code\n";
         return ( undef, { rule => $code }, @_ );
-        #{
-        #    no strict "refs";
-        #    return &{ 'rule::' . $code }( @_ );
-        #}
     }
 }
 
@@ -258,7 +256,8 @@ my $tmp;
 
 print "compile rule\n";
 my ( $stat, $match, $tail ) = 
-    rule::rule()->( 0, split //, '{ print 1+1, "\n"; 3 } <word>' );
+    rule::rule()->( 0, split //, 
+        '{ print 1+1, "\n"; 3 } <word> const' );
 print "run rule \n", Dumper( $stat, $match, $tail );
 #$match->( 0, split //, '' );
 
