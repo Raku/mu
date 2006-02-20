@@ -318,7 +318,8 @@ instance JSON PIL_Decl where
 instance YAML PIL_Decl where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
 	"PSub" -> do
-	    let liftM6 f m1 m2 m3 m4 m5 m6 = do { x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; return (f x1 x2 x3 x4 x5 x6) }
+	    let liftM6 f m1 m2 m3 m4 m5 m6 = do
+		{x1 <- m1; x2 <- m2; x3 <- m3; x4 <- m4; x5 <- m5; x6 <- m6; return (f x1 x2 x3 x4 x5 x6)}
 	    let YamlMap assocs = e
 	    let [aa, ab, ac, ad, ae, af] = map snd assocs
 	    liftM6 PSub (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad) (fromYAML ae) (fromYAML af)

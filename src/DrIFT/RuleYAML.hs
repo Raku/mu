@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -fglasgow-exts #-}
 module RuleYAML (rules) where
 
 import RuleUtils
@@ -38,6 +39,9 @@ makeFromYAML alwaysPos Body{constructor=constructor,labels=labels,types=types} =
     dqt   = doubleQuotes . text
     match = text "->"
     dot   = text "do"
+    xvars = vars 'x'
+    mvars = vars 'm'
+    vars c = map ((char c <>) . int) [1 .. arity]
 --  eqv   = text "| t == packFS" <+> dqt ("tag:hs:" ++ constructor)
     eqv   = dqt constructor
     makeFromYAML'
@@ -55,20 +59,16 @@ makeFromYAML alwaysPos Body{constructor=constructor,labels=labels,types=types} =
     list = brackets . hsep . punctuate comma
     liftN = text "liftM" <> (if (arity == 1) then empty else text $ show arity)
     liftNfy = liftN <+> text constructor <+> (hsep $ map fy (varNames types))
-    extraLifts {- in some cases, we need to say e.g. "liftM12". -}
+    extraLifts                     -- in some cases, we need to say e.g. "liftM12".
         | length types < 6 = empty -- Control.Monad provides liftM .. liftM5 already
-        | otherwise = nest 4 $ text "let" <+> (hsep $ -- XXX: pull me to the level of the case?
-            [ text $ "liftM" ++ show arity
-            , text "f"
-            ] ++ (map (\x -> text $ "m" ++ show x) [1 .. arity]) ++
-            [ equals, dot, lbrace ] ++ 
-                map (\n -> text $ "x" ++ n ++ " <- m" ++ n ++ ";") (map show [1..arity])
-            ++
-            [ text "return"
-            , parens $ text "f" <+>
-                (hsep $ map text $ zipWith (++) (repeat "x") (map show [1..arity]))
-            , rbrace
-            ])
+        | otherwise = nest 4 $ text "let" <+> extraLiftsDef
+    extraLiftsDef = 
+        text "liftM" <> int arity <+> text "f" <+> hsep mvars <+> equals <+> dot $$
+        braces extraLiftsBody
+    extraLiftsBody =
+        hsep [x <+> text "<-" <+> m <> semi | x <- xvars | m <- mvars ] <+>
+        text "return" <+> parens (char 'f' <+> hsep xvars)
+        
     arity = length types
 
 makeAsYAML alwaysPos (Body{constructor=constructor,labels=labels,types=types})
