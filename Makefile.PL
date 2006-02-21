@@ -174,7 +174,14 @@ sub set_postamble {
 .
     }
 
-    if (has_ghc_package('readline') 
+    if ($ghc_version =~ /^6.4(?:.0)?$/) {
+      push @warn, << '.';
+*** Readline support disabled.  If you want readline support,
+    please upgrade to GHC 6.4.1 or later.
+
+.
+    }
+    elsif (has_ghc_package('readline') 
         and  try_compile("import System.Console.Readline\n"
                         ."main :: IO ()\n"
                         ."main = do\n"
@@ -340,7 +347,7 @@ EOD
         my $icuflags = parrot_config($base, $parrot_config, 'icu_shared');
         my $include_path = parrot_config($base, $parrot_config, 'prefix') . parrot_config($base, $parrot_config, 'inc');
         my $rpath_blib = parrot_config($base, $parrot_config, 'rpath_blib');
-        my $build_dir = parrot_config($base, $parrot_config, 'build_dir');
+        my $build_dir = parrot_config($base, $parrot_config, 'top_builddir', 'build_dir');
         my $is_shared = parrot_config($base, $parrot_config, 'parrot_is_shared');
 
         # Convert flags to -optc-*,etc, to pass through ghc. c/ompiler l/inker
@@ -676,14 +683,21 @@ sub try_compile {
 }
 
 sub parrot_config {
-    my ($base, $parrot_config, $config) = @_;
+    my $base = shift;
+    my $parrot_config = shift;
     my $ac_path = abs_path();
     my $sp_base = $base;
     $sp_base =~ s{\\}{\/}g;
     chdir( $sp_base ) or die "Can't change dir to '$sp_base'";
     my $parrot = "parrot$Config{_exe}";
     $parrot = "bin/$parrot" if not -e $parrot;
-    my $value = `./$parrot $parrot_config $config`;
+    my $value;
+    while (@_) {
+        my $config = shift;
+        $value = `./$parrot $parrot_config $config`;
+        $value =~ /no such key:/ or last;
+    }
+    die $value if $value =~ /no such key:/;
     chomp($value);
     chdir( $ac_path ) or die "Can't change dir to '$ac_path'";
     return $value;
