@@ -37,6 +37,10 @@ sub rule::word {
 # rule compiler
 
 sub rule::closure {
+        # p5 code is called using: "rule { xyz { v5; ... } }" (audreyt on #perl6)
+        # or: "rule { ... [:perl5:: this is p5 ] ... }"
+        # or: "[:perl5(1) this is perl5 ]" (putter on #perl6)
+
         my ( $code, $tail ) = $_[0] =~ /^\{(.*?)\}(.*)/;
         return unless defined $code;
         #print "parsing $code - $tail\n";
@@ -51,14 +55,24 @@ sub rule::subrule {
         return ( undef, { rule => $code }, $tail );
 }
 
-*rule::parenthesis = 
-    ruleop::concat(
+*rule::capturing_group = 
+do {
+    my $r = ruleop::concat(
         ruleop::constant( '(' ),
         ruleop::concat(
             \&rule::rule,
             ruleop::constant( ')' )
         )
     );
+    sub { 
+        my ( $state, $match, $tail ) = $r->( @_ ); 
+        return unless $match;
+        $match = $match->[1];  # remove '('
+        pop @$match;   # remove ')'
+        print Dumper( $match );
+        ( $state, { capture => $match }, $tail );
+    }        
+};
 
 *rule::rule = 
     ruleop::greedy_star(
@@ -66,7 +80,7 @@ sub rule::subrule {
         \&rule::ws,
         \&rule::closure,
         \&rule::subrule,
-        \&rule::parenthesis,
+        \&rule::capturing_group,
         # ruleop::constant( 'if' ),  # XXX - just an example
         \&rule::word,
       )
@@ -105,9 +119,14 @@ sub emit_rule {
     {
         my ( $k, $v ) = each %$n;
         print "$tab $k => $v \n";
-        if ( $k eq 'code' ) {
+        if ( $k eq 'capture' ) {
+            # return "$tab # XXX capture ?\n";
+            return "$tab # XXX - capture \n" .
+                   emit_rule( $v, $tab );
+        }        
+        elsif ( $k eq 'code' ) {
             # return "$tab # XXX code - compile '$v' ?\n";
-            return "$tab $v\n";  
+            return "$tab $v  # XXX - code\n";  
         }        
         elsif ( $k eq 'ws' ) {
             # ignore whitespace
@@ -145,13 +164,14 @@ my $tmp;
 
 #print "compile rule\n";
 my ( $stat, $match, $tail ) = 
-    rule::rule( '<word> <ws> xyz' );
+    # XXX - simplest case
+    # rule::rule( '<word> <ws> xyz' );
 
-        # XXX - finish "parenthesis"
-        # '<word> ( <word> ) xyz' );
+    # XXX - capture
+    rule::rule( '<word> ( <word> ) xyz' );
 
-        # XXX - finish "closure"
-        # '{ "<wo"."rd>" } <word> ( <word> ) xyz' );
+    # XXX - finish "closure"
+    # rule::rule( '{ "<wo"."rd>" } <word> ( <word> ) xyz' );
 #print "run rule \n", Dumper( $stat, $match, $tail );
 #print "run rule \n", 
 print Dumper( $match );

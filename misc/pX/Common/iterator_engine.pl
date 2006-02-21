@@ -151,6 +151,17 @@ sub ruleop::null {
 };
 
 
+# experimental node (unused?)
+sub ruleop::label {
+    my $label = shift;
+    my $node = shift;
+    return sub {
+        my ($state, $match, $tail) = $node->( @_ );
+        return unless $match;
+        return ( $state, { $label => $match }, $tail )
+    }
+}
+
 1;
 
 __END__
