@@ -1,0 +1,85 @@
+= Public Relationships
+- Recategorizing P6C discussion structure
+-- Proposal->Discussion->Commit flow
+- Perlcabal.org/Pugscode.org
+-- Tickets/Wiki
+-- svn mirror (auth relaying?)
+- Stepwise rollout of Perl 6
+-- Using Perl 6 today alongside Perl 5 code
+-- Should "Perl 5 as a runtime" have a name?
+-- Language stability: Which parts are considered frozen?
+
+= English
+- Pugs Apocrypha as P6C design documents
+-- Detached from both implementation details and surface ergonomics
+-- Object Space (class "prototype" semantics)
+-- Lexical structure
+-- Prelude
+-- Linking
+-- Annotations (type, stricture, etc)
+- P6Doc (to replace Perl6::Bible)
+-- p6doc -q
+-- Installed documentations for Pugs (kwid2pod)
+- Core Library specification
+
+= Perl 5
+- Object Space
+-- Construct P6 semantics with Class::MOP 
+-- PIL^N->P5 Emitter's Evaluator
+-- Bridge to native objects (autobox.pm?)
+- Rules
+-- Token parser hooks (parser_spike.pl)
+-- Calling back to Perl 5 code 
+-- An improved Perl6::Rules?
+- Primitive Bindings
+-- Implementation of lower layer of Prelude.pm
+-- Exporting Perl5-side operations to Perl6-side MMDs
+-- Syntax sugar for quasiquoting/importing Perl5 prims (see PIL-Run)
+
+= Perl 6
+- Prelude Modules
+-- Refactor Math::Trig etc into separate files under src/perl6/*
+-- Layers of Prelude (::Internals vs ::Prim vs the rest?)
+- Perl 6 Grammar of Perl 6 
+-- Converting Parsec to Rules/Tokens
+- Bootstrapping spike
+-- Interface code (as code examples in PA*?)
+-- Illustrate the compilation flow (with plenty of {...})
+
+= Haskell
+- YAML Bytecode
+-- DrIFTing Env for Test.pm.yml.gz
+-- Precommitted -CParse-HsYAML for Pugs.Prelude
+- Syn->App transformation
+-- Maybe an "Inv" node to denote different dispatch?
+- Pad reorganization
+-- Variable hoisting (figure out the desugaring rules for "my sub" etc)
+-- MkEntry should become PadMy, PadState etc
+-- Lexical import of variables
+- Linker implementation
+-- Separately compiled via .yml.gz files
+-- Emit one single executable (as .yml.gz) perhaps?
+- Performance tunings
+-- FPS the core / the parser / more performance bottlenecks
+-- Parser.hs and Internal.hs refactoring to smaller chunks
+-- Maybe improve ruleStatementList in Parser
+- Sigs and Args objects
+
+= JavaScript
+- JS.pm
+- Browser DOM bindings
+- JSON-based separate compilation for JS-side eval""?
+
+= Parrot
+- Punie
+-- TGE transformations
+-- POST emitter code reusability/targettability
+- YAML loader
+-- Syck binding to PIR NCI
+-- Object loader/blesser via YAML tags (even for foreign !hs/* objects)
+- PDD20 review
+-- State variables
+-- Interaction with namespaces
+
+
+
