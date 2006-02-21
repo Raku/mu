@@ -147,30 +147,26 @@ ruleStatement = do
 
 ruleStatementList :: RuleParser Exp
 ruleStatementList = rule "statements" $ choice
-    [ lookAhead (char '=') >> ruleDocBlock
+    [ ruleDocBlock
     , nonSep  ruleBlockDeclaration
     , semiSep ruleDeclaration
     , nonSep  ruleConstruct
     , semiSep ruleStatement
     ]
     where
-    semiSep rule = do
+    nonSep  = doSep many  -- must be followed by 0+ semicolons
+    semiSep = doSep many1 -- must be followed by 1+ semicolons
+    doSep sepCount rule = do
         whiteSpace
-        exp  <- rule
-        option exp $ do
-            many1 (symbol ";")
+        -- pos     <- getPosition
+        exp        <- rule
+        appendRest <- option id $ do
+            sepCount $ symbol ";"
             -- try to parse more statement-list, recursively
             rest <- option Noop ruleStatementList
             -- function to append recursive results to this iteration's results
-            return $ mergeStmts exp rest
-    nonSep rule = do
-        whiteSpace
-        exp  <- rule
-        many $ symbol ";"
-        -- try to parse more statement-list, recursively
-        rest <- option Noop ruleStatementList
-        -- function to append recursive results to this iteration's results
-        return $ mergeStmts exp rest
+            return $ (`mergeStmts` rest)
+        return $ appendRest exp
 
 {-|
 Assert that we're at the beginning of a line, but consume no input (and produce
