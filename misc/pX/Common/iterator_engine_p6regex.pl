@@ -103,25 +103,7 @@ sub ruleop::capture {
     }
 }
 
-# XXX - Deep recursion on anonymous subroutine at iterator_engine.pl line 108.
-# XXX - Deep recursion on anonymous subroutine at iterator_engine.pl line 83.
-
-=for XXX
-
-*rule::alternate = 
-    ruleop::concat(
-        \&rule::rule,
-        ruleop::concat(
-            ruleop::constant( '|' ),
-            \&rule::rule
-        )
-    );
-
-=cut
-
-*rule::rule = 
-    ruleop::greedy_star(
-      ruleop::alternation(
+*rule::term = ruleop::alternation(
         # \&rule::alternate,   # XXX fixme
         \&rule::ws,
         \&rule::closure,
@@ -131,8 +113,24 @@ sub ruleop::capture {
         # ruleop::constant( 'if' ),  # XXX - just an example
         \&rule::word,
         \&{'rule::.'},
-      )
+      );
+
+*rule::alternate = 
+    ruleop::concat(
+        \&rule::rule,
+        ruleop::optional (
+            ruleop::concat(
+                ruleop::constant( '|' ),
+                \&rule::rule
+            )
+        )
     );
+
+*rule::rule = ruleop::greedy_star( \&rule::term );
+
+# XXX - Deep recursion on anonymous subroutine at iterator_engine.pl line 108.
+# XXX - Deep recursion on anonymous subroutine at iterator_engine.pl line 83.
+# *rule::rule = ruleop::greedy_star( \&rule::alternate );
 
 #------ rule emitter
 
