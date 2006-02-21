@@ -147,26 +147,30 @@ ruleStatement = do
 
 ruleStatementList :: RuleParser Exp
 ruleStatementList = rule "statements" $ choice
-    [ ruleDocBlock
+    [ lookAhead (char '=') >> ruleDocBlock
     , nonSep  ruleBlockDeclaration
     , semiSep ruleDeclaration
     , nonSep  ruleConstruct
     , semiSep ruleStatement
     ]
     where
-    nonSep  = doSep many  -- must be followed by 0+ semicolons
-    semiSep = doSep many1 -- must be followed by 1+ semicolons
-    doSep sepCount rule = do
+    semiSep rule = do
         whiteSpace
-        -- pos     <- getPosition
-        exp        <- rule
-        appendRest <- option id $ do
-            sepCount $ symbol ";"
+        exp  <- rule
+        option exp $ do
+            many1 (symbol ";")
             -- try to parse more statement-list, recursively
             rest <- option Noop ruleStatementList
             -- function to append recursive results to this iteration's results
-            return $ (`mergeStmts` rest)
-        return $ appendRest exp
+            return $ mergeStmts exp rest
+    nonSep rule = do
+        whiteSpace
+        exp  <- rule
+        many $ symbol ";"
+        -- try to parse more statement-list, recursively
+        rest <- option Noop ruleStatementList
+        -- function to append recursive results to this iteration's results
+        return $ mergeStmts exp rest
 
 {-|
 Assert that we're at the beginning of a line, but consume no input (and produce
@@ -1569,9 +1573,7 @@ parseExpWithItemOps :: RuleParser Exp
 parseExpWithItemOps = parseExpWithCachedParser dynParseLitOp
 
 ops :: (String -> a) -> String -> [a]
-ops f s = [f n | n <- sortBy revLength (nub . words $ decodeUTF8 s)]
-    where
-    revLength x y = compare (length y) (length x)
+ops f = map (f . snd) . sort . map (\x -> (length x, x)) . nub . map decodeUTF8 . words
 
 doApp :: String -> [Exp] -> Exp
 doApp str args = App (Var str) Nothing args
