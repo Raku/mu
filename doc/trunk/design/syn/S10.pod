@@ -27,17 +27,19 @@ As in Perl 5, packages are the basis of modules and classes.  Unlike in
 Perl 5, modules and classes are declared with separate keywords,
 but they're still just packages with extra behaviors.
 
-An ordinary package is declared with the C<package> keyword.  There are
-two basic declaration syntaxes:
-
-    package Foo;	# rest of scope is in package Foo
-    ...
+An ordinary package is declared with the C<package> keyword.  It can
+only be used with a block:
 
     package Bar {...}	# block is in package Bar
 
-The first form, if it occurs as the first thing in a file, is taken to
-mean that the rest of the file is Perl 5 code.  In any other place it just
-indicates a Perl 6 package (but maybe you should use a module instead).
+As a special exception, if a braceless C<package> declaration occurs
+as the first thing in a file, then it's taken to mean that the rest of
+the file is Perl 5 code.
+
+    package Foo;	# the entire file is Perl 5
+    ...
+
+This form is illegal in the middle of a Perl 6 file.
 
 Since there are no barewords in Perl 6, package names must be predeclared,
 or use the sigil-like C<::PackageName> syntax.  The C<::> prefix does not
