@@ -49,28 +49,17 @@ sub build {
     $run_setup = sub { system($setup, @_) };
     $run_setup->('configure', grep !/^--.*=$/, @{$opts->{SETUP}});
 
-    # if Prelude.pm wasn't changed, don't bother to recompile Run.hs.
-    if (PugsBuild::Config->lookup('precompile_prelude')) {
-        my $pm = "src/perl6/Prelude.pm";
-        my $ppc_hs = "src/Pugs/PreludePC.hs";
-        my $ppc_null = "src/Pugs/PreludePC.hs-null";
-        if (-e $ppc_hs and -s $ppc_hs > -s $ppc_null and -M $ppc_hs < -M $pm) {
-            build_lib($version, $ghc, @args);
-            build_exe($version, $ghc, $ghc_version, @args);
-            return;
-        }
-    }
+    my $pm = "src/perl6/Prelude.pm";
+    my $ppc_hs = "src/Pugs/Prelude.hs";
+    my $ppc_yml = "src/Pugs/PreludePC.yml";
 
-    run($^X, qw<util/gen_prelude.pl -v --touch --null -i src/perl6/Prelude.pm --output src/Pugs/PreludePC.hs>);
     build_lib($version, $ghc, @args);
     build_exe($version, $ghc, $ghc_version, @args);
 
-    if (PugsBuild::Config->lookup('precompile_prelude')) {
+    if (!-s $ppc_yml or -M $ppc_yml < -M $ppc_hs) {
         run($^X, qw<util/gen_prelude.pl -v -i src/perl6/Prelude.pm>,
                 (map { ('-i' => $_) } @{ PugsBuild::Config->lookup('precompile_modules') }),
                 '-p', $thispugs, qw<--output src/Pugs/PreludePC.yml>);
-        #build_lib($version, $ghc, @args);
-        #build_exe($version, $ghc, $ghc_version, @args);
     }
 }
 

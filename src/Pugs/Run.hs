@@ -1,4 +1,5 @@
-{-# OPTIONS_GHC -fglasgow-exts -cpp #-}
+{-# OPTIONS_GHC -fglasgow-exts -fno-full-laziness -fno-cse -cpp #-}
+
 
 {-|
     Runtime engine.
@@ -25,15 +26,20 @@ import Pugs.AST
 import Pugs.Types
 import Pugs.Eval
 import Pugs.Prim
+import Pugs.Prim.Eval
 import Pugs.Embed
+import Pugs.Prelude 
 import Data.IORef
 import System.FilePath
 import qualified Data.Map as Map
+import qualified Data.FastPackedString as Str
+import DrIFT.YAML
+import Data.Yaml.Syck
+--import Data.Generics.Schemes
+import System.IO
 
-#ifndef HADDOCK
--- XXX - This needs to be factored out into a separate module
-#include "PreludePC.hs"
-#endif
+type Str = Str.FastString
+
 
 {-|
 Run 'Main.run' with command line args. 
@@ -210,3 +216,40 @@ getLibs = do
                  , foldl1 joinFileName [getConfig "sitelib", "auto", "pugs", "perl6", "lib"]
                  ]
               ++ [ "." ]
+
+{-# NOINLINE _BypassPreludePC #-}
+_BypassPreludePC :: IORef Bool
+_BypassPreludePC = unsafePerformIO $ newIORef False
+
+initPreludePC :: Env -> IO Env
+initPreludePC env = do
+    bypass <- readIORef _BypassPreludePC
+    if bypass then return env else do
+        let dispProgress = (posName . envPos $ env) == "<interactive>"
+        when dispProgress $ putStr "Loading Prelude... "
+        catch loadPreludePC $ \e -> do
+            when (isUserError e) $ do
+                hPrint stderr e
+                hPrint stderr "Reloading Prelude from source..."
+            evalPrelude
+        when dispProgress $ putStrLn "done."
+        return env
+    where
+    style = MkEvalStyle
+        { evalResult = EvalResultModule
+        , evalError  = EvalErrorFatal
+        }
+    evalPrelude = runEvalIO env{ envDebug = Nothing } $ opEval style "<prelude>" preludeStr
+    loadPreludePC = do -- XXX: search path
+        -- print "Parsing yaml..."
+        p <- parseYamlFS =<< Str.readFile "src/Pugs/PreludePC.yml"
+        -- print "Parsing done!"
+        case p of
+            Right (Just yml) -> do
+                -- print "Loading yaml..."
+                (glob, ast) <- fromYAML yml
+                -- print "Loading done!"
+                liftSTM $ modifyTVar (envGlobal env) (`unionPads` glob)
+                runEnv env{ envBody = ast, envDebug = Nothing }
+            x                -> fail $ "error loading precompiled Prelude: " ++ show x
+
