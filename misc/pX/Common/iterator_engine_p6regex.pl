@@ -10,28 +10,24 @@ require 'iterator_engine.pl';
 {
 no strict "refs";
 *{'rule::.'} = sub { 
-        return if +shift;  # no continuation
         return unless $_[0];
         return ( undef, { '.'=> substr($_[0],0,1) }, substr($_[0],1) )
     };
 }
 
 sub rule::ws {
-    return if +shift;  # no continuation
     return unless $_[0];
     return ( undef, { 'ws'=> $1 }, substr($_[0], 1) )
         if $_[0] =~ /^(\s)/;
     return;
 };
 sub rule::escaped_char {
-    return if +shift;  # no continuation
     return unless $_[0];
     return ( undef, { 'escaped_char'=> $1 }, substr($_[0], 2) )
         if $_[0] =~ /^(\\.)/;
     return;
 };
 sub rule::word { 
-    return if +shift;  # no continuation
     return unless $_[0];
     return ( undef, { 'word'=> $1 }, $2 )
         if $_[0] =~ /^([_[:alnum:]]+)(.*)/;
@@ -41,7 +37,6 @@ sub rule::word {
 # rule compiler
 
 sub rule::closure {
-        return if +shift;
         my ( $code, $tail ) = $_[0] =~ /^\{(.*?)\}(.*)/;
         return unless defined $code;
         #print "parsing $code - $tail\n";
@@ -50,7 +45,6 @@ sub rule::closure {
 }
 
 sub rule::subrule {
-        return if +shift;
         my ( $code, $tail ) = $_[0] =~ /^\<(.*?)\>(.*)/;
         return unless defined $code;
         #print "parsing subrule $code\n";
@@ -151,8 +145,7 @@ my $tmp;
 
 #print "compile rule\n";
 my ( $stat, $match, $tail ) = 
-    rule::rule( 0,  
-        '<word> <ws> xyz' );
+    rule::rule( '<word> <ws> xyz' );
 
         # XXX - finish "parenthesis"
         # '<word> ( <word> ) xyz' );
@@ -173,7 +166,7 @@ my $compiled_rule = eval($s);
 my $test_string = 'some_word xyz';
 print "parsing '$test_string'\n";
 my ( $stat, $match, $tail ) = 
-    $compiled_rule->( 0, 'some_word xyz' );
+    $compiled_rule->( 'some_word xyz' );
 print Dumper( $match );
 }
 

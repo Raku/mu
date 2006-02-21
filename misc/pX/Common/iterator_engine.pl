@@ -8,8 +8,8 @@ use warnings;
 
 A "rule" function gets as argument:
 
-- a "continuation" (or a zero, to get the first match)
 - a string to match
+- an optional "continuation"
 
 it returns (or "yields"):
 
@@ -47,11 +47,11 @@ sub ruleop::non_greedy {
 
     # XXX - possible implementation strategy - reuse rule::concat ?
     return sub {
-        my ( $n, $tail ) = shift;
+        my ( $tail, $n ) = shift;
         my @matches;
         my @cont;
         for (1 .. ++$n) {
-                my ($state, $match, $new_tail) = $node->(0, $tail);
+                my ($state, $match, $new_tail) = $node->($tail, 0);
                 return unless $match;
                 $tail = $new_tail;
                 push @matches, $match;
@@ -68,7 +68,7 @@ sub ruleop::alternation {
     # XXX   in which case it would have to test all possibilities before returning
     my @nodes = @_;
     return sub {
-        my $n = shift;
+        my $n = $_[1];
         #print "testing alternations on @_\n";
         return unless @nodes;
         my $match;
@@ -76,7 +76,8 @@ sub ruleop::alternation {
         $n = [ 0, 0 ] if $n == 0;
         my $state = [ $n->[0], $n->[1] ];
         while( defined $state ) {
-            ($state->[1], $match, $tail) = $nodes[ $state->[0] ]->( $state->[1], @_);
+            ($state->[1], $match, $tail) = 
+                $nodes[ $state->[0] ]->( $_[0], $state->[1] );
             if ( ! defined $state->[1] ) {
                 $state->[0]++;
                 $state->[1] = 0;
@@ -93,14 +94,14 @@ sub ruleop::concat {
     my @concat = @_;
     # TODO: generalize for @concat > 2
     return sub {
-        my $n = shift;
+        my $n = $_[1];
         my @matches;
         my $tail;
         my $state;
         my $state0 = ref($n) ? $n->[0] : 0;
         my $state1 = ref($n) ? $n->[1] : 0;
         while (1) {
-            ($state, $matches[0], $tail) = $concat[0]->($state0, @_);
+            ($state, $matches[0], $tail) = $concat[0]->( $_[0], $state0 );
             #print "  1st match: ", Dumper( [ $state, $matches[0], $tail ] );
             if ( ! defined $matches[0] ) {
                 return unless defined $state;
@@ -108,7 +109,7 @@ sub ruleop::concat {
                 $state1 = 0;
                 next;
             }
-            ($state1, $matches[1], $tail) = $concat[1]->($state1, $tail);
+            ($state1, $matches[1], $tail) = $concat[1]->( $tail, $state1 );
             #print "  2nd match: ", Dumper( [ $state, $matches[1], $tail ] );
             if ( defined $matches[1] ) {
                 my $succ;
@@ -134,7 +135,6 @@ sub ruleop::concat {
 sub ruleop::constant { 
     my $const = shift;
     return sub {
-        return if +shift;  # no continuation
         return unless $_[0] =~ m/^(\Q$const\E)(.*)/;
         return ( undef, { constant => $1 }, $2 );
     }
@@ -146,7 +146,6 @@ sub ruleop::optional {
 
 sub ruleop::null {
     return sub {
-        return if +shift;  # no continuation
         ( undef, [], $_[0] );
     }
 };
