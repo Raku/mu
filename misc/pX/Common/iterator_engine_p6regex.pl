@@ -117,7 +117,9 @@ sub ruleop::capture {
         \&{'rule::.'},
       );
 
+{
 # XXX - doesn't work yet
+  no warnings 'once';
 *rule::alternate = 
     ruleop::concat(
         \&rule::rule,
@@ -128,6 +130,7 @@ sub ruleop::capture {
             )
         )
     );
+}
 
 # rule 'rule' { [ <term>\* | <term> ]* }
 # note: <term>\* creates a term named 'star'
@@ -153,6 +156,7 @@ sub ruleop::capture {
 {
   # grammar PGE::P6Rule;
   package rule;
+  no warnings 'once';
 
   # rule pattern { <flag>* <alternation> }
   *pattern = 
