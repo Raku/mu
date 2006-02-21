@@ -91,6 +91,7 @@ sub ruleop::capture {
         \&rule::capturing_group,
         # ruleop::constant( 'if' ),  # XXX - just an example
         \&rule::word,
+        \&{'rule::.'},
       )
     );
 
@@ -141,6 +142,9 @@ sub emit_rule {
             return;
             #return "$tab # <ws>\n";
         }
+        elsif ( $k eq '.' ) {
+            return "$tab \\&{'${namespace}.'}\n";
+        }
         elsif ( $k eq 'rule' ) {
             return "$tab \\&{'$namespace$v'}\n";
         }
@@ -181,50 +185,67 @@ my ( $stat, $match, $tail );
   ( $stat, $match, $tail ) = $compiled->( 'some_word' );
   # print Dumper( $match );
   ok ( defined $match, "parse sample of text" );
+
+  ( $stat, $match, $tail ) = $compiled->( '!some_word' );
+  ok ( !defined $match, "rejects unmatching text" );
 }
-
-__END__
-#print "compile rule\n";
-my ( $stat, $match, $tail ) = 
-    # XXX - simplest case
-    #rule::rule( '<word>' );
-
-    # XXX - 2 terms
-    #rule::rule( '<word><ws>' );
-
-    # XXX - simple case
-    #rule::rule( '<word> <ws> <word> <ws> xyz' );
-
-    # XXX - capture
-    rule::rule( '<word> <ws> ( <word> ) <ws> xyz' );
-
-    # XXX - finish "closure"
-    # rule::rule( '{ "<wo"."rd>" } <word> ( <word> ) xyz' );
-#print "run rule \n", Dumper( $stat, $match, $tail );
-#print "run rule \n", 
-print Dumper( $match );
-#$match->( 0, '' );
-
-my $s = emit_rule( $match );
-print "-- Start program\n$s\n-- End program\n";
-
-my $compiled_rule = eval($s);
 
 {
-my $test_string = 'some_word other_word xyz';
-#$test_string = 'some_word';
-print "parsing '$test_string'\n";
-my ( $stat, $match, $tail ) = 
-    $compiled_rule->( $test_string );
-print Dumper( $match );
+  ( $stat, $match, $tail ) = rule::rule( '..' );
+  ok ( defined $match, "parse rule - dot-dot" );
+  $program = emit_rule( $match );
+  ok ( defined $program, "emit rule to p5" );
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  ( $stat, $match, $tail ) = $compiled->( 'some_word' );
+  # print Dumper( $match );
+  ok ( defined $match, "parse sample of text" );
+
+  ( $stat, $match, $tail ) = $compiled->( '!' );
+  ok ( !defined $match, "rejects unmatching text" );
+}
+
+{
+  ( $stat, $match, $tail ) = rule::rule( '<word> <ws>' );
+  ok ( defined $match, "parse rule - 2 terms, with whitespace" );
+  $program = emit_rule( $match );
+  ok ( defined $program, "emit rule to p5" );
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  ( $stat, $match, $tail ) = $compiled->( 'some_word other' );
+  # print Dumper( $match );
+  ok ( defined $match, "parse sample of text" );
+  is ( $tail, 'other', "remaining unmatched text (tail)" );
+
+  ( $stat, $match, $tail ) = $compiled->( 'one_word' );
+  ok ( !defined $match, "rejects unmatching text" );
+}
+
+{
+  ( $stat, $match, $tail ) = rule::rule( '(<word>) <ws>' );
+  ok ( defined $match, "parse rule - 2 terms, with capture" );
+  $program = emit_rule( $match );
+  ok ( defined $program, "emit rule to p5" );
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  ( $stat, $match, $tail ) = $compiled->( 'some_word other' );
+  # print Dumper( $match );
+  ok ( defined $match, "parse sample of text" );
+
+  # TODO - test captured text
+
+  ( $stat, $match, $tail ) = $compiled->( 'one_word' );
+  ok ( !defined $match, "rejects unmatching text" );
 }
 
 __END__
+
+# TODO - test backtracking (implement '*' first)
+
+# TODO - convert older tests to Test::More
 
 print Dumper ruleop::rule()->( 0, '{ print 1+1, "\n" }' )
                      ->( 0, '' );
-
-__END__
 
 print Dumper ruleop::rule( 0, ' ' )
                      ->( 0, 'x' );
