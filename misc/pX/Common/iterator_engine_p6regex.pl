@@ -1,6 +1,8 @@
 # pX/Common/iterator_engine_p6regex.pl - fglock
 #
 # experimental implementation of p6-regex parser
+#
+# see also: ../../Grammars/rx_grammar.pm
 
 use strict;
 use warnings;
@@ -101,9 +103,26 @@ sub ruleop::capture {
     }
 }
 
+# XXX - Deep recursion on anonymous subroutine at iterator_engine.pl line 108.
+# XXX - Deep recursion on anonymous subroutine at iterator_engine.pl line 83.
+
+=for XXX
+
+*rule::alternate = 
+    ruleop::concat(
+        \&rule::rule,
+        ruleop::concat(
+            ruleop::constant( '|' ),
+            \&rule::rule
+        )
+    );
+
+=cut
+
 *rule::rule = 
     ruleop::greedy_star(
       ruleop::alternation(
+        # \&rule::alternate,   # XXX fixme
         \&rule::ws,
         \&rule::closure,
         \&rule::subrule,
@@ -271,6 +290,28 @@ my ( $stat, $match, $tail );
   ok ( defined $match, "parse sample of text" );
 
   ( $stat, $match, $tail ) = $compiled->( '!some_word' );
+  ok ( !defined $match, "rejects unmatching text" );
+}
+
+__END__
+
+XXX - deep recursion error
+
+{
+  ( $stat, $match, $tail ) = rule::rule( '<word>|<ws>' );
+  ok ( defined $match, "parse rule - alternates" );
+  $program = emit_rule( $match );
+  ok ( defined $program, "emit rule to p5" );
+  #print $program;
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  ( $stat, $match, $tail ) = $compiled->( 'some_word' );
+  # print Dumper( $match );
+  ok ( defined $match, "parse sample 1" );
+  ( $stat, $match, $tail ) = $compiled->( ' ' );
+  # print Dumper( $match );
+  ok ( defined $match, "parse sample 2" );
+  ( $stat, $match, $tail ) = $compiled->( '!' );
   ok ( !defined $match, "rejects unmatching text" );
 }
 
