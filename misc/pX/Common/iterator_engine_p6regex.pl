@@ -11,69 +11,50 @@ require 'iterator_engine.pl';
 no strict "refs";
 *{'rule::.'} = sub { 
         return if +shift;  # no continuation
-        @_ ? ( undef, { '.'=> $_[0] }, @_[1..$#_] ) : undef
+        return unless $_[0];
+        return ( undef, { '.'=> substr($_[0],0,1) }, substr($_[0],1) )
     };
 }
 
 sub rule::ws {
     return if +shift;  # no continuation
-    return unless @_;
-    return ( undef, { 'ws' => $_[0] }, @_[1..$#_] )
-        if $_[0] =~ /\s/;
+    return unless $_[0];
+    return ( undef, { 'ws'=> $1 }, substr($_[0], 1) )
+        if $_[0] =~ /^(\s)/;
     return;
 };
-sub rule::slashed_char {
+sub rule::escaped_char {
     return if +shift;  # no continuation
-    return if @_ < 2;
-    return ( undef, { 'slashed_char' => [ $_[0], $_[1] ] }, @_[2..$#_] ) 
-        if $_[0] eq '\\';
+    return unless $_[0];
+    return ( undef, { 'escaped_char'=> $1 }, substr($_[0], 2) )
+        if $_[0] =~ /^(\\.)/;
     return;
 };
-sub rule::word_char { 
+sub rule::word { 
     return if +shift;  # no continuation
-    return unless @_;
-    return ( undef, { 'word_char'=> $_[0] }, @_[1..$#_] ) 
-        if $_[0] =~ m/[a-zA-Z0-9\_]/;  
+    return unless $_[0];
+    return ( undef, { 'word'=> $1 }, $2 )
+        if $_[0] =~ /^([_[:alnum:]]+)(.*)/;
     return;
 };
-*rule::word = ruleop::concat(
-        \&rule::word_char,
-        ruleop::greedy_star( \&rule::word_char )
-    );
 
 # rule compiler
 
 sub rule::closure {
         return if +shift;
-        return if !@_;
-        return if $_[0] ne '{';
-        shift;
-        my $code;
-        while ( @_ ) {
-            last if $_[0] eq '}';
-            $code .= +shift;
-        }
-        return if $_[0] ne '}';
-        shift;
-        #print "compiling $code - @_\n";
+        my ( $code, $tail ) = $_[0] =~ /^\{(.*?)\}(.*)/;
+        return unless defined $code;
+        #print "parsing $code - $tail\n";
         my $result = eval $code;
-        return ( undef, { code => $result }, @_ );
+        return ( undef, { code => $result }, $tail );
 }
 
 sub rule::subrule {
         return if +shift;
-        return if !@_;
-        return if $_[0] ne '<';
-        shift;
-        my $code;
-        while ( @_ ) {
-            last if $_[0] eq '>';
-            $code .= +shift;
-        }
-        return if $_[0] ne '>';
-        shift;
-        #print "subrule $code\n";
-        return ( undef, { rule => $code }, @_ );
+        my ( $code, $tail ) = $_[0] =~ /^\<(.*?)\>(.*)/;
+        return unless defined $code;
+        #print "parsing subrule $code\n";
+        return ( undef, { rule => $code }, $tail );
 }
 
 *rule::parenthesis = 
@@ -145,7 +126,7 @@ sub emit_rule {
         elsif ( $k eq 'constant' ) {
             return "$tab ruleop::constant( '$v' )\n";
         }
-        elsif ( $k eq 'word_char' ) {
+        elsif ( $k eq 'word' ) {
             return "$tab ruleop::constant( '$v' )\n";
         }
         else {
@@ -170,7 +151,7 @@ my $tmp;
 
 #print "compile rule\n";
 my ( $stat, $match, $tail ) = 
-    rule::rule( 0, split //, 
+    rule::rule( 0,  
         '<word> <ws> xyz' );
 
         # XXX - finish "parenthesis"
@@ -181,7 +162,7 @@ my ( $stat, $match, $tail ) =
 #print "run rule \n", Dumper( $stat, $match, $tail );
 #print "run rule \n", 
 print Dumper( $match );
-#$match->( 0, split //, '' );
+#$match->( 0, '' );
 
 my $s = emit_rule( $match );
 print "-- Start program\n$s\n-- End program\n";
@@ -189,28 +170,30 @@ print "-- Start program\n$s\n-- End program\n";
 my $compiled_rule = eval($s);
 
 {
+my $test_string = 'some_word xyz';
+print "parsing '$test_string'\n";
 my ( $stat, $match, $tail ) = 
-    $compiled_rule->( 0, split //, 'some_word xyz' );
+    $compiled_rule->( 0, 'some_word xyz' );
 print Dumper( $match );
 }
 
 __END__
 
-print Dumper ruleop::rule()->( 0, split //, '{ print 1+1, "\n" }' )
-                     ->( 0, split //, '' );
+print Dumper ruleop::rule()->( 0, '{ print 1+1, "\n" }' )
+                     ->( 0, '' );
 
 __END__
 
-print Dumper ruleop::rule( 0, split //, ' ' )
-                     ->( 0, split //, 'x' );
+print Dumper ruleop::rule( 0, ' ' )
+                     ->( 0, 'x' );
 
-print Dumper ruleop::rule( 0, split //, '<word>' )
-                     ->( 0, split //, ' abc def' );
+print Dumper ruleop::rule( 0, '<word>' )
+                     ->( 0, ' abc def' );
 
-print Dumper ruleop::rule( 0, split //, 'abc' )
-                     ->( 0, split //, 'abc' );
-print Dumper ruleop::rule( 0, split //, '<word>' )
-                     ->( 0, split //, 'abc' );
+print Dumper ruleop::rule( 0, 'abc' )
+                     ->( 0, 'abc' );
+print Dumper ruleop::rule( 0, '<word>' )
+                     ->( 0, 'abc' );
 
 __END__
 
