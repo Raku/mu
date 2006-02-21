@@ -69,10 +69,18 @@ do {
         return unless $match;
         $match = $match->[1];  # remove '('
         pop @$match;   # remove ')'
-        print Dumper( $match );
+        #print Dumper( $match );
         ( $state, { capture => $match }, $tail );
     }        
 };
+
+sub ruleop::capture { 
+    my $node = shift;
+    sub {
+        print "# *** ruleop::capture not implemented\n";
+        $node->( @_ );
+    }
+}
 
 *rule::rule = 
     ruleop::greedy_star(
@@ -118,11 +126,11 @@ sub emit_rule {
     elsif ( ref( $n ) eq 'HASH' ) 
     {
         my ( $k, $v ) = each %$n;
-        print "$tab $k => $v \n";
+        #print "$tab $k => $v \n";
         if ( $k eq 'capture' ) {
             # return "$tab # XXX capture ?\n";
-            return "$tab # XXX - capture \n" .
-                   emit_rule( $v, $tab );
+            return "$tab ruleop::capture(\n" .
+                   emit_rule( $v, $tab ) . "$tab )\n";
         }        
         elsif ( $k eq 'code' ) {
             # return "$tab # XXX code - compile '$v' ?\n";
@@ -154,21 +162,41 @@ sub emit_rule {
 
 package main;
 
-# TODO: use Test::More
-
+use Test::More qw(no_plan);
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
-
+$Data::Dumper::Pad = '# ';
 my $state;
 my $tmp;
+my ( $program, $compiled );
+my ( $stat, $match, $tail );
 
+{
+  ( $stat, $match, $tail ) = rule::rule( '<word>' );
+  ok ( defined $match, "parse rule" );
+  $program = emit_rule( $match );
+  ok ( defined $program, "emit rule to p5" );
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  ( $stat, $match, $tail ) = $compiled->( 'some_word' );
+  # print Dumper( $match );
+  ok ( defined $match, "parse sample of text" );
+}
+
+__END__
 #print "compile rule\n";
 my ( $stat, $match, $tail ) = 
     # XXX - simplest case
-    # rule::rule( '<word> <ws> xyz' );
+    #rule::rule( '<word>' );
+
+    # XXX - 2 terms
+    #rule::rule( '<word><ws>' );
+
+    # XXX - simple case
+    #rule::rule( '<word> <ws> <word> <ws> xyz' );
 
     # XXX - capture
-    rule::rule( '<word> ( <word> ) xyz' );
+    rule::rule( '<word> <ws> ( <word> ) <ws> xyz' );
 
     # XXX - finish "closure"
     # rule::rule( '{ "<wo"."rd>" } <word> ( <word> ) xyz' );
@@ -183,10 +211,11 @@ print "-- Start program\n$s\n-- End program\n";
 my $compiled_rule = eval($s);
 
 {
-my $test_string = 'some_word xyz';
+my $test_string = 'some_word other_word xyz';
+#$test_string = 'some_word';
 print "parsing '$test_string'\n";
 my ( $stat, $match, $tail ) = 
-    $compiled_rule->( 'some_word xyz' );
+    $compiled_rule->( $test_string );
 print Dumper( $match );
 }
 

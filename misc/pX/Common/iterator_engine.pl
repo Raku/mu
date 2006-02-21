@@ -66,6 +66,10 @@ sub ruleop::non_greedy {
 sub ruleop::alternation {
     # XXX - is this supposed to return the longest match first?
     # XXX   in which case it would have to test all possibilities before returning
+
+    # alternation is first match (not longest).  though we need a 
+    # separate longest match for tokens (putter on #perl6)
+
     my @nodes = @_;
     return sub {
         my $n = $_[1];
@@ -73,7 +77,7 @@ sub ruleop::alternation {
         return unless @nodes;
         my $match;
         my $tail;
-        $n = [ 0, 0 ] if $n == 0;
+        $n = [ 0, 0 ] if !defined $n || $n == 0;
         my $state = [ $n->[0], $n->[1] ];
         while( defined $state ) {
             ($state->[1], $match, $tail) = 
