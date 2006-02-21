@@ -228,9 +228,9 @@ initPreludePC env = do
         let dispProgress = (posName . envPos $ env) == "<interactive>"
         when dispProgress $ putStr "Loading Prelude... "
         catch loadPreludePC $ \e -> do
-            when (isUserError e) $ do
+            when (isUserError e && not (null (ioeGetErrorString e))) $ do
                 hPrint stderr e
-                hPrint stderr "Reloading Prelude from source..."
+                hPutStr stderr "Reloading Prelude from source..."
             evalPrelude
         when dispProgress $ putStrLn "done."
         return env
@@ -251,5 +251,6 @@ initPreludePC env = do
                 -- print "Loading done!"
                 liftSTM $ modifyTVar (envGlobal env) (`unionPads` glob)
                 runEnv env{ envBody = ast, envDebug = Nothing }
-            x                -> fail $ "error loading precompiled Prelude: " ++ show x
+            Right Nothing -> fail ""
+            x  -> fail $ "Error loading precompiled Prelude: " ++ show x
 
