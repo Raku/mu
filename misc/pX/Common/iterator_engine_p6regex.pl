@@ -57,6 +57,7 @@ sub rule::subrule {
         return ( undef, { rule => $code }, $tail );
 }
 
+# TODO - simplify this by using a ruleop::label - see implementation of 'star'
 *rule::non_capturing_group =
 do {
     my $r = ruleop::concat(
@@ -76,6 +77,7 @@ do {
     }        
 };
 
+# TODO - simplify this by using a ruleop::label - see implementation of 'star'
 *rule::capturing_group = 
 do {
     my $r = ruleop::concat(
@@ -115,6 +117,7 @@ sub ruleop::capture {
         \&{'rule::.'},
       );
 
+# XXX - doesn't work yet
 *rule::alternate = 
     ruleop::concat(
         \&rule::rule,
@@ -126,11 +129,70 @@ sub ruleop::capture {
         )
     );
 
-*rule::rule = ruleop::greedy_star( \&rule::term );
+# rule 'rule' { [ <term>\* | <term> ]* }
+# note: <term>\* creates a term named 'star'
+*rule::rule = 
+    ruleop::greedy_star( 
+      ruleop::alternation( 
+        ruleop::label( 'star', 
+          ruleop::concat(
+            \&rule::term,
+            ruleop::constant( '*' ),
+          ),
+        ),
+        \&rule::term,
+      ),
+    );
 
 # XXX - Deep recursion on anonymous subroutine at iterator_engine.pl line 108.
 # XXX - Deep recursion on anonymous subroutine at iterator_engine.pl line 83.
 # *rule::rule = ruleop::greedy_star( \&rule::alternate );
+
+#------ from http://svn.perl.org/parrot/trunk/compilers/pge/P6Rule.grammar
+
+{
+  # grammar PGE::P6Rule;
+  package rule;
+
+  # rule pattern { <flag>* <alternation> }
+  *pattern = 
+    ruleop::concat( 
+      ruleop::greedy_star( 
+        \&flag 
+      ), 
+      \&alternation 
+    );
+
+  # rule flag { \:<ident> [ \( <code> \) | \[ <code> \] ]? }
+  *flag = 
+    ruleop::concat( 
+      ruleop::concat( 
+        ruleop::constant( ':' ),
+        \&ident
+      ),
+      ruleop::optional(
+        ruleop::concat( 
+          ruleop::concat( 
+            ruleop::constant( '(' ),
+            \&code
+          ),
+          ruleop::constant( ')' ),
+        ),
+        ruleop::concat( 
+          ruleop::concat( 
+            ruleop::constant( '[' ),
+            \&code
+          ),
+          ruleop::constant( ']' ),
+        ),
+      )
+    );
+
+    # TODO
+
+    sub code { print "<code> not implemented\n" };
+    sub ident { print "<ident> not implemented\n" };
+}
 
 #------ rule emitter
 
@@ -168,6 +230,11 @@ sub emit_rule {
         if ( $k eq 'capture' ) {
             # return "$tab # XXX capture ?\n";
             return "$tab ruleop::capture(\n" .
+                   emit_rule( $v, $tab ) . "$tab )\n";
+        }        
+        elsif ( $k eq 'star' ) {
+            pop @$v;  # remove '*'
+            return "$tab ruleop::greedy_star(\n" .
                    emit_rule( $v, $tab ) . "$tab )\n";
         }        
         elsif ( $k eq 'code' ) {
@@ -259,9 +326,28 @@ my ( $stat, $match, $tail );
 }
 
 {
+  ( $stat, $match, $tail ) = rule::rule( '<word> <ws>*' );
+  ok ( defined $match, "parse rule - 2 terms, with star" );
+  $program = emit_rule( $match );
+  ok ( defined $program, "emit rule to p5" );
+  #print $program;
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  ( $stat, $match, $tail ) = $compiled->( 'some_word other' );
+  # print Dumper( $match );
+  ok ( defined $match, "parse sample of text" );
+  is ( $tail, 'other', "remaining unmatched text (tail)" );
+
+  # this test doesn't apply
+  #( $stat, $match, $tail ) = $compiled->( 'one_word!' );
+  #ok ( !defined $match, "rejects unmatching text" );
+}
+
+{
   ( $stat, $match, $tail ) = rule::rule( '(<word>) <ws>' );
   ok ( defined $match, "parse rule - 2 terms, with capture" );
   $program = emit_rule( $match );
+  #print $program;
   ok ( defined $program, "emit rule to p5" );
   $compiled = eval($program);
   is ( ref $compiled, "CODE", "compile p5" );
@@ -279,6 +365,7 @@ my ( $stat, $match, $tail );
   ( $stat, $match, $tail ) = rule::rule( '<word> [ <ws> <word> ]' );
   ok ( defined $match, "parse rule - non-capturing group" );
   $program = emit_rule( $match );
+  #print $program;
   ok ( defined $program, "emit rule to p5" );
   #print $program;
   $compiled = eval($program);
