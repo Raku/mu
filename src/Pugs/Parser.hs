@@ -1826,15 +1826,16 @@ ruleVarNameString =   try (string "$/")  -- match object
                   <|> try ruleMatchNamed
                   <|> try regularVarName
                   <|> string "$!"  -- error variable
-    where
-    regularVarName = do
-        sigil   <- oneOf "$@%&"
-        if sigil == '&' then ruleSubName else do
-        --  ^ placeholder, * global, ? magical, . member, ! private member
-        twigil  <- ruleTwigil
-        -- doesn't handle names /beginning/ with "::"
-        name    <- ruleQualifiedIdentifier
-        return $ (sigil:twigil) ++ name
+
+regularVarName :: RuleParser String
+regularVarName = do
+    sigil   <- oneOf "$@%&"
+    if sigil == '&' then ruleSubName else do
+    --  ^ placeholder, * global, ? magical, . member, ! private member
+    twigil  <- ruleTwigil
+    -- doesn't handle names /beginning/ with "::"
+    name    <- ruleQualifiedIdentifier
+    return $ (sigil:twigil) ++ name
 
 ruleTwigil :: RuleParser String
 ruleTwigil = option "" . choice . map string $ words " ^ * ? . ! + ; "
@@ -1972,13 +1973,19 @@ pairArrow = do
 
 pairAdverb :: RuleParser Exp
 pairAdverb = do
-    string ":"
-    key <- many1 wordAny
-    val <- option (Val $ VInt 1) $ tryChoice [ valueDot, noValue, valueExp ]
-    return $ if (all isDigit key)
-        then App (Var "&Pugs::Internals::base") Nothing [Val (VStr key), val]
-        else App (Var "&infix:=>") Nothing [Val (VStr key), val]
+    char ':'
+    shortcutPair <|> regularPair
     where
+    shortcutPair = do
+        var <- regularVarName
+        let key = reverse (takeWhile isWordAny (reverse var))
+        return $ App (Var "&infix:=>") Nothing [Val (VStr key), Var var]
+    regularPair = do
+        key <- many1 wordAny
+        val <- option (Val $ VInt 1) $ tryChoice [ valueDot, noValue, valueExp ]
+        return $ if (all isDigit key)
+            then App (Var "&Pugs::Internals::base") Nothing [Val (VStr key), val]
+            else App (Var "&infix:=>") Nothing [Val (VStr key), val]
     valueDot = do
         skipMany1 (satisfy isSpace)
         symbol "."
