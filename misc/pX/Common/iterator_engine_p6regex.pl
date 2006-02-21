@@ -97,6 +97,67 @@ sub rule::subrule {
       )
     );
 
+#------ rule emitter
+
+my $namespace = 'rule::';
+sub emit_rule {
+    my $n = $_[0];
+    my $tab = $_[1]; $tab .= '  ';
+    local $Data::Dumper::Indent = 0;
+    #print "emit_rule: ", ref($n)," ",Dumper( $n ), "\n";
+    if ( ref( $n ) eq 'ARRAY' ) {
+        my @s;
+        for ( @$n ) {
+            push @s, emit_rule( $_, $tab );
+        }
+        return $s[0] unless $s[1];
+        return $s[1] unless $s[0];
+
+        return $s[0].$s[1] unless $s[0];
+        return $s[0].$s[1] unless $s[1];
+
+        #return $s[0].$s[1] if $s[0] =~ /^\s+#/;
+        #return $s[0].$s[1] if $s[1] =~ /^\s+#/;
+
+        return "$tab ruleop::concat(\n" . 
+               $s[0] . "$tab ,\n" . $s[1] . "$tab )\n";
+
+        return "$tab CONCAT (\n" . $s[0] . "$tab ," . $s[1] . "$tab )\n"
+            if $s[1]; # =~ /^\s+\[/;
+        return "$tab [\n" . $s[0].$s[1] . "$tab ]\n";
+    }
+    elsif ( ref( $n ) eq 'HASH' ) 
+    {
+        my ( $k, $v ) = each %$n;
+        print "$tab $k => $v \n";
+        if ( $k eq 'code' ) {
+            # return "$tab # XXX code - compile '$v' ?\n";
+            return "$tab $v\n";  
+        }        
+        elsif ( $k eq 'ws' ) {
+            # ignore whitespace
+            return;
+            #return "$tab # <ws>\n";
+        }
+        elsif ( $k eq 'rule' ) {
+            return "$tab \\&{'$namespace$v'}\n";
+        }
+        elsif ( $k eq 'constant' ) {
+            return "$tab ruleop::constant( '$v' )\n";
+        }
+        elsif ( $k eq 'word_char' ) {
+            return "$tab ruleop::constant( '$v' )\n";
+        }
+        else {
+            die "unknown node: ", Dumper( $n );
+        }
+    }
+    else 
+    {
+        die "unknown node: ", Dumper( $n );
+    }
+}
+
 package main;
 
 # TODO: use Test::More
@@ -110,11 +171,28 @@ my $tmp;
 #print "compile rule\n";
 my ( $stat, $match, $tail ) = 
     rule::rule( 0, split //, 
-        '{ 1+1 } <word> ( <word> ) xyz' );
+        '<word> <ws> xyz' );
+
+        # XXX - finish "parenthesis"
+        # '<word> ( <word> ) xyz' );
+
+        # XXX - finish "closure"
+        # '{ "<wo"."rd>" } <word> ( <word> ) xyz' );
 #print "run rule \n", Dumper( $stat, $match, $tail );
 #print "run rule \n", 
 print Dumper( $match );
 #$match->( 0, split //, '' );
+
+my $s = emit_rule( $match );
+print "-- Start program\n$s\n-- End program\n";
+
+my $compiled_rule = eval($s);
+
+{
+my ( $stat, $match, $tail ) = 
+    $compiled_rule->( 0, split //, 'some_word xyz' );
+print Dumper( $match );
+}
 
 __END__
 
