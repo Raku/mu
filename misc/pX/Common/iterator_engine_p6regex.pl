@@ -55,6 +55,25 @@ sub rule::subrule {
         return ( undef, { rule => $code }, $tail );
 }
 
+*rule::non_capturing_group =
+do {
+    my $r = ruleop::concat(
+        ruleop::constant( '[' ),
+        ruleop::concat(
+            \&rule::rule,
+            ruleop::constant( ']' )
+        )
+    );
+    sub { 
+        my ( $state, $match, $tail ) = $r->( @_ ); 
+        return unless $match;
+        $match = $match->[1];  # remove '['
+        pop @$match;   # remove ']'
+        #print Dumper( $match );
+        ( $state, $match, $tail );
+    }        
+};
+
 *rule::capturing_group = 
 do {
     my $r = ruleop::concat(
@@ -89,6 +108,7 @@ sub ruleop::capture {
         \&rule::closure,
         \&rule::subrule,
         \&rule::capturing_group,
+        \&rule::non_capturing_group,
         # ruleop::constant( 'if' ),  # XXX - just an example
         \&rule::word,
         \&{'rule::.'},
@@ -235,6 +255,22 @@ my ( $stat, $match, $tail );
   # TODO - test captured text
 
   ( $stat, $match, $tail ) = $compiled->( 'one_word' );
+  ok ( !defined $match, "rejects unmatching text" );
+}
+
+{
+  ( $stat, $match, $tail ) = rule::rule( '<word> [ <ws> <word> ]' );
+  ok ( defined $match, "parse rule - non-capturing group" );
+  $program = emit_rule( $match );
+  ok ( defined $program, "emit rule to p5" );
+  #print $program;
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  ( $stat, $match, $tail ) = $compiled->( 'some_word other' );
+  # print Dumper( $match );
+  ok ( defined $match, "parse sample of text" );
+
+  ( $stat, $match, $tail ) = $compiled->( '!some_word' );
   ok ( !defined $match, "rejects unmatching text" );
 }
 
