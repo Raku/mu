@@ -53,9 +53,9 @@ source code string or a parse-tree.
 
 The general syntax for named subroutines is any of:
 
-     my RETTYPE sub NAME ( PARAMS ) TRAITS {...}
-    our RETTYPE sub NAME ( PARAMS ) TRAITS {...}
-                sub NAME ( PARAMS ) TRAITS {...}
+     my RETTYPE sub NAME ( PARAMS ) TRAITS {...}    # lexical only
+    our RETTYPE sub NAME ( PARAMS ) TRAITS {...}    # also package-scoped
+                sub NAME ( PARAMS ) TRAITS {...}    # same as "our"
 
 The general syntax for anonymous subroutines is:
 
@@ -1353,8 +1353,8 @@ after the name:
     my sub hat returns Rabbit {...}
 
 If a subroutine is not explicitly scoped, it belongs to the current
-namespace (module, class, grammar, or package). Any return type must go
-after the name:
+namespace (module, class, grammar, or package), as if it's scoped with
+the C<our> scope modifier. Any return type must go after the name:
 
     sub lay returns Egg {...}
 
