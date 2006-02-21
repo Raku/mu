@@ -56,7 +56,7 @@ sub build {
     build_lib($version, $ghc, @args);
     build_exe($version, $ghc, $ghc_version, @args);
 
-    if (!-s $ppc_yml or -M $ppc_yml < -M $ppc_hs) {
+    if (!-s $ppc_yml or -M $ppc_yml > -M $ppc_hs) {
         run($^X, qw<util/gen_prelude.pl -v -i src/perl6/Prelude.pm>,
                 (map { ('-i' => $_) } @{ PugsBuild::Config->lookup('precompile_modules') }),
                 '-p', $thispugs, qw<--output src/Pugs/PreludePC.yml>);

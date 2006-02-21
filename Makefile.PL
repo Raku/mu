@@ -461,7 +461,7 @@ src/Pugs/CodeGen/PIR/Prelude.hs : src/gen_prelude$Config{_exe} src/perl6/Prelude
 	\@\$(PERL) -e "mkdir q-src/Pugs/CodeGen/PIR-"
 	src/gen_prelude$Config{_exe} Pugs.CodeGen.PIR.Prelude < src/perl6/Prelude/PIR.pm > src/Pugs/CodeGen/PIR/Prelude.hs
 
-src/Pugs/Prelude.hs : src/perl6/Prelude.pm
+src/Pugs/Prelude.hs : src/perl6/Prelude.pm util/gen_prelude.pl
 	\$(PERL) util/gen_prelude.pl -v --touch --inline -i src/perl6/Prelude.pm --output src/Pugs/Prelude.hs
 
 ${() = '%.hpp : %.hs @prereqs $version_h
@@ -502,7 +502,7 @@ haddock : $version_h $config_h @hppfiles dist/doc/html
 dist/doc/html :
 	\@\$(PERL) -MFile::Path -e "mkpath q-dist/doc/html-"
 
-profiled :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm
+profiled :: src/Pugs/Config.hs src/Pugs/CodeGen/PIR/Prelude.hs @srcfiles $version_h $config_h config.yml src/perl6/Prelude.pm src/Pugs/Prelude.hs
 	\$(PERL) util/build_pugs.pl _+SETUP $setup_flags _-SETUP _+GHC $version $ghc $ghc_version $setup --make -O -auto-all -prof $threaded $profiled_flags $ccdlflags $embed_flags $ghc_output _-GHC _+GEN_PRELUDE --pugs $thispugs
 
 pugs.prof :: profiled
