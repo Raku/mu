@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 2 Feb 2006
+  Last Modified: 22 Feb 2006
   Number: 6
-  Version: 16
+  Version: 17
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -49,7 +49,7 @@ as they are parsed (i.e. at compile-time). Macros may return another
 source code string or a parse-tree.
 
 
-=head2 Standard subroutines
+=head2 Named subroutines
 
 The general syntax for named subroutines is any of:
 
@@ -57,11 +57,23 @@ The general syntax for named subroutines is any of:
     our RETTYPE sub NAME ( PARAMS ) TRAITS {...}    # also package-scoped
                 sub NAME ( PARAMS ) TRAITS {...}    # same as "our"
 
+Unlike in Perl 5, named subroutines are considered expressions,
+so this is valid Perl 6:
+
+    my @subs = (sub foo { ... }, sub bar { ... });
+
+=head2 Anonymous subroutines
+
 The general syntax for anonymous subroutines is:
 
     sub ( PARAMS ) TRAITS {...}
 
-"Trait" is the name for a compile-time (C<is>) property.
+But one can also use a scope modifier to introduce the return type first:
+
+     my RETTYPE sub ( PARAMS ) TRAITS {...}
+    our RETTYPE sub ( PARAMS ) TRAITS {...} # means the same as "my" here
+
+B<Trait> is the name for a compile-time (C<is>) property.
 See L<"Traits and Properties">
 
 
@@ -1363,10 +1375,13 @@ keyword:
 
     $lay = sub returns Egg {...};
 
-unless you use the "anonymous declarator" (C<a>/C<an>):
+but you can use a scope modifier to introduce a return type:
 
-    $lay = an Egg sub {...};
-    $hat = a Rabbit sub {...};
+    $lay = my Egg sub {...};
+    $hat = my Rabbit sub {...};
+
+Because they are anonymous, you can change the C<my> modifier to C<our>
+without affecting the meaning.
 
 The return type may also be specified after a C<< --> >> token within the
 signature.  This doesn't mean exactly the same thing as C<returns>.  The

@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 19 Nov 2005
+  Last Modified: 22 Feb 2006
   Number: 10
-  Version: 3
+  Version: 4
 
 =head1 Overview
 
@@ -31,6 +31,9 @@ An ordinary package is declared with the C<package> keyword.  It can
 only be used with a block:
 
     package Bar {...}	# block is in package Bar
+
+A named package declaration can occur as part of an expression, just like
+named subroutine declarations.
 
 As a special exception, if a braceless C<package> declaration occurs
 as the first thing in a file, then it's taken to mean that the rest of
