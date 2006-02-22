@@ -5,8 +5,19 @@ use Test;
 
 # Avoiding accidental multiple execution 
 # as occurs in C's defines and lisp macros
+# This can also ensure a correct order of evaluation
 
-macro max ($x is thunk, $y is thunk) {
+# This needs to be decided
+# is CST (Concrete)
+# is Thunk
+# is Proxy
+# is Reduced
+# is Bound
+# is Once
+# is Evaluated
+# is EvaluatedOnce
+# is Eager
+macro max ($x is CST, $y is CST) {
     return CODE { ($x > $y) ?? $x !! $y };
 }
 
@@ -38,6 +49,8 @@ First principle, adding CODE before a block doesn't change things
     (mentioning new vars may bind at the macro use)
   - subs continue to be bound to the local definitions
   - macros continue to be expanded at parse time (CODE parse time)
+
+Second principle, to do something special, say something special.
 
 Differences: possible variable/sub not defined errors may bind at macro uses
 or are delayed.
@@ -75,5 +88,14 @@ L<S05/"Matching against non-strings"> and just s:g///
 to produce the output ast.  
 
 If a tree grammar tool reaches the Perl 6 user space then that can be used
+
+=head1 Recursive Macros
+
+We started thinking about these, but then realized we'd need to
+know how they work, so we started thinking about these, ...
+
+These are banned in C but permitted in Lisp (and a source of
+infinite loops during compilation).  We could adopt either method
+or try to reduce the likely pain.
 
 =cut
