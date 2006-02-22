@@ -53,9 +53,16 @@ opRequire dumpEnv v = do
                               , mkStrPair "relpath"  (decodeUTF8 file) ]
                     ]
             ]
-        str      <- liftIO $ readFile pathName
-        opEval style pathName (decodeUTF8 str)
+        -- XXX: fixme
+        rv <- resetT $ fastEval pathName
+        case rv of
+            VError _ [MkPos{posName=""}] -> slowEval pathName
+            _                            -> opEval style pathName ""
     where
+    fastEval = op1EvalP6Y . VStr . (++ ".yml")
+    slowEval pN = do 
+        str      <- liftIO $ readFile pN
+        opEval style pN (decodeUTF8 str)
     style = MkEvalStyle
         { evalError  = EvalErrorFatal
         , evalResult = (if dumpEnv == True then EvalResultEnv
@@ -64,10 +71,10 @@ opRequire dumpEnv v = do
     mkStrPair :: String -> String -> Exp
     mkStrPair key val = App (Var "&infix:=>") Nothing (map (Val . VStr) [key, val])
 
-requireInc :: (MonadIO m) => [FilePath] -> FilePath -> String -> m String 
+requireInc :: (MonadIO m) => [FilePath] -> FilePath -> String -> m String
 requireInc [] _ msg = fail msg
 requireInc (p:ps) file msg = do
-    let pathName = p ++ "/" ++ file
+    let pathName  = p ++ "/" ++ file
     ok <- liftIO $ doesFileExist pathName
     if (not ok)
         then requireInc ps file msg
@@ -95,10 +102,10 @@ op1EvalHaskell cv = do
                        , evalResult=EvalResultLastValue}
 
 op1EvalP6Y :: Val -> Eval Val
-op1EvalP6Y f = do
-    fn <- fromVal f
-    str <- liftIO $ Str.readFile fn
-    yml <- liftIO $ parseYamlFS str
+op1EvalP6Y fileName = do
+    fileName' <- fromVal fileName
+    yml  <- liftIO $ (`catch` (return . Left . show)) $ do
+        parseYamlFS =<< Str.readFile fileName'
     case yml of
         Right (Just yml') -> do
             globTVar    <- asks envGlobal
@@ -110,7 +117,8 @@ op1EvalP6Y f = do
                     writeTVar globTVar (glob' `unionPads` glob)
                 evl <- asks envEval
                 evl ast
-        x -> fail $ "failed loading Yaml: " ++ show x
+        x -> local (\e -> e{ envPos = (envPos e){ posName="" } }) $
+            fail $ "failed loading Yaml: " ++ show x
 
 opEval :: EvalStyle -> FilePath -> String -> Eval Val
 opEval style path str = enterCaller $ do
