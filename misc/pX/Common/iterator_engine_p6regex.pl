@@ -124,8 +124,6 @@ sub ruleop::capture {
         ),
     );
 
-# --- cut
-
 # XXX - allow whitespace everywhere
 
 # [ <term>\* | <term> 
@@ -162,116 +160,6 @@ sub ruleop::capture {
         ),
     );
 
-=for before
-
-# [ <term> \| <term> | <term> ]* 
-# note: <term>|<term> creates a term named 'alt'
-# XXX - 'alt' position is wrong
-*rule = 
-    ruleop::greedy_star (
-        ruleop::alternation( 
-            ruleop::label( 'alt', 
-                ruleop::concat(
-                    \&quantifier,
-                    ruleop::concat(
-                        ruleop::constant( '|' ),
-                        \&quantifier,
-                    ),
-                ),
-            ),                
-            \&quantifier,
-        ),
-    );
-
-=cut
-
-=for bak
-
-{
-# XXX - doesn't work yet
-  no warnings 'once';
-*alternate = 
-    ruleop::concat(
-        \&term,
-        ruleop::greedy_star (
-            ruleop::concat(
-                ruleop::constant( '|' ),
-                \&term
-            )
-        )
-    );
-}
-
-# rule 'rule' { [ <term>\* | <term> ]* }
-# note: <term>\* creates a term named 'star'
-*rule = 
-    ruleop::greedy_star( 
-      ruleop::alternation( 
-        ruleop::label( 'star', 
-          ruleop::concat(
-            \&alternate,
-            ruleop::constant( '*' ),
-          ),
-        ),
-        \&term,
-      ),
-    );
-
-=cut
-
-# XXX - Deep recursion on anonymous subroutine at iterator_engine.pl line 108.
-# XXX - Deep recursion on anonymous subroutine at iterator_engine.pl line 83.
-# *rule = ruleop::greedy_star( \&alternate );
-
-}
-
-#------ from http://svn.perl.org/parrot/trunk/compilers/pge/P6Rule.grammar
-
-# XXX - move this to a new file
-
-{
-  # grammar PGE::P6Rule;
-  package grammar2;
-  no warnings 'once';
-
-  # rule pattern { <flag>* <alternation> }
-  *pattern = 
-    ruleop::concat( 
-      ruleop::greedy_star( 
-        \&flag 
-      ), 
-      \&alternation 
-    );
-
-  # rule flag { \:<ident> [ \( <code> \) | \[ <code> \] ]? }
-  *flag = 
-    ruleop::concat( 
-      ruleop::concat( 
-        ruleop::constant( ':' ),
-        \&ident
-      ),
-      ruleop::optional(
-        ruleop::concat( 
-          ruleop::concat( 
-            ruleop::constant( '(' ),
-            \&code
-          ),
-          ruleop::constant( ')' ),
-        ),
-        ruleop::concat( 
-          ruleop::concat( 
-            ruleop::constant( '[' ),
-            \&code
-          ),
-          ruleop::constant( ']' ),
-        ),
-      )
-    );
-
-    # TODO
-
-    sub code { print "<code> not implemented\n" };
-    sub ident { print "<ident> not implemented\n" };
 }
 
 #------ rule emitter
