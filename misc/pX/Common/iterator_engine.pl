@@ -134,7 +134,7 @@ sub ruleop::concat {
 sub ruleop::constant { 
     my $const = shift;
     return sub {
-        return unless $_[0] =~ m/^(\Q$const\E)(.*)/;
+        return unless $_[0] =~ m/^(\Q$const\E)(.*)/s;
         return ( undef, { constant => $1 }, $2 );
     }
 }

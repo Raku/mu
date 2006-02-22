@@ -16,34 +16,31 @@ sub any {
     return unless $_[0];
     return ( undef, { '.'=> substr($_[0],0,1) }, substr($_[0],1) )
 }
-
 sub ws {
     return unless $_[0];
     return ( undef, { 'ws'=> $1 }, substr($_[0], 1) )
-        if $_[0] =~ /^(\s)/;
+        if $_[0] =~ /^(\s)/s;
     return;
 };
 sub escaped_char {
     return unless $_[0];
     return ( undef, { 'escaped_char'=> $1 }, substr($_[0], 2) )
-        if $_[0] =~ /^(\\.)/;
+        if $_[0] =~ /^(\\.)/s;
     return;
 };
 sub word { 
     return unless $_[0];
     return ( undef, { 'word'=> $1 }, $2 )
-        if $_[0] =~ /^([_[:alnum:]]+)(.*)/;
+        if $_[0] =~ /^([_[:alnum:]]+)(.*)/s;
     return;
 };
-
-# rule compiler
 
 sub closure {
         # p5 code is called using: "rule { xyz { v5; ... } }" (audreyt on #perl6)
         # or: "rule { ... [:perl5:: this is p5 ] ... }"
         # or: "[:perl5(1) this is perl5 ]" (putter on #perl6)
 
-        my ( $code, $tail ) = $_[0] =~ /^\{(.*?)\}(.*)/;
+        my ( $code, $tail ) = $_[0] =~ /^\{(.*?)\}(.*)/s;
         return unless defined $code;
         #print "parsing $code - $tail\n";
         my $result = eval $code;
@@ -51,51 +48,33 @@ sub closure {
 }
 
 sub subrule {
-        my ( $code, $tail ) = $_[0] =~ /^\<(.*?)\>(.*)/;
+        my ( $code, $tail ) = $_[0] =~ /^\<(.*?)\>(.*)/s;
         return unless defined $code;
         #print "parsing subrule $code\n";
         return ( undef, { rule => $code }, $tail );
 }
 
-# TODO - simplify this by using a ruleop::label - see implementation of 'star'
 *non_capturing_group =
-do {
-    my $r = ruleop::concat(
+    ruleop::label( 'non_capturing_group',
+      ruleop::concat(
         ruleop::constant( '[' ),
         ruleop::concat(
             \&rule,
             ruleop::constant( ']' )
-        )
+        ),
+      ),
     );
-    sub { 
-        my ( $state, $match, $tail ) = $r->( @_ ); 
-        return unless $match;
-        $match = $match->[1];  # remove '['
-        pop @$match;   # remove ']'
-        #print Dumper( $match );
-        ( $state, $match, $tail );
-    }        
-};
 
-# TODO - simplify this by using a ruleop::label - see implementation of 'star'
 *capturing_group = 
-do {
-    my $r = ruleop::concat(
+    ruleop::label( 'capturing_group',
+      ruleop::concat(
         ruleop::constant( '(' ),
         ruleop::concat(
             \&rule,
             ruleop::constant( ')' )
         )
+      ),
     );
-    sub { 
-        my ( $state, $match, $tail ) = $r->( @_ ); 
-        return unless $match;
-        $match = $match->[1];  # remove '('
-        pop @$match;   # remove ')'
-        #print Dumper( $match );
-        ( $state, { capture => $match }, $tail );
-    }        
-};
 
 sub ruleop::capture { 
     my $node = shift;
@@ -106,9 +85,9 @@ sub ruleop::capture {
 }
 
 *dot = 
-        ruleop::label( 'dot', 
-            ruleop::constant( '.' ),
-        );
+    ruleop::label( 'dot', 
+        ruleop::constant( '.' ),
+    );
 
 # <ws>* [ <closure> | <subrule> | ... ]
 *term = 
@@ -120,6 +99,7 @@ sub ruleop::capture {
             \&capturing_group,
             \&non_capturing_group,
             \&word,
+            \&escaped_char,
             \&dot,
         ),
     );
@@ -188,10 +168,17 @@ sub emit_rule {
     {
         my ( $k, $v ) = each %$n;
         #print "$tab $k => $v \n";
-        if ( $k eq 'capture' ) {
-            # return "$tab # XXX capture ?\n";
+        if ( $k eq 'capturing_group' ) {
+            $v = $v->[1][0];  # remove '( )'
             return "$tab ruleop::capture(\n" .
                    emit_rule( $v, $tab ) . "$tab )\n";
+        }        
+        elsif ( $k eq 'non_capturing_group' ) {
+            local $Data::Dumper::Indent = 1;
+            # print "*** \$v:\n",Dumper $v;
+            $v = $v->[1][0];  # remove '[ ]'
+            # print "*** \$v:\n",Dumper $v;
+            return emit_rule( $v, $tab );
         }        
         elsif ( $k eq 'star' ) {
             pop @$v;  # remove '*'
@@ -199,7 +186,7 @@ sub emit_rule {
                    emit_rule( $v, $tab ) . "$tab )\n";
         }        
         elsif ( $k eq 'alt' ) {
-            local $Data::Dumper::Indent = 1;
+            # local $Data::Dumper::Indent = 1;
             my @alt = ( $v->[0] );
             # print "*** \$v:\n",Dumper $v;
             while(1) {
@@ -233,6 +220,9 @@ sub emit_rule {
         }
         elsif ( $k eq 'constant' ) {
             return "$tab ruleop::constant( '$v' )\n";
+        }
+        elsif ( $k eq 'escaped_char' ) {
+            return "$tab ruleop::constant( '". substr( $v, 1 ) ."' )\n";
         }
         elsif ( $k eq 'word' ) {
             return "$tab ruleop::constant( '$v' )\n";
