@@ -23,6 +23,9 @@ A "ruleop" function gets some arguments and returns a "rule".
 
 =cut
 
+# XXX - api change: return ( $match, $tail, $next ) instead of ( $next, $match, $tail )
+# XXX   because most of the time only ( $match ) is needed.
+
 # XXX - optimization - pass the string index around, 
 # XXX   instead of copying the whole string to $tail every time
 
@@ -42,9 +45,7 @@ sub ruleop::greedy_star {
 
 sub ruleop::non_greedy { 
     my $node = shift;
-
     # TODO - this sub is not completely implemented / tested
-
     # XXX - possible implementation strategy - reuse rule::concat ?
     return sub {
         my ( $tail, $n ) = shift;
@@ -57,27 +58,21 @@ sub ruleop::non_greedy {
                 push @matches, $match;
                 push @cont, $state;
         }
-        # XXX - return ( @continuation, ...
         # TODO - post-process @cont for proper permutation
         return ( \@cont, { 'non_greedy' => [ @matches ] }, $tail );
     }
 }
 
 sub ruleop::alternation {
-    # XXX - is this supposed to return the longest match first?
-    # XXX   in which case it would have to test all possibilities before returning
-
     # alternation is first match (not longest).  though we need a 
     # separate longest match for tokens (putter on #perl6)
-
     my @nodes = @_;
     return sub {
-        my $n = $_[1];
+        my $n = $_[1] || [ 0, 0 ];
         #print "testing alternations on @_\n";
         return unless @nodes;
         my $match;
         my $tail;
-        $n = [ 0, 0 ] if !defined $n || $n == 0;
         my $state = [ $n->[0], $n->[1] ];
         while( defined $state ) {
             ($state->[1], $match, $tail) = 
@@ -87,7 +82,7 @@ sub ruleop::alternation {
                 $state->[1] = 0;
                 $state = undef if $state->[0] > $#nodes;
             }
-            #return ( $state, { 'alternation' =>$match }, $tail) if $match;
+            #print "alternate: match \n".Dumper($match) if $match;
             return ( $state, $match, $tail) if $match;
         }
         return;
@@ -96,14 +91,14 @@ sub ruleop::alternation {
 
 sub ruleop::concat {
     my @concat = @_;
-    # TODO: generalize for @concat > 2
+    # TODO: generalize for ( @concat > 2 ) would help reduce stack usage
     return sub {
-        my $n = $_[1];
+        my $n = $_[1] || [ 0, 0 ];
         my @matches;
         my $tail;
         my $state;
-        my $state0 = ref($n) ? $n->[0] : 0;
-        my $state1 = ref($n) ? $n->[1] : 0;
+        my $state0 = $n->[0];
+        my $state1 = $n->[1];
         while (1) {
             ($state, $matches[0], $tail) = $concat[0]->( $_[0], $state0 );
             #print "  1st match: ", Dumper( [ $state, $matches[0], $tail ] );
@@ -154,8 +149,6 @@ sub ruleop::null {
     }
 };
 
-
-# experimental node (unused?)
 sub ruleop::label {
     my $label = shift;
     my $node = shift;
@@ -167,50 +160,3 @@ sub ruleop::label {
 }
 
 1;
-
-__END__
-
-
-# old tests
-
-print "greedy\n", Dumper( 
-  rule::greedy( rule::constant('a') )->( 0, qw(a a a b c) ) 
-);
-print "greedy backtrack\n", Dumper( 
-  rule::concat( 
-    rule::greedy( rule::constant('a') ),
-    \&{'rule::.'} 
-  )->( 0, qw(a a a a) ) 
-);
-print "greedy no-match\n", Dumper( 
-  rule::concat(
-    rule::greedy( rule::constant('a') ),
-    \&{'rule::.'}
-  )->( 0, qw(b a a a a) ) 
-);
-print "word\n", Dumper( 
-  &{'rule::<word>'}( 0, qw(b a a ! !) ) 
-);
-print "word concat\n", Dumper( 
-  rule::concat( \&{'rule::<word>'}, \&{'rule::<ws>'} )->( 0, qw(b a ),' ' ) 
-);
-print "non_greedy + backtracking\n", Dumper( 
-  rule::concat(
-    rule::non_greedy( rule::constant('a') ),
-    rule::constant('ab')
-  )->( 0, qw(a a a a b) ) 
-);
-print "alternation + backtracking\n", Dumper( 
-  rule::concat(
-    rule::alternation( rule::constant('a'), rule::constant('ab') ),
-    rule::constant('ab')
-  )->( 0, qw(a b a b) ) 
-);
-print "alternation + greedy + backtracking -- (ab,a,ab)(ab)\n", Dumper( 
-  rule::concat(
-    rule::greedy(
-      rule::alternation( rule::constant('a'), rule::constant('ab') )
-    ),
-    rule::constant('ab')
-  )->( 0, qw(a b a a b a b) ) 
-);
