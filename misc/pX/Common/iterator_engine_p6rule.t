@@ -8,7 +8,7 @@ use strict;
 use warnings;
 
 # require 'iterator_engine.pl';
-require 'iterator_engine_p6regex.pl';
+require 'iterator_engine_p6rule.pl';
 
 use Test::More qw(no_plan);
 use Data::Dumper;

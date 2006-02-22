@@ -5,7 +5,7 @@
 use strict;
 use warnings;
 
-require 'iterator_engine_p6regex.pl';
+require 'iterator_engine_p6rule.pl';
 
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
