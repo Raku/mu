@@ -22,5 +22,5 @@ extra-lib-dirs: __LIB_DIRS__
 extensions: ForeignFunctionInterface
 include-dirs: __INCLUDE_DIRS__
 hs-source-dir: src
-other-modules: Data.FastPackedString Data.DeepSeq Data.Yaml.Syck DrIFT.JSON DrIFT.Perl5 DrIFT.YAML RRegex RRegex.PCRE RRegex.Syntax System.FilePath UTF8 Unicode
+other-modules: Data.FastPackedString Data.DeepSeq Data.Yaml.Syck DrIFT.JSON DrIFT.Perl5 DrIFT.YAML MissingH.Bits MissingH.Checksum.CRC32.GZip MissingH.Compression.Inflate MissingH.FileArchive.GZip RRegex RRegex.PCRE RRegex.Syntax System.FilePath UTF8 Unicode
 ghc-options: __OPTIONS__
