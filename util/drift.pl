@@ -1,6 +1,10 @@
 #!/usr/bin/perl
 use IPC::Open2;
+use Config;
+use File::Spec;
 use FindBin qw<$Bin>;
+
+my $setup = File::Spec->catfile($Bin, "Setup$Config{_exe}");
 
 -e "$Bin/../../DrIFT/src/DrIFT.hs" or exit;
 
@@ -27,13 +31,16 @@ close IN;
 close TMP;
 
 my ($rh, $wh);
-my $pid = open2(
-    $rh, $wh,
-    'runghc',
+system(
+    'ghc',
+    '--make',
+    '-o' => $setup,
     "-i$Bin/../src/DrIFT",
     "-i$Bin/../../DrIFT/src",
     "$Bin/../../DrIFT/src/DrIFT.hs",
-    "$in.tmp"
+);
+my $pid = open2(
+    $rh, $wh, $setup, "$in.tmp"
 );
 
 my @program = do { <$rh> };

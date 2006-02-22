@@ -31,5 +31,6 @@ svn-commit\.tmp$
 ^t_disabled/
 ^t/builtins/system/
 ^Setup(?!\.lhs)
+^DrIFT
 ^throw_away/
 .hs-drift$
