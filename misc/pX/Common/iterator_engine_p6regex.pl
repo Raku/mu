@@ -8,7 +8,7 @@ use strict;
 use warnings;
 
 # implemented:
-# . * + \char <ws> <word>
+# . * + *? +? \char <ws> <word>
 # [] 
 # {} (with perl5 code)
 # () (but doesn't capture yet)
@@ -16,11 +16,10 @@ use warnings;
 # |
 
 # not implemented:
+# x?
 # &
 # !
 # <?var> <@var> ...
-# *?
-# +?
 # <n,m>
 # : :: :::
 # (character classes)
@@ -78,10 +77,8 @@ sub subrule {
     ruleop::label( 'non_capturing_group',
       ruleop::concat(
         ruleop::constant( '[' ),
-        ruleop::concat(
-            \&rule,
-            ruleop::constant( ']' )
-        ),
+        \&rule,
+        ruleop::constant( ']' )
       ),
     );
 
@@ -89,10 +86,8 @@ sub subrule {
     ruleop::label( 'capturing_group',
       ruleop::concat(
         ruleop::constant( '(' ),
-        ruleop::concat(
-            \&rule,
-            ruleop::constant( ')' )
-        )
+        \&rule,
+        ruleop::constant( ')' )
       ),
     );
 
@@ -138,6 +133,8 @@ use vars qw( @rule_terms );
             ruleop::concat(
                 \&term,
                 ruleop::alternation( [
+                    ruleop::constant( '*?' ),
+                    ruleop::constant( '+?' ),
                     ruleop::constant( '*' ),
                     ruleop::constant( '+' ),
                 ] ),
@@ -213,9 +210,14 @@ sub emit_rule {
         elsif ( $k eq 'star' ) {
             my $quantifier = pop @$v;  # '*' or '+'
             $quantifier = $quantifier->{'constant'};
-            my $sub = { '*'=>'star', '+'=>'plus' }->{$quantifier};
+            my $sub = { 
+                    '*'=>'greedy_star', '+'=>'greedy_plus',
+                    '*?'=>'non_greedy_star', '+?'=>'non_greedy_plus',
+                }->{$quantifier};
             # print "*** \$quantifier:\n",Dumper $quantifier;
-            return "$tab ruleop::greedy_$sub(\n" .
+            die "quantifier not implemented: $quantifier" 
+                unless $sub;
+            return "$tab ruleop::$sub(\n" .
                    emit_rule( $v, $tab ) . "$tab )\n";
         }        
         elsif ( $k eq 'alt' ) {

@@ -85,6 +85,20 @@ my $rule = \&grammar1::rule;
 }
 
 {
+  ( $stat, $match, $tail ) = $rule->( 'a+?' );
+  ok ( defined $match, "parse rule - a+?" );
+  $program = emit_rule( $match );
+  #print "program:\n$program";
+  ok ( defined $program, "emit rule to p5" );
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  ( $stat, $match, $tail ) = $compiled->( 'aaaasome_word' );
+  # print Dumper( $match );
+  ok ( defined $match, "parse sample of text" );
+  is ( $tail, 'aaasome_word', "correct left-out" );
+}
+
+{
   ( $stat, $match, $tail ) = $rule->( '(<word>) <ws>' );
   ok ( defined $match, "parse rule - 2 terms, with capture" );
   $program = emit_rule( $match );

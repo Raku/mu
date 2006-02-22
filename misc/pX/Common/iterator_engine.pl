@@ -34,7 +34,7 @@ sub ruleop::greedy_plus {
     my $alt;
     $alt = ruleop::concat( 
         $node, 
-        ruleop::optional( sub{$alt->(@_)} )
+        ruleop::optional( sub{ goto $alt } ),  
     );
     return $alt;
 }
@@ -42,25 +42,25 @@ sub ruleop::greedy_star {
     my $node = shift;
     return ruleop::optional( ruleop::greedy_plus( $node ) );
 }
-
-sub ruleop::non_greedy { 
+sub ruleop::non_greedy_star { 
     my $node = shift;
-    # TODO - this sub is not completely implemented / tested
-    # XXX - possible implementation strategy - reuse rule::concat ?
-    return sub {
-        my ( $tail, $n ) = shift;
-        my @matches;
-        my @cont;
-        for (1 .. ++$n) {
-                my ($state, $match, $new_tail) = $node->($tail, 0);
-                return unless $match;
-                $tail = $new_tail;
-                push @matches, $match;
-                push @cont, $state;
-        }
-        # TODO - post-process @cont for proper permutation
-        return ( \@cont, { 'non_greedy' => [ @matches ] }, $tail );
-    }
+
+    # XXX temporary hack - rewrite this !!!
+    print "XXX - ruleop::non_greedy_star is using a temporary hack\n";
+
+    return
+    ruleop::alternation( [
+        ruleop::null(),
+        $node,
+        ( map { ruleop::concat( ( $node ) x $_ ) } 2 .. 80 )
+    ] );
+}
+sub ruleop::non_greedy_plus { 
+    my $node = shift;
+    ruleop::concat( 
+        $node,
+        ruleop::non_greedy_star( $node ) 
+    );
 }
 
 sub ruleop::alternation {
@@ -70,6 +70,7 @@ sub ruleop::alternation {
     # note: the list in @$nodes can be modified at runtime
 
     my $nodes = shift;
+    die "alternation list is empty" unless ref($nodes) eq 'ARRAY' && @$nodes;
     return sub {
         my $n = $_[1] || [ 0, 0 ];
         #print "testing alternations on @_\n";
@@ -93,49 +94,42 @@ sub ruleop::alternation {
 }
 
 sub ruleop::concat {
-
-    # note: the list in @$nodes can not be modified at runtime
-
+    # note: the list in @nodes can NOT be modified at runtime
     return ruleop::concat( +shift, ruleop::concat( @_ ) )
         if @_ > 2;
-
-    my @concat = @_;
-    # TODO: generalize for ( @concat > 2 ) would help reduce stack usage
+    my @nodes = @_;
     return sub {
         my $n = $_[1] || [ 0, 0 ];
         my @matches;
         my $tail;
-        my $state;
-        my $state0 = $n->[0];
-        my $state1 = $n->[1];
+        my $_state;
+        my @state = @$n;
         while (1) {
-            ($state, $matches[0], $tail) = $concat[0]->( $_[0], $state0 );
-            #print "  1st match: ", Dumper( [ $state, $matches[0], $tail ] );
+            ($_state, $matches[0], $tail) = $nodes[0]->( $_[0], $state[0] );
+            #print "  1st match: ", Dumper( [ $_state, $matches[0], $tail ] );
             if ( ! defined $matches[0] ) {
-                return unless defined $state;
-                $state0 = $state;
-                $state1 = 0;
+                return unless defined $_state;
+                @state = ( $_state, 0 );
                 next;
             }
-            ($state1, $matches[1], $tail) = $concat[1]->( $tail, $state1 );
-            #print "  2nd match: ", Dumper( [ $state, $matches[1], $tail ] );
+            ($state[1], $matches[1], $tail) = $nodes[1]->( $tail, $state[1] );
+            #print "  2nd match: ", Dumper( [ $_state, $matches[1], $tail ] );
             if ( defined $matches[1] ) {
                 my $succ;
-                if ( ! defined( $state1 ) ) {
-                    $succ = [ $state, 0 ] if defined $state;
+                if ( ! defined( $state[1] ) ) {
+                    $succ = [ $_state, 0 ] if defined $_state;
                 }
                 else {
-                    $succ = [ $state0, $state1 ];
+                    $succ = \@state;
                 }
                 #return ( $succ, { 'concat'=>[ @matches ] }, $tail);
                 return ( $succ, \@matches, $tail);
             }
-            if ( !defined( $state1 ) ) {
-                return unless defined $state;
-                $state0 = $state;
-                $state1 = 0;
+            if ( !defined( $state[1] ) ) {
+                return unless defined $_state;
+                @state = ( $_state, 0 );
             }
-            #print "backtracking: $state1 - $state0\n";
+            #print "backtracking: @state\n";
         }
     }
 }

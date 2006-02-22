@@ -20,31 +20,91 @@ $Data::Dumper::Pad = '# ';
 
   no warnings 'once';
 
-  # XXX - this use of .* is wrong!
-
-    ( $stat, $match, $tail ) = $rule->( '\=[pod|head1] .* \=cut' );
+    ( $stat, $match, $tail ) = $rule->( '\=[pod|head1] .*? \=cut' );
     $program = main::emit_rule( $match );
     # print "program:\n$program";
-  *pod = eval($program);
+  *pod = ruleop::label( 'pod' , eval($program) ); die $@ if $@;
 
-    ( $stat, $match, $tail ) = $rule->( 'grammar .* \;' );
+    ( $stat, $match, $tail ) = $rule->( 'grammar .*? \;' );
     $program = main::emit_rule( $match );
-    print "program:\n$program";
-  *grammar_name = eval($program);
+    # print "program:\n$program";
+  *grammar_name = ruleop::label( 'grammar_name' , eval($program) ); die $@ if $@;
 
     ( $stat, $match, $tail ) = 
         $rule->( 'rule <ws>+ <word> <ws>* \{ <rule> \}' );
     $program = main::emit_rule( $match );
-    print "program:\n$program";
-  *rule_decl = eval($program);
+    # print "program:\n$program";
+  *rule_decl = ruleop::label( 'rule_decl' , eval($program) ); die $@ if $@;
 
     ( $stat, $match, $tail ) = 
         $rule->( '[<ws>*[<pod>|<grammar_name>|<rule_decl>]]*<ws>*' );
     $program = main::emit_rule( $match );
-    print "program:\n$program";
-  *grammar = eval($program);
+    # print "program:\n$program";
+  *grammar = eval($program); die $@ if $@;
 
 }
+
+# ------ grammar emitter
+
+my $namespace = 'grammar1::';
+
+{
+  package grammar;
+  use Data::Dumper; # import Dumper
+
+sub emit_rule {
+    my $n = $_[0];
+    local $Data::Dumper::Indent = 0;
+    #print "emit_rule: ", ref($n)," ",Dumper( $n ), "\n";
+    if ( ref( $n ) eq 'ARRAY' ) {
+        my @s;
+        for ( @$n ) {
+            push @s, emit_rule( $_ );
+        }
+        # XXX
+        return $s[0] unless $s[1];
+        return $s[1] unless $s[0];
+        return $s[0] . $s[1] ;
+    }
+    elsif ( ref( $n ) eq 'HASH' ) 
+    {
+        my ( $k, $v ) = each %$n;
+        #print "$k => $v \n";
+
+        if ( $k eq 'pod' ) {
+            return;
+        }
+        if ( $k eq 'grammar_name' ) {
+            return "# TODO package [insert grammar name here];\n";
+        }
+        if ( $k eq 'rule_decl' ) {
+            local $Data::Dumper::Indent = 1;
+            #print "*** rule_decl:\n",Dumper $v;
+            return "# TODO sub { ... }\n";
+        }
+
+        # other nodes (unused?)
+
+        elsif ( $k eq 'ws' ) {
+            return;
+        }
+        elsif ( $k eq 'rule' ) {
+            return "\\&{'$namespace$v'}\n";
+        }
+        elsif ( $k eq 'word' ) {
+            return "ruleop::constant( '$v' )\n";
+        }
+        else {
+            die "unknown node: ", Dumper( $n );
+        }
+    }
+    else 
+    {
+        die "unknown node: ", Dumper( $n );
+    }
+}
+
+} # /package
 
 # ------ tests
 
@@ -73,9 +133,11 @@ my ( $stat, $match, $tail );
   test
 =cut
 grammar test;
-rule xxx {xxx};
+rule xxx {xxx}
 EOT
   ok ( defined $match, "grammar" );
-  ok ( ! $tail, "full match" );
-  print "grammar:\n", Dumper $match;
+  ok ( ! $tail, "full match $tail" );
+  #print "grammar:\n", Dumper $match;
 
+  my $program = grammar::emit_rule( $match );
+  print "program: \n", $program;
