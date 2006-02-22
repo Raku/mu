@@ -66,6 +66,9 @@ sub ruleop::non_greedy {
 sub ruleop::alternation {
     # alternation is first match (not longest).  though we need a 
     # separate longest match for tokens (putter on #perl6)
+
+    # note: the list in @$nodes can be modified at runtime
+
     my $nodes = shift;
     return sub {
         my $n = $_[1] || [ 0, 0 ];
@@ -90,6 +93,12 @@ sub ruleop::alternation {
 }
 
 sub ruleop::concat {
+
+    # note: the list in @$nodes can not be modified at runtime
+
+    return ruleop::concat( +shift, ruleop::concat( @_ ) )
+        if @_ > 2;
+
     my @concat = @_;
     # TODO: generalize for ( @concat > 2 ) would help reduce stack usage
     return sub {

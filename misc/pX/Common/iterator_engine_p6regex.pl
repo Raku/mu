@@ -7,6 +7,26 @@
 use strict;
 use warnings;
 
+# implemented:
+# . * + \char <ws> <word>
+# [] 
+# {} (with perl5 code)
+# () (but doesn't capture yet)
+# <subrule>
+# |
+
+# not implemented:
+# &
+# !
+# <?var> <@var> ...
+# *?
+# +?
+# <n,m>
+# : :: :::
+# (character classes)
+# :flag :flag() :flag[]
+# ...
+
 require 'iterator_engine.pl';
 
 {
@@ -109,7 +129,7 @@ use vars qw( @rule_terms );
 
 # XXX - allow whitespace everywhere
 
-# [ <term>\* | <term> 
+# [ <term>[\*|\+] | <term> 
 # note: <term>\* creates a term named 'star'
 *quantifier = 
     ruleop::alternation( 
@@ -117,7 +137,10 @@ use vars qw( @rule_terms );
         ruleop::label( 'star', 
             ruleop::concat(
                 \&term,
-                ruleop::constant( '*' ),
+                ruleop::alternation( [
+                    ruleop::constant( '*' ),
+                    ruleop::constant( '+' ),
+                ] ),
             ),
         ),
         \&term,
@@ -188,8 +211,11 @@ sub emit_rule {
             return emit_rule( $v, $tab );
         }        
         elsif ( $k eq 'star' ) {
-            pop @$v;  # remove '*'
-            return "$tab ruleop::greedy_star(\n" .
+            my $quantifier = pop @$v;  # '*' or '+'
+            $quantifier = $quantifier->{'constant'};
+            my $sub = { '*'=>'star', '+'=>'plus' }->{$quantifier};
+            # print "*** \$quantifier:\n",Dumper $quantifier;
+            return "$tab ruleop::greedy_$sub(\n" .
                    emit_rule( $v, $tab ) . "$tab )\n";
         }        
         elsif ( $k eq 'alt' ) {

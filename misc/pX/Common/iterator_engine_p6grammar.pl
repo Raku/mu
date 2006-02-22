@@ -18,6 +18,8 @@ $Data::Dumper::Pad = '# ';
   my ( $stat, $match, $tail );
   my $rule = \&rule;
 
+  no warnings 'once';
+
   # XXX - this use of .* is wrong!
 
     ( $stat, $match, $tail ) = $rule->( '\=[pod|head1] .* \=cut' );
@@ -31,7 +33,7 @@ $Data::Dumper::Pad = '# ';
   *grammar_name = eval($program);
 
     ( $stat, $match, $tail ) = 
-        $rule->( 'rule <ws> <ws>* <word> <ws>* \{ <rule> \}' );
+        $rule->( 'rule <ws>+ <word> <ws>* \{ <rule> \}' );
     $program = main::emit_rule( $match );
     print "program:\n$program";
   *rule_decl = eval($program);
