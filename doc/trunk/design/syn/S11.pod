@@ -84,28 +84,49 @@ Exportation is now done by trait declaration on the exportable item:
     sub bop is export                   {...}  #  :ALL
     sub qux is export(:others)          {...}  #  :ALL, :others
 
-=head1 Importation
+=head1 Compile-time Importation
 
-All imports are done by default into the current lexical scope (rather
-than the current package, as in Perl 5).
+Importing via C<use> binds into the current lexical scope by default
+(rather than the current package, as in Perl 5).
 
     use Sense <common @horse>;
 
-You can be explicit about the desired scoping:
+You can be explicit about the desired namespace:
 
-    use Sense :my<common> :our<@horse> :state<$haslearnedsome>;
+    use Sense :MY<common> :OUR<@horse> :GLOBAL<$warming>;
 
 That's pretty much equivalent to:
 
     use Sense;
     my &common ::= &Sense::common;
     our @horse ::= @Sense::horse;
-    state $haslearnedsome ::= $Sense::haslearnedsome;
+    $*warming  ::= $Sense::warming;
 
 In the absence of a specific scoping specified by the caller, the module
-may also specify a different scoping default by use of C<:our> or C<:state>
+may also specify a different scoping default by use of C<:MY> or C<:OUR>
 tags as arguments to C<is export>.  (Of course, mixing incompatible scoping
 in different scopes is likely to lead to confusion.)
+
+=head1 Runtime Importation
+
+Importing via C<require> also binds into the current lexical scope by
+default, but performs the binding at runtime:
+
+    require Sense <common @horse>;
+    require "/home/non/Sense.pm" <common @horse>;
+
+Tagsets are not recognized in the default import list to C<:MY>, but you can
+explicitly request to put them into the C<:OUR> scope:
+
+    require Sense <:ALL>    # does not work
+    require Sense :MY<ALL>  # this doesn't work either
+    require Sense :OUR<ALL> # but this works
+
+If the import list is omitted, then nothing is imported.  Calling C<.import>
+at runtime cannot import into the lexical scope:
+
+    require Sense;
+    Sense.import;   # goes to the OUR scope by default, not MY
 
 =head1 Versioning
 
