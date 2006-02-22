@@ -20,8 +20,6 @@ my ( $program, $compiled );
 my ( $stat, $match, $tail );
 my $rule = \&grammar1::rule;
 
-#=for later
-
 {
   ( $stat, $match, $tail ) = $rule->( '<word>' );
   ok ( defined $match, "parse rule" );
@@ -121,23 +119,63 @@ my $rule = \&grammar1::rule;
   ok ( !defined $match, "rejects unmatching text" );
 }
 
-#=cut
-
-# XXX - alternation parser error
-
 {
   ( $stat, $match, $tail ) = $rule->( '<word>|<ws>' );
   ok ( defined $match, "parse rule - alternates" );
-  print "# match:\n", Dumper( $match );
+  #print "# match:\n", Dumper( $match );
   $program = emit_rule( $match );
   ok ( defined $program, "emit rule to p5" );
-  print "# program: $program";
+  # print "# program: $program";
   $compiled = eval($program);
   is ( ref $compiled, "CODE", "compile p5" );
   ( $stat, $match, $tail ) = $compiled->( 'some_word' );
   # print Dumper( $match );
   ok ( defined $match, "parse sample 1" );
   ( $stat, $match, $tail ) = $compiled->( ' ' );
+  # print Dumper( $match );
+  ok ( defined $match, "parse sample 2" );
+  ( $stat, $match, $tail ) = $compiled->( '!' );
+  ok ( !defined $match, "rejects unmatching text" );
+}
+
+{
+  ( $stat, $match, $tail ) = $rule->( '<word>|<ws>|.' );
+  ok ( defined $match, "parse rule - 3 alternates" );
+  ok ( ! $tail, "full match" );
+  #print "# match:\n", Dumper( $match );
+  $program = emit_rule( $match );
+  ok ( defined $program, "emit rule to p5" );
+  #print "# program: $program";
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  ( $stat, $match, $tail ) = $compiled->( 'some_word' );
+  # print Dumper( $match );
+  ok ( defined $match, "parse sample 1" );
+  ( $stat, $match, $tail ) = $compiled->( ' ' );
+  # print Dumper( $match );
+  ok ( defined $match, "parse sample 2" );
+  ( $stat, $match, $tail ) = $compiled->( '-' );
+  ok ( defined $match, "parse sample 3" );
+}
+
+{
+
+  # XXX - allow whitespace everywhere
+  # ( $stat, $match, $tail ) = $rule->( '<word>| [ <ws> <word> ]' );
+
+  ( $stat, $match, $tail ) = $rule->( '<word>|[<ws><word>]' );
+  ok ( defined $match, "parse rule - alternates with grouping" );
+  ok ( ! $tail, "full match" );
+  #print "# match:\n", Dumper( $match );
+  $program = emit_rule( $match );
+  ok ( defined $program, "emit rule to p5" );
+  #print "# program: $program";
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  ( $stat, $match, $tail ) = $compiled->( 'some_word' );
+  # print Dumper( $match );
+  ok ( defined $match, "parse sample 1" );
+  ( $stat, $match, $tail ) = $compiled->( ' other_word' );
   # print Dumper( $match );
   ok ( defined $match, "parse sample 2" );
   ( $stat, $match, $tail ) = $compiled->( '!' );

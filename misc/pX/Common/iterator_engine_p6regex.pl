@@ -110,19 +110,23 @@ sub ruleop::capture {
             ruleop::constant( '.' ),
         );
 
-*term = ruleop::alternation(
-        # \&alternate,   # XXX fixme
-        \&ws,
-        \&closure,
-        \&subrule,
-        \&capturing_group,
-        \&non_capturing_group,
-        # ruleop::constant( 'if' ),  # XXX - just an example
-        \&word,
-        \&dot,
-      );
+# <ws>* [ <closure> | <subrule> | ... ]
+*term = 
+    ruleop::concat(
+        ruleop::greedy_star( \&ws ),
+        ruleop::alternation(
+            \&closure,
+            \&subrule,
+            \&capturing_group,
+            \&non_capturing_group,
+            \&word,
+            \&dot,
+        ),
+    );
 
 # --- cut
+
+# XXX - allow whitespace everywhere
 
 # [ <term>\* | <term> 
 # note: <term>\* creates a term named 'star'
@@ -137,7 +141,29 @@ sub ruleop::capture {
         \&term,
     );
 
-# parses '|', but not '*'
+# [ <term> [ \| <term> ]+ | <term> ]* 
+# note: <term>|<term> creates a term named 'alt'
+# XXX - 'alt' position is wrong
+*rule = 
+    ruleop::greedy_star (
+        ruleop::alternation( 
+            ruleop::label( 'alt', 
+                ruleop::concat(
+                    \&quantifier,
+                    ruleop::greedy_plus(
+                        ruleop::concat(
+                            ruleop::constant( '|' ),
+                            \&quantifier,
+                        ),
+                    ),
+                ),
+            ),                
+            \&quantifier,
+        ),
+    );
+
+=for before
+
 # [ <term> \| <term> | <term> ]* 
 # note: <term>|<term> creates a term named 'alt'
 # XXX - 'alt' position is wrong
@@ -146,13 +172,18 @@ sub ruleop::capture {
         ruleop::alternation( 
             ruleop::label( 'alt', 
                 ruleop::concat(
-                    ruleop::constant( '|' ),
-                    \&quantifier
+                    \&quantifier,
+                    ruleop::concat(
+                        ruleop::constant( '|' ),
+                        \&quantifier,
+                    ),
                 ),
             ),                
-            \&quantifier
-        )
+            \&quantifier,
+        ),
     );
+
+=cut
 
 =for bak
 
@@ -278,6 +309,26 @@ sub emit_rule {
             pop @$v;  # remove '*'
             return "$tab ruleop::greedy_star(\n" .
                    emit_rule( $v, $tab ) . "$tab )\n";
+        }        
+        elsif ( $k eq 'alt' ) {
+            local $Data::Dumper::Indent = 1;
+            my @alt = ( $v->[0] );
+            # print "*** \$v:\n",Dumper $v;
+            while(1) {
+                $v = $v->[1];
+                last unless defined $v->[0][1];
+                push @alt, $v->[0][1];
+            }
+            #print "*** \@alt:\n",Dumper @alt;
+
+            my @emit = map { 
+                   emit_rule( $_, $tab ) .
+                   "$tab ,\n" 
+                 } @alt;
+
+            return "$tab ruleop::alternation(\n" . 
+                   join( '', @emit ) .
+                   "$tab )\n";
         }        
         elsif ( $k eq 'code' ) {
             # return "$tab # XXX code - compile '$v' ?\n";
