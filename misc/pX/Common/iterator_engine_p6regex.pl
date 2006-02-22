@@ -89,11 +89,8 @@ sub ruleop::capture {
         ruleop::constant( '.' ),
     );
 
-# <ws>* [ <closure> | <subrule> | ... ]
-*term = 
-    ruleop::concat(
-        ruleop::greedy_star( \&ws ),
-        ruleop::alternation(
+use vars qw( @rule_terms );
+@rule_terms = (
             \&closure,
             \&subrule,
             \&capturing_group,
@@ -101,7 +98,13 @@ sub ruleop::capture {
             \&word,
             \&escaped_char,
             \&dot,
-        ),
+);
+
+# <ws>* [ <closure> | <subrule> | ... ]
+*term = 
+    ruleop::concat(
+        ruleop::greedy_star( \&ws ),
+        ruleop::alternation( \@rule_terms ),
     );
 
 # XXX - allow whitespace everywhere
@@ -110,6 +113,7 @@ sub ruleop::capture {
 # note: <term>\* creates a term named 'star'
 *quantifier = 
     ruleop::alternation( 
+      [
         ruleop::label( 'star', 
             ruleop::concat(
                 \&term,
@@ -117,6 +121,7 @@ sub ruleop::capture {
             ),
         ),
         \&term,
+      ]
     );
 
 # [ <term> [ \| <term> ]+ | <term> ]* 
@@ -125,6 +130,7 @@ sub ruleop::capture {
 *rule = 
     ruleop::greedy_star (
         ruleop::alternation( 
+          [
             ruleop::label( 'alt', 
                 ruleop::concat(
                     \&quantifier,
@@ -137,6 +143,7 @@ sub ruleop::capture {
                 ),
             ),                
             \&quantifier,
+          ]
         ),
     );
 
@@ -201,9 +208,9 @@ sub emit_rule {
                    "$tab ,\n" 
                  } @alt;
 
-            return "$tab ruleop::alternation(\n" . 
+            return "$tab ruleop::alternation( [\n" . 
                    join( '', @emit ) .
-                   "$tab )\n";
+                   "$tab ] )\n";
         }        
         elsif ( $k eq 'code' ) {
             # return "$tab # XXX code - compile '$v' ?\n";

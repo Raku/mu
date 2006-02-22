@@ -66,21 +66,21 @@ sub ruleop::non_greedy {
 sub ruleop::alternation {
     # alternation is first match (not longest).  though we need a 
     # separate longest match for tokens (putter on #perl6)
-    my @nodes = @_;
+    my $nodes = shift;
     return sub {
         my $n = $_[1] || [ 0, 0 ];
         #print "testing alternations on @_\n";
-        return unless @nodes;
+        return unless @$nodes;
         my $match;
         my $tail;
         my $state = [ $n->[0], $n->[1] ];
         while( defined $state ) {
             ($state->[1], $match, $tail) = 
-                $nodes[ $state->[0] ]->( $_[0], $state->[1] );
+                $nodes->[ $state->[0] ]->( $_[0], $state->[1] );
             if ( ! defined $state->[1] ) {
                 $state->[0]++;
                 $state->[1] = 0;
-                $state = undef if $state->[0] > $#nodes;
+                $state = undef if $state->[0] > $#$nodes;
             }
             #print "alternate: match \n".Dumper($match) if $match;
             return ( $state, $match, $tail) if $match;
@@ -140,7 +140,7 @@ sub ruleop::constant {
 }
 
 sub ruleop::optional {
-    return ruleop::alternation( $_[0], ruleop::null() );
+    return ruleop::alternation( [ $_[0], ruleop::null() ] );
 }
 
 sub ruleop::null {
