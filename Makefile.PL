@@ -506,6 +506,12 @@ haddock : $version_h $config_h @hppfiles dist/doc/html
 	\@\$(RM_F) @{[map "$_.pre", @hppfiles]} @hppfiles
 	\@\$(PERL) -le "print and print q-*** API Documentation generated in @{[File::Spec->catfile('dist', 'doc', 'html', 'index.html')]}-"
 
+# make haddock one file at a time to get partial, unlinked output
+haddock-broken : $version_h $config_h @hppfiles dist/doc/html
+@{[join("\n", map {"\thaddock -t Pugs-$version -h -o dist/doc/html/ $_"} @hppfiles)]}
+	\@\$(RM_F) @{[map "$_.pre", @hppfiles]} @hppfiles
+	\@\$(PERL) -le "print and print q-*** Unlinked API Documentation generated in @{[File::Spec->catfile('dist', 'doc', 'html', 'index.html')]}-"
+
 dist/doc/html :
 	\@\$(PERL) -MFile::Path -e "mkpath q-dist/doc/html-"
 
