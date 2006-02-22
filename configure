@@ -1,0 +1,8 @@
+#! /bin/sh
+#
+# GNU configure-like front end to Makefile.PL
+# Suggested by Mikhael Goikhman.
+#
+# This script belongs to the public domain and may be freely redistributed.
+#
+perl Makefile.PL $@
