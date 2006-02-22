@@ -303,16 +303,16 @@ pass it a prototype object such as "Dog" regardless of how defined the prototype
 object is, as long as the method body doesn't try to access any information that
 is undefined in the current instance.
 
-Alternately, you can associate a class method with the current eigenclass instance,
+Alternately, you can associate a class method with the current metaclass instance,
 which as a singleton object knows your package, and can function as a more traditional
 "class" method:
 
     our $count;
     method ^count { return $count }
 
-Such an "eigenmethod" is delegated to C<.meta> just as method like .does are,
-so it's possible to call this as C<Dog.count> or C<$dog.count>.  However,
-best practice is probably to call such a class method as C<Dog.^count>
+Such an I<metaclass method> is always delegated to C<.meta> just as method like
+C<.does> are, so it's possible to call this as C<Dog.count> or C<$dog.count>.
+However, best practice is probably to call such a class method as C<Dog.^count>
 or C<$dog.^count> to make it clear that it's in its own namespace separate
 from ordinary methods, and so that your class method cannot be accidentally
 overridden by an ordinary method in a subclass--presuming you don't want to
@@ -377,11 +377,24 @@ directly to the attribute values.  Outside the instance methods, the
 only access to attributes is through the accessors since an object has
 to be specified.  The dot form of attribute variables may be used in
 derived classes because the dot form always implies a virtual accessor
-call.  Every "dot" declaration also declares a corresponding private
-"exclamation" storage location, and the exclamation form may be used
+call.  Every I<dot> declaration also declares a corresponding private
+I<exclamation> storage location, and the exclamation form may be used
 only in the actual class, not in derived classes.  Reference to the
 internal storage location via C<$!foo> should generally be restricted
 to submethods.  Ordinary methods should stick to the C<$.foo> form.
+
+Because C<$.foo>, C<@.foo>, C<%.foo>, C<&.foo> are just shorthands of
+C<self.foo> with different contexts, the class does not need to declare C<has
+$.foo> as a property -- a C<method foo> declaration can work just as well.
+
+The dot form can take an argument list as well.  These are all equivalent:
+
+    self.foo(1,2,3);    # a regular method call
+    self.foo.(1,2,3);   # ditto
+    $.foo(1,2,3);       # calls self.foo under $ context
+    $.foo.(1,2,3);      # ditto
+    @.foo(1,2,3);       # calls self.foo under @ context
+    @.foo.(1,2,3);      # ditto
 
 Pseudo-assignment to an attribute declaration specifies the default
 value.  The value on the right is evaluated at class composition
