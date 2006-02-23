@@ -40,7 +40,7 @@ sub escaped_char {
         tail  => substr($_[0],2),
         ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
     }
-        if $_[0] =~ /^(\\.)/s;
+        if $_[0] =~ /^\\(.)/s;
     return;
 };
 sub word { 
@@ -85,21 +85,21 @@ sub subrule {
 }
 
 *non_capturing_group =
-    ruleop::capture( 'non_capturing_group',
-      ruleop::concat(
+    ruleop::concat(
         ruleop::constant( '[' ),
-        \&rule,
+        ruleop::capture( 'non_capturing_group',
+            \&rule,
+        ),
         ruleop::constant( ']' )
-      ),
     );
 
 *capturing_group = 
-    ruleop::capture( 'capturing_group',
-      ruleop::concat(
+    ruleop::concat(
         ruleop::constant( '(' ),
-        \&rule,
+        ruleop::capture( 'capturing_group',
+            \&rule,
+        ),
         ruleop::constant( ')' )
-      ),
     );
 
 *dot = 
@@ -107,25 +107,26 @@ sub subrule {
         ruleop::constant( '.' ),
     );
 
-# <'literal'>
-*literal = 
-    ruleop::capture( 'literal',
-        ruleop::concat(    
-            ruleop::constant( "<\'" ),
+# <'literal'> literal \*
+my @literals = (
+    ruleop::concat(    
+        ruleop::constant( "<\'" ),
+        ruleop::capture( 'literal',
             ruleop::non_greedy_star( \&any ),
-            ruleop::constant( "\'>" ),
         ),
-    );
+        ruleop::constant( "\'>" ),
+    ),
+    ruleop::capture( 'literal', \&word ),
+    ruleop::capture( 'literal', \&escaped_char )
+);
 
 use vars qw( @rule_terms );
 @rule_terms = (
             \&closure,
-            \&subrule,
             \&capturing_group,
             \&non_capturing_group,
-            \&word,
-            \&escaped_char,
-            \&literal,
+            @literals,
+            \&subrule,
             \&dot,
 );
 
@@ -145,14 +146,16 @@ use vars qw( @rule_terms );
       [
         ruleop::capture( 'star', 
             ruleop::concat(
-                \&term,
-                ruleop::alternation( [
+                ruleop::capture( 'term', \&term ),
+                ruleop::capture( 'literal',
+                  ruleop::alternation( [
                     ruleop::constant( '?' ),
                     ruleop::constant( '*?' ),
                     ruleop::constant( '+?' ),
                     ruleop::constant( '*' ),
                     ruleop::constant( '+' ),
-                ] ),
+                  ] ),
+                ),
             ),
         ),
         \&term,
@@ -168,11 +171,11 @@ use vars qw( @rule_terms );
           [
             ruleop::capture( 'alt', 
                 ruleop::concat(
-                    \&quantifier,
+                    ruleop::capture( 'term', \&quantifier ),
                     ruleop::greedy_plus(
                         ruleop::concat(
                             ruleop::constant( '|' ),
-                            \&quantifier,
+                            ruleop::capture( 'term', \&quantifier ),
                         ),
                     ),
                 ),
@@ -195,44 +198,39 @@ sub emit_rule {
 
     # XXX - not all nodes are actually used
 
-    if ( $n eq 'null' ) {
-        # <null> match
-        return;
+    if ( ref($n) eq '' ) {
+        # XXX - this should not happen, but it does
+        return '';
     }
     if ( ref( $n ) eq 'ARRAY' ) {
         my @s;
         for ( @$n ) {
             #print "emitting array item\n";
-            push @s, emit_rule( $_, $tab );
+            my $tmp = emit_rule( $_, $tab );
+            push @s, $tmp . "$tab ,\n" if $tmp;
         }
-        return $s[0] unless $s[1];
-        return $s[1] unless $s[0];
-
-        return $s[0].$s[1] unless $s[0];
-        return $s[0].$s[1] unless $s[1];
+        return $s[0] if @s == 1;
 
         return "$tab ruleop::concat(\n" . 
-               $s[0] . "$tab ,\n" . $s[1] . "$tab )\n";
+               ( join '', @s ) . 
+               "$tab )\n";
     }
     elsif ( ref( $n ) eq 'HASH' ) 
     {
         my ( $k, $v ) = each %$n;
         #print "$tab $k => $v \n";
         if ( $k eq 'capturing_group' ) {
-            $v = $v->[1][0];  # remove '( )'
-            return "$tab ruleop::capture(\n" .
+            return "$tab ruleop::capture( 'capturing_group',\n" .
                    emit_rule( $v, $tab ) . "$tab )\n";
         }        
         elsif ( $k eq 'non_capturing_group' ) {
-            local $Data::Dumper::Indent = 1;
-            # print "*** \$v:\n",Dumper $v;
-            $v = $v->[1][0];  # remove '[ ]'
-            # print "*** \$v:\n",Dumper $v;
             return emit_rule( $v, $tab );
         }        
         elsif ( $k eq 'star' ) {
-            my $quantifier = pop @$v;  # '*' or '+'
-            $quantifier = $quantifier->{'constant'};
+            local $Data::Dumper::Indent = 1;
+            my $term = $v->[0]{'term'};
+            #print "*** \$term:\n",Dumper $term;
+            my $quantifier = $v->[1]{'literal'}[0];
             my $sub = { 
                     '*' =>'greedy_star',     
                     '+' =>'greedy_plus',
@@ -244,49 +242,36 @@ sub emit_rule {
             die "quantifier not implemented: $quantifier" 
                 unless $sub;
             return "$tab ruleop::$sub(\n" .
-                   emit_rule( $v, $tab ) . "$tab )\n";
+                   emit_rule( $term, $tab ) . "$tab )\n";
         }        
         elsif ( $k eq 'alt' ) {
             # local $Data::Dumper::Indent = 1;
-            my @alt = ( $v->[0] );
             # print "*** \$v:\n",Dumper $v;
-            while(1) {
-                $v = $v->[1];
-                last unless defined $v->[0][1];
-                push @alt, $v->[0][1];
+            my @s;
+            for ( @$v ) { 
+                my $tmp = emit_rule( $_, $tab );
+                push @s, $tmp if $tmp;   
             }
-            #print "*** \@alt:\n",Dumper @alt;
-
-            my @emit = map { 
-                   emit_rule( $_, $tab ) .
-                   "$tab ,\n" 
-                 } @alt;
-
             return "$tab ruleop::alternation( [\n" . 
-                   join( '', @emit ) .
+                   join( '', @s ) .
                    "$tab ] )\n";
+        }        
+        elsif ( $k eq 'term' ) {
+            return emit_rule( $v, $tab );
         }        
         elsif ( $k eq 'code' ) {
             # return "$tab # XXX code - compile '$v' ?\n";
             return "$tab $v  # XXX - code\n";  
         }        
-        elsif ( $k eq 'ws' ) {
-            return;
-        }
         elsif ( $k eq 'dot' ) {
             return "$tab \\&{'${namespace}any'}\n";
         }
         elsif ( $k eq 'subrule' ) {
             return "$tab \\&{'$namespace$v'}\n";
         }
-        elsif ( $k eq 'constant' ) {
-            return "$tab ruleop::constant( '$v' )\n";
-        }
-        elsif ( $k eq 'escaped_char' ) {
-            return "$tab ruleop::constant( '". substr( $v, 1 ) ."' )\n";
-        }
-        elsif ( $k eq 'word' ) {
-            return "$tab ruleop::constant( '$v' )\n";
+        elsif ( $k eq 'literal' ) {
+            #print "literal:", Dumper($v);
+            return "$tab ruleop::constant( '" . join('',@$v) . "' )\n";
         }
         else {
             die "unknown node: ", Dumper( $n );

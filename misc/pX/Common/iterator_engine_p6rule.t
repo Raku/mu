@@ -36,9 +36,43 @@ my $rule = \&grammar1::rule;
 }
 
 {
+  $match = $rule->( "<'lit'>" );
+  #print Dumper( $match->{capture} );
+  ok ( $match->{bool}, "parse rule <'lit'>" );
+  $program = emit_rule( $match->{capture} );
+  #print "program:\n$program";
+  ok ( defined $program, "emit rule to p5" );
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  $match = $compiled->( 'lit' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample of text" );
+
+  $match = $compiled->( '!some_word' );
+  ok ( ! $match->{bool}, "rejects unmatching text" );
+}
+
+{
   $match = $rule->( '..' );
   ok ( $match->{bool}, "parse rule - dot-dot" );
   #print Dumper( $match );
+  $program = emit_rule( $match->{capture} );
+  #print "program:\n$program";
+  ok ( defined $program, "emit rule to p5" );
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  $match = $compiled->( 'some_word' );
+  #print Dumper( $match );
+  ok ( $match->{bool}, "parse sample of text" );
+
+  ( $stat, $assertion, $match, $tail ) = $compiled->( '!' );
+  ok ( ! $match->{bool}, "rejects unmatching text" );
+}
+
+{
+  $match = $rule->( '(.)' );
+  ok ( $match->{bool}, "parse rule - capture dot" );
+  #print Dumper( $match->{capture} );
   $program = emit_rule( $match->{capture} );
   #print "program:\n$program";
   ok ( defined $program, "emit rule to p5" );

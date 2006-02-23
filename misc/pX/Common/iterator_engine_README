@@ -15,6 +15,7 @@ implemented:
 
  . ? * + *? +? 
  \char <ws> <word> literal
+ <'literal'>
  [] 
  {} (with perl5 code)
  () (but doesn't capture yet)
@@ -36,7 +37,6 @@ not implemented:
  : :: :::   (commit)
  :=         (alias)
  <(closure-assertion)> <{code-returns-rule}>
- <'literal'>
  <<character-class>> <[character-class]>
  :flag :flag() :flag[]
  lookahead lookbehind

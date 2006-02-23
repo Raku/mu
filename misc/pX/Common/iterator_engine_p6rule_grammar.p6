@@ -9,5 +9,5 @@ grammar rule;
 
 rule xxx {xxx}
 
-rule yyy {yyy}
+rule yyy {yyy|(.*)}
 
