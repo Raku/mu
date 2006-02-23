@@ -7,6 +7,7 @@ module Pugs.CodeGen.PIL2 (
 ) where
 import Pugs.Internals
 import Pugs.AST
+import Pugs.PIL2.Instances
 import Pugs.PIL2
 import Pugs.Compile.PIL2
 import DrIFT.Perl5

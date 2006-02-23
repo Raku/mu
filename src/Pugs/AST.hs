@@ -29,7 +29,7 @@ module Pugs.AST (
 import Pugs.Internals
 import Pugs.Types
 import qualified Data.Map as Map
-
+import Pugs.AST.Internals.Instances
 import Pugs.AST.Internals
 import Pugs.AST.Prag
 import Pugs.AST.Pos

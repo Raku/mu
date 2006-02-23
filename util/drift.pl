@@ -12,8 +12,11 @@ my $setup = File::Spec->catfile($Bin, "Setup$Config{_exe}");
 
 $ENV{DERIVEPATH} = "$Bin/../src";
 
-my ($in, $out) = @ARGV or exit;
+my ($in) = @ARGV or exit;
+my ($dir) = $in =~ /^(.*)\.hs/;
 
+mkdir $dir unless -d $dir;
+my $out = $dir."/Instances.hs";
 open TMP, "> $in.tmp" or die "Cannot open $out: $!";
 
 open IN, $in or die $!;
@@ -31,6 +34,7 @@ close IN;
 close TMP;
 
 my ($rh, $wh);
+
 system(
     'ghc',
     '--make',
@@ -87,12 +91,43 @@ while (<IN>) {
     print OUT $_;
 }
 print OUT @scary_header;
-while (<IN>) { print OUT; }
+my $module;
+while (<IN>) { 
+	if (/^module \s+ (\S*)/x) {
+		$module = $1;
+		last;
+	}
+}
+print OUT <<".";
+module $module.Instances ()
+where
+import $module
+import Data.Yaml.Syck
+import DrIFT.YAML
+import DrIFT.JSON
+import DrIFT.Perl5
+import Control.Monad
+import qualified Data.FastPackedString as Str
+
+.
+
+while (<IN>) {
+	if(/<DrIFT>/../<\/DrIFT>/) {
+		next if (/DrIFT/);
+		print OUT;
+	}
+}
+
 close IN;
 
 shift(@program) until $program[0] =~ /Look, but Don't Touch/;
 
 print OUT @program;
+
+print OUT <<".";
+
+type Str = Str.FastString
+.
 close OUT;
 
 unlink "$in.tmp";

@@ -5,6 +5,7 @@ module Pugs.CodeGen.Perl5 (genPerl5) where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Compile
+import Pugs.PIL1.Instances
 import Pugs.PIL1
 import DrIFT.Perl5
 

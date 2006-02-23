@@ -19,6 +19,7 @@ import Pugs.AST
 import Pugs.Types
 import Pugs.Eval.Var
 import Pugs.PIL1
+import Emit.PIR.Instances
 import Emit.PIR
 import Pugs.Pretty
 import Text.PrettyPrint

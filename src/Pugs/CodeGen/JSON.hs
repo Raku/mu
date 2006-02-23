@@ -5,6 +5,7 @@ module Pugs.CodeGen.JSON (genJSON) where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Compile
+import Pugs.PIL1.Instances
 import Pugs.PIL1
 import DrIFT.JSON
 
