@@ -1,0 +1,88 @@
+
+GetOptions ("length=i" => \$length,    # numeric
+            "file=s"   => \$data,      # string
+            "verbose"  => \$verbose);  # flag
+
+:(
+    Int :$l is short, Int :$length = $l,
+    Str :$file, Bool :$verbose,
+);
+
+:(
+    Int :$l is short, Int :$length = $l,
+    Str :$file, Bool :$verbose,
+);
+
+subtype Filename of Str where {-e};
+
+mv("foo", "bar");
+
+("-f", "-i", "foo", "bar")
+
+\("foo", "bar", f => 1, i => 1)
+
+Getopt.call_with_options(&mv, @ARGV);
+Getopt.call_with_options(&mv, <<-f "this contains space" -i foo bar>>);
+
+multi Args prefix:<*> (Args $args) { $args }
+multi Args prefix:<*> (Array @array) { ... }
+
+method call_with_options {
+    my &bound = try {
+        &mv.assuming(*$args);
+        &mv.assuming(@ARGV[0], @ARGV[1], ...);
+        CATCH { ... };
+    };
+    &bound();
+}
+
+sub times ($x, $y) { $x * $y }
+
+my &triple = &times.assuming(x => 3);
+triple(10); # 30
+
+my @x = <<
+    elem1   # some comment
+    elem2   # another comment
+>>;
+
+qw< -f -i foo bar>
+
+my $args = massage(@ARGV);
+mv(*$args);
+
+multi mv (
+    Filename $source, Filename $target,
+    Bool :$f, Bool :$i, Bool :$n,
+) {
+    ....
+}
+
+
+sub opts (
+    Str :@path,
+    Str :$l is short, Int :$long_option where {/^abc/} = $l) {
+    ...
+}
+
+
+macro prefix:<:> { ... }
+
+my $sigs = :(Int $x, Int $y);
+my $args = \($x, $y);
+
+my ($x, $y);
+:($x, $y).infix:<:=>(\($z, $w));
+
+
+
+sub foo (Int $x, Int $y) {
+}
+
+our &foo is signature( :(Int $x, Int $y) ) ::= sub {
+    ...body..
+}
+
+my $sigs = &foo.signature;
+
+
