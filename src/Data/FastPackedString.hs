@@ -1459,6 +1459,7 @@ gzReadFile f = do
     if header /= pack "\31\139"
        then do hClose h
                mmapFile f
+#ifdef USE_ZLIB
        else do hSeek h SeekFromEnd (-4)
                len <- hGetLittleEndInt h
                hClose h
@@ -1470,12 +1471,16 @@ gzReadFile f = do
                  c_gzclose gzf
                  when (lread /= len) $ fail $ "problem gzreading file "++f
                  return $ PS fp 0 len
+#else
+       else do fail "Zlib support not available"
+#endif
 
 gzReadFileLazily :: FilePath -> IO LazyFile
 gzReadFileLazily f = do
     h <- openBinaryFile f ReadMode
     header <- hGet h 2
     if header == pack "\31\139" then
+#ifdef USE_ZLIB
         do hClose h
            withCString f $ \fstr-> withCString "rb" $ \rb-> do
                gzf <- c_gzopen fstr rb
@@ -1492,6 +1497,9 @@ gzReadFileLazily f = do
                            l -> do rest <- unsafeInterleaveIO read_rest
                                    return (PS fp 0 l:rest)
                liftM LazyFastStrings read_rest
+#else
+        do fail "Zlib support not available"
+#endif
         else
 #if defined(USE_MMAP)
              hClose h >> liftM MMappedFastString (mmapFile f)
@@ -1513,17 +1521,25 @@ gzWriteFile f ps = gzWriteFilePSs f [ps]
 
 gzWriteFilePSs :: FilePath -> [FastString] -> IO ()
 gzWriteFilePSs f pss  =
+#if defined(USE_ZLIB)
     withCString f $ \fstr -> withCString "wb" $ \wb -> do
     gzf <- c_gzopen fstr wb
     when (gzf == nullPtr) $ fail $ "problem gzopening file for write: "++f
     mapM_ (gzWriteToGzf gzf) pss `catch`
               \_ -> fail $ "problem gzwriting file: "++f
     c_gzclose gzf
+#else
+    fail "Zlib support not available"
+#endif
 
 gzWriteToGzf :: Ptr () -> FastString -> IO ()
 gzWriteToGzf gzf (PS x s l) = do
+#if defined(USE_ZLIB)
     lw <- withForeignPtr x $ \p -> c_gzwrite gzf (p `plusPtr` s) l
     when (lw /= l) $ fail $ "problem in gzWriteToGzf"
+#else
+    fail "Zlib support not available"
+#endif
 
 
 ------------------------------------------------------------------------
@@ -1594,6 +1610,7 @@ foreign import ccall unsafe "static unistd.h close" c_close
     :: Int -> IO Int
 #endif
 
+#if defined(USE_ZLIB)
 foreign import ccall unsafe "static zlib.h gzopen" c_gzopen
     :: CString -> CString -> IO (Ptr ())
 
@@ -1605,3 +1622,4 @@ foreign import ccall unsafe "static zlib.h gzread" c_gzread
 
 foreign import ccall unsafe "static zlib.h gzwrite" c_gzwrite
     :: Ptr () -> Ptr Word8 -> Int -> IO Int
+#endif
