@@ -111,23 +111,30 @@ sub emit_rule {
 use Test::More qw(no_plan);
 my ( $stat, $match, $tail );
 
+{
   ( $stat, $match, $tail ) = grammar1::pod( 
     "=pod\n".
     "some text\n".
     "=cut" );
   ok ( defined $match, "pod" );
   #print "pod:\n", Dumper $match;
+}
 
+{
   ( $stat, $match, $tail ) = grammar1::grammar_name( 
     "grammar PGE::P6Rule;" );
   ok ( defined $match, "grammar name" );
   #print "grammar_name:\n", Dumper $match;
+}
 
+{
   ( $stat, $match, $tail ) = grammar1::rule( 
     "rule identifier {const <word>}" );
   ok ( defined $match, "rule" );
   #print "rule:\n", Dumper $match;
+}
 
+{
   ( $stat, $match, $tail ) = grammar1::grammar( <<EOT );
 =pod 
   test
@@ -141,3 +148,16 @@ EOT
 
   my $program = grammar::emit_rule( $match );
   print "program: \n", $program;
+}
+
+{
+  open( FILE, 'iterator_engine_p6rule_grammar.p6' );
+  my $text;
+  { local $/; $text = <FILE> }
+  #print $text;
+  ( $stat, $match, $tail ) = grammar1::grammar( $text );
+  ok ( defined $match, "grammar was parsed from file" );
+  #print "rule:\n", Dumper $match;
+  my $program = grammar::emit_rule( $match );
+  print "program: \n", $program;
+}
