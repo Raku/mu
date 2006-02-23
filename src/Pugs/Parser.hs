@@ -437,10 +437,12 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             -- actual symbol table manipulation to opEval.
             unsafeEvalExp $ mkSym nameQualified
             -- push %*INC<This::Package><exports><&this_sub>, expression-binding-&this_sub
+            --    ==>
+            -- push %This::Package::EXPORTS<&this_sub>, expression-binding-&this_sub
             -- (a singleton list for subs, a full list of subs for multis)
             unsafeEvalExp $
-                App (Var "&*push") Nothing [Syn "{}" [Syn "{}" [Syn "{}"
-                        [Var "%*INC", Val $ VStr pkg], Val (VStr "exports")], Val $ VStr name]
+                App (Var "&*push") Nothing [Syn "{}"
+                        [Var $ "%" ++ pkg ++ "::EXPORTS", Val $ VStr name]
                     , Val sub]
             return emptyExp
         SGlobal -> do
@@ -842,14 +844,15 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
             ]
         -- for now, export everthing to the package.
         -- TODO: lexdiff stuff, and import protocol.
-        (Val exports) <- unsafeEvalExp $ Syn "{}" [Syn "{}"
-                        [Var "%*INC", Val $ VStr pkg], Val (VStr "exports")]
+        (Val exports) <- unsafeEvalExp $ Var $ "%" ++ pkg ++ "::EXPORTS"
         if (not $ defined exports) then return emptyExp else do
             (Val (VList names)) <- unsafeEvalExp $ App (Var "&keys") Nothing [Val exports]
 
             let hardcodedScopeFixme = SMy
 
             syms <- forM names (\name -> do
+                (x) <- unsafeEvalExp $ Syn "{}" [Val exports, Val name]
+                trace ((" name: " ++ show name) ++ (" exports<name>: " ++ show x)) $ return ()
                 (Val ex) <- unsafeEvalExp $ Syn "{}" [Val exports, Val name]
                 let (VStr name') = name
                 exportSym hardcodedScopeFixme name' ex)
