@@ -310,7 +310,7 @@ which as a singleton object knows your package, and can function as a more tradi
     our $count;
     method ^count { return $count }
 
-Such a I<metaclass method> is always delegated to C<.meta> just as method like
+Such a I<metaclass method> is always delegated to C<.meta> just as methods like
 C<.does> are, so it's possible to call this as C<Dog.count> or C<$dog.count>.
 However, best practice is probably to call such a class method as C<Dog.^count>
 or C<$dog.^count> to make it clear that it's in its own namespace separate
