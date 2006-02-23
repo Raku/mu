@@ -9,7 +9,7 @@ and then I guess they can be organised more neatly later on.  -- KR
 
 =head1 NAME
 
-Perl6::Doc::Perl5Differences -- differences between Perl 5 and Perl 6
+Perl6::Perl5::Differences -- differences between Perl 5 and Perl 6
 
 =head1 DESCRIPTION
 

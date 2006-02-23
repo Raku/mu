@@ -1,6 +1,6 @@
 =head1 NAME
 
-Perl6::Doc::Tutorial -- Perl 6 tutorials
+Perl6::Tutorial -- Perl 6 tutorials
 
 =head1 DESCRIPTION
 

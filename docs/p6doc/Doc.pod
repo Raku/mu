@@ -12,20 +12,24 @@ part of the Perl 6 documentation system.
     Doc                This table of contents
     Intro              A brief introduction for new Perl users
 
-=head2 Perl 5 topics
+=head2 Overview
 
-    Perl5::Docfinder        Table of equivalences between Perl 5 and 6 docs
-    Perl5::Differences      Differences between Perl 5 and 6
-
-=head2 Language reference
-
-    Reference::Syntax       General syntax
-    Reference::Functions    Built-in functions
-    Reference::Operators    Built-in operators
+    Overview::Syntax       General syntax
+    Overview::Functions    Built-in functions
+    Overview::Operators    Built-in operators
 
 =head2 Tutorials
 
 =head2 FAQ
+
+=head2 Language Specification
+
+=head2 Core API
+
+=head2 Perl 5 topics
+
+    Perl5::Docfinder        Table of equivalences between Perl 5 and 6 docs
+    Perl5::Differences      Differences between Perl 5 and 6
 
 =head1 AUTHOR
 

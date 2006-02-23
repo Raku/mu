@@ -9,7 +9,7 @@ good a place to start as any.  -- Skud
 
 =head1 NAME
 
-Perl6::Doc::Intro -- a brief introduction and overview of Perl 6
+Perl6::Overview -- a brief introduction and overview of Perl 6
 
 =head1 DESCRIPTION
 

@@ -1,15 +1,15 @@
 =head1 NAME
 
-Perl6::Doc::Perl5::Docfinder -- Where to find the equivalent of Perl 5 docs
+Perl6::Perl5::Docfinder -- Where to find the equivalent of Perl 5 docs
 
 =head1 DESCRIPTION
 
 The docs have moved around lots, so here's a cheat-sheet of what's
 where.  
 
-    perldelta       Perl6::Doc::Perl5::Differences (sort of)
-    perlintro       Perl6::Doc::Intro
-    perltoc         Perl6::Doc::TOC
+    perldelta       Perl6::Perl5::Differences (sort of)
+    perlintro       Perl6::Intro
+    perltoc         Perl6::Doc
 
 =head1 AUTHOR
 
