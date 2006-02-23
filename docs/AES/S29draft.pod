@@ -8,6 +8,7 @@
  Maintainer:    Larry Wall <larry@wall.org>
  Date:          12 Mar 2005
  Last Modified: 23 Feb 2006
+ Version:       1
 
 This document attempts to document the list of builtin functions in Perl 6.
 It assumes familiarity with Perl 5 and prior synopses.
@@ -76,7 +77,7 @@ Yes, Byte is both a string and a number.
 
 =item MatchTest
 
- type MatchTest ::= Item | Junction;
+ subset MatchTest of Item | Junction;
 
 Used to supply a test to match against. Assume C<~~> will be used against it.
 
@@ -94,35 +95,35 @@ Used to supply a test to match against. Assume C<~~> will be used against it.
 
 =item abs
 
- multi  Num::abs (  Num  $x              --> Num )
- multi Math::Basic::abs ( Num $x = $+_  --> Num )
+ our Num multi Num::abs ( Num $x )
+ our Num multi Math::Basic::abs ( Num $x = $+_ )
 
 Absolute Value.
 
 =item floor
 
- multi  Num::floor (  Num  $x            --> Int )
+ our Int multi Num::floor ( Num $x )
 
 Returns the highest integer not greater than $x.
 
 =item ceiling
 
- multi  Num::ceiling (  Num  $x          --> Int )
+ our Int multi Num::ceiling ( Num $x )
  &Num::ceil ::= &Num::ceiling;
 
 Returns the lowest integer not less than $x.
 
 =item round
 
- multi  Num::round (  Num  $x            --> Int )
- multi  Int (  Num  $x            --> Int )
+ our Int multi Num::round ( Num $x )
+ our Int multi Int ( Num $x )
 
 Returns the nearest integer to $x.  The algorithm is floor($x + 0.5).
 (Other rounding algorithms will be given extended names beginning with "round".)
 
 =item truncate
 
- multi  Num::truncate (  Num  $x         --> Int )
+ our Int multi Num::truncate ( Num $x )
  our &Num::int ::= &Num::truncate;
 
 Returns the closest integer to $x whose absolute value is not greater
@@ -133,16 +134,16 @@ for a rounded version.
 
 =item exp
 
- multi  Num::exp (  Num  $exponent            : Num :$base = Num::e --> Num )
- multi Math::Basic::exp ( Num $exponent = $+_, Num :$base = Num::e --> Num )
+ our Num multi Num::exp         ( Num $exponent:       Num :$base = Num::e )
+ our Num multi Math::Basic::exp ( Num $exponent = $+_, Num :$base = Num::e )
 
 Performs similar to C<$base ** $exponent>. C<$base> defaults to the
 constant I<e>.
 
 =item log
 
- multi  Num::log (  Num  $x             : Num :$base --> Num )
- multi Math::Basic::log ( Num $x = $+_,  Num :$base --> Num )
+ our Num multi Num::log         ( Num $x:       Num :$base )
+ our Num multi Math::Basic::log ( Num $x = $+_, Num :$base )
 
 Logarithm of base C<$base>, default Natural. Calling with C<$x == 0> is an
 error.
@@ -155,7 +156,7 @@ error.
 
 =item rand
 
- multi Math::Basic::rand ( Num $x = 1 --> Num )
+ our Num multi Math::Basic::rand ( Num $x = 1 )
 
 Pseudo random number in range C<< 0 ..^ $x >>.  That is, C<0> is theoretically possible,
 while C<$x> is not.
@@ -163,8 +164,8 @@ while C<$x> is not.
 
 =item sign
 
- multi  Num::sign (  Num  $x             --> Int )
- multi Math::Basic::sign ( Num $x = $+_ --> Int ) {
+ our Int multi Num::sign ( Num  $x )
+ our Int multi Math::Basic::sign ( Num $x = $+_ )
    if !defined($x) { return undef };
    if $x < 0       { return -1    };
    if $x > 0       { return  1    };
@@ -174,7 +175,7 @@ while C<$x> is not.
 
 or more succinctly:
 
- multi Math::Basic::sign ( Num $x = $+_ --> Int ) {
+ our Int multi Math::Basic::sign ( Num $x = $+_ )
    $x <=> 0;
  }
 
@@ -191,10 +192,10 @@ you I<must> call C<srand()> yourself if you wish to specify a deterministic seed
 
 =item sqrt
 
- multi  Num::sqrt (  Num  $x             --> Num )
- multi  Complex::sqrt (  Num  $x         --> Complex )
- multi  Complex::sqrt (  Complex  $x     --> Complex )
- multi Math::Basic::sqrt ( Num $x = $+_  --> Num )
+ our Num     multi Num::sqrt ( Num  $x )
+ our Complex multi Complex::sqrt ( Num  $x )
+ our Complex multi Complex::sqrt ( Complex  $x )
+ our Num     multi Math::Basic::sqrt ( Num $x = $+_ )
 
 C<$x ** 0.5>
 
@@ -226,8 +227,8 @@ C<$x ** 0.5>
 
 =item I<Standard Trig Functions>
 
- multi Num::func (  Num  $x            : :$base = 'radians' --> Num )
- multi Math::Trig::func ( Num $x = $+_, :$base = 'radians' --> Num )
+ our Num multi Num::func ( Num  $x            : :$base = 'radians' )
+ our Num multi Math::Trig::func ( Num $x = $+_, :$base = 'radians' )
 
 where I<func> is one of:
 sin, cos, tan, asin, acos, atan, sec, cosec, cotan, asec, acosec,
@@ -249,13 +250,13 @@ Given the value of an arc representing a single full revolution.
 Note that module currying can be used within a lexical scope to specify
 a consistent base so you don't have to supply it with every call:
 
-    my module Trig ::= Math::Trig.assuming(:base<degrees>);
+ my module Trig ::= Math::Trig.assuming(:base<degrees>);
 
 This overrides the default of "radians".
 
 =item atan
 
- multi Math::Trig::atan2 (Num $y, Num $x = 1 : Num :$base --> Num )
+ our Num multi Math::Trig::atan2 ( Num $y, Num $x = 1 : Num :$base )
 
 This second form of C<atan> computes the arctangent of $y/$x, and takes
 the quadrant into account. Otherwise behaves as other trigonometric functions.
@@ -271,7 +272,7 @@ The other alternative would be to remove the default. --law]
 
 =item delete
 
- multi method Array::delete (@array : *@indices --> List )
+ our List multi method Array::delete (@array : *@indices )
 
 Sets elements specified by C<@indices> in the invocant to a
 non-existent state, as if they never had a value. Deleted elements at
@@ -288,7 +289,7 @@ An unary form is expected. See C<Hash::delete>.
 
 =item exists
 
- multi method Array::exists (@array : Int *@indices --> Bool )
+ our Bool multi method Array::exists (@array : Int *@indices )
 
 True if the specified Array element has been assigned to. This
 is not the same as being defined.
@@ -303,14 +304,14 @@ An unary form is expected. See C<Hash::delete>.
 
  &Array::pop := &Array::splice.assuming(:offset(-1) :length(1));
 
- multi Array::pop ( --> Scalar ) {
+ our Scalar multi Array::pop (   )
    Array::pop @+_;
  }
 
 
 =item push
 
- multi Array::push (@array is rw : *@values --> Int ) {
+ our Int multi Array::push ( @array is rw : *@values )
    Array::splice(@array, @array.elems, 0, @values);
    @array.elems;
  }
@@ -320,18 +321,17 @@ An unary form is expected. See C<Hash::delete>.
 
  &Array::shift := &Array::splice.assuming(:offset(0) :length(1));
 
- multi Array::shift ( --> Scalar ) {
+ our Scalar multi Array::shift (   )
    Array::shift @+_;
  }
 
 
 =item splice
 
- multi Array::splice (       @array is rw 
+ multi List Array::splice ( @array is rw 
                                  : Int $offset = 0,
                                    Int $length,
-                                       *@values
-                                --> List ) is rw
+                                       *@values ) is rw
 
 Behaves similar as Perl 5 C<splice>.
 
@@ -341,7 +341,7 @@ dimension, and works with Array References.
 
 =item unshift
 
- multi Array::unshift (@array is rw : *@values --> Int ) {
+ our Int multi Array::unshift ( @array is rw : *@values )
    Array::splice(@array, 0, 0, @values);
    @array.elems;
  }
@@ -355,10 +355,10 @@ dimension, and works with Array References.
 
 =item values
 
- multi Array::keys   (@array : MatchTest *@indextests --> Int|List )
- multi Array::kv     (@array : MatchTest *@indextests --> Int|List )
- multi Array::pairs  (@array : MatchTest *@indextests --> Int|(List of Pair) )
- multi Array::values (@array : MatchTest *@indextests --> Int|List )
+ multi Int|List Array::keys ( @array : MatchTest *@indextests )
+ multi Int|List Array::kv ( @array : MatchTest *@indextests )
+ multi Int|(List of Pair) Array::pairs  (@array : MatchTest *@indextests )
+ multi Int|List Array::values ( @array : MatchTest *@indextests )
 
 (XXX these signatures are wrong. -luqui)
 
@@ -388,9 +388,9 @@ been iterated.
 
 =item grep
 
- multi Array::grep (@values :      Code *&test   --> Lazy )
- multi Array::grep (@values :  MatchTest $test   --> Lazy )
- multi  List::grep (MatchTest $test :   *@values --> Lazy ) {
+ our Lazy multi Array::grep ( @values :      Code *&test )
+ our Lazy multi Array::grep ( @values :  MatchTest $test )
+ our Lazy multi List::grep ( MatchTest $test :   *@values )
    gather {
      for @values -> $x {
        take $x if $x ~~ $test;
@@ -401,8 +401,8 @@ been iterated.
 
 =item join
 
- multi Array::join (@values :  Str $delimiter --> Str )
- multi  List::join (Str $delimiter : *@values --> Str ) {
+ our Str multi Array::join ( @values :  Str $delimiter )
+ our Str multi List::join ( Str $delimiter : *@values )
    my $str = ~@values[0];
    for 1..@values.end {
      $str ~= $delimiter ~ @values[$_];
@@ -414,8 +414,8 @@ been iterated.
 
 =item map 
 
- multi Array::map (@values : Code *&expression --> Lazy ) 
- multi  List::map (Code $expression : *@values --> Lazy ) {
+ our Lazy multi Array::map ( @values : Code *&expression )
+ our Lazy multi List::map ( Code $expression : *@values )
    gather {
      while @values {
        take $expression
@@ -427,8 +427,8 @@ been iterated.
 
 =item reduce
 
- multi Array::reduce (@values : Code *&expression --> Scalar )
- multi  List::reduce (Code $expression : *@values --> Scalar ) {
+ our Scalar multi Array::reduce ( @values : Code *&expression )
+ our Scalar multi List::reduce ( Code $expression : *@values )
    my $res;
    for @values -> $cur {
         FIRST {$res = $cur; next;}
@@ -440,13 +440,13 @@ been iterated.
 
 =item reverse
 
- multi Hash::reverse (%hash --> Hash ) is default {
+ our Hash multi Hash::reverse ( %hash )
    (my %result){%hash.values} = %hash.keys;
    %result;
  }
 
- multi Array::reverse (  @values --> Lazy|Str) {
- multi  List::reverse ( *@values --> Lazy|Str) {
+ multi Lazy|Str Array::reverse ( @values )
+ multi Lazy|Str List::reverse ( *@values )
    given want {
      when List {
        gather {
@@ -462,34 +462,16 @@ been iterated.
 
 =item sort
 
- type KeyExtractor  ::= Code(Any --> Any );
- type Comparator    ::= Code(Any, Any --> Int );
- type SortCriterion ::= KeyExtractor
-                      | Comparator
-                      | Pair(KeyExtractor, Comparator);
+ subset KeyExtractor of Code(Any --> Any);
+ subset Comparator   of Code(Any, Any --> Int );
+ subset SortCriterion of KeyExtractor | Comparator | Pair(KeyExtractor, Comparator);
 
- multi Array::sort(                 @values is rw,
-                                              *&by
-                              :           Bit :$inplace
-                             --> Array )
+ our Array multi Array::sort( @values is rw, *&by:                              Bit :$inplace )
+ our Array multi Array::sort( @values is rw, SortCriterion @by:                 Bit :$inplace )
+ our Array multi Array::sort( @values is rw: SortCriterion :$by = &infix:<cmp>, Bit :$inplace )
 
- multi Array::sort(                 @values is rw,
-                                SortCriterion  @by
-                              :           Bit :$inplace
-                             --> Array )
-
- multi Array::sort(                 @values is rw
-                              : SortCriterion :$by = &infix:<cmp>,
-                                          Bit :$inplace
-                             --> Array )
-
- multi  List::sort(  SortCriterion  @by
-                              :               *@values
-                             --> List )
-
- multi  List::sort( SortCriterion  $by = &infix:<cmp>,
-                                              *@values
-                             --> List )
+ our List multi List::sort( SortCriterion @by:  *@values )
+ our List multi List::sort( SortCriterion $by = &infix:<cmp>, *@values )
 
 Returns C<@values> sorted, using criteria C<$by> or C<@by> for
 comparisons. C<@by> differs from C<$by> in that each criteria is
@@ -536,7 +518,7 @@ details and examples.
 
 =item zip
 
- multi List::zip ( Array *@lists, Bit :$shortest --> Lazy ) {
+ our Lazy multi List::zip ( Array *@lists, Bit :$shortest ) {
    gather {
      while $shortest ?? all(@lists) !! any(@lists) {
        for @lists -> @list {
@@ -560,8 +542,8 @@ in terms of longest non-infinite.  -law]
 
 =item delete
 
- multi method Hash::delete ( *@keys --> List )
- multi method Hash::delete (   $key --> Scalar ) is default
+ our List  multi method Hash::delete ( *@keys )
+ our Scalar multi method Hash::delete ( $key ) is default
 
 Deletes the elements specified by C<$key> or C<$keys> from the invocant.
 returns the value(s) that were associated to those keys.
@@ -584,7 +566,7 @@ example translations. This list is I<not> exhaustive.
 
 =item exists
  
- multi method Hash::exists ($key --> Bool )
+ our Bool multi method Hash::exists ( $key )
 
 True if invocant has an element whose key matches C<$key>, false
 otherwise.
@@ -603,10 +585,10 @@ A body of ... counts as undefined.)
 
 =item values
 
- multi Hash::keys   (%hash : MatchTest *@keytests --> Int|List )
- multi Hash::kv     (%hash : MatchTest *@keytests --> Int|List )
- multi Hash::pairs  (%hash : MatchTest *@keytests --> Int|(List of Pair) )
- multi Hash::values (%hash : MatchTest *@keytests --> Int|List )
+ multi Int|List Hash::keys ( %hash : MatchTest *@keytests )
+ multi Int|List Hash::kv ( %hash : MatchTest *@keytests )
+ multi Int|(List of Pair) Hash::pairs  (%hash : MatchTest *@keytests )
+ multi Int|List Hash::values ( %hash : MatchTest *@keytests )
  
 Iterates the elements of C<%hash> in no apparent order, but the order
 will be the same between successive calls to these functions, as long as
@@ -661,8 +643,8 @@ will support the same levels as the input, unless specified otherwise.
 
 =item P5chop
 
- multi P5emul::Str::P5chop ( Str  $string is rw          --> Char )
- multi P5emul::Str::P5chop ( Str *@strings = ($+_) is rw --> Char )
+ our Char multi P5emul::Str::P5chop ( Str  $string is rw )
+ our Char multi P5emul::Str::P5chop ( Str *@strings = ($+_) is rw )
 
 Trims the last character from C<$string>, and returns it. Called with a
 list, it chops each item in turn, and returns the last character
@@ -670,21 +652,21 @@ chopped.
 
 =item chop
 
- method Str::chop ( Str  $string:          --> Str )
+ our Str method Str::chop ( Str  $string: )
 
 Returns string with one Char removed from the end.
 
 =item P5chomp
 
- multi P5emul::Str::P5chomp ( Str  $string is rw          --> Int )
- multi P5emul::Str::P5chomp ( Str *@strings = ($+_) is rw --> Int )
+ our Int multi P5emul::Str::P5chomp ( Str  $string is rw )
+ our Int multi P5emul::Str::P5chomp ( Str *@strings = ($+_) is rw )
 
 Related to C<P5chop>, only removes trailing chars that match C</\n/>. In
 either case, it returns the number of chars removed.
 
 =item chomp
 
- method Str::chomp ( Str  $string:          --> Str )
+ our Str method Str::chomp ( Str $string: )
 
 Returns string with newline removed from the end.  An arbitrary
 terminator can be removed if the input filehandle has marked the
@@ -696,8 +678,8 @@ Note: Most users should just let their I/O handles autochomp instead.
 
 =item lc
 
- multi Str::lc         ( Str $string       --> Str )
- multi Str::lc         ( Str $string = $+_ --> Str )
+ our Str multi Str::lc ( Str $string )
+ our Str multi Str::lc ( Str $string = $+_ )
 
 Returns the input string after converting each character to its lowercase
 form, if uppercase.
@@ -705,16 +687,16 @@ form, if uppercase.
 
 =item lcfirst
 
- multi Str::lcfirst    ( Str $string       --> Str )
- multi Str::lcfirst    ( Str $string = $+_ --> Str )
+ our Str multi Str::lcfirst ( Str $string )
+ our Str multi Str::lcfirst ( Str $string = $+_ )
 
 Like C<lc>, but only affects the first character.
 
 
 =item uc
 
- multi Str::uc         ( Str $string       --> Str )
- multi Str::uc         ( Str $string = $+_ --> Str )
+ our Str multi Str::uc ( Str $string )
+ our Str multi Str::uc ( Str $string = $+_ )
 
 Returns the input string after converting each character to its uppercase
 form, if lowercase. This is not a Unicode "titlecase" operation, but a
@@ -723,16 +705,16 @@ full "uppercase".
 
 =item ucfirst
 
- multi Str::ucfirst    ( Str $string       --> Str )
- multi Str::ucfirst    ( Str $string = $+_ --> Str )
+ our Str multi Str::ucfirst ( Str $string )
+ our Str multi Str::ucfirst ( Str $string = $+_ )
 
 Performs a Unicode "titlecase" operation on the first character of the string.
 
 
 =item capitalize
 
- multi Str::capitalize ( Str $string       --> Str )
- multi Str::capitalize ( Str $string = $+_ --> Str )
+ our Str multi Str::capitalize ( Str $string )
+ our Str multi Str::capitalize ( Str $string = $+_ )
 
 Has the effect of first doing an C<lc> on the entire string, then performing a
 C<s:g/(\w+)/{ucfirst $1}/> on it.
@@ -758,10 +740,10 @@ Needs to be in terms of StrPos, not Int.
 
 =item split
 
- multi Str::split (  Str $delimiter ,  Str $input = $+_, Int $limit = inf --> List )
- multi Str::split ( Rule $delimiter = /\s+/,  Str $input = $+_, Int $limit = inf --> List )
- multi Str::split (      Str $input :  Str $delimiter          , Int $limit = inf --> List )
- multi Str::split (      Str $input : Rule $delimiter          , Int $limit = inf --> List )
+ our List multi Str::split ( Str $delimiter ,  Str $input = $+_, Int $limit = inf )
+ our List multi Str::split ( Rule $delimiter = /\s+/,  Str $input = $+_, Int $limit = inf )
+ our List multi Str::split ( Str $input :  Str $delimiter          , Int $limit = inf )
+ our List multi Str::split ( Str $input : Rule $delimiter          , Int $limit = inf )
 
 String delimiters must not be treated as rules but as constants.  The
 default is no longer ' ' since that would be interpreted as a constant.
@@ -773,9 +755,9 @@ introduce a trimlist function of some sort.
 
 =item substr
 
- multi substr(Str $s, StrPos $start  : StrPos $end,      $replace)
- multi substr(Str $s, StrPos $start,   StrLen $length  : $replace)
- multi substr(Str $s, StrLen $offset : StrLen $length,   $replace)
+ multi substr (Str $s, StrPos $start  : StrPos $end,      $replace)
+ multi substr (Str $s, StrPos $start,   StrLen $length  : $replace)
+ multi substr (Str $s, StrLen $offset : StrLen $length,   $replace)
 
 
 =item unpack
@@ -786,8 +768,8 @@ Should replace vec with declared arrays of bit, uint2, uint4, etc.
 
 =item words
 
- multi Str::words ( Rule $matcher = /\S+/,  Str $input = $+_, Int $limit = inf --> List )
- multi Str::words ( Str $input : Rule $matcher = /\S+/, Int $limit = inf --> List )
+ our List multi Str::words ( Rule $matcher = /\S+/,  Str $input = $+_, Int $limit = inf )
+ our List multi Str::words ( Str $input : Rule $matcher = /\S+/, Int $limit = inf )
 
 =back
 
@@ -832,7 +814,7 @@ No operation. Literally does nothing.
 
 =item sleep
 
- multi Control::Basic::sleep ( Num $for = Inf --> Num )
+ our Num multi Control::Basic::sleep ( Num $for = Inf )
 
 Attempt to sleep for up to C<$for> seconds. Implementations are obligated
 to support subsecond resolutions if that is at all possible.
@@ -868,24 +850,24 @@ activitities, but I'm not sure. They likely need to be renamed, as well.
 
 =item list
 
- multi Conversions::List::list ( *@list --> List )
+ our List multi Conversions::List::list ( *@list )
 
 Forces List Context on it's arguements, and returns them.
 
 
 =item item
 
- multi Conversions::Item::item ($item --> Item )
+ our Item multi Conversions::Item::item ( $item )
 
 Forces generic Item context on its argument, and returns it.
 
 
 =item :16, :8, :2, :10
  
- multi prefix:<:16> ( Str $hexstr = $+_ --> Num )
- multi prefix:<:8>  ( Str $octstr = $+_ --> Num )
- multi prefix:<:2>  ( Str $binstr = $+_ --> Num )
- multi prefix:<:10> ( Str $decstr = $+_ --> Num )
+ our Num multi prefix:<:16> ( Str $hexstr = $+_ )
+ our Num multi prefix:<:8> ( Str $octstr = $+_ )
+ our Num multi prefix:<:2> ( Str $binstr = $+_ )
+ our Num multi prefix:<:10> ( Str $decstr = $+_ )
  etc.
 
 Interprets string as a number, with a default
