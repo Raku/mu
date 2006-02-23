@@ -48,6 +48,7 @@ import Pugs.Prim.Eval
 import Pugs.Prim.Code
 import Pugs.Prim.Param
 import qualified Data.IntSet as IntSet
+import DrIFT.YAML
 
 -- |Implementation of 0-ary and variadic primitive operators and functions
 -- (including list ops).
@@ -634,6 +635,10 @@ op1 "Pugs::Internals::caller_pragma_value" = \v -> do
         Just env -> local (const env) (op1 "Pugs::Internals::current_pragma_value" v)
         _        -> return $ VUndef
 op1 "**"    = \v -> return $ deepSeq v v
+op1 "Pugs::Internals::emit_yaml" = \v -> do
+    glob <- asks envGlobal
+    yml  <- liftIO $ showYaml (glob, v)
+    return $ VStr yml
 op1 other   = \_ -> fail ("Unimplemented unaryOp: " ++ other)
 
 op1IO :: Value a => (Handle -> IO a) -> Val -> Eval Val
@@ -1596,6 +1601,7 @@ initSyms = mapM primDecl syms
 \\n   Any       pre     Pugs::Internals::eval_haskell unsafe (Str)\
 \\n   Any       pre     Pugs::Internals::eval_p6y unsafe (Str)\
 \\n   Any       pre     Pugs::Internals::eval_yaml    safe   (Str)\
+\\n   Any       pre     Pugs::Internals::emit_yaml    unsafe   (rw!Any)\
 \\n   Str       pre     yaml    safe   (rw!Any|Junction|Pair)\
 \\n   Any       pre     require unsafe (?Str=$_)\
 \\n   Any       pre     use     unsafe (?Str=$_)\
