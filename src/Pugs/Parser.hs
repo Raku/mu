@@ -441,9 +441,9 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             -- push %This::Package::EXPORTS<&this_sub>, expression-binding-&this_sub
             -- (a singleton list for subs, a full list of subs for multis)
             unsafeEvalExp $
-                App (Var "&*push") Nothing [Syn "{}"
-                        [Var $ "%" ++ pkg ++ "::EXPORTS", Val $ VStr name]
-                    , Val sub]
+                App (Var "&push")
+                    (Just (Syn "{}" [Var ("%" ++ pkg ++ "::EXPORTS"), Val $ VStr name]))
+                    [Val sub]
             return emptyExp
         SGlobal -> do
             unsafeEvalExp $ mkSym nameQualified
@@ -844,19 +844,16 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
             ]
         -- for now, export everthing to the package.
         -- TODO: lexdiff stuff, and import protocol.
-        (Val exports) <- unsafeEvalExp $ Var $ "%" ++ pkg ++ "::EXPORTS"
-        if (not $ defined exports) then return emptyExp else do
-            (Val (VList names)) <- unsafeEvalExp $ App (Var "&keys") Nothing [Val exports]
+        Val (VList exportList) <- unsafeEvalExp $
+            App (Var "&kv") (Just $ Var ('%':pkg ++ "::EXPORTS")) []
 
-            let hardcodedScopeFixme = SMy
-
-            syms <- forM names (\name -> do
-                (x) <- unsafeEvalExp $ Syn "{}" [Val exports, Val name]
-                trace ((" name: " ++ show name) ++ (" exports<name>: " ++ show x)) $ return ()
-                (Val ex) <- unsafeEvalExp $ Syn "{}" [Val exports, Val name]
-                let (VStr name') = name
-                exportSym hardcodedScopeFixme name' ex)
-            return $ foldl mergeStmts Noop syms
+        let hardcodedScopeFixme = SMy
+            doExportList [] = []
+            doExportList [x] = error $ show x
+            doExportList (VStr name:ex:xs) = 
+                (exportSym hardcodedScopeFixme name ex : doExportList xs)
+        syms <- sequence $ doExportList exportList
+        return $ foldl mergeStmts Noop syms
 
 {-|
 Match a JSAN module name, returning an appropriate
