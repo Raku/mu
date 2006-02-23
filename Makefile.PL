@@ -69,7 +69,7 @@ include         ('Module::Install::Makefile::Name');
 include         ('Module::Install::Makefile::Version');
 build_subdirs   (map fixpaths($_), grep {
                    -f "$_/Makefile.PL" && not -l "$_/Makefile.PL"
-                 } glob("ext/*")
+                 } glob("ext/*"), glob("docs/*")
                 );
 
 my $version = version();
