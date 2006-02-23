@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 22 Feb 2006
+  Last Modified: 23 Feb 2006
   Number: 11
-  Version: 8
+  Version: 9
 
 =head1 Overview
 
@@ -127,7 +127,7 @@ It is also possible to re-export the imported symbols:
 
     use Sense :EXPORT;                  # import and re-export the defaults
     use Sense <common> :EXPORT;         # import "common" and re-export it
-    use Sense <common> :EXPORT<@horse>; # import "common" but exports "@horse"
+    use Sense <common> :EXPORT<@horse>; # import "common" but export "@horse"
 
 In the absence of a specific scoping specified by the caller, the module
 may also specify a different scoping default by use of C<:MY> or C<:OUR>
