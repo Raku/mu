@@ -98,4 +98,17 @@ These are banned in C but permitted in Lisp (and a source of
 infinite loops during compilation).  We could adopt either method
 or try to reduce the likely pain.
 
+It seems impossible to parse beyond a recursive macro call,
+so we can ask Turing's oracle or give up.
+
+One remaining possibility to add the macro expansion to a todo list that
+is run after the macro definition is completed.  The effects of the
+macro may then be different from the non-recursive case.
+It is different to a mere sub call however, as it happens immediately
+after the definition.
+
+Finally, a recursive call could merely be a subroutine call, allowing
+recursion at runtime (which is compile time as far as the macro's caller
+is concerned).  This is perhaps close to C++ template expansion games.
+
 =cut

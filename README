@@ -43,12 +43,6 @@ under the same license as GHC.  See LICENSES/GHC.
 The "PArrows" subsystem is derived from Einar Karttunen's work,
 under a BSD-style license.  See src/Text/Parser/PArrows.cabal.
 
-The "MissingH.Compression.Inflate" subsystem is derived the work of Ian Lynagh,
-under a BSD-style license.  See src/MissingH/Compression/Inflate.hs
-
-The remainder of the "MissingH" subsystem is derived the work of 
-John Goerzen under LGPL.  See LICENSE/LGPL
-
 LICENSE INFORMATION
 -------------------
 
