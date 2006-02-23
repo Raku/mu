@@ -54,15 +54,19 @@ opRequire dumpEnv v = do
                     ]
             ]
         -- XXX:fixme, fallback is ugly
+        tryFastEval (pathName ++ ".yml.gz") $
+            tryFastEval (pathName ++ ".yml") $
+                slowEval pathName
+    where
+    tryFastEval pathName fallback = do
+        ok <- liftIO $ doesFileExist pathName
+        if not ok then fallback else do
         rv <- resetT $ fastEval (pathName ++ ".yml.gz")
         case rv of
-            VError _ [MkPos{posName=""}] -> do
-                rv' <- resetT $ fastEval (pathName ++ ".yml")
-                case rv' of
-                    VError _ [MkPos{posName=""}] -> slowEval pathName
-                    _                            -> opEval style pathName ""
+            VError _ [MkPos{posName=""}] -> fallback
             _                            -> opEval style pathName ""
-    where
+        
+        
     fastEval = op1EvalP6Y . VStr
     slowEval pN = do 
         str      <- liftIO $ readFile pN
