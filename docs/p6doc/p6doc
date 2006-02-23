@@ -1,5 +1,10 @@
 #!/usr/bin/perl
 
 use strict;
+use Pod::Perldoc;
 
-die "Not implemented - please write me!";
+my $doc = shift || 'doc';
+$doc = "Perl6::\L\u$doc";
+@ARGV = $doc;
+
+exit( Pod::Perldoc->run() );

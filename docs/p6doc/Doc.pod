@@ -1,6 +1,6 @@
 =head1 NAME
 
-Perl6::Doc::TOC -- Table of Contents for Perl 6 Documentation
+Perl6::Doc -- Table of Contents for Perl 6 Documentation
 
 =head1 DESCRIPTION
 
@@ -9,7 +9,7 @@ part of the Perl 6 documentation system.
 
 =head2 Starting points
 
-    TOC                This table of contents
+    Doc                This table of contents
     Intro              A brief introduction for new Perl users
 
 =head2 Perl 5 topics
