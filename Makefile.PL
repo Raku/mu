@@ -388,6 +388,7 @@ EOD
 .
     }
 
+    $ghc_output .= " -lz ";
     $hsc2hs_flags .= " -Isrc/syck "; # for Data.Yaml
 
     my $config = get_pugs_config();

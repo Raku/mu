@@ -178,12 +178,10 @@ module Data.FastPackedString (
         -- * Extensions to the I\/O interface
         LazyFile(..),
         readFileLazily,         -- :: FilePath -> IO LazyFile
-#if defined(USE_ZLIB)
         gzReadFile,             -- :: FilePath -> IO FastString
         gzWriteFile,            -- :: FilePath -> FastString -> IO ()
         gzReadFileLazily,       -- :: FilePath -> IO LazyFile
         gzWriteFilePSs,         -- :: FilePath -> [FastString] -> IO ()
-#endif
 
    ) where
 
@@ -214,7 +212,7 @@ import Foreign.Ptr              (Ptr, FunPtr, plusPtr, nullPtr, minusPtr, castPt
 import Foreign.ForeignPtr       (newForeignPtr, newForeignPtr_, withForeignPtr, 
                                  finalizeForeignPtr, mallocForeignPtrArray, ForeignPtr)
 import Foreign.Storable         (peekByteOff, peek, poke)
-import Foreign.C.String         (CString, CStringLen)
+import Foreign.C.String         (withCString, CString, CStringLen)
 import Foreign.C.Types          (CSize, CInt)
 import Foreign.Marshal.Alloc    (free)
 import Foreign.Marshal.Array
@@ -1429,9 +1427,10 @@ readFileLazily f = do
 #else
     h <- openBinaryFile f ReadMode
     liftM LazyFastStrings $ readHandleLazily h
-  where
-    readHandleLazily :: Handle -> IO [FastString]
-    readHandleLazily h
+#endif
+
+readHandleLazily :: Handle -> IO [FastString]
+readHandleLazily h
      = do let read_rest = do
                   -- We might be making too big a fp here
                   fp <- mallocForeignPtr blocksize
@@ -1445,7 +1444,6 @@ readFileLazily f = do
                               return (PS fp 0 l:rest)
           unsafeInterleaveIO read_rest
         where blocksize = 1024
-#endif
 
 -- -----------------------------------------------------------------------------
 -- gzReadFile
@@ -1453,7 +1451,6 @@ readFileLazily f = do
 -- | Read an entire file, which may or may not be gzip compressed, directly
 -- into a 'FastString'.
 
-#if defined(USE_ZLIB)
 
 gzReadFile :: FilePath -> IO FastString
 gzReadFile f = do
@@ -1528,7 +1525,6 @@ gzWriteToGzf gzf (PS x s l) = do
     lw <- withForeignPtr x $ \p -> c_gzwrite gzf (p `plusPtr` s) l
     when (lw /= l) $ fail $ "problem in gzWriteToGzf"
 
-#endif /* USE_ZLIB */
 
 ------------------------------------------------------------------------
 -- TODO reduce the number of foreign imports if possible
@@ -1598,7 +1594,6 @@ foreign import ccall unsafe "static unistd.h close" c_close
     :: Int -> IO Int
 #endif
 
-#if defined(USE_ZLIB)
 foreign import ccall unsafe "static zlib.h gzopen" c_gzopen
     :: CString -> CString -> IO (Ptr ())
 
@@ -1610,4 +1605,3 @@ foreign import ccall unsafe "static zlib.h gzread" c_gzread
 
 foreign import ccall unsafe "static zlib.h gzwrite" c_gzwrite
     :: Ptr () -> Ptr Word8 -> Int -> IO Int
-#endif

@@ -53,13 +53,17 @@ opRequire dumpEnv v = do
                               , mkStrPair "relpath"  (decodeUTF8 file) ]
                     ]
             ]
-        -- XXX: fixme
-        rv <- resetT $ fastEval pathName
+        -- XXX:fixme, fallback is ugly
+        rv <- resetT $ fastEval (pathName ++ ".yml.gz")
         case rv of
-            VError _ [MkPos{posName=""}] -> slowEval pathName
+            VError _ [MkPos{posName=""}] -> do
+                rv' <- resetT $ fastEval (pathName ++ ".yml")
+                case rv' of
+                    VError _ [MkPos{posName=""}] -> slowEval pathName
+                    _                            -> opEval style pathName ""
             _                            -> opEval style pathName ""
     where
-    fastEval = op1EvalP6Y . VStr . (++ ".yml")
+    fastEval = op1EvalP6Y . VStr
     slowEval pN = do 
         str      <- liftIO $ readFile pN
         opEval style pN (decodeUTF8 str)
@@ -105,7 +109,7 @@ op1EvalP6Y :: Val -> Eval Val
 op1EvalP6Y fileName = do
     fileName' <- fromVal fileName
     yml  <- liftIO $ (`catch` (return . Left . show)) $ do
-        parseYamlFS =<< Str.readFile fileName'
+        parseYamlFS =<< Str.gzReadFile fileName'
     case yml of
         Right (Just yml') -> do
             globTVar    <- asks envGlobal
