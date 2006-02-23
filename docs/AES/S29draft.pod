@@ -1,15 +1,20 @@
 =head1 Title
 
- [DRAFT] Synopsis 29 - Builtin Functions [DRAFT]
+ Synopsis 29 - Builtin Functions
 
 =head1 Version
 
- Maintainer:    Rod Adams <rod@rodadams.net>
+ Author:        Rod Adams <rod@rodadams.net>
+ Maintainer:    Larry Wall <larry@wall.org>
  Date:          12 Mar 2005
- Last Modified: 03 Apr 2005
+ Last Modified: 23 Feb 2006
 
 This document attempts to document the list of builtin functions in Perl 6.
 It assumes familiarity with Perl 5 and prior synopses.
+
+The document is now the official S29.  It's still here in the pugs
+repository temporarily to allow easy access to pugs implementors,
+but eventually it will be copied over to svn.perl.org.  -law
 
 =head1 Notes
 
@@ -38,22 +43,28 @@ The following type declarations are assumed:
 
 =over
 
-=item Char
+=item AnyChar
 
-The root class of all "character" types, regardless of level. 
+The root class of all "character" types, regardless of level.
 
 This is a subtype of C<Str>, limited to a length of 1 at it's highest
 supported Unicode level.
 
-Subclasses (things that are C<isa Char>):
+The type name C<Char> is aliased to the maximum supported Unicode level
+in the current lexical scope (where "current" is taken to mean the
+eventual lexical scope for generic code (roles and macros), not the
+scope in which the generic code is defined).  In other words, use C<Char>
+when you don't care which level you're writing for.
+
+Subclasses (things that are C<isa AnyChar>):
 
 =over
 
-=item LanguageChar aka LChar
+=item LinguaChar or Ling (language-defined characters)
 
-=item Grapheme aka Grf
+=item GraphemeChar or Graf (language-independent graphemes)
 
-=item CodePoint aka CdPt
+=item CodePoint or Uni (Unicode codepoints)
 
 =item Byte
 
@@ -84,7 +95,7 @@ Used to supply a test to match against. Assume C<~~> will be used against it.
 =item abs
 
  multi  Num::abs (  Num  $x              --> Num )
- multi Math::Basic::abs ( Num $x? = $+_  --> Num )
+ multi Math::Basic::abs ( Num $x = $+_  --> Num )
 
 Absolute Value.
 
@@ -104,32 +115,34 @@ Returns the lowest integer not less than $x.
 =item round
 
  multi  Num::round (  Num  $x            --> Int )
+ multi  Int (  Num  $x            --> Int )
 
-Returns the nearest integer to $x, away from zero.  In other words,
-the absolute value, rounded up.
+Returns the nearest integer to $x.  The algorithm is floor($x + 0.5).
+(Other rounding algorithms will be given extended names beginning with "round".)
 
 =item truncate
 
  multi  Num::truncate (  Num  $x         --> Int )
  our &Num::int ::= &Num::truncate;
 
-Returns the closest integer to $x, rounding towards 0.  This is the
-default rounding function used by an C<int()> cast, for historic
-reasons.
+Returns the closest integer to $x whose absolute value is not greater
+than the absolute value of $x.  (In other words, just chuck any
+fractional part.)  This is the default rounding function used by an
+C<int()> cast, for historic reasons.  But see Int constructor above
+for a rounded version.
 
 =item exp
 
- multi  Num::exp (  Num  $exponent            : Num :$base --> Num )
- multi Math::Basic::exp ( Num $exponent? = $+_, Num :$base --> Num )
+ multi  Num::exp (  Num  $exponent            : Num :$base = Num::e --> Num )
+ multi Math::Basic::exp ( Num $exponent = $+_, Num :$base = Num::e --> Num )
 
 Performs similar to C<$base ** $exponent>. C<$base> defaults to the
 constant I<e>.
 
-
 =item log
 
  multi  Num::log (  Num  $x             : Num :$base --> Num )
- multi Math::Basic::log ( Num $x? = $+_,  Num :$base --> Num )
+ multi Math::Basic::log ( Num $x = $+_,  Num :$base --> Num )
 
 Logarithm of base C<$base>, default Natural. Calling with C<$x == 0> is an
 error.
@@ -142,15 +155,16 @@ error.
 
 =item rand
 
- multi Math::Basic::rand ( Num $x? = 1 --> Num )
+ multi Math::Basic::rand ( Num $x = 1 --> Num )
 
-Psuedo random number between C<0> and C<$x>.
+Pseudo random number in range C<< 0 ..^ $x >>.  That is, C<0> is theoretically possible,
+while C<$x> is not.
 
 
 =item sign
 
  multi  Num::sign (  Num  $x             --> Int )
- multi Math::Basic::sign ( Num $x? = $+_ --> Int ) {
+ multi Math::Basic::sign ( Num $x = $+_ --> Int ) {
    if !defined($x) { return undef };
    if $x < 0       { return -1    };
    if $x > 0       { return  1    };
@@ -158,22 +172,49 @@ Psuedo random number between C<0> and C<$x>.
    undef;
  }
 
+or more succinctly:
+
+ multi Math::Basic::sign ( Num $x = $+_ --> Int ) {
+   $x <=> 0;
+ }
 
 =item srand
 
- multi Math::Basic::srand ( Num $seed)
+ multi Math::Basic::srand ( Num $seed = default_seed_algorithm())
 
 Seed the generator C<rand> uses. C<$seed> defaults to some combination
-of various platform dependent characteristics to yield a non-
-deterministic seed.
+of various platform dependent characteristics to yield a non-deterministic seed.
+Note that you get one C<srand()> for free when you start a Perl program, so
+you I<must> call C<srand()> yourself if you wish to specify a deterministic seed
+(or if you wish to be differently nondeterministic).
 
 
 =item sqrt
 
- multi  Num::sqrt (  Num  $x              --> Num )
- multi Math::Basic::sqrt ( Num $x? = $+_  --> Num )
+ multi  Num::sqrt (  Num  $x             --> Num )
+ multi  Complex::sqrt (  Num  $x         --> Complex )
+ multi  Complex::sqrt (  Complex  $x     --> Complex )
+ multi Math::Basic::sqrt ( Num $x = $+_  --> Num )
 
 C<$x ** 0.5>
+
+=item e
+
+ constant Num Num::e = exp(1);
+
+
+=item pi
+
+ constant Num Num::pi = atan(1,1) * 4;
+ constant Int Int::pi = 3;
+
+=item i
+
+ constant Complex Complex::i = Complex::sqrt(-1);
+
+=item one
+
+ constant Int Int::one = round(-e ** (-i * pi));	# :-)
 
 =back
 
@@ -185,8 +226,8 @@ C<$x ** 0.5>
 
 =item I<Standard Trig Functions>
 
- multi Num::func (  Num  $x            : :$base --> Num )
- multi Math::Trig::func ( Num $x? = $+_, :$base --> Num )
+ multi Num::func (  Num  $x            : :$base = 'radians' --> Num )
+ multi Math::Trig::func ( Num $x = $+_, :$base = 'radians' --> Num )
 
 where I<func> is one of:
 sin, cos, tan, asin, acos, atan, sec, cosec, cotan, asec, acosec,
@@ -195,7 +236,7 @@ asech, acosech, acotanh.
 
 Performs the various trigonmetric functions. 
 
-Option C<$base> is used to declare your how you measure your angles.
+Option C<:$base> is used to declare your how you measure your angles.
 Given the value of an arc representing a single full revolution.
 
  $base  	Result
@@ -205,21 +246,22 @@ Given the value of an arc representing a single full revolution.
  /:i ^g/	Gradians (400)
  Num    	Units of 1 revolution. 
 
+Note that module currying can be used within a lexical scope to specify
+a consistent base so you don'thave to supply it with every call:
+
+    my module Trig ::= Math::Trig.assuming(:base<degrees>);
+
+This overrides the default of "radians".
 
 =item atan
 
- multi Math::Trig::atan (Num $y, Num $x? = 1 : Num :$base --> Num )
+ multi Math::Trig::atan2 (Num $y, Num $x = 1 : Num :$base --> Num )
 
 This second form of C<atan> computes the arctangent of $y/$x, and takes
 the quadrant into account. Otherwise behaves as other trigonometric functions.
-Replaces Perl 5 C<atan2>.
 
-
-=item pi
-
- multi Math::Trig::pi ( --> Num )
-
-
+[Note: changed atan back to atan2, or the default $x = 1 will confuse MMD.
+The other alternative would be to remove the default. --law]
 
 =back
 
@@ -547,8 +589,11 @@ example translations. This list is I<not> exhaustive.
 True if invocant has an element whose key matches C<$key>, false
 otherwise.
 
-An unary form is expected. See Hash::delete
+A unary form is expected. See Hash::delete.
 
+See also Code::exists to determine if a function has been declared.
+(Use defined() to determine whether the function body is defined.
+A body of ... counts as undefined.)
 
 =item keys
 
@@ -591,18 +636,20 @@ General notes about strings:
 
 A Str can exist at several Unicode levels at once. Which level you
 interact with typically depends on what your current lexical context has
-declared the "working unicode level to be". Default is LChars.
+declared the "working unicode level to be". Default is GChar.
 
-[Q: Can't be LChars because we don't go into "language" mode unless there's
+[Q: Default can't be LChar because we don't go into "language" mode unless there's
 a specific language declaration saying either exactly what language
 we're going into, or what environmental parameter to pay attention to
-to select our language.  so I suspect the default should be Grf. -law]
+to select our language.  So I believe the default should be GChar. -law]
 
 Attempting to use a string at a level higher it can support is handled
-without warning. The highest supported level is simply mapped char for
-char to the desired level. However, attempting to stuff something into
-the string at a higher level that doesn't map to the lower level is an
-error (for example, attempting to store Kanji in a Byte uplifted to an LChar).
+without warning. The current highest supported level of the string
+is simply mapped Char for Char to the new higher level. However,
+attempting to stuff something of a higher level a lower-level string
+is an error (for example, attempting to store Kanji in a Byte string).
+And explicit conversion function must be used to tell it how you want it
+encoded.
 
 Attempting to use a string at a level lower than what it supports is not
 allowed.
@@ -612,27 +659,40 @@ will support the same levels as the input, unless specified otherwise.
 
 =over
 
-=item chop
+=item P5chop
 
- multi Str::chop ( Str  $string is rw          --> Char )
- multi Str::chop ( Str *@strings = ($+_) is rw --> Char )
+ multi P5emul::Str::P5chop ( Str  $string is rw          --> Char )
+ multi P5emul::Str::P5chop ( Str *@strings = ($+_) is rw --> Char )
 
 Trims the last character from C<$string>, and returns it. Called with a
 list, it chops each item in turn, and returns the last character
 chopped.
 
+=item chop
+
+ method Str::chop ( Str  $string:          --> Str )
+
+Returns string with one Char removed from the end.
+
+=item P5chomp
+
+ multi P5emul::Str::P5chomp ( Str  $string is rw          --> Int )
+ multi P5emul::Str::P5chomp ( Str *@strings = ($+_) is rw --> Int )
+
+Related to C<P5chop>, only removes trailing chars that match C</\n/>. In
+either case, it returns the number of chars removed.
 
 =item chomp
 
- multi Str::chomp ( Str  $string is rw          --> Int )
- multi Str::chomp ( Str *@strings = ($+_) is rw --> Int )
+ method Str::chomp ( Str  $string:          --> Str )
 
-Related to C<chop>, only removes trailing chars that match C</\n/>. In
-either case, it returns the number of chars removed.
+Returns string with newline removed from the end.  An arbitrary
+terminator can be removed if the input filehandle has marked the
+string for where the "newline" begins.  (Presumably this is stored
+as a property of the string.)  Otherwise a standard newline is removed.
 
-Note: Most users should consider setting their I/O handles to autochomp
-instead of this step.
-
+Note: Most users should just let their I/O handles autochomp instead.
+(Autochomping is the default.)
 
 =item lc
 
@@ -699,13 +759,15 @@ Needs to be in terms of StrPos, not Int.
 =item split
 
  multi Str::split (  Str $delimiter ,  Str $input = $+_, Int $limit = inf --> List )
- multi Str::split ( Rule $delimiter ,  Str $input = $+_, Int $limit = inf --> List )
+ multi Str::split ( Rule $delimiter = /\s+/,  Str $input = $+_, Int $limit = inf --> List )
  multi Str::split (      Str $input :  Str $delimiter          , Int $limit = inf --> List )
  multi Str::split (      Str $input : Rule $delimiter          , Int $limit = inf --> List )
- &split<> := &split<Str>.assuming:delimiter(' ');
 
 String delimiters must not be treated as rules but as constants.  The
 default is no longer ' ' since that would be interpreted as a constant.
+P5's split(' ') will translate to .words or some such.  Null trailing fields
+are no longer trimmed by default.  We might add some kind of :trim flag or
+introduce a trimlist function of some sort.
 
 =item sprintf
 
@@ -721,6 +783,11 @@ default is no longer ' ' since that would be interpreted as a constant.
 =item vec
 
 Should replace vec with declared arrays of bit, uint2, uint4, etc.
+
+=item words
+
+ multi Str::words ( Rule $matcher = /\S+/,  Str $input = $+_, Int $limit = inf --> List )
+ multi Str::words ( Str $input : Rule $matcher = /\S+/, Int $limit = inf --> List )
 
 =back
 
@@ -889,17 +956,18 @@ Replaces Perl 5 C<hex> and C<oct>.
 
 =item dump
 
-With Parrot?
+Dumped.
 
 
 =item each
 
-See C<Hash::kv> or C<Hash::pairs> instead.
+See C<Hash::kv> or C<Hash::pairs> instead, and put into C<for>
+instead of C<while>.  Likely there is a C<Perl5::p5each> emulation though.
 
 
 =item format, formline, write
 
-See Exgesis 7.
+See Exegesis 7.
 
 
 =item /[msg|sem|shm].*/
@@ -909,8 +977,13 @@ See Exgesis 7.
 
 =item ref
 
-Can be done with C<$var.meta.name>, but you're likely better off
-performing an C<isa>, or just C<$var ~~ TYPE>.
+There is no ref() any more, since it was almost always used to get
+the type name in Perl 5.  If you really want the type name, you can
+use C<$var.meta.name> or C<$var.^name>.  If you really want P5 ref
+semantics, use C<Perl5::p5ref>.
+
+But if you're just wanting to test against a type, you're likely better off
+performing an C<isa> or C<does> or C<can>, or just C<$var ~~ TYPE>.
 
 
 =item reset
@@ -921,6 +994,7 @@ Was there a I<good> use for this?
 =item prototype
 
  &func.meta.signature;
+ &func.^signature;
 
 
 =back
@@ -929,14 +1003,19 @@ Was there a I<good> use for this?
 
 =head2 Pending Apocalypse
 
-The following functions are pending a future Apocalypse/Synopsis/p6l
-Discussion before progress can be made:
+The following functions are classified by Apocalypse/Synopsis numbers.
 
 =over 4
 
 =item A/S14: Tied Variables
 
 tie tied untie
+
+These are replaced by container types.  The compiler is free to assume
+that any lexical variable is never going to change its container type
+unless some representation is made to that effect in the declaration.
+Note: P5's tied() is roughly replaced by P6's variable().
+
 
 =item A/S16: IPC / IO / Signals
 
@@ -954,6 +1033,15 @@ unlink utime warn
 chroot crypt exec getlogin /[get|set][pw|gr].*/ kill setpgrp setpriority
 system times
 
+Note: system() should be renamed to sys() or sh() or run() or
+some such to avoid P5-induced boolean inversion confusion, plus
+huffmanize it a little better.  I'm thinking run() might be best
+for MMD reasons. --law
+
+Note: exec should also be renamed to something clearer and "final"
+and huffmanly longer.  I'm thinking runinstead().  And maybe the
+function behind qq:x should be rungather() rather than readpipe().  -law
+
 =item A/S17: Threads and Multiprocessing
 
 fork lock wait waitpid
@@ -963,10 +1051,5 @@ fork lock wait waitpid
 
 =head1 Additions
 
-Is your favorite function, which you spent weeks B<successfully> arguing
-on perl6-language to get accepted, nowhere on this document? Have no
-fear. Email rod@rodadams.net with a brief description and a link to the
-thread on L<http://www.nntp.perl.org/group/perl.perl6.language>, and
-it'll get listed.
-
-Post errors to perl6-language.
+Please post errors and feedback to perl6-language.  If you are making
+a general laundry list, please separate messages by topic.
