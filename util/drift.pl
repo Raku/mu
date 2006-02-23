@@ -88,6 +88,7 @@ open IN, $in or die $!;
 open OUT, "> $out" or die $!;
 while (<IN>) {
     /OPTION/ or last;
+	s{\Q../}{../../}; # Hack to fix includes (It's stupid!)
     print OUT $_;
 }
 print OUT @scary_header;
