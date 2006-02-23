@@ -1,48 +1,11 @@
-# pX/Common/iterator_engine_p6regex.pl - fglock
+# pX/Common/iterator_engine_p6rule.pl - fglock
 #
 # experimental implementation of p6-regex parser
 #
-# see also: ../../Grammars/rx_grammar.pm
+# see: iterator_engine_README
 
 use strict;
 use warnings;
-
-# implemented:
-# . ? * + *? +? 
-# \char <ws> <word> literal
-# [] 
-# {} (with perl5 code)
-# () (but doesn't capture yet)
-# <subrule>
-# |
-
-# implemented but untested:
-# <'literal'>
-# <other::rule>
-
-# not implemented:
-# $var $1
-# <"literal">
-# ^ ^^ $ $$
-# <!term>
-# <unicode-class> <+unicode-class> <+unicode-class+unicode-class>
-# <?var> <@var> <&var> <%var>
-# {n..m} 
-# : :: :::   (commit)
-# :=         (alias)
-# <(closure-assertion)> <{code-returns-rule}>
-# <'literal'>
-# <<character-class>> <[character-class]>
-# :flag :flag() :flag[]
-# lookahead lookbehind
-# #comment\n
-# \x0a \0123 ...
-# <?ws>  -- optional whitespace ???
-
-# not sure if specified:
-# &
-# 'literal' "literal"
-# <!n,m>  -- <!{n..m}> ???
 
 require 'iterator_engine.pl';
 
@@ -51,48 +14,78 @@ require 'iterator_engine.pl';
 
 sub any { 
     return unless $_[0];
-    return ( undef, { '.'=> substr($_[0],0,1) }, substr($_[0],1) )
+    return { 
+        bool  => 1,
+        match => { '.'=> substr($_[0],0,1) },
+        tail  => substr($_[0],1),
+        ( $_[2]->{capture} ? ( capture => [ substr($_[0],0,1) ] ) : () ),
+    };
 }
 sub ws {
     return unless $_[0];
-    return ( undef, { 'ws'=> $1 }, substr($_[0], 1) )
+    return { 
+        bool  => 1,
+        match => { 'ws'=> $1 },
+        tail  => substr($_[0],1),
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
         if $_[0] =~ /^(\s)/s;
     return;
 };
 sub escaped_char {
     return unless $_[0];
-    return ( undef, { 'escaped_char'=> $1 }, substr($_[0], 2) )
+    return { 
+        bool  => 1,
+        match => { 'escaped_char'=> $1 },
+        tail  => substr($_[0],2),
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
         if $_[0] =~ /^(\\.)/s;
     return;
 };
 sub word { 
     return unless $_[0];
-    return ( undef, { 'word'=> $1 }, $2 )
+    return { 
+        bool  => 1,
+        match => { 'word'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
         if $_[0] =~ /^([_[:alnum:]]+)(.*)/s;
     return;
 };
 
 sub closure {
-        # p5 code is called using: "rule { xyz { v5; ... } }" (audreyt on #perl6)
-        # or: "rule { ... [:perl5:: this is p5 ] ... }"
-        # or: "[:perl5(1) this is perl5 ]" (putter on #perl6)
+    # p5 code is called using: "rule { xyz { v5; ... } }" (audreyt on #perl6)
+    # or: "rule { ... [:perl5:: this is p5 ] ... }"
+    # or: "[:perl5(1) this is perl5 ]" (putter on #perl6)
 
-        my ( $code, $tail ) = $_[0] =~ /^\{(.*?)\}(.*)/s;
-        return unless defined $code;
-        #print "parsing $code - $tail\n";
-        my $result = eval $code;
-        return ( undef, { code => $result }, $tail );
+    my ( $code, $tail ) = $_[0] =~ /^\{(.*?)\}(.*)/s;
+    return unless defined $code;
+    #print "parsing $code - $tail\n";
+    my $result = eval $code;
+    return { 
+        bool  => 1,
+        match => { code => $result },
+        tail  => $tail,
+        capture => [ { closure => $result } ],
+    }
 }
 
 sub subrule {
-        my ( $code, $tail ) = $_[0] =~ /^\<(.*?)\>(.*)/s;
-        return unless defined $code;
-        #print "parsing subrule $code\n";
-        return ( undef, { rule => $code }, $tail );
+    my ( $code, $tail ) = $_[0] =~ /^\<(.*?)\>(.*)/s;
+    return unless defined $code;
+    #print "parsing subrule $code\n";
+    return { 
+        bool  => 1,
+        match => { code => $code },
+        tail  => $tail,
+        capture => [ { subrule => $code } ],
+    }
 }
 
 *non_capturing_group =
-    ruleop::label( 'non_capturing_group',
+    ruleop::capture( 'non_capturing_group',
       ruleop::concat(
         ruleop::constant( '[' ),
         \&rule,
@@ -101,7 +94,7 @@ sub subrule {
     );
 
 *capturing_group = 
-    ruleop::label( 'capturing_group',
+    ruleop::capture( 'capturing_group',
       ruleop::concat(
         ruleop::constant( '(' ),
         \&rule,
@@ -109,22 +102,14 @@ sub subrule {
       ),
     );
 
-sub ruleop::capture { 
-    my $node = shift;
-    sub {
-        print "# *** ruleop::capture not implemented\n";
-        $node->( @_ );
-    }
-}
-
 *dot = 
-    ruleop::label( 'dot', 
+    ruleop::capture( 'dot', 
         ruleop::constant( '.' ),
     );
 
 # <'literal'>
 *literal = 
-    ruleop::label( 'literal',
+    ruleop::capture( 'literal',
         ruleop::concat(    
             ruleop::constant( "<\'" ),
             ruleop::non_greedy_star( \&any ),
@@ -158,7 +143,7 @@ use vars qw( @rule_terms );
 *quantifier = 
     ruleop::alternation( 
       [
-        ruleop::label( 'star', 
+        ruleop::capture( 'star', 
             ruleop::concat(
                 \&term,
                 ruleop::alternation( [
@@ -181,7 +166,7 @@ use vars qw( @rule_terms );
     ruleop::greedy_star (
         ruleop::alternation( 
           [
-            ruleop::label( 'alt', 
+            ruleop::capture( 'alt', 
                 ruleop::concat(
                     \&quantifier,
                     ruleop::greedy_plus(
@@ -207,9 +192,17 @@ sub emit_rule {
     my $tab = $_[1]; $tab .= '  ';
     local $Data::Dumper::Indent = 0;
     #print "emit_rule: ", ref($n)," ",Dumper( $n ), "\n";
+
+    # XXX - not all nodes are actually used
+
+    if ( $n eq 'null' ) {
+        # <null> match
+        return;
+    }
     if ( ref( $n ) eq 'ARRAY' ) {
         my @s;
         for ( @$n ) {
+            #print "emitting array item\n";
             push @s, emit_rule( $_, $tab );
         }
         return $s[0] unless $s[1];
@@ -283,7 +276,7 @@ sub emit_rule {
         elsif ( $k eq 'dot' ) {
             return "$tab \\&{'${namespace}any'}\n";
         }
-        elsif ( $k eq 'rule' ) {
+        elsif ( $k eq 'subrule' ) {
             return "$tab \\&{'$namespace$v'}\n";
         }
         elsif ( $k eq 'constant' ) {

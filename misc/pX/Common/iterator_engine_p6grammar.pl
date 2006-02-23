@@ -14,31 +14,29 @@ $Data::Dumper::Pad = '# ';
 {
   package grammar1;
 
-  my ( $program );
-  my ( $stat, $match, $tail );
+  my $program;
+  my $match;
   my $rule = \&rule;
 
   no warnings 'once';
 
-    ( $stat, $match, $tail ) = $rule->( '\=[pod|head1] .*? \=cut' );
-    $program = main::emit_rule( $match );
+    $match = $rule->( '\=[pod|head1] .*? \=cut' );
+    $program = main::emit_rule( $match->{capture} );
     # print "program:\n$program";
   *pod = ruleop::label( 'pod' , eval($program) ); die $@ if $@;
 
-    ( $stat, $match, $tail ) = $rule->( 'grammar .*? \;' );
-    $program = main::emit_rule( $match );
+    $match = $rule->( 'grammar .*? \;' );
+    $program = main::emit_rule( $match->{capture} );
     # print "program:\n$program";
   *grammar_name = ruleop::label( 'grammar_name' , eval($program) ); die $@ if $@;
 
-    ( $stat, $match, $tail ) = 
-        $rule->( 'rule <ws>+ <word> <ws>* \{ <rule> \}' );
-    $program = main::emit_rule( $match );
+    $match = $rule->( 'rule <ws>+ <word> <ws>* \{ <rule> \}' );
+    $program = main::emit_rule( $match->{capture} );
     # print "program:\n$program";
   *rule_decl = ruleop::label( 'rule_decl' , eval($program) ); die $@ if $@;
 
-    ( $stat, $match, $tail ) = 
-        $rule->( '[<ws>*[<pod>|<grammar_name>|<rule_decl>]]*<ws>*' );
-    $program = main::emit_rule( $match );
+    $match = $rule->( '[<ws>*[<pod>|<grammar_name>|<rule_decl>]]*<ws>*' );
+    $program = main::emit_rule( $match->{capture} );
     # print "program:\n$program";
   *grammar = eval($program); die $@ if $@;
 
@@ -56,6 +54,13 @@ sub emit_rule {
     my $n = $_[0];
     local $Data::Dumper::Indent = 0;
     #print "emit_rule: ", ref($n)," ",Dumper( $n ), "\n";
+
+    $n = $n->{match};
+
+    if ( ! defined $n ) {
+        # empty node; maybe a <null> match
+        return;
+    }
     if ( ref( $n ) eq 'ARRAY' ) {
         my @s;
         for ( @$n ) {
@@ -109,10 +114,10 @@ sub emit_rule {
 # ------ tests
 
 use Test::More qw(no_plan);
-my ( $stat, $match, $tail );
+my $match;
 
 {
-  ( $stat, $match, $tail ) = grammar1::pod( 
+  $match = grammar1::pod( 
     "=pod\n".
     "some text\n".
     "=cut" );
@@ -121,21 +126,21 @@ my ( $stat, $match, $tail );
 }
 
 {
-  ( $stat, $match, $tail ) = grammar1::grammar_name( 
+  $match = grammar1::grammar_name( 
     "grammar PGE::P6Rule;" );
   ok ( defined $match, "grammar name" );
   #print "grammar_name:\n", Dumper $match;
 }
 
 {
-  ( $stat, $match, $tail ) = grammar1::rule( 
+  $match = grammar1::rule( 
     "rule identifier {const <word>}" );
   ok ( defined $match, "rule" );
   #print "rule:\n", Dumper $match;
 }
 
 {
-  ( $stat, $match, $tail ) = grammar1::grammar( <<EOT );
+  $match = grammar1::grammar( <<EOT );
 =pod 
   test
 =cut
@@ -143,7 +148,7 @@ grammar test;
 rule xxx {xxx}
 EOT
   ok ( defined $match, "grammar" );
-  ok ( ! $tail, "full match $tail" );
+  ok ( ! $match->{tail}, "full match ".$match->{tail} );
   #print "grammar:\n", Dumper $match;
 
   my $program = grammar::emit_rule( $match );
@@ -155,7 +160,7 @@ EOT
   my $text;
   { local $/; $text = <FILE> }
   #print $text;
-  ( $stat, $match, $tail ) = grammar1::grammar( $text );
+  $match = grammar1::grammar( $text );
   ok ( defined $match, "grammar was parsed from file" );
   #print "rule:\n", Dumper $match;
   my $program = grammar::emit_rule( $match );
