@@ -236,7 +236,7 @@ asech, acosech, acotanh.
 
 Performs the various trigonmetric functions. 
 
-Option C<:$base> is used to declare your how you measure your angles.
+Option C<:$base> is used to declare how you measure your angles.
 Given the value of an arc representing a single full revolution.
 
  $base  	Result
@@ -247,7 +247,7 @@ Given the value of an arc representing a single full revolution.
  Num    	Units of 1 revolution. 
 
 Note that module currying can be used within a lexical scope to specify
-a consistent base so you don'thave to supply it with every call:
+a consistent base so you don't have to supply it with every call:
 
     my module Trig ::= Math::Trig.assuming(:base<degrees>);
 
@@ -492,7 +492,7 @@ been iterated.
                              --> List )
 
 Returns C<@values> sorted, using criteria C<$by> or C<@by> for
-comparisions. C<@by> differs from C<$by> in that each criteria is
+comparisons. C<@by> differs from C<$by> in that each criteria is
 applied, in order, until a non-zero (tie) result is achieved.
 
 Criterion can take a few different forms:
@@ -571,7 +571,7 @@ returns the value(s) that were associated to those keys.
 =item Unary Form
 
 Implementations should create a suitable macro, or otherwise support the
-unary form C<delete %hash{$key}> in all it's forms. Below are some
+unary form C<delete %hash{$key}> in all its forms. Below are some
 example translations. This list is I<not> exhaustive.
 
  delete %hash{$key}                %hash.delete{$key}
@@ -699,7 +699,7 @@ Note: Most users should just let their I/O handles autochomp instead.
  multi Str::lc         ( Str $string       --> Str )
  multi Str::lc         ( Str $string = $+_ --> Str )
 
-Returns the input string after converting each character to it's lowercase
+Returns the input string after converting each character to its lowercase
 form, if uppercase.
 
 
@@ -716,7 +716,7 @@ Like C<lc>, but only affects the first character.
  multi Str::uc         ( Str $string       --> Str )
  multi Str::uc         ( Str $string = $+_ --> Str )
 
-Returns the input string after converting each character to it's uppercase
+Returns the input string after converting each character to its uppercase
 form, if lowercase. This is not a Unicode "titlecase" operation, but a
 full "uppercase".
 
@@ -877,7 +877,7 @@ Forces List Context on it's arguements, and returns them.
 
  multi Conversions::Item::item ($item --> Item )
 
-Forces generic Item context on it's argument, and returns it.
+Forces generic Item context on its argument, and returns it.
 
 
 =item :16, :8, :2, :10
@@ -889,16 +889,16 @@ Forces generic Item context on it's argument, and returns it.
  etc.
 
 Interprets string as a number, with a default
-hexadecimal/octal/binary/decimal radix. Any radix mentioned inside the
-string will be override this operator, except 0b and 0d will be interpreted
-as hex digits by :16.  Returns C<undef> on failure.
+hexadecimal/octal/binary/decimal radix. Any radix prefix (0b, 0d, 0x, 0o)
+mentioned inside the string will override this operator (this statement is true: 10 == :8 "0d10"), except 0b and 0d will be interpreted
+as hex digits by :16 (C<hex("0d10") == :16 "0d10">).  C<fail>s on failure.
 
 These aren't really functions, syntactically, but adverbial forms that
 just happen to allow a parenthesize argument.  But more typically you'll
 see
 
-    :4<222>
-    :16<deadbeef>
+    :4 "222"
+    :16 "deadbeef"
 
 and such.
 
@@ -1009,7 +1009,7 @@ The following functions are classified by Apocalypse/Synopsis numbers.
 
 =item A/S14: Tied Variables
 
-tie tied untie
+tie tied untie (now implemented as container classes? my $foo is ....? is tie the meta operation on the container type for 'rebless' - macro tie ( $var, $class, *@args ) { CODE { variable($var).meta.rebless( $class, *@args ) } } )
 
 These are replaced by container types.  The compiler is free to assume
 that any lexical variable is never going to change its container type
@@ -1033,6 +1033,8 @@ unlink utime warn
 chroot crypt exec getlogin /[get|set][pw|gr].*/ kill setpgrp setpriority
 system times
 
+... These are probably going to be part of POSIX, automatically imported to GLOBAL B<iff> the platform is the right one
+
 Note: system() should be renamed to sys() or sh() or run() or
 some such to avoid P5-induced boolean inversion confusion, plus
 huffmanize it a little better.  I'm thinking run() might be best
@@ -1045,6 +1047,8 @@ function behind qq:x should be rungather() rather than readpipe().  -law
 =item A/S17: Threads and Multiprocessing
 
 fork lock wait waitpid
+
+# FIXME audrey drafted synopsis 17
 
 =back
 
