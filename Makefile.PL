@@ -568,13 +568,14 @@ test-js :
 test-perl5 :
 	\$(PERL) -e "ENV->{HARNESS_PERL_SWITCHES}=q+-B PERL5+; system qq+$Config{make}+, q+test+"
 
-
+blib6/lib/Test.pm.yml :
+	$pugs -CPugs-YAML ext/Test/lib/Test.pm > blib6/lib/Test.pm.yml 
 
 smoke : smoke-pugs
 
 smoke-all : smoke-pugs smoke-js smoke-pir smoke-perl5
 
-smoke-pugs : $pugs util/run-smoke.pl all
+smoke-pugs : $pugs util/run-smoke.pl all blib6/lib/Test.pm.yml
 	\$(PERL) util/run-smoke.pl . smoke.html
 
 smoke-pir : $pugs util/run-smoke.pl all
