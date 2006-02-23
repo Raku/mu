@@ -8,23 +8,41 @@ use strict;
 use warnings;
 
 # implemented:
-# . * + *? +? \char <ws> <word>
+# . ? * + *? +? 
+# \char <ws> <word> literal
 # [] 
 # {} (with perl5 code)
 # () (but doesn't capture yet)
 # <subrule>
 # |
 
+# implemented but untested:
+# <'literal'>
+# <other::rule>
+
 # not implemented:
-# x?
-# &
-# !
-# <?var> <@var> ...
-# <n,m>
-# : :: :::
-# (character classes)
+# $var $1
+# <"literal">
+# ^ ^^ $ $$
+# <!term>
+# <unicode-class> <+unicode-class> <+unicode-class+unicode-class>
+# <?var> <@var> <&var> <%var>
+# {n..m} 
+# : :: :::   (commit)
+# :=         (alias)
+# <(closure-assertion)> <{code-returns-rule}>
+# <'literal'>
+# <<character-class>> <[character-class]>
 # :flag :flag() :flag[]
-# ...
+# lookahead lookbehind
+# #comment\n
+# \x0a \0123 ...
+# <?ws>  -- optional whitespace ???
+
+# not sure if specified:
+# &
+# 'literal' "literal"
+# <!n,m>  -- <!{n..m}> ???
 
 require 'iterator_engine.pl';
 
@@ -104,6 +122,16 @@ sub ruleop::capture {
         ruleop::constant( '.' ),
     );
 
+# <'literal'>
+*literal = 
+    ruleop::label( 'literal',
+        ruleop::concat(    
+            ruleop::constant( "<\'" ),
+            ruleop::non_greedy_star( \&any ),
+            ruleop::constant( "\'>" ),
+        ),
+    );
+
 use vars qw( @rule_terms );
 @rule_terms = (
             \&closure,
@@ -112,6 +140,7 @@ use vars qw( @rule_terms );
             \&non_capturing_group,
             \&word,
             \&escaped_char,
+            \&literal,
             \&dot,
 );
 
@@ -133,6 +162,7 @@ use vars qw( @rule_terms );
             ruleop::concat(
                 \&term,
                 ruleop::alternation( [
+                    ruleop::constant( '?' ),
                     ruleop::constant( '*?' ),
                     ruleop::constant( '+?' ),
                     ruleop::constant( '*' ),
@@ -211,8 +241,11 @@ sub emit_rule {
             my $quantifier = pop @$v;  # '*' or '+'
             $quantifier = $quantifier->{'constant'};
             my $sub = { 
-                    '*'=>'greedy_star', '+'=>'greedy_plus',
-                    '*?'=>'non_greedy_star', '+?'=>'non_greedy_plus',
+                    '*' =>'greedy_star',     
+                    '+' =>'greedy_plus',
+                    '*?'=>'non_greedy_star', 
+                    '+?'=>'non_greedy_plus',
+                    '?' =>'optional',
                 }->{$quantifier};
             # print "*** \$quantifier:\n",Dumper $quantifier;
             die "quantifier not implemented: $quantifier" 

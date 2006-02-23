@@ -16,10 +16,27 @@ my ( $stat, $match, $tail );
 
 {
   $rule = 
+    ruleop::non_greedy_plus( 
+      ruleop::alternation( [
+        ruleop::constant( 'a' ), 
+        ruleop::constant( 'c' ), 
+      ] ),
+    );
+  ( $stat, $match, $tail ) = $rule->( 'a123' );
+  ok ( defined $match, "/[a|c]/ #1" );
+  is ( $tail, '123', "tail is ok" );
+  ( $stat, $match, $tail ) = $rule->( 'c123' );
+  ok ( defined $match, "/[a|c]/ #2" );
+  is ( $tail, '123', "tail is ok" );
+  #print Dumper( $match );
+}
+
+{
+  $rule = 
     ruleop::greedy_star( 
       ruleop::constant( 'a' ) 
     );
-  is ( ref $rule, "CODE", "rule is a coderef" );
+  is ( ref $rule, "CODE", "rule 'a*' is a coderef" );
   ( $stat, $match, $tail ) = $rule->( 'aa' );
   # print Dumper( $match );
   ok ( defined $match, "/a*/" );
@@ -42,13 +59,46 @@ my ( $stat, $match, $tail );
   $rule = 
     ruleop::concat(
       ruleop::greedy_plus( 
-        ruleop::constant( 'a' ) 
+        ruleop::alternation( [
+          ruleop::constant( 'a' ), 
+          ruleop::constant( 'c' ), 
+        ] ),
       ),
       ruleop::constant( 'ab' )
     );
-  ( $stat, $match, $tail ) = $rule->( 'aaaaab' );
-  ok ( defined $match, "/a+ab/ with backtracking" );
+  ( $stat, $match, $tail ) = $rule->( 'aacaab' );
+  ok ( defined $match, "/[a|c]+ab/ with backtracking" );
   # print Dumper( $match );
+}
+
+{
+  $rule = 
+    ruleop::non_greedy_plus( 
+      ruleop::alternation( [
+        ruleop::constant( 'a' ), 
+        ruleop::constant( 'c' ), 
+      ] ),
+    );
+  ( $stat, $match, $tail ) = $rule->( 'aacaab' );
+  ok ( defined $match, "/[a|c]+/" );
+  is ( $tail, 'acaab', "tail is ok" );
+  #print Dumper( $match );
+}
+
+{
+  $rule = 
+    ruleop::concat(
+      ruleop::non_greedy_plus( 
+        ruleop::alternation( [
+          ruleop::constant( 'a' ), 
+          ruleop::constant( 'c' ), 
+        ] ),
+      ),
+      ruleop::constant( 'cb' )
+    );
+  ( $stat, $match, $tail ) = $rule->( 'aacacb' );
+  ok ( defined $match, "/[a|c]+?ab/ with backtracking" );
+  #print Dumper( $match );
 }
 
 {
