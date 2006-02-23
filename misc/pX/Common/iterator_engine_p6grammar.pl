@@ -62,6 +62,7 @@ my $header = <<EOT;
 use strict;
 use warnings;
 require 'iterator_engine.pl';
+require 'iterator_engine_p6rule_lib.pl';
 
 EOT
 
