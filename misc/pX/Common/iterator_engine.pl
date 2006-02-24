@@ -174,6 +174,7 @@ sub ruleop::constant {
     my $const = shift;
     return sub {
         my $flags = $_[2];
+        #print "matching '$_[0]' ~~ /$const/\n";
         return unless $_[0] =~ m/^(\Q$const\E)(.*)/s;
         return { bool => 1,
                  match => { constant => $1 }, 

@@ -22,12 +22,18 @@ Plan:
 - bind special variables $0, ...
 - see also the 'not implemented' list below
 
+Namespaces:
+  Grammar - the base grammar - defines <ws>, <digit> 
+  RuleGrammar - the pattern matching grammar
+  Perl6Grammar - the Perl6 grammar
+
 About the Rules:
 
 implemented:
 
  . ? * + *? +? 
  \char <ws> <word> literal
+ $variable @variable
  <'literal'>
  [] 
  {} (with perl5 code)
@@ -39,7 +45,7 @@ implemented but untested:
  <other::rule>
 
 not implemented:
- $var $1
+ $1
  <"literal">
  ^ ^^ $ $$
  <!term>

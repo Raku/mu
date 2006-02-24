@@ -247,6 +247,38 @@ my $rule = \&grammar1::rule;
   ok ( $match->{bool}, "parse sample 3" );
 }
 
+{
+  my $rule = ::compile_rule( 'xxx', {print_program=>0} );
+  is ( ref $rule, "CODE", "compile_rule( 'xxx' )" );
+  $match = $rule->( 'xxxaaa' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 1" );
+  is ( $match->{tail}, 'aaa', "correct left-out" );
+  $match = $rule->( 'bbb' );
+  # print Dumper( $match );
+  ok ( ! $match->{bool}, "reject sample 2" );
+}
+
+{
+  local $test::xxx = '123';
+  my $rule = ::compile_rule( '$test::xxx', {print_program=>0} );
+  is ( ref $rule, "CODE", "compile_rule( '\$test::xxx' )" );
+  $match = $rule->( '123aaa' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 1" );
+  is ( $match->{tail}, 'aaa', "correct left-out" );
+}
+
+{
+  local @test::xxx = ( '123', 'abc' );
+  my $rule = ::compile_rule( '@test::xxx', {print_program=>0} );
+  is ( ref $rule, "CODE", "compile_rule( '\@test::xxx' )" );
+  $match = $rule->( '123abcaaa' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 1" );
+  is ( $match->{tail}, 'aaa', "correct left-out" );
+}
+
 __END__
 
 # TODO - test backtracking (implement '*' first)

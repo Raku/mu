@@ -75,12 +75,12 @@ my @literals = (
 
 use vars qw( @rule_terms );
 @rule_terms = (
-            \&closure,
-            \&capturing_group,
-            # \&non_capturing_group,
-            @literals,
-            \&subrule,
-            \&dot,
+    \&closure,
+    \&capturing_group,
+    @literals,
+    \&subrule,
+    \&dot,
+    # more items are pushed later - see below 
 );
 
 # <ws>* [ <closure> | <subrule> | ... ]
@@ -142,16 +142,27 @@ use vars qw( @rule_terms );
 *non_capturing_group = ::compile_rule( ' \[ <rule> \] ' );
 push @rule_terms, \&non_capturing_group;
 
+*variable = ::compile_rule( '[\$|\%|\@][[\:\:]?<word>]+' );
+push @rule_terms, ruleop::capture( 'variable',\&variable );
+
 }
 
 #------ rule emitter
 
+# compile_rule( $source, {flag=>value} );
+#
+# flags:
+#   print_program=>1 - prints the generated program
+#
 sub compile_rule {
     my $match = grammar1::rule->( $_[0] );
+    my $flags = $_[1];
     die "syntax error in rule '$_[0]' at '" . $match->{tail} . "'\n"
         if $match->{tail};
+    die "syntax error in rule '$_[0]'\n"
+        unless $match->{bool};
     my $program = main::emit_rule( $match->{capture} );
-    #print "generated rule:\n$program";
+    print "generated rule:\n$program" if $flags->{print_program};
     my $code = eval($program); die $@ if $@;
     return $code;
 }
@@ -239,6 +250,18 @@ sub emit_rule {
         elsif ( $k eq 'literal' ) {
             #print "literal:", Dumper($v);
             return "$tab ruleop::constant( '" . join('',@$v) . "' )\n";
+        }
+        elsif ( $k eq 'variable' ) {
+            #print "variable:", Dumper($v);
+            my $name = join('',@$v);
+            my $value = "sub { die 'not implemented: $name' }\n";
+            $value = eval $name if $name =~ /^\$/;
+            $value = join('', eval $name) if $name =~ /^\@/;
+
+            # XXX - what hash/code interpolate to?
+            # $value = join('', eval $name) if $name =~ /^\%/;
+
+            return "$tab ruleop::constant( '" . $value . "' )\n";
         }
         else {
             die "unknown node: ", Dumper( $n );
