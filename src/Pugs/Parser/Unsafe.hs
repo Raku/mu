@@ -91,15 +91,8 @@ possiblyApplyMacro app@(App (Var name) _ _) = do
     yamlExp node = fromYAML node
     substMacroResult :: Exp -> RuleParser Exp
     -- ASTs are Yaml strings, hacky XXX
-    substMacroResult (Val (VStr ymlStr@('-':'-':'-':_))) = do
-        env <- getRuleEnv
-        -- XXX HELP! is this unsafePerformIO ok?
-        maybeYaml <- return $ unsafePerformIO $ liftIO $ parseYaml ymlStr
-        ymlNode <- case maybeYaml of
-            Left  e        -> fail e
-            Right (Just ymlNode') -> return ymlNode'
-        ast <- return $ unsafePerformIO $ liftIO $ fromYAML ymlNode
-        return $ ast
+    substMacroResult (Val (VObject o)) | objType o == mkType "Code::Exp" = do
+        return $ fromObject o
     -- A Str should be parsed.
     substMacroResult (Val (VStr code)) = do
         -- This is a hack. We should better parse the code now, instead of

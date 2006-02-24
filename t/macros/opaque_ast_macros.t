@@ -10,16 +10,20 @@ See L<S06/"Macros">.
 
 =cut
 
-plan 3;
+plan 4;
 
-macro four () { CODE { 2+2 } } 
+macro four () { q:code { 2+2 } } 
 
 is(four, 4, "macro returning CODE");
 
-macro hi () { CODE { "hello "~$s } } 
+macro hi () { q:code { "hello "~$s } } 
+
+macro hey () { { "hello "~$s }.body } 
 
 my $s="world"; 
 is(hi(),"hello world","macros can bind in caller's lexical env");
 
 $s="paradise"; 
 is(hi(),"hello paradise","macros but it's a binding only");
+is(hey(),"hello paradise","macros but it's a binding only");
+

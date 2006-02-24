@@ -1030,7 +1030,7 @@ ruleClosureTrait rhs = rule "closure trait" $ do
 {-| Match a @CODE { ... }@ quotation -}
 ruleCodeQuotation :: RuleParser Exp
 ruleCodeQuotation = rule "code quotation" $ do
-    name    <- try $ symbol "CODE"
+    name    <- try $ symbol "q:code"
     body    <- between (symbol "{") (char '}') ruleBlockBody
     return $ Syn "CODE" [ body ]
 

@@ -756,10 +756,7 @@ reduceSyn syn [lhs, exp]
         let op = "&infix:" ++ init syn
         evalExp $ Syn "=" [lhs, App (Var op) Nothing [lhs, exp]]
 
-reduceSyn "CODE" [ body ] = do
-    -- XXX free bindings need to be gathered
-    yml      <- liftIO $ showYaml (body)
-    retVal $ VStr yml
+reduceSyn "CODE" [ body ] = expToEvalVal body
 
 reduceSyn name exps =
     retError "Unknown syntactic construct" (Syn name exps)
