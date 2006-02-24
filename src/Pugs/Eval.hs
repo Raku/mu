@@ -758,8 +758,7 @@ reduceSyn syn [lhs, exp]
 
 reduceSyn "CODE" [ body ] = do
     -- XXX free bindings need to be gathered
-    bindings <- return ()
-    yml      <- liftIO $ showYaml (bindings, body)
+    yml      <- liftIO $ showYaml (body)
     retVal $ VStr yml
 
 reduceSyn name exps =

@@ -98,8 +98,8 @@ possiblyApplyMacro app@(App (Var name) _ _) = do
         ymlNode <- case maybeYaml of
             Left  e        -> fail e
             Right (Just ymlNode') -> return ymlNode'
-        ast <- return $ unsafePerformIO $ liftIO $ yamlExp ymlNode
-        return $ (ast !! 1)
+        ast <- return $ unsafePerformIO $ liftIO $ fromYAML ymlNode
+        return $ ast
     -- A Str should be parsed.
     substMacroResult (Val (VStr code)) = do
         -- This is a hack. We should better parse the code now, instead of
