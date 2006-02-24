@@ -24,7 +24,7 @@ Plan:
 
 Namespaces:
   Grammar - the base grammar - defines <ws>, <digit> 
-  RuleGrammar - the pattern matching grammar
+  RuleGrammar - the pattern matching grammar ???
   Perl6Grammar - the Perl6 grammar
 
 About the Rules:
@@ -36,10 +36,11 @@ implemented:
  $variable @variable
  <'literal'>
  [] 
- {} (with perl5 code)
- () (but doesn't capture yet)
- <subrule>
+ {}        - with perl5 code
+ ()        - but doesn't do named captures yet
+ <subrule> - but doesn't auto-capture yet
  |
+ <@var>    - special-cased for array-of-rule (but not Rule|Str)
 
 implemented but untested:
  <other::rule>
@@ -50,7 +51,7 @@ not implemented:
  ^ ^^ $ $$
  <!term>
  <unicode-class> <+unicode-class> <+unicode-class+unicode-class>
- <?var> <@var> <&var> <%var>
+ <?var> <&var> <%var>
  {n..m} 
  : :: :::   (commit)
  :=         (alias)

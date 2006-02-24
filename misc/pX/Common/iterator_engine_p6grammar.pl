@@ -34,23 +34,25 @@ $Data::Dumper::Pad = '# ';
             ::compile_rule( 'rule <ws>+ (<word>) <ws>* \{ (<rule>) \}' )
         ); 
 
+  use vars qw( @terms );
+  @grammar1::terms = (
+      \&grammar_name,
+      \&rule_decl,
+  );
   # XXX forward declaration of 'pod'
-  my $pod = sub{};
-  sub grammar1::podx { $pod->(@_) }
+  #my $pod = sub{};
+  #sub grammar1::podx { $pod->(@_) }
 
   *grammar = 
-        ::compile_rule( '[<ws>*[<podx>|<grammar_name>|<rule_decl>]]*<ws>*' );
+        ::compile_rule( '[<ws>*<@grammar1::terms>]*<ws>*' );
 
-  # XXX - install the code in the grammar using an array ref
-
-  Perl6Grammar::compile( <<'__END_GRAMMAR', { print_program=>0 } )->();
+  Perl6Grammar::compile( '
     grammar grammar1;
     rule pod { \=[pod|head1] .*? \=cut }
-__END_GRAMMAR
+  ' )->();
+  push @terms, \&pod;
 
   # TODO - rule comment { \# .*? <newline> }
-
-  $pod = \&pod;
 
 }
 
