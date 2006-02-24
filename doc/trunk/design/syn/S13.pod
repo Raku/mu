@@ -39,7 +39,7 @@ any trickery involving swapping the arguments to use the right argument's
 type instead of the left one.  And there's no longer any need to
 examine a special flag to see if the arguments were reversed.
 
-For much more about multiple dispatch, see A12.
+For much more about multiple dispatch, see S12.
 
 =head1 Syntax
 

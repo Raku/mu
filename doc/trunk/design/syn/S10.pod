@@ -119,7 +119,7 @@ These routines are expected to define the object, but not to call
 it, since the call is already "scheduled" from somewhere else.
 (The C<goto &$AUTOLOAD> is implicit, in other words.  But you can
 hijack the call via the C<call> builtin, in which case the autoloader
-behaves just like a wrapper--see A6.)
+behaves just like a wrapper--see S06.)
 
 In any case, there is no longer any magical C<$AUTOLOAD> variable.
 The name being declared or defined can be found in C<$_>
