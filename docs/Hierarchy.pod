@@ -1,0 +1,273 @@
+=head Perl 5's pods in the Perl6::Doc tree
+
+$$$ denotes the slot in which Perl 6 documents which Perl 5 did not have fit in
+
+This tree should be cloned and then refactored/replaced/filled in for Perl 6's
+documentation tree.
+
+TODO - add the C<=head1 NAME> lines for each doc name to this tree so that
+everyone will know what perl{bot,othrtut,tooc} etc really means...
+
+	perl.pod
+	perldoc.pod # how to use the doc
+	Toc - perltoc.pod # except different
+	Deployment
+		perlcompile.pod
+	Tools
+		perlrun.pod
+		perlutil.pod
+	History
+		perlhist.pod
+		Changes
+			perldelta.pod
+			perl5004delta.pod
+			perl5005delta.pod
+			perl561delta.pod
+			perl56delta.pod
+			perl570delta.pod
+			perl571delta.pod
+			perl572delta.pod
+			perl573delta.pod
+			perl581delta.pod
+			perl582delta.pod
+			perl583delta.pod
+			perl584delta.pod
+			perl585delta.pod
+			perl586delta.pod
+			perl58delta.pod
+		Attic
+			$$$ RFCs
+			$$$ Apocalypses
+			$$$ Exegesis
+	Portability
+		perlport.pod
+		perlebcdic.pod
+		Platforms
+			perlaix.pod
+			perlamiga.pod
+			perlapollo.pod
+			perlbs2000.pod
+			perlbeos.pod
+			perlce.pod
+			perldos.pod
+			perlepoc.pod
+			perlfreebsd.pod
+			perldgux.pod
+			perlcygwin.pod
+			perlhpux.pod
+			perlhurd.pod
+			perlirix.pod
+			perlmachten.pod
+			perlmacos.pod
+			perlmacosx.pod
+			perlmint.pod
+			perlmpeix.pod
+			perlnetware.pod
+			perlos2.pod
+			perlos390.pod
+			perlos400.pod
+			perlqnx.pod
+			perlplan9.pod
+			perlsolaris.pod
+			perltru64.pod
+			perluts.pod
+			perlvmesa.pod
+			perlvms.pod
+			perlvos.pod
+			perlwin32.pod
+	Internationalization
+		perlcn.pod
+		perljp.pod
+		perlko.pod
+		perltw.pod
+		perllocale.pod
+	API
+		# these are the programmatic APIs - one layer under the language specification
+		Historical
+			# these will actually be gone by Perl 6 time
+			perlapi.pod
+			perlapio.pod
+			perldebguts.pod
+			perlfilter.pod
+			perltie.pod
+			perliol.pod
+		### THE REST OF API IS A WORKING DRAFT ###
+		Object Space
+			Prototype/MMD core calculus
+		AST
+			The parse tree of the Perl 6 Grammar - optimized for data retention
+			The AST of Perl expressions ( the parse tree with no annotations and some simplifications - what you get from CODE { } - optimized for transformation (macro processing) )
+			The intermediate core calculus - optimized for simplicity
+		The Perl 6 Grammar
+			Core rules
+				Grammatical categories & Magic Hash core defs
+				Structures and stuff (blockish things, etc)
+		Prelude - Reference Implementations
+			The Standard Macros
+				Object Oriented
+					The class metamodel, declarative syntax
+					single method dispatch
+				Scaffolding
+					use, etc
+					...
+				Misc Sugar
+				...
+			The Standard Classes and Roles
+				Core Types ( Str, Num, Int etc )
+				Container Types ( Scalar, Array, Hash )
+				Range, etc
+				...?
+			The Standard Functions
+				... in modules?
+				Math
+				String
+				Data Structure Functor things
+			Control Flow Structures
+				(Gather/Take, etc)
+		Resource Allocation and Reclaiming
+			Data Finalization Requirement Declarations
+			Hints # like: this will not need to be finalized until much later, or these are related, or blah blah blah - to help the GC be faster
+				Scope related
+				Data
+		Debugging Hooks
+			# FIXME: model after Devel::ebug? We can get acme to do this part for us
+			Interfaces
+				http
+				command line
+				IDE hooks (the way every IDE in the world knows to talk to gdb?)
+			Programmatic Debugging & Profiling
+				Breakpoint annotations for ASTs
+				Tracing execution
+				Sandbox environments based on filters
+				## note - try to provide enough hooks for an aspect oriented programming addon to be easy
+		Rule Suppport
+			The DSL Grammar Extension
+				The grammar for the grammar sub language
+				AST
+					The parse tree - data retention
+					Expression tree - optimized for transformation
+					Performance Optimized - An AST with some new node types, like Trie for alternative compilation, etc - performance only reordering/rewriting yields this
+			The Evaluator API
+				The Match object
+				Parse::Rules derived execution API
+		Compiler
+			Parser
+			Linker
+			Generic Optimizers
+				Pre linktime
+					Dead Code eliminator
+					Constant Folder
+					Type Annotation simplification
+					Multimethod Specializer
+					Lexical Scope Flattenner - express lexical storage as stack-allocation-oriented instead of heap-allocation-oriented - for values which can never leave a function
+				Post linktime
+					Auto Closer - Analyze for oppertunistic closing of classes
+					Type Annotation Specializer
+					Multimethod Specializer
+					Symbol Prebinder (lexical symbols, and closed packages)
+					Inliner (assumes prebinding)
+			Backend Specific Optimizers
+				Parrot
+					Branch Prediction Annotation/Guessing
+					Code Simplificationperllexwarn.pod
+	Licencing
+		perlartistic.pod
+		perlgpl.pod
+	Tutorials
+		ObjectOriented
+			perlboot.pod
+			perltooc.pod
+			perltoot.pod
+		Debugging
+			perldebtut.pod
+		DataStructures
+			perldsc.pod
+			perllol.pod
+		Modules
+			perlmodinstall.pod # how to install
+			perlmod.pod # how to write
+			perlmodlib.pod # wtf are modules anyway
+			perlmodstyle.pod
+			perlnewmod.pod # end to end for writing
+		Functions
+			perlpacktut.pod
+			perlopentut.pod
+		PlatformSpecific
+			POSIX
+				perlipc.pod
+		Concurrency
+			perlothrtut.pod
+			perlthrtut.pod
+		Rules
+			perlre.pod
+			perlref.pod
+			perlreftut.pod
+			perlretut.pod
+		Security
+			perlsec.pod
+		Internationalization
+			perluniintro.pod
+	Internals # this is just for the "parrot" backend
+		perlembed.pod
+		perlcall.pod
+		perlguts.pod
+		perlhack.pod
+		perlintern.pod
+		perlxs.pod
+
+	FAQ
+		perlfaq.pod
+		perlfaq1.pod
+		perlfaq2.pod
+		perlfaq3.pod
+		perlfaq4.pod
+		perlfaq5.pod
+		perlfaq6.pod
+		perlfaq7.pod
+		perlfaq8.pod
+		perlfaq9.pod
+	Overview
+		perlcheat.pod
+		perlintro.pod # is this really a tutorial
+		System
+			POSIX
+				perlfork.pod
+		ObjectOriented
+			perlbot.pod
+			perlobj.pod
+		Extensibility/Internals
+			perlclib.pod
+		Language
+			perlvar.pod
+			perlsub.pod
+			perldata.pod
+			perlnumber.pod
+			perlsyn.pod
+		Debugging
+			perldebug.pod
+			perldiag.pod
+		Builtins
+			perlop.pod
+			perlfunc.pod
+		Rules
+			perlrequick.pod
+			perlreref.pod
+		Misc
+			perlstyle.pod
+			perltrap.pod
+	Spec
+		$$$ Synopses...
+		perlpod.pod
+		perlpodspec.pod
+		perlunicode.pod
+		$$$ Type system
+	Misc
+		perltodo.pod
+		perlbook.pod
+
+
+
+
+
+	perldbmfilter.pod # GO AWAY!!!!!!!!!! This is incidentially an interface supported by all the storage backends of DB_File, SDBM_File, NDBM_File, GDBM_File, etc - but this is *NOT* the place
+	perlform.pod # this is now a module
