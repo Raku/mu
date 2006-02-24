@@ -295,7 +295,7 @@ version number or other literal:
     6;
     "Coolness, dude!";
 
-it runs Perl 6 in "lax" mode, without strictures or warnings, since obvously
+it runs Perl 6 in "lax" mode, without strictures or warnings, since obviously
 a bare literal in a void context I<ought> to have produced a warning.
 (Invoking perl with C<-e6> has the same effect.)
 

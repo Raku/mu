@@ -134,7 +134,7 @@ metaclass chooses to dispatch the .defined method.
 
 The notation C<^Dog> is syntactic sugar for C<Dog.meta>, so C<^> can be
 considered the "class" sigil when you want to talk about the current
-eigenclass instance.
+metaclass instance.
 
 Classes are open and non-final by default, but may easily be closed
 or finalized not by themselves but by the entire application, provided
