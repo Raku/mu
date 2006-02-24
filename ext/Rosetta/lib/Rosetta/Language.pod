@@ -313,13 +313,7 @@ user-defined type); it also has an unordered set of zero or more tuples
 whose set of attributes are all identical to those of the relation, and
 where every tuple value is distinct within the relation.
 
-
-
-=head1 HERE AND BELOW IS OLD DOCUMENTATION, TO BE REWRITTEN
-
-Fubar.
-
-=head1 DATA TYPES AND VALUES
+=head1 OLDER DOCUMENTATION TO REWRITE/REMOVE: DATA TYPES AND VALUES
 
 Generally speaking, any two data types are considered to be mutually
 exclusive, such that a data value can only be in the domain of one of the

@@ -239,7 +239,7 @@ my method _assert_arg_ch_nd_aoh (Str $meth!, Str $arg!, Str @val!) {
 =head1 NAME
 
 Rosetta::Model -
-Intermediate Relational Language
+Abstract syntax tree for the Rosetta D language
 
 =head1 VERSION
 
