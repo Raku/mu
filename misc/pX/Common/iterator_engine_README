@@ -13,7 +13,7 @@ Some existing Perl6 'grammar' grammars:
 
 Plan:
 - improve p6rule_grammar.p6 such that it can parse itself
-- more tests, try to reuse pugs tests
+- try to reuse pugs tests
 - revisit XXX notes
 - put together a Perl6 grammar that we can compile
 - use putter's Match.pm
@@ -44,6 +44,7 @@ implemented:
 
 implemented but untested:
  <other::rule>
+ <$var>
 
 not implemented:
  $1
@@ -51,7 +52,8 @@ not implemented:
  ^ ^^ $ $$
  <!term>
  <unicode-class> <+unicode-class> <+unicode-class+unicode-class>
- <?var> <&var> <%var>
+ <&var> 
+ <%var>
  {n..m} 
  : :: :::   (commit)
  :=         (alias)

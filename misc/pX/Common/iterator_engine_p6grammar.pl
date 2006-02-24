@@ -39,10 +39,6 @@ $Data::Dumper::Pad = '# ';
       \&grammar_name,
       \&rule_decl,
   );
-  # XXX forward declaration of 'pod'
-  #my $pod = sub{};
-  #sub grammar1::podx { $pod->(@_) }
-
   *grammar = 
         ::compile_rule( '[<ws>*<@grammar1::terms>]*<ws>*' );
 
