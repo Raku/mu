@@ -279,6 +279,59 @@ my $rule = \&grammar1::rule;
   is ( $match->{tail}, 'aaa', "correct left-out" );
 }
 
+{
+  local @test::xxx = ( 
+      ::compile_rule( '123' ), 
+      ::compile_rule( 'abc' )
+  );
+  my $rule = ::compile_rule( '<@test::xxx>', {print_program=>1} );
+  is ( ref $rule, "CODE", "compile_rule( '<{\@test::xxx}>' ) array of rule" );
+
+  $match = $rule->( '123aaa' );
+
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 1" );
+  is ( $match->{tail}, 'aaa', "correct left-out" );
+
+  $match = $rule->( 'abcaaa' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 2" );
+  is ( $match->{tail}, 'aaa', "correct left-out" );
+
+  push @test::xxx, ::compile_rule( 'cde' );
+  $match = $rule->( 'cdeaaa' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 3 after run-time modification" );
+  is ( $match->{tail}, 'aaa', "correct left-out" );
+
+}
+
+__END__
+
+{
+  local @test::xxx = ( '123', 'abc' );
+  my $rule = ::compile_rule( '<@test::xxx>', {print_program=>1} );
+  is ( ref $rule, "CODE", "compile_rule( '<{\@test::xxx}>' array of str)" );
+
+  $match = $rule->( '123aaa' );
+
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 1" );
+  is ( $match->{tail}, 'aaa', "correct left-out" );
+
+  $match = $rule->( 'abcaaa' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 2" );
+  is ( $match->{tail}, 'aaa', "correct left-out" );
+
+  push @test::xxx, 'cde';
+  $match = $rule->( 'cdeaaa' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 3 after run-time modification" );
+  is ( $match->{tail}, 'aaa', "correct left-out" );
+
+}
+
 __END__
 
 # TODO - test backtracking (implement '*' first)

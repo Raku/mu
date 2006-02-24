@@ -34,6 +34,21 @@ sub closure {
     }
 }
 
+#sub subrule_closure {
+#    # <{@var}> is a run-time alternation (audreyt on #perl6)
+#    # also: <&fun>
+#    my ( $code, $tail ) = $_[0] =~ /^\<\{(.*?)\}\>(.*)/s;
+#    return unless defined $code;
+#    #print "parsing $code - $tail\n";
+#    my $result = eval $code;
+#    return { 
+#        bool  => 1,
+#        match => { code => $result },
+#        tail  => $tail,
+#        capture => [ { subrule_closure => $result } ],
+#    }
+#}
+
 sub subrule {
     my ( $code, $tail ) = $_[0] =~ /^\<(.*?)\>(.*)/s;
     return unless defined $code;
@@ -144,6 +159,12 @@ push @rule_terms, \&non_capturing_group;
 
 *variable = ::compile_rule( '[\$|\%|\@][[\:\:]?<word>]+' );
 push @rule_terms, ruleop::capture( 'variable',\&variable );
+
+# <@var> is a run-time alternation (TimToady on #perl6)
+*runtime_alternation = ::compile_rule( 
+    '\<(<variable>)\>' );
+unshift @rule_terms, ruleop::capture( 
+    'runtime_alternation',\&runtime_alternation );
 
 }
 
@@ -262,6 +283,14 @@ sub emit_rule {
             # $value = join('', eval $name) if $name =~ /^\%/;
 
             return "$tab ruleop::constant( '" . $value . "' )\n";
+        }
+        elsif ( $k eq 'runtime_alternation' ) {
+            # XXX - this only works for <{@var}>
+            # print "variable:", Dumper($v);
+            my @captures = grep { ref($_) eq 'HASH' } @$v;
+            my $code = join('', @{$captures[0]{capturing_group}} );
+            # print "$code\n";
+            return "$tab ruleop::alternation( \\$code )\n";
         }
         else {
             die "unknown node: ", Dumper( $n );
