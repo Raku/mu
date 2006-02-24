@@ -58,19 +58,19 @@ opRequire dumpEnv v = do
             tryFastEval (pathName ++ ".yml") $
                 slowEval pathName
     where
-    tryFastEval pathName fallback = do
-        ok <- liftIO $ doesFileExist pathName
+    tryFastEval pathName' fallback = do
+        ok <- liftIO $ doesFileExist pathName'
         if not ok then fallback else do
-        rv <- resetT $ fastEval (pathName ++ ".yml.gz")
+        rv <- resetT $ fastEval (pathName')
         case rv of
             VError _ [MkPos{posName=""}] -> fallback
-            _                            -> opEval style pathName ""
+            _                            -> opEval style pathName' ""
         
         
     fastEval = op1EvalP6Y . VStr
-    slowEval pN = do 
-        str      <- liftIO $ readFile pN
-        opEval style pN (decodeUTF8 str)
+    slowEval pathName' = do 
+        str      <- liftIO $ readFile pathName'
+        opEval style pathName' (decodeUTF8 str)
     style = MkEvalStyle
         { evalError  = EvalErrorFatal
         , evalResult = (if dumpEnv == True then EvalResultEnv
