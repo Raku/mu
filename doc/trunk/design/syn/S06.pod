@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 23 Feb 2006
+  Last Modified: 24 Feb 2006
   Number: 6
-  Version: 17
+  Version: 18
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1862,13 +1862,16 @@ original language and know which parts of the derived program come
 from which parts of the user's view of the program.
 
 In aid of returning syntax tree, Perl provides a "quasiquoting"
-mechanism using the keyword "CODE", followed by a block intended to
+mechanism using the quote C<q:code>, followed by a block intended to
 represent an AST:
 
-    return CODE { say $a };
+    return q:code { say $a };
 
-[Conjecture: Other keywords are possible if we have more than one
-AST type.]
+Modifiers to the C<:code> adverb can modify the operation:
+
+    :ast(MyAst)		# Default :ast(AST)
+    :lang(Ruby)		# Default :lang($?PARSER)
+    :unquote<[: :]>	# Default "triple rule"
 
 Within a quasiquote, variable and function names resolve first of
 all according to the lexical scope of the macro definition, and if
@@ -1876,41 +1879,57 @@ unrecognized in that scope, are assumed to be bound from the scope
 of the macro call each time it is called.  If they cannot be bound
 from the scope of the macro call, a compile-time exception is thrown.
 
-Variables that resolve from the lexical scope of the macro definition
-will be inserted appropriately depending on the type of the variable,
-which may be either a syntax tree or a string.  (Again, syntax tree
-is preferred.)  The case is similar to that of a macro called from
-within the quasiquote, insofar as reparsing only happens with the
-string version of interpolation, except that such a reparse happens
-at macro call time rather than macro definition time, so its result
-cannot change the parser's expectations about what follows the
-interpolated variable.
+Bare AST variables (such as the arguments to the macro) may not be
+spliced directly into a quasiquote because they would be taken as
+normal bindings.  Likewise, program text strings to be inserted need
+to be specially marked or they will be bound normally.  To insert a
+"unquoted" expression of either type within a quasiquote, use the
+quasiquote delimiter tripled, typically a bracketing quote of some sort:
+
+    return q:code { say $a + {{{ $ast }}} }
+    return q:code [ say $a + [[[ $ast ]]] ]
+    return q:code < say $a + <<< $ast >>> >
+    return q:code ( say $a + ((( $ast ))) )
+
+(Note to implementors: this must not be implemented by finding
+the final closing delimiter and preprocessing, or we'll violate our
+one-pass parsing rule.  Perl 6 parsing rules are parameterized to know
+their closing delimiter, so adding the opening delimiter should not
+be a hardship.  Alternately the opening delimiter can be deduced from
+the closing delimiter.  Writing a rule that looks for three opening
+delimiters in a row should not be a problem.  It has to be a special
+grammar rule, though, not a fixed token, since we need to be able to
+nest code blocks with different delimiters.  Likewise when parsing the
+inner expression, the inner parser rule is parameterized to know that
+C<}}}> or whatever is its closing delimiter.)
+
+The delimiters don't have to be bracketing quotes, but the following
+is probably to be construed as Bad Style:
+
+    return q:code / say $a + /// $ast /// /
+
+Dequoted expressions are inserted appropriately depending on the
+type of the variable, which may be either a syntax tree or a string.
+(Again, syntax tree is preferred.)  The case is similar to that of a
+macro called from within the quasiquote, insofar as reparsing only
+happens with the string version of interpolation, except that such
+a reparse happens at macro call time rather than macro definition
+time, so its result cannot change the parser's expectations about
+what follows the interpolated variable.
 
 Hence, while the quasiquote itself is being parsed, the syntactic
-interpolation of a variable into the quasiquote always results in
-the expectation of an operator following the variable.  (You must
-use a call to a submacro if you want to expect something else.)
-Of course, the macro definition as a whole can expect whatever it
-likes afterwards, according to its syntactic category.  (Generally,
-a term expects a following postfix or infix operator, and an operator
-expects a following term or prefix operator.)
+interpolation of a unquoted expression into the quasiquote always
+results in the expectation of an operator following the variable.
+(You must use a call to a submacro if you want to expect something
+else.)  Of course, the macro definition as a whole can expect
+whatever it likes afterwards, according to its syntactic category.
+(Generally, a term expects a following postfix or infix operator,
+and an operator expects a following term or prefix operator.)
 
-In case of name ambiguity, prefix with C<COMPILING::> to indicate a
-name in the compiling scope, and anything else (such as C<OUTER::>)
-to indicate a name in the macro definition's scope, since that's the
-default.  In particular, any variable declared within the quasiquote
-block is assumed to scope to the quasiquote; to scope the declaration
-to the macro call's scope, you must say
-
-    my COMPILING::<$foo> = 123;
-    env COMPILING::<@bar> = ();
-    our COMPILING::<%baz>;
-
-or some such if you wish to force the compiler to install the variable
-into the symbol table being constructed by the macro call.
-
-[Conjecture: Due to these dwimmy scoping rules, there is no need of
-a special "unquote" construct as in Scheme et al.]
+A quasiquote is not a block (even if the delimiters are curlies),
+so any declaration of a variable is taken to be part of the block
+surrounding the macro call location.  Add your own {...} if you want
+a block to surround your declarations.
 
 =head1 Other matters
 
