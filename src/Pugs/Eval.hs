@@ -39,6 +39,8 @@ import Pugs.Pretty
 import Pugs.Types
 import Pugs.External
 import Pugs.Eval.Var
+import DrIFT.YAML
+
 
 import RRegex.PCRE as PCRE
 
@@ -754,8 +756,11 @@ reduceSyn syn [lhs, exp]
         let op = "&infix:" ++ init syn
         evalExp $ Syn "=" [lhs, App (Var op) Nothing [lhs, exp]]
 
-reduceSyn "CODE" [ body ] =
-    retError "CODE quoting not implemented" (Syn "CODE")
+reduceSyn "CODE" [ body ] = do
+    -- XXX free bindings need to be gathered
+    bindings <- return ()
+    yml      <- liftIO $ showYaml (bindings, body)
+    retVal $ VStr yml
 
 reduceSyn name exps =
     retError "Unknown syntactic construct" (Syn name exps)

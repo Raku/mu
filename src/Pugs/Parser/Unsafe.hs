@@ -13,6 +13,8 @@ import Pugs.Pretty
 import Pugs.Parser.Types
 import Pugs.Eval.Var
 import Pugs.Types
+import Data.Yaml.Syck
+import DrIFT.YAML
 
 unsafeEvalLexDiff :: Exp -> RuleParser Pad
 unsafeEvalLexDiff exp = do
@@ -85,7 +87,19 @@ possiblyApplyMacro app@(App (Var name) _ _) = do
         | otherwise
         = return app
     {-# NOINLINE substMacroResult #-}
+    yamlExp :: YamlNode -> IO([Exp])
+    yamlExp node = fromYAML node
     substMacroResult :: Exp -> RuleParser Exp
+    -- ASTs are Yaml strings, hacky XXX
+    substMacroResult (Val (VStr ymlStr@('-':'-':'-':_))) = do
+        env <- getRuleEnv
+        -- XXX HELP! is this unsafePerformIO ok?
+        maybeYaml <- return $ unsafePerformIO $ liftIO $ parseYaml ymlStr
+        ymlNode <- case maybeYaml of
+            Left  e        -> fail e
+            Right (Just ymlNode') -> return ymlNode'
+        ast <- return $ unsafePerformIO $ liftIO $ yamlExp ymlNode
+        return $ (ast !! 1)
     -- A Str should be parsed.
     substMacroResult (Val (VStr code)) = do
         -- This is a hack. We should better parse the code now, instead of

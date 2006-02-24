@@ -96,7 +96,8 @@ know how they work, so we started thinking about these, ...
 
 These are banned in C but permitted in Lisp (and a source of
 infinite loops during compilation).  We could adopt either method
-or try to reduce the likely pain.
+or try to reduce the likely pain.  Lisp allows a recursive expander
+function, but not a recursive expansion.
 
 It seems impossible to parse beyond a recursive macro call,
 so we can ask Turing's oracle or give up.
@@ -111,4 +112,19 @@ Finally, a recursive call could merely be a subroutine call, allowing
 recursion at runtime (which is compile time as far as the macro's caller
 is concerned).  This is perhaps close to C++ template expansion games.
 
+Recursive macros seem to be an unneeded feature, ast's equivalent
+to those from a recursive macro can be contructed using normal runtime tools, 
+including subroutine recursion.
+
+=head1 Quoting Declarations
+
+Can declarations and pragmas be quoted?
+$Larry "I don't see why not"
+
+ CODE { sub x { ... }; macro y { ... }; use force; }
+
+The AST needs to be rescanned anyway, so perform the appropriate
+actions at that time in the correct scope.
+
 =cut
+# vim: syntax=perl6:
