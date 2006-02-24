@@ -13,7 +13,7 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 22 Feb 2006
+  Last Modified: 23 Feb 2006
   Number: 6
   Version: 17
 
@@ -56,6 +56,10 @@ The general syntax for named subroutines is any of:
      my RETTYPE sub NAME ( PARAMS ) TRAITS {...}    # lexical only
     our RETTYPE sub NAME ( PARAMS ) TRAITS {...}    # also package-scoped
                 sub NAME ( PARAMS ) TRAITS {...}    # same as "our"
+
+The return type may also be put inside the parentheses:
+
+    sub NAME (PARAMS --> RETTYPE) {...}
 
 Unlike in Perl 5, named subroutines are considered expressions,
 so this is valid Perl 6:
