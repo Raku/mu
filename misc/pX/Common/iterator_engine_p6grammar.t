@@ -46,8 +46,8 @@ EOT
   is ( $match->{tail}, '', "full match" );
   #print "grammar:\n", Dumper $match;
 
-  my $program = grammar::emit_rule( $match->{capture} );
-  print "program: \n", grammar::header() . $program;
+  my $program = Perl6Grammar::emit( $match->{capture} );
+  print "program: \n", Perl6Grammar::header() . $program;
 }
 
 {
@@ -59,6 +59,6 @@ EOT
   ok ( $match->{bool}, "grammar was parsed from file" );
   is ( $match->{tail}, '', "full match" );
   #print "rule:\n", Dumper $match->{capture};
-  my $program = grammar::emit_rule( $match->{capture} );
-  print "program: \n", grammar::header() . $program;
+  my $program = Perl6Grammar::emit( $match->{capture} );
+  print "program: \n", Perl6Grammar::header() . $program;
 }

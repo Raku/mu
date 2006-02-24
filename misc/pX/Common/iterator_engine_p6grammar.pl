@@ -1,6 +1,7 @@
-# pX/Common/iterator_engine_p6regex.pl - fglock
+# pX/Common/iterator_engine_p6.pl - fglock
 #
-# experimental implementation of a grammar that could parse pge/P6Rule.grammar
+# experimental implementation of a grammar that could parse p6 
+# files, like pge/P6Rule.grammar
 
 use strict;
 use warnings;
@@ -22,8 +23,6 @@ $Data::Dumper::Pad = '# ';
 
   no warnings 'once';
 
-  *pod = 
-        ::compile_rule( '\=[pod|head1] .*? \=cut' );
   *grammar_name = 
         ruleop::capture( 
             'grammar_name', 
@@ -34,8 +33,25 @@ $Data::Dumper::Pad = '# ';
             'rule_decl',
             ::compile_rule( 'rule <ws>+ (<word>) <ws>* \{ (<rule>) \}' )
         ); 
+
+  # XXX forward declaration of 'pod'
+  my $pod = sub{};
+  sub grammar1::podx { $pod->(@_) }
+
   *grammar = 
-        ::compile_rule( '[<ws>*[<pod>|<grammar_name>|<rule_decl>]]*<ws>*' );
+        ::compile_rule( '[<ws>*[<podx>|<grammar_name>|<rule_decl>]]*<ws>*' );
+
+  # XXX - install the code in the grammar using an array ref
+
+  Perl6Grammar::compile( <<'__END_GRAMMAR', { print_program=>0 } )->();
+    grammar grammar1;
+    rule pod { \=[pod|head1] .*? \=cut }
+__END_GRAMMAR
+
+  # TODO - rule comment { \# .*? <newline> }
+
+  $pod = \&pod;
+
 }
 
 # ------ grammar emitter
@@ -43,7 +59,7 @@ $Data::Dumper::Pad = '# ';
 my $namespace = 'grammar1::';
 
 {
-  package grammar;
+  package Perl6Grammar;
   use Data::Dumper; 
 
 sub header {
@@ -61,7 +77,26 @@ require 'iterator_engine_p6rule_lib.pl';
 EOT
 }
 
-sub emit_rule {
+# compile( $source, {flag=>value} );
+#
+# flags:
+#   print_program=>1 - prints the generated program
+#
+sub compile {
+    my $match = grammar1::grammar->( $_[0] );
+    my $flags = $_[1];
+    die "syntax error in rule '$_[0]' at '" . $match->{tail} . "'\n"
+        if $match->{tail};
+    die "syntax error in rule '$_[0]'\n"
+        unless $match->{bool};
+    my $program = emit( $match->{capture} );
+    print "generated rule:\n$program" if $flags->{print_program};
+    my $code = eval($program); die $@ if $@;
+    return $code;
+}
+
+sub emit 
+{
     my $n = $_[0];
     local $Data::Dumper::Indent = 0;
     #print "emit_rule: ", ref($n)," ",Dumper( $n ), "\n";
@@ -75,7 +110,7 @@ sub emit_rule {
     if ( ref( $n ) eq 'ARRAY' ) {
         my @s;
         for ( @$n ) {
-            push @s, emit_rule( $_ );
+            push @s, emit( $_ );
         }
         return join( '', @s ) ;
     }
