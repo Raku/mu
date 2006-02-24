@@ -17,16 +17,16 @@ between any other document and this one, then either the other document is
 in error, or the developers were negligent in updating it before Language,
 so you can yell at them.
 
-Rosetta D is intended to qualify as a "D" language as defined by L<The
-Third Manifesto
-|http://www.aw-bc.com/catalog/academic/product/0,1144,0321399420,00.html>
-(TTM), a proposal for a foundation for data and database management
-systems, written by Christopher J. Date and Hugh Darwen.  See
+Rosetta D is intended to qualify as a "D" language as defined by "The Third
+Manifesto" (TTM), a proposal for a foundation for data and database
+management systems, written by Christopher J. Date and Hugh Darwen; see
+L<http://www.aw-bc.com/catalog/academic/product/0,1144,0321399420,00.html>
+for a publishers link to the book that formally publishes TTM.  See
 L<http://www.thethirdmanifesto.com/> for some references to what TTM is,
 and also copies of some documents I used in writing Rosetta D.  The initial
-main reference I used when creating Rosetta D was the book L<Database in
-Depth|http://www.oreilly.com/catalog/databaseid/> (2005), written by Date
-and published by Oreilly.
+main reference I used when creating Rosetta D was the book "Database in
+Depth" (2005; L<http://www.oreilly.com/catalog/databaseid/>), written by
+Date and published by Oreilly.
 
 It should be noted that Rosetta D, being quite new, may omit some features
 that are mandatory for a "D" language initially, to speed the way to a
@@ -87,7 +87,7 @@ contains the Language document you are reading now, L<Rosetta> is the main
 API that uses Rosetta D, and L<Rosetta::Model> provides the AST
 representation of Rosetta D.
 
-A <database> is a fully self-contained and fully addressable entity.  Fully
+A B<database> is a fully self-contained and fully addressable entity.  Fully
 self-contained means that nothing in the database depends on anything that
 is external to the database (such as in type or constraint definitions),
 save the DBMS implementing that database.  Fully addressable means that the
