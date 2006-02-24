@@ -7,15 +7,23 @@ use YAML;
 
 GetOptions \our %Conf, qw(allccs|a=s initial=s@);
 
-our %ccset = map { $_ => 1 } @{ $Conf{initial} };
-
 our $allccs = YAML::LoadFile($Conf{allccs}) or
         die "can't load CC data: $!";
 
-while (my $new = candidates()) {
-    union(\%ccset, $new);
+if (+$Conf{initial}) {
+	doUnion (@{$Conf{initial}});
+} else {
+	doUnion($_) for (keys %$allccs);
 }
 exit 0;
+
+sub doUnion {
+	my %ccset = map { $_ => 1 } @_;
+
+	while (my $new = candidates(\%ccset)) {
+	    union(\%ccset, $new);
+	}
+}
 
 sub union {
     my ($set, $new) = @_;
@@ -23,18 +31,23 @@ sub union {
     #print ::Y({pre=>{set=>$set, new=>$new}});
 
     $set->{$new} = 1;
-    $set->{$_} = 1 for (ref $allccs->{$new} ? @{$allccs->{$new}} : $allccs->{$new});
-
+    #$set->{$_} = 1 for (ref $allccs->{$new} ? @{$allccs->{$new}} : $allccs->{$new});
+	for my $f (ref $allccs->{$new} ? @{$allccs->{$new}} : $allccs->{$new}) {
+		warn "union: adding $f\n";
+		$set->{$f} = 1;
+	}
+die "$size -> ", scalar keys(%$set);
     #print ::Y({post=>{set=>$set, new=>$new}});
-    return keys(%$set) - $size; # new memeber count
+    return keys(%$set) - $size; # new member count
 }
 
 sub candidates {
     my %cands;
+	my $ccset = shift;
     for my $cand (keys %$allccs) {
-        next if exists $ccset{$cand};
-        $cands{$cand} = [ scalar @{$allccs->{$cand}}      # total callees for func
-                        , union(Storable::dclone(\%ccset), $cand)];  # new contributions
+        next if exists $ccset->{$cand};
+        $cands{$cand} = [ (ref $allccs->{$cand} ? scalar @{$allccs->{$cand}} : defined $allccs->{$cand} ? 1 : 0)       # total callees for func
+                        , union(Storable::dclone($ccset), $cand)];  # new contributions
     }
 
     # print ten best candidates
@@ -49,7 +62,7 @@ sub candidates {
 sub print_cand {
     my ($cand, $data) = @_;
     my ($total, $new) = @$data;
-    printf "$cand: %s ($total total, $new new)\n", score($total, $new);
+    printf "$cand: %s ($total total, $new new)", score($total, $new);
 }
 
 sub score {

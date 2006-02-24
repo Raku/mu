@@ -56,6 +56,7 @@ sub comp_cc {
         $oldn = keys %$ccset;
         for my $f (keys %$ccset) {
             $ccset->{$_} = 1 for @{ $nodes{$f} };
+			
         }
     }
     $ccset;
