@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 31 Jan 2006
+  Last Modified: 24 Feb 2006
   Number: 4
-  Version: 8
+  Version: 9
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -91,6 +91,33 @@ value will be restored only if the current block exits unsuccessfully.
 (See Definition of Success below for more.)  C<temp> and C<let> temporize
 or hypotheticalize the value or the variable depending on whether you
 do assignment or binding.
+
+=head1 Statement-ending blocks
+
+A line ending with a closing brace "C<}>", followed by nothing but
+whitespace or comments, will terminates statement if an end of statement
+can occur there.  That is, these two statements are equivalent:
+
+    my $x = sub { 3 }
+    my $x = sub { 3 };
+
+End-of-statement cannot occur within a bracketed expression, so
+this still works:
+
+    my $x = [
+        sub { 3 },  # this comma is not optional
+        sub { 3 }   # the statement won't terminate here 
+    ];
+
+Because subroutine declarations are expressions, not statements,
+this is now invalid:
+
+    sub f { 3 } sub g { 3 }     # two terms occur in a row
+
+But these two are valid:
+
+    sub f { 3 }; sub g { 3 };
+    sub f { 3 }; sub g { 3 }    # the trailing semicolon is optional
 
 =head1 Conditional statements
 
