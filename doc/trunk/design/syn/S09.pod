@@ -672,3 +672,33 @@ For multidimensional hashes, the key returned by any hash iterator is
 a list of keys, the size of which is the number of declared dimensions
 of the hash.  [XXX but this seems to imply another lookup to find the
 value.  Perhaps the associated value can also be bundled in somehow.]
+
+=head1 Autovivification
+
+Autovivification will only happen if the vivifiable path is used as a
+container, by binding, assigning, or taking a reference. On the other hand,
+value extraction does not autovivify.
+
+This is as opposed to Perl 5, where autovivification could happen
+unintentionally, even when the code looks like a non-destructive test:
+
+    my %hash;
+    exists $hash{foo}{bar}; # creates $hash{foo} as an empty hash reference
+
+In Perl 6 these read-only operations are indeed non-destructive:
+
+    my %hash;
+    exists $hash{foo}{bar}; # %hash is still empty
+
+But these ones I<do> autovivify:
+
+    my %hash;
+    my $val := $hash{foo}{bar};
+
+    my @array;
+    my $ref = \$array[0][0];
+
+    my %hash;
+    $hash{foo}{bar} = "foo"; # duh
+
+This rule applies to dereferencing arrays, hashes, and scalar references.
