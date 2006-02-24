@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
    Maintainer: Patrick Michaud <pmichaud@pobox.com>
    Date: 24 Jun 2002
-   Last Modified: 2 Feb 2006
+   Last Modified: 24 Feb 2006
    Number: 5
-   Version: 9
+   Version: 10
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them "rules" because they haven't been
@@ -1063,7 +1063,8 @@ succeed?):
 
 =item *
 
-In string context it evaluates to the entire matched string:
+In string context it evaluates to the stringified value of its
+I<result object>, which is usually the entire matched string:
 
      print %hash{ "{$text ~~ /<?ident>/}" };
      # or equivalently:
@@ -1073,8 +1074,8 @@ But generally you should say C<~$/> if you mean C<~$/>.
 
 =item *
 
-In numeric context it evaluates to the numeric value of the entire matched
-string:
+In numeric context it evaluates to the numeric value of its
+I<result object>, which is usually the entire matched string:
 
      $sum += /\d+/;
      # or equivalently:
@@ -1082,8 +1083,20 @@ string:
 
 =item *
 
-When used as an array, C<$/> pretends to be an array containing
-C<$0>, C<$1>, etc.  Hence
+When used as a closure, a Match object evaluates to its underlying
+result object.  Usually this is just the entire match string, but
+you can override that by calling C<return> inside a rule:
+
+    my $moose = m:{
+        <antler> <body>
+        { return Moose.new( body => $<body>.attach(:$<antler>) ) }
+        # match succeeds -- ignore the rest of the rule
+    }.();
+
+=item *
+
+When used as an array, a Match object pretends to be an array of all
+its positional captures.  Hence
 
      ($key, $val) = m:w/ (\S+) => (\S+)/;
 
@@ -1105,7 +1118,7 @@ in list context.  Use C<@$/> or C<$/[]> to flatten as an array.
 
 =item *
 
-When used as a hash, C<$/> pretends to be a hash of all the named
+When used as a hash, a Match object pretends to be a hash of all its named
 captures.  The keys do not include any sigils, so if you capture to
 variable C<< @<foo> >> its real name is C<$/{'foo'}> or C<< $/<foo> >>.
 However, you may still refer to it as C<< @<foo> >> anywhere C<$/>
