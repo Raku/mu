@@ -6,7 +6,9 @@ Perl6::Tutorial -- Perl 6 tutorials
 
 This section of the Perl 6 documentation contains tutorials for those
 learning the language.  For details of available documents within this area, 
-see L<Perl6::Doc::TOC>.
+see L<Perl6::Doc>.
+
+(Get docs/articles/tpr.pod to live here?)
 
 =head1 AUTHOR
 

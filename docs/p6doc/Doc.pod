@@ -9,22 +9,37 @@ part of the Perl 6 documentation system.
 
 =head2 Starting points
 
-    Doc                This table of contents
-    Intro              A brief introduction for new Perl users
+    Doc                     This table of contents
+    Overview                A brief introduction for new Perl users
+    Tutorial                How to get Perl 6 and start to use it
+    FAQ                     Very frequently asked questions
+    Spec                    Language Specification
+    API                     Interfaces to core language objects
 
 =head2 Overview
 
-    Overview::Syntax       General syntax
-    Overview::Functions    Built-in functions
-    Overview::Operators    Built-in operators
+    Overview::Object        Object-oriented programming
+    Overview::Sub           Subroutines
+    Overview::Rule          Grammars and Rules (regexes)
+    Overview::Unicode       Using Unicode in Perl 6 code
+    Overview::Variable      Special variables
 
 =head2 Tutorials
 
 =head2 FAQ
 
+    FAQ::Fears              Frequently heard Perl 6 fears
+
 =head2 Language Specification
 
+    Spec::Operator          Operators (S03)
+    Spec::Control           Blocks and statements (S04)
+    Spec::Rule              Rules (S05)
+
 =head2 Core API
+
+    API::Code
+    API::Class
 
 =head2 Perl 5 topics
 
@@ -34,3 +49,5 @@ part of the Perl 6 documentation system.
 =head1 AUTHOR
 
 Kirrily "Skud" Robert, <skud@cpan.org>
+Audrey Tang, <autrijus@autrijus.org>
+
