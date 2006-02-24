@@ -7,6 +7,13 @@ use warnings;
 
 require 'iterator_engine_p6rule.pl';
 
+# XXX - make grammars inherit from Grammar; make grammars inheritable
+# XXX - write an emitter that generates perl5 regexes (or dies)
+# XXX - separate tests into another file
+# XXX - add (API/documentation) to generate unnamed rules, unnamed grammars
+# XXX - fix the extra commas in the generated code
+# XXX - create error messages for compiling errors
+
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Pad = '# ';

@@ -2,14 +2,27 @@ pX/Common/iterator_engine_p6regex.pl - fglock
 
 Experimental implementation of:
 - a parser engine (iterator_engine.pl)
-- a rule parser and perl5 emitter (iterator_engine_p6rule.pl)
-- a grammar parser and perl5 emitter (iterator_engine_p6grammar.pl)
+- a Perl6 'rule' parser and perl5 emitter (iterator_engine_p6rule.pl)
+- a 'mini-Perl6' (it only works on 'grammar' sections) parser and perl5 emitter 
+  (iterator_engine_p6grammar.pl)
+- a Perl6 'grammar' grammar (iterator_engine_p6rule_grammar.p6)
 
-Some existing grammars:
-../../Grammars/rx_grammar.pm
-http://svn.perl.org/parrot/trunk/compilers/pge/P6Rule.grammar
+Some existing Perl6 'grammar' grammars:
+  ../../Grammars/rx_grammar.pm
+  http://svn.perl.org/parrot/trunk/compilers/pge/P6Rule.grammar
 
-Rules:
+Plan:
+- improve p6rule_grammar.p6 such that it can parse itself
+- more tests, try to reuse pugs tests
+- revisit XXX notes
+- put together a Perl6 grammar that we can compile
+- use putter's Match.pm
+- make grammars inherit from Grammar; make grammars inheritable
+- write an emitter that generates perl5 regexes (or dies)
+- bind special variables $0, ...
+- see also the 'not implemented' list below
+
+About the Rules:
 
 implemented:
 
@@ -23,7 +36,6 @@ implemented:
  |
 
 implemented but untested:
- <'literal'>
  <other::rule>
 
 not implemented:

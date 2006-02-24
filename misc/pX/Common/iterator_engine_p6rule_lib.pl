@@ -4,6 +4,13 @@
 #
 # see: iterator_engine_README
 
+
+# XXX - rename the system grammar to 'Grammar'
+# XXX - use method calls
+#   <audreyt> because all grammars inherits from Grammar
+#   <fglock> re inheritance - p5 rule calls will need to be written like methods 
+#            for this to work
+
 {
   package grammar1;
 
