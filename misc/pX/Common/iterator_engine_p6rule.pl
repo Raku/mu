@@ -4,11 +4,15 @@
 #
 # see: iterator_engine_README
 
+# TODO $var := (capture)
+
 use strict;
 use warnings;
 
 require 'iterator_engine.pl';
 require 'iterator_engine_p6rule_lib.pl';
+
+my $namespace = 'grammar1::';
 
 {
   package grammar1;
@@ -42,15 +46,6 @@ sub subrule {
     }
 }
 
-*non_capturing_group =
-    ruleop::concat(
-        ruleop::constant( '[' ),
-        ruleop::capture( 'non_capturing_group',
-            \&rule,
-        ),
-        ruleop::constant( ']' )
-    );
-
 *capturing_group = 
     ruleop::concat(
         ruleop::constant( '(' ),
@@ -82,7 +77,7 @@ use vars qw( @rule_terms );
 @rule_terms = (
             \&closure,
             \&capturing_group,
-            \&non_capturing_group,
+            # \&non_capturing_group,
             @literals,
             \&subrule,
             \&dot,
@@ -93,6 +88,7 @@ use vars qw( @rule_terms );
     ruleop::concat(
         ruleop::greedy_star( \&ws ),
         ruleop::alternation( \@rule_terms ),
+        ruleop::greedy_star( \&ws ),
     );
 
 # XXX - allow whitespace everywhere
@@ -143,11 +139,23 @@ use vars qw( @rule_terms );
         ),
     );
 
+*non_capturing_group = ::compile_rule( ' \[ <rule> \] ' );
+push @rule_terms, \&non_capturing_group;
+
 }
 
 #------ rule emitter
 
-my $namespace = 'grammar1::';
+sub compile_rule {
+    my $match = grammar1::rule->( $_[0] );
+    die "syntax error in rule '$_[0]' at '" . $match->{tail} . "'\n"
+        if $match->{tail};
+    my $program = main::emit_rule( $match->{capture} );
+    #print "generated rule:\n$program";
+    my $code = eval($program); die $@ if $@;
+    return $code;
+}
+
 sub emit_rule {
     my $n = $_[0];
     my $tab = $_[1]; $tab .= '  ';
@@ -225,6 +233,7 @@ sub emit_rule {
             return "$tab \\&{'${namespace}any'}\n";
         }
         elsif ( $k eq 'subrule' ) {
+            #print Dumper $v;
             return "$tab \\&{'$namespace$v'}\n";
         }
         elsif ( $k eq 'literal' ) {

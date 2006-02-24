@@ -15,7 +15,7 @@ use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Pad = '# ';
 my ( $program, $compiled );
-my ( $stat, $assertion, $match, $tail );
+my $match;
 my $rule = \&grammar1::rule;
 
 {
@@ -65,7 +65,7 @@ my $rule = \&grammar1::rule;
   #print Dumper( $match );
   ok ( $match->{bool}, "parse sample of text" );
 
-  ( $stat, $assertion, $match, $tail ) = $compiled->( '!' );
+  $match = $compiled->( '!' );
   ok ( ! $match->{bool}, "rejects unmatching text" );
 }
 
@@ -81,176 +81,170 @@ my $rule = \&grammar1::rule;
   $match = $compiled->( 'some_word' );
   #print Dumper( $match );
   ok ( $match->{bool}, "parse sample of text" );
-
-  ( $stat, $assertion, $match, $tail ) = $compiled->( '!' );
-  ok ( ! $match->{bool}, "rejects unmatching text" );
-}
-
-print "# XXX tests removed - API change\n";
-__END__
-
-{
-  ( $stat, $assertion, $match, $tail ) = $rule->( '<word> <ws>' );
-  ok ( defined $match, "parse rule - 2 terms, with whitespace" );
-  $program = emit_rule( $match->{capture} );
-  ok ( defined $program, "emit rule to p5" );
-  $compiled = eval($program);
-  is ( ref $compiled, "CODE", "compile p5" );
-  ( $stat, $assertion, $match, $tail ) = $compiled->( 'some_word other' );
-  # print Dumper( $match );
-  ok ( defined $match, "parse sample of text" );
-  is ( $tail, 'other', "remaining unmatched text (tail)" );
-
-  ( $stat, $assertion, $match, $tail ) = $compiled->( 'one_word' );
-  ok ( !defined $match, "rejects unmatching text" );
-}
-
-{
-  ( $stat, $assertion, $match, $tail ) = $rule->( '<word> <ws>*', undef, {capture=>1} );
-  ok ( $assertion, "parse rule - 2 terms, with star" );
-  $program = emit_rule( $match );
-  ok ( defined $program, "emit rule to p5" );
-  #print $program;
-  $compiled = eval($program);
-  is ( ref $compiled, "CODE", "compile p5" );
-  ( $stat, $assertion, $match, $tail ) = $compiled->( 'some_word other' );
-  # print Dumper( $match );
-  ok ( $assertion, "parse sample of text" );
-  is ( $tail, 'other', "remaining unmatched text (tail)" );
-
-  # this test doesn't apply
-  #( $stat, $assertion, $match, $tail ) = $compiled->( 'one_word!' );
-  #ok ( !defined $match, "rejects unmatching text" );
-}
-
-{
-  ( $stat, $assertion, $match, $tail ) = $rule->( 'a+?', undef, {capture=>1} );
-  ok ( defined $match, "parse rule - a+?" );
-  $program = emit_rule( $match );
-  #print "program:\n$program";
-  ok ( defined $program, "emit rule to p5" );
-  $compiled = eval($program);
-  is ( ref $compiled, "CODE", "compile p5" );
-  ( $stat, $assertion, $match, $tail ) = $compiled->( 'aaaasome_word' );
-  # print Dumper( $match );
-  ok ( $assertion, "parse sample of text" );
-  is ( $tail, 'aaasome_word', "correct left-out" );
-}
-
-{
-  ( $stat, $assertion, $match, $tail ) = $rule->( 'a?', undef, {capture=>1} );
-  ok ( defined $match, "parse rule - a?" );
-  $program = emit_rule( $match );
-  #print "program:\n$program";
-  ok ( defined $program, "emit rule to p5" );
-  $compiled = eval($program);
-  is ( ref $compiled, "CODE", "compile p5" );
-  ( $stat, $assertion, $match, $tail ) = $compiled->( 'aaa' );
-  # print Dumper( $match );
-  ok ( $assertion, "parse sample 1" );
-  is ( $tail, 'aa', "correct left-out" );
-  ( $stat, $assertion, $match, $tail ) = $compiled->( 'bbb' );
-  # print Dumper( $match );
-  ok ( $assertion, "parse sample 2" );
-  is ( $tail, 'bbb', "correct left-out" );
-}
-
-{
-  ( $stat, $assertion, $match, $tail ) = $rule->( '(<word>) <ws>' );
-  ok ( defined $match, "parse rule - 2 terms, with capture" );
-  $program = emit_rule( $match );
-  #print $program;
-  ok ( defined $program, "emit rule to p5" );
-  $compiled = eval($program);
-  is ( ref $compiled, "CODE", "compile p5" );
-  ( $stat, $assertion, $match, $tail ) = $compiled->( 'some_word other' );
-  # print Dumper( $match );
-  ok ( defined $match, "parse sample of text" );
-
-  # TODO - test captured text
-
-  ( $stat, $assertion, $match, $tail ) = $compiled->( 'one_word' );
-  ok ( !defined $match, "rejects unmatching text" );
-}
-
-{
-  ( $stat, $assertion, $match, $tail ) = $rule->( '<word> [ <ws> <word> ]' );
-  ok ( defined $match, "parse rule - non-capturing group" );
-  $program = emit_rule( $match );
-  #print $program;
-  ok ( defined $program, "emit rule to p5" );
-  #print $program;
-  $compiled = eval($program);
-  is ( ref $compiled, "CODE", "compile p5" );
-  ( $stat, $assertion, $match, $tail ) = $compiled->( 'some_word other' );
-  # print Dumper( $match );
-  ok ( defined $match, "parse sample of text" );
-
-  ( $stat, $assertion, $match, $tail ) = $compiled->( '!some_word' );
-  ok ( !defined $match, "rejects unmatching text" );
-}
-
-{
-  ( $stat, $assertion, $match, $tail ) = $rule->( '<word>|<ws>' );
-  ok ( defined $match, "parse rule - alternates" );
-  #print "# match:\n", Dumper( $match );
-  $program = emit_rule( $match );
-  ok ( defined $program, "emit rule to p5" );
-  # print "# program: $program";
-  $compiled = eval($program);
-  is ( ref $compiled, "CODE", "compile p5" );
-  ( $stat, $assertion, $match, $tail ) = $compiled->( 'some_word' );
-  # print Dumper( $match );
-  ok ( defined $match, "parse sample 1" );
-  ( $stat, $assertion, $match, $tail ) = $compiled->( ' ' );
-  # print Dumper( $match );
-  ok ( defined $match, "parse sample 2" );
-  ( $stat, $assertion, $match, $tail ) = $compiled->( '!' );
-  ok ( !defined $match, "rejects unmatching text" );
-}
-
-{
-  ( $stat, $assertion, $match, $tail ) = $rule->( '<word>|<ws>|.' );
-  ok ( defined $match, "parse rule - 3 alternates" );
-  ok ( ! $tail, "full match" );
-  #print "# match:\n", Dumper( $match );
-  $program = emit_rule( $match );
-  ok ( defined $program, "emit rule to p5" );
-  #print "# program: $program";
-  $compiled = eval($program);
-  is ( ref $compiled, "CODE", "compile p5" );
-  ( $stat, $assertion, $match, $tail ) = $compiled->( 'some_word' );
-  # print Dumper( $match );
-  ok ( defined $match, "parse sample 1" );
-  ( $stat, $assertion, $match, $tail ) = $compiled->( ' ' );
-  # print Dumper( $match );
-  ok ( defined $match, "parse sample 2" );
-  ( $stat, $assertion, $match, $tail ) = $compiled->( '-' );
-  ok ( defined $match, "parse sample 3" );
 }
 
 {
 
   # XXX - allow whitespace everywhere
-  # ( $stat, $assertion, $match, $tail ) = $rule->( '<word>| [ <ws> <word> ]' );
+  # $match = $rule->( '<word>| [ <ws> <word> ]' );
 
-  ( $stat, $assertion, $match, $tail ) = $rule->( '<word>|[<ws><word>]' );
-  ok ( defined $match, "parse rule - alternates with grouping" );
-  ok ( ! $tail, "full match" );
+  $match = $rule->( '<word>|[<ws><word>]' );
+  ok ( $match->{bool}, "parse rule - alternates with grouping" );
+  ok ( ! $match->{tail}, "full match" );
   #print "# match:\n", Dumper( $match );
-  $program = emit_rule( $match );
+  $program = emit_rule( $match->{capture} );
   ok ( defined $program, "emit rule to p5" );
   #print "# program: $program";
   $compiled = eval($program);
   is ( ref $compiled, "CODE", "compile p5" );
-  ( $stat, $assertion, $match, $tail ) = $compiled->( 'some_word' );
+  $match = $compiled->( 'some_word' );
   # print Dumper( $match );
-  ok ( defined $match, "parse sample 1" );
-  ( $stat, $assertion, $match, $tail ) = $compiled->( ' other_word' );
+  ok ( $match->{bool}, "parse sample 1" );
+  $match = $compiled->( ' other_word' );
   # print Dumper( $match );
-  ok ( defined $match, "parse sample 2" );
-  ( $stat, $assertion, $match, $tail ) = $compiled->( '!' );
-  ok ( !defined $match, "rejects unmatching text" );
+  ok ( $match->{bool}, "parse sample 2" );
+  $match = $compiled->( '!' );
+  ok ( !$match->{bool}, "rejects unmatching text" );
+}
+
+{
+  $match = $rule->( '<word> <ws>' );
+  ok ( $match->{bool}, "parse rule - 2 terms, with whitespace" );
+  $program = emit_rule( $match->{capture} );
+  ok ( defined $program, "emit rule to p5" );
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  $match = $compiled->( 'some_word other' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample of text" );
+  is ( $match->{tail}, 'other', "remaining unmatched text (tail)" );
+
+  $match = $compiled->( 'one_word' );
+  ok ( !$match->{bool}, "rejects unmatching text" );
+}
+
+{
+  $match = $rule->( '<word> <ws>*', undef, {capture=>1} );
+  ok ( $match->{bool}, "parse rule - 2 terms, with star" );
+  $program = emit_rule( $match->{capture} );
+  ok ( defined $program, "emit rule to p5" );
+  #print $program;
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  $match = $compiled->( 'some_word other' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample of text" );
+  is ( $match->{tail}, 'other', "remaining unmatched text (tail)" );
+
+  # this test doesn't apply
+  #$match = $compiled->( 'one_word!' );
+  #ok ( !$match->{bool}, "rejects unmatching text" );
+}
+
+{
+  $match = $rule->( 'a+?', undef, {capture=>1} );
+  ok ( $match->{bool}, "parse rule - a+?" );
+  $program = emit_rule( $match->{capture} );
+  #print "program:\n$program";
+  ok ( defined $program, "emit rule to p5" );
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  $match = $compiled->( 'aaaasome_word' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample of text" );
+  is ( $match->{tail}, 'aaasome_word', "correct left-out" );
+}
+
+{
+  $match = $rule->( 'a?', undef, {capture=>1} );
+  ok ( $match->{bool}, "parse rule - a?" );
+  $program = emit_rule( $match->{capture} );
+  #print "program:\n$program";
+  ok ( defined $program, "emit rule to p5" );
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  $match = $compiled->( 'aaa' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 1" );
+  is ( $match->{tail}, 'aa', "correct left-out" );
+  $match = $compiled->( 'bbb' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 2" );
+  is ( $match->{tail}, 'bbb', "correct left-out" );
+}
+
+{
+  $match = $rule->( '(<word>) <ws>' );
+  ok ( $match->{bool}, "parse rule - 2 terms, with capture" );
+  $program = emit_rule( $match->{capture} );
+  #print $program;
+  ok ( defined $program, "emit rule to p5" );
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  $match = $compiled->( 'some_word other' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample of text" );
+
+  # TODO - test captured text
+
+  $match = $compiled->( 'one_word' );
+  ok ( !$match->{bool}, "rejects unmatching text" );
+}
+
+{
+  $match = $rule->( '<word> [ <ws> <word> ]' );
+  ok ( $match->{bool}, "parse rule - non-capturing group" );
+  $program = emit_rule( $match->{capture} );
+  #print $program;
+  ok ( defined $program, "emit rule to p5" );
+  #print $program;
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  $match = $compiled->( 'some_word other' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample of text" );
+
+  $match = $compiled->( '!some_word' );
+  ok ( !$match->{bool}, "rejects unmatching text" );
+}
+
+{
+  $match = $rule->( '<word>|<ws>' );
+  ok ( $match->{bool}, "parse rule - alternates" );
+  #print "# match:\n", Dumper( $match );
+  $program = emit_rule( $match->{capture} );
+  ok ( defined $program, "emit rule to p5" );
+  # print "# program: $program";
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  $match = $compiled->( 'some_word' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 1" );
+  $match = $compiled->( ' ' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 2" );
+  $match = $compiled->( '!' );
+  ok ( !$match->{bool}, "rejects unmatching text" );
+}
+
+{
+  $match = $rule->( '<word>|<ws>|.' );
+  ok ( $match->{bool}, "parse rule - 3 alternates" );
+  ok ( ! $match->{tail}, "full match" );
+  #print "# match:\n", Dumper( $match );
+  $program = emit_rule( $match->{capture} );
+  ok ( defined $program, "emit rule to p5" );
+  #print "# program: $program";
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  $match = $compiled->( 'some_word' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 1" );
+  $match = $compiled->( ' ' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 2" );
+  $match = $compiled->( '-' );
+  ok ( $match->{bool}, "parse sample 3" );
 }
 
 __END__

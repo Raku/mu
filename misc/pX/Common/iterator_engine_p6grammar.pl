@@ -9,7 +9,6 @@ require 'iterator_engine_p6rule.pl';
 
 # XXX - make grammars inherit from Grammar; make grammars inheritable
 # XXX - write an emitter that generates perl5 regexes (or dies)
-# XXX - separate tests into another file
 # XXX - add (API/documentation) to generate unnamed rules, unnamed grammars
 # XXX - fix the extra commas in the generated code
 # XXX - create error messages for compiling errors
@@ -21,46 +20,34 @@ $Data::Dumper::Pad = '# ';
 {
   package grammar1;
 
-  use Data::Dumper;
-
-  my $program;
-  my $match;
-  my $rule = \&rule;
-
   no warnings 'once';
 
-    $match = $rule->( '\=[pod|head1] .*? \=cut' );
-    $program = main::emit_rule( $match->{capture} );
-    #print "program:\n$program";
-  *pod = eval($program); die $@ if $@;
-
-    $match = $rule->( 'grammar (.*?) \;' );
-    #print "capture:\n", Dumper( $match->{capture} );
-    $program = main::emit_rule( $match->{capture} );
-    #print "program:\n$program";
+  *pod = 
+        ::compile_rule( '\=[pod|head1] .*? \=cut' );
   *grammar_name = 
-        ruleop::capture( 'grammar_name' , eval($program) ); 
-    die $@ if $@;
-
-    $match = $rule->( 'rule <ws>+ (<word>) <ws>* \{ (<rule>) \}' );
-    $program = main::emit_rule( $match->{capture} );
-    #print "program:\n$program";
+        ruleop::capture( 
+            'grammar_name', 
+            ::compile_rule( 'grammar (.*?) \;' )
+        ); 
   *rule_decl = 
-        ruleop::capture( 'rule_decl' , eval($program) ); 
-    die $@ if $@;
-
-    $match = $rule->( '[<ws>*[<pod>|<grammar_name>|<rule_decl>]]*<ws>*' );
-    $program = main::emit_rule( $match->{capture} );
-    # print "program:\n$program";
-  *grammar = eval($program); die $@ if $@;
-
+        ruleop::capture( 
+            'rule_decl',
+            ::compile_rule( 'rule <ws>+ (<word>) <ws>* \{ (<rule>) \}' )
+        ); 
+  *grammar = 
+        ::compile_rule( '[<ws>*[<pod>|<grammar_name>|<rule_decl>]]*<ws>*' );
 }
 
 # ------ grammar emitter
 
 my $namespace = 'grammar1::';
 
-my $header = <<EOT;
+{
+  package grammar;
+  use Data::Dumper; 
+
+sub header {
+    return <<EOT;
 #! perl
 #
 # grammar file
@@ -72,10 +59,7 @@ require 'iterator_engine.pl';
 require 'iterator_engine_p6rule_lib.pl';
 
 EOT
-
-{
-  package grammar;
-  use Data::Dumper; # import Dumper
+}
 
 sub emit_rule {
     my $n = $_[0];
@@ -122,18 +106,6 @@ sub emit_rule {
             #print "rule_decl captures:\n",Dumper @captures;
             return "*$name = \n$program;\n";
         }
-
-        # other nodes (unused?)
-
-        elsif ( $k eq 'ws' ) {
-            return;
-        }
-        elsif ( $k eq 'rule' ) {
-            return "\\&{'$namespace$v'}\n";
-        }
-        #elsif ( $k eq 'literal' ) {
-        #    return "$tab ruleop::constant( '$v->[0]' )\n";
-        #}
         else {
             die "unknown node: ", Dumper( $n );
         }
@@ -146,59 +118,4 @@ sub emit_rule {
 
 } # /package
 
-# ------ tests
-
-use Test::More qw(no_plan);
-my $match;
-
-{
-  $match = grammar1::pod( 
-    "=pod\n".
-    "some text\n".
-    "=cut" );
-  ok ( $match->{bool}, "pod" );
-  #print "pod:\n", Dumper $match;
-}
-
-{
-  $match = grammar1::grammar_name( 
-    "grammar PGE::P6Rule;" );
-  ok ( $match->{bool}, "grammar name" );
-  #print "grammar_name:\n", Dumper $match;
-}
-
-{
-  $match = grammar1::rule( 
-    "rule identifier {const <word>}" );
-  ok ( $match->{bool}, "rule" );
-  #print "rule:\n", Dumper $match;
-}
-
-{
-  $match = grammar1::grammar( <<EOT );
-=pod 
-  test
-=cut
-grammar test;
-rule xxx {xxx}
-EOT
-  ok ( $match->{bool}, "grammar" );
-  is ( $match->{tail}, '', "full match" );
-  #print "grammar:\n", Dumper $match;
-
-  my $program = grammar::emit_rule( $match->{capture} );
-  print "program: \n", $header . $program;
-}
-
-{
-  open( FILE, 'iterator_engine_p6rule_grammar.p6' );
-  my $text;
-  { local $/; $text = <FILE> }
-  #print $text;
-  $match = grammar1::grammar( $text );
-  ok ( $match->{bool}, "grammar was parsed from file" );
-  is ( $match->{tail}, '', "full match" );
-  #print "rule:\n", Dumper $match->{capture};
-  my $program = grammar::emit_rule( $match->{capture} );
-  print "program: \n", $header . $program;
-}
+1;
