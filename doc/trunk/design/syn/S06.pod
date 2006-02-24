@@ -860,11 +860,11 @@ produces [0,'a'],[1,'b'],[2,'c'].  If you don't want the subarrays, then
 use C<each()> instead:
 
     (0..2; 'a'..'c') ==> my @;tmp;
-    for @;tmp.each { say }
+    for @;tmp.map { say }
 
 and then you just get 0,'a',1,'b',2,'c'.  This is good for
 
-    for @;tmp.each -> $i, $a { say "$i: $a" }
+    for @;tmp.map -> $i, $a { say "$i: $a" }
 
 In list context the C<@;foo> notation is really a shorthand for C<[;](@;foo)>.
 
@@ -914,11 +914,11 @@ which is the same as
 Note that the each method is also sensitive to multislicing, so you
 could also just write that as:
 
-    (@foo; 0...).each: -> $x, $i { ...}
+    (@foo; 0...).map: -> $x, $i { ...}
 
 Also note that these come out to identical for ordinary arrays:
 
-    @foo.each
+    @foo.map
     @foo.cat
 
 =head2 Closure parameters
@@ -1252,7 +1252,7 @@ A value type on an array or hash specifies the type stored by each element:
 
     my Rat %ship;   # the value of each entry stores a Rat
 
-The key type of a hash may be specified as a shape trait--see S9.
+The key type of a hash may be specified as a shape trait--see S09.
 
 =head2 Implementation types
 

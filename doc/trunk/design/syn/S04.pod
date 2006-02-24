@@ -47,7 +47,7 @@ placeholder argument:
     $func("printme");
 
 In any case, all formal parameters are the equivalent of C<my> variables
-within the block.  See S6 for more on function parameters.
+within the block.  See S06 for more on function parameters.
 
 Except for such formal parameter declarations, all lexically scoped
 declarations are visible from the point of declaration to the end of
@@ -654,7 +654,7 @@ since C<< prefix:<if>> > would hide C<< statement_modifier:<if> >>.
 =head1 Smart matching
 
 Here is the current table of smart matches (which probably belongs in
-S3).  The list is intended to reflect forms that can be recognized at
+S03).  The list is intended to reflect forms that can be recognized at
 compile time.  If none of these forms is recognized at compile time, it
 falls through to do MMD to C<< infix:<~~>() >>, which presumably
 reflects similar semantics, but can finesse things that aren't exact

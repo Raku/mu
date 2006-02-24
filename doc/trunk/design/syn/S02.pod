@@ -111,22 +111,23 @@ be trivial to declare them as a macro).
 =item *
 
 In support of OO encapsulation, there is a new fundamental datatype:
-"opaque".  External access to opaque objects is always through method
+B<opaque>.  External access to opaque objects is always through method
 calls, even for attributes.
 
 =item *
 
-Perl 6 will have an optional type system that helps you write safer
+Perl 6 has an optional type system that helps you write safer
 code that performs better.  The compiler is free to infer what type
 information it can from the types you supply, but will not complain
 about missing type information unless you ask it to.
 
 =item *
 
-Perl 6 will support the notion of "properties" on various kinds of
+Perl 6 supports the notion of B<properties> on various kinds of
 objects.  Properties are like object attributes, except that they're
 managed by the individual object rather than by the object's class.
-According to A12, properties are actually implemented by a
+
+According to S12, properties are actually implemented by a
 kind of mixin mechanism, and such mixins are accomplished by the
 generation of an individual anonymous class for the object (unless
 an identical anonymous class already exists and can safely be shared).
@@ -134,7 +135,7 @@ an identical anonymous class already exists and can safely be shared).
 =item *
 
 Properties applied to compile-time objects such as variables and
-classes are also called "traits".  Traits are not expected to change
+classes are also called B<traits>.  Traits are not expected to change
 at run time.  Changing run-time properties should be done via mixin
 instead, so that the compiler can optimize based on declared traits.
 
@@ -150,7 +151,7 @@ than in Perl 5.
 A variable's type is an interface contract indicating what sorts
 of values the variable may contain. More precisely, it's a promise
 that the object or objects contained in the variable are capable of
-responding to the methods of the indicated "role".  See A12 for more
+responding to the methods of the indicated "role".  See S12 for more
 about roles.  A variable object may itself be bound to a container
 type that specifies how the container works without necessarily
 specifying what kinds of things it contains.
@@ -158,15 +159,16 @@ specifying what kinds of things it contains.
 =item *
 
 You'll be able to ask for the length of an array, but it won't be
-called that, because "length" does not specify units.  So
-C<.elems> is the number of array elements.  (You can also
+called that, because C<length> does not specify units.  So
+C<.elems> is the number of array elements.  You can also
 ask for the length of an array in bytes or codepoints or graphemes.
-Same for strings.  There is no C<.length> on strings either.)
+The same methods apply to strings as well: there is no C<.length> on
+strings either.
 
 =item *
 
 C<my Dog $spot> by itself does not automatically call a C<Dog> constructor.
-The actual constructor syntax turns out to be C<my Dog $spot.=new;>,
+The actual constructor syntax turns out to be C<my Dog $spot .= new;>,
 making use of the C<.=> mutator method-call syntax.
 
 =item *
@@ -194,7 +196,7 @@ than the native type can speed it up.)
 
 =item *
 
-All Object types support the "undefined" role, and may contain an
+All Object types support the C<undefined> role, and may contain an
 alternate set of attributes when undefined, such as the unthrown
 exception explaining why the value is undefined.  Non-object types
 are not required to support undefinedness, but it is an error to
@@ -209,7 +211,7 @@ used as a "kind" when the context requires it.
 
 =item *
 
-Perl 6 will intrinsically support big integers and rationals through
+Perl 6 intrinsically supports big integers and rationals through
 its system of type declarations.  C<Int> automatically supports
 promotion to arbitrary precision.  C<Rat> supports arbitrary precision
 rational arithmetic.  Value types like C<int> and C<num> imply
@@ -227,10 +229,10 @@ on overflow.
 
 =item *
 
-A C<Str> is a Unicode string object of some sort.  A C<str> is
-a stringish view of an array of integers, and has no Unicode or
-character properties without explicit conversion to some kind of C<Str>.
-Typically it's an array of bytes serving as a buffer.
+A C<Str> is a Unicode string object.  A C<str> is a stringish view of
+an array of integers, and has no Unicode or character properties without
+explicit conversion to some kind of C<Str>.  Typically it's an array of bytes
+serving as a buffer.
 
 =back
 
@@ -242,7 +244,7 @@ The C<$pkg'var> syntax is dead.  Use C<$pkg::var> instead.
 
 =item *
 
-Perl 6 includes a system of "sigils" to mark the fundamental
+Perl 6 includes a system of B<sigils> to mark the fundamental
 structural type of a variable:
 
     $	scalar
@@ -275,7 +277,7 @@ and its following name or construct.
 
 Ordinary sigils indicate normally scoped variables, either lexical
 or package scoped.  Oddly scoped variables include a secondary sigil
-(a "twigil") that indicates what kind of strange scoping the variable
+(a B<twigil>) that indicates what kind of strange scoping the variable
 is subject to:
 
     $foo	ordinary scoping
@@ -330,7 +332,7 @@ formats for both key and value in the first string: C<< .as('%s: %s', "\n") >>.
 Subscripts now consistently dereference the reference produced by
 whatever was to their left.  Whitespace is not allowed between a
 variable name and its subscript.  However, there is a corresponding
-"dot" form of each subscript (C<@foo.[1]> and C<%bar.{'a'}>) which
+B<dot> form of each subscript (C<@foo.[1]> and C<%bar.{'a'}>) which
 allows optional whitespace before the dot (except when interpolating).
 Constant string subscripts may be placed in angles, so C<%bar.{'a'}>
 may also be written as C<< %bar<a> >> or C<< %bar.<a> >>.
@@ -353,8 +355,9 @@ context specifiers such as + for numbers and ~ for strings.
 There is a need to distinguish list assignment from list binding.
 List assignment works exactly as it does in Perl 5, copying the
 values.  There's a new C<:=> binding operator that lets you bind
-names to array and hash references without copying, just as function
-arguments are bound to formal parameters.  See A6.
+names to array and hash references without copying, just as subroutine
+arguments are bound to formal parameters.  See S06 for more about
+parameter binding.
 
 =item *
 
@@ -404,8 +407,8 @@ insert optional whitespace before the dot.
 
 =item *
 
-With multis, C<&foo> may not be sufficient to uniquely name a specific
-function.  In that case, the type may be refined by using a
+With multiple dispatch, C<&foo> may not be sufficient to uniquely name a
+specific function.  In that case, the type may be refined by using a
 signature literal as a postfix operator:
 
     &foo:(Int,Num)
@@ -422,7 +425,7 @@ This is really just a shorthand for
 
 =item *
 
-Slicing syntax is covered in S9.  Multidimensional
+Slicing syntax is covered in S09.  Multidimensional
 slices will be done with semicolons between individual slice subscripts.
 Each such slice is evaluated lazily.
 
@@ -480,12 +483,6 @@ are aliases into the C<$/> object.
 
 The C<$#foo> notation is dead.  Use C<@foo.end> or C<[-1]> instead.
 (Or C<@foo.shape[$dimension]> for multidimensional arrays.)
-
-=item *
-
-A2 proposes C<$(...)> and C<@(...)> to interpolate arbitrary
-expressions, but these have been replaced with interpolation of curlies
-(closures).
 
 =back
 
@@ -676,8 +673,8 @@ matters type names and package names are interchangeable.)
 Typeglobs are gone.  Use binding (C<:=> or C<::=>) to do aliasing.
 Individual variable objects are still accessible through the
 hash representing each symbol table, but you have to include the
-sigil in the variable name now: C<MyPackage::{'$foo'}> (or also
-C<< MyPackage::<$foo> >> these days).
+sigil in the variable name now: C<MyPackage::{'$foo'}> or the
+equivalent C<< MyPackage::<$foo> >>.
 
 =item *
 
@@ -870,7 +867,7 @@ as they would outside the string, that is, as decimal numbers by default:
     :16<dead_beef> * 16**8
     :16<dead_beef*16**8>
 
-It's true that only radixes that define 'e' as a digit are ambiguous that
+It's true that only radixes that define C<e> as a digit are ambiguous that
 way, but with any radix it's not clear whether the exponentiator should
 be 10 or the radix, and this makes it explicit:
 
@@ -1020,13 +1017,27 @@ just have to embed your construct inside a C<\qq[...]>.
 
 Bare scalar variables always interpolate in double-quotish
 strings.  Bare array, hash, and subroutine variables may I<never> be
-interpolated.  However, any sigiled variable may start an interpolation
-if it is followed by a sequence of one or more bracketed dereferencers:
-that is, any of 1) an array subscript, 2) a hash subscript, 3) a set
-of parentheses indicating a function call, 4) any of 1 through 3 in
-their "dot" form, 5) a dot-form method call that includes argument
-parentheses, or 6) a sequence of one or more unparenthesized method
-call if followed by any of 1 through 5.  In other words, this is legal:
+interpolated.  However, any scalar, array, hash or subroutine variable may
+start an interpolation if it is followed by a sequence of one or more bracketed
+dereferencers: that is, any of:
+
+=over 4
+
+=item 1. An array subscript
+
+=item 2. A hash subscript
+
+=item 3. A set of parentheses indicating a function call
+
+=item 4. Any of 1 through 3 in their B<dot> form
+
+=item 5. A method call that includes argument parentheses
+
+=item 6. A sequence of one or more unparenthesized method call, followed by any of 1 through 5
+
+=back
+
+In other words, this is legal:
 
     "Val = $a.ord.as('%x')\n"
 
@@ -1172,7 +1183,7 @@ And so on.
 =item *
 
 Backslash sequences still interpolate, but there's no longer any C<\v>
-to mean "vertical tab", whatever that is...  (C<\v> now match vertical
+to mean I<vertical tab>, whatever that is...  (C<\v> now match vertical
 whitespace in a rule.)
 
 =item *
@@ -1452,7 +1463,7 @@ are the same as:
 In contrast to assignment, binding to a hash requires a C<Hash> (or
 C<Pair>) reference.  Binding to a "splat" hash requires a list of pairs
 or hashes, and stops processing the argument list when it runs out
-of pairs or hashes.  See S6 for much more about parameter binding.
+of pairs or hashes.  See S06 for much more about parameter binding.
 
 =back
 
@@ -1497,7 +1508,7 @@ as ordinary named arguments.
 
 =item *
 
-Properties work as detailed in A12.  They're actually object
+Properties work as detailed in S12.  They're actually object
 attributes provided by role mixins.  Compile-time properties applied
 to containers and such still use the C<is> keyword, but are now called
 "traits".  On the other hand, run-time properties are attached to
