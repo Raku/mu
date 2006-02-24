@@ -34,21 +34,6 @@ sub closure {
     }
 }
 
-#sub subrule_closure {
-#    # <{@var}> is a run-time alternation (audreyt on #perl6)
-#    # also: <&fun>
-#    my ( $code, $tail ) = $_[0] =~ /^\<\{(.*?)\}\>(.*)/s;
-#    return unless defined $code;
-#    #print "parsing $code - $tail\n";
-#    my $result = eval $code;
-#    return { 
-#        bool  => 1,
-#        match => { code => $result },
-#        tail  => $tail,
-#        capture => [ { subrule_closure => $result } ],
-#    }
-#}
-
 sub subrule {
     my ( $code, $tail ) = $_[0] =~ /^\<(.*?)\>(.*)/s;
     return unless defined $code;
@@ -154,9 +139,11 @@ use vars qw( @rule_terms );
         ),
     );
 
+# [<rule]
 *non_capturing_group = ::compile_rule( ' \[ <rule> \] ' );
 push @rule_terms, \&non_capturing_group;
 
+# $var
 *variable = ::compile_rule( '[\$|\%|\@][[\:\:]?<word>]+' );
 push @rule_terms, ruleop::capture( 'variable',\&variable );
 
@@ -165,6 +152,12 @@ push @rule_terms, ruleop::capture( 'variable',\&variable );
     '\<(<variable>)\>' );
 unshift @rule_terms, ruleop::capture( 
     'runtime_alternation',\&runtime_alternation );
+
+# $xxx := (capture)
+*named_capture = ::compile_rule( 
+    '(<variable>)<ws>*\:\=<ws>*\(<rule>\)' );
+unshift @rule_terms, ruleop::capture( 
+    'named_capture',\&named_capture );
 
 }
 
@@ -267,6 +260,10 @@ sub emit_rule {
         elsif ( $k eq 'subrule' ) {
             #print Dumper $v;
             return "$tab \\&{'$namespace$v'}\n";
+
+            # XXX - this is how it was actually supposed to compile
+            return "$tab ruleop::capture( '$v', \\&{'$namespace$v'} )\n";
+
         }
         elsif ( $k eq 'literal' ) {
             #print "literal:", Dumper($v);
@@ -292,6 +289,14 @@ sub emit_rule {
             # print "$code\n";
             return "$tab ruleop::alternation( \\$code )\n";
         }
+        elsif ( $k eq 'named_capture' ) {
+            my @captures = grep { ref($_) eq 'HASH' } @$v;
+            my $name = join('', @{$captures[0]{capturing_group}} );
+            my $program = emit_rule( $captures[1], $tab );
+
+            # die "you asked for a named capture $name with $program";
+            return "$tab ruleop::capture( '$name', \n" . $program . "$tab )\n";
+        }
         else {
             die "unknown node: ", Dumper( $n );
         }
@@ -303,3 +308,27 @@ sub emit_rule {
 }
 
 1;
+
+
+__END__
+
+random notes...
+
+<fglock> audreyt: what is the relationship between AST and Match? (I'm compiling 
+the match captures)
+<audreyt> fglock: no relationship whatsoever :)
+<audreyt> fglock: the Match object may carry an captured object in $/<>
+<audreyt> aka $<>
+<audreyt> and if you are writing a Perl 6 parser, then that capture object may be 
+an AST object
+<audreyt> you can set the capture object by
+<audreyt> rule { $<> := ... }
+<audreyt> or
+<audreyt> rule { ... { return $capture_object } }
+<audreyt> or
+<audreyt> rule { ... { $<> := ... } }
+<audreyt> if the capture object is not set explicitly
+<audreyt> then it's set to the entire match as matched by the rule.
+<spinclad> so in q:code:{ say $x; {{{$a}}} } the $x is literal but the $a is 
+unquoted (interpolated)? therefore the {{{ }}}'s?
+<audreyt> +$/ and ~$/ resolves to +$<> and ~$<> respectively.

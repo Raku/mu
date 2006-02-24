@@ -270,21 +270,11 @@ my $rule = \&grammar1::rule;
 }
 
 {
-  local @test::xxx = ( '123', 'abc' );
-  my $rule = ::compile_rule( '@test::xxx', {print_program=>0} );
-  is ( ref $rule, "CODE", "compile_rule( '\@test::xxx' )" );
-  $match = $rule->( '123abcaaa' );
-  # print Dumper( $match );
-  ok ( $match->{bool}, "parse sample 1" );
-  is ( $match->{tail}, 'aaa', "correct left-out" );
-}
-
-{
   local @test::xxx = ( 
       ::compile_rule( '123' ), 
       ::compile_rule( 'abc' )
   );
-  my $rule = ::compile_rule( '<@test::xxx>', {print_program=>1} );
+  my $rule = ::compile_rule( '<@test::xxx>', {print_program=>0} );
   is ( ref $rule, "CODE", "compile_rule( '<{\@test::xxx}>' ) array of rule" );
 
   $match = $rule->( '123aaa' );
@@ -305,6 +295,16 @@ my $rule = \&grammar1::rule;
   is ( $match->{tail}, 'aaa', "correct left-out" );
 
 }
+
+{
+  my $rule = ::compile_rule( '$xyz := (abc)', {print_program=>0} );
+  is ( ref $rule, "CODE", "named capture" );
+  $match = $rule->( 'abcaaa' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 1" );
+  is ( $match->{tail}, 'aaa', "correct left-out" );
+}
+
 
 __END__
 
