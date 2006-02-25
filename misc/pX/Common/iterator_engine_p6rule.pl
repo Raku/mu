@@ -318,17 +318,17 @@ random notes...
 the match captures)
 <audreyt> fglock: no relationship whatsoever :)
 <audreyt> fglock: the Match object may carry an captured object in $/<>
-<audreyt> aka $<>
+<audreyt> aka $()
 <audreyt> and if you are writing a Perl 6 parser, then that capture object may be 
 an AST object
 <audreyt> you can set the capture object by
-<audreyt> rule { $<> := ... }
+<audreyt> rule { $() := ... }
 <audreyt> or
 <audreyt> rule { ... { return $capture_object } }
 <audreyt> or
-<audreyt> rule { ... { $<> := ... } }
+<audreyt> rule { ... { $() := ... } }
 <audreyt> if the capture object is not set explicitly
 <audreyt> then it's set to the entire match as matched by the rule.
 <spinclad> so in q:code:{ say $x; {{{$a}}} } the $x is literal but the $a is 
 unquoted (interpolated)? therefore the {{{ }}}'s?
-<audreyt> +$/ and ~$/ resolves to +$<> and ~$<> respectively.
+<audreyt> +$/ and ~$/ resolves to +$() and ~$() respectively.
