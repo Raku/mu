@@ -104,5 +104,5 @@ possiblyApplyMacro app@(App (Var name) _ _) = do
     --  $code().
     substMacroResult code@(Val (VCode _)) = do
         return $ App code Nothing []
-    substMacroResult _ = fail "Macro did not return a Str or a Code!"
+    substMacroResult _ = fail "Macro did not return an AST, a Str or a Code!"
 possiblyApplyMacro _ = fail "possiblyApplyMacro can only be passed a (App ...)."
