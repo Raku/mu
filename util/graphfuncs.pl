@@ -3,7 +3,7 @@ use strict;
 #use GraphViz;
 use Getopt::Long;
 
-GetOptions \our %Conf, qw(--verbose|v no|n leaves|l cc|c=s@ allccs|a);
+GetOptions \our %Conf, qw(--verbose|v no|n leaves|l cc|c=s@ allccs|a nodes);
 
 my $signature = qr/^([\w']*) ::/o;
 my $fn;
@@ -42,11 +42,16 @@ if ($Conf{allccs}) {
     for my $f (keys %nodes) {
         print "." if $Conf{verbose};
         my %cc = ($f => 1);
+        print "calculating cc for $f\n";
         $allccs{$f} = [ keys %{comp_cc(\%cc)} ];
     }
     print ::Y(\%allccs),"\n";
 }
 #print $g->as_png unless $Conf{no};
+
+if ($Conf{nodes}) {
+    print ::Y(\%nodes), "\n";
+}
 
 sub comp_cc {
     my ($ccset) = @_;
@@ -55,8 +60,11 @@ sub comp_cc {
     while ($oldn != keys %$ccset) {
         $oldn = keys %$ccset;
         for my $f (keys %$ccset) {
-            $ccset->{$_} = 1 for @{ $nodes{$f} };
-			
+#            $ccset->{$_} = 1 for @{ $nodes{$f} };
+            for (@{ $nodes{$f} }) {
+                #print "Adding $_ based on $f\n" unless $ccset->{$_};
+                $ccset->{$_} = 1;
+            }
         }
     }
     $ccset;
