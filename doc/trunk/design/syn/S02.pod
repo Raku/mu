@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 16 Feb 2006
+  Last Modified: 25 Feb 2006
   Number: 2
-  Version: 16
+  Version: 17
 
 This document summarizes Apocalypse 2, which covers small-scale
 lexical items and typological issues.  (These Synopses also contain
@@ -111,7 +111,7 @@ be trivial to declare them as a macro).
 =item *
 
 In support of OO encapsulation, there is a new fundamental datatype:
-B<opaque>.  External access to opaque objects is always through method
+B<P6opaque>.  External access to opaque objects is always through method
 calls, even for attributes.
 
 =item *
@@ -211,9 +211,11 @@ used as a "kind" when the context requires it.
 
 =item *
 
-Perl 6 intrinsically supports big integers and rationals through
-its system of type declarations.  C<Int> automatically supports
-promotion to arbitrary precision.  C<Rat> supports arbitrary precision
+Perl 6 intrinsically supports big integers and rationals through its
+system of type declarations.  C<Int> automatically supports promotion
+to arbitrary precision.  (C<Num> may support arbitrary-precision
+floating-point arithmatic, but is not required to unless we can do
+so portably and efficiently.)  C<Rat> supports arbitrary precision
 rational arithmetic.  Value types like C<int> and C<num> imply
 the natural machine representation for integers and floating-point
 numbers, respectively, and do not promote to arbitrary precision.

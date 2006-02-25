@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 24 Feb 2006
+  Last Modified: 25 Feb 2006
   Number: 4
-  Version: 9
+  Version: 10
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -41,9 +41,9 @@ are three ways to declare formal parameters to a closure.
 
 A bare closure without placeholder arguments that uses C<$_>
 (either explicitly or implicitly) is treated as though C<$_> were a
-placeholder argument:
+a formal parameter:
 
-    $func = { print if $_ };
+    $func = { print if $_ };   # Same as: $func = -> $_ { print if $_ };
     $func("printme");
 
 In any case, all formal parameters are the equivalent of C<my> variables
@@ -208,11 +208,11 @@ to multiple arguments enclosed in square brackets:
     for zip(@a;@b) -> [$a, $b] { print "[$a, $b]\n" }
 
 The list is evaluated lazily by default, so instead of using a C<while>
-to read a file a line at a time:
+to read a file a line at a time as you would in Perl 5:
 
     while my $line = <$*IN> {...}
 
-you should use a C<for> instead:
+in Perl 6 you should use a C<for> instead:
 
     for =$*IN -> $line {...}
 
@@ -459,7 +459,7 @@ Perl 5, these may be "interesting" values of undef that contain
 information about the error.  If you try to use an undefined value,
 that information can then be conveyed to the user.  In essence, undef
 can be an unthrown exception object that just happens to return 0 when
-you ask it whether it's defined or it's true.  Since $!  contains the
+you ask it whether it's defined or it's true.  Since C<$!> contains the
 current error code, saying C<die $!> will turn an unthrown exception
 into a thrown exception.  (A bare C<die> does the same.)
 
@@ -477,7 +477,8 @@ which is then bound to C<$!> and, hopefully, propagated.  The default
 printout for the new exception should include the old exception
 information so that the user can trace back to the original error.
 (Likewise, rethrown exceptions add information about how the exception
-is propagated.)
+is propagated.)  The exception stack within C<$!> is available as
+C<$![]>.
 
 Exception objects are born "unhandled".  The C<$!> object keeps track of
 whether it's currently "handled" or "unhandled".  The exception in C<$!> still
@@ -513,6 +514,10 @@ Those marked with a C<*> can also be used within an expression:
     my $compiletime = BEGIN { localtime };
     our $temphandle = FIRST { maketemp() };
 
+Code that is generated at run time can still fire off C<CHECK>
+and C<INIT> blocks, though of course those blocks can't do things that
+would require travel back in time.
+
 Some of these also have corresponding traits that can be set on variables.
 These have the advantage of passing the variable in question into
 the closure as its topic:
@@ -522,7 +527,7 @@ the closure as its topic:
 
 Apart from C<CATCH> and C<CONTROL>, which can only occur once, most of
 these can occur multiple times within the block.  So they aren't really
-traits, exactly--they actually add themselves onto a list stored in the
+traits, exactly--they add themselves onto a list stored in the
 actual trait.  So if you examine the C<ENTER> trait of a block, you'll
 find that it's really a list of closures rather than a single closure.
 
@@ -649,10 +654,6 @@ declared in the statement syntactic group:
     macro statement_control:<if> ($expr, &ifblock) {...}
     macro statement_control:<while> ($expr, &whileblock) {...}
     macro statement_control:<BEGIN> (&beginblock) {...}
-
-It's possible the full name of the C<if> operator is now:
-
-    statement_control:<if elsif else>
 
 Statement-level constructs may start only where the parser is expecting
 the start of a statement.  To embed a statement in an expression you
@@ -823,7 +824,7 @@ the current snapshot of its world, lexically speaking.
 
 Some closures produce references at compile time that cannot be
 cloned, because they're not attached to any runtime code that can
-actively clone them.  BEGIN, CHECK, INIT, and END blocks probably
+actively clone them.  C<BEGIN>, C<CHECK>, C<INIT>, and C<END> blocks probably
 fall into this category.  Therefore you can't reliably refer to
 run-time variables from them even if they appear to be in scope.
 (The compile-time closure may, in fact, see a some kind of permanent
@@ -832,7 +833,7 @@ likely to be undefined when the closure is run in any case.)  It's
 only safe to refer to package variables and file-scoped lexicals from
 such a routine.
 
-On the other hand, it is required that CATCH and LEAVE blocks be able
+On the other hand, it is required that C<CATCH> and C<LEAVE> blocks be able
 to see transient variables in their current lexical scope, so their
 cloning status depends at least on the cloning status of the block
 they're in.

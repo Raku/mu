@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 1 Feb 2006
+  Last Modified: 25 Feb 2006
   Number: 3
-  Version: 12
+  Version: 13
 
 =head1 Operator renaming
 
@@ -107,10 +107,10 @@ Its precedence is now equivalent to assignment, and it is right associative.
 of semantics.  Anywhere you used C<=~> before you now use C<~~>, but C<~~> is
 much more general now.  See L<Synopsis 4> for details.  (To catch "brainos",
 the Perl 6 parser defines an C<< infix:<=~> >> macro which always fails at
-compile time with a message directing the user either to use C<~~> instead,
+compile time with a message directing the user either to use C<~~> or C<~=> instead,
 or to put a space between if they really wanted to assign a stringified value.)
 
-=item * Unary C<.> calls its single argument (which must be a method, or an
+=item * Unary C<.> calls its single argument (which must be a method, or a
 dereferencer for a hash or array) on C<$_>.
 
 =item * The C<..> range operator has variants with C<^> on either
@@ -118,10 +118,18 @@ end to indicate exclusion of that endpoint from the range.  It always
 produces a Range object.  Range objects are lazy iterators, and can
 be interrogated for their current C<.min> and C<.max> values (which
 change as they are iterated).  Ranges are not autoreversing: C<2..1>
-is always a null range, as is C<1^..^2>.  However, smart matching
-against a Range object smartmatches the endpoints in the domain of
-the object being matched, so C<< 1.5 ~~ 1^..^2 >> is true.
-(But C<< 2.1 ~~ 1..2 >> is false.)
+is always a null range, as is C<1^..^2>.  To reverse a range use:
+
+    2..1:by(-1)
+    reverse 1..2
+
+(The C<reverse> is preferred because it works for alphabetic ranges
+as well.)
+
+Because C<Range> objects are lazy, they do not automatically generate
+a list.  So smart matching against a Range object smartmatches the
+endpoints in the domain of the object being matched, so C<< 1.5 ~~
+1^..^2 >> is true.  (But C<< 2.1 ~~ 1..2 >> is false.)
 
 =item * The unary C<^> operator generates a range from C<0> up to
 one less than its argument.  so C<^4> is short for C<0..^4> or C<0..3>.
@@ -133,7 +141,7 @@ one less than its argument.  so C<^4> is short for C<0..^4> or C<0..3>.
 
 =item * However, C<...> as a term is the "yada, yada, yada" operator,
 which is used as the body in function prototypes.  It complains
-bitterly if it is ever executed.  Actually, it calls C<fail>.  Variant
+bitterly (by calling C<fail>) if it is ever executed.  Variant
 C<???> calls C<warn>, and C<!!!> calls C<die>.
 
 =item * In addition, to the ordinary C<.> method invocation, there are
@@ -432,7 +440,7 @@ operator:
 
 =head1 Precedence
 
-Perl 6 has 22 precedence levels (fewer than Perl 5):
+Perl 6 has 22 precedence levels (which is fewer than Perl 5):
 
     terms		42 "eek" $x /abc/ (1+2) a(1) :by(2) .meth listop
     method postfix	. .+ .? .* .() .[] .{} .«» .=

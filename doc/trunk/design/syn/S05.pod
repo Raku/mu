@@ -15,7 +15,7 @@ Allison Randal <al@shadowed.net>
    Date: 24 Jun 2002
    Last Modified: 25 Feb 2006
    Number: 5
-   Version: 11
+   Version: 12
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them "rules" because they haven't been
@@ -346,7 +346,7 @@ Because C</x> is default:
 
 =item *
 
-C<#> now always introduces a comment.
+An unescaped C<#> now always introduces a comment.
 
 =item *
 
@@ -464,7 +464,7 @@ how to handle them (more on that below).
 =item *
 
 The default way in which the engine handles a scalar is to match it
-as a C<< <'...'> >> literal (i.e.it does not treat the interpolated string
+as a C<< <'...'> >> literal (i.e. it does not treat the interpolated string
 as a subpattern).  In other words, a Perl 6:
 
      / $var /
@@ -486,7 +486,7 @@ is matched as if it were an alternation of its elements:
      / [ @cmds[0] | @cmds[1] | @cmds[2] | ... ] /
 
 
-As with a scalar variable, each one is matched as a literal.
+As with a scalar variable, each element is matched as a literal.
 
 =item *
 
@@ -1590,9 +1590,9 @@ Note that it makes no difference whether a subrule is angle-bracketted (C<<
 
 =item *
 
-If a subrule appears two (or more) times in the same lexical scope
-(i.e. twice within the same subpattern and alternation), or if the
-subrule is quantified anywhere within the entire rule, then its
+If a subrule appears two (or more) times in any branch of a lexical
+scope (i.e. twice within the same subpattern and alternation), or if the
+subrule is quantified anywhere within a given scope, then its
 corresponding hash entry is always assigned a reference to an array of
 C<Match> objects, rather than a single C<Match> object.
 
@@ -1689,12 +1689,12 @@ If a named scalar alias is applied to a set of I<capturing> parens:
 then the outer capturing parens no longer capture into the array of
 C<$/> (like unaliased parens would). Instead the aliased parens capture
 into the hash of C<$/>; specifically into the hash element
-whose key is alias name.
+whose key is the alias name.
 
 =item *
 
 So, in the above example, a successful match sets
-C<< $<key> >> (i.e. C<< $/<key> >>), but I<not> C<$0> (i.e. C<< $/[0] >>).
+C<< $<key> >> (i.e. C<< $/<key> >>), but I<not> C<$0> (i.e. not C<< $/[0] >>).
 
 =item *
 
@@ -1900,7 +1900,7 @@ subpattern, that quantified subrule or subpattern will have returned a
 list of C<Match> objects (as described in L<Quantified subpattern
 captures> and L<Repeated captures of the same subrule>).
 So the corresponding array element or hash entry for the alias will
-contain a referece to an array, instead of a single C<Match> object.
+contain a reference to an array, instead of a single C<Match> object.
 
 =item *
 
@@ -2321,20 +2321,20 @@ Like classes, grammars can inherit:
      grammar Letter {
          rule text     { <greet> <body> <close> }
 
-         rule greet :w { [Hi|Hey|Yo] $to:=(\S+?) , $$}
+         rule greet :w { [Hi|Hey|Yo] $<to>:=(\S+?) , $$}
 
          rule body     { <line>+ }
 
-         rule close :w { Later dude, $from:=(.+) }
+         rule close :w { Later dude, $<from>:=(.+) }
 
          # etc.
      }
 
      grammar FormalLetter is Letter {
 
-         rule greet :w { Dear $to:=(\S+?) , $$}
+         rule greet :w { Dear $<to>:=(\S+?) , $$}
 
-         rule close :w { Yours sincerely, $from:=(.+) }
+         rule close :w { Yours sincerely, $<from>:=(.+) }
 
      }
 
@@ -2469,7 +2469,7 @@ rule matches the boundary between elements.  If the array elements
 are strings, they are concatenated virtually into a single logical
 string.  If the array elements are tokens or other such objects, the
 objects must provide appropriate methods for the kinds of rules to
-match against.  It is an assertion error to match a string matching
+match against.  It is an assertion error to match a string-matching
 assertion against an object that doesn't provide a string view.
 However, pure token objects can be parsed as long as the match rule
 restricts itself to assertions like:
@@ -2486,4 +2486,3 @@ To match against each element of an array, use a hyper operator:
      @array».match($rule)
 
 =back
-
