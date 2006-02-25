@@ -90,10 +90,10 @@ possiblyApplyMacro app@(App (Var name) _ _) = do
     yamlExp :: YamlNode -> IO([Exp])
     yamlExp node = fromYAML node
     substMacroResult :: Exp -> RuleParser Exp
-    -- ASTs are Yaml strings, hacky XXX
+    -- An AST is spliced
     substMacroResult (Val (VObject o)) | objType o == mkType "Code::Exp" = do
         return $ fromObject o
-    -- A Str should be parsed.
+    -- A Str should be (re)parsed.
     substMacroResult (Val (VStr code)) = do
         -- This is a hack. We should better parse the code now, instead of
         -- using eval() at compile-time. But we can't import

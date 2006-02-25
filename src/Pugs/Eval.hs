@@ -756,7 +756,7 @@ reduceSyn syn [lhs, exp]
         let op = "&infix:" ++ init syn
         evalExp $ Syn "=" [lhs, App (Var op) Nothing [lhs, exp]]
 
-reduceSyn "CODE" [ body ] = expToEvalVal body
+reduceSyn "q:code" [ body ] = expToEvalVal body
 
 reduceSyn name exps =
     retError "Unknown syntactic construct" (Syn name exps)

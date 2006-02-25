@@ -1027,12 +1027,12 @@ ruleClosureTrait rhs = rule "closure trait" $ do
                     putRuleEnv target { envPragmas = prag ++ envPragmas target }
                 _ -> fail "no caller env to install pragma in"
 
-{-| Match a @CODE { ... }@ quotation -}
+{-| Match a @q:code { ... }@ quotation -}
 ruleCodeQuotation :: RuleParser Exp
 ruleCodeQuotation = rule "code quotation" $ do
     name    <- try $ symbol "q:code"
     body    <- between (symbol "{") (char '}') ruleBlockBody
-    return $ Syn "CODE" [ body ]
+    return $ Syn "q:code" [ body ]
 
 {-| Wraps a call to @&Pugs::Internals::check_for_io_leak@ around the input
     expression. @&Pugs::Internals::check_for_io_leak@ should @die()@ if the
