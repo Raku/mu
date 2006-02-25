@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
    Maintainer: Patrick Michaud <pmichaud@pobox.com>
    Date: 24 Jun 2002
-   Last Modified: 24 Feb 2006
+   Last Modified: 25 Feb 2006
    Number: 5
-   Version: 10
+   Version: 11
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them "rules" because they haven't been
@@ -613,21 +613,37 @@ lexically scoped.)
 
 =item *
 
-A leading C<(> indicates a code assertion:
+A leading C<?{> or C<!{>indicates a code assertion:
 
-     / (\d**{1..3}) <( $0 < 256 )> /
+     / (\d**{1..3}) <?{ $0 < 256 }> /
+     / (\d**{1..3}) <!{ $0 < 256 }> /
 
 Similar to:
 
      / (\d**{1..3}) { $0 < 256 or fail } /
+     / (\d**{1..3}) { $0 < 256 and fail } /
 
 Unlike closures, code assertions are not guaranteed to be run at the
 canonical time if the optimizer can prove something later can't match.
 So you can sneak in a call to a non-canonical closure that way:
 
-     /^foo .* <( do { say "Got here!" } or 1 )> .* bar$/
+     /^foo .* <?{ do { say "Got here!" } or 1 }> .* bar$/
 
 The C<do> block is unlikely to run unless the string ends with "C<bar>".
+
+=item *
+
+A leading C<(> indicates the start of a result capture:
+
+    / foo <( \d+ )> bar /
+
+is equivalent to:
+
+    / <before foo> \d+ <after bar> /
+
+except that the scan for "foo" can be done in the forward direction,
+when a lookbehind assertion would scan for \d+ and then match "foo"
+backwards.
 
 =item *
 
@@ -1041,14 +1057,19 @@ case matching the null string:
 
 =item *
 
-A match always returns a "match object", which is also available as
-(lexical) C<$/> (except within a closure lexically embedded in a rule,
-where C<$/> always refers to the current match, not any submatch done
-within the closure).
+A match always returns a "match object", which is also available
+as C<$/>, which is an environmental lexical declared in the outer
+subroutine that is calling the rule.  (A closure lexically embedded
+in a rule does not redeclare C<$/>, so C<$/> always refers to the
+current match, not any prior submatch done within the closure).
 
 =item *
 
-The match object evaluates differently in different contexts:
+Notionally, a match object contains (among other things) a boolean
+success value, a scalar "result object", an array of ordered submatch
+objects, and a hash of named submatch objects.  To provide convenient
+access to these various values, the match object evaluates differently
+in different contexts:
 
 =over
 
@@ -1083,7 +1104,7 @@ I<result object>, which is usually the entire matched string:
 
 =item *
 
-When used as a closure, a Match object evaluates to its underlying
+When called as a closure, a Match object evaluates to its underlying
 result object.  Usually this is just the entire match string, but
 you can override that by calling C<return> inside a rule:
 
@@ -1092,6 +1113,18 @@ you can override that by calling C<return> inside a rule:
         { return Moose.new( body => $<body>.attach(:$<antler>) ) }
         # match succeeds -- ignore the rest of the rule
     }.();
+
+C<$()> is a shorthand for C<$/.()> or C<$/()>.  The result object
+may contain any object, not just a string.
+
+You may also capture a subset of the match as the result object using
+the C<< <(...)> construct:
+
+    "foo123bar" ~~ / foo <( \d+ \> bar /
+    say $();    # says 123
+
+In this case the result object is always a string when doing string
+matching, and a list of one or more elements when doing array matching.
 
 =item *
 
@@ -1175,9 +1208,19 @@ Inside a rule, the C<$/> variable holds the current rule's
 incomplete C<Match> object (which can be modified via the internal C<$/>.
 For example:
 
-     $str ~~ / foo                # Match 'foo'
+    $str ~~ / foo                # Match 'foo'
                { $/ = 'bar' }     # But pretend we matched 'bar'
              /;
+    say $/;                       # says 'bar'
+
+This is slightly dangerous, insofar as you might return something that
+does not behave like a C<Match> object to some context that requires
+one.  Fortunately, you normally just want to return a result object instead:
+
+    $str ~~ / foo                 # Match 'foo'
+               { return 'bar' }   # But pretend we matched 'bar'
+             /;
+    say $();                      # says 'bar'
 
 =back
 
