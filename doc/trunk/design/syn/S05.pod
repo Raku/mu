@@ -639,11 +639,16 @@ A leading C<(> indicates the start of a result capture:
 
 is equivalent to:
 
-    / <before foo> \d+ <after bar> /
+    / <after foo> \d+ <before bar> /
 
 except that the scan for "foo" can be done in the forward direction,
-when a lookbehind assertion would scan for \d+ and then match "foo"
-backwards.
+while a lookbehind assertion would presumably scan for \d+ and then
+match "foo" backwards.  The use of C<< <(...)> >> affects only the
+meaning of the "result object" and the positions of the beginning and
+ending of the match.  That is, after the match above, C<$()> contains
+only the digits matched, and C<.pos> is pointing to after the digits.
+Other captures (named or numbered) are unaffected and may be accessed
+through C<$/>.
 
 =item *
 
