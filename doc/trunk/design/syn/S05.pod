@@ -1115,17 +1115,17 @@ you can override that by calling C<return> inside a rule:
 
     my $moose = m:{
         <antler> <body>
-        { return Moose.new( body => $<body>.attach(:$<antler>) ) }
+        { return Moose.new( body => $<body>().attach($<antler>()) ) }
         # match succeeds -- ignore the rest of the rule
     }.();
 
 C<$()> is a shorthand for C<$/.()> or C<$/()>.  The result object
-may contain any object, not just a string.
+may be of any type, not just a string.
 
 You may also capture a subset of the match as the result object using
 the C<< <(...)> construct:
 
-    "foo123bar" ~~ / foo <( \d+ \> bar /
+    "foo123bar" ~~ / foo <( \d+ )> bar /
     say $();    # says 123
 
 In this case the result object is always a string when doing string
