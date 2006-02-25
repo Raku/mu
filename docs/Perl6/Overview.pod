@@ -247,6 +247,106 @@ L<perlreftut>, L<perllol>, L<perlref> and L<perldsc>.
 
 =head2 Conditional and looping constructs
 
+Perl has most of the usual conditional and looping constructs.
+The are usually written as I<construct-name> I<condition> { ... }
+
+The conditions can be any Perl expression.  See the list of operators in
+the next section for information on comparison and boolean logic operators, 
+which are commonly used in conditional statements.
+
+=over 4
+
+=item if
+
+    if condition {
+        ...
+    } elsif ( other condition ) {
+        ...
+    } else {
+        ...
+    }
+
+There's also a negated version of it:
+
+    unless condition {
+        ...
+    }
+
+This is provided as a more readable version of C<if not I<condition>>.
+
+C<...> is the "yada yada yada" operator.
+It is used as a place holder, which prints out a warning if executed.
+
+Note that the braces are required in Perl, even if you've only got one
+line in the block. However, there is a clever way of making your one-line
+conditional blocks more English like:
+
+    # the traditional way
+    if $zippy {
+        print "Yow!";
+    }
+
+    # the Perlish post-condition way
+    print "Yow!" if $zippy;
+    print "We have no bananas" unless $bananas;
+
+=item while
+
+    while condition {
+        ...
+    }
+
+There's also a negated version, for the same reason we have C<unless>:
+
+    until condition {
+        ...
+    }
+
+You can also use C<while> in a post-condition:
+
+    print "LA LA LA\n" while 1;          # loops forever
+
+=item loop 
+
+The C<loop> functions exactly like the C's <for> 
+It is rarely needed in Perl since Perl provides
+the more friendly list scanning C<for>.
+
+    loop (my $i=0; $i <= $max; $i++) {
+        ...
+    }
+
+Can be expressed like:
+
+    my $i=0;
+    while($i <= $max; ) {
+        ...;
+	$i++;
+    }
+
+If you want to create a neverending loop use C<loop> without
+any arguments
+
+    loop {
+	... 
+    }
+
+
+=item for
+
+    for @array {
+        print "This element is $_\n";
+    }
+
+    # you don't have to use the default $_ either...
+    for %hash.keys -> $key {
+        print "The value of $key is %hash{$key}\n";
+    }
+
+=back
+
+
+
 =head2 Built-in operators and functions
 
 =head2 Regular expressions
