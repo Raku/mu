@@ -4,7 +4,7 @@ use Test;
 
 =head1 DESCRIPTION
 
-Tests for macros which return CODE but do not do splicing
+Tests for macros which return q:code but do not do splicing
 
 See L<S06/"Macros">.
 
@@ -14,7 +14,7 @@ plan 4;
 
 macro four () { q:code { 2+2 } } 
 
-is(four, 4, "macro returning CODE");
+is(four, 4, "macro returning q:code");
 
 macro hi () { q:code(:COMPILING) { "hello $s" } } 
 
