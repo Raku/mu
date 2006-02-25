@@ -436,7 +436,7 @@ These Perl 6 packages implement Rosetta Engine classes:
 L<Rosetta::Engine::Example>.
 
 These Perl 6 packages are the initial main dependents of Rosetta:
-L<Rosetta::Emulator::DBI>.
+L<Rosetta::Shell>.
 
 =head1 BUGS AND LIMITATIONS
 
