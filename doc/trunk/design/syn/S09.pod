@@ -503,30 +503,30 @@ The results of these separate calls are then recombined into a
 single junction of the same species as the junctive argument.
 If two or more arguments are junctive, then the argument that is
 chosen to be "autothreaded" is:
-									    
+
 =over
-									    
+
 =item *
-									    
+
 the left-most conjunction or injunction (if any), or else
-									    
+
 =item *
-									    
+
 the left-most abjunction or disjunction
-									    
+
 =back
-									    
+
 with the tests applied in that order.
-									    
+
 Each of the resulting set of calls is then recursively autothreaded
 until no more junctive arguments remain. That is:
-									    
+
        substr("camel", 0|1, 2&3)
-									    
+
     -> all( substr("camel", 0|1, 2),      # autothread the conjunctive arg
 	    substr("camel", 0|1, 3)
 	  )
-									    
+
     -> all( any( substr("camel", 0, 2),   # autothread the disjunctive arg
 		 substr("camel", 1, 2),
 	       ),
@@ -534,14 +534,14 @@ until no more junctive arguments remain. That is:
 		 substr("camel", 1, 3),
 	       )
 	  )
-									    
+
     -> all( any( "ca",                    # evaluate
 		 "am",
 	       ),
 	    any( "cam",
 		 "ame",
 	       )
-									    
+
     -> ("ca"|"am") & ("cam"|"ame")        # recombine results in junctions
 
 Junctions passed as part of a container do not cause autothreading

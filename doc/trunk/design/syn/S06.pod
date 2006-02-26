@@ -191,7 +191,7 @@ An lvalue subroutine may return a variable:
 
     my $lastval;
     sub lastval () is rw { return $lastval }
- 
+
 or the result of some nested call to an lvalue subroutine:
 
     sub prevval () is rw { return lastval() }
@@ -634,7 +634,7 @@ You can't bind to the name of a slurpy parameter: the name is just there
 so you can refer to it within the body. 
 
     sub foo(*%flag, *@data) {...}
-    
+
     foo(:flag{ a => 1 }, :data[ 1, 2, 3 ]);
         # %flag has elements (flag => (a => 1)) and (data => [1,2,3])
         # @data has nothing
@@ -1027,9 +1027,9 @@ as named parameters within curlies.  Instead of saying:
         my $addr := delete %guest_data<addr>;
         ...
     }
-                                                                                
+
 you can get the same effect with:
-                                                                                
+
     sub register ({:$name, :$addr, *%guest_data}, $room_num) {
         ...
     }

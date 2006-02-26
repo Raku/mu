@@ -1123,7 +1123,7 @@ C<$()> is a shorthand for C<$/.()> or C<$/()>.  The result object
 may be of any type, not just a string.
 
 You may also capture a subset of the match as the result object using
-the C<< <(...)> construct:
+the C<< <(...)> >> construct:
 
     "foo123bar" ~~ / foo <( \d+ )> bar /
     say $();    # says 123

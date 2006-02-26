@@ -1175,11 +1175,11 @@ bind or assign to the container.
 
     subset Str_not2b of Str where /^[isnt|arent|amnot|aint]$/;
     subset EvenNum   of Num where { $^n % 2 == 0 }
-									    
+
     my Str_not2b $hamlet;
     $hamlet = 'isnt';   # Okay because 'isnt' ~~ /^[isnt|arent|amnot|aint]$/
     $hamlet = 'amnt';   # Bzzzzzzzt!   'amnt' !~ /^[isnt|arent|amnot|aint]$/
-									    
+
     my EvenNum $n;
     $n = 2;             # Okay
     $n = -2;            # Okay
@@ -1213,7 +1213,7 @@ Subtype constraints are used as tiebreakers in multiple dispatch:
 	$mesg ~~ s:g/<profanity>/[expletive deleted]/;
 	print $MESG_LOG: $mesg;
     }
-									    
+
     multi sub mesg ($mesg of Str) {
 	print $MESG_LOG: $mesg;
     }

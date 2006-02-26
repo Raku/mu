@@ -678,7 +678,7 @@ get a syntax error when you say:
 
     print if $foo
 
-since C<< prefix:<if>> > would hide C<< statement_modifier:<if> >>.
+since C<< prefix:<if> >> would hide C<< statement_modifier:<if> >>.
 
 =head1 Smart matching
 
