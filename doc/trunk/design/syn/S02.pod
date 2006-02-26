@@ -240,6 +240,8 @@ serving as a buffer.
 
 =head1 Names and Variables
 
+=over 4
+
 =item *
 
 The C<$pkg'var> syntax is dead.  Use C<$pkg::var> instead.
@@ -549,11 +551,26 @@ Package names are searched for from inner lexical scopes to outer,
 then from inner packages to outer.  Variable names are searched
 for from inner lexical scopes to outer, but unlike package names
 are looked for in only the current package and the global package.
+
 The global namespace is the last place it looks in either case.
 You must use the C<*> (or C<GLOBAL>) package on the front of the
 string argument to force the search to start in the global namespace.
-Use the C<MY> pseudopackage to limit the scopes to lexical, and C<OUR>
-to limit the scopes to package.
+
+Use the C<MY> pseudopackage to limit the lookup to the current lexical
+scope, and C<OUR> to limit the scopes to the current package scope.
+
+=item *
+
+When "strict" is in effect (which is the default except for one-liners),
+non-qualified variables (such as C<$x> and C<@y>) are only looked up from
+lexical scopes, but never from package scopes.
+
+To bind package variables into a lexical scope, simply say C<our ($x, @y)>.
+To bind global variables into a lexical scope, predeclare them with C<use>:
+
+    use GLOBAL <$IN $OUT>;
+
+Or just refer to them as C<$*IN> and C<$*OUT>.
 
 =item *
 
