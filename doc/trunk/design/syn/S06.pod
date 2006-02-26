@@ -1865,7 +1865,7 @@ In aid of returning syntax tree, Perl provides a "quasiquoting"
 mechanism using the quote C<q:code>, followed by a block intended to
 represent an AST:
 
-    return q:code { say $a };
+    return q:code { say "foo" };
 
 Modifiers to the C<:code> adverb can modify the operation:
 
@@ -1873,11 +1873,42 @@ Modifiers to the C<:code> adverb can modify the operation:
     :lang(Ruby)		# Default :lang($?PARSER)
     :unquote<[: :]>	# Default "triple rule"
 
-Within a quasiquote, variable and function names resolve first of
-all according to the lexical scope of the macro definition, and if
-unrecognized in that scope, are assumed to be bound from the scope
-of the macro call each time it is called.  If they cannot be bound
-from the scope of the macro call, a compile-time exception is thrown.
+Within a quasiquote, variable and function names resolve according
+to the lexical scope of the macro definition.  Unrecognized symbols raise
+errors when the macro is being compiled, I<not> when it's being used.
+
+To make a symbol resolve to the (partially compiled) scope of the macro
+call, use the C<COMPILING::> pseudo-package:
+
+    macro moose () { q:code { $COMPILING::x } }
+
+    moose(); # macro-call-time error
+    my $x;
+    moose(); # resolves to 'my $x'
+
+If you want to mention symbols from the scope of the macro call, use the
+import syntax as modifiers to C<:code>:
+
+    :COMPILING<$x>      # $x always refers to $x in caller's scope
+    :COMPILING          # All free variables fallback to caller's scope
+
+If those symbols do not exist in the scope of the compiling scope, a
+compile-time exception is thrown at macro call time.
+
+Similarly, in the macro body you may either refer to the C<$x> declared in the
+scope of the macro call as C<$COMPILING::x>, or bind to them explicitly:
+
+    my $x := $COMPILING::x;
+
+You may also use an import list to bind multiple symbols into the
+macro's lexical scope:
+
+    require COMPILING <$x $y $z>;
+
+Note that you need to use the run-time C<:=> and C<require> forms, not C<::=>
+and C<use>, because the macro caller's compile-time is the macro's runtime.
+
+=head2 Splicing
 
 Bare AST variables (such as the arguments to the macro) may not be
 spliced directly into a quasiquote because they would be taken as
