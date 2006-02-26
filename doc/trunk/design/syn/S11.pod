@@ -155,6 +155,21 @@ at runtime cannot import into the lexical scope:
     require Sense;
     Sense.import;   # goes to the OUR scope by default, not MY
 
+=head1 Importing from a pseudo-package
+
+You may also import symbols from the various pseudo-packages listed in S02.
+They behave as if all their symbols are in the C<:ALL> export list:
+
+    use GLOBAL <$IN $OUT $ERR>;
+    require CALLER <$x $y>;
+
+    # Same as:
+    #     my ($IN, $OUT, $ERR) ::= ($*IN, $*OUT, $*ERR)
+    #     my ($x, $y) := ($CALLER::x, $CALLER::y)
+
+As pseudo-packages are always already preloaded, C<use> and C<require> will
+never attempt to load, for example, C<GLOBAL.pm> from an external source.
+
 =head1 Versioning
 
 When at the top of a file you say something like
