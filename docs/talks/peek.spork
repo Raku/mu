@@ -24,6 +24,7 @@ Gaal Yahas
   sub foo {
       print 42, "\n";
   }
+
 ----
 == Warmup question
 
@@ -35,6 +36,7 @@ Gaal Yahas
   sub foo {
       print 42, "\n";
   }
+
 ----
 == Warmup question
 
@@ -46,6 +48,7 @@ Gaal Yahas
   sub foo {
       print 42, "\n";
   }
+
 ----
 == Warmup question
 
@@ -61,6 +64,7 @@ Gaal Yahas
                          # main.p5
                          use A;
                          use B;
+
 ----
 == Warmup question
 
@@ -76,8 +80,9 @@ Gaal Yahas
                          # main.p6
                          use A;
                          use B;
+
 ----
-Up to around r8300:
+Up to r8288:
 
   ./pugs test.pl
 +  42
@@ -85,17 +90,19 @@ Up to around r8300:
   at B.pm line 5, column 1-6
 
 +* What went wrong?
+
 ----
-* `use Foo` in Perl 5 means:
+* `use MyMod` in Perl 5 means:
 
 .vim
 filetype: perl
-BEGIN { require Foo; Foo->import }
+BEGIN { require MyMod; MyMod->import }
 .vim
 
-* the minute the parser sees "use Foo", it should load Foo, compile it, and run its `import` routine
-+* `use` is a /digression/ in the caller's compilation
+* the minute the parser sees "use MyMod", it should load MyMod, compile it, and run its `import` routine
+* `use` is a /digression/ in the caller's compilation
 +* BEGIN is a powerful but weird tool: the compiler and the evaluator intermix.
+
 ----
 == Perl 6 version
 
@@ -104,23 +111,134 @@ BEGIN { require Foo; Foo->import }
 * This is much nicer for the programmer than @EXPORT stuff
 
 +* But is more work for the language implementor
+
 ----
 == Hackaround
 
-* load module Foo when it is first used
+* load module MyMod when it is first used
 
 * at parse time, push `is export` routines into the caller's namespace immediately
 
-* /obviously/ broken, because Foo.pm only gets parsed once
+* /obviously/ broken, because MyMod.pm only gets parsed once
+
+----
+== Bleargh!
+
+* Don't get the impression that Pugs is a pile of mud because of this "feature".
+
+* To do it right, we'd need to support lexical import, which is a new feature in Perl 6
+
+* A deliberate makeshift that let us act as users of Perl would before we had that much of perl available.
+
+* Good enough in many cases 
+** for example, writing 8,000 tests for /other/ things!
+
++* But the fact that it don't work don't mean it don't need no fixing
 
 .c
-You should not get the impression that Pugs is a pile of mud
-because of this feature. It was a deliberate makeshift that let us act
-as users of Perl would, before we had that much of perl available. In many
-cases this sufficed (for example, writing 8,000 tests for other things!),
-although of course this won't stand in a real application.
+
+The way import works in Perl 6 is actually much more clever than Perl 5;
+you can say `{ use MyMod }` and not see the the effect of the use outside
+the braces. This is known as lexical import (or export -- depending on
+whose perspective you take).
+
 .c
 ----
+== Okay, but what's the fix?
+.vim
+filetype: perl
+BEGIN { require MyMod; MyMod->import }
+.vim
+
++* At parse time, make a note about what MyMod is willing to export
+
++* Perform the export when somebody uses it
+----
+== `[patch]`
+.vim
+filetype: diff
+-            unsafeEvalExp $ mkSym nameExported
+.vim
++.vim
+filetype: diff
++            -- %*INC<This::Package><exports><&this_sub> = expression-binding-&this_sub
++            unsafeEvalExp $
++                Syn "=" [Syn "{}" [Syn "{}" [Syn "{}"
++                        [Var "%*INC", Val $ VStr pkg], Val (VStr "exports")], Val $ VStr
+name]
++                    , Val sub]
+.vim
+
++* Don't freak out! We're going to understand how this works.
+
+----
+== Pugs AST
+.vim
+filetype: perl6
+if 42 { say "hello" } else { say "oh no!" }
+.vim
++
+{image: gaal_no_ann.png 640}
+* An /abstract syntax tree/ is a structure representing the parsed program
++* Each implementation picks the types of nodes it carries
+** In practice, the language drives the implementation choices
+** together with the implementor's emphasis (speed, education...)
+.c
+Why does `42` parse as `Val (VInt 42)`, and not just `42`? Because an
+`if` can take any expression as the condition; this one just happens
+to be a value. And Perl distinguishes between different types of
+values, so this is an integer and not, say a sting.
+
+If I had a more complex condition here, we'd just look at a more complex
+AST for this.
+.c
+----
+== Pugs AST (with annotations)
+.vim
+filetype: perl6
+if 42 { say "hello" } else { say "oh no!" }
+.vim
+{image: gaal_with_ann.png 900}
+----
+== Pugs AST
+.vim
+filetype: haskell
+data Exp
+    = Noop
+    | FunctionApplication Exp (Maybe Exp) [Exp]
+
+    | Syntax String [Exp]
+
+    | Symbol Scope Var Exp
+    | Statements Exp Exp
+    | Value Val
+    | Variable Var
+.vim
+.c
+This isn't really how write this, because we like to golf.
+"Annotation" is one variant of `Exp`, which contains an Ann and an Exp.
+`Ann` is another data type defined elsewhere, and haskell does not confuse
+a variant (called "constructor") with names of data types, so we abbreviate
+and write "Ann" in both places.
+.c
+----
+== Pugs AST
+.vim
+filetype: haskell
+data Exp
+    = Noop                              -- ^ No-op
+    | App !Exp !(Maybe Exp) ![Exp]      -- ^ Function application
+                                        --     e.g. myfun($invocant: $arg)
+    | Syn !String ![Exp]                -- ^ Syntactic construct that cannot
+                                        --     be represented by 'App'.
+    | Sym !Scope !Var !Exp              -- ^ Symbol declaration
+    | Stmts !Exp !Exp                   -- ^ Multiple statements
+    | Val !Val                          -- ^ Value
+    | Var !Var                          -- ^ Variable
+.vim
+.c
+This is how it appears in the Pugs tree (this week)
+.c
 == Classic compilation
 
 [[ XXX: graphic: source -> [parsing] => parse tree -> [codegen] -> | object file -> [linking] -> executable ]]
@@ -265,79 +383,7 @@ filetype: haskell
 .c
 And to understand these, we need to digress and talk about the AST.
 .c
-----
-== Pugs AST
-{image: gaal_no_ann.png 640}
-.vim
-filetype: perl6
-if 42 { say "hello" } else { say "oh no!" }
-.vim
-* An /abstract syntax tree/ is a structure representing the parsed program
-+* Each implementation picks the types of nodes it carries
-** In practice, the language drives the implementation choices
-** together with the implementor's emphasis (speed, education...)
-.c
-Why does `42` parse as `Val (VInt 42)`, and not just `42`? Because an
-`if` can take any expression as the condition; this one just happens
-to be a value. And Perl distinguishes between different types of
-values, so this is an integer and not, say a sting.
 
-If I had a more complex condition here, we'd just look at a more complex
-AST for this.
-.c
-----
-== Pugs AST (with annotations)
-.vim
-filetype: perl6
-if 42 { say "hello" } else { say "oh no!" }
-.vim
-{image: gaal_with_ann.png 900}
-----
-== Pugs AST
-.vim
-filetype: haskell
-data Exp
-    = Noop
-    | FunctionApplication Exp (Maybe Exp) [Exp]
-
-    | Syntax String [Exp]
-
-    | Annotation Ann Exp
-    | Symbol Scope Var Exp
-    | Statements Exp Exp
-    | Primitive ([Val] -> Eval Val)
-    | Value Val
-    | Variable Var
-    | NonTerm Pos
-.vim
-.c
-This isn't really how write this, because we like to golf.
-"Annotation" is one variant of `Exp`, which contains an Ann and an Exp.
-`Ann` is another data type defined elsewhere, and haskell does not confuse
-a variant (called "constructor") with names of data types, so we abbreviate
-and write "Ann" in both places.
-.c
-----
-== Pugs AST
-.vim
-filetype: haskell
-data Exp
-    = Noop                              -- ^ No-op
-    | App !Exp !(Maybe Exp) ![Exp]      -- ^ Function application
-                                        --     e.g. myfun($invocant: $arg)
-    | Syn !String ![Exp]                -- ^ Syntactic construct that cannot
-                                        --     be represented by 'App'.
-    | Ann !Ann !Exp                     -- ^ Annotation (see @Ann@)
-    | Sym !Scope !Var !Exp              -- ^ Symbol declaration
-    | Stmts !Exp !Exp                   -- ^ Multiple statements
-    | Prim !([Val] -> Eval Val)         -- ^ Primitive
-    | Val !Val                          -- ^ Value
-    | Var !Var                          -- ^ Variable
-    | NonTerm !Pos                      -- ^ Parse error
-.vim
-.c
-This is how it appears in the Pugs tree (this week)
-.c
 ----
 == Many happy returns
 .vim
@@ -357,7 +403,7 @@ ruleHashSubscriptBraces = do
 .vim
 filetype: haskell
 undefLiteral :: RuleParser Exp
-undefLiteral = try $ do
+undefLiteral = do
     symbol "undef"
         return $ Val VUndef
 .vim
