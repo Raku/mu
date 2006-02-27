@@ -16,7 +16,7 @@ All changes made here will be lost!
 -- WARNING WARNING WARNING --
 -}
 
-
+#ifndef HADDOCK
 
 
 
@@ -703,3 +703,5 @@ instance JSON Val where
 --  Imported from other files :-
 
 type Str = Str.FastString
+
+#endif

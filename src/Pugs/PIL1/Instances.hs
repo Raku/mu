@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fallow-overlapping-instances -fno-warn-orphans -fno-warn-incomplete-patterns -fallow-undecidable-instances #-}
+{-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fallow-overlapping-instances -fno-warn-orphans -fno-warn-incomplete-patterns -fallow-undecidable-instances -cpp #-}
 
 
 
@@ -15,7 +15,7 @@ All changes made here will be lost!
 -- WARNING WARNING WARNING --
 -}
 
-
+#ifndef HADDOCK
 
 
 
@@ -369,3 +369,5 @@ instance YAML TEnv where
 --  Imported from other files :-
 
 type Str = Str.FastString
+
+#endif

@@ -15,7 +15,7 @@ All changes made here will be lost!
 -- WARNING WARNING WARNING --
 -}
 
-
+#ifndef HADDOCK
 
 
 
@@ -319,3 +319,5 @@ instance YAML ArgFlag where
 --  Imported from other files :-
 
 type Str = Str.FastString
+
+#endif
