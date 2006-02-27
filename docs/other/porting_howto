@@ -13,11 +13,17 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
 
   - Often, the translation of P5 -> P6 is quite mechanic:
     - $array[idx] -> @array[idx]
+    - @array[1,2,3] -> @array[1,2,3]
+    - $hash{$key} -> %hash{$key}
+    - $hash{word} -> %hash<word>
+    - @hash{'a','b','c'} -> %hash<a b c>
+    - "@array" -> "@array[]"
+    - "%hash" -> "%hash{}"
     - scalar @foo -> +@foo # or @foo.elems
     - a ? b : c -> a ?? b !! c
-    - $self->method(...) -> .method(...)
+    - $self->method(...) -> self.method(...) or $.method(...), @.method(...)...
     - sub { my ($self, $a, $b) = @_; ... } ->
-      method($a, $b) { ... }
+      method ($a, $b) { ... }
     - $x =~ s/.../.../g -> $x ~~ s:P5:g/.../.../
     - $self->{foo} -> $.foo
     - $foo = "bar" unless defined $foo ->
@@ -37,7 +43,9 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
 
       [abc]             -> <[abc]>
       [^abc]            -> <-[abc]>
+      [abc ]            -> <[ abc\ ]>               # ws meta in <[...]> too
       (?:...)           -> [...]
+      <  >              -> \<  \>
 
       \p{prop}          -> <prop>
       \P{prop}          -> <-prop>
@@ -54,6 +62,8 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
       \r?\n             -> \n                       # logical newline
       [^\n]             -> \N                       # not a logical newline
                            \C[LF]                   # not a linefeed
+      .                 -> \N                       # no /s
+      .                 -> .                        # /s
 
       \G                -> <( .pos == $oldpos )>
                            m:p/pat/
@@ -72,6 +82,8 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
 
       \1                -> $1
       /$1/              -> my $old1 = $1; /$old1/
+      //                -> /<null>/ or /<prior>/
+      /a|/              -> /a|<null>/
 
       \C                -> [:bytes .]               # forced byte in UTF-8 (not
                                                     # recommended)
@@ -79,29 +91,42 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
                            [:graphs .]
 
       x{2}              -> x**{2}
-      x{1,2}            -> x**{1,2}
-      x{1,2}?           -> x**{1,2}?
+      x{2,}             -> x**{2...}
+      x{1,2}            -> x**{1..2}
+      x{1,2}?           -> x**{1..2}?
 
-      (?=foo)           -> <before foo>
+      (?=foo)           -> <?before foo>
       (?!foo)           -> <!before foo>
-      (?<=foo)          -> <after foo>
+      (?<=foo)          -> <?after foo>
       (?<!foo)          -> <!after foo>
+
+      (?{...})          -> {...}
+      (??{...})         -> <{...}>
+
+      (?>\d*)           \d*:                    # single atom no backtrack
+      (?>(\d*))         (\d*):                  # () is still single atom
+      (?>...)           [...]:                  # multiple atoms need []
+
+      (?(c)t|f)         [ c :: t | f ]
 
       s/foo/bar()/e     -> s/foo/{ bar() }/
       m/^foo$/s         -> m/^foo$/
       m/^foo$/m         -> m/^^foo$$/
       m?foo?            -> m:once/foo/
 
-  - split(m/;/, @foo) -> split(/;/, @foo) # notice: no m
+  - split(m/;/, $foo) -> split(/;/, $foo) # notice: no m
     m// now works immediately, so:
-        split(m/;/, @foo);
+        split(m/;/, $foo);
     would use the return value of the match (on the implicit $_) as the
     delimiter.
   - Or, if you don't want to split on a regular expression:
-    split(m/;/, @foo) -> split(";", @foo)
+    split(m/;/, $foo) -> split(";", $foo)
+
+  - split(' ', $foo) -> words($foo) or $foo.words or «$foo»
 
   - Heredocs:
       <<END    -> qq:to/END/
+      <<"END"  -> qq:to/END/
       <<'END'  ->  q:to/END/
 
   - You can normally remove all that Perl 5 argument parsing and simply replace
@@ -156,7 +181,7 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
     also use:
     has $.foo is rw;
   - Or:
-    subtype OddInt of Int where { $^n % 2 == 1 }
+    subset OddInt of Int where { $^n % 2 == 1 }
     has OddInt $.foo is rw;
     # And then:
     $obj.foo = 12; # will die
@@ -176,6 +201,10 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
         my @bar = (1, 2, 3, 4);
         my $foo = @bar;
         $foo.elems; # == 4 (@bar.elems)
+    but
+        tied($x)->foo -> variable($x).foo
+    also non-scalar container objects are accessed directly:
+        @bar.elems
 
   - When calling a method, parentheses are required on the dot notation if 
     there are any arguments. There may be no space between the method name 
@@ -185,6 +214,8 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
         .doit ()    # ILLEGAL (two terms in a row)
         .doit.()    # okay, no arguments, same as .doit()
         .doit .()   # okay, no arguments, same as .doit()
+    But a colon may stand in for a left paren with no corresponding right:
+        .doit: 1,2,3 # okay
 
   - Subroutine/method/array/hash access: whitespace is disallowed
     between the name and the opening brace. The "dot form" can be used
@@ -217,12 +248,19 @@ Mini HowTo: How to port Perl 5 modules to Perl 6
 
        mixing them does not work yet
 
-       open(FH, $filename)     ->  ??? 
+       open(FH, $filename)     ->  our $fh = open($filename) 
+                                    my $fh = open($filename) 
+                                and possibly:
+                                    sub FH () { $fh }
+                                    macro FH () { q:code { $fh } }
+                                but $fh generally preferred
 
    - print to file
        print $fh "Hello\n";    -> print $fh, "Hello\n";   # adding the comma
                                   or
                                -> $fh.print("Hello\n");
+                               -> $fh.print: "Hello\n";
+                               -> print $fh: "Hello\n";
 
    - close the file
      close($fh);               -> the same or $fh.close;
