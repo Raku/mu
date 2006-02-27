@@ -72,16 +72,17 @@ import Data.Yaml.Syck
         ::?MY       -- current lexical scope
         ::?OUR      -- current package scope
         Symbol resolution (static vs dynamic lookup) is to be done at
-        pass-1 for PIL2.  The "&say" below is _definitely_ dynamic.
-        Or is it?  Why?  Because @Larry mandates "multi &*say" instead
+        pass-1 for PIL2.  The '&say' below is _definitely_ dynamic.
+        Or is it?  Why?  Because @\@Larry@ mandates 'multi &*say' instead
         of a more restricted form of ::* as a default lexical scope
         that closes over the toplevel program.  Maybe pursue a ruling
         toward the more static definition, otherwise all builtins become
         _slower_ to infer than userdefined code, which is Just Not Right.
 
-    -- String construction -- handled like perl5 using overload qq""?
-       Ask @Larry for ruling over constant creation and propagation rules.
-       (probably "use a macro if you'd like to change")
+    -- String construction -- handled like perl5 using string overloading
+
+       Ask @\@Larry@ for ruling over constant creation and propagation rules.
+       (probably: use a macro if you'd like to change)
        so, safe to assume a prim form in PIL level.
 
     -- We _really_ need a quasiquoting notation for macro generation;

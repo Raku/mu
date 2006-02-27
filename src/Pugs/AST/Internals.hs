@@ -733,7 +733,7 @@ type VBlock = Exp
 data VControl
     = ControlExit  !ExitCode
     | ControlEnv   !Env
- -- | ControlLeave !(Env -> Eval Bool) !Val
+-- \| ControlLeave !(Env -> Eval Bool) !Val
     deriving (Show, Eq, Ord, Typeable) -- don't derive YAML for now
 
 {-|
