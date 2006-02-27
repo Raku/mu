@@ -115,13 +115,13 @@ sub pugs_fix_makefile {
 
     if ($Config{osname} eq q{cygwin}) {
 
-		# The world's ugliest cygwin variable gives us a hint to the
-		# cygwin root.  There is probably a better way to find this.
-		# (registry lookup?)
+        # The world's ugliest cygwin variable gives us a hint to the
+        # cygwin root.  There is probably a better way to find this.
+        # (registry lookup?)
 
-		my $cygroot = $ENV{'!C:'};
+        my $cygroot = $ENV{'!C:'};
 
-		$cygroot =~ s{\\bin$}{};
+        $cygroot =~ s{\\bin$}{};
 
         $full_blib .= join(q{}, q{:}, $cygroot, $full_blib)
     }
@@ -189,7 +189,9 @@ sub assert_ghc {
         # Looks like we're on a Windows-ish system, without GHC
         # in our path.   Let's hunt around for it.
 
-        my $ghc_root = "$ENV{SYSTEMDRIVE}/ghc";
+        my $slash = ( $Config{osname} eq "cygwin" ) ? '/' : '\\';
+
+        my $ghc_root = "$ENV{SYSTEMDRIVE}${slash}ghc";
 
         warn "*** ghc not found in path.  Looking in $ghc_root\n";
 
@@ -199,11 +201,11 @@ sub assert_ghc {
 
             my @ghc_choices = sort {
                 _normalize_version($b) cmp _normalize_version($a)
-            } glob(qq{$ghc_root/ghc-*});
+            } glob(qq/$ghc_root${slash}ghc-*/);
 
             GHC_TEST:
             for my $ghc_dir (@ghc_choices) {
-                my $ghc_candidate = qq{$ghc_dir/bin/ghc.exe};
+                my $ghc_candidate = qq/${ghc_dir}${slash}bin${slash}ghc.exe/;
                 if ($ghc_version = $test_ghc_ver->($ghc_candidate)) {
                     $ghc = $ghc_candidate;
                     warn "*** Found $ghc\n";

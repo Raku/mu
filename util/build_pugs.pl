@@ -106,9 +106,9 @@ sub build_lib {
             die "*** Wasn't able to find '$basename', aborting...\n";
         }
 
-	unless( File::Spec->canonpath($candidates[0]) eq $target ) {
-	    copy($candidates[0] => $target);
-	}
+    unless( File::Spec->canonpath($candidates[0]) eq $target ) {
+        copy($candidates[0] => $target);
+    }
 
         system($ar, r => $a_file, "dist/build/src/$pathname");
     };
