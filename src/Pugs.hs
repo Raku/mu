@@ -345,8 +345,8 @@ doRunSingle menv opts prog = (`catch` handler) $ do
         else print
     makeProper exp = case exp of
         Val err@(VError (VStr msg) _)
-            | runOptShowPretty opts -> do
---          , "\nunexpected end of input" `isPrefixOf` msg -> do
+            | runOptShowPretty opts
+            , all (/= "expecting program") (lines msg) -> do
             cont <- readline "....> "
             case cont of
                 Just line   -> do
