@@ -55,7 +55,7 @@ ruleBlock = lexeme ruleVerbatimBlock
 
 ruleVerbatimBlock :: RuleParser Exp
 ruleVerbatimBlock = verbatimRule "block" $ do
-    body <- between (symbol "{") (char '}') ruleBlockBody
+    body <- verbatimBraces ruleBlockBody
     retSyn "block" [body]
 
 ruleEmptyExp :: RuleParser Exp
@@ -322,7 +322,7 @@ rulePackageBlockDeclaration = rule "package block declaration" $ do
         rv <- rulePackageHead
         lookAhead (char '{')
         return rv
-    body <- between (symbol "{") (char '}') ruleBlockBody
+    body <- verbatimBraces ruleBlockBody
     env' <- getRuleEnv
     putRuleEnv env'{ envPackage = envPackage env }
     return $ Syn "namespace" [kind, pkgVal, body]
@@ -979,7 +979,7 @@ ruleDoBlock = rule "do block" $ try $ do
     symbol "do"
     choice
         -- do { STMTS }
-        [ try $ between (symbol "{") (char '}') ruleBlockBody
+        [ try $ verbatimBraces ruleBlockBody
         -- do STMTS
         , ruleBlockDeclaration
         , ruleDeclaration
@@ -1030,8 +1030,9 @@ ruleClosureTrait rhs = rule "closure trait" $ do
 {-| Match a @q:code { ... }@ quotation -}
 ruleCodeQuotation :: RuleParser Exp
 ruleCodeQuotation = rule "code quotation" $ do
-    name    <- try $ symbol "q:code"
-    body    <- between (symbol "{") (char '}') ruleBlockBody
+    -- XXX - This is entirely kluge
+    symbol "q:code" >> optional (symbol "(:COMPILING)")
+    body <- verbatimBraces ruleBlockBody
     return $ Syn "q:code" [ body ]
 
 {-| Wraps a call to @&Pugs::Internals::check_for_io_leak@ around the input
@@ -1522,7 +1523,7 @@ ruleHashSubscript = tryVerbatimRule "hash subscript" $ do
 
 ruleHashSubscriptBraces :: RuleParser (Exp -> Exp)
 ruleHashSubscriptBraces = do
-    between (symbol "{") (char '}') $ option id $ do
+    verbatimBraces $ option id $ do
         exp <- ruleExpression; return $ \x -> Syn "{}" [x, exp]
 
 ruleHashSubscriptQW :: RuleParser (Exp -> Exp)
