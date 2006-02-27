@@ -70,7 +70,7 @@ All changes made here will be lost!
 -- WARNING WARNING WARNING --
 -}
 
-
+#ifndef HADDOCK
 
 
 
@@ -128,6 +128,8 @@ print OUT @program;
 print OUT <<".";
 
 type Str = Str.FastString
+
+#endif
 .
 close OUT;
 
