@@ -165,9 +165,9 @@ gatherArgs (x:xs)                  = [File x] ++ gatherArgs(xs)
 desugarDashE :: [Arg] -> [Arg]
 desugarDashE [] = []
 desugarDashE ((Switch 'p'):args) = desugarDashE $
-    (Opt "-e" "env $_; while ($_ = =<>) { $_ = chomp($_);" : args) ++ [Opt "-e" "; say $_; }"]
+    (Opt "-e" "env $_; while (defined($_ = =<>)) { " : args) ++ [Opt "-e" "; say $_; }"]
 desugarDashE ((Switch 'n'):args) = desugarDashE $
-    (Opt "-e" "env $_; while ($_ = =<>) { $_ = chomp($_);" : args) ++ [Opt "-e" "}"]
+    (Opt "-e" "env $_; while (defined($_ = =<>)) { " : args) ++ [Opt "-e" "}"]
 
 -- -E is like -e, but not accessible as a normal parameter and used only
 -- internally:
