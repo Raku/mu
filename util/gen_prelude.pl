@@ -70,14 +70,19 @@ sub inline {
 module Pugs.Prelude where
 
 {-
+    Prelude bootstap. 
 
-Prelude bootstap. Contains a string with the Perl 6 code of the Prelude,
-to be evaluated when Pugs starts if a precompiled version of the same
-code is not found.
+>   The world was young, the mountains green,
+>   No stain yet on the Moon was seen,
+>   No words were laid on stream or stone,
+>   When Durin woke and walked along.
 
-Do not modify this file; it is generated automatically by util/gen_prelude.pl .
 -}
 
+----------------------------------------------------------------
+-- Do not modify this file; it is generated automatically by  --
+--                  util/gen_prelude.pl                       --
+----------------------------------------------------------------
 .
     print OUT qq<preludeStr = "$program"\n\n>;
     close OUT;
