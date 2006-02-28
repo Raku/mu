@@ -82,7 +82,7 @@ Gaal Yahas
                          use B;
 
 ----
-Up to r8288:
+== Up to r8288:
 
   ./pugs test.pl
 +  42
@@ -92,7 +92,7 @@ Up to r8288:
 +* What went wrong?
 
 ----
-* `use MyMod` in Perl 5 means:
+== `use MyMod` in Perl 5
 
 .vim
 filetype: perl
@@ -124,11 +124,11 @@ BEGIN { require MyMod; MyMod->import }
 ----
 == Bleargh!
 
-* Don't get the impression that Pugs is a pile of mud because of this "feature".
+* Don't get the impression that Pugs is a pile of mud because of this "feature"
 
 * To do it right, we'd need to support lexical import, which is a new feature in Perl 6
 
-* A deliberate makeshift that let us act as users of Perl would before we had that much of perl available.
+* A deliberate makeshift that let us act as users of Perl would before we had that much of perl available
 
 * Good enough in many cases 
 ** for example, writing 8,000 tests for /other/ things!
@@ -156,20 +156,66 @@ BEGIN { require MyMod; MyMod->import }
 ----
 == `[patch]`
 .vim
-filetype: diff
--            unsafeEvalExp $ mkSym nameExported
+filetype: haskell
+  -            unsafeEvalExp $ mkSym nameExported
 .vim
 +.vim
-filetype: diff
-+            -- %*INC<This::Package><exports><&this_sub> = expression-binding-&this_sub
-+            unsafeEvalExp $
-+                Syn "=" [Syn "{}" [Syn "{}" [Syn "{}"
-+                        [Var "%*INC", Val $ VStr pkg], Val (VStr "exports")], Val $ VStr
-name]
-+                    , Val sub]
+filetype: haskell
+  +            -- %*INC<This::Package><exports><&this_sub> = expression-binding-&this_sub
+  +            unsafeEvalExp $
+  +                Syn "=" [Syn "{}" [Syn "{}" [Syn "{}"
+  +                        [Var "%*INC", Val $ VStr pkg], Val (VStr "exports")], Val $ VStr name]
+  +                    , Val sub]
 .vim
 
 +* Don't freak out! We're going to understand how this works.
+
++* Look at the comment. We're running Perl 6 code in the parser, only in a funny way!
+
+----
+== Classic compilation
+{html:<img width="900" src="http://nothingmuch.woobling.org/gaal/compilation_flow_no_snip.png" />}
+
+* This is a typical description of how compilation works in a language like c
+
+----
+== Classic compilation
+{html:<img width="900" src="http://nothingmuch.woobling.org/gaal/compilation_flow_with_snip.png" />}
+
+* This is a typical description of how compilation works in a language like c
+
+* Some of that doesn't interest us right now.
+
+* Every language needs a parser
++** (except maybe LISP)
+
+----
+== Perl 5 model
+{html:<img width="900" src="http://nothingmuch.woobling.org/gaal/interpretation_flow.png" />}
+
+* The code we were looking at is in the parser itself
++* We could have done `eval $some_perl_code`, but that's slow
++* We could have used the internal API, but that's hard
++* Instead, express what you want to do in the same way the parser does it
+** Use ASTs
+** Whatever those are.
+
+.c
+
+This is probably the source of the confusion about calling Perl
+an interpreter: there's no storage for the result of the a parse
+that is kept outside of the evaluator (unless you're doing very
+fancy stuff). Unlike the strict definition of an interpreter,
+though, Perl does compile as much as it can straight off when it can. 
+
+...cgi -> fastcgi -> mod_perl
+...parser always available to support eval
+...btw did you know that the javac compiler is also available via a
+programmatic interface? And that you can load new classes at runtime?
+also available via a programmatic interface? And that you can load
+new classes at runtime?
+
+.c
 
 ----
 == Pugs AST
@@ -198,7 +244,7 @@ AST for this.
 filetype: perl6
 if 42 { say "hello" } else { say "oh no!" }
 .vim
-{image: gaal_with_ann.png 900}
+{html:<img name="img" id="img" width="900" src="images/gaal_with_ann.png" />}
 ----
 == Pugs AST
 .vim
@@ -209,7 +255,6 @@ data Exp
 
     | Syntax String [Exp]
 
-    | Symbol Scope Var Exp
     | Statements Exp Exp
     | Value Val
     | Variable Var
@@ -227,35 +272,21 @@ and write "Ann" in both places.
 filetype: haskell
 data Exp
     = Noop                              -- ^ No-op
-    | App !Exp !(Maybe Exp) ![Exp]      -- ^ Function application
+    | App Exp (Maybe Exp) [Exp]         -- ^ Function application
                                         --     e.g. myfun($invocant: $arg)
-    | Syn !String ![Exp]                -- ^ Syntactic construct that cannot
+    | Syn String [Exp]                  -- ^ Syntactic construct that cannot
                                         --     be represented by 'App'.
-    | Sym !Scope !Var !Exp              -- ^ Symbol declaration
-    | Stmts !Exp !Exp                   -- ^ Multiple statements
-    | Val !Val                          -- ^ Value
-    | Var !Var                          -- ^ Variable
+    | Stmts Exp Exp                     -- ^ Multiple statements
+    | Val Val                           -- ^ Value
+    | Var Var                           -- ^ Variable
 .vim
 .c
 This is how it appears in the Pugs tree (this week)
 .c
-== Classic compilation
-
-[[ XXX: graphic: source -> [parsing] => parse tree -> [codegen] -> | object file -> [linking] -> executable ]]
-
-----
-== Perl 5 model
-
-[[ XXX: graphic: source -> [parsing] => parse tree -> evaluator ]]
 
 .c
-This is probably the source of the confusion about calling Perl an interpreter: there's no storage for the result of the a parse that is kept outside of the evaluator (unless you're doing very fancy stuff). Unlike the strict definition of an interpreter, though, Perl does compile as much as it can straight off when it can. 
-...cgi -> fastcgi -> mod_perl
-...parser always available to support eval
-...btw did you know that the javac compiler is also available via a programmatic interface? And that you can load new classes at runtime?
- also available via a programmatic interface? And that you can load new classes at runtime?
-.c
-----
+ XXXXX elided
+  ----
 == Perl 6 model
 
 {image: http://pugs.blogs.com/photos/visiolization/simplecompilation.png 500}
@@ -265,9 +296,72 @@ This is probably the source of the confusion about calling Perl an interpreter: 
 +* uses simple parsing functions to compose smarter functions
 +* we'll get to the monad bit later
 
+.c
 ----
 == Simple example
+.vim
+filetype: haskell
+undefLiteral = do
+    symbol "undef"
+        return $ Val VUndef
+.vim
++* `symbol` is a Parsec builtin
++* it asserts the next symbol is a literal ("undef" in this case)
++* eats it up
++** and returns a small chunk of AST representing undef
 
+----
+== Another simple example
+.vim
+filetype: haskell
+ruleVerbatimBlock = verbatimRule "block" $ do
+    body <- between (symbol "{") (char '}') ruleBlockBody
+    Syn "block" [body]
+.vim
+
+* "to parse a verbatim block, look for a block body /between/ `{` and `}`"
++** `between A B C` is a Parsec function that looks for C between A and B
++** A, B, and C are themselves parsers/functions
++** `between` returns whatever C returns.
+
+----
+== More rules
+.vim
+filetype: haskell
+ruleStatement = do
+    exp <- ruleExpression
+    f <- option return $ choice
+        [ rulePostConditional
+        , rulePostLoop
+        , rulePostIterate
+        ]
+    f exp
+.vim
++* `say "OSDC was great" if $cakes.yummy`
+
++* `choice` means try out a few parsers
++** the first that matches wins, otherwise backtrack
++** if none succeeded, the `choice` fails
++* in this case, it's protected by an `option`, letting you provide a fallback
+
+----
+== Parsing `for`
+.vim
+filetype: haskell
+ruleForConstruct = rule "for construct" $ do
+    symbol "for"
+    list  <- maybeParens ruleExpression
+    optional ruleComma
+    block <- ruleBlockLiteral
+    retSyn "for" [list, block]
+.vim
+* `optional` means try something out
+* if it wasn't found, don't fail the current rule but don't consume anything
+* skip what did parse though
++* In Perl 5 regexps: `/(?:,)/`
+
+----
+== Brace yourself
 .vim
 filetype: perl
 my $car = %models{$wanted};
@@ -285,66 +379,8 @@ ruleHashSubscriptBraces = do
 
 +* Three lines is more than it'd take with a regexp...
 ** but it does a little more.
-----
-== Parsing with parsec - `between`
-.vim
-filetype: haskell
-ruleHashSubscriptBraces = do
-    between (symbol "{") (char '}') $ option id $ do
-        exp <- ruleExpression; return $ \x -> Syn "{}" [x, exp]
-.vim
+* We know some of this already
 
-* "to parse bracey hash subscripts, look for something between `{` and `}` ..."
-+** `between A B C` is a Parsec function that looks for C between A and B
-+** A, B, and C are themselves parsers/functions
-+** `between` returns whatever C returns.
-----
-== Parsing with parsec - `between` and below
-.vim
-filetype: haskell
-ruleHashSubscriptBraces = do
-    between (symbol "{") (char '}') $ option id $ do
-        exp <- ruleExpression; return $ \x -> Syn "{}" [x, exp]
-.vim
-
-* `symbol "{"` is a parser asserting the next symbol is `"{"`
-* `char '}'` is similar, only it does not consume whitespace after it
-
-+* What does "assert" mean here?
-** a rule never signals success explicitly, it just consumes input and returns the AST portion it represents
-+** failure is a lot like throwing an exception, caught by the /calling/ parsers, or triggering a full parsefail
-----
-== Parsing with parsec - our callers
-.vim
-filetype: haskell
-ruleHashSubscriptBraces = do
-    between (symbol "{") (char '}') $ option id $ do
-        exp <- ruleExpression; return $ \x -> Syn "{}" [x, exp]
-
--- The only caller of ruleHashSubscriptBraces in Pugs
-ruleHashSubscript = tryVerbatimRule "hash subscript" $ do
-    choice [ ruleHashSubscriptBraces, ruleHashSubscriptQW ]
-.vim
-
-.vim
-filetype: perl
-my $donald = %siblings{"charlie"};
-.vim
-
-+
-
-.vim
-filetype: perl
-my $donald = %siblings<charlie>;
-.vim
-
-* `choice`: If something is a hash subscript, it will be successfully parsed by one of two functions
-+* If both fail, ruleHashSubscript fails too: this is not a hash subscript
-** input is consumed only if a rule succeeds
-
-.c
-`choice`, like `between`, is a function defined in the Parsec library.
-.c
 ----
 == Parsing with parsec - what goes down
 .vim
@@ -380,10 +416,6 @@ filetype: haskell
 * `id` *?*
 * `\x -> Syn "{}" [x, exp]` /*????*/
 
-.c
-And to understand these, we need to digress and talk about the AST.
-.c
-
 ----
 == Many happy returns
 .vim
@@ -396,80 +428,9 @@ ruleHashSubscriptBraces = do
 
 * The return value of ruleHashSubscriptBraces is `(Exp ->Exp)`
 +* That is, a function taking an `Exp` and returning an `Exp`
-+* Didn't I promise you a function taking a string and returning an AST?
-** In our parser, everything gets a string magically via the RuleParser action; the kind of function that we were expecting has type `RuleParser Exp`
-----
-== Rules with simple return types
-.vim
-filetype: haskell
-undefLiteral :: RuleParser Exp
-undefLiteral = do
-    symbol "undef"
-        return $ Val VUndef
-.vim
-+
-.vim
-filetype: haskell
-ruleVerbatimBlock :: RuleParser Exp
-ruleVerbatimBlock = verbatimRule "block" $ do
-    body <- between (symbol "{") (char '}') ruleBlockBody
-    retSyn "block" [body]
++* Most parser functions return an Exp
 
-retSyn :: String -- ^ Type of 'Pugs.AST.Internals.Syn' to produce
-       -> [Exp]  -- ^ List of subexpressions for the 'Pugs.AST.Internals.Syn'
-       -> RuleParser Exp
-retSyn sym args = do
-    return $ Syn sym args
-.vim
-----
-== More rules with simple return types
-.vim
-filetype: haskell
-ruleForConstruct :: RuleParser Exp
-ruleForConstruct = rule "for construct" $ do
-    symbol "for"
-    list  <- maybeParens ruleExpression
-    optional ruleComma
-    block <- ruleBlockLiteral <|> parseExpWithItemOps
-    retSyn "for" [list, block]
-.vim
-+
-.vim
-filetype: haskell
-ruleStatement :: RuleParser Exp
-ruleStatement = do
-    exp <- ruleExpression
-    f <- option return $ choice
-        [ rulePostConditional
-        , rulePostLoop
-        , rulePostIterate
-        ]
-    f exp
-.vim
-----
-== Even more rules with simple return types
-.vim
-filetype: haskell
-ruleLit :: RuleParser Exp
-ruleLit = choice
-    [ ruleDoBlock
-    , ruleBlockLiteral
-    , numLiteral
-    , emptyListLiteral
-    , emptyArrayLiteral
-    , arrayLiteral
-    , pairLiteral
-    , undefLiteral
-    , namedLiteral "NaN"    (VNum $ 0/0)
-    , namedLiteral "Inf"    (VNum $ 1/0)
-    , yadaLiteral
-    , qLiteral
-    , rxLiteral
-    , rxLiteralBare
-    , substLiteral
-    , nullaryLiteral
-    ]
-.vim
++* This one returns a closure
 ----
 == Back to Braces
 .vim
@@ -510,6 +471,59 @@ filetype: perl6
 say "%siblings";   # "%siblings"
 say "%siblings{}"; # charlie   => donald etc.
 .vim
+
+----
+== Breather
+
+* You now know quite a bit about parsing Perl 6 with Haskell
+
+* Any questions before we go on?
+
+----
+== "Why do I need this?"
+
+* You don't want to learn Haskell
+* You already know Perl 5 regular expressions
+* It's Perl 6 you want to use now
+
+----
+== Perl 6 Rules
+
+* Of course it does!
+
++* A lot like regexps
++* Lots of reusability improvements
++* Powerful enough to do what we've just seen Parsec do
+
+----
+== Use case
+.vim
+filetype: perl
+if (/Car: (Ferrari)|(Ford Model T)/) {
+    if ($1) {
+        my $obj = Car->new({color => "red", ... });
+        ...
+    } else {
+        my $obj = Car->new({color => "black", ...});
+        ...
+    }
+}
+.vim
+
+* Well, fine, but can't this be made shorter AND more readable?
+
+----
+== Rules version
+.vim
+filetype: perl6
+rule car {
+    { Ferrari : { return 
+
+
+----
+== Bonus slides
+{image: http://forum2.org/gaal/m00se.png}
+
 ----
 == `say` what?
 * We didn't see any AST nodes for the implementation of `say`
