@@ -1,7 +1,12 @@
 {-# OPTIONS_GHC -fglasgow-exts -fallow-overlapping-instances -fallow-undecidable-instances -fno-warn-orphans #-}
 
 {-|
-    Deep sequential evaluation for various data structures.
+    Deep sequential evaluation for data structures.
+
+>   All that is gold does not glitter,
+>   Not all those who wander are lost;
+>   The old that is strong does not wither,
+>   Deep roots are not reached by the frost.
 
 -}
 
