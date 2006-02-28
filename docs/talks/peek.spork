@@ -123,22 +123,22 @@ BEGIN { require MyMod; MyMod->import }
 ----
 == Hackaround
 
-* load module MyMod when it is first used
+* Load module MyMod when it is first used
 
-* at parse time, push `is export` routines into the caller's namespace immediately
+* At parse time, push `is export` routines into the caller's namespace immediately
 
-* /obviously/ broken, because MyMod.pm only gets parsed once
+* /Obviously/ broken, because MyMod.pm only gets parsed once
 
 ----
 == Bleargh!
 
 * Don't get the impression that Pugs is a pile of mud because of this "feature"
 
-* To do it right, we'd need to support lexical import, which is a new feature in Perl 6
++* To do it right, we'd need to support lexical import, which is a new feature in Perl 6
 
-* A deliberate makeshift that let us act as users of Perl would before we had that much of perl available
++* A deliberate makeshift that let us act as users of Perl would before we had that much of perl available
 
-* Good enough in many cases 
++* Good enough in many cases 
 ** for example, writing 8,000 tests for /other/ things!
 
 +* But the fact that it don't work don't mean it don't need no fixing
@@ -302,9 +302,9 @@ This is how it appears in the Pugs tree (this week)
 {image: http://pugs.blogs.com/photos/visiolization/simplecompilation.png 500}
 ----
 == Parsec
-* A monadic parser combinator library
-+* uses simple parsing functions to compose smarter functions
-+* we'll get to the monad bit later
+* A parser combinator library
++* /Combine/ simple parsing functions into smarter parsers
++* Then combine them into even smarter ones
 
 .c
 ----
@@ -505,10 +505,20 @@ say "%siblings{}"; # charlie   => donald etc.
 ----
 == "Why do I need this?"
 
-* You don't want to learn Haskell
-* You already know Perl 5 regular expressions
-* It's Perl 6 you want to use now
+* Maybe you prefer to keep writing Perl
+** You already know Perl 5 regular expressions
+** It's Perl 6 you want to use now
 
++* Whenever you see a Buddha on the road
+----
+== "Why do I need this?"
+
+* Maybe you prefer to keep writing Perl
+** You already know Perl 5 regular expressions
+** It's Perl 6 you want to use now
+
+* Whenever you see a Good Idea on the road
++** Steal it
 ----
 == Perl 6 Rules
 
@@ -544,8 +554,8 @@ my $obj = m{
     Car =
         [ Ferrari
           : { return Car.new(:color<red>) }
-        | ModelT $year:=(\d\d\d\d)
-          : { return Car.new(:color<black> :$year)
+        | ModelT $<year>:=(\d\d\d\d)
+          : { return Car.new(:color<black> :$<year>)
         ]
 };
 
@@ -571,7 +581,7 @@ rule undefined { undef : { return Val(VUndef) } }
 .vim
 filetype: perl6
 rule term
-    { undef : { return Val(VUndef) }
+    { undef     : { return Val(VUndef) }
     | <digits>
     }
 .vim
@@ -581,7 +591,7 @@ rule term
 .vim
 filetype: perl6
 rule term
-    { undef : { return Val(VUndef) }
+    { undef     : { return Val(VUndef) }
     | \d+
     }
 .vim
@@ -591,8 +601,8 @@ rule term
 .vim
 filetype: perl6
 rule term
-    { undef     : { return Val(VUndef)   }
-    | (\d+)     : { return Val(VInt($0)) }
+    { undef            : { return Val(VUndef)   }
+    | (\d+)            : { return Val(VInt($0)) }
     }
 .vim
 
@@ -601,8 +611,8 @@ rule term
 .vim
 filetype: perl6
 rule term
-    { undef     : { return Val(VUndef)   }
-    | (\d+)     : { return Val(VInt($-1)) }
+    { undef            : { return Val(VUndef)   }
+    | $<digits>:=(\d+) : { return Val(VInt($<digits>)) }
     }
 .vim
 
@@ -611,8 +621,8 @@ rule term
 .vim
 filetype: perl6
 rule term
-    { undef     : { return Val(VUndef)   }
-    | $i:=(\d+) : { return Val(VInt($i)) }
+    { undef            : { return Val(VUndef)          }
+    | $<digits>:=(\d+) : { return Val(VInt($<digits>)) }
     }
 .vim
 
@@ -667,8 +677,6 @@ rule expr
     | (<expr>) (<[+-]>) (<expr>)
              : { return Op(VStr($1), $0, $2) }
     }
-
-rule operator { ... }
 .vim
 
 ----
@@ -679,74 +687,31 @@ rule term
     { undef : { return VUndef    }
     | (\d+) : { return VInt($0)  }
     }
-.vim
-+
-.vim
-filetype: perl6
+
 rule expr
     { <term> : { return Val($term) }
-    | $left  := (<expr>)
-                 <operator>
-      $right := (<expr>)
-      : { return Op(Val($operator), $left, $right) }
+    | $<lhs> := <expr>
+                <operator>
+      $<rhs> := <expr>
+      : { return Op(Val($<operator>), $<lhs>, $<rhs>) }
     }
 .vim
 +.vim
 filetype: perl6
 rule operator
-    { $op := (<[\+|\-]>)
-      : { return VStr($op)
+    { $<op> := <[+-]>
+      : { return VStr($<op>)
     }
 .vim
 
 ----
 == Conclusion
 
-* Parsec is flexible /and/ nice
-+* Rules can be as powerful as Parsec
+* Parsec is flexible
+** not as scary as it looks
++* Perl 6 Rules can be as powerful as Parsec
 ----
-== Bonus slides
+== ObMoose
 {image: http://forum2.org/gaal/m00se.png}
 
 ----
-== `say` what?
-* We didn't see any AST nodes for the implementation of `say`
-* It's defined internally
-
-+* So are many other builtins:
-.vim
-filetype: haskell
-op2 :: String -> Val -> Val -> Eval Val
--- many prims...
-op2 "connect" = \x y -> do
-    host <- fromVal x
-    port <- fromVal y
-    hdl  <- guardIO $ connectTo host (PortNumber $ fromInteger port)
-    return $ VHandle hdl
-.vim
-----
-== `split` prim
-.vim
-filetype: haskell
-op2 "split" = op2Split
-op2 "Str::split" = flip op2Split
-.vim
-+.vim
-filetype: haskell
-op2Split :: Val -> Val -> Eval Val
-op2Split x y = do
-    val <- fromVal x
-    str <- fromVal y
-    case val of
-        VRule rx -> do
-            chunks <- rxSplit rx str
-            return $ VList chunks
-        _ -> do
-            delim <- fromVal val
-            return $ split' delim str
-    where
-    split' :: VStr -> VStr -> Val
-    split' [] xs = VList $ map (VStr . (:[])) xs
-    split' glue xs = VList $ map VStr $ split glue xs
-----
-== `ruleSubDeclaration` and the exporter
