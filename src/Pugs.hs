@@ -53,13 +53,7 @@ runFile file = do
 -- see also Run/Args.hs
 run :: [String] -> IO ()
 run (("-d"):rest)                 = run rest
-
-{- -l does not appear here anymore
-   as it will have been replaced by an -e snippet further
-   above .
--- run (("-l"):rest)                 = run rest
--}
-
+run (("-l"):rest)                 = run rest
 run (("-w"):rest)                 = run rest
 run (("-I"):_:rest)               = run rest
 
