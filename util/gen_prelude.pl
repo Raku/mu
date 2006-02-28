@@ -75,7 +75,7 @@ module Pugs.Prelude where
 >   The world was young, the mountains green,
 >   No stain yet on the Moon was seen,
 >   No words were laid on stream or stone,
->   When Durin woke and walked along.
+>   When Durin woke and walked alone.
 
 -}
 
