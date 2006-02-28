@@ -245,6 +245,78 @@ L<perlreftut>, L<perllol>, L<perlref> and L<perldsc>.
 
 =head2 Variable scoping
 
+[XXX Please check and correct this... just my best attempt --aufrank]
+
+Variables in Perl 6 are put into one of several namespaces based on where
+and how they are declared.  The basic scopes available are global, package,
+and lexical.
+
+    use GLOBAL <$FOO>;  # globally-scoped $FOO
+    $*FOO;              # same as above
+    our $bar;           # package-scoped $bar
+    my $baz;            # lexically-scoped $baz
+
+Globally-scoped variables can be used anywhere within the current package,
+and can be used by any packages that use the current package.
+Package-scoped variables can be used anywhere in the current package, but
+cannot be accessed from outside the package.  Lexically-scoped variables can
+only be used within the scope of the nearest enclosing braces.
+
+    our $foo;
+    sub bar {
+        $foo++;         # OK, package-scoped $foo
+
+        my $baz;        # lexically-scoped $baz
+    }
+    $baz++;             # incorrect!  $baz is not in the package scope
+
+By default, variables declared in the root of the package are package
+scoped.  By default, variables declared within a block are lexically scoped.
+This includes variables declared in classes, objects, methods, subroutines,
+anonymous closures, rules, and conditional and looping constructs.
+
+There are also a number of specialized scopes available.  Many of these
+scopes are declared and accessed through the use of secondary sigils, or
+'twigils'.
+
+    $foo                # ordinary scoping
+    $.foo               # object attribute accessor
+    $^foo               # self-declared formal parameter
+    $*foo               # global variable
+    $+foo               # environmental variable
+    $?foo               # compiler hint variable
+    $=foo               # pod variable
+    $!foo               # explicitly private attribute (mapped to $foo though)
+
+Most variables with twigils are implicitly declared or assumed to be
+declared in some other scope, and don't need a "my" or "our".  Attribute
+variables are declared with "has", though, and environment variables are
+declared somewhere in the dynamic scope with the "env" declarator.
+
+By default, a subroutine or method hides variables declared within its
+lexical scope (with the exception of C<$_> ).  Variables declared within a
+subroutine or method cannot usually be accessed when the subroutine or method is called.  To change this, declare the variable with C<env>.
+
+    [XXX Probably should include an example declaring and accessing an ENV
+    variable]
+
+Variables within certain namespaces can be accessed through that namespace's
+symbol table.  Available symbol tables (or 'pseudo-packages') include:
+
+    MY           # lexical variables
+                 # declared with 'my'
+    OUR          # package variables
+                 # declared with 'our'
+    GLOBAL       # global scoped variables
+                 # declared with 'use GLOBAL' or $* twigil
+    ENV          # environmental variables
+                 # declared with 'env' or $+
+    OUTER        # the immediately surrounding 'MY' scope
+    CALLER       # the lexical scope of the caller
+    SUPER        # ???
+    COMPILING    # the compile-time scope of a variable, often used in macros
+                 # declared with $?
+
 =head2 Conditional and looping constructs
 
 Perl has most of the usual conditional and looping constructs.
