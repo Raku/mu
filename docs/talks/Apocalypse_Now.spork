@@ -185,8 +185,8 @@ Audrey Tang
 
 +* Clean and simple semantics:
 
-    method render (+$x, +$y, +$z) {
-        for ./filter(@.items) {
+    method render (:$x, :$y, :$z) {
+        for @.filter(@.items) {
             say .draw($x, $y, $z).as('* %s...');
         }
     }

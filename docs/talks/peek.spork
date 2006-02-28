@@ -3,6 +3,10 @@ presentation_topic: A Peek into Pugs Internals
 presentation_title: 
 presentation_place: http://perlcabal.org/~gaal/peek/start.html
 presentation_date: 2006-02-28
+author_name: Gaal Yahas
+author_email: gaal@forum2.org
+author_webpage: http://gaal.livejournal.com/
+copyright_string: Copyright &copy; 2006 Gaal Yahas
 ----
 {image: ceri-peek2.jpg 495}
 
@@ -84,7 +88,7 @@ Gaal Yahas
 ----
 == Up to r8288:
 
-  ./pugs test.pl
+  % ./pugs test.pl
 +  42
 +  *** No such sub: "&foo"
   at B.pm line 5, column 1-6
@@ -99,9 +103,13 @@ filetype: perl
 BEGIN { require MyMod; MyMod->import }
 .vim
 
-* the minute the parser sees "use MyMod", it should load MyMod, compile it, and run its `import` routine
-* `use` is a /digression/ in the caller's compilation
-+* BEGIN is a powerful but weird tool: the compiler and the evaluator intermix.
+* The parser sees "use MyMod"
++** Loads MyMod.pm
++** Compile it
++** Run its `import` routine
++* `use` is a /digression/ in the caller's compilation
++* BEGIN is a powerful but /weird/ tool
+** The compiler and the evaluator intermix
 
 ----
 == Perl 6 version
@@ -157,20 +165,21 @@ BEGIN { require MyMod; MyMod->import }
 == `[patch]`
 .vim
 filetype: haskell
-  -            unsafeEvalExp $ mkSym nameExported
+  - unsafeEvalExp $ mkSym nameExported
 .vim
 +.vim
 filetype: haskell
-  +            -- %*INC<This::Package><exports><&this_sub> = expression-binding-&this_sub
-  +            unsafeEvalExp $
-  +                Syn "=" [Syn "{}" [Syn "{}" [Syn "{}"
-  +                        [Var "%*INC", Val $ VStr pkg], Val (VStr "exports")], Val $ VStr name]
-  +                    , Val sub]
+  + -- %*INC<This::Package><exports><&this_sub>
+  + --   = expression-binding-&this_sub
+  + unsafeEvalExp $
+  +   Syn "=" [Syn "{}" [Syn "{}" [Syn "{}"
+  +     [Var "%*INC", Val $ VStr pkg], Val (VStr "exports")]
+  +     , Val $ VStr name], Val sub]
 .vim
 
-+* Don't freak out! We're going to understand how this works.
++* Don't freak out!
 
-+* Look at the comment. We're running Perl 6 code in the parser, only in a funny way!
++* We're just running Perl 6 in the parser!
 
 ----
 == Classic compilation
@@ -198,7 +207,7 @@ filetype: haskell
 +* We could have used the internal API, but that's hard
 +* Instead, express what you want to do in the same way the parser does it
 ** Use ASTs
-** Whatever those are.
+** Whatever those are
 
 .c
 
@@ -221,7 +230,8 @@ new classes at runtime?
 == Pugs AST
 .vim
 filetype: perl6
-if 42 { say "hello" } else { say "oh no!" }
+if 42 { say "hello" }
+ else { say "oh no!" }
 .vim
 +
 {image: gaal_no_ann.png 640}
@@ -271,14 +281,14 @@ and write "Ann" in both places.
 .vim
 filetype: haskell
 data Exp
-    = Noop                              -- ^ No-op
-    | App Exp (Maybe Exp) [Exp]         -- ^ Function application
-                                        --     e.g. myfun($invocant: $arg)
-    | Syn String [Exp]                  -- ^ Syntactic construct that cannot
-                                        --     be represented by 'App'.
-    | Stmts Exp Exp                     -- ^ Multiple statements
-    | Val Val                           -- ^ Value
-    | Var Var                           -- ^ Variable
+    = Noop                      -- ^ No-op
+    | App Exp (Maybe Exp) [Exp] -- ^ Function application
+                                --     e.g. myfun($invocant: $arg)
+    | Syn String [Exp]          -- ^ Syntactic construct that cannot
+                                --     be represented by 'App'.
+    | Stmts Exp Exp             -- ^ Multiple statements
+    | Val Val                   -- ^ Value
+    | Var Var                   -- ^ Variable
 .vim
 .c
 This is how it appears in the Pugs tree (this week)
@@ -337,7 +347,11 @@ ruleStatement = do
         ]
     f exp
 .vim
-+* `say "OSDC was great" if $cakes.yummy`
+
++.vim
+filetype: perl6
+say "OSDC was great" if $cakes.yummy
+.vim
 
 +* `choice` means try out a few parsers
 +** the first that matches wins, otherwise backtrack
@@ -458,10 +472,19 @@ return sub { my $x = shift; return Syn("{}", [$x, $exp]) };
 .vim
 filetype: perl6
 return -> $x { $x };
-return -> $x { Syn("{}", [$x, $exp] };
+return -> $x { Syn("{}", [$x, $exp]) };
 .vim
-+
-* Why do we need the first case, anyway?
+----
+== Back to Braces
+.vim
+filetype: haskell
+ruleHashSubscriptBraces :: RuleParser (Exp -> Exp)
+ruleHashSubscriptBraces = do
+    between (symbol "{") (char '}') $ option id $ do
+        exp <- ruleExpression; return $ \x -> Syn "{}" [x, exp]
+.vim
+
+* Why do we need the `option id`, anyway?
 .vim
 filetype: perl6
 %siblings{};       # exactly the same as %siblings, except
@@ -473,7 +496,7 @@ say "%siblings{}"; # charlie   => donald etc.
 .vim
 
 ----
-== Breather
+== Breather (whew)
 
 * You now know quite a bit about parsing Perl 6 with Haskell
 
@@ -493,33 +516,194 @@ say "%siblings{}"; # charlie   => donald etc.
 
 +* A lot like regexps
 +* Lots of reusability improvements
-+* Powerful enough to do what we've just seen Parsec do
++* Powerful enough to do everything we've seen Parsec do
 
 ----
 == Use case
 .vim
 filetype: perl
-if (/Car: (Ferrari)|(Ford Model T)/) {
+my $obj;
+if (/Car=(?:(Ferrari)|(ModelT)(\d\d\d\d))/) {
     if ($1) {
-        my $obj = Car->new({color => "red", ... });
+        $obj = Car->new({color => "red", ... });
         ...
-    } else {
-        my $obj = Car->new({color => "black", ...});
+    } elsif ($2) {
+        $obj = Car->new({color => "black", year => $3});
         ...
     }
 }
 .vim
 
-* Well, fine, but can't this be made shorter AND more readable?
+* Well, fine, but can't this be made shorter /and/ more readable?
 
 ----
 == Rules version
 .vim
+filetype: perl
+my $obj = m{
+    Car =
+        [ Ferrari
+          : { return Car.new(:color<red>) }
+        | ModelT $year:=(\d\d\d\d)
+          : { return Car.new(:color<black> :$year)
+        ]
+};
+
+----
+== Parsing undef
+.vim
+filetype: perl
+my $undefined = qr/undef/;
+.vim
+
++.vim
 filetype: perl6
-rule car {
-    { Ferrari : { return 
+rule undefined { undef }
+.vim
 
++.vim
+filetype: perl6
+rule undefined { undef : { return Val(VUndef) } }
+.vim
 
+----
+== Parsing literals
+.vim
+filetype: perl6
+rule term
+    { undef : { return Val(VUndef) }
+    | <digits>
+    }
+.vim
+
+----
+== Parsing literals
+.vim
+filetype: perl6
+rule term
+    { undef : { return Val(VUndef) }
+    | \d+
+    }
+.vim
+
+----
+== Parsing literals
+.vim
+filetype: perl6
+rule term
+    { undef     : { return Val(VUndef)   }
+    | (\d+)     : { return Val(VInt($0)) }
+    }
+.vim
+
+----
+== Parsing literals
+.vim
+filetype: perl6
+rule term
+    { undef     : { return Val(VUndef)   }
+    | (\d+)     : { return Val(VInt($-1)) }
+    }
+.vim
+
+----
+== Parsing literals
+.vim
+filetype: perl6
+rule term
+    { undef     : { return Val(VUndef)   }
+    | $i:=(\d+) : { return Val(VInt($i)) }
+    }
+.vim
+
+----
+== Parsing literals
+.vim
+filetype: perl6
+rule term
+    { undef : { return Val(VUndef)   }
+    | (\d+) : { return Val(VInt($0)) }
+    }
+.vim
+
+----
+== Parsing terms
+.vim
+filetype: perl6
+rule term
+    { undef : { return VUndef    }
+    | (\d+) : { return VInt($0)  }
+    }
+
+rule expr
+    { <term> ...
+.vim
+
+----
+== Parsing terms
+.vim
+filetype: perl6
+rule term
+    { undef : { return VUndef    }
+    | (\d+) : { return VInt($0)  }
+    }
+
+rule expr
+    { <term> : { return Val($term) }
+    |
+.vim
+
+----
+== Parsing terms
+.vim
+filetype: perl6
+rule term
+    { undef : { return VUndef    }
+    | (\d+) : { return VInt($0)  }
+    }
+
+rule expr
+    { <term> : { return Val($term) }
+    | (<expr>) (<[+-]>) (<expr>)
+             : { return Op(VStr($1), $0, $2) }
+    }
+
+rule operator { ... }
+.vim
+
+----
+== Parsing terms
+.vim
+filetype: perl6
+rule term
+    { undef : { return VUndef    }
+    | (\d+) : { return VInt($0)  }
+    }
+.vim
++
+.vim
+filetype: perl6
+rule expr
+    { <term> : { return Val($term) }
+    | $left  := (<expr>)
+                 <operator>
+      $right := (<expr>)
+      : { return Op(Val($operator), $left, $right) }
+    }
+.vim
++.vim
+filetype: perl6
+rule operator
+    { $op := (<[\+|\-]>)
+      : { return VStr($op)
+    }
+.vim
+
+----
+== Conclusion
+
+* Parsec is flexible /and/ nice
++* Rules can be as powerful as Parsec
 ----
 == Bonus slides
 {image: http://forum2.org/gaal/m00se.png}
