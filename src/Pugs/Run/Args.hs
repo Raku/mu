@@ -30,7 +30,7 @@ import Pugs.Internals
   'Pugs.Run.runWithArgs'.  The switch ordering is defined
   by compareArgs and is currently:
 
-  > (-h -v -V) (-I) (-d) (-w) (-c) (-C) (--external) (-M) (-n -p) (-l -0 -e other)
+  > (-h -v -V) (-I) (-d) (-w) (-c) (-C) (--external) (-M) (-n -p) (-0 -e other)
 
   Args -M, -n and -p are converted to -e scripts by desugarDashE.
 -}
@@ -110,7 +110,7 @@ findArg arg prefix = do
 {-
   Enforce a canonical order of command line switches.  Currently this is:
 
-  > (-h -v -V) (-I) (-d) (-w) (-c) (-C) (--external) (-M) (-n -p) (-l -0 -e other)
+  > (-h -v -V) (-I) (-d) (-w) (-c) (-C) (--external) (-M) (-n -p) (-0 -e other)
 
   This makes pattern matching more convenient
 
@@ -146,8 +146,6 @@ argRank _                    = 100  -- filename or @ARGS or whatever
 
 gatherArgs :: [String] -> [Arg]
 gatherArgs [] = []
--- XXX implement BEGIN block later
-gatherArgs ("-l":rest)             = gatherArgs("-e":"# BEGIN { ... } # to be done":rest)
 gatherArgs ("-e":frag:rest)        = [Opt "-e" frag] ++ gatherArgs(rest)
 gatherArgs ("--external":mod:rest) = [Opt "--external" mod] ++ gatherArgs(rest)
 gatherArgs ("-I":dir:rest)         = [Opt "-I" dir] ++ gatherArgs(rest)
