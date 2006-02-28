@@ -45,7 +45,7 @@ for =$*IN -> $line {
         $row++;
     }
     #say $line;
-    my @data = split(',', $line.chomp);
+    my @data = split(',', $line);
     #say @data;
     say square($column*$width*1.5, $row*$width*1.5, @data[0], @data[1]);
 }

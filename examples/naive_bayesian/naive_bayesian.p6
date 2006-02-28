@@ -9,7 +9,6 @@ sub load_db returns Void {
     my $db = open("words.db.p6") err die "Cannot open the words.db.p6 file: $!";
     for (=$db) -> $_line {
         my $line = $_line;
-        $line .= chomp;
         my ($key, $value) = split("\t", $line);
         %words{"$key"} = $value;
     }

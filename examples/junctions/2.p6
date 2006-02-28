@@ -7,7 +7,6 @@ my $x = any @color;
 
 say "enter a colour: ";
 my $y = =$*IN;
-$y .= chomp;
 
 my $result = ($x eq $y) ?? "acceptable" !! 'unacceptable' ;
 

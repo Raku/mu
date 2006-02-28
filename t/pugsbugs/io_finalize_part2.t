@@ -19,12 +19,12 @@ if $*OS eq "browser" {
 my $filename = 'tempfile';
 
 # Test is continued from io_finalized_part1.t
-# Should see "Hello World\n" but with bug it is undef
+# Should see "Hello World" but with bug it is undef
 
 my $fh = open($filename);
 isa_ok($fh, 'IO');
 my $line = readline($fh);
-is($line, "Hello World\n", 'finalize without explicit filehandle close worked', :todo<bug>);
+is($line, "Hello World", 'finalize without explicit filehandle close worked', :todo<bug>);
 
 #now be sure to delete the file as well
 

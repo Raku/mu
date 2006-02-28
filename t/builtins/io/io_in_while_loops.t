@@ -26,7 +26,7 @@ my $filename = 'tempfile';
     my $num = 1;
     while ($num <= 6) {
         my $line = =$fh;
-        is($line, "$num\n", '... got the right line (array controlled loop)');
+        is($line, "$num", '... got the right line (array controlled loop)');
         $num++;
     }
     $fh.close();
@@ -37,7 +37,7 @@ my $filename = 'tempfile';
     my $num = 1;
     my $line;
     while ($line = =$fh) {
-        is($line, "$num\n", '... got the right line (=$fh controlled loop)');
+        is($line, "$num", '... got the right line (=$fh controlled loop)');
         $num++;
     }
     $fh.close();

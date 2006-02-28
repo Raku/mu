@@ -25,7 +25,7 @@ my $filename = 'tempfile';
     my $fh = open($filename);
     for (1 .. 6) -> $num {
         my $line = =$fh;
-        is($line, "$num\n", '... got the right line (array controlled loop)');
+        is($line, "$num", '... got the right line (array controlled loop)');
     }
     $fh.close();
 }
@@ -34,7 +34,7 @@ my $filename = 'tempfile';
     my $fh = open($filename);
     my $num = 1;
     for (=$fh) -> $line {
-        is($line, "$num\n", '... got the right line ((=$fh) controlled loop)');
+        is($line, "$num", '... got the right line ((=$fh) controlled loop)');
         $num++;
     }
     $fh.close();
@@ -44,7 +44,7 @@ my $filename = 'tempfile';
     my $fh = open($filename);
     my $num = 1;
     for =$fh -> $line {
-        is($line, "$num\n", '... got the right line (=$fh controlled loop)');
+        is($line, "$num", '... got the right line (=$fh controlled loop)');
         $num++;
     }
     $fh.close();
@@ -57,10 +57,10 @@ my $filename = 'tempfile';
     my $num = 1;
     for (1 .. 3) -> $_num {
         my $line = =$fh;
-        is($line, "$num\n", '... got the right line (array controlled loop)');
+        is($line, "$num", '... got the right line (array controlled loop)');
         $num++;
         my $line2 = =$fh;
-        is($line2, "$num\n", '... got the right line2 (array controlled loop)');        
+        is($line2, "$num", '... got the right line2 (array controlled loop)');        
         $num++;        
     }
     $fh.close();
@@ -80,10 +80,10 @@ my $filename = 'tempfile';
     my $fh = open($filename);
     my $num = 1;
     for (=$fh) -> $line {
-        is($line, "$num\n", '... got the right line ((=$fh) controlled loop)');
+        is($line, "$num", '... got the right line ((=$fh) controlled loop)');
         $num++;
         my $line2 = =$fh;
-        is($line2, "$num\n", '... got the right line2 ((=$fh) controlled loop)');
+        is($line2, "$num", '... got the right line2 ((=$fh) controlled loop)');
         $num++;
     }
     $fh.close();
@@ -94,10 +94,10 @@ my $filename = 'tempfile';
     my $fh = open($filename);
     my $num = 1;
     for =$fh -> $line {
-        is($line, "$num\n", '... got the right line (=$fh controlled loop)');
+        is($line, "$num", '... got the right line (=$fh controlled loop)');
         $num++;
         my $line2 = =$fh;
-        is($line2, "$num\n", '... got the right line2 (=$fh controlled loop)');
+        is($line2, "$num", '... got the right line2 (=$fh controlled loop)');
         $num++;
     }
     $fh.close();

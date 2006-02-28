@@ -24,7 +24,6 @@ loop (;;) {
 
     # Quit and EOF.
     quit() unless defined $line;
-    $line .= chomp;
     # Skip empty lines.
     next   if $line eq "";
     

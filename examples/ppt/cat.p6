@@ -14,8 +14,6 @@ my $empty = 0; # for -s option
 my $linenum = 1;
 
 while $_ = =<> {
-    $_ = chomp $_; # "is chomped", when we have it
-
     # squeeze runs of blank lines to one
     if %opts<s> {
         next if ! rx:P5/./ && $empty++;

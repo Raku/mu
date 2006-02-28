@@ -3,7 +3,6 @@ use v6;
 
 print "5x5 matrix in one line: " unless @*ARGS;
 my $matrix = @*ARGS[0] || =<>;
-$matrix .= chomp;
 $matrix ||= "abcdefghijklmnopqrstuvwxy";
 
 $matrix.chars == 25 or die "Matrix length MUST be 25 characters.\n";

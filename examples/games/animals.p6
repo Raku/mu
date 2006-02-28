@@ -17,9 +17,9 @@ sub try(Any $this) {
   }
 
   print "No!?  What was it then? ";
-  my $new = chomp(=$*IN);
+  my $new = =$*IN;
   print "And a question that distinguishes a $this from a $new would be? ";
-  my $q   = chomp(=$*IN);
+  my $q   = =$*IN;
   my $yes = yes "And for a $new, the answer would be...";
 
   my %new = (

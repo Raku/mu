@@ -6,7 +6,7 @@ my $DEBUG = 0;
 
 multi *prompt ($prompt?) {
     print $prompt;
-    my $input = chomp(=$*IN);
+    my $input = =$*IN;
     return $input;
 }
 

@@ -28,7 +28,6 @@ sub main () {
             'msg_key' => 'MYAPP_PROMPT' ) );
 
         my Str $user_input = =$*IN;
-        $user_input .= chomp;
 
         # user simply hits return on an empty line to quit the program
 #        last INPUT_LINE

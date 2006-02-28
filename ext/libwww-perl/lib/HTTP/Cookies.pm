@@ -243,8 +243,7 @@ class HTTP::Cookies-0.0.1 {
     
         for (=$fh) {
             next unless s/^Set-Cookie3\:\s*//;
-            chomp;
-            
+
             for split_header_words($_) -> @cookie {
                 my ($key, $val) = @cookie.splice(0, 2);
                 

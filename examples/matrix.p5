@@ -5,7 +5,7 @@ use strict;
 
 print "5x5 matrix in one line: " unless @ARGV;
 my $matrix = shift || <>;
-$matrix .= chomp;
+chomp $matrix;
 $matrix ||= "abcdefghijklmnopqrstuvwxy";
 my @matrix = [ ('_') x 7 ];
 push @matrix, [ '_', (split //, substr $matrix, 0, 5, ''), '_' ] while $matrix;

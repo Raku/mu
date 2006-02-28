@@ -20,7 +20,7 @@ my %WORDS;
 for '/usr/dict/words', *@spelfiles -> $f {
    -f $f or next;
    my $F = open $f or next;
-   for =$F -> $w is copy { $w.=chomp; %WORDS{lc $w} = 1; }
+   for =$F -> $w is copy { %WORDS{lc $w} = 1; }
    $F.close;
 }
 my %bad;

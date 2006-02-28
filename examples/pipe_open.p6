@@ -7,4 +7,4 @@ my $pugs = (($*OS ~~ any<MSWin32 cygwin msys>) ?? "pugs.exe" !! "./pugs");
 
 my $pipe = Pipe::open("$pugs -V", :r);
 
-print "got> $_" for =$pipe;
+print "got> $_\n" for =$pipe;

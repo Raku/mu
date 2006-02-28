@@ -18,7 +18,7 @@ my $dict = canonpath("$progdir/pugspraise");
 my $fh = open($dict) err die $!;
 
 for =$fh->$line {
-    push @list,chomp($line) || next()
+    push @list, $line || next()
 };
 
 $fh.close;
@@ -39,8 +39,7 @@ say "Press Enter to generate quotes about \"$subject...\""~
 my $keyed;
 while $keyed = =$*IN {
     clear;
-    $keyed .= chomp;
-     my @keyed_args ;
+    my @keyed_args;
     if $keyed {
         @keyed_args = parse_args($keyed);
     }
@@ -54,8 +53,7 @@ while $keyed = =$*IN {
 unless $orig eq ~@list {
     say "Do you want to save your changes?";
     print "y/N ..."; 
-    my $ans = =$*IN ;# XXX want 'is chomped';
-    $ans .= chomp;
+    my $ans = =$*IN;
 
     # User wants to save changes
     # Save the original $dict to a backup

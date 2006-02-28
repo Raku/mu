@@ -20,7 +20,6 @@ sub Config::Tiny::new () returns Ref {
             my $cnt  = 0;
             for =$input -> $line is copy {
                 ++$cnt;
-                $line .= chomp;
 
                 # Skip comments and empty lines
                 # Workaround for next

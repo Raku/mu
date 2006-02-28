@@ -14,9 +14,7 @@ require Motd; #must be in PERL6LIB path, to say 'use';
 my $limit     = @ARGS[0] // '2';
 my $dict      = canonpath("$progdir/pugspraise");
 my $fh        = open $dict err die $!;
-my @list      = map &chomp, =$fh;
-
-#XXX it sure would make things tidier filehandle could be autochomped.
+my @list      = =$fh;
 
 my &tell = -> $max {
         # the hash prevents the pick of identical phrases for a single

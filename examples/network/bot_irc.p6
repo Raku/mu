@@ -32,7 +32,6 @@ say "Joined $chan";
 
 while ($ligne = readline($hdl))
 {
-    $ligne .= chomp;
     say "Serveur said : $ligne"; # if $debug;
 
     given $ligne {

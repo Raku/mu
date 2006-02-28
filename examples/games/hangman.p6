@@ -117,7 +117,7 @@ my $current_committer = pick_committer(@committers);
 cls;
 print draw_hangman("guess a letter? ");
 my $letter;
-while ($letter = chomp(=$*IN)) {
+while ($letter = =$*IN) {
     cls;
 
     if (guess($letter)) {

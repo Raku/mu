@@ -57,11 +57,11 @@ ok($in2.close, 'file closed okay (2)');
 my $in3 = open($filename);
 isa_ok($in3, 'IO');
 my $line3a = =$in3;
-is($line3a, "Hello World\n", 'unary =$in worked');
+is($line3a, "Hello World", 'unary =$in worked');
 my $line3b = =$in3;
-is($line3b, "Foo Bar Baz\n", 'unary =$in worked');
+is($line3b, "Foo Bar Baz", 'unary =$in worked');
 my $line3c = =$in3;
-is($line3c, "The End\n", 'unary =$in worked');
+is($line3c, "The End", 'unary =$in worked');
 ok($in3.close, 'file closed okay (3)');
 
 # append to the file
@@ -97,10 +97,10 @@ my $in6 = open($filename);
 isa_ok($in6, 'IO');
 my @lines6 = =$in6;
 is(+@lines6, 4, 'we got four lines from the file');
-is(@lines6[0], "Hello World\n", 'unary =$in worked in list context');
-is(@lines6[1], "Foo Bar Baz\n", 'unary =$in worked in list context');
-is(@lines6[2], "The End\n", 'unary =$in worked in list context');
-is(@lines6[3], "... Its not over yet!\n", 'unary =$in worked in list context');
+is(@lines6[0], "Hello World", 'unary =$in worked in list context');
+is(@lines6[1], "Foo Bar Baz", 'unary =$in worked in list context');
+is(@lines6[2], "The End", 'unary =$in worked in list context');
+is(@lines6[3], "... Its not over yet!", 'unary =$in worked in list context');
 ok($in6.close, 'file closed okay (6)');
 
 # test reading a file into an array and then closing before 
