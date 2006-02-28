@@ -914,7 +914,10 @@ op2 "Pugs::Internals::hSetBinaryMode" = \x y -> do
 op2 "Pugs::Internals::openFile" = \x y -> do
     filename <- fromVal x
     mode     <- fromVal y
-    hdl      <- guardIO $ openFile filename (modeOf mode)
+    hdl      <- guardIO $ do
+        h <- openFile filename (modeOf mode)
+        hSetBuffering h NoBuffering
+        return h
     return $ VHandle $ hdl
     where
     modeOf "r"  = ReadMode
