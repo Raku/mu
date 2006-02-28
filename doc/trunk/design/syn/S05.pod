@@ -588,6 +588,17 @@ into the pattern at that point:
 
 The closure is guaranteed to be run at the canonical time.
 
+An B<explicit> return from the closure binds the I<result object> for
+this match, ignores the rest of the current rule, and reports success:
+
+	/ (\d) { return $0.sqrt } NotReached /;
+
+This has the effect of capturing the square root of the numified string,
+instead of the string.  The C<NotReached> part is not reached.
+
+These closures are invoked as anonymous methods on the C<Match> object.
+See L</Match objects> below for more about result objects.
+
 =item *
 
 A leading C<&> interpolates the return value of a subroutine call as
@@ -1115,7 +1126,7 @@ you can override that by calling C<return> inside a rule:
 
     my $moose = m:{
         <antler> <body>
-        { return Moose.new( body => $<body>().attach($<antler>()) ) }
+        { return Moose.new( body => $<body>().attach($<antler>) ) }
         # match succeeds -- ignore the rest of the rule
     }.();
 
@@ -1130,6 +1141,16 @@ the C<< <(...)> >> construct:
 
 In this case the result object is always a string when doing string
 matching, and a list of one or more elements when doing array matching.
+
+Additionally, the C<Match> object delegates its C<coerce> calls
+(such as C<+$match> and C<~$match>) to its underlying result object.
+The only exception is that C<Match> handles boolean coercion itself,
+which returns whether the match had succeeded.
+
+This means that these two work the same:
+
+    / <moose> { $<moose>.() as Moose } /
+    / <moose> { $<moose>    as Moose } /
 
 =item *
 
