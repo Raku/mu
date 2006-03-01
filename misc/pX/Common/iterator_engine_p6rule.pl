@@ -23,7 +23,7 @@ my $namespace = 'grammar1::';
   no warnings 'once';
 
 sub subrule {
-    my ( $code, $tail ) = $_[0] =~ /^\<(.*?)\>(.*)/s;
+    my ( $code, $tail ) = $_[0] =~ /^\<(.*?)\>(.*)$/s;
     return unless defined $code;
     #print "parsing subrule $code\n";
     return { 
@@ -31,6 +31,18 @@ sub subrule {
         match => { code => $code },
         tail  => $tail,
         capture => [ { subrule => $code } ],
+    }
+}
+
+sub non_capturing_subrule {
+    my ( $code, $tail ) = $_[0] =~ /^\<\?(.*?)\>(.*)$/s;
+    return unless defined $code;
+    # print "non_capturing_subrule $code - $1\n";
+    return { 
+        bool  => 1,
+        match => { code => $code },
+        tail  => $tail,
+        capture => [ { non_capturing_subrule => $code } ],
     }
 }
 
@@ -65,6 +77,7 @@ use vars qw( @rule_terms );
 @rule_terms = (
     \&capturing_group,
     @literals,
+    \&non_capturing_subrule,
     \&subrule,
     \&dot,
     # more items are pushed later - see below 
@@ -355,11 +368,11 @@ sub emit_rule {
         }
         elsif ( $k eq 'subrule' ) {
             #print Dumper $v;
-            #return "$tab \\&{'$namespace$v'}\n";
-
-            # XXX - this is how it was actually supposed to compile
             return "$tab ruleop::capture( '$v', \\&{'$namespace$v'} )\n";
-
+        }
+        elsif ( $k eq 'non_capturing_subrule' ) {
+            #print Dumper $v;
+            return "$tab \\&{'$namespace$v'}\n";
         }
         elsif ( $k eq 'literal' ) {
             #print "literal:", Dumper($v);
