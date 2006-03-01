@@ -5,6 +5,8 @@
 use strict;
 use warnings;
 
+die "XXX - tests were moved temporarily to p6grammar.pl";
+
 use Test::More qw(no_plan);
 
 require 'iterator_engine_p6grammar.pl';

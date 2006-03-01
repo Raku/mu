@@ -84,6 +84,20 @@ my $rule = \&grammar1::rule;
 }
 
 {
+  $match = $rule->( '\(.\)' );
+  ok ( $match->{bool}, "parse rule - escaped paren" );
+  #print Dumper( $match->{capture} );
+  $program = emit_rule( $match->{capture} );
+  #print "program:\n$program";
+  ok ( defined $program, "emit rule to p5" );
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  $match = $compiled->( '(s)' );
+  #print Dumper( $match );
+  ok ( $match->{bool}, "parse sample of text" );
+}
+
+{
 
   # XXX - allow whitespace everywhere
   # $match = $rule->( '<word>| [ <ws> <word> ]' );
@@ -153,6 +167,34 @@ my $rule = \&grammar1::rule;
   # print Dumper( $match );
   ok ( $match->{bool}, "parse sample of text" );
   is ( $match->{tail}, 'aaasome_word', "correct left-out" );
+}
+
+{
+  $match = $rule->( q(\' .*? \'), undef, {capture=>1} );
+  ok ( $match->{bool}, "parse rule - \' .*? \'" );
+  $program = emit_rule( $match->{capture} );
+  #print "program:\n$program";
+  ok ( defined $program, "emit rule to p5" );
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  $match = $compiled->( q('aaaa' 'some_word') );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample of text" );
+  is ( $match->{tail}, q( 'some_word'), "correct left-out" );
+}
+
+{
+  $match = $rule->( q(\' .* \'), undef, {capture=>1} );
+  ok ( $match->{bool}, "parse rule - \' .* \'" );
+  $program = emit_rule( $match->{capture} );
+  #print "program:\n$program";
+  ok ( defined $program, "emit rule to p5" );
+  $compiled = eval($program);
+  is ( ref $compiled, "CODE", "compile p5" );
+  $match = $compiled->( q('aaaa' 'some_word' x) );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample of text" );
+  is ( $match->{tail}, q( x), "correct left-out" );
 }
 
 {
@@ -261,7 +303,7 @@ my $rule = \&grammar1::rule;
 
 {
   local $test::xxx = '123';
-  my $rule = ::compile_rule( '$test::xxx', {print_program=>0} );
+  my $rule = ::compile_rule( '$test::xxx', {print_program=>0, print_ast=>0} );
   is ( ref $rule, "CODE", "compile_rule( '\$test::xxx' )" );
   $match = $rule->( '123aaa' );
   # print Dumper( $match );
@@ -274,7 +316,7 @@ my $rule = \&grammar1::rule;
       ::compile_rule( '123' ), 
       ::compile_rule( 'abc' )
   );
-  my $rule = ::compile_rule( '<@test::xxx>', {print_program=>0} );
+  my $rule = ::compile_rule( '<@test::xxx>', {print_program=>0, print_ast=>0} );
   is ( ref $rule, "CODE", "compile_rule( '<{\@test::xxx}>' ) array of rule" );
 
   $match = $rule->( '123aaa' );
@@ -297,7 +339,7 @@ my $rule = \&grammar1::rule;
 }
 
 {
-  my $rule = ::compile_rule( '$xyz := (abc)', {print_program=>0} );
+  my $rule = ::compile_rule( '$xyz := (abc)', {print_program=>0, print_ast=>0} );
   is ( ref $rule, "CODE", "named capture" );
   $match = $rule->( 'abcaaa' );
   # print Dumper( $match );
@@ -305,6 +347,75 @@ my $rule = \&grammar1::rule;
   is ( $match->{tail}, 'aaa', "correct left-out" );
 }
 
+{
+  $test::s = 1;
+  my $rule = ::compile_rule( '(abc) { $test::s = 2 }', {print_program=>0} );
+  is ( ref $rule, "CODE", "closure" );
+  $match = $rule->( 'abcaaa' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 1" );
+  is ( $match->{tail}, 'aaa', "correct left-out" );
+  is ( $test::s, 2, "closure was run" );
+}
+
+{
+  my $rule = ::compile_rule( '(abc) { return {abc => "xyz",} }', {print_program=>0} );
+  is ( ref $rule, "CODE", "capture closure with pair" );
+  $match = $rule->( 'abcaaa' );
+  is ( @{ $match->{capture} }, 1, 'only one item was captured' );
+  #print Dumper( $match->{capture} );
+}
+
+{
+  my $rule = ::compile_rule( '(abc) { return {abc => $<>,} }', {print_program=>0} );
+  is ( ref $rule, "CODE", "capture closure with pair + capture" );
+  $match = $rule->( 'abcaaa' );
+  is ( @{ $match->{capture} }, 1, 'only one item was captured' );
+  # print Dumper( $match->{capture} );
+}
+
+{
+  my $rule = ::compile_rule( '(abc) { return "xyz" }', {print_program=>0} );
+  is ( ref $rule, "CODE", "capture closure" );
+  $match = $rule->( 'abcaaa' );
+  is ( @{ $match->{capture} }, 1, 'only one item was captured' );
+  #print Dumper( $match->{capture} );
+  ok ( $match->{bool}, "parse sample 1" );
+  is ( $match->{tail}, 'aaa', "correct left-out" );
+
+  my $rule2 = ::compile_rule( '(def) { return "123" }', {print_program=>0} );
+
+  {
+    my $rule3 = ruleop::alternation( [ 
+        ruleop::try( $rule ), 
+        ruleop::try( $rule2 ),
+      ] 
+    );
+    $match = $rule3->( 'abcaaa' );
+    is ( @{ $match->{capture} }, 1, 'capture closure + alternation 1' );
+    # print Dumper( $match->{capture} );
+    ok ( $match->{bool}, "parse sample 1" );
+    is ( $match->{tail}, 'aaa', "correct left-out" );
+    
+    $match = $rule3->( 'defaaa' );
+    is ( @{ $match->{capture} }, 1, 'capture closure + alternation 2' );
+    # print Dumper( $match->{capture} );
+    ok ( $match->{bool}, "parse sample 2" );
+    is ( $match->{tail}, 'aaa', "correct left-out" );
+  }
+  
+  {
+    my $rule4 = ruleop::concat( 
+      ruleop::try( $rule ), 
+      ruleop::try( $rule2 ),
+    );
+    $match = $rule4->( 'abcdefaaa' );
+    is ( @{ $match->{capture} }, 2, 'capture closure + concat, 2 items were captured' );
+    # print Dumper( $match->{capture} );
+    ok ( $match->{bool}, "parse sample 1" );
+    is ( $match->{tail}, 'aaa', "correct left-out" );
+  }
+}
 
 __END__
 

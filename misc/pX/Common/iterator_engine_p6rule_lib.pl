@@ -14,6 +14,8 @@
 {
   package grammar1;
 
+  use Text::Balanced; 
+
 sub any { 
     return unless $_[0];
     return { 
@@ -28,10 +30,21 @@ sub ws {
     return { 
         bool  => 1,
         match => { 'ws'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+        if $_[0] =~ /^(\s+)(.*)$/s;
+    return;
+};
+sub newline {
+    return unless $_[0];
+    return { 
+        bool  => 1,
+        match => { 'newline'=> $1 },
         tail  => substr($_[0],1),
         ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
     }
-        if $_[0] =~ /^(\s)/s;
+        if $_[0] =~ /^(\n)/s;
     return;
 };
 sub escaped_char {
@@ -54,6 +67,45 @@ sub word {
         ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
     }
         if $_[0] =~ /^([_[:alnum:]]+)(.*)/s;
+    return;
+};
+
+# ----- the following were included only for performance reasons,
+# because they are too frequent and they are too slow using the basic 
+# rule parser
+
+sub code {
+    return unless $_[0];
+    ($extracted,$remainder) = Text::Balanced::extract_codeblock( $_[0] );
+    return { 
+        bool  => ( $extracted ne '' ),
+        match => $extracted,
+        tail  => $remainder,
+        ( $_[2]->{capture} ? ( capture => [ $extracted ] ) : () ),
+    };
+}
+
+sub literal {
+    return unless $_[0];
+    ($extracted,$remainder) = Text::Balanced::extract_delimited( $_[0], "'" );
+    $extracted = substr( $extracted, 1, -1 );
+    return { 
+        bool  => ( $extracted ne '' ),
+        match => $extracted,
+        tail  => $remainder,
+        ( $_[2]->{capture} ? ( capture => [ { literal => $extracted } ] ) : () ),
+    };
+}
+
+sub ws_star {
+    #return unless $_[0];
+    return { 
+        bool  => 1,
+        match => { 'ws*'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+        if $_[0] =~ /^(\s*)(.*)$/s;
     return;
 };
 

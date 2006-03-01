@@ -9,6 +9,8 @@
 use strict;
 use warnings;
 
+use Data::Dumper;
+
 require 'iterator_engine.pl';
 require 'iterator_engine_p6rule_lib.pl';
 
@@ -17,22 +19,8 @@ my $namespace = 'grammar1::';
 {
   package grammar1;
 
-sub closure {
-    # p5 code is called using: "rule { xyz { v5; ... } }" (audreyt on #perl6)
-    # or: "rule { ... [:perl5:: this is p5 ] ... }"
-    # or: "[:perl5(1) this is perl5 ]" (putter on #perl6)
-
-    my ( $code, $tail ) = $_[0] =~ /^\{(.*?)\}(.*)/s;
-    return unless defined $code;
-    #print "parsing $code - $tail\n";
-    my $result = eval $code;
-    return { 
-        bool  => 1,
-        match => { code => $result },
-        tail  => $tail,
-        capture => [ { closure => $result } ],
-    }
-}
+  use Data::Dumper;
+  no warnings 'once';
 
 sub subrule {
     my ( $code, $tail ) = $_[0] =~ /^\<(.*?)\>(.*)/s;
@@ -75,7 +63,6 @@ my @literals = (
 
 use vars qw( @rule_terms );
 @rule_terms = (
-    \&closure,
     \&capturing_group,
     @literals,
     \&subrule,
@@ -86,9 +73,9 @@ use vars qw( @rule_terms );
 # <ws>* [ <closure> | <subrule> | ... ]
 *term = 
     ruleop::concat(
-        ruleop::greedy_star( \&ws ),
+        \&ws_star,
         ruleop::alternation( \@rule_terms ),
-        ruleop::greedy_star( \&ws ),
+        \&ws_star,
     );
 
 # XXX - allow whitespace everywhere
@@ -96,25 +83,24 @@ use vars qw( @rule_terms );
 # [ <term>[\*|\+] | <term> 
 # note: <term>\* creates a term named 'star'
 *quantifier = 
-    ruleop::alternation( 
-      [
+    ruleop::alternation( [
         ruleop::capture( 'star', 
             ruleop::concat(
                 ruleop::capture( 'term', \&term ),
                 ruleop::capture( 'literal',
-                  ruleop::alternation( [
-                    ruleop::constant( '?' ),
-                    ruleop::constant( '*?' ),
-                    ruleop::constant( '+?' ),
-                    ruleop::constant( '*' ),
-                    ruleop::constant( '+' ),
-                  ] ),
+                    ruleop::alternation( [
+                        ruleop::constant( '?' ),
+                        ruleop::constant( '*?' ),
+                        ruleop::constant( '+?' ),
+                        ruleop::constant( '*' ),
+                        ruleop::constant( '+' ),
+                    ] ),
                 ),
+                \&ws_star,
             ),
         ),
         \&term,
-      ]
-    );
+    ] );
 
 # [ <term> [ \| <term> ]+ | <term> ]* 
 # note: <term>|<term> creates a term named 'alt'
@@ -139,26 +125,93 @@ use vars qw( @rule_terms );
         ),
     );
 
-# [<rule]
-*non_capturing_group = ::compile_rule( ' \[ <rule> \] ' );
+# [<rule>]
+*non_capturing_group = ::compile_rule( ' \[ <rule> \] ', {print_program=>0} );
 push @rule_terms, \&non_capturing_group;
 
 # $var
-*variable = ::compile_rule( '[\$|\%|\@][[\:\:]?<word>]+' );
+*ident =    ::compile_rule( '[[\:\:]?<word>]+', {print_ast=>0} );
+*variable = ::compile_rule( '[\$|\%|\@]<ident>' );
 push @rule_terms, ruleop::capture( 'variable',\&variable );
 
 # <@var> is a run-time alternation (TimToady on #perl6)
 *runtime_alternation = ::compile_rule( 
-    '\<(<variable>)\>' );
+    '\< <variable> \>' );
 unshift @rule_terms, ruleop::capture( 
     'runtime_alternation',\&runtime_alternation );
 
 # $xxx := (capture)
 *named_capture = ::compile_rule( 
-    '(<variable>)<ws>*\:\=<ws>*\(<rule>\)' );
+    '<variable> <ws>? \:\= <ws>? \( <rule> \)' );
 unshift @rule_terms, ruleop::capture( 
     'named_capture',\&named_capture );
 
+# { code }
+    # p5 code is called using: "rule { xyz { v5; ... } }" (audreyt on #perl6)
+    #   (but TimToady said it's not)
+    # or: "rule { ... [:perl5:: this is p5 ] ... }"
+    # or: "[:perl5(1) this is perl5 ]" (putter on #perl6)
+    
+# XXX - this is veeery slow - the actual implementation is in file
+#       p6rule_lib.pl and uses Text::Balanced
+# *code = ::compile_rule( '\{[<code>|.]*?\}' );
+unshift @rule_terms, ruleop::capture( 
+    'closure', \&code );
+    
+}
+
+#------ match functions
+
+sub match::get {
+    my $match =   $_[0];
+    my $name =    $_[1];
+    
+    return $match->{capture}  if $name eq '$/<>' || $name eq '$<>';
+    return $match->{match}    if $name eq '$/';
+    
+    # $/<0>, $/<1>
+    # $<0>, $<1>
+    if ( $name =~ /^ \$ \/? <(\d+)> $/x ) {
+        my $num = $1;
+        my $n = 0;
+        for ( @{ match::get( $match, '$/<>' ) } ) {
+            next unless ref($_) eq 'HASH';
+            if ( $num == $n ) {
+                my (undef, $capture) = each %$_;
+                # print "cap\n", Dumper( $capture );
+                return $capture;
+            }
+            $n++;
+        }
+        return;
+    }
+    
+    # $/<name>
+    # $<name>
+    if ( $name =~ /^ \$ \/? <(.+)> $/x ) {
+        my $n = $1;
+        for ( @{ match::get( $match, '$/<>' ) } ) {
+            next unless ref($_) eq 'HASH';
+            if ( exists $_->{$n} ) {
+                # print "cap\n", Dumper( $capture );
+                return $_->{$n};
+            }
+        }
+        return;
+    }
+
+    die "match variable $name is not implemented";
+    # die "no submatch like $name in " . Dumper( $match->{match} );
+}
+
+sub match::str {
+    my $match = $_[0];
+    #print "STR: ", ref( $match ), " ", Dumper( $match ), "\n";
+    return join( '', map { match::str( $_ ) } @$match )
+        if ref( $match ) eq 'ARRAY';
+    return join( '', map { match::str( $_ ) } values %$match )
+        if ref( $match ) eq 'HASH';
+    return $match;
 }
 
 #------ rule emitter
@@ -169,8 +222,10 @@ unshift @rule_terms, ruleop::capture(
 #   print_program=>1 - prints the generated program
 #
 sub compile_rule {
+    local $Data::Dumper::Indent = 1;
     my $match = grammar1::rule->( $_[0] );
     my $flags = $_[1];
+    print "ast:\n", Dumper( $match->{capture} ) if $flags->{print_ast};
     die "syntax error in rule '$_[0]' at '" . $match->{tail} . "'\n"
         if $match->{tail};
     die "syntax error in rule '$_[0]'\n"
@@ -183,7 +238,8 @@ sub compile_rule {
 
 sub emit_rule {
     my $n = $_[0];
-    my $tab = $_[1]; $tab .= '  ';
+    my $tab = $_[1] || '    '; 
+    $tab .= '  ';
     local $Data::Dumper::Indent = 0;
     #print "emit_rule: ", ref($n)," ",Dumper( $n ), "\n";
 
@@ -200,8 +256,40 @@ sub emit_rule {
             my $tmp = emit_rule( $_, $tab );
             push @s, $tmp . "$tab ,\n" if $tmp;
         }
+        
+        # XXX XXX XXX - temporary hacks to translate p6 to p5 -- see 'closure' node
+        if ($s[-1] =~ /^#return-block#(.*)/s ) {
+            #print "return block\n";
+            my $code = $1;
+            #print "Code: $code\n";
+            pop @s;
+            my $program;
+            if ( @s == 1 ) {
+                $program = $s[0];
+            }
+            else {
+                $program = "$tab ruleop::concat(\n" . 
+                            ( join '', @s ) . 
+                            "$tab )\n";
+            }
+            #print "program $program\n";
+            my $return;
+            $return = "
+    sub { 
+        my \$rule = \n$program    ;
+        my \$match = \$rule->( \@_ );
+        return unless \$match;
+        my \$c = sub " . $code . "; 
+        #use Data::Dumper;
+        #print \"capture was: \", Dumper( \$match->{capture} );
+        return { 
+            \%\$match,
+            capture => [ \$c->( \$match ) ],
+        }; 
+    }\n";
+            return $return;
+        }
         return $s[0] if @s == 1;
-
         return "$tab ruleop::concat(\n" . 
                ( join '', @s ) . 
                "$tab )\n";
@@ -210,8 +298,14 @@ sub emit_rule {
     {
         my ( $k, $v ) = each %$n;
         #print "$tab $k => $v \n";
-        if ( $k eq 'capturing_group' ) {
-            return "$tab ruleop::capture( 'capturing_group',\n" .
+        if ( $k eq 'rule' ) {
+            return emit_rule( $v, $tab );
+            
+            #return "$tab ruleop::capture( '$k',\n" .
+            #       emit_rule( $v, $tab ) . "$tab )\n";
+        }        
+        elsif ( $k eq 'capturing_group' ) {
+            return "$tab ruleop::capture( '$k',\n" .
                    emit_rule( $v, $tab ) . "$tab )\n";
         }        
         elsif ( $k eq 'non_capturing_group' ) {
@@ -259,7 +353,7 @@ sub emit_rule {
         }
         elsif ( $k eq 'subrule' ) {
             #print Dumper $v;
-            return "$tab \\&{'$namespace$v'}\n";
+            #return "$tab \\&{'$namespace$v'}\n";
 
             # XXX - this is how it was actually supposed to compile
             return "$tab ruleop::capture( '$v', \\&{'$namespace$v'} )\n";
@@ -267,11 +361,14 @@ sub emit_rule {
         }
         elsif ( $k eq 'literal' ) {
             #print "literal:", Dumper($v);
-            return "$tab ruleop::constant( '" . join('',@$v) . "' )\n";
+            my $name = quotemeta(join('',@$v));
+            #print "literal: $name\n";
+            return "$tab ruleop::constant( \"$name\" )\n";
         }
         elsif ( $k eq 'variable' ) {
             #print "variable:", Dumper($v);
-            my $name = join('',@$v);
+            my $name = match::str( $v );
+            # print "var name: ", match::str( $v ), "\n";
             my $value = "sub { die 'not implemented: $name' }\n";
             $value = eval $name if $name =~ /^\$/;
             $value = join('', eval $name) if $name =~ /^\@/;
@@ -281,20 +378,37 @@ sub emit_rule {
 
             return "$tab ruleop::constant( '" . $value . "' )\n";
         }
+        elsif ( $k eq 'closure' ) {
+            #print "closure: ", Dumper( $v );
+            my $code = match::str( $v ); 
+            
+            # XXX XXX XXX - temporary hacks to translate p6 to p5
+            $code =~ s/ \$<(.*?)> / match::get( \$_[0], '\$<$1>' ) /sgx;
+            #print "Code: $code\n";
+            
+            return "$tab sub {\n" . 
+                   "$tab     $code;\n" . 
+                   "$tab     return { bool => 1, tail => \$_[0] } }\n"
+                unless $code =~ /return/;
+            return "#return-block#" . $code;
+        }
         elsif ( $k eq 'runtime_alternation' ) {
-            # XXX - this only works for <{@var}>
-            # print "variable:", Dumper($v);
-            my @captures = grep { ref($_) eq 'HASH' } @$v;
-            my $code = join('', @{$captures[0]{capturing_group}} );
-            # print "$code\n";
+            my $code = match::str( match::get( 
+                { capture => $v }, 
+                '$<variable>'
+            ) );
             return "$tab ruleop::alternation( \\$code )\n";
         }
         elsif ( $k eq 'named_capture' ) {
-            my @captures = grep { ref($_) eq 'HASH' } @$v;
-            my $name = join('', @{$captures[0]{capturing_group}} );
-            my $program = emit_rule( $captures[1], $tab );
-
-            # die "you asked for a named capture $name with $program";
+            my $name = match::str( match::get( 
+                { capture => $v }, 
+                '$<variable>'
+            ) );
+            my $program = emit_rule(
+                    match::get( 
+                        { capture => $v }, 
+                        '$<rule>'
+                    ), $tab );
             return "$tab ruleop::capture( '$name', \n" . $program . "$tab )\n";
         }
         else {

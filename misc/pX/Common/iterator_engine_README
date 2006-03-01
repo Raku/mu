@@ -1,4 +1,14 @@
-pX/Common/iterator_engine_p6regex.pl - fglock
+pX/Common/iterator_engine_README - fglock
+
+Latest changes:
+2006-02-26:
+- working Perl 6 compiler - about 100 lines of code are now written in perl6
+- started a Prelude
+    say 'compiling Prelude';
+    sub infix:<+> { eval(' $_[0] + $_[1] ', :lang<perl5>); }
+- optimized rules - use Text::Balanced for implementing <literal> and <code>
+- 124 tests for p6rule.pl
+- note: spec change '$<>' to '$()' not applied yet
 
 Experimental implementation of:
 - a parser engine (iterator_engine.pl)
@@ -7,11 +17,12 @@ Experimental implementation of:
   (iterator_engine_p6grammar.pl)
 - a Perl6 'grammar' grammar (iterator_engine_p6rule_grammar.p6)
 
-Some existing Perl6 'grammar' grammars:
-  ../../Grammars/rx_grammar.pm
-  http://svn.perl.org/parrot/trunk/compilers/pge/P6Rule.grammar
+Current task:
+- a Perl6 compiler
+- see TODO notes in p6grammar.pl
 
-Plan:
+Plan sketch:
+- write the compiler in p6, and emit the whole compiler to p5
 - improve p6rule_grammar.p6 such that it can parse itself
 - try to reuse pugs tests
 - revisit XXX notes
@@ -21,11 +32,33 @@ Plan:
 - write an emitter that generates perl5 regexes (or dies)
 - bind special variables $0, ...
 - see also the 'not implemented' list below
+- optimize infix:<+> to 'native +' when possible
+
+Bootstrapping:
+- minimal p6 to p5 translator (parse p6, emit p5)
+- p6compiler written in p6
 
 Namespaces:
   Grammar - the base grammar - defines <ws>, <digit> 
   RuleGrammar - the pattern matching grammar ???
   Perl6Grammar - the Perl6 grammar
+
+About P6Grammar:
+
+implemented:
+  
+  grammar  <name>;
+  rule     <name> {...}
+  say print warn die <list>;
+  my our local    <var>;
+  {...}
+  eval( '1+1', :lang<perl5> );
+
+half-implemented:
+
+  + *   -- no precedence
+  sub <name> {...}   -- need more work on fixity
+  push unshift  
 
 About the Rules:
 
@@ -36,27 +69,37 @@ implemented:
  $variable @variable
  <'literal'>
  [] 
- {}        - with perl5 code
  ()        - but doesn't do named captures yet
  <subrule> - but doesn't auto-capture yet
  |
  <@var>    - special-cased for array-of-rule (but not Rule|Str)
+ {code}    - non-capturing closure
+           - with perl5 code
+ { return code } - capturing closure
+           - with perl5 code
+ $var := (capture)  - capture aliasing
+ $<> $/<>  - special variables can't be used inside a match, yet
+ $/ 
+ $<0> $<1>
 
 implemented but untested:
  <other::rule>
  <$var>
 
 not implemented:
- $1
+ $/<0> $/<1>
+ $/0 $/1
+ $0 $1
  <"literal">
  ^ ^^ $ $$
  <!term>
  <unicode-class> <+unicode-class> <+unicode-class+unicode-class>
  <&var> 
  <%var>
- {n..m} 
+ {n..m}   -- is this **{n..m} ?
  : :: :::   (commit)
- :=         (alias)
+ $var := [non-capture]
+ $var := <rule>
  <(closure-assertion)> <{code-returns-rule}>
  <<character-class>> <[character-class]>
  :flag :flag() :flag[]
@@ -70,3 +113,8 @@ not sure if specified:
  'literal' "literal"
  <!n,m>  -- <!{n..m}> ???
 
+See also:
+
+- some existing Perl6 'grammar' grammars:
+  ../../Grammars/rx_grammar.pm
+  http://svn.perl.org/parrot/trunk/compilers/pge/P6Rule.grammar
