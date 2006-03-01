@@ -38,16 +38,20 @@ Design:
 
 Risks:
 
+  Trying to properly do (non-leaking) memory management, via reverse
+  engineering (almost completely undocumented source), in the presence
+  of copy-on-write and such complications, could be a bear.
+
+  A source filter approach, while likely flakier (modulo memory issues),
+  might suffice, be easier to create, and be more portable.
+  http://www.perlmonks.org/index.pl?node_id=531465
+
   It may not be possible to get Match objects (only strings) into
   $1,etal, or even into the return value.  In that event, it may not
   be possible to get a plausibly scoped alternative working.
 
   Using $/ might be non-trivial, as only some forms of redefinition
   make its magic not stick.
-
-  Trying to properly do (non-leaking) memory management, via reverse
-  engineering (almost completely undocumented source), in the presence
-  of copy-on-write and such complications, could be a bear.
 
   The implementation is at best an XS-based module (currently Inline::C),
   and is thus not very portable to broken (no compiler) microsoft systems.
