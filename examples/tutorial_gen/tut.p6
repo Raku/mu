@@ -1,5 +1,6 @@
 use v6;
 use File::Spec;
+use HTML::Entities;
 
 # todo_
 # all :perl5
@@ -64,9 +65,7 @@ say %conf.ref ~ ' ' ~ %conf if $dg;
 my $os;
 $os = 'win32' if lc($?OS) eq any<mswin32 mingw>;
 say 'os: ' ~ $os if $dg;
-my $os;
 
-say ~$path;
 for %conf.keys -> $key {
     die "Conf keys 'f_*' are reserved!\n" if $key ~~ rx:perl5{^f_};
     if ( $key ~~ rx:perl5{_fp$} ) {
@@ -81,7 +80,7 @@ for %conf.keys -> $key {
     # todo_ if next
     say "f_$key: %conf{'f_' ~ $key}" if $dg;
 }
-say '';
+say '' if $dg;
 
 my $pugs = %conf<pugs>;
 $pugs = catfile( $path, $pugs ) if $pugs ~~ rx:perl5{^[\.\\\/]};
@@ -91,8 +90,8 @@ if ( $os eq 'win32' ) {
 }
 say 'pugs: ' ~ $pugs ~ "\n" if $dg;
 my $stat = system( "$pugs -v" );
-# TODO
-#die "Pugs '$pugs' run test failed (code $stat)!\n" if $stat != 0;
+# correct for unix?
+# die "Pugs '$pugs' run test failed (code $stat)!\n" unless $stat;
 
 my $out_dir = %conf<f_output_dir>;
 unless -d $out_dir {
@@ -113,7 +112,7 @@ if %conf<output_type> eq 'html' {
         die "File::Spec bug";
         %conf<tut_src_rel> = abs2rel( %conf<f_tut_src_dir>, %conf<f_output_dir> );
     }
-    %conf<tut_src_rel> ~~ s:perl5:g{\\}{\/};
+    say "\%conf<tut_src_rel>: %conf<tut_src_rel>" if $dg;
 }
 
 die "Source file directory '%conf<tut_src_dir> ('%conf<f_tut_src_dir>') not found!" 
@@ -121,13 +120,13 @@ die "Source file directory '%conf<tut_src_dir> ('%conf<f_tut_src_dir>') not foun
 
 
 sub get_output ( Str $tut_fp, :$each_line = 0 ) {
-    my $file_t = slurp $tut_fp || die "Slurp failed '$tut_fp'\n";
+    my $file_t = slurp $tut_fp or die "Slurp failed '$tut_fp'\n";
     my @parts = ( $each_line ) ?? split( "\n", $file_t ) !! split( "\n\n", $file_t );
 
     my $new_pl = '';
     for @parts.kv -> $part_num, $part {
         $new_pl ~= $part ~ "\n";
-        # TODO
+        # todo_
         #unless $part ~~ rx:perl5{^\s*$} {
             $new_pl ~= 'print "#~# ' ~ $part_num ~ ' #~#\n";';
             # todo_ waiting for io_redirect_to_scalar
@@ -135,17 +134,17 @@ sub get_output ( Str $tut_fp, :$each_line = 0 ) {
             $new_pl ~= "\n";
         #}
     }
-    say $new_pl;
+    say "new_pl: $new_pl";
     
     # todo_
-    #my $out, $err;
+    # my ( $out, $err );
     #open $*OUT,">", \$out;
     #open $*OUT,">", \$err;
     #my $status = eval $new_pl;   
     #say $status;
     
-    my $fh_p6_temp = open %conf<f_temp_fp>, :w;
-    print $fh_p6_temp, $new_pl;
+    my $fh_p6_temp = open %conf<f_temp_fp> :w;
+    $fh_p6_temp.print( $new_pl );
     close $fh_p6_temp;
     
     my $cmd = "$pugs %conf<f_temp_fp> > %conf<f_temp_out_fp>";
@@ -156,23 +155,24 @@ sub get_output ( Str $tut_fp, :$each_line = 0 ) {
     
     say ~ '-' x 60 ~ " out b --\n" ~ $out ~ "\n" ~ '-' x 60 ~ ' out e --' if $dg;
 
-  # my @out_parts = split( rx:perl5{#~# \d+ #~#}, $out);
-    my @out_parts = split( rx:perl5{#~# \d+ #~}, $out);
+    my @out_parts = split( rx:perl5{#~# \d+ #~#\n}, $out);
+
+    say @out_parts.perl;
     
-    # todo_
-    #for @out_parts -> $out_part is rw {
-    #  $out_part = undef; ...
-    for @out_parts.keys -> $idx {
-        my $out_part = @out_parts[$idx];
-        if $out_part ~~ rx:perl5{^#\s*$} {
-            @out_parts[$idx] = undef;
+    for @out_parts -> $out_part is rw {
+        if $out_part ~~ rx:perl5{^\s*$} {
+            $out_part = undef;
         } else {
-            @out_parts[$idx] ~~ s:perl5{^#\n}{};
+            $out_part ~~ s:perl5{^\n}{};
             $out_part ~~ s:perl5{\n$}{} if $each_line;
             
         }
+        say $out_part.perl if $dg;
     }
-    return \@parts, \@out_parts;
+
+    say @parts.perl if $dg;
+    say @out_parts.perl if $dg;
+    return ( \@parts, \@out_parts );
 }
     
 
@@ -181,16 +181,14 @@ sub gen_html (
     Str $prev_tut_fn, Str $tut_fn, Str $next_tut_fn, 
     Str $out_dir, Str :$suffix 
 ) {
-    use HTML::Entities;
-
     my ( $part, $out_part );
     say ~@out_parts;
  
     my $html_fp = catfile( $out_dir, $tut_fn ~ $suffix );
-    my $fh_html = open '>' ~ $html_fp;
+    my $fh_html = open $html_fp :w;
 
     # ===== html =====>>
-    say $fh_html,
+    $fh_html.say(
 qq|<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>
   <head>
@@ -212,37 +210,48 @@ qq|<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
       </tr>
     </table>
     <br><br>
-    <table id="test_out" cellspacing=0 cellpadding=0 border=0>|; # <<=====
+    <table id="test_out" cellspacing=0 cellpadding=0 border=0>| ); # <<=====
  
-    my $out_part;
-    for @parts.kv -> $part_num, $part {
-        $out_part = @out_parts[$part_num];
-        say ~ '-' x 20 ~ " $part_num in_part -----\n" ~ $part ~ "\n" ~ '-' x 20 ~ " $part_num out_part ----\n"  ~ '-' x 20 ~ "\n" ~ $out_part ~ "\n" ~ '-' x 20 ~ ' $part_num out_part e --' if $dg;
+    for zip( @parts.keys, @parts.values, @out_parts ) -> $part_num, $part, $out_part {
+        if $dg {
+            my $sep = '-' x 20;
+            say "$sep $part_num in_part -----";
+            say $part; 
+            say "$sep $part_num out_part ----";
+            say $out_part;
+            say "$sep $part_num out_part e --";
+        }
 
+        my $rw_part_hack = $part;
         # ===== html =====>>
-        say $fh_html, qq|
+        $fh_html.say( qq|
         <tr>
-          <td class="src"><pre>{encode_entities $part}</pre></td>
+          <td class="src"><pre>{encode_entities($rw_part_hack)}</pre></td>
         { 
-            if $out_part { 
-                qq|<td><div class="out"><pre>{encode_entities $out_part}</pre></div></td>| 
-            } else { 
-                qq|<td class="empty"></td>|; 
+# todo_
+#            ( $out_part ) 
+#                ?? qq|<td><div class="out"><pre>{ encode_entities $todo_c }</pre></div></td>|
+#                :: qq|<td class="empty"></td>|
+#            ; 
+            if $out_part {
+                qq|<td><div class="out"><pre>{ my $todo_c = $out_part; encode_entities($todo_c); }</pre></div></td>|;
+            } else {
+                qq|<td class="empty"></td>|;
             }
         }
-        </tr>|; # <<=====        
+        </tr>| ); # <<=====        
     }
 
     # TODO s{./../tut}{abs2rel}
     # ===== html =====>>
-    say $fh_html, qq|
+    $fh_html.say( qq|
     </table>
     <table id="help" cellspacing=0 cellpadding=0 border=0>
       <tr>
         <td><a href="{%conf<tut_src_rel>}/{$tut_fn}">{$tut_fn} src</a> \&nbsp; \&nbsp; <a href="{%conf<tut_src_rel>}/">src dir</a><td>     
       </tr>
     </table></body></html>
-|; # <<=====
+| ); # <<=====
     close $fh_html;
 }
 
@@ -252,6 +261,7 @@ if %conf<add_others> {
     # todo_ maybe
     # my %index{ @prep_index } >>= 1;
     my %index; for @prep_index -> $key { %index{$key} = 1; }
+    # say %index.perl if $dg;
     
     my @ls = sort readdir %conf<f_tut_src_dir>;
     for @ls -> $each {
@@ -266,10 +276,10 @@ if %conf<add_others> {
 }
 say ~@prep_index if $dg;
 
-
+my ( @parts, @out_parts );
 my ( $tut_fp, $tt_vars );
-my ( $tut_fn, $prev_tut_fn, $next_tut_fn );
-# todo_ autrijus "zip() is in." 
+my ( $prev_tut_fn, $next_tut_fn );
+# TODO autrijus "zip() is in." 
 for @prep_index.kv -> $idx, $tut_fn {
     if ( $idx > 0 ) { $prev_tut_fn = @prep_index[$idx-1] } else { $prev_tut_fn = undef };
     if ( $idx + 1 < @prep_index.elems ) { $next_tut_fn = @prep_index[$idx+1] } else { $next_tut_fn = undef };
@@ -277,11 +287,15 @@ for @prep_index.kv -> $idx, $tut_fn {
     say "p:'$prev_tut_fn'  a:'$tut_fn'  n:'$next_tut_fn'";
     $tut_fp = catfile %conf<f_tut_src_dir>, $tut_fn;
 
-    my ( @parts, @out_parts );
+
     # todo_
-#    { my $r = get_output( $tut_fp, each_line => %conf<each_line> ); @parts = $r[0], @out_parts = $r[1] }
-    { my $r = get_output( $tut_fp, each_line => %conf{'each_line'} ); @parts = $r[0], @out_parts = $r[1] }
+    # my ( @parts, @out_parts ) = get_output( $tut_fp, each_line => %conf<each_line> );
+    # my ( @parts, @out_parts );  # todo_ - uncomment and you will see for $idx >= 1
+    { my ( @r ) = get_output( $tut_fp, each_line => %conf<each_line> ); @parts = *@r[0]; @out_parts = *@r[1] }
+
     say "parts: {+@parts}, out_parts: {+@out_parts}" if $dg;
+    say 'parts: ' ~ @parts.perl if $dg;
+    say 'out_parts: ' ~ @out_parts.perl if $dg;
     
     gen_html( 
         @parts, @out_parts, 
