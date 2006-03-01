@@ -236,6 +236,10 @@ sub ruleop::optional {
     return ruleop::alternation( [ $_[0], ruleop::null() ] );
 }
 
+sub ruleop::null_or_optional {
+    return ruleop::alternation( [ ruleop::null(), $_[0] ] );
+}
+
 sub ruleop::greedy_plus { 
     my $node = shift;
     my $alt;

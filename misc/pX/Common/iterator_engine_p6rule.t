@@ -216,6 +216,24 @@ my $rule = \&grammar1::rule;
 }
 
 {
+  my $rule = ::compile_rule( 'a??', {print_program=>0, print_ast=>0} );
+  is ( ref $rule, "CODE", "compile_rule( 'a??' )" );
+  $match = $rule->( 'aaa' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 1" );
+  is ( $match->{tail}, 'aaa', "correct left-out" );
+}
+
+{
+  my $rule = ::compile_rule( 'a??b', {print_program=>0, print_ast=>0} );
+  is ( ref $rule, "CODE", "compile_rule( 'a??b' )" );
+  $match = $rule->( 'abaa' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 1" );
+  is ( $match->{tail}, 'aa', "correct left-out" );
+}
+
+{
   $match = $rule->( '(<word>) <ws>' );
   ok ( $match->{bool}, "parse rule - 2 terms, with capture" );
   $program = emit_rule( $match->{capture} );

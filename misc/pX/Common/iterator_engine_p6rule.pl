@@ -89,6 +89,7 @@ use vars qw( @rule_terms );
                 ruleop::capture( 'term', \&term ),
                 ruleop::capture( 'literal',
                     ruleop::alternation( [
+                        ruleop::constant( '??' ),
                         ruleop::constant( '?' ),
                         ruleop::constant( '*?' ),
                         ruleop::constant( '+?' ),
@@ -322,6 +323,7 @@ sub emit_rule {
                     '*?'=>'non_greedy_star', 
                     '+?'=>'non_greedy_plus',
                     '?' =>'optional',
+                    '??' =>'null_or_optional',
                 }->{$quantifier};
             # print "*** \$quantifier:\n",Dumper $quantifier;
             die "quantifier not implemented: $quantifier" 
