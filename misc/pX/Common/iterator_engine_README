@@ -64,13 +64,15 @@ About the Rules:
 
 implemented:
 
- . ? * + *? +? 
+ . ? * + *? +? ??
  \char <ws> <word> literal
  $variable @variable
  <'literal'>
  [] 
- ()        - but doesn't do named captures yet
- <subrule> - but doesn't auto-capture yet
+ ()     
+ <subrule>
+ <?subrule>
+ <!subrule>
  |
  <@var>    - special-cased for array-of-rule (but not Rule|Str)
  {code}    - non-capturing closure
@@ -92,7 +94,6 @@ not implemented:
  $0 $1
  <"literal">
  ^ ^^ $ $$
- <!term>
  <unicode-class> <+unicode-class> <+unicode-class+unicode-class>
  <&var> 
  <%var>
@@ -107,9 +108,10 @@ not implemented:
  #comment\n
  \x0a \0123 ...
  <?ws>  -- optional whitespace ???
+ &      -- not sure what it means
+ <!abc> -- is this !<abc> or !abc ?
 
 not sure if specified:
- &
  'literal' "literal"
  <!n,m>  -- <!{n..m}> ???
 

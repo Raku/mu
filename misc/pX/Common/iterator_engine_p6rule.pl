@@ -34,6 +34,7 @@ sub subrule {
     }
 }
 
+# XXX - compile non_capturing_subrule using a rule
 sub non_capturing_subrule {
     my ( $code, $tail ) = $_[0] =~ /^\<\?(.*?)\>(.*)$/s;
     return unless defined $code;
@@ -43,6 +44,19 @@ sub non_capturing_subrule {
         match => { code => $code },
         tail  => $tail,
         capture => [ { non_capturing_subrule => $code } ],
+    }
+}
+
+# XXX - compile negated_subrule using a rule
+sub negated_subrule {
+    my ( $code, $tail ) = $_[0] =~ /^\<\!(.*?)\>(.*)$/s;
+    return unless defined $code;
+    # print "negated_subrule $code - $1\n";
+    return { 
+        bool  => 1,
+        match => { code => $code },
+        tail  => $tail,
+        capture => [ { negated_subrule => $code } ],
     }
 }
 
@@ -77,6 +91,7 @@ use vars qw( @rule_terms );
 @rule_terms = (
     \&capturing_group,
     @literals,
+    \&negated_subrule,
     \&non_capturing_subrule,
     \&subrule,
     \&dot,
@@ -373,6 +388,10 @@ sub emit_rule {
         elsif ( $k eq 'non_capturing_subrule' ) {
             #print Dumper $v;
             return "$tab \\&{'$namespace$v'}\n";
+        }
+        elsif ( $k eq 'negated_subrule' ) {
+            #print Dumper $v;
+            return "$tab ruleop::negate( \\&{'$namespace$v'} )\n";
         }
         elsif ( $k eq 'literal' ) {
             #print "literal:", Dumper($v);

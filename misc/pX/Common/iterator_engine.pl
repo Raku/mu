@@ -230,6 +230,20 @@ sub ruleop::abort {
     };
 };
 
+# experimental!
+sub ruleop::negate { 
+    my $op = shift;
+    return sub {
+        my $tail = $_[0];
+        my $match = $op->( @_ );
+        return if $match->{bool};
+        return { bool => 1,
+                 match => 'null',
+                 tail => $tail,
+               }
+    };
+};
+
 # ------- higher-order ruleops
 
 sub ruleop::optional {

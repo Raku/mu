@@ -46,6 +46,21 @@ my $rule = \&grammar1::rule;
 }
 
 {
+  my $rule = ::compile_rule( '<!word>', 
+      {print_program=>0, print_ast=>0}  );
+  is ( ref $rule, "CODE", "compile_rule( '<!word>' )" );
+  $match = $rule->( 'aword%' );
+  # print Dumper( $match );
+  ok ( ! $match->{bool}, "parse sample 1" );
+  is ( $match->{tail}, undef, "correct left-out (fail)" );
+
+  $match = $rule->( '%%%' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "parse sample 1" );
+  is ( $match->{tail}, '%%%', "correct left-out" );
+}
+
+{
   $match = $rule->( "<'lit'>" );
   #print Dumper( $match->{capture} );
   ok ( $match->{bool}, "parse rule <'lit'>" );
