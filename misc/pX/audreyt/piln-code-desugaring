@@ -1,0 +1,29 @@
+# p6
+sub plus_one (Num $x) { 1 + $x }
+
+# PIL^N (or some such)
+BEGIN {
+    ^VAR = ALLOCATE_STORAGE;
+
+    %MY::<&plus_one> := ^VAR;
+    %OUR::<&plus_one> := ^VAR;
+
+    ^CODE = ALLOCATE_STORAGE;
+
+    ^PAD_X_INIT = ALLOCATE_STORAGE_WITH_CONSTRAINT(^NUM.CONSTRAINT);
+    ^PAD_X_VAR = ALLOCATE_STORAGE_WITH_CONSTRAINT(^NUM.CONSTRAINT);
+
+    ^PAD_X_VAR`LINK_MY_VARIANT(^PAD_X_INIT);
+    ^CODE`LOOKUP("PAD")`INSERT`("$x", ^PAD_X_VAR );
+    ^CODE`STORE("OUTER", ^MY_SCOPE`LOOKUP("PAD"));
+    ^CODE`STORE("SIG", ^SIG`CREATE([{ type => "Num", name => "$x" }]));
+    ^CODE`STORE("BODY", -> $x {
+        # same as (&infix:<+>).postcircumfix:<( )>()
+        # (&infix:<+>).call(1, $x)
+        (&infix:<+>).call(LIT(1), VAR('$x'))
+    });
+
+    :(&plus_one).infix:<:=>(
+        \( ^CODE )
+    );
+}
