@@ -1,4 +1,12 @@
 =pod
+PROJECT ABANDONED:
+
+  The regexp compiler hook only gets the pattern _after_ variable
+  interpolation has occured.  So this is a nice way to do a reentrant p5
+  engine, even one with rules, but you can't do p6 regex with it.
+=cut
+
+=pod
 Objective:
 
   Permit swapping in an alternate regexp engine,
