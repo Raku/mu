@@ -1,5 +1,6 @@
 peek.spork: "A Peek into Pugs Internals" (English):
   Talk by Gaal Yahas for OSDC Israel 2006
+  HTML version: http://perlcabal.org/~gaal/peek/start.html
 
 Anatomie_eines_Compilers_am_Beispiel_von_Pugs.latex (German):
   Talk by Ingo Blechschmidt

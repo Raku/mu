@@ -183,24 +183,24 @@ filetype: haskell
 
 ----
 == Classic compilation
-{html:<img width="900" src="http://nothingmuch.woobling.org/gaal/compilation_flow_no_snip.png" />}
+{html:<img width="900" src="images/compilation_flow_no_snip.png" />}
 
 * This is a typical description of how compilation works in a language like c
 
 ----
 == Classic compilation
-{html:<img width="900" src="http://nothingmuch.woobling.org/gaal/compilation_flow_with_snip.png" />}
+{html:<img width="900" src="images/compilation_flow_with_snip.png" />}
 
 * This is a typical description of how compilation works in a language like c
 
 * Some of that doesn't interest us right now.
 
 * Every language needs a parser
-+** (except maybe LISP)
++** (except maybe LISP :-)
 
 ----
 == Perl 5 model
-{html:<img width="900" src="http://nothingmuch.woobling.org/gaal/interpretation_flow.png" />}
+{html:<img width="900" src="images/interpretation_flow.png" />}
 
 * The code we were looking at is in the parser itself
 +* We could have done `eval $some_perl_code`, but that's slow
@@ -603,16 +603,6 @@ filetype: perl6
 rule term
     { undef            : { return Val(VUndef)   }
     | (\d+)            : { return Val(VInt($0)) }
-    }
-.vim
-
-----
-== Parsing literals
-.vim
-filetype: perl6
-rule term
-    { undef            : { return Val(VUndef)   }
-    | $<digits>:=(\d+) : { return Val(VInt($<digits>)) }
     }
 .vim
 
