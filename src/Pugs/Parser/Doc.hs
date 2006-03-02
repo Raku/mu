@@ -1,8 +1,7 @@
 {-# OPTIONS_GHC -fglasgow-exts -funbox-strict-fields -fno-full-laziness -fno-cse #-}
 
 module Pugs.Parser.Doc (
-    ruleDocIntroducer,
-    ruleDocBody,
+    ruleDocBlock,
 ) where
 import Pugs.Internals
 import Pugs.AST
@@ -54,3 +53,26 @@ ruleDocBody = (try ruleDocCut) <|> eof <|> do
     many1 newline -- XXX - paragraph mode
     ruleDocBody
     return ()
+
+ruleDocBlock :: RuleParser Exp
+ruleDocBlock = verbatimRule "Doc block" $ do
+    isEnd <- try $ do
+        ruleDocIntroducer
+        section <- do
+            c <- wordAlpha
+            cs <- many $ satisfy (not . isSpace)
+            return (c:cs)
+        param <- option "" $ do
+            satisfy isSpace
+            -- XXX: drop trailing spaces?
+            many $ satisfy (/= '\n')
+        return (section == "begin" && param == "END")
+    choice [ eof, do { many1 newline; return () } ]
+    if isEnd
+        then do
+            many anyChar
+            return emptyExp
+        else do
+            ruleDocBody
+            whiteSpace
+	    return emptyExp

@@ -121,8 +121,8 @@ ruleStatement = do
     f exp
 
 ruleStatementList :: RuleParser Exp
-ruleStatementList = rule "statements" $ choice
-    [ ruleDocBlock
+ruleStatementList = rule "statements" $ sepLoop $ choice
+    [ noSep ruleDocBlock
     , nonSep  ruleBlockDeclaration
     , semiSep ruleDeclaration
     , nonSep  ruleConstruct
@@ -131,43 +131,19 @@ ruleStatementList = rule "statements" $ choice
     where
     nonSep  = doSep many  -- must be followed by 0+ semicolons
     semiSep = doSep many1 -- must be followed by 1+ semicolons
-    doSep sepCount rule = do
+    noSep r = fmap (\x -> (x, False)) r
+    doSep sepCount r = do
+      exp <- r
+      terminate <- option True $ (sepCount $ symbol ";") >> return False
+      return (exp, terminate)
+    sepLoop rule = do
         whiteSpace
-        -- pos     <- getPosition
-        exp        <- rule
-        appendRest <- option id $ do
-            sepCount $ symbol ";"
-            -- try to parse more statement-list, recursively
-            rest <- option Noop ruleStatementList
-            -- function to append recursive results to this iteration's results
-            return $ (`mergeStmts` rest)
-        return $ appendRest exp
-
--- Inline Documentation ----------------------------------------
--- (see Pugs.Parser.Doc for the rest)
-
-ruleDocBlock :: RuleParser Exp
-ruleDocBlock = verbatimRule "Doc block" $ do
-    isEnd <- try $ do
-        ruleDocIntroducer
-        section <- do
-            c <- wordAlpha
-            cs <- many $ satisfy (not . isSpace)
-            return (c:cs)
-        param <- option "" $ do
-            satisfy isSpace
-            -- XXX: drop trailing spaces?
-            many $ satisfy (/= '\n')
-        return (section == "begin" && param == "END")
-    choice [ eof, do { many1 newline; return () } ]
-    if isEnd
-        then do
-            many anyChar
-            return emptyExp
-        else do
-            ruleDocBody
-            whiteSpace
-            option emptyExp ruleStatementList
+        (exp,terminate) <- rule
+        if terminate
+	  then return exp
+          else do
+	    rest <- option Noop (sepLoop rule)
+	    return $ exp `mergeStmts` rest
 
 -- Declarations ------------------------------------------------
 
