@@ -63,23 +63,27 @@ ruleEmptyExp = expRule $ do
     symbol ";"
     return emptyExp
 
-
-ruleBlockBody :: RuleParser Exp
-ruleBlockBody = do
+-- around a block body we save the package and the current lexical pad
+-- at the start, so that they can be restored after parsing the body
+localEnv :: RuleParser a -> RuleParser a
+localEnv m = do
     env     <- getRuleEnv
-    whiteSpace
-    pre     <- many ruleEmptyExp
-    body    <- option emptyExp ruleStatementList
-    post    <- many ruleEmptyExp
-    let body' = foldl mergeStmts (foldl (flip mergeStmts) body pre) post
+    rv      <- m
     env'    <- getRuleEnv
     putRuleEnv env'
         { envPackage = envPackage env
         , envLexical = envLexical env
         }
-    return $ case unwrap body' of
-        (Syn "sub" _)   -> mergeStmts emptyExp body'
-        _               -> body'
+    return rv
+    
+ruleBlockBody :: RuleParser Exp
+ruleBlockBody =
+  localEnv $ do
+    whiteSpace
+    pre     <- many ruleEmptyExp
+    body    <- option emptyExp ruleStatementList
+    post    <- many ruleEmptyExp
+    return $ foldl1 mergeStmts (pre ++ [body] ++ post)
 
 {-|
 Match an opening brace (@{@), followed by a 'ruleBlockBody', followed by a
@@ -138,6 +142,8 @@ ruleStatementList = rule "statements" $ choice
             return $ (`mergeStmts` rest)
         return $ appendRest exp
 
+-- Inline Documentation ----------------------------------------
+
 {-|
 Assert that we're at the beginning of a line, but consume no input (and produce
 no result).
@@ -155,7 +161,7 @@ ruleBeginOfLine = do
 Match a single \'@=@\', but only if it occurs as the first character of a line.
 -}
 ruleDocIntroducer :: RuleParser Char
-ruleDocIntroducer = (<?> "intro") $ do
+ruleDocIntroducer = (<?> "Doc intro") $ do
     ruleBeginOfLine
     char '='
 
@@ -165,7 +171,7 @@ Match \'@=cut@\', followed by a newline (see 'ruleWhiteSpaceLine').
 The \'@=@\' must be the first character of the line ('ruleDocIntroducer').
 -}
 ruleDocCut :: RuleParser ()
-ruleDocCut = (<?> "cut") $ do
+ruleDocCut = (<?> "Doc cut") $ do
     ruleDocIntroducer
     string "cut"
     ruleWhiteSpaceLine
