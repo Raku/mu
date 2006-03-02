@@ -9,7 +9,7 @@ use Rosetta-0.722.0;
 ###########################################################################
 
 # Constant values used by packages in this file:
-# (None Yet)
+my Str $EMPTY_STR is readonly = q{};
 
 ###########################################################################
 ###########################################################################
@@ -19,12 +19,71 @@ module Rosetta::Shell-0.1.0 {
     # External packages used by the Rosetta::Shell module, that do export symbols:
     # (None Yet)
 
-    # Attributes of every Rosetta::Shell object:
-    # (None Yet)
+    # State variables used by the Rosetta::Shell module:
+    my Locale::KeyedText::Translator $translator;
 
 ###########################################################################
 
+sub main (Str :$engine_name!, Str :@user_lang_prefs? = 'en') {
 
+    $translator .= new(
+        'set_names'    => [
+                'Rosetta::Shell::L::',
+                'Rosetta::L::', 
+                'Rosetta::Model::L::',
+                'Locale::KeyedText::L::',
+                $engine_name ~ '::L::',
+            ],
+        'member_names' => @user_lang_prefs,
+    );
+
+    _show_message( Locale::KeyedText::Message.new(
+        'msg_key' => 'MYAPP_HELLO' ) );
+
+#    INPUT_LINE:
+    while (1) {
+        _show_message( Locale::KeyedText::Message.new(
+            'msg_key' => 'MYAPP_PROMPT' ) );
+
+        my Str $user_input = =$*IN;
+
+        # user simply hits return on an empty line to quit the program
+#        last INPUT_LINE
+        last
+            if $user_input eq $EMPTY_STR;
+
+        try {
+            my Num $result = MyLib::my_invert( $user_input );
+            _show_message( Locale::KeyedText::Message.new(
+                'msg_key'  => 'MYAPP_RESULT',
+                'msg_vars' => {
+                    'ORIGINAL' => $user_input,
+                    'INVERTED' => $result,
+                },
+            ) );
+        };
+        _show_message( $! )
+            if $!; # input error, detected by library
+    }
+
+    _show_message( Locale::KeyedText::Message.new(
+        'msg_key' => 'MYAPP_GOODBYE' ) );
+
+    return;
+}
+
+###########################################################################
+
+my sub _show_message (Locale::KeyedText::Message $message!) {
+    my Str $user_text = $translator.translate_message( $message );
+    if (!$user_text) {
+        $*ERR.print( "internal error: can't find user text for a message:"
+            ~ "\n$message$translator" ); # note: the objects will stringify
+        return;
+    }
+    $*OUT.say( $user_text );
+    return;
+}
 
 ###########################################################################
 

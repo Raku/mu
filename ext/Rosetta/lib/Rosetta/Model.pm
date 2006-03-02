@@ -61,6 +61,12 @@ method export_as_hash () returns Hash {
 
 ###########################################################################
 
+my method _die_with_msg (Str $msg_key!, Any %msg_vars? is ref = {}) {
+    %msg_vars{'CLASS'} = 'Rosetta::Model::Document';
+    die Locale::KeyedText::Message.new(
+        'msg_key' => $msg_key, 'msg_vars' => %msg_vars );
+}
+
 my method _assert_arg_rt_nd_aoh (Str $meth!, Str $arg!, Str @val!) {
     $?SELF!_die_with_msg( 'LKT_ARG_UNDEF',
             { 'METH' => $meth, 'ARG' => $arg } )
