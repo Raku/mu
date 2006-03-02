@@ -556,7 +556,7 @@ my $obj = m{
         [ Ferrari
           : { return Car.new(:color<red>) }
         | ModelT $<year>:=(\d\d\d\d)
-          : { return Car.new(:color<black> :$<year>)
+          : { return Car.new(:color<black> :$<year>) }
         ]
 };
 
