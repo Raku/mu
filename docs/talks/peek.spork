@@ -72,15 +72,16 @@ Gaal Yahas
 ----
 == Warmup question
 
+
   module MyMod;                  module A;      module B;
 
   sub foo is export {            use MyMod;     use MyMod;
       say 42;
   }                              foo();         foo();
-   　
-   　
-   　
-   　
+  
+  
+   
+   
                          # main.p6
                          use A;
                          use B;
@@ -105,8 +106,8 @@ BEGIN { require MyMod; MyMod->import }
 
 * The parser sees "use MyMod"
 +** Loads MyMod.pm
-+** Compile it
-+** Run its `import` routine
++** Compiles it
++** Runs its `import` routine
 +* `use` is a /digression/ in the caller's compilation
 +* BEGIN is a powerful but /weird/ tool
 ** The compiler and the evaluator intermix
@@ -318,7 +319,7 @@ undefLiteral = do
 +* `symbol` is a Parsec builtin
 +* it asserts the next symbol is a literal ("undef" in this case)
 +* eats it up
-+** and returns a small chunk of AST representing undef
++* and returns a small chunk of AST representing undef
 
 ----
 == Another simple example
@@ -372,7 +373,7 @@ ruleForConstruct = rule "for construct" $ do
 * `optional` means try something out
 * if it wasn't found, don't fail the current rule but don't consume anything
 * skip what did parse though
-+* In Perl 5 regexps: `/(?:,)/`
++* In Perl 5 regexps: `/(?:,)?/`
 
 ----
 == Brace yourself
@@ -518,7 +519,7 @@ say "%siblings{}"; # charlie   => donald etc.
 ** It's Perl 6 you want to use now
 
 * Whenever you see a Good Idea on the road
-+** Steal it
++** Steal it!
 ----
 == Perl 6 Rules
 
@@ -549,7 +550,7 @@ if (/Car=(?:(Ferrari)|(ModelT)(\d\d\d\d))/) {
 ----
 == Rules version
 .vim
-filetype: perl
+filetype: perl6
 my $obj = m{
     Car =
         [ Ferrari
@@ -581,7 +582,7 @@ rule undefined { undef : { return Val(VUndef) } }
 .vim
 filetype: perl6
 rule term
-    { undef     : { return Val(VUndef) }
+    { undef            : { return Val(VUndef) }
     | <digits>
     }
 .vim
@@ -591,7 +592,7 @@ rule term
 .vim
 filetype: perl6
 rule term
-    { undef     : { return Val(VUndef) }
+    { undef            : { return Val(VUndef) }
     | \d+
     }
 .vim
@@ -621,8 +622,8 @@ rule term
 .vim
 filetype: perl6
 rule term
-    { undef : { return Val(VUndef)   }
-    | (\d+) : { return Val(VInt($0)) }
+    { undef            : { return Val(VUndef)   }
+    | (\d+)            : { return Val(VInt($0)) }
     }
 .vim
 
@@ -631,8 +632,8 @@ rule term
 .vim
 filetype: perl6
 rule term
-    { undef : { return VUndef    }
-    | (\d+) : { return VInt($0)  }
+    { undef            : { return VUndef   }
+    | (\d+)            : { return VInt($0) }
     }
 
 rule expr
@@ -644,12 +645,12 @@ rule expr
 .vim
 filetype: perl6
 rule term
-    { undef : { return VUndef    }
-    | (\d+) : { return VInt($0)  }
+    { undef            : { return VUndef    }
+    | (\d+)            : { return VInt($0)  }
     }
 
 rule expr
-    { <term> : { return Val($term) }
+    { <term>           : { return Val($term) }
     |
 .vim
 
@@ -658,14 +659,14 @@ rule expr
 .vim
 filetype: perl6
 rule term
-    { undef : { return VUndef    }
-    | (\d+) : { return VInt($0)  }
+    { undef            : { return VUndef    }
+    | (\d+)            : { return VInt($0)  }
     }
 
 rule expr
-    { <term> : { return Val($term) }
+    { <term>           : { return Val($term) }
     | (<expr>) (<[+-]>) (<expr>)
-             : { return Op(VStr($1), $0, $2) }
+                       : { return Op(VStr($1), $0, $2) }
     }
 .vim
 
@@ -674,23 +675,23 @@ rule expr
 .vim
 filetype: perl6
 rule term
-    { undef : { return VUndef    }
-    | (\d+) : { return VInt($0)  }
+    { undef            : { return VUndef    }
+    | (\d+)            : { return VInt($0)  }
     }
 
 rule expr
-    { <term> : { return Val($term) }
+    { <term>           : { return Val($term) }
     | $<lhs> := <expr>
                 <operator>
       $<rhs> := <expr>
-      : { return Op(Val($<operator>), $<lhs>, $<rhs>) }
+                       : { return Op(Val($<operator>), $<lhs>, $<rhs>) }
     }
 .vim
 +.vim
 filetype: perl6
 rule operator
     { $<op> := <[+-]>
-      : { return VStr($<op>)
+                       : { return VStr($<op>) }
     }
 .vim
 
@@ -704,4 +705,6 @@ rule operator
 == ObMoose
 {image: http://forum2.org/gaal/m00se.png}
 
+
+=== /Thank you!/
 ----
