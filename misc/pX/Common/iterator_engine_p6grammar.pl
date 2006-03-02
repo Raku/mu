@@ -25,20 +25,50 @@ $Data::Dumper::Pad = '# ';
     use vars qw( @statements @terms @ops );
 
     # bootstrap the 'grammar' syntax
+
+
+    my $immediate_statement_rule;
+    *immediate_statement = sub {
+        $immediate_statement_rule ||= ::compile_rule( q(
+            <?ws>? <@grammar1::statements> <?ws>?
+        ), {print_ast=>0} );
+        # print "matching #$_[0]#\n";
+        my $match = $immediate_statement_rule->( @_ );
+        # print "BEGIN AST: \n", Dumper( $match->{capture} );
+        return $match unless $match->{bool};
+        # print "BEGIN AST: \n", Dumper( $match->{capture} );
+        my $program = Perl6Grammar::emit( $match->{capture} );
+        # print "eval'ing code:\n$program";
+        no strict 'refs';
+        my $code = eval($program);
+        die "error in statement: " . $@
+            if $@;
+        # print "CODE[ $code ]\n";
+        return {
+            %$match,
+            capture => [ { perl5 => $program } ],
+        }
+    };
+
+
     *grammar = ::compile_rule( <<'__p6__' ); 
-        [ <ws>? <@grammar1::statements> ]* <ws>?
+        [ <?ws>? <immediate_statement> ]* <?ws>?
 __p6__
+
+
     *rule_decl = ::compile_rule( <<'__p6__' );
         rule <ws> <ident> <ws>? \{ <rule> \}  
             { return { rule_decl => $<> ,} }
 __p6__
+
+
     push @grammar1::statements, \&rule_decl;
     # done bootstrapping!
     
     # improve the grammar a little:
     # - 'grammar' declaration
     # - 'push' - add terms into the grammar tables
-    Perl6Grammar::compile( <<'__p6__' , {print_ast=>0} )->();
+    Perl6Grammar::compile( <<'__p6__' , {print_ast=>0} );
         rule grammar1::grammar_name { 
             grammar <ws> <ident> <ws>? \;
                 { return { grammar_name => $<> ,} }
@@ -52,104 +82,38 @@ __p6__
     push @grammar1::statements, \&_push;
     
     # the remaining grammar can be written using itself
-    Perl6Grammar::compile( <<'__p6__' , {print_program=>0});
-    
-        grammar grammar1;
-        
-        rule term1 {
-            <@grammar1::terms>
-        }
-        
-        push @terms, \&variable;
-        push @terms, \&literal;
-        
-        rule pod { 
-            \=[pod|head1|kwid] 
-            .*? 
-            \=cut 
-        }
-        
-        rule list {
-            [ <term1> <ws>? \, <ws>? ]* <term1>?
-        }
-        
-        rule _print { 
-            $op := (print|say|warn|die) <ws> <list> <ws>? \;
-                { return { _print => $<> ,} }
-        }
-        push @statements, \&_print;
-        
-        rule _my {
-            $op := (my|our|local) <ws> <variable> <ws>? \;
-                { return { _my => $<> ,} }
-        }
-        push @statements, \&_my;
-        
-        rule _simple_statement {
-            $op := (die|\.\.\.) \;
-                { return { _simple_statement => $<> ,} }
-        }
-        push @statements, \&_simple_statement;
-        
-        rule block {
-            \{ <grammar> \}
-                { return { block => $<grammar> ,} }
-        }
-        push @statements, \&block;
-        
-        rule sub_decl {
-            sub <ws> $fix := (infix|prefix|postfix) \: \< $id := (.*?) \> <ws>? <block>
-                { return { sub_decl => $<> ,} }
-        }
-        push @statements, \&sub_decl;
-    
-        rule term2 {
-            $term1 := (<term1>) <ws>? 
-            $op    := (<@grammar1::ops>) <ws>? 
-            $term2 := (<term1>) 
-                { return { sub_application_term => $<> ,} }
-        }
-        
-        rule sub_application {
-            $term1 := (<term1>|<term2>) <ws>? 
-            $op    := (<@grammar1::ops>) <ws>? 
-            $term2 := (<term1>|<term2>) <ws>? \;
-                { return { sub_application => $<> ,} }
-        }
-        push @statements, \&sub_application;
-        
-        rule eval_perl5 {
-            eval <ws>? \( <ws>? 
-                <literal> <ws>? \, <ws>? 
-                \: lang \< perl5 \> <ws>? 
-            \) <ws>? \;
-                { return { eval_perl5 => $<literal> } }
-        }
-        push @statements, \&eval_perl5;
 
-__p6__
+    # load/precompile Prelude
 
-=for TODO
-    prelude - pre-compile;
-    reimplement print(), warn ... using 'sub'
-    implement eval_perl6 and eval_block 
-    
-    operand fixity (infix, prefix...)
-    operand precedence (+, *, ln)
-    
-    class
-    
-    find out how to change syntax while in the parse-and-generate-ast phase
-    (for example, when a new sub is created)
-    
-    macros
-=cut
-
-    Perl6Grammar::compile( q(
-        say 'compiling Prelude';
-        sub infix:<*> { eval(' $_[0] * $_[1] ', :lang<perl5>); }
-        sub infix:<+> { eval(' $_[0] + $_[1] ', :lang<perl5>); }
-    ), {print_program=>1, print_ast=>0});
+    my $prelude_file = 'iterator_engine_p6prelude';
+    my $recompile;
+    if ( -f "$prelude_file-cached.pl" ) {
+        $recompile = 
+            -M "$prelude_file-cached.pl" > 
+            -M "$prelude_file.p6";
+    }
+    else {
+        $recompile = 1;
+    }
+    if ( $recompile ) {
+        local $/ = undef; 
+        print "compiling Prelude: $prelude_file.p6\n";
+        open( FILE, "<", "$prelude_file.p6" ) or 
+            die "can't open prelude file: $prelude_file.p6 - $!";
+        my $prelude = <FILE>;
+        # print "Prelude:$prelude\n";
+        my $perl5 = Perl6Grammar::compile( $prelude );
+        # print "MATCH\n", Dumper($match), "END MATCH\n";
+        print "caching Prelude: $prelude_file-cached.pl\n";
+        open( FILE, ">", "$prelude_file-cached.pl" ) or
+            die "can't open prelude file: $prelude_file-cached.pl - $!";
+        print FILE "# generated file - do not edit!\n" . $perl5;
+        close FILE;
+    }
+    else {
+        print "loading Prelude: $prelude_file-cached.pl\n";
+        require "$prelude_file-cached.pl";
+    }
 
     # my $match = $ops[0]->( 'infix:<+>' );
     # print "match: \n", Dumper( $match );
@@ -159,9 +123,7 @@ __p6__
         '1' infix:<*> '1';
         '1' infix:<+> '1' infix:<*> '1';
         '1' infix:<*> '1' infix:<+> '1';
-    ), {print_program=>1, print_ast=>0});
-    
-    Perl6Grammar::compile( q(
+
         my $a;
         print 'hello, ';
         say 'world!';
@@ -245,9 +207,12 @@ sub compile {
     print "generated ast:\n", Dumper( $match->{capture} ) if $flags->{print_ast};
     my $program = emit( $match->{capture} );
     print "generated code:\n$program" if $flags->{print_program};
-    no strict 'refs';
-    my $code = eval($program); die $@ if $@;
-    return $code;
+
+    return $program;
+
+    # no strict 'refs';
+    # my $code = eval($program); die $@ if $@;
+    # return $code;
 }
 
 sub emit 
@@ -258,9 +223,9 @@ sub emit
 
     # $n = $n->{match};
 
-    if ( ! defined $n || $n eq '' ) {
+    if ( ! defined $n || ref($n) eq '' ) {
         # empty node; maybe a <null> match
-        return;
+        return '';
     }
     if ( ref( $n ) eq 'ARRAY' ) {
         my @s;
@@ -275,10 +240,10 @@ sub emit
         #print "$k => $v \n";
 
         if ( $k eq 'pod' ) {
-            return;
+            return '';
         }
         if ( $k eq 'ws' ) {
-            return;
+            return '';
         }
         if ( $k eq 'grammar_name' ) {
             my $name = match::str( match::get( 
@@ -422,7 +387,8 @@ sub emit
                 $s .= "$cmd $s1;\n"
                     if $s1;
             }
-            return $s . "$cmd \"\\n\";\n" if $op eq 'say';
+            return $s . "$cmd \"\\n\";\n" 
+                if $op eq 'say';
             return $s;
         }
         if ( $k eq 'term1' || $k eq 'term2' ) {
@@ -436,6 +402,11 @@ sub emit
         }
         if ( $k eq 'variable' ) {
             return $v;
+        }
+        if ( $k eq 'immediate_statement' ) {
+            # print "immediate_statement\n", Dumper($v);
+            # return '    print "immediate_statement\n";' . "\n";
+            return $v->[0]{perl5};
         }
         die "unknown node: ", Dumper( $n );
     }

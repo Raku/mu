@@ -1,6 +1,8 @@
 pX/Common/iterator_engine_README - fglock
 
 Latest changes:
+2006-03-01:
+- precompiled Prelude - loads in < 1s
 2006-02-26:
 - working Perl 6 compiler - about 100 lines of code are now written in perl6
 - started a Prelude
@@ -36,6 +38,7 @@ Plan sketch:
 - see also the 'not implemented' list below
 - optimize infix:<+> to 'native +' when possible
 - make rule/grammar a pluggable module (pack for CPAN?)
+  how about "Perl6::Grammar", and reuse Parse::RecDescent API?
 
 Bootstrapping:
 - minimal p6 to p5 translator (parse p6, emit p5)
