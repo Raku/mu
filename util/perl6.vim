@@ -22,7 +22,7 @@ setlocal shiftwidth=4 autoindent expandtab smarttab softtabstop=1
 syn keyword p6Attn          ACHTUNG ATTN ATTENTION FIXME NB contained 
 syn keyword p6Attn          todo Todo TODO WTF XXX contained
 syn keyword p6Module        module class role use require package
-syn keyword p6KeyDecl       coro sub submethod method is but does trusts multi returns
+syn keyword p6KeyDecl       coro sub submethod method is but does trusts multi returns rule
 syn keyword p6KeyScopeDecl  let my our state temp has
 syn keyword p6KeyFlow       if else elsif unless  
 syn keyword p6KeyFlow       for foreach loop while until when next last redo
