@@ -601,4 +601,6 @@ of,
 23:12 < fglock> pmurias: sounds good - I'll check the pod again
 
 
+23:36 < fglock> it will look like: %statement_control:<if> = rule { ... 
+}
 
