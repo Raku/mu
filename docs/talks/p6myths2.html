@@ -1,0 +1,147 @@
+<html>
+<head><title>Perl 6 mythes</title>
+<style>
+body { margin: 0px }
+div { height: 728px;padding: 20px;;background: #a0f0a0; }
+body, td,th { font-size:36pt; font-family: arial}
+h1 { margin-top: 0; font-size: 48pt; }
+li { padding-left: 1ex; margin-bottom: 1ex; }
+pre, tt { color: maroon }
+.klein { font-size: 24pt; }
+ul { list-style-image: url(kameel.png) }
+</style>
+
+</head>
+<body onkeypress="scrollBy(0, event.keyCode ? -768 : 768); return false">
+<div>
+<h1>"Perl 6 Myths"</h1><br>
+Version: 2 (8<sup>th</sup> German Perl Workshop, 2006)<br>
+Speaker: Juerd<br>
+Duration: any(5..10) minutes<br><br>
+<i>This talk is about Perl 6, not about Parrot.</i>
+</div>
+
+<div>
+<h1>Perl 6 is an April fools joke</h1>
+No, that is Parrot.
+</div>
+
+<div>
+<h1>String concat will be underscore</h1>
+No, it will be tilde.
+</div>
+
+<div>
+<h1>Perl 6 is backwards compatible</h1>
+No. Parrot can handle Perl 5, but Perl 6 itself is a new language. There will
+perhaps be a conversion script.
+</div>
+
+<div>
+<h1>Perl 5 is good enough</h1>
+Perl 5 has slow subs, unreadable internals, and no formal specification.
+Threading in Perl 5 is a problem.
+</div>
+
+<div>
+<h1>Perl 6 development is closed and secret</h1>
+Almost everything happens in public mailing lists. You can join today and hack
+away at Parrot, Pugs, and the many subprojects. 
+</div>
+
+<div>
+<h1>Perl 6 is harder than Perl 5</h1>
+There is more to learn, but it will not get harder. Consistency (less
+exceptions!) and new ground breaking features make things easier. The end
+result, I think, is balanced.
+</div>
+
+<div>
+<h1>Perl 6 is slower</h1>
+Whoever says this, is lying or paranormally gifted...
+<br><br>
+Or... basing his claim on the current state of Parrot or Pugs, which are nice
+software but not quite ready for production, and no indication of the final
+product's performance.
+</div>
+
+<div>
+<h1>CPAN-modules lose their value</h1>
+Through PONIE, many Perl 5 modules will be usable in Parrot, and many popular
+modules will probably be rewritten.
+<br><br>
+And of course we get modules for free from languages that switch to Parrot.
+</div>
+
+<div>
+<h1>There are 0 lines of code in Perl 6</h1>
+Simply not true. If modern programming is test based, then our 35_000+ lines of
+Perl 6 tests (obviously, written in Perl 6), are a very good head start. Also,
+while maybe no lines of Pugs will be in the final implementation, the knowledge
+gained will.
+<br><br>
+Who measures in LoC, anyway? 
+</div>
+
+<div>
+<h1>Perl 6 depends on Parrot</h1>
+Even though The Plan prescribes that Perl 6 will run on Parrot, and that Parrot
+is written primarily for Perl 6, we <i>can</i> have Perl 6 without Parrot. In
+fact, Pugs already does support multiple backends, like Javascript, PIR
+(Parrot), its own evaluator, and... Perl 5's vm.
+</div>
+
+<div>
+<h1>The rest of the world makes the standard</h1>
+Other languages often have good features, and we should steal them. However,
+the dot is not stolen because other languages use it. It is stolen because
+other languages use it and <i>it is better</i>. It saves two keystrokes (67%),
+one character (50%), and visual clutter.
+</div>
+
+<div>
+<h1>The dot makes it Java-like</h1>
+That's up to the users. I think we can make it Ruby-like, python-like, or Perl
+6-like instead of Java-like. <br><br>
+Don't worry, we won't have
+<tt>system().foo().bar().i().value()<br>.please().increment();</tt><br><br>
+<tt>$i++</tt> will still be there.
+</div>
+
+<div>
+<h1>Obfuscation and golf will die</h1>
+Perl 6 has many new ways to obfuscate and shorten code. There's less
+flexibility in where you can put whitespace, so putting it in nice drawings
+becomes harder, but you get hyperoperators, junctions, and twigils to
+compensate. If you want to write unreadable, ugly code, you still can!
+</div>
+
+<div>
+<h1>It'll take <i>years</i> until we have Perl 6</h1>
+Perl 6 is already around, and you can play with it as much as you like. There's
+even an implementation, even though that isn't necessary the final official
+thing. Perhaps it will indeed take a few more years before Perl 6 is ready for
+production, but it will be released <i>when it's ready</i>.<br><br>
+If you want to help make it ready, please contribute!
+</div>
+
+<div>
+<h1>It's hard to contribute</h1>
+We try to make it easy. Committer bits are given out to everyone who wants
+them, there is a shared development machine you can get free access to, there
+are open mailinglists, there are IRC channels.<br><br>
+If you find it hard to contribute, that says something about you, not about
+Perl 6, IMnsHO.
+</div>
+
+<div>
+<h1>Perl 6 is not Perl</h1>
+It depends on your definition of Perl. You should consider basing your
+definition of Perl on Larry Wall's definition of Perl, which obviously includes
+Perl 6. 
+
+TODO: My Perl 5 knowledge will be useless.
+</div>
+
+</body>
+</html>
