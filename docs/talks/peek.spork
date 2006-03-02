@@ -327,7 +327,7 @@ undefLiteral = do
 filetype: haskell
 ruleVerbatimBlock = verbatimRule "block" $ do
     body <- between (symbol "{") (char '}') ruleBlockBody
-    Syn "block" [body]
+    return $ Syn "block" [body]
 .vim
 
 * "to parse a verbatim block, look for a block body /between/ `{` and `}`"
