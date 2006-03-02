@@ -1,7 +1,7 @@
-# pX/Common/iterator_engine_p6.pl - fglock
+# pX/Common/iterator_engine_p6compiler.pl - fglock
 #
-# experimental implementation of a grammar that could parse p6 
-# files, like pge/P6Rule.grammar
+# experimental implementation of a p6 compiler
+# 
 
 use strict;
 use warnings;
@@ -97,7 +97,7 @@ __p6__
     }
     if ( $recompile ) {
         local $/ = undef; 
-        print "compiling Prelude: $prelude_file.p6\n";
+        print "* precompiling Prelude: $prelude_file.p6\n";
         open( FILE, "<", "$prelude_file.p6" ) or 
             die "can't open prelude file: $prelude_file.p6 - $!";
         my $prelude = <FILE>;
@@ -111,27 +111,24 @@ __p6__
         close FILE;
     }
     else {
-        print "loading Prelude: $prelude_file-cached.pl\n";
+        print "* loading Prelude: $prelude_file-cached.pl\n";
         require "$prelude_file-cached.pl";
     }
 
-    # my $match = $ops[0]->( 'infix:<+>' );
-    # print "match: \n", Dumper( $match );
 
-    Perl6Grammar::compile( q(
-        '1' infix:<+> '1';
-        '1' infix:<*> '1';
-        '1' infix:<+> '1' infix:<*> '1';
-        '1' infix:<*> '1' infix:<+> '1';
+    {
+        my $filename = shift || die "no filename";
+        local $/ = undef; 
+        print "* compiling: $filename\n\n";
+        open( FILE, "<", $filename ) or 
+            die "can't open file: $filename - $!";
+        my $source = <FILE>;
+        my $perl5 = Perl6Grammar::compile( $source );
+        # print "MATCH\n", Dumper($match), "END MATCH\n";
+    }
 
-        my $a;
-        print 'hello, ';
-        say 'world!';
-        { say 'in block'; }
-        warn 'hi';
-        ...;
-    ), {print_program=>1, print_ast=>0});
-    
+    exit;
+
 =for later
         rule sub_application {
             <@grammar1::terms> <ws>? <@grammar1::ops> <ws>? <@grammar1::terms>
@@ -145,7 +142,6 @@ __p6__
                 { return { anon_sub => $<block> ,} }
         }
         push @terms, \&anon_sub;
-
 
         rule assignment {
             $lvalue := (<variable>) <ws>? \= <ws>? $rvalue := (<variable>) <ws>? \;
