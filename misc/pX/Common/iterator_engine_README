@@ -18,6 +18,8 @@ Experimental implementation of:
 - a Perl6 'grammar' grammar (iterator_engine_p6rule_grammar.p6)
 
 Current task:
+- move project to a new subdir and give it a name?
+- find out more about grammar bootstrapping and the parse/compile/run cycle and BEGIN/CHECK/INIT
 - a Perl6 compiler
 - see TODO notes in p6grammar.pl
 
@@ -33,6 +35,7 @@ Plan sketch:
 - bind special variables $0, ...
 - see also the 'not implemented' list below
 - optimize infix:<+> to 'native +' when possible
+- make rule/grammar a pluggable module (pack for CPAN?)
 
 Bootstrapping:
 - minimal p6 to p5 translator (parse p6, emit p5)
