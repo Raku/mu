@@ -1,25 +1,27 @@
-        grammar grammar1;
+grammar grammar1;
         
-        rule term1 {
-            <@grammar1::terms>
-        }
-        
-        push @terms, \&variable;
-        push @terms, \&literal;
-        
-        rule pod { 
-            \=[pod|head1|kwid|for] 
-            .*? 
-            \=cut 
-        }
-        push @statements, \&pod;
+rule pod { 
+    \=[pod|head1|kwid|for] 
+    .*? 
+    \=cut 
+}
+push @statements, \&pod;
         
 =kwid
+
 pX/Common/iterator_engine_p6.pl - fglock
 
 - experimental implementation of a grammar that could parse Perl 6 
+
 =cut
     
+rule term1 {
+    <@grammar1::terms>
+}
+        
+push @terms, \&variable;
+push @terms, \&literal;
+        
         rule list {
             [ <term1> <ws>? \, <ws>? ]* <term1>?
         }
