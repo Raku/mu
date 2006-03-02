@@ -20,16 +20,19 @@ Experimental implementation of:
 - a Perl6 'grammar' grammar (iterator_engine_p6rule_grammar.p6)
 
 Current task:
+- implement operator precedence
+- implement macros, in order to define 'if' 
+  (see S04 - Statement parsing) (needs <%hash> too)
+- primitives - http://svn.openfoundry.org/pugs/src/Pugs/Prim.hs
 - move project to a new subdir and give it a name?
 - find out more about grammar bootstrapping and the parse/compile/run cycle and BEGIN/CHECK/INIT
-- a Perl6 compiler
-- see TODO notes in p6grammar.pl
+- see TODO and XXX notes everywhere
+- try out Smart::Comments
 
 Plan sketch:
 - write the compiler in p6, and emit the whole compiler to p5
 - improve p6rule_grammar.p6 such that it can parse itself
 - try to reuse pugs tests
-- revisit XXX notes
 - put together a Perl6 grammar that we can compile
 - use putter's Match.pm
 - make grammars inherit from Grammar; make grammars inheritable
