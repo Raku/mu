@@ -429,30 +429,55 @@ sub emit
             # print "macro: rule = \n$rule_code\n";
             # print "macro: block = \n$block_code\n";
             # XXX - process parameters, rule, block
-            print "XXX - macro '$id' parameters ignored\n" if @args;
+            print "XXX - macro '$id' parameters are just ignored for now\n" 
+                if @args;
+
+            # build the body AST as a string
+
+            local $Data::Dumper::Pad = '    ' x 2;
+            local $Data::Dumper::Terse = 1;
+            my $body_data = Data::Dumper->Dump( $block );
+            # $body_data = " \n$body_data    }\n";
+            # print "macro: body: \n$body_data";
 
             my $res = '';
 
             # emit the rule
             $res .= 
 
-                "*{'$prefix:<$id>'} = \n" .
-                "    ruleop::concat( \n" .
+                "*{'$prefix:<$id>'} = sub {\n" .
+                "    my \$rule = ruleop::concat( \n" .
                 "        ruleop::constant( '$prefix:<$id>' ),\n" .
                 "        \\&grammar1::ws_star,\n" .
                 main::emit_rule( $rule ) .
-                "    );\n";
+                "    );\n" .
+                "    my \$body_ast = \n$body_data    ;\n" .
+'
+    my $match = $rule->( @_ );
+    return unless $match;
+    my $c = sub { return $body_ast };
+    return {
+        %$match,
+        capture => [ $c->( $match ) ],
+    };
+' .
+                "};\n";
 
             # install the macro into the grammar
             # XXX grammar category prefix ignored
             $res .= "    push \@grammar1::statements, \\&{'$prefix:<$id>'};\n";
-            $res .= '    warn "macro declaration ignored: under implementation!";'."\n";
+            # $res .= '    warn "macro declaration ignored: under implementation!";'."\n";
 
             # install the macro body
-            print "macro: TODO - install the macro body = \n$block_code\n";
+            # print "macro: TODO - install the macro body = \n$block_code\n";
 
-            #print "macro: expanded:\n$res";
+            # the macro body can be returned by a { return } in the rule!
+            # it just needs to serialize $body data structure, which could
+            # be done with Data::Dumper
 
+            # XXX TODO: variable substitutions $()
+
+            # print "macro: expanded:\n$res";
             return $res;
         }
         die "unknown node: ", Dumper( $n );
