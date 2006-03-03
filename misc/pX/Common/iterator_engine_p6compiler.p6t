@@ -1,6 +1,9 @@
 
-macro statement_control:<aaa> ( $a, $b ) is parsed ( /.*?\;/ ) { 
-    return ' eval( \' print "aaaah\n" \', :lang<perl5> ); ';
+macro statement_control:<aaa> ( $a ) is parsed ( /
+    <?ws>? \( <?ws>? $a := (.*?) <?ws>? \) <?ws>? \;
+/ ) 
+{ 
+    return $a ; 
 }
 
 '1' infix:<+> '1';
@@ -8,8 +11,8 @@ macro statement_control:<aaa> ( $a, $b ) is parsed ( /.*?\;/ ) {
 '1' infix:<+> '1' infix:<*> '1';
 '1' infix:<*> '1' infix:<+> '1';
 
-statement_control:<aaa>;
-statement_control:<aaa>;
+statement_control:<aaa> ( say 'something'; );
+statement_control:<aaa> ( say 'interesting'; );
 
 my $a;
 print 'hello, ';

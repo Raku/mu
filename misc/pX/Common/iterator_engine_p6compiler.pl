@@ -434,8 +434,8 @@ sub emit
                 push @args, match::str( $_ );  # emit($_);
             }
 
-            print "XXX - macro '$id' parameters are just ignored for now\n" 
-                if @args;
+            # print "XXX - macro '$id' parameters are just ignored for now\n" 
+            #    if @args;
 
             # my $rule_code = main::emit_rule( $rule, '' );
             my $block_code = emit( $block );
@@ -443,8 +443,23 @@ sub emit
             # print "macro: args = @args\n";
             # print "macro: rule = \n$rule_code\n";
             # print "macro: block = \n$block_code\n";
+            # print "macro: block = \n", match::str($block),"\n";
 
-            # XXX TODO: variable substitutions $() in the body AST
+            # XXX don't use source filter: variable substitutions $() in the body AST
+
+            # XXX this algorithm depends on variable declaration 
+            #     like:  ( $a ) is parsed ( / $a := (.*?) / )
+
+            my $binding = '';
+            for ( 0 .. $#args ) {
+                $binding .= 
+                    "    my $args[$_] = " . 
+                    "match::str( match::get( \$_[0], '\$<$args[$_]>' ) );\n" .
+                    # "    print \"bound: \\$args[$_] $args[$_] \$src \"; " .
+                    "    \$src =~ s/\\\\\\$args[$_]/\\$args[$_]/g; \n" .
+                    "\n";
+            }
+            # print "macro: var binding: \n$binding";
 
             # emit the rule
             local $Data::Dumper::Pad = '    ' x 2;
@@ -457,15 +472,22 @@ sub emit
                 "        \\&grammar1::ws_star,\n" .
                 main::emit_rule( $rule ) .
                 "    );\n" .
+
                 #"    my \$body_ast = \n" .
                 #Data::Dumper->Dump( $block ) .
                 #"    ;\n" .
 
                 "    my \$match = \$rule->( \@_ );\n" .
                 "    return unless \$match;\n" .
-                "    my \$code = sub \n" .
-                $block_code .
-                "    ;\n" .
+                "    my \$code = sub { \n" .
+                # "    print 'matched: ', Dumper( \$_[0]->{capture} ); \n" .
+                "    my \$src = <<\'!EOT!\'; \n" . 
+                match::str($block) . 
+                "\n!EOT!\n" .
+                $binding .
+                # "    print 'eval: ', \$a, '  ', \$src; \n" .
+                "    eval( \$src ); \n" .
+                "    };\n" .
                 "    return {\n" .
                 "        \%\$match,\n" .
                 "        capture => [ \n" . 
