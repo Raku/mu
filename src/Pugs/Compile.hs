@@ -403,6 +403,11 @@ compError = die $ "Compile error -- invalid "
 
 {-| Compiles a 'Val' to a 'PIL_Literal'. -}
 instance Compile Val PIL_Literal where
+    compile (VList vs) = return $ PVal (VList (filter isSimple vs))
+        where
+        isSimple (VRef _) = False
+        isSimple _        = True
+    compile (VRef _) = return $ PVal VUndef
     compile val = return $ PVal val
 
 -- utility functions
