@@ -104,7 +104,7 @@ __p6__
         # print "Prelude:$prelude\n";
         my $perl5 = Perl6Grammar::compile( $prelude );
         # print "MATCH\n", Dumper($match), "END MATCH\n";
-        print "caching Prelude: $prelude_file-cached.pl\n";
+        print "* caching Prelude: $prelude_file-cached.pl\n";
         open( FILE, ">", "$prelude_file-cached.pl" ) or
             die "can't open prelude file: $prelude_file-cached.pl - $!";
         print FILE "# generated file - do not edit!\n" . $perl5;
@@ -403,6 +403,29 @@ sub emit
             # print "immediate_statement\n", Dumper($v);
             # return '    print "immediate_statement\n";' . "\n";
             return $v->[0]{perl5};
+        }
+        if ( $k eq 'macro' ) {
+            my ($prefix, $id, $list, $rule, $block) = map { match::get( 
+                { capture => $v }, 
+                "\$<$_>"
+            ) } qw( $prefix $id list rule block );
+            $prefix = match::str( $prefix );
+            $id = match::str( $id );
+            my $rule_code = main::emit_rule( $rule, '' );
+            my $block_code = emit( $block );
+            my $s = '';
+            for ( @$list ) {
+                next unless ref($_) eq 'HASH';
+                my $s1 = match::str( $_ );  # emit($_);
+                $s .= " $s1 , "
+                    if $s1;
+            }
+            #print "macro: $prefix / $id \n";  #, Dumper($list);
+            #print "macro: list = $s\n";
+            #print "macro: rule = \n$rule_code\n";
+            #print "macro: block = \n$block_code\n";
+            # XXX - process parameters, rule, block
+            return '    warn "macro declaration ignored: under implementation!";';
         }
         die "unknown node: ", Dumper( $n );
     }
