@@ -285,9 +285,9 @@ sub emit_rule {
             my $tmp = emit_rule( $_, $tab );
             push @s, $tmp . "$tab ,\n" if $tmp;
         }
-        
+
         # XXX XXX XXX - temporary hacks to translate p6 to p5 -- see 'closure' node
-        if ($s[-1] =~ /^#return-block#(.*)/s ) {
+        if (@s && $s[-1] =~ /^#return-block#(.*)/s ) {
             #print "return block\n";
             my $code = $1;
             #print "Code: $code\n";
@@ -326,7 +326,8 @@ sub emit_rule {
     elsif ( ref( $n ) eq 'HASH' ) 
     {
         my ( $k, $v ) = each %$n;
-        #print "$tab $k => $v \n";
+        # print "$tab $k => $v \n";
+        return '' unless defined $v;  # XXX a bug?
         if ( $k eq 'rule' ) {
             return emit_rule( $v, $tab );
             

@@ -249,16 +249,22 @@ sub emit
             return "package $name;\n";
         }
         if ( $k eq 'rule_decl' ) {
+            #print "Rule: \n", Dumper($v);
             my $name = match::str( match::get( 
                 { capture => $v }, 
                 '$<ident>'
             ) );
+            # print "rule: name $name\n";
             my $program = main::emit_rule(
                     match::get( 
                         { capture => $v }, 
                         '$<rule>'
                     ), '' );
-            return "*$name = \n$program;\n";
+            # print "rule: program $program\n";
+            # my $s = "*{'" . quotemeta($name) ."'} = \n$program;\n";
+            my $s = "*{'$name'} = \n$program;\n";
+            # print "rule: p5: $s";
+            return $s;
         }
         if ( $k eq 'block' ) {
             #print "Code: \n", Dumper($v);
@@ -411,21 +417,43 @@ sub emit
             ) } qw( $prefix $id list rule block );
             $prefix = match::str( $prefix );
             $id = match::str( $id );
-            my $rule_code = main::emit_rule( $rule, '' );
-            my $block_code = emit( $block );
-            my $s = '';
+            my @args;
             for ( @$list ) {
                 next unless ref($_) eq 'HASH';
-                my $s1 = match::str( $_ );  # emit($_);
-                $s .= " $s1 , "
-                    if $s1;
+                push @args, match::str( $_ );  # emit($_);
             }
-            #print "macro: $prefix / $id \n";  #, Dumper($list);
-            #print "macro: list = $s\n";
-            #print "macro: rule = \n$rule_code\n";
-            #print "macro: block = \n$block_code\n";
+            # my $rule_code = main::emit_rule( $rule, '' );
+            my $block_code = emit( $block );
+            # print "macro: $prefix / $id \n";  #, Dumper($list);
+            # print "macro: args = @args\n";
+            # print "macro: rule = \n$rule_code\n";
+            # print "macro: block = \n$block_code\n";
             # XXX - process parameters, rule, block
-            return '    warn "macro declaration ignored: under implementation!";';
+            print "XXX - macro '$id' parameters ignored\n" if @args;
+
+            my $res = '';
+
+            # emit the rule
+            $res .= 
+
+                "*{'$prefix:<$id>'} = \n" .
+                "    ruleop::concat( \n" .
+                "        ruleop::constant( '$prefix:<$id>' ),\n" .
+                "        \\&grammar1::ws_star,\n" .
+                main::emit_rule( $rule ) .
+                "    );\n";
+
+            # install the macro into the grammar
+            # XXX grammar category prefix ignored
+            $res .= "    push \@grammar1::statements, \\&{'$prefix:<$id>'};\n";
+            $res .= '    warn "macro declaration ignored: under implementation!";'."\n";
+
+            # install the macro body
+            print "macro: TODO - install the macro body = \n$block_code\n";
+
+            #print "macro: expanded:\n$res";
+
+            return $res;
         }
         die "unknown node: ", Dumper( $n );
     }
