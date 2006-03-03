@@ -384,11 +384,10 @@ ruleSubDeclaration = rule "subroutine declaration" $ do
             --    ==>
             -- push %This::Package::EXPORTS<&this_sub>, expression-binding-&this_sub
             -- (a singleton list for subs, a full list of subs for multis)
-            unsafeEvalExp $
+            return $
                 App (Var "&push")
                     (Just (Syn "{}" [Var ("%" ++ pkg ++ "::EXPORTS"), Val $ VStr name]))
                     [Val sub]
-            return emptyExp
         SGlobal -> do
             unsafeEvalExp $ mkSym nameQualified
             return emptyExp
