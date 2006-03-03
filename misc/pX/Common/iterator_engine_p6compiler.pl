@@ -364,6 +364,14 @@ sub emit
             ) );
             return "    $op $name;\n";
         }
+        if ( $k eq '_return' ) {
+            # print "return: ", Dumper($v);
+            my $val = emit( match::get( 
+                { capture => $v }, 
+                '$<$val>'
+            ) );
+            return "    return $val;\n";
+        }
         if ( $k eq '_print' ) {
             #my $list = match::get( 
             #    { capture => $v }, 
@@ -397,9 +405,12 @@ sub emit
             return emit($v->[0]);
         }
         if ( $k eq 'literal' ) {
-            return '"' . quotemeta($v) . '"';
+            # return '"' . quotemeta($v) . '"';
+            $v =~ s/(["\$%@])/\\$1/g;
+            return '"' . $v . '"';
         }
         if ( $k eq 'eval_perl5' ) {
+            # print "eval_perl5: $v\n";
             return eval emit($v);
         }
         if ( $k eq 'variable' ) {
@@ -422,28 +433,23 @@ sub emit
                 next unless ref($_) eq 'HASH';
                 push @args, match::str( $_ );  # emit($_);
             }
+
+            print "XXX - macro '$id' parameters are just ignored for now\n" 
+                if @args;
+
             # my $rule_code = main::emit_rule( $rule, '' );
             my $block_code = emit( $block );
             # print "macro: $prefix / $id \n";  #, Dumper($list);
             # print "macro: args = @args\n";
             # print "macro: rule = \n$rule_code\n";
-            # print "macro: block = \n$block_code\n";
-            # XXX - process parameters, rule, block
-            print "XXX - macro '$id' parameters are just ignored for now\n" 
-                if @args;
+            print "macro: block = \n$block_code\n";
 
-            # build the body AST as a string
-
-            local $Data::Dumper::Pad = '    ' x 2;
-            local $Data::Dumper::Terse = 1;
-            my $body_data = Data::Dumper->Dump( $block );
-            # $body_data = " \n$body_data    }\n";
-            # print "macro: body: \n$body_data";
-
-            my $res = '';
+            # XXX TODO: variable substitutions $() in the body AST
 
             # emit the rule
-            $res .= 
+            local $Data::Dumper::Pad = '    ' x 2;
+            local $Data::Dumper::Terse = 1;
+            my $res = 
 
                 "*{'$prefix:<$id>'} = sub {\n" .
                 "    my \$rule = ruleop::concat( \n" .
@@ -451,33 +457,33 @@ sub emit
                 "        \\&grammar1::ws_star,\n" .
                 main::emit_rule( $rule ) .
                 "    );\n" .
-                "    my \$body_ast = \n$body_data    ;\n" .
-'
-    my $match = $rule->( @_ );
-    return unless $match;
-    my $c = sub { return $body_ast };
-    return {
-        %$match,
-        capture => [ $c->( $match ) ],
-    };
-' .
+                #"    my \$body_ast = \n" .
+                #Data::Dumper->Dump( $block ) .
+                #"    ;\n" .
+
+                "    my \$match = \$rule->( \@_ );\n" .
+                "    return unless \$match;\n" .
+                "    my \$code = sub \n" .
+                $block_code .
+                "    ;\n" .
+                "    return {\n" .
+                "        \%\$match,\n" .
+                "        capture => [ \n" . 
+                "             Perl6Grammar::compile( \$code->( \$match ) ) \n" .
+                "        ],\n" .
+                "    };\n" .
                 "};\n";
 
-            # install the macro into the grammar
-            # XXX grammar category prefix ignored
-            $res .= "    push \@grammar1::statements, \\&{'$prefix:<$id>'};\n";
-            # $res .= '    warn "macro declaration ignored: under implementation!";'."\n";
+            # register new syntax in the grammar category
 
-            # install the macro body
-            # print "macro: TODO - install the macro body = \n$block_code\n";
+            # example: macro statement_control:<if> ($expr, &ifblock) {...}
+            # XXX - this is very rough
+            my $category = $prefix;
+            $category = 'statements' if $prefix eq 'statement_control';
 
-            # the macro body can be returned by a { return } in the rule!
-            # it just needs to serialize $body data structure, which could
-            # be done with Data::Dumper
+            $res .= "    push \@grammar1::$category, \\&{'$prefix:<$id>'};\n";
 
-            # XXX TODO: variable substitutions $()
-
-            # print "macro: expanded:\n$res";
+            print "macro: expanded:\n$res";
             return $res;
         }
         die "unknown node: ", Dumper( $n );

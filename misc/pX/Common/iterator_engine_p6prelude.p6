@@ -107,6 +107,12 @@ push @statements, \&eval_perl5;
     macros
 =cut
 
+rule _return {
+    return <?ws> $val := (<term1>|<term2>) <?ws>? \;
+        { return { _return => $<> ,} }
+}
+push @statements, \&_return;
+
 sub infix:<*> { eval(' $_[0] * $_[1] ', :lang<perl5>); }
 sub infix:<+> { eval(' $_[0] + $_[1] ', :lang<perl5>); }
 

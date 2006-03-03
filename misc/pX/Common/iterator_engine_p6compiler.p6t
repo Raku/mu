@@ -1,12 +1,15 @@
 
-macro test:<aaa> ( $a, $b ) is parsed ( /.*?\;/ ) { say 'aaaah'; }
+macro statement_control:<aaa> ( $a, $b ) is parsed ( /.*?\;/ ) { 
+    return ' eval( \' print "aaaah\n" \', :lang<perl5> ); ';
+}
 
 '1' infix:<+> '1';
 '1' infix:<*> '1';
 '1' infix:<+> '1' infix:<*> '1';
 '1' infix:<*> '1' infix:<+> '1';
 
-test:<aaa>;
+statement_control:<aaa>;
+statement_control:<aaa>;
 
 my $a;
 print 'hello, ';
