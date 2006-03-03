@@ -442,7 +442,7 @@ sub emit
             # print "macro: $prefix / $id \n";  #, Dumper($list);
             # print "macro: args = @args\n";
             # print "macro: rule = \n$rule_code\n";
-            print "macro: block = \n$block_code\n";
+            # print "macro: block = \n$block_code\n";
 
             # XXX TODO: variable substitutions $() in the body AST
 
@@ -483,7 +483,7 @@ sub emit
 
             $res .= "    push \@grammar1::$category, \\&{'$prefix:<$id>'};\n";
 
-            print "macro: expanded:\n$res";
+            # print "macro: expanded:\n$res";
             return $res;
         }
         die "unknown node: ", Dumper( $n );
