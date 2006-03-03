@@ -32,6 +32,7 @@ sub setup_output {
     } else {
         *OUT = *STDOUT;
     }
+    binmode OUT;
 }
 
 # XXX: with yaml precompilation, this may be bogus.
