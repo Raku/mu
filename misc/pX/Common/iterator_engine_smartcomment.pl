@@ -3,7 +3,7 @@
 
 use strict;
 use warnings;
-use Smart::Comments; #for debugging
+#use Smart::Comments; for debugging, look also at Filtered-Comments.pm
 
 =pod
 
