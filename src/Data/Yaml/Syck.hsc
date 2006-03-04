@@ -270,7 +270,9 @@ syckNodeTag syckNode = do
             Nothing -> Nothing
 
 syckNodeKind :: SyckNode -> IO SyckKind
-syckNodeKind syckNode = fmap toEnum $ #{peek SyckNode, kind} syckNode
+syckNodeKind syckNode = do
+    kind <- #{peek SyckNode, kind} syckNode
+    return $ toEnum (kind `mod` 4)
 
 syckNodeLength :: SyckKind -> SyckNode -> IO CLong
 syckNodeLength SyckMap = (#{peek struct SyckMap, idx} =<<) . #{peek SyckNode, data}
