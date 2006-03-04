@@ -3,6 +3,7 @@
 
 use strict;
 use warnings;
+#use Smart::Comments; for debugging, look also at Filtered-Comments.pm
 
 =pod
 
@@ -48,7 +49,7 @@ sub ruleop::alternation {
     my $nodes = shift;
     # die "alternation list is empty" unless ref($nodes) eq 'ARRAY' && @$nodes;
     return sub {
-        #print "testing alternations on ", Dumper(@_, $nodes);
+        ### testing alternations on : @_, $nodes
         return unless @$nodes;
 
         my $tail =  $_[0];
@@ -56,10 +57,10 @@ sub ruleop::alternation {
         my $flags = $_[2];
         my $match;
         while ( defined $state ) {
-            #print "alternation string to match: $tail - (node,state)=@$state\n";
+            ### alternation string to match: "$tail - (node,state)=@$state"
             $match = 
                 $nodes->[ $state->[0] ]->( $tail, $state->[1], $flags );
-            #print "match: ", Dumper( $match );
+            ### match: $match
             if ( $match->{state} ) {
                 $state->[1] = $match->{state};
             }
@@ -67,11 +68,10 @@ sub ruleop::alternation {
             {
                 $state->[0]++;
                 $state->[1] = 0;
-                #print "next alternation state: (node,state)=@$state\n";
+                ### next alternation state - (node,state):@$state
                 $state = undef if $state->[0] > $#$nodes;
             }
             $match->{state} = $state;
-            #print "alternate: match \n".Dumper($match) if $match->{bool};
             return $match if $match->{bool} || $match->{abort};
         }
         return;
@@ -94,7 +94,7 @@ sub ruleop::concat {
         while (1) {
             
             $matches[0] = $nodes[0]->( $tail, $state[0], $flags );
-            #print "  1st match: ", Dumper( $matches[0] );
+            ### 1st match: $matches[0]
             return $matches[0] 
                 if $matches[0]{abort};
             if ( ! $matches[0]{bool} ) {
@@ -104,7 +104,7 @@ sub ruleop::concat {
             }
             
             $matches[1] = $nodes[1]->( $matches[0]{tail}, $state[1], $flags );
-            #print "  2nd match: ", Dumper( $matches[1] );
+            ### 2nd match: $matches[1]
             return $matches[1] 
                 if $matches[1]{abort};
             if ( ! $matches[1]{bool} ) {
@@ -112,8 +112,8 @@ sub ruleop::concat {
                     return unless defined $matches[0]{state};
                     @state = ( $matches[0]{state}, 0 );
                 }
-                # print "backtracking: state ",Dumper(@state);
-                # print "backtracking: match ",Dumper(@matches);
+                ### backtracking - state: @state
+                ### backtracking - match: @matches
                 next;
             }
             
@@ -126,7 +126,7 @@ sub ruleop::concat {
             }
 
             my $capture = [];
-            # print "capture: ", Dumper( $matches[0]{capture}, $matches[1]{capture} );
+            ### capture: $matches[0]{capture},$matches[1]{capture}
             $capture = $matches[0]{capture} 
                 if $matches[0]{capture};
             push @$capture, @{$matches[1]{capture}} 
@@ -147,7 +147,7 @@ sub ruleop::concat {
 sub ruleop::constant { 
     my $const = shift;
     return sub {
-        #print "matching '$_[0]' ~~ /$const/\n";
+        ### matching constant:$_[0],$const
         return if ! $_[0] || $_[0] !~ m/^(\Q$const\E)(.*)/s;
         return { bool => 1,
                  match => { constant => $1 }, 
@@ -213,7 +213,7 @@ sub ruleop::try {
     my $op = shift;
     return sub {
         my $match = $op->( @_ );
-        #print "abortable match\n";
+        ### abortable match...
         $match->{abort} = 0;
         return $match;
     };
@@ -224,7 +224,7 @@ sub ruleop::abort {
     my $op = shift;
     return sub {
         my $match = $op->( @_ );
-        #print "aborting match\n", Dumper($match);
+        ### aborting match: $match
         $match->{abort} = 1;
         return $match;
     };
