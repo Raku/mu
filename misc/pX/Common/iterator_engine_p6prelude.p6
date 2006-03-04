@@ -117,3 +117,8 @@ sub infix:<*> { eval(' $_[0] * $_[1] ', :lang<perl5>); }
 sub infix:<+> { eval(' $_[0] + $_[1] ', :lang<perl5>); }
 sub infix:<~> { eval(' $_[0] . $_[1] ', :lang<perl5>); }
 
+# Current weather in Nome Alaska.
+# 16.2 °F  / -8.8 °C
+# Snow Showers
+# Blowing Snow
+# Showers Mist
