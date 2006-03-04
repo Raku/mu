@@ -35,7 +35,7 @@ rule macro_decl {
     macro <?ws> $prefix := (<word>) \: \< $id := (.*?) \> <?ws>? 
     \(  <?ws>? <list> <?ws>? \) <?ws>?
     is <?ws> parsed <?ws>? \( <?ws>? \/ <?ws>? <rule> <?ws>? \/ <?ws>? \) <?ws>?
-    <block> 
+    <code> 
         { return { macro => $<> ,} }
 }
 push @statements, \&macro_decl;

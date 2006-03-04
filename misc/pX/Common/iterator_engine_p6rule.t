@@ -1,6 +1,6 @@
-# pX/Common/iterator_engine_p6regex.pl - fglock
+# pX/Common/iterator_engine_p6rule.t - fglock
 #
-# experimental implementation of p6-regex parser
+# experimental implementation of p6-rule parser
 #
 # see also: ../../Grammars/rx_grammar.pm
 
@@ -342,6 +342,13 @@ my $rule = \&grammar1::rule;
   $match = $rule->( 'bbb' );
   # print Dumper( $match );
   ok ( ! $match->{bool}, "reject sample 2" );
+}
+
+{
+  $match = grammar1::variable( '$test::xxx--' );
+  # print Dumper( $match );
+  ok ( $match->{bool}, "match variable" );
+  is ( $match->{tail}, '--', "correct left-out" );
 }
 
 {

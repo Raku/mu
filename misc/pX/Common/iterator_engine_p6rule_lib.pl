@@ -109,6 +109,44 @@ sub ws_star {
     return;
 };
 
+sub variable {
+    #return unless $_[0];
+    return { 
+        bool  => 1,
+        match => { 'ws*'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => $1 ) : () ),
+    }
+        if $_[0] =~ / ^  
+            (   [ $ % @ % ]
+                (?: 
+                    (?:\:\:)? 
+                    [_[:alnum:]]+ 
+                )+
+            )  
+            (.*) $ /xs;
+    return;
+};
+
+sub ident {
+    #return unless $_[0];
+    return { 
+        bool  => 1,
+        match => { 'ident'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ { ident => $1 } ] ) : () ),
+    }
+        if $_[0] =~ / ^  
+            ( 
+                (?: 
+                    (?:\:\:)? 
+                    [_[:alnum:]]+ 
+                )+
+            )  
+            (.*) $ /xs;
+    return;
+};
+
 }
 
 1;

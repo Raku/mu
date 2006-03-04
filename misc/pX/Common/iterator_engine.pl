@@ -244,6 +244,27 @@ sub ruleop::negate {
     };
 };
 
+# experimental!
+=for example
+    # adds an 'before' or 'after' sub call, which may print a debug message 
+    ruleop::wrap( { 
+            before => sub { print "matching variable: $_[0]\n" },
+            after  => sub { $_[0]->{bool} ? print "matched\n" : print "no match\n" },
+        },
+        \&variable
+    )
+=cut
+sub ruleop::wrap {
+    my $debug = shift;
+    my $node = shift;
+    sub {
+        $debug->{before}( @_ ) if $debug->{before};
+        my $match = $node->( @_ );
+        $debug->{after}( $match, @_ ) if $debug->{after};
+        return $match;
+    }
+}
+
 # ------- higher-order ruleops
 
 sub ruleop::optional {

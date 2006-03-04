@@ -35,6 +35,7 @@ sub subrule {
 }
 
 # XXX - compile non_capturing_subrule using a rule
+# XXX - set non-capture flag
 sub non_capturing_subrule {
     my ( $code, $tail ) = $_[0] =~ /^\<\?(.*?)\>(.*)$/s;
     return unless defined $code;
@@ -158,23 +159,6 @@ use vars qw( @rule_terms );
 *non_capturing_group = ::compile_rule( ' \[ <rule> \] ', {print_program=>0} );
 push @rule_terms, \&non_capturing_group;
 
-# $var
-*ident =    ::compile_rule( '[[\:\:]?<word>]+', {print_ast=>0} );
-*variable = ::compile_rule( '[\$|\%|\@]<ident>' );
-push @rule_terms, ruleop::capture( 'variable',\&variable );
-
-# <@var> is a run-time alternation (TimToady on #perl6)
-*runtime_alternation = ::compile_rule( 
-    '\< <variable> \>' );
-unshift @rule_terms, ruleop::capture( 
-    'runtime_alternation',\&runtime_alternation );
-
-# $xxx := (capture)
-*named_capture = ::compile_rule( 
-    '<variable> <ws>? \:\= <ws>? \( <rule> \)' );
-unshift @rule_terms, ruleop::capture( 
-    'named_capture',\&named_capture );
-
 # { code }
     # p5 code is called using: "rule { xyz { v5; ... } }" (audreyt on #perl6)
     #   (but TimToady said it's not)
@@ -187,6 +171,32 @@ unshift @rule_terms, ruleop::capture(
 unshift @rule_terms, ruleop::capture( 
     'closure', \&code );
     
+# $var
+# -- ident, variable moved to p6rule_lib.pl
+#*ident =    ::compile_rule( '[[\:\:]?<word>]+', {print_ast=>0} );
+#*variable = ::compile_rule( '[\$|\%|\@]<ident>' );
+#push @rule_terms, ruleop::capture( 'variable',\&variable );
+unshift @rule_terms, ruleop::capture( 
+    'variable', \&variable );
+    #ruleop::wrap( { 
+    #        before => sub { print "matching variable: $_[0]\n" },
+    #        after  => sub { $_[0]->{bool} ? print "variable matched\n" : print "no variable match\n" },
+    #    },
+    #    \&variable
+    #);
+
+# <@var> is a run-time alternation (TimToady on #perl6)
+*runtime_alternation = ::compile_rule( 
+    '\< <variable> \>' );
+unshift @rule_terms, ruleop::capture( 
+    'runtime_alternation',\&runtime_alternation );
+
+# $xxx := (capture)
+*named_capture = ::compile_rule( 
+    '\$ <ident> <?ws>? \:\= <?ws>? \( <rule> \)' );  # XXX - accept % @
+unshift @rule_terms, ruleop::capture( 
+    'named_capture',\&named_capture );
+
 }
 
 #------ match functions
@@ -198,6 +208,8 @@ sub match::get {
     return $match->{capture}  if $name eq '$/<>' || $name eq '$<>';
     return $match->{match}    if $name eq '$/';
     
+    #print "get var $name\n";
+    
     # $/<0>, $/<1>
     # $<0>, $<1>
     if ( $name =~ /^ \$ \/? <(\d+)> $/x ) {
@@ -207,7 +219,7 @@ sub match::get {
             next unless ref($_) eq 'HASH';
             if ( $num == $n ) {
                 my (undef, $capture) = each %$_;
-                # print "cap\n", Dumper( $capture );
+                #print "cap\n", Dumper( $capture );
                 return $capture;
             }
             $n++;
@@ -222,7 +234,7 @@ sub match::get {
         for ( @{ match::get( $match, '$/<>' ) } ) {
             next unless ref($_) eq 'HASH';
             if ( exists $_->{$n} ) {
-                # print "cap\n", Dumper( $capture );
+                #print "cap\n", Dumper( $_->{$n} );
                 return $_->{$n};
             }
         }
@@ -252,6 +264,7 @@ sub match::str {
 #
 sub compile_rule {
     local $Data::Dumper::Indent = 1;
+    #print "compile_rule: $_[0]\n";
     my $match = grammar1::rule->( $_[0] );
     my $flags = $_[1];
     print "ast:\n", Dumper( $match->{capture} ) if $flags->{print_ast};
@@ -384,7 +397,9 @@ sub emit_rule {
         }
         elsif ( $k eq 'subrule' ) {
             #print Dumper $v;
-            return "$tab ruleop::capture( '$v', \\&{'$namespace$v'} )\n";
+            my $name = $v;
+            $name = $namespace . $v unless $v =~ /::/;
+            return "$tab ruleop::capture( '$v', \\&{'$name'} )\n";
         }
         elsif ( $k eq 'non_capturing_subrule' ) {
             #print Dumper $v;
@@ -437,7 +452,7 @@ sub emit_rule {
         elsif ( $k eq 'named_capture' ) {
             my $name = match::str( match::get( 
                 { capture => $v }, 
-                '$<variable>'
+                '$<ident>'
             ) );
             my $program = emit_rule(
                     match::get( 
