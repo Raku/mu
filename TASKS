@@ -1,4 +1,16 @@
 
+* Implement the Math::Basic rounding suite.  Go through
+ An introduction to different rounding algorithms
+ http://www.pldesignline.com/howto/showArticle.jhtml?articleID=175801189
+implementing each rounding algorithm in p6.  Names as given, but with
+underscores (round_whatever).  Signatures of
+  our Int multi Num::round_whatever ( Num $x ) {
+    ...
+  }
+You can use floor, ceiling, abs, sign, etc, etc.
+Place them in a new file, misc/S29_round.pl , or just announce the work on irc.
+Skills: basic p6.
+
 * BROADCAST TASK - Check ./STATUS and see if systems with which you
   are familiar are correctly described.  Skills: be famaliar with some
   system. ;)
