@@ -258,8 +258,8 @@ op1 "Pugs::Internals::eval_parrot" = \v -> do
             , ".end"
             ]
     return $ VBool True
-op1 "use" = opRequire True
-op1 "require" = opRequire False
+op1 "Pugs::Internals::use" = opRequire True
+op1 "Pugs::Internals::require" = opRequire False
 op1 "Pugs::Internals::eval" = \v -> do
     str <- fromVal v
     opEval quiet "<eval>" str
@@ -1606,8 +1606,8 @@ initSyms = mapM primDecl syms
 \\n   Any       pre     Pugs::Internals::eval_yaml    safe   (Str)\
 \\n   Any       pre     Pugs::Internals::emit_yaml    unsafe   (rw!Any)\
 \\n   Str       pre     yaml    safe   (rw!Any|Junction|Pair)\
-\\n   Any       pre     require unsafe (?Str=$_)\
-\\n   Any       pre     use     unsafe (?Str=$_)\
+\\n   Any       pre     Pugs::Internals::require unsafe (?Str=$_)\
+\\n   Any       pre     Pugs::Internals::use     unsafe (?Str=$_)\
 \\n   Any       pre     require_haskell unsafe (Str)\
 \\n   Any       pre     require_parrot  unsafe (Str)\
 \\n   Any       pre     require_perl5   unsafe (Str)\
