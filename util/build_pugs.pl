@@ -5,6 +5,7 @@ use warnings;
 use File::Copy qw(copy);
 use File::Path qw(mkpath rmtree);
 use File::Find qw(find);
+use File::Basename qw(dirname);
 
 our %BuildPrefs;
 use Config;
@@ -51,15 +52,23 @@ sub build {
 
     my $pm = "src/perl6/Prelude.pm";
     my $ppc_hs = "src/Pugs/Prelude.hs";
-    my $ppc_yml = "src/Pugs/PreludePC.yml";
+    my $ppc_yml = "blib6/lib/Prelude.pm.yml";
+    my $ppc_yml_gz = "$ppc_yml.gz";
 
     build_lib($version, $ghc, @args);
     build_exe($version, $ghc, $ghc_version, @args);
 
     if (!-s $ppc_yml or -M $ppc_yml > -M $ppc_hs) {
+        # can't assume blib6/lib exists: the user may be running
+        # `make unoptimzed` which doesn't create it.
+        mkpath(dirname($ppc_yml));
+        
         run($^X, qw<util/gen_prelude.pl -v -i src/perl6/Prelude.pm>,
                 (map { ('-i' => $_) } @{ PugsBuild::Config->lookup('precompile_modules') }),
-                '-p', $thispugs, qw<--output src/Pugs/PreludePC.yml>);
+                '-p', $thispugs, '--output', $ppc_yml);
+
+        # XXX: add code here to $ppc_yml -> $ppc_yml_gz, as portably and
+        # silently as possible. Should not die if it fails.
     }
 }
 

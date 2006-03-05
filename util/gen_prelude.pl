@@ -42,7 +42,8 @@ sub touch {
     #      The alternative seems to be to delete them *and* the pugs
     #      executable.
     print STDERR "Triggering rebuild... " if $Config{verbose};
-    unlink "src/Pugs/PreludePC.yml";
+    unlink "blib6/lib/Prelude.pm.yml";
+    unlink "blib6/lib/Prelude.pm.yml.pm";
     #unlink "src/Pugs/PreludePC.hs";
     #unlink "src/Pugs/Run.hi";
     #unlink "src/Pugs/Run.o";
@@ -164,7 +165,7 @@ sub usage {
 usage: $0 --inline src/perl6/Prelude.pm [options]
        $0 --precompile src/perl6/Prelude.pm --pugs ./pugs.exe [options]
 
-Creates a Prelude.hs fallback or a PreludePC.yml file (written to stdout),
+Creates a Prelude.hs fallback or a Prelude.pm.yml file (written to stdout),
 to be loaded by Run.hs.
 
 When pugs is built, a fallback Prelude.hs that contains only a quoted

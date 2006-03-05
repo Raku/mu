@@ -14,6 +14,7 @@ import Pugs.Embed
 import Pugs.Monads
 import Pugs.Internals
 import Pugs.Pretty
+import Pugs.Config
 import Pugs.Prim.Keyed
 import qualified Data.FastPackedString as Str
 import DrIFT.YAML
@@ -41,7 +42,7 @@ opRequire dumpEnv v = do
     glob        <- askGlobal
     seen        <- findSymRef "%*INC" glob
     loaded      <- existsFromRef seen v
-    let file    = (concat $ intersperse "/" $ split "::" mod) ++ ".pm"
+    let file    = (concat $ intersperse (getConfig "file_sep") $ split "::" mod) ++ ".pm"
     pathName    <- requireInc incs file (errMsg file incs)
     if loaded then opEval style pathName "" else do
         -- %*INC{mod} = { relname => file, pathname => pathName }
@@ -53,7 +54,6 @@ opRequire dumpEnv v = do
                               , mkStrPair "relpath"  (decodeUTF8 file) ]
                     ]
             ]
-        -- XXX:fixme, fallback is ugly
         tryFastEval (pathName ++ ".yml.gz") $
             tryFastEval (pathName ++ ".yml") $
                 slowEval pathName
@@ -82,7 +82,7 @@ opRequire dumpEnv v = do
 requireInc :: (MonadIO m) => [FilePath] -> FilePath -> String -> m String
 requireInc [] _ msg = fail msg
 requireInc (p:ps) file msg = do
-    let pathName  = p ++ "/" ++ file
+    let pathName  = p ++ (getConfig "file_sep") ++ file
     ok <- liftIO $ doesFileExist pathName
     if (not ok)
         then requireInc ps file msg

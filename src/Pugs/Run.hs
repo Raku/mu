@@ -240,9 +240,11 @@ initPreludePC env = do
         , evalError  = EvalErrorFatal
         }
     evalPrelude = runEvalIO env{ envDebug = Nothing } $ opEval style "<prelude>" preludeStr
-    loadPreludePC = do -- XXX: search path
+    loadPreludePC = do
         -- print "Parsing yaml..."
-        p <- parseYamlFS =<< Str.readFile "src/Pugs/PreludePC.yml"
+        incs     <- liftIO $ getLibs
+        ymlstr   <- liftIO $ getPCStream incs "Prelude.pm.yml.gz" Str.gzReadFile `catch` (return $ getPCStream incs "Prelude.pm.yml" Str.readFile)
+        p <- parseYamlFS ymlstr
         -- print "Parsing done!"
         case p of
             Right (Just yml) -> do
@@ -253,4 +255,9 @@ initPreludePC env = do
                 runEnv env{ envBody = ast, envDebug = Nothing }
             Right Nothing -> fail ""
             x  -> fail $ "Error loading precompiled Prelude: " ++ show x
+    getPCStream :: [FilePath] -> FilePath -> (FilePath -> IO Str.FastString) -> IO Str.FastString
+    getPCStream incs fileName loader = do
+        pathName <- liftIO $ requireInc incs fileName ""
+        loader pathName
+        
 
