@@ -1,12 +1,10 @@
 use strict;
 package Perl6Grammar;
 our %nodes;
-sub node {
-	$nodes{$_[0]} = $_[1];
-}
 sub emit_node {
-	die 'unknow node type' unless $nodes{$_[0]};
-	return $nodes{$_[0]}->($_[1]);
+	die 'unknow node type' unless $node::{$_[0]};
+	no strict 'refs';
+	return &{"node::$_[0]"}($_[1]);
 }
 sub emit {
     my $n = $_[0];
@@ -35,25 +33,25 @@ sub emit {
     }
     die "unknown node: ", Dumper( $n );
 }
-node 'pod',sub {
+sub node::pod {
 	return ''
-};
-node 'ws',sub {
+}
+sub node::ws {
 	return ''
-};
-node 'grammar_name',sub {
+}
+sub node::grammar_name {
     my $ident = get_str( $_[0], '$<ident>' );
     return "package $ident;\n";
-};
-node 'rule_decl',sub {
+}
+sub node::rule_decl {
     my $name = get_str( $_[0], '$<ident>' );
     my $program = main::emit_rule( get_data( $_[0], '$<rule>' ), '' );
     return "*{'$name'} = \n$program;\n";
-};
-node 'block',sub {
+}
+sub node::block {
     return "    {\n" . emit($_[0]) . "    }\n";
-};
-node 'sub_decl',sub {
+}
+sub node::sub_decl {
     my $fix =   get_str( $_[0], '$<fix>' );
     my $id =    get_str( $_[0], '$<id>' );
     my $block = get_data( $_[0], '$<block>' );
@@ -64,42 +62,42 @@ node 'sub_decl',sub {
         # "    }\n" .
         "    push \@grammar1::ops, ::compile_rule( '" .
             quotemeta( $fix . ':<' . $id . '>' ) . "' );\n";
-};
-node 'sub_application',sub {
+}
+sub node::sub_application {
     my $term1 = emit( get_data( $_[0], '$<term1>' ) );
     my $op =    get_str( $_[0], '$<op>' );
     my $term2 = emit( get_data( $_[0], '$<term2>' ) );
     return 
         "    &{'$op'} ( $term1, $term2 );\n";
-};
-node 'sub_application_term',sub {
+}
+sub node::sub_application_term {
     my $term1 = emit( get_data( $_[0], '$<term1>' ) );
     my $op =    get_str( $_[0], '$<op>' );
     my $term2 = emit( get_data( $_[0], '$<term2>' ) );
     return 
         "    &{'$op'} ( $term1, $term2 )\n";
-};
-node '_push',sub {
+}
+sub node::_push {
     my $op =   get_str( $_[0], '$<op>' );
     my $name = get_str( $_[0], '$<variable>' );
     my $code = get_str( $_[0], '$<code>' );
     return "    $op $name, $code;\n";
-};
-node '_simple_statement',sub {
+}
+sub node::_simple_statement {
     my $op = get_str( $_[0], '$<op>' );
     $op = 'die "not implemented"' if $op eq '...';
     return "    $op;\n";
-};
-node '_my',sub {
+}
+sub node::_my {
     my $op =   get_str( $_[0], '$<op>' );
     my $name = get_str( $_[0], '$<variable>' );
     return "    $op $name;\n";
-};
-node '_return',sub {
+}
+sub node::_return {
     my $val = emit( get_data( $_[0], '$<val>' ) );
     return "    return $val;\n";
-};
-node '_print',sub {
+}
+sub node::_print {
     my $op =   get_str( $_[0], '$<op>' );
     my $list = get_data( $_[0], '$<list>' );
     my $cmd = "    print";
@@ -114,32 +112,32 @@ node '_print',sub {
     return $s . "$cmd \"\\n\";\n" 
         if $op eq 'say';
     return $s;
-};
-node 'term1',sub {
+}
+sub node::term1 {
     return $_[0] unless ref($_[0]);
     return emit( $_[0]->[0]);
-};
-node 'term2',sub {
+}
+sub node::term2 {
     return $_[0] unless ref($_[0]);
     return emit( $_[0]->[0]);
-};
-node 'literal',sub {
+}
+sub node::literal {
     # $_[0] =~ s/([\'])/\\$1/g;
     return "'" . $_[0] . "'";
     # return '"' . quotemeta($_[0]) . '"';
     #$_[0] =~ s/(["\$%@])/\\$1/g;
     #return '"' . $_[0] . '"';
-};
-node 'eval_perl5',sub {
+}
+sub node::eval_perl5 {
     return eval emit($_[0]);
-};
-node 'variable',sub {
+}
+sub node::variable {
     return $_[0];
-};
-node 'immediate_statement_exec',sub {
+}
+sub node::immediate_statement_exec {
     return get_data( $_[0], '$<perl5>' );
-};
-node 'macro',sub {
+}
+sub node::macro {
     
     #print Dumper( get_data( $_[0], "\$<>" ) );
     
@@ -202,7 +200,7 @@ node 'macro',sub {
     local $Data::Dumper::Terse = 1;
     my $res = 
 
-        "*{'$prefix:<$id>'} = sub {\n" .
+        "*{'$prefix:<$id>'} = sub node::{\n" .
         "    my \$rule = ruleop::concat( \n" .
         "        ruleop::constant( '$prefix:<$id>' ),\n" .
         "        \\&grammar1::ws_star,\n" .
@@ -215,7 +213,7 @@ node 'macro',sub {
 
         "    my \$match = \$rule->( \@_ );\n" .
         "    return unless \$match;\n" .
-        "    my \$code = sub { \n" .
+        "    my \$code = sub node::{ \n" .
         # "    print 'matched: ', Dumper( \$_[0]->{capture} ); \n" .
         "    my \$src = <<\'!EOT!\'; \n" . 
         $block . 
@@ -251,4 +249,4 @@ node 'macro',sub {
 
     #print "macro: expanded:\n$res";
     return $res;
-};
+};1
