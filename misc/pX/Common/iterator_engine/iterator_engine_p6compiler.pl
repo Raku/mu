@@ -39,16 +39,17 @@ $Data::Dumper::Pad = '# ';
     };
 
     *immediate_statement_exec = sub {
-        #print "immediate_statement_exec: matching ###$_[0]###\n";
         my $match = immediate_statement_rule( @_ );
         # print "immediate_statement_exec: BEGIN AST: \n", Dumper( $match->{capture} );
         return $match unless $match->{bool};
         # print "immediate_statement_exec: BEGIN AST: \n", Dumper( $match->{capture} );
         my $program = Perl6Grammar::emit( $match->{capture} );
+        #print "immediate_statement_exec: matching ###$_[0]###\n";
         #print "immediate_statement_exec: eval'ing code:\n###$program###\n";
         no strict 'refs';
         my $code = eval($program);
-        die "error in statement: " . $@
+        print "Error in statement:\n", $program if $@;
+        die "error in immediate_statement_exec: " . $@
             if $@;
         # print "immediate_statement_exec: CODE[ $code ]\n";
         return {
@@ -65,7 +66,7 @@ __p6__
 
     *rule_decl = ::compile_rule( <<'__p6__' );
         rule <ws> <ident> <ws>? \{ <rule> \}  
-            { return { rule_decl => $<> ,} }
+            { return { rule_decl => $() ,} }
 __p6__
 
 
@@ -78,11 +79,11 @@ __p6__
     Perl6Grammar::compile( <<'__p6__' , {print_ast=>0} );
         rule grammar1::grammar_name { 
             grammar <ws> <ident> <ws>? \;
-                { return { grammar_name => $<> ,} }
+                { return { grammar_name => $() ,} }
         }
         rule grammar1::_push {
             $op := (push|unshift) <ws> <variable> <ws>? \, <ws>? $code := (.*?) <ws>? \;
-                { return { _push => $<> ,} }
+                { return { _push => $() ,} }
         }
 __p6__
     push @grammar1::statements, \&grammar_name;
@@ -249,3 +250,4 @@ sub bind_variable {
 } # /package
 
 1;
+

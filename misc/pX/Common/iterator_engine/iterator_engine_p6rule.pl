@@ -201,21 +201,58 @@ unshift @rule_terms, ruleop::capture(
 
 #------ match functions
 
+=for reference - see S05 "Return values from matches"
+    $/    
+        the match 
+        Inside a closure, refers to the current match, even if there is another
+        match inside the closure
+    $/()  
+        just the capture - what's returned in { return ... }
+    $/0
+        the first submatch
+Alternate names:        
+    $()   
+        the same as $/()
+Submatches:
+    $/[0] 
+        the first submatch
+    $0 
+        the same as $/[0]
+    $()<a>
+        If the capture object return()-ed were a hash:
+        the value $x in { return { a => $x ,} }
+Named captures:
+    $a := (.*?)  
+        $a is something in the outer lexical scope (TimToady on #perl6)
+            XXX - E05 says it is a hypothetical variable, referred as $0<a>
+    $<a> := (.*?)  
+        $<a> is a named capture in the match
+    let $a := (.*?)
+        $a is a hypothetical variable
+                (\d+)     # Match and capture one-or-more digits
+                { let $digits := $1 }
+=cut
+
 sub match::get {
     my $match =   $_[0];
     my $name =    $_[1];
     
+    return $match->{capture}  if $name eq '$/()' || $name eq '$()';
+    
+    # XXX - wrong, but bug-compatible with previous versions
     return $match->{capture}  if $name eq '$/<>' || $name eq '$<>';
+    
     return $match->{match}    if $name eq '$/';
     
     #print "get var $name\n";
     
+    # XXX - wrong, but bug-compatible with previous versions
     # $/<0>, $/<1>
     # $<0>, $<1>
     if ( $name =~ /^ \$ \/? <(\d+)> $/x ) {
         my $num = $1;
         my $n = 0;
-        for ( @{ match::get( $match, '$/<>' ) } ) {
+        for ( @{ match::get( $match, '$/()' ) } ) {
             next unless ref($_) eq 'HASH';
             if ( $num == $n ) {
                 my (undef, $capture) = each %$_;
@@ -227,11 +264,26 @@ sub match::get {
         return;
     }
     
+    # $/()<name>
+    # $()<name>
+    if ( $name =~ /^ \$ \/? \( \) <(.+)> $/x ) {
+        my $n = $1;
+        for ( @{ match::get( $match, '$/()' ) } ) {
+            next unless ref($_) eq 'HASH';
+            if ( exists $_->{$n} ) {
+                #print "cap\n", Dumper( $_->{$n} );
+                return $_->{$n};
+            }
+        }
+        return;
+    }
+
+    # XXX - wrong, but bug-compatible with previous versions
     # $/<name>
     # $<name>
     if ( $name =~ /^ \$ \/? <(.+)> $/x ) {
         my $n = $1;
-        for ( @{ match::get( $match, '$/<>' ) } ) {
+        for ( @{ match::get( $match, '$()' ) } ) {
             next unless ref($_) eq 'HASH';
             if ( exists $_->{$n} ) {
                 #print "cap\n", Dumper( $_->{$n} );
@@ -299,7 +351,8 @@ sub emit_rule {
             push @s, $tmp . "$tab ,\n" if $tmp;
         }
 
-        # XXX XXX XXX - temporary hacks to translate p6 to p5 -- see 'closure' node
+        # XXX XXX XXX - source-filter 
+        #    temporary hacks to translate p6 to p5 -- see 'closure' node
         if (@s && $s[-1] =~ /^#return-block#(.*)/s ) {
             #print "return block\n";
             my $code = $1;
@@ -321,12 +374,12 @@ sub emit_rule {
         my \$rule = \n$program    ;
         my \$match = \$rule->( \@_ );
         return unless \$match;
-        my \$c = sub " . $code . "; 
+        my \$capture_block = sub " . $code . "; 
         #use Data::Dumper;
         #print \"capture was: \", Dumper( \$match->{capture} );
         return { 
             \%\$match,
-            capture => [ \$c->( \$match ) ],
+            capture => [ \$capture_block->( \$match ) ],
         }; 
     }\n";
             return $return;
@@ -432,8 +485,13 @@ sub emit_rule {
             #print "closure: ", Dumper( $v );
             my $code = match::str( $v ); 
             
-            # XXX XXX XXX - temporary hacks to translate p6 to p5
-            $code =~ s/ \$<(.*?)> / match::get( \$_[0], '\$<$1>' ) /sgx;
+            # XXX XXX XXX - source-filter - temporary hacks to translate p6 to p5
+            # $()<name>
+            $code =~ s/ ([^']) \$ \( \) < (.*?) > /$1 match::get( \$_[0], '\$()<$2>' ) /sgx;
+            # $<name>
+            $code =~ s/ ([^']) \$ < (.*?) > /$1 match::get( \$_[0], '\$<$2>' ) /sgx;
+            # $()
+            $code =~ s/ ([^']) \$ \( \) /$1 match::get( \$_[0], '\$()' ) /sgx;
             #print "Code: $code\n";
             
             return "$tab sub {\n" . 

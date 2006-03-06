@@ -202,10 +202,10 @@ my $rule = \&grammar1::rule;
   ok ( defined $program, "emit rule to p5" );
   $compiled = eval($program);
   is ( ref $compiled, "CODE", "compile p5" );
-  $match = $compiled->( q('aaaa' 'some_word') );
+  $match = $compiled->( q('aaaa' 'some_word' ) );
   # print Dumper( $match );
   ok ( $match->{bool}, "parse sample of text" );
-  is ( $match->{tail}, q( 'some_word'), "correct left-out" );
+  is ( $match->{tail}, q( 'some_word' ), "correct left-out" );
 }
 
 {

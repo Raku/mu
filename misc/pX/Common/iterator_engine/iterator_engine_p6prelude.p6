@@ -25,9 +25,9 @@ rule list {
 
 rule block {
     \{ 
-        ( [ <?ws>? <@grammar1::statements> ]* ) <?ws>? 
+        $list := ( [ <?ws>? <@grammar1::statements> ]* ) <?ws>? 
     \}
-        { return { block => $<0> ,} }
+        { return { block => $()<list> ,} }
 }
 push @statements, \&block;
 
@@ -36,7 +36,7 @@ rule macro_decl {
     \(  <?ws>? <list> <?ws>? \) <?ws>?
     is <?ws> parsed <?ws>? \( <?ws>? \/ <?ws>? <rule> <?ws>? \/ <?ws>? \) <?ws>?
     <code> 
-        { return { macro => $<> ,} }
+        { return { macro => $() ,} }
 }
 push @statements, \&macro_decl;
 
@@ -45,25 +45,25 @@ push @terms, \&literal;
         
 rule _print { 
     $op := (print|say|warn|die) <ws> <list> <ws>? \;
-        { return { _print => $<> ,} }
+        { return { _print => $() ,} }
 }
 push @statements, \&_print;
 
 rule _my {
     $op := (my|our|local) <ws> <variable> <ws>? \;
-        { return { _my => $<> ,} }
+        { return { _my => $() ,} }
 }
 push @statements, \&_my;
 
 rule _simple_statement {
     $op := (die|\.\.\.) \;
-        { return { _simple_statement => $<> ,} }
+        { return { _simple_statement => $() ,} }
 }
 push @statements, \&_simple_statement;
 
 rule sub_decl {
-    sub <ws> $fix := (infix|prefix|postfix) \: \< $id := (.*?) \> <ws>? <block>
-        { return { sub_decl => $<> ,} }
+    sub <?ws> $fix := (infix|prefix|postfix) \: \< $id := (.*?) \> <?ws>? <block>
+        { return { sub_decl => $() ,} }
 }
 push @statements, \&sub_decl;
 
@@ -71,14 +71,14 @@ rule term2 {
     $term1 := (<term1>) <ws>? 
     $op    := (<@grammar1::ops>) <ws>? 
     $term2 := (<term1>) 
-        { return { sub_application_term => $<> ,} }
+        { return { sub_application_term => $() ,} }
 }
 
 rule sub_application {
     $term1 := (<term1>|<term2>) <ws>? 
     $op    := (<@grammar1::ops>) <ws>? 
     $term2 := (<term1>|<term2>) <ws>? \;
-        { return { sub_application => $<> ,} }
+        { return { sub_application => $() ,} }
 }
 push @statements, \&sub_application;
 
@@ -109,18 +109,29 @@ push @statements, \&eval_perl5;
 
 rule _return {
     return <?ws> $val := (<term1>|<term2>) <?ws>? \;
-        { return { _return => $<> ,} }
+        { return { _return => $() ,} }
 }
 push @statements, \&_return;
+
+macro statement_control:<if> () is parsed ( /
+    <?ws>? \( 
+        $expr := (.*?) 
+    \) <?ws>? 
+    $block := (<code>)
+/ )
+{
+    return '
+        sub prefix:<_if_expr>  { return $expr ; }
+        sub prefix:<_if_block> { $block }
+        eval( \' 
+                if ( &{\\\'prefix:<_if_expr>\\\'}() ) { 
+                    &{\\\'prefix:<_if_block>\\\'}() 
+                } 
+            \', 
+            :lang<perl5> );
+    ';
+}
 
 sub infix:<*> { eval(' $_[0] * $_[1] ', :lang<perl5>); }
 sub infix:<+> { eval(' $_[0] + $_[1] ', :lang<perl5>); }
 sub infix:<~> { eval(' $_[0] . $_[1] ', :lang<perl5>); }
-
-=pod
-# Current weather in Nome Alaska.
-# 16.2 °F  / -8.8 °C
-# Snow Showers
-# Blowing Snow
-# Showers Mist
-=cut

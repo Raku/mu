@@ -7,6 +7,8 @@
 use strict;
 use warnings;
 
+# XXX - TODO - update $<> to $()
+
 # require 'iterator_engine.pl';
 require 'iterator_engine_p6rule.pl';
 

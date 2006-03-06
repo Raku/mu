@@ -1,4 +1,3 @@
-
 macro statement_control:<aaa> ( $a ) is parsed ( /
     <?ws>? \( <?ws>? $a := (.*?) <?ws>? \) <?ws>? \;
 / ) 
@@ -20,6 +19,9 @@ macro statement_control:<sum> () is parsed ( /
 
 statement_control:<sum> ( 2 + 4 );
 statement_control:<aaa> ( say 'something'; );
+
+statement_control:<if> ( '1' ) { say '<if> is ok!'; }
+statement_control:<if> ( '0' ) { say '<if> is not ok :('; }
 
 my $a;
 print 'hello, ';

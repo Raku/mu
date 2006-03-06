@@ -129,7 +129,10 @@ sub node::literal {
     #return '"' . $_[0] . '"';
 }
 sub node::eval_perl5 {
-    return eval emit($_[0]);
+    my $res = eval emit($_[0]);
+    print "Error in eval_perl5:\n", $_[0] if $@;
+    die $@ if $@;
+    return $res;
 }
 sub node::variable {
     return $_[0];
@@ -139,114 +142,129 @@ sub node::immediate_statement_exec {
 }
 sub node::macro {
     
-    #print Dumper( get_data( $_[0], "\$<>" ) );
-    
-    my ($prefix, $id, $list, $rule, $block) = 
-        map { get_data( $_[0], "\$<$_>" ) } 
-        qw( prefix id list rule code );
-    $prefix = match::str( $prefix );
-    $id     = match::str( $id );
-    $block  = match::str( $block );
-    my @args;
-    for ( @$list ) {
-        next unless ref($_) eq 'HASH';
-        push @args, match::str( $_ );  # emit($_);
-    }
-    # no parameters? look into the regex
-    unless ( @args ) {
-        my %h;
-        for ( @$rule ) {
-            next unless ref($_) eq 'HASH';
-            next unless exists $_->{named_capture};
+            #print Dumper( get_data( $v, "\$()" ) );
             
-            for ( @{ $_->{named_capture} } ) {
+            my ($prefix, $id, $list, $rule, $block) = 
+                map { get_data( $_[0], "\$<$_>" ) } 
+                qw( prefix id list rule code );
+            $prefix = match::str( $prefix );
+            $id     = match::str( $id );
+            $block  = match::str( $block );
+            my @args;
+            for ( @$list ) {
                 next unless ref($_) eq 'HASH';
-                # XXX - if there are multiple definitions, it is an array
-                my $name = '$' . match::str( $_ );  
-                $h{$name} = 1;
-                last;
+                push @args, match::str( $_ );  # emit($_);
             }
-        }
-        @args = keys %h;
-    } 
+            # no parameters? look into the regex
+            unless ( @args ) {
+                my %h;
+                for ( @$rule ) {
+                    next unless ref($_) eq 'HASH';
+                    next unless exists $_->{named_capture};
+                    
+                    for ( @{ $_->{named_capture} } ) {
+                        next unless ref($_) eq 'HASH';
+                        # XXX - if there are multiple definitions, it is an array
+                        my $name = '$' . match::str( $_ );  
+                        $h{$name} = 1;
+                        last;
+                    }
+                }
+                @args = keys %h;
+            } 
 
-    # my $rule_code = main::emit_rule( $rule, '' );
-    # print "macro: $prefix / $id \n";  #, Dumper($list);
-    # print "macro: args = @args\n";
-    # print "macro: rule = \n$rule_code\n";
-    # print "macro: block = \n", match::str($block),"\n";
-
-    # XXX don't use source filter: variable substitutions $() in the body AST
-
-    # XXX this algorithm depends on variable declaration 
-    #     like:  ( $a ) is parsed ( / $a := (.*?) / )
-
-    my $binding = '';
-    for ( 0 .. $#args ) {
-        my $ident = $args[$_];
-        $ident =~ s/^.//;  # no sigil
-        $binding .= 
-            "    my $args[$_] = " . 
-            "match::str( match::get( \$_[0], '\$<$ident>' ) );\n" .
-            # "    print \"bound: \\$args[$_] $args[$_] \$src \"; " .
-            # "    \$src =~ s/\\\\\\$args[$_]/\\$args[$_]/g; \n" .
-            "    $args[$_] =~ s/([\\'])/\\\\\$1/g;\n" .
-            "\n";
-    }
-    # print "macro: var binding: \n$binding";
-
-    # emit the rule
-    local $Data::Dumper::Pad = '    ' x 2;
-    local $Data::Dumper::Terse = 1;
-    my $res = 
-
-        "*{'$prefix:<$id>'} = sub node::{\n" .
-        "    my \$rule = ruleop::concat( \n" .
-        "        ruleop::constant( '$prefix:<$id>' ),\n" .
-        "        \\&grammar1::ws_star,\n" .
-        main::emit_rule( $rule ) .
-        "    );\n" .
-
-        #"    my \$body_ast = \n" .
-        #Data::Dumper->Dump( $block ) .
-        #"    ;\n" .
-
-        "    my \$match = \$rule->( \@_ );\n" .
-        "    return unless \$match;\n" .
-        "    my \$code = sub node::{ \n" .
-        # "    print 'matched: ', Dumper( \$_[0]->{capture} ); \n" .
-        "    my \$src = <<\'!EOT!\'; \n" . 
-        $block . 
-        "\n!EOT!\n" .
-        $binding .
-        #"    print 'eval: ', \$a, '  ', \$src; \n" .
-        "    \$src =~ s/([\\'\"])/\\\\\$1/g;\n" .
-        "    my \$ret = eval( '\"' . \$src . '\"' ); \n" .
-        #"    print \"ret: ###\$ret### \\n\"; \n" .
-        "    my \$ast = grammar1::immediate_statement_rule( \$ret )->{capture};\n" .
-        "    my \$perl5 = Perl6Grammar::emit( \$ast );\n" .
-        #"    print \"perl5: ###\$perl5### \\n\"; \n" .
-        "    my \$expanded = eval \$perl5;\n" .
-        #"    print \"expanded: ###\$expanded### \\n\"; \n" .
-        "    return \$expanded;\n" .
-        "    };\n" .
-        "    return {\n" .
-        "        \%\$match,\n" .
-        "        capture => [ \n" . 
-        "             Perl6Grammar::compile( \$code->( \$match ) ) \n" .
-        "        ],\n" .
-        "    };\n" .
-        "};\n";
-
-    # register new syntax in the grammar category
-
-    # example: macro statement_control:<if> ($expr, &ifblock) {...}
-    # XXX - this is very rough
-    my $category = $prefix;
-    $category = 'statements' if $prefix eq 'statement_control';
-
-    $res .= "    push \@grammar1::$category, \\&{'$prefix:<$id>'};\n";
-
-    #print "macro: expanded:\n$res";
-    return $res;
+            # my $rule_code = main::emit_rule( $rule, '' );
+            # print "macro: $prefix / $id \n";  #, Dumper($list);
+            # print "macro: args = @args\n";
+            # print "macro: rule = \n$rule_code\n";
+            # print "macro: block = \n", match::str($block),"\n";
+    
+            # XXX don't use source filter: variable substitutions $() in the body AST
+    
+            # XXX this algorithm depends on variable declaration 
+            #     like:  ( $a ) is parsed ( / $a := (.*?) / )
+    
+            my $binding = '';
+            for ( 0 .. $#args ) {
+                my $ident = $args[$_];
+                $ident =~ s/^.//;  # no sigil
+                $binding .= 
+                    #"    print \"binding: \\n\" . Dumper( match::get( \$_[0], '\$<$ident>' ) );\n" .
+                    "    my $args[$_] = " . 
+                    "match::str( match::get( \$_[0], '\$<$ident>' ) );\n" .
+                    # "    \$src =~ s/\\\\\\$args[$_]/\\$args[$_]/g; \n" .
+                    "    $args[$_] =~ s/([\\'\\\\])/\\\\\$1/g;\n" .
+                    #"    print \"bound: \\$args[$_] $args[$_] \$src \"; " .
+                    "\n";
+            }
+            # print "macro: var binding: \n$binding";
+    
+            # emit the rule
+            local $Data::Dumper::Pad = '    ' x 2;
+            local $Data::Dumper::Terse = 1;
+            my $res = 
+    
+                "*{'$prefix:<$id>'} = sub {\n" .
+                "    my \$rule = ruleop::concat( \n" .
+                "        ruleop::constant( '$prefix:<$id>' ),\n" .
+                "        \\&grammar1::ws_star,\n" .
+                main::emit_rule( $rule ) .
+                "    );\n" .
+    
+                #"    my \$body_ast = \n" .
+                #Data::Dumper->Dump( $block ) .
+                #"    ;\n" .
+    
+                "    my \$match = \$rule->( \@_ );\n" .
+                "    return unless \$match;\n" .
+                "    my \$code = sub { \n" .
+                # "    print 'matched: ', Dumper( \$_[0]->{capture} ); \n" .
+                "    my \$src = <<\'!EOT!\'; \n" . 
+                $block . 
+                "\n!EOT!\n" .
+                $binding .
+                #"    print 'eval: ', \$a, '  ', \$src; \n" .
+                "    \$src =~ s/([\\'\"\\\\])/\\\\\$1/g;\n" .
+                "    my \$ret = eval( '\"' . \$src . '\"' ); \n" .
+                #"    print \"Error in macro eval:\n\", \$src if \$\@; \n" .
+                "    die \$@ if \$\@; \n" .
+                #"    \$ret =~ s/([\\'\"])/\\\\\$1/g;\n" .
+                #"    print \"ret: ###\$ret### \\n\"; \n" .
+                "    my \$ast = grammar1::immediate_statement_rule( \$ret );\n" .
+                "    die \"compile: syntax error in macro at '\" . \$ast->{tail} . \"'\\n\"\n" .
+                "        if \$ast->{tail};\n" .
+                #"    print \"ast: \\n\", Dumper( \$ast->{capture} ); \n" .
+                "    my \$perl5 = Perl6Grammar::emit( \$ast->{capture} );\n" .
+                #"    print \"perl5: ###\$perl5### \\n\"; \n" .
+                "    my \$expanded = eval \$perl5;\n" .
+                #"    print \"Error in expanded macro eval:\n\", \$perl5 if \$\@; \n" .
+                "    die \$@ if \$\@; \n" .
+                #"    print \"expanded: ###\$expanded### \\n\"; \n" .
+                "    my \$final_ast = \n" .
+                "        ::compile_rule( q( [ <?ws>? <\@grammar1::statements> ]* <?ws>? ) )\n" .
+                "        ->( \$expanded );\n" .
+                "    die \"compile: syntax error in macro at '\" . \$final_ast->{tail} . \"'\\n\"\n" .
+                "        if \$final_ast->{tail};\n" .
+                #"    print \"final ast: \\n\", Dumper(\$final_ast->{capture}); \n" .
+                "    return \$final_ast;\n" .
+                #"    my \$perl5_final = Perl6Grammar::emit( \$final_ast->{capture} );\n" .
+                #"    print \"perl5_final: ###\$perl5_final### \\n\"; \n" .
+                #"    return \$perl5_final;\n" .
+                "    };\n" .
+                "    my \$ast = \$code->( \$match ); \n" .
+                #"    print \"tail: \", \$match->{tail}, \"\\n\"; " .
+                "    return { \%\$match, capture => [ \$ast->{capture} ] }; \n" .
+                "};\n";
+    
+            # register new syntax in the grammar category
+    
+            # example: macro statement_control:<if> ($expr, &ifblock) {...}
+            # XXX - this is very rough
+            my $category = $prefix;
+            $category = 'statements' if $prefix eq 'statement_control';
+    
+            $res .= "    push \@grammar1::$category, \\&{'$prefix:<$id>'};\n";
+    
+            #print "macro: expanded:\n$res";
+            return $res;
 };1
