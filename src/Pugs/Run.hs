@@ -230,6 +230,7 @@ initPreludePC env = do
         catch loadPreludePC $ \e -> do
             when (isUserError e && not (null (ioeGetErrorString e))) $ do
                 hPrint stderr e
+            when dispProgress $ do
                 hPutStr stderr "Reloading Prelude from source..."
             evalPrelude
         when dispProgress $ putStrLn "done."
@@ -242,8 +243,9 @@ initPreludePC env = do
     evalPrelude = runEvalIO env{ envDebug = Nothing } $ opEval style "<prelude>" preludeStr
     loadPreludePC = do
         -- print "Parsing yaml..."
-        incs <- liftIO $ getLibs
-        p    <- liftIO $ getYaml incs "Prelude.pm.yml.gz" Str.gzReadFile `catch` (return $ getYaml incs "Prelude.pm.yml" Str.readFile)
+        incs <- liftIO $ fmap ("blib6/lib":) getLibs
+        p    <- liftIO $ getYaml incs "Prelude.pm.yml.gz" Str.gzReadFile
+            `catch` (return $ getYaml incs "Prelude.pm.yml" Str.readFile)
         -- print "Parsing done!"
         case p of
             Right (Just yml) -> do
