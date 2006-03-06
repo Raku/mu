@@ -11,6 +11,11 @@ Plan sketch:
 - rewrite the compiler in p6, and emit the whole compiler to p5
 - try to reuse pugs tests
 
+Next possible milestone:
+- rewrite iterator_engine.pl in Perl 6, 
+  compile to Perl 5,
+  use it instead of the original iterator_engine.pl
+
 Current tasks:
 - #comment - use <p6ws> and <p6ws_star>
 - implement 'macro' and '<%hash>', in order to define 'if' as in S04-Statement parsing

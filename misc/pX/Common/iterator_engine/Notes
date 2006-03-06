@@ -149,3 +149,59 @@ of,
 23:36 < fglock> it will look like: %statement_control:<if> = rule { ... 
 }
 
+-------
+
+re: bootstrapping vs. correctness
+
+<TimToady> personally, I'd aim for the bootstrap, and if we have to 
+write
+<TimToady> "funny" code to use it, that's okayish.
+<fglock> putter: :)
+<fglock> TimToady: ok - this helps!
+<putter> fglock: what are some possible milestones one could imagine 
+reaching for?
+<fglock> for example: I could implement 'if' very easily in perl5, but 
+implementing with a Perl 6 macro is more correct-ish
+<fglock> putter: the compiler is not OO, so we don't need that in the 
+bootstrap
+<fglock> so implementing closures, hash, array should be ok
+<fglock> operator precedence isn't important right now
+* putter 's next question will be "what is the _simplest_ approach you 
+can imagine?"
+<fglock> "_simplest_" - keep writing nodes in perl5; "right" - start 
+writing Perl 6 from this point
+<fglock> however, nodes can be migrated to Perl 6 later, now that we 
+know how to do it
+* putter is a great fan of simple
+<fglock> maybe next step: rewrite iterator_engine.pl in simple-Perl6, 
+and struggle to compile it to Perl5
+<putter> hmm, another thing one might do is step back, and try to come 
+up with a list of _other_ things you might be working on/towards.  
+because it's not only is this useful in itself, but is it the most 
+useful thing you can think to do at the moment
+
+
+-----------
+
+re: pads
+
+<fglock> is there some CPAN module that implements a hash that behaves 
+something like a pad? we could use it for implementing lexical subs for 
+example
+<TimToady> Yes, especially if scoped lexically via %^H modifying pragms.
+<fglock> pmurias: each node is actually a state machine
+<gaal> what ever happened to MJD's pragma patch?
+<fglock> s/each node/each node in a rule/
+*** Daveman left #perl6 ["Leaving"]
+<TimToady> gaal: dunno--I only ever heard about it second-hand--never 
+looked at it.
+<pmurias> fglock:I sort of understand now :)
+<gaal> it's really elegant. (in taking advantage of the 
+parser<->evaluator chumminess of p5)
+<webmind> .win 3
+<webmind> oops
+* gaal wanders off to entertain a guest
+<webmind> hf
+<putter> fglock: 
+http://search.cpan.org/~mneylon/Tie-Hash-Stack-0.09/Stack.pm ?
+
