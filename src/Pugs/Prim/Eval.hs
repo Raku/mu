@@ -20,7 +20,7 @@ import qualified Data.FastPackedString as Str
 import DrIFT.YAML
 import Data.Yaml.Syck
 
-type Str = Str.FastString
+-- type Str = Str.FastString
 
 
 data EvalError = EvalErrorFatal

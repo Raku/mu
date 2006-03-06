@@ -5,17 +5,12 @@ module Pugs.Parser.Operator where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Types
-import Pugs.Version (versnum)
 import Pugs.Lexer
 import Pugs.Rule
 import Pugs.Rule.Expr
-import Pugs.Pretty
 import qualified Data.Set as Set
 
 import Pugs.Parser.Types
-import Pugs.Parser.Number
-import Pugs.Parser.Unsafe
-import Pugs.Parser.Export
 
 operators :: (?parseExpWithTightOps :: RuleParser Exp) =>
     RuleParser (RuleOperatorTable Exp)

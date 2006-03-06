@@ -8,7 +8,6 @@ module Pugs.Parser.Export (
     exportSym,
 ) where
 import Pugs.Internals
-import Pugs.Rule
 import Pugs.AST
 
 import Pugs.Parser.Types
@@ -17,8 +16,6 @@ import Pugs.Parser.Unsafe
 exportSym :: Scope -> String -> Val -> RuleParser Exp
 exportSym scope ('&':subname) ref = do
     (Val (VList subs)) <- unsafeEvalExp $ Syn "@{}" [Val ref]
-    env <- getRuleEnv
-    let newPkg = envPackage env
     exps <- forM subs $ \(VCode sub) -> do
         let name = ('&':subname)
             mkMulti = if isMulti sub then ('&':) else id

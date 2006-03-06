@@ -231,7 +231,7 @@ op1 "perl" = \v -> do
     if isRecur
         then return (VStr $ "$_ := " ++ rv)
         else return (VStr rv)
-op1 "yaml" = dumpYaml 1024 -- number == max recursion depth
+op1 "yaml" = dumpYaml
 op1 "require_haskell" = \v -> do
     name    <- fromVal v
     externRequire "Haskell" name
@@ -984,7 +984,7 @@ op2 "Pugs::Internals::base" = \x y -> do
     base <- fromVal x
     case y of
         VRef{}  -> op2BasedDigits base =<< fromVal y
-        VList xs-> op2BasedDigits base =<< fromVal y
+        VList{} -> op2BasedDigits base =<< fromVal y
         _       -> do
             str <- fromVal y
             op2BasedDigits base [ s | Just s <- map baseDigit str ]

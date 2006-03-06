@@ -77,9 +77,6 @@ import System.IO.Error (try)
 import qualified Data.Set       as Set
 import qualified Data.Map       as Map
 import qualified Data.IntMap    as IntMap
-import qualified Data.FastPackedString as Str
-
-import Data.Yaml.Syck
 
 import Pugs.Parser.Number
 import Pugs.AST.Prag
@@ -87,9 +84,6 @@ import Pugs.AST.Pos
 import Pugs.AST.Scope
 import Pugs.AST.SIO
 import Pugs.Embed.Perl5
-import DrIFT.Perl5
-import DrIFT.YAML
-import DrIFT.JSON
 
 {- <DrIFT> Imports for the DrIFT
 import Pugs.AST.Scope
@@ -113,7 +107,7 @@ import qualified Data.Map       as Map
 #include "../Types/Pair.hs"
 #include "../Types/Object.hs"
 
-type Str = Str.FastString
+-- type Str = Str.FastString
 
 errIndex :: Show a => Maybe b -> a -> Eval b
 errIndex (Just v) _ = return v

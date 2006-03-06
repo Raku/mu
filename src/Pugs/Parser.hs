@@ -26,7 +26,6 @@ import Pugs.Lexer
 import Pugs.Rule
 import Pugs.Rule.Expr
 import Pugs.Pretty
-import qualified Data.Set as Set
 
 import Pugs.Parser.Types
 import Pugs.Parser.Number
@@ -792,9 +791,10 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
 
         let hardcodedScopeFixme = SMy
             doExportList [] = []
-            doExportList [x] = error $ show x
+            doExportList [x] = error $ "doExportList [x]: " ++ show x
             doExportList (VStr name:ex:xs) = 
                 (exportSym hardcodedScopeFixme name ex : doExportList xs)
+            doExportList x = error $ "doExportList x: " ++ show x
         syms <- sequence $ doExportList exportList
         return $ foldl mergeStmts Noop syms
 

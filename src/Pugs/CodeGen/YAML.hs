@@ -5,7 +5,7 @@ module Pugs.CodeGen.YAML (genYAML, genParseYAML, genParseHsYAML) where
 import Pugs.Internals
 import Pugs.AST
 import Pugs.Compile
-import Pugs.PIL1.Instances
+import Pugs.PIL1.Instances ()
 import Pugs.PIL1
 import DrIFT.YAML
 import qualified Data.Map as Map

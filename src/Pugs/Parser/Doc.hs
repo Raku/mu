@@ -5,11 +5,8 @@ module Pugs.Parser.Doc (
 ) where
 import Pugs.Internals
 import Pugs.AST
-import Pugs.Types
 import Pugs.Lexer
 import Pugs.Rule
-import Pugs.Rule.Expr
-
 import Pugs.Parser.Types
 
 -- Inline Documentation ----------------------------------------

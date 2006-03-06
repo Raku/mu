@@ -39,8 +39,7 @@ import Pugs.Pretty
 import Pugs.Types
 import Pugs.External
 import Pugs.Eval.Var
-import DrIFT.YAML
-
+import DrIFT.YAML ()
 
 import RRegex.PCRE as PCRE
 

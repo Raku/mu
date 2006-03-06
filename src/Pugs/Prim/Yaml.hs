@@ -15,8 +15,6 @@ import qualified Data.IntMap as IntMap
 import qualified Data.FastPackedString as Str
 import DrIFT.YAML
 
-type Str = Str.FastString
-
 evalYaml :: Val -> Eval Val
 evalYaml cv = do
     str     <- fromVal cv
@@ -67,8 +65,8 @@ fromYaml MkYamlNode{el=YamlMap nodes,tag=tag} = do
             return $ VRule MkRulePGE{rxRule=rule, rxGlobal=global, rxStringify=stringify, rxAdverbs=adverbs}
         Just x   -> error ("can't deserialize: " ++ (Str.unpack x))
 
-dumpYaml :: Int -> Val -> Eval Val
-dumpYaml limit v = do
+dumpYaml :: Val -> Eval Val
+dumpYaml v = do
     let ?seen = IntSet.empty
     obj     <- toYaml v
     rv      <- liftIO . emitYaml $ obj

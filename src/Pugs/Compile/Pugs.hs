@@ -4,7 +4,6 @@ module Pugs.Compile.Pugs (genPugs) where
 import Pugs.AST
 import Pugs.Types
 import Pugs.Internals
-import Text.PrettyPrint
 import qualified Data.FastPackedString as Str
 import qualified Data.Map as Map
 

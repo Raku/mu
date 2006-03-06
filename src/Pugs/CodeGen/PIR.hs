@@ -19,7 +19,7 @@ import Pugs.AST
 import Pugs.Types
 import Pugs.Eval.Var
 import Pugs.PIL1
-import Emit.PIR.Instances
+import Emit.PIR.Instances ()
 import Emit.PIR
 import Pugs.Pretty
 import Text.PrettyPrint
@@ -88,7 +88,7 @@ instance Translate PIL_Expr Expression where
         tellIns $ pmc <== litC
         return $ ExpLV pmc
     trans (PThunk exp) = do
-        [begL, initL]  <- genLabel ["thunk", "thunkInit"]
+        [begL, _]  <- genLabel ["thunk", "thunkInit"]
         this    <- genPMC "thunk"
         let begP = begL ++ "_C"
         tellIns $ InsConst (VAR begP) Sub (lit begL)
@@ -311,8 +311,8 @@ genScalar = genWith (`InsNew` PerlScalar)
 genArray :: (RegClass a) => String -> CodeGen a
 genArray = genWith (`InsNew` PerlArray)
 
-genHash :: (RegClass a) => String -> CodeGen a
-genHash = genWith (`InsNew` PerlHash)
+-- genHash :: (RegClass a) => String -> CodeGen a
+-- genHash = genWith (`InsNew` PerlHash)
 
 genLabel :: [String] -> CodeGen [LabelName]
 genLabel names = do
@@ -405,6 +405,7 @@ vivifySub (DeclSub name@('&':c:_') [SubOUTER "main"] _)
         ]
 vivifySub _ = []
 
+genPIRWith :: ([Decl] -> [Stmt] -> PIL_Environment -> Eval a) -> Eval a
 genPIRWith f = do
     tenv        <- initTEnv
     -- Load the PIR Prelude.

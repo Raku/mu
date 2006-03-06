@@ -67,8 +67,6 @@ op2Exp x y = do
                 then op2Rat ((^^) :: VRat -> VInt -> VRat) x y
                 else op2Num ((**) :: VNum -> VNum -> VNum) x y
         _ -> op2Num ((**) :: VNum -> VNum -> VNum) x y
-    where
-    _NaN = 0/0
 
 op2Divide :: Val -> Val -> Eval Val
 op2Divide x y

@@ -3,18 +3,13 @@
 module DrIFT.YAML where
 import Data.Yaml.Syck
 import Data.Ratio
-import Data.Char (chr)
 import GHC.Exts
-import UTF8
 import Data.Typeable
 import Control.Exception
-import Control.Monad
 import Control.Concurrent.STM
-import Data.IORef
 import qualified Data.IntSet as IntSet
 import Foreign.StablePtr
 import Foreign.Ptr
-import System.IO.Unsafe
 import Control.Monad.Reader
 import qualified Data.FastPackedString as Str
 
@@ -71,14 +66,13 @@ asYAMLmap c ps = do
         return (k', v')
 
 fromYAMLmap :: YAML a => YamlNode -> IO [(String, a)]
-fromYAMLmap MkYamlNode{el=YamlMap m} = do
-    mapM fromYAMLpair m
+fromYAMLmap MkYamlNode{el=YamlMap m} = mapM fromYAMLpair m
     where
     fromYAMLpair (MkYamlNode{el=YamlStr k}, v) = do
         v' <- fromYAML v
         return (Str.unpack k, v')
-    fromYAMLElem e = fail $ "no parse: " ++ show e
-    
+    fromYAMLpair e = fail $ "no parse: " ++ show e
+fromYAMLmap e = fail $ "no parse: " ++ show e
 
 asYAMLcls :: YAMLClass -> EmitAs YamlNode
 asYAMLcls c = return $ mkTagNode (tagHs c) (YamlStr $ Str.pack c)

@@ -87,8 +87,6 @@ possiblyApplyMacro app@(App (Var name) _ _) = do
         | otherwise
         = return app
     {-# NOINLINE substMacroResult #-}
-    yamlExp :: YamlNode -> IO([Exp])
-    yamlExp node = fromYAML node
     substMacroResult :: Exp -> RuleParser Exp
     -- An AST is spliced
     substMacroResult (Val (VObject o)) | objType o == mkType "Code::Exp" = do

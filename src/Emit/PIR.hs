@@ -19,8 +19,6 @@ import Data.Typeable
 import Emit.Common
 import DrIFT.YAML
 import Text.PrettyPrint
-import Data.Yaml.Syck
-import Control.Monad
 
 {-! global : YAML !-}
 

@@ -21,10 +21,6 @@ import Pugs.AST hiding (Prim)
 import Pugs.Internals hiding (get, put)
 import Pugs.Types
 import Emit.PIR
-import DrIFT.Perl5
-import DrIFT.YAML
-import DrIFT.JSON
-import Data.Yaml.Syck
 
 -- import DrIFT.XML
 -- {-! global : Haskell2Xml !-}

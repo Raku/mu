@@ -4,7 +4,7 @@
 module Pugs.CodeGen.PIL1 (genPIL1) where
 import Pugs.Internals
 import Pugs.AST
-import Pugs.PIL1.Instances
+import Pugs.PIL1.Instances ()
 import Pugs.PIL1
 import Pugs.Compile
 
