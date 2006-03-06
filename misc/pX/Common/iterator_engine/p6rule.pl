@@ -79,13 +79,13 @@ sub negated_subrule {
 my @literals = (
     ruleop::concat(    
         ruleop::constant( "<\'" ),
-        ruleop::capture( 'literal',
+        ruleop::capture( 'constant',
             ruleop::non_greedy_star( \&any ),
         ),
         ruleop::constant( "\'>" ),
     ),
-    ruleop::capture( 'literal', \&word ),
-    ruleop::capture( 'literal', \&escaped_char )
+    ruleop::capture( 'constant', \&word ),
+    ruleop::capture( 'constant', \&escaped_char )
 );
 
 use vars qw( @rule_terms );
@@ -331,9 +331,9 @@ sub compile_rule {
 }
 
 sub emit_rule_node {
-    die 'unknow node type' unless $node2::{$_[0]};
+    die "unknow node type:$_[0]" unless $node::{$_[0]};
     no strict 'refs';
-    my $code = &{"node2::$_[0]"}($_[1],$_[2]);
+    my $code = &{"node::$_[0]"}($_[1],$_[2]);
 #   print Dumper(@_,$code),"\n";
     return $code;
 }
@@ -410,19 +410,19 @@ sub emit_rule {
 }
 
 #rule nodes
-sub node2::rule {
+sub node::rule {
     return emit_rule( $_[0], $_[1] );
     #return "$_[1] ruleop::capture( '$_[2]',\n" .
     #       emit_rule( $_[0], $_[1] ) . "$_[1] )\n";
 }        
-sub node2::capturing_group {
+sub node::capturing_group {
     return "$_[1] ruleop::capture( 'capturing_group',\n" .
            emit_rule( $_[0], $_[1] ) . "$_[1] )\n";
 }        
-sub node2::non_capturing_group {
+sub node::non_capturing_group {
     return emit_rule( $_[0], $_[1] );
 }        
-sub node2::star {
+sub node::star {
     local $Data::Dumper::Indent = 1;
     my $term = $_[0]->[0]{'term'};
     #print "*** \$term:\n",Dumper $term;
@@ -441,7 +441,7 @@ sub node2::star {
     return "$_[1] ruleop::$sub(\n" .
            emit_rule( $term, $_[1] ) . "$_[1] )\n";
 }        
-sub node2::alt {
+sub node::alt {
     # local $Data::Dumper::Indent = 1;
     # print "*** \$_[0]:\n",Dumper $_[0];
     my @s;
@@ -453,33 +453,33 @@ sub node2::alt {
            join( '', @s ) .
            "$_[1] ] )\n";
 }        
-sub node2::term {
+sub node::term {
     return emit_rule( $_[0], $_[1] );
 }        
-sub node2::code {
+sub node::code {
     # return "$_[1] # XXX code - compile '$_[0]' ?\n";
     return "$_[1] $_[0]  # XXX - code\n";  
 }        
-sub node2::dot {
+sub node::dot {
     return "$_[1] \\&{'${namespace}any'}\n";
 }
-sub node2::subrule {
+sub node::subrule {
     my $name = $_[0];
     $name = $namespace . $_[0] unless $_[0] =~ /::/;
     return "$_[1] ruleop::capture( '$_[0]', \\&{'$name'} )\n";
 }
-sub node2::non_capturing_subrule {
+sub node::non_capturing_subrule {
     return "$_[1] \\&{'$namespace$_[0]'}\n";
 }
-sub node2::negated_subrule {
+sub node::negated_subrule {
     return "$_[1] ruleop::negate( \\&{'$namespace$_[0]'} )\n";
 }
-sub node2::literal {
+sub node::constant {
     my $literal = shift;
     my $name = quotemeta(join('',@$literal));
     return "$_[0] ruleop::constant( \"$name\" )\n";
 }
-sub node2::variable {
+sub node::variable {
     my $name = match::str( $_[0] );
     # print "var name: ", match::str( $_[0] ), "\n";
     my $value = "sub { die 'not implemented: $name' }\n";
@@ -491,7 +491,7 @@ sub node2::variable {
 
     return "$_[1] ruleop::constant( '" . $value . "' )\n";
 }
-sub node2::closure {
+sub node::closure {
     my $code = match::str( $_[0] ); 
     
     # XXX XXX XXX - source-filter - temporary hacks to translate p6 to p5
@@ -509,14 +509,14 @@ sub node2::closure {
         unless $code =~ /return/;
     return "#return-block#" . $code;
 }
-sub node2::runtime_alternation {
+sub node::runtime_alternation {
     my $code = match::str( match::get( 
         { capture => $_[0] }, 
         '$<variable>'
     ) );
     return "$_[1] ruleop::alternation( \\$code )\n";
 }
-sub node2::named_capture {
+sub node::named_capture {
     my $name = match::str( match::get( 
         { capture => $_[0] }, 
         '$<ident>'
