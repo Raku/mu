@@ -13,6 +13,7 @@ use Data::Dumper;
 
 require 'iterator_engine.pl';
 require 'p6rule_lib.pl';
+require 'p5hacks.pl';
 
 my $namespace = 'grammar1::';
 
@@ -336,45 +337,6 @@ sub emit_rule_node {
     my $code = &{"node::$_[0]"}($_[1],$_[2]);
 #   print Dumper(@_,$code),"\n";
     return $code;
-}
-sub return_block_hack {
-	my $tab = shift;
-	my @s =   @_;
-        if (@s && $s[-1] =~ /^#return-block#(.*)/s ) {
-            #print "return block\n";
-            my $code = $1;
-            #print "Code: $code\n";
-            pop @s;
-            my $program;
-            if ( @s == 1 ) {
-                $program = $s[0];
-            }
-            else {
-                $program = "$tab ruleop::concat(\n" . 
-                            ( join '', @s ) . 
-                            "$tab )\n";
-            }
-            #print "program $program\n";
-            my $return;
-            $return = "
-    sub { 
-        my \$rule = \n$program    ;
-        my \$match = \$rule->( \@_ );
-        return unless \$match;
-        my \$capture_block = sub " . $code . "; 
-        #use Data::Dumper;
-        #print \"capture was: \", Dumper( \$match->{capture} );
-        return { 
-            \%\$match,
-            capture => [ \$capture_block->( \$match ) ],
-        }; 
-    }\n";
-            return $return;
-        }
-        return $s[0] if @s == 1;
-        return "$tab ruleop::concat(\n" . 
-               ( join '', @s ) . 
-               "$tab )\n";
 }
 sub emit_rule {
     my $n = $_[0];
