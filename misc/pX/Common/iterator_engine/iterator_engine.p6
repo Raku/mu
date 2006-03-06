@@ -5,7 +5,7 @@
 #use warnings;
 #use Smart::Comments; for debugging, look also at Filtered-Comments.pm
 
-v6;
+use v6;
 
 =pod
 
@@ -85,7 +85,7 @@ sub ruleop::concat {
     # note: the list in @nodes can NOT be modified at runtime
     # update: this is ok, because we can use <$var><$var> instead
     
-    return ruleop::concat( +shift, ruleop::concat( @_ ) )
+    return ruleop::concat( ( shift @_ ), ruleop::concat( @_ ) )
         if @_ > 2;
     my @nodes = @_;
     return sub {
@@ -95,24 +95,24 @@ sub ruleop::concat {
         my @matches;
         while (1) {
             
-            $matches[0] = $nodes[0]->( $tail, $state[0], $flags );
+            $matches[0] = $nodes[0]( $tail, $state[0], $flags );
             ### 1st match: $matches[0]
             return $matches[0] 
-                if $matches[0]{'abort'};
-            if ( ! $matches[0]{'bool'} ) {
-                return unless defined $matches[0]{state};
-                @state = ( $matches[0]{state}, 0 );
+                if $matches[0]<abort>;
+            if ( ! $matches[0]<bool> ) {
+                return unless defined $matches[0]<state>;
+                @state = ( $matches[0]<state>, 0 );
                 next;
             }
             
-            $matches[1] = $nodes[1]->( $matches[0]{'tail'}, $state[1], $flags );
+            $matches[1] = $nodes[1]( $matches[0]<tail>, $state[1], $flags );
             ### 2nd match: $matches[1]
             return $matches[1] 
-                if $matches[1]{'abort'};
-            if ( ! $matches[1]{'bool'} ) {
-                if ( ! defined( $matches[1]{'state'} ) ) {
-                    return unless defined $matches[0]{'state'};
-                    @state = ( $matches[0]{'state'}, 0 );
+                if $matches[1]<abort>;
+            if ( ! $matches[1]<bool> ) {
+                if ( ! defined( $matches[1]<state> ) ) {
+                    return unless defined $matches[0]<state>;
+                    @state = ( $matches[0]<state>, 0 );
                 }
                 ### backtracking - state: @state
                 ### backtracking - match: @matches
@@ -120,25 +120,25 @@ sub ruleop::concat {
             }
             
             my $succ;
-            if ( ! defined( $matches[1]{state} ) ) {
-                $succ = [ $matches[0]{state}, 0 ] if defined $matches[0]{state};
+            if ( ! defined( $matches[1]<state> ) ) {
+                $succ = [ $matches[0]{state}, 0 ] if defined $matches[0]<state>;
             }
             else {
-                $succ = [ $state[0], $matches[1]{state} ];
+                $succ = [ $state[0], $matches[1]<state> ];
             }
 
             my $capture = [];
-            ### capture: $matches[0]{capture},$matches[1]{capture}
+            ### capture: $matches[0]<capture>,$matches[1]<capture>
             $capture = $matches[0]{capture} 
-                if $matches[0]{capture};
-            push @$capture, @{$matches[1]{capture}} 
-                if $matches[1]{capture};
-            undef $capture unless @$capture;
+                if $matches[0]<capture>;
+            push @$capture, @{$matches[1]<capture>} 
+                if $matches[1]<capture>;
+            undefine $capture unless @{$capture};
 
             return { 
                 bool =>  1,
                 match => [ @matches ], 
-                tail =>  $matches[1]{tail},
+                tail =>  $matches[1]<tail>,
                 state => $succ,
                 capture => $capture,
             };
@@ -147,18 +147,22 @@ sub ruleop::concat {
 }
 
 sub ruleop::constant { 
-    my $const = shift;
+    my $const = shift @_;
     return sub {
         ### matching constant:$_[0],$const
-        return if ! $_[0] || $_[0] !~ m/^(\Q$const\E)(.*)/s;
+        return if ! @_[0];
+        # return unless @_[0] ~~ m/^(\Q$const\E)(.*)/s;
+        # return unless @_[0] ~~ perl5:m:s:/^(\Q$const\E)(.*)/;
+        return unless @_[0] ~~  /^ ( $const )(.*)/;  # (putter on #perl6)
+
         return { bool => 1,
-                 match => { constant => $1 }, 
+                 match => { constant => $1 ,}, 
                  capture => [ $1 ], 
                  tail => $2,
                }
-           if $_[2]{capture};  # flags->{capture}
+           if $_[2]<capture>;  # flags<capture>
         return { bool => 1,
-                 match => { constant => $1 }, 
+                 match => { constant => $1 ,}, 
                  tail => $2,
                }
     }
@@ -168,8 +172,8 @@ sub ruleop::null {
     return sub {
         return { bool => 1,
                  match => 'null',
-                 ( $_[2]->{capture} ? ( capture => [ '' ] ) : () ),
-                 tail => $_[0],
+                 ( $_[2]<capture> ?? ( capture => [ '' ] ) !! () ),
+                 tail => @_[0],
                }
     }
 };
@@ -177,17 +181,17 @@ sub ruleop::null {
 sub ruleop::capture {
     # sets the 'capture' flag and return a labeled capture
     # XXX - generalize to: set_flag('capture',1)
-    my $label = shift;
-    my $node = shift;
+    my $label = shift @_;
+    my $node = shift @_;
     sub {
         my @param = @_;
         $param[2] = {} unless defined $param[2];
         $param[2] = { %{$param[2]}, capture=>1 };
-        my $match = $node->( @param );
-        return unless $match->{bool};
-        return if $match->{abort};
+        my $match = $node( @param );
+        return unless $match<bool>;
+        return if $match<abort>;
         my $new_match = { %$match };
-        $new_match->{capture} = [ { $label => $match->{capture} } ];
+        $new_match<capture> = [ { $label => $match<capture> } ];
         return $new_match;
     }
 }
@@ -212,7 +216,7 @@ that makes it return until the start of the rule, which unsets the flag before r
 
 # experimental!
 sub ruleop::try { 
-    my $op = shift;
+    my $op = shift @_;
     return sub {
         my $match = $op( @_ );
         ### abortable match...
@@ -223,7 +227,7 @@ sub ruleop::try {
 
 # experimental!
 sub ruleop::abort { 
-    my $op = shift;
+    my $op = shift @_;
     return sub {
         my $match = $op( @_ );
         ### aborting match: $match
@@ -234,11 +238,11 @@ sub ruleop::abort {
 
 # experimental!
 sub ruleop::negate { 
-    my $op = shift;
+    my $op = shift @_;
     return sub {
-        my $tail = $_[0];
+        my $tail = @_[0];
         my $match = $op( @_ );
-        return if $match->{bool};
+        return if $match<bool>;
         return { bool => 1,
                  match => 'null',
                  tail => $tail,
@@ -250,19 +254,19 @@ sub ruleop::negate {
 =for example
     # adds an 'before' or 'after' sub call, which may print a debug message 
     ruleop::wrap( { 
-            before => sub { print "matching variable: $_[0]\n" },
-            after  => sub { $_[0]->{bool} ? print "matched\n" : print "no match\n" },
+            before => sub { print "matching variable: @_[0]\n" },
+            after  => sub { @_[0]<bool> ?? print "matched\n" !! print "no match\n" },
         },
         \&variable
     )
 =cut
 sub ruleop::wrap {
-    my $debug = shift;
-    my $node = shift;
+    my $debug = shift @_;
+    my $node = shift @_;
     sub {
-        $debug->{before}( @_ ) if $debug->{before};
-        my $match = $node->( @_ );
-        $debug->{after}( $match, @_ ) if $debug->{after};
+        $debug<before>( @_ ) if $debug<before>;
+        my $match = $node( @_ );
+        $debug<after>( $match, @_ ) if $debug<after>;
         return $match;
     }
 }
@@ -278,7 +282,7 @@ sub ruleop::null_or_optional {
 }
 
 sub ruleop::greedy_plus { 
-    my $node = shift;
+    my $node = shift @_;
     my $alt;
     $alt = ruleop::concat( 
         $node, 
@@ -288,12 +292,12 @@ sub ruleop::greedy_plus {
 }
 
 sub ruleop::greedy_star { 
-    my $node = shift;
+    my $node = shift @_;
     return ruleop::optional( ruleop::greedy_plus( $node ) );
 }
 
 sub ruleop::non_greedy_star { 
-    my $node = shift;
+    my $node = shift @_;
     ruleop::alternation( [ 
         ruleop::null(),
         ruleop::non_greedy_plus( $node ) 
@@ -301,23 +305,23 @@ sub ruleop::non_greedy_star {
 }
 
 sub ruleop::non_greedy_plus { 
-    my $node = shift;
+    my $node = shift @_;
 
     # XXX - needs optimization for faster backtracking, less stack usage
 
     return sub {
-        my $tail =  $_[0];
-        my $state = $_[1] || { state => undef, op => $node };
-        my $flags = $_[2];
+        my $tail =  @_[0];
+        my $state = @_[1] || { 'state' => undef, op => $node ,};
+        my $flags = @_[2];
 
         # XXX - didn't work
-        # my $match = $state->{op}->( $tail, $state->{state}, $flags ); 
+        # my $match = $state<op>( $tail, $state<state>, $flags ); 
 
-        my $match = $state->{op}->( $tail, undef, $flags );
-        return unless $match->{bool};
-        $match->{state} = {
-            state => $match->{state},
-            op    => ruleop::concat( $node, $state->{op} ),
+        my $match = $state<op>( $tail, undef, $flags );
+        return unless $match<bool>;
+        $match<state> = {
+            'state' => $match<state>,
+            op    => ruleop::concat( $node, $state<op> ),
         };
         return $match;
     }
