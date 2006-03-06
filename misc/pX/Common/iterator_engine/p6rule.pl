@@ -1,8 +1,8 @@
-# pX/Common/iterator_engine_p6rule.pl - fglock
+# pX/Common/p6rule.pl - fglock
 #
 # experimental implementation of p6-regex parser
 #
-# see: iterator_engine_README
+# see: README
 
 # TODO $var := (capture)
 
@@ -330,6 +330,13 @@ sub compile_rule {
     return $code;
 }
 
+sub emit_rule_node {
+    die 'unknow node type' unless $node2::{$_[0]};
+    no strict 'refs';
+    my $code = &{"node2::$_[0]"}($_[1],$_[2]);
+#   print Dumper(@_,$code),"\n";
+    return $code;
+}
 sub emit_rule {
     my $n = $_[0];
     my $tab = $_[1] || '    '; 
@@ -394,134 +401,7 @@ sub emit_rule {
         my ( $k, $v ) = each %$n;
         # print "$tab $k => $v \n";
         return '' unless defined $v;  # XXX a bug?
-        if ( $k eq 'rule' ) {
-            return emit_rule( $v, $tab );
-            
-            #return "$tab ruleop::capture( '$k',\n" .
-            #       emit_rule( $v, $tab ) . "$tab )\n";
-        }        
-        elsif ( $k eq 'capturing_group' ) {
-            return "$tab ruleop::capture( '$k',\n" .
-                   emit_rule( $v, $tab ) . "$tab )\n";
-        }        
-        elsif ( $k eq 'non_capturing_group' ) {
-            return emit_rule( $v, $tab );
-        }        
-        elsif ( $k eq 'star' ) {
-            local $Data::Dumper::Indent = 1;
-            my $term = $v->[0]{'term'};
-            #print "*** \$term:\n",Dumper $term;
-            my $quantifier = $v->[1]{'literal'}[0];
-            my $sub = { 
-                    '*' =>'greedy_star',     
-                    '+' =>'greedy_plus',
-                    '*?'=>'non_greedy_star', 
-                    '+?'=>'non_greedy_plus',
-                    '?' =>'optional',
-                    '??' =>'null_or_optional',
-                }->{$quantifier};
-            # print "*** \$quantifier:\n",Dumper $quantifier;
-            die "quantifier not implemented: $quantifier" 
-                unless $sub;
-            return "$tab ruleop::$sub(\n" .
-                   emit_rule( $term, $tab ) . "$tab )\n";
-        }        
-        elsif ( $k eq 'alt' ) {
-            # local $Data::Dumper::Indent = 1;
-            # print "*** \$v:\n",Dumper $v;
-            my @s;
-            for ( @$v ) { 
-                my $tmp = emit_rule( $_, $tab );
-                push @s, $tmp if $tmp;   
-            }
-            return "$tab ruleop::alternation( [\n" . 
-                   join( '', @s ) .
-                   "$tab ] )\n";
-        }        
-        elsif ( $k eq 'term' ) {
-            return emit_rule( $v, $tab );
-        }        
-        elsif ( $k eq 'code' ) {
-            # return "$tab # XXX code - compile '$v' ?\n";
-            return "$tab $v  # XXX - code\n";  
-        }        
-        elsif ( $k eq 'dot' ) {
-            return "$tab \\&{'${namespace}any'}\n";
-        }
-        elsif ( $k eq 'subrule' ) {
-            #print Dumper $v;
-            my $name = $v;
-            $name = $namespace . $v unless $v =~ /::/;
-            return "$tab ruleop::capture( '$v', \\&{'$name'} )\n";
-        }
-        elsif ( $k eq 'non_capturing_subrule' ) {
-            #print Dumper $v;
-            return "$tab \\&{'$namespace$v'}\n";
-        }
-        elsif ( $k eq 'negated_subrule' ) {
-            #print Dumper $v;
-            return "$tab ruleop::negate( \\&{'$namespace$v'} )\n";
-        }
-        elsif ( $k eq 'literal' ) {
-            #print "literal:", Dumper($v);
-            my $name = quotemeta(join('',@$v));
-            #print "literal: $name\n";
-            return "$tab ruleop::constant( \"$name\" )\n";
-        }
-        elsif ( $k eq 'variable' ) {
-            #print "variable:", Dumper($v);
-            my $name = match::str( $v );
-            # print "var name: ", match::str( $v ), "\n";
-            my $value = "sub { die 'not implemented: $name' }\n";
-            $value = eval $name if $name =~ /^\$/;
-            $value = join('', eval $name) if $name =~ /^\@/;
-
-            # XXX - what hash/code interpolate to?
-            # $value = join('', eval $name) if $name =~ /^\%/;
-
-            return "$tab ruleop::constant( '" . $value . "' )\n";
-        }
-        elsif ( $k eq 'closure' ) {
-            #print "closure: ", Dumper( $v );
-            my $code = match::str( $v ); 
-            
-            # XXX XXX XXX - source-filter - temporary hacks to translate p6 to p5
-            # $()<name>
-            $code =~ s/ ([^']) \$ \( \) < (.*?) > /$1 match::get( \$_[0], '\$()<$2>' ) /sgx;
-            # $<name>
-            $code =~ s/ ([^']) \$ < (.*?) > /$1 match::get( \$_[0], '\$<$2>' ) /sgx;
-            # $()
-            $code =~ s/ ([^']) \$ \( \) /$1 match::get( \$_[0], '\$()' ) /sgx;
-            #print "Code: $code\n";
-            
-            return "$tab sub {\n" . 
-                   "$tab     $code;\n" . 
-                   "$tab     return { bool => 1, tail => \$_[0] } }\n"
-                unless $code =~ /return/;
-            return "#return-block#" . $code;
-        }
-        elsif ( $k eq 'runtime_alternation' ) {
-            my $code = match::str( match::get( 
-                { capture => $v }, 
-                '$<variable>'
-            ) );
-            return "$tab ruleop::alternation( \\$code )\n";
-        }
-        elsif ( $k eq 'named_capture' ) {
-            my $name = match::str( match::get( 
-                { capture => $v }, 
-                '$<ident>'
-            ) );
-            my $program = emit_rule(
-                    match::get( 
-                        { capture => $v }, 
-                        '$<rule>'
-                    ), $tab );
-            return "$tab ruleop::capture( '$name', \n" . $program . "$tab )\n";
-        }
-        else {
-            die "unknown node: ", Dumper( $n );
-        }
+	emit_rule_node($k,$v,$tab);
     }
     else 
     {
@@ -529,4 +409,123 @@ sub emit_rule {
     }
 }
 
+#rule nodes
+sub node2::rule {
+    return emit_rule( $_[0], $_[1] );
+    #return "$_[1] ruleop::capture( '$_[2]',\n" .
+    #       emit_rule( $_[0], $_[1] ) . "$_[1] )\n";
+}        
+sub node2::capturing_group {
+    return "$_[1] ruleop::capture( 'capturing_group',\n" .
+           emit_rule( $_[0], $_[1] ) . "$_[1] )\n";
+}        
+sub node2::non_capturing_group {
+    return emit_rule( $_[0], $_[1] );
+}        
+sub node2::star {
+    local $Data::Dumper::Indent = 1;
+    my $term = $_[0]->[0]{'term'};
+    #print "*** \$term:\n",Dumper $term;
+    my $quantifier = $_[0]->[1]{'literal'}[0];
+    my $sub = { 
+            '*' =>'greedy_star',     
+            '+' =>'greedy_plus',
+            '*?'=>'non_greedy_star', 
+            '+?'=>'non_greedy_plus',
+            '?' =>'optional',
+            '??' =>'null_or_optional',
+        }->{$quantifier};
+    # print "*** \$quantifier:\n",Dumper $quantifier;
+    die "quantifier not implemented: $quantifier" 
+        unless $sub;
+    return "$_[1] ruleop::$sub(\n" .
+           emit_rule( $term, $_[1] ) . "$_[1] )\n";
+}        
+sub node2::alt {
+    # local $Data::Dumper::Indent = 1;
+    # print "*** \$_[0]:\n",Dumper $_[0];
+    my @s;
+    for ( @{$_[0]} ) { 
+        my $tmp = emit_rule( $_, $_[1] );
+        push @s, $tmp if $tmp;   
+    }
+    return "$_[1] ruleop::alternation( [\n" . 
+           join( '', @s ) .
+           "$_[1] ] )\n";
+}        
+sub node2::term {
+    return emit_rule( $_[0], $_[1] );
+}        
+sub node2::code {
+    # return "$_[1] # XXX code - compile '$_[0]' ?\n";
+    return "$_[1] $_[0]  # XXX - code\n";  
+}        
+sub node2::dot {
+    return "$_[1] \\&{'${namespace}any'}\n";
+}
+sub node2::subrule {
+    my $name = $_[0];
+    $name = $namespace . $_[0] unless $_[0] =~ /::/;
+    return "$_[1] ruleop::capture( '$_[0]', \\&{'$name'} )\n";
+}
+sub node2::non_capturing_subrule {
+    return "$_[1] \\&{'$namespace$_[0]'}\n";
+}
+sub node2::negated_subrule {
+    return "$_[1] ruleop::negate( \\&{'$namespace$_[0]'} )\n";
+}
+sub node2::literal {
+    my $literal = shift;
+    my $name = quotemeta(join('',@$literal));
+    return "$_[0] ruleop::constant( \"$name\" )\n";
+}
+sub node2::variable {
+    my $name = match::str( $_[0] );
+    # print "var name: ", match::str( $_[0] ), "\n";
+    my $value = "sub { die 'not implemented: $name' }\n";
+    $value = eval $name if $name =~ /^\$/;
+    $value = join('', eval $name) if $name =~ /^\@/;
+
+    # XXX - what hash/code interpolate to?
+    # $value = join('', eval $name) if $name =~ /^\%/;
+
+    return "$_[1] ruleop::constant( '" . $value . "' )\n";
+}
+sub node2::closure {
+    my $code = match::str( $_[0] ); 
+    
+    # XXX XXX XXX - source-filter - temporary hacks to translate p6 to p5
+    # $()<name>
+    $code =~ s/ ([^']) \$ \( \) < (.*?) > /$1 match::get( \$_[0], '\$()<$2>' ) /sgx;
+    # $<name>
+    $code =~ s/ ([^']) \$ < (.*?) > /$1 match::get( \$_[0], '\$<$2>' ) /sgx;
+    # $()
+    $code =~ s/ ([^']) \$ \( \) /$1 match::get( \$_[0], '\$()' ) /sgx;
+    #print "Code: $code\n";
+    
+    return "$_[1] sub {\n" . 
+           "$_[1]     $code;\n" . 
+           "$_[1]     return { bool => 1, tail => \$_[0] } }\n"
+        unless $code =~ /return/;
+    return "#return-block#" . $code;
+}
+sub node2::runtime_alternation {
+    my $code = match::str( match::get( 
+        { capture => $_[0] }, 
+        '$<variable>'
+    ) );
+    return "$_[1] ruleop::alternation( \\$code )\n";
+}
+sub node2::named_capture {
+    my $name = match::str( match::get( 
+        { capture => $_[0] }, 
+        '$<ident>'
+    ) );
+    my $program = emit_rule(
+            match::get( 
+                { capture => $_[0] }, 
+                '$<rule>'
+            ), $_[1] );
+    return "$_[1] ruleop::capture( '$name', \n" . $program . "$_[1] )\n";
+}
 1;

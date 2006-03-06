@@ -1,4 +1,4 @@
-# pX/Common/iterator_engine_p6rule.t - fglock
+# pX/Common/p6rule.t - fglock
 
 use strict;
 use warnings;

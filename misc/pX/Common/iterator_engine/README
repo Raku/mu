@@ -1,10 +1,10 @@
-pX/Common/iterator_engine_README - fglock
+pX/Common/README - fglock
 
 Experimental implementation of:
 - a parser engine (iterator_engine.pl)
-- a Perl6 'rule' parser and perl5 emitter (iterator_engine_p6rule.pl)
-- a 'Perl6' parser and perl5 emitter (iterator_engine_p6compiler.pl)
-- a Perl6 'grammar' grammar (iterator_engine_p6prelude.p6)
+- a Perl6 'rule' parser and perl5 emitter (p6rule.pl)
+- a 'Perl6' parser and perl5 emitter (p6compiler.pl)
+- a Perl6 'grammar' grammar (p6prelude.p6)
 
 Tests:
 (paste this in the command line to run all tests)

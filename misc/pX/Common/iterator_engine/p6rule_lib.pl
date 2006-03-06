@@ -1,8 +1,8 @@
-# pX/Common/iterator_engine_p6rule_lib.pl - fglock
+# pX/Common/p6rule_lib.pl - fglock
 #
 # native library for the experimental implementation of p6-regex parser
 #
-# see: iterator_engine_README
+# see: README
 
 
 # XXX - rename the system grammar to 'Grammar'

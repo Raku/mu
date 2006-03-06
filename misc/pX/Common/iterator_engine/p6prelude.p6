@@ -9,7 +9,7 @@ push @statements, \&pod;
         
 =kwid
 
-pX/Common/iterator_engine_p6.pl - fglock
+pX/Common/p6.pl - fglock
 
 - experimental implementation of a grammar that could parse Perl 6 
 

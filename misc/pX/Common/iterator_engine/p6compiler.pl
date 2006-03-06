@@ -1,4 +1,4 @@
-# pX/Common/iterator_engine_p6compiler.pl - fglock
+# pX/Common/p6compiler.pl - fglock
 #
 # experimental implementation of a p6 compiler
 # 
