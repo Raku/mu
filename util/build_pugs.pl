@@ -67,9 +67,28 @@ sub build {
                 (map { ('-i' => $_) } @{ PugsBuild::Config->lookup('precompile_modules') }),
                 '-p', $thispugs, '--output', $ppc_yml);
 
-        # XXX: add code here to $ppc_yml -> $ppc_yml_gz, as portably and
-        # silently as possible. Should not die if it fails.
+        eval { gzip_file($ppc_yml, $ppc_yml_gz) } or warn <<".";
+*** Can't compress $ppc_yml: $@
+    This is not a fatal error, but you can save some space by gzipping
+    your $ppc_yml yourself.
+.
     }
+}
+
+sub gzip_file {
+    my ($in, $out) = @_;
+    require Compress::Zlib;
+    open my $ifh, "<", $in  or die "open: $in: $!";
+    open my $ofh, ">", $out or die "open: $out: $!";
+    binmode $ofh;
+    my $gz = Compress::Zlib::gzopen($ofh, "wb") or
+            die "gzopen: $Compress::Zlib::gzerrno";
+    while (<$ifh>) {
+        $gz->gzwrite($_)    or die "gzwrite: $Compress::Zlib::gzerrno";
+    }
+    $gz->gzclose;
+    unlink $in;
+    1;
 }
 
 sub build_lib {
