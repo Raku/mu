@@ -9,10 +9,10 @@ Experimental implementation of:
 Tests:
 (paste this in the command line to run all tests)
 perl iterator_engine.t
-perl iterator_engine_p6rule.t
-perl iterator_engine_p6rule_variables.t
-perl iterator_engine_p6compiler.pl iterator_engine_p6sample.p6
-perl iterator_engine_p6compiler.pl iterator_engine_p6compiler.p6t
+perl p6rule.t
+perl p6rule_variables.t
+perl p6compiler.pl p6sample.p6
+perl p6compiler.pl p6compiler.p6t
 
 Special thanks for the brainstorming sessions in #perl6:
 - putter

@@ -9,8 +9,7 @@ use warnings;
 
 # XXX - TODO - update $<> to $()
 
-# require 'iterator_engine.pl';
-require 'iterator_engine_p6rule.pl';
+require 'p6rule.pl';
 
 use Test::More qw(no_plan);
 use Data::Dumper;

@@ -12,7 +12,7 @@ use warnings;
 use Data::Dumper;
 
 require 'iterator_engine.pl';
-require 'iterator_engine_p6rule_lib.pl';
+require 'p6rule_lib.pl';
 
 my $namespace = 'grammar1::';
 
