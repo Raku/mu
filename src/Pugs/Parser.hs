@@ -1429,13 +1429,13 @@ rulePostTerm = tryVerbatimRule "term postfix" $ do
             e -> e
 
 ruleInvocation :: RuleParser (Exp -> Exp)
-ruleInvocation = ruleInvocationCommon False
+ruleInvocation = fmap ($ id) $ ruleInvocationCommon False
 
 -- used only by 'qInterpolatorPostTerm'?
 ruleInvocationParens :: RuleParser (Exp -> Exp)
-ruleInvocationParens = ruleInvocationCommon True
+ruleInvocationParens = fmap ($ id) $ ruleInvocationCommon True
         
-ruleInvocationCommon :: Bool -> RuleParser (Exp -> Exp)
+ruleInvocationCommon :: Bool -> RuleParser ((String -> String) -> Exp -> Exp)
 ruleInvocationCommon mustHaveParens = do
     colonify    <- maybeColon
     hasEqual    <- option False $ do { char '='; whiteSpace; return True }
@@ -1451,9 +1451,9 @@ ruleInvocationCommon mustHaveParens = do
                 then parseNoParenParamList
                 else option (Nothing,[]) $ parseParenParamList
     when (isJust invs) $ fail "Only one invocant allowed"
-    return $ \x -> if hasEqual
-        then Syn "=" [x, App (Var name) (Just x) args]
-        else App (Var name) (Just x) args
+    return $ \f x -> if hasEqual
+        then Syn "=" [x, App (Var (f name)) (Just x) args]
+        else App (Var (f name)) (Just x) args
 
 ruleArraySubscript :: RuleParser (Exp -> Exp)
 ruleArraySubscript = tryVerbatimRule "array subscript" $ do
@@ -1492,6 +1492,8 @@ handled by 'ruleInvocation' as a post-term ('rulePostTerm').
 The boolean argument is @True@ if we're trying to parse a reduce-metaop
 application (e.g. @[+] 1, 2, 3@), and @False@ otherwise.
 
+/NOTE: This is where the dot-slash and dot-colon statement
+forms get parsed, so if they need to be changed\/killed, this is the place./
 -}
 ruleApply :: Bool -- ^ @True@ if we are parsing for the reduce-metaop
           -> RuleParser Exp
@@ -1502,8 +1504,26 @@ ruleApply isFolded = tryVerbatimRule "apply" $
 
 ruleApplyImplicitMethod :: RuleParser Exp
 ruleApplyImplicitMethod = do
-    char '.'                -- implicit-invocant forms all begin with '.'
-    fmap ($ Var "$_") $ ruleInvocationCommon False
+    {- (colonify :: String -> String) is a function that will take a name
+       like '&foo', and MIGHT convert it to '&:foo'.  This only happens if
+       you're using the '!foo' implicit-invocant syntax, otherwise 'colon' will
+       just be 'id'.
+    
+       (inv :: Maybe Exp) might hold a 'Var' expression indicating the implicit
+       invocant.  Of course, if you're not using implicit-invocant syntax, this
+       will be 'Nothing'. -}
+    (colonify, implicitInv) <- do
+        char '.'                -- implicit-invocant forms all begin with '.'
+        option (id, Var "$_") $ choice
+            [ do { char '/'; return (id, (Var "$?SELF")) }
+            , do char ':'
+                 return ( \(sigil:name) -> (sigil:':':name)
+                        , Var "$?SELF"
+                        )
+            ]
+            
+    fmap (($ implicitInv) . ($ colonify)) $ ruleInvocationCommon False
+
 
 ruleApplySub :: Bool -> RuleParser Exp
 ruleApplySub isFolded = do
