@@ -1,0 +1,11 @@
+This is a proposal for a debugging api:
+feel free to edit
+
+dump or debug or whatever sound best..
+
+--dump-nodes='regex'
+        => a hook at emit
+--dump-ruleops='regex'
+	=> Filtered-Comments
+--dump-ast
+--dump-sourcecode
