@@ -337,29 +337,9 @@ sub emit_rule_node {
 #   print Dumper(@_,$code),"\n";
     return $code;
 }
-sub emit_rule {
-    my $n = $_[0];
-    my $tab = $_[1] || '    '; 
-    $tab .= '  ';
-    local $Data::Dumper::Indent = 0;
-    #print "emit_rule: ", ref($n)," ",Dumper( $n ), "\n";
-
-    # XXX - not all nodes are actually used
-
-    if ( ref($n) eq '' ) {
-        # XXX - this should not happen, but it does
-        return '';
-    }
-    if ( ref( $n ) eq 'ARRAY' ) {
-        my @s;
-        for ( @$n ) {
-            #print "emitting array item\n";
-            my $tmp = emit_rule( $_, $tab );
-            push @s, $tmp . "$tab ,\n" if $tmp;
-        }
-
-        # XXX XXX XXX - source-filter 
-        #    temporary hacks to translate p6 to p5 -- see 'closure' node
+sub return_block_hack {
+	my $tab = shift;
+	my @s =   @_;
         if (@s && $s[-1] =~ /^#return-block#(.*)/s ) {
             #print "return block\n";
             my $code = $1;
@@ -395,6 +375,32 @@ sub emit_rule {
         return "$tab ruleop::concat(\n" . 
                ( join '', @s ) . 
                "$tab )\n";
+}
+sub emit_rule {
+    my $n = $_[0];
+    my $tab = $_[1] || '    '; 
+    $tab .= '  ';
+    local $Data::Dumper::Indent = 0;
+    #print "emit_rule: ", ref($n)," ",Dumper( $n ), "\n";
+
+    # XXX - not all nodes are actually used
+
+    if ( ref($n) eq '' ) {
+        # XXX - this should not happen, but it does
+        return '';
+    }
+    if ( ref( $n ) eq 'ARRAY' ) {
+        my @s;
+        for ( @$n ) {
+            #print "emitting array item\n";
+            my $tmp = emit_rule( $_, $tab );
+            push @s, $tmp . "$tab ,\n" if $tmp;
+        }
+
+        # XXX XXX XXX - source-filter 
+        #    temporary hacks to translate p6 to p5 -- see 'closure' node
+	
+	return return_block_hack($tab,@s);
     }
     elsif ( ref( $n ) eq 'HASH' ) 
     {
