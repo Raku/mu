@@ -2,7 +2,7 @@ use strict;
 package Perl6Grammar;
 our %nodes;
 sub emit_node {
-	die 'unknow node type' unless $node::{$_[0]};
+	die 'unknown node type' unless $node::{$_[0]};
 	no strict 'refs';
 	return &{"node::$_[0]"}($_[1]);
 }
@@ -181,9 +181,6 @@ sub node::macro {
     
             # XXX don't use source filter: variable substitutions $() in the body AST
     
-            # XXX this algorithm depends on variable declaration 
-            #     like:  ( $a ) is parsed ( / $a := (.*?) / )
-    
             my $binding = '';
             for ( 0 .. $#args ) {
                 my $ident = $args[$_];
@@ -267,4 +264,6 @@ sub node::macro {
     
             #print "macro: expanded:\n$res";
             return $res;
-};1
+};
+
+1;

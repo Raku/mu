@@ -9,11 +9,7 @@ use warnings;
 require 'p6rule.pl';
 require 'emit.pl';
 
-# XXX - make grammars inherit from Grammar; make grammars inheritable
-# XXX - write an emitter that generates perl5 regexes (or dies)
-# XXX - add (API/documentation) to generate unnamed rules, unnamed grammars
-# XXX - fix the extra commas in the generated code
-# XXX - create error messages for compiling errors
+# TODO: see TASKS file
 
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
@@ -137,38 +133,6 @@ __p6__
     }
 
     exit;
-
-=for later
-        rule sub_application {
-            <@grammar1::terms> <ws>? <@grammar1::ops> <ws>? <@grammar1::terms>
-        }
-        push @terms, \&sub_application;
-    
-        # XXX - this doesn't work
-        #       say sub { print 'anonymous sub'; } ;
-        rule anon_sub {
-            sub <block>
-                { return { anon_sub => $<block> ,} }
-        }
-        push @terms, \&anon_sub;
-
-        rule assignment {
-            $lvalue := (<variable>) <ws>? \= <ws>? $rvalue := (<variable>) <ws>? \;
-                { return { assignment => [ $<lvalue>, $<rvalue> ] ,} }
-        }
-        unshift @terms, \&assignment;
-        rule eval_perl5 {
-            eval <ws>? \( <ws>? \" <code> \" <ws>? \, <ws>? \:lang\<perl5\> <ws>? \) <ws>? \;
-        }
-    # sub print ... 
-    # sub 'Y' - is assoc 'list'
-    # sub infix:<+> { eval( '$_[0]+$_[1]', :lang<perl5> ) }
-
-    #        print '1' + '1';
-    #    $a = $b;
-    # TODO - $a = $b; - see 'rule assignment' above
-    # TODO - rule comment { \# .*? [<newline>|$$] }
-=cut
 
 }
 
