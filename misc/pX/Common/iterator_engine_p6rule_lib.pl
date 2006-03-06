@@ -36,6 +36,17 @@ sub ws {
         if $_[0] =~ /^(\s+)(.*)$/s;
     return;
 };
+sub p6ws {
+    return unless $_[0];
+    return { 
+        bool  => 1,
+        match => { 'p6ws'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+        if $_[0] =~ /^((?:\s|\#(?-s:.)+)+)(.*)$/s;
+    return;
+};
 sub newline {
     return unless $_[0];
     return { 
@@ -106,6 +117,17 @@ sub ws_star {
         ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
     }
         if $_[0] =~ /^(\s*)(.*)$/s;
+    return;
+};
+sub p6ws_star {
+    #return unless $_[0];
+    return { 
+        bool  => 1,
+        match => { 'p6ws*'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+        if $_[0] =~ /^((?:\s|\#(?-s:.)+)*)(.*)$/s;
     return;
 };
 
