@@ -57,7 +57,7 @@ ruleBlock = lexeme ruleVerbatimBlock
 ruleVerbatimBlock :: RuleParser Exp
 ruleVerbatimBlock = verbatimRule "block" $ do
     body <- verbatimBraces ruleBlockBody
-    retSyn "block" [body]
+    return $ Syn "block" [body]
 
 ruleEmptyExp :: RuleParser Exp
 ruleEmptyExp = expRule $ do
@@ -1082,7 +1082,7 @@ ruleForConstruct = rule "for construct" $ do
     list  <- maybeParens ruleExpression
     optional ruleComma
     block <- ruleBlockLiteral <|> parseExpWithItemOps
-    retSyn "for" [list, block]
+    return $ Syn "for" [list, block]
 
 ruleLoopConstruct :: RuleParser Exp
 ruleLoopConstruct = rule "loop construct" $ do
@@ -1099,7 +1099,7 @@ ruleSemiLoopConstruct = rule "for-like loop construct" $ do
         c <- option emptyExp ruleExpression
         return [a,b,c]
     block <- ruleBlock
-    retSyn "loop" (conds ++ [block])
+    return $ Syn "loop" (conds ++ [block])
 
 rulePostLoopConstruct :: RuleParser Exp
 rulePostLoopConstruct = rule "postfix loop construct" $ do
@@ -1107,7 +1107,7 @@ rulePostLoopConstruct = rule "postfix loop construct" $ do
     option (Syn "loop" [block]) $ do
         name <- choice [ symbol "while", symbol "until" ]
         cond <- ruleExpression
-        retSyn ("post" ++ name) [cond, block]
+        return $ Syn ("post" ++ name) [cond, block]
 
 ruleCondConstruct :: RuleParser Exp
 ruleCondConstruct = rule "conditional construct" $ do
@@ -1131,9 +1131,9 @@ ruleCondBody csym = rule "conditional expression" $ do
     -- 'if {foo}{bar} elsif {baz}.{qux} else {quux}' will parse -- INCORRECTLY.
     retCond csym (Syn "{}" [cond@_, body@_]) Noop bodyElse = retCond' csym (unwrap cond) (unwrap body) bodyElse
     retCond _ _ Noop _ = fail "conditional missing body"
-    retCond csym cond body bodyElse = retSyn csym [cond, body, bodyElse]
-    retCond' csym cond@(Syn "sub" _) body bodyElse = retSyn csym [cond, body, bodyElse]
-    retCond' csym cond@(App _ _ _) body bodyElse = retSyn csym [cond, body, bodyElse]
+    retCond csym cond body bodyElse = return $ Syn csym [cond, body, bodyElse]
+    retCond' csym cond@(Syn "sub" _) body bodyElse = return $ Syn csym [cond, body, bodyElse]
+    retCond' csym cond@(App _ _ _) body bodyElse = return $ Syn csym [cond, body, bodyElse]
     retCond' _ _ _ _ = fail "conditional missing body"
 
 ruleCondPart :: RuleParser Exp
@@ -1154,21 +1154,21 @@ ruleWhileUntilConstruct = rule "while/until construct" $ do
     sym <- choice [ symbol "while", symbol "until" ]
     cond <- ruleCondPart
     body <- ruleBlock
-    retSyn sym [ cond, body ]
+    return $ Syn sym [ cond, body ]
 
 ruleGivenConstruct :: RuleParser Exp
 ruleGivenConstruct = rule "given construct" $ do
     sym <- symbol "given"
     topic <- ruleCondPart
     body <- ruleBlock
-    retSyn sym [ topic, body ]
+    return $ Syn sym [ topic, body ]
 
 ruleWhenConstruct :: RuleParser Exp
 ruleWhenConstruct = rule "when construct" $ do
     sym <- symbol "when"
     match <- ruleCondPart
     body <- ruleBlock
-    retSyn sym [ match, body ]
+    return $ Syn sym [ match, body ]
 
 -- XXX: make this translate into when true, when smartmatch
 -- against true works
@@ -1176,7 +1176,7 @@ ruleDefaultConstruct :: RuleParser Exp
 ruleDefaultConstruct = rule "default construct" $ do
     sym <- symbol "default"
     body <- ruleBlock
-    retSyn sym [ body ]
+    return $ Syn sym [ body ]
 
 -- Expressions ------------------------------------------------
 
@@ -1194,7 +1194,7 @@ rulePostConditional :: RuleParser (Exp -> RuleParser Exp)
 rulePostConditional = rule "postfix conditional" $ do
     cond <- tryChoice $ map symbol ["if", "unless"]
     exp <- ruleExpression
-    return $ \body -> retSyn cond [exp, body, emptyExp]
+    return $ \body -> return $ Syn cond [exp, body, emptyExp]
 
 {-|
 Match a statement's /looping/ statement-modifier,
@@ -1207,7 +1207,7 @@ rulePostLoop :: RuleParser (Exp -> RuleParser Exp)
 rulePostLoop = rule "postfix loop" $ do
     cond <- tryChoice $ map symbol ["while", "until"]
     exp <- ruleExpression
-    return $ \body -> retSyn cond [exp, body]
+    return $ \body -> return $ Syn cond [exp, body]
 
 {-|
 Match a statement's /iterating/ statement-modifier,
@@ -1222,7 +1222,7 @@ rulePostIterate = rule "postfix iteration" $ do
     exp <- ruleExpression
     return $ \body -> do
         block <- retBlock SubBlock Nothing False body
-        retSyn cond [exp, block]
+        return $ Syn cond [exp, block]
 
 ruleBlockLiteral :: RuleParser Exp
 ruleBlockLiteral = rule "block construct" $ do
@@ -1429,13 +1429,13 @@ rulePostTerm = tryVerbatimRule "term postfix" $ do
             e -> e
 
 ruleInvocation :: RuleParser (Exp -> Exp)
-ruleInvocation = fmap ($ id) $ ruleInvocationCommon False
+ruleInvocation = ruleInvocationCommon False
 
 -- used only by 'qInterpolatorPostTerm'?
 ruleInvocationParens :: RuleParser (Exp -> Exp)
-ruleInvocationParens = fmap ($ id) $ ruleInvocationCommon True
+ruleInvocationParens = ruleInvocationCommon True
         
-ruleInvocationCommon :: Bool -> RuleParser ((String -> String) -> Exp -> Exp)
+ruleInvocationCommon :: Bool -> RuleParser (Exp -> Exp)
 ruleInvocationCommon mustHaveParens = do
     colonify    <- maybeColon
     hasEqual    <- option False $ do { char '='; whiteSpace; return True }
@@ -1451,9 +1451,9 @@ ruleInvocationCommon mustHaveParens = do
                 then parseNoParenParamList
                 else option (Nothing,[]) $ parseParenParamList
     when (isJust invs) $ fail "Only one invocant allowed"
-    return $ \f x -> if hasEqual
-        then Syn "=" [x, App (Var (f name)) (Just x) args]
-        else App (Var (f name)) (Just x) args
+    return $ \x -> if hasEqual
+        then Syn "=" [x, App (Var name) (Just x) args]
+        else App (Var name) (Just x) args
 
 ruleArraySubscript :: RuleParser (Exp -> Exp)
 ruleArraySubscript = tryVerbatimRule "array subscript" $ do
@@ -1492,8 +1492,6 @@ handled by 'ruleInvocation' as a post-term ('rulePostTerm').
 The boolean argument is @True@ if we're trying to parse a reduce-metaop
 application (e.g. @[+] 1, 2, 3@), and @False@ otherwise.
 
-/NOTE: This is where the dot-slash and dot-colon statement
-forms get parsed, so if they need to be changed\/killed, this is the place./
 -}
 ruleApply :: Bool -- ^ @True@ if we are parsing for the reduce-metaop
           -> RuleParser Exp
@@ -1504,26 +1502,8 @@ ruleApply isFolded = tryVerbatimRule "apply" $
 
 ruleApplyImplicitMethod :: RuleParser Exp
 ruleApplyImplicitMethod = do
-    {- (colonify :: String -> String) is a function that will take a name
-       like '&foo', and MIGHT convert it to '&:foo'.  This only happens if
-       you're using the '!foo' implicit-invocant syntax, otherwise 'colon' will
-       just be 'id'.
-    
-       (inv :: Maybe Exp) might hold a 'Var' expression indicating the implicit
-       invocant.  Of course, if you're not using implicit-invocant syntax, this
-       will be 'Nothing'. -}
-    (colonify, implicitInv) <- do
-        char '.'                -- implicit-invocant forms all begin with '.'
-        option (id, Var "$_") $ choice
-            [ do { char '/'; return (id, (Var "$?SELF")) }
-            , do char ':'
-                 return ( \(sigil:name) -> (sigil:':':name)
-                        , Var "$?SELF"
-                        )
-            ]
-            
-    fmap (($ implicitInv) . ($ colonify)) $ ruleInvocationCommon False
-
+    char '.'                -- implicit-invocant forms all begin with '.'
+    fmap ($ Var "$_") $ ruleInvocationCommon False
 
 ruleApplySub :: Bool -> RuleParser Exp
 ruleApplySub isFolded = do
@@ -2346,13 +2326,4 @@ yadaLiteral = expRule $ do
     doYada "???" = "&warn"
     doYada "!!!" = "&die"
     doYada _ = error "Bad yada symbol"
-
-{-|
-Simply a shorthand for @return \$ Syn sym args@.
--}
-retSyn :: String -- ^ Type of 'Pugs.AST.Internals.Syn' to produce
-       -> [Exp]  -- ^ List of subexpressions for the 'Pugs.AST.Internals.Syn'
-       -> RuleParser Exp
-retSyn sym args = do
-    return $ Syn sym args
 
