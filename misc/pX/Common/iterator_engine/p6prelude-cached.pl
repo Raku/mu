@@ -1,5 +1,68 @@
 # generated file - do not edit!
 package grammar1;
+*{'const_word'} = 
+
+    sub { 
+        my $rule = 
+         ruleop::capture( 'word', \&{'grammar1::word'} )
+       ,
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { constant =>  match::get( $_[0], '$()' )  ,} }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    unshift @rule_terms, \&const_word;
+*{'const_escaped_char'} = 
+
+    sub { 
+        my $rule = 
+         ruleop::capture( 'escaped_char', \&{'grammar1::escaped_char'} )
+       ,
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { constant =>  match::get( $_[0], '$()' )  ,} }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    unshift @rule_terms, \&const_escaped_char;
+*{'dot'} = 
+
+    sub { 
+        my $rule = 
+         ruleop::capture( 'capturing_group',
+             ruleop::constant( "\." )
+           ,
+         )
+       ,
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { dot =>  match::get( $_[0], '$()' )  ,} }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    unshift @rule_terms, \&dot;
 *{'rule'} = 
          ruleop::greedy_star(
              ruleop::alternation( [

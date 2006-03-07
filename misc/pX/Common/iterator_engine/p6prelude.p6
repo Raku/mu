@@ -1,5 +1,23 @@
 grammar grammar1;
 
+rule const_word {
+    <word>
+        { return { constant => $() ,} }
+}
+unshift @rule_terms, \&const_word;
+
+rule const_escaped_char {
+    <escaped_char> 
+        { return { constant => $() ,} }
+}
+unshift @rule_terms, \&const_escaped_char;
+
+rule dot {
+    (\.) 
+        { return { dot => $() ,} }
+}
+unshift @rule_terms, \&dot;
+
 rule rule {
     [ <?alt> | <?quantifier> ]*
 }

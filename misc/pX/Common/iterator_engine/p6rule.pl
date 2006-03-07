@@ -20,6 +20,8 @@ my $namespace = 'grammar1::';
   use Data::Dumper;
   no warnings 'once';
 
+  use vars qw( @rule_terms );
+
 # ----- the following were included only for performance reasons,
 # because they are too frequent and they are too slow using the basic
 # rule parser
@@ -70,13 +72,10 @@ sub negated_subrule {
         ruleop::constant( ')' )
     );
 
-*dot = 
-    ruleop::capture( 'dot', 
-        ruleop::constant( '.' ),
-    );
+@rule_terms = (
+    \&capturing_group,
 
-# <'literal'> literal \*
-my @literals = (
+    # <'literal'> literal \*
     ruleop::concat(    
         ruleop::constant( "<\'" ),
         ruleop::capture( 'constant',
@@ -84,19 +83,10 @@ my @literals = (
         ),
         ruleop::constant( "\'>" ),
     ),
-    ruleop::capture( 'constant', \&word ),
-    ruleop::capture( 'constant', \&escaped_char )
-);
 
-use vars qw( @rule_terms );
-@rule_terms = (
-    \&capturing_group,
-    @literals,
     \&negated_subrule,
     \&non_capturing_subrule,
     \&subrule,
-    \&dot,
-    # more items are pushed later - see below 
 );
 
 # <ws>* [ <closure> | <subrule> | ... ]
@@ -133,21 +123,18 @@ use vars qw( @rule_terms );
     ] );
 
 *alt = 
-            ruleop::capture( 'alt', 
+    ruleop::capture( 'alt', 
+        ruleop::concat(
+            ruleop::capture( 'term', \&quantifier ),
+            ruleop::greedy_plus(
                 ruleop::concat(
+                    ruleop::constant( '|' ),
                     ruleop::capture( 'term', \&quantifier ),
-                    ruleop::greedy_plus(
-                        ruleop::concat(
-                            ruleop::constant( '|' ),
-                            ruleop::capture( 'term', \&quantifier ),
-                        ),
-                    ),
                 ),
-            ),                
+            ),
+        ),
+    ),                
 ;
-
-=for prelude
-=cut
 
 }
 
@@ -395,7 +382,7 @@ sub node::negated_subrule {
 }
 sub node::constant {
     my $literal = shift;
-    my $name = quotemeta(join('',@$literal));
+    my $name = quotemeta( match::str( $literal ) );
     return "$_[0] ruleop::constant( \"$name\" )\n";
 }
 sub node::variable {
