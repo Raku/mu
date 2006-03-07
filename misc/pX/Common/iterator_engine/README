@@ -19,17 +19,13 @@ Special thanks for the brainstorming sessions in #perl6:
 - pmurias
 
 Bootstrapping:
-- core rule engine - backtracking, function composition - in Perl 5
-- Perl 6 rules in Perl 5 - reuse to write itself
-- Perl 6 grammar in Perl 5 - reuse to write itself
-- Perl 6 to Perl 5 translator (parse p6, emit p5) - reuse to write itself
-- Perl 6 compiler written in p6
+ok - core rule engine - backtracking, function composition - in Perl 5
+ok - Perl 6 rules in Perl 5 - reuse to write itself
+ok - Perl 6 grammar in Perl 5 - reuse to write itself
+ok - Perl 6 to Perl 5 translator (parse p6, emit p5) - reuse to write 
+     itself
+   - Perl 6 compiler written in p6
 - see also: TASKS
-
-Namespaces:
-  Grammar - the base grammar - defines <ws>, <digit> 
-  RuleGrammar - the pattern matching grammar (or ???)
-  Perl6Grammar - the Perl6 grammar (or Perl6 ???)
 
 Perl6 Grammar implemented:
   
@@ -46,7 +42,7 @@ Perl6 Grammar implemented:
     -- need more work on fixity and precedence, parameter binding
   push unshift       
     -- bootstrapped with source filter
-  macro <name> ( *@args ) {...}   
+  macro <name> ( *@args ) is parsed ( /.../ ) {...}   
     -- argument binding is source filtered
   if (cond) {block}
     -- macro needs to be rewritten with anon-subs

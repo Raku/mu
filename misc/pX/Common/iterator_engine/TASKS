@@ -1,11 +1,12 @@
 pX/Common/iterator_engine/TASKS - fglock
 
 Bootstrapping:
-- core rule engine - backtracking, function composition - in Perl 5
-- Perl 6 rules in Perl 5 - reuse to write itself
-- Perl 6 grammar in Perl 5 - reuse to write itself
-- Perl 6 to Perl 5 translator (parse p6, emit p5) - reuse to write itself
-- Perl 6 compiler written in p6
+ok - core rule engine - backtracking, function composition - in Perl 5
+ok - Perl 6 rules in Perl 5 - reuse to write itself
+ok - Perl 6 grammar in Perl 5 - reuse to write itself
+ok - Perl 6 to Perl 5 translator (parse p6, emit p5) - reuse to write 
+     itself
+   - Perl 6 compiler written in p6
 
 Plan sketch:
 - rewrite the compiler in p6, and emit the whole compiler to p5
@@ -65,6 +66,11 @@ Possible difficult problems to fix (all untested):
 - modifying the grammar from inside a block (incremental compilation is currently disabled inside blocks)
 - clonable closures (needed for proper working lazy lists)
 
+Cleanup namespaces:
+  - find out what are the right names, such as:
+  Grammar - the base grammar - defines <ws>, <digit>
+  RuleGrammar - the pattern matching grammar (or ???)
+  Perl6Grammar - the Perl6 grammar (or Perl6 ???)
 
 ---------------------------------
 
