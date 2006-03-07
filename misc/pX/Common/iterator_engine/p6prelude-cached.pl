@@ -1,5 +1,75 @@
 # generated file - do not edit!
 package grammar1;
+*{'runtime_alternation'} = 
+
+    sub { 
+        my $rule = 
+       ruleop::concat(
+         ruleop::constant( "\<" )
+       ,
+         ruleop::capture( 'variable', \&{'grammar1::variable'} )
+       ,
+         ruleop::constant( "\>" )
+       ,
+       )
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { runtime_alternation =>  match::get( $_[0], '$()' )  ,} }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    unshift @rule_terms, \&runtime_alternation;
+*{'named_capture'} = 
+
+    sub { 
+        my $rule = 
+       ruleop::concat(
+         ruleop::constant( "\$" )
+       ,
+         ruleop::capture( 'ident', \&{'grammar1::ident'} )
+       ,
+         ruleop::optional(
+             \&{'grammar1::ws'}
+           ,
+         )
+       ,
+         ruleop::constant( "\:" )
+       ,
+         ruleop::constant( "\=" )
+       ,
+         ruleop::optional(
+             \&{'grammar1::ws'}
+           ,
+         )
+       ,
+         ruleop::constant( "\(" )
+       ,
+         ruleop::capture( 'rule', \&{'grammar1::rule'} )
+       ,
+         ruleop::constant( "\)" )
+       ,
+       )
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { named_capture =>  match::get( $_[0], '$()' )  ,} }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    unshift @rule_terms, \&named_capture;
 *{'immediate_statement_rule'} = 
        ruleop::concat(
          ruleop::optional(

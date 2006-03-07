@@ -186,17 +186,8 @@ unshift @rule_terms, ruleop::capture(
     #    \&variable
     #);
 
-# <@var> is a run-time alternation (TimToady on #perl6)
-*runtime_alternation = ::compile_rule( 
-    '\< <variable> \>' );
-unshift @rule_terms, ruleop::capture( 
-    'runtime_alternation',\&runtime_alternation );
-
-# $xxx := (capture)
-*named_capture = ::compile_rule( 
-    '\$ <ident> <?ws>? \:\= <?ws>? \( <rule> \)' );  # XXX - accept % @
-unshift @rule_terms, ruleop::capture( 
-    'named_capture',\&named_capture );
+=for prelude
+=cut
 
 }
 

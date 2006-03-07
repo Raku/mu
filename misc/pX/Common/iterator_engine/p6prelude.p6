@@ -1,5 +1,17 @@
 grammar grammar1;
 
+rule runtime_alternation {
+    \< <variable> \>
+        { return { runtime_alternation => $() ,} }
+}
+unshift @rule_terms, \&runtime_alternation;
+
+rule named_capture {
+    \$ <ident> <?ws>? \:\= <?ws>? \( <rule> \) 
+        { return { named_capture => $() ,} }
+}
+unshift @rule_terms, \&named_capture;
+
 rule immediate_statement_rule {
     <?ws>? <@grammar1::statements> <?ws>?
 }
