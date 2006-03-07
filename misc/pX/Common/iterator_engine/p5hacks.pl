@@ -37,3 +37,6 @@ sub return_block_hack {
                ( join '', @s ) . 
                "$tab )\n";
 }
+
+1;
+
