@@ -1,5 +1,22 @@
 grammar grammar1;
 
+rule non_capturing_group {
+     \[ <?rule> \] 
+}
+push @rule_terms, \&non_capturing_group;
+
+rule closure_rule {
+    <code>
+        { return { closure => $() ,} }
+}
+unshift @rule_terms, \&closure_rule;
+
+rule variable_rule {
+    <variable> 
+        { return { variable => $() ,} }
+}
+unshift @rule_terms, \&variable_rule;
+
 rule runtime_alternation {
     \< <variable> \>
         { return { runtime_alternation => $() ,} }

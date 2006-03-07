@@ -1,5 +1,56 @@
 # generated file - do not edit!
 package grammar1;
+*{'non_capturing_group'} = 
+       ruleop::concat(
+         ruleop::constant( "\[" )
+       ,
+         \&{'grammar1::rule'}
+       ,
+         ruleop::constant( "\]" )
+       ,
+       )
+;
+    push @rule_terms, \&non_capturing_group;
+*{'closure_rule'} = 
+
+    sub { 
+        my $rule = 
+         ruleop::capture( 'code', \&{'grammar1::code'} )
+       ,
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { closure =>  match::get( $_[0], '$()' )  ,} }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    unshift @rule_terms, \&closure_rule;
+*{'variable_rule'} = 
+
+    sub { 
+        my $rule = 
+         ruleop::capture( 'variable', \&{'grammar1::variable'} )
+       ,
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { variable =>  match::get( $_[0], '$()' )  ,} }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    unshift @rule_terms, \&variable_rule;
 *{'runtime_alternation'} = 
 
     sub { 

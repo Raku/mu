@@ -23,6 +23,12 @@ my $namespace = 'grammar1::';
   use Data::Dumper;
   no warnings 'once';
 
+# pre-declare prelude subs
+
+# ----- the following were included only for performance reasons,
+# because they are too frequent and they are too slow using the basic
+# rule parser
+
 sub subrule {
     my ( $code, $tail ) = $_[0] =~ /^\<(.*?)\>(.*)$/s;
     return unless defined $code;
@@ -35,7 +41,6 @@ sub subrule {
     }
 }
 
-# XXX - compile non_capturing_subrule using a rule
 # XXX - set non-capture flag
 sub non_capturing_subrule {
     my ( $code, $tail ) = $_[0] =~ /^\<\?(.*?)\>(.*)$/s;
@@ -49,7 +54,6 @@ sub non_capturing_subrule {
     }
 }
 
-# XXX - compile negated_subrule using a rule
 sub negated_subrule {
     my ( $code, $tail ) = $_[0] =~ /^\<\!(.*?)\>(.*)$/s;
     return unless defined $code;
@@ -155,36 +159,6 @@ use vars qw( @rule_terms );
           ]
         ),
     );
-
-# [<rule>]
-*non_capturing_group = ::compile_rule( ' \[ <rule> \] ', {print_program=>0} );
-push @rule_terms, \&non_capturing_group;
-
-# { code }
-    # p5 code is called using: "rule { xyz { v5; ... } }" (audreyt on #perl6)
-    #   (but TimToady said it's not)
-    # or: "rule { ... [:perl5:: this is p5 ] ... }"
-    # or: "[:perl5(1) this is perl5 ]" (putter on #perl6)
-    
-# XXX - this is veeery slow - the actual implementation is in file
-#       p6rule_lib.pl and uses Text::Balanced
-# *code = ::compile_rule( '\{[<code>|.]*?\}' );
-unshift @rule_terms, ruleop::capture( 
-    'closure', \&code );
-    
-# $var
-# -- ident, variable moved to p6rule_lib.pl
-#*ident =    ::compile_rule( '[[\:\:]?<word>]+', {print_ast=>0} );
-#*variable = ::compile_rule( '[\$|\%|\@]<ident>' );
-#push @rule_terms, ruleop::capture( 'variable',\&variable );
-unshift @rule_terms, ruleop::capture( 
-    'variable', \&variable );
-    #ruleop::wrap( { 
-    #        before => sub { print "matching variable: $_[0]\n" },
-    #        after  => sub { $_[0]->{bool} ? print "variable matched\n" : print "no variable match\n" },
-    #    },
-    #    \&variable
-    #);
 
 =for prelude
 =cut
