@@ -1,5 +1,9 @@
-# pX/Common/iterator_engine.pl - fglock
+# iterator_engine.p6 - fglock
 #
+
+# *** NOTE ***
+# This file is written in a "subset" of Perl 6
+# Please don't "fix" it - until the compiler is extended!
 
 #use strict;
 #use warnings;
@@ -49,20 +53,35 @@ sub ruleop::alternation {
     # note: the list in @$nodes can be modified at runtime
 
     my $nodes = shift @_;   # XXX '= shift;' doesn't work???
+    #say "alternation list: @$nodes";
     # die "alternation list is empty" unless ref($nodes) eq 'ARRAY' && @$nodes;
     return sub {
         ### testing alternations on : @_, $nodes
         return unless @$nodes;
 
         my $tail =  @_[0];
-        my $state = @_[1] ?? [ @{@_[1]} ] !! [ 0, 0 ];
+        
+        # my $state = @_[1] ?? [ @{@_[1]} ] !! [ 0, 0 ];
+        # expanded - for debugging:
+        my $state;
+        if @_[1] {
+            $state = @_[1];
+            say "alt - reenter ",@$state.perl;
+        }
+        else {
+            $state = [ 0, 0 ];
+            say "concat - start";
+        }
+        
         my $flags = @_[2];
         my $match;
+        #say "alt state @$state";
         while ( defined $state ) {
             ### alternation string to match: "$tail - (node,state)=@$state"
             $match = 
                 $nodes[ $state[0] ]( $tail, $state[1], $flags );
             ### match: $match
+            say "alternation bool:$match<bool> in string: @_[0]";
             if ( $match<state> ) {
                 $state[1] = $match<state>;
             }
@@ -71,7 +90,7 @@ sub ruleop::alternation {
                 $state[0]++;
                 $state[1] = 0;
                 ### next alternation state - (node,state):@$state
-                $state = undef if $state[0] > @{$nodes}.elems;
+                $state = undef if $state[0] >= @{$nodes}.elems;
             }
             $match<state> = $state;
             return $match if $match<bool> || $match<abort>;
@@ -84,61 +103,77 @@ sub ruleop::concat {
     
     # note: the list in @nodes can NOT be modified at runtime
     # update: this is ok, because we can use <$var><$var> instead
-    
+
     return ruleop::concat( ( shift @_ ), ruleop::concat( @_ ) )
         if @_ > 2;
     my @nodes = @_;
     return sub {
         my $tail  = @_[0];
-        my @state = @_[1] ?? ( @{@_[1]} ) !! ( 0, 0 );
+        
+        # my @state = @_[1] ?? ( @{@_[1]} ) !! ( 0, 0 );
+        # expanded - for debugging:
+        my @state;
+        if @_[1] {
+            @state = @{@_[1]};
+            say "concat - reenter ",@state.perl;
+        }
+        else {
+            @state = ( 0, 0 );
+            say "concat - start";
+        }
+        
         my $flags = @_[2];
         my @matches;
         while (1) {
             
-            $matches[0] = $nodes[0]( $tail, $state[0], $flags );
-            ### 1st match: $matches[0]
-            return $matches[0] 
-                if $matches[0]<abort>;
-            if ( ! $matches[0]<bool> ) {
-                return unless defined $matches[0]<state>;
-                @state = ( $matches[0]<state>, 0 );
+            @matches[0] = @nodes[0]( $tail, @state[0], $flags );
+            ### 1st match: @matches[0]
+            return @matches[0] 
+                if @matches[0]<abort>;
+            if ( ! @matches[0]<bool> ) {
+                return unless defined @matches[0]<state>;
+                @state = ( @matches[0]<state>, 0 );
+                say "concat - backtracking #0";
                 next;
             }
             
-            $matches[1] = $nodes[1]( $matches[0]<tail>, $state[1], $flags );
-            ### 2nd match: $matches[1]
-            return $matches[1] 
-                if $matches[1]<abort>;
-            if ( ! $matches[1]<bool> ) {
-                if ( ! defined( $matches[1]<state> ) ) {
-                    return unless defined $matches[0]<state>;
-                    @state = ( $matches[0]<state>, 0 );
+            @matches[1] = @nodes[1]( @matches[0]<tail>, @state[1], $flags );
+            ### 2nd match: @matches[1]
+            return @matches[1] 
+                if @matches[1]<abort>;
+            if ( ! @matches[1]<bool> ) {
+                if ( ! defined( @matches[1]<state> ) ) {
+                    return unless defined @matches[0]<state>;
+                    @state = ( @matches[0]<state>, 0 );
                 }
                 ### backtracking - state: @state
                 ### backtracking - match: @matches
+                say "concat - backtracking #1";
                 next;
             }
-            
+  
+            say "concat return tail: $tail";
+
             my $succ;
-            if ( ! defined( $matches[1]<state> ) ) {
-                $succ = [ $matches[0]{state}, 0 ] if defined $matches[0]<state>;
+            if ( ! defined( @matches[1]<state> ) ) {
+                $succ = [ @matches[0]<state>, 0 ] if defined @matches[0]<state>;
             }
             else {
-                $succ = [ $state[0], $matches[1]<state> ];
+                $succ = [ @state[0], @matches[1]<state> ];
             }
 
             my $capture = [];
-            ### capture: $matches[0]<capture>,$matches[1]<capture>
-            $capture = $matches[0]{capture} 
-                if $matches[0]<capture>;
-            push @$capture, @{$matches[1]<capture>} 
-                if $matches[1]<capture>;
+            ### capture: @matches[0]<capture>,@matches[1]<capture>
+            $capture = @matches[0]{capture} 
+                if @matches[0]<capture>;
+            push @$capture, @{@matches[1]<capture>} 
+                if @matches[1]<capture>;
             undefine $capture unless @{$capture};
 
             return { 
                 bool =>  1,
                 match => [ @matches ], 
-                tail =>  $matches[1]<tail>,
+                tail =>  @matches[1]<tail>,
                 state => $succ,
                 capture => $capture,
             };
@@ -148,22 +183,35 @@ sub ruleop::concat {
 
 sub ruleop::constant { 
     my $const = shift @_;
+    # say "constant $const";
     return sub {
-        ### matching constant:$_[0],$const
+        say "matching constant:$const in @_[0]";
         return if ! @_[0];
         # return unless @_[0] ~~ m/^(\Q$const\E)(.*)/s;
         # return unless @_[0] ~~ perl5:m:s:/^(\Q$const\E)(.*)/;
-        return unless @_[0] ~~  /^ ( $const )(.*)/;  # (putter on #perl6)
+        # return unless @_[0] ~~  /^ ( $const )(.*)/;  # (putter on #perl6)
+        # return unless @_[0] ~~ rx:perl5/^($const)(.*)/;
+
+        my $m = substr( @_[0], 0, $const.chars );
+        return if $m ne $const;
+        my $tail = substr( @_[0], $const.chars );
+
+        say "Matched $m in $tail";
+
+        if defined @_[2] {
+            if @_[2]<capture> {
+                my $t = { 
+                    bool => 1,
+                    match => { constant => $m ,}, 
+                    capture => [ $m ], 
+                    tail => $tail,
+               } 
+            } 
+        }
 
         return { bool => 1,
-                 match => { constant => $1 ,}, 
-                 capture => [ $1 ], 
-                 tail => $2,
-               }
-           if $_[2]<capture>;  # flags<capture>
-        return { bool => 1,
-                 match => { constant => $1 ,}, 
-                 tail => $2,
+                 match => { constant => $m ,}, 
+                 tail => $tail,
                }
     }
 }
@@ -172,7 +220,7 @@ sub ruleop::null {
     return sub {
         return { bool => 1,
                  match => 'null',
-                 ( $_[2]<capture> ?? ( capture => [ '' ] ) !! () ),
+                 ( @_[2] ?? ( @_[2]<capture> ?? ( capture => [ '' ] ) !! () ) !! () ),
                  tail => @_[0],
                }
     }
@@ -274,20 +322,31 @@ sub ruleop::wrap {
 # ------- higher-order ruleops
 
 sub ruleop::optional {
-    return ruleop::alternation( [ $_[0], ruleop::null() ] );
+    return ruleop::alternation( [ @_[0], ruleop::null() ] );
 }
 
 sub ruleop::null_or_optional {
-    return ruleop::alternation( [ ruleop::null(), $_[0] ] );
+    return ruleop::alternation( [ ruleop::null(), @_[0] ] );
 }
 
 sub ruleop::greedy_plus { 
     my $node = shift @_;
     my $alt;
+    
+    # perl5 version:
+    # $alt = ruleop::concat( 
+    #    $node, 
+    #    ruleop::optional( sub{ $alt() } ),  
+    # );
+    
+    my $tmp = sub { say "redo..."; $alt() };
     $alt = ruleop::concat( 
         $node, 
-        ruleop::optional( sub{ goto $alt } ),  
+        ruleop::optional( 
+            $tmp 
+        ),  
     );
+    $tmp = $alt;
     return $alt;
 }
 
@@ -311,17 +370,17 @@ sub ruleop::non_greedy_plus {
 
     return sub {
         my $tail =  @_[0];
-        my $state = @_[1] || { 'state' => undef, op => $node ,};
+        my $state = @_[1] || { 'state' => undef, 'op' => $node ,};
         my $flags = @_[2];
 
-        # XXX - didn't work
+        # XXX - didn't work in p5 version
         # my $match = $state<op>( $tail, $state<state>, $flags ); 
 
         my $match = $state<op>( $tail, undef, $flags );
         return unless $match<bool>;
         $match<state> = {
             'state' => $match<state>,
-            op    => ruleop::concat( $node, $state<op> ),
+            'op'    => ruleop::concat( $node, $state<op> ),
         };
         return $match;
     }
