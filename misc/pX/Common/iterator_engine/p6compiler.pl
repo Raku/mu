@@ -21,19 +21,6 @@ $Data::Dumper::Pad = '# ';
     no warnings 'once';
     use vars qw( @statements @terms @ops );
 
-    # bootstrap the 'grammar' syntax
-
-    my  $immediate_statement_precompiled = ::compile_rule( q(
-            <?ws>? <@grammar1::statements> <?ws>?
-        ), {print_ast=>0} );
-        
-    *immediate_statement_rule = sub {
-        #print "immediate_statement: parse ###$_[0]###\n";
-        my $match = $immediate_statement_precompiled->( @_ );
-        #print "immediate_statement: BEGIN AST: \n", Dumper( $match->{capture} );
-        return $match;
-    };
-
     *immediate_statement_exec = sub {
         my $match = immediate_statement_rule( @_ );
         # print "immediate_statement_exec: BEGIN AST: \n", Dumper( $match->{capture} );
@@ -54,39 +41,6 @@ $Data::Dumper::Pad = '# ';
         }
     };
 
-
-    *grammar = ::compile_rule( <<'__p6__' ); 
-        <immediate_statement_exec>*
-__p6__
-
-
-    *rule_decl = ::compile_rule( <<'__p6__' );
-        rule <ws> <ident> <ws>? \{ <rule> \}  
-            { return { rule_decl => $() ,} }
-__p6__
-
-
-    push @grammar1::statements, \&rule_decl;
-    # done bootstrapping!
-    
-    # improve the grammar a little:
-    # - 'grammar' declaration
-    # - 'push' - add terms into the grammar tables
-    Perl6Grammar::compile( <<'__p6__' , {print_ast=>0} );
-        rule grammar1::grammar_name { 
-            grammar <ws> <ident> <ws>? \;
-                { return { grammar_name => $() ,} }
-        }
-        rule grammar1::_push {
-            $op := (push|unshift) <ws> <variable> <ws>? \, <ws>? $code := (.*?) <ws>? \;
-                { return { _push => $() ,} }
-        }
-__p6__
-    push @grammar1::statements, \&grammar_name;
-    push @grammar1::statements, \&_push;
-    
-    # the remaining grammar can be written using itself
-
     # load/precompile Prelude(s)
 
     my $recompile;
@@ -94,6 +48,11 @@ __p6__
         'p6prelude',
         'p6primitives',
     ) {
+
+      # loading the prelude is always required, even if it is out of date!
+      print "* loading Prelude: $prelude_file-cached.pl\n";
+      require "$prelude_file-cached.pl";
+
       if ( -f "$prelude_file-cached.pl" ) {
         $recompile = 
             -M "$prelude_file-cached.pl" > 
@@ -109,17 +68,24 @@ __p6__
             die "can't open prelude file: $prelude_file.p6 - $!";
         my $prelude = <FILE>;
         # print "Prelude:$prelude\n";
-        my $perl5 = Perl6Grammar::compile( $prelude );
+        my $perl5;
+        {
+            no warnings 'redefine';
+            $perl5 = Perl6Grammar::compile( $prelude );
+        }
         # print "MATCH\n", Dumper($match), "END MATCH\n";
         print "* caching Prelude: $prelude_file-cached.pl\n";
         open( FILE, ">", "$prelude_file-cached.pl" ) or
             die "can't open prelude file: $prelude_file-cached.pl - $!";
         print FILE "# generated file - do not edit!\n" . $perl5;
         close FILE;
+        print "\n\n*** please re-run the command, in order to load the new prelude !!!\n\n\n";
+        print "*** The messages about redefined subroutines are normal - they will be supressed in a later version\n\n";
+        exit;
       }
       else {
-        print "* loading Prelude: $prelude_file-cached.pl\n";
-        require "$prelude_file-cached.pl";
+        ## print "* loading Prelude: $prelude_file-cached.pl\n";
+        ## require "$prelude_file-cached.pl";
       }
     }
 
