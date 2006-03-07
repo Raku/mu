@@ -1,5 +1,33 @@
 grammar grammar1;
+
+rule immediate_statement_rule {
+    <?ws>? <@grammar1::statements> <?ws>?
+}
+
+rule grammar {
+    <immediate_statement_exec>*
+}
+
+rule rule_decl {
+    rule <ws> <ident> <ws>? \{ <rule> \}
+        { return { rule_decl => $() ,} }
+}
+push @grammar1::statements, \&rule_decl;
         
+rule grammar_name {
+    grammar <ws> <ident> <ws>? \;
+        { return { grammar_name => $() ,} }
+}
+push @statements, \&grammar_name;
+
+rule _push {
+    $op := (push|unshift) <ws> <variable> <ws>? \, <ws>?
+    $code := (.*?) <ws>? \;
+        { return { _push => $() ,} }
+}
+push @statements, \&_push;
+
+
 rule pod { 
     \=[pod|head1|kwid|for] 
     .*? 
