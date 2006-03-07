@@ -1,5 +1,17 @@
 # generated file - do not edit!
 package grammar1;
+*{'rule'} = 
+         ruleop::greedy_star(
+             ruleop::alternation( [
+                   \&{'grammar1::alt'}
+                 ,
+                   \&{'grammar1::quantifier'}
+                 ,
+             ] )
+           ,
+         )
+       ,
+;
 *{'non_capturing_group'} = 
        ruleop::concat(
          ruleop::constant( "\[" )
@@ -279,17 +291,16 @@ package grammar1;
        ruleop::concat(
          ruleop::constant( "\=" )
        ,
-             ruleop::alternation( [
-                   ruleop::constant( "pod" )
-                 ,
-                   ruleop::constant( "head1" )
-                 ,
-                   ruleop::constant( "kwid" )
-                 ,
-                   ruleop::constant( "for" )
-                 ,
-             ] )
-           ,
+         ruleop::alternation( [
+               ruleop::constant( "pod" )
+             ,
+               ruleop::constant( "head1" )
+             ,
+               ruleop::constant( "kwid" )
+             ,
+               ruleop::constant( "for" )
+             ,
+         ] )
        ,
          ruleop::non_greedy_star(
              \&{'grammar1::any'}
@@ -310,23 +321,22 @@ package grammar1;
 *{'list'} = 
        ruleop::concat(
          ruleop::greedy_star(
-               ruleop::concat(
-                 ruleop::capture( 'term1', \&{'grammar1::term1'} )
-               ,
-                 ruleop::optional(
-                     \&{'grammar1::ws'}
-                   ,
-                 )
-               ,
-                 ruleop::constant( "\," )
-               ,
-                 ruleop::optional(
-                     \&{'grammar1::ws'}
-                   ,
-                 )
-               ,
-               )
+           ruleop::concat(
+             ruleop::capture( 'term1', \&{'grammar1::term1'} )
            ,
+             ruleop::optional(
+                 \&{'grammar1::ws'}
+               ,
+             )
+           ,
+             ruleop::constant( "\," )
+           ,
+             ruleop::optional(
+                 \&{'grammar1::ws'}
+               ,
+             )
+           ,
+           )
          )
        ,
          ruleop::optional(
@@ -345,16 +355,15 @@ package grammar1;
        ,
          ruleop::capture( 'list', 
              ruleop::greedy_star(
-                   ruleop::concat(
-                     ruleop::optional(
-                         \&{'grammar1::ws'}
-                       ,
-                     )
+               ruleop::concat(
+                 ruleop::optional(
+                     \&{'grammar1::ws'}
                    ,
-                     ruleop::alternation( \@grammar1::statements )
-                   ,
-                   )
+                 )
                ,
+                 ruleop::alternation( \@grammar1::statements )
+               ,
+               )
              )
            ,
          )

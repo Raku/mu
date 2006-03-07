@@ -1,5 +1,9 @@
 grammar grammar1;
 
+rule rule {
+    [ <?alt> | <?quantifier> ]*
+}
+
 rule non_capturing_group {
      \[ <?rule> \] 
 }

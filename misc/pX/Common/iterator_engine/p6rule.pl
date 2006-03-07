@@ -2,9 +2,6 @@
 #
 # experimental implementation of p6-regex parser
 #
-# see: README
-
-# TODO $var := (capture)
 
 use strict;
 use warnings;
@@ -22,8 +19,6 @@ my $namespace = 'grammar1::';
 
   use Data::Dumper;
   no warnings 'once';
-
-# pre-declare prelude subs
 
 # ----- the following were included only for performance reasons,
 # because they are too frequent and they are too slow using the basic
@@ -137,13 +132,7 @@ use vars qw( @rule_terms );
         \&term,
     ] );
 
-# [ <term> [ \| <term> ]+ | <term> ]* 
-# note: <term>|<term> creates a term named 'alt'
-# XXX - 'alt' position is wrong
-*rule = 
-    ruleop::greedy_star (
-        ruleop::alternation( 
-          [
+*alt = 
             ruleop::capture( 'alt', 
                 ruleop::concat(
                     ruleop::capture( 'term', \&quantifier ),
@@ -155,10 +144,7 @@ use vars qw( @rule_terms );
                     ),
                 ),
             ),                
-            \&quantifier,
-          ]
-        ),
-    );
+;
 
 =for prelude
 =cut
