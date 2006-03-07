@@ -8,6 +8,7 @@ use warnings;
 
 require 'p6rule.pl';
 require 'emit.pl';
+use interface;
 
 # TODO: see TASKS file
 
@@ -97,9 +98,10 @@ $Data::Dumper::Pad = '# ';
         open( FILE, "<", $filename ) or 
             die "can't open file: $filename - $!";
         my $source = <FILE>;
-        my $perl5 = Perl6Grammar::compile( $source ); 
-        # , { print_ast => 1 } );
-        # print "MATCH\n", Dumper($match), "END MATCH\n";
+        my $perl5 = Perl6Grammar::compile( $source,{
+		print_ast => $interface::print_ast,
+		print_program => $interface::print_program
+	}); 
     }
 
     exit;
@@ -123,6 +125,8 @@ sub header {
 
 use strict;
 use warnings;
+use lib '.';
+use interface;
 require 'iterator_engine.pl';
 require 'p6rule_lib.pl';
 
