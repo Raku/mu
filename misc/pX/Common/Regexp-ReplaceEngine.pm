@@ -11,7 +11,6 @@ This would permit
 Status:
 
   Perl subs get called for regexp comp and exec.
-  $1,etal are not set.
   The hooks are not package-specific.
 
 Design:
@@ -22,17 +21,16 @@ Design:
   value, so a regexp* thus created can be recognized, and regexp*s
   created with the normal perl engine can continue working.
 
-  Upon exec, the subref should return match information or undef (not
-  implemented).  Match information gets inserted in $1 etal (not
-  implemented). It seems likely these will be limited to strings,
-  rather than Match objects, but we'll see.
+  Upon exec, the subref should return match information.  Match
+  information gets inserted in $1 etal.  These will be limited to
+  strings, rather than Match objects.
 
   A set of hooks should be defined in CORE which just call back to the
   original comp and exec (not implemented).  The C hooks call for the
   sub hooks in the caller package, and thus get CORE if none are defined.
 
   The C hooks (except for comp, obviously) look for the flag value,
-  and call the original Perl_ funcs if it is not present (not implemented).
+  and call the original Perl_ funcs if it is not present.
 
 Risks:
 
@@ -70,15 +68,11 @@ Risks:
 
 Possible next steps:
 
-  Debug the newly added
-    recognition flag - regexp created before the hooks should keep working.
-    success actually depends on the exec hooks return value.
-
-  Try again to get arbitrary string values into $1,etal.
+  Get per-package hooks working.
 
 Notes:
 
-  http://perl.plover.com/Rx/paper/   fglock++
+  http://perl.plover.com/Rx/paper/
 
   Some files of interest in the perl sources:
     ./regexp.h ./regcomp.c ./regexec.c
@@ -101,7 +95,6 @@ Notes on functions:
 
 regexp* regcompp (pTHX_ char* exp, char* xend, PMOP* pm)
 
-what is xend?
 what is pm?
 XXX finish
 
@@ -140,9 +133,10 @@ The match result:
   I32 *startp;
   I32 *endp;
 
-for $n+1 (eg $1 => n=0), 0<=n<nparens,
+for $n (eg $1 => n=1), 1<=n<=nparens,
 startp[n] is the starting offset in subbeg,
 endp[n] is the offset of the last char within the capture.
+n=0 is the total match?
 
   U32 lastparen;          /* last paren matched */
   U32 lastcloseparen;     /* last paren matched */
@@ -232,7 +226,7 @@ which Perl_re_dup will copy for us.
 sub regexp_hook_exec {
   my($s)=@_;
   print STDERR "execing on string (".(defined($s)?"'$s'":"undef").").\n";
-  return (2,0,undef,undef,1);
+  return reverse(1,undef,undef,0,3,0,2);
 #  return (undef,undef,1);
 }
 
@@ -248,9 +242,15 @@ hooks_in();
 eval <<'END';
 my $m = "asdf" =~ /foobar3/;
 print "match? ",$m ? "yes" : "no","\n";
-print ' $1 ',defined($1)?"\"$1\"":"undef","\n";
-print ' $2 ',defined($1)?"\"$2\"":"undef","\n";
-print ' $3 ',defined($1)?"\"$3\"":"undef","\n";
+print ' $` ',defined($`)?"\"$`\"":"undef","\n";
+print ' $& ',defined($&)?"\"$&\"":"undef","\n";
+print ' $\' ',defined($')?"\"$'\"":"undef","\n";
+print ' $-[0] ',defined($-[0])?"$-[0]":"undef","\n";
+print ' $+[0] ',defined($+[0])?"$+[0]":"undef","\n";
+print ' $1 ',defined($1)?"\"$1\" $-[1] $+[1]":"undef","\n";
+print ' $2 ',defined($2)?"\"$2\" $-[2] $+[2]":"undef","\n";
+print ' $3 ',defined($3)?"\"$3\" $-[3] $+[3]":"undef","\n";
+print ' $^N ',defined($^N)?"\"$^N\"":"undef","\n";
 END
 
 use Data::Dumper;
@@ -379,8 +379,8 @@ regexp* hook_regcompp (pTHX_ char* exp, char* xend, PMOP* pm)
 
   r->nparens = npar;
 
-  Renew(r->startp, npar, I32);
-  Renew(r->endp, npar, I32);
+  Renew(r->startp, npar+1, I32);
+  Renew(r->endp, npar+1, I32);
 
   r->minlen = 0;
   r->reganch = 0;
@@ -417,6 +417,10 @@ I32 hook_regexec (pTHX_ regexp* r, char* stringarg, char* strend,
   fprintf(stderr,"hook_regexec (%ld %ld %ld %ld) %d\n",(ulong)r,(ulong)stringarg,(ulong)strend,(ulong)strbeg,strend-strbeg);
 
 
+  Safefree(r->subbeg);
+  r->sublen = strend-strbeg;
+  r->subbeg = savepvn(strbeg,r->sublen);
+
   f = *((SV**)&(r->offsets[2]));
 
   ENTER;
@@ -436,7 +440,7 @@ I32 hook_regexec (pTHX_ regexp* r, char* stringarg, char* strend,
 
   { /* fail captures */
     int i;
-    for(i=0;i<r->nparens;i++) {
+    for(i=0;i<=r->nparens;i++) {
       r->startp[i] = -1;
       r->endp[i] = -1;
     }
@@ -447,26 +451,22 @@ I32 hook_regexec (pTHX_ regexp* r, char* stringarg, char* strend,
     SV* lp;
     SV* lcp; 
     int i;
-    if(ret < 3 || ret != 3 + 2 * r->nparens) {
+    if(ret < 3 || ret != 3 + 2 * (r->nparens+1)) {
       fprintf(stderr,"regexp_hook_exec failed - paren info broken\n"); exit(0);
     }
     lp = POPs;
     lcp = POPs;
-    for(i=0;i<r->nparens;i++) {
+    for(i=0;i<=r->nparens;i++) {
       r->startp[i] = POPi;
       r->endp[i] = POPi;
     }
-    r->lastparen = (lp == &PL_sv_undef) ? SvIV(lp) : r->nparens -1;
-    r->lastcloseparen = (lcp == &PL_sv_undef) ? SvIV(lcp) : r->nparens -1;
+    r->lastparen = (lp == &PL_sv_undef) ? SvIV(lp) : r->nparens;
+    r->lastcloseparen = (lcp == &PL_sv_undef) ? SvIV(lcp) : r->nparens;
   }
 
   PUTBACK;
   FREETMPS;
   LEAVE;
-
-  Safefree(r->subbeg);
-  r->sublen = strend-strbeg;
-  r->subbeg = savepvn(strbeg,r->sublen);
 
   return matched ? 1 : 0;
 }
