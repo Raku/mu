@@ -434,4 +434,5 @@ sub node::named_capture {
             ), $_[1] );
     return "$_[1] ruleop::capture( '$name', \n" . $program . "$_[1] )\n";
 }
+
 1;

@@ -2,6 +2,29 @@
 
 grammar grammar1;
 
+# rule perl5_regex { \: perl5 [ :perl5 (.*?) ] }
+# rule xxx rx:perl5{foo}
+rule perl5_regex { 
+    [   
+        \.   |   \|   |   \*   |   \+   |
+        \(   |   \)   |   \[   |   \]   |
+        \?   |   \:   |   \s   |   \w   |
+        \_   |   \\   |   \^   |   \$   |
+        alnum
+    ]* 
+        { return { perl5_regex => $() ,} }
+}
+
+rule perl5_rule_decl {
+    rule <p6ws> <ident> <p6ws>? rx\:perl5\{ <perl5_regex> \}
+        { return { perl5_rule_decl => $() ,} }
+}
+push @grammar1::statements, \&perl5_rule_decl;
+ 
+# XXX - don't work yet - check if the capture format is ok       
+#rule word rx:perl5{^([_[:alnum:]]+)}
+#rule any rx:perl5{^(.)}
+
 rule const_word {
     <word>
         { return { constant => $() ,} }

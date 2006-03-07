@@ -1,5 +1,105 @@
 # generated file - do not edit!
 package grammar1;
+*{'perl5_regex'} = 
+
+    sub { 
+        my $rule = 
+         ruleop::greedy_star(
+             ruleop::alternation( [
+                   ruleop::constant( "\." )
+                 ,
+                   ruleop::constant( "\|" )
+                 ,
+                   ruleop::constant( "\*" )
+                 ,
+                   ruleop::constant( "\+" )
+                 ,
+                   ruleop::constant( "\(" )
+                 ,
+                   ruleop::constant( "\)" )
+                 ,
+                   ruleop::constant( "\[" )
+                 ,
+                   ruleop::constant( "\]" )
+                 ,
+                   ruleop::constant( "\?" )
+                 ,
+                   ruleop::constant( "\:" )
+                 ,
+                   ruleop::constant( "s" )
+                 ,
+                   ruleop::constant( "w" )
+                 ,
+                   ruleop::constant( "_" )
+                 ,
+                   ruleop::constant( "\\" )
+                 ,
+                   ruleop::constant( "\^" )
+                 ,
+                   ruleop::constant( "\$" )
+                 ,
+                   ruleop::constant( "alnum" )
+                 ,
+             ] )
+           ,
+         )
+       ,
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { perl5_regex =>  match::get( $_[0], '$()' )  ,} }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+*{'perl5_rule_decl'} = 
+
+    sub { 
+        my $rule = 
+       ruleop::concat(
+         ruleop::constant( "rule" )
+       ,
+         ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
+       ,
+         ruleop::capture( 'ident', \&{'grammar1::ident'} )
+       ,
+         ruleop::optional(
+             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
+           ,
+         )
+       ,
+         ruleop::constant( "rx" )
+       ,
+         ruleop::constant( "\:" )
+       ,
+         ruleop::constant( "perl5" )
+       ,
+         ruleop::constant( "\{" )
+       ,
+         ruleop::capture( 'perl5_regex', \&{'grammar1::perl5_regex'} )
+       ,
+         ruleop::constant( "\}" )
+       ,
+       )
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { perl5_rule_decl =>  match::get( $_[0], '$()' )  ,} }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    push @grammar1::statements, \&perl5_rule_decl;
 *{'const_word'} = 
 
     sub { 

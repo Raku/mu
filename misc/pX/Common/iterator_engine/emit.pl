@@ -48,6 +48,26 @@ sub node::rule_decl {
     my $program = main::emit_rule( get_data( $_[0], '$<rule>' ), '' );
     return "*{'$name'} = \n$program;\n";
 }
+sub node::perl5_rule_decl {
+    # XXX - this sub does only '1' capture
+    my $name = get_str( $_[0], '$<ident>' );
+    my $regex = get_str( $_[0], '$<perl5_regex>' );
+    #print "perl5_rule_decl: $name -- $regex \n";
+    my $program =
+    "*{'$name'} = sub {" . '
+    return unless $_[0];
+    return {
+        bool  => 1,
+        match => { \''.$name.'\'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+        if $_[0] =~ /'.$regex.'(.*)$/s;
+}
+';
+    #print "PROGRAM: $program";
+    return $program;
+}
 sub node::block {
     return "    {\n" . emit($_[0]) . "    }\n";
 }

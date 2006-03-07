@@ -205,3 +205,19 @@ parser<->evaluator chumminess of p5)
 <putter> fglock: 
 http://search.cpan.org/~mneylon/Tie-Hash-Stack-0.09/Stack.pm ?
 
+------
+
+re: modifiers
+
+<PerlJam> fglock: rule xxx { :perl5 .* }
+<PerlJam> fglock: in yours, .* would be a parameter to the :perl5 
+attribute.
+*** FurnaceBoy [n=qu1j0t3@67.68.33.193] has quit [brown.freenode.net 
+irc.freenode.net]
+*** chris2 [n=chris@p549D1C58.dip0.t-ipconnect.de] has quit 
+[brown.freenode.net irc.freenode.net]
+*** meppl [i=mephisto@meppl.net] has quit [brown.freenode.net 
+irc.freenode.net]
+<putter> :perl5 , like :i :mumble, is a modifier.
+<putter> block scoped
+<putter> [:i(1) This CoDe Is CaSe insensiteive ]
