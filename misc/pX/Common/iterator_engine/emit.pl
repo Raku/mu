@@ -85,7 +85,7 @@ sub node::_push {
 }
 sub node::_simple_statement {
     my $op = get_str( $_[0], '$<op>' );
-    $op = 'die "not implemented"' if $op eq '...';
+    $op = 'warn "not implemented"' if $op eq '...';
     return "    $op;\n";
 }
 sub node::_my {
