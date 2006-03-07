@@ -162,7 +162,7 @@ package grammar1;
          ruleop::capture( 'ident', \&{'grammar1::ident'} )
        ,
          ruleop::optional(
-             \&{'grammar1::ws'}
+             \&{'grammar1::p6ws'}
            ,
          )
        ,
@@ -171,7 +171,7 @@ package grammar1;
          ruleop::constant( "\=" )
        ,
          ruleop::optional(
-             \&{'grammar1::ws'}
+             \&{'grammar1::p6ws'}
            ,
          )
        ,
@@ -199,14 +199,14 @@ package grammar1;
 *{'immediate_statement_rule'} = 
        ruleop::concat(
          ruleop::optional(
-             \&{'grammar1::ws'}
+             \&{'grammar1::p6ws'}
            ,
          )
        ,
          ruleop::alternation( \@grammar1::statements )
        ,
          ruleop::optional(
-             \&{'grammar1::ws'}
+             \&{'grammar1::p6ws'}
            ,
          )
        ,
@@ -226,12 +226,12 @@ package grammar1;
        ruleop::concat(
          ruleop::constant( "rule" )
        ,
-         ruleop::capture( 'ws', \&{'grammar1::ws'} )
+         ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
        ,
          ruleop::capture( 'ident', \&{'grammar1::ident'} )
        ,
          ruleop::optional(
-             ruleop::capture( 'ws', \&{'grammar1::ws'} )
+             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
            ,
          )
        ,
@@ -263,12 +263,12 @@ package grammar1;
        ruleop::concat(
          ruleop::constant( "grammar" )
        ,
-         ruleop::capture( 'ws', \&{'grammar1::ws'} )
+         ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
        ,
          ruleop::capture( 'ident', \&{'grammar1::ident'} )
        ,
          ruleop::optional(
-             ruleop::capture( 'ws', \&{'grammar1::ws'} )
+             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
            ,
          )
        ,
@@ -304,19 +304,19 @@ package grammar1;
            ,
          )
        ,
-         ruleop::capture( 'ws', \&{'grammar1::ws'} )
+         ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
        ,
          ruleop::capture( 'variable', \&{'grammar1::variable'} )
        ,
          ruleop::optional(
-             ruleop::capture( 'ws', \&{'grammar1::ws'} )
+             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
            ,
          )
        ,
          ruleop::constant( "\," )
        ,
          ruleop::optional(
-             ruleop::capture( 'ws', \&{'grammar1::ws'} )
+             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
            ,
          )
        ,
@@ -329,7 +329,7 @@ package grammar1;
          )
        ,
          ruleop::optional(
-             ruleop::capture( 'ws', \&{'grammar1::ws'} )
+             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
            ,
          )
        ,
@@ -388,14 +388,14 @@ package grammar1;
              ruleop::capture( 'term1', \&{'grammar1::term1'} )
            ,
              ruleop::optional(
-                 \&{'grammar1::ws'}
+                 \&{'grammar1::p6ws'}
                ,
              )
            ,
              ruleop::constant( "\," )
            ,
              ruleop::optional(
-                 \&{'grammar1::ws'}
+                 \&{'grammar1::p6ws'}
                ,
              )
            ,
@@ -420,7 +420,7 @@ package grammar1;
              ruleop::greedy_star(
                ruleop::concat(
                  ruleop::optional(
-                     \&{'grammar1::ws'}
+                     \&{'grammar1::p6ws'}
                    ,
                  )
                ,
@@ -432,7 +432,7 @@ package grammar1;
          )
        ,
          ruleop::optional(
-             \&{'grammar1::ws'}
+             \&{'grammar1::p6ws'}
            ,
          )
        ,
@@ -460,7 +460,7 @@ package grammar1;
        ruleop::concat(
          ruleop::constant( "macro" )
        ,
-         \&{'grammar1::ws'}
+         \&{'grammar1::p6ws'}
        ,
          ruleop::capture( 'prefix', 
              ruleop::capture( 'word', \&{'grammar1::word'} )
@@ -482,74 +482,74 @@ package grammar1;
          ruleop::constant( "\>" )
        ,
          ruleop::optional(
-             \&{'grammar1::ws'}
+             \&{'grammar1::p6ws'}
            ,
          )
        ,
          ruleop::constant( "\(" )
        ,
          ruleop::optional(
-             \&{'grammar1::ws'}
+             \&{'grammar1::p6ws'}
            ,
          )
        ,
          ruleop::capture( 'list', \&{'grammar1::list'} )
        ,
          ruleop::optional(
-             \&{'grammar1::ws'}
+             \&{'grammar1::p6ws'}
            ,
          )
        ,
          ruleop::constant( "\)" )
        ,
          ruleop::optional(
-             \&{'grammar1::ws'}
+             \&{'grammar1::p6ws'}
            ,
          )
        ,
          ruleop::constant( "is" )
        ,
-         \&{'grammar1::ws'}
+         \&{'grammar1::p6ws'}
        ,
          ruleop::constant( "parsed" )
        ,
          ruleop::optional(
-             \&{'grammar1::ws'}
+             \&{'grammar1::p6ws'}
            ,
          )
        ,
          ruleop::constant( "\(" )
        ,
          ruleop::optional(
-             \&{'grammar1::ws'}
+             \&{'grammar1::p6ws'}
            ,
          )
        ,
          ruleop::constant( "\/" )
        ,
          ruleop::optional(
-             \&{'grammar1::ws'}
+             \&{'grammar1::p6ws'}
            ,
          )
        ,
          ruleop::capture( 'rule', \&{'grammar1::rule'} )
        ,
          ruleop::optional(
-             \&{'grammar1::ws'}
+             \&{'grammar1::p6ws'}
            ,
          )
        ,
          ruleop::constant( "\/" )
        ,
          ruleop::optional(
-             \&{'grammar1::ws'}
+             \&{'grammar1::p6ws'}
            ,
          )
        ,
          ruleop::constant( "\)" )
        ,
          ruleop::optional(
-             \&{'grammar1::ws'}
+             \&{'grammar1::p6ws'}
            ,
          )
        ,
@@ -591,12 +591,12 @@ package grammar1;
            ,
          )
        ,
-         ruleop::capture( 'ws', \&{'grammar1::ws'} )
+         ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
        ,
          ruleop::capture( 'list', \&{'grammar1::list'} )
        ,
          ruleop::optional(
-             ruleop::capture( 'ws', \&{'grammar1::ws'} )
+             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
            ,
          )
        ,
@@ -634,12 +634,12 @@ package grammar1;
            ,
          )
        ,
-         ruleop::capture( 'ws', \&{'grammar1::ws'} )
+         ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
        ,
          ruleop::capture( 'variable', \&{'grammar1::variable'} )
        ,
          ruleop::optional(
-             ruleop::capture( 'ws', \&{'grammar1::ws'} )
+             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
            ,
          )
        ,
@@ -705,7 +705,7 @@ package grammar1;
        ruleop::concat(
          ruleop::constant( "sub" )
        ,
-         \&{'grammar1::ws'}
+         \&{'grammar1::p6ws'}
        ,
          ruleop::capture( 'fix', 
              ruleop::alternation( [
@@ -734,7 +734,7 @@ package grammar1;
          ruleop::constant( "\>" )
        ,
          ruleop::optional(
-             \&{'grammar1::ws'}
+             \&{'grammar1::p6ws'}
            ,
          )
        ,
@@ -766,7 +766,7 @@ package grammar1;
          )
        ,
          ruleop::optional(
-             ruleop::capture( 'ws', \&{'grammar1::ws'} )
+             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
            ,
          )
        ,
@@ -776,7 +776,7 @@ package grammar1;
          )
        ,
          ruleop::optional(
-             ruleop::capture( 'ws', \&{'grammar1::ws'} )
+             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
            ,
          )
        ,
@@ -815,7 +815,7 @@ package grammar1;
          )
        ,
          ruleop::optional(
-             ruleop::capture( 'ws', \&{'grammar1::ws'} )
+             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
            ,
          )
        ,
@@ -825,7 +825,7 @@ package grammar1;
          )
        ,
          ruleop::optional(
-             ruleop::capture( 'ws', \&{'grammar1::ws'} )
+             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
            ,
          )
        ,
@@ -840,7 +840,7 @@ package grammar1;
          )
        ,
          ruleop::optional(
-             ruleop::capture( 'ws', \&{'grammar1::ws'} )
+             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
            ,
          )
        ,
@@ -869,28 +869,28 @@ package grammar1;
          ruleop::constant( "eval" )
        ,
          ruleop::optional(
-             ruleop::capture( 'ws', \&{'grammar1::ws'} )
+             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
            ,
          )
        ,
          ruleop::constant( "\(" )
        ,
          ruleop::optional(
-             ruleop::capture( 'ws', \&{'grammar1::ws'} )
+             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
            ,
          )
        ,
          ruleop::capture( 'literal', \&{'grammar1::literal'} )
        ,
          ruleop::optional(
-             ruleop::capture( 'ws', \&{'grammar1::ws'} )
+             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
            ,
          )
        ,
          ruleop::constant( "\," )
        ,
          ruleop::optional(
-             ruleop::capture( 'ws', \&{'grammar1::ws'} )
+             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
            ,
          )
        ,
@@ -905,14 +905,14 @@ package grammar1;
          ruleop::constant( "\>" )
        ,
          ruleop::optional(
-             ruleop::capture( 'ws', \&{'grammar1::ws'} )
+             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
            ,
          )
        ,
          ruleop::constant( "\)" )
        ,
          ruleop::optional(
-             ruleop::capture( 'ws', \&{'grammar1::ws'} )
+             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
            ,
          )
        ,
@@ -940,7 +940,7 @@ package grammar1;
        ruleop::concat(
          ruleop::constant( "return" )
        ,
-         \&{'grammar1::ws'}
+         \&{'grammar1::p6ws'}
        ,
          ruleop::capture( 'val', 
              ruleop::alternation( [
@@ -953,7 +953,7 @@ package grammar1;
          )
        ,
          ruleop::optional(
-             \&{'grammar1::ws'}
+             \&{'grammar1::p6ws'}
            ,
          )
        ,

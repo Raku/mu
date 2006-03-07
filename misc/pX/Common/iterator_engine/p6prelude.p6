@@ -1,3 +1,5 @@
+# this is a comment - putter++ for writing the comment regex
+
 grammar grammar1;
 
 rule const_word {
@@ -46,13 +48,13 @@ rule runtime_alternation {
 unshift @rule_terms, \&runtime_alternation;
 
 rule named_capture {
-    \$ <ident> <?ws>? \:\= <?ws>? \( <rule> \) 
+    \$ <ident> <?p6ws>? \:\= <?p6ws>? \( <rule> \) 
         { return { named_capture => $() ,} }
 }
 unshift @rule_terms, \&named_capture;
 
 rule immediate_statement_rule {
-    <?ws>? <@grammar1::statements> <?ws>?
+    <?p6ws>? <@grammar1::statements> <?p6ws>?
 }
 
 rule grammar {
@@ -60,20 +62,20 @@ rule grammar {
 }
 
 rule rule_decl {
-    rule <ws> <ident> <ws>? \{ <rule> \}
+    rule <p6ws> <ident> <p6ws>? \{ <rule> \}
         { return { rule_decl => $() ,} }
 }
 push @grammar1::statements, \&rule_decl;
         
 rule grammar_name {
-    grammar <ws> <ident> <ws>? \;
+    grammar <p6ws> <ident> <p6ws>? \;
         { return { grammar_name => $() ,} }
 }
 push @statements, \&grammar_name;
 
 rule _push {
-    $op := (push|unshift) <ws> <variable> <ws>? \, <ws>?
-    $code := (.*?) <ws>? \;
+    $op := (push|unshift) <p6ws> <variable> <p6ws>? \, <p6ws>?
+    $code := (.*?) <p6ws>? \;
         { return { _push => $() ,} }
 }
 push @statements, \&_push;
@@ -99,21 +101,23 @@ rule term1 {
 }
         
 rule list {
-    [ <term1> <?ws>? \, <?ws>? ]* <term1>?
+    [ <term1> <?p6ws>? \, <?p6ws>? ]* <term1>?
 }
 
 rule block {
     \{ 
-        $list := ( [ <?ws>? <@grammar1::statements> ]* ) <?ws>? 
+        $list := ( [ <?p6ws>? <@grammar1::statements> ]* ) <?p6ws>? 
     \}
         { return { block => $()<list> ,} }
 }
 push @statements, \&block;
 
 rule macro_decl {
-    macro <?ws> $prefix := (<word>) \: \< $id := (.*?) \> <?ws>? 
-    \(  <?ws>? <list> <?ws>? \) <?ws>?
-    is <?ws> parsed <?ws>? \( <?ws>? \/ <?ws>? <rule> <?ws>? \/ <?ws>? \) <?ws>?
+    macro <?p6ws> $prefix := (<word>) \: \< $id := (.*?) \> <?p6ws>? 
+    \(  <?p6ws>? <list> <?p6ws>? \) <?p6ws>?
+    is <?p6ws> parsed <?p6ws>? \( 
+        <?p6ws>? \/ <?p6ws>? <rule> <?p6ws>? \/ <?p6ws>? 
+        \) <?p6ws>?
     <code> 
         { return { macro => $() ,} }
 }
@@ -123,13 +127,13 @@ push @terms, \&variable;
 push @terms, \&literal;
         
 rule _print { 
-    $op := (print|say|warn|die) <ws> <list> <ws>? \;
+    $op := (print|say|warn|die) <p6ws> <list> <p6ws>? \;
         { return { _print => $() ,} }
 }
 push @statements, \&_print;
 
 rule _my {
-    $op := (my|our|local) <ws> <variable> <ws>? \;
+    $op := (my|our|local) <p6ws> <variable> <p6ws>? \;
         { return { _my => $() ,} }
 }
 push @statements, \&_my;
@@ -141,31 +145,32 @@ rule _simple_statement {
 push @statements, \&_simple_statement;
 
 rule sub_decl {
-    sub <?ws> $fix := (infix|prefix|postfix) \: \< $id := (.*?) \> <?ws>? <block>
+    sub <?p6ws> $fix := (infix|prefix|postfix) 
+        \: \< $id := (.*?) \> <?p6ws>? <block>
         { return { sub_decl => $() ,} }
 }
 push @statements, \&sub_decl;
 
 rule term2 {
-    $term1 := (<term1>) <ws>? 
-    $op    := (<@grammar1::ops>) <ws>? 
+    $term1 := (<term1>) <p6ws>? 
+    $op    := (<@grammar1::ops>) <p6ws>? 
     $term2 := (<term1>) 
         { return { sub_application_term => $() ,} }
 }
 
 rule sub_application {
-    $term1 := (<term1>|<term2>) <ws>? 
-    $op    := (<@grammar1::ops>) <ws>? 
-    $term2 := (<term1>|<term2>) <ws>? \;
+    $term1 := (<term1>|<term2>) <p6ws>? 
+    $op    := (<@grammar1::ops>) <p6ws>? 
+    $term2 := (<term1>|<term2>) <p6ws>? \;
         { return { sub_application => $() ,} }
 }
 push @statements, \&sub_application;
 
 rule eval_perl5 {
-    eval <ws>? \( <ws>? 
-        <literal> <ws>? \, <ws>? 
-        \: lang \< perl5 \> <ws>? 
-    \) <ws>? \;
+    eval <p6ws>? \( <p6ws>? 
+        <literal> <p6ws>? \, <p6ws>? 
+        \: lang \< perl5 \> <p6ws>? 
+    \) <p6ws>? \;
         { return { eval_perl5 => $<literal> } }
 }
 push @statements, \&eval_perl5;
@@ -187,7 +192,7 @@ push @statements, \&eval_perl5;
 =cut
 
 rule _return {
-    return <?ws> $val := (<term1>|<term2>) <?ws>? \;
+    return <?p6ws> $val := (<term1>|<term2>) <?p6ws>? \;
         { return { _return => $() ,} }
 }
 push @statements, \&_return;
