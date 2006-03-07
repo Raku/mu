@@ -9,8 +9,6 @@ Experimental implementation of:
 Tests:
 (paste this in the command line to run all tests)
 perl iterator_engine.t
-perl p6rule.t
-perl p6rule_variables.t
 perl p6compiler.pl p6sample.p6
 perl p6compiler.pl p6compiler.p6t
 

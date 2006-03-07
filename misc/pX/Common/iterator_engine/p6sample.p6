@@ -1,2 +1,2 @@
-'1' infix:<+> '1';
-
+print 'hello, ';
+say 'world!';
