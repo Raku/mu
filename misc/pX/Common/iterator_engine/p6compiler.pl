@@ -87,19 +87,22 @@ __p6__
     
     # the remaining grammar can be written using itself
 
-    # load/precompile Prelude
+    # load/precompile Prelude(s)
 
-    my $prelude_file = 'p6prelude';
     my $recompile;
-    if ( -f "$prelude_file-cached.pl" ) {
+    for my $prelude_file ( 
+        'p6prelude',
+        'p6primitives',
+    ) {
+      if ( -f "$prelude_file-cached.pl" ) {
         $recompile = 
             -M "$prelude_file-cached.pl" > 
             -M "$prelude_file.p6";
-    }
-    else {
+      }
+      else {
         $recompile = 1;
-    }
-    if ( $recompile ) {
+      }
+      if ( $recompile ) {
         local $/ = undef; 
         print "* precompiling Prelude: $prelude_file.p6\n";
         open( FILE, "<", "$prelude_file.p6" ) or 
@@ -113,10 +116,11 @@ __p6__
             die "can't open prelude file: $prelude_file-cached.pl - $!";
         print FILE "# generated file - do not edit!\n" . $perl5;
         close FILE;
-    }
-    else {
+      }
+      else {
         print "* loading Prelude: $prelude_file-cached.pl\n";
         require "$prelude_file-cached.pl";
+      }
     }
 
 
