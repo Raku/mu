@@ -85,11 +85,11 @@ package grammar1;
            ,
          )
        ,
-         ruleop::constant( "rx" )
-       ,
          ruleop::constant( "\:" )
        ,
-         ruleop::constant( "perl5" )
+         ruleop::constant( "P5" )
+       ,
+         ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
        ,
          ruleop::constant( "\{" )
        ,
