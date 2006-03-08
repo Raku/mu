@@ -148,7 +148,7 @@ sub compile {
         if $match->{tail};
     die "compile: syntax error in program '$_[0]'\n"
         unless $match->{bool};
-    print "compile: match:\n", Dumper( $match->{capture} ) if $flags->{print_match};
+    print "compile: match:\n", Dumper( $match ) if $flags->{print_match};
     print "compile: generated ast:\n", Dumper( $match->{capture} ) if $flags->{print_ast};
     my $program = emit( $match->{capture} );
     print "compile: generated code:\n$program" if $flags->{print_program};
