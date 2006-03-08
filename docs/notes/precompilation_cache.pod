@@ -25,7 +25,7 @@ probably deserve a secion of their own but for now:
 
 =item delete objects for Pugses older than X
 
-=item clean least recently accessed objects (should happen as a matter of course during regular cache usage)
+=item clean least recently accessed objects (should happen as a matter of course during regular cache B<write> usage)
 
 =item warm up cache for an entire set of modules
 
@@ -38,7 +38,9 @@ Objects stored in the cache are compilation units after parsing. Perl
 one canonical abstract representation per version of Pugs. Where this is
 not the case, e.g. if C<BEGIN> blocks intends to change the compilation
 outcome of this unit, the author of the code should mark the unit as not
-cachable. XXX: notation for this.
+cachable. XXX: notation for this. XXX: Also need to add deps for used modules
+that export macros. Especially macros in the prelude. Including the
+dependencies hashes in the hash of the source code should suffice.
 
 We now describe how cache objects are keyed in the cache, and the bytecode
 format of a cached object.
@@ -47,8 +49,8 @@ format of a cached object.
 
 Example:
 
-  ~joe/.pugscache/1/14/148071fa07847bc0de8df7d75cd03072f27239c2-9600-9658
-  # $HOME/.pugscache/$H1/$H2/$SHA1-$ReleaseRev-$ParserRev
+  ~joe/.pugscache/1/14/148071fa07847bc0de8df7d75cd03072f27239c2/9600-9658
+  # $HOME/.pugscache/$H1/$H2/$SHA1/$ReleaseRev-$ParserRev
 
 The fast path for cache usage is successful lookup of a valid precompiled
 unit.
@@ -56,16 +58,20 @@ unit.
 The cache is (in the first insance) a filesystem directory under the user's
 C<$HOME>. A global cache would have been nice for disk and CPU performance
 on multiuser machines, but since original source code is easily deducible
-from the compiled version, this is a security issue we prefer to avoid.
+from the compiled version, this is a security issue we prefer to avoid. If we
+have pluggable backends we could potentially just allow a memcached backend as
+well.
 
-Every compilation unit that enters the cache is stored in a file of its
-own.  The file location is a function of (a hash of) the source code,
-Pugs version, and Pugs parser version. This prevents us from loading
-a precompiled object for a unit that has changed, or for a parser that
-would have emitted a different structure than the one present in the
-cache. To keep file count in a given directory managable, the file is
-hashed into a directory inside the cache (XXX: figure out optimal hashing
-depth? Or can this usefully be made automatic?).
+Every compilation unit that enters the cache is stored in a directoy of its
+own.  The entry location is a function of (a hash of) the source code. Inside
+that directory there is a file named with Pugs version, and Pugs parser
+version. This prevents us from loading a precompiled object for a unit that has
+changed, or for a parser that would have emitted a different structure than the
+one present in the cache. To keep file count in a given directory managable,
+the file is hashed into a directory inside the cache (XXX: figure out optimal
+hashing depth? Or can this usefully be made automatic? --- this is too
+filesystem specific and should be a user setting. On "modern" systems no extra
+dirs might actually be fastest).
 
 For now the current keying scheme implies that the source file needs
 to be read from storage even if a precompiled version of it exists in
@@ -77,6 +83,11 @@ similar names but different locations. It also means we can cache objects
 that aren't files at all, such as C<eval $sting> results (as long as
 C<$string> is the same across runs), or units received over the network
 (as long as we can get their hashes before we attempt to compile them).
+
+XXX: nothingmuch's edit: Using the hash as a directory name, without the parser
+versoin/etc lets us check in one stat if we have a cached entry or not, and
+then readdir for the compatible version info, instead of always having to
+readdir the entire cache level.
 
 =head2 Bytecode format
 
