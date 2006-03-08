@@ -339,14 +339,10 @@ sub ruleop::greedy_plus {
     #    ruleop::optional( sub{ $alt() } ),  
     # );
     
-    my $tmp = sub { say "redo..."; $alt() };
     $alt = ruleop::concat( 
         $node, 
-        ruleop::optional( 
-            $tmp 
-        ),  
+        ruleop::optional( sub{ $alt(@_) } ),  
     );
-    $tmp = $alt;
     return $alt;
 }
 
