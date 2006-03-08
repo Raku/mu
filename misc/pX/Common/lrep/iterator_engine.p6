@@ -345,7 +345,7 @@ sub ruleop::greedy_plus {
         $node, 
         ruleop::optional( 
             #$alt
-            sub { $alt.(@_) } 
+            sub { $alt(@_) } 
         ),  
     );
     return $alt;
