@@ -3,7 +3,7 @@ our $print_program = 0;
 our $print_ast     = 0;
 our $print_match   = 0;
 our $pretty_print  = 0; #no effect yet...
-our  $yaml         = 0;
+our $format        = 'p5';
 my  $got_options   = 0;
 sub import {
 	return if $got_options;
@@ -17,7 +17,7 @@ sub import {
 		"print-ast" => \$print_ast,
 		"print-match" => \$print_match,
 		"pretty-print" => \$pretty_print,
-		"yaml" => \$yaml
+		"format=s" => \$format
 	);
 }
 1;
