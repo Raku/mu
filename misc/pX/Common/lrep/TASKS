@@ -13,9 +13,9 @@ Plan sketch:
 - try to reuse pugs tests
 
 Next possible milestone:
-- rewrite iterator_engine.pl in Perl 6, 
-  compile to Perl 5,
-  use it instead of the original iterator_engine.pl
+ok - rewrite iterator_engine.pl in Perl 6, 
+   - compile to Perl 5,
+   - use it instead of the original iterator_engine.pl
 
 In order to implement new syntax:
   1 - optimize macro expansion 
