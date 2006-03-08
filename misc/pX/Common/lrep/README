@@ -1,6 +1,8 @@
 pX/Common/README - fglock
 
-Experimental implementation of:
+This is lrep - the Lister Rubbish Eclectic Pathologically  (Juerd++)
+
+It is an experimental implementation of:
 - a parser engine (iterator_engine.pl)
 - a Perl6 'rule' parser and perl5 emitter (p6rule.pl)
 - a 'Perl6' parser and perl5 emitter (p6compiler.pl)
