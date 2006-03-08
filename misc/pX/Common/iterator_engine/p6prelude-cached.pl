@@ -38,6 +38,18 @@ package grammar1;
                  ,
                    ruleop::constant( "\$" )
                  ,
+                   ruleop::constant( "n" )
+                 ,
+                   ruleop::constant( "\#" )
+                 ,
+                   ruleop::constant( "\-" )
+                 ,
+                   ruleop::constant( "\<" )
+                 ,
+                   ruleop::constant( "\>" )
+                 ,
+                   ruleop::constant( "\!" )
+                 ,
                    ruleop::constant( "alnum" )
                  ,
              ] )
@@ -100,6 +112,90 @@ package grammar1;
     }
 ;
     push @grammar1::statements, \&perl5_rule_decl;
+*{'grammar1::word'} = sub {
+    my $bool = $_[0] =~ /^([_[:alnum:]]+)(.*)$/sx;
+    return {
+        bool  => $bool,
+        match => { 'word'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+};
+*{'grammar1::any'} = sub {
+    my $bool = $_[0] =~ /^(.)(.*)$/sx;
+    return {
+        bool  => $bool,
+        match => { 'any'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+};
+*{'grammar1::escaped_char'} = sub {
+    my $bool = $_[0] =~ /^\\(.)(.*)$/sx;
+    return {
+        bool  => $bool,
+        match => { 'escaped_char'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+};
+*{'grammar1::newline'} = sub {
+    my $bool = $_[0] =~ /^(\n)(.*)$/sx;
+    return {
+        bool  => $bool,
+        match => { 'newline'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+};
+*{'grammar1::ws'} = sub {
+    my $bool = $_[0] =~ /^(\s+)(.*)$/sx;
+    return {
+        bool  => $bool,
+        match => { 'ws'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+};
+*{'grammar1::p6ws'} = sub {
+    my $bool = $_[0] =~ /^((?:\s|\#(?-s:.)*)+)(.*)$/sx;
+    return {
+        bool  => $bool,
+        match => { 'p6ws'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+};
+*{'grammar1::non_capturing_subrule'} = sub {
+    my $bool = $_[0] =~ /^\<\?(.*?)\>(.*)$/sx;
+    return {
+        bool  => $bool,
+        match => { 'non_capturing_subrule'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+};
+    push @rule_terms, \&non_capturing_subrule;
+*{'grammar1::negated_subrule'} = sub {
+    my $bool = $_[0] =~ /^\<\!(.*?)\>(.*)$/sx;
+    return {
+        bool  => $bool,
+        match => { 'negated_subrule'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+};
+    push @rule_terms, \&negated_subrule;
+*{'grammar1::subrule'} = sub {
+    my $bool = $_[0] =~ /^\<(.*?)\>(.*)$/sx;
+    return {
+        bool  => $bool,
+        match => { 'subrule'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+};
+    push @rule_terms, \&subrule;
 *{'const_word'} = 
 
     sub { 

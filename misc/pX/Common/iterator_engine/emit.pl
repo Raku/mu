@@ -54,18 +54,16 @@ sub node::perl5_rule_decl {
     my $regex = get_str( $_[0], '$<perl5_regex>' );
     #print "perl5_rule_decl: $name -- $regex \n";
     my $program =
-    "*{'$name'} = sub {" . '
-    return unless $_[0];
+    "*{'grammar1::$name'} = sub {" . '
+    my $bool = $_[0] =~ /'.$regex.'(.*)$/sx;
     return {
-        bool  => 1,
+        bool  => $bool,
         match => { \''.$name.'\'=> $1 },
         tail  => $2,
         ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
     }
-        if $_[0] =~ /'.$regex.'(.*)$/s;
-}
+};
 ';
-    #print "PROGRAM: $program";
     return $program;
 }
 sub node::block {

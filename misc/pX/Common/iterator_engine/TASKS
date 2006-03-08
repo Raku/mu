@@ -28,7 +28,7 @@ In order to implement new syntax:
   - option 3 is good, but may get unusable because of slowness
 
 Current tasks:
-- #comment - use <p6ws> and <p6ws_star>
+- migrate all remaining rules from p5 to p6 (only a few last)
 - implement 'macro' and '<%hash>', in order to define 'if' as in S04-Statement parsing
 - organize grammar categories: statement_control, prefix, infix
 - implement operator precedence

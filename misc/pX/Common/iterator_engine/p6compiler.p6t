@@ -1,5 +1,5 @@
-rule xxx rx:perl5{.*}
-rule _word rx:perl5{([_\w]+)}
+#rule xxx rx:perl5{.*}
+#rule _word rx:perl5{^([_[:alnum:]]+)}
 
 macro statement_control:<aaa> ( $a ) is parsed ( /
     <?ws>? \( <?ws>? $a := (.*?) <?ws>? \) <?ws>? \;

@@ -4,12 +4,15 @@ grammar grammar1;
 
 # rule perl5_regex { \: perl5 [ :perl5 (.*?) ] }
 # rule xxx rx:perl5{foo}
+# XXX - rewrite this!
 rule perl5_regex { 
     [   
         \.   |   \|   |   \*   |   \+   |
         \(   |   \)   |   \[   |   \]   |
-        \?   |   \:   |   \s   |   \w   |
+        \?   |   \:   |   \s   |   \w   | 
         \_   |   \\   |   \^   |   \$   |
+        \n   |   \#   |   \-   |   \<   |
+        \>   |   \!   |
         alnum
     ]* 
         { return { perl5_regex => $() ,} }
@@ -21,9 +24,28 @@ rule perl5_rule_decl {
 }
 push @grammar1::statements, \&perl5_rule_decl;
  
-# XXX - don't work yet - check if the capture format is ok       
-#rule word rx:perl5{^([_[:alnum:]]+)}
-#rule any rx:perl5{^(.)}
+rule word     rx:perl5{^([_[:alnum:]]+)}
+rule any      rx:perl5{^(.)}
+rule escaped_char  
+              rx:perl5{^\\(.)}
+rule newline  rx:perl5{^(\n)}
+rule ws       rx:perl5{^(\s+)}
+rule p6ws     rx:perl5{^((?:\s|\#(?-s:.)*)+)}
+
+# XXX - set non-capture flag?
+# XXX - incomplete - needs a return block
+rule non_capturing_subrule
+              rx:perl5{^\<\?(.*?)\>}
+push @rule_terms, \&non_capturing_subrule;
+
+# XXX - incomplete - needs a return block
+rule negated_subrule
+              rx:perl5{^\<\!(.*?)\>}
+push @rule_terms, \&negated_subrule;
+
+# XXX - incomplete - needs a return block
+rule subrule  rx:perl5{^\<(.*?)\>}
+push @rule_terms, \&subrule;
 
 rule const_word {
     <word>

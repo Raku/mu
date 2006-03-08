@@ -31,8 +31,9 @@ Perl6 Grammar implemented:
   
   grammar  <name>;
   rule     <name> {...}   
-    -- return block is source filtered
+    -- 'return block' is source filtered
     -- operators are being implemented on demand
+  rule     <name> rx:perl5{...}
   say print warn die <list>;
   my our local    <var>;
     -- untested

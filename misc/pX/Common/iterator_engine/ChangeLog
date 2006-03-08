@@ -1,5 +1,10 @@
 pX/Common/iterator_engine/ChangeLog - fglock
 
+2006-03-07
+- rules can use Perl 5 syntax - rule xxx :P5 {...} - but needs a fix in the syntax
+- Grammar is circular - compiles itself, almost 100% written in p6
+- Command line switches - pmurias++
+- iterator_engine.p6 - a Perl 6 port of the backtracking parser - putter++ bug fix
 2006-03-05:
 - 'if' implemented using Perl 6 macro
   (XXX - slow; non-reentrant yet; redefines subroutines to emulate anon-subs)

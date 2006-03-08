@@ -25,6 +25,7 @@ my $namespace = 'grammar1::';
 # ----- the following were included only for performance reasons,
 # because they are too frequent and they are too slow using the basic
 # rule parser
+# UPDATE - move these to prelude using rx:perl
 
 sub subrule {
     my ( $code, $tail ) = $_[0] =~ /^\<(.*?)\>(.*)$/s;
