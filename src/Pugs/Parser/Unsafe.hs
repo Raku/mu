@@ -65,11 +65,9 @@ possiblyApplyMacro app@(App (Var name) _ _) = do
     env <- getRuleEnv
     -- Note that we don't have to clearDynParsers, as we just do a variable
     -- lookup here.
-    subCode <- return (unsafePerformIO (runEvalIO (env{ envDebug = Nothing }) (do
+    subCode <- return $ unsafePerformIO $ runEvalIO (env{ envDebug = Nothing }) $ do
         res <- findVar name
-        if isJust res
-            then readRef (fromJust res)
-            else return undef)))
+        maybe (return undef) readRef res
     case subCode of
         -- If we found a Code var, possibly process it further.
         VCode vcode -> possiblyApplyMacro' vcode app
