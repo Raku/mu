@@ -12,14 +12,11 @@ sub make_qr_regexp_pair {
   die "bug - no nparens" if !defined($nparens);
   die "bug - no callback" if !defined($callback);
   my $r_address;
-  my $setup = sub {
+  $^H{regcompp} = sub {
     $r_address = $_[0];
-    return reverse($pat,$nparens,$callback);
+    return reverse(13,$pat,$nparens,$callback);
   };
-  my $qr;
-  regexp_structutil_capture_hook_in($setup);
-  eval '$qr = qr/26a241392f090a6822b7576596d6e3b0/';
-  die $@ if $@;
+  my $qr = eval 'qr//'; die $@ if $@;
   return ($qr,$r_address);
 }
 
@@ -164,72 +161,6 @@ static void regexp_setup(regexp* r, SV* pat, U32 nparens, SV* callback)
 }
 
 /*
- * make_qr_regexp_pair
- */
-
-static SV* qr_capture__callback = NULL;
-static regexp* (*qr_capture__real_hook)(pTHX_ char* exp, char* xend, PMOP* pm) = NULL;
-
-static void regexp_structutil_capture_hook_out ()
-{
-  PL_regcompp = qr_capture__real_hook; qr_capture__real_hook = NULL;
-}
-
-regexp* regexp_structutil_capture_hook(pTHX_ char* exp, char* xend, PMOP* pm)
-{
-  if(xend-exp != 32 || !strEQ(exp,"26a241392f090a6822b7576596d6e3b0")) {
-    return qr_capture__real_hook(aTHX_ exp,xend,pm);
-  }
-  {
-    dSP;
-    char *nulpat;
-    regexp* r;
-    I32 retn;
-    SV* pat;
-    long nparens;
-    SV* perl_callback;
-
-    fprintf(stderr,"capture_hook in\n");
-
-    SV* my_callback = qr_capture__callback; qr_capture__callback = NULL;
-    regexp_structutil_capture_hook_out();
-
-    nulpat = savepv("");
-    r = Perl_pregcomp(aTHX_ nulpat,nulpat,pm);
-    /*XXX can free nulpat now? */
-
-    ENTER;
-    SAVETMPS;
-    PUSHMARK(SP);
-    mXPUSHu((ulong)r);
-    PUTBACK;
-    retn = call_sv(my_callback, G_ARRAY);
-    SvREFCNT_dec(my_callback);
-    if(retn !=3) {
-      croak("regexp_structutil_capture_hook callback bug");
-    }
-    SPAGAIN;
-    pat = POPs;
-    nparens = POPl;
-    perl_callback = POPs;
-    regexp_setup(r,pat,nparens,perl_callback);
-    PUTBACK;
-    FREETMPS;
-    LEAVE;
-    fprintf(stderr,"capture_hook done.\n");
-    return r;
-  }  
-}
-
-void regexp_structutil_capture_hook_in (SV* f)
-{
-  if(qr_capture__real_hook != NULL) { croak("parallelism problem"); }
-  qr_capture__real_hook = PL_regcompp;
-  PL_regcompp = &regexp_structutil_capture_hook;
-  qr_capture__callback = SvREFCNT_inc(f);
-}
-
-/*
  * regexp_compile
  */
 
@@ -336,7 +267,7 @@ void regexp_hook_on() {
   previous_comp_hook = PL_regcompp;
   PL_regcompp = &hook_regcompp;
 }
-void regexp_hook_off() {
+void regexp_hook_off() { /* aka "abandon regexps", aka "please segfault" */
   PL_regcompp = previous_comp_hook;
   previous_comp_hook = NULL;
 }
