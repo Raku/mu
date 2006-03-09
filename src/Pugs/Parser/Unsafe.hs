@@ -13,8 +13,7 @@ import Pugs.Pretty
 import Pugs.Parser.Types
 import Pugs.Eval.Var
 import Pugs.Types
-import Data.Yaml.Syck
-import DrIFT.YAML
+import DrIFT.YAML ()
 
 unsafeEvalLexDiff :: Exp -> RuleParser Pad
 unsafeEvalLexDiff exp = do

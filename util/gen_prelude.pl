@@ -85,6 +85,8 @@ module Pugs.Prelude where
 -- Do not modify this file; it is generated automatically by  --
 --                  util/gen_prelude.pl                       --
 ----------------------------------------------------------------
+
+preludeStr :: String
 .
     print OUT qq<preludeStr = "$program"\n\n>;
     close OUT;
