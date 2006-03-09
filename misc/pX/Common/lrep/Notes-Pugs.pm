@@ -2,9 +2,22 @@ package Pugs;
 
 
 
-
-
 1;
+
+=head1 Definitions
+
+### change to kwid? - easier to indent
+### move definitions to end-of-file?
+
+* boxed / unboxed
+
+* AST Abstract syntax tree
+  - the data structure that the Parser generates
+  (link to wikipedia?)
+
+* DSL Domain-specific-language
+
+...
 
 =head1 The User Story
 
@@ -98,34 +111,71 @@ I think that works!
 ok!
 
 
-how about:
-
-
-
-... new( lib => ..., parser => fglock ... )
-
-
-
 =head1 Compiler processes
 
 =head2 Grammar engine
 
 * Pugs::Grammar::Rule
 
+Rule constructors return Rule objects, which are "matcher" things.
+Rules operate on strings (normally) and return Match objects.
+
+### examples will be in p5 or p6?
+
+  # invoking the rule compiler
+### Rule::compile or Rule->compile? (assuming example in p5)
+  my $matcher;
+  $matcher = Pugs::Grammar::Rule::compile ( ".*", options... );
+  my $match = $matcher( "hello" );
+
+  # low level operators
   # Domain-specific-language-like syntax, contained in a package
+### rule must ever use Rule::rule form - never Rule->rule ??? (assuming example in p5)
   { package Pugs::Grammar::Rule;
-      rule ( alternation ( literal ( 'a' ), .... )
+      $matcher = rule ( alternation ( literal ( 'a' ), .... );
   }
 
-Pugs::Grammar::Rule is a functional-style module.
+Match objects (Pugs::Grammar::Match) contain:
 
-The rule() function provides an interface between the low-level functional
-operators, and the higher level OO/Overload runtime. 
+### Match actually contain getters for $() and such
+    state - a "continuation" or undef
+    bool - an "assertion" (true/false)
+    match - the "match" tree or undef
+    tail - the string tail or undef
+    capture - the tree of captured things
+    abort - the match was stopped by a { return } or a fail(),
+           and it should not backtrack or whatever
+
+- compile()
+
+...
+
+- rule()
+
+Rules, just like other Perl 6 values, exists in 'boxed' 
+and 'unboxed' versions. 
+
+The rule() constructor provides an interface between the 
+low-level functional operators, and the higher level OO/Overload 
+runtime. 
+
+- internal rule operators
 
 Internal rule operators share a common API, which permits the intercommunication 
 of data about: backtracking, aborting, capturing.
 
-The rule() function gets as argument a list:
+There are 2 kinds of ruleop operators:
+
+- higher order operators: alternation, concatenation.
+- "plain" match operators: like 'literal'.
+
+Higher order operators take a list of match operators, and return a new 
+match operator.
+
+A ruleop() function gets as argument a list:
+
+### we don't need a "high" level interface (named args) 
+###    because the actual rule object will be full OO
 
 :(Str $match_against, :$next_state, Bool :$capture?
   --> Pugs::Grammar::Match)
@@ -140,12 +190,12 @@ The rule() function gets as argument a list:
   # returns a Match object that has no capture (but the 'bool' field is still true)
   match_word( 'abc123' );
 
-A rule function returns:
+A ruleop function returns:
 
-    undef - match failed    # spec says it returns normal data!
--- should I remove this ^^^^ from the code
-because
-
+    # spec says it returns normal data, but this is a low-level op...
+    undef - match failed    
+                            
+=for notes about fail()
 shouldn't matchfail still be returning something?
 maybe just overload bool to false ;)
 (I mean, seriously, because that's what p6 does)
@@ -160,50 +210,6 @@ the only overhead is a SVMG (i.e. bless())
 you can return the same failure object always
 then there's absolutely no overhead
 I'm not sure about this - failed matche's .end is undefined
-
-
-
-How about:
-
-  rule(
-      alternation(
-          literal( .... )
-         )
-  )
-
-- match is the "boxing" thing - things below it are unboxed!
-
-I'm fine if you can pull that off :-)
-(it's a great API idea)
-cool, it's a deal then
-great - because it permits all optimizations to stay!
-:)
-
-
-not sure - the match object includes the string position, etc
-even if it fails?
-
-ok - I'm just afraid that even a simple match involves so many submatches that this thing will get real slow
-
-
-Yes - but isn't it magical, at the "unboxed" level?
-
-yes - it WAS another optimization ...
-
-or a Pugs::Grammar::Match object containing:
-
-    state - a "continuation" or undef
-    bool - an "assertion" (true/false)
-    match - the "match" tree or undef
-    tail - the string tail or undef
-    capture - the tree of captured things
-    abort - the match was stopped by a { return } or a fail(),
-           and it should not backtrack or whatever
-
-Continuations are used for backtracking.
-
-A "ruleop" function gets some arguments and returns a "rule".
-
-
-
 =cut
+
+
