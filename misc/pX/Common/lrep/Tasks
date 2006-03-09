@@ -126,3 +126,21 @@ grammars
     # TODO - rule comment { \# .*? [<newline>|$$] }
 =cut
 
+--- from file p6prelude.p6
+
+=for TODO
+    reimplement print(), warn ... using 'sub'
+    implement eval_perl6 and eval_block
+
+    operand fixity (infix, prefix...)
+    operand precedence (+, *, ln)
+
+    class
+
+    find out how to change syntax while in the parse-and-generate-ast 
+phase
+    (for example, when a new sub is created)
+
+    macros
+=cut
+

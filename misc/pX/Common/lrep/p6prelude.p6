@@ -145,14 +145,6 @@ rule pod {
 }
 push @statements, \&pod;
         
-=kwid
-
-pX/Common/p6.pl - fglock
-
-- experimental implementation of a grammar that could parse Perl 6 
-
-=cut
-    
 rule term1 {
     <@grammar1::terms>
 }
@@ -231,22 +223,6 @@ rule eval_perl5 {
         { return { eval_perl5 => $<literal> } }
 }
 push @statements, \&eval_perl5;
-
-
-=for TODO
-    reimplement print(), warn ... using 'sub'
-    implement eval_perl6 and eval_block 
-    
-    operand fixity (infix, prefix...)
-    operand precedence (+, *, ln)
-    
-    class
-    
-    find out how to change syntax while in the parse-and-generate-ast phase
-    (for example, when a new sub is created)
-    
-    macros
-=cut
 
 rule _return {
     return <?p6ws> $val := (<term1>|<term2>) <?p6ws>? \;

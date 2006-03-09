@@ -1,6 +1,7 @@
 pX/Common/README - fglock
 
 This is lrep - the Lister Rubbish Eclectic Pathologically  (Juerd++)
+ or: Least Recursively Expressed Perl (TimToady++)
 
 It is an experimental implementation of:
 - a parser engine (iterator_engine.pl)

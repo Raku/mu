@@ -161,6 +161,10 @@ sub node::immediate_statement_exec {
 sub node::macro {
     
             #print Dumper( get_data( $v, "\$()" ) );
+
+            # implementation note: 
+            #     $rule and $list are AST
+            #     $block is plain text
             
             my ($prefix, $id, $list, $rule, $block) = 
                 map { get_data( $_[0], "\$<$_>" ) } 
@@ -173,7 +177,9 @@ sub node::macro {
                 next unless ref($_) eq 'HASH';
                 push @args, match::str( $_ );  # emit($_);
             }
-            # no parameters? look into the regex
+            # no parameters? look into the rule for capturable things
+            # XXX - more things to look into:
+            #     if there is a return-block, then it should be used instead
             unless ( @args ) {
                 my %h;
                 for ( @$rule ) {
@@ -197,8 +203,12 @@ sub node::macro {
             # print "macro: rule = \n$rule_code\n";
             # print "macro: block = \n", match::str($block),"\n";
     
-            # XXX don't use source filter: variable substitutions $() in the body AST
+            # XXX don't use source filter: 
+            #     instead, do variable substitutions '$()' in the body's AST
     
+            # XXX macro variables can be AST 
+            #     - it all depends on the is-parsed rule (TimToady on #perl6)
+
             my $binding = '';
             for ( 0 .. $#args ) {
                 my $ident = $args[$_];
@@ -213,8 +223,11 @@ sub node::macro {
                     "\n";
             }
             # print "macro: var binding: \n$binding";
+
+            # -- end of macro compile-time processing
     
-            # emit the rule
+            # emit the macro expander code
+
             local $Data::Dumper::Pad = '    ' x 2;
             local $Data::Dumper::Terse = 1;
             my $res = 
