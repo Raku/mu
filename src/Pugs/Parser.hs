@@ -601,7 +601,7 @@ ruleVarDeclaration = rule "variable declaration" $ do
              let mkVar v = if null v then Val undef else Var v
              return (combine (map (Sym scope) names), Syn "," (map mkVar names))
         ]
-    traits <- many ruleTrait
+    _traits <- many ruleTrait
     -- pos <- getPosition
     (sym, expMaybe) <- option ("=", Nothing) $ do
         sym <- tryChoice $ map string $ words " = .= := ::= "
@@ -769,7 +769,10 @@ ruleUsePerlPackage use lang = rule "use perl package" $ do
                         (Syn ":=" [ Var (':':'*':pkg)
                                   , App (Var "&require_perl5") Nothing [Val $ VStr pkg] ]))
                         (Syn "env" [])
-                else App (Var "&use") Nothing [Val $ VStr pkg]
+                else Stmts (App (Var "&use") Nothing [Val $ VStr pkg])
+                           (App (Var "&unshift")
+                                (Just (Var ("@" ++ envPackage env ++ "::END")))
+                                [Var ("@" ++ pkg ++ "::END")])
         case val of
             Val (VControl (ControlEnv env')) -> putRuleEnv env
                 { envClasses = envClasses env' `addNode` mkType pkg
@@ -946,7 +949,14 @@ ruleClosureTrait rhs = rule "closure trait" $ do
             -- We unshift END blocks to @*END at compile-time.
             -- They're then run at the end of runtime or at the end of the
             -- whole program.
-            unsafeEvalExp $ App (Var "&unshift") (Just $ Var "@*END") [Syn "sub" [Val code]]
+            env <- getRuleEnv
+            let pkg = envPackage env
+                end | pkg == "main" = "@*END"
+                    | otherwise     = '@':pkg++"::END"
+            unsafeEvalExp $ 
+                App (Var "&unshift")
+                    (Just (Var end))
+                    [Val code]
             return Noop
         "BEGIN" -> do
             -- We've to exit if the user has written code like BEGIN { exit }.
@@ -996,7 +1006,7 @@ possiblyExit :: Exp -> RuleParser Exp
 possiblyExit (Val (VControl (ControlExit exit))) = do
     -- Run all @*END blocks...
     unsafeEvalExp $ Syn "for"
-        [ Var "@*END"
+        [ Var "@main::END"
         , Syn "sub"
             [ Val . VCode $ mkSub
                 { subBody   = App (Var "$_") Nothing []
