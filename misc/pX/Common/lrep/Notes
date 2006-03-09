@@ -277,3 +277,171 @@ we can switch style at all times
 <audreyt> http://search.cpan.org/dist/Symbol-Opaque/
 <audreyt> http://search.cpan.org/dist/Data-Variant/
 
+-------------
+
+re: Parser optimization
+
+<TimToady> fglock: the P6 grammar is designed to not require much 
+backtracking at all (unless you want to go back and give better diags), 
+so I wouldn't sweat it.
+<fglock> TimToady: ok - it's mostly because I haven't implemented ':' 
+yet :)
+*** avar [n=Huld@dsl-228-236.hive.is] has quit [Connection timed out]
+<TimToady> fglock: in fact, if there's *any* place in the grammar that 
+requires backtracking for a correct parse, I'd like to know about it...
+<fglock> TimToady: I'll maybe add a switch to disable backtracking or 
+give a warning - so we'll know :)
+*** avar [n=Huld@dsl-228-236.hive.is] has joined #perl6
+<TimToady> cool
+<TimToady> we even try to avoid alternation in favor of <%tokens>.
+<TimToady> and <%tokens> is potentially the merge of several syntactic 
+categories, so we don't have to say
+<putter> is there a target grammar category?  (in the parsing sense, not 
+the p6 sense;)
+<TimToady> <%statements_control> | <%unaries> | <%terms>
+<fglock> TimToady: is there an existing Grammar file you would recommend 
+as a start point?
+<TimToady> putter: don't understand what you're asking...
+* putter wonders what %unaries is
+<putter> LALR(1), etc
+<TimToady> s/unaries/prefix/
+<TimToady> + circumfix left side
+<putter> ah, ok
+<TimToady> Actually, circumfix could be considered a subset of terms.
+<TimToady> fglock: not that I'm aware of, unless Patrick has one.
+<TimToady> The approach we've been taking...
+*** marmic 
+[n=chatzill@c-93b6e055.1258-1-64736c22.cust.bredbandsbolaget.se] has 
+joined #perl6
+<TimToady> is to have a 3-layer parser.
+<TimToady> (well, where the 3rd layer is really fractal...)
+<TimToady> the top layer is top-down, down to expression level.
+<TimToady> the middle layer is a bottom-up operator precedence parser to 
+avoid
+<TimToady> excessive recursion through 22 or so prec levels.
+<TimToady> each term can then be its own little top-down parser inside 
+the token grabber for the op prec parser.
+<TimToady> I also worry about efficiency... :)
+<fglock> TimToady: :)
+<putter> the token grabber selects which term to use how?
+<TimToady> One of the additional reasons for installing the op-prec 
+parser in the middle is to allow for added prec levels.
+<TimToady> but we don't necessarily need that for a bootstrap.
+<TimToady> Unless we actually add all of Perl 6's opcodes that way.
+<fglock> TimToady: the idea (so far) is to add all prims using sub or 
+macro declarations
+<TimToady> <%mush_of_all_syntactic_categories_where_term_is_expected>
+<TimToady> which can have prec declarations, so we could add most prec 
+levels that way, if the underlying prec architecture can support it.
+<putter> terms can have prec decls?
+<TimToady> terms by definition have a "squinting" prec that is 
+infinitely tight looking out and infinitely loose looking in.  That's 
+why circumfixes are so popular to represent visually the "surreal" 
+precedence change.
+
+<bsb> the args to macros should always be ASTs, right?
+*** justatheory [n=justathe@70.103.133.226] has joined #perl6
+<fglock> What is the default precedence when you create a sub? (tighter 
+than anything else?)
+*** vodka-goo [n=dbaelde@129.104.11.1] has quit ["Leaving"]
+<TimToady> bsb: depends on what the "is parsed" rule returns, and the 
+signature declares, and whether they match.
+
+<TimToady> by default subs are list operators.
+
+<TimToady> except ($) is still unary op, last I checked.
+<TimToady> but that might be worth breaking...
+<fglock> TimToady: '$'?
+<TimToady> single scalar argument in P5-proto-speak.
+<bsb> I had an idea about using unary macros to do haskell's comma-less, 
+tight, currying function calls...
+<TimToady> could be made to work.
+<bsb> is parsed gives the macro's grammar category, right?
+<TimToady> I believe at one time we made infix:<X> default to the same 
+prec as infix:<+>, but lately I think we just require "is equiv" or some 
+such.
+<fglock> bsb: macro infix:<xxx> ... - the grammar category comes before
+<TimToady> eh?  the grammatical category is part of the macro's name, or 
+I'm misunderstanding your question.
+<putter> inside a circumfix, are the trailing tokens of surrounding 
+circumfixi still tokens?
+<bsb> I might just slink away from that question and get to the thing 
+that's confused me...
+<TimToady> The inner rule has to be parameterized to know what its 
+terminators are, if they would be confused with inner tokens.
+<bsb> After talking to audreyt, I thought macro's arguments were always 
+ASTs, but the macros in Prelude seem to expect normal values
+<TimToady> but usually any unbalanced bracket could be assumed to 
+terminate.
+<TimToady> ASTs are certainly encouraged as the default, much as opaque 
+objects are now the default in P6.  But we want to leave the hooks there 
+to do something else.
+<bsb> That means the Prelude should probably revert to subs instead of 
+macros for now
+<TimToady> terminator params might actually be one of the places we 
+choose to backtrack rather than merging categories:
+<TimToady> <%terminators> | <%expect_term>
+<TimToady> since the merge would have to be redone on every subrule 
+call.
+<fglock> TimToady: you mean rules inside 'is parsed' may need to take 
+the terminator as a parameter in order to know where to finish macthing?
+<bsb> putter: ping
+<putter> circumfix:<+ +>    +(3+2)+  ?
+<putter> bsb: pong
+<TimToady> fglock: yep, if the rule is sufficiently antisocial to want 
+conflicting things.
+<TimToady> though I see it's actually
+<bsb> gaal said you know about the macos in Prelude, can they be 
+reverted to subs?
+<TimToady> <%terminators> | <%expect_operator> from the +...+ example.
+<fglock> TimToady: the problem is there can be any rule inside the 'is 
+parsed' - and then all rules would need to check is this parameter is 
+set
+<fglock> I mean, the macro parameter can be any rule
+<bsb> until we have macros params that can be ASTs or normal values
+<TimToady> yes, perhaps it's really something environmentally magical 
+that all <%foo> just automatically track.
+<fglock> TimToady: ok
+*** p2502 [n=p2501@84.12.179.136] has quit [Read error: 104 (Connection 
+reset by peer)]
+<TimToady> Anyway, for well behaved subrules, we can just assume 
+trailing brackets for now, as long as we keep the generalization in 
+mind.
+<fglock> TimToady: I don't see '^' in the example Grammars - is it 
+automatic (to match on the start of the string)
+<TimToady> Maybe we can semi-generalize that to "stop on syntax error", 
+but that bugs me a little, since there are real syntax errors as well as 
+fake ones...
+<TimToady> subrules are always anchored on the left to where their 
+parent rule called them.
+<TimToady> But some of them may also be marked :p to start at the 
+current pos.
+<TimToady> but it's possible this will turn into a token vs rule 
+distinction on the declaration itself.
+<fglock> TimToady: is 'token' a new keyword?
+<TimToady> conjectured.
+
+* putter fails to parse "subrules are always anchored on the left to 
+where their parent rule called them. BUT some of them may also be marked 
+:p to start at the current pos."  not equivalent sentences?
+<TimToady> Interestingly, I see a def for "token" in S06 but nothing 
+discussing it...
+
+<fglock> putter: :p is optional (that's not a tongue)
+<TimToady> not equivalent when the subrule is called directly rather 
+than as a subrule.
+
+<TimToady> if we had a "token" keyword, it might autoanchor on both ends 
+when called directly on a string rather than as a subrule, unlike :p 
+which is currently specced as just the front anchor.  But it still needs 
+some thought...
+
+<putter> is there any conjectured nomenclature for token,definition-of 
+vs token,instance-of?  (ie, class names:)
+<TimToady> well, if a rule is a Rule, then a token would be a Token, I 
+expect.
+<TimToady> I've got to head off to $job now.
+<putter> thanks for the puzzle answers :)
+<TimToady> I don't know if they're answers, but maybe they're at least 
+better questions.
+

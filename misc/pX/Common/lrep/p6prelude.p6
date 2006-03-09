@@ -1,3 +1,16 @@
+# This is the Perl 6 Grammar used to Parse and generate the 
+# Abstract Syntax Tree (AST) - fglock
+#
+# This code is compiled and executed by using the previously
+# compiled version, which is stored in "$filename-cached.pl"
+#
+# Things that go in this file are:
+# - anything that does *not* contain a statement like:
+#       eval( '...', :lang<perl5>);
+# - anything that directly alters the Perl 6 Grammar
+# - everything else go into the p6primitives.p6 file, or into
+#   a Module
+
 # this is a comment - putter++ for writing the comment regex
 
 grammar grammar1;

@@ -27,6 +27,8 @@ In order to implement new syntax:
   - option 3 is good, but may get unusable because of slowness
 
 Current tasks:
+- make an automatic backup of the previous compiler before building a
+  new prelude
 - migrate all remaining rules from p5 to p6 (only a few last)
 - implement 'macro' and '<%hash>', in order to define 'if' as in S04-Statement parsing
 - organize grammar categories: statement_control, prefix, infix
