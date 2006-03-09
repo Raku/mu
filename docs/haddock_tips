@@ -31,6 +31,7 @@ E<gt>,E<sol>                \>,\/   use \ to escape /, ', `, ", @, <
 L<Perl::Module::function>   'Haskell.Module.function'  hyperlinks (or `T')
                             Strings in '' which aren't identifiers are ignored
 L<url>                      <url>
+L<Module>                   "Module"
 L<Module/Section>           'Module#Section'
 X<SectionAnchor>            #SectionAnchor# a non-rendered target for '#sec'
 C<monospaced code>          @monospaced code@
