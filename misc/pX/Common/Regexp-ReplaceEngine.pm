@@ -23,6 +23,7 @@ sub make_qr_regexp_pair {
   return ($qr,$r_address);
 }
 
+$Regexp::Override::regcompp = undef;
 
 use Inline C => <<'END';
 
@@ -49,14 +50,21 @@ I32 regexp_exechook_hook (pTHX_ regexp* r, char* stringarg, char* strend,
     SV* perl_callback;
     I32 ret;
     IV matched;
+    I32 delta;
     dSP;
+
+/*
+    fprintf(stderr,"strarg=%lu\nstrbeg=%lu\nstrend=%lu\n",stringarg,strbeg,strend);
+    fprintf(stderr,"minend=%ld pos=%ld\n",minend,PL_reg_ganch);
+    fprintf(stderr,"flags=%lu\n",flags);
+*/
 
     perl_callback = r->substrs->data[0].substr;
 
     ENTER;
     SAVETMPS;
     PUSHMARK(SP);
-    XPUSHs(newSVpv(strbeg,strend-strbeg));
+    XPUSHs(newSVpv(stringarg,strend-stringarg));
     mXPUSHu(flags);
     mXPUSHu((ulong)r);
     PUTBACK;
@@ -83,14 +91,17 @@ I32 regexp_exechook_hook (pTHX_ regexp* r, char* stringarg, char* strend,
       SV* lp;
       SV* lcp; 
       int i;
-      if(ret < 3 || ret != 3 + 2 * (r->nparens+1)) {
+      if(ret < 3 || ret > 3 + 2 * (r->nparens+1)) {
         fprintf(stderr,"regexp_hook_exec failed - paren info broken\n"); exit(0);
       }
       lp = POPs;
       lcp = POPs;
-      for(i=0;i<=r->nparens;i++) {
-	r->startp[i] = POPi;
-	r->endp[i] = POPi;
+      delta = stringarg-strbeg;
+      for(i=0;i<=r->nparens && i+3<ret;i++) {
+        I32 v = POPi;
+	r->startp[i] = v >= 0 ? v+delta : v;
+	v = POPi;
+	r->endp[i] = v >= 0 ? v+delta : v;
       }
       r->lastparen = (lp == &PL_sv_undef) ? SvIV(lp) : r->nparens;
       r->lastcloseparen = (lcp == &PL_sv_undef) ? SvIV(lcp) : r->nparens;
@@ -103,7 +114,7 @@ I32 regexp_exechook_hook (pTHX_ regexp* r, char* stringarg, char* strend,
     PUTBACK;
     FREETMPS;
     LEAVE;
-
+    fprintf(stderr,"done.\n");
     return matched ? 1 : 0;
   }
 }
@@ -125,6 +136,7 @@ static void regexp_setup(regexp* r, SV* pat, U32 nparens, SV* callback)
     I32 len;
     int i;
 
+    fprintf(stderr,"regexp_setup ");
     Safefree(r->precomp);
     r->prelen = SvLEN(pat);
     r->precomp = savesvpv(pat);
@@ -177,6 +189,8 @@ regexp* regexp_structutil_capture_hook(pTHX_ char* exp, char* xend, PMOP* pm)
     long nparens;
     SV* perl_callback;
 
+    fprintf(stderr,"capture_hook in\n");
+
     SV* my_callback = qr_capture__callback; qr_capture__callback = NULL;
     regexp_structutil_capture_hook_out();
 
@@ -202,6 +216,7 @@ regexp* regexp_structutil_capture_hook(pTHX_ char* exp, char* xend, PMOP* pm)
     PUTBACK;
     FREETMPS;
     LEAVE;
+    fprintf(stderr,"capture_hook done.\n");
     return r;
   }  
 }
@@ -222,42 +237,96 @@ static regcomp_t previous_comp_hook = NULL;
 
 regexp* hook_regcompp (pTHX_ char* exp, char* xend, PMOP* pm)
 {
+  SV* handler = NULL;
+
+  fprintf(stderr,"hook_regcompp in %lx\n",(ulong)exp);
+
+  /* Check $^H for lexical selection of semantics and implementation */
+  if(handler == NULL) {
+    const char hint_key[] = "regcompp";
+    SV** phandler;      
+    HV* hints;
+    hints = get_hv("\b",0);
+    if(hints != NULL) {
+      phandler = hv_fetch(hints, hint_key, strlen(hint_key), 0);
+      if(phandler != NULL) {
+        handler = *phandler;
+        fprintf(stderr,"hook_regcompp lexical...%lx\n",(ulong)handler);
+/*	call_sv(handler,G_DISCARD|G_EVAL);
+        fprintf(stderr,"can survive %lx %lx\n",(ulong)exp,(ulong)handler);
+*/
+      }
+    }
+  }
+  /* Check $Regexp::Override::regcompp
+     for a dynamic selection of implementation */
+  if(handler == NULL) {
+    SV* sv;
+    sv = get_sv("$Regexp::Override::regcompp",0);
+    if(sv != NULL && sv != &PL_sv_undef) {
+      fprintf(stderr,"hook_regcompp dynamic...\n");
+      handler = sv;
+    }
+  }  
+  /* If no handlers, then hand off */
+  if(handler == NULL) {
+    fprintf(stderr,"hook_regcompp punt.\n");
+    return previous_comp_hook(aTHX_ exp,xend,pm);
+  }
   {
     dSP;
     char *nulpat;
     regexp* r;
     I32 ret;
-    SV* pat;
-    long nparens;
-    SV* perl_callback;
+    I32 api;
 
-    fprintf(stderr,"hook_regcompp\n");
-
-    nulpat = savepv("");
+    nulpat = savepv(""); /*XXX - can be constant? */
     r = Perl_pregcomp(aTHX_ nulpat,nulpat,pm);
-    /*XXX can free nulpat now? */
+    /*XXX - can free nulpat now? */
 
-    ENTER;
-    SAVETMPS;
+/*    fprintf(stderr,"exp =%lu\nxend=%lu\n",(ulong)exp,(ulong)xend);*/
     PUSHMARK(SP);
     XPUSHs(sv_2mortal(newSVpvn(exp,xend-exp)));
     mXPUSHu((ulong)r);
     PUTBACK;
-    ret = call_pv("regexp_compiler", G_ARRAY|G_EVAL);
-    if(ret == 0 && SvTRUE(ERRSV)) {
-      return previous_comp_hook(aTHX_ exp,xend,pm);
-    }
-    if(ret != 3) {
-      fprintf(stderr,"regexp_compiler failed\n"); exit(0);
-    }
+  HANDLER_CALL:
+/*    fprintf(stderr,"calling out...\n");*/
+    ret = call_sv(handler, G_ARRAY);
+/*    fprintf(stderr,"...back.\n");*/
     SPAGAIN;
-    pat = POPs;
-    nparens = POPl;
-    perl_callback = POPs;
-    regexp_setup(r,pat,nparens,perl_callback);
-    PUTBACK;
-    FREETMPS;
-    LEAVE;
+    api = POPi;
+    if(api == 13) {
+      SV* pat;
+      long nparens;
+      SV* exec_callback_sub;
+/*      fprintf(stderr,"api 13\n");*/
+      if(ret != 4) {
+        fprintf(stderr,"api 13 violation\n"); exit(0);
+      }
+      pat = POPs;
+      nparens = POPl;
+      exec_callback_sub = POPs;
+      PUTBACK;
+      regexp_setup(r,pat,nparens,exec_callback_sub);
+    } else if(api == 14) {
+      SV* expr_code;
+      SV* expr_result;
+/*      fprintf(stderr,"api 14\n");*/
+      if(ret != 3) {
+        fprintf(stderr,"api 14 violation\n"); exit(0);
+      }
+      handler = SvREFCNT_inc(POPs); /*XXX needed? */
+      expr_code = POPs;
+      PUTBACK;
+      expr_result = eval_pv(SvPV_nolen(expr_code),0);
+      SPAGAIN;
+      XPUSHs(expr_result);
+      PUTBACK;
+      goto HANDLER_CALL;
+    } else {
+      fprintf(stderr,"api UNKNOWN violation\n"); exit(0);
+    }
+    fprintf(stderr,"hook_regcompp done.\n");
     return r;
   }
 }
@@ -278,6 +347,9 @@ END
 #----------------------------------------------------------------------
 package main;
 Regexp::StructHook::import();
+
+1;
+#__END__
 Regexp::StructHook::regexp_hook_on();
 
 
@@ -306,11 +378,11 @@ END
 
 print "alive\n";
 
-sub regexp_compiler {
+$^H{regcompp} = sub{
   my($re)=@_;
   print STDERR "compiling pattern '$re'.\n";
-  return reverse("b",1,$foo);
-}
+  return reverse(13,"b",1,$foo);
+};
 
 #package Foo;
 
@@ -329,151 +401,6 @@ print ' $^N ',defined($^N)?"\"$^N\"":"undef","\n";
 END
 
 
-
-
-__END__
-#----------------------------------------------------------------------
-# Dead code
-
-use Data::Dumper;
-sub printDump {
-  print Dumper(@_);
-}
-
-use Inline C => <<'END';
-/*
- *  Debugging aids 
- */
-void print_sv(SV* sv) {
-  fprintf(stderr,"%ld\n",(unsigned long)sv);
-}
-void printDump(SV* sv) {
-  dSP;
-
-  ENTER;
-  SAVETMPS;
-  PUSHMARK(SP);
-  XPUSHs(sv);
-  PUTBACK;
-  call_pv("main::printDump", 0);
-  SPAGAIN;
-  PUTBACK;
-  FREETMPS;
-  LEAVE;
-}
-void regexp_describe (regexp* r) {
-  fprintf(stderr,
-          "\n"
-          "REGEXP* %lu\n"
-          "startp  %lu (I32*)\n"
-          "endp    %lu (I32*)\n"
-          "regstclass %lu (regnode*)\n"
-          "substrs %lu (struct reg_substr_data*)\n"
-          "precomp %lu \"%s\" (char*)\n"
-          "data    %lu (struct reg_data*)\n"
-          "subbeg  %lu \"%s\" (char*)\n"
-#ifdef PERL_COPY_ON_WRITE
-          "saved_copy %lu (SV*)\n"
-#endif
-          "offsets %lu (U32*)\n"
-          "sublen %d (I32)\n"
-          "refcnt %d (I32)\n"
-          "minlen %d (I32)\n"
-          "prelen %d (I32)\n"
-          "nparens        %lu (U32)\n"
-          "lastparen      %lu (U32)\n"
-          "lastcloseparen %lu (U32)\n"
-          "reganch %lu (U32)\n"
-          "program %lu (&regnode)\n"
-          ,
-          r,
-          (ulong)r->startp,(ulong)r->endp,(ulong)r->regstclass,
-          (ulong)r->substrs,(ulong)r->precomp,r->precomp,
-          (ulong)r->data,(ulong)r->subbeg,r->subbeg,
-#ifdef PERL_COPY_ON_WRITE
-          (ulong)r->saved_copy,
-#endif
-          (ulong)r->offsets,
-          (int)r->sublen,(int)r->refcnt,(int)r->minlen,(int)r->prelen,
-          (ulong)r->nparens,(ulong)r->lastparen,(ulong)r->lastcloseparen,
-          (ulong)r->reganch,
-          (ulong)&(r->program[0])
-          );
-#ifdef PERL_COPY_ON_WRITE
-  printDump(r->saved_copy);
-#endif
-  fprintf(stderr,"offsets: %lu\n",(ulong)r->offsets[0]);
-  {
-    int n;
-    for(n=0;n<r->offsets[0];n++) {
-      fprintf(stderr," %d: pos %lu len %lu end %lu\n",
-        n,
-        r->offsets[2*n-1],r->offsets[2*n],
-        r->offsets[2*n-1]+r->offsets[2*n]-1);
-    }
-  }
-  fprintf(stderr,"\n");
-}
-
-
-
-
-void hook_regfree (pTHX_ struct regexp* r)
-{
-  fprintf(stderr,"free %ld\n",(ulong)r);
-  if(1) {
-    Perl_pregfree(aTHX_ r);
-    fprintf(stderr,"free survived.\n");
-  } else {
-    fprintf(stderr,"free skipped.\n");
-  }
-  return;
-}
-
-char* hook_re_intuit_start (pTHX_ regexp *prog, SV *sv, char *strpos,
-                            char *strend, U32 flags,
-                            struct re_scream_pos_data_s *data)
-{
-  if(!REGEXP_IS_HOOKED(prog)) {
-    return Perl_re_intuit_start(prog,sv,strpos,strend,flags,data);
-  }
-  fprintf(stderr,"hook_re_intuit_start - shouldn't be here\n");
-  return NULL;
-}
-
-SV*   hook_re_intuit_string (pTHX_ regexp *prog)
-{
-  if(!REGEXP_IS_HOOKED(prog)) {
-    return Perl_re_intuit_string(prog);
-  }
-  fprintf(stderr,"hook_re_intuit_string - shouldn't be here\n");
-  return &PL_sv_undef;
-}
-
-/*
- * Hooking
- */
-void regexp_hook_init() {
-  Inline_Stack_Vars;
-  PL_regcompp = &hook_regcompp;
-  PL_regexecp = &hook_regexec;
-  PL_regint_start = &hook_re_intuit_start;
-  PL_regint_string = &hook_re_intuit_string;
-  PL_regfree = &hook_regfree;
-  Inline_Stack_Void;
-}
-void regexp_hook_off() {
-  Inline_Stack_Vars;
-  PL_regcompp = &Perl_pregcomp;
-  Inline_Stack_Void;
-}
-void regexp_hook_on() {
-  Inline_Stack_Vars;
-  PL_regcompp = &hook_regcompp;
-  Inline_Stack_Void;
-}
-
-END
 
 
 __END__
