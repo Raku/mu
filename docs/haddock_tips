@@ -103,3 +103,8 @@ in munge_haddock.pl
 #ifndef HADDOCK
 #endif HADDOCK
 
+Haddock Vim Syntax File
+=================
+
+Ask bsb on #perl6 if you want to take it for a spin
+
