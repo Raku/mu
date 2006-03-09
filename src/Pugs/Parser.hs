@@ -1625,7 +1625,6 @@ blockAdverb = do
     char ':'
     ruleBlockLiteral
 
--- used only by 'parseParenParamListCommon'
 parseHasParenParamList :: RuleParser (Maybe Exp, [Exp])
 parseHasParenParamList = verbatimParens $ do
     -- formal :: [[Exp]]
