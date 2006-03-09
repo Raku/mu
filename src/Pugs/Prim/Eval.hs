@@ -122,7 +122,7 @@ op1EvalP6Y fileName = do
                 -- Inject the global bindings
                 liftSTM $ do
                     glob' <- readTVar globTVar
-                    writeTVar globTVar (glob' `unionPads` glob)
+                    writeTVar globTVar (glob `unionPads` glob')
                 evl <- asks envEval
                 evl ast
         x -> local (\e -> e{ envPos = (envPos e){ posName="" } }) $
