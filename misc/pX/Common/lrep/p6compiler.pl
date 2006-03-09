@@ -12,9 +12,6 @@ use interface;
 
 # TODO: see TASKS file
 
-use Data::Dumper;
-$Data::Dumper::Indent = 1;
-$Data::Dumper::Pad = '# ';
 
 {
     package grammar1;
@@ -116,7 +113,6 @@ my $namespace = 'grammar1::';
 {
   package Perl6Grammar;
   use p6dump;
-  use Data::Dumper; 
 
 sub header {
     return <<EOT;
@@ -149,8 +145,8 @@ sub compile {
         if $match->{tail};
     die "compile: syntax error in program '$_[0]'\n"
         unless $match->{bool};
-    print "compile: match:\n", dump_tree($match) if $flags->{print_match};
-    print "compile: generated ast:\n", dump_tree($match->{capture}) if $flags->{print_ast};
+    print "compile: match:\n", dump_tree($match,'match') if $flags->{print_match};
+    print "compile: generated ast:\n", dump_tree($match->{capture},'ast') if $flags->{print_ast};
     my $program = emit( $match->{capture} );
     print "compile: generated code:\n$program" if $flags->{print_program};
     return $program;
