@@ -122,10 +122,10 @@ Pugs::Grammar::Rule is a functional-style module.
 The rule() function provides an interface between the low-level functional
 operators, and the higher level OO/Overload runtime. 
 
-Rule functions share a common API, which permits the intercommunication of data 
-about: backtracking, aborting, capturing.
+Internal rule operators share a common API, which permits the intercommunication 
+of data about: backtracking, aborting, capturing.
 
-A rule function gets as argument a list:
+The rule() function gets as argument a list:
 
 :(Str $match_against, :$next_state, Bool :$capture?
   --> Pugs::Grammar::Match)
