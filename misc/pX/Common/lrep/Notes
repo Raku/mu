@@ -221,3 +221,59 @@ irc.freenode.net]
 <putter> :perl5 , like :i :mumble, is a modifier.
 <putter> block scoped
 <putter> [:i(1) This CoDe Is CaSe insensiteive ]
+
+
+----
+
+re: building AST
+
+<fglock> re OO AST nodes - does it make any sense to use hashes, and 
+autobox when necessary? (just because building objects during the 
+parsing may be expensive - backtracking throws many nodes away)
+*** Nouk [n=Nouk@219-87-211-192.static.tfn.net.tw] has joined #perl6
+*** Nouk [n=Nouk@219-87-211-192.static.tfn.net.tw] has quit [Client 
+Quit]
+<audreyt> fglock: for perf I'll even just use arrays with constant 
+lookup keys
+<audreyt> fglock: but I'd suggest to _not_ care about performance
+<audreyt> just optimize for clarity/effieciency for coding
+<audreyt> it may be nice to adopt the haskellish
+<audreyt> Val(VInt(3))
+<audreyt> i.e. instead of calling ->new, use functions as constructors
+<fglock> audreyt: but are resulting nodes objects of functions?
+<fglock> audreyt: you mean like:   rule xxx {... { return Val(VInt(3)) } 
+}
+<fglock> audreyt: I'm ok with that - Val and VInt are "node constructor" 
+functions, which we can modify later
+<fglock>     rule xxx {... { return Val(VInt( $1 )) } }
+<audreyt> yes.
+<audreyt> this is because in p6
+<audreyt> VInt(3)
+<audreyt> is basically
+<audreyt> 3 as VInt
+<audreyt> and you can install multis in the VInt class to anticipate the 
+infix "as" call
+*** drbean [n=greg@momotaro.chinmin.edu.tw] has joined #perl6
+<fglock> audreyt: and if Val returns a function, we can delay "building" 
+the AST by not evaluating it, right?
+<audreyt> yes
+<audreyt> but I'm not sure how much you gain in p5land from that
+<fglock> audreyt: I don't know too - just thinking aloud :)
+<audreyt> without core support for thunks, and with a typical compiler 
+run visiting all nodes
+<audreyt> delaying ast buildup doesn't gain you much.
+<fglock> audreyt: you get time by not bulding things that would be 
+destroyed by backtracking - I think that's all
+<audreyt> yup, so it's CV creation vs HVMG creation
+<audreyt> well, with the encapsulation offereed by function constuctors 
+we can switch style at all times
+<audreyt> but my gut feeling is that plain HVMG is good enough
+<fglock> audreyt: VInt(3) - you don't need to specify the argument name? 
+(sorry, I don't really know p6)
+<fglock> HVMG?
+<audreyt> no - it's a coercion
+<audreyt> blessed hashref
+<audreyt> some help in p5land for this kind of thing:
+<audreyt> http://search.cpan.org/dist/Symbol-Opaque/
+<audreyt> http://search.cpan.org/dist/Data-Variant/
+

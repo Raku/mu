@@ -7,10 +7,9 @@ ok - Perl 6 grammar in Perl 5 - reuse to write itself
 ok - Perl 6 to Perl 5 translator (parse p6, emit p5) - reuse to write 
      itself
    - Perl 6 compiler written in p6
-
-Plan sketch:
-- rewrite the compiler in p6, and emit the whole compiler to p5
-- try to reuse pugs tests
+      - emitted to p5
+   - Integrate with Pugs features 
+      - see discussions in #perl6, Notes, Deal.txt
 
 Next possible milestone:
 ok - rewrite iterator_engine.pl in Perl 6, 
