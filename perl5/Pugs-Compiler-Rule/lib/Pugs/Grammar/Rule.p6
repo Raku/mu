@@ -131,57 +131,5 @@ rule _push {
 push @statements, \&_push;
 
 
-rule pod { 
-    \=[pod|head1|kwid|for] 
-    .*? 
-    \=cut 
-}
-push @statements, \&pod;
+
         
-rule term1 {
-    <@grammar1::terms>
-}
-        
-rule list {
-    [ <term1> <?p6ws>? \, <?p6ws>? ]* <term1>?
-}
-
-rule block {
-    \{ 
-        $list := ( [ <?p6ws>? <@grammar1::statements> ]* ) <?p6ws>? 
-    \}
-        { return { block => $()<list> ,} }
-}
-push @statements, \&block;
-
-push @terms, \&variable;
-push @terms, \&literal;
-        
-rule _simple_statement {
-    $op := (die|\.\.\.) \;
-        { return { _simple_statement => $() ,} }
-}
-push @statements, \&_simple_statement;
-
-rule term2 {
-    $term1 := (<term1>) <p6ws>? 
-    $op    := (<@grammar1::ops>) <p6ws>? 
-    $term2 := (<term1>) 
-        { return { sub_application_term => $() ,} }
-}
-
-rule eval_perl5 {
-    eval <p6ws>? \( <p6ws>? 
-        <literal> <p6ws>? \, <p6ws>? 
-        \: lang \< perl5 \> <p6ws>? 
-    \) <p6ws>? \;
-        { return { eval_perl5 => $<literal> } }
-}
-push @statements, \&eval_perl5;
-
-rule _return {
-    return <?p6ws> $val := (<term1>|<term2>) <?p6ws>? \;
-        { return { _return => $() ,} }
-}
-push @statements, \&_return;
-
