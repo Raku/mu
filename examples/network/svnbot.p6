@@ -4,12 +4,12 @@ use v6;
 use Net::IRC;
 
 # Parse @*ARGS
-my $nick        = @*ARGS[0] // "blechbot";
-my $server      = @*ARGS[1] // "localhost";
-my $interval    = @*ARGS[2] // 300;
-my $repository  = @*ARGS[3] // ".";
-my $show_branch = @*ARGS[4] eq "true";
-my $sep_header  = @*ARGS[5] eq "true";
+my $nick        = @*ARGS.shift // "blechbot";
+my $server      = @*ARGS.shift // "localhost";
+my $interval    = @*ARGS.shift // 300;
+my $repository  = @*ARGS.shift // ".";
+my $show_branch = (@*ARGS[0] eq "true") ?? @*ARGS.shift !! 0;
+my $sep_header  = (@*ARGS[0] eq "true") ?? @*ARGS.shift !! 0;
 my ($host, $port) = split ":", $server;
 $port //= 6667;
 
@@ -22,7 +22,7 @@ debug "  Branch information will {$show_branch ?? "" !! "not "}be shown.";
 debug "  There {$sep_header ?? "will" !! "won't"} be a separate header line.";
 debug "To change any of these parameters, restart $*PROGRAM_NAME";
 debug "and supply appropriate arguments:";
-debug "  $*PROGRAM_NAME nick host[:port] interval repository show_branch sep_header";
+debug "  $*PROGRAM_NAME nick host[:port] interval repository [show_branch] [sep_header] [channel...]";
 debug "  where repository...    is the path to the SVN repository (e.g. \".\"";
 debug "                         or \"http://svn.perl.org/parrot/\"),";
 debug "        show_branch...   specifies whether branch information should";
@@ -32,6 +32,7 @@ debug "                         should be outputted (true|false).";
 
 # Initialize $cur_svnrev. $cur_svnrev contains the last revision seen, and is
 # set by svn_headrev() and svn_commits().
+my $cur_entry;
 my $cur_svnrev = 0;
 svn_headrev();
 
@@ -42,6 +43,7 @@ $bot<add_handler>("PRIVMSG", &on_privmsg); # Remote control
 $bot<add_handler>("runloop", &svn_check);  # Check for new revisions
 $bot<connect>();
 $bot<login>();
+$bot<join>($_) for @*ARGS;
 $bot<run>();
 
 # Join all channels we're invited to.
@@ -138,6 +140,22 @@ sub svn_commits() {
 
     # If this is an incremental update...
     if $cur_svnrev {
+        if -d '.svn' {
+            # must be in repo 
+            system "svn st -N -q -u . > $tempfile";
+            my $fh = open $tempfile;
+            my $latest = 0;
+            for =$fh -> $_ {
+                when rx:P5/revision:\s+(\d+)/ {
+                    $latest = $0;
+                    last;
+                }
+            }
+            close $fh;
+            if ($latest == $cur_svnrev) {
+                return undef;
+            }
+        }
         # ...only query for new commits since we last checked.
         my $from = $cur_svnrev + 1;
         # Hack to prevent "-3:HEAD", resulting in a syntax error, resulting in
