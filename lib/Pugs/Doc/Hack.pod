@@ -1,6 +1,6 @@
 =head1 NAME
 
-pugs::hack - How to hack on Pugs
+Pugs::Doc::Hack - How to hack on Pugs
 
 =head1 SYNOPSIS
 
@@ -58,7 +58,7 @@ Expanding this one level deeper:
     |  |-- copyright           Debian copyright notice
     |  |-- patches             Debian specific patches
     |  |   |-- 00list          List of patches
-    |  |   `-- 10smoker.dpatch Patch to djust smoker.yml path
+    |  |   `-- 10smoker.dpatch Patch to adjust smoker.yml path
     |  |-- pugs-doc.dirs       Directories to be created in the pugs-doc package
     |  |-- pugs-modules.dirs   Directories to be created in the pugs-modules
     |  |-- pugs-modules.install  Installation rules for the pugs-modules package
@@ -344,14 +344,14 @@ the program may store the same configuration options elsewhere.
 
 =head2 Testing
 
-See L<pugs::run> and F<t/README>.  If you wish to use the C<prove> utility
+See L<Pugs::Doc::Run> and F<t/README>.  If you wish to use the C<prove> utility
 to run individual tests or test directories, you will need to set at least
 the following environment variables first:
 
     $ export HARNESS_PERL=./pugs
     $ export PERL6LIB=blib6/lib
 
-You can also just say C<./pugs -Iblib6/lib t/.../mumble.t>.
+You can also just say C<./pugs -Iblib6/lib t/your/test/file.t>.
 
 =head3 Regex testing
 
@@ -394,4 +394,4 @@ F<util/smokeserv/README> for more information.
 
 =head1 SEE ALSO
 
-L<Perl6::Pugs>, L<pugs::run>
+L<Perl6::Pugs>, L<Pugs::Doc::Run>

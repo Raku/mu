@@ -1,6 +1,6 @@
 =head1 NAME
 
-pugs::run - How to run Pugs
+Pugs::Doc::Run - How to run Pugs
 
 =head1 SYNOPSYS
 
@@ -109,7 +109,7 @@ displays the version of Pugs you're running and long configuration information.
 
 displays short configuration information for C<I<item>>.
 
-    $ pugs -V:pugs_version
+    $ pugs -V:pugs_versnum
     pugs_versnum: 6.2.6
 
 =item C<-v> or C<--version>
@@ -136,7 +136,7 @@ since Pugs is still in heavy development, they are listed here as well.
 This does not affect C<pugs> itself at all. When building Pugs from source, the
 Perl 5 test system should be instructed to use your copy of Pugs. If you use
 C<make test> or C<make smoke>, you should not need to set this manually; but if
-you want to use C<prove>, set it to C<./pugs> (just C<pugs.exe> on Windows).
+you want to use C<prove>, set it to C<./pugs> (or C<pugs.exe> on Windows).
 
 =item C<PERL6LIB>
 
@@ -205,6 +205,9 @@ tests results automatically. Set this to a command to run, e.g.
 
     rsync -avz smoke.html perlcabal.org:public_html
 
+You may alternatively set the C<smoke_upload> option in C<config.yml> to
+have smokes uploaded to the public smokeserver automatically.
+
 =item C<PUGS_TESTS_CONCURRENT> [BUILD]
 
 Smoke tests can take quite some time to complete. If you have a
@@ -228,4 +231,4 @@ configuration file. The default is F<config.yml>.
 
 =head1 SEE ALSO
 
-L<Perl6::Pugs>, L<pugs::hack>
+L<Perl6::Pugs>, L<Pugs::Doc::Hack>
