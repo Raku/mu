@@ -70,7 +70,7 @@ module Pugs.AST.Internals (
     doPair, doHash, doArray,
     unwrap, -- Unwrap(..) -- not used in this file, suitable for factoring out
     
-    --expToEvalVal, -- Hack, should be removed once it's figured out how
+    expToEvalVal, -- Hack, should be removed once it's figured out how
 ) where
 import Pugs.Internals
 import Pugs.Types
@@ -319,9 +319,6 @@ instance Value VObject where
     fromVal v = do
         fail $ "cannot cast from " ++ show v ++ " to Object"
     doCast v = castFailM v "VObject"
-    {-# NOINLINE castV #-}
-    castV v  = VObject obj{ objOpaque = Just $ toDyn v }
-        where obj = unsafePerformIO $ createObject (mkType "Code::Exp") []
 
 instance Value VHash where
     fromVal (VObject o) = do
@@ -954,15 +951,13 @@ instance Value Exp where
     {- castV exp = VObject (createObject (mkType "Code::Exp") [("theexp", exp)]) -}
     doCast v = castFailM v "Exp"
     
- 
-{-
+
 {- FIXME: Figure out how to get this working without a monad, and make it castV -}
-expToEvalVal :: Exp -> Val
---expToEvalVal :: Exp -> Eval Val
+expToEvalVal :: Exp -> Eval Val
 expToEvalVal exp = do
     obj <- createObject (mkType "Code::Exp") []
     return $ VObject obj{ objOpaque = Just $ toDyn exp }
--}
+
 
 
 class Unwrap a where
@@ -978,6 +973,9 @@ instance Unwrap [Exp] where
     unwrap = map unwrap
 
 instance Unwrap Exp where
+    ---gaal unwrap (Cxt _ exp)      = unwrap exp
+    ---gaal unwrap (Pos _ exp)      = unwrap exp
+    ---gaal unwrap (Prag _ exp)     = unwrap exp
     unwrap (Ann _ exp)      = unwrap exp
     unwrap (Pad _ _ exp)    = unwrap exp
     unwrap (Sym _ _ exp)    = unwrap exp

@@ -59,7 +59,7 @@ possiblyApplyMacro :: Exp            -- ^ The @Exp@ containg only an @App@ to
                    -> RuleParser Exp -- ^ The result expression (either the
                                      --   original one or the result of
                                      --   applying the macro)
-possiblyApplyMacro app@(App (Var name) inv args) = do
+possiblyApplyMacro app@(App (Var name) _ _) = do
     -- First, we've to resolve name to a vcode.
     env <- getRuleEnv
     -- Note that we don't have to clearDynParsers, as we just do a variable
@@ -69,18 +69,17 @@ possiblyApplyMacro app@(App (Var name) inv args) = do
         maybe (return undef) readRef res
     case subCode of
         -- If we found a Code var, possibly process it further.
-        VCode vcode -> possiblyApplyMacro' vcode
+        VCode vcode -> possiblyApplyMacro' vcode app
         -- Else, return the original expression.
         _ -> return app
     where
     {-# NOINLINE possiblyApplyMacro' #-}
-    possiblyApplyMacro' :: VCode -> RuleParser Exp
-    possiblyApplyMacro' vcode
+    possiblyApplyMacro' :: VCode -> Exp -> RuleParser Exp
+    possiblyApplyMacro' vcode app
         | subType vcode == SubMacro
         = do
-            --  "It all comes from here, the stench and the peril."  --Frodo
             -- The vcode is a macro! Apply it and substitute its return value.
-            ret <- unsafeEvalExp $ App (Var name) inv $ map (Val . castV) args
+            ret <- unsafeEvalExp app
             substMacroResult ret
         | otherwise
         = return app

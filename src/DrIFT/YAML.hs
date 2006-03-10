@@ -198,5 +198,8 @@ addressOf x = do
     return (castStablePtrToPtr ptr `minusPtr` (nullPtr :: Ptr ()))
 
 failWith :: forall a. YAML a => YamlElem -> IO a
-failWith e = fail $ "no parse: " ++ show e ++ " as " ++ show (typeOf (undefined :: a))
+failWith e = fail $ "no parse: " ++ show e ++ " as " ++ show typ
+    where
+    typ :: TypeRep
+    typ = typeOf (undefined :: a)
 
