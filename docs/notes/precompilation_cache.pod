@@ -147,7 +147,7 @@ C<ast> is the parsed tree.
 =head2 Maintenance
 
 There are a few cache maint tools that can be added bit by bit. They
-probably deserve a secion of their own but for now:
+probably deserve a section of their own but for now:
 
 =over 4
 
