@@ -194,6 +194,10 @@ A ruleop function returns:
 
     # spec says it returns normal data, but this is a low-level op...
     undef - match failed    
+
+
+* Pugs::Grammar::Rule
+
                             
 =for notes about fail()
 shouldn't matchfail still be returning something?
