@@ -1,8 +1,9 @@
-* loading Prelude: p6prelude-cached.pl
-* loading Prelude: p6primitives-cached.pl
-* compiling: ../../../../perl5/Pugs-Compiler-Rule/lib/Pugs/Grammar/Rule.p6
+#* loading Prelude: p6prelude-cached.pl
+#* loading Prelude: p6primitives-cached.pl
+#* compiling: ../../../../perl5/Pugs-Compiler-Rule/lib/Pugs/Grammar/Rule.p6
+#
+# compile: generated code:
 
-compile: generated code:
 package Pugs::Grammar::Rule;
 *{'perl5_regex'} = 
 
@@ -550,3 +551,6 @@ package Pugs::Grammar::Rule;
     }
 ;
     push @statements, \&_push;
+
+1;
+
