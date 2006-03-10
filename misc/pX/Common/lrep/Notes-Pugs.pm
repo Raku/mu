@@ -4,9 +4,27 @@ package Pugs;
 
 1;
 
+
+### There is too much in this file 
+### separate into:
+- Introduction
+- Documentation Index
+- Compiler internals:
+    Compiler
+    Compiler::Perl6
+    Compiler::Rule
+    Compiler::YAML
+    Compiler::Perl5
+    Compiler::Parrot
+- AST, Grammar, Optimizer internals:
+    AST::Perl6::API
+    Grammar::Perl6
+    Optimizer::AST   -- optimizes an AST
+    Grammar::MOP     -- implements OO using macros
+    
 =head1 Definitions
 
-### change to kwid? - easier to indent
+### change to kwid? - easier to indent (but not supported by p5 by default)
 ### move definitions to end-of-file?
 
 * boxed / unboxed
@@ -78,6 +96,7 @@ and we can stepwise replace p5 ones with p6 ones _without_ changings its name.
 of course that has the problem of supplying Perl.pm itself - but I think to
 do it Right As Specified is more important.
 
+### - see "Modifying the compiler" below 
 
 Pugs::Compiler::{name} ? for simultaneous versions
 
@@ -106,16 +125,81 @@ but where does the .pm live for real? I like per-user dirs
 lib/fglock/Compiler.pm
 lib/Pugs/Compiler.pm
 
-I think that works!
+### how about lib/Pugs-fglock/Compiler.pm
+###   just like use Pugs-fglock above
 
-ok!
+=head1 Modifying the compiler
 
+Let's say you have a new Grammar and Emitter for your own language.
+
+  # assuming:
+  # - your target system runs Perl5
+  # - you have loaded the Grammar file to $new_parser
+  # - and the emitter to $new_emitter
+  
+  # build a "normal" compiler that has: 
+  # - a Perl6 Grammar with the Meta Object Protocol (implemented as macros), 
+  #   Primitives,
+  # - an optimizer chain,
+  # - the default Perl6 libs,
+  # - an emitter that generates perl5
+  # load it as 'the' handler for 'eval( ... , :lang<perl6> )
+  my $compiler = Pugs::Compiler->new( 
+      lang      => 'perl6',
+      parser    => ['Perl6', 'MOP6', 'PrimP6']
+      optimizer => ['Op1' 'Op2'],
+      lib       => ['/lib' ],
+      emitter   => 'Perl5' );
+
+  # same thing, but reads lib/Pugs/Compiler/Language/Perl6.yaml
+  # this is the command used to implement 'eval( ... , :lang<name> )'
+  my $compiler = Pugs::Compiler->new( 
+      lang => 'Perl6' );
+
+my $new_parser_p5 = $compiler->( $new_parser );
+  
+  # build a new compiler, that uses:
+  # - the new Grammar
+  # - no optimizer
+  # - the new emitter
+  my $compiler_OO_AST = Pugs::Compiler->load( 
+      parser  => ['NewLang'],
+      optimizer => [],
+      emitter => \$new_emitter_p5 );
+      
+=head2 Example: a YAML compiler
+      
+* load the YAML compiler
+
+  *compile::YAML = Pugs::Compiler->new( 
+      lang      => 'YAML',
+      parser    => ['YAML']
+      optimizer => [],
+      lib       => ['/lib' ],
+      emitter   => 'YAML' );
+
+  # use the configuration file (Pugs::Compiler::YAML.pm)
+  *compile::YAML = Pugs::Compiler->new( lang => 'YAML' );
+
+* use the compiler
+
+  my $data = compile::eval( $source, lang => 'YAML' );
+
+* Files
+
+  /lib/Pugs/Compiler/YAML.pm  # configuration (like CPAN/Config.pm)
+  /lib/Pugs/Grammar/YAML.pm   # main Grammar file
+  /lib/Pugs/Grammar/YAML/*    # Grammar related files
+  /lib/Pugs/Emitter/YAML.pm   # main Emitter file
+  /lib/Pugs/Emitter/YAML/*    # Emitter related files
 
 =head1 Compiler processes
 
+### separate "processes" from actual module documentation?
+
 =head2 Grammar engine
 
-* Pugs::Grammar::Rule
+* Pugs::Grammar::Rule and Pugs::Grammar::Match
 
 Rule constructors return Rule objects, which are "matcher" things.
 Rules operate on strings (normally) and return Match objects.
@@ -124,13 +208,14 @@ Rules operate on strings (normally) and return Match objects.
 
   # invoking the rule compiler
 ### Rule::compile or Rule->compile? (assuming example in p5)
-  my $matcher;
-  $matcher = Pugs::Grammar::Rule::compile ( ".*", options... );
+  my $matcher = Pugs::Grammar::Rule::compile ( ".*", options... );
   my $match = $matcher( "hello" );
 
+### "internals" thing - should be documented only in Pugs::Grammar::Rule 
   # low level operators
   # Domain-specific-language-like syntax, contained in a package
 ### rule must ever use Rule::rule form - never Rule->rule ??? (assuming example in p5)
+  my $matcher;   # must be declared outside of the block
   { package Pugs::Grammar::Rule;
       $matcher = rule ( alternation ( literal ( 'a' ), .... );
   }
@@ -138,19 +223,16 @@ Rules operate on strings (normally) and return Match objects.
 Match objects (Pugs::Grammar::Match) contain:
 
 ### Match actually contain getters for $() and such
-    state - a "continuation" or undef
-    bool - an "assertion" (true/false)
-    match - the "match" tree or undef
-    tail - the string tail or undef
-    capture - the tree of captured things
-    abort - the match was stopped by a { return } or a fail(),
-           and it should not backtrack or whatever
+### getters need to know what you want (str, bool, hash, array, match)
 
 - compile()
 
+### obvious - not document ?
 ...
 
 - rule()
+
+### internals - move to module documentation
 
 Rules, just like other Perl 6 values, exists in 'boxed' 
 and 'unboxed' versions. 
@@ -193,11 +275,15 @@ A ruleop() function gets as argument a list:
 A ruleop function returns:
 
     # spec says it returns normal data, but this is a low-level op...
-    undef - match failed    
+    undef - if match failed    
 
-
-* Pugs::Grammar::Rule
-
+    state - a "next-state" or undef
+    bool - an "assertion" (true/false)
+    match - the "match" tree or undef
+    tail - the string tail or undef
+    capture - the tree of captured things
+    abort - the match was stopped by a { return } or a fail(),
+           and it should not backtrack or whatever
                             
 =for notes about fail()
 shouldn't matchfail still be returning something?
@@ -216,4 +302,7 @@ then there's absolutely no overhead
 I'm not sure about this - failed matche's .end is undefined
 =cut
 
-
+### current implementation is always anchored at ^
+### because it was specialized for subrules
+### - needs to be generalized, and the anchor should only
+###   work when needed (or if there is a switch telling so)
