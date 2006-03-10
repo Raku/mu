@@ -53,10 +53,10 @@ instance YAML Decl where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["DeclSub","DeclNS","DeclInc"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (DeclSub aa ab ac) = asYAMLmap "DeclSub"
-	   [("dsName", asYAML aa) , ("dsFlags", asYAML ab) ,
+	   [("dsName", asYAML aa), ("dsFlags", asYAML ab),
 	    ("dsBody", asYAML ac)]
     asYAML (DeclNS aa ab) = asYAMLmap "DeclNS"
-	   [("dnPackage", asYAML aa) , ("dnBody", asYAML ab)]
+	   [("dnPackage", asYAML aa), ("dnBody", asYAML ab)]
     asYAML (DeclInc aa) = asYAMLmap "DeclInc" [("diFile", asYAML aa)]
 
 instance YAML Stmt where
@@ -83,13 +83,11 @@ instance YAML Stmt where
     fromYAML _ = fail "no tag found"
     asYAML (StmtComment aa) = asYAMLseq "StmtComment" [asYAML aa]
     asYAML (StmtLine aa ab) = asYAMLseq "StmtLine"
-	   [asYAML aa , asYAML ab]
-    asYAML (StmtPad aa ab) = asYAMLseq "StmtPad"
-	   [asYAML aa , asYAML ab]
+	   [asYAML aa, asYAML ab]
+    asYAML (StmtPad aa ab) = asYAMLseq "StmtPad" [asYAML aa, asYAML ab]
     asYAML (StmtRaw aa) = asYAMLseq "StmtRaw" [asYAML aa]
     asYAML (StmtIns aa) = asYAMLseq "StmtIns" [asYAML aa]
-    asYAML (StmtSub aa ab) = asYAMLseq "StmtSub"
-	   [asYAML aa , asYAML ab]
+    asYAML (StmtSub aa ab) = asYAMLseq "StmtSub" [asYAML aa, asYAML ab]
 
 instance YAML Ins where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
@@ -129,24 +127,23 @@ instance YAML Ins where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["InsLocal","InsNew","InsBind","InsAssign","InsPrim","InsFun","InsTailFun","InsLabel","InsComment","InsExp","InsConst"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (InsLocal aa ab) = asYAMLseq "InsLocal"
-	   [asYAML aa , asYAML ab]
-    asYAML (InsNew aa ab) = asYAMLseq "InsNew" [asYAML aa , asYAML ab]
-    asYAML (InsBind aa ab) = asYAMLseq "InsBind"
-	   [asYAML aa , asYAML ab]
+	   [asYAML aa, asYAML ab]
+    asYAML (InsNew aa ab) = asYAMLseq "InsNew" [asYAML aa, asYAML ab]
+    asYAML (InsBind aa ab) = asYAMLseq "InsBind" [asYAML aa, asYAML ab]
     asYAML (InsAssign aa ab) = asYAMLseq "InsAssign"
-	   [asYAML aa , asYAML ab]
+	   [asYAML aa, asYAML ab]
     asYAML (InsPrim aa ab ac) = asYAMLseq "InsPrim"
-	   [asYAML aa , asYAML ab , asYAML ac]
+	   [asYAML aa, asYAML ab, asYAML ac]
     asYAML (InsFun aa ab ac) = asYAMLseq "InsFun"
-	   [asYAML aa , asYAML ab , asYAML ac]
+	   [asYAML aa, asYAML ab, asYAML ac]
     asYAML (InsTailFun aa ab) = asYAMLseq "InsTailFun"
-	   [asYAML aa , asYAML ab]
+	   [asYAML aa, asYAML ab]
     asYAML (InsLabel aa) = asYAMLseq "InsLabel" [asYAML aa]
     asYAML (InsComment aa ab) = asYAMLseq "InsComment"
-	   [asYAML aa , asYAML ab]
+	   [asYAML aa, asYAML ab]
     asYAML (InsExp aa) = asYAMLseq "InsExp" [asYAML aa]
     asYAML (InsConst aa ab ac) = asYAMLseq "InsConst"
-	   [asYAML aa , asYAML ab , asYAML ac]
+	   [asYAML aa, asYAML ab, asYAML ac]
 
 instance YAML Expression where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
@@ -188,7 +185,7 @@ instance YAML LValue where
     asYAML (STR aa) = asYAMLseq "STR" [asYAML aa]
     asYAML (INT aa) = asYAMLseq "INT" [asYAML aa]
     asYAML (NUM aa) = asYAMLseq "NUM" [asYAML aa]
-    asYAML (KEYED aa ab) = asYAMLseq "KEYED" [asYAML aa , asYAML ab]
+    asYAML (KEYED aa ab) = asYAMLseq "KEYED" [asYAML aa, asYAML ab]
 
 instance YAML Literal where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
@@ -297,7 +294,7 @@ instance YAML Sig where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkSig"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (MkSig aa ab) = asYAMLmap "MkSig"
-	   [("sigFlags", asYAML aa) , ("sigIdent", asYAML ab)]
+	   [("sigFlags", asYAML aa), ("sigIdent", asYAML ab)]
 
 instance YAML ArgFlag where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of

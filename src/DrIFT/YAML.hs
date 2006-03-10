@@ -48,7 +48,7 @@ class Typeable a => YAML a where
     fromYAML :: YamlNode -> IO a
     fromYAML MkYamlNode{el=x} = fromYAMLElem x
     fromYAMLElem :: YamlElem -> IO a
-    fromYAMLElem e = fail $ "unhandled element" ++ (show e)
+    fromYAMLElem e = fail $ "unhandled element: " ++ (show e)
 
 asYAMLseq :: YAMLClass -> [EmitAs YAMLVal] -> EmitAs YamlNode
 asYAMLseq c ps = do
@@ -86,7 +86,7 @@ deTag MkYamlNode{tag=Just s} =
         't':'a':'g':':':'h':'s':':':tag -> tag
         tag                             -> error $ "not a Haskell tag: " ++ tag
     where s' = Str.unpack s
-deTag n = error $ "missing tag" ++ show n
+deTag n = error $ "missing tag: " ++ show n
 
 instance YAML () where
     asYAML _ = return nilNode

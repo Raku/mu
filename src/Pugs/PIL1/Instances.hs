@@ -54,7 +54,7 @@ instance YAML PIL_Environment where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PIL_Environment"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (PIL_Environment aa ab) = asYAMLmap "PIL_Environment"
-	   [("pilGlob", asYAML aa) , ("pilMain", asYAML ab)]
+	   [("pilGlob", asYAML aa), ("pilMain", asYAML ab)]
 
 instance Perl5 PIL_Stmts where
     showPerl5 (PNil) = showP5Class "PNil"
@@ -88,9 +88,9 @@ instance YAML PIL_Stmts where
     fromYAML _ = fail "no tag found"
     asYAML (PNil) = asYAMLcls "PNil"
     asYAML (PStmts aa ab) = asYAMLmap "PStmts"
-	   [("pStmt", asYAML aa) , ("pStmts", asYAML ab)]
+	   [("pStmt", asYAML aa), ("pStmts", asYAML ab)]
     asYAML (PPad aa ab ac) = asYAMLmap "PPad"
-	   [("pScope", asYAML aa) , ("pSyms", asYAML ab) ,
+	   [("pScope", asYAML aa), ("pSyms", asYAML ab),
 	    ("pStmts", asYAML ac)]
 
 instance Perl5 PIL_Stmt where
@@ -126,7 +126,7 @@ instance YAML PIL_Stmt where
     asYAML (PNoop) = asYAMLcls "PNoop"
     asYAML (PStmt aa) = asYAMLmap "PStmt" [("pExpr", asYAML aa)]
     asYAML (PPos aa ab ac) = asYAMLmap "PPos"
-	   [("pPos", asYAML aa) , ("pExp", asYAML ab) , ("pNode", asYAML ac)]
+	   [("pPos", asYAML aa), ("pExp", asYAML ab), ("pNode", asYAML ac)]
 
 instance Perl5 PIL_Expr where
     showPerl5 (PRawName aa) = showP5HashObj "PRawName"
@@ -182,8 +182,8 @@ instance YAML PIL_Expr where
     asYAML (PLit aa) = asYAMLmap "PLit" [("pLit", asYAML aa)]
     asYAML (PThunk aa) = asYAMLmap "PThunk" [("pThunk", asYAML aa)]
     asYAML (PCode aa ab ac ad ae) = asYAMLmap "PCode"
-	   [("pType", asYAML aa) , ("pParams", asYAML ab) ,
-	    ("pLValue", asYAML ac) , ("pIsMulti", asYAML ad) ,
+	   [("pType", asYAML aa), ("pParams", asYAML ab),
+	    ("pLValue", asYAML ac), ("pIsMulti", asYAML ad),
 	    ("pBody", asYAML ae)]
 
 instance Perl5 PIL_Decl where
@@ -209,9 +209,9 @@ instance YAML PIL_Decl where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["PSub"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (PSub aa ab ac ad ae af) = asYAMLmap "PSub"
-	   [("pSubName", asYAML aa) , ("pSubType", asYAML ab) ,
-	    ("pSubParams", asYAML ac) , ("pSubLValue", asYAML ad) ,
-	    ("pSubIsMulti", asYAML ae) , ("pSubBody", asYAML af)]
+	   [("pSubName", asYAML aa), ("pSubType", asYAML ab),
+	    ("pSubParams", asYAML ac), ("pSubLValue", asYAML ad),
+	    ("pSubIsMulti", asYAML ae), ("pSubBody", asYAML af)]
 
 instance Perl5 PIL_Literal where
     showPerl5 (PVal aa) = showP5HashObj "PVal" [("pVal", showPerl5 aa)]
@@ -273,12 +273,12 @@ instance YAML PIL_LValue where
     fromYAML _ = fail "no tag found"
     asYAML (PVar aa) = asYAMLmap "PVar" [("pVarName", asYAML aa)]
     asYAML (PApp aa ab ac ad) = asYAMLmap "PApp"
-	   [("pCxt", asYAML aa) , ("pFun", asYAML ab) , ("pInv", asYAML ac) ,
+	   [("pCxt", asYAML aa), ("pFun", asYAML ab), ("pInv", asYAML ac),
 	    ("pArgs", asYAML ad)]
     asYAML (PAssign aa ab) = asYAMLmap "PAssign"
-	   [("pLHS", asYAML aa) , ("pRHS", asYAML ab)]
+	   [("pLHS", asYAML aa), ("pRHS", asYAML ab)]
     asYAML (PBind aa ab) = asYAMLmap "PBind"
-	   [("pLHS", asYAML aa) , ("pRHS", asYAML ab)]
+	   [("pLHS", asYAML aa), ("pRHS", asYAML ab)]
 
 instance Perl5 TParam where
     showPerl5 (MkTParam aa ab) = showP5HashObj "MkTParam"
@@ -297,7 +297,7 @@ instance YAML TParam where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkTParam"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (MkTParam aa ab) = asYAMLmap "MkTParam"
-	   [("tpParam", asYAML aa) , ("tpDefault", asYAML ab)]
+	   [("tpParam", asYAML aa), ("tpDefault", asYAML ab)]
 
 instance Perl5 TCxt where
     showPerl5 (TCxtVoid) = showP5Class "TCxtVoid"
@@ -363,8 +363,8 @@ instance YAML TEnv where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkTEnv"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (MkTEnv aa ab ac ad ae) = asYAMLmap "MkTEnv"
-	   [("tLexDepth", asYAML aa) , ("tTokDepth", asYAML ab) ,
-	    ("tCxt", asYAML ac) , ("tReg", asYAML ad) , ("tLabel", asYAML ae)]
+	   [("tLexDepth", asYAML aa), ("tTokDepth", asYAML ab),
+	    ("tCxt", asYAML ac), ("tReg", asYAML ad), ("tLabel", asYAML ae)]
 
 --  Imported from other files :-
 

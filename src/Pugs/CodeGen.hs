@@ -86,7 +86,7 @@ doLookup s = do
 
 codeGen :: String -> Env -> IO String
 codeGen s env = do
-    gen <- catch (doLookup s) $ \_ -> do
+    gen <- catch (doLookup s) $ const $ do
         fail $ "Cannot generate code for " ++ s
     rv <- runEvalIO env gen
     case rv of

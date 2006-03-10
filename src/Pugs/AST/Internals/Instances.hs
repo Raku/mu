@@ -166,8 +166,7 @@ instance YAML VThunk where
 	    liftM2 MkThunk (fromYAML aa) (fromYAML ab)
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkThunk"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
-    asYAML (MkThunk aa ab) = asYAMLseq "MkThunk"
-	   [asYAML aa , asYAML ab]
+    asYAML (MkThunk aa ab) = asYAMLseq "MkThunk" [asYAML aa, asYAML ab]
 
 instance YAML VProcess where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
@@ -191,10 +190,9 @@ instance YAML VRule where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkRulePCRE","MkRulePGE"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (MkRulePCRE aa ab ac ad ae af) = asYAMLseq "MkRulePCRE"
-	   [asYAML aa , asYAML ab , asYAML ac , asYAML ad , asYAML ae ,
-	    asYAML af]
+	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae, asYAML af]
     asYAML (MkRulePGE aa ab ac ad) = asYAMLseq "MkRulePGE"
-	   [asYAML aa , asYAML ab , asYAML ac , asYAML ad]
+	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
 
 instance YAML Val where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
@@ -284,7 +282,7 @@ instance YAML Val where
     asYAML (VList aa) = asYAMLseq "VList" [asYAML aa]
     asYAML (VType aa) = asYAMLseq "VType" [asYAML aa]
     asYAML (VJunc aa) = asYAMLseq "VJunc" [asYAML aa]
-    asYAML (VError aa ab) = asYAMLseq "VError" [asYAML aa , asYAML ab]
+    asYAML (VError aa ab) = asYAMLseq "VError" [asYAML aa, asYAML ab]
     asYAML (VControl aa) = asYAMLseq "VControl" [asYAML aa]
     asYAML (VRef aa) = asYAMLseq "VRef" [asYAML aa]
     asYAML (VCode aa) = asYAMLseq "VCode" [asYAML aa]
@@ -308,7 +306,7 @@ instance YAML VJunc where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkJunc"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (MkJunc aa ab ac) = asYAMLseq "MkJunc"
-	   [asYAML aa , asYAML ab , asYAML ac]
+	   [asYAML aa, asYAML ab, asYAML ac]
 
 instance YAML JuncType where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
@@ -381,8 +379,8 @@ instance YAML Param where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkParam"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (MkParam aa ab ac ad ae af ag ah ai) = asYAMLseq "MkParam"
-	   [asYAML aa , asYAML ab , asYAML ac , asYAML ad , asYAML ae ,
-	    asYAML af , asYAML ag , asYAML ah , asYAML ai]
+	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae, asYAML af,
+	    asYAML ag, asYAML ah, asYAML ai]
 
 instance Perl5 Param where
     showPerl5 (MkParam aa ab ac ad ae af ag ah ai) =
@@ -413,9 +411,8 @@ instance YAML VCode where
     fromYAML _ = fail "no tag found"
     asYAML (MkCode aa ab ac ad ae af ag ah ai aj ak al) =
 	   asYAMLseq "MkCode"
-	   [asYAML aa , asYAML ab , asYAML ac , asYAML ad , asYAML ae ,
-	    asYAML af , asYAML ag , asYAML ah , asYAML ai , asYAML aj ,
-	    asYAML ak , asYAML al]
+	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae, asYAML af,
+	    asYAML ag, asYAML ah, asYAML ai, asYAML aj, asYAML ak, asYAML al]
 
 instance YAML Ann where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
@@ -472,14 +469,14 @@ instance YAML Exp where
     fromYAML _ = fail "no tag found"
     asYAML (Noop) = asYAMLcls "Noop"
     asYAML (App aa ab ac) = asYAMLseq "App"
-	   [asYAML aa , asYAML ab , asYAML ac]
-    asYAML (Syn aa ab) = asYAMLseq "Syn" [asYAML aa , asYAML ab]
-    asYAML (Ann aa ab) = asYAMLseq "Ann" [asYAML aa , asYAML ab]
+	   [asYAML aa, asYAML ab, asYAML ac]
+    asYAML (Syn aa ab) = asYAMLseq "Syn" [asYAML aa, asYAML ab]
+    asYAML (Ann aa ab) = asYAMLseq "Ann" [asYAML aa, asYAML ab]
     asYAML (Pad aa ab ac) = asYAMLseq "Pad"
-	   [asYAML aa , asYAML ab , asYAML ac]
+	   [asYAML aa, asYAML ab, asYAML ac]
     asYAML (Sym aa ab ac) = asYAMLseq "Sym"
-	   [asYAML aa , asYAML ab , asYAML ac]
-    asYAML (Stmts aa ab) = asYAMLseq "Stmts" [asYAML aa , asYAML ab]
+	   [asYAML aa, asYAML ab, asYAML ac]
+    asYAML (Stmts aa ab) = asYAMLseq "Stmts" [asYAML aa, asYAML ab]
     asYAML (Prim aa) = asYAMLseq "Prim" [asYAML aa]
     asYAML (Val aa) = asYAMLseq "Val" [asYAML aa]
     asYAML (Var aa) = asYAMLseq "Var" [asYAML aa]
@@ -540,7 +537,7 @@ instance YAML VObject where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkObject"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (MkObject aa ab ac ad) = asYAMLseq "MkObject"
-	   [asYAML aa , asYAML ab , asYAML ac , asYAML ad]
+	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
 
 instance YAML VMatch where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
@@ -552,8 +549,27 @@ instance YAML VMatch where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkMatch"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (MkMatch aa ab ac ad ae af) = asYAMLseq "MkMatch"
-	   [asYAML aa , asYAML ab , asYAML ac , asYAML ad , asYAML ae ,
-	    asYAML af]
+	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae, asYAML af]
+
+instance YAML CompUnit where
+    fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
+	"MkCompUnit" -> do
+	    let YamlSeq [aa, ab, ac, ad] = e
+	    liftM4 MkCompUnit (fromYAML aa) (fromYAML ab) (fromYAML ac) (fromYAML ad)
+	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkCompUnit"] ++ " in node " ++ show e
+    fromYAML _ = fail "no tag found"
+    asYAML (MkCompUnit aa ab ac ad) = asYAMLseq "MkCompUnit"
+	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad]
+
+instance JSON CompUnit where
+    showJSON (MkCompUnit aa ab ac ad) = showJSHashObj "MkCompUnit"
+	     [("ver", showJSON aa) , ("desc", showJSON ab) ,
+	      ("glob", showJSON ac) , ("ast", showJSON ad)]
+
+instance Perl5 CompUnit where
+    showPerl5 (MkCompUnit aa ab ac ad) = showP5HashObj "MkCompUnit"
+	      [("ver", showPerl5 aa) , ("desc", showPerl5 ab) ,
+	       ("glob", showPerl5 ac) , ("ast", showPerl5 ad)]
 
 instance YAML Scope where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
@@ -607,7 +623,7 @@ instance YAML Pos where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkPos"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (MkPos aa ab ac ad ae) = asYAMLseq "MkPos"
-	   [asYAML aa , asYAML ab , asYAML ac , asYAML ad , asYAML ae]
+	   [asYAML aa, asYAML ab, asYAML ac, asYAML ad, asYAML ae]
 
 instance JSON Pos where
     showJSON (MkPos aa ab ac ad ae) = showJSHashObj "MkPos"
@@ -635,9 +651,8 @@ instance YAML Type where
 	_ -> fail $ "unhandled tag: " ++ show t ++ ", expecting " ++ show ["MkType","TypeOr","TypeAnd"] ++ " in node " ++ show e
     fromYAML _ = fail "no tag found"
     asYAML (MkType aa) = asYAMLseq "MkType" [asYAML aa]
-    asYAML (TypeOr aa ab) = asYAMLseq "TypeOr" [asYAML aa , asYAML ab]
-    asYAML (TypeAnd aa ab) = asYAMLseq "TypeAnd"
-	   [asYAML aa , asYAML ab]
+    asYAML (TypeOr aa ab) = asYAMLseq "TypeOr" [asYAML aa, asYAML ab]
+    asYAML (TypeAnd aa ab) = asYAMLseq "TypeAnd" [asYAML aa, asYAML ab]
 
 instance JSON Type where
     showJSON (MkType aa) = showJSArrayObj "MkType" [showJSON aa]

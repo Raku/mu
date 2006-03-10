@@ -81,9 +81,9 @@ makeAsYAML alwaysPos (Body{constructor=constructor,labels=labels,types=types})
     fnName = text "asYAML"
     headfn = fsep [(pattern constructor types), equals]
     bodyStartArray = text "asYAMLseq" <+> c
-    bodyArray = brackets $ fsep (sepWith comma b)
+    bodyArray = brackets $ fsep (punctuate comma b)
     bodyStartHash = text "asYAMLmap" <+> c
-    bodyHash = brackets $ fsep (sepWith comma b')
+    bodyHash = brackets $ fsep (punctuate comma b')
     c = clsPkg constructor
     b = map (\x -> sep [text "asYAML", x]) (varNames types)
     b' = zipWith (\x l -> parens (dq (text l) <> comma <+> x))
