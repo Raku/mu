@@ -75,7 +75,7 @@ fromYAMLmap MkYamlNode{el=YamlMap m} = mapM fromYAMLpair m
 fromYAMLmap e = fail $ "no parse: " ++ show e
 
 asYAMLcls :: YAMLClass -> EmitAs YamlNode
-asYAMLcls c = return $ mkTagNode (tagHs c) (YamlStr $ Str.pack c)
+asYAMLcls c = return $ mkTagStrNode (tagHs c) c
 
 tagHs :: YAMLClass -> String
 tagHs = ("tag:hs:" ++)
@@ -93,18 +93,18 @@ instance YAML () where
     fromYAMLElem _ = return ()
 
 instance YAML Int where
-    asYAML x = return $ mkTagNode "int" (YamlStr $ Str.pack $ show x)
+    asYAML x = return $ mkTagStrNode "int" $ show x
     fromYAMLElem (YamlStr x) = return $ read $ Str.unpack x
     fromYAMLElem e = failWith e
 
 instance YAML String where
-    asYAML str = return $ mkTagNode "str" (YamlStr $ Str.pack str)
+    asYAML str = return $ mkTagStrNode "str" str
     fromYAMLElem (YamlStr str) = return $ Str.unpack str
     fromYAMLElem e = failWith e
 
 instance YAML Bool where
-    asYAML True = return $ mkTagNode "bool#yes" (YamlStr $ Str.pack "1")
-    asYAML False = return $ mkTagNode "bool#no" (YamlStr $ Str.pack "0")
+    asYAML True = return $ mkTagStrNode "bool#yes" "1"
+    asYAML False = return $ mkTagStrNode "bool#no" "0"
     fromYAML MkYamlNode{tag=Just s} | s == Str.pack "bool#yes" = return True
     fromYAML MkYamlNode{tag=Just s} | s == Str.pack "bool#no"  = return False
     fromYAML MkYamlNode{el=x} = fromYAMLElem x
@@ -112,7 +112,7 @@ instance YAML Bool where
     fromYAMLElem e = failWith e
 
 instance YAML Integer where 
-    asYAML x = return $ mkTagNode "int" (YamlStr $ Str.pack $ show x)
+    asYAML x = return $ mkTagStrNode "int" $ show x
     fromYAMLElem (YamlStr x) = return $ read $ Str.unpack x
     fromYAMLElem e = failWith e
 
@@ -126,10 +126,11 @@ instance YAML Rational where
     fromYAMLElem e = failWith e
     
 instance YAML Double where 
-    asYAML num | show num == "Infinity"  = return $ mkTagNode "float#inf"    (YamlStr $ Str.pack ".Inf")
-               | show num == "-Infinity" = return $ mkTagNode "float#neginf" (YamlStr $ Str.pack "-.Inf")
-               | show num == "NaN"       = return $ mkTagNode "float#nan"    (YamlStr $ Str.pack "-.NaN")
-               | otherwise               = return $ mkTagNode "float"        (YamlStr $ Str.pack $ show num)
+    asYAML num
+        | show num == "Infinity"  = return $ mkTagStrNode "float#inf"    ".Inf"
+        | show num == "-Infinity" = return $ mkTagStrNode "float#neginf" "-.Inf"
+        | show num == "NaN"       = return $ mkTagStrNode "float#nan"    "-.NaN"
+        | otherwise               = return $ mkTagStrNode "float"        $ show num
     fromYAML MkYamlNode{tag=Just s} | s == Str.pack "float#inf"    = return $  1/0 -- "Infinity" 
     fromYAML MkYamlNode{tag=Just s} | s == Str.pack "float#neginf" = return $ -1/0 -- "-Infinity" 
     fromYAML MkYamlNode{tag=Just s} | s == Str.pack "float#nan"    = return $  0/0 -- "NaN" 

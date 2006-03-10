@@ -5,7 +5,8 @@
 module Data.Yaml.Syck (
     parseYamlFS, emitYamlFS,
     parseYaml, emitYaml,
-    YamlNode(..), YamlElem(..), YamlAnchor(..), tagNode, nilNode, mkNode, mkTagNode, SYMID,
+    YamlNode(..), YamlElem(..), YamlAnchor(..),
+    tagNode, nilNode, mkNode, mkTagNode, mkTagStrNode, SYMID,
 ) where
 
 import Control.Exception (bracket)
@@ -79,7 +80,10 @@ mkNode :: YamlElem -> YamlNode
 mkNode x = MkYamlNode 0 x Nothing MkYamlSingleton
 
 mkTagNode :: String -> YamlElem -> YamlNode
-mkTagNode s x = MkYamlNode 0 x (Just $ Str.pack s) MkYamlSingleton
+mkTagNode tag e = MkYamlNode 0 e (Just $ Str.pack tag) MkYamlSingleton
+
+mkTagStrNode :: String -> String -> YamlNode
+mkTagStrNode tag str = mkTagNode tag $ YamlStr $ Str.pack str
 
 -- the extra commas here are not a bug
 #enum CInt, , scalar_none, scalar_1quote, scalar_2quote, scalar_fold, scalar_literal, scalar_plain
