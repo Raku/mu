@@ -1,4 +1,5 @@
 # See notes after __END__
+# Also note that it's been repackaged to perl5/re-override/
 
 package Regexp::StructHook;
 
@@ -63,10 +64,10 @@ I32 regexp_exechook_hook (pTHX_ regexp* r, char* stringarg, char* strend,
     PUSHMARK(SP);
     XPUSHs(newSVpv(stringarg,strend-stringarg));
     mXPUSHu(flags);
-    mXPUSHu((ulong)r);
+    mXPUSHu((unsigned long)r);
     PUTBACK;
 
-    fprintf(stderr,"exec hook r=%lu callback SV*=%lu\n",(ulong)r,(ulong)perl_callback);
+    fprintf(stderr,"exec hook r=%lu callback SV*=%lu\n",(unsigned long)r,(unsigned long)perl_callback);
     ret = call_sv(perl_callback, G_ARRAY);
     fprintf(stderr,"exec hook survived.\n");
     if(ret < 1) {
@@ -170,7 +171,7 @@ regexp* hook_regcompp (pTHX_ char* exp, char* xend, PMOP* pm)
 {
   SV* handler = NULL;
 
-  fprintf(stderr,"hook_regcompp in %lx\n",(ulong)exp);
+  fprintf(stderr,"hook_regcompp in %lx\n",(unsigned long)exp);
 
   /* Check $^H for lexical selection of semantics and implementation */
   if(handler == NULL) {
@@ -182,9 +183,9 @@ regexp* hook_regcompp (pTHX_ char* exp, char* xend, PMOP* pm)
       phandler = hv_fetch(hints, hint_key, strlen(hint_key), 0);
       if(phandler != NULL) {
         handler = *phandler;
-        fprintf(stderr,"hook_regcompp lexical...%lx\n",(ulong)handler);
+        fprintf(stderr,"hook_regcompp lexical...%lx\n",(unsigned long)handler);
 /*	call_sv(handler,G_DISCARD|G_EVAL);
-        fprintf(stderr,"can survive %lx %lx\n",(ulong)exp,(ulong)handler);
+        fprintf(stderr,"can survive %lx %lx\n",(unsigned long)exp,(unsigned long)handler);
 */
       }
     }
@@ -215,10 +216,10 @@ regexp* hook_regcompp (pTHX_ char* exp, char* xend, PMOP* pm)
     r = Perl_pregcomp(aTHX_ nulpat,nulpat,pm);
     /*XXX - can free nulpat now? */
 
-/*    fprintf(stderr,"exp =%lu\nxend=%lu\n",(ulong)exp,(ulong)xend);*/
+/*    fprintf(stderr,"exp =%lu\nxend=%lu\n",(unsigned long)exp,(unsigned long)xend);*/
     PUSHMARK(SP);
     XPUSHs(sv_2mortal(newSVpvn(exp,xend-exp)));
-    mXPUSHu((ulong)r);
+    mXPUSHu((unsigned long)r);
     PUTBACK;
   HANDLER_CALL:
 /*    fprintf(stderr,"calling out...\n");*/
