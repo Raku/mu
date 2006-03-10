@@ -5,6 +5,7 @@ import Data.Yaml.Syck
 import Data.Ratio
 import GHC.Exts
 import Data.Typeable
+import Data.Char
 import Control.Exception
 import Control.Concurrent.STM
 import qualified Data.IntSet as IntSet
@@ -12,6 +13,7 @@ import Foreign.StablePtr
 import Foreign.Ptr
 import Control.Monad.Reader
 import qualified Data.FastPackedString as Str
+import UTF8
 
 type Str = Str.FastString
 
@@ -98,8 +100,8 @@ instance YAML Int where
     fromYAMLElem e = failWith e
 
 instance YAML String where
-    asYAML str = return $ mkTagStrNode "str" str
-    fromYAMLElem (YamlStr str) = return $ Str.unpack str
+    asYAML = return . mkTagStrNode "str" . map (chr . fromEnum) . encode
+    fromYAMLElem (YamlStr str) = return . fst . decode $ map (toEnum . ord) (Str.unpack str)
     fromYAMLElem e = failWith e
 
 instance YAML Bool where
