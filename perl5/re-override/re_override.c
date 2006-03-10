@@ -18,7 +18,7 @@ I32 regexp_exechook_hook (pTHX_ regexp* r, char* stringarg, char* strend,
 			  void* data, U32 flags)
 {
   if(!CONTAINS_RECOGNITION_FLAG(r)) {
-    return previous_exec_hook(r,stringarg,strend,strbeg,
+    return previous_exec_hook(aTHX_ r,stringarg,strend,strbeg,
 			      minend,screamer,data,flags);
   }
   else {
@@ -94,7 +94,7 @@ I32 regexp_exechook_hook (pTHX_ regexp* r, char* stringarg, char* strend,
   }
 }
 
-void regexp_exechook_insert ()
+void regexp_exechook_insert (pTHX)
 {
   if(previous_exec_hook != NULL) { croak("can't install twice"); }
   previous_exec_hook = PL_regexecp;
@@ -106,7 +106,7 @@ void regexp_exechook_insert ()
  * regexp struct setup
  */
 
-static void regexp_setup(regexp* r, SV* pat, U32 nparens, SV* callback)
+static void regexp_setup(pTHX_ regexp* r, SV* pat, U32 nparens, SV* callback)
 {
     I32 len;
     int i;
@@ -216,7 +216,7 @@ regexp* hook_regcompp (pTHX_ char* exp, char* xend, PMOP* pm)
       nparens = POPl;
       exec_callback_sub = POPs;
       PUTBACK;
-      regexp_setup(r,pat,nparens,exec_callback_sub);
+      regexp_setup(aTHX_ r,pat,nparens,exec_callback_sub);
     } else if(api == 14) {
       SV* expr_code;
       SV* expr_result;
@@ -240,12 +240,12 @@ regexp* hook_regcompp (pTHX_ char* exp, char* xend, PMOP* pm)
   }
 }
 
-void regexp_hook_on() {
+void regexp_hook_on(pTHX) {
   if(previous_comp_hook != NULL) { croak("Cant install twice"); }
   previous_comp_hook = PL_regcompp;
   PL_regcompp = &hook_regcompp;
 }
-void regexp_hook_off() { /* aka "abandon regexps", aka "please segfault" */
+void regexp_hook_off(pTHX) { /* aka "abandon regexps", aka "please segfault" */
   PL_regcompp = previous_comp_hook;
   previous_comp_hook = NULL;
 }
