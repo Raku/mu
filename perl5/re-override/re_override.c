@@ -1,6 +1,7 @@
 #include "EXTERN.h"
 #include "perl.h"
 #include "embed.h"
+#include "ppport.h"
 
 #include <regcomp.h>
 /* for the struct pointed to by substrs :( */

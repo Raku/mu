@@ -10,6 +10,11 @@ if (not -e 'pcre.h' and -e '../../src/pcre/pcre.h') {
     }
 }
 
+if (not -e 'ppport.h') {
+    require Devel::PPPort;
+    Devel::PPPort::WriteFile();
+}
+
 name            're-override';
 all_from        'lib/re/override.pm';
 cc_inc_paths    '.';

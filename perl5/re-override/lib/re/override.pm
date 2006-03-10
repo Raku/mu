@@ -5,7 +5,7 @@ use strict;
 use vars qw( @ISA @EXPORT $VERSION );
 
 BEGIN {
-    $VERSION = '0.01';
+    $VERSION = '0.02';
 
     local $@;
     eval {
@@ -60,7 +60,7 @@ re::override - Override Perl regular expressions
 
 =head1 VERSION
 
-This document describes version 0.01 of re::override, released
+This document describes version 0.02 of re::override, released
 March 10, 2006.
 
 =head1 SYNOPSIS
