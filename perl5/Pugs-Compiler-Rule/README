@@ -1,0 +1,65 @@
+Pugs::Compiler::Rules README - fglock
+
+This is the P6 rules compiler, which migrated from the lrep project - 
+the "Least Recursively Expressed Perl".
+
+It is an implementation of:
+- a parser engine 
+- a Perl6 'rule' parser and perl5 emitter 
+
+Rules Grammar implemented:
+
+ . ? * + *? +? ??
+ \char <ws> <word> literal
+ $variable @variable
+ <'literal'>
+ [] 
+ ()     
+ <subrule>
+ <namespace::subrule>
+ <?subrule>
+ <!subrule>
+ |
+ <@var>    - special-cased for array-of-rule (but not Rule|Str)
+ {code}    - non-capturing closure
+           - bootstrapped with source-filter
+           - $/ doesn't work yet
+ { return code } - capturing closure
+           - bootstrapped with source filter
+           - $/ works
+ $var := (capture)  - capture aliasing
+ $<> $/<>  - special variables can't be used inside a match, yet
+ $/ 
+ $<0> $<1>
+
+- implemented but untested:
+ <$var>
+
+- not implemented:
+ $/<0> $/<1>
+ $/0 $/1
+ $0 $1
+ <"literal">
+ ^ ^^ $ $$
+ <unicode-class> <+unicode-class> <+unicode-class+unicode-class>
+ <&var> 
+ <%var>
+ **{n..m}
+ : :: :::   (commit)
+ $var := [non-capture]
+ $var := <rule>
+ <(closure-assertion)> <{code-returns-rule}>
+ <<character-class>> <[character-class]>
+ :flag :flag() :flag[]
+ lookahead lookbehind
+ #comment\n
+ \x0a \0123 ...
+ <?ws>  -- optional whitespace ???
+ &    
+ <!abc> -- is this !<abc> or !abc ?
+ \n \N
+
+- not sure if specified:
+ 'literal' "literal"
+ <!n,m>  -- <!{n..m}> ???
+
