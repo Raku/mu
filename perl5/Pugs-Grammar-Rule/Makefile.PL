@@ -16,7 +16,7 @@ if (-d $lrep_dir and not $pmc_is_uptodate) {
     chdir $cwd;
 }
 
-name            'Pugs-Grammar-Rule';
-all_from        'lib/Pugs/Grammar/Rule.pm';
+name            'Pugs-Compiler-Rule';
+all_from        'lib/Pugs/Compiler/Rule.pm';
 
 sign; WriteAll;

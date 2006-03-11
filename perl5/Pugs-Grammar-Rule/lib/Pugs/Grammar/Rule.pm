@@ -1,14 +1,19 @@
 use v6-pugs;
 
-# This is the Perl 6 Grammar used to Parse and generate the 
-# Abstract Syntax Tree (AST) for Rules - fglock
-#
-# This code is compiled and executed by using the previously
-# compiled version, which is stored in "$filename-cached.pl"
-#
-# XXX - clean up unused rules!
-
 grammar Pugs::Grammar::Rule;
+
+=head1 NAME
+
+Pugs::Grammar::Rule - Perl 6 grammar for rules
+
+=head1 DESCRIPTION
+
+This is the Perl 6 Grammar used to Parse and generate the 
+Abstract Syntax Tree (AST) for Rules.
+
+=cut
+
+# XXX - clean up unused rules!
 
 # rule xxx :P5 {foo}
 # XXX - rewrite this!
@@ -132,6 +137,3 @@ rule _push {
 }
 push @statements, \&_push;
 
-
-
-        
