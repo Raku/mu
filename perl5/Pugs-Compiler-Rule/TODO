@@ -1,5 +1,8 @@
 TODO for Pugs::Grammar::Rule and Pugs::Emitter::Rule::Perl5
 
+- remove 'grammar1' namespace everywhere
+- 'Pugs::Grammar::Rule::Lib' - old p5 code... -- 'use' in P:G:R
+
 - rule switches
 
 - missing rule syntax (see README)
