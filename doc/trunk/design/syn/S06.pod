@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 24 Feb 2006
+  Last Modified: 11 Mar 2006
   Number: 6
-  Version: 18
+  Version: 19
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -92,9 +92,9 @@ aliases to actual arguments:
 
     sub say { print qq{"@_[]"\n}; }   # args appear in @_
 
-    sub cap { $_ = uc $_ for @_ }   # Error: elements of @_ are constant
+    sub cap { $_ = uc $_ for @_ }   # Error: elements of @_ are read-only
 
-If you need to modify the elements of C<@_>, declare it explicitly
+If you need to modify the elements of C<@_>, declare the array explicitly
 with the C<is rw> trait:
 
     sub swap (*@_ is rw) { @_[0,1] = @_[1,0] }
@@ -141,10 +141,13 @@ The old Perl 5 form:
 
     sub foo;
 
-is a compile-time error in Perl 6 (for reasons explained in Apocalypse 6).
+is a compile-time error in Perl 6 (because it would imply that the body of the
+subroutine extends from that statement to the end of the file, as C<class> and
+C<module> declarations do).
 
-Redefining a stub subroutine does not produce an error.  To redefine
-any other subroutine you must explicitly use the "C<is instead>" trait.
+Redefining a stub subroutine does not produce an error, but redefining
+an already-defined subroutine does. If you wish to redefine a defined sub,
+you must explicitly use the "C<is instead>" trait.
 
 The C<...> is the "yadayadayada" operator, which is executable but returns
 a failure.  You can also use C<???> to produce a warning, or C<!!!> to
@@ -539,13 +542,21 @@ could be simultaneously defined and non-existant.)
 =head2 Named parameters
 
 Named-only parameters follow any required or optional parameters in the
-signature. They are marked by a C<:>:
+signature. They are marked by a prefix C<:>:
 
     sub formalize($text, :$case, :$justify) {...}
 
 This is actually shorthand for:
 
     sub formalize($text, :case($case), :justify($justify)) {...}
+
+If the longhand form is used, the label name and variable name can be
+different:
+
+    sub formalize($text, :case($required_case), :justify($justification)) {...}
+
+so that you can use more descriptive internal parameter names without
+imposing inconveniently long external labels on named arguments.
 
 Arguments that correspond to named parameters are evaluated in scalar
 context. They can only be passed by name, so it doesn't matter what
@@ -706,13 +717,25 @@ array parameter declared with a C<;> twigil:
 
     sub foo (*@;slices) { ... }
 
+Note that this is different from
+
+    sub foo (\$slices) { ... }
+
+insofar as C<\$slices> is bound to a single argument-list object that
+makes no commitment to processing its structure (and maybe doesn't
+even know its own structure yet), while C<*@;slices> has to create
+an array that binds the incoming dimensional lists to the array's
+dimensions, and make that commitment visible to the rest of the scope
+via the twigil so that constructs expecting multidimensional lists
+know that multidimensionality is the intention.
+
 It is allowed to specify a return type:
 
     sub foo (*@;slices --> Num) { ... }
 
 =head2 Pipe operators
 
-The variadic array of a subroutine call can be passed in separately
+The variadic list of a subroutine call can be passed in separately
 from the normal argument list, by using either of the "pipe" operators:
 C<< <== >> or C<< ==> >>.
 
@@ -781,6 +804,31 @@ the results of the pipeline, so you can equivalently write any of:
 
 Since the pipe iterator is bound into the final variable, the variable
 can be just as lazy as the pipe that is producing the values.
+
+=begin Damian
+
+[DMC: On the other hand, these "push" semantics will break a very common
+      left-to-right processing pattern:
+
+          @data ==> grep { condition } ==> sort ==> @data;
+
+      It will also impose a very subtle distinction between the broken
+      symmetry of:
+
+          @data = sort <== grep { condition } <== @data;
+
+      and (the much more tempting, but almost certainly wrong):
+
+          @data <== sort <== grep { condition } <== @data;
+
+      Seems to me that we might be setting a trap here.
+
+      Could there be a special case that turns off "push" semantics in
+      any piped sequence where the origin is the same variable as the
+      destination???
+]
+
+=end Damian
 
 Because pipes are bound to arrays with "push" semantics, you can have
 a receiver for multiple pipes:
@@ -932,6 +980,8 @@ optional, named, or slurpy.
     # and later...
 
     @first_three = limited_grep 3, {$_<10}, @data;
+
+(The comma is required after the closure.)
 
 Within the subroutine, the closure parameter can be used like any other
 lexically scoped subroutine:
@@ -1307,7 +1357,7 @@ Alternately, the return type may be specified within the signature:
     my sub get_book ($key --> Hash of Array of Recipe) {...}
 
 There is a slight difference, insofar as the type inferencer will
-ignore a C<returns> but pay attention to C<< --> >> declarations.
+ignore a C<returns> but pay attention to C<< --> >> or prefix type declarations.
 Only the inside of the subroutine pays attention to C<returns>.
 
 =head2 Polymorphic types
@@ -1323,11 +1373,13 @@ Fancier type constraints may be expressed through a subtype:
     if $shimmer ~~ Shinola {...}  # $shimmer must do both interfaces
 
 Since the terms in a parameter could be viewed as a set of
-contraints that are implicitly "anded" together (the variable itself
+constraints that are implicitly "anded" together (the variable itself
 supplies type constraints, and where clauses or tree matching just
 add more constraints), we relax this to allow juxtaposition of
-anded types:
+types to act like an "and" junction:
 
+    # Anything assigned to the variable $mitsy must conform
+    # to the type Fish and either the Cat or Dog type...
     my Cat|Dog Fish $mitsy = new Fish but { int rand 2 ?? .does Cat;
 						       !! .does Dog };
 
@@ -1423,7 +1475,7 @@ Compile-time properties are called "traits". The
 C<is I<NAME> (I<DATA>)> syntax defines traits on containers and
 subroutines, as part of their declaration:
 
-    my $pi is constant = 3;
+    constant $pi is Approximated = 3;   # variable $pi has Approximated trait
 
     my $key is Persistent(:file<.key>);
 
@@ -1435,7 +1487,7 @@ The C<will I<NAME> I<BLOCK>> syntax is a synonym for C<is I<NAME> (I<BLOCK>)>:
 
 The C<but I<NAME> (I<DATA>)> syntax specifies run-time properties on values:
 
-    my $pi = 3 but Approximate("legislated");
+    constant $pi = 3 but Inexact;       # value 3 has Inexact property
 
     sub system {
         ...
@@ -1505,7 +1557,7 @@ Specifies the associativity of an operator explicitly.  Valid values are:
 
 Note that operators "C<equiv>" to relationals are automatically considered
 chaining operators.  When creating a new precedence level, the chaining
-is determined by by the presence or absence of "C<is assoc('chaining')>",
+is determined by the presence or absence of "C<is assoc('chaining')>",
 and other operators defined at that level are required to be the same.
 
 =item C<PRE>/C<POST>
@@ -1513,6 +1565,18 @@ and other operators defined at that level are required to be the same.
 Mark blocks that are to be unconditionally executed before/after
 the subroutine's C<do> block. These blocks must return a true value,
 otherwise an exception is thrown.
+
+When applied to a method, a C<PRE> block automatically also calls all
+C<PRE> blocks on any method of the same long name in each parent class.
+The precondition is satisfied if either the method's own C<PRE> block
+returns true, or I<all> of its parents' C<PRE> blocks return true. This
+"me-or-all-my-parents" requirement applies recursively to each parent's
+C<PRE> block as well.
+
+When applied to a method, a C<POST> block automatically also calls all
+C<POST> blocks on any method of the same long name in every ancestral
+class. The postcondition is satisfied only if the method's own C<POST>
+block and every one of its ancestral C<POST> blocks all return true.
 
 =item C<FIRST>/C<LAST>/C<NEXT>/C<KEEP>/C<UNDO>/etc.
 
@@ -1593,10 +1657,9 @@ coerced to scalar context explicitly if that is desired.
 The C<caller> function returns an object that describes a particular 
 "higher" dynamic scope, from which the current scope was called.
 
-    print "In ",           caller.sub,
-          " called from ", caller.file,
-          " line ",        caller.line,
-          "\n";
+    say "In ",           caller.sub,
+        " called from ", caller.file,
+        " line ",        caller.line;
 
 C<caller> may be given arguments telling it what kind of higher scope to
 look for, and how many such scopes to skip over when looking:
@@ -1657,7 +1720,7 @@ variable, subroutine, or other object in a given scope:
 
     {
        temp $*foo = 'foo';      # Temporarily replace global $foo
-       temp &bar = sub {...};   # Temporarily replace sub &bar
+       temp &bar := sub {...};  # Temporarily replace sub &bar
        ...
     } # Old values of $*foo and &bar reinstated at this point
 
@@ -1676,10 +1739,10 @@ their own C<.TEMP> methods:
 
     class LoudArray is Array {
         method TEMP {
-            print "Replacing $_.id() at $(caller.location)\n";
-            my $restorer = .SUPER::TEMP();
+            print "Replacing $.id() at {caller.location}\n";
+            my $restorer = $.SUPER::TEMP();
             return { 
-                print "Restoring $_.id() at $(caller.location)\n";
+                print "Restoring $.id() at {caller.location}\n";
                 $restorer();
             };
         }
@@ -1698,7 +1761,7 @@ the temporizing scope to restore the subroutine to its pre-C<temp> state:
     }
 
     # and later...
-									    
+
     say next();     # prints 0; $next == 1
     say next();     # prints 1; $next == 2
     say next();     # prints 2; $next == 3
