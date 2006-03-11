@@ -26,6 +26,7 @@ all_from    ('lib/Pugs/Compiler/Rule.pm');
 
 sub MY::postamble { << ".";
 pure_all ::
+\t\$(NOECHO) \$(CHMOD) 644 blib/lib/Pugs/Grammar/Rule.pmc
 \t\$(NOECHO) \$(TOUCH) blib/lib/Pugs/Grammar/Rule.pmc
 .
 }
