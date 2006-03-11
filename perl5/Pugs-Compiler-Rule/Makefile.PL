@@ -1,4 +1,5 @@
 use strict;
+use lib '../..';
 use inc::Module::Install;
 use Cwd qw< abs_path cwd >;
 
@@ -16,7 +17,7 @@ if (-d $lrep_dir and not $pmc_is_uptodate) {
     chdir $cwd;
 }
 
-name            'Pugs-Compiler-Rule';
-all_from        'lib/Pugs/Compiler/Rule.pm';
+name        ('Pugs-Compiler-Rule');
+all_from    ('lib/Pugs/Compiler/Rule.pm');
 
-sign; WriteAll;
+&WriteAll;
