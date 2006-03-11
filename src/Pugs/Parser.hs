@@ -282,8 +282,8 @@ rulePackageHead = do
     scope <- option Nothing $ fmap Just ruleScope
     sym <- choice $ map symbol (words "package module class role grammar")
     name    <- ruleQualifiedIdentifier
-    _       <- option "" $ ruleVersionPart -- v
-    _       <- option "" $ ruleAuthorPart  -- a
+    optional ruleVersionPart -- v
+    optional ruleAuthorPart  -- a
     whiteSpace
     env <- getRuleEnv
     newName <- case scope of
@@ -688,7 +688,9 @@ ruleUseDeclaration = rule "use declaration" $ do
 rulePerlVersion :: RuleParser String
 rulePerlVersion = rule "perl version" $ do
     optional (string "v" <|> string "Perl-")
-    many1 (choice [ digit, char '.' ])
+    version <- many1 (choice [ digit, char '.' ])
+    optional ruleAuthorPart
+    return version
 
 {-|
 Match a Perl version number (as part of a @use@ declaration), and abort if
