@@ -1,0 +1,120 @@
+#!/usr/bin/perl -w
+use XML::Parser;
+use strict;
+use Data::Dumper;
+my $parser = new XML::Parser(Style=>'Subs');
+$parser->setHandlers(
+	Char=>\&char_handler,
+	Comment=>sub {}
+);
+$parser->parsefile(shift);
+
+my $description = 0;
+sub char_handler {
+	my ($expat,$string) = @_;	
+	return if $string =~ /^\s*$/;
+	return if $description;
+	print "$string";
+}
+sub default {
+	my ($expat,$data) = @_;
+	return if $data =~ /^<!--/;
+	print "default:$data\n";
+}
+sub AUTOLOAD {
+	no strict 'refs';
+	our $AUTOLOAD;
+	if ($AUTOLOAD =~ /g:(.+)/) {
+		goto &{$1};
+	}
+	warn "calling $AUTOLOAD";
+}
+sub token {
+	my ($expat,$name,%attr) = @_;
+	print "rule $attr{name} {"
+}
+sub token_ {
+	my ($expat,$name,%attr) = @_;
+	print "}\n"
+}
+sub production {
+	my ($expat,$name,%attr) = @_;
+	print "rule $attr{name} {"
+}
+sub production_ {
+	my ($expat,$name,%attr) = @_;
+	print "}\n"
+}
+sub ref {
+	my ($expat,$name,%attr) = @_;
+	print "<$attr{name}>";
+	sub ref_ {}
+} 
+sub string {
+	print "<'"
+}
+sub string_ {
+	print "'>"
+}
+sub oneOrMore {
+	print "["
+}
+sub oneOrMore_ {
+	print "]+"
+}
+sub zeroOrMore {
+	print "["
+}
+sub zeroOrMore_ {
+	print "]+"
+}
+sub optional {
+	print "["
+}
+sub optional_ {
+	print "]?"
+}
+
+### charackter classes
+sub charRange {
+	my ($expat,$name,%attr) = @_;
+	print "[$attr{minChar}..$attr{maxChar}]";
+}
+sub charRange_ {}
+sub charClass {
+	print "<"
+}
+sub charClass_ {
+	print ">"
+}
+### XXX: complete those
+sub optionalSkip {print " <S>* "}
+sub optionalSkip_ {}
+
+sub requiredSkip {print " <S>+ "}
+sub requiredSkip_ {}
+
+sub choice {}
+sub choice_ {}
+sub sequence_ {}
+sub sequence {}
+
+sub charCode {}
+sub charCode_ {}
+sub charCodeRange {}
+sub charCodeRange_ {}
+
+sub char {}
+sub char_ {}
+###Things i want to ingnore for now
+sub description {
+	$description++;
+}
+sub description_ {
+	$description--;
+}
+sub tref_ {}
+sub tref  {}
+sub transition  {}
+sub transition_  {}
+$main::{'state-list'} = $main::{'state-list_'} = sub {}
