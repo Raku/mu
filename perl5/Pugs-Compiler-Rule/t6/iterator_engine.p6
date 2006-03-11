@@ -1,12 +1,11 @@
 # pX/Common/p6rule.t - fglock
 
 use v6;
+use Pugs::Runtime::Rule;
 #use strict;
 #use warnings;
 
 #require 'iterator_engine.p6';
-
-require 'lib/Pugs/Grammar/Rule/Engine.p6';
 
 #use Test;  -- errors?
 sub ok($val,$comment) { 

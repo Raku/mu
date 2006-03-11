@@ -10,7 +10,7 @@ use Data::Dumper;
 $Data::Dumper::Indent = 1;
 $Data::Dumper::Pad = '# ';
 
-use_ok( 'Pugs::Grammar::Rule::Engine' );
+use_ok( 'Pugs::Runtime::Rule' );
 
 my ( $rule, $match );
 
