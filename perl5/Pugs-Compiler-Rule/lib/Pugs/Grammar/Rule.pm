@@ -1,3 +1,5 @@
+use v6-pugs;
+
 # This is the Perl 6 Grammar used to Parse and generate the 
 # Abstract Syntax Tree (AST) for Rules - fglock
 #
