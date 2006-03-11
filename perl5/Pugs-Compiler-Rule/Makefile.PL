@@ -23,3 +23,10 @@ name        ('Pugs-Compiler-Rule');
 all_from    ('lib/Pugs/Compiler/Rule.pm');
 
 &WriteAll;
+
+sub MY::postamble { << ".";
+pure_all ::
+\t\$(NOECHO) \$(TOUCH) blib/lib/Pugs/Grammar/Rule.pmc
+.
+}
+
