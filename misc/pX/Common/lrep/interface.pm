@@ -4,10 +4,10 @@ our $print_ast     = 0;
 our $print_match   = 0;
 our $pretty_print  = 0; #no effect yet...
 our $format        = 'p5';
-my  $got_options   = 0;
+our $got_options   = 0;
 sub import {
 	return if $got_options;
-	$got_options++;
+	$got_options = 1;
 	eval {require Getopt::Long;import Getopt::Long};
 	return if $@;
 

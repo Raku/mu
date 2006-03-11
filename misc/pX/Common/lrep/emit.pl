@@ -2,7 +2,7 @@ use strict;
 package Perl6Grammar;
 our %nodes;
 sub emit_node {
-	die 'unknown node type' unless $node::{$_[0]};
+	die "unknown node type: $_[0]" unless $node::{$_[0]};
 	no strict 'refs';
 	return &{"node::$_[0]"}($_[1]);
 }

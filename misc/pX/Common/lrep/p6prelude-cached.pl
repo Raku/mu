@@ -573,6 +573,28 @@ package grammar1;
        )
 ;
     push @statements, \&pod;
+*{'use_v6'} = 
+       ruleop::concat(
+         ruleop::constant( "use" )
+       ,
+         \&{'grammar1::p6ws'}
+       ,
+         ruleop::constant( "v6" )
+       ,
+         ruleop::constant( "\-" )
+       ,
+         ruleop::constant( "pugs" )
+       ,
+         ruleop::optional(
+             \&{'grammar1::p6ws'}
+           ,
+         )
+       ,
+         ruleop::constant( "\;" )
+       ,
+       )
+;
+    push @statements, \&use_v6;
 *{'term1'} = 
          ruleop::alternation( \@grammar1::terms )
        ,

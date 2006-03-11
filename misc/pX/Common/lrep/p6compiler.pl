@@ -5,10 +5,18 @@
 
 use strict;
 use warnings;
+no warnings 'redefine';
 
 require 'p6rule.pl';
 require 'emit.pl';
-use interface;
+require 'interface.pm';
+
+my @OLD_ARGV = @ARGV;
+
+RESTART:
+    @ARGV = @OLD_ARGV;
+    undef $interface::got_options;
+    interface->import;
 
 # TODO: see TASKS file
 
@@ -48,7 +56,7 @@ use interface;
     ) {
 
       # loading the prelude is always required, even if it is out of date!
-      print "* loading Prelude: $prelude_file-cached.pl\n";
+      warn "* loading Prelude: $prelude_file-cached.pl\n";
       require "$prelude_file-cached.pl";
 
       if ( -f "$prelude_file-cached.pl" ) {
@@ -61,7 +69,7 @@ use interface;
       }
       if ( $recompile ) {
         local $/ = undef; 
-        print "* precompiling Prelude: $prelude_file.p6\n";
+        warn "* precompiling Prelude: $prelude_file.p6\n";
         open( FILE, "<", "$prelude_file.p6" ) or 
             die "can't open prelude file: $prelude_file.p6 - $!";
         my $prelude = <FILE>;
@@ -72,14 +80,13 @@ use interface;
             $perl5 = Perl6Grammar::compile( $prelude );
         }
         # print "MATCH\n", Dumper($match), "END MATCH\n";
-        print "* caching Prelude: $prelude_file-cached.pl\n";
+        warn "* caching Prelude: $prelude_file-cached.pl\n";
         open( FILE, ">", "$prelude_file-cached.pl" ) or
             die "can't open prelude file: $prelude_file-cached.pl - $!";
         print FILE "# generated file - do not edit!\n" . $perl5;
         close FILE;
-        print "\n\n*** please re-run the command, in order to load the new prelude !!!\n\n\n";
-        print "*** The messages about redefined subroutines are normal - they will be supressed in a later version\n\n";
-        exit;
+        warn "*** restarting the compilation to use the new prelude...\n";
+        goto RESTART;
       }
       else {
         ## print "* loading Prelude: $prelude_file-cached.pl\n";
@@ -91,7 +98,7 @@ use interface;
     {
         my $filename = shift || die "no filename";
         local $/ = undef; 
-        print "* compiling: $filename\n\n";
+        warn "* compiling: $filename\n";
         open( FILE, "<", $filename ) or 
             die "can't open file: $filename - $!";
         my $source = <FILE>;
@@ -145,10 +152,19 @@ sub compile {
         if $match->{tail};
     die "compile: syntax error in program '$_[0]'\n"
         unless $match->{bool};
-    print "compile: match:\n", dump_tree($match,'match') if $flags->{print_match};
-    print "compile: generated ast:\n", dump_tree($match->{capture},'ast') if $flags->{print_ast};
+    if ($flags->{print_match}) {
+        warn "compile: match:\n";
+        print dump_tree($match,'match');
+    }
+    if ($flags->{print_ast}) {
+        warn "compile: generated ast:\n";
+        dump_tree($match->{capture},'ast');
+    }
     my $program = emit( $match->{capture} );
-    print "compile: generated code:\n$program" if $flags->{print_program};
+    if ($flags->{print_program}) {
+        warn "compile: generated code:\n";
+        print $program;
+    }
     return $program;
 
 }

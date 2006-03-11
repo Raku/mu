@@ -144,6 +144,11 @@ rule pod {
     \=cut 
 }
 push @statements, \&pod;
+
+rule use_v6 { 
+    use <?p6ws> v6 \-pugs <?p6ws>? \;
+}
+push @statements, \&use_v6;
         
 rule term1 {
     <@grammar1::terms>
