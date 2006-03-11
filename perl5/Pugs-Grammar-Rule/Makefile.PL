@@ -12,7 +12,6 @@ my $pmc_is_uptodate = (-s $pmc and (-M $pmc <= -M $pm));
 
 if (-d $lrep_dir and not $pmc_is_uptodate) {
     chdir $lrep_dir;
-    die("$^X p6compiler.pl --print-program $pm > $pmc");
     system("$^X p6compiler.pl --print-program $pm > $pmc");
     chdir $cwd;
 }
