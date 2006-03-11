@@ -1,3 +1,29 @@
-- write tests (port from lrep)
-- rewrite the compiler (same)
+TODO for Pugs::Grammar::Rule and Pugs::Emitter::Rule::Perl5
 
+- rule switches
+
+- missing rule syntax (see README)
+
+- namespace problems:
+  - rules are compiled in the Pugs::Grammar::Rule namespace
+  - user-defined rules are local to the current package
+    and will need to be called with full-name (until fixed)
+
+- write the Match class
+
+- write more tests (port from lrep)
+
+- rewrite the compiler (port from lrep) ???
+  (it works without a compiler)
+
+- remove (now empty) Pugs::Emit::Rule.pm
+
+- add in Pugs::Grammar::Rule:
+  - 'use Pugs::Grammar::Rule::Engine'
+  (for now, just add it in the main program)
+  
+- optimization: precompile the rules that have return blocks:
+   my $rule = sub { ... }
+   *xxx = sub { $rule; ... }
+
+- optimization: inline code in the Engine
