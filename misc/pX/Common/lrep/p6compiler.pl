@@ -97,10 +97,15 @@ RESTART:
 
     {
         my $filename = shift || die "no filename";
-        local $/ = undef; 
-        warn "* compiling: $filename\n";
-        open( FILE, "<", $filename ) or 
-            die "can't open file: $filename - $!";
+        if ($filename eq '-') {
+            warn "* compiling source from STDIN\n";
+            *FILE = *STDIN
+        } else {
+            warn "* compiling: $filename\n";
+            open( FILE, "<", $filename ) or 
+              die "can't open file: $filename - $!";
+        }
+        local $/ = undef;
         my $source = <FILE>;
         my $perl5 = Perl6Grammar::compile( $source,{
 		print_ast => $interface::print_ast,
