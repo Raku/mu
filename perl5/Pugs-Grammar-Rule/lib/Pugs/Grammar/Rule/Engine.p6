@@ -1,3 +1,6 @@
+use v6-pugs;
+module Pugs::Runtime::Rule;
+
 # iterator_engine.p6 - fglock
 #
 
@@ -8,8 +11,6 @@
 #use strict;
 #use warnings;
 #use Smart::Comments; for debugging, look also at Filtered-Comments.pm
-
-use v6;
 
 =pod
 
