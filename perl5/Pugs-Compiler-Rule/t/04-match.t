@@ -8,6 +8,16 @@ use_ok( 'Pugs::Emitter::Rule::Perl5' );
 use_ok( 'Pugs::Runtime::Match' );
 
 {
+    my $rule = Pugs::Grammar::Rule::rule( '((.).)' );
+    $rule = eval Pugs::Emitter::Rule::Perl5::emit( $rule->{capture} );
+    die $@ if $@;
+    my $match = Match->new( $rule->( "xyz" ) );
+    is( "$match", "xy", 'stringify' );
+    is( "$match->[0]", "xy", 'stringify' );
+    is( "$match->[0][0]", "x", 'stringify' );
+}
+
+{
     my $rule = Pugs::Grammar::Rule::rule( '..' );
     $rule = eval Pugs::Emitter::Rule::Perl5::emit( $rule->{capture} );
     die $@ if $@;
