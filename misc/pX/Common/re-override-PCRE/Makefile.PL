@@ -4,8 +4,8 @@ use inc::Module::Install;
 use File::Copy;
 use File::Basename;
 
-if (not -e 'pcre.h' and -e '../../src/pcre/pcre.h') {
-    for my $file (glob("../../src/pcre/*")) {
+if (not -e 'pcre.h' and -e '../../../../src/pcre/pcre.h') {
+    for my $file (glob("../../../../src/pcre/*")) {
         copy($file => basename($file));
     }
 }
