@@ -1,10 +1,10 @@
 package Module::Compile; 
+
 use strict;
 use warnings;
-use 5.006001;
-use XXX;
+use 5.006;
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 my $filtered = {};
 
@@ -192,9 +192,15 @@ sub pmc_chunk {
     while (@parts) {
         my $part = shift @parts;
         if ($part =~ /^\s*(use|no)\s+([\w\:]+).*\n/) {
-            my ($use, $klass) = ($1, $2);
-            eval "require $klass";
-            die $@ if $@ and "$@" !~ /^Can't locate /;
+            my ($use, $klass, $file) = ($1, $2, $2);
+            $file =~ s{::}{/}g;
+
+            {
+                local $@;
+                eval { require "$file.pm" };
+                die $@ if $@ and "$@" !~ /^Can't locate /;
+            }
+
             if (not ($klass->can('pmc_compiler') and $class->pmc_compiler)) {
                 $text .= $part;
             }
