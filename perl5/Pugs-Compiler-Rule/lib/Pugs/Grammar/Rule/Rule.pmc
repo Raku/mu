@@ -76,12 +76,12 @@ package Pugs::Grammar::Rule;
        ruleop::concat(
          ruleop::constant( "rule" )
        ,
-         ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
+         ruleop::capture( 'p6ws', \&{'p6ws'} )
        ,
-         ruleop::capture( 'ident', \&{'grammar1::ident'} )
+         ruleop::capture( 'ident', \&{'ident'} )
        ,
          ruleop::optional(
-             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
+             ruleop::capture( 'p6ws', \&{'p6ws'} )
            ,
          )
        ,
@@ -89,11 +89,11 @@ package Pugs::Grammar::Rule;
        ,
          ruleop::constant( "P5" )
        ,
-         ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
+         ruleop::capture( 'p6ws', \&{'p6ws'} )
        ,
          ruleop::constant( "\{" )
        ,
-         ruleop::capture( 'perl5_regex', \&{'grammar1::perl5_regex'} )
+         ruleop::capture( 'perl5_regex', \&{'perl5_regex'} )
        ,
          ruleop::constant( "\}" )
        ,
@@ -111,8 +111,8 @@ package Pugs::Grammar::Rule;
         }; 
     }
 ;
-    push @grammar1::statements, \&perl5_rule_decl;
-*{'grammar1::word'} = sub {
+    push @statements, \&perl5_rule_decl;
+*{'word'} = sub {
     my $bool = $_[0] =~ /^([_[:alnum:]]+)(.*)$/sx;
     return {
         bool  => $bool,
@@ -121,7 +121,7 @@ package Pugs::Grammar::Rule;
         ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
     }
 };
-*{'grammar1::any'} = sub {
+*{'any'} = sub {
     my $bool = $_[0] =~ /^(.)(.*)$/sx;
     return {
         bool  => $bool,
@@ -130,7 +130,7 @@ package Pugs::Grammar::Rule;
         ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
     }
 };
-*{'grammar1::escaped_char'} = sub {
+*{'escaped_char'} = sub {
     my $bool = $_[0] =~ /^\\(.)(.*)$/sx;
     return {
         bool  => $bool,
@@ -139,7 +139,7 @@ package Pugs::Grammar::Rule;
         ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
     }
 };
-*{'grammar1::newline'} = sub {
+*{'newline'} = sub {
     my $bool = $_[0] =~ /^(\n)(.*)$/sx;
     return {
         bool  => $bool,
@@ -148,7 +148,7 @@ package Pugs::Grammar::Rule;
         ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
     }
 };
-*{'grammar1::ws'} = sub {
+*{'ws'} = sub {
     my $bool = $_[0] =~ /^(\s+)(.*)$/sx;
     return {
         bool  => $bool,
@@ -157,7 +157,7 @@ package Pugs::Grammar::Rule;
         ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
     }
 };
-*{'grammar1::p6ws'} = sub {
+*{'p6ws'} = sub {
     my $bool = $_[0] =~ /^((?:\s|\#(?-s:.)*)+)(.*)$/sx;
     return {
         bool  => $bool,
@@ -166,7 +166,7 @@ package Pugs::Grammar::Rule;
         ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
     }
 };
-*{'grammar1::non_capturing_subrule'} = sub {
+*{'non_capturing_subrule'} = sub {
     my $bool = $_[0] =~ /^\<\?(.*?)\>(.*)$/sx;
     return {
         bool  => $bool,
@@ -176,7 +176,7 @@ package Pugs::Grammar::Rule;
     }
 };
     push @rule_terms, \&non_capturing_subrule;
-*{'grammar1::negated_subrule'} = sub {
+*{'negated_subrule'} = sub {
     my $bool = $_[0] =~ /^\<\!(.*?)\>(.*)$/sx;
     return {
         bool  => $bool,
@@ -186,7 +186,7 @@ package Pugs::Grammar::Rule;
     }
 };
     push @rule_terms, \&negated_subrule;
-*{'grammar1::subrule'} = sub {
+*{'subrule'} = sub {
     my $bool = $_[0] =~ /^\<(.*?)\>(.*)$/sx;
     return {
         bool  => $bool,
@@ -200,7 +200,7 @@ package Pugs::Grammar::Rule;
 
     sub { 
         my $rule = 
-         ruleop::capture( 'word', \&{'grammar1::word'} )
+         ruleop::capture( 'word', \&{'word'} )
        ,
     ;
         my $match = $rule->( @_ );
@@ -220,7 +220,7 @@ package Pugs::Grammar::Rule;
 
     sub { 
         my $rule = 
-         ruleop::capture( 'escaped_char', \&{'grammar1::escaped_char'} )
+         ruleop::capture( 'escaped_char', \&{'escaped_char'} )
        ,
     ;
         my $match = $rule->( @_ );
@@ -262,9 +262,9 @@ package Pugs::Grammar::Rule;
 *{'rule'} = 
          ruleop::greedy_star(
              ruleop::alternation( [
-                   \&{'grammar1::alt'}
+                   \&{'alt'}
                  ,
-                   \&{'grammar1::quantifier'}
+                   \&{'quantifier'}
                  ,
              ] )
            ,
@@ -275,7 +275,7 @@ package Pugs::Grammar::Rule;
        ruleop::concat(
          ruleop::constant( "\[" )
        ,
-         \&{'grammar1::rule'}
+         \&{'rule'}
        ,
          ruleop::constant( "\]" )
        ,
@@ -286,7 +286,7 @@ package Pugs::Grammar::Rule;
 
     sub { 
         my $rule = 
-         ruleop::capture( 'code', \&{'grammar1::code'} )
+         ruleop::capture( 'code', \&{'code'} )
        ,
     ;
         my $match = $rule->( @_ );
@@ -306,7 +306,7 @@ package Pugs::Grammar::Rule;
 
     sub { 
         my $rule = 
-         ruleop::capture( 'variable', \&{'grammar1::variable'} )
+         ruleop::capture( 'variable', \&{'variable'} )
        ,
     ;
         my $match = $rule->( @_ );
@@ -329,7 +329,7 @@ package Pugs::Grammar::Rule;
        ruleop::concat(
          ruleop::constant( "\<" )
        ,
-         ruleop::capture( 'variable', \&{'grammar1::variable'} )
+         ruleop::capture( 'variable', \&{'variable'} )
        ,
          ruleop::constant( "\>" )
        ,
@@ -355,10 +355,10 @@ package Pugs::Grammar::Rule;
        ruleop::concat(
          ruleop::constant( "\$" )
        ,
-         ruleop::capture( 'ident', \&{'grammar1::ident'} )
+         ruleop::capture( 'ident', \&{'ident'} )
        ,
          ruleop::optional(
-             \&{'grammar1::p6ws'}
+             \&{'p6ws'}
            ,
          )
        ,
@@ -367,13 +367,13 @@ package Pugs::Grammar::Rule;
          ruleop::constant( "\=" )
        ,
          ruleop::optional(
-             \&{'grammar1::p6ws'}
+             \&{'p6ws'}
            ,
          )
        ,
          ruleop::constant( "\(" )
        ,
-         ruleop::capture( 'rule', \&{'grammar1::rule'} )
+         ruleop::capture( 'rule', \&{'rule'} )
        ,
          ruleop::constant( "\)" )
        ,
@@ -395,14 +395,14 @@ package Pugs::Grammar::Rule;
 *{'immediate_statement_rule'} = 
        ruleop::concat(
          ruleop::optional(
-             \&{'grammar1::p6ws'}
+             \&{'p6ws'}
            ,
          )
        ,
-         ruleop::alternation( \@grammar1::statements )
+         ruleop::alternation( \@statements )
        ,
          ruleop::optional(
-             \&{'grammar1::p6ws'}
+             \&{'p6ws'}
            ,
          )
        ,
@@ -410,7 +410,7 @@ package Pugs::Grammar::Rule;
 ;
 *{'grammar'} = 
          ruleop::greedy_star(
-             ruleop::capture( 'immediate_statement_exec', \&{'grammar1::immediate_statement_exec'} )
+             ruleop::capture( 'immediate_statement_exec', \&{'immediate_statement_exec'} )
            ,
          )
        ,
@@ -422,18 +422,18 @@ package Pugs::Grammar::Rule;
        ruleop::concat(
          ruleop::constant( "rule" )
        ,
-         ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
+         ruleop::capture( 'p6ws', \&{'p6ws'} )
        ,
-         ruleop::capture( 'ident', \&{'grammar1::ident'} )
+         ruleop::capture( 'ident', \&{'ident'} )
        ,
          ruleop::optional(
-             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
+             ruleop::capture( 'p6ws', \&{'p6ws'} )
            ,
          )
        ,
          ruleop::constant( "\{" )
        ,
-         ruleop::capture( 'rule', \&{'grammar1::rule'} )
+         ruleop::capture( 'rule', \&{'rule'} )
        ,
          ruleop::constant( "\}" )
        ,
@@ -451,7 +451,7 @@ package Pugs::Grammar::Rule;
         }; 
     }
 ;
-    push @grammar1::statements, \&rule_decl;
+    push @statements, \&rule_decl;
 *{'grammar_name'} = 
 
     sub { 
@@ -459,12 +459,12 @@ package Pugs::Grammar::Rule;
        ruleop::concat(
          ruleop::constant( "grammar" )
        ,
-         ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
+         ruleop::capture( 'p6ws', \&{'p6ws'} )
        ,
-         ruleop::capture( 'ident', \&{'grammar1::ident'} )
+         ruleop::capture( 'ident', \&{'ident'} )
        ,
          ruleop::optional(
-             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
+             ruleop::capture( 'p6ws', \&{'p6ws'} )
            ,
          )
        ,
@@ -500,32 +500,32 @@ package Pugs::Grammar::Rule;
            ,
          )
        ,
-         ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
+         ruleop::capture( 'p6ws', \&{'p6ws'} )
        ,
-         ruleop::capture( 'variable', \&{'grammar1::variable'} )
+         ruleop::capture( 'variable', \&{'variable'} )
        ,
          ruleop::optional(
-             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
+             ruleop::capture( 'p6ws', \&{'p6ws'} )
            ,
          )
        ,
          ruleop::constant( "\," )
        ,
          ruleop::optional(
-             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
+             ruleop::capture( 'p6ws', \&{'p6ws'} )
            ,
          )
        ,
          ruleop::capture( 'code', 
              ruleop::non_greedy_star(
-                 \&{'grammar1::any'}
+                 \&{'any'}
                ,
              )
            ,
          )
        ,
          ruleop::optional(
-             ruleop::capture( 'p6ws', \&{'grammar1::p6ws'} )
+             ruleop::capture( 'p6ws', \&{'p6ws'} )
            ,
          )
        ,

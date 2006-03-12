@@ -18,12 +18,12 @@ sub new {
 }
 
 sub flat {
+    # match::str(${$_[0]});
     join '', map { values %{$_->{match}} } @{${$_[0]}->{match}};
 }
 
 # return the capture
 sub code {
-    use Devel::Peek;
     my $c = ${$_[0]}->{capture};
     return sub { $c };
 }
@@ -41,7 +41,7 @@ sub bool {
 # as hash
 sub hash {
     return {map {
-        exists $_->{capturing_group}
+        exists $_->{''}
             ? ()
             : map { ref $_ ? @$_ : $_ } %$_
     } @{${$_[0]}->{capture}}};
@@ -50,8 +50,8 @@ sub hash {
 # as array
 sub array {
     return [map {
-        exists $_->{capturing_group}
-            ? @{$_->{capturing_group}}
+        exists $_->{''}
+            ? @{$_->{''}}
             : ()
     } @{${$_[0]}->{capture}}];
 }

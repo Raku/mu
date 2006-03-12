@@ -266,7 +266,7 @@ sub rule {
     #       emit_rule( $_[0], $_[1] ) . "$_[1] )\n";
 }        
 sub capturing_group {
-    return "$_[1] ruleop::capture( 'capturing_group',\n" .
+    return "$_[1] ruleop::capture( '',\n" .
            emit_rule( $_[0], $_[1] ) . "$_[1] )\n";
 }        
 sub non_capturing_group {
