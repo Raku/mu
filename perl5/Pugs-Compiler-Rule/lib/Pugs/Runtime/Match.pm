@@ -11,6 +11,28 @@ use overload (
     fallback => 1,
 );
 
+sub _str {
+    my $match = $_[0];
+    my $ref = ref( $match );
+    # use Data::Dumper;
+    # print "MATCH: ", Dumper( $match ), "\n";
+    return $match unless $ref;
+    if ( $ref eq 'HASH' ) {
+        if ( exists $match->{match} ) {
+            if ( ref( $match->{match} ) eq 'ARRAY' ) {
+                return join( '', map { _str( $_ ) } @{$match->{match}} );
+            }
+            if ( ref( $match->{match} ) eq 'HASH' ) {
+                return join( '', map { _str( $_ ) } values %{$match->{match}} );
+            }
+        }
+        return join( '', map { _str( $_ ) } values %{$match} );
+    }
+    #        return join( '', values %{$match->{match}} )
+    #            unless exists $match->{match}{match};
+    die 'not a match';
+}
+
 sub new {
     my ($class, $match) = @_;
     my $self = \$match;
@@ -18,7 +40,7 @@ sub new {
 }
 
 sub flat {
-    match::str(${$_[0]});
+    _str(${$_[0]});
     # join '', map { values %{$_->{match}} } @{${$_[0]}->{match}};
 }
 
