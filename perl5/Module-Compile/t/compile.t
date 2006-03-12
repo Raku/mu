@@ -18,20 +18,20 @@ __DATA__
 package Indented;
 use Module::Compile -base;
 
-sub compile {
+sub pmc_compile {
     s/^(def \w+):(\n(?: +.*?\n)*)/$1 {$2}\n/g;
-    PySubs->compile();
+    PySubs->pmc_compile();
 }
 
 package PySubs;
 
-sub compile {
+sub pmc_compile {
     s/^def (\w+ \{)/sub $1/g;
 }
 
 package Y2K;
 use Module::Compile -base;
-sub compile { s/y/k/g }
+sub pmc_compile { s/y/k/g }
 
 --- pm
 package Foo;

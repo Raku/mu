@@ -7,7 +7,7 @@ SYNOPSIS
 
         sub pmc_compile {
             my ($class, $source) = @_;
-            # Convert $source into (most like Perl 5) $compiled_output
+            # Convert $source into (most likely Perl 5) $compiled_output
             return $compiled_output;
         }
 
@@ -24,8 +24,8 @@ SYNOPSIS
         perl -c Bar.pm
 
 DESCRIPTION
-    This module provides a system for writing Perl module compilation
-    modules.
+    This module provides a system for writing modules that *compile* other
+    Perl modules.
 
     Modules that use these compilation modules get compiled into some
     altered form the first time they are run. The result is cached into
@@ -36,41 +36,41 @@ DESCRIPTION
 
     You get the following benefits:
 
-A PERL 6 EXAMPLE
-    You can declare a preprocessor with:
+EXAMPLE
+    You can declare a "v6.pm" compiler with:
 
         package v6;
         use Module::Compile -base;
     
         sub pmc_compile {
             my ($class, $source) = @_;
-            ... some way to invoke pugs and give p5 code back ...
+            # ... some way to invoke pugs and give p5 code back ...
         }
 
     and use it like:
 
-        # User.pm
+        # MyModule.pm
         use v6-pugs;
-        module User;
-        ...some p6 code here...
+        module MyModule;
+        # ...some p6 code here...
         no v6;
-        ...back to p5 land...
+        # ...back to p5 land...
 
     On the first time this module is loaded, it will compile Perl 6 chunks
     into Perl 5 (as soon as the "no v6" line is seen), and merge it with the
-    Perl 5 chunks, saving the result into a User.pmc file.
+    Perl 5 chunks, saving the result into a MyModule.pmc file.
 
-    The next time around, Perl 5 will automatically load User.pmc when
-    someone says "use Foo". On the other hand, Perl 6 can run User.pm as a
-    Perl 6 module just fine, as "use v6-pugs" and "no v6" both works in a
-    perl 6 setting also.
+    The next time around, Perl 5 will automatically load MyModule.pmc when
+    someone says "use MyModule". On the other hand, Perl 6 can run
+    MyModule.pm s a Perl 6 module just fine, as "use v6-pugs" and "no v6"
+    both works in a Perl 6 setting.
 
-    The pmc module will imbue v6.pm with the ability to check for Foo.pmc's
-    updatedness also, and if it's up to date, then it'd touch its timestamp
-    so the .pmc is loaded on the next time.
+    The v6.pm module will also check if MyModule.pmc is up to date. If it
+    is, then it will touch its timestamp so the ".pmc" is loaded on the next
+    time.
 
 BENEFITS
-    Using Module::Compile compilers gives you the following benefits:
+    Module::Compile compilers gives you the following benefits:
 
     *   Ability to mix many source filterish modules in a much more sane
         manner. Module::Compile controls the compilation process, calling
@@ -82,8 +82,8 @@ BENEFITS
     *   Easier debugging of compiled/filtered code. The ".pmc" has the real
         code you want to see.
 
-    *   Zero runtime penalty after compilation. "perl" has already been
-        doing the ".pmc" check on every module load since 1999!
+    *   Zero runtime penalty after compilation, because "perl" has already
+        been doing the ".pmc" check on every module load since 1999!
 
 AUTHORS
     Audrey Tang <autrijus@autrijus.org>

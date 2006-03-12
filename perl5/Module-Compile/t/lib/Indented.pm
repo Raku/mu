@@ -2,7 +2,7 @@ package Indented;
 
 use Module::Compile -base;
 
-sub compile {
+sub pmc_compile {
     s/^(sub \w+):(\n(?: +.*?\n)*)/$1 {$2}\n/gm;
 }
 

@@ -1,4 +1,13 @@
 ---
+version: 0.11
+date:    Sun Mar 12 10:05:47 PST 2006
+changes:
+- Fixed API bugs
+- Fixed Doc
+- Applied changes from audreyt
+- Added stub for freshness check
+
+---
 version: 0.10
 date:    Sun Mar 12 05:47:06 PST 2006
 changes:

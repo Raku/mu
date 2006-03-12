@@ -1,11 +1,12 @@
 package Module::Compile; 
 
+use 5.006;
 use strict;
 use warnings;
-use 5.006;
 
 our $VERSION = '0.11';
 
+# A lexical hash to keep track of which files have already been filtered
 my $filtered = {};
 
 # All subroutines are prefixed with pmc_ so subclasses don't accidentally
@@ -18,7 +19,7 @@ sub pmc_stack_frame { 0 };
 # This is called while parsing/chunking source code to determine if the
 # module/class in a use/no line is part of the Module::Compile game.
 #
-# Return true if this class (subclass) supports PMC compilation.
+# Return true if this class supports PMC compilation.
 #
 # The hope is that this will allow interoperability with modules that
 # do not inherit from Module::Compile but still want to do this sort
@@ -28,24 +29,32 @@ sub pmc_compiler { 1 };
 # All Module::Compile based modules inherit this import routine.
 sub import {
     my ($class, $flag) = @_;
-    if ($class eq __PACKAGE__ and $flag and $flag eq '-base') {
-        no strict 'refs';
-        push @{caller() . '::ISA'}, __PACKAGE__;
-        return;
-    }
 
-    my $stack_frame = $class->pmc_stack_frame;
-    my ($module, $line) = (caller($stack_frame))[1, 2];
-    my $preface = $class->pmc_preface($module, $line);
+    $class->pmc_set_base($flag || '') and return;
+
+    my ($module, $line) = (caller($class->pmc_stack_frame))[1, 2];
+
     return if $filtered->{$module}++;
 
     my $callback = sub {
         my $content = shift;
+        my $preface = $class->pmc_preface($module, $line);
         my $output = $class->pmc_template($preface, $content);
         $class->pmc_output($module, $output);
     };
 
     $class->pmc_filter($callback);
+}
+
+# Set up inheritance
+sub pmc_set_base {
+    my ($class, $flag) = @_;
+    if ($class eq __PACKAGE__ and $flag and $flag eq '-base') {
+        no strict 'refs';
+        push @{(caller(1))[0] . '::ISA'}, __PACKAGE__;
+        return 1;
+    }
+    return;
 }
 
 # Get the code before the first source filter call
@@ -174,8 +183,10 @@ sub pmc_call {
     my @classes = splice(@{$chunk->[1]}, $offset, $length);
     for my $c (@classes) {
         $_ = $text;
-        $c->compile();
-        $text = $_;
+        my $return = $c->pmc_compile($text);
+        $text = (defined $return and $return !~ /^\d+$/)
+            ? $return
+            : $_;
     }
     $chunk->[0] = $text;
 }
@@ -194,13 +205,11 @@ sub pmc_chunk {
         if ($part =~ /^\s*(use|no)\s+([\w\:]+).*\n/) {
             my ($use, $klass, $file) = ($1, $2, $2);
             $file =~ s{::}{/}g;
-
             {
                 local $@;
                 eval { require "$file.pm" };
                 die $@ if $@ and "$@" !~ /^Can't locate /;
             }
-
             if (not ($klass->can('pmc_compiler') and $class->pmc_compiler)) {
                 $text .= $part;
             }
@@ -265,15 +274,17 @@ To compile F<Bar.pm> into F<Bar.pmc>:
 
 =head1 DESCRIPTION
 
-This module provides a system for writing modules that I<compiles> other
+This module provides a system for writing modules that I<compile> other
 Perl modules.
 
 Modules that use these compilation modules get compiled into some
-altered form the first time they are run. The result is cached into C<.pmc>
-files.
+altered form the first time they are run. The result is cached into
+C<.pmc> files.
 
 Perl has native support for C<.pmc> files. It always checks for them, before
 loading a C<.pm> file.
+
+You get the following benefits:
 
 =head1 EXAMPLE
 
@@ -301,30 +312,30 @@ chunks into Perl 5 (as soon as the C<no v6> line is seen), and
 merge it with the Perl 5 chunks, saving the result into a
 F<MyModule.pmc> file.
 
-The next time around, Perl 5 will automatically load F<MyModule.pmc> when
-someone says C<use MyModule>. On the other hand, Perl 6 can run MyModule.pm as
-a Perl 6 module just fine, as C<use v6-pugs> and C<no v6> both works in a
-Perl 6 setting.
+The next time around, Perl 5 will automatically load F<MyModule.pmc>
+when someone says C<use MyModule>. On the other hand, Perl 6 can run
+MyModule.pm s a Perl 6 module just fine, as C<use v6-pugs> and C<no v6>
+both works in a Perl 6 setting.
 
-The B<v6.pm> module will also check if F<MyModule.pmc> is up to date.
-If it is, then it will touch its timestamp so the C<.pmc> is loaded on
-the next time.
+The B<v6.pm> module will also check if F<MyModule.pmc> is up to date. If
+it is, then it will touch its timestamp so the C<.pmc> is loaded on the
+next time.
 
 =head1 BENEFITS
 
-B<Module::Compile> gives you the following benefits:
+Module::Compile compilers gives you the following benefits:
 
 =over
 
 =item *
 
 Ability to mix many source filterish modules in a much more sane manner.
-B<Module::Compile> controls the compilation process, calling each compiler
+Module::Compile controls the compilation process, calling each compiler
 at the right time with the right data.
 
 =item *
 
-Ability to ship precompiled modules without shipping B<Module::Compile> and
+Ability to ship precompiled modules without shipping Module::Compile and
 the compiler modules themselves.
 
 =item *
@@ -334,8 +345,8 @@ code you want to see.
 
 =item *
 
-Zero runtime penalty after compilation, because C<perl> has already been doing
-the C<.pmc> check on every module load since 1999!
+Zero runtime penalty after compilation, because C<perl> has already been
+doing the C<.pmc> check on every module load since 1999!
 
 =back
 
