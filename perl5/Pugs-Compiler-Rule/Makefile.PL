@@ -24,10 +24,12 @@ all_from    ('lib/Pugs/Compiler/Rule.pm');
 
 &WriteAll;
 
-sub MY::postamble { << ".";
+sub MY::postamble {
+    $pmc =~ s!(.*)lib!$1blib/lib!;
+    << ".";
 pure_all ::
-\t\$(NOECHO) \$(CHMOD) 644 blib/lib/Pugs/Grammar/Rule.pmc
-\t\$(NOECHO) \$(TOUCH) blib/lib/Pugs/Grammar/Rule.pmc
+\t\$(NOECHO) \$(CHMOD) 644 $pmc
+\t\$(NOECHO) \$(TOUCH) $pmc
 .
 }
 

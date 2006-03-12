@@ -1,5 +1,5 @@
 
-use Test::More tests => 5;
+use Test::More tests => 11;
 use Data::Dumper;
 
 use_ok( 'Pugs::Runtime::Rule' );
@@ -9,13 +9,10 @@ use_ok( 'Pugs::Runtime::Match' );
 
 {
     my $rule = Pugs::Grammar::Rule::rule( '$z := (.) { return { x => $() ,} } ' );
-    #print Dumper( $rule->{capture} );
     my $str = Pugs::Emitter::Rule::Perl5::emit( $rule->{capture} );
-    #print "emit: ", $str, "\n";
     my $rule = eval $str;
     die $@ if $@;
     my $match = Match->new( $rule->( "abc" ) );
-    #print "match: \n", Dumper($match);
     my $ret =  
         {
             'x' => [
@@ -26,19 +23,28 @@ use_ok( 'Pugs::Runtime::Match' );
                   }
             ]
         };
-    is_deeply( $match->capture, $ret, 'return match' );
-    ok( $match->bool, 'true match' );
+    is_deeply( $match->(), $ret, 'return match' );
+    ok( $match, 'true match' );
 }
 
 {
     my $rule = Pugs::Grammar::Rule::rule( '(.)(.)' );
-    #print Dumper( $rule->{capture} );
     my $str = Pugs::Emitter::Rule::Perl5::emit( $rule->{capture} );
-    #print "emit: ", $str, "\n";
     my $rule = eval $str;
     die $@ if $@;
     my $match = Match->new( $rule->( "abc" ) );
-    print "match: \n", Dumper($match);
-    print "match array: \n", Dumper($match->array);
-    #is_deeply( $match->capture, $ret, 'return match' );
+    my $ret = ['a', 'b'];
+    is_deeply( [@$match], $ret, 'return match' );
+    is( "$match", "ab", 'return match' );
+}
+{
+    my $rule = Pugs::Grammar::Rule::rule( '$x := (.)  $y := (.)');
+    my $str = Pugs::Emitter::Rule::Perl5::emit( $rule->{capture} );
+    my $rule = eval $str;
+    die $@ if $@;
+    my $match = Match->new( $rule->( "123" ) );
+    my $ret = { x => '1', y => '2' };
+    is_deeply( {%$match}, $ret, 'return match' );
+    is( "$match", "12", 'stringify' );
+    is( +$match, 12, 'numify' );
 }
