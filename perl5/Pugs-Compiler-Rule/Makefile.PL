@@ -6,7 +6,7 @@ use inc::Module::Install (
 use Cwd qw< abs_path cwd >;
 
 my $cwd = cwd();
-my $pm  = abs_path('lib/Pugs/Grammar/Rule.pm');
+my $pm  = abs_path('lib/Pugs/Grammar/Rule/Rule.pm');
 my $pmc = $pm . 'c';
 
 my $lrep_dir = "../../misc/pX/Common/lrep";

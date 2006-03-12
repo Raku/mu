@@ -29,6 +29,7 @@ or a hash containing:
     capture - the tree of captured things
     abort - the match was stopped by a { return } or a fail(),
            and it should not backtrack or whatever
+    return - the block (sub-reference) that contains 'return'
 
 Continuations are used for backtracking.
 
@@ -107,9 +108,12 @@ sub ruleop::concat {
             
             $matches[1] = $nodes[1]->( $matches[0]{tail}, $state[1], $flags );
             ### 2nd match: $matches[1]
-            return $matches[1] 
-                if $matches[1]{abort};
             if ( ! $matches[1]{bool} ) {
+                
+                if ( $matches[1]{abort} ) {
+                    die "not implemented";
+                }
+
                 if ( ! defined( $matches[1]{state} ) ) {
                     return unless defined $matches[0]{state};
                     @state = ( $matches[0]{state}, 0 );
@@ -141,6 +145,8 @@ sub ruleop::concat {
                 tail =>  $matches[1]{tail},
                 state => $succ,
                 capture => $capture,
+                abort => $matches[1]{abort},
+                return => $matches[1]{return},
             };
         }
     }
@@ -185,7 +191,7 @@ sub ruleop::capture {
         $param[2] = { %{$param[2]}, capture=>1 };
         my $match = $node->( @param );
         return unless $match->{bool};
-        return if $match->{abort};
+        ## return if $match->{abort}; - maybe a { return }
         my $new_match = { %$match };
         $new_match->{capture} = [ { $label => $match->{capture} } ];
         return $new_match;

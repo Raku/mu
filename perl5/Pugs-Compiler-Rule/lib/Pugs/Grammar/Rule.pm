@@ -1,139 +1,275 @@
-use v6-pugs;
+# pX/Common/p6rule.pl - fglock
+#
+# experimental implementation of p6-regex parser
+#
 
-grammar Pugs::Grammar::Rule;
+use strict;
+use warnings;
 
-=head1 NAME
+package Pugs::Grammar::Rule;
 
-Pugs::Grammar::Rule - Perl 6 grammar for rules
+use Text::Balanced; 
+use Data::Dumper;
+no warnings 'once';
 
-=head1 DESCRIPTION
+use vars qw( @rule_terms );
 
-This is the Perl 6 Grammar used to Parse and generate the 
-Abstract Syntax Tree (AST) for Rules.
+# XXX - move these to prelude using rx:perl
 
-=cut
-
-# XXX - clean up unused rules!
-
-# rule xxx :P5 {foo}
-# XXX - rewrite this!
-rule perl5_regex { 
-    [   
-        \.   |   \|   |   \*   |   \+   |
-        \(   |   \)   |   \[   |   \]   |
-        \?   |   \:   |   \s   |   \w   | 
-        \_   |   \\   |   \^   |   \$   |
-        \n   |   \#   |   \-   |   \<   |
-        \>   |   \!   |
-        alnum
-    ]* 
-        { return { perl5_regex => $() ,} }
+sub subrule {
+    my ( $code, $tail ) = $_[0] =~ /^\<(.*?)\>(.*)$/s;
+    return unless defined $code;
+    #print "parsing subrule $code\n";
+    return { 
+        bool  => 1,
+        match => { code => $code },
+        tail  => $tail,
+        capture => [ { subrule => $code } ],
+    }
 }
 
-rule perl5_rule_decl {
-    rule <p6ws> <ident> <p6ws>? \: P5 <p6ws> \{ <perl5_regex> \}
-        { return { perl5_rule_decl => $() ,} }
-}
-push @grammar1::statements, \&perl5_rule_decl;
- 
-rule word     :P5 {^([_[:alnum:]]+)}
-rule any      :P5 {^(.)}
-rule escaped_char  
-              :P5 {^\\(.)}
-rule newline  :P5 {^(\n)}
-rule ws       :P5 {^(\s+)}
-rule p6ws     :P5 {^((?:\s|\#(?-s:.)*)+)}
-
-# XXX - set non-capture flag?
-# XXX - incomplete - needs a return block
-rule non_capturing_subrule
-              :P5 {^\<\?(.*?)\>}
-push @rule_terms, \&non_capturing_subrule;
-
-# XXX - incomplete - needs a return block
-rule negated_subrule
-              :P5 {^\<\!(.*?)\>}
-push @rule_terms, \&negated_subrule;
-
-# XXX - incomplete - needs a return block
-rule subrule  :P5 {^\<(.*?)\>}
-push @rule_terms, \&subrule;
-
-rule const_word {
-    <word>
-        { return { constant => $() ,} }
-}
-unshift @rule_terms, \&const_word;
-
-rule const_escaped_char {
-    <escaped_char> 
-        { return { constant => $() ,} }
-}
-unshift @rule_terms, \&const_escaped_char;
-
-rule dot {
-    (\.) 
-        { return { dot => $() ,} }
-}
-unshift @rule_terms, \&dot;
-
-rule rule {
-    [ <?alt> | <?quantifier> ]*
+# XXX - set non-capture flag
+sub non_capturing_subrule {
+    my ( $code, $tail ) = $_[0] =~ /^\<\?(.*?)\>(.*)$/s;
+    return unless defined $code;
+    # print "non_capturing_subrule $code - $1\n";
+    return { 
+        bool  => 1,
+        match => { code => $code },
+        tail  => $tail,
+        capture => [ { non_capturing_subrule => $code } ],
+    }
 }
 
-rule non_capturing_group {
-     \[ <?rule> \] 
-}
-push @rule_terms, \&non_capturing_group;
-
-rule closure_rule {
-    <code>
-        { return { closure => $() ,} }
-}
-unshift @rule_terms, \&closure_rule;
-
-rule variable_rule {
-    <variable> 
-        { return { variable => $() ,} }
-}
-unshift @rule_terms, \&variable_rule;
-
-rule runtime_alternation {
-    \< <variable> \>
-        { return { runtime_alternation => $() ,} }
-}
-unshift @rule_terms, \&runtime_alternation;
-
-rule named_capture {
-    \$ <ident> <?p6ws>? \:\= <?p6ws>? \( <rule> \) 
-        { return { named_capture => $() ,} }
-}
-unshift @rule_terms, \&named_capture;
-
-rule immediate_statement_rule {
-    <?p6ws>? <@grammar1::statements> <?p6ws>?
+sub negated_subrule {
+    my ( $code, $tail ) = $_[0] =~ /^\<\!(.*?)\>(.*)$/s;
+    return unless defined $code;
+    # print "negated_subrule $code - $1\n";
+    return { 
+        bool  => 1,
+        match => { code => $code },
+        tail  => $tail,
+        capture => [ { negated_subrule => $code } ],
+    }
 }
 
-rule grammar {
-    <immediate_statement_exec>*
+*capturing_group = 
+    ruleop::concat(
+        ruleop::constant( '(' ),
+        ruleop::capture( 'capturing_group',
+            \&rule,
+        ),
+        ruleop::constant( ')' )
+    );
+
+@rule_terms = (
+    \&capturing_group,
+
+    # <'literal'> literal \*
+    ruleop::concat(    
+        ruleop::constant( "<\'" ),
+        ruleop::capture( 'constant',
+            ruleop::non_greedy_star( \&any ),
+        ),
+        ruleop::constant( "\'>" ),
+    ),
+
+    \&negated_subrule,
+    \&non_capturing_subrule,
+    \&subrule,
+);
+
+# <ws>* [ <closure> | <subrule> | ... ]
+*term = 
+    ruleop::concat(
+        \&ws_star,
+        ruleop::alternation( \@rule_terms ),
+        \&ws_star,
+    );
+
+# XXX - allow whitespace everywhere
+
+# [ <term>[\*|\+] | <term> 
+# note: <term>\* creates a term named 'star'
+*quantifier = 
+    ruleop::alternation( [
+        ruleop::capture( 'star', 
+            ruleop::concat(
+                ruleop::capture( 'term', \&term ),
+                ruleop::capture( 'literal',
+                    ruleop::alternation( [
+                        ruleop::constant( '??' ),
+                        ruleop::constant( '?' ),
+                        ruleop::constant( '*?' ),
+                        ruleop::constant( '+?' ),
+                        ruleop::constant( '*' ),
+                        ruleop::constant( '+' ),
+                    ] ),
+                ),
+                \&ws_star,
+            ),
+        ),
+        \&term,
+    ] );
+
+*alt = 
+    ruleop::capture( 'alt', 
+        ruleop::concat(
+            ruleop::capture( 'term', \&quantifier ),
+            ruleop::greedy_plus(
+                ruleop::concat(
+                    ruleop::constant( '|' ),
+                    ruleop::capture( 'term', \&quantifier ),
+                ),
+            ),
+        ),
+    ),                
+;
+
+#--------
+
+
+sub any { 
+    return unless $_[0];
+    return { 
+        bool  => 1,
+        match => { '.'=> substr($_[0],0,1) },
+        tail  => substr($_[0],1),
+        ( $_[2]->{capture} ? ( capture => [ substr($_[0],0,1) ] ) : () ),
+    };
+}
+sub ws {
+    return unless $_[0];
+    return { 
+        bool  => 1,
+        match => { 'ws'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+        if $_[0] =~ /^(\s+)(.*)$/s;
+    return;
+};
+sub p6ws {
+    return unless $_[0];
+    return { 
+        bool  => 1,
+        match => { 'p6ws'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+        if $_[0] =~ /^((?:\s|\#(?-s:.)*)+)(.*)$/s;
+    return;
+};
+sub newline {
+    return unless $_[0];
+    return { 
+        bool  => 1,
+        match => { 'newline'=> $1 },
+        tail  => substr($_[0],1),
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+        if $_[0] =~ /^(\n)/s;
+    return;
+};
+sub escaped_char {
+    return unless $_[0];
+    return { 
+        bool  => 1,
+        match => { 'escaped_char'=> $1 },
+        tail  => substr($_[0],2),
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+        if $_[0] =~ /^\\(.)/s;
+    return;
+};
+
+
+sub code {
+    return unless $_[0];
+    my ($extracted,$remainder) = Text::Balanced::extract_codeblock( $_[0] );
+    return { 
+        bool  => ( $extracted ne '' ),
+        match => $extracted,
+        tail  => $remainder,
+        ( $_[2]->{capture} ? ( capture => [ $extracted ] ) : () ),
+    };
 }
 
-rule rule_decl {
-    rule <p6ws> <ident> <p6ws>? \{ <rule> \}
-        { return { rule_decl => $() ,} }
+sub literal {
+    return unless $_[0];
+    my ($extracted,$remainder) = Text::Balanced::extract_delimited( $_[0], "'" );
+    $extracted = substr( $extracted, 1, -1 );
+    return { 
+        bool  => ( $extracted ne '' ),
+        match => $extracted,
+        tail  => $remainder,
+        ( $_[2]->{capture} ? ( capture => [ { literal => $extracted } ] ) : () ),
+    };
 }
-push @grammar1::statements, \&rule_decl;
-        
-rule grammar_name {
-    grammar <p6ws> <ident> <p6ws>? \;
-        { return { grammar_name => $() ,} }
-}
-push @statements, \&grammar_name;
 
-rule _push {
-    $op := (push|unshift) <p6ws> <variable> <p6ws>? \, <p6ws>?
-    $code := (.*?) <p6ws>? \;
-        { return { _push => $() ,} }
-}
-push @statements, \&_push;
+sub ws_star {
+    #return unless $_[0];
+    return { 
+        bool  => 1,
+        match => { 'ws*'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+        if $_[0] =~ /^(\s*)(.*)$/s;
+    return;
+};
+sub p6ws_star {
+    #return unless $_[0];
+    return { 
+        bool  => 1,
+        match => { 'p6ws*'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
+    }
+        if $_[0] =~ /^((?:\s|\#(?-s:.)*)*)(.*)$/s;
+    return;
+};
 
+sub variable {
+    #return unless $_[0];
+    return { 
+        bool  => 1,
+        match => { 'ws*'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => $1 ) : () ),
+    }
+        if $_[0] =~ / ^  
+            (   [ $ % @ % ]
+                (?: 
+                    (?:\:\:)? 
+                    [_[:alnum:]]+ 
+                )+
+            )  
+            (.*) $ /xs;
+    return;
+};
+
+sub ident {
+    #return unless $_[0];
+    return { 
+        bool  => 1,
+        match => { 'ident'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => [ { ident => $1 } ] ) : () ),
+    }
+        if $_[0] =~ / ^  
+            ( 
+                (?: 
+                    (?:\:\:)? 
+                    [_[:alnum:]]+ 
+                )+
+            )  
+            (.*) $ /xs;
+    return;
+};
+
+# delay execution
+eval ( 'use Pugs::Grammar::Rule::Rule' );
+die $@ if $@;
+
+1;
