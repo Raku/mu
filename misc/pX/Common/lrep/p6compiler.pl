@@ -158,16 +158,14 @@ sub compile {
     die "compile: syntax error in program '$_[0]'\n"
         unless $match->{bool};
     if ($flags->{print_match}) {
-        warn "compile: match:\n";
         print dump_tree($match,'match');
     }
     if ($flags->{print_ast}) {
-        warn "compile: generated ast:\n";
-        dump_tree($match->{capture},'ast');
+        print dump_tree($match->{capture},'ast');
     }
     my $program = emit( $match->{capture} );
     if ($flags->{print_program}) {
-        warn "compile: generated code:\n";
+        print "use v5; # Generated file - do not edit!\n";
         print $program;
     }
     return $program;
