@@ -1,0 +1,14 @@
+[Changes for 0.03 - 2006-03-12]
+
+* Changed override.pm pod to better describe code state.
+
+[Changes for 0.02 - 2006-03-10]
+
+* Allow re::override to compile with a threaded Perl.
+  Implemented by: Steve Peters
+
+[Changes for 0.01 - 2006-03-10]
+
+* Initial CPAN release.
+  Implemented by: The Perl6 team.
+  Packaged by: Audrey Tang
