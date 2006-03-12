@@ -2,12 +2,13 @@
 package Match;
 
 use overload (
-    '@{}'  => \&array,
-    '%{}'  => \&hash,
-    'bool' => \&bool,
-    '&{}'  => \&code,
-    '""'   => \&flat, # XXX - wrong - should use "result object"
-    '0+'   => \&flat, # XXX - wrong - should use "result object"
+    '@{}'    => \&array,
+    '%{}'    => \&hash,
+    'bool'   => \&bool,
+    '&{}'    => \&code,
+    '""'     => \&flat, # XXX - wrong - should use "result object"
+    '0+'     => \&flat, # XXX - wrong - should use "result object"
+    fallback => 1,
 );
 
 sub new {

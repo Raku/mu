@@ -32,8 +32,8 @@ sub MY::postamble {
     # $blib_pmc =~ s!(.*)lib!$1blib/lib!;
     << ".";
 config ::
-\t- \$(NOECHO) \$(CHMOD) 644 $pmc
-\t- \$(NOECHO) \$(TOUCH) $pmc
+\t-\$(NOECHO) \$(CHMOD) 644 $pmc
+\t-\$(NOECHO) \$(TOUCH) $pmc
 .
 }
 
