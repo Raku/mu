@@ -1,0 +1,29 @@
+=== Possible Compilers
+
+- Switch
+- Inline
+- Indented
+- Spiffy
+- Perl6::Subs
+- Params::Validate
+
+
+=== Concerns
+
+- It should be easy to turn off specific compilers lexically
+
+For instance:
+
+    use Indented;
+
+    sub foo:
+        print "Hello\n"
+
+    use Inline C;
+    ...
+    no Inline;
+
+    sub bar:
+        1
+
+I don't want my Inline code to be filtered.

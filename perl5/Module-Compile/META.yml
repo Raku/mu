@@ -1,0 +1,15 @@
+abstract: Perl Module Compilation
+author: Audrey Tang <autrijus@autrijus.org>
+build_requires: 
+  Test::Base: 0.50
+distribution_type: module
+generated_by: Module::Install version 0.54
+license: perl
+name: Filter-PMC
+no_index: 
+  directory: 
+    - inc
+    - t
+requires: 
+  perl: 5.6.1
+version: undef
