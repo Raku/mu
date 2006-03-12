@@ -88,10 +88,16 @@ Currently, only the I<PCRE> flavour is supported.
 
 =head1 CAVEATS
 
-This is an experimental, pre-alpha development snapshot.
-It is currently unsuitable for just about any use other than pugs development.
+This is an experimental, pre-alpha development snapshot.  There are currently
+no support for match flags; regexes constructed with this module may cause
+segfaults on C<split>, substitution, and/or other uses.
 
-It completely compromises perl security.
+It is currently unsuitable for just about any use other than Pugs development.
+
+An user-supplied regular expression may lead to execution of arbitrary code;
+each alternate engine may introduce additional security or memory problems.
+
+Tainting information is discarded.
 
 =head1 BUGS
 
