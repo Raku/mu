@@ -1,8 +1,8 @@
 ---
 version: 0.12
-date:    Sun Mar 12 10:49:22 PST 2006
+date:    Sun Mar 12 10:56:26 PST 2006
 changes:
-- Don't cache .pl into .plc
+- Don't allow .pl -> .plc
 
 ---
 version: 0.11
