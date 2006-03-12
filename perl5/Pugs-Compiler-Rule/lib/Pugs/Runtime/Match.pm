@@ -18,8 +18,8 @@ sub new {
 }
 
 sub flat {
-    # match::str(${$_[0]});
-    join '', map { values %{$_->{match}} } @{${$_[0]}->{match}};
+    match::str(${$_[0]});
+    # join '', map { values %{$_->{match}} } @{${$_[0]}->{match}};
 }
 
 # return the capture
