@@ -9,11 +9,11 @@ Matters of ownership, licensing, contributions
 
 =head1 DESCRIPTION
 
-This document is about copyright issues concerning the Rosetta database
-access framework, both as they are now, and how I anticipate them being in
-the future.  These may very well be intuitive, but I'll follow the
-principle of least surprise and spell them out anyway, so that no one is
-surprised later on.
+This document is about copyright issues concerning the Rosetta DBMS
+framework, both as they are now, and how I anticipate them being in the
+future.  These may very well be intuitive, but I'll follow the principle of
+least surprise and spell them out anyway, so that no one is surprised later
+on.
 
 =head1 COMPOSITION
 

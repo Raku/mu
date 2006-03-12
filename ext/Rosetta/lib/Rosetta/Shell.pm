@@ -29,7 +29,7 @@ sub main (Str :$engine_name!, Str :@user_lang_prefs? = 'en') {
     $translator .= new(
         'set_names'    => [
                 'Rosetta::Shell::L::',
-                'Rosetta::L::', 
+                'Rosetta::L::',
                 'Rosetta::Model::L::',
                 'Locale::KeyedText::L::',
                 $engine_name ~ '::L::',

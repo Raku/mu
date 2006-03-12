@@ -663,68 +663,7 @@ Its concept of nothingness is the empty string.
 
 =head1 SEE ALSO
 
-During my work on this project, I found the following resources to be
-particularly useful:
-
-=over
-
-=item B<The Third Manifesto>
-
-L<http://www.thethirdmanifesto.com/> is the main home on the web for
-Christopher J. Date's and Hugh Darwen's proposal for a foundation for data
-and database management systems, which Rosetta is officially an
-implementation of.  It contains various useful documents and links on the
-subject, especially
-L<http://web.onetel.com/~hughdarwen/TheThirdManifesto/CHAP03.pdf>.  See
-also the brand new release of their book containing the full proposal,
-"Databases, Types, and The Relational Model: The Third Manifesto, 3rd
-edition, Addison-Wesley, 2006 (ISBN: 0-321-44281-4)", at
-L<http://www.aw-bc.com/catalog/academic/product/0,1144,0321399420,00.html>.
-
-=item B<Database in Depth>
-
-See Christopher J. Date's "Database in Depth: Relational Theory for
-Practitioners, 1st edition, Oreilly, 2006 (ISBN: 0-596-10012-4)" at
-L<http://www.oreilly.com/catalog/databaseid/>.  This is the first printed
-book that I read fully, which is related to The Third Manifesto, and it was
-my main introduction.  It explains in an easy to follow matter just what
-the relational data model really is, a solid and provable logical system,
-and partially contrasts with SQL's distorted view of it.  While being easy
-to follow, the book is written towards people that are already database
-professionals, and doesn't go into the basics that we should already know.
-
-=item L<http://www.acm.org/classics/nov95/toc.html>
-
-Edgar F. Codd - "A Relational Model of Data for Large Shared Data Banks"
-
-Reprinted from I<Communications of the ACM>, Vol. 13, No. 6, June 1970, pp.
-377-387. Copyright © 1970, Association for Computing Machinery, Inc.
-
-This is the second famous 1969/1970 publication that first presented a
-relational model of data to the world, which is the basis for the modern
-database industry.
-
-=item L<http://www.wiscorp.com/SQLStandards.html>
-
-This web page of Whitemarsh Information Systems Corporation, run by one of
-the people on the SQL standard drafting community, has copies of the
-official SQL:2003 and SQL:1999 specification documents, and other related
-helpful documents about SQL, in PDF format.  For example, "an almost
-indistinguishable delta on the actual SQL 2003 database standard" is at
-L<http://www.wiscorp.com/sql/sql_2003_standard.zip> (warning, large file).
-
-=item L<http://www.unicode.org/standard/standard.html>
-
-Unicode Standard official documentation.
-
-=item L<http://en.wikipedia.org/wiki/Relational_model>
-
-The Wikipedia article on the relational data model, and related topics.
-
-=back
-
-Also, the vendor documentation for various relational and/or SQL databases
-such as MySQL and SQLite were regularly consulted, and various other sites.
+I<This documentation is pending.>
 
 =head1 AUTHOR
 

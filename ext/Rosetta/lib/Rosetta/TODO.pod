@@ -9,10 +9,10 @@ TODO list for Rosetta
 
 =head1 DESCRIPTION
 
-This document maps out a rough development plan the Rosetta database access
-framework, so you know in roughly what order I plan to implement various
-features.  When something is implemented, it will be removed from this list
-and instead be reflected elsewhere, such as the main documentation or the
+This document maps out a rough development plan the Rosetta DBMS framework,
+so you know in roughly what order I plan to implement various features.
+When something is implemented, it will be removed from this list and
+instead be reflected elsewhere, such as the main documentation or the
 Changes files.  There are no specific time scales but you can assume that,
 at any given time, the handful of items at the top of the list should
 become available within a month's time.  Of course, the list is subject to

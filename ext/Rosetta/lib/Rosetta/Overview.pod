@@ -13,8 +13,8 @@ I<CAVEAT: This document's contents are old, and some details out of date or
 even woefully incorrect, but it will only be replaced in the indetermined
 future; meanwhile, many parts and details are still just fine.>
 
-This document is an overview of Rosetta database access framework, mainly
-done in terms of comparing and contrasting it with the Perl DBI.
+This document is an overview of Rosetta DBMS framework, mainly done in
+terms of comparing and contrasting it with the Perl DBI.
 
 Details of the architecture, such as data structures, allowed inputs, and
 functional APIs, are discussed in other documents.

@@ -10,10 +10,10 @@ Answers to your questions
 =head1 DESCRIPTION
 
 This document is a place for you to write in questions you have about the
-Rosetta database access framework, such as when you don't understand a
-feature or want to know how to accomplish a task with it.  Answers will be
-written in below your questions later, or the other Rosetta documentation
-files updated to cover it and your question removed, as is appropriate.
+Rosetta DBMS framework, such as when you don't understand a feature or want
+to know how to accomplish a task with it.  Answers will be written in below
+your questions later, or the other Rosetta documentation files updated to
+cover it and your question removed, as is appropriate.
 
 Alternately, you can write in both questions and answers that you think are
 correct, where you think they would be commonly asked.  Feel free to create
