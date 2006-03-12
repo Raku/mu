@@ -1,8 +1,18 @@
 Performer: mc parsec (monadic combinator)
 Style: wrapping
 
-tagged [union] (As in spray painted), data declarations representing class, 
+Line ideas:
 
+tagged [union] (As in spray painted)
+
+data declarations representing class
+
+get up -> svk up
+
+
+
+
+Notes:
 
 http://www.englishforums.com/English/StupidRapperWords/wpkl/Post.htm
 http://www.rapdict.org/Main_Page  / http://www.faqs.org/faqs/music/hip-hop/dictionary/part1/
