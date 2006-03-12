@@ -5,7 +5,7 @@ use strict;
 use vars qw( @ISA @EXPORT $VERSION );
 
 BEGIN {
-    $VERSION = '0.02';
+    $VERSION = '0.03';
 
     local $@;
     eval {
@@ -64,8 +64,8 @@ re::override - Override Perl regular expressions
 
 =head1 VERSION
 
-This document describes version 0.02 of re::override, released
-March 10, 2006.
+This document describes version 0.03 of re::override, released
+March 12, 2006.
 
 =head1 SYNOPSIS
 
@@ -86,9 +86,19 @@ when those regular expresisons are used, an alternate engine is invoked.
 
 Currently, only the I<PCRE> flavour is supported.
 
+=head1 CAVEATS
+
+This is an experimental, pre-alpha development snapshot.
+It is currently unsuitable for just about any use other than pugs development.
+
+It completely compromises perl security.
+
+=head1 BUGS
+
+Numerous.
+
 =head1 AUTHORS
 
-Mitchell N "putter" Charity,
 Audrey Tang
 
 =head1 COPYRIGHT
