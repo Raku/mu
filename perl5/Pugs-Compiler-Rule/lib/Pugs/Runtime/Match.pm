@@ -63,19 +63,17 @@ sub bool {
 # as hash
 sub hash {
     return {map {
-        exists $_->{''}
-            ? ()
-            : map { ref $_ ? @$_ : $_ } %$_
-    } @{${$_[0]}->{capture}}};
+        my $m = $_;
+        exists $m->{match}[0]{''} ? () : (keys(%{$m->{match}[0]}))[0] => ref($_[0])->new($m)
+    } @{${$_[0]}->{match}}};
 }
 
 # as array
 sub array {
     return [map {
-        exists $_->{''}
-            ? @{$_->{''}}
-            : ()
-    } @{${$_[0]}->{capture}}];
+        my $m = $_;
+        exists $m->{match}[0]{''} ? ref($_[0])->new($m) : ()
+    } @{${$_[0]}->{match}}];
 }
 
 # ...
