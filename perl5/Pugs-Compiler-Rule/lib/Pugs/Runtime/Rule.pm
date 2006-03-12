@@ -194,6 +194,7 @@ sub ruleop::capture {
         ## return if $match->{abort}; - maybe a { return }
         my $new_match = { %$match };
         $new_match->{capture} = [ { $label => $match->{capture} } ];
+        $new_match->{match}   = [ { $label => $match->{match} } ];
         return $new_match;
     }
 }
