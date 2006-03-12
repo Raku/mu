@@ -24,7 +24,7 @@ our $regcompp = undef;
 
 sub import {
     my $class = shift;
-    my $flavor = uc(shift(@_));
+    my $flavor = shift;
     $flavor =~ s/\W//g;
 
     die "Usage: use re::override-flavor" unless $flavor;
@@ -71,7 +71,7 @@ March 12, 2006.
 
 =head1 SYNOPSIS
 
-    use re::override-pcre;
+    use re::override-PCRE;
 
     if ("Hello, world" =~ /(?<=Hello|Hi), (world)/) {
         print "Greetings, $1!";

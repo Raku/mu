@@ -1,7 +1,7 @@
 #include "EXTERN.h"
 #include "perl.h"
+#include "XSUB.h"
 #include "embed.h"
-#include "ppport.h"
 
 #include <regcomp.h>
 /* for the struct pointed to by substrs :( */
@@ -251,3 +251,16 @@ void regexp_hook_off(pTHX) { /* aka "abandon regexps", aka "please segfault" */
   previous_comp_hook = NULL;
 }
 
+
+MODULE = re::override		PACKAGE = re::override
+
+PROTOTYPES: DISABLE
+
+void
+regexp_exechook_insert ()
+
+void
+regexp_hook_on ()
+
+void
+regexp_hook_off ()

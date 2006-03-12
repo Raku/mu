@@ -11,8 +11,6 @@ if (not -e 'ppport.h') {
 
 name            're-override';
 all_from        'lib/re/override.pm';
-cc_inc_paths    '.';
-cc_files        're_override.c';
 
 #cc_optimize_flags '-g3';
 
