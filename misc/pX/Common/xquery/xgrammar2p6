@@ -1,12 +1,12 @@
 #!/usr/bin/perl
 use strict;
-#use warnings;
+
 use XML::Parser;
 use Term::ANSIColor qw(:constants);
 use Attribute::Handlers;
 use Data::Dumper;
 my $parser = new XML::Parser();
-my %context = ();
+my %context = (choice=>0,atomify=>0);
 my %atomic = ();
 $parser->setHandlers(
 	Char=>sub {
@@ -17,8 +17,11 @@ $parser->setHandlers(
 	},
 	Start=>sub {
 		my ($expat,$element,%attrs) = @_;	
-		no strict 'refs';
 		$element =~ s/^g://;
+		unless (defined $main::{$element}) {
+			warn "no $element";
+			return;
+		}
 		if ($context{choice}>0) {
 			print "|" unless $context{first_choice};
 			$context{first_choice} = 0 if $context{first_choice};
@@ -26,13 +29,21 @@ $parser->setHandlers(
 		if ($context{atomify}>0 and !$atomic{$element}) {
 			print "[";
 		}
-		&{$element}->(@_);
+		no strict 'refs';
+
+		&{$element};
 	},
 	End=>sub {
 		my ($expat,$element,%attrs) = @_;	
-		no strict 'refs';
 		$element =~ s/^g://;
-		&{$element."_"}->(@_);
+		unless (defined $main::{$element."_"}) {
+			warn "no ${element}_";
+			return;
+		}
+
+		no strict 'refs';
+		&{$element."_"};
+
 		if ($context{atomify}>0 and !$atomic{$element}) {
 			print "]";
 		}
@@ -41,7 +52,6 @@ $parser->setHandlers(
 );
 $parser->parsefile(shift);
 
-sub AUTOLOAD {}
 sub closed :ATTR {
 	no strict 'refs';
 	my ($package,$symbol) = @_;
@@ -57,11 +67,26 @@ sub atom :ATTR {
 
 sub token {
 	my ($expat,$name,%attr) = @_;
-	print "rule $attr{name} {"
+	print "#token\nrule $attr{name} {"
 }
 sub token_  {
 	my ($expat,$name,%attr) = @_;
 	print "}\n"
+}
+sub production {
+	my ($expat,$name,%attr) = @_;
+	print "#production\nrule $attr{name} {"
+}
+sub production_  {
+	my ($expat,$name,%attr) = @_;
+	print "}\n"
+}
+sub ignore {
+	for (@_) {
+		print "ignoring: $_";
+		$main::{$_} = sub {};
+		$main::{$_ . "_"} = sub {};
+	}
 }
 
 
@@ -103,28 +128,33 @@ sub oneOrMore {
 }
 sub oneOrMore_ {
 	$context{atomify}--;
-	print "*"
+	print "+"
+}
+sub optional {
+	$context{atomify}++;
+	print ""
+}
+sub optional_ {
+	$context{atomify}--;
+	print "?"
 }
 
 sub optionalSkip :atom :closed {print " <S>* "}
 sub requiredSkip :atom :closed {print " <S>+ "}
 
+## character classes
+INIT { ignore qw(char charRange charClass charCodeRange charCode) }
+
+## things I don't understand and/or don't know how to translate 
+sub description {
+	$context{description}++;
+}
+sub description_ {
+	$context{description}--;
+}
+INIT { ignore qw(tref transition state-list level postfix) }
 
 =for later
-}
-sub production {
-	my ($expat,$name,%attr) = @_;
-	print "rule $attr{name} {"
-}
-sub production_ {
-	my ($expat,$name,%attr) = @_;
-	print "}\n"
-}
-sub optional {
-	print "["
-}
-sub optional_ {
-	print "]?"
 }
 
 ### charackter classes
@@ -162,19 +192,6 @@ sub char_ {
 }
 ### XXX: complete those
 
-sub choice {
-	print "[";
-	$context{choice}++;
-	$context{first_choice} = 1;
-}
-sub choice_ {
-	print "]";
-	$context{choice}--;
-	$context{first_choice} = 0;
-}
-sub sequence_ {}
-sub sequence {}
-
 sub charCode {}
 sub charCode_ {}
 sub charCodeRange {}
@@ -182,15 +199,3 @@ sub charCodeRange_ {}
 
 sub char {}
 sub char_ {}
-###Things i want to ingnore for now
-sub description {
-	$context{description}++;
-}
-sub description_ {
-	$context{description}--;
-}
-sub tref_ {}
-sub tref  {}
-sub transition  {}
-sub transition_  {}
-$main::{'state-list'} = $main::{'state-list_'} = sub {}
