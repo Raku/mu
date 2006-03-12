@@ -31,8 +31,8 @@ re::override::PCRE - Perl-compatible regular expressions
 
 =head1 DESCRIPTION
 
-This module provides a Perl interface to the B<libpcre> regular expression
-library.  It affects all regular expression defined within its lexical scope.
+This module provides a Perl interface to use the B<libpcre> library for
+regular expressions.
 
 =head1 AUTHORS
 

@@ -37,6 +37,10 @@ sub import {
     }
 }
 
+sub unimport {
+    regexp_hook_off();
+}
+
 sub make_qr_regexp_pair {
   my($pat,$nparens,$callback)=@_;
   die "bug - no nparens" if !defined($nparens);
@@ -71,10 +75,14 @@ March 10, 2006.
         print "Greetings, $1!";
     }
 
+    no re::override;
+    # back to normal regexes
+
 =head1 DESCRIPTION
 
-This module provides a Perl interface to affect regular expression defined
-within its lexical scope.
+This module provides a Perl interface for pluggable regular expression
+engines.  It affects all regular expressions I<defined> within its scope;
+when those regular expresisons are used, an alternate engine is invoked.
 
 Currently, only the I<PCRE> flavour is supported.
 
