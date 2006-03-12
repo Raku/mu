@@ -1,41 +1,116 @@
-#!/usr/bin/perl -w
-use XML::Parser;
+#!/usr/bin/perl
 use strict;
+#use warnings;
+use XML::Parser;
+use Term::ANSIColor qw(:constants);
+use Attribute::Handlers;
 use Data::Dumper;
-my $parser = new XML::Parser(Style=>'Subs');
+my $parser = new XML::Parser();
+my %context = ();
+my %atomic = ();
 $parser->setHandlers(
-	Char=>\&char_handler,
+	Char=>sub {
+		my ($expat,$string) = @_;	
+		return if $string =~ /^\s*$/;
+		return if $context{description};
+		print quotemeta($string);
+	},
+	Start=>sub {
+		my ($expat,$element,%attrs) = @_;	
+		no strict 'refs';
+		$element =~ s/^g://;
+		if ($context{choice}>0) {
+			print "|" unless $context{first_choice};
+			$context{first_choice} = 0 if $context{first_choice};
+		}
+		if ($context{atomify}>0 and !$atomic{$element}) {
+			print "[";
+		}
+		&{$element}->(@_);
+	},
+	End=>sub {
+		my ($expat,$element,%attrs) = @_;	
+		no strict 'refs';
+		$element =~ s/^g://;
+		&{$element."_"}->(@_);
+		if ($context{atomify}>0 and !$atomic{$element}) {
+			print "]";
+		}
+	},
 	Comment=>sub {}
 );
 $parser->parsefile(shift);
 
-my $description = 0;
-sub char_handler {
-	my ($expat,$string) = @_;	
-	return if $string =~ /^\s*$/;
-	return if $description;
-	print "$string";
-}
-sub default {
-	my ($expat,$data) = @_;
-	return if $data =~ /^<!--/;
-	print "default:$data\n";
-}
-sub AUTOLOAD {
+sub AUTOLOAD {}
+sub closed :ATTR {
 	no strict 'refs';
-	our $AUTOLOAD;
-	if ($AUTOLOAD =~ /g:(.+)/) {
-		goto &{$1};
-	}
-	warn "calling $AUTOLOAD";
+	my ($package,$symbol) = @_;
+	my $name = *{$symbol}{NAME} . "_";
+	*{$name} = sub {};
 }
+sub atom :ATTR {
+	no strict 'refs';
+	my ($package,$symbol) = @_;
+	my $name = *{$symbol}{NAME};
+	$atomic{$name} = 1;
+}
+
 sub token {
 	my ($expat,$name,%attr) = @_;
 	print "rule $attr{name} {"
 }
-sub token_ {
+sub token_  {
 	my ($expat,$name,%attr) = @_;
 	print "}\n"
+}
+
+
+## atoms
+sub ref :closed :atom {
+	my ($expat,$name,%attr) = @_;
+	print "<$attr{name}>";
+} 
+sub string :atom {
+}
+sub string_ {
+}
+
+### control flow
+sub choice {
+	$context{choice}++;
+	$context{first_choice} = 1;
+}
+sub choice_ {
+	$context{choice}--;
+}
+sub sequence :atom {
+	$context{choice}--;
+}
+sub sequence_  {
+	$context{choice}++;
+}
+sub zeroOrMore {
+	$context{atomify}++;
+	print ""
+}
+sub zeroOrMore_ {
+	$context{atomify}--;
+	print "*"
+}
+sub oneOrMore {
+	$context{atomify}++;
+	print ""
+}
+sub oneOrMore_ {
+	$context{atomify}--;
+	print "*"
+}
+
+sub optionalSkip :atom :closed {print " <S>* "}
+sub requiredSkip :atom :closed {print " <S>+ "}
+
+
+=for later
 }
 sub production {
 	my ($expat,$name,%attr) = @_;
@@ -45,29 +120,6 @@ sub production_ {
 	my ($expat,$name,%attr) = @_;
 	print "}\n"
 }
-sub ref {
-	my ($expat,$name,%attr) = @_;
-	print "<$attr{name}>";
-	sub ref_ {}
-} 
-sub string {
-	print "<'"
-}
-sub string_ {
-	print "'>"
-}
-sub oneOrMore {
-	print "["
-}
-sub oneOrMore_ {
-	print "]+"
-}
-sub zeroOrMore {
-	print "["
-}
-sub zeroOrMore_ {
-	print "]+"
-}
 sub optional {
 	print "["
 }
@@ -76,26 +128,50 @@ sub optional_ {
 }
 
 ### charackter classes
+sub close_bracket {
+	warn "\t\tclosing bracket:$_[0]";
+	print "]" if $context{open_bracket};
+}
+sub open_bracket {
+	print "[" unless $context{open_bracket};
+	$context{open_bracket}++;
+}
 sub charRange {
 	my ($expat,$name,%attr) = @_;
+	close_bracket();
 	print "[$attr{minChar}..$attr{maxChar}]";
 }
-sub charRange_ {}
 sub charClass {
+	$context{charClass}++;
 	print "<"
 }
 sub charClass_ {
+	close_bracket();
+	$context{charClass}--;
 	print ">"
 }
+sub char {
+	if ($context{charClass}) {
+		open_bracket;
+	} else {
+		print "<'";
+	}
+}
+sub char_ {
+	print "'>" unless $context{charClass};
+}
 ### XXX: complete those
-sub optionalSkip {print " <S>* "}
-sub optionalSkip_ {}
 
-sub requiredSkip {print " <S>+ "}
-sub requiredSkip_ {}
-
-sub choice {}
-sub choice_ {}
+sub choice {
+	print "[";
+	$context{choice}++;
+	$context{first_choice} = 1;
+}
+sub choice_ {
+	print "]";
+	$context{choice}--;
+	$context{first_choice} = 0;
+}
 sub sequence_ {}
 sub sequence {}
 
@@ -108,10 +184,10 @@ sub char {}
 sub char_ {}
 ###Things i want to ingnore for now
 sub description {
-	$description++;
+	$context{description}++;
 }
 sub description_ {
-	$description--;
+	$context{description}--;
 }
 sub tref_ {}
 sub tref  {}
