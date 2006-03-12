@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 # A lexical hash to keep track of which files have already been filtered
 my $filtered = {};
@@ -92,11 +92,19 @@ sub freshness_check {
 # but that might be ok.
 sub pmc_output {
     my ($class, $module, $output) = @_;
+    $class->pmc_can_output($module)
+      or return;
     my $pmc = $module . 'c';
     open OUTPUT, "> $pmc"
       or return;
     print OUTPUT $output;
     close OUTPUT;
+}
+
+# Check whether output can be written.
+sub pmc_can_output {
+    my ($class, $file_path) = @_;
+    return $file_path =~ /\.pm$/;
 }
 
 # We use a source filter to get all the code for compiling.
