@@ -1985,6 +1985,11 @@ quasiquote delimiter tripled, typically a bracketing quote of some sort:
     return q:code < say $a + <<< $ast >>> >
     return q:code ( say $a + ((( $ast ))) )
 
+The delimiters don't have to be bracketing quotes, but the following
+is probably to be construed as Bad Style:
+
+    return q:code / say $a + /// $ast /// /
+
 (Note to implementors: this must not be implemented by finding
 the final closing delimiter and preprocessing, or we'll violate our
 one-pass parsing rule.  Perl 6 parsing rules are parameterized to know
@@ -1997,12 +2002,7 @@ nest code blocks with different delimiters.  Likewise when parsing the
 inner expression, the inner parser rule is parameterized to know that
 C<}}}> or whatever is its closing delimiter.)
 
-The delimiters don't have to be bracketing quotes, but the following
-is probably to be construed as Bad Style:
-
-    return q:code / say $a + /// $ast /// /
-
-Dequoted expressions are inserted appropriately depending on the
+Unquoted expressions are inserted appropriately depending on the
 type of the variable, which may be either a syntax tree or a string.
 (Again, syntax tree is preferred.)  The case is similar to that of a
 macro called from within the quasiquote, insofar as reparsing only
@@ -2020,10 +2020,20 @@ whatever it likes afterwards, according to its syntactic category.
 (Generally, a term expects a following postfix or infix operator,
 and an operator expects a following term or prefix operator.)
 
-A quasiquote is not a block (even if the delimiters are curlies),
-so any declaration of a variable is taken to be part of the block
-surrounding the macro call location.  Add your own {...} if you want
-a block to surround your declarations.
+Quasiquotes default to hygienic lexical scoping, just like closures.
+The visibility of lexical variables is limited to the q:code expression
+by default.  A variable declaration can be made externally visible using 
+the C<COMPILING::> pseudo-package.  Individual variables can be made visible,
+or all top-level variable declarations can be exposed using the
+C<q:code(:COMPILING)> form.
+
+Both examples below will add C<$new_variable> to the lexical scope of
+the macro call:
+
+  q:code {  my $COMPILING::new_variable;   my $private_var; ... }
+  q:code(:COMPILING) { my $new_variable; { my $private_var; ... } }
+
+(Note that C<:COMPILING> has additional effects described in L<Macros>.) 
 
 =head1 Other matters
 
