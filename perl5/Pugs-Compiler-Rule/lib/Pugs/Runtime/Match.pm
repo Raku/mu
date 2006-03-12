@@ -28,6 +28,9 @@ sub _str {
         }
         return join( '', map { _str( $_ ) } values %{$match} );
     }
+    if ( $ref eq 'ARRAY' ) {
+        return join( '', map { _str( $_ ) } @{$match} );
+    }
     #        return join( '', values %{$match->{match}} )
     #            unless exists $match->{match}{match};
     die 'not a match';
