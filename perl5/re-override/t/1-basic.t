@@ -1,7 +1,7 @@
 BEGIN { %ENV = () }
 
 use strict;
-use re::override-pcre;
+use re::override;
 
 print "1..2\n";
 if ("Hello, world" =~ /(?<=Hello|Hi), (world)/) {

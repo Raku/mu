@@ -4,12 +4,6 @@ use inc::Module::Install;
 use File::Copy;
 use File::Basename;
 
-if (not -e 'pcre.h' and -e '../../src/pcre/pcre.h') {
-    for my $file (glob("../../src/pcre/*")) {
-        copy($file => basename($file));
-    }
-}
-
 if (not -e 'ppport.h') {
     require Devel::PPPort;
     Devel::PPPort::WriteFile();
@@ -18,7 +12,7 @@ if (not -e 'ppport.h') {
 name            're-override';
 all_from        'lib/re/override.pm';
 cc_inc_paths    '.';
-cc_files        (grep { !/printint|ucp(?:type)?table/ } glob("*.c"));
+cc_files        're_override.c';
 
 #cc_optimize_flags '-g3';
 

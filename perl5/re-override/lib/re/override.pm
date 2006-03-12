@@ -23,18 +23,20 @@ our $inserted = 0;
 our $regcompp = undef;
 
 sub import {
+    my $class = shift;
+    my $flavor = uc(shift(@_));
+    $flavor =~ s/\W//g;
+
+    die "Usage: use re::override-flavor" unless $flavor;
+
     unless ($inserted++) {
         regexp_exechook_insert();
         regexp_hook_on();
     }
 
-    if (@_ > 1 and index(lc($_[1]), 'pcre') > -1) {
-        require re::override::PCRE;
-        goto &re::override::PCRE::import;
-    }
-    else {
-        die "Usage: use re::override-PCRE";
-    }
+    no strict 'refs';
+    require "re/override/$flavor.pm";
+    goto &{"re::override::${flavor}::import"};
 }
 
 sub unimport {
@@ -84,7 +86,7 @@ This module provides a Perl interface for pluggable regular expression
 engines.  It affects all regular expressions I<defined> within its scope;
 when those regular expresisons are used, an alternate engine is invoked.
 
-Currently, only the I<PCRE> flavour is supported.
+Currently, only the I<PCRE> flavor is supported.
 
 =head1 CAVEATS
 
