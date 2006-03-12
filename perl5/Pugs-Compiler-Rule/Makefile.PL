@@ -19,17 +19,21 @@ if (-d $lrep_dir and not $pmc_is_uptodate) {
     chdir $cwd;
 }
 
+my $mtime = time;
+utime $mtime, $mtime, $pmc;
+
 name        ('Pugs-Compiler-Rule');
 all_from    ('lib/Pugs/Compiler/Rule.pm');
 
 &WriteAll;
 
 sub MY::postamble {
-    $pmc =~ s!(.*)lib!$1blib/lib!;
+    # my $blib_pmc = $pmc;
+    # $blib_pmc =~ s!(.*)lib!$1blib/lib!;
     << ".";
-pure_all ::
-\t\$(NOECHO) \$(CHMOD) 644 $pmc
-\t\$(NOECHO) \$(TOUCH) $pmc
+config ::
+\t- \$(NOECHO) \$(CHMOD) 644 $pmc
+\t- \$(NOECHO) \$(TOUCH) $pmc
 .
 }
 
