@@ -1,8 +1,7 @@
 
-use Test::More tests => 4;
+use Test::More tests => 3;
 use Data::Dumper;
 
-use_ok( 'Pugs::Runtime::Rule' );
 use_ok( 'Pugs::Grammar::Rule' );
 use_ok( 'Pugs::Emitter::Rule::Perl5' );
 
@@ -33,9 +32,7 @@ use_ok( 'Pugs::Emitter::Rule::Perl5' );
 {
     my $rule = Pugs::Grammar::Rule::rule( '$z := (.) { return { x => $() ,} } ' );
     #print Dumper( $rule->{capture} );
-    my $str = Pugs::Emitter::Rule::Perl5::emit( $rule->{capture} );
-    #print "emit: ", $str, "\n";
-    my $rule = eval $str;
+    $rule = eval Pugs::Emitter::Rule::Perl5::emit( $rule->{capture} );
     die $@ if $@;
     my $match = $rule->( "abc" );
     #print "match: \n", Dumper($match);

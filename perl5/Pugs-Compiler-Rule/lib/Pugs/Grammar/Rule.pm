@@ -3,14 +3,15 @@
 # experimental implementation of p6-regex parser
 #
 
-use strict;
-use warnings;
-
 package Pugs::Grammar::Rule;
 
 use Text::Balanced; 
 use Data::Dumper;
-no warnings 'once';
+use Pugs::Runtime::Rule;
+
+use strict;
+use warnings;
+no warnings qw( once redefine );
 
 use vars qw( @rule_terms );
 
@@ -269,7 +270,9 @@ sub ident {
 };
 
 # delay execution
-eval ( 'use Pugs::Grammar::Rule::Rule' );
-die $@ if $@;
+{
+    local $SIG{__WARN__} = sub {};
+    require Pugs::Grammar::Rule::Rule;
+}
 
 1;
