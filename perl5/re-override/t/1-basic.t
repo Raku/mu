@@ -1,15 +1,7 @@
 BEGIN { %ENV = () }
 
 use strict;
-use re::override;
+require re::override;
 
-print "1..2\n";
-if ("Hello, world" =~ /(?<=Hello|Hi), (world)/) {
-    print "ok 1\n";
-}
-
-no re::override-pcre;
-if (eval q[ "Hello, world" =~ /(?<=Hello|Hi), (world)/ ]) {
-    print "not ";
-}
-print "ok 2\n";
+print "1..1\n";
+print "ok 1\n";
