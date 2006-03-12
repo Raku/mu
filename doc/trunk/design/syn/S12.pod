@@ -552,7 +552,7 @@ treating the method call as a postfix:
     @object».*meth(@args)  # calls all methods (0 or more) on each
     @object».+meth(@args)  # calls all methods (1 or more) on each
     @object».=meth(@args)  # calls mutator method on each
-    @object».:meth(@args)  # calls private method on each
+    @object»!meth(@args)   # calls private method on each
 
 Hyperoperators treat a junction as a scalar value, so saying:
 
