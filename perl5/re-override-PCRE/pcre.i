@@ -71,11 +71,6 @@ Perl_Scalar execute(const pcre *re, const char *str, int opt) {
 
 %}
 
-extern void regexp_exechook_insert();
-extern void regexp_setup(regexp*, SV*, U32, SV*);
-extern void regexp_hook_on();
-extern void regexp_hook_off();
-
 extern pcre *compile (const char *, int);
 extern Perl_Scalar execute (const pcre *, const char *, int);
 

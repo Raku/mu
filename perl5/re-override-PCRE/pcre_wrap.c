@@ -997,28 +997,25 @@ SWIG_Perl_SetModule(swig_module_info *module) {
 
 /* -------- TYPES TABLE (BEGIN) -------- */
 
-#define SWIGTYPE_p_SV swig_types[0]
-#define SWIGTYPE_p_U32 swig_types[1]
-#define SWIGTYPE_p_int swig_types[2]
-#define SWIGTYPE_p_p_char swig_types[3]
-#define SWIGTYPE_p_p_p_char swig_types[4]
-#define SWIGTYPE_p_pcre swig_types[5]
-#define SWIGTYPE_p_pcre_callout_block swig_types[6]
-#define SWIGTYPE_p_pcre_extra swig_types[7]
-#define SWIGTYPE_p_regexp swig_types[8]
-#define SWIGTYPE_p_unsigned_char swig_types[9]
-#define SWIGTYPE_p_void swig_types[10]
-static swig_type_info *swig_types[12];
-static swig_module_info swig_module = {swig_types, 11, 0, 0, 0, 0};
+#define SWIGTYPE_p_int swig_types[0]
+#define SWIGTYPE_p_p_char swig_types[1]
+#define SWIGTYPE_p_p_p_char swig_types[2]
+#define SWIGTYPE_p_pcre swig_types[3]
+#define SWIGTYPE_p_pcre_callout_block swig_types[4]
+#define SWIGTYPE_p_pcre_extra swig_types[5]
+#define SWIGTYPE_p_unsigned_char swig_types[6]
+#define SWIGTYPE_p_void swig_types[7]
+static swig_type_info *swig_types[9];
+static swig_module_info swig_module = {swig_types, 8, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
 /* -------- TYPES TABLE (END) -------- */
 
-#define SWIG_init    boot_re__override
+#define SWIG_init    boot_re__override__PCRE
 
-#define SWIG_name   "re::override::boot_re__override"
-#define SWIG_prefix "re::override::"
+#define SWIG_name   "re::override::PCRE::boot_re__override__PCRE"
+#define SWIG_prefix "re::override::PCRE::"
 
 #ifdef __cplusplus
 extern "C"
@@ -1092,8 +1089,8 @@ Perl_Scalar execute(const pcre *re, const char *str, int opt) {
 
 
 #ifdef PERL_OBJECT
-#define MAGIC_CLASS _wrap_re::override_var::
-class _wrap_re::override_var : public CPerlObj {
+#define MAGIC_CLASS _wrap_re::override::PCRE_var::
+class _wrap_re::override::PCRE_var : public CPerlObj {
 public:
 #else
 #define MAGIC_CLASS
@@ -1113,108 +1110,6 @@ SWIGCLASS_STATIC int swig_magic_readonly(pTHX_ SV *sv, MAGIC *mg) {
 #ifdef __cplusplus
 extern "C" {
 #endif
-XS(_wrap_regexp_exechook_insert) {
-    {
-        int argvi = 0;
-        dXSARGS;
-        
-        if ((items < 0) || (items > 0)) {
-            SWIG_croak("Usage: regexp_exechook_insert();");
-        }
-        regexp_exechook_insert();
-        
-        
-        XSRETURN(argvi);
-        fail:
-        ;
-    }
-    croak(Nullch);
-}
-
-
-XS(_wrap_regexp_setup) {
-    {
-        regexp *arg1 = (regexp *) 0 ;
-        SV *arg2 = (SV *) 0 ;
-        U32 arg3 ;
-        SV *arg4 = (SV *) 0 ;
-        int argvi = 0;
-        dXSARGS;
-        
-        if ((items < 4) || (items > 4)) {
-            SWIG_croak("Usage: regexp_setup(regexp *,SV *,U32,SV *);");
-        }
-        {
-            if (SWIG_ConvertPtr(ST(0), (void **) &arg1, SWIGTYPE_p_regexp,0) < 0) {
-                SWIG_croak("Type error in argument 1 of regexp_setup. Expected _p_regexp");
-            }
-        }
-        {
-            if (SWIG_ConvertPtr(ST(1), (void **) &arg2, SWIGTYPE_p_SV,0) < 0) {
-                SWIG_croak("Type error in argument 2 of regexp_setup. Expected _p_SV");
-            }
-        }
-        {
-            U32 * argp;
-            if (SWIG_ConvertPtr(ST(2),(void **) &argp, SWIGTYPE_p_U32,0) < 0) {
-                SWIG_croak("Type error in argument 3 of regexp_setup. Expected _p_U32");
-            }
-            arg3 = *argp;
-        }
-        {
-            if (SWIG_ConvertPtr(ST(3), (void **) &arg4, SWIGTYPE_p_SV,0) < 0) {
-                SWIG_croak("Type error in argument 4 of regexp_setup. Expected _p_SV");
-            }
-        }
-        regexp_setup(arg1,arg2,arg3,arg4);
-        
-        
-        XSRETURN(argvi);
-        fail:
-        ;
-    }
-    croak(Nullch);
-}
-
-
-XS(_wrap_regexp_hook_on) {
-    {
-        int argvi = 0;
-        dXSARGS;
-        
-        if ((items < 0) || (items > 0)) {
-            SWIG_croak("Usage: regexp_hook_on();");
-        }
-        regexp_hook_on();
-        
-        
-        XSRETURN(argvi);
-        fail:
-        ;
-    }
-    croak(Nullch);
-}
-
-
-XS(_wrap_regexp_hook_off) {
-    {
-        int argvi = 0;
-        dXSARGS;
-        
-        if ((items < 0) || (items > 0)) {
-            SWIG_croak("Usage: regexp_hook_off();");
-        }
-        regexp_hook_off();
-        
-        
-        XSRETURN(argvi);
-        fail:
-        ;
-    }
-    croak(Nullch);
-}
-
-
 XS(_wrap_compile) {
     {
         char *arg1 = (char *) 0 ;
@@ -2891,54 +2786,42 @@ XS(_wrap_delete_pcre_callout_block) {
 
 /* -------- TYPE CONVERSION AND EQUIVALENCE RULES (BEGIN) -------- */
 
-static swig_type_info _swigt__p_SV = {"_p_SV", "SV *", 0, 0, 0};
-static swig_type_info _swigt__p_U32 = {"_p_U32", "U32 *", 0, 0, 0};
 static swig_type_info _swigt__p_int = {"_p_int", "int *", 0, 0, 0};
 static swig_type_info _swigt__p_p_char = {"_p_p_char", "char **", 0, 0, 0};
 static swig_type_info _swigt__p_p_p_char = {"_p_p_p_char", "char ***", 0, 0, 0};
 static swig_type_info _swigt__p_pcre = {"_p_pcre", "pcre *", 0, 0, 0};
 static swig_type_info _swigt__p_pcre_callout_block = {"_p_pcre_callout_block", "struct pcre_callout_block *|pcre_callout_block *", 0, 0, 0};
 static swig_type_info _swigt__p_pcre_extra = {"_p_pcre_extra", "struct pcre_extra *|pcre_extra *", 0, 0, 0};
-static swig_type_info _swigt__p_regexp = {"_p_regexp", "regexp *", 0, 0, 0};
 static swig_type_info _swigt__p_unsigned_char = {"_p_unsigned_char", "unsigned char *", 0, 0, 0};
 static swig_type_info _swigt__p_void = {"_p_void", "void *", 0, 0, 0};
 
 static swig_type_info *swig_type_initial[] = {
-  &_swigt__p_SV,
-  &_swigt__p_U32,
   &_swigt__p_int,
   &_swigt__p_p_char,
   &_swigt__p_p_p_char,
   &_swigt__p_pcre,
   &_swigt__p_pcre_callout_block,
   &_swigt__p_pcre_extra,
-  &_swigt__p_regexp,
   &_swigt__p_unsigned_char,
   &_swigt__p_void,
 };
 
-static swig_cast_info _swigc__p_SV[] = {  {&_swigt__p_SV, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_U32[] = {  {&_swigt__p_U32, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_int[] = {  {&_swigt__p_int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_char[] = {  {&_swigt__p_p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_p_char[] = {  {&_swigt__p_p_p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_pcre[] = {  {&_swigt__p_pcre, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_pcre_callout_block[] = {  {&_swigt__p_pcre_callout_block, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_pcre_extra[] = {  {&_swigt__p_pcre_extra, 0, 0, 0},{0, 0, 0, 0}};
-static swig_cast_info _swigc__p_regexp[] = {  {&_swigt__p_regexp, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_unsigned_char[] = {  {&_swigt__p_unsigned_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_void[] = {  {&_swigt__p_void, 0, 0, 0},{0, 0, 0, 0}};
 
 static swig_cast_info *swig_cast_initial[] = {
-  _swigc__p_SV,
-  _swigc__p_U32,
   _swigc__p_int,
   _swigc__p_p_char,
   _swigc__p_p_p_char,
   _swigc__p_pcre,
   _swigc__p_pcre_callout_block,
   _swigc__p_pcre_extra,
-  _swigc__p_regexp,
   _swigc__p_unsigned_char,
   _swigc__p_void,
 };
@@ -2956,66 +2839,62 @@ static swig_variable_info swig_variables[] = {
 {0,0,0,0}
 };
 static swig_command_info swig_commands[] = {
-{"re::override::regexp_exechook_insert", _wrap_regexp_exechook_insert},
-{"re::override::regexp_setup", _wrap_regexp_setup},
-{"re::override::regexp_hook_on", _wrap_regexp_hook_on},
-{"re::override::regexp_hook_off", _wrap_regexp_hook_off},
-{"re::override::compile", _wrap_compile},
-{"re::override::execute", _wrap_execute},
-{"re::override::pcre_compile", _wrap_pcre_compile},
-{"re::override::pcre_config", _wrap_pcre_config},
-{"re::override::pcre_copy_named_substring", _wrap_pcre_copy_named_substring},
-{"re::override::pcre_copy_substring", _wrap_pcre_copy_substring},
-{"re::override::pcre_exec", _wrap_pcre_exec},
-{"re::override::pcre_free_substring", _wrap_pcre_free_substring},
-{"re::override::pcre_free_substring_list", _wrap_pcre_free_substring_list},
-{"re::override::pcre_fullinfo", _wrap_pcre_fullinfo},
-{"re::override::pcre_get_named_substring", _wrap_pcre_get_named_substring},
-{"re::override::pcre_get_stringnumber", _wrap_pcre_get_stringnumber},
-{"re::override::pcre_get_substring", _wrap_pcre_get_substring},
-{"re::override::pcre_get_substring_list", _wrap_pcre_get_substring_list},
-{"re::override::pcre_info", _wrap_pcre_info},
-{"re::override::pcre_maketables", _wrap_pcre_maketables},
-{"re::override::pcre_study", _wrap_pcre_study},
-{"re::override::pcre_version", _wrap_pcre_version},
-{"re::override::pcre_extra_flags_set", _wrap_pcre_extra_flags_set},
-{"re::override::pcre_extra_flags_get", _wrap_pcre_extra_flags_get},
-{"re::override::pcre_extra_study_data_set", _wrap_pcre_extra_study_data_set},
-{"re::override::pcre_extra_study_data_get", _wrap_pcre_extra_study_data_get},
-{"re::override::pcre_extra_match_limit_set", _wrap_pcre_extra_match_limit_set},
-{"re::override::pcre_extra_match_limit_get", _wrap_pcre_extra_match_limit_get},
-{"re::override::pcre_extra_callout_data_set", _wrap_pcre_extra_callout_data_set},
-{"re::override::pcre_extra_callout_data_get", _wrap_pcre_extra_callout_data_get},
-{"re::override::pcre_extra_tables_set", _wrap_pcre_extra_tables_set},
-{"re::override::pcre_extra_tables_get", _wrap_pcre_extra_tables_get},
-{"re::override::new_pcre_extra", _wrap_new_pcre_extra},
-{"re::override::delete_pcre_extra", _wrap_delete_pcre_extra},
-{"re::override::pcre_callout_block_version_set", _wrap_pcre_callout_block_version_set},
-{"re::override::pcre_callout_block_version_get", _wrap_pcre_callout_block_version_get},
-{"re::override::pcre_callout_block_callout_number_set", _wrap_pcre_callout_block_callout_number_set},
-{"re::override::pcre_callout_block_callout_number_get", _wrap_pcre_callout_block_callout_number_get},
-{"re::override::pcre_callout_block_offset_vector_set", _wrap_pcre_callout_block_offset_vector_set},
-{"re::override::pcre_callout_block_offset_vector_get", _wrap_pcre_callout_block_offset_vector_get},
-{"re::override::pcre_callout_block_subject_set", _wrap_pcre_callout_block_subject_set},
-{"re::override::pcre_callout_block_subject_get", _wrap_pcre_callout_block_subject_get},
-{"re::override::pcre_callout_block_subject_length_set", _wrap_pcre_callout_block_subject_length_set},
-{"re::override::pcre_callout_block_subject_length_get", _wrap_pcre_callout_block_subject_length_get},
-{"re::override::pcre_callout_block_start_match_set", _wrap_pcre_callout_block_start_match_set},
-{"re::override::pcre_callout_block_start_match_get", _wrap_pcre_callout_block_start_match_get},
-{"re::override::pcre_callout_block_current_position_set", _wrap_pcre_callout_block_current_position_set},
-{"re::override::pcre_callout_block_current_position_get", _wrap_pcre_callout_block_current_position_get},
-{"re::override::pcre_callout_block_capture_top_set", _wrap_pcre_callout_block_capture_top_set},
-{"re::override::pcre_callout_block_capture_top_get", _wrap_pcre_callout_block_capture_top_get},
-{"re::override::pcre_callout_block_capture_last_set", _wrap_pcre_callout_block_capture_last_set},
-{"re::override::pcre_callout_block_capture_last_get", _wrap_pcre_callout_block_capture_last_get},
-{"re::override::pcre_callout_block_callout_data_set", _wrap_pcre_callout_block_callout_data_set},
-{"re::override::pcre_callout_block_callout_data_get", _wrap_pcre_callout_block_callout_data_get},
-{"re::override::pcre_callout_block_pattern_position_set", _wrap_pcre_callout_block_pattern_position_set},
-{"re::override::pcre_callout_block_pattern_position_get", _wrap_pcre_callout_block_pattern_position_get},
-{"re::override::pcre_callout_block_next_item_length_set", _wrap_pcre_callout_block_next_item_length_set},
-{"re::override::pcre_callout_block_next_item_length_get", _wrap_pcre_callout_block_next_item_length_get},
-{"re::override::new_pcre_callout_block", _wrap_new_pcre_callout_block},
-{"re::override::delete_pcre_callout_block", _wrap_delete_pcre_callout_block},
+{"re::override::PCRE::compile", _wrap_compile},
+{"re::override::PCRE::execute", _wrap_execute},
+{"re::override::PCRE::pcre_compile", _wrap_pcre_compile},
+{"re::override::PCRE::pcre_config", _wrap_pcre_config},
+{"re::override::PCRE::pcre_copy_named_substring", _wrap_pcre_copy_named_substring},
+{"re::override::PCRE::pcre_copy_substring", _wrap_pcre_copy_substring},
+{"re::override::PCRE::pcre_exec", _wrap_pcre_exec},
+{"re::override::PCRE::pcre_free_substring", _wrap_pcre_free_substring},
+{"re::override::PCRE::pcre_free_substring_list", _wrap_pcre_free_substring_list},
+{"re::override::PCRE::pcre_fullinfo", _wrap_pcre_fullinfo},
+{"re::override::PCRE::pcre_get_named_substring", _wrap_pcre_get_named_substring},
+{"re::override::PCRE::pcre_get_stringnumber", _wrap_pcre_get_stringnumber},
+{"re::override::PCRE::pcre_get_substring", _wrap_pcre_get_substring},
+{"re::override::PCRE::pcre_get_substring_list", _wrap_pcre_get_substring_list},
+{"re::override::PCRE::pcre_info", _wrap_pcre_info},
+{"re::override::PCRE::pcre_maketables", _wrap_pcre_maketables},
+{"re::override::PCRE::pcre_study", _wrap_pcre_study},
+{"re::override::PCRE::pcre_version", _wrap_pcre_version},
+{"re::override::PCRE::pcre_extra_flags_set", _wrap_pcre_extra_flags_set},
+{"re::override::PCRE::pcre_extra_flags_get", _wrap_pcre_extra_flags_get},
+{"re::override::PCRE::pcre_extra_study_data_set", _wrap_pcre_extra_study_data_set},
+{"re::override::PCRE::pcre_extra_study_data_get", _wrap_pcre_extra_study_data_get},
+{"re::override::PCRE::pcre_extra_match_limit_set", _wrap_pcre_extra_match_limit_set},
+{"re::override::PCRE::pcre_extra_match_limit_get", _wrap_pcre_extra_match_limit_get},
+{"re::override::PCRE::pcre_extra_callout_data_set", _wrap_pcre_extra_callout_data_set},
+{"re::override::PCRE::pcre_extra_callout_data_get", _wrap_pcre_extra_callout_data_get},
+{"re::override::PCRE::pcre_extra_tables_set", _wrap_pcre_extra_tables_set},
+{"re::override::PCRE::pcre_extra_tables_get", _wrap_pcre_extra_tables_get},
+{"re::override::PCRE::new_pcre_extra", _wrap_new_pcre_extra},
+{"re::override::PCRE::delete_pcre_extra", _wrap_delete_pcre_extra},
+{"re::override::PCRE::pcre_callout_block_version_set", _wrap_pcre_callout_block_version_set},
+{"re::override::PCRE::pcre_callout_block_version_get", _wrap_pcre_callout_block_version_get},
+{"re::override::PCRE::pcre_callout_block_callout_number_set", _wrap_pcre_callout_block_callout_number_set},
+{"re::override::PCRE::pcre_callout_block_callout_number_get", _wrap_pcre_callout_block_callout_number_get},
+{"re::override::PCRE::pcre_callout_block_offset_vector_set", _wrap_pcre_callout_block_offset_vector_set},
+{"re::override::PCRE::pcre_callout_block_offset_vector_get", _wrap_pcre_callout_block_offset_vector_get},
+{"re::override::PCRE::pcre_callout_block_subject_set", _wrap_pcre_callout_block_subject_set},
+{"re::override::PCRE::pcre_callout_block_subject_get", _wrap_pcre_callout_block_subject_get},
+{"re::override::PCRE::pcre_callout_block_subject_length_set", _wrap_pcre_callout_block_subject_length_set},
+{"re::override::PCRE::pcre_callout_block_subject_length_get", _wrap_pcre_callout_block_subject_length_get},
+{"re::override::PCRE::pcre_callout_block_start_match_set", _wrap_pcre_callout_block_start_match_set},
+{"re::override::PCRE::pcre_callout_block_start_match_get", _wrap_pcre_callout_block_start_match_get},
+{"re::override::PCRE::pcre_callout_block_current_position_set", _wrap_pcre_callout_block_current_position_set},
+{"re::override::PCRE::pcre_callout_block_current_position_get", _wrap_pcre_callout_block_current_position_get},
+{"re::override::PCRE::pcre_callout_block_capture_top_set", _wrap_pcre_callout_block_capture_top_set},
+{"re::override::PCRE::pcre_callout_block_capture_top_get", _wrap_pcre_callout_block_capture_top_get},
+{"re::override::PCRE::pcre_callout_block_capture_last_set", _wrap_pcre_callout_block_capture_last_set},
+{"re::override::PCRE::pcre_callout_block_capture_last_get", _wrap_pcre_callout_block_capture_last_get},
+{"re::override::PCRE::pcre_callout_block_callout_data_set", _wrap_pcre_callout_block_callout_data_set},
+{"re::override::PCRE::pcre_callout_block_callout_data_get", _wrap_pcre_callout_block_callout_data_get},
+{"re::override::PCRE::pcre_callout_block_pattern_position_set", _wrap_pcre_callout_block_pattern_position_set},
+{"re::override::PCRE::pcre_callout_block_pattern_position_get", _wrap_pcre_callout_block_pattern_position_get},
+{"re::override::PCRE::pcre_callout_block_next_item_length_set", _wrap_pcre_callout_block_next_item_length_set},
+{"re::override::PCRE::pcre_callout_block_next_item_length_get", _wrap_pcre_callout_block_next_item_length_get},
+{"re::override::PCRE::new_pcre_callout_block", _wrap_new_pcre_callout_block},
+{"re::override::PCRE::delete_pcre_callout_block", _wrap_delete_pcre_callout_block},
 {0,0}
 };
 /*************************************************************************

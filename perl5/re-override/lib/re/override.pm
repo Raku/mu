@@ -20,7 +20,7 @@ BEGIN {
 }
 
 our $inserted = 0;
-our $regcompp = undef;
+BEGIN { our $regcompp = undef };
 
 sub import {
     my $class = shift;

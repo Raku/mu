@@ -10,13 +10,15 @@ if (not -e 'pcre.h' and -e '../../src/pcre/pcre.h') {
     }
 }
 
-if (not -e 'ppport.h') {
-    require Devel::PPPort;
-    Devel::PPPort::WriteFile();
+if (not -e "pcre_wrap.c") {
+    system(
+        'swig',
+        qw(-noproxy -module re::override::PCRE -includeall -exportall -perl5 pcre.i)
+    )
 }
 
-name            're-override';
-all_from        'lib/re/override.pm';
+name            're-override-PCRE';
+all_from        'lib/re/override/PCRE.pm';
 cc_inc_paths    '.';
 cc_files        (grep { !/printint|ucp(?:type)?table/ } glob("*.c"));
 

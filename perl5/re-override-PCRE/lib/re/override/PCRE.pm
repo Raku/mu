@@ -2,11 +2,26 @@ package re::override::PCRE;
 use strict;
 use vars qw( @ISA @EXPORT $VERSION );
 
+BEGIN {
+    $VERSION = '0.03';
+
+    local $@;
+    eval {
+        require XSLoader;
+        XSLoader::load(__PACKAGE__ => $VERSION);
+        1;
+    } or do {
+        require DynaLoader;
+        push @ISA, 'DynaLoader';
+        __PACKAGE__->bootstrap($VERSION);
+    };
+}
+
 sub import {
     $^H{regcompp} = sub {
-        my $re = re::override::compile($_[0], 0);
+        my $re = compile($_[0], 0);
         return reverse(13, "b", 1, sub {
-            my $match = re::override::execute($re, $_[0], 0);
+            my $match = execute($re, $_[0], 0);
             my @rv = ((@$match ? 1 : 0), undef, undef, @$match);
             return reverse(@rv);
         });
@@ -23,7 +38,7 @@ re::override::PCRE - Perl-compatible regular expressions
 
 =head1 SYNOPSIS
 
-    use re::override-pcre;
+    use re::override-PCRE;
 
     if ("Hello, world" =~ /(?<=Hello|Hi), (world)/) {
         print "Greetings, $1!";
@@ -36,7 +51,6 @@ regular expressions.
 
 =head1 AUTHORS
 
-Mitchell N "putter" Charity,
 Audrey Tang
 
 =head1 COPYRIGHT
