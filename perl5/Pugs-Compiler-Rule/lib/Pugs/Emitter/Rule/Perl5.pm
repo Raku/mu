@@ -142,6 +142,9 @@ sub emit {
         "            return \\\%match2;\n" .
         "        }\n" .
         #"        print Dumper( \$match );\n" .
+        "        my \$len = length( \$match->{tail} );\n" .
+        "        my \$head = \$len?substr(\$_[0], 0, -\$len):\$_[0];\n" .
+        "        \$match->{capture} = \$head;\n" .
         "        return \$match;\n" .
         "    }\n" .
         "}\n";
