@@ -247,7 +247,7 @@ Module::Compile - Perl Module Compilation
 
     sub pmc_compile {
         my ($class, $source) = @_;
-        # Convert $source into (most like Perl 5) $compiled_output
+        # Convert $source into (most likely Perl 5) $compiled_output
         return $compiled_output;
     }
 
@@ -265,8 +265,8 @@ To compile F<Bar.pm> into F<Bar.pmc>:
 
 =head1 DESCRIPTION
 
-This module provides a system for writing Perl module compilation
-modules.
+This module provides a system for writing modules that I<compiles> other
+Perl modules.
 
 Modules that use these compilation modules get compiled into some
 altered form the first time they are run. The result is cached into C<.pmc>
@@ -275,58 +275,56 @@ files.
 Perl has native support for C<.pmc> files. It always checks for them, before
 loading a C<.pm> file.
 
-You get the following benefits:
+=head1 EXAMPLE
 
-=head1 A PERL 6 EXAMPLE
-
-You can declare a preprocessor with:
+You can declare a C<v6.pm> compiler with:
 
     package v6;
     use Module::Compile -base;
     
     sub pmc_compile {
         my ($class, $source) = @_;
-        ... some way to invoke pugs and give p5 code back ...
+        # ... some way to invoke pugs and give p5 code back ...
     }
 
 and use it like:
 
-    # User.pm
+    # MyModule.pm
     use v6-pugs;
-    module User;
-    ...some p6 code here...
+    module MyModule;
+    # ...some p6 code here...
     no v6;
-    ...back to p5 land...
+    # ...back to p5 land...
 
 On the first time this module is loaded, it will compile Perl 6
 chunks into Perl 5 (as soon as the C<no v6> line is seen), and
 merge it with the Perl 5 chunks, saving the result into a
-F<User.pmc> file.
+F<MyModule.pmc> file.
 
-The next time around, Perl 5 will automatically load F<User.pmc> when
-someone says C<use Foo>. On the other hand, Perl 6 can run User.pm as a
-Perl 6 module just fine, as "use v6-pugs" and "no v6" both works in a
-perl 6 setting also.
+The next time around, Perl 5 will automatically load F<MyModule.pmc> when
+someone says C<use MyModule>. On the other hand, Perl 6 can run MyModule.pm as
+a Perl 6 module just fine, as C<use v6-pugs> and C<no v6> both works in a
+Perl 6 setting.
 
-The B<pmc> module will imbue B<v6.pm> with the ability to check
-for F<Foo.pmc>'s updatedness also, and if it's up to date, then
-it'd touch its timestamp so the .pmc is loaded on the next time.
+The B<v6.pm> module will also check if F<MyModule.pmc> is up to date.
+If it is, then it will touch its timestamp so the C<.pmc> is loaded on
+the next time.
 
 =head1 BENEFITS
 
-Using Module::Compile compilers gives you the following benefits:
+B<Module::Compile> gives you the following benefits:
 
 =over
 
 =item *
 
 Ability to mix many source filterish modules in a much more sane manner.
-Module::Compile controls the compilation process, calling each compiler
+B<Module::Compile> controls the compilation process, calling each compiler
 at the right time with the right data.
 
 =item *
 
-Ability to ship precompiled modules without shipping Module::Compile and
+Ability to ship precompiled modules without shipping B<Module::Compile> and
 the compiler modules themselves.
 
 =item *
@@ -336,8 +334,8 @@ code you want to see.
 
 =item *
 
-Zero runtime penalty after compilation. C<perl> has already been doing the
-C<.pmc> check on every module load since 1999!
+Zero runtime penalty after compilation, because C<perl> has already been doing
+the C<.pmc> check on every module load since 1999!
 
 =back
 
