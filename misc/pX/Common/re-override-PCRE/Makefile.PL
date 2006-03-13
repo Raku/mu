@@ -19,7 +19,7 @@ if (not -e "pcre_wrap.c") {
 
 name            ('re-override-PCRE');
 all_from        ('lib/re/override/PCRE.pm');
-cc_inc_paths    ('.';
+cc_inc_paths    ('.');
 cc_files        (grep { !/printint|ucp(?:type)?table/ } glob("*.c"));
 
 #cc_optimize_flags '-g3';
