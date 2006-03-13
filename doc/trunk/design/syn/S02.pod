@@ -12,7 +12,7 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 10 Aug 2004
-  Last Modified: 25 Feb 2006
+  Last Modified: 12 Mar 2006
   Number: 2
   Version: 17
 
@@ -498,7 +498,7 @@ The C<$#foo> notation is dead.  Use C<@foo.end> or C<[-1]> instead.
 
 Ordinary package-qualified names look like in Perl 5:
 
-    $Foo::Bar::baz	# the $baz variable in package Foo::bar
+    $Foo::Bar::baz	# the $baz variable in package Foo::Bar
 
 Sometimes it's clearer to keep the sigil with the variable name, so an
 alternate way to write this is:
