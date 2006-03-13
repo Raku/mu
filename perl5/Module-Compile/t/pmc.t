@@ -16,7 +16,7 @@ __DATA__
 #################((( 32-bit Checksum Validator )))#################
 BEGIN {1378133008 == do { use 5.006; local(*F, $/); ($F = __FILE__)
 =~ s!c$!!; open F or die "Cannot open $F: $!"; binmode(F, ':crlf');
-unpack('%32L*', <F>) } or die "Cannot load stale .pmc file: ${F}c"}
+unpack('%32N*', <F>) } or die "Cannot load stale .pmc file: ${F}c"}
 ###################################################################
 package Foo;
 
