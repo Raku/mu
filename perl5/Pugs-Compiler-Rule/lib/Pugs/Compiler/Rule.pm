@@ -137,8 +137,6 @@ to several other modules:
  &    
  <!abc>                     -- is this !<abc> or !abc ?
  \n \N
- 'literal' "literal"        -- not sure if specified
- <!n,m>  -- <!{n..m}> ???   -- not sure if specified
 
 =head1 METHODS
 

@@ -11,6 +11,8 @@ What's missing for releasing:
 
 Other TODO:
 
+- .from and .to not implemented in subrules
+
 - Switches - none so far - all rules have :p set (only match at start of 
   text) (see Pugs::Compiler::Rule workaround)
 

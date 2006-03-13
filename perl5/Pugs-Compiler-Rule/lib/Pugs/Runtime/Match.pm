@@ -101,8 +101,6 @@ sub array {
     } @{${$_[0]}->{match}}];
 }
 
-# ...
-
 1;
 
 __END__
@@ -156,7 +154,7 @@ of the result object (usually the entire match string).
 
 =head2 0+
 
-When used as a number, the match object returns the stringified version
+When used as a number, the match object returns the numified version
 of the result object (usually the entire match string).
 
 =head1 METHODS

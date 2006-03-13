@@ -26,55 +26,53 @@ DESCRIPTION
     * Pugs::Runtime::Match represents a Match object.
 
   Implemented Features
-         . ? * + *? +? ??
-         \char <ws> <word> literal
-         $variable @variable
-         <'literal'>
-         [] 
-         ()     
-         <subrule>
-         <namespace::subrule>
-         <?subrule>
-         <!subrule>
-         |
-         <@var>             -- special-cased for array-of-rule (but not Rule|Str)
-         {code}             -- non-capturing closure
-                            -- bootstrapped with source-filter
-                            -- $/ doesn't work yet
-         { return code }    -- capturing closure
-                            -- bootstrapped with source filter
-                            -- $/ works
-         $var := (capture)  -- capture aliasing
-         $<> $/<>           -- special variables can't be used inside a match yet
-         $/ 
-         $<0> $<1>
-         <$var>             -- untested
+     . ? * + *? +? ??
+     \char <ws> <word> literal
+     $variable @variable
+     <'literal'>
+     [] 
+     ()     
+     <subrule>
+     <namespace::subrule>
+     <?subrule>
+     <!subrule>
+     |
+     <@var>             -- special-cased for array-of-rule (but not Rule|Str)
+     {code}             -- non-capturing closure
+                        -- bootstrapped with source-filter
+                        -- $/ doesn't work yet
+     { return code }    -- capturing closure
+                        -- bootstrapped with source filter
+                        -- $/ works
+     $var := (capture)  -- capture aliasing
+     $<> $/<>           -- special variables can't be used inside a match yet
+     $/ 
+     $<0> $<1>
+     <$var>             -- untested
 
   Unimplemented Features
-         $/<0> $/<1>
-         $/0 $/1
-         $0 $1
-         <"literal">
-         ^ ^^ $ $$
-         <unicode-class> <+unicode-class> <+unicode-class+unicode-class>
-         <&var> 
-         <%var>
-         **{n..m}
-         : :: :::   (commit)
-         $var := [non-capture]
-         $var := <rule>
-         <(closure-assertion)> <{code-returns-rule}>
-         <<character-class>> <[character-class]>
-         :flag :flag() :flag[]
-         lookahead lookbehind
-         #comment\n
-         \x0a \0123 ...
-         <?ws>                      -- optional whitespace ???
-         &    
-         <!abc>                     -- is this !<abc> or !abc ?
-         \n \N
-         'literal' "literal"        -- not sure if specified
-         <!n,m>  -- <!{n..m}> ???   -- not sure if specified
+     $/<0> $/<1>
+     $/0 $/1
+     $0 $1
+     <"literal">
+     ^ ^^ $ $$
+     <unicode-class> <+unicode-class> <+unicode-class+unicode-class>
+     <&var> 
+     <%var>
+     **{n..m}
+     : :: :::   (commit)
+     $var := [non-capture]
+     $var := <rule>
+     <(closure-assertion)> <{code-returns-rule}>
+     <<character-class>> <[character-class]>
+     :flag :flag() :flag[]
+     lookahead lookbehind
+     #comment\n
+     \x0a \0123 ...
+     <?ws>                      -- optional whitespace ???
+     &    
+     <!abc>                     -- is this !<abc> or !abc ?
+     \n \N
 
 METHODS
   compile (Str $rule_source)
@@ -85,17 +83,22 @@ METHODS
     Instance method. Returns a Pugs::Runtime::Match object.
 
 CAVEATS
-    This is an experimental development snapshot. There are currently no
+    This is an experimental development version. There are currently no
     support for match flags, and the API is still in flux.
 
     It is currently unsuitable for just about any use other than Pugs
-    development.
+    development. Please join us on irc.freenode.net #perl6 if you'd like to
+    participate. :-)
 
 AUTHORS
     The Pugs Team <perl6-compiler@perl.org>.
 
+SEE ALSO
+    The Perl 6 Rules Spec:
+    <http://dev.perl.org/perl6/doc/design/syn/S05.html>
+
 COPYRIGHT
-    Copyright 2006 by Flavio Soibelmann Glock and contributors.
+    Copyright 2006 by Flavio Soibelmann Glock and others.
 
     This program is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself.
