@@ -74,7 +74,7 @@ sub pmc_preface {
     my ($class, $module, $line) = @_;
     my $preface = '';
     local $/ = "\n";
-    open my $input, $module
+    open my $input, "<", $module
       or die "Can't open '$module' for input:\n$!";
     for (1 .. ($line - 1)) {
         $preface .= <$input>;
@@ -126,6 +126,7 @@ sub pmc_output {
       or return 0;
 
     # Protect against disk full or whatever else.
+    local $@;
     eval {
         print $fh $output
            or die;
@@ -134,7 +135,10 @@ sub pmc_output {
     };
     if ( my $e = $@ ) {
         # close $fh? die if unlink?
-        unlink $pmc;
+        if ( -e $pmc ) {
+            unlink $pmc
+                or die "Can't delete errant $pmc: $!";
+        }
         return 0;
     }
     
@@ -230,7 +234,7 @@ sub pmc_call {
     my $text = $chunk->[0];
     my @classes = splice(@{$chunk->[1]}, $offset, $length);
     for my $c (@classes) {
-        $_ = $text;
+        local $_ = $text;
         my $return = $c->pmc_compile($text);
         $text = (defined $return and $return !~ /^\d+$/)
             ? $return
@@ -244,15 +248,17 @@ sub pmc_call {
 sub pmc_chunk {
     my $class = shift;
     my $data = shift;
-    my @parts = split /^(\s*(?:use|no)\s+[\w\:\']+.*\n)/m, $data;
+    # XXX \s -> [^\S\n]
+    my @parts = split /^(\s*(?:use|no)[^\S\n]+[\w\:\']+[^\n]*\n)/m, $data;
     my @chunks = ();
     my @classes = ();
     my $text = '';
     while (@parts) {
         my $part = shift @parts;
-        if ($part =~ /^\s*(use|no)\s+([\w\:\']+).*\n/) {
+        # XXX \s -> [^\S\n]
+        if ($part =~ /^\s*(use|no)[^\S\n]+([\w\:\']+)[^\n]*\n/) {
             my ($use, $klass, $file) = ($1, $2, $2);
-            $file =~ s{::}{/}g;
+            $file =~ s{(?:::|')}{/}g;
             {
                 local $@;
                 eval { require "$file.pm" };

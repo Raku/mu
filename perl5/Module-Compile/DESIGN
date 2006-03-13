@@ -1,6 +1,6 @@
 === Possible Compilers
 
-- Switch
+- Switch (prefer 5.10's feature qw(switch))
 - Inline
 - Indented
 - Spiffy
