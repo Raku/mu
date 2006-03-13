@@ -684,7 +684,12 @@ sub for_perl5 {
     my $cmd = shift;
     $cmd =~ s{\n}{}g;
     my @cmds;
-    foreach my $dir (grep -d && -e "$_/Makefile.PL", glob('perl5/*')) {
+    foreach my $dir (grep { -d } glob('perl5/*')) {
+        -e "$dir/Makefile.PL" or next;
+
+        # Skip XS modules for now
+        next if () = (glob("$dir/*.xs"), glob("$dir/*.i"));
+
         my $this = $cmd;
         $this =~ s{__DIR__}{$dir}g;
         push @cmds, $this;
