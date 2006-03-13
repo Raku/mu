@@ -198,7 +198,7 @@ sub capture {
     
         my $len = length( $match->{tail} );
         my $head = $len?substr($_[0], 0, -$len):$_[0];
-        $new_match->{capture} = [$head];   # XXX -- array ref not needed
+        $new_match->{capture} = $head;   # XXX -- array ref not needed
         #print 'got capture: ',do{use Data::Dumper; Dumper($new_match)};
 
         return $new_match;
