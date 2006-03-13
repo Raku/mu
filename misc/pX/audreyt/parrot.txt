@@ -1,0 +1,177 @@
+= random parrot-targeting notes
+
+cd editor ; make vim-install # very handy
+
+upon class_init, "entry" is bound to the typenum of the current class
+
+"map" means "autobox from" in pmc header
+
+"make archclean" is like "realclean" except no costly pmc regens
+
+"need_ext" is needed for all reference (paramatric) types
+
+We _always_ turn on
+    .pragma n_operators 1       # so prims become value-returning
+    .HLL "Perl6", "pugs_group"  # pugs* PMCs
+
+$Foo::Bar ::= 3;
+
+multi ""
+    newclass F, "^Int"
+    .sub f :multi(^Int, ^Int)
+    subclass()  # statically for SI
+    addparent() # for each parents in MI
+
+Toplevels:
+    - DEFAULT-UNIT-NAMESPACE
+        - "Main" by default, but if somebody did "module Test;"
+          as 1st line, then the entire file is under "Test"
+    - INIT sequence:
+        .namespace []
+
+        .sub _MAIN :main
+            # Initialize all namespaces
+            $P0 = find_global [""], "_INIT"
+            $P0()
+            $P0 = find_global ["Main"], "_INIT"
+            $P0()
+            $P0 = find_global ["Foo"], "_INIT"
+            $P0()
+            # ... go to &Main::MAIN ...
+            $P0 = find_global ["Main"], "&MAIN"
+            .return $P0()
+        .end
+
+        .sub _INIT :load :anon
+            store_global "::Class", _C_CLASS
+            store_global "::Object", _C_OBJECT
+        .end
+
+        .namespace [ "Main" ]
+        .sub _INIT :load :anon
+            .const .Sub _C_MAIN = "_INIT_C_MAIN"
+            .const .Sub _S_FOURTY_FIVE = "_INIT_S_FOURTY_FIVE"
+            # ... objspace setup ...
+            store_global "&MAIN", _C_MAIN
+            store_global "$FOURTY_FIVE", _S_FOURTY_FIVE
+        .end
+
+        # All the constant used in INIT
+        .sub _INIT_S_FOURTY_FIVE :immediate :anon
+            $P0 = new .PugsInt
+            $P0 = 3
+            $P0 = $P0 + 42
+            .return($P0)
+        .end
+
+        # anon sub inside named sub
+        sub f {
+            my ($sym, $sym2);
+            state $sym3 = 3;
+            $sym2 = sub g { $sym };
+            return $sym2;
+        }
+
+        .sub _INIT_C_F :anon :outer("_INIT_C_MAIN")
+            .const .Sub __INIT_INNER_0__ = "_INIT_C_ANON_0"
+            .sym pmc __DYN_INNER_0__
+            __DYN_INNER_0__ = newclosure __INIT_INNER_0__
+        .end
+
+        .sub _INIT_C_ANON_0 :anon :outer("_INIT_C_F")
+            $P0 = find_lex "$sym"
+            .return($P0)
+        .end
+
+
+        # This applies only to Code constants - no ":immediate"
+        .sub _INIT_C_MAIN :anon :outer("_INIT")
+            .const .Sub __SUB__ = "_INIT_C_MAIN"
+            .const .Sub __PRE__ = "_INIT_C_MAIN__PRE"
+            .const .Sub __POST__ = "_INIT_C_MAIN__POST"
+            .sym pmc _S_sym, _S_sym2, _S_sym3
+            .lex "$sym", _S_sym
+            .lex "$sym2", _S_sym2
+            .lex "$sym3", _S_sym3
+
+        FIRST:
+            # ...populate "state" stuff...
+            _S_sym3 = 3
+
+            # horrible hack: reset entry point
+            set_addr __SUB__, PRE
+
+        PRE:
+            pushmark 110287318023
+            pushaction __POST__
+            pushaction __UNDO__
+            pushaction __CATCH__
+
+            # Perl6's PRE{...} block, triggering on each sub call
+            __PRE__();
+        
+        BODY:
+            # ...main body...
+            $P0 = find_global "$FOURTY_FIVE"
+            $P0.say(); # assuming this works
+
+        KEEP:
+            popmark 110287318023
+            __KEEP__();
+            __POST__();
+            # ...
+
+        .end
+
+        .sub _INIT_C_MAIN__PRE :anon :outer("_INIT_C_MAIN")
+        .end
+        .sub _INIT_C_MAIN__POST :anon :outer("_INIT_C_MAIN")
+        .end
+        .sub _INIT_C_MAIN__CATCH :anon :outer("_INIT_C_MAIN")
+            .param int _seen_exception_
+            # only deal it with _seen_exception_ == 1
+        .end
+        .sub _INIT_C_MAIN__UNDO :anon :outer("_INIT_C_MAIN")
+            .param int _seen_exception_
+            # only deal it with _seen_exception_ == 0
+        .end
+
+
+        .namespace [ "Foo" ]
+        .sub _INIT :load :anon
+            .const .PugsInt _S_Bar = "3"
+            store_global "$Bar", _S_Foo_Bar
+        .end
+
+    - SUBS
+        - &MAIN
+
+For subs:
+    - .namespace [ "Main" ]       # ::Main
+      Sub (name)
+        .sub "SUB_NAME" :outer("OUTER_NAME")
+        .end
+    - .namespace [ "Foo"; "Bar" ] # ::Foo::Bar
+      Sub (unnamed)
+        .sub "__ANON_0__" :anon :outer("OUTER_NAME")
+        .end
+
+Inside Sub:
+    - Constant PMCs
+        .const .PMC_Type identifier = "...some_string..."
+        - ObjectSpace "constants" is loaded right there
+    - Var lookup form
+
+
+say "Hello":
+
+    .const .PugsStr __ANON_PugsStr_0__ = "Hello"
+    __ANON_PugsStr_0__.method();
+
+{
+    my $x = 3;
+    {
+        $x
+    }
+}
+
