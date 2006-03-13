@@ -137,7 +137,7 @@ sub emit {
         "        if ( \$match->{return} ) {\n" .
         #"            warn 'pre-return: ', Dumper( \$match );\n" .
         "            my \%match2 = \%\$match;\n" .
-        "            \$match2{capture} = \$match->{return}( \$match );\n" .
+        "            \$match2{capture} = \$match->{return}( Match->new( \$match ) );\n" .
         "            delete \$match2{return};\n" .
         "            return \\\%match2;\n" .
         "        }\n" .

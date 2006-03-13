@@ -59,7 +59,7 @@ use_ok( 'Pugs::Runtime::Match' );
 }
 
 {
-    my $rule = Pugs::Grammar::Rule::rule( '$z := (.) { return { x => $() ,} } ' );
+    my $rule = Pugs::Grammar::Rule::rule( '$z := (.) { return { x => %{$_[0]} ,} } ' );
     $rule = eval Pugs::Emitter::Rule::Perl5::emit( $rule->{capture} );
     die $@ if $@;
     my $match = Match->new( $rule->( "abc" ) );
