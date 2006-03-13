@@ -4,7 +4,7 @@ What's missing for releasing:
 
 - documentation
 - examples of use
-- more Match.pm methods (see also t/04match.t)
+- more Match.pm methods (like 'pos')
 - rule switches (none, currently)
 - incomplete rule syntax (see README)
 - test user-defined subrules (there may be namespace problems)
