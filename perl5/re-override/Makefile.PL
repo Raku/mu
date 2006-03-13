@@ -1,6 +1,6 @@
 use strict;
-use lib '.', '../../../..';
-use inc::Module::Install prefix => '../../../../inc';
+use lib '.', '../..';
+use inc::Module::Install prefix => '../../inc';
 use File::Copy;
 use File::Basename;
 

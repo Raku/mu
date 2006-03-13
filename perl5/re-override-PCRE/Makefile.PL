@@ -1,11 +1,11 @@
 use strict;
-use lib '.', '../../../..';
-use inc::Module::Install prefix => '../../../../inc';
+use lib '.', '../..';
+use inc::Module::Install prefix => '../../inc';
 use File::Copy;
 use File::Basename;
 
-if (not -e 'pcre.h' and -e '../../../../src/pcre/pcre.h') {
-    for my $file (glob("../../../../src/pcre/*")) {
+if (not -e 'pcre.h' and -e '../../src/pcre/pcre.h') {
+    for my $file (glob("../../src/pcre/*")) {
         copy($file => basename($file));
     }
 }
