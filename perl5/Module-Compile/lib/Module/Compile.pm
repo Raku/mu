@@ -1,3 +1,8 @@
+# To Do:
+#
+# - Add DATA sections into .pmc files
+# -- Make sure <DATA> is correct from both .pm and .pmc
+#
 package Module::Compile; 
 
 use 5.006;
