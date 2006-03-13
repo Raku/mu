@@ -11,6 +11,12 @@ What's missing for releasing:
 
 Other TODO:
 
+- there are 2 engines - the old lrep engine, which drives the rule parser,
+  and the new engine, which is the user-side parser. The 2 steps should 
+  use only the new engine.
+
+- simple closures don't get the Match argument
+
 - remove 'grammar1' namespace everywhere
 - 'Pugs::Grammar::Rule::Lib' - old p5 code... -- 'use' in P:G:R
 
