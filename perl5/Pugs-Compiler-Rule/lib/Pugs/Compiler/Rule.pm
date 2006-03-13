@@ -41,6 +41,8 @@ sub compile {
     bless $self, $class;
 }
 
+sub code { $_[0]->{code} }
+
 sub match {
     my $match = $_[0]->{code}( $_[1] );
     return Match->new( $match ) if defined $match;

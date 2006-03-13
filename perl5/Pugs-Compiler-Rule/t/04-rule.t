@@ -12,3 +12,8 @@ use_ok( 'Pugs::Compiler::Rule' );
     is( eval { "$match->[0][0]" }, "x", 'stringify 3' );
 }
 
+{
+    *test::rule = Pugs::Compiler::Rule->compile( '((.).)(.)' )->code;
+    my $match = test::rule->match( "xyzw" );
+    is( eval { "$match" }, "xyz", 'stringify 1' );
+}
