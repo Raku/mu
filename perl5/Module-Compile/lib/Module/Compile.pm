@@ -86,14 +86,14 @@ $check$preface$content
 # .pmc file is fresh.  By default we use a 32-bit running checksum.
 sub freshness_check {
     my ($class, $module) = @_;
-    my $sum = do {
+    my $sum = sprintf('%08X', do {
         local ($_, $/) = $module;
         open _ or die "Cannot open $_: $!;";
         unpack('%32N*', <_>);
-    };
+    });
     return << "...";
 #################((( 32-bit Checksum Validator )))#################
-BEGIN {$sum == do { use 5.006; local(*F, \$/); (\$F = __FILE__)
+BEGIN {0x$sum == do { use 5.006; local(*F, \$/); (\$F = __FILE__)
 =~ s!c\$!!; open F or die "Cannot open \$F: \$!"; binmode(F, ':crlf');
 unpack('%32N*', <F>) } or die "Cannot load stale .pmc file: \${F}c"}
 ###################################################################
