@@ -26,9 +26,6 @@ use Pugs::Runtime::Match;
  "$match->[0][0]" eq "x";
  "$match->[1]" eq "z";
 
-Patterns currently get an implicit ^ .  They only match at the start
-of the string.
-
 See also the README and TODO files.
 
 =cut
