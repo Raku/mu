@@ -9,25 +9,26 @@ Assist translating between various languages
 
 =head1 DESCRIPTION
 
-Rosetta::Model provides an effective language for defining relational data
-models, both the means to create them and the means to interact with them.
-The language is IRL (Intermediate Relational Language); see the
-documentation of L<Rosetta::Model> itself (in the current distribution) for
-a further introduction.
+The native command language of a L<Rosetta> DBMS / virtual machine is
+called B<Rosetta D>.  Both that language, and the details of the Rosetta
+virtual machine's environment in which it executes, are described fully in
+the L<Rosetta::Language> documentation file that comes with this "Rosetta"
+distribution.  The L<Rosetta> core file defines the programmatic API for
+applications to use these virtual machines.
 
-This document, Rosetta::Migration ("Migration"), is intended to help
-users of Rosetta::Model to map the concepts and syntax of their existing
-database schemas and access specifications, between Rosetta::Model's native
+This document, Rosetta::Migration ("Migration"), is intended to help users
+of Rosetta to map the concepts and syntax of their existing database access
+tools, database schemas, and database queries, between Rosetta's native
 language and their current forms, such as SQL:2003 and other SQL dialects,
 and the "Tutorial D" relational data language, and various general purpose
 programming languages like C and Perl.
 
-This document should be helpful when converting applications to use
-Rosetta::Model to define their relational database concerning structures
-and tasks.  This document should also be helpful when creating a
-Rosetta::Model-based API layer on top of an existing database manager, so
-you know how to go about translating input and output to and from that
-database manager, or when creating something like a SQL translating tool.
+This document should be helpful when converting applications to use Rosetta
+to define their relational database concerning structures and tasks.  This
+document should also be helpful when creating a Rosetta-based API layer on
+top of an existing database manager, so you know how to go about
+translating input and output to and from that database manager, or when
+creating something like a SQL translating tool.
 
 =head1 SEE ALSO
 

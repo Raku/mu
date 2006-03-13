@@ -9,13 +9,13 @@ Design document of the Rosetta D language
 
 =head1 DESCRIPTION
 
-L<Rosetta> is a virtual machine that implements a relational model of data,
-and the native language of this virtual machine is called B<Rosetta D>;
-this document, Rosetta::Language ("Language"), is the human readable
-authoritative design document for that language.  If there's a conflict
-between any other document and this one, then either the other document is
-in error, or the developers were negligent in updating it before Language,
-so you can yell at them.
+The native command language of a L<Rosetta> DBMS (database management
+system) / virtual machine is called B<Rosetta D>; this document,
+Rosetta::Language ("Language"), is the human readable authoritative design
+document for that language, and for the Rosetta virtual machine in which it
+executes.  If there's a conflict between any other document and this one,
+then either the other document is in error, or the developers were
+negligent in updating it before Language, so you can yell at them.
 
 Rosetta D is intended to qualify as a "D" language as defined by "The Third
 Manifesto" (TTM), a proposal for a foundation for data and database
@@ -46,10 +46,9 @@ other TTM implementations like Dave Voorhis'
 L<Rel|http://dbappbuilder.sourceforge.net/>, but none of the adaptions from
 these are incompatible with TTM.
 
-This document, Language, will mainly focus on defining the specifics of the
-Rosetta D language and of the Rosetta virtual machine that it runs in;
-explanations of why things are being done a certain way will mainly be left
-to external documents, including those about The Third Manifesto.
+Note that the Rosetta documentation will be focusing mainly on how Rosetta
+itself works, and will not spend much time in providing rationales; you can
+read TTM itself and various other external documentation for much of that.
 
 =head1 10,000 MILE VIEW OF ROSETTA D
 
@@ -68,13 +67,127 @@ everyone's lives.
 
 =head2 Operational Context
 
+The Rosetta DBMS / virtual machine, which by definition is the environment
+in which Rosetta D executes, conceptually resembles a hardware PC, having a
+command processor (CPU), standard user input and output channel, persistant
+read-only memory (ROM), volatile read-write memory (RAM), and read-write
+persistent disk or network storage.
+
+Within this analogy, the role of the PC's user, that feeds it through
+standard input and accepts its standard output, is fulfilled by the
+application that is using the Rosetta DBMS; similarly, the application
+itself will activate the virtual machine when wanting to use it (done in
+this distribution by instantiating a new Rosetta::Interface::DBMS object),
+and deactivate the virtual machine when done (letting that object expire).
+
+When a new virtual machine is activated, the virtual machine has a default
+state where the CPU is ready to accept user-input commands to process, and
+there is a built-in (to the ROM) set of system-defined data types and
+operators which are ready to be used to define or be invoked by said
+user-input commands; the RAM starts out effectively empty and the
+persistant disk or network storage is ignored.
+
+Following this activation, the virtual machine is mostly idle except when
+executing Rosetta D commands that it receives via the standard input (done
+in this distribution by invoking methods on the DBMS object).  The virtual
+machine effectively handles just one command at a time, and executes each
+separately and in the order received; any results or side-effects of each
+command provide a context for the next command.
+
+At some point in time, as the result of appropriate commands, data
+repositories (either newly created or previously existing) that live in the
+persistant disk or network storage will be mounted within the virtual
+machine, at which point subsequent commands can read or update them, then
+later unmount them when done.  Speaking in the terms of a typical database
+access solution like the Perl DBI, this mounting and unmounting of a
+repository usually corresponds to connecting to and disconnecting from a
+database.  Speaking in the terms of a typical disk file system, this is
+mounting or unmounting a logical volume.
+
+Any mounted persistent repository, as well as the temporary repository
+which is most of the conceptual PC's RAM, is home to all user-defined data
+variables, data types, operators, constraints, packages, and routines; they
+collectively are the database that the Rosetta DBMS is managing.  Most
+commands against the DBMS would typically involve reading and updating the
+data variables, which in typical database terms is performing queries and
+data manipulation.  Much less frequently, you would also see changes to
+what variables, types, etcetera exist, which in typical terms is data
+definition.  Any updates to a persistent repository will usually last
+between multiple activations of the virtual machine, while any updates to
+the temporary repository are lost when the machine deactivates.
+
+All virtual machine commands are subject to a collection of both
+system-defined and user-defined constraints (also known as business rules),
+which are always active over the period that they are defined.  The
+constraints restrict what state the database can be in, and any commands
+which would cause the constraints to be violated will fail; this mechanism
+is a large part of what makes the Rosetta DBMS a reliable modeller of
+anything in reality, since it only stores values that are reasonable.
+
+Note that the virtual machine itself does not have its own set of named
+users where one must authenticate to use it.  Rather, any concept of such
+users is associated with individual persistent repositories, such that you
+may have to authenticate in order to mount them within the virtual machine;
+moreover, there may be user-specific privilege constraints for that
+repository that restrict what users can do in regards to its contents.
+
+=head2 Transactional Behaviour
+
+The Rosetta DBMS is fully transactional, and attempts to be fully ACID
+compliant, although the actual reliability will vary with the
+implementation; that aside, how transactions are supposed to work is as
+follows.
+
+First, every Rosetta D statement or multi-statement which is or is part of
+a Rosetta D command is itself a complete implicit auto-committing
+transaction; it sees a static view of the environment, and if it is an
+update, either all parts of that update will succeed and commit, or none of
+it will and no changes are left.
+
+Second, explicit transactions can be respectively started and committed or
+rolled back with appropriate Rosetta D statements.
+
+Third, transactions can be nested, by starting a new one before concluding
+a previous one, and the parent-most transaction has the final say on
+whether all of its committed children actually have a final committed
+effect or not.
+
+Fourth, all currently mounted repositories (persistent and temporary both)
+are joined at the hip with respect to transactions; a commit or rollback is
+performed on all of them simultaneously, and a commit either succeeds for
+all or fails for all (a repository suddenly becoming inaccessable counts as
+a failure).
+
+Fifth, certain Rosetta D commands can not be executed within the context of
+an explicit transaction, the main examples being those that mount or
+unmount a persistent repository; this is because such a change in the
+environment mid-transaction would result in an inconsistent state.
+
+
+
+
+=head1 UM, STUFF FOLLOWS, AND THINGS
+
+
+
+There are several main
+types of Rosetta D commands, which are summarized next.
+
+One type of command, that can be done at any time, is a bare value expression;
+it can involve any system-defined or user-defined operators or variables or
+literal values as input, and the resolved value is returned
+
+
+
+DBMS is structured
+
 Rosetta D is designed for a specific virtual environment that is
 implemented by a B<DBMS> (database management system).  This environment is
-home to zero or more databases, each of which users may create, have a
-dialog with (over a B<connection>), and delete; the components of the
-dialog, including queries and updates of the database, are the scope of the
-"D proper" language, and the other actions framing the dialog are the "D
-plus extra".
+home to zero or more data repositories, each of which users may create,
+have a dialog with (over a B<connection>), and delete; the components of
+the dialog, including queries and updates of the database, are the scope of
+the "D proper" language, and the other actions framing the dialog are the
+"D plus extra".
 
 From an application's point of view, a DBMS is a library that provides
 services for storing data "some where" (which may be in memory, or the file
