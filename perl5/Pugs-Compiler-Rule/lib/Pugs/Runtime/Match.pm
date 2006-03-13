@@ -81,15 +81,20 @@ sub array {
     if ( exists ${$_[0]}->{label} && ${$_[0]}->{label} eq '' ) {
         my $m = { %${$_[0]} };
         delete $m->{label};
-        print "array element: Returning first match: \n", do{use Data::Dumper; Dumper($m)};
+        #print "array element: Returning first match: \n", do{use Data::Dumper; Dumper($m)};
         #print 'array element: Returning original match: ', do{use Data::Dumper; Dumper($_[0])};
-        return ( ref($_[0])->new($m) );
+        my @a = ( ref($_[0])->new($m) );
+        return \@a;
     }
     return [map {
         my $m = $_;
-        print 'array element: ', do{use Data::Dumper; Dumper($m)};
+        #print 'array element: ', do{use Data::Dumper; Dumper($m)};
         exists $m->{label} && $m->{label} eq '' 
-        ? ref($_[0])->new($m) 
+        ? do{
+            $m = { %$m };
+            delete $m->{label};
+            ref($_[0])->new($m);
+        }
         : ()
     } @{${$_[0]}->{match}}];
 }
