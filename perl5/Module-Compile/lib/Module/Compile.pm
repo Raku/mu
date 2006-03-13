@@ -399,8 +399,8 @@ code you want to see.
 
 =item *
 
-Zero runtime penalty after compilation, because C<perl> has already been
-doing the C<.pmc> check on every module load since 1999!
+Zero additional runtime penalty after compilation, because C<perl> has
+already been doing the C<.pmc> check on every module load since 1999!
 
 =back
 
