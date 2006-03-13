@@ -55,8 +55,10 @@ sub code {
 }
 
 sub match {
-    my $match = $_[0]->{code}( $_[1] );
-    return Match->new( $match ) if defined $match;
+    foreach my $i (0..length($_[1])) {
+        my $match = $_[0]->{code}( substr($_[1], $i) );
+        return Match->new( $match ) if defined $match;
+    }
     return Match->new( { bool => 0 } );   # XXX - fix?
 }
 

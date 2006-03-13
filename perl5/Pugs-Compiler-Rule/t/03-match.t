@@ -1,5 +1,5 @@
 
-use Test::More tests => 26;
+use Test::More tests => 27;
 use Data::Dumper;
 
 use_ok( 'Pugs::Runtime::Rule' );  # lrep-generated rule parser
@@ -104,6 +104,8 @@ use_ok( 'Pugs::Compiler::Rule' );
     my $rule = Pugs::Compiler::Rule->compile( 'b' );
     my $match = $rule->match( "b" );
     is( $match?1:0, 1, 'boolean true');    
+    $match = $rule->match( "xby" );
+    is( $match?1:0, 1, 'boolean true (non-anchored match)');    
     $match = $rule->match( "x" );
     is( $match?1:0, 0, 'boolean false');    
 }
