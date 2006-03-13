@@ -92,11 +92,11 @@ sub freshness_check {
         unpack('%32L*', <_>);
     };
     return << "...";
-########################################################################
-BEGIN { $sum == do { use 5.006; local (\*F, \$/) = \\__FILE__; open F
-or die "Cannot open \$F: \$!"; binmode(F, ':crlf'); unpack('%32L*', <F>) }
-or die "Cannot load stale .pmc file: ".__FILE__.'c' } ### Validation ###
-########################################################################
+#################((( 32-bit Checksum Validator )))#################
+BEGIN {$sum == do { use 5.006; local(*F, \$/); (\$F = __FILE__)
+=~ s/c\$//; open F or die "Cannot open \$F: \$!"; binmode(F, ':crlf');
+unpack('%32L*', <F>) } or die "Cannot load stale .pmc file: \${F}c'}
+###################################################################
 ...
 }
 
