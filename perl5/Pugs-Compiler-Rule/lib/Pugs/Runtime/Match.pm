@@ -1,4 +1,6 @@
 
+# see pod in the end
+
 package Match;
 
 use overload (
@@ -77,3 +79,12 @@ sub array {
 # ...
 
 1;
+
+__END__
+
+=pod
+
+Match
+
+=cut
+
