@@ -20,6 +20,7 @@ use Pugs::Runtime::Match;
 
  my $rule = Pugs::Compiler::Rule->compile( '((.).)(.)' );
  my $match = $rule->match( "xyzw" );
+ if($match){...}
  "$match" eq "xyz";
  "$match->[0]" eq "xy";
  "$match->[0][0]" eq "x";
