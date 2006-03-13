@@ -63,6 +63,8 @@ use_ok( 'Pugs::Runtime::Match' );
     $rule = eval Pugs::Emitter::Rule::Perl5::emit( $rule->{capture} );
     die $@ if $@;
     my $match = Match->new( $rule->( "abc" ) );
+    print 'whole match: ', do{use Data::Dumper; Dumper($match)};
+    
     my $ret =  
         {
             'x' => [
