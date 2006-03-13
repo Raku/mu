@@ -2,16 +2,34 @@
 use Test::More tests => 19;
 use Data::Dumper;
 
-use_ok( 'Pugs::Runtime::Rule' );
+use_ok( 'Pugs::Runtime::Rule' );  # lrep-generated rule parser
+use_ok( 'Pugs::Runtime::Rule2' ); # user rule parser
 use_ok( 'Pugs::Grammar::Rule' );
 use_ok( 'Pugs::Emitter::Rule::Perl5' );
 use_ok( 'Pugs::Runtime::Match' );
 
 {
-    my $rule = Pugs::Grammar::Rule::rule( '((.).)' );
-    $rule = eval Pugs::Emitter::Rule::Perl5::emit( $rule->{capture} );
+    my $rule = Pugs::Grammar::Rule::rule( '((.).)(.)' );
+    my $src = Pugs::Emitter::Rule::Perl5::emit( $rule->{capture} );
+    $rule2 = eval $src;
     die $@ if $@;
-    my $match = Match->new( $rule->( "xyz" ) );
+    my $match = Match->new( $rule2->( "xyzw" ) );
+    #print "rule: $src";
+    #print 'whole match: ', do{use Data::Dumper; Dumper($match)};
+    is( eval { "$match" }, "xyz", 'stringify' );
+    #print 'whole match [0]: ', do{use Data::Dumper; Dumper($match->[0])};
+    is( eval { "$match->[0]" }, "xy", 'stringify' );
+    is( eval { "$match->[0][0]" }, "x", 'stringify' );
+}
+
+{
+    my $rule = Pugs::Grammar::Rule::rule( '((.).)' );
+    my $src = Pugs::Emitter::Rule::Perl5::emit( $rule->{capture} );
+    $rule2 = eval $src;
+    die $@ if $@;
+    my $match = Match->new( $rule2->( "xyz" ) );
+    #print "rule 2: $src";
+    #print 'whole match 2: ', do{use Data::Dumper; Dumper($match)};
     is( eval { "$match" }, "xy", 'stringify' );
     is( eval { "$match->[0]" }, "xy", 'stringify' );
     is( eval { "$match->[0][0]" }, "x", 'stringify' );

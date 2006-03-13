@@ -6,8 +6,8 @@ use overload (
     '%{}'    => \&hash,
     'bool'   => \&bool,
     '&{}'    => \&code,
-    '""'     => \&flat, # XXX - wrong - should use "result object"
-    '0+'     => \&flat, # XXX - wrong - should use "result object"
+    '""'     => \&flat, # fixed (fglock) XXX - wrong - should use "result object"
+    '0+'     => \&flat, # fixed (fglock) XXX - wrong - should use "result object"
     fallback => 1,
 );
 
@@ -43,7 +43,8 @@ sub new {
 }
 
 sub flat {
-    _str(${$_[0]});
+    ${$_[0]}->{capture};
+    # _str(${$_[0]});
     # join '', map { values %{$_->{match}} } @{${$_[0]}->{match}};
 }
 
@@ -67,7 +68,9 @@ sub bool {
 sub hash {
     return {map {
         my $m = $_;
-        exists $m->{match}[0]{''} ? () : (keys(%{$m->{match}[0]}))[0] => ref($_[0])->new($m)
+        exists $m->{label} && $m->{label} eq '' 
+        ? () 
+        : (keys(%{$m->{match}[0]}))[0] => ref($_[0])->new($m)
     } @{${$_[0]}->{match}}};
 }
 
@@ -75,7 +78,10 @@ sub hash {
 sub array {
     return [map {
         my $m = $_;
-        exists $m->{match}[0]{''} ? ref($_[0])->new($m) : ()
+        #print 'array element: ', do{use Data::Dumper; Dumper($m)};
+        exists $m->{label} && $m->{label} eq '' 
+        ? ref($_[0])->new($m) 
+        : ()
     } @{${$_[0]}->{match}}];
 }
 

@@ -205,7 +205,7 @@ sub emit_rule {
             push @s, $tmp . "$tab ,\n" if $tmp;
         }
         return $s[0] if @s == 1;
-        return "$tab ruleop::concat(\n" . 
+        return "$tab Pugs::Runtime::Rule2::concat(\n" . 
                ( join '', @s ) . 
                "$tab )\n";
     }
@@ -228,12 +228,13 @@ sub emit_rule {
 #rule nodes
 sub rule {
     return emit_rule( $_[0], $_[1] );
-    #return "$_[1] ruleop::capture( '$_[2]',\n" .
-    #       emit_rule( $_[0], $_[1] ) . "$_[1] )\n";
 }        
 sub capturing_group {
-    return "$_[1] ruleop::capture( '',\n" .
-           emit_rule( $_[0], $_[1] ) . "$_[1] )\n";
+    return 
+       "$_[1] Pugs::Runtime::Rule2::capture( '',\n" .
+       emit_rule( $_[0], $_[1].'    ' ) . 
+       "$_[1] )\n" .
+       '';
 }        
 sub non_capturing_group {
     return emit_rule( $_[0], $_[1] );
@@ -282,7 +283,7 @@ sub dot {
 sub subrule {
     my $name = $_[0];
     $name = $namespace . $_[0] unless $_[0] =~ /::/;
-    return "$_[1] ruleop::capture( '$_[0]', \\&{'$name'} )\n";
+    return "$_[1] Pugs::Runtime::Rule2::capture( '$_[0]', \\&{'$name'} )\n";
 }
 sub non_capturing_subrule {
     return "$_[1] \\&{'$namespace$_[0]'}\n";
@@ -349,7 +350,7 @@ sub named_capture {
                 { capture => $_[0] }, 
                 '$<rule>'
             ), $_[1] );
-    return "$_[1] ruleop::capture( '$name', \n" . $program . "$_[1] )\n";
+    return "$_[1] Pugs::Runtime::Rule2::capture( '$name', \n" . $program . "$_[1] )\n";
 }
 
 1;

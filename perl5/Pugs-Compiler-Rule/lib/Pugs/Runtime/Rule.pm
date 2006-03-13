@@ -30,6 +30,7 @@ or a hash containing:
     abort - the match was stopped by a { return } or a fail(),
            and it should not backtrack or whatever
     return - the block (sub-reference) that contains 'return'
+    label - the capture name (ident, number, or '')
 
 Continuations are used for backtracking.
 
@@ -144,7 +145,7 @@ sub ruleop::concat {
                 match => [ @matches ], 
                 tail =>  $matches[1]{tail},
                 state => $succ,
-                capture => $capture,
+                capture => $capture,  # ???
                 abort => $matches[1]{abort},
                 return => $matches[1]{return},
             };
@@ -180,6 +181,7 @@ sub ruleop::null {
     }
 };
 
+# XXX obsolete - see Emitter::Perl5::capture
 sub ruleop::capture {
     # sets the 'capture' flag and return a labeled capture
     # XXX - generalize to: set_flag('capture',1)
