@@ -93,8 +93,8 @@ sub freshness_check {
     };
     return << "...";
 ########################################################################
-BEGIN { $sum == do { use 5.006; local (\$_, \$/) = __FILE__; open _
-or die "Cannot open \$_: \$!"; binmode(_, ':crlf'); unpack('%32L*', <_>) }
+BEGIN { $sum == do { use 5.006; local (\*F, \$/) = \\__FILE__; open F
+or die "Cannot open \$F: \$!"; binmode(F, ':crlf'); unpack('%32L*', <F>) }
 or die "Cannot load stale .pmc file: ".__FILE__.'c' } ### Validation ###
 ########################################################################
 ...
