@@ -10,7 +10,7 @@ print "1..1199\n";
 
 BEGIN {
     chdir 't' if -d 't';
-    @INC = '../lib';
+#    @INC = '../lib';
 }
 
 eval 'use Config';          #  Defaults assumed if this fails

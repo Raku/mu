@@ -33,7 +33,7 @@
 
 BEGIN {
     chdir 't' if -d 't';
-    @INC = '../lib';
+#    @INC = '../lib';
 }
 
 $iters = shift || 1;		# Poor man performance suite, 10000 is OK.
