@@ -1,6 +1,5 @@
 # todo PM_GETRE  CALLREGEXEC
 # See notes after __END__
-# Also note that it's been repackaged to perl5/re-override/
 
 package Regexp::StructHook;
 
@@ -14,15 +13,13 @@ sub make_qr_regexp_pair {
   die "bug - no nparens" if !defined($nparens);
   die "bug - no callback" if !defined($callback);
   my $r_address;
-  $^H{regcompp} = sub {
+  my $regexp_compile_hook = sub {
     $r_address = $_[0];
     return reverse(13,$pat,$nparens,$callback);
   };
   my $qr = eval 'qr//'; die $@ if $@;
   return ($qr,$r_address);
 }
-
-BEGIN{$Regexp::Override::regcompp = undef;}
 
 use Inline C => <<'END';
 
@@ -36,15 +33,13 @@ use Inline C => <<'END';
 
 static regexec_t previous_exec_hook = NULL;
 
-#define Safefree(x) 1
-
 I32 regexp_exechook_hook (pTHX_ regexp* r, char* stringarg, char* strend,
-			  char* strbeg, I32 minend, SV* screamer,
-			  void* data, U32 flags)
+                          char* strbeg, I32 minend, SV* screamer,
+                          void* data, U32 flags)
 {
   if(!CONTAINS_RECOGNITION_FLAG(r)) {
     return previous_exec_hook(r,stringarg,strend,strbeg,
-			      minend,screamer,data,flags);
+                              minend,screamer,data,flags);
   }
   else {
     dSP;
@@ -81,7 +76,7 @@ I32 regexp_exechook_hook (pTHX_ regexp* r, char* stringarg, char* strend,
     SPAGAIN;
     fprintf(stderr,"exec hook survived.\n");
     if(ret < 1) {
-	fprintf(stderr,"regexp_hook_exec failed - didnt return anything\n"); exit(0);
+        fprintf(stderr,"regexp_hook_exec failed - didnt return anything\n"); exit(0);
     }
     pops_left = ret;
     matched = POPi; pops_left--;
@@ -89,17 +84,17 @@ I32 regexp_exechook_hook (pTHX_ regexp* r, char* stringarg, char* strend,
     { /* fail captures */
       int i;
       for(i=0;i<=r->nparens;i++) {
-	r->startp[i] = -1;
-	r->endp[i] = -1;
+        r->startp[i] = -1;
+        r->endp[i] = -1;
       }
       r->lastparen = r->lastcloseparen = 0;
     }
 
     newstr = (r->sublen != strend-strbeg ||
-	      !strnEQ(r->subbeg,strbeg,r->sublen));
-    newstr = 1; /*1-leak?,(0 only for isolated devtest)*/
+              !strnEQ(r->subbeg,strbeg,r->sublen));
+    newstr = 1; /*1-leak,(0 only for isolated devtest)*/
     if(newstr) {
-      Safefree(r->subbeg);
+/*      Safefree(r->subbeg);*/ /* fails split.t with newstr==1*/
       r->sublen = strend-strbeg;
       r->subbeg = savepvn(strbeg,r->sublen);
     }
@@ -114,16 +109,24 @@ I32 regexp_exechook_hook (pTHX_ regexp* r, char* stringarg, char* strend,
       }
       lp = POPs; pops_left--;
       lcp = POPs; pops_left--;
-      for(cap_idx=0; cap_idx <= r->nparens;cap_idx++) {
-        r->startp[cap_idx] = POPi; pops_left--;
-	r->endp[cap_idx] = POPi; pops_left--;
+      for(cap_idx=0; cap_idx <= r->nparens && pops_left;cap_idx++) {
+        SV* v;
+        IV vi;
+
+        v = POPs; pops_left--;
+        vi = SvOK(v) ? SvIV(v) : -1;
+        r->startp[cap_idx] = vi;
+
+        v = POPs; pops_left--;
+        vi = SvOK(v) ? SvIV(v) : -1;
+        r->endp[cap_idx] = vi;
       }
       for(;pops_left;) {
         POPs; pops_left--;
       }
 
-      r->lastparen = (lp == &PL_sv_undef) ? SvIV(lp) : r->nparens;
-      r->lastcloseparen = (lcp == &PL_sv_undef) ? SvIV(lcp) : r->nparens;
+      r->lastparen = SvOK(lp) ? SvIV(lp) : r->nparens;
+      r->lastcloseparen = SvOK(lcp) ? SvIV(lcp) : r->nparens;
     }
     else {
       while(pops_left--) {
@@ -173,7 +176,7 @@ static void regexp_setup(regexp* r, SV* pat, U32 nparens, SV* callback)
 
     r->offsets[1] = RECOGNITION_FLAG;
 
-    Safefree(r->substrs->data[0].substr);
+    /*XXX should SvREFCNT_dec current value */
     r->substrs->data[0].substr = SvREFCNT_inc(callback);
 
     /* Try to scare off the rest of perl */
@@ -200,30 +203,19 @@ regexp* hook_regcompp (pTHX_ char* exp, char* xend, PMOP* pm)
 
   fprintf(stderr,"hook_regcompp in %lx\n",(ulong)exp);
 
-  /* Check $^H for lexical selection of semantics and implementation */
-  if(handler == NULL) {
-    const char hint_key[] = "regcompp";
-    SV** phandler;      
-    HV* hints;
-    hints = get_hv("\b",0);
-    if(hints != NULL) {
-      phandler = hv_fetch(hints, hint_key, strlen(hint_key), 0);
-      if(phandler != NULL) {
-        handler = *phandler;
-        fprintf(stderr,"hook_regcompp lexical...%lx\n",(ulong)handler);
-/*	call_sv(handler,G_DISCARD|G_EVAL);
-        fprintf(stderr,"can survive %lx %lx\n",(ulong)exp,(ulong)handler);
-*/
-      }
-    }
-  }
-  /* Check $Regexp::Override::regcompp
-     for a dynamic selection of implementation */
   if(handler == NULL) {
     SV* sv;
-    sv = get_sv("Regexp::Override::regcompp",0);
-    if(sv != NULL && sv != &PL_sv_undef && SvTRUE(sv)) {
-      fprintf(stderr,"hook_regcompp dynamic...\n");
+    sv = eval_pv("$regexp_compile_hook",0);
+    if(sv != NULL && SvTRUE(sv)) {
+      fprintf(stderr,"regexp_compile_hook...\n");
+      handler = sv;
+    }
+  }  
+  if(handler == NULL && 0) {
+    SV* sv;
+    sv = eval_pv("$regexp_compile_hook_p5re",0);
+    if(sv != NULL && SvTRUE(sv)) {
+      fprintf(stderr,"regexp_compile_hook_p5re...\n");
       handler = sv;
     }
   }  
@@ -232,6 +224,7 @@ regexp* hook_regcompp (pTHX_ char* exp, char* xend, PMOP* pm)
     fprintf(stderr,"hook_regcompp punt.\n");
     return previous_comp_hook(aTHX_ exp,xend,pm);
   }
+
   {
     dSP;
     char *nulpat;
@@ -308,12 +301,12 @@ package main;
 Regexp::StructHook::import();
 
 1;
-__END__
+#__END__
 Regexp::StructHook::regexp_hook_on();
-
+=pod
 my $str = "axbxc";
-my(@returns) = ([1,undef,undef,1,2,],[1,undef,undef,3,4],[0]);
-my($qr) = Regexp::StructHook::make_qr_regexp_pair("a",0,sub{
+my(@returns) = ([1,undef,undef,1,2,1,2],[1,undef,undef,3,4,3,3],[0],[0]);
+my($qr) = Regexp::StructHook::make_qr_regexp_pair("a",1,sub{
   print STDERR "hi\n";
   my $ret = shift(@returns);
   return reverse(@$ret);
@@ -321,10 +314,9 @@ my($qr) = Regexp::StructHook::make_qr_regexp_pair("a",0,sub{
 my(@a)=split($qr,$str);
 print STDERR "(",join(", ",map{defined($_)?"'$_'":"undef"}@a),") ",0+@a,"\n";
 
-
 0;
 __END__
-
+=cut
 $foo = sub{
     print STDERR "hi\n";
     return reverse(1,undef,undef,1,3,2,3);
@@ -350,7 +342,7 @@ END
 
 print "alive\n";
 
-$^H{regcompp} = sub{
+our $regexp_compile_hook = sub{
   my($re)=@_;
   print STDERR "compiling pattern '$re'.\n";
   return reverse(13,"b",1,$foo);
