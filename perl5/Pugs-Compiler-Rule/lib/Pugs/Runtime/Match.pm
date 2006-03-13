@@ -19,6 +19,31 @@ sub new {
     bless $self, $class;
 }
 
+sub _str {
+    my $match = $_[0];
+    #print "STR: ", ref( $match ), " ", Dumper( $match ), "\n";
+    return join( '', map { match::str( $_ ) } @$match )
+        if ref( $match ) eq 'ARRAY';
+    return match::str( $match->{match} ) 
+        if ref( $match ) eq 'HASH' && exists $match->{match};
+    return join( '', map { match::str( $_ ) } values %$match )
+        if ref( $match ) eq 'HASH';
+    return $match;
+}
+
+sub from {
+    my $from = ${$_[0]}->{from} || 0;
+    $from;
+}
+
+sub to {
+    #print 'TO: ', do{use Data::Dumper; Dumper(${$_[0]})};
+    #my $str = _str( ${$_[0]} );
+    #print "TO: $str\n";
+    my $to = ${$_[0]}->{to} || length( _str( ${$_[0]} ) );
+    $to;
+}
+
 sub _box_submatch {
     my ($match, $submatch) = @_;
     $m = { %$submatch };
