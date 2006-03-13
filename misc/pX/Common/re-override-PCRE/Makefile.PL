@@ -1,6 +1,6 @@
 use strict;
-use lib '.';
-use inc::Module::Install;
+use lib '.', '../../../..';
+use inc::Module::Install prefix => '../../../../inc';
 use File::Copy;
 use File::Basename;
 
@@ -17,13 +17,13 @@ if (not -e "pcre_wrap.c") {
     )
 }
 
-name            're-override-PCRE';
-all_from        'lib/re/override/PCRE.pm';
-cc_inc_paths    '.';
+name            ('re-override-PCRE');
+all_from        ('lib/re/override/PCRE.pm');
+cc_inc_paths    ('.';
 cc_files        (grep { !/printint|ucp(?:type)?table/ } glob("*.c"));
 
 #cc_optimize_flags '-g3';
 
-can_cc or die "This module requires a C compiler";
+can_cc() or die "This module requires a C compiler";
 
-sign; WriteAll;
+&WriteAll( sign => 1 );
