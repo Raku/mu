@@ -84,7 +84,21 @@ __END__
 
 =pod
 
-Match
+Match objects are created by a rule application:
+
+ my $rule = Pugs::Compiler::Rule->compile( '((.).)(.)' );
+ my $match = $rule->match( "xyzw" );
+ if($match){...}
+ "$match" eq "xyz";
+ "$match->[0]" eq "xy";
+ "$match->[0][0]" eq "x";
+ "$match->[1]" eq "z";
+
+=SEE ALSO
+
+Perl 6 Synopsis 05 - Rules (S05)
+
+  p6bible S05
 
 =cut
 
