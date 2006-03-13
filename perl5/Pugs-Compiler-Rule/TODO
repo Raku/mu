@@ -11,6 +11,9 @@ What's missing for releasing:
 
 Other TODO:
 
+- Switches - none so far - all rules have :p set (only match at start of 
+  text) (see Pugs::Compiler::Rule workaround)
+
 - there are 2 engines - the old lrep engine, which drives the rule parser,
   and the new engine, which is the user-side parser. The 2 steps should 
   use only the new engine.
