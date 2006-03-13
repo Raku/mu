@@ -3,6 +3,10 @@
 
 This module is for packages relating to Dates.
 
+Note that this entire module was an early brain-fart as to what a
+fully Roles-ised date module would look like, and if you like the work
+at all, please feel free to play with it or adopt it.
+
 =head1 ROLES
 
 =head2 Date
