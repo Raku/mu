@@ -1,4 +1,9 @@
-use v5; # Generated file - do not edit!
+# Generated file - do not edit!
+##################((( 32-bit Checksum Validator )))##################
+BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
+or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
+== 0x43B10FF1 or die "Checksum failed for outdated .pmc file: ${F}c"}
+#####################################################################
 package Pugs::Grammar::Rule;
 *{'perl5_regex'} = 
 

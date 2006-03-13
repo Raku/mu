@@ -83,7 +83,7 @@ RESTART:
         warn "* caching Prelude: $prelude_file-cached.pl\n";
         open( FILE, ">", "$prelude_file-cached.pl" ) or
             die "can't open prelude file: $prelude_file-cached.pl - $!";
-        print FILE "# generated file - do not edit!\n" . $perl5;
+        print FILE "# Generated file - do not edit!\n" . $perl5;
         close FILE;
         warn "*** restarting the compilation to use the new prelude...\n";
         goto RESTART;
@@ -165,7 +165,15 @@ sub compile {
     }
     my $program = emit( $match->{capture} );
     if ($flags->{print_program}) {
-        print "use v5; # Generated file - do not edit!\n";
+        my $sum = sprintf('%08X', unpack('%32N*', $_[0]));
+        print "# Generated file - do not edit!\n";
+        print << "...";
+##################((( 32-bit Checksum Validator )))##################
+BEGIN { use 5.006; local (*F, \$/); (\$F = __FILE__) =~ s!c\$!!; open(F)
+or die "Cannot open \$F: \$!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
+== 0x$sum or die "Checksum failed for outdated .pmc file: \${F}c"}
+#####################################################################
+...
         print $program;
     }
     return $program;
