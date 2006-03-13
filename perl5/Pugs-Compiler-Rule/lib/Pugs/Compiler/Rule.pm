@@ -1,11 +1,11 @@
-use v5;
 package Pugs::Compiler::Rule;
 
+use 5.006;
+use Pugs::Grammar::Rule;
 use Pugs::Runtime::Rule;
 use Pugs::Runtime::Rule2;
-use Pugs::Grammar::Rule;
-use Pugs::Emitter::Rule::Perl5;
 use Pugs::Runtime::Match;
+use Pugs::Emitter::Rule::Perl5;
 
 # the compiler is syntax sugar for
 # eval( emit::rule::perl5( parse::rule( $rule ) ) )
@@ -59,7 +59,9 @@ sub code {
 sub match {
     foreach my $i (0..length($_[1])) {
         my $match = $_[0]->{code}( substr($_[1], $i) );
-        return Match->new( $match ) if defined $match;
+        defined $match or next;
+        $match->{from} = $i;
+        return Match->new( $match ) 
     }
     return Match->new( { bool => 0 } );   # XXX - fix?
 }

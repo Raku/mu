@@ -1,4 +1,3 @@
-use v5;
 package Pugs::Runtime::Rule;
 
 # pX/Common/iterator_engine.pl - fglock

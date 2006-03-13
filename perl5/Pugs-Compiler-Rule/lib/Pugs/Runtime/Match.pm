@@ -32,16 +32,14 @@ sub _str {
 }
 
 sub from {
-    my $from = ${$_[0]}->{from} || 0;
-    $from;
+    ${$_[0]}->{from} || 0;
 }
 
 sub to {
     #print 'TO: ', do{use Data::Dumper; Dumper(${$_[0]})};
     #my $str = _str( ${$_[0]} );
     #print "TO: $str\n";
-    my $to = ${$_[0]}->{to} || length( _str( ${$_[0]} ) );
-    $to;
+    ${$_[0]}->{to} || ($_[0]->from + length( _str( ${$_[0]} ) ));
 }
 
 sub _box_submatch {
@@ -126,4 +124,5 @@ Perl 6 Synopsis 05 - Rules (S05)
   p6bible S05
 
 =cut
+
 

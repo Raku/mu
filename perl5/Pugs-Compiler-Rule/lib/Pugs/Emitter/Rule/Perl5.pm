@@ -1,4 +1,4 @@
-use v5;
+package Pugs::Emitter::Rule::Perl5;
 
 # Pugs::Emitter::Rule::Perl5 - fglock
 #
@@ -7,8 +7,6 @@ use v5;
 
 use strict;
 use warnings;
-
-package Pugs::Emitter::Rule::Perl5;
 use Data::Dumper;
 
 my $namespace = '';    # 'grammar1::';
