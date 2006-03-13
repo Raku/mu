@@ -48,9 +48,12 @@ sub bool {
 sub hash {
     return {map {
         my $m = $_;
-        exists $m->{label} && $m->{label} eq '' 
-        ? () 
-        : $m->{label} => _box_submatch( $_[0], $m )
+        exists $m->{label} 
+        ? ( $m->{label} eq '' 
+            ? () 
+            : $m->{label} => _box_submatch( $_[0], $m )
+          )
+        : ()
     } @{${$_[0]}->{match}}};
 }
 
