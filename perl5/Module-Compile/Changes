@@ -1,4 +1,10 @@
 ---
+version: 0.13
+date:    Mon Mar 13 2006
+changes:
+- Apostrophe is a package delimiter.
+
+---
 version: 0.12
 date:    Sun Mar 12 10:56:26 PST 2006
 changes:

@@ -4,7 +4,7 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 # A lexical hash to keep track of which files have already been filtered
 my $filtered = {};
@@ -217,13 +217,13 @@ sub pmc_call {
 sub pmc_chunk {
     my $class = shift;
     my $data = shift;
-    my @parts = split /^(\s*(?:use|no)\s+[\w\:]+.*\n)/m, $data;
+    my @parts = split /^(\s*(?:use|no)\s+[\w\:\']+.*\n)/m, $data;
     my @chunks = ();
     my @classes = ();
     my $text = '';
     while (@parts) {
         my $part = shift @parts;
-        if ($part =~ /^\s*(use|no)\s+([\w\:]+).*\n/) {
+        if ($part =~ /^\s*(use|no)\s+([\w\:\']+).*\n/) {
             my ($use, $klass, $file) = ($1, $2, $2);
             $file =~ s{::}{/}g;
             {
