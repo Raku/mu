@@ -92,11 +92,11 @@ sub freshness_check {
         unpack('%32N*', <_>);
     });
     return << "...";
-#################((( 32-bit Checksum Validator )))#################
-BEGIN {0x$sum == do { use 5.006; local(*F, \$/); (\$F = __FILE__)
-=~ s!c\$!!; open F or die "Cannot open \$F: \$!"; binmode(F, ':crlf');
-unpack('%32N*', <F>) } or die "Cannot load stale .pmc file: \${F}c"}
-###################################################################
+##################((( 32-bit Checksum Validator )))##################
+BEGIN { use 5.006; local (*F, \$/); (\$F = __FILE__) =~ s!c\$!!; open(F)
+or die "Cannot open \$F: \$!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
+== 0x$sum or die "Checksum failed for outdated .pmc file: \${F}c"}
+#####################################################################
 ...
 }
 
