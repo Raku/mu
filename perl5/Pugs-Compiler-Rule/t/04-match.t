@@ -1,5 +1,5 @@
 
-use Test::More tests => 19;
+use Test::More tests => 23;
 use Data::Dumper;
 
 use_ok( 'Pugs::Runtime::Rule' );  # lrep-generated rule parser

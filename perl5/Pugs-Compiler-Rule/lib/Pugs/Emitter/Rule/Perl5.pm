@@ -152,29 +152,6 @@ sub emit {
     return $cmd;
 }
 
-=for delete
-# compile_rule( $source, {flag=>value} );
-#
-# flags:
-#   print_program=>1 - prints the generated program
-#
-sub compile_rule {
-    local $Data::Dumper::Indent = 1;
-    #print "compile_rule: $_[0]\n";
-    my $match = grammar1::rule->( $_[0] );
-    my $flags = $_[1];
-    print "ast:\n", Dumper( $match->{capture} ) if $flags->{print_ast};
-    die "syntax error in rule '$_[0]' at '" . $match->{tail} . "'\n"
-        if $match->{tail};
-    die "syntax error in rule '$_[0]'\n"
-        unless $match->{bool};
-    my $program = main::emit( $match->{capture} );
-    print "generated rule:\n$program" if $flags->{print_program};
-    my $code = eval($program); die $@ if $@;
-    return $code;
-}
-=cut
-
 sub emit_rule_node {
     #warn "rule node...";
     ## die "unknown node type: $_[0]" unless ${$_[0]}; 

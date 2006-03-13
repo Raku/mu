@@ -6,35 +6,10 @@ use overload (
     '%{}'    => \&hash,
     'bool'   => \&bool,
     '&{}'    => \&code,
-    '""'     => \&flat, # fixed (fglock) XXX - wrong - should use "result object"
-    '0+'     => \&flat, # fixed (fglock) XXX - wrong - should use "result object"
+    '""'     => \&flat,
+    '0+'     => \&flat,
     fallback => 1,
 );
-
-sub _str {
-    my $match = $_[0];
-    my $ref = ref( $match );
-    # use Data::Dumper;
-    # print "MATCH: ", Dumper( $match ), "\n";
-    return $match unless $ref;
-    if ( $ref eq 'HASH' ) {
-        if ( exists $match->{match} ) {
-            if ( ref( $match->{match} ) eq 'ARRAY' ) {
-                return join( '', map { _str( $_ ) } @{$match->{match}} );
-            }
-            if ( ref( $match->{match} ) eq 'HASH' ) {
-                return join( '', map { _str( $_ ) } values %{$match->{match}} );
-            }
-        }
-        return join( '', map { _str( $_ ) } values %{$match} );
-    }
-    if ( $ref eq 'ARRAY' ) {
-        return join( '', map { _str( $_ ) } @{$match} );
-    }
-    #        return join( '', values %{$match->{match}} )
-    #            unless exists $match->{match}{match};
-    die 'not a match';
-}
 
 sub new {
     my ($class, $match) = @_;
@@ -42,10 +17,15 @@ sub new {
     bless $self, $class;
 }
 
+sub _box_submatch {
+    my ($match, $submatch) = @_;
+    $m = { %$submatch };
+    delete $m->{label};
+    ref($match)->new($m);
+}
+
 sub flat {
     ${$_[0]}->{capture};
-    # _str(${$_[0]});
-    # join '', map { values %{$_->{match}} } @{${$_[0]}->{match}};
 }
 
 # return the capture
@@ -70,7 +50,7 @@ sub hash {
         my $m = $_;
         exists $m->{label} && $m->{label} eq '' 
         ? () 
-        : (keys(%{$m->{match}[0]}))[0] => ref($_[0])->new($m)
+        : $m->{label} => _box_submatch( $_[0], $m )
     } @{${$_[0]}->{match}}};
 }
 
@@ -79,22 +59,14 @@ sub array {
     #print 'array from: ', do{use Data::Dumper; Dumper($_[0])};
     # special case: the whole match is a single capture
     if ( exists ${$_[0]}->{label} && ${$_[0]}->{label} eq '' ) {
-        my $m = { %${$_[0]} };
-        delete $m->{label};
-        #print "array element: Returning first match: \n", do{use Data::Dumper; Dumper($m)};
-        #print 'array element: Returning original match: ', do{use Data::Dumper; Dumper($_[0])};
-        my @a = ( ref($_[0])->new($m) );
-        return \@a;
+        my $m = _box_submatch( $_[0], ${$_[0]} );
+        return [ $m ];
     }
     return [map {
         my $m = $_;
         #print 'array element: ', do{use Data::Dumper; Dumper($m)};
         exists $m->{label} && $m->{label} eq '' 
-        ? do{
-            $m = { %$m };
-            delete $m->{label};
-            ref($_[0])->new($m);
-        }
+        ? _box_submatch( $_[0], $m )
         : ()
     } @{${$_[0]}->{match}}];
 }
