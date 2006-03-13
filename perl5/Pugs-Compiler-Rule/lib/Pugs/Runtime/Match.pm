@@ -76,9 +76,18 @@ sub hash {
 
 # as array
 sub array {
+    #print 'array from: ', do{use Data::Dumper; Dumper($_[0])};
+    # special case: the whole match is a single capture
+    if ( exists ${$_[0]}->{label} && ${$_[0]}->{label} eq '' ) {
+        my $m = { %${$_[0]} };
+        delete $m->{label};
+        print "array element: Returning first match: \n", do{use Data::Dumper; Dumper($m)};
+        #print 'array element: Returning original match: ', do{use Data::Dumper; Dumper($_[0])};
+        return ( ref($_[0])->new($m) );
+    }
     return [map {
         my $m = $_;
-        #print 'array element: ', do{use Data::Dumper; Dumper($m)};
+        print 'array element: ', do{use Data::Dumper; Dumper($m)};
         exists $m->{label} && $m->{label} eq '' 
         ? ref($_[0])->new($m) 
         : ()

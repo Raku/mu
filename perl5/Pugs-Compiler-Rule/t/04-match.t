@@ -16,10 +16,10 @@ use_ok( 'Pugs::Runtime::Match' );
     my $match = Match->new( $rule2->( "xyzw" ) );
     #print "rule: $src";
     #print 'whole match: ', do{use Data::Dumper; Dumper($match)};
-    is( eval { "$match" }, "xyz", 'stringify' );
+    is( eval { "$match" }, "xyz", 'stringify 1' );
     #print 'whole match [0]: ', do{use Data::Dumper; Dumper($match->[0])};
-    is( eval { "$match->[0]" }, "xy", 'stringify' );
-    is( eval { "$match->[0][0]" }, "x", 'stringify' );
+    is( eval { "$match->[0]" }, "xy", 'stringify 2' );
+    is( eval { "$match->[0][0]" }, "x", 'stringify 3' );
 }
 
 {
@@ -29,10 +29,11 @@ use_ok( 'Pugs::Runtime::Match' );
     die $@ if $@;
     my $match = Match->new( $rule2->( "xyz" ) );
     #print "rule 2: $src";
-    #print 'whole match 2: ', do{use Data::Dumper; Dumper($match)};
-    is( eval { "$match" }, "xy", 'stringify' );
-    is( eval { "$match->[0]" }, "xy", 'stringify' );
-    is( eval { "$match->[0][0]" }, "x", 'stringify' );
+    print 'whole match 2[0]: ', do{use Data::Dumper; Dumper($match->[0])};
+    print 'whole match 2: ', do{use Data::Dumper; Dumper($match)};
+    is( eval { "$match" }, "xy", 'stringify 1' );
+    is( eval { "$match->[0]" }, "xy", 'stringify 2' );
+    is( eval { "$match->[0][0]" }, "x", 'stringify 3' );
 }
 
 {
@@ -41,10 +42,10 @@ use_ok( 'Pugs::Runtime::Match' );
     die $@ if $@;
     my $match = Match->new( $rule->( "abc" ) );
     my $ret = ['a', 'b'];
-    is_deeply( [@$match], $ret, 'return match' );
-    is( "$match", "ab", 'return match' );
-    is( "$match->[0]", "a", 'return match' );
-    is( "$match->[1]", "b", 'return match' );
+    is_deeply( [@$match], $ret, 'return match 1' );
+    is( "$match", "ab", 'return match 2' );
+    is( "$match->[0]", "a", 'return match 3' );
+    is( "$match->[1]", "b", 'return match 4' );
 }
 
 {

@@ -201,6 +201,8 @@ sub capture {
         $new_match->{capture} = $head;   # XXX -- array ref not needed
         #print 'got capture: ',do{use Data::Dumper; Dumper($new_match)};
 
+        #$new_match->{match}   = [ $match ];  # XXX - workaround
+
         return $new_match;
     }
 }
