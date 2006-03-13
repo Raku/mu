@@ -41,7 +41,10 @@ sub compile {
     bless $self, $class;
 }
 
-sub code { $_[0]->{code} }
+sub code { 
+    my $rule = shift; 
+    sub { $rule->match( @_ ); } 
+}
 
 sub match {
     my $match = $_[0]->{code}( $_[1] );

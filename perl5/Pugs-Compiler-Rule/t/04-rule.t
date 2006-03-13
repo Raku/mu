@@ -1,5 +1,5 @@
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 
 use_ok( 'Pugs::Compiler::Rule' );
 
@@ -14,6 +14,6 @@ use_ok( 'Pugs::Compiler::Rule' );
 
 {
     *test::rule = Pugs::Compiler::Rule->compile( '((.).)(.)' )->code;
-    my $match = test::rule->match( "xyzw" );
+    my $match = test::rule( "xyzw" );
     is( eval { "$match" }, "xyz", 'stringify 1' );
 }
