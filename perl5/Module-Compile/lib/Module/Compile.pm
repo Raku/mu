@@ -89,7 +89,7 @@ sub freshness_check {
     my $sum = do {
         local ($_, $/) = $module;
         open _ or die "Cannot open $_: $!;";
-        unpack('%32L*', <_>);
+        unpack('%32N*', <_>);
     };
     return << "...";
 #################((( 32-bit Checksum Validator )))#################
