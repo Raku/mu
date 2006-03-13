@@ -7,6 +7,10 @@ It is an implementation of:
 - a parser engine 
 - a Perl6 'rule' parser and perl5 emitter 
 
+Switches:
+
+- none so far - all rules have :p set (only match at start of text)
+
 Rules Grammar implemented:
 
  . ? * + *? +? ??
