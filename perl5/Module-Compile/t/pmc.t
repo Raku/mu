@@ -12,7 +12,8 @@ __DATA__
 === Compile Foo.pm to Foo.pmc
 --- module read_file: t/lib/Foo.pmc
 --- pmc -trim
-# Generated .pmc file - do not edit!
+# Generated .pmc file by Indented 0 (Module::Compile 0.12) - do not edit!
+BEGIN { 1378133008 == do { use 5.006; local ($_, $/) = __FILE__; open _ or die "Cannot open $_: $!"; binmode(_, ':crlf'); unpack('%32L*', <_>) } or die "Cannot load stale .pmc file: ".__FILE__.'c' }
 package Foo;
 
 

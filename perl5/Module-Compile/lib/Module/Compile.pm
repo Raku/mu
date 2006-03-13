@@ -39,7 +39,7 @@ sub import {
     my $callback = sub {
         my $content = shift;
         my $preface = $class->pmc_preface($module, $line);
-        my $output = $class->pmc_template($preface, $content);
+        my $output = $class->pmc_template($module, $preface, $content);
         $class->pmc_output($module, $output);
     };
 
@@ -72,19 +72,28 @@ sub pmc_preface {
 
 # Generate the actual code that will go into the .pmc file.
 sub pmc_template {
-    my ($class, $preface, $content) = @_;
-    my $check = $class->freshness_check();
+    my ($class, $module, $preface, $content) = @_;
+    my $base = __PACKAGE__;
+    my $check = $class->freshness_check($module);
+    my $version = $class->VERSION || '0';
     return <<"...";
-# Generated .pmc file - do not edit!
+# Generated .pmc file by $class $version ($base $VERSION) - do not edit!
 $check$preface$content
 ...
 }
 
 # This returns a piece of Perl code to do a runtime check to see if the
-# .pmc file is fresh.
+# .pmc file is fresh.  By default we use a 32-bit running checksum.
 sub freshness_check {
-    my $time = gmtime;
-    return '';
+    my ($class, $module) = @_;
+    my $sum = do {
+        local ($_, $/) = $module;
+        open _ or die "Cannot open $_: $!;";
+        unpack('%32L*', <_>);
+    };
+    return << "...";
+BEGIN { $sum == do { use 5.006; local (\$_, \$/) = __FILE__; open _ or die "Cannot open \$_: \$!"; binmode(_, ':crlf'); unpack('%32L*', <_>) } or die "Cannot load stale .pmc file: ".__FILE__.'c' }
+...
 }
 
 # Write the output to the .pmc file
