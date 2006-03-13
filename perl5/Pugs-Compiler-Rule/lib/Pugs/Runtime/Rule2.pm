@@ -1,4 +1,26 @@
 use v5;
+
+package Rule;
+
+use strict;
+use warnings;
+
+sub new {
+    my ($class, $rule_source) = @_;
+    my $self = { source => $rule_source };
+    $self->{ast} = Pugs::Grammar::Rule::rule( 
+        $self->{source} );
+    $self->{perl5} = Pugs::Emitter::Rule::Perl5::emit( 
+        $self->{ast} );
+    $self->{code} = eval 
+        $self->{perl5};
+    bless $self, $class;
+}
+
+sub match {
+    $_[0]->{code}( $_[1] );
+}
+
 package Pugs::Runtime::Rule2;
 
 # pX/Common/iterator_engine.pl - fglock
