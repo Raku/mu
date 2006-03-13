@@ -1,7 +1,9 @@
+package Pugs::Runtime::Match;
 
-# see pod in the end
-
-package Match;
+# Documentation in the __END__
+use 5.006;
+use strict;
+use warnings;
 
 use overload (
     '@{}'    => \&array,
@@ -44,7 +46,7 @@ sub to {
 
 sub _box_submatch {
     my ($match, $submatch) = @_;
-    $m = { %$submatch };
+    my $m = { %$submatch };
     delete $m->{label};
     ref($match)->new($m);
 }
@@ -105,24 +107,79 @@ sub array {
 
 __END__
 
-=pod
+=head1 NAME 
 
-Match objects are created by a rule application:
+Pugs::Runtime::Match - Match object
 
- my $rule = Pugs::Compiler::Rule->compile( '((.).)(.)' );
- my $match = $rule->match( "xyzw" );
- if($match){...}
- "$match" eq "xyz";
- "$match->[0]" eq "xy";
- "$match->[0][0]" eq "x";
- "$match->[1]" eq "z";
+=head1 SYNOPSIS
 
-=SEE ALSO
+    use Pugs::Compiler::Rule;
 
-Perl 6 Synopsis 05 - Rules (S05)
+    my $rule = Pugs::Compiler::Rule->compile( '((.).).' );
+    my $match = $rule->match( 'abc' );
 
-  p6bible S05
+    if ($match) {               # true
+        print $match;           # "abc"
+        print $match->from;     # 0
+        print $match->to;       # 3
+        print $match->[0];      # "ab"
+        print $match->[0][0];   # "a"
+    }
+
+=head1 OVERLOAD INTERFACE
+
+=head2 bool
+
+When used as a boolean, the match object returns whether the match has
+succeeded or not.
+
+=head2 @{}
+
+When used as an array reference, the match object returns positional
+captures as match objects.
+
+=head2 %{}
+
+When used as a hash reference, the match object returns named captures
+as match objects, keyed by their names.
+
+=head2 &{}
+
+When used as a code reference, the match object returns the I<result>
+object; this is normally the entire match string, but may be arbitrary
+objects returned from the rule using a C<return> clause.
+
+=head2 ""
+
+When used as a string, the match object returns the stringified version
+of the result object (usually the entire match string).
+
+=head2 0+
+
+When used as a number, the match object returns the stringified version
+of the result object (usually the entire match string).
+
+=head1 METHODS
+
+=head2 from ()
+
+Returns the initial position of the match.
+
+=head2 to ()
+
+Returns the final position of the match.
+
+=head1 AUTHORS
+
+The Pugs Team E<lt>perl6-compiler@perl.orgE<gt>.
+
+=head1 COPYRIGHT
+
+Copyright 2006 by Flavio Soibelmann Glock and others.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See L<http://www.perl.com/perl/misc/Artistic.html>
 
 =cut
-
-

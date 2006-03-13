@@ -1,5 +1,5 @@
 
-use Test::More tests => 26;
+use Test::More tests => 27;
 use Data::Dumper;
 
 use_ok( 'Pugs::Compiler::Rule' );
@@ -8,6 +8,7 @@ use_ok( 'Pugs::Compiler::Rule' );
     my $rule = Pugs::Compiler::Rule->compile( '((.).)(.)' );
     my $match = $rule->match( "xyzw" );
     is( "$match", "xyz", 'stringify 1' );
+    is( $match->(), "xyz", 'stringify 1' );
     is( "$match->[0]", "xy", 'stringify 2' );
     is( "$match->[0][0]", "x", 'stringify 3' );
 }
