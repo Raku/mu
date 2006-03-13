@@ -18,6 +18,13 @@ use Pugs::Runtime::Match;
  my $rule = Pugs::Compiler::Rule->compile( '...' );
  my $match = $rule->match( 'abc' );
 
+ my $rule = Pugs::Compiler::Rule->compile( '((.).)(.)' );
+ my $match = $rule->match( "xyzw" );
+ "$match" eq "xyz";
+ "$match->[0]" eq "xy";
+ "$match->[0][0]" eq "x";
+ "$match->[1]" eq "z";
+
 =cut
 
 use strict;
