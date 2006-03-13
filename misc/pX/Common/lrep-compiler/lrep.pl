@@ -33,6 +33,5 @@ my $code = Emitter::Perl5::emit($match->{capture});
 # Write down
 my $output_file = IO::File->new($output_filename,'>') ||
     die 'Could not open the output file '.$output_filename;
-print $output_file "require Grammar::Perl6Init;\nrequire Grammar::Perl6;\n";
 print $output_file $code;
 

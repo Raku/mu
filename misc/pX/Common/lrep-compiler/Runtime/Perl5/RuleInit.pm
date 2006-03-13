@@ -130,6 +130,8 @@ sub match::str {
 sub compile_rule {
     local $Data::Dumper::Indent = 1;
     #print "compile_rule: $_[0]\n";
+    require Grammar::Perl6Init;
+    require Grammar::Perl6;
     my $match = Grammar::Perl6::rule->( $_[0] );
     my $flags = $_[1];
     print "ast:\n", Dumper( $match->{capture} ) if $flags->{print_ast};
