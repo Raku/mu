@@ -1,5 +1,5 @@
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 
 use_ok( 'Pugs::Compiler::Rule' );
 
@@ -10,6 +10,7 @@ use_ok( 'Pugs::Compiler::Rule' );
     is( eval { "$match" }, "xyz", 'stringify 1' );
     is( eval { "$match->[0]" }, "xy", 'stringify 2' );
     is( eval { "$match->[0][0]" }, "x", 'stringify 3' );
+    is( eval { "$match->[1]" }, "z", 'stringify 4' );
 }
 
 {
