@@ -13,6 +13,7 @@
 -}
 
 module Pugs.Monads (
+    enterLValue, enterRValue,
     enterLex, enterContext, enterEvalContext, enterPackage, enterCaller,
     enterGiven, enterWhen, enterWhile, genSymPrim, genSymCC,
     enterBlock, enterSub, envEnterCaller,
@@ -46,6 +47,16 @@ instance (Monad m) => MonadPlus (MaybeT m) where
         mb <- b
         return $ ma `mplus` mb
 
+{-|
+Perform the given evaluation in an /LValue/ context.
+-}
+enterLValue :: Eval a -> Eval a
+enterLValue = local (\e -> e{ envLValue = True })
+{-|
+Perform the given evaluation in an /RValue/ (i.e. non-/LValue/) context.
+-}
+enterRValue :: Eval a -> Eval a
+enterRValue = local (\e -> e{ envLValue = False })
 
 {-|
 Create a new lexical scope by applying the list of 'Pad'-transformers

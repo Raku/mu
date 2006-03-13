@@ -176,19 +176,6 @@ trapVal val action = case val of
     VControl c      -> retControl c
     _               -> action
 
-{-|
-Perform the given evaluation in an /LValue/ context.
--}
-enterLValue :: Eval a -> Eval a
-enterLValue = local (\e -> e{ envLValue = True })
-{-|
-Perform the given evaluation in an /RValue/ (i.e. non-/LValue/) context.
--}
-enterRValue :: Eval a -> Eval a
-enterRValue = local (\e -> e{ envLValue = False })
-
-
-
 evalRef :: VRef -> Eval Val
 evalRef ref = do
     if refType ref == (mkType "Thunk") then forceRef ref else do

@@ -375,10 +375,10 @@ inferExpType (Syn "@{}" _)  = return $ mkType "Array"
 inferExpType (Syn "%{}" _)  = return $ mkType "Hash"
 inferExpType (Syn "=>" _)   = return $ mkType "Pair"
 inferExpType exp@(Syn "{}" [_, idxExp]) = if isSimpleExp exp
-    then fromVal =<< evalExp exp
+    then fromVal =<< enterRValue (evalExp exp)
     else fmap typeOfCxt (inferExpCxt idxExp)
 inferExpType exp@(Syn "[]" [_, idxExp]) = if isSimpleExp exp
-    then fromVal =<< evalExp exp
+    then fromVal =<< enterRValue (evalExp exp)
     else fmap typeOfCxt (inferExpCxt idxExp)
 inferExpType (Syn "sub" [exp]) = inferExpType exp
 inferExpType _ = return anyType
