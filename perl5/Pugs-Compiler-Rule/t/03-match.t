@@ -63,9 +63,10 @@ use_ok( 'Pugs::Runtime::Match' );
     $rule = eval Pugs::Emitter::Rule::Perl5::emit( $rule->{capture} );
     die $@ if $@;
     my $match = Match->new( $rule->( "abc" ) );
+
+=for debugging
     print 'whole match: ', do{use Data::Dumper; Dumper($match)};
-    
-    my $ret =  
+    my $ret1 =  
         {
             'x' => [
                   {
@@ -75,8 +76,14 @@ use_ok( 'Pugs::Runtime::Match' );
                   }
             ]
         };
-    is_deeply( $match->(), $ret, 'return match' );
+    is_deeply( $match->(), $ret1, 'return match' );
+=cut
+
     ok( $match, 'true match' );
+
+    my $ret = $match->();
+    is( $ret->{x}{z}, "a", 'returns correct struct' );
+
 }
 
 {
