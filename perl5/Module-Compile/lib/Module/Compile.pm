@@ -35,7 +35,9 @@ sub pmc_compiler { 1 };
 sub import {
     my ($class, $flag) = @_;
 
-    $class->pmc_set_base($flag || '') and return;
+    # Handler modules can do C< use Module::Compile -base; >. Make
+    # them ISA Module::Compile and get out of dodge.
+    $class->pmc_set_base($flag) and return;
 
     my ($module, $line) = (caller($class->pmc_stack_frame))[1, 2];
 
@@ -49,17 +51,22 @@ sub import {
     };
 
     $class->pmc_filter($callback);
+    # Is there a meaningful return value here?
 }
 
 # Set up inheritance
 sub pmc_set_base {
     my ($class, $flag) = @_;
+
+    # Handle the C<use Module::Compile -base;> command.
     if ($class eq __PACKAGE__ and $flag and $flag eq '-base') {
+        my $descendant = (caller 1)[0];;
         no strict 'refs';
-        push @{(caller(1))[0] . '::ISA'}, __PACKAGE__;
+        push @{$descendant . '::ISA'}, __PACKAGE__;
         return 1;
     }
-    return;
+
+    return 0;
 }
 
 # Get the code before the first source filter call
@@ -67,10 +74,10 @@ sub pmc_preface {
     my ($class, $module, $line) = @_;
     my $preface = '';
     local $/ = "\n";
-    open INPUT, $module
+    open my $input, $module
       or die "Can't open '$module' for input:\n$!";
     for (1 .. ($line - 1)) {
-        $preface .= <INPUT>;
+        $preface .= <$input>;
     }
     return $preface;
 }
@@ -92,9 +99,10 @@ $check$preface$content
 sub freshness_check {
     my ($class, $module) = @_;
     my $sum = sprintf('%08X', do {
-        local ($_, $/) = $module;
-        open _ or die "Cannot open $_: $!;";
-        unpack('%32N*', <_>);
+        local $/;
+        open my $fh, "<", $module
+          or die "Cannot open $module: $!";
+        unpack('%32N*', <$fh>);
     });
     return << "...";
 ##################((( 32-bit Checksum Validator )))##################
@@ -106,17 +114,31 @@ or die "Cannot open \$F: \$!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
 }
 
 # Write the output to the .pmc file
-# If we can't open the file, just return. The filtering will not be cached,
-# but that might be ok.
 sub pmc_output {
     my ($class, $module, $output) = @_;
     $class->pmc_can_output($module)
-      or return;
+      or return 0;
     my $pmc = $module . 'c';
-    open OUTPUT, "> $pmc"
-      or return;
-    print OUTPUT $output;
-    close OUTPUT;
+
+    # If we can't open the file, just return. The filtering will not be cached,
+    # but that might be ok.
+    open my $fh, ">", $pmc
+      or return 0;
+
+    # Protect against disk full or whatever else.
+    eval {
+        print $fh $output
+           or die;
+        close $fh
+           or die;
+    };
+    if ( my $e = $@ ) {
+        # close $fh? die if unlink?
+        unlink $pmc;
+        return 0;
+    }
+    
+    return 1;
 }
 
 # Check whether output can be written.
