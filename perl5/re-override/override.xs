@@ -15,11 +15,6 @@
 
 static regexec_t previous_exec_hook = NULL;
 
-#ifdef Safefree
-#undef Safefree
-#endif
-#define Safefree(x) 1
-
 I32 regexp_exechook_hook (pTHX_ regexp* r, char* stringarg, char* strend,
 			  char* strbeg, I32 minend, SV* screamer,
 			  void* data, U32 flags)
@@ -77,15 +72,20 @@ I32 regexp_exechook_hook (pTHX_ regexp* r, char* stringarg, char* strend,
       r->lastparen = r->lastcloseparen = 0;
     }
 
-    newstr = (r->sublen != strend-strbeg ||
-	      !strnEQ(r->subbeg,strbeg,r->sublen));
+/*
+    newstr = (r->sublen != strend-strbeg
+              || !strnEQ(r->subbeg,strbeg,r->sublen));
+    newstr = matched;
+*/
     newstr = 1; /*1-leak?,(0 only for isolated devtest)*/
     if(newstr) {
-      Safefree(r->subbeg);
+      if(RX_MATCH_COPIED(r) && 0) {
+        Safefree(r->subbeg); /* fails tests in split.t */
+      }
       r->sublen = strend-strbeg;
       r->subbeg = savepvn(strbeg,r->sublen);
+      RX_MATCH_COPIED_set(r,1);
     }
-    RX_MATCH_COPIED_set(r,newstr);
 
     if(matched) {
       SV* lp;
@@ -96,16 +96,24 @@ I32 regexp_exechook_hook (pTHX_ regexp* r, char* stringarg, char* strend,
       }
       lp = POPs; pops_left--;
       lcp = POPs; pops_left--;
-      for(cap_idx=0; cap_idx <= r->nparens;cap_idx++) {
-        r->startp[cap_idx] = POPi; pops_left--;
-	r->endp[cap_idx] = POPi; pops_left--;
+      for(cap_idx=0; cap_idx <= r->nparens && pops_left;cap_idx++) {
+        SV* v;
+        IV vi;
+
+        v = POPs; pops_left--;
+        vi = SvOK(v) ? SvIV(v) : -1;
+        r->startp[cap_idx] = vi;
+
+        v = POPs; pops_left--;
+        vi = SvOK(v) ? SvIV(v) : -1;
+        r->endp[cap_idx] = vi;
       }
       for(;pops_left;) {
         POPs; pops_left--;
       }
 
-      r->lastparen = (lp == &PL_sv_undef) ? SvIV(lp) : r->nparens;
-      r->lastcloseparen = (lcp == &PL_sv_undef) ? SvIV(lcp) : r->nparens;
+      r->lastparen = SvOK(lp) ? SvIV(lp) : r->nparens;
+      r->lastcloseparen = SvOK(lcp) ? SvIV(lcp) : r->nparens;
     }
     else {
       while(pops_left--) {
@@ -155,7 +163,7 @@ static void regexp_setup(pTHX_ regexp* r, SV* pat, U32 nparens, SV* callback)
 
     r->offsets[1] = RECOGNITION_FLAG;
 
-    Safefree(r->substrs->data[0].substr);
+    /*XXX should SvREFCNT_dec current value */
     r->substrs->data[0].substr = SvREFCNT_inc(callback);
 
     /* Try to scare off the rest of perl */
@@ -182,7 +190,9 @@ regexp* hook_regcompp (pTHX_ char* exp, char* xend, PMOP* pm)
 
   re_override_debug(stderr,"hook_regcompp in %lx\n",(unsigned long)exp);
 
-  /* Check $^H for lexical selection of semantics and implementation */
+  /* An attempt to use %^H for lexical scoping.
+     Unfortunately, it seems that while it has lexical extent,
+     it has dynamic scope. Ie, subs called see its affect too, yes? */
   if(handler == NULL) {
     const char hint_key[] = "regcompp";
     SV** phandler;      
@@ -199,18 +209,27 @@ regexp* hook_regcompp (pTHX_ char* exp, char* xend, PMOP* pm)
       }
     }
   }
-  /* Check $Regexp::Override::regcompp
-     for a dynamic selection of implementation */
+  /* Dynamically scoped overriding, mainly for selection of
+     p5re-equivalent implementations, rather than for semantics. */
   if(handler == NULL) {
     SV* sv;
     sv = get_sv("Regexp::Override::regcompp",0);
-    if(sv != NULL && sv != &PL_sv_undef && SvTRUE(sv)) {
+    if(sv != NULL && SvTRUE(sv)) {
       re_override_debug(stderr,"hook_regcompp dynamic...\n");
       handler = sv;
     }
   }  
-  /* If no handlers, then hand off */
+  /* Example of a perhaps more promising approach to lexical scoping */
   if(handler == NULL) {
+    SV* sv;
+    sv = eval_pv("$regexp_override_regcompp",0);
+    if(sv != NULL && SvTRUE(sv)) {
+      re_override_debug(stderr,"regexp_override_regcompp...\n");
+      handler = sv;
+    }
+  }  
+  /* If no handlers, or handler is an int, then hand off */
+  if(handler == NULL || SvIOK(handler)) {
     re_override_debug(stderr,"hook_regcompp punt.\n");
     return previous_comp_hook(aTHX_ exp,xend,pm);
   }
@@ -295,3 +314,171 @@ regexp_hook_on ()
 
 void
 regexp_hook_off ()
+
+=pod
+Development notes
+
+Objective:
+
+  Permit swapping in an alternate regexp engine,
+  using calls to p5 subs,
+  which can be defined differently in different packages.
+
+This would permit
+  ./perl -we 'use Regexp::Perl6; print "a" =~ /<word>**{1}/;'
+
+Design:
+
+  The comp hook sub should return a subref, which gets written onto a
+  hopefully otherwise unused section of a regexp struct.  Another
+  hopefully unused part of the struct is overwritten with a flag
+  value, so a regexp* thus created can be recognized, and regexp*s
+  created with the normal perl engine can continue working.
+
+  Upon exec, the subref should return match information.  Match
+  information gets inserted in $1 etal.  These will be limited to
+  strings, rather than Match objects.
+
+Notes:
+
+  http://perl.plover.com/Rx/paper/
+
+  Some files of interest in the perl sources:
+    ./regexp.h ./regcomp.c ./regexec.c
+    ./ext/re/re.xs ./ext/re/re.pm
+    http://cvs.perl.org/viewcvs/perl5/mirror/
+
+  And of course man perlapi, etc.
+
+  The perl regexp engine was long ago derived from Henry Spencer's
+  regexp library.  http://arglist.com/regex/  While the code has diverged,
+  at least the library has some documentation, which can help point you
+  in the right direction.
+
+  The regexp compiler hook generally gets the pattern _after_ variable
+  interpolation has occured.  But not in the case of m'pattern'.
+  Which might come in hand when doing p6 regex.
+
+
+
+Notes on struct regex:
+
+  typedef struct regexp {
+
+The regular expression:
+
+  I32 prelen;             /* length of precomp */
+  char *precomp;          /* pre-compilation regular expression */
+  U32 nparens;            /* number of parentheses */
+
+The match result:
+
+  I32 sublen;             /* Length of string pointed by subbeg */
+  char *subbeg;           /* saved or original string 
+                                   so \digit works forever. */
+
+  I32 *startp;
+  I32 *endp;
+
+for $n (eg $1 => n=1), 1<=n<=nparens,
+startp[n] is the starting offset in subbeg,
+endp[n] is the offset of the last char within the capture.
+n=0 is the total match.
+
+  U32 lastparen;          /* last paren matched */
+  U32 lastcloseparen;     /* last paren matched */
+
+Other things the world messes with:
+
+  I32 refcnt;
+
+What invariants?  Don't know.
+
+
+  I32 minlen;             /* mininum possible length of $& */
+
+Must be zero.  Otherwise the run core thinks too much.
+
+
+  U32 reganch;            /* Internal use only +
+                             Tainted information used by regexec? */
+
+Flags.  Despite the comment, _lots_ of folks look at it.  The one
+field labeled "Internal use only" is one of the most widely used. ;)
+Zero seems safe.  But more nuanced treatment will be needed.
+
+  regnode program[1];     /* Unwarranted chumminess with compiler. */
+
+I don't know.
+
+Internals:
+
+  regnode *regstclass;
+
+Points into ->data.
+sv.c's Perl_re_dup sets it to NULL without looking.
+No-one else touches it.
+
+  struct reg_substr_data *substrs;
+
+        struct reg_substr_data {
+          struct reg_substr_datum data[3];
+        };
+        struct reg_substr_datum {
+            I32 min_offset;
+            I32 max_offset;
+            SV *substr;         /* non-utf8 variant */
+            SV *utf8_substr;    /* utf8 variant */
+        };
+
+min_offset and max_offset would be plausible places to hide data.
+Perl_re_dup just copies them.
+
+  struct reg_data *data;  /* Additional data. */
+
+        struct reg_data {
+            U32 count;
+            U8 *what;
+            void* data[1];
+        };
+
+Leave something real here and don't touch it.
+Perl_re_dup knows a lot about it.
+
+
+#ifdef PERL_COPY_ON_WRITE
+  SV *saved_copy;         /* If non-NULL, SV which is COW from original */
+#endif
+
+I don't know.
+Possible danger?
+
+  U32 *offsets;           /* offset annotations 20001228 MJD */
+
+offsets[0] specifies the 2*len+1 length of the array.
+Other than that, we can do anything we want with it.
+This is perhaps the most flexible place to allocate large data
+which Perl_re_dup will copy for us.
+
+    New(0, ret->offsets, 2*len+1, U32);
+    Copy(r->offsets, ret->offsets, 2*len+1, U32);
+
+
+} regexp;
+
+
+
+Notes on functions:
+
+regexp* regcompp (pTHX_ char* exp, char* xend, PMOP* pm)
+
+
+I32      regexec (pTHX_ regexp* prog, char* stringarg, char* strend,
+                  char* strbeg, I32 minend, SV* screamer,
+                  void* data, U32 flags)
+
+retval
+ 0 failure
+ 1 success
+
+=cut
