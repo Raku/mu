@@ -102,10 +102,10 @@ to several other modules:
  |
  <@var>             -- special-cased for array-of-rule (but not Rule|Str)
  {code}             -- non-capturing closure
-                    -- bootstrapped with source-filter
+                    -- perl5 syntax inside closure
                     -- $/ doesn't work yet
  { return code }    -- capturing closure
-                    -- bootstrapped with source filter
+                    -- perl5 syntax inside closure
                     -- $/ works
  $var := (capture)  -- capture aliasing
  $<> $/<>           -- special variables can't be used inside a match yet
