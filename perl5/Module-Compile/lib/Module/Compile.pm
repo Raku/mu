@@ -105,11 +105,13 @@ sub freshness_check {
         unpack('%32N*', <$fh>);
     });
     return << "...";
-##################((( 32-bit Checksum Validator )))##################
+#line 0 ##########((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, \$/); (\$F = __FILE__) =~ s!c\$!!; open(F)
-or die "Cannot open \$F: \$!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0x$sum or die "Checksum failed for outdated .pmc file: \${F}c"}
-#####################################################################
+or die "Cannot open \$F: \$!"; binmode(F, ':crlf'); if (unpack('%32N*',
+\$F=readline(*F)) != 0x$sum) { use Filter::Util::Call; my \$f = \$F;
+filter_add(sub { filter_del(); 1 while filter_read(); \$_ = \$f; 1; })}
+#line 0
+} ###################################################################
 ...
 }
 
