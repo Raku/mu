@@ -30,8 +30,8 @@ for my $orig (glob join $FS, qw<.. DrIFT src *.hs>) {
     next unless -f $real;
     my $clean = sub { $_[0] = File::Spec->canonpath(File::Spec->rel2abs($_[0])) };
 
-    print $clean->($orig);
-    print $clean->($real);
+    $clean->($orig);
+    $clean->($real);
 
     print "rm $orig\n"                                    if $Conf{verbose};
     do { 1 == unlink  $orig        or die "unlink: $!" }  unless $Conf{no};
