@@ -43,7 +43,7 @@ instance Perl5 PIL_Environment where
 
 instance JSON PIL_Environment where
     showJSON (PIL_Environment aa ab) = showJSHashObj "PIL_Environment"
-	     [("pilGlob", showJSON aa) , ("pilMain", showJSON ab)]
+	     [("pilGlob", showJSON aa), ("pilMain", showJSON ab)]
 
 instance YAML PIL_Environment where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
@@ -67,9 +67,9 @@ instance Perl5 PIL_Stmts where
 instance JSON PIL_Stmts where
     showJSON (PNil) = showJSScalar "PNil"
     showJSON (PStmts aa ab) = showJSHashObj "PStmts"
-	     [("pStmt", showJSON aa) , ("pStmts", showJSON ab)]
+	     [("pStmt", showJSON aa), ("pStmts", showJSON ab)]
     showJSON (PPad aa ab ac) = showJSHashObj "PPad"
-	     [("pScope", showJSON aa) , ("pSyms", showJSON ab) ,
+	     [("pScope", showJSON aa), ("pSyms", showJSON ab),
 	      ("pStmts", showJSON ac)]
 
 instance YAML PIL_Stmts where
@@ -106,7 +106,7 @@ instance JSON PIL_Stmt where
     showJSON (PStmt aa) = showJSHashObj "PStmt"
 	     [("pExpr", showJSON aa)]
     showJSON (PPos aa ab ac) = showJSHashObj "PPos"
-	     [("pPos", showJSON aa) , ("pExp", showJSON ab) ,
+	     [("pPos", showJSON aa), ("pExp", showJSON ab),
 	      ("pNode", showJSON ac)]
 
 instance YAML PIL_Stmt where
@@ -148,8 +148,8 @@ instance JSON PIL_Expr where
     showJSON (PThunk aa) = showJSHashObj "PThunk"
 	     [("pThunk", showJSON aa)]
     showJSON (PCode aa ab ac ad ae) = showJSHashObj "PCode"
-	     [("pType", showJSON aa) , ("pParams", showJSON ab) ,
-	      ("pLValue", showJSON ac) , ("pIsMulti", showJSON ad) ,
+	     [("pType", showJSON aa), ("pParams", showJSON ab),
+	      ("pLValue", showJSON ac), ("pIsMulti", showJSON ad),
 	      ("pBody", showJSON ae)]
 
 instance YAML PIL_Expr where
@@ -194,9 +194,9 @@ instance Perl5 PIL_Decl where
 
 instance JSON PIL_Decl where
     showJSON (PSub aa ab ac ad ae af) = showJSHashObj "PSub"
-	     [("pSubName", showJSON aa) , ("pSubType", showJSON ab) ,
-	      ("pSubParams", showJSON ac) , ("pSubLValue", showJSON ad) ,
-	      ("pSubIsMulti", showJSON ae) , ("pSubBody", showJSON af)]
+	     [("pSubName", showJSON aa), ("pSubType", showJSON ab),
+	      ("pSubParams", showJSON ac), ("pSubLValue", showJSON ad),
+	      ("pSubIsMulti", showJSON ae), ("pSubBody", showJSON af)]
 
 instance YAML PIL_Decl where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
@@ -244,12 +244,12 @@ instance JSON PIL_LValue where
     showJSON (PVar aa) = showJSHashObj "PVar"
 	     [("pVarName", showJSON aa)]
     showJSON (PApp aa ab ac ad) = showJSHashObj "PApp"
-	     [("pCxt", showJSON aa) , ("pFun", showJSON ab) ,
-	      ("pInv", showJSON ac) , ("pArgs", showJSON ad)]
+	     [("pCxt", showJSON aa), ("pFun", showJSON ab),
+	      ("pInv", showJSON ac), ("pArgs", showJSON ad)]
     showJSON (PAssign aa ab) = showJSHashObj "PAssign"
-	     [("pLHS", showJSON aa) , ("pRHS", showJSON ab)]
+	     [("pLHS", showJSON aa), ("pRHS", showJSON ab)]
     showJSON (PBind aa ab) = showJSHashObj "PBind"
-	     [("pLHS", showJSON aa) , ("pRHS", showJSON ab)]
+	     [("pLHS", showJSON aa), ("pRHS", showJSON ab)]
 
 instance YAML PIL_LValue where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
@@ -286,7 +286,7 @@ instance Perl5 TParam where
 
 instance JSON TParam where
     showJSON (MkTParam aa ab) = showJSHashObj "MkTParam"
-	     [("tpParam", showJSON aa) , ("tpDefault", showJSON ab)]
+	     [("tpParam", showJSON aa), ("tpDefault", showJSON ab)]
 
 instance YAML TParam where
     fromYAML MkYamlNode{tag=Just t, el=e} | 't':'a':'g':':':'h':'s':':':tag <- unpackFS t = case tag of
@@ -350,8 +350,8 @@ instance Perl5 TEnv where
 
 instance JSON TEnv where
     showJSON (MkTEnv aa ab ac ad ae) = showJSHashObj "MkTEnv"
-	     [("tLexDepth", showJSON aa) , ("tTokDepth", showJSON ab) ,
-	      ("tCxt", showJSON ac) , ("tReg", showJSON ad) ,
+	     [("tLexDepth", showJSON aa), ("tTokDepth", showJSON ab),
+	      ("tCxt", showJSON ac), ("tReg", showJSON ad),
 	      ("tLabel", showJSON ae)]
 
 instance YAML TEnv where

@@ -26,9 +26,9 @@ makeJSON (Body{constructor=constructor,labels=labels,types=types})
 --  bodyEndScalar = text "++" <+> dq (text ") =>" <+> c)
 --  bodyScalar = sep b
     bodyStartArray = text "showJSArrayObj" <+> c
-    bodyArray = brackets $ fsep (sepWith comma b)
+    bodyArray = brackets $ fsep (punctuate comma b)
     bodyStartHash = text "showJSHashObj" <+> c
-    bodyHash = brackets $ fsep (sepWith comma b')
+    bodyHash = brackets $ fsep (punctuate comma b')
     c = clsPkg constructor
     b = map (\x -> sep [text "showJSON", x]) (varNames types)
     b' = zipWith (\x l -> parens (dq (text l) <> comma <+> x))

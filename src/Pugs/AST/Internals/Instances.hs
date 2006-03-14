@@ -394,10 +394,10 @@ instance Perl5 Param where
 instance JSON Param where
     showJSON (MkParam aa ab ac ad ae af ag ah ai) =
 	     showJSHashObj "MkParam"
-	     [("isInvocant", showJSON aa) , ("isOptional", showJSON ab) ,
-	      ("isNamed", showJSON ac) , ("isLValue", showJSON ad) ,
-	      ("isWritable", showJSON ae) , ("isLazy", showJSON af) ,
-	      ("paramName", showJSON ag) , ("paramContext", showJSON ah) ,
+	     [("isInvocant", showJSON aa), ("isOptional", showJSON ab),
+	      ("isNamed", showJSON ac), ("isLValue", showJSON ad),
+	      ("isWritable", showJSON ae), ("isLazy", showJSON af),
+	      ("paramName", showJSON ag), ("paramContext", showJSON ah),
 	      ("paramDefault", showJSON ai)]
 
 instance YAML VCode where
@@ -563,8 +563,8 @@ instance YAML CompUnit where
 
 instance JSON CompUnit where
     showJSON (MkCompUnit aa ab ac ad) = showJSHashObj "MkCompUnit"
-	     [("ver", showJSON aa) , ("desc", showJSON ab) ,
-	      ("glob", showJSON ac) , ("ast", showJSON ad)]
+	     [("ver", showJSON aa), ("desc", showJSON ab),
+	      ("glob", showJSON ac), ("ast", showJSON ad)]
 
 instance Perl5 CompUnit where
     showPerl5 (MkCompUnit aa ab ac ad) = showP5HashObj "MkCompUnit"
@@ -627,8 +627,8 @@ instance YAML Pos where
 
 instance JSON Pos where
     showJSON (MkPos aa ab ac ad ae) = showJSHashObj "MkPos"
-	     [("posName", showJSON aa) , ("posBeginLine", showJSON ab) ,
-	      ("posBeginColumn", showJSON ac) , ("posEndLine", showJSON ad) ,
+	     [("posName", showJSON aa), ("posBeginLine", showJSON ab),
+	      ("posBeginColumn", showJSON ac), ("posEndLine", showJSON ad),
 	      ("posEndColumn", showJSON ae)]
 
 instance Perl5 Pos where
@@ -657,9 +657,9 @@ instance YAML Type where
 instance JSON Type where
     showJSON (MkType aa) = showJSArrayObj "MkType" [showJSON aa]
     showJSON (TypeOr aa ab) = showJSArrayObj "TypeOr"
-	     [showJSON aa , showJSON ab]
+	     [showJSON aa, showJSON ab]
     showJSON (TypeAnd aa ab) = showJSArrayObj "TypeAnd"
-	     [showJSON aa , showJSON ab]
+	     [showJSON aa, showJSON ab]
 
 instance Perl5 Type where
     showPerl5 (MkType aa) = showP5ArrayObj "MkType" [showPerl5 aa]
