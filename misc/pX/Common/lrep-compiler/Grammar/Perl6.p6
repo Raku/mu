@@ -179,7 +179,12 @@ rule macro_decl {
         <?p6ws>? \/ <?p6ws>? <rule> <?p6ws>? \/ <?p6ws>? 
         \) <?p6ws>?
     <code> 
-        { return { macro => $() ,} }
+        {
+	 # XXX This is perl5 code
+	 # XXX This is ugly
+	 eval Emitter::Perl5::emit({macro => $()});
+	 return { macro => $() ,}
+	}
 }
 push @statements, \&macro_decl;
 
