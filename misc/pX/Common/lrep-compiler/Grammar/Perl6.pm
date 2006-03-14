@@ -582,6 +582,65 @@ package Grammar::Perl6;
     }
 ;
     push @statements, \&grammar_name;
+*{'sub_call'} = 
+
+    sub { 
+        my $rule = 
+       Runtime::Perl5::RuleOps::concat(
+         Runtime::Perl5::RuleOps::capture( 'name', 
+             Runtime::Perl5::RuleOps::capture( 'ident', \&{'Grammar::Perl6::ident'} )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\(" )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'params', 
+             Runtime::Perl5::RuleOps::optional(
+                 Runtime::Perl5::RuleOps::capture( 'list', \&{'Grammar::Perl6::list'} )
+               ,
+             )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\)" )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\;" )
+       ,
+       )
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { sub_call =>  match::get( $_[0], '$()' )  } }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    push @statements, \&sub_call;
 *{'_push'} = 
 
     sub { 

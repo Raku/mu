@@ -16,7 +16,10 @@ sub emit {
 
     # $n = $n->{match};
 
-    if ( ! defined $n || ref($n) eq '' ) {
+    if ( $n eq ',') {
+        return ',';
+    }
+    elsif ( ! defined $n || ref($n) eq '' ) {
         # empty node; maybe a <null> match
         return '';
     }
@@ -27,8 +30,7 @@ sub emit {
         }
         return join( '', @s ) ;
     }
-    elsif ( ref( $n ) eq 'HASH' ) 
-    {
+    elsif ( ref( $n ) eq 'HASH' ) {
         my ( $k ) = keys %$n;
         my $v = $n->{$k};
         return '' unless defined $k;
@@ -53,6 +55,11 @@ sub node::require_bareword {
 sub node::use_bareword {
     my $ident = get_str( $_[0], '$<ident>' );
     return "use $ident;\n";
+}
+sub node::sub_call {
+    my $ident = get_str( $_[0], '$<name>' );
+    my $list = emit( get_data( $_[0], '$<params>' ) );
+    return "$ident($list);\n";
 }
 sub node::rule_decl {
     my $name = get_str( $_[0], '$<ident>' );
@@ -92,6 +99,9 @@ sub node::sub_decl {
         # "    }\n" .
         "    push \@Grammar::Perl6::ops, Runtime::Perl5::RuleOps::compile_rule( '" .
             quotemeta( $fix . ':<' . $id . '>' ) . "' );\n";
+}
+sub node::list {
+    my $data = emit(@_);
 }
 sub node::sub_application {
     my $term1 = emit( get_data( $_[0], '$<term1>' ) );

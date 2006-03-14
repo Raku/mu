@@ -139,6 +139,12 @@ rule grammar_name {
 }
 push @statements, \&grammar_name;
 
+rule sub_call {
+    $name:=(<ident>)<?p6ws>?\(<?p6ws>?$params:=(<list>?)<?p6ws>?\)<?p6ws>?\;
+        { return { sub_call => $() } }
+}
+push @statements, \&sub_call;
+
 rule _push {
     $op := (push|unshift) <p6ws> <variable> <p6ws>? \, <p6ws>?
     $code := (.*?) <p6ws>? \;

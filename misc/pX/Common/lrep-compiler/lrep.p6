@@ -28,5 +28,6 @@ my $output_filename;
 my $argsref;
 $argsref = %args;
 
-...;
+getopts('i:o:', $argsref);
 
+...;
