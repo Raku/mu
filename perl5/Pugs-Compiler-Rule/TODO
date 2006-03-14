@@ -1,17 +1,43 @@
-TODO for Pugs::Grammar::Rule and Pugs::Emitter::Rule::Perl5
+TODO for Pugs::Compiler::Rule (PCR)
 
-What's missing for releasing:
+Priorities:
 
-- documentation
+- Match: .from and .to not implemented in subrules
+
+- implement any syntax that may require modifications in the engine
+  - simple closures should get the Match/self argument
+  - backtracking control ':'
+  - using $0, $1 inside the rule
+  - rule parameters 
+
+- :P5 rules
+
+- grammar bug: '$var := (xxx)' should be: '$<var> := (xxx)'
+
+- the grammar may implement <...> and let a node parse the '...'
+
+Related projects:
+
+- implement (optional?) PCR in pugs
+
+- use PCR in lrep
+  - merge the 'dual engine' in PCR (used by the lrep-compiled grammar)
+
+- implement Pugs::Compiler::PILN ?
+
+Other:
+
+- move return blocks to a subroutine
+
+- add a hook for the closure compiler (such as pugs or a source filter)
+  - cleanup any remaining source filtering
+
+- document the '*name = $rule->code;' syntax (doc removed?)
+
+- rule documentation (shorter than S05)
 - examples of use
-- more Match.pm methods (like 'pos')
-- rule switches (none, currently)
-- incomplete rule syntax (see README)
-- test user-defined subrules (there may be namespace problems)
 
-Other TODO:
-
-- .from and .to not implemented in subrules
+- incomplete rule syntax (see Pugs::Compiler::Rule pod)
 
 - Switches - none so far - all rules have :p set (only match at start of 
   text) (see Pugs::Compiler::Rule workaround)
@@ -20,8 +46,6 @@ Other TODO:
   and the new engine, which is the user-side parser. The 2 steps should 
   use only the new engine.
 
-- simple closures don't get the Match argument
-
 - remove 'grammar1' namespace everywhere
 - 'Pugs::Grammar::Rule::Lib' - old p5 code... -- 'use' in P:G:R
 
@@ -29,14 +53,8 @@ Other TODO:
   - rules are compiled in the Pugs::Grammar::Rule namespace
   - user-defined rules are local to the current package
     and will need to be called with full-name (until fixed)
+  - test user-defined subrules (there may be namespace problems)
 
 - more tests (port from lrep)
-
-- make lrep use this module
   
-- optimization: precompile the rules that have return blocks:
-   (check if this still apply)
-   my $rule = sub { ... }
-   *xxx = sub { $rule; ... }
-
 - optimization: inline code in the Engine

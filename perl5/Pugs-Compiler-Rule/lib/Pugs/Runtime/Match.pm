@@ -21,6 +21,9 @@ sub new {
     bless $self, $class;
 }
 
+# XXX - this sub should set .from and .to in match nodes!
+#     - it should be called only once, whenever there is an access
+#       to: .from(); .to(); methods that call ._box_submatch() 
 sub _str {
     my $match = $_[0];
     #print "STR: ", ref( $match ), " ", Dumper( $match ), "\n";

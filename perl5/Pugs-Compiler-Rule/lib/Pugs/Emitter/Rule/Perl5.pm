@@ -1,9 +1,6 @@
 package Pugs::Emitter::Rule::Perl5;
 
-# Pugs::Emitter::Rule::Perl5 - fglock
-#
 # p6-rule perl5 emitter
-#
 
 use strict;
 use warnings;
@@ -45,6 +42,9 @@ Named captures:
                 { let $digits := $1 }
 =cut
 
+
+# XXX - this sub is only necessary for old engine support
+#       it can be removed when lrep starts using PCR
 sub match::get {
     my $match =   $_[0];
     my $name =    $_[1];
@@ -57,24 +57,6 @@ sub match::get {
     return $match->{match}    if $name eq '$/';
     
     #print "get var $name\n";
-    
-    # XXX - wrong, but bug-compatible with previous versions
-    # $/<0>, $/<1>
-    # $<0>, $<1>
-    if ( $name =~ /^ \$ \/? <(\d+)> $/x ) {
-        my $num = $1;
-        my $n = 0;
-        for ( @{ match::get( $match, '$/()' ) } ) {
-            next unless ref($_) eq 'HASH';
-            if ( $num == $n ) {
-                my (undef, $capture) = each %$_;
-                #print "cap\n", Dumper( $capture );
-                return $capture;
-            }
-            $n++;
-        }
-        return;
-    }
     
     # $/()<name>
     # $()<name>
@@ -109,6 +91,8 @@ sub match::get {
     # die "no submatch like $name in " . Dumper( $match->{match} );
 }
 
+# XXX - this sub is only necessary for old engine support
+#       it can be removed when lrep starts using PCR
 sub match::str {
     my $match = $_[0];
     #print "STR: ", ref( $match ), " ", Dumper( $match ), "\n";
@@ -121,6 +105,38 @@ sub match::str {
 
 #------ rule emitter
 
+=for later
+sub emit {
+    my $source = emit_rule( $_[0] );
+    local $@;
+    package Pugs::Grammar::Rule;
+    my $code = eval $source;
+    die "Error in evaluation: $@\nSource:\n$source\n" if $@;
+    my $matcher = $code->(@_);
+    return sub {
+        return sub {
+            my $match = $matcher->( @_ );
+    #"        warn 'matched----', Dumper( $match );
+            return unless $match->{bool};
+            if ( $match->{return} ) {
+    #"            warn 'pre-return: ', Dumper( $match );
+                my %match2 = %$match;
+                $match2{capture} = $match->{return}( Pugs::Runtime::Match->new( $match ) );
+                delete $match2{return};
+                return \%match2;
+            }
+    #"        print Dumper( $match );
+            my $len = length( $match->{tail} );
+            my $head = $len?substr($_[0], 0, -$len):$_[0];
+            $match->{capture} = $head;
+            return $match;
+        }        
+    }
+}
+=cut
+
+# XXX - move to the engine 
+#     - should be a subroutine (see partially written sub above)
 sub emit {
     my $str = shift;
     my $cmd =  
@@ -150,6 +166,8 @@ sub emit {
     return $cmd;
 }
 
+# XXX - used only once
+#     - use real references
 sub emit_rule_node {
     #warn "rule node...";
     ## die "unknown node type: $_[0]" unless ${$_[0]}; 
