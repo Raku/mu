@@ -115,6 +115,13 @@ rule grammar {
     <immediate_statement_rule>*
 }
 
+rule access_hash_element {
+    $variable:=(<varhash>)\{$key:=(<term1>)\}
+        { return { access_hash_element => $() } }
+}
+push @terms, \&access_hash_element;
+push @statements, \&access_hash_element;
+
 rule assign_hash_to_scalar {
     $variable:=(<varscalar>)<?p6ws>?\=<?p6ws>?$value:=(<varhash>)<?p6ws>?\;
         { return { assign_hash_to_scalar => $() } }
@@ -223,7 +230,10 @@ rule empty_list {
     \(\)
         { return { empty_list => $() } }
 }
+
 push @terms, \&empty_list;
+push @terms, \&varhash;
+push @terms, \&varscalar;
 push @terms, \&variable;
 push @terms, \&literal;
         

@@ -115,6 +115,12 @@ sub node::assign_hash_to_scalar {
    my $lit = emit(get_data($_[0], '$<value>'));
    return $var." = \\".$lit.";\n";
 }
+sub node::access_hash_element {
+   my $var = emit(get_data($_[0], '$<variable>'));
+   $var =~ s/^\%/\$/;
+   my $key = emit(get_data($_[0], '$<key>'));
+   return $var."{".$key."}";
+}
 sub node::assign {
    my $var = emit(get_data($_[0], '$<variable>'));
    my $lit = emit(get_data($_[0], '$<value>'));

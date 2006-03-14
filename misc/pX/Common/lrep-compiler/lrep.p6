@@ -30,4 +30,7 @@ $argsref = %args;
 
 getopts('i:o:', $argsref);
 
+$input_filename = %args{'i'};
+$output_filename = %args{'o'};
+
 ...;

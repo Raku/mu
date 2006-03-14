@@ -414,6 +414,41 @@ package Grammar::Perl6;
          )
        ,
 ;
+*{'access_hash_element'} = 
+
+    sub { 
+        my $rule = 
+       Runtime::Perl5::RuleOps::concat(
+         Runtime::Perl5::RuleOps::capture( 'variable', 
+             Runtime::Perl5::RuleOps::capture( 'varhash', \&{'Grammar::Perl6::varhash'} )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\{" )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'key', 
+             Runtime::Perl5::RuleOps::capture( 'term1', \&{'Grammar::Perl6::term1'} )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\}" )
+       ,
+       )
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { access_hash_element =>  match::get( $_[0], '$()' )  } }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    push @terms, \&access_hash_element;
+    push @statements, \&access_hash_element;
 *{'assign_hash_to_scalar'} = 
 
     sub { 
@@ -1049,6 +1084,8 @@ package Grammar::Perl6;
     }
 ;
     push @terms, \&empty_list;
+    push @terms, \&varhash;
+    push @terms, \&varscalar;
     push @terms, \&variable;
     push @terms, \&literal;
 *{'_print'} = 
