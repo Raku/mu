@@ -14,18 +14,27 @@
 # This definitions should go in package main so the parser can work
 grammar main;
         
-macro statement_control:<if> () is parsed ( /
-    <?ws>? \( 
-        $expr := (.*?) 
-    \) <?ws>? 
-    $block := (<code>)
-/ )
+macro statement_control:<if> () is parsed (/<?ws>?\($expr:=(.+)\)<?ws>?$block:=(<code>)/)
 {
     return '
         sub prefix:<_if_expr>  { return $expr ; }
         sub prefix:<_if_block> { $block }
         eval( \' 
                 if ( &{\\\'prefix:<_if_expr>\\\'}() ) { 
+                    &{\\\'prefix:<_if_block>\\\'}() 
+                } 
+            \', 
+            :lang<perl5> );
+    ';
+}
+
+macro statement_control:<unless> () is parsed (/<?ws>?\($expr:=(.+)\)<?ws>?$block:=(<code>)/)
+{
+    return '
+        sub prefix:<_if_expr>  { return $expr ; }
+        sub prefix:<_if_block> { $block }
+        eval( \' 
+                unless ( &{\\\'prefix:<_if_expr>\\\'}() ) { 
                     &{\\\'prefix:<_if_block>\\\'}() 
                 } 
             \', 
