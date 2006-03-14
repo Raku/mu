@@ -3,6 +3,8 @@
 
 require Grammar::Perl6Primitives;
 
+use warnings;
+
 macro statement_control:<aaa> ( $a ) is parsed ( /
     <?ws>? \( <?ws>? $a := (.*?) <?ws>? \) <?ws>? \;
 / ) 
@@ -33,5 +35,6 @@ print 'hello, ';
 say 'world!';
 { say 'in block'; }
 warn 'hi';
+
 ...;
 

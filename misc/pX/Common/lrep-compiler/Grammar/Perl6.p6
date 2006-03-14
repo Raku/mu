@@ -155,7 +155,18 @@ rule require {
 	}
 }
 push @statements, \&require;
-        
+       
+rule use_rule {
+    use <?p6ws> <ident> <?p6ws>? \;
+        { 
+		# XXX This is perl5 code
+		# this is ugly
+		eval 'use '.$()->[2]{ident}[0]{ident};
+		return { use_bareword => $() ,} 
+	}
+}
+push @statements, \&use_rule;
+
 rule term1 {
     <@terms>
 }

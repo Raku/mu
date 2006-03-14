@@ -50,6 +50,10 @@ sub node::require_bareword {
     my $ident = get_str( $_[0], '$<ident>' );
     return "require $ident;\n";
 }
+sub node::use_bareword {
+    my $ident = get_str( $_[0], '$<ident>' );
+    return "use $ident;\n";
+}
 sub node::rule_decl {
     my $name = get_str( $_[0], '$<ident>' );
     my $program = Runtime::Perl5::RuleOps::emit_rule( get_data( $_[0], '$<rule>' ), '' );

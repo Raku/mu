@@ -632,6 +632,44 @@ package Grammar::Perl6;
     }
 ;
     push @statements, \&require;
+*{'use_rule'} = 
+
+    sub { 
+        my $rule = 
+       Runtime::Perl5::RuleOps::concat(
+         Runtime::Perl5::RuleOps::constant( "use" )
+       ,
+         \&{'Grammar::Perl6::p6ws'}
+       ,
+         Runtime::Perl5::RuleOps::capture( 'ident', \&{'Grammar::Perl6::ident'} )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\;" )
+       ,
+       )
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { 
+		# XXX This is perl5 code
+		# this is ugly
+		eval 'use '. match::get( $_[0], '$()' ) ->[2]{ident}[0]{ident};
+		return { use_bareword =>  match::get( $_[0], '$()' )  ,} 
+	}       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    push @statements, \&use_rule;
 *{'term1'} = 
          Runtime::Perl5::RuleOps::alternation( \@terms )
        ,
