@@ -31,8 +31,9 @@ statement_control:<if> ( '1' ) { say '<if> is ok!'; }
 statement_control:<if> ( '0' ) { say '<if> is not ok :('; }
 
 my $a;
+$a = 'world!';
 print 'hello, ';
-say 'world!';
+say $a;
 { say 'in block'; }
 warn 'hi';
 

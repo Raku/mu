@@ -100,6 +100,11 @@ sub node::sub_application {
     return 
         "    &{'$op'} ( $term1, $term2 );\n";
 }
+sub node::assign {
+   my $var = emit(get_data($_[0], '$<variable>'));
+   my $lit = emit(get_data($_[0], '$<value>'));
+   return $var.' = '.$lit.";\n";
+}
 sub node::sub_application_term {
     my $term1 = emit( get_data( $_[0], '$<term1>' ) );
     my $op =    get_str( $_[0], '$<op>' );

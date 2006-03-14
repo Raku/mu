@@ -113,6 +113,12 @@ rule grammar {
     <immediate_statement_rule>*
 }
 
+rule assign {
+    $variable:=(<term1>)<?p6ws>?\=<?p6ws>?$value:=(<term1>)<?p6ws>?\;
+	{ return { assign => $() } }
+}
+push @statements, \&assign;
+
 rule rule_decl {
     rule <p6ws> <ident> <p6ws>? \{ <rule> \}
         { return { rule_decl => $() ,} }
