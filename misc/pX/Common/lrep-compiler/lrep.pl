@@ -9,7 +9,7 @@ require Grammar::Perl6;
 require Emitter::Perl5;
 
 # External
-use IO::File;
+require IO::File;
 
 # Process command line arguments
 my $input_filename = shift || die "Missing arguments!";

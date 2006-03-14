@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-require iterator_engine;
+use Runtime::Perl5::RuleOps;
 
 use Test::More qw(no_plan);
 use Data::Dumper;
@@ -13,10 +13,10 @@ my ( $rule, $match );
 
 {
   $rule = 
-    ruleop::non_greedy_plus( 
-      ruleop::alternation( [
-        ruleop::constant( 'a' ), 
-        ruleop::constant( 'c' ), 
+    Runtime::Perl5::RuleOps::non_greedy_plus( 
+      Runtime::Perl5::RuleOps::alternation( [
+        Runtime::Perl5::RuleOps::constant( 'a' ), 
+        Runtime::Perl5::RuleOps::constant( 'c' ), 
       ] ),
     );
   $match = $rule->( 'a123', undef, {capture=>1} );
@@ -30,8 +30,8 @@ my ( $rule, $match );
 
 {
   $rule = 
-    ruleop::greedy_star( 
-      ruleop::constant( 'a' ) 
+    Runtime::Perl5::RuleOps::greedy_star( 
+      Runtime::Perl5::RuleOps::constant( 'a' ) 
     );
   is ( ref $rule, "CODE", "rule 'a*' is a coderef" );
   $match = $rule->( 'aa' );
@@ -45,8 +45,8 @@ my ( $rule, $match );
 
 {
   $rule = 
-    ruleop::greedy_plus( 
-      ruleop::constant( 'a' ) 
+    Runtime::Perl5::RuleOps::greedy_plus( 
+      Runtime::Perl5::RuleOps::constant( 'a' ) 
     );
   $match = $rule->( 'aa' );
   ok ( $match->{bool}, "/a+/" );
@@ -56,14 +56,14 @@ my ( $rule, $match );
 
 {
   $rule = 
-    ruleop::concat(
-      ruleop::greedy_plus( 
-        ruleop::alternation( [
-          ruleop::constant( 'a' ), 
-          ruleop::constant( 'c' ), 
+    Runtime::Perl5::RuleOps::concat(
+      Runtime::Perl5::RuleOps::greedy_plus( 
+        Runtime::Perl5::RuleOps::alternation( [
+          Runtime::Perl5::RuleOps::constant( 'a' ), 
+          Runtime::Perl5::RuleOps::constant( 'c' ), 
         ] ),
       ),
-      ruleop::constant( 'ab' )
+      Runtime::Perl5::RuleOps::constant( 'ab' )
     );
   $match = $rule->( 'aacaab' );
   ok ( $match->{bool}, "/[a|c]+ab/ with backtracking" );
@@ -75,10 +75,10 @@ __END__
 
 {
   $rule = 
-    ruleop::non_greedy_plus( 
-      ruleop::alternation( [
-        ruleop::constant( 'a' ), 
-        ruleop::constant( 'c' ), 
+    Runtime::Perl5::RuleOps::non_greedy_plus( 
+      Runtime::Perl5::RuleOps::alternation( [
+        Runtime::Perl5::RuleOps::constant( 'a' ), 
+        Runtime::Perl5::RuleOps::constant( 'c' ), 
       ] ),
     );
   ( $stat, $assertion, $match, $tail ) = $rule->( 'aacaab', undef, {capture=>1} );
@@ -89,14 +89,14 @@ __END__
 
 {
   $rule = 
-    ruleop::concat(
-      ruleop::non_greedy_plus( 
-        ruleop::alternation( [
-          ruleop::constant( 'a' ), 
-          ruleop::constant( 'c' ), 
+    Runtime::Perl5::RuleOps::concat(
+      Runtime::Perl5::RuleOps::non_greedy_plus( 
+        Runtime::Perl5::RuleOps::alternation( [
+          Runtime::Perl5::RuleOps::constant( 'a' ), 
+          Runtime::Perl5::RuleOps::constant( 'c' ), 
         ] ),
       ),
-      ruleop::constant( 'cb' )
+      Runtime::Perl5::RuleOps::constant( 'cb' )
     );
   ( $stat, $assertion, $match, $tail ) = $rule->( 'aacacb' );
   ok ( defined $match, "/[a|c]+?ab/ with backtracking" );
@@ -107,13 +107,13 @@ __END__
   # tests for a problem found in the '|' implementation in p6rule parser
   
   my $rule = 
-    ruleop::constant( 'a' );
+    Runtime::Perl5::RuleOps::constant( 'a' );
   my $alt = 
-    ruleop::concat(
+    Runtime::Perl5::RuleOps::concat(
         $rule,
-        ruleop::optional (
-            ruleop::concat(
-                ruleop::constant( '|' ),
+        Runtime::Perl5::RuleOps::optional (
+            Runtime::Perl5::RuleOps::concat(
+                Runtime::Perl5::RuleOps::constant( '|' ),
                 $rule
             )
         )
@@ -126,11 +126,11 @@ __END__
   # adding '*' caused a deep recursion error (fixed)
 
   $alt = 
-    ruleop::concat(
+    Runtime::Perl5::RuleOps::concat(
         $rule,
-        ruleop::greedy_star(
-          ruleop::concat(
-              ruleop::constant( '|' ),
+        Runtime::Perl5::RuleOps::greedy_star(
+          Runtime::Perl5::RuleOps::concat(
+              Runtime::Perl5::RuleOps::constant( '|' ),
               $rule
           )
         )
