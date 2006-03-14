@@ -50,7 +50,7 @@ Note that the Rosetta documentation will be focusing mainly on how Rosetta
 itself works, and will not spend much time in providing rationales; you can
 read TTM itself and various other external documentation for much of that.
 
-=head1 10,000 MILE VIEW OF ROSETTA D
+=head1 10,000 MILE VIEW
 
 Rosetta D is a high-level language for defining, querying, and updating
 relational databases.  It is primarily declarative because it focuses on
@@ -65,7 +65,7 @@ rather than worrying about implementation details, which relieves burdens
 on their creativity, and saves them time.  In short, this system improves
 everyone's lives.
 
-=head2 Operational Context
+=head2 Environment
 
 The Rosetta DBMS / virtual machine, which by definition is the environment
 in which Rosetta D executes, conceptually resembles a hardware PC, having a
@@ -124,12 +124,120 @@ which would cause the constraints to be violated will fail; this mechanism
 is a large part of what makes the Rosetta DBMS a reliable modeller of
 anything in reality, since it only stores values that are reasonable.
 
-Note that the virtual machine itself does not have its own set of named
-users where one must authenticate to use it.  Rather, any concept of such
-users is associated with individual persistent repositories, such that you
-may have to authenticate in order to mount them within the virtual machine;
-moreover, there may be user-specific privilege constraints for that
+=head2 Command Structure and Processing
+
+Rosetta D commands are structured as arbitarily complex routines, either
+named or anonymous, and they can have (named) parameters, can contain
+single (usually) or multiple Rosetta D statements or value expressions, and
+can return one or more values.
+
+Rosetta D command routine definitions can either be stored in a persistent
+repository for reuse like a repository's data types or variables, or they
+can be furnished by an application at run-time for temporary use.  A named
+command routine can take the form of either an operator / function or a
+procedure; the former has a special return value which is the value of the
+evaluated operator invocation within a value expression; the latter has no
+such special return value.  An anonymous command routine can only take the
+form of a procedure.
+
+An application can only ever directly define and invoke an anonymous
+command procedure, but that anonymous procedure can in turn define and/or
+invoke any named command routines within the DBMS environment.
+
+Speaking in terms of SQL, a Rosetta D statement or value expression
+corresponds to a SQL statement or value expression, a Rosetta D named
+command routine corresponds to a SQL named stored procedure or function, a
+Rosetta D anonymous command procedure corresponds to a SQL anonymous
+subroutine or series of SQL statements, the parameters of a Rosetta D named
+routine correspond to the parameters of a SQL named stored procedure or
+function, and the parameters of a Rosetta D anonymous procedure correspond
+to SQL host parameters or bind variables.
+
+A Rosetta D routine parameter can be read-only or read-write (which
+corresponds to SQL's IN or OUT+INOUT parameter types).  But moreover,
+updating a read-write parameter is the only way that Rosetta D provides to
+return output from a routine, and the way you return multiple values is to
+update multiple read-write parameters; a routine without any read-write
+parameters does not return anything.  Now, an operator / function has a
+special read-write parameter whose name is the same as the operator /
+function itself; this special parameter corresponds to the special return
+value of the operator / function (you can not match an argument to it), so
+it needs to be set before the routine returns; a procedure has no such
+thing.  Note that Rosetta D does provide the 'return' statement for help in
+control flow within a routine, but it does not take any arguments.
+
+The Rosetta DBMS is designed to allow user-applications to furnish the
+definition of an anonymous command routine once and then execute it
+multiple times (for efficiency and ease of use); speaking in terms of SQL,
+the Rosetta DBMS supports prepared statements.  The arguments for any
+routine parameters are provided at execution time, and they are used for
+values that are intended to be different for each execution of the command,
+as well as to return results that probably differ with each execution.
+Presumably, any values that will be constant through the life of a command
+routine will be coded as literal values in its definition rather than
+parameters.
+
+(In this distribution, you furnish an anonymous command procedure
+definition for reuse using a DBMS object's "prepare" or "compile" method;
+that method returns a new Rosetta::Interface::Command object.  You then
+associate a Rosetta::Interface::Variable (or similar) object with each of
+the routine's parameters using the Command object's "bind_param" method,
+and then invoke the Command object's "execute" method.  Any Variable
+objects corresponding to input parameters need to be set by the application
+prior to "execute", and following the "execute", the application can read
+the routine's output from the Variable objects associated with output
+parameters.)
+
+The Rosetta D language has all the standard keywords for control flow, any
+of which a Rosetta D routine (both anonymous and named) can contain,
+including: conditionals ("if"), loops ("for", "while"), procedure
+invocation ("call"), normal routine exit ("return"), plus exception
+creation and resolution ("throw", "try", "catch").  Note that a thrown
+exception which falls out of an anonymous procedure will result in an
+exception thrown out to the application (in this distribution, it will be
+as a thrown new Rosetta::Interface::Error object).  For our purposes,
+transaction control statements ("start", "commit", "rollback") are also
+grouped with these standard keywords.
+
+All Rosetta D statements, aside from the flow control keywords, are
+assignments which update a target variable to a new value provided by a
+Rosetta D expression.  If the target variable is an anonymous procedure's
+read-write parameter, the statement corresponds to an unencapsulated SQL
+"select" query.  If the target variable is an ordinary variable, and
+particularly if it is a repository's component data variable, the
+statement's effect corresponds to SQL "data manipulation" (usually "insert"
+or "update" or "delete").  If the target variable is a repository's special
+catalog variable, the statement's effect corresponds to SQL "data
+definition" (usually "create" or "alter" or "drop"); this is also how all
+named command routines are defined, by such statements in other
+usually-anonymous routines.  If the target variable is the DBMS' own
+special catalog of repositories, then the effect is to mount or unmount a
+repository, which corresponds to SQL client statements like "connect to".
+
+=head2 Named Users and Privileges
+
+The Rosetta DBMS / virtual machine itself does not have its own set of
+named users where one must authenticate to use it.  Rather, any concept of
+such users is associated with individual persistent repositories, such that
+you may have to authenticate in order to mount them within the virtual
+machine; moreover, there may be user-specific privileges for that
 repository that restrict what users can do in regards to its contents.
+
+The Rosetta privilege system is orthogonal to the standard Rosetta
+constraint system, though both have the same effect of conditionally
+allowing or barring a command from executing.  The constraint system is
+strictly charged with maintaining the logical integrity of the database,
+and so only comes into affect when an update of a repository or its
+contents are attempted; it usually ignores what users were attempting the
+changes.  By contrast, the privilege system is strictly user-centric, and
+gates a lot of activities which don't involve any updates or threaten
+integrity.
+
+The privilege system mainly controls, per user, what individual repository
+contents they are allowed to see / read from, what they are allowed to
+update, and what routines they are allowed to execute; it also controls
+other aspects of their possible activity.  The concerns here are analagous
+to privileges on a computer's file system, or a typical SQL database.
 
 =head2 Transactional Behaviour
 
@@ -170,16 +278,7 @@ environment mid-transaction would result in an inconsistent state.
 
 
 
-There are several main
-types of Rosetta D commands, which are summarized next.
 
-One type of command, that can be done at any time, is a bare value expression;
-it can involve any system-defined or user-defined operators or variables or
-literal values as input, and the resolved value is returned
-
-
-
-DBMS is structured
 
 Rosetta D is designed for a specific virtual environment that is
 implemented by a B<DBMS> (database management system).  This environment is
