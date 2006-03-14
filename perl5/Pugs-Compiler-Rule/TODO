@@ -7,7 +7,7 @@ Priorities:
 - implement any syntax that may require modifications in the engine
   - simple closures should get the Match/self argument
   - backtracking control ':'
-  - using $0, $1 inside the rule
+  - using $0, $1 inside the rule (maybe use PadWalker)
   - rule parameters 
 
 - :P5 rules
@@ -24,6 +24,7 @@ Related projects:
   - merge the 'dual engine' in PCR (used by the lrep-compiled grammar)
 
 - implement Pugs::Compiler::PILN ?
+  - not a priority - p5 could load ready-made YAML from Pugs
 
 Other:
 
