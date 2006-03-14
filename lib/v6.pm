@@ -49,9 +49,9 @@ To switch back to Perl 5:
 
 Whilst resembling C<use VERSION> syntax, Perl 5 actually (mis)interprets
 C<use v6-pugs> as a request to use a module named C<v6.pm>, passing in C<'-pugs'>
-as an argument list to C<import> after C<v6.pm> is C<require>d.  No whitespace
-is required between the module name and the argument list in this instance
-because of the bizarre interaction between the hybrid C<use VERSION> and
+as an argument list to C<import> after C<v6.pm> is C<require>d.  The lack of
+whitespace between C<v6> and C<-pugs> is neccessary in this instance,
+due to the bizarre interaction between the hybrid C<use VERSION> and
 C<use Module VERSION> syntax.
 
 Larry gave the following explanation of why it works on C<#perl6>:
