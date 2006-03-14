@@ -17,10 +17,16 @@ require Emitter::Perl5;
 
 # Process command line arguments
 my %args;
+# declaration and assignment in the same
+# line still not working
+%args = ();
 my $input_filename;
 my $output_filename;
 
-%args = ();
+# reference creation
+# see Apocalypse 2
+my $argsref;
+$argsref = %args;
 
 ...;
 

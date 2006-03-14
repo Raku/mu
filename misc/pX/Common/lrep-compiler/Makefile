@@ -18,3 +18,6 @@ t/p6sample.t: t/p6sample.p6t
 
 t/p6compiler.t: t/p6compiler.p6t
 	./lrep.pl -i t/p6compiler.p6t -o t/p6compiler.t
+
+lrep: lrep.p6
+	./lrep.pl -i lrep.p6 -o lrep

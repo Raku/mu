@@ -100,6 +100,11 @@ sub node::sub_application {
     return 
         "    &{'$op'} ( $term1, $term2 );\n";
 }
+sub node::assign_hash_to_scalar {
+   my $var = emit(get_data($_[0], '$<variable>'));
+   my $lit = emit(get_data($_[0], '$<value>'));
+   return $var." = \\".$lit.";\n";
+}
 sub node::assign {
    my $var = emit(get_data($_[0], '$<variable>'));
    my $lit = emit(get_data($_[0], '$<value>'));
@@ -172,6 +177,7 @@ sub node::eval_perl5 {
 sub node::variable {
     return $_[0];
 }
+*node::varscalar = *node::varhash = *node::variable;
 sub node::empty_list {
     return "()";
 }

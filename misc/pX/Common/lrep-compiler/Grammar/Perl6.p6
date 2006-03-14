@@ -115,6 +115,12 @@ rule grammar {
     <immediate_statement_rule>*
 }
 
+rule assign_hash_to_scalar {
+    $variable:=(<varscalar>)<?p6ws>?\=<?p6ws>?$value:=(<varhash>)<?p6ws>?\;
+        { return { assign_hash_to_scalar => $() } }
+}
+push @statements, \&assign_hash_to_scalar;
+
 rule assign {
     $variable:=(<term1>)<?p6ws>?\=<?p6ws>?$value:=(<term1>)<?p6ws>?\;
 	{ return { assign => $() } }
