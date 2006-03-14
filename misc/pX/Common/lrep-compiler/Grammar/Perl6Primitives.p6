@@ -1,44 +1,25 @@
-require Grammar::Perl6Init;
-require Grammar::Perl6;
-package Grammar::Perl6;
-*{'statement_control:<if>'} = sub {
-    my $rule = Runtime::Perl5::RuleOps::concat( 
-        Runtime::Perl5::RuleOps::constant( 'statement_control:<if>' ),
-        \&Grammar::Perl6::ws_star,
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\(" )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'expr', 
-             Runtime::Perl5::RuleOps::non_greedy_star(
-                 \&{'Grammar::Perl6::any'}
-               ,
-             )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\)" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'block', 
-             Runtime::Perl5::RuleOps::capture( 'code', \&{'Grammar::Perl6::code'} )
-           ,
-         )
-       ,
-       )
-    );
-    my $match = $rule->( @_ );
-    return unless $match;
-    my $code = sub { 
-    my $src = <<'!EOT!'; 
+# This is the Perl 6 Grammar used to Parse and generate the
+# Abstract Syntax Tree (AST) for Perl 6 primitives - fglock
+#
+# This code is compiled and executed by using the previously
+# compiled version, which is stored in "$filename-cached.pl"
+#
+# Things that go in this file are:
+# - anything that contains a statement like:
+#       eval( '...', :lang<perl5>);
+# - anything that is too low-level to go into a real Module
+# - anything that does not directly alters the Perl 6 Grammar
+#   (these go into the p6prelude.p6 file)
+
+# This definitions should go in package main so the parser can work
+grammar main;
+        
+macro statement_control:<if> () is parsed ( /
+    <?ws>? \( 
+        $expr := (.*?) 
+    \) <?ws>? 
+    $block := (<code>)
+/ )
 {
     return '
         sub prefix:<_if_expr>  { return $expr ; }
@@ -51,56 +32,7 @@ package Grammar::Perl6;
             :lang<perl5> );
     ';
 }
-!EOT!
-    my $block = match::str( match::get( $_[0], '$<block>' ) );
-    $block =~ s/([\'\\])/\\$1/g;
 
-    my $expr = match::str( match::get( $_[0], '$<expr>' ) );
-    $expr =~ s/([\'\\])/\\$1/g;
-
-    $src =~ s/([\'"\\])/\\$1/g;
-    my $ret = eval( '"' . $src . '"' ); 
-    die $@ if $@; 
-    my $ast = Grammar::Perl6::immediate_statement_rule( $ret );
-    die "compile: syntax error in macro at '" . $ast->{tail} . "'\n"
-        if $ast->{tail};
-    my $perl5 = Emitter::Perl5::emit( $ast->{capture} );
-    my $expanded = eval $perl5;
-    die $@ if $@; 
-    require Runtime::Perl5::RuleInit;
-    my $final_ast = 
-        Runtime::Perl5::RuleOps::compile_rule( q( [ <?ws>? <@Grammar::Perl6::statements> ]* <?ws>? ) )
-        ->( $expanded );
-    die "compile: syntax error in macro at '" . $final_ast->{tail} . "'\n"
-        if $final_ast->{tail};
-    return $final_ast;
-    };
-    my $ast = $code->( $match ); 
-    return { %$match, capture => [ $ast->{capture} ] }; 
-};
-#endblock
-    push @Grammar::Perl6::statements, \&{'statement_control:<if>'};
-    *{'infix:<*>'} = sub
-
-    {
- $_[0] * $_[1] 
-    }
-    ;
-    require Runtime::Perl5::RuleInit;
-    push @Grammar::Perl6::ops, Runtime::Perl5::RuleOps::compile_rule( 'infix\:\<\*\>' );
-    *{'infix:<+>'} = sub
-
-    {
- $_[0] + $_[1] 
-    }
-    ;
-    require Runtime::Perl5::RuleInit;
-    push @Grammar::Perl6::ops, Runtime::Perl5::RuleOps::compile_rule( 'infix\:\<\+\>' );
-    *{'infix:<~>'} = sub
-
-    {
- $_[0] . $_[1] 
-    }
-    ;
-    require Runtime::Perl5::RuleInit;
-    push @Grammar::Perl6::ops, Runtime::Perl5::RuleOps::compile_rule( 'infix\:\<\~\>' );
+sub infix:<*> { eval(' $_[0] * $_[1] ', :lang<perl5>); }
+sub infix:<+> { eval(' $_[0] + $_[1] ', :lang<perl5>); }
+sub infix:<~> { eval(' $_[0] . $_[1] ', :lang<perl5>); }

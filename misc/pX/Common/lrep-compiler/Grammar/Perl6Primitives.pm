@@ -1,4 +1,4 @@
-package Grammar::Perl6;
+package main;
 *{'statement_control:<if>'} = sub {
     my $rule = Runtime::Perl5::RuleOps::concat( 
         Runtime::Perl5::RuleOps::constant( 'statement_control:<if>' ),
