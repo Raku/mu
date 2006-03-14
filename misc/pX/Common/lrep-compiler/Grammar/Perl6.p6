@@ -147,7 +147,12 @@ push @statements, \&use_v6;
 
 rule require {
     require <?p6ws> <ident> <?p6ws>? \;
-        { return { require_bareword => $() ,} }
+        { 
+		# XXX This is perl5 code
+		# this is ugly
+		eval 'require '.$()->[2]{ident}[0]{ident};
+		return { require_bareword => $() ,} 
+	}
 }
 push @statements, \&require;
         

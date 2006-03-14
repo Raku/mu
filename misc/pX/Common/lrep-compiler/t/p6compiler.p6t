@@ -17,10 +17,10 @@ macro statement_control:<sum> () is parsed ( /
     return ' $a infix:<+> $b ; say \'ok\'; '   ; 
 }
 
-#'1' infix:<+> '1';
-#'1' infix:<*> '1';
-#'1' infix:<+> '1' infix:<*> '1';
-#'1' infix:<*> '1' infix:<+> '1';
+'1' infix:<+> '1';
+'1' infix:<*> '1';
+'1' infix:<+> '1' infix:<*> '1';
+'1' infix:<*> '1' infix:<+> '1';
 
 #statement_control:<sum> ( 2 + 4 );
 #statement_control:<aaa> ( say 'something'; );

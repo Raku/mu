@@ -616,7 +616,12 @@ package Grammar::Perl6;
     ;
         my $match = $rule->( @_ );
         return unless $match;
-        my $capture_block = sub { return { require_bareword =>  match::get( $_[0], '$()' )  ,} }       ,
+        my $capture_block = sub { 
+		# XXX This is perl5 code
+		# this is ugly
+		eval 'require '. match::get( $_[0], '$()' ) ->[2]{ident}[0]{ident};
+		return { require_bareword =>  match::get( $_[0], '$()' )  ,} 
+	}       ,
 ; 
         #use Data::Dumper;
         #print "capture was: ", Dumper( $match->{capture} );

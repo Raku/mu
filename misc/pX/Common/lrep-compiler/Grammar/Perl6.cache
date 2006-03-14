@@ -1,5 +1,3 @@
-require Grammar::Perl6Init;
-require Grammar::Perl6;
 package Grammar::Perl6;
 *{'perl5_regex'} = 
 
