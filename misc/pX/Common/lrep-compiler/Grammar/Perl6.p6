@@ -87,6 +87,8 @@ rule closure_rule {
 }
 unshift @rule_terms, \&closure_rule;
 
+
+
 rule variable_rule {
     <variable> 
         { return { variable => $() ,} }
@@ -205,6 +207,11 @@ rule macro_decl {
 }
 push @statements, \&macro_decl;
 
+rule empty_list {
+    \(\)
+        { return { empty_list => $() } }
+}
+push @terms, \&empty_list;
 push @terms, \&variable;
 push @terms, \&literal;
         

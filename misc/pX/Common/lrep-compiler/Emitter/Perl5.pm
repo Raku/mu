@@ -172,6 +172,9 @@ sub node::eval_perl5 {
 sub node::variable {
     return $_[0];
 }
+sub node::empty_list {
+    return "()";
+}
 sub node::immediate_statement_exec {
     return get_data( $_[0], '$<perl5>' );
 }

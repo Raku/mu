@@ -917,6 +917,30 @@ package Grammar::Perl6;
     }
 ;
     push @statements, \&macro_decl;
+*{'empty_list'} = 
+
+    sub { 
+        my $rule = 
+       Runtime::Perl5::RuleOps::concat(
+         Runtime::Perl5::RuleOps::constant( "\(" )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\)" )
+       ,
+       )
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { empty_list =>  match::get( $_[0], '$()' )  } }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    push @terms, \&empty_list;
     push @terms, \&variable;
     push @terms, \&literal;
 *{'_print'} = 

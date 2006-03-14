@@ -20,5 +20,7 @@ my %args;
 my $input_filename;
 my $output_filename;
 
+%args = ();
+
 ...;
 
