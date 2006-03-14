@@ -1,19 +1,32 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 use strict;
-
 use XML::Parser;
 use Term::ANSIColor qw(:constants);
 use Attribute::Handlers;
 use Data::Dumper;
 my $parser = new XML::Parser();
-my %context = (choice=>0,atomify=>0);
+my %context = (
+	choice=>0,
+	cache=>'',
+	lookahead=>0,
+	first_choice=>0,
+	brace=>'closed'
+);
+sub emit($) {
+	if ($context{q}) {
+		$context{q}{cache} .= shift;
+	} else {
+		print shift;
+	}
+	die "emit takes only one argument:@_" if @_;
+}
 my %atomic = ();
 $parser->setHandlers(
 	Char=>sub {
 		my ($expat,$string) = @_;	
 		return if $string =~ /^\s*$/;
 		return if $context{description};
-		print quotemeta($string);
+		emit quotemeta($string);
 	},
 	Start=>sub {
 		my ($expat,$element,%attrs) = @_;	
@@ -24,43 +37,38 @@ $parser->setHandlers(
 			return;
 		}
 		if ($context{choice}>0) {
-			print "|" unless $context{first_choice};
+			emit "|" unless $context{first_choice};
 			$context{first_choice} = 0 if $context{first_choice};
 		}
-		if ($context{atomify}>0 and !$atomic{$element}) {
-			print "[";
-		}
+		$context{q}{count}++ if $context{q} && $atomic{$element};
 		no strict 'refs';
 
-		&{$sub};
+		&{$sub}(%attrs);
 	},
 	End=>sub {
 		my ($expat,$element,%attrs) = @_;	
 		$element =~ s/^g://;
 		my $sub = $main::{$element."_"};
 		unless (defined $sub) {
-			warn "no ${element}_";
+			die "no ${element}_";
 			return;
 		}
 
 		no strict 'refs';
-		&{$sub};
-
-		if ($context{atomify}>0 and !$atomic{$element}) {
-			print "]";
-		}
+		&{$sub}(%attrs);
 	},
 	Comment=>sub {}
 );
 $parser->parsefile(shift);
+emit "\n";
 
-sub closed :ATTR {
+sub Closed :ATTR {
 	no strict 'refs';
 	my ($package,$symbol) = @_;
 	my $name = *{$symbol}{NAME} . "_";
 	*{$name} = sub {};
 }
-sub atom :ATTR {
+sub Atom :ATTR {
 	no strict 'refs';
 	my ($package,$symbol) = @_;
 	my $name = *{$symbol}{NAME};
@@ -68,20 +76,20 @@ sub atom :ATTR {
 }
 
 sub token {
-	my ($expat,$name,%attr) = @_;
-	print "rule $attr{name} {"
+	my %attr = @_;
+	emit "rule $attr{name} {"
 }
 sub token_  {
-	my ($expat,$name,%attr) = @_;
-	print "}\n"
+	my %attr = @_;
+	emit "}\n"
 }
 sub production {
-	my ($expat,$name,%attr) = @_;
-	print "rule $attr{name} {"
+	my %attr = @_;
+	emit "rule $attr{name} {"
 }
 sub production_  {
-	my ($expat,$name,%attr) = @_;
-	print "}\n"
+	my %attr = @_;
+	emit "}\n"
 }
 sub ignore {
 	warn "ignoring: @_\n";
@@ -92,12 +100,12 @@ sub ignore {
 }
 
 
-## atoms
-sub ref :closed :atom {
-	my ($expat,$name,%attr) = @_;
-	print "<$attr{name}>";
+## Atoms
+sub ref :Closed :Atom {
+	my %attr = @_;
+	emit "<$attr{name}>";
 } 
-sub string :atom {
+sub string :Atom {
 }
 sub string_ {
 }
@@ -110,21 +118,34 @@ sub choice {
 sub choice_ {
 	$context{choice}--;
 }
-sub sequence :atom {
+sub sequence :Atom {
 	$context{choice}--;
 }
 sub sequence_  {
 	$context{choice}++;
 }
-sub quantifier {
+#XXX: quantifiets should use lookahead to determine if square brackets 
+#XXX: are nessary
+sub quantifier :Atom {
 	my %tmp = @_;
 	while (my ($name,$symbol) = each %tmp) {
 		$main::{$name} = sub {
-			$context{atomify}++
+			my $prev = $context{q};
+			$context{q} = {};
+			$context{q}{symbol} = $symbol;
+			$context{q}{prev} = $prev;
+			$context{q}{count} = 0;
 		};
 		$main::{$name."_"} = sub {
-			print $symbol;
-			$context{atomify}--;
+			my $q = $context{q};
+			#print BLUE,"q:".Dumper($context{q}),"\n",RESET;
+			$context{q} = $context{q}{prev};
+			emit "[" if $context{q};
+			emit "[" if $q->{count} > 1;
+			emit $q->{cache};
+			emit "]" if $q->{count} > 1;
+			emit $symbol;
+			emit "]" if $context{q};
 		};
 	}
 }
@@ -134,13 +155,56 @@ oneOrMore  +
 optional   ?
 ))} 
 
-sub optionalSkip :atom :closed {print " <S>* "}
-sub requiredSkip :atom :closed {print " <S>+ "}
+sub optionalSkip :Atom :Closed {emit " <S>* "}
+sub requiredSkip :Atom :Closed {emit " <S>+ "}
+
+sub char {
+	#print BLUE,"context:$context{brace}\n",RESET;
+	emit "+" if $context{brace} eq 'closed';
+	emit "[" unless $context{brace} eq 'open';
+	$context{brace}='open';
+}
+sub char_ {
+}
+sub close_brace {
+	emit "]+[" if $context{brace} eq 'open';
+	emit "+" if $context{brace} eq 'closed';
+}
+sub charCode :Closed {
+	my %attr = @_;
+	emit "+" if $context{brace} eq 'closed';
+	emit "[" unless $context{brace} eq 'open';
+	$context{brace}='open';
+	print "\\x[$attr{value}]";
+}
+sub charRange :Closed {
+	my %attr = @_;
+	close_brace();
+	emit "[$attr{minChar}..$attr{maxChar}]";
+	$context{brace}='closed';
+}
+sub charCodeRange :Closed {
+	my %attr = @_;
+	close_brace();
+	emit "[\\x[$attr{minValue}]..\\x[$attr{maxValue}]]";
+	$context{brace}='closed';
+}
+sub charClass :Atom {
+	$context{brace}='none';
+	$context{charClass}++;
+	emit "<"
+}
+sub charClass_ {
+	$context{charClass}--;
+	emit "]" if $context{brace} eq 'open';
+	$context{brace}='none';
+	emit ">";
+}
 
 # XXX skip
 INIT { ignore qw(skip) }
 # XXX character classes
-INIT { ignore qw(complement char charRange charClass charCodeRange charCode) }
+INIT { ignore qw(complement) }
 
 ## things I don't understand and/or don't know how to translate 
 sub description {
@@ -156,48 +220,21 @@ INIT { ignore qw(exposition-production primary transition-default state start la
 # XXX OpTable
 
 INIT {ignore qw(binary exprProduction prefix postfix level)}
+
 =for later
 }
 
 ### charackter classes
 sub close_bracket {
 	warn "\t\tclosing bracket:$_[0]";
-	print "]" if $context{open_bracket};
+	emit "]" if $context{open_bracket};
 }
 sub open_bracket {
-	print "[" unless $context{open_bracket};
+	emit "[" unless $context{open_bracket};
 	$context{open_bracket}++;
 }
 sub charRange {
 	my ($expat,$name,%attr) = @_;
 	close_bracket();
-	print "[$attr{minChar}..$attr{maxChar}]";
+	emit "[$attr{minChar}..$attr{maxChar}]";
 }
-sub charClass {
-	$context{charClass}++;
-	print "<"
-}
-sub charClass_ {
-	close_bracket();
-	$context{charClass}--;
-	print ">"
-}
-sub char {
-	if ($context{charClass}) {
-		open_bracket;
-	} else {
-		print "<'";
-	}
-}
-sub char_ {
-	print "'>" unless $context{charClass};
-}
-### XXX: complete those
-
-sub charCode {}
-sub charCode_ {}
-sub charCodeRange {}
-sub charCodeRange_ {}
-
-sub char {}
-sub char_ {}
