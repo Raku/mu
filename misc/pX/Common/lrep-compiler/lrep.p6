@@ -36,12 +36,29 @@ sub usage {                     # subroutine definition
 # open file
 my $input_file;
 $input_file = IO::File.new($input_filename,'<'); # method call
-statement_control:<unless> ( $input_file ) # missing rules, using hacks
-{ die 'Could not open input file'; }
+statement_control:<unless> ( $input_file ) { die 'Could not open input file'; }
 
 # read file
 my $source;
 $source = slurp $input_file;    # slurp is standard in Perl 6
 
+# parse file
+# XXX - TODO - Grammar should be accessed via methods
+# and not via subroutines. This should be actually Perl 6
+# rules applying... But for now... this is ok...
+my $match;
+$match = Grammar::Perl6::grammar($source);
 
-...;                            # yadayada
+# if something didn't match
+my $tail;
+$tail = %match{'tail'};
+statement_control:<if> ( $tail ) { die 'Syntax Error !!'; }
+
+# emit
+my $code;
+my $capture;
+$capture = $match{'capture'};
+$code = Emitter::Perl5::emit($capture);
+
+print $code;
+

@@ -151,6 +151,12 @@ sub node::access_hash_element {
    my $key = emit(get_data($_[0], '$<key>'));
    return $var."{".$key."}";
 }
+sub node::access_hashref_element {
+   my $var = emit(get_data($_[0], '$<variable>'));
+   $var =~ s/^\%/\$/;
+   my $key = emit(get_data($_[0], '$<key>'));
+   return $var."->{".$key."}";
+}
 sub node::assign {
    my $var = emit(get_data($_[0], '$<variable>'));
    my $lit = emit(get_data($_[0], '$<value>'));

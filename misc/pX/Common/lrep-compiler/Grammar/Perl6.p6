@@ -137,6 +137,13 @@ rule sub_call_statement {
 push @statements, \&sub_call_statement;
 push @terms, \&sub_call_term;
 
+rule access_hashref_element {
+    $variable:=(<varscalar>)\{$key:=(<term1>)\}
+        { return { access_hashref_element => $() } }
+}
+push @terms, \&access_hashref_element;
+push @statements, \&access_hashref_element;
+
 rule access_hash_element {
     $variable:=(<varhash>)\{$key:=(<term1>)\}
         { return { access_hash_element => $() } }
