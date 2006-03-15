@@ -1,5 +1,76 @@
 = random parrot-targeting notes
 
+AbsPIR: Prototype in P6, cross-compile to P5.
+- nested exprs
+- proper subs and attrs
+- removal of toxic sugar in PIR
+- everything a closure; scoping vars
+- structural unpacking for aggregate types
+- _not_ Pugs-specific
+
+in PMC = invar PMC
+
+inoutvar => invar # because the register never moves
+
+"direction"
+  outvar
+ inconst
+   invar
+    "labelconst" == inconst "I"
+    "labelvar" == invar "I"
+
+[$P0] ==> $P0 (k)
+[$S0] ==> $S0 (s)
+[$S0,$S1] ==> [$S0,$S1] (kc)
+[$P0,$P1] ==> [$P0,$P1] (kc)
+
+$P0->"method"
+$P0."method"
+
+target = sub_call
+targetlist = sub_call
+
+.sub calc_state :immediate
+    $P0 = .new FixedSizePMCArray
+    .return($P0)
+.end
+
+foo = addr LABEL;
+
+.sub Foo
+    .const .Sub some_compile_state = "calc_state"
+    push some_compile_state
+.end
+
+When there is only one key,
+    "p/s" => "k"
+    "sc"  => "sc"   # probably doesn't work
+    "pc"  => "pc"   # probably doesn't work
+    "i"   => "ki"
+    "ic"  => "kic"
+    _     => doesn't happen
+
+"type"
+  i  n p s    kc ::= [in * (i|n|p|s)]
+  |    |
+(ki)  (k)
+
+  (var/const) * (PMC,STR,NUM,INT)
+
+
+kc => key constant
+    ["a";"b"]
+ki => key uo
+
+
+set(in PMC, invar STR)
+set(in PMC, invar STR)
+set(in PMC, inconst STR)
+
+assign(in PMC, in INT)
+            assign(inconst PMC, in INT)
+
+
 cd editor ; make vim-install # very handy
 
 upon class_init, "entry" is bound to the typenum of the current class
@@ -101,6 +172,9 @@ Toplevels:
             # horrible hack: reset entry point
             set_addr __SUB__, PRE
 
+            X = global "foo"
+            global "foo" = X
+
         PRE:
             pushmark 110287318023
             pushaction __POST__
@@ -168,10 +242,111 @@ say "Hello":
     .const .PugsStr __ANON_PugsStr_0__ = "Hello"
     __ANON_PugsStr_0__.method();
 
-{
-    my $x = 3;
-    {
-        $x
+
+= Plan for extensible attributes
+
+We extend ParrotClass into PugsClass
+We extend ParrotObject into PugsObject
+Foreach PugsClass, a new Hash PMC is attached to it
+
+Foo = newclass "Foo"
+add_attribute Foo, "$.a"
+add_attribute Foo, "$.b"
+add_attribute Foo, "" # extra things! yay!
+                      # note we "don't" emit this under pugs -O (finalized)
+
+INIT-of-class, each object gets fresh SC_.a SC_.b and get are
+    get_attr'd
+
+class Foo {
+    has $.a;
+    has $.b;
+}
+
+# here is runtime
+class Foo is also {
+    has $.c;
+}
+Foo.meta.add_attribute(...)
+
+So, all $!foo $!bar access need to emit
+    classoffset
+in each method that talks about them.
+
+-- get_attribute_str
+
+= Plan for ProtoObjects
+
+class Foo {
+    has $.x;
+    method bar { say 1 }
+}
+::Foo.x # error
+::Foo.bar # 1
+::Foo.new.x; # works
+::Foo.new.bar # 1
+
+To PugsClass PMC, we have a METHOD get_proto
+    -> returns a PugsObject PMC with class-id at that PugsClass
+    -> _but_ with the pristine vtable obtained by get_attrib_num(PCD_OBJECT_VTABLE)
+    -> _and_ fill in the attr slots with null/error/whatever-larry-prefers
+
+PugsObject
+
+PugsInt.pmc
+    METHOD
+
+$P0 = get_namespace ["parrot"; "String"]
+$P1 = find_global $P0, "lower"
+
+= Either: Hack the NS distribution so that unsigiled is jsut for methods
+
+class Foo {         # ->{str}   typed_ns
+    my $boo;        # $boo      boo#var
+    sub bar {       # &bar      bar#sub
+    }
+    method baz {    # &baz      baz#sub
+                    #  baz
+    }
+    method Blah {}  # &Blah     Blah#sub
+                    #  Blah
+    class Blah {    # ::Blah    Blah#ns
     }
 }
 
+get_namespace ["Foo";"Blah"]
+get_namespace(get_namespace(()))
+->{"str"}{"str"}
+
+# ALSO MAIL P6I
+# remove_method => del_sub
+# get_method_list => ns->hack_iterate
+# compute_all_applicable_methods => metaclass->get_mro->iterate->>>ns->hack_iterate
+# find_next_method_by_name => not-yet
+    "super"
+        # sketch pseudocode to implement the native "super" opcode
+    shuffle an extra I* to mean the current-index-in-method-mro-chain
+    pass in an MRO-iterator as an extra argument
+
+class Foo { method f {} };
+class Bar is Foo { method f {super}};
+class Baz is Bar
+Baz.new.f
+
+
+Foo.can('bar'); # undef
+
+# for foreign objects, create a PugsObj shim around it and fake
+# the .can cache -- fortunately we are not bridging Python yet.
+
+= Or: hack find_method so that it doesn't go into find_method_direct_1
+
+# tail_yield()
+&foo := &yield; foo()
+
+
+= emit 
+
+MAIL P6I:
+- super
+- tail_yield
