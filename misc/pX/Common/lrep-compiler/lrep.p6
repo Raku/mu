@@ -36,7 +36,7 @@ $output_filename = %args{'o'};
 require Grammar::Perl6Primitives;
 
 statement_control:<unless> ( $input_filename ) { die 'use -i input -o output'; }
+statement_control:<unless> ( $output_filename ) { die 'use -i input -o output'; }
 
-#statement_control:<unless> ( $output_filename ) { die 'use -i input -o output'; }
 
 ...;

@@ -158,6 +158,7 @@ sub node::_print {
     my $list = get_data( $_[0], '$<list>' );
     my $cmd = "    print";
     $cmd =    "    warn" if $op eq 'warn';
+    $cmd =    "    die " if $op eq 'die';
     my $s;
     for ( @$list ) {
         next unless ref($_) eq 'HASH';
