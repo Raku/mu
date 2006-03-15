@@ -115,6 +115,17 @@ rule grammar {
     <immediate_statement_rule>*
 }
 
+rule meth_call_term {
+    $class:=(<ident>) \. $meth:=(<word>)<?p6ws>?\(<?p6ws>?$params:=(<list>?)<?p6ws>?\)<?p6ws>?
+        { return { meth_call_term => $() } }
+}
+rule meth_call_statement {
+    $class:=(<ident>) \. $meth:=(<word>)<?p6ws>?\(<?p6ws>?$params:=(<list>?)<?p6ws>?\)<?p6ws>?\;
+        { return { meth_call => $() } }
+}
+push @statements, \&meth_call_statement;
+push @terms, \&meth_call_term;
+
 rule sub_call_term {
     $name:=(<ident>)<?p6ws>?\(<?p6ws>?$params:=(<list>?)<?p6ws>?\)<?p6ws>?
         { return { sub_call_term => $() } }

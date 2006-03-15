@@ -414,6 +414,136 @@ package Grammar::Perl6;
          )
        ,
 ;
+*{'meth_call_term'} = 
+
+    sub { 
+        my $rule = 
+       Runtime::Perl5::RuleOps::concat(
+         Runtime::Perl5::RuleOps::capture( 'class', 
+             Runtime::Perl5::RuleOps::capture( 'ident', \&{'Grammar::Perl6::ident'} )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\." )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'meth', 
+             Runtime::Perl5::RuleOps::capture( 'word', \&{'Grammar::Perl6::word'} )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\(" )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'params', 
+             Runtime::Perl5::RuleOps::optional(
+                 Runtime::Perl5::RuleOps::capture( 'list', \&{'Grammar::Perl6::list'} )
+               ,
+             )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\)" )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+       )
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { meth_call_term =>  match::get( $_[0], '$()' )  } }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+*{'meth_call_statement'} = 
+
+    sub { 
+        my $rule = 
+       Runtime::Perl5::RuleOps::concat(
+         Runtime::Perl5::RuleOps::capture( 'class', 
+             Runtime::Perl5::RuleOps::capture( 'ident', \&{'Grammar::Perl6::ident'} )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\." )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'meth', 
+             Runtime::Perl5::RuleOps::capture( 'word', \&{'Grammar::Perl6::word'} )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\(" )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'params', 
+             Runtime::Perl5::RuleOps::optional(
+                 Runtime::Perl5::RuleOps::capture( 'list', \&{'Grammar::Perl6::list'} )
+               ,
+             )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\)" )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\;" )
+       ,
+       )
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { meth_call =>  match::get( $_[0], '$()' )  } }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    push @statements, \&meth_call_statement;
+    push @terms, \&meth_call_term;
 *{'sub_call_term'} = 
 
     sub { 

@@ -39,7 +39,7 @@ statement_control:<unless> ( $input_filename ) { die usage(); }
 statement_control:<unless> ( $output_filename ) { die usage(); }
 
 my $input_file;
-$input_file = IO::File::open('IO::File',$input_filename,'<');
+$input_file = IO::File.open($input_filename,'<');
 statement_control:<unless> ( $input_file ) { die 'Could not open input file'; }
 
 sub usage {

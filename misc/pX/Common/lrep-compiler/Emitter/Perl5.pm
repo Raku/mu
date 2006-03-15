@@ -56,6 +56,18 @@ sub node::use_bareword {
     my $ident = get_str( $_[0], '$<ident>' );
     return "use $ident;\n";
 }
+sub node::meth_call_term {
+    my $ident = get_str( $_[0], '$<class>' );
+    my $meth = get_str( $_[0], '$<meth>' );
+    my $list = emit( get_data( $_[0], '$<params>' ) );
+    return "$ident->$meth($list)";
+}
+sub node::meth_call {
+    my $ident = get_str( $_[0], '$<class>' );
+    my $meth = get_str( $_[0], '$<meth>' );
+    my $list = emit( get_data( $_[0], '$<params>' ) );
+    return "$ident->$meth($list);\n";
+}
 sub node::sub_call_term {
     my $ident = get_str( $_[0], '$<name>' );
     my $list = emit( get_data( $_[0], '$<params>' ) );
