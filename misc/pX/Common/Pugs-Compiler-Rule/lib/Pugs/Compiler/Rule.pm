@@ -15,12 +15,17 @@ use Pugs::Emitter::Rule::Perl5;
 sub new { $_[0] }
 
 sub compile {
-    my ($class, $grammar, $rule_source) = @_;
+    my ( $class, $rule_source, %param ) = @_;
+
     my $self = { source => $rule_source };
+
+    # XXX - should use a base grammar instead!
+    $self->{grammar} = delete $param{grammar} || 'Pugs::Grammar::Rule';
+
     $self->{ast} = Pugs::Grammar::Rule::rule( 
         $self->{source} );
     $self->{perl5} = Pugs::Emitter::Rule::Perl5::emit( 
-        $grammar, $self->{ast}{capture} );
+        $self->{grammar}, $self->{ast}{capture} );
 
     local $@;
     $self->{code} = eval 
@@ -144,6 +149,11 @@ to several other modules:
 
 Class method.  Returns a compiled rule object, or throws an exception on
 invalid rule syntax.
+
+options:
+
+=item * grammar => $class - Specify which namespace (Grammar) the rule 
+belongs to.
 
 =head2 match (Str $match_against)
 
