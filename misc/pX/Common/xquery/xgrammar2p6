@@ -1,7 +1,8 @@
 #!/usr/bin/perl -w
 use strict;
 use XML::Parser;
-use Term::ANSIColor qw(:constants);
+#use Term::ANSIColor qw(:constants);
+BEGIN {require 'dummy_color'};
 use Attribute::Handlers;
 use Data::Dumper;
 my $parser = new XML::Parser();
@@ -37,7 +38,8 @@ $parser->setHandlers(
 			return;
 		}
 		if ($context{choice}>0) {
-			emit "|" unless $context{first_choice};
+			emit BLUE."|".RESET if (!$context{first_choice}) &&
+				$atomic{$element};
 			$context{first_choice} = 0 if $context{first_choice};
 		}
 		$context{q}{count}++ if $context{q} && $atomic{$element};
@@ -77,7 +79,8 @@ sub Atom :ATTR {
 
 sub token {
 	my %attr = @_;
-	emit "rule $attr{name} {"
+	emit "rule $attr{name} {";
+	emit "<$attr{'alias-for'}>" if $attr{'alias-for'};
 }
 sub token_  {
 	my %attr = @_;
@@ -119,9 +122,11 @@ sub choice_ {
 	$context{choice}--;
 }
 sub sequence :Atom {
+	emit GREEN."[".RESET;
 	$context{choice}--;
 }
 sub sequence_  {
+	emit GREEN."]".RESET;
 	$context{choice}++;
 }
 #XXX: quantifiets should use lookahead to determine if square brackets 
@@ -158,21 +163,26 @@ optional   ?
 sub optionalSkip :Atom :Closed {emit " <S>* "}
 sub requiredSkip :Atom :Closed {emit " <S>+ "}
 
+sub close_brace {
+	emit "]+[" if $context{brace} eq 'open';
+	emit "+" if $context{brace} eq 'closed';
+}
+sub sign() {
+	return "-" if $context{complement};
+	return "+";
+}
 sub char {
 	#print BLUE,"context:$context{brace}\n",RESET;
-	emit "+" if $context{brace} eq 'closed';
+	return unless $context{charClass};
+	emit sign if $context{brace} eq 'closed';
 	emit "[" unless $context{brace} eq 'open';
 	$context{brace}='open';
 }
 sub char_ {
 }
-sub close_brace {
-	emit "]+[" if $context{brace} eq 'open';
-	emit "+" if $context{brace} eq 'closed';
-}
 sub charCode :Closed {
 	my %attr = @_;
-	emit "+" if $context{brace} eq 'closed';
+	emit sign if $context{brace} eq 'closed';
 	emit "[" unless $context{brace} eq 'open';
 	$context{brace}='open';
 	print "\\x[$attr{value}]";
@@ -192,7 +202,8 @@ sub charCodeRange :Closed {
 sub charClass :Atom {
 	$context{brace}='none';
 	$context{charClass}++;
-	emit "<"
+	emit "<";
+	emit "-" if $context{complement};
 }
 sub charClass_ {
 	$context{charClass}--;
@@ -200,11 +211,16 @@ sub charClass_ {
 	$context{brace}='none';
 	emit ">";
 }
+sub complement {
+	$context{complement} = 1;
+}
+sub complement_ {
+	$context{complement} = 0;
+}
 
 # XXX skip
 INIT { ignore qw(skip) }
 # XXX character classes
-INIT { ignore qw(complement) }
 
 ## things I don't understand and/or don't know how to translate 
 sub description {
