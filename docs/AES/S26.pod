@@ -5,14 +5,14 @@
 
 =head1 AUTHORS
 
-Brian Ingerson <ingy@cpan.org>
+Ingy döt Net <ingy@cpan.org>
 
 Damian Conway <damian@conway.org>
 
 
 =head1 VERSION
 
-  Maintainer:    Brian Ingerson <ingy@cpan.org>
+  Maintainer:    Ingy döt Net <ingy@cpan.org>
   Date:          9 Apr 2005
   Last Modified: 15 Mar 2006
 
