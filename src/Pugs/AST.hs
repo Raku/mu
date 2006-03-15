@@ -134,11 +134,11 @@ mergeStmts x y@(Ann ann (Syn syn _)) | (syn ==) `any` words "subst match //"  =
 mergeStmts (Ann ann (Syn "sub" [Val (VCode sub)])) y
     | subType sub >= SubBlock, isEmptyParams (subParams sub) =
     -- bare Block in statement level; annul all its parameters and run it!
-    mergeStmts (Ann ann $ App (Val $ VCode sub{ subParams = [] }) Nothing []) y
+    mergeStmts (Ann ann $ Syn "block" [subBody sub]) y
 mergeStmts x (Ann ann (Syn "sub" [Val (VCode sub)]))
     | subType sub >= SubBlock, isEmptyParams (subParams sub) =
     -- bare Block in statement level; annul all its parameters and run it!
-    mergeStmts x (Ann ann $ App (Val $ VCode sub{ subParams = [] }) Nothing [])
+    mergeStmts x (Ann ann $ Syn "block" [subBody sub])
 mergeStmts x (Stmts y Noop) = mergeStmts x y
 mergeStmts x (Stmts Noop y) = mergeStmts x y
 mergeStmts x y = Stmts x y
