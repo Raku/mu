@@ -744,6 +744,62 @@ package Grammar::Perl6;
     }
 ;
     push @statements, \&assign_hash_to_scalar;
+*{'assign_slurp_to_variable'} = 
+
+    sub { 
+        my $rule = 
+       Runtime::Perl5::RuleOps::concat(
+         Runtime::Perl5::RuleOps::capture( 'variable', 
+             Runtime::Perl5::RuleOps::capture( 'variable', \&{'Grammar::Perl6::variable'} )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\=" )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "slurp" )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'value', 
+             Runtime::Perl5::RuleOps::capture( 'term1', \&{'Grammar::Perl6::term1'} )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\;" )
+       ,
+       )
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { slurp =>  match::get( $_[0], '$()' )  } }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    push @statements, \&assign_slurp_to_variable;
 *{'assign'} = 
 
     sub { 

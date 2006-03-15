@@ -150,6 +150,12 @@ rule assign_hash_to_scalar {
 }
 push @statements, \&assign_hash_to_scalar;
 
+rule assign_slurp_to_variable {
+    $variable:=(<variable>)<?p6ws>?\=<?p6ws>?slurp<?p6ws>?$value:=(<term1>)<?p6ws>?\;
+        { return { slurp => $() } }
+}
+push @statements, \&assign_slurp_to_variable;
+
 rule assign {
     $variable:=(<term1>)<?p6ws>?\=<?p6ws>?$value:=(<term1>)<?p6ws>?\;
 	{ return { assign => $() } }

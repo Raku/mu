@@ -38,12 +38,16 @@ require Grammar::Perl6Primitives;
 statement_control:<unless> ( $input_filename ) { die usage(); }
 statement_control:<unless> ( $output_filename ) { die usage(); }
 
-my $input_file;
-$input_file = IO::File.open($input_filename,'<');
-statement_control:<unless> ( $input_file ) { die 'Could not open input file'; }
-
 sub usage {
     return 'use -i input -o output';
 }
+
+my $input_file;
+$input_file = IO::File.new($input_filename,'<');
+statement_control:<unless> ( $input_file ) { die 'Could not open input file'; }
+
+my $source;
+$source = slurp $input_file;
+
 
 ...;

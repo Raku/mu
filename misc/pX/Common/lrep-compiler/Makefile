@@ -1,4 +1,6 @@
-all: prelude tests
+all: prelude tests lrep
+
+suite: clean all
 
 prelude: Grammar/Perl6.pm Grammar/Perl6Primitives.pm
 

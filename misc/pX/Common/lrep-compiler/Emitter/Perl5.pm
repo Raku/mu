@@ -56,6 +56,11 @@ sub node::use_bareword {
     my $ident = get_str( $_[0], '$<ident>' );
     return "use $ident;\n";
 }
+sub node::slurp {
+    my $var = emit(get_data($_[0], '$<variable>'));
+    my $lit = emit(get_data($_[0], '$<value>'));
+    return "use Perl6::Slurp;\n".$var." = slurp ".$lit.";\n";
+}
 sub node::meth_call_term {
     my $ident = get_str( $_[0], '$<class>' );
     my $meth = get_str( $_[0], '$<meth>' );
