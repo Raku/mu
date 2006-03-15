@@ -43,7 +43,7 @@ $input_file = IO::File::open('IO::File',$input_filename,'<');
 statement_control:<unless> ( $input_file ) { die 'Could not open input file'; }
 
 sub usage {
-    die 'use -i input -o output';
+    return 'use -i input -o output';
 }
 
 ...;
