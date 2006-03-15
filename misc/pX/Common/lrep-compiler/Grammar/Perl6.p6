@@ -274,6 +274,12 @@ rule sub_decl {
 }
 push @statements, \&sub_decl;
 
+rule sub_defin {
+    sub <?p6ws>? <ident> <?p6ws>? <block>
+        { return { sub_defin => $() ,} }
+}
+push @statements, \&sub_defin;
+
 rule term2 {
     $term1 := (<term1>) <p6ws>? 
     $op    := (<@ops>) <p6ws>? 

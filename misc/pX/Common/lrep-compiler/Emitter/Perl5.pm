@@ -92,6 +92,14 @@ sub node::perl5_rule_decl {
 sub node::block {
     return "\n    {\n" . emit($_[0]) . "\n    }\n";
 }
+sub node::sub_defin {
+    my $id =    get_str( $_[0], '$<ident>' );
+    my $block = get_data( $_[0], '$<block>' );
+    # XXX - register fixity in grammar
+    return 
+        # "    { no strict 'refs';\n" .
+        "    sub $id\n" . emit($block) . "    ;\n";
+}
 sub node::sub_decl {
     my $fix =   get_str( $_[0], '$<fix>' );
     my $id =    get_str( $_[0], '$<id>' );

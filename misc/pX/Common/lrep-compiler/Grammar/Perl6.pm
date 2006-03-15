@@ -1391,6 +1391,42 @@ package Grammar::Perl6;
     }
 ;
     push @statements, \&sub_decl;
+*{'sub_defin'} = 
+
+    sub { 
+        my $rule = 
+       Runtime::Perl5::RuleOps::concat(
+         Runtime::Perl5::RuleOps::constant( "sub" )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'ident', \&{'Grammar::Perl6::ident'} )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'block', \&{'Grammar::Perl6::block'} )
+       ,
+       )
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { sub_defin =>  match::get( $_[0], '$()' )  ,} }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    push @statements, \&sub_defin;
 *{'term2'} = 
 
     sub { 
