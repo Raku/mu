@@ -83,7 +83,7 @@ Declaring subroutines
             "is rw" causes *no* readonly proxy to be created:
 
             sub foo ($var is rw) { $var = 42 };
-            my $bar = 17; foo($bar);  # works, $bar now 17
+            my $bar = 17; foo($bar);  # works, $bar is 42 after the function call
 
         "is copy"
 
