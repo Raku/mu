@@ -172,7 +172,7 @@ sub emit_rule {
             push @s, $tmp . "$tab ,\n" if $tmp;
         }
         return $s[0] if @s == 1;
-        return "$tab Pugs::Runtime::Rule2::concat(\n" . 
+        return "$tab Pugs::Runtime::Rule::concat(\n" . 
                ( join '', @s ) . 
                "$tab )\n";
     }
@@ -198,7 +198,7 @@ sub rule {
 }        
 sub capturing_group {
     return 
-       "$_[1] Pugs::Runtime::Rule2::capture( '',\n" .
+       "$_[1] Pugs::Runtime::Rule::capture( '',\n" .
        emit_rule( $_[0], $_[1].'    ' ) . 
        "$_[1] )\n" .
        '';
@@ -222,7 +222,7 @@ sub star {
     # print "*** \$quantifier:\n",Dumper $quantifier;
     die "quantifier not implemented: $quantifier" 
         unless $sub;
-    return "$_[1] ruleop::$sub(\n" .
+    return "$_[1] Pugs::Runtime::Rule::$sub(\n" .
            emit_rule( $term, $_[1] ) . "$_[1] )\n";
 }        
 sub alt {
@@ -233,7 +233,7 @@ sub alt {
         my $tmp = emit_rule( $_, $_[1] );
         push @s, $tmp if $tmp;   
     }
-    return "$_[1] ruleop::alternation( [\n" . 
+    return "$_[1] Pugs::Runtime::Rule::alternation( [\n" . 
            join( '', @s ) .
            "$_[1] ] )\n";
 }        
@@ -250,18 +250,18 @@ sub dot {
 sub subrule {
     my $name = $_[0];
     $name = "\$grammar->" . $_[0] unless $_[0] =~ /::/;
-    return "$_[1] Pugs::Runtime::Rule2::capture( '$_[0]', sub{ $name( \@_ ) } )\n";
+    return "$_[1] Pugs::Runtime::Rule::capture( '$_[0]', sub{ $name( \@_ ) } )\n";
 }
 sub non_capturing_subrule {
     return "$_[1] sub{ \$grammar->$_[0]( \@_ ) }\n";
 }
 sub negated_subrule {
-    return "$_[1] ruleop::negate( sub{ \$grammar->$_[0]( \@_ ) } )\n";
+    return "$_[1] Pugs::Runtime::Rule::negate( sub{ \$grammar->$_[0]( \@_ ) } )\n";
 }
 sub constant {
     my $literal = shift;
     my $name = quotemeta( match::str( $literal ) );
-    return "$_[0] ruleop::constant( \"$name\" )\n";
+    return "$_[0] Pugs::Runtime::Rule::constant( \"$name\" )\n";
 }
 sub variable {
     my $name = match::str( $_[0] );
@@ -273,7 +273,7 @@ sub variable {
     # XXX - what hash/code interpolate to?
     # $value = join('', eval $name) if $name =~ /^\%/;
 
-    return "$_[1] ruleop::constant( '" . $value . "' )\n";
+    return "$_[1] Pugs::Runtime::Rule::constant( '" . $value . "' )\n";
 }
 sub closure {
     my $code = match::str( $_[0] ); 
@@ -294,7 +294,7 @@ sub closure {
         unless $code =~ /return/;
         
     return
-           "$_[1] ruleop::abort(\n" .
+           "$_[1] Pugs::Runtime::Rule::abort(\n" .
            "$_[1]     sub {\n" . 
            "$_[1]         return { bool => 1, tail => \$_[0], return => sub $code };\n" .
            "$_[1]     }\n" .
@@ -305,7 +305,7 @@ sub runtime_alternation {
         { capture => $_[0] }, 
         '$<variable>'
     ) );
-    return "$_[1] ruleop::alternation( \\$code )\n";
+    return "$_[1] Pugs::Runtime::Rule::alternation( \\$code )\n";
 }
 sub named_capture {
     my $name = match::str( match::get( 
@@ -317,7 +317,7 @@ sub named_capture {
                 { capture => $_[0] }, 
                 '$<rule>'
             ), $_[1] );
-    return "$_[1] Pugs::Runtime::Rule2::capture( '$name', \n" . $program . "$_[1] )\n";
+    return "$_[1] Pugs::Runtime::Rule::capture( '$name', \n" . $program . "$_[1] )\n";
 }
 
 1;

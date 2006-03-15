@@ -86,7 +86,7 @@ sub concat {
     # note: the list in @nodes can NOT be modified at runtime
     # update: this is ok, because we can use <$var><$var> instead
     
-    return Pugs::Emitter::Rule::Perl5::concat( +shift, Pugs::Emitter::Rule::Perl5::concat( @_ ) )
+    return concat( +shift, concat( @_ ) )
         if @_ > 2;
     my @nodes = @_;
     return sub {

@@ -9,7 +9,7 @@ use warnings;
 use Pugs::Grammar::Base;
 use Pugs::Grammar::Rule;
 use Pugs::Runtime::Rule;
-use Pugs::Runtime::Rule2;
+#use Pugs::Runtime::Rule2;
 use Pugs::Runtime::Match;
 use Pugs::Emitter::Rule::Perl5;
 

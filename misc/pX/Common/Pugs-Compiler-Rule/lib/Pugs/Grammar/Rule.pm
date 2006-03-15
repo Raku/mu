@@ -70,12 +70,12 @@ sub negated_subrule {
     \&capturing_group,
 
     # <'literal'> literal \*
-    ruleop::concat(    
-        ruleop::constant( "<\'" ),
-        ruleop::capture( 'constant',
-            ruleop::non_greedy_star( \&any ),
+    Pugs::Runtime::Rule::concat(    
+        Pugs::Runtime::Rule::constant( "<\'" ),
+        Pugs::Runtime::Rule::capture( 'constant',
+            Pugs::Runtime::Rule::non_greedy_star( \&any ),
         ),
-        ruleop::constant( "\'>" ),
+        Pugs::Runtime::Rule::constant( "\'>" ),
     ),
 
     \&negated_subrule,
@@ -96,18 +96,18 @@ sub negated_subrule {
 # [ <term>[\*|\+] | <term> 
 # note: <term>\* creates a term named 'star'
 *quantifier = 
-    ruleop::alternation( [
-        ruleop::capture( 'star', 
-            ruleop::concat(
-                ruleop::capture( 'term', \&term ),
-                ruleop::capture( 'literal',
-                    ruleop::alternation( [
-                        ruleop::constant( '??' ),
-                        ruleop::constant( '?' ),
-                        ruleop::constant( '*?' ),
-                        ruleop::constant( '+?' ),
-                        ruleop::constant( '*' ),
-                        ruleop::constant( '+' ),
+    Pugs::Runtime::Rule::alternation( [
+        Pugs::Runtime::Rule::capture( 'star', 
+            Pugs::Runtime::Rule::concat(
+                Pugs::Runtime::Rule::capture( 'term', \&term ),
+                Pugs::Runtime::Rule::capture( 'literal',
+                    Pugs::Runtime::Rule::alternation( [
+                        Pugs::Runtime::Rule::constant( '??' ),
+                        Pugs::Runtime::Rule::constant( '?' ),
+                        Pugs::Runtime::Rule::constant( '*?' ),
+                        Pugs::Runtime::Rule::constant( '+?' ),
+                        Pugs::Runtime::Rule::constant( '*' ),
+                        Pugs::Runtime::Rule::constant( '+' ),
                     ] ),
                 ),
                 \&ws_star,
@@ -117,13 +117,13 @@ sub negated_subrule {
     ] );
 
 *alt = 
-    ruleop::capture( 'alt', 
-        ruleop::concat(
-            ruleop::capture( 'term', \&quantifier ),
-            ruleop::greedy_plus(
-                ruleop::concat(
-                    ruleop::constant( '|' ),
-                    ruleop::capture( 'term', \&quantifier ),
+    Pugs::Runtime::Rule::capture( 'alt', 
+        Pugs::Runtime::Rule::concat(
+            Pugs::Runtime::Rule::capture( 'term', \&quantifier ),
+            Pugs::Runtime::Rule::greedy_plus(
+                Pugs::Runtime::Rule::concat(
+                    Pugs::Runtime::Rule::constant( '|' ),
+                    Pugs::Runtime::Rule::capture( 'term', \&quantifier ),
                 ),
             ),
         ),

@@ -9,53 +9,53 @@ package Pugs::Grammar::Rule;
 
     sub { 
         my $rule = 
-         ruleop::greedy_star(
-             ruleop::alternation( [
-                   ruleop::constant( "\." )
+         Pugs::Runtime::Rule::greedy_star(
+             Pugs::Runtime::Rule::alternation( [
+                   Pugs::Runtime::Rule::constant( "\." )
                  ,
-                   ruleop::constant( "\|" )
+                   Pugs::Runtime::Rule::constant( "\|" )
                  ,
-                   ruleop::constant( "\*" )
+                   Pugs::Runtime::Rule::constant( "\*" )
                  ,
-                   ruleop::constant( "\+" )
+                   Pugs::Runtime::Rule::constant( "\+" )
                  ,
-                   ruleop::constant( "\(" )
+                   Pugs::Runtime::Rule::constant( "\(" )
                  ,
-                   ruleop::constant( "\)" )
+                   Pugs::Runtime::Rule::constant( "\)" )
                  ,
-                   ruleop::constant( "\[" )
+                   Pugs::Runtime::Rule::constant( "\[" )
                  ,
-                   ruleop::constant( "\]" )
+                   Pugs::Runtime::Rule::constant( "\]" )
                  ,
-                   ruleop::constant( "\?" )
+                   Pugs::Runtime::Rule::constant( "\?" )
                  ,
-                   ruleop::constant( "\:" )
+                   Pugs::Runtime::Rule::constant( "\:" )
                  ,
-                   ruleop::constant( "s" )
+                   Pugs::Runtime::Rule::constant( "s" )
                  ,
-                   ruleop::constant( "w" )
+                   Pugs::Runtime::Rule::constant( "w" )
                  ,
-                   ruleop::constant( "_" )
+                   Pugs::Runtime::Rule::constant( "_" )
                  ,
-                   ruleop::constant( "\\" )
+                   Pugs::Runtime::Rule::constant( "\\" )
                  ,
-                   ruleop::constant( "\^" )
+                   Pugs::Runtime::Rule::constant( "\^" )
                  ,
-                   ruleop::constant( "\$" )
+                   Pugs::Runtime::Rule::constant( "\$" )
                  ,
-                   ruleop::constant( "n" )
+                   Pugs::Runtime::Rule::constant( "n" )
                  ,
-                   ruleop::constant( "\#" )
+                   Pugs::Runtime::Rule::constant( "\#" )
                  ,
-                   ruleop::constant( "\-" )
+                   Pugs::Runtime::Rule::constant( "\-" )
                  ,
-                   ruleop::constant( "\<" )
+                   Pugs::Runtime::Rule::constant( "\<" )
                  ,
-                   ruleop::constant( "\>" )
+                   Pugs::Runtime::Rule::constant( "\>" )
                  ,
-                   ruleop::constant( "\!" )
+                   Pugs::Runtime::Rule::constant( "\!" )
                  ,
-                   ruleop::constant( "alnum" )
+                   Pugs::Runtime::Rule::constant( "alnum" )
                  ,
              ] )
            ,
@@ -78,29 +78,29 @@ package Pugs::Grammar::Rule;
 
     sub { 
         my $rule = 
-       ruleop::concat(
-         ruleop::constant( "rule" )
+       Pugs::Runtime::Rule::concat(
+         Pugs::Runtime::Rule::constant( "rule" )
        ,
-         ruleop::capture( 'p6ws', \&{'p6ws'} )
+         Pugs::Runtime::Rule::capture( 'p6ws', \&{'p6ws'} )
        ,
-         ruleop::capture( 'ident', \&{'ident'} )
+         Pugs::Runtime::Rule::capture( 'ident', \&{'ident'} )
        ,
-         ruleop::optional(
-             ruleop::capture( 'p6ws', \&{'p6ws'} )
+         Pugs::Runtime::Rule::optional(
+             Pugs::Runtime::Rule::capture( 'p6ws', \&{'p6ws'} )
            ,
          )
        ,
-         ruleop::constant( "\:" )
+         Pugs::Runtime::Rule::constant( "\:" )
        ,
-         ruleop::constant( "P5" )
+         Pugs::Runtime::Rule::constant( "P5" )
        ,
-         ruleop::capture( 'p6ws', \&{'p6ws'} )
+         Pugs::Runtime::Rule::capture( 'p6ws', \&{'p6ws'} )
        ,
-         ruleop::constant( "\{" )
+         Pugs::Runtime::Rule::constant( "\{" )
        ,
-         ruleop::capture( 'perl5_regex', \&{'perl5_regex'} )
+         Pugs::Runtime::Rule::capture( 'perl5_regex', \&{'perl5_regex'} )
        ,
-         ruleop::constant( "\}" )
+         Pugs::Runtime::Rule::constant( "\}" )
        ,
        )
     ;
@@ -205,7 +205,7 @@ package Pugs::Grammar::Rule;
 
     sub { 
         my $rule = 
-         ruleop::capture( 'word', \&{'word'} )
+         Pugs::Runtime::Rule::capture( 'word', \&{'word'} )
        ,
     ;
         my $match = $rule->( @_ );
@@ -225,7 +225,7 @@ package Pugs::Grammar::Rule;
 
     sub { 
         my $rule = 
-         ruleop::capture( 'escaped_char', \&{'escaped_char'} )
+         Pugs::Runtime::Rule::capture( 'escaped_char', \&{'escaped_char'} )
        ,
     ;
         my $match = $rule->( @_ );
@@ -245,8 +245,8 @@ package Pugs::Grammar::Rule;
 
     sub { 
         my $rule = 
-         ruleop::capture( 'capturing_group',
-             ruleop::constant( "\." )
+         Pugs::Runtime::Rule::capture( 'capturing_group',
+             Pugs::Runtime::Rule::constant( "\." )
            ,
          )
        ,
@@ -265,8 +265,8 @@ package Pugs::Grammar::Rule;
 ;
     unshift @rule_terms, \&dot;
 *{'rule'} = 
-         ruleop::greedy_star(
-             ruleop::alternation( [
+         Pugs::Runtime::Rule::greedy_star(
+             Pugs::Runtime::Rule::alternation( [
                    \&{'alt'}
                  ,
                    \&{'quantifier'}
@@ -277,12 +277,12 @@ package Pugs::Grammar::Rule;
        ,
 ;
 *{'non_capturing_group'} = 
-       ruleop::concat(
-         ruleop::constant( "\[" )
+       Pugs::Runtime::Rule::concat(
+         Pugs::Runtime::Rule::constant( "\[" )
        ,
          \&{'rule'}
        ,
-         ruleop::constant( "\]" )
+         Pugs::Runtime::Rule::constant( "\]" )
        ,
        )
 ;
@@ -291,7 +291,7 @@ package Pugs::Grammar::Rule;
 
     sub { 
         my $rule = 
-         ruleop::capture( 'code', \&{'code'} )
+         Pugs::Runtime::Rule::capture( 'code', \&{'code'} )
        ,
     ;
         my $match = $rule->( @_ );
@@ -311,7 +311,7 @@ package Pugs::Grammar::Rule;
 
     sub { 
         my $rule = 
-         ruleop::capture( 'variable', \&{'variable'} )
+         Pugs::Runtime::Rule::capture( 'variable', \&{'variable'} )
        ,
     ;
         my $match = $rule->( @_ );
@@ -331,12 +331,12 @@ package Pugs::Grammar::Rule;
 
     sub { 
         my $rule = 
-       ruleop::concat(
-         ruleop::constant( "\<" )
+       Pugs::Runtime::Rule::concat(
+         Pugs::Runtime::Rule::constant( "\<" )
        ,
-         ruleop::capture( 'variable', \&{'variable'} )
+         Pugs::Runtime::Rule::capture( 'variable', \&{'variable'} )
        ,
-         ruleop::constant( "\>" )
+         Pugs::Runtime::Rule::constant( "\>" )
        ,
        )
     ;
@@ -357,30 +357,30 @@ package Pugs::Grammar::Rule;
 
     sub { 
         my $rule = 
-       ruleop::concat(
-         ruleop::constant( "\$" )
+       Pugs::Runtime::Rule::concat(
+         Pugs::Runtime::Rule::constant( "\$" )
        ,
-         ruleop::capture( 'ident', \&{'ident'} )
+         Pugs::Runtime::Rule::capture( 'ident', \&{'ident'} )
        ,
-         ruleop::optional(
+         Pugs::Runtime::Rule::optional(
              \&{'p6ws'}
            ,
          )
        ,
-         ruleop::constant( "\:" )
+         Pugs::Runtime::Rule::constant( "\:" )
        ,
-         ruleop::constant( "\=" )
+         Pugs::Runtime::Rule::constant( "\=" )
        ,
-         ruleop::optional(
+         Pugs::Runtime::Rule::optional(
              \&{'p6ws'}
            ,
          )
        ,
-         ruleop::constant( "\(" )
+         Pugs::Runtime::Rule::constant( "\(" )
        ,
-         ruleop::capture( 'rule', \&{'rule'} )
+         Pugs::Runtime::Rule::capture( 'rule', \&{'rule'} )
        ,
-         ruleop::constant( "\)" )
+         Pugs::Runtime::Rule::constant( "\)" )
        ,
        )
     ;
@@ -398,15 +398,15 @@ package Pugs::Grammar::Rule;
 ;
     unshift @rule_terms, \&named_capture;
 *{'immediate_statement_rule'} = 
-       ruleop::concat(
-         ruleop::optional(
+       Pugs::Runtime::Rule::concat(
+         Pugs::Runtime::Rule::optional(
              \&{'p6ws'}
            ,
          )
        ,
-         ruleop::alternation( \@statements )
+         Pugs::Runtime::Rule::alternation( \@statements )
        ,
-         ruleop::optional(
+         Pugs::Runtime::Rule::optional(
              \&{'p6ws'}
            ,
          )
@@ -414,8 +414,8 @@ package Pugs::Grammar::Rule;
        )
 ;
 *{'grammar'} = 
-         ruleop::greedy_star(
-             ruleop::capture( 'immediate_statement_exec', \&{'immediate_statement_exec'} )
+         Pugs::Runtime::Rule::greedy_star(
+             Pugs::Runtime::Rule::capture( 'immediate_statement_exec', \&{'immediate_statement_exec'} )
            ,
          )
        ,
@@ -424,23 +424,23 @@ package Pugs::Grammar::Rule;
 
     sub { 
         my $rule = 
-       ruleop::concat(
-         ruleop::constant( "rule" )
+       Pugs::Runtime::Rule::concat(
+         Pugs::Runtime::Rule::constant( "rule" )
        ,
-         ruleop::capture( 'p6ws', \&{'p6ws'} )
+         Pugs::Runtime::Rule::capture( 'p6ws', \&{'p6ws'} )
        ,
-         ruleop::capture( 'ident', \&{'ident'} )
+         Pugs::Runtime::Rule::capture( 'ident', \&{'ident'} )
        ,
-         ruleop::optional(
-             ruleop::capture( 'p6ws', \&{'p6ws'} )
+         Pugs::Runtime::Rule::optional(
+             Pugs::Runtime::Rule::capture( 'p6ws', \&{'p6ws'} )
            ,
          )
        ,
-         ruleop::constant( "\{" )
+         Pugs::Runtime::Rule::constant( "\{" )
        ,
-         ruleop::capture( 'rule', \&{'rule'} )
+         Pugs::Runtime::Rule::capture( 'rule', \&{'rule'} )
        ,
-         ruleop::constant( "\}" )
+         Pugs::Runtime::Rule::constant( "\}" )
        ,
        )
     ;
@@ -461,19 +461,19 @@ package Pugs::Grammar::Rule;
 
     sub { 
         my $rule = 
-       ruleop::concat(
-         ruleop::constant( "grammar" )
+       Pugs::Runtime::Rule::concat(
+         Pugs::Runtime::Rule::constant( "grammar" )
        ,
-         ruleop::capture( 'p6ws', \&{'p6ws'} )
+         Pugs::Runtime::Rule::capture( 'p6ws', \&{'p6ws'} )
        ,
-         ruleop::capture( 'ident', \&{'ident'} )
+         Pugs::Runtime::Rule::capture( 'ident', \&{'ident'} )
        ,
-         ruleop::optional(
-             ruleop::capture( 'p6ws', \&{'p6ws'} )
+         Pugs::Runtime::Rule::optional(
+             Pugs::Runtime::Rule::capture( 'p6ws', \&{'p6ws'} )
            ,
          )
        ,
-         ruleop::constant( "\;" )
+         Pugs::Runtime::Rule::constant( "\;" )
        ,
        )
     ;
@@ -494,47 +494,47 @@ package Pugs::Grammar::Rule;
 
     sub { 
         my $rule = 
-       ruleop::concat(
-         ruleop::capture( 'op', 
-             ruleop::alternation( [
-                   ruleop::constant( "push" )
+       Pugs::Runtime::Rule::concat(
+         Pugs::Runtime::Rule::capture( 'op', 
+             Pugs::Runtime::Rule::alternation( [
+                   Pugs::Runtime::Rule::constant( "push" )
                  ,
-                   ruleop::constant( "unshift" )
+                   Pugs::Runtime::Rule::constant( "unshift" )
                  ,
              ] )
            ,
          )
        ,
-         ruleop::capture( 'p6ws', \&{'p6ws'} )
+         Pugs::Runtime::Rule::capture( 'p6ws', \&{'p6ws'} )
        ,
-         ruleop::capture( 'variable', \&{'variable'} )
+         Pugs::Runtime::Rule::capture( 'variable', \&{'variable'} )
        ,
-         ruleop::optional(
-             ruleop::capture( 'p6ws', \&{'p6ws'} )
+         Pugs::Runtime::Rule::optional(
+             Pugs::Runtime::Rule::capture( 'p6ws', \&{'p6ws'} )
            ,
          )
        ,
-         ruleop::constant( "\," )
+         Pugs::Runtime::Rule::constant( "\," )
        ,
-         ruleop::optional(
-             ruleop::capture( 'p6ws', \&{'p6ws'} )
+         Pugs::Runtime::Rule::optional(
+             Pugs::Runtime::Rule::capture( 'p6ws', \&{'p6ws'} )
            ,
          )
        ,
-         ruleop::capture( 'code', 
-             ruleop::non_greedy_star(
+         Pugs::Runtime::Rule::capture( 'code', 
+             Pugs::Runtime::Rule::non_greedy_star(
                  \&{'any'}
                ,
              )
            ,
          )
        ,
-         ruleop::optional(
-             ruleop::capture( 'p6ws', \&{'p6ws'} )
+         Pugs::Runtime::Rule::optional(
+             Pugs::Runtime::Rule::capture( 'p6ws', \&{'p6ws'} )
            ,
          )
        ,
-         ruleop::constant( "\;" )
+         Pugs::Runtime::Rule::constant( "\;" )
        ,
        )
     ;
