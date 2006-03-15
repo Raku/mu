@@ -103,8 +103,6 @@ sub match::str {
 
 #------ rule emitter
 
-#=for later
-
 sub Pugs::Runtime::Rule::rule_wrapper {
     my ( $str, $match ) = @_;
     return unless $match->{bool};
@@ -123,56 +121,24 @@ sub Pugs::Runtime::Rule::rule_wrapper {
 }
 
 sub emit {
-    my ($grammar, $str) = @_;
+    my ($grammar, $ast) = @_;
+    print "AST: ",do{use Data::Dumper; Dumper($ast)};
     my $source = 
         "sub {\n" . 
         #"    my \$grammar = shift;\n" .
         #"    print 'GRAMMAR: \$grammar', \"\\n\";\n" .
         "    package Pugs::Runtime::Rule;\n" .
         "    rule_wrapper( \$_[0], \n" . 
-        emit_rule( $str ) . 
+        emit_rule( $ast ) . 
         "        ->( \@_ )\n" .
         "    );\n" .
         "}\n" .
         "";
+    # XXX - 'hard' replace $grammar references
     $source =~ s/\$grammar/$grammar/gs;
     print $source;
     return $source;
 }
-#=cut
-
-=for delete
-# XXX - move to the engine 
-#     - should be a subroutine (see partially written sub above)
-sub emit {
-    my $str = shift;
-    my $cmd =  
-        "do {\n" . 
-        "    package Pugs::Grammar::Rule;\n" .
-        "    my \$matcher = \n" .
-        emit_rule( $str ) . ";\n" .
-        "    return sub {\n" .
-        "        my \$match = \$matcher->( \@_ );\n" .
-        #"        warn 'matched----', Dumper( \$match );\n" .
-        "        return unless \$match->{bool};\n" .
-        "        if ( \$match->{return} ) {\n" .
-        #"            warn 'pre-return: ', Dumper( \$match );\n" .
-        "            my \%match2 = \%\$match;\n" .
-        "            \$match2{capture} = \$match->{return}( Pugs::Runtime::Match->new( \$match ) );\n" .
-        "            delete \$match2{return};\n" .
-        "            return \\\%match2;\n" .
-        "        }\n" .
-        #"        print Dumper( \$match );\n" .
-        "        my \$len = length( \$match->{tail} );\n" .
-        "        my \$head = \$len?substr(\$_[0], 0, -\$len):\$_[0];\n" .
-        "        \$match->{capture} = \$head;\n" .
-        "        return \$match;\n" .
-        "    }\n" .
-        "}\n";
-    #print $cmd;
-    return $cmd;
-}
-=cut
 
 # XXX - used only once
 #     - use real references
