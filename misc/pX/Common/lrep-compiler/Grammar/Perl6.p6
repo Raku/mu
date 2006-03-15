@@ -115,6 +115,17 @@ rule grammar {
     <immediate_statement_rule>*
 }
 
+rule sub_call_term {
+    $name:=(<ident>)<?p6ws>?\(<?p6ws>?$params:=(<list>?)<?p6ws>?\)<?p6ws>?
+        { return { sub_call_term => $() } }
+}
+rule sub_call_statement {
+    $name:=(<ident>)<?p6ws>?\(<?p6ws>?$params:=(<list>?)<?p6ws>?\)<?p6ws>?\;
+        { return { sub_call => $() } }
+}
+push @statements, \&sub_call_statement;
+push @terms, \&sub_call_term;
+
 rule access_hash_element {
     $variable:=(<varhash>)\{$key:=(<term1>)\}
         { return { access_hash_element => $() } }
@@ -151,6 +162,7 @@ rule sub_call {
         { return { sub_call => $() } }
 }
 push @statements, \&sub_call;
+push @terms, \&sub_call;
 
 rule _push {
     $op := (push|unshift) <p6ws> <variable> <p6ws>? \, <p6ws>?

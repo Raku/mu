@@ -56,6 +56,11 @@ sub node::use_bareword {
     my $ident = get_str( $_[0], '$<ident>' );
     return "use $ident;\n";
 }
+sub node::sub_call_term {
+    my $ident = get_str( $_[0], '$<name>' );
+    my $list = emit( get_data( $_[0], '$<params>' ) );
+    return "$ident($list)";
+}
 sub node::sub_call {
     my $ident = get_str( $_[0], '$<name>' );
     my $list = emit( get_data( $_[0], '$<params>' ) );
