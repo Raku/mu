@@ -49,6 +49,8 @@ if ($match->{tail}) {
 }
 
 # Dump the backend code
+use Data::Dumper;
+Data::Dumper->Dump([ $match->{capture} ]);
 my $code = Emitter::Perl5::emit($match->{capture});
 
 # Write down

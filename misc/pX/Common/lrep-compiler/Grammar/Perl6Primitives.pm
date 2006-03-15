@@ -4,6 +4,33 @@ package main;
         Runtime::Perl5::RuleOps::constant( 'statement_control:<if>' ),
         \&Grammar::Perl6::ws_star,
        Runtime::Perl5::RuleOps::concat(
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\(" )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'expr', 
+             Runtime::Perl5::RuleOps::non_greedy_star(
+                 \&{'Grammar::Perl6::any'}
+               ,
+             )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\)" )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'block', 
+             Runtime::Perl5::RuleOps::capture( 'code', \&{'Grammar::Perl6::code'} )
+           ,
+         )
+       ,
        )
     );
     my $match = $rule->( @_ );
@@ -56,6 +83,33 @@ package main;
         Runtime::Perl5::RuleOps::constant( 'statement_control:<unless>' ),
         \&Grammar::Perl6::ws_star,
        Runtime::Perl5::RuleOps::concat(
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\(" )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'expr', 
+             Runtime::Perl5::RuleOps::non_greedy_star(
+                 \&{'Grammar::Perl6::any'}
+               ,
+             )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\)" )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'block', 
+             Runtime::Perl5::RuleOps::capture( 'code', \&{'Grammar::Perl6::code'} )
+           ,
+         )
+       ,
        )
     );
     my $match = $rule->( @_ );

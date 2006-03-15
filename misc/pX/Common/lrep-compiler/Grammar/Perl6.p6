@@ -212,7 +212,7 @@ push @statements, \&block;
 
 rule macro_decl {
     macro <?p6ws> $prefix := (<word>) \: \< $id := (.*?) \> <?p6ws>? 
-    \(  <?p6ws>? <list> <?p6ws>? \) <?p6ws>?
+    \(  <?p6ws>? <list>? <?p6ws>? \) <?p6ws>?
     is <?p6ws> parsed <?p6ws>? \( 
         <?p6ws>? \/ <?p6ws>? <rule> <?p6ws>? \/ <?p6ws>? 
         \) <?p6ws>?

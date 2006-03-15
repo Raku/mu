@@ -28,7 +28,7 @@ statement_control:<sum> ( 2 + 4 );
 statement_control:<aaa> ( say 'something'; );
 
 statement_control:<if> ( '1' ) { say '<if> is ok!'; }
-statement_control:<if> ( '0' ) { say '<if> is not ok :('; }
+statement_control:<unless> ( '0' ) { say '<unless> ok!'; }
 
 my $a;
 $a = 'world!';

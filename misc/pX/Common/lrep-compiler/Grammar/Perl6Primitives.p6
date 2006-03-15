@@ -14,7 +14,7 @@
 # This definitions should go in package main so the parser can work
 grammar main;
         
-macro statement_control:<if> () is parsed (/<?ws>?\($expr:=(.+)\)<?ws>?$block:=(<code>)/)
+macro statement_control:<if> () is parsed (/<?ws>?\($expr:=(.*?)\)<?ws>?$block:=(<code>)/)
 {
     return '
         sub prefix:<_if_expr>  { return $expr ; }
@@ -28,7 +28,7 @@ macro statement_control:<if> () is parsed (/<?ws>?\($expr:=(.+)\)<?ws>?$block:=(
     ';
 }
 
-macro statement_control:<unless> () is parsed (/<?ws>?\($expr:=(.+)\)<?ws>?$block:=(<code>)/)
+macro statement_control:<unless> () is parsed (/<?ws>?\($expr:=(.*?)\)<?ws>?$block:=(<code>)/)
 {
     return '
         sub prefix:<_if_expr>  { return $expr ; }

@@ -978,7 +978,10 @@ package Grammar::Perl6;
            ,
          )
        ,
-         Runtime::Perl5::RuleOps::capture( 'list', \&{'Grammar::Perl6::list'} )
+         Runtime::Perl5::RuleOps::optional(
+             Runtime::Perl5::RuleOps::capture( 'list', \&{'Grammar::Perl6::list'} )
+           ,
+         )
        ,
          Runtime::Perl5::RuleOps::optional(
              \&{'Grammar::Perl6::p6ws'}
