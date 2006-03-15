@@ -23,7 +23,7 @@ is(Foo->grammar, $grammar, '... Foo->grammar is the same as the $grammar');
 $grammar->add_rule('bar' => '((.).).');
 
 {
-	my $match = Foo->bar( 'abc' );
+	my $match = Foo->bar->match( 'abc' );
 	is($match,           "abc", '... match worked as expected');
 	is($match->from,     0,     '... match worked as expected');
 	is($match->to,       3,     '... match worked as expected');
@@ -35,7 +35,7 @@ $grammar->add_rule('bar' => '((.).).');
 Foo->grammar->add_rule('baz' => '((.).).');
 
 {
-	my $match = Foo->baz( 'abc' );
+	my $match = Foo->baz->match( 'abc' );
 	is($match,           "abc", '... match worked as expected');
 	is($match->from,     0,     '... match worked as expected');
 	is($match->to,       3,     '... match worked as expected');

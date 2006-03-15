@@ -40,7 +40,7 @@ sub add_rule {
 	# add the compiled rule to our local stash
 	$self->rules->{$rule_name} = $compiled_rule;
 	# but put the .code version of it into the package
-	$self->_pkg_meta->add_method($rule_name, $compiled_rule->code());
+	$self->_pkg_meta->add_method($rule_name, sub { $compiled_rule });
 }
 
 1;
@@ -61,7 +61,7 @@ Pugs::Compiler::Grammar
   # or
   Foo->grammar->add_rule(bar => '((.).).');
   
-  my $match = Foo->bar( 'abc' );
+  my $match = Foo->bar->match( 'abc' );
   
   if ($match) {               # true
       print $match;           # "abc"
