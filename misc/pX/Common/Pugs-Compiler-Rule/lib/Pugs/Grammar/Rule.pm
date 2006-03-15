@@ -8,6 +8,7 @@ package Pugs::Grammar::Rule;
 use Text::Balanced; 
 use Data::Dumper;
 use Pugs::Runtime::Rule;
+use Pugs::Runtime::Grammar;
 
 use strict;
 use warnings;
@@ -15,9 +16,11 @@ no warnings qw( once redefine );
 
 use vars qw( @rule_terms );
 
+my $grammar = 'Pugs::Grammar::Rule';
+
 # XXX - move these to prelude using rx:perl
 
-sub subrule {
+sub $grammar->subrule {
     my ( $code, $tail ) = $_[0] =~ /^\<(.*?)\>(.*)$/s;
     return unless defined $code;
     #print "parsing subrule $code\n";
@@ -55,12 +58,12 @@ sub negated_subrule {
 }
 
 *capturing_group = 
-    ruleop::concat(
-        ruleop::constant( '(' ),
-        ruleop::capture( 'capturing_group',
+    $ruleop::concat(
+        $ruleop::constant( '(' ),
+        $ruleop::capture( 'capturing_group',
             \&rule,
         ),
-        ruleop::constant( ')' )
+        $ruleop::constant( ')' )
     );
 
 @rule_terms = (

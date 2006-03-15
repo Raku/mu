@@ -1,5 +1,5 @@
 
-package Pugs::Compiler::Grammar;
+package Pugs::Runtime::Grammar;
 
 use strict;
 use warnings;
@@ -51,11 +51,11 @@ __END__
 
 =head1 NAME 
 
-Pugs::Compiler::Grammar
+Pugs::Runtime::Grammar
 
 =head1 SYNOPSIS
 
-  my $grammer = Pugs::Compiler::Grammar->new('Foo');
+  my $grammar = Pugs::Runtime::Grammar->new('Foo');
   
   $grammar->add_rule(bar => '((.).).');
   # or
