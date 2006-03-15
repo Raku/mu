@@ -6,6 +6,7 @@ use 5.006;
 use strict;
 use warnings;
 
+use Pugs::Grammar::Base;
 use Pugs::Grammar::Rule;
 use Pugs::Runtime::Rule;
 use Pugs::Runtime::Rule2;
@@ -20,7 +21,7 @@ sub compile {
     my $self = { source => $rule_source };
 
     # XXX - should use a base grammar instead!
-    $self->{grammar} = delete $param{grammar} || 'Pugs::Grammar::Rule';
+    $self->{grammar} = delete $param{grammar} || 'Pugs::Grammar::Base';
 
     $self->{ast} = Pugs::Grammar::Rule::rule( 
         $self->{source} );
@@ -80,17 +81,25 @@ to several other modules:
 
 =over 4
 
-=item * L<Pugs::Grammar::Rule> parses the Rules syntax.
-
-=item * L<Pugs::Grammar::Rule::Rule> specifies the Rules syntax with Rules.
-
-=item * L<Pugs::Emitter::Rule::Perl5> converts parsed Rules to Perl 5 code.
+* Runtime Classes
 
 =item * L<Pugs::Runtime::Rule> provides the runtime engine for Rules.
 
 =item * L<Pugs::Runtime::Match> represents a B<Match> object.
 
 =item * L<Pugs::Runtime::Grammar> represents a B<Grammar> class / object.
+
+* Grammars
+
+=item * L<Pugs::Grammar::Rule> parses the Rules syntax.
+
+=item * L<Pugs::Grammar::Rule::Rule> specifies the Rules syntax with Rules.
+
+=item * L<Pugs::Grammar::Base> is the base Grammar: <ws>, <space>.
+
+* Code Emitters
+
+=item * L<Pugs::Emitter::Rule::Perl5> converts parsed Rules to Perl 5 code.
 
 =back
 

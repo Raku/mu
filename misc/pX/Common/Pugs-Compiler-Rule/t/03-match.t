@@ -7,6 +7,7 @@ use_ok( 'Pugs::Compiler::Rule' );
 {
     my $rule = Pugs::Compiler::Rule->compile( '((.).)(.)' );
     my $match = $rule->match( "xyzw" );
+    print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "xyz", 'stringify 1' );
     is( $match->(), "xyz", 'stringify 1' );
     is( "$match->[0]", "xy", 'stringify 2' );

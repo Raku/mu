@@ -106,7 +106,7 @@ sub match::str {
 #=for later
 
 sub Pugs::Runtime::Rule::rule_wrapper {
-    my $match = $_[0];
+    my ( $str, $match ) = @_;
     return unless $match->{bool};
     if ( $match->{return} ) {
         # warn 'pre-return: ', Dumper( $match );
@@ -117,7 +117,7 @@ sub Pugs::Runtime::Rule::rule_wrapper {
     }
     # print Dumper( $match );
     my $len = length( $match->{tail} );
-    my $head = $len?substr($_[0], 0, -$len):$_[0];
+    my $head = $len?substr($str, 0, -$len):$str;
     $match->{capture} = $head;
     return $match;
 }
@@ -129,7 +129,7 @@ sub emit {
         #"    my \$grammar = shift;\n" .
         #"    print 'GRAMMAR: \$grammar', \"\\n\";\n" .
         "    package Pugs::Runtime::Rule;\n" .
-        "    rule_wrapper( \n" . 
+        "    rule_wrapper( \$_[0], \n" . 
         emit_rule( $str ) . 
         "        ->( \@_ )\n" .
         "    );\n" .
@@ -279,7 +279,7 @@ sub code {
     return "$_[1] $_[0]  # XXX - code\n";  
 }        
 sub dot {
-    return "$_[1] sub{ \$grammar->any2( \@_ ) }\n";
+    return "$_[1] sub{ \$grammar->any( \@_ ) }\n";
 }
 sub subrule {
     my $name = $_[0];
