@@ -35,8 +35,8 @@ $output_filename = %args{'o'};
 
 require Grammar::Perl6Primitives;
 
-statement_control:<unless> ( $input_filename ) { die 'use -i input -o output'; }
-statement_control:<unless> ( $output_filename ) { die 'use -i input -o output'; }
+statement_control:<unless> ( $input_filename ) { die usage(); }
+statement_control:<unless> ( $output_filename ) { die usage(); }
 
 my $input_file;
 $input_file = IO::File::open('IO::File',$input_filename,'<');
