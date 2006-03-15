@@ -8,7 +8,9 @@ package Pugs::Grammar::Rule;
 use Text::Balanced; 
 use Data::Dumper;
 use Pugs::Runtime::Rule;
-use Pugs::Runtime::Grammar;
+#use Pugs::Runtime::Grammar; -- MOP 
+
+use base Pugs::Grammar::Base;
 
 use strict;
 use warnings;
@@ -16,11 +18,7 @@ no warnings qw( once redefine );
 
 use vars qw( @rule_terms );
 
-my $grammar = 'Pugs::Grammar::Rule';
-
-# XXX - move these to prelude using rx:perl
-
-sub $grammar->subrule {
+sub subrule {
     my ( $code, $tail ) = $_[0] =~ /^\<(.*?)\>(.*)$/s;
     return unless defined $code;
     #print "parsing subrule $code\n";
@@ -58,13 +56,15 @@ sub negated_subrule {
 }
 
 *capturing_group = 
-    $ruleop::concat(
-        $ruleop::constant( '(' ),
-        $ruleop::capture( 'capturing_group',
-            \&rule,
+    do{ package Pugs::Runtime::Rule;
+      concat(
+        constant( '(' ),
+        capture( 'capturing_group',
+            \&Pugs::Grammar::rule,
         ),
-        $ruleop::constant( ')' )
-    );
+        constant( ')' )
+      )
+    };
 
 @rule_terms = (
     \&capturing_group,
@@ -85,9 +85,9 @@ sub negated_subrule {
 
 # <ws>* [ <closure> | <subrule> | ... ]
 *term = 
-    ruleop::concat(
+    Pugs::Runtime::Rule::concat(
         \&ws_star,
-        ruleop::alternation( \@rule_terms ),
+        Pugs::Runtime::Rule::alternation( \@rule_terms ),
         \&ws_star,
     );
 
@@ -130,31 +130,6 @@ sub negated_subrule {
     ),                
 ;
 
-#--------
-
-
-sub any2 { 
-    my $class = shift;
-    #print "CLASS: $class @_\n";
-    return unless $_[0];
-    return { 
-        bool  => 1,
-        match => { '.'=> substr($_[0],0,1) },
-        tail  => substr($_[0],1),
-        ( $_[2]->{capture} ? ( capture => [ substr($_[0],0,1) ] ) : () ),
-    };
-}
-sub ws {
-    return unless $_[0];
-    return { 
-        bool  => 1,
-        match => { 'ws'=> $1 },
-        tail  => $2,
-        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
-    }
-        if $_[0] =~ /^(\s+)(.*)$/s;
-    return;
-};
 sub p6ws {
     return unless $_[0];
     return { 

@@ -1,4 +1,4 @@
-package Pugs::Runtime::Rule2;
+package Pugs::Runtime::Rule;
 
 # pX/Common/iterator_engine.pl - fglock
 #
