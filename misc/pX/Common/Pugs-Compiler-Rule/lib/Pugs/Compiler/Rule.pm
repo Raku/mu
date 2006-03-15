@@ -90,6 +90,8 @@ to several other modules:
 
 =item * L<Pugs::Runtime::Match> represents a B<Match> object.
 
+=item * L<Pugs::Runtime::Grammar> represents a B<Grammar> class / object.
+
 =back
 
 =head2 Implemented Features
