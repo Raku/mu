@@ -12,29 +12,6 @@ This is the Perl 6 Grammar used to Parse and generate the
 Abstract Syntax Tree (AST) for Rules.
 
 =cut
-
-# XXX - clean up unused rules!
-
-# rule xxx :P5 {foo}
-# XXX - rewrite this!
-rule perl5_regex { 
-    [   
-        \.   |   \|   |   \*   |   \+   |
-        \(   |   \)   |   \[   |   \]   |
-        \?   |   \:   |   \s   |   \w   | 
-        \_   |   \\   |   \^   |   \$   |
-        \n   |   \#   |   \-   |   \<   |
-        \>   |   \!   |
-        alnum
-    ]* 
-        { return { perl5_regex => $() ,} }
-}
-
-rule perl5_rule_decl {
-    rule <p6ws> <ident> <p6ws>? \: P5 <p6ws> \{ <perl5_regex> \}
-        { return { perl5_rule_decl => $() ,} }
-}
-push @grammar1::statements, \&perl5_rule_decl;
  
 rule word     :P5 {^([_[:alnum:]]+)}
 rule any      :P5 {^(.)}
@@ -77,10 +54,6 @@ rule dot {
 }
 unshift @rule_terms, \&dot;
 
-rule rule {
-    [ <?alt> | <?quantifier> ]*
-}
-
 rule non_capturing_group {
      \[ <?rule> \] 
 }
@@ -110,30 +83,55 @@ rule named_capture {
 }
 unshift @rule_terms, \&named_capture;
 
-rule immediate_statement_rule {
-    <?p6ws>? <@grammar1::statements> <?p6ws>?
+
+rule capturing_group {
+    \( <rule> \)
+        { return { capturing_group => $() } }
+}
+unshift @rule_terms, \&capturing_group;
+
+
+rule constant {
+    \< <literal> \>
+        { return { constant => $() } }
+}
+unshift @rule_terms, \&constant;
+
+
+sub term {
+    <?p6ws>? <@rule_terms> <?p6ws>
 }
 
-rule grammar {
-    <immediate_statement_exec>*
+
+sub quantifier {
+    ...
+    |
+    <term>
 }
 
-rule rule_decl {
-    rule <p6ws> <ident> <p6ws>? \{ <rule> \}
-        { return { rule_decl => $() ,} }
-}
-push @grammar1::statements, \&rule_decl;
-        
-rule grammar_name {
-    grammar <p6ws> <ident> <p6ws>? \;
-        { return { grammar_name => $() ,} }
-}
-push @statements, \&grammar_name;
+=for translate
+    Pugs::Runtime::Rule::alternation( [
+        Pugs::Runtime::Rule::capture( 'star', 
+            Pugs::Runtime::Rule::concat(
+                Pugs::Runtime::Rule::capture( 'term', \&term ),
+                Pugs::Runtime::Rule::capture( 'literal',
+                    Pugs::Runtime::Rule::alternation( [
+                        Pugs::Runtime::Rule::constant( '??' ),
+                        Pugs::Runtime::Rule::constant( '?' ),
+                        Pugs::Runtime::Rule::constant( '*?' ),
+                        Pugs::Runtime::Rule::constant( '+?' ),
+                        Pugs::Runtime::Rule::constant( '*' ),
+                        Pugs::Runtime::Rule::constant( '+' ),
+                    ] ),
+                ),
+                \&p6ws_star,
+            ),
+        ),
+        \&term,
+    ] );
+=cut
 
-rule _push {
-    $op := (push|unshift) <p6ws> <variable> <p6ws>? \, <p6ws>?
-    $code := (.*?) <p6ws>? \;
-        { return { _push => $() ,} }
+rule rule {
+    [ <?alt> | <?quantifier> ]*
 }
-push @statements, \&_push;
 

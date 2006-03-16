@@ -6,103 +6,6 @@ use strict;
 use warnings;
 use Data::Dumper;
 
-#------ match functions
-
-=for reference - see S05 "Return values from matches"
-    $/    
-        the match 
-        Inside a closure, refers to the current match, even if there is another
-        match inside the closure
-    $/()  
-        just the capture - what's returned in { return ... }
-    $/0
-        the first submatch
-Alternate names:        
-    $()   
-        the same as $/()
-Submatches:
-    $/[0] 
-        the first submatch
-    $0 
-        the same as $/[0]
-    $()<a>
-        If the capture object return()-ed were a hash:
-        the value $x in { return { a => $x ,} }
-Named captures:
-    $a := (.*?)  
-        $a is something in the outer lexical scope (TimToady on #perl6)
-            XXX - E05 says it is a hypothetical variable, referred as $0<a>
-    $<a> := (.*?)  
-        $<a> is a named capture in the match
-    let $a := (.*?)
-        $a is a hypothetical variable
-                (\d+)     # Match and capture one-or-more digits
-                { let $digits := $1 }
-=cut
-
-
-# XXX - this sub is only necessary for old engine support
-#       it can be removed when lrep starts using PCR
-sub match::get {
-    my $match =   $_[0];
-    my $name =    $_[1];
-    
-    return $match->{capture}  if $name eq '$/()' || $name eq '$()';
-    
-    # XXX - wrong, but bug-compatible with previous versions
-    return $match->{capture}  if $name eq '$/<>' || $name eq '$<>';
-    
-    return $match->{match}    if $name eq '$/';
-    
-    #print "get var $name\n";
-    
-    # $/()<name>
-    # $()<name>
-    if ( $name =~ /^ \$ \/? \( \) <(.+)> $/x ) {
-        my $n = $1;
-        for ( @{ match::get( $match, '$/()' ) } ) {
-            next unless ref($_) eq 'HASH';
-            if ( exists $_->{$n} ) {
-                #print "cap\n", Dumper( $_->{$n} );
-                return $_->{$n};
-            }
-        }
-        return;
-    }
-
-    # XXX - wrong, but bug-compatible with previous versions
-    # $/<name>
-    # $<name>
-    if ( $name =~ /^ \$ \/? <(.+)> $/x ) {
-        my $n = $1;
-        for ( @{ match::get( $match, '$()' ) } ) {
-            next unless ref($_) eq 'HASH';
-            if ( exists $_->{$n} ) {
-                #print "cap\n", Dumper( $_->{$n} );
-                return $_->{$n};
-            }
-        }
-        return;
-    }
-
-    die "match variable $name is not implemented";
-    # die "no submatch like $name in " . Dumper( $match->{match} );
-}
-
-# XXX - this sub is only necessary for old engine support
-#       it can be removed when lrep starts using PCR
-sub match::str {
-    my $match = $_[0];
-    #print "STR: ", ref( $match ), " ", Dumper( $match ), "\n";
-    return join( '', map { match::str( $_ ) } @$match )
-        if ref( $match ) eq 'ARRAY';
-    return join( '', map { match::str( $_ ) } values %$match )
-        if ref( $match ) eq 'HASH';
-    return $match;
-}
-
-#------ rule emitter
-
 sub Pugs::Runtime::Rule::rule_wrapper {
     my ( $str, $match ) = @_;
     return unless $match->{bool};
@@ -284,7 +187,7 @@ sub closure {
     # $<name>
     $code =~ s/ ([^']) \$ < (.*?) > /$1 match::get( \$_[0], '\$<$2>' ) /sgx;
     # $()
-    $code =~ s/ ([^']) \$ \( \) /$1 match::get( \$_[0], '\$()' ) /sgx;
+    $code =~ s/ ([^']) \$ \( \) /$1 \$_[0]->() /sgx;
     #print "Code: $code\n";
     
     return "$_[1] sub {\n" . 

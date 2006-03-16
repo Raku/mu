@@ -1,4 +1,3 @@
-
 - Added support for Grammars
   
   # grammar is a class, rule is a method
@@ -16,5 +15,10 @@
   
   Note that methods do not accept arbitrary names (unlike variables and subroutines)
   
+Internals:
+
+- Rules are methods
+- Simplified 'match', 'capture' keys in internal Match
+
 0.01 
 - Initial CPAN release - Pod, Tests, Packaging by audreyt & others.

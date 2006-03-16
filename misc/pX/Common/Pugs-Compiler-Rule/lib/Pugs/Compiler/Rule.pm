@@ -20,10 +20,10 @@ sub compile {
 
     my $self = { source => $rule_source };
 
-    # XXX - should use a base grammar instead!
+    # XXX - should use user's lexical pad instead?
     $self->{grammar} = delete $param{grammar} || 'Pugs::Grammar::Base';
 
-    $self->{ast} = Pugs::Grammar::Rule::rule( 
+    $self->{ast} = Pugs::Grammar::Rule->rule( 
         $self->{source} );
     $self->{perl5} = Pugs::Emitter::Rule::Perl5::emit( 
         $self->{grammar}, $self->{ast}{capture} );

@@ -1,6 +1,6 @@
-# pX/Common/p6rule.pl - fglock
+# Pugs::Grammar::Rule - fglock
 #
-# experimental implementation of p6-regex parser
+# the 'Rule' grammar - 'rule' is the main rule
 #
 
 package Pugs::Grammar::Rule;
@@ -17,81 +17,8 @@ use warnings;
 no warnings qw( once redefine );
 
 use vars qw( @rule_terms );
+use Pugs::Grammar::Rule::Rule;   # compiled with lrep
 
-sub subrule {
-    my ( $code, $tail ) = $_[0] =~ /^\<(.*?)\>(.*)$/s;
-    return unless defined $code;
-    #print "parsing subrule $code\n";
-    return { 
-        bool  => 1,
-        match => { code => $code },
-        tail  => $tail,
-        capture => [ { subrule => $code } ],
-    }
-}
-
-# XXX - set non-capture flag
-sub non_capturing_subrule {
-    my ( $code, $tail ) = $_[0] =~ /^\<\?(.*?)\>(.*)$/s;
-    return unless defined $code;
-    # print "non_capturing_subrule $code - $1\n";
-    return { 
-        bool  => 1,
-        match => { code => $code },
-        tail  => $tail,
-        capture => [ { non_capturing_subrule => $code } ],
-    }
-}
-
-sub negated_subrule {
-    my ( $code, $tail ) = $_[0] =~ /^\<\!(.*?)\>(.*)$/s;
-    return unless defined $code;
-    # print "negated_subrule $code - $1\n";
-    return { 
-        bool  => 1,
-        match => { code => $code },
-        tail  => $tail,
-        capture => [ { negated_subrule => $code } ],
-    }
-}
-
-*capturing_group = 
-    do{ package Pugs::Runtime::Rule;
-      concat(
-        constant( '(' ),
-        capture( 'capturing_group',
-            \&Pugs::Grammar::rule,
-        ),
-        constant( ')' )
-      )
-    };
-
-@rule_terms = (
-    \&capturing_group,
-
-    # <'literal'> literal \*
-    Pugs::Runtime::Rule::concat(    
-        Pugs::Runtime::Rule::constant( "<\'" ),
-        Pugs::Runtime::Rule::capture( 'constant',
-            Pugs::Runtime::Rule::non_greedy_star( \&any ),
-        ),
-        Pugs::Runtime::Rule::constant( "\'>" ),
-    ),
-
-    \&negated_subrule,
-    \&non_capturing_subrule,
-    \&subrule,
-);
-
-# <ws>* [ <closure> | <subrule> | ... ]
-*term = 
-    Pugs::Runtime::Rule::concat(
-        \&ws_star,
-        Pugs::Runtime::Rule::alternation( \@rule_terms ),
-        \&ws_star,
-    );
-
-# XXX - allow whitespace everywhere
 
 # [ <term>[\*|\+] | <term> 
 # note: <term>\* creates a term named 'star'
@@ -110,7 +37,7 @@ sub negated_subrule {
                         Pugs::Runtime::Rule::constant( '+' ),
                     ] ),
                 ),
-                \&ws_star,
+                \&p6ws_star,
             ),
         ),
         \&term,
@@ -130,53 +57,19 @@ sub negated_subrule {
     ),                
 ;
 
-sub p6ws {
-    return unless $_[0];
-    return { 
-        bool  => 1,
-        match => { 'p6ws'=> $1 },
-        tail  => $2,
-        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
-    }
-        if $_[0] =~ /^((?:\s|\#(?-s:.)*)+)(.*)$/s;
-    return;
-};
-sub newline {
-    return unless $_[0];
-    return { 
-        bool  => 1,
-        match => { 'newline'=> $1 },
-        tail  => substr($_[0],1),
-        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
-    }
-        if $_[0] =~ /^(\n)/s;
-    return;
-};
-sub escaped_char {
-    return unless $_[0];
-    return { 
-        bool  => 1,
-        match => { 'escaped_char'=> $1 },
-        tail  => substr($_[0],2),
-        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
-    }
-        if $_[0] =~ /^\\(.)/s;
-    return;
-};
-
-
 sub code {
+    my $class = shift;
     return unless $_[0];
     my ($extracted,$remainder) = Text::Balanced::extract_codeblock( $_[0] );
     return { 
         bool  => ( $extracted ne '' ),
         match => $extracted,
         tail  => $remainder,
-        ( $_[2]->{capture} ? ( capture => [ $extracted ] ) : () ),
     };
 }
 
 sub literal {
+    my $class = shift;
     return unless $_[0];
     my ($extracted,$remainder) = Text::Balanced::extract_delimited( $_[0], "'" );
     $extracted = substr( $extracted, 1, -1 );
@@ -184,40 +77,16 @@ sub literal {
         bool  => ( $extracted ne '' ),
         match => $extracted,
         tail  => $remainder,
-        ( $_[2]->{capture} ? ( capture => [ { literal => $extracted } ] ) : () ),
     };
 }
 
-sub ws_star {
-    #return unless $_[0];
-    return { 
-        bool  => 1,
-        match => { 'ws*'=> $1 },
-        tail  => $2,
-        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
-    }
-        if $_[0] =~ /^(\s*)(.*)$/s;
-    return;
-};
-sub p6ws_star {
-    #return unless $_[0];
-    return { 
-        bool  => 1,
-        match => { 'p6ws*'=> $1 },
-        tail  => $2,
-        ( $_[2]->{capture} ? ( capture => [ $1 ] ) : () ),
-    }
-        if $_[0] =~ /^((?:\s|\#(?-s:.)*)*)(.*)$/s;
-    return;
-};
-
 sub variable {
+    my $class = shift;
     #return unless $_[0];
     return { 
         bool  => 1,
-        match => { 'ws*'=> $1 },
+        match => $1,
         tail  => $2,
-        ( $_[2]->{capture} ? ( capture => $1 ) : () ),
     }
         if $_[0] =~ / ^  
             (   [ $ % @ % ]
@@ -231,12 +100,12 @@ sub variable {
 };
 
 sub ident {
+    my $class = shift;
     #return unless $_[0];
     return { 
         bool  => 1,
-        match => { 'ident'=> $1 },
+        match => $1,
         tail  => $2,
-        ( $_[2]->{capture} ? ( capture => [ { ident => $1 } ] ) : () ),
     }
         if $_[0] =~ / ^  
             ( 
@@ -248,11 +117,5 @@ sub ident {
             (.*) $ /xs;
     return;
 };
-
-# delay execution
-{
-    local $SIG{__WARN__} = sub {};
-    require Pugs::Grammar::Rule::Rule;
-}
 
 1;

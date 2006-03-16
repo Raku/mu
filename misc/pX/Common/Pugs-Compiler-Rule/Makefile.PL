@@ -1,7 +1,11 @@
 use strict;
-use lib '../..', '../../inc';
+#use lib '../..', '../../inc';
+#use inc::Module::Install (
+#    -d '../../misc/pX' ? (prefix => '../../inc') : ()
+#);
+use lib '../../../..', '../../../../inc';
 use inc::Module::Install (
-    -d '../../misc/pX' ? (prefix => '../../inc') : ()
+    -d '../../../../misc/pX' ? (prefix => '../../../../inc') : ()
 );
 use Cwd qw< abs_path cwd >;
 
@@ -9,7 +13,7 @@ my $cwd = cwd();
 my $pm  = abs_path('lib/Pugs/Grammar/Rule/Rule.pm');
 my $pmc = $pm . 'c';
 
-my $lrep_dir = "../../misc/pX/Common/lrep";
+my $lrep_dir = "./lrep";
 
 my $pmc_is_uptodate = (-s $pmc and (-M $pmc <= -M $pm));
 
