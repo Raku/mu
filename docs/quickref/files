@@ -1,0 +1,27 @@
+Dealing with files and file systems
+
+
+    Files
+     
+        my $fh = open "filename", :r err die "Could not open file $!";
+
+        my $row = =$fh;                           # reading a line
+
+    Directories
+        my $dh = opendir "dirname" err die "Could not open directory $!";
+
+        my @files = readdir($dh);
+        my @files = $dh.readdir;
+        
+        for $dh.readdir -> $entry {     # read them one-by-one
+            say $entry;
+        }
+
+        closedir($dh);
+        $dh.closedir;
+
+        rewinddir($dh);                  # start from the beginning
+        $dh.rewinddir;
+
+
+
