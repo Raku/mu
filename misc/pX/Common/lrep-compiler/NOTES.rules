@@ -4,7 +4,7 @@ $match = $souce ~~ /<Grammar::Perl6::grammar>/;
 
 should emit something like (perl 5);
 
-$match = my $/ = Perl6::Match->new()->Grammar::Perl6::grammar($source);
+$match = (my $_MATCH = Perl6::Match->new(Grammar::Perl6->grammar($source)));
 
 16/03/2006
 <ruoso> When someone declares a grammar (which is like a package in
