@@ -126,6 +126,8 @@ rule meth_call_statement {
 push @statements, \&meth_call_statement;
 push @terms, \&meth_call_term;
 
+# XXX Nit: <?p6ws> after <ident> is not allowed in real p6.  Whitespace there
+# would make list operator with parens around *first* argument.
 rule sub_call_term {
     $name:=(<ident>)<?p6ws>?\(<?p6ws>?$params:=(<list>?)<?p6ws>?\)<?p6ws>?
         { return { sub_call_term => $() } }
