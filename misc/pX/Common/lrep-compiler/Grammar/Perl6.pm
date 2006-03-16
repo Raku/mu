@@ -414,6 +414,35 @@ package Grammar::Perl6;
          )
        ,
 ;
+*{'indirect_object'} = 
+
+    sub { 
+        my $rule = 
+       Runtime::Perl5::RuleOps::concat(
+         Runtime::Perl5::RuleOps::capture( 'varscalar', \&{'Grammar::Perl6::varscalar'} )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\:" )
+       ,
+       )
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return  match::get( $_[0], '$()<varscalar>' )  }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    push @terms, \&indirect_object;
 *{'meth_call_term'} = 
 
     sub { 
@@ -1543,9 +1572,7 @@ package Grammar::Perl6;
        ,
          Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
        ,
-         Runtime::Perl5::RuleOps::capture( 'varscalar', \&{'Grammar::Perl6::varscalar'} )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\:" )
+         Runtime::Perl5::RuleOps::capture( 'indirect_object', \&{'Grammar::Perl6::indirect_object'} )
        ,
          Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
        ,

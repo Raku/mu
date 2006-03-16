@@ -87,8 +87,6 @@ rule closure_rule {
 }
 unshift @rule_terms, \&closure_rule;
 
-
-
 rule variable_rule {
     <variable> 
         { return { variable => $() ,} }
@@ -114,6 +112,13 @@ rule immediate_statement_rule {
 rule grammar {
     <immediate_statement_rule>*
 }
+
+rule indirect_object {
+	<varscalar> <p6ws>? \:
+	{ return $()<varscalar> }
+}
+
+push @terms, \&indirect_object;
 
 rule meth_call_term {
     $class:=(<ident>) \. $meth:=(<word>)<?p6ws>?\(<?p6ws>?$params:=(<list>?)<?p6ws>?\)<?p6ws>?
@@ -289,7 +294,7 @@ push @statements, \&_open;
 push @terms, \&_open;
  
 rule _print_with_fh { 
-    $op := (print|say|warn|die) <p6ws> <varscalar> \: <p6ws> <list> <p6ws>? \;
+    $op := (print|say|warn|die) <p6ws> <indirect_object> <p6ws> <list> <p6ws>? \;
         { return { _print_with_fh => $() ,} }
 }
 push @statements, \&_print_with_fh;

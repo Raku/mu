@@ -214,9 +214,9 @@ sub node::_print {
 }
 sub node::_print_with_fh {
     my $op   =   get_str( $_[0], '$<op>' );
-    my $fh   = get_data( $_[0], '$<varscalar>' );
     my $list = get_data( $_[0], '$<list>' );
-    my $cmd = "    print";
+    my $fh   = get_str( $_[0], '$<indirect_object>' );
+    my $cmd  = "    print";
     $cmd =    "    warn" if $op eq 'warn';
     $cmd =    "    die " if $op eq 'die';
     my $s;
