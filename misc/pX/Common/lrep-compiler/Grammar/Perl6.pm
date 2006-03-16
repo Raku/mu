@@ -460,11 +460,6 @@ package Grammar::Perl6;
            ,
          )
        ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
          Runtime::Perl5::RuleOps::constant( "\(" )
        ,
          Runtime::Perl5::RuleOps::optional(
@@ -523,11 +518,6 @@ package Grammar::Perl6;
            ,
          )
        ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
          Runtime::Perl5::RuleOps::constant( "\(" )
        ,
          Runtime::Perl5::RuleOps::optional(
@@ -580,11 +570,6 @@ package Grammar::Perl6;
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'name', 
              Runtime::Perl5::RuleOps::capture( 'ident', \&{'Grammar::Perl6::ident'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
            ,
          )
        ,

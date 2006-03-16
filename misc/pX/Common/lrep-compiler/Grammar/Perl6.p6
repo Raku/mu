@@ -121,11 +121,11 @@ rule indirect_object {
 push @terms, \&indirect_object;
 
 rule meth_call_term {
-    $class:=(<ident>) \. $meth:=(<word>)<?p6ws>?\(<?p6ws>?$params:=(<list>?)<?p6ws>?\)<?p6ws>?
+    $class:=(<ident>) \. $meth:=(<word>)\(<?p6ws>?$params:=(<list>?)<?p6ws>?\)<?p6ws>?
         { return { meth_call_term => $() } }
 }
 rule meth_call_statement {
-    $class:=(<ident>) \. $meth:=(<word>)<?p6ws>?\(<?p6ws>?$params:=(<list>?)<?p6ws>?\)<?p6ws>?\;
+    $class:=(<ident>) \. $meth:=(<word>)\(<?p6ws>?$params:=(<list>?)<?p6ws>?\)<?p6ws>?\;
         { return { meth_call => $() } }
 }
 push @statements, \&meth_call_statement;
@@ -133,8 +133,9 @@ push @terms, \&meth_call_term;
 
 # XXX Nit: <?p6ws> after <ident> is not allowed in real p6.  Whitespace there
 # would make list operator with parens around *first* argument.
+# So we don't support that syntax.
 rule sub_call_term {
-    $name:=(<ident>)<?p6ws>?\(<?p6ws>?$params:=(<list>?)<?p6ws>?\)<?p6ws>?
+    $name:=(<ident>)\(<?p6ws>?$params:=(<list>?)<?p6ws>?\)<?p6ws>?
         { return { sub_call_term => $() } }
 }
 rule sub_call_statement {
