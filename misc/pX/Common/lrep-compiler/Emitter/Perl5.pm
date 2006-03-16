@@ -180,6 +180,12 @@ sub node::_simple_statement {
     $op = 'warn "not implemented"' if $op eq '...';
     return "    $op;\n";
 }
+sub node::condition {
+    my $op = get_str($_[0],'$<op>');
+    my $condition = emit(get_data($_[0],'$<condition>'));
+    my $then = emit(get_data($_[0],'$<then>'));
+    return "$op ($condition) $then\n";
+}
 sub node::_my {
     my $op =   get_str( $_[0], '$<op>' );
     my $name = get_str( $_[0], '$<variable>' );

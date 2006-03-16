@@ -1,9 +1,10 @@
-#!/usr/bin/perl
+#use v6; # still need to implement something with this;
 use warnings;
 
 # External
 use IO::File;
 use Getopt::Std;
+use Data::Dumper;
 
 # Internal
 # There is some loading precedence.
@@ -26,9 +27,12 @@ my $output_filename;
 $output_filename = %args{'o'};
 
 # test arguments
-require Grammar::Perl6Primitives; # missing rules, using hacks
-statement_control:<unless> ( $input_filename ) { die usage(); }
-statement_control:<unless> ( $output_filename ) { die usage(); }
+unless ( $input_filename ) {
+	die usage();
+}
+unless ( $output_filename ) {
+	die usage();
+}
 sub usage {                     # subroutine definition
     return 'use -i input -o output'; # literal return
 }
@@ -36,7 +40,9 @@ sub usage {                     # subroutine definition
 # open file
 my $input_file;
 $input_file = IO::File.new($input_filename,'<'); # method call
-statement_control:<unless> ( $input_file ) { die 'Could not open input file'; }
+unless ( $input_file ) {
+	die 'Could not open input file';
+}
 
 # read file
 my $source;
@@ -51,13 +57,18 @@ $match = Grammar::Perl6::grammar($source);
 
 # if something didn't match
 my $tail;
-$tail = %match{'tail'};
-statement_control:<if> ( $tail ) { die 'Syntax Error !!'; }
+$tail = $match{'tail'};
+if ( $tail ) {
+	die 'Syntax Error !!';
+}
 
 # emit
 my $code;
 my $capture;
 $capture = $match{'capture'};
+
+Data::Dumper.Dump($capture);
+
 $code = Emitter::Perl5::emit($capture);
 my $out_fh;
 $out_fh = open $output_filename;

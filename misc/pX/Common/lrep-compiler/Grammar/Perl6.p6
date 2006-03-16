@@ -120,6 +120,13 @@ rule indirect_object {
 
 push @terms, \&indirect_object;
 
+rule condition_rule {
+	$op:=(if|unless)<?p6ws>?\(<?p6ws>?$condition:=(<term1>)<?p6ws>?\)
+	<?p6ws>?$then:=(<block>)
+	{ return { condition => $() } }
+}
+push @statements, \&condition_rule;
+
 rule meth_call_term {
     $class:=(<ident>) \. $meth:=(<word>)\(<?p6ws>?$params:=(<list>?)<?p6ws>?\)<?p6ws>?
         { return { meth_call_term => $() } }

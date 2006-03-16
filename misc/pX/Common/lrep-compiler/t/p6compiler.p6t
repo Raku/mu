@@ -27,8 +27,8 @@ macro statement_control:<sum> () is parsed ( /
 statement_control:<sum> ( 2 + 4 );
 statement_control:<aaa> ( say 'something'; );
 
-statement_control:<if> ( '1' ) { say '<if> is ok!'; }
-statement_control:<unless> ( '0' ) { say '<unless> ok!'; }
+if ( '1' ) { say '<if> is ok!'; }
+unless ( '0' ) { say '<unless> ok!'; }
 
 my $a;
 $a = 'world!';

@@ -443,6 +443,70 @@ package Grammar::Perl6;
     }
 ;
     push @terms, \&indirect_object;
+*{'condition_rule'} = 
+
+    sub { 
+        my $rule = 
+       Runtime::Perl5::RuleOps::concat(
+         Runtime::Perl5::RuleOps::capture( 'op', 
+             Runtime::Perl5::RuleOps::alternation( [
+                   Runtime::Perl5::RuleOps::constant( "if" )
+                 ,
+                   Runtime::Perl5::RuleOps::constant( "unless" )
+                 ,
+             ] )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\(" )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'condition', 
+             Runtime::Perl5::RuleOps::capture( 'term1', \&{'Grammar::Perl6::term1'} )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\)" )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'then', 
+             Runtime::Perl5::RuleOps::capture( 'block', \&{'Grammar::Perl6::block'} )
+           ,
+         )
+       ,
+       )
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { condition =>  match::get( $_[0], '$()' )  } }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    push @statements, \&condition_rule;
 *{'meth_call_term'} = 
 
     sub { 
