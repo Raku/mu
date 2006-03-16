@@ -9,7 +9,7 @@ use Test;
 
 =cut
 
-plan 56;
+plan 58;
 
 my @list = (1 .. 5);
 
@@ -131,3 +131,13 @@ should be equivalent to
 
   is(("foo","bar").map:{ $_.substr(1,1) }, @expected, "map of constant list works");
 }
+
+{
+  my @a = (1, 2, 3); 
+  my @b = map { hash {"v"=>$_, "d" => $_*2} } @a; 
+  is(+@b,3, "should be 3 elemens");
+
+  my @c = map { {"v"=>$_, "d" => $_*2} } @a;
+  is(+@c,3, "should be 3 elemens without the hash keyword as well", :todo);
+}
+
