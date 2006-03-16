@@ -1,0 +1,26 @@
+* <grammar>:
+	<@statements>
+	<@definitions>
+	<block>
+* <block>
+	<grammar>
+* @statements contains:
+	<@control_statements>
+	<expression><?p6ws>?\;
+* @definitions contains:
+	<rule_decl>
+	<sub_defin>
+	<_my>
+* <expression>:
+	<expression> = <expression>
+	<term>
+* <term>:
+	<variable>
+	<literal>
+	<ident>
+* <variable>:
+	<varhash>
+	<vararray>
+	<varscalar>
+	<valueinhash>
+	<valueinhashref>

@@ -1,0 +1,10 @@
+Missing rules to lrep.p6
+
+* "if ( EXPR ) BLOCK" rule
+* "unless ( EXPR ) BLOCK" rule
+
+Other things
+
+* Code in rule block should be real Perl 6, not a filtered Perl 5
+* Refactor rules to represent better the reality (see Grammar_Model.txt)
+* Use P::C::R as runtime, as this code is older than that...
