@@ -165,6 +165,12 @@ rule assign_slurp_to_variable {
 }
 push @statements, \&assign_slurp_to_variable;
 
+rule assign_open_to_variable {
+    $variable:=(<variable>)<?p6ws>?\=<?p6ws>?open<?p6ws>?$value:=(<term1>)<?p6ws>?\;
+        { return { _open => $() } }
+}
+push @statements, \&assign_open_to_variable;
+
 rule assign {
     $variable:=(<term1>)<?p6ws>?\=<?p6ws>?$value:=(<term1>)<?p6ws>?\;
 	{ return { assign => $() } }
@@ -274,7 +280,20 @@ push @terms, \&varhash;
 push @terms, \&varscalar;
 push @terms, \&variable;
 push @terms, \&literal;
-        
+
+rule _open {
+	$op := (open) <p6ws> <varscalar> <p6ws>? \;
+		{ return { _open => $(), } }
+}
+push @statements, \&_open;
+push @terms, \&_open;
+ 
+rule _print_with_fh { 
+    $op := (print|say|warn|die) <p6ws> <varscalar> <p6ws> <list> <p6ws>? \;
+        { return { _print_with_fh => $() ,} }
+}
+push @statements, \&_print_with_fh;
+ 
 rule _print { 
     $op := (print|say|warn|die) <p6ws> <list> <p6ws>? \;
         { return { _print => $() ,} }

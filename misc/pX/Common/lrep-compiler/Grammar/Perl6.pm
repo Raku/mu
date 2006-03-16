@@ -835,6 +835,62 @@ package Grammar::Perl6;
     }
 ;
     push @statements, \&assign_slurp_to_variable;
+*{'assign_open_to_variable'} = 
+
+    sub { 
+        my $rule = 
+       Runtime::Perl5::RuleOps::concat(
+         Runtime::Perl5::RuleOps::capture( 'variable', 
+             Runtime::Perl5::RuleOps::capture( 'variable', \&{'Grammar::Perl6::variable'} )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\=" )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "open" )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'value', 
+             Runtime::Perl5::RuleOps::capture( 'term1', \&{'Grammar::Perl6::term1'} )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\;" )
+       ,
+       )
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { _open =>  match::get( $_[0], '$()' )  } }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    push @statements, \&assign_open_to_variable;
 *{'assign'} = 
 
     sub { 
@@ -1429,6 +1485,92 @@ package Grammar::Perl6;
     push @terms, \&varscalar;
     push @terms, \&variable;
     push @terms, \&literal;
+*{'_open'} = 
+
+    sub { 
+        my $rule = 
+       Runtime::Perl5::RuleOps::concat(
+         Runtime::Perl5::RuleOps::capture( 'op', 
+             Runtime::Perl5::RuleOps::constant( "open" )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'varscalar', \&{'Grammar::Perl6::varscalar'} )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\;" )
+       ,
+       )
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { _open =>  match::get( $_[0], '$()' ) , } }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    push @statements, \&_open;
+    push @terms, \&_open;
+*{'_print_with_fh'} = 
+
+    sub { 
+        my $rule = 
+       Runtime::Perl5::RuleOps::concat(
+         Runtime::Perl5::RuleOps::capture( 'op', 
+             Runtime::Perl5::RuleOps::alternation( [
+                   Runtime::Perl5::RuleOps::constant( "print" )
+                 ,
+                   Runtime::Perl5::RuleOps::constant( "say" )
+                 ,
+                   Runtime::Perl5::RuleOps::constant( "warn" )
+                 ,
+                   Runtime::Perl5::RuleOps::constant( "die" )
+                 ,
+             ] )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'varscalar', \&{'Grammar::Perl6::varscalar'} )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'list', \&{'Grammar::Perl6::list'} )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\;" )
+       ,
+       )
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { _print_with_fh =>  match::get( $_[0], '$()' )  ,} }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    push @statements, \&_print_with_fh;
 *{'_print'} = 
 
     sub { 

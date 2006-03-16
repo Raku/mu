@@ -189,8 +189,14 @@ sub node::_return {
     my $val = emit( get_data( $_[0], '$<val>' ) );
     return "    return $val;\n";
 }
+sub node::_open
+{
+    my $var = emit(get_data($_[0], '$<variable>'));
+    my $lit = emit(get_data($_[0], '$<value>'));
+    return "open ".$var.", '>', ".$lit.";\n";
+}
 sub node::_print {
-    my $op =   get_str( $_[0], '$<op>' );
+    my $op   =   get_str( $_[0], '$<op>' );
     my $list = get_data( $_[0], '$<list>' );
     my $cmd = "    print";
     $cmd =    "    warn" if $op eq 'warn';
@@ -203,6 +209,24 @@ sub node::_print {
             if $s1;
     }
     return $s . "$cmd \"\\n\";\n" 
+        if $op eq 'say';
+    return $s;
+}
+sub node::_print_with_fh {
+    my $op   =   get_str( $_[0], '$<op>' );
+    my $fh   = get_data( $_[0], '$<varscalar>' );
+    my $list = get_data( $_[0], '$<list>' );
+    my $cmd = "    print";
+    $cmd =    "    warn" if $op eq 'warn';
+    $cmd =    "    die " if $op eq 'die';
+    my $s;
+    for ( @$list ) {
+        next unless ref($_) eq 'HASH';
+        my $s1 = emit($_);
+        $s .= "$cmd $fh $s1;\n"
+            if $s1;
+    }
+    return $s . "$cmd $fh \"\\n\";\n" 
         if $op eq 'say';
     return $s;
 }

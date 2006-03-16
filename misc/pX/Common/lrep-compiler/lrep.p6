@@ -59,6 +59,7 @@ my $code;
 my $capture;
 $capture = $match{'capture'};
 $code = Emitter::Perl5::emit($capture);
+my $out_fh;
+$out_fh = open $output_filename;
 
-print $code;
-
+print $out_fh $code;
