@@ -62,4 +62,4 @@ $code = Emitter::Perl5::emit($capture);
 my $out_fh;
 $out_fh = open $output_filename;
 
-print $out_fh $code;
+print $out_fh: $code;

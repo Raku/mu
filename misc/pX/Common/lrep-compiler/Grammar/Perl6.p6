@@ -289,7 +289,7 @@ push @statements, \&_open;
 push @terms, \&_open;
  
 rule _print_with_fh { 
-    $op := (print|say|warn|die) <p6ws> <varscalar> <p6ws> <list> <p6ws>? \;
+    $op := (print|say|warn|die) <p6ws> <varscalar> \: <p6ws> <list> <p6ws>? \;
         { return { _print_with_fh => $() ,} }
 }
 push @statements, \&_print_with_fh;

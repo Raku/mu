@@ -1545,6 +1545,8 @@ package Grammar::Perl6;
        ,
          Runtime::Perl5::RuleOps::capture( 'varscalar', \&{'Grammar::Perl6::varscalar'} )
        ,
+         Runtime::Perl5::RuleOps::constant( "\:" )
+       ,
          Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
        ,
          Runtime::Perl5::RuleOps::capture( 'list', \&{'Grammar::Perl6::list'} )
