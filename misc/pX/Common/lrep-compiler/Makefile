@@ -28,6 +28,10 @@ t/p6compiler.t: t/p6compiler.p6t Grammar/Perl6.pm Grammar/Perl6Primitives.pm
 lrep: prelude lrep.p6 Grammar/Perl6.pm Grammar/Perl6Primitives.pm
 	./lrep.pl -i lrep.p6 -o lrep
 
+bootstrap: lrep
+	cp lrep lrep.bak
+	perl lrep -i lrep.p6 -o lrep
+
 clean:
 	rm -f Grammar/Perl6Primitives.pm
 	touch Grammar/Perl6.p6
