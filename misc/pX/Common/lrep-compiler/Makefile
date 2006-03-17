@@ -32,7 +32,8 @@ t/macro.t: t/macro.p6t
 lrep: prelude lrep.p6 Grammar/Perl6.pm
 	$(LREP) -i lrep.p6 -o lrep
 
-bootstrap: lrep
+bootstrap: clean all
+	make suite
 	cp lrep lrep.bak
 	perl lrep -i lrep.p6 -o lrep
 
