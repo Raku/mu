@@ -1,3 +1,18 @@
-* Code in rule block should be real Perl 6, not a filtered Perl 5
+THE REAL MISSION IS TO SELF-HOST LREP
+
+Already in Perl 6:
+./lrep.p6
+./Grammar/Perl6.p6
+./Grammar/Perl6Primitives.p6
+
+Still in Perl 5:
+Rule Closures in ./Grammar/Perl6.p6 are just filtered, not compiled
+./Runtime/Perl5/RuleOps.pm
+./Runtime/Perl5/RuleInit.pm
+./Grammar/Perl6Init.pm
+./Emitter/Perl5.pm
+
+TECHNICAL DEBT
+
 * Refactor rules to represent better the reality (see Grammar_Model.txt)
 * Use P::C::R as runtime, as this code is older than that...
