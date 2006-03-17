@@ -84,4 +84,10 @@ sub ident {
     require Pugs::Grammar::Rule::Rule;
 }
 
+# curry @rule_terms with Grammar
+@rule_terms = map { 
+        my $method = $_;
+        sub{ Pugs::Grammar::Rule->$method(@_) }
+    }
+    @rule_terms;
 1;

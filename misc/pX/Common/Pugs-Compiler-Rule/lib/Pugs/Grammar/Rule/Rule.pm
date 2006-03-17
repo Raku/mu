@@ -25,77 +25,77 @@ rule p6ws     :P5 {^((?:\s|\#(?-s:.)*)+)}
 # XXX - incomplete - needs a return block
 rule non_capturing_subrule
               :P5 {^\<\?(.*?)\>}
-push @rule_terms, \&non_capturing_subrule;
+push @rule_terms, 'non_capturing_subrule';
 
 # XXX - incomplete - needs a return block
 rule negated_subrule
               :P5 {^\<\!(.*?)\>}
-push @rule_terms, \&negated_subrule;
+push @rule_terms, 'negated_subrule';
 
 # XXX - incomplete - needs a return block
 rule subrule  :P5 {^\<(.*?)\>}
-push @rule_terms, \&subrule;
+push @rule_terms, 'subrule';
 
 rule const_word {
     <word>
         { return { constant => $() ,} }
 }
-unshift @rule_terms, \&const_word;
+unshift @rule_terms, 'const_word';
 
 rule const_escaped_char {
     <escaped_char> 
         { return { constant => $() ,} }
 }
-unshift @rule_terms, \&const_escaped_char;
+unshift @rule_terms, 'const_escaped_char';
 
 rule dot {
     (\.) 
         { return { dot => $() ,} }
 }
-unshift @rule_terms, \&dot;
+unshift @rule_terms, 'dot';
 
 rule non_capturing_group {
      \[ <?rule> \] 
 }
-push @rule_terms, \&non_capturing_group;
+push @rule_terms, 'non_capturing_group';
 
 rule closure_rule {
     <code>
         { return { closure => $() ,} }
 }
-unshift @rule_terms, \&closure_rule;
+unshift @rule_terms, 'closure_rule';
 
 rule variable_rule {
     <variable> 
         { return { variable => $() ,} }
 }
-unshift @rule_terms, \&variable_rule;
+unshift @rule_terms, 'variable_rule';
 
 rule runtime_alternation {
     \< <variable> \>
         { return { runtime_alternation => $() ,} }
 }
-unshift @rule_terms, \&runtime_alternation;
+unshift @rule_terms, 'runtime_alternation';
 
 rule named_capture {
     \$ \< <ident> \> <?p6ws>? \:\= <?p6ws>? \( <rule> \) 
         { return { named_capture => $() ,} }
 }
-unshift @rule_terms, \&named_capture;
+unshift @rule_terms, 'named_capture';
 
 
 rule capturing_group {
     \( <rule> \)
         { return { capturing_group => $() } }
 }
-unshift @rule_terms, \&capturing_group;
+unshift @rule_terms, 'capturing_group';
 
 
 rule constant {
     \< <literal> \>
         { return { constant => $() } }
 }
-unshift @rule_terms, \&constant;
+unshift @rule_terms, 'constant';
 
 
 rule term {

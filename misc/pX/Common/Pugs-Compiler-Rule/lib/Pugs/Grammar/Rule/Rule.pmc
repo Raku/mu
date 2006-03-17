@@ -6,7 +6,7 @@ BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
 
-== 0x9F356677 or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0x3379B7A7 or die "Checksum failed for outdated .pmc file: ${F}c"}
 
 #####################################################################
 
@@ -165,7 +165,7 @@ package Pugs::Grammar::Rule;
 
 };
 
-    push @Pugs::Grammar::Rule::rule_terms, \&Pugs::Grammar::Rule::non_capturing_subrule;
+    push @Pugs::Grammar::Rule::rule_terms, 'non_capturing_subrule';
 *{'Pugs::Grammar::Rule::negated_subrule'} = sub {
 
     my $grammar = shift;
@@ -188,7 +188,7 @@ package Pugs::Grammar::Rule;
 
 };
 
-    push @Pugs::Grammar::Rule::rule_terms, \&Pugs::Grammar::Rule::negated_subrule;
+    push @Pugs::Grammar::Rule::rule_terms, 'negated_subrule';
 *{'Pugs::Grammar::Rule::subrule'} = sub {
 
     my $grammar = shift;
@@ -211,7 +211,7 @@ package Pugs::Grammar::Rule;
 
 };
 
-    push @Pugs::Grammar::Rule::rule_terms, \&Pugs::Grammar::Rule::subrule;
+    push @Pugs::Grammar::Rule::rule_terms, 'subrule';
 *{'Pugs::Grammar::Rule::const_word'} = 
 sub {
     my $grammar = shift;
@@ -231,7 +231,7 @@ sub {
         )->( @_ )
     )
 };
-    unshift @Pugs::Grammar::Rule::rule_terms, \&Pugs::Grammar::Rule::const_word;
+    unshift @Pugs::Grammar::Rule::rule_terms, 'const_word';
 *{'Pugs::Grammar::Rule::const_escaped_char'} = 
 sub {
     my $grammar = shift;
@@ -251,7 +251,7 @@ sub {
         )->( @_ )
     )
 };
-    unshift @Pugs::Grammar::Rule::rule_terms, \&Pugs::Grammar::Rule::const_escaped_char;
+    unshift @Pugs::Grammar::Rule::rule_terms, 'const_escaped_char';
 *{'Pugs::Grammar::Rule::dot'} = 
 sub {
     my $grammar = shift;
@@ -274,7 +274,7 @@ sub {
         )->( @_ )
     )
 };
-    unshift @Pugs::Grammar::Rule::rule_terms, \&Pugs::Grammar::Rule::dot;
+    unshift @Pugs::Grammar::Rule::rule_terms, 'dot';
 *{'Pugs::Grammar::Rule::non_capturing_group'} = 
 sub {
     my $grammar = shift;
@@ -292,7 +292,7 @@ sub {
         )->( @_ )
     )
 };
-    push @Pugs::Grammar::Rule::rule_terms, \&Pugs::Grammar::Rule::non_capturing_group;
+    push @Pugs::Grammar::Rule::rule_terms, 'non_capturing_group';
 *{'Pugs::Grammar::Rule::closure_rule'} = 
 sub {
     my $grammar = shift;
@@ -312,12 +312,11 @@ sub {
         )->( @_ )
     )
 };
-    unshift @Pugs::Grammar::Rule::rule_terms, \&Pugs::Grammar::Rule::closure_rule;
+    unshift @Pugs::Grammar::Rule::rule_terms, 'closure_rule';
 *{'Pugs::Grammar::Rule::variable_rule'} = 
 sub {
     my $grammar = shift;
     warn 'rule argument is undefined' unless defined $_[0];
-warn "match variable_rule: $grammar, $_[0]";
     package Pugs::Runtime::Rule;
     rule_wrapper( $_[0], (
         concat(
@@ -333,7 +332,7 @@ warn "match variable_rule: $grammar, $_[0]";
         )->( @_ )
     )
 };
-    unshift @Pugs::Grammar::Rule::rule_terms, \&Pugs::Grammar::Rule::variable_rule;
+    unshift @Pugs::Grammar::Rule::rule_terms, 'variable_rule';
 *{'Pugs::Grammar::Rule::runtime_alternation'} = 
 sub {
     my $grammar = shift;
@@ -357,7 +356,7 @@ sub {
         )->( @_ )
     )
 };
-    unshift @Pugs::Grammar::Rule::rule_terms, \&Pugs::Grammar::Rule::runtime_alternation;
+    unshift @Pugs::Grammar::Rule::rule_terms, 'runtime_alternation';
 *{'Pugs::Grammar::Rule::named_capture'} = 
 sub {
     my $grammar = shift;
@@ -403,7 +402,7 @@ sub {
         )->( @_ )
     )
 };
-    unshift @Pugs::Grammar::Rule::rule_terms, \&Pugs::Grammar::Rule::named_capture;
+    unshift @Pugs::Grammar::Rule::rule_terms, 'named_capture';
 *{'Pugs::Grammar::Rule::capturing_group'} = 
 sub {
     my $grammar = shift;
@@ -427,7 +426,7 @@ sub {
         )->( @_ )
     )
 };
-    unshift @Pugs::Grammar::Rule::rule_terms, \&Pugs::Grammar::Rule::capturing_group;
+    unshift @Pugs::Grammar::Rule::rule_terms, 'capturing_group';
 *{'Pugs::Grammar::Rule::constant'} = 
 sub {
     my $grammar = shift;
@@ -451,7 +450,7 @@ sub {
         )->( @_ )
     )
 };
-    unshift @Pugs::Grammar::Rule::rule_terms, \&Pugs::Grammar::Rule::constant;
+    unshift @Pugs::Grammar::Rule::rule_terms, 'constant';
 *{'Pugs::Grammar::Rule::term'} = 
 sub {
     my $grammar = shift;
