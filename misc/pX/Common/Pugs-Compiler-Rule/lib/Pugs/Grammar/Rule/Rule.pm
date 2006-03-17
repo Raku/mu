@@ -98,38 +98,29 @@ rule constant {
 unshift @rule_terms, \&constant;
 
 
-sub term {
-    <?p6ws>? <@rule_terms> <?p6ws>
+rule term {
+    <?p6ws>? <@Pugs::Grammar::Rule::rule_terms> <?p6ws>?
 }
 
 
-sub quantifier {
-    ...
+rule quantifier {
+    [ <term> [ 
+        [ \?\? ] |
+        [ \*\? ] |
+        [ \+\? ] |
+        \?       |
+        \*       |
+        \+
+      ] 
+      <?p6ws>?
+    ]*
     |
     <term>
 }
 
-=for translate
-    Pugs::Runtime::Rule::alternation( [
-        Pugs::Runtime::Rule::capture( 'star', 
-            Pugs::Runtime::Rule::concat(
-                Pugs::Runtime::Rule::capture( 'term', \&term ),
-                Pugs::Runtime::Rule::capture( 'literal',
-                    Pugs::Runtime::Rule::alternation( [
-                        Pugs::Runtime::Rule::constant( '??' ),
-                        Pugs::Runtime::Rule::constant( '?' ),
-                        Pugs::Runtime::Rule::constant( '*?' ),
-                        Pugs::Runtime::Rule::constant( '+?' ),
-                        Pugs::Runtime::Rule::constant( '*' ),
-                        Pugs::Runtime::Rule::constant( '+' ),
-                    ] ),
-                ),
-                \&p6ws_star,
-            ),
-        ),
-        \&term,
-    ] );
-=cut
+rule alt {
+    <quantifier> [ \| <quantifier> ]+
+}
 
 rule rule {
     [ <?alt> | <?quantifier> ]*
