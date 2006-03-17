@@ -11,7 +11,6 @@ Grammar/Perl6.pm: Grammar/Perl6.p6
 	$(LREP) -i Grammar/Perl6.p6 -o Grammar/Perl6.pm
 
 Grammar/Perl6Primitives.pm: Grammar/Perl6Primitives.p6
-	cp Grammar/Perl6Primitives.pm Grammar/Perl6Primitives.pm.cache || true
 	$(LREP) -i Grammar/Perl6Primitives.p6 -o Grammar/Perl6Primitives.pm
 
 tests: t/p6sample.t t/p6compiler.t t/iterator_engine.t t/macro.t
@@ -30,12 +29,18 @@ t/macro.t: t/macro.p6t
 	$(LREP) -i t/macro.p6t -o t/macro.t
 
 lrep: prelude lrep.p6 Grammar/Perl6.pm
+	cp lrep lrep.cache
 	$(LREP) -i lrep.p6 -o lrep
 
-bootstrap: clean all
+bootstrap: suite
+	cp Grammar/Perl6.pm.cache Grammar/Perl6.pm.bak
+	cp lrep.cache lrep.bak
 	make suite
-	cp lrep lrep.bak
-	perl lrep -i lrep.p6 -o lrep
+	@echo ">>>>> Begin Differences caused by bootstrap"
+	@diff lrep lrep.cache
+	@diff Grammar/Perl6.pm Grammar/Perl6.pm.cache
+	@echo "<<<<< End Differences caused by bootstrap"
+
 
 clean:
 	rm -f Grammar/Perl6Primitives.pm
