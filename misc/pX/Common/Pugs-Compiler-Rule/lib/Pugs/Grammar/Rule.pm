@@ -19,44 +19,6 @@ no warnings qw( once redefine );
 use vars qw( @rule_terms );
 use Pugs::Grammar::Rule::Rule;   # compiled with lrep
 
-
-# [ <term>[\*|\+] | <term> 
-# note: <term>\* creates a term named 'star'
-*quantifier = 
-    Pugs::Runtime::Rule::alternation( [
-        Pugs::Runtime::Rule::capture( 'star', 
-            Pugs::Runtime::Rule::concat(
-                Pugs::Runtime::Rule::capture( 'term', \&term ),
-                Pugs::Runtime::Rule::capture( 'literal',
-                    Pugs::Runtime::Rule::alternation( [
-                        Pugs::Runtime::Rule::constant( '??' ),
-                        Pugs::Runtime::Rule::constant( '?' ),
-                        Pugs::Runtime::Rule::constant( '*?' ),
-                        Pugs::Runtime::Rule::constant( '+?' ),
-                        Pugs::Runtime::Rule::constant( '*' ),
-                        Pugs::Runtime::Rule::constant( '+' ),
-                    ] ),
-                ),
-                \&p6ws_star,
-            ),
-        ),
-        \&term,
-    ] );
-
-*alt = 
-    Pugs::Runtime::Rule::capture( 'alt', 
-        Pugs::Runtime::Rule::concat(
-            Pugs::Runtime::Rule::capture( 'term', \&quantifier ),
-            Pugs::Runtime::Rule::greedy_plus(
-                Pugs::Runtime::Rule::concat(
-                    Pugs::Runtime::Rule::constant( '|' ),
-                    Pugs::Runtime::Rule::capture( 'term', \&quantifier ),
-                ),
-            ),
-        ),
-    ),                
-;
-
 sub code {
     my $class = shift;
     return unless $_[0];
