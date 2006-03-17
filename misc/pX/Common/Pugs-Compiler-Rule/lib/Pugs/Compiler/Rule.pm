@@ -9,7 +9,6 @@ use warnings;
 use Pugs::Grammar::Base;
 use Pugs::Grammar::Rule;
 use Pugs::Runtime::Rule;
-#use Pugs::Runtime::Rule2;
 use Pugs::Runtime::Match;
 use Pugs::Emitter::Rule::Perl5;
 
@@ -38,12 +37,21 @@ sub compile {
 
 sub code { 
     my $rule = shift; 
-    sub { $rule->match( @_ ); } 
+    sub { 
+        $rule->match( 
+            $rule->{grammar}, 
+            @_ ); 
+    } 
 }
 
 sub match {
-    foreach my $i (0..length($_[1])) {
-        my $match = $_[0]->{code}( substr($_[1], $i) );
+    my $rule = shift; 
+    warn "match: grammar $rule->{grammar}, $_[0]";
+    foreach my $i (0..length($_[0])) {
+        my $match = $rule->{code}( 
+            $rule->{grammar},
+            substr($_[0], $i) 
+        );
         defined $match or next;
         $match->{from} = $i;
         return Pugs::Runtime::Match->new( $match ) 

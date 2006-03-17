@@ -11,9 +11,9 @@ sub return_block_hack {
                 $program = $s[0];
             }
             else {
-                $program = "$tab ruleop::concat(\n" . 
+                $program = "$tab concat(\n" . 
                             ( join '', @s ) . 
-                            "$tab )\n";
+                            "$tab ),\n";
             }
             #print "program $program\n";
             my $return;
@@ -33,9 +33,9 @@ sub return_block_hack {
             return $return;
         }
         return $s[0] if @s == 1;
-        return "$tab ruleop::concat(\n" . 
+        return "$tab concat(\n" . 
                ( join '', @s ) . 
-               "$tab )\n";
+               "$tab ),\n";
 }
 
 1;

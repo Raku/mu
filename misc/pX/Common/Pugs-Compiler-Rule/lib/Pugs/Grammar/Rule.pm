@@ -10,8 +10,6 @@ use Data::Dumper;
 use Pugs::Runtime::Rule;
 #use Pugs::Runtime::Grammar; -- MOP 
 
-use base Pugs::Grammar::Base;
-
 use strict;
 use warnings;
 no warnings qw( once redefine );
@@ -79,5 +77,11 @@ sub ident {
             (.*) $ /xs;
     return;
 };
+
+# delay execution
+{
+    local $SIG{__WARN__} = sub {};
+    require Pugs::Grammar::Rule::Rule;
+}
 
 1;
