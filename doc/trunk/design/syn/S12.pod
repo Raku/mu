@@ -297,7 +297,7 @@ You can also get at the container through the appropriate symbol table:
 =head1 Class methods
 
 Other OO languages give you the ability to declare "class" methods that either don't
-need or actively prohibit calls on instances.  In Perl 6 gives you a choice.
+need or actively prohibit calls on instances.  Perl 6 gives you a choice.
 If you declare an ordinary method, it can function as a "class" method when you
 pass it a prototype object such as "Dog" regardless of how defined the prototype
 object is, as long as the method body doesn't try to access any information that
