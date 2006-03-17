@@ -1,0 +1,230 @@
+pX/Common/README - fglock
+
+
+
+This is lrep - the Lister Rubbish Eclectic Pathologically  (Juerd++)
+
+ or: Least Recursively Expressed Perl (TimToady++)
+
+
+
+It is an experimental implementation of:
+
+- a parser engine (iterator_engine.pl)
+
+- a Perl6 'rule' parser and perl5 emitter (p6rule.pl)
+
+- a 'Perl6' parser and perl5 emitter (p6compiler.pl)
+
+- a Perl6 'grammar' grammar (p6prelude.p6)
+
+
+
+Tests: (paste this in the command line to run all tests)
+
+  perl iterator_engine.t
+
+  perl p6compiler.pl p6sample.p6
+
+  perl p6compiler.pl p6compiler.p6t
+
+
+
+  pugs iterator_engine.p6t
+
+
+
+Special thanks for the brainstorming sessions in #perl6:
+
+- putter
+
+- audreyt
+
+- TimToady 
+
+- pmurias
+
+
+
+Bootstrapping:
+
+ok - core rule engine - backtracking, function composition - in Perl 5
+
+ok - Perl 6 rules in Perl 5 - reuse to write itself
+
+ok - Perl 6 grammar in Perl 5 - reuse to write itself
+
+ok - Perl 6 to Perl 5 translator (parse p6, emit p5) - reuse to write 
+
+     itself
+
+   - Perl 6 compiler written in p6
+
+- see also: TASKS
+
+
+
+Perl6 Grammar implemented:
+
+  
+
+  grammar  <name>;
+
+  rule     <name> {...}   
+
+    -- 'return block' is source filtered
+
+    -- operators are being implemented on demand
+
+  rule     <name> rx:perl5{...}
+
+  say print warn die <list>;
+
+  my our local    <var>;
+
+    -- untested
+
+  {...}
+
+  eval( '1+1', :lang<perl5> );
+
+  sub <name> {...}   
+
+    -- need more work on fixity and precedence, parameter binding
+
+  push unshift       
+
+    -- bootstrapped with source filter
+
+  macro <name> ( *@args ) is parsed ( /.../ ) {...}   
+
+    -- argument binding is source filtered
+
+  if (cond) {block}
+
+    -- macro needs to be rewritten with anon-subs
+
+    
+
+Rules Grammar implemented:
+
+
+
+ . ? * + *? +? ??
+
+ \char <ws> <word> literal
+
+ $variable @variable
+
+ <'literal'>
+
+ [] 
+
+ ()     
+
+ <subrule>
+
+ <namespace::subrule>
+
+ <?subrule>
+
+ <!subrule>
+
+ |
+
+ <@var>    - special-cased for array-of-rule (but not Rule|Str)
+
+ {code}    - non-capturing closure
+
+           - bootstrapped with source-filter
+
+           - $/ doesn't work yet
+
+ { return code } - capturing closure
+
+           - bootstrapped with source filter
+
+           - $/ works
+
+ $var := (capture)  - capture aliasing
+
+ $<> $/<>  - special variables can't be used inside a match, yet
+
+ $/ 
+
+ $<0> $<1>
+
+
+
+- implemented but untested:
+
+ <$var>
+
+
+
+- not implemented:
+
+ $/<0> $/<1>
+
+ $/0 $/1
+
+ $0 $1
+
+ <"literal">
+
+ ^ ^^ $ $$
+
+ <unicode-class> <+unicode-class> <+unicode-class+unicode-class>
+
+ <&var> 
+
+ <%var>
+
+ **{n..m}
+
+ : :: :::   (commit)
+
+ $var := [non-capture]
+
+ $var := <rule>
+
+ <(closure-assertion)> <{code-returns-rule}>
+
+ <<character-class>> <[character-class]>
+
+ :flag :flag() :flag[]
+
+ lookahead lookbehind
+
+ #comment\n
+
+ \x0a \0123 ...
+
+ <?ws>  -- optional whitespace ???
+
+ &    
+
+ <!abc> -- is this !<abc> or !abc ?
+
+ \n \N
+
+
+
+- not sure if specified:
+
+ 'literal' "literal"
+
+ <!n,m>  -- <!{n..m}> ???
+
+
+
+See also:
+
+
+
+- some existing Perl6 'grammar' grammars:
+
+  ../../Grammars/rx_grammar.pm
+
+  http://svn.perl.org/parrot/trunk/compilers/pge/P6Rule.grammar
+
