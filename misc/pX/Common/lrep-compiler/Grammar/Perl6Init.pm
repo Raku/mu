@@ -52,18 +52,7 @@ sub negated_subrule {
     }
 }
 
-*capturing_group = 
-    Runtime::Perl5::RuleOps::concat(
-        Runtime::Perl5::RuleOps::constant( '(' ),
-        Runtime::Perl5::RuleOps::capture( 'capturing_group',
-            \&rule,
-        ),
-        Runtime::Perl5::RuleOps::constant( ')' )
-    );
-
 @rule_terms = (
-    \&capturing_group,
-
     # <'literal'> literal \*
     Runtime::Perl5::RuleOps::concat(    
         Runtime::Perl5::RuleOps::constant( "<\'" ),
@@ -78,16 +67,7 @@ sub negated_subrule {
     \&subrule,
 );
 
-# <ws>* [ <closure> | <subrule> | ... ]
-*term = 
-    Runtime::Perl5::RuleOps::concat(
-        \&ws_star,
-        Runtime::Perl5::RuleOps::alternation( \@rule_terms ),
-        \&ws_star,
-    );
-
 # XXX - allow whitespace everywhere
-
 # [ <term>[\*|\+] | <term> 
 # note: <term>\* creates a term named 'star'
 *quantifier = 

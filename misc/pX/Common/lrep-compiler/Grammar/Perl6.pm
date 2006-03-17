@@ -195,6 +195,74 @@ package Grammar::Perl6;
     }
 };
     push @rule_terms, \&subrule;
+*{'capturing_group'} = 
+
+    sub { 
+        my $rule = 
+       Runtime::Perl5::RuleOps::concat(
+         Runtime::Perl5::RuleOps::constant( "\(" )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'rule', \&{'Grammar::Perl6::rule'} )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\)" )
+       ,
+       )
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { capturing_group =>  match::get( $_[0], '$()' )  } }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    unshift @rule_terms, \&capturing_group;
+*{'constant'} = 
+
+    sub { 
+        my $rule = 
+       Runtime::Perl5::RuleOps::concat(
+         Runtime::Perl5::RuleOps::constant( "\<" )
+       ,
+         Runtime::Perl5::RuleOps::capture( 'literal', \&{'Grammar::Perl6::literal'} )
+       ,
+         Runtime::Perl5::RuleOps::constant( "\>" )
+       ,
+       )
+    ;
+        my $match = $rule->( @_ );
+        return unless $match;
+        my $capture_block = sub { return { constant =>  match::get( $_[0], '$()' )  } }       ,
+; 
+        #use Data::Dumper;
+        #print "capture was: ", Dumper( $match->{capture} );
+        return { 
+            %$match,
+            capture => [ $capture_block->( $match ) ],
+        }; 
+    }
+;
+    unshift @rule_terms, \&constant;
+*{'term'} = 
+       Runtime::Perl5::RuleOps::concat(
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+         Runtime::Perl5::RuleOps::alternation( \@Grammar::Perl6::rule_terms )
+       ,
+         Runtime::Perl5::RuleOps::optional(
+             \&{'Grammar::Perl6::p6ws'}
+           ,
+         )
+       ,
+       )
+;
 *{'const_word'} = 
 
     sub { 
@@ -240,7 +308,8 @@ package Grammar::Perl6;
     sub { 
         my $rule = 
          Runtime::Perl5::RuleOps::capture( 'capturing_group',
-             Runtime::Perl5::RuleOps::constant( "\." )
+                 Runtime::Perl5::RuleOps::constant( "\." )
+               ,
            ,
          )
        ,

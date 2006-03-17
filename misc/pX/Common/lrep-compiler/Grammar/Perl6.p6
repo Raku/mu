@@ -54,22 +54,22 @@ push @rule_terms, \&negated_subrule;
 rule subrule  :P5 {^\<(.*?)\>}
 push @rule_terms, \&subrule;
 
-#rule capturing_group {
-#    \( <rule> \)
-#        { return { capturing_group => $() } }
-#}
-#unshift @rule_terms, \&capturing_group;
-#
-#rule constant {
-#    \< <literal> \>
-#        { return { constant => $() } }
-#}
-#unshift @rule_terms, \&constant;
-#
-#rule term {
-#    <?p6ws>? <@Grammar::Perl6::rule_terms> <?p6ws>?
-#}
-#
+rule capturing_group {
+    \( <rule> \)
+        { return { capturing_group => $() } }
+}
+unshift @rule_terms, \&capturing_group;
+
+rule constant {
+    \< <literal> \>
+        { return { constant => $() } }
+}
+unshift @rule_terms, \&constant;
+
+rule term {
+    <?p6ws>? <@Grammar::Perl6::rule_terms> <?p6ws>?
+}
+
 #rule quantifier {
 #    [ <term> [ 
 #        [ \?\? ] |
@@ -84,7 +84,6 @@ push @rule_terms, \&subrule;
 #    |
 #    <term>
 #}
-#
 #rule alt {
 #    <quantifier> [ \| <quantifier> ]+
 #}
