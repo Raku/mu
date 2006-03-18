@@ -15,74 +15,79 @@ Abstract Syntax Tree (AST) for Rules.
  
 rule p6ws     :P5 {^((?:\s|\#(?-s:.)*)+)}
 
-rule word     :P5 {^([_[:alnum:]]+)}
-unshift @rule_terms, 'word';
+# terms
 
-
-rule dot      :P5 {^(.)}
-unshift @rule_terms, 'dot';
-
-rule escaped_char  
-              :P5 {^\\(.)}
-unshift @rule_terms, 'escaped_char';
-
-rule non_capturing_subrule
-              :P5 {^\<\?(.*?)\>}
-push @rule_terms, 'non_capturing_subrule';
-
-# XXX - incomplete - needs a return block
-rule negated_subrule
-              :P5 {^\<\!(.*?)\>}
-push @rule_terms, 'negated_subrule';
-
-# XXX - incomplete - needs a return block
-rule subrule  :P5 {^\<(.*?)\>}
-push @rule_terms, 'subrule';
-
-rule non_capturing_group {
-     \[ <?rule> \] 
-        { return %{$_[0]} }
-}
-push @rule_terms, 'non_capturing_group';
-
-rule closure_rule {
-    <code>
-        { return { closure => $() ,} }
-}
-unshift @rule_terms, 'closure_rule';
-
-rule variable_rule {
-    <variable> 
-        { return { variable => $() ,} }
-}
-unshift @rule_terms, 'variable_rule';
-
-rule runtime_alternation {
-    \< <variable> \>
-        { return { runtime_alternation => $() ,} }
-}
-unshift @rule_terms, 'runtime_alternation';
-
-rule named_capture {
-    \$ \< <ident> \> <?p6ws>? \:\= <?p6ws>? \( <rule> \) 
-        { return { named_capture => $() ,} }
-}
-unshift @rule_terms, 'named_capture';
-
-
-rule capturing_group {
-    \( <rule> \)
-        { return { capturing_group => \%{$_[0]} } }
-}
-unshift @rule_terms, 'capturing_group';
-
-
-rule constant {
-    \< <literal> \>
-        { return { constant => $() } }
-}
-unshift @rule_terms, 'constant';
-
+    rule dot {
+        \.    
+            { return 'dot' }
+    }
+    unshift @rule_terms, 'dot';
+    
+    rule word     :P5 {^([_[:alnum:]]+)}
+    unshift @rule_terms, 'word';
+    
+    rule escaped_char  
+                  :P5 {^\\(.)}
+    unshift @rule_terms, 'escaped_char';
+    
+    rule non_capturing_subrule
+                  :P5 {^\<\?(.*?)\>}
+    push @rule_terms, 'non_capturing_subrule';
+    
+    # XXX - incomplete - needs a return block
+    rule negated_subrule
+                  :P5 {^\<\!(.*?)\>}
+    push @rule_terms, 'negated_subrule';
+    
+    # XXX - incomplete - needs a return block
+    rule subrule  :P5 {^\<(.*?)\>}
+    push @rule_terms, 'subrule';
+    
+    rule non_capturing_group {
+         \[ <?rule> \] 
+            { return %{$_[0]} }
+    }
+    push @rule_terms, 'non_capturing_group';
+    
+    rule closure_rule {
+        <code>
+            { return { closure => $() ,} }
+    }
+    unshift @rule_terms, 'closure_rule';
+    
+    rule variable_rule {
+        <variable> 
+            { return { variable => $() ,} }
+    }
+    unshift @rule_terms, 'variable_rule';
+    
+    rule runtime_alternation {
+        \< <variable> \>
+            { return { runtime_alternation => $() ,} }
+    }
+    unshift @rule_terms, 'runtime_alternation';
+    
+    rule named_capture {
+        \$ \< <ident> \> <?p6ws>? \:\= <?p6ws>? \( <rule> \) 
+            { return { named_capture => $() ,} }
+    }
+    unshift @rule_terms, 'named_capture';
+    
+    
+    rule capturing_group {
+        \( <rule> \)
+            { return { capturing_group => \%{$_[0]} } }
+    }
+    unshift @rule_terms, 'capturing_group';
+    
+    
+    rule constant {
+        \< <literal> \>
+            { return { constant => $() } }
+    }
+    unshift @rule_terms, 'constant';
+    
+# /terms
 
 rule term {
     <?p6ws>? $<term1> := (<@Pugs::Grammar::Rule::rule_terms>) <?p6ws>?

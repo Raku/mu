@@ -2,7 +2,7 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0xB49F3710 or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0x7508A617 or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
 *{'Pugs::Grammar::Rule::p6ws'} = sub {
@@ -27,6 +27,26 @@ package Pugs::Grammar::Rule;
 
 };
 
+*{'Pugs::Grammar::Rule::dot'} = 
+sub {
+    my $grammar = shift;
+    warn 'rule argument is undefined' unless defined $_[0];
+    package Pugs::Runtime::Rule;
+    rule_wrapper( $_[0], (
+        concat(
+          constant( "\." )
+        ,
+          Pugs::Runtime::Rule::abort(
+              sub {
+                  return { bool => 1, tail => $_[0], return => sub { return 'dot' } };
+              }
+          )
+        ,
+        ),
+        )->( @_ )
+    )
+};
+    unshift @Pugs::Grammar::Rule::rule_terms, 'dot';
 *{'Pugs::Grammar::Rule::word'} = sub {
 
     my $grammar = shift;
@@ -50,29 +70,6 @@ package Pugs::Grammar::Rule;
 };
 
     unshift @Pugs::Grammar::Rule::rule_terms, 'word';
-*{'Pugs::Grammar::Rule::dot'} = sub {
-
-    my $grammar = shift;
-
-    warn "rule argument is undefined" unless defined $_[0];
-
-    my $bool = $_[0] =~ /^(.)(.*)$/sx;
-
-    return {
-
-        bool  => $bool,
-
-        match => $1,
-
-        tail  => $2,
-
-        #capture => $1,
-
-    }
-
-};
-
-    unshift @Pugs::Grammar::Rule::rule_terms, 'dot';
 *{'Pugs::Grammar::Rule::escaped_char'} = sub {
 
     my $grammar = shift;

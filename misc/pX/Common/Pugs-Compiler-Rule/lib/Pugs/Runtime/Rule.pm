@@ -13,8 +13,6 @@ A "rule" function gets as argument a list:
 
 0 - a string to match
 1 - an optional "continuation"
-2 - an optional "flags" hashref
-    'capture'=>1 means 'return whatever matches'
 
 it returns (or "yields"):
 
@@ -58,12 +56,12 @@ sub alternation {
 
         my $tail =  $_[0];
         my $state = $_[1] ? [ @{$_[1]} ] : [ 0, 0 ];
-        my $flags = $_[2];
+        #my $flags = $_[2];
         my $match;
         while ( defined $state ) {
             ### alternation string to match: "$tail - (node,state)=@$state"
             $match = 
-                $nodes->[ $state->[0] ]->( $tail, $state->[1], $flags );
+                $nodes->[ $state->[0] ]->( $tail, $state->[1] );
             ### match: $match
             if ( $match->{state} ) {
                 $state->[1] = $match->{state};
@@ -93,11 +91,11 @@ sub concat {
     return sub {
         my $tail  = $_[0];
         my @state = $_[1] ? ( @{$_[1]} ) : ( 0, 0 );
-        my $flags = $_[2];
+        #my $flags = $_[2];
         my @matches;
         while (1) {
             
-            $matches[0] = $nodes[0]->( $tail, $state[0], $flags );
+            $matches[0] = $nodes[0]->( $tail, $state[0] );
             ### 1st match: $matches[0]
             return $matches[0] 
                 if $matches[0]{abort};
@@ -107,7 +105,7 @@ sub concat {
                 next;
             }
             
-            $matches[1] = $nodes[1]->( $matches[0]{tail}, $state[1], $flags );
+            $matches[1] = $nodes[1]->( $matches[0]{tail}, $state[1] );
             ### 2nd match: $matches[1]
             if ( ! $matches[1]{bool} ) {
                 
@@ -167,12 +165,6 @@ sub constant {
         return if ! $_[0] || $_[0] !~ m/^(\Q$const\E)(.*)/s;
         return { bool => 1,
                  match => { constant => $1 }, 
-                 capture => [ $1 ], 
-                 tail => $2,
-               }
-           if $_[2]{capture};  # flags->{capture}
-        return { bool => 1,
-                 match => { constant => $1 }, 
                  tail => $2,
                }
     }
@@ -182,32 +174,32 @@ sub null {
     return sub {
         return { bool => 1,
                  match => 'null',
-                 ( $_[2]->{capture} ? ( capture => [ '' ] ) : () ),
                  tail => $_[0],
                }
     }
 };
 
 sub capture {
-    # sets the 'capture' flag and return a labeled capture
+    # return a labeled capture
     my $label = shift;
     my $node = shift;
     sub {
-        my @param = @_;
+        #my @param = @_;
         #$param[2] = {} unless defined $param[2];
         #$param[2] = { %{$param[2]}, capture=>1 };
-        my $match = $node->( @param );
+        my $match = $node->( @_ );
         return unless $match->{bool};
         ## return if $match->{abort}; - maybe a { return }
         my $new_match = { %$match };
         
         $new_match->{label}   = $label;
     
-        my $len = length( $match->{tail} );
-        my $head = $len?substr($_[0], 0, -$len):$_[0];
-        $new_match->{capture} = $head;   # XXX -- array ref not needed
-        #print 'got capture: ',do{use Data::Dumper; Dumper($new_match)};
-
+        if ( ! defined $new_match->{capture} ) {
+            my $len = length( $match->{tail} );
+            my $head = $len?substr($_[0], 0, -$len):$_[0];
+            $new_match->{capture} = $head;   # XXX -- array ref not needed
+            #print 'got capture: ',do{use Data::Dumper; Dumper($new_match)};
+        }
         #$new_match->{match}   = [ $match ];  # XXX - workaround
 
         return $new_match;
@@ -330,12 +322,12 @@ sub non_greedy_plus {
     return sub {
         my $tail =  $_[0];
         my $state = $_[1] || { state => undef, op => $node };
-        my $flags = $_[2];
+        #my $flags = $_[2];
 
         # XXX - didn't work
         # my $match = $state->{op}->( $tail, $state->{state}, $flags ); 
 
-        my $match = $state->{op}->( $tail, undef, $flags );
+        my $match = $state->{op}->( $tail, undef );
         return unless $match->{bool};
         $match->{state} = {
             state => $match->{state},
