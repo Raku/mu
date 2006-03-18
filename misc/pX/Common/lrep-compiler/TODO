@@ -1,4 +1,7 @@
-There is a infinite loop dispatched by the commented Grammar::Perl6 rules
+OUTSTANDING PROBLEMS
+
+The grammar, the way it is today, causes very-deep-repetitive-loops
+we should refactor the grammar in a way to avoid such loops.
 
 THE REAL MISSION IS TO SELF-HOST LREP
 
