@@ -44,6 +44,11 @@ sub node::pod {
 sub node::ws {
 	return ''
 }
+sub node::string_concat {
+    my $a = emit(get_data($_[0], '$<a>'));
+    my $b = emit(get_data($_[0], '$<b>'));
+	return $a.'.'.$b;
+}
 sub node::grammar_name {
     my $ident = get_str( $_[0], '$<ident>' );
     return "package $ident;\n";
@@ -256,6 +261,11 @@ sub node::eval_perl5 {
     print "Error in eval_perl5:\n", $_[0] if $@;
     die $@ if $@;
     return $res;
+}
+sub node::varglobal {
+   my $a = $_[0];
+   $a =~ s/^(.)\*(.+)$/$1$2/;
+   return $a;
 }
 sub node::variable {
     return $_[0];

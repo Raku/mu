@@ -230,6 +230,25 @@ sub varscalar {
     return;
 };
 
+sub varglobal {
+    #return unless $_[0];
+    return { 
+        bool  => 1,
+        match => { 'ws*'=> $1 },
+        tail  => $2,
+        ( $_[2]->{capture} ? ( capture => $1 ) : () ),
+    }
+        if $_[0] =~ / ^  
+            (   [ $ % @ % ]\*
+                (?: 
+                    (?:\:\:)? 
+                    [_[:alnum:]]+ 
+                )+
+            )  
+            (.*) $ /xs;
+    return;
+};
+
 sub varhash {
     #return unless $_[0];
     return { 

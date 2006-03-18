@@ -22,7 +22,7 @@ rule perl5_regex {
         \>   |   \!   |
         alnum
     ]* 
-        { return { perl5_regex => $() ,} }
+        {return { perl5_regex => $() ,} }
 }
 
 rule perl5_rule_decl {
@@ -56,7 +56,7 @@ push @rule_terms, \&subrule;
 
 rule capturing_group {
     \( <rule> \)
-        { return { capturing_group => $() } }
+        {return { capturing_group => $() } }
 }
 unshift @rule_terms, \&capturing_group;
 
@@ -326,6 +326,7 @@ rule empty_list {
 push @terms, \&empty_list;
 push @terms, \&varhash;
 push @terms, \&varscalar;
+push @terms, \&varglobal;
 push @terms, \&variable;
 push @terms, \&literal;
 
@@ -402,4 +403,10 @@ rule _return {
         { return { _return => $() ,} }
 }
 push @statements, \&_return;
+
+#rule string_concat {
+#	$a:=(<term1>)<?p6ws>?\~<?p6w6>?$b:=(<term1>)
+#	{ return { string_concat => $() } }
+#}
+#push @terms, \&string_concat;
 

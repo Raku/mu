@@ -285,7 +285,7 @@ sub node::closure {
     $code =~ s/ ([^']) \$ \( \) /$1 match::get( \$_[0], '\$()' ) /sgx;
     #print "Code: $code\n";
     
-    return "$_[1] sub {\n" . 
+    return "$_[1] sub { print __FILE__ . __LINE__ .\"\\n\" if \$::trace; \n" . 
            "$_[1]     $code;\n" . 
            "$_[1]     return { bool => 1, tail => \$_[0] } }\n"
         unless $code =~ /return/;
@@ -346,6 +346,7 @@ sub return_block_hack {
             my $return;
             $return = "
     sub { 
+	print __FILE__ . __LINE__ . \"\\n\" if \$::trace;
         my \$rule = \n$program    ;
         my \$match = \$rule->( \@_ );
         return unless \$match;

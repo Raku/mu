@@ -10,11 +10,12 @@ require Emitter::Perl5;
 %args = ();
     my $argsref;
 $argsref = \%args;
-getopts('i:o:',$argsref);
+getopts('ti:o:',$argsref);
     my $input_filename;
 $input_filename = $args{'i'};
     my $output_filename;
 $output_filename = $args{'o'};
+$::trace = $args{'t'};
 unless ($input_filename) 
     {
 
@@ -65,7 +66,9 @@ if ($tail)
     {
 
     {
-    die  'Syntax Error !!';
+    print 'Syntax Error !!';
+    print "\n";
+    die  $tail;
 
     }
 

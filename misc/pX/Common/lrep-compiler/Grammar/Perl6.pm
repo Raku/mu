@@ -2,6 +2,7 @@ package Grammar::Perl6;
 *{'perl5_regex'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
          Runtime::Perl5::RuleOps::greedy_star(
              Runtime::Perl5::RuleOps::alternation( [
@@ -58,7 +59,7 @@ package Grammar::Perl6;
     ;
         my $match = $rule->( @_ );
         return unless $match;
-        my $capture_block = sub { return { perl5_regex =>  match::get( $_[0], '$()' )  ,} }       ,
+        my $capture_block = sub {return { perl5_regex =>  match::get( $_[0], '$()' )  ,} }       ,
 ; 
         #use Data::Dumper;
         #print "capture was: ", Dumper( $match->{capture} );
@@ -71,6 +72,7 @@ package Grammar::Perl6;
 *{'perl5_rule_decl'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::constant( "rule" )
@@ -198,6 +200,7 @@ package Grammar::Perl6;
 *{'capturing_group'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::constant( "\(" )
@@ -210,7 +213,7 @@ package Grammar::Perl6;
     ;
         my $match = $rule->( @_ );
         return unless $match;
-        my $capture_block = sub { return { capturing_group =>  match::get( $_[0], '$()' )  } }       ,
+        my $capture_block = sub {return { capturing_group =>  match::get( $_[0], '$()' )  } }       ,
 ; 
         #use Data::Dumper;
         #print "capture was: ", Dumper( $match->{capture} );
@@ -224,6 +227,7 @@ package Grammar::Perl6;
 *{'constant'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::constant( "\<" )
@@ -266,6 +270,7 @@ package Grammar::Perl6;
 *{'const_word'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
          Runtime::Perl5::RuleOps::capture( 'word', \&{'Grammar::Perl6::word'} )
        ,
@@ -286,6 +291,7 @@ package Grammar::Perl6;
 *{'const_escaped_char'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
          Runtime::Perl5::RuleOps::capture( 'escaped_char', \&{'Grammar::Perl6::escaped_char'} )
        ,
@@ -306,6 +312,7 @@ package Grammar::Perl6;
 *{'dot'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
          Runtime::Perl5::RuleOps::capture( 'capturing_group',
                  Runtime::Perl5::RuleOps::constant( "\." )
@@ -353,6 +360,7 @@ package Grammar::Perl6;
 *{'closure_rule'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
          Runtime::Perl5::RuleOps::capture( 'code', \&{'Grammar::Perl6::code'} )
        ,
@@ -373,6 +381,7 @@ package Grammar::Perl6;
 *{'variable_rule'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
          Runtime::Perl5::RuleOps::capture( 'variable', \&{'Grammar::Perl6::variable'} )
        ,
@@ -393,6 +402,7 @@ package Grammar::Perl6;
 *{'runtime_alternation'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::constant( "\<" )
@@ -419,6 +429,7 @@ package Grammar::Perl6;
 *{'named_capture'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::constant( "\$" )
@@ -486,6 +497,7 @@ package Grammar::Perl6;
 *{'indirect_object'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'varscalar', \&{'Grammar::Perl6::varscalar'} )
@@ -515,6 +527,7 @@ package Grammar::Perl6;
 *{'condition_rule'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'op', 
@@ -579,6 +592,7 @@ package Grammar::Perl6;
 *{'meth_call_term'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'class', 
@@ -637,6 +651,7 @@ package Grammar::Perl6;
 *{'meth_call_statement'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'class', 
@@ -699,6 +714,7 @@ package Grammar::Perl6;
 *{'sub_call_term'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'name', 
@@ -750,6 +766,7 @@ package Grammar::Perl6;
 *{'sub_call_statement'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'name', 
@@ -810,6 +827,7 @@ package Grammar::Perl6;
 *{'access_hashref_element'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'variable', 
@@ -845,6 +863,7 @@ package Grammar::Perl6;
 *{'access_hash_element'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'variable', 
@@ -880,6 +899,7 @@ package Grammar::Perl6;
 *{'assign_hash_to_scalar'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'variable', 
@@ -929,6 +949,7 @@ package Grammar::Perl6;
 *{'assign_slurp_to_variable'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'variable', 
@@ -985,6 +1006,7 @@ package Grammar::Perl6;
 *{'assign_open_to_variable'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'variable', 
@@ -1041,6 +1063,7 @@ package Grammar::Perl6;
 *{'assign'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'variable', 
@@ -1090,6 +1113,7 @@ package Grammar::Perl6;
 *{'rule_decl'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::constant( "rule" )
@@ -1127,6 +1151,7 @@ package Grammar::Perl6;
 *{'grammar_name'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::constant( "grammar" )
@@ -1160,6 +1185,7 @@ package Grammar::Perl6;
 *{'sub_call'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'name', 
@@ -1220,6 +1246,7 @@ package Grammar::Perl6;
 *{'_push'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'op', 
@@ -1330,6 +1357,7 @@ package Grammar::Perl6;
 *{'require'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::constant( "require" )
@@ -1368,6 +1396,7 @@ package Grammar::Perl6;
 *{'use_rule'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::constant( "use" )
@@ -1438,6 +1467,7 @@ package Grammar::Perl6;
 *{'block'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::constant( "\{" )
@@ -1482,6 +1512,7 @@ package Grammar::Perl6;
 *{'macro_decl'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::constant( "macro" )
@@ -1607,6 +1638,7 @@ package Grammar::Perl6;
 *{'empty_list'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::constant( "\(" )
@@ -1630,11 +1662,13 @@ package Grammar::Perl6;
     push @terms, \&empty_list;
     push @terms, \&varhash;
     push @terms, \&varscalar;
+    push @terms, \&varglobal;
     push @terms, \&variable;
     push @terms, \&literal;
 *{'_open'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'op', 
@@ -1672,6 +1706,7 @@ package Grammar::Perl6;
 *{'_print_with_fh'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'op', 
@@ -1721,6 +1756,7 @@ package Grammar::Perl6;
 *{'_print'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'op', 
@@ -1766,6 +1802,7 @@ package Grammar::Perl6;
 *{'_my'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'op', 
@@ -1809,6 +1846,7 @@ package Grammar::Perl6;
 *{'_simple_statement'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'op', 
@@ -1847,6 +1885,7 @@ package Grammar::Perl6;
 *{'sub_decl'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::constant( "sub" )
@@ -1904,6 +1943,7 @@ package Grammar::Perl6;
 *{'sub_defin'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::constant( "sub" )
@@ -1940,6 +1980,7 @@ package Grammar::Perl6;
 *{'term2'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'term1', 
@@ -1984,6 +2025,7 @@ package Grammar::Perl6;
 *{'sub_application'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::capture( 'term1', 
@@ -2046,6 +2088,7 @@ package Grammar::Perl6;
 *{'eval_perl5'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::constant( "eval" )
@@ -2118,6 +2161,7 @@ package Grammar::Perl6;
 *{'_return'} = 
 
     sub { 
+	print __FILE__ . __LINE__ . "\n" if $::trace;
         my $rule = 
        Runtime::Perl5::RuleOps::concat(
          Runtime::Perl5::RuleOps::constant( "return" )

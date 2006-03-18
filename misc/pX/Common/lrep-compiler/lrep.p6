@@ -20,11 +20,12 @@ my %args;                       # declaration and assignment in the
 %args = ();                     # same line still not working
 my $argsref;                    # using verbose code here to simplify rules
 $argsref = %args;               # see A02
-getopts('i:o:', $argsref);      # this is just like perl 5
+getopts('ti:o:', $argsref);      # this is just like perl 5
 my $input_filename;
 $input_filename = %args{'i'};   # hash access...
 my $output_filename;
 $output_filename = %args{'o'};
+$::trace = %args{'t'};			# global variable
 
 # test arguments
 unless ( $input_filename ) {
@@ -59,7 +60,8 @@ $match = Grammar::Perl6::grammar($source);
 my $tail;
 $tail = $match{'tail'};
 if ( $tail ) {
-	die 'Syntax Error !!';
+	say 'Syntax Error !!';
+	die $tail;
 }
 
 # emit
