@@ -4,6 +4,7 @@ use Getopt::Std;
 use Data::Dumper;
 require Runtime::Perl5::RuleInit;
 require Grammar::Perl6Init;
+require Grammar::Rules;
 require Grammar::Perl6;
 require Emitter::Perl5;
     my %args;

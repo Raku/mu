@@ -12,6 +12,7 @@ use Data::Dumper;
 # plain use.
 require Runtime::Perl5::RuleInit;
 require Grammar::Perl6Init;
+require Grammar::Rules;
 require Grammar::Perl6;
 require Emitter::Perl5;
 

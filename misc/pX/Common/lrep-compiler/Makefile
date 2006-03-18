@@ -4,11 +4,15 @@ all: prelude tests lrep
 
 suite: clean all
 
-prelude: Grammar/Perl6.pm Grammar/Perl6Primitives.pm
+prelude: Grammar/Perl6.pm Grammar/Rules.pm Grammar/Perl6Primitives.pm
 
 Grammar/Perl6.pm: Grammar/Perl6.p6
 	cp Grammar/Perl6.pm Grammar/Perl6.pm.cache
 	$(LREP) -i Grammar/Perl6.p6 -o Grammar/Perl6.pm
+
+Grammar/Rules.pm: Grammar/Rules.p6
+	cp Grammar/Rules.pm Grammar/Rules.pm.cache
+	$(LREP) -i Grammar/Rules.p6 -o Grammar/Rules.pm
 
 Grammar/Perl6Primitives.pm: Grammar/Perl6Primitives.p6
 	$(LREP) -i Grammar/Perl6Primitives.p6 -o Grammar/Perl6Primitives.pm

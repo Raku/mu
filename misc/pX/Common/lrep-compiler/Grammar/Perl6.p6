@@ -10,135 +10,6 @@
 
 grammar Grammar::Perl6;
 
-# rule xxx :P5 {foo}
-# XXX - rewrite this!
-rule perl5_regex { 
-    [   
-        \.   |   \|   |   \*   |   \+   |
-        \(   |   \)   |   \[   |   \]   |
-        \?   |   \:   |   \s   |   \w   | 
-        \_   |   \\   |   \^   |   \$   |
-        \n   |   \#   |   \-   |   \<   |
-        \>   |   \!   |
-        alnum
-    ]* 
-        {return { perl5_regex => $() ,} }
-}
-
-rule perl5_rule_decl {
-    rule <p6ws> <ident> <p6ws>? \: P5 <p6ws> \{ <perl5_regex> \}
-        { return { perl5_rule_decl => $() ,} }
-}
-push @statements, \&perl5_rule_decl;
- 
-rule word     :P5 {^([_[:alnum:]]+)}
-rule any      :P5 {^(.)}
-rule escaped_char  
-              :P5 {^\\(.)}
-rule newline  :P5 {^(\n)}
-rule ws       :P5 {^(\s+)}
-rule p6ws     :P5 {^((?:\s|\#(?-s:.)*)+)}
-
-# XXX - set non-capture flag?
-# XXX - incomplete - needs a return block
-rule non_capturing_subrule
-              :P5 {^\<\?(.*?)\>}
-push @rule_terms, \&non_capturing_subrule;
-
-# XXX - incomplete - needs a return block
-rule negated_subrule
-              :P5 {^\<\!(.*?)\>}
-push @rule_terms, \&negated_subrule;
-
-# XXX - incomplete - needs a return block
-rule subrule  :P5 {^\<(.*?)\>}
-push @rule_terms, \&subrule;
-
-rule capturing_group {
-    \( <rule> \)
-        {return { capturing_group => $() } }
-}
-unshift @rule_terms, \&capturing_group;
-
-rule constant {
-    \< <literal> \>
-        { return { constant => $() } }
-}
-unshift @rule_terms, \&constant;
-
-rule term {
-    <?p6ws>? <@Grammar::Perl6::rule_terms> <?p6ws>?
-}
-
-#rule quantifier {
-#    [ <term> [ 
-#        [ \?\? ] |
-#        [ \*\? ] |
-#        [ \+\? ] |
-#        \?       |
-#        \*       |
-#        \+
-#      ] 
-#      <?p6ws>?
-#    ]*
-#    |
-#    <term>
-#}
-#rule alt {
-#    <quantifier> [ \| <quantifier> ]+
-#}
-
-
-rule const_word {
-    <word>
-        { return { constant => $() ,} }
-}
-unshift @rule_terms, \&const_word;
-
-rule const_escaped_char {
-    <escaped_char> 
-        { return { constant => $() ,} }
-}
-unshift @rule_terms, \&const_escaped_char;
-
-rule dot {
-    (\.) 
-        { return { dot => $() ,} }
-}
-unshift @rule_terms, \&dot;
-
-rule rule {
-    [ <?alt> | <?quantifier> ]*
-}
-
-rule non_capturing_group {
-     \[ <?rule> \] 
-}
-push @rule_terms, \&non_capturing_group;
-
-rule closure_rule {
-    <code>
-        { return { closure => $() ,} }
-}
-unshift @rule_terms, \&closure_rule;
-
-rule variable_rule {
-    <variable> 
-        { return { variable => $() ,} }
-}
-unshift @rule_terms, \&variable_rule;
-
-rule runtime_alternation {
-    \< <variable> \>
-        { return { runtime_alternation => $() ,} }
-}
-unshift @rule_terms, \&runtime_alternation;
-
-rule named_capture {
-    \$ <ident> <?p6ws>? \:\= <?p6ws>? \( <rule> \) 
-        { return { named_capture => $() ,} }
-}
-unshift @rule_terms, \&named_capture;
 
 rule immediate_statement_rule {
     <?p6ws>? <@statements> <?p6ws>?
@@ -326,7 +197,6 @@ rule empty_list {
 push @terms, \&empty_list;
 push @terms, \&varhash;
 push @terms, \&varscalar;
-push @terms, \&varglobal;
 push @terms, \&variable;
 push @terms, \&literal;
 
@@ -403,10 +273,4 @@ rule _return {
         { return { _return => $() ,} }
 }
 push @statements, \&_return;
-
-#rule string_concat {
-#	$a:=(<term1>)<?p6ws>?\~<?p6w6>?$b:=(<term1>)
-#	{ return { string_concat => $() } }
-#}
-#push @terms, \&string_concat;
 

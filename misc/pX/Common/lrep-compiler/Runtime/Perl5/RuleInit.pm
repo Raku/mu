@@ -132,6 +132,7 @@ sub compile_rule {
     #print "compile_rule: $_[0]\n";
     require Grammar::Perl6Init;
     require Grammar::Perl6;
+    require Grammar::Rules;
     my $match = Grammar::Perl6::rule->( $_[0] );
     my $flags = $_[1];
     print "ast:\n", Dumper( $match->{capture} ) if $flags->{print_ast};
