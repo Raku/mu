@@ -13,16 +13,19 @@ Abstract Syntax Tree (AST) for Rules.
 
 =cut
  
-rule word     :P5 {^([_[:alnum:]]+)}
-rule any      :P5 {^(.)}
-rule escaped_char  
-              :P5 {^\\(.)}
-rule newline  :P5 {^(\n)}
-rule ws       :P5 {^(\s+)}
 rule p6ws     :P5 {^((?:\s|\#(?-s:.)*)+)}
 
-# XXX - set non-capture flag?
-# XXX - incomplete - needs a return block
+rule word     :P5 {^([_[:alnum:]]+)}
+unshift @rule_terms, 'word';
+
+
+rule dot      :P5 {^(.)}
+unshift @rule_terms, 'dot';
+
+rule escaped_char  
+              :P5 {^\\(.)}
+unshift @rule_terms, 'escaped_char';
+
 rule non_capturing_subrule
               :P5 {^\<\?(.*?)\>}
 push @rule_terms, 'non_capturing_subrule';
@@ -36,26 +39,9 @@ push @rule_terms, 'negated_subrule';
 rule subrule  :P5 {^\<(.*?)\>}
 push @rule_terms, 'subrule';
 
-rule const_word {
-    <word>
-        { return { constant => $() ,} }
-}
-unshift @rule_terms, 'const_word';
-
-rule const_escaped_char {
-    <escaped_char> 
-        { return { constant => $() ,} }
-}
-unshift @rule_terms, 'const_escaped_char';
-
-rule dot {
-    (\.) 
-        { return { dot => $() ,} }
-}
-unshift @rule_terms, 'dot';
-
 rule non_capturing_group {
      \[ <?rule> \] 
+        { return %{$_[0]} }
 }
 push @rule_terms, 'non_capturing_group';
 
@@ -86,7 +72,7 @@ unshift @rule_terms, 'named_capture';
 
 rule capturing_group {
     \( <rule> \)
-        { return { capturing_group => $() } }
+        { return { capturing_group => \%{$_[0]} } }
 }
 unshift @rule_terms, 'capturing_group';
 
@@ -99,30 +85,31 @@ unshift @rule_terms, 'constant';
 
 
 rule term {
-    <?p6ws>? <@Pugs::Grammar::Rule::rule_terms> <?p6ws>?
+    <?p6ws>? $<term1> := (<@Pugs::Grammar::Rule::rule_terms>) <?p6ws>?
+        { return { %{$_[0]} ,} }
 }
 
 
 rule quantifier {
-    [ <term> [ 
+    <term> [ 
         [ \?\? ] |
         [ \*\? ] |
         [ \+\? ] |
         \?       |
         \*       |
         \+
-      ] 
+      ]? 
       <?p6ws>?
-    ]*
-    |
-    <term>
+        { return { quantifier => $_[0] ,} }
 }
 
 rule alt {
     <quantifier> [ \| <quantifier> ]+
+        { return { alt => $_[0] ,} }
 }
 
 rule rule {
-    [ <?alt> | <?quantifier> ]*
+    [ <alt> | <quantifier> ]*
+        { return { rule => $_[0] ,} }
 }
 

@@ -24,6 +24,8 @@ sub compile {
 
     $self->{ast} = Pugs::Grammar::Rule->rule( 
         $self->{source} );
+    die "Error in rule: '$rule_source' at: '$self->{ast}{tail}'\n" if $self->{ast}{tail};
+    #print 'rule ast: ', do{use Data::Dumper; Dumper($self->{ast}{capture})};
     $self->{perl5} = Pugs::Emitter::Rule::Perl5::emit( 
         $self->{grammar}, $self->{ast}{capture} );
 
@@ -46,7 +48,7 @@ sub code {
 
 sub match {
     my $rule = shift; 
-    warn "match: grammar $rule->{grammar}, $_[0]";
+    #warn "match: grammar $rule->{grammar}, $_[0]";
     foreach my $i (0..length($_[0])) {
         my $match = $rule->{code}( 
             $rule->{grammar},

@@ -212,7 +212,7 @@ unshift @rule_terms, \&runtime_alternation;
 
 rule named_capture {
 
-    \$ <ident> <?p6ws>? \:\= <?p6ws>? \( <rule> \) 
+    \$ \< <ident> \> <?p6ws>? \:\= <?p6ws>? \( <rule> \) 
 
         { return { named_capture => $() ,} }
 

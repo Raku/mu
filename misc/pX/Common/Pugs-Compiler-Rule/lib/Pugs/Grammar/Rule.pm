@@ -87,7 +87,12 @@ sub ident {
 # curry @rule_terms with Grammar
 @rule_terms = map { 
         my $method = $_;
-        sub{ Pugs::Grammar::Rule->$method(@_) }
+        sub{ 
+            #warn "Trying $method\n";
+            my $match = Pugs::Grammar::Rule->$method(@_);
+            #warn $match->{bool} ? "Match ".Dumper($match) : "No match\n";
+            return $match;
+        }
     }
     @rule_terms;
 1;

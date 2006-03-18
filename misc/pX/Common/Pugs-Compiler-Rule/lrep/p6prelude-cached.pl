@@ -355,7 +355,11 @@ package grammar1;
        ruleop::concat(
          ruleop::constant( "\$" )
        ,
+         ruleop::constant( "\<" )
+       ,
          ruleop::capture( 'ident', \&{'grammar1::ident'} )
+       ,
+         ruleop::constant( "\>" )
        ,
          ruleop::optional(
              \&{'grammar1::p6ws'}

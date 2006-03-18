@@ -5,9 +5,15 @@ use Data::Dumper;
 use_ok( 'Pugs::Compiler::Rule' );
 
 {
+    my $rule = Pugs::Compiler::Rule->compile( '.' );
+    my $match = $rule->match( "xyzw" );
+    is( "$match", "x", 'stringify 1' );
+}
+
+{
     my $rule = Pugs::Compiler::Rule->compile( '((.).)(.)' );
     my $match = $rule->match( "xyzw" );
-    print "Match: ", do{use Data::Dumper; Dumper($match)};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( "$match", "xyz", 'stringify 1' );
     is( $match->(), "xyz", 'stringify 1' );
     is( "$match->[0]", "xy", 'stringify 2' );

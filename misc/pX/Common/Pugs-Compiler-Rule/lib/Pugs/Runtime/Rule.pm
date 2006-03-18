@@ -5,6 +5,7 @@ package Pugs::Runtime::Rule;
 use strict;
 use warnings;
 #use Smart::Comments; for debugging, look also at Filtered-Comments.pm
+use Data::Dumper;
 
 =pod
 
@@ -139,15 +140,22 @@ sub concat {
             #    if $matches[1]{capture};
             #undef $capture unless @$capture;
 
-            return { 
-                bool =>  1,
-                match => [ @matches ], 
-                tail =>  $matches[1]{tail},
-                state => $succ,
-                #capture => $capture,  # ???
-                abort => $matches[1]{abort},
-                return => $matches[1]{return},
-            };
+            my $match2 = { %{$matches[1]} };
+            $match2->{match} = \@matches;
+            $match2->{state} = $succ;
+            delete $matches[1]{abort};
+            delete $matches[1]{return};
+            return $match2;
+            
+            #return { 
+            #    bool =>  1,
+            #    match => [ @matches ], 
+            #    tail =>  $matches[1]{tail},
+            #    state => $succ,
+            #    #capture => $capture,  # ???
+            #    abort => $matches[1]{abort},
+            #    return => $matches[1]{return},
+            #};
         }
     }
 }
@@ -335,6 +343,35 @@ sub non_greedy_plus {
         };
         return $match;
     }
+}
+
+# interface to the internal rule functions
+# - creates a 'capture', unless it detects a 'return block'
+sub rule_wrapper {
+    my ( $str, $match ) = @_;
+    return unless $match->{bool};
+    if ( $match->{return} ) {
+        #warn 'pre-return: ', Dumper( $match );
+        my %match2 = %$match;
+        $match2{capture} = $match->{return}( 
+            Pugs::Runtime::Match->new( $match ) 
+        );
+        warn "return ",ref($match2{capture});
+        #warn 'post-return: ', Dumper( $match2{capture} );
+        delete $match->{return};
+        delete $match->{abort};
+        delete $match2{return};
+        delete $match2{abort};
+        #warn "Return Object: ", Dumper( \%match2 );
+        return \%match2;
+    }
+    #warn "Return String";
+    # print Dumper( $match );
+    my $len = length( $match->{tail} );
+    my $head = $len ? substr($str, 0, -$len) : $str;
+    $match->{capture} = $head;
+    delete $match->{abort};
+    return $match;
 }
 
 1;
