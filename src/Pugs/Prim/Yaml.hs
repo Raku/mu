@@ -41,15 +41,15 @@ fromYaml MkYamlNode{el=YamlMap nodes,tag=tag} = do
                 return (key, val)
             hv      <- liftSTM $ (newTVar (Map.fromList vals) :: STM IHash)
             return $ VRef (hashRef hv)
-        Just s | Just (pre, post) <- Str.breakFirst ':' s
-               , pre == Str.pack "pugs/Object" -> do
+        Just s | (pre, post) <- Str.splitAt 16 s   -- 16 == length "tag:pugs:Object:"
+               , pre == Str.pack "tag:pugs:Object:" -> do
             let typ = Str.unpack post
             vals    <- forM nodes $ \(keyNode, valNode) -> do
                 key <- fromVal =<< fromYaml keyNode
                 val <- fromYaml valNode
                 return (key, val)
             return . VObject =<< createObject (mkType typ) vals
-        Just s | s == Str.pack "pugs/Rule" -> do
+        Just s | s == Str.pack "tag:pugs:Rule" -> do
             vals    <- forM nodes $ \(keyNode, valNode) -> do
                 key <- fromVal =<< fromYaml keyNode
                 val <- fromYaml valNode
@@ -109,8 +109,8 @@ toYaml v@(VObject obj) = do
     -- parens, which is, of course, wrong.
     hash    <- fromVal v :: Eval VHash
     attrs   <- toYaml $ VRef (hashRef hash)
-    return $ tagNode (Just $ Str.pack $ "tag:pugs:object:" ++ showType (objType obj)) attrs
-toYaml (VRule MkRulePGE{rxRule=rule, rxGlobal=global, rxStringify=stringify, rxAdverbs=adverbs}) =do
+    return $ tagNode (Just $ Str.pack $ "tag:pugs:Object:" ++ showType (objType obj)) attrs
+toYaml (VRule MkRulePGE{rxRule=rule, rxGlobal=global, rxStringify=stringify, rxAdverbs=adverbs}) = do
     adverbs' <- toYaml adverbs
     return . mkTagNode "tag:pugs:Rule" $ YamlMap
         [ (strNode "rule", strNode rule)
