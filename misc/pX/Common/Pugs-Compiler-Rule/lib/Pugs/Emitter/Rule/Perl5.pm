@@ -20,7 +20,7 @@ sub call_subrule {
 
 sub emit {
     my ($grammar, $ast) = @_;
-    # print "AST: ",do{use Data::Dumper; Dumper($ast)};
+    print "emit ast: ",do{use Data::Dumper; Dumper($ast)};
     my $source = 
         "sub {\n" . 
         "    my \$grammar = shift;\n" .
@@ -106,11 +106,10 @@ sub capturing_group {
 sub non_capturing_group {
     return emit_rule( $_[0], $_[1] );
 }        
-sub star {
-    local $Data::Dumper::Indent = 1;
-    my $term = $_[0]->[0]{'term'};
-    #print "*** \$term:\n",Dumper $term;
-    my $quantifier = $_[0]->[1]{'literal'}[0];
+sub quant {
+    # local $Data::Dumper::Indent = 1;
+    my $term = $_[0]->{'term'};
+    my $quantifier = $_[0]->{quant};
     my $sub = { 
             '*' =>'greedy_star',     
             '+' =>'greedy_plus',
@@ -118,10 +117,13 @@ sub star {
             '+?'=>'non_greedy_plus',
             '?' =>'optional',
             '??' =>'null_or_optional',
+            ''  => '',
         }->{$quantifier};
     # print "*** \$quantifier:\n",Dumper $quantifier;
     die "quantifier not implemented: $quantifier" 
-        unless $sub;
+        unless defined $sub;
+    return emit_rule( $term, $_[1] ) 
+        if $sub eq '';
     return "$_[1] $sub(\n" .
            emit_rule( $term, $_[1] ) . "$_[1] )\n";
 }        
@@ -134,7 +136,7 @@ sub alt {
         push @s, $tmp if $tmp;   
     }
     return "$_[1] alternation( [\n" . 
-           join( '', @s ) .
+           join( ',', @s ) .
            "$_[1] ] )\n";
 }        
 sub term {

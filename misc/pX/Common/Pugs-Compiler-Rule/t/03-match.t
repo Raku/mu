@@ -11,6 +11,18 @@ use_ok( 'Pugs::Compiler::Rule' );
 }
 
 {
+    my $rule = Pugs::Compiler::Rule->compile( '.|.' );
+    my $match = $rule->match( "xyzw" );
+    is( "$match", "x", 'stringify 1' );
+}
+
+{
+    my $rule = Pugs::Compiler::Rule->compile( '.*' );
+    my $match = $rule->match( "xyzw" );
+    is( "$match", "xyzw", 'stringify 1' );
+}
+
+{
     my $rule = Pugs::Compiler::Rule->compile( '((.).)(.)' );
     my $match = $rule->match( "xyzw" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};

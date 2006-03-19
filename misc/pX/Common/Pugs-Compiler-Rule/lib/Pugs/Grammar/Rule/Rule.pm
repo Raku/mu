@@ -19,7 +19,7 @@ rule p6ws     :P5 {^((?:\s|\#(?-s:.)*)+)}
 
     rule dot {
         \.    
-            { return 'dot' }
+            { return { 'dot' => 1 ,} }
     }
     unshift @rule_terms, 'dot';
     
@@ -44,8 +44,8 @@ rule p6ws     :P5 {^((?:\s|\#(?-s:.)*)+)}
     push @rule_terms, 'subrule';
     
     rule non_capturing_group {
-         \[ <?rule> \] 
-            { return %{$_[0]} }
+         \[ <rule> \] 
+            { return $_[0]{rule} }
     }
     push @rule_terms, 'non_capturing_group';
     
@@ -76,7 +76,7 @@ rule p6ws     :P5 {^((?:\s|\#(?-s:.)*)+)}
     
     rule capturing_group {
         \( <rule> \)
-            { return { capturing_group => \%{$_[0]} } }
+            { return { capturing_group => $_[0]{rule}() ,} }
     }
     unshift @rule_terms, 'capturing_group';
     
@@ -89,32 +89,45 @@ rule p6ws     :P5 {^((?:\s|\#(?-s:.)*)+)}
     
 # /terms
 
-rule term {
-    <?p6ws>? $<term1> := (<@Pugs::Grammar::Rule::rule_terms>) <?p6ws>?
-        { return { %{$_[0]} ,} }
-}
-
 
 rule quantifier {
-    <term> [ 
-        [ \?\? ] |
-        [ \*\? ] |
-        [ \+\? ] |
-        \?       |
-        \*       |
-        \+
-      ]? 
-      <?p6ws>?
-        { return { quantifier => $_[0] ,} }
-}
-
-rule alt {
-    <quantifier> [ \| <quantifier> ]+
-        { return { alt => $_[0] ,} }
+    <?p6ws>?
+    $<term> := (<@Pugs::Grammar::Rule::rule_terms>)
+    <?p6ws>?
+    $<quant> := (
+        [ 
+            [ \?\? ] |
+            [ \*\? ] |
+            [ \+\? ] |
+            \?       |
+            \*       |
+            \+
+        ]?
+    )
+    <?p6ws>?
+    
+    { return {  
+            term =>  $_[0]{term}(),
+            quant => $_[0]{quant}(),
+        } 
+    }
 }
 
 rule rule {
-    [ <alt> | <quantifier> ]*
-        { return { rule => $_[0] ,} }
+    [ 
+        $<q1> := (<quantifier>) \| $<q2> := (<quantifier>) 
+        
+        { return { alt => [ 
+                { quant => $_[0]{q1}() }, 
+                { quant => $_[0]{q2}() },
+            ] ,} 
+        } 
+    ]
+    | 
+    [ 
+        <quantifier> 
+        
+        { return { quant => $_[0]{quantifier}() ,} } 
+    ]
 }
 

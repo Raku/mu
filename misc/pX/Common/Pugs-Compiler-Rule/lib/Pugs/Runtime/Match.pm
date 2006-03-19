@@ -76,6 +76,11 @@ sub bool {
 
 # as hash
 sub hash {
+    my @a = @{${$_[0]}->{match}};
+    while ( exists $a[-1]{match} && ref( $a[-1]{match} ) eq 'ARRAY' ) {
+        my $t = pop @a;
+        push @a, @{$t->{match}};
+    }
     return {map {
         my $m = $_;
         exists $m->{label} 
@@ -84,7 +89,7 @@ sub hash {
             : $m->{label} => _box_submatch( $_[0], $m )
           )
         : ()
-    } @{${$_[0]}->{match}}};
+    } @a };    # @{${$_[0]}->{match}}};
 }
 
 # as array
@@ -95,13 +100,18 @@ sub array {
         my $m = _box_submatch( $_[0], ${$_[0]} );
         return [ $m ];
     }
+    my @a = @{${$_[0]}->{match}};
+    while ( exists $a[-1]{match} && ref( $a[-1]{match} ) eq 'ARRAY' ) {
+        my $t = pop @a;
+        push @a, @{$t->{match}};
+    }
     return [map {
         my $m = $_;
         #print 'array element: ', do{use Data::Dumper; Dumper($m)};
         exists $m->{label} && $m->{label} eq '' 
         ? _box_submatch( $_[0], $m )
         : ()
-    } @{${$_[0]}->{match}}];
+    } @a ];    # @{${$_[0]}->{match}}];
 }
 
 1;

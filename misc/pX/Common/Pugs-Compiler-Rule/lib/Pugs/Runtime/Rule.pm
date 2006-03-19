@@ -173,7 +173,7 @@ sub constant {
 sub null {
     return sub {
         return { bool => 1,
-                 match => 'null',
+                 #match => undef,  #'null',
                  tail => $_[0],
                }
     }
@@ -250,12 +250,12 @@ sub abort {
 sub negate { 
     my $op = shift;
     return sub {
-        my $tail = $_[0];
+        #my $tail = $_[0];
         my $match = $op->( @_ );
         return if $match->{bool};
         return { bool => 1,
-                 match => 'null',
-                 tail => $tail,
+                 #match => undef,  #'null',
+                 tail => $_[0],
                }
     };
 };
@@ -348,7 +348,7 @@ sub rule_wrapper {
         $match2{capture} = $match->{return}( 
             Pugs::Runtime::Match->new( $match ) 
         );
-        warn "return ",ref($match2{capture});
+        #warn "return ",ref($match2{capture});
         #warn 'post-return: ', Dumper( $match2{capture} );
         delete $match->{return};
         delete $match->{abort};
