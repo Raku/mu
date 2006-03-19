@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 13;
+plan 16;
 
 =pod
 
@@ -65,3 +65,16 @@ Basic tests for the chomp() builtin
     is($chomped_foo, "\n", 'chomp(...).newline returns the chomped value', :todo<feature>);
     is($foo, "foo", 'and our variable was chomped');
 }
+
+{
+    my $foo = "foo\n\n";
+    my $chomped = $foo.chomp;
+    is($foo, "foo\n\n", ".chomp has no effect on the original string");
+    is($chomped, "foo\n", ".chomp returns correctly chomped value");
+    
+    # $chomped.chomp.newline
+
+    $chomped = $chomped.chomp;
+    is($chomped, "foo", ".chomp returns correctly chomped value again");
+}
+

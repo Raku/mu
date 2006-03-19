@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 23;
+plan 31;
 
 # Simple - with just a single char
 
@@ -41,5 +41,27 @@ is(index("ababcabcd", "abcd"), 5, "Start-of-substr matches several times");
 
 is(index("uuúuúuùù", "úuù"), 4, "Accented chars");
 is(index("Ümlaut", "Ü"), 0, "Umlaut");
+
+
+#  call directly with the .notation
+
+is("Hello".index("l"), 2, ".index on string");
+
+# work on variables
+
+my $a = "word";
+is($a.index("o"), 1, ".index on scalar variable");
+
+my @a = <Hello World>;
+is(index(@a[0], "l"), 2, "on array element");
+is(@a[0].index("l"), 2, ".index on array element");
+
+# index on junctions, maybe this should be moved to t/junctions/ ?
+
+my $j = ("Hello"|"World");
+ok(index($j, "l") == 2, "index on junction");
+ok(index($j, "l") == 3, "index on junction");
+ok($j.index("l")  == 2, ".index on junction");
+ok($j.index("l")  == 3, ".index on junction");
 
 
