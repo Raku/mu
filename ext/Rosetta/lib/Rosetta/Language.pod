@@ -214,6 +214,18 @@ usually-anonymous routines.  If the target variable is the DBMS' own
 special catalog of repositories, then the effect is to mount or unmount a
 repository, which corresponds to SQL client statements like "connect to".
 
+All types of Rosetta D command routines can have assignment statements
+which target their own lexical variables, including their own read-write
+parameters, but only procedures are allowed to target global variables,
+which are declared in a repository directly.  In other words, an operator /
+function may not have side-effects (save its own read-write parameters),
+though it can I<read> from global variables.  A few special exceptions may
+be made to this restriction on operators / functions, but for the most
+part, the restriction is in place to prevent inconsistencies between reads
+of the environment/globals from multiple operators / functions that are
+invoked in the same Rosetta D expression; all reads in the same expression
+need to see the same state.
+
 =head2 Named Users and Privileges
 
 The Rosetta DBMS / virtual machine itself does not have its own set of
@@ -239,18 +251,58 @@ update, and what routines they are allowed to execute; it also controls
 other aspects of their possible activity.  The concerns here are analagous
 to privileges on a computer's file system, or a typical SQL database.
 
-=head2 Transactional Behaviour
+=head2 States, Transactions and Concurrency
 
-The Rosetta DBMS is fully transactional, and attempts to be fully ACID
-compliant, although the actual reliability will vary with the
-implementation; that aside, how transactions are supposed to work is as
-follows.
+This official specification of the Rosetta DBMS includes full ACID
+compliance as part of the core feature set; moreover, all types of changes
+within a repository are subject to transactions and can be rolled back,
+including both data manipulation and schema manipulation; moreover, an
+interrupted session with a repository must result in an automatic rollback,
+not an automatic commit.
 
-First, every Rosetta D statement or multi-statement which is or is part of
-a Rosetta D command is itself a complete implicit auto-committing
-transaction; it sees a static view of the environment, and if it is an
-update, either all parts of that update will succeed and commit, or none of
-it will and no changes are left.
+I<It is important to point out that any attempt to implement the Rosetta
+DBMS (a Rosetta Engine) which does not include full ACID compliance, with
+all aspects described above, is not a true Rosetta DBMS implementation, but
+rather is at best a partial implementation, and should be treated with
+suspicion concerning reliability.  Of course, such partial implementations
+will likely be made and used, such as ones implemented over existing
+database products that are themselves not ACID compliant, but you should
+see them for what they are and weigh the corruption risks of using them.>
+
+Each individual instance of the Rosetta DBMS is a single process virtual
+machine, and conceptually only one thing is happening in it at a time; each
+individual Rosetta D statement executes in sequence, following the
+completion or failure of its predecessor.  During the life of a statement's
+execution, the state of the virtual machine is constant, except for any
+updates (and side-effects of such) that the statement makes.  Breaking this
+down further, a statement's execution has 2 sequential phases; all reads
+from the environment are done in the first phase, and all writes to the
+environment are done in the second phase.  Therefore, regardless of the
+complexity of the statement, and even if it is a multi-update statement,
+the final values of all the expressions to be assigned are determined prior
+to any target variables being updated; moreover, all operators / functions
+may not have side-effects, so that avoids complicating the issue due to
+environment updates occuring during their invoker statement's first phase.
+
+In account to situations where external processes are concurrently using
+the same persistent (and externally visible) repository as a Rosetta DBMS
+instance, the Rosetta DBMS will maintain a lock on the whole repository (or
+appropriate subset thereof) during any active read and/or write
+transaction, to ensure that the transaction sees a consistent environment
+during its life.  The lock is a shared lock if the transaction only does
+reading, and it is an exclusive lock if the transaction also does writing.
+Regarding transaction isolation levels, the Rosetta DBMS supports only the
+serializable option.
+
+TODO: Rewrite what follows.
+
+How transactions are supposed to work is as follows.
+
+First, every Rosetta D statement (including multi-update statements) which
+is or is part of a Rosetta D command is itself a complete implicit
+auto-committing transaction; it sees a static view of the environment, and
+if it is an update, either all parts of that update will succeed and
+commit, or none of it will and no changes are left.
 
 Second, explicit transactions can be respectively started and committed or
 rolled back with appropriate Rosetta D statements.
