@@ -41,16 +41,16 @@ rule ident    :P5 {^((?:(?:\:\:)?[_[:alnum:]]+)+)}
     unshift @rule_terms, 'escaped_char';
     
     # XXX - incomplete - needs a return block
-    rule non_capturing_subrule  :P5 {^\<\?(.*?)\>}
-    push @rule_terms, 'non_capturing_subrule';
+    #rule non_capturing_subrule  :P5 {^\<\?(.*?)\>}
+    #push @rule_terms, 'non_capturing_subrule';
     
     # XXX - incomplete - needs a return block
-    rule negated_subrule        :P5 {^\<\!(.*?)\>}
-    push @rule_terms, 'negated_subrule';
+    #rule negated_subrule        :P5 {^\<\!(.*?)\>}
+    #push @rule_terms, 'negated_subrule';
     
     # XXX - incomplete - needs a return block
-    rule subrule  :P5 {^\<(.*?)\>}
-    push @rule_terms, 'subrule';
+    #rule subrule  :P5 {^\<(.*?)\>}
+    #push @rule_terms, 'subrule';
     
     rule non_capturing_group {
         \[ <rule> \] 
@@ -73,12 +73,12 @@ rule ident    :P5 {^((?:(?:\:\:)?[_[:alnum:]]+)+)}
     }
     unshift @rule_terms, 'variable_rule';
     
-    rule runtime_alternation {
-        \< <variable> \>
-            
-        { return { runtime_alternation => $_[0]{variable}() ,} }
-    }
-    unshift @rule_terms, 'runtime_alternation';
+    #rule runtime_alternation {
+    #    \< <variable> \>
+    #        
+    #    { return { runtime_alternation => $_[0]{variable}() ,} }
+    #}
+    #unshift @rule_terms, 'runtime_alternation';
     
     rule named_capture {
         \$ \< <ident> \> <?p6ws>? \:\= <?p6ws>? \( <rule> \) 
@@ -99,12 +99,12 @@ rule ident    :P5 {^((?:(?:\:\:)?[_[:alnum:]]+)+)}
     unshift @rule_terms, 'capturing_group';
     
     
-    rule constant {
-        \< <literal> \>
-            
-        { return { constant => $() } }
-    }
-    unshift @rule_terms, 'constant';
+    #rule constant {
+    #    \< <literal> \>
+    #        
+    #    { return { constant => $() } }
+    #}
+    #unshift @rule_terms, 'constant';
     
     rule colon1 {
         \:

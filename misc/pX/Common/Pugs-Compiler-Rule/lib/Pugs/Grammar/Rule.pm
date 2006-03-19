@@ -41,21 +41,39 @@ sub literal {
     };
 }
 
-# delay execution
-{
-    local $SIG{__WARN__} = sub {};
-    require Pugs::Grammar::Rule::Rule;
+sub metasyntax {
+    my $class = shift;
+    return unless $_[0];
+    my ($extracted,$remainder) = Text::Balanced::extract_bracketed( $_[0], "<..>" );
+    $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
+    return if $extracted eq '';
+    #die Dumper( $extracted );
+    return { 
+        bool  => 1,
+        match => $extracted,
+        tail  => $remainder,
+        capture => { metasyntax => $extracted },
+    };
+}
+BEGIN {
+unshift @rule_terms, 'metasyntax';
 }
 
-# curry @rule_terms with Grammar
-@rule_terms = map { 
+BEGIN {
+    local $SIG{__WARN__} = sub {};
+    require Pugs::Grammar::Rule::Rule;
+
+    # curry @rule_terms with Grammar
+    @rule_terms = map { 
         my $method = $_;
         sub{ 
-            #warn "Trying $method\n";
+            # warn "Trying $method\n";
             my $match = Pugs::Grammar::Rule->$method(@_);
-            #warn $match->{bool} ? "Match ".Dumper($match) : "No match\n";
+            #warn "Match $method ".Dumper($match) if $match->{bool};
             return $match;
         }
     }
     @rule_terms;
+}
+
 1;

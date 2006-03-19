@@ -183,10 +183,6 @@ sub closure {
         "$_[1]     }\n" .
         "$_[1] )\n";
 }
-sub runtime_alternation {
-    my $code = "$_[0]";
-    return "$_[1] alternation( \\$code )\n";
-}
 sub named_capture {
     my $name    = $_[0]{ident};
     my $program = $_[0]{rule};
@@ -200,6 +196,21 @@ sub colon {
     return "$_[1] alternation( [ null(), abort() ] ) \n"
         if $num == 1;
     die (':' x $num) . " not implemented";
+}
+sub metasyntax {
+    # <cmd>
+    my $cmd = $_[0];   
+    my $prefix = substr( $cmd, 0, 1 );
+    if ( $prefix eq '@' ) {
+        return "$_[1] alternation( \\$cmd )\n";
+    }
+    if ( $prefix eq '$' ) {
+        return "$_[1] $cmd->( \@_ )\n";
+    }
+    if ( $prefix =~ /[_[:alnum:]]/ ) {
+        return "$_[1] sub { \$grammar->$cmd( \@_ ) }\n";
+    }
+    die "<$cmd> not implemented";
 }
 
 1;
