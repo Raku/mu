@@ -76,7 +76,7 @@ rule ident    :P5 {^((?:(?:\:\:)?[_[:alnum:]]+)+)}
     rule runtime_alternation {
         \< <variable> \>
             
-        { return { runtime_alternation => $() ,} }
+        { return { runtime_alternation => $_[0]{variable}() ,} }
     }
     unshift @rule_terms, 'runtime_alternation';
     

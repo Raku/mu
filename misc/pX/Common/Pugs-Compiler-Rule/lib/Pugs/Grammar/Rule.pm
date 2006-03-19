@@ -33,7 +33,7 @@ sub literal {
     my $class = shift;
     return unless $_[0];
     my ($extracted,$remainder) = Text::Balanced::extract_delimited( $_[0], "'" );
-    $extracted = substr( $extracted, 1, -1 );
+    $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
     return { 
         bool  => ( $extracted ne '' ),
         match => $extracted,
