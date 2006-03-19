@@ -16,7 +16,7 @@ use_ok( 'Pugs::Compiler::Rule' );
 }
 
 {
-    *test::rule = Pugs::Compiler::Rule->compile( '((.).)(.)' )->code;
-    my $match = test::rule( "xyzw" );
+    *test::rule_method = Pugs::Compiler::Rule->compile( '((.).)(.)' )->code;
+    my $match = test->rule_method( "xyzw" );
     is( "$match", "xyz", 'stringify 5' );
 }

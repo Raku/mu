@@ -41,17 +41,19 @@ sub compile {
 sub code { 
     my $rule = shift; 
     sub { 
+        my $grammar = shift;
         $rule->match( @_ ); 
     } 
 }
 
 sub match {
-    my $rule = shift; 
+    my ( $rule, $str, $grammar ) = @_; 
+    $grammar |= $rule->{grammar};
     #warn "match: grammar $rule->{grammar}, $_[0]";
-    foreach my $i (0..length($_[0])) {
+    foreach my $i (0..length($str)) {
         my $match = $rule->{code}( 
-            $rule->{grammar},
-            substr($_[0], $i) 
+            $grammar,
+            substr($str, $i) 
         );
         defined $match or next;
         $match->{from} = $i;
@@ -70,6 +72,8 @@ Pugs::Compiler::Rule - Compiler for Perl 6 Rules
 
 =head1 SYNOPSIS
 
+Un-named rules are objects:
+
     use Pugs::Compiler::Rule;
 
     my $rule = Pugs::Compiler::Rule->compile( '((.).).' );
@@ -82,6 +86,15 @@ Pugs::Compiler::Rule - Compiler for Perl 6 Rules
         print $match->[0];      # "ab"
         print $match->[0][0];   # "a"
     }
+
+Named rules are methods in a Grammar:
+
+    package MyGrammar;
+    use Pugs::Compiler::Rule;
+    use Pugs::Grammar::Base;
+
+    *rule = Pugs::Compiler::Rule->compile( '((.).).' )->code;
+    my $match = MyGrammar->rule( 'abc' );
 
 =head1 DESCRIPTION
 
