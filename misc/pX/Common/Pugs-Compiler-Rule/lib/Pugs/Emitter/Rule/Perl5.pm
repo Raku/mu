@@ -2,6 +2,8 @@ package Pugs::Emitter::Rule::Perl5;
 
 # p6-rule perl5 emitter
 
+# XXX - cleanup unused nodes
+
 use strict;
 use warnings;
 use Data::Dumper;
@@ -37,66 +39,26 @@ sub emit {
     return $source;
 }
 
-# XXX - used only once
-#     - use real references
-sub emit_rule_node {
-    #warn "rule node...";
-    ## die "unknown node type: $_[0]" unless ${$_[0]}; 
-    no strict 'refs';
-    my $code = &{$_[0]}($_[1],$_[2]);
-    #print Dumper(@_,$code),"\n";
-    return $code;
-}
 sub emit_rule {
     my $n = $_[0];
     my $tab = $_[1] || '    '; 
     $tab .= '  ';
-    local $Data::Dumper::Indent = 1;
     #print "emit_rule(): ", ref($n)," ",Dumper( $n ), "\n";
-
-    # XXX - not all nodes are actually used
-
-    if ( ref($n) eq '' ) {
-        # XXX - this should not happen, but it does
-        return '';
-    }
-    if ( ref( $n ) eq 'Pugs::Runtime::Match' ) {
-        #warn "MATCH!", Dumper($n);
-        #$n = $n->();
-        warn "MATCH label ", $$n->{label};
-    }
-    if ( ref( $n ) eq 'ARRAY' ) {
-        my @s;
-        for ( @$n ) {
-            #print "emitting array item ", Dumper($_), "\n";
-            my $tmp = emit_rule( $_, $tab );
-            #print "emitted: ", $tmp, "\n";
-            push @s, $tmp . "$tab ,\n" if $tmp;
-        }
-        return $s[0] if @s == 1;
-        return "$tab concat(\n" . 
-               ( join '', @s ) . 
-               "$tab )\n";
-    }
-    elsif ( ref( $n ) eq 'HASH' ) 
+    if ( ref( $n ) eq 'HASH' ) 
     {
-        #warn "hash...";
         my ( $k, $v ) = each %$n;
         # print "$tab $k => $v \n";
-        return '' unless defined $v;  # XXX a bug?
-        emit_rule_node($k,$v,$tab);
+        # XXX - use real references
+        no strict 'refs';
+        my $code = &$k( $v, $tab );
+        return $code;
     }
-    else 
-    {
-        local $Data::Dumper::Deepcopy = 1;
-        die "unknown node: ", Dumper( $n );
-    }
+    local $Data::Dumper::Deepcopy = 1;
+    die "unknown node: ", Dumper( $n );
 }
 
 #rule nodes
-sub rule {
-    return emit_rule( $_[0], $_[1] );
-}        
+
 sub capturing_group {
     return 
        "$_[1] capture( '',\n" .
@@ -148,13 +110,14 @@ sub concat {
         my $tmp = emit_rule( $_, $_[1] );
         push @s, $tmp if $tmp;   
     }
-    return "$_[1] concat( \n" . 
-           join( ',', @s ) .
-           "$_[1] )\n";
+    return 
+        "$_[1] concat( \n" . 
+        join( ',', @s ) .
+        "$_[1] )\n";
 }        
-sub term {
-    return emit_rule( $_[0], $_[1] );
-}        
+#sub term {
+#    return emit_rule( $_[0], $_[1] );
+#}        
 sub code {
     # return "$_[1] # XXX code - compile '$_[0]' ?\n";
     return "$_[1] $_[0]  # XXX - code\n";  
@@ -195,7 +158,7 @@ sub variable {
     return "$_[1] constant( '" . $value . "' )\n";
 }
 sub closure {
-    my $code = "$_[0]"; 
+    my $code = $_[0]; 
     
     # XXX XXX XXX - source-filter - temporary hacks to translate p6 to p5
     # $()<name>
@@ -206,27 +169,31 @@ sub closure {
     $code =~ s/ ([^']) \$ \( \) /$1 \$_[0]->() /sgx;
     #print "Code: $code\n";
     
-    return "$_[1] sub {\n" . 
-           "$_[1]     $code;\n" . 
-           "$_[1]     return { bool => 1, tail => \$_[0] }\n" .
-           "$_[1] }\n"
+    return 
+        "$_[1] sub {\n" . 
+        "$_[1]     $code;\n" . 
+        "$_[1]     return { bool => 1, tail => \$_[0] }\n" .
+        "$_[1] }\n"
         unless $code =~ /return/;
         
     return
-           "$_[1] abort(\n" .
-           "$_[1]     sub {\n" . 
-           "$_[1]         return { bool => 1, tail => \$_[0], return => sub $code };\n" .
-           "$_[1]     }\n" .
-           "$_[1] )\n";
+        "$_[1] abort(\n" .
+        "$_[1]     sub {\n" . 
+        "$_[1]         return { bool => 1, tail => \$_[0], return => sub $code };\n" .
+        "$_[1]     }\n" .
+        "$_[1] )\n";
 }
 sub runtime_alternation {
     my $code = "$_[0]";
     return "$_[1] alternation( \\$code )\n";
 }
 sub named_capture {
-    my $name = $_[0]->{ident};
+    my $name    = $_[0]{ident};
     my $program = $_[0]{rule};
-    return "$_[1] capture( '$name', \n" . $program . "$_[1] )\n";
+    return 
+        "$_[1] capture( '$name', \n" . 
+        emit_rule($program) . 
+        "$_[1] )\n";
 }
 sub colon {
     my $num = $_[0];

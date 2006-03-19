@@ -2,7 +2,7 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0x730A9F8A or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0xEFBCF6C2 or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
 *{'Pugs::Grammar::Rule::p6ws'} = sub {
@@ -12,6 +12,50 @@ package Pugs::Grammar::Rule;
     warn "rule argument is undefined" unless defined $_[0];
 
     my $bool = $_[0] =~ /^((?:\s|\#(?-s:.)*)+)(.*)$/sx;
+
+    return {
+
+        bool  => $bool,
+
+        match => $1,
+
+        tail  => $2,
+
+        #capture => $1,
+
+    }
+
+};
+
+*{'Pugs::Grammar::Rule::variable'} = sub {
+
+    my $grammar = shift;
+
+    warn "rule argument is undefined" unless defined $_[0];
+
+    my $bool = $_[0] =~ /^([$%@](?:(?:\:\:)?[_[:alnum:]]+)+)(.*)$/sx;
+
+    return {
+
+        bool  => $bool,
+
+        match => $1,
+
+        tail  => $2,
+
+        #capture => $1,
+
+    }
+
+};
+
+*{'Pugs::Grammar::Rule::ident'} = sub {
+
+    my $grammar = shift;
+
+    warn "rule argument is undefined" unless defined $_[0];
+
+    my $bool = $_[0] =~ /^((?:(?:\:\:)?[_[:alnum:]]+)+)(.*)$/sx;
 
     return {
 
@@ -47,7 +91,7 @@ sub {
     )
 };
     unshift @Pugs::Grammar::Rule::rule_terms, 'dot';
-*{'Pugs::Grammar::Rule::word'} = sub {
+*{'Pugs::Grammar::Rule::_word'} = sub {
 
     my $grammar = shift;
 
@@ -69,6 +113,25 @@ sub {
 
 };
 
+*{'Pugs::Grammar::Rule::word'} = 
+sub {
+    my $grammar = shift;
+    warn 'rule argument is undefined' unless defined $_[0];
+    package Pugs::Runtime::Rule;
+    rule_wrapper( $_[0], (
+        concat(
+          capture( '_word', sub{ $grammar->_word(@_) } )
+        ,
+          Pugs::Runtime::Rule::abort(
+              sub {
+                  return { bool => 1, tail => $_[0], return => sub { return { 'constant' => $_[0]{_word}() ,} } };
+              }
+          )
+        ,
+        ),
+        )->( @_ )
+    )
+};
     unshift @Pugs::Grammar::Rule::rule_terms, 'word';
 *{'Pugs::Grammar::Rule::escaped_char'} = sub {
 
@@ -177,7 +240,7 @@ sub {
         ,
           Pugs::Runtime::Rule::abort(
               sub {
-                  return { bool => 1, tail => $_[0], return => sub { return $_[0]{rule} } };
+                  return { bool => 1, tail => $_[0], return => sub { return $_[0]{rule}() } };
               }
           )
         ,
@@ -197,7 +260,7 @@ sub {
         ,
           Pugs::Runtime::Rule::abort(
               sub {
-                  return { bool => 1, tail => $_[0], return => sub { return { closure =>  $_[0]->()  ,} } };
+                  return { bool => 1, tail => $_[0], return => sub { return { closure => $_[0]{code}() ,} } };
               }
           )
         ,
@@ -287,7 +350,11 @@ sub {
         ,
           Pugs::Runtime::Rule::abort(
               sub {
-                  return { bool => 1, tail => $_[0], return => sub { return { named_capture =>  $_[0]->()  ,} } };
+                  return { bool => 1, tail => $_[0], return => sub { return { named_capture => {
+                ident => $_[0]{ident}(),
+                rule  => $_[0]{rule}(),
+            }, } 
+        } };
               }
           )
         ,

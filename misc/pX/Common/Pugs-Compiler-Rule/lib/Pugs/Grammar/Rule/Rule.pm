@@ -15,28 +15,37 @@ Abstract Syntax Tree (AST) for Rules.
  
 rule p6ws     :P5 {^((?:\s|\#(?-s:.)*)+)}
 
+rule variable :P5 {^([$%@](?:(?:\:\:)?[_[:alnum:]]+)+)}
+
+rule ident    :P5 {^((?:(?:\:\:)?[_[:alnum:]]+)+)}
+
 # terms
 
     rule dot {
         \.    
-            { return { 'dot' => 1 ,} }
+            
+        { return { 'dot' => 1 ,} }
     }
     unshift @rule_terms, 'dot';
     
-    rule word     :P5 {^([_[:alnum:]]+)}
+    rule _word    :P5 {^([_[:alnum:]]+)}
+    rule word {
+        <_word>    
+            
+        { return { 'constant' => $_[0]{_word}() ,} }
+    }
     unshift @rule_terms, 'word';
     
-    rule escaped_char  
-                  :P5 {^\\(.)}
+    # XXX - incomplete - needs a return block
+    rule escaped_char  :P5 {^\\(.)}
     unshift @rule_terms, 'escaped_char';
     
-    rule non_capturing_subrule
-                  :P5 {^\<\?(.*?)\>}
+    # XXX - incomplete - needs a return block
+    rule non_capturing_subrule  :P5 {^\<\?(.*?)\>}
     push @rule_terms, 'non_capturing_subrule';
     
     # XXX - incomplete - needs a return block
-    rule negated_subrule
-                  :P5 {^\<\!(.*?)\>}
+    rule negated_subrule        :P5 {^\<\!(.*?)\>}
     push @rule_terms, 'negated_subrule';
     
     # XXX - incomplete - needs a return block
@@ -44,52 +53,63 @@ rule p6ws     :P5 {^((?:\s|\#(?-s:.)*)+)}
     push @rule_terms, 'subrule';
     
     rule non_capturing_group {
-         \[ <rule> \] 
-            { return $_[0]{rule} }
+        \[ <rule> \] 
+         
+        { return $_[0]{rule}() }
     }
     push @rule_terms, 'non_capturing_group';
     
     rule closure_rule {
-        <code>
-            { return { closure => $() ,} }
+        <code> 
+            
+        { return { closure => $_[0]{code}() ,} }
     }
     unshift @rule_terms, 'closure_rule';
     
     rule variable_rule {
         <variable> 
-            { return { variable => $() ,} }
+            
+        { return { variable => $() ,} }
     }
     unshift @rule_terms, 'variable_rule';
     
     rule runtime_alternation {
         \< <variable> \>
-            { return { runtime_alternation => $() ,} }
+            
+        { return { runtime_alternation => $() ,} }
     }
     unshift @rule_terms, 'runtime_alternation';
     
     rule named_capture {
         \$ \< <ident> \> <?p6ws>? \:\= <?p6ws>? \( <rule> \) 
-            { return { named_capture => $() ,} }
+        
+        { return { named_capture => {
+                ident => $_[0]{ident}(),
+                rule  => $_[0]{rule}(),
+            }, } 
+        }
     }
     unshift @rule_terms, 'named_capture';
-    
-    
+        
     rule capturing_group {
         \( <rule> \)
-            { return { capturing_group => $_[0]{rule}() ,} }
+            
+        { return { capturing_group => $_[0]{rule}() ,} }
     }
     unshift @rule_terms, 'capturing_group';
     
     
     rule constant {
         \< <literal> \>
-            { return { constant => $() } }
+            
+        { return { constant => $() } }
     }
     unshift @rule_terms, 'constant';
     
     rule colon1 {
         \:
-            { return { colon => 1 ,} }
+            
+        { return { colon => 1 ,} }
     }
     push @rule_terms, 'colon1';
     

@@ -1,5 +1,5 @@
 
-use Test::More tests => 27;
+use Test::More tests => 33;
 use Data::Dumper;
 
 use_ok( 'Pugs::Compiler::Rule' );
@@ -71,7 +71,7 @@ use_ok( 'Pugs::Compiler::Rule' );
 {
     my $rule = Pugs::Compiler::Rule->compile( '..' );
     my $match = $rule->match( "xyz" );
-    is( "$match", "xy", 'stringify' );
+    is( "$match", "xy", 'concat stringify' );
 }
 
 {
@@ -84,7 +84,9 @@ use_ok( 'Pugs::Compiler::Rule' );
 
 {
     my $rule = Pugs::Compiler::Rule->compile( '$<x> := (.)  $<y> := (.)');
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     my $match = $rule->match( "123" );
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
     my $ret = { x => '1', y => '2' };
     is_deeply( {%$match}, $ret, 'return match' );
     is( "$match", "12", 'stringify' );

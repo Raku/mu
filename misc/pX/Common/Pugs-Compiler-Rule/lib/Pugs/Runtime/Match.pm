@@ -4,6 +4,7 @@ package Pugs::Runtime::Match;
 use 5.006;
 use strict;
 use warnings;
+use Data::Dumper;
 
 use overload (
     '@{}'    => \&array,
@@ -29,9 +30,9 @@ sub _str {
     #print "STR: ", ref( $match ), " ", Dumper( $match ), "\n";
     return join( '', map { match::str( $_ ) } @$match )
         if ref( $match ) eq 'ARRAY';
-    return match::str( $match->{match} ) 
+    return _str( $match->{match} ) 
         if ref( $match ) eq 'HASH' && exists $match->{match};
-    return join( '', map { match::str( $_ ) } values %$match )
+    return join( '', map { _str( $_ ) } values %$match )
         if ref( $match ) eq 'HASH';
     return $match;
 }
@@ -76,7 +77,13 @@ sub bool {
 
 # as hash
 sub hash {
-    my @a = @{${$_[0]}->{match}};
+    my @a;
+    if ( ref( ${$_[0]}->{match} ) eq 'ARRAY' ) {
+        @a = @{${$_[0]}->{match}};
+    }
+    else {
+        push @a, ${$_[0]}->{match};        
+    }
     while ( exists $a[-1]{match} && ref( $a[-1]{match} ) eq 'ARRAY' ) {
         my $t = pop @a;
         push @a, @{$t->{match}};
@@ -100,7 +107,13 @@ sub array {
         my $m = _box_submatch( $_[0], ${$_[0]} );
         return [ $m ];
     }
-    my @a = @{${$_[0]}->{match}};
+    my @a;
+    if ( ref( ${$_[0]}->{match} ) eq 'ARRAY' ) {
+        @a = @{${$_[0]}->{match}};
+    }
+    else {
+        push @a, ${$_[0]}->{match};        
+    }
     while ( exists $a[-1]{match} && ref( $a[-1]{match} ) eq 'ARRAY' ) {
         my $t = pop @a;
         push @a, @{$t->{match}};

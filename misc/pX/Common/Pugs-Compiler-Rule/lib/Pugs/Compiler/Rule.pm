@@ -28,6 +28,7 @@ sub compile {
     #print 'rule ast: ', do{use Data::Dumper; Dumper($self->{ast}{capture})};
     $self->{perl5} = Pugs::Emitter::Rule::Perl5::emit( 
         $self->{grammar}, $self->{ast}{capture} );
+    #print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
 
     local $@;
     $self->{code} = eval 
@@ -40,9 +41,7 @@ sub compile {
 sub code { 
     my $rule = shift; 
     sub { 
-        $rule->match( 
-            $rule->{grammar}, 
-            @_ ); 
+        $rule->match( @_ ); 
     } 
 }
 

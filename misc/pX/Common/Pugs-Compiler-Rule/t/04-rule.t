@@ -6,6 +6,7 @@ use_ok( 'Pugs::Compiler::Rule' );
 {
     my $rule = Pugs::Compiler::Rule->compile( '((.).)(.)' );
     my $match = $rule->match( "xyzw" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     is( $match?1:0, 1, 'booleanify' );
     is( "$match", "xyz", 'stringify 1' );

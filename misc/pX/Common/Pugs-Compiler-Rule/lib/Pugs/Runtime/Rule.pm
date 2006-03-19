@@ -130,30 +130,14 @@ sub concat {
                 $succ = [ $state[0], $matches[1]{state} ];
             }
 
-            #my $capture = [];
-            #### capture: $matches[0]{capture},$matches[1]{capture}
-            #$capture = $matches[0]{capture} 
-            #    if $matches[0]{capture};
-            #push @$capture, @{$matches[1]{capture}} 
-            #    if $matches[1]{capture};
-            #undef $capture unless @$capture;
-
+            # XXX - cleanup!
             my $match2 = { %{$matches[1]} };
             $match2->{match} = \@matches;
             $match2->{state} = $succ;
+            delete $match2->{label};
             delete $matches[1]{abort};
             delete $matches[1]{return};
             return $match2;
-            
-            #return { 
-            #    bool =>  1,
-            #    match => [ @matches ], 
-            #    tail =>  $matches[1]{tail},
-            #    state => $succ,
-            #    #capture => $capture,  # ???
-            #    abort => $matches[1]{abort},
-            #    return => $matches[1]{return},
-            #};
         }
     }
 }
@@ -200,29 +184,11 @@ sub capture {
             $new_match->{capture} = $head;   # XXX -- array ref not needed
             #print 'got capture: ',do{use Data::Dumper; Dumper($new_match)};
         }
-        #$new_match->{match}   = [ $match ];  # XXX - workaround
+        $new_match->{match}   = $match ;  # XXX - workaround
 
         return $new_match;
     }
 }
-
-=for capture
-At runtime, this must return _only_ the capture set inside capture_closure:
-  xx(xx(xx(
-    capture_closure(..)
-  )))
-One way to do it is to post-process the match:
-  try(
-    xx(xx(xx(
-      abort(
-        capture_closure(..)
-      )
-    )))
-  )
-abort() sets a 'rule_finished' flag in the returned match, 
-that makes it return until the start of the rule, which unsets the flag before returning.
-- this can also be used to do fail() and assert(), and 'no-backtracking checkpoints'
-=cut
 
 # experimental!
 sub try { 

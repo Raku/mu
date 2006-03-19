@@ -16,10 +16,10 @@ my ( $rule, $match );
 
 {
   $rule = 
-    ruleop::non_greedy_plus( 
-      ruleop::alternation( [
-        ruleop::constant( 'a' ), 
-        ruleop::constant( 'c' ), 
+    Pugs::Runtime::Rule::non_greedy_plus( 
+      Pugs::Runtime::Rule::alternation( [
+        Pugs::Runtime::Rule::constant( 'a' ), 
+        Pugs::Runtime::Rule::constant( 'c' ), 
       ] ),
     );
   $match = $rule->( 'a123', undef, {capture=>1} );
@@ -33,8 +33,8 @@ my ( $rule, $match );
 
 {
   $rule = 
-    ruleop::greedy_star( 
-      ruleop::constant( 'a' ) 
+    Pugs::Runtime::Rule::greedy_star( 
+      Pugs::Runtime::Rule::constant( 'a' ) 
     );
   is ( ref $rule, "CODE", "rule 'a*' is a coderef" );
   $match = $rule->( 'aa' );
@@ -48,8 +48,8 @@ my ( $rule, $match );
 
 {
   $rule = 
-    ruleop::greedy_plus( 
-      ruleop::constant( 'a' ) 
+    Pugs::Runtime::Rule::greedy_plus( 
+      Pugs::Runtime::Rule::constant( 'a' ) 
     );
   $match = $rule->( 'aa' );
   ok ( $match->{bool}, "/a+/" );
@@ -59,14 +59,14 @@ my ( $rule, $match );
 
 {
   $rule = 
-    ruleop::concat(
-      ruleop::greedy_plus( 
-        ruleop::alternation( [
-          ruleop::constant( 'a' ), 
-          ruleop::constant( 'c' ), 
+    Pugs::Runtime::Rule::concat(
+      Pugs::Runtime::Rule::greedy_plus( 
+        Pugs::Runtime::Rule::alternation( [
+          Pugs::Runtime::Rule::constant( 'a' ), 
+          Pugs::Runtime::Rule::constant( 'c' ), 
         ] ),
       ),
-      ruleop::constant( 'ab' )
+      Pugs::Runtime::Rule::constant( 'ab' )
     );
   $match = $rule->( 'aacaab' );
   ok ( $match->{bool}, "/[a|c]+ab/ with backtracking" );
@@ -78,10 +78,10 @@ __END__
 
 {
   $rule = 
-    ruleop::non_greedy_plus( 
-      ruleop::alternation( [
-        ruleop::constant( 'a' ), 
-        ruleop::constant( 'c' ), 
+    Pugs::Runtime::Rule::non_greedy_plus( 
+      Pugs::Runtime::Rule::alternation( [
+        Pugs::Runtime::Rule::constant( 'a' ), 
+        Pugs::Runtime::Rule::constant( 'c' ), 
       ] ),
     );
   ( $stat, $assertion, $match, $tail ) = $rule->( 'aacaab', undef, {capture=>1} );
@@ -92,14 +92,14 @@ __END__
 
 {
   $rule = 
-    ruleop::concat(
-      ruleop::non_greedy_plus( 
-        ruleop::alternation( [
-          ruleop::constant( 'a' ), 
-          ruleop::constant( 'c' ), 
+    Pugs::Runtime::Rule::concat(
+      Pugs::Runtime::Rule::non_greedy_plus( 
+        Pugs::Runtime::Rule::alternation( [
+          Pugs::Runtime::Rule::constant( 'a' ), 
+          Pugs::Runtime::Rule::constant( 'c' ), 
         ] ),
       ),
-      ruleop::constant( 'cb' )
+      Pugs::Runtime::Rule::constant( 'cb' )
     );
   ( $stat, $assertion, $match, $tail ) = $rule->( 'aacacb' );
   ok ( defined $match, "/[a|c]+?ab/ with backtracking" );
@@ -110,13 +110,13 @@ __END__
   # tests for a problem found in the '|' implementation in p6rule parser
   
   my $rule = 
-    ruleop::constant( 'a' );
+    Pugs::Runtime::Rule::constant( 'a' );
   my $alt = 
-    ruleop::concat(
+    Pugs::Runtime::Rule::concat(
         $rule,
-        ruleop::optional (
-            ruleop::concat(
-                ruleop::constant( '|' ),
+        Pugs::Runtime::Rule::optional (
+            Pugs::Runtime::Rule::concat(
+                Pugs::Runtime::Rule::constant( '|' ),
                 $rule
             )
         )
@@ -129,11 +129,11 @@ __END__
   # adding '*' caused a deep recursion error (fixed)
 
   $alt = 
-    ruleop::concat(
+    Pugs::Runtime::Rule::concat(
         $rule,
-        ruleop::greedy_star(
-          ruleop::concat(
-              ruleop::constant( '|' ),
+        Pugs::Runtime::Rule::greedy_star(
+          Pugs::Runtime::Rule::concat(
+              Pugs::Runtime::Rule::constant( '|' ),
               $rule
           )
         )

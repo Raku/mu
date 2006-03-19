@@ -50,11 +50,11 @@ rule perl5_regex {
 
         \n   |   \#   |   \-   |   \<   |
 
-        \>   |   \!   |
+        \>   |   \!   |   \%   |   \@   | 
 
         alnum
 
-    ]* 
+    ]*
 
         { return { perl5_regex => $() ,} }
 

@@ -21,6 +21,7 @@ sub code {
     my $class = shift;
     return unless $_[0];
     my ($extracted,$remainder) = Text::Balanced::extract_codeblock( $_[0] );
+    #warn "Testing <code>: #$_[0]#" if $extracted ne '';
     return { 
         bool  => ( $extracted ne '' ),
         match => $extracted,
@@ -39,44 +40,6 @@ sub literal {
         tail  => $remainder,
     };
 }
-
-sub variable {
-    my $class = shift;
-    #return unless $_[0];
-    return { 
-        bool  => 1,
-        match => $1,
-        tail  => $2,
-    }
-        if $_[0] =~ / ^  
-            (   [ $ % @ % ]
-                (?: 
-                    (?:\:\:)? 
-                    [_[:alnum:]]+ 
-                )+
-            )  
-            (.*) $ /xs;
-    return;
-};
-
-sub ident {
-    my $class = shift;
-    #return unless $_[0];
-    return { 
-        bool  => 1,
-        match => $1,
-        tail  => $2,
-    }
-        if $_[0] =~ / ^  
-            ( 
-                (?: 
-                    (?:\:\:)? 
-                    [_[:alnum:]]+ 
-                )+
-            )  
-            (.*) $ /xs;
-    return;
-};
 
 # delay execution
 {

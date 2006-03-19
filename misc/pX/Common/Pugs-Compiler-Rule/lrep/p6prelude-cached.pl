@@ -38,6 +38,10 @@ package grammar1;
                  ,
                    ruleop::constant( "\$" )
                  ,
+                   ruleop::constant( "\@" )
+                 ,
+                   ruleop::constant( "\%" )
+                 ,
                    ruleop::constant( "n" )
                  ,
                    ruleop::constant( "\#" )

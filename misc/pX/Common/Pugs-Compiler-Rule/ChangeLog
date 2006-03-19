@@ -1,25 +1,12 @@
-- fixed $<var> := ...
+
+- fixed grammar bug: '$var := (xxx)' is: '$<var> := (xxx)'
 
 - implemented ':' (untested)
 
 - Added support for Grammar inheritance
-  
-  # grammar is a class, rule is a method
-  my $match = Grammar->rule( $str );  
-  my $match = rule( 'Grammar', $str );  
-  
-  # grammar is an object, rule is a method
-  my $match = $grammar->rule( $str );  
-  
-  # grammar is a class, rule is an object (unnamed rule)
-  my $match = $rule->match( 'Grammar', $str );  
-  
-  # grammar is an object (unnamed grammar), rule is an object (unnamed rule)
-  my $match = $rule->match( $grammar, $str );  
-  
-  Note that methods do not accept arbitrary names (unlike variables and subroutines)
-  
-Internals:
+- rule methods are internally curryed into functions
+
+  $rule = sub { Grammar->rule_method( @_ ) }
 
 - Simplified 'match', 'capture' keys in internal Match
 
