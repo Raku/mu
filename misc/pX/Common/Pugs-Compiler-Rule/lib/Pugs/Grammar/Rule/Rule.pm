@@ -113,13 +113,13 @@ rule quantifier {
     }
 }
 
-rule rule {
+rule concat {
     [ 
-        $<q1> := (<quantifier>) \| $<q2> := (<quantifier>) 
+        $<q1> := (<quantifier>) $<q2> := (<concat>) 
         
-        { return { alt => [ 
-                { quant => $_[0]{q1}() }, 
-                { quant => $_[0]{q2}() },
+        { return { concat => [ 
+                { quant => $_[0]{q1}() ,}, 
+                $_[0]{q2}(),
             ] ,} 
         } 
     ]
@@ -131,3 +131,20 @@ rule rule {
     ]
 }
 
+rule rule {
+    [ 
+        $<q1> := (<concat>) \| $<q2> := (<rule>) 
+        
+        { return { alt => [ 
+                $_[0]{q1}(), 
+                $_[0]{q2}(),
+            ] ,} 
+        } 
+    ]
+    | 
+    [ 
+        <concat> 
+        
+        { return $_[0]{concat}() } 
+    ]
+}

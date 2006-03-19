@@ -2,7 +2,7 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0xC92FA343 or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0x2D5CA77F or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
 *{'Pugs::Grammar::Rule::p6ws'} = sub {
@@ -418,7 +418,7 @@ sub {
         )->( @_ )
     )
 };
-*{'Pugs::Grammar::Rule::rule'} = 
+*{'Pugs::Grammar::Rule::concat'} = 
 sub {
     my $grammar = shift;
     warn 'rule argument is undefined' unless defined $_[0];
@@ -431,18 +431,16 @@ sub {
                   ,
                 )
               ,
-                constant( "\|" )
-              ,
                 capture( 'q2', 
-                    capture( 'quantifier', sub{ $grammar->quantifier(@_) } )
+                    capture( 'concat', sub{ $grammar->concat(@_) } )
                   ,
                 )
               ,
                 Pugs::Runtime::Rule::abort(
                     sub {
-                        return { bool => 1, tail => $_[0], return => sub { return { alt => [ 
-                { quant => $_[0]{q1}() }, 
-                { quant => $_[0]{q2}() },
+                        return { bool => 1, tail => $_[0], return => sub { return { concat => [ 
+                { quant => $_[0]{q1}() ,}, 
+                $_[0]{q2}(),
             ] ,} 
         } };
                     }
@@ -455,6 +453,52 @@ sub {
                 Pugs::Runtime::Rule::abort(
                     sub {
                         return { bool => 1, tail => $_[0], return => sub { return { quant => $_[0]{quantifier}() ,} } };
+                    }
+                )
+              ,
+              ),
+          ] )
+        ,
+        )->( @_ )
+    )
+};
+*{'Pugs::Grammar::Rule::rule'} = 
+sub {
+    my $grammar = shift;
+    warn 'rule argument is undefined' unless defined $_[0];
+    package Pugs::Runtime::Rule;
+    rule_wrapper( $_[0], (
+          alternation( [
+              concat(
+                capture( 'q1', 
+                    capture( 'concat', sub{ $grammar->concat(@_) } )
+                  ,
+                )
+              ,
+                constant( "\|" )
+              ,
+                capture( 'q2', 
+                    capture( 'rule', sub{ $grammar->rule(@_) } )
+                  ,
+                )
+              ,
+                Pugs::Runtime::Rule::abort(
+                    sub {
+                        return { bool => 1, tail => $_[0], return => sub { return { alt => [ 
+                $_[0]{q1}(), 
+                $_[0]{q2}(),
+            ] ,} 
+        } };
+                    }
+                )
+              ,
+              ),
+              concat(
+                capture( 'concat', sub{ $grammar->concat(@_) } )
+              ,
+                Pugs::Runtime::Rule::abort(
+                    sub {
+                        return { bool => 1, tail => $_[0], return => sub { return $_[0]{concat}() } };
                     }
                 )
               ,

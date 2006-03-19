@@ -5,6 +5,7 @@ package Pugs::Emitter::Rule::Perl5;
 use strict;
 use warnings;
 use Data::Dumper;
+$Data::Dumper::Indent = 1;
 
 sub call_subrule {
     my $name = $_[0];
@@ -20,7 +21,7 @@ sub call_subrule {
 
 sub emit {
     my ($grammar, $ast) = @_;
-    print "emit ast: ",do{use Data::Dumper; Dumper($ast)};
+    #print "emit ast: ",do{use Data::Dumper; Dumper($ast)};
     my $source = 
         "sub {\n" . 
         "    my \$grammar = shift;\n" .
@@ -32,7 +33,7 @@ sub emit {
         "    );\n" .
         "}\n" .
         "";
-    print $source;
+    #print $source;
     return $source;
 }
 
@@ -107,7 +108,7 @@ sub non_capturing_group {
     return emit_rule( $_[0], $_[1] );
 }        
 sub quant {
-    # local $Data::Dumper::Indent = 1;
+    # print "*** \$_[0]:\n",Dumper $_[0];
     my $term = $_[0]->{'term'};
     my $quantifier = $_[0]->{quant};
     my $sub = { 
@@ -138,6 +139,18 @@ sub alt {
     return "$_[1] alternation( [\n" . 
            join( ',', @s ) .
            "$_[1] ] )\n";
+}        
+sub concat {
+    # local $Data::Dumper::Indent = 1;
+    # print "*** \$_[0]:\n",Dumper $_[0];
+    my @s;
+    for ( @{$_[0]} ) { 
+        my $tmp = emit_rule( $_, $_[1] );
+        push @s, $tmp if $tmp;   
+    }
+    return "$_[1] concat( \n" . 
+           join( ',', @s ) .
+           "$_[1] )\n";
 }        
 sub term {
     return emit_rule( $_[0], $_[1] );

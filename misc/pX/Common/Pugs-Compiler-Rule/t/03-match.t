@@ -13,13 +13,25 @@ use_ok( 'Pugs::Compiler::Rule' );
 {
     my $rule = Pugs::Compiler::Rule->compile( '.|.' );
     my $match = $rule->match( "xyzw" );
-    is( "$match", "x", 'stringify 1' );
+    is( "$match", "x", 'stringify 2' );
 }
 
 {
     my $rule = Pugs::Compiler::Rule->compile( '.*' );
     my $match = $rule->match( "xyzw" );
-    is( "$match", "xyzw", 'stringify 1' );
+    is( "$match", "xyzw", 'stringify 4' );
+}
+
+{
+    my $rule = Pugs::Compiler::Rule->compile( '.|.|.' );
+    my $match = $rule->match( "xyzw" );
+    is( "$match", "x", 'stringify 5' );
+}
+
+{
+    my $rule = Pugs::Compiler::Rule->compile( '..|..' );
+    my $match = $rule->match( "xyzw" );
+    is( "$match", "xy", 'stringify 6' );
 }
 
 {
@@ -57,7 +69,7 @@ use_ok( 'Pugs::Compiler::Rule' );
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( '$z := (.) { return { x => { %{$_[0]} } ,} } ' );
+    my $rule = Pugs::Compiler::Rule->compile( '$<z> := (.) { return { x => { %{$_[0]} } ,} } ' );
     my $match = $rule->match( "abc" );
     ok( $match, 'true match' );
     my $ret = $match->();
@@ -65,7 +77,7 @@ use_ok( 'Pugs::Compiler::Rule' );
 }
 
 {
-    my $rule = Pugs::Compiler::Rule->compile( '$x := (.)  $y := (.)');
+    my $rule = Pugs::Compiler::Rule->compile( '$<x> := (.)  $<y> := (.)');
     my $match = $rule->match( "123" );
     my $ret = { x => '1', y => '2' };
     is_deeply( {%$match}, $ret, 'return match' );
