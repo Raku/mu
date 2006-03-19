@@ -25,10 +25,10 @@ sub compile {
     $self->{ast} = Pugs::Grammar::Rule->rule( 
         $self->{source} );
     die "Error in rule: '$rule_source' at: '$self->{ast}{tail}'\n" if $self->{ast}{tail};
-    print 'rule ast: ', do{use Data::Dumper; Dumper($self->{ast}{capture})};
+    #print 'rule ast: ', do{use Data::Dumper; Dumper($self->{ast}{capture})};
     $self->{perl5} = Pugs::Emitter::Rule::Perl5::emit( 
         $self->{grammar}, $self->{ast}{capture} );
-    print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
+    #print 'rule perl5: ', do{use Data::Dumper; Dumper($self->{perl5})};
 
     local $@;
     $self->{code} = eval 
@@ -42,13 +42,13 @@ sub code {
     my $rule = shift; 
     sub { 
         my $grammar = shift;
-        $rule->match( @_ ); 
+        $rule->match( $_[0], $grammar ); 
     } 
 }
 
 sub match {
     my ( $rule, $str, $grammar ) = @_; 
-    $grammar |= $rule->{grammar};
+    $grammar ||= $rule->{grammar};
     #warn "match: grammar $rule->{grammar}, $_[0]";
     foreach my $i (0..length($str)) {
         my $match = $rule->{code}( 

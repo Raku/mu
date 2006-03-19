@@ -202,13 +202,21 @@ sub metasyntax {
     my $cmd = $_[0];   
     my $prefix = substr( $cmd, 0, 1 );
     if ( $prefix eq '@' ) {
+        # XXX - wrap @array items - see end of Pugs::Grammar::Rule
         return "$_[1] alternation( \\$cmd )\n";
     }
     if ( $prefix eq '$' ) {
-        return "$_[1] $cmd->( \@_ )\n";
+        # call method in $var
+        return "$_[1] sub { \${ $cmd->( \@_ ) } }\n";
     }
     if ( $prefix =~ /[_[:alnum:]]/ ) {
-        return "$_[1] sub { \$grammar->$cmd( \@_ ) }\n";
+        if ( $cmd =~ /\./ ) {
+            # call other grammar's method
+            $cmd =~ s/\./->/;
+            return "$_[1] sub { \${ $cmd( \@_ ) } }\n";
+        }
+        # call method in this grammar
+        return "$_[1] sub { \${ \$grammar->$cmd( \@_ ) } }\n";
     }
     die "<$cmd> not implemented";
 }

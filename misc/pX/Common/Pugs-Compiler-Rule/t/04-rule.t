@@ -4,6 +4,16 @@ use Test::More tests => 9;
 use_ok( 'Pugs::Compiler::Rule' );
 
 {
+    package test;
+    use base Pugs::Grammar::Base;
+}
+
+{
+    package test2;
+    use base Pugs::Grammar::Base;
+}
+
+{
     # unnamed rules are objects
     my $rule = Pugs::Compiler::Rule->compile( '((.).)(.)' );
     my $match = $rule->match( "xyzw" );
