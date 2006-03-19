@@ -35,6 +35,12 @@ use_ok( 'Pugs::Compiler::Rule' );
 }
 
 {
+    my $rule = Pugs::Compiler::Rule->compile( '.:.' );
+    my $match = $rule->match( "xyzw" );
+    is( "$match", "xy", 'stringify 7' );
+}
+
+{
     my $rule = Pugs::Compiler::Rule->compile( '((.).)(.)' );
     my $match = $rule->match( "xyzw" );
     #print "Match: ", do{use Data::Dumper; Dumper($match)};

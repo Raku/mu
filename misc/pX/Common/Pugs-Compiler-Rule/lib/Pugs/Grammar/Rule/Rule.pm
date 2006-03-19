@@ -87,6 +87,12 @@ rule p6ws     :P5 {^((?:\s|\#(?-s:.)*)+)}
     }
     unshift @rule_terms, 'constant';
     
+    rule colon1 {
+        \:
+            { return { colon => 1 ,} }
+    }
+    push @rule_terms, 'colon1';
+    
 # /terms
 
 

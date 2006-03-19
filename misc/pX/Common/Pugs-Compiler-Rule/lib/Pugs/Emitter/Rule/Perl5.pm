@@ -228,5 +228,11 @@ sub named_capture {
     my $program = $_[0]{rule};
     return "$_[1] capture( '$name', \n" . $program . "$_[1] )\n";
 }
+sub colon {
+    my $num = $_[0];
+    return "$_[1] alternation( [ null(), abort() ] ) \n"
+        if $num == 1;
+    die (':' x $num) . " not implemented";
+}
 
 1;

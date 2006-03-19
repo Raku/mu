@@ -4,7 +4,7 @@ Priorities:
 
 - Match: .from and .to not implemented in subrules
 
-- backtracking control ':'
+- backtracking control ':' - needs tests
 
 - maybe use PadWalker for solving these problems:
   - simple closures should get the Match/self argument

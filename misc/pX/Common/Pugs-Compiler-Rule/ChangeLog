@@ -1,4 +1,8 @@
-- Added support for Grammars
+- fixed $<var> := ...
+
+- implemented ':' (untested)
+
+- Added support for Grammar inheritance
   
   # grammar is a class, rule is a method
   my $match = Grammar->rule( $str );  
@@ -17,7 +21,6 @@
   
 Internals:
 
-- Rules are methods
 - Simplified 'match', 'capture' keys in internal Match
 
 0.01 

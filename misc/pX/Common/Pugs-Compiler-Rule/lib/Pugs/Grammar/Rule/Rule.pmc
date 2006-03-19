@@ -2,7 +2,7 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0x2D5CA77F or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0x730A9F8A or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
 *{'Pugs::Grammar::Rule::p6ws'} = sub {
@@ -344,6 +344,26 @@ sub {
     )
 };
     unshift @Pugs::Grammar::Rule::rule_terms, 'constant';
+*{'Pugs::Grammar::Rule::colon1'} = 
+sub {
+    my $grammar = shift;
+    warn 'rule argument is undefined' unless defined $_[0];
+    package Pugs::Runtime::Rule;
+    rule_wrapper( $_[0], (
+        concat(
+          constant( "\:" )
+        ,
+          Pugs::Runtime::Rule::abort(
+              sub {
+                  return { bool => 1, tail => $_[0], return => sub { return { colon => 1 ,} } };
+              }
+          )
+        ,
+        ),
+        )->( @_ )
+    )
+};
+    push @Pugs::Grammar::Rule::rule_terms, 'colon1';
 *{'Pugs::Grammar::Rule::quantifier'} = 
 sub {
     my $grammar = shift;
