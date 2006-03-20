@@ -335,8 +335,10 @@ sub rule_wrapper {
 
 sub get_variable {
     my $name = shift;
+    
+    local $@;
     my($idx, $pad) = 0;
-    while($pad = peek_my($idx) and keys %$pad) {
+    while(eval { $pad = peek_my($idx) }) {
         $idx++, next
           unless exists $pad->{$name};
 
