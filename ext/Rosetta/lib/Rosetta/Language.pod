@@ -131,14 +131,13 @@ named or anonymous, and they can have (named) parameters, can contain
 single (usually) or multiple Rosetta D statements or value expressions, and
 can return one or more values.
 
-Rosetta D command routine definitions can either be stored in a persistent
-repository for reuse like a repository's data types or variables, or they
-can be furnished by an application at run-time for temporary use.  A named
-command routine can take the form of either an operator / function or a
-procedure; the former has a special return value which is the value of the
-evaluated operator invocation within a value expression; the latter has no
-such special return value.  An anonymous command routine can only take the
-form of a procedure.
+Rosetta D command routine definitions can either be named and stored in a
+persistent repository for reuse like a repository's data types or
+variables, or they can be anonymous and furnished by an application at
+run-time for temporary use.  A command routine can take the form of either
+an operator / function or a procedure; the former has a special return
+value which is the value of the evaluated operator invocation within a
+value expression; the latter has no such special return value.
 
 An application can only ever directly define and invoke an anonymous
 command procedure, but that anonymous procedure can in turn define and/or
@@ -154,17 +153,17 @@ function, and the parameters of a Rosetta D anonymous procedure correspond
 to SQL host parameters or bind variables.
 
 A Rosetta D routine parameter can be read-only or read-write (which
-corresponds to SQL's IN or OUT+INOUT parameter types).  But moreover,
-updating a read-write parameter is the only way that Rosetta D provides to
-return output from a routine, and the way you return multiple values is to
-update multiple read-write parameters; a routine without any read-write
-parameters does not return anything.  Now, an operator / function has a
-special read-write parameter whose name is the same as the operator /
-function itself; this special parameter corresponds to the special return
-value of the operator / function (you can not match an argument to it), so
-it needs to be set before the routine returns; a procedure has no such
-thing.  Note that Rosetta D does provide the 'return' statement for help in
-control flow within a routine, but it does not take any arguments.
+corresponds to SQL's IN or OUT+INOUT parameter types).  When invoking a
+routine, an argument corresponding to a read-only parameter can be an
+arbitrarily complex value expression, but an argument corresponding to a
+read-write parameter must be a valid target variable, and that target
+variable may be updated during the procedure invocation.  For a procedure,
+the only way to pass output directly to its invoker (meaning, without
+updating global variables) is to assign that output to read-write
+parameters.  An operator / function may do that too, but it additionally
+must provide its namesake special return value using the standard "return"
+keyword.  Note that "return" can be used in a procedure too for flow
+control, but it doesn't pass a value as well.
 
 The Rosetta DBMS is designed to allow user-applications to furnish the
 definition of an anonymous command routine once and then execute it
@@ -172,39 +171,47 @@ multiple times (for efficiency and ease of use); speaking in terms of SQL,
 the Rosetta DBMS supports prepared statements.  The arguments for any
 routine parameters are provided at execution time, and they are used for
 values that are intended to be different for each execution of the command,
-as well as to return results that probably differ with each execution.
-Presumably, any values that will be constant through the life of a command
-routine will be coded as literal values in its definition rather than
-parameters.
+as well as to return results that probably differ with each execution; as
+an exception to the latter, the application does not have to pre-define an
+anonymous function's special return value, which doesn't correspond to a
+parameter.  Presumably, any values that will be constant through the life
+of a command routine will be coded as literal values in its definition
+rather than parameters.
 
-(In this distribution, you furnish an anonymous command procedure
-definition for reuse using a DBMS object's "prepare" or "compile" method;
-that method returns a new Rosetta::Interface::Command object.  You then
-associate a Rosetta::Interface::Variable (or similar) object with each of
-the routine's parameters using the Command object's "bind_param" method,
-and then invoke the Command object's "execute" method.  Any Variable
-objects corresponding to input parameters need to be set by the application
-prior to "execute", and following the "execute", the application can read
-the routine's output from the Variable objects associated with output
-parameters.)
+(In this distribution, you furnish an anonymous command routine definition
+for reuse using a DBMS object's "prepare" or "compile" method; that method
+returns a new Rosetta::Interface::Routine object.  You then associate a
+Rosetta::Interface::Variable/::Value object with each of the routine's
+parameters using the Routine object's "bind_param" method, and then invoke
+the Routine object's "execute" method.  Any Variable/Value objects
+corresponding to input parameters need to be set by the application prior
+to "execute", and following the "execute", the application can read the
+routine's output from the Variable objects associated with output
+parameters.  When the Routine is a function, "execute" will generate and
+return a new Value object with the special return value.)
 
-The Rosetta D language has all the standard keywords for control flow, any
-of which a Rosetta D routine (both anonymous and named) can contain,
-including: conditionals ("if"), loops ("for", "while"), procedure
+The Rosetta D language has all the standard imperative language keywords,
+any of which a Rosetta D routine (both anonymous and named) can contain,
+including: value assignment of a value expression's result to a named
+target ("assign"), conditionals ("if"), loops ("for", "while"), procedure
 invocation ("call"), normal routine exit ("return"), plus exception
-creation and resolution ("throw", "try", "catch").  Note that a thrown
-exception which falls out of an anonymous procedure will result in an
-exception thrown out to the application (in this distribution, it will be
-as a thrown new Rosetta::Interface::Error object).  For our purposes,
-transaction control statements ("start", "commit", "rollback") are also
-grouped with these standard keywords.
+creation and resolution ("throw", "try", "catch").  For all types of
+routines, the "throw" keyword takes a value expression whose resolved value
+is the exception to be thrown, and visually looks like "return" does for
+operators / functions.  Note that a thrown exception which falls out of an
+anonymous procedure will result in an exception thrown out to the
+application (in this distribution, it will be as a thrown new
+Rosetta::Interface::Exception object).  For our purposes, transaction
+control statements ("start", "commit", "rollback") are also grouped with
+these standard keywords.
 
-All Rosetta D statements, aside from the flow control keywords, are
-assignments which update a target variable to a new value provided by a
-Rosetta D expression.  If the target variable is an anonymous procedure's
-read-write parameter, the statement corresponds to an unencapsulated SQL
-"select" query.  If the target variable is an ordinary variable, and
-particularly if it is a repository's component data variable, the
+The "assign" keyword is the most frequently used one in Rosetta D, except
+sometimes for "return", and it updates a target variable to a new value
+provided by a Rosetta D expression.  If the target variable is an anonymous
+procedure's read-write parameter, the statement corresponds to an
+unencapsulated SQL "select" query; or, the same task is usually done using
+"return" in a function.  If the target variable is an ordinary variable,
+and particularly if it is a repository's component data variable, the
 statement's effect corresponds to SQL "data manipulation" (usually "insert"
 or "update" or "delete").  If the target variable is a repository's special
 catalog variable, the statement's effect corresponds to SQL "data
@@ -216,15 +223,22 @@ repository, which corresponds to SQL client statements like "connect to".
 
 All types of Rosetta D command routines can have assignment statements
 which target their own lexical variables, including their own read-write
-parameters, but only procedures are allowed to target global variables,
-which are declared in a repository directly.  In other words, an operator /
-function may not have side-effects (save its own read-write parameters),
-though it can I<read> from global variables.  A few special exceptions may
+parameters, but only procedures (that are not invoked by operators /
+functions) are allowed to target global variables, which are declared in a
+repository directly.  In other words, an operator / function may not have
+side-effects (save its own read-write parameters), though it can I<read>
+from global variables.  Moreover, any procedure that is invoked by an
+operator / function is subject to the same restriction, since it is
+effectively part of the operator / function.  A few special exceptions may
 be made to this restriction on operators / functions, but for the most
 part, the restriction is in place to prevent inconsistencies between reads
 of the environment/globals from multiple operators / functions that are
 invoked in the same Rosetta D expression; all reads in the same expression
-need to see the same state.
+need to see the same state, so the expression's result is the same
+regardless of any logically-equivalent changes to order of execution of the
+sub-expressions.  Further to this goal, any target variable may not be used
+more than once in the same Rosetta D statement; target meaning either an
+assignment target or as an argument for a read-write parameter.
 
 =head2 Named Users and Privileges
 
@@ -280,9 +294,18 @@ from the environment are done in the first phase, and all writes to the
 environment are done in the second phase.  Therefore, regardless of the
 complexity of the statement, and even if it is a multi-update statement,
 the final values of all the expressions to be assigned are determined prior
-to any target variables being updated; moreover, all operators / functions
-may not have side-effects, so that avoids complicating the issue due to
-environment updates occuring during their invoker statement's first phase.
+to any target variables being updated.  Moreover, all operators / functions
+may not have side-effects (other than their read-write parameters), so that
+avoids complicating the issue due to environment updates occuring during
+their invoker statement's first phase.
+
+Regarding invoked operators / functions with read-write parameters, any
+changes made by said routines to those parameters are not propagated to
+their corresponding arguments except simultaneously with the main
+statement's second phase, if the main statement is an "assign", essentially
+making the main statement a multi-assignment; if the main statement is a
+"call", then the propagation is done just before the main statement is
+invoked.  I<TODO: This proposal may not work as is.>
 
 In account to situations where external processes are concurrently using
 the same persistent (and externally visible) repository as a Rosetta DBMS
