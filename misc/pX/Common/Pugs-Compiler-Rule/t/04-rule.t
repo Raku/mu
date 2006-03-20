@@ -70,11 +70,10 @@ no warnings qw( once );
     eval {
     my $rule2 = Pugs::Compiler::Rule->compile( '.' );
     *test::rule_method6 = Pugs::Compiler::Rule->compile( '<$rule2>' )->code;
-    my $match = test->rule_method6( "xyzw" );
-    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
-    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    $match = test->rule_method6( "xyzw" );
     };
-    warn "# *** Please check if CPAN module 'PadWalker' is properly installed"
+    warn "# *** Please check if CPAN module 'PadWalker' is properly installed\n",
+         "# *** This is the resulting error: $@"
         if $@;
     is( "$match", "x", 'a named subrule calls a lexical unnamed subrule' );
 }

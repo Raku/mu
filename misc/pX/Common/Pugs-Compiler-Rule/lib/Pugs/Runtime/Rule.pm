@@ -335,20 +335,14 @@ sub rule_wrapper {
 
 sub get_variable {
     my $name = shift;
-    my $h;
-    for (1..20) {
-        #warn "level $_ - $name";
-        $h = peek_my($_);
-        if ( defined $h->{$name} ) {
-            #warn "variable $name found:", Dumper($h->{$name});
-            return ${$h->{$name}};
-        }
-        # $h = peek_our($_);
-        # if ( defined $h->{$name} ) {
-        #    die "found", Dumper(${$h->{$name}});
-        # }
+    my($idx, $pad) = 0;
+    while($pad = peek_my($idx) and keys %$pad) {
+        $idx++, next
+          unless exists $pad->{$name};
+
+        return ${ $pad->{$name} };
     }
-    die "variable not found: $name";
+    die "Couldn't find '$name' in surrounding lexical scope.";
 }
 
 1;
