@@ -1,5 +1,5 @@
 
-use Test::More tests => 9;
+use Test::More tests => 11;
 
 use_ok( 'Pugs::Compiler::Rule' );
 
@@ -55,11 +55,21 @@ use_ok( 'Pugs::Compiler::Rule' );
 
 {
     # calling unnamed subrules
+    $test2::rule2 = Pugs::Compiler::Rule->compile( '.' );
+    *test::rule_method2 = Pugs::Compiler::Rule->compile( '<$test2::rule2>' )->code;
+    my $match = test->rule_method2( "xyzw" );
+    #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
+    #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    is( "$match", "x", 'a named subrule calls a global unnamed subrule' );
+}
+
+{
+    # calling unnamed subrules
     my $rule2 = Pugs::Compiler::Rule->compile( '.' );
     *test::rule_method2 = Pugs::Compiler::Rule->compile( '<$rule2>' )->code;
     my $match = test->rule_method2( "xyzw" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
-    is( "$match", "x", 'a named subrule calls an unnamed subrule' );
+    is( "$match", "x", 'a named subrule calls a lexical unnamed subrule' );
 }
 

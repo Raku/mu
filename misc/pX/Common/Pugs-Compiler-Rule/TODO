@@ -2,6 +2,8 @@ TODO for Pugs::Compiler::Rule (PCR)
 
 Priorities:
 
+- add PadWalker dependency to Makefile.PL
+
 - Match: .from and .to not implemented in subrules
 
 - maybe use PadWalker for solving these problems:

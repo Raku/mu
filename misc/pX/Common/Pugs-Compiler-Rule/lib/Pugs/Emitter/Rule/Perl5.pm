@@ -9,6 +9,28 @@ use warnings;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
+{
+    package Pugs::Runtime::Rule;
+    use PadWalker qw( peek_my );  # peek_our ); ???
+    sub get_variable {
+        my $name = shift;
+        my $h;
+        for (1..20) {
+            #warn "level $_ - $name";
+            $h = peek_my($_);
+            if ( defined $h->{$name} ) {
+                warn "variable $name found:", Dumper($h->{$name});
+                return ${$h->{$name}};
+            }
+            # $h = peek_our($_);
+            # if ( defined $h->{$name} ) {
+            #    die "found", Dumper(${$h->{$name}});
+            # }
+        }
+        die "variable not found: $name";
+    }
+}
+
 sub call_subrule {
     my $name = $_[0];
     $name = "\$grammar->" . $_[0] unless $_[0] =~ /::/;
@@ -206,8 +228,16 @@ sub metasyntax {
         return "$_[1] alternation( \\$cmd )\n";
     }
     if ( $prefix eq '$' ) {
-        # call method in $var
-        return "$_[1] sub { \${ $cmd->( \@_ ) } }\n";
+        if ( $cmd =~ /::/ ) {
+            # call method in fully qualified $package::var
+            return "$_[1] sub { \${ $cmd->match( \@_ ) } }\n";
+        }
+        # call method in lexical $var
+        return 
+            "$_[1] sub { \n" . 
+            "$_[1]     my \$r = Pugs::Runtime::Rule::get_variable( '$cmd' );\n" . 
+            "$_[1]     \${ \$r->match( \@_ ) }\n" .
+            "$_[1] }\n";
     }
     if ( $prefix =~ /[_[:alnum:]]/ ) {
         if ( $cmd =~ /\./ ) {
