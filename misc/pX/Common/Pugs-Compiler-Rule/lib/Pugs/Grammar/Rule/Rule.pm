@@ -40,18 +40,6 @@ rule ident    :P5 {^((?:(?:\:\:)?[_[:alnum:]]+)+)}
     rule escaped_char  :P5 {^\\(.)}
     unshift @rule_terms, 'escaped_char';
     
-    # XXX - incomplete - needs a return block
-    #rule non_capturing_subrule  :P5 {^\<\?(.*?)\>}
-    #push @rule_terms, 'non_capturing_subrule';
-    
-    # XXX - incomplete - needs a return block
-    #rule negated_subrule        :P5 {^\<\!(.*?)\>}
-    #push @rule_terms, 'negated_subrule';
-    
-    # XXX - incomplete - needs a return block
-    #rule subrule  :P5 {^\<(.*?)\>}
-    #push @rule_terms, 'subrule';
-    
     rule non_capturing_group {
         \[ <rule> \] 
          
@@ -73,13 +61,6 @@ rule ident    :P5 {^((?:(?:\:\:)?[_[:alnum:]]+)+)}
     }
     unshift @rule_terms, 'variable_rule';
     
-    #rule runtime_alternation {
-    #    \< <variable> \>
-    #        
-    #    { return { runtime_alternation => $_[0]{variable}() ,} }
-    #}
-    #unshift @rule_terms, 'runtime_alternation';
-    
     rule named_capture {
         \$ \< <ident> \> <?p6ws>? \:\= <?p6ws>? \( <rule> \) 
         
@@ -97,14 +78,6 @@ rule ident    :P5 {^((?:(?:\:\:)?[_[:alnum:]]+)+)}
         { return { capturing_group => $_[0]{rule}() ,} }
     }
     unshift @rule_terms, 'capturing_group';
-    
-    
-    #rule constant {
-    #    \< <literal> \>
-    #        
-    #    { return { constant => $() } }
-    #}
-    #unshift @rule_terms, 'constant';
     
     rule colon1 {
         \:
@@ -140,37 +113,33 @@ rule quantifier {
 }
 
 rule concat {
-    [ 
-        $<q1> := (<quantifier>) $<q2> := (<concat>) 
+    $<q1> := (<quantifier>) 
+    [
+        $<q2> := (<concat>) 
         
         { return { concat => [ 
                 { quant => $_[0]{q1}() ,}, 
                 $_[0]{q2}(),
             ] ,} 
         } 
-    ]
-    | 
-    [ 
-        <quantifier> 
-        
-        { return { quant => $_[0]{quantifier}() ,} } 
-    ]
+    
+    ]?
+    
+    { return { quant => $_[0]{q1}() ,} } 
 }
 
 rule rule {
-    [ 
-        $<q1> := (<concat>) \| $<q2> := (<rule>) 
-        
+    $<q1> := (<concat>) 
+    [
+        \| $<q2> := (<rule>) 
+
         { return { alt => [ 
                 $_[0]{q1}(), 
                 $_[0]{q2}(),
             ] ,} 
-        } 
-    ]
-    | 
-    [ 
-        <concat> 
-        
-        { return $_[0]{concat}() } 
-    ]
+        }
+    
+    ]?
+            
+    { return $_[0]{q1}() } 
 }

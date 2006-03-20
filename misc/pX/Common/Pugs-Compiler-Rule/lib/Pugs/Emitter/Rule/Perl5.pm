@@ -9,6 +9,7 @@ use warnings;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
+# XXX - reuse this sub in metasyntax()
 sub call_subrule {
     my $name = $_[0];
     $name = "\$grammar->" . $_[0] unless $_[0] =~ /::/;
@@ -91,7 +92,6 @@ sub quant {
            emit_rule( $term, $_[1] ) . "$_[1] )\n";
 }        
 sub alt {
-    # local $Data::Dumper::Indent = 1;
     # print "*** \$_[0]:\n",Dumper $_[0];
     my @s;
     for ( @{$_[0]} ) { 
@@ -103,7 +103,6 @@ sub alt {
            "$_[1] ] )\n";
 }        
 sub concat {
-    # local $Data::Dumper::Indent = 1;
     # print "*** \$_[0]:\n",Dumper $_[0];
     my @s;
     for ( @{$_[0]} ) { 
@@ -115,35 +114,12 @@ sub concat {
         join( ',', @s ) .
         "$_[1] )\n";
 }        
-#sub term {
-#    return emit_rule( $_[0], $_[1] );
-#}        
 sub code {
     # return "$_[1] # XXX code - compile '$_[0]' ?\n";
     return "$_[1] $_[0]  # XXX - code\n";  
 }        
 sub dot {
     return call_subrule( 'any', $_[1] );
-}
-sub subrule {
-    return 
-        "$_[1] capture( '$_[0]', \n" .
-        call_subrule( $_[0], $_[1]."    " ) .
-        "$_[1] )\n";;
-}
-sub non_capturing_subrule {
-    call_subrule( $_[0], $_[1] );
-}
-sub negated_subrule {
-    return 
-        "$_[1] negate( '$_[0]', \n" .
-        call_subrule( $_[0], $_[1]."    " ) .
-        "$_[1] )\n";;
-}
-sub constant {
-    my $literal = shift;
-    my $name = quotemeta( "$literal" );
-    return "$_[0] constant( \"$name\" )\n";
 }
 sub variable {
     my $name = "$_[0]";
@@ -197,6 +173,11 @@ sub colon {
         if $num == 1;
     die (':' x $num) . " not implemented";
 }
+sub constant {
+    my $literal = shift;
+    my $name = quotemeta( "$literal" );
+    return "$_[0] constant( \"$name\" )\n";
+}
 sub metasyntax {
     # <cmd>
     my $cmd = $_[0];   
@@ -217,7 +198,31 @@ sub metasyntax {
             "$_[1]     \${ \$r->match( \@_ ) }\n" .
             "$_[1] }\n";
     }
+    if ( $prefix eq q(') ) {   # single quoted literal 
+        $cmd = substr( $cmd, 1, -1 );
+        my $name = quotemeta( "$cmd" );
+        return "$_[1] constant( \"$name\" )\n";
+    }
+    if ( $prefix eq '?' ) {   # non_capturing_subrule 
+        $cmd = substr( $cmd, 1 );
+        # XXX - make a recursive call to metasyntax()
+        if ( $cmd =~ /\./ ) {
+            # call other grammar's method
+            $cmd =~ s/\./->/;
+            return "$_[1] sub { \${ $cmd( \@_ ) } }\n";
+        }
+        # call method in this grammar
+        return "$_[1] sub { \${ \$grammar->$cmd( \@_ ) } }\n";
+    }
+    if ( $prefix eq '!' ) {   # negated_subrule 
+        $cmd = substr( $cmd, 1 );
+        return 
+            "$_[1] negate( '$_[0]', \n" .
+            metasyntax( $_[0], $_[1]."    " ) .
+            "$_[1] )\n";;
+    }
     if ( $prefix =~ /[_[:alnum:]]/ ) {
+        # XXX - TODO - capture 
         if ( $cmd =~ /\./ ) {
             # call other grammar's method
             $cmd =~ s/\./->/;
