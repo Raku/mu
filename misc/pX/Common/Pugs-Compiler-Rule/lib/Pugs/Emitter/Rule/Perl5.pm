@@ -9,28 +9,6 @@ use warnings;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
-{
-    package Pugs::Runtime::Rule;
-    use PadWalker qw( peek_my );  # peek_our ); ???
-    sub get_variable {
-        my $name = shift;
-        my $h;
-        for (1..20) {
-            #warn "level $_ - $name";
-            $h = peek_my($_);
-            if ( defined $h->{$name} ) {
-                warn "variable $name found:", Dumper($h->{$name});
-                return ${$h->{$name}};
-            }
-            # $h = peek_our($_);
-            # if ( defined $h->{$name} ) {
-            #    die "found", Dumper(${$h->{$name}});
-            # }
-        }
-        die "variable not found: $name";
-    }
-}
-
 sub call_subrule {
     my $name = $_[0];
     $name = "\$grammar->" . $_[0] unless $_[0] =~ /::/;

@@ -6,6 +6,7 @@ use strict;
 use warnings;
 #use Smart::Comments; for debugging, look also at Filtered-Comments.pm
 use Data::Dumper;
+use PadWalker qw( peek_my );  # peek_our ); ???
 
 =pod
 
@@ -330,6 +331,24 @@ sub rule_wrapper {
     $match->{capture} = $head;
     delete $match->{abort};
     return $match;
+}
+
+sub get_variable {
+    my $name = shift;
+    my $h;
+    for (1..20) {
+        #warn "level $_ - $name";
+        $h = peek_my($_);
+        if ( defined $h->{$name} ) {
+            #warn "variable $name found:", Dumper($h->{$name});
+            return ${$h->{$name}};
+        }
+        # $h = peek_our($_);
+        # if ( defined $h->{$name} ) {
+        #    die "found", Dumper(${$h->{$name}});
+        # }
+    }
+    die "variable not found: $name";
 }
 
 1;
