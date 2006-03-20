@@ -3,6 +3,7 @@ TODO for Pugs::Compiler::Rule (PCR)
 Priorities:
 
 - add PadWalker dependency to Makefile.PL
+- move files to /perl5; fix paths in Makefile.PL
 
 - Match: .from and .to not implemented in subrules
 
@@ -16,35 +17,10 @@ Priorities:
 
 - :P5 rules
 
-- the grammar may implement <...> and let a node parse the '...'
-
-- finish/test the API description in ChangeLog, PCR pod.
-
 Tests:
-
-- call subrule in another Grammar
 
 - backtracking control ':' 
 
-API:
-
-  - finish/test the API description
-  
-  # grammar is a class, rule is a method
-  my $match = Grammar->rule( $str );  
-  my $match = rule( 'Grammar', $str );  
-  
-  # grammar is an object, rule is a method
-  my $match = $grammar->rule( $str );  
-  
-  # grammar is a class, rule is an object (unnamed rule)
-  my $match = $rule->match( 'Grammar', $str );  
-  
-  # grammar is an object (unnamed grammar), rule is an object (unnamed rule)
-  my $match = $rule->match( $grammar, $str );  
-  
-  Note that methods do not accept arbitrary names (unlike variables and subroutines)
-  
 Related projects:
 
 - implement (optional?) PCR in pugs
@@ -62,8 +38,6 @@ Other:
 - add a hook for compiling closures (such as pugs or a source filter)
   - cleanup any remaining source filtering
 
-- document the '*name = $rule->code;' syntax (doc removed?)
-
 - rule documentation (shorter than S05)
 - examples of use
 
@@ -72,18 +46,7 @@ Other:
 - Switches - none so far - all rules have :p set (only match at start of 
   text) (see Pugs::Compiler::Rule workaround)
 
-- there are 2 engines - the old lrep engine, which drives the rule parser,
-  and the new engine, which is the user-side parser. The 2 steps should 
-  use only the new engine.
-
-- remove 'grammar1' namespace everywhere
-- 'Pugs::Grammar::Rule::Lib' - old p5 code... -- 'use' in P:G:R
-
-- namespace problems:
-  - rules are compiled in the Pugs::Grammar::Rule namespace
-  - user-defined rules are local to the current package
-    and will need to be called with full-name (until fixed)
-  - test user-defined subrules (there may be namespace problems)
+- 'Pugs::Grammar::Rule' - old p5 code... -- 'use' in P:G:R
 
 - more tests (port from lrep)
   
