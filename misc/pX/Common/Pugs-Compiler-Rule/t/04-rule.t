@@ -2,6 +2,7 @@
 use Test::More tests => 12;
 
 use_ok( 'Pugs::Compiler::Rule' );
+no warnings qw( once );
 
 {
     package test;
@@ -68,8 +69,8 @@ use_ok( 'Pugs::Compiler::Rule' );
     my $match;
     eval {
     my $rule2 = Pugs::Compiler::Rule->compile( '.' );
-    *test::rule_method2 = Pugs::Compiler::Rule->compile( '<$rule2>' )->code;
-    my $match = test->rule_method2( "xyzw" );
+    *test::rule_method6 = Pugs::Compiler::Rule->compile( '<$rule2>' )->code;
+    my $match = test->rule_method6( "xyzw" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
     };
