@@ -1,5 +1,5 @@
 
-use Test::More tests => 11;
+use Test::More tests => 12;
 
 use_ok( 'Pugs::Compiler::Rule' );
 
@@ -65,11 +65,23 @@ use_ok( 'Pugs::Compiler::Rule' );
 
 {
     # calling unnamed subrules
+    my $match;
+    eval {
     my $rule2 = Pugs::Compiler::Rule->compile( '.' );
     *test::rule_method2 = Pugs::Compiler::Rule->compile( '<$rule2>' )->code;
     my $match = test->rule_method2( "xyzw" );
     #print "Source: ", do{use Data::Dumper; Dumper($rule->{perl5})};
     #print "Match: ", do{use Data::Dumper; Dumper($match)};
+    };
+    warn "# *** Please check if CPAN module 'PadWalker' is properly installed"
+        if $@;
     is( "$match", "x", 'a named subrule calls a lexical unnamed subrule' );
+}
+
+{
+    # generated rules
+    my $rule = Pugs::Compiler::Rule->compile( '<alpha>+' );
+    my $match = $rule->match( "xy12" );
+    is( "$match", "xy", 'built-in rule <alpha>' );
 }
 

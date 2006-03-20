@@ -1,4 +1,8 @@
 
+- built-in rules: alpha, alnum, ...
+
+- faster Rule grammar
+
 - fixed grammar bug: '$var := (xxx)' is: '$<var> := (xxx)'
 
 - implemented ':' (untested)

@@ -17,7 +17,7 @@ sub call_subrule {
         "$_[1] sub{ \n" .
         # $_[1] . '    warn "Trying $method\n";' . "\n" .
         # "    my \$match = \n" .
-        "$_[1]     $name( \@_ );\n" .
+        "$_[1]     \${ $name( \@_ ) };\n" .
         # $_[1] . '    warn $match ? "Match\n" : "No match\n";' . "\n" .
         "$_[1] }\n";
 }

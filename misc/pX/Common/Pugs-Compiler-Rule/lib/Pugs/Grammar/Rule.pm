@@ -63,6 +63,7 @@ BEGIN {
     local $SIG{__WARN__} = sub {};
     require Pugs::Grammar::Rule::Rule;
 
+    # XXX - currying should be made automatically by <@xxx> runtime
     # curry @rule_terms with Grammar
     @rule_terms = map { 
         my $method = $_;

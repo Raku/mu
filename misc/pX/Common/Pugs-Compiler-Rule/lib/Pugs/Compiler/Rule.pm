@@ -127,18 +127,24 @@ to several other modules:
 
 =head2 Implemented Features
 
- . ? * + *? +? ??
- \char <ws> <word> literal
- $variable @variable
- <'literal'>
+ <ws> 
+ #comment\n 
+ . 
+ ? * + *? +? ??
+ literal
  [] 
  ()     
+ |
+
+ <'literal'>
  <subrule>
  <namespace::subrule>
+ <$var>      
  <?subrule>
  <!subrule>
- |
+ 
  <@var>             -- special-cased for array-of-rule (but not Rule|Str)
+ \char              -- not all chars implemented
  {code}             -- non-capturing closure
                     -- perl5 syntax inside closure
                     -- $/ doesn't work yet
@@ -149,10 +155,11 @@ to several other modules:
  $<> $/<>           -- special variables can't be used inside a match yet
  $/ 
  $<0> $<1>
- <$var>             -- untested
 
 =head2 Unimplemented Features
 
+ $variable 
+ @variable
  $/<0> $/<1>
  $/0 $/1
  $0 $1
@@ -169,11 +176,8 @@ to several other modules:
  <<character-class>> <[character-class]>
  :flag :flag() :flag[]
  lookahead lookbehind
- #comment\n
  \x0a \0123 ...
- <?ws>                      -- optional whitespace ???
  &    
- <!abc>                     -- is this !<abc> or !abc ?
  \n \N
 
 =head1 METHODS
