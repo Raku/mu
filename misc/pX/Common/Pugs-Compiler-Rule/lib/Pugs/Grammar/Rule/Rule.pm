@@ -21,6 +21,8 @@ rule ident    :P5 {^((?:(?:\:\:)?[_[:alnum:]]+)+)}
 
 rule num_variable :P5 {^(?:\$[[:digit:]]+)}
 
+rule escaped_char :P5 {^\\(.)}
+
 # terms
 
     rule dot {
@@ -39,8 +41,12 @@ rule num_variable :P5 {^(?:\$[[:digit:]]+)}
     unshift @rule_terms, 'word';
     
     # XXX - incomplete - needs a return block
-    rule escaped_char  :P5 {^\\(.)}
-    unshift @rule_terms, 'escaped_char';
+    rule special_char {
+        <escaped_char>
+
+        { return { special_char => $_[0]{escaped_char}(), } } 
+    }
+    unshift @rule_terms, 'special_char';
     
     rule non_capturing_group {
         \[ <rule> \] 

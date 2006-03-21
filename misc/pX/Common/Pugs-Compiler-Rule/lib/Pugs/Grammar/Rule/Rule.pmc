@@ -2,7 +2,7 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0x74B56A11 or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0x5E5E2DB6 or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
 *{'Pugs::Grammar::Rule::p6ws'} = sub {
@@ -46,6 +46,18 @@ package Pugs::Grammar::Rule;
     #warn "rule argument is undefined" unless defined $_[0];
     $_[0] = "" unless defined $_[0];
     my $bool = $_[0] =~ /^(?:\$[[:digit:]]+)(.*)$/sx;
+    return {
+        bool  => $bool,
+        match => $1,
+        tail  => $2,
+        #capture => $1,
+    }
+};
+*{'Pugs::Grammar::Rule::escaped_char'} = sub {
+    my $grammar = shift;
+    #warn "rule argument is undefined" unless defined $_[0];
+    $_[0] = "" unless defined $_[0];
+    my $bool = $_[0] =~ /^\\(.)(.*)$/sx;
     return {
         bool  => $bool,
         match => $1,
@@ -105,19 +117,26 @@ sub {
     )
 };
     unshift @Pugs::Grammar::Rule::rule_terms, 'word';
-*{'Pugs::Grammar::Rule::escaped_char'} = sub {
+*{'Pugs::Grammar::Rule::special_char'} = 
+sub {
     my $grammar = shift;
-    #warn "rule argument is undefined" unless defined $_[0];
-    $_[0] = "" unless defined $_[0];
-    my $bool = $_[0] =~ /^\\(.)(.*)$/sx;
-    return {
-        bool  => $bool,
-        match => $1,
-        tail  => $2,
-        #capture => $1,
-    }
+    $_[0] = '' unless defined $_[0];
+    package Pugs::Runtime::Rule;
+    rule_wrapper( $_[0], (
+        concat(
+          capture( 'escaped_char', sub{ $grammar->escaped_char(@_) } )
+        ,
+          Pugs::Runtime::Rule::abort(
+              sub {
+                  return { bool => 1, tail => $_[0], return => sub { return { special_char => $_[0]{escaped_char}(), } } };
+              }
+          )
+        ,
+        ),
+        )->( @_ )
+    )
 };
-    unshift @Pugs::Grammar::Rule::rule_terms, 'escaped_char';
+    unshift @Pugs::Grammar::Rule::rule_terms, 'special_char';
 *{'Pugs::Grammar::Rule::non_capturing_group'} = 
 sub {
     my $grammar = shift;

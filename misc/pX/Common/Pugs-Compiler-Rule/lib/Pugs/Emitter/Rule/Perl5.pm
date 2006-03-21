@@ -135,6 +135,12 @@ sub variable {
 
     return "$_[1] constant( '" . $value . "' )\n";
 }
+sub special_char {
+    my $char = $_[0];
+    my $value = $char;
+    $value = "\n" if $value eq 'n';
+    return "$_[1] constant( '" . $value . "' )\n";
+}
 sub match_variable {
     my $name = $_[0];
     my $num = substr($name,1);
