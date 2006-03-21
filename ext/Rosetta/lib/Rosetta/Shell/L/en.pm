@@ -6,6 +6,16 @@ use v6;
 
 # Constant values used by packages in this file:
 my Str %TEXT_STRINGS is readonly = (
+    'ROS_S_HELLO' => q[Welcome to the Rosetta DBMS!],
+    'ROS_S_GOODBYE' => q[Goodbye!],
+    'ROS_S_DBMS_INIT_FAIL'
+        => q[Initialization of the Engine "<ENGINE_NAME>" has failed.],
+    'ROS_S_DBMS_INIT_SUCCESS'
+        => q[Initialization of the Engine "<ENGINE_NAME>" is successful.],
+    'ROS_S_PROMPT'
+        => q[Enter a Rosetta D command to execute (all on one line),]
+           ~ q[ or press ENTER to quit.],
+    'ROS_S_TODO_RESULT' => q[TODO: prepare and execute that command.],
 );
 
 ###########################################################################

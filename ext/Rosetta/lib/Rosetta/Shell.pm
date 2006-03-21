@@ -21,6 +21,7 @@ module Rosetta::Shell-0.1.0 {
 
     # State variables used by the Rosetta::Shell module:
     my Locale::KeyedText::Translator $translator;
+    my Rosetta::Interface::DBMS      $dbms;
 
 ###########################################################################
 
@@ -38,12 +39,43 @@ sub main (Str :$engine_name!, Str :@user_lang_prefs? = 'en') {
     );
 
     _show_message( Locale::KeyedText::Message.new(
-        'msg_key' => 'MYAPP_HELLO' ) );
+        'msg_key' => 'ROS_S_HELLO' ) );
 
+    try {
+        $dbms = Rosetta::Interface::DBMS.new(
+            'engine_name' => $engine_name );
+    };
+    if ($!) {
+        _show_message( Locale::KeyedText::Message.new(
+            'msg_key'  => 'ROS_S_DBMS_INIT_FAIL',
+            'msg_vars' => {
+                'ENGINE_NAME' => $engine_name,
+            },
+        ) );
+    }
+    else {
+        _show_message( Locale::KeyedText::Message.new(
+            'msg_key'  => 'ROS_S_DBMS_INIT_SUCCESS',
+            'msg_vars' => {
+                'ENGINE_NAME' => $engine_name,
+            },
+        ) );
+        _command_loop();
+    }
+
+    _show_message( Locale::KeyedText::Message.new(
+        'msg_key' => 'ROS_S_GOODBYE' ) );
+
+    return;
+}
+
+###########################################################################
+
+my sub _command_loop () {
 #    INPUT_LINE:
     while (1) {
         _show_message( Locale::KeyedText::Message.new(
-            'msg_key' => 'MYAPP_PROMPT' ) );
+            'msg_key' => 'ROS_S_PROMPT' ) );
 
         my Str $user_input = =$*IN;
 
@@ -53,21 +85,12 @@ sub main (Str :$engine_name!, Str :@user_lang_prefs? = 'en') {
             if $user_input eq $EMPTY_STR;
 
         try {
-            my Num $result = MyLib::my_invert( $user_input );
             _show_message( Locale::KeyedText::Message.new(
-                'msg_key'  => 'MYAPP_RESULT',
-                'msg_vars' => {
-                    'ORIGINAL' => $user_input,
-                    'INVERTED' => $result,
-                },
-            ) );
+                'msg_key' => 'ROS_S_TODO_RESULT' ) );
         };
         _show_message( $! )
             if $!; # input error, detected by library
     }
-
-    _show_message( Locale::KeyedText::Message.new(
-        'msg_key' => 'MYAPP_GOODBYE' ) );
 
     return;
 }

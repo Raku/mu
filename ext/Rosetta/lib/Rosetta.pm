@@ -31,7 +31,16 @@ class Rosetta::Interface::DBMS {
 
 ###########################################################################
 
+submethod BUILD (Str :$engine_name!) {
 
+    # This is a quick hack that just tests if the Engine module loads or not.
+    # It WILL be replaced.
+    eval "require $engine_name;";
+    die $!
+        if $!;
+
+    return;
+}
 
 ###########################################################################
 
