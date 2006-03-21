@@ -43,8 +43,8 @@ least once its complete.
 
 Rosetta D also has design aspects and constructs that are taken from or
 influenced by Perl 6, and various SQL dialects and implementations, and
-other TTM implementations like Dave Voorhis'
-L<Rel|http://dbappbuilder.sourceforge.net/>, but none of the adaptions from
+other TTM implementations like Dave Voorhis' "Rel"
+(L<http://dbappbuilder.sourceforge.net/>), but none of the adaptions from
 these are incompatible with TTM.
 
 Note that the Rosetta documentation will be focusing mainly on how Rosetta
@@ -248,19 +248,19 @@ All types of Rosetta D command routines can have assignment statements
 which target their own lexical variables, but only procedures (that are not
 invoked by operators / functions) are allowed to target global variables,
 which are declared in a repository directly, or have read-write parameters.
-In other words, an function may not have side-effects (save its own
-read-write parameters), though it can I<read> from global variables.
-Moreover, any procedure that is invoked by an function is subject to the
-same restriction, since it is effectively part of the function.  A few
-special exceptions may be made to this restriction on functions, but for
-the most part, the restriction is in place to prevent inconsistencies
-between reads of the environment/globals from multiple functions that are
-invoked in the same Rosetta D expression; all reads in the same expression
-need to see the same state, so the expression's result is the same
-regardless of any logically-equivalent changes to order of execution of the
-sub-expressions.  Further to this goal, any target variable may not be used
-more than once in the same Rosetta D statement; target meaning a read-write
-procedure parameter's argument.
+In other words, an function may not have side-effects, though it can
+I<read> from global variables.  Moreover, any procedure that is invoked by
+an function is subject to the same restriction against targeting globals,
+since it is effectively part of the function.  A few special exceptions may
+be made to this restriction on functions, but for the most part, the
+restriction is in place to prevent inconsistencies between reads of the
+environment/globals from multiple functions that are invoked in the same
+Rosetta D expression; all reads in the same expression need to see the same
+state, so the expression's result is the same regardless of any
+logically-equivalent changes to order of execution of the sub-expressions.
+Further to this goal, any target variable may not be used more than once in
+the same Rosetta D statement; target meaning a read-write procedure
+parameter's argument, or directly referenced global variable.
 
 =head2 Named Users and Privileges
 
