@@ -1,0 +1,41 @@
+#rule xxx :P5 {.*}
+#rule _word :P5 {^([_[:alnum:]]+)}
+
+require Grammar::Perl6Primitives;
+
+use warnings;
+
+macro statement_control:<aaa> ( $a ) is parsed ( /
+    <?ws>? \( <?ws>? $a := (.*?) <?ws>? \) <?ws>? \;
+/ ) 
+{ 
+    return '$a' ; 
+}
+
+macro statement_control:<sum> () is parsed ( /
+    <?ws>? \( <?ws>? $a := (.*?) <?ws>? \+ <?ws>? $b := (.*?) <?ws>? \) <?ws>? \;
+/ ) 
+{ 
+    return ' $a infix:<+> $b ; say \'ok\'; '   ; 
+}
+
+'1' infix:<+> '1';
+'1' infix:<*> '1';
+'1' infix:<+> '1' infix:<*> '1';
+'1' infix:<*> '1' infix:<+> '1';
+
+statement_control:<sum> ( 2 + 4 );
+statement_control:<aaa> ( say 'something'; );
+
+if ( '1' ) { say '<if> is ok!'; }
+unless ( '0' ) { say '<unless> ok!'; }
+
+my $a;
+$a = 'world!';
+print 'hello, ';
+say $a;
+{ say 'in block'; }
+warn 'hi';
+
+...;
+

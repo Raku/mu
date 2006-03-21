@@ -1,0 +1,88 @@
+use warnings;
+use IO::File;
+use Getopt::Std;
+use Data::Dumper;
+require Pugs::Runtime::Match;
+require Runtime::Perl5::RuleInit;
+require Grammar::Perl6Init;
+require Grammar::Rules;
+require Grammar::Legacy;
+require Grammar::Perl6;
+require Emitter::Perl5;
+    my %args;
+%args = ();
+    my $argsref;
+$argsref = \%args;
+getopts('ti:o:',$argsref);
+    my $input_filename;
+$input_filename = $args{'i'};
+    my $output_filename;
+$output_filename = $args{'o'};
+$::trace = $args{'t'};
+unless ($input_filename) 
+    {
+
+    {
+    die  usage();
+
+    }
+
+    }
+
+unless ($output_filename) 
+    {
+
+    {
+    die  usage();
+
+    }
+
+    }
+
+    sub usage
+
+    {
+    return 'use -i input -o output';
+
+    }
+    ;
+    my $input_file;
+$input_file = IO::File->new($input_filename,'<');
+unless ($input_file) 
+    {
+
+    {
+    die  'Could not open input file';
+
+    }
+
+    }
+
+    my $source;
+use Perl6::Slurp;
+$source = slurp $input_file;
+    my $match;
+$match = Grammar::Perl6::grammar($source);
+    my $tail;
+$tail = $match->{'tail'};
+if ($tail) 
+    {
+
+    {
+    print 'Syntax Error !!';
+    print "\n";
+    die  $tail;
+
+    }
+
+    }
+
+    my $code;
+    my $capture;
+$capture = $match->{'capture'};
+    print Data::Dumper->Dump($capture);
+    print "\n";
+$code = Emitter::Perl5::emit($capture);
+    my $out_fh;
+open $out_fh, '>', $output_filename;
+    print $out_fh $code;

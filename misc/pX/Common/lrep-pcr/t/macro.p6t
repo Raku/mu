@@ -1,0 +1,15 @@
+grammar main;
+
+macro statement_control:<if> () is parsed (/<?p6ws>?$expr:=(<code>)<?p6ws>?/)
+{
+    return '
+        sub prefix:<_if_expr>  { return $expr ; }
+        sub prefix:<_if_block> { $block }
+        eval( \' 
+                if ( &{\\\'prefix:<_if_expr>\\\'}() ) { 
+                    &{\\\'prefix:<_if_block>\\\'}() 
+                } 
+            \', 
+            :lang<perl5> );
+    ';
+}
