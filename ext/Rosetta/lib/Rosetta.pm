@@ -40,12 +40,12 @@ class Rosetta::Interface::DBMS {
 ###########################################################################
 ###########################################################################
 
-class Rosetta::Interface::foo {
+class Rosetta::Interface::Exception {
 
-    # External packages used by the Rosetta::Interface::foo class, that do export symbols:
+    # External packages used by the Rosetta::Interface::Exception class, that do export symbols:
     # (None Yet)
 
-    # Attributes of every Rosetta::Interface::foo object:
+    # Attributes of every Rosetta::Interface::Exception object:
     # (None Yet)
 
 ###########################################################################
@@ -54,7 +54,64 @@ class Rosetta::Interface::foo {
 
 ###########################################################################
 
-} # class Rosetta::Interface::foo
+} # class Rosetta::Interface::Exception
+
+###########################################################################
+###########################################################################
+
+class Rosetta::Interface::Command {
+
+    # External packages used by the Rosetta::Interface::Command class, that do export symbols:
+    # (None Yet)
+
+    # Attributes of every Rosetta::Interface::Command object:
+    # (None Yet)
+
+###########################################################################
+
+
+
+###########################################################################
+
+} # class Rosetta::Interface::Command
+
+###########################################################################
+###########################################################################
+
+class Rosetta::Interface::Value {
+
+    # External packages used by the Rosetta::Interface::Value class, that do export symbols:
+    # (None Yet)
+
+    # Attributes of every Rosetta::Interface::Value object:
+    # (None Yet)
+
+###########################################################################
+
+
+
+###########################################################################
+
+} # class Rosetta::Interface::Value
+
+###########################################################################
+###########################################################################
+
+class Rosetta::Interface::Variable {
+
+    # External packages used by the Rosetta::Interface::Variable class, that do export symbols:
+    # (None Yet)
+
+    # Attributes of every Rosetta::Interface::Variable object:
+    # (None Yet)
+
+###########################################################################
+
+
+
+###########################################################################
+
+} # class Rosetta::Interface::Variable
 
 ###########################################################################
 ###########################################################################
@@ -73,7 +130,9 @@ Rigorous database portability
 This document describes Rosetta version 0.722.0.
 
 It also describes the same-number versions of Rosetta::Interface::DBMS
-("DBMS"), and Rosetta::Interface::foo ("foo").
+("DBMS"), Rosetta::Interface::Exception ("Exception"),
+Rosetta::Interface::Command ("Command"), Rosetta::Interface::Value
+("Value"), and Rosetta::Interface::Variable ("Variable").
 
 I<Note that the "Rosetta" package serves only as the name-sake
 representative for this whole file, which can be referenced as a unit by
@@ -466,7 +525,19 @@ undefined.
 
 I<This documentation is pending.>
 
-=head2 The Rosetta::Interface::foo Class
+=head2 The Rosetta::Interface::Exception Class
+
+I<This documentation is pending.>
+
+=head2 The Rosetta::Interface::Command Class
+
+I<This documentation is pending.>
+
+=head2 The Rosetta::Interface::Value Class
+
+I<This documentation is pending.>
+
+=head2 The Rosetta::Interface::Variable Class
 
 I<This documentation is pending.>
 
