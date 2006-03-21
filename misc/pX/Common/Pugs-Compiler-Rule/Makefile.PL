@@ -26,8 +26,9 @@ if (-d $lrep_dir and not $pmc_is_uptodate) {
 my $mtime = time;
 utime $mtime, $mtime, $pmc;
 
-name        ('Pugs-Compiler-Rule');
-all_from    ('lib/Pugs/Compiler/Rule.pm');
+    name('Pugs-Compiler-Rule');
+all_from('lib/Pugs/Compiler/Rule.pm');
+requires(PadWalker => '1.0');
 
 &WriteAll;
 

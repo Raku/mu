@@ -2,7 +2,6 @@ TODO for Pugs::Compiler::Rule (PCR)
 
 Priorities:
 
-- add PadWalker 1.0 dependency to Makefile.PL
 - make PadWalker optional, as most distros don't hold PW 1.0
 
 - move files to /perl5; fix paths in Makefile.PL
