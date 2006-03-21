@@ -1,0 +1,67 @@
+TODO for Pugs::Compiler::Rule (PCR)
+
+Priorities:
+
+- make PadWalker optional, as most distros don't hold PW 1.0
+
+- move files to /perl5; fix paths in Makefile.PL
+
+- Match: .from and .to not implemented in subrules
+
+- maybe use PadWalker for solving these problems:
+  - simple closures should get the Match/self argument
+  - $0, $1 should work inside the rule 
+
+- '%var := xxx'; '@var := xxx'; %<var> := ; @<var> :=
+
+- rule parameters 
+
+- :P5 rules
+
+Bugs:
+
+- fix Pugs::Grammar::Rule::Rule compilation (broken inheritance)
+
+- $variable should look into the user pad
+
+Tests:
+
+- backtracking control ':' 
+
+- <'... <?... <!...
+
+- are subrules backtracking?
+
+Related projects:
+
+- implement (optional?) PCR in pugs
+
+- use PCR in lrep
+  - merge the 'dual engine' in PCR (used by the lrep-compiled grammar)
+
+- implement Pugs::Compiler::PILN ?
+  - not a priority - p5 could load ready-made YAML from Pugs
+
+Other:
+
+- cleanup the engine: it is both returning the match, and building the match tree.
+  There is no need to return the match.
+
+- closures should be called on the Match object
+
+- add a hook for compiling closures (such as pugs or a source filter)
+  - cleanup any remaining source filtering
+
+- rule documentation (shorter than S05)
+- examples of use
+
+- incomplete rule syntax (see Pugs::Compiler::Rule pod)
+
+- Switches - none so far - all rules have :p set (only match at start of 
+  text) (see Pugs::Compiler::Rule workaround)
+
+- 'Pugs::Grammar::Rule' - old p5 code... -- 'use' in P:G:R
+
+- more tests (port from lrep)
+  
+- optimization: inline code in the Engine
