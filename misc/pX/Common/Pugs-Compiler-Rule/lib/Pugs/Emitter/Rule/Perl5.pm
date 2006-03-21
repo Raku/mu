@@ -136,7 +136,7 @@ sub variable {
     return "$_[1] constant( '" . $value . "' )\n";
 }
 sub special_char {
-    my $char = $_[0];
+    my $char = substr($_[0],1);
     my $value = $char;
     $value = "\n" if $value eq 'n';
     return "$_[1] constant( '" . $value . "' )\n";

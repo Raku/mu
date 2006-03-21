@@ -1,5 +1,5 @@
 
-use Test::More tests => 12;
+use Test::More tests => 13;
 
 use_ok( 'Pugs::Compiler::Rule' );
 no warnings qw( once );
@@ -83,5 +83,12 @@ no warnings qw( once );
     my $rule = Pugs::Compiler::Rule->compile( '<alpha>+' );
     my $match = $rule->match( "xy12" );
     is( "$match", "xy", 'built-in rule <alpha>' );
+}
+
+{
+    # escaped chars
+    my $rule = Pugs::Compiler::Rule->compile( '\(' );
+    my $match = $rule->match( "(xy12)" );
+    is( "$match", "(", 'escaped char' );
 }
 
