@@ -8,10 +8,6 @@ Priorities:
 
 - Match: .from and .to not implemented in subrules
 
-- maybe use PadWalker for solving these problems:
-  - simple closures should get the Match/self argument
-  - $0, $1 should work inside the rule 
-
 - '%var := xxx'; '@var := xxx'; %<var> := ; @<var> :=
 
 - rule parameters 
@@ -32,6 +28,8 @@ Tests:
 
 - are subrules backtracking?
 
+- more tests (port from lrep)
+  
 Related projects:
 
 - implement (optional?) PCR in pugs
@@ -55,13 +53,15 @@ Other:
 - rule documentation (shorter than S05)
 - examples of use
 
-- incomplete rule syntax (see Pugs::Compiler::Rule pod)
+- incomplete rule syntax (see Pugs::Compiler::Rule pod); 
+- more escaped chars
 
 - Switches - none so far - all rules have :p set (only match at start of 
   text) (see Pugs::Compiler::Rule workaround)
 
 - 'Pugs::Grammar::Rule' - old p5 code... -- 'use' in P:G:R
 
-- more tests (port from lrep)
-  
-- optimization: inline code in the Engine
+- optimization: inline code in the Engine; 
+- "pre-generate" engine output?
+
+- cached precompiled variable rules, per S05

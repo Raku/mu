@@ -40,7 +40,6 @@ rule escaped_char :P5 {^\\(.)}
     }
     unshift @rule_terms, 'word';
     
-    # XXX - incomplete - needs a return block
     rule special_char {
         <escaped_char>
 
