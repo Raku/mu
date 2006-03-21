@@ -1,3 +1,4 @@
+- match variables are available inside the rule: $0, $1
 
 - built-in rules: alpha, alnum, ...
 

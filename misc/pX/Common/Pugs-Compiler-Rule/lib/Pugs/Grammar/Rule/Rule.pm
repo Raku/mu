@@ -19,6 +19,8 @@ rule variable :P5 {^([$%@](?:(?:\:\:)?[_[:alnum:]]+)+)}
 
 rule ident    :P5 {^((?:(?:\:\:)?[_[:alnum:]]+)+)}
 
+rule num_variable :P5 {^(?:\$[[:digit:]]+)}
+
 # terms
 
     rule dot {
@@ -60,6 +62,14 @@ rule ident    :P5 {^((?:(?:\:\:)?[_[:alnum:]]+)+)}
         { return { variable => $() ,} }
     }
     unshift @rule_terms, 'variable_rule';
+    
+    # $0 $1
+    rule match_variable {
+        <num_variable>    
+            
+        { return { match_variable => $_[0]{num_variable}() ,} }
+    }
+    unshift @rule_terms, 'match_variable';
     
     rule named_capture {
         \$ \< <ident> \> <?p6ws>? \:\= <?p6ws>? \( <rule> \) 

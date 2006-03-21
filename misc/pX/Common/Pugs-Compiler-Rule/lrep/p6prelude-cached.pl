@@ -1,7 +1,7 @@
 # generated file - do not edit!
 package grammar1;
 *{'perl5_regex'} = 
-
+ 
     sub { 
         my $rule = 
          ruleop::greedy_star(
@@ -55,6 +55,8 @@ package grammar1;
                    ruleop::constant( "\!" )
                  ,
                    ruleop::constant( "alnum" )
+                 ,
+                   ruleop::constant( "digit" )
                  ,
              ] )
            ,

@@ -4,15 +4,17 @@
 #
 
 package Pugs::Grammar::Rule;
+use strict;
+use warnings;
+no warnings qw( once redefine );
+
+# the main grammar was compiled by a broken lrep, and it can't inherit yet
+#use base Pugs::Grammar::Base;
 
 use Text::Balanced; 
 use Data::Dumper;
 use Pugs::Runtime::Rule;
 #use Pugs::Runtime::Grammar; -- MOP 
-
-use strict;
-use warnings;
-no warnings qw( once redefine );
 
 use vars qw( @rule_terms );
 use Pugs::Grammar::Rule::Rule;   # compiled with lrep
@@ -60,8 +62,8 @@ unshift @rule_terms, 'metasyntax';
 }
 
 BEGIN {
-    local $SIG{__WARN__} = sub {};
-    require Pugs::Grammar::Rule::Rule;
+    #local $SIG{__WARN__} = sub {};
+    #require Pugs::Grammar::Rule::Rule;
 
     # XXX - currying should be made automatically by <@xxx> runtime
     # curry @rule_terms with Grammar

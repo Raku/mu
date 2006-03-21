@@ -30,9 +30,10 @@ sub emit {
         "    my \$grammar = shift;\n" .
         #"    print 'GRAMMAR: \$grammar', \"\\n\";\n" .
         "    package Pugs::Runtime::Rule;\n" .
+        "    my \$tree;\n" .
         "    rule_wrapper( \$_[0], \n" . 
         emit_rule( $ast ) . 
-        "        ->( \@_ )\n" .
+        "        ->( \$_[0], undef, \$tree, \$tree )\n" .
         "    );\n" .
         "}\n" .
         "";
@@ -74,6 +75,7 @@ sub quant {
     # print "*** \$_[0]:\n",Dumper $_[0];
     my $term = $_[0]->{'term'};
     my $quantifier = $_[0]->{quant};
+    $quantifier = '' unless defined $quantifier;
     my $sub = { 
             '*' =>'greedy_star',     
             '+' =>'greedy_plus',
@@ -132,6 +134,19 @@ sub variable {
     # $value = join('', eval $name) if $name =~ /^\%/;
 
     return "$_[1] constant( '" . $value . "' )\n";
+}
+sub match_variable {
+    my $name = $_[0];
+    my $num = substr($name,1);
+    #print "var name: ", $num, "\n";
+    my $code = 
+    "    sub { 
+        my \$m = Pugs::Runtime::Match->new( \$_[2] );
+        " .  #print \'variable $name:\',Dumper(\$_[2]); 
+        "return constant( \"\$m->[$num]\" )->(\@_);
+    }";
+    $code =~ s/^/$_[1]/mg;
+    return "$code\n";
 }
 sub closure {
     my $code = $_[0]; 

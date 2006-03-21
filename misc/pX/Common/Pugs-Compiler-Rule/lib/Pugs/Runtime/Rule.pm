@@ -14,6 +14,8 @@ A "rule" function gets as argument a list:
 
 0 - a string to match
 1 - an optional "continuation"
+2 - a partially built match tree
+3 - a leaf pointer in the match tree
 
 it returns (or "yields"):
 
@@ -57,12 +59,13 @@ sub alternation {
 
         my $tail =  $_[0];
         my $state = $_[1] ? [ @{$_[1]} ] : [ 0, 0 ];
-        #my $flags = $_[2];
+        $_[3] = {};
+
         my $match;
         while ( defined $state ) {
             ### alternation string to match: "$tail - (node,state)=@$state"
             $match = 
-                $nodes->[ $state->[0] ]->( $tail, $state->[1] );
+                $nodes->[ $state->[0] ]->( $tail, $state->[1], $_[2], $_[3]{match} );
             ### match: $match
             if ( $match->{state} ) {
                 $state->[1] = $match->{state};
@@ -75,8 +78,9 @@ sub alternation {
                 $state = undef if $state->[0] > $#$nodes;
             }
             $match->{state} = $state;
-            return $match if $match->{bool} || $match->{abort};
+            return $_[3] = $match if $match->{bool} || $match->{abort};
         }
+        undef $_[3];
         return;
     }
 }
@@ -92,11 +96,11 @@ sub concat {
     return sub {
         my $tail  = $_[0];
         my @state = $_[1] ? ( @{$_[1]} ) : ( 0, 0 );
-        #my $flags = $_[2];
         my @matches;
+        $_[3] = { match => [] };
         while (1) {
             
-            $matches[0] = $nodes[0]->( $tail, $state[0] );
+            $matches[0] = $nodes[0]->( $tail, $state[0], $_[2], $_[3]{match}[0] );
             ### 1st match: $matches[0]
             return $matches[0] 
                 if $matches[0]{abort};
@@ -105,8 +109,11 @@ sub concat {
                 @state = ( $matches[0]{state}, 0 );
                 next;
             }
-            
-            $matches[1] = $nodes[1]->( $matches[0]{tail}, $state[1] );
+
+            $_[3]{capture} = $_[3]{match}[0]{capture};
+            #print "Matched concat 0, tree:", Dumper($_[2]);
+
+            $matches[1] = $nodes[1]->( $matches[0]{tail}, $state[1], $_[2], $_[3]{match}[1] );
             ### 2nd match: $matches[1]
             if ( ! $matches[1]{bool} ) {
                 
@@ -123,6 +130,9 @@ sub concat {
                 next;
             }
             
+
+            #print "Matched concat 1, tree:", Dumper($_[2]) if defined $_[2];
+
             my $succ;
             if ( ! defined( $matches[1]{state} ) ) {
                 $succ = [ $matches[0]{state}, 0 ] if defined $matches[0]{state};
@@ -138,7 +148,7 @@ sub concat {
             delete $match2->{label};
             delete $matches[1]{abort};
             delete $matches[1]{return};
-            return $match2;
+            return $_[3] = $match2;
         }
     }
 }
@@ -148,6 +158,11 @@ sub constant {
     return sub {
         ### matching constant:$_[0],$const
         return if ! $_[0] || $_[0] !~ m/^(\Q$const\E)(.*)/s;
+        $_[3] = { 
+            bool => 1,
+            match => { constant => $1 }, 
+            tail => $2,
+        };
         return { bool => 1,
                  match => { constant => $1 }, 
                  tail => $2,
@@ -157,6 +172,10 @@ sub constant {
 
 sub null {
     return sub {
+        $_[3] = { 
+            bool => 1,
+            tail => $_[0],
+        };
         return { bool => 1,
                  #match => undef,  #'null',
                  tail => $_[0],
@@ -169,10 +188,8 @@ sub capture {
     my $label = shift;
     my $node = shift;
     sub {
-        #my @param = @_;
-        #$param[2] = {} unless defined $param[2];
-        #$param[2] = { %{$param[2]}, capture=>1 };
-        my $match = $node->( @_ );
+        $_[3] = { label => $label };
+        my $match = $node->( @_[0,1,2], $_[3]{match} );
         return unless $match->{bool};
         ## return if $match->{abort}; - maybe a { return }
         my $new_match = { %$match };
@@ -180,14 +197,21 @@ sub capture {
         $new_match->{label}   = $label;
     
         if ( ! defined $new_match->{capture} ) {
-            my $len = length( $match->{tail} );
-            my $head = $len?substr($_[0], 0, -$len):$_[0];
-            $new_match->{capture} = $head;   # XXX -- array ref not needed
-            #print 'got capture: ',do{use Data::Dumper; Dumper($new_match)};
+            if ( defined $match->{tail} ) {
+                my $len = length( $match->{tail} );
+                my $head = $len?substr($_[0], 0, -$len):$_[0];
+                $new_match->{capture} = $head;   # XXX -- array ref not needed
+                #print 'got capture: ',do{use Data::Dumper; Dumper($new_match)};
+            }
+            else {
+                $new_match->{capture} = $_[0];
+            }
         }
         $new_match->{match}   = $match ;  # XXX - workaround
 
-        return $new_match;
+        # print "Capturing ", Dumper($_[2]);
+
+        return $_[3] = $new_match;
     }
 }
 
@@ -333,6 +357,9 @@ sub rule_wrapper {
     return $match;
 }
 
+# not a 'rule node'
+# gets a variable from the user's pad
+# this is used by the <$var> rule
 sub get_variable {
     my $name = shift;
     

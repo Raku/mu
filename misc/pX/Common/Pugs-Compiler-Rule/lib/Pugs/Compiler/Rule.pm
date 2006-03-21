@@ -6,9 +6,9 @@ use 5.006;
 use strict;
 use warnings;
 
-use Pugs::Grammar::Base;
+use Pugs::Grammar::Base;  # not 'use base'
 use Pugs::Grammar::Rule;
-use Pugs::Runtime::Rule;
+#use Pugs::Runtime::Rule;
 use Pugs::Runtime::Match;
 use Pugs::Emitter::Rule::Perl5;
 
