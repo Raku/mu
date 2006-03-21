@@ -1,13 +1,3 @@
-# This is the Perl 6 Grammar used to Parse and generate the 
-# Abstract Syntax Tree (AST) - fglock
-#
-# Things that go in this file are:
-# - anything that does *not* contain a statement like:
-#       eval( '...', :lang<perl5>);
-# - anything that directly alters the Perl 6 Grammar
-# - everything else go into the p6primitives.p6 file, or into
-#   a Module
-
 grammar Grammar::Perl6;
 
 use Pugs::Grammar::Rule;
@@ -33,7 +23,7 @@ rule rule_decl {
         { return { rule_decl => $() ,} }
 }
 push @statements, \&rule_decl;
-       
+      
 rule grammar_name {
     grammar <p6ws> <ident> <p6ws>? \;
         { return { grammar_name => $() ,} }
@@ -58,9 +48,6 @@ rule meth_call_statement {
 push @statements, \&meth_call_statement;
 push @terms, \&meth_call_term;
 
-# XXX Nit: <?p6ws> after <ident> is not allowed in real p6.  Whitespace there
-# would make list operator with parens around *first* argument.
-# So we don't support that syntax.
 rule sub_call_term {
     $<name>:=(<ident>)\(<?p6ws>?$<params>:=(<list>?)<?p6ws>?\)<?p6ws>?
         { return { sub_call_term => $() } }
@@ -140,8 +127,6 @@ push @statements, \&use_v6;
 rule require {
     require <?p6ws> <ident> <?p6ws>? \;
         { 
-		# XXX This is perl5 code
-		# this is ugly
 		eval 'require '.$()->[2]{ident}[0]{ident};
 		return { require_bareword => $() ,} 
 	}
@@ -151,8 +136,6 @@ push @statements, \&require;
 rule use_rule {
     use <?p6ws> <ident> <?p6ws>? \;
         { 
-		# XXX This is perl5 code
-		# this is ugly
 		eval 'use '.$()->[2]{ident}[0]{ident};
 		return { use_bareword => $() ,} 
 	}
@@ -183,8 +166,6 @@ rule macro_decl {
         \) <?p6ws>?
     <code> 
         {
-	 # XXX This is perl5 code
-	 # XXX This is ugly
 	 eval Emitter::Perl5::emit({macro => $()});
 	 return { macro => $() ,}
 	}

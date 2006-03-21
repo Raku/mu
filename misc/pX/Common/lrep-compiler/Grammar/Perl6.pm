@@ -23,13 +23,25 @@ sub {
     );
 }
 ;
+*{'p6ws'} = sub {
+    my $grammar = shift;
+    $_[0] = "" unless defined $_[0];
+    my $bool = $_[0] =~ /^((?:\s|\#(?-s:.)*)+)(.*)$/sx;
+    return Pugs::Runtime::Match->new({
+        bool  => $bool,
+        match => $1,
+        tail  => $2,
+        #capture => $1,
+    });
+};
+
 *{'grammar'} = 
 sub {
     my $grammar = shift;
     package Pugs::Runtime::Rule;
     my $tree;
     rule_wrapper( $_[0], 
-       greedy_star(
+       greedy_plus(
          sub { ${ $grammar->immediate_statement_rule( @_ ) } }
        )
         ->( $_[0], undef, $tree, $tree )
@@ -62,7 +74,7 @@ sub {
     );
 }
 ;
-    push @terms, \&indirect_object;
+    push @terms, sub { ${Grammar::Perl6->indirect_object(@_) }};
 *{'rule_decl'} = 
 sub {
     my $grammar = shift;
@@ -101,7 +113,7 @@ sub {
     );
 }
 ;
-    push @statements, \&rule_decl;
+    push @statements, sub { ${Grammar::Perl6->rule_decl(@_) }};
 *{'grammar_name'} = 
 sub {
     my $grammar = shift;
@@ -134,7 +146,7 @@ sub {
     );
 }
 ;
-    push @statements, \&grammar_name;
+    push @statements, sub { ${Grammar::Perl6->grammar_name(@_) }};
 *{'condition_rule'} = 
 sub {
     my $grammar = shift;
@@ -194,7 +206,7 @@ sub {
     );
 }
 ;
-    push @statements, \&condition_rule;
+    push @statements, sub { ${Grammar::Perl6->condition_rule(@_) }};
 *{'meth_call_term'} = 
 sub {
     my $grammar = shift;
@@ -310,8 +322,8 @@ sub {
     );
 }
 ;
-    push @statements, \&meth_call_statement;
-    push @terms, \&meth_call_term;
+    push @statements, sub { ${Grammar::Perl6->meth_call_statement(@_) }};
+    push @terms, sub { ${Grammar::Perl6->meth_call_term(@_) }};
 *{'sub_call_term'} = 
 sub {
     my $grammar = shift;
@@ -416,8 +428,8 @@ sub {
     );
 }
 ;
-    push @statements, \&sub_call_statement;
-    push @terms, \&sub_call_term;
+    push @statements, sub { ${Grammar::Perl6->sub_call_statement(@_) }};
+    push @terms, sub { ${Grammar::Perl6->sub_call_term(@_) }};
 *{'access_hashref_element'} = 
 sub {
     my $grammar = shift;
@@ -449,8 +461,8 @@ sub {
     );
 }
 ;
-    push @terms, \&access_hashref_element;
-    push @statements, \&access_hashref_element;
+    push @terms, sub { ${Grammar::Perl6->access_hashref_element(@_) }};
+    push @statements, sub { ${Grammar::Perl6->access_hashref_element(@_) }};
 *{'access_hash_element'} = 
 sub {
     my $grammar = shift;
@@ -482,8 +494,8 @@ sub {
     );
 }
 ;
-    push @terms, \&access_hash_element;
-    push @statements, \&access_hash_element;
+    push @terms, sub { ${Grammar::Perl6->access_hash_element(@_) }};
+    push @statements, sub { ${Grammar::Perl6->access_hash_element(@_) }};
 *{'assign_hash_to_scalar'} = 
 sub {
     my $grammar = shift;
@@ -530,7 +542,7 @@ sub {
     );
 }
 ;
-    push @statements, \&assign_hash_to_scalar;
+    push @statements, sub { ${Grammar::Perl6->assign_hash_to_scalar(@_) }};
 *{'assign_slurp_to_variable'} = 
 sub {
     my $grammar = shift;
@@ -585,7 +597,7 @@ sub {
     );
 }
 ;
-    push @statements, \&assign_slurp_to_variable;
+    push @statements, sub { ${Grammar::Perl6->assign_slurp_to_variable(@_) }};
 *{'assign_open_to_variable'} = 
 sub {
     my $grammar = shift;
@@ -640,7 +652,7 @@ sub {
     );
 }
 ;
-    push @statements, \&assign_open_to_variable;
+    push @statements, sub { ${Grammar::Perl6->assign_open_to_variable(@_) }};
 *{'assign'} = 
 sub {
     my $grammar = shift;
@@ -687,7 +699,7 @@ sub {
     );
 }
 ;
-    push @statements, \&assign;
+    push @statements, sub { ${Grammar::Perl6->assign(@_) }};
 *{'sub_call'} = 
 sub {
     my $grammar = shift;
@@ -744,8 +756,8 @@ sub {
     );
 }
 ;
-    push @statements, \&sub_call;
-    push @terms, \&sub_call;
+    push @statements, sub { ${Grammar::Perl6->sub_call(@_) }};
+    push @terms, sub { ${Grammar::Perl6->sub_call(@_) }};
 *{'_push'} = 
 sub {
     my $grammar = shift;
@@ -805,7 +817,7 @@ sub {
     );
 }
 ;
-    push @statements, \&_push;
+    push @statements, sub { ${Grammar::Perl6->_push(@_) }};
 *{'pod'} = 
 sub {
     my $grammar = shift;
@@ -842,7 +854,7 @@ sub {
     );
 }
 ;
-    push @statements, \&pod;
+    push @statements, sub { ${Grammar::Perl6->pod(@_) }};
 *{'use_v6'} = 
 sub {
     my $grammar = shift;
@@ -874,7 +886,7 @@ sub {
     );
 }
 ;
-    push @statements, \&use_v6;
+    push @statements, sub { ${Grammar::Perl6->use_v6(@_) }};
 *{'require'} = 
 sub {
     my $grammar = shift;
@@ -912,7 +924,7 @@ sub {
     );
 }
 ;
-    push @statements, \&require;
+    push @statements, sub { ${Grammar::Perl6->require(@_) }};
 *{'use_rule'} = 
 sub {
     my $grammar = shift;
@@ -950,7 +962,7 @@ sub {
     );
 }
 ;
-    push @statements, \&use_rule;
+    push @statements, sub { ${Grammar::Perl6->use_rule(@_) }};
 *{'term1'} = 
 sub {
     my $grammar = shift;
@@ -1031,7 +1043,7 @@ sub {
     );
 }
 ;
-    push @statements, \&block;
+    push @statements, sub { ${Grammar::Perl6->block(@_) }};
 *{'macro_decl'} = 
 sub {
     my $grammar = shift;
@@ -1169,7 +1181,7 @@ sub {
     );
 }
 ;
-    push @statements, \&macro_decl;
+    push @statements, sub { ${Grammar::Perl6->macro_decl(@_) }};
 *{'empty_list'} = 
 sub {
     my $grammar = shift;
@@ -1191,11 +1203,11 @@ sub {
     );
 }
 ;
-    push @terms, \&empty_list;
-    push @terms, \&varhash;
-    push @terms, \&varscalar;
-    push @terms, \&variable;
-    push @terms, \&literal;
+    push @terms, sub { ${Grammar::Perl6->empty_list(@_) }};
+    push @terms, sub { ${Grammar::Perl6->varhash(@_) }};
+    push @terms, sub { ${Grammar::Perl6->varscalar(@_) }};
+    push @terms, sub { ${Grammar::Perl6->variable(@_) }};
+    push @terms, sub { ${Grammar::Perl6->literal(@_) }};
 *{'_open'} = 
 sub {
     my $grammar = shift;
@@ -1230,8 +1242,8 @@ sub {
     );
 }
 ;
-    push @statements, \&_open;
-    push @terms, \&_open;
+    push @statements, sub { ${Grammar::Perl6->_open(@_) }};
+    push @terms, sub { ${Grammar::Perl6->_open(@_) }};
 *{'_print_with_fh'} = 
 sub {
     my $grammar = shift;
@@ -1281,7 +1293,7 @@ sub {
     );
 }
 ;
-    push @statements, \&_print_with_fh;
+    push @statements, sub { ${Grammar::Perl6->_print_with_fh(@_) }};
 *{'_print'} = 
 sub {
     my $grammar = shift;
@@ -1325,7 +1337,7 @@ sub {
     );
 }
 ;
-    push @statements, \&_print;
+    push @statements, sub { ${Grammar::Perl6->_print(@_) }};
 *{'_my'} = 
 sub {
     my $grammar = shift;
@@ -1366,7 +1378,7 @@ sub {
     );
 }
 ;
-    push @statements, \&_my;
+    push @statements, sub { ${Grammar::Perl6->_my(@_) }};
 *{'_simple_statement'} = 
 sub {
     my $grammar = shift;
@@ -1399,7 +1411,7 @@ sub {
     );
 }
 ;
-    push @statements, \&_simple_statement;
+    push @statements, sub { ${Grammar::Perl6->_simple_statement(@_) }};
 *{'sub_decl'} = 
 sub {
     my $grammar = shift;
@@ -1458,7 +1470,7 @@ sub {
     );
 }
 ;
-    push @statements, \&sub_decl;
+    push @statements, sub { ${Grammar::Perl6->sub_decl(@_) }};
 *{'sub_defin'} = 
 sub {
     my $grammar = shift;
@@ -1493,7 +1505,7 @@ sub {
     );
 }
 ;
-    push @statements, \&sub_defin;
+    push @statements, sub { ${Grammar::Perl6->sub_defin(@_) }};
 *{'term2'} = 
 sub {
     my $grammar = shift;
@@ -1588,7 +1600,7 @@ sub {
     );
 }
 ;
-    push @statements, \&sub_application;
+    push @statements, sub { ${Grammar::Perl6->sub_application(@_) }};
 *{'eval_perl5'} = 
 sub {
     my $grammar = shift;
@@ -1667,7 +1679,7 @@ sub {
     );
 }
 ;
-    push @statements, \&eval_perl5;
+    push @statements, sub { ${Grammar::Perl6->eval_perl5(@_) }};
 *{'_return'} = 
 sub {
     my $grammar = shift;
@@ -1705,4 +1717,4 @@ sub {
     );
 }
 ;
-    push @statements, \&_return;
+    push @statements, sub { ${Grammar::Perl6->_return(@_) }};

@@ -1,4 +1,4 @@
-LREP:=perl -I../Pugs-Compiler-Rule/lib lrep
+LREP:perl -I../Pugs-Compiler-Rule/lib lrep
 
 all: prelude tests lrep
 
@@ -40,10 +40,10 @@ bootstrap: suite
 	cp Grammar/Perl6.pm.cache Grammar/Perl6.pm.bak
 	cp lrep.cache lrep.bak
 	make suite
-	@echo ">>>>> Begin Differences caused by bootstrap"
+	@echo ">> Begin Differences caused by bootstrap"
 	@diff lrep lrep.cache
 	@diff Grammar/Perl6.pm Grammar/Perl6.pm.cache
-	@echo "<<<<< End Differences caused by bootstrap"
+	@echo "<< End Differences caused by bootstrap"
 
 
 clean:
