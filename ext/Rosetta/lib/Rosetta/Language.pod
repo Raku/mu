@@ -36,7 +36,8 @@ beyond the scope of a "D" language, so Rosetta D is technically a "D plus
 extra"; examples of this are constructs for creating the databases
 themselves and managing connections to them.  However, Rosetta D should
 never directly contradict The Third Manifesto; for example, its relations
-never contain duplicates, and it does not allow nulls anywhere.  That's not
+never contain duplicates, and it does not allow nulls anywhere, and you can
+not specify attributes by ordinal position instead of by name.  That's not
 to say you can't emulate all the SQL features over Rosetta D; you can, at
 least once its complete.
 
@@ -380,15 +381,9 @@ I<TODO.>
 
 I<TODO.>
 
+=head1 OLDER DOCUMENTATION TO REWRITE/REMOVE: 10,000 MILE VIEW OF ROSETTA D
 
-
-
-
-=head1 UM, STUFF FOLLOWS, AND THINGS
-
-
-
-
+=head2 Operational Context
 
 Rosetta D is designed for a specific virtual environment that is
 implemented by a B<DBMS> (database management system).  This environment is
