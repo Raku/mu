@@ -49,8 +49,10 @@ sub node::string_concat {
     my $b = emit(get_data($_[0], '$<b>'));
 	return $a.'.'.$b;
 }
+my $grammar_name;
 sub node::grammar_name {
     my $ident = get_str( $_[0], '$<ident>' );
+    $grammar_name=$ident;
     return "package $ident;\n";
 }
 sub node::require_bareword {
@@ -94,7 +96,7 @@ sub node::rule_decl {
     my $name = get_str( $_[0], '$<ident>' );
     my $nodes = get_data( $_[0], '$<Pugs::Grammar::Rule::rule>' );
     print "nodes:",Dump($nodes),"\n";
-    my $program = '';#Pugs::Emitter::Rule::Perl5::emit( $nodes, '' );
+    my $program = Pugs::Emitter::Rule::Perl5::emit($grammar_name,$nodes);
     return "*{'$name'} = \n$program;\n";
 }
 sub node::perl5_rule_decl {
