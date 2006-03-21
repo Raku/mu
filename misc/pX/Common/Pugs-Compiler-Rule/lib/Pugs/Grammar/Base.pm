@@ -1,16 +1,31 @@
 package Pugs::Grammar::Base;
 use Pugs::Runtime::Match;
 
-# defines <ws>, unicode character classes, etc
+# This class defines <ws>, unicode character classes, etc
 
-my $no_match;
-BEGIN {
-    $no_match = Pugs::Runtime::Match->new( { bool => 0 } );
+# internal methods - not in spec
+
+sub no_match { 
+    Pugs::Runtime::Match->new( { bool => 0 } );
 }
+
+sub any {
+    my $class = shift;
+    return $class->no_match unless $_[0];
+    return Pugs::Runtime::Match->new( { 
+        bool  => 1,
+        match => $1,
+        tail  => $2,
+    } )
+        if $_[0] =~ /^(.)(.*)$/s;
+    return $class->no_match;
+};
+
+# specced methods
 
 sub ws {
     my $class = shift;
-    return $no_match unless $_[0];
+    return $class->no_match unless $_[0];
     return Pugs::Runtime::Match->new( { 
         bool  => 1,
         match => $1,
@@ -18,20 +33,7 @@ sub ws {
         capture => $1,
     } )
         if $_[0] =~ /^(\s+)(.*)$/s;
-    return $no_match;
-};
-
-# not in spec
-sub any {
-    my $class = shift;
-    return $no_match unless $_[0];
-    return Pugs::Runtime::Match->new( { 
-        bool  => 1,
-        match => $1,
-        tail  => $2,
-    } )
-        if $_[0] =~ /^(.)(.*)$/s;
-    return $no_match;
+    return $class->no_match;
 };
 
 BEGIN {
@@ -55,7 +57,7 @@ xdigit
         my $rx = qr(^([[:$char_class:]])(.*)$);
         *{$char_class} = sub {
             my $class = shift;
-            return $no_match unless $_[0];
+            return $class->no_match unless $_[0];
             #my ($test, $tail) = $_[0] =~ /$rx/;
             #warn "Matching $char_class in [$_[0]] == [$test,$tail]";
             return Pugs::Runtime::Match->new( { 
@@ -65,7 +67,7 @@ xdigit
                 capture => $1,
             } )
                 if $_[0] =~ /$rx/;
-            return $no_match;
+            return $class->no_match;
         };
     }
 }
