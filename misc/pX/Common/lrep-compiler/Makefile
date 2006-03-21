@@ -1,10 +1,10 @@
-LREP:=perl lrep
+LREP:=perl -I../Pugs-Compiler-Rule/lib lrep
 
 all: prelude tests lrep
 
 suite: clean all
 
-prelude: Grammar/Perl6.pm Grammar/Rules.pm Grammar/Perl6Primitives.pm
+prelude: Grammar/Perl6.pm
 
 Grammar/Perl6.pm: Grammar/Perl6.p6
 	cp Grammar/Perl6.pm Grammar/Perl6.pm.cache

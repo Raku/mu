@@ -2,11 +2,8 @@ use warnings;
 use IO::File;
 use Getopt::Std;
 use Data::Dumper;
-require Runtime::Perl5::RuleInit;
-require Grammar::Perl6Init;
-require Grammar::Rules;
-require Grammar::Perl6;
-require Emitter::Perl5;
+use Grammar::Perl6;
+use Emitter::Perl5;
     my %args;
 %args = ();
     my $argsref;
@@ -60,7 +57,7 @@ unless ($input_file)
 use Perl6::Slurp;
 $source = slurp $input_file;
     my $match;
-$match = Grammar::Perl6::grammar($source);
+$match = Grammar::Perl6->grammar($source);
     my $tail;
 $tail = $match->{'tail'};
 if ($tail) 

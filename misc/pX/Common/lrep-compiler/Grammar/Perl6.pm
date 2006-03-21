@@ -1,1170 +1,1195 @@
 package Grammar::Perl6;
+use base 'Pugs::Grammar::Base', 'Pugs::Grammar::Rule';
+use Pugs::Grammar::Rule;
+use Pugs::Runtime::Match;
 *{'immediate_statement_rule'} = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+         optional(
+           sub { ${ $grammar->p6ws( @_ ) } }
          )
-       ,
-         Runtime::Perl5::RuleOps::alternation( \@statements )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
+,         concat( 
+             alternation( \@statements )
+,           optional(
+             sub { ${ $grammar->p6ws( @_ ) } }
+           )
          )
-       ,
        )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
 *{'grammar'} = 
-         Runtime::Perl5::RuleOps::greedy_star(
-             Runtime::Perl5::RuleOps::capture( 'immediate_statement_rule', \&{'Grammar::Perl6::immediate_statement_rule'} )
-           ,
-         )
-       ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       greedy_star(
+         sub { ${ $grammar->immediate_statement_rule( @_ ) } }
+       )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
 *{'indirect_object'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'varscalar', \&{'Grammar::Perl6::varscalar'} )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           sub { ${ $grammar->varscalar( @_ ) } }
+,         concat( 
+           optional(
+             sub { ${ $grammar->p6ws( @_ ) } }
+           )
+,           concat( 
+               constant( ':' )
+,               abort(
+                   sub {
+                       return { bool => 1, tail => $_[0], return => sub { return  $_[0]->[varscalar]  } };
+                   }
+               )
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\:" )
-       ,
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return  match::get( $_[0], '$()<varscalar>' )  }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @terms, \&indirect_object;
-*{'condition_rule'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'op', 
-             Runtime::Perl5::RuleOps::alternation( [
-                   Runtime::Perl5::RuleOps::constant( "if" )
-                 ,
-                   Runtime::Perl5::RuleOps::constant( "unless" )
-                 ,
-             ] )
-           ,
+*{'rule_decl'} = 
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           constant( "rule" )
+,         concat( 
+             sub { ${ $grammar->p6ws( @_ ) } }
+,           concat( 
+               sub { ${ $grammar->ident( @_ ) } }
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   constant( '{' )
+,                 concat( 
+                     sub { ${ $grammar->rule( @_ ) } }
+,                   concat( 
+                       constant( '}' )
+,                       abort(
+                           sub {
+                               return { bool => 1, tail => $_[0], return => sub { return { rule_decl =>  $_[0]->()  ,} } };
+                           }
+                       )
+                   )
+                 )
+               )
+             )
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\(" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'condition', 
-             Runtime::Perl5::RuleOps::capture( 'term1', \&{'Grammar::Perl6::term1'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\)" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'then', 
-             Runtime::Perl5::RuleOps::capture( 'block', \&{'Grammar::Perl6::block'} )
-           ,
-         )
-       ,
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { condition =>  match::get( $_[0], '$()' )  } }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+;
+    push @statements, \&rule_decl;
+*{'grammar_name'} = 
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           constant( "grammar" )
+,         concat( 
+             sub { ${ $grammar->p6ws( @_ ) } }
+,           concat( 
+               sub { ${ $grammar->ident( @_ ) } }
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   constant( ';' )
+,                   abort(
+                       sub {
+                           return { bool => 1, tail => $_[0], return => sub { return { grammar_name =>  $_[0]->()  ,} } };
+                       }
+                   )
+               )
+             )
+           )
+         )
+       )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+;
+    push @statements, \&grammar_name;
+*{'condition_rule'} = 
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'op', 
+       alternation( [
+           constant( "if" )
+,           constant( "unless" )
+       ] )
+           )
+,         concat( 
+           optional(
+             sub { ${ $grammar->p6ws( @_ ) } }
+           )
+,           concat( 
+               constant( '(' )
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   capture( 'condition', 
+         sub { ${ $grammar->term1( @_ ) } }
+                   )
+,                 concat( 
+                   optional(
+                     sub { ${ $grammar->p6ws( @_ ) } }
+                   )
+,                   concat( 
+                       constant( ')' )
+,                     concat( 
+                       optional(
+                         sub { ${ $grammar->p6ws( @_ ) } }
+                       )
+,                       concat( 
+                           capture( 'then', 
+         sub { ${ $grammar->block( @_ ) } }
+                           )
+,                           abort(
+                               sub {
+                                   return { bool => 1, tail => $_[0], return => sub { return { condition =>  $_[0]->()  } } };
+                               }
+                           )
+                       )
+                     )
+                   )
+                 )
+               )
+             )
+           )
+         )
+       )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&condition_rule;
 *{'meth_call_term'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'class', 
-             Runtime::Perl5::RuleOps::capture( 'ident', \&{'Grammar::Perl6::ident'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\." )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'meth', 
-             Runtime::Perl5::RuleOps::capture( 'word', \&{'Grammar::Perl6::word'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\(" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'params', 
-             Runtime::Perl5::RuleOps::optional(
-                 Runtime::Perl5::RuleOps::capture( 'list', \&{'Grammar::Perl6::list'} )
-               ,
-             )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\)" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'class', 
+         sub { ${ $grammar->ident( @_ ) } }
+           )
+,         concat( 
+             constant( '.' )
+,           concat( 
+               capture( 'meth', 
+         sub { ${ $grammar->word( @_ ) } }
+               )
+,             concat( 
+                 constant( '(' )
+,               concat( 
+                 optional(
+                   sub { ${ $grammar->p6ws( @_ ) } }
+                 )
+,                 concat( 
+                     capture( 'params', 
+       optional(
+         sub { ${ $grammar->list( @_ ) } }
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { meth_call_term =>  match::get( $_[0], '$()' )  } }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+                     )
+,                   concat( 
+                     optional(
+                       sub { ${ $grammar->p6ws( @_ ) } }
+                     )
+,                     concat( 
+                         constant( ')' )
+,                       concat( 
+                         optional(
+                           sub { ${ $grammar->p6ws( @_ ) } }
+                         )
+,                           abort(
+                               sub {
+                                   return { bool => 1, tail => $_[0], return => sub { return { meth_call_term =>  $_[0]->()  } } };
+                               }
+                           )
+                       )
+                     )
+                   )
+                 )
+               )
+             )
+           )
+         )
+       )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
 *{'meth_call_statement'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'class', 
-             Runtime::Perl5::RuleOps::capture( 'ident', \&{'Grammar::Perl6::ident'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\." )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'meth', 
-             Runtime::Perl5::RuleOps::capture( 'word', \&{'Grammar::Perl6::word'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\(" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'params', 
-             Runtime::Perl5::RuleOps::optional(
-                 Runtime::Perl5::RuleOps::capture( 'list', \&{'Grammar::Perl6::list'} )
-               ,
-             )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\)" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'class', 
+         sub { ${ $grammar->ident( @_ ) } }
+           )
+,         concat( 
+             constant( '.' )
+,           concat( 
+               capture( 'meth', 
+         sub { ${ $grammar->word( @_ ) } }
+               )
+,             concat( 
+                 constant( '(' )
+,               concat( 
+                 optional(
+                   sub { ${ $grammar->p6ws( @_ ) } }
+                 )
+,                 concat( 
+                     capture( 'params', 
+       optional(
+         sub { ${ $grammar->list( @_ ) } }
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { meth_call =>  match::get( $_[0], '$()' )  } }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+                     )
+,                   concat( 
+                     optional(
+                       sub { ${ $grammar->p6ws( @_ ) } }
+                     )
+,                     concat( 
+                         constant( ')' )
+,                       concat( 
+                         optional(
+                           sub { ${ $grammar->p6ws( @_ ) } }
+                         )
+,                         concat( 
+                             constant( ';' )
+,                             abort(
+                                 sub {
+                                     return { bool => 1, tail => $_[0], return => sub { return { meth_call =>  $_[0]->()  } } };
+                                 }
+                             )
+                         )
+                       )
+                     )
+                   )
+                 )
+               )
+             )
+           )
+         )
+       )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&meth_call_statement;
     push @terms, \&meth_call_term;
 *{'sub_call_term'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'name', 
-             Runtime::Perl5::RuleOps::capture( 'ident', \&{'Grammar::Perl6::ident'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\(" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'params', 
-             Runtime::Perl5::RuleOps::optional(
-                 Runtime::Perl5::RuleOps::capture( 'list', \&{'Grammar::Perl6::list'} )
-               ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'name', 
+         sub { ${ $grammar->ident( @_ ) } }
+           )
+,         concat( 
+             constant( '(' )
+,           concat( 
+             optional(
+               sub { ${ $grammar->p6ws( @_ ) } }
              )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\)" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
+,             concat( 
+                 capture( 'params', 
+       optional(
+         sub { ${ $grammar->list( @_ ) } }
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { sub_call_term =>  match::get( $_[0], '$()' )  } }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+                 )
+,               concat( 
+                 optional(
+                   sub { ${ $grammar->p6ws( @_ ) } }
+                 )
+,                 concat( 
+                     constant( ')' )
+,                   concat( 
+                     optional(
+                       sub { ${ $grammar->p6ws( @_ ) } }
+                     )
+,                       abort(
+                           sub {
+                               return { bool => 1, tail => $_[0], return => sub { return { sub_call_term =>  $_[0]->()  } } };
+                           }
+                       )
+                   )
+                 )
+               )
+             )
+           )
+         )
+       )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
 *{'sub_call_statement'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'name', 
-             Runtime::Perl5::RuleOps::capture( 'ident', \&{'Grammar::Perl6::ident'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\(" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'params', 
-             Runtime::Perl5::RuleOps::optional(
-                 Runtime::Perl5::RuleOps::capture( 'list', \&{'Grammar::Perl6::list'} )
-               ,
-             )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\)" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'name', 
+         sub { ${ $grammar->ident( @_ ) } }
+           )
+,         concat( 
+           optional(
+             sub { ${ $grammar->p6ws( @_ ) } }
+           )
+,           concat( 
+               constant( '(' )
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   capture( 'params', 
+       optional(
+         sub { ${ $grammar->list( @_ ) } }
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { sub_call =>  match::get( $_[0], '$()' )  } }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+                   )
+,                 concat( 
+                   optional(
+                     sub { ${ $grammar->p6ws( @_ ) } }
+                   )
+,                   concat( 
+                       constant( ')' )
+,                     concat( 
+                       optional(
+                         sub { ${ $grammar->p6ws( @_ ) } }
+                       )
+,                       concat( 
+                           constant( ';' )
+,                           abort(
+                               sub {
+                                   return { bool => 1, tail => $_[0], return => sub { return { sub_call =>  $_[0]->()  } } };
+                               }
+                           )
+                       )
+                     )
+                   )
+                 )
+               )
+             )
+           )
+         )
+       )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&sub_call_statement;
     push @terms, \&sub_call_term;
 *{'access_hashref_element'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'variable', 
-             Runtime::Perl5::RuleOps::capture( 'varscalar', \&{'Grammar::Perl6::varscalar'} )
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'variable', 
+         sub { ${ $grammar->varscalar( @_ ) } }
+           )
+,         concat( 
+             constant( '{' )
+,           concat( 
+               capture( 'key', 
+         sub { ${ $grammar->term1( @_ ) } }
+               )
+,             concat( 
+                 constant( '}' )
+,                 abort(
+                     sub {
+                         return { bool => 1, tail => $_[0], return => sub { return { access_hashref_element =>  $_[0]->()  } } };
+                     }
+                 )
+             )
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\{" )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'key', 
-             Runtime::Perl5::RuleOps::capture( 'term1', \&{'Grammar::Perl6::term1'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\}" )
-       ,
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { access_hashref_element =>  match::get( $_[0], '$()' )  } }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @terms, \&access_hashref_element;
     push @statements, \&access_hashref_element;
 *{'access_hash_element'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'variable', 
-             Runtime::Perl5::RuleOps::capture( 'varhash', \&{'Grammar::Perl6::varhash'} )
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'variable', 
+         sub { ${ $grammar->varhash( @_ ) } }
+           )
+,         concat( 
+             constant( '{' )
+,           concat( 
+               capture( 'key', 
+         sub { ${ $grammar->term1( @_ ) } }
+               )
+,             concat( 
+                 constant( '}' )
+,                 abort(
+                     sub {
+                         return { bool => 1, tail => $_[0], return => sub { return { access_hash_element =>  $_[0]->()  } } };
+                     }
+                 )
+             )
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\{" )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'key', 
-             Runtime::Perl5::RuleOps::capture( 'term1', \&{'Grammar::Perl6::term1'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\}" )
-       ,
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { access_hash_element =>  match::get( $_[0], '$()' )  } }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @terms, \&access_hash_element;
     push @statements, \&access_hash_element;
 *{'assign_hash_to_scalar'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'variable', 
-             Runtime::Perl5::RuleOps::capture( 'varscalar', \&{'Grammar::Perl6::varscalar'} )
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'variable', 
+         sub { ${ $grammar->varscalar( @_ ) } }
+           )
+,         concat( 
+           optional(
+             sub { ${ $grammar->p6ws( @_ ) } }
+           )
+,           concat( 
+               constant( '=' )
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   capture( 'value', 
+         sub { ${ $grammar->varhash( @_ ) } }
+                   )
+,                 concat( 
+                   optional(
+                     sub { ${ $grammar->p6ws( @_ ) } }
+                   )
+,                   concat( 
+                       constant( ';' )
+,                       abort(
+                           sub {
+                               return { bool => 1, tail => $_[0], return => sub { return { assign_hash_to_scalar =>  $_[0]->()  } } };
+                           }
+                       )
+                   )
+                 )
+               )
+             )
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\=" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'value', 
-             Runtime::Perl5::RuleOps::capture( 'varhash', \&{'Grammar::Perl6::varhash'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { assign_hash_to_scalar =>  match::get( $_[0], '$()' )  } }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&assign_hash_to_scalar;
 *{'assign_slurp_to_variable'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'variable', 
-             Runtime::Perl5::RuleOps::capture( 'variable', \&{'Grammar::Perl6::variable'} )
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'variable', 
+         sub { ${ $grammar->variable( @_ ) } }
+           )
+,         concat( 
+           optional(
+             sub { ${ $grammar->p6ws( @_ ) } }
+           )
+,           concat( 
+               constant( '=' )
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   constant( "slurp" )
+,                 concat( 
+                   optional(
+                     sub { ${ $grammar->p6ws( @_ ) } }
+                   )
+,                   concat( 
+                       capture( 'value', 
+         sub { ${ $grammar->term1( @_ ) } }
+                       )
+,                     concat( 
+                       optional(
+                         sub { ${ $grammar->p6ws( @_ ) } }
+                       )
+,                       concat( 
+                           constant( ';' )
+,                           abort(
+                               sub {
+                                   return { bool => 1, tail => $_[0], return => sub { return { slurp =>  $_[0]->()  } } };
+                               }
+                           )
+                       )
+                     )
+                   )
+                 )
+               )
+             )
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\=" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "slurp" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'value', 
-             Runtime::Perl5::RuleOps::capture( 'term1', \&{'Grammar::Perl6::term1'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { slurp =>  match::get( $_[0], '$()' )  } }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&assign_slurp_to_variable;
 *{'assign_open_to_variable'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'variable', 
-             Runtime::Perl5::RuleOps::capture( 'variable', \&{'Grammar::Perl6::variable'} )
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'variable', 
+         sub { ${ $grammar->variable( @_ ) } }
+           )
+,         concat( 
+           optional(
+             sub { ${ $grammar->p6ws( @_ ) } }
+           )
+,           concat( 
+               constant( '=' )
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   constant( "open" )
+,                 concat( 
+                   optional(
+                     sub { ${ $grammar->p6ws( @_ ) } }
+                   )
+,                   concat( 
+                       capture( 'value', 
+         sub { ${ $grammar->term1( @_ ) } }
+                       )
+,                     concat( 
+                       optional(
+                         sub { ${ $grammar->p6ws( @_ ) } }
+                       )
+,                       concat( 
+                           constant( ';' )
+,                           abort(
+                               sub {
+                                   return { bool => 1, tail => $_[0], return => sub { return { _open =>  $_[0]->()  } } };
+                               }
+                           )
+                       )
+                     )
+                   )
+                 )
+               )
+             )
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\=" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "open" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'value', 
-             Runtime::Perl5::RuleOps::capture( 'term1', \&{'Grammar::Perl6::term1'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { _open =>  match::get( $_[0], '$()' )  } }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&assign_open_to_variable;
 *{'assign'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'variable', 
-             Runtime::Perl5::RuleOps::capture( 'term1', \&{'Grammar::Perl6::term1'} )
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'variable', 
+         sub { ${ $grammar->term1( @_ ) } }
+           )
+,         concat( 
+           optional(
+             sub { ${ $grammar->p6ws( @_ ) } }
+           )
+,           concat( 
+               constant( '=' )
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   capture( 'value', 
+         sub { ${ $grammar->term1( @_ ) } }
+                   )
+,                 concat( 
+                   optional(
+                     sub { ${ $grammar->p6ws( @_ ) } }
+                   )
+,                   concat( 
+                       constant( ';' )
+,                       abort(
+                           sub {
+                               return { bool => 1, tail => $_[0], return => sub { return { assign =>  $_[0]->()  } } };
+                           }
+                       )
+                   )
+                 )
+               )
+             )
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\=" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'value', 
-             Runtime::Perl5::RuleOps::capture( 'term1', \&{'Grammar::Perl6::term1'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { assign =>  match::get( $_[0], '$()' )  } }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&assign;
-*{'rule_decl'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::constant( "rule" )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'ident', \&{'Grammar::Perl6::ident'} )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\{" )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'rule', \&{'Grammar::Perl6::rule'} )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\}" )
-       ,
-       )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { rule_decl =>  match::get( $_[0], '$()' )  ,} }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
-;
-    push @statements, \&rule_decl;
-*{'grammar_name'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::constant( "grammar" )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'ident', \&{'Grammar::Perl6::ident'} )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
-       )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { grammar_name =>  match::get( $_[0], '$()' )  ,} }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
-;
-    push @statements, \&grammar_name;
 *{'sub_call'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'name', 
-             Runtime::Perl5::RuleOps::capture( 'ident', \&{'Grammar::Perl6::ident'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\(" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'params', 
-             Runtime::Perl5::RuleOps::optional(
-                 Runtime::Perl5::RuleOps::capture( 'list', \&{'Grammar::Perl6::list'} )
-               ,
-             )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\)" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'name', 
+         sub { ${ $grammar->ident( @_ ) } }
+           )
+,         concat( 
+           optional(
+             sub { ${ $grammar->p6ws( @_ ) } }
+           )
+,           concat( 
+               constant( '(' )
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   capture( 'params', 
+       optional(
+         sub { ${ $grammar->list( @_ ) } }
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { sub_call =>  match::get( $_[0], '$()' )  } }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+                   )
+,                 concat( 
+                   optional(
+                     sub { ${ $grammar->p6ws( @_ ) } }
+                   )
+,                   concat( 
+                       constant( ')' )
+,                     concat( 
+                       optional(
+                         sub { ${ $grammar->p6ws( @_ ) } }
+                       )
+,                       concat( 
+                           constant( ';' )
+,                           abort(
+                               sub {
+                                   return { bool => 1, tail => $_[0], return => sub { return { sub_call =>  $_[0]->()  } } };
+                               }
+                           )
+                       )
+                     )
+                   )
+                 )
+               )
+             )
+           )
+         )
+       )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&sub_call;
     push @terms, \&sub_call;
 *{'_push'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'op', 
-             Runtime::Perl5::RuleOps::alternation( [
-                   Runtime::Perl5::RuleOps::constant( "push" )
-                 ,
-                   Runtime::Perl5::RuleOps::constant( "unshift" )
-                 ,
-             ] )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'variable', \&{'Grammar::Perl6::variable'} )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\," )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'code', 
-             Runtime::Perl5::RuleOps::non_greedy_star(
-                 \&{'Grammar::Perl6::any'}
-               ,
-             )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'op', 
+       alternation( [
+           constant( "push" )
+,           constant( "unshift" )
+       ] )
+           )
+,         concat( 
+             sub { ${ $grammar->p6ws( @_ ) } }
+,           concat( 
+               sub { ${ $grammar->variable( @_ ) } }
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   constant( ',' )
+,                 concat( 
+                   optional(
+                     sub { ${ $grammar->p6ws( @_ ) } }
+                   )
+,                   concat( 
+                       capture( 'code', 
+       non_greedy_star(
+         sub{ 
+             ${ $grammar->any( @_ ) };
+         }
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { _push =>  match::get( $_[0], '$()' )  ,} }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+                       )
+,                     concat( 
+                       optional(
+                         sub { ${ $grammar->p6ws( @_ ) } }
+                       )
+,                       concat( 
+                           constant( ';' )
+,                           abort(
+                               sub {
+                                   return { bool => 1, tail => $_[0], return => sub { return { _push =>  $_[0]->()  ,} } };
+                               }
+                           )
+                       )
+                     )
+                   )
+                 )
+               )
+             )
+           )
+         )
+       )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&_push;
 *{'pod'} = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::constant( "\=" )
-       ,
-         Runtime::Perl5::RuleOps::alternation( [
-               Runtime::Perl5::RuleOps::constant( "pod" )
-             ,
-               Runtime::Perl5::RuleOps::constant( "head1" )
-             ,
-               Runtime::Perl5::RuleOps::constant( "kwid" )
-             ,
-               Runtime::Perl5::RuleOps::constant( "for" )
-             ,
-         ] )
-       ,
-         Runtime::Perl5::RuleOps::non_greedy_star(
-             \&{'Grammar::Perl6::any'}
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           constant( '=' )
+,         concat( 
+             alternation( [
+                 constant( "pod" )
+,               alternation( [
+                   constant( "head1" )
+,                 alternation( [
+                     constant( "kwid" )
+,                     constant( "for" )
+                 ] )
+               ] )
+             ] )
+,           concat( 
+             non_greedy_star(
+               sub{ 
+                   ${ $grammar->any( @_ ) };
+               }
+             )
+,             concat( 
+                 constant( '=' )
+,                 constant( "cut" )
+             )
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\=" )
-       ,
-         Runtime::Perl5::RuleOps::constant( "cut" )
-       ,
        )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&pod;
 *{'use_v6'} = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::constant( "use" )
-       ,
-         \&{'Grammar::Perl6::p6ws'}
-       ,
-         Runtime::Perl5::RuleOps::constant( "v6" )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\-" )
-       ,
-         Runtime::Perl5::RuleOps::constant( "pugs" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           constant( "use" )
+,         concat( 
+             sub { ${ $grammar->p6ws( @_ ) } }
+,           concat( 
+               constant( "v6" )
+,             concat( 
+                 constant( '-' )
+,               concat( 
+                   constant( "pugs" )
+,                 concat( 
+                   optional(
+                     sub { ${ $grammar->p6ws( @_ ) } }
+                   )
+,                     constant( ';' )
+                 )
+               )
+             )
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
        )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&use_v6;
 *{'require'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::constant( "require" )
-       ,
-         \&{'Grammar::Perl6::p6ws'}
-       ,
-         Runtime::Perl5::RuleOps::capture( 'ident', \&{'Grammar::Perl6::ident'} )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
-       )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { 
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           constant( "require" )
+,         concat( 
+             sub { ${ $grammar->p6ws( @_ ) } }
+,           concat( 
+               sub { ${ $grammar->ident( @_ ) } }
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   constant( ';' )
+,                   abort(
+                       sub {
+                           return { bool => 1, tail => $_[0], return => sub { 
 		# XXX This is perl5 code
 		# this is ugly
-		eval 'require '. match::get( $_[0], '$()' ) ->[2]{ident}[0]{ident};
-		return { require_bareword =>  match::get( $_[0], '$()' )  ,} 
-	}       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+		eval 'require '. $_[0]->() ->[2]{ident}[0]{ident};
+		return { require_bareword =>  $_[0]->()  ,} 
+	} };
+                       }
+                   )
+               )
+             )
+           )
+         )
+       )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&require;
 *{'use_rule'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::constant( "use" )
-       ,
-         \&{'Grammar::Perl6::p6ws'}
-       ,
-         Runtime::Perl5::RuleOps::capture( 'ident', \&{'Grammar::Perl6::ident'} )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
-       )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { 
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           constant( "use" )
+,         concat( 
+             sub { ${ $grammar->p6ws( @_ ) } }
+,           concat( 
+               sub { ${ $grammar->ident( @_ ) } }
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   constant( ';' )
+,                   abort(
+                       sub {
+                           return { bool => 1, tail => $_[0], return => sub { 
 		# XXX This is perl5 code
 		# this is ugly
-		eval 'use '. match::get( $_[0], '$()' ) ->[2]{ident}[0]{ident};
-		return { use_bareword =>  match::get( $_[0], '$()' )  ,} 
-	}       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+		eval 'use '. $_[0]->() ->[2]{ident}[0]{ident};
+		return { use_bareword =>  $_[0]->()  ,} 
+	} };
+                       }
+                   )
+               )
+             )
+           )
+         )
+       )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&use_rule;
 *{'term1'} = 
-         Runtime::Perl5::RuleOps::alternation( \@terms )
-       ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+         alternation( \@terms )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
 *{'list'} = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::greedy_star(
-           Runtime::Perl5::RuleOps::concat(
-             Runtime::Perl5::RuleOps::capture( 'term1', \&{'Grammar::Perl6::term1'} )
-           ,
-             Runtime::Perl5::RuleOps::optional(
-                 \&{'Grammar::Perl6::p6ws'}
-               ,
-             )
-           ,
-             Runtime::Perl5::RuleOps::constant( "\," )
-           ,
-             Runtime::Perl5::RuleOps::optional(
-                 \&{'Grammar::Perl6::p6ws'}
-               ,
-             )
-           ,
-           )
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'term1', \&{'Grammar::Perl6::term1'} )
-           ,
-         )
-       ,
-       )
-;
-*{'block'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::constant( "\{" )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'list', 
-             Runtime::Perl5::RuleOps::greedy_star(
-               Runtime::Perl5::RuleOps::concat(
-                 Runtime::Perl5::RuleOps::optional(
-                     \&{'Grammar::Perl6::p6ws'}
-                   ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+         greedy_star(
+           concat( 
+               sub { ${ $grammar->term1( @_ ) } }
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   constant( ',' )
+,                 optional(
+                   sub { ${ $grammar->p6ws( @_ ) } }
                  )
-               ,
-                 Runtime::Perl5::RuleOps::alternation( \@statements )
-               ,
                )
              )
-           ,
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
+,         optional(
+           sub { ${ $grammar->term1( @_ ) } }
          )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\}" )
-       ,
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { block =>  match::get( $_[0], '$()<list>' )  ,} }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+;
+*{'block'} = 
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           constant( '{' )
+,         concat( 
+             capture( 'list', 
+       greedy_star(
+         concat( 
+           optional(
+             sub { ${ $grammar->p6ws( @_ ) } }
+           )
+,             alternation( \@statements )
+         )
+       )
+             )
+,           concat( 
+             optional(
+               sub { ${ $grammar->p6ws( @_ ) } }
+             )
+,             concat( 
+                 constant( '}' )
+,                 abort(
+                     sub {
+                         return { bool => 1, tail => $_[0], return => sub { return { block =>  $_[0]->[list]  ,} } };
+                     }
+                 )
+             )
+           )
+         )
+       )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&block;
 *{'macro_decl'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::constant( "macro" )
-       ,
-         \&{'Grammar::Perl6::p6ws'}
-       ,
-         Runtime::Perl5::RuleOps::capture( 'prefix', 
-             Runtime::Perl5::RuleOps::capture( 'word', \&{'Grammar::Perl6::word'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\:" )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\<" )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'id', 
-             Runtime::Perl5::RuleOps::non_greedy_star(
-                 \&{'Grammar::Perl6::any'}
-               ,
-             )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\>" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\(" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'list', \&{'Grammar::Perl6::list'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\)" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "is" )
-       ,
-         \&{'Grammar::Perl6::p6ws'}
-       ,
-         Runtime::Perl5::RuleOps::constant( "parsed" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\(" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\/" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'rule', \&{'Grammar::Perl6::rule'} )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\/" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\)" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'code', \&{'Grammar::Perl6::code'} )
-       ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           constant( "macro" )
+,         concat( 
+             sub { ${ $grammar->p6ws( @_ ) } }
+,           concat( 
+               capture( 'prefix', 
+         sub { ${ $grammar->word( @_ ) } }
+               )
+,             concat( 
+                 constant( ':' )
+,               concat( 
+                   constant( '<' )
+,                 concat( 
+                     capture( 'id', 
+       non_greedy_star(
+         sub{ 
+             ${ $grammar->any( @_ ) };
+         }
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub {
+                     )
+,                   concat( 
+                       constant( '>' )
+,                     concat( 
+                       optional(
+                         sub { ${ $grammar->p6ws( @_ ) } }
+                       )
+,                       concat( 
+                           constant( '(' )
+,                         concat( 
+                           optional(
+                             sub { ${ $grammar->p6ws( @_ ) } }
+                           )
+,                           concat( 
+                             optional(
+                               sub { ${ $grammar->list( @_ ) } }
+                             )
+,                             concat( 
+                               optional(
+                                 sub { ${ $grammar->p6ws( @_ ) } }
+                               )
+,                               concat( 
+                                   constant( ')' )
+,                                 concat( 
+                                   optional(
+                                     sub { ${ $grammar->p6ws( @_ ) } }
+                                   )
+,                                   concat( 
+                                       constant( "is" )
+,                                     concat( 
+                                         sub { ${ $grammar->p6ws( @_ ) } }
+,                                       concat( 
+                                           constant( "parsed" )
+,                                         concat( 
+                                           optional(
+                                             sub { ${ $grammar->p6ws( @_ ) } }
+                                           )
+,                                           concat( 
+                                               constant( '(' )
+,                                             concat( 
+                                               optional(
+                                                 sub { ${ $grammar->p6ws( @_ ) } }
+                                               )
+,                                               concat( 
+                                                   constant( '/' )
+,                                                 concat( 
+                                                   optional(
+                                                     sub { ${ $grammar->p6ws( @_ ) } }
+                                                   )
+,                                                   concat( 
+                                                       sub { ${ $grammar->rule( @_ ) } }
+,                                                     concat( 
+                                                       optional(
+                                                         sub { ${ $grammar->p6ws( @_ ) } }
+                                                       )
+,                                                       concat( 
+                                                           constant( '/' )
+,                                                         concat( 
+                                                           optional(
+                                                             sub { ${ $grammar->p6ws( @_ ) } }
+                                                           )
+,                                                           concat( 
+                                                               constant( ')' )
+,                                                             concat( 
+                                                               optional(
+                                                                 sub { ${ $grammar->p6ws( @_ ) } }
+                                                               )
+,                                                               concat( 
+                                                                   sub { ${ $grammar->code( @_ ) } }
+,                                                                   abort(
+                                                                       sub {
+                                                                           return { bool => 1, tail => $_[0], return => sub {
 	 # XXX This is perl5 code
 	 # XXX This is ugly
-	 eval Emitter::Perl5::emit({macro =>  match::get( $_[0], '$()' ) });
-	 return { macro =>  match::get( $_[0], '$()' )  ,}
-	}       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+	 eval Emitter::Perl5::emit({macro =>  $_[0]->() });
+	 return { macro =>  $_[0]->()  ,}
+	} };
+                                                                       }
+                                                                   )
+                                                               )
+                                                             )
+                                                           )
+                                                         )
+                                                       )
+                                                     )
+                                                   )
+                                                 )
+                                               )
+                                             )
+                                           )
+                                         )
+                                       )
+                                     )
+                                   )
+                                 )
+                               )
+                             )
+                           )
+                         )
+                       )
+                     )
+                   )
+                 )
+               )
+             )
+           )
+         )
+       )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&macro_decl;
 *{'empty_list'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::constant( "\(" )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\)" )
-       ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           constant( '(' )
+,         concat( 
+             constant( ')' )
+,             abort(
+                 sub {
+                     return { bool => 1, tail => $_[0], return => sub { return { empty_list =>  $_[0]->()  } } };
+                 }
+             )
+         )
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { empty_list =>  match::get( $_[0], '$()' )  } }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @terms, \&empty_list;
     push @terms, \&varhash;
@@ -1172,526 +1197,512 @@ package Grammar::Perl6;
     push @terms, \&variable;
     push @terms, \&literal;
 *{'_open'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'op', 
-             Runtime::Perl5::RuleOps::constant( "open" )
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'op', 
+         constant( "open" )
+           )
+,         concat( 
+             sub { ${ $grammar->p6ws( @_ ) } }
+,           concat( 
+               sub { ${ $grammar->varscalar( @_ ) } }
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   constant( ';' )
+,                   abort(
+                       sub {
+                           return { bool => 1, tail => $_[0], return => sub { return { _open =>  $_[0]->() , } } };
+                       }
+                   )
+               )
+             )
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'varscalar', \&{'Grammar::Perl6::varscalar'} )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { _open =>  match::get( $_[0], '$()' ) , } }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&_open;
     push @terms, \&_open;
 *{'_print_with_fh'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'op', 
-             Runtime::Perl5::RuleOps::alternation( [
-                   Runtime::Perl5::RuleOps::constant( "print" )
-                 ,
-                   Runtime::Perl5::RuleOps::constant( "say" )
-                 ,
-                   Runtime::Perl5::RuleOps::constant( "warn" )
-                 ,
-                   Runtime::Perl5::RuleOps::constant( "die" )
-                 ,
-             ] )
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'op', 
+       alternation( [
+           constant( "print" )
+,         alternation( [
+             constant( "say" )
+,           alternation( [
+               constant( "warn" )
+,               constant( "die" )
+           ] )
+         ] )
+       ] )
+           )
+,         concat( 
+             sub { ${ $grammar->p6ws( @_ ) } }
+,           concat( 
+               sub { ${ $grammar->indirect_object( @_ ) } }
+,             concat( 
+                 sub { ${ $grammar->p6ws( @_ ) } }
+,               concat( 
+                   sub { ${ $grammar->list( @_ ) } }
+,                 concat( 
+                   optional(
+                     sub { ${ $grammar->p6ws( @_ ) } }
+                   )
+,                   concat( 
+                       constant( ';' )
+,                       abort(
+                           sub {
+                               return { bool => 1, tail => $_[0], return => sub { return { _print_with_fh =>  $_[0]->()  ,} } };
+                           }
+                       )
+                   )
+                 )
+               )
+             )
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'indirect_object', \&{'Grammar::Perl6::indirect_object'} )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'list', \&{'Grammar::Perl6::list'} )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { _print_with_fh =>  match::get( $_[0], '$()' )  ,} }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&_print_with_fh;
 *{'_print'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'op', 
-             Runtime::Perl5::RuleOps::alternation( [
-                   Runtime::Perl5::RuleOps::constant( "print" )
-                 ,
-                   Runtime::Perl5::RuleOps::constant( "say" )
-                 ,
-                   Runtime::Perl5::RuleOps::constant( "warn" )
-                 ,
-                   Runtime::Perl5::RuleOps::constant( "die" )
-                 ,
-             ] )
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'op', 
+       alternation( [
+           constant( "print" )
+,         alternation( [
+             constant( "say" )
+,           alternation( [
+               constant( "warn" )
+,               constant( "die" )
+           ] )
+         ] )
+       ] )
+           )
+,         concat( 
+             sub { ${ $grammar->p6ws( @_ ) } }
+,           concat( 
+               sub { ${ $grammar->list( @_ ) } }
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   constant( ';' )
+,                   abort(
+                       sub {
+                           return { bool => 1, tail => $_[0], return => sub { return { _print =>  $_[0]->()  ,} } };
+                       }
+                   )
+               )
+             )
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'list', \&{'Grammar::Perl6::list'} )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { _print =>  match::get( $_[0], '$()' )  ,} }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&_print;
 *{'_my'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'op', 
-             Runtime::Perl5::RuleOps::alternation( [
-                   Runtime::Perl5::RuleOps::constant( "my" )
-                 ,
-                   Runtime::Perl5::RuleOps::constant( "our" )
-                 ,
-                   Runtime::Perl5::RuleOps::constant( "local" )
-                 ,
-             ] )
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'op', 
+       alternation( [
+           constant( "my" )
+,         alternation( [
+             constant( "our" )
+,             constant( "local" )
+         ] )
+       ] )
+           )
+,         concat( 
+             sub { ${ $grammar->p6ws( @_ ) } }
+,           concat( 
+               sub { ${ $grammar->variable( @_ ) } }
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   constant( ';' )
+,                   abort(
+                       sub {
+                           return { bool => 1, tail => $_[0], return => sub { return { _my =>  $_[0]->()  ,} } };
+                       }
+                   )
+               )
+             )
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'variable', \&{'Grammar::Perl6::variable'} )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { _my =>  match::get( $_[0], '$()' )  ,} }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&_my;
 *{'_simple_statement'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'op', 
-           Runtime::Perl5::RuleOps::concat(
-             Runtime::Perl5::RuleOps::alternation( [
-                   Runtime::Perl5::RuleOps::constant( "die" )
-                 ,
-                   Runtime::Perl5::RuleOps::constant( "\." )
-                 ,
-             ] )
-           ,
-             Runtime::Perl5::RuleOps::constant( "\." )
-           ,
-             Runtime::Perl5::RuleOps::constant( "\." )
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'op', 
+       alternation( [
+           constant( "die" )
+,         concat( 
+             constant( '.' )
+,           concat( 
+               constant( '.' )
+,               constant( '.' )
            )
          )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
+       ] )
+           )
+,         concat( 
+             constant( ';' )
+,             abort(
+                 sub {
+                     return { bool => 1, tail => $_[0], return => sub { return { _simple_statement =>  $_[0]->()  ,} } };
+                 }
+             )
+         )
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { _simple_statement =>  match::get( $_[0], '$()' )  ,} }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&_simple_statement;
 *{'sub_decl'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::constant( "sub" )
-       ,
-         \&{'Grammar::Perl6::p6ws'}
-       ,
-         Runtime::Perl5::RuleOps::capture( 'fix', 
-             Runtime::Perl5::RuleOps::alternation( [
-                   Runtime::Perl5::RuleOps::constant( "infix" )
-                 ,
-                   Runtime::Perl5::RuleOps::constant( "prefix" )
-                 ,
-                   Runtime::Perl5::RuleOps::constant( "postfix" )
-                 ,
-             ] )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\:" )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\<" )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'id', 
-             Runtime::Perl5::RuleOps::non_greedy_star(
-                 \&{'Grammar::Perl6::any'}
-               ,
-             )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\>" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'block', \&{'Grammar::Perl6::block'} )
-       ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           constant( "sub" )
+,         concat( 
+             sub { ${ $grammar->p6ws( @_ ) } }
+,           concat( 
+               capture( 'fix', 
+       alternation( [
+           constant( "infix" )
+,         alternation( [
+             constant( "prefix" )
+,             constant( "postfix" )
+         ] )
+       ] )
+               )
+,             concat( 
+                 constant( ':' )
+,               concat( 
+                   constant( '<' )
+,                 concat( 
+                     capture( 'id', 
+       non_greedy_star(
+         sub{ 
+             ${ $grammar->any( @_ ) };
+         }
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { sub_decl =>  match::get( $_[0], '$()' )  ,} }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+                     )
+,                   concat( 
+                       constant( '>' )
+,                     concat( 
+                       optional(
+                         sub { ${ $grammar->p6ws( @_ ) } }
+                       )
+,                       concat( 
+                           sub { ${ $grammar->block( @_ ) } }
+,                           abort(
+                               sub {
+                                   return { bool => 1, tail => $_[0], return => sub { return { sub_decl =>  $_[0]->()  ,} } };
+                               }
+                           )
+                       )
+                     )
+                   )
+                 )
+               )
+             )
+           )
+         )
+       )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&sub_decl;
 *{'sub_defin'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::constant( "sub" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           constant( "sub" )
+,         concat( 
+           optional(
+             sub { ${ $grammar->p6ws( @_ ) } }
+           )
+,           concat( 
+               sub { ${ $grammar->ident( @_ ) } }
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   sub { ${ $grammar->block( @_ ) } }
+,                   abort(
+                       sub {
+                           return { bool => 1, tail => $_[0], return => sub { return { sub_defin =>  $_[0]->()  ,} } };
+                       }
+                   )
+               )
+             )
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'ident', \&{'Grammar::Perl6::ident'} )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'block', \&{'Grammar::Perl6::block'} )
-       ,
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { sub_defin =>  match::get( $_[0], '$()' )  ,} }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&sub_defin;
 *{'term2'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'term1', 
-             Runtime::Perl5::RuleOps::capture( 'term1', \&{'Grammar::Perl6::term1'} )
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'term1', 
+         sub { ${ $grammar->term1( @_ ) } }
+           )
+,         concat( 
+           optional(
+             sub { ${ $grammar->p6ws( @_ ) } }
+           )
+,           concat( 
+               capture( 'op', 
+         alternation( \@ops )
+               )
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   capture( 'term2', 
+         sub { ${ $grammar->term1( @_ ) } }
+                   )
+,                   abort(
+                       sub {
+                           return { bool => 1, tail => $_[0], return => sub { return { sub_application_term =>  $_[0]->()  ,} } };
+                       }
+                   )
+               )
+             )
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'op', 
-             Runtime::Perl5::RuleOps::alternation( \@ops )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'term2', 
-             Runtime::Perl5::RuleOps::capture( 'term1', \&{'Grammar::Perl6::term1'} )
-           ,
-         )
-       ,
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { sub_application_term =>  match::get( $_[0], '$()' )  ,} }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
 *{'sub_application'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::capture( 'term1', 
-             Runtime::Perl5::RuleOps::alternation( [
-                   Runtime::Perl5::RuleOps::capture( 'term1', \&{'Grammar::Perl6::term1'} )
-                 ,
-                   Runtime::Perl5::RuleOps::capture( 'term2', \&{'Grammar::Perl6::term2'} )
-                 ,
-             ] )
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           capture( 'term1', 
+       alternation( [
+           sub { ${ $grammar->term1( @_ ) } }
+,           sub { ${ $grammar->term2( @_ ) } }
+       ] )
+           )
+,         concat( 
+           optional(
+             sub { ${ $grammar->p6ws( @_ ) } }
+           )
+,           concat( 
+               capture( 'op', 
+         alternation( \@ops )
+               )
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   capture( 'term2', 
+       alternation( [
+           sub { ${ $grammar->term1( @_ ) } }
+,           sub { ${ $grammar->term2( @_ ) } }
+       ] )
+                   )
+,                 concat( 
+                   optional(
+                     sub { ${ $grammar->p6ws( @_ ) } }
+                   )
+,                   concat( 
+                       constant( ';' )
+,                       abort(
+                           sub {
+                               return { bool => 1, tail => $_[0], return => sub { return { sub_application =>  $_[0]->()  ,} } };
+                           }
+                       )
+                   )
+                 )
+               )
+             )
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'op', 
-             Runtime::Perl5::RuleOps::alternation( \@ops )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'term2', 
-             Runtime::Perl5::RuleOps::alternation( [
-                   Runtime::Perl5::RuleOps::capture( 'term1', \&{'Grammar::Perl6::term1'} )
-                 ,
-                   Runtime::Perl5::RuleOps::capture( 'term2', \&{'Grammar::Perl6::term2'} )
-                 ,
-             ] )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { sub_application =>  match::get( $_[0], '$()' )  ,} }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&sub_application;
 *{'eval_perl5'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::constant( "eval" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           constant( "eval" )
+,         concat( 
+           optional(
+             sub { ${ $grammar->p6ws( @_ ) } }
+           )
+,           concat( 
+               constant( '(' )
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   sub { ${ $grammar->literal( @_ ) } }
+,                 concat( 
+                   optional(
+                     sub { ${ $grammar->p6ws( @_ ) } }
+                   )
+,                   concat( 
+                       constant( ',' )
+,                     concat( 
+                       optional(
+                         sub { ${ $grammar->p6ws( @_ ) } }
+                       )
+,                       concat( 
+                           constant( ':' )
+,                         concat( 
+                             constant( "lang" )
+,                           concat( 
+                               constant( '<' )
+,                             concat( 
+                                 constant( "perl5" )
+,                               concat( 
+                                   constant( '>' )
+,                                 concat( 
+                                   optional(
+                                     sub { ${ $grammar->p6ws( @_ ) } }
+                                   )
+,                                   concat( 
+                                       constant( ')' )
+,                                     concat( 
+                                       optional(
+                                         sub { ${ $grammar->p6ws( @_ ) } }
+                                       )
+,                                       concat( 
+                                           constant( ';' )
+,                                           abort(
+                                               sub {
+                                                   return { bool => 1, tail => $_[0], return => sub { return { eval_perl5 =>  $_[0]->{literal}  } } };
+                                               }
+                                           )
+                                       )
+                                     )
+                                   )
+                                 )
+                               )
+                             )
+                           )
+                         )
+                       )
+                     )
+                   )
+                 )
+               )
+             )
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\(" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::capture( 'literal', \&{'Grammar::Perl6::literal'} )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\," )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\:" )
-       ,
-         Runtime::Perl5::RuleOps::constant( "lang" )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\<" )
-       ,
-         Runtime::Perl5::RuleOps::constant( "perl5" )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\>" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\)" )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             Runtime::Perl5::RuleOps::capture( 'p6ws', \&{'Grammar::Perl6::p6ws'} )
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { eval_perl5 =>  match::get( $_[0], '$<literal>' )  } }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&eval_perl5;
 *{'_return'} = 
-
-    sub { 
-        my $rule = 
-       Runtime::Perl5::RuleOps::concat(
-         Runtime::Perl5::RuleOps::constant( "return" )
-       ,
-         \&{'Grammar::Perl6::p6ws'}
-       ,
-         Runtime::Perl5::RuleOps::capture( 'val', 
-             Runtime::Perl5::RuleOps::alternation( [
-                   Runtime::Perl5::RuleOps::capture( 'term1', \&{'Grammar::Perl6::term1'} )
-                 ,
-                   Runtime::Perl5::RuleOps::capture( 'term2', \&{'Grammar::Perl6::term2'} )
-                 ,
-             ] )
-           ,
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       concat( 
+           constant( "return" )
+,         concat( 
+             sub { ${ $grammar->p6ws( @_ ) } }
+,           concat( 
+               capture( 'val', 
+       alternation( [
+           sub { ${ $grammar->term1( @_ ) } }
+,           sub { ${ $grammar->term2( @_ ) } }
+       ] )
+               )
+,             concat( 
+               optional(
+                 sub { ${ $grammar->p6ws( @_ ) } }
+               )
+,               concat( 
+                   constant( ';' )
+,                   abort(
+                       sub {
+                           return { bool => 1, tail => $_[0], return => sub { return { _return =>  $_[0]->()  ,} } };
+                       }
+                   )
+               )
+             )
+           )
          )
-       ,
-         Runtime::Perl5::RuleOps::optional(
-             \&{'Grammar::Perl6::p6ws'}
-           ,
-         )
-       ,
-         Runtime::Perl5::RuleOps::constant( "\;" )
-       ,
        )
-    ;
-        my $match = $rule->( @_ );
-        return unless $match;
-        my $capture_block = sub { return { _return =>  match::get( $_[0], '$()' )  ,} }       ,
-; 
-        #use Data::Dumper;
-        #print "capture was: ", Dumper( $match->{capture} );
-        return { 
-            %$match,
-            capture => [ $capture_block->( $match ) ],
-        }; 
-    }
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
 ;
     push @statements, \&_return;

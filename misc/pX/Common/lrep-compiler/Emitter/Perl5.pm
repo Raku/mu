@@ -1,6 +1,7 @@
 package Emitter::Perl5;
 
 use strict;
+use Pugs::Emitter::Rule::Perl5;
 our %nodes;
 
 sub emit_node {
@@ -19,7 +20,7 @@ sub emit {
     if ( $n eq ',') {
         return ',';
     }
-    elsif ( ! defined $n || ref($n) eq '' ) {
+    if ( ! defined $n || ref($n) eq '' ) {
         # empty node; maybe a <null> match
         return '';
     }
@@ -36,7 +37,7 @@ sub emit {
         return '' unless defined $k;
 	return emit_node($k,$v);
     }
-    die "unknown node: ", Dumper( $n );
+    die "unknown node!! ", Dumper( $n );
 }
 sub node::pod {
 	return ''
@@ -90,7 +91,7 @@ sub node::sub_call {
 }
 sub node::rule_decl {
     my $name = get_str( $_[0], '$<ident>' );
-    my $program = Runtime::Perl5::RuleOps::emit_rule( get_data( $_[0], '$<rule>' ), '' );
+    my $program = Pugs::Emitter::Rule::Perl5::emit('Pugs::Grammar::Base', get_data( $_[0], '$<Pugs::Grammar::Rule::rule>' ));
     return "*{'$name'} = \n$program;\n";
 }
 sub node::perl5_rule_decl {

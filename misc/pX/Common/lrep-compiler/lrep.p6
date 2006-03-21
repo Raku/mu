@@ -7,14 +7,8 @@ use Getopt::Std;
 use Data::Dumper;
 
 # Internal
-# There is some loading precedence.
-# That's why require is used instead of
-# plain use.
-require Runtime::Perl5::RuleInit;
-require Grammar::Perl6Init;
-require Grammar::Rules;
-require Grammar::Perl6;
-require Emitter::Perl5;
+use Grammar::Perl6;
+use Emitter::Perl5;
 
 # Process command line arguments
 my %args;                       # declaration and assignment in the
@@ -55,7 +49,7 @@ $source = slurp $input_file;    # slurp is standard in Perl 6
 # and not via subroutines. This should be actually Perl 6
 # rules applying... But for now... this is ok...
 my $match;
-$match = Grammar::Perl6::grammar($source);
+$match = Grammar::Perl6.grammar($source);
 
 # if something didn't match
 my $tail;
