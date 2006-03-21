@@ -1,4 +1,4 @@
-LREP:perl -I../Pugs-Compiler-Rule/lib lrep
+LREP:=perl -I../Pugs-Compiler-Rule/lib lrep
 
 all: prelude tests lrep
 

@@ -41,7 +41,7 @@ sub {
     package Pugs::Runtime::Rule;
     my $tree;
     rule_wrapper( $_[0], 
-       greedy_plus(
+       greedy_star(
          sub { ${ $grammar->immediate_statement_rule( @_ ) } }
        )
         ->( $_[0], undef, $tree, $tree )
