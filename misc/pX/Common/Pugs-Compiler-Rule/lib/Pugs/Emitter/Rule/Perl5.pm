@@ -107,13 +107,16 @@ sub dot {
 }
 sub variable {
     my $name = "$_[0]";
-    my $value = "sub { die 'not implemented: $name' }\n";
+    my $value = "sub { die 'interpolation of $name not implemented' }\n";
+    # XXX - eval $name doesn't look up in user lexical pad
     $value = eval $name if $name =~ /^\$/;
     $value = join('', eval $name) if $name =~ /^\@/;
-
-    # XXX - what hash/code interpolate to?
-    # $value = join('', eval $name) if $name =~ /^\%/;
-
+    if ( $name =~ /^%/ ) {
+        # XXX - what hash/code interpolate to?
+        # $value = join('', eval $name) if $name =~ /^\%/;
+        warn "hash interpolation not implemented";
+        return;
+    }
     return "$_[1] constant( '" . $value . "' )\n";
 }
 sub special_char {

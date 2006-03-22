@@ -16,6 +16,8 @@ Priorities:
 
 - add placeholder 'not implemented' messages in the right places
 
+- /(.)*/ should return an array in $0
+
 Bugs:
 
 - $variable should look into the user pad
