@@ -1,5 +1,5 @@
 
-use Test::More tests => 17;
+use Test::More tests => 19;
 
 use_ok( 'Pugs::Compiler::Rule' );
 no warnings qw( once );
@@ -117,4 +117,13 @@ no warnings qw( once );
     my $rule = Pugs::Compiler::Rule->compile( 'a?bg?');
     my $match = $rule->match("cdtbprw");
     is("$match","b",'"a?bg?" equals "a? b g?".');
+}
+
+{
+    # capture
+    my $rule = Pugs::Compiler::Rule->compile('some (text) { return { a => $() } } ');
+    my $match = $rule->match("sometext");
+    my $capture = $match->capture();
+    is(ref($capture),'HASH','Capture is a hashref');
+    is($capture->{a},'text','$capture->{a}');
 }
