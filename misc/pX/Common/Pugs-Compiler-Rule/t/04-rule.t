@@ -102,7 +102,7 @@ no warnings qw( once );
 {
     # escaped chars
     my $rule = Pugs::Compiler::Rule->compile( '\N' );
-    my $match = $rule->match( "\nxy12" );
+    my $match = $rule->match( "\n\n" );
     is( "$match", "", 'escaped char \\N' );
     $match = $rule->match( "xy12" );
     is( "$match", "x", 'escaped char \\N #2' );
