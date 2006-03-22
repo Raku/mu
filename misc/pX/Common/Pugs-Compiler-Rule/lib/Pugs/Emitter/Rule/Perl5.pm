@@ -218,7 +218,20 @@ sub metasyntax {
             call_subrule( $_[0], $_[1]."  " ) .
             "$_[1] )\n";;
     }
-    if ( $prefix =~ /[_[:alnum:]]/ ) {  # capturing subrule
+    if ( $prefix =~ /[_[:alnum:]]/ ) {  
+        if ( $cmd =~ /^before\s+(.*)/s ) {
+            warn "<before ...> not implemented";
+            return;
+        }
+        if ( $cmd =~ /^after\s+(.*)/s ) {
+            warn "<after ...> not implemented";
+            return;
+        }
+        if ( $cmd eq 'cut' ) {
+            warn "<cut> not implemented";
+            return;
+        }
+        # capturing subrule
         return 
             "$_[1] capture( '$cmd', \n" . 
             call_subrule( $cmd, $_[1]."  " ) . 
