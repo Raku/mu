@@ -16,7 +16,7 @@ Priorities:
 
 Bugs:
 
-- fix Pugs::Grammar::Rule::Rule compilation (broken inheritance)
+- fix \N
 
 - $variable should look into the user pad
 
@@ -41,6 +41,8 @@ Related projects:
   - not a priority - p5 could load ready-made YAML from Pugs
 
 Other:
+
+- migrate Pugs::Grammar::Rule::Rule compilation to PCR
 
 - cleanup the engine: it is both returning the match, and building the match tree.
   There is no need to return the match.

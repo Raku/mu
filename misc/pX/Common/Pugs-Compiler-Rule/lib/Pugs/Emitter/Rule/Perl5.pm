@@ -13,6 +13,7 @@ $Data::Dumper::Indent = 1;
 sub call_subrule {
     my $name = $_[0];
     $name = "\$grammar->" . $_[0] unless $_[0] =~ / :: | \. | -> /x;
+    $name =~ s/\./->/;   # XXX - source filter
     return 
         "$_[1] sub{ \n" .
         "$_[1]     $name( \@_ );\n" .
@@ -21,39 +22,28 @@ sub call_subrule {
 
 sub emit {
     my ($grammar, $ast) = @_;
-    #print "emit ast: ",do{use Data::Dumper; Dumper($ast)};
-    my $source = 
+    return 
         "sub {\n" . 
         "    my \$grammar = shift;\n" .
-        #"    print 'GRAMMAR: \$grammar', \"\\n\";\n" .
         "    package Pugs::Runtime::Rule;\n" .
         "    my \$tree;\n" .
         "    rule_wrapper( \$_[0], \n" . 
-        emit_rule( $ast ) . 
+        emit_rule( $ast, '  ' ) . 
         "        ->( \$_[0], undef, \$tree, \$tree )\n" .
         "    );\n" .
-        "}\n" .
-        "";
-    #print $source;
-    return $source;
+        "}\n";
 }
 
 sub emit_rule {
     my $n = $_[0];
-    my $tab = $_[1] || '    '; 
-    $tab .= '  ';
-    #print "emit_rule(): ", ref($n)," ",Dumper( $n ), "\n";
-    if ( ref( $n ) eq 'HASH' ) 
-    {
-        my ( $k, $v ) = each %$n;
-        # print "$tab $k => $v \n";
-        # XXX - use real references
-        no strict 'refs';
-        my $code = &$k( $v, $tab );
-        return $code;
-    }
-    local $Data::Dumper::Deepcopy = 1;
-    die "unknown node: ", Dumper( $n );
+    my $tab = $_[1] . '  ';
+    die "unknown node: ", Dumper( $n )
+        unless ref( $n ) eq 'HASH';
+    my ( $k, $v ) = each %$n;
+    # XXX - use real references
+    no strict 'refs';
+    my $code = &$k( $v, $tab );
+    return $code;
 }
 
 #rule nodes
@@ -61,7 +51,7 @@ sub emit_rule {
 sub capturing_group {
     return 
        "$_[1] capture( '',\n" .
-       emit_rule( $_[0], $_[1].'    ' ) . 
+       emit_rule( $_[0], $_[1].'  ' ) . 
        "$_[1] )\n" .
        '';
 }        
@@ -69,7 +59,6 @@ sub non_capturing_group {
     return emit_rule( $_[0], $_[1] );
 }        
 sub quant {
-    # print "*** \$_[0]:\n",Dumper $_[0];
     my $term = $_[0]->{'term'};
     my $quantifier = $_[0]->{quant};
     $quantifier = '' unless defined $quantifier;
@@ -79,10 +68,9 @@ sub quant {
             '*?'=>'non_greedy_star', 
             '+?'=>'non_greedy_plus',
             '?' =>'optional',
-            '??' =>'null_or_optional',
+            '??'=>'null_or_optional',
             ''  => '',
         }->{$quantifier};
-    # print "*** \$quantifier:\n",Dumper $quantifier;
     die "quantifier not implemented: $quantifier" 
         unless defined $sub;
     return emit_rule( $term, $_[1] ) 
@@ -91,7 +79,6 @@ sub quant {
            emit_rule( $term, $_[1] ) . "$_[1] )\n";
 }        
 sub alt {
-    # print "*** \$_[0]:\n",Dumper $_[0];
     my @s;
     for ( @{$_[0]} ) { 
         my $tmp = emit_rule( $_, $_[1] );
@@ -102,7 +89,6 @@ sub alt {
            "$_[1] ] )\n";
 }        
 sub concat {
-    # print "*** \$_[0]:\n",Dumper $_[0];
     my @s;
     for ( @{$_[0]} ) { 
         my $tmp = emit_rule( $_, $_[1] );
@@ -114,15 +100,13 @@ sub concat {
         "$_[1] )\n";
 }        
 sub code {
-    # return "$_[1] # XXX code - compile '$_[0]' ?\n";
-    return "$_[1] $_[0]  # XXX - code\n";  
+    return "$_[1] $_[0]\n";  
 }        
 sub dot {
     return call_subrule( 'any', $_[1] );
 }
 sub variable {
     my $name = "$_[0]";
-    # print "var name: ", $_[0], "\n";
     my $value = "sub { die 'not implemented: $name' }\n";
     $value = eval $name if $name =~ /^\$/;
     $value = join('', eval $name) if $name =~ /^\@/;
@@ -134,9 +118,12 @@ sub variable {
 }
 sub special_char {
     my $char = substr($_[0],1);
-    my $value = $char;
-    $value = "\n" if $value eq 'n';
-    return "$_[1] constant( '" . $value . "' )\n";
+    for ( qw( r n t e f ) ) {
+        return "$_[1] perl5( '\\$_' )\n" if $char eq $_;
+        return "$_[1] perl5( '[^\\$_]' )\n" if $char eq uc($_);
+    }
+    return "$_[1] constant( q!$char! )\n" unless $char eq '!';
+    return "$_[1] constant( q($char) )\n";
 }
 sub match_variable {
     my $name = $_[0];
@@ -181,7 +168,7 @@ sub named_capture {
     my $program = $_[0]{rule};
     return 
         "$_[1] capture( '$name', \n" . 
-        emit_rule($program) . 
+        emit_rule($program, $_[1]) . 
         "$_[1] )\n";
 }
 sub colon {
@@ -191,9 +178,7 @@ sub colon {
     die (':' x $num) . " not implemented";
 }
 sub constant {
-    my $literal = shift;
-    my $name = quotemeta( "$literal" );
-    return "$_[0] constant( \"$name\" )\n";
+    return "$_[1] constant( q($_[0]) )\n";
 }
 sub metasyntax {
     # <cmd>
@@ -201,12 +186,14 @@ sub metasyntax {
     my $prefix = substr( $cmd, 0, 1 );
     if ( $prefix eq '@' ) {
         # XXX - wrap @array items - see end of Pugs::Grammar::Rule
-        return "$_[1] alternation( \\$cmd )\n";
+        return 
+            "$_[1] alternation( \\$cmd )\n";
     }
     if ( $prefix eq '$' ) {
         if ( $cmd =~ /::/ ) {
             # call method in fully qualified $package::var
-            return "$_[1] sub { $cmd->match( \@_ ) }\n";
+            return 
+                "$_[1] sub { $cmd->match( \@_ ) }\n";
         }
         # call method in lexical $var
         return 
@@ -217,36 +204,25 @@ sub metasyntax {
     }
     if ( $prefix eq q(') ) {   # single quoted literal 
         $cmd = substr( $cmd, 1, -1 );
-        my $name = quotemeta( "$cmd" );
-        return "$_[1] constant( \"$name\" )\n";
+        return 
+            "$_[1] constant( q($cmd) )\n";
     }
     if ( $prefix eq '?' ) {   # non_capturing_subrule 
         $cmd = substr( $cmd, 1 );
-        # XXX - make a recursive call to metasyntax()
-        if ( $cmd =~ /\./ ) {
-            # call other grammar's method
-            $cmd =~ s/\./->/;
-            return "$_[1] sub { $cmd( \@_ ) }\n";
-        }
-        # call method in this grammar
-        return "$_[1] sub { \$grammar->$cmd( \@_ ) }\n";
+        return call_subrule( $cmd, $_[1] );
     }
     if ( $prefix eq '!' ) {   # negated_subrule 
         $cmd = substr( $cmd, 1 );
         return 
             "$_[1] negate( '$_[0]', \n" .
-            metasyntax( $_[0], $_[1]."    " ) .
+            call_subrule( $_[0], $_[1]."  " ) .
             "$_[1] )\n";;
     }
-    if ( $prefix =~ /[_[:alnum:]]/ ) {
-        # XXX - TODO - capture 
-        if ( $cmd =~ /\./ ) {
-            # call other grammar's method
-            $cmd =~ s/\./->/;
-            return "$_[1] sub { $cmd( \@_ ) }\n";
-        }
-        # call method in this grammar
-        return "$_[1] sub { \$grammar->$cmd( \@_ ) }\n";
+    if ( $prefix =~ /[_[:alnum:]]/ ) {  # capturing subrule
+        return 
+            "$_[1] capture( '$cmd', \n" . 
+            call_subrule( $cmd, $_[1]."  " ) . 
+            "$_[1] )\n";
     }
     die "<$cmd> not implemented";
 }

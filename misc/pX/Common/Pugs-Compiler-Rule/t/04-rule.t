@@ -1,5 +1,5 @@
 
-use Test::More tests => 14;
+use Test::More tests => 16;
 
 use_ok( 'Pugs::Compiler::Rule' );
 no warnings qw( once );
@@ -97,4 +97,13 @@ no warnings qw( once );
     my $rule = Pugs::Compiler::Rule->compile( '\n' );
     my $match = $rule->match( "\nxy12" );
     is( "$match", "\n", 'escaped char \\n' );
+}
+
+{
+    # escaped chars
+    my $rule = Pugs::Compiler::Rule->compile( '\N' );
+    my $match = $rule->match( "\nxy12" );
+    is( "$match", "", 'escaped char \\N' );
+    $match = $rule->match( "xy12" );
+    is( "$match", "x", 'escaped char \\N #2' );
 }

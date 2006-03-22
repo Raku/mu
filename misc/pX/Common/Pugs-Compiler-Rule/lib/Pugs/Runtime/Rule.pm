@@ -276,6 +276,24 @@ sub wrap {
     }
 }
 
+sub perl5 {
+    my $rx = qr(^($_[0])(.*)$)s;
+    #print "rx: $rx\n";
+    return sub {
+        return unless defined $_[0];
+        if ( $_[0] =~ m/$rx/ ) {
+            return $_[3] = { 
+                bool  => 1,
+                match => $1,
+                tail  => $2,
+                capture => $1,
+            };
+        }
+        return;
+    };
+}
+
+
 # ------- higher-order ruleops
 
 sub optional {
