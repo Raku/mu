@@ -121,9 +121,18 @@ no warnings qw( once );
 
 {
     # capture
-    my $rule = Pugs::Compiler::Rule->compile('some (text) { return { a => $() } } ');
+    my $rule = Pugs::Compiler::Rule->compile('some (text) { return { a => $_[0][0]() ,} } ');
     my $match = $rule->match("sometext");
-    my $capture = $match->capture();
+    my $capture = $match->();
     is(ref($capture),'HASH','Capture is a hashref');
     is($capture->{a},'text','$capture->{a}');
+}
+
+{
+    # XXX - is $() working?
+    # capture
+    my $rule = Pugs::Compiler::Rule->compile('some (text) { return { a => $() ,} } ');
+    my $match = $rule->match("sometext");
+    my $capture = $match->();
+    is($capture->{a},'sometext','simple capture');
 }
