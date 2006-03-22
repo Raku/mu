@@ -109,9 +109,12 @@ no warnings qw( once );
 }
 
 {
-    # ambiguous rule
-    # XXX - is this /a? bg?/ or /a? b g?/
+    # ambiguous rule /a?bg?/
+    # XXX - is this /a? [bg]?/ or /a? b g?/
+    # --- It should the same as /a? b g?/
+    # 1) spaces should not make difference
+    # 2) the other way, it should be as /[a?[bg]]?/
     my $rule = Pugs::Compiler::Rule->compile( 'a?bg?');
     my $match = $rule->match("cdtbprw");
-    is("$match","b",'ambiguous rule "a?bg?". "a?[bg]?" or "a? b g?"?');
+    is("$match","b",'"a?bg?" equals "a? b g?".');
 }
