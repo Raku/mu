@@ -1,5 +1,5 @@
 package Grammar::Perl6;
-use base 'Pugs::Grammar::Base', 'Pugs::Grammar::Rule';
+use base 'Pugs::Grammar::Base', 'Pugs::Grammar::Rule', 'Grammar::Perl6Init';
 use Pugs::Grammar::Rule;
 use Pugs::Runtime::Match;
 *{'immediate_statement_rule'} = 
@@ -10,12 +10,12 @@ sub {
     rule_wrapper( $_[0], 
        concat( 
          optional(
-           sub { ${ $grammar->p6ws( @_ ) } }
+           sub { $grammar->p6ws( @_ ) }
          )
 ,         concat( 
-             alternation( \@statements )
+             alternation( \@Grammar::Perl6::statements )
 ,           optional(
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub { $grammar->p6ws( @_ ) }
            )
          )
        )
@@ -23,18 +23,6 @@ sub {
     );
 }
 ;
-*{'p6ws'} = sub {
-    my $grammar = shift;
-    $_[0] = "" unless defined $_[0];
-    my $bool = $_[0] =~ /^((?:\s|\#(?-s:.)*)+)(.*)$/sx;
-    return Pugs::Runtime::Match->new({
-        bool  => $bool,
-        match => $1,
-        tail  => $2,
-        #capture => $1,
-    });
-};
-
 *{'grammar'} = 
 sub {
     my $grammar = shift;
@@ -42,7 +30,7 @@ sub {
     my $tree;
     rule_wrapper( $_[0], 
        greedy_star(
-         sub { ${ $grammar->immediate_statement_rule( @_ ) } }
+         sub { $grammar->immediate_statement_rule( @_ ) }
        )
         ->( $_[0], undef, $tree, $tree )
     );
@@ -55,10 +43,10 @@ sub {
     my $tree;
     rule_wrapper( $_[0], 
        concat( 
-           sub { ${ $grammar->varscalar( @_ ) } }
+           sub {  $grammar->varscalar( @_ ) } 
 ,         concat( 
            optional(
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
            )
 ,           concat( 
                constant( ':' )
@@ -74,7 +62,7 @@ sub {
     );
 }
 ;
-    push @terms, sub { ${Grammar::Perl6->indirect_object(@_) }};
+    push @terms, sub { Grammar::Perl6->indirect_object(@_) };
 *{'rule_decl'} = 
 sub {
     my $grammar = shift;
@@ -84,17 +72,17 @@ sub {
        concat( 
            constant( "rule" )
 ,         concat( 
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
 ,           concat( 
-               sub { ${ $grammar->ident( @_ ) } }
+               sub {  $grammar->ident( @_ ) } 
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
                    constant( '{' )
 ,                 concat( 
-                     sub { ${ $grammar->rule( @_ ) } }
+                     sub {  $grammar->rule( @_ ) } 
 ,                   concat( 
                        constant( '}' )
 ,                       abort(
@@ -113,7 +101,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->rule_decl(@_) }};
+    push @statements, sub { Grammar::Perl6->rule_decl(@_) };
 *{'grammar_name'} = 
 sub {
     my $grammar = shift;
@@ -123,12 +111,12 @@ sub {
        concat( 
            constant( "grammar" )
 ,         concat( 
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
 ,           concat( 
-               sub { ${ $grammar->ident( @_ ) } }
+               sub {  $grammar->ident( @_ ) } 
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
                    constant( ';' )
@@ -146,7 +134,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->grammar_name(@_) }};
+    push @statements, sub { Grammar::Perl6->grammar_name(@_) };
 *{'condition_rule'} = 
 sub {
     my $grammar = shift;
@@ -162,31 +150,31 @@ sub {
            )
 ,         concat( 
            optional(
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
            )
 ,           concat( 
                constant( '(' )
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
                    capture( 'condition', 
-         sub { ${ $grammar->term1( @_ ) } }
+         sub {  $grammar->term1( @_ ) } 
                    )
 ,                 concat( 
                    optional(
-                     sub { ${ $grammar->p6ws( @_ ) } }
+                     sub {  $grammar->p6ws( @_ ) } 
                    )
 ,                   concat( 
                        constant( ')' )
 ,                     concat( 
                        optional(
-                         sub { ${ $grammar->p6ws( @_ ) } }
+                         sub {  $grammar->p6ws( @_ ) } 
                        )
 ,                       concat( 
                            capture( 'then', 
-         sub { ${ $grammar->block( @_ ) } }
+         sub {  $grammar->block( @_ ) } 
                            )
 ,                           abort(
                                sub {
@@ -206,7 +194,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->condition_rule(@_) }};
+    push @statements, sub { Grammar::Perl6->condition_rule(@_) };
 *{'meth_call_term'} = 
 sub {
     my $grammar = shift;
@@ -215,35 +203,35 @@ sub {
     rule_wrapper( $_[0], 
        concat( 
            capture( 'class', 
-         sub { ${ $grammar->ident( @_ ) } }
+         sub {  $grammar->ident( @_ ) } 
            )
 ,         concat( 
              constant( '.' )
 ,           concat( 
                capture( 'meth', 
-         sub { ${ $grammar->word( @_ ) } }
+         sub {  $grammar->word( @_ ) } 
                )
 ,             concat( 
                  constant( '(' )
 ,               concat( 
                  optional(
-                   sub { ${ $grammar->p6ws( @_ ) } }
+                   sub {  $grammar->p6ws( @_ ) } 
                  )
 ,                 concat( 
                      capture( 'params', 
        optional(
-         sub { ${ $grammar->list( @_ ) } }
+         sub {  $grammar->list( @_ ) } 
        )
                      )
 ,                   concat( 
                      optional(
-                       sub { ${ $grammar->p6ws( @_ ) } }
+                       sub {  $grammar->p6ws( @_ ) } 
                      )
 ,                     concat( 
                          constant( ')' )
 ,                       concat( 
                          optional(
-                           sub { ${ $grammar->p6ws( @_ ) } }
+                           sub {  $grammar->p6ws( @_ ) } 
                          )
 ,                           abort(
                                sub {
@@ -271,35 +259,35 @@ sub {
     rule_wrapper( $_[0], 
        concat( 
            capture( 'class', 
-         sub { ${ $grammar->ident( @_ ) } }
+         sub {  $grammar->ident( @_ ) } 
            )
 ,         concat( 
              constant( '.' )
 ,           concat( 
                capture( 'meth', 
-         sub { ${ $grammar->word( @_ ) } }
+         sub {  $grammar->word( @_ ) } 
                )
 ,             concat( 
                  constant( '(' )
 ,               concat( 
                  optional(
-                   sub { ${ $grammar->p6ws( @_ ) } }
+                   sub {  $grammar->p6ws( @_ ) } 
                  )
 ,                 concat( 
                      capture( 'params', 
        optional(
-         sub { ${ $grammar->list( @_ ) } }
+         sub {  $grammar->list( @_ ) } 
        )
                      )
 ,                   concat( 
                      optional(
-                       sub { ${ $grammar->p6ws( @_ ) } }
+                       sub {  $grammar->p6ws( @_ ) } 
                      )
 ,                     concat( 
                          constant( ')' )
 ,                       concat( 
                          optional(
-                           sub { ${ $grammar->p6ws( @_ ) } }
+                           sub {  $grammar->p6ws( @_ ) } 
                          )
 ,                         concat( 
                              constant( ';' )
@@ -322,8 +310,8 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->meth_call_statement(@_) }};
-    push @terms, sub { ${Grammar::Perl6->meth_call_term(@_) }};
+    push @statements, sub { Grammar::Perl6->meth_call_statement(@_) };
+    push @terms, sub { Grammar::Perl6->meth_call_term(@_) };
 *{'sub_call_term'} = 
 sub {
     my $grammar = shift;
@@ -332,29 +320,29 @@ sub {
     rule_wrapper( $_[0], 
        concat( 
            capture( 'name', 
-         sub { ${ $grammar->ident( @_ ) } }
+         sub {  $grammar->ident( @_ ) } 
            )
 ,         concat( 
              constant( '(' )
 ,           concat( 
              optional(
-               sub { ${ $grammar->p6ws( @_ ) } }
+               sub {  $grammar->p6ws( @_ ) } 
              )
 ,             concat( 
                  capture( 'params', 
        optional(
-         sub { ${ $grammar->list( @_ ) } }
+         sub {  $grammar->list( @_ ) } 
        )
                  )
 ,               concat( 
                  optional(
-                   sub { ${ $grammar->p6ws( @_ ) } }
+                   sub {  $grammar->p6ws( @_ ) } 
                  )
 ,                 concat( 
                      constant( ')' )
 ,                   concat( 
                      optional(
-                       sub { ${ $grammar->p6ws( @_ ) } }
+                       sub {  $grammar->p6ws( @_ ) } 
                      )
 ,                       abort(
                            sub {
@@ -380,33 +368,33 @@ sub {
     rule_wrapper( $_[0], 
        concat( 
            capture( 'name', 
-         sub { ${ $grammar->ident( @_ ) } }
+         sub {  $grammar->ident( @_ ) } 
            )
 ,         concat( 
            optional(
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
            )
 ,           concat( 
                constant( '(' )
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
                    capture( 'params', 
        optional(
-         sub { ${ $grammar->list( @_ ) } }
+         sub {  $grammar->list( @_ ) } 
        )
                    )
 ,                 concat( 
                    optional(
-                     sub { ${ $grammar->p6ws( @_ ) } }
+                     sub {  $grammar->p6ws( @_ ) } 
                    )
 ,                   concat( 
                        constant( ')' )
 ,                     concat( 
                        optional(
-                         sub { ${ $grammar->p6ws( @_ ) } }
+                         sub {  $grammar->p6ws( @_ ) } 
                        )
 ,                       concat( 
                            constant( ';' )
@@ -428,8 +416,8 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->sub_call_statement(@_) }};
-    push @terms, sub { ${Grammar::Perl6->sub_call_term(@_) }};
+    push @statements, sub { Grammar::Perl6->sub_call_statement(@_) };
+    push @terms, sub { Grammar::Perl6->sub_call_term(@_) };
 *{'access_hashref_element'} = 
 sub {
     my $grammar = shift;
@@ -438,13 +426,13 @@ sub {
     rule_wrapper( $_[0], 
        concat( 
            capture( 'variable', 
-         sub { ${ $grammar->varscalar( @_ ) } }
+         sub {  $grammar->varscalar( @_ ) } 
            )
 ,         concat( 
              constant( '{' )
 ,           concat( 
                capture( 'key', 
-         sub { ${ $grammar->term1( @_ ) } }
+         sub {  $grammar->term1( @_ ) } 
                )
 ,             concat( 
                  constant( '}' )
@@ -461,8 +449,8 @@ sub {
     );
 }
 ;
-    push @terms, sub { ${Grammar::Perl6->access_hashref_element(@_) }};
-    push @statements, sub { ${Grammar::Perl6->access_hashref_element(@_) }};
+    push @terms, sub { Grammar::Perl6->access_hashref_element(@_) };
+    push @statements, sub { Grammar::Perl6->access_hashref_element(@_) };
 *{'access_hash_element'} = 
 sub {
     my $grammar = shift;
@@ -471,13 +459,13 @@ sub {
     rule_wrapper( $_[0], 
        concat( 
            capture( 'variable', 
-         sub { ${ $grammar->varhash( @_ ) } }
+         sub {  $grammar->varhash( @_ ) } 
            )
 ,         concat( 
              constant( '{' )
 ,           concat( 
                capture( 'key', 
-         sub { ${ $grammar->term1( @_ ) } }
+         sub {  $grammar->term1( @_ ) } 
                )
 ,             concat( 
                  constant( '}' )
@@ -494,8 +482,8 @@ sub {
     );
 }
 ;
-    push @terms, sub { ${Grammar::Perl6->access_hash_element(@_) }};
-    push @statements, sub { ${Grammar::Perl6->access_hash_element(@_) }};
+    push @terms, sub { Grammar::Perl6->access_hash_element(@_) };
+    push @statements, sub { Grammar::Perl6->access_hash_element(@_) };
 *{'assign_hash_to_scalar'} = 
 sub {
     my $grammar = shift;
@@ -504,25 +492,25 @@ sub {
     rule_wrapper( $_[0], 
        concat( 
            capture( 'variable', 
-         sub { ${ $grammar->varscalar( @_ ) } }
+         sub {  $grammar->varscalar( @_ ) } 
            )
 ,         concat( 
            optional(
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
            )
 ,           concat( 
                constant( '=' )
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
                    capture( 'value', 
-         sub { ${ $grammar->varhash( @_ ) } }
+         sub {  $grammar->varhash( @_ ) } 
                    )
 ,                 concat( 
                    optional(
-                     sub { ${ $grammar->p6ws( @_ ) } }
+                     sub {  $grammar->p6ws( @_ ) } 
                    )
 ,                   concat( 
                        constant( ';' )
@@ -542,7 +530,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->assign_hash_to_scalar(@_) }};
+    push @statements, sub { Grammar::Perl6->assign_hash_to_scalar(@_) };
 *{'assign_slurp_to_variable'} = 
 sub {
     my $grammar = shift;
@@ -551,31 +539,31 @@ sub {
     rule_wrapper( $_[0], 
        concat( 
            capture( 'variable', 
-         sub { ${ $grammar->variable( @_ ) } }
+         sub {  $grammar->variable( @_ ) } 
            )
 ,         concat( 
            optional(
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
            )
 ,           concat( 
                constant( '=' )
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
                    constant( "slurp" )
 ,                 concat( 
                    optional(
-                     sub { ${ $grammar->p6ws( @_ ) } }
+                     sub {  $grammar->p6ws( @_ ) } 
                    )
 ,                   concat( 
                        capture( 'value', 
-         sub { ${ $grammar->term1( @_ ) } }
+         sub {  $grammar->term1( @_ ) } 
                        )
 ,                     concat( 
                        optional(
-                         sub { ${ $grammar->p6ws( @_ ) } }
+                         sub {  $grammar->p6ws( @_ ) } 
                        )
 ,                       concat( 
                            constant( ';' )
@@ -597,7 +585,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->assign_slurp_to_variable(@_) }};
+    push @statements, sub { Grammar::Perl6->assign_slurp_to_variable(@_) };
 *{'assign_open_to_variable'} = 
 sub {
     my $grammar = shift;
@@ -606,31 +594,31 @@ sub {
     rule_wrapper( $_[0], 
        concat( 
            capture( 'variable', 
-         sub { ${ $grammar->variable( @_ ) } }
+         sub {  $grammar->variable( @_ ) } 
            )
 ,         concat( 
            optional(
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
            )
 ,           concat( 
                constant( '=' )
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
                    constant( "open" )
 ,                 concat( 
                    optional(
-                     sub { ${ $grammar->p6ws( @_ ) } }
+                     sub {  $grammar->p6ws( @_ ) } 
                    )
 ,                   concat( 
                        capture( 'value', 
-         sub { ${ $grammar->term1( @_ ) } }
+         sub {  $grammar->term1( @_ ) } 
                        )
 ,                     concat( 
                        optional(
-                         sub { ${ $grammar->p6ws( @_ ) } }
+                         sub {  $grammar->p6ws( @_ ) } 
                        )
 ,                       concat( 
                            constant( ';' )
@@ -652,7 +640,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->assign_open_to_variable(@_) }};
+    push @statements, sub { Grammar::Perl6->assign_open_to_variable(@_) };
 *{'assign'} = 
 sub {
     my $grammar = shift;
@@ -661,25 +649,25 @@ sub {
     rule_wrapper( $_[0], 
        concat( 
            capture( 'variable', 
-         sub { ${ $grammar->term1( @_ ) } }
+         sub {  $grammar->term1( @_ ) } 
            )
 ,         concat( 
            optional(
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
            )
 ,           concat( 
                constant( '=' )
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
                    capture( 'value', 
-         sub { ${ $grammar->term1( @_ ) } }
+         sub {  $grammar->term1( @_ ) } 
                    )
 ,                 concat( 
                    optional(
-                     sub { ${ $grammar->p6ws( @_ ) } }
+                     sub {  $grammar->p6ws( @_ ) } 
                    )
 ,                   concat( 
                        constant( ';' )
@@ -699,7 +687,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->assign(@_) }};
+    push @statements, sub { Grammar::Perl6->assign(@_) };
 *{'sub_call'} = 
 sub {
     my $grammar = shift;
@@ -708,33 +696,33 @@ sub {
     rule_wrapper( $_[0], 
        concat( 
            capture( 'name', 
-         sub { ${ $grammar->ident( @_ ) } }
+         sub {  $grammar->ident( @_ ) } 
            )
 ,         concat( 
            optional(
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
            )
 ,           concat( 
                constant( '(' )
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
                    capture( 'params', 
        optional(
-         sub { ${ $grammar->list( @_ ) } }
+         sub {  $grammar->list( @_ ) } 
        )
                    )
 ,                 concat( 
                    optional(
-                     sub { ${ $grammar->p6ws( @_ ) } }
+                     sub {  $grammar->p6ws( @_ ) } 
                    )
 ,                   concat( 
                        constant( ')' )
 ,                     concat( 
                        optional(
-                         sub { ${ $grammar->p6ws( @_ ) } }
+                         sub {  $grammar->p6ws( @_ ) } 
                        )
 ,                       concat( 
                            constant( ';' )
@@ -756,8 +744,8 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->sub_call(@_) }};
-    push @terms, sub { ${Grammar::Perl6->sub_call(@_) }};
+    push @statements, sub { Grammar::Perl6->sub_call(@_) };
+    push @terms, sub { Grammar::Perl6->sub_call(@_) };
 *{'_push'} = 
 sub {
     my $grammar = shift;
@@ -772,18 +760,18 @@ sub {
        ] )
            )
 ,         concat( 
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
 ,           concat( 
-               sub { ${ $grammar->variable( @_ ) } }
+               sub {  $grammar->variable( @_ ) } 
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
                    constant( ',' )
 ,                 concat( 
                    optional(
-                     sub { ${ $grammar->p6ws( @_ ) } }
+                     sub {  $grammar->p6ws( @_ ) } 
                    )
 ,                   concat( 
                        capture( 'code', 
@@ -795,7 +783,7 @@ sub {
                        )
 ,                     concat( 
                        optional(
-                         sub { ${ $grammar->p6ws( @_ ) } }
+                         sub {  $grammar->p6ws( @_ ) } 
                        )
 ,                       concat( 
                            constant( ';' )
@@ -817,7 +805,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->_push(@_) }};
+    push @statements, sub { Grammar::Perl6->_push(@_) };
 *{'pod'} = 
 sub {
     my $grammar = shift;
@@ -854,7 +842,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->pod(@_) }};
+    push @statements, sub { Grammar::Perl6->pod(@_) };
 *{'use_v6'} = 
 sub {
     my $grammar = shift;
@@ -864,7 +852,7 @@ sub {
        concat( 
            constant( "use" )
 ,         concat( 
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
 ,           concat( 
                constant( "v6" )
 ,             concat( 
@@ -873,7 +861,7 @@ sub {
                    constant( "pugs" )
 ,                 concat( 
                    optional(
-                     sub { ${ $grammar->p6ws( @_ ) } }
+                     sub {  $grammar->p6ws( @_ ) } 
                    )
 ,                     constant( ';' )
                  )
@@ -886,7 +874,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->use_v6(@_) }};
+    push @statements, sub { Grammar::Perl6->use_v6(@_) };
 *{'require'} = 
 sub {
     my $grammar = shift;
@@ -896,12 +884,12 @@ sub {
        concat( 
            constant( "require" )
 ,         concat( 
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
 ,           concat( 
-               sub { ${ $grammar->ident( @_ ) } }
+               sub {  $grammar->ident( @_ ) } 
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
                    constant( ';' )
@@ -924,7 +912,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->require(@_) }};
+    push @statements, sub { Grammar::Perl6->require(@_) };
 *{'use_rule'} = 
 sub {
     my $grammar = shift;
@@ -934,12 +922,12 @@ sub {
        concat( 
            constant( "use" )
 ,         concat( 
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
 ,           concat( 
-               sub { ${ $grammar->ident( @_ ) } }
+               sub {  $grammar->ident( @_ ) } 
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
                    constant( ';' )
@@ -948,7 +936,7 @@ sub {
                            return { bool => 1, tail => $_[0], return => sub { 
 		# XXX This is perl5 code
 		# this is ugly
-		eval 'use '. $_[0]->() ->[2]{ident}[0]{ident};
+		# eval 'use '. $_[0]->() ->[2]{ident}[0]{ident};
 		return { use_bareword =>  $_[0]->()  ,} 
 	} };
                        }
@@ -962,7 +950,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->use_rule(@_) }};
+    push @statements, sub { Grammar::Perl6->use_rule(@_) };
 *{'term1'} = 
 sub {
     my $grammar = shift;
@@ -983,22 +971,22 @@ sub {
        concat( 
          greedy_star(
            concat( 
-               sub { ${ $grammar->term1( @_ ) } }
+               sub {  $grammar->term1( @_ ) } 
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
                    constant( ',' )
 ,                 optional(
-                   sub { ${ $grammar->p6ws( @_ ) } }
+                   sub {  $grammar->p6ws( @_ ) } 
                  )
                )
              )
            )
          )
 ,         optional(
-           sub { ${ $grammar->term1( @_ ) } }
+           sub {  $grammar->term1( @_ ) } 
          )
        )
         ->( $_[0], undef, $tree, $tree )
@@ -1018,7 +1006,7 @@ sub {
        greedy_star(
          concat( 
            optional(
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
            )
 ,             alternation( \@statements )
          )
@@ -1026,7 +1014,7 @@ sub {
              )
 ,           concat( 
              optional(
-               sub { ${ $grammar->p6ws( @_ ) } }
+               sub {  $grammar->p6ws( @_ ) } 
              )
 ,             concat( 
                  constant( '}' )
@@ -1043,7 +1031,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->block(@_) }};
+    push @statements, sub { Grammar::Perl6->block(@_) };
 *{'macro_decl'} = 
 sub {
     my $grammar = shift;
@@ -1053,10 +1041,10 @@ sub {
        concat( 
            constant( "macro" )
 ,         concat( 
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
 ,           concat( 
                capture( 'prefix', 
-         sub { ${ $grammar->word( @_ ) } }
+         sub {  $grammar->word( @_ ) } 
                )
 ,             concat( 
                  constant( ':' )
@@ -1074,70 +1062,70 @@ sub {
                        constant( '>' )
 ,                     concat( 
                        optional(
-                         sub { ${ $grammar->p6ws( @_ ) } }
+                         sub {  $grammar->p6ws( @_ ) } 
                        )
 ,                       concat( 
                            constant( '(' )
 ,                         concat( 
                            optional(
-                             sub { ${ $grammar->p6ws( @_ ) } }
+                             sub {  $grammar->p6ws( @_ ) } 
                            )
 ,                           concat( 
                              optional(
-                               sub { ${ $grammar->list( @_ ) } }
+                               sub {  $grammar->list( @_ ) } 
                              )
 ,                             concat( 
                                optional(
-                                 sub { ${ $grammar->p6ws( @_ ) } }
+                                 sub {  $grammar->p6ws( @_ ) } 
                                )
 ,                               concat( 
                                    constant( ')' )
 ,                                 concat( 
                                    optional(
-                                     sub { ${ $grammar->p6ws( @_ ) } }
+                                     sub {  $grammar->p6ws( @_ ) } 
                                    )
 ,                                   concat( 
                                        constant( "is" )
 ,                                     concat( 
-                                         sub { ${ $grammar->p6ws( @_ ) } }
+                                         sub {  $grammar->p6ws( @_ ) } 
 ,                                       concat( 
                                            constant( "parsed" )
 ,                                         concat( 
                                            optional(
-                                             sub { ${ $grammar->p6ws( @_ ) } }
+                                             sub {  $grammar->p6ws( @_ ) } 
                                            )
 ,                                           concat( 
                                                constant( '(' )
 ,                                             concat( 
                                                optional(
-                                                 sub { ${ $grammar->p6ws( @_ ) } }
+                                                 sub {  $grammar->p6ws( @_ ) } 
                                                )
 ,                                               concat( 
                                                    constant( '/' )
 ,                                                 concat( 
                                                    optional(
-                                                     sub { ${ $grammar->p6ws( @_ ) } }
+                                                     sub {  $grammar->p6ws( @_ ) } 
                                                    )
 ,                                                   concat( 
-                                                       sub { ${ $grammar->rule( @_ ) } }
+                                                       sub {  $grammar->rule( @_ ) } 
 ,                                                     concat( 
                                                        optional(
-                                                         sub { ${ $grammar->p6ws( @_ ) } }
+                                                         sub {  $grammar->p6ws( @_ ) } 
                                                        )
 ,                                                       concat( 
                                                            constant( '/' )
 ,                                                         concat( 
                                                            optional(
-                                                             sub { ${ $grammar->p6ws( @_ ) } }
+                                                             sub {  $grammar->p6ws( @_ ) } 
                                                            )
 ,                                                           concat( 
                                                                constant( ')' )
 ,                                                             concat( 
                                                                optional(
-                                                                 sub { ${ $grammar->p6ws( @_ ) } }
+                                                                 sub {  $grammar->p6ws( @_ ) } 
                                                                )
 ,                                                               concat( 
-                                                                   sub { ${ $grammar->code( @_ ) } }
+                                                                   sub {  $grammar->code( @_ ) } 
 ,                                                                   abort(
                                                                        sub {
                                                                            return { bool => 1, tail => $_[0], return => sub {
@@ -1181,7 +1169,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->macro_decl(@_) }};
+    push @statements, sub { Grammar::Perl6->macro_decl(@_) };
 *{'empty_list'} = 
 sub {
     my $grammar = shift;
@@ -1203,11 +1191,11 @@ sub {
     );
 }
 ;
-    push @terms, sub { ${Grammar::Perl6->empty_list(@_) }};
-    push @terms, sub { ${Grammar::Perl6->varhash(@_) }};
-    push @terms, sub { ${Grammar::Perl6->varscalar(@_) }};
-    push @terms, sub { ${Grammar::Perl6->variable(@_) }};
-    push @terms, sub { ${Grammar::Perl6->literal(@_) }};
+    push @terms, sub { Grammar::Perl6->empty_list(@_) };
+    push @terms, sub { Grammar::Perl6->varhash(@_) };
+    push @terms, sub { Grammar::Perl6->varscalar(@_) };
+    push @terms, sub { Grammar::Perl6->variable(@_) };
+    push @terms, sub { Grammar::Perl6->literal(@_) };
 *{'_open'} = 
 sub {
     my $grammar = shift;
@@ -1219,12 +1207,12 @@ sub {
          constant( "open" )
            )
 ,         concat( 
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
 ,           concat( 
-               sub { ${ $grammar->varscalar( @_ ) } }
+               sub {  $grammar->varscalar( @_ ) } 
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
                    constant( ';' )
@@ -1242,8 +1230,8 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->_open(@_) }};
-    push @terms, sub { ${Grammar::Perl6->_open(@_) }};
+    push @statements, sub { Grammar::Perl6->_open(@_) };
+    push @terms, sub { Grammar::Perl6->_open(@_) };
 *{'_print_with_fh'} = 
 sub {
     my $grammar = shift;
@@ -1264,16 +1252,16 @@ sub {
        ] )
            )
 ,         concat( 
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
 ,           concat( 
-               sub { ${ $grammar->indirect_object( @_ ) } }
+               sub {  $grammar->indirect_object( @_ ) } 
 ,             concat( 
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
 ,               concat( 
-                   sub { ${ $grammar->list( @_ ) } }
+                   sub {  $grammar->list( @_ ) } 
 ,                 concat( 
                    optional(
-                     sub { ${ $grammar->p6ws( @_ ) } }
+                     sub {  $grammar->p6ws( @_ ) } 
                    )
 ,                   concat( 
                        constant( ';' )
@@ -1293,7 +1281,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->_print_with_fh(@_) }};
+    push @statements, sub { Grammar::Perl6->_print_with_fh(@_) };
 *{'_print'} = 
 sub {
     my $grammar = shift;
@@ -1314,12 +1302,12 @@ sub {
        ] )
            )
 ,         concat( 
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
 ,           concat( 
-               sub { ${ $grammar->list( @_ ) } }
+               sub {  $grammar->list( @_ ) } 
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
                    constant( ';' )
@@ -1337,7 +1325,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->_print(@_) }};
+    push @statements, sub { Grammar::Perl6->_print(@_) };
 *{'_my'} = 
 sub {
     my $grammar = shift;
@@ -1355,12 +1343,12 @@ sub {
        ] )
            )
 ,         concat( 
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
 ,           concat( 
-               sub { ${ $grammar->variable( @_ ) } }
+               sub {  $grammar->variable( @_ ) } 
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
                    constant( ';' )
@@ -1378,7 +1366,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->_my(@_) }};
+    push @statements, sub { Grammar::Perl6->_my(@_) };
 *{'_simple_statement'} = 
 sub {
     my $grammar = shift;
@@ -1411,7 +1399,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->_simple_statement(@_) }};
+    push @statements, sub { Grammar::Perl6->_simple_statement(@_) };
 *{'sub_decl'} = 
 sub {
     my $grammar = shift;
@@ -1421,7 +1409,7 @@ sub {
        concat( 
            constant( "sub" )
 ,         concat( 
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
 ,           concat( 
                capture( 'fix', 
        alternation( [
@@ -1448,10 +1436,10 @@ sub {
                        constant( '>' )
 ,                     concat( 
                        optional(
-                         sub { ${ $grammar->p6ws( @_ ) } }
+                         sub {  $grammar->p6ws( @_ ) } 
                        )
 ,                       concat( 
-                           sub { ${ $grammar->block( @_ ) } }
+                           sub {  $grammar->block( @_ ) } 
 ,                           abort(
                                sub {
                                    return { bool => 1, tail => $_[0], return => sub { return { sub_decl =>  $_[0]->()  ,} } };
@@ -1470,7 +1458,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->sub_decl(@_) }};
+    push @statements, sub { Grammar::Perl6->sub_decl(@_) };
 *{'sub_defin'} = 
 sub {
     my $grammar = shift;
@@ -1481,16 +1469,16 @@ sub {
            constant( "sub" )
 ,         concat( 
            optional(
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
            )
 ,           concat( 
-               sub { ${ $grammar->ident( @_ ) } }
+               sub {  $grammar->ident( @_ ) } 
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
-                   sub { ${ $grammar->block( @_ ) } }
+                   sub {  $grammar->block( @_ ) } 
 ,                   abort(
                        sub {
                            return { bool => 1, tail => $_[0], return => sub { return { sub_defin =>  $_[0]->()  ,} } };
@@ -1505,7 +1493,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->sub_defin(@_) }};
+    push @statements, sub { Grammar::Perl6->sub_defin(@_) };
 *{'term2'} = 
 sub {
     my $grammar = shift;
@@ -1514,11 +1502,11 @@ sub {
     rule_wrapper( $_[0], 
        concat( 
            capture( 'term1', 
-         sub { ${ $grammar->term1( @_ ) } }
+         sub {  $grammar->term1( @_ ) } 
            )
 ,         concat( 
            optional(
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
            )
 ,           concat( 
                capture( 'op', 
@@ -1526,11 +1514,11 @@ sub {
                )
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
                    capture( 'term2', 
-         sub { ${ $grammar->term1( @_ ) } }
+         sub {  $grammar->term1( @_ ) } 
                    )
 ,                   abort(
                        sub {
@@ -1555,13 +1543,13 @@ sub {
        concat( 
            capture( 'term1', 
        alternation( [
-           sub { ${ $grammar->term1( @_ ) } }
-,           sub { ${ $grammar->term2( @_ ) } }
+           sub {  $grammar->term1( @_ ) } 
+,           sub {  $grammar->term2( @_ ) } 
        ] )
            )
 ,         concat( 
            optional(
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
            )
 ,           concat( 
                capture( 'op', 
@@ -1569,18 +1557,18 @@ sub {
                )
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
                    capture( 'term2', 
        alternation( [
-           sub { ${ $grammar->term1( @_ ) } }
-,           sub { ${ $grammar->term2( @_ ) } }
+           sub {  $grammar->term1( @_ ) } 
+,           sub {  $grammar->term2( @_ ) } 
        ] )
                    )
 ,                 concat( 
                    optional(
-                     sub { ${ $grammar->p6ws( @_ ) } }
+                     sub {  $grammar->p6ws( @_ ) } 
                    )
 ,                   concat( 
                        constant( ';' )
@@ -1600,7 +1588,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->sub_application(@_) }};
+    push @statements, sub { Grammar::Perl6->sub_application(@_) };
 *{'eval_perl5'} = 
 sub {
     my $grammar = shift;
@@ -1611,25 +1599,25 @@ sub {
            constant( "eval" )
 ,         concat( 
            optional(
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
            )
 ,           concat( 
                constant( '(' )
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
-                   sub { ${ $grammar->literal( @_ ) } }
+                   sub {  $grammar->literal( @_ ) } 
 ,                 concat( 
                    optional(
-                     sub { ${ $grammar->p6ws( @_ ) } }
+                     sub {  $grammar->p6ws( @_ ) } 
                    )
 ,                   concat( 
                        constant( ',' )
 ,                     concat( 
                        optional(
-                         sub { ${ $grammar->p6ws( @_ ) } }
+                         sub {  $grammar->p6ws( @_ ) } 
                        )
 ,                       concat( 
                            constant( ':' )
@@ -1643,13 +1631,13 @@ sub {
                                    constant( '>' )
 ,                                 concat( 
                                    optional(
-                                     sub { ${ $grammar->p6ws( @_ ) } }
+                                     sub {  $grammar->p6ws( @_ ) } 
                                    )
 ,                                   concat( 
                                        constant( ')' )
 ,                                     concat( 
                                        optional(
-                                         sub { ${ $grammar->p6ws( @_ ) } }
+                                         sub {  $grammar->p6ws( @_ ) } 
                                        )
 ,                                       concat( 
                                            constant( ';' )
@@ -1679,7 +1667,7 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->eval_perl5(@_) }};
+    push @statements, sub { Grammar::Perl6->eval_perl5(@_) };
 *{'_return'} = 
 sub {
     my $grammar = shift;
@@ -1689,17 +1677,17 @@ sub {
        concat( 
            constant( "return" )
 ,         concat( 
-             sub { ${ $grammar->p6ws( @_ ) } }
+             sub {  $grammar->p6ws( @_ ) } 
 ,           concat( 
                capture( 'val', 
        alternation( [
-           sub { ${ $grammar->term1( @_ ) } }
-,           sub { ${ $grammar->term2( @_ ) } }
+           sub {  $grammar->term1( @_ ) } 
+,           sub {  $grammar->term2( @_ ) } 
        ] )
                )
 ,             concat( 
                optional(
-                 sub { ${ $grammar->p6ws( @_ ) } }
+                 sub {  $grammar->p6ws( @_ ) } 
                )
 ,               concat( 
                    constant( ';' )
@@ -1717,4 +1705,4 @@ sub {
     );
 }
 ;
-    push @statements, sub { ${Grammar::Perl6->_return(@_) }};
+    push @statements, sub { Grammar::Perl6->_return(@_) };

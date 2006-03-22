@@ -1,4 +1,4 @@
-LREP:=perl -I../Pugs-Compiler-Rule/lib lrep
+LREP:=echo 'Do Not run it now' && exit 1 && perl -I../Pugs-Compiler-Rule/lib lrep
 
 all: prelude tests lrep
 
