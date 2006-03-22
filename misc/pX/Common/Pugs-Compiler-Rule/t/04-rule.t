@@ -110,6 +110,7 @@ no warnings qw( once );
 
 {
     # return in subrule should not abort main rule
+    # XXX - is this /a? bg?/ or /a? b g?/
     my $rule = Pugs::Compiler::Rule->compile( 'a?bg?');
     my $match = $rule->match("cdtbprw");
     is("$match","b",'return should not abort main rule');
