@@ -1,5 +1,7 @@
 
-use Test::More tests => 19;
+use Test::More tests => 20;
+use Data::Dumper;
+$Data::Dumper::Indent = 1;
 
 use_ok( 'Pugs::Compiler::Rule' );
 no warnings qw( once );
@@ -133,6 +135,7 @@ no warnings qw( once );
     # capture
     my $rule = Pugs::Compiler::Rule->compile('some (text) { return { a => $() ,} } ');
     my $match = $rule->match("sometext");
+    #print Dumper($match);
     my $capture = $match->();
     is($capture->{a},'sometext','simple capture');
 }

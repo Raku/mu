@@ -146,6 +146,16 @@ sub concat {
 
             # XXX - cleanup!
             my $match2 = { %{$matches[1]} };
+
+            if ( defined $match2->{tail} ) {
+                my $len = length( $match2->{tail} );
+                my $head = $len?substr($_[0], 0, -$len):$_[0];
+                $match2->{capture} = $head;  
+            }
+            else {
+                $match2->{capture} = $_[0];
+            }
+
             $match2->{match} = \@matches;
             $match2->{state} = $succ;
             delete $match2->{label};
