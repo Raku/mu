@@ -2,7 +2,7 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0x5AE880FD or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0x457B2B60 or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
 *{'Pugs::Grammar::Rule::p6ws'} = sub {
@@ -85,11 +85,11 @@ sub {
     )
 };
     unshift @Pugs::Grammar::Rule::rule_terms, 'dot';
-*{'Pugs::Grammar::Rule::_word'} = sub {
+*{'Pugs::Grammar::Rule::_word_char'} = sub {
     my $grammar = shift;
     #warn "rule argument is undefined" unless defined $_[0];
     $_[0] = "" unless defined $_[0];
-    my $bool = $_[0] =~ /^([_[:alnum:]]+)(.*)$/sx;
+    my $bool = $_[0] =~ /^([[:alnum:]])(.*)$/sx;
     return {
         bool  => $bool,
         match => $1,
@@ -104,11 +104,11 @@ sub {
     package Pugs::Runtime::Rule;
     rule_wrapper( $_[0], (
         concat(
-          capture( '_word', sub{ $grammar->_word(@_) } )
+          capture( '_word_char', sub{ $grammar->_word_char(@_) } )
         ,
           Pugs::Runtime::Rule::abort(
               sub {
-                  return { bool => 1, tail => $_[0], return => sub { return { 'constant' => $_[0]{_word}() ,} } };
+                  return { bool => 1, tail => $_[0], return => sub { return { 'constant' => $_[0]{_word_char}() ,} } };
               }
           )
         ,
