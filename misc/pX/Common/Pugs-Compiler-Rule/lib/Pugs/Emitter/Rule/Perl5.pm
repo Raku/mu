@@ -207,6 +207,15 @@ sub metasyntax {
         return 
             "$_[1] constant( q($cmd) )\n";
     }
+    if ( $prefix eq q(") ) {   # interpolated literal 
+        $cmd = substr( $cmd, 1, -1 );
+        warn "<\"...\"> not implemented";
+        return;
+    }
+    if ( $prefix =~ /[-+[]/ ) {   # character class 
+        warn "character classes not implemented";
+        return;
+    }
     if ( $prefix eq '?' ) {   # non_capturing_subrule 
         $cmd = substr( $cmd, 1 );
         return call_subrule( $cmd, $_[1] );
