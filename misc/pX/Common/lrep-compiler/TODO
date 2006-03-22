@@ -3,6 +3,10 @@ OUTSTANDING PROBLEMS
 It is broken by now... migration to P::C::R is incomplete.
 You can help just by making it work again...
 
+Grammar/Perl6.pm is hand-manipulated by now...
+
+The problem is in the rule's closures... the capture is not ok.
+
 THE REAL MISSION IS TO SELF-HOST LREP
 
 Already in Perl 6:
@@ -12,6 +16,7 @@ Already in Perl 6:
 
 Still in Perl 5:
 Rule Closures in ./Grammar/Perl6.p6 are just filtered, not compiled
+Grammar/Perl6Init.pm
 ./Emitter/Perl5.pm
 P::C::R must be translated also
 

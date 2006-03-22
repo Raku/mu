@@ -957,7 +957,7 @@ sub {
     package Pugs::Runtime::Rule;
     my $tree;
     rule_wrapper( $_[0], 
-         alternation( \@terms )
+         alternation( \@Grammar::Perl6::terms )
         ->( $_[0], undef, $tree, $tree )
     );
 }
