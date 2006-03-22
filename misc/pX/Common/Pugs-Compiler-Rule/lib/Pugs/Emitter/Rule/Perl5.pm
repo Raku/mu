@@ -218,6 +218,10 @@ sub metasyntax {
             call_subrule( $_[0], $_[1]."  " ) .
             "$_[1] )\n";;
     }
+    if ( $cmd eq '.' ) {
+            warn "<$cmd> not implemented";
+            return;
+    }
     if ( $prefix =~ /[_[:alnum:]]/ ) {  
         if ( $cmd =~ /^before\s+(.*)/s ) {
             warn "<before ...> not implemented";
@@ -228,7 +232,19 @@ sub metasyntax {
             return;
         }
         if ( $cmd eq 'cut' ) {
-            warn "<cut> not implemented";
+            warn "<$cmd> not implemented";
+            return;
+        }
+        if ( $cmd eq 'commit' ) {
+            warn "<$cmd> not implemented";
+            return;
+        }
+        if ( $cmd eq 'prior' ) {
+            warn "<$cmd> not implemented";
+            return;
+        }
+        if ( $cmd eq 'null' ) {
+            warn "<$cmd> not implemented";
             return;
         }
         # capturing subrule
