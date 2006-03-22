@@ -104,15 +104,15 @@ no warnings qw( once );
 {
     # escaped chars
     my $rule = Pugs::Compiler::Rule->compile( '\d' );
-    my $match = $rule->match( "4\nxy12" );
-    is( "$match", "4", 'escaped char \\d' );
+    my $match = $rule->match( "abc123" );
+    is( "$match", "1", 'escaped char \\d' );
 }
 
 {
     # escaped chars
     my $rule = Pugs::Compiler::Rule->compile( '\D' );
-    my $match = $rule->match( "abc" );
-    is( "$match", "", 'escaped char \\D' );
+    my $match = $rule->match( "123abc" );
+    is( "$match", "a", 'escaped char \\D' );
 }
 
 {
