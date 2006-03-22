@@ -216,12 +216,20 @@ sub metasyntax {
         warn "character classes not implemented";
         return;
     }
-    if ( $prefix eq '?' ) {   # non_capturing_subrule 
+    if ( $prefix eq '?' ) {   # non_capturing_subrule / code assertion
         $cmd = substr( $cmd, 1 );
+        if ( $cmd =~ /^{/ ) {
+            warn "code assertion not implemented";
+            return;
+        }
         return call_subrule( $cmd, $_[1] );
     }
-    if ( $prefix eq '!' ) {   # negated_subrule 
+    if ( $prefix eq '!' ) {   # negated_subrule / code assertion 
         $cmd = substr( $cmd, 1 );
+        if ( $cmd =~ /^{/ ) {
+            warn "code assertion not implemented";
+            return;
+        }
         return 
             "$_[1] negate( '$_[0]', \n" .
             call_subrule( $_[0], $_[1]."  " ) .

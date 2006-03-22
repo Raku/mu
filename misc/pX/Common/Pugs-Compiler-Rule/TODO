@@ -14,9 +14,9 @@ Priorities:
 
 - :P5 rules
 
-Bugs:
+- add placeholder 'not implemented' messages in the right places
 
-- fix \N
+Bugs:
 
 - $variable should look into the user pad
 
@@ -41,6 +41,8 @@ Related projects:
   - not a priority - p5 could load ready-made YAML from Pugs
 
 Other:
+
+- see 'not implemented' messages in Pugs::Emitter::Rule::Perl5
 
 - migrate Pugs::Grammar::Rule::Rule compilation to PCR
 
