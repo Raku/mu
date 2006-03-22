@@ -52,7 +52,7 @@ sub {
                constant( ':' )
 ,               abort(
                    sub {
-                       return { bool => 1, tail => $_[0], return => sub { return  $_[0]->[varscalar]  } };
+                       return { bool => 1, tail => $_[0], return => sub { return  $_[0]->{varscalar}  } };
                    }
                )
            )
@@ -87,7 +87,7 @@ sub {
                        constant( '}' )
 ,                       abort(
                            sub {
-                               return { bool => 1, tail => $_[0], return => sub { return { rule_decl =>  $_[0]->()  ,} } };
+                               return { bool => 1, tail => $_[0], return => sub { return { rule_decl =>  \@{$_[0]}  ,} } };
                            }
                        )
                    )
@@ -122,7 +122,7 @@ sub {
                    constant( ';' )
 ,                   abort(
                        sub {
-                           return { bool => 1, tail => $_[0], return => sub { return { grammar_name =>  $_[0]->()  ,} } };
+                           return { bool => 1, tail => $_[0], return => sub { return { grammar_name =>  \@{$_[0]}  ,} } };
                        }
                    )
                )
@@ -178,7 +178,7 @@ sub {
                            )
 ,                           abort(
                                sub {
-                                   return { bool => 1, tail => $_[0], return => sub { return { condition =>  $_[0]->()  } } };
+                                   return { bool => 1, tail => $_[0], return => sub { return { condition =>  \@{$_[0]}  } } };
                                }
                            )
                        )
@@ -235,7 +235,7 @@ sub {
                          )
 ,                           abort(
                                sub {
-                                   return { bool => 1, tail => $_[0], return => sub { return { meth_call_term =>  $_[0]->()  } } };
+                                   return { bool => 1, tail => $_[0], return => sub { return { meth_call_term =>  \@{$_[0]}  } } };
                                }
                            )
                        )
@@ -293,7 +293,7 @@ sub {
                              constant( ';' )
 ,                             abort(
                                  sub {
-                                     return { bool => 1, tail => $_[0], return => sub { return { meth_call =>  $_[0]->()  } } };
+                                     return { bool => 1, tail => $_[0], return => sub { return { meth_call =>  \@{$_[0]}  } } };
                                  }
                              )
                          )
@@ -346,7 +346,7 @@ sub {
                      )
 ,                       abort(
                            sub {
-                               return { bool => 1, tail => $_[0], return => sub { return { sub_call_term =>  $_[0]->()  } } };
+                               return { bool => 1, tail => $_[0], return => sub { return { sub_call_term =>  \@{$_[0]}  } } };
                            }
                        )
                    )
@@ -400,7 +400,7 @@ sub {
                            constant( ';' )
 ,                           abort(
                                sub {
-                                   return { bool => 1, tail => $_[0], return => sub { return { sub_call =>  $_[0]->()  } } };
+                                   return { bool => 1, tail => $_[0], return => sub { return { sub_call =>  \@{$_[0]}  } } };
                                }
                            )
                        )
@@ -438,7 +438,7 @@ sub {
                  constant( '}' )
 ,                 abort(
                      sub {
-                         return { bool => 1, tail => $_[0], return => sub { return { access_hashref_element =>  $_[0]->()  } } };
+                         return { bool => 1, tail => $_[0], return => sub { return { access_hashref_element =>  \@{$_[0]}  } } };
                      }
                  )
              )
@@ -471,7 +471,7 @@ sub {
                  constant( '}' )
 ,                 abort(
                      sub {
-                         return { bool => 1, tail => $_[0], return => sub { return { access_hash_element =>  $_[0]->()  } } };
+                         return { bool => 1, tail => $_[0], return => sub { return { access_hash_element =>  \@{$_[0]}  } } };
                      }
                  )
              )
@@ -516,7 +516,7 @@ sub {
                        constant( ';' )
 ,                       abort(
                            sub {
-                               return { bool => 1, tail => $_[0], return => sub { return { assign_hash_to_scalar =>  $_[0]->()  } } };
+                               return { bool => 1, tail => $_[0], return => sub { return { assign_hash_to_scalar =>  \@{$_[0]} } } };
                            }
                        )
                    )
@@ -569,7 +569,7 @@ sub {
                            constant( ';' )
 ,                           abort(
                                sub {
-                                   return { bool => 1, tail => $_[0], return => sub { return { slurp =>  $_[0]->()  } } };
+                                   return { bool => 1, tail => $_[0], return => sub { return { slurp =>  \@{$_[0]}  } } };
                                }
                            )
                        )
@@ -624,7 +624,7 @@ sub {
                            constant( ';' )
 ,                           abort(
                                sub {
-                                   return { bool => 1, tail => $_[0], return => sub { return { _open =>  $_[0]->()  } } };
+                                   return { bool => 1, tail => $_[0], return => sub { return { _open =>  \@{$_[0]}  } } };
                                }
                            )
                        )
@@ -673,7 +673,7 @@ sub {
                        constant( ';' )
 ,                       abort(
                            sub {
-                               return { bool => 1, tail => $_[0], return => sub { return { assign =>  $_[0]->()  } } };
+                               return { bool => 1, tail => $_[0], return => sub { return { assign =>  \@{$_[0]}  } } };
                            }
                        )
                    )
@@ -728,7 +728,7 @@ sub {
                            constant( ';' )
 ,                           abort(
                                sub {
-                                   return { bool => 1, tail => $_[0], return => sub { return { sub_call =>  $_[0]->()  } } };
+                                   return { bool => 1, tail => $_[0], return => sub { return { sub_call =>  \@{$_[0]}  } } };
                                }
                            )
                        )
@@ -789,7 +789,7 @@ sub {
                            constant( ';' )
 ,                           abort(
                                sub {
-                                   return { bool => 1, tail => $_[0], return => sub { return { _push =>  $_[0]->()  ,} } };
+                                   return { bool => 1, tail => $_[0], return => sub { return { _push =>  \@{$_[0]}  ,} } };
                                }
                            )
                        )
@@ -1020,7 +1020,7 @@ sub {
                  constant( '}' )
 ,                 abort(
                      sub {
-                         return { bool => 1, tail => $_[0], return => sub { return { block =>  $_[0]->[list]  ,} } };
+                         return { bool => 1, tail => $_[0], return => sub { return { block =>  $_[0]->{list}  ,} } };
                      }
                  )
              )
@@ -1182,7 +1182,7 @@ sub {
              constant( ')' )
 ,             abort(
                  sub {
-                     return { bool => 1, tail => $_[0], return => sub { return { empty_list =>  $_[0]->()  } } };
+                     return { bool => 1, tail => $_[0], return => sub { return { empty_list =>  \@{$_[0]}  } } };
                  }
              )
          )
@@ -1218,7 +1218,7 @@ sub {
                    constant( ';' )
 ,                   abort(
                        sub {
-                           return { bool => 1, tail => $_[0], return => sub { return { _open =>  $_[0]->() , } } };
+                           return { bool => 1, tail => $_[0], return => sub { return { _open =>  \@{$_[0]} , } } };
                        }
                    )
                )
@@ -1267,7 +1267,7 @@ sub {
                        constant( ';' )
 ,                       abort(
                            sub {
-                               return { bool => 1, tail => $_[0], return => sub { return { _print_with_fh =>  $_[0]->()  ,} } };
+                               return { bool => 1, tail => $_[0], return => sub { return { _print_with_fh =>  \@{$_[0]}  ,} } };
                            }
                        )
                    )
@@ -1313,7 +1313,7 @@ sub {
                    constant( ';' )
 ,                   abort(
                        sub {
-                           return { bool => 1, tail => $_[0], return => sub { return { _print =>  $_[0]->()  ,} } };
+                           return { bool => 1, tail => $_[0], return => sub { return { _print =>  \@{$_[0]}  ,} } };
                        }
                    )
                )
@@ -1354,7 +1354,7 @@ sub {
                    constant( ';' )
 ,                   abort(
                        sub {
-                           return { bool => 1, tail => $_[0], return => sub { return { _my =>  $_[0]->()  ,} } };
+                           return { bool => 1, tail => $_[0], return => sub { return { _my =>  \@{$_[0]}  ,} } };
                        }
                    )
                )
@@ -1390,7 +1390,7 @@ sub {
              constant( ';' )
 ,             abort(
                  sub {
-                     return { bool => 1, tail => $_[0], return => sub { return { _simple_statement =>  $_[0]->()  ,} } };
+                     return { bool => 1, tail => $_[0], return => sub { return { _simple_statement =>  \@{$_[0]}  ,} } };
                  }
              )
          )
@@ -1442,7 +1442,7 @@ sub {
                            sub {  $grammar->block( @_ ) } 
 ,                           abort(
                                sub {
-                                   return { bool => 1, tail => $_[0], return => sub { return { sub_decl =>  $_[0]->()  ,} } };
+                                   return { bool => 1, tail => $_[0], return => sub { return { sub_decl =>  \@{$_[0]}  ,} } };
                                }
                            )
                        )
@@ -1481,7 +1481,7 @@ sub {
                    sub {  $grammar->block( @_ ) } 
 ,                   abort(
                        sub {
-                           return { bool => 1, tail => $_[0], return => sub { return { sub_defin =>  $_[0]->()  ,} } };
+                           return { bool => 1, tail => $_[0], return => sub { return { sub_defin =>  \@{$_[0]}  ,} } };
                        }
                    )
                )
@@ -1522,7 +1522,7 @@ sub {
                    )
 ,                   abort(
                        sub {
-                           return { bool => 1, tail => $_[0], return => sub { return { sub_application_term =>  $_[0]->()  ,} } };
+                           return { bool => 1, tail => $_[0], return => sub { return { sub_application_term =>  \@{$_[0]}  ,} } };
                        }
                    )
                )
@@ -1574,7 +1574,7 @@ sub {
                        constant( ';' )
 ,                       abort(
                            sub {
-                               return { bool => 1, tail => $_[0], return => sub { return { sub_application =>  $_[0]->()  ,} } };
+                               return { bool => 1, tail => $_[0], return => sub { return { sub_application =>  \@{$_[0]}  ,} } };
                            }
                        )
                    )
@@ -1693,7 +1693,7 @@ sub {
                    constant( ';' )
 ,                   abort(
                        sub {
-                           return { bool => 1, tail => $_[0], return => sub { return { _return =>  $_[0]->()  ,} } };
+                           return { bool => 1, tail => $_[0], return => sub { return { _return =>  \@{$_[0]}  ,} } };
                        }
                    )
                )

@@ -58,7 +58,6 @@ use Perl6::Slurp;
 $source = slurp $input_file;
     my $match;
 $match = Grammar::Perl6->grammar($source);
-print Data::Dumper->Dump([$match]);
     my $tail;
 $tail = $match->{'tail'};
 if ($tail) 
@@ -76,6 +75,7 @@ if ($tail)
     my $code;
     my $capture;
 $capture = $match->{'capture'};
+print Data::Dumper->Dump([$capture]);
 $code = Emitter::Perl5::emit($capture);
     my $out_fh;
 open $out_fh, '>', $output_filename;
