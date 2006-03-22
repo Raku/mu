@@ -6,10 +6,7 @@
 package Pugs::Grammar::Rule;
 use strict;
 use warnings;
-no warnings qw( once redefine );
-
-# the main grammar was compiled by a broken lrep, and it can't inherit yet
-#use base Pugs::Grammar::Base;
+no  warnings qw( once redefine );
 
 use Text::Balanced; 
 use Data::Dumper;
@@ -17,54 +14,49 @@ use Pugs::Runtime::Rule;
 #use Pugs::Runtime::Grammar; -- MOP 
 
 use vars qw( @rule_terms );
+use base 'Pugs::Grammar::Base';
 use Pugs::Grammar::Rule::Rule;   # compiled with lrep
 
 sub code {
-    my $class = shift;
-    return unless $_[0];
+    my $grammar = shift;
+    return $grammar->no_match unless $_[0];
     my ($extracted,$remainder) = Text::Balanced::extract_codeblock( $_[0] );
-    #warn "Testing <code>: #$_[0]#" if $extracted ne '';
-    return { 
+    return Pugs::Runtime::Match->new( { 
         bool  => ( $extracted ne '' ),
         match => $extracted,
         tail  => $remainder,
-    };
+    } );
 }
 
 sub literal {
-    my $class = shift;
-    return unless $_[0];
+    my $grammar = shift;
+    return $grammar->no_match unless $_[0];
     my ($extracted,$remainder) = Text::Balanced::extract_delimited( $_[0], "'" );
     $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
-    return { 
+    return Pugs::Runtime::Match->new( { 
         bool  => ( $extracted ne '' ),
         match => $extracted,
         tail  => $remainder,
-    };
+    } );
 }
 
 sub metasyntax {
-    my $class = shift;
-    return unless $_[0];
+    my $grammar = shift;
+    return $grammar->no_match unless $_[0];
     my ($extracted,$remainder) = Text::Balanced::extract_bracketed( $_[0], "<..>" );
     $extracted = substr( $extracted, 1, -1 ) if length($extracted) > 1;
-    return if $extracted eq '';
-    #die Dumper( $extracted );
-    return { 
-        bool  => 1,
+    return Pugs::Runtime::Match->new( { 
+        bool  => ( $extracted ne '' ),
         match => $extracted,
         tail  => $remainder,
         capture => { metasyntax => $extracted },
-    };
+    } );
 }
 BEGIN {
-unshift @rule_terms, 'metasyntax';
+    unshift @rule_terms, 'metasyntax';
 }
 
 BEGIN {
-    #local $SIG{__WARN__} = sub {};
-    #require Pugs::Grammar::Rule::Rule;
-
     # XXX - currying should be made automatically by <@xxx> runtime
     # curry @rule_terms with Grammar
     @rule_terms = map { 

@@ -12,13 +12,10 @@ $Data::Dumper::Indent = 1;
 # XXX - reuse this sub in metasyntax()
 sub call_subrule {
     my $name = $_[0];
-    $name = "\$grammar->" . $_[0] unless $_[0] =~ /::/;
+    $name = "\$grammar->" . $_[0] unless $_[0] =~ / :: | \. | -> /x;
     return 
         "$_[1] sub{ \n" .
-        # $_[1] . '    warn "Trying $method\n";' . "\n" .
-        # "    my \$match = \n" .
-        "$_[1]     \${ $name( \@_ ) };\n" .
-        # $_[1] . '    warn $match ? "Match\n" : "No match\n";' . "\n" .
+        "$_[1]     $name( \@_ );\n" .
         "$_[1] }\n";
 }
 
@@ -148,8 +145,7 @@ sub match_variable {
     my $code = 
     "    sub { 
         my \$m = Pugs::Runtime::Match->new( \$_[2] );
-        " .  #print \'variable $name:\',Dumper(\$_[2]); 
-        "return constant( \"\$m->[$num]\" )->(\@_);
+        return constant( \"\$m->[$num]\" )->(\@_);
     }";
     $code =~ s/^/$_[1]/mg;
     return "$code\n";
@@ -210,13 +206,13 @@ sub metasyntax {
     if ( $prefix eq '$' ) {
         if ( $cmd =~ /::/ ) {
             # call method in fully qualified $package::var
-            return "$_[1] sub { \${ $cmd->match( \@_ ) } }\n";
+            return "$_[1] sub { $cmd->match( \@_ ) }\n";
         }
         # call method in lexical $var
         return 
             "$_[1] sub { \n" . 
-            "$_[1]     my \$r = Pugs::Runtime::Rule::get_variable( '$cmd' );\n" . 
-            "$_[1]     \${ \$r->match( \@_ ) }\n" .
+            "$_[1]     my \$r = get_variable( '$cmd' );\n" . 
+            "$_[1]     \$r->match( \@_ );\n" .
             "$_[1] }\n";
     }
     if ( $prefix eq q(') ) {   # single quoted literal 
@@ -230,10 +226,10 @@ sub metasyntax {
         if ( $cmd =~ /\./ ) {
             # call other grammar's method
             $cmd =~ s/\./->/;
-            return "$_[1] sub { \${ $cmd( \@_ ) } }\n";
+            return "$_[1] sub { $cmd( \@_ ) }\n";
         }
         # call method in this grammar
-        return "$_[1] sub { \${ \$grammar->$cmd( \@_ ) } }\n";
+        return "$_[1] sub { \$grammar->$cmd( \@_ ) }\n";
     }
     if ( $prefix eq '!' ) {   # negated_subrule 
         $cmd = substr( $cmd, 1 );
@@ -247,10 +243,10 @@ sub metasyntax {
         if ( $cmd =~ /\./ ) {
             # call other grammar's method
             $cmd =~ s/\./->/;
-            return "$_[1] sub { \${ $cmd( \@_ ) } }\n";
+            return "$_[1] sub { $cmd( \@_ ) }\n";
         }
         # call method in this grammar
-        return "$_[1] sub { \${ \$grammar->$cmd( \@_ ) } }\n";
+        return "$_[1] sub { \$grammar->$cmd( \@_ ) }\n";
     }
     die "<$cmd> not implemented";
 }
