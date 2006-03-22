@@ -1,5 +1,5 @@
 
-use Test::More tests => 20;
+use Test::More tests => 22;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -99,6 +99,20 @@ no warnings qw( once );
     my $rule = Pugs::Compiler::Rule->compile( '\n' );
     my $match = $rule->match( "\nxy12" );
     is( "$match", "\n", 'escaped char \\n' );
+}
+
+{
+    # escaped chars
+    my $rule = Pugs::Compiler::Rule->compile( '\d' );
+    my $match = $rule->match( "4\nxy12" );
+    is( "$match", "4", 'escaped char \\d' );
+}
+
+{
+    # escaped chars
+    my $rule = Pugs::Compiler::Rule->compile( '\D' );
+    my $match = $rule->match( "abc" );
+    is( "$match", "", 'escaped char \\D' );
 }
 
 {

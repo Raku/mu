@@ -118,7 +118,7 @@ sub variable {
 }
 sub special_char {
     my $char = substr($_[0],1);
-    for ( qw( r n t e f w ) ) {
+    for ( qw( r n t e f w d ) ) {
         return "$_[1] perl5( '\\$_' )\n" if $char eq $_;
         return "$_[1] perl5( '[^\\$_]' )\n" if $char eq uc($_);
     }
