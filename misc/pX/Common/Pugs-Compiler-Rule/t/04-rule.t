@@ -1,5 +1,5 @@
 
-use Test::More tests => 16;
+use Test::More tests => 17;
 
 use_ok( 'Pugs::Compiler::Rule' );
 no warnings qw( once );
@@ -103,7 +103,14 @@ no warnings qw( once );
     # escaped chars
     my $rule = Pugs::Compiler::Rule->compile( '\N' );
     my $match = $rule->match( "\n\n" );
-    is( "$match", "", 'escaped char \\N' );
+    is( "$match", "x", 'escaped char \\N' );
     $match = $rule->match( "xy12" );
     is( "$match", "x", 'escaped char \\N #2' );
+}
+
+{
+    # return in subrule should not abort main rule
+    my $rule = Pugs::Compiler::Rule->compile( 'a?bg?');
+    my $match = $rule->match("cdtbprw");
+    is("$match","b",'return should not abort main rule');
 }
