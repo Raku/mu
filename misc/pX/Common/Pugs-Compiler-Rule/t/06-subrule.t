@@ -28,16 +28,3 @@ no warnings qw( once );
     is(@{$match->{rule1}}[3],undef,"No more captures");
 }
 
-{
-    *{'Test123::rule1'} = Pugs::Compiler::Rule->compile('\w')->code();
-    *{'Test123::rule2'} = Pugs::Compiler::Rule->compile('(<rule1>*)')->code();
-    my $match = Test123->rule2("abc");
-    is($match,'abc',"Matched...");
-    # Still need to confirm...
-    is($match[0],'abc','unnamed capture...');
-    is(ref($match[0]{rule1}),'ARRAY','named capture...');
-    is($match->[0]{rule1}[0],"a","Capture 1...");
-    is($match->[0]{rule1}[1],"b","Capture 2...");
-    is($match->[0]{rule1}[2],"c","Capture 3...");
-    is($match->[0]{rule1}[3],undef,"No more captures");
-}
