@@ -71,3 +71,9 @@ Other:
 - "pre-generate" engine output?
 
 - cached precompiled variable rules, per S05
+
+Implementation notes:
+
+- maybe change PCR->code() to PCR->as_method()
+
+- see "Syntactic categories" in S05 (extensibility)
