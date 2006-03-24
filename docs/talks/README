@@ -24,7 +24,18 @@ perl6-apw2005/: "Eine Einfuehrung in Perl 6" (German):
 
 Perl6_genau_jetzt.latex: "Perl 6, genau jetzt!" (German):
   Talk by Ingo Blechschmidt
-  PDF version: http://m19s28.vlinux.de/iblech/klasse11/Sonstiges/1337/LUGA/Perl6.latex.pdf
+  - Original version (held 2005-05-04)
+    - PDF version:
+      http://m19s28.vlinux.de/iblech/klasse11/Sonstiges/1337/LUGA/Perl6.latex.pdf
+    - LaTeX sources: ./Perl6_genau_jetzt.latex
+  - Updated version for the 6. Augsburger Linux-Infotag 2006 (2006-03-25),
+    http://www.luga.de/Aktionen/LIT-2006/:
+    - PDF version:
+      http://m19s28.vlinux.de/iblech/klasse12/Sonstiges/LUGA/Perl6.takahashi-latex.pdf
+    - LaTeX sources:
+      http://m19s28.vlinux.de/iblech/klasse12/Sonstiges/LUGA/Perl6.takahashi-latex
+      Preprocess with:
+      http://m19s28.vlinux.de/iblech/stuff/latex-takahashi/takahashi2latex-with-inlined-images.pl
 
 Perl6_the_Ultimate.spork: "Perl 6 The Ultimate" (Chinese):
   Talk by Audrey Tang for YAPC::Taipei 2005
