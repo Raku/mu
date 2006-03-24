@@ -23,8 +23,10 @@ sub inherit_grammar { die "not implemented" };
 
 sub add_op {
     # name=>'*', precedence=>'>', other=>'+', rule=>$rule
+    # name2=>')' (circumfix)
     my ($self, $opt) = @_;
     print "adding $opt->{name}\n";
+    $opt->{assoc} = 'left' unless defined $opt->{assoc};
     for ( 0 .. $#{$self->{levels}} ) {
         if ( grep { $_->{name} eq $opt->{other} } @{$self->{levels}[$_]} ) {
             if ( $opt->{precedence} eq 'tighter' ) {
@@ -45,23 +47,45 @@ sub add_op {
     push @{$self->{levels}}, [ $opt ];
 }
 
+my %rules = (
+    prefix =>          '<op> <equal>', 
+    circumfix =>       '<op> <parse> <op2>',  
+    postfix =>         '<tight> <op>', 
+    postcircumfix =>   '<tight> <op> <parse> <op2>', 
+    infix_left =>      '<tight> <op> <equal>', 
+    infix_right =>     '<equal> <op> <tight>',
+    infix_non =>       '<tight> <op> <tight>', 
+    infix_chain =>     '<tight> [ <op> <tight> ]+',
+    infix_list =>      '<tight> [ <op> <tight> ]+',
+);
+# parsed: - the rule replaces the right side
+# note: S06 - 'chain' can't be mixed with other types in the same level
+
 sub emit_perl6_grammar {
     # item=>'<item>',
-    my ($self, $op) = @_;
+    my ($self, $default) = @_;
     print "emitting grammar\n";
     my $s = "";
-    for ( 0 .. $#{$self->{levels}} ) {
-        my $x = join( ' | ', map {"<$self->{name}:<$_->{name}>>"} @{$self->{levels}[$_]} );
-        $x = "[ $x ]" if $#{$self->{levels}[$_]};
-        my $prev = $_ - 1;
-        my $rule_name = "r$_";
-        $rule_name = "parse" if $_ == $#{$self->{levels}};
-        if ( $_ == 0 ) {
-            $s = $s . "    rule $rule_name { $op->{item} [ $x <$rule_name> ]? }\n";
+    for my $level ( 0 .. $#{$self->{levels}} ) {
+        my @rules;
+        my $tight = $level ? 'r' . ($level - 1) : $default->{item};
+        my $equal = "r$level";
+        $equal = "parse" if $level == $#{$self->{levels}};
+        for my $op ( @{$self->{levels}[$level]} ) {
+            my $rule = $op->{fixity};
+            $rule .= '_' . $op->{assoc} if $rule eq 'infix';
+            #print "rule: $rules{$rule}\n";
+            my $template = $rules{$rule};
+            $template =~ s/<equal>/<$equal>/sg;
+            $template =~ s/<tight>/<$tight>/sg;
+            $template =~ s/<op>/<$op->{name}>/sg;
+            $template =~ s/<op2>/<$op->{name2}>/sg;
+            #print "rule: $template\n";
+            push @rules, $template;
         }
-        else {
-            $s = $s . "    rule $rule_name { <r$prev> [ $x <$rule_name> ]? }\n";
-        }
+        my $x = join( ' | ', @rules );
+        $x = "[ $x ]" if $#{$self->{levels}[$level]};
+        $s = $s . "    rule $equal { $x }\n";
     }
     return 
         "grammar $self->{name} { \n" .
@@ -108,10 +132,19 @@ use Data::Dumper;
         other => '+',
         fixity => 'infix',
     } );
+    $cat->add_op( {
+        name => '[',
+        name2 => ']',
+        block => sub {},
+        assoc => 'left',
+        precedence => 'looser',
+        other => '+',
+        fixity => 'postcircumfix',
+    } );
 
     print "cat: ", Dumper($cat);
     print "grammar: \n", $cat->emit_perl6_grammar({
-        item => '<item>',
+        item => 'item',
     } );
 }
 
