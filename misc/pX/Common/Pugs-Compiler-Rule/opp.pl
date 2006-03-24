@@ -2,13 +2,26 @@ package Pugs::Grammar::Category;
 use warnings;
 use strict;
 
+# TODO 
+#  ok - is tighter/looser/equiv 
+#  infix/prefix/circumfix/postcircumfix
+#  is assoc left/right/non/chain/list
+#  (is parsed) / ternary
+#  (will do)
+
 sub new {
     my ($class, $opt) = @_;
     my $self = { levels => [], %$opt };
     bless $self, $class;
 }
 
-sub add {
+sub exists_op { die "not implemented" };
+sub delete_op { die "not implemented" };
+sub get_op { die "not implemented" };
+sub inherit_category { die "not implemented" };
+sub inherit_grammar { die "not implemented" };
+
+sub add_op {
     # name=>'*', precedence=>'>', other=>'+', rule=>$rule
     my ($self, $opt) = @_;
     print "adding $opt->{name}\n";
@@ -32,23 +45,28 @@ sub add {
     push @{$self->{levels}}, [ $opt ];
 }
 
-sub emit_grammar {
+sub emit_perl6_grammar {
     # item=>'<item>',
     my ($self, $op) = @_;
-    print "emitting grammar $self->{name}\n";
-    my $s = '';
+    print "emitting grammar\n";
+    my $s = "";
     for ( 0 .. $#{$self->{levels}} ) {
         my $x = join( ' | ', map {"<$self->{name}:<$_->{name}>>"} @{$self->{levels}[$_]} );
         $x = "[ $x ]" if $#{$self->{levels}[$_]};
         my $prev = $_ - 1;
+        my $rule_name = "r$_";
+        $rule_name = "parse" if $_ == $#{$self->{levels}};
         if ( $_ == 0 ) {
-            $s = $s . "rule r$_ { $op->{item} [ $x <r$_> ]? }\n";
+            $s = $s . "    rule $rule_name { $op->{item} [ $x <$rule_name> ]? }\n";
         }
         else {
-            $s = $s . "rule r$_ { <r$prev> [ $x <r$_> ]? }\n";
+            $s = $s . "    rule $rule_name { <r$prev> [ $x <$rule_name> ]? }\n";
         }
     }
-    return $s;
+    return 
+        "grammar $self->{name} { \n" .
+        $s .
+        "}\n";
 }
 
 use Test::More tests => 1;
@@ -58,7 +76,7 @@ use Data::Dumper;
     my $cat = Pugs::Grammar::Category->new( {
         name => 'rxinfix',
     } );
-    $cat->add( {
+    $cat->add_op( {
         name => '+',
         block => sub {},
         assoc => 'left',
@@ -66,7 +84,7 @@ use Data::Dumper;
         other => '*',
         fixity => 'infix',
     } );
-    $cat->add( {
+    $cat->add_op( {
         name => '*',
         block => sub {},
         assoc => 'left',
@@ -74,7 +92,7 @@ use Data::Dumper;
         other => '+',
         fixity => 'infix',
     } );
-    $cat->add( {
+    $cat->add_op( {
         name => '-',
         block => sub {},
         assoc => 'left',
@@ -82,7 +100,7 @@ use Data::Dumper;
         other => '+',
         fixity => 'infix',
     } );
-    $cat->add( {
+    $cat->add_op( {
         name => 'or',
         block => sub {},
         assoc => 'left',
@@ -92,7 +110,7 @@ use Data::Dumper;
     } );
 
     print "cat: ", Dumper($cat);
-    print "grammar: \n", $cat->emit_grammar({
+    print "grammar: \n", $cat->emit_perl6_grammar({
         item => '<item>',
     } );
 }
@@ -123,7 +141,7 @@ use_ok( 'Pugs::Compiler::Rule' );
   my $cat = Pugs::Grammar::Category->new( 
     name => 'rxinfix',
   );
-  $cat->add( 
+  $cat->add_op( 
     name => '|',
     block => sub { ... },
     assoc => 'left',
