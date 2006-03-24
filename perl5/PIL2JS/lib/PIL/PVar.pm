@@ -30,6 +30,15 @@ sub fixup {
       pVarName => PIL::RawJS->new("PIL2JS.generic_return(coroyieldcc)"),
       origName => "&yield",
     } => "PIL::PVar";
+
+  # XXX evil hack -- %FooPackage::EXPORTS gets not declared (my, our) in
+  # -CPIL1. Work around this by emitting %PIL2JS::EXPORTS_DUMMY_VARIABLE.
+  } elsif($name =~ /^%.*EXPORTS$/) {
+    return bless {
+      pVarName => '%PIL2JS::EXPORTS_DUMMY_VARIABLE',
+      origName => $_[0]->{pVarName},
+    } => "PIL::PVar";
+
   } else {
     return bless {
       pVarName => PIL::lookup_var($_[0]->{pVarName}),

@@ -761,6 +761,9 @@ var _24_3fCALLER_3a_3aCALLER_3a_3aSUBNAME =
   new PIL2JS.Box("<$?CALLER::CALLER::SUBNAME not yet implemented>");
 // HACKS. Needs prober integration of Perl6.MetaModel.
 
+// XXX evil hack around %FooPackage::EXPORTS. See PIL::PVar, lines 34f.
+var _25PIL2JS_3a_3aEXPORTS_DUMMY_VARIABLE = new PIL2JS.Box(new PIL2JS.Hash);
+
 // Prettyprint an error msg.
 PIL2JS.new_error = function (msg) {
   if(!(msg instanceof PIL2JS.Box)) msg = new PIL2JS.Box.Constant(msg);
