@@ -7,7 +7,7 @@ no warnings qw( once );
 
 {
     *{'Test123::rule1'} = Pugs::Compiler::Rule->compile('\w')->code();
-    *{'Test123::rule2'} = Pugs::Compiler::Rule->compile('(<rule1>*)')->code();
+    *{'Test123::rule2'} = Pugs::Compiler::Rule->compile('(<rule1>)*')->code();
     my $match = Test123->rule2("abc");
     is($match,'abc',"Matched...");
     is(@{$match}[0],"a","Capture 1...");
