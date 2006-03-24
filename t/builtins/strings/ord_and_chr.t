@@ -112,6 +112,8 @@ my @maps = (
   # Unicode tests
   "ä",    228,
   "€",    8364,
+  "»",    187,
+  "«",    171,
 
   # Special chars
   "\000", 0,
@@ -119,10 +121,17 @@ my @maps = (
   "\003", 3,
 );
 
-plan +@maps;
+plan 32+@maps;
 
 for @maps -> $char, $code {
   my $descr = "\\{$code}{$code >= 32 ?? " == '{$char}'" !! ""}";
   is ord($char), $code, "ord() works for $descr";
   is chr($code), $char, "chr() works for $descr";
 }
+
+for 0..31 -> $code {
+  my $char = chr($code);
+  is ord($char), $code, "ord(chr($code)) is $code";
+}
+
+

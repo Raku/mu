@@ -14,7 +14,7 @@ L<"http://www.unicode.org/unicode/reports/tr11/">
 
 =cut
 
-plan 33;
+plan 53;
 
 # string literals, for sanity
 
@@ -43,6 +43,12 @@ my @data = (
     "\x020ac \\x020ac",           11,        9,         9,  9,
     "בדיקה",         10,        5,         5,  5,
     "בדיקה 123",     14,        9,         9,  9,
+    "rántottcsirke",    14,        13,       13,  13,
+    "aáeéiíoóöőuúüű",   23,   14,  14,    14,
+    "AÁEÉIÍOÓÖŐUÚÜŰ",   23,   14,  14,    14,
+    "»«",               4, 2, 2, 2,
+    ">><<",             4, 4, 4, 4,
+
 );
 #:map { my %hash; %hash<string bytes codes graphs> = $_; \%hash };
 

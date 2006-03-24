@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 23;
+plan 30;
 
 # Simple - with just a single char
 
@@ -41,4 +41,20 @@ is(rindex("abcdabcab", "abcd"), 0, "Start-of-substr matches several times");
 
 is(rindex("uuúuúuùù", "úuù"), 4, "Accented chars");
 is(rindex("Ümlaut", "Ü"), 0, "Umlaut");
+
+is(rindex("what are these « » unicode characters for ?", "uni"), 19, "over unicode characters");
+
+# .rindex use
+is("Hello World".rindex("l"), 9, ".rindex on string");
+is("Hello World".rindex(''), 11, ".rindex('') on string gives string length in bytes");
+
+# on scalar variable
+my $s = "Hello World";
+is(rindex($s, "o"), 7, "rindex on scalar variable");
+is($s.rindex("o"), 7, ".rindex on scalar variable");
+
+is(rindex(uc($s), "O"), 7, "rindex on uc");
+is($s.uc.rindex("O"), 7, ".uc.rindex ");
+
+# ideas for deeper chained . calls ?
 
