@@ -1,4 +1,4 @@
-use Test::More tests => 18;
+use Test::More tests => 19;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -33,9 +33,11 @@ no warnings qw( once );
     *{'Test123::rule2'} = Pugs::Compiler::Rule->compile('(<rule1>*)')->code();
     my $match = Test123->rule2("abc");
     is($match,'abc',"Matched...");
-    is(ref($match->[0]),"ARRAY",'unnamed capture is an array...');
-    is($match->[0][0],"a","Capture 1...");
-    is($match->[0][1],"b","Capture 2...");
-    is($match->[0][2],"c","Capture 3...");
-    is($match->[0][3],undef,"No more captures");
+    # Still need to confirm...
+    is($match[0],'abc','unnamed capture...');
+    is(ref($match[0]{rule1}),'ARRAY','named capture...');
+    is($match->[0]{rule1}[0],"a","Capture 1...");
+    is($match->[0]{rule1}[1],"b","Capture 2...");
+    is($match->[0]{rule1}[2],"c","Capture 3...");
+    is($match->[0]{rule1}[3],undef,"No more captures");
 }
