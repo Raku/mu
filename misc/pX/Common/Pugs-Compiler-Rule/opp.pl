@@ -77,6 +77,9 @@ sub emit_perl6_grammar {
             my $rule = $op->{fixity};
             $rule .= '_' . $op->{assoc} if $rule eq 'infix';
             my $template = $rules{$rule};
+            if ( $op->{rule} ) {
+                $template =~ s/<op>\s+(<.*?>)/<op> $op->{rule}/sg;
+            }
             $template =~ s/<equal>/<$equal>/sg;
             $template =~ s/<tight>/<$tight>/sg;
             $template =~ s/<op>/<$op->{name}>/sg;
@@ -149,6 +152,15 @@ use Data::Dumper;
         precedence => 'looser',
         other => '+',
         fixity => 'infix',
+    } );
+    $cat->add_op( {
+        name => 'custom_op',
+        block => sub {},
+        assoc => 'left',
+        precedence => 'looser',
+        other => '+',
+        fixity => 'infix',
+        rule => '<custom_parsed>',
     } );
 
     print "cat: ", Dumper($cat);
