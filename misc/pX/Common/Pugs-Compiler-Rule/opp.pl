@@ -86,7 +86,7 @@ sub emit_perl6_grammar {
             $template =~ s/<op2>/<$op->{name2}>/sg;
             push @rules, $template;
         }
-        push @rules, "<$default->{item}>" unless $level;
+        push @rules, "<$tight>";
         my $x = join( ' | ', @rules );
         $x = "[ $x ]" if $#{$self->{levels}[$level]};
         $s = $s . "    rule $equal { $x }\n";
