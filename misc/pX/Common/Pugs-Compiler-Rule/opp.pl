@@ -63,6 +63,34 @@ my %rules = (
 # parsed: - the rule replaces the right side
 # note: S06 - 'chain' can't be mixed with other types in the same level
 
+sub _optimize {
+    my @rules = reverse sort @_;
+    print "optimizing\n";
+    my $i = 0;
+    my $j = $i;
+    my ($item) = $rules[$i] =~ /^(<.*?>)/;
+    #print "item: $item\n";
+    for my $i ( $i .. $#rules ) {
+        last unless $rules[$i] =~ /^$item/;
+        #print "optimize: $rules[$i]\n";
+        $j = $i;
+    }
+    if ( $i != $j ) {
+        print "optimize $item in @rules[$i..$j]\n";
+        my $len = length( $item );
+        my @r = map { $_ eq $item ? '' : substr($_,$len) } @rules[$i..$j];
+        pop @r if $r[-1] eq '';
+        print "optimized: [",join(",",@r),"] $i $j\n";
+        splice( @rules, $i, (1+$j-$i), 
+            "$item [ " .
+            join( ' | ', @r ) .
+            " ]?"
+        );
+        print "optimized: [",join(",",@rules),"]\n";
+    }
+    return @rules;
+}
+
 sub emit_perl6_grammar {
     # item=>'<item>',
     my ($self, $default) = @_;
@@ -87,8 +115,9 @@ sub emit_perl6_grammar {
             push @rules, $template;
         }
         push @rules, "<$tight>";
+        @rules = _optimize( @rules );
         my $x = join( ' | ', @rules );
-        $x = "[ $x ]" if $#{$self->{levels}[$level]};
+        $x = "[ $x ]" if $#rules;
         $s = $s . "    rule $equal { $x }\n";
     }
     return 
