@@ -22,7 +22,7 @@ sub inherit_category { die "not implemented" };
 sub inherit_grammar { die "not implemented" };
 
 sub add_op {
-    # name=>'*', precedence=>'>', other=>'+', rule=>$rule
+    # name=>'*', precedence=>'tighter', other=>'+', rule=>$rule
     # name2=>')' (circumfix)
     my ($self, $opt) = @_;
     print "adding $opt->{name}\n";
@@ -74,15 +74,14 @@ sub emit_perl6_grammar {
         for my $op ( @{$self->{levels}[$level]} ) {
             my $rule = $op->{fixity};
             $rule .= '_' . $op->{assoc} if $rule eq 'infix';
-            #print "rule: $rules{$rule}\n";
             my $template = $rules{$rule};
             $template =~ s/<equal>/<$equal>/sg;
             $template =~ s/<tight>/<$tight>/sg;
             $template =~ s/<op>/<$op->{name}>/sg;
             $template =~ s/<op2>/<$op->{name2}>/sg;
-            #print "rule: $template\n";
             push @rules, $template;
         }
+        push @rules, $default->{item} unless $level;
         my $x = join( ' | ', @rules );
         $x = "[ $x ]" if $#{$self->{levels}[$level]};
         $s = $s . "    rule $equal { $x }\n";
@@ -140,6 +139,14 @@ use Data::Dumper;
         precedence => 'looser',
         other => '+',
         fixity => 'postcircumfix',
+    } );
+    $cat->add_op( {
+        name => 'Y',
+        block => sub {},
+        assoc => 'list',
+        precedence => 'looser',
+        other => '+',
+        fixity => 'infix',
     } );
 
     print "cat: ", Dumper($cat);
