@@ -28,6 +28,11 @@ Scalar -> Str
     .split(/sep/)
     .hex
     .oct
+    .index
+    .rindex
+    .substr
+    .trans
+    .capitalize
 
 Scalar -> Num
 
@@ -68,6 +73,7 @@ Array, sigil: @
     .reverse
     .sort( { cond }, { cond }, ... )
     .kv            # return index,value pairs
+    .uniq
     
     Shapes:
 
