@@ -11,6 +11,10 @@ use strict;
 #  (is parsed) / ternary
 #  (will do)
 
+# Operator hash:
+# name=>'*', precedence=>'tighter', other=>'+', rule=>$rule (used in is-parsed)
+# name2=>')' (used in circumfix/ternary)
+
 sub new {
     my ($class, $opt) = @_;
     my $self = { levels => [], %$opt };
@@ -22,34 +26,28 @@ sub delete_op { die "not implemented" };
 sub get_op { die "not implemented" };
 sub inherit_category { die "not implemented" };
 sub inherit_grammar { die "not implemented" };
+sub merge_category { die "not implemented" };
+
+my %relative_precedence = (
+    tighter => sub { splice( @{$_[0]->{levels}}, $_[1]-1, 0, [ $_[2] ] ) },
+    looser  => sub { splice( @{$_[0]->{levels}}, $_[1]+1, 0, [ $_[2] ] ) },
+    equal   => sub {   push( @{$_[0]->{levels}[$_[1]]}, $_[2] ) },
+);
 
 sub add_op {
-    # name=>'*', precedence=>'tighter', other=>'+', rule=>$rule
-    # name2=>')' (circumfix)
     my ($self, $opt) = @_;
     print "adding $opt->{name}\n";
     $opt->{assoc} = 'left' unless defined $opt->{assoc};
     for ( 0 .. $#{$self->{levels}} ) {
         if ( grep { $_->{name} eq $opt->{other} } @{$self->{levels}[$_]} ) {
-            if ( $opt->{precedence} eq 'tighter' ) {
-                splice( @{$self->{levels}}, $_-1, 0, [ $opt ] );                
-            }
-            elsif ( $opt->{precedence} eq 'looser' ) {
-                splice( @{$self->{levels}}, $_+1, 0, [ $opt ] );                
-            }
-            elsif ( $opt->{precedence} eq 'equal' ) {
-                push @{$self->{levels}[$_]}, $opt;
-            }
-            else {
-                die "invalid precedence: $opt->{precedence}";
-            }
+            $relative_precedence{$opt->{precedence}}->($self, $_, $opt);
             return;
         }
     }
     push @{$self->{levels}}, [ $opt ];
 }
 
-my %rules = (
+my %rule_templates = (
     prefix =>          '<op> <equal>', 
     circumfix =>       '<op> <parse> <op2>',  
     postfix =>         '<tight> <op>', 
@@ -59,13 +57,13 @@ my %rules = (
     infix_non =>       '<tight> <op> <tight>', 
     infix_chain =>     '<tight> [ <op> <tight> ]+',
     infix_list =>      '<tight> [ <op> <tight> ]+',
+    ternary =>         '<tight> <op> <parse> <op2> <equal>',
 );
 # parsed: - the rule replaces the right side
 # note: S06 - 'chain' can't be mixed with other types in the same level
 
 sub _optimize {
     my @rules = reverse sort @_;
-    print "optimizing\n";
     my $i = 0;
     my $j = $i;
     my ($item) = $rules[$i] =~ /^(<.*?>)/;
@@ -76,54 +74,74 @@ sub _optimize {
         $j = $i;
     }
     if ( $i != $j ) {
-        print "optimize $item in @rules[$i..$j]\n";
+        #print "optimize $item in @rules[$i..$j]\n";
         my $len = length( $item );
         my @r = map { $_ eq $item ? '' : substr($_,$len) } @rules[$i..$j];
         pop @r if $r[-1] eq '';
-        print "optimized: [",join(",",@r),"] $i $j\n";
+        #print "optimized: [",join(",",@r),"] $i $j\n";
         splice( @rules, $i, (1+$j-$i), 
-            "$item [ " .
-            join( ' | ', @r ) .
-            " ]?"
+            "$item [ " . join( ' | ', @r ) . " ]?"
         );
-        print "optimized: [",join(",",@rules),"]\n";
+        #print "optimized: [",join(",",@rules),"]\n";
     }
     return @rules;
 }
 
-sub emit_perl6_grammar {
+sub emit_perl6_rule {
+    my ($self, $level, $default) = @_;
+    my @rules;
+    my $tight = $level ? 'r' . ($level - 1) : $default->{item};
+    my $equal = "r$level";
+    $equal = "parse" if $level == $#{$self->{levels}};
+    for my $op ( @{$self->{levels}[$level]} ) {
+        my $rule = $op->{fixity};
+        $rule .= '_' . $op->{assoc} if $rule eq 'infix';
+        my $template = $rule_templates{$rule};
+        if ( $op->{rule} ) {
+            $template =~ s/<op>.*/<op> $op->{rule}/sg;
+        }
+        $template =~ s/<equal>/<$equal>/sg;
+        $template =~ s/<tight>/<$tight>/sg;
+        $template =~ s/<op>/<'$op->{name}'>/sg;
+        $template =~ s/<op2>/<'$op->{name2}'>/sg;
+        push @rules, $template;
+    }
+    push @rules, "<$tight>";
+    @rules = _optimize( @rules );
+    return $rules[0] unless $#rules;
+    return "[ " . join( ' | ', @rules ) . " ]";
+}
+
+sub emit_grammar_perl6 {
     # item=>'<item>',
     my ($self, $default) = @_;
-    print "emitting grammar\n";
+    print "emitting grammar in perl6\n";
     my $s = "";
     for my $level ( 0 .. $#{$self->{levels}} ) {
-        my @rules;
-        my $tight = $level ? 'r' . ($level - 1) : $default->{item};
         my $equal = "r$level";
         $equal = "parse" if $level == $#{$self->{levels}};
-        for my $op ( @{$self->{levels}[$level]} ) {
-            my $rule = $op->{fixity};
-            $rule .= '_' . $op->{assoc} if $rule eq 'infix';
-            my $template = $rules{$rule};
-            if ( $op->{rule} ) {
-                $template =~ s/<op>\s+(<.*?>)/<op> $op->{rule}/sg;
-            }
-            $template =~ s/<equal>/<$equal>/sg;
-            $template =~ s/<tight>/<$tight>/sg;
-            $template =~ s/<op>/<$op->{name}>/sg;
-            $template =~ s/<op2>/<$op->{name2}>/sg;
-            push @rules, $template;
-        }
-        push @rules, "<$tight>";
-        @rules = _optimize( @rules );
-        my $x = join( ' | ', @rules );
-        $x = "[ $x ]" if $#rules;
-        $s = $s . "    rule $equal { $x }\n";
+        $s = $s . "    rule $equal { " .
+            emit_perl6_rule($self, $level, $default) .
+            " }\n";
     }
-    return 
-        "grammar $self->{name} { \n" .
-        $s .
-        "}\n";
+    return "grammar $self->{name} { \n$s}\n";
+}
+
+sub _quotemeta { my $s = shift; $s =~ s!'!\\'!g; $s }
+
+sub emit_grammar_perl5 {
+    # item=>'<item>',
+    my ($self, $default) = @_;
+    print "emitting grammar in perl5\n";
+    my $s = "";
+    for my $level ( 0 .. $#{$self->{levels}} ) {
+        my $equal = "r$level";
+        $equal = "parse" if $level == $#{$self->{levels}};
+        $s = $s . "    *$equal = Pugs::Compile::Grammar->compile( '" .
+            _quotemeta( emit_perl6_rule($self, $level, $default) ) .
+            "' )->code;\n";
+    }
+    return $s;  #"package $self->{name};\n$s\n";
 }
 
 use Test::More tests => 1;
@@ -191,9 +209,21 @@ use Data::Dumper;
         fixity => 'infix',
         rule => '<custom_parsed>',
     } );
+    $cat->add_op( {
+        name => '??',
+        name2 => '!!',
+        block => sub {},
+        assoc => 'left',
+        precedence => 'equal',
+        other => 'custom_op',
+        fixity => 'ternary',
+    } );
 
     print "cat: ", Dumper($cat);
-    print "grammar: \n", $cat->emit_perl6_grammar({
+    print "grammar in perl6: \n", $cat->emit_grammar_perl6({
+        item => 'item',
+    } );
+    print "grammar in perl5: \n", $cat->emit_grammar_perl5({
         item => 'item',
     } );
 }
