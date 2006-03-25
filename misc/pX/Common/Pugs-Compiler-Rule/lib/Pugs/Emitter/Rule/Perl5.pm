@@ -50,10 +50,10 @@ sub emit_rule {
 
 sub capturing_group {
     return 
-       "$_[1] capture( '',\n" .
-       emit_rule( $_[0], $_[1].'  ' ) . 
-       "$_[1] )\n" .
-       '';
+        "$_[1] capture( '',\n" .
+        emit_rule( $_[0], $_[1].'  ' ) . 
+        "$_[1] )\n" .
+        '';
 }        
 sub non_capturing_group {
     return emit_rule( $_[0], $_[1] );
@@ -75,8 +75,13 @@ sub quant {
         unless defined $sub;
     return emit_rule( $term, $_[1] ) 
         if $sub eq '';
-    return "$_[1] $sub(\n" .
-           emit_rule( $term, $_[1] ) . "$_[1] )\n";
+    return 
+        "$_[1] capture( '*quantifier*',\n" . 
+        "$_[1]     $sub(\n" .
+        emit_rule( $term, $_[1] . ("    "x2) ) . 
+        "$_[1]     )\n" .
+        "$_[1] )\n" .
+        '';
 }        
 sub alt {
     my @s;

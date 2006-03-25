@@ -1,4 +1,5 @@
 - match variables are available inside the rule: $0, $1
+- /(.)*/ returns an array in @$0
 
 - built-in rules: alpha, alnum, ...
 
