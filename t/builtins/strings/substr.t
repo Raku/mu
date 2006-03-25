@@ -3,7 +3,7 @@
 use v6;
 use Test;
 
-plan 31;
+plan 40;
 
 # L<S29/"Perl6::Str" /substr/>
 
@@ -12,6 +12,7 @@ plan 31;
 
     is(substr($str, 0, 1), "f", "first char");
     is(substr($str, -1), "r", "last char");
+    is(substr($str, -4, 2), "ob", "counted from the end");
     is(substr($str, 1, 2), "oo", "arbitrary middle");
     is(substr($str, 3), "bar", "length omitted");
     is(substr($str, 3, 10), "bar", "length goes past end");
@@ -109,3 +110,17 @@ skip 4, "more discussion needed";
 # This test is not working as-is
 #    eval_is('substr("camel", 0|1, 2&3)', (("ca"|"am") & ("cam"|"ame")), "junctive substr", :todo);
 }
+
+
+{ # misc
+    my $str = "hello foo and bar";
+    is(substr($str, 6, 3), "foo", "substr");
+    is($str.substr(6, 3), "foo", ".substr");
+    is(substr("hello foo bar", 6, 3), "foo", "substr on literal string");
+    is("hello foo bar".substr(6, 3), "foo", ".substr on literal string");
+    is("hello foo bar".substr(6, 3).uc, "FOO", ".substr.uc on literal string");
+    is("hello foo bar and baz".substr(6, 10).capitalize, "Foo Bar An", ".substr.capitalize on literal string");
+    is("hello »« foo".substr(6, 2), "»«", ".substr on unicode string");
+    is("שיעבוד כבר".substr(4, 4), "וד כ", ".substr on Hebrew text");
+}
+
