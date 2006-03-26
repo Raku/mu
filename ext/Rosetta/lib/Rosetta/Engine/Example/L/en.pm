@@ -11,7 +11,7 @@ my Str %TEXT_STRINGS is readonly = (
 ###########################################################################
 ###########################################################################
 
-module Rosetta::Engine::Example::L::en-0.2.0 {
+module Rosetta::Engine::Example::L::en-0.2.1 {
     sub get_text_by_key (Str $msg_key!) returns Str {
         return %TEXT_STRINGS{$msg_key};
     }
@@ -31,7 +31,7 @@ Localization of Rosetta::Engine::Example for English
 
 =head1 VERSION
 
-This document describes Rosetta::Engine::Example::L::en version 0.2.0.
+This document describes Rosetta::Engine::Example::L::en version 0.2.1.
 
 =head1 SYNOPSIS
 
@@ -63,7 +63,8 @@ None reported.
 
 =head1 SEE ALSO
 
-I<This documentation is pending.>
+Go to L<Rosetta> for the majority of distribution-internal references, and
+L<Rosetta::SeeAlso> for the majority of distribution-external references.
 
 =head1 BUGS AND LIMITATIONS
 

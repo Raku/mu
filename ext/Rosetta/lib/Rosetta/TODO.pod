@@ -419,13 +419,13 @@ Add an Engine for newer MS SQL Server databases, or help someone do it.
 
 =item *
 
-Add an Engine for Dave Voorhis' L<Rel|http://dbappbuilder.sourceforge.net/>
-non-SQL-but-"Tutorial D" relational databases, or help someone do it.
+Add an Engine for Dave Voorhis' "Rel" relational databases, or help someone
+do it.
 
 =item *
 
-Add an Engine for newer L<Alphora|http://alphora.com/> Dataphor
-non-SQL relational databases, or help someone do it.
+Add an Engine for newer Dataphor relational databases, or help someone do
+it.
 
 =item *
 
@@ -471,7 +471,8 @@ this list is undoubtedly missing some items.
 
 =head1 SEE ALSO
 
-I<This documentation is pending.>
+Go to L<Rosetta> for the majority of distribution-internal references, and
+L<Rosetta::SeeAlso> for the majority of distribution-external references.
 
 =head1 AUTHOR
 

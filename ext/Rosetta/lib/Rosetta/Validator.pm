@@ -82,9 +82,8 @@ None reported.
 
 =head1 SEE ALSO
 
-These Perl 6 packages implement Rosetta Engine classes and their test
-suites are the initial main dependents of Rosetta::Validator:
-L<Rosetta::Engine::Example>.
+Go to L<Rosetta> for the majority of distribution-internal references, and
+L<Rosetta::SeeAlso> for the majority of distribution-external references.
 
 =head1 BUGS AND LIMITATIONS
 

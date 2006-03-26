@@ -548,8 +548,8 @@ None reported.
 
 =head1 SEE ALSO
 
-The Perl 6 package L<Rosetta> is bundled with Rosetta::Model and is its
-primary dependent.
+Go to L<Rosetta> for the majority of distribution-internal references, and
+L<Rosetta::SeeAlso> for the majority of distribution-external references.
 
 =head1 BUGS AND LIMITATIONS
 

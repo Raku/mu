@@ -580,11 +580,13 @@ L<Rosetta::Language>, L<Rosetta::Migration>.
 The Perl 6 module L<Rosetta::Validator> is bundled with Rosetta and can be
 used to test Rosetta Engine classes.
 
-These Perl 6 packages implement Rosetta Engine classes:
-L<Rosetta::Engine::Example>.
+The Perl 6 package L<Rosetta::Engine::Example> is bundled with Rosetta and
+implements a reference implementation of a Rosetta Engine.
 
-These Perl 6 packages are the initial main dependents of Rosetta:
-L<Rosetta::Shell>.
+The Perl 6 module L<Rosetta::Shell> is bundled with Rosetta and implements
+a command shell for the Rosetta DBMS.
+
+Go to the L<Rosetta::SeeAlso> file for the majority of external references.
 
 =head1 BUGS AND LIMITATIONS
 

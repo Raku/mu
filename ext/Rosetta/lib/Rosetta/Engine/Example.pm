@@ -82,7 +82,8 @@ None reported.
 
 =head1 SEE ALSO
 
-I<This documentation is pending.>
+Go to L<Rosetta> for the majority of distribution-internal references, and
+L<Rosetta::SeeAlso> for the majority of distribution-external references.
 
 =head1 BUGS AND LIMITATIONS
 

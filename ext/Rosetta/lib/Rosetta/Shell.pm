@@ -14,7 +14,7 @@ my Str $EMPTY_STR is readonly = q{};
 ###########################################################################
 ###########################################################################
 
-module Rosetta::Shell-0.1.0 {
+module Rosetta::Shell-0.1.1 {
 
     # External packages used by the Rosetta::Shell module, that do export symbols:
     # (None Yet)
@@ -126,7 +126,7 @@ Interactive command shell for the Rosetta DBMS
 
 =head1 VERSION
 
-This document describes Rosetta::Shell version 0.1.0.
+This document describes Rosetta::Shell version 0.1.1.
 
 =head1 SYNOPSIS
 
@@ -164,7 +164,8 @@ None reported.
 
 =head1 SEE ALSO
 
-I<This documentation is pending.>
+Go to L<Rosetta> for the majority of distribution-internal references, and
+L<Rosetta::SeeAlso> for the majority of distribution-external references.
 
 =head1 BUGS AND LIMITATIONS
 

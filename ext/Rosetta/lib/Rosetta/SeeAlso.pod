@@ -9,9 +9,9 @@ External resources that you really ought to look at
 
 =head1 DESCRIPTION
 
-This document is a central location within the "Rosetta" distribution where
-any important recommendations of or links to external resources go.  This
-includes both resources that helped me when I made Rosetta, as well as
+This document is a central location within the L<Rosetta> distribution
+where any important recommendations of or links to external resources go.
+This includes both resources that helped me when I made Rosetta, as well as
 Resources that are or could be related to Rosetta.
 
 =head1 INFORMATION SOURCES
@@ -78,6 +78,201 @@ The Wikipedia article on the relational data model, and related topics.
 
 Also, the vendor documentation for various relational and/or SQL databases
 such as MySQL and SQLite were regularly consulted, and various other sites.
+
+=head1 SOME TTM/D-RELATED DBMS PROJECTS
+
+Besides the Rosetta DBMS framework, other projects exist which
+attempt to implement The Third Manifesto or approximations of it.
+
+=head2 Free and Open Source Software
+
+These software projects are released under a free and open source license,
+as Rosetta is, so you have the freedom to examine the project source code,
+change it, and redistribute it:
+
+=over
+
+=item B<Rel> - L<http://dbappbuilder.sourceforge.net/Rel.html>
+
+Rel is a relational database server, written by Dave Voorhis
+(d.voorhis@derby.ac.uk), that implements Date and Darwen's "Tutorial D"
+language mainly "by the book".  It is written in Java (version 1.5) and is
+operating-system independent.  It is licensed under the GNU GPL.
+
+=item B<Duro> - L<http://duro.sourceforge.net/>
+
+Duro is a relational database library, written by René Hartmann
+(rhartmann@users.sourceforge.net).  It is written in C (with a Tcl
+interface), is implemented on top of the Berkeley DB database library, and
+runs on all POSIX/Unix-like and 32-bit Windows operating systems.  It is
+licensed under the GNU GPL.
+
+=back
+
+=head2 Closed Source Software
+
+These software projects are released without access to the project source
+code or permission to change them, though some are available at zero cost:
+
+=over
+
+=item B<Dataphor> - L<http://www.alphora.com/>
+
+Dataphor is a TTM-inspired commercial database application development tool
+set, owned by Alphora (a division of Softwise, Inc.), that implements its
+own "D4" language.  It is written to the .Net platform and only runs on
+Windows.  It is implemented using a federated server that employs various
+other database engines for storage.
+
+=item B<Opus> - L<http://ca.geocities.com/dcauz@rogers.com/opus/>
+
+Opus is a command-line relational database development system, written by
+David Cauz (dcauz@rogers.com) and Paul Church, that implements its own
+"Opus" language (that has the syntactic style of C).  It is written in C
+and only runs on Windows.
+
+=back
+
+=head2 Academic Design Projects
+
+These project designs were made for academic purposes and don't include
+implementations:
+
+=over
+
+=item B<Db ("D flat")> -
+L<http://web.onetel.com/~hughdarwen/TheThirdManifesto/REAL.pdf>
+
+This is a final year project by UMIST student Peter Nicol.
+
+=back
+
+=head1 SOME SQL-BASED DBMS PROJECTS
+
+Many DBMS exist which implement a variant of the SQL language as their main
+or only interface; a relative few are listed here.
+
+=head2 Free and Open Source Software
+
+=over
+
+=item B<Genezzo> - L<http://www.genezzo.com/>
+
+Genezzo is a micro kernel style enterprise-strength SQL database server,
+written mainly by Jeffrey Cohen (jcohen@cpan.org), currently under
+construction.  It is written in a hybrid of C and Perl 5, and runs on any
+operating system.  It is licensed under the GNU GPL.
+
+I<Note: Genezzo sans its SQL interface is currently a front-line candidate
+for implementing a production / industrial quality Rosetta Engine.>
+
+=item B<SQLite> - L<http://www.sqlite.org/>
+
+SQLite is a small library that implements a fully transactional file-based
+SQL database engine, written mainly by D. Richard Hipp (Hwaci - Applied
+Software Research).  It is written in C (with creator-bundled Tcl bindings)
+and runs on any operating system, being particularly suited for embedded
+devices.  It is committed to the public domain and can be used in any other
+license of program.  Bindings for many programming languages exist,
+including for Perl 5.
+
+=item B<PostgreSQL> - L<http://www.postgresql.org/>
+
+PostgreSQL is a powerful SQL database server, owned by the PostgreSQL
+Global Development Group.  It is written in C and runs on any operating
+system.  It is licensed under a BSD-like license, specifically the license
+of the University of California.  Bindings for many programming languages
+exist, including for Perl 5.
+
+=item B<MySQL> - L<http://www.mysql.com/>
+
+MySQL is a multi-engine SQL database server, owned by MySQL AB.  It is
+written in C and runs on any operating system.  It is dual-licensed under
+the GNU GPL (at no cost) and under a proprietary license (for a fee).
+Bindings for many programming languages exist, including for Perl 5.
+
+=item B<Firebird> - L<http://www.firebirdsql.org/>
+
+Firebird is a mature SQL database server, forked from the open sources of
+InterBase by Inprise/Borland; portions are owned by Inprise/Borland and
+members of the Firbird Foundation.  It is written in C++ (newer version)
+and runs on any operating system.  Portions are licensed under various
+Mozilla-Public-like licenses, specifically the Interbase Public License and
+the Initial Developer's Public License.  Bindings for many programming
+languages exist, including for Perl 5.
+
+=back
+
+=head2 Closed Source Software
+
+=over
+
+=item B<Oracle> - L<http://www.oracle.com/database/>
+
+=item B<Sybase> - L<http://www.sybase.com/>
+
+=item B<SQL Server> - L<http://www.microsoft.com/sql/>
+
+=item B<Informix> - L<http://www.ibm.com/software/data/informix/>
+
+=item B<DB2> - L<http://www.ibm.com/software/data/db2/>
+
+=item B<OpenBase> - L<http://www.openbase.com/>
+
+=item B<FrontBase> - L<http://www.frontbase.com/>
+
+=back
+
+=head1 SOME OTHER DBMS PROJECTS
+
+Many DBMS exist that are neither TTM/D-based nor primarily SQL based; a
+relative few are listed here.
+
+=head2 Free and Open Source Software
+
+=over
+
+=item B<Berkeley DB> - L<http://www.sleepycat.com/>
+
+=back
+
+=head2 Closed Source Software
+
+=over
+
+=item B<FileMaker Pro> - L<http://www.filemaker.com/>
+
+=back
+
+=head1 LIST OF PUBLIC ROSETTA ENGINES
+
+I<This documentation is pending.>
+
+L<Rosetta::Engine::Example>.
+
+=head1 PUBLIC SOLUTIONS BUILT OVER ROSETTA
+
+I<This documentation is pending.>
+
+These Perl 5 applications and frameworks are at the front of the line to
+get Rosetta bindings: L<Catalyst>, L<Maypole>, L<Bricolage>, L<RT>.
+
+=head1 DBMS-RELATED PERL MODULES
+
+I<This documentation is pending.>
+
+These Perl 5 packages work to solve similar problems as Rosetta:
+L<DBI>, L<Tangram>, L<DBIx::Class>, L<HDB>, L<Genezzo>, L<Class::DBI>,
+L<Pixie>, L<Alzabo>, L<DBIx::SQLEngine>, L<SPOPS>, L<DBIx::SearchBuilder>,
+L<DBIx::RecordSet>, L<DBIx::Abstract>, L<DBIx::AnyDBD>, L<DBIx::Browse>,
+L<DBIx::DBH>, L<MKDoc::SQL>, L<Data::Transactional>, L<DBIx::ModelUpdate>,
+L<DBIx::ProcedureCall>, L<DB::Ent>, L<DBIx::DBSchema>, L<DBIx::Namespace>,
+L<TripleStore>, L<Data::Table>, L<ORM>, L<OOPS>.
+
+These Perl 5 packages work to solve similar problems as Rosetta::Model:
+L<SQL::Statement>, L<SQL::Parser>, L<SQL::Translator>, L<SQL::YASP>,
+L<SQL::Generator>, L<SQL::Schema>, L<SQL::Abstract>, L<SQL::Snippet>,
+L<SQL::Catalog>.
 
 =head1 AUTHOR
 

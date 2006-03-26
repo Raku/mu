@@ -43,9 +43,8 @@ least once its complete.
 
 Rosetta D also has design aspects and constructs that are taken from or
 influenced by Perl 6, and various SQL dialects and implementations, and
-other TTM implementations like Dave Voorhis' "Rel"
-(L<http://dbappbuilder.sourceforge.net/>), but none of the adaptions from
-these are incompatible with TTM.
+other TTM implementations (see the L<Rosetta::SeeAlso> file), but none of
+the adaptions from these are incompatible with TTM.
 
 Note that the Rosetta documentation will be focusing mainly on how Rosetta
 itself works, and will not spend much time in providing rationales; you can
@@ -980,7 +979,8 @@ Its concept of nothingness is the empty string.
 
 =head1 SEE ALSO
 
-I<This documentation is pending.>
+Go to L<Rosetta> for the majority of distribution-internal references, and
+L<Rosetta::SeeAlso> for the majority of distribution-external references.
 
 =head1 AUTHOR
 
