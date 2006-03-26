@@ -137,7 +137,7 @@ sub emit_grammar_perl5 {
     for my $level ( 0 .. $#{$self->{levels}} ) {
         my $equal = "r$level";
         $equal = "parse" if $level == $#{$self->{levels}};
-        $s = $s . "    *$equal = Pugs::Compile::Grammar->compile( '" .
+        $s = $s . "    *$equal = Pugs::Compiler::Rule->compile( '" .
             _quotemeta( emit_perl6_rule($self, $level, $default) ) .
             "' )->code;\n";
     }
@@ -149,7 +149,7 @@ use Data::Dumper;
 
 {
     my $cat = Pugs::Grammar::Category->new( {
-        name => 'rxinfix',
+        name => 'test',
     } );
     $cat->add_op( {
         name => '+',
@@ -226,9 +226,39 @@ use Data::Dumper;
     print "grammar in perl5: \n", $cat->emit_grammar_perl5({
         item => 'item',
     } );
+
+    {
+        package test;
+        use Pugs::Compiler::Rule;
+        use Pugs::Grammar::Base;
+        use Data::Dumper;
+        *item = Pugs::Compiler::Rule->compile( '\d+' )->code;
+        eval $cat->emit_grammar_perl5({
+            item => 'item',
+        } );
+        my $match = test->parse( '3+5*6' );
+        #print Dumper( $match );
+        #show_match( $match );
+    }
 }
 
-
+sub test::show_match {
+    my @v;
+    if ( ref( $_[0] ) eq 'ARRAY' ) {
+        for ( @{$_[0]} ) {
+            test::show_match( $_ );
+        }
+        return;
+    }
+    print ref($_[0]);
+    @v = %{$_[0]};
+    while ( @v ) {
+        my $k = shift @v;
+        my $v = shift @v;
+        print "\n$k => $v ";
+        if ( ref($v) ) { test::show_match( $v ) } else { print $v };
+    }
+}
 
 __END__
 
