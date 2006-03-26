@@ -1,0 +1,34 @@
+#!/usr/bin/perl
+use lib 'lib';
+use Pugs::Compiler::Rule;
+use strict;
+my %test = qw(if 2 index 3 unless 4);
+$test{until} = Pugs::Compiler::Rule->compile(".*aa");
+$test{use} = sub {print "use()\n"};
+sub hash {
+	my %hash = %{shift()};
+	my @keys = sort {length $b <=> length $b } keys %hash;
+	my $rx = "^(" . join("|",@keys) . ")(.*)\$";
+	return sub {
+		$_[0] =~ /$rx/;
+		#warn Dumper(\%hash).":".$rx.":$1:".$hash{$1};	
+		if (ref $hash{$1}) {
+			if (ref $hash{$1} eq 'CODE') {
+				$hash{$1}->();
+			} elsif (ref $hash{$1} eq 'Pugs::Compiler::Rule') {
+				return $hash{$1}->match($2);
+			}
+
+			print "ref:",ref $hash{$1},"\n";
+		}
+		return { 
+			bool  => 1,
+			match => $1,
+			tail  => $2,
+	  	}
+	}
+}
+*rule = sub {Pugs::Runtime::Rule::rule_wrapper($_[0],hash(\%test)->(@_))};
+use Data::Dumper;
+print Dumper(rule("until aa"));
+#print Dumper(rule("use"));
