@@ -37,6 +37,10 @@ a particular kind or class.
 B<Multimethods> (keyword: C<multi>) are routines that transcend class
 boundaries, and can have one or more invocants. 
 
+B<Prototypes> (keyword: C<proto>) specify the commonalities (such
+as parameter names, fixity and associativity) shared by all multis
+of that name in the scope of the C<proto> declaration.
+
 B<Rules> (keyword: C<rule>) are methods (of a grammar) that perform
 pattern matching. Their associated block has a special syntax (see
 Synopsis 5).
