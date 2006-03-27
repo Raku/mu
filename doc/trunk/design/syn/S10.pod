@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 22 Feb 2006
+  Last Modified: 28 Mar 2006
   Number: 10
-  Version: 4
+  Version: 5
 
 =head1 Overview
 
@@ -36,7 +36,7 @@ A named package declaration can occur as part of an expression, just like
 named subroutine declarations.
 
 As a special exception, if a braceless C<package> declaration occurs
-as the first thing in a file, then it's taken to mean that the rest of
+as the first executable statement in a file, then it's taken to mean that the rest of
 the file is Perl 5 code.
 
     package Foo;	# the entire file is Perl 5
@@ -83,46 +83,105 @@ the key is not parsed for C<::>.  It's just a hash lookup.
 
 =head1 Autoloading
 
-The package is the namespace that controls autoloading.  There is still
-an C<AUTOLOAD> hook that behaves as in Perl 5.  However, that is being
-replaced by various autoload hooks that distinguish declaration from
-definition, and various types from one another.  In particular:
+A package (or any other similar namespace) can control autoloading.
+However, Perl 5's C<AUTOLOAD> is being superseded by MMD autoloaders
+that distinguish declaration from definition, but are not restricted
+to declaring subs.  A run-time declarator multisub is declared as:
 
-    AUTOSCALAR
-    AUTOARRAY
-    AUTOHASH
-    AUTOSUB
-    AUTOMETH
+    multi CANDO ( MyPackage, $type, $name: *%args --> Container)
 
-stand in for the declaration of objects; they are called when anyone
-is searching for a name in the package (or module, or class), and the
-name doesn't already exist in the package.  (In particular, C<.can>
-calls C<AUTOMETH> when trying to determine if a class supports a
-particular method.)  The routines are expected to return a reference to
-an object of the proper sort (i.e. a variable, subroutine, or method
-reference), or undef if that name is not to be considered declared.
-That object need not be defined yet, though the routine is allowed
-to define it, and even install it into the symbol table if it likes.
+which stands in for the declaration of a container object within
+another container object; it is called when anyone is searching for
+a name in the package (or module, or class), and the name doesn't
+already exist in the package.  (In particular, C<.can> calls C<CANDO>
+when trying to determine if a class supports a particular method.)
+The arguments to C<CANDO> include type information on what kind
+of object is expected in context, or this may be intuited from the
+name requested.  In any case, there may be multiple C<CANDO> routines
+that are dispatched via MMD:
+
+    multi CANDO ( MyPackage, Item, $name: *%args --> Container)
+    multi CANDO ( MyPackage, Array, $name: *%args --> Container)
+    multi CANDO ( MyPackage, Hash, $name: *%args --> Container)
+    multi CANDO ( MyPackage, Code, $name: *%args --> Container)
+
+The package itself is just passed as the
+first argument, since it's the container object.  Subsequent arguments
+identify the desired type of the inner container and the "name" or
+"key" by which the object is to be looked up in the outer container.
+Such a name does not include its container name, unlike Perl 5's magical
+C<$AUTOLOAD> variable.
+
+The C<CANDO> is expected to return a reference to an inner
+container object of the proper sort (i.e. a variable, subroutine,
+or method reference), or to a proxy object that can "autovivify"
+lazily, or undef if that name is not to be considered declared in the
+namespace in question.  The declaration merely defines the interface
+to the new object.  That object need not be completely defined yet,
+though the C<CANDO> routine is certainly I<allowed> to define it
+eagerly, and even install the inner object into the outer container
+(the symbol table) if it wants to cache the declaration.
+
+At declaration time it might not yet be known whether the inner
+container object will be used in lvalue or rvalue context; the use
+of a proxy object can supply either readonly or rw semantics later.
+
+When the package in question is a class, it is also possible to declare 
+real methods or submethods:
+
+    multi method CANDO ($self: Code, $name: *%args --> Container)
+
+    multi submethod CANDO ($self: Item, $name: *%args --> Container)
+
+The method form is inherited by subclasses.  Submethods are never
+inherited but may still do MMD within the class.   (Ordinary multisubs
+are inherited only to the extent allowed by the MMD mechanism.)
+
+=for DISCUSSION
+The following should really be in S12 if really works this way, but
+I'm not sure it does.  Seems like something is wrong, but I can't
+quite put my finger on it.  Something like, different containers want
+different default values, but we've probably lost track of the container.
+So anyway, the rest of this section is considered conjectural.
 
 When someone tries to actually call or access an undefined object
-(which may have come from one of the routines above, or might have
-just been declared with a body of C<{...}>), a different set of hooks
-is used to define actual behavior at the last moment:
+(which may have come from one of the routines above, or might have just
+been declared with a body of C<{...}>), or might just be a variable
+declared without an initializer, a different hook is used to define
+actual behavior at the last moment:
 
-    AUTOSCALARDEF
-    AUTOARRAYDEF
-    AUTOHASHDEF
-    AUTOSUBDEF
-    AUTOMETHDEF
+    submethod AUTODEF ($self:) { ... }
 
-These routines are expected to define the object, but not to call
-it, since the call is already "scheduled" from somewhere else.
-(The C<goto &$AUTOLOAD> is implicit, in other words.  But you can
-hijack the call via the C<call> builtin, in which case the autoloader
-behaves just like a wrapper--see S06.)
+(Unlike the C<CANDO> interface, we do not pass the package.)
+
+This routine is passed an uninitialized (or underinitialized) object,
+and is expected to define or build the object, but not to call it,
+since the call is already "scheduled" from somewhere else.  (Perl 5's
+C<goto &$AUTOLOAD> is implicit, in other words.  But you can hijack
+the call via the C<call> builtin, in which case the autoloader behaves
+just like a wrapper--see S06.)
 
 In any case, there is no longer any magical C<$AUTOLOAD> variable.
-The name being declared or defined can be found in C<$_>
-instead.  The name does not include the package name.  You can always
-get your own package name with C<$?PACKAGENAME>.
+The C<AUTODEF> is a mutator, and thus is not expected to return the
+object.  No name is passed to C<AUTODEF>--in a context where a name
+is being declared at call time, the name is automatically introduced
+with C<CANDO> before C<AUTODEF> is called.  The outer container,
+if available, is accessed via C<$+CONTAINER>.  In the case of a
+sub call, the call's unbound C<ArgList> object will be available
+via C<$+ARGLIST>.  C<$+ARGLIST> is a rw variable, and mutations to it
+will be seen by the eventual "real" call.
 
+If a C<AUTODEF> submethod wishes merely to perform some action without
+defining C<$self>, that is fine.  It needs to signal that desire by
+use of an explicit "return;" statement.
+
+A C<AUTODEF> submethod is really just a variant of C<BUILD> with no named
+arguments.  As with C<BUILD>, default values for attributes are applied at
+the end for any attributes not explicitly set.  A typical C<AUTODEF>
+definition might be:
+
+    submethod AUTODEF { self.=BUILD }
+
+or maybe even just:
+
+    our &AUTODEF ::= &BUILD;

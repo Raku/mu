@@ -1495,7 +1495,7 @@ Unlike in Perl 5 where C<.can> returns a single routine reference,
 Perl 6's version of C<.meta.can> returns a "WALK" iterator for a
 set of routines that match the name, including all autoloaded and
 wildcarded possibilities.  In particular, C<.can> interrogates
-any class's C<AUTOMETH> for names that are to be considered methods
+any class package's C<CANDO> multimethod for names that are to be considered autoloadable methods
 in the class, even if they haven't been declared yet.  Role composition
 sometimes relies on this ability to determine whether a superclass supplies
 a method of a particular name if it's required and hasn't been supplied

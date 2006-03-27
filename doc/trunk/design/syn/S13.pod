@@ -109,10 +109,10 @@ routine.  This can easily be handled with Perl 6's aliasing:
 Dispatch is based on a routine's signature declaration without regard
 to whether the routine is defined yet.  If an attempt is made to
 dispatch to a declared but undefined routine, Perl will redispatch
-to C<AUTOSUBDEF> or C<AUTOMETHDEF> as appropriate to define the routine.
-This provides a run-time mechanism for fallbacks.  By default, these
-declarations are taken at face value and do not specify any underlying
-semantics.  As such, they're a "shallow" interpretation.
+to an C<AUTODEF> submethod [conjectural] as appropriate to define the routine.  This provides
+a run-time mechanism for fallbacks.  By default, these declarations
+are taken at face value and do not specify any underlying semantics.
+As such, they're a "shallow" interpretation.
 
 However, sometimes you want to specify a "deep" interpretation of
 your operators.  That is, you're specifying the abstract operation,
