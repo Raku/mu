@@ -269,7 +269,7 @@ including Unicode characters. For example:
 
     sub infix:<(c)> ($text, $owner) { return $text but Copyright($owner) }
     method prefix:<±> (Num $x) returns Num { return +$x | -$x }
-    multi sub postfix:<!> (Int $n) { $n < 2 ?? 1 :: $n*($n-1)! }
+    multi sub postfix:<!> (Int $n) { $n < 2 ?? 1 !! $n*($n-1)! }
     macro circumfix:«<!-- -->» ($text) is parsed / .*? / { "" }
 
     my $document = $text (c) $me;
