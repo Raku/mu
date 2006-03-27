@@ -16,6 +16,10 @@ Priorities:
 
 - add placeholder 'not implemented' messages in the right places
 
+- make Emitter::Rule::Perl5 subclassable - such that closures can be 
+  parsed/compiled by a custom parser
+- make the 'return' block functionally detectable (instead of regex)
+
 Bugs:
 
 - $variable should look into the user pad
