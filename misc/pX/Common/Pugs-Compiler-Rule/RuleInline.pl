@@ -41,8 +41,8 @@ use Benchmark;
 use Pugs::Compiler::Rule;
 my $rpcr = Pugs::Compiler::Rule->compile('[a|b]b');
 Benchmark::cmpthese(1000, {
-    PCR => sub{$rpcr->match('abc')},
-    fast_x1000 => sub{$x->('abc') for 1..1000},
+    PCR => sub{$rpcr->match('abc') for 1..10},
+    fast_x1000 => sub{$x->('abc') for 1..300},
 });
 
 __END__
