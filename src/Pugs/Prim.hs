@@ -258,6 +258,11 @@ op1 "Pugs::Internals::eval_parrot" = \v -> do
             , ".end"
             ]
     return $ VBool True
+
+-- XXX - revert these two to Prelude.pm's ::Disabled version once YAML+Closure is working
+op1 "use" = opRequire True 
+op1 "require" = opRequire False
+
 op1 "Pugs::Internals::use" = opRequire True
 op1 "Pugs::Internals::require" = opRequire False
 op1 "Pugs::Internals::eval" = \v -> do
@@ -1608,6 +1613,8 @@ initSyms = mapM primDecl syms
 \\n   Str       pre     yaml    safe   (rw!Any|Junction|Pair)\
 \\n   Any       pre     Pugs::Internals::require unsafe (?Str=$_)\
 \\n   Any       pre     Pugs::Internals::use     unsafe (?Str=$_)\
+\\n   Any       pre     require unsafe (?Str=$_)\
+\\n   Any       pre     use     unsafe (?Str=$_)\
 \\n   Any       pre     require_haskell unsafe (Str)\
 \\n   Any       pre     require_parrot  unsafe (Str)\
 \\n   Any       pre     require_perl5   unsafe (Str)\
