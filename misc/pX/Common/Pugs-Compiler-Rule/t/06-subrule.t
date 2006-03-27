@@ -3,11 +3,10 @@ use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
 use_ok( 'Pugs::Compiler::Rule' );
-no warnings qw( once );
 
 {
-    *{'Test123::rule1'} = Pugs::Compiler::Rule->compile('\w')->code();
-    *{'Test123::rule2'} = Pugs::Compiler::Rule->compile('(<rule1>)*')->code();
+    local *Test123::rule1 = Pugs::Compiler::Rule->compile('\w')->code();
+    local *Test123::rule2 = Pugs::Compiler::Rule->compile('(<rule1>)*')->code();
     my $match = Test123->rule2("abc");
     #print Dumper( $$match );
     is($match,'abc',"Matched...");
@@ -19,8 +18,8 @@ no warnings qw( once );
 }
 
 {
-    *{'Test123::rule1'} = Pugs::Compiler::Rule->compile('\w')->code();
-    *{'Test123::rule2'} = Pugs::Compiler::Rule->compile('<rule1>*')->code();
+    local *Test123::rule1 = Pugs::Compiler::Rule->compile('\w')->code();
+    local *Test123::rule2 = Pugs::Compiler::Rule->compile('<rule1>*')->code();
     my $match = Test123->rule2("abc");
     is($match,'abc',"Matched...");
     is(ref($match->{rule1}),"ARRAY",'$<rule1> is an array...');
@@ -31,8 +30,8 @@ no warnings qw( once );
 }
 
 {
-    *{'Test123::rule1'} = Pugs::Compiler::Rule->compile('\w')->code();
-    *{'Test123::rule2'} = Pugs::Compiler::Rule->compile('<rule1><rule1>')->code();
+    local *Test123::rule1 = Pugs::Compiler::Rule->compile('\w')->code();
+    local *Test123::rule2 = Pugs::Compiler::Rule->compile('<rule1><rule1>')->code();
     my $match = Test123->rule2("abc");
     is($match,'ab',"Matched...");
     is(ref($match->{rule1}),"ARRAY",'$<rule1> is an array...');
