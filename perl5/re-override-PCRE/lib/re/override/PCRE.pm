@@ -1,9 +1,10 @@
 package re::override::PCRE;
+use 5.006;
 use strict;
 use vars qw( @ISA @EXPORT $VERSION );
 
 BEGIN {
-    $VERSION = '0.03';
+    $VERSION = '0.04';
 
     local $@;
     eval {
