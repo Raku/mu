@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 25 Feb 2006
+  Last Modified: 28 Mar 2006
   Number: 4
-  Version: 10
+  Version: 11
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -90,7 +90,16 @@ hypothetical value.  It works exactly like C<temp>, except that the
 value will be restored only if the current block exits unsuccessfully.
 (See Definition of Success below for more.)  C<temp> and C<let> temporize
 or hypotheticalize the value or the variable depending on whether you
-do assignment or binding.
+do assignment or binding.  One other difference from Perl 5 is that
+the default is not to undefine a variable.  So
+
+    temp $x;
+
+causes C<$x> to start with its current value.  Use
+
+    temp undefine $x;
+
+to get the Perl 5 behavior.
 
 =head1 Statement-ending blocks
 
