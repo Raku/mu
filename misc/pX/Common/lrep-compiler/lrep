@@ -75,7 +75,7 @@ if ($tail)
     my $code;
     my $capture;
 $capture = $match->{'capture'};
-print Data::Dumper->Dump([$capture]);
+print ref $match.$/;
 $code = Emitter::Perl5::emit($capture);
     my $out_fh;
 open $out_fh, '>', $output_filename;

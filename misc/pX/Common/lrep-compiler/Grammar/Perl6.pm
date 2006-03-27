@@ -1,241 +1,162 @@
 package Grammar::Perl6;
 use base 'Pugs::Grammar::Base', 'Pugs::Grammar::Rule', 'Grammar::Perl6Init';
+use Runtime::RuleCompiler;
 use Pugs::Grammar::Rule;
 use Pugs::Runtime::Match;
-*{'immediate_statement_rule'} = 
+
+${'immediate_statement_rule'} = Runtime::RuleCompiler->compiled(
 sub {
     my $grammar = shift;
     package Pugs::Runtime::Rule;
     my $tree;
     rule_wrapper( $_[0], 
-       concat( 
-         optional(
-           sub { $grammar->p6ws( @_ ) }
-         )
-,         concat( 
-             alternation( \@Grammar::Perl6::statements )
-,           optional(
-             sub { $grammar->p6ws( @_ ) }
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-*{'grammar'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       greedy_star(
-         sub { $grammar->immediate_statement_rule( @_ ) }
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-*{'indirect_object'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           sub {  $grammar->varscalar( @_ ) } 
-,         concat( 
+     concat( 
+       capture( '*quantifier*',
            optional(
-             sub {  $grammar->p6ws( @_ ) } 
+                 sub{ 
+                     $grammar->p6ws( @_ );
+                 }
            )
-,           concat( 
-               constant( ':' )
-,               abort(
-                   sub {
-                       return { bool => 1, tail => $_[0], return => sub { return  $_[0]->{varscalar}  } };
+       )
+,       concat( 
+           alternation( \@Grammar::Perl6::statements )
+,         concat( 
+           capture( '*quantifier*',
+               optional(
+                     sub{ 
+                         $grammar->p6ws( @_ );
+                     }
+               )
+           )
+,             abort(
+                 sub {
+                     return { bool => 1, tail => $_[0], return => sub { return  $_[0]->()  } };
+                 }
+             )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'immediate_statement_rule'} = ${'immediate_statement_rule'}->code();
+${'grammar'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+       capture( '*quantifier*',
+           greedy_star(
+                 capture( 'immediate_statement_rule', 
+                   sub{ 
+                       $grammar->immediate_statement_rule( @_ );
                    }
-               )
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @terms, sub { Grammar::Perl6->indirect_object(@_) };
-*{'rule_decl'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           constant( "rule" )
-,         concat( 
-             sub {  $grammar->p6ws( @_ ) } 
-,           concat( 
-               sub {  $grammar->ident( @_ ) } 
-,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
-,               concat( 
-                   constant( '{' )
-,                 concat( 
-                     sub {  $grammar->rule( @_ ) } 
-,                   concat( 
-                       constant( '}' )
-,                       abort(
-                           sub {
-                               return { bool => 1, tail => $_[0], return => sub { return { rule_decl =>  \@{$_[0]}  ,} } };
-                           }
-                       )
-                   )
                  )
-               )
-             )
            )
-         )
        )
+,         abort(
+             sub {
+                 return { bool => 1, tail => $_[0], return => sub { return  $_[0]->()  } };
+             }
+         )
+     )
         ->( $_[0], undef, $tree, $tree )
     );
 }
-;
-    push @statements, sub { Grammar::Perl6->rule_decl(@_) };
-*{'grammar_name'} = 
+
+);
+*{'grammar'} = ${'grammar'}->code();
+${'indirect_object'} = Runtime::RuleCompiler->compiled(
 sub {
     my $grammar = shift;
     package Pugs::Runtime::Rule;
     my $tree;
     rule_wrapper( $_[0], 
-       concat( 
-           constant( "grammar" )
-,         concat( 
-             sub {  $grammar->p6ws( @_ ) } 
-,           concat( 
-               sub {  $grammar->ident( @_ ) } 
-,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
-,               concat( 
-                   constant( ';' )
-,                   abort(
-                       sub {
-                           return { bool => 1, tail => $_[0], return => sub { return { grammar_name =>  \@{$_[0]}  ,} } };
-                       }
+     concat( 
+         capture( 'varscalar', 
+           sub{ 
+               $grammar->varscalar( @_ );
+           }
+         )
+,       concat( 
+         capture( '*quantifier*',
+             optional(
+                   capture( 'p6ws', 
+                     sub{ 
+                         $grammar->p6ws( @_ );
+                     }
                    )
-               )
              )
-           )
+         )
+,         concat( 
+             constant( q!:! )
+,             abort(
+                 sub {
+                     return { bool => 1, tail => $_[0], return => sub { return  $_[0]->{varscalar}  } };
+                 }
+             )
          )
        )
+     )
         ->( $_[0], undef, $tree, $tree )
     );
 }
-;
-    push @statements, sub { Grammar::Perl6->grammar_name(@_) };
-*{'condition_rule'} = 
+
+);
+*{'indirect_object'} = ${'indirect_object'}->code();
+${'rule_decl'} = Runtime::RuleCompiler->compiled(
 sub {
     my $grammar = shift;
     package Pugs::Runtime::Rule;
     my $tree;
     rule_wrapper( $_[0], 
-       concat( 
-           capture( 'op', 
-       alternation( [
-           constant( "if" )
-,           constant( "unless" )
-       ] )
-           )
+     concat( 
+         constant( q(r) )
+,       concat( 
+           constant( q(u) )
 ,         concat( 
-           optional(
-             sub {  $grammar->p6ws( @_ ) } 
-           )
+             constant( q(l) )
 ,           concat( 
-               constant( '(' )
+               constant( q(e) )
 ,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
+                 capture( 'p6ws', 
+                   sub{ 
+                       $grammar->p6ws( @_ );
+                   }
+                 )
 ,               concat( 
-                   capture( 'condition', 
-         sub {  $grammar->term1( @_ ) } 
+                   capture( 'ident', 
+                     sub{ 
+                         $grammar->ident( @_ );
+                     }
                    )
 ,                 concat( 
-                   optional(
-                     sub {  $grammar->p6ws( @_ ) } 
-                   )
-,                   concat( 
-                       constant( ')' )
-,                     concat( 
+                   capture( '*quantifier*',
                        optional(
-                         sub {  $grammar->p6ws( @_ ) } 
-                       )
-,                       concat( 
-                           capture( 'then', 
-         sub {  $grammar->block( @_ ) } 
-                           )
-,                           abort(
-                               sub {
-                                   return { bool => 1, tail => $_[0], return => sub { return { condition =>  \@{$_[0]}  } } };
+                             capture( 'p6ws', 
+                               sub{ 
+                                   $grammar->p6ws( @_ );
                                }
-                           )
+                             )
                        )
-                     )
                    )
-                 )
-               )
-             )
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @statements, sub { Grammar::Perl6->condition_rule(@_) };
-*{'meth_call_term'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           capture( 'class', 
-         sub {  $grammar->ident( @_ ) } 
-           )
-,         concat( 
-             constant( '.' )
-,           concat( 
-               capture( 'meth', 
-         sub {  $grammar->word( @_ ) } 
-               )
-,             concat( 
-                 constant( '(' )
-,               concat( 
-                 optional(
-                   sub {  $grammar->p6ws( @_ ) } 
-                 )
-,                 concat( 
-                     capture( 'params', 
-       optional(
-         sub {  $grammar->list( @_ ) } 
-       )
-                     )
 ,                   concat( 
-                     optional(
-                       sub {  $grammar->p6ws( @_ ) } 
-                     )
+                       constant( q!{! )
 ,                     concat( 
-                         constant( ')' )
-,                       concat( 
-                         optional(
-                           sub {  $grammar->p6ws( @_ ) } 
+                         capture( 'rule', 
+                           sub{ 
+                               $grammar->rule( @_ );
+                           }
                          )
+,                       concat( 
+                           constant( q!}! )
 ,                           abort(
                                sub {
-                                   return { bool => 1, tail => $_[0], return => sub { return { meth_call_term =>  \@{$_[0]}  } } };
+                                   return { bool => 1, tail => $_[0], return => sub { return { rule_decl =>  $_[0]->()  ,} } };
                                }
                            )
                        )
@@ -247,53 +168,60 @@ sub {
            )
          )
        )
+     )
         ->( $_[0], undef, $tree, $tree )
     );
 }
-;
-*{'meth_call_statement'} = 
+
+);
+*{'rule_decl'} = ${'rule_decl'}->code();
+${'grammar_name'} = Runtime::RuleCompiler->compiled(
 sub {
     my $grammar = shift;
     package Pugs::Runtime::Rule;
     my $tree;
     rule_wrapper( $_[0], 
-       concat( 
-           capture( 'class', 
-         sub {  $grammar->ident( @_ ) } 
-           )
+     concat( 
+         constant( q(g) )
+,       concat( 
+           constant( q(r) )
 ,         concat( 
-             constant( '.' )
+             constant( q(a) )
 ,           concat( 
-               capture( 'meth', 
-         sub {  $grammar->word( @_ ) } 
-               )
+               constant( q(m) )
 ,             concat( 
-                 constant( '(' )
+                 constant( q(m) )
 ,               concat( 
-                 optional(
-                   sub {  $grammar->p6ws( @_ ) } 
-                 )
+                   constant( q(a) )
 ,                 concat( 
-                     capture( 'params', 
-       optional(
-         sub {  $grammar->list( @_ ) } 
-       )
-                     )
+                     constant( q(r) )
 ,                   concat( 
-                     optional(
-                       sub {  $grammar->p6ws( @_ ) } 
-                     )
+                       capture( 'p6ws', 
+                         sub{ 
+                             $grammar->p6ws( @_ );
+                         }
+                       )
 ,                     concat( 
-                         constant( ')' )
+                         capture( 'ident', 
+                           sub{ 
+                               $grammar->ident( @_ );
+                           }
+                         )
 ,                       concat( 
-                         optional(
-                           sub {  $grammar->p6ws( @_ ) } 
+                         capture( '*quantifier*',
+                             optional(
+                                   capture( 'p6ws', 
+                                     sub{ 
+                                         $grammar->p6ws( @_ );
+                                     }
+                                   )
+                             )
                          )
 ,                         concat( 
-                             constant( ';' )
+                             constant( q!;! )
 ,                             abort(
                                  sub {
-                                     return { bool => 1, tail => $_[0], return => sub { return { meth_call =>  \@{$_[0]}  } } };
+                                     return { bool => 1, tail => $_[0], return => sub { return { grammar_name =>  $_[0]->()  ,} } };
                                  }
                              )
                          )
@@ -306,104 +234,428 @@ sub {
            )
          )
        )
+     )
         ->( $_[0], undef, $tree, $tree )
     );
 }
-;
-    push @statements, sub { Grammar::Perl6->meth_call_statement(@_) };
-    push @terms, sub { Grammar::Perl6->meth_call_term(@_) };
-*{'sub_call_term'} = 
+
+);
+*{'grammar_name'} = ${'grammar_name'}->code();
+${'condition_rule'} = Runtime::RuleCompiler->compiled(
 sub {
     my $grammar = shift;
     package Pugs::Runtime::Rule;
     my $tree;
     rule_wrapper( $_[0], 
-       concat( 
-           capture( 'name', 
-         sub {  $grammar->ident( @_ ) } 
-           )
-,         concat( 
-             constant( '(' )
-,           concat( 
+     concat( 
+         capture( 'op', 
+           alternation( [
+             concat( 
+                 constant( q(i) )
+,                 constant( q(f) )
+             )
+,             concat( 
+                 constant( q(u) )
+,               concat( 
+                   constant( q(n) )
+,                 concat( 
+                     constant( q(l) )
+,                   concat( 
+                       constant( q(e) )
+,                     concat( 
+                         constant( q(s) )
+,                         constant( q(s) )
+                     )
+                   )
+                 )
+               )
+             )
+           ] )
+         )
+,       concat( 
+         capture( '*quantifier*',
              optional(
-               sub {  $grammar->p6ws( @_ ) } 
+                   sub{ 
+                       $grammar->p6ws( @_ );
+                   }
+             )
+         )
+,         concat( 
+             constant( q!(! )
+,           concat( 
+             capture( '*quantifier*',
+                 optional(
+                       sub{ 
+                           $grammar->p6ws( @_ );
+                       }
+                 )
+             )
+,             concat( 
+                 capture( 'condition', 
+                     capture( 'term1', 
+                       sub{ 
+                           $grammar->term1( @_ );
+                       }
+                     )
+                 )
+,               concat( 
+                 capture( '*quantifier*',
+                     optional(
+                           sub{ 
+                               $grammar->p6ws( @_ );
+                           }
+                     )
+                 )
+,                 concat( 
+                     constant( q!)! )
+,                   concat( 
+                     capture( '*quantifier*',
+                         optional(
+                               sub{ 
+                                   $grammar->p6ws( @_ );
+                               }
+                         )
+                     )
+,                     concat( 
+                         capture( 'then', 
+                             capture( 'block', 
+                               sub{ 
+                                   $grammar->block( @_ );
+                               }
+                             )
+                         )
+,                         abort(
+                             sub {
+                                 return { bool => 1, tail => $_[0], return => sub { return { condition =>  $_[0]->()  } } };
+                             }
+                         )
+                     )
+                   )
+                 )
+               )
+             )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'condition_rule'} = ${'condition_rule'}->code();
+${'meth_call_term'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         capture( 'class', 
+             capture( 'ident', 
+               sub{ 
+                   $grammar->ident( @_ );
+               }
+             )
+         )
+,       concat( 
+           constant( q!.! )
+,         concat( 
+             capture( 'meth', 
+                 capture( 'word', 
+                   sub{ 
+                       $grammar->word( @_ );
+                   }
+                 )
+             )
+,           concat( 
+               constant( q!(! )
+,             concat( 
+               capture( '*quantifier*',
+                   optional(
+                         sub{ 
+                             $grammar->p6ws( @_ );
+                         }
+                   )
+               )
+,               concat( 
+                   capture( 'params', 
+                     capture( '*quantifier*',
+                         optional(
+                               capture( 'list', 
+                                 sub{ 
+                                     $grammar->list( @_ );
+                                 }
+                               )
+                         )
+                     )
+                   )
+,                 concat( 
+                   capture( '*quantifier*',
+                       optional(
+                             sub{ 
+                                 $grammar->p6ws( @_ );
+                             }
+                       )
+                   )
+,                   concat( 
+                       constant( q!)! )
+,                     concat( 
+                       capture( '*quantifier*',
+                           optional(
+                                 sub{ 
+                                     $grammar->p6ws( @_ );
+                                 }
+                           )
+                       )
+,                         abort(
+                             sub {
+                                 return { bool => 1, tail => $_[0], return => sub { return { meth_call_term =>  $_[0]->()  } } };
+                             }
+                         )
+                     )
+                   )
+                 )
+               )
+             )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'meth_call_term'} = ${'meth_call_term'}->code();
+${'meth_call_statement'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         capture( 'class', 
+             capture( 'ident', 
+               sub{ 
+                   $grammar->ident( @_ );
+               }
+             )
+         )
+,       concat( 
+           constant( q!.! )
+,         concat( 
+             capture( 'meth', 
+                 capture( 'word', 
+                   sub{ 
+                       $grammar->word( @_ );
+                   }
+                 )
+             )
+,           concat( 
+               constant( q!(! )
+,             concat( 
+               capture( '*quantifier*',
+                   optional(
+                         sub{ 
+                             $grammar->p6ws( @_ );
+                         }
+                   )
+               )
+,               concat( 
+                   capture( 'params', 
+                     capture( '*quantifier*',
+                         optional(
+                               capture( 'list', 
+                                 sub{ 
+                                     $grammar->list( @_ );
+                                 }
+                               )
+                         )
+                     )
+                   )
+,                 concat( 
+                   capture( '*quantifier*',
+                       optional(
+                             sub{ 
+                                 $grammar->p6ws( @_ );
+                             }
+                       )
+                   )
+,                   concat( 
+                       constant( q!)! )
+,                     concat( 
+                       capture( '*quantifier*',
+                           optional(
+                                 sub{ 
+                                     $grammar->p6ws( @_ );
+                                 }
+                           )
+                       )
+,                       concat( 
+                           constant( q!;! )
+,                           abort(
+                               sub {
+                                   return { bool => 1, tail => $_[0], return => sub { return { meth_call =>  $_[0]->()  } } };
+                               }
+                           )
+                       )
+                     )
+                   )
+                 )
+               )
+             )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'meth_call_statement'} = ${'meth_call_statement'}->code();
+${'sub_call_term'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         capture( 'name', 
+             capture( 'ident', 
+               sub{ 
+                   $grammar->ident( @_ );
+               }
+             )
+         )
+,       concat( 
+           constant( q!(! )
+,         concat( 
+           capture( '*quantifier*',
+               optional(
+                     sub{ 
+                         $grammar->p6ws( @_ );
+                     }
+               )
+           )
+,           concat( 
+               capture( 'params', 
+                 capture( '*quantifier*',
+                     optional(
+                           capture( 'list', 
+                             sub{ 
+                                 $grammar->list( @_ );
+                             }
+                           )
+                     )
+                 )
+               )
+,             concat( 
+               capture( '*quantifier*',
+                   optional(
+                         sub{ 
+                             $grammar->p6ws( @_ );
+                         }
+                   )
+               )
+,               concat( 
+                   constant( q!)! )
+,                 concat( 
+                   capture( '*quantifier*',
+                       optional(
+                             sub{ 
+                                 $grammar->p6ws( @_ );
+                             }
+                       )
+                   )
+,                     abort(
+                         sub {
+                             return { bool => 1, tail => $_[0], return => sub { return { sub_call_term =>  $_[0]->()  } } };
+                         }
+                     )
+                 )
+               )
+             )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'sub_call_term'} = ${'sub_call_term'}->code();
+${'sub_call_statement'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         capture( 'name', 
+             capture( 'ident', 
+               sub{ 
+                   $grammar->ident( @_ );
+               }
+             )
+         )
+,       concat( 
+         capture( '*quantifier*',
+             optional(
+                   sub{ 
+                       $grammar->p6ws( @_ );
+                   }
+             )
+         )
+,         concat( 
+             constant( q!(! )
+,           concat( 
+             capture( '*quantifier*',
+                 optional(
+                       sub{ 
+                           $grammar->p6ws( @_ );
+                       }
+                 )
              )
 ,             concat( 
                  capture( 'params', 
-       optional(
-         sub {  $grammar->list( @_ ) } 
-       )
+                   capture( '*quantifier*',
+                       optional(
+                             capture( 'list', 
+                               sub{ 
+                                   $grammar->list( @_ );
+                               }
+                             )
+                       )
+                   )
                  )
 ,               concat( 
-                 optional(
-                   sub {  $grammar->p6ws( @_ ) } 
-                 )
-,                 concat( 
-                     constant( ')' )
-,                   concat( 
+                 capture( '*quantifier*',
                      optional(
-                       sub {  $grammar->p6ws( @_ ) } 
-                     )
-,                       abort(
-                           sub {
-                               return { bool => 1, tail => $_[0], return => sub { return { sub_call_term =>  \@{$_[0]}  } } };
+                           sub{ 
+                               $grammar->p6ws( @_ );
                            }
-                       )
-                   )
+                     )
                  )
-               )
-             )
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-*{'sub_call_statement'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           capture( 'name', 
-         sub {  $grammar->ident( @_ ) } 
-           )
-,         concat( 
-           optional(
-             sub {  $grammar->p6ws( @_ ) } 
-           )
-,           concat( 
-               constant( '(' )
-,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
-,               concat( 
-                   capture( 'params', 
-       optional(
-         sub {  $grammar->list( @_ ) } 
-       )
-                   )
 ,                 concat( 
-                   optional(
-                     sub {  $grammar->p6ws( @_ ) } 
-                   )
+                     constant( q!)! )
 ,                   concat( 
-                       constant( ')' )
-,                     concat( 
-                       optional(
-                         sub {  $grammar->p6ws( @_ ) } 
-                       )
-,                       concat( 
-                           constant( ';' )
-,                           abort(
-                               sub {
-                                   return { bool => 1, tail => $_[0], return => sub { return { sub_call =>  \@{$_[0]}  } } };
+                     capture( '*quantifier*',
+                         optional(
+                               sub{ 
+                                   $grammar->p6ws( @_ );
                                }
-                           )
-                       )
+                         )
+                     )
+,                     concat( 
+                         constant( q!;! )
+,                         abort(
+                             sub {
+                                 return { bool => 1, tail => $_[0], return => sub { return { sub_call =>  $_[0]->()  } } };
+                             }
+                         )
                      )
                    )
                  )
@@ -412,730 +664,1177 @@ sub {
            )
          )
        )
+     )
         ->( $_[0], undef, $tree, $tree )
     );
 }
-;
-    push @statements, sub { Grammar::Perl6->sub_call_statement(@_) };
-    push @terms, sub { Grammar::Perl6->sub_call_term(@_) };
-*{'access_hashref_element'} = 
+
+);
+*{'sub_call_statement'} = ${'sub_call_statement'}->code();
+${'access_hashref_element'} = Runtime::RuleCompiler->compiled(
 sub {
     my $grammar = shift;
     package Pugs::Runtime::Rule;
     my $tree;
     rule_wrapper( $_[0], 
-       concat( 
-           capture( 'variable', 
-         sub {  $grammar->varscalar( @_ ) } 
-           )
-,         concat( 
-             constant( '{' )
-,           concat( 
-               capture( 'key', 
-         sub {  $grammar->term1( @_ ) } 
-               )
-,             concat( 
-                 constant( '}' )
-,                 abort(
-                     sub {
-                         return { bool => 1, tail => $_[0], return => sub { return { access_hashref_element =>  \@{$_[0]}  } } };
-                     }
-                 )
-             )
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @terms, sub { Grammar::Perl6->access_hashref_element(@_) };
-    push @statements, sub { Grammar::Perl6->access_hashref_element(@_) };
-*{'access_hash_element'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           capture( 'variable', 
-         sub {  $grammar->varhash( @_ ) } 
-           )
-,         concat( 
-             constant( '{' )
-,           concat( 
-               capture( 'key', 
-         sub {  $grammar->term1( @_ ) } 
-               )
-,             concat( 
-                 constant( '}' )
-,                 abort(
-                     sub {
-                         return { bool => 1, tail => $_[0], return => sub { return { access_hash_element =>  \@{$_[0]}  } } };
-                     }
-                 )
-             )
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @terms, sub { Grammar::Perl6->access_hash_element(@_) };
-    push @statements, sub { Grammar::Perl6->access_hash_element(@_) };
-*{'assign_hash_to_scalar'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           capture( 'variable', 
-         sub {  $grammar->varscalar( @_ ) } 
-           )
-,         concat( 
-           optional(
-             sub {  $grammar->p6ws( @_ ) } 
-           )
-,           concat( 
-               constant( '=' )
-,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
-,               concat( 
-                   capture( 'value', 
-         sub {  $grammar->varhash( @_ ) } 
-                   )
-,                 concat( 
-                   optional(
-                     sub {  $grammar->p6ws( @_ ) } 
-                   )
-,                   concat( 
-                       constant( ';' )
-,                       abort(
-                           sub {
-                               return { bool => 1, tail => $_[0], return => sub { return { assign_hash_to_scalar =>  \@{$_[0]} } } };
-                           }
-                       )
-                   )
-                 )
-               )
-             )
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @statements, sub { Grammar::Perl6->assign_hash_to_scalar(@_) };
-*{'assign_slurp_to_variable'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           capture( 'variable', 
-         sub {  $grammar->variable( @_ ) } 
-           )
-,         concat( 
-           optional(
-             sub {  $grammar->p6ws( @_ ) } 
-           )
-,           concat( 
-               constant( '=' )
-,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
-,               concat( 
-                   constant( "slurp" )
-,                 concat( 
-                   optional(
-                     sub {  $grammar->p6ws( @_ ) } 
-                   )
-,                   concat( 
-                       capture( 'value', 
-         sub {  $grammar->term1( @_ ) } 
-                       )
-,                     concat( 
-                       optional(
-                         sub {  $grammar->p6ws( @_ ) } 
-                       )
-,                       concat( 
-                           constant( ';' )
-,                           abort(
-                               sub {
-                                   return { bool => 1, tail => $_[0], return => sub { return { slurp =>  \@{$_[0]}  } } };
-                               }
-                           )
-                       )
-                     )
-                   )
-                 )
-               )
-             )
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @statements, sub { Grammar::Perl6->assign_slurp_to_variable(@_) };
-*{'assign_open_to_variable'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           capture( 'variable', 
-         sub {  $grammar->variable( @_ ) } 
-           )
-,         concat( 
-           optional(
-             sub {  $grammar->p6ws( @_ ) } 
-           )
-,           concat( 
-               constant( '=' )
-,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
-,               concat( 
-                   constant( "open" )
-,                 concat( 
-                   optional(
-                     sub {  $grammar->p6ws( @_ ) } 
-                   )
-,                   concat( 
-                       capture( 'value', 
-         sub {  $grammar->term1( @_ ) } 
-                       )
-,                     concat( 
-                       optional(
-                         sub {  $grammar->p6ws( @_ ) } 
-                       )
-,                       concat( 
-                           constant( ';' )
-,                           abort(
-                               sub {
-                                   return { bool => 1, tail => $_[0], return => sub { return { _open =>  \@{$_[0]}  } } };
-                               }
-                           )
-                       )
-                     )
-                   )
-                 )
-               )
-             )
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @statements, sub { Grammar::Perl6->assign_open_to_variable(@_) };
-*{'assign'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           capture( 'variable', 
-         sub {  $grammar->term1( @_ ) } 
-           )
-,         concat( 
-           optional(
-             sub {  $grammar->p6ws( @_ ) } 
-           )
-,           concat( 
-               constant( '=' )
-,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
-,               concat( 
-                   capture( 'value', 
-         sub {  $grammar->term1( @_ ) } 
-                   )
-,                 concat( 
-                   optional(
-                     sub {  $grammar->p6ws( @_ ) } 
-                   )
-,                   concat( 
-                       constant( ';' )
-,                       abort(
-                           sub {
-                               return { bool => 1, tail => $_[0], return => sub { return { assign =>  \@{$_[0]}  } } };
-                           }
-                       )
-                   )
-                 )
-               )
-             )
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @statements, sub { Grammar::Perl6->assign(@_) };
-*{'sub_call'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           capture( 'name', 
-         sub {  $grammar->ident( @_ ) } 
-           )
-,         concat( 
-           optional(
-             sub {  $grammar->p6ws( @_ ) } 
-           )
-,           concat( 
-               constant( '(' )
-,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
-,               concat( 
-                   capture( 'params', 
-       optional(
-         sub {  $grammar->list( @_ ) } 
-       )
-                   )
-,                 concat( 
-                   optional(
-                     sub {  $grammar->p6ws( @_ ) } 
-                   )
-,                   concat( 
-                       constant( ')' )
-,                     concat( 
-                       optional(
-                         sub {  $grammar->p6ws( @_ ) } 
-                       )
-,                       concat( 
-                           constant( ';' )
-,                           abort(
-                               sub {
-                                   return { bool => 1, tail => $_[0], return => sub { return { sub_call =>  \@{$_[0]}  } } };
-                               }
-                           )
-                       )
-                     )
-                   )
-                 )
-               )
-             )
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @statements, sub { Grammar::Perl6->sub_call(@_) };
-    push @terms, sub { Grammar::Perl6->sub_call(@_) };
-*{'_push'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           capture( 'op', 
-       alternation( [
-           constant( "push" )
-,           constant( "unshift" )
-       ] )
-           )
-,         concat( 
-             sub {  $grammar->p6ws( @_ ) } 
-,           concat( 
-               sub {  $grammar->variable( @_ ) } 
-,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
-,               concat( 
-                   constant( ',' )
-,                 concat( 
-                   optional(
-                     sub {  $grammar->p6ws( @_ ) } 
-                   )
-,                   concat( 
-                       capture( 'code', 
-       non_greedy_star(
-         sub{ 
-             ${ $grammar->any( @_ ) };
-         }
-       )
-                       )
-,                     concat( 
-                       optional(
-                         sub {  $grammar->p6ws( @_ ) } 
-                       )
-,                       concat( 
-                           constant( ';' )
-,                           abort(
-                               sub {
-                                   return { bool => 1, tail => $_[0], return => sub { return { _push =>  \@{$_[0]}  ,} } };
-                               }
-                           )
-                       )
-                     )
-                   )
-                 )
-               )
-             )
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @statements, sub { Grammar::Perl6->_push(@_) };
-*{'pod'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           constant( '=' )
-,         concat( 
-             alternation( [
-                 constant( "pod" )
-,               alternation( [
-                   constant( "head1" )
-,                 alternation( [
-                     constant( "kwid" )
-,                     constant( "for" )
-                 ] )
-               ] )
-             ] )
-,           concat( 
-             non_greedy_star(
+     concat( 
+         capture( 'variable', 
+             capture( 'varscalar', 
                sub{ 
-                   ${ $grammar->any( @_ ) };
+                   $grammar->varscalar( @_ );
                }
              )
-,             concat( 
-                 constant( '=' )
-,                 constant( "cut" )
+         )
+,       concat( 
+           constant( q!{! )
+,         concat( 
+             capture( 'key', 
+                 capture( 'term1', 
+                   sub{ 
+                       $grammar->term1( @_ );
+                   }
+                 )
              )
+,           concat( 
+               constant( q!}! )
+,               abort(
+                   sub {
+                       return { bool => 1, tail => $_[0], return => sub { return { access_hashref_element =>  $_[0]->()  } } };
+                   }
+               )
            )
          )
        )
+     )
         ->( $_[0], undef, $tree, $tree )
     );
 }
-;
-    push @statements, sub { Grammar::Perl6->pod(@_) };
-*{'use_v6'} = 
+
+);
+*{'access_hashref_element'} = ${'access_hashref_element'}->code();
+${'access_hash_element'} = Runtime::RuleCompiler->compiled(
 sub {
     my $grammar = shift;
     package Pugs::Runtime::Rule;
     my $tree;
     rule_wrapper( $_[0], 
-       concat( 
-           constant( "use" )
+     concat( 
+         capture( 'variable', 
+             capture( 'varhash', 
+               sub{ 
+                   $grammar->varhash( @_ );
+               }
+             )
+         )
+,       concat( 
+           constant( q!{! )
 ,         concat( 
-             sub {  $grammar->p6ws( @_ ) } 
+             capture( 'key', 
+                 capture( 'term1', 
+                   sub{ 
+                       $grammar->term1( @_ );
+                   }
+                 )
+             )
 ,           concat( 
-               constant( "v6" )
+               constant( q!}! )
+,               abort(
+                   sub {
+                       return { bool => 1, tail => $_[0], return => sub { return { access_hash_element =>  $_[0]->()  } } };
+                   }
+               )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'access_hash_element'} = ${'access_hash_element'}->code();
+${'assign_hash_to_scalar'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         capture( 'variable', 
+             capture( 'varscalar', 
+               sub{ 
+                   $grammar->varscalar( @_ );
+               }
+             )
+         )
+,       concat( 
+         capture( '*quantifier*',
+             optional(
+                   sub{ 
+                       $grammar->p6ws( @_ );
+                   }
+             )
+         )
+,         concat( 
+             constant( q!=! )
+,           concat( 
+             capture( '*quantifier*',
+                 optional(
+                       sub{ 
+                           $grammar->p6ws( @_ );
+                       }
+                 )
+             )
 ,             concat( 
-                 constant( '-' )
+                 capture( 'value', 
+                     capture( 'varhash', 
+                       sub{ 
+                           $grammar->varhash( @_ );
+                       }
+                     )
+                 )
 ,               concat( 
-                   constant( "pugs" )
+                 capture( '*quantifier*',
+                     optional(
+                           sub{ 
+                               $grammar->p6ws( @_ );
+                           }
+                     )
+                 )
 ,                 concat( 
-                   optional(
-                     sub {  $grammar->p6ws( @_ ) } 
-                   )
-,                     constant( ';' )
+                     constant( q!;! )
+,                     abort(
+                         sub {
+                             return { bool => 1, tail => $_[0], return => sub { return { assign_hash_to_scalar =>  $_[0]->()  } } };
+                         }
+                     )
                  )
                )
              )
            )
          )
        )
+     )
         ->( $_[0], undef, $tree, $tree )
     );
 }
-;
-    push @statements, sub { Grammar::Perl6->use_v6(@_) };
-*{'require'} = 
+
+);
+*{'assign_hash_to_scalar'} = ${'assign_hash_to_scalar'}->code();
+${'assign_slurp_to_variable'} = Runtime::RuleCompiler->compiled(
 sub {
     my $grammar = shift;
     package Pugs::Runtime::Rule;
     my $tree;
     rule_wrapper( $_[0], 
-       concat( 
-           constant( "require" )
+     concat( 
+         capture( 'variable', 
+             capture( 'variable', 
+               sub{ 
+                   $grammar->variable( @_ );
+               }
+             )
+         )
+,       concat( 
+         capture( '*quantifier*',
+             optional(
+                   sub{ 
+                       $grammar->p6ws( @_ );
+                   }
+             )
+         )
 ,         concat( 
-             sub {  $grammar->p6ws( @_ ) } 
+             constant( q!=! )
 ,           concat( 
-               sub {  $grammar->ident( @_ ) } 
+             capture( '*quantifier*',
+                 optional(
+                       sub{ 
+                           $grammar->p6ws( @_ );
+                       }
+                 )
+             )
 ,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
+                 constant( q(s) )
 ,               concat( 
-                   constant( ';' )
-,                   abort(
-                       sub {
-                           return { bool => 1, tail => $_[0], return => sub { 
-		# XXX This is perl5 code
-		# this is ugly
+                   constant( q(l) )
+,                 concat( 
+                     constant( q(u) )
+,                   concat( 
+                       constant( q(r) )
+,                     concat( 
+                         constant( q(p) )
+,                       concat( 
+                         capture( '*quantifier*',
+                             optional(
+                                   sub{ 
+                                       $grammar->p6ws( @_ );
+                                   }
+                             )
+                         )
+,                         concat( 
+                             capture( 'value', 
+                                 capture( 'term1', 
+                                   sub{ 
+                                       $grammar->term1( @_ );
+                                   }
+                                 )
+                             )
+,                           concat( 
+                             capture( '*quantifier*',
+                                 optional(
+                                       sub{ 
+                                           $grammar->p6ws( @_ );
+                                       }
+                                 )
+                             )
+,                             concat( 
+                                 constant( q!;! )
+,                                 abort(
+                                     sub {
+                                         return { bool => 1, tail => $_[0], return => sub { return { slurp =>  $_[0]->()  } } };
+                                     }
+                                 )
+                             )
+                           )
+                         )
+                       )
+                     )
+                   )
+                 )
+               )
+             )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'assign_slurp_to_variable'} = ${'assign_slurp_to_variable'}->code();
+${'assign_open_to_variable'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         capture( 'variable', 
+             capture( 'variable', 
+               sub{ 
+                   $grammar->variable( @_ );
+               }
+             )
+         )
+,       concat( 
+         capture( '*quantifier*',
+             optional(
+                   sub{ 
+                       $grammar->p6ws( @_ );
+                   }
+             )
+         )
+,         concat( 
+             constant( q!=! )
+,           concat( 
+             capture( '*quantifier*',
+                 optional(
+                       sub{ 
+                           $grammar->p6ws( @_ );
+                       }
+                 )
+             )
+,             concat( 
+                 constant( q(o) )
+,               concat( 
+                   constant( q(p) )
+,                 concat( 
+                     constant( q(e) )
+,                   concat( 
+                       constant( q(n) )
+,                     concat( 
+                       capture( '*quantifier*',
+                           optional(
+                                 sub{ 
+                                     $grammar->p6ws( @_ );
+                                 }
+                           )
+                       )
+,                       concat( 
+                           capture( 'value', 
+                               capture( 'term1', 
+                                 sub{ 
+                                     $grammar->term1( @_ );
+                                 }
+                               )
+                           )
+,                         concat( 
+                           capture( '*quantifier*',
+                               optional(
+                                     sub{ 
+                                         $grammar->p6ws( @_ );
+                                     }
+                               )
+                           )
+,                           concat( 
+                               constant( q!;! )
+,                               abort(
+                                   sub {
+                                       return { bool => 1, tail => $_[0], return => sub { return { _open =>  $_[0]->()  } } };
+                                   }
+                               )
+                           )
+                         )
+                       )
+                     )
+                   )
+                 )
+               )
+             )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'assign_open_to_variable'} = ${'assign_open_to_variable'}->code();
+${'assign'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         capture( 'variable', 
+             capture( 'term1', 
+               sub{ 
+                   $grammar->term1( @_ );
+               }
+             )
+         )
+,       concat( 
+         capture( '*quantifier*',
+             optional(
+                   sub{ 
+                       $grammar->p6ws( @_ );
+                   }
+             )
+         )
+,         concat( 
+             constant( q!=! )
+,           concat( 
+             capture( '*quantifier*',
+                 optional(
+                       sub{ 
+                           $grammar->p6ws( @_ );
+                       }
+                 )
+             )
+,             concat( 
+                 capture( 'value', 
+                     capture( 'term1', 
+                       sub{ 
+                           $grammar->term1( @_ );
+                       }
+                     )
+                 )
+,               concat( 
+                 capture( '*quantifier*',
+                     optional(
+                           sub{ 
+                               $grammar->p6ws( @_ );
+                           }
+                     )
+                 )
+,                 concat( 
+                     constant( q!;! )
+,                     abort(
+                         sub {
+                             return { bool => 1, tail => $_[0], return => sub { return { assign =>  $_[0]->()  } } };
+                         }
+                     )
+                 )
+               )
+             )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'assign'} = ${'assign'}->code();
+${'sub_call'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         capture( 'name', 
+             capture( 'ident', 
+               sub{ 
+                   $grammar->ident( @_ );
+               }
+             )
+         )
+,       concat( 
+         capture( '*quantifier*',
+             optional(
+                   sub{ 
+                       $grammar->p6ws( @_ );
+                   }
+             )
+         )
+,         concat( 
+             constant( q!(! )
+,           concat( 
+             capture( '*quantifier*',
+                 optional(
+                       sub{ 
+                           $grammar->p6ws( @_ );
+                       }
+                 )
+             )
+,             concat( 
+                 capture( 'params', 
+                   capture( '*quantifier*',
+                       optional(
+                             capture( 'list', 
+                               sub{ 
+                                   $grammar->list( @_ );
+                               }
+                             )
+                       )
+                   )
+                 )
+,               concat( 
+                 capture( '*quantifier*',
+                     optional(
+                           sub{ 
+                               $grammar->p6ws( @_ );
+                           }
+                     )
+                 )
+,                 concat( 
+                     constant( q!)! )
+,                   concat( 
+                     capture( '*quantifier*',
+                         optional(
+                               sub{ 
+                                   $grammar->p6ws( @_ );
+                               }
+                         )
+                     )
+,                     concat( 
+                         constant( q!;! )
+,                         abort(
+                             sub {
+                                 return { bool => 1, tail => $_[0], return => sub { return { sub_call =>  $_[0]->()  } } };
+                             }
+                         )
+                     )
+                   )
+                 )
+               )
+             )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'sub_call'} = ${'sub_call'}->code();
+${'_push'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         capture( 'op', 
+           alternation( [
+             concat( 
+                 constant( q(p) )
+,               concat( 
+                   constant( q(u) )
+,                 concat( 
+                     constant( q(s) )
+,                     constant( q(h) )
+                 )
+               )
+             )
+,             concat( 
+                 constant( q(u) )
+,               concat( 
+                   constant( q(n) )
+,                 concat( 
+                     constant( q(s) )
+,                   concat( 
+                       constant( q(h) )
+,                     concat( 
+                         constant( q(i) )
+,                       concat( 
+                           constant( q(f) )
+,                           constant( q(t) )
+                       )
+                     )
+                   )
+                 )
+               )
+             )
+           ] )
+         )
+,       concat( 
+           capture( 'p6ws', 
+             sub{ 
+                 $grammar->p6ws( @_ );
+             }
+           )
+,         concat( 
+             capture( 'variable', 
+               sub{ 
+                   $grammar->variable( @_ );
+               }
+             )
+,           concat( 
+             capture( '*quantifier*',
+                 optional(
+                       capture( 'p6ws', 
+                         sub{ 
+                             $grammar->p6ws( @_ );
+                         }
+                       )
+                 )
+             )
+,             concat( 
+                 constant( q!,! )
+,               concat( 
+                 capture( '*quantifier*',
+                     optional(
+                           capture( 'p6ws', 
+                             sub{ 
+                                 $grammar->p6ws( @_ );
+                             }
+                           )
+                     )
+                 )
+,                 concat( 
+                     capture( 'code', 
+                       capture( '*quantifier*',
+                           non_greedy_star(
+                                 sub{ 
+                                     $grammar->any( @_ );
+                                 }
+                           )
+                       )
+                     )
+,                   concat( 
+                     capture( '*quantifier*',
+                         optional(
+                               capture( 'p6ws', 
+                                 sub{ 
+                                     $grammar->p6ws( @_ );
+                                 }
+                               )
+                         )
+                     )
+,                     concat( 
+                         constant( q!;! )
+,                         abort(
+                             sub {
+                                 return { bool => 1, tail => $_[0], return => sub { return { _push =>  $_[0]->()  ,} } };
+                             }
+                         )
+                     )
+                   )
+                 )
+               )
+             )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'_push'} = ${'_push'}->code();
+${'pod'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         constant( q!=! )
+,       concat( 
+           alternation( [
+             concat( 
+                 constant( q(p) )
+,               concat( 
+                   constant( q(o) )
+,                   constant( q(d) )
+               )
+             )
+,             alternation( [
+               concat( 
+                   constant( q(h) )
+,                 concat( 
+                     constant( q(e) )
+,                   concat( 
+                       constant( q(a) )
+,                     concat( 
+                         constant( q(d) )
+,                         constant( q(1) )
+                     )
+                   )
+                 )
+               )
+,               alternation( [
+                 concat( 
+                     constant( q(k) )
+,                   concat( 
+                       constant( q(w) )
+,                     concat( 
+                         constant( q(i) )
+,                         constant( q(d) )
+                     )
+                   )
+                 )
+,                 concat( 
+                     constant( q(f) )
+,                   concat( 
+                       constant( q(o) )
+,                       constant( q(r) )
+                   )
+                 )
+               ] )
+             ] )
+           ] )
+,         concat( 
+           capture( '*quantifier*',
+               non_greedy_star(
+                     sub{ 
+                         $grammar->any( @_ );
+                     }
+               )
+           )
+,           concat( 
+               constant( q!=! )
+,             concat( 
+                 constant( q(c) )
+,               concat( 
+                   constant( q(u) )
+,                   constant( q(t) )
+               )
+             )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'pod'} = ${'pod'}->code();
+${'use_v6'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         constant( q(u) )
+,       concat( 
+           constant( q(s) )
+,         concat( 
+             constant( q(e) )
+,           concat( 
+               sub{ 
+                   $grammar->p6ws( @_ );
+               }
+,             concat( 
+                 constant( q(v) )
+,               concat( 
+                   constant( q(6) )
+,                 concat( 
+                     constant( q!-! )
+,                   concat( 
+                       constant( q(p) )
+,                     concat( 
+                         constant( q(u) )
+,                       concat( 
+                           constant( q(g) )
+,                         concat( 
+                             constant( q(s) )
+,                           concat( 
+                             capture( '*quantifier*',
+                                 optional(
+                                       sub{ 
+                                           $grammar->p6ws( @_ );
+                                       }
+                                 )
+                             )
+,                               constant( q!;! )
+                           )
+                         )
+                       )
+                     )
+                   )
+                 )
+               )
+             )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'use_v6'} = ${'use_v6'}->code();
+${'require'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         constant( q(r) )
+,       concat( 
+           constant( q(e) )
+,         concat( 
+             constant( q(q) )
+,           concat( 
+               constant( q(u) )
+,             concat( 
+                 constant( q(i) )
+,               concat( 
+                   constant( q(r) )
+,                 concat( 
+                     constant( q(e) )
+,                   concat( 
+                       sub{ 
+                           $grammar->p6ws( @_ );
+                       }
+,                     concat( 
+                         capture( 'ident', 
+                           sub{ 
+                               $grammar->ident( @_ );
+                           }
+                         )
+,                       concat( 
+                         capture( '*quantifier*',
+                             optional(
+                                   sub{ 
+                                       $grammar->p6ws( @_ );
+                                   }
+                             )
+                         )
+,                         concat( 
+                             constant( q!;! )
+,                             abort(
+                                 sub {
+                                     return { bool => 1, tail => $_[0], return => sub { 
 		eval 'require '. $_[0]->() ->[2]{ident}[0]{ident};
 		return { require_bareword =>  $_[0]->()  ,} 
 	} };
-                       }
+                                 }
+                             )
+                         )
+                       )
+                     )
                    )
+                 )
                )
              )
            )
          )
        )
+     )
         ->( $_[0], undef, $tree, $tree )
     );
 }
-;
-    push @statements, sub { Grammar::Perl6->require(@_) };
-*{'use_rule'} = 
+
+);
+*{'require'} = ${'require'}->code();
+${'use_rule'} = Runtime::RuleCompiler->compiled(
 sub {
     my $grammar = shift;
     package Pugs::Runtime::Rule;
     my $tree;
     rule_wrapper( $_[0], 
-       concat( 
-           constant( "use" )
+     concat( 
+         constant( q(u) )
+,       concat( 
+           constant( q(s) )
 ,         concat( 
-             sub {  $grammar->p6ws( @_ ) } 
+             constant( q(e) )
 ,           concat( 
-               sub {  $grammar->ident( @_ ) } 
+               sub{ 
+                   $grammar->p6ws( @_ );
+               }
 ,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
+                 capture( 'ident', 
+                   sub{ 
+                       $grammar->ident( @_ );
+                   }
+                 )
 ,               concat( 
-                   constant( ';' )
-,                   abort(
-                       sub {
-                           return { bool => 1, tail => $_[0], return => sub { 
-		# XXX This is perl5 code
-		# this is ugly
-		# eval 'use '. $_[0]->() ->[2]{ident}[0]{ident};
+                 capture( '*quantifier*',
+                     optional(
+                           sub{ 
+                               $grammar->p6ws( @_ );
+                           }
+                     )
+                 )
+,                 concat( 
+                     constant( q!;! )
+,                     abort(
+                         sub {
+                             return { bool => 1, tail => $_[0], return => sub { 
+		eval 'use '. $_[0]->() ->[2]{ident}[0]{ident};
 		return { use_bareword =>  $_[0]->()  ,} 
 	} };
+                         }
+                     )
+                 )
+               )
+             )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'use_rule'} = ${'use_rule'}->code();
+${'term1'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+       alternation( \@Grammar::Perl6::terms )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'term1'} = ${'term1'}->code();
+${'list'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+       capture( '*quantifier*',
+           greedy_star(
+                 concat( 
+                     capture( 'term1', 
+                       sub{ 
+                           $grammar->term1( @_ );
                        }
-                   )
-               )
-             )
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @statements, sub { Grammar::Perl6->use_rule(@_) };
-*{'term1'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-         alternation( \@Grammar::Perl6::terms )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-*{'list'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-         greedy_star(
-           concat( 
-               sub {  $grammar->term1( @_ ) } 
-,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
-,               concat( 
-                   constant( ',' )
-,                 optional(
-                   sub {  $grammar->p6ws( @_ ) } 
-                 )
-               )
-             )
-           )
-         )
-,         optional(
-           sub {  $grammar->term1( @_ ) } 
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-*{'block'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           constant( '{' )
-,         concat( 
-             capture( 'list', 
-       greedy_star(
-         concat( 
-           optional(
-             sub {  $grammar->p6ws( @_ ) } 
-           )
-,             alternation( \@statements )
-         )
-       )
-             )
-,           concat( 
-             optional(
-               sub {  $grammar->p6ws( @_ ) } 
-             )
-,             concat( 
-                 constant( '}' )
-,                 abort(
-                     sub {
-                         return { bool => 1, tail => $_[0], return => sub { return { block =>  $_[0]->{list}  ,} } };
-                     }
-                 )
-             )
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @statements, sub { Grammar::Perl6->block(@_) };
-*{'macro_decl'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           constant( "macro" )
-,         concat( 
-             sub {  $grammar->p6ws( @_ ) } 
-,           concat( 
-               capture( 'prefix', 
-         sub {  $grammar->word( @_ ) } 
-               )
-,             concat( 
-                 constant( ':' )
-,               concat( 
-                   constant( '<' )
-,                 concat( 
-                     capture( 'id', 
-       non_greedy_star(
-         sub{ 
-             ${ $grammar->any( @_ ) };
-         }
-       )
                      )
 ,                   concat( 
-                       constant( '>' )
+                     capture( '*quantifier*',
+                         optional(
+                               sub{ 
+                                   $grammar->p6ws( @_ );
+                               }
+                         )
+                     )
 ,                     concat( 
-                       optional(
-                         sub {  $grammar->p6ws( @_ ) } 
-                       )
-,                       concat( 
-                           constant( '(' )
-,                         concat( 
+                         constant( q!,! )
+,                       capture( '*quantifier*',
                            optional(
-                             sub {  $grammar->p6ws( @_ ) } 
+                                 sub{ 
+                                     $grammar->p6ws( @_ );
+                                 }
                            )
-,                           concat( 
+                       )
+                     )
+                   )
+                 )
+           )
+       )
+,       capture( '*quantifier*',
+           optional(
+                 capture( 'term1', 
+                   sub{ 
+                       $grammar->term1( @_ );
+                   }
+                 )
+           )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'list'} = ${'list'}->code();
+${'block'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         constant( q!{! )
+,       concat( 
+           capture( 'list', 
+             capture( '*quantifier*',
+                 greedy_star(
+                       concat( 
+                         capture( '*quantifier*',
                              optional(
-                               sub {  $grammar->list( @_ ) } 
+                                   sub{ 
+                                       $grammar->p6ws( @_ );
+                                   }
+                             )
+                         )
+,                           alternation( \@Grammar::Perl6::statements )
+                       )
+                 )
+             )
+           )
+,         concat( 
+           capture( '*quantifier*',
+               optional(
+                     sub{ 
+                         $grammar->p6ws( @_ );
+                     }
+               )
+           )
+,           concat( 
+               constant( q!}! )
+,               abort(
+                   sub {
+                       return { bool => 1, tail => $_[0], return => sub { return { block =>  $_[0]->{list}  ,} } };
+                   }
+               )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'block'} = ${'block'}->code();
+${'macro_decl'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         constant( q(m) )
+,       concat( 
+           constant( q(a) )
+,         concat( 
+             constant( q(c) )
+,           concat( 
+               constant( q(r) )
+,             concat( 
+                 constant( q(o) )
+,               concat( 
+                   sub{ 
+                       $grammar->p6ws( @_ );
+                   }
+,                 concat( 
+                     capture( 'prefix', 
+                         capture( 'word', 
+                           sub{ 
+                               $grammar->word( @_ );
+                           }
+                         )
+                     )
+,                   concat( 
+                       constant( q!:! )
+,                     concat( 
+                         constant( q!<! )
+,                       concat( 
+                           capture( 'id', 
+                             capture( '*quantifier*',
+                                 non_greedy_star(
+                                       sub{ 
+                                           $grammar->any( @_ );
+                                       }
+                                 )
+                             )
+                           )
+,                         concat( 
+                             constant( q!>! )
+,                           concat( 
+                             capture( '*quantifier*',
+                                 optional(
+                                       sub{ 
+                                           $grammar->p6ws( @_ );
+                                       }
+                                 )
                              )
 ,                             concat( 
-                               optional(
-                                 sub {  $grammar->p6ws( @_ ) } 
-                               )
+                                 constant( q!(! )
 ,                               concat( 
-                                   constant( ')' )
+                                 capture( '*quantifier*',
+                                     optional(
+                                           sub{ 
+                                               $grammar->p6ws( @_ );
+                                           }
+                                     )
+                                 )
 ,                                 concat( 
-                                   optional(
-                                     sub {  $grammar->p6ws( @_ ) } 
+                                   capture( '*quantifier*',
+                                       optional(
+                                             capture( 'list', 
+                                               sub{ 
+                                                   $grammar->list( @_ );
+                                               }
+                                             )
+                                       )
                                    )
 ,                                   concat( 
-                                       constant( "is" )
+                                     capture( '*quantifier*',
+                                         optional(
+                                               sub{ 
+                                                   $grammar->p6ws( @_ );
+                                               }
+                                         )
+                                     )
 ,                                     concat( 
-                                         sub {  $grammar->p6ws( @_ ) } 
+                                         constant( q!)! )
 ,                                       concat( 
-                                           constant( "parsed" )
+                                         capture( '*quantifier*',
+                                             optional(
+                                                   sub{ 
+                                                       $grammar->p6ws( @_ );
+                                                   }
+                                             )
+                                         )
 ,                                         concat( 
-                                           optional(
-                                             sub {  $grammar->p6ws( @_ ) } 
-                                           )
+                                             constant( q(i) )
 ,                                           concat( 
-                                               constant( '(' )
+                                               constant( q(s) )
 ,                                             concat( 
-                                               optional(
-                                                 sub {  $grammar->p6ws( @_ ) } 
-                                               )
+                                                 sub{ 
+                                                     $grammar->p6ws( @_ );
+                                                 }
 ,                                               concat( 
-                                                   constant( '/' )
+                                                   constant( q(p) )
 ,                                                 concat( 
-                                                   optional(
-                                                     sub {  $grammar->p6ws( @_ ) } 
-                                                   )
+                                                     constant( q(a) )
 ,                                                   concat( 
-                                                       sub {  $grammar->rule( @_ ) } 
+                                                       constant( q(r) )
 ,                                                     concat( 
-                                                       optional(
-                                                         sub {  $grammar->p6ws( @_ ) } 
-                                                       )
+                                                         constant( q(s) )
 ,                                                       concat( 
-                                                           constant( '/' )
+                                                           constant( q(e) )
 ,                                                         concat( 
-                                                           optional(
-                                                             sub {  $grammar->p6ws( @_ ) } 
-                                                           )
+                                                             constant( q(d) )
 ,                                                           concat( 
-                                                               constant( ')' )
+                                                             capture( '*quantifier*',
+                                                                 optional(
+                                                                       sub{ 
+                                                                           $grammar->p6ws( @_ );
+                                                                       }
+                                                                 )
+                                                             )
 ,                                                             concat( 
-                                                               optional(
-                                                                 sub {  $grammar->p6ws( @_ ) } 
-                                                               )
+                                                                 constant( q!(! )
 ,                                                               concat( 
-                                                                   sub {  $grammar->code( @_ ) } 
-,                                                                   abort(
-                                                                       sub {
-                                                                           return { bool => 1, tail => $_[0], return => sub {
-	 # XXX This is perl5 code
-	 # XXX This is ugly
+                                                                 capture( '*quantifier*',
+                                                                     optional(
+                                                                           sub{ 
+                                                                               $grammar->p6ws( @_ );
+                                                                           }
+                                                                     )
+                                                                 )
+,                                                                 concat( 
+                                                                     constant( q!/! )
+,                                                                   concat( 
+                                                                     capture( '*quantifier*',
+                                                                         optional(
+                                                                               sub{ 
+                                                                                   $grammar->p6ws( @_ );
+                                                                               }
+                                                                         )
+                                                                     )
+,                                                                     concat( 
+                                                                         capture( 'rule', 
+                                                                           sub{ 
+                                                                               $grammar->rule( @_ );
+                                                                           }
+                                                                         )
+,                                                                       concat( 
+                                                                         capture( '*quantifier*',
+                                                                             optional(
+                                                                                   sub{ 
+                                                                                       $grammar->p6ws( @_ );
+                                                                                   }
+                                                                             )
+                                                                         )
+,                                                                         concat( 
+                                                                             constant( q!/! )
+,                                                                           concat( 
+                                                                             capture( '*quantifier*',
+                                                                                 optional(
+                                                                                       sub{ 
+                                                                                           $grammar->p6ws( @_ );
+                                                                                       }
+                                                                                 )
+                                                                             )
+,                                                                             concat( 
+                                                                                 constant( q!)! )
+,                                                                               concat( 
+                                                                                 capture( '*quantifier*',
+                                                                                     optional(
+                                                                                           sub{ 
+                                                                                               $grammar->p6ws( @_ );
+                                                                                           }
+                                                                                     )
+                                                                                 )
+,                                                                                 concat( 
+                                                                                     capture( 'code', 
+                                                                                       sub{ 
+                                                                                           $grammar->code( @_ );
+                                                                                       }
+                                                                                     )
+,                                                                                     abort(
+                                                                                         sub {
+                                                                                             return { bool => 1, tail => $_[0], return => sub {
 	 eval Emitter::Perl5::emit({macro =>  $_[0]->() });
 	 return { macro =>  $_[0]->()  ,}
 	} };
-                                                                       }
+                                                                                         }
+                                                                                     )
+                                                                                 )
+                                                                               )
+                                                                             )
+                                                                           )
+                                                                         )
+                                                                       )
+                                                                     )
                                                                    )
+                                                                 )
                                                                )
                                                              )
                                                            )
@@ -1165,111 +1864,519 @@ sub {
            )
          )
        )
+     )
         ->( $_[0], undef, $tree, $tree )
     );
 }
-;
-    push @statements, sub { Grammar::Perl6->macro_decl(@_) };
-*{'empty_list'} = 
+
+);
+*{'macro_decl'} = ${'macro_decl'}->code();
+${'empty_list'} = Runtime::RuleCompiler->compiled(
 sub {
     my $grammar = shift;
     package Pugs::Runtime::Rule;
     my $tree;
     rule_wrapper( $_[0], 
-       concat( 
-           constant( '(' )
-,         concat( 
-             constant( ')' )
-,             abort(
-                 sub {
-                     return { bool => 1, tail => $_[0], return => sub { return { empty_list =>  \@{$_[0]}  } } };
-                 }
-             )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @terms, sub { Grammar::Perl6->empty_list(@_) };
-    push @terms, sub { Grammar::Perl6->varhash(@_) };
-    push @terms, sub { Grammar::Perl6->varscalar(@_) };
-    push @terms, sub { Grammar::Perl6->variable(@_) };
-    push @terms, sub { Grammar::Perl6->literal(@_) };
-*{'_open'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           capture( 'op', 
-         constant( "open" )
+     concat( 
+         constant( q!(! )
+,       concat( 
+           constant( q!)! )
+,           abort(
+               sub {
+                   return { bool => 1, tail => $_[0], return => sub { return { empty_list =>  $_[0]->()  } } };
+               }
            )
-,         concat( 
-             sub {  $grammar->p6ws( @_ ) } 
-,           concat( 
-               sub {  $grammar->varscalar( @_ ) } 
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'empty_list'} = ${'empty_list'}->code();
+${'_open'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         capture( 'op', 
+           concat( 
+               constant( q(o) )
 ,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
+                 constant( q(p) )
 ,               concat( 
-                   constant( ';' )
-,                   abort(
-                       sub {
-                           return { bool => 1, tail => $_[0], return => sub { return { _open =>  \@{$_[0]} , } } };
-                       }
-                   )
+                   constant( q(e) )
+,                   constant( q(n) )
                )
              )
            )
          )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @statements, sub { Grammar::Perl6->_open(@_) };
-    push @terms, sub { Grammar::Perl6->_open(@_) };
-*{'_print_with_fh'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           capture( 'op', 
-       alternation( [
-           constant( "print" )
-,         alternation( [
-             constant( "say" )
-,           alternation( [
-               constant( "warn" )
-,               constant( "die" )
-           ] )
-         ] )
-       ] )
+,       concat( 
+           capture( 'p6ws', 
+             sub{ 
+                 $grammar->p6ws( @_ );
+             }
            )
 ,         concat( 
-             sub {  $grammar->p6ws( @_ ) } 
+             capture( 'varscalar', 
+               sub{ 
+                   $grammar->varscalar( @_ );
+               }
+             )
 ,           concat( 
-               sub {  $grammar->indirect_object( @_ ) } 
-,             concat( 
-                 sub {  $grammar->p6ws( @_ ) } 
-,               concat( 
-                   sub {  $grammar->list( @_ ) } 
-,                 concat( 
-                   optional(
-                     sub {  $grammar->p6ws( @_ ) } 
-                   )
-,                   concat( 
-                       constant( ';' )
-,                       abort(
-                           sub {
-                               return { bool => 1, tail => $_[0], return => sub { return { _print_with_fh =>  \@{$_[0]}  ,} } };
-                           }
+             capture( '*quantifier*',
+                 optional(
+                       capture( 'p6ws', 
+                         sub{ 
+                             $grammar->p6ws( @_ );
+                         }
                        )
+                 )
+             )
+,             concat( 
+                 constant( q!;! )
+,                 abort(
+                     sub {
+                         return { bool => 1, tail => $_[0], return => sub { return { _open =>  $_[0]->() , } } };
+                     }
+                 )
+             )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'_open'} = ${'_open'}->code();
+${'_print_with_fh'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         capture( 'op', 
+           alternation( [
+             concat( 
+                 constant( q(p) )
+,               concat( 
+                   constant( q(r) )
+,                 concat( 
+                     constant( q(i) )
+,                   concat( 
+                       constant( q(n) )
+,                       constant( q(t) )
+                   )
+                 )
+               )
+             )
+,             alternation( [
+               concat( 
+                   constant( q(s) )
+,                 concat( 
+                     constant( q(a) )
+,                     constant( q(y) )
+                 )
+               )
+,               alternation( [
+                 concat( 
+                     constant( q(w) )
+,                   concat( 
+                       constant( q(a) )
+,                     concat( 
+                         constant( q(r) )
+,                         constant( q(n) )
+                     )
+                   )
+                 )
+,                 concat( 
+                     constant( q(d) )
+,                   concat( 
+                       constant( q(i) )
+,                       constant( q(e) )
+                   )
+                 )
+               ] )
+             ] )
+           ] )
+         )
+,       concat( 
+           capture( 'p6ws', 
+             sub{ 
+                 $grammar->p6ws( @_ );
+             }
+           )
+,         concat( 
+             capture( 'indirect_object', 
+               sub{ 
+                   $grammar->indirect_object( @_ );
+               }
+             )
+,           concat( 
+               capture( 'p6ws', 
+                 sub{ 
+                     $grammar->p6ws( @_ );
+                 }
+               )
+,             concat( 
+                 capture( 'list', 
+                   sub{ 
+                       $grammar->list( @_ );
+                   }
+                 )
+,               concat( 
+                 capture( '*quantifier*',
+                     optional(
+                           capture( 'p6ws', 
+                             sub{ 
+                                 $grammar->p6ws( @_ );
+                             }
+                           )
+                     )
+                 )
+,                 concat( 
+                     constant( q!;! )
+,                     abort(
+                         sub {
+                             return { bool => 1, tail => $_[0], return => sub { return { _print_with_fh =>  $_[0]->()  ,} } };
+                         }
+                     )
+                 )
+               )
+             )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'_print_with_fh'} = ${'_print_with_fh'}->code();
+${'_print'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         capture( 'op', 
+           alternation( [
+             concat( 
+                 constant( q(p) )
+,               concat( 
+                   constant( q(r) )
+,                 concat( 
+                     constant( q(i) )
+,                   concat( 
+                       constant( q(n) )
+,                       constant( q(t) )
+                   )
+                 )
+               )
+             )
+,             alternation( [
+               concat( 
+                   constant( q(s) )
+,                 concat( 
+                     constant( q(a) )
+,                     constant( q(y) )
+                 )
+               )
+,               alternation( [
+                 concat( 
+                     constant( q(w) )
+,                   concat( 
+                       constant( q(a) )
+,                     concat( 
+                         constant( q(r) )
+,                         constant( q(n) )
+                     )
+                   )
+                 )
+,                 concat( 
+                     constant( q(d) )
+,                   concat( 
+                       constant( q(i) )
+,                       constant( q(e) )
+                   )
+                 )
+               ] )
+             ] )
+           ] )
+         )
+,       concat( 
+           capture( 'p6ws', 
+             sub{ 
+                 $grammar->p6ws( @_ );
+             }
+           )
+,         concat( 
+             capture( 'list', 
+               sub{ 
+                   $grammar->list( @_ );
+               }
+             )
+,           concat( 
+             capture( '*quantifier*',
+                 optional(
+                       capture( 'p6ws', 
+                         sub{ 
+                             $grammar->p6ws( @_ );
+                         }
+                       )
+                 )
+             )
+,             concat( 
+                 constant( q!;! )
+,                 abort(
+                     sub {
+                         return { bool => 1, tail => $_[0], return => sub { return { _print =>  $_[0]->()  ,} } };
+                     }
+                 )
+             )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'_print'} = ${'_print'}->code();
+${'_my'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         capture( 'op', 
+           alternation( [
+             concat( 
+                 constant( q(m) )
+,                 constant( q(y) )
+             )
+,             alternation( [
+               concat( 
+                   constant( q(o) )
+,                 concat( 
+                     constant( q(u) )
+,                     constant( q(r) )
+                 )
+               )
+,               concat( 
+                   constant( q(l) )
+,                 concat( 
+                     constant( q(o) )
+,                   concat( 
+                       constant( q(c) )
+,                     concat( 
+                         constant( q(a) )
+,                         constant( q(l) )
+                     )
+                   )
+                 )
+               )
+             ] )
+           ] )
+         )
+,       concat( 
+           capture( 'p6ws', 
+             sub{ 
+                 $grammar->p6ws( @_ );
+             }
+           )
+,         concat( 
+             capture( 'variable', 
+               sub{ 
+                   $grammar->variable( @_ );
+               }
+             )
+,           concat( 
+             capture( '*quantifier*',
+                 optional(
+                       capture( 'p6ws', 
+                         sub{ 
+                             $grammar->p6ws( @_ );
+                         }
+                       )
+                 )
+             )
+,             concat( 
+                 constant( q!;! )
+,                 abort(
+                     sub {
+                         return { bool => 1, tail => $_[0], return => sub { return { _my =>  $_[0]->()  ,} } };
+                     }
+                 )
+             )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'_my'} = ${'_my'}->code();
+${'_simple_statement'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         capture( 'op', 
+           alternation( [
+             concat( 
+                 constant( q(d) )
+,               concat( 
+                   constant( q(i) )
+,                   constant( q(e) )
+               )
+             )
+,             concat( 
+                 constant( q!.! )
+,               concat( 
+                   constant( q!.! )
+,                   constant( q!.! )
+               )
+             )
+           ] )
+         )
+,       concat( 
+           constant( q!;! )
+,           abort(
+               sub {
+                   return { bool => 1, tail => $_[0], return => sub { return { _simple_statement =>  $_[0]->()  ,} } };
+               }
+           )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'_simple_statement'} = ${'_simple_statement'}->code();
+${'sub_decl'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         constant( q(s) )
+,       concat( 
+           constant( q(u) )
+,         concat( 
+             constant( q(b) )
+,           concat( 
+               sub{ 
+                   $grammar->p6ws( @_ );
+               }
+,             concat( 
+                 capture( 'fix', 
+                   alternation( [
+                     concat( 
+                         constant( q(i) )
+,                       concat( 
+                           constant( q(n) )
+,                         concat( 
+                             constant( q(f) )
+,                           concat( 
+                               constant( q(i) )
+,                               constant( q(x) )
+                           )
+                         )
+                       )
+                     )
+,                     alternation( [
+                       concat( 
+                           constant( q(p) )
+,                         concat( 
+                             constant( q(r) )
+,                           concat( 
+                               constant( q(e) )
+,                             concat( 
+                                 constant( q(f) )
+,                               concat( 
+                                   constant( q(i) )
+,                                   constant( q(x) )
+                               )
+                             )
+                           )
+                         )
+                       )
+,                       concat( 
+                           constant( q(p) )
+,                         concat( 
+                             constant( q(o) )
+,                           concat( 
+                               constant( q(s) )
+,                             concat( 
+                                 constant( q(t) )
+,                               concat( 
+                                   constant( q(f) )
+,                                 concat( 
+                                     constant( q(i) )
+,                                     constant( q(x) )
+                                 )
+                               )
+                             )
+                           )
+                         )
+                       )
+                     ] )
+                   ] )
+                 )
+,               concat( 
+                   constant( q!:! )
+,                 concat( 
+                     constant( q!<! )
+,                   concat( 
+                       capture( 'id', 
+                         capture( '*quantifier*',
+                             non_greedy_star(
+                                   sub{ 
+                                       $grammar->any( @_ );
+                                   }
+                             )
+                         )
+                       )
+,                     concat( 
+                         constant( q!>! )
+,                       concat( 
+                         capture( '*quantifier*',
+                             optional(
+                                   sub{ 
+                                       $grammar->p6ws( @_ );
+                                   }
+                             )
+                         )
+,                         concat( 
+                             capture( 'block', 
+                               sub{ 
+                                   $grammar->block( @_ );
+                               }
+                             )
+,                             abort(
+                                 sub {
+                                     return { bool => 1, tail => $_[0], return => sub { return { sub_decl =>  $_[0]->()  ,} } };
+                                 }
+                             )
+                         )
+                       )
+                     )
                    )
                  )
                )
@@ -1277,375 +2384,349 @@ sub {
            )
          )
        )
+     )
         ->( $_[0], undef, $tree, $tree )
     );
 }
-;
-    push @statements, sub { Grammar::Perl6->_print_with_fh(@_) };
-*{'_print'} = 
+
+);
+*{'sub_decl'} = ${'sub_decl'}->code();
+${'sub_defin'} = Runtime::RuleCompiler->compiled(
 sub {
     my $grammar = shift;
     package Pugs::Runtime::Rule;
     my $tree;
     rule_wrapper( $_[0], 
-       concat( 
-           capture( 'op', 
-       alternation( [
-           constant( "print" )
-,         alternation( [
-             constant( "say" )
-,           alternation( [
-               constant( "warn" )
-,               constant( "die" )
-           ] )
-         ] )
-       ] )
-           )
+     concat( 
+         constant( q(s) )
+,       concat( 
+           constant( q(u) )
 ,         concat( 
-             sub {  $grammar->p6ws( @_ ) } 
+             constant( q(b) )
 ,           concat( 
-               sub {  $grammar->list( @_ ) } 
-,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
-,               concat( 
-                   constant( ';' )
-,                   abort(
-                       sub {
-                           return { bool => 1, tail => $_[0], return => sub { return { _print =>  \@{$_[0]}  ,} } };
+             capture( '*quantifier*',
+                 optional(
+                       sub{ 
+                           $grammar->p6ws( @_ );
                        }
-                   )
-               )
+                 )
              )
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @statements, sub { Grammar::Perl6->_print(@_) };
-*{'_my'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           capture( 'op', 
-       alternation( [
-           constant( "my" )
-,         alternation( [
-             constant( "our" )
-,             constant( "local" )
-         ] )
-       ] )
-           )
-,         concat( 
-             sub {  $grammar->p6ws( @_ ) } 
-,           concat( 
-               sub {  $grammar->variable( @_ ) } 
 ,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
+                 capture( 'ident', 
+                   sub{ 
+                       $grammar->ident( @_ );
+                   }
+                 )
 ,               concat( 
-                   constant( ';' )
-,                   abort(
-                       sub {
-                           return { bool => 1, tail => $_[0], return => sub { return { _my =>  \@{$_[0]}  ,} } };
-                       }
-                   )
-               )
-             )
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @statements, sub { Grammar::Perl6->_my(@_) };
-*{'_simple_statement'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           capture( 'op', 
-       alternation( [
-           constant( "die" )
-,         concat( 
-             constant( '.' )
-,           concat( 
-               constant( '.' )
-,               constant( '.' )
-           )
-         )
-       ] )
-           )
-,         concat( 
-             constant( ';' )
-,             abort(
-                 sub {
-                     return { bool => 1, tail => $_[0], return => sub { return { _simple_statement =>  \@{$_[0]}  ,} } };
-                 }
-             )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @statements, sub { Grammar::Perl6->_simple_statement(@_) };
-*{'sub_decl'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           constant( "sub" )
-,         concat( 
-             sub {  $grammar->p6ws( @_ ) } 
-,           concat( 
-               capture( 'fix', 
-       alternation( [
-           constant( "infix" )
-,         alternation( [
-             constant( "prefix" )
-,             constant( "postfix" )
-         ] )
-       ] )
-               )
-,             concat( 
-                 constant( ':' )
-,               concat( 
-                   constant( '<' )
-,                 concat( 
-                     capture( 'id', 
-       non_greedy_star(
-         sub{ 
-             ${ $grammar->any( @_ ) };
-         }
-       )
+                 capture( '*quantifier*',
+                     optional(
+                           sub{ 
+                               $grammar->p6ws( @_ );
+                           }
                      )
-,                   concat( 
-                       constant( '>' )
-,                     concat( 
-                       optional(
-                         sub {  $grammar->p6ws( @_ ) } 
+                 )
+,                 concat( 
+                     capture( 'block', 
+                       sub{ 
+                           $grammar->block( @_ );
+                       }
+                     )
+,                     abort(
+                         sub {
+                             return { bool => 1, tail => $_[0], return => sub { return { sub_defin =>  $_[0]->()  ,} } };
+                         }
+                     )
+                 )
+               )
+             )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'sub_defin'} = ${'sub_defin'}->code();
+${'term2'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         capture( 'term1', 
+             capture( 'term1', 
+               sub{ 
+                   $grammar->term1( @_ );
+               }
+             )
+         )
+,       concat( 
+         capture( '*quantifier*',
+             optional(
+                   capture( 'p6ws', 
+                     sub{ 
+                         $grammar->p6ws( @_ );
+                     }
+                   )
+             )
+         )
+,         concat( 
+             capture( 'op', 
+                 alternation( \@Grammar::Perl6::ops )
+             )
+,           concat( 
+             capture( '*quantifier*',
+                 optional(
+                       capture( 'p6ws', 
+                         sub{ 
+                             $grammar->p6ws( @_ );
+                         }
                        )
-,                       concat( 
-                           sub {  $grammar->block( @_ ) } 
-,                           abort(
-                               sub {
-                                   return { bool => 1, tail => $_[0], return => sub { return { sub_decl =>  \@{$_[0]}  ,} } };
+                 )
+             )
+,             concat( 
+                 capture( 'term2', 
+                     capture( 'term1', 
+                       sub{ 
+                           $grammar->term1( @_ );
+                       }
+                     )
+                 )
+,                 abort(
+                     sub {
+                         return { bool => 1, tail => $_[0], return => sub { return { sub_application_term =>  $_[0]->()  ,} } };
+                     }
+                 )
+             )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'term2'} = ${'term2'}->code();
+${'sub_application'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         capture( 'term1', 
+           alternation( [
+               capture( 'term1', 
+                 sub{ 
+                     $grammar->term1( @_ );
+                 }
+               )
+,               capture( 'term2', 
+                 sub{ 
+                     $grammar->term2( @_ );
+                 }
+               )
+           ] )
+         )
+,       concat( 
+         capture( '*quantifier*',
+             optional(
+                   capture( 'p6ws', 
+                     sub{ 
+                         $grammar->p6ws( @_ );
+                     }
+                   )
+             )
+         )
+,         concat( 
+             capture( 'op', 
+                 alternation( \@Grammar::Perl6::ops )
+             )
+,           concat( 
+             capture( '*quantifier*',
+                 optional(
+                       capture( 'p6ws', 
+                         sub{ 
+                             $grammar->p6ws( @_ );
+                         }
+                       )
+                 )
+             )
+,             concat( 
+                 capture( 'term2', 
+                   alternation( [
+                       capture( 'term1', 
+                         sub{ 
+                             $grammar->term1( @_ );
+                         }
+                       )
+,                       capture( 'term2', 
+                         sub{ 
+                             $grammar->term2( @_ );
+                         }
+                       )
+                   ] )
+                 )
+,               concat( 
+                 capture( '*quantifier*',
+                     optional(
+                           capture( 'p6ws', 
+                             sub{ 
+                                 $grammar->p6ws( @_ );
+                             }
+                           )
+                     )
+                 )
+,                 concat( 
+                     constant( q!;! )
+,                     abort(
+                         sub {
+                             return { bool => 1, tail => $_[0], return => sub { return { sub_application =>  $_[0]->()  ,} } };
+                         }
+                     )
+                 )
+               )
+             )
+           )
+         )
+       )
+     )
+        ->( $_[0], undef, $tree, $tree )
+    );
+}
+
+);
+*{'sub_application'} = ${'sub_application'}->code();
+${'eval_perl5'} = Runtime::RuleCompiler->compiled(
+sub {
+    my $grammar = shift;
+    package Pugs::Runtime::Rule;
+    my $tree;
+    rule_wrapper( $_[0], 
+     concat( 
+         constant( q(e) )
+,       concat( 
+           constant( q(v) )
+,         concat( 
+             constant( q(a) )
+,           concat( 
+               constant( q(l) )
+,             concat( 
+               capture( '*quantifier*',
+                   optional(
+                         capture( 'p6ws', 
+                           sub{ 
+                               $grammar->p6ws( @_ );
+                           }
+                         )
+                   )
+               )
+,               concat( 
+                   constant( q!(! )
+,                 concat( 
+                   capture( '*quantifier*',
+                       optional(
+                             capture( 'p6ws', 
+                               sub{ 
+                                   $grammar->p6ws( @_ );
                                }
+                             )
+                       )
+                   )
+,                   concat( 
+                       capture( 'literal', 
+                         sub{ 
+                             $grammar->literal( @_ );
+                         }
+                       )
+,                     concat( 
+                       capture( '*quantifier*',
+                           optional(
+                                 capture( 'p6ws', 
+                                   sub{ 
+                                       $grammar->p6ws( @_ );
+                                   }
+                                 )
                            )
                        )
-                     )
-                   )
-                 )
-               )
-             )
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @statements, sub { Grammar::Perl6->sub_decl(@_) };
-*{'sub_defin'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           constant( "sub" )
-,         concat( 
-           optional(
-             sub {  $grammar->p6ws( @_ ) } 
-           )
-,           concat( 
-               sub {  $grammar->ident( @_ ) } 
-,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
-,               concat( 
-                   sub {  $grammar->block( @_ ) } 
-,                   abort(
-                       sub {
-                           return { bool => 1, tail => $_[0], return => sub { return { sub_defin =>  \@{$_[0]}  ,} } };
-                       }
-                   )
-               )
-             )
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @statements, sub { Grammar::Perl6->sub_defin(@_) };
-*{'term2'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           capture( 'term1', 
-         sub {  $grammar->term1( @_ ) } 
-           )
-,         concat( 
-           optional(
-             sub {  $grammar->p6ws( @_ ) } 
-           )
-,           concat( 
-               capture( 'op', 
-         alternation( \@ops )
-               )
-,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
-,               concat( 
-                   capture( 'term2', 
-         sub {  $grammar->term1( @_ ) } 
-                   )
-,                   abort(
-                       sub {
-                           return { bool => 1, tail => $_[0], return => sub { return { sub_application_term =>  \@{$_[0]}  ,} } };
-                       }
-                   )
-               )
-             )
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-*{'sub_application'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           capture( 'term1', 
-       alternation( [
-           sub {  $grammar->term1( @_ ) } 
-,           sub {  $grammar->term2( @_ ) } 
-       ] )
-           )
-,         concat( 
-           optional(
-             sub {  $grammar->p6ws( @_ ) } 
-           )
-,           concat( 
-               capture( 'op', 
-         alternation( \@ops )
-               )
-,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
-,               concat( 
-                   capture( 'term2', 
-       alternation( [
-           sub {  $grammar->term1( @_ ) } 
-,           sub {  $grammar->term2( @_ ) } 
-       ] )
-                   )
-,                 concat( 
-                   optional(
-                     sub {  $grammar->p6ws( @_ ) } 
-                   )
-,                   concat( 
-                       constant( ';' )
-,                       abort(
-                           sub {
-                               return { bool => 1, tail => $_[0], return => sub { return { sub_application =>  \@{$_[0]}  ,} } };
-                           }
-                       )
-                   )
-                 )
-               )
-             )
-           )
-         )
-       )
-        ->( $_[0], undef, $tree, $tree )
-    );
-}
-;
-    push @statements, sub { Grammar::Perl6->sub_application(@_) };
-*{'eval_perl5'} = 
-sub {
-    my $grammar = shift;
-    package Pugs::Runtime::Rule;
-    my $tree;
-    rule_wrapper( $_[0], 
-       concat( 
-           constant( "eval" )
-,         concat( 
-           optional(
-             sub {  $grammar->p6ws( @_ ) } 
-           )
-,           concat( 
-               constant( '(' )
-,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
-,               concat( 
-                   sub {  $grammar->literal( @_ ) } 
-,                 concat( 
-                   optional(
-                     sub {  $grammar->p6ws( @_ ) } 
-                   )
-,                   concat( 
-                       constant( ',' )
-,                     concat( 
-                       optional(
-                         sub {  $grammar->p6ws( @_ ) } 
-                       )
 ,                       concat( 
-                           constant( ':' )
+                           constant( q!,! )
 ,                         concat( 
-                             constant( "lang" )
+                           capture( '*quantifier*',
+                               optional(
+                                     capture( 'p6ws', 
+                                       sub{ 
+                                           $grammar->p6ws( @_ );
+                                       }
+                                     )
+                               )
+                           )
 ,                           concat( 
-                               constant( '<' )
+                               constant( q!:! )
 ,                             concat( 
-                                 constant( "perl5" )
+                                 constant( q(l) )
 ,                               concat( 
-                                   constant( '>' )
+                                   constant( q(a) )
 ,                                 concat( 
-                                   optional(
-                                     sub {  $grammar->p6ws( @_ ) } 
-                                   )
+                                     constant( q(n) )
 ,                                   concat( 
-                                       constant( ')' )
+                                       constant( q(g) )
 ,                                     concat( 
-                                       optional(
-                                         sub {  $grammar->p6ws( @_ ) } 
-                                       )
+                                         constant( q!<! )
 ,                                       concat( 
-                                           constant( ';' )
-,                                           abort(
-                                               sub {
-                                                   return { bool => 1, tail => $_[0], return => sub { return { eval_perl5 =>  $_[0]->{literal}  } } };
-                                               }
+                                           constant( q(p) )
+,                                         concat( 
+                                             constant( q(e) )
+,                                           concat( 
+                                               constant( q(r) )
+,                                             concat( 
+                                                 constant( q(l) )
+,                                               concat( 
+                                                   constant( q(5) )
+,                                                 concat( 
+                                                     constant( q!>! )
+,                                                   concat( 
+                                                     capture( '*quantifier*',
+                                                         optional(
+                                                               capture( 'p6ws', 
+                                                                 sub{ 
+                                                                     $grammar->p6ws( @_ );
+                                                                 }
+                                                               )
+                                                         )
+                                                     )
+,                                                     concat( 
+                                                         constant( q!)! )
+,                                                       concat( 
+                                                         capture( '*quantifier*',
+                                                             optional(
+                                                                   capture( 'p6ws', 
+                                                                     sub{ 
+                                                                         $grammar->p6ws( @_ );
+                                                                     }
+                                                                   )
+                                                             )
+                                                         )
+,                                                         concat( 
+                                                             constant( q!;! )
+,                                                             abort(
+                                                                 sub {
+                                                                     return { bool => 1, tail => $_[0], return => sub { return { eval_perl5 =>  $_[0]->{literal}  } } };
+                                                                 }
+                                                             )
+                                                         )
+                                                       )
+                                                     )
+                                                   )
+                                                 )
+                                               )
+                                             )
                                            )
+                                         )
                                        )
                                      )
                                    )
@@ -1663,46 +2744,122 @@ sub {
            )
          )
        )
+     )
         ->( $_[0], undef, $tree, $tree )
     );
 }
-;
-    push @statements, sub { Grammar::Perl6->eval_perl5(@_) };
-*{'_return'} = 
+
+);
+*{'eval_perl5'} = ${'eval_perl5'}->code();
+${'_return'} = Runtime::RuleCompiler->compiled(
 sub {
     my $grammar = shift;
     package Pugs::Runtime::Rule;
     my $tree;
     rule_wrapper( $_[0], 
-       concat( 
-           constant( "return" )
+     concat( 
+         constant( q(r) )
+,       concat( 
+           constant( q(e) )
 ,         concat( 
-             sub {  $grammar->p6ws( @_ ) } 
+             constant( q(t) )
 ,           concat( 
-               capture( 'val', 
-       alternation( [
-           sub {  $grammar->term1( @_ ) } 
-,           sub {  $grammar->term2( @_ ) } 
-       ] )
-               )
+               constant( q(u) )
 ,             concat( 
-               optional(
-                 sub {  $grammar->p6ws( @_ ) } 
-               )
+                 constant( q(r) )
 ,               concat( 
-                   constant( ';' )
-,                   abort(
-                       sub {
-                           return { bool => 1, tail => $_[0], return => sub { return { _return =>  \@{$_[0]}  ,} } };
-                       }
+                   constant( q(n) )
+,                 concat( 
+                     sub{ 
+                         $grammar->p6ws( @_ );
+                     }
+,                   concat( 
+                       capture( 'val', 
+                         alternation( [
+                             capture( 'term1', 
+                               sub{ 
+                                   $grammar->term1( @_ );
+                               }
+                             )
+,                             capture( 'term2', 
+                               sub{ 
+                                   $grammar->term2( @_ );
+                               }
+                             )
+                         ] )
+                       )
+,                     concat( 
+                       capture( '*quantifier*',
+                           optional(
+                                 sub{ 
+                                     $grammar->p6ws( @_ );
+                                 }
+                           )
+                       )
+,                       concat( 
+                           constant( q!;! )
+,                           abort(
+                               sub {
+                                   return { bool => 1, tail => $_[0], return => sub { return { _return =>  $_[0]->()  ,} } };
+                               }
+                           )
+                       )
+                     )
                    )
+                 )
                )
              )
            )
          )
        )
+     )
         ->( $_[0], undef, $tree, $tree )
     );
 }
-;
-    push @statements, sub { Grammar::Perl6->_return(@_) };
+
+);
+*{'_return'} = ${'_return'}->code();
+
+push @terms, \&indirect_object;
+push @statements, \&rule_decl;
+push @statements, \&grammar_name;
+push @statements, \&condition_rule;
+push @statements, \&meth_call_statement;
+push @terms, \&meth_call_term;
+push @statements, \&sub_call_statement;
+push @terms, \&sub_call_term;
+push @terms, \&access_hashref_element;
+push @statements, \&access_hashref_element;
+push @terms, \&access_hash_element;
+push @statements, \&access_hash_element;
+push @statements, \&assign_hash_to_scalar;
+push @statements, \&assign_slurp_to_variable;
+push @statements, \&assign_open_to_variable;
+push @statements, \&assign;
+push @statements, \&sub_call;
+push @terms, \&sub_call;
+push @statements, \&_push;
+push @statements, \&pod;
+push @statements, \&use_v6;
+push @statements, \&require;
+push @statements, \&use_rule;
+push @statements, \&block;
+push @statements, \&macro_decl;
+push @terms, \&empty_list;
+push @terms, \&varhash;
+push @terms, \&varscalar;
+push @terms, \&variable;
+push @terms, \&literal;
+push @statements, \&_open;
+push @terms, \&_open;
+push @statements, \&_print_with_fh;
+push @statements, \&_print;
+push @statements, \&_my;
+push @statements, \&_simple_statement;
+push @statements, \&sub_decl;
+push @statements, \&sub_defin;
+push @statements, \&sub_application;
+push @statements, \&eval_perl5;
+push @statements, \&_return;
+
+1;

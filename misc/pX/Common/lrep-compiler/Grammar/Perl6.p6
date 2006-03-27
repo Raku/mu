@@ -4,16 +4,18 @@ use Pugs::Grammar::Rule;
 use Pugs::Runtime::Match;
 
 rule immediate_statement_rule {
-    <?p6ws>? <@statements> <?p6ws>?
+    <?p6ws>? <@Grammar::Perl6::statements> <?p6ws>?
+        { return $() }
 }
 
 rule grammar {
     <immediate_statement_rule>*
+        { return $() }
 }
 
 rule indirect_object {
 	<varscalar> <p6ws>? \:
-	{ return $()<varscalar> }
+	{ return $<varscalar> }
 }
 
 push @terms, \&indirect_object;
@@ -143,7 +145,7 @@ rule use_rule {
 push @statements, \&use_rule;
 
 rule term1 {
-    <@terms>
+    <@Grammar::Perl6::terms>
 }
         
 rule list {
@@ -152,9 +154,9 @@ rule list {
 
 rule block {
     \{ 
-        $<list> := ( [ <?p6ws>? <@statements> ]* ) <?p6ws>? 
+        $<list> := ( [ <?p6ws>? <@Grammar::Perl6::statements> ]* ) <?p6ws>? 
     \}
-        { return { block => $()<list> ,} }
+        { return { block => $<list> ,} }
 }
 push @statements, \&block;
 
@@ -229,14 +231,14 @@ push @statements, \&sub_defin;
 
 rule term2 {
     $<term1> := (<term1>) <p6ws>? 
-    $<op>    := (<@ops>) <p6ws>? 
+    $<op>    := (<@Grammar::Perl6::ops>) <p6ws>? 
     $<term2> := (<term1>) 
         { return { sub_application_term => $() ,} }
 }
 
 rule sub_application {
     $<term1> := (<term1>|<term2>) <p6ws>? 
-    $<op>    := (<@ops>) <p6ws>? 
+    $<op>    := (<@Grammar::Perl6::ops>) <p6ws>? 
     $<term2> := (<term1>|<term2>) <p6ws>? \;
         { return { sub_application => $() ,} }
 }
