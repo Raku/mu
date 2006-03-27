@@ -47,6 +47,9 @@ To switch back to Perl 5:
 
 =head1 NOTES
 
+To simplify parsing, please keep start the C<use v6-pugs;> on a line on its
+own, optionally with trailing whitespace and comments.
+
 Whilst resembling C<use VERSION> syntax, Perl 5 actually (mis)interprets
 C<use v6-pugs> as a request to use a module named C<v6.pm>, passing in C<'-pugs'>
 as an argument list to C<import> after C<v6.pm> is C<require>d.  The lack of
