@@ -114,7 +114,7 @@ use_ok( "Pugs::Grammar::Category" );
 
     {
         my $match = test->parse( '4*(3+5*6)' );
-        #print show_match( $match->() );
+        #print show_match( $match );
         Test::More::is( "$match", "4*(3+5*6)", "expression matches" );
     }
 }
@@ -133,5 +133,5 @@ sub test::show_match {
       }
       return $ret;
     }
-    return "$tab ",$m->(),"\n";
+    return "$tab $m\n";
 }
