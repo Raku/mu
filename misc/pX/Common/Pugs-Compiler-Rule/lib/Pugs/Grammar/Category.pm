@@ -161,14 +161,34 @@ Pugs::Grammar::Category - Engine for Perl 6 Rule categories
 
 =head1 SYNOPSIS
 
-    use Pugs::Grammar::Category;
+  use Pugs::Grammar::Category;
 
-    ...
+  # sub rxinfix:<|> 
+  # { 
+  #   return { alt => [ 
+  #              $_[0]{q1}(), 
+  #              $_[0]{q2}(),
+  #          ] ,} 
+  #   }
+  # }
+  
+  my $rxinfix = Pugs::Grammar::Category->new( 
+    name => 'rxinfix',
+    operand => 'rxatom',
+    # XXX - default assoc, default fixity
+  );
+  $rxinfix->add_op( 
+    name => '|',
+    assoc => 'left',
+    fixity => 'infix',
+    block => sub {...},   # XXX - the return block could be generated automatically
+  );
 
 =head1 DESCRIPTION
 
 This module provides an implementation for Perl 6 Rule categories.  
 
+The module is still very unstable.
 The algorithm is not optimized for speed yet.
 
 =head1 METHODS
