@@ -16,7 +16,7 @@ sub call_subrule {
     $name =~ s/\./->/;   # XXX - source filter
     return 
         "$_[1] sub{ \n" .
-        "$_[1]     $name( \@_ );\n" .
+        "$_[1]     $name( \$_[0], { p => 1 } );\n" .
         "$_[1] }\n";
 }
 
@@ -186,6 +186,7 @@ sub colon {
     die (':' x $num) . " not implemented";
 }
 sub constant {
+    return "$_[1] constant( q!$_[0]! )\n" unless $_[0] =~ /!/;
     return "$_[1] constant( q($_[0]) )\n";
 }
 sub metasyntax {
@@ -212,8 +213,8 @@ sub metasyntax {
     }
     if ( $prefix eq q(') ) {   # single quoted literal 
         $cmd = substr( $cmd, 1, -1 );
-        return 
-            "$_[1] constant( q($cmd) )\n";
+        return "$_[1] constant( q!$cmd! )\n" unless $cmd =~ /!/;
+        return "$_[1] constant( q($cmd) )\n";
     }
     if ( $prefix eq q(") ) {   # interpolated literal 
         $cmd = substr( $cmd, 1, -1 );

@@ -42,14 +42,27 @@ sub code {
     my $rule = shift; 
     sub { 
         my $grammar = shift;
-        $rule->match( $_[0], $grammar ); 
+        my $str = shift;
+        my $flags = shift;
+        $rule->match( $str, $grammar, $flags ); 
     } 
 }
 
 sub match {
-    my ( $rule, $str, $grammar ) = @_; 
+    my ( $rule, $str, $grammar, $flags ) = @_; 
     $grammar ||= $rule->{grammar};
-    #warn "match: grammar $rule->{grammar}, $_[0]";
+    #print "match: grammar $rule->{grammar}, $_[0], $flags\n";
+
+    if ( $flags->{p} ) {
+        #print "flag p";
+        my $match = $rule->{code}( 
+            $grammar,
+            $str, 
+        );
+        $match->{from} = 0;
+        return Pugs::Runtime::Match->new( $match ) 
+    }
+
     foreach my $i (0..length($str)) {
         my $match = $rule->{code}( 
             $grammar,
