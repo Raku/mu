@@ -95,7 +95,9 @@ use_ok( "Pugs::Grammar::Category" );
     use Pugs::Grammar::Base;
     use Data::Dumper;
     no warnings qw( once );
-    *item = Pugs::Compiler::Rule->compile( '\d+' )->code;
+    *item = Pugs::Compiler::Rule->compile( q( 
+        (\d+) { return {num=>$_[0][0](),} } 
+    ) )->code;
     eval $cat->emit_grammar_perl5();
 
     {
@@ -112,7 +114,7 @@ use_ok( "Pugs::Grammar::Category" );
 
     {
         my $match = test->parse( '4*(3+5*6)' );
-        #print show_match( $match );
+        #print show_match( $match->() );
         Test::More::is( "$match", "4*(3+5*6)", "expression matches" );
     }
 }
@@ -131,5 +133,5 @@ sub test::show_match {
       }
       return $ret;
     }
-    return "$tab $m\n";
+    return "$tab ",$m->(),"\n";
 }

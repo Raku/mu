@@ -23,8 +23,8 @@ my %rule_templates = (
     circumfix =>       '<op> <parse> <op2>',  
     postfix =>         '<tight> <op>', 
     postcircumfix =>   '<tight> <op> <parse> <op2>', 
-    infix_left =>      '<tight> <op> <equal>', 
-    infix_right =>     '<equal> <op> <tight>',
+    infix_left =>      '<tight> <op> <equal> { return {op_left=>$_[0]{op},}}', 
+    infix_right =>     '<equal> <op> <tight> { return {op_right=>$_[0]{op},}}',
     infix_non =>       '<tight> <op> <tight>', 
     infix_chain =>     '<tight> [ <op> <tight> ]+',
     infix_list =>      '<tight> [ <op> <tight> ]+',
@@ -84,8 +84,8 @@ sub emit_perl6_rule {
         }
         $template =~ s/<equal>/<$equal>/sg;
         $template =~ s/<tight>/<$tight>/sg;
-        $template =~ s/<op>/\$<op>:=(<'$op->{name}'>)/sg;
-        $template =~ s/<op2>/\$<op2>:=(<'$op->{name2}'>)/sg;
+        $template =~ s/<op>/\$<op>:=(<'$op->{name}'>)/s;
+        $template =~ s/<op2>/\$<op2>:=(<'$op->{name2}'>)/s;
         push @rules, $template;
     }
     push @rules, "<$tight>";
