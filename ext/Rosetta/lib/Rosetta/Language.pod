@@ -221,11 +221,11 @@ functions.  Note that a thrown exception which falls out of an anonymous
 procedure will result in an exception thrown out to the application (in
 this distribution, it will be as a thrown new Rosetta::Interface::Exception
 object).  For our purposes, transaction control statements ("start",
-"commit", "rollback") are also grouped with these standard keywords.  Note
-that value assignment of a value expression's result to a named target is
-not accomplished with a keyword, but rather with an update procedure that
-is defined for the value's data type, with the target provided to it as a
-read-write argument.
+"commit", "rollback") and resource locking statements are also grouped with
+these standard keywords.  Note that value assignment of a value
+expression's result to a named target is not accomplished with a keyword,
+but rather with an update procedure that is defined for the value's data
+type, with the target provided to it as a read-write argument.
 
 Value assignment, which pdates a target variable to a new value provided by
 a Rosetta D expression, is used frequently in Rosetta D, and is the form of
@@ -322,38 +322,63 @@ updates occuring during their invoker statement's first phase.
 In account to situations where external processes are concurrently using
 the same persistent (and externally visible) repository as a Rosetta DBMS
 instance, the Rosetta DBMS will maintain a lock on the whole repository (or
-appropriate subset thereof) during any active read and/or write
+appropriate subset thereof) during any active read-only and/or for-update
 transaction, to ensure that the transaction sees a consistent environment
 during its life.  The lock is a shared lock if the transaction only does
 reading, and it is an exclusive lock if the transaction also does writing.
-Regarding transaction isolation levels, the Rosetta DBMS supports only the
-serializable option.
+Speaking in terms of SQL, the Rosetta DBMS supports only the serializable
+transaction isolation level.
+
+I<Note that there is currently no official support for using Rosetta in a
+multi-threaded application, where its structures are shared between
+threads, or where multiple thread-specific structures want to use the same
+repositories.  But such support is expected in the future.>
 
 No multi-update statement may target both catalog and non-catalog
 variables.  If you want to perform the equivalent of SQL's "alter"
 statement on a relation variable that already contains data, you must have
-separate statements to change the definition of the relation and change
-what data is in it, possibly more than one of each; the combination can
-still be wrapped in an explicit transaction for atomicity.
-
-Every Rosetta D statement (including multi-update statements) is by itself
-an implicit auto-committing transaction, or put another way, every
-statement is atomic; all parts of that statement and its child expressions
-will see the same static view of the environment; if the statement is an
-update, either all parts of that update will succeed and commit, or none of
-it will (accompanied by a thrown exception) and no changes are left.  It
-follows from this that every named routine invocation is also an implicit
-auto-committing transaction, since said invocation always happens within a
-statement execution; anonymous routines are not this way, though.
-
-Explicit transactions can be respectively started and committed or rolled
-back with appropriate Rosetta D statements.
+separate statements to change the definition of the relation variable and
+change what data is in it, possibly more than one of each; the combination
+can still be wrapped in an explicit transaction for atomicity.
 
 Transactions can be nested, by starting a new one before concluding a
 previous one, and the parent-most transaction has the final say on whether
 all of its committed children actually have a final committed effect or
 not.  The layering of transactions can involve any combination of explicit
 and implicit transactions (the combination should behave intuitively).
+
+The lifetimes of all transactions in Rosetta D (except those declared in
+anonymous routines) are bound to specific lexical scopes, such that they
+begin when that scope is entered and end when that scope is exited; if the
+scope is exited normally, its transaction commits; if the scope terminates
+early due to a thrown exception, its transaction rolls back.
+
+Each Rosetta D named routine as a whole (being a lexical scope), whether
+built-in and user-defined, is implicitly atomic, so invoking one will
+either succeed or have no side-effect, and the environment will remain
+frozen during its execution, save for the routine's own changes.  The
+implicit transaction of a function is always read-only, and the implicit
+transaction of a procedure is either read-only or for-update depending on
+what it wants to do.  Each try-block is also implicitly atomic, committing
+if it exits normally or rolling back if it traps an exception.
+
+Every Rosetta D statement (including multi-update statements) is atomic;
+all parts of that statement and its child expressions will see the same
+static view of the environment; if the statement is an update, either all
+parts of that update will succeed and commit, or none of it will
+(accompanied by a thrown exception) and no changes are left.
+
+Explicit atomic statement blocks can also be declared within a routine.
+
+Rosetta D also supports the common concept of explicit open-ended
+transaction statements that start or end transactions which are not bound
+to lexical scopes; however, these statements may only be invoked within
+anonymous routines, that an application invokes directly, and not in any
+named routines, nor within atomic statement blocks in anonymous routines.
+
+While scope-bound transactions always occur entirely within one invocation
+of the DBMS by an application, the open-ended transactions are intended for
+transactions which last over multiple DBMS invocations of an application.
 
 All currently mounted repositories (persistent and temporary both) are
 joined at the hip with respect to transactions; a commit or rollback is
@@ -371,6 +396,11 @@ parent transaction; in other words, they can only be executed directly by
 an anonymous routine, the main examples being those that mount or unmount a
 persistent repository; this is because such a change in the environment
 mid-transaction would result in an inconsistent state.
+
+I<Rosetta D lets you explicitly place locks on resources that you don't
+want external processes to change out from under you, and these locks do
+not automatically expire when transactions end; or maybe they do; this
+feature has to be thought out more.>
 
 =head2 Data Types
 
