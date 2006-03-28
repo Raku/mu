@@ -187,6 +187,10 @@ Pseudo-code for usage inside a grammar:
         }
     }
 
+    rule statement {
+        <category.parse> ...
+    }
+
 =head1 DESCRIPTION
 
 This module provides an implementation for Perl 6 Rule categories.  
