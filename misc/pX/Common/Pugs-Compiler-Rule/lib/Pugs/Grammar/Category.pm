@@ -163,33 +163,35 @@ Pugs::Grammar::Category - Engine for Perl 6 Rule categories
 
   use Pugs::Grammar::Category;
 
-  # sub rxinfix:<|> 
-  # { 
-  #   return { alt => [ 
-  #              $_[0]{q1}(), 
-  #              $_[0]{q2}(),
-  #          ] ,} 
-  #   }
-  # }
+  # example definition for "sub rxinfix:<|> ..."
   
   my $rxinfix = Pugs::Grammar::Category->new( 
     name => 'rxinfix',
     operand => 'rxatom',
-    # XXX - default assoc, default fixity
+    # XXX - default assoc, default fixity ?
   );
   $rxinfix->add_op( 
     name => '|',
     assoc => 'left',
     fixity => 'infix',
-    block => sub {...},   # XXX - the return block could be generated automatically
+    block => sub {...},   # XXX - the return block could be generated automatically ?
   );
+
+Pseudo-code for usage inside a grammar:
+
+    rule prototype {
+        proto <category>:<name> <options>
+        { 
+            $<category>.add_op( name => $<name>, fixity => ..., precedence => ... );
+            return ... ;
+        }
+    }
 
 =head1 DESCRIPTION
 
 This module provides an implementation for Perl 6 Rule categories.  
 
-The module is still very unstable.
-The algorithm is not optimized for speed yet.
+The module is still very unstable, and the algorithm is not optimized for speed yet.
 
 =head1 METHODS
 
@@ -204,18 +206,28 @@ options:
 
 =item * operand => $rule_name - the name of the rule that will parse operands.
 
-=cut
+=head2 add_op ()
 
-# TODO - document options
-#  is tighter/looser/equiv 
-#  infix/prefix/circumfix/postcircumfix
-#  is assoc left/right/non/chain/list
-#  (is parsed) / ternary
-#  (will do)
+Instance method.  Adds a new operator to the category.
 
-# Operator hash:
-# name=>'*', precedence=>'tighter', other=>'+', rule=>$rule (used in is-parsed)
-# name2=>')' (used in circumfix/ternary)
+options:
+
+=item * name => $operator_name - the name of this operator, such as '+', '*'
+
+=item * name2 => $operator_name - the name of the second operator in
+an operator pair, such as circumfix [ '(', ')' ] or ternary [ '??', '!!' ]. 
+
+ # precedence=>'tighter', 
+ #   tighter/looser/equiv 
+ # other=>'+', 
+ # fixity => 
+ #  infix/prefix/circumfix/postcircumfix/ternary
+ # assoc =>
+ #  left/right/non/chain/list
+ # rule=>$rule 
+ #  (is parsed) 
+ # block => ???
+ #  (will do) 
 
 =head1 AUTHORS
 

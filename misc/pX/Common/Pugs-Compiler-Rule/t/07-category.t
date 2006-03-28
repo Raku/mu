@@ -100,21 +100,18 @@ use_ok( "Pugs::Grammar::Category" );
 
     {
         my $match = test->parse( '3+5*6' );
-        #print Dumper( $match );
         #print show_match( $match );
         Test::More::is( "$match", "3+5*6", "expression matches" );
     }
 
     {
         my $match = test->parse( '(2)' );
-        #print Dumper( $match );
         #print show_match( $match );
         Test::More::is( "$match", "(2)", "expression matches" );
     }
 
     {
         my $match = test->parse( '4*(3+5*6)' );
-        #print Dumper( $match );
         #print show_match( $match );
         Test::More::is( "$match", "4*(3+5*6)", "expression matches" );
     }
