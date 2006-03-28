@@ -1,4 +1,4 @@
-use Test::More tests => 2;
+use Test::More tests => 4;
 use strict;
 use warnings;
 use Data::Dumper;
@@ -81,8 +81,8 @@ use_ok( "Pugs::Grammar::Category" );
         name2 => ')',
         block => sub {},
         assoc => 'left',
-        precedence => 'looser',
-        other => 'or',
+        precedence => 'equal',
+        other => '*',
         fixity => 'circumfix',
     } );
 
@@ -103,6 +103,13 @@ use_ok( "Pugs::Grammar::Category" );
         #print Dumper( $match );
         #print show_match( $match );
         Test::More::is( "$match", "3+5*6", "expression matches" );
+    }
+
+    {
+        my $match = test->parse( '(2)' );
+        #print Dumper( $match );
+        #print show_match( $match );
+        Test::More::is( "$match", "(2)", "expression matches" );
     }
 
     {
