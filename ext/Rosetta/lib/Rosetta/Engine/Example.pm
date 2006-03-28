@@ -3,7 +3,7 @@ use v6;
 
 # External packages used by packages in this file, that don't export symbols:
 use Locale::KeyedText-(1.72.0...);
-use Rosetta-(0.723.0...);
+use Rosetta-(0.724.0...);
 
 ###########################################################################
 ###########################################################################
@@ -14,7 +14,7 @@ use Rosetta-(0.723.0...);
 ###########################################################################
 ###########################################################################
 
-class Rosetta::Engine::Example-0.723.0 {
+class Rosetta::Engine::Example-0.724.0 {
 
     # External packages used by the Rosetta::Engine::Example class, that do export symbols:
     # (None Yet)
@@ -44,7 +44,7 @@ Self-contained reference implementation of a Rosetta Engine
 
 =head1 VERSION
 
-This document describes Rosetta::Engine::Example version 0.723.0.
+This document describes Rosetta::Engine::Example version 0.724.0.
 
 =head1 SYNOPSIS
 
@@ -74,7 +74,7 @@ It also requires these Perl 6 classes that are on CPAN:
 L<Locale::KeyedText-(1.72.0...)|Locale::KeyedText> (for error messages).
 
 It also requires these Perl 6 classes that are in the current distribution:
-L<Rosetta-0.723.0|Rosetta>.
+L<Rosetta-0.724.0|Rosetta>.
 
 =head1 INCOMPATIBILITIES
 
