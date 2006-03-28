@@ -35,6 +35,14 @@ Categories:
 
 - memoize/recompile dynamically
 
+- special cases (test):
+  <tight> <op>+ [<tight> <op>+]* <tight>?
+  1;;;2  - ignore extra ;;?
+  1,,2
+  1, 2,
+  1 Y 2 Y 
+  loop ($a;;$b) { ... } - special form via macro?
+
 Tests:
 
 - add categories looser/tighter than current boundaries
