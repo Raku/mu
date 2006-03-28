@@ -2,6 +2,7 @@ ChangeLog
 lib/Pugs/Compiler/Rule.pm
 lib/Pugs/Emitter/Rule/Perl5.pm
 lib/Pugs/Grammar/Base.pm
+lib/Pugs/Grammar/Category.pm
 lib/Pugs/Grammar/Rule/Rule.pm
 lib/Pugs/Grammar/Rule/Rule.pmc
 lib/Pugs/Grammar/Rule.pm
