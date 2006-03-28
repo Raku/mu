@@ -19,6 +19,7 @@ Priorities:
 - make Emitter::Rule::Perl5 subclassable - such that closures can be 
   parsed/compiled by a custom parser
 - make the 'return' block functionally detectable (instead of regex)
+- cleanup any remaining source filtering
 
 Bugs:
 
@@ -26,21 +27,17 @@ Bugs:
 
 Categories:
 
-- document options
-  is tighter/looser/equiv 
-  infix/prefix/circumfix/postcircumfix
-  is assoc left/right/non/chain/list
-  (is parsed) / ternary
-  (will do)
+- see "Syntactic categories" in S05 (extensibility)
 
-- 'op' hash:
-  name=>'*', 
-  precedence=>'tighter', 
-  other=>'+', 
-  rule=>$rule (used in is-parsed)
-  name2=>')'  (used in circumfix/ternary)
+- finish documenting add_op( %options )
+
+- return AST
+
+- memoize/recompile dynamically
 
 Tests:
+
+- add categories looser/tighter than current boundaries
 
 - backtracking control ':' 
 
@@ -71,27 +68,24 @@ Other:
 
 - closures should be called on the Match object
 
-- add a hook for compiling closures (such as pugs or a source filter)
-  - cleanup any remaining source filtering
-
 - rule documentation (shorter than S05)
 - examples of use
 
 - incomplete rule syntax (see Pugs::Compiler::Rule pod); 
 - more escaped chars
 
-- Switches - none so far - all rules have :p set (only match at start of 
+- Switches 
+- all rules have :p set (only match at start of 
   text) (see Pugs::Compiler::Rule workaround)
 
 - 'Pugs::Grammar::Rule' - old p5 code... -- 'use' in P:G:R
 
 - optimization: inline code in the Engine; 
 - "pre-generate" engine output?
+- see "RuleInline.pl"
 
 - cached precompiled variable rules, per S05
 
 Implementation notes:
 
 - maybe change PCR->code() to PCR->as_method()
-
-- see "Syntactic categories" in S05 (extensibility)
