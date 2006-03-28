@@ -762,7 +762,7 @@ Roles may have attributes:
     role Pet {
 	has $.collar = { Collar.new(Tag.new) };
 	method id () { return $.collar.tag }
-	method lose_collar () { undef $.collar }
+	method lose_collar () { undefine $.collar }
     }
 
 If you want to parameterize the initial value of a role attribute,
