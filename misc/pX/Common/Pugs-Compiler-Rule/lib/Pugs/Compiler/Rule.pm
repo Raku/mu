@@ -1,5 +1,5 @@
 package Pugs::Compiler::Rule;
-$Pugs::Compiler::Rule::VERSION = '0.01';
+$Pugs::Compiler::Rule::VERSION = '0.02';
 
 # Documentation in the __END__
 use 5.006;
@@ -60,6 +60,14 @@ sub match {
         return Pugs::Runtime::Match->new( $match ) 
     }
     return Pugs::Runtime::Match->new( { bool => 0 } );   # XXX - fix?
+}
+
+sub perl5 {
+    my $self = shift;
+    return "bless { " . 
+        "code => "    . $self->{perl5} . ",\n" . 
+        "perl5 => q(" . $self->{perl5} . ") }, " . 
+        __PACKAGE__;
 }
 
 1;
@@ -155,6 +163,8 @@ to several other modules:
  $<> $/<>           -- special variables can't be used inside a match yet
  $/ 
  $<0> $<1>
+ $0 $1
+ \n \N
 
 =head2 Unimplemented Features
 
@@ -162,7 +172,6 @@ to several other modules:
  @variable
  $/<0> $/<1>
  $/0 $/1
- $0 $1
  <"literal">
  ^ ^^ $ $$
  <unicode-class> <+unicode-class> <+unicode-class+unicode-class>
@@ -178,7 +187,6 @@ to several other modules:
  lookahead lookbehind
  \x0a \0123 ...
  &    
- \n \N
 
 =head1 METHODS
 
@@ -195,6 +203,10 @@ belongs to.
 =head2 match (Str $match_against)
 
 Instance method.  Returns a L<Pugs::Runtime::Match> object.
+
+=head2 perl5
+
+Instance method.  Returns a string that can be eval'ed into a rule object.
 
 =head1 CAVEATS
 

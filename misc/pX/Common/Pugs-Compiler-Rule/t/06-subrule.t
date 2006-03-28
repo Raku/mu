@@ -1,8 +1,16 @@
-use Test::More tests => 18;
+use Test::More tests => 19;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
 use_ok( 'Pugs::Compiler::Rule' );
+
+{
+    my $rule = Pugs::Compiler::Rule->compile('\w');
+    #print $rule->perl5;
+    my $rule2 = eval $rule->perl5;
+    my $match = $rule2->match("abc");
+    is( "$match",'a',"perl5 returns eval'able code");
+}
 
 {
     local *Test123::rule1 = Pugs::Compiler::Rule->compile('\w')->code();

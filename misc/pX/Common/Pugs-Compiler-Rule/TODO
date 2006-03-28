@@ -2,9 +2,6 @@ TODO for Pugs::Compiler::Rule (PCR)
 
 Priorities:
 
-- add a Dump method to PCR, for serializing the compiled PCR object.
-  use $self->{perl5} to get the source code into $self->{code}
-
 - make PadWalker optional, as most distros don't hold PW 1.0
 
 - move files to /perl5; fix paths in Makefile.PL
