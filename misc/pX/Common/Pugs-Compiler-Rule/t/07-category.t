@@ -1,4 +1,6 @@
 use Test::More tests => 2;
+use strict;
+use warnings;
 use Data::Dumper;
 use_ok( "Pugs::Grammar::Category" );
 
@@ -74,40 +76,56 @@ use_ok( "Pugs::Grammar::Category" );
         other => 'custom_op',
         fixity => 'ternary',
     } );
+    $cat->add_op( {
+        name => '(',
+        name2 => ')',
+        block => sub {},
+        assoc => 'left',
+        precedence => 'looser',
+        other => 'or',
+        fixity => 'circumfix',
+    } );
 
     #print "cat: ", Dumper($cat);
     #print "grammar in perl6: \n", $cat->emit_grammar_perl6();
     #print "grammar in perl5: \n", $cat->emit_grammar_perl5();
 
+    package test;
+    use Pugs::Compiler::Rule;
+    use Pugs::Grammar::Base;
+    use Data::Dumper;
+    no warnings qw( once );
+    *item = Pugs::Compiler::Rule->compile( '\d+' )->code;
+    eval $cat->emit_grammar_perl5();
+
     {
-        package test;
-        use Pugs::Compiler::Rule;
-        use Pugs::Grammar::Base;
-        use Data::Dumper;
-        no warnings qw( once );
-        *item = Pugs::Compiler::Rule->compile( '\d+' )->code;
-        eval $cat->emit_grammar_perl5();
         my $match = test->parse( '3+5*6' );
         #print Dumper( $match );
-        #show_match( $match );
+        #print show_match( $match );
         Test::More::is( "$match", "3+5*6", "expression matches" );
+    }
+
+    {
+        my $match = test->parse( '4*(3+5*6)' );
+        #print Dumper( $match );
+        #print show_match( $match );
+        Test::More::is( "$match", "4*(3+5*6)", "expression matches" );
     }
 }
 
 sub test::show_match {
-    my @v;
-    if ( ref( $_[0] ) eq 'ARRAY' ) {
-        for ( @{$_[0]} ) {
-            test::show_match( $_ );
-        }
-        return;
+    my $m = shift;
+    my $tab = shift || "";
+    if ( @$m ) {
+        return join('', map {test::show_match( $_, $tab."  " )} @$m );
     }
-    print ref($_[0]);
-    @v = %{$_[0]};
-    while ( @v ) {
-        my $k = shift @v;
-        my $v = shift @v;
-        print "\n$k => $v ";
-        if ( ref($v) ) { test::show_match( $v ) } else { print $v };
+    if ( %$m ) {
+      my $ret;
+      my %h = %$m;
+      while (my ($k, $v) = each %h) {
+        $ret .= "$tab $k => \n" . test::show_match( $v, $tab."  " );
+      }
+      return $ret;
     }
+    return "$tab $m\n";
 }

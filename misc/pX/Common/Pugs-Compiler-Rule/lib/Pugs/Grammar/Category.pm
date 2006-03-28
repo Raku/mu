@@ -84,8 +84,8 @@ sub emit_perl6_rule {
         }
         $template =~ s/<equal>/<$equal>/sg;
         $template =~ s/<tight>/<$tight>/sg;
-        $template =~ s/<op>/<'$op->{name}'>/sg;
-        $template =~ s/<op2>/<'$op->{name2}'>/sg;
+        $template =~ s/<op>/\$<op>:=(<'$op->{name}'>)/sg;
+        $template =~ s/<op2>/\$<op2>:=(<'$op->{name2}'>)/sg;
         push @rules, $template;
     }
     push @rules, "<$tight>";
