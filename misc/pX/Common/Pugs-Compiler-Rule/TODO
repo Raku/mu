@@ -24,6 +24,22 @@ Bugs:
 
 - $variable should look into the user pad
 
+Categories:
+
+- document options
+  is tighter/looser/equiv 
+  infix/prefix/circumfix/postcircumfix
+  is assoc left/right/non/chain/list
+  (is parsed) / ternary
+  (will do)
+
+- 'op' hash:
+  name=>'*', 
+  precedence=>'tighter', 
+  other=>'+', 
+  rule=>$rule (used in is-parsed)
+  name2=>')'  (used in circumfix/ternary)
+
 Tests:
 
 - backtracking control ':' 

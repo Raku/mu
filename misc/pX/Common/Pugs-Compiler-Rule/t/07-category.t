@@ -1,10 +1,11 @@
-use Test::More tests => 1;
+use Test::More tests => 2;
 use Data::Dumper;
 use_ok( "Pugs::Grammar::Category" );
 
 {
     my $cat = Pugs::Grammar::Category->new( {
         name => 'test',
+        operand => 'item',
     } );
     $cat->add_op( {
         name => '+',
@@ -75,8 +76,8 @@ use_ok( "Pugs::Grammar::Category" );
     } );
 
     #print "cat: ", Dumper($cat);
-    #print "grammar in perl6: \n", $cat->emit_grammar_perl6({ item => 'item',} );
-    #print "grammar in perl5: \n", $cat->emit_grammar_perl5({ item => 'item',} );
+    #print "grammar in perl6: \n", $cat->emit_grammar_perl6();
+    #print "grammar in perl5: \n", $cat->emit_grammar_perl5();
 
     {
         package test;
@@ -85,12 +86,11 @@ use_ok( "Pugs::Grammar::Category" );
         use Data::Dumper;
         no warnings qw( once );
         *item = Pugs::Compiler::Rule->compile( '\d+' )->code;
-        eval $cat->emit_grammar_perl5({
-            item => 'item',
-        } );
+        eval $cat->emit_grammar_perl5();
         my $match = test->parse( '3+5*6' );
         #print Dumper( $match );
         #show_match( $match );
+        Test::More::is( "$match", "3+5*6", "expression matches" );
     }
 }
 

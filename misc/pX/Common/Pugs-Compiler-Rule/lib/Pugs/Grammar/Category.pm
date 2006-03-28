@@ -39,10 +39,10 @@ sub new {
 
 sub exists_op { die "not implemented" };
 sub delete_op { die "not implemented" };
-sub get_op { die "not implemented" };
+sub get_op    { die "not implemented" };
 sub inherit_category { die "not implemented" };
-sub inherit_grammar { die "not implemented" };
-sub merge_category { die "not implemented" };
+sub inherit_grammar  { die "not implemented" };
+sub merge_category   { die "not implemented" };
 
 sub add_op {
     my ($self, $opt) = @_;
@@ -72,7 +72,7 @@ sub perl5 {
 sub emit_perl6_rule {
     my ($self, $level, $default) = @_;
     my @rules;
-    my $tight = $level ? 'r' . ($level - 1) : $default->{item};
+    my $tight = $level ? 'r' . ($level - 1) : $self->{operand};
     my $equal = "r$level";
     $equal = "parse" if $level == $#{$self->{levels}};
     for my $op ( @{$self->{levels}[$level]} ) {
@@ -169,6 +169,8 @@ Pugs::Grammar::Category - Engine for Perl 6 Rule categories
 
 This module provides an implementation for Perl 6 Rule categories.  
 
+The algorithm is not optimized for speed yet.
+
 =head1 METHODS
 
 =head2 new ()
@@ -177,7 +179,23 @@ Class method.  Returns a category object.
 
 options:
 
-=item * none.
+=item * name => $category_name - the name of this category 
+(a namespace or a Grammar name).
+
+=item * operand => $rule_name - the name of the rule that will parse operands.
+
+=cut
+
+# TODO - document options
+#  is tighter/looser/equiv 
+#  infix/prefix/circumfix/postcircumfix
+#  is assoc left/right/non/chain/list
+#  (is parsed) / ternary
+#  (will do)
+
+# Operator hash:
+# name=>'*', precedence=>'tighter', other=>'+', rule=>$rule (used in is-parsed)
+# name2=>')' (used in circumfix/ternary)
 
 =head1 AUTHORS
 
