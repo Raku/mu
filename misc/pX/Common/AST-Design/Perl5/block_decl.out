@@ -1,0 +1,52 @@
+$ast = {
+    type => 'scope',
+    children => [
+        {
+            type => 'scope',
+            declarations => [
+                {
+                    type => 'scalar',
+                    scope => 'my',
+                    alias => 'v00001',
+                    name => [
+                        {
+                            type => 'constant',
+                            value => 'a'
+                        }
+                    ]
+                }
+            ],
+            children => [
+                {
+                    type => 'statement',
+                    subtype => 'assign',
+                    left => {
+                        type => 'declared'
+                        alias => 'v00001'
+                    },
+                    right => {
+                        type => 'constant',
+                        value => 1,
+                        value_type => 'int'
+                    }
+                },
+                {
+                    type => 'statement',
+                    subtype => 'subroutine_call',
+                    subroutine_name => [
+                        {
+                            type => 'constant',
+                            value => 'print'
+                        }
+                    ]
+                    subroutine_params => [
+                        {
+                            type => 'declared',
+                            alias => 'v00001'
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
