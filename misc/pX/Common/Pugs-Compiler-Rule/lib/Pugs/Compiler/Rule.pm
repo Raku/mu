@@ -42,15 +42,14 @@ sub compile {
 sub code { 
     my $rule = shift; 
     sub { 
-        my $grammar = shift;
-        my $str = shift;
-        my $flags = shift;
-        $rule->match( $str, $grammar, $flags ); 
+        # XXX - inconsistent parameter order - could just use @_, or use named params
+        my ( $grammar, $str, $flags, $state ) = @_; 
+        $rule->match( $str, $grammar, $flags, $state ); 
     } 
 }
 
 sub match {
-    my ( $rule, $str, $grammar, $flags ) = @_; 
+    my ( $rule, $str, $grammar, $flags, $state ) = @_; 
     $grammar ||= $rule->{grammar};
     #print "match: grammar $rule->{grammar}, $_[0], $flags\n";
 
@@ -59,6 +58,7 @@ sub match {
         my $match = $rule->{code}( 
             $grammar,
             $str, 
+            $state,
         );
         $match->{from} = 0;
         return Pugs::Runtime::Match->new( $match ) 
@@ -67,7 +67,8 @@ sub match {
     foreach my $i (0..length($str)) {
         my $match = $rule->{code}( 
             $grammar,
-            substr($str, $i) 
+            substr($str, $i),
+            $state,
         );
         defined $match or next;
         $match->{from} = $i;

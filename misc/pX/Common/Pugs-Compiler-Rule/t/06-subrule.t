@@ -52,9 +52,13 @@ use_ok( 'Pugs::Compiler::Rule' );
 SKIP: { 
     skip "backtracking into subrules disabled", 1;
     # backtracking into subrules
-    local *Test123::rule1 = Pugs::Compiler::Rule->compile('\w+')->code();
-    local *Test123::rule2 = Pugs::Compiler::Rule->compile('a<rule1>z')->code();
-    my $match = Test123->rule2("abcz");
+    my $rule1 = Pugs::Compiler::Rule->compile('\w+');
+    my $rule2 = Pugs::Compiler::Rule->compile('a<$rule1>z');
+
+    print $rule1->perl5;
+    print $rule2->perl5;
+
+    my $match = $rule2->match("abcz");
     is($match,'abcz',"Matched...");
     is(ref($match->{rule1}),"ARRAY",'$<rule1> is an array...');
     is( $match->{rule1}[0][0],"a","Capture 1...");

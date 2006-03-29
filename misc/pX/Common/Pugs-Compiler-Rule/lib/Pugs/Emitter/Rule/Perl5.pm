@@ -22,6 +22,7 @@ sub call_subrule {
 
 sub emit {
     my ($grammar, $ast) = @_;
+    # runtime parameters: $grammar, $string, $state
     return 
         "do {\n" .
         "    package Pugs::Runtime::Rule;\n" .
@@ -31,7 +32,7 @@ sub emit {
         "    my \$grammar = shift;\n" .
         "    my \$tree;\n" .
         "    rule_wrapper( \$_[0], \n" . 
-        "        \$matcher->( \$_[0], undef, \$tree, \$tree, \$grammar )\n" .
+        "        \$matcher->( \$_[0], \$_[1], \$tree, \$tree, \$grammar )\n" .
         "    );\n" .
         "  }\n" .
         "}\n";
