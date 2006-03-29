@@ -162,6 +162,9 @@ sub concat {
             delete $match2->{label};
             delete $matches[1]{abort};
             delete $matches[1]{return};
+
+            # print "concat: ",Dumper( $match2 );
+
             return $_[3] = $match2;
         }
     }
@@ -410,46 +413,46 @@ sub get_variable {
     die "Couldn't find '$name' in surrounding lexical scope.";
 }
 
-# hash interpolation - pmurias
+sub _preprocess_hash {
+    my $h = shift;
+    if ( ref($h) eq 'CODE') {
+        return sub {
+            $h->();
+            return { bool => 1, match => '', tail => $_[0] };
+        };
+    } 
+    if ( ref($h) eq 'Pugs::Compiler::Rule') {
+        #print "compiling subrule\n";
+        #return $h->code;
+        return sub { 
+            # print "into subrule - $_[0]\n"; 
+            my $match = $h->match( $_[0], { p => 1 } );
+            # print "match: ",$match->(),"\n";
+            return $_[3] = $$match;
+        };
+    }
+    # fail is number != 1 
+    if ( $h =~ /^(\d+)$/ ) {
+        return sub{} unless $1 == 1;
+        return sub{ { bool => 1, match => '', tail => $_[0] } };
+    }
+    # subrule
+    warn "uncompiled subrule: $h - not implemented";
+    return sub {};
+}
+
+# see commit #9783 for an alternate implementation
 sub hash {
     my %hash = %{shift()};
     #print "HASH: @{[ %hash ]}\n";
     my @keys = sort {length $b <=> length $b } keys %hash;
-    my $rx = "^(" . join("|",@keys) . ")(.*)\$";
-    return sub {
-        return unless $_[0] =~ /$rx/;
-        my ($m, $t) = ( $1, $2 );
-
-        if (ref $hash{$1}) {
-            if (ref $hash{$1} eq 'CODE') {
-                $hash{$1}->();
-                return { bool => 1, match => '', tail => $_[0] };
-            } elsif (ref $hash{$m} eq 'Pugs::Compiler::Rule') {
-                print "Calling subrule on $m -- $t\n";
-                my $match = $hash{$m}->match($t);
-                print "return ",ref($match)," \n";
-                ${$match}{state}=undef;
-
-                return $$match;
-
-                #print "return ",$match->()," \n";
-                #my %r = $$match;
-                # print "ref: [", join(',',@{[%r]}),"] \n";
-                # $r{state}=undef;  # ??? infinite loop t/06-subrule.t #24
-                #return \%r; # $$match;
-            }
-
-            #print "ref:",ref $hash{$1},"\n";
-        }
-        if ( $hash{$m} =~ /^(\d+)$/ ) {
-            return unless $1 == 1;
-        }
-        return { 
-            bool  => 1,
-            match => $m,
-            tail  => $t,
-          }
-    }
+    @keys = map {
+        concat(
+            constant( $_ ),
+            _preprocess_hash( $hash{$_} ),
+        )
+    } @keys;
+    return alternation( \@keys );
 }
 
 1;

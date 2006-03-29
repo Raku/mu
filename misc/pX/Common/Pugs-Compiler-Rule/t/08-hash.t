@@ -1,4 +1,4 @@
-use Test::More tests => 5;
+use Test::More tests => 7;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -17,12 +17,12 @@ use_ok( 'Pugs::Compiler::Rule' );
     my $match;
     my $v = 0;
     my %test = (
-        if => 2,        # fail (not '1') or string '2' ???
-        iff => 1,       # match (longer than 'if')
-        until => Pugs::Compiler::Rule->compile("(aa)"),  
-                        # subrule - match "until(aa)"
-        use => sub { $v = 1 },   
-                        # closure - print "use()"
+        if =>    2,        # fail (number, not '1')
+        iff =>   1,        # match (longer than 'if')
+        until => Pugs::Compiler::Rule->compile('(aa)'),  
+                           # subrule - match "until(aa)"
+        use =>   sub { $v = 1 },   
+                           # closure - print "use()"
     );   
     $rule1 = Pugs::Compiler::Rule->compile('%test 123');
     
@@ -36,7 +36,9 @@ use_ok( 'Pugs::Compiler::Rule' );
     $match = $rule1->match("use");
     is($v,1,"closure was called hash{use}");
 
-    # $match = $rule1->match("untilaa");
-    # is($match,'untilaa',"subrule hash{until}");
+    $match = $rule1->match("untilaa123");
+    #print Dumper($match);
+    is($match,'untilaa123',"subrule hash{until}");
+    is($match->(),'untilaa123',"subrule hash{until}");
 
 }
