@@ -1,4 +1,4 @@
-use Test::More tests => 19;
+use Test::More tests => 20;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 
@@ -48,3 +48,17 @@ use_ok( 'Pugs::Compiler::Rule' );
     is( $match->{rule1}[3],undef,"No more captures");
 }
 
+{
+SKIP: { 
+    skip "backtracking into subrules disabled", 1;
+    # backtracking into subrules
+    local *Test123::rule1 = Pugs::Compiler::Rule->compile('\w+')->code();
+    local *Test123::rule2 = Pugs::Compiler::Rule->compile('a<rule1>z')->code();
+    my $match = Test123->rule2("abcz");
+    is($match,'abcz',"Matched...");
+    is(ref($match->{rule1}),"ARRAY",'$<rule1> is an array...');
+    is( $match->{rule1}[0][0],"a","Capture 1...");
+    is( $match->{rule1}[0][1],"b","Capture 2...");
+    is( $match->{rule1}[0][3],undef,"No more captures");
+}
+}
