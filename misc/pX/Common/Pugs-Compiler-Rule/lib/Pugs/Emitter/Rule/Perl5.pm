@@ -39,6 +39,7 @@ sub emit_rule {
     my $tab = $_[1] . '  ';
     die "unknown node: ", Dumper( $n )
         unless ref( $n ) eq 'HASH';
+    #print "NODE ", Dumper($n);
     my ( $k, $v ) = each %$n;
     # XXX - use real references
     no strict 'refs';
@@ -114,13 +115,12 @@ sub variable {
     my $name = "$_[0]";
     my $value = "sub { die 'interpolation of $name not implemented' }\n";
     # XXX - eval $name doesn't look up in user lexical pad
+    # XXX - what &xxx interpolate to?
     $value = eval $name if $name =~ /^\$/;
     $value = join('', eval $name) if $name =~ /^\@/;
     if ( $name =~ /^%/ ) {
-        # XXX - what hash/code interpolate to?
-        # $value = join('', eval $name) if $name =~ /^\%/;
-        warn "hash interpolation not implemented";
-        return;
+        # XXX - runtime or compile-time interpolation?
+        return "$_[1] hash( get_variable( '$name' ) )\n";
     }
     return "$_[1] constant( '" . $value . "' )\n";
 }

@@ -15,7 +15,7 @@ Abstract Syntax Tree (AST) for Rules.
  
 rule p6ws     :P5 {^((?:\s|\#(?-s:.)*)+)}
 
-rule variable :P5 {^([$%@](?:(?:\:\:)?[_[:alnum:]]+)+)}
+rule variable :P5 {^([\$\%\@](?:(?:\:\:)?[_[:alnum:]]+)+)}
 
 rule ident    :P5 {^((?:(?:\:\:)?[_[:alnum:]]+)+)}
 

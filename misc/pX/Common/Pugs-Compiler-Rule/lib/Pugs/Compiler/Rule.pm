@@ -22,6 +22,7 @@ sub compile {
     # XXX - should use user's lexical pad instead?
     $self->{grammar} = delete $param{grammar} || 'Pugs::Grammar::Base';
 
+    #print 'rule source: ', $self->{source}, "\n";
     $self->{ast} = Pugs::Grammar::Rule->rule( 
         $self->{source} );
     die "Error in rule: '$rule_source' at: '$self->{ast}{tail}'\n" if $self->{ast}{tail};

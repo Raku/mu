@@ -402,9 +402,45 @@ sub get_variable {
         $idx++, next
           unless exists $pad->{$name};
 
-        return ${ $pad->{$name} };
+        #print "NAME $name $pad->{$name}\n";
+        return ${ $pad->{$name} } if $name =~ /^\$/;
+        return $pad->{$name};  # arrayref/hashref
     }
     die "Couldn't find '$name' in surrounding lexical scope.";
+}
+
+# hash interpolation - pmurias
+sub hash {
+    my %hash = %{shift()};
+    #print "HASH: @{[ %hash ]}\n";
+    my @keys = sort {length $b <=> length $b } keys %hash;
+    my $rx = "^(" . join("|",@keys) . ")(.*)\$";
+    return sub {
+        my ($m, $t) = $_[0] =~ /$rx/;
+        #print "matching @_\n";
+        #warn Dumper(\%hash).":".$rx.":$1:".$hash{$1};    
+        return unless defined $1;
+        if (ref $hash{$1}) {
+            if (ref $hash{$1} eq 'CODE') {
+                $hash{$1}->();
+            } elsif (ref $hash{$m} eq 'Pugs::Compiler::Rule') {
+                print "Calling subrule on $t\n";
+                my $match = $hash{$m}->match($t);
+                print "return $match\n";
+                return $$match;
+            }
+
+            #print "ref:",ref $hash{$1},"\n";
+        }
+        if ( $hash{$m} =~ /^(\d+)$/ ) {
+            return unless $1 == 1;
+        }
+        return { 
+            bool  => 1,
+            match => $m,
+            tail  => $t,
+          }
+    }
 }
 
 1;
