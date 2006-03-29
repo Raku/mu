@@ -80,10 +80,7 @@ use_ok( 'Pugs::Compiler::Rule' );
     $match = $rule1->match("use");
     is($v,1,"closure was called hash{use}");
 
-SKIP: {
-    skip "infinite loop", 1;
     $match = $rule1->match("until bbaa");
     is($match,'',"subrule hash{until}");
-}
 
 }

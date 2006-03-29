@@ -424,10 +424,13 @@ sub hash {
             if (ref $hash{$1} eq 'CODE') {
                 $hash{$1}->();
             } elsif (ref $hash{$m} eq 'Pugs::Compiler::Rule') {
-                print "Calling subrule on $t\n";
+                # print "Calling subrule on $t\n";
                 my $match = $hash{$m}->match($t);
-                print "return $match\n";
-                return $$match;
+                # print "return $match \n", Dumper( $match );
+                my %r = %$$match;
+                # print "ref: [", join(',',@{[%r]}),"] \n";
+                $r{state}=undef;  # ??? infinite loop t/06-subrule.t #24
+                return \%r; # $$match;
             }
 
             #print "ref:",ref $hash{$1},"\n";
