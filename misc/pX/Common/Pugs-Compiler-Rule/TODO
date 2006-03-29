@@ -25,6 +25,8 @@ Bugs:
 
 - $variable should look into the user pad
 
+- aaa.*aaa seems to loop forever
+
 Categories:
 
 - see "Syntactic categories" in S05 (extensibility)

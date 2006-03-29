@@ -12,7 +12,7 @@ $Data::Dumper::Indent = 1;
 # XXX - reuse this sub in metasyntax()
 sub call_subrule {
     my $name = $_[0];
-    $name = "\$grammar->" . $_[0] unless $_[0] =~ / :: | \. | -> /x;
+    $name = "\$_[4]->" . $_[0] unless $_[0] =~ / :: | \. | -> /x;
     $name =~ s/\./->/;   # XXX - source filter
     return 
         "$_[1] sub{ \n" .
@@ -23,14 +23,17 @@ sub call_subrule {
 sub emit {
     my ($grammar, $ast) = @_;
     return 
-        "sub {\n" . 
-        "    my \$grammar = shift;\n" .
+        "do {\n" .
         "    package Pugs::Runtime::Rule;\n" .
+        "    my \$matcher = \n" . 
+        emit_rule( $ast, '    ' ) . "  ;\n" .
+        "  sub {\n" . 
+        "    my \$grammar = shift;\n" .
         "    my \$tree;\n" .
         "    rule_wrapper( \$_[0], \n" . 
-        emit_rule( $ast, '  ' ) . 
-        "        ->( \$_[0], undef, \$tree, \$tree )\n" .
+        "        \$matcher->( \$_[0], undef, \$tree, \$tree, \$grammar )\n" .
         "    );\n" .
+        "  }\n" .
         "}\n";
 }
 

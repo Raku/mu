@@ -16,6 +16,7 @@ A "rule" function gets as argument a list:
 1 - an optional "continuation"
 2 - a partially built match tree
 3 - a leaf pointer in the match tree
+4 - a grammar name
 
 it returns (or "yields"):
 
@@ -65,7 +66,7 @@ sub alternation {
         while ( defined $state ) {
             ### alternation string to match: "$tail - (node,state)=@$state"
             $match = 
-                $nodes->[ $state->[0] ]->( $tail, $state->[1], $_[2], $_[3]{match} );
+                $nodes->[ $state->[0] ]->( $tail, $state->[1], $_[2], $_[3]{match}, $_[4] );
             $match = $$match if ref($match) eq 'Pugs::Runtime::Match';
             ### match: $match
             if ( $match->{state} ) {
@@ -101,7 +102,7 @@ sub concat {
         $_[3] = { match => [] };
         while (1) {
             
-            $matches[0] = $nodes[0]->( $tail, $state[0], $_[2], $_[3]{match}[0] );
+            $matches[0] = $nodes[0]->( $tail, $state[0], $_[2], $_[3]{match}[0], $_[4] );
             $matches[0] = ${$matches[0]} if ref($matches[0]) eq 'Pugs::Runtime::Match';
             ### 1st match: $matches[0]
             return $matches[0] 
@@ -115,7 +116,7 @@ sub concat {
             $_[3]{capture} = $_[3]{match}[0]{capture};
             #print "Matched concat 0, tree:", Dumper($_[2]);
 
-            $matches[1] = $nodes[1]->( $matches[0]{tail}, $state[1], $_[2], $_[3]{match}[1] );
+            $matches[1] = $nodes[1]->( $matches[0]{tail}, $state[1], $_[2], $_[3]{match}[1], $_[4] );
             $matches[1] = ${$matches[1]} if ref($matches[1]) eq 'Pugs::Runtime::Match';
             ### 2nd match: $matches[1]
             if ( ! $matches[1]{bool} ) {
@@ -202,7 +203,7 @@ sub capture {
     my $node = shift;
     sub {
         $_[3] = { label => $label };
-        my $match = $node->( @_[0,1,2], $_[3]{match} );
+        my $match = $node->( @_[0,1,2], $_[3]{match}, $_[4] );
         $match = $$match if ref($match) eq 'Pugs::Runtime::Match';
         return unless $match->{bool};
         ## return if $match->{abort}; - maybe a { return }
@@ -416,21 +417,26 @@ sub hash {
     my @keys = sort {length $b <=> length $b } keys %hash;
     my $rx = "^(" . join("|",@keys) . ")(.*)\$";
     return sub {
-        my ($m, $t) = $_[0] =~ /$rx/;
-        #print "matching @_\n";
-        #warn Dumper(\%hash).":".$rx.":$1:".$hash{$1};    
-        return unless defined $1;
+        return unless $_[0] =~ /$rx/;
+        my ($m, $t) = ( $1, $2 );
+
         if (ref $hash{$1}) {
             if (ref $hash{$1} eq 'CODE') {
                 $hash{$1}->();
+                return { bool => 1, match => '', tail => $_[0] };
             } elsif (ref $hash{$m} eq 'Pugs::Compiler::Rule') {
-                # print "Calling subrule on $t\n";
+                print "Calling subrule on $m -- $t\n";
                 my $match = $hash{$m}->match($t);
-                # print "return $match \n", Dumper( $match );
-                my %r = %$$match;
+                print "return ",ref($match)," \n";
+                ${$match}{state}=undef;
+
+                return $$match;
+
+                #print "return ",$match->()," \n";
+                #my %r = $$match;
                 # print "ref: [", join(',',@{[%r]}),"] \n";
-                $r{state}=undef;  # ??? infinite loop t/06-subrule.t #24
-                return \%r; # $$match;
+                # $r{state}=undef;  # ??? infinite loop t/06-subrule.t #24
+                #return \%r; # $$match;
             }
 
             #print "ref:",ref $hash{$1},"\n";
