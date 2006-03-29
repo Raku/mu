@@ -1,0 +1,66 @@
+=head1 Summary of Perl 5 AST nodes
+
+=head2 P5AST01 - package
+
+=head3 Abstract
+
+The package node is the root node of a Perl5 AST. It can declare
+subroutines, global variables.
+
+=head3 Elements
+
+=over
+
+=item name
+
+The name of the package, default to 'main'.
+
+=item package_declarations
+
+A list of nodes containing global_variable_declaration,
+subroutine_declaration and use_declaration.
+
+=item scoped_declarations
+
+A package can contain a scope if there are scoped
+variable_declarations or pragma_declaration
+
+=item children
+
+A list of statements to be run when the package is loaded.
+
+=back
+
+=head2 P5AST02 - scope
+
+=head3 Abstract
+
+The scope node is used for every new scope in the code. It delimits
+the lifespan of variables and pragmas. It is a subset of the package
+node.
+
+=head3 Elements
+
+=over
+
+=item scoped_declarations
+
+a list of nodes containing variable_declaration, and
+pragma_declaration. The list is ordered according to the source code.
+
+=item children
+
+A list of statements to be run inside this scope.
+
+=back
+
+
+=head3 Example
+
+  { my $a; }
+
+would render as
+
+  { type => 'scope', scoped_declarations => [ { type => 'variable', ... } ] }
+
+=cut

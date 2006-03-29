@@ -1,0 +1,117 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Summary of Perl 5 AST nodes</title>
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body style="background-color: white">
+
+<p><a name="__index__"></a></p>
+<!-- INDEX BEGIN -->
+
+<ul>
+
+	<li><a href="#summary_of_perl_5_ast_nodes">Summary of Perl 5 AST nodes</a></li>
+	<ul>
+
+		<li><a href="#p5ast01__package">P5AST01 - package</a></li>
+		<ul>
+
+			<li><a href="#abstract">Abstract</a></li>
+			<li><a href="#elements">Elements</a></li>
+		</ul>
+
+		<li><a href="#p5ast02__scope">P5AST02 - scope</a></li>
+		<ul>
+
+			<li><a href="#abstract">Abstract</a></li>
+			<li><a href="#elements">Elements</a></li>
+			<li><a href="#example">Example</a></li>
+		</ul>
+
+	</ul>
+
+</ul>
+<!-- INDEX END -->
+
+<hr />
+<p>
+</p>
+<h1><a name="summary_of_perl_5_ast_nodes">Summary of Perl 5 AST nodes</a></h1>
+<p>
+</p>
+<h2><a name="p5ast01__package">P5AST01 - package</a></h2>
+<p>
+</p>
+<h3><a name="abstract">Abstract</a></h3>
+<p>The package node is the root node of a Perl5 AST. It can declare
+subroutines, global variables.</p>
+<p>
+</p>
+<h3><a name="elements">Elements</a></h3>
+<dl>
+<dt><strong><a name="item_name">name</a></strong><br />
+</dt>
+<dd>
+The name of the package, default to 'main'.
+</dd>
+<p></p>
+<dt><strong><a name="item_package_declarations">package_declarations</a></strong><br />
+</dt>
+<dd>
+A list of nodes containing global_variable_declaration,
+subroutine_declaration and use_declaration.
+</dd>
+<p></p>
+<dt><strong><a name="item_scoped_declarations">scoped_declarations</a></strong><br />
+</dt>
+<dd>
+A package can contain a scope if there are scoped
+variable_declarations or pragma_declaration
+</dd>
+<p></p>
+<dt><strong><a name="item_children">children</a></strong><br />
+</dt>
+<dd>
+A list of statements to be run when the package is loaded.
+</dd>
+<p></p></dl>
+<p>
+</p>
+<h2><a name="p5ast02__scope">P5AST02 - scope</a></h2>
+<p>
+</p>
+<h3><a name="abstract">Abstract</a></h3>
+<p>The scope node is used for every new scope in the code. It delimits
+the lifespan of variables and pragmas. It is a subset of the package
+node.</p>
+<p>
+</p>
+<h3><a name="elements">Elements</a></h3>
+<dl>
+<dt><strong>scoped_declarations</strong><br />
+</dt>
+<dd>
+a list of nodes containing variable_declaration, and
+pragma_declaration. The list is ordered according to the source code.
+</dd>
+<p></p>
+<dt><strong>children</strong><br />
+</dt>
+<dd>
+A list of statements to be run inside this scope.
+</dd>
+<p></p></dl>
+<p>
+</p>
+<h3><a name="example">Example</a></h3>
+<pre>
+  { my $a; }</pre>
+<p>would render as</p>
+<pre>
+  { type =&gt; 'scope', scoped_declarations =&gt; [ { type =&gt; 'variable', ... } ] }</pre>
+
+</body>
+
+</html>
