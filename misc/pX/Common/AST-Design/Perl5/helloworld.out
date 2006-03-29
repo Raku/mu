@@ -1,0 +1,25 @@
+$ast = {
+    type => 'scope',
+    children => [
+        {
+            type => 'statement',
+            subtype => 'subroutine_call',
+            subroutine_name => 'print',
+            children => [
+                {
+                    type => 'double_quote',
+                    children => [
+                        {
+                            type => 'string_constant',
+                            value => 'Hello World'
+                        },
+                        {
+                            type => 'string_special',
+                            value => '\n'
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

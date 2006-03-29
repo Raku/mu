@@ -1,0 +1,18 @@
+Design of an AST node.
+
+$node = { 
+    type => 'Node type',
+    children => [
+        subnode1,
+        subnode2,
+        ... # other nodes
+    ],
+    # optional debug information
+    debug => {
+        file => 'filename', # if the same as the parent can be omitted
+        line => 123
+    }
+    ... # other optional information depending on the node type 
+}
+
+

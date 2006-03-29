@@ -1,0 +1,100 @@
+This subtree is focused on designing the AST for the middle-ends of
+the lrep compiler. The lrep compiler will be a set of tools that does:
+
+This subtree will take series of codes and design how the AST should
+look like. In each language dir, you will have files with .in and
+.out. the .in files will have source code and the .out files will have
+how the AST should look like.
+
+Before jumping into source samples, please take a look at the Notes
+file.  This files specifies the common definition of how AST nodes
+should looks like.
+
+The following diagrams explain how lrep-compiler will work if everything
+goes fine... Most of the modules in the diagrams doesn't exist yet.
+
+------------------------
+ 
+ Perl 5 code
+
+     ||
+     || B::AST
+     \/
+
+ Perl 5 AST
+
+------------------------
+
+ Perl 6 code
+
+     ||
+     || PCR+lrep-compiler/Grammar::Perl6
+     \/
+
+ Perl 6 match
+
+     ||
+     || lrep-compiler/Grammar::Perl6::Match2AST
+     \/
+
+ Perl 6 AST
+
+------------------------
+
+ Perl 6 AST
+
+     || Translator::Perl6::Perl5
+     \/
+
+ Perl 5 AST
+
+------------------------
+
+ Perl 5 AST
+
+     || Translator::Perl5::Perl6
+     \/
+
+ Perl 6 AST
+
+------------------------
+
+ Perl 5 AST
+
+     || Translator::Perl5::PIR
+     \/
+
+    PIR
+
+------------------------
+
+ Perl 6 AST
+
+     || Translator::Perl6::PIR
+     \/
+
+    PIR
+
+------------------------
+
+
+ Perl 6 AST
+
+     || Emitter::Perl6
+     \/
+
+ Perl 6 code
+
+------------------------
+
+ Perl 5 AST
+
+     || Emitter::Perl5
+     \/
+
+ Perl 5 optree
+
+     || B::Deparse
+     \/
+
+ Perl 5 code
