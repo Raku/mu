@@ -4,8 +4,13 @@ $ast = {
         {
             type => 'statement',
             subtype => 'subroutine_call',
-            subroutine_name => 'print',
-            children => [
+            subroutine_name => [
+                {
+                    type => 'constant',
+                    value => 'print'
+                }
+            ]
+            subroutine_params => [
                 {
                     type => 'double_quote',
                     children => [
