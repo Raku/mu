@@ -15,19 +15,46 @@
 	<li><a href="#summary_of_perl_5_ast_nodes">Summary of Perl 5 AST nodes</a></li>
 	<ul>
 
-		<li><a href="#p5ast01__package">P5AST01 - package</a></li>
+		<li><a href="#p5ast01__scope">P5AST01 - scope</a></li>
+		<ul>
+
+			<li><a href="#abstract">Abstract</a></li>
+			<li><a href="#elements">Elements</a></li>
+			<li><a href="#example">Example</a></li>
+		</ul>
+
+		<li><a href="#p5ast02__package">P5AST02 - package</a></li>
+		<ul>
+
+			<li><a href="#abstract">Abstract</a></li>
+			<li><a href="#elements">Elements</a></li>
+			<li><a href="#example">Example</a></li>
+		</ul>
+
+		<li><a href="#p5ast03__block">P5AST03 - block</a></li>
+		<ul>
+
+			<li><a href="#example">Example</a></li>
+		</ul>
+
+		<li><a href="#p5ast04__variable_declaration">P5AST04 - variable_declaration</a></li>
 		<ul>
 
 			<li><a href="#abstract">Abstract</a></li>
 			<li><a href="#elements">Elements</a></li>
 		</ul>
 
-		<li><a href="#p5ast02__scope">P5AST02 - scope</a></li>
+		<li><a href="#p5ast05__scoped_variable_declaration">P5AST05 - scoped_variable_declaration</a></li>
 		<ul>
 
 			<li><a href="#abstract">Abstract</a></li>
 			<li><a href="#elements">Elements</a></li>
-			<li><a href="#example">Example</a></li>
+		</ul>
+
+		<li><a href="#p5ast06__global_variable_declaration">P5AST06 - global_variable_declaration</a></li>
+		<ul>
+
+			<li><a href="#abstract">Abstract</a></li>
 		</ul>
 
 	</ul>
@@ -41,12 +68,55 @@
 <h1><a name="summary_of_perl_5_ast_nodes">Summary of Perl 5 AST nodes</a></h1>
 <p>
 </p>
-<h2><a name="p5ast01__package">P5AST01 - package</a></h2>
+<h2><a name="p5ast01__scope">P5AST01 - scope</a></h2>
+<p>
+</p>
+<h3><a name="abstract">Abstract</a></h3>
+<p>The scope node is used for every new scope in the code. It delimits
+the lifespan of variables and pragmas. If a pragma is defined a new
+scope is open, if a variable is redeclared, a new scope is open. An
+optimizer can reuse the scope for pragma declarations in the start of
+the code. But it cannot rename the re-declared variable, as the stash
+can be manipulated, just emit a warning.</p>
+<p>
+</p>
+<h3><a name="elements">Elements</a></h3>
+<dl>
+<dt><strong><a name="item_scoped_declarations">scoped_declarations</a></strong><br />
+</dt>
+<dd>
+a list of nodes containing scoped_variable_declaration, and
+pragma_declaration. The list is ordered according to the source code.
+</dd>
+<p></p>
+<dt><strong><a name="item_outer_references">outer_references</a></strong><br />
+</dt>
+<dd>
+A list of nodes containing variables accessed by this scope that are
+defined by the parent scope, or outer_referenced by the parent scope.
+</dd>
+<p></p>
+<dt><strong><a name="item_children">children</a></strong><br />
+</dt>
+<dd>
+A list of statements to be run inside this scope.
+</dd>
+<p></p></dl>
+<p>
+</p>
+<h3><a name="example">Example</a></h3>
+<pre>
+  block_decl
+  helloworld</pre>
+<p>
+</p>
+<h2><a name="p5ast02__package">P5AST02 - package</a></h2>
 <p>
 </p>
 <h3><a name="abstract">Abstract</a></h3>
 <p>The package node is the root node of a Perl5 AST. It can declare
-subroutines, global variables.</p>
+subroutines, global variables. It inherits the ``scope'' node as every
+package defines a new scope.</p>
 <p>
 </p>
 <h3><a name="elements">Elements</a></h3>
@@ -63,54 +133,86 @@ The name of the package, default to 'main'.
 A list of nodes containing global_variable_declaration,
 subroutine_declaration and use_declaration.
 </dd>
-<p></p>
-<dt><strong><a name="item_scoped_declarations">scoped_declarations</a></strong><br />
-</dt>
-<dd>
-A package can contain a scope if there are scoped
-variable_declarations or pragma_declaration
-</dd>
-<p></p>
-<dt><strong><a name="item_children">children</a></strong><br />
-</dt>
-<dd>
-A list of statements to be run when the package is loaded.
-</dd>
-<p></p></dl>
-<p>
-</p>
-<h2><a name="p5ast02__scope">P5AST02 - scope</a></h2>
-<p>
-</p>
-<h3><a name="abstract">Abstract</a></h3>
-<p>The scope node is used for every new scope in the code. It delimits
-the lifespan of variables and pragmas. It is a subset of the package
-node.</p>
-<p>
-</p>
-<h3><a name="elements">Elements</a></h3>
-<dl>
-<dt><strong>scoped_declarations</strong><br />
-</dt>
-<dd>
-a list of nodes containing variable_declaration, and
-pragma_declaration. The list is ordered according to the source code.
-</dd>
-<p></p>
-<dt><strong>children</strong><br />
-</dt>
-<dd>
-A list of statements to be run inside this scope.
-</dd>
 <p></p></dl>
 <p>
 </p>
 <h3><a name="example">Example</a></h3>
 <pre>
-  { my $a; }</pre>
-<p>would render as</p>
+  block_decl
+  helloworld</pre>
+<p>
+</p>
+<h2><a name="p5ast03__block">P5AST03 - block</a></h2>
+<p>A block is a scope (inherits scope) defined explicitly. It tell us
+that it is ok to redeclare a variable, and no warning is necessary.
+It is also the boundary for closures.</p>
+<p>
+</p>
+<h3><a name="example">Example</a></h3>
 <pre>
-  { type =&gt; 'scope', scoped_declarations =&gt; [ { type =&gt; 'variable', ... } ] }</pre>
+  block_decl</pre>
+<p>
+</p>
+<h2><a name="p5ast04__variable_declaration">P5AST04 - variable_declaration</a></h2>
+<p>
+</p>
+<h3><a name="abstract">Abstract</a></h3>
+<p>The variable_declaration is the super-class for scoped and global
+variable declaration. It defines how a variable can be declared.</p>
+<p>
+</p>
+<h3><a name="elements">Elements</a></h3>
+<dl>
+<dt><strong><a name="item_variable_type">variable_type</a></strong><br />
+</dt>
+<dd>
+One of SCALAR, ARRAY, HASH or GLOB. GLOBs can only be scoped with
+local, and they're always global. Even if they're scoped.
+</dd>
+<p></p>
+<dt><strong><a name="item_variable_name">variable_name</a></strong><br />
+</dt>
+<dd>
+An expression that defines the name of the variable. This expression
+should be evaluated every time the variable is used. It can reference
+another variable in this expression. An outer_references entry should
+be added if the referenced variable is from the parent scope.
+</dd>
+<p></p>
+<dt><strong><a name="item_alias">alias</a></strong><br />
+</dt>
+<dd>
+Alias to be used inside the AST when referencing this variable. For
+optimizing performance, it should be unique in this AST.
+</dd>
+<p></p></dl>
+<p>
+</p>
+<h2><a name="p5ast05__scoped_variable_declaration">P5AST05 - scoped_variable_declaration</a></h2>
+<p>
+</p>
+<h3><a name="abstract">Abstract</a></h3>
+<p>Defines a variable with a limited visibility, either by name or by
+value. Inherits variable_declaration.</p>
+<p>
+</p>
+<h3><a name="elements">Elements</a></h3>
+<dl>
+<dt><strong><a name="item_variable_visibility">variable_visibility</a></strong><br />
+</dt>
+<dd>
+One of ``my'' or ``local''. If ``local'', it should also declare a ``global''
+variable.
+</dd>
+<p></p></dl>
+<p>
+</p>
+<h2><a name="p5ast06__global_variable_declaration">P5AST06 - global_variable_declaration</a></h2>
+<p>
+</p>
+<h3><a name="abstract">Abstract</a></h3>
+<p>This node causes the same effect of the ``our'' declaration, but appears
+here even if the declaration didn't appears in the original code.</p>
 
 </body>
 

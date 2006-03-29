@@ -2,7 +2,7 @@ $ast = {
     type => 'package',
     children => [
         {
-            type => 'scope',
+            type => 'block',
             scoped_declarations => [
                 {
                     type => 'scalar',
