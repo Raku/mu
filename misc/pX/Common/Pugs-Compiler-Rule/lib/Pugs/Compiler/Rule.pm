@@ -82,7 +82,7 @@ sub perl5 {
     return "bless { " . 
         "code => "    . $self->{perl5} . ",\n" . 
         "perl5 => q(" . $self->{perl5} . ") }, " . 
-        __PACKAGE__;
+        "q(" . __PACKAGE__ . ")";
 }
 
 1;

@@ -20,5 +20,7 @@ t/03-match.t
 t/04-rule.t
 t/05-var.t
 t/06-subrule.t
+t/07-category.t
+t/08-hash.t
 t6/iterator_engine.p6
 TODO

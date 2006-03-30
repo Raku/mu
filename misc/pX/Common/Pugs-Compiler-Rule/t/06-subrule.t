@@ -1,13 +1,16 @@
-use Test::More tests => 20;
+use Test::More tests => 25;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
+use strict;
+use warnings;
 
 use_ok( 'Pugs::Compiler::Rule' );
 
 {
     my $rule = Pugs::Compiler::Rule->compile('\w');
-    #print $rule->perl5;
     my $rule2 = eval $rule->perl5;
+    warn $@ if $@;
+    is( ref($rule2), 'Pugs::Compiler::Rule', "a rule object");
     my $match = $rule2->match("abc");
     is( "$match",'a',"perl5 returns eval'able code");
 }
@@ -49,20 +52,19 @@ use_ok( 'Pugs::Compiler::Rule' );
 }
 
 {
-SKIP: { 
-    skip "backtracking into subrules disabled", 1;
     # backtracking into subrules
-    my $rule1 = Pugs::Compiler::Rule->compile('\w+');
+    my $rule1 = Pugs::Compiler::Rule->compile('(\w)+');
     my $rule2 = Pugs::Compiler::Rule->compile('a<$rule1>z');
 
-    print $rule1->perl5;
-    print $rule2->perl5;
+    #print $rule1->perl5;
+    #print $rule2->perl5;
 
     my $match = $rule2->match("abcz");
-    is($match,'abcz',"Matched...");
-    is(ref($match->{rule1}),"ARRAY",'$<rule1> is an array...');
-    is( $match->{rule1}[0][0],"a","Capture 1...");
-    is( $match->{rule1}[0][1],"b","Capture 2...");
+    is( "$match",'abcz',"backtracking subrule matched");
+
+    #print Dumper($match[0]);
+    is(ref($match->[0]),"ARRAY",'array...');
+    is( $match->[0][0],"b","Capture 1...");
+    is( $match->[0][1],"c","Capture 2...");
     is( $match->{rule1}[0][3],undef,"No more captures");
-}
 }

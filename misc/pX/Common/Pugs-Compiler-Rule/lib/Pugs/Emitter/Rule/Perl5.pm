@@ -16,7 +16,7 @@ sub call_subrule {
     $name =~ s/\./->/;   # XXX - source filter
     return 
         "$_[1] sub{ \n" .
-        "$_[1]     $name( \$_[0], { p => 1 } );\n" .
+        "$_[1]     $name( \$_[0], { p => 1 }, \$_[1] );\n" .
         "$_[1] }\n";
 }
 
@@ -206,13 +206,13 @@ sub metasyntax {
         if ( $cmd =~ /::/ ) {
             # call method in fully qualified $package::var
             return 
-                "$_[1] sub { $cmd->match( \@_ ) }\n";
+                "$_[1] sub { $cmd->match( \@_[0, 4], {p => 1}, \$_[1] ) }\n";
         }
         # call method in lexical $var
         return 
             "$_[1] sub { \n" . 
             "$_[1]     my \$r = get_variable( '$cmd' );\n" . 
-            "$_[1]     \$r->match( \@_ );\n" .
+            "$_[1]     \$r->match( \@_[0, 4], {p => 1}, \$_[1] );\n" .
             "$_[1] }\n";
     }
     if ( $prefix eq q(') ) {   # single quoted literal 

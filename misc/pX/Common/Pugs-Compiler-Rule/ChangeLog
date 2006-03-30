@@ -1,3 +1,13 @@
+- new class 'Pugs::Grammar::Category'
+
+- implemented '%hash'
+
+- fixed subrule backtracking
+
+- fixed method 'perl5'
+
+0.02  2006-03-28
+
 - new method 'perl5', returns a string that can be eval'ed into a new PCR object
 
 - match variables are available inside the rule: $0, $1
