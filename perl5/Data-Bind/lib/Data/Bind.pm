@@ -7,12 +7,12 @@ use base 'Exporter';
 our @EXPORT = qw(bind_op);
 
 sub bind_op {
-    while (my ($var, $val) = splice(@_, 0, 2)) {
-	my $sig = Data::Bind::Sig->new({ positional => [ Data::Bind::Param->new({ container_var => $var }) ] });
-	my $arg = Data::Bind::Arg->new({ container => $val });
-
-	$sig->bind({ positional => [$arg], named => {}}, 2);
-    }
+    my %vars = @_;
+    my $sig = Data::Bind::Sig->new
+	({ positional =>
+	   [ map { Data::Bind::Param->new({ container_var => $_ }) } keys %vars ] });
+    $sig->bind({ positional => [map { Data::Bind::Arg->new({ container => $_ }) } values %vars ],
+		 named => {} }, 2);
 
     # XXX: probably returning the var
     return;
