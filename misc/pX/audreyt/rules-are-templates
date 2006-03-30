@@ -1,0 +1,76 @@
+Some Perl 5 examples:
+
+    print qr/Hello, (\w+)!/->('World');
+    # Hello, World!
+
+    print qr/Hello, (\w+)!/->('!@#)*!@#');
+    # Invalid input: '!@#' !~ \w+
+
+    # FOREACH
+    print qr/Hello, (\w)+!/->([qw< W o r l d >]);
+    print qr/Hello, @x:=(\w)+!/->(x => [qw< W o r l d >]);
+
+    print qr/Hello, $x:=(\w+) !/->(x => 'World');
+    # Hello, World!
+
+    print qr/Hello, $x:=(.*?) !/->(x => 'World');
+    print qr/Hello, $x:=(.*) !/->(x => 'World');
+
+    print qr/Hello, <=$x> !/->(x => 'World');
+
+TT2 translation table:
+
+    [% INCLUDE header %]        <header>            # should be lexical
+    [% PROCESS header %]        <&header()>
+    [% INSERT foo %]            <'content of foo'>
+    [% GET foo %]               <=$foo>
+                                $foo:=(.*?)
+    [% SET foo = 3 %]           {$foo = 3}
+    [% DEFAULT foo = 3 %]       {$foo //= 3}
+    [% FOREACH ary %]...[%END%] @ary:=(...)*
+                                @ary:=(...)+
+    [% BLOCK foo %]...[%END%]   rule foo {...}
+    [% IF %] # ???
+
+    [% MACRO hdr INCLUDE header %]...[% hdr() %]
+                                rule hdr { <header> }
+                                <&hdr()>
+
+    [% MACRO hdr INCLUDE header %]...[% hdr(x=>1) %]
+                                rule hdr { <header %_> } # that was easy!
+                                <&hdr(x=>1)>
+
+    [% THROW %]                 {fail}
+    [% THROW food %]            {fail 'food'}
+    [% THROW food.toxic %]      {fail 'food.toxic'}
+        # <acme> that's trying to be hierarchical (but failing)
+
+    [% TRY %]xxx[% CATCH %]yyy[% END %]
+                                xxx | yyy
+
+
+=============================================================================
+
+# Need to figure out a syntax for reversible repeaters
+[% WHILE (user = get_next_user_record) %]
+    [% user.name %]
+[% END %]
+my @things = takeWhile { makeDual(get_next_user_record()) };
+[% FOREACH x IN things %][% x.name %][% END %]
+     /  @things := ( <=$name> )*  /
+        ^^^^ figure out the dual for @things here
+            ^^^ the dual logic is in the [% PERL %] directive
+
+grammar URI {
+    rule uri { <scheme> :// <domain> }
+    rule scheme { http }
+    rule domain { foo\.bar }
+}
+
+
+URI::uri().(scheme => 'http', domain => 'foo.bar')
+
+if ("http://..." ~~ URI::uri()) {
+    say $<scheme>;
+}
+
