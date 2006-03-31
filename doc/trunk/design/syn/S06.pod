@@ -1259,7 +1259,6 @@ These are some of the standard type names in Perl 6 (at least this week):
     Str         Perl string (Unicode semantics)
     Num         Perl number
     Complex     Perl complex number
-    Ref         Perl reference
     Bool        Perl boolean
     Array       Perl array
     Hash        Perl hash
