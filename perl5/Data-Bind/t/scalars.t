@@ -2,6 +2,7 @@
 # Translated from pugs/t/operators/binding/scalar.t
 use strict;
 use Test::More tests => 28;
+use Test::Exception;
 use Data::Bind;
 
 use Scalar::Util 'refaddr';
@@ -99,7 +100,7 @@ SKIP:
   $val++;
   is $a, 43, "bound readonly sub param was bound correctly (2)";
 
-  dies_ok { $a = 23 },
+  dies_ok { $a = 23 }
     "bound readonly sub param remains readonly (1)";
   is $a, 43,
     "bound readonly sub param remains readonly (2)";
@@ -120,7 +121,7 @@ SKIP:
   $val++;
   is $a, 43, "bound rw sub param was bound correctly (2)";
 
-  lives_ok { $a = 23 }, "bound rw sub param remains rw (1)";
+  lives_ok { $a = 23 }  "bound rw sub param remains rw (1)";
   is $a, 23,            "bound rw sub param remains rw (2)";
   is $val, 23,          "bound rw sub param remains rw (3)";
 }
@@ -144,5 +145,10 @@ sub {
   local $TODO = 'slurpy not yet';
   my @tail;
 #  eval '($a, *@tail) := (1, 2, 3)';
-  ok($a == 1 and eq_array(\@tail, [2, 3]), 'bound slurpy');
+
+  # XXX: for now
+  $sig->bind({ positional => [],
+	       named => { a => \1 } });
+
+  ok($a == 1 && eq_array(\@tail, [2, 3]), 'bound slurpy');
 }->();

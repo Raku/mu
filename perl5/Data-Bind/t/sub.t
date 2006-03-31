@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use Test::More tests => 28;
+use Test::More tests => 6;
 use Data::Bind;
 use Data::Dumper;
 use Test::Exception;
@@ -13,7 +13,7 @@ my $db_formalize_sig = Data::Bind->sig
      { var => '$case', named => 1 },
      { var => '$justify', named => 1 });
 
-warn Dumper($db_formalize_sig);
+#warn Dumper($db_formalize_sig);
 
 sub db_formalize {
   my ($title, $subtitle, $case, $justify);
@@ -46,6 +46,12 @@ throws_ok {
     db_formalize([\'this is title'], { case => \'blah'}),
 } qr/justify is required/;
 
+TODO: {
+    local $TODO = 'do something with extra named arguments.';
+throws_ok {
+    db_formalize([\'this is title'], { unknown => \'blah'}),
+} qr/extra/;
 
+}
 
 1;
