@@ -136,7 +136,7 @@ sub {
 	 { a => Data::Bind::Param->new({ container_var => '$a', name => 'a' }) } });
 
   $sig->bind({ positional => [],
-	       named => { a => Data::Bind::Arg->new({ container => \'foo' }) } });
+	       named => { a => \'foo' } });
 
   is($a, "foo", "bound keyword");
 

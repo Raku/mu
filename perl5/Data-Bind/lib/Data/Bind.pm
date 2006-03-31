@@ -11,11 +11,41 @@ sub bind_op {
     my $sig = Data::Bind::Sig->new
 	({ positional =>
 	   [ map { Data::Bind::Param->new({ container_var => $_ }) } keys %vars ] });
-    $sig->bind({ positional => [map { Data::Bind::Arg->new({ container => $_ }) } values %vars ],
+    $sig->bind({ positional => [ values %vars ],
 		 named => {} }, 2);
 
     # XXX: probably returning the var
     return;
+}
+
+sub sig {
+    my $class = shift;
+    my $now_named = 0;
+    my ($named, $positional) = ({}, []);
+    for my $param (@_) {
+	$param->{name} = substr($param->{var}, 1);
+	my $db_param = Data::Bind::Param->new
+	    ({ container_var => $param->{var},
+	       name => $param->{name} });
+	$db_param->is_optional(1)
+	    unless $param->{required};
+
+	if ($param->{named}) {
+	    $now_named = 1;
+	    $named->{$param->{name}} = $db_param;
+	}
+	else {
+	    Carp::carp "positional argument after named ones" if $now_named;
+	    push @{$positional}, $db_param;
+	}
+    }
+
+    return Data::Bind::Sig->new({ named => $named, positional => $positional});
+}
+
+sub param {
+    my ($class, $positional, $named) = @_;
+    return 
 }
 
 =head1 NAME
@@ -63,22 +93,22 @@ sub bind {
     $lv ||= 1;
     my $pos_arg = $args->{positional};
     for my $param (@{$self->positional || []}) {
-	my $current = shift @$pos_arg or die;
-	lexalias($lv, $param->container_var, $current->container);
+	my $current = shift @$pos_arg;
+	unless ($current) {
+	    last if $param->is_optional;
+	    die "positional argument ".$param->name." is required";
+	}
+	lexalias($lv, $param->container_var, $current);
     }
     my $named_arg = $args->{named};
     for my $param_name (keys %{$self->named || {}}) {
 	my $param = $self->named->{$param_name};
 	if (my $current = $named_arg->{$param_name}) {
-	    lexalias($lv, $param->container_var, $current->container);
+	    lexalias($lv, $param->container_var, $current);
 	}
     }
     return;
 }
-
-package Data::Bind::Arg;
-use base 'Class::Accessor::Fast';
-__PACKAGE__->mk_accessors(qw(container name));
 
 package Data::Bind::Param;
 use base 'Class::Accessor::Fast';
