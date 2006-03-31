@@ -177,22 +177,26 @@ If you say
 
     my int @array is MyArray;
 
-you are declaring that the elements of C<@array> are integers,
+you are declaring that the elements of C<@array> are native integers,
 but that the array itself is implemented by the C<MyArray> class.
 Untyped arrays and hashes are still perfectly acceptable, but have
 the same performance issues they have in Perl 5.
 
 =item *
 
-Built-in object types start with an uppercase letter: C<Int>, C<Num>,
-C<Complex>, C<Str>, C<Bit>, C<Ref>, C<Scalar>, C<Array>, C<Hash>,
-C<Rule> and C<Code>.  Non-object (value) types are lowercase: C<int>,
-C<num>, C<complex>, C<str>, C<bit>, and C<ref>.  Value types are
-primarily intended for declaring compact array storage.  However, Perl
-will try to make those look like their corresponding uppercase types if
-you treat them that way.  (In other words, it does autoboxing.  Note,
-however, that sometimes repeated autoboxing can slow your program more
-than the native type can speed it up.)
+Built-in object types start with an uppercase letter. This includes
+immutable types (e.g. C<Int>, C<Num>, C<Complex>, C<Rational>, C<Str>,
+C<Bit>, C<Rule>, C<Set>, C<Junction>, C<List>, C<Tuple>), as well as
+mutable (container) types, such as C<Scalar>, C<Array>, C<Hash>,
+C<Code>, C<Module>, etc.
+
+Non-object (native) types are lowercase: C<int>, C<num>, C<complex>,
+C<rational>, C<str>, C<bit>.  Native types are primarily intended for
+declaring compact array storage.  However, Perl will try to make those
+look like their corresponding uppercase types if you treat them that way.
+(In other words, it does autoboxing.  Note, however, that sometimes
+repeated autoboxing can slow your program more than the native type
+can speed it up.)
 
 =item *
 
@@ -213,14 +217,20 @@ used as a "kind" when the context requires it.
 
 Perl 6 intrinsically supports big integers and rationals through its
 system of type declarations.  C<Int> automatically supports promotion
-to arbitrary precision.  (C<Num> may support arbitrary-precision
-floating-point arithmatic, but is not required to unless we can do
-so portably and efficiently.)  C<Rat> supports arbitrary precision
-rational arithmetic.  Value types like C<int> and C<num> imply
-the natural machine representation for integers and floating-point
-numbers, respectively, and do not promote to arbitrary precision.
-Untyped numeric scalars use C<Int> and C<Num> semantics rather than
-C<int> and C<num>.
+to arbitrary precision, as well as holding C<Inf> and C<NaN> values.
+
+(C<Num> may support arbitrary-precision floating-point arithmatic, but
+is not required to unless we can do so portably and efficiently.)
+
+C<Rational> supports arbitrary precision rational arithmetic.  However,
+dividing two C<Int> objects produces fractionals as C<Num> objects by
+default, not C<Rational> objects.  You can override this behavior with
+a pragma.
+
+Lower-case types like C<int> and C<num> imply the native machine
+representation for integers and floating-point numbers, respectively, and
+do not promote to arbitrary precision.  Untyped numeric scalars use C<Int>
+and C<Num> semantics rather than C<int> and C<num>.
 
 =item *
 
@@ -365,25 +375,27 @@ parameter binding.
 
 =item *
 
-An argument list object (C<List>) may be created with backslashed parens:
+An argument list object (C<Arguments>) may be created with backslashed parens:
 
     $args = \(1,2,3,:mice<blind>)
 
-A C<List>'s values are parsed as ordinary expressions.  By default a
-C<List> is lazy.  This interacts oddly with the fact that a C<List>
-is immutable in the abstract.  Once all of a C<List>'s arguments are
-fully evaluated (which happens at compile time when all the arguments
-are constants), the C<List> functions as an immutable tuple type.
-Before that moment, the eventual value may well be unknown.  All we
-know is that is that we have the promise to make the bits of it
-immutable as they become known.  C<List> objects may contain multiple
-unresolved iterators such as pipes or slices.  How these are resolved
-depends on what they are eventually bound to.  Some bindings are
-sensitive to multiple dimensions while others are not.
+Values in C<Arguments> values are parsed as ordinary expressions, marked as
+positional, named, to-be-flattened, and so on.
+
+Like C<List> objects, C<Arguments> are immutable in the abstract, but
+evaluates its arguments lazily.  Before everything inside a C<Arguments> are
+fully evaluated (which happens at compile time when all the arguments are
+constants), the eventual value may well be unknown.  All we know is that is
+that we have the promise to make the bits of it immutable as they become known.
+
+C<Arguments> objects may contain multiple unresolved iterators such as pipes
+or slices.  How these are resolved depends on what they are eventually
+bound to.  Some bindings are sensitive to multiple dimensions while
+others are not.
 
 =item *
 
-A signature object may be created with coloned parens:
+A signature object (C<Signature>) may be created with coloned parens:
 
     my ::MySig = :(Int,Num,Complex, Status :mice)
 
