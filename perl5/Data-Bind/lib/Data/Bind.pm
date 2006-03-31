@@ -5,15 +5,16 @@ our $VERSION = '0.24';
 
 use base 'Exporter';
 our @EXPORT = qw(bind_op);
+use base 'DynaLoader';
+__PACKAGE__->bootstrap;
 
 use Devel::Caller qw(caller_cv caller_args);
 use B ();
 
 sub bind_op {
     my %vars = @_;
-    my $sig = Data::Bind::Sig->new
-	({ positional =>
-	   [ map { Data::Bind::Param->new({ container_var => $_ }) } keys %vars ] });
+
+    my $sig = Data::Bind->sig(map { { var => $_ } } keys %vars);
     $sig->bind({ positional => [ values %vars ],
 		 named => {} }, 2);
 
@@ -27,10 +28,10 @@ sub sig {
     my ($named, $positional) = ({}, []);
 
     for my $param (@_) {
-	$param->{name} = substr($param->{var}, 1);
 	my $db_param = Data::Bind::Param->new
 	    ({ container_var => $param->{var},
-	       name => $param->{name} });
+	       p5type => substr($param->{var}, 0, 1),
+	       name => substr($param->{var}, 1) });
 
 	if ($param->{named}) {
 	    $now_named = 1;
@@ -124,8 +125,8 @@ See L<http://www.perl.com/perl/misc/Artistic.html>
 package Data::Bind::Sig;
 use base 'Class::Accessor::Fast';
 __PACKAGE__->mk_accessors(qw(positional named));
-use Devel::LexAlias qw(lexalias);
 use Carp qw(croak);
+
 
 sub bind {
     my ($self, $args, $lv) = @_;
@@ -138,14 +139,15 @@ sub bind {
 	    last if $param->is_optional;
 	    croak "positional argument ".$param->name." is required";
 	}
-	lexalias($lv, $param->container_var, $current);
+	$param->bind($current, $lv);
     }
+    # XXX: report extra incoming positional args
 
     my $named_arg = $args->{named};
     for my $param_name (keys %{$self->named || {}}) {
 	my $param = $self->named->{$param_name};
 	if (my $current = $named_arg->{$param_name}) {
-	    lexalias($lv, $param->container_var, $current);
+	    $param->bind($current, $lv);
 	}
 	else {
 	    croak "named argument ".$param->name." is required"
@@ -153,13 +155,38 @@ sub bind {
 	}
     }
 
-    # XXX: report extra incoming named arg
+    # XXX: report extra incoming named args
 
     return;
 }
 
 package Data::Bind::Param;
 use base 'Class::Accessor::Fast';
-__PACKAGE__->mk_accessors(qw(name is_optional is_writable is_slurpy container_var));
+__PACKAGE__->mk_accessors(qw(name p5type is_optional is_writable is_slurpy container_var subscript));
+use Devel::LexAlias qw(lexalias);
+use PadWalker qw(peek_my);
+
+sub bind {
+    my ($self, $var, $lv) = @_;
+    $lv++;
+    if ($self->p5type eq '$') {
+	lexalias($lv, $self->container_var, $var);
+	return;
+    }
+    my $h = peek_my($lv);
+    my $ref = $h->{$self->container_var} or die;
+    if ($self->p5type eq '@') {
+	if ($self->subscript) {
+	    Data::Bind::_av_store($ref, $self->subscript, $var);
+	}
+	else {
+	    @$ref = @$var;
+	}
+    }
+    else {
+	die 'not yet';
+    }
+    return;
+}
 
 1;

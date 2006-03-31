@@ -134,7 +134,7 @@ sub {
 #  eval '(+$a) := (:a<foo>)';
   my $sig = Data::Bind::Sig->new
       ({ named =>
-	 { a => Data::Bind::Param->new({ container_var => '$a', name => 'a' }) } });
+	 { a => Data::Bind::Param->new({ p5type => '$', container_var => '$a', name => 'a' }) } });
 
   $sig->bind({ positional => [],
 	       named => { a => \'foo' } });
