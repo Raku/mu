@@ -205,6 +205,8 @@ to several other modules:
  <after ...>
  \x0a \0123 ...
  &    
+ $1      - lvalue match variables
+ $/ $()  - global match variables 
 
 =head1 METHODS
 

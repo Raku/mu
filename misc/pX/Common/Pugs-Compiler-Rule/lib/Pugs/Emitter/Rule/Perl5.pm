@@ -34,7 +34,7 @@ sub emit {
         "    my \$tree;\n" .
         # "    \$_[0] = '' unless defined \$_[0];\n" .
         "    rule_wrapper( \$_[0], \n" . 
-        "        \$matcher->( \$_[0], \$_[1], \$tree, \$tree, \$grammar, 0 )\n" .
+        "        \$matcher->( \$_[0], \$_[1], \$tree, \$tree, \$grammar, 0, \$_[0] )\n" .
         "    );\n" .
         "  }\n" .
         "}\n";
