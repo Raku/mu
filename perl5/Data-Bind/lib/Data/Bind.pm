@@ -6,6 +6,9 @@ our $VERSION = '0.24';
 use base 'Exporter';
 our @EXPORT = qw(bind_op);
 
+use Devel::Caller qw(caller_cv caller_args);
+use B ();
+
 sub bind_op {
     my %vars = @_;
     my $sig = Data::Bind::Sig->new
@@ -48,9 +51,26 @@ sub sig {
 	({ named => $named, positional => $positional});
 }
 
-sub param {
-    my ($class, $positional, $named) = @_;
-    return 
+# some higher level stuff
+
+sub _get_cv {
+    my $sub = shift;
+    return B::svref_2object($sub)->GV->object_2svref;
+}
+
+# store sig in the sig slot of the cv's gv
+sub sub_signature {
+    my $class = shift;
+    my $sub = shift;
+    my $cv = _get_cv($sub);
+    *$cv->{sig} = Data::Bind->sig(@_);
+    return;
+}
+
+sub arg_bind {
+    my $cv = _get_cv(caller_cv(1));
+    my @arg = caller_args(1);
+    *$cv->{sig}->bind({ positional => $arg[0], named => $arg[1] }, 2);
 }
 
 =head1 NAME
@@ -61,6 +81,7 @@ Data::Bind - Bind and alias variables
 
   use Data::Bind;
 
+  # bind simple variables
   sub foo {
     my $y = 10;
     my $x;
@@ -68,10 +89,22 @@ Data::Bind - Bind and alias variables
     bind_op('$x' => $y);
   }
 
+  # bind for subroutine calls
+  Data::Bind->sub_signature
+    (\&formalize,
+     { var => '$title' },
+     { var => '$subtitle' },
+     { var => '$case', named => 1 },
+     { var => '$justify', named => 1 });
+  sub formalize {
+    my ($title, $subtitle, $case, $justify);
+    Data::Bind->arg_bind;
+  }
+
 =head1 DESCRIPTION
 
-This is to implement the semantics for perl6-style argument passing
-and binding, in Perl 5.
+This module implements the semantics for perl6-style variable binding,
+as well as subroutine call argument passing and binding, in Perl 5.
 
 =head1 AUTHORS
 
