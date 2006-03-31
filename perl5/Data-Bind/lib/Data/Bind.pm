@@ -22,25 +22,30 @@ sub sig {
     my $class = shift;
     my $now_named = 0;
     my ($named, $positional) = ({}, []);
+
     for my $param (@_) {
 	$param->{name} = substr($param->{var}, 1);
 	my $db_param = Data::Bind::Param->new
 	    ({ container_var => $param->{var},
 	       name => $param->{name} });
-	$db_param->is_optional(1)
-	    unless $param->{required};
 
 	if ($param->{named}) {
 	    $now_named = 1;
-	    $named->{$param->{name}} = $db_param;
+	    $named->{$db_param->name} = $db_param;
+	    $db_param->is_optional(1)
+		unless $param->{required};
 	}
 	else {
 	    Carp::carp "positional argument after named ones" if $now_named;
+	    $db_param->is_optional(1)
+		if $param->{optional};
+
 	    push @{$positional}, $db_param;
 	}
     }
 
-    return Data::Bind::Sig->new({ named => $named, positional => $positional});
+    return Data::Bind::Sig->new
+	({ named => $named, positional => $positional});
 }
 
 sub param {
@@ -87,26 +92,36 @@ package Data::Bind::Sig;
 use base 'Class::Accessor::Fast';
 __PACKAGE__->mk_accessors(qw(positional named));
 use Devel::LexAlias qw(lexalias);
+use Carp qw(croak);
 
 sub bind {
     my ($self, $args, $lv) = @_;
     $lv ||= 1;
+
     my $pos_arg = $args->{positional};
     for my $param (@{$self->positional || []}) {
 	my $current = shift @$pos_arg;
 	unless ($current) {
 	    last if $param->is_optional;
-	    die "positional argument ".$param->name." is required";
+	    croak "positional argument ".$param->name." is required";
 	}
 	lexalias($lv, $param->container_var, $current);
     }
+
     my $named_arg = $args->{named};
     for my $param_name (keys %{$self->named || {}}) {
 	my $param = $self->named->{$param_name};
 	if (my $current = $named_arg->{$param_name}) {
 	    lexalias($lv, $param->container_var, $current);
 	}
+	else {
+	    croak "named argument ".$param->name." is required"
+		unless $param->is_optional;
+	}
     }
+
+    # XXX: report extra incoming named arg
+
     return;
 }
 
