@@ -7,7 +7,7 @@ use Scalar::Util;
 
 use vars qw($VERSION $RE_BUILTIN $MAX_RECURSE);
 
-$VERSION = '0.03';
+$VERSION = '0.05';
 $MAX_RECURSE = 1_000;
 
 =pod
@@ -65,44 +65,38 @@ Scalar::Util::reftype to discover how to walk blessed objects of any type.
 
 my %subs = (
 	rebless => sub {
-		my ($obj, $class) = @_;
-		bless $obj, $class;
+        my($opts) = @_;
+        $opts->{editor} = sub {
+            my ($obj, $class) = @_;
+            bless $obj, $class;
+        };
 	},
 	rebase  => sub {
-		my ($obj, $class) = @_;
-		bless $obj, $class . '::' . ref $obj;
+        my($opts) = @_;
+        $opts->{editor} = sub {
+            my ($obj, $class) = @_;
+            bless $obj, $class . '::' . ref $obj;
+        };
 	},
-	custom  => undef, # this gets special treatment below
+	custom  => sub {
+        my($opts) = @_;
+        $opts->{editor} or confess "custom reblesser requires an editor";
+    },
 );
 
-for my $method (keys %subs) {
-	my $sub;
-	if ($method ne 'custom') {
-		my $code;           # yay for recursive closures!
-		my $editor = $subs{$method};
-		$sub = $code = sub {
-			my($proto, $obj, $namespace, $opts, $level) = @_;
-			$opts ||= {};
-			$opts->{code} = $code;
-			$opts->{editor} = $editor;
-			
-			recurse($proto, $obj, $namespace, $opts, $level);
-			#goto &recurse; # I wonder why this doesn't work?
-		};
-	} else {
-		my $code;           # yay for recursive closures!
-		$sub = $code = sub {
-			my($proto, $obj, $namespace, $opts, $level) = @_;
-			$opts ||= {};
-			$opts->{code} = $code;
-			$opts->{editor} or confess "custom reblesser requires an editor";
-			
-			recurse($proto, $obj, $namespace, $opts, $level);
-			#goto &recurse; # I wonder why this doesn't work?
-		}
-	}
+while (my($name, $editor) = each %subs) {
+    my $code;           # yay for recursive closures!
+    $code = sub {
+        my($proto, $obj, $namespace, $opts, $level) = @_;
+        $opts ||= {};
+        $opts->{code} = $code;
+        $editor->($opts);
+        
+        recurse($proto, $obj, $namespace, $opts, $level);
+        #goto &recurse; # I wonder why this doesn't work?
+    };
 	no strict 'refs';
-	*{__PACKAGE__ . "::$method"} = $sub;
+	*{__PACKAGE__ . "::$name"} = $code;
 }
 
 {
@@ -138,6 +132,8 @@ sub recurse {
 	}
 	
 	my $type = Scalar::Util::reftype $obj;
+	return $obj unless defined $type;
+
 	if      ($type eq 'SCALAR') {
 		$recurse->($$obj);
 	} elsif ($type eq 'ARRAY') {
@@ -149,13 +145,24 @@ sub recurse {
 			$recurse->($val);
 		}
 	} elsif ($type eq 'GLOB') {
-		$recurse->(${ *$obj{SCALAR} });          # a glob has a scalar...
-		for my $elem (@{ *$obj{ARRAY} }) {       # and an array...
-			$recurse->($elem);
-		}
-		for my $val (values %{ *$obj{HASH} }) {  # ... and a hash.
-			$recurse->($val);
-		}
+        # Filehandles are GLOBs, but they don't have ARRAY slots!
+        # Be paranoid, then, and recurse only on defined slots.
+
+        my $slot;
+
+        if (defined ($slot = *$obj{SCALAR})) {
+            $recurse->($$slot);                  # a glob has a scalar...
+        }
+        if (defined ($slot = *$obj{ARRAY})) {
+            for my $elem (@$slot) {              # and an array...
+                $recurse->($elem);
+            }
+        }
+        if (defined ($slot = *$obj{ARRAY})) {
+            for my $val (values %$slot) {        # ... and a hash.
+                $recurse->($val);
+            }
+        }
 	}
 	return $obj;
 }
@@ -235,73 +242,16 @@ visited by Class::Rebless.
 
 Reblessing a tied object may produce unexpected results.
 
-=head1 TODO
-
-Write a proper test suite (currently a rudimentary unit test is available
-by running "perl Class/Rebless.pm", but you'll have to read the source to
-figure out what exactly is the desired output).
-
 =head1 AUTHOR
 
 Gaal Yahas <gaal@forum2.org>
+
+Gabor Szabo <szabgab@gmail.com> has contributed many tests. Thanks!
 
 Copyright (c) 2004 Gaal Yahas. All rights reserved.  This program is
 free software; you can redistribute it and/or modify it under the same
 terms as Perl itself.
 
 =cut
-
-if (!caller) {
-	require Data::Dumper;
-	%__PACKAGE__::one = ( hey => 'ho', yup => bless({yup=>1}, 'AOne'));
-	@__PACKAGE__::one = ( qw/boo bar bish/ );
-	my $glb = \*__PACKAGE__::one;
-	my $beat = bless({
-		one => bless($glb, 'AOne'),
-		two => bless({
-			list => [
-				bless({ three => 3 }, 'AThree'),
-				bless({ four  => 4 }, 'AFour'),
-				5,
-				"this is just noise",
-			],
-		}, 'ATwo'),
-		six => {
-			seven => bless({ __VALUE__ => 7}, 'ASeven'),
-			eight => bless({ __VALUE__ => 8}, 'AnEight'),
-		},
-	}, 'AOne');
-
-	print Data::Dumper::Dumper($beat);
-	Class::Rebless->rebase($beat, 'And');
-
-	print Data::Dumper::Dumper($beat);
-	Class::Rebless->custom($beat, 'And', {
-			editor => sub {
-				my ($obj, $class) = @_;
-				my $cur = ref $obj;
-				bless $obj, "\U$cur";
-			},
-		});
-	print Data::Dumper::Dumper($beat);
-	print Data::Dumper::Dumper(\%__PACKAGE__::one);
-
-	print "==========\n";
-	Class::Rebless->prune("__PRUNE__");
-	my $pru = bless({ deep => bless({
-		__VALUE__ => "something" }, 'Untouched')
-	}, 'Base');
-	print Data::Dumper::Dumper(Class::Rebless->custom($pru, "Touched", {
-			editor => sub {
-				my ($obj, $class) = @_;
-				my $cur = ref($obj);
-				bless $obj, $class;
-				return "__PRUNE__" if $cur eq 'Base';
-			},
-		}
-	));
-}
-
- sub D { require Data::Dumper; print Data::Dumper::Dumper(@_) }
 
 1;
