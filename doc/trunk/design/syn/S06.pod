@@ -1242,44 +1242,55 @@ is a shorthand for:
 
 Note that placeholder variables syntactically cannot have type constraints.
 
-=head1 Types
+=head1 Built-in Types
 
 These are some of the standard type names in Perl 6 (at least this week):
 
+=head2 Native types
+
     bit         single native bit
-    int         native integer
-    buf         native 8-bit string (sequence of 8-bit integers, no Unicode)
-    str         native string (sequence of arbitrary integers, no Unicode)
+    int         native signed integer
+    uint        native unsigned integer (autoboxes to Int)
+    buf         native bytes (finite sequence of "uint8"s, no Unicode)
+    str         native string (finite sequence of native integers, no Unicode)
     num         native floating point
     complex	native complex number
-    ref         native pointer 
     bool        native boolean
+
+=head2 Immutable types
+
     Bit         Perl single bit (allows traits, aliasing, undef, etc.)
-    Int         Perl integer (allows traits, aliasing, undef, etc.)
-    Str         Perl string (Unicode semantics)
+    Int         Perl integer (allows Inf/NaN, arbitrary precision, etc.)
+    Buf         Perl buffer (possibly lazy list of bytes, can be subscripted)
+    Str         Perl string (finite sequence of Unicode characters)
     Num         Perl number
     Complex     Perl complex number
     Bool        Perl boolean
+    Code        Base class for all executable objects
+    Block       Base class for all embedded executable objects
+    List        Lazy Perl list
+    Tuple       Completely evaluated (hence immutable) list
+    Signature   Function parameters (left-hand side of a binding)
+    Arguments   Function call arguments (right-hand side of a binding)
+
+=head2 Mutable types
+
     Array       Perl array
     Hash        Perl hash
+    Scalar      Perl scalar
     IO          Perl filehandle
-    Code        Base class for all executable objects
     Routine     Base class for all nameable executable objects
     Sub         Perl subroutine
     Method      Perl method
     Submethod   Perl subroutine acting like a method
     Macro       Perl compile-time subroutine
     Rule        Perl pattern
-    Block       Base class for all embedded executable objects
     Package     Perl 5 compatible namespace
     Module      Perl 6 standard namespace
     Class       Perl 6 standard class namespace
     Role        Perl 6 standard generic interface/implementation
     Object      Perl 6 object
     Grammar     Perl 6 pattern matching namespace
-    List        Lazy Perl list
-    Tuple       Completely evaluated (hence immutable) list
-
 
 =head2 Value types
 
@@ -1784,7 +1795,7 @@ globals in the face of multithreading.
 
 =head2 Wrapping
 
-Every subroutine has a C<.wrap> method. This method expects a single
+Every C<Routine> object has a C<.wrap> method. This method expects a single
 argument consisting of a block, closure, or subroutine. That argument
 must contain a call to the special C<call> function:
 
@@ -1860,7 +1871,7 @@ block is being compiled, use the C<< COMPILING:: >> pseudopackage.]
 
 =head2 Currying
 
-Every subroutine has an C<.assuming> method. This method does a partial
+Every C<Code> object has an C<.assuming> method. This method does a partial
 binding of a set of arguments to a signature and returns a new function
 that takes only the remaining arguments.
 
