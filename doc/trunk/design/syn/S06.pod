@@ -1244,9 +1244,10 @@ Note that placeholder variables syntactically cannot have type constraints.
 
 =head1 Built-in Types
 
-These are some of the standard type names in Perl 6 (at least this week):
-
 =head2 Native types
+
+Values with these types autoboxes to their uppercase counterparts when
+you treat them as objects:
 
     bit         single native bit
     int         native signed integer
