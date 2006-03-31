@@ -85,19 +85,16 @@ sub {
   is($b, 'd', 'binding a list literal really worked (2)');
 }->();
 
-SKIP: {
-skip 'not yet', 12;
-}
-__END__
-
 # Binding subroutine parameters
 # XXX! When executed in interactive Pugs, the following test works!
+SKIP:
 {
+  skip 'not yet', 5;
   my $a;
-  my $b = sub($arg) { $a := $arg };
+  my $b = sub { my $arg; bind_op('$arg', \$_[0]); bind_op('$a', \$arg) };
   my $val = 42;
 
-  $b($val);
+  $b->($val);
   is $a, 42, "bound readonly sub param was bound correctly (1)";
   $val++;
   is $a, 43, "bound readonly sub param was bound correctly (2)";
@@ -110,12 +107,15 @@ __END__
     "bound readonly sub param remains readonly (3)";
 }
 
+SKIP:
 {
+  skip 'not yet', 5;
   my $a;
-  my $b = sub($arg is rw) { $a := $arg };
+  my $b = sub {};
+#  my $b = sub($arg is rw) { $a := $arg };
   my $val = 42;
 
-  $b($val);
+  $b->($val);
   is $a, 42, "bound rw sub param was bound correctly (1)";
   $val++;
   is $a, 43, "bound rw sub param was bound correctly (2)";
@@ -126,11 +126,23 @@ __END__
 }
 
 # := actually takes subroutine parameter list
-{
+TODO:
+sub {
+
   my $a;
-  eval '(+$a) := (:a<foo>)';
-  is($a, "foo", "bound keyword", :todo);
+#  eval '(+$a) := (:a<foo>)';
+  my $sig = Data::Bind::Sig->new
+      ({ named =>
+	 { a => Data::Bind::Param->new({ container_var => '$a', name => 'a' }) } });
+
+  $sig->bind({ positional => [],
+	       named => { a => Data::Bind::Arg->new({ container => \'foo' }) } });
+
+  is($a, "foo", "bound keyword");
+
+
+  local $TODO = 'slurpy not yet';
   my @tail;
-  eval '($a, *@tail) := (1, 2, 3)';
-  ok($a == 1 and ~@tail eq '2 3', 'bound slurpy', :todo);
-}
+#  eval '($a, *@tail) := (1, 2, 3)';
+  ok($a == 1 and eq_array(\@tail, [2, 3]), 'bound slurpy');
+}->();

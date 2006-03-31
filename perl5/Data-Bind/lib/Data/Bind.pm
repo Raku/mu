@@ -62,10 +62,18 @@ sub bind {
     my ($self, $args, $lv) = @_;
     $lv ||= 1;
     my $pos_arg = $args->{positional};
-    for my $param (@{$self->positional}) {
+    for my $param (@{$self->positional || []}) {
 	my $current = shift @$pos_arg or die;
 	lexalias($lv, $param->container_var, $current->container);
     }
+    my $named_arg = $args->{named};
+    for my $param_name (keys %{$self->named || {}}) {
+	my $param = $self->named->{$param_name};
+	if (my $current = $named_arg->{$param_name}) {
+	    lexalias($lv, $param->container_var, $current->container);
+	}
+    }
+    return;
 }
 
 package Data::Bind::Arg;
