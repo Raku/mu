@@ -1,4 +1,4 @@
-use Test::More tests => 25;
+use Test::More tests => 28;
 use Data::Dumper;
 $Data::Dumper::Indent = 1;
 use strict;
@@ -67,4 +67,21 @@ use_ok( 'Pugs::Compiler::Rule' );
     is( $match->[0][0],"b","Capture 1...");
     is( $match->[0][1],"c","Capture 2...");
     is( $match->{rule1}[0][3],undef,"No more captures");
+}
+
+{
+    # before
+    my $rule = Pugs::Compiler::Rule->compile('(a)<before z>');
+    #print $rule->perl5;
+    
+    my $match = $rule->match("az");
+    is( "$match",'a',"before matched");
+
+    no warnings qw( uninitialized );
+    
+    $match = $rule->match("a");
+    is( "$match",'',"before didn't match");
+    
+    $match = $rule->match("ab");
+    is( "$match",'',"before didn't match");
 }

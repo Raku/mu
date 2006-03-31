@@ -165,7 +165,10 @@ to several other modules:
  <$var>      
  <?subrule>
  <!subrule>
- 
+ <before ...>
+
+ %hash
+
  <@var>             -- special-cased for array-of-rule (but not Rule|Str)
  \char              -- not all chars implemented
  {code}             -- non-capturing closure
@@ -181,7 +184,7 @@ to several other modules:
  $0 $1
  \n \N
 
-=head2 Unimplemented Features
+=head2 Unimplemented or untested features
 
  $variable 
  @variable
@@ -199,7 +202,7 @@ to several other modules:
  <(closure-assertion)> <{code-returns-rule}>
  <<character-class>> <[character-class]>
  :flag :flag() :flag[]
- lookahead lookbehind
+ <after ...>
  \x0a \0123 ...
  &    
 

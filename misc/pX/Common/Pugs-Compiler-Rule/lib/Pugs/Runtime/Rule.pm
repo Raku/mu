@@ -12,27 +12,28 @@ use PadWalker qw( peek_my );  # peek_our ); ???
 
 A "rule" function gets as argument a list:
 
-0 - a string to match
+0 - a string to match 
 1 - an optional "continuation"
 2 - a partially built match tree
 3 - a leaf pointer in the match tree
 4 - a grammar name
+5 - pos - TODO - change #0 ???
 
 it returns (or "yields"):
 
     undef - match failed
 
-or a hash containing:
+or a hash containing: - TODO - no longer needed
 
     state - a "continuation" or undef
     bool - an "assertion" (true/false)
     match - the "match" tree or undef
-    tail - the string tail or undef
+    tail - the string tail or undef - TODO - don't need this if 'pos' is used
     capture - the tree of captured things
     abort - the match was stopped by a { return } or a fail(),
            and it should not backtrack or whatever
     return - the block (sub-reference) that contains 'return'
-    label - the capture name (ident, number, or '')
+    label - the capture name (ident or '')
 
 Continuations are used for backtracking.
 
@@ -66,7 +67,7 @@ sub alternation {
         while ( defined $state ) {
             ### alternation string to match: "$tail - (node,state)=@$state"
             $match = 
-                $nodes->[ $state->[0] ]->( $tail, $state->[1], $_[2], $_[3]{match}, $_[4] );
+                $nodes->[ $state->[0] ]->( $tail, $state->[1], $_[2], $_[3]{match}, @_[4,5] );
             $match = $$match if ref($match) eq 'Pugs::Runtime::Match';
             ### match: $match
             if ( $match->{state} ) {
@@ -102,7 +103,7 @@ sub concat {
         $_[3] = { match => [] };
         while (1) {
             
-            $matches[0] = $nodes[0]->( $tail, $state[0], $_[2], $_[3]{match}[0], $_[4] );
+            $matches[0] = $nodes[0]->( $tail, $state[0], $_[2], $_[3]{match}[0], @_[4,5] );
             $matches[0] = ${$matches[0]} if ref($matches[0]) eq 'Pugs::Runtime::Match';
             ### 1st match: $matches[0]
             return $matches[0] 
@@ -116,7 +117,7 @@ sub concat {
             $_[3]{capture} = $_[3]{match}[0]{capture};
             #print "Matched concat 0, tree:", Dumper($_[2]);
 
-            $matches[1] = $nodes[1]->( $matches[0]{tail}, $state[1], $_[2], $_[3]{match}[1], $_[4] );
+            $matches[1] = $nodes[1]->( $matches[0]{tail}, $state[1], $_[2], $_[3]{match}[1], @_[4,5] );
             $matches[1] = ${$matches[1]} if ref($matches[1]) eq 'Pugs::Runtime::Match';
             ### 2nd match: $matches[1]
             if ( ! $matches[1]{bool} ) {
@@ -172,31 +173,41 @@ sub concat {
 
 sub constant { 
     my $const = shift;
+    my $lconst = length( $const );
+    no warnings qw( uninitialized );
     return sub {
-        ### matching constant:$_[0],$const
-        return if ! $_[0] || $_[0] !~ m/^(\Q$const\E)(.*)/s;
-        $_[3] = { 
-            bool => 1,
-            match => { constant => $1 }, 
-            tail => $2,
-        };
-        return { bool => 1,
-                 match => { constant => $1 }, 
-                 tail => $2,
-               }
+        if ( $const eq substr( $_[0], $_[5], $lconst ) ) {
+            return $_[3] = { 
+                bool => 1,
+                match => $const, 
+                tail => substr( $_[0], $_[5]+$lconst ),
+            };
+        }
+        return $_[3] = { bool => 0 };
     }
+}
+
+sub perl5 {
+    my $rx = qr(^($_[0])(.*)$)s;
+    no warnings qw( uninitialized );
+    return sub {
+        if ( $_[0] =~ m/$rx/ ) {
+            return $_[3] = { 
+                bool  => 1,
+                match => $1,
+                tail  => $2,
+            };
+        }
+        return $_[3] = { bool => 0 };
+    };
 }
 
 sub null {
     return sub {
-        $_[3] = { 
+        return $_[3] = { 
             bool => 1,
             tail => $_[0],
         };
-        return { bool => 1,
-                 #match => undef,  #'null',
-                 tail => $_[0],
-               }
     }
 };
 
@@ -206,7 +217,7 @@ sub capture {
     my $node = shift;
     sub {
         $_[3] = { label => $label };
-        my $match = $node->( @_[0,1,2], $_[3]{match}, $_[4] );
+        my $match = $node->( @_[0,1,2], $_[3]{match}, @_[4,5] );
         $match = $$match if ref($match) eq 'Pugs::Runtime::Match';
         return unless $match->{bool};
         ## return if $match->{abort}; - maybe a { return }
@@ -263,7 +274,17 @@ sub negate {
         my $match = $op->( @_ );
         return if $match->{bool};
         return { bool => 1,
-                 #match => undef,  #'null',
+                 tail => $_[0],
+               }
+    };
+};
+
+sub before { 
+    my $op = shift;
+    return sub {
+        my $match = $op->( @_ );
+        return $match unless $match->{bool};
+        return { bool => 1,
                  tail => $_[0],
                }
     };
@@ -288,23 +309,6 @@ sub wrap {
         $debug->{after}( $match, @_ ) if $debug->{after};
         return $match;
     }
-}
-
-sub perl5 {
-    my $rx = qr(^($_[0])(.*)$)s;
-    #print "rx: $rx\n";
-    return sub {
-        return unless defined $_[0];
-        if ( $_[0] =~ m/$rx/ ) {
-            return $_[3] = { 
-                bool  => 1,
-                match => $1,
-                tail  => $2,
-                capture => $1,
-            };
-        }
-        return;
-    };
 }
 
 

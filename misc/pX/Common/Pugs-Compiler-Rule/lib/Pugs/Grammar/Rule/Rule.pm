@@ -88,6 +88,16 @@ rule escaped_char :P5 {^\\(.)}
     }
     unshift @rule_terms, 'named_capture';
         
+    rule before {
+        \< before <?p6ws> <rule> \> 
+        
+        { return { before => {
+                rule  => $_[0]{rule}(),
+            }, } 
+        }
+    }
+    unshift @rule_terms, 'before';
+        
     rule capturing_group {
         \( <rule> \)
             

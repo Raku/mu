@@ -53,7 +53,7 @@ sub metasyntax {
     } );
 }
 BEGIN {
-    unshift @rule_terms, 'metasyntax';
+    push @rule_terms, 'metasyntax';
 }
 
 BEGIN {

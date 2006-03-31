@@ -23,6 +23,7 @@ sub call_subrule {
 sub emit {
     my ($grammar, $ast) = @_;
     # runtime parameters: $grammar, $string, $state
+    # rule parameters: see Runtime::Rule.pm
     return 
         "do {\n" .
         "    package Pugs::Runtime::Rule;\n" .
@@ -31,8 +32,9 @@ sub emit {
         "  sub {\n" . 
         "    my \$grammar = shift;\n" .
         "    my \$tree;\n" .
+        # "    \$_[0] = '' unless defined \$_[0];\n" .
         "    rule_wrapper( \$_[0], \n" . 
-        "        \$matcher->( \$_[0], \$_[1], \$tree, \$tree, \$grammar )\n" .
+        "        \$matcher->( \$_[0], \$_[1], \$tree, \$tree, \$grammar, 0 )\n" .
         "    );\n" .
         "  }\n" .
         "}\n";
@@ -183,6 +185,13 @@ sub named_capture {
         emit_rule($program, $_[1]) . 
         "$_[1] )\n";
 }
+sub before {
+    my $program = $_[0]{rule};
+    return 
+        "$_[1] before( \n" . 
+        emit_rule($program, $_[1]) . 
+        "$_[1] )\n";
+}
 sub colon {
     my $num = $_[0];
     return "$_[1] alternation( [ null(), abort() ] ) \n"
@@ -246,17 +255,15 @@ sub metasyntax {
         return 
             "$_[1] negate( '$_[0]', \n" .
             call_subrule( $_[0], $_[1]."  " ) .
-            "$_[1] )\n";;
+            "$_[1] )\n";
     }
     if ( $cmd eq '.' ) {
             warn "<$cmd> not implemented";
             return;
     }
     if ( $prefix =~ /[_[:alnum:]]/ ) {  
-        if ( $cmd =~ /^before\s+(.*)/s ) {
-            warn "<before ...> not implemented";
-            return;
-        }
+        # "before" is handled in a separate rule, because it requires compilation
+        # if ( $cmd =~ /^before\s+(.*)/s ) {
         if ( $cmd =~ /^after\s+(.*)/s ) {
             warn "<after ...> not implemented";
             return;

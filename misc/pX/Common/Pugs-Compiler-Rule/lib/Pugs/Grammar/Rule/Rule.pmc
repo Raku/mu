@@ -2,7 +2,7 @@
 ##################((( 32-bit Checksum Validator )))##################
 BEGIN { use 5.006; local (*F, $/); ($F = __FILE__) =~ s!c$!!; open(F)
 or die "Cannot open $F: $!"; binmode(F, ':crlf'); unpack('%32N*',<F>)
-== 0x8C9B6AD7 or die "Checksum failed for outdated .pmc file: ${F}c"}
+== 0x7C91F99F or die "Checksum failed for outdated .pmc file: ${F}c"}
 #####################################################################
 package Pugs::Grammar::Rule;
 *{'Pugs::Grammar::Rule::p6ws'} = sub {
@@ -271,6 +271,37 @@ sub {
     )
 };
     unshift @Pugs::Grammar::Rule::rule_terms, 'named_capture';
+*{'Pugs::Grammar::Rule::before'} = 
+sub {
+    my $grammar = shift;
+    $_[0] = '' unless defined $_[0];
+    package Pugs::Runtime::Rule;
+    rule_wrapper( $_[0], (
+        concat(
+          constant( "\<" )
+        ,
+          constant( "before" )
+        ,
+          sub{ $grammar->p6ws(@_) }
+        ,
+          capture( 'rule', sub{ $grammar->rule(@_) } )
+        ,
+          constant( "\>" )
+        ,
+          Pugs::Runtime::Rule::abort(
+              sub {
+                  return { bool => 1, tail => $_[0], return => sub { return { before => {
+                rule  => $_[0]{rule}(),
+            }, } 
+        } };
+              }
+          )
+        ,
+        ),
+        )->( @_ )
+    )
+};
+    unshift @Pugs::Grammar::Rule::rule_terms, 'before';
 *{'Pugs::Grammar::Rule::capturing_group'} = 
 sub {
     my $grammar = shift;
