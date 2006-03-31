@@ -101,8 +101,8 @@ In declarations of the form:
     my num @nums;
     my int4 @nybbles;
     my buf @buffers;
-    my ref[Array] @ragged2d;
     my complex128 @longdoublecomplex;
+    my Array @ragged2d;
 
 the presence of a low-level type tells Perl that it is free to
 implement the array with "compact storage", that is, with a chunk
