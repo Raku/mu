@@ -56,6 +56,7 @@ sub _box_submatch {
 }
 
 sub flat {
+    return '' unless defined ${$_[0]}->{capture};
     ${$_[0]}->{capture};
 }
 
