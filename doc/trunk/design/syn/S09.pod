@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 13 Sep 2004
-  Last Modified: 22 Nov 2005
+  Last Modified: 1 Apr 2006
   Number: 9
-  Version: 5
+  Version: 6
 
 =head1 Overview
 

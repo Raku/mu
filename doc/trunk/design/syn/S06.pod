@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 21 Mar 2003
-  Last Modified: 11 Mar 2006
+  Last Modified: 1 Apr 2006
   Number: 6
-  Version: 19
+  Version: 20
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -1246,7 +1246,7 @@ Note that placeholder variables syntactically cannot have type constraints.
 
 =head2 Native types
 
-Values with these types autoboxes to their uppercase counterparts when
+Values with these types autobox to their uppercase counterparts when
 you treat them as objects:
 
     bit         single native bit
