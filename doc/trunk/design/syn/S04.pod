@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 19 Aug 2004
-  Last Modified: 28 Mar 2006
+  Last Modified: 1 Apr 2006
   Number: 4
-  Version: 11
+  Version: 12
 
 This document summarizes Apocalypse 4, which covers the block and
 statement syntax of Perl.
@@ -464,37 +464,33 @@ prohibition on bypassing formal binding.)
 =head1 Exceptions
 
 As in Perl 5, many built-in functions simply return undef when you ask
-for a value out of range, or the function fails somehow.  Unlike in
-Perl 5, these may be "interesting" values of undef that contain
-information about the error.  If you try to use an undefined value,
-that information can then be conveyed to the user.  In essence, undef
-can be an unthrown exception object that just happens to return 0 when
-you ask it whether it's defined or it's true.  Since C<$!> contains the
-current error code, saying C<die $!> will turn an unthrown exception
-into a thrown exception.  (A bare C<die> does the same.)
+for a value out of range, or the function fails somehow.  Perl 6 has
+C<Failure> objects, which refers to an unthrown C<Exception> object in
+C<$!> and knows whether it has been handled or not.
+
+If you test a C<Failure> for C<.id>, C<.defined> or C<.true>, it causes
+C<$!> to mark the exception as I<handled>, and acts as a harmless C<Undef>
+value thereafter.  Any other use of the C<Failure> will throw its associated
+exception immediately.
+
+Because the C<env> variable C<$!> contains all exceptions collected in the
+current lexical scope, saying C<die $!> will throw all exceptions,
+whether they were handled or not.  A bare C<die>/C<fail> takes C<$!> as the
+default argument.
+
+At scope exit, C<$!> discards all handled exceptions from itself, then performs
+a GC check for all remaining (unhandled) exceptions.  If all of them are still
+alive (e.g. by becoming part of the return value), then they are appended to
+C<< CALLER::<$!> >>.  Otherwise, it calls C<die> to throw those exceptions
+as a single new exception, which may then be caught with a C<CATCH> block in
+the current (or caller's) scope.
 
 You can cause built-ins to automatically throw exceptions on failure using
 
     use fatal;
 
-The C<fail> function responds to the caller's "use fatal" state.  It
+The C<fail> function responds to the caller's C<use fatal> state.  It
 either returns an unthrown exception, or throws the exception.
-
-If an exception is raised while C<$!> already contains an exception
-that is active and "unhandled", no information is discarded.  The old
-exception is pushed onto the exception stack within the new exception,
-which is then bound to C<$!> and, hopefully, propagated.  The default
-printout for the new exception should include the old exception
-information so that the user can trace back to the original error.
-(Likewise, rethrown exceptions add information about how the exception
-is propagated.)  The exception stack within C<$!> is available as
-C<$![]>.
-
-Exception objects are born "unhandled".  The C<$!> object keeps track of
-whether it's currently "handled" or "unhandled".  The exception in C<$!> still
-exists after it has been caught, but catching it marks it as handled
-if any of the cases in the switch matched.  Handled exceptions don't
-require their information to be preserved if another exception occurs.
 
 =head1 Closure traits
 
