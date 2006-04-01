@@ -34,13 +34,6 @@ B<Submethods> (keyword: C<submethod>) are non-inheritable methods, or
 subroutines masquerading as methods. They have an invocant and belong to
 a particular kind or class.
 
-B<Multimethods> (keyword: C<multi>) are routines that transcend class
-boundaries, and can have one or more invocants. 
-
-B<Prototypes> (keyword: C<proto>) specify the commonalities (such
-as parameter names, fixity and associativity) shared by all multis
-of that name in the scope of the C<proto> declaration.
-
 B<Rules> (keyword: C<rule>) are methods (of a grammar) that perform
 pattern matching. Their associated block has a special syntax (see
 Synopsis 5).
@@ -52,6 +45,32 @@ B<Macros> (keyword: C<macro>) are routines whose calls execute as soon
 as they are parsed (i.e. at compile-time). Macros may return another
 source code string or a parse-tree.
 
+=head1 Routine modifiers
+
+B<Multimethods> (keyword: C<multi>) are routines that can have multiple
+variants that shares the same name, selected by arity, types, or some
+other constraints.  They may have multliple invocants.
+
+B<Prototypes> (keyword: C<proto>) specify the commonalities (such
+as parameter names, fixity and associativity) shared by all multis
+of that name in the scope of the C<proto> declaration.
+
+A modifier keyword may occur before the routine keyword in a named routine:
+
+    proto sub foo {...}
+    multi sub foo {...}
+    proto method bar {...}
+    multi method bar {...}
+
+If the routine keyword is omitted, it defaults to C<method> inside a
+class or role, and C<sub> inside a module or package.
+
+    class C {
+        multi foo {...} # multi method foo
+    }
+    module M {
+        multi bar {...} # multi sub bar
+    }
 
 =head2 Named subroutines
 
@@ -427,7 +446,7 @@ for instance.
 
 =head2 Invocant parameters
 
-A method invocant is specified as the first parameter in the parameter
+A method invocant may be specified as the first parameter in the parameter
 list, with a colon (rather than a comma) immediately after it:
 
     method get_name ($self:) {...}
@@ -442,31 +461,36 @@ and is passed as the left operand of the method call operator:
 Multimethod and multisub invocants are specified at the start of the parameter
 list, with a colon terminating the list of invocants:
 
-    multi sub handle_event ($window, $event: $mode) {...}    # two invocants
+    multi sub handle_event ($window, $event: $mode) {...}   # two invocants
+    multi method set_name ($self, $name: $nick) {...}       # two invocants
 
-Multi invocant arguments are passed positionally, though the first
-invocant can be passed via the method call syntax if the multi happens
-to be defined as a multi method within the class of the first invocant.
+If the parameter list for a C<multi> contains no colon to delimit
+the list of invocant parameters, then all positional parameters are
+considered invocants.  If it's a C<multi method> and C<multi submethod>,
+an additional implicit unamed C<self> invocant is prepended to the
+signature list.
 
-    # Multimethod calls...
-    handle_event($w, $e, $m);
-    $w.handle_event($e, $m);
+For the purpose of matching positional arguments against invocant parameters,
+the invocant argument passed via the method call syntax is considered the
+first positional argument:
+
+    handle_event($w, $e, $m);   # calls the multi sub
+    $w.handle_event($e, $m);    # ditto, but only if there is no
+                                # suitable $w.handle_event method
 
 Invocants may also be passed using the indirect object syntax, with a colon
 after them. The colon is just a special form of the comma, and has the
 same precedence:
 
-    # Indirect method call...
-    set_name $obj: "Sam";
-
-    # Indirect multimethod call...
-    handle_event $w, $e: $m;
+    set_name $obj: "Sam";   # try $obj.set_name("Sam") first, then
+                            # fall-back to set_name($obj, "Sam")
+    $obj.set_name("Sam");   # same as the above
 
 Passing too many or too few invocants is a fatal error if no matching
 definition can be found.
 
 An invocant is the topic of the corresponding method or multi if that
-formal parameter is declared with the name C<$_>.  A method's single
+formal parameter is declared with the name C<$_>.  A method's first
 invocant always has the alias C<self>.  Other styles of self can be
 declared with the C<self> pragma.
 
@@ -726,11 +750,11 @@ operator:
 
 =head2 Multidimensional argument list binding
 
-Some functions take multiple Lists that they wish not to be flattened into
-one list.  For instance, C<zip()> wants to iterate several lists in parallel,
-while array and hash subscripts want to process multidimensional slices.
-The set of underlying argument list (List) objects may be bound to a single
-array parameter declared with a C<;> twigil:
+Some functions take multiple C<Arguments> that they wish not to be flattened
+into one list.  For instance, C<zip()> wants to iterate several lists in
+parallel, while array and hash subscripts want to process multidimensional
+slices.  The set of underlying argument list (List) objects may be bound to a
+single array parameter declared with a C<;> twigil:
 
     sub foo (*@;slices) { ... }
 

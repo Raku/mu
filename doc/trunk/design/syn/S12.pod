@@ -174,11 +174,11 @@ Private methods are declared using C<my>:
 
     my method think (Brain $self: $thought)
 
-(Such methods are completely invisible to the ordinary method dispatch
-system, and are in fact called with a different syntax that uses C<!>
-in place of the C<.> character.  See below.)
+(Such methods are completely invisible to ordinary method calls, and are
+in fact called with a different syntax that uses C<!> in place of the C<.>
+character.  See below.)
 
-To call an ordinary method with ordinary single-dispatch semantics,
+To call an ordinary method with ordinary method-dispatch semantics,
 use either the dot notation or indirect object notation:
 
     $obj.doit(1,2,3)
@@ -194,6 +194,11 @@ to the same thing:
     close($handle)
     close $handle:
     close $handle
+
+To explicitly reject method call and only consider subs, put a
+trailing comma after the single positional argument:
+
+    close($handle,)
 
 Dot notation can omit the invocant if it's in C<$_>:
 
@@ -574,7 +579,7 @@ pull out the values:
 
     $junction.values».meth(@args);
 
-=head1 Multiple dispatch
+=head1 Multisubs and Multimethods
 
 The "long name" of a subroutine or method includes the type signature
 of its invocant arguments.  The "short name" doesn't.  If you put
@@ -613,12 +618,12 @@ are no default routines, or if the available defaults are also tied,
 a final tie-breaking proto sub is called, if there is one (see above).
 Otherwise an exception is thrown.
 
-Ordinarily all the arguments of a multi sub are considered invocants.
+Ordinarily all the parameters of a multi sub are considered invocants.
 Here's a declaration for an integer range operator with two invocants:
 
     multi sub infix:<..>(Int $min, Int $max) {...}
 
-Sometimes you want to have optional arguments that aren't counted
+Sometimes you want to have optional parameters that aren't counted
 as part of the long name.  For instance, if you want to allow an
 optional "step" parameter to your range operator, but not count it
 as an invocant, put a colon instead of a comma at the end of the
@@ -626,49 +631,44 @@ invocant list:
 
     multi sub infix:<..>(Int $min, Int $max: Int $by = 1) {...}
 
-A multi method can be declared within a class, in which case it is
-visible to both the single-dispatcher and the multiple-dispatcher.
-Such a method's invocants must always be explicitly declared.
+Within a class, C<multi submethod> is visible to both method-dispatch
+and subroutine-dispatch.  A C<multi method> never participates in the
+subroutine-dispatch process.
 
-The caller indicates whether to use single dispatch or multiple dispatch
+=head2 Method call vs. Subroutine call
+
+The caller indicates whether to make a method call or subroutine call
 by the call syntax.  The "dot" form and the indirect object form default to
-single dispatch.  Subroutine calls with multiple arguments and operators
-with multiple operands default to multiple dispatch.  For functions
-or methods with only a single invocant, the dispatchers are defined to have
-the same semantics, which is why it doesn't matter which of these you say:
+method calls.  Calls with multiple arguments and operators with multiple
+operands default to subroutine calls.
 
-    $handle.close
+A function call with a single argument defaults to method calls:
+
     close($handle)
+    close $handle
 
-However, with additional arguments, there are differences.  The single
-dispatch form:
+Use a trailing comma if you want to make a subroutine call instead:
 
-    $handle.seek($pos)
+    close($handle,)
 
-preferentially considers only ordinary methods and multimethods from
-the class hierarchy of C<$handle>, and fails over to the multiple
-dispatcher as a last resort only if no method can be found in the
-class hierarchy.
+A method call first considers methods (including multi-methods and submethods)
+from the class hierarchy of C<$handle>, and fails over to the subroutine
+dispatcher as a last resort only if no method can be found in the class
+hierarchy.
 
-On the other hand, the multi dispatch form:
+A subroutine call considers only visible subroutines (including submethods) of
+that name.  There is no fail-over from subroutine to method dispatch.
 
-    seek($handle, $pos);
+=head1 Multi dispatch
 
-considers all visible multi subs and multi methods of that
-name equally.  For this purpose ordinary methods are considered
-multi-methods of a single invocant, which, since they are less
-specific than the declarations with more invocants, are put at the
-end of the list.  (So there's no need for an explicit failover from
-multiple to single dispatch.)
-
-Multi submethods work just like multi methods except they are constrained
+Multi submethods work just like multi subs except they are constrained
 to an exact type match on the first invocant.
 
 Perl 6.0.0 is not required to support multiple dispatch on named parameters,
 only on positional parameters.  Note that most builtins will map known
 named parameters to positional via a C<proto> declaration.
 
-Within the multiple dispatcher, C<next METHOD> means to try the next best
+Within a multiple dispatch, C<next METHOD> means to try the next best
 match, or next best default in case of tie, or the proto sub if there
 is one.
 
@@ -686,7 +686,9 @@ multi method is defined in:
 
 The syntax for calling back to C<MyClass> is C<$obj!MyClass::meth()>.
 
-The C<sub> keyword is optional after either C<multi> or C<proto>.
+Outside a class or a role, the C<sub> keyword is optional after either
+C<multi> or C<proto>.  Within a class or a role, the C<method> keyword
+is implied instead of C<sub>.
 
 A C<proto> declaration must come before any matching multis, if at all.
 

@@ -63,22 +63,6 @@ so you can handle various ligatures, you can say:
     multi sub *infix:<~>(Str $s1, ArabicStr $s2) {...}
     multi sub *infix:<~>(ArabicStr $s1, Str $s2) {...}
 
-Ordinary methods can be turned into multi methods within the class definition:
-
-    class MyNum {
-	multi method abs(MyNum $x) {...}
-	...
-    }
-
-Likewise operators on your new type can appear in the class:
-
-    class MyNum {
-	multi method prefix:<+> (MyNum $x) {...} # what we do in numeric context
-	multi method prefix:<~> (MyNum $x) {...} # what we do in string context
-	multi method prefix:<?> (MyNum $x) {...} # what we do in boolean context
-	...
-    }
-
 Binary operators may be declared as commutative:
 
     multi sub infix:<+> (Us $us, Them $them) is commutative { myadd($us,$them) }
