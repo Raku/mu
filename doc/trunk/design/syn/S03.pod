@@ -12,9 +12,9 @@ Luke Palmer <luke@luqui.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 8 Mar 2004
-  Last Modified: 25 Feb 2006
+  Last Modified: 1 Apr 2006
   Number: 3
-  Version: 13
+  Version: 14
 
 =head1 Operator renaming
 
@@ -84,14 +84,22 @@ tests whether they are the same value (eg. C<1 === 1>); for two reference
 types, checks whether they have the same identity value.  For reference
 types that do not define an identity, the reference itself is used (eg. it
 is not true that C<[1,2] === [1,2]>, but it is true that C<\@a === \@a>).
-Any reference type may pretend to be a value type by defining a C<.id> method.
-(It may also overload C<< infix:<===> >> for more efficient comparison of
-any two objects of that type, but it had better return the same result as if
-the two identity values had been generated and compared.)  Two values are
-never equivalent unless they are of exactly the same type.  By contrast,
-C<eq> always coerces to string, while C<==> always coerces to numeric.
-In fact, C<$a eq $b> really means "C<~$a === ~$b>" and C<$a == $b> means
-"C<+$a === +$b>.
+
+Any reference type may pretend to be a value type by defining a C<.id> method
+which returns a built-in value, i.e. an immutable object or a native value,
+as specified in S06.
+
+Because Perl 6 uses a false C<.id> to signify a non-instantiated prototype,
+all instances should arrange to return a C<.id> that boolifies to true.
+
+A class may also overload C<< infix:<===> >> for more efficient comparison of
+any two objects of that type, but it must return the same result as if
+the two identity values had been generated and compared.
+
+Two values are never equivalent unless they are of exactly the same type.  By
+contrast, C<eq> always coerces to string, while C<==> always coerces to
+numeric.  In fact, C<$a eq $b> really means "C<~$a === ~$b>" and C<$a == $b>
+means "C<+$a === +$b>.
 
 Note also that, while string hashes use C<eq> semantics by default,
 object hashes use C<===> semantics.
