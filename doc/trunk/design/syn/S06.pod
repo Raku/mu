@@ -15,7 +15,7 @@ Allison Randal <al@shadowed.net>
   Date: 21 Mar 2003
   Last Modified: 1 Apr 2006
   Number: 6
-  Version: 21
+  Version: 22
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
