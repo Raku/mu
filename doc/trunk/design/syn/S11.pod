@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 17 Mar 2006
+  Last Modified: 1 Apr 2006
   Number: 11
-  Version: 10
+  Version: 11
 
 =head1 Overview
 
@@ -105,7 +105,18 @@ outer scopes:
     }
 
 The C<Foo> module will export C<&foo>, C<&bar> and C<&baz> by default;
-calling C<Foo::Bar.import> will import C<&bar> and C<&baz> at runtime.
+calling C<Foo::Bar.EXPORTALL> will export C<&bar> and C<&baz> at runtime
+to the caller's package.
+
+=head1 Dynamic exportation
+
+The default C<EXPORTALL> handles symbol exports by removing recognized
+export items and tagsets from the argument list, then calls the C<EXPORT>
+subroutine in that module (if there is one), passing in the remaining
+arguments.
+
+If the exporting module is actually a class, C<EXPORTALL> will invoke its
+C<EXPORT> method with the class itself as the invocant.
 
 =head1 Compile-time Importation
 
@@ -155,7 +166,7 @@ If the import list is omitted, then nothing is imported.  Calling C<.import>
 at runtime cannot import into the lexical scope:
 
     require Sense;
-    Sense.import;   # goes to the OUR scope by default, not MY
+    Sense.EXPORTALL;   # goes to the OUR scope by default, not MY
 
 =head1 Importing from a pseudo-package
 
