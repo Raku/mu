@@ -12,9 +12,9 @@ Larry Wall <larry@wall.org>
 
   Maintainer: Larry Wall <larry@wall.org>
   Date: 27 Oct 2004
-  Last Modified: 23 Feb 2006
+  Last Modified: 1 Apr 2006
   Number: 12
-  Version: 10
+  Version: 11
 
 =head1 Overview
 
@@ -542,6 +542,13 @@ The C<WALK> pseudo-class takes these arguments:
     :omit(Selector)     # only classes that don't match selector
     :include(Selector)  # only classes that match selector
 
+In addition to C<next METHOD>, the special function C<call> dispatches
+to the next candidate, possibly with a new argument list:
+
+    call;           # calls with the original arguments
+    call();         # calls with no arguments
+    call(1,2,3);    # calls with a different set of arguments
+
 =head1 Parallel dispatch
 
 Any of the method call forms may be turned into a hyperoperator by
@@ -681,6 +688,8 @@ The syntax for calling back to C<MyClass> is C<$obj!MyClass::meth()>.
 
 The C<sub> keyword is optional after either C<multi> or C<proto>.
 
+A C<proto> declaration must come before any matching multis, if at all.
+
 =head1 Roles
 
 Classes are primarily in charge of object management, and only
@@ -704,7 +713,7 @@ A role is declared like a class, but with a C<role> keyword:
 	method feed ($food) {
 	    $food.open_can;
 	    $food.put_in_bowl;
-	    self.call;
+	    self.some_other_method;
 	}
     }
 
