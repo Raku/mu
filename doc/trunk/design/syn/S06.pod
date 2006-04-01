@@ -15,7 +15,7 @@ Allison Randal <al@shadowed.net>
   Date: 21 Mar 2003
   Last Modified: 1 Apr 2006
   Number: 6
-  Version: 20
+  Version: 21
 
 
 This document summarizes Apocalypse 6, which covers subroutines and the
@@ -370,7 +370,6 @@ There is a corresponding shortcut for hash keys if you prefix the
 subscript instead of the sigil.  The C<:> is not functioning as an
 operator here, but as a modifier of the following token:
 
-
     doit %hash:<a>,1,2,3;
     doit %hash:{'b'},1,2,3;
 
@@ -390,15 +389,15 @@ instead..  (The C<:p> stands for "pairs", not "positional"--the
 C<:p> adverb may be placed on any hash reference to make it mean
 "pairs" instead of "values".)
 
-Pairs are recognized syntactically at the call level and mystically
-transformed into special C<Named> objects that may be bound to
-positionals only by name, not as ordinary positional C<Pair> objects.
-Leftover special C<Named> objects can be slurped into a slurpy hash.
+Pair constructors are recognized syntactically at the call level and
+put into the named slot of the C<Arguments> structure.  Hence they may be
+bound to positionals only by name, not as ordinary positional C<Pair>
+objects.  Leftover named arguments can be slurped into a slurpy hash.
 
 After the positional and named arguments, all the rest of the arguments
 are taken to be list arguments.  Any pairs within the list are taken
-to be list elements rather than named arguments, and mystically show
-up as C<Pair> arguments even if the compiler marked them as C<Named>.
+to be list elements rather than named arguments, and show up as C<Pair>
+arguments even if the compiler marked them as named.
 
 It is possible that named pairs are not really a separate type; it
 would be sufficient to have a bit somewhere in the Pair that can be
@@ -498,7 +497,7 @@ Pairs may also be passed in adverbial pair notation:
     $comparison = numcmp(:y(7), :x(2));
 
 Passing the wrong number of required arguments to a normal subroutine
-is a fatal error.  Passing a NamedArg that cannot be bound to a normal
+is a fatal error.  Passing a named argument that cannot be bound to a normal
 subroutine is also a fatal error.  (Methods are different.)
 
 The number of required parameters a subroutine has can be determined by
@@ -664,11 +663,14 @@ last if you want to force it to come in as the last argument.
 
 =head2 Argument list binding
 
-The underlying argument list (List) object may be bound to a single
-scalar parameter marked with a C<\>:
+The underlying C<Arguments> object may be bound to a single scalar
+parameter marked with a C<\>.
 
-    sub foo (\$args) { say $args.perl; &bar.call(*$args); }
     sub bar ($a,$b,$c,:$mice) { say $mice }
+    sub foo (\$args) { say $args.perl; &bar.call($args); }
+
+The C<.call> method of C<Code> objects accepts a single C<Arguments>
+object, and calls it without introducing a C<CALLER> frame.
 
     foo 1,2,3,:mice<blind>;	# says "\(1,2,3,:mice<blind>)" then "blind"
 
@@ -685,16 +687,27 @@ attempts at binding.
 
 =head2 Flattening argument lists
 
-The unary prefix operator C<*> dereferences its operand (which allows
-the elements of an array or iterator or List or Tuple to be used as
-part of an argument list). The C<*> operator also causes its operand --
-and any subsequent arguments in the argument list -- to be evaluated in
-list context.  It also turns off syntactic recognition of named pairs.
-The eventual argument list will be parsed at call time for named pairs.
-All contiguous pairs are treated as named arguments until the first
-non-Pair, and the rest of the arguments are considered slurpy args.
-[XXX still underspecified...]
+The unary prefix operator C<*> casts a value to an C<Arguments>
+object, then splices it into the argument list it occurs in.
 
+Casting C<Arguments> to C<Arguments> is a no-op:
+
+    *(\(1, x=>2));    # Arguments, becomes \(1, x=>2)
+
+C<Pair> and C<Hash> become named arguments:
+
+    *(x=>1);          # Pair, becomes \(x=>1)
+    *{x=>1, y=>2};    # Hash, becomes \(x=>1, y=>2)
+
+C<List> (also C<Tuple>, C<Range>, etc.) are simply turned into
+positional arguments:
+
+    *(1,2,3);         # Tuple, becomes \(1,2,3)
+    *(1..3);          # Range, becomes \(1,2,3)
+    *(1..2, 3);       # List, becomes \(1,2,3)
+    *([x=>1, x=>2]);  # List (from an Array), becomes \((x=>1), (x=>2))
+
+For example:
 
     sub foo($x, $y, $z) {...}    # expects three scalars
     @onetothree = 1..3;          # array stores three scalars
@@ -736,6 +749,20 @@ know that multidimensionality is the intention.
 It is allowed to specify a return type:
 
     sub foo (*@;slices --> Num) { ... }
+
+=head2 Zero-dimensional argument list
+
+If you call a function without parens and supply no arguments, the
+argument list becomes a zero-dimensional slice.  It differs from
+C<\()> in several ways:
+
+    sub foo (@;slices) {...}
+    foo;        # +@;slices == 0
+    foo();      # +@;slices == 1
+
+    sub bar (\$args = \(1,2,3)) {...}
+    bar;        # $args === \(1,2,3)
+    bar();      # $args === \()
 
 =head2 Pipe operators
 
@@ -928,7 +955,12 @@ you can just say
     'a'...     ==> ;
     pidigits() ==> ;
 
-    for zip(@;) { say }
+    # outputs "(0, 'a', 3)\n"...
+    for zip(@;) { .perl.say }
+
+If C<@;> is currently empty, then C<for zip(@;) {...}> would act on a
+zero-dimensional slice (i.e. C<for (zip) {...}>), and output nothing
+at all.
 
 Note that with the current definition, the order of pipes is preserved
 left to right in general regardless of the position of the receiver.
@@ -1258,7 +1290,19 @@ you treat them as objects:
     complex	native complex number
     bool        native boolean
 
+=head2 Undefined types
+
+These can behave as values or objects of any class, but always return a
+C<.id> of 0.  One can create them with the built-in C<undef> and C<fail>
+functions.  (See S02 for how failures are handled.)
+
+    Undef       Undefined (can serve as a prototype object of any class)
+    Failure     Failure (throws an exception if not handled properly)
+
 =head2 Immutable types
+
+Objects with these types behave like values, i.e. C<$x === $y> is true
+if and only if their types and contents are identical.
 
     Bit         Perl single bit (allows traits, aliasing, undef, etc.)
     Int         Perl integer (allows Inf/NaN, arbitrary precision, etc.)
@@ -1267,25 +1311,34 @@ you treat them as objects:
     Num         Perl number
     Complex     Perl complex number
     Bool        Perl boolean
+    Exception   Perl exception
     Code        Base class for all executable objects
-    Block       Base class for all embedded executable objects
-    List        Lazy Perl list
-    Tuple       Completely evaluated (hence immutable) list
+    Block       Executable objects that have lexical scopes
+    List        Lazy Perl list (composed of Tuple and Range parts)
+    Tuple       Completely evaluated (hence immutable) sequence
+    Range       Incrementally generated (hence lazy) sequence
+    Set         Unordered Tuples that allow no duplicates
+    Junction    Sets with additional behaviours
+    Pair        Tuple of two elements that serves as an one-element Mapping
+    Mapping     Pairs with no duplicate keys
     Signature   Function parameters (left-hand side of a binding)
     Arguments   Function call arguments (right-hand side of a binding)
 
 =head2 Mutable types
 
+Objects with these types have distinct C<.id> values.
+
     Array       Perl array
     Hash        Perl hash
     Scalar      Perl scalar
     IO          Perl filehandle
-    Routine     Base class for all nameable executable objects
+    Routine     Base class for all wrappable executable objects
     Sub         Perl subroutine
     Method      Perl method
     Submethod   Perl subroutine acting like a method
     Macro       Perl compile-time subroutine
     Rule        Perl pattern
+    Match       Perl match, usually produced by applying a pattern
     Package     Perl 5 compatible namespace
     Module      Perl 6 standard namespace
     Class       Perl 6 standard class namespace
@@ -1666,6 +1719,16 @@ coerced to scalar context explicitly if that is desired.
 
 =head1 Advanced subroutine features
 
+=head2 The C<return> function
+
+The C<return> function accepts C<Arguments> just like any other function.
+This allows named return values if the caller expects one:
+
+    sub f { return x => 1 }
+    sub g ($x) { print $x }
+
+    my $x := *f();  # binds 1 to $x, via a named argument
+    g(*f());        # prints 1, via a named argument
 
 =head2 The C<caller> function
 
@@ -1797,65 +1860,74 @@ globals in the face of multithreading.
 =head2 Wrapping
 
 Every C<Routine> object has a C<.wrap> method. This method expects a single
-argument consisting of a block, closure, or subroutine. That argument
-must contain a call to the special C<call> function:
+C<Code> argument. Within the code, the special C<call> function will invoke
+the original routine, but does not introduce a C<CALLER> frame:
 
     sub thermo ($t) {...}   # set temperature in Celsius, returns old temp
 
     # Add a wrapper to convert from Fahrenheit...
-
     $id = &thermo.wrap( { call( ($^t-32)/1.8 ) } );
 
-The call to C<.wrap> replaces the original subroutine with the closure
-argument, and arranges that the closure's call to C<call> invokes the
-original (unwrapped) version of the subroutine. In other words, the call to
-C<.wrap> has more or less the same effect as:
+The call to C<.wrap> replaces the original C<Routine> with the C<Code>
+argument, and arranges that the call to C<call> invokes the previous
+version of the routine. In other words, the call to C<.wrap> has more
+or less the same effect as:
 
     &old_thermo := &thermo;
     &thermo := sub ($t) { old_thermo( ($t-32)/1.8 ) }
+
+Except that C<&thermo> is mutated in-place, so C<&thermo.id> stays the same
+after the C<.wrap>.
 
 The call to C<.wrap> returns a unique identifier that can later be passed to
 the C<.unwrap> method, to undo the wrapping:
 
     &thermo.unwrap($id);
 
+This does not affect any other wrappings placed to the routine.
+
 A wrapping can also be restricted to a particular dynamic scope with
 temporization:
 
     # Add a wrapper to convert from Kelvin
     # wrapper self-unwraps at end of current scope
-
     temp &thermo.wrap( { call($^t + 273.16) } );
 
-Within a wrapper, the C<&_> variable is implicitly declared as a
-lexical by the wrapper, and refers to the function that C<call>
-implicitly calls.  Thus, for non-wrappers, you may also declare
-your own C<&_> lexical variable (or parameter) and then use C<call>
-to call whatever is referenced by C<&_>.  (In the absence of such
-a declaration, C<call> magically steals the dispatch list from the
-current dispatcher, and redispatches to the next-most-likely method
-or multi-sub.)
+The entire argument list may be captured by the C<\$args> parameter.
+It can then be passed to C<call> as C<*$args>:
 
-The entire unprocessed argument List can be captured by a C<\$args> parameter.
-It can then be passed to C<call> as C<*$args>.
+    # Double the return value for &thermo
+    &thermo.wrap( -> \$args { call(*$args) * 2 } );
 
-=head2 The C<&?SUB> routine
+The wrapper is not required to call the original routine; it can call another
+C<Code> object by passing the C<Arguments> to its C<call> method:
 
-C<&?SUB> is always an alias for the current subroutine, so you can
-specify tail-recursion on an anonymous sub:
+    # Transparently redirect all calls to &thermo to &other_thermo
+    &thermo.wrap( -> \$args { &other_thermo.call(*$args) } );
+
+Outside a wrapper, C<call> implicitly calls the next-most-likely method
+or multi-sub; see S12 for details.
+
+=head2 The C<&?ROUTINE> object
+
+C<&?ROUTINE> is always an alias for the lexically innermost C<Routine>
+(which may be a C<Sub>, C<Method> or C<SubMethod>), so you can specify
+tail-recursion on an anonymous sub:
 
     my $anonfactorial = sub (Int $n) {
                             return 1 if $n<2;
-                            return $n * &?SUB($n-1);
+                            return $n * &?ROUTINE($n-1);
                         };
 
-C<$?SUBNAME> contains the name of the current subroutine, if any.
+You can get the current routine name by calling C<&?ROUTINE.name>.
+(The outermost routine at a file-scoped compilation unit is always
+named C<&MAIN> in the file's package.)
 
-Note that C<&?SUB> refers to the current single sub, even if it is
+Note that C<&?ROUTINE> refers to the current single sub, even if it is
 declared "multi".  To redispatch to the entire suite under a given short
 name, just use the named form, since there are no anonymous multis.
 
-=head2 The C<&?BLOCK> routine
+=head2 The C<&?BLOCK> object
 
 C<&?BLOCK> is always an alias for the current block, so you can
 specify tail-recursion on an anonymous block:
@@ -1865,7 +1937,10 @@ specify tail-recursion on an anonymous block:
 					:: $n * &?BLOCK($n-1)
 				  };
 
-C<$?BLOCKLABEL> contains the label of the current block, if any.
+C<&?BLOCK.label> contains the label of the current block, if any.
+
+If the innermost lexical block comes is part of a C<Routine>,
+then C<&?BLOCK> just returns the C<Block> object within it.
 
 [Note: to refer to any C<$?> or C<&?> variable at the time the sub or
 block is being compiled, use the C<< COMPILING:: >> pseudopackage.]
