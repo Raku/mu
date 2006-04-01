@@ -117,7 +117,7 @@ plan 28;
 # := actually takes subroutine parameter list
 {
   my $a;
-  eval '(+$a) := (:a<foo>)';
+  eval '(:$a) := (:a<foo>)';
   is($a, "foo", "bound keyword", :todo);
   my @tail;
   eval '($a, *@tail) := (1, 2, 3)';
