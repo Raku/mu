@@ -13,9 +13,9 @@ Allison Randal <al@shadowed.net>
 
    Maintainer: Patrick Michaud <pmichaud@pobox.com>
    Date: 24 Jun 2002
-   Last Modified: 25 Feb 2006
+   Last Modified: 1 Apr 2006
    Number: 5
-   Version: 12
+   Version: 13
 
 This document summarizes Apocalypse 5, which is about the new regex
 syntax.  We now try to call them "rules" because they haven't been
@@ -1120,18 +1120,18 @@ I<result object>, which is usually the entire matched string:
 
 =item *
 
-When called as a closure, a Match object evaluates to its underlying
+When used as a scalar, a Match object evaluates to its underlying
 result object.  Usually this is just the entire match string, but
 you can override that by calling C<return> inside a rule:
 
-    my $moose = m:{
+    my $moose = $(m:{
         <antler> <body>
         { return Moose.new( body => $<body>().attach($<antler>) ) }
         # match succeeds -- ignore the rest of the rule
-    }.();
+    });
 
-C<$()> is a shorthand for C<$/.()> or C<$/()>.  The result object
-may be of any type, not just a string.
+C<$()> is a shorthand for C<$($/)>.  The result object may be of any type,
+not just a string.
 
 You may also capture a subset of the match as the result object using
 the C<< <(...)> >> construct:
@@ -1149,8 +1149,8 @@ which returns whether the match had succeeded.
 
 This means that these two work the same:
 
-    / <moose> { $<moose>.() as Moose } /
-    / <moose> { $<moose>    as Moose } /
+    / <moose> { return $$<moose> as Moose } /
+    / <moose> { return $<moose>  as Moose } /
 
 =item *
 
@@ -1172,8 +1172,13 @@ To get all the captures into a string, use a "zen" slice:
 
      $mystring = "{ m:w/ (\S+) => (\S+)/[] }";
 
+Or cast it into an array:
+
+     $mystring = "@( m:w/ (\S+) => (\S+)/ )";
+
 Note that, as a scalar variable, C<$/> doesn't automatically flatten
-in list context.  Use C<@$/> or C<$/[]> to flatten as an array.
+in list context.  Use C<@()> as a shorthand for C<@($/)> to flatten
+the positional captures under list context.
 
 =item *
 
@@ -1185,8 +1190,8 @@ is visible.  (But it is erroneous to use the same name for two different
 capture datatypes.)
 
 Note that, as a scalar variable, C<$/> doesn't automatically flatten
-in list context.  Use C<%$/> or C<$/{}> to flatten as a hash, or bind
-it to a variable of the appropriate type.
+in list context.  Use C<%()> as a shorthand for C<%($/)> to flatten as a
+hash, or bind it to a variable of the appropriate type.
 
 =item *
 
