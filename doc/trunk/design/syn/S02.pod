@@ -399,10 +399,15 @@ You may cast C<Arguments> to other types with a prefix sigil operator:
     $$args;         # same as "$args as Scalar" or "Scalar($args)"
     @$args;         # same as '$args as Array"  or "Array($args)"
     %$args;         # same as '$args as Hash"   or "Hash($args)"
-    &$args;         # same as '$args as Code"   or "Hash($args)"
+    &$args;         # same as '$args as Code"   or "Code($args)"
 
 Casted as an array, you can access to all positionals.  Casted as a hash, all
 nameds.  As a scalar, the invocant.  As a code, the slurpy nameless block.
+
+All prefix sigil operators accept one positional argument, evaluated in
+scalar context as a rvalue.  They can interpolate in strings if called with
+parentheses.  The C<$()>, C<@()> and C<%()> forms defaults to C<$/> as the
+implicit argument.
 
 =item *
 
