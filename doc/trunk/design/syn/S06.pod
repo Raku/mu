@@ -338,6 +338,8 @@ this is not enforced, and custom arg list processors are certainly
 possible on those arguments that are bound to a final slurpy or
 arglist variable.)
 
+=head2 Named arguments
+
 Named arguments are recognized syntactically at the
 "comma" level.  Pairs intended as positional arguments rather than
 named arguments must be isolated by extra parens:
@@ -405,36 +407,34 @@ put into the named slot of the C<Arguments> structure.  Hence they may be
 bound to positionals only by name, not as ordinary positional C<Pair>
 objects.  Leftover named arguments can be slurped into a slurpy hash.
 
-After the positional and named arguments, all the rest of the arguments
-are taken to be list arguments.  Any pairs within the list are taken
-to be list elements rather than named arguments, and show up as C<Pair>
-arguments even if the compiler marked them as named.
+Because named and positional arguments can be freely mixed, the
+programmer always needs to disambiguate pairs literals from named
+arguments with parenthesis:
 
-It is possible that named pairs are not really a separate type; it
-would be sufficient to have a bit somewhere in the Pair that can be
-interrogated under the C<.named> property.  The compiler is allowed to
-stop marking "named" pairs at the first C<< <== >>, but the code that
-converts unused positional arguments to implicit slurpy list needs to
-be careful to clear the C<.named> property on arguments so converted.
-For instance, if you say
-
+    # Named argument "a"
     push @array, 1, 2, :a<b>;
 
-the compiler cannot know that the slurpy list starts at 1, so it markes
-:a<b> as a named pair.  But that mark needs to be cleared, or
+    # Pair object (a=>'b')
+    push @array, 1, 2, (:a<b>);
 
-    say pop(@array);
+Perl 6 allows multiple same-named arguments, and records the relative
+order of arguments with the same name.  When there are more than one
+argument, the C<@> sigil in the parameter list causes the arguments
+to be concatenated:
 
-will then think you said:
+    sub fun (Int @x) { ... }
+    fun( x => 1, x => 2 );  # @x := (1, 2)
 
-    say *pop(@array);
+Other sigils binds only to the I<last> argument with that name:
 
-and treat :a<b> as a named argument to print, which is not what you want.
+    sub fun (Int $x) { ... }
+    f( x => 1, x => 2 );    # $x := 2
 
-In any event, the named parameters need to be kept in the list until
-bound.  An implementation that pulls named parameters out of the list
-into a hash prematurely will lose the ordering of the push above,
-for instance.
+This means a defaults must come I<before> known named parameters,
+similar to how hash constructors work:
+
+    # Allow "x" and "y" in %defaults be overrided
+    f( *%defaults, x => 1, y => 2 );
 
 =head2 Invocant parameters
 
