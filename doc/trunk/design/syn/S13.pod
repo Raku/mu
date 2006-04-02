@@ -116,3 +116,17 @@ C<%?DEEPMAGIC> compiler hash.  Pragmas can influence the contents of
 this hash over a lexical scope, so you could have different policies
 on magical autogeneration.  The default mappings correspond to the
 standard fallback mappings of Perl 5 overloading.
+
+=head1 Type Casting
+
+A class can use the C<< *infix:<as> >> submethod to declare that its objects
+can be casted to some other class:
+
+    multi submethod *infix:<as> (IO)  { $*OUT }
+    multi submethod *infix:<as> (Int) { 1 }
+    multi submethod *infix:<as> (Str) { "Hello" }
+
+With the above declaration, C<$obj as "foo"> is equivalent to C<$obj as Str>,
+because the multi dispatch cares only about the class.
+
+=cut
